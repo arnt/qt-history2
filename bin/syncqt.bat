@@ -15,13 +15,13 @@ goto endofperl
 @rem ';
 #!/usr/bin/perl
 ############################################################################
-# $Id: //depot/qt/main/bin/syncqt.bat#15 $
+# $Id: //depot/qt/main/bin/syncqt.bat#16 $
 #
-# Synchronizes Qt header files - internal Troll Tech tool.
+# Synchronizes Qt header files - internal Trolltech tool.
 #   - Creates symlinks on Unix.
 #   - Copies files on Windows.
 #
-# Copyright (C) 1997-1998 by Troll Tech AS.  All rights reserved.
+# Copyright (C) 1997-1998 by Trolltech AS.  All rights reserved.
 #
 ############################################################################
 
@@ -46,22 +46,18 @@ while ( $#ARGV >= 0 ) {
 
 undef $/;
 
-@dirs = ( "src/tools",
-	  "src/kernel",
-	  "src/widgets",
-	  "src/dialogs",
-	  "src/compat",
-	  "src/opengl",
-	  "src/network",
-	  "extensions/opengl/src",
-	  "extensions/nsplugin/src",
-	  "src/3rdparty/zlib" );
+opendir SRC, "$basedir/src";
+@dirs = map { -d "$basedir/src/$_" ? "src/$_" : () } readdir(SRC);
+closedir SRC;
+@dirs = ( @dirs, "extensions/xt/src", "extensions/nsplugin/src" );
 
 foreach $p ( @dirs ) {
-    chdir "$basedir/$p";
-    @ff = find_files( ".", "^[a-z0-9]*(?:_[^p].*)?\\.h\$" , 0 );
-    foreach ( @ff ) { $_ = "$p/$_"; }
-    push @files, @ff;
+    if ( -d "$basedir/$p" ) {
+	chdir "$basedir/$p";
+	@ff = find_files( ".", "^[a-z0-9]*(?:_[^p].*)?\\.h\$" , 0 );
+	foreach ( @ff ) { $_ = "$p/$_"; }
+	push @files, @ff;
+    }
 }
 
 if ( check_unix() ) {
@@ -75,6 +71,7 @@ if ( check_unix() ) {
 	}
     }
 } else {
+    mkdir $includedir, 0777;
     foreach $f ( @files ) {
 	$h = $f;
 	$h =~ s-.*/--g;

@@ -7,11 +7,17 @@
 **
 ** Copyright (C) 1992-2000 Troll Tech AS.  All rights reserved.
 **
-** This file is part of the Qt GUI Toolkit.
+** This file is part of the kernel module of the Qt GUI Toolkit.
 **
-** Licensees holding valid Qt Professional Edition licenses may use this
-** file in accordance with the Qt Professional Edition License Agreement
-** provided with the Qt Professional Edition.
+** This file may be distributed under the terms of the Q Public License
+** as defined by Troll Tech AS of Norway and appearing in the file
+** LICENSE.QPL included in the packaging of this file.
+**
+** Licensees holding valid Qt Enterprise Edition or Qt Professional Edition
+** licenses may use this file in accordance with the Qt Commercial License
+** Agreement provided with the Software.  This file is part of the kernel
+** module and therefore may only be used if the kernel module is specified
+** as Licensed on the Licensee's License Certificate.
 **
 ** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 ** information about the Professional Edition licensing.
@@ -880,6 +886,7 @@ void QPainter::drawRect( int x, int y, int w, int h )
     if ( w <= 0 || h <= 0 )
 	fix_neg_rect( &x, &y, &w, &h );
 
+    gfx->setSourceOffset( x-bro.x(), y-bro.y() );
     gfx->drawRect(x,y,w,h);
 }
 
@@ -1384,6 +1391,8 @@ void QPainter::drawTiledPixmap( int x, int y, int w, int h,
     else
 	sy = sy % sh;
 
+    map( x, y, &x, &y );
+
     gfx->setSource(&pixmap);
     gfx->setSourceOffset(sx,sy);
     if ( (pixmap.depth() == 32) && (qt_screen->depth()!=32) )
@@ -1511,7 +1520,7 @@ void QPainter::drawText( int x, int y, const QString &str, int len )
 		paint.drawText( tx, ty, str, len );
 		paint.end();
 		// Now we have an image with r,g,b gray scale set.
-		// Put this in alpha channel and set pixmap to pen colour.
+		// Put this in alpha channel and set pixmap to pen color.
 		// Not the best but it works.
 		for ( int y = 0; y < ah; y++ ) {
 		    uint *p = (uint *)pm.scanLine(y);

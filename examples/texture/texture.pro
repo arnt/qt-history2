@@ -1,5 +1,5 @@
 TEMPLATE	= app
-CONFIG		= qt opengl warn_on release
+CONFIG		+= qt opengl warn_on release
 HEADERS		= gltexobj.h \
 		  globjwin.h
 SOURCES		= gltexobj.cpp \

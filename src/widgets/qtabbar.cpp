@@ -5,15 +5,17 @@
 **
 ** Copyright (C) 1992-2000 Troll Tech AS.  All rights reserved.
 **
-** This file is part of the Qt GUI Toolkit.
+** This file is part of the widgets module of the Qt GUI Toolkit.
 **
 ** This file may be distributed under the terms of the Q Public License
 ** as defined by Troll Tech AS of Norway and appearing in the file
 ** LICENSE.QPL included in the packaging of this file.
 **
-** Licensees holding valid Qt Professional Edition licenses may use this
-** file in accordance with the Qt Professional Edition License Agreement
-** provided with the Qt Professional Edition.
+** Licensees holding valid Qt Enterprise Edition or Qt Professional Edition
+** licenses may use this file in accordance with the Qt Commercial License
+** Agreement provided with the Software.  This file is part of the widgets
+** module and therefore may only be used if the widgets module is specified
+** as Licensed on the Licensee's License Certificate.
 **
 ** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 ** information about the Professional Edition licensing, or see
@@ -400,26 +402,30 @@ void QTabBar::paintLabel( QPainter* p, const QRect& br,
 	p->drawPixmap( br.left()+2, br.center().y()-pixh/2, pixmap );
     }
 
-   if ( t->enabled && isEnabled()  ) {
+    QRect tr = r;
+    if ( t->id == currentTab() )
+ 	tr.setBottom( tr.bottom() - style().defaultFrameWidth() );
+    
+    if ( t->enabled && isEnabled()  ) {
 #if defined(_WS_WIN32_)
-       if ( colorGroup().brush( QColorGroup::Button ) == colorGroup().brush( QColorGroup::Background ) )
-	   p->setPen( colorGroup().buttonText() );
-       else
-	   p->setPen( colorGroup().foreground() );
+	if ( colorGroup().brush( QColorGroup::Button ) == colorGroup().brush( QColorGroup::Background ) )
+	    p->setPen( colorGroup().buttonText() );
+	else
+	    p->setPen( colorGroup().foreground() );
 #else
-       p->setPen( colorGroup().foreground() );
+	p->setPen( colorGroup().foreground() );
 #endif
-       p->drawText( r, AlignCenter | ShowPrefix, t->label );
+	p->drawText( tr, AlignCenter | ShowPrefix, t->label );
     } else if ( style() == MotifStyle ) {
 	p->setPen( palette().disabled().foreground() );
-	p->drawText( r, AlignCenter | ShowPrefix, t->label );
+	p->drawText( tr, AlignCenter | ShowPrefix, t->label );
     } else { // Windows style, disabled
 	p->setPen( colorGroup().light() );
-	QRect wr = r;
+	QRect wr = tr;
 	wr.moveBy( 1, 1 );
 	p->drawText( wr, AlignCenter | ShowPrefix, t->label );
 	p->setPen( palette().disabled().foreground() );
-	p->drawText( r, AlignCenter | ShowPrefix, t->label );
+	p->drawText( tr, AlignCenter | ShowPrefix, t->label );
     }
 
     if ( !has_focus )
@@ -597,7 +603,7 @@ void QTabBar::show()
 
 int QTabBar::currentTab() const
 {
-    QTab * t = l->last();
+    const QTab * t = l->getLast();
 
     return t ? t->id : -1;
 }

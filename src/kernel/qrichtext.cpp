@@ -7,15 +7,17 @@
 **
 ** Copyright (C) 1992-2000 Troll Tech AS.  All rights reserved.
 **
-** This file is part of the Qt GUI Toolkit.
+** This file is part of the kernel module of the Qt GUI Toolkit.
 **
 ** This file may be distributed under the terms of the Q Public License
 ** as defined by Troll Tech AS of Norway and appearing in the file
 ** LICENSE.QPL included in the packaging of this file.
 **
-** Licensees holding valid Qt Professional Edition licenses may use this
-** file in accordance with the Qt Professional Edition License Agreement
-** provided with the Qt Professional Edition.
+** Licensees holding valid Qt Enterprise Edition or Qt Professional Edition
+** licenses may use this file in accordance with the Qt Commercial License
+** Agreement provided with the Software.  This file is part of the kernel
+** module and therefore may only be used if the kernel module is specified
+** as Licensed on the Licensee's License Certificate.
 **
 ** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 ** information about the Professional Edition licensing, or see
@@ -320,11 +322,11 @@ QRichText::QRichText( const QString &doc, const QFont& font,
 
 // constructor for nested text in text (tables, etc.)
 QRichText::QRichText( const QMap<QString, QString> &attr, const QString &doc, int& pos,
-			const QStyleSheetItem* style, const QTextCharFormat& fmt,
+			const QStyleSheetItem* basestyle, const QTextCharFormat& fmt,
 			const QString& context,
 			int margin,  const QMimeSourceFactory* factory, const QStyleSheet* sheet  )
     :QTextParagraph( 0, new QTextFormatCollection(),
-	    QTextCharFormat( fmt ), ( base = new QStyleSheetItem(*style) ), attr )
+	    QTextCharFormat( fmt ), ( base = new QStyleSheetItem(*basestyle) ), attr )
 {
     contxt = context;
 
@@ -1248,7 +1250,7 @@ int QTextParagraph::numberOfSubParagraph( QTextParagraph* subparagraph, bool onl
     int i = 1;
     if ( attributes_.contains( "start" ) )
 	i = attributes_["start"].toInt();
-    
+
     while ( it && it != subparagraph ) {
 	if ( !onlyListItems || it->style->displayMode() == QStyleSheetItem::DisplayListItem )
 	    ++i;
@@ -1789,9 +1791,13 @@ void QRichTextFormatter::drawLine( QPainter* p, int ox, int oy,
     QRect r(gx-ox+lmargin, gy-oy, realWidth-lmargin-rmargin, height);
     bool clipMode = format()->customItem() && format()->customItem()->noErase();
 
+    bool isPrint = p->device()->devType() == QInternal::Printer;
+
     if (!clipMode )
 	to.erase( p, r );
 
+    
+    
     if ( first == 0 ) {
 	//#### TODO cache existence of label
 	QTextParagraph*it = paragraph;
@@ -1811,6 +1817,9 @@ void QRichTextFormatter::drawLine( QPainter* p, int ox, int oy,
     }
 
     QString c;
+    QString printString;
+    int printX = 0;
+    int printY = 0;
     while ( !atEndOfLine() ) {
 	QTextCharFormat *fmt  = format();
 	if ( !fmt->anchorHref().isEmpty() ) {
@@ -1873,8 +1882,19 @@ void QRichTextFormatter::drawLine( QPainter* p, int ox, int oy,
  		    c[i] = ' ';
  	    }
 #endif
-	    if ( l )
-		p->drawText(gx+currentx-ox, gy-oy+base, c, l );
+	    if ( l ) {
+		if ( isPrint ) {
+		    if ( printString.isEmpty() ) {
+			printString = c;
+			printX = gx + currentx - ox;
+			printY = gy-oy+base;
+		    }  else {
+			printString += c.left(l);
+		    }
+		} else {
+		    p->drawText(gx+currentx-ox, gy-oy+base, c, l );
+		}
+	    }
 	    if ( only_partially_highlighted ) {
 		p->setClipRect( highlight );
 		p->setPen( cg.highlightedText() );
@@ -1882,14 +1902,24 @@ void QRichTextFormatter::drawLine( QPainter* p, int ox, int oy,
 		    p->drawText(gx+currentx-ox, gy-oy+base, c, l );
 		p->setClipping( FALSE );
 	    }
+	    
 	}
 	if ( selected )
 	    p->setPen( ( QPaintDeviceMetrics(p->device()).depth() > 1) ? fmt->color() : cg.text() );
+	
+	if ( isPrint && !printString.isEmpty() && !paragraph->text.haveSameFormat( current, current + 1) ) {
+	    p->drawText( printX, printY, printString );
+	    printString = QString::null;
+	}
 	gotoNextItem( p );
 	gy = y();
     }
+    if ( isPrint && !printString.isEmpty() ) {
+	p->drawText( printX, printY, printString );
+	printString = QString::null;
+    }
 
-    if (clipMode && p->device()->devType() != QInternal::Printer ) {
+    if (clipMode && !isPrint ) {
 	p->setClipRegion( backgroundRegion );
 	to.erase( p, r);
 	p->setClipping( FALSE );

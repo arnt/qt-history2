@@ -7,15 +7,17 @@
 **
 ** Copyright (C) 1992-2000 Troll Tech AS.  All rights reserved.
 **
-** This file is part of the Qt GUI Toolkit.
+** This file is part of the widgets module of the Qt GUI Toolkit.
 **
 ** This file may be distributed under the terms of the Q Public License
 ** as defined by Troll Tech AS of Norway and appearing in the file
 ** LICENSE.QPL included in the packaging of this file.
 **
-** Licensees holding valid Qt Professional Edition licenses may use this
-** file in accordance with the Qt Professional Edition License Agreement
-** provided with the Qt Professional Edition.
+** Licensees holding valid Qt Enterprise Edition or Qt Professional Edition
+** licenses may use this file in accordance with the Qt Commercial License
+** Agreement provided with the Software.  This file is part of the widgets
+** module and therefore may only be used if the widgets module is specified
+** as Licensed on the Licensee's License Certificate.
 **
 ** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 ** information about the Professional Edition licensing, or see
@@ -254,20 +256,10 @@ static const int wpwidth = 2; // WinPanel lwidth
 
 void QFrame::setFrameStyle( int style )
 {
-#if defined(CHECK_RANGE)
-#if 0
-    bool shape	= (style & MShape)  != 0;
-    bool shadow = (style & MShadow) != 0;
-    if ( shape != shadow )
-	qWarning( "QFrame::setFrameStyle: (%s) Incomplete frame style",
-		 name( "unnamed" ) );
-#endif
-#endif
-    fstyle = (short)style;
     //   If this is a line, it may stretch in the direction of the
     //   line, but it is fixed in the other direction. If this is a
     //   normal frame, use QWidget's default behavior.
-    switch (fstyle & MShape) {
+    switch (style & MShape) {
     case HLine:
 	setSizePolicy( QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Fixed ) );
 	break;
@@ -276,10 +268,10 @@ void QFrame::setFrameStyle( int style )
 	break;
     default:
 	// only reset if it was hline or vline
-	if ( sizePolicy().horData() == QSizePolicy::Minimum && sizePolicy().verData() == QSizePolicy::Fixed ||
-	     sizePolicy().horData() == QSizePolicy::Fixed && sizePolicy().verData() == QSizePolicy::Minimum )
+	if ( (fstyle & MShape) == HLine || (fstyle & MShape) == VLine ) 
 	    setSizePolicy( QSizePolicy( QSizePolicy::Preferred, QSizePolicy::Preferred ) );
     }
+    fstyle = (short)style;
     updateFrameWidth();
 }
 
@@ -596,8 +588,8 @@ void QFrame::drawFrame( QPainter *p )
 #ifdef QT_NO_DRAWUTIL
     p->setPen( black ); // ####
     p->drawRect( r ); //### a bit too simple
-#else    
-    
+#else
+
     const QColorGroup & g = colorGroup();
 
     switch ( type ) {
@@ -743,7 +735,7 @@ void QFrame::drawFrameMask( QPainter* p )
 #ifdef QT_NO_DRAWUTIL
     p->setPen( color1 );
     p->drawRect( r ); //### a bit too simple
-#else    
+#else
     QColorGroup g(color1, color1, color1, color1, color1, color1, color1, color1, color0);
 
     switch ( type ) {

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#397 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#398 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -46,37 +46,46 @@
 #include <mywinsock.h>
 #endif
 
-#if !defined(QT_MAKEDLL)
-#define QAPPLICATION_WIN_CPP
-#include "qtinit_win.cpp"
+#ifndef QT_MAKEDLL
 #include "qtmain_win.cpp"
 #endif
 
+extern void qt_dispatchEnterLeave( QWidget*, QWidget* ); // qapplication.cpp
 
 /*
-  Some theory about the QApplication/QBaseApplication/QNonBaseApplication...
-
-  -DQT_DLL code that #includes qapplication.h (ie. applications that want to
-  use the Qt DLL) get a QApplication class which is a simple derived class
-  of the QBaseApplication which has all the functionality documented for
-  QApplication.
-
-  Qt code that does not declare any QApplication::* members works the same
-  as the -DQT_DLL code.
-
-  Qt code that declares some QApplication::* needs to ensure that if a
-  DLL is being built, those methods are actually declared as members of
-  QBaseApplication - they doe this by using the preprocessor code below.
-
-  The QNonBaseApplication is a typedef for the real QApplication class that
-  is needed in a few cases during the scope of the defined QApplication.
-
-  The whole point of this is to ensure that the user code, which links
-  with the static qtmain.lib, causes the Qt DLL to load.
+  Internal functions.
 */
-#if defined(QT_MAKEDLL)
-#define QApplication QBaseApplication
-#endif
+
+Q_EXPORT
+void qt_draw_tiled_pixmap( HDC, int, int, int, int,
+			   const QPixmap *, int, int );
+
+void qt_erase_background( HDC hdc, int x, int y, int w, int h,
+			  const QColor &bg_color,
+			  const QPixmap *bg_pixmap, int off_x, int off_y )
+{
+    if ( bg_pixmap && bg_pixmap->isNull() )	// empty background
+	return;
+    HPALETTE oldPal;
+    if ( QColor::hPal() ) {
+	oldPal = SelectPalette( hdc, QColor::hPal(), FALSE );
+	RealizePalette( hdc );
+    }
+    if ( bg_pixmap ) {
+	qt_draw_tiled_pixmap( hdc, x, y, w, h, bg_pixmap, off_x, off_y );
+    } else {
+	HBRUSH brush = CreateSolidBrush( bg_color.pixel() );
+	HBRUSH oldBrush = (HBRUSH)SelectObject( hdc, brush );
+	PatBlt( hdc, x, y, w, h, PATCOPY );
+	SelectObject( hdc, oldBrush );
+	DeleteObject( brush );
+    }
+    if ( QColor::hPal() ) {
+	SelectPalette( hdc, oldPal, TRUE );
+	RealizePalette( hdc );
+    }
+}
+
 
 
 
@@ -1230,38 +1239,6 @@ void qt_draw_tiled_pixmap( HDC hdc, int x, int y, int w, int h,
 }
 
 
-#if defined(QT_BASEAPP)
-typedef (*qt_ebg_fn)( HDC, int, int, int, int, const QColor &,
-		      const QPixmap *, int, int );
-
-static qt_ebg_fn qt_ebg_inst = 0;
-
-Q_EXPORT void qt_ebg( void *p )
-{
-    qt_ebg_inst = (qt_ebg_fn)p;
-}
-
-void qt_erase_bg( HDC hdc, int x, int y, int w, int h,
-		  const QColor &bg_color,
-		  const QPixmap *bg_pixmap, int off_x, int off_y )
-{
-    if ( qt_ebg_inst )
-	(*qt_ebg_inst)( hdc, x, y, w, h, bg_color, bg_pixmap, off_x, off_y );
-}
-
-#else
-
-#define QT_ERASE_BACKGROUND
-
-void qt_erase_bg( HDC hdc, int x, int y, int w, int h,
-		  const QColor &bg_color,
-		  const QPixmap *bg_pixmap, int off_x, int off_y )
-{
-    qt_erase_background( hdc, x, y, w, h, bg_color, bg_pixmap, off_x, off_y );
-}
-
-#endif
-
 
 /*****************************************************************************
   Main event loop
@@ -1271,16 +1248,12 @@ int QApplication::exec()
 {
     quit_now = FALSE;
     quit_code = 0;
+#if defined(QT_THREAD_SUPPORT)
+    qApp->unlock();
+#endif
     enter_loop();
     return quit_code;
 }
-
-#if defined(QT_THREAD_SUPPORT)
-void qSystemWarning( const QString& );
-void qt_wait_for_exec();
-void qt_ack_pipe();
-HANDLE qt_gui_thread();
-#endif
 
 static
 bool winPeekMessage( MSG* msg, HWND hWnd, UINT wMsgFilterMin,
@@ -1306,56 +1279,74 @@ bool QApplication::processNextEvent( bool canWait )
 {
     MSG	 msg;
 
+#if defined(QT_THREAD_SUPPORT)
+    qApp->lock();
+#endif
     emit guiThreadAwake();
 
     sendPostedEvents();
 #if defined(QT_THREAD_SUPPORT)
     qApp->unlock( FALSE );
 #endif
+
     if ( canWait ) {				// can wait if necessary
 	if ( numZeroTimers ) {			// activate full-speed timers
 	    int ok;
 	    while ( numZeroTimers &&
 		!(ok=winPeekMessage(&msg,0,0,0,PM_REMOVE)) ) {
+#if defined(QT_THREAD_SUPPORT)
+		qApp->lock();
+#endif
 		activateZeroTimers();
+#if defined(QT_THREAD_SUPPORT)
+		qApp->unlock( FALSE );
+#endif
 	    }
 	    if ( !ok )	{			// no event
 		return FALSE;
 	    }
 	} else {
 	    if ( !winGetMessage(&msg,0,0,0) ) {
+#if defined(QT_THREAD_SUPPORT)
+		qApp->lock();
+#endif
 		quit();				// WM_QUIT received
+#if defined(QT_THREAD_SUPPORT)
+		qApp->unlock( FALSE );
+#endif
 		return FALSE;
 	    }
 	}
     } else {					// no-wait mode
 	if ( !winPeekMessage(&msg,0,0,0,PM_REMOVE) ) { // no pending events
 	    if ( numZeroTimers > 0 ) { 		// there are 0-timers
+#if defined(QT_THREAD_SUPPORT)
+		qApp->lock();
+#endif
 		activateZeroTimers();
+#if defined(QT_THREAD_SUPPORT)
+		qApp->unlock( FALSE );
+#endif
 	    }
 	    return FALSE;
 	}
     }
-#if defined(QT_THREAD_SUPPORT)
-    qApp->lock();
-
-    if ( ( msg.message == WM_USER+999 ) && msg.lParam ) {
-	TranslateMessage( &msg );
-	qApp->unlock( FALSE );
-	qt_ack_pipe();
-	qt_wait_for_exec();
-	qApp->lock();
-	app_exit_loop = FALSE;
-	return FALSE;
-    }
-#endif
 
     if ( msg.message == WM_TIMER ) {		// timer message received
+#if defined(QT_THREAD_SUPPORT)
+	qApp->lock();
+#endif
 	dispatchTimer( msg.wParam, &msg );
+#if defined(QT_THREAD_SUPPORT)
+	qApp->unlock( FALSE );
+#endif
 	return TRUE;
     }
     TranslateMessage( &msg );			// translate to WM_CHAR
 
+#if defined(QT_THREAD_SUPPORT)
+    qApp->lock();
+#endif
     if ( qt_winver & Qt::WV_NT_based )
 	DispatchMessage( &msg );		// send to QtWndProc
     else
@@ -1363,6 +1354,9 @@ bool QApplication::processNextEvent( bool canWait )
     if ( configRequests )			// any pending configs?
 	qWinProcessConfigRequests();
     sendPostedEvents();
+#if defined(QT_THREAD_SUPPORT)
+    qApp->unlock( FALSE );
+#endif
 
     return TRUE;
 }
@@ -1381,21 +1375,6 @@ void QApplication::processEvents( int maxtime )
 
 void QApplication::wakeUpGuiThread()
 {
-    if ( !PostThreadMessage( (DWORD)qt_gui_thread() , WM_USER+999, 0, 0 ) ) {
-#ifdef CHECK_RANGE
-	qSystemWarning("QApplication: Invalid thread ID");
-#endif
-    }
-}
-
-void QApplication::guiThreadTaken()
-{
-    if ( !PostThreadMessage( (DWORD)qt_gui_thread() , WM_USER+999, 0, 1 ) ) {
-#ifdef CHECK_RANGE
-	qSystemWarning("QApplication: Couldn't take GUI thread");
-#endif
-    }
-
 }
 
 #endif
@@ -1454,7 +1433,7 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
     case WM_QUERYENDSESSION: {
 	if ( sm_smActive ) // bogus message from windows
 	    return TRUE;
-	
+
 	sm_smActive = TRUE;
 	sm_blockUserInput = TRUE; // prevent user-interaction outside interaction windows
 	sm_cancel = FALSE;
@@ -1470,11 +1449,11 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 	sm_smActive = FALSE;
 	sm_blockUserInput = FALSE;
 	bool endsession = (bool) wParam;
-	
+
 	if ( endsession ) {
 	    qApp->quit();
 	}
-	
+
 	return 0;
     }
 
@@ -1543,7 +1522,7 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 	    }
 	    widget->translateMouseEvent( msg );	// mouse event
 	} else
-	    switch ( message ) {	
+	    switch ( message ) {
 	    case WM_KEYDOWN:			// keyboard event
 	    case WM_KEYUP:
 	    case WM_SYSKEYDOWN:
@@ -1583,11 +1562,7 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 			result = FALSE;
 		    // generate leave event also when the caret enters
 		    // the non-client area.
-		    QWidget *curWidget = QWidget::find(curWin);
-		    if ( curWidget ) {
-			QEvent leave( QEvent::Leave );
-			QApplication::sendEvent( curWidget, &leave );
-		    }
+		    qt_dispatchEnterLeave( 0, QWidget::find(curWin) );
 		    curWin = 0;
 		}
 	        break;
@@ -1619,11 +1594,7 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 			oy = widget->y();
 		    }
 		    GetClientRect( hwnd, &r );
-#if defined(QT_ERASE_BACKGROUND)
 		    qt_erase_background
-#else
-			qt_erase_bg
-#endif
 			( (HDC)wParam, r.left, r.top,
 			  r.right-r.left, r.bottom-r.top,
 			  widget->backgroundColor(),
@@ -1765,11 +1736,8 @@ void qt_enter_modal( QWidget *widget )
     releaseAutoCapture();
     qt_modal_stack->insert( 0, widget );
     app_do_modal = TRUE;
-    QWidget *w = QWidget::find( (WId)curWin );
-    if ( w ) { // send synthetic leave event
-	QEvent e( QEvent::Leave );
-	QApplication::sendEvent( w, &e );
-    }
+    qt_dispatchEnterLeave( 0, QWidget::find( (WId)curWin  ) ); // send synthetic leave event
+    curWin = 0;
 }
 
 
@@ -1782,11 +1750,8 @@ void qt_leave_modal( QWidget *widget )
 	    QPoint p( QCursor::pos() );
 	    app_do_modal = FALSE; // necessary, we may get recursively into qt_try_modal below
 	    QWidget* w = QApplication::widgetAt( p.x(), p.y(), TRUE );
-	    if ( w ) { // send synthetic enter event
-		curWin = w->winId();
-		QEvent e ( QEvent::Enter );
- 		QApplication::sendEvent( w, &e );
-	    }
+	    qt_dispatchEnterLeave( w, QWidget::find( curWin ) ); // send synthetic enter event
+	    curWin = w? w->winId() : 0;
 	}
     }
     app_do_modal = qt_modal_stack != 0;
@@ -2022,11 +1987,7 @@ static void dispatchTimer( uint timerId, MSG *msg )
 	GetCursorPos( &p );
 	HWND newWin = WindowFromPoint(p);
 	if ( newWin != curWin && QWidget::find(newWin) == 0 ) {
-	    QWidget *curWidget = QWidget::find(curWin);
-	    if ( curWidget ) {
-		QEvent leave( QEvent::Leave );
-		QApplication::sendEvent( curWidget, &leave );
-	    }
+	    qt_dispatchEnterLeave( 0, QWidget::find(curWin) );
 	    curWin = 0;
 	}
     }
@@ -2306,16 +2267,8 @@ bool QETWidget::translateMouseEvent( const MSG &msg )
 	else					// use widget cursor
 	    SetCursor( cursor().handle() );
 	if ( curWin != winId() ) {		// new current window
-	    if ( curWin ) {			// send leave event
-		QWidget *curWidget = QWidget::find(curWin);
-		if ( curWidget ) {
-		    QEvent leave( QEvent::Leave );
-		    QApplication::sendEvent( curWidget, &leave );
-		}
-	    }
+	    qt_dispatchEnterLeave( this, QWidget::find(curWin) );
 	    curWin = winId();
-	    QEvent enter( QEvent::Enter );	// send enter event
-	    QApplication::sendEvent( this, &enter );
 	}
 
 	POINT curPos;
@@ -2629,12 +2582,18 @@ bool QETWidget::translateKeyEvent( const MSG &msg, bool grab )
 	return TRUE;
 
     if ( GetKeyState(VK_SHIFT) < 0 )
-	state |= QMouseEvent::ShiftButton;
+	state |= Qt::ShiftButton;
     if ( GetKeyState(VK_CONTROL) < 0 )
-	state |= QMouseEvent::ControlButton;
+	state |= Qt::ControlButton;
     if ( GetKeyState(VK_MENU) < 0 )
-	state |= QMouseEvent::AltButton;
+	state |= Qt::AltButton;
     //TODO: if it is a pure shift/ctrl/alt keydown, invert state logic, like X
+    if ( msg.lParam & 0xc0000000 ) {
+	state |= Qt::Keypad;
+	//qDebug(  "YES! %x", msg.lParam );
+    } else {
+	//qDebug(  "NO! %x", msg.lParam );
+    }
 
     if ( msg.message == WM_CHAR ) {
 	// a multi-character key not found by our look-ahead
@@ -2658,8 +2617,53 @@ bool QETWidget::translateKeyEvent( const MSG &msg, bool grab )
 	int code = translateKeyCode( msg.wParam );
 	// If the bit 24 of lParm is set you received a enter,
 	// otherwise a Return. (This is the extended key bit)
-	if ((code == Qt::Key_Return) && (msg.lParam & 0x1000000))
+	if ((code == Qt::Key_Return) && (msg.lParam & 0x1000000)) {
 	    code = Qt::Key_Enter;
+	}
+
+	if ( !(msg.lParam & 0x1000000) ) {	// All cursor keys without extended bit
+	    switch ( code ) {
+	    case Key_Left:
+	    case Key_Right:
+	    case Key_Up:
+	    case Key_Down:
+	    case Key_PageUp:
+	    case Key_PageDown:
+	    case Key_Home:
+	    case Key_End:
+	    case Key_Insert:
+	    case Key_Delete:
+	    case Key_Asterisk:
+	    case Key_Plus:
+	    case Key_Minus:
+	    case Key_Period:
+	    case Key_0:
+	    case Key_1:
+	    case Key_2:
+	    case Key_3:
+	    case Key_4:
+	    case Key_5:
+	    case Key_6:
+	    case Key_7:
+	    case Key_8:
+	    case Key_9:
+		state |= Keypad;
+	    default:
+		if ( msg.lParam == 0x004c0001 || msg.lParam == 0xc04c0001 )
+		    state |= Keypad;
+		break;
+	    }
+	} else {				// And some with extended bit
+	    switch ( code ) {
+	    case Key_Enter:
+	    case Key_Slash:
+	    case Key_NumLock:
+		state |= Keypad;
+	    default:
+		break;
+	    }
+	}
+
 	int t = msg.message;
 	if ( t == WM_KEYDOWN || t == WM_IME_KEYDOWN || t == WM_SYSKEYDOWN ) {
 	    // KEYDOWN
@@ -2839,12 +2843,17 @@ bool QETWidget::sendKeyEvent( QEvent::Type type, int code, int ascii,
 			      int state, bool grab, const QString& text,
 			      bool autor )
 {
-    if ( type == QEvent::KeyPress && !grab ) {	// send accel event to tlw
-	QKeyEvent a( QEvent::Accel, code, ascii, state, text, autor );
-	a.ignore();
-	QApplication::sendEvent( topLevelWidget(), &a );
-	if ( a.isAccepted() )
-	    return TRUE;
+    if ( type == QEvent::KeyPress && !grab ) {	// send accel events
+	QKeyEvent aa( QEvent::AccelAvailable, code, ascii, state, text, autor );
+	aa.ignore();
+	QApplication::sendEvent( this, &aa );
+	if ( !aa.isAccepted() ) {
+	    QKeyEvent a( QEvent::Accel, code, ascii, state, text, autor );
+	    a.ignore();
+	    QApplication::sendEvent( topLevelWidget(), &a );
+	    if ( a.isAccepted() )
+		return TRUE;
+	}
     }
     if ( !isEnabled() )
 	return FALSE;
@@ -3143,7 +3152,7 @@ public:
     QSessionManager::RestartHint restartHint;
 };
 
-QSessionManager::QSessionManager( QNonBaseApplication *app, QString &session )
+QSessionManager::QSessionManager( QApplication *app, QString &session )
     : QObject( app, "session manager")
 {
     d = new QSessionManagerData;

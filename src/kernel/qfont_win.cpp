@@ -7,11 +7,17 @@
 **
 ** Copyright (C) 1992-2000 Troll Tech AS.  All rights reserved.
 **
-** This file is part of the Qt GUI Toolkit Professional Edition.
+** This file is part of the kernel module of the Qt GUI Toolkit.
 **
-** Licensees holding valid Qt Professional Edition licenses may use this
-** file in accordance with the Qt Professional Edition License Agreement
-** provided with the Qt Professional Edition.
+** This file may be distributed under the terms of the Q Public License
+** as defined by Troll Tech AS of Norway and appearing in the file
+** LICENSE.QPL included in the packaging of this file.
+**
+** Licensees holding valid Qt Enterprise Edition or Qt Professional Edition
+** licenses may use this file in accordance with the Qt Commercial License
+** Agreement provided with the Software.  This file is part of the kernel
+** module and therefore may only be used if the kernel module is specified
+** as Licensed on the Licensee's License Certificate.
 **
 ** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 ** information about the Professional Edition licensing.
@@ -37,6 +43,7 @@ static HDC   shared_dc	    = 0;		// common dc for all fonts
 static HFONT shared_dc_font = 0;		// used by Windows 95/98
 
 static HFONT stock_sysfont  = 0;
+static int max_font_count = 256;
 
 static inline HFONT systemFont()
 {
@@ -508,25 +515,25 @@ HFONT QFont::create( bool *stockFont, HDC hdc, bool VxF ) const
     lf.lfCharSet	= cs;
 
     int strat = OUT_DEFAULT_PRECIS;
-    if (  styleStrategie() & PreferBitmap ) {
+    if (  styleStrategy() & PreferBitmap ) {
 	strat = OUT_RASTER_PRECIS;
-    } else if ( styleStrategie() & PreferDevice ) {
+    } else if ( styleStrategy() & PreferDevice ) {
 	strat = OUT_DEVICE_PRECIS;
-    } else if ( styleStrategie() & PreferOutline ) {
+    } else if ( styleStrategy() & PreferOutline ) {
 	if ( qt_winver & Qt::WV_NT_based )
 	    strat = OUT_OUTLINE_PRECIS;
 	else
 	    strat = OUT_TT_PRECIS;
-    } else if ( styleStrategie() & ForceOutline ) {
+    } else if ( styleStrategy() & ForceOutline ) {
 	strat = OUT_TT_ONLY_PRECIS;
     }
 
     lf.lfOutPrecision   = strat;
 
     int qual = DEFAULT_QUALITY;
-    if ( styleStrategie() & PreferMatch )
+    if ( styleStrategy() & PreferMatch )
 	qual = DRAFT_QUALITY;
-    else if ( styleStrategie() & PreferQuality )
+    else if ( styleStrategy() & PreferQuality )
 	qual = PROOF_QUALITY;
 
     lf.lfQuality	= qual;
@@ -713,6 +720,52 @@ int QFontMetrics::rightBearing(QChar ch) const
     }
 }
 
+static ushort char_table[] = {
+	40,
+	67,
+	70,
+	75,
+	86,
+	88,
+	89,
+	91,
+	102,
+	114,
+	124,
+	127,
+	205,
+	645,
+	884,
+	922,
+	1070,
+	3636,
+	3660,
+	12386,
+	0
+};
+	
+
+static int get_min_left_bearing( const QFontMetrics *f )
+{
+    int i = 0;
+    int b = 0;
+    while ( char_table[ i ] != 0 ) {
+	b = QMIN( b, f->leftBearing( QChar( char_table[ i ] ) ) );
+	++i;
+    }
+    return b - 1;
+}
+
+static int get_min_right_bearing( const QFontMetrics *f )
+{
+    int i = 0;
+    int b = 0;
+    while ( char_table[ i ] != 0 ) {
+	b = QMIN( b, f->rightBearing( QChar( char_table[ i ] ) ) );
+	++i;
+    }
+    return b - 1;
+}
 
 int QFontMetrics::minLeftBearing() const
 {
@@ -725,7 +778,6 @@ int QFontMetrics::minLeftBearing() const
 
     return def->lbearing;
 }
-
 
 int QFontMetrics::minRightBearing() const
 {
@@ -741,36 +793,53 @@ int QFontMetrics::minRightBearing() const
 	    if ( qt_winver & Qt::WV_NT_based ) {
 		TEXTMETRIC *tm = TMW;
 		n = tm->tmLastChar - tm->tmFirstChar+1;
-		abc = new ABC[n];
-		GetCharABCWidths(hdc(),tm->tmFirstChar,tm->tmLastChar,abc);
+		if ( n <= max_font_count ) {
+		    abc = new ABC[n];
+		    GetCharABCWidths(hdc(),tm->tmFirstChar,tm->tmLastChar,abc);
+		} else {
+		    ml = get_min_left_bearing( this );
+		    mr = get_min_right_bearing( this );
+		}
 	    } else {
 		TEXTMETRICA *tm = TMA;
 		n = tm->tmLastChar - tm->tmFirstChar+1;
-		abc = new ABC[n];
-		GetCharABCWidthsA(hdc(),tm->tmFirstChar,tm->tmLastChar,abc);
+		if ( n <= max_font_count ) {
+		    abc = new ABC[n];
+		    GetCharABCWidthsA(hdc(),tm->tmFirstChar,tm->tmLastChar,abc);
+		} else {
+		    ml = get_min_left_bearing( this );
+		    mr = get_min_right_bearing( this );
+		}
 	    }
-	    ml = abc[0].abcA;
-	    mr = abc[0].abcC;
-	    for (int i=1; i<n; i++) {
-		ml = QMIN(ml,abc[i].abcA);
-		mr = QMIN(mr,abc[i].abcC);
+	    if ( n <= max_font_count ) {
+		ml = abc[0].abcA;
+		mr = abc[0].abcC;
+    		for (int i=1; i<n; i++) {
+		    ml = QMIN(ml,abc[i].abcA);
+		    mr = QMIN(mr,abc[i].abcC);
+		}
+		delete [] abc;
 	    }
-	    delete [] abc;
 	} else {
 	    if ( qt_winver & Qt::WV_NT_based ) {
 		TEXTMETRIC *tm = TMW;
 		int n = tm->tmLastChar - tm->tmFirstChar+1;
-		ABCFLOAT *abc = new ABCFLOAT[n];
-		GetCharABCWidthsFloat(hdc(),tm->tmFirstChar,tm->tmLastChar,abc);
-		float fml = abc[0].abcfA;
-		float fmr = abc[0].abcfC;
-		for (int i=1; i<n; i++) {
-		    fml = QMIN(fml,abc[i].abcfA);
-		    fmr = QMIN(fmr,abc[i].abcfC);
+		if ( n <= max_font_count ) {
+		    ABCFLOAT *abc = new ABCFLOAT[n];
+		    GetCharABCWidthsFloat(hdc(),tm->tmFirstChar,tm->tmLastChar,abc);
+		    float fml = abc[0].abcfA;
+		    float fmr = abc[0].abcfC;
+		    for (int i=1; i<n; i++) {
+			fml = QMIN(fml,abc[i].abcfA);
+			fmr = QMIN(fmr,abc[i].abcfC);
+		    }
+		    ml = int(fml-0.9999);
+		    mr = int(fmr-0.9999);
+		    delete [] abc;
+		} else {
+		    ml = get_min_left_bearing( this );
+		    mr = get_min_right_bearing( this );
 		}
-		ml = int(fml-0.9999);
-		mr = int(fmr-0.9999);
-		delete [] abc;
 	    } else {
 		ml = 0;
 		mr = -TMX->tmOverhang;

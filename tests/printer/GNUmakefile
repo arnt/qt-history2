@@ -1,5 +1,5 @@
 #############################################################################
-# $Id: //depot/qt/main/tests/printer/GNUmakefile#1 $
+# $Id: //depot/qt/main/tests/printer/GNUmakefile#2 $
 #
 # Unix Makefile, requires GNU make (gmake).
 #

@@ -7,15 +7,17 @@
 **
 ** Copyright (C) 1992-2000 Troll Tech AS.  All rights reserved.
 **
-** This file is part of the Qt GUI Toolkit.
+** This file is part of the kernel module of the Qt GUI Toolkit.
 **
 ** This file may be distributed under the terms of the Q Public License
 ** as defined by Troll Tech AS of Norway and appearing in the file
 ** LICENSE.QPL included in the packaging of this file.
 **
-** Licensees holding valid Qt Professional Edition licenses may use this
-** file in accordance with the Qt Professional Edition License Agreement
-** provided with the Qt Professional Edition.
+** Licensees holding valid Qt Enterprise Edition or Qt Professional Edition
+** licenses may use this file in accordance with the Qt Commercial License
+** Agreement provided with the Software.  This file is part of the kernel
+** module and therefore may only be used if the kernel module is specified
+** as Licensed on the Licensee's License Certificate.
 **
 ** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 ** information about the Professional Edition licensing, or see
@@ -284,7 +286,7 @@ QMetaObject::~QMetaObject()
 /*! \fn const char *QMetaObject::superClassName() const
 
   Returns the class name of the super class, or 0 if there is no super
-  class in the QObject hierachy.
+  class in the QObject hierarchy.
 
   \sa className()
 */
@@ -652,13 +654,13 @@ void QMetaObject::resolveProperty( QMetaProperty* prop )
 #endif
 	    }
 	    if ( prop->get == 0 ) {
-		if ( p->get ) {
+		if ( p->get != 0 ) {
 		    prop->get = p->get;
 		    prop->gspec = p->gspec;
 		}
 	    }
 	    if ( prop->set == 0 ) {
-		if ( p->set ) {
+		if ( p->set != 0 ) {
 		    prop->set = p->set;
 		    prop->sspec = p->sspec;
 		}

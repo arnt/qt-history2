@@ -29,7 +29,6 @@ public:
 	connect(s,SIGNAL(readyRead()),this,SLOT(readClient()));
 	connect(s,SIGNAL(delayedCloseFinished()),this,SLOT(discardClient()));
 	s->setSocket(socket);
-	s->setMode(QSocket::Ascii);
 	emit newConnect();
     }
 
@@ -72,9 +71,7 @@ public:
 	QString itext = QString(
 		"This is a small httpd example.\n"
 		"You can connect with your\n"
-		"web browser to\n"
-		"http://%1:%2"
-	    ).arg( httpd->address().toString()
+		"web browser to port %1"
 	    ).arg( httpd->port() );
 	QLabel *lb = new QLabel( itext, this );
 	lb->setAlignment( AlignHCenter );

@@ -64,10 +64,10 @@ What´s New
 </td>
 <td valign=top>
 <ul>
-<li> <a href="keyfeatures21.html">  Key Features in Qt 2.1</a>
-<li> <a href="changes21.html">  Detailed Change Notes for Qt 2.1</a>
-<li> <a href="changes211.html">  Detailed Change Notes for Qt 2.1.1</a>
-<li> <a href="porting.html">  Porting from Qt 1.x to Qt 2.0</a>
+<li> <a href="keyfeatures22.html">  Key Features in Qt 2.2</a>
+<li> <a href="changes22.html">  Detailed Change Notes for Qt 2.2</a>
+<li> <a href="http://www.trolltech.com/developer/changes/">Change History</a>
+<li> <a href="porting.html">  Porting from Qt 1.x to Qt 2.x</a>
 </ul>
 </td>
 </tr>
@@ -75,7 +75,9 @@ What´s New
 <th  bgcolor=#A2C511>
 API Reference
 </th>
-<th colspan=2 bgcolor=#A2C511>
+<th bgcolor=#A2C511>
+Modules
+<th bgcolor=#A2C511>
 Overviews
 </tr>
 <tr>
@@ -91,17 +93,23 @@ Overviews
 </td>
 <td valign=top>
 <ul>
+<li> <a href="canvas.html">  Canvas</a>
+<li> <a href="iconview.html">  Iconview</a>
+<li> <a href="network.html">  Network</a>
+<li> <a href="opengl.html">  OpenGL</a>
+<li> <a href="table.html">  Table</a>
+<li> <a href="workspace.html">  Workspace</a>
+<li> <a href="XML.html">  XML</a>
+</ul>
+</td>
+<td valign=top>
+<ul>
 <li> <a href="object.html">  Qt Object Model</a>
 <li> <a href="moc.html">  Using the Meta Object Compiler (moc)</a>
 <li> <a href="layout.html">  Geometry Management </a>
 <li> <a href="dnd.html">  Drag and Drop (D'n'D)</a>
-</ul>
-
-<td valign=top>
-<ul>
 <li> <a href="i18n.html">  Internationalization (i18n) </a>
 <li> <a href="debug.html">  Debugging Techniques</a>
-<li> <a href="network.html">  Network Programming</a>
 <li> <a href="pictures.html">  Widget Screenshots</a>
 </ul>
 
@@ -109,10 +117,10 @@ Overviews
 </tr>
 <tr>
 <th bgcolor=#A2C511>
-Troll Tech
+Trolltech
 </th>
 <th bgcolor=#A2C511>
-Products For Qt
+Tools
 </th>
 <th bgcolor=#A2C511>
 Appendix
@@ -121,14 +129,15 @@ Appendix
 <tr>
 <td valign=top>
 <ul>
-<li> <a href="troll.html"> About Troll Tech</a>
+<li> <a href="troll.html"> About Trolltech</a>
 <li> <a href="bughowto.html"> How to report a bug</a>
 <li> <a href="mailinglists.html"> Mailing List Information</a>
 </ul>
 </td>
 <td valign=top>
 <ul>
-  <li> <a href="opengl.html">  Qt OpenGL 3D Graphics</a>
+  <li> <a href="designer.html"> Qt Designer</a>
+  <li> <a href="qvfb-qws.html"> Virtual Framebuffer</a>
 </ul>
 </td>
 <td valign=top>
@@ -144,6 +153,21 @@ Appendix
 
 */
 
+/*! \page modules.html
+
+\title About Modules
+
+When you install Qt, certain modules are built into the library. For
+the Qt Enterprise Edition, Qt Evaluation Edition and Qt Free Edition
+this is all modules. For Qt Professional Edition, a base set of modules
+is available -
+the <i>tools</i>, <i>kernel</i>, <i>widgets</i>, and <i>dialog</i> modules.
+Trolltech does not currently offer modules for sale individually.
+
+All modules may be used only under the terms of the licenses associated 
+with each Edition.
+
+*/
 
 /*! \page topicals.html
 
@@ -171,7 +195,7 @@ event handling, access to system settings, internationalization, etc.
 </td><td> The GUI primitives like buttons, combo-boxes, scrollbars, etc. 
 </td></tr><tr><td>
 <a href="advanced.html">  Advanced Controls</a>
-</td><td> Advanced user interface controls like listviews, progressbars etc.
+</td><td> Advanced user interface controls like listviews, progress bars etc.
 </td></tr><tr><td>
 <a href="organizers.html">  Organizers</a>
 </td><td> User interface organizers like splitters, tab books, button groups, etc.

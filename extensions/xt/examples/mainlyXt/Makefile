@@ -1,5 +1,5 @@
 #############################################################################
-# $Id: //depot/qt/main/extensions/xt/examples/mainlyXt/Makefile#1 $
+# $Id: //depot/qt/main/extensions/xt/examples/mainlyXt/Makefile#2 $
 #
 # Win32 Makefile, requires Microsoft nmake.
 #

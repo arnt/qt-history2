@@ -1,3 +1,14 @@
+# All extension modules are listed here
+# This is duplicated in qt.pro
+MODULES_BASE	= tools kernel widgets dialogs
+MODULES_PRO	= iconview workspace
+MODULES_ENT	= network canvas table xml opengl
+MODULES		= $$MODULES_BASE $$MODULES_PRO
+enterprise:MODULES	+= $$MODULES_ENT
+
+embedded:MODULES	+= $$MODULES_ENT
+internal:MODULES	+= $$MODULES_ENT
+
 TEMPLATE    =	subdirs
 SUBDIRS     =	aclock \
 		addressbook \
@@ -22,7 +33,6 @@ SUBDIRS     =	aclock \
 		listbox \
 		listviews \
 		menu \
-		mdi \
 		movies \
 		picture \
 		popup \
@@ -42,7 +52,6 @@ SUBDIRS     =	aclock \
 		showimg \
 		splitter \
 		tabdialog \
-		table \
 		tetrix \
 		themes \
 		tictac \
@@ -50,10 +59,28 @@ SUBDIRS     =	aclock \
 		validator \
 		widgets \
 		wizard \
-		compact \
-		launcher \
-		canvas \
 		xform
 
-X11DIRS	    =   biff \
-		desktop
+canvas:SUBDIRS +=   canvas
+opengl:SUBDIRS +=   box \
+		    gear \
+		    glpixmap \
+		    overlay \
+		    sharedbox \
+		    texture
+iconview:SUBDIRS += fileiconview \
+		    iconview
+network:SUBDIRS +=  ftpclient \
+		    httpd \
+		    mail \
+		    networkprotocol
+workspace:SUBDIRS+= mdi
+table:SUBDIRS +=    statistics \
+		    table
+xml:SUBDIRS +=	    xmlquotes
+
+embedded:SUBDIRS += compact \
+		winmanager \
+		notepad \
+		kiosk \
+		launcher

@@ -7,15 +7,17 @@
 **
 ** Copyright (C) 1999-2000 Troll Tech AS.  All rights reserved.
 **
-** This file is part of the Qt GUI Toolkit.
+** This file is part of the kernel module of the Qt GUI Toolkit.
 **
 ** This file may be distributed under the terms of the Q Public License
 ** as defined by Troll Tech AS of Norway and appearing in the file
 ** LICENSE.QPL included in the packaging of this file.
 **
-** Licensees holding valid Qt Professional Edition licenses may use this
-** file in accordance with the Qt Professional Edition License Agreement
-** provided with the Qt Professional Edition.
+** Licensees holding valid Qt Enterprise Edition or Qt Professional Edition
+** licenses may use this file in accordance with the Qt Commercial License
+** Agreement provided with the Software.  This file is part of the kernel
+** module and therefore may only be used if the kernel module is specified
+** as Licensed on the Licensee's License Certificate.
 **
 ** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 ** information about the Professional Edition licensing, or see
@@ -1264,11 +1266,14 @@ static QFont::CharSet getCharSet( const char * registry, const char *encoding )
         }
         return QFont::AnyCharSet;
     } else if ( qstrcmp( registry, "koi8" ) == 0 &&
-                (qstrcmp( encoding, "r" ) == 0 ||
-                 qstrcmp( encoding, "1" ) == 0) ) {
-        return QFont::KOI8R;
+		(qstrcmp( encoding, "r" ) == 0 ||
+		 qstrcmp( encoding, "1" ) == 0) ) {
+	return QFont::KOI8R;
+    } else if ( qstrcmp( registry, "tscii" ) == 0 &&
+		qstrcmp( encoding, "0" ) == 0 ) {
+	return QFont::TSCII;
     } else if ( qstrcmp( registry, "iso10646" ) == 0 ) {
-        return QFont::Unicode;
+	return QFont::Unicode;
     }
     return QFont::AnyCharSet;
 }
@@ -1310,6 +1315,8 @@ static QFont::CharSet getCharSet( const QString &name )
         return QFont::KOI8R;
     if ( name == "koi8-1" )
         return QFont::KOI8R;
+    if ( name == "tscii-0" )
+	return QFont::TSCII;
     if ( name == "iso10646-1" )
         return QFont::Unicode;
     return QFont::AnyCharSet;
@@ -1420,6 +1427,9 @@ static QString getCharSetName( QFont::CharSet cs )
     case QFont::KOI8R:
         name = "Cyrillic (KOI8-R)";
         break;
+    case QFont::TSCII:
+	name = "Tamil (TSCII)";
+	break;
     case QFont::Unicode:
         name = "Unicode (ISO 10646)";
         break;
@@ -1665,7 +1675,7 @@ QFontDatabase::QFontDatabase()
   Returns a list of names of all available font families in the current locale if
   \a onlyForLocale is TRUE, otherwise really all available font families independent
   of the current locale are returned.
-  
+
   If a family exists in several foundries, the returned name will be "foundry-family".
 */
 

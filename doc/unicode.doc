@@ -9,7 +9,7 @@ platforms and with decent coverage of almost all of the world.  It is
 also single-locale; it includes no code pages or other complexities
 that make software harder to write and test.  Finally, there is
 nothing else that's reasonably cross-platform.  For these reasons,
-Troll Tech has chosen to make Unicode the native character set of Qt
+Trolltech has chosen to make Unicode the native character set of Qt
 starting with version 2.0.
 
 <p>

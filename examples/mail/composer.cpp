@@ -15,72 +15,52 @@
 #include <qmultilineedit.h>
 #include <qpushbutton.h>
 #include <qlabel.h>
-#include <qhbox.h>
-#include <qvalidator.h>
+#include <qlayout.h>
 
 Composer::Composer( QWidget *parent )
-    : QVBox( parent )
+    : QWidget( parent )
 {
-    // Setup the GUI of the composer
+    QGridLayout * l = new QGridLayout( this, 1, 1, 6 );
     
-    setSpacing( 5 );
-    setMargin( 5 );
+    l->addWidget( new QLabel( tr( "From:" ), this ), 0, 0 );
+    from = new QLineEdit( this );
+    l->addWidget( from, 0, 1 );
 
-    QHBox *row = new QHBox( this );
-    row->setSpacing( 5 );
+    l->addWidget( new QLabel( tr( "To:" ), this ), 1, 0 );
+    to = new QLineEdit( this );
+    l->addWidget( to, 1, 1 );
 
-    (void)new QLabel( tr( "Outgoing Mailserver (SMTP):" ), row );
-    server = new QLineEdit( row );
-
-    (void)new QLabel( tr( "Port:" ), row );
-    port = new QLineEdit( row );
-    port->setValidator( new QIntValidator( port ) );
-    port->setText( "25" );
-    port->setFixedWidth( port->sizeHint().width() / 4 );
-
-    QPushButton *send = new QPushButton( tr( "&Send" ), row );
-    connect( send, SIGNAL( clicked() ), this, SLOT( sendMessage() ) );
-
-    row = new QHBox( this );
-    row->setSpacing( 5 );
-    (void)new QLabel( tr( "From:" ), row );
-    from = new QLineEdit( row );
-
-    row = new QHBox( this );
-    row->setSpacing( 5 );
-    (void)new QLabel( tr( "To:" ), row );
-    to = new QLineEdit( row );
-
-    row = new QHBox( this );
-    row->setSpacing( 5 );
-    (void)new QLabel( tr( "Subject:" ), row );
-    subject = new QLineEdit( row );
-
-    row = new QHBox( this );
-    row->setSpacing( 5 );
-    (void)new QLabel( tr( "CC:" ), row );
-    cc = new QLineEdit( row );
-
-    row = new QHBox( this );
-    row->setSpacing( 5 );
-    (void)new QLabel( tr( "Bcc:" ), row );
-    bcc = new QLineEdit( row );
+    l->addWidget( new QLabel( tr( "Subject:" ), this ), 2, 0 );
+    subject = new QLineEdit( this );
+    l->addWidget( subject, 2, 1 );
 
     message = new QMultiLineEdit( this );
+    l->addMultiCellWidget( message, 3, 3, 0, 1 );
+
+    send = new QPushButton( tr( "&Send" ), this );
+    l->addWidget( send, 4, 0 );
+    connect( send, SIGNAL( clicked() ), this, SLOT( sendMessage() ) );
+
+    sendStatus = new QLabel( this );
+    l->addWidget( sendStatus, 4, 1 );
 }
+
 
 void Composer::sendMessage()
 {
-    setEnabled( FALSE );
-
+    send->setEnabled( FALSE );
     // send the mail
-    Smtp *smtp = new Smtp( server->text(), port->text().toInt(), from->text(), to->text(),
-			   subject->text(), cc->text(), bcc->text(), message->text() );
-    connect( smtp, SIGNAL( finished() ),
-	     this, SLOT( enableAll() ) );
+    Smtp *smtp = new Smtp( from->text(), to->text(),
+			   subject->text(), 
+			   message->text() );
+    connect( smtp, SIGNAL(destroyed()),
+	     this, SLOT(enableSend()) );
+    connect( smtp, SIGNAL(status(const QString &)),
+	     sendStatus, SLOT(setText(const QString &)) );
 }
 
-void Composer::enableAll()
+
+void Composer::enableSend()
 {
-    setEnabled( TRUE );
+    send->setEnabled( TRUE );
 }

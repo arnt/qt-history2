@@ -1,5 +1,5 @@
 TEMPLATE	= app
-CONFIG		= qt warn_on release
+CONFIG		+= qt warn_on release
 HEADERS	= ftpmainwindow.h \
 		ftpview.h
 SOURCES	= ftpmainwindow.cpp \

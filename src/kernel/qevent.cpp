@@ -7,15 +7,17 @@
 **
 ** Copyright (C) 1992-2000 Troll Tech AS.  All rights reserved.
 **
-** This file is part of the Qt GUI Toolkit.
+** This file is part of the kernel module of the Qt GUI Toolkit.
 **
 ** This file may be distributed under the terms of the Q Public License
 ** as defined by Troll Tech AS of Norway and appearing in the file
 ** LICENSE.QPL included in the packaging of this file.
 **
-** Licensees holding valid Qt Professional Edition licenses may use this
-** file in accordance with the Qt Professional Edition License Agreement
-** provided with the Qt Professional Edition.
+** Licensees holding valid Qt Enterprise Edition or Qt Professional Edition
+** licenses may use this file in accordance with the Qt Commercial License
+** Agreement provided with the Software.  This file is part of the kernel
+** module and therefore may only be used if the kernel module is specified
+** as Licensed on the Licensee's License Certificate.
 **
 ** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 ** information about the Professional Edition licensing, or see
@@ -64,8 +66,8 @@
 
 
 /*! \enum Qt::ButtonState
-  This enum type describes the state of the mouse buttons, with
-  associated shift buttons.  The currently defined values are:<ul>
+  This enum type describes the state of the mouse buttons and the
+  modifier buttons.  The currently defined values are:<ul>
 
   <li> \c NoButton - used when the button state does not refer to any
   button (see QMouseEvent::button()).
@@ -83,6 +85,8 @@
   <li> \c ControlButton - a control key on the keyboard is also pressed.
 
   <li> \c AltButton - an alt (or meta) key on the keyboard is also pressed.
+
+  <li> \c Keypad - a keypad button is pressed.
 
   </ul>
 */
@@ -353,11 +357,7 @@ QMouseEvent::QMouseEvent( Type type, const QPoint &pos, int button, int state )
 */
 Qt::ButtonState QMouseEvent::stateAfter() const
 {
-    if ( type() == QEvent::MouseButtonDblClick ) {
-	return Qt::ButtonState(state()&~button());
-    } else {
-	return Qt::ButtonState(state()^button());
-    }
+    return Qt::ButtonState(state()^button());
 }
 
 
@@ -1081,7 +1081,7 @@ QCustomEvent::QCustomEvent( int type )
 /*!
   \fn QCustomEvent::QCustomEvent( Type type, void *data )
   Constructs a custom event object with the event type \a type and a
-  pointer to \a data. (Note that any int value may safely be casted to
+  pointer to \a data. (Note that any int value may safely be cast to
   QEvent::Type).
 */
 
@@ -1141,15 +1141,6 @@ QCustomEvent::QCustomEvent( int type )
 */
 
 
-
-/*!
-  \fn QDropEvent::QDropEvent( const QPoint& pos )
-
-  Creates a QDropEvent for which the mouse is at point \a pos.
-
-  Note that internal state is also involved with QDropEvent,
-  so it is not useful to create these yourself.
-*/
 
 /*!
   \fn const QPoint& QDropEvent::pos() const

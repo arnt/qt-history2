@@ -1,5 +1,5 @@
 #############################################################################
-# $Id: //depot/qt/main/Makefile.inc#18 $
+# $Id: //depot/qt/main/Makefile.inc#19 $
 #
 # Win32 Makefile, requires Microsoft nmake.
 #
@@ -46,7 +46,7 @@ $(PROJECT).pro:
 dsp: $(PROJECT).dsp
 
 $(PROJECT).dsp: FORCE
-	tmake $(PROJECT).pro "CONFIG+=debug" "DEFINES+=QT_DLL" -t $(VCTEMPLATE) -o $(PROJECT).dsp
+	tmake $(PROJECT).pro "CONFIG+=debug" -t $(VCTEMPLATE) -o $(PROJECT).dsp
 
 
 debug: $(MFILE).debug $(MORETARGETS) $(MORETARGETS_DEBUG)
@@ -73,7 +73,7 @@ $(MFILE).debug: $(PROJECT).pro Makefile
 		"OBJECTS_DIR=$(ODIR)\debug"
 !ELSE
 	tmake "TMAKEPATH=$(TPATH)" $(PROJECT).pro -o $(MFILE).debug \
-		"CONFIG+=debug $(CONSOLE)" "DEFINES+=QT_DLL" \
+		"CONFIG+=debug qt_dll $(CONSOLE)" \
 		"OBJECTS_DIR=$(ODIR)\debug"
 !ENDIF
 
@@ -89,7 +89,7 @@ $(MFILE).release: $(PROJECT).pro Makefile
 		"TMAKE_LFLAGS_RELEASE=/INCREMENTAL:YES"
 !ELSE
 	tmake "TMAKEPATH=$(TPATH)" $(PROJECT).pro -o $(MFILE).release \
-		"CONFIG+=release" "DEFINES+=QT_DLL" \
+		"CONFIG+=qt_dll release" \
 		"OBJECTS_DIR=$(ODIR)\release" \
 		"TMAKE_LFLAGS_RELEASE=/INCREMENTAL:YES"
 !ENDIF
@@ -101,7 +101,7 @@ $(MFILE).static-debug: $(PROJECT).pro Makefile
 	syncqt
 !ENDIF
 	tmake "TMAKEPATH=$(TPATH)" $(PROJECT).pro -o $(MFILE).static-debug \
-		"CONFIG+=debug console" "DEFINES+=QT_NODLL" \
+		"CONFIG+=qt_dll debug console" "DEFINES+=QT_NODLL" \
 		"OBJECTS_DIR=$(ODIR)\static_debug"
 
 
@@ -110,7 +110,7 @@ $(MFILE).static-release: $(PROJECT).pro Makefile
 	syncqt
 !ENDIF
 	tmake "TMAKEPATH=$(TPATH)" $(PROJECT).pro -o $(MFILE).static-release \
-		"CONFIG+=release" "DEFINES+=QT_NODLL" \
+		"CONFIG+=qt_dll release" "DEFINES+=QT_NODLL" \
 		"OBJECTS_DIR=$(ODIR)\static_release"
 
 

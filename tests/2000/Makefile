@@ -1,5 +1,5 @@
 #############################################################################
-# $Id: //depot/qt/main/tests/2000/Makefile#4 $
+# $Id: //depot/qt/main/tests/2000/Makefile#5 $
 #
 # Win32 Makefile, requires Microsoft nmake.
 #

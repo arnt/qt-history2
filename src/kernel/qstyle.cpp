@@ -7,15 +7,17 @@
 **
 ** Copyright (C) 1998-2000 Troll Tech AS.  All rights reserved.
 **
-** This file is part of the Qt GUI Toolkit.
+** This file is part of the kernel module of the Qt GUI Toolkit.
 **
 ** This file may be distributed under the terms of the Q Public License
 ** as defined by Troll Tech AS of Norway and appearing in the file
 ** LICENSE.QPL included in the packaging of this file.
 **
-** Licensees holding valid Qt Professional Edition licenses may use this
-** file in accordance with the Qt Professional Edition License Agreement
-** provided with the Qt Professional Edition.
+** Licensees holding valid Qt Enterprise Edition or Qt Professional Edition
+** licenses may use this file in accordance with the Qt Commercial License
+** Agreement provided with the Software.  This file is part of the kernel
+** module and therefore may only be used if the kernel module is specified
+** as Licensed on the Licensee's License Certificate.
 **
 ** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 ** information about the Professional Edition licensing, or see
@@ -115,7 +117,7 @@ static void delete_d( const QStyle* foo )
   <li> \c First - control to scroll to top of the range
   <li> \c Last - control to scroll to bottom of the range
   <li> \c Slider - the slider control
-  <li> \c NoScroll - null value, indiciates none of the visible controls
+  <li> \c NoScroll - null value, indicates none of the visible controls
   </ul>
 */
 
@@ -801,7 +803,11 @@ int QStyle::toolBarHandleExtend() const
     return toolBarHandleExtent();
 }
 
-/*!
+/*! \fn void QStyle::drawToolBarHandle( QPainter *p, const QRect &r,
+                                        Qt::Orientation orientation,
+				        bool highlight, const QColorGroup &cg,
+					bool drawBorder )
+				
   Draws the handle for the toolbar using the painter \a p with the toolbar coordinates
   \a r. \a orientation gives the orientation of the toolbar, and the handle is drawn
   \a highlighted if \a highlight is TRUE, else not. \a cg is the QColorGroup of the toolbar and
@@ -811,91 +817,6 @@ int QStyle::toolBarHandleExtend() const
   it in Qt 2.x doesn't make sense. In the next major release this method will become virtual!
 */
 
-void QStyle::drawToolBarHandle( QPainter *p, const QRect &r, Qt::Orientation orientation,
-				bool highlight, const QColorGroup &cg,
-				bool drawBorder )
-{
-    p->save();
-    p->translate( r.x(), r.y() );
-
-    if ( guiStyle() == Qt::MotifStyle ) {
-	QColor dark( cg.dark() );
-	QColor light( cg.light() );
-	unsigned int i;
-	if ( orientation == Qt::Vertical ) {
-	    int w = r.width();
-	    if ( w > 6 ) {
-		if ( highlight )
-		    p->fillRect( 1, 1, w - 2, 9, cg.highlight() );
-		QPointArray a( 2 * ((w-6)/3) );
-
-		int x = 3 + (w%3)/2;
-		p->setPen( dark );
-		p->drawLine( 1, 8, w-2, 8 );
-		for( i=0; 2*i < a.size(); i ++ ) {
-		    a.setPoint( 2*i, x+1+3*i, 6 );
-		    a.setPoint( 2*i+1, x+2+3*i, 3 );
-		}
-		p->drawPoints( a );
-		p->setPen( light );
-		p->drawLine( 1, 9, w-2, 9 );
-		for( i=0; 2*i < a.size(); i++ ) {
-		    a.setPoint( 2*i, x+3*i, 5 );
-		    a.setPoint( 2*i+1, x+1+3*i, 2 );
-		}
-		p->drawPoints( a );
-		if ( drawBorder ) {
-		    p->setPen( QPen( Qt::darkGray ) );
-		    p->drawLine( r.width() - 1, 0, r.width() - 1, toolBarHandleExtent() );
-		}
-	    }
-	} else {
-	    int h = r.height();
-	    if ( h > 6 ) {
-		if ( highlight )
-		    p->fillRect( 1, 1, 8, h - 2, cg.highlight() );
-		QPointArray a( 2 * ((h-6)/3) );
-		int y = 3 + (h%3)/2;
-		p->setPen( dark );
-		p->drawLine( 8, 1, 8, h-2 );
-		for( i=0; 2*i < a.size(); i ++ ) {
-		    a.setPoint( 2*i, 5, y+1+3*i );
-		    a.setPoint( 2*i+1, 2, y+2+3*i );
-		}
-		p->drawPoints( a );
-		p->setPen( light );
-		p->drawLine( 9, 1, 9, h-2 );
-		for( i=0; 2*i < a.size(); i++ ) {
-		    a.setPoint( 2*i, 4, y+3*i );
-		    a.setPoint( 2*i+1, 1, y+1+3*i );
-		}
-		p->drawPoints( a );
-		if ( drawBorder ) {
-		    p->setPen( QPen( Qt::darkGray ) );
-		    p->drawLine( 0, r.height() - 1, toolBarHandleExtent(), r.height() - 1 );
-		}
-	    }
-	}
-    } else {
-	if ( orientation == Qt::Vertical ) {
-	    if ( r.width() > 4 ) {
-		qDrawShadePanel( p, 2, 4, r.width() - 4, 3,
-				 cg, highlight, 1, 0 );
-		qDrawShadePanel( p, 2, 7, r.width() - 4, 3,
-				 cg, highlight, 1, 0 );
-	    }
-	} else {
-	    if ( r.height() > 4 ) {
-		qDrawShadePanel( p, 4, 2, 3, r.height() - 4,
-				 cg, highlight, 1, 0 );
-		qDrawShadePanel( p, 7, 2, 3, r.height() - 4,
-				 cg, highlight, 1, 0 );
-	    }
-	}
-    }
-
-    p->restore();
-}
 
 /*!
   Sets the width of a vertical scrollbar in this style to \a width and
@@ -1011,7 +932,7 @@ int QStyle::sliderThickness() const
 
 /*!
   Sets the slider thickness.
-  
+
   In a future version of the Qt library, this function may be removed
   and subclasses will be able to reimplement sliderThickness().
 */

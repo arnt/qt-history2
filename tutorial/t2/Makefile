@@ -1,5 +1,5 @@
 #############################################################################
-# $Id: //depot/qt/main/tutorial/t2/Makefile#14 $
+# $Id: //depot/qt/main/tutorial/t2/Makefile#15 $
 #
 # Win32 Makefile, requires Microsoft nmake.
 #

@@ -1,0 +1,353 @@
+<HTML
+><HEAD
+><TITLE
+>More Widgets For Our Form</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.46"><LINK
+REL="HOME"
+HREF="book1.html"><LINK
+REL="UP"
+TITLE="Tutorial: Creating A Simple Application With The Help Of
+	  Qt Designer"
+HREF="c33.html"><LINK
+REL="PREVIOUS"
+TITLE="Tutorial: Creating A Simple Application With The Help Of
+	  Qt Designer"
+HREF="c33.html"><LINK
+REL="NEXT"
+TITLE="Generating C++ Source Code From The Designer File"
+HREF="x233.html"></HEAD
+><BODY
+CLASS="SECT1"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="c33.html"
+>Prev</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+>Chapter 2. Tutorial: Creating A Simple Application With The Help Of
+	  Qt Designer</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="x233.html"
+>Next</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="AEN180"
+>More Widgets For Our Form</A
+></H1
+><P
+>It is time that we get some more widgets onto our form
+		  so that we can get an example to run.</P
+><P
+>Add another checkbox with the label <SPAN
+CLASS="GUILABEL"
+>Extra
+		  Cheese</SPAN
+> first &#8212; this should be obvious by
+		  now.</P
+><P
+>Next will be the selection of the pizza size. This
+		  time, we will do it in the right order and create the button
+		  group first. Select the <I
+CLASS="EMPHASIS"
+>button group
+		  tool</I
+> from the menu (you will find it in the
+		  submenu <SPAN
+CLASS="GUIMENU"
+>Tools/Containers</SPAN
+>) or the
+		  toolbar. Draw the button group and give it the title
+		  <SPAN
+CLASS="GUILABEL"
+>Size</SPAN
+>. Now select the <I
+CLASS="EMPHASIS"
+>radio
+		  button tool</I
+> from the menu or the toolbar (see
+		  <A
+HREF="x180.html#QT-DESIGNER-ICON-RADIOBUTTON"
+>Figure 2-10</A
+>) and create
+		  three radiobuttons within the new button group. Label these
+		  three radiobuttons <SPAN
+CLASS="GUILABEL"
+>Junior</SPAN
+>,
+		  <SPAN
+CLASS="GUILABEL"
+>Standard</SPAN
+>, and
+		  <SPAN
+CLASS="GUILABEL"
+>Family</SPAN
+>.</P
+><DIV
+CLASS="FIGURE"
+><A
+NAME="QT-DESIGNER-ICON-RADIOBUTTON"
+></A
+><P
+><B
+>Figure 2-10. The radiobutton icon</B
+></P
+><P
+><IMG
+SRC="figures/radiobutton.png"></P
+></DIV
+><P
+>To finish the dialog, create two push buttons by
+		  selecting the <I
+CLASS="EMPHASIS"
+>push button tool</I
+> from the
+		  submenu <SPAN
+CLASS="GUIMENU"
+>Tools/Buttons</SPAN
+> or the toolbar (see
+		  <A
+HREF="x180.html#QT-DESIGNER-ICON-PUSHBUTTON"
+>Figure 2-11</A
+>) and give them
+		  the labels <SPAN
+CLASS="GUILABEL"
+>OK</SPAN
+> and
+		  <SPAN
+CLASS="GUILABEL"
+>Cancel</SPAN
+>.</P
+><DIV
+CLASS="FIGURE"
+><A
+NAME="QT-DESIGNER-ICON-PUSHBUTTON"
+></A
+><P
+><B
+>Figure 2-11. The pushbutton icon</B
+></P
+><P
+><IMG
+SRC="figures/pushbutton.png"></P
+></DIV
+><P
+>Since the form is probably way too big for the few
+		  components that we have put onto it, we can resize it with
+		  the same feature we used for the checkboxes: Click on the
+		  background of the form so that no widget is selected, then
+		  right-click to open the context menu and select
+		  <SPAN
+CLASS="GUIMENU"
+>Adjust Size</SPAN
+>. The form will now get a nice
+		  size that is just large enough to accomodate its
+		  contents.</P
+><P
+>While working on the form, you might want to see how
+		  it looks &#8220;for real&#8221;, without the grid dots, like
+		  a real dialog. This can easily be done by typing
+		  <B
+CLASS="KEYCAP"
+>Ctrl-T</B
+> which will open the dialog in
+		  &#8220;test mode&#8221; (<A
+HREF="x180.html#QT-DESIGNER-FIG-TESTMODE"
+>Figure 2-12</A
+>). The widget style<A
+NAME="AEN213"
+HREF="#FTN.AEN213"
+>[1]</A
+> used is the default style of
+			  the system Qt is running on, i.e., Motif style on Unix
+			  and Windows style on Windows. If you want to see your
+			  dialog in a different style, just select one of the
+			  entries in the <SPAN
+CLASS="GUIMENU"
+>Preview</SPAN
+> menu.</P
+><DIV
+CLASS="FIGURE"
+><A
+NAME="QT-DESIGNER-FIG-TESTMODE"
+></A
+><P
+><B
+>Figure 2-12. The test mode</B
+></P
+><P
+><IMG
+SRC="figures/testmode.png"></P
+></DIV
+><P
+>Finally, give the form a name that is more obvious as
+		  <I
+CLASS="EMPHASIS"
+>Form1</I
+>: Click on the background of the
+		  form so that no component on it is selected, then select the
+		  <I
+CLASS="EMPHASIS"
+>name</I
+> property in the property editor
+		  and change it from <SPAN
+CLASS="GUILABEL"
+>Form1</SPAN
+> to
+		  <SPAN
+CLASS="GUILABEL"
+>PizzaEntry</SPAN
+>. This name will also be the
+		  class name of your generated source code.</P
+><P
+> When you are
+		  done, the dialog should look more or less like in <A
+HREF="x180.html#QT-DESIGNER-FIG-FIRSTDIALOG"
+>Figure 2-13</A
+>.
+			  Using the <SPAN
+CLASS="GUIMENU"
+>File/Save As...</SPAN
+> menu entry, save it
+			  under the name <TT
+CLASS="FILENAME"
+>pizza.ui</TT
+>.</P
+><DIV
+CLASS="FIGURE"
+><A
+NAME="QT-DESIGNER-FIG-FIRSTDIALOG"
+></A
+><P
+><B
+>Figure 2-13. This is how the first dialog should look like</B
+></P
+><P
+><IMG
+SRC="figures/firstdialog.png"></P
+></DIV
+></DIV
+><H3
+CLASS="FOOTNOTES"
+>Notes</H3
+><TABLE
+BORDER="0"
+CLASS="FOOTNOTES"
+WIDTH="100%"
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+WIDTH="5%"
+><A
+NAME="FTN.AEN213"
+HREF="x180.html#AEN213"
+>[1]</A
+></TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+WIDTH="95%"
+><P
+>One of Qt's astounding features is that it display
+			  the user interfaces created with in with one of several
+			  different widget styles, independent of the platform it
+			  runs on.</P
+></TD
+></TR
+></TABLE
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="c33.html"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="book1.html"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="x233.html"
+>Next</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>Tutorial: Creating A Simple Application With The Help Of
+	  Qt Designer</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="c33.html"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>Generating C++ Source Code From The Designer File</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

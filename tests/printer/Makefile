@@ -1,5 +1,5 @@
 #############################################################################
-# $Id: //depot/qt/main/tests/printer/Makefile#3 $
+# $Id: //depot/qt/main/tests/printer/Makefile#4 $
 #
 # Win32 Makefile, requires Microsoft nmake.
 #

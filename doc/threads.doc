@@ -47,7 +47,7 @@ except that all threads share the same memory space, open files,
 variables and so on; it's a little as if you could run two programs and
 each could access each other's variables freely. A multithreaded
 application begins with one thread starting at main(), just as with
-a singlethreaded application, but can start other threads which begin
+a single-threaded application, but can start other threads which begin
 at a programmer-specified function other than main(). These new threads
 will stop executing when a thread exit function is called or when
 they return from the programmer-specified function.
@@ -72,7 +72,7 @@ start a new thread, and the programmer-specified function is easy to
 provide by subclassing QThread and reimplementing QThread::run.
 This is akin to the Java thread class.
   However, a thread class alone is not sufficient. In order to write
-threaded programs it is necessary to protect acccess to data that
+threaded programs it is necessary to protect access to data that
 two threads wish to access at once (if you have a complex structure
 with several elements which should be updated in sequence, and two
 threads simultaneously try to update that structure, then they will
@@ -123,8 +123,8 @@ Thread 1: b=4;
 With the mutex, either a will be 2 and b 4, or a will be 50 and b 100.
 
   Also necessary is a method of signalling threads that events have
-happened; the QThreadEvent class provides this. Threads wait
-for the QThreadEvent to signal that something has happened, blocking until
+happened; the QCondition class provides this. Threads wait
+for the QCondition to signal that something has happened, blocking until
 it does. When a thread knows that something has happened, it can wake
 up all of the threads waiting for that event or one randomly selected
 thread (this is the same functionality as a Posix Threads condition variable 
@@ -132,7 +132,7 @@ and is implemented as one on Unix). For instance:
 
 // Worker thread method
 
-QThreadEvent myevent;
+QCondition myevent;
 
 void WorkerThread::run()
 {
@@ -160,12 +160,6 @@ main()
 the thread will go off and do some work and then go back to waiting to
 be told to do some more work. If no worker threads are waiting for work
 then no threads will be started.
-  Finally there is support for thread-specific global data with
-QThreadData; each instance of this class can store a pointer per thread,
-and the pointer value each thread sets is private to itself. This is useful
-for storing data intended to be global for each thread; for instance
-each thread could be given its own copy of the global variable errno
-on Unix using this mechanism.
 
 <h2>Thread-safe posting of events</h2>
 
@@ -182,7 +176,7 @@ force a widget to repaint from a different thread by doing the following:
 
   This would (asynchronously) force mywidget to repaint a 100x100
 square of its area. This functionality is layered on
-QApplication::wakeUpGuiThread/QApplication::guiThreadWoken, which were
+QApplication::wakeUpGuiThread/QApplication::guiThreadAwake, which were
 introduced in Qt 2.1 so that developers could write their own version
 of this functionality.
 
@@ -213,7 +207,7 @@ since while the Qt mutex is locked no events can be processed
 to get the Qt mutex from within an event handler (e.g. a reimplementation
 of QWidget::paintEvent) - the event loop will lock and unlock the Qt
 mutex around event handler calls automatically. It does no harm, however,
-since Qt mutexes are recursive.
+since the Qt library mutex is recursive.
 
 <h2>Threads and the event loop</h2>
 
@@ -250,11 +244,11 @@ Be wary of classes which are implicitly shared; you should probably
 detach() them if you need to assign them between threads.
 
 Be wary of Qt classes which were not designed with thread safety in mind;
-for instance, QList's API is not threadsafe and if different threads
+for instance, QList's API is not thread-safe and if different threads
 need to iterate through a QList they should lock before calling
 QList::first() and unlock after reaching the end, rather than locking and
 unlocking around QList::next().
 
  
-
+*/
 

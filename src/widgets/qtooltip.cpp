@@ -5,15 +5,17 @@
 **
 ** Copyright (C) 1992-2000 Troll Tech AS.  All rights reserved.
 **
-** This file is part of the Qt GUI Toolkit.
+** This file is part of the widgets module of the Qt GUI Toolkit.
 **
 ** This file may be distributed under the terms of the Q Public License
 ** as defined by Troll Tech AS of Norway and appearing in the file
 ** LICENSE.QPL included in the packaging of this file.
 **
-** Licensees holding valid Qt Professional Edition licenses may use this
-** file in accordance with the Qt Professional Edition License Agreement
-** provided with the Qt Professional Edition.
+** Licensees holding valid Qt Enterprise Edition or Qt Professional Edition
+** licenses may use this file in accordance with the Qt Commercial License
+** Agreement provided with the Software.  This file is part of the widgets
+** module and therefore may only be used if the widgets module is specified
+** as Licensed on the Licensee's License Certificate.
 **
 ** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 ** information about the Professional Edition licensing, or see
@@ -30,12 +32,7 @@
 #include "qtimer.h"
 #include "qeffects_p.h"
 
-//#define ANIMATED_TOOLTIP
-//#define BLEND_TOOLTIP
-
 static bool globally_enabled = TRUE;
-
-static QTimer * preventAnimation = 0;
 
 // Magic value meaning an entire widget - if someone tries to insert a
 // tool tip on this part of a widget it will be interpreted as the
@@ -119,6 +116,7 @@ private:
     QGuardedPtr<QWidget> widget;
     Tip *currentTip;
     Tip *previousTip;
+    bool preventAnimation;
     bool isApplicationFilter;
     QTimer *removeTimer;
 };
@@ -156,6 +154,7 @@ QTipManager::QTipManager()
     currentTip = 0;
     previousTip = 0;
     label = 0;
+    preventAnimation = FALSE;
     isApplicationFilter = FALSE;
     connect( &wakeUp, SIGNAL(timeout()), SLOT(showTip()) );
     connect( &fallAsleep, SIGNAL(timeout()), SLOT(hideTip()) );
@@ -190,7 +189,8 @@ QTipManager::~QTipManager()
     delete label;
 }
 
-void QTipManager::add( const QRect &gm, QWidget *w, const QRect &r, const QString &s,
+void QTipManager::add( const QRect &gm, QWidget *w,
+		       const QRect &r, const QString &s,
 		       QToolTipGroup *g, const QString& gs,
 		       QToolTip *tt, bool a )
 {
@@ -222,7 +222,7 @@ void QTipManager::add( const QRect &gm, QWidget *w, const QRect &r, const QStrin
 	qApp->installEventFilter( tipManager );
 	qApp->setGlobalMouseTracking( TRUE );
     }
-    
+
     if ( t->group )
 	connect( removeTimer, SIGNAL( timeout() ),
 		 t->group, SIGNAL( removeTip() ) );
@@ -232,8 +232,7 @@ void QTipManager::add( QWidget *w, const QRect &r, const QString &s,
 		       QToolTipGroup *g, const QString& gs,
 		       QToolTip *tt, bool a )
 {
-    add( QRect( -1, -1, -1, -1 ),
-	 w, r, s, g, gs, tt, a );
+    add( QRect( -1, -1, -1, -1 ), w, r, s, g, gs, tt, a );
 }
 
 
@@ -368,9 +367,12 @@ bool QTipManager::eventFilter( QObject *obj, QEvent *e )
 	    w = w->isTopLevel() ? 0 : w->parentWidget();
     }
 
+    if (  t && t == currentTip )
+	return FALSE;
+
     if ( !t ) {
-	if ( e->type() >= QEvent::MouseButtonPress &&
-	     e->type() <= QEvent::Leave ) {
+	if ( ( e->type() >= QEvent::MouseButtonPress &&
+	     e->type() <= QEvent::FocusOut) || e->type() == QEvent::Leave ) {
 	    hideTip();
 	}
 	return FALSE;
@@ -391,10 +393,7 @@ bool QTipManager::eventFilter( QObject *obj, QEvent *e )
     case QEvent::MouseMove:
 	{ // a whole scope just for one variable
 	    QMouseEvent * m = (QMouseEvent *)e;
-
-	    QPoint mousePos( m->pos() );
-	    mousePos = ((QWidget*)obj)->mapToGlobal( mousePos );
-	    mousePos = w->mapFromGlobal( mousePos );
+	    QPoint mousePos = w->mapFromGlobal( m->globalPos() );
 
 	    if ( currentTip && !currentTip->rect.contains( mousePos ) ) {
 		hideTip();
@@ -490,14 +489,14 @@ void QTipManager::showTip()
     if ( label->text().length() ) {
 	label->move( p );
 
-	if ( QApplication::effectEnabled( UI_AnimateTooltip ) && !previousTip && !preventAnimation) {
-	    if ( QApplication::effectEnabled( UI_FadeTooltip ) )
-		qFadeEffect( label );
-	    else
-		qScrollEffect( label );
-	} else {
+	
+	if ( QApplication::isEffectEnabled( UI_AnimateTooltip ) == FALSE ||
+	     previousTip || preventAnimation )
 	    label->show();
-	}
+	else if ( QApplication::isEffectEnabled( UI_FadeTooltip ) )
+	    qFadeEffect( label );
+	else
+	    qScrollEffect( label );
 
 	label->raise();
 	fallAsleep.start( 10000, TRUE );
@@ -507,7 +506,7 @@ void QTipManager::showTip()
 	removeTimer->stop();
 	emit t->group->showTip( t->groupText );
     }
-	
+
     currentTip = t;
     previousTip = 0;
 }
@@ -515,10 +514,8 @@ void QTipManager::showTip()
 
 void QTipManager::hideTip()
 {
-    if ( !preventAnimation )
-	preventAnimation = new QTimer( qApp );
-    preventAnimation->stop();
-    preventAnimation->singleShot( 250, this, SLOT(allowAnimation()) );
+    QTimer::singleShot( 250, this, SLOT(allowAnimation()) );
+    preventAnimation = TRUE;
 
     if ( label && label->isVisible() ) {
 	label->hide();
@@ -542,11 +539,10 @@ void QTipManager::hideTip()
 
 void QTipManager::allowAnimation()
 {
-    if ( preventAnimation ) {
-	delete preventAnimation;
-	preventAnimation = 0;
-    }
+    preventAnimation = FALSE;
 }
+
+
 // NOT REVISED
 /*!
   \class QToolTip qtooltip.h

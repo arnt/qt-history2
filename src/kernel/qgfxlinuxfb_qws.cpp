@@ -7,11 +7,17 @@
 **
 ** Copyright (C) 1992-2000 Troll Tech AS.  All rights reserved.
 **
-** This file is part of the Qt GUI Toolkit.
+** This file is part of the kernel module of the Qt GUI Toolkit.
 **
-** Licensees holding valid Qt Professional Edition licenses may use this
-** file in accordance with the Qt Professional Edition License Agreement
-** provided with the Qt Professional Edition.
+** This file may be distributed under the terms of the Q Public License
+** as defined by Troll Tech AS of Norway and appearing in the file
+** LICENSE.QPL included in the packaging of this file.
+**
+** Licensees holding valid Qt Enterprise Edition or Qt Professional Edition
+** licenses may use this file in accordance with the Qt Commercial License
+** Agreement provided with the Software.  This file is part of the kernel
+** module and therefore may only be used if the kernel module is specified
+** as Licensed on the Licensee's License Certificate.
 **
 ** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 ** information about the Professional Edition licensing.
@@ -57,7 +63,7 @@ bool QLinuxFbScreen::connect( const QString &displaySpec )
 	dev = displaySpec.mid( m, len-1 );
     }
 
-    qDebug( "QLinuxFbScreen: using device %s", dev.latin1() );
+    //qDebug( "QLinuxFbScreen: using device %s", dev.latin1() );
 
     fd=open( dev.latin1(), O_RDWR );
     if(fd<0) {
@@ -128,9 +134,9 @@ bool QLinuxFbScreen::connect( const QString &displaySpec )
 	screencols=0;
     }
 
-    // disable screensaver
-    printf( "\033[9;0]" );
-    fflush( stdout );
+    // No blankin' screen, no blinkin' cursor!
+    const char termctl[] = "\033[9;0]\033[?33l";
+    write(1,termctl,sizeof(termctl));
 
     initted=true;
 
@@ -247,6 +253,52 @@ bool QLinuxFbScreen::initCard()
 	free(cmap.green);
 	free(cmap.blue);
 	free(cmap.transp);
+    } else if(finfo.visual==FB_VISUAL_DIRECTCOLOR) {
+	// This code is just base on what the cyber2000 driver expects
+	screencols=256;
+	fb_cmap cmap;
+	cmap.start=0;
+	int rbits,gbits,bbits;
+	switch (vinfo.bits_per_pixel) { 
+	  case 8:
+		rbits=3;
+		gbits=3;
+		bbits=2;
+		break;
+	  case 15:
+		rbits=5;
+		gbits=5;
+		bbits=5;
+		break;
+	  case 16:
+		rbits=5;
+		gbits=6;
+		bbits=5;
+		break;
+	  case 24: case 32:
+		rbits=gbits=bbits=8;
+		break;
+	}
+	cmap.len=1<<QMAX(rbits,QMAX(gbits,bbits));
+	cmap.red=(unsigned short int *)
+		 malloc(sizeof(unsigned short int)*256);
+	cmap.green=(unsigned short int *)
+		   malloc(sizeof(unsigned short int)*256);
+	cmap.blue=(unsigned short int *)
+		  malloc(sizeof(unsigned short int)*256);
+	cmap.transp=(unsigned short int *)
+		    malloc(sizeof(unsigned short int)*256);
+	for( int i = 0x0; i < cmap.len; i++ ) {
+	    cmap.red[i] = i*65535/((1<<rbits)-1);
+	    cmap.green[i] = i*65535/((1<<gbits)-1);
+	    cmap.blue[i] = i*65535/((1<<bbits)-1);
+	    cmap.transp[i] = 0;
+	}
+	ioctl(fd,FBIOPUTCMAP,&cmap);
+	free(cmap.red);
+	free(cmap.green);
+	free(cmap.blue);
+	free(cmap.transp);
     }
 
     initted=true;
@@ -272,6 +324,7 @@ void QLinuxFbScreen::shutdownCard()
 	free(startcmap->blue);
 	free(startcmap->transp);
 	delete startcmap;
+	startcmap = 0;
     }
 */
 }
@@ -372,7 +425,7 @@ extern "C" QScreen * qt_get_screen_linuxfb(int display_id, const char *spec,
 {
     if ( !qt_screen ) {
 	const char *term = getenv( "TERM" );
-	if ( QString( term ) == "xterm" ) {
+	if ( QString( term ).left(5) == "xterm" ) {
 	    qFatal( "$TERM=xterm - To continue would corrupt X11 - aborting" );
 	}
 	qt_screen=new QLinuxFbScreen( display_id );

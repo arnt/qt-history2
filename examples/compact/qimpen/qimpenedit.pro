@@ -1,5 +1,5 @@
 TEMPLATE	= app
-CONFIG		= qt warn_on release
+CONFIG		+= qt warn_on release
 INCLUDEPATH	= $(QTDIR)/include
 DEPENDPATH  += ../../../include
 HEADERS	= qimpenchar.h qimpenwidget.h qimpencreateset.h qimpenstroke.h

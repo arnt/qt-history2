@@ -1,5 +1,5 @@
 TEMPLATE	= app
-CONFIG		= qt warn_on release
+CONFIG		+= qt warn_on release
 TMAKE_CC = g++
 TMAKE_CFLAGS += -O3 -DNDEBUG -DNONANSI_INCLUDES
 TMAKE_CXXFLAGS += -O3 -DQUIET

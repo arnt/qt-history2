@@ -7,15 +7,17 @@
 **
 ** Copyright (C) 1992-2000 Troll Tech AS.  All rights reserved.
 **
-** This file is part of the Qt GUI Toolkit.
+** This file is part of the widgets module of the Qt GUI Toolkit.
 **
 ** This file may be distributed under the terms of the Q Public License
 ** as defined by Troll Tech AS of Norway and appearing in the file
 ** LICENSE.QPL included in the packaging of this file.
 **
-** Licensees holding valid Qt Professional Edition licenses may use this
-** file in accordance with the Qt Professional Edition License Agreement
-** provided with the Qt Professional Edition.
+** Licensees holding valid Qt Enterprise Edition or Qt Professional Edition
+** licenses may use this file in accordance with the Qt Commercial License
+** Agreement provided with the Software.  This file is part of the widgets
+** module and therefore may only be used if the widgets module is specified
+** as Licensed on the Licensee's License Certificate.
 **
 ** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 ** information about the Professional Edition licensing, or see
@@ -2550,9 +2552,9 @@ void QListView::updateContents()
 {
     if ( !isVisible() )
 	return;
-    //viewport()->setUpdatesEnabled( TRUE ); // ### what should setting it two times to TRUE bring? :-)
+    viewport()->setUpdatesEnabled( FALSE );
     updateGeometries();
-    //viewport()->setUpdatesEnabled( TRUE );
+    viewport()->setUpdatesEnabled( TRUE );
     viewport()->repaint( FALSE );
     if ( d->makeCurrentVisibleOnUpdate )
 	ensureItemVisible( d->focusItem );
@@ -3514,8 +3516,10 @@ void QListView::focusOutEvent( QFocusEvent * )
 
 void QListView::keyPressEvent( QKeyEvent * e )
 {
-    if ( !e || !firstChild() )
+    if ( !e || !firstChild() ) {
+	e->ignore();
 	return; // subclass bug
+    }
 
     QListViewItem* oldCurrent = currentItem();
     if ( !oldCurrent ) {
@@ -3596,7 +3600,13 @@ void QListView::keyPressEvent( QKeyEvent * e )
 		i = i2;
 	    }
 	} else {
-	    i = i2;
+	    if ( !i2 ) {
+		// list is shorter than the view, goto last item
+		while( (i2 = i->itemBelow()) != 0 )
+		    i = i2;
+	    } else {
+		i = i2;
+	    }
 	}
 	d->currentPrefix.truncate( 0 );
 	break;
@@ -4265,7 +4275,7 @@ void QListView::reconfigureItems()
     d->ellipsisWidth = fontMetrics().width( "..." ) * 2;
     d->r->setOpen( FALSE );
     d->r->configured = FALSE;
-    d->r->setOpen( TRUE );    
+    d->r->setOpen( TRUE );
 }
 
 /*!
@@ -4417,6 +4427,10 @@ static const char * const def_item_xpm[] = {
 static QPixmap *defaultIcon = 0;
 static const int BoxSize = 16;
 
+struct QCheckListItemPrivate
+{
+    bool enabled;
+};
 
 /*!
   Constructs a checkable item with parent \a parent, text \a text and type
@@ -4500,7 +4514,8 @@ QCheckListItem::QCheckListItem( QListViewItem *parent, const QString &text,
 void QCheckListItem::init()
 {
     on = FALSE;
-    reserved = 0;
+    reserved = new QCheckListItemPrivate;
+    ( (QCheckListItemPrivate*)reserved )->enabled = TRUE;
     if ( !defaultIcon )
 	defaultIcon = new QPixmap( (const char **)def_item_xpm );
     if ( myType == Controller ) {
@@ -4555,13 +4570,33 @@ void QCheckListItem::activate()
     }
 }
 
+/*!  Enables/Disables the item depending on what you pass as \a b
+  parameter. If the item is disabled, the user can't change the state
+  (see setOn()/isOn()) of the item.
+*/
+
+void QCheckListItem::setEnabled( bool b )
+{
+    ( (QCheckListItemPrivate*)reserved )->enabled = b;
+}
+
+/*!  Retuns whether the item is enabled or disabled.
+  
+  \sa setEnabled()
+*/
+
+bool QCheckListItem::isEnabled() const
+{
+    return ( (QCheckListItemPrivate*)reserved )->enabled;
+}
+
 /*!
   Sets this button on if \a b is TRUE, off otherwise. Maintains radio button
   exclusivity.
  */
 void QCheckListItem::setOn( bool b  )
 {
-    if ( listView() && !listView()->isEnabled() )
+    if ( listView() && !listView()->isEnabled() || !isEnabled() )
 	return;
 
     if ( b == on )
@@ -4660,7 +4695,10 @@ void QCheckListItem::paintCell( QPainter * p, const QColorGroup & cg,
 	int y = (height() - BoxSize) / 2;
 	//	p->setPen( QPen( cg.text(), winStyle ? 2 : 1 ) );
 	if ( myType == CheckBox ) {
-	    p->setPen( QPen( cg.text(), 2 ) );
+	    if ( isEnabled() )
+		p->setPen( QPen( cg.text(), 2 ) );
+	    else
+		p->setPen( QPen( listView()->palette().color( QPalette::Disabled, QColorGroup::Text ), 2 ) );
 	    p->drawRect( x+marg, y+2, BoxSize-4, BoxSize-4 );
 	    /////////////////////
 	    x++;
@@ -4702,7 +4740,10 @@ void QCheckListItem::paintCell( QPainter * p, const QColorGroup & cg,
 		//QPointArray a;
 		//	p->eraseRect( x, y, w, h );
 
-		p->setPen( cg.text() );
+		if ( isEnabled() )
+		    p->setPen( cg.text() );
+		else
+		    p->setPen( QPen( listView()->palette().color( QPalette::Disabled, QColorGroup::Text ) ) );
 		QPointArray a( QCOORDARRLEN(pts1), pts1 );
 		a.translate( x, y );
 		//p->setPen( cg.dark() );
@@ -4732,7 +4773,10 @@ void QCheckListItem::paintCell( QPainter * p, const QColorGroup & cg,
 		}
 
 	    } else { //motif
-		p->setPen( QPen( cg.text() ) );
+		if ( isEnabled() )
+		    p->setPen( QPen( cg.text() ) );
+		else
+		    p->setPen( QPen( listView()->palette().color( QPalette::Disabled, QColorGroup::Text ) ) );
 		QPointArray a;
 		int cx = BoxSize/2 - 1;
 		int cy = height()/2;
@@ -4743,7 +4787,10 @@ void QCheckListItem::paintCell( QPainter * p, const QColorGroup & cg,
 		    e--;
 		}
 		if ( on ) {
-		    p->setPen( QPen( cg.text()) );
+		    if ( isEnabled() )
+			p->setPen( QPen( cg.text()) );
+		    else
+			p->setPen( QPen( listView()->palette().color( QPalette::Disabled, QColorGroup::Text ) ) );
 		    QBrush   saveBrush = p->brush();
 		    p->setBrush( cg.text() );
 		    e = e - 2;
@@ -4757,6 +4804,7 @@ void QCheckListItem::paintCell( QPainter * p, const QColorGroup & cg,
     }
 
     p->translate( r, 0 );
+    p->setPen( QPen( cg.text() ) );
     QListViewItem::paintCell( p, cg, column, width - r, align );
 }
 

@@ -6,17 +6,19 @@
 **
 ** Created : 920609
 **
-** Copyright (C) 1992-2000 Troll Tech AS.  All rights reserved.
+** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
 **
-** This file is part of the Qt GUI Toolkit.
+** This file is part of the tools module of the Qt GUI Toolkit.
 **
 ** This file may be distributed under the terms of the Q Public License
-** as defined by Troll Tech AS of Norway and appearing in the file
+** as defined by Trolltech AS of Norway and appearing in the file
 ** LICENSE.QPL included in the packaging of this file.
 **
-** Licensees holding valid Qt Professional Edition licenses may use this
-** file in accordance with the Qt Professional Edition License Agreement
-** provided with the Qt Professional Edition.
+** Licensees holding valid Qt Enterprise Edition or Qt Professional Edition
+** licenses may use this file in accordance with the Qt Commercial License
+** Agreement provided with the Software.  This file is part of the tools
+** module and therefore may only be used if the tools module is specified
+** as Licensed on the Licensee's License Certificate.
 **
 ** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 ** information about the Professional Edition licensing, or see
@@ -56,6 +58,7 @@ public:
     QT_STATIC_CONST QChar replacement;     // FFFD
     QT_STATIC_CONST QChar byteOrderMark;     // FEFF
     QT_STATIC_CONST QChar byteOrderSwapped;     // FFFE
+    QT_STATIC_CONST QChar nbsp;            // 00A0
 
     // Unicode information
 
@@ -175,7 +178,7 @@ private:
     uchar cl;
 #if defined(QT_QSTRING_UCS_4)
     ushort grp;
-#endif    
+#endif
     enum { net_ordered = 1 };
 #else
     // ushort on _OS_WIN32_
@@ -183,73 +186,73 @@ private:
     uchar rw;
 #if defined(QT_QSTRING_UCS_4)
     ushort grp;
-#endif    
+#endif
     enum { net_ordered = 0 };
 #endif
 };
 
-inline QChar::QChar() 
+inline QChar::QChar()
 {
     rw = 0; cl = 0;
 #ifdef QT_QSTRING_UCS_4
     grp = 0;
-#endif    
+#endif
 }
-inline QChar::QChar( char c ) 
+inline QChar::QChar( char c )
 {
-    rw = 0; cl = (uchar)c; 
+    rw = 0; cl = (uchar)c;
 #ifdef QT_QSTRING_UCS_4
     grp = 0;
-#endif    
+#endif
 }
-inline QChar::QChar( uchar c ) 
+inline QChar::QChar( uchar c )
 {
-    rw = 0; cl = c; 
+    rw = 0; cl = c;
 #ifdef QT_QSTRING_UCS_4
     grp = 0;
-#endif    
+#endif
 }
-inline QChar::QChar( uchar c, uchar r ) 
+inline QChar::QChar( uchar c, uchar r )
 {
     rw = r; cl = c;
 #ifdef QT_QSTRING_UCS_4
     grp = 0;
-#endif    
+#endif
 }
-inline QChar::QChar( const QChar& c ) 
+inline QChar::QChar( const QChar& c )
 {
-    rw = c.rw; cl = c.cl; 
+    rw = c.rw; cl = c.cl;
 #ifdef QT_QSTRING_UCS_4
     grp = 0;
-#endif    
+#endif
 }
-inline QChar::QChar( ushort rc ) 
+inline QChar::QChar( ushort rc )
 {
-    rw = (uchar)((rc>>8)&0xff); cl = (uchar)(rc&0xff); 
+    rw = (uchar)((rc>>8)&0xff); cl = (uchar)(rc&0xff);
 #ifdef QT_QSTRING_UCS_4
     grp = 0;
-#endif    
+#endif
 }
-inline QChar::QChar( short rc ) 
+inline QChar::QChar( short rc )
 {
-    rw = (uchar)((rc>>8)&0xff); cl = (uchar)(rc&0xff); 
+    rw = (uchar)((rc>>8)&0xff); cl = (uchar)(rc&0xff);
 #ifdef QT_QSTRING_UCS_4
     grp = 0;
-#endif    
+#endif
 }
 inline QChar::QChar( uint rc )
 {
-    rw = (uchar)((rc>>8)&0xff); cl = (uchar)(rc&0xff); 
+    rw = (uchar)((rc>>8)&0xff); cl = (uchar)(rc&0xff);
 #ifdef QT_QSTRING_UCS_4
     grp = 0;
-#endif    
+#endif
 }
-inline QChar::QChar( int rc ) 
+inline QChar::QChar( int rc )
 {
-    rw = (uchar)((rc>>8)&0xff); cl = (uchar)(rc&0xff); 
+    rw = (uchar)((rc>>8)&0xff); cl = (uchar)(rc&0xff);
 #ifdef QT_QSTRING_UCS_4
     grp = 0;
-#endif    
+#endif
 }
 
 
@@ -517,8 +520,8 @@ public:
 #ifndef QT_NO_COMPAT
     const char* data() const { return latin1(); }
 #endif
-    
-    bool startsWith( const QString& ) const; 
+
+    bool startsWith( const QString& ) const;
 
 private:
     QString( int size, bool dummy );		// allocate size incl. \0

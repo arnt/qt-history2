@@ -102,7 +102,7 @@ this screenshot.
 This screenshot shows a <a href="qtabdialog.html">QTabDialog</a>.
 The tabs (<a href="qtabbar.html">QTabBar</a>) or the more
 convenient class <a href="qtabwidget.html">QTabWidget</a>, which
-combines a tab-bar with the pages, can be used seperately.
+combines a tab bar with the pages, can be used separately.
 In the visible page you see a <a href="qlabel.html">QLabel</a>,
 the range controls <a href="qslider.html">QSlider</a> and
 <a href="qspinbox.html">QSpinBox</a> and below a

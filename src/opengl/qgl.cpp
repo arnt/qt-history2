@@ -7,15 +7,17 @@
 **
 ** Copyright (C) 1992-2000 Troll Tech AS.  All rights reserved.
 **
-** This file is part of the Qt GUI Toolkit.
+** This file is part of the opengl module of the Qt GUI Toolkit.
 **
 ** This file may be distributed under the terms of the Q Public License
 ** as defined by Troll Tech AS of Norway and appearing in the file
 ** LICENSE.QPL included in the packaging of this file.
 **
-** Licensees holding valid Qt Professional Edition licenses may use this
-** file in accordance with the Qt Professional Edition License Agreement
-** provided with the Qt Professional Edition.
+** Licensees holding valid Qt Enterprise Edition or Qt Professional Edition
+** licenses may use this file in accordance with the Qt Commercial License
+** Agreement provided with the Software.  This file is part of the opengl
+** module and therefore may only be used if the opengl module is specified
+** as Licensed on the Licensee's License Certificate.
 **
 ** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 ** information about the Professional Edition licensing, or see
@@ -47,12 +49,12 @@ const char *qGLVersion()
 
 /*! \class QGL qgl.h
   \brief The QGL class is a namespace for miscellaneous identifiers
-  in the Qt OpenGL Extension.
+  in the Qt OpenGL module.
 
-  \extension OpenGL
+  \module OpenGL
 
   Normally, you can ignore this class. QGLWidget and the other OpenGL
-  Extension classes inherit it, so when you make your own QGLWidget
+  module classes inherit it, so when you make your own QGLWidget
   subclass, you can use the identifiers in the QGL namespace without
   qualification.
 
@@ -74,7 +76,7 @@ const char *qGLVersion()
   \brief The QGLFormat class specifies the display format of an OpenGL
   rendering context.
 
-  \extension OpenGL
+  \module OpenGL
 
   A display format has several characteristics:
   <ul>
@@ -166,7 +168,7 @@ QGLFormat::QGLFormat()
 
   If \a options is not 0, this copy will be modified by these format options.
   The \a options parameter must be FormatOption values OR'ed together.
-  
+
   This constructor makes it easy to specify a certain desired format
   in classes derived from QGLWidget, for example:
   \code
@@ -577,7 +579,7 @@ void QGLFormat::setDefaultFormat( const QGLFormat &f )
 
 
 /*!
-  Returns the default QGLFormat for overlay contexts. 
+  Returns the default QGLFormat for overlay contexts.
 
   The factory default overlay format is:
   <ul>
@@ -686,7 +688,7 @@ QGLContext* QGLContext::currentCtx = 0;
   \class QGLContext qgl.h
   \brief The QGLContext class encapsulates an OpenGL rendering context.
 
-  \extension OpenGL
+  \module OpenGL
 
   An OpenGL rendering context is a complete set of OpenGL state
   variables.
@@ -790,7 +792,7 @@ void QGLContext::setFormat( const QGLFormat &format )
 */
 
 /*!
-  \fn bool QGLContext::isSharing() const 
+  \fn bool QGLContext::isSharing() const
 
   Returns TRUE if display list sharing with another context was
   requested in the create() call, and the GL system was able to
@@ -799,14 +801,14 @@ void QGLContext::setFormat( const QGLFormat &format )
 */
 
 /*!
-  \fn bool QGLContext::deviceIsPixmap() const 
+  \fn bool QGLContext::deviceIsPixmap() const
 
   Returns TRUE if the paint device of this context is a pixmap,
   otherwise FALSE.
 */
 
 /*!
-  \fn bool QGLContext::windowCreated() const 
+  \fn bool QGLContext::windowCreated() const
 
   Returns TRUE if a window has been created for this context,
   otherwise FALSE.
@@ -982,7 +984,7 @@ bool QGLContext::create( const QGLContext* shareContext )
   \class QGLWidget qgl.h
   \brief The QGLWidget class is a widget for rendering OpenGL graphics.
 
-  \extension OpenGL
+  \module OpenGL
 
   QGLWidget provides functionality for displaying OpenGL graphics
   integrated in a Qt application. It is very simple to use: you
@@ -1072,7 +1074,7 @@ bool QGLContext::create( const QGLContext* shareContext )
 
   <b>About Overlays:</b> The QGLWidget can create a GL overlay context
   in addition to the normal context, if overlays are supported by the
-  underlying system. 
+  underlying system.
 
   If you want to use overlays, you specify it in the \link QGLFormat
   format\endlink. (Note: Overlay must be requested in the format
@@ -1208,20 +1210,20 @@ QGLWidget::~QGLWidget()
 */
 
 /*!
-  \fn void QGLWidget::setAutoBufferSwap( bool on ) 
+  \fn void QGLWidget::setAutoBufferSwap( bool on )
 
   Turns on or off the automatic GL buffer swapping. If on, and the
   widget is using a double-buffered format, the background and
   foreground GL buffers will automatically be swapped after each time
   the paintGL() function has been called.
-  
+
   The buffer auto-swapping is on by default.
 
   \sa autoBufferSwap(), doubleBuffer(), swapBuffers()
 */
 
 /*!
-  \fn bool QGLWidget::autoBufferSwap() const 
+  \fn bool QGLWidget::autoBufferSwap() const
 
   Returns TRUE if the widget is doing automatic GL buffer swapping.
 
@@ -1229,7 +1231,7 @@ QGLWidget::~QGLWidget()
 */
 
 /*!
-  \fn bool QGLWidget::isValid() const 
+  \fn bool QGLWidget::isValid() const
 
   Returns TRUE if the widget has a valid GL rendering context. A
   widget will be invalid if the system has no \link
@@ -1243,7 +1245,7 @@ bool QGLWidget::isValid() const
 }
 
 /*!
-  \fn bool QGLWidget::isSharing() const 
+  \fn bool QGLWidget::isSharing() const
 
   Returns TRUE if display list sharing with another QGLWidget was
   requested in the constructor, and the GL system was able to provide
@@ -1562,7 +1564,7 @@ QPixmap QGLWidget::renderPixmap( int w, int h, bool useContext )
     else
 	success = FALSE;
     setContext( ocx );				// Will delete pcx
-    
+
     if ( success )
 	return pm;
     else
@@ -1641,7 +1643,7 @@ void QGLWidget::qglClearColor( const QColor& c ) const
 	if ( ctx->format().rgba() )
 	    glClearColor( (GLfloat)c.red() / 255.0, (GLfloat)c.green() / 255.0,
 			  (GLfloat)c.blue() / 255.0, (GLfloat) 0.0 );
-	else 
+	else
 	    glClearIndex( ctx->colorIndex( c ) );
     }
 }
@@ -1671,7 +1673,7 @@ application must be created with another toolkit, such as Motif on the
 X platform, Microsoft Foundation Classes (MFC) under Windows -- or Qt
 on both platforms.
 
-The Qt OpenGL Extension provides integration of OpenGL with Qt, making
+The Qt OpenGL module provides integration of OpenGL with Qt, making
 it very easy to use OpenGL rendering in a Qt application.
 
 

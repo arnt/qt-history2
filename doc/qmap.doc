@@ -54,6 +54,9 @@
   copy constructors if no explicit version is supplied. In many cases,
   this is sufficient.
 
+  The class used for the key requires that the \c operator< is implemented
+  and defines a total order on the keys.
+
   Example:
   \code
     #include <qmap.h>
@@ -140,7 +143,7 @@
 
   Another method for traversing a map is to use the functions begin()
   and end().  With a simple for loop as shown in the example you can
-  iterate over the complete map.  It is save to have multiple
+  iterate over the complete map.  It is safe to have multiple
   iterators at the same time. If some member of the map is removed
   then only iterators pointing to the removed member become
   invalid. Inserting in the map does not invalidate any iterator.

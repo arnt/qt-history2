@@ -19,6 +19,7 @@ sub fixup {
     s-<b>(.*?)</b>-\\fB$1\\fR-gs;
     s-<i>(.*?)</i>-\\fI$1\\fR-gs;
     s-<var>(.*?)</var>-\\fI$1\\fR-gs;
+    s-<div[^>]*>(.*?)</div>-$1-gs;
 
     # images
     s!\s*<img src=(.*?\.gif).*?>\s*!\n.ce 1\n.B "[Image Omitted]"\n.PP\n!gs;
@@ -140,7 +141,7 @@ sub parseclassfile {
     local ($title );
 
     # strip head and tail
-    s/^.*?<body[^>]*>\s*.*?<br(?:\s[^>]*)?>//s;
+    s/^.*?<body[^>]*>\s*.*?<\/table(?:\s[^>]*)?>//s;
     s/<hr><p>\s+This file is part of the.*$//s;
     s/<hr><p>\s*Search the doc.*$//s;
 
@@ -229,8 +230,8 @@ foreach $url ( sort keys %name ) { #'qstring.html'
     close F;
     open( M, "> ../man/man3/" . $manpage ) || die "cannot open /man/man3/" . $manpage;
     print M ".TH ", $name, " 3qt \"", $day, " ", $mname, " ", 1900+$year,
-"\" \"Troll Tech AS\" \\\" -*- nroff -*-
-.\\\" Copyright 1992-2000 Troll Tech AS.  All rights reserved.  See the
+"\" \"Trolltech AS\" \\\" -*- nroff -*-
+.\\\" Copyright 1992-2000 Trolltech AS.  All rights reserved.  See the
 .\\\" license file included in the distribution for a complete license
 .\\\" statement.
 .\\\"
@@ -242,7 +243,7 @@ foreach $url ( sort keys %name ) { #'qstring.html'
 ".SH \"SEE ALSO\"
 .BR http://doc.trolltech.com/", $url, "
 .SH COPYRIGHT
-Copyright 1992-2000 Troll Tech AS, http://www.trolltech.com.  See the
+Copyright 1992-2000 Trolltech AS, http://www.trolltech.com/.  See the
 license file included in the distribution for a complete license
 statement.
 .SH AUTHOR
@@ -251,7 +252,7 @@ Generated automatically from the source code.
     close M;
 
     $name =~ s/$/.3qt/;
-    open( M, "> ../man/man3/$name" ) || die "can't open ../man/man3/$mame";
+    open( M, "> ../man/man3/$name" ) || die "can't open ../man/man3/$name";
     print M ".so man3/$manpage\n";
     close M;
 }

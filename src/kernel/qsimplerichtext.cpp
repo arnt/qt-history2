@@ -7,15 +7,17 @@
 **
 ** Copyright (C) 1992-2000 Troll Tech AS.  All rights reserved.
 **
-** This file is part of the Qt GUI Toolkit.
+** This file is part of the kernel module of the Qt GUI Toolkit.
 **
 ** This file may be distributed under the terms of the Q Public License
 ** as defined by Troll Tech AS of Norway and appearing in the file
 ** LICENSE.QPL included in the packaging of this file.
 **
-** Licensees holding valid Qt Professional Edition licenses may use this
-** file in accordance with the Qt Professional Edition License Agreement
-** provided with the Qt Professional Edition.
+** Licensees holding valid Qt Enterprise Edition or Qt Professional Edition
+** licenses may use this file in accordance with the Qt Commercial License
+** Agreement provided with the Software.  This file is part of the kernel
+** module and therefore may only be used if the kernel module is specified
+** as Licensed on the Licensee's License Certificate.
 **
 ** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 ** information about the Professional Edition licensing, or see
@@ -39,7 +41,7 @@
   \ingroup drawing
 
   This class encapsulates simple richt text usage where a string is
-  interpretted as richt text and can be drawn.  This is in particular
+  interpreted as richt text and can be drawn.  This is in particular
   useful if you want to display some rich text in a custom widget.
   A QStyleSheet is needed to actually understand and format rich text.
   Qt provides a default HTML-like style sheet but you may define custom
@@ -222,7 +224,7 @@ void QSimpleRichText::draw( QPainter* p,  int x, int y, const QRegion& clipRegio
   to be painted and then calling this without a brush.
 
   This is a convenience function if there's no palette but just a
-  cologroup available. If you have a palette, pass this instead of \a cg.
+  color group available. If you have a palette, pass this instead of \a cg.
 */
 void QSimpleRichText::draw( QPainter* p,  int x, int y, const QRegion& clipRegion,
 			      const QColorGroup& cg, const QBrush* paper) const

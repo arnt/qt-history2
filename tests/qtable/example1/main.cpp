@@ -8,7 +8,7 @@
 **
 *****************************************************************************/
 
-#include "../qtable.h"
+#include <qtable.h>
 #include <qapplication.h>
 #include <qvbox.h>
 #include <qpushbutton.h>
@@ -21,7 +21,7 @@ class ReadOnlyNumber : public QTableItem
 {
 public:
     ReadOnlyNumber( QTable *t, EditType et, int num ) :
-	QTableItem( t, et, QString::number( num ) ) { setReplacable( FALSE ); }
+	QTableItem( t, et, QString::number( num ) ) { setReplaceable( FALSE ); }
     QWidget *createEditor() const { return 0; }
 };
 
@@ -29,7 +29,7 @@ class ReadWriteNumber : public QTableItem
 {
 public:
     ReadWriteNumber( QTable *t, EditType et, int num ) :
-	QTableItem( t, et, QString::number( num ) ) { setReplacable( FALSE ); }
+	QTableItem( t, et, QString::number( num ) ) { setReplaceable( FALSE ); }
     QWidget *createEditor() const {
 	QLineEdit *le = (QLineEdit*)QTableItem::createEditor();
 	le->setValidator( new QIntValidator( le ) );
@@ -42,7 +42,7 @@ class SexChooser : public QTableItem
 {
 public:
     SexChooser( QTable *t, EditType et )
-	: QTableItem( t, et, "female" ), cb( 0 ) { setReplacable( FALSE ); }
+	: QTableItem( t, et, "female" ), cb( 0 ) { setReplaceable( FALSE ); }
     QWidget *createEditor() const {
 	( (SexChooser*)this )->cb = new QComboBox( table()->viewport() );
 	cb->insertItem( "female" );
@@ -73,7 +73,7 @@ private:
 class CheckItem : public QTableItem
 {
 public:
-    CheckItem( QTable *t, EditType et ) : QTableItem( t, et, "No" ) { setReplacable( FALSE ); }
+    CheckItem( QTable *t, EditType et ) : QTableItem( t, et, "No" ) { setReplaceable( FALSE ); }
     QWidget *createEditor() const {
 	QCheckBox *cb = new QCheckBox( "Yes", table()->viewport() );
 	cb->setChecked( text() == "Yes" );
@@ -100,8 +100,8 @@ public slots:
 	int row = table->numRows() - 1;
 	table->setItem( row, 0, new ReadOnlyNumber( table, QTableItem::Never, row + 1 ) );
  	table->setItem( row, 3, new SexChooser( table, QTableItem::Always ) );
-	table->setItem( row, 4, new ReadWriteNumber( table, QTableItem::OnActivate, row + 500 ) );
- 	table->setItem( row, 5, new CheckItem( table, QTableItem::OnCurrent ) );
+	table->setItem( row, 4, new ReadWriteNumber( table, QTableItem::OnTyping, row + 500 ) );
+ 	table->setItem( row, 5, new CheckItem( table, QTableItem::WhenCurrent ) );
     }
 
 private:

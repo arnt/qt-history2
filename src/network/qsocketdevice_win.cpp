@@ -1,21 +1,23 @@
 /****************************************************************************
 ** $Id: //depot/qt/main/extensions/network/src/qsocketdevice_unix.cpp#3 $
 **
-** Implementation of Network Extension Library
+** Implementation of QSocketDevice class.
 **
 ** Created : 970521
 **
 ** Copyright (C) 1992-2000 Troll Tech AS.  All rights reserved.
 **
-** This file is part of the Qt GUI Toolkit.
+** This file is part of the network module of the Qt GUI Toolkit.
 **
 ** This file may be distributed under the terms of the Q Public License
 ** as defined by Troll Tech AS of Norway and appearing in the file
 ** LICENSE.QPL included in the packaging of this file.
 **
-** Licensees holding valid Qt Professional Edition licenses may use this
-** file in accordance with the Qt Professional Edition License Agreement
-** provided with the Qt Professional Edition.
+** Licensees holding valid Qt Enterprise Edition or Qt Professional Edition
+** licenses may use this file in accordance with the Qt Commercial License
+** Agreement provided with the Software.  This file is part of the network
+** module and therefore may only be used if the network module is specified
+** as Licensed on the Licensee's License Certificate.
 **
 ** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 ** information about the Professional Edition licensing, or see
@@ -25,6 +27,7 @@
 
 #include "qsocketdevice.h"
 #include "qwindowdefs.h"
+#include "qdatetime.h"
 #include <string.h>
 #include <windows.h>
 #include <winsock.h>
@@ -257,7 +260,7 @@ void QSocketDevice::setOption( Option opt, int v )
 }
 
 
-bool QSocketDevice::connect( const QHostAddress &addr, uint port )
+bool QSocketDevice::connect( const QHostAddress &addr, Q_UINT16 port )
 {
     if ( !isValid() )
 	return FALSE;
@@ -334,7 +337,7 @@ successful:
 }
 
 
-bool QSocketDevice::bind( const QHostAddress &address, uint port )
+bool QSocketDevice::bind( const QHostAddress &address, Q_UINT16 port )
 {
     if ( !isValid() )
 	return FALSE;
@@ -461,8 +464,29 @@ int QSocketDevice::bytesAvailable() const
 
 int QSocketDevice::waitForMore( int msecs ) const
 {
-    qWarning( "QSocketDevice::waitForMore() not implemented for windows" );
-    return -1;
+    int rv = -1;
+
+    if ( !isValid() )
+	return rv;
+
+    // ### this code is not nice... think about it later!
+
+    // determine the interval for waking up
+    int sleepStep = 100;
+    if ( msecs >= 0 ) {
+	sleepStep = msecs / 10;
+	if ( sleepStep > 100 )
+	    sleepStep = 100;
+    }
+    QTime waitingTime;
+    waitingTime.start();
+    while ( waitingTime.elapsed() < msecs ) {
+	rv = bytesAvailable();
+	if ( rv > 0 )
+	    break;
+	Sleep( sleepStep );
+    }
+    return rv;
 }
 
 
@@ -637,7 +661,7 @@ int QSocketDevice::writeBlock( const char *data, uint len )
 
 
 int QSocketDevice::writeBlock( const char * data, uint len,
-			       const QHostAddress & host, uint port )
+			       const QHostAddress & host, Q_UINT16 port )
 {
     if ( t != Datagram ) {
 #if defined(CHECK_STATE) || defined(QSOCKETDEVICE_DEBUG)

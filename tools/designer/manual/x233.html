@@ -1,0 +1,707 @@
+<HTML
+><HEAD
+><TITLE
+>Generating C++ Source Code From The Designer File</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.46"><LINK
+REL="HOME"
+HREF="book1.html"><LINK
+REL="UP"
+TITLE="Tutorial: Creating A Simple Application With The Help Of
+	  Qt Designer"
+HREF="c33.html"><LINK
+REL="PREVIOUS"
+TITLE="More Widgets For Our Form"
+HREF="x180.html"><LINK
+REL="NEXT"
+TITLE="Putting It All Together"
+HREF="x270.html"></HEAD
+><BODY
+CLASS="SECT1"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="x180.html"
+>Prev</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+>Chapter 2. Tutorial: Creating A Simple Application With The Help Of
+	  Qt Designer</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="x270.html"
+>Next</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="AEN233"
+>Generating C++ Source Code From The Designer File</A
+></H1
+><P
+>As you might have guessed from the filename extension
+		  <TT
+CLASS="FILENAME"
+>.ui</TT
+>, Qt Designer does not generate C++
+		  source code right away. While this would be possible, it
+		  would make it much more difficult to change the dialogs
+		  later by using Qt Designer.</P
+><P
+>Out of curiosity, you might be wondering what it is
+		  that Qt Designer saves in its <TT
+CLASS="FILENAME"
+>.ui</TT
+>
+		  files. These files are a textual description of the dialog
+		  you just created. The format used is the markup language
+		  XML. Here is what <TT
+CLASS="FILENAME"
+>pizza.ui</TT
+> can look
+		  like; your file might have slightly different values for
+		  sizes and positions:</P
+><TABLE
+BORDER="0"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+>&#60;!DOCTYPE UI&#62;&#60;UI&#62;
+&#60;class&#62;PizzaEntry&#60;/class&#62;
+&#60;widget&#62;
+    &#60;class&#62;QDialog&#60;/class&#62;
+    &#60;property&#62;
+        &#60;name&#62;name&#60;/name&#62;
+        &#60;cstring&#62;PizzaEntry&#60;/cstring&#62;
+    &#60;/property&#62;
+    &#60;property&#62;
+        &#60;name&#62;geometry&#60;/name&#62;
+        &#60;rect&#62;
+            &#60;x&#62;0&#60;/x&#62;
+            &#60;y&#62;0&#60;/y&#62;
+            &#60;width&#62;310&#60;/width&#62;
+            &#60;height&#62;222&#60;/height&#62;
+        &#60;/rect&#62;
+    &#60;/property&#62;
+    &#60;property&#62;
+        &#60;name&#62;caption&#60;/name&#62;
+        &#60;string&#62;Form1&#60;/string&#62;
+    &#60;/property&#62;
+    &#60;widget&#62;
+        &#60;class&#62;QButtonGroup&#60;/class&#62;
+        &#60;property&#62;
+            &#60;name&#62;name&#60;/name&#62;
+            &#60;cstring&#62;ButtonGroup1&#60;/cstring&#62;
+        &#60;/property&#62;
+        &#60;property&#62;
+            &#60;name&#62;geometry&#60;/name&#62;
+            &#60;rect&#62;
+                &#60;x&#62;30&#60;/x&#62;
+                &#60;y&#62;10&#60;/y&#62;
+                &#60;width&#62;122&#60;/width&#62;
+                &#60;height&#62;119&#60;/height&#62;
+            &#60;/rect&#62;
+        &#60;/property&#62;
+        &#60;property&#62;
+            &#60;name&#62;title&#60;/name&#62;
+            &#60;string&#62;Toppings&#60;/string&#62;
+        &#60;/property&#62;
+        &#60;widget&#62;
+            &#60;class&#62;QCheckBox&#60;/class&#62;
+            &#60;property&#62;
+                &#60;name&#62;name&#60;/name&#62;
+                &#60;cstring&#62;CheckBox1&#60;/cstring&#62;
+            &#60;/property&#62;
+            &#60;property&#62;
+                &#60;name&#62;geometry&#60;/name&#62;
+                &#60;rect&#62;
+                    &#60;x&#62;10&#60;/x&#62;
+                    &#60;y&#62;20&#60;/y&#62;
+                    &#60;width&#62;102&#60;/width&#62;
+                    &#60;height&#62;19&#60;/height&#62;
+                &#60;/rect&#62;
+            &#60;/property&#62;
+            &#60;property&#62;
+                &#60;name&#62;text&#60;/name&#62;
+                &#60;string&#62;Champignons&#60;/string&#62;
+            &#60;/property&#62;
+        &#60;/widget&#62;
+        &#60;widget&#62;
+            &#60;class&#62;QCheckBox&#60;/class&#62;
+            &#60;property&#62;
+                &#60;name&#62;name&#60;/name&#62;
+                &#60;cstring&#62;CheckBox2&#60;/cstring&#62;
+            &#60;/property&#62;
+            &#60;property&#62;
+                &#60;name&#62;geometry&#60;/name&#62;
+                &#60;rect&#62;
+                    &#60;x&#62;10&#60;/x&#62;
+                    &#60;y&#62;40&#60;/y&#62;
+                    &#60;width&#62;51&#60;/width&#62;
+                    &#60;height&#62;19&#60;/height&#62;
+                &#60;/rect&#62;
+            &#60;/property&#62;
+            &#60;property&#62;
+                &#60;name&#62;text&#60;/name&#62;
+                &#60;string&#62;Ham&#60;/string&#62;
+            &#60;/property&#62;
+        &#60;/widget&#62;
+        &#60;widget&#62;
+            &#60;class&#62;QCheckBox&#60;/class&#62;
+            &#60;property&#62;
+                &#60;name&#62;name&#60;/name&#62;
+                &#60;cstring&#62;CheckBox3&#60;/cstring&#62;
+            &#60;/property&#62;
+            &#60;property&#62;
+                &#60;name&#62;geometry&#60;/name&#62;
+                &#60;rect&#62;
+                    &#60;x&#62;10&#60;/x&#62;
+                    &#60;y&#62;60&#60;/y&#62;
+                    &#60;width&#62;88&#60;/width&#62;
+                    &#60;height&#62;19&#60;/height&#62;
+                &#60;/rect&#62;
+            &#60;/property&#62;
+            &#60;property&#62;
+                &#60;name&#62;text&#60;/name&#62;
+                &#60;string&#62;Pineapples&#60;/string&#62;
+            &#60;/property&#62;
+        &#60;/widget&#62;
+        &#60;widget&#62;
+            &#60;class&#62;QCheckBox&#60;/class&#62;
+            &#60;property&#62;
+                &#60;name&#62;name&#60;/name&#62;
+                &#60;cstring&#62;CheckBox4&#60;/cstring&#62;
+            &#60;/property&#62;
+            &#60;property&#62;
+                &#60;name&#62;geometry&#60;/name&#62;
+                &#60;rect&#62;
+                    &#60;x&#62;10&#60;/x&#62;
+                    &#60;y&#62;80&#60;/y&#62;
+                    &#60;width&#62;79&#60;/width&#62;
+                    &#60;height&#62;19&#60;/height&#62;
+                &#60;/rect&#62;
+            &#60;/property&#62;
+            &#60;property&#62;
+                &#60;name&#62;text&#60;/name&#62;
+                &#60;string&#62;Anchovis&#60;/string&#62;
+            &#60;/property&#62;
+        &#60;/widget&#62;
+    &#60;/widget&#62;
+    &#60;widget&#62;
+        &#60;class&#62;QButtonGroup&#60;/class&#62;
+        &#60;property&#62;
+            &#60;name&#62;name&#60;/name&#62;
+            &#60;cstring&#62;ButtonGroup2&#60;/cstring&#62;
+        &#60;/property&#62;
+        &#60;property&#62;
+            &#60;name&#62;geometry&#60;/name&#62;
+            &#60;rect&#62;
+                &#60;x&#62;180&#60;/x&#62;
+                &#60;y&#62;20&#60;/y&#62;
+                &#60;width&#62;100&#60;/width&#62;
+                &#60;height&#62;99&#60;/height&#62;
+            &#60;/rect&#62;
+        &#60;/property&#62;
+        &#60;property&#62;
+            &#60;name&#62;title&#60;/name&#62;
+            &#60;string&#62;Size&#60;/string&#62;
+        &#60;/property&#62;
+        &#60;widget&#62;
+            &#60;class&#62;QRadioButton&#60;/class&#62;
+            &#60;property&#62;
+                &#60;name&#62;name&#60;/name&#62;
+                &#60;cstring&#62;RadioButton1&#60;/cstring&#62;
+            &#60;/property&#62;
+            &#60;property&#62;
+                &#60;name&#62;geometry&#60;/name&#62;
+                &#60;rect&#62;
+                    &#60;x&#62;10&#60;/x&#62;
+                    &#60;y&#62;20&#60;/y&#62;
+                    &#60;width&#62;56&#60;/width&#62;
+                    &#60;height&#62;19&#60;/height&#62;
+                &#60;/rect&#62;
+            &#60;/property&#62;
+            &#60;property&#62;
+                &#60;name&#62;text&#60;/name&#62;
+                &#60;string&#62;Junior&#60;/string&#62;
+            &#60;/property&#62;
+        &#60;/widget&#62;
+        &#60;widget&#62;
+            &#60;class&#62;QRadioButton&#60;/class&#62;
+            &#60;property&#62;
+                &#60;name&#62;name&#60;/name&#62;
+                &#60;cstring&#62;RadioButton2&#60;/cstring&#62;
+            &#60;/property&#62;
+            &#60;property&#62;
+                &#60;name&#62;geometry&#60;/name&#62;
+                &#60;rect&#62;
+                    &#60;x&#62;10&#60;/x&#62;
+                    &#60;y&#62;40&#60;/y&#62;
+                    &#60;width&#62;71&#60;/width&#62;
+                    &#60;height&#62;19&#60;/height&#62;
+                &#60;/rect&#62;
+            &#60;/property&#62;
+            &#60;property&#62;
+                &#60;name&#62;text&#60;/name&#62;
+                &#60;string&#62;Standard&#60;/string&#62;
+            &#60;/property&#62;
+        &#60;/widget&#62;
+        &#60;widget&#62;
+            &#60;class&#62;QRadioButton&#60;/class&#62;
+            &#60;property&#62;
+                &#60;name&#62;name&#60;/name&#62;
+                &#60;cstring&#62;RadioButton3&#60;/cstring&#62;
+            &#60;/property&#62;
+            &#60;property&#62;
+                &#60;name&#62;geometry&#60;/name&#62;
+                &#60;rect&#62;
+                    &#60;x&#62;10&#60;/x&#62;
+                    &#60;y&#62;60&#60;/y&#62;
+                    &#60;width&#62;58&#60;/width&#62;
+                    &#60;height&#62;19&#60;/height&#62;
+                &#60;/rect&#62;
+            &#60;/property&#62;
+            &#60;property&#62;
+                &#60;name&#62;text&#60;/name&#62;
+                &#60;string&#62;Family&#60;/string&#62;
+            &#60;/property&#62;
+        &#60;/widget&#62;
+    &#60;/widget&#62;
+    &#60;widget&#62;
+        &#60;class&#62;QCheckBox&#60;/class&#62;
+        &#60;property&#62;
+            &#60;name&#62;name&#60;/name&#62;
+            &#60;cstring&#62;CheckBox5&#60;/cstring&#62;
+        &#60;/property&#62;
+        &#60;property&#62;
+            &#60;name&#62;geometry&#60;/name&#62;
+            &#60;rect&#62;
+                &#60;x&#62;110&#60;/x&#62;
+                &#60;y&#62;150&#60;/y&#62;
+                &#60;width&#62;101&#60;/width&#62;
+                &#60;height&#62;19&#60;/height&#62;
+            &#60;/rect&#62;
+        &#60;/property&#62;
+        &#60;property&#62;
+            &#60;name&#62;text&#60;/name&#62;
+            &#60;string&#62;Extra Cheese&#60;/string&#62;
+        &#60;/property&#62;
+    &#60;/widget&#62;
+    &#60;widget&#62;
+        &#60;class&#62;QPushButton&#60;/class&#62;
+        &#60;property&#62;
+            &#60;name&#62;name&#60;/name&#62;
+            &#60;cstring&#62;PushButton1_2_2&#60;/cstring&#62;
+        &#60;/property&#62;
+        &#60;property&#62;
+            &#60;name&#62;geometry&#60;/name&#62;
+            &#60;rect&#62;
+                &#60;x&#62;50&#60;/x&#62;
+                &#60;y&#62;180&#60;/y&#62;
+                &#60;width&#62;108&#60;/width&#62;
+                &#60;height&#62;32&#60;/height&#62;
+            &#60;/rect&#62;
+        &#60;/property&#62;
+        &#60;property&#62;
+            &#60;name&#62;text&#60;/name&#62;
+            &#60;string&#62;OK&#60;/string&#62;
+        &#60;/property&#62;
+    &#60;/widget&#62;
+    &#60;widget&#62;
+        &#60;class&#62;QPushButton&#60;/class&#62;
+        &#60;property&#62;
+            &#60;name&#62;name&#60;/name&#62;
+            &#60;cstring&#62;PushButton1_2&#60;/cstring&#62;
+        &#60;/property&#62;
+        &#60;property&#62;
+            &#60;name&#62;geometry&#60;/name&#62;
+            &#60;rect&#62;
+                &#60;x&#62;170&#60;/x&#62;
+                &#60;y&#62;180&#60;/y&#62;
+                &#60;width&#62;108&#60;/width&#62;
+                &#60;height&#62;32&#60;/height&#62;
+            &#60;/rect&#62;
+        &#60;/property&#62;
+        &#60;property&#62;
+            &#60;name&#62;text&#60;/name&#62;
+            &#60;string&#62;Cancel&#60;/string&#62;
+        &#60;/property&#62;
+    &#60;/widget&#62;
+&#60;/widget&#62;
+&#60;/UI&#62;</PRE
+></TD
+></TR
+></TABLE
+><P
+>The first few lines specify that this is a Qt Designer
+		  file and that it describes a dialog which should be called
+		  <SPAN
+CLASS="GUILABEL"
+>PizzaEntry</SPAN
+>. The rest describes the
+		  individual widgets with by listing their names, their
+		  classes and some of their properties. Only those properties
+		  that are different from the default, i.e., those values that
+		  were automatically set when you created the widget in the
+		  form, are listed here. You could in theory change values
+		  here, but this is not recommended since you might break the
+		  format if you do not exactly know what you are doing, so
+		  better edit these files via Qt Designer.</P
+><P
+>Of course, no C++ compiler can make use of such a
+		  file, so you will have to convert it first. This is the task
+		  of another program that follows with Qt Designer:
+		  <B
+CLASS="COMMAND"
+>uic</B
+>, the user-interface
+		  compiler.<A
+NAME="AEN245"
+HREF="#FTN.AEN245"
+>[1]</A
+></P
+><P
+>You need to call <B
+CLASS="COMMAND"
+>uic</B
+> twice to
+		  generate  both the header file and the implementation file
+		  of your dialog class. Assuming that <B
+CLASS="COMMAND"
+>uic</B
+>
+		  is in your search path, you can generate the header file as
+		  follows:</P
+><TABLE
+BORDER="0"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+>uic -o PizzaEntry.h pizza.ui</PRE
+></TD
+></TR
+></TABLE
+><P
+>The option <TT
+CLASS="OPTION"
+>&#8211;o</TT
+> tells
+		  <B
+CLASS="COMMAND"
+>uic</B
+> how to name the header file, and
+		  <TT
+CLASS="FILENAME"
+>pizza.ui</TT
+> is the name of the file you
+		  saved with Qt Designer. As with the XML file, let's have a
+		  short look at the generated file:</P
+><TABLE
+BORDER="0"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+>/****************************************************************************
+** Form interface generated from reading ui file 'pizza.ui'
+**
+** Created: Tue Jun 20 13:22:32 2000
+**      by:  The User Interface Compiler (uic)
+**
+** WARNING! All changes made in this file will be lost!
+****************************************************************************/
+#ifndef PIZZAENTRY_H
+#define PIZZAENTRY_H
+
+#include &#60;qdialog.h&#62;
+class QVBoxLayout;
+class QHBoxLayout;
+class QGridLayout;
+class QButtonGroup;
+class QCheckBox;
+class QPushButton;
+class QRadioButton;
+
+class PizzaEntry : public QDialog
+{
+    Q_OBJECT
+
+public:
+    PizzaEntry( QWidget* parent = 0, const char* name = 0, bool modal = FALSE, WFlags f = 0 );
+    ~PizzaEntry();
+
+    QButtonGroup* ButtonGroup1;
+    QCheckBox* CheckBox1;
+    QCheckBox* CheckBox2;
+    QCheckBox* CheckBox3;
+    QCheckBox* CheckBox4;
+    QButtonGroup* ButtonGroup2;
+    QRadioButton* RadioButton1;
+    QRadioButton* RadioButton2;
+    QRadioButton* RadioButton3;
+    QCheckBox* CheckBox5;
+    QPushButton* PushButton1_2_2;
+    QPushButton* PushButton1_2;
+
+protected:
+};
+
+#endif // PIZZAENTRY_H</PRE
+></TD
+></TR
+></TABLE
+><P
+>If you have programmed with Qt before, the only thing
+		  that might surprise you here is the fact that all the widget
+		  members of the dialog are made
+		  <TT
+CLASS="LITERAL"
+>public</TT
+>. We'll discuss later why this is
+		  so.</P
+><P
+>Next step is to create the implementation file. You
+		  tell <B
+CLASS="COMMAND"
+>uic</B
+> that you want to create an
+		  implementation file instead of a header file by specifying
+		  the option <TT
+CLASS="OPTION"
+>&#8211;i</TT
+> and passing the name of
+		  the already generated header file:</P
+><TABLE
+BORDER="0"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+>uic -i PizzaEntry.h -o PizzaEntry.cpp pizza.ui</PRE
+></TD
+></TR
+></TABLE
+><P
+>As before, the option <TT
+CLASS="OPTION"
+>&#8211;o</TT
+>
+		  determines the name of the generated file. Again, let's look
+		  at the result:</P
+><TABLE
+BORDER="0"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+>/****************************************************************************
+** Form implementation generated from reading ui file 'pizza.ui'
+**
+** Created: Tue Jun 20 13:23:00 2000
+**      by:  The User Interface Compiler (uic)
+**
+** WARNING! All changes made in this file will be lost!
+****************************************************************************/
+#include "PizzaEntry.h"
+
+#include &#60;qbuttongroup.h&#62;
+#include &#60;qcheckbox.h&#62;
+#include &#60;qpushbutton.h&#62;
+#include &#60;qradiobutton.h&#62;
+#include &#60;qlayout.h&#62;
+#include &#60;qvariant.h&#62;
+#include &#60;qtooltip.h&#62;
+#include &#60;qwhatsthis.h&#62;
+
+/*
+ *  Constructs a PizzaEntry which is a child of 'parent', with the
+ *  name 'name' and widget flags set to 'f'
+ *
+ *  The dialog will by default be modeless, unless you set 'modal' to
+ *  TRUE to construct a modal dialog.
+ */
+PizzaEntry::PizzaEntry( QWidget* parent,  const char* name, bool modal, WFlags f )
+    : QDialog( parent, name, modal, f )
+{
+    if ( !name )
+	setProperty( "name", "PizzaEntry" );
+    resize( 310, 222 );
+    setProperty( "caption", tr( "Form1"  ) );
+
+    ButtonGroup1 = new QButtonGroup( this, "ButtonGroup1" );
+    ButtonGroup1-&#62;setGeometry( QRect( 30, 10, 122, 119 ) );
+    ButtonGroup1-&#62;setProperty( "title", tr( "Toppings"  ) );
+
+    CheckBox1 = new QCheckBox( ButtonGroup1, "CheckBox1" );
+    CheckBox1-&#62;setGeometry( QRect( 10, 20, 102, 19 ) );
+    CheckBox1-&#62;setProperty( "text", tr( "Champignons"  ) );
+
+    CheckBox2 = new QCheckBox( ButtonGroup1, "CheckBox2" );
+    CheckBox2-&#62;setGeometry( QRect( 10, 40, 51, 19 ) );
+    CheckBox2-&#62;setProperty( "text", tr( "Ham"  ) );
+
+    CheckBox3 = new QCheckBox( ButtonGroup1, "CheckBox3" );
+    CheckBox3-&#62;setGeometry( QRect( 10, 60, 88, 19 ) );
+    CheckBox3-&#62;setProperty( "text", tr( "Pineapples"  ) );
+
+    CheckBox4 = new QCheckBox( ButtonGroup1, "CheckBox4" );
+    CheckBox4-&#62;setGeometry( QRect( 10, 80, 79, 19 ) );
+    CheckBox4-&#62;setProperty( "text", tr( "Anchovis"  ) );
+
+    ButtonGroup2 = new QButtonGroup( this, "ButtonGroup2" );
+    ButtonGroup2-&#62;setGeometry( QRect( 180, 20, 100, 99 ) );
+    ButtonGroup2-&#62;setProperty( "title", tr( "Size"  ) );
+
+    RadioButton1 = new QRadioButton( ButtonGroup2, "RadioButton1" );
+    RadioButton1-&#62;setGeometry( QRect( 10, 20, 56, 19 ) );
+    RadioButton1-&#62;setProperty( "text", tr( "Junior"  ) );
+
+    RadioButton2 = new QRadioButton( ButtonGroup2, "RadioButton2" );
+    RadioButton2-&#62;setGeometry( QRect( 10, 40, 71, 19 ) );
+    RadioButton2-&#62;setProperty( "text", tr( "Standard"  ) );
+
+    RadioButton3 = new QRadioButton( ButtonGroup2, "RadioButton3" );
+    RadioButton3-&#62;setGeometry( QRect( 10, 60, 58, 19 ) );
+    RadioButton3-&#62;setProperty( "text", tr( "Family"  ) );
+
+    CheckBox5 = new QCheckBox( this, "CheckBox5" );
+    CheckBox5-&#62;setGeometry( QRect( 110, 150, 101, 19 ) );
+    CheckBox5-&#62;setProperty( "text", tr( "Extra Cheese"  ) );
+
+    PushButton1_2_2 = new QPushButton( this, "PushButton1_2_2" );
+    PushButton1_2_2-&#62;setGeometry( QRect( 50, 180, 108, 32 ) );
+    PushButton1_2_2-&#62;setProperty( "text", tr( "OK"  ) );
+
+    PushButton1_2 = new QPushButton( this, "PushButton1_2" );
+    PushButton1_2-&#62;setGeometry( QRect( 170, 180, 108, 32 ) );
+    PushButton1_2-&#62;setProperty( "text", tr( "Cancel"  ) );
+}
+
+/*
+ *  Destroys the object and frees any allocated resources
+ */
+PizzaEntry::~PizzaEntry()
+{
+    // no need to delete child widgets, Qt does it all for us
+}
+&#13;</PRE
+></TD
+></TR
+></TABLE
+><P
+>The only surprise here is that properties are not set
+		  with the usual Qt methods like
+		  <I
+CLASS="EMPHASIS"
+>setCaption()</I
+>, but rather with
+		  <I
+CLASS="EMPHASIS"
+>setProperty()</I
+>. You might feel that this
+		  source code is a bit more verbose than hand-crafted code,
+		  but this always the price you pay for the convenience of
+		  machine-generated code.</P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="x180.html"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="book1.html"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="x270.html"
+>Next</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>More Widgets For Our Form</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="c33.html"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>Putting It All Together</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

@@ -7,15 +7,17 @@
 **
 ** Copyright (C) 1992-2000 Troll Tech AS.  All rights reserved.
 **
-** This file is part of the Qt GUI Toolkit.
+** This file is part of the kernel module of the Qt GUI Toolkit.
 **
 ** This file may be distributed under the terms of the Q Public License
 ** as defined by Troll Tech AS of Norway and appearing in the file
 ** LICENSE.QPL included in the packaging of this file.
 **
-** Licensees holding valid Qt Professional Edition licenses may use this
-** file in accordance with the Qt Professional Edition License Agreement
-** provided with the Qt Professional Edition.
+** Licensees holding valid Qt Enterprise Edition or Qt Professional Edition
+** licenses may use this file in accordance with the Qt Commercial License
+** Agreement provided with the Software.  This file is part of the kernel
+** module and therefore may only be used if the kernel module is specified
+** as Licensed on the Licensee's License Certificate.
 **
 ** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 ** information about the Professional Edition licensing, or see
@@ -386,8 +388,12 @@ static inline int fix_angle( int a )
 {
     if ( a > 16*360 )
 	a %= 16*360;
-    else if ( a < -16*360 )
-	a = -((-a) % 16*360);
+    else if ( a < -16*360 ) {
+	// Avoid % on negative numbers. It usually does not what you expect.
+	a = -a;
+	a %= 16*360;
+	a = -a;
+    }
     return a;
 }
 
@@ -438,7 +444,7 @@ void QPointArray::makeArc( int x, int y, int w, int h, int a1, int a2 )
 #endif
 }
 
-
+#ifndef QT_NO_TRANSFORMATIONS
 // Based upon:
 //   parelarc.c from Graphics Gems III
 //   VanAken / Simar, "A Parametric Elliptical Arc Algorithm"
@@ -490,7 +496,6 @@ qtr_elips(QPointArray& a, int& offset, double dxP, double dyP, double dxQ, doubl
 #undef HALF
 }
 
-#ifndef QT_NO_TRANSFORMATIONS
 
 /*!
   Sets the points of the array to those describing an arc of an
@@ -507,6 +512,7 @@ void QPointArray::makeArc( int x, int y, int w, int h,
 			       int a1, int a2,
 			       const QWMatrix& xf )
 {
+#define PIV2  102944     /* fixed point PI/2 */
     if ( --w < 0 || --h < 0 || !a2 ) {
 	resize( 0 );
 	return;
@@ -538,7 +544,7 @@ void QPointArray::makeArc( int x, int y, int w, int h,
 	q *= arcexpand;
     do {
 	m++;
-	max = 4*(1 + int((Q_PI/2)*(1<<m)));
+	max = 4*(1 + ((PIV2 << m) >> 16) );
     } while (max < q && m < 16); // 16 limits memory usage on HUGE arcs
     resize(max);
 
@@ -601,6 +607,7 @@ void QPointArray::makeArc( int x, int y, int w, int h,
     } else {
 	resize(n);
     }
+#undef PIV2
 }
 
 #endif // QT_NO_TRANSFORMATIONS

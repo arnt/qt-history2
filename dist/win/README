@@ -1,7 +1,7 @@
 Getting Started with Qt Professional Edition for Windows
 ========================================================
 
-We at Troll Tech would first like to thank you for choosing Qt for
+We at Trolltech would first like to thank you for choosing Qt for
 developing your Windows software.
 
 Now that you have installed the Qt Professional Edition, you will need to
@@ -78,7 +78,7 @@ Create Makefiles with tmake
 
 If you want to spend less time writing your own makefiles or you need to
 maintain makefiles for several platforms, download and install the free
-tmake utility from Troll Tech.  tmake is an easy-to-use tool for creating
+tmake utility from Trolltech.  tmake is an easy-to-use tool for creating
 and maintaining makefiles across many platforms and compilers.
 
 tmake reads a special tmake project file (.pro) and creates a makefile for

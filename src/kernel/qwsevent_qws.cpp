@@ -8,6 +8,9 @@ QWSEvent *QWSEvent::factory( int type )
     case QWSEvent::Connected:
 	event = new QWSConnectedEvent;
 	break;
+    case QWSEvent::DesktopRect:
+	event = new QWSDesktopRectEvent;
+	break;
     case QWSEvent::Mouse:
 	event = new QWSMouseEvent;
 	break;

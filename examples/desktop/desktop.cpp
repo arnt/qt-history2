@@ -258,7 +258,7 @@ void DesktopWidget::paintEvent( QPaintEvent * )
     bitBlt( this, x, y, &offscreen );
 }
 
-void desktopWidget( const char *s = "Troll Tech" )
+void desktopWidget( const char *s = "Trolltech" )
 {
     DesktopWidget *t = new DesktopWidget(s);
     t->update();
@@ -266,7 +266,7 @@ void desktopWidget( const char *s = "Troll Tech" )
     delete t;
 }
 
-void desktopText( const char *s = "Troll Tech" )
+void desktopText( const char *s = "Trolltech" )
 {
     const int border = 20;
 

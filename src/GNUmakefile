@@ -1,5 +1,5 @@
 #############################################################################
-# $Id: //depot/qt/main/src/GNUmakefile#5 $
+# $Id: //depot/qt/main/src/GNUmakefile#6 $
 #
 # Unix Makefile, requires GNU make (gmake).
 #
@@ -9,5 +9,4 @@
 
 PROJECT = qt
 LIBTARGET = 1
-MORETARGETS = qt.t
 include $(QTDIR)/GNUmakefile.inc

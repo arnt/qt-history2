@@ -18,11 +18,11 @@ void QColor::destroyAllocContext(int context)
 uint QColor::alloc()
 {
     uint ret;
-    RGBColor mycolour;
-    mycolour.red=qRed(rgbVal)*256;
-    mycolour.green=qGreen(rgbVal)*256;
-    mycolour.blue=qBlue(rgbVal)*256;
-    ret=Color2Index(&mycolour);
+    RGBColor mycolor;
+    mycolor.red=qRed(rgbVal)*256;
+    mycolor.green=qGreen(rgbVal)*256;
+    mycolor.blue=qBlue(rgbVal)*256;
+    ret=Color2Index(&mycolor);
     return ret;
 }
 

@@ -150,8 +150,8 @@ static const char * const normalize_xpm[] = {
 
 /*!
   \class QWSDecoration qwsmanager_qws.h
-  \brief The QWSDecoration allows the appearance of the Qt/Embedded Window
-  Manager to be customised.
+  \brief The QWSDecoration class allows the appearance of the Qt/Embedded Window
+  Manager to be customized.
 
   Qt/Embedded provides window management to top level windows.  The
   appearance of the borders and buttons (the decoration) around the
@@ -243,15 +243,14 @@ void QWSDecoration::minimize( QWidget * )
 */
 void QWSDecoration::maximize( QWidget *widget )
 {
-    QRect desk = QApplication::desktop()->rect();
     // find out how much space the decoration needs
-    QRegion r = region(widget, QApplication::desktop()->rect());
+    QRect desk = QApplication::desktop()->rect();
+    QRect dummy;
+    QRegion r = region(widget, dummy);
     QRect rect = r.boundingRect();
-    QRect nr;
-    nr.setLeft(-rect.x());
-    nr.setTop(-rect.y());
-    nr.setRight(desk.right() - rect.right() + desk.right() );
-    nr.setBottom(desk.bottom() - rect.bottom() + desk.bottom() );
+    QRect nr(desk.x()-rect.x(), desk.y()-rect.y(),
+	desk.width() - rect.width(),
+	desk.height() - rect.height());
     widget->setGeometry(nr);
 }
 
@@ -753,16 +752,21 @@ QWSDefaultDecoration::~QWSDefaultDecoration()
 {
 }
 
+/*
+    If rect is empty, no frame is added. (a hack, really)
+*/
 QRegion QWSDefaultDecoration::region(const QWidget *, const QRect &rect, QWSDecoration::Region type)
 {
     QRegion region;
 
+    int bw = rect.isEmpty() ? 0 : BORDER_WIDTH;
+
     switch (type) {
 	case All: {
-		QRect r(rect.left() - BORDER_WIDTH,
-			rect.top() - TITLE_HEIGHT - BORDER_WIDTH,
-			rect.width() + 2 * BORDER_WIDTH,
-			rect.height() + TITLE_HEIGHT + 2 * BORDER_WIDTH);
+		QRect r(rect.left() - bw,
+			rect.top() - TITLE_HEIGHT - bw,
+			rect.width() + 2 * bw,
+			rect.height() + TITLE_HEIGHT + 2 * bw);
 		region = r;
 		region -= rect;
 	    }
@@ -778,17 +782,17 @@ QRegion QWSDefaultDecoration::region(const QWidget *, const QRect &rect, QWSDeco
 
 	case Top: {
 		QRect r(rect.left() + CORNER_GRAB,
-			rect.top() - TITLE_HEIGHT - BORDER_WIDTH,
+			rect.top() - TITLE_HEIGHT - bw,
 			rect.width() - 2 * CORNER_GRAB,
-			BORDER_WIDTH);
+			bw);
 		region = r;
 	    }
 	    break;
 
 	case Left: {
-		QRect r(rect.left() - BORDER_WIDTH,
+		QRect r(rect.left() - bw,
 			rect.top() - TITLE_HEIGHT + CORNER_GRAB,
-			BORDER_WIDTH,
+			bw,
 			rect.height() + TITLE_HEIGHT - 2 * CORNER_GRAB);
 		region = r;
 	    }
@@ -797,7 +801,7 @@ QRegion QWSDefaultDecoration::region(const QWidget *, const QRect &rect, QWSDeco
 	case Right: {
 		QRect r(rect.right() + 1,
 			rect.top() - TITLE_HEIGHT + CORNER_GRAB,
-			BORDER_WIDTH,
+			bw,
 			rect.height() + TITLE_HEIGHT - 2 * CORNER_GRAB);
 		region = r;
 	    }
@@ -807,21 +811,21 @@ QRegion QWSDefaultDecoration::region(const QWidget *, const QRect &rect, QWSDeco
 		QRect r(rect.left() + CORNER_GRAB,
 			rect.bottom() + 1,
 			rect.width() - 2 * CORNER_GRAB,
-			BORDER_WIDTH);
+			bw);
 		region = r;
 	    }
 	    break;
 
 	case TopLeft: {
-		QRect r1(rect.left() - BORDER_WIDTH,
-			rect.top() - BORDER_WIDTH - TITLE_HEIGHT,
-			CORNER_GRAB + BORDER_WIDTH,
-			BORDER_WIDTH);
+		QRect r1(rect.left() - bw,
+			rect.top() - bw - TITLE_HEIGHT,
+			CORNER_GRAB + bw,
+			bw);
 
-		QRect r2(rect.left() - BORDER_WIDTH,
-			rect.top() - BORDER_WIDTH - TITLE_HEIGHT,
-			BORDER_WIDTH,
-			CORNER_GRAB + BORDER_WIDTH);
+		QRect r2(rect.left() - bw,
+			rect.top() - bw - TITLE_HEIGHT,
+			bw,
+			CORNER_GRAB + bw);
 
 		region = QRegion(r1) + r2;
 	    }
@@ -829,29 +833,29 @@ QRegion QWSDefaultDecoration::region(const QWidget *, const QRect &rect, QWSDeco
 
 	case TopRight: {
 		QRect r1(rect.right() - CORNER_GRAB,
-			rect.top() - BORDER_WIDTH - TITLE_HEIGHT,
-			CORNER_GRAB + BORDER_WIDTH,
-			BORDER_WIDTH);
+			rect.top() - bw - TITLE_HEIGHT,
+			CORNER_GRAB + bw,
+			bw);
 
 		QRect r2(rect.right() + 1,
-			rect.top() - BORDER_WIDTH - TITLE_HEIGHT,
-			BORDER_WIDTH,
-			CORNER_GRAB + BORDER_WIDTH);
+			rect.top() - bw - TITLE_HEIGHT,
+			bw,
+			CORNER_GRAB + bw);
 
 		region = QRegion(r1) + r2;
 	    }
 	    break;
 
 	case BottomLeft: {
-		QRect r1(rect.left() - BORDER_WIDTH,
+		QRect r1(rect.left() - bw,
 			rect.bottom() + 1,
-			CORNER_GRAB + BORDER_WIDTH,
-			BORDER_WIDTH);
+			CORNER_GRAB + bw,
+			bw);
 
-		QRect r2(rect.left() - BORDER_WIDTH,
+		QRect r2(rect.left() - bw,
 			rect.bottom() - CORNER_GRAB,
-			BORDER_WIDTH,
-			CORNER_GRAB + BORDER_WIDTH);
+			bw,
+			CORNER_GRAB + bw);
 		region = QRegion(r1) + r2;
 	    }
 	    break;
@@ -859,13 +863,13 @@ QRegion QWSDefaultDecoration::region(const QWidget *, const QRect &rect, QWSDeco
 	case BottomRight: {
 		QRect r1(rect.right() - CORNER_GRAB,
 			rect.bottom() + 1,
-			CORNER_GRAB + BORDER_WIDTH,
-			BORDER_WIDTH);
+			CORNER_GRAB + bw,
+			bw);
 
 		QRect r2(rect.right() + 1,
 			rect.bottom() - CORNER_GRAB,
-			BORDER_WIDTH,
-			CORNER_GRAB + BORDER_WIDTH);
+			bw,
+			CORNER_GRAB + bw);
 		region = QRegion(r1) + r2;
 	    }
 	    break;

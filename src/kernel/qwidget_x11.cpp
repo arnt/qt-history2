@@ -7,15 +7,17 @@
 **
 ** Copyright (C) 1992-2000 Troll Tech AS.  All rights reserved.
 **
-** This file is part of the Qt GUI Toolkit.
+** This file is part of the kernel module of the Qt GUI Toolkit.
 **
 ** This file may be distributed under the terms of the Q Public License
 ** as defined by Troll Tech AS of Norway and appearing in the file
 ** LICENSE.QPL included in the packaging of this file.
 **
-** Licensees holding valid Qt Professional Edition licenses may use this
-** file in accordance with the Qt Professional Edition License Agreement
-** provided with the Qt Professional Edition.
+** Licensees holding valid Qt Enterprise Edition or Qt Professional Edition
+** licenses may use this file in accordance with the Qt Commercial License
+** Agreement provided with the Software.  This file is part of the kernel
+** module and therefore may only be used if the kernel module is specified
+** as Licensed on the Licensee's License Certificate.
 **
 ** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 ** information about the Professional Edition licensing, or see
@@ -294,7 +296,9 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 	     || testWFlags(WStyle_StaysOnTop)
 	     || testWFlags(WStyle_Dialog)
 	     || testWFlags(WStyle_Tool) ) {
-	    if ( p && !testWFlags( WStyle_StaysOnTop) )
+	    if ( testWFlags( WStyle_StaysOnTop ) )
+		XSetTransientForHint( dpy, id, None );
+	    else  if ( p )
 		XSetTransientForHint( dpy, id, p->winId() );
 	    else				// application-modal
 		XSetTransientForHint( dpy, id, root_win );
@@ -858,7 +862,8 @@ qstring_to_xtp( const QString& s )
 #endif
     }
     if ( !mapper || errCode < 0 ) {
-	static QCString qcs = s.ascii();
+	static QCString qcs;
+	qcs = s.ascii();
 	tp.value = (uchar*)qcs.data();
 	tp.encoding = XA_STRING;
 	tp.format = 8;
@@ -906,8 +911,8 @@ void QWidget::setIcon( const QPixmap &pixmap )
     } else {
 	createTLExtra();
     }
-    ::Pixmap icon_pixmap = 0;
-    ::Pixmap mask_pixmap = 0;
+    Pixmap icon_pixmap = 0;
+    Pixmap mask_pixmap = 0;
     if ( !pixmap.isNull() ) {
 	QPixmap* pm = new QPixmap( pixmap );
 	extra->topextra->icon = pm;
@@ -1428,6 +1433,7 @@ void QWidget::showMaximized()
     show();
     QCustomEvent e( QEvent::ShowMaximized, 0 );
     QApplication::sendEvent( this, &e );
+    setWState(WState_Maximized);
 }
 
 /*!
@@ -1579,6 +1585,7 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
 
     if ( testWFlags(WType_Desktop) )
 	return;
+    clearWState(WState_Maximized);
     if ( extra ) {				// any size restrictions?
 	w = QMIN(w,extra->maxw);
 	h = QMIN(h,extra->maxh);
@@ -1612,7 +1619,7 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
     }
 
     if ( isMove )
-	XMoveResizeWindow( dpy, winid, x, y, w, h );
+	XMoveResizeWindow( dpy, winid, pos().x(), pos().y(), w, h ); // pos() is right according to ICCCM 4.1.5
     else if ( isResize )
 	XResizeWindow( dpy, winid, w, h );
 
@@ -1651,7 +1658,10 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
   size. The widget's size is forced to the minimum size if the current
   size is smaller.
 
-  \sa minimumSize(), setMaximumSize(), setSizeIncrement(), resize(), size()
+  If you use a layout inside the widget, the minimum size will be set by the layout and
+  not by setMinimumSize, unless you set the layouts resize mode to QLayout::FreeResize.
+
+  \sa minimumSize(), setMaximumSize(), setSizeIncrement(), resize(), size(), QLayout::setResizeMode()
 */
 
 void QWidget::setMinimumSize( int minw, int minh )

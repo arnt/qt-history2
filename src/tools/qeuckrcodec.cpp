@@ -5,17 +5,19 @@
 **
 ** Created : 990225
 **
-** Copyright (C) 1992-2000 Troll Tech AS.  All rights reserved.
+** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
 **
-** This file is part of the Qt GUI Toolkit.
+** This file is part of the tools module of the Qt GUI Toolkit.
 **
 ** This file may be distributed under the terms of the Q Public License
-** as defined by Troll Tech AS of Norway and appearing in the file
+** as defined by Trolltech AS of Norway and appearing in the file
 ** LICENSE.QPL included in the packaging of this file.
 **
-** Licensees holding valid Qt Professional Edition licenses may use this
-** file in accordance with the Qt Professional Edition License Agreement
-** provided with the Qt Professional Edition.
+** Licensees holding valid Qt Enterprise Edition or Qt Professional Edition
+** licenses may use this file in accordance with the Qt Commercial License
+** Agreement provided with the Software.  This file is part of the tools
+** module and therefore may only be used if the tools module is specified
+** as Licensed on the Licensee's License Certificate.
 **
 ** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 ** information about the Professional Edition licensing, or see
@@ -32,7 +34,7 @@
 
   It was largely written by Mizi Research Inc.; here is the copyright
   statement for the code as it was at the point of contribution.
-  (Troll Tech's subsequent modifications are covered by the usual
+  (Trolltech's subsequent modifications are covered by the usual
   copyright for Qt.)
 
   \mustquote
@@ -312,6 +314,9 @@ static unsigned short kssmc2ksc ( unsigned short code );
 static unsigned short unicode2kssmc ( unsigned short code );
 static unsigned short kssmc2unicode ( unsigned short code );
 
+static unsigned short uc_hanja2ksc5601(unsigned short code);
+static unsigned short uc_misc2ksc5601(unsigned short code);
+
 unsigned int qt_Ksc5601ToUnicode(unsigned int code)
 {
 #if 0
@@ -332,12 +337,20 @@ unsigned int qt_UnicodeToKsc5601(unsigned int unicode)
   printf("qt_UnicodeToKsc5601 : unicode = %x, %x\n",
       unicode, kssmc2ksc(unicode2kssmc((unsigned short)unicode)));
 #endif
-  return kssmc2ksc(unicode2kssmc((unsigned short)unicode));
+  if ( unicode >= 0x4e00 && unicode <= 0x9fff )
+      return uc_hanja2ksc5601( unicode );
+  else if ( unicode >= 0xac00 && unicode <= 0xd7a3 )
+      return kssmc2ksc(unicode2kssmc((unsigned short)unicode));
+  else
+      return uc_misc2ksc5601( unicode );
 }
 
 unsigned int qt_UnicodeToJohab(unsigned int unicode)
 {
-  return unicode2kssmc((unsigned short)unicode);
+    if ( unicode >= 0xac00 && unicode <= 0xd7a3 )
+	return unicode2kssmc((unsigned short)unicode);
+    else
+	return 0;
 }
 
 /* Table including TG(johab) codes */
@@ -818,7 +831,7 @@ static unsigned short kssmc2ksc ( unsigned short code )
 	sizeof(unsigned short), codecmp);
 #else
     p = KsSearch( code );
-#endif
+#endif /* QT_EUCKR_USE_BSEARCH */
     if( p ) {
       index = p - KS_table;
       return (((index / 94) + 0xb0) << 8) + (index % 94) + 0xa1;
@@ -857,7 +870,8 @@ static unsigned short kssmc2ksc ( unsigned short code )
 static unsigned short unicode2kssmc(unsigned short unicode)
 {
   unsigned short	f, m, l;
-
+  if ( unicode < 0xac00 || unicode > 0xd7a3 )
+      return 0;
   unicode -= 0xac00;
   f = unicode / (21 * 28);
   unicode %= (21 * 28);
@@ -908,9 +922,9 @@ static unsigned short kssmc2unicode(unsigned short code)
   return f * (21 * 28) + m * 28 + l + 0xac00;
 }
 
-#if 0 // for hanja
+#if 1 // for hanja
 
-static unsigned short unicode_hanja[] = {
+static unsigned short const unicode_hanja[] = {
   0x4F3D,0x4F73,0x5047,0x50F9,0x52A0,0x53EF,0x5475,0x54E5,
   0x5609,0x5AC1,0x5BB6,0x6687,0x67B6,0x67B7,0x67EF,0x6B4C,
   0x73C2,0x75C2,0x7A3C,0x82DB,0x8304,0x8857,0x8888,0x8A36,
@@ -1524,7 +1538,7 @@ static unsigned short unicode_hanja[] = {
   0x7199,0x71B9,0x71BA,0x72A7,0x79A7,0x7A00,0x7FB2,0x8A70,
 };
 
-static unsigned short *linear_search( unsigned short code )
+static const unsigned short *linear_search( unsigned short code )
 {
   int i, n = sizeof(unicode_hanja) / sizeof(unicode_hanja[1]);
   for( i = 0; i < n; i++)
@@ -1533,16 +1547,37 @@ static unsigned short *linear_search( unsigned short code )
   return 0;
 }
 
+#if 0
 static unsigned short uc_hanja2hwpc(unsigned short code)
 {
-  unsigned short *p, hanja;
+  const unsigned short *p;
+  ushort hanja;
   p = linear_search( code );
   if( ! p )
     return 0;
   hanja =  p - unicode_hanja;
   return (hanja + 0x4000);
 }
+#endif
 
+
+static unsigned short uc_hanja2ksc5601(unsigned short code)
+{
+  const unsigned short *p;
+  ushort hanja;
+  p = linear_search( code );
+  if( ! p )
+      return 0x2163; //##### return 0;
+  hanja =  p - unicode_hanja;
+
+  int page = hanja/94;
+  int ch = hanja%94;
+  
+  return 0xcaa1 + 0x100*page + ch;
+}
+
+
+#if 0
 static unsigned short uc_hangul2hwpc(unsigned short code)
 {
   unsigned short	f, m, l;
@@ -1560,7 +1595,308 @@ static unsigned short uc_hangul2hwpc(unsigned short code)
 
   return 0x8000 | (f << 10) | (m << 5) | l;
 }
-
 #endif
 
-#endif
+#endif // for hanja
+
+struct Ksc5601Misc {
+    ushort ksc;
+    ushort unicode;
+    ushort count;
+};
+
+static Ksc5601Misc const ksc5601misc[] = {
+    {0x2121, 0x3000, 3},
+    {0x2124, 0x00b7, 1},
+    {0x2125, 0x2025, 2},
+    {0x2127, 0x00a8, 1},
+    {0x2128, 0x3003, 1},
+    {0x2129, 0x00ad, 1},
+    {0x212a, 0x2015, 1},
+    {0x212b, 0x2225, 1},
+    {0x212c, 0xff3c, 1},
+    {0x212d, 0x223c, 1},
+    {0x212e, 0x2018, 2},
+    {0x2130, 0x201c, 2},
+    {0x2132, 0x3014, 2},
+    {0x2134, 0x3008, 10},
+    {0x213e, 0x00b1, 1},
+    {0x213f, 0x00d7, 1},
+    {0x2140, 0x00f7, 1},
+    {0x2141, 0x2260, 1},
+    {0x2142, 0x2264, 2},
+    {0x2144, 0x221e, 1},
+    {0x2145, 0x2234, 1},
+    {0x2146, 0x00b0, 1},
+    {0x2147, 0x2032, 2},
+    {0x2149, 0x2103, 1},
+    {0x214a, 0x212b, 1},
+    {0x214b, 0xffe0, 2},
+    {0x214d, 0xffe5, 1},
+    {0x214e, 0x2642, 1},
+    {0x214f, 0x2640, 1},
+    {0x2150, 0x2220, 1},
+    {0x2151, 0x22a5, 1},
+    {0x2152, 0x2312, 1},
+    {0x2153, 0x2202, 1},
+    {0x2154, 0x2207, 1},
+    {0x2155, 0x2261, 1},
+    {0x2156, 0x2252, 1},
+    {0x2157, 0x00a7, 1},
+    {0x2158, 0x203b, 1},
+    {0x2159, 0x2606, 1},
+    {0x215a, 0x2605, 1},
+    {0x215b, 0x25cb, 1},
+    {0x215c, 0x25cf, 1},
+    {0x215d, 0x25ce, 1},
+    {0x215e, 0x25c7, 1},
+    {0x215f, 0x25c6, 1},
+    {0x2160, 0x25a1, 1},
+    {0x2161, 0x25a0, 1},
+    {0x2162, 0x25b3, 1},
+    {0x2163, 0x25b2, 1},
+    {0x2164, 0x25bd, 1},
+    {0x2165, 0x25bc, 1},
+    {0x2166, 0x2192, 1},
+    {0x2167, 0x2190, 2},
+    {0x2169, 0x2193, 2},
+    {0x216b, 0x3013, 1},
+    {0x216c, 0x226a, 2},
+    {0x216e, 0x221a, 1},
+    {0x216f, 0x223d, 1},
+    {0x2170, 0x221d, 1},
+    {0x2171, 0x2235, 1},
+    {0x2172, 0x222b, 2},
+    {0x2174, 0x2208, 1},
+    {0x2175, 0x220b, 1},
+    {0x2176, 0x2286, 2},
+    {0x2178, 0x2282, 2},
+    {0x217a, 0x222a, 1},
+    {0x217b, 0x2229, 1},
+    {0x217c, 0x2227, 2},
+    {0x217e, 0xffe2, 1},
+    {0x2221, 0x21d2, 1},
+    {0x2222, 0x21d4, 1},
+    {0x2223, 0x2200, 1},
+    {0x2224, 0x2203, 1},
+    {0x2225, 0x00b4, 1},
+    {0x2226, 0xff5e, 1},
+    {0x2227, 0x02c7, 1},
+    {0x2228, 0x02d8, 1},
+    {0x2229, 0x02dd, 1},
+    {0x222a, 0x02da, 1},
+    {0x222b, 0x02d9, 1},
+    {0x222c, 0x00b8, 1},
+    {0x222d, 0x02db, 1},
+    {0x222e, 0x00a1, 1},
+    {0x222f, 0x00bf, 1},
+    {0x2230, 0x02d0, 1},
+    {0x2231, 0x222e, 1},
+    {0x2232, 0x2211, 1},
+    {0x2233, 0x220f, 1},
+    {0x2234, 0x00a4, 1},
+    {0x2235, 0x2109, 1},
+    {0x2236, 0x2030, 1},
+    {0x2237, 0x25c1, 1},
+    {0x2238, 0x25c0, 1},
+    {0x2239, 0x25b7, 1},
+    {0x223a, 0x25b6, 1},
+    {0x223b, 0x2664, 1},
+    {0x223c, 0x2660, 2},
+    {0x223e, 0x2665, 1},
+    {0x223f, 0x2667, 1},
+    {0x2240, 0x2663, 1},
+    {0x2241, 0x2299, 1},
+    {0x2242, 0x25c8, 1},
+    {0x2243, 0x25a3, 1},
+    {0x2244, 0x25d0, 2},
+    {0x2246, 0x2592, 1},
+    {0x2247, 0x25a4, 2},
+    {0x2249, 0x25a8, 1},
+    {0x224a, 0x25a7, 1},
+    {0x224b, 0x25a6, 1},
+    {0x224c, 0x25a9, 1},
+    {0x224d, 0x2668, 1},
+    {0x224e, 0x260f, 1},
+    {0x224f, 0x260e, 1},
+    {0x2250, 0x261c, 1},
+    {0x2251, 0x261e, 1},
+    {0x2252, 0x00b6, 1},
+    {0x2253, 0x2020, 2},
+    {0x2255, 0x2195, 1},
+    {0x2256, 0x2197, 1},
+    {0x2257, 0x2199, 1},
+    {0x2258, 0x2196, 1},
+    {0x2259, 0x2198, 1},
+    {0x225a, 0x266d, 1},
+    {0x225b, 0x2669, 2},
+    {0x225d, 0x266c, 1},
+    {0x225e, 0x327f, 1},
+    {0x225f, 0x321c, 1},
+    {0x2260, 0x2116, 1},
+    {0x2261, 0x33c7, 1},
+    {0x2262, 0x2122, 1},
+    {0x2263, 0x33c2, 1},
+    {0x2264, 0x33d8, 1},
+    {0x2265, 0x2121, 1},
+    {0x2321, 0xff01, 59},
+    {0x235c, 0xffe6, 1},
+    {0x235d, 0xff3d, 33},
+    {0x237e, 0xffe3, 1},
+    {0x2421, 0x3131, 94},
+    {0x2521, 0x2170, 10},
+    {0x2530, 0x2160, 10},
+    {0x2541, 0x0391, 17},
+    {0x2552, 0x03a3, 7},
+    {0x2561, 0x03b1, 17},
+    {0x2572, 0x03c3, 7},
+    {0x2621, 0x2500, 1},
+    {0x2622, 0x2502, 1},
+    {0x2623, 0x250c, 1},
+    {0x2624, 0x2510, 1},
+    {0x2625, 0x2518, 1},
+    {0x2626, 0x2514, 1},
+    {0x2627, 0x251c, 1},
+    {0x2628, 0x252c, 1},
+    {0x2629, 0x2524, 1},
+    {0x262a, 0x2534, 1},
+    {0x262b, 0x253c, 1},
+    {0x262c, 0x2501, 1},
+    {0x262d, 0x2503, 1},
+    {0x262e, 0x250f, 1},
+    {0x262f, 0x2513, 1},
+    {0x2630, 0x251b, 1},
+    {0x2631, 0x2517, 1},
+    {0x2632, 0x2523, 1},
+    {0x2633, 0x2533, 1},
+    {0x2634, 0x252b, 1},
+    {0x2635, 0x253b, 1},
+    {0x2636, 0x254b, 1},
+    {0x2637, 0x2520, 1},
+    {0x2638, 0x252f, 1},
+    {0x2639, 0x2528, 1},
+    {0x263a, 0x2537, 1},
+    {0x263b, 0x253f, 1},
+    {0x263c, 0x251d, 1},
+    {0x263d, 0x2530, 1},
+    {0x263e, 0x2525, 1},
+    {0x263f, 0x2538, 1},
+    {0x2640, 0x2542, 1},
+    {0x2641, 0x2512, 1},
+    {0x2642, 0x2511, 1},
+    {0x2643, 0x251a, 1},
+    {0x2644, 0x2519, 1},
+    {0x2645, 0x2516, 1},
+    {0x2646, 0x2515, 1},
+    {0x2647, 0x250e, 1},
+    {0x2648, 0x250d, 1},
+    {0x2649, 0x251e, 2},
+    {0x264b, 0x2521, 2},
+    {0x264d, 0x2526, 2},
+    {0x264f, 0x2529, 2},
+    {0x2651, 0x252d, 2},
+    {0x2653, 0x2531, 2},
+    {0x2655, 0x2535, 2},
+    {0x2657, 0x2539, 2},
+    {0x2659, 0x253d, 2},
+    {0x265b, 0x2540, 2},
+    {0x265d, 0x2543, 8},
+    {0x2721, 0x3395, 3},
+    {0x2724, 0x2113, 1},
+    {0x2725, 0x3398, 1},
+    {0x2726, 0x33c4, 1},
+    {0x2727, 0x33a3, 4},
+    {0x272b, 0x3399, 10},
+    {0x2735, 0x33ca, 1},
+    {0x2736, 0x338d, 3},
+    {0x2739, 0x33cf, 1},
+    {0x273a, 0x3388, 2},
+    {0x273c, 0x33c8, 1},
+    {0x273d, 0x33a7, 2},
+    {0x273f, 0x33b0, 10},
+    {0x2749, 0x3380, 5},
+    {0x274e, 0x33ba, 6},
+    {0x2754, 0x3390, 5},
+    {0x2759, 0x2126, 1},
+    {0x275a, 0x33c0, 2},
+    {0x275c, 0x338a, 3},
+    {0x275f, 0x33d6, 1},
+    {0x2760, 0x33c5, 1},
+    {0x2761, 0x33ad, 3},
+    {0x2764, 0x33db, 1},
+    {0x2765, 0x33a9, 4},
+    {0x2769, 0x33dd, 1},
+    {0x276a, 0x33d0, 1},
+    {0x276b, 0x33d3, 1},
+    {0x276c, 0x33c3, 1},
+    {0x276d, 0x33c9, 1},
+    {0x276e, 0x33dc, 1},
+    {0x276f, 0x33c6, 1},
+    {0x2821, 0x00c6, 1},
+    {0x2822, 0x00d0, 1},
+    {0x2823, 0x00aa, 1},
+    {0x2824, 0x0126, 1},
+    {0x2826, 0x0132, 1},
+    {0x2828, 0x013f, 1},
+    {0x2829, 0x0141, 1},
+    {0x282a, 0x00d8, 1},
+    {0x282b, 0x0152, 1},
+    {0x282c, 0x00ba, 1},
+    {0x282d, 0x00de, 1},
+    {0x282e, 0x0166, 1},
+    {0x282f, 0x014a, 1},
+    {0x2831, 0x3260, 28},
+    {0x284d, 0x24d0, 26},
+    {0x2867, 0x2460, 15},
+    {0x2876, 0x00bd, 1},
+    {0x2877, 0x2153, 2},
+    {0x2879, 0x00bc, 1},
+    {0x287a, 0x00be, 1},
+    {0x287b, 0x215b, 4},
+    {0x2921, 0x00e6, 1},
+    {0x2922, 0x0111, 1},
+    {0x2923, 0x00f0, 1},
+    {0x2924, 0x0127, 1},
+    {0x2925, 0x0131, 1},
+    {0x2926, 0x0133, 1},
+    {0x2927, 0x0138, 1},
+    {0x2928, 0x0140, 1},
+    {0x2929, 0x0142, 1},
+    {0x292a, 0x00f8, 1},
+    {0x292b, 0x0153, 1},
+    {0x292c, 0x00df, 1},
+    {0x292d, 0x00fe, 1},
+    {0x292e, 0x0167, 1},
+    {0x292f, 0x014b, 1},
+    {0x2930, 0x0149, 1},
+    {0x2931, 0x3200, 28},
+    {0x294d, 0x249c, 26},
+    {0x2967, 0x2474, 15},
+    {0x2976, 0x00b9, 1},
+    {0x2977, 0x00b2, 2},
+    {0x2979, 0x2074, 1},
+    {0x297a, 0x207f, 1},
+    {0x297b, 0x2081, 4},
+    {0x2a21, 0x3041, 83},
+    {0x2b21, 0x30a1, 86},
+    {0x2c21, 0x0410, 6},
+    {0x2c27, 0x0401, 1},
+    {0x2c28, 0x0416, 26},
+    {0x2c51, 0x0430, 6},
+    {0x2c57, 0x0451, 1},
+    {0x2c58, 0x0436, 25}
+};
+
+
+static unsigned short uc_misc2ksc5601(unsigned short code)
+{
+  int i, n = sizeof(ksc5601misc) / sizeof(ksc5601misc[1]);
+  for( i = 0; i < n; i++)
+    if( ksc5601misc[i].unicode <= code 
+	&& ksc5601misc[i].unicode + ksc5601misc[i].count > code )
+      return 0x8080 + ksc5601misc[i].ksc + code - ksc5601misc[i].unicode;
+  return 0;
+}
+
+
+#endif /* QT_NO_CODECS */

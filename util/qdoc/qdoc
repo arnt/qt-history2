@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: //depot/qt/main/util/qdoc/qdoc#237 $
+# $Id: //depot/qt/main/util/qdoc/qdoc#238 $
 #
 # this is a massive hack, written very quickly
 #
@@ -282,7 +282,7 @@ sub handlecodeincludes {
 	    $basefile = $edir . "/" . $arg
 		if ( !defined($basefile) && -f ($edir . "/" . $arg) )
 	}
-	die "unable to find $arg, stopped. (searched ".join(", ",@exampledirs).")" if ( !defined( $basefile ) );
+	die "unable to find $arg for $url, stopped. (searched ".join(", ",@exampledirs).")" if ( !defined( $basefile ) );
 	open(IF, "expand < $basefile |") ||
 	    die "cannot read $basefile";
 	#print "including code from $basefile\n";
@@ -383,6 +383,12 @@ sub processdocs {
 	$doc =~ s/\s*\\ingroup\s+([^\\\s]*)/
 	    {
 	    $classes{$1.".html"} .= $class;
+	    "\n";
+	    }
+	/egsx;
+	$doc =~ s/\s*\\module\s+([^\\\s]*)/
+	    {
+	     $module{$url} = $1;
 	    "\n";
 	    }
 	/egsx;
@@ -950,7 +956,8 @@ sub getfile {
 	    $ifdef = 1 if (
 		!/_H_?$/
 		&& ( !/QT_NO_/ || /QT_NO_COMPAT\b/ )
-		&& !/QT_MOC_CPP/ );
+		&& !/QT_MOC_CPP/ 
+		&& !/QT_THREAD_/ );
 	}
 	if ( !$ifdef ) {
 	    if ( defined( $preprocess ) ) {
@@ -1095,7 +1102,7 @@ sub readh {
 	   \x7b\s+(.*?)\n\x7d-xsg
 	   ) {
 	my ($cookie, $sig, $def) = ($1,$2,$3);
-	$sig =~ s/\w+\s+(\w+)/$1/;
+	$sig =~ s/^(?:[A-Z_]+\s+)*//;
 	#print "class $sig\n";
 	if ( $cookie eq "" ) {
 	    # Not a template
@@ -1659,13 +1666,16 @@ sub printclass {
     $class,
     " Class</title>", $style, "
 </head><body bgcolor=\"#ffffff\">\n", $postheader, "\n",
-    "<h1 align=center>", $name{$url}, " Class Reference</h1><br clear=\"all\">\n";
+    "<h1 align=center>", $name{$url}, " Class Reference",
+( $module{$url} ? "<br><small>[ <a href=$module{$url}.html>".$module{$url}." module</a> ]</small>" : "" ),
+	"</h1>",
+    "<br clear=\"all\">\n";
 
     my ($i, $family);
     if (defined($brief{$url})) {
 	print O "<p>\n", &simpler( $brief{$url}, $file ), "\n";
 	if ( defined( $extension{$url} ) ) {
-	    print O "This class is part of the <b>Qt ", $extension{$url}, " Extension.</b>\n";
+	    print O "<p>This class is part of the <b>Qt ", $extension{$url}, " Extension.</b>\n";
 	}
 	print O "<a href=\"#details\">More...</a>\n"
 	    if ($doc{$url} ne "");

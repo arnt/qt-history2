@@ -15,46 +15,46 @@
 #include <qstring.h>
 
 class QSocket;
+class QTextStream;
+class QDns;
 
 class Smtp : public QObject
 {
     Q_OBJECT
-    
+
 public:
-    Smtp( const QString &server_, int port_,
-	  const QString &from_, const QString &to_, const QString &subject_,
-	  const QString &cc_, const QString &bcc_, const QString &message_ );
-    
+    Smtp( const QString &, const QString &, const QString &, const QString & );
+    ~Smtp();
+
 signals:
     void finished();
-    
+    void status( const QString & );
+
 private slots:
     void readyRead();
     void connected();
     void deleteMe();
-    
+    void dnsLookupHelper();
+
 private:
     enum State {
-	Init = 0,
-	Mail, 
-	Rcpt, 
-	Data, 
-	From, 
-	To, 
-	Subject, 
-	Cc, 
-	Bcc,
-	Message,
-	DataEnd, 
+	Init,
+	Mail,
+	Rcpt,
+	Data,
+	Body,
 	Quit,
 	Close
     };
-    
-    QString server, from, to, subject, cc, bcc, message;
-    int port;
+
+    QString message;
+    QString from;
+    QString rcpt;
     QSocket *socket;
+    QTextStream * t;
     int state;
-    
+    QString response;
+    QDns * mxLookup;
 };
 
 #endif

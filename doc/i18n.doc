@@ -23,7 +23,7 @@
 
 /*! \page i18n.html
 
-\title Internationalization
+\title Internationalization with Qt
 
 Internationalization of software is the process of allowing the
 software to be used efficiently by all people of the world.  This
@@ -34,35 +34,34 @@ input techniques, character encodings, and presentation conventions.
 <h2>Step by Step</h2>
 
 Writing cross-platform international software with Qt is a gentle,
-incremental process.  Your software can become internationalized
-in the following stages:
+incremental process.  Your software can become internationalized in
+the following stages:
 
 <ol>
  <li><b>Use QString for all user-visible text.</b>
 	<p>
 	Since QString uses the Unicode encoding internally, all the
 	languages of the world can be processed transparently using
-	familiar text processing operations.  Also, since all Qt functions
-	that present text to the user take a QString as a parameter,
-	there is no char* to QString conversion time.
+	familiar text processing operations.  Also, since all Qt
+	functions that present text to the user take a QString as a
+	parameter, there is no char* to QString conversion time.
 	<p>
-	Strings that are in "programmer space" - such as QObject
-	names and file format texts need not use QString - the
-	traditional char*, or the QCString class will suffice.
+	Strings that are in "programmer space" (such as QObject names
+	and file format texts) need not use QString; the traditional
+	char* or the QCString class will suffice.
 	<p>
-	You're unlikely to notice that you are using unicode - QString,
-	and QChar are just like easier versions of the clumsy const char*
-	and char from traditional C.
+	You're unlikely to notice that you are using Unicode -
+	QString, and QChar are just like easier versions of the clumsy
+	const char* and char from traditional C.
 	</p>
  <li><b>Use \link QObject::tr() tr()\endlink for all literal text.</b>
 	<p>
 	Where your program uses <tt>"quoted text"</tt> for text
 	that will be presented to the user, ensure it goes through
-	the
-	\l QApplication::translate() function, usually this simply means using
-	\l QObject::tr().
-	For example, assuming
-	<tt>LoginWidget</tt> is a subclass of QWidget:
+	the \l QApplication::translate() function, usually this
+	simply means using \l QObject::tr().
+	For example, assuming <tt>LoginWidget</tt> is a subclass of
+	QWidget:
 	\code
 	LoginWidget::LoginWidget()
 	{
@@ -71,71 +70,71 @@ in the following stages:
 	}
 	\endcode
 
-	This is 99% of the user-visible strings you're likely to write.
+	This is 99% of the user-visible strings you're likely to
+	write.
 
 	If the quoted text is \e not in a member function of a
-	QObject/QWidget subclass, use either
-	the tr() function of an appropriate class, or the
-	QApplication::translate() function directly:
+	QObject/QWidget subclass, use either the tr() function of an
+	appropriate class, or the QApplication::translate() function
+	directly:
 	\code
-	void some_global_function(LoginWidget* logwid)
+	void some_global_function( LoginWidget * logwid )
 	{
 	    QLabel *label = new QLabel(
 		    LoginWidget::tr("Password:"), logwid );
 	}
 
-	void same_global_function(LoginWidget* logwid)
+	void same_global_function( LoginWidget * logwid )
 	{
 	    QLabel *label = new QLabel(
-		    qApp->translate("LoginWidget", "Password:"), logwid );
+		    qApp->translate("LoginWidget", "Password:"),
+		    logwid );
 	}
 	\endcode
 
 	Finally, if you need to have translatable text completely
-	outside a function, there are
-	two macros to help: QT_TR_NOOP() and QT_TRANSLATE_NOOP().
-	They merely mark the text for extraction by the <tt>findtr</tt>
-	utility described below - the macros expand to just the text (without
-	the scope). Example usages are shown below.
+	outside a function, there are two macros to help: QT_TR_NOOP()
+	and QT_TRANSLATE_NOOP().  They merely mark the text for
+	extraction by the <tt>lupdate</tt> utility described below -
+	the macros expand to just the text (without the scope).
+	Example usages are shown below.
 
 	\code
-	QString FriendlyConversation::greeting(int greet_type)
+	QString FriendlyConversation::greeting( int greet_type )
 	{
 	    static const char* greeting_strings[] = {
-		QT_TR_NOOP("Hello"),
-		QT_TR_NOOP("Goodbye")
+		QT_TR_NOOP( "Hello" ),
+		QT_TR_NOOP( "Goodbye" )
 	    };
-	    return tr(greeting_strings[greet_type]);
+	    return tr( greeting_strings[greet_type] );
 	}
 
 	static const char* greeting_strings[] = {
-	    QT_TRANSLATE_NOOP("FriendlyConversation","Hello"),
-	    QT_TRANSLATE_NOOP("FriendlyConversation","Goodbye")
+	    QT_TRANSLATE_NOOP( "FriendlyConversation", "Hello" ),
+	    QT_TRANSLATE_NOOP( "FriendlyConversation", "Goodbye" )
 	};
-	QString FriendlyConversation::greeting(int greet_type)
+	QString FriendlyConversation::greeting( int greet_type )
 	{
-	    return tr(greeting_strings[greet_type]);
+	    return tr( greeting_strings[greet_type] );
 	}
 	\endcode
 	<p>
-	If you disable the const char* to QString automatic conversion by
-	compiling your software with the macro QT_NO_CAST_ASCII defined,
-	you'll be very likely to catch any strings you are missing. See
-	QString::fromLatin1() for more details. Disabling the conversion
-	can make programming cumbersome.
+	If you disable the const char* to QString automatic conversion
+	by compiling your software with the macro QT_NO_CAST_ASCII
+	defined, you'll be very likely to catch any strings you are
+	missing. See QString::fromLatin1() for more details. Disabling
+	the conversion can make programming cumbersome.
 	</p>
  <li><b>Use QString::arg() for simple arguments.</b>
 	<p>
 	The printf() style of inserting arguments in strings
-	is a poor choice for internationalized text, as it is sometimes
-	necessary to change the order of arguments when translating.
-	The
-	\link QString::arg() QString::arg()\endlink
-       	functions offer a simple
-	means for substituting arguments:
+	is a poor choice for internationalized text, as it is
+	sometimes necessary to change the order of arguments when
+	translating. The \link QString::arg() QString::arg()\endlink
+       	functions offer a simple means for substituting arguments:
 	\code
-	void FileCopier::showProgress(int done, int total,
-				      const QString& current_file )
+	void FileCopier::showProgress( int done, int total,
+				       const QString& current_file )
        	{
 	    label.setText( tr("%1 of %2 files copied.\nCopying: %3")
 			    .arg(done)
@@ -146,87 +145,83 @@ in the following stages:
 	\endcode
 	</p>
  <li><b>Produce translation.</b>
-	<p>
-	<b>NOTE:</b> Qt 2.2 improves a lot on the somewhat cumbersome
-	method described below.
-	<p>
+
 	Once you are using tr() sufficiently, you can start producing
 	translations of the user-visible text in your program.
-	<p>
-	Provided with Qt are three utility programs that assist
-	in the management of translations:
-	</p>
-	<dl>
-	  <dt><tt>findtr</tt>
-	  <dd>Extracts information about text to be translated.
-	    It recognizes the tr() constructs described above and
-	    produces a file in ".po" format, a simple text format
-	    that your translation team will copy and edit.  For example,
-	    the <em>base</em> .po file might be <tt>myapp.po</tt> and
-	    translated versions of the file would then be <tt>myapp_de.po</tt>,
-	    <tt>myapp_fr.po</tt>, and <tt>myapp_ja.po</tt> for translations
-	    in German, French and Japanese respectively.
-	    \code
-		findtr *.cpp *.h >myapp.po
-		copy myapp.po myapp_de.po
-		edit myapp_de.po
-	    \endcode
-	  <dt><tt>msg2qm</tt>
-	  <dd>Converts translated .po files to a Qt-specific
-	    binary format (".qm" Qt message files).  The Qt message
-	    files are platform and locale independent, containing
-	    translations in Unicode and various hash tables to
-	    provide fast look-up.
-	    \code
-		msg2qm myapp_de.po myapp_de.qm
-		msg2qm myapp_fr.po myapp_fr.qm
-		msg2qm myapp_ja.po myapp_ja.qm
-	    \endcode
-	    In your application, use
-	    \link QTranslator::load() QTranslator::load()\endlink
-	    to load translation files appropriate for the
-	    user's language.
 
-	  <dt><tt>mergetr</tt>
-	  <dd>When the texts in your program change as it
-	    is developed, a the <em>base</em> .po file can be regenerated
-	    using <tt>findtr</tt>, then <tt>mergetr</tt> can be used to
-	    merge the changes into the other .po files:
-	    \code
-		mergetr myapp_de.po myapp.po
-		mergetr myapp_fr.po myapp.po
-		mergetr myapp_ja.po myapp.po
-	    \endcode
-	    The translation team then edits the new .po files to translate
-	    the new or changed texts.  When texts change, the old text
-	    is included in the .po file as a comment to guide the new
-	    translation (no "fuzzy" matching is done).
-	</dl>
-	<p>
-	While these utilities offer a convenient way to create .qm files
-	by the existing .po files standard, any system which writes .qm files
-	is sufficient - you could make an application that adds translations
-	to a QTranslator with QTranslator::insert() and then writes a .qm
-	file with QTranslator::save(). This way the translations can come
-	from any source you choose.
-	</p>
-	<p>
-	<em>
-	Note that Qt itself contains a small number of strings that will
-	also need to be translated to the languages which you are targeting.
-	In the near future Qt will ship with translations for some languages.
-	We recommend that if you need to translate the Qt strings now
-	that you put the translations in separate .po and .qm files.  This
-	will simplify transition to the official Qt translations. To create
-	a .po file for all Qt sources:
-	    \code
-		findtr qt/src/*\/q*.cpp >qt.po
-	    \endcode
-	</em>
-	<p>
-	The <tt>findtr</tt> ships in <tt>qt/bin</tt>, while the other
-	utilities are under the <tt>qt/src/util</tt> directory
-	and need to be compiled.
+        Translation of a Qt application is a three-step process:
+
+	<ol>
+	  <li> Run <tt>lupdate</tt> to extract translatable text from
+	  the C++ source code of the Qt application, resulting in a
+	  message file for translators (a .qmt file).  The utility
+	  recognizes the tr() construct described above and creates
+	  a certain number of .qmt files (usually one per language).
+	  <li> Provide translations for the source texts in the .qmt
+	  file, using Qt Linguist.  Since .qmt files are in XML
+	  format, you can also edit them by hand.
+	  <li> Run <tt>lrelease</tt> to obtain a light-weight message
+	  file (a .qm file) from the .qmt file, suitable only for end
+	  use. 	You can see the .qmt files as "source files", and .qm
+	  as "object files".  The translator edits the .qmt files, but
+	  the users of your application only need the .qm files.  Both
+	  kinds of files are platform and locale independent.
+	</ol>
+
+	Typically, you will repeat these steps for every release of
+	your application.  The <tt>lupdate</tt> utility does its best
+	to reuse the translations from the previous release.
+
+	Before you run <tt>lupdate</tt>, you should prepare a project
+	file.  Here's an example project file (or .pro file):
+
+<pre>
+HEADERS		= funnydialog.h \
+		  wackywidget.h \
+SOURCES		= funnydialog.cpp \
+		  main.cpp \
+		  wackywidget.cpp
+MESSAGES	= superapp_dk.qmt \
+		  superapp_fi.qmt \
+		  superapp_no.qmt \
+		  superapp_se.qmt
+</pre>
+
+	When you invoke <tt>lupdate</tt> or <tt>lrelease</tt>, you
+	have to give the name of the project file as a command-line
+	argument.
+
+	In this example, four exotic languages are supported: Danish,
+	Finnish, Norwegian and Swedish.  If you use tmake, you don't
+	need an extra project file for lupdate; your tmake project
+	file will do, if you add the MESSAGES lines.
+
+	In your application, you have to \l QTranslator::load()
+	the translation files appropriate for the user's language, and
+	to install them using \l QApplication::installTranslator().
+
+	If you have been using the old Qt tools (findtr, msg2qm and
+	mergetr), you can use <tt>qm2qmt</tt> to convert your old
+	.qm files.
+
+	To get started, you should read at least the first chapter of
+	the translation tutorial.
+
+	While these utilities offer a convenient way to create .qm
+	files, any system that writes .qm files is sufficient.  You
+	could make an application that adds translations to a
+	QTranslator with QTranslator::insert() and then writes a .qm
+	file with QTranslator::save().  This way the translations can
+	come from any source you choose.
+
+	Qt itself contains a small number of strings that will also
+	need to be translated to the languages that you are
+	targeting.  In the near future Qt will ship with translations
+	for some languages.  We recommend that if you need to
+	translate the Qt strings now, put the translations in separate
+	.qmt and .qm files.  This will simplify transition to the
+	official Qt translations.
+
 	</p>
  <li><b>Support encodings.</b>
 	<p>
@@ -292,7 +287,7 @@ in the following stages:
 	Since most Unix systems do not have built-in support for converting
 	between local 8-bit encodings and Unicode, it may be necessary to
 	write your own QTextCodec subclass. Depending on the urgency, it
-	may be useful to contact Troll Tech technical support or ask on
+	may be useful to contact Trolltech technical support or ask on
 	the qt-interest mailing list to see if someone else is already working
 	on supporting the encoding.  A useful interim measure can be to
 	use the QTextCodec::loadCharmapFile() function to build a data-driven
@@ -365,7 +360,7 @@ be too concerned with the actual limitations.
 
 <h2>Supporting more Input Methods</h2>
 
-While Troll Tech doesn't have the resources or expertise in all the
+While Trolltech doesn't have the resources or expertise in all the
 languages of the world to immediately include support in Qt, we are
 very keen to work with people who <em>do</em> have the expertise.
 Over the next few minor version numbers, we hope to add support for
@@ -373,11 +368,12 @@ Over the next few minor version numbers, we hope to add support for
 the programs developed with Qt, regardless of their language.
 
 Initially, languages with uni-directional single-byte encodings
-(European Latin1 and KOI8-R, etc.)  and the uni-directional multi-byte
-encodings (East Asian EUC-JP, etc.) will be supported. Later, support
-for the "complex" encodings - those requiring right-to-left input or
-complex character composition (eg. Arabic, Hebrew, and Thai script)
-will be implemented.  The current state of activity is:
+(European Latin-1 and KOI8-R, etc.)  and the uni-directional
+multi-byte encodings (East Asian EUC-JP, etc.) will be supported.
+Later, support for the "complex" encodings - those requiring
+right-to-left input or complex character composition (eg. Arabic,
+Hebrew, and Thai script) will be implemented.  The current state of
+activity is:
 <dl compact>
  <dt><b>All encodings on Windows</b>
     <dd>On Windows, the local encoding is always supported.

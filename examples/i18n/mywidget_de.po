@@ -6,7 +6,7 @@ msgstr ""
 "Project-Id-Version: example-Qt-message-extraction\n"
 "POT-Creation-Date: 1999-02-23 15:38+0200\n"
 "PO-Revision-Date: 1999-02-23 15:38+0200\n"
-"Last-Translator: Troll Tech AS <info@trolltech.com>\n"
+"Last-Translator: Trolltech AS <info@trolltech.com>\n"
 "Content-Type: text/plain; charset=iso-8859-1\n"
 
 #: mywidget.cpp:30
@@ -15,11 +15,11 @@ msgstr "&Datei"
 
 #: mywidget.cpp:29
 msgid "MyWidget::Ctrl+Q"
-msgstr "Strg+E"
+msgstr "Ctrl+E"
 
 #: mywidget.cpp:28
 msgid "MyWidget::E&xit"
-msgstr "&Beenden"
+msgstr "Be&enden"
 
 #: mywidget.cpp:49
 msgid "MyWidget::First"

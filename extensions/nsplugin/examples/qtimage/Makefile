@@ -1,5 +1,5 @@
 #############################################################################
-# $Id: //depot/qt/main/extensions/nsplugin/examples/qtimage/Makefile#7 $
+# $Id: //depot/qt/main/extensions/nsplugin/examples/qtimage/Makefile#8 $
 #
 # Win32 Makefile, requires Microsoft nmake.
 #

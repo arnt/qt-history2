@@ -1,5 +1,5 @@
 #############################################################################
-# $Id: //depot/qt/main/tests/newlayout/GNUmakefile#1 $
+# $Id: //depot/qt/main/tests/newlayout/GNUmakefile#2 $
 #
 # Unix Makefile, requires GNU make (gmake).
 #

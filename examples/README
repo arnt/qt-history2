@@ -3,7 +3,7 @@
 
 - addressbook
   This examples shows how to write a very simple, but complete application
-  using a very simple addressbook as example.
+  using a very simple address book as example.
 
 - biff (Unix only)
   Biff is a simple graphical program to indicate whether there is new mail;
@@ -73,6 +73,11 @@
   This example program looks like a complete modern application.  It has
   a menu bar, it has a tool bar, it has a status bar and works like a
   simple text editor.
+
+- action
+ Just like the application example but uses QAction to build
+  the menu and the toolbar.
+
 
 - buttongroups
   This examples shows different types of Groupboxes (Buttongroups, etc.)
@@ -148,7 +153,7 @@
   selection and multi selection) and Comboboxes (editable and non-editable).
 
 - listviews
-  This examples shows how to work with Listviews (hirarchical and
+  This examples shows how to work with Listviews (hierarchical and
   multi-columns).  It also shows how to subclass Listview Items for
   special reasons. It looks and works like the mainwindow of a mail client.
 

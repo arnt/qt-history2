@@ -1,5 +1,5 @@
 #############################################################################
-# $Id: //depot/qt/main/tests/widgetstack/GNUmakefile#3 $
+# $Id: //depot/qt/main/tests/widgetstack/GNUmakefile#4 $
 #
 # Unix Makefile, requires GNU make (gmake).
 #

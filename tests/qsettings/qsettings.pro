@@ -6,5 +6,5 @@ HEADERS        = qsettings.h qxml.h
 SRCMOC         = moc_qsettings.cpp
 SRCOCJ         = moc_qsettings.o
 TARGET         = settings
-CONFIG         = qt warn_on release
+CONFIG         += qt warn_on release
 CLEAN_FILES     = *.core core variantrc variantrc3

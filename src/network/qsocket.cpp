@@ -1,21 +1,23 @@
 /****************************************************************************
 ** $Id: //depot/qt/qws/extensions/network/src/qsocket.cpp#4 $
 **
-** Implementation of Network Extension Library
+** Implementation of QSocket class.
 **
 ** Created : 970521
 **
 ** Copyright (C) 1992-2000 Troll Tech AS.  All rights reserved.
 **
-** This file is part of the Qt GUI Toolkit.
+** This file is part of the network module of the Qt GUI Toolkit.
 **
 ** This file may be distributed under the terms of the Q Public License
 ** as defined by Troll Tech AS of Norway and appearing in the file
 ** LICENSE.QPL included in the packaging of this file.
 **
-** Licensees holding valid Qt Professional Edition licenses may use this
-** file in accordance with the Qt Professional Edition License Agreement
-** provided with the Qt Professional Edition.
+** Licensees holding valid Qt Enterprise Edition or Qt Professional Edition
+** licenses may use this file in accordance with the Qt Commercial License
+** Agreement provided with the Software.  This file is part of the network
+** module and therefore may only be used if the network module is specified
+** as Licensed on the Licensee's License Certificate.
 **
 ** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 ** information about the Professional Edition licensing, or see
@@ -25,6 +27,7 @@
 
 #include "qsocket.h"
 #include "qlist.h"
+#include "qtimer.h"
 #include "qsocketdevice.h"
 #include "qdns.h"
 
@@ -44,29 +47,24 @@ public:
 
     QSocket            *owner;			// the owner of the d pointer
     QSocket::State	state;			// connection state
-    QSocket::Mode	mode;			// mode for reading
     QString		filename;
     QString		host;			// host name
-    int			port;			// host port
+    Q_UINT16		port;			// host port
     QSocketDevice      *socket;			// connection socket
     QSocketNotifier    *rsn, *wsn;		// socket notifiers
     QList<QByteArray>	rba, wba;		// list of read/write bufs
     QHostAddress	addr;			// connection address
     int			rsize, wsize;		// read/write total buf size
     int			rindex, windex;		// read/write index
-    bool		newline;		// has newline/can read line
-    int			ready_read_timer;	// timer for emit read signals
 #ifndef QT_NO_DNS
     QDns	       *dns;
 #endif
 };
 
 QSocketPrivate::QSocketPrivate( QSocket *o )
-    : owner(o),
-      state(QSocket::Idle), mode(QSocket::Binary),
-      host(QString::fromLatin1("")), port(0),
-      socket(0), rsn(0), wsn(0), rsize(0), wsize(0), rindex(0), windex(0),
-      newline(FALSE), ready_read_timer(0)
+    : owner( o ),
+      state(QSocket::Idle), host(QString::fromLatin1("")), port(0),
+      socket(0), rsn(0), wsn(0), rsize(0), wsize(0), rindex(0), windex(0)
 {
 #ifndef QT_NO_DNS
     dns = 0;
@@ -77,10 +75,9 @@ QSocketPrivate::QSocketPrivate( QSocket *o )
 
 QSocketPrivate::~QSocketPrivate()
 {
-    if ( ready_read_timer != 0 )
-	owner->killTimer( ready_read_timer );
     // Order is important here - the socket notifiers must go away
-    // before the socket does.
+    // before the socket does, otherwise libc or the kernel will
+    // become unhappy.
     delete rsn;
     delete wsn;
     delete socket;
@@ -93,11 +90,52 @@ QSocketPrivate::~QSocketPrivate()
 
 /*!
   \class QSocket qsocket.h
-  \brief The QSocket class provides a buffered TCP connection over a socket.
+  \brief The QSocket class provides a buffered TCP connection.
 
-  \extension network
+  \module network
 
-  Both read and write operations are buffered.
+  It provides a totally non-blocking QIODevice, and modifies and
+  extends the API of QIODevice with socket-specific code.
+
+  The functions you're likely to call most are connectToHost(),
+  bytesAvailable(), canReadLine() and the ones it inherits from
+  QIODevice.  The <a href="linux-kernel.html">Linux Kernel Version
+  Walkthrough</a> uses them in a very simple program.
+
+  connectToHost() is the most-used function.  As its name implies, it
+  opens a connection to a named host.
+
+  Most network protocols are either packet-oriented or line-oriented.
+  canReadLine() indicates whether a connection contains an entire
+  unread line or not, and bytesAvailable() returns the number of bytes
+  available for reading.
+
+  The signals error(), connected(), readyRead() and connectionClosed()
+  inform you of the progress of the connection.  There are also some
+  less commonly used signals.  hostFound() is emitted when
+  connectToHost() has finished its DSN lookup and is starting its TCP
+  connection. delayedCloseFinished() is emitted when close()
+  succeeds().  bytesWritten() is emitted when QSocket moves data from
+  its "to be written" queue into the TCP implementation.
+
+  There are several access functions for the socket: state() returns
+  whether the object is idle, is doing a DNS lookup, is connecting,
+  has an operational connection, etc.  address() and port() return the
+  IP address and port used for the connection, peerAddress() and
+  peerPort() return the IP address and port used by the peer, and
+  peerName() returns the name of the peer (normally the name that was
+  passed to connectToHost()). socket() returns a pointer to the
+  QSocketDevice used for this socket.
+
+  QSocket inherits QIODevice, and reimplements some of the functions.
+  In general, you can treat it as a QIODevice for writing, and mostly
+  also for reading.  The match isn't perfect, since the QIODevice API
+  is designed for devices that are controlled by the same machine, and
+  an asynchronous peer-to-peer network connection isn't quite like
+  that.  For example, there is nothing that matches QIODevice::size()
+  exactly.  The documentation for each of open(), close(), flush(),
+  size(), at(), atEnd(), readBlock(), writeBlock(), getch(), putch(),
+  ungetch() and readLine() describe the differences in detail.
 
   \sa QSocketDevice, QHostAddress, QSocketNotifier
 */
@@ -105,9 +143,6 @@ QSocketPrivate::~QSocketPrivate()
 
 /*!
   Creates a QSocket object in \c QSocket::Idle state.
-
-  This socket can be used to make a connection to a host using
-  the connectToHost() function.
 */
 
 QSocket::QSocket( QObject *parent, const char *name )
@@ -138,11 +173,10 @@ QSocket::~QSocket()
 
 /*!
   Returns a pointer to the internal socket device.  The returned pointer
-  is null if there is no connection or pending connection.
+  may be null.
 
   There is normally no need to manipulate the socket device directly
-  since this class does all the necessary setup for most client or
-  server socket applications.
+  since this class does the necessary setup for most applications.
 */
 
 QSocketDevice *QSocket::socketDevice()
@@ -152,41 +186,23 @@ QSocketDevice *QSocket::socketDevice()
 
 
 /*!
-  Processes timer events for QSocket.  Emits the readyRead() signal
-  if there is buffered input available for reading.
-*/
-
-void QSocket::timerEvent( QTimerEvent *e )
-{
-    if ( e->timerId() == d->ready_read_timer ) {
-	if ( d && d->rsize > 0 ) {		// data in read buffer
-	    emit readyRead();
-	} else {				// empty read buffer
-	    killTimer( d->ready_read_timer );	// then reset the timer
-	    d->ready_read_timer = 0;
-	}
-    } else {
-	QObject::timerEvent( e );
-    }
-}
-
-
-/*!
   \enum QSocket::State
 
-  This enum contains the connection states:
+  This enum defines the connection states:
   <ul>
-  <li> \c QSocket::Idle if there is no connection,
-  <li> \c QSocket::HostLookup during a host lookup,
-  <li> \c QSocket::Connecting during an attempt to connect to a host, and
-  <li> \c QSocket::Connection when there is a connection.
-  <li> \c QSocket::Closing if the socket is about to close but not all data is
-          written to the socket yet
+  <li> \c QSocket::Idle if there is no connection
+  <li> \c QSocket::HostLookup during a DNS lookup
+  <li> \c QSocket::Connecting during TCP connection establishment
+  <li> \c QSocket::Connection when there is an operational connection
+  <li> \c QSocket::Closing if the socket is closing down, but is not
+  yet closed.
   </ul>
 */
 
 /*!
   Returns the current state of the socket connection.
+
+  \sa QSocket::State
 */
 
 QSocket::State QSocket::state() const
@@ -195,87 +211,22 @@ QSocket::State QSocket::state() const
 }
 
 
-/*!
-  Returns the current communication mode, either \c QSocket::Binary
-  or \c QSocket::Ascii.
-
-  The default mode is \c QSocket::Binary.
-
-  \sa setMode() Mode
-*/
-
-QSocket::Mode QSocket::mode() const
-{
-    return d->mode;
-}
-
-
-/*!
-  \enum QSocket::Mode
-
-  This enum specifies the communication mode:
-  <ul>
-  <li> \c QSocket::Binary (default)
-  <li> \c QSocket::Ascii
-  </ul>
-*/
-
-
-/*!
-  Sets the
-    \link QSocket::Mode communication mode\endlink to either binary or ascii.
-
-  QSocket::Binary is the default.
-
-  The mode only relates to incoming data. If binary mode is set,
-  you read data using the readBlock() function.  bytesAvailable()
-  tells you how much buffered data that can be read.
-
-  If ascii mode set, QSocket will look for newline characters
-  (\n) in the incoming data.  You can call the canReadLine()
-  function to check if there is a line of text to be read.
-  If canReadLine() returns TRUE, you can read a complete line of
-  incoming text using the readLine() function.
-  The readBlock() and bytesAvailable() functions work just like
-  in binary mode.
-
-  The close() function sets the mode to \c QSocket::Binary.
-
-  \sa mode(), readBlock(), bytesAvailable(), canReadLine(), readLine(),
-  close()
-*/
-
-void QSocket::setMode( Mode mode )
-{
-#if defined(QSOCKET_DEBUG)
-    qDebug( "QSocket (%s): Set mode %s",
-	    name(), (mode == Binary ? "Binary" : "Ascii") );
-#endif
-    if ( d->mode == mode )
-	return;
-    d->mode = mode;
-    if ( d->mode == Ascii  )
-	d->newline = scanNewline();
-}
-
 #ifndef QT_NO_DNS
 
-/*!
-  Attempts to make a connection to \a host on the specified \a port.
+/*!  Attempts to make a connection to \a host on the specified \a port
+  and return immediately.
 
-  Any connection or pending connection is closed immediately
-  when you call this function.
-
-  When making a connection, QSocket goes into the \c QSocket::HostLookup
-  state while looking up the host.  When the host has been found, QSocket
-  will try to connect to the host and it goes into the
-  \c QSocket::Connecting state.  Finally, when a connection has been
-  made, the state becomes \c QSocket::Connection.
+  Any connection or pending connection is closed immediately, and
+  QSocket goes into \c HostLookup state. When the lookup succeeds, it
+  emits hostFound(), starts a TCP connection and goes into \c
+  Connecting state.  Finally, when the connection succeeds, it emits
+  connected() and goes into \c Connection state.  If there is an error
+  at any point, it emits error().
 
   \sa state()
 */
 
-void QSocket::connectToHost( const QString &host, int port )
+void QSocket::connectToHost( const QString &host, Q_UINT16 port )
 {
 #if defined(QSOCKET_DEBUG)
     qDebug( "QSocket (%s)::connectToHost: host %s, port %d",
@@ -287,7 +238,11 @@ void QSocket::connectToHost( const QString &host, int port )
     d->host = host;
     d->port = port;
     d->dns = new QDns( host, QDns::A );
-    connect( d->dns, SIGNAL(resultsReady()), this, SLOT(tryConnecting()) );
+    // try if the address is already available (for faster connecting...)
+    tryConnecting();
+    if ( d->state == HostLookup ) {
+	connect( d->dns, SIGNAL(resultsReady()), this, SLOT(tryConnecting()) );
+    }
 };
 
 #endif
@@ -300,6 +255,10 @@ void QSocket::connectToHost( const QString &host, int port )
 
 void QSocket::tryConnecting()
 {
+    if ( d->state != HostLookup )
+	return;
+    // ### this ifdef isn't correct - addresses() also does /etc/hosts and
+    // numeric-address-as-string handling.
 #ifndef QT_NO_DNS
     QValueList<QHostAddress> l = d->dns->addresses();
 #if defined(QSOCKET_DEBUG)
@@ -325,6 +284,7 @@ void QSocket::tryConnecting()
 	}
 	d->state = Idle;
 	emit error( ErrConnectionRefused );
+	return;
     }
 #if defined(QSOCKET_DEBUG)
     QString canonical = d->dns->canonicalName();
@@ -359,8 +319,8 @@ void QSocket::tryConnecting()
 /*!
   \fn void QSocket::hostFound()
 
-  This signal is emitted after connectToHost() has been called and a
-  host has been looked up.
+  This signal is emitted after connectToHost() has been called and the
+  host lookup has succeeded.
 
   \sa connected()
 */
@@ -406,9 +366,10 @@ void QSocket::tryConnecting()
 
   This signal is emitted when there is incoming data to be read.
 
-  When new data comes into the socket device, this signal is emitted
-  immediately.  If QSocket has old incoming data that you have not read,
-  the signal is emitted once every second until you read everything.
+  Every time when there is new incoming data this signal is emitted once. Keep
+  in mind that new incoming data is only reported once; i.e. if you do not read
+  all data, this signal is not emitted again unless new data arrives on the
+  socket.
 
   \sa readBlock(), readLine(), bytesAvailable()
 */
@@ -474,7 +435,6 @@ void QSocket::close()
 #if defined(QSOCKET_DEBUG)
     qDebug( "QSocket (%s): close socket", name() );
 #endif
-    d->mode = Binary;
     if ( d->socket && d->wsize ) {		// there's data to be written
 	d->state = Closing;
 	if ( d->rsn )
@@ -519,8 +479,6 @@ bool QSocket::consumeReadBuf( int nbytes, char *sink )
 	    d->rba.remove();
 	    d->rindex = 0;
 	    if ( nbytes == 0 ) {		// nothing more to skip
-		if ( d->mode == Ascii )
-		    d->newline = scanNewline();
 		return TRUE;
 	    }
 	} else {
@@ -528,8 +486,6 @@ bool QSocket::consumeReadBuf( int nbytes, char *sink )
 	    if ( sink )
 		memcpy( sink, a->data()+d->rindex, nbytes );
 	    d->rindex += nbytes;
-	    if ( d->mode == Ascii )
-		d->newline = scanNewline();
 	    return TRUE;
 	}
     }
@@ -578,12 +534,10 @@ bool QSocket::scanNewline( QByteArray *store )
 {
     if ( d->rsize == 0 )
 	return FALSE;
-    if ( store && store->size() < 128 )
-	store->resize( 128 );
-    int i = 0;					// index into 'store'
+    int i = 0; // index into 'store'
     QByteArray *a = 0;
     char *p;
-    int   n;
+    int n;
     while ( TRUE ) {
 	if ( !a ) {
 	    a = d->rba.first();
@@ -602,12 +556,13 @@ bool QSocket::scanNewline( QByteArray *store )
 	    while ( n-- > 0 ) {
 		*(store->data()+i) = *p;
 		if ( ++i == (int)store->size() )
-		    store->resize( store->size()*2 );
+		    store->resize( store->size() < 256
+				   ? 1024 : store->size()*4 );
 		switch ( *p ) {
 		    case '\0':
 #if defined(QSOCKET_DEBUG)
 			qDebug( "QSocket (%s)::scanNewline: Oops, unexpected "
-				"0-terminated text read %s",
+				"0-terminated text read <%s>",
 				name(), store->data() );
 #endif
 			store->resize( i );
@@ -640,16 +595,26 @@ bool QSocket::scanNewline( QByteArray *store )
 
 void QSocket::flush()
 {
-    if ( d->state >= Connecting && d->wsize > 0 ) {
+    bool osBufferFull = FALSE;
+    int consumed = 0;
+    while( !osBufferFull && d->state >= Connecting && d->wsize > 0 ) {
 #if defined(QSOCKET_DEBUG)
 	qDebug( "QSocket (%s): flush: Write data to the socket", name() );
 #endif
 	QByteArray *a = d->wba.first();
 	int nwritten;
-	if ( (int)a->size() - d->windex < 1480 ) {
-	    // Concatenate many smaller block
-	    QByteArray out(1480);
-	    int i = 0;
+	int i = 0;
+	if ( (int)a->size() - d->windex < 1460 ) {
+	    // Concatenate many smaller blocks.  the first may be
+	    // partial, but each subsequent block is copied entirely
+	    // or not at all.  the sizes here are picked so that we
+	    // generally won't trigger nagle's algorithm in the tcp
+	    // implementation: we concatenate if we'd otherwise send
+	    // less than PMTU bytes (we assume PMTU is 1460 bytes),
+	    // and concatenate up to the largest payload TCP/IP can
+	    // carry.  with these precautions, nagle's algorithm
+	    // should apply only when really appropriate.
+	    QByteArray out( 65536 );
 	    int j = d->windex;
 	    int s = a->size() - j;
 	    while ( a && i+s < (int)out.size() ) {
@@ -662,39 +627,43 @@ void QSocket::flush()
 	    nwritten = d->socket->writeBlock( out.data(), i );
 	} else {
 	    // Big block, write it immediately
-	    nwritten = d->socket->writeBlock( a->data() + d->windex,
-					      a->size() - d->windex );
+	    i = a->size() - d->windex;
+	    nwritten = d->socket->writeBlock( a->data() + d->windex, i );
 	}
-	if ( nwritten > 0 ) {
+	if ( nwritten ) {
 	    consumeWriteBuf( nwritten );
-	    emit bytesWritten( nwritten );
-#if defined(QSOCKET_DEBUG)
-	    qDebug( "QSocket (%s): flush: wrote %d bytes, %d left",
-		    name(), nwritten, d->wsize );
-#endif
+	    consumed += nwritten;
 	}
-	if ( d->state == Closing && d->wsize == 0 ) {
+	if ( nwritten < i )
+	    osBufferFull = TRUE;
+    }
+    if ( consumed > 0 ) {
+	emit bytesWritten( consumed );
 #if defined(QSOCKET_DEBUG)
-	    qDebug( "QSocket (%s): flush: Delayed close done. Terminating.",
-		    name() );
+	qDebug( "QSocket (%s): flush: wrote %d bytes, %d left",
+		name(), consumed, d->wsize );
 #endif
-	    setFlags( IO_Sequential );
-	    setStatus( IO_Ok );
-	    delete d;
-	    d = new QSocketPrivate( this );
-	    d->state = Idle;
-	    emit delayedCloseFinished();
-	    return;
-	}
+    }
+    if ( d->state == Closing && d->wsize == 0 ) {
+#if defined(QSOCKET_DEBUG)
+	qDebug( "QSocket (%s): flush: Delayed close done. Terminating.",
+		name() );
+#endif
+	setFlags( IO_Sequential );
+	setStatus( IO_Ok );
+	delete d;
+	d = new QSocketPrivate( this );
+	d->state = Idle;
+	emit delayedCloseFinished();
+	return;
     }
     if ( d->wsn )
-	d->wsn->setEnabled( d->wsize > 0 );		// write if there's data
+	d->wsn->setEnabled( d->wsize > 0 ); // write if there's data
 }
 
 
-/*!
-  Returns the number of incoming bytes that can be read, same as
-  bytesAvailable().
+/*!  Returns the number of incoming bytes that can be read right now
+  (like bytesAvailable()).
 */
 
 uint QSocket::size() const
@@ -823,8 +792,6 @@ int QSocket::readBlock( char *data, uint maxlen )
     qDebug( "QSocket (%s): readBlock %d bytes", name(), maxlen );
 #endif
     consumeReadBuf( maxlen, data );
-    if ( d->mode == Ascii )
-	d->newline = scanNewline();
     return maxlen;
 }
 
@@ -856,26 +823,33 @@ int QSocket::writeBlock( const char *data, uint len )
 	return 0;
     QByteArray *a = d->wba.last();
 
-    // next bit is sensitive.  here's what it ought to do.  if we're
-    // writing really small chunks, try to buffer up since system
-    // calls are expensive.  but if anything even remotely large is
-    // being written, try to issue a write at once.  so, we should try
-    // a write immediately if there isn't data queued up already, and
-    // the write notifier is off, and this blob of data isn't
-    // ridiculously small.
+    // next bit is sensitive.  if we're writing really small chunks,
+    // try to buffer up since system calls are expensive, and nagle's
+    // algorithm is even more expensive.  but if anything even
+    // remotely large is being written, try to issue a write at once.
+    // so, we try a write immediately if there isn't data queued up
+    // already, and the write notifier is off, and this blob of data
+    // isn't ridiculously small.
 
-    if ( a && a->size() + len < 128 ) {		// small buffer, resize
+    bool writeNow = ( d->wsize == 0 && len > 512 &&
+		      d->wsn && d->wsn->isEnabled() == FALSE );
+
+    if ( a && a->size() + len < 128 ) {
+	// small buffer, resize
 	int i = a->size();
 	a->resize( i+len );
 	memcpy( a->data()+i, data, len );
-    } else {					// append new buffer
+    } else {
+	// append new buffer
 	a = new QByteArray( len );
 	memcpy( a->data(), data, len );
 	d->wba.append( a );
     }
     d->wsize += len;
-    if ( d->wsn )
-	d->wsn->setEnabled( TRUE );		// there's data to write
+    if ( writeNow )
+	flush();
+    else if ( d->wsn )
+	d->wsn->setEnabled( TRUE );
 #if defined(QSOCKET_DEBUG)
     qDebug( "QSocket (%s): writeBlock %d bytes", name(), len );
 #endif
@@ -896,8 +870,6 @@ int QSocket::getch()
     if ( isOpen() && d->rsize > 0 ) {
 	uchar c;
 	consumeReadBuf( 1, (char*)&c );
-	if ( d->mode == Ascii && c == '\n' )
-	    d->newline = scanNewline();
 	return c;
     }
     return -1;
@@ -932,17 +904,25 @@ int QSocket::ungetch( int )
 }
 
 
-/*!
-  Returns TRUE if the socket is in ascii mode and readLine() can be
-  called to read a line of text.  Otherwise FALSE is returned.
+/*! Returns TRUE if it's possible to read an entire line of text from
+  this socket at this time, or FALSE if not.
   \sa setMode(), readLine()
 */
 
 bool QSocket::canReadLine() const
 {
-    return d->mode == Ascii && d->newline;
+    return ((QSocket*)this)->scanNewline( 0 );
 }
 
+/*!
+  \reimp
+  \internal
+    So that it's not hidden by our other readLine().
+*/
+int QSocket::readLine( char *data, uint maxlen )
+{
+    return QIODevice::readLine(data,maxlen);
+}
 
 /*!
   Returns a line of text including a terminating newline character (\n).
@@ -953,12 +933,13 @@ bool QSocket::canReadLine() const
 
 QString QSocket::readLine()
 {
-    if ( !canReadLine() )
-	return QString::fromLatin1("");
     QByteArray a(256);
-    scanNewline( &a );
-    at( a.size() );				// skips the data read
-    QString s( a );
+    bool nl = scanNewline( &a );
+    QString s;
+    if ( nl ) {
+	at( a.size() );				// skips the data read
+	s = QString( a );
+    }
     return s;
 }
 
@@ -1055,10 +1036,6 @@ void QSocket::sn_read()
     }
     d->rba.append( a );
     d->rsize += nread;
-    if ( d->mode == Ascii )
-	d->newline = scanNewline();
-    if ( d->ready_read_timer == 0 )
-	d->ready_read_timer = startTimer( 1000 );
     emit readyRead();
 }
 
@@ -1092,11 +1069,7 @@ void QSocket::tryConnection()
 
 
 /*!
-  Returns the socket number, or -1 if there is no connection.
-
-  There is normally no need to manipulate the socket number directly
-  since this class does all the necessary setup for most client or
-  server socket applications.
+  Returns the socket number, or -1 if there is no socket at the moment.
 */
 
 int QSocket::socket() const
@@ -1134,7 +1107,6 @@ void QSocket::setSocket( int socket )
     d->socket->setBlocking( FALSE );
     d->socket->setAddressReusable( TRUE );
     d->state = Connection;
-    d->mode = Binary;
     d->rsn = new QSocketNotifier( d->socket->socket(), QSocketNotifier::Read,
 				  this, "read" );
     d->wsn = new QSocketNotifier( d->socket->socket(), QSocketNotifier::Write,
@@ -1148,7 +1120,7 @@ void QSocket::setSocket( int socket )
     setStatus( IO_Ok );
     open( IO_ReadWrite );
 
-    // 
+    // hm... this is not very nice.
     d->host = QString::null;
     d->port = 0;
 #ifndef QT_NO_DNS
@@ -1162,7 +1134,7 @@ void QSocket::setSocket( int socket )
   Returns the host port number of this socket.
 */
 
-uint QSocket::port() const
+Q_UINT16 QSocket::port() const
 {
     if ( d->socket == 0 )
 	return 0;
@@ -1170,12 +1142,12 @@ uint QSocket::port() const
 }
 
 
-/*!
-  Returns the host port number as specified to the connectToHost() function.
-  If none has been set, the returned port is 0.
+/*!  Returns the peer's host port number, normally as specified to the
+  connectToHost() function.  If none has been set, this function
+  returns 0.
 */
 
-uint QSocket::peerPort() const
+Q_UINT16 QSocket::peerPort() const
 {
     if ( d->socket == 0 )
 	return 0;
@@ -1183,8 +1155,9 @@ uint QSocket::peerPort() const
 }
 
 
-/*!
-  Returns the host address of this socket.
+/*!  Returns the host address of this socket. (This is normally be the
+  main IP address of the host, but can be e.g. 127.0.0.1 for
+  connections to localhost.)
 */
 
 QHostAddress QSocket::address() const

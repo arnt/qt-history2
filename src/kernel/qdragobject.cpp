@@ -5,15 +5,17 @@
 **
 ** Copyright (C) 1992-2000 Troll Tech AS.  All rights reserved.
 **
-** This file is part of the Qt GUI Toolkit.
+** This file is part of the kernel module of the Qt GUI Toolkit.
 **
 ** This file may be distributed under the terms of the Q Public License
 ** as defined by Troll Tech AS of Norway and appearing in the file
 ** LICENSE.QPL included in the packaging of this file.
 **
-** Licensees holding valid Qt Professional Edition licenses may use this
-** file in accordance with the Qt Professional Edition License Agreement
-** provided with the Qt Professional Edition.
+** Licensees holding valid Qt Enterprise Edition or Qt Professional Edition
+** licenses may use this file in accordance with the Qt Commercial License
+** Agreement provided with the Software.  This file is part of the kernel
+** module and therefore may only be used if the kernel module is specified
+** as Licensed on the Licensee's License Certificate.
 **
 ** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 ** information about the Professional Edition licensing, or see
@@ -450,7 +452,7 @@ QWidget * QDragObject::source()
 // NOT REVISED
 /*! \class QDragObject qdragobject.h
 
-  \brief The QDragObject encapsulates MIME-based information transfer.
+  \brief The QDragObject class encapsulates MIME-based information transfer.
 
   \ingroup draganddrop
 
@@ -543,7 +545,7 @@ void QTextDrag::setSubtype( const QCString & st)
 
 /*! \class QTextDrag qdragobject.h
 
-  \brief The QTextDrag provides a drag-and-drop object for
+  \brief The QTextDrag class is a drag-and-drop object for
 	      transferring plain and Unicode text.
 
   \ingroup draganddrop
@@ -751,7 +753,7 @@ public:
 
 /*! \class QImageDrag qdragobject.h
 
-  \brief The QImageDrag provides a drag-and-drop object for
+  \brief The QImageDrag class provides a drag-and-drop object for
   transferring images.
 
   \ingroup draganddrop
@@ -948,7 +950,7 @@ QStoredDrag::QStoredDrag( const char* mimeType, QWidget * dragSource, const char
 */
 QStoredDrag::~QStoredDrag()
 {
-    delete d->fmt;
+    delete [] d->fmt;
     delete d;
 }
 
@@ -1330,7 +1332,7 @@ QWidget* QDropEvent::source() const
 
 /*! \class QColorDrag qdragobject.h
 
-  \brief The QColorDrag provides a drag-and-drop object for
+  \brief The QColorDrag class provides a drag-and-drop object for
 	      transferring colors.
 
   \ingroup draganddrop

@@ -313,7 +313,7 @@ void QIMPenStroke::createAngleSignature()
 }
 
 /*!
-  Create a signature of the distance from the char's centre of gravity
+  Create a signature of the distance from the char's center of gravity
   to its points.
 */
 void QIMPenStroke::createDistSignature()

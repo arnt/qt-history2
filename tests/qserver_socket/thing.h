@@ -16,12 +16,14 @@ public:
     ~Thing();
 
 public slots:
-    void setAscii( bool );
     void printInfo();
     void read();
     void readLine();
+    void readMuch();
     void write();
     void flush();
+    void writeMuch();
+    void waitForMore();
     void closeSocket();
 
 private slots:

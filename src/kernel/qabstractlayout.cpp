@@ -5,17 +5,19 @@
 **
 ** Created : 960416
 **
-** Copyright (C) 1992-2000 Troll Tech AS.  All rights reserved.
+** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
 **
-** This file is part of the Qt GUI Toolkit.
+** This file is part of the kernel module of the Qt GUI Toolkit.
 **
 ** This file may be distributed under the terms of the Q Public License
-** as defined by Troll Tech AS of Norway and appearing in the file
+** as defined by Trolltech AS of Norway and appearing in the file
 ** LICENSE.QPL included in the packaging of this file.
 **
-** Licensees holding valid Qt Professional Edition licenses may use this
-** file in accordance with the Qt Professional Edition License Agreement
-** provided with the Qt Professional Edition.
+** Licensees holding valid Qt Enterprise Edition or Qt Professional Edition
+** licenses may use this file in accordance with the Qt Commercial License
+** Agreement provided with the Software.  This file is part of the kernel
+** module and therefore may only be used if the kernel module is specified
+** as Licensed on the Licensee's License Certificate.
 **
 ** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 ** information about the Professional Edition licensing, or see
@@ -42,7 +44,7 @@
 
 /*!
   \class QSpacerItem qabstractlayout.h
-  \brief A QLayoutItem that represents blank space.
+  \brief The QLayoutItem class that represents blank space.
 
   For custom layouts.
 
@@ -751,12 +753,6 @@ QLayout::QLayout( int space, const char *name )
 */
 
 /*!
-  \fn QString QLayout::name() const
-
-  Returns the internal object name.
-*/
-
-/*!
   \fn QMenuBar* QLayout::menuBar () const
   Returns the menu bar set for this layout, or a null pointer if no
   menu bar is set.
@@ -882,12 +878,6 @@ void QLayout::setWidgetLayout( QWidget *w, QLayout *l )
     w->setLayout( l );
 }
 
-
-
-/*! \fn QSize QLayout::minSize()
-  Returns the minimum size this layout needs. Does not include what's
-  needed by margin() or menuBar().
-*/
 
 
 /*!
@@ -1233,16 +1223,9 @@ void QLayout::setMenuBar( QMenuBar *w )
 #endif
 
 /*!
-  \fn QSize QLayout::sizeHint()
-
-  Implemented in subclasses to return the preferred size of this layout.
-  Not including what's needed by margin() or menuBar().
-*/
-
-/*!
   Returns the minimum size of this layout. This is the smallest size
   that the layout can have, while still respecting the specifications.
-  Does not include what's  needed by margin() or menuBar().
+  Does not include what's needed by margin() or menuBar().
 
   The default implementation allows unlimited resizing.
 */
@@ -1449,7 +1432,7 @@ taller than sizeHint() says.
   It constructs a QSizePolicy with independent horizontal and vertical
   sizing types, \a hor and \a ver respectively.  These \link
   QSizePolicy::SizeType sizing types\endlink affect how the widget is
-  treated by the \a link QLayout layout engine\endlink.
+  treated by the \link QLayout layout engine\endlink.
 
   If \a hfw is TRUE, the preferred height of the widget is dependent on the
   width of the widget (for example, a QLabel with automatic word-breaking).
@@ -1505,6 +1488,17 @@ Returns TRUE if the widget's preferred height depends on its width.
 
 /*! \fn void QSizePolicy::setHeightForWidth( bool b )
 Sets the hasHeightForWidth() flag to \a b.
+*/
+
+
+/*! \fn void QSizePolicy::operator==( const QSizePolicy &s )
+  Returns TRUE if this policy is equal to \a s, or FALSE if
+  they are different.
+*/
+
+/*! \fn void QSizePolicy::operator!=( const QSizePolicy &s )
+  Returns TRUE if this policy is different from \a s, or FALSE if
+  they are equal.
 */
 
 

@@ -7,15 +7,17 @@
 **
 ** Copyright (C) 2000 Troll Tech AS.  All rights reserved.
 **
-** This file is part of the Qt GUI Toolkit.
+** This file is part of the kernel module of the Qt GUI Toolkit.
 **
 ** This file may be distributed under the terms of the Q Public License
 ** as defined by Troll Tech AS of Norway and appearing in the file
 ** LICENSE.QPL included in the packaging of this file.
 **
-** Licensees holding valid Qt Professional Edition licenses may use this
-** file in accordance with the Qt Professional Edition License Agreement
-** provided with the Qt Professional Edition.
+** Licensees holding valid Qt Enterprise Edition or Qt Professional Edition
+** licenses may use this file in accordance with the Qt Commercial License
+** Agreement provided with the Software.  This file is part of the kernel
+** module and therefore may only be used if the kernel module is specified
+** as Licensed on the Licensee's License Certificate.
 **
 ** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 ** information about the Professional Edition licensing, or see
@@ -24,7 +26,7 @@
 *****************************************************************************/
 
 /* The following copyright notice pertains to the code as contributed
-to Troll Tech, not to Troll Tech's modifications. It is replicated
+to Trolltech, not to Trolltech's modifications. It is replicated
 in doc/dnd.doc, where the documentation system can see it. */
 
 /* Copyright 1996 Daniel Dardailler.
@@ -48,7 +50,7 @@ in doc/dnd.doc, where the documentation system can see it. */
 /* Only requires Xlib layer - not MT safe */
 /* Author: Daniel Dardailler, daniel@x.org */
 /* Adapted by : Matt Koss, koss@napri.sk */
-/* Further adaptions by : Troll Tech AS */
+/* Further adaptions by : Trolltech AS */
 /***********************************************************/
 #include <stdio.h>
 #include <stdlib.h>
@@ -337,7 +339,7 @@ static void DndReadSourceProperty(Display * dpy,
 				  Window window, Atom dnd_selection,
 				  Atom ** targets, unsigned short * num_targets)
 {
-    DndSrcProp * src_prop = NULL;
+    DndSrcProp * src_prop = 0;
     Atom type ;
     int format ;
     unsigned long bytesafter, lengthRtn;
@@ -517,7 +519,7 @@ static Window MotifWindow(Display *display )
     int             format;
     unsigned long   size;
     unsigned long   bytes_after;
-    Window         *property = NULL;
+    Window         *property = 0;
     Window	    motif_window ;
 
     /* this version does no caching, so it's slow: round trip each time */
@@ -579,7 +581,7 @@ static DndTargetsTable TargetsTable(Display *display)
 			     (unsigned char **) &target_prop) != Success) ||
 	type == None) {
 	qWarning("QMotifDND: cannot get property on motif window");
-	return NULL ;
+	return 0;
     }
 
     if (target_prop->protocol_version != DND_PROTOCOL_VERSION) {

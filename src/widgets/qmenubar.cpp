@@ -7,15 +7,17 @@
 **
 ** Copyright (C) 1992-2000 Troll Tech AS.  All rights reserved.
 **
-** This file is part of the Qt GUI Toolkit.
+** This file is part of the widgets module of the Qt GUI Toolkit.
 **
 ** This file may be distributed under the terms of the Q Public License
 ** as defined by Troll Tech AS of Norway and appearing in the file
 ** LICENSE.QPL included in the packaging of this file.
 **
-** Licensees holding valid Qt Professional Edition licenses may use this
-** file in accordance with the Qt Professional Edition License Agreement
-** provided with the Qt Professional Edition.
+** Licensees holding valid Qt Enterprise Edition or Qt Professional Edition
+** licenses may use this file in accordance with the Qt Commercial License
+** Agreement provided with the Software.  This file is part of the widgets
+** module and therefore may only be used if the widgets module is specified
+** as Licensed on the Licensee's License Certificate.
 **
 ** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 ** information about the Professional Edition licensing, or see
@@ -126,7 +128,6 @@ public:
 
 // Motif style parameters
 
-static const int motifBarFrame		= 2;	// menu bar frame width
 static const int motifBarHMargin	= 2;	// menu bar hor margin to item
 static const int motifBarVMargin	= 1;	// menu bar ver margin to item
 static const int motifItemFrame		= 2;	// menu item frame width
@@ -188,10 +189,10 @@ QMenuBar::QMenuBar( QWidget *parent, const char *name )
     int gs = style();
     int h;
     if ( gs == WindowsStyle ) {
-	h = 2 + fm.height() + motifItemVMargin + 2*motifBarFrame;
+	h = 2 + fm.height() + motifItemVMargin + 2*style().defaultFrameWidth();
     } else {
-	h =  motifBarFrame + motifBarVMargin + fm.height()
-	    + motifItemVMargin + 2*motifBarFrame + 2*motifItemFrame;
+	h =  style().defaultFrameWidth() + motifBarVMargin + fm.height()
+	    + motifItemVMargin + 2*style().defaultFrameWidth() + 2*motifItemFrame;
     }
 
     move( 0, 0 );
@@ -204,7 +205,7 @@ QMenuBar::QMenuBar( QWidget *parent, const char *name )
 	    break;
 	case MotifStyle:
 	    setFrameStyle( QFrame::Panel | QFrame::Raised );
-	    setLineWidth( motifBarFrame );
+	    setLineWidth( style().defaultFrameWidth() );
 	    break;
 	default:
 	    break;
@@ -225,7 +226,7 @@ void QMenuBar::styleChange( QStyle& old )
 	    break;
 	case MotifStyle:
 	    setFrameStyle( QFrame::Panel | QFrame::Raised );
-	    setLineWidth( motifBarFrame );
+	    setLineWidth( style().defaultFrameWidth() );
 	    setMouseTracking( FALSE );
 	    break;
 	default:
@@ -640,8 +641,8 @@ int QMenuBar::calculateRects( int max_width )
     int max_item_height = 0;
     int nlitems = 0;				// number on items on cur line
     int gs = style();
-    int x = motifBarFrame + motifBarHMargin;
-    int y = motifBarFrame + motifBarVMargin;
+    int x = style().defaultFrameWidth() + motifBarHMargin;
+    int y = style().defaultFrameWidth() + motifBarVMargin;
     int i = 0;
     int separator = -1;
     if ( gs == WindowsStyle )	//###
@@ -655,7 +656,7 @@ int QMenuBar::calculateRects( int max_width )
 	    }
 	    w = mi->widget()->sizeHint().expandedTo( QApplication::globalStrut() ).width()+2;
 	    h = mi->widget()->sizeHint().expandedTo( QApplication::globalStrut() ).height()+2;
-	    if ( separator < 0 )
+	    if ( i && separator < 0 )
 		separator = i;
 	} else if ( mi->pixmap() ) {			// pixmap item
 	    w = QMAX( mi->pixmap()->width() + 4, QApplication::globalStrut().width() );
@@ -677,14 +678,14 @@ int QMenuBar::calculateRects( int max_width )
 		w += 2*motifItemFrame;
 		h += 2*motifItemFrame;
 	    }
-	    if ( x + w + motifBarFrame - max_width > 0 && nlitems > 0 ) {
+	    if ( x + w + style().defaultFrameWidth() - max_width > 0 && nlitems > 0 ) {
 		nlitems = 0;
-		x = motifBarFrame + motifBarHMargin;
+		x = style().defaultFrameWidth() + motifBarHMargin;
 		y += h + motifBarHMargin;
 		separator = -1;
 	    }
-	    if ( y + h + 2*motifBarFrame > max_height )
-		max_height = y + h + 2*motifBarFrame;
+	    if ( y + h + 2*style().defaultFrameWidth() > max_height )
+		max_height = y + h + 2*style().defaultFrameWidth();
 	    if ( h > max_item_height )
 		max_item_height = h;
 	}
@@ -1258,6 +1259,17 @@ void QMenuBar::setDefaultUp( bool on )
 bool QMenuBar::isDefaultUp() const
 {
     return defaultup;
+}
+
+
+/*!\reimp
+ */
+void QMenuBar::activateItemAt( int index )
+{
+    if ( index >= 0 && index < (int) mitems->count() )
+	setActiveItem( index );
+    else
+	goodbye( FALSE );
 }
 
 #endif // QT_NO_MENUBAR

@@ -1,5 +1,5 @@
 #############################################################################
-# $Id: //depot/qt/main/tests/widgetstack/Makefile#3 $
+# $Id: //depot/qt/main/tests/widgetstack/Makefile#4 $
 #
 # Win32 Makefile, requires Microsoft nmake.
 #

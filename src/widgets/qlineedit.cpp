@@ -7,15 +7,17 @@
 **
 ** Copyright (C) 1992-2000 Troll Tech AS.  All rights reserved.
 **
-** This file is part of the Qt GUI Toolkit.
+** This file is part of the widgets module of the Qt GUI Toolkit.
 **
 ** This file may be distributed under the terms of the Q Public License
 ** as defined by Troll Tech AS of Norway and appearing in the file
 ** LICENSE.QPL included in the packaging of this file.
 **
-** Licensees holding valid Qt Professional Edition licenses may use this
-** file in accordance with the Qt Professional Edition License Agreement
-** provided with the Qt Professional Edition.
+** Licensees holding valid Qt Enterprise Edition or Qt Professional Edition
+** licenses may use this file in accordance with the Qt Commercial License
+** Agreement provided with the Software.  This file is part of the widgets
+** module and therefore may only be used if the widgets module is specified
+** as Licensed on the Licensee's License Certificate.
 **
 ** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 ** information about the Professional Edition licensing, or see
@@ -440,7 +442,6 @@ void QLineEdit::setMaxLength( int m )
   <li><i> Control-Z </i> Undo the last operation.
   <li><i> Control-Y </i> Redo the last undone operation.
   </ul>
-  </ul>
   In addition, the following key bindings are used on Windows:
   <ul>
   <li><i> Shift - Delete </i> Cut the marked text, copy to clipboard
@@ -649,14 +650,6 @@ void QLineEdit::focusInEvent( QFocusEvent * e)
 
 void QLineEdit::focusOutEvent( QFocusEvent * e )
 {
-#ifndef QT_NO_CLIPBOARD
-    if ( style() == WindowsStyle ) {
-#if defined(_WS_X11_)
-	// X11 users are very accustomed to "auto-copy"
-	copy();
-#endif
-    }
-#endif
     if ( e->reason() != QFocusEvent::ActiveWindow
 	 && e->reason() != QFocusEvent::Popup )
 	deselect();
@@ -671,12 +664,6 @@ void QLineEdit::focusOutEvent( QFocusEvent * e )
 */
 void QLineEdit::leaveEvent( QEvent * )
 {
-#ifndef QT_NO_CLIPBOARD
-#if defined(_WS_X11_)
-    if ( style() == WindowsStyle )
-	copy(); // X11 users are very accustomed to "auto-copy"
-#endif
-#endif
 }
 
 
@@ -795,6 +782,42 @@ void QLineEdit::resizeEvent( QResizeEvent * )
     d->pm = 0;
     offset = 0;
     updateOffset();
+}
+
+
+/*! \reimp
+*/
+bool QLineEdit::event( QEvent * e )
+{
+    if ( e->type() == QEvent::AccelAvailable && !d->readonly ) {
+	QKeyEvent* ke = (QKeyEvent*) e;
+	if ( ke->state() & ControlButton ) {
+	    switch ( ke->key() ) {
+	    case Key_A:
+	    case Key_E:
+#if defined (_WS_WIN_)
+	    case Key_Insert:
+#endif
+	    case Key_X:
+	    case Key_V:
+	    case Key_C:
+	    ke->accept();
+	    default:
+		break;
+	    }
+	} else {
+	    switch ( ke->key() ) {
+	    case Key_Delete:
+	    case Key_Home:
+	    case Key_End:
+	    case Key_Backspace:
+		ke->accept();
+	    default:
+		break;
+	    }
+	}
+    }
+    return QWidget::event( e );
 }
 
 
@@ -967,9 +990,6 @@ void QLineEdit::mouseReleaseEvent( QMouseEvent * e )
 #ifndef QT_NO_CLIPBOARD
 #if defined(_WS_X11_)
     copy();
-#else
-    if ( style() == MotifStyle )
-	copy();
 #endif
 
     if ( !d->readonly && e->button() == MidButton ) {
@@ -1122,8 +1142,10 @@ void QLineEdit::newMark( int pos, bool c )
     markDrag = pos;
     setCursorPosition( pos );
 #ifndef QT_NO_CLIPBOARD
-    if ( c && style() == MotifStyle )
+#if defined(_WS_X11_)
+    if ( c )
 	copy();
+#endif
 #endif
 }
 
@@ -1148,8 +1170,9 @@ void QLineEdit::markWord( int pos )
     setSelection( newAnchor, newDrag - newAnchor );
 
 #ifndef QT_NO_CLIPBOARD
-    if ( style() == MotifStyle )
-	copy();
+#if defined(_WS_X11_)
+    copy();
+#endif
 #endif
 }
 

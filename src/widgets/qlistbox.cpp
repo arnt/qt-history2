@@ -7,15 +7,17 @@
 **
 ** Copyright (C) 1992-2000 Troll Tech AS.  All rights reserved.
 **
-** This file is part of the Qt GUI Toolkit.
+** This file is part of the widgets module of the Qt GUI Toolkit.
 **
 ** This file may be distributed under the terms of the Q Public License
 ** as defined by Troll Tech AS of Norway and appearing in the file
 ** LICENSE.QPL included in the packaging of this file.
 **
-** Licensees holding valid Qt Professional Edition licenses may use this
-** file in accordance with the Qt Professional Edition License Agreement
-** provided with the Qt Professional Edition.
+** Licensees holding valid Qt Enterprise Edition or Qt Professional Edition
+** licenses may use this file in accordance with the Qt Commercial License
+** Agreement provided with the Software.  This file is part of the widgets
+** module and therefore may only be used if the widgets module is specified
+** as Licensed on the Licensee's License Certificate.
 **
 ** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 ** information about the Professional Edition licensing, or see
@@ -116,7 +118,7 @@ public:
     struct SortableItem {
 	QListBoxItem *item;
     };
-    
+
     QSize sizeHint;
     QSize minimumSizeHint;
 };
@@ -1596,8 +1598,8 @@ bool QListBox::itemVisible( int index )
 bool QListBox::itemVisible( const QListBoxItem * item )
 {
     int i = index( item );
-    int col = i/numRows();
-    int row = i%numCols();
+    int col = i / numRows();
+    int row = i % numRows();
     return ( d->columnPos[col] < contentsX()+visibleWidth() &&
 	     d->rowPos[row] < contentsY()+visibleHeight() &&
 	     d->columnPos[col+1] > contentsX() &&
@@ -1814,10 +1816,7 @@ void QListBox::mouseDoubleClickEvent( QMouseEvent *e )
 {
     bool ok = TRUE;
     QListBoxItem *i = itemAt( e->pos() );
-    if ( numColumns() > 1 && !i )
-	ok = FALSE;
-
-    if ( selectionMode() == NoSelection )
+    if ( !i || selectionMode() == NoSelection )
 	ok = FALSE;
 
     d->ignoreMoves = TRUE;
@@ -1964,14 +1963,15 @@ void QListBox::updateSelection()
 		bool changed = FALSE;
 		while( c <= c2 ) {
 		    QListBoxItem * i = item( c*numRows()+r );
-		    while( i && r <= r2 ) {
+		    int rtmp = r;
+		    while( i && rtmp <= r2 ) {
 			if ( (bool)i->s != d->select && i->isSelectable() ) {
 			    i->s = d->select;
 			    i->dirty = TRUE;
 			    changed = TRUE;
 			}
 			i = i->n;
-			r++;
+			rtmp++;
 		    }
 		    c++;
 		}
@@ -2368,6 +2368,11 @@ void QListBox::setSelected( QListBoxItem * item, bool select )
 	if ( d->current && d->current->s )
 	    d->current->s = FALSE;
 	d->current = item;
+
+	int ind = index( item );
+	d->currentColumn = ind / numRows();
+	d->currentRow = ind % numRows();
+
 	if ( o )
 	    updateItem( o );
 	emitHighlighted = TRUE;
@@ -2495,7 +2500,7 @@ QSize QListBox::sizeHint() const
 {
     if ( isVisibleTo(0) && d->sizeHint.isValid() )
 	return d->sizeHint;
-    
+
     doLayout();
 
     int i=0;
@@ -2530,7 +2535,7 @@ QSize QListBox::minimumSizeHint() const
 {
     if ( isVisibleTo(0) && d->minimumSizeHint.isValid() )
 	return d->minimumSizeHint;
-    
+
     doLayout();
 
     int x, y;
@@ -3292,7 +3297,8 @@ void QListBox::viewportPaintEvent( QPaintEvent * e )
 	while ( i && (int)row < numRows() && d->rowPos[row] < y + h ) {
 	    int ch = d->rowPos[row+1] - d->rowPos[row];
 	    QRect itemRect( d->columnPos[col]-x,  d->rowPos[row]-y, cw, ch );
-	    QRegion itemPaintRegion( QRegion( itemRect ).intersect( r  ) );
+	    QRegion tempRegion( itemRect );
+	    QRegion itemPaintRegion( tempRegion.intersect( r  ) );
 	    if ( !itemPaintRegion.isEmpty() ) {
 		p.save();
 		p.setClipRegion( itemPaintRegion );
@@ -3735,6 +3741,9 @@ void QListBox::clearInputString()
 
 QListBoxItem *QListBox::findItem( const QString &text ) const
 {
+    if (text.isNull() || text.isEmpty())
+	return 0;
+
     QString txt = text.lower();
     QListBoxItem *item = d->current;
     for ( ; item; item = item->n ) {

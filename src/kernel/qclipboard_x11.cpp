@@ -7,15 +7,17 @@
 **
 ** Copyright (C) 1992-2000 Troll Tech AS.  All rights reserved.
 **
-** This file is part of the Qt GUI Toolkit.
+** This file is part of the kernel module of the Qt GUI Toolkit.
 **
 ** This file may be distributed under the terms of the Q Public License
 ** as defined by Troll Tech AS of Norway and appearing in the file
 ** LICENSE.QPL included in the packaging of this file.
 **
-** Licensees holding valid Qt Professional Edition licenses may use this
-** file in accordance with the Qt Professional Edition License Agreement
-** provided with the Qt Professional Edition.
+** Licensees holding valid Qt Enterprise Edition or Qt Professional Edition
+** licenses may use this file in accordance with the Qt Commercial License
+** Agreement provided with the Software.  This file is part of the kernel
+** module and therefore may only be used if the kernel module is specified
+** as Licensed on the Licensee's License Certificate.
 **
 ** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 ** information about the Professional Edition licensing, or see
@@ -54,7 +56,7 @@
 extern Time qt_x_time;			// def. in qapplication_x11.cpp
 extern Time qt_x_incr;			// def. in qapplication_x11.cpp
 extern Atom qt_selection_property;
-// extern Atom qt_selection_sentinel;
+extern Atom qt_selection_sentinel;
 extern Atom* qt_xdnd_str_to_atom( const char *mimeType );
 extern const char* qt_xdnd_atom_to_str( Atom );
 
@@ -144,11 +146,12 @@ void QClipboardData::clear()
 }
 
 
-static QClipboardData *internalCbData;
+static QClipboardData *internalCbData = 0;
 
 static void cleanupClipboardData()
 {
     delete internalCbData;
+    internalCbData = 0;
 }
 
 static QClipboardData *clipboardData()
@@ -178,7 +181,7 @@ void QClipboard::clear()
 
 void QClipboard::clobber()
 {
-    if (! internalCbData) return;
+    if ( !internalCbData ) return;
 
     qRemovePostRoutine(cleanupClipboardData);
 
@@ -187,7 +190,7 @@ void QClipboard::clobber()
     internalCbData = 0;
 
     Window win =  XGetSelectionOwner(owner->x11Display(), XA_PRIMARY);
-
+    
     if (win == owner->winId())
 	XSetSelectionOwner(owner->x11Display(), XA_PRIMARY, None, qt_x_time);
 }
@@ -448,28 +451,28 @@ bool QClipboard::event( QEvent *e )
 		    while (d->source()->format(atoms))
 			atoms++;
 		    atoms += 3;
-		    
+
 		    data = QByteArray(atoms * sizeof(Atom));
 		    Atom* atarget = (Atom*)data.data();
 
 		    int n = 0;
 		    while ((fmt=d->source()->format(n)) && n < atoms) {
 			Atom *dnd = qt_xdnd_str_to_atom(fmt);
-			
+
 #ifdef QT_CLIPBOARD_DEBUG
 			qDebug("qclipboard_x11.cpp:%d: atom* for '%s' = %p %d",
 			       __LINE__, fmt, dnd, n);
 #endif
-			
+
 			atarget[n++] = *dnd;
 		    }
-		    
+
 		    if (n < atoms - 3) {
 #ifdef QT_CLIPBOARD_DEBUG
 			qDebug("qclipboard_x11.cpp:%d: n(%d) < n(%d) - 3",
 			       __LINE__, n, atoms);
-#endif 
-			
+#endif
+
 			if ( d->source()->provides("image/ppm") )
 			    atarget[n++] = XA_PIXMAP;
 			if ( d->source()->provides("image/pbm") )
@@ -477,7 +480,7 @@ bool QClipboard::event( QEvent *e )
 			if ( d->source()->provides("text/plain") )
 			    atarget[n++] = XA_STRING;
 		    }
-		    
+
 		    XChangeProperty ( dpy, req->requestor, property,
 				      xa_targets, 32,
 				      PropModeReplace,
@@ -599,7 +602,8 @@ const char* QClipboardWatcher::format( int n ) const
 
 QByteArray QClipboardWatcher::encodedData( const char* fmt ) const
 {
-    if ( empty() ) return 0;
+    if ( !fmt || empty() )
+	return QByteArray( 0 );
 
     Atom fmtatom = 0;
 
@@ -693,7 +697,8 @@ QMimeSource* QClipboard::data() const
   the clipboard - the only ways to remove this data is to set
   something else, or to call clear().  The QDragObject subclasses are
   reasonable things to put on the clipboard (but do not try to call
-  QDragObject::drag() on the same object).  Do not put QDragMoveEvent
+  QDragObject::drag() on the same object).  Any QDragObject placed in
+  the clipboard should have a parent of 0.  Do not put QDragMoveEvent
   or QDropEvent subclasses on the clipboard, as they do not belong to
   the event handler which receives them.
 
@@ -709,77 +714,72 @@ void QClipboard::setData( QMimeSource* src )
     d->setSource( src );
     emit dataChanged();
 
-    // ### 3 round trips per selection change?  can i take a hit off the crack pipe too?
-    
-    // Window prevOwner = XGetSelectionOwner( dpy, XA_PRIMARY );
-    
+    // ### 3 round trips per selection change?  this should be optimized...
+    Window prevOwner = XGetSelectionOwner( dpy, XA_PRIMARY );
     XSetSelectionOwner( dpy, XA_PRIMARY, win, qt_x_time );
-    
-#if defined(DEBUG)
-    // if ( XGetSelectionOwner(dpy,XA_PRIMARY) != win ) {
-    //	    qWarning( "QClipboard::setData: Cannot set X11 selection owner" );
-    //     return;
-    // }
+
+    // ### perhaps this should be CHECK_RANGE ?
+#if defined(DEBUG) 
+    if ( XGetSelectionOwner(dpy,XA_PRIMARY) != win ) {
+	qWarning( "QClipboard::setData: Cannot set X11 selection owner" );
+	return;
+    }
 #endif
 
-    qDebug("qclipboard_x11.cpp:%d: TODO: fix the _QT_SELECTION_SENTINEL mechanism",
-	   __LINE__);
-    
     // Signal to other Qt processes that the selection has changed
-    
-    // Window owners[2];
-    // owners[0] = win;
-    // owners[1] = prevOwner;
-    // XChangeProperty( dpy, QApplication::desktop()->winId(),
-    //                  qt_selection_sentinel, XA_WINDOW, 32, PropModeReplace,
-    //                  (unsigned char*)&owners, 2 );
+    Window owners[2];
+    owners[0] = win;
+    owners[1] = prevOwner;
+    XChangeProperty( dpy, QApplication::desktop()->winId(),
+		     qt_selection_sentinel, XA_WINDOW, 32, PropModeReplace,
+		     (unsigned char*)&owners, 2 );
 }
 
 
-    /*
-      Called by the main event loop in qapplication_x11.cpp when the
-      _QT_SELECTION_SENTINEL property has been changed (i.e. when some Qt
-      process has performed QClipboard::setData(). If it returns TRUE, the
-      QClipBoard dataChanged() signal should be emitted.
+/*
+  Called by the main event loop in qapplication_x11.cpp when the
+  _QT_SELECTION_SENTINEL property has been changed (i.e. when some Qt
+  process has performed QClipboard::setData(). If it returns TRUE, the
+  QClipBoard dataChanged() signal should be emitted.
+*/
 
-      * /
+bool qt_check_selection_sentinel( XEvent* )
+{
+    bool doIt = TRUE;
+    if ( owner ) {
+	/*
+	  Since the X selection mechanism cannot give any signal when
+	  the selection has changed, we emulate it (for Qt processes) here.
+	  The notification should be ignored in case of either
+	  a) This is the process that did setData (because setData()
+	  then has already emitted dataChanged())
+	  b) This is the process that owned the selection when dataChanged()
+	  was called (because we have then received a SelectionClear event,
+	  and have already emitted dataChanged() as a result of that)
+	*/
 
-      bool qt_check_selection_sentinel( XEvent* )
-      {
-      bool doIt = TRUE;
-      if ( owner ) {
-      / *
-      Since the X selection mechanism cannot give any signal when
-      the selection has changed, we emulate it (for Qt processes) here.
-      The notification should be ignored in case of either
-      a) This is the process that did setData (because setData()
-      then has already emitted dataChanged())
-      b) This is the process that owned the selection when dataChanged()
-      was called (because we have then received a SelectionClear event,
-      and have already emitted dataChanged() as a result of that)
-      * /
+	//# Could optimize away the X server roundtrip of XGetWindowProperty
+	// by checking if dataChanged() is connected to anything
+	// ### This is done in the main event loop in QApplication
+	Window* owners;
+	Atom actualType;
+	int actualFormat;
+	ulong nitems;
+	ulong bytesLeft;
+	XGetWindowProperty( owner->x11Display(),
+			    QApplication::desktop()->winId(),
+			    qt_selection_sentinel, 0, 2, FALSE, XA_WINDOW,
+			    &actualType, &actualFormat, &nitems,
+			    &bytesLeft, (unsigned char**)&owners );
+	if ( actualType == XA_WINDOW && actualFormat == 32 && nitems == 2 ) {
+	    Window win = owner->winId();
+	    if ( owners[0] == win || owners[1] == win )
+		doIt = FALSE;
+	}
+	XFree( owners );
+    }
+    return doIt;
+}
 
-      //# Could optimize away the X server roundtrip of XGetWindowProperty
-      // by checking if dataChanged() is connected to anything
-      Window* owners;
-      Atom actualType;
-      int actualFormat;
-      ulong nitems;
-      ulong bytesLeft;
-      XGetWindowProperty( owner->x11Display(),
-      QApplication::desktop()->winId(),
-      qt_selection_sentinel, 0, 2, FALSE, XA_WINDOW,
-      &actualType, &actualFormat, &nitems,
-      &bytesLeft, (unsigned char**)&owners );
-      if ( actualType == XA_WINDOW && actualFormat == 32 && nitems == 2 ) {
-      Window win = owner->winId();
-      if ( owners[0] == win || owners[1] == win )
-      doIt = FALSE;
-      }
-      XFree( owners );
-      }
-      return doIt;
-      }
-    */
 
 #endif // QT_NO_CLIPBOARD

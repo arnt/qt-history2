@@ -7,15 +7,17 @@
 **
 ** Copyright (C) 1992-2000 Troll Tech AS.  All rights reserved.
 **
-** This file is part of the Qt GUI Toolkit.
+** This file is part of the kernel module of the Qt GUI Toolkit.
 **
 ** This file may be distributed under the terms of the Q Public License
 ** as defined by Troll Tech AS of Norway and appearing in the file
 ** LICENSE.QPL included in the packaging of this file.
 **
-** Licensees holding valid Qt Professional Edition licenses may use this
-** file in accordance with the Qt Professional Edition License Agreement
-** provided with the Qt Professional Edition.
+** Licensees holding valid Qt Enterprise Edition or Qt Professional Edition
+** licenses may use this file in accordance with the Qt Commercial License
+** Agreement provided with the Software.  This file is part of the kernel
+** module and therefore may only be used if the kernel module is specified
+** as Licensed on the Licensee's License Certificate.
 **
 ** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 ** information about the Professional Edition licensing, or see
@@ -59,15 +61,16 @@ public:
 
     // documented in qevent.cpp
     enum ButtonState {				// mouse/keyboard state values
-	NoButton	= 0x00,
-	LeftButton	= 0x01,
-	RightButton	= 0x02,
-	MidButton	= 0x04,
-	MouseButtonMask = 0x07,
-	ShiftButton	= 0x08,
-	ControlButton   = 0x10,
-	AltButton	= 0x20,
-	KeyButtonMask   = 0x38
+	NoButton	= 0x0000,
+	LeftButton	= 0x0001,
+	RightButton	= 0x0002,
+	MidButton	= 0x0004,
+	MouseButtonMask = 0x0007,
+	ShiftButton	= 0x0008,
+	ControlButton   = 0x0010,
+	AltButton	= 0x0020,
+	KeyButtonMask	= 0x0038,
+	Keypad		= 0x4000
     };
 
     // documented in qobject.cpp
@@ -117,7 +120,7 @@ public:
 	WState_Reserved1	= 0x00010000,
 	WState_Reserved2	= 0x00020000,
 	WState_Reserved3	= 0x00040000,
-	WState_Reserved4	= 0x00080000,
+	WState_Maximized	= 0x00080000,
 	WState_TranslateBackground = 0x00100000,
 	WState_ForceDisabled	= 0x00200000,
 	WState_Exposed		= 0x00400000
@@ -582,9 +585,7 @@ public:
 	AutoText
     };
 
-    enum ToolBarDock {
-	Unmanaged, TornOff, Top, Bottom, Right, Left, Minimized
-    };
+    enum ToolBarDock { Unmanaged, TornOff, Top, Bottom, Right, Left, Minimized };
 };
 
 

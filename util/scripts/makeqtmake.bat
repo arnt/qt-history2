@@ -16,12 +16,12 @@ goto endofperl
 #!/usr/bin/perl
 ############################################################################
 #
-# Makes Qt makefiles and a project file - internal Troll Tech tool.
+# Makes Qt makefiles and a project file - internal Trolltech tool.
 #
 # Usage:
 #    makeqtmake [-lib] [-cvs] [-nopro] projectname
 #
-# Copyright (C) 1998 by Troll Tech AS.  All rights reserved.
+# Copyright (C) 1998 by Trolltech AS.  All rights reserved.
 #
 ############################################################################
 
@@ -56,7 +56,7 @@ $win32make =
 #
 # Win32 Makefile, requires Microsoft nmake.
 #
-# Copyright (C) 1998 by Troll Tech AS.  All rights reserved.
+# Copyright (C) 1998 by Trolltech AS.  All rights reserved.
 #
 #############################################################################
 
@@ -70,7 +70,7 @@ $unixmake =
 #
 # Unix Makefile, requires GNU make (gmake).
 #
-# Copyright (C) 1998 by Troll Tech AS.  All rights reserved.
+# Copyright (C) 1998 by Trolltech AS.  All rights reserved.
 #
 #############################################################################
 

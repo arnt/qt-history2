@@ -1,5 +1,5 @@
 TEMPLATE    	= lib
-CONFIG      	= qt x11 release staticlib
+CONFIG      	+= qt x11 release staticlib
 unix:HEADERS	= qnp.h
 win32:HEADERS	= ../../../include/qnp.h
 SOURCES		= qnp.cpp

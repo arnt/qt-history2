@@ -14,7 +14,7 @@ bin		Place for Qt executables (moc)
 configs		Platform/compiler configuration files.
 doc		Qt documentation in HTML and manpage format.
 examples	Qt example programs
-extensions	Qt extensions (OpenGL, Browser Plugin etc.)
+extensions	Qt extensions (Browser Plugin, Xt/Motif support etc.)
 include		Qt include files
 lib		Place for the Qt library
 src		Qt source code

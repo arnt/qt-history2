@@ -12,6 +12,10 @@ public:
     ThingServer( int port, QObject *parent )
 	: QServerSocket( port, 0, parent )
     {
+	if ( ok() )
+	    qDebug( "server started" );
+	else
+	    qDebug( "failed to start server" );
     }
 
     ~ThingServer()

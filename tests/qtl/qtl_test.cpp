@@ -195,7 +195,7 @@ int main(int, char** )
 
     List::Iterator it = l2.begin();
     for( ; it != l2.end(); ++it )
-      cout << it->str << endl;
+      cout << (*it).str << endl;
 
     l2 += list;
     cout << "============ " << MyClass::count << endl;

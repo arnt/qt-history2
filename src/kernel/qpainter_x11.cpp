@@ -7,15 +7,17 @@
 **
 ** Copyright (C) 1992-2000 Troll Tech AS.  All rights reserved.
 **
-** This file is part of the Qt GUI Toolkit.
+** This file is part of the kernel module of the Qt GUI Toolkit.
 **
 ** This file may be distributed under the terms of the Q Public License
 ** as defined by Troll Tech AS of Norway and appearing in the file
 ** LICENSE.QPL included in the packaging of this file.
 **
-** Licensees holding valid Qt Professional Edition licenses may use this
-** file in accordance with the Qt Professional Edition License Agreement
-** provided with the Qt Professional Edition.
+** Licensees holding valid Qt Enterprise Edition or Qt Professional Edition
+** licenses may use this file in accordance with the Qt Commercial License
+** Agreement provided with the Software.  This file is part of the kernel
+** module and therefore may only be used if the kernel module is specified
+** as Licensed on the Licensee's License Certificate.
 **
 ** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 ** information about the Professional Edition licensing, or see
@@ -592,11 +594,6 @@ void QPainter::updateFont()
 
 void QPainter::updatePen()
 {
-    static char dash_line[]	    = { 7, 3 };
-    static char dot_line[]	    = { 1, 3 };
-    static char dash_dot_line[]	    = { 7, 3, 2, 3 };
-    static char dash_dot_dot_line[] = { 7, 3, 2, 3, 2, 3 };
-
     if ( testf(ExtDev) ) {
 	QPDevCmdParam param[1];
 	param[0].pen = &cpen;
@@ -604,7 +601,7 @@ void QPainter::updatePen()
 	    return;
     }
 
-    int	 ps = cpen.style();
+    int	ps = cpen.style();
     bool cacheIt = !testf(ClipOn|MonoDev|NoCache) &&
 		   (ps == NoPen || ps == SolidLine) &&
 		   cpen.width() == 0 && rop == CopyROP;
@@ -652,11 +649,23 @@ void QPainter::updatePen()
     if ( obtained )
 	return;
 
-    char *dashes = 0;				// custom pen dashes
+    char dashes[10];				// custom pen dashes
     int dash_len = 0;				// length of dash list
     int s = LineSolid;
     int cp = CapButt;
     int jn = JoinMiter;
+
+    /*
+      We are emulating Windows here.  Windows treats cpen.width() == 1
+      as a very special case.  The fudge variable unifies this case
+      with the general case.
+    */
+    int dot = cpen.width();			// width of a dot
+    int fudge = 1;
+    if ( dot <= 1 ) {
+	dot = 3;
+	fudge = 2;
+    }
 
     switch( ps ) {
 	case NoPen:
@@ -664,22 +673,32 @@ void QPainter::updatePen()
 	    s = LineSolid;
 	    break;
 	case DashLine:
-	    dashes = dash_line;
-	    dash_len = sizeof(dash_line);
+	    dashes[0] = fudge * 3 * dot;
+	    dashes[1] = fudge * dot;
+	    dash_len = 2;
 	    break;
 	case DotLine:
-	    dashes = dot_line;
-	    dash_len = sizeof(dot_line);
+	    dashes[0] = dot;
+	    dashes[1] = dot;
+	    dash_len = 2;
 	    break;
 	case DashDotLine:
-	    dashes = dash_dot_line;
-	    dash_len = sizeof(dash_dot_line);
+	    dashes[0] = 3 * dot;
+	    dashes[1] = fudge * dot;
+	    dashes[2] = dot;
+	    dashes[3] = fudge * dot;
+	    dash_len = 4;
 	    break;
 	case DashDotDotLine:
-	    dashes = dash_dot_dot_line;
-	    dash_len = sizeof(dash_dot_dot_line);
-	    break;
+	    dashes[0] = 3 * dot;
+	    dashes[1] = dot;
+	    dashes[2] = dot;
+	    dashes[3] = dot;
+	    dashes[4] = dot;
+	    dashes[5] = dot;
+	    dash_len = 6;
     }
+    ASSERT( dash_len <= (int) sizeof(dashes) );
 
     switch ( cpen.capStyle() ) {
     case SquareCap:
@@ -705,7 +724,6 @@ void QPainter::updatePen()
 	jn = JoinMiter;
 	break;
     }
-
 
     XSetForeground( dpy, gc, cpen.color().pixel() );
     XSetBackground( dpy, gc, bg_col.pixel() );
@@ -946,6 +964,10 @@ bool QPainter::begin( const QPaintDevice *pd )
     if ( testf(ExtDev) ) {			// external device
 	if ( !pdev->cmd( QPaintDevice::PdcBegin, this, 0 ) ) {
 	    // could not begin painting
+	    if ( reinit )
+		clearf( IsActive | DirtyFont );
+	    else
+		flags = IsStartingUp;
 	    pdev = 0;
 	    return FALSE;
 	}
@@ -1738,24 +1760,50 @@ void QPainter::drawRoundRect( int x, int y, int w, int h, int xRnd, int yRnd )
 
 	    // ###### WWA: this should use the new makeArc (with xmat)
 
-	    a.makeEllipse( x, y, rxx2, ryy2 );
+	    // Make the ellipse as close to the origin as possible to
+	    // avoid overflow if the coordinates are at extreme positions.
+	    int xneg = ( x<0 ? 1 : 0 );
+	    int yneg = ( y<0 ? 1 : 0 );
+	    a.makeEllipse( x + xneg*(w-rxx2), y + yneg*(h-ryy2), rxx2, ryy2 );
 	    int s = a.size()/4;
 	    int i = 0;
-	    while ( i < s ) {
+	    int dw = ( xneg ? rxx2-w : w-rxx2 );
+	    int dh = ( yneg ? ryy2-h : h-ryy2 );
+	    int start[3];
+	    if ( xneg && yneg ) {
+		start[0] = 2 * s;
+		start[1] = 0 * s;
+		start[2] = 1 * s;
+	    } else if ( !xneg &&  yneg ) {
+		start[0] = 3 * s;
+		start[1] = 1 * s;
+		start[2] = 0 * s;
+	    } else if (  xneg && !yneg ) {
+		start[0] = 1 * s;
+		start[1] = 3 * s;
+		start[2] = 2 * s;
+	    } else if ( !xneg && !yneg ) {
+		start[0] = 0 * s;
+		start[1] = 2 * s;
+		start[2] = 3 * s;
+	    }
+	    i= start[0];
+	    while ( i < start[0]+s ) {
 		a.point( i, &xx, &yy );
-		xx += w - rxx2;
+		xx += dw;
 		a.setPoint( i++, xx, yy );
 	    }
-	    i = 2*s;
-	    while ( i < 3*s ) {
+	    i= start[1];
+	    while ( i < start[1]+s ) {
 		a.point( i, &xx, &yy );
-		yy += h - ryy2;
+		yy += dh;
 		a.setPoint( i++, xx, yy );
 	    }
-	    while ( i < 4*s ) {
+	    i= start[2];
+	    while ( i < start[2]+s ) {
 		a.point( i, &xx, &yy );
-		xx += w - rxx2;
-		yy += h - ryy2;
+		xx += dw;
+		yy += dh;
 		a.setPoint( i++, xx, yy );
 	    }
 	    drawPolyInternal( xForm(a) );
@@ -2780,7 +2828,7 @@ void QPainter::drawText( int x, int y, const QString &str, int len )
 	// translate from Unicode to font charset encoding here
 	mapped = mapper->fromUnicode(str,len);
     }
-
+// ### not pretty -- using codec to produce 16-bit encoding
     if ( !cfont.handle() ) {
 	if ( mapped.isNull() )
 	    qWarning("Fontsets only apply to mapped encodings");
@@ -2793,10 +2841,16 @@ void QPainter::drawText( int x, int y, const QString &str, int len )
 	}
     } else {
 	if ( !mapped.isNull() ) {
-	    if ( bg_mode == TransparentMode )
-		XDrawString( dpy, hd, gc, x, y, mapped, len );
+	    if ( cfont.charSet() < QFont::Enc16 )
+		if ( bg_mode == TransparentMode )
+		    XDrawString( dpy, hd, gc, x, y, mapped, len );
+		else
+		    XDrawImageString( dpy, hd, gc, x, y, mapped, len );
 	    else
-		XDrawImageString( dpy, hd, gc, x, y, mapped, len );
+		if ( bg_mode == TransparentMode )
+		    XDrawString16( dpy, hd, gc, x, y, (XChar2b*)mapped.data(), len/2 );
+		else
+		    XDrawImageString16( dpy, hd, gc, x, y, (XChar2b*)mapped.data(), len/2 );
 	} else {
 	    // Unicode font
 

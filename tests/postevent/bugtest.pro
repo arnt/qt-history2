@@ -1,5 +1,5 @@
 TEMPLATE = app
-CONFIG = qt debug
+CONFIG += qt debug
 
 HEADERS = bugtest.h
 

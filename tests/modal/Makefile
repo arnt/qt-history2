@@ -1,5 +1,5 @@
 #############################################################################
-# $Id: //depot/qt/main/tests/modal/Makefile#1 $
+# $Id: //depot/qt/main/tests/modal/Makefile#2 $
 #
 # Win32 Makefile, requires Microsoft nmake.
 #

@@ -12,7 +12,7 @@ main(int argc, char** argv)
     QVBox box;
     QLCDNumber lcd( &box );
     QDial dial( &box );
-    dial.setShowNotches( TRUE );
+    dial.setNotchesVisible( TRUE );
     box.show();
 
     QObject::connect(&dial, SIGNAL(valueChanged(int)), &lcd, SLOT(display(int)));

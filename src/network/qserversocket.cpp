@@ -1,21 +1,23 @@
 /****************************************************************************
 ** $Id$
 **
-** Implementation of Network Extension Library
+** Implementation of QServerSocket class.
 **
 ** Created : 970521
 **
 ** Copyright (C) 1992-2000 Troll Tech AS.  All rights reserved.
 **
-** This file is part of the Qt GUI Toolkit.
+** This file is part of the network module of the Qt GUI Toolkit.
 **
 ** This file may be distributed under the terms of the Q Public License
 ** as defined by Troll Tech AS of Norway and appearing in the file
 ** LICENSE.QPL included in the packaging of this file.
 **
-** Licensees holding valid Qt Professional Edition licenses may use this
-** file in accordance with the Qt Professional Edition License Agreement
-** provided with the Qt Professional Edition.
+** Licensees holding valid Qt Enterprise Edition or Qt Professional Edition
+** licenses may use this file in accordance with the Qt Commercial License
+** Agreement provided with the Software.  This file is part of the network
+** module and therefore may only be used if the network module is specified
+** as Licensed on the Licensee's License Certificate.
 **
 ** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 ** information about the Professional Edition licensing, or see
@@ -29,7 +31,7 @@
 class QServerSocketPrivate {
 public:
     QServerSocketPrivate(): s(0), n(0) {}
-    ~QServerSocketPrivate() { delete s; delete n; }
+    ~QServerSocketPrivate() { delete n; delete s; }
     QSocketDevice *s;
     QSocketNotifier *n;
 };
@@ -39,7 +41,7 @@ public:
   \class QServerSocket qserversocket.h
   \brief The QServerSocket class provides a TCP-based server.
 
-  \extension network
+  \module network
 
   This class is a convenience class for accepting incoming TCP
   connections.  You can specify port or have QSocketServer pick one,
@@ -66,7 +68,7 @@ public:
   to the QObject constructor.
 */
 
-QServerSocket::QServerSocket( int port, int backlog,
+QServerSocket::QServerSocket( Q_UINT16 port, int backlog,
 			      QObject *parent, const char *name )
     : QObject( parent, name )
 {
@@ -83,7 +85,7 @@ QServerSocket::QServerSocket( int port, int backlog,
   to the QObject constructor.
 */
 
-QServerSocket::QServerSocket( const QHostAddress & address, int port,
+QServerSocket::QServerSocket( const QHostAddress & address, Q_UINT16 port,
 			      int backlog,
 			      QObject *parent, const char *name )
     : QObject( parent, name )
@@ -115,12 +117,12 @@ QServerSocket::QServerSocket( QObject *parent, const char *name )
 */
 bool QServerSocket::ok() const
 {
-    return d->s;
+    return !!d->s;
 }
 
 /*!  The common bit of the constructors. */
 
-void QServerSocket::init( const QHostAddress & address, int port, int backlog )
+void QServerSocket::init( const QHostAddress & address, Q_UINT16 port, int backlog )
 {
     d->s = new QSocketDevice;
     if ( d->s->bind( address, port )
@@ -131,6 +133,7 @@ void QServerSocket::init( const QHostAddress & address, int port, int backlog )
 	connect( d->n, SIGNAL(activated(int)),
 		 this, SLOT(incomingConnection(int)) );
     } else {
+	qWarning( "QServerSocket: failed to bind or listen to the socket" );
 	delete d->s;
 	d->s = 0;
     }
@@ -180,8 +183,10 @@ void QServerSocket::incomingConnection( int )
   \sa address() QSocketDevice::port()
 */
 
-uint QServerSocket::port() const
+Q_UINT16 QServerSocket::port() const
 {
+    if ( !d || !d->s )
+	return 0;
     return d->s->port();
 }
 
@@ -192,6 +197,9 @@ uint QServerSocket::port() const
 
 int QServerSocket::socket() const
 {
+    if ( !d || !d->s )
+	return -1;
+    
     return d->s->socket();
 }
 
@@ -205,14 +213,17 @@ int QServerSocket::socket() const
 
 QHostAddress QServerSocket::address() const
 {
+    if ( !d || !d->s )
+	return QHostAddress();
+    
     return d->s->address();
 }
 
 
 /*!
   Returns a pointer to the internal socket device. The returned pointer is
-  null if there is no connection or pending connection. 
- 
+  null if there is no connection or pending connection.
+
   There is normally no need to manipulate the socket device directly since this
   class does all the necessary setup for most client or server socket
   applications.
@@ -220,6 +231,9 @@ QHostAddress QServerSocket::address() const
 
 QSocketDevice *QServerSocket::socketDevice()
 {
+    if ( !d )
+	return 0;
+    
     return d->s;
 }
 
@@ -227,7 +241,7 @@ QSocketDevice *QServerSocket::socketDevice()
 /*!
   Sets the socket to use \a socket. bind() and listen() should already be
   called For this socket.
- 
+
   This allows one to use the QServerSocket class as a wrapper for other socket
   types (e.g. Unix Domain Sockets under Unix).
 */

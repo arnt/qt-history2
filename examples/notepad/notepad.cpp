@@ -9,9 +9,7 @@
 #include <qdir.h>
 #include <qtextstream.h>
 
-#ifdef _WS_QWS_	// Qt/Embedded specific
 #include "../compact/keyboard.h"
-#endif
 
 #include "notepad.h"
 

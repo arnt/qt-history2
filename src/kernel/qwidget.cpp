@@ -7,15 +7,17 @@
 **
 ** Copyright (C) 1992-2000 Troll Tech AS.  All rights reserved.
 **
-** This file is part of the Qt GUI Toolkit.
+** This file is part of the kernel module of the Qt GUI Toolkit.
 **
 ** This file may be distributed under the terms of the Q Public License
 ** as defined by Troll Tech AS of Norway and appearing in the file
 ** LICENSE.QPL included in the packaging of this file.
 **
-** Licensees holding valid Qt Professional Edition licenses may use this
-** file in accordance with the Qt Professional Edition License Agreement
-** provided with the Qt Professional Edition.
+** Licensees holding valid Qt Enterprise Edition or Qt Professional Edition
+** licenses may use this file in accordance with the Qt Commercial License
+** Agreement provided with the Software.  This file is part of the kernel
+** module and therefore may only be used if the kernel module is specified
+** as Licensed on the Licensee's License Certificate.
 **
 ** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 ** information about the Professional Edition licensing, or see
@@ -652,7 +654,7 @@ erase the widget.  This allows smart-repainting to avoid flicker.
   The widget flags argument \a f is normally 0, but it can be set to
   customize the window frame of a top-level widget (i.e. \a parent must be
   zero). To customize the frame, set the \c WStyle_Customize flag OR'ed with
-  any of these flags:
+  any of the Qt::WidgetFlags.
 
   Note that the X11 version of Qt may not be able to deliver all
   combinations of style flags on all systems.  This is because on X11,
@@ -683,6 +685,7 @@ QWidget::QWidget( QWidget *parent, const char *name, WFlags f )
     own_palette = 0;
     sizehint_forced = 0;
     is_closing = 0;
+    in_show = 0;
 #ifndef QT_NO_LAYOUT
     lay_out = 0;
 #endif
@@ -717,6 +720,7 @@ QWidget::QWidget( QWidget *parent, const char *name, WFlags f )
     }
 }
 
+static bool noMoreToplevels();
 
 /*!
   Destructs the widget.
@@ -751,6 +755,11 @@ QWidget::~QWidget()
 	QApplication::main_widget = 0;
 	if (qApp)
 	    qApp->quit();
+    } else if ( isTopLevel() && !isPopup() ) {
+	    hide();
+	    if ( qApp->receivers(SIGNAL(lastWindowClosed()))
+		 && noMoreToplevels() )
+		emit qApp->lastWindowClosed();
     }
     if ( focusWidget() == this )
 	clearFocus();
@@ -948,7 +957,9 @@ void QWidget::createExtra()
 #endif
 	extra->topextra = 0;
 	extra->bg_mode = PaletteBackground;
+#ifndef QT_NO_STYLE
 	extra->style = 0;
+#endif
 	extra->size_policy = QSizePolicy( QSizePolicy::Preferred,
 					  QSizePolicy::Preferred );
 	extra->posted_events = 0;
@@ -1078,7 +1089,7 @@ QWidget *QWidget::find( WId id )
   \sa find()
 */
 
-
+#ifndef QT_NO_STYLE
 /*!
   Returns the GUI style for this widget
 
@@ -1116,7 +1127,7 @@ void QWidget::styleChange( QStyle& )
     update();
     updateGeometry();
 }
-
+#endif
 
 /*!
   \fn bool QWidget::isTopLevel() const
@@ -1789,7 +1800,8 @@ QWidget *QWidget::topLevelWidget() const
   Sets the widget to be cleared to the fixed color \a color before
   paintEvent() is called.
 
-  Note that using this function is very often a mistake.
+  Note that using this function is very often a mistake.  Here are the
+  most common mistakes:
 
   If you want to set the background color of a widget to one of the
   "usual" colors, setBackgroundMode() is usually the best function.
@@ -3237,6 +3249,7 @@ void QWidget::show()
 	return;
     }
 
+    in_show = TRUE;
 
     QApplication::sendPostedEvents( this, QEvent::ChildInserted );
 
@@ -3316,7 +3329,7 @@ void QWidget::show()
 
 
      bool sendShowWindowRequest = FALSE;
-     
+
      if ( !isTopLevel() && !parentWidget()->isVisible() ) {
 	// we should become visible, but somehow our parent is not
 	// visible, so we can't do that. Since it is not explicitly
@@ -3342,14 +3355,14 @@ void QWidget::show()
 	     // stacking might be wrong
 	     qt_enter_modal( this );
 	 }
-	 
+
 	 // do not show the window directly, but post a showWindow
-	 // request to reduce flicker with layouted widgets
-	 if ( !isTopLevel() )
+	 // request to reduce flicker with laid out widgets
+	 if ( !isTopLevel() && !parentWidget()->in_show )
 	     sendShowWindowRequest = TRUE;
 	 else
 	     showWindow();
-	 
+
 	 if ( testWFlags(WType_Popup) )
 	     qApp->openPopup( this );
      }
@@ -3359,6 +3372,8 @@ void QWidget::show()
 				 new QEvent( QEvent::LayoutHint) );
     if ( sendShowWindowRequest )
 	QApplication::postEvent( this, new QEvent( QEvent::ShowWindowRequest ) );
+
+    in_show = FALSE;
 }
 
 
@@ -4873,10 +4888,10 @@ void QWidget::updateGeometry()
 
   \sa style(), QStyle, QApplication::style(), QApplication::setStyle()
 */
+#ifndef QT_NO_STYLE
 
 void QWidget::setStyle( QStyle *style )
 {
-#ifndef QT_NO_STYLE
     QStyle& old  = QWidget::style();
     createExtra();
     extra->style = style;
@@ -4886,8 +4901,8 @@ void QWidget::setStyle( QStyle *style )
 	QWidget::style().polish( this );
     }
     styleChange( old );
-#endif
 }
+#endif
 
 /*!\overload
 
@@ -4957,6 +4972,17 @@ void QWidget::showFullScreen()
 #endif
 
     setActiveWindow();
+}
+
+/*!
+  Returns TRUE if this widget is a top-level widget that is maximized,
+  or else FALSE.
+
+  \sa showMaximized()
+ */
+bool QWidget::isMaximized() const
+{
+    return testWState(WState_Maximized);
 }
 
 

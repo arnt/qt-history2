@@ -7,11 +7,17 @@
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
-** This file is part of the Qt GUI Toolkit.
+** This file is part of the kernel module of the Qt GUI Toolkit.
 **
-** Licensees holding valid Qt Professional Edition licenses may use this
-** file in accordance with the Qt Professional Edition License Agreement
-** provided with the Qt Professional Edition.
+** This file may be distributed under the terms of the Q Public License
+** as defined by Troll Tech AS of Norway and appearing in the file
+** LICENSE.QPL included in the packaging of this file.
+**
+** Licensees holding valid Qt Enterprise Edition or Qt Professional Edition
+** licenses may use this file in accordance with the Qt Commercial License
+** Agreement provided with the Software.  This file is part of the kernel
+** module and therefore may only be used if the kernel module is specified
+** as Licensed on the Licensee's License Certificate.
 **
 ** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 ** information about the Professional Edition licensing.
@@ -73,7 +79,7 @@ public:
     virtual void setBackgroundColor(QColor c) { backcolor=c; }
 
     virtual void setSourceOffset(int,int);
-    virtual void setMasking(bool on,int colour=0);
+    virtual void setMasking(bool on,int color=0);
 
     virtual void setAlphaType(AlphaType);
     virtual void setAlphaSource(unsigned char *,int);
@@ -117,6 +123,7 @@ protected:
 
     bool inClip(int x, int y, QRect* cr=0, bool know_to_be_outside=FALSE);
 
+    void setSourceWidgetOffset( int x, int y );
     void useBrush();
     void usePen();
     virtual void setSourcePen();
@@ -179,11 +186,11 @@ protected:
     int srcwidgety;
     bool src_little_endian;
     bool src_normal_palette;
-    unsigned int srcclut[256];	    // Source colour table - r,g,b values
+    unsigned int srcclut[256];	    // Source color table - r,g,b values
     unsigned int transclut[256];    // Source clut transformed to destination
                                     // values - speed optimisation
 
-    QRgb * clut;      		    // Destination colour table - r,g,b values
+    QRgb * clut;      		    // Destination color table - r,g,b values
     int clutcols;		    // Colours in clut
 
     int monobitcount;

@@ -193,12 +193,12 @@ void ABCentralWidget::setupListView()
     listView->addColumn( "Address" );
     listView->addColumn( "E-Mail" );
 
-    listView->setMultiSelection( TRUE );
+    listView->setSelectionMode( QListView::Extended );
 
-    connect( listView, SIGNAL( selectionChanged() ), this, SLOT( selectionChanged() ) );
-    connect( listView, SIGNAL( doubleClicked( QListViewItem* ) ), this, SLOT( itemSelected( QListViewItem* ) ) );
+    connect( listView, SIGNAL( clicked( QListViewItem* ) ), this, SLOT( itemSelected( QListViewItem* ) ) );
 
     mainGrid->addWidget( listView, 1, 0 );
+    listView->setAllColumnsShowFocus( TRUE );
 }
 
 void ABCentralWidget::addEntry()
@@ -242,7 +242,6 @@ void ABCentralWidget::selectionChanged()
 
 void ABCentralWidget::itemSelected( QListViewItem *item )
 {
-    listView->clearSelection();
     item->setSelected( TRUE );
     item->repaint();
 

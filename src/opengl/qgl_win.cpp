@@ -7,15 +7,17 @@
 **
 ** Copyright (C) 1992-2000 Troll Tech AS.  All rights reserved.
 **
-** This file is part of the Qt GUI Toolkit.
+** This file is part of the opengl module of the Qt GUI Toolkit.
 **
 ** This file may be distributed under the terms of the Q Public License
 ** as defined by Troll Tech AS of Norway and appearing in the file
 ** LICENSE.QPL included in the packaging of this file.
 **
-** Licensees holding valid Qt Professional Edition licenses may use this
-** file in accordance with the Qt Professional Edition License Agreement
-** provided with the Qt Professional Edition.
+** Licensees holding valid Qt Enterprise Edition or Qt Professional Edition
+** licenses may use this file in accordance with the Qt Commercial License
+** Agreement provided with the Software.  This file is part of the opengl
+** module and therefore may only be used if the opengl module is specified
+** as Licensed on the Licensee's License Certificate.
 **
 ** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 ** information about the Professional Edition licensing, or see
@@ -23,23 +25,36 @@
 **
 *****************************************************************************/
 
-#include "qgl.h"
 
-#if defined(Q_WGL)
-
+#include <qgl.h>
+#include <qshared.h>
+#include <qarray.h>
+#include <qmap.h>
 #include <qpixmap.h>
-#include <qapplication.h>
-//#include <qcolormap.h>
 
+#include <windows.h>
+
+
+class QGLColorMapPrivate : public QShared
+{
+public:
+    enum AllocState{ UnAllocated = 0, Allocated = 0x01, Reserved = 0x02 };
+
+    int maxSize;
+    QArray<uint> colorArray;
+    QArray<Q_UINT8> allocArray;
+    QArray<Q_UINT8> contextArray;
+    QMap<uint,int> colorMap;
+};
 
 /*****************************************************************************
-  QGLColorMap class - temporarily here, until it is ready for prime time
+  QColorMap class - temporarily here, until it is ready for prime time
  *****************************************************************************/
 
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/QGLColorMap.h#0 $
+** $Id: //depot/qt/main/src/kernel/qcolormap.h#0 $
 **
-** Definition of QGLColorMap class
+** Definition of QColorMap class
 **
 ** Created : 20000510
 **
@@ -63,8 +78,8 @@
 
 
 
-#ifndef QGLColorMap_H
-#define QGLColorMap_H
+#ifndef QCOLORMAP_H
+#define QCOLORMAP_H
 
 #include <qcolor.h>
 
@@ -102,55 +117,7 @@ private:
     
 #endif
 
-
-
-/****************************************************************************
-** $Id: //depot/qt/main/src/kernel/QGLColorMap.cpp#0 $
-**
-** Implementation of QGLColorMap class
-**
-** Created : 20000510
-**
-** Copyright (C) 1992-2000 Troll Tech AS.  All rights reserved.
-**
-** This file is part of the Qt GUI Toolkit.
-**
-** This file may be distributed under the terms of the Q Public License
-** as defined by Troll Tech AS of Norway and appearing in the file
-** LICENSE.QPL included in the packaging of this file.
-**
-** Licensees holding valid Qt Professional Edition licenses may use this
-** file in accordance with the Qt Professional Edition License Agreement
-** provided with the Qt Professional Edition.
-**
-** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
-** information about the Professional Edition licensing, or see
-** http://www.trolltech.com/qpl/ for QPL licensing information.
-**
-*****************************************************************************/
-
-
-//#include <QGLColorMap.h>
-#include <qshared.h>
-#include <qarray.h>
-#include <qmap.h>
-
-
-
-class QGLColorMapPrivate : public QShared
-{
-public:
-    enum AllocState{ UnAllocated = 0, Allocated = 0x01, Reserved = 0x02 };
-
-    int maxSize;
-    QArray<uint> colorArray;
-    QArray<Q_UINT8> allocArray;
-    QArray<Q_UINT8> contextArray;
-    QMap<uint,int> colorMap;
-};
-
-
-
+    
 QGLColorMap::QGLColorMap( int maxSize ) // add a bool prealloc?
 {
     d = new QGLColorMapPrivate;
@@ -909,5 +876,3 @@ bool QGLWidget::renderCxPm( QPixmap* )
 {
     return FALSE;
 }
-
-#endif // Q_WGL

@@ -7,15 +7,17 @@
 **
 ** Copyright (C) 1992-2000 Troll Tech AS.  All rights reserved.
 **
-** This file is part of the Qt GUI Toolkit.
+** This file is part of the widgets module of the Qt GUI Toolkit.
 **
 ** This file may be distributed under the terms of the Q Public License
 ** as defined by Troll Tech AS of Norway and appearing in the file
 ** LICENSE.QPL included in the packaging of this file.
 **
-** Licensees holding valid Qt Professional Edition licenses may use this
-** file in accordance with the Qt Professional Edition License Agreement
-** provided with the Qt Professional Edition.
+** Licensees holding valid Qt Enterprise Edition or Qt Professional Edition
+** licenses may use this file in accordance with the Qt Commercial License
+** Agreement provided with the Software.  This file is part of the widgets
+** module and therefore may only be used if the widgets module is specified
+** as Licensed on the Licensee's License Certificate.
 **
 ** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 ** information about the Professional Edition licensing, or see
@@ -1164,9 +1166,10 @@ static void findNewToolbarPlace( QMainWindowPrivate *d, QToolBar *tb, QMainWindo
 		    div = 5;
 		}
 		bool contains = it.key().contains( d->oldPosRect );
-		if ( !contains && rect_extend( d->oldPosRect, o, TRUE ) > rect_extend( it.key(), o, TRUE ) &&
-		     rect_pos( d->oldPosRect, o, TRUE ) < rect_pos( it.key(), o, TRUE ) &&
-		     rect_pos( d->oldPosRect, o, TRUE ) + rect_extend( d->oldPosRect, o, TRUE ) >
+		QRect oldPosRect( d->oldPosRect ); // g++ 2.7.2.3 bug
+		if ( !contains && rect_extend( oldPosRect, o, TRUE ) > rect_extend( it.key(), o, TRUE ) &&
+		     rect_pos( oldPosRect, o, TRUE ) < rect_pos( it.key(), o, TRUE ) &&
+		     rect_pos( oldPosRect, o, TRUE ) + rect_extend( oldPosRect, o, TRUE ) >
 		     rect_pos( it.key(), o, TRUE ) + rect_extend( it.key(), o, TRUE ) )
 		    contains = TRUE;
 		if ( !contains && rect_extend( ir, o, TRUE ) < ( mul * rect_extend( it.key(), o, TRUE ) ) / div ) {
@@ -1351,7 +1354,7 @@ static void findNewToolbarPlace( QMainWindowPrivate *d, QToolBar *tb, QMainWindo
   ensure to move the toolbars in exactly the same order in which you
   got the information.
 
-  For multidocument interfaces (MDI), use a QWorkspace as central
+  For multi-document interfaces (MDI), use a QWorkspace as central
   widget.
 
   <img src=qmainwindow-m.png> <img src=qmainwindow-w.png>
@@ -1476,7 +1479,6 @@ void QMainWindow::setStatusBar( QStatusBar * newStatusBar )
     connect( toolTipGroup(), SIGNAL(removeTip()),
 	     d->sb, SLOT(clear()) );
     d->sb->installEventFilter( this );
-    triggerLayout();
 }
 
 
@@ -2789,8 +2791,8 @@ void QMainWindow::moveToolBar( QToolBar* t , QMouseEvent * e )
 	    d->rectPainter->begin( this );
 	    if ( !unclipped )
 		clearWFlags( WPaintUnclipped );
-	    d->rectPainter->setPen( QPen( color0, 2 ) );
-	    d->rectPainter->setRasterOp( NotROP );
+	    d->rectPainter->setPen( QPen( gray, 2 ) );
+	    d->rectPainter->setRasterOp( XorROP );
 	}
 
 	// init some stuff
@@ -3035,9 +3037,12 @@ bool QMainWindow::getLocation( QToolBar *tb, ToolBarDock &dock, int &index, bool
 }
 
 /*!
+  \fn QList<QToolBar> QMainWindow::toolBars( ToolBarDock dock ) const
+
   Returns a list of all toolbars which are placed in \a dock.
 */
 
+#ifndef Q_TEMPLATE_NEEDS_CLASS_DECLARATION
 QList<QToolBar> QMainWindow::toolBars( ToolBarDock dock ) const
 {
     QList<QToolBar> lst;
@@ -3074,6 +3079,7 @@ QList<QToolBar> QMainWindow::toolBars( ToolBarDock dock ) const
 
     return lst;
 }
+#endif
 
 /*!
   Sets the toolbars to be movable if \a enable is TRUE, or static

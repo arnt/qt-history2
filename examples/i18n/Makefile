@@ -1,5 +1,5 @@
 #############################################################################
-# $Id: //depot/qt/main/examples/i18n/Makefile#1 $
+# $Id: //depot/qt/main/examples/i18n/Makefile#2 $
 #
 # Win32 Makefile, requires Microsoft nmake.
 #

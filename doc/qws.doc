@@ -115,7 +115,7 @@ Configurations files are found in <tt>configs/</tt>.
   In some cases, if the server does not work, it will work when run as root.
 
 <p>
-  Some example programs may not compile with gcc 2.95.
+  Some example programs may not compile with GCC 2.95.
 
 
 <p>

@@ -7,11 +7,17 @@
 **
 ** Copyright (C) 1992-2000 Troll Tech AS.  All rights reserved.
 **
-** This file is part of the Qt GUI Toolkit Professional Edition.
+** This file is part of the kernel module of the Qt GUI Toolkit.
 **
-** Licensees holding valid Qt Professional Edition licenses may use this
-** file in accordance with the Qt Professional Edition License Agreement
-** provided with the Qt Professional Edition.
+** This file may be distributed under the terms of the Q Public License
+** as defined by Troll Tech AS of Norway and appearing in the file
+** LICENSE.QPL included in the packaging of this file.
+**
+** Licensees holding valid Qt Enterprise Edition or Qt Professional Edition
+** licenses may use this file in accordance with the Qt Commercial License
+** Agreement provided with the Software.  This file is part of the kernel
+** module and therefore may only be used if the kernel module is specified
+** as Licensed on the Licensee's License Certificate.
 **
 ** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 ** information about the Professional Edition licensing.
@@ -64,6 +70,8 @@ typedef void MoveRegionF( const QWSRegionMoveCommand*);
 typedef void RequestRegionF( int, QRegion );
 typedef void SetAltitudeF( const QWSChangeAltitudeCommand* );
 extern QQueue<QWSCommand> *qt_get_server_queue();
+
+static QRect desktop_rect;
 
 static int get_object_id()
 {
@@ -159,10 +167,18 @@ void QWSClient::sendConnectedEvent( const char *display_spec )
 {
     QWSConnectedEvent event;
     event.simpleData.window = 0;
-    event.simpleData.len = strlen( display_spec+1 );
+    event.simpleData.len = strlen( display_spec ) + 1;
     char * tmp=(char *)display_spec;
     event.setData( tmp, event.simpleData.len );
     sendEvent( &event );
+}
+
+void QWSClient::sendDesktopRectEvent()
+{
+    QWSDesktopRectEvent event;
+    event.simpleData.window = 0;
+    event.simpleData.rect = desktop_rect;
+    sendEvent(&event);
 }
 
 void QWSClient::sendRegionModifyEvent( int winid, QRegion exposed, bool ack )
@@ -216,6 +232,18 @@ void QWSClient::sendSelectionRequestEvent( QWSConvertSelectionCommand *cmd, int 
 }
 
 #ifndef QT_NO_SOUND
+
+        /*
+        ***
+        ****
+*************
+**********
+**********  WARNING:  This code is obsoleted by tests/qsound,
+**********            which will soobn be used instead.
+*************
+        ****
+        ***
+        */
 
 struct QRiffChunk {
     char id[4];
@@ -563,11 +591,11 @@ QWSServer::QWSServer( int displayId, int flags,
 	initializeCursor();
     }
 
-
+#ifndef QT_NO_QWS_KEYBOARD
     if ( !(flags&DisableKeyboard) ) {
 	openKeyboard();
     }
-
+#endif
     screenRegion = QRegion( 0, 0, swidth, sheight );
     paintBackground( screenRegion );
 
@@ -586,7 +614,9 @@ QWSServer::~QWSServer()
     delete rgnMan;
     closeDisplay();
     closeMouse();
+#ifndef QT_NO_QWS_KEYBOARD
     closeKeyboard();
+#endif    
 }
 
 void QWSServer::newConnection( int socket )
@@ -602,6 +632,9 @@ void QWSServer::newConnection( int socket )
     // pre-provide some object id's
     for (int i=0; i<20; i++)
 	invokeCreate(0,client[socket]);
+
+    if ( !desktop_rect.isEmpty() )
+	client[socket]->sendDesktopRectEvent();
 }
 
 void QWSServer::clientClosed()
@@ -837,6 +870,19 @@ void QWSServer::refresh()
     syncRegions();
 }
 
+void QWSServer::setDesktopRect(const QRect& r)
+{
+    if ( desktop_rect != r ) {
+	desktop_rect = r;
+	sendDesktopRectEvents();
+    }
+}
+
+void QWSServer::sendDesktopRectEvents()
+{
+    for (ClientIterator it = qwsServer->client.begin(); it != qwsServer->client.end(); ++it )
+	(*it)->sendDesktopRectEvent();
+}
 
 void QWSServer::sendMouseEvent(const QPoint& pos, int state)
 {
@@ -1618,6 +1664,8 @@ void QWSServer::openMouse()
 #endif
 }
 
+#ifndef QT_NO_QWS_KEYBOARD
+
 QWSKeyboardHandler::QWSKeyboardHandler()
 {
 }
@@ -1659,6 +1707,8 @@ void QWSServer::openKeyboard()
     keyboardhandlers.append(kh);
 #endif
 }
+
+#endif //QT_NO_QWS_KEYBOARD
 
 QWSServer *QWSServer::qwsServer=0; //there can be only one
 
@@ -1767,16 +1817,19 @@ void QWSServer::closedown(int display_id)
 {
     unlink( QString(QTE_PIPE).arg(display_id).latin1() );
     delete qwsServer;
+    qwsServer = 0;
 }
 
 
 void QWSServer::emergency_cleanup()
 {
+#ifndef QT_NO_QWS_KEYBOARD    
     if ( qwsServer )
 	qwsServer->closeKeyboard();
+#endif
 }
 
-
+#ifndef QT_NO_QWS_KEYBOARD
 static QWSServer::KeyboardFilter *keyFilter;
 
 void QWSServer::processKeyEvent(int unicode, int keycode, int modifiers, bool isPress,
@@ -1792,3 +1845,4 @@ void QWSServer::setKeyboardFilter( KeyboardFilter *f )
 {
     keyFilter = f;
 }
+#endif

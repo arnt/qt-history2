@@ -30,7 +30,7 @@ static char ident[] = "$Id: examples.doc,v 1.9 1999/07/02 18:18:24 paul Exp $";
     graphstyle=pie fontfamily=times fontsize=18>
   <p>
   The text file it accepts as input has a title line, then
-  a sequence of lines with an number then a string.  The
+  a sequence of lines with a number, then a string.  The
   plugin displays a pie chart of the numbers, each segment
   labelled by the associated string.  The user can select
   a bar chart view of the same data by selecting from the
@@ -48,7 +48,7 @@ static char ident[] = "$Id: examples.doc,v 1.9 1999/07/02 18:18:24 paul Exp $";
 </pre>
 </small>
   Note that some HTML arguments (which we have capitalized here)
-  are interpretted by the browser, while others are used by the
+  are interpreted by the browser, while others are used by the
   plugin.
 
 <br clear>

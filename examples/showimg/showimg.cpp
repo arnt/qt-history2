@@ -95,7 +95,7 @@ ImageViewer::ImageViewer( QWidget *parent, const char *name, int wFlags )
     dd = options->insertItem( "AvoidDither" );
     options->insertSeparator();
     ss = options->insertItem( "Smooth scaling" );
-    cc = options->insertItem( "Use colour context" );
+    cc = options->insertItem( "Use color context" );
     if ( QApplication::colorSpec() == QApplication::ManyColor )
 	options->setItemEnabled( cc, FALSE );
     options->setCheckable( TRUE );

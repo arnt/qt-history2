@@ -8,11 +8,17 @@
 **
 ** Copyright (C) 1992-2000 Troll Tech AS.  All rights reserved.
 **
-** This file is part of the Qt GUI Toolkit.
+** This file is part of the kernel module of the Qt GUI Toolkit.
 **
-** Licensees holding valid Qt Professional Edition licenses may use this
-** file in accordance with the Qt Professional Edition License Agreement
-** provided with the Qt Professional Edition.
+** This file may be distributed under the terms of the Q Public License
+** as defined by Troll Tech AS of Norway and appearing in the file
+** LICENSE.QPL included in the packaging of this file.
+**
+** Licensees holding valid Qt Enterprise Edition or Qt Professional Edition
+** licenses may use this file in accordance with the Qt Commercial License
+** Agreement provided with the Software.  This file is part of the kernel
+** module and therefore may only be used if the kernel module is specified
+** as Licensed on the Licensee's License Certificate.
 **
 ** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 ** information about the Professional Edition licensing.
@@ -693,7 +699,7 @@ int QVNCServer::getPixel( uchar **data )
 /*
   Send dirty rects using hextile encoding.  We only actually use the Raw
   and BackgroundSpecified subencodings.  The BackgroundSpecified encoding
-  is only used to send areas of a single colour.
+  is only used to send areas of a single color.
 */
 void QVNCServer::sendHextile()
 {
@@ -747,7 +753,7 @@ void QVNCServer::sendHextile()
 
 		    sptr = screendata;
 		    if ( checkFill( screendata, rect.w * rect.h ) ) {
-			// This area is a single colour
+			// This area is a single color
 			Q_UINT8 subenc = 2; // BackgroundSpecified subencoding
 			client->writeBlock( (char *)&subenc, 1 );
 			int pixel;

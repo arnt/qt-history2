@@ -7,15 +7,17 @@
 **
 ** Copyright (C) 1992-2000 Troll Tech AS.  All rights reserved.
 **
-** This file is part of the Qt GUI Toolkit.
+** This file is part of the kernel module of the Qt GUI Toolkit.
 **
 ** This file may be distributed under the terms of the Q Public License
 ** as defined by Troll Tech AS of Norway and appearing in the file
 ** LICENSE.QPL included in the packaging of this file.
 **
-** Licensees holding valid Qt Professional Edition licenses may use this
-** file in accordance with the Qt Professional Edition License Agreement
-** provided with the Qt Professional Edition.
+** Licensees holding valid Qt Enterprise Edition or Qt Professional Edition
+** licenses may use this file in accordance with the Qt Commercial License
+** Agreement provided with the Software.  This file is part of the kernel
+** module and therefore may only be used if the kernel module is specified
+** as Licensed on the Licensee's License Certificate.
 **
 ** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 ** information about the Professional Edition licensing, or see
@@ -24,6 +26,7 @@
 *****************************************************************************/
 
 #include "qpainter.h"
+#include "qpainter_p.h"
 #include "qbitmap.h"
 #include "qstack.h"
 #include "qdatastream.h"
@@ -82,10 +85,10 @@ typedef QStack<QWMatrix> QWMatrixStack;
   you set using setFont() and fontInfo() returns the font actually
   being used.
 
-  <li> brush() is the currently set brush; the colour or pattern
+  <li> brush() is the currently set brush; the color or pattern
   that's used for filling e.g. circles.
 
-  <li> pen() is the currently set pen; the colour or stipple that's
+  <li> pen() is the currently set pen; the color or stipple that's
   used for drawing lines or boundaries.
 
   <li> backgroundMode() is \c Opaque or \c Transparent, ie. whether
@@ -428,7 +431,7 @@ QPainter::~QPainter()
     if ( tabarray )				// delete tab array
 	delete [] tabarray;
 #ifndef QT_NO_TRANSFORMATIONS
-    if (wm_stack )
+    if ( wm_stack )
 	delete (QWMatrixStack *)wm_stack;
 #endif
 }
@@ -1072,8 +1075,8 @@ QRect QPainter::viewport() const		// get viewport
   enables view transformation.
 
   The viewport rectangle is part of the view transformation.  The
-  window specifies the device coordinate system.  Its sister, the
-  viewport(), specifies the logical coordinate system.
+  viewport specifies the device coordinate system.  Its sister, the
+  window(), specifies the logical coordinate system.
 
   The default viewport rectangle is the same as the device's rectangle.
   See the \link coordsys.html Coordinate System Overview \endlink for
@@ -1378,10 +1381,10 @@ void QPainter::updateXForm()
     txinv = FALSE;				// no inverted matrix
     txop  = TxNone;
     const double eps = 0.0; // ##### can we get away with this?
-    //#define FZ(x) ((x)<eps&&(x)>-eps) ###nonsense if eps==0.0!!!
-    #define FZ(x) ((x) == eps)
+//#define FZ(x) ((x)<eps&&(x)>-eps) ###nonsense if eps==0.0!!!
+#define FZ(x) ((x) == eps)
     //#define FEQ(x,y) (((x)-(y))<eps&&((x)-(y))>-eps) ###nonsense if eps==0.0!
-    #define FEQ(x,y) ((x)==(y))
+#define FEQ(x,y) ((x)==(y))
     if ( FZ(m12()) && FZ(m21()) && m11() >= -eps && m22() >= -eps ) {
 	if ( FEQ(m11(),1.0) && FEQ(m22(),1.0) ) {
 	    if ( !FZ(dx()) || !FZ(dy()) )
@@ -1398,8 +1401,8 @@ void QPainter::updateXForm()
 	setf(DirtyFont);
 #endif
     }
-    #undef FZ
-    #undef FEQ
+#undef FZ
+#undef FEQ
 }
 
 
@@ -1961,12 +1964,12 @@ void QPainter::drawImage( int x, int y, const QImage & image,
 {
 #ifdef _WS_QWS_
     //### Hackish
- #ifndef QT_NO_TRANSFORMATIONS
+# ifndef QT_NO_TRANSFORMATIONS
     if ( !image.isNull() && gfx &&
 	(txop==TxNone||txop==TxTranslate) && !testf(ExtDev) )
- #else
+# else
     if ( !image.isNull() && gfx && !testf(ExtDev) )
- #endif
+# endif
     {
         if(sw<0)
 	    sw=image.width();

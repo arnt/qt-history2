@@ -11,12 +11,6 @@
     $project{"TMAKE_LIBS"} = "";
 
     Project('TMAKE_LIBS += $$LIBS'); # Misc. project-specific extras
-    if ( Project('TEMPLATE') eq "qt.t" ) {
-	#! Qt/Embedded hackery.
-	Project('TMAKE_LIBS += ../lib/libfreetype.a');
-	Project('TMAKE_LIBS += ../lib/libpng.a');
-	Project('TMAKE_LIBS += ../lib/libz.a');
-    }
 
     if ( Config("qt") || Config("opengl") ) {
 	Project('CONFIG *= x11lib');
@@ -31,34 +25,25 @@
     if ( Config("qt") ) {
 	$moc_aware = 1;
 	Project('TMAKE_CXXFLAGS *= $(SYSCONF_CXXFLAGS_QT)');
-	if ( Config("opengl") ) {
-	    Project('TMAKE_LFLAGS *= $(SYSCONF_LFLAGS_QT)');
-	    if ( Project("TARGET") ne "qgl" ) {
-		Project('TMAKE_LIBS *= $(SYSCONF_LIBS_QT_OPENGL)');
-	    }
-	}
 	if ( Project("TARGET") eq "qt" ) {
-	    if ( Project('TEMPLATE') ne "qt.t" ) {
+	    if ( !Config('embedded') ) {
 		$project{"PNG_OBJECTS"} = &Objects($project{"PNG_SOURCES"});
 		$project{"ZLIB_OBJECTS"} = &Objects($project{"ZLIB_SOURCES"});
 	    }
 	} else {
 	    Project('TMAKE_LFLAGS *= $(SYSCONF_LFLAGS_QT)');
+	    Project('TMAKE_LFLAGS *= $(SYSCONF_RPATH_QT)');
 	    Project('TMAKE_LIBS *= $(SYSCONF_LIBS_QT)');
 	}
     } elsif ( Config("qtinc") ) {
 	Project('TMAKE_CXXFLAGS *= $(SYSCONF_CXXFLAGS_QT)');
-    }
-    if ( Config("opengl") ) {
-	Project('TMAKE_CXXFLAGS *= $(SYSCONF_CXXFLAGS_OPENGL)');
-	Project('TMAKE_LFLAGS *= $(SYSCONF_LFLAGS_OPENGL)');
-	Project('TMAKE_LIBS *= $(SYSCONF_LIBS_OPENGL)');
     }
     if ( Config("x11inc") ) {
 	Project('TMAKE_CXXFLAGS *= $(SYSCONF_CXXFLAGS_X11)');
     }
     if ( Config("x11lib") ) {
 	Project('TMAKE_LFLAGS *= $(SYSCONF_LFLAGS_X11)');
+	Project('TMAKE_LFLAGS *= $(SYSCONF_RPATH_X11)');
 	Project('TMAKE_LIBS *= $(SYSCONF_LIBS_X11)');
     }
 
@@ -79,17 +64,30 @@
     Project('TMAKE_FILETAGS = HEADERS SOURCES TARGET DESTDIR $$FILETAGS');
     Project('DESTDIR = ./') unless Project('DESTDIR');
 
+    if ( Config("embedded") ) {
+        Project('SOURCES += allmoc.cpp');
+        $project{'HEADERS_ORIG'} = Project('HEADERS');
+        $project{'HEADERS'} = "";
+    }
+
     StdInit();
 
-    my ($module,$label);
-    for $module ( split / /, $project{"MODULES"} ) {
-	my $o = "";
-	for $label ( "OBJECTS", "OBJMOC" ) {
-	    while ( $project{$label} =~ s/\s*\b($module\/\S*)// ) {
-		$o .= " $1";
+    if ( !Config("embedded") ) {
+	my ($module,$label);
+	for $module ( split / /, $project{"MODULES"} ) {
+	    for $label ( "HEADERS", "OBJECTS", "OBJMOC", "SOURCES", "SRCMOC" ) {
+		my $o = "";
+		my $p = $project{$label};
+		while ( $p =~ s/\s*\b($module\/\S*)// ) {
+		    $o .= " " if $o;
+		    $o .= "$1";
+		}
+		$p =~ s/^ *//;
+		$p =~ s/ *$//;
+		$project{$label} = $p;
+		$project{"${label}_${module}"} = $o;
 	    }
 	}
-	$project{"OBJECTS_$module"} = $o;
     }
 
     $project{"DESTDIR"} = FixPath($project{"DESTDIR"});
@@ -120,14 +118,15 @@
 
 ####### Compiler, tools and options
 
-CXX	=	$(SYSCONF_CXX)
+CXX	=	$(SYSCONF_CXX) $(QT_CXX_MT)
 CXXFLAGS=	#$ Expand("TMAKE_CXXFLAGS"); ExpandGlue("DEFINES","-D"," -D",""); (Project("TARGET") eq "qt") && ($text = $text . ' $(QT_CXXFLAGS_OPT)');
-CC	=	$(SYSCONF_CC)
+CC	=	$(SYSCONF_CC) $(QT_C_MT)
 CFLAGS	=	#$ Expand("TMAKE_CFLAGS"); ExpandGlue("DEFINES","-D"," -D",""); (Project("TARGET") eq "qt") && ($text = $text . ' $(QT_CFLAGS_OPT)');
 INCPATH =	#$ ExpandGlue("INCPATH","-I"," -I","");
-LFLAGS	=	#$ Expand("TMAKE_LFLAGS");
-LIBS	=	#$ (Project("TARGET") eq "qt") && ($text = $text . ' $(QT_LIBS_OPT)'); Expand("TMAKE_LIBS");
+LFLAGS	=	#$ Expand("TMAKE_LFLAGS"); $text .= ' $(QT_LFLAGS_MT)'
+LIBS	=	$(SUBLIBS) #$ (Project("TARGET") eq "qt") && ($text = $text . ' $(QT_LIBS_OPT)'); Expand("TMAKE_LIBS"); $text .= ' $(QT_LIBS_MT) $(QT_LIBS_OPT)';
 MOC	=	$(SYSCONF_MOC)
+UIC	=	$(SYSCONF_UIC)
 
 ####### Target
 
@@ -135,26 +134,40 @@ DESTDIR = #$ Expand("DESTDIR");
 VER_MAJ = #$ Expand("VER_MAJ");
 VER_MIN = #$ Expand("VER_MIN");
 VER_PATCH = #$ Expand("VER_PATCH");
-TARGET	= #$ Expand("TARGET");
+TARGET	= #$ Expand("TARGET"); $text .= '$(QT_THREAD_SUFFIX)' if Project("TARGET") eq "qt";
 TARGET1 = lib$(TARGET).so.$(VER_MAJ)
 
 ####### Files
 
 HEADERS =	#$ ExpandList("HEADERS");
 SOURCES =	#$ ExpandList("SOURCES");
-OBJECTS =	#$ ExpandList("OBJECTS"); Project("TARGET") eq "qt" && ($text = $text . ' $(QT_EXT_OBJ)');
+OBJECTS =	#$ ExpandList("OBJECTS"); Project("TARGET") eq "qt" && ($text = $text . ' $(QT_MODULE_OBJ)');
+INTERFACES =    #$ ExpandList("INTERFACES");
+UICDECLS =      #$ ExpandList("UICDECLS");
+UICIMPLS =      #$ ExpandList("UICIMPLS");
 SRCMOC	=	#$ ExpandList("SRCMOC");
 OBJMOC	=	#$ ExpandList("OBJMOC");
-#$ (Project("TARGET") eq "qt" && Project('TEMPLATE') ne "qt.t") || DisableOutput();
+#$ if (Project("TARGET") ne "qt" || Config('embedded') ) { DisableOutput(); }
 PNG_OBJECTS  = #$ ExpandList("PNG_OBJECTS");
 ZLIB_OBJECTS = #$ ExpandList("ZLIB_OBJECTS");
-#$ (Project("TARGET") eq "qt" && Project('TEMPLATE') ne "qt.t") || EnableOutput();
+#$ if (Project("TARGET") ne "qt" || Config('embedded') ) { EnableOutput(); }
 
 #${
-    my $module;
-    for $module ( split / /, $project{"MODULES"} ) {
-	$text .= "\nOBJECTS_$module = ";
-	ExpandList("OBJECTS_$module");
+    if ( !Config("embedded") ) {
+	my $module;
+	$t = "";
+	for $module ( split / /, $project{"MODULES"} ) {
+	    $t .= "\nOBJECTS_$module = ";
+	    $text = "";
+	    ExpandList("OBJECTS_$module");
+	    $t .= $text;
+	    if ( Project("OBJMOC_$module") ) {
+		$text = "";
+		ExpandList("OBJMOC_$module");
+		$t .= " \\\n\t\t$text";
+	    }
+	}
+	$text = "$t\n";
     }
 #$}
 
@@ -180,6 +193,16 @@ ZLIB_OBJECTS = #$ ExpandList("ZLIB_OBJECTS");
 ####### Build rules
 
 #${
+	if ( Project("SUBLIBS") ) {
+	    $text = "SUBLIBS=";
+	    for $m ( split / /, Project("SUBLIBS") ) {
+		$text .= "tmp/lib$m.a ";
+	    }
+	    $text .= "\n";
+	}
+#$}
+
+#${
 	if ( Project('TEMPLATE') eq "lib" || Project('TEMPLATE') eq "qt.t" ) {
 	    if ( Config('staticlib') ) {
 		$targ = '$(SYSCONF_LINK_TARGET_STATIC)';
@@ -198,16 +221,11 @@ ZLIB_OBJECTS = #$ ExpandList("ZLIB_OBJECTS");
 		$targ = '$(TARGET)';
 	    }
 	}
+	$targ = '$(DESTDIR)'.$targ;
 	$text .= 'all: ';
        	ExpandGlue("ALL_DEPS",""," "," ");
-	$text .= '$(DESTDIR)' . $targ . "\n\n";
-	$text .= '$(DESTDIR)' . $targ . ': $(OBJECTS) $(OBJMOC) ';
-	if ( Project('TEMPLATE') eq "qt.t" ) {
-	    #! Qt/Embedded hackery.
-	    $text .= '../lib/libfreetype.a ';
-	    $text .= '../lib/libpng.a ';
-	    $text .= '../lib/libz.a ';
-	}
+	$text .= $targ . "\n\n";
+	$text .= $targ . ': $(UICDECLS) $(OBJECTS) $(OBJMOC) $(SUBLIBS)';
 	Expand("TARGETDEPS");
 	$text .= "\n\t";
 	if ( Project('TEMPLATE') eq "lib" || Project('TEMPLATE') eq "qt.t" ) {
@@ -222,39 +240,91 @@ ZLIB_OBJECTS = #$ ExpandList("ZLIB_OBJECTS");
 	}
 #$}
 
-#$ Substitute('../lib/libfreetype.a:');
-#$ Substitute('	cd 3rdparty/freetype2; make "CC=$(CC)" CONFIG_MK=config.mk LIB_DIR=../../../lib ../../../lib/libfreetype.a');
-
-#$ Substitute('../lib/libz.a:');
-#$ Substitute('	cd 3rdparty/zlib; make "CC=$(CC)"; cp libz.a ../../../lib');
-
-#$ Substitute('../lib/libpng.a:');
-#$ Substitute('	cd 3rdparty/libpng; make "CC=$(CC)" -f scripts/makefile.linux; cp libpng.a ../../../lib');
-
 moc: $(SRCMOC)
 
 #$ TmakeSelf();
 
 clean:
-	-rm -f $(OBJECTS) $(OBJMOC) $(SRCMOC)
+	-rm -f $(OBJECTS) $(OBJMOC) $(SRCMOC) $(UICIMPLS) $(UICDECLS)
 	#$ ExpandGlue("TMAKE_CLEAN","-rm -f "," ","");
 	-rm -f *~ core
 	#$ ExpandGlue("CLEAN_FILES","-rm -f "," ","");
 	-rm -f tmp/qt.cpp
 
-# For Qt/Embedded only
-tmp/qt.cpp: ../include/qt.h $(HEADERS)
-	-mkdir tmp
-	echo "#include <qt.h>" >tmp/qt.cpp
-	$(CXX) -E -DQT_MOC_CPP $(CXXFLAGS) $(INCPATH) -o tmp/moc_qt.h tmp/qt.cpp
-	$(MOC) -o tmp/qt.cpp-tmp tmp/moc_qt.h
-	sed -e 's/"moc_qt.h"/"qt.h"/' <tmp/qt.cpp-tmp >tmp/qt.cpp
+####### Extension Modules
+
+listpromodules:
+	@echo #$ ExpandList("MODULES_BASE"); ExpandList("MODULES_PRO");
+
+listallmodules:
+	@echo #$ ExpandList("MODULES");
+
+REQUIRES=#$ $text .= Project("REQUIRES");
+
+####### Sub-libraries
+
+#${
+	if ( Project("SUBLIBS") ) {
+	    for $m ( split / /, Project("SUBLIBS") ) {
+		$text .= "tmp/lib$m.a:\n\t";
+		if ( $m eq "freetype" ) {
+		    $text .= '$(MAKE) -C 3rdparty/freetype2 \
+                            CONFIG_MK=config$$DASHMIPS.mk OBJ_DIR=../../tmp \
+                            ../../tmp/libfreetype.a'."\n";
+		} else {
+		    $text .= $project{"MAKELIB$m"}."\n";
+		}
+	    }
+	}
+#$}
+
+###### Combined headers
+
+#${
+	if ( Config("embedded") ) {
+	    $t = "allmoc.cpp: ".Project("PRECOMPH")." ".$original_HEADERS;
+	    ExpandList("HEADERS_ORIG");
+	    $t.= $text;
+	    $t.= "\n\techo '#include \"".Project("PRECOMPH")."\"' >allmoc.cpp";
+	    $t.= "\n\t\$(CXX) -E -DQT_MOC_CPP \$(CXXFLAGS) \$(INCPATH) >allmoc.h allmoc.cpp";
+	    $t.= "\n\t\$(MOC) -o allmoc.cpp allmoc.h";
+	    $t.= "\n\tperl -pi -e 's{\"allmoc.h\"}{\"".Project("PRECOMPH")."\"}' allmoc.cpp";
+	    $t.= "\n\trm allmoc.h";
+	    $t.= "\n";
+	    $text = $t;
+	}
+#$}
+
 
 ####### Compile
 
 #$ BuildObj(Project("OBJECTS"),Project("SOURCES"));
+#$ BuildUicSrc(Project("INTERFACES")); 
+#$ BuildObj(Project("UICOBJECTS"),Project("UICIMPLS"));
 #$ BuildMocObj(Project("OBJMOC"),Project("SRCMOC"));
 #$ BuildMocSrc(Project("HEADERS"));
 #$ BuildMocSrc(Project("SOURCES"));
+#$ BuildMocSrc(Project("UICDECLS"));
+#$ if (Project("TARGET") ne "qt" || Config('embedded') ) { DisableOutput(); }
 #$ Project("PNG_SOURCES") && BuildObj(Project("PNG_OBJECTS"),Project("PNG_SOURCES"));
 #$ Project("ZLIB_SOURCES") && BuildObj(Project("ZLIB_OBJECTS"),Project("ZLIB_SOURCES"));
+#$ if (Project("TARGET") ne "qt" || Config('embedded') ) { EnableOutput(); }
+
+#${
+    if ( !Config("embedded") ) {
+	my $module;
+	$t = "";
+	for $module ( split / /, $project{"MODULES"} ) {
+	    $t .= "\n# Module $module...\n";
+	    $text = ""; BuildMocObj(Project("OBJMOC_$module"),Project("SRCMOC_$module"));
+	    $t .= $text;
+	    $text = ""; BuildMocSrc(Project("HEADERS_$module"));
+	    $t .= $text;
+	    $text = ""; BuildMocSrc(Project("SOURCES_$module"));
+	    $t .= $text;
+	    $text = ""; BuildObj(Project("OBJECTS_$module"),Project("SOURCES_$module"));
+	    $t .= $text;
+	    $text = $t;
+	}
+    }
+#$}

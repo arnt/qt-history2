@@ -7,11 +7,17 @@
 **
 ** Copyright (C) 1992-2000 Troll Tech AS.  All rights reserved.
 **
-** This file is part of the Qt GUI Toolkit Professional Edition.
+** This file is part of the kernel module of the Qt GUI Toolkit.
 **
-** Licensees holding valid Qt Professional Edition licenses may use this
-** file in accordance with the Qt Professional Edition License Agreement
-** provided with the Qt Professional Edition.
+** This file may be distributed under the terms of the Q Public License
+** as defined by Troll Tech AS of Norway and appearing in the file
+** LICENSE.QPL included in the packaging of this file.
+**
+** Licensees holding valid Qt Enterprise Edition or Qt Professional Edition
+** licenses may use this file in accordance with the Qt Commercial License
+** Agreement provided with the Software.  This file is part of the kernel
+** module and therefore may only be used if the kernel module is specified
+** as Licensed on the Licensee's License Certificate.
 **
 ** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 ** information about the Professional Edition licensing.
@@ -81,14 +87,14 @@ private:
     QRegion exposed;
     int last_focus_time;
 };
-
+#ifndef QT_NO_QWS_KEYBOARD
 class QWSKeyboardHandler : public QObject {
     Q_OBJECT
 public:
     QWSKeyboardHandler();
     virtual ~QWSKeyboardHandler();
 };
-
+#endif
 #ifndef QT_NO_SOUND
 class QWSSoundServerData;
 
@@ -143,7 +149,7 @@ public:
 
 
     static const KeyMap *keyMap();
-    
+#ifndef QT_NO_QWS_KEYBOARD    
     class KeyboardFilter
     {
     public:
@@ -152,7 +158,9 @@ public:
     };
     
     static void setKeyboardFilter( KeyboardFilter *f );
-    
+#endif    
+    static void setDesktopRect(const QRect&);
+    static void sendDesktopRectEvents();
     static void sendMouseEvent(const QPoint& pos, int state);
     static QMouseHandler *mouseHandler();
     void sendPropertyNotifyEvent( int property, int state );
@@ -168,10 +176,10 @@ public:
 
     void openMouse();
     void closeMouse();
-    
+#ifndef QT_NO_QWS_KEYBOARD    
     void openKeyboard();
     void closeKeyboard();
-
+#endif
     void refresh();
     void enablePainting(bool);
 
@@ -220,8 +228,9 @@ private:
 #endif
 
     QMouseHandler* newMouseHandler(const QString& spec);
+#ifndef QT_NO_QWS_KEYBOARD    
     QWSKeyboardHandler* newKeyboardHandler(const QString& spec);
-
+#endif
     void openDisplay();
     void closeDisplay();
 
@@ -274,7 +283,9 @@ private:
     QRegion dirtyBackground;
     bool disablePainting;
     QList<QMouseHandler> mousehandlers;
+#ifndef QT_NO_QWS_KEYBOARD    
     QList<QWSKeyboardHandler> keyboardhandlers;
+#endif
     QImage bgImage;
 
     QList<QWSCommandStruct> commandQueue;
@@ -323,6 +334,7 @@ public:
 
     void sendEvent( QWSEvent* event );
     void sendConnectedEvent( const char *display_spec );
+    void sendDesktopRectEvent();
     void sendRegionModifyEvent( int winid, QRegion exposed, bool ack );
     void sendFocusEvent( int winid, bool get );
     void sendPropertyNotifyEvent( int property, int state );

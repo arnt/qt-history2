@@ -99,8 +99,8 @@ static const char * const normalize_xpm[] = {
 "                ",
 "                "};
 
-QWSMinimalDecorator::QWSMinimalDecorator()
-    : QWSDecorator()
+QWSMinimalDecoration::QWSMinimalDecoration()
+    : QWSDecoration()
 {
     closePixmap = new QPixmap((const char **)close_xpm);
     minimizePixmap = new QPixmap((const char **)minimize_xpm);
@@ -109,7 +109,7 @@ QWSMinimalDecorator::QWSMinimalDecorator()
 }
 
 
-QWSMinimalDecorator::~QWSMinimalDecorator()
+QWSMinimalDecoration::~QWSMinimalDecoration()
 {
     delete closePixmap;
     delete minimizePixmap;
@@ -118,24 +118,24 @@ QWSMinimalDecorator::~QWSMinimalDecorator()
 }
 
 
-QRegion QWSMinimalDecorator::region(const QWidget *w, const QRect &rect, QWSManager::Region type)
+QRegion QWSMinimalDecoration::region(const QWidget *w, const QRect &rect, Region type)
 {
     QRegion rgn;
 
     switch (type) {
-	case QWSManager::All: {
+	case All: {
 		rgn = QRect( rect.left() - BORDER_WIDTH,
 			    rect.top() - BORDER_WIDTH,
 			    rect.width() + 2 * BORDER_WIDTH,
 			    rect.height() + 2 * BORDER_WIDTH );
-		rgn += region(w, rect, QWSManager::Title);
-		rgn += region(w, rect, QWSManager::Close);
-		rgn += region(w, rect, QWSManager::BottomRight);
+		rgn += region(w, rect, Title);
+		rgn += region(w, rect, Close);
+		rgn += region(w, rect, BottomRight);
 		rgn -= rect;
 	    }
 	    break;
 
-	case QWSManager::Title: {
+	case Title: {
 		QFontMetrics fm( QApplication::font() );
 		int width = fm.width( w->caption() ) + 10;
 		if (width > rect.height() - TITLE_HEIGHT)
@@ -147,7 +147,7 @@ QRegion QWSMinimalDecorator::region(const QWidget *w, const QRect &rect, QWSMana
 	    }
 	    break;
 
-	case QWSManager::BottomRight: {
+	case BottomRight: {
 		QRect r1(rect.right() - CORNER_GRAB,
 			rect.bottom() + 1,
 			CORNER_GRAB + 2 * BORDER_WIDTH + 2,
@@ -161,16 +161,16 @@ QRegion QWSMinimalDecorator::region(const QWidget *w, const QRect &rect, QWSMana
 	    }
 	    break;
 
-	case QWSManager::Close: {
+	case Close: {
 		QRect r(rect.left() - TITLE_HEIGHT - BORDER_WIDTH,
 			rect.top() - BORDER_WIDTH, TITLE_HEIGHT, TITLE_HEIGHT);
 		rgn = r;
 	    }
 	    break;
 
-	case QWSManager::Menu:
-	case QWSManager::Maximize:
-	case QWSManager::Minimize:
+	case Menu:
+	case Maximize:
+	case Minimize:
 	    break;
 
 	default:
@@ -180,7 +180,7 @@ QRegion QWSMinimalDecorator::region(const QWidget *w, const QRect &rect, QWSMana
     return rgn;
 }
 
-void QWSMinimalDecorator::paint(QPainter *painter, const QWidget *widget)
+void QWSMinimalDecoration::paint(QPainter *painter, const QWidget *widget)
 {
     QStyle &style = QApplication::style();
     const QColorGroup &cg = QApplication::palette().active();
@@ -229,8 +229,8 @@ void QWSMinimalDecorator::paint(QPainter *painter, const QWidget *widget)
 
 }
 
-void QWSMinimalDecorator::paintButton(QPainter *painter, const QWidget *w,
-			QWSManager::Region type, int state)
+void QWSMinimalDecoration::paintButton(QPainter *painter, const QWidget *w,
+			Region type, int state)
 {
     QStyle &style = QApplication::style();
     const QColorGroup &cg = QApplication::palette().active();
@@ -239,18 +239,18 @@ void QWSMinimalDecorator::paintButton(QPainter *painter, const QWidget *w,
     const QPixmap *pm = 0;
 
     switch (type) {
-	case QWSManager::Menu:
+	case Menu:
 	    break;
-	case QWSManager::Close:
+	case Close:
 	    pm = closePixmap;
 	    break;
-	case QWSManager::Maximize:
+	case Maximize:
 	    if (state & QWSButton::On)
 		pm = normalizePixmap;
 	    else
 		pm = maximizePixmap;
 	    return;
-	case QWSManager::Minimize:
+	case Minimize:
 	    pm = minimizePixmap;
 	    return;
 	default:

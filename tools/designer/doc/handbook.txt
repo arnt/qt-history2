@@ -1,0 +1,96 @@
+The Qt Designer
+============
+
+Tools
+-----
+
+- Pointer Tool
+   * adding new widgets
+   * selecting widgets (including multi-selections and rubberband)
+   * moving/resizing widgets
+   * deleting widgets
+   * cut/copy/paste, also between different forms or even different
+      instances of the designer
+   * understanding widget containers, moving widgets out of and into
+      containers.
+
+- Tab Order Tool
+   * what is the tab-focus-chain
+   * focusPolicy-Property
+   * Defining the tab-order (complex case: tabwidget)
+
+- Connect Signals/Slots Tool
+   * what are signals and slots, references to Qt documentation
+   * creating signal/slot connections
+   * adding slots to the form (reference to usage, requires subclassing)
+   * Edit connections
+
+
+User Interface
+-----------
+- Property Editor
+    * Using the property editor
+    * Description of the most important properties for dialog design
+
+- Hierachy Viewer
+    * view, select, copy, paste and delete widgets
+
+- Form List
+    * name, filename, modification state
+
+- Preferences
+   * appearance, doc-path, etc.
+
+- Help system
+   * F1 shortcut to get help of current property/current widget
+   * Index-Search, Contents and Bookmarks
+
+Preview
+------
+- Preview your forms in various GUI styles
+
+Geometry Management
+-----------------
+
+Why?
+- i18n support (german labels tend to be much longer than english labels)
+- GUI-style independence (different style guides require different widget sizes)
+- customization (for example larger fonts for somebody with bad screen or bad eyes)
+- resizable dialogs (support for different screen sizes or resolutions)
+
+With the Qt Designer:
+- Because it's fast and easy to do once you understand the concept
+
+3 different layouters:
+- vertical boxes
+- horizontal boxes
+- grid layout (also  requires description of the 'magic' algorithm)
+
+Topics in the chapter:
+- two-phase design model: 1. design-phase, 2. layout-phase
+- Encourage usage of undo/redo for design iterations
+- how to apply layouts (i.e. either selections or layouts for all
+   children of a container like groupbox, form, or tabwidget page)
+- use of spacer items, fine-tuning spacers with the property editor
+- fine-tuning layout:
+   * layoutSpacing and layoutMargin properties
+   * changing the sizePolicy property of the laid out widgets
+- breaking layouts
+
+
+Usage
+-------
+
+- edit ui-files with the designer
+- put ui-files into your source repository, *never* add generated code there!
+- uic (user interface compiler):
+    * how to create declaration files
+    * how to create implementation files
+    * how to integrate uic in Makefiles
+    * using TMAKE (interfaces=foo.ui)
+- extending uic-generated dialogs by subclassing
+
+Extra
+------
+- Defining custom widgets
+- Using custom widgets

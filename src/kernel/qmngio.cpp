@@ -7,15 +7,17 @@
 **
 ** Copyright (C) 1992-1998 Troll Tech AS.  All rights reserved.
 **
-** This file is part of the Qt GUI Toolkit.
+** This file is part of the kernel module of the Qt GUI Toolkit.
 **
 ** This file may be distributed under the terms of the Q Public License
 ** as defined by Troll Tech AS of Norway and appearing in the file
 ** LICENSE.QPL included in the packaging of this file.
 **
-** Licensees holding valid Qt Professional Edition licenses may use this
-** file in accordance with the Qt Professional Edition License Agreement
-** provided with the Qt Professional Edition.
+** Licensees holding valid Qt Enterprise Edition or Qt Professional Edition
+** licenses may use this file in accordance with the Qt Commercial License
+** Agreement provided with the Software.  This file is part of the kernel
+** module and therefore may only be used if the kernel module is specified
+** as Licensed on the Licensee's License Certificate.
 **
 ** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 ** information about the Professional Edition licensing, or see
@@ -61,8 +63,7 @@ public:
     {
 	uint m = ndata + nbuffer - ubuffer;
 	if ( iBuflen > m ) {
-	    *pRead = 0;
-	    return FALSE;
+	    iBuflen = m;
 	}
 	*pRead = iBuflen;
 	uint n = nbuffer-ubuffer;
@@ -356,6 +357,7 @@ int QMNGFormat::decode(QImage& img, QImageConsumer* cons,
 
     if ( state == MovieStart ) {
         handle = mng_initialize( (mng_ptr)this, ::memalloc, ::memfree, 0 );
+	mng_set_suspensionmode( handle, MNG_TRUE );
 	mng_setcb_openstream( handle, ::openstream );
 	mng_setcb_closestream( handle, ::closestream );
 	mng_setcb_readdata( handle, ::readdata );
@@ -371,12 +373,8 @@ int QMNGFormat::decode(QImage& img, QImageConsumer* cons,
     }
 
     losttime += losingtimer.elapsed();
-    if ( state == Time ) {
-	state = Data;
+    if ( ndata || !length )
 	mng_display_resume(handle);
-    } else if ( state == Data ) {
-	mng_read_resume(handle);
-    }
     losingtimer.start();
 
     image = 0;

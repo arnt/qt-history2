@@ -7,15 +7,17 @@
 **
 ** Copyright (C) 1999-2000 Troll Tech AS.  All rights reserved.
 **
-** This file is part of the Qt GUI Toolkit.
+** This file is part of the dialogs module of the Qt GUI Toolkit.
 **
 ** This file may be distributed under the terms of the Q Public License
 ** as defined by Troll Tech AS of Norway and appearing in the file
 ** LICENSE.QPL included in the packaging of this file.
 **
-** Licensees holding valid Qt Professional Edition licenses may use this
-** file in accordance with the Qt Professional Edition License Agreement
-** provided with the Qt Professional Edition.
+** Licensees holding valid Qt Enterprise Edition or Qt Professional Edition
+** licenses may use this file in accordance with the Qt Commercial License
+** Agreement provided with the Software.  This file is part of the dialogs
+** module and therefore may only be used if the dialogs module is specified
+** as Licensed on the Licensee's License Certificate.
 **
 ** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 ** information about the Professional Edition licensing, or see
@@ -1245,7 +1247,7 @@ void QColorShower::setRgb( QRgb rgb )
 	return;
     curCol = rgb;
 
-    rgb2hsv(currentColor(), hue, sat, val );
+    rgb2hsv( currentColor(), hue, sat, val );
 
     hEd->setNum( hue );
     sEd->setNum( sat );
@@ -1258,7 +1260,7 @@ void QColorShower::setRgb( QRgb rgb )
     showCurrentColor();
 }
 
-void QColorShower::setHsv(  int h, int s, int v )
+void QColorShower::setHsv( int h, int s, int v )
 {
     rgbOriginal = FALSE;
     if ( h == hue && v == val && s == sat )
@@ -1451,7 +1453,7 @@ QColorDialogPrivate::QColorDialogPrivate( QColorDialog *dialog ) :
 
 void QColorDialogPrivate::addCustom()
 {
-    cusrgb[nextCust] =  cs->currentColor();
+    cusrgb[nextCust] = cs->currentColor();
     custom->repaint( FALSE ); //###
     nextCust = (nextCust+1) % 16;
 }
@@ -1460,12 +1462,12 @@ void QColorDialogPrivate::addCustom()
 // BEING REVISED: jo
 /*!
   \class QColorDialog qcolordialog.h
-  \brief The QColorDialog provides a dialog widget for specifying colors.
+  \brief The QColorDialog class provides a dialog widget for specifying colors.
   \ingroup dialogs
 
-  The color dialog's function is to allow users to choose colours -
+  The color dialog's function is to allow users to choose colors -
   for instance, you might use this in a drawing program to allow the
-  user to set the brush colour.
+  user to set the brush color.
 
   This version of Qt only provides modal color dialogs. The static
   getColor() function shows the dialog and allows the user to specify a color,

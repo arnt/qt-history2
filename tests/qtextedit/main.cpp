@@ -9,6 +9,9 @@
 #include <qpixmap.h>
 #include <qcolordialog.h>
 #include <qlineedit.h>
+#include <qtextstream.h>
+#include <qprinter.h>
+#include <qpaintdevicemetrics.h>
 
 //#define CPP_EDITOR
 
@@ -17,11 +20,68 @@
 #endif
 
 #include "qtextedit.h"
+#include "qsimplerichtext.h"
 
 #if defined(QTEXTEDIT_OPEN_API)
-#include "qtexteditintern_p.h"
 #include "qcppsyntaxhighlighter.h"
 #endif
+
+class SimpleText : public QWidget
+{
+public:
+    SimpleText() : QWidget() {
+	QFile f( "/home/reggie/troll/qt/doc/html/qcheckbox.html" );
+	f.open( IO_ReadOnly );
+	QTextStream ts( &f );
+	s = new QSimpleRichText( ts.read(), QApplication::font() ); }
+protected:
+    void paintEvent( QPaintEvent *e ) {
+	QPainter p( this );
+	s->setWidth( &p, width() );
+	s->draw( &p, 0, 0, e->region(), colorGroup() );
+    }
+
+    void mousePressEvent( QMouseEvent * ) {
+	QPrinter printer;
+	printer.setFullPage(TRUE);
+	if ( printer.setup() ) {
+	    QPainter p( &printer );
+	    QPaintDeviceMetrics metrics(p.device());
+	    int dpix = metrics.logicalDpiX();
+	    int dpiy = metrics.logicalDpiY();
+	    const int margin = 72; // pt
+	    QRect body(margin*dpix/72, margin*dpiy/72,
+		       metrics.width()-margin*dpix/72*2,
+		       metrics.height()-margin*dpiy/72*2 );
+	    QFont font("times", 10);
+	    QFile f( "/home/reggie/troll/qt/doc/html/qcheckbox.html" );
+	    f.open( IO_ReadOnly );
+	    QTextStream ts( &f );
+	    QSimpleRichText richText( ts.read(), QFont( "times", 10 ),
+				      "", QStyleSheet::defaultSheet(),
+				      QMimeSourceFactory::defaultFactory(), body.height() );
+	    richText.setWidth( &p, body.width() );
+	    QRect view( body );
+	    int page = 1;
+	    do {
+		richText.draw( &p, body.left(), body.top() - ( page > 1 ? margin*dpiy/72 : 0 ), view, colorGroup() );
+		view.moveBy( 0, body.height() );
+		p.translate( 0 , -body.height() );
+		p.setFont( font );
+		p.drawText( view.right() - p.fontMetrics().width( QString::number(page) ),
+			    view.bottom() + p.fontMetrics().ascent() + 5, QString::number(page) );
+		if ( view.top()  >= richText.height() )
+		    break;
+		printer.newPage();
+		page++;
+		richText.setWidth( &p, body.width() );
+	    } while (TRUE);
+	}
+    }
+
+    QSimpleRichText *s;
+
+};
 
 class MainWindow : public QMainWindow
 {
@@ -36,7 +96,12 @@ public:
 
 	styleCombo = new QComboBox( FALSE, tb );
 	styleCombo->insertItem( "Standard" );
-	styleCombo->insertItem( "Bullet List" );
+	styleCombo->insertItem( "Bullet List (Disc)" );
+	styleCombo->insertItem( "Bullet List (Circle)" );
+	styleCombo->insertItem( "Bullet List (Square)" );
+	styleCombo->insertItem( "Ordered List (Decimal)" );
+	styleCombo->insertItem( "Ordered List (Alpha lower)" );
+	styleCombo->insertItem( "Ordered List (Alpha upper)" );
 	connect( styleCombo, SIGNAL( activated( int ) ),
 		 this, SLOT( styleChanged( int ) ) );
 	
@@ -128,8 +193,6 @@ public:
 		 this, SLOT( colorChanged( const QColor & ) ) );
 	connect( edit, SIGNAL( currentAlignmentChanged( int ) ),
 		 this, SLOT( alignChanged( int ) ) );
-	connect( edit, SIGNAL( currentParagTypeChanged( QTextEdit::ParagType ) ),
-		 this, SLOT( paragTypeChanged( QTextEdit::ParagType ) ) );
     }
 
 private slots:
@@ -209,10 +272,20 @@ private slots:
 	if ( lock )
 	    return;
 	lock = TRUE;
-	if ( i == 0 )
-	    edit->setParagType( QTextEdit::Normal );
-	else if ( i == 1 )
-	    edit->setParagType( QTextEdit::BulletList );
+ 	if ( i == 0 )
+ 	    edit->setParagType( QStyleSheetItem::DisplayBlock, -1 );
+ 	else if ( i == 1 )
+ 	    edit->setParagType( QStyleSheetItem::DisplayListItem, QStyleSheetItem::ListDisc );
+ 	else if ( i == 2 )
+ 	    edit->setParagType( QStyleSheetItem::DisplayListItem, QStyleSheetItem::ListCircle );
+ 	else if ( i == 3 )
+ 	    edit->setParagType( QStyleSheetItem::DisplayListItem, QStyleSheetItem::ListSquare );
+ 	else if ( i == 4 )
+ 	    edit->setParagType( QStyleSheetItem::DisplayListItem, QStyleSheetItem::ListDecimal );
+ 	else if ( i == 5 )
+ 	    edit->setParagType( QStyleSheetItem::DisplayListItem, QStyleSheetItem::ListLowerAlpha );
+ 	else if ( i == 6 )
+ 	    edit->setParagType( QStyleSheetItem::DisplayListItem, QStyleSheetItem::ListUpperAlpha );
 	lock = FALSE;
 	edit->viewport()->setFocus();
     }
@@ -243,17 +316,6 @@ private slots:
 	left->setOn( a == Qt::AlignLeft );
 	center->setOn( a == Qt::AlignHCenter );
 	right->setOn( a == Qt::AlignRight );
-	lock = FALSE;
-    }
-
-    void paragTypeChanged( QTextEdit::ParagType t ) {
-	if ( lock )
-	    return;
-	lock = TRUE;
-	if ( t == QTextEdit::Normal )
-	    styleCombo->setCurrentItem( 0 );
-	else if ( t == QTextEdit::BulletList )
-	    styleCombo->setCurrentItem( 1 );
 	lock = FALSE;
     }
 
@@ -296,7 +358,7 @@ int main( int argc, char ** argv )
     ed.document()->setParenCheckingEnabled( TRUE );
     ed.document()->setCompletionEnabled( TRUE );
     mw.setCentralWidget( &ed );
-    ed.document()->setFormatter( new QTextEditFormatterBreakInWords( ed.document() ) );
+    ed.document()->setFormatter( new QTextFormatterBreakInWords( ed.document() ) );
     mw.setEdit( &ed );
 #endif
     ed.viewport()->setFocus();
@@ -304,6 +366,10 @@ int main( int argc, char ** argv )
     a.setMainWidget( &mw );
     mw.resize( 650, 700 );
     mw.show();
+
+    SimpleText t;
+    t.resize ( 100, 100 );
+    t.show();
 
     return a.exec();
 }

@@ -1,0 +1,300 @@
+<HTML
+><HEAD
+><TITLE
+>Custom Widgets</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.52"><LINK
+REL="HOME"
+HREF="book1.html"><LINK
+REL="UP"
+TITLE="Useful Techniques"
+HREF="c645.html"><LINK
+REL="PREVIOUS"
+TITLE="Accessing The Help System"
+HREF="x851.html"><LINK
+REL="NEXT"
+TITLE="Qt GUI Designer Reference Manual"
+HREF="p904.html"></HEAD
+><BODY
+CLASS="SECT1"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="x851.html"
+>Prev</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+>Chapter 5. Useful Techniques</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="p904.html"
+>Next</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="AEN869"
+>Custom Widgets</A
+></H1
+><P
+>So far, we have only used widgets that are a part of Qt
+&#8212; radio buttons, check boxes, push buttons, etc.  But in many
+projects, you will be using widgets that you have defined yourself
+&#8212; so-called custom widgets which should not be a surprise since
+Qt makes defining custom widgets very easy.</P
+><P
+>To make these custom widgets accessible for Qt GUI Designer,
+you need to write a <I
+CLASS="FIRSTTERM"
+>description</I
+> for it. Writing
+these descriptions is rather easy, Qt GUI Designer facilitates it by
+providing a special dialog to do this.</P
+><P
+>You reach this dialog by selecting
+<SPAN
+CLASS="GUIMENU"
+>Tools/Custom/Edit Custom Widgets</SPAN
+> from the menu
+bar. The dialog shown in <A
+HREF="x869.html#QT-DESIGNER-FIG-EDITCUSTOMWIDGETS"
+>Figure 5-4</A
+> opens. It
+consists of three parts: On the left, a list of all custom widgets
+that are currently known to Qt GUI Designer. If you open this dialog for
+the first time, this list will of course be empty. Right to this list,
+there are four action buttons for creating
+a new custom widget description, deleting an existing description,
+load a description file and save the current descriptions to a
+file.</P
+><DIV
+CLASS="FIGURE"
+><A
+NAME="QT-DESIGNER-FIG-EDITCUSTOMWIDGETS"
+></A
+><P
+><B
+>Figure 5-4. The Dialog for Describing Custom Widgets</B
+></P
+><P
+><IMG
+SRC="figures/editcustomwidgets.png"></P
+></DIV
+><P
+>Probably the most interesting part is in the right half
+of this dialog where all the properties of a custom widget can be
+defined on four tab pages: <SPAN
+CLASS="GUILABEL"
+>Definition</SPAN
+>,
+<SPAN
+CLASS="GUILABEL"
+>Signals</SPAN
+>, <SPAN
+CLASS="GUILABEL"
+>Slots</SPAN
+>, and
+<SPAN
+CLASS="GUILABEL"
+>Properties</SPAN
+>.</P
+><P
+>In most cases, your widget will already be finished when
+you write a Qt GUI Designer description for it. Thus all you need to do is
+mechanically go through all the fields, look for the information in
+(mostly) the header file of the widget and fill it in.</P
+><P
+>You start this process by clicking the <TT
+CLASS="LITERAL"
+>New
+Widget</TT
+> button. Qt GUI Designer will create an entry for a class
+called <TT
+CLASS="LITERAL"
+>MyCustomWidget</TT
+> that has default values. Now
+go to the definition tab page. The two pieces of data that you will
+want to change in each and every custom widget are of course the class
+name and the header file. You can assign a pixmap to this widget which
+will then be used in the menus and the toolbar where you can select
+your new custom widget. If your widget has a size hint and/or a size
+policy, you can set these on this tab page as well.<A
+NAME="AEN890"
+HREF="#FTN.AEN890"
+>[1]</A
+></P
+><P
+>On the tab page <SPAN
+CLASS="GUILABEL"
+>Signals</SPAN
+>, you enter
+all the signals that your widget has. This will make it possible later
+to connect these signals to slots in other widgets by means of the
+ordinary Qt GUI Designer technique. Just click on the <SPAN
+CLASS="GUILABEL"
+>New
+Signal</SPAN
+> button and change the default signal name
+<TT
+CLASS="LITERAL"
+>clicked()</TT
+> to the name of your signal. Add the
+parameter types in the parentheses.</P
+><P
+>The <SPAN
+CLASS="GUILABEL"
+>Slots</SPAN
+> tab page works the same,
+you can define all the slots here that your custom widget defines. In
+addition to the slot name and parameters, you also need to specify the
+access. Remember that all this is already determined in your class
+definition, you just need to copy this information from the header
+file.</P
+><P
+>Finally, you can set the properties on the last tab
+page. Again, just copy the information from your class
+declaration.</P
+><P
+>Once you are done entering the data for all your custom
+widgets, you can save them to a file by clicking the <SPAN
+CLASS="GUILABEL"
+>Save
+Descriptions</SPAN
+> button. If you want to access these
+definitions later, you can load them again via the <SPAN
+CLASS="GUILABEL"
+>Load
+Descriptions</SPAN
+> button. This makes it also possible to load
+custom widget definitions that others have provided. It is even
+thinkable that any third-party Qt widgets shipped in the future will
+be shipped with Qt GUI Designer description files. You can load as many
+description files as you like. But all description files that you have
+loaded once will be loaded again automatically next time. Also, if you
+open a form with custom widgets that are not yet loaded into the
+designer, they are loaded automatically as well.</P
+><P
+>When you have defined your custom widgets or loaded a
+description file, you can access the custom widgets from the toolbar
+or via the <SPAN
+CLASS="GUIMENU"
+>Tools/Custom</SPAN
+> submenu.</P
+></DIV
+><H3
+CLASS="FOOTNOTES"
+>Notes</H3
+><TABLE
+BORDER="0"
+CLASS="FOOTNOTES"
+WIDTH="100%"
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+WIDTH="5%"
+><A
+NAME="FTN.AEN890"
+HREF="x869.html#AEN890"
+>[1]</A
+></TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+WIDTH="95%"
+><P
+>If you are unsure what size hints and size policies
+are, please see the Qt reference documentation.</P
+></TD
+></TR
+></TABLE
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="x851.html"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="book1.html"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="p904.html"
+>Next</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>Accessing The Help System</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="c645.html"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>Qt GUI Designer Reference Manual</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

@@ -1,5 +1,5 @@
 #############################################################################
-# $Id: //depot/qt/main/examples/addressbook/Makefile#3 $
+# $Id: //depot/qt/main/examples/addressbook/Makefile#4 $
 #
 # Win32 Makefile, requires Microsoft nmake.
 #

@@ -1,5 +1,5 @@
 TEMPLATE	= app
-CONFIG		= qt release
+CONFIG		+= qt release
 HEADERS		=
 SOURCES		= editor.cpp
 LIBS		= -lqxt -lXaw -lXt

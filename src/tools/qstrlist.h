@@ -5,17 +5,19 @@
 **
 ** Created : 920730
 **
-** Copyright (C) 1992-2000 Troll Tech AS.  All rights reserved.
+** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
 **
-** This file is part of the Qt GUI Toolkit.
+** This file is part of the tools module of the Qt GUI Toolkit.
 **
 ** This file may be distributed under the terms of the Q Public License
-** as defined by Troll Tech AS of Norway and appearing in the file
+** as defined by Trolltech AS of Norway and appearing in the file
 ** LICENSE.QPL included in the packaging of this file.
 **
-** Licensees holding valid Qt Professional Edition licenses may use this
-** file in accordance with the Qt Professional Edition License Agreement
-** provided with the Qt Professional Edition.
+** Licensees holding valid Qt Enterprise Edition or Qt Professional Edition
+** licenses may use this file in accordance with the Qt Commercial License
+** Agreement provided with the Software.  This file is part of the tools
+** module and therefore may only be used if the tools module is specified
+** as Licensed on the Licensee's License Certificate.
 **
 ** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 ** information about the Professional Edition licensing, or see
@@ -51,14 +53,14 @@ public:
     QStrList& operator=( const QStrList & );
 
 private:
-    Item newItem( Item d ) { return dc ? qstrdup( (const char*)d ) : d; }
-    void deleteItem( Item d ) { if ( del_item ) delete[] (char*)d; }
-    int compareItems( Item s1, Item s2 ) { return qstrcmp((const char*)s1,
+    QCollection::Item newItem( QCollection::Item d ) { return dc ? qstrdup( (const char*)d ) : d; }
+    void deleteItem( QCollection::Item d ) { if ( del_item ) delete[] (char*)d; }
+    int compareItems( QCollection::Item s1, QCollection::Item s2 ) { return qstrcmp((const char*)s1,
 							 (const char*)s2); }
 #ifndef QT_NO_DATASTREAM
-    QDataStream &read( QDataStream &s, Item &d )
+    QDataStream &read( QDataStream &s, QCollection::Item &d )
 				{ s >> (char *&)d; return s; }
-    QDataStream &write( QDataStream &s, Item d ) const
+    QDataStream &write( QDataStream &s, QCollection::Item d ) const
 				{ return s << (const char *)d; }
 #endif
     bool  dc;
@@ -71,7 +73,7 @@ public:
     QStrIList( bool deepCopies=TRUE ) : QStrList( deepCopies ) {}
    ~QStrIList()			{ clear(); }
 private:
-    int	  compareItems( Item s1, Item s2 )
+    int	  compareItems( QCollection::Item s1, QCollection::Item s2 )
 				{ return qstricmp((const char*)s1,
 						    (const char*)s2); }
 };

@@ -7,15 +7,17 @@
 **
 ** Copyright (C) 1992-2000 Troll Tech AS.  All rights reserved.
 **
-** This file is part of the Qt GUI Toolkit.
+** This file is part of the widgets module of the Qt GUI Toolkit.
 **
 ** This file may be distributed under the terms of the Q Public License
 ** as defined by Troll Tech AS of Norway and appearing in the file
 ** LICENSE.QPL included in the packaging of this file.
 **
-** Licensees holding valid Qt Professional Edition licenses may use this
-** file in accordance with the Qt Professional Edition License Agreement
-** provided with the Qt Professional Edition.
+** Licensees holding valid Qt Enterprise Edition or Qt Professional Edition
+** licenses may use this file in accordance with the Qt Commercial License
+** Agreement provided with the Software.  This file is part of the widgets
+** module and therefore may only be used if the widgets module is specified
+** as Licensed on the Licensee's License Certificate.
 **
 ** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 ** information about the Professional Edition licensing, or see
@@ -166,23 +168,23 @@ struct QScrollViewData {
 		 viewport.height() ) {
 		// clipped_viewport still covers viewport
 		if( static_bg )
-		    clipped_viewport->repaint( clipped_viewport->visibleRect(), true );
+		    clipped_viewport->repaint( clipped_viewport->visibleRect(), TRUE );
 		else if ( ( !isScroll && !clipped_viewport->testWFlags( Qt::WNorthWestGravity) ) || static_bg )
-		    clipped_viewport->repaint( clipped_viewport->visibleRect(),
-			       !clipped_viewport->testWFlags(Qt::WResizeNoErase) );
-		} else {
-		    // Re-center
-		    int nx = ( viewport.width() - clipped_viewport->width() ) / 2;
-		    int ny = ( viewport.height() - clipped_viewport->height() ) / 2;
-		    // hide the clipped_viewport while we mess around
-		    // with it. To avoid having the focus jumping
-		    // around, we block it.
-		    clipped_viewport->blockFocus = TRUE;
-		    clipped_viewport->hide();
-		    clipped_viewport->move(nx,ny);
-		    clipped_viewport->blockFocus = FALSE;
-		    // no need to update, we'll receive a paintevent after show.
-		}
+		    QApplication::postEvent( clipped_viewport, new QPaintEvent( clipped_viewport->visibleRect(),
+										!clipped_viewport->testWFlags(Qt::WResizeNoErase) ) );
+	    } else {
+		// Re-center
+		int nx = ( viewport.width() - clipped_viewport->width() ) / 2;
+		int ny = ( viewport.height() - clipped_viewport->height() ) / 2;
+		// hide the clipped_viewport while we mess around
+		// with it. To avoid having the focus jumping
+		// around, we block it.
+		clipped_viewport->blockFocus = TRUE;
+		clipped_viewport->hide();
+		clipped_viewport->move(nx,ny);
+		clipped_viewport->blockFocus = FALSE;
+		// no need to update, we'll receive a paintevent after show.
+	    }
 	    for (QSVChildRec *r = children.first(); r; r=children.next()) {
 		r->hideOrShow(sv, clipped_viewport);
 	    }
@@ -202,7 +204,7 @@ struct QScrollViewData {
 		r->child->move(r->child->x()+dx,r->child->y()+dy);
 	    }
 	    if ( static_bg )
-		viewport.repaint( viewport.visibleRect(), true );
+		viewport.repaint( viewport.visibleRect(), TRUE );
 	}
     }
     void deleteAll()
@@ -455,7 +457,7 @@ flag explicitly.
 
   <li> \c Default - QScrollView selects one of the other settings
   automatically when it has to.  At the time of writing, QScrollView
-  changs to \c Manual if you resize the contents with
+  changes to \c Manual if you resize the contents with
   resizeContents(), and to \c AutoOne if a child is added.
 
   <li> \c Manual - the view stays the size set by resizeContents().

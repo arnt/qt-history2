@@ -2629,7 +2629,7 @@ We have made some changes in the GameBoard constructor.
 \line cannonField
 
 \c cannonField is now a member variable, so we carefully change the
-constructor to use it.  (The \e good programmers at Troll Tech never
+constructor to use it.  (The \e good programmers at Trolltech never
 forget this, but I do.  Caveat programmor.  If "programmor" is latin,
 at least.  Anyway, back to the code.)
 

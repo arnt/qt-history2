@@ -1,11 +1,12 @@
-                Qt PROFESSIONAL EDITION LICENSE AGREEMENT
+                        Qt COMMERCIAL LICENSE AGREEMENT
+                   FOR PROFESSIONAL AND ENTERPRISE EDITIONS
 
 Copyright (C) 1999-2000 Troll Tech AS.  All rights reserved.
 
 This non-exclusive non-transferable License Agreement is between you
-("Licensee") and Troll Tech AS, and pertains to the Qt GUI Toolkit
-("Software"), including the source code, example programs and the
-documentation.
+("Licensee") and Troll Tech AS, and pertains to all files in the
+Qt GUI Toolkit ("Software"), including the source code, example programs
+and the documentation.
 
 
                         COPYRIGHT AND RESTRICTIONS
@@ -24,24 +25,30 @@ Software. The Licensee may not disclose any source code or any concepts
 and methods therein for any purpose other than as specifically provided
 in this Agreement.
 
-3. The Licensee may freely use the Software on the platform(s) specified
-in the license certificate, to develop any kind of product, except
-products which would compete with the Software. A product that satisfies
-this section will herein be referred to as the Product.
+3. Some groups of files in the Software are designated as Modules. These
+files contain specific notices defining the Module of which they are a
+part. The Licensed Modules are those Modules of the Software specified
+in the license certificate. The files of the Software which are not part
+of any Module will herein be referred to as the Base Software.
 
-4. The Licensee may distribute, without restrictions, and without paying
+4. The Licensee may use the Base Software and the Licensed Modules on the
+platform(s) specified in the license certificate, to develop any kind of
+product, except products which would compete with the Software. A product
+that satisfies this section will herein be referred to as the Product.
+
+5. The Licensee may distribute, without restrictions, and without paying
 royalties or run-time fees, the Product in any form, including
 executables statically or dynamically linked with the Software. This
 does not grant the Licensee the right to disclose any source code of
 the Software.
 
-5. The Licensee may also distribute, together with the Product, the
+6. The Licensee may also distribute, together with the Product, the
 Software in the form of a shared/dynamic link library, provided that the
 recipient is allowed to use such library for runtime linking with the
 Product only.
 
-6. The Licensee may modify the Software. The modified Software is
-governed by this License Agreement as Software.
+7. The Licensee may modify the Base Software and the Licensed Modules.
+The modified result is governed by this License Agreement as Software.
 
 
                          LIMITATION OF LIABILITY

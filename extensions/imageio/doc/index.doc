@@ -26,7 +26,7 @@ and JPEG is available if the installer of Qt enabled it. Hence, the
 ImageIO extension is no longer required.
 
 <p>
-When installing Qt, add "-system-jpeg" when you run "configure'. Notes that
+When installing Qt, add "-system-jpeg" when you run "configure". Notes that
 this requires that you have JpegLib 6.0 or better installed on your system
 It is also tested with <tt>libjpeg.so.6.0.1</tt>.
 See <a href="ftp://ftp.uu.net/graphics/jpeg/">ftp.uu.net</a> for the official sources.

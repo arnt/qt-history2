@@ -11,12 +11,17 @@ SYSCONF_CXXFLAGS_OPENGL	= #$ ExpandGlue('TMAKE_INCDIR_OPENGL', '-I', ' -I', '');
 SYSCONF_CXXFLAGS_YACC     = #$ Expand('TMAKE_CXXFLAGS_YACC');
 
 # Linking with support libraries
+SYSCONF_RPATH_X11	= #$ ExpandGlue('TMAKE_LIBDIR_X11', Project("TMAKE_RPATH"), ' '.Project("TMAKE_RPATH"), '') if Project("TMAKE_RPATH");
+SYSCONF_RPATH_QT	= #$ ExpandGlue('TMAKE_LIBDIR_QT', Project("TMAKE_RPATH"), ' '.Project("TMAKE_RPATH"), '') if Project("TMAKE_RPATH");
+SYSCONF_RPATH_OPENGL	= #$ ExpandGlue('TMAKE_LIBDIR_OPENGL', Project("TMAKE_RPATH"), ' '.Project("TMAKE_RPATH"), '') if Project("TMAKE_RPATH");
+
+# Linking with support libraries
 # X11
 SYSCONF_LFLAGS_X11	= #$ ExpandGlue('TMAKE_LIBDIR_X11', '-L', ' -L', '');
 SYSCONF_LIBS_X11	= #$ Expand('TMAKE_LIBS_X11');
 # Qt, Qt+OpenGL
 SYSCONF_LFLAGS_QT	= #$ ExpandGlue('TMAKE_LIBDIR_QT', '-L', ' -L', '');
-SYSCONF_LIBS_QT		= #$ Expand('TMAKE_LIBS_QT');
+SYSCONF_LIBS_QT		= #$ Expand('TMAKE_LIBS_QT'); $text .= '$(QT_THREAD_SUFFIX)';
 SYSCONF_LIBS_QT_OPENGL	= #$ Expand('TMAKE_LIBS_QT_OPENGL');
 # OpenGL
 SYSCONF_LFLAGS_OPENGL	= #$ ExpandGlue('TMAKE_LIBDIR_OPENGL', '-L', ' -L', '');
@@ -32,8 +37,24 @@ SYSCONF_LIBS		= #$ Expand('TMAKE_LIBS');
 # Link flags for shared objects
 SYSCONF_LFLAGS_SHOBJ	= #$ Expand('TMAKE_LFLAGS_SHLIB');
 
+# Flags for threading
+SYSCONF_CFLAGS_THREAD	= #$ Expand('TMAKE_CFLAGS_THREAD');
+SYSCONF_CXXFLAGS_THREAD	= #$ Expand('TMAKE_CXXFLAGS_THREAD');
+SYSCONF_LFLAGS_THREAD	= #$ Expand('TMAKE_LFLAGS_THREAD');
+#${
+    if ( defined $project{'TMAKE_LIBS_THREAD'} ) {
+	$text = "SYSCONF_LIBS_THREAD	= ";
+	Expand('TMAKE_LIBS_THREAD');
+    } else {
+	$text = "# SYSCONF_LIBS_THREAD	= ???";
+    }
+#$}
+
 # Meta-object compiler
 SYSCONF_MOC		= $(QTDIR)/bin/moc
+
+# UI compiler
+SYSCONF_UIC		= $(QTDIR)/bin/uic
 
 # Linking shared libraries
 #   - Build the $(TARGET) library, eg. lib$(TARGET).so.2.0.1

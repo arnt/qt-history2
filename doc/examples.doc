@@ -55,11 +55,36 @@ static char ident[] = "$Id: examples.doc,v 2.29 1999/07/07 09:57:05 reggie Exp $
 
 */
 
+/*! \example action/main.cpp
+
+  <h1 align=center>A Complete Application Window with Actions</h1><br clear="all">
+
+  This example program is just like the application example, 
+  QAction to build the menu and the toolbar.
+
+  <hr>
+
+  Header file:
+
+  \include application/application.h
+
+  <hr>
+
+  Implementation:
+
+  \include application/application.cpp
+
+  <hr>
+
+  Main:
+
+*/
+
 /*! \example mdi/main.cpp
 
   <h1 align=center>A MDI Application</h1><br clear="all">
 
-  This example program is just like the application example, but designed as 
+  This example program is just like the application example, but designed as
   Multiple Document Interface (MDI).
 
   <hr>
@@ -432,7 +457,7 @@ static char ident[] = "$Id: examples.doc,v 2.29 1999/07/07 09:57:05 reggie Exp $
 
   <h1 align=center>Listviews</h1><br clear="all">
 
-  This examples shows how to work with Listviews (hirarchical and multi-columns).
+  This examples shows how to work with Listviews (hierarchical and multi-column).
   It also shows how to subclass Listview Items for special reasons. It looks
   and works like the mainwindow of a mail client.
 
@@ -687,35 +712,6 @@ static char ident[] = "$Id: examples.doc,v 2.29 1999/07/07 09:57:05 reggie Exp $
   Implementation:
 
   \include tabdialog/tabdialog.cpp
-
-  <hr>
-
-  Main:
-
-*/
-
-/*! \example table/main.cpp
-
-  <h1 align=center>Table</h1><br clear="all">
-
-  The table program displays a spreadsheet-like table. It is an example of
-  how to inherit the QScrollView widget for presentations of 2D data arrays.
-
-  Left-click the mouse to set a current cell. Press the arrow buttons to
-  move the current mark around. Type something to edit a cell's
-  contents.
-
-  <hr>
-
-  Header file:
-
-  \include table/table.h
-
-  <hr>
-
-  Implementation:
-
-  \include table/table.cpp
 
   <hr>
 
@@ -1031,7 +1027,7 @@ static char ident[] = "$Id: examples.doc,v 2.29 1999/07/07 09:57:05 reggie Exp $
 
   <h1 align=center>Simple HTML Help Browser</h1><br clear="all">
 
-  The HelpViewer example implements a simple HTML help browser using 
+  The HelpViewer example implements a simple HTML help browser using
   Qt's richtext capabilities.
 
   <hr>

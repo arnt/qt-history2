@@ -126,7 +126,7 @@
 
   In addition you can search items in the list with the find() function. It exists in a const
   and a non const version. It starts searching from the beginning of the list, but another
-  flavour of the find() function allows you to specify where searching should start.
+  flavor of the find() function allows you to specify where searching should start.
   If you just want to know wether a certain item is at least once in the list, then you
   can use the contains() function.
 

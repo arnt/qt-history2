@@ -5,15 +5,15 @@ class QPixmap;
 class QWidget;
 class QRegion;
 
-class QWSMinimalDecorator : public QWSDecorator
+class QWSMinimalDecoration : public QWSDecoration
 {
 public:
-    QWSMinimalDecorator();
-    virtual ~QWSMinimalDecorator();
+    QWSMinimalDecoration();
+    virtual ~QWSMinimalDecoration();
     
-    virtual QRegion region(const QWidget *, const QRect &, QWSManager::Region);
+    virtual QRegion region(const QWidget *, const QRect &, Region);
     virtual void paint(QPainter *, const QWidget *);
-    virtual void paintButton(QPainter *, const QWidget *, QWSManager::Region, int state);
+    virtual void paintButton(QPainter *, const QWidget *, Region, int state);
 
 protected:
     QPixmap *closePixmap;

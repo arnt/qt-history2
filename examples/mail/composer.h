@@ -11,26 +11,32 @@
 #ifndef COMPOSER_H
 #define COMPOSER_H
 
-#include <qvbox.h>
+#include <qwidget.h>
+
 
 class QLineEdit;
 class QMultiLineEdit;
+class QLabel;
+class QPushButton;
 
-class Composer : public QVBox
+
+class Composer : public QWidget
 {
     Q_OBJECT
-    
+
 public:
     Composer( QWidget *parent = 0 );
 
 private slots:
     void sendMessage();
-    void enableAll();
-    
+    void enableSend();
+
 private:
-    QLineEdit *from, *to, *cc, *bcc, *server, *port, *subject;
+    QLineEdit *from, *to, *subject;
     QMultiLineEdit *message;
-    
+    QLabel * sendStatus;
+    QPushButton * send;
 };
+
 
 #endif

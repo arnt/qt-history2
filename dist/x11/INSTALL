@@ -8,8 +8,8 @@ where you choose to install Qt.
 1.  Unpack the archive if you have not done so already:
 
 	cd /usr/local
-	gunzip qt-%VERSION%.tar.gz	# uncompress the archive
-	tar xf qt-%VERSION%.tar	# unpack it
+	gunzip qt-x11-%VERSION%.tar.gz	# uncompress the archive
+	tar xf qt-x11-%VERSION%.tar	# unpack it
 
     This creates the directory /usr/local/qt-%VERSION% containing the
     files from the main archive.
@@ -25,15 +25,10 @@ where you choose to install Qt.
     depending on your shell) in your home directory. (Create the
     file if it is not there already.)
 
-	QTDIR			- wherever you installed Qt
-	PATH			- to locate the moc program
-	MANPATH 		- to access the Qt man pages
-	LD_LIBRARY_PATH		- for the shared Qt library
-
-    If you're using GNU g++, you may also want to set these:
-
-	LIBRARY_PATH		- contains library file path
-	CPLUS_INCLUDE_PATH	- contains C++ include file path
+	QTDIR		   - wherever you installed Qt
+	PATH		   - to locate the moc program and other Qt tools
+	MANPATH 	   - to access the Qt man pages
+	LD_LIBRARY_PATH	   - for the shared Qt library
 
     This is done like this:
 
@@ -42,69 +37,33 @@ where you choose to install Qt.
 
 	QTDIR=/usr/local/qt
 	PATH=$QTDIR/bin:$PATH
-	if [ $MANPATH ]
-	then
-		MANPATH=$QTDIR/man:$MANPATH
-	else
-		MANPATH=$QTDIR/man:
-	fi
-	if [ $LD_LIBRARY_PATH ]
-	then
-		LD_LIBRARY_PATH=$QTDIR/lib:$LD_LIBRARY_PATH
-	else
-		LD_LIBRARY_PATH=$QTDIR/lib
-	fi
-	LIBRARY_PATH=$LD_LIBRARY_PATH
-	if [ $CPLUS_INCLUDE_PATH ]
-	then
-		CPLUS_INCLUDE_PATH=$QTDIR/include:$CPLUS_INCLUDE_PATH
-	else
-		CPLUS_INCLUDE_PATH=$QTDIR/include
-	fi
+	MANPATH=$QTDIR/man:$MANPATH
+	LD_LIBRARY_PATH=$QTDIR/lib:$LD_LIBRARY_PATH
 
-	export QTDIR PATH MANPATH LD_LIBRARY_PATH LIBRARY_PATH
-	export CPLUS_INCLUDE_PATH
+	export QTDIR PATH MANPATH LD_LIBRARY_PATH
 
     In .login (in case your shell is csh or tcsh), add the following lines:
 
-	if ( ! $?QTDIR ) then
-	    setenv QTDIR /usr/local/qt
-	endif
-	if ( $?PATH ) then
-	    setenv PATH $QTDIR/bin:$PATH
-	else
-	    setenv PATH $QTDIR/bin
-	endif
-	if ( $?MANPATH ) then
-	    setenv MANPATH $QTDIR/man:$MANPATH
-	else
-	    setenv MANPATH $QTDIR/man:
-	endif
-	if ( $?LD_LIBRARY_PATH ) then
-	    setenv LD_LIBRARY_PATH $QTDIR/lib:$LD_LIBRARY_PATH
-	else
-	    setenv LD_LIBRARY_PATH $QTDIR/lib
-	endif
-	if ( ! $?LIBRARY_PATH ) then
-	    setenv LIBRARY_PATH $LD_LIBRARY_PATH
-	endif
-	if ( $?CPLUS_INCLUDE_PATH ) then
-	    setenv CPLUS_INCLUDE_PATH $QTDIR/include:$CPLUS_INCLUDE_PATH
-	else
-	    setenv CPLUS_INCLUDE_PATH $QTDIR/include
-	endif
+	setenv QTDIR /usr/local/qt
+	setenv PATH $QTDIR/bin:$PATH
+	setenv MANPATH $QTDIR/man:$MANPATH
+	setenv LD_LIBRARY_PATH $QTDIR/lib:$LD_LIBRARY_PATH
 
-	
     After you have done this, you will need to login again, or
     re-source the profile before continuing, so that at least $QTDIR
     is set.  The installation will give an error message and not
     proceed otherwise.
 
 
-3.  Compile the Qt library, the example programs and the tutorial.
+3.  Install your license file.  For the free edition, you do not need
+    a license file.  For Professional and Enterprise editions, install
+    your license file as described in your distribution.
 
-    The qt directory contains a Makefile which compiles everything
-    (including the examples and the tutorial) for all platforms.
+
+4.  Building.
+
+    This step compiles the Qt library, and builds the example programs,
+    the tutorial, and the tools (eg. the Designer).
 
     Type:
 
@@ -119,23 +78,23 @@ where you choose to install Qt.
 
 	make
 
-    If your platform or compiler is not supported, read PORTING.  If it
-    is supported but you have problems, see http://www.trolltech.com/platforms/
+    If your platform or compiler is not supported, read PORTING.  If it is
+    supported but you have problems, see http://www.trolltech.com/platforms/
 
 
-4.  In very few cases you may need to run /sbin/ldconfig or something
+5.  In very few cases you may need to run /sbin/ldconfig or something
     similar at this point if you are using shared libraries.
 
     If you have problems running the example programs, e.g. messages like
 
-	 can't load library 'libqt.so.1'
+	 can't load library 'libqt.so.2'
 
     you probably need to put a reference to the qt library in a
     configuration file and run /sbin/ldconfig as root on your system.
     And don't forget to set LD_LIBRARY_PATH as explained in 2) above.
 
 
-5.  The online HTML documentation is installed in /usr/local/qt/doc/html/
+6.  The online HTML documentation is installed in /usr/local/qt/doc/html/
     The main page is /usr/local/qt/doc/html/index.html
     The man pages are installed in /usr/local/qt/doc/man/
 

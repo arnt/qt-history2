@@ -7,15 +7,17 @@
 **
 ** Copyright (C) 1992-2000 Troll Tech AS.  All rights reserved.
 **
-** This file is part of the Qt GUI Toolkit.
+** This file is part of the kernel module of the Qt GUI Toolkit.
 **
 ** This file may be distributed under the terms of the Q Public License
 ** as defined by Troll Tech AS of Norway and appearing in the file
 ** LICENSE.QPL included in the packaging of this file.
 **
-** Licensees holding valid Qt Professional Edition licenses may use this
-** file in accordance with the Qt Professional Edition License Agreement
-** provided with the Qt Professional Edition.
+** Licensees holding valid Qt Enterprise Edition or Qt Professional Edition
+** licenses may use this file in accordance with the Qt Commercial License
+** Agreement provided with the Software.  This file is part of the kernel
+** module and therefore may only be used if the kernel module is specified
+** as Licensed on the Licensee's License Certificate.
 **
 ** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 ** information about the Professional Edition licensing, or see
@@ -32,6 +34,9 @@
 #include <X11/cursorfont.h>
 
 // NOT REVISED
+
+// Define QT_USE_APPROXIMATE_CURSORS when compiling if you REALLY want to
+// use the ugly X11 cursors.
 
 /*****************************************************************************
   Internal QCursorData class
@@ -115,6 +120,9 @@ static bool initialized = FALSE;
 */
 void QCursor::cleanup()
 {
+    if ( !initialized )
+	return;
+    
     int shape;
     for( shape = 0; shape < cursors; shape++ ) {
 	delete cursorTable[shape].data;
@@ -272,7 +280,7 @@ QCursor &QCursor::operator=( const QCursor &c )
 
 /*!
   Returns the cursor shape identifer. The return value is one of
-  following values (casted to an int)
+  following values (cast to an int)
 
   <ul>
   <li> \c ArrowCursor - standard arrow cursor
@@ -458,8 +466,23 @@ void QCursor::update() const
     if ( d->hcurs )				// already loaded
 	return;
 
+    Display *dpy = qt_xdisplay();
+    Window rootwin = qt_xrootwin();
+
+    if ( d->cshape == BitmapCursor ) {
+	d->hcurs = XCreatePixmapCursor( dpy, d->bm->handle(), d->bmm->handle(),
+					&d->fg, &d->bg, d->hx, d->hy );
+	return;
+    }
+
+    static uchar cur_blank_bits[] = {
+	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
+
   // Non-standard X11 cursors are created from bitmaps
 
+#ifndef QT_USE_APPROXIMATE_CURSORS
     static uchar cur_ver_bits[] = {
 	0x00, 0x00, 0x00, 0x00, 0x80, 0x01, 0xc0, 0x03, 0xe0, 0x07, 0xf0, 0x0f,
 	0x80, 0x01, 0x80, 0x01, 0x80, 0x01, 0x80, 0x01, 0x80, 0x01, 0xf0, 0x0f,
@@ -492,11 +515,6 @@ void QCursor::update() const
 	0x00, 0x00, 0x00, 0x00, 0xfc, 0x07, 0xfc, 0x03, 0xfc, 0x01, 0xfc, 0x00,
 	0xfc, 0x41, 0xfc, 0x63, 0xdc, 0x77, 0x8c, 0x7f, 0x04, 0x7f, 0x00, 0x7e,
 	0x00, 0x7f, 0x80, 0x7f, 0xc0, 0x7f, 0x00, 0x00 };
-    static uchar cur_blank_bits[] = {
-	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
-
     static uchar *cursor_bits16[] = {
 	cur_ver_bits, mcur_ver_bits, cur_hor_bits, mcur_hor_bits,
 	cur_bdiag_bits, mcur_bdiag_bits, cur_fdiag_bits, mcur_fdiag_bits,
@@ -596,12 +614,6 @@ void QCursor::update() const
 	    forbidden_bits, forbiddenm_bits
     };
 
-    Display *dpy = qt_xdisplay();
-    if ( d->cshape == BitmapCursor ) {
-	d->hcurs = XCreatePixmapCursor( dpy, d->bm->handle(), d->bmm->handle(),
-					&d->fg, &d->bg, d->hx, d->hy );
-	return;
-    }
     if ( d->cshape >= SizeVerCursor && d->cshape < SizeAllCursor ||
 	 d->cshape == BlankCursor ) {
 	XColor bg, fg;				// ignore stupid CFront message
@@ -612,7 +624,6 @@ void QCursor::update() const
 	fg.green = 0;
 	fg.blue  = 0;
 	int i = (d->cshape - SizeVerCursor)*2;
-	Window rootwin = qt_xrootwin();
 	d->pm  = XCreateBitmapFromData( dpy, rootwin, (char *)cursor_bits16[i],
 					16, 16 );
 	d->pmm = XCreateBitmapFromData( dpy, rootwin, (char *)cursor_bits16[i+1],
@@ -629,7 +640,6 @@ void QCursor::update() const
 	fg.green = 0;
 	fg.blue  = 0;
 	int i = (d->cshape - SplitVCursor)*2;
-	Window rootwin = qt_xrootwin();
 	d->pm  = XCreateBitmapFromData( dpy, rootwin, (char *)cursor_bits32[i],
 					32, 32 );
 	d->pmm = XCreateBitmapFromData( dpy, rootwin, (char *)cursor_bits32[i+1],
@@ -647,7 +657,6 @@ void QCursor::update() const
 	fg.green = 0;
 	fg.blue  = 0;
 	int i = (d->cshape - ForbiddenCursor)*2;
-	Window rootwin = qt_xrootwin();
 	d->pm  = XCreateBitmapFromData( dpy, rootwin, (char *)cursor_bits20[i],
 					20, 20 );
 	d->pmm = XCreateBitmapFromData( dpy, rootwin, (char *)cursor_bits20[i+1],
@@ -655,6 +664,8 @@ void QCursor::update() const
 	d->hcurs = XCreatePixmapCursor( dpy, d->pm, d->pmm, &fg, &bg, 10, 10 );
 	return;
     }
+#endif /* ! QT_USE_APPROXIMATE_CURSORS */
+
     uint sh;
     switch ( d->cshape ) {			// map Q cursor to X cursor
 	case ArrowCursor:
@@ -675,6 +686,48 @@ void QCursor::update() const
 	case SizeAllCursor:
 	    sh = XC_fleur;
 	    break;
+#ifdef QT_USE_APPROXIMATE_CURSORS
+	case SizeVerCursor:
+	    sh = XC_top_side;
+	    break;
+	case SizeHorCursor:
+	    sh = XC_right_side;
+	    break;
+	case SizeBDiagCursor:
+	    sh = XC_top_right_corner;
+	    break;
+	case SizeFDiagCursor:
+	    sh = XC_bottom_right_corner;
+	    break;
+	case BlankCursor:
+	    XColor bg, fg;                          // ignore stupid CFront message
+	    bg.red   = 255 << 8;
+	    bg.green = 255 << 8;
+	    bg.blue  = 255 << 8;
+	    fg.red   = 0;
+	    fg.green = 0;
+	    fg.blue  = 0;
+	    d->pm  = XCreateBitmapFromData( dpy, rootwin,
+		(char *)cur_blank_bits, 16, 16 );
+	    d->pmm = XCreateBitmapFromData( dpy, rootwin,
+		(char *)cur_blank_bits, 16,16);
+	    d->hcurs = XCreatePixmapCursor( dpy, d->pm, d->pmm, &fg,
+		&bg, 8, 8 );
+	    return;
+	    break;
+	case SplitVCursor:
+	    sh = XC_sb_h_double_arrow;
+	    break;
+	case SplitHCursor:
+	    sh = XC_sb_v_double_arrow;
+	    break;
+	case PointingHandCursor:
+	    sh = XC_hand1;
+	    break;
+	case ForbiddenCursor:
+	    sh = XC_circle;
+	    break;
+#endif /* QT_USE_APPROXIMATE_CURSORS */
 	default:
 #if defined(CHECK_RANGE)
 	    qWarning( "QCursor::update: Invalid cursor shape %d", d->cshape );

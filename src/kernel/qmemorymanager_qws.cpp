@@ -183,34 +183,7 @@ public:
 	    return 0;
 	}
     }
-    void compress()
-    {
-	// XXX Does not compress as much as is possible
-
-	if ( less ) {
-	    less->compress();
-	    if (less->max.unicode() == min.unicode()-1) {
-		// contiguous with me.
-		QGlyph *newglyph = concatGlyphs(less,this,min,max);
-		QGlyphTree* t = less->less; less->less = 0;
-		delete less; less = t;
-		delete [] glyph;
-		glyph = newglyph;
-	    }
-	}
-
-	if ( more ) {
-	    more->compress();
-	    if (more->min.unicode() == max.unicode()+1) {
-		// contiguous with me.
-		QGlyph *newglyph = concatGlyphs(this,more,min,max);
-		QGlyphTree* t = more->more; more->more = 0;
-		delete more; more = t;
-		delete [] glyph;
-		glyph = newglyph;
-	    }
-	}
-    }
+    void compress();
 
     void write(QIODevice& f)
     {
@@ -409,6 +382,34 @@ private:
     }
 };
 
+void QGlyphTree::compress()
+{
+    // XXX Does not compress as much as is possible
+
+    if ( less ) {
+	less->compress();
+	if (less->max.unicode() == min.unicode()-1) {
+	    // contiguous with me.
+	    QGlyph *newglyph = concatGlyphs(less,this,min,max);
+	    QGlyphTree* t = less->less; less->less = 0;
+	    delete less; less = t;
+	    delete [] glyph;
+	    glyph = newglyph;
+	}
+    }
+
+    if ( more ) {
+	more->compress();
+	if (more->min.unicode() == max.unicode()+1) {
+	    // contiguous with me.
+	    QGlyph *newglyph = concatGlyphs(this,more,min,max);
+	    QGlyphTree* t = more->more; more->more = 0;
+	    delete more; more = t;
+	    delete [] glyph;
+	    glyph = newglyph;
+	}
+    }
+}
 
 class QMemoryManagerFont {
     QGlyph* default_glyph;
@@ -699,7 +700,7 @@ void QMemoryManager::savePrerenderedFont(FontID id, bool all)
 	    mmf->tree = new QGlyphTree(32,32,mmf->renderer); // 32 = " " - likely to be in the font
 	if ( all ) {
 	    int j=0;
-	    qDebug("Rendering %s",fontFilename(mmf->def).ascii());
+	    //qDebug("Rendering %s",fontFilename(mmf->def).ascii());
 	    for (int i=0; i<=mmf->renderer->maxchar; i++) {
 		QChar ch((ushort)i);
 		if (

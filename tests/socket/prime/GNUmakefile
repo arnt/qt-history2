@@ -1,5 +1,5 @@
 #############################################################################
-# $Id: //depot/qt/main/tests/socket/prime/GNUmakefile#1 $
+# $Id: //depot/qt/main/tests/socket/prime/GNUmakefile#2 $
 #
 # Unix Makefile, requires GNU make (gmake).
 #

@@ -25,7 +25,7 @@
 
 \title Year 2000 Compliance Statement
 
-Troll Tech defines <i>Year 2000 Compliance</i> as a requirement that a
+Trolltech defines <i>Year 2000 Compliance</i> as a requirement that a
 product or part of product does not contain errors related to
 transition from December 31, 1999 to January 1, 2000, or to the
 existence of February 29, 2000.
@@ -67,7 +67,7 @@ time warps) in the underlying operating system.
 
 <h2 align="center">Use of System APIs</h2>
 
-It is of course impossible for Troll Tech to ensure that both of the
+It is of course impossible for Trolltech to ensure that both of the
 window systems and all of the operating systems on which Qt runs are
 Year 2000 Compliant.  However, Qt does not use any APIs that are known
 to have any Year 2000-related bugs, or seem at risk to have any.  */

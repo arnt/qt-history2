@@ -5,17 +5,19 @@
 **
 ** Created : 920722
 **
-** Copyright (C) 1992-2000 Troll Tech AS.  All rights reserved.
+** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
 **
-** This file is part of the Qt GUI Toolkit.
+** This file is part of the tools module of the Qt GUI Toolkit.
 **
 ** This file may be distributed under the terms of the Q Public License
-** as defined by Troll Tech AS of Norway and appearing in the file
+** as defined by Trolltech AS of Norway and appearing in the file
 ** LICENSE.QPL included in the packaging of this file.
 **
-** Licensees holding valid Qt Professional Edition licenses may use this
-** file in accordance with the Qt Professional Edition License Agreement
-** provided with the Qt Professional Edition.
+** Licensees holding valid Qt Enterprise Edition or Qt Professional Edition
+** licenses may use this file in accordance with the Qt Commercial License
+** Agreement provided with the Software.  This file is part of the tools
+** module and therefore may only be used if the tools module is specified
+** as Licensed on the Licensee's License Certificate.
 **
 ** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 ** information about the Professional Edition licensing, or see
@@ -10718,7 +10720,7 @@ static int ucstrnicmp( const QChar *a, const QChar *b, int l )
 
 // NOT REVISED
 /*! \class QCharRef qstring.h
-  \brief QCharRef is a helper class for QString.
+  \brief The QCharRef class is a helper class for QString.
 
   It provides the ability to work on characters in a QString in a natural
   fashion.
@@ -10764,7 +10766,7 @@ unicode-defined category of each character.
 
 QChar further provides direction(), which indicates the "natural"
 writing direction of this character, joining(), which indicates how
-this character joins with its neighbours (needed mostly for Arabic)
+this character joins with its neighbors (needed mostly for Arabic)
 and finally mirrored(), which indicates whether this character needs
 to be mirrored when it is printed in its unnatural writing
 direction.
@@ -12112,6 +12114,7 @@ QT_STATIC_CONST_IMPL QChar QChar::null;
 QT_STATIC_CONST_IMPL QChar QChar::replacement((ushort)0xfffd);
 QT_STATIC_CONST_IMPL QChar QChar::byteOrderMark((ushort)0xfeff);
 QT_STATIC_CONST_IMPL QChar QChar::byteOrderSwapped((ushort)0xfffe);
+QT_STATIC_CONST_IMPL QChar QChar::nbsp((ushort)0x00a0);
 
 QStringData* QString::makeSharedNull()
 {
@@ -12316,7 +12319,7 @@ QString &QString::operator=( const QString &s )
 }
 
 /*!
-  Assigns a deep copy of \a cs, interpretted a classic C string, to
+  Assigns a deep copy of \a cs, interpreted as a classic C string, to
   this string and returns a reference to this string.
 */
 QString &QString::operator=( const QCString& cs )
@@ -12326,8 +12329,8 @@ QString &QString::operator=( const QCString& cs )
 
 
 /*!
-  Assigns a deep copy of \a str, interpretted a classic C string to
-  this string and returns a reference to this string.
+  Assigns a deep copy of \a str, interpreted as a classic C string,
+  to this string and returns a reference to this string.
 
   If \a str is 0 a null string is created.
 
@@ -12601,7 +12604,9 @@ bool QString::findArg(int& pos, int& len) const
   arbitrary list of arguments.  The format string supports all
   the escape sequences of printf() in the standard C library.
 
-  The %s escape sequence expects a utf8() encoded string. For typesafe
+  The %s escape sequence expects a utf8() encoded string. 
+  The format string \e cformat is expected to be in latin1. If you need a unicode
+  format string, use QString::arg() instead. For typesafe
   string building, with full Unicode support, you can use QTextOStream
   like this:
 
@@ -12633,8 +12638,9 @@ QString &QString::sprintf( const char* cformat, ... )
     }
     QString format = QString::fromLatin1( cformat );
 
-    static QRegExp escape(
-	QString::fromLatin1("%#?0?-? ?\\+?'?[0-9*]*\\.?[0-9*]*h?l?L?q?Z?") );
+    static QRegExp *escape = 0;
+    if (!escape)
+	escape = new QRegExp( "%#?0?-? ?\\+?'?[0-9*]*\\.?[0-9*]*h?l?L?q?Z?" );
 
     QString result;
     uint last = 0;
@@ -12642,7 +12648,7 @@ QString &QString::sprintf( const char* cformat, ... )
     int len = 0;
     int pos;
     while ( 1 ) {
-	pos = escape.match( format, last, &len );
+	pos = escape->match( format, last, &len );
 	// Non-escaped text
 	if ( pos > (int)last )
 	    result += format.mid(last,pos-last);
@@ -12893,6 +12899,9 @@ int QString::find( const QString& str, int index, bool cs ) const
 	    i++;
 	}
     }
+#if defined(Q_SPURIOUS_NON_VOID_WARNING)
+    return -1;
+#endif
 }
 
 /*!
@@ -12989,6 +12998,9 @@ int QString::findRev( const QString& str, int index, bool cs ) const
 	    hthis += uthis[i].lower().cell();
 	}
     }
+#if defined(Q_SPURIOUS_NON_VOID_WARNING)
+    return -1;
+#endif
 }
 
 

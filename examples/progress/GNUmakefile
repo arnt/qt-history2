@@ -1,5 +1,5 @@
 #############################################################################
-# $Id: //depot/qt/main/examples/progress/GNUmakefile#2 $
+# $Id: //depot/qt/main/examples/progress/GNUmakefile#3 $
 #
 # Unix Makefile, requires GNU make (gmake).
 #

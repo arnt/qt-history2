@@ -7,11 +7,17 @@
 **
 ** Copyright (C) 1992-2000 Troll Tech AS.  All rights reserved.
 **
-** This file is part of the Qt GUI Toolkit.
+** This file is part of the kernel module of the Qt GUI Toolkit.
 **
-** Licensees holding valid Qt Professional Edition licenses may use this
-** file in accordance with the Qt Professional Edition License Agreement
-** provided with the Qt Professional Edition.
+** This file may be distributed under the terms of the Q Public License
+** as defined by Troll Tech AS of Norway and appearing in the file
+** LICENSE.QPL included in the packaging of this file.
+**
+** Licensees holding valid Qt Enterprise Edition or Qt Professional Edition
+** licenses may use this file in accordance with the Qt Commercial License
+** Agreement provided with the Software.  This file is part of the kernel
+** module and therefore may only be used if the kernel module is specified
+** as Licensed on the Licensee's License Certificate.
 **
 ** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 ** information about the Professional Edition licensing.
@@ -755,13 +761,14 @@ void QWidget::showMaximized()
 	    extra->topextra->qwsManager->maximize();
 	} else
 #endif
-	    {
+	{
 	    setGeometry( QApplication::desktop()->rect() );
 	}
     }
     show();
     QEvent e( QEvent::ShowMaximized );
     QApplication::sendEvent( this, &e );
+    setWState(WState_Maximized);
 }
 
 void QWidget::showNormal()
@@ -810,8 +817,7 @@ void QWidget::stackUnder( QWidget* w)
 
 void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
 {
-    if ( testWFlags(WType_Desktop) )
-	return;
+    clearWState(WState_Maximized);
     if ( extra ) {				// any size restrictions?
 	w = QMIN(w,extra->maxw);
 	h = QMIN(h,extra->maxh);
@@ -836,6 +842,9 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
     setAllocatedRegionDirty();
 
     setCRect( r );
+
+    if ( testWFlags(WType_Desktop) )
+	return;
 
     if ( isTopLevel() ) {
 
@@ -1048,18 +1057,24 @@ void QWidget::setBaseSize( int basew, int baseh )
 	// XXX
     }
 }
-
+/*
+  //Just used in commented-out code
 static void drawTileAligned(QPainter& p, const QRect& r, const QPixmap& pm)
 {
     p.setClipRect(r);
-    if ( !pm.isNull() )
+    if ( !pm.isNull() ) {
 	p.drawTiledPixmap(r,pm,QPoint(r.x()%pm.width(),r.y()%pm.height()));
+    }
 }
-
+*/
 void QWidget::erase( int x, int y, int w, int h )
 {
     if ( backgroundMode() == NoBackground )
 	return;
+
+    erase( QRegion( x, y, w, h ) );
+
+/*
     if ( w < 0 )
 	w = crect.width()  - x;
     if ( h < 0 )
@@ -1074,16 +1089,33 @@ void QWidget::erase( int x, int y, int w, int h )
 	    p.fillRect(r,bg_col);
 	}
     }
+*/
 }
 
 void QWidget::erase( const QRegion& reg )
 {
+    if ( backgroundMode() == NoBackground )
+	return;
+
+    int xoff = 0;
+    int yoff = 0;
+    if ( !isTopLevel() && backgroundOrigin() == QWidget::ParentOrigin ) {
+	xoff = x();
+	yoff = y();
+    }
+
     QArray<QRect> r = reg.rects();
     QPainter p(this);
     for (uint i=0; i<r.size(); i++) {
 	const QRect& rr = r[(int)i];
 	if ( extra && extra->bg_pix ) {
-	    drawTileAligned(p,rr,*extra->bg_pix);
+	    p.setClipRect(rr);
+	    if ( !extra->bg_pix->isNull() ) {
+		p.drawTiledPixmap(rr,*extra->bg_pix,
+				  QPoint((rr.x()+xoff)%extra->bg_pix->width(),
+				         (rr.y()+yoff)%extra->bg_pix->height()));
+	    }
+//	    drawTileAligned(p,rr,*extra->bg_pix);
 	} else {
 	    p.fillRect(rr,bg_col);
 	}
@@ -1256,7 +1288,7 @@ void QWidget::setAllocatedRegionDirty()
     }
 }
 
-// check my hierachy for dirty allocated regions
+// check my hierarchy for dirty allocated regions
 bool QWidget::isAllocatedRegionDirty() const
 {
     if ( isTopLevel() )

@@ -30,7 +30,7 @@ class MyThread : public QThread {
 
     QString myname;
     int pause;
-    
+
 public:
 
     MyThread(QString s,int p) { myname=s; pause=p; }
@@ -38,34 +38,34 @@ public:
 };
 
 class WaitThread : public QThread {
-    
+
     QThread * thread1;
     QThread * thread2;
-    QThreadEvent * done_event;
-    
+    QCondition * done_condition;
+
 public:
-    
-    WaitThread(QThread *,QThread *,QThreadEvent *);
+
+    WaitThread(QThread *,QThread *,QCondition *);
     virtual void run();
-    
+
 };
 
 class FinalThread : public QThread {
-    
-    QThreadEvent * done_event;
-    
+
+    QCondition * done_condition;
+
 public:
-    
-    FinalThread(QThreadEvent * t) { done_event=t; }
+
+    FinalThread(QCondition * t) { done_condition=t; }
     virtual void run();
-    
+
 };
 
-WaitThread::WaitThread(QThread * a,QThread * b,QThreadEvent * c)
+WaitThread::WaitThread(QThread * a,QThread * b,QCondition * c)
 {
   thread1=a;
   thread2=b;
-  done_event=c;
+  done_condition=c;
 }
 
 void MyThread::run()
@@ -79,11 +79,7 @@ void MyThread::run()
 	wibble->setData((void *)message);
 	QThread::postEvent(mywidget,wibble);
 	n++;
-#if defined(_WS_WIN_)
-	Sleep( pause );
-#else
-	sleep(pause);
-#endif
+	sleep( pause );
     }
 }
 
@@ -96,17 +92,13 @@ void WaitThread::run()
     QCustomEvent * wibble=new QCustomEvent(6666);
     wibble->setData((void *)message);
     QThread::postEvent(mywidget,wibble);
-#if defined(_WS_WIN_)
-	Sleep( 1 );
-#else
-	sleep(1);
-#endif
-    done_event->wakeOne();
+    sleep(1);
+    done_condition->wakeOne();
 }
 
 void FinalThread::run()
 {
-    done_event->wait();
+    done_condition->wait();
     QString * message=new QString;
     *message="Final message!";
     QCustomEvent * wibble=new QCustomEvent(6666);
@@ -121,12 +113,13 @@ int main(int argc,char ** argv)
     mywidget->show();
     MyThread foo("Thread one",2);
     MyThread bar("Thread two",3);
-    QThreadEvent qte;
+    QCondition qte;
     WaitThread frobnitz(&foo,&bar,&qte);
     FinalThread fooble(&qte);
     foo.start();
     bar.start();
     frobnitz.start();
     fooble.start();
+    app.setMainWidget(mywidget);
     return app.exec();
 }

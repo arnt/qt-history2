@@ -269,6 +269,44 @@ void drawText( QPainter & p, const QRect &r )
 }
 
 
+void drawTextMetrics( QPainter & p, const QRect &r )
+{
+    p.setPen( Qt::lightGray );
+    p.drawRect( r );
+
+    int s = 4;
+    QString t = QString::fromLatin1( futility_of_love ).simplifyWhiteSpace();
+
+    p.setFont( QFont( "times", 9 ) );
+    QFontMetrics fm = p.fontMetrics();
+
+    int x = r.left();
+    int y = r.top() + fm.ascent() + fm.leading();
+    int b = 0;
+    while( b >= 0 ) {
+	int e = t.find( ' ', b+1 );
+	if ( e > b ) {
+	    QString w = t.mid( b, e-b ).simplifyWhiteSpace();
+	    QRect wr( x, y - fm.ascent(), fm.width( w ), fm.height() );
+	    if ( wr.right() >= r.right() ) {
+		p.setPen( Qt::lightGray );
+		p.drawRect( wr );
+		y += fm.lineSpacing()+2;
+		x = r.left();
+		wr.setRect( x, y - fm.ascent(), fm.width( w ), fm.height() );
+	    }
+	    p.setPen( Qt::darkGray );
+	    p.drawRect( wr );
+	    p.setPen( Qt::black );
+	    p.drawText( x, y, w );
+	    p.setPen( Qt::lightGray );
+	    x = x + wr.width() + fm.width( ' ' );
+	}
+	b = e;
+    }
+}
+
+
 void drawPicture( QPainter & p, const QRect &r )
 {
     QPicture picture;
@@ -297,19 +335,19 @@ void drawPicture( QPainter & p, const QRect &r )
 typedef void (*TestFunction)(QPainter &, const QRect &);
 
 
-TestFunction f[17] = {
+TestFunction f[18] = {
     drawPoint, drawPoints, drawLine, drawRect, drawWinFocusRect,
     drawEllipse, drawArc, drawChord, drawLineSegments, drawPolyline,
     drawPolygon, drawQuadBezier, drawPixmap, drawImage,
-    drawTiledPixmap, drawText, drawPicture
+    drawTiledPixmap, drawText, drawPicture, drawTextMetrics
 };
 
 
-const char * n[17] = {
+const char * n[18] = {
     "drawPoint", "drawPoints", "drawLine", "drawRect", "drawWinFocusRect",
     "drawEllipse", "drawArc", "drawChord", "drawLineSegments", "drawPolyline",
     "drawPolygon", "drawQuadBezier", "drawPixmap", "drawImage",
-    "drawTiledPixmap", "drawText", "drawPicture"
+    "drawTiledPixmap", "drawText", "drawPicture", "fontMetrics"
 };
 
 
@@ -342,7 +380,7 @@ void test( const char * output,
     int paperWidth = QPaintDeviceMetrics( &printer ).width();
     int paperHeight = QPaintDeviceMetrics( &printer ).height();
 
-    for( i=0; i<17; i++ ) {
+    for( i=0; i<18; i++ ) {
 	p.setPen( Qt::lightGray );
 	p.drawRect( cr );
 	p.setPen( Qt::darkGray );

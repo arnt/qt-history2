@@ -31,7 +31,6 @@ Nntp::Nntp()
 	     this, SLOT( readyRead() ) );
     connect( commandSocket, SIGNAL( error( int ) ),
 	     this, SLOT( error( int ) ) );
-    commandSocket->setMode( QSocket::Ascii );
 }
 
 Nntp::~Nntp()
@@ -42,9 +41,6 @@ Nntp::~Nntp()
 
 void Nntp::operationListChildren( QNetworkOperation * )
 {
-    // for listing dirs let's switch to ASCII mode, as we only want to get lines
-    commandSocket->setMode( QSocket::Ascii );
-
     // create a command
     QString path = url()->path(), cmd;
     if ( path.isEmpty() || path == "/" ) {
@@ -66,10 +62,6 @@ void Nntp::operationListChildren( QNetworkOperation * )
 
 void Nntp::operationGet( QNetworkOperation *op )
 {
-    // for  reading and article let's also switch to ASCII mode,
-    // as we want to read it line after line.
-    commandSocket->setMode( QSocket::Ascii );
-
     // get the dirPath of the URL (this is our news group)
     // and the filename (which is the article we want to read)
     QUrl u( op->arg( 0 ) );

@@ -82,7 +82,17 @@
 #endif
 
 #if defined(_OS_UNIX_) && defined(QT_THREAD_SUPPORT)
+
+#if defined(_OS_SOLARIS_)
+#  define BSD_COMP // needed for FIONREAD
+#endif
+
 #include <sys/ioctl.h>
+
+#if defined(_OS_SOLARIS_)
+#  undef BSD_COMP
+#endif
+
 static int qt_thread_pipe[2];
 #endif
 
@@ -352,6 +362,8 @@ QWidget	       *qt_button_down	 = 0;		// widget got last button-down
 
 extern bool qt_is_gui_used; // qapplication.cpp
 
+extern void qt_dispatchEnterLeave( QWidget*, QWidget* ); // qapplication.cpp
+
 struct QScrollInProgress {
     static long serial;
     QScrollInProgress( QWidget* w, int x, int y ) :
@@ -439,7 +451,7 @@ public:
     void setWFlags( WFlags f )		{ QWidget::setWFlags(f); }
     void clearWFlags( WFlags f )	{ QWidget::clearWFlags(f); }
     bool translateMouseEvent( const XEvent * );
-    bool translateKeyEventInternal( const XEvent *, int& count, QString& text, int& state, bool& keypad, char& ascii, int &code );
+    bool translateKeyEventInternal( const XEvent *, int& count, QString& text, int& state, char& ascii, int &code );
     bool translateKeyEvent( const XEvent *, bool grab );
     bool translatePaintEvent( const XEvent * );
     bool translateConfigEvent( const XEvent * );
@@ -710,9 +722,9 @@ static void qt_set_x11_resources( const char* font = 0, const char* fg = 0,
 		l++;
 	    bool mine = FALSE;
 	    if ( res[l] == '*'
-	      && (res[l+1] == 'f' || res[l+1] == 'b' || res[l+1] == 'q') )
+	      && (res[l+1] == 'f' || res[l+1] == 'b' || res[l+1] == 'g') )
 	    {
-		// OPTIMIZED, since we only want "*[fbq].."
+		// OPTIMIZED, since we only want "*[fbg].."
 
 		QCString item = res.mid( l, r - l ).simplifyWhiteSpace();
 		int i = item.find( ":" );
@@ -740,7 +752,7 @@ static void qt_set_x11_resources( const char* font = 0, const char* fg = 0,
 		    resBG = value.copy();
 		else if ( key == "guieffects")
 		    resEF = value.copy();
-		// NOTE: if you add more, change the [fbq] stuff above
+		// NOTE: if you add more, change the [fbg] stuff above
 	    }
 
 	    l = r + 1;
@@ -1352,7 +1364,6 @@ void qt_cleanup()
     cleanupTimers();
     QPixmapCache::clear();
     QPainter::cleanup();
-    QCursor::cleanup();
     QFont::cleanup();
     QColor::cleanup();
 
@@ -2314,12 +2325,13 @@ int QApplication::exec()
 {
     quit_now = FALSE;
     quit_code = 0;
-    enter_loop();
 
 #if defined(QT_THREAD_SUPPORT)
     qApp->unlock(FALSE);
 #endif
-        
+
+    enter_loop();
+
     return quit_code;
 }
 
@@ -2334,15 +2346,14 @@ int QApplication::exec()
   \sa processEvents()
 */
 
-#if defined(QT_THREAD_SUPPORT)
-void qt_wait_for_exec();
-void qt_ack_pipe();
-#endif
-
 bool QApplication::processNextEvent( bool canWait )
 {
     XEvent event;
     int	   nevents = 0;
+
+#if defined(QT_THREAD_SUPPORT)
+    qApp->lock();
+#endif
 
     emit guiThreadAwake();
 
@@ -2353,6 +2364,10 @@ bool QApplication::processNextEvent( bool canWait )
 	while ( XPending(appDpy) ) {
 	    while ( XPending(appDpy) ) {	// also flushes output buffer
 		if ( app_exit_loop ) {          // quit between events
+#if defined(QT_THREAD_SUPPORT)
+		    qApp->unlock(FALSE);
+#endif
+
 		    return FALSE;
 		}
 
@@ -2360,6 +2375,10 @@ bool QApplication::processNextEvent( bool canWait )
 		nevents++;
 
 		if ( x11ProcessEvent( &event ) == 1 ) {
+#if defined(QT_THREAD_SUPPORT)
+		    qApp->unlock(FALSE);
+#endif
+
 		    return TRUE;
 		}
 	    }
@@ -2369,6 +2388,10 @@ bool QApplication::processNextEvent( bool canWait )
     }
 
     if ( app_exit_loop ) {			// break immediately
+#if defined(QT_THREAD_SUPPORT)
+	qApp->unlock(FALSE);
+#endif
+
 	return FALSE;
     }
 
@@ -2428,31 +2451,29 @@ bool QApplication::processNextEvent( bool canWait )
 		   tm );
 
 #undef FDCAST
-    
-    if ( qt_postselect_handler )
-	qt_postselect_handler();
 
 #if defined(QT_THREAD_SUPPORT)
+    qApp->lock();
+
 #  if defined(_OS_UNIX_)
-    if ( FD_ISSET( qt_thread_pipe[0], &app_readfds ) ) {
+    if ( nsel > 0 && FD_ISSET( qt_thread_pipe[0], &app_readfds ) ) {
 	char c;
-	::read(qt_thread_pipe[0],&c,1);
-	if(c==1) {
-	    qt_ack_pipe();
-	    qt_wait_for_exec();
-	    qApp->lock();
-	    app_exit_loop=FALSE;
-	    return FALSE;
-	}
+	::read(qt_thread_pipe[0], &c, 1);
     }
 #  endif
-    
-    qApp->lock();
 #endif
+
+    if ( qt_postselect_handler )
+	qt_postselect_handler();
 
     if ( nsel == -1 ) {
 	if ( errno == EINTR || errno == EAGAIN ) {
 	    errno = 0;
+
+#if defined(QT_THREAD_SUPPORT)
+	    qApp->unlock(FALSE);
+#endif
+
 	    return (nevents > 0);
 	} else {
 	    ; // select error
@@ -2464,13 +2485,18 @@ bool QApplication::processNextEvent( bool canWait )
     nevents += qt_activate_timers();		// activate timers
     qt_reset_color_avail();			// color approx. optimization
 
+#if defined(QT_THREAD_SUPPORT)
+    qApp->unlock(FALSE);
+#endif
+
     return (nevents > 0);
 }
 
 
 
-/*!
-  Wakes up the GUI thread.
+/*! \fn QApplication::wakeUpGuiThread()
+  Wakes up the GUI thread.  This function only exists if Qt was build with
+  thread support.
 
   \sa guiThreadAwake()
 */
@@ -2478,7 +2504,6 @@ bool QApplication::processNextEvent( bool canWait )
 #if defined(QT_THREAD_SUPPORT)
 void QApplication::wakeUpGuiThread()
 {
-    
 #  if defined(_OS_UNIX_)
     char c = 0;
     int nbytes;
@@ -2486,23 +2511,7 @@ void QApplication::wakeUpGuiThread()
 	::write(  qt_thread_pipe[1], &c, 1  );
     }
 #  endif
-    
 }
-
-// We've now become the GUI thread
-void QApplication::guiThreadTaken()
-{
-    
-#  if defined(_OS_UNIX_)
-    char c = 1;
-    int nbytes;
-    if ( ::ioctl(qt_thread_pipe[1], FIONREAD, (char*)&nbytes) >= 0 && nbytes == 0 ) {
-	::write(  qt_thread_pipe[1], &c, 1  );
-    }
-#  endif
-    
-}
-
 #endif
 
 int QApplication::x11ClientMessage(QWidget* w, XEvent* event, bool passive_only)
@@ -2551,6 +2560,9 @@ int QApplication::x11ClientMessage(QWidget* w, XEvent* event, bool passive_only)
 
     return 0;
 }
+
+
+
 
 
 /*! This virtual does the core processing of individual X events,
@@ -2751,9 +2763,8 @@ int QApplication::x11ProcessEvent( XEvent* event )
 	     event->xcrossing.detail == NotifyVirtual  ||
 	     event->xcrossing.detail == NotifyNonlinearVirtual )
 	    break;
+	qt_dispatchEnterLeave( widget, QWidget::find( curWin ) );
 	curWin = widget->winId();
-	QEvent e( QEvent::Enter );
-	QApplication::sendEvent( widget, &e );
 	widget->translateMouseEvent( event ); //we don't get MotionNotify, emulate it
     }
     break;
@@ -2768,8 +2779,25 @@ int QApplication::x11ProcessEvent( XEvent* event )
 	    break;
 	if ( !widget->isDesktop() )
 	    widget->translateMouseEvent( event ); //we don't get MotionNotify, emulate it
-	QEvent e( QEvent::Leave );
-	QApplication::sendEvent( widget, &e );
+
+	QWidget* enter = 0;
+	XEvent ev;
+	while ( XCheckMaskEvent( widget->x11Display(), EnterWindowMask | LeaveWindowMask , &ev )
+		&& !qt_x11EventFilter( &ev ) ) {
+	    if ( ev.type == LeaveNotify ) {
+		XPutBackEvent( widget->x11Display(), &ev );
+		break;
+	    }
+	    if (  ev.xcrossing.mode != NotifyNormal ||
+		 ev.xcrossing.detail == NotifyVirtual  ||
+		 ev.xcrossing.detail == NotifyNonlinearVirtual )
+		continue;
+	    enter = QWidget::find( ev.xcrossing.window );
+	    break;
+	}
+
+	qt_dispatchEnterLeave( enter, widget );
+	curWin = enter ? enter->winId() : 0;
     }
     break;
 
@@ -2993,11 +3021,8 @@ void qt_leave_modal( QWidget *widget )
 	    qt_modal_stack = 0;
 	    QPoint p( QCursor::pos() );
 	    QWidget* w = QApplication::widgetAt( p.x(), p.y(), TRUE );
-	    if ( w ) { // send synthetic enter event
-		curWin = w->winId();
-		QEvent e ( QEvent::Enter );
- 		QApplication::sendEvent( w, &e );
-	    }
+	    qt_dispatchEnterLeave( w, QWidget::find( curWin ) ); // send synthetic enter event
+	    curWin = w? w->winId() : 0;
 	}
     }
     app_do_modal = qt_modal_stack != 0;
@@ -3936,8 +3961,8 @@ static void deleteKeyDicts()
 
 bool QETWidget::translateKeyEventInternal( const XEvent *event, int& count,
 					   QString& text,
-					   int& state, bool& keypad,
-					   char& ascii, int &code )
+					   int& state,
+					   char& ascii, int& code )
 {
     QCString chars(64);
     KeySym key = 0;
@@ -4015,7 +4040,6 @@ bool QETWidget::translateKeyEventInternal( const XEvent *event, int& count,
 #endif // !NO_XIM
 
     state = translateButtonState( event->xkey.state );
-    keypad = FALSE;
 
     // Commentary in X11/keysymdef says that X codes match ASCII, so it
     // is safe to use the locale functions to process X codes in ISO8859-1.
@@ -4030,7 +4054,7 @@ bool QETWidget::translateKeyEventInternal( const XEvent *event, int& count,
 	code = Key_F1 + ((int)key - XK_F1);	// function keys
     } else if ( key >= XK_KP_0 && key <= XK_KP_9) {
 	code = Key_0 + ((int)key - XK_KP_0);	// numeric keypad keys
-	keypad = TRUE;
+	state |= Keypad;
     } else {
 	int i = 0;				// any other keys
 	while ( KeyTbl[i] ) {
@@ -4061,13 +4085,13 @@ bool QETWidget::translateKeyEventInternal( const XEvent *event, int& count,
 	case XK_KP_Subtract:
 	case XK_KP_Decimal:
 	case XK_KP_Divide:
-	    keypad = TRUE;
+	    state |= Keypad;
 	    break;
 	default:
 	    break;
 	}
 	if ( code == Key_Tab &&
-	     (state & ShiftButton) == Qt::ShiftButton ) {
+	     (state & ShiftButton) == ShiftButton ) {
 	    code = Key_Backtab;
 	    chars[0] = 0;
 	}
@@ -4109,7 +4133,6 @@ bool QETWidget::translateKeyEvent( const XEvent *event, bool grab )
     int	   code = -1;
     int	   count = 0;
     int	   state;
-    bool   keypad;
     char   ascii = 0;
 
     if ( sm_blockUserInput ) // block user interaction during session management
@@ -4125,9 +4148,9 @@ bool QETWidget::translateKeyEvent( const XEvent *event, bool grab )
     bool    autor = FALSE;
     QString text;
 
-    translateKeyEventInternal( event, count, text, state, keypad, ascii, code );
+    translateKeyEventInternal( event, count, text, state, ascii, code );
     bool isAccel = FALSE;
-    if (!grab) { // test for accel if the keyboard is not grabbed
+    if ( !grab ) { // test for accel if the keyboard is not grabbed
 	QKeyEvent a( QEvent::AccelAvailable, code, ascii, state, text, FALSE,
 		     QMAX(count, int(text.length())) );
 	a.ignore();
@@ -4140,7 +4163,6 @@ bool QETWidget::translateKeyEvent( const XEvent *event, bool grab )
 	int	codeIntern = -1;
 	int	countIntern = 0;
 	int	stateIntern;
-	bool	keypadIntern;
 	char	asciiIntern = 0;
 	XEvent	evRelease;
 	XEvent	evPress;
@@ -4155,8 +4177,7 @@ bool QETWidget::translateKeyEvent( const XEvent *event, bool grab )
 		break;
 	    }
 	    translateKeyEventInternal( &evPress, countIntern, textIntern,
-				       stateIntern, keypadIntern,
-				       asciiIntern, codeIntern);
+				       stateIntern, asciiIntern, codeIntern);
 	    if ( stateIntern == state && !textIntern.isEmpty() ) {
 		if (!grab) { // test for accel if the keyboard is not grabbed
 		    QKeyEvent a( QEvent::AccelAvailable, codeIntern,
@@ -4235,13 +4256,19 @@ bool QETWidget::translateKeyEvent( const XEvent *event, bool grab )
     QKeyEvent e( type, code, ascii, state, text, autor,
 		 QMAX(count, int(text.length())) );
     if ( type == QEvent::KeyPress && !grab ) {
-	// send accel event to tlw if the keyboard is not grabbed
-	QKeyEvent a( QEvent::Accel, code, ascii, state, text, autor,
+	// send accel events if the keyboard is not grabbed
+	QKeyEvent aa( QEvent::AccelAvailable, code, ascii, state, text, autor,
 		     QMAX(count, int(text.length())) );
-	a.ignore();
-	QApplication::sendEvent( topLevelWidget(), &a );
-	if ( a.isAccepted() )
-	    return TRUE;
+	aa.ignore();
+	QApplication::sendEvent( this, &aa );
+	if ( !aa.isAccepted() ) {
+	    QKeyEvent a( QEvent::Accel, code, ascii, state, text, autor,
+			 QMAX(count, int(text.length())) );
+	    a.ignore();
+	    QApplication::sendEvent( topLevelWidget(), &a );
+	    if ( a.isAccepted() )
+		return TRUE;
+	}
     }
     return QApplication::sendEvent( this, &e );
 }
@@ -4428,7 +4455,6 @@ bool QETWidget::translateConfigEvent( const XEvent *event )
     clearWState(WState_ConfigPending);
 
     if ( isTopLevel() ) {
-	QApplication::syncX(); // ensure compaction can work properly
 	QPoint newCPos( geometry().topLeft() );
 	QSize  newSize( event->xconfigure.width, event->xconfigure.height );
 
@@ -4443,11 +4469,11 @@ bool QETWidget::translateConfigEvent( const XEvent *event )
 	XEvent otherEvent;
 	while ( XCheckTypedWindowEvent( x11Display(),winId(),ConfigureNotify,&otherEvent ) ) {
 	    if ( qt_x11EventFilter( &otherEvent ) )
-		break;
+		continue;
 	    if (x11Event( &otherEvent ) )
-		break;
+		continue;
 	    if ( otherEvent.xconfigure.event != otherEvent.xconfigure.window )
-		break;
+		continue;
 	    newSize.setWidth( otherEvent.xconfigure.width );
 	    newSize.setHeight( otherEvent.xconfigure.height );
 	    if ( otherEvent.xconfigure.send_event || trust ) {

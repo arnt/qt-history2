@@ -5,17 +5,19 @@
 **
 ** Created : 000417
 **
-** Copyright (C) 2000 Troll Tech AS.  All rights reserved.
+** Copyright (C) 2000 Trolltech AS.  All rights reserved.
 **
-** This file is part of the Qt GUI Toolkit.
+** This file is part of the tools module of the Qt GUI Toolkit.
 **
 ** This file may be distributed under the terms of the Q Public License
-** as defined by Troll Tech AS of Norway and appearing in the file
+** as defined by Trolltech AS of Norway and appearing in the file
 ** LICENSE.QPL included in the packaging of this file.
 **
-** Licensees holding valid Qt Professional Edition licenses may use this
-** file in accordance with the Qt Professional Edition License Agreement
-** provided with the Qt Professional Edition.
+** Licensees holding valid Qt Enterprise Edition or Qt Professional Edition
+** licenses may use this file in accordance with the Qt Commercial License
+** Agreement provided with the Software.  This file is part of the tools
+** module and therefore may only be used if the tools module is specified
+** as Licensed on the Licensee's License Certificate.
 **
 ** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 ** information about the Professional Edition licensing, or see
@@ -44,7 +46,7 @@
     /*!
 	QDir
     */
-    #define QT_NO_DIR
+# define QT_NO_DIR
 #endif
 
 /*!
@@ -64,7 +66,7 @@
     offering few advantages over PNG or JPEG.
 */
 #if defined(QT_NO_DATASTREAM)
-    #define QT_NO_IMAGEIO_BMP
+# define QT_NO_IMAGEIO_BMP
 #endif
 /*!
     PPM image I/O
@@ -89,7 +91,7 @@
     Qt uses this format for some internal images (eg. QMessageBox icons).
 */
 #if defined(QT_NO_TEXTSTREAM)
-    #define QT_NO_IMAGEIO_XPM
+# define QT_NO_IMAGEIO_XPM
 #endif
 /*!
     PNG image I/O
@@ -109,10 +111,8 @@
     JPEG image I/O
     <p>The Joint Photographic Experts Group (JPEG) is a compressed lossy image format that gives high compression
 	for real-world and photo-realistic images.
-    <p><b>Note: this currently also requires <tt>QT_JPEG_SUPPORT</tt> to
-	be defined when building Qt.</b>
 */
-#define QT_NO_IMAGEIO_JPEG
+//#define QT_NO_IMAGEIO_JPEG
 
 /*!
     Asynchronous I/O
@@ -131,7 +131,7 @@
 	<p><b>Note: this currently also requires <tt>QT_BUILTIN_GIF_READER</tt> to
 	be defined when building Qt.</b>
     */
-    #define QT_NO_MOVIE
+# define QT_NO_MOVIE
 #endif
 
 // Fonts
@@ -148,13 +148,13 @@
     <p>Only supported on Qt/Embedded.
 */
 #if defined(QT_NO_TEXTSTREAM) || defined(QT_NO_STRINGLIST)
-    #define QT_NO_BDF
+# define QT_NO_BDF
 #endif
 /*!
     QFontDatabase
 */
 #if defined(QT_NO_STRINGLIST)
-    #define QT_NO_FONTDATABASE
+# define QT_NO_FONTDATABASE
 #endif
 
 // Internationalization
@@ -163,7 +163,7 @@
     QObject::tr()
 */
 #if defined(QT_NO_DATASTREAM)
-    #define QT_NO_TRANSLATION
+# define QT_NO_TRANSLATION
 #endif
 
 /*!
@@ -176,14 +176,14 @@
 	QTextCodec classes
 	<p>This includes some large conversion tables.
     */
-    #define QT_NO_CODECS
+# define QT_NO_CODECS
 #endif
 #if defined(QT_LITE_UNICODE)
     /*!
 	Unicode property tables
 	<p>These include some large tables.
     */
-    #define QT_NO_UNICODETABLES
+# define QT_NO_UNICODETABLES
 #endif
 
 // MIME-typed data
@@ -191,23 +191,34 @@
     MIME
 */
 #if defined(QT_NO_DIR)
-    #define QT_NO_MIME
+# define QT_NO_MIME
 #endif
 #if defined(QT_NO_MIME) || defined(QT_NO_TEXTSTREAM)
     /*!
 	RichText (HTML) display
     */
-    #define QT_NO_RICHTEXT
+# define QT_NO_RICHTEXT
 #endif
 #if defined(QT_NO_MIME)
     /*!
 	Drag and drop
     */
-    #define QT_NO_DRAGANDDROP
+# define QT_NO_DRAGANDDROP
     /*!
 	Cut and paste
     */
-    #define QT_NO_CLIPBOARD
+# define QT_NO_CLIPBOARD
+#endif
+
+//XML
+
+#if defined(QT_NO_STRINGLIST)
+# define QT_NO_XML
+#endif
+
+/*! Document Object Model */
+#if defined(QT_NO_XML) ||defined(QT_NO_MIME)
+# define QT_NO_DOM
 #endif
 
 // Sound
@@ -221,7 +232,7 @@
     Properties
 */
 #if defined(QT_NO_STRINGLIST)
-    #define QT_NO_PROPERTIES
+# define QT_NO_PROPERTIES
 #endif
 
 // Qt/Embedded-specific
@@ -317,20 +328,20 @@
     Image file text strings
 */
 #if defined(QT_NO_STRINGLIST)
-    #define QT_NO_IMAGE_TEXT
+# define QT_NO_IMAGE_TEXT
 #endif
 
 #if defined(QT_NO_IMAGE_TRUECOLOR)
     /*!
 	16-bit QImage
     */
-    #define QT_NO_IMAGE_16_BIT
+# define QT_NO_IMAGE_16_BIT
 #endif
 #if defined(QT_NO_QWS_CURSOR) && defined(_WS_QWS_)
     /*!
 	Cursors
     */
-    #define QT_NO_CURSOR
+# define QT_NO_CURSOR
 #endif
 
 
@@ -344,17 +355,17 @@
     Network file access
 */
 #if defined(QT_NO_DIR) || defined(QT_NO_STRINGLIST)
-    #define QT_NO_NETWORKPROTOCOL
+# define QT_NO_NETWORKPROTOCOL
 #endif
 #if defined(QT_NO_NETWORKPROTOCOL) || defined(QT_NO_DNS)
     /*!
 	FTP file access
     */
-    #define QT_NO_NETWORKPROTOCOL_FTP
+# define QT_NO_NETWORKPROTOCOL_FTP
     /*!
 	HTTP file access
     */
-    #define QT_NO_NETWORKPROTOCOL_HTTP
+# define QT_NO_NETWORKPROTOCOL_HTTP
 #endif
 
 // Painting
@@ -372,7 +383,7 @@
     Printing
 */
 #if defined(QT_NO_TEXTSTREAM)
-    #define QT_NO_PRINTER
+# define QT_NO_PRINTER
 #endif
 
 // Metafiles
@@ -380,7 +391,7 @@
     QPicture
 */
 #if defined(QT_NO_DATASTREAM)
-    #define QT_NO_PICTURE
+# define QT_NO_PICTURE
 #endif
 
 // Layout
@@ -395,11 +406,13 @@
 */
 //#define QT_NO_STYLE
 
+
+#if defined QT_NO_IMAGE_SMOOTHSCALE
 /*!
     QIconSet
 */
-//#define QT_NO_ICONSET
-
+# define QT_NO_ICONSET
+#endif
 /*!
   QDialog
 */
@@ -417,206 +430,213 @@
     /*! 
       Basic widgets: QLAbel, QPushbutton, ...
     */  
-    #define QT_NO_SIMPLEWIDGETS
+# define QT_NO_SIMPLEWIDGETS
 #endif
 
 #if defined(QT_NO_SIMPLEWIDGETS)
     /*!
       QLabel
     */
-    #define QT_NO_LABEL
+# define QT_NO_LABEL
     /*!
       QPushButton (not implemented).
     */
-    #define QT_NO_PUSHBUTTON
+# define QT_NO_PUSHBUTTON
     /*!
       QLineEdit (not implemented).
     */
-    #define QT_NO_LINEEDIT
+# define QT_NO_LINEEDIT
 #endif
 #if  defined(QT_NO_ICONSET) || defined(QT_NO_IMAGE_SMOOTHSCALE) || defined(QT_NO_SIMPLEWIDGETS)
     /*!
 	Pre-defined complex widgets
     */
-    #define QT_NO_COMPLEXWIDGETS
+# define QT_NO_COMPLEXWIDGETS
 #endif
 #if defined(QT_NO_COMPLEXWIDGETS) || defined(QT_NO_RICHTEXT)
     /*!
 	QTextView
     */
-    #define QT_NO_TEXTVIEW
+# define QT_NO_TEXTVIEW
 #endif
 #if defined(QT_NO_TEXTVIEW)
     /*!
 	QTextBrowser
     */
-    #define QT_NO_TEXTBROWSER
+# define QT_NO_TEXTBROWSER
 #endif
 
 #if defined(QT_NO_STYLE)
     /*!
 	Windows style
     */
-    #define QT_NO_STYLE_WINDOWS
+# define QT_NO_STYLE_WINDOWS
     /*!
 	Motif style
     */
-    #define QT_NO_STYLE_MOTIF
+# define QT_NO_STYLE_MOTIF
 #endif
+
+#if defined(QT_NO_STYLE_MOTIF)
+# define QT_NO_STYLE_MOTIFPLUS
+#endif
+
 
 #if defined(QT_NO_COMPLEXWIDGETS) || defined(QT_NO_STRINGLIST)
     /*!
 	QListBox
     */
-    #define QT_NO_LISTBOX
+# define QT_NO_LISTBOX
 #endif
 
 #if defined(QT_NO_COMPLEXWIDGETS)
     /*!
 	QAccel
     */
-    #define QT_NO_ACCEL
+# define QT_NO_ACCEL
 
     /*!
 	QSizeGrip
     */
-    #define QT_NO_SIZEGRIP
+# define QT_NO_SIZEGRIP
     /*!
 	QHeader
     */
-    #define QT_NO_HEADER
+# define QT_NO_HEADER
     /*!
 	QMenuBar
     */
-    #define QT_NO_MENUBAR
+# define QT_NO_MENUBAR
     /*!
 	QCanvas
     */
-    #define QT_NO_CANVAS
+# define QT_NO_CANVAS
     /*!
 	QDial
     */
-    #define QT_NO_DIAL
+# define QT_NO_DIAL
     /*!
 	QWorkSpace
     */
-    #define QT_NO_WORKSPACE
+# define QT_NO_WORKSPACE
     /*!
 	QLCDNumber
     */
-    #define QT_NO_LCDNUMBER
+# define QT_NO_LCDNUMBER
     /*!
 	QAction
     */
-    #define QT_NO_ACTION
+# define QT_NO_ACTION
 #endif
 #if defined(QT_NO_LISTBOX) || defined(QT_NO_COMPLEXWIDGETS)
     /*!
 	QComboBox
     */
-    #define QT_NO_COMBOBOX
+# define QT_NO_COMBOBOX
 #endif    
 #if defined(QT_NO_COMPLEXWIDGETS)
     /*!
 	QIconView
     */
-    #define QT_NO_ICONVIEW
+# define QT_NO_ICONVIEW
 #endif
 #if defined(QT_NO_HEADER)
     /*!
 	QListView
     */
-    #define QT_NO_LISTVIEW
+# define QT_NO_LISTVIEW
 #endif
 #if defined(QT_NO_COMPLEXWIDGETS) || defined(QT_NO_DIALOG)
    /*!
 	Built-in dialogs
     */
-    #define QT_NO_DIALOGS
+# define QT_NO_DIALOGS
 #endif
 
 #if defined(QT_NO_STYLE_WINDOWS)
     /*!
 	Compact Windows style
     */
-    #define QT_NO_STYLE_COMPACT
+# define QT_NO_STYLE_COMPACT
 #endif
 
 #if defined(QT_NO_STYLE_MOTIF)
     /*!
 	CDE style
     */
-    #define QT_NO_STYLE_CDE
+# define QT_NO_STYLE_CDE
     /*!
 	SGI style
     */
-    #define QT_NO_STYLE_SGI
+# define QT_NO_STYLE_SGI
 #endif
 #if defined(QT_NO_STYLE_WINDOWS)
     /*!
 	Platinum style
     */
-    #define QT_NO_STYLE_PLATINUM
+# define QT_NO_STYLE_PLATINUM
 #endif
 
 #if defined(QT_NO_DIALOGS)
     /*!
 	QColorDialog
     */
-    #define QT_NO_COLORDIALOG
+# define QT_NO_COLORDIALOG
     /*!
 	QMessageBox
     */
-    #define QT_NO_MESSAGEBOX
+# define QT_NO_MESSAGEBOX
     /*!
 	QTabDialog
     */
-    #define QT_NO_TABDIALOG
+# define QT_NO_TABDIALOG
     /*!
 	QWizard
     */
-    #define QT_NO_WIZARD
+# define QT_NO_WIZARD
 #endif
 
 #if defined(QT_NO_DIALOGS) || defined(QT_NO_LISTVIEW) || defined(QT_NO_NETWORKPROTOCOL) || defined(QT_NO_COMBOBOX) || defined(QT_NO_DIR) || defined(QT_NO_MESSAGEBOX)
     /*!
 	QFileDialog
     */
-    #define QT_NO_FILEDIALOG
+# define QT_NO_FILEDIALOG
 #endif
 
 #if defined(QT_NO_DIALOGS) || defined(QT_NO_FONTDATABASE) || defined(QT_NO_COMBOBOX)
     /*!
 	QFontDialog
     */
-    #define QT_NO_FONTDIALOG
+# define QT_NO_FONTDIALOG
 #endif
 
 #if defined(QT_NO_DIALOGS) || defined(QT_NO_LISTVIEW) || defined(QT_NO_PRINTER) || defined(QT_NO_COMBOBOX) || defined(QT_NO_DIR)
     /*!
 	QPrintDialog
     */
-    #define QT_NO_PRINTDIALOG
+# define QT_NO_PRINTDIALOG
 #endif
 
 #if defined(QT_NO_DIALOGS) || defined(QT_NO_SEMIMODAL)
     /*!
 	QProgressDialog
     */
-    #define QT_NO_PROGRESSDIALOG
+# define QT_NO_PROGRESSDIALOG
 #endif
 #if defined(QT_NO_DIALOGS) || defined(QT_NO_COMBOBOX)
     /*!
 	QInputDialog
     */
-    #define QT_NO_INPUTDIALOG
+# define QT_NO_INPUTDIALOG
 #endif
 
 #if defined(QT_NO_STRINGLIST)
     // Desktop features
     /*! Session management support */
-    #define QT_NO_SESSIONMANAGER
+# define QT_NO_SESSIONMANAGER
 #endif
 
+/*! Special widget effects (fading, scrolling) */
+//#define QT_NO_EFFECTS
 
 #endif // QFEATURES_H

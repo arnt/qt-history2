@@ -5,15 +5,17 @@
 **
 ** Copyright (C) 1992-2000 Troll Tech AS.  All rights reserved.
 **
-** This file is part of the Qt GUI Toolkit.
+** This file is part of the kernel module of the Qt GUI Toolkit.
 **
 ** This file may be distributed under the terms of the Q Public License
 ** as defined by Troll Tech AS of Norway and appearing in the file
 ** LICENSE.QPL included in the packaging of this file.
 **
-** Licensees holding valid Qt Professional Edition licenses may use this
-** file in accordance with the Qt Professional Edition License Agreement
-** provided with the Qt Professional Edition.
+** Licensees holding valid Qt Enterprise Edition or Qt Professional Edition
+** licenses may use this file in accordance with the Qt Commercial License
+** Agreement provided with the Software.  This file is part of the kernel
+** module and therefore may only be used if the kernel module is specified
+** as Licensed on the Licensee's License Certificate.
 **
 ** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 ** information about the Professional Edition licensing, or see
@@ -30,6 +32,8 @@
 #include "qfileinfo.h"
 #include "qdir.h"
 #include "qdragobject.h"
+#include "qapplication.h" // ### for now
+#include "qclipboard.h" // ### for now
 
 // NOT REVISED
 /*!
@@ -50,6 +54,16 @@
 */
 QMimeSource::~QMimeSource()
 {
+    if (QApplication::closingDown()) return;
+    
+    if (QApplication::clipboard()->data() == this) {
+#ifdef CHECK_RANGE
+	qWarning("QMimeSource::~QMimeSource: clipboard data deleted!");
+#endif
+#if defined(_WS_X11_)	
+	QApplication::clipboard()->clobber();
+#endif
+    }
 }
 
 /*!
@@ -334,7 +348,7 @@ void QMimeSourceFactory::setExtensionType( const QString& ext, const char* mimet
 
 /*!
   Converts the absolute or relative data item name \a abs_or_rel_name
-  to an absolute name, interpretted within the context of the data
+  to an absolute name, interpreted within the context of the data
   item named \a context (this must be an absolute name).
 */
 QString QMimeSourceFactory::makeAbsolute(const QString& abs_or_rel_name, const QString& context) const

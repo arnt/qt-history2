@@ -1,0 +1,233 @@
+<HTML
+><HEAD
+><TITLE
+>Putting It All Together</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.46"><LINK
+REL="HOME"
+HREF="book1.html"><LINK
+REL="UP"
+TITLE="Tutorial: Creating A Simple Application With The Help Of
+	  Qt Designer"
+HREF="c33.html"><LINK
+REL="PREVIOUS"
+TITLE="Generating C++ Source Code From The Designer File"
+HREF="x233.html"><LINK
+REL="NEXT"
+TITLE="Tutorial: Adding Additional Functionality To A Dialog By
+	  Subclassing"
+HREF="c289.html"></HEAD
+><BODY
+CLASS="SECT1"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="x233.html"
+>Prev</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+>Chapter 2. Tutorial: Creating A Simple Application With The Help Of
+	  Qt Designer</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="c289.html"
+>Next</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="AEN270"
+>Putting It All Together</A
+></H1
+><P
+>Now we have the code for our dialog, all we need is
+		  some test harness to try it. The following code is about the
+		  simplest piece you can have:</P
+><TABLE
+BORDER="0"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+>#include &#60;qapplication.h&#62;
+#include "PizzaEntry.h"
+
+int main( int argc, char* argv[] )
+{
+  QApplication app( argc, argv );
+
+  PizzaEntry* pizzaEntry = new PizzaEntry;
+  pizzaEntry-&#62;show();
+  app.setMainWidget( pizzaEntry );
+  int ret = app.exec();
+  delete pizzaEntry;
+  return ret;
+}</PRE
+></TD
+></TR
+></TABLE
+><P
+>Save this as
+		  <TT
+CLASS="FILENAME"
+>PizzaEntryTest.cpp</TT
+>. Now you can start
+		  building your program. On a Unix system with the
+		  <B
+CLASS="COMMAND"
+>g++</B
+> compiler, these could be your command
+		  lines:</P
+><TABLE
+BORDER="0"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+>moc -o moc_PizzaEntry.cpp PizzaEntry.h
+g++ -I$QTDIR/include PizzaEntry.cpp PizzaEntryTest.cpp \
+	moc_PizzaEntry.cpp -L$QTDIR/lib -lqt</PRE
+></TD
+></TR
+></TABLE
+><P
+> and on a Windows system with the Microsoft Visual C++ compiler:</P
+><TABLE
+BORDER="0"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+></PRE
+></TD
+></TR
+></TABLE
+><P
+>If you use a different compiler, you might have to
+		  change the compiler command and some of the options. If you
+		  do not know what the line starting with
+		  <B
+CLASS="COMMAND"
+>moc</B
+> is for, please see the Qt Tutorial or
+		  <I
+CLASS="EMPHASIS"
+>Programming with Qt</I
+>.</P
+><P
+>Finally, you can run your program. <A
+HREF="x270.html#QT-DESIGNER-FIG-PIZZA1SCREENSHOT"
+>Figure 2-14</A
+> shows the
+		  result.</P
+><DIV
+CLASS="FIGURE"
+><A
+NAME="QT-DESIGNER-FIG-PIZZA1SCREENSHOT"
+></A
+><P
+><B
+>Figure 2-14. Our first program in action</B
+></P
+><P
+><IMG
+SRC="figures/pizza1screenshot.png"></P
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="x233.html"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="book1.html"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="c289.html"
+>Next</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>Generating C++ Source Code From The Designer File</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="c33.html"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>Tutorial: Adding Additional Functionality To A Dialog By
+	  Subclassing</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

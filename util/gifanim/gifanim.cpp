@@ -116,7 +116,7 @@ static void gif_write_content( Q_UINT8 packet[], int& packetPointer,
 
 bool write_gif_animation( QIODevice* iod, QImage *images, unsigned int count )
 {
-    // Best with 24-bit images, as we insist on 216 colour cube,
+    // Best with 24-bit images, as we insist on 216 color cube,
     // and convertDepth() will not dither from 8 bit currently.
 
     // We always have a transparent index, because it can help a lot

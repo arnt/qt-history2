@@ -5,17 +5,19 @@
 **
 ** Created : 950419
 **
-** Copyright (C) 1992-2000 Troll Tech AS.  All rights reserved.
+** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
 **
-** This file is part of the Qt GUI Toolkit.
+** This file is part of the kernel module of the Qt GUI Toolkit.
 **
 ** This file may be distributed under the terms of the Q Public License
-** as defined by Troll Tech AS of Norway and appearing in the file
+** as defined by Trolltech AS of Norway and appearing in the file
 ** LICENSE.QPL included in the packaging of this file.
 **
-** Licensees holding valid Qt Professional Edition licenses may use this
-** file in accordance with the Qt Professional Edition License Agreement
-** provided with the Qt Professional Edition.
+** Licensees holding valid Qt Enterprise Edition or Qt Professional Edition
+** licenses may use this file in accordance with the Qt Commercial License
+** Agreement provided with the Software.  This file is part of the kernel
+** module and therefore may only be used if the kernel module is specified
+** as Licensed on the Licensee's License Certificate.
 **
 ** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 ** information about the Professional Edition licensing, or see
@@ -68,7 +70,7 @@
   shortcut for printing a document. The key codes are listed in
   qnamespace.h. As an alternative, use \c UNICODE_ACCEL with the
   unicode code point of the character. For example,
-  <code>UNICODE_ACCEL + 'A'</code> gies the same accelerator as \c
+  <code>UNICODE_ACCEL + 'A'</code> gives the same accelerator as \c
   Key_A.
 
   When an accelerator key is pressed, the accelerator sends out the
@@ -158,7 +160,7 @@ static QAccelItem *find_key( QAccelList &list, int key, QChar ch )
 		  && (key & Qt::MODIFIER_MASK) == km )
 		    break;
 		else if ( kc.lower() == c.lower()
-		    && (key & Qt::MODIFIER_MASK^Qt::SHIFT) == km )
+		    && (key & (Qt::MODIFIER_MASK^Qt::SHIFT)) == km )
 		    break;
 	    } else {
 		// No modifiers requested, ignore Shift but require others...
@@ -423,8 +425,8 @@ bool QAccel::disconnectItem( int id, const QObject *receiver,
 
 
 /*!
-  Make sure that the accelerator is watching the correct event
-  filter. This function is called automatically, you should not need
+  Makes sure that the accelerator is watching the correct event
+  filter. This function is called automatically; you should not need
   to call it in application code.
 */
 
@@ -659,11 +661,12 @@ int QAccel::stringToKey( const QString & s )
     }
 done:
     if ( p > 0 ) {
-	if ( s.contains("Ctrl+") || s.contains(tr("Ctrl")+"+") )
+	QString sl = s.lower();
+	if ( sl.contains("ctrl+") || sl.contains(tr("ctrl")+"+") )
 	    k |= CTRL;
-	if ( s.contains("Shift+") || s.contains(tr("Shift")+"+") )
+	if ( sl.contains("shift+") || sl.contains(tr("shift")+"+") )
 	    k |= SHIFT;
-	if ( s.contains("Alt+") || s.contains(tr("Alt")+"+") )
+	if ( sl.contains("alt+") || sl.contains(tr("alt")+"+") )
 	    k |= ALT;
     }
     return k;
@@ -819,4 +822,4 @@ to help. Ask then for ISBN 1859121047. (This ISBN is correct, but is
 not listed in any database we have seen.)
 
 */
-#endif QT_NO_ACCEL
+#endif // QT_NO_ACCEL

@@ -1,15 +1,15 @@
 /****************************************************************************
 ** $Id:$
 **
-** Implementation of QTSCIICodec class
+** Implementation of QTsciiCodec class
 **
 ** Created : 990713
 **
 *****************************************************************************/
 
-/*! \class QTSCIICodec qtsciicodec.h
+/*! \class QTsciiCodec qtsciicodec.h
 
-  \brief This class provides conversion to and from the Tamil TSCII encoding.
+  \brief The QTsciiCodec class provides conversion to and from the Tamil TSCII encoding.
 
   TSCII, formally the Tamil Standard Code Information Interchange
   specification, is a commonly used charset for Tamils. The
@@ -54,6 +54,8 @@
 
 #include "qtsciicodec.h"
 
+#ifndef QT_NO_CODECS
+
 static unsigned char qt_UnicodeToTSCII(ushort u1, ushort u2, ushort u3);
 static unsigned int qt_TSCIIToUnicode(unsigned int code, uint *s);
 
@@ -61,14 +63,14 @@ static unsigned int qt_TSCIIToUnicode(unsigned int code, uint *s);
 #define	QValidChar(u)	((u) ? QChar((u)) : QChar::replacement)
 
 /*! \reimp */
-int QTSCIICodec::mibEnum() const
+int QTsciiCodec::mibEnum() const
 {
   /* There is no MIBEnum for TSCII now */
   return 2028;
 }
 
 /*! \reimp */
-QCString QTSCIICodec::fromUnicode(const QString& uc, int& len_in_out) const
+QCString QTsciiCodec::fromUnicode(const QString& uc, int& len_in_out) const
 {
     int l = QMIN((int)uc.length(), len_in_out);
     int rlen = l+1;
@@ -101,7 +103,7 @@ QCString QTSCIICodec::fromUnicode(const QString& uc, int& len_in_out) const
 }
 
 /*! \reimp */
-QString QTSCIICodec::toUnicode(const char* chars, int len) const
+QString QTsciiCodec::toUnicode(const char* chars, int len) const
 {
     QString result;
     for (int i = 0; i < len; i++) {
@@ -128,13 +130,13 @@ QString QTSCIICodec::toUnicode(const char* chars, int len) const
 }
 
 /*! \reimp */
-const char* QTSCIICodec::name() const
+const char* QTsciiCodec::name() const
 {
     return "TSCII";
 }
 
 /*! \reimp */
-int QTSCIICodec::heuristicNameMatch(const char* hint) const
+int QTsciiCodec::heuristicNameMatch(const char* hint) const
 {
     const char *p = strchr(hint, '.');
     if (p)
@@ -147,7 +149,7 @@ int QTSCIICodec::heuristicNameMatch(const char* hint) const
 }
 
 /*! \reimp */
-int QTSCIICodec::heuristicContentMatch(const char* chars, int len) const
+int QTsciiCodec::heuristicContentMatch(const char* chars, int len) const
 {
     int score = 0;
     for (int i=0; i<len; i++) {
@@ -481,3 +483,6 @@ static unsigned int qt_TSCIIToUnicode(uint code, uint *s)
 
     return len;
 }
+
+#endif
+

@@ -7,15 +7,17 @@
 **
 ** Copyright (C) 1992-2000 Troll Tech AS.  All rights reserved.
 **
-** This file is part of the Qt GUI Toolkit.
+** This file is part of the network module of the Qt GUI Toolkit.
 **
 ** This file may be distributed under the terms of the Q Public License
 ** as defined by Troll Tech AS of Norway and appearing in the file
 ** LICENSE.QPL included in the packaging of this file.
 **
-** Licensees holding valid Qt Professional Edition licenses may use this
-** file in accordance with the Qt Professional Edition License Agreement
-** provided with the Qt Professional Edition.
+** Licensees holding valid Qt Enterprise Edition or Qt Professional Edition
+** licenses may use this file in accordance with the Qt Commercial License
+** Agreement provided with the Software.  This file is part of the network
+** module and therefore may only be used if the network module is specified
+** as Licensed on the Licensee's License Certificate.
 **
 ** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 ** information about the Professional Edition licensing, or see
@@ -36,7 +38,7 @@
 
 class QDnsPrivate;
 
-class QDns: public QObject {
+class Q_EXPORT QDns: public QObject {
     Q_OBJECT
 public:
     enum RecordType {
@@ -51,7 +53,7 @@ public:
     QDns();
     QDns( const QString & label, RecordType rr = A );
     QDns( const QHostAddress & address, RecordType rr = Ptr );
-    ~QDns();
+    virtual ~QDns();
 
     // to set/change the query
     virtual void setLabel( const QString & label );
@@ -75,7 +77,6 @@ public:
 	Q_UINT16 priority;
 #if defined(Q_FULL_TEMPLATE_INSTANTIATION)
 	bool operator== ( const MailServer& ) const;
-	MailServer();
 #endif
     };
     QValueList<MailServer> mailServers() const;
@@ -90,7 +91,6 @@ public:
 	Q_UINT16 port;
 #if defined(Q_FULL_TEMPLATE_INSTANTIATION)
 	bool operator== ( const Server& ) const;
-	Server();
 #endif
     };
     QValueList<Server> servers() const;
@@ -127,7 +127,7 @@ class QDnsSocket: public QObject {
     // note: Private not public.  This class contains NO public API.
 protected:
     QDnsSocket( QObject *, const char * );
-    ~QDnsSocket();
+    virtual ~QDnsSocket();
 
 private slots:
     virtual void cleanCache();

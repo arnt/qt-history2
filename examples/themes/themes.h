@@ -26,7 +26,7 @@ public:
 protected:
     QTabWidget *tabwidget;
 
-    int sWood, sMetal, sPlatinum, sWindows, sCDE, sMotif;
+    int sWood, sMetal, sPlatinum, sWindows, sCDE, sMotif, sMotifPlus;
 
 protected slots:
     void styleWood();
@@ -35,6 +35,7 @@ protected slots:
     void styleWindows();
     void styleCDE();
     void styleMotif();
+    void styleMotifPlus();
 
     void about();
     void aboutQt();

@@ -1,5 +1,5 @@
 #############################################################################
-# $Id: //depot/qt/main/extensions/nsplugin/examples/trivial/Makefile#3 $
+# $Id: //depot/qt/main/extensions/nsplugin/examples/trivial/Makefile#4 $
 #
 # Win32 Makefile, requires Microsoft nmake.
 #

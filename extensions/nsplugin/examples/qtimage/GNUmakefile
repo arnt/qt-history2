@@ -1,5 +1,5 @@
 #############################################################################
-# $Id: //depot/qt/main/extensions/nsplugin/examples/qtimage/GNUmakefile#1 $
+# $Id: //depot/qt/main/extensions/nsplugin/examples/qtimage/GNUmakefile#2 $
 #
 # Unix Makefile, requires GNU make (gmake).
 #

@@ -1,5 +1,5 @@
 #############################################################################
-# $Id: //depot/qt/main/examples/buttongroups/GNUmakefile#2 $
+# $Id: //depot/qt/main/examples/buttongroups/GNUmakefile#3 $
 #
 # Unix Makefile, requires GNU make (gmake).
 #

@@ -29,34 +29,36 @@ static char ident[] = "$Id: classes.doc,v 1.8 1999/04/28 09:53:43 aavit Exp $";
 /*!
 \page network.html
 
-\title Network Programming with Qt
+\title Qt Network Module
 
-Since version 2.1 Qt offers classes to make network programming
-easier and portable. Basically there are three sets of classes, first very
-basic classes like \c QSocket, \c QServerSocket, \c QDns, etc. which allow to work
-in a portable way with TCP/IP sockets. Then there are classes like
-\c QNetworkProtocol, \c QNetworkOperation which provide an abstract
-layer for implementing network protocols which can be used in Qt, and
-\c QUrlOperator which operates on such network protocols. Finally the third
-set of network classes are the passive ones, namely \c QUrl and \c QUrlInfo
-which do URL parsing and similar stuff.
+The network module offers classes to make network programming easier
+and portable. Basically there are three sets of classes, first very
+basic classes like \l QSocket, \l QServerSocket, \l QDns, etc. which
+allow to work in a portable way with TCP/IP sockets. In addition,
+there are classes like \l QNetworkProtocol, \l QNetworkOperation in
+the Qt base library, which provide an abstract layer for implementing
+network protocols and \c QUrlOperator which operates on such network
+protocols. Finally the third set of network classes are the passive
+ones, namely \c QUrl and \c QUrlInfo which do URL parsing and similar
+stuff.
 
-The first set of classes (\c QSocket, \c QServerSocket, \c QDns, \c QFtp, etc.) is not
-included in Qt but will be released as a seperate extension after the
-Qt 2.1 release.
+The first set of classes (\l QSocket, \l QServerSocket, \l QDns, \l QFtp, etc.)
+are included in the "network" module of Qt.
 
-Also, the QSocket classes are not directly related to the QNetwork
-classes, but QSocket should and will be used for implementing
-network protocols, which are directly related to the QNetwork
+The QSocket classes are not directly related to the QNetwork classes,
+but QSocket should and will be used for implementing network
+protocols, which are directly related to the QNetwork
 classes. E.g. the QFtp class (implementation of the FTP protocol) uses
-QSockets. But QSockets don't need to be used for protocol implementations,
-e.g. QLocalFs (which is an implementation of the local filesystem as
-network protocol) uses QDir and no QSocket. Using QNetworkProtocols
-you can implement everything which fits into a hierarchical structure and
-can be accessed using URLs. This could be e.g. a protocol which can read
-pictures from a digital camera using a serial connection.
+QSockets. But QSockets don't need to be used for protocol
+implementations, e.g. QLocalFs (which is an implementation of the
+local filesystem as network protocol) uses QDir and no QSocket. Using
+QNetworkProtocols you can implement everything which fits into a
+hierarchical structure and can be accessed using URLs. This could be
+e.g. a protocol which can read pictures from a digital camera using a
+serial connection.
 
-<h2>Working Network Protocol independent with QUrlOperator and QNetworkOperation</h2>
+<h2>Working Network Protocol independent with QUrlOperator and
+QNetworkOperation</h2>
 
 To just use existing network protocol implementations and operate on
 URLs using them is quite easy. E.g. downloading a file from an FTP

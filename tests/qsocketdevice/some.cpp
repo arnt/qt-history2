@@ -85,10 +85,10 @@ QString Some::getInfo()
 	+ QString::number( sd->socket() ) + "\n";
     info += QString("Address: ")
 	+ sd->address().toString() + " : "
-	+ QString::number( sd->port() ) + "\n";
+	+ QString::number( (int)sd->port() ) + "\n";
     info += QString("Peer: ")
 	+ sd->peerAddress().toString() + " : "
-	+ QString::number( sd->peerPort() ) + "\n";
+	+ QString::number( (int)sd->peerPort() ) + "\n";
     info += QString("Bytes available: ")
 	+ QString::number( sd->bytesAvailable() ) + "\n";
     info += QString("Blocking: ")

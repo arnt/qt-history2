@@ -74,7 +74,7 @@ The Qt template library is designed for speed. Especially iterators
 are extremely fast. On the drawback side, less error checking is done
 than in the QCollection based containers. A template library container
 for example does not track associated iterators. This makes certain
-validy checks, like on removing items, impossible to perform
+validity checks, like on removing items, impossible to perform
 automatically.
 
 <h2> Iterators </h2>
@@ -188,7 +188,7 @@ illustrates this:
 
 At the end of this code fragment, the List l1 contains "Torben",
 "Matthias", "Arnt" and "Sue", with the prior contents being
-overwritten. Another flavour of qCopy() takes three arguments to make
+overwritten. Another flavor of qCopy() takes three arguments to make
 it possible to copy a slice of a container:
 
 \code

@@ -7,11 +7,17 @@
 **
 ** Copyright (C) 1992-2000 Troll Tech AS.  All rights reserved.
 **
-** This file is part of the Qt GUI Toolkit.
+** This file is part of the kernel module of the Qt GUI Toolkit.
 **
-** Licensees holding valid Qt Professional Edition licenses may use this
-** file in accordance with the Qt Professional Edition License Agreement
-** provided with the Qt Professional Edition.
+** This file may be distributed under the terms of the Q Public License
+** as defined by Troll Tech AS of Norway and appearing in the file
+** LICENSE.QPL included in the packaging of this file.
+**
+** Licensees holding valid Qt Enterprise Edition or Qt Professional Edition
+** licenses may use this file in accordance with the Qt Commercial License
+** Agreement provided with the Software.  This file is part of the kernel
+** module and therefore may only be used if the kernel module is specified
+** as Licensed on the Licensee's License Certificate.
 **
 ** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 ** information about the Professional Edition licensing.
@@ -58,13 +64,13 @@ typedef unsigned int __u32;
 #endif
 
 #ifndef QT_NO_QWS_GFX_SPEED
- #define QWS_EXPERIMENTAL_FASTPATH
- #define GFX_INLINE inline
+# define QWS_EXPERIMENTAL_FASTPATH
+# define GFX_INLINE inline
 #else
- #define GFX_INLINE
+# define GFX_INLINE
 #endif
 
-#if defined(__MIPSEL__) || defined(QT_NO_QWS_GFX_SPEED)
+#if !defined(__i386__) || defined(QT_NO_QWS_GFX_SPEED)
 #define QWS_NO_WRITE_PACKING
 #endif
 
@@ -84,7 +90,7 @@ struct SWCursorData {
     unsigned char under[SW_CURSOR_DATA_SIZE*4];	// room for 32bpp display
     QRgb clut[256];
     unsigned char translut[256];
-    int colours;
+    int colors;
     int width;
     int height;
     int x;
@@ -97,29 +103,29 @@ struct SWCursorData {
 #endif
 
 #ifndef QT_NO_QWS_CURSOR
- #define GFX_START(r) bool swc_do_save=FALSE; \
+# define GFX_START(r) bool swc_do_save=FALSE; \
 		     if(is_screen_gfx) { \
 			if(qt_sw_cursor) \
 			    swc_do_save = qt_screencursor->restoreUnder(r,this); \
 			beginDraw(); \
 		     }
- #define GFX_END if(is_screen_gfx) { \
+# define GFX_END if(is_screen_gfx) { \
 		    endDraw(); \
 		    if(swc_do_save) \
 			qt_screencursor->saveUnder(); \
 		}
 #else //QT_NO_QWS_CURSOR
 
- #define GFX_START(r) if(is_screen_gfx) \
+# define GFX_START(r) if(is_screen_gfx) \
 			beginDraw();
- #define GFX_END if(is_screen_gfx) \
+# define GFX_END if(is_screen_gfx) \
 		    endDraw();
 #endif //QT_NO_QWS_CURSOR
 
 #ifndef QT_NO_QWS_DEPTH_8GRAYSCALE
-    #define GFX_8BPP_PIXEL(r,g,b) qGray((r),(g),(b))
+# define GFX_8BPP_PIXEL(r,g,b) qGray((r),(g),(b))
 #else
-    #define GFX_8BPP_PIXEL(r,g,b) (((r) + 25) / 51 * 36 + ((g) + 25) / 51 * 6 + ((b) + 25) / 51)
+# define GFX_8BPP_PIXEL(r,g,b) (((r) + 25) / 51 * 36 + ((g) + 25) / 51 * 6 + ((b) + 25) / 51)
 #endif
 
 static int optype;
@@ -151,11 +157,20 @@ void QScreenCursor::init(SWCursorData *da, bool init)
 	data->bound = QRect( data->x - data->hotx, data->y - data->hoty,
 		       data->width+1, data->height+1 );
     }
+
+    imgunder = new QImage( data->under, 64, 64, gfx->bitDepth(), 0,
+		gfx->bitDepth() == 1 ? 0 : 256, QImage::LittleEndian );
+    gfxunder = (QGfxRasterBase*)imgunder->graphicsContext();
+
+    cursor = new QImage();
 }
 
 QScreenCursor::~QScreenCursor()
 {
     delete gfx;
+    delete gfxunder;
+    delete imgunder;
+    delete cursor;
 }
 
 bool QScreenCursor::supportsAlphaCursor()
@@ -176,7 +191,7 @@ void QScreenCursor::set(const QImage &image, int hotx, int hoty)
     data->width = image.width();
     data->height = image.height();
     memcpy(data->cursor, image.bits(), image.numBytes());
-    data->colours = image.numColors();
+    data->colors = image.numColors();
     int depth = gfx->bitDepth();
     if ( depth <= 8 ) {
 	for (int i = 0; i < image.numColors(); i++) {
@@ -210,9 +225,6 @@ void QScreenCursor::move(int x, int y)
 
 bool QScreenCursor::restoreUnder( const QRect &r, QGfxRasterBase *g )
 {
-    int linestep = gfx->linestep();
-    int width = gfx->pixelWidth();
-    int height = gfx->pixelHeight();
     int depth = gfx->bitDepth();
 
     if (!data || !data->enable)
@@ -230,24 +242,46 @@ bool QScreenCursor::restoreUnder( const QRect &r, QGfxRasterBase *g )
 	int x = data->x - data->hotx;
 	int y = data->y - data->hoty;
 
-	// clipping
-	int startCol = x < 0 ? QABS(x) : 0;
-	int startRow = y < 0 ? QABS(y) : 0;
-	int endRow = y + data->height > height ? height - y : data->height;
-	int endCol = x + data->width > width ? width - x : data->width;
-
-	int srcLineStep = data->width * depth/8;
-	unsigned char *dest = fb_start + (y + startRow) * linestep
-				+ (x + startCol) * depth/8;
-	unsigned char *src = data->under;
-
-	if ( endCol > startCol )
-	    for (int row = startRow; row < endRow; row++)
-	    {
-		memcpy(dest, src, (endCol-startCol) * depth/8);
-		src += srcLineStep;
-		dest += linestep;
+	if ( depth < 8 ) {
+	    if ( data->width && data->height ) {
+		qt_sw_cursor = FALSE;   // prevent recursive call from blt
+		gfx->setSource( imgunder );
+		gfx->setSourceOffset(0, 0);
+		gfx->setAlphaType(QGfx::IgnoreAlpha);
+		gfx->blt(x,y,data->width,data->height);
+		qt_sw_cursor = TRUE;
 	    }
+	} else {
+	    // This is faster than the above - at least until blt is
+	    // better optimised.
+	    int linestep = gfx->linestep();
+	    int width = gfx->pixelWidth();
+	    int height = gfx->pixelHeight();
+	    int startCol = x < 0 ? QABS(x) : 0;
+	    int startRow = y < 0 ? QABS(y) : 0;
+	    int endRow = y + data->height > height ? height - y : data->height;
+	    int endCol = x + data->width > width ? width - x : data->width;
+
+	    int srcLineStep = data->width * depth/8;
+	    unsigned char *dest = fb_start + (y + startRow) * linestep
+				    + (x + startCol) * depth/8;
+	    unsigned char *src = data->under;
+
+	    if ( endCol > startCol ) {
+		int bytes;
+		if ( depth < 8 )
+		    bytes = (x + endCol - 1)*depth/8 - (x + startCol)*depth/8 + 1;
+		else
+		    bytes = (endCol - startCol) * depth / 8;
+		if ( depth == 1 ) bytes++;
+		for (int row = startRow; row < endRow; row++)
+		{
+		    memcpy(dest, src, bytes);
+		    src += srcLineStep;
+		    dest += linestep;
+		}
+	    }
+	}
 	save_under = TRUE;
 	return TRUE;
     }
@@ -257,33 +291,48 @@ bool QScreenCursor::restoreUnder( const QRect &r, QGfxRasterBase *g )
 
 void QScreenCursor::saveUnder()
 {
-    int linestep = gfx->linestep();
-    int width = gfx->pixelWidth();
-    int height = gfx->pixelHeight();
     int depth = gfx->bitDepth();
-
     int x = data->x - data->hotx;
     int y = data->y - data->hoty;
 
-    // clipping
-    int startRow = y < 0 ? QABS(y) : 0;
-    int startCol = x < 0 ? QABS(x) : 0;
-    int endRow = y + data->height > height ? height - y : data->height;
-    int endCol = x + data->width > width ? width - x : data->width;
+    if ( depth < 8 ) {
+	qt_sw_cursor = FALSE;   // prevent recursive call from blt
+	gfxunder->setAlphaType(QGfx::IgnoreAlpha);
+	gfxunder->setSource( qApp->desktop() );
+	gfxunder->setSourceOffset(x,y);
+	gfxunder->blt(0,0,data->width,data->height);
+	qt_sw_cursor = TRUE;
+    } else {
+	// This is faster than the above - at least until blt is
+	// better optimised.
+	int linestep = gfx->linestep();
+	int width = gfx->pixelWidth();
+	int height = gfx->pixelHeight();
+	int startRow = y < 0 ? QABS(y) : 0;
+	int startCol = x < 0 ? QABS(x) : 0;
+	int endRow = y + data->height > height ? height - y : data->height;
+	int endCol = x + data->width > width ? width - x : data->width;
 
-    int destLineStep = data->width * depth / 8;
+	int destLineStep = data->width * depth / 8;
 
-    unsigned char *src = fb_start + (y + startRow) * linestep
-			    + (x + startCol) * depth/8;
-    unsigned char *dest = data->under;
+	unsigned char *src = fb_start + (y + startRow) * linestep
+				+ (x + startCol) * depth/8;
+	unsigned char *dest = data->under;
 
-    if ( endCol > startCol )
-	for (int row = startRow; row < endRow; row++)
-	{
-	    memcpy(dest, src, (endCol-startCol) * depth/8);
-	    src += linestep;
-	    dest += destLineStep;
+	if ( endCol > startCol ) {
+	    int bytes;
+	    if ( depth < 8 )
+		bytes = (x + endCol - 1)*depth/8 - (x + startCol)*depth/8 + 1;
+	    else
+		bytes = (endCol - startCol) * depth / 8;
+	    for (int row = startRow; row < endRow; row++)
+	    {
+		memcpy(dest, src, bytes);
+		src += linestep;
+		dest += destLineStep;
+	    }
 	}
+    }
 
     drawCursor();
 
@@ -292,18 +341,36 @@ void QScreenCursor::saveUnder()
     QWSDisplay::ungrab();
 }
 
-// we can't really use our gfx here because we will end up trying
-// to restore/save the cursor again when we call blt.
+// We could use blt, but since cursor redraw speed is critical
+// it is all handled here.  Whether this is significantly faster is
+// questionable.
 void QScreenCursor::drawCursor()
 {
+    int x = data->x - data->hotx;
+    int y = data->y - data->hoty;
+
+    /* ### experimental
+    if ( data->width != cursor->width() || data->height != cursor->height() ) {
+	delete cursor;
+	cursor = new QImage( data->cursor, data->width, data->height, 8,
+			 data->clut, data->colors, QImage::IgnoreEndian );
+    }
+    if ( data->width && data->height ) {
+	qt_sw_cursor = FALSE;   // prevent recursive call from blt
+	gfx->setSource( cursor );
+	gfx->setSourceOffset(0, 0);
+	gfx->setAlphaType(QGfx::InlineAlpha);
+	gfx->blt(x,y,data->width,data->height);
+	qt_sw_cursor = TRUE;
+    }
+
+    return;
+    */
+
     int linestep = gfx->linestep();
     int width = gfx->pixelWidth();
     int height = gfx->pixelHeight();
     int depth = gfx->bitDepth();
-
-
-    int x = data->x - data->hotx;
-    int y = data->y - data->hoty;
 
     // clipping
     int startRow = y < 0 ? QABS(y) : 0;
@@ -332,7 +399,7 @@ void QScreenCursor::drawCursor()
 		if (av == 0xff) {
 		    *(dptr+col) = srcval;
 		}
- #ifndef QT_NO_QWS_ALPHA_CURSOR
+# ifndef QT_NO_QWS_ALPHA_CURSOR
 		else if (av != 0) {
 		    r = (srcval & 0xff0000) >> 16;
 		    g = (srcval & 0xff00) >> 8;
@@ -354,7 +421,7 @@ void QScreenCursor::drawCursor()
 
 		    *(dptr+col) = (r << 16) | (g << 8) | b;
 		}
- #endif
+# endif
 	    }
 	    srcptr += data->width;
 	    dptr += linestep/4;
@@ -380,7 +447,7 @@ void QScreenCursor::drawCursor()
 		    b = (srcval & 0xff) >> 3;
 		    *(dptr+col) = (r << 11) | (g << 5) | b;
 		}
- #ifndef QT_NO_QWS_ALPHA_CURSOR
+# ifndef QT_NO_QWS_ALPHA_CURSOR
 		else if (av != 0) {
 		    // This is absolutely silly - but we can so we do.
 		    r = (srcval & 0xff0000) >> 16;
@@ -410,7 +477,7 @@ void QScreenCursor::drawCursor()
 		    b=b >> 3;
 		    *(dptr+col) = (r << 11) | (g << 5) | b;
 		}
- #endif
+# endif
 	    }
 	    srcptr += data->width;
 	    dptr += linestep/2;
@@ -433,7 +500,7 @@ void QScreenCursor::drawCursor()
 		if (av == 0xff) {
 		    *(dptr+col) = data->translut[*(srcptr+col)];
 		}
- #ifndef QT_NO_QWS_ALPHA_CURSOR
+# ifndef QT_NO_QWS_ALPHA_CURSOR
 		else if (av != 0) {
 		    // This is absolutely silly - but we can so we do.
 		    r = (srcval & 0xff0000) >> 16;
@@ -458,10 +525,46 @@ void QScreenCursor::drawCursor()
 
 		    *(dptr+col) = GFX_8BPP_PIXEL(r,g,b);
 		}
- #endif
+# endif
 	    }
 	    srcptr += data->width;
 	    dptr += linestep;
+	}
+    }
+#endif
+#ifndef QT_NO_QWS_DEPTH_1
+    if ( depth == 1 ) {
+        unsigned int srcval;
+	int av;
+	for (int row = startRow; row < endRow; row++)
+	{
+	    unsigned char *dp = fb_start + (y + row) * linestep;
+	    int x1 = x+startCol;
+	    int x2 = x+endCol-1;
+	    dp += x1/8;
+	    int skipbits = x1%8;
+	    int col = startCol;
+	    for ( int b = x1/8; b <= x2/8; b++ ) {
+		unsigned char m = *dp;
+		for (int i = 0; i < 8 && col < endCol; i++) {
+		    if (skipbits)
+			skipbits--;
+		    else {
+			srcval = clut[*(srcptr+col)];
+			av = srcval >> 24;
+			if (av == 0xff) {
+			    unsigned char val = data->translut[*(srcptr+col)];
+			    if (val)
+				m |= 1 << i;
+			    else
+				m &= ~( 1 << i );
+			}
+			col++;
+		    }
+		}
+		*(dp++) = m;
+	    }
+	    srcptr += data->width;
 	}
     }
 #endif
@@ -514,9 +617,10 @@ QGfxRasterBase::QGfxRasterBase(unsigned char * b,int w,int h) :
     clutcols = 0;
     update_clip();
     myrop=CopyROP;
+    src_little_endian=true;
     
 #if !defined(QT_NO_QWS_DEPTH_8) || !defined(QT_NO_QWS_DEPTH_8GRAYSCALE)
-    // default colour map
+    // default color map
     setClut( qt_screen->clut(), qt_screen->numCols() );
 #endif
 }
@@ -695,10 +799,19 @@ void QGfxRasterBase::setSourceOffset(int x ,int y)
     srcoffs = QPoint(x+srcwidgetx,y+srcwidgety);
 }
 
-void QGfxRasterBase::setMasking(bool on,int colour)
+void QGfxRasterBase::setSourceWidgetOffset(int x ,int y)
+{
+    int oldx = srcoffs.x() - srcwidgetx;
+    int oldy = srcoffs.y() - srcwidgety;
+    srcwidgetx = x;
+    srcwidgety = y;
+    setSourceOffset( oldx, oldy );
+}
+
+void QGfxRasterBase::setMasking(bool on,int color)
 {
     ismasking=on;
-    maskcol=colour;
+    maskcol=color;
     alphatype=IgnoreAlpha;
 }
 
@@ -754,6 +867,7 @@ void QGfxRasterBase::drawText(int x,int y,const QString & s)
     } else {
 	setAlphaType(BigEndianMask);
     }
+    setSourceOffset(0, 0);
 
     for( loopc=0; loopc < int(s.length()); loopc++ ) {
 	QGlyph glyph = memorymanager->lockGlyph(myfont, s[loopc]);
@@ -1044,8 +1158,7 @@ void QGfxRasterBase::setSourcePen()
     srccol = cpen.color().pixel();
     src_normal_palette=true;
     srctype=SourcePen;
-    srcwidgetx=0;
-    srcwidgety=0;
+    setSourceWidgetOffset( 0, 0 );
 }
 
 // Convert between pixel values for different depths
@@ -1103,14 +1216,7 @@ GFX_INLINE unsigned int QGfxRasterBase::get_value_32(
 #else
 	if(true) {
 #endif
-	    unsigned int r,g,b;
-	    unsigned int hold=srcclut[val];
-	    r=(hold & 0xff0000) >> 16;
-	    g=(hold & 0x00ff00) >> 8;
-	    b=(hold & 0x0000ff);
-	    r=r << 16;
-	    g=g << 8;
-	    ret=r | g | b;
+	    ret = srcclut[val];
 	}
 	if(reverse) {
 	    (*srcdata)--;
@@ -1376,28 +1482,42 @@ GFX_INLINE unsigned int QGfxRasterBase::get_value_8(
 GFX_INLINE unsigned int QGfxRasterBase::get_value_1(
 		       int sdepth, unsigned char **srcdata, bool reverse)
 {
-    ASSERT(!reverse); // not implemented
-
     unsigned int ret;
 
     if(sdepth==1) {
-	if(monobitcount==0) {
-	    monobitval=*((*srcdata)++);
-	}
-	if(src_little_endian) {
-	    ret=monobitval & 0x1;
-	    monobitval=monobitval >> 1;
+	if ( reverse ) {
+	    if(src_little_endian) {
+		ret = ( monobitval & 0x80 ) >> 7;
+		monobitval=monobitval << 1;
+		monobitval=monobitval & 0xff;
+	    } else {
+		ret=monobitval & 0x1;
+		monobitval=monobitval >> 1;
+	    }
+	    if(monobitcount < 7) {
+		monobitcount++;
+	    } else {
+		monobitcount=0;
+		(*srcdata)--;
+		monobitval=**srcdata;
+	    }
 	} else {
-	    ret = ( monobitval & 0x80 ) >> 7;
-	    monobitval=monobitval << 1;
-	    monobitval=monobitval & 0xff;
+	    if(src_little_endian) {
+		ret=monobitval & 0x1;
+		monobitval=monobitval >> 1;
+	    } else {
+		ret = ( monobitval & 0x80 ) >> 7;
+		monobitval=monobitval << 1;
+		monobitval=monobitval & 0xff;
+	    }
+	    if(monobitcount<7) {
+		monobitcount++;
+	    } else {
+		monobitcount=0;
+		(*srcdata)++;
+		monobitval=**srcdata;
+	    }
 	}
-	if(monobitcount<7) {
-	    monobitcount++;
-	} else {
-	    monobitcount=0;
-	}
-	ret=srcclut[ret];
     } else if(sdepth==32) {
 	// Fix this to honour reverse
 	unsigned int hold=*((unsigned int *)(*srcdata));
@@ -1622,8 +1742,7 @@ void QGfxRaster<depth,type>::setSource(const QPaintDevice * p)
 	srcheight=w->height();
 	QPoint hold;
 	hold=w->mapToGlobal(hold);
-	srcwidgetx=hold.x();
-	srcwidgety=hold.y();
+	setSourceWidgetOffset( hold.x(), hold.y() );
 	if ( srcdepth == 1 ) {
 	    buildSourceClut(0, 0);
 	} else if(srcdepth <= 8) {
@@ -1632,6 +1751,7 @@ void QGfxRaster<depth,type>::setSource(const QPaintDevice * p)
     } else if ( p->devType() == QInternal::Pixmap ) {
 	//still a bit ugly
 	QPixmap *pix = (QPixmap*)p;
+	setSourceWidgetOffset( 0, 0 );
 	srcwidth=pix->width();
 	srcheight=pix->height();
 	if ( srcdepth == 1 ) {
@@ -1642,8 +1762,7 @@ void QGfxRaster<depth,type>::setSource(const QPaintDevice * p)
     } else {
 	// This is a bit ugly #### I'll say!
 	//### We will have to find another way to do this
-	srcwidgetx=0;
-	srcwidgety=0;
+	setSourceWidgetOffset( 0, 0 );
 	buildSourceClut(0,0);
     }
 
@@ -1660,8 +1779,7 @@ void QGfxRaster<depth,type>::setSource(const QImage * i)
 	abort();
     srcbits=i->scanLine(0);
     src_little_endian=(i->bitOrder()==QImage::LittleEndian);
-    srcwidgetx=0;
-    srcwidgety=0;
+    setSourceWidgetOffset( 0, 0 );
     srcwidth=i->width();
     srcheight=i->height();
     src_normal_palette=false;
@@ -2182,7 +2300,8 @@ GFX_INLINE void QGfxRaster<depth,type>::hlineUnclipped( int x1,int x2,unsigned c
 			    masked=FALSE; \
 			} \
 		    } else { \
-			if(alphatype==LittleEndianMask) { \
+			if( (alphatype==LittleEndianMask && !rev) || \
+			    (alphatype==BigEndianMask && rev) ) { \
 			    if(amonobitval & 0x1) { \
 				masked=FALSE; \
 			    } \
@@ -2205,10 +2324,16 @@ GFX_INLINE void QGfxRaster<depth,type>::hlineUnclipped( int x1,int x2,unsigned c
 		    } \
 
 
+/*
+ l points to the start of the destination line's data.
+ x1 and x2 are the start and end pixels.
+ srcdata points to the source's left pixel start byte if reverse is false.
+ srcdata points to the source's right pixels's start byte if reverse is true.
+*/
 template <const int depth, const int type>
 GFX_INLINE void QGfxRaster<depth,type>::hImageLineUnclipped( int x1,int x2,
-						    unsigned char* l,
-						    unsigned char * srcdata,
+						    unsigned char *l,
+						    unsigned char *srcdata,
 						    bool reverse)
 {
     if ( depth == 32 ) {
@@ -2218,7 +2343,6 @@ GFX_INLINE void QGfxRaster<depth,type>::hImageLineUnclipped( int x1,int x2,
 	    uint gv = srccol;
 	    if(reverse) {
 		myptr+=x2;
-		srcdata+=(srcdepth*(w-1))/8;
 		if ( srcdepth == depth && srctype==SourceImage ) {
 		    while (w--) {
 			*(myptr--) = *((unsigned int *)srcdata);
@@ -2250,7 +2374,6 @@ GFX_INLINE void QGfxRaster<depth,type>::hImageLineUnclipped( int x1,int x2,
 	    //masked 32bpp blt...
 	    if(reverse) {
 		myptr+=x2;
-		srcdata+=(srcdepth*(w-1))/8;
 		uint gv = srccol;
 		while(w--) {
 		    if (srctype==SourceImage)
@@ -2285,7 +2408,6 @@ GFX_INLINE void QGfxRaster<depth,type>::hImageLineUnclipped( int x1,int x2,
 	    myptr+=x1;
 	} else {
 	    myptr+=x2;
-	    srcdata+=((srcdepth*(w-1))/8);
 	}
 	if(!ismasking) {
 	    if ( srcdepth == depth && srctype==SourceImage ) {
@@ -2313,8 +2435,8 @@ GFX_INLINE void QGfxRaster<depth,type>::hImageLineUnclipped( int x1,int x2,
 			*(myptr--)=get_value_16(srcdepth,&srcdata,TRUE);
 		    myptr--;
 		    while ( count-- ) {
-			*(fun+1) = get_value_16(srcdepth,&srcdata,TRUE);
-			*(fun) = get_value_16(srcdepth,&srcdata,TRUE);
+			put = get_value_16(srcdepth,&srcdata,TRUE);
+			put = (put<<16)|get_value_16(srcdepth,&srcdata,TRUE);
 			*((unsigned int*)myptr) = put;
 			myptr -= 2;
 		    }
@@ -2322,10 +2444,10 @@ GFX_INLINE void QGfxRaster<depth,type>::hImageLineUnclipped( int x1,int x2,
 		    if ( frontadd )
 			*(myptr--)=get_value_16(srcdepth,&srcdata,TRUE);
 		} else {
-    #ifdef QWS_NO_WRITE_PACKING
+#ifdef QWS_NO_WRITE_PACKING
 		    while ( w-- )
 			*(myptr++)=get_value_16(srcdepth,&srcdata);
-    #else
+#else
 		    // 64-bit writes
 		    int frontadd;
 		    int backadd;
@@ -2349,12 +2471,12 @@ GFX_INLINE void QGfxRaster<depth,type>::hImageLineUnclipped( int x1,int x2,
 		    }
 		    while ( backadd-- )
 			*(myptr++)=get_value_16(srcdepth,&srcdata);
-    #endif
+#endif
 		}
 	    }
 	} else {
 	    // Probably not worth trying to pack writes if there's a mask
-	    // colour, at least not yet
+	    // color, at least not yet
 	    int count=( x2-x1+1 );
 	    if(reverse) {
 		unsigned short int gv = srccol;
@@ -2392,12 +2514,12 @@ GFX_INLINE void QGfxRaster<depth,type>::hImageLineUnclipped( int x1,int x2,
 	    myptr+=x1;
 	} else {
 	    myptr+=x2;
-	    srcdata+=((srcdepth*(w-1))/8);
 	}
 	if(!ismasking) {
 	    if(reverse) {
 		// 64-bit writes
-		if ( srcdepth == depth && srctype==SourceImage ) {
+		if ( srcdepth == depth && srctype==SourceImage 
+		     && src_normal_palette ) {
 		    while (w--) {
 			*(myptr--) = *srcdata;
 			--srcdata;
@@ -2440,7 +2562,8 @@ GFX_INLINE void QGfxRaster<depth,type>::hImageLineUnclipped( int x1,int x2,
 #endif
 		}
 	    } else {
-		if ( srcdepth == depth && srctype==SourceImage ) {
+		if ( srcdepth == depth && srctype==SourceImage
+		     && src_normal_palette ) {
 		    while (w--) {
 			*(myptr++) = *srcdata;
 			++srcdata;
@@ -2483,7 +2606,7 @@ GFX_INLINE void QGfxRaster<depth,type>::hImageLineUnclipped( int x1,int x2,
 	} else {
 
 	    // Probably not worth trying to pack writes if there's a mask
-	    // colour, at least not yet
+	    // color, at least not yet
 	    int count=( x2-x1+1 );
 
 	    if(reverse) {
@@ -2515,54 +2638,62 @@ GFX_INLINE void QGfxRaster<depth,type>::hImageLineUnclipped( int x1,int x2,
 	    }
 	}
     } else if ( depth == 1 ) {
-	//bitmap to bitmap first, let's handle other combinations later.
-	if ( srcdepth == 1 ) {
-	    // depth 1 destination with PCI/AGP hardware is very rare
-	    // so we don't bother 32-bit-combining. No endian issues
-	    // handled here
-	    unsigned char * dp=l;
-	    unsigned char * sp=srcdata;
-	    int w=(x2-x1)+1;
-	    w=(w+7)/8;
-	    dp+=(x1/8);
-	    while(w--) {
-		*(dp++)=*(sp++);
+	// General case only implemented.
+	// Lots of optimisation can be performed for special cases.
+	unsigned char * dp=l;
+	unsigned int gv = srccol;
+	int w=(x2-x1)+1;
+	if ( reverse ) {
+	    dp+=(x2/8);
+	    int skipbits = 7 - (x2%8);
+	    for ( int b = x1/8; b <= x2/8; b++ ) {
+		unsigned char m = *dp;
+		for (int i = 0; i < 8 && w; i++) {
+		    if (skipbits)
+			skipbits--;
+		    else {
+			if ( srctype == SourceImage )
+			    gv = get_value_1( srcdepth, &srcdata, TRUE);
+			bool masked = TRUE;
+			if ( ismasking ) {
+			    GET_MASKED(TRUE);
+			}
+			if ( !masked || !ismasking ) {
+			    if (gv)
+				m |= 0x80 >> i;
+			    else
+				m &= ~( 0x80 >> i );
+			}
+			w--;
+		    }
+		}
+		*(dp--) = m;
 	    }
 	} else {
-		// QGroupBox seems to want to draw text onto 1bpp
-		// when doing wood theme
-		// (i.e. SourcePen, srcdepth is 0, with mask)
-		// This doesn't work yet
-	    if ( srctype == SourcePen && alphatype == BigEndianMask ) {
-		unsigned char * dp=l;
-		int w=(x2-x1)+1;
-		unsigned int gv = srccol; // used by GET_MASKED
-		w=(w+7)/8;
-		dp+=(x1/8);
-		int skipbits = x1%8;
-		while(w--) {
-		    unsigned char m = 0;
-		    for (int i = 0; i < 8; i++) {
+	    dp+=(x1/8);
+	    int skipbits = x1%8;
+	    for ( int b = x1/8; b <= x2/8; b++ ) {
+		unsigned char m = *dp;
+		for (int i = 0; i < 8 && w; i++) {
+		    if (skipbits)
+			skipbits--;
+		    else {
+			if ( srctype == SourceImage )
+			    gv = get_value_1( srcdepth, &srcdata, FALSE);
 			bool masked = TRUE;
-			if (skipbits)
-			    skipbits--;
-			else {
+			if ( ismasking ) {
 			    GET_MASKED(FALSE);
 			}
-			if (!masked) m |= 1 << i;
+			if ( !masked || !ismasking ) {
+			    if (gv)
+				m |= 1 << i;
+			    else
+				m &= ~( 1 << i );
+			}
+			w--;
 		    }
-		    *(dp++) |= m;
 		}
-	    } else if ( srctype==SourcePen && alphatype==LittleEndianMask ) {
-		unsigned char * dp=l;
-		int w=(x2-x1)+1;
-		w=(w+7)/8;
-		dp+=(x1/8);
-		while(w--) {
-		    *(dp++) |= *(maskp++);
-		}
-	    } else {
-		qWarning( "Cannot blt %dbpp to monochrome", srcdepth );
+		*(dp++) = m;
 	    }
 	}
     }
@@ -3164,8 +3295,6 @@ void QGfxRaster<depth,type>::drawRect( int rx,int ry,int w,int h )
 	srcwidth=cbrushpixmap->width();
 	srcheight=cbrushpixmap->height();
 	if(cbrushpixmap->depth()==1) {
-	    srcwidgetx=0;
-	    srcwidgety=0;
 	    if(opaque) {
 		setSource(cbrushpixmap);
 		setAlphaType(IgnoreAlpha);
@@ -3188,7 +3317,7 @@ void QGfxRaster<depth,type>::drawRect( int rx,int ry,int w,int h )
 	    setSource(cbrushpixmap);
 	    setAlphaType(IgnoreAlpha);
 	}
-	setSourceOffset(0,0);
+//	setSourceOffset(0,0);
 	tiledBlt(rx,ry,w,h);
     } else if(cbrush.style()!=NoBrush) {
 	useBrush();
@@ -3281,20 +3410,31 @@ void QGfxRaster<depth,type>::processSpans( int n, QPoint* point, int* width )
 
  */
 static GFX_INLINE unsigned char * find_pointer(unsigned char * base,int x,int y,
-					   int linestep,int & astat,unsigned char &
-					   ahold,bool is_bigendian)
+					   int w, int linestep, int &astat,
+					   unsigned char &ahold,
+					   bool is_bigendian, bool rev)
 {
-    int nbits=x % 8;
-    int nbytes=x / 8;
-    unsigned char * ret= base + (y*linestep) + nbytes;
+    int nbits;
+    int nbytes;
+
+    if ( rev ) {
+	is_bigendian = !is_bigendian;
+	nbits = 7 - (x+w) % 8;
+       	nbytes = (x+w) / 8;
+    } else {
+	nbits = x % 8;
+       	nbytes = x / 8;
+    }
+
+    astat=nbits;
+
+    unsigned char *ret = base + (y*linestep) + nbytes;
 
     ahold=*ret;
     if(is_bigendian) {
 	ahold=ahold << nbits;
-	astat=nbits;
     } else {
 	ahold=ahold >> nbits;
-	astat=nbits;
     }
 
     return ret;
@@ -3314,7 +3454,7 @@ void QGfxRaster<depth,type>::scroll( int rx,int ry,int w,int h,int sx, int sy )
 
     srcbits=buffer;
 
-    if ( depth<8 != 0 ) {
+    if ( depth < 8 ) {
 	// low bit depth - use slow blt based method.
 	srclinestep=linestep();
 	srcdepth=depth;
@@ -3323,6 +3463,7 @@ void QGfxRaster<depth,type>::scroll( int rx,int ry,int w,int h,int sx, int sy )
 	srctype=SourceImage;
 	alphatype=IgnoreAlpha;
 	ismasking=FALSE;
+	setSourceWidgetOffset( xoffs, yoffs );
 	setSourceOffset(sx,sy);
 	blt(rx,ry,w,h);
 	return;
@@ -3428,13 +3569,6 @@ void QGfxRaster<depth,type>::blt( int rx,int ry,int w,int h )
 
     GFX_START(cursRect);
 
-    bool reverse = rx>srcoffs.x() && srctype==SourceImage && srcbits == buffer;
-
-    if ( alphatype == InlineAlpha || alphatype == SolidAlpha ||
-	 alphatype == SeparateAlpha ) {
-	alphabuf = new unsigned int[w];
-    }
-
     int dl = linestep();
     int dj = 1;
     int dry = 1;
@@ -3453,13 +3587,14 @@ void QGfxRaster<depth,type>::blt( int rx,int ry,int w,int h )
 	tj = h;
     }
 
-    unsigned char* l = scanLine(ry);
+    unsigned char *l;
 
 #define FASTPATH_BLIT
 #ifdef FASTPATH_BLIT
     // Fast path for 8/16/32 bit same-depth opaque blit. (ie. the common case)
-    if ( depth >= 8 && srcdepth == depth && alphatype == IgnoreAlpha )
-    {
+    if ( srcdepth == depth && alphatype == IgnoreAlpha &&
+	 (depth > 8 || (depth == 8 && src_normal_palette)) ) {
+	int bytesPerPixel = depth/8;
 	for (; j!=tj; j+=dj,ry+=dry,l+=dl) {
 	    l=scanLine(ry);
 	    bool plot=inClip(rx,ry,&cr);
@@ -3471,17 +3606,10 @@ void QGfxRaster<depth,type>::blt( int rx,int ry,int w,int h )
 		    if ( x2 < x ) break;
 		}
 		if (plot) {
-		    unsigned char * srcptr=srcScanLine(j+srcoffs.y());
-		    if(depth==32) {
-			srcptr+=(((x-rx)+(srcoffs.x()))*4);
-		    } else if(depth==16 || depth==15) {
-			srcptr+=(((x-rx)+(srcoffs.x()))*2);
-		    } else if(depth==8) {
-			srcptr+=(((x-rx)+(srcoffs.x())));
-		    } else if(depth==1) {
-			srcptr+=(((x-rx)+srcoffs.x())/8);
-		    }
-		    hImageLineUnclipped(x,x2,l,srcptr,reverse);
+		    unsigned char *srcptr=srcScanLine(j+srcoffs.y());
+		    srcptr += (x-rx+srcoffs.x())*bytesPerPixel;
+		    unsigned char *destptr = l + x*bytesPerPixel;
+		    memmove(destptr, srcptr, (x2-x+1) * bytesPerPixel);
 		}
 		if ( x >= rx+w-1 )
 		    break;
@@ -3493,6 +3621,14 @@ void QGfxRaster<depth,type>::blt( int rx,int ry,int w,int h )
 #endif
 
     {
+	if ( alphatype == InlineAlpha || alphatype == SolidAlpha ||
+	     alphatype == SeparateAlpha ) {
+	    alphabuf = new unsigned int[w];
+	}
+
+	bool reverse = srcoffs.y()==ry && rx>srcoffs.x() &&
+			srctype==SourceImage && srcbits == buffer;
+
 	for (; j!=tj; j+=dj,ry+=dry,l+=dl) {
 	    l=scanLine(ry);
 	    bool plot=inClip(rx,ry,&cr);
@@ -3504,27 +3640,23 @@ void QGfxRaster<depth,type>::blt( int rx,int ry,int w,int h )
 		    if ( x2 < x ) break;
 		}
 		if (plot) {
-		    unsigned char * srcptr=srcScanLine(j+srcoffs.y());
-		    if(srcdepth==32) {
-			srcptr+=(((x-rx)+(srcoffs.x()))*4);
-		    } else if(srcdepth==16 || srcdepth==15) {
-			srcptr+=(((x-rx)+(srcoffs.x()))*2);
-		    } else if(srcdepth==8) {
-			srcptr+=(((x-rx)+(srcoffs.x())));
-		    } else if(srcdepth==1) {
-			srcptr+=(((x-rx)+srcoffs.x())/8);
-		    }
+		    unsigned char *srcptr=srcScanLine(j+srcoffs.y());
+		    if ( reverse )
+			srcptr += (x2-rx+srcoffs.x())*srcdepth/8;
+		    else
+			srcptr += (x-rx+srcoffs.x())*srcdepth/8;
 		    if(srctype==SourceImage && srcdepth==1)
-			find_pointer(srcScanLine(0),(x-rx),j,
-				     srclinestep,monobitcount,
-				     monobitval,!src_little_endian);
+			srcptr=find_pointer(srcScanLine(0),(x-rx)+srcoffs.x(),
+				     j+srcoffs.y(), x2-x, srclinestep,
+				     monobitcount, monobitval,
+				     !src_little_endian, reverse);
 		    switch ( alphatype ) {
 		      case LittleEndianMask:
 		      case BigEndianMask:
-			maskp=find_pointer(alphabits,(x-rx),j,
-					   alphalinestep,
+			maskp=find_pointer(alphabits,(x-rx)+srcoffs.x(),
+					   j+srcoffs.y(), x2-x, alphalinestep,
 					   amonobitcount,amonobitval,
-					   alphatype==BigEndianMask);
+					   alphatype==BigEndianMask, reverse);
 			// Fall through
 		      case IgnoreAlpha:
 			hImageLineUnclipped(x,x2,l,srcptr,reverse);
@@ -3546,13 +3678,13 @@ void QGfxRaster<depth,type>::blt( int rx,int ry,int w,int h )
 		plot=inClip(x,ry,&cr,plot);
 	    }
 	}
+	if ( alphabuf ) {
+	    delete [] alphabuf;
+	    alphabuf = 0;
+	}
     }
 
     srcdepth=osrcdepth;
-    if ( alphabuf ) {
-	delete [] alphabuf;
-	alphabuf = 0;
-    }
     GFX_END
 }
 
@@ -3676,9 +3808,8 @@ void QGfxRaster<depth,type>::tiledBlt( int rx,int ry,int w,int h )
     useBrush();
     unsigned char * savealphabits=alphabits;
 
-    // ### need to handle brush offset too
-    int offx = rx;
-    int offy = ry;
+    int offx = srcoffs.x();
+    int offy = srcoffs.y();
 
     // from qpainter_qws.cpp
     if ( offx < 0 )
@@ -3760,7 +3891,7 @@ int QScreen::alloc(unsigned int r,unsigned int g,unsigned int b)
     }
 
     // Now look for a free slot - 0 means a free slot since a 'real' 0
-    // would match in the colour cube
+    // would match in the color cube
 
     int ret=-1;
 
@@ -3907,19 +4038,19 @@ bool QScreen::onCard(unsigned char * p, ulong& offset) const
 #include "qgfxlinuxfb_qws.cpp"
 
 #if !defined(QT_NO_QWS_MACH64)
- #include "qgfxmach64_qws.cpp"
+# include "qgfxmach64_qws.cpp"
 #endif
 
 #if !defined(QT_NO_QWS_VOODOO3)
- #include "qgfxvoodoo_qws.cpp"
+# include "qgfxvoodoo_qws.cpp"
 #endif
 
 #if !defined(QT_NO_QWS_VFB)
- #include "qgfxvfb_qws.cpp"
+# include "qgfxvfb_qws.cpp"
 #endif
 
 #if !defined(QT_NO_QWS_VNC)
- #include "qgfxvnc_qws.cpp"
+# include "qgfxvnc_qws.cpp"
 #endif
 
 struct DriverTable

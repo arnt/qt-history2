@@ -9,8 +9,7 @@
 *****************************************************************************/
 
 #include "application.h"
-#include "qworkspace.h"
-
+#include <qworkspace.h>
 #include <qimage.h>
 #include <qpixmap.h>
 #include <qtoolbar.h>
@@ -341,7 +340,8 @@ void MDIWindow::print( QPrinter* printer)
     if ( printer->setup(this) ) {		// printer dialog
 	emit message( "Printing...", 0 );
 	QPainter p;
-	p.begin( printer );			// paint on printer
+	if ( !p.begin( printer ) )
+	    return;				// paint on printer
 	p.setFont( medit->font() );
 	int yPos        = 0;			// y position for each line
 	QFontMetrics fm = p.fontMetrics();

@@ -55,10 +55,6 @@
 #include "qvaluestack.h"
 #endif
 
-#if defined(QT_MAKEDLL)
-#define QApplication QBaseApplication
-#endif
-
 
 // REVISED: arnt
 
@@ -253,7 +249,7 @@ void qt_cleanup();
 void qt_init( Display* dpy );
 #endif
 
-QNonBaseApplication *qApp = 0;			// global application object
+QApplication *qApp = 0;			// global application object
 
 QStyle   *QApplication::app_style      = 0;	// default application style
 int	  QApplication::app_cspec = QApplication::NormalColor;
@@ -287,8 +283,8 @@ bool	  QApplication::animate_combo	= FALSE;
 bool	  QApplication::animate_tooltip	= FALSE;
 bool	  QApplication::fade_tooltip	= FALSE;
 
-#ifdef QT_THREAD_SUPPORT
-QMutex * QApplication::qt_mutex=0;
+#if defined(QT_THREAD_SUPPORT)
+QMutex * QApplication::qt_mutex		= 0;
 #endif
 
 #ifdef QT_THREAD_SUPPORT
@@ -303,8 +299,9 @@ QWidgetList *QApplication::popupWidgets = 0;	// has keyboard input focus
 
 static bool	   makeqdevel	 = FALSE;	// developer tool needed?
 static QWidget	  *desktopWidget = 0;		// root window widget
+#ifndef QT_NO_TRANSLATION
 static QTextCodec *default_codec = 0;		// root window widget
-
+#endif
 QWidgetList * qt_modal_stack=0; 		// stack of modal widgets
 
 // Definitions for posted events
@@ -353,140 +350,6 @@ static void qt_fix_tooltips()
     QPalette pal( cg, cg, cg );
     QApplication::setPalette( pal, TRUE, "QTipLabel");
 }
-#endif
-
-
-#if defined(QT_THREAD_SUPPORT)
-
-// This class keeps track of which thread is the current
-// event-handling thread; whenever a new thread becomes
-// the event thread using enter_loop its thread ID is pushed
-// onto the stack. When that thread signals it's leaving the
-// event loop it's popped from the stack and threadevent is signalled.
-// All previous event threads wake up and check themselves against
-// the top of the stack; if it matches it was the immediately previous
-// event thread and wakes up, while if it doesn't the thread goes back
-// to waiting
-
-// Passing the event loop works like this:
-
-// Thread A is the event loop. It has a mechanism whereby it can be woken
-// up from waiting for events - a pipe on Unix, a special message on
-// Windows - this is the mechanism used for QApplication::wakeUpGuiThread.
-// This wakeup message is capable of carrying a byte of information;
-// if that byte is 0 then everything works as before and the event loop
-// is simply woken up. If it's 1 then it's treated as a transfer of event
-// loop control. If a thread wishes to take the event loop (i.e. enter_loop
-// is called) it first checks to see if it's the same thread as currently has
-// the event loop. If it is everything proceeds as in the single-threaded
-// case. Otherwise, it calls QExecStack::takeExec, which sends the wakeup
-// message to the current event-handling thread and pushes the new thread ID
-// onto the stack. It then waits for an acknowledgement from the event
-// thread through the condition variable pipereceive. The event thread,
-// meanwhile, is woken up from its select() or WaitMessage, realises
-// the event loop is being taken over, signals pipereceive and waits
-// on threadevent until the new event loop has finished. It then returns
-// and reenters the loop in order to make sure variables are not corrupted.
-
-class QExecStack
-{
-    QThreadEvent threadevent;
-    QThreadEvent pipereceive;
-    QValueStack<HANDLE> handles;
-    QMutex stackmutex;
-public:
-    QMutex currentMutex;
-    QExecStack();
-    HANDLE gui_thread_id;
-
-    void takeExec();      // I am now the GUI thread
-    void releaseExec();   // Wake up previous GUI thread
-    void waitForExec();   // Previous thread calls this
-    void ackPipe();
-    void waitPipe();
-    HANDLE current();
-};
-
-QExecStack::QExecStack()
-{
-    handles.push( QThread::currentThread() );
-    gui_thread_id = QThread::currentThread();
-}
-
-void QExecStack::takeExec()
-{
-    stackmutex.lock();
-    gui_thread_id = current();
-    handles.push( QThread::currentThread() );
-    stackmutex.unlock();
-}
-
-void QExecStack::releaseExec()
-{
-    stackmutex.lock();
-    handles.pop();
-    gui_thread_id = current();
-    stackmutex.unlock();
-    threadevent.wakeAll();
-}
-
-void QExecStack::waitForExec()
-{
-    while( TRUE ) {
-	threadevent.wait();
-	stackmutex.lock();
-	if( handles.top() == QThread::currentThread() ) {
-	    stackmutex.unlock();
-	    return;
-	} else {
-	    stackmutex.unlock();
-	}
-    }
-}
-
-HANDLE QExecStack::current()
-{
-    HANDLE ret;
-    stackmutex.lock();
-    ret = handles.top();
-    stackmutex.unlock();
-    return ret;
-}
-
-void QExecStack::ackPipe()
-{
-    pipereceive.wakeOne();
-}
-
-void QExecStack::waitPipe()
-{
-    while(1) {
-	pipereceive.wait();
-	stackmutex.lock();
-	HANDLE tmp = handles.top();
-	stackmutex.unlock();
-	if( tmp == QThread::currentThread() )
-	    return;
-    }
-}
-
-static QExecStack * qt_exec_stack=0;
-
-void qt_wait_for_exec()
-{
-    qt_exec_stack->waitForExec();
-}
-
-void qt_ack_pipe()
-{
-    qt_exec_stack->ackPipe();
-}
-
-HANDLE qt_gui_thread()
-{
-    return qt_exec_stack->gui_thread_id;
-}
-
 #endif
 
 void QApplication::process_cmdline( int* argcptr, char ** argv )
@@ -579,6 +442,8 @@ void QApplication::process_cmdline( int* argcptr, char ** argv )
 	    argv[j++] = argv[i];
 	}
     }
+
+    argv[j] = 0;
     *argcptr = j;
 }
 
@@ -708,8 +573,8 @@ QApplication::QApplication( int &argc, char **argv, Type type )
 void QApplication::construct( int &argc, char **argv, Type type )
 {
 
-#ifdef QT_THREAD_SUPPORT
-    qt_mutex=new QMutex();
+#if defined(QT_THREAD_SUPPORT)
+    qt_mutex = new QMutex(TRUE);
 #endif
 
     qt_is_gui_used = type != Tty;
@@ -756,7 +621,7 @@ void QApplication::init_precmdline()
     if ( qApp )
 	qWarning( "QApplication: There should be max one application object" );
 #endif
-    qApp = (QNonBaseApplication*)this;
+    qApp = (QApplication*)this;
 }
 
 /*!
@@ -826,9 +691,7 @@ void QApplication::initialize( int argc, char **argv )
 
 #if defined(QT_THREAD_SUPPORT)
     qApp->lock();
-    qt_exec_stack=new QExecStack;
 #endif
-
 }
 
 
@@ -941,8 +804,9 @@ QApplication::~QApplication()
     delete translators;
 #endif
 
-#ifdef QT_THREAD_SUPPORT
+#if defined(QT_THREAD_SUPPORT)
     delete qt_mutex;
+    qt_mutex = 0;
 #endif
 
     // Cannot delete codecs until after QDict destructors
@@ -1127,7 +991,7 @@ int QApplication::colorSpec()
     your application uses buttons, menus, texts and pixmaps with few
     colors. With this choice, the application uses system global
     colors. This works fine for most applications under X11, but on
-    Windows machines it may cause dithering of non-standard colours.
+    Windows machines it may cause dithering of non-standard colors.
   <li> \c QApplication::CustomColor.
     Use this choice if your application needs a small number of custom
     colors. On X11, this choice is the same as NormalColor. On Windows, Qt
@@ -2091,33 +1955,38 @@ void QApplication::postEvent( QObject *receiver, QEvent *event )
 	 event->type() == QEvent::Move ) {
 	(*l)->first();
 	QPostEvent * cur = 0;
-	while ( (cur=(*l)->current()) != 0 &&
-		( cur->receiver != receiver ||
-		  cur->event == 0 ||
-		  cur->event->type() != event->type() ) )
-	    (*l)->next();
-	if ( (*l)->current() != 0 ) {
-	    if ( cur->event->type() == QEvent::Paint ) {
-		QPaintEvent * p = (QPaintEvent*)(cur->event);
-		p->reg = p->reg.unite( ((QPaintEvent *)event)->reg );
-		p->rec = p->rec.unite( ((QPaintEvent *)event)->rec );
-		if ( ((QPaintEvent *)event)->erase )
-		    p->erase = TRUE;
-		delete event;
-		return;
-	    } else if ( cur->event->type() == QEvent::LayoutHint ) {
-		delete event;
-		return;
-	    } else if ( cur->event->type() ==  QEvent::Resize ) {
-		((QResizeEvent *)(cur->event))->s = ((QResizeEvent *)event)->s;
-		delete event;
-		return;
-	    } else if ( cur->event->type() ==  QEvent::Move ) {
-		((QMoveEvent *)(cur->event))->p = ((QMoveEvent *)event)->p;
-		delete event;
-		return;
-	    }
-	}
+	while ( TRUE ) {
+	    while ( (cur=(*l)->current()) != 0 &&
+		    ( cur->receiver != receiver ||
+		      cur->event == 0 ||
+		      cur->event->type() != event->type() ) )
+		(*l)->next();
+	    if ( (*l)->current() != 0 ) {
+		if ( cur->event->type() == QEvent::Paint ) {
+		    QPaintEvent * p = (QPaintEvent*)(cur->event);
+		    if ( p->erase != ((QPaintEvent*)event)->erase ) {
+			(*l)->next();
+			continue;
+		    }
+		    p->reg = p->reg.unite( ((QPaintEvent *)event)->reg );
+		    p->rec = p->rec.unite( ((QPaintEvent *)event)->rec );
+		    delete event;
+		    return;
+		} else if ( cur->event->type() == QEvent::LayoutHint ) {
+		    delete event;
+		    return;
+		} else if ( cur->event->type() ==  QEvent::Resize ) {
+		    ((QResizeEvent *)(cur->event))->s = ((QResizeEvent *)event)->s;
+		    delete event;
+		    return;
+		} else if ( cur->event->type() ==  QEvent::Move ) {
+		    ((QMoveEvent *)(cur->event))->p = ((QMoveEvent *)event)->p;
+		    delete event;
+		    return;
+		}
+	    } 
+	    break;
+	};
     }
 
     // if no compression could be done, just append something
@@ -2481,6 +2350,92 @@ void QApplication::setActiveWindow( QWidget* act )
     QFocusEvent::resetReason();
 }
 
+
+static bool qt_sane_enterleave = FALSE; //######### TRUE in 3.0
+void qt_set_sane_enterleave( bool b ) {
+    qt_sane_enterleave = b;
+}
+
+/*!\internal
+
+  Creates the proper Enter/Leave event when widget \a enter is entered
+  and widget \a leave is left.
+ */
+void Q_EXPORT qt_dispatchEnterLeave( QWidget* enter, QWidget* leave ) {
+    if ( !qt_sane_enterleave ) {
+	if ( leave ) {
+	    QEvent e( QEvent::Leave );
+	    QApplication::sendEvent( leave, & e );
+	}
+	if ( enter ) {
+	    QEvent e( QEvent::Enter );
+	    QApplication::sendEvent( enter, & e );
+	}
+	return;
+    }
+    QWidget* w ;
+    if ( !enter && !leave )
+	return;
+    QWidgetList leaveList;
+    QWidgetList enterList;
+
+    bool sameWindow = leave && enter && leave->topLevelWidget() == enter->topLevelWidget();
+    if ( leave && !sameWindow ) {
+	w = leave;
+	do {
+	    leaveList.prepend( w );
+	} while ( !w->isTopLevel() && (w = w->parentWidget() ) );
+    }
+    if ( enter && !sameWindow ) {
+	w = enter;
+	do {
+	    enterList.prepend( w );
+	} while ( !w->isTopLevel() && (w = w->parentWidget() ) );
+    }
+    if ( sameWindow ) {
+	int enterDepth = 0;
+	int leaveDepth = 0;
+	w = enter;
+	while ( !w->isTopLevel() && ( w = w->parentWidget() ) )
+	    enterDepth++;
+	w = leave;
+	while ( !w->isTopLevel() && ( w = w->parentWidget() ) )
+	    leaveDepth++;
+	QWidget* wenter = enter;
+	QWidget* wleave = leave;
+	while ( enterDepth > leaveDepth ) {
+	    wenter = wenter->parentWidget();
+	    enterDepth--;
+	}
+	while ( leaveDepth > enterDepth ) {
+	    wleave = wleave->parentWidget();
+	    leaveDepth--;
+	}
+	while ( !wenter->isTopLevel() && wenter != wleave ) {
+	    wenter = wenter->parentWidget();
+	    wleave = wleave->parentWidget();
+	}
+
+	w = leave;
+	while ( w != wleave ) {
+	    leaveList.prepend( w );
+	    w = w->parentWidget();
+	}
+	w = enter;
+	while ( w != wenter ) {
+	    enterList.prepend( w );
+	    w = w->parentWidget();
+	}
+    }
+
+    QEvent leaveEvent( QEvent::Leave );
+    for ( w = leaveList.first(); w; w = leaveList.next() )
+	QApplication::sendEvent( w, &leaveEvent );
+    QEvent enterEvent( QEvent::Enter );
+    for ( w = enterList.first(); w; w = enterList.next() )
+	QApplication::sendEvent( w, &enterEvent );
+}
+
 /*!
   Returns the desktop widget (also called the root window).
 
@@ -2553,30 +2508,10 @@ bool QApplication::desktopSettingsAware()
 
 int QApplication::enter_loop()
 {
-#if defined(QT_THREAD_SUPPORT)
-    bool switched=FALSE;
-
-    if( qt_exec_stack->current() != QThread::currentThread() ) {
-	qApp->unlock();
-	qt_exec_stack->currentMutex.lock();
-	qt_exec_stack->takeExec();
-	guiThreadTaken();
-	qt_exec_stack->waitPipe();
-
-	qApp->lock();
-	switched=TRUE;
-    }
-#endif
-
     loop_level++;
 
     bool old_app_exit_loop = app_exit_loop;
     app_exit_loop = FALSE;
-
-#if defined(QT_THREAD_SUPPORT)
-    if ( switched ) 
-	qt_exec_stack->currentMutex.unlock();
-#endif
 
     while ( !app_exit_loop ) {
 	processNextEvent( TRUE );
@@ -2589,11 +2524,6 @@ int QApplication::enter_loop()
 	quit_now = FALSE;
 	emit aboutToQuit();
     }
-
-#if defined(QT_THREAD_SUPPORT)
-    if( switched )
-	qt_exec_stack->releaseExec();
-#endif
 
     return 0;
 }
@@ -2628,14 +2558,14 @@ int QApplication::loopLevel() const
   Lock the Qt library mutex.  If another thread has already locked the
   mutex, the calling thread will block until the other thread has
   unlocked the mutex.
-  
+
   \sa unlock(), locked()
 */
 
 
 /*! \fn void QApplication::unlock()
   Unlock the Qt library mutex.
-  
+
   \sa lock(), locked()
 */
 
@@ -2643,11 +2573,9 @@ int QApplication::loopLevel() const
 /*! \fn bool QApplication::locked()
   Returns TRUE if the Qt library mutex is locked by a different thread,
   otherwise returns FALSE.
-  
+
   \sa lock(), unlock()
 */
-
-
 
 #if defined(QT_THREAD_SUPPORT)
 
@@ -2660,7 +2588,7 @@ void QApplication::lock()
 void QApplication::unlock(bool wakeUpGui)
 {
     qt_mutex->unlock();
-    
+
     if (wakeUpGui)
 	wakeUpGuiThread();
 }

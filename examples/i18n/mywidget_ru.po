@@ -14,10 +14,6 @@ msgstr ""
 msgid "MyWidget::&File"
 msgstr "Файл"
 
-#: mywidget.cpp:29
-msgid "MyWidget::Ctrl+Q"
-msgstr ""
-
 #: mywidget.cpp:28
 msgid "MyWidget::E&xit"
 msgstr "Выход"

@@ -7,15 +7,17 @@
 **
 ** Copyright (C) 2000 Troll Tech AS.  All rights reserved.
 **
-** This file is part of the Qt GUI Toolkit.
+** This file is part of the widgets module of the Qt GUI Toolkit.
 **
 ** This file may be distributed under the terms of the Q Public License
 ** as defined by Troll Tech AS of Norway and appearing in the file
 ** LICENSE.QPL included in the packaging of this file.
 **
-** Licensees holding valid Qt Professional Edition licenses may use this
-** file in accordance with the Qt Professional Edition License Agreement
-** provided with the Qt Professional Edition.
+** Licensees holding valid Qt Enterprise Edition or Qt Professional Edition
+** licenses may use this file in accordance with the Qt Commercial License
+** Agreement provided with the Software.  This file is part of the widgets
+** module and therefore may only be used if the widgets module is specified
+** as Licensed on the Licensee's License Certificate.
 **
 ** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 ** information about the Professional Edition licensing, or see
@@ -68,8 +70,8 @@
   Changing an action's properties, for example using setEnabled(),
   setOn() or setText(), immediately shows up in all
   representations. Other properties that define the way an action is
-  presented to the user are iconSet(), menuText(), toolTip() and
-  whatsThis().
+  presented to the user are iconSet(), menuText(), toolTip(),
+  statusTip() and whatsThis().
 
   An action may also be triggered by an accelerator key declared with
   setAccel(). Since accelerators are window specific, the application
@@ -109,8 +111,11 @@ public:
 
     enum Update { Everything, Icons, State }; // Everything means everything but icons and state
     void update( Update upd = Everything );
+    
+    QString menuText() const;
+    QString toolTip() const;
+    QString statusTip() const;
 };
-
 
 QActionPrivate::QActionPrivate()
 {
@@ -136,7 +141,7 @@ void QActionPrivate::update( Update upd )
 {
     for ( QListIterator<MenuItem> it( menuitems); it.current(); ++it ) {
 	MenuItem* mi = it.current();
-	QString t = menutext.isNull()?text:menutext;
+	QString t = menuText();
 	if ( key )
 	    t += '\t' + QAccel::keyToString( key );
 	switch ( upd ) {
@@ -176,17 +181,7 @@ void QActionPrivate::update( Update upd )
 	    if ( !text.isEmpty() )
 		btn->setTextLabel( text, FALSE );
 	    QToolTip::remove( btn );
-	    if ( !tooltip.isNull() ) {
-		if ( !tooltip.isEmpty() )
-		    QToolTip::add( btn, tooltip, tipGroup, statustip.isNull() ? tooltip : statustip );
-	    } else if ( !text.isEmpty() ) {
-		if ( accel )
-		    QToolTip::add( btn, text + 
-			" (" + QAccel::keyToString( accel->key( accelid )) + ")" , 
-			tipGroup, statustip.isNull() ? text : statustip );
-		else 
-		    QToolTip::add( btn, text, tipGroup, statustip.isNull() ? text : statustip );
-	    }
+	    QToolTip::add( btn, toolTip(), tipGroup, statusTip() );
 	    QWhatsThis::remove( btn );
 	    if ( !whatsthis.isEmpty() )
 		QWhatsThis::add( btn, whatsthis );
@@ -194,12 +189,37 @@ void QActionPrivate::update( Update upd )
     }
 }
 
+QString QActionPrivate::menuText() const
+{
+    if ( menutext.isNull() )
+	return text;
+    return menutext;
+}
+
+QString QActionPrivate::toolTip() const
+{
+    if ( tooltip.isNull() ) {
+	if ( accel )
+	    return text + " (" + QAccel::keyToString( accel->key( accelid )) + ")";
+	return text;
+    }
+    return tooltip;
+}
+
+QString QActionPrivate::statusTip() const
+{
+    if ( statustip.isNull() )
+	return toolTip();
+    return statustip;
+}
+
+
 
 /*!
   Constructs an action with parent \a parent and name \a name.
 
   If \a toggle is TRUE, the action becomes a toggle action.
-  
+
   If the parent is a QActionGroup, the action automatically becomes a
   member of it.
 
@@ -238,12 +258,12 @@ QAction::QAction( const QString& text, const QIconSet& icon, const QString& menu
     setAccel( accel );
 }
 
-/*!\overload 
+/*!\overload
   Constructs an action with text \a text, menu text \a
   menuText, a keyboard accelerator \a accel, a \a parent and name \a
   name. \a text will also show up in tooltips, unless you call
   setToolTip() with a different tip later.
-  
+
   If \a toggle is TRUE, the action becomes a toggle action.
 
   If the parent is a QActionGroup, the action automatically becomes a
@@ -345,9 +365,7 @@ void QAction::setMenuText( const QString& text )
  */
 QString QAction::menuText() const
 {
-    if ( d->menutext.isNull() )
-	return d->text;
-    return d->menutext;
+    return d->menuText();
 }
 
 /*!
@@ -364,19 +382,14 @@ void QAction::setToolTip( const QString& tip )
 /*!
   Returns the current tool tip.
 
-  If no tool tip has been defined yet, it returns text 
+  If no tool tip has been defined yet, it returns text
   and a hotkey hint.
 
   \sa setToolTip(), text()
 */
 QString QAction::toolTip() const
 {
-    if ( d->tooltip.isNull() ) {
-	if ( d->accel )
-	    return text() + " (" + QAccel::keyToString( d->accel->key( d->accelid )) + ")";
-	return d->text;
-    }
-    return d->tooltip;
+    return d->toolTip();
 }
 
 /*!
@@ -400,9 +413,7 @@ void QAction::setStatusTip( const QString& tip )
 */
 QString QAction::statusTip() const
 {
-    if ( d->statustip.isNull() )
-	return toolTip();
-    return d->statustip;
+    return d->statusTip();
 }
 
 /*!
@@ -600,19 +611,8 @@ bool QAction::addTo( QWidget* w )
 	d->update( QActionPrivate::Everything );
 	connect( btn, SIGNAL( clicked() ), this, SIGNAL( activated() ) );
 	connect( btn, SIGNAL( toggled(bool) ), this, SLOT( toolButtonToggled(bool) ) );
-        QObject* par = parent();
-        while ( par && par->parent() )
-	    par = par->parent();
-        if ( par ) {
-	    QObjectList* l = par->queryList("QStatusBar");
-	    QStatusBar* bar = (QStatusBar*) l->first();
-	    while ( bar ) {
-		connect( d->tipGroup, SIGNAL(showTip(const QString&)), bar, SLOT(message(const QString&)) );
-		connect( d->tipGroup, SIGNAL(removeTip()), bar, SLOT(clear()) );
-		bar = (QStatusBar*) l->next();
-	    }
-	    delete l;
-	}
+	connect( d->tipGroup, SIGNAL(showTip(const QString&)), this, SLOT(showStatusText(const QString&)) );
+	connect( d->tipGroup, SIGNAL(removeTip()), this, SLOT(clearStatusText()) );
     } else if ( w->inherits( "QPopupMenu" ) ) {
 	QActionPrivate::MenuItem* mi = new QActionPrivate::MenuItem;
 	mi->popup = (QPopupMenu*) w;
@@ -636,41 +636,42 @@ bool QAction::addTo( QWidget* w )
 }
 
 /*!
-  Sets the status message to the menuitem's status text, or 
+  Sets the status message to \a text
+ */
+void QAction::showStatusText( const QString& text )
+{
+    QObject* par = parent();
+    if ( !par || !par->isWidgetType() )
+	return;
+    QObjectList* l = ( (QWidget*)par )->topLevelWidget()->queryList("QStatusBar");
+    for ( QStatusBar* bar = (QStatusBar*) l->first(); bar; bar = (QStatusBar*)l->next() ) {
+	if ( text.isEmpty() )
+	    bar->clear();
+	else
+	    bar->message( text );
+    }
+    delete l;
+}
+
+/*!
+  Sets the status message to the menuitem's status text, or
   to the tooltip, if there is no status text.
 */
 void QAction::menuStatusText( int id )
 {
     QString text;
-    bool found = FALSE;
     QListIterator<QActionPrivate::MenuItem> it( d->menuitems);
     QActionPrivate::MenuItem* mi;
     while ( ( mi = it.current() ) ) {
 	++it;
 	if ( mi->id == id ) {
-	    found = TRUE;
 	    text = statusTip();
 	    break;
 	}
     }
-    if ( !found ) 
-	return;
-
-    QObject* par = parent();
-    while ( par && par->parent() )
-	par = par->parent();
-    if ( par ) {
-	QObjectList* l = par->queryList("QStatusBar");
-	QStatusBar* bar = (QStatusBar*) l->first();
-	while ( bar ) {
-	    if ( !text.isEmpty() )
-		bar->message( text );
-	    else
-		bar->clear();
-	    bar = (QStatusBar*)l->next();
-	}
-	delete l;
-    }
+    
+    if ( !text.isEmpty() )
+	showStatusText( text );
 }
 
 /*!
@@ -678,23 +679,7 @@ void QAction::menuStatusText( int id )
 */
 void QAction::clearStatusText()
 {
-    QObject* par = parent();
-    while ( par && par->parent() )
-	par = par->parent();
-    if ( par ) {
-	QObject* par = parent();
-	while ( par && par->parent() )
-	    par = par->parent();
-	if ( par ) {
-	    QObjectList* l = par->queryList("QStatusBar");
-	    QStatusBar* bar = (QStatusBar*) l->first();
-	    while ( bar ) {
-		bar->clear();
-		bar = (QStatusBar*)l->next();
-	    }
-	    delete l;
-	}	
-    }
+    showStatusText( QString::null );
 }
 
 /*!
@@ -785,7 +770,7 @@ public:
 /*!
   \class QActionGroup qaction.h
 
-  \brief The QActionGroup action combines actions to a group.
+  \brief The QActionGroup class combines actions to a group.
 
   An action group makes it easier to deal with groups of actions. It
   allows to add, remove or activate its children with a single call

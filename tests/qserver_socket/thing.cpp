@@ -1,7 +1,10 @@
+#include <qapplication.h>
 #include <qpushbutton.h>
+#include <qdatetime.h>
 
 #include "thing.h"
 
+static const int much = 54321;
 
 Thing::Thing( int fd )
 {
@@ -14,8 +17,8 @@ Thing::Thing( int fd )
 Thing::Thing( QString host, int port )
 {
     socket = new QSocket( this );
-    socket->connectToHost( host, port );
     init();
+    socket->connectToHost( host, port );
 }
 
 
@@ -36,12 +39,8 @@ void Thing::init()
 
     // general buttons
     vb = new QVBox( this );
-    asciiCheck = new QCheckBox( "Ascii", vb );
-    if ( socket->mode() == QSocket::Ascii )
-	asciiCheck->setChecked( TRUE );
-    else
-	asciiCheck->setChecked( FALSE );
-    QObject::connect( asciiCheck, SIGNAL(toggled(bool)), SLOT(setAscii(bool)) );
+    pb = new QPushButton( "waitForMore( 10s )", vb );
+    QObject::connect( pb, SIGNAL(pressed()), SLOT(waitForMore()) );
     pb = new QPushButton( "Close Socket", vb );
     QObject::connect( pb, SIGNAL(pressed()), SLOT(closeSocket()) );
     pb = new QPushButton( "Cancel", vb );
@@ -73,6 +72,8 @@ void Thing::init()
     QObject::connect( pb, SIGNAL(pressed()), SLOT(read()) );
     pb = new QPushButton( "Read Line", hb );
     QObject::connect( pb, SIGNAL(pressed()), SLOT(readLine()) );
+    pb = new QPushButton( "Read Much", vb );
+    QObject::connect( pb, SIGNAL(pressed()), SLOT(readMuch()) );
 
     // write
     vb = new QVBox( this );
@@ -82,6 +83,8 @@ void Thing::init()
     QObject::connect( pb, SIGNAL(pressed()), SLOT(write()) );
     pb = new QPushButton( "Flush", hb );
     QObject::connect( pb, SIGNAL(pressed()), SLOT(flush()) );
+    pb = new QPushButton( "Write Much", vb );
+    QObject::connect( pb, SIGNAL(pressed()), SLOT(writeMuch()) );
 
     show();
 }
@@ -95,10 +98,10 @@ QString Thing::getInfo()
 	+ QString::number( socket->socket() ) + "\n";
     info += QString("Address: ")
 	+ socket->address().toString() + " : "
-	+ QString::number( socket->port() ) + "\n";
+	+ QString::number( (int)socket->port() ) + "\n";
     info += QString("Peer: ")
 	+ socket->peerAddress().toString() + " : "
-	+ QString::number( socket->peerPort() ) + " name: "
+	+ QString::number( (int)socket->peerPort() ) + " name: "
 	+ socket->peerName() + "\n";
     info += QString("Bytes available: ")
 	+ QString::number( socket->bytesAvailable() ) + " resp. "
@@ -119,15 +122,6 @@ QString Thing::getInfo()
 void Thing::printInfo()
 {
     infoText->setText( getInfo() );
-}
-
-
-void Thing::setAscii( bool a )
-{
-    if ( a )
-	socket->setMode( QSocket::Ascii );
-    else
-	socket->setMode( QSocket::Binary );
 }
 
 
@@ -155,16 +149,51 @@ void Thing::readLine()
 }
 
 
+void Thing::readMuch()
+{
+    const int buflen = much + 1;
+    char buf[buflen];
+    int r = socket->readBlock( buf, buflen-1 );
+    if ( r < 0 ) {
+	qWarning( "Error readBlock" );
+    } else {
+	buf[r] = 0;
+	readText->append( QString(buf) );
+    }
+}
+
+
 void Thing::write()
 {
     QString text = writeEdit->text();
-    int r = socket->writeBlock( text.latin1(), text.length() );
+    socket->writeBlock( text.latin1(), text.length() );
 }
 
 
 void Thing::flush()
 {
     socket->flush();
+}
+
+
+void Thing::writeMuch()
+{
+    char buf[much];
+    socket->writeBlock( buf, much );
+}
+
+
+void Thing::waitForMore()
+{
+    QTime waitTime;
+    waitTime.start();
+    signalText->append( "Start waiting for more\n" );
+    qApp->processEvents();
+    int available = socket->waitForMore( 10000 );
+    int waited = waitTime.elapsed();
+    signalText->append(
+	    QString( "Stopped waiting after %1 s; %2 bytes available\n"
+		).arg( (float)waited/1000 ).arg( available ) );
 }
 
 

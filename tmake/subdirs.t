@@ -13,7 +13,8 @@
 
 SUBDIRS =	#$ ExpandList("SUBDIRS");
 
-all: $(SUBDIRS)
+all:
+	$(MAKE) $(SUBDIRS)
 
 $(SUBDIRS): FORCE
 	if [ -d $@ ]; then cd $@ ; $(MAKE); fi

@@ -2,7 +2,7 @@
 ** $Id: //depot/qt/main/util/qtranslator/msg2qm.h#1 $
 **
 ** This is a utility program for converting findtr msgfiles to
-** qtranslator messagefiles
+** qtranslator message files
 **
 ** Author  : Matthias Ettrich
 ** Created : 982402

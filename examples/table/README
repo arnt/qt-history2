@@ -1,8 +1,0 @@
-The table program displays a spreadsheet-like table. It is an example
-of how to use QScrollView in combination with QHeader to display 2D
-data arrays.
-
-Left-click the mouse and moving the mouse sets a current
-cell. Pressing the arrow keys also moves the current mark. Start
-typing in text to edit a table cell directly.
-

@@ -1,45 +1,66 @@
 TEMPLATE	= lib
-CONFIG		= qt warn_on release
+CONFIG		+= qt warn_on release
 
-# Comment out the next line if you don't want use png/zlib in 3rdparty
-CONFIG		+= png zlib
+TARGET		= qt
+VERSION		= 2.2.0
+DESTDIR		= ../lib
+DLLDESTDIR	= ../bin
 
 # All extension modules are listed here
-MODULES		= opengl network canvas table
+# This is duplicated in examples.pro
+MODULES_BASE	= tools kernel widgets dialogs
+MODULES_PRO	= iconview workspace
+MODULES_ENT	= network canvas table xml opengl
+MODULES		= $$MODULES_BASE $$MODULES_PRO
+enterprise:MODULES	+= $$MODULES_ENT
 
-# Add all "easy to build modules" (ie. don't need extra libraries, etc.):
-CONFIG		+= network canvas table
+internal:MODULES	+= $$MODULES_ENT
 
-# Use this line for configs specific to your work
+CONFIG		+= $$MODULES
+
+internal:CONFIG	+= png zlib  # Done differently in external system
+embedded:CONFIG	+= png zlib
+win32:CONFIG	+= png zlib
+internal:CONFIG -= opengl
+#internal:CONFIG += thread
+thread:DEFINES += QT_THREAD_SUPPORT
+
+embedded:CONFIG -= opengl
+
+# Use line like this for configs specific to your work
+#
+
 # CONFIG += opengl
+# internal:CONFIG += mng
 
-
-# Uncomment the next line if you want to use NAS sound
 #unix:DEFINES    += QT_NAS_SUPPORT
 #unix:LIBS	+= -laudio -lXt
 
-# Uncomment the next line if you want to use jpeglib
-#
+internal:X11LIBS += -lICE -lSM
+
 # Install jpegsrc.v6b.tar.gz (find with http://ftpsearch.lycos.com)
 #
-# unix:DEFINES += QT_JPEG_SUPPORT
-# unix:LIBS	+= -ljpeg
-# win32:DEFINES += QT_JPEG_SUPPORT
-# win32:LIBS	+= libjpeg.lib
+internal:CONFIG += jpeg
+embedded:CONFIG -= jpeg
+jpeg:INTJPEGIU += -ljpeg
+jpeg:INTJPEGIW += libjpeg.lib
+DEFINESI += QT_NO_IMAGEIO_JPEG
+jpeg:DEFINESI -= QT_NO_IMAGEIO_JPEG
+unix:INTJPEGI += $$INTJPEGIU
+win32:INTJPEGI += $$INTJPEGIW
+internal:LIBS += $$INTJPEGI
+internal:DEFINES += $$DEFINESI
+win32:DEFINES += QT_NO_IMAGEIO_JPEG
+
+win32:LIBS += $$WINLIBS
+unix:LIBS += $$X11LIBS
+embedded:LIBS -= $$X11LIBS
 
 # next few lines add cups support
 cups:DEFINES += QT_CUPS_SUPPORT
 cups:LIBS += -lcups
 
-# Uncomment the next line if you want to use the standard png/zlib libs
-# unix:LIBS	+= -lpng -lz
-mng:LIBS	+= -L/home/warwick/qt/main/src/3rdparty/libmng -lmng -ljpeg
-
-# for now, dunno how to make this configurable, also requires a #define in qapplication_x11.cpp
-unix:LIBS += $$TMAKE_LIBS_X11SM
-DEFINES += QT_SM_SUPPORT
-# DEFINES += QT_THREAD_SUPPORT
-# unix:LIBS += -lpthread
+mng:LIBS	+= -L$(QTDIR)/src/3rdparty/libmng -lmng -ljpeg
 
 #DEFINES	+= QT_NO_ASCII_CAST
 #DEFINES	+= QT_NO_CAST_ASCII
@@ -68,11 +89,25 @@ win32:DIALOGS_H	= ../include
 win32:KERNEL_H	= ../include
 win32:TOOLS_H	= ../include
 win32:WIDGETS_H	= ../include
+win32:OPENGL_H	= ../include
+win32:NETWORK_H	= ../include
+win32:CANVAS_H	= ../include
+win32:TABLE_H	= ../include
+win32:ICONVIEW_H	= ../include
+win32:XML_H	= ../include
+win32:WORKSPACE_H	= ../include
 
 unix:DIALOGS_H	= dialogs
 unix:KERNEL_H	= kernel
 unix:TOOLS_H	= tools
 unix:WIDGETS_H	= widgets
+unix:OPENGL_H	= opengl
+unix:NETWORK_H	= network
+unix:CANVAS_H	= canvas
+unix:TABLE_H	= table
+unix:ICONVIEW_H	= iconview
+unix:XML_H	= xml
+unix:WORKSPACE_H	= workspace
 
 DIALOGS_P	= dialogs
 KERNEL_P	= kernel
@@ -80,17 +115,18 @@ TOOLS_P		= tools
 WIDGETS_P	= widgets
 
 win32:DEPENDPATH = ../include
-unix:DEPENDPATH	= $$DIALOGS_H:$$KERNEL_H:$$TOOLS_H:$$WIDGETS_H
+unix:DEPENDPATH	= $$DIALOGS_H:$$KERNEL_H:$$TOOLS_H:$$WIDGETS_H:$$OPENGL_H:$$NETWORK_H:$$CANVAS_H:$$TABLE_H:$$ICONVIEW_H:$$XML_H:$$WORKSPACE_H
 
-HEADERS		= $$DIALOGS_H/qcolordialog.h \
+dialogs:HEADERS	+= $$DIALOGS_H/qcolordialog.h \
 		  $$DIALOGS_H/qfiledialog.h \
 		  $$DIALOGS_H/qfontdialog.h \
 		  $$DIALOGS_H/qmessagebox.h \
 		  $$DIALOGS_H/qprogressdialog.h \
 		  $$DIALOGS_H/qtabdialog.h \
 		  $$DIALOGS_H/qwizard.h \
-		  $$DIALOGS_H/qinputdialog.h \
-		  $$KERNEL_H/qabstractlayout.h \
+		  $$DIALOGS_H/qinputdialog.h
+
+kernel:HEADERS += $$KERNEL_H/qabstractlayout.h \
 		  $$KERNEL_H/qaccel.h \
 		  $$KERNEL_H/qapplication.h \
 		  $$KERNEL_H/qasyncimageio.h \
@@ -133,6 +169,7 @@ HEADERS		= $$DIALOGS_H/qcolordialog.h \
 		  $$KERNEL_H/qpaintdevice.h \
 		  $$KERNEL_H/qpaintdevicedefs.h \
 		  $$KERNEL_H/qpainter.h \
+		  $$KERNEL_H/qpainter_p.h \
 		  $$KERNEL_H/qpalette.h \
 		  $$KERNEL_H/qpaintdevicemetrics.h \
 		  $$KERNEL_H/qpen.h \
@@ -156,8 +193,10 @@ HEADERS		= $$DIALOGS_H/qcolordialog.h \
 		  $$KERNEL_H/qsizegrip.h \
 		  $$KERNEL_H/qsizepolicy.h \
 		  $$KERNEL_H/qsocketnotifier.h \
+		  $$KERNEL_H/qsound.h \
 		  $$KERNEL_H/qstyle.h \
 		  $$KERNEL_H/qstylesheet.h \
+		  $$KERNEL_H/qthread.h \
 		  $$KERNEL_H/qtimer.h \
 		  $$KERNEL_H/qurl.h \
 		  $$KERNEL_H/qlocalfs.h \
@@ -168,8 +207,9 @@ HEADERS		= $$DIALOGS_H/qcolordialog.h \
 		  $$KERNEL_H/qwidgetlist.h \
 		  $$KERNEL_H/qwindowdefs.h \
 		  $$KERNEL_H/qwmatrix.h \
-		  $$KERNEL_H/qvariant.h \
-		  $$TOOLS_H/qarray.h \
+		  $$KERNEL_H/qvariant.h
+
+tools:HEADERS +=  $$TOOLS_H/qarray.h \
 		  $$TOOLS_H/qasciicache.h \
 		  $$TOOLS_H/qasciidict.h \
 		  $$TOOLS_H/qbig5codec.h \
@@ -216,12 +256,13 @@ HEADERS		= $$DIALOGS_H/qcolordialog.h \
 		  $$TOOLS_H/qstrvec.h \
 		  $$TOOLS_H/qtextcodec.h \
 		  $$TOOLS_H/qtextstream.h \
+		  $$TOOLS_H/qtsciicodec.h \
 		  $$TOOLS_H/qutfcodec.h \
 		  $$TOOLS_H/qvector.h \
-	          $$TOOLS_H/qvaluelist.h \
-		  $$WIDGETS_H/qbuttongroup.h \
+	          $$TOOLS_H/qvaluelist.h
+
+widgets:HEADERS += $$WIDGETS_H/qbuttongroup.h \
 		  $$WIDGETS_H/qbutton.h \
-		  $$WIDGETS_H/qcanvas.h \
 		  $$WIDGETS_H/qcheckbox.h \
 		  $$WIDGETS_H/qcdestyle.h \
 		  $$WIDGETS_H/qcombobox.h \
@@ -234,7 +275,6 @@ HEADERS		= $$DIALOGS_H/qcolordialog.h \
 		  $$WIDGETS_H/qheader.h \
 		  $$WIDGETS_H/qhgroupbox.h \
 		  $$WIDGETS_H/qhbox.h \
-		  $$WIDGETS_H/qiconview.h \
 		  $$WIDGETS_H/qlabel.h \
 		  $$WIDGETS_H/qlcdnumber.h \
 		  $$WIDGETS_H/qlineedit.h \
@@ -244,6 +284,7 @@ HEADERS		= $$DIALOGS_H/qcolordialog.h \
 		  $$WIDGETS_H/qmenubar.h \
 		  $$WIDGETS_H/qmenudata.h \
 		  $$WIDGETS_H/qmotifstyle.h \
+		  $$WIDGETS_H/qmotifplusstyle.h \
 		  $$WIDGETS_H/qmultilineedit.h \
 		  $$WIDGETS_H/qplatinumstyle.h \
 		  $$WIDGETS_H/qpopupmenu.h \
@@ -273,15 +314,13 @@ HEADERS		= $$DIALOGS_H/qcolordialog.h \
 		  $$WIDGETS_H/qwhatsthis.h \
 		  $$WIDGETS_H/qwidgetstack.h \
 		  $$WIDGETS_H/qwindowsstyle.h \
-		  $$WIDGETS_H/qworkspace.h \
-		  $$WIDGETS_H/qaction.h \
+		  $$WIDGETS_H/qaction.h
 
-# DO NOT sort directories - dependency order = tools,kernel,widgets,dialogs
-
-win32:SOURCES	= tools/qdir_win.cpp \
+tools:WINSOURCES += tools/qdir_win.cpp \
 	 	  tools/qfile_win.cpp \
-		  tools/qfileinfo_win.cpp \
-		  kernel/qapplication_win.cpp \
+		  tools/qfileinfo_win.cpp
+
+kernel:WINSOURCES += kernel/qapplication_win.cpp \
 		  kernel/qclipboard_win.cpp \
 		  kernel/qcolor_win.cpp \
 		  kernel/qcursor_win.cpp \
@@ -293,15 +332,51 @@ win32:SOURCES	= tools/qdir_win.cpp \
 		  kernel/qpaintdevice_win.cpp \
 		  kernel/qpainter_win.cpp \
 		  kernel/qregion_win.cpp \
+		  kernel/qsound_win.cpp \
+		  kernel/qthread_win.cpp \
 		  kernel/qwidget_win.cpp \
-		  dialogs/qfiledialog_win.cpp
+		  kernel/qole_win.c
 
-win32:SOURCES  += kernel/qole_win.c
+dialogs:WINSOURCES += dialogs/qfiledialog_win.cpp
 
-unix:SOURCES    = tools/qdir_unix.cpp \
+win32:SOURCES += $$WINSOURCES
+
+tools:UNIXSOURCES += tools/qdir_unix.cpp \
 		  tools/qfile_unix.cpp \
-		  tools/qfileinfo_unix.cpp \
-		  kernel/qapplication_x11.cpp \
+		  tools/qfileinfo_unix.cpp
+
+kernel:QWSSOURCES += kernel/qapplication_qws.cpp \
+		  kernel/qclipboard_qws.cpp \
+		  kernel/qcolor_qws.cpp \
+		  kernel/qcursor_qws.cpp \
+		  kernel/qdnd_qws.cpp \
+		  kernel/qfont_qws.cpp \
+		  kernel/qpixmap_qws.cpp \
+		  kernel/qprinter_qws.cpp \
+		  kernel/qpaintdevice_qws.cpp \
+		  kernel/qpainter_qws.cpp \
+		  kernel/qregion_qws.cpp \
+		  kernel/qsound_qws.cpp \
+		  kernel/qwidget_qws.cpp \
+		  kernel/qgfx_qws.cpp \
+		  kernel/qgfxraster_qws.cpp \
+		  kernel/qfontmanager_qws.cpp \
+		  kernel/qfontfactorybdf_qws.cpp \
+		  kernel/qfontfactoryttf_qws.cpp \
+		  kernel/qmemorymanager_qws.cpp \
+		  kernel/qwscommand_qws.cpp \
+		  kernel/qwsevent_qws.cpp \
+		  kernel/qwindowsystem_qws.cpp \
+		  kernel/qkeyboard_qws.cpp \
+		  kernel/qwscursor_qws.cpp \
+		  kernel/qwsmouse_qws.cpp \
+		  kernel/qwsmanager_qws.cpp \
+		  kernel/qwsproperty_qws.cpp \
+		  kernel/qlock_qws.cpp \
+		  kernel/qwsregionmanager_qws.cpp \
+		  kernel/qwssocket_qws.cpp
+
+kernel:X11SOURCES += kernel/qapplication_x11.cpp \
 		  kernel/qclipboard_x11.cpp \
 		  kernel/qcolor_x11.cpp \
 		  kernel/qcursor_x11.cpp \
@@ -313,14 +388,25 @@ unix:SOURCES    = tools/qdir_unix.cpp \
 		  kernel/qpaintdevice_x11.cpp \
 		  kernel/qpainter_x11.cpp \
 		  kernel/qregion_x11.cpp \
-		  kernel/qwidget_x11.cpp
-
-unix:SOURCES   += dialogs/qprintdialog.cpp \
-		  kernel/qpsprinter.cpp \
+		  kernel/qsound_x11.cpp \
+		  kernel/qwidget_x11.cpp \
 		  kernel/qnpsupport.cpp \
 		  kernel/qwidgetcreate_x11.cpp
 
-SOURCES	       += tools/qbig5codec.cpp \
+widgets:QWSSOURCES += $$WIDGETS_H/qcompactstyle.cpp
+
+kernel:UNIXSOURCES += kernel/qpsprinter.cpp \
+		    kernel/qthread_unix.cpp
+
+dialogs:UNIXSOURCES += dialogs/qprintdialog.cpp
+
+internal:X11SOURCES += $$WIDGETS_H/qcompactstyle.cpp
+unix:SOURCES += $$UNIXSOURCES
+unix:SOURCES += $$X11SOURCES
+embedded:SOURCES -= $$X11SOURCES
+embedded:SOURCES += $$QWSSOURCES
+
+tools:SOURCES += tools/qbig5codec.cpp \
 		  tools/qbitarray.cpp \
 		  tools/qbuffer.cpp \
 		  tools/qcollection.cpp \
@@ -350,8 +436,10 @@ SOURCES	       += tools/qbig5codec.cpp \
 		  tools/qstringlist.cpp \
 		  tools/qtextcodec.cpp \
 		  tools/qtextstream.cpp \
-		  tools/qutfcodec.cpp \
-		  kernel/qabstractlayout.cpp \
+		  tools/qtsciicodec.cpp \
+		  tools/qutfcodec.cpp
+
+kernel:SOURCES += kernel/qabstractlayout.cpp \
 		  kernel/qaccel.cpp \
 		  kernel/qapplication.cpp \
 		  kernel/qasyncimageio.cpp \
@@ -405,6 +493,7 @@ SOURCES	       += tools/qbig5codec.cpp \
 		  kernel/qsizegrip.cpp \
 		  kernel/qstyle.cpp \
 		  kernel/qsocketnotifier.cpp \
+		  kernel/qsound.cpp \
 		  kernel/qstylesheet.cpp \
 		  kernel/qtimer.cpp \
 		  kernel/qurl.cpp \
@@ -413,10 +502,10 @@ SOURCES	       += tools/qbig5codec.cpp \
 		  kernel/qurlinfo.cpp \
 		  kernel/qwidget.cpp \
 		  kernel/qwmatrix.cpp \
-		  kernel/qvariant.cpp \
-		  widgets/qbuttongroup.cpp \
+		  kernel/qvariant.cpp
+
+widgets:SOURCES += widgets/qbuttongroup.cpp \
 		  widgets/qbutton.cpp \
-		  widgets/qcanvas.cpp \
 		  widgets/qcdestyle.cpp \
 		  widgets/qcheckbox.cpp \
 		  widgets/qcombobox.cpp \
@@ -429,7 +518,6 @@ SOURCES	       += tools/qbig5codec.cpp \
 		  widgets/qheader.cpp \
 		  widgets/qhgroupbox.cpp \
 		  widgets/qhbox.cpp \
-		  widgets/qiconview.cpp \
 		  widgets/qlabel.cpp \
 		  widgets/qlcdnumber.cpp \
 		  widgets/qlineedit.cpp \
@@ -439,6 +527,7 @@ SOURCES	       += tools/qbig5codec.cpp \
 		  widgets/qmenubar.cpp \
 		  widgets/qmenudata.cpp \
 		  widgets/qmotifstyle.cpp \
+		  widgets/qmotifplusstyle.cpp \
 		  widgets/qmultilineedit.cpp \
 		  widgets/qplatinumstyle.cpp \
 		  widgets/qpopupmenu.cpp \
@@ -468,10 +557,10 @@ SOURCES	       += tools/qbig5codec.cpp \
 		  widgets/qwhatsthis.cpp \
 		  widgets/qwidgetstack.cpp \
 		  widgets/qwindowsstyle.cpp \
-		  widgets/qworkspace.cpp \
 		  widgets/qaction.cpp \
-		  widgets/qeffects.cpp \
-		  dialogs/qcolordialog.cpp \
+		  widgets/qeffects.cpp
+
+dialogs:SOURCES += dialogs/qcolordialog.cpp \
 		  dialogs/qfiledialog.cpp \
 		  dialogs/qfontdialog.cpp \
 		  dialogs/qmessagebox.cpp \
@@ -483,6 +572,27 @@ SOURCES	       += tools/qbig5codec.cpp \
 unix:HEADERS   += $$DIALOGS_H/qprintdialog.h \
 		  $$KERNEL_P/qpsprinter_p.h \
 		  $$KERNEL_H/qfontdatabase.h
+
+unix:HEADERS   += $$WIDGETS_H/qcompactstyle.h
+embedded:HEADERS   -= $$WIDGETS_H/qcompactstyle.h
+
+embedded:HEADERS += $$KERNEL_H/qfontmanager_qws.h \
+		  $$KERNEL_H/qfontfactorybdf_qws.h \
+		  $$KERNEL_H/qfontfactoryttf_qws.h \
+		  $$KERNEL_H/qmemorymanager_qws.h \
+		  $$KERNEL_H/qwsmanager_qws.h \
+		  $$KERNEL_H/qgfx_qws.h \
+		  $$KERNEL_H/qgfxraster_qws.h \
+		  $$KERNEL_H/qgfxlinuxfb_qws.h \
+		  $$KERNEL_H/qgfxvnc_qws.h \
+		  $$KERNEL_H/qwindowsystem_qws.h \
+		  $$KERNEL_H/qwscursor_qws.h \
+		  $$KERNEL_H/qwsmouse_qws.h \
+		  $$KERNEL_H/qlock_qws.h \
+		  $$KERNEL_H/qwsregionmanager_qws.h \
+		  $$KERNEL_H/qwsdisplay_qws.h \
+		  $$KERNEL_H/qwssocket_qws.h \
+		  $$WIDGETS_H/qcompactstyle.h
 
 PNG_SOURCES	= 3rdparty/libpng/png.c \
 		  3rdparty/libpng/pngerror.c \
@@ -516,21 +626,39 @@ ZLIB_SOURCES	= 3rdparty/zlib/adler32.c \
 		  3rdparty/zlib/zutil.c
 
 png:SOURCES    += $$PNG_SOURCES
+embedded:SOURCES    -= $$PNG_SOURCES
 zlib:SOURCES   += $$ZLIB_SOURCES
+embedded:SOURCES    -= $$ZLIB_SOURCES
 
-opengl:HEADERS += opengl/qgl.h
+
+xml:HEADERS += $$XML_H/qxml.h $$XML_H/qdom.h
+xml:SOURCES += xml/qxml.cpp xml/qdom.cpp
+
+workspace:HEADERS += $$WORKSPACE_H/qworkspace.h
+workspace:SOURCES += workspace/qworkspace.cpp
+
+canvas:HEADERS += $$CANVAS_H/qcanvas.h
+canvas:SOURCES += canvas/qcanvas.cpp
+
+iconview:HEADERS += $$ICONVIEW_H/qiconview.h
+iconview:SOURCES += iconview/qiconview.cpp
+
+table:HEADERS += $$TABLE_H/qtable.h
+table:SOURCES += table/qtable.cpp
+
+opengl:HEADERS += $$OPENGL_H/qgl.h
 OPENGL_SOURCES	= opengl/qgl.cpp
 unix:OPENGL_SOURCES += opengl/qgl_x11.cpp
 win32:OPENGL_SOURCES += opengl/qgl_win.cpp
 opengl:SOURCES    += $$OPENGL_SOURCES
 
-network:HEADERS += network/qdns.h \
-		    network/qftp.h \
-		    network/qhostaddress.h \
-		    network/qnetwork.h \
-		    network/qserversocket.h \
-		    network/qsocket.h \
-		    network/qsocketdevice.h
+network:HEADERS += $$NETWORK_H/qdns.h \
+		    $$NETWORK_H/qftp.h \
+		    $$NETWORK_H/qhostaddress.h \
+		    $$NETWORK_H/qnetwork.h \
+		    $$NETWORK_H/qserversocket.h \
+		    $$NETWORK_H/qsocket.h \
+		    $$NETWORK_H/qsocketdevice.h
 NETWORK_SOURCES	= network/qdns.cpp \
 		    network/qftp.cpp \
 		    network/qhostaddress.cpp \
@@ -542,8 +670,27 @@ unix:NETWORK_SOURCES += network/qsocketdevice_unix.cpp
 win32:NETWORK_SOURCES += network/qsocketdevice_win.cpp
 network:SOURCES    += $$NETWORK_SOURCES
 
-TARGET		= qt
-VERSION		= 2.2.0
-DESTDIR		= ../lib
-DLLDESTDIR	= ../bin
+
+# Qt/Embedded
+embedded:PRECOMPH=kernel/qt.h
+embedded:INCLUDEPATH += 3rdparty/freetype2/include 3rdparty/libpng 3rdparty/zlib
+QWSSUBLIBS = freetype
+zlib:QWSSUBLIBS += z
+png:QWSSUBLIBS += png
+mng:QWSSUBLIBS += mng
+jpeg:QWSSUBLIBS += jpeg
+embedded:SUBLIBS = $$QWSSUBLIBS
+embedded:MAKELIBz = $(MAKE) -C 3rdparty/zlib -f Makefile$$DASHMIPS; \
+			cp 3rdparty/zlib/libz.a tmp
+embedded:MAKELIBfreetype = $(MAKE) -C 3rdparty/freetype2 \
+			    CONFIG_MK=config$$DASHMIPS.mk OBJ_DIR=../../tmp \
+			    ../../tmp/libfreetype.a
+embedded:MAKELIBpng = $(MAKE) -C 3rdparty/libpng \
+			    -f scripts/makefile.linux$$DASHMIPS; \
+			    cp 3rdparty/libpng/libpng.a tmp
+embedded:MAKELIBmng = $(MAKE) -C 3rdparty/libmng \
+			    -f makefiles/makefile.linux$$DASHMIPS; \
+			    cp 3rdparty/libmng/libmng.a tmp
+embedded:MAKELIBjpeg = $(MAKE) -C 3rdparty/jpeglib -f makefile.unix$$DASHMIPS; \
+			    cp 3rdparty/jpeglib/libjpeg.a tmp
 

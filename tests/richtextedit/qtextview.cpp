@@ -505,7 +505,7 @@ void QtTextView::drawContentsOffset(QPainter* p, int ox, int oy,
     QFontMetrics fm( p->fontMetrics() );
     while ( b && tc.y() <= cy + ch ) {
 
-	if ( b && b->dirty ) //ensure the paragraph is layouted
+	if ( b && b->dirty ) //ensure the paragraph is laid out
 	    tc.updateLayout( p, cy + ch );
 
 	tc.gotoParagraph( p, b );

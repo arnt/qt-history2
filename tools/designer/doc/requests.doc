@@ -1,0 +1,9 @@
+- Integrate Handbook in help system (don't forget all help buttons of the dialogs)
+- Find out how to do installation (first we need to decide if we put the designer in Qt or not)
+  - Where to put uic
+  - Where to put templates so that they are found (set $DESIGNER envvar during installation or put them in $QTDIR/templates if
+     we put the designer into qt)
+- Create more templates
+- Create examples (should go together with the examples in the handbook)
+- Fix qdoc to generate all documentation again (no docu for widgets is created at the moment because of the QT_FEATURE defines
+

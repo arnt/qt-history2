@@ -42,3 +42,7 @@
 #define QT_NO_STRINGLIST
 #define QT_NO_SESSIONMANAGER
 #define QT_NO_TEXTCODEC
+
+#define QT_NO_STYLE
+#define QT_NO_IMAGEIO_MNG
+#define QT_NO_EFFECTS

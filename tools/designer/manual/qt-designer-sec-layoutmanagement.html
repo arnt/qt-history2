@@ -1,0 +1,374 @@
+<HTML
+><HEAD
+><TITLE
+>All About Layout Management</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.52"><LINK
+REL="HOME"
+HREF="book1.html"><LINK
+REL="UP"
+TITLE="Useful Techniques"
+HREF="c645.html"><LINK
+REL="PREVIOUS"
+TITLE="Changing The Tab Order"
+HREF="x701.html"><LINK
+REL="NEXT"
+TITLE="Integrating Qt GUI Designer Files Into Your Project"
+HREF="x778.html"></HEAD
+><BODY
+CLASS="SECT1"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="x701.html"
+>Prev</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+>Chapter 5. Useful Techniques</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="x778.html"
+>Next</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="QT-DESIGNER-SEC-LAYOUTMANAGEMENT"
+>All About Layout Management</A
+></H1
+><P
+>We have done quite a bit with layout managements in the
+tutorial chapters already, but here we will wrap up the missing pieces
+of information and provide you with an overview of how to use layout
+management in the Qt GUI Designer.</P
+><P
+>Remember that you use layout management in two steps:</P
+><P
+></P
+><OL
+TYPE="1"
+><LI
+><P
+>Add widgets to your form.</P
+></LI
+><LI
+><P
+>Layout your widgets by assigning a layout manager to
+the surrounding container.</P
+></LI
+></OL
+><P
+>If you later want to add more widgets, you will have to
+remove a layout manager ("break the layout") in order to be able to do
+so. But even then, this two-step model stays valid: First you add the
+new widget, then you re-assign the layout manager to the surrounding
+container.</P
+><P
+>Note that there are two ways of selecting the
+surrounding container: If you already have a natural surrounding
+widget like a group box for the contained radio buttons or the form
+itself in case you want to layout all already existing widgets or
+layout managers, then you just click on this container and assign the
+layout manager by using one of the options from the
+<SPAN
+CLASS="GUIMENU"
+>Layout</SPAN
+> menu, the toolbar buttons or the accelerators
+(<B
+CLASS="KEYCAP"
+>Ctrl-H</B
+>), <B
+CLASS="KEYCAP"
+>Ctrl-L</B
+>, and
+<B
+CLASS="KEYCAP"
+>Ctrl-G</B
+>, respectively).</P
+><P
+>If on the other hand you do not have a natural
+container, e.g., because you just want to group a number of widgets
+together so that you can later take this group as a whole when you
+add another layout manager, then you can just have Qt GUI Designer
+create a widget for you. You do this by simply selecting all the
+widgets that should be layouted and then assign a layout manager. The
+rest will be handled internally by Qt GUI Designer; in the generated
+code, this will simply be a sublayout.<A
+NAME="AEN756"
+HREF="#FTN.AEN756"
+>[1]</A
+></P
+><P
+>As you already know, there are three different layout
+managers available: a vertical box layout manager that arranges its
+widgets in a column, a horizontal box layout manager that arranges its
+widgets in a row, and a grid layout manager that arranges its widgets
+in a grid. Obviously, the vertical and the horizontal box layout
+manager only differ in their orientation, otherwise they are
+identical. Also, the two box layout managers are often used together;
+it makes for a very natural layout to group some widgets into e.g., a
+few rows, then group these rows into a few columns, group these
+columns into even less rows, etc. Often, the outermost layout manager
+is a vertical box layout manager, but this depends on your forms, of
+course.</P
+><P
+>The grid layout manager, on the other hand, is less
+flexible. It arranges its widgets in a fixed number of rows and
+columns. While all the columns can have a different width, all the
+widgets in one column automatically get the same width (otherwise you
+could hardly speak of a column). The same goes for rows. If you really
+want a widget not to extend its width to the full column width (which is
+determined by either the widest widget or the available total space or
+both), you can use spacers left and right to the widget that take up
+the remaining space. Again, the same goes for rows, you can put
+spacers on top and below a widget as well.</P
+><P
+>If you are unsure about whether you should use a grid
+layout or a combination of vertical and horizontal box layouts, think
+about what feels more natural, given the nature of the widgets. If you
+have, e.g., a data-entry form where you have a number of vertically
+arranged line-entry fields each of which have a label left to them,
+the grid is probably the better option, because all the rows, each
+consisting of a label and a line-entry field, are uniform and should
+be layouted the same. If you, on the other hand, have a less uniform
+collection of widgets, the more flexible solution of nested box
+layouts might yield better results.</P
+><P
+>We have already hinted at the existence of spacers, and
+you have used them a bit in the tutorial chapters we well. Spacers are
+"things" that are not visible in the final dialog, except for the fact
+that they take up some of the available space. As mentioned, this is
+useful, if you do not want the widgets in a layout to claim all the
+available space for themselves as this would make them look
+unnaturally big. Spacers are represented by the spring-like drawing in
+the form editor and can be either horizontal or vertical &#8212; you
+have to select the orientation when you insert them, but can change it
+later.</P
+><P
+>Spacers are one of the things that can be used rather
+easily and intuitively, but that are awkward to describe. Therefore,
+we will not make too many words about them here, but rather suggest
+that whenever you think that a widget takes up more space than it
+should and whenever you think that two widgets should be more
+separated than they currently are, you insert a spacer between
+them.</P
+><P
+>As all other things that you put on a form, layouts have
+properties. If you select a layout (make sure that you really select
+the layout and not one of the contained widgets or sublayouts; the
+handles should be all around the red rectangle symbolizing the
+layout), you can see the layout's properties in the form
+editor. Layouts have much less properties than widgets, and most of
+them are pretty generic anyway, but there are two properties that you
+might want to change: <TT
+CLASS="LITERAL"
+>layoutSpacing</TT
+> and
+<TT
+CLASS="LITERAL"
+>layoutMargin</TT
+>.
+<TT
+CLASS="LITERAL"
+>layoutSpacing</TT
+>, whose value is 6 by default,
+indicates how much space there should be between the individiual
+widgets or sublayouts in this layout. The default value of 6 is chosen
+because that's what Microsoft recommends in its user-interface
+guidelines.<A
+NAME="AEN767"
+HREF="#FTN.AEN767"
+>[2]</A
+> For other platforms, you
+might want to choose different values. Also, you might have special
+needs that call for more or less space between the widgets. In these
+cases, change the <TT
+CLASS="LITERAL"
+>layoutSpacing</TT
+> property.</P
+><P
+>Note that there is a significant difference between the
+<TT
+CLASS="LITERAL"
+>layoutSpacing</TT
+> property and spacers. The
+<TT
+CLASS="LITERAL"
+>layoutSpacing</TT
+> property specifies how much space
+there <I
+CLASS="EMPHASIS"
+>must</I
+> be between two widgets. For example,
+if you have three widgets in a horizontal box layout, the width that
+is required for this layout is the widths of all three widgets added
+together plus two times the value of the
+<TT
+CLASS="LITERAL"
+>layoutSpacing</TT
+> property. There is no way the layout
+can display itself and its widgets correctly if it gets less than this
+width. Spacers, on the other hand, take up additional available space
+that would otherwise go to the widgets. If the container that
+surrounds our horizontal box layout can provide more horizontal
+space, then either the widgets take up this space, or, if there are
+spacers in between them, the spacers take up this space. In the latter
+case, the space between the widgets will of course be more than the
+required minimum that is specified by the
+<TT
+CLASS="LITERAL"
+>layoutSpacing</TT
+> property.</P
+><P
+>The second property, <TT
+CLASS="LITERAL"
+>layoutMargin</TT
+>, is
+less often used; its default is 0. It specifies an additional margin
+that should be around all the widgets and sublayouts in the
+layout. After the necessary widths and heights for all the widgets and
+sublayouts in the layout have been computed, two times this value is
+added to both the width and the height to get the final necessary
+width and height of the layout. This property can be used if two
+sublayouts would otherwise be too close together to look good, but you
+will really need it very rarely only.</P
+></DIV
+><H3
+CLASS="FOOTNOTES"
+>Notes</H3
+><TABLE
+BORDER="0"
+CLASS="FOOTNOTES"
+WIDTH="100%"
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+WIDTH="5%"
+><A
+NAME="FTN.AEN756"
+HREF="qt-designer-sec-layoutmanagement.html#AEN756"
+>[1]</A
+></TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+WIDTH="95%"
+><P
+>Don't worry if you do not know what sublayouts are;
+if you have never programmed layouts by hand, you probably do not want
+to go into this anyway.</P
+></TD
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+WIDTH="5%"
+><A
+NAME="FTN.AEN767"
+HREF="qt-designer-sec-layoutmanagement.html#AEN767"
+>[2]</A
+></TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+WIDTH="95%"
+><P
+>Note that this is different from the default you
+	    get when you program Qt layouts by hand; there the default
+	    is 0, which makes for ugly looking forms if you do not
+	    change it.</P
+></TD
+></TR
+></TABLE
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="x701.html"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="book1.html"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="x778.html"
+>Next</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>Changing The Tab Order</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="c645.html"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>Integrating Qt GUI Designer Files Into Your Project</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

@@ -226,7 +226,7 @@ void ListViews::initFolder( Folder *folder, unsigned int &count )
 	str = QString( "Message %1  " ).arg( count );
 	QDateTime dt = QDateTime::currentDateTime();
 	dt = dt.addSecs( 60 * count );
-	MessageHeader mh( "Troll Tech <info@trolltech.com>  ", str, dt );
+	MessageHeader mh( "Trolltech <info@trolltech.com>  ", str, dt );
 
 	QString body;
 	body = QString( "This is the message number %1 of this application, \n"

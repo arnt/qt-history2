@@ -70,7 +70,7 @@ qt-announce, write the message including headers:
 	Subject: Qt 3.14 releaseed
 	Message-ID: <be-clever-here@trolltech.com>
 
-	Troll Tech is proud to announce Qt 3.14, codenamed pi, ...
+	Trolltech is proud to announce Qt 3.14, codenamed pi, ...
 
 and do this on nella:
 

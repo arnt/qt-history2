@@ -7,15 +7,17 @@
 **
 ** Copyright (C) 1992-1998 Troll Tech AS.  All rights reserved.
 **
-** This file is part of the Qt GUI Toolkit.
+** This file is part of the kernel module of the Qt GUI Toolkit.
 **
 ** This file may be distributed under the terms of the Q Public License
 ** as defined by Troll Tech AS of Norway and appearing in the file
 ** LICENSE.QPL included in the packaging of this file.
 **
-** Licensees holding valid Qt Professional Edition licenses may use this
-** file in accordance with the Qt Professional Edition License Agreement
-** provided with the Qt Professional Edition.
+** Licensees holding valid Qt Enterprise Edition or Qt Professional Edition
+** licenses may use this file in accordance with the Qt Commercial License
+** Agreement provided with the Software.  This file is part of the kernel
+** module and therefore may only be used if the kernel module is specified
+** as Licensed on the Licensee's License Certificate.
 **
 ** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 ** information about the Professional Edition licensing, or see
@@ -27,13 +29,12 @@
 
 #ifndef QT_NO_IMAGEIO_PNG
 
-#include <png.h>
-
 #include "qimage.h"
 #include "qasyncimageio.h"
 #include "qiodevice.h"
 #include "qpngio.h"
 
+#include <png.h>
 
 /*
   All PNG files load to the minimal QImage equivalent.
@@ -83,59 +84,69 @@ void qpiw_write_fn(png_structp png_ptr, png_bytep data, png_size_t length)
 static
 void setup_qt( QImage& image, png_structp png_ptr, png_infop info_ptr )
 {
-    // 2.2 is a good guess for the screen gamma of a PC
-    // monitor in a bright office or a dim room
-    if ( info_ptr->valid & PNG_INFO_gAMA )
-	png_set_gamma( png_ptr, 2.2, info_ptr->gamma );
+    if ( png_get_valid(png_ptr, info_ptr, PNG_INFO_gAMA) ) {
+	double file_gamma;
+	png_get_gAMA(png_ptr, info_ptr, &file_gamma);
+#if defined(_OS_MAC_)
+	// a good guess for Mac systems
+	png_set_gamma( png_ptr, 1.7, file_gamma );
+#else
+	// a good guess for PC monitors in a bright office or a dim room
+	png_set_gamma( png_ptr, 2.2, file_gamma );
+#endif
+    }
 
-    if ( info_ptr->color_type == PNG_COLOR_TYPE_GRAY ) {
+    png_uint_32 width;
+    png_uint_32 height;
+    int bit_depth;
+    int color_type;
+    png_get_IHDR(png_ptr, info_ptr, &width, &height, &bit_depth, &color_type,
+	0, 0, 0);
+
+    if ( color_type == PNG_COLOR_TYPE_GRAY ) {
 	// Black & White or 8-bit greyscale
-	if ( info_ptr->bit_depth == 1 && info_ptr->channels == 1 ) {
+	if ( bit_depth == 1 && info_ptr->channels == 1 ) {
 	    png_set_invert_mono( png_ptr );
 	    png_read_update_info( png_ptr, info_ptr );
-	    image.create(info_ptr->width,info_ptr->height, 1, 2,
-		QImage::BigEndian);
-	    image.setColor(1, qRgb(0,0,0) );
-	    image.setColor(0, qRgb(255,255,255) );
+	    image.create( width, height, 1, 2, QImage::BigEndian );
+	    image.setColor( 1, qRgb(0,0,0) );
+	    image.setColor( 0, qRgb(255,255,255) );
 	} else {
-	    if ( info_ptr->bit_depth == 16 )
+	    if ( bit_depth == 16 )
 		png_set_strip_16(png_ptr);
-	    else if ( info_ptr->bit_depth < 8 )
+	    else if ( bit_depth < 8 )
 		png_set_packing(png_ptr);
-	    int ncols = info_ptr->bit_depth < 8
-	    	? 1 << info_ptr->bit_depth : 256;
+	    int ncols = bit_depth < 8 ? 1 << bit_depth : 256;
 	    png_read_update_info(png_ptr, info_ptr);
-	    image.create(info_ptr->width,info_ptr->height,8,ncols);
+	    image.create(width, height, 8, ncols);
 	    for (int i=0; i<ncols; i++) {
 		int c = i*255/(ncols-1);
 		image.setColor( i, qRgba(c,c,c,0xff) );
 	    }
-	    if ( info_ptr->valid & PNG_INFO_tRNS ) {
+	    if ( png_get_valid(png_ptr, info_ptr, PNG_INFO_tRNS) ) {
 		int g = info_ptr->trans_values.gray;
-		if ( info_ptr->bit_depth > 8 )
-		    g >>= (info_ptr->bit_depth-8);
-		image.setAlphaBuffer( TRUE );
-		image.setColor(g, RGB_MASK & image.color(g));
+		if ( bit_depth > 8 ) {
+		    // transparency support disabled for now
+		} else {
+		    image.setAlphaBuffer( TRUE );
+		    image.setColor(g, RGB_MASK & image.color(g));
+		}
 	    }
 	}
-    } else if ( info_ptr->color_type == PNG_COLOR_TYPE_PALETTE
-     && (info_ptr->valid & PNG_INFO_PLTE)
+    } else if ( color_type == PNG_COLOR_TYPE_PALETTE
+     && png_get_valid(png_ptr, info_ptr, PNG_INFO_PLTE)
      && info_ptr->num_palette <= 256 )
     {
 	// 1-bit and 8-bit color
-	if ( info_ptr->bit_depth != 1 )
+	if ( bit_depth != 1 )
 	    png_set_packing( png_ptr );
 	png_read_update_info( png_ptr, info_ptr );
-	image.create(
-	    info_ptr->width,
-	    info_ptr->height,
-	    info_ptr->bit_depth,
-	    info_ptr->num_palette,
-	    QImage::BigEndian
-	);
-
+	png_get_IHDR(png_ptr, info_ptr,
+	    &width, &height, &bit_depth, &color_type, 0, 0, 0);
+	image.create(width, height, bit_depth, info_ptr->num_palette,
+	    QImage::BigEndian);
 	int i = 0;
-	if ( info_ptr->valid & PNG_INFO_tRNS ) {
+	if ( png_get_valid(png_ptr, info_ptr, PNG_INFO_tRNS) ) {
 	    image.setAlphaBuffer( TRUE );
 	    while ( i < info_ptr->num_trans ) {
 		image.setColor(i, qRgba(
@@ -148,7 +159,7 @@ void setup_qt( QImage& image, png_structp png_ptr, png_infop info_ptr )
 		i++;
 	    }
 	}
-	while ( i<info_ptr->num_palette ) {
+	while ( i < info_ptr->num_palette ) {
 	    image.setColor(i, qRgba(
 		info_ptr->palette[i].red,
 		info_ptr->palette[i].green,
@@ -160,19 +171,19 @@ void setup_qt( QImage& image, png_structp png_ptr, png_infop info_ptr )
 	}
     } else {
 	// 32-bit
-	if ( info_ptr->bit_depth == 16 )
+	if ( bit_depth == 16 )
 	    png_set_strip_16(png_ptr);
 
 	png_set_expand(png_ptr);
 
-	if ( info_ptr->color_type == PNG_COLOR_TYPE_GRAY_ALPHA )
+	if ( color_type == PNG_COLOR_TYPE_GRAY_ALPHA )
 	    png_set_gray_to_rgb(png_ptr);
 
-	image.create(info_ptr->width,info_ptr->height,32);
+	image.create(width, height, 32);
 
 	// Only add filler if no alpha, or we can get 5 channel data.
-	if (!(info_ptr->color_type & PNG_COLOR_MASK_ALPHA)
-	   && !(info_ptr->valid & PNG_INFO_tRNS)) {
+	if (!(color_type & PNG_COLOR_MASK_ALPHA)
+	   && !png_get_valid(png_ptr, info_ptr, PNG_INFO_tRNS)) {
 	    png_set_filler(png_ptr, 0xff,
 		QImage::systemByteOrder() == QImage::BigEndian ?
 		    PNG_FILLER_BEFORE : PNG_FILLER_AFTER);
@@ -234,22 +245,30 @@ void read_png_image(QImageIO* iio)
     QImage image;
     setup_qt(image, png_ptr, info_ptr);
 
-    uchar** jt = image.jumpTable();
-    row_pointers=new png_bytep[info_ptr->height];
+    png_uint_32 width;
+    png_uint_32 height;
+    int bit_depth;
+    int color_type;
+    png_get_IHDR(png_ptr, info_ptr, &width, &height, &bit_depth, &color_type,
+	0, 0, 0);
 
-    for (uint y=0; y<info_ptr->height; y++) {
+    uchar** jt = image.jumpTable();
+    row_pointers=new png_bytep[height];
+
+    for (uint y=0; y<height; y++) {
 	row_pointers[y]=jt[y];
     }
 
     png_read_image(png_ptr, row_pointers);
 
 #if 0 // libpng takes care of this.
-    if (image.depth()==32 && (info_ptr->valid & PNG_INFO_tRNS)) {
+png_get_valid(png_ptr, info_ptr, PNG_INFO_tRNS)
+    if (image.depth()==32 && png_get_valid(png_ptr, info_ptr, PNG_INFO_tRNS)) {
 	QRgb trans = 0xFF000000 | qRgb(
-	      (info_ptr->trans_values.red << 8 >> info_ptr->bit_depth)&0xff,
-	      (info_ptr->trans_values.green << 8 >> info_ptr->bit_depth)&0xff,
-	      (info_ptr->trans_values.blue << 8 >> info_ptr->bit_depth)&0xff);
-	for (uint y=0; y<info_ptr->height; y++) {
+	      (info_ptr->trans_values.red << 8 >> bit_depth)&0xff,
+	      (info_ptr->trans_values.green << 8 >> bit_depth)&0xff,
+	      (info_ptr->trans_values.blue << 8 >> bit_depth)&0xff);
+	for (uint y=0; y<height; y++) {
 	    for (uint x=0; x<info_ptr->width; x++) {
 		if (((uint**)jt)[y][x] == trans) {
 		    ((uint**)jt)[y][x] &= 0x00FFFFFF;
@@ -398,12 +417,12 @@ bool QPNGImageWriter::writeImage(const QImage& image, int quality, int off_x, in
 
     if (image.numColors()) {
 	// Paletted
-	info_ptr->valid |= PNG_INFO_PLTE;
-	info_ptr->palette = new png_color[image.numColors()];
-	info_ptr->num_palette = image.numColors();
-	int* trans = new int[info_ptr->num_palette];
+        int num_palette = image.numColors();
+	png_colorp palette = new png_color[num_palette];
+	png_set_PLTE(png_ptr, info_ptr, palette, num_palette);
+	int* trans = new int[num_palette];
 	int num_trans = 0;
-	for (int i=0; i<info_ptr->num_palette; i++) {
+	for (int i=0; i<num_palette; i++) {
 	    QRgb rgb=image.color(i);
 	    info_ptr->palette[i].red = qRed(rgb);
 	    info_ptr->palette[i].green = qGreen(rgb);
@@ -416,11 +435,10 @@ bool QPNGImageWriter::writeImage(const QImage& image, int quality, int off_x, in
 	    }
 	}
 	if (num_trans) {
-	    info_ptr->valid |= PNG_INFO_tRNS;
-	    info_ptr->trans = new png_byte[num_trans];
-	    info_ptr->num_trans = num_trans;
+	    png_bytep copy_trans = new png_byte[num_trans];
 	    for (int i=0; i<num_trans; i++)
-		info_ptr->trans[i] = trans[i];
+		copy_trans[i] = trans[i];
+	    png_set_tRNS(png_ptr, info_ptr, copy_trans, num_trans, 0);
 	}
 	delete trans;
     }
@@ -483,10 +501,17 @@ bool QPNGImageWriter::writeImage(const QImage& image, int quality, int off_x, in
 	png_write_chunk(png_ptr, (png_byte*)"gIFg", data, 4);
     }
 
+    png_uint_32 width;
+    png_uint_32 height;
+    int bit_depth;
+    int color_type;
+    png_get_IHDR(png_ptr, info_ptr, &width, &height, &bit_depth, &color_type,
+	0, 0, 0);
+
     uchar** jt = image.jumpTable();
-    row_pointers=new png_bytep[info_ptr->height];
+    row_pointers=new png_bytep[height];
     uint y;
-    for (y=0; y<info_ptr->height; y++) {
+    for (y=0; y<height; y++) {
 	    row_pointers[y]=jt[y];
     }
     png_write_image(png_ptr, row_pointers);
@@ -496,9 +521,9 @@ bool QPNGImageWriter::writeImage(const QImage& image, int quality, int off_x, in
     frames_written++;
 
     if (image.numColors())
-	delete info_ptr->palette;
-    if (info_ptr->valid & PNG_INFO_tRNS)
-	delete info_ptr->trans;
+	delete [] info_ptr->palette;
+    if (png_get_valid(png_ptr, info_ptr, PNG_INFO_tRNS))
+	delete [] info_ptr->trans;
 
     png_destroy_write_struct(&png_ptr, &info_ptr);
 
@@ -511,7 +536,7 @@ void write_png_image(QImageIO* iio)
     QPNGImageWriter writer(iio->ioDevice());
     int quality = -1;
     if ( iio->parameters() ) {
-	bool ok = false;
+	bool ok = FALSE;
 	int iq = QString::fromLatin1( iio->parameters() ).toInt( &ok );
 	if ( ok && iq >= 0 ) {
 	    if ( iq > 100) {
@@ -877,23 +902,21 @@ int QPNGFormat::decode(QImage& img, QImageConsumer* cons,
     if ( state != Inside ) {
        png_ptr = png_create_read_struct(PNG_LIBPNG_VER_STRING, 0, 0, 0);
        png_set_compression_level(png_ptr, 9);
-
-       if (png_ptr == NULL) {
-	  info_ptr = NULL;
+       if (!png_ptr) {
+	  info_ptr = 0;
 	  image = 0;
 	  return 0;
        }
 
        info_ptr = png_create_info_struct(png_ptr);
-
-       if (info_ptr == NULL) {
-	  png_destroy_read_struct(&png_ptr, &info_ptr, (png_infopp)NULL);
+       if (!info_ptr) {
+	  png_destroy_read_struct(&png_ptr, &info_ptr, 0);
 	  image = 0;
 	  return 0;
        }
 
        if (setjmp((png_ptr)->jmpbuf)) {
-	  png_destroy_read_struct(&png_ptr, &info_ptr, (png_infopp)NULL);
+	  png_destroy_read_struct(&png_ptr, &info_ptr, 0);
 	  image = 0;
 	  return 0;
        }
@@ -915,7 +938,7 @@ int QPNGFormat::decode(QImage& img, QImageConsumer* cons,
     }
 
     if (setjmp(png_ptr->jmpbuf)) {
-       png_destroy_read_struct(&png_ptr, &info_ptr, (png_infopp)NULL);
+       png_destroy_read_struct(&png_ptr, &info_ptr, 0);
        image = 0;
        return 0;
     }
@@ -927,7 +950,7 @@ int QPNGFormat::decode(QImage& img, QImageConsumer* cons,
 
     if ( state != Inside ) {
 	if ( png_ptr )
-	    png_destroy_read_struct(&png_ptr, &info_ptr, (png_infopp)NULL);
+	    png_destroy_read_struct(&png_ptr, &info_ptr, 0);
     }
 
     image = 0;

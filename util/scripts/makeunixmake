@@ -1,7 +1,7 @@
 #!/bin/sh
 
 VERBOSE=
-LIST=
+LIST=1
 SUBARGS=
 while [ -n "$2" ]
 do
@@ -18,10 +18,11 @@ PLATFORM=$1
 
 if [ "$PLATFORM" = "qws" ]
 then
-    PLATPRO=-e
+    TMAKEARG="CONFIG+=embedded OBJECTS_DIR=tmp CONFIG+=png CONFIG+=zlib"
 else
-    PLATPRO=
+    TMAKEARG=""
 fi
+TMAKEARG="$TMAKEARG CONFIG+=enterprise"  # We want all modules.  Disable in configure
 
 if [ -n "$VERBOSE" ] ; then echo 'Building top-level make files...' >&2; fi
 
@@ -33,7 +34,8 @@ if [ -n "$LIST" ] ; then echo 'src/moc/Makefile.in' ; fi
 $QTDIR/util/scripts/mkconfigs $SUBARGS $PLATFORM
 $QTDIR/util/scripts/makemake $SUBARGS $PLATFORM
 
-(cd $QTDIR/src; perl -p -i -e 's/(^CONFIG\s+\+=\s*png\s+zlib)/\# $1/' qt$PLATPRO.pro; tmake -t ../tmake/propagate.t qt$PLATPRO.pro | perl -p -e "s{$QTDIR}{\\\$(QTDIR)}" >Makefile.in )
+(cd $QTDIR/src; tmake $TMAKEARG -t ../tmake/propagate.t qt.pro | perl -p -e "s{$QTDIR}{\\\$(QTDIR)}" >Makefile.in )
+
 if [ -n "$LIST" ] ; then echo 'src/Makefile.in' ; fi
 
 cp -f $QTDIR/util/scripts/configure $QTDIR
@@ -43,7 +45,7 @@ if [ -n "$VERBOSE" ] ; then echo "Build tutorial, example, and extensions Makefi
 
 cd $QTDIR
 find tutorial \
- src/util \
+ tools \
  examples \
  extensions -name '*.pro' |
     while read pro_file
@@ -51,19 +53,27 @@ find tutorial \
 	(
 	DIR=$(dirname $pro_file)
 	cd $DIR # we are in a subshell
-	TEMPLATE=$(echo $(basename $DIR).t)
-	if [ ! -f $TEMPLATE ]
+	TEMPLATE=$(basename $DIR).t
+	if [ -f $TEMPLATE ]
 	then
-	    TEMPLATE=$QTDIR/tmake/propagate.t
+	    TEMPLATE="-t $TEMPLATE"
+	else
+	    if egrep -q -s 'TEMPLATE.*(app|lib)' $QTDIR/$pro_file
+	    then
+		TEMPLATE="-t $QTDIR/tmake/propagate.t"
+	    else
+		TEMPLATE=""
+	    fi
 	fi
-	tmake -t ${TEMPLATE} $tmakearg $(basename $pro_file) > Makefile.in
-        if [ -n "$LIST" ] ; then echo "$DIR/Makefile.in" ; fi
+	mkfiledotin=Makefile.in
+	case $pro_file in 
+	    */examples.pro) TEMPLATE=;;
+	    */tutorial.pro) TEMPLATE=;;
+	    *-pro.pro) mkfiledotin=Makefile-pro.in;;
+	    *-kde.pro) mkfiledotin=Makefile-kde.in;;
+	esac; 
+ 
+	tmake $TMAKEARG ${TEMPLATE} $(basename $pro_file) > $mkfiledotin
+        if [ -n "$LIST" ] ; then echo "$DIR/$mkfiledotin" ; fi;
 	)
     done
-
-# #### redo for some reason
-# Don't know why, but this _is_ necessary
-(cd examples; tmake $tmakearg examples.pro > Makefile.in )
-(cd tutorial; tmake $tmakearg tutorial.pro > Makefile.in )
-(cd extensions/opengl/examples; tmake $tmakearg examples.pro > Makefile.in )
-(cd extensions/xt/examples; tmake $tmakearg examples.pro > Makefile.in )

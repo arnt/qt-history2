@@ -1,0 +1,2688 @@
+<!DOCTYPE UI><UI>
+<class>PaletteEditorBase</class>
+<widget>
+    <class>QDialog</class>
+    <property stdset="1">
+        <name>name</name>
+        <cstring>PaletteEditorBase</cstring>
+    </property>
+    <property stdset="1">
+        <name>geometry</name>
+        <rect>
+            <x>0</x>
+            <y>0</y>
+            <width>699</width>
+            <height>395</height>
+        </rect>
+    </property>
+    <property stdset="1">
+        <name>caption</name>
+        <string>Edit Palette</string>
+    </property>
+    <property stdset="1">
+        <name>enabled</name>
+        <bool>true</bool>
+    </property>
+    <property stdset="1">
+        <name>sizeGripEnabled</name>
+        <bool>true</bool>
+    </property>
+    <property>
+        <name>whatsThis</name>
+        <string>&lt;b&gt;Edit Palette&lt;/b&gt;&lt;p&gt;Change the palette of the current widget or form.&lt;/p&gt;&lt;p&gt;Use a generated palette or select colors for each color group and each color role.&lt;/p&gt;&lt;p&gt;The palette can be tested with different widget layouts in the preview section.&lt;/p&gt;</string>
+    </property>
+    <vbox>
+        <property stdset="1">
+            <name>margin</name>
+            <number>11</number>
+        </property>
+        <property stdset="1">
+            <name>spacing</name>
+            <number>6</number>
+        </property>
+        <widget>
+            <class>QTabWidget</class>
+            <property stdset="1">
+                <name>name</name>
+                <cstring>tabWidget</cstring>
+            </property>
+            <property stdset="1">
+                <name>margin</name>
+                <number>0</number>
+            </property>
+            <property stdset="1">
+                <name>tabPosition</name>
+                <enum>Top</enum>
+            </property>
+            <property stdset="1">
+                <name>enabled</name>
+                <bool>true</bool>
+            </property>
+            <property>
+                <name>whatsThis</name>
+                <string>&lt;b&gt;Choose the color group you want to change.&lt;/b&gt;&lt;p&gt;By default, the inactive and disabled color group use the same colors as the active color group.&lt;/p&gt;</string>
+            </property>
+            <widget>
+                <class>QWidget</class>
+                <attribute>
+                    <name>title</name>
+                    <string>Ac&amp;tive</string>
+                </attribute>
+                <grid>
+                    <property stdset="1">
+                        <name>margin</name>
+                        <number>11</number>
+                    </property>
+                    <property stdset="1">
+                        <name>spacing</name>
+                        <number>6</number>
+                    </property>
+                    <widget row="1"  column="1"  rowspan="2"  colspan="1" >
+                        <class>QGroupBox</class>
+                        <property stdset="1">
+                            <name>name</name>
+                            <cstring>GroupBox4</cstring>
+                        </property>
+                        <property stdset="1">
+                            <name>title</name>
+                            <string>Pre&amp;view</string>
+                        </property>
+                        <property stdset="1">
+                            <name>sizePolicy</name>
+                            <sizepolicy>
+                                <hsizetype>7</hsizetype>
+                                <vsizetype>5</vsizetype>
+                            </sizepolicy>
+                        </property>
+                        <grid>
+                            <property stdset="1">
+                                <name>margin</name>
+                                <number>11</number>
+                            </property>
+                            <property stdset="1">
+                                <name>spacing</name>
+                                <number>6</number>
+                            </property>
+                            <widget row="0"  column="2" >
+                                <class>QToolButton</class>
+                                <property stdset="1">
+                                    <name>name</name>
+                                    <cstring>buttonActiveNext</cstring>
+                                </property>
+                                <property stdset="1">
+                                    <name>text</name>
+                                    <string></string>
+                                </property>
+                                <property stdset="1">
+                                    <name>pixmap</name>
+                                    <pixmap>image0</pixmap>
+                                </property>
+                                <property stdset="1">
+                                    <name>focusPolicy</name>
+                                    <enum>TabFocus</enum>
+                                </property>
+                                <property>
+                                    <name>toolTip</name>
+                                    <string>Next preview</string>
+                                </property>
+                                <property>
+                                    <name>whatsThis</name>
+                                    <string>&lt;b&gt;Preview.&lt;/b&gt;&lt;p&gt;You can select several previews using the next/previous-buttons to test your palette.&lt;/p&gt;</string>
+                                </property>
+                            </widget>
+                            <widget row="0"  column="1" >
+                                <class>QToolButton</class>
+                                <property stdset="1">
+                                    <name>name</name>
+                                    <cstring>buttonActivePrevious</cstring>
+                                </property>
+                                <property stdset="1">
+                                    <name>text</name>
+                                    <string></string>
+                                </property>
+                                <property stdset="1">
+                                    <name>pixmap</name>
+                                    <pixmap>image1</pixmap>
+                                </property>
+                                <property stdset="1">
+                                    <name>focusPolicy</name>
+                                    <enum>TabFocus</enum>
+                                </property>
+                                <property>
+                                    <name>toolTip</name>
+                                    <string>Previous preview</string>
+                                </property>
+                                <property>
+                                    <name>whatsThis</name>
+                                    <string>&lt;b&gt;Preview.&lt;/b&gt;&lt;p&gt;You can select several previews using the next/previous-buttons to test your palette.&lt;/p&gt;</string>
+                                </property>
+                            </widget>
+                            <spacer row="0"  column="0" >
+                                <property>
+                                    <name>name</name>
+                                    <cstring>Horizontal Spacing1</cstring>
+                                </property>
+                                <property stdset="1">
+                                    <name>geometry</name>
+                                    <rect>
+                                        <x>11</x>
+                                        <y>20</y>
+                                        <width>242</width>
+                                        <height>20</height>
+                                    </rect>
+                                </property>
+                                <property stdset="1">
+                                    <name>orientation</name>
+                                    <enum>Horizontal</enum>
+                                </property>
+                                <property stdset="1">
+                                    <name>sizeType</name>
+                                    <enum>Expanding</enum>
+                                </property>
+                            </spacer>
+                            <widget row="2"  column="0"  rowspan="1"  colspan="3" >
+                                <class>PreviewStack</class>
+                                <property stdset="1">
+                                    <name>name</name>
+                                    <cstring>previewActive</cstring>
+                                </property>
+                                <property stdset="1">
+                                    <name>sizePolicy</name>
+                                    <sizepolicy>
+                                        <hsizetype>7</hsizetype>
+                                        <vsizetype>7</vsizetype>
+                                    </sizepolicy>
+                                </property>
+                                <property>
+                                    <name>toolTip</name>
+                                    <string>Check out the active colorgroup of your palette</string>
+                                </property>
+                                <property>
+                                    <name>whatsThis</name>
+                                    <string>&lt;b&gt;Preview.&lt;/b&gt;&lt;p&gt;You can select several previews using the next/previous-buttons to test your palette. This preview uses the active colorgroup which is used when a widget has the focus.&lt;/p&gt;</string>
+                                </property>
+                            </widget>
+                            <widget row="1"  column="0"  rowspan="1"  colspan="3" >
+                                <class>QFrame</class>
+                                <property stdset="1">
+                                    <name>name</name>
+                                    <cstring>Frame5</cstring>
+                                </property>
+                                <property stdset="1">
+                                    <name>frameShadow</name>
+                                    <enum>Sunken</enum>
+                                </property>
+                                <property stdset="1">
+                                    <name>frameShape</name>
+                                    <enum>HLine</enum>
+                                </property>
+                                <property stdset="1">
+                                    <name>minimumSize</name>
+                                    <size>
+                                        <width>0</width>
+                                        <height>2</height>
+                                    </size>
+                                </property>
+                            </widget>
+                        </grid>
+                    </widget>
+                    <widget row="2"  column="0" >
+                        <class>QGroupBox</class>
+                        <property stdset="1">
+                            <name>name</name>
+                            <cstring>groupActiveEffect</cstring>
+                        </property>
+                        <property stdset="1">
+                            <name>title</name>
+                            <string>3D shadow &amp;effects</string>
+                        </property>
+                        <property stdset="1">
+                            <name>alignment</name>
+                            <set>AlignLeft</set>
+                        </property>
+                        <property stdset="1">
+                            <name>sizePolicy</name>
+                            <sizepolicy>
+                                <hsizetype>5</hsizetype>
+                                <vsizetype>5</vsizetype>
+                            </sizepolicy>
+                        </property>
+                        <vbox>
+                            <property stdset="1">
+                                <name>margin</name>
+                                <number>11</number>
+                            </property>
+                            <property stdset="1">
+                                <name>spacing</name>
+                                <number>6</number>
+                            </property>
+                            <widget>
+                                <class>QLayoutWidget</class>
+                                <property stdset="1">
+                                    <name>name</name>
+                                    <cstring>Layout4</cstring>
+                                </property>
+                                <hbox>
+                                    <property stdset="1">
+                                        <name>margin</name>
+                                        <number>0</number>
+                                    </property>
+                                    <property stdset="1">
+                                        <name>spacing</name>
+                                        <number>6</number>
+                                    </property>
+                                    <widget>
+                                        <class>QCheckBox</class>
+                                        <property stdset="1">
+                                            <name>name</name>
+                                            <cstring>checkBuildActiveEffect</cstring>
+                                        </property>
+                                        <property stdset="1">
+                                            <name>text</name>
+                                            <string>Build &amp;from Buttoncolor</string>
+                                        </property>
+                                        <property stdset="1">
+                                            <name>checked</name>
+                                            <bool>true</bool>
+                                        </property>
+                                        <property>
+                                            <name>toolTip</name>
+                                            <string>Generate shadings</string>
+                                        </property>
+                                        <property>
+                                            <name>whatsThis</name>
+                                            <string>Check to let 3D-effect colors be calculated from button-color.</string>
+                                        </property>
+                                    </widget>
+                                    <widget>
+                                        <class>QComboBox</class>
+                                        <item>
+                                            <property>
+                                                <name>text</name>
+                                                <string>Light</string>
+                                            </property>
+                                        </item>
+                                        <item>
+                                            <property>
+                                                <name>text</name>
+                                                <string>Midlight</string>
+                                            </property>
+                                        </item>
+                                        <item>
+                                            <property>
+                                                <name>text</name>
+                                                <string>Mid</string>
+                                            </property>
+                                        </item>
+                                        <item>
+                                            <property>
+                                                <name>text</name>
+                                                <string>Dark</string>
+                                            </property>
+                                        </item>
+                                        <item>
+                                            <property>
+                                                <name>text</name>
+                                                <string>Shadow</string>
+                                            </property>
+                                        </item>
+                                        <property stdset="1">
+                                            <name>name</name>
+                                            <cstring>comboActiveEffect</cstring>
+                                        </property>
+                                        <property>
+                                            <name>toolTip</name>
+                                            <string>Choose 3D-effect color role</string>
+                                        </property>
+                                        <property>
+                                            <name>whatsThis</name>
+                                            <string>&lt;b&gt;Select a color role.&lt;/b&gt;&lt;p&gt;Available effect roles are: &lt;ul&gt; &lt;li&gt;Light - lighter than Button color. &lt;/li&gt; &lt;li&gt;Midlight - between Button and Light. &lt;/li&gt; &lt;li&gt;Mid - between Button and Dark. &lt;/li&gt; &lt;li&gt;Dark - darker than Button. &lt;/li&gt; &lt;li&gt;Shadow - a very dark color. &lt;/li&gt; &lt;/ul&gt;</string>
+                                        </property>
+                                    </widget>
+                                </hbox>
+                            </widget>
+                            <widget>
+                                <class>QLayoutWidget</class>
+                                <property stdset="1">
+                                    <name>name</name>
+                                    <cstring>Layout15</cstring>
+                                </property>
+                                <hbox>
+                                    <property stdset="1">
+                                        <name>margin</name>
+                                        <number>0</number>
+                                    </property>
+                                    <property stdset="1">
+                                        <name>spacing</name>
+                                        <number>6</number>
+                                    </property>
+                                    <spacer>
+                                        <property>
+                                            <name>name</name>
+                                            <cstring>Horizontal Spacing1</cstring>
+                                        </property>
+                                        <property stdset="1">
+                                            <name>geometry</name>
+                                            <rect>
+                                                <x>1</x>
+                                                <y>3</y>
+                                                <width>177</width>
+                                                <height>20</height>
+                                            </rect>
+                                        </property>
+                                        <property stdset="1">
+                                            <name>orientation</name>
+                                            <enum>Horizontal</enum>
+                                        </property>
+                                        <property stdset="1">
+                                            <name>sizeType</name>
+                                            <enum>Expanding</enum>
+                                        </property>
+                                    </spacer>
+                                    <widget>
+                                        <class>QLabel</class>
+                                        <property stdset="1">
+                                            <name>name</name>
+                                            <cstring>labelActiveEffect</cstring>
+                                        </property>
+                                        <property stdset="1">
+                                            <name>text</name>
+                                            <string>select Co&amp;lor:</string>
+                                        </property>
+                                        <property stdset="1">
+                                            <name>minimumSize</name>
+                                            <size>
+                                                <width>0</width>
+                                                <height>0</height>
+                                            </size>
+                                        </property>
+                                        <property stdset="1">
+                                            <name>sizePolicy</name>
+                                            <sizepolicy>
+                                                <hsizetype>1</hsizetype>
+                                                <vsizetype>1</vsizetype>
+                                            </sizepolicy>
+                                        </property>
+                                        <property>
+                                            <name>buddy</name>
+                                            <cstring>buttonActiveEffect</cstring>
+                                        </property>
+                                    </widget>
+                                    <widget>
+                                        <class>StyledButton</class>
+                                        <property stdset="1">
+                                            <name>name</name>
+                                            <cstring>buttonActiveEffect</cstring>
+                                        </property>
+                                        <property stdset="1">
+                                            <name>sizePolicy</name>
+                                            <sizepolicy>
+                                                <hsizetype>1</hsizetype>
+                                                <vsizetype>0</vsizetype>
+                                            </sizepolicy>
+                                        </property>
+                                        <property stdset="1">
+                                            <name>focusPolicy</name>
+                                            <enum>TabFocus</enum>
+                                        </property>
+                                        <property>
+                                            <name>scale</name>
+                                            <bool>false</bool>
+                                        </property>
+                                        <property>
+                                            <name>toolTip</name>
+                                            <string>Choose a color</string>
+                                        </property>
+                                        <property>
+                                            <name>whatsThis</name>
+                                            <string>Choose a color for the selected effect color role.</string>
+                                        </property>
+                                    </widget>
+                                </hbox>
+                            </widget>
+                        </vbox>
+                    </widget>
+                    <widget row="1"  column="0" >
+                        <class>QGroupBox</class>
+                        <property stdset="1">
+                            <name>name</name>
+                            <cstring>groupActiveCentral</cstring>
+                        </property>
+                        <property stdset="1">
+                            <name>title</name>
+                            <string>Central color &amp;roles</string>
+                        </property>
+                        <property stdset="1">
+                            <name>maximumSize</name>
+                            <size>
+                                <width>32767</width>
+                                <height>32767</height>
+                            </size>
+                        </property>
+                        <property stdset="1">
+                            <name>sizePolicy</name>
+                            <sizepolicy>
+                                <hsizetype>5</hsizetype>
+                                <vsizetype>5</vsizetype>
+                            </sizepolicy>
+                        </property>
+                        <vbox>
+                            <property stdset="1">
+                                <name>margin</name>
+                                <number>11</number>
+                            </property>
+                            <property stdset="1">
+                                <name>spacing</name>
+                                <number>6</number>
+                            </property>
+                            <widget>
+                                <class>QComboBox</class>
+                                <item>
+                                    <property>
+                                        <name>text</name>
+                                        <string>Background</string>
+                                    </property>
+                                </item>
+                                <item>
+                                    <property>
+                                        <name>text</name>
+                                        <string>Foreground</string>
+                                    </property>
+                                </item>
+                                <item>
+                                    <property>
+                                        <name>text</name>
+                                        <string>Button</string>
+                                    </property>
+                                </item>
+                                <item>
+                                    <property>
+                                        <name>text</name>
+                                        <string>Base</string>
+                                    </property>
+                                </item>
+                                <item>
+                                    <property>
+                                        <name>text</name>
+                                        <string>Text</string>
+                                    </property>
+                                </item>
+                                <item>
+                                    <property>
+                                        <name>text</name>
+                                        <string>BrightText</string>
+                                    </property>
+                                </item>
+                                <item>
+                                    <property>
+                                        <name>text</name>
+                                        <string>ButtonText</string>
+                                    </property>
+                                </item>
+                                <item>
+                                    <property>
+                                        <name>text</name>
+                                        <string>Highlight</string>
+                                    </property>
+                                </item>
+                                <item>
+                                    <property>
+                                        <name>text</name>
+                                        <string>HighlightText</string>
+                                    </property>
+                                </item>
+                                <property stdset="1">
+                                    <name>name</name>
+                                    <cstring>comboActiveCentral</cstring>
+                                </property>
+                                <property>
+                                    <name>toolTip</name>
+                                    <string>Choose central color role</string>
+                                </property>
+                                <property>
+                                    <name>whatsThis</name>
+                                    <string>&lt;b&gt;Select a color role.&lt;/b&gt;&lt;p&gt;Available central roles are: &lt;ul&gt; &lt;li&gt;Background - general background color. &lt;/li&gt; &lt;li&gt;Foreground - general foreground color. &lt;/li&gt; &lt;li&gt;Base - used as background color for e.g. text entry widgets, usually white or another light color. &lt;/li&gt; &lt;li&gt;Text - the forground color used with Base. Usually this is the same as the Foreground, in what case it must provide good contrast both with Background and Base. &lt;/li&gt; &lt;li&gt;Button - general button background color, where buttons need a background different from Background, as in the Macintosh style. &lt;/li&gt; &lt;li&gt;ButtonText - a foreground color used with the Button color. &lt;/li&gt; &lt;li&gt;Highlight - a color to indicate a selected or highlighted item. &lt;/li&gt; &lt;li&gt;HighlightedText - a text color that contrasts to Highlight. &lt;/li&gt; &lt;li&gt;BrightText - a text color that is very different from Foreground and contrasts well with e.g. black. &lt;/li&gt; &lt;/ul&gt; &lt;/p&gt;</string>
+                                </property>
+                            </widget>
+                            <widget>
+                                <class>QLayoutWidget</class>
+                                <property stdset="1">
+                                    <name>name</name>
+                                    <cstring>Layout33</cstring>
+                                </property>
+                                <hbox>
+                                    <property stdset="1">
+                                        <name>margin</name>
+                                        <number>0</number>
+                                    </property>
+                                    <property stdset="1">
+                                        <name>spacing</name>
+                                        <number>6</number>
+                                    </property>
+                                    <spacer>
+                                        <property>
+                                            <name>name</name>
+                                            <cstring>Horizontal Spacing1</cstring>
+                                        </property>
+                                        <property stdset="1">
+                                            <name>geometry</name>
+                                            <rect>
+                                                <x>1</x>
+                                                <y>3</y>
+                                                <width>37</width>
+                                                <height>20</height>
+                                            </rect>
+                                        </property>
+                                        <property stdset="1">
+                                            <name>orientation</name>
+                                            <enum>Horizontal</enum>
+                                        </property>
+                                        <property stdset="1">
+                                            <name>sizeType</name>
+                                            <enum>Expanding</enum>
+                                        </property>
+                                    </spacer>
+                                    <widget>
+                                        <class>QLabel</class>
+                                        <property stdset="1">
+                                            <name>name</name>
+                                            <cstring>labelActivePixmap</cstring>
+                                        </property>
+                                        <property stdset="1">
+                                            <name>text</name>
+                                            <string>choose &amp;Pixmap:</string>
+                                        </property>
+                                        <property stdset="1">
+                                            <name>sizePolicy</name>
+                                            <sizepolicy>
+                                                <hsizetype>1</hsizetype>
+                                                <vsizetype>1</vsizetype>
+                                            </sizepolicy>
+                                        </property>
+                                        <property>
+                                            <name>buddy</name>
+                                            <cstring>buttonActivePixmap</cstring>
+                                        </property>
+                                    </widget>
+                                    <widget>
+                                        <class>StyledButton</class>
+                                        <property stdset="1">
+                                            <name>name</name>
+                                            <cstring>buttonActivePixmap</cstring>
+                                        </property>
+                                        <property stdset="1">
+                                            <name>focusPolicy</name>
+                                            <enum>TabFocus</enum>
+                                        </property>
+                                        <property stdset="1">
+                                            <name>sizePolicy</name>
+                                            <sizepolicy>
+                                                <hsizetype>1</hsizetype>
+                                                <vsizetype>0</vsizetype>
+                                            </sizepolicy>
+                                        </property>
+                                        <property>
+                                            <name>scale</name>
+                                            <bool>true</bool>
+                                        </property>
+                                        <property>
+                                            <name>toolTip</name>
+                                            <string>Select a pixmap</string>
+                                        </property>
+                                        <property>
+                                            <name>whatsThis</name>
+                                            <string>Choose a pixmap-file for the selected central color role.</string>
+                                        </property>
+                                    </widget>
+                                    <widget>
+                                        <class>QLabel</class>
+                                        <property stdset="1">
+                                            <name>name</name>
+                                            <cstring>labelActiveCentral</cstring>
+                                        </property>
+                                        <property stdset="1">
+                                            <name>text</name>
+                                            <string>&amp;select Color:</string>
+                                        </property>
+                                        <property stdset="1">
+                                            <name>minimumSize</name>
+                                            <size>
+                                                <width>0</width>
+                                                <height>0</height>
+                                            </size>
+                                        </property>
+                                        <property stdset="1">
+                                            <name>sizePolicy</name>
+                                            <sizepolicy>
+                                                <hsizetype>1</hsizetype>
+                                                <vsizetype>1</vsizetype>
+                                            </sizepolicy>
+                                        </property>
+                                        <property>
+                                            <name>buddy</name>
+                                            <cstring>buttonActiveCentral</cstring>
+                                        </property>
+                                    </widget>
+                                    <widget>
+                                        <class>StyledButton</class>
+                                        <property stdset="1">
+                                            <name>name</name>
+                                            <cstring>buttonActiveCentral</cstring>
+                                        </property>
+                                        <property stdset="1">
+                                            <name>sizePolicy</name>
+                                            <sizepolicy>
+                                                <hsizetype>1</hsizetype>
+                                                <vsizetype>0</vsizetype>
+                                            </sizepolicy>
+                                        </property>
+                                        <property stdset="1">
+                                            <name>focusPolicy</name>
+                                            <enum>TabFocus</enum>
+                                        </property>
+                                        <property>
+                                            <name>scale</name>
+                                            <bool>false</bool>
+                                        </property>
+                                        <property>
+                                            <name>toolTip</name>
+                                            <string>Choose a color</string>
+                                        </property>
+                                        <property>
+                                            <name>whatsThis</name>
+                                            <string>Choose a color for the selected central color role.</string>
+                                        </property>
+                                    </widget>
+                                </hbox>
+                            </widget>
+                        </vbox>
+                    </widget>
+                    <widget row="0"  column="0"  rowspan="1"  colspan="2" >
+                        <class>QGroupBox</class>
+                        <property stdset="1">
+                            <name>name</name>
+                            <cstring>groupAutoPalette</cstring>
+                        </property>
+                        <property stdset="1">
+                            <name>title</name>
+                            <string>A&amp;uto</string>
+                        </property>
+                        <property stdset="1">
+                            <name>alignment</name>
+                            <set>AlignLeft</set>
+                        </property>
+                        <hbox>
+                            <property stdset="1">
+                                <name>margin</name>
+                                <number>11</number>
+                            </property>
+                            <property stdset="1">
+                                <name>spacing</name>
+                                <number>6</number>
+                            </property>
+                            <widget>
+                                <class>QCheckBox</class>
+                                <property stdset="1">
+                                    <name>name</name>
+                                    <cstring>checkBuildPalette</cstring>
+                                </property>
+                                <property stdset="1">
+                                    <name>text</name>
+                                    <string>&amp;Build palette from colors</string>
+                                </property>
+                                <property stdset="1">
+                                    <name>checked</name>
+                                    <bool>true</bool>
+                                </property>
+                                <property>
+                                    <name>toolTip</name>
+                                    <string>Generate palette</string>
+                                </property>
+                                <property>
+                                    <name>whatsThis</name>
+                                    <string>&lt;b&gt;Generate the palette using basic colors.&lt;/b&gt;&lt;p&gt;If this option is checked, the whole palette can be generated using two basic color for 3D-effects and the background.&lt;/p&gt;</string>
+                                </property>
+                            </widget>
+                            <spacer>
+                                <property>
+                                    <name>name</name>
+                                    <cstring>Horizontal Spacing1</cstring>
+                                </property>
+                                <property stdset="1">
+                                    <name>geometry</name>
+                                    <rect>
+                                        <x>174</x>
+                                        <y>21</y>
+                                        <width>228</width>
+                                        <height>20</height>
+                                    </rect>
+                                </property>
+                                <property stdset="1">
+                                    <name>orientation</name>
+                                    <enum>Horizontal</enum>
+                                </property>
+                                <property stdset="1">
+                                    <name>sizeType</name>
+                                    <enum>Expanding</enum>
+                                </property>
+                            </spacer>
+                            <widget>
+                                <class>QLabel</class>
+                                <property stdset="1">
+                                    <name>name</name>
+                                    <cstring>labelMainColor</cstring>
+                                </property>
+                                <property stdset="1">
+                                    <name>text</name>
+                                    <string>&amp;3D-Effects:</string>
+                                </property>
+                                <property stdset="1">
+                                    <name>lineWidth</name>
+                                    <number>1</number>
+                                </property>
+                                <property stdset="1">
+                                    <name>midLineWidth</name>
+                                    <number>0</number>
+                                </property>
+                                <property stdset="1">
+                                    <name>margin</name>
+                                    <number>0</number>
+                                </property>
+                                <property stdset="1">
+                                    <name>minimumSize</name>
+                                    <size>
+                                        <width>50</width>
+                                        <height>0</height>
+                                    </size>
+                                </property>
+                                <property stdset="1">
+                                    <name>alignment</name>
+                                    <set>AlignVCenter|AlignLeft</set>
+                                </property>
+                                <property stdset="1">
+                                    <name>sizePolicy</name>
+                                    <sizepolicy>
+                                        <hsizetype>1</hsizetype>
+                                        <vsizetype>1</vsizetype>
+                                    </sizepolicy>
+                                </property>
+                                <property>
+                                    <name>buddy</name>
+                                    <cstring>buttonMainColor</cstring>
+                                </property>
+                            </widget>
+                            <widget>
+                                <class>StyledButton</class>
+                                <property stdset="1">
+                                    <name>name</name>
+                                    <cstring>buttonMainColor</cstring>
+                                </property>
+                                <property stdset="1">
+                                    <name>sizePolicy</name>
+                                    <sizepolicy>
+                                        <hsizetype>1</hsizetype>
+                                        <vsizetype>0</vsizetype>
+                                    </sizepolicy>
+                                </property>
+                                <property stdset="1">
+                                    <name>focusPolicy</name>
+                                    <enum>TabFocus</enum>
+                                </property>
+                                <property>
+                                    <name>scale</name>
+                                    <bool>false</bool>
+                                </property>
+                                <property>
+                                    <name>toolTip</name>
+                                    <string>Choose a color</string>
+                                </property>
+                                <property>
+                                    <name>whatsThis</name>
+                                    <string>Choose the effect-color for the generated palette.</string>
+                                </property>
+                            </widget>
+                            <widget>
+                                <class>QLabel</class>
+                                <property stdset="1">
+                                    <name>name</name>
+                                    <cstring>labelMainColor2</cstring>
+                                </property>
+                                <property stdset="1">
+                                    <name>text</name>
+                                    <string>Back&amp;ground:</string>
+                                </property>
+                                <property stdset="1">
+                                    <name>lineWidth</name>
+                                    <number>1</number>
+                                </property>
+                                <property stdset="1">
+                                    <name>midLineWidth</name>
+                                    <number>0</number>
+                                </property>
+                                <property stdset="1">
+                                    <name>margin</name>
+                                    <number>0</number>
+                                </property>
+                                <property stdset="1">
+                                    <name>minimumSize</name>
+                                    <size>
+                                        <width>50</width>
+                                        <height>0</height>
+                                    </size>
+                                </property>
+                                <property stdset="1">
+                                    <name>alignment</name>
+                                    <set>AlignVCenter|AlignLeft</set>
+                                </property>
+                                <property stdset="1">
+                                    <name>sizePolicy</name>
+                                    <sizepolicy>
+                                        <hsizetype>1</hsizetype>
+                                        <vsizetype>1</vsizetype>
+                                    </sizepolicy>
+                                </property>
+                                <property>
+                                    <name>buddy</name>
+                                    <cstring>buttonMainColor2</cstring>
+                                </property>
+                            </widget>
+                            <widget>
+                                <class>StyledButton</class>
+                                <property stdset="1">
+                                    <name>name</name>
+                                    <cstring>buttonMainColor2</cstring>
+                                </property>
+                                <property stdset="1">
+                                    <name>sizePolicy</name>
+                                    <sizepolicy>
+                                        <hsizetype>1</hsizetype>
+                                        <vsizetype>0</vsizetype>
+                                    </sizepolicy>
+                                </property>
+                                <property stdset="1">
+                                    <name>focusPolicy</name>
+                                    <enum>TabFocus</enum>
+                                </property>
+                                <property>
+                                    <name>scale</name>
+                                    <bool>false</bool>
+                                </property>
+                                <property>
+                                    <name>toolTip</name>
+                                    <string>Choose a color</string>
+                                </property>
+                                <property>
+                                    <name>whatsThis</name>
+                                    <string>Choose the background color for the generated palette.</string>
+                                </property>
+                            </widget>
+                        </hbox>
+                    </widget>
+                </grid>
+            </widget>
+            <widget>
+                <class>QWidget</class>
+                <attribute>
+                    <name>title</name>
+                    <string>&amp;Inactive</string>
+                </attribute>
+                <grid>
+                    <property stdset="1">
+                        <name>margin</name>
+                        <number>11</number>
+                    </property>
+                    <property stdset="1">
+                        <name>spacing</name>
+                        <number>6</number>
+                    </property>
+                    <widget row="0"  column="0"  rowspan="1"  colspan="2" >
+                        <class>QGroupBox</class>
+                        <property stdset="1">
+                            <name>name</name>
+                            <cstring>groupInactiveAuto</cstring>
+                        </property>
+                        <property stdset="1">
+                            <name>title</name>
+                            <string>A&amp;uto</string>
+                        </property>
+                        <hbox>
+                            <property stdset="1">
+                                <name>margin</name>
+                                <number>11</number>
+                            </property>
+                            <property stdset="1">
+                                <name>spacing</name>
+                                <number>6</number>
+                            </property>
+                            <widget>
+                                <class>QCheckBox</class>
+                                <property stdset="1">
+                                    <name>name</name>
+                                    <cstring>checkBuildInactive</cstring>
+                                </property>
+                                <property stdset="1">
+                                    <name>text</name>
+                                    <string>&amp;Build from active colorgroup</string>
+                                </property>
+                                <property stdset="1">
+                                    <name>checked</name>
+                                    <bool>true</bool>
+                                </property>
+                                <property>
+                                    <name>toolTip</name>
+                                    <string>Generate from active colorgroup</string>
+                                </property>
+                                <property>
+                                    <name>whatsThis</name>
+                                    <string>&lt;b&gt;Generate the inactive colorgroup&lt;/b&gt;&lt;p&gt;If this option is checked, the inactive colorgroup will be generated based upon the active colorgroup.&lt;/p&gt;</string>
+                                </property>
+                            </widget>
+                        </hbox>
+                    </widget>
+                    <widget row="1"  column="1"  rowspan="2"  colspan="1" >
+                        <class>QGroupBox</class>
+                        <property stdset="1">
+                            <name>name</name>
+                            <cstring>GroupBox8</cstring>
+                        </property>
+                        <property stdset="1">
+                            <name>title</name>
+                            <string>Pre&amp;view</string>
+                        </property>
+                        <grid>
+                            <property stdset="1">
+                                <name>margin</name>
+                                <number>11</number>
+                            </property>
+                            <property stdset="1">
+                                <name>spacing</name>
+                                <number>6</number>
+                            </property>
+                            <spacer row="0"  column="0" >
+                                <property>
+                                    <name>name</name>
+                                    <cstring>Horizontal Spacing1</cstring>
+                                </property>
+                                <property stdset="1">
+                                    <name>geometry</name>
+                                    <rect>
+                                        <x>11</x>
+                                        <y>20</y>
+                                        <width>1</width>
+                                        <height>20</height>
+                                    </rect>
+                                </property>
+                                <property stdset="1">
+                                    <name>orientation</name>
+                                    <enum>Horizontal</enum>
+                                </property>
+                                <property stdset="1">
+                                    <name>sizeType</name>
+                                    <enum>Expanding</enum>
+                                </property>
+                            </spacer>
+                            <widget row="0"  column="1" >
+                                <class>QToolButton</class>
+                                <property stdset="1">
+                                    <name>name</name>
+                                    <cstring>buttonInactivePrevious</cstring>
+                                </property>
+                                <property stdset="1">
+                                    <name>text</name>
+                                    <string></string>
+                                </property>
+                                <property stdset="1">
+                                    <name>pixmap</name>
+                                    <pixmap>image1</pixmap>
+                                </property>
+                                <property stdset="1">
+                                    <name>focusPolicy</name>
+                                    <enum>TabFocus</enum>
+                                </property>
+                                <property>
+                                    <name>toolTip</name>
+                                    <string>previous preview</string>
+                                </property>
+                                <property>
+                                    <name>whatsThis</name>
+                                    <string>&lt;b&gt;Preview.&lt;/b&gt;&lt;p&gt;You can select several previews using the next/previous-buttons to test your palette.&lt;/p&gt;</string>
+                                </property>
+                            </widget>
+                            <widget row="0"  column="2" >
+                                <class>QToolButton</class>
+                                <property stdset="1">
+                                    <name>name</name>
+                                    <cstring>buttonInactiveNext</cstring>
+                                </property>
+                                <property stdset="1">
+                                    <name>text</name>
+                                    <string></string>
+                                </property>
+                                <property stdset="1">
+                                    <name>pixmap</name>
+                                    <pixmap>image0</pixmap>
+                                </property>
+                                <property stdset="1">
+                                    <name>focusPolicy</name>
+                                    <enum>TabFocus</enum>
+                                </property>
+                                <property>
+                                    <name>toolTip</name>
+                                    <string>next preview</string>
+                                </property>
+                                <property>
+                                    <name>whatsThis</name>
+                                    <string>&lt;b&gt;Preview.&lt;/b&gt;&lt;p&gt;You can select several previews using the next/previous-buttons to test your palette.&lt;/p&gt;</string>
+                                </property>
+                            </widget>
+                            <widget row="2"  column="0"  rowspan="1"  colspan="3" >
+                                <class>PreviewStack</class>
+                                <property stdset="1">
+                                    <name>name</name>
+                                    <cstring>previewInactive</cstring>
+                                </property>
+                                <property stdset="1">
+                                    <name>sizePolicy</name>
+                                    <sizepolicy>
+                                        <hsizetype>7</hsizetype>
+                                        <vsizetype>7</vsizetype>
+                                    </sizepolicy>
+                                </property>
+                                <property>
+                                    <name>toolTip</name>
+                                    <string>Check out the inactive colorgroup of your palette</string>
+                                </property>
+                                <property>
+                                    <name>whatsThis</name>
+                                    <string>&lt;b&gt;Preview.&lt;/b&gt;&lt;p&gt;You can select several previews using the next/previous-buttons to test your palette. This preview uses the inactive colorgroup which is used when a widget doesn't have the focus.&lt;/p&gt;</string>
+                                </property>
+                            </widget>
+                            <widget row="1"  column="0"  rowspan="1"  colspan="3" >
+                                <class>QFrame</class>
+                                <property stdset="1">
+                                    <name>name</name>
+                                    <cstring>Frame4</cstring>
+                                </property>
+                                <property stdset="1">
+                                    <name>frameShadow</name>
+                                    <enum>Sunken</enum>
+                                </property>
+                                <property stdset="1">
+                                    <name>frameShape</name>
+                                    <enum>HLine</enum>
+                                </property>
+                                <property stdset="1">
+                                    <name>minimumSize</name>
+                                    <size>
+                                        <width>0</width>
+                                        <height>2</height>
+                                    </size>
+                                </property>
+                            </widget>
+                        </grid>
+                    </widget>
+                    <widget row="1"  column="0" >
+                        <class>QGroupBox</class>
+                        <property stdset="1">
+                            <name>name</name>
+                            <cstring>groupInactiveCentral</cstring>
+                        </property>
+                        <property stdset="1">
+                            <name>title</name>
+                            <string>Central color &amp;roles</string>
+                        </property>
+                        <vbox>
+                            <property stdset="1">
+                                <name>margin</name>
+                                <number>11</number>
+                            </property>
+                            <property stdset="1">
+                                <name>spacing</name>
+                                <number>6</number>
+                            </property>
+                            <widget>
+                                <class>QComboBox</class>
+                                <item>
+                                    <property>
+                                        <name>text</name>
+                                        <string>Background</string>
+                                    </property>
+                                </item>
+                                <item>
+                                    <property>
+                                        <name>text</name>
+                                        <string>Foreground</string>
+                                    </property>
+                                </item>
+                                <item>
+                                    <property>
+                                        <name>text</name>
+                                        <string>Button</string>
+                                    </property>
+                                </item>
+                                <item>
+                                    <property>
+                                        <name>text</name>
+                                        <string>Base</string>
+                                    </property>
+                                </item>
+                                <item>
+                                    <property>
+                                        <name>text</name>
+                                        <string>Text</string>
+                                    </property>
+                                </item>
+                                <item>
+                                    <property>
+                                        <name>text</name>
+                                        <string>BrightText</string>
+                                    </property>
+                                </item>
+                                <item>
+                                    <property>
+                                        <name>text</name>
+                                        <string>ButtonText</string>
+                                    </property>
+                                </item>
+                                <item>
+                                    <property>
+                                        <name>text</name>
+                                        <string>Highlight</string>
+                                    </property>
+                                </item>
+                                <item>
+                                    <property>
+                                        <name>text</name>
+                                        <string>HighlightText</string>
+                                    </property>
+                                </item>
+                                <property stdset="1">
+                                    <name>name</name>
+                                    <cstring>comboInactiveCentral</cstring>
+                                </property>
+                                <property>
+                                    <name>toolTip</name>
+                                    <string>Choose central color role</string>
+                                </property>
+                                <property>
+                                    <name>whatsThis</name>
+                                    <string>&lt;b&gt;Select a color role.&lt;/b&gt;&lt;p&gt;Available central roles are: &lt;ul&gt; &lt;li&gt;Background - general background color.&lt;/li&gt; &lt;li&gt;Foreground - general foreground color. &lt;/li&gt; &lt;li&gt;Base - used as background color for e.g. text entry widgets, usually white or another light color. &lt;/li&gt; &lt;li&gt;Text - the forground color used with Base. Usually this is the same as the Foreground, in what case it must provide good contrast both with Background and Base. &lt;/li&gt; &lt;li&gt;Button - general button background color, where buttons need a background different from Background, as in the Macintosh style. &lt;/li&gt; &lt;li&gt;ButtonText - a foreground color used with the Button color. &lt;/li&gt; &lt;li&gt;Highlight - a color to indicate a selected or highlighted item. &lt;/li&gt; &lt;li&gt;HighlightedText - a text color that contrasts to Highlight. &lt;/li&gt; &lt;li&gt;BrightText - a text color that is very different from Foreground and contrasts well with e.g. black. &lt;/li&gt; &lt;/ul&gt; &lt;/p&gt;</string>
+                                </property>
+                            </widget>
+                            <widget>
+                                <class>QLayoutWidget</class>
+                                <property stdset="1">
+                                    <name>name</name>
+                                    <cstring>Layout32</cstring>
+                                </property>
+                                <hbox>
+                                    <property stdset="1">
+                                        <name>margin</name>
+                                        <number>0</number>
+                                    </property>
+                                    <property stdset="1">
+                                        <name>spacing</name>
+                                        <number>6</number>
+                                    </property>
+                                    <spacer>
+                                        <property>
+                                            <name>name</name>
+                                            <cstring>Horizontal Spacing2</cstring>
+                                        </property>
+                                        <property stdset="1">
+                                            <name>geometry</name>
+                                            <rect>
+                                                <x>1</x>
+                                                <y>3</y>
+                                                <width>1</width>
+                                                <height>20</height>
+                                            </rect>
+                                        </property>
+                                        <property stdset="1">
+                                            <name>orientation</name>
+                                            <enum>Horizontal</enum>
+                                        </property>
+                                        <property stdset="1">
+                                            <name>sizeType</name>
+                                            <enum>Expanding</enum>
+                                        </property>
+                                    </spacer>
+                                    <widget>
+                                        <class>QLabel</class>
+                                        <property stdset="1">
+                                            <name>name</name>
+                                            <cstring>labelInactivePixmap</cstring>
+                                        </property>
+                                        <property stdset="1">
+                                            <name>text</name>
+                                            <string>choose &amp;Pixmap:</string>
+                                        </property>
+                                        <property stdset="1">
+                                            <name>sizePolicy</name>
+                                            <sizepolicy>
+                                                <hsizetype>1</hsizetype>
+                                                <vsizetype>1</vsizetype>
+                                            </sizepolicy>
+                                        </property>
+                                        <property>
+                                            <name>buddy</name>
+                                            <cstring>buttonInactivePixmap</cstring>
+                                        </property>
+                                    </widget>
+                                    <widget>
+                                        <class>StyledButton</class>
+                                        <property stdset="1">
+                                            <name>name</name>
+                                            <cstring>buttonInactivePixmap</cstring>
+                                        </property>
+                                        <property stdset="1">
+                                            <name>sizePolicy</name>
+                                            <sizepolicy>
+                                                <hsizetype>1</hsizetype>
+                                                <vsizetype>0</vsizetype>
+                                            </sizepolicy>
+                                        </property>
+                                        <property stdset="1">
+                                            <name>focusPolicy</name>
+                                            <enum>TabFocus</enum>
+                                        </property>
+                                        <property>
+                                            <name>scale</name>
+                                            <bool>true</bool>
+                                        </property>
+                                        <property>
+                                            <name>toolTip</name>
+                                            <string>Select a pixmap</string>
+                                        </property>
+                                        <property>
+                                            <name>whatsThis</name>
+                                            <string>Choose a pixmap-file for the selected central color role.</string>
+                                        </property>
+                                    </widget>
+                                    <widget>
+                                        <class>QLabel</class>
+                                        <property stdset="1">
+                                            <name>name</name>
+                                            <cstring>labelInactiveCentral</cstring>
+                                        </property>
+                                        <property stdset="1">
+                                            <name>text</name>
+                                            <string>&amp;select Color:</string>
+                                        </property>
+                                        <property stdset="1">
+                                            <name>minimumSize</name>
+                                            <size>
+                                                <width>0</width>
+                                                <height>0</height>
+                                            </size>
+                                        </property>
+                                        <property stdset="1">
+                                            <name>sizePolicy</name>
+                                            <sizepolicy>
+                                                <hsizetype>1</hsizetype>
+                                                <vsizetype>1</vsizetype>
+                                            </sizepolicy>
+                                        </property>
+                                        <property>
+                                            <name>buddy</name>
+                                            <cstring>buttonInactiveCentral</cstring>
+                                        </property>
+                                    </widget>
+                                    <widget>
+                                        <class>StyledButton</class>
+                                        <property stdset="1">
+                                            <name>name</name>
+                                            <cstring>buttonInactiveCentral</cstring>
+                                        </property>
+                                        <property stdset="1">
+                                            <name>sizePolicy</name>
+                                            <sizepolicy>
+                                                <hsizetype>1</hsizetype>
+                                                <vsizetype>0</vsizetype>
+                                            </sizepolicy>
+                                        </property>
+                                        <property stdset="1">
+                                            <name>focusPolicy</name>
+                                            <enum>TabFocus</enum>
+                                        </property>
+                                        <property>
+                                            <name>scale</name>
+                                            <bool>false</bool>
+                                        </property>
+                                        <property>
+                                            <name>toolTip</name>
+                                            <string>Choose a color</string>
+                                        </property>
+                                        <property>
+                                            <name>whatsThis</name>
+                                            <string>Choose a color for the selected central color role.</string>
+                                        </property>
+                                    </widget>
+                                </hbox>
+                            </widget>
+                        </vbox>
+                    </widget>
+                    <widget row="2"  column="0" >
+                        <class>QGroupBox</class>
+                        <property stdset="1">
+                            <name>name</name>
+                            <cstring>groupInactiveEffect</cstring>
+                        </property>
+                        <property stdset="1">
+                            <name>title</name>
+                            <string>3D shadow &amp;effects</string>
+                        </property>
+                        <vbox>
+                            <property stdset="1">
+                                <name>margin</name>
+                                <number>11</number>
+                            </property>
+                            <property stdset="1">
+                                <name>spacing</name>
+                                <number>6</number>
+                            </property>
+                            <widget>
+                                <class>QLayoutWidget</class>
+                                <property stdset="1">
+                                    <name>name</name>
+                                    <cstring>Layout32</cstring>
+                                </property>
+                                <hbox>
+                                    <property stdset="1">
+                                        <name>margin</name>
+                                        <number>0</number>
+                                    </property>
+                                    <property stdset="1">
+                                        <name>spacing</name>
+                                        <number>6</number>
+                                    </property>
+                                    <widget>
+                                        <class>QCheckBox</class>
+                                        <property stdset="1">
+                                            <name>name</name>
+                                            <cstring>checkBuildInactiveEffect</cstring>
+                                        </property>
+                                        <property stdset="1">
+                                            <name>text</name>
+                                            <string>Build &amp;from Buttoncolor</string>
+                                        </property>
+                                        <property stdset="1">
+                                            <name>checked</name>
+                                            <bool>true</bool>
+                                        </property>
+                                        <property>
+                                            <name>toolTip</name>
+                                            <string>Generate shadings</string>
+                                        </property>
+                                        <property>
+                                            <name>whatsThis</name>
+                                            <string>Check to let 3D-effect colors be calculated from button-color.</string>
+                                        </property>
+                                    </widget>
+                                    <widget>
+                                        <class>QComboBox</class>
+                                        <item>
+                                            <property>
+                                                <name>text</name>
+                                                <string>Light</string>
+                                            </property>
+                                        </item>
+                                        <item>
+                                            <property>
+                                                <name>text</name>
+                                                <string>Midlight</string>
+                                            </property>
+                                        </item>
+                                        <item>
+                                            <property>
+                                                <name>text</name>
+                                                <string>Mid</string>
+                                            </property>
+                                        </item>
+                                        <item>
+                                            <property>
+                                                <name>text</name>
+                                                <string>Dark</string>
+                                            </property>
+                                        </item>
+                                        <item>
+                                            <property>
+                                                <name>text</name>
+                                                <string>Shadow</string>
+                                            </property>
+                                        </item>
+                                        <property stdset="1">
+                                            <name>name</name>
+                                            <cstring>comboInactiveEffect</cstring>
+                                        </property>
+                                        <property>
+                                            <name>toolTip</name>
+                                            <string>Choose 3D-effect color role</string>
+                                        </property>
+                                        <property>
+                                            <name>whatsThis</name>
+                                            <string>&lt;b&gt;Select a color role.&lt;/b&gt;&lt;p&gt;Available effect roles are: &lt;ul&gt; &lt;li&gt;Light - lighter than Button color. &lt;/li&gt; &lt;li&gt;Midlight - between Button and Light. &lt;/li&gt; &lt;li&gt;Mid - between Button and Dark. &lt;/li&gt; &lt;li&gt;Dark - darker than Button. &lt;/li&gt; &lt;li&gt;Shadow - a very dark color. &lt;/li&gt; &lt;/ul&gt;</string>
+                                        </property>
+                                    </widget>
+                                </hbox>
+                            </widget>
+                            <widget>
+                                <class>QLayoutWidget</class>
+                                <property stdset="1">
+                                    <name>name</name>
+                                    <cstring>Layout31</cstring>
+                                </property>
+                                <hbox>
+                                    <property stdset="1">
+                                        <name>margin</name>
+                                        <number>0</number>
+                                    </property>
+                                    <property stdset="1">
+                                        <name>spacing</name>
+                                        <number>6</number>
+                                    </property>
+                                    <spacer>
+                                        <property>
+                                            <name>name</name>
+                                            <cstring>Horizontal Spacing2</cstring>
+                                        </property>
+                                        <property stdset="1">
+                                            <name>geometry</name>
+                                            <rect>
+                                                <x>1</x>
+                                                <y>3</y>
+                                                <width>150</width>
+                                                <height>20</height>
+                                            </rect>
+                                        </property>
+                                        <property stdset="1">
+                                            <name>orientation</name>
+                                            <enum>Horizontal</enum>
+                                        </property>
+                                        <property stdset="1">
+                                            <name>sizeType</name>
+                                            <enum>Expanding</enum>
+                                        </property>
+                                    </spacer>
+                                    <widget>
+                                        <class>QLabel</class>
+                                        <property stdset="1">
+                                            <name>name</name>
+                                            <cstring>labelInactiveEffect</cstring>
+                                        </property>
+                                        <property stdset="1">
+                                            <name>text</name>
+                                            <string>select Co&amp;lor:</string>
+                                        </property>
+                                        <property stdset="1">
+                                            <name>minimumSize</name>
+                                            <size>
+                                                <width>0</width>
+                                                <height>0</height>
+                                            </size>
+                                        </property>
+                                        <property stdset="1">
+                                            <name>sizePolicy</name>
+                                            <sizepolicy>
+                                                <hsizetype>1</hsizetype>
+                                                <vsizetype>1</vsizetype>
+                                            </sizepolicy>
+                                        </property>
+                                        <property>
+                                            <name>buddy</name>
+                                            <cstring>buttonInactiveEffect</cstring>
+                                        </property>
+                                    </widget>
+                                    <widget>
+                                        <class>StyledButton</class>
+                                        <property stdset="1">
+                                            <name>name</name>
+                                            <cstring>buttonInactiveEffect</cstring>
+                                        </property>
+                                        <property stdset="1">
+                                            <name>sizePolicy</name>
+                                            <sizepolicy>
+                                                <hsizetype>1</hsizetype>
+                                                <vsizetype>0</vsizetype>
+                                            </sizepolicy>
+                                        </property>
+                                        <property stdset="1">
+                                            <name>focusPolicy</name>
+                                            <enum>TabFocus</enum>
+                                        </property>
+                                        <property>
+                                            <name>scale</name>
+                                            <bool>false</bool>
+                                        </property>
+                                        <property>
+                                            <name>toolTip</name>
+                                            <string>Choose a color</string>
+                                        </property>
+                                        <property>
+                                            <name>whatsThis</name>
+                                            <string>Choose a color for the selected effect color role.</string>
+                                        </property>
+                                    </widget>
+                                </hbox>
+                            </widget>
+                        </vbox>
+                    </widget>
+                </grid>
+            </widget>
+            <widget>
+                <class>QWidget</class>
+                <attribute>
+                    <name>title</name>
+                    <string>&amp;Disabled</string>
+                </attribute>
+                <grid>
+                    <property stdset="1">
+                        <name>margin</name>
+                        <number>11</number>
+                    </property>
+                    <property stdset="1">
+                        <name>spacing</name>
+                        <number>6</number>
+                    </property>
+                    <widget row="0"  column="0"  rowspan="1"  colspan="2" >
+                        <class>QGroupBox</class>
+                        <property stdset="1">
+                            <name>name</name>
+                            <cstring>groupDisabledAuto</cstring>
+                        </property>
+                        <property stdset="1">
+                            <name>title</name>
+                            <string>A&amp;uto</string>
+                        </property>
+                        <hbox>
+                            <property stdset="1">
+                                <name>margin</name>
+                                <number>11</number>
+                            </property>
+                            <property stdset="1">
+                                <name>spacing</name>
+                                <number>6</number>
+                            </property>
+                            <widget>
+                                <class>QCheckBox</class>
+                                <property stdset="1">
+                                    <name>name</name>
+                                    <cstring>checkBuildDisabled</cstring>
+                                </property>
+                                <property stdset="1">
+                                    <name>text</name>
+                                    <string>&amp;Build from active colorgroup</string>
+                                </property>
+                                <property stdset="1">
+                                    <name>checked</name>
+                                    <bool>true</bool>
+                                </property>
+                                <property>
+                                    <name>toolTip</name>
+                                    <string>Generate from active colorgroup</string>
+                                </property>
+                                <property>
+                                    <name>whatsThis</name>
+                                    <string>&lt;b&gt;Generate the disabled colorgroup&lt;/b&gt;&lt;p&gt;If this option is checked, the disabled colorgroup will be generated based upon the active colorgroup.&lt;/p&gt;</string>
+                                </property>
+                            </widget>
+                        </hbox>
+                    </widget>
+                    <widget row="1"  column="1"  rowspan="2"  colspan="1" >
+                        <class>QGroupBox</class>
+                        <property stdset="1">
+                            <name>name</name>
+                            <cstring>GroupBox12</cstring>
+                        </property>
+                        <property stdset="1">
+                            <name>title</name>
+                            <string>Pre&amp;view</string>
+                        </property>
+                        <grid>
+                            <property stdset="1">
+                                <name>margin</name>
+                                <number>11</number>
+                            </property>
+                            <property stdset="1">
+                                <name>spacing</name>
+                                <number>6</number>
+                            </property>
+                            <spacer row="0"  column="0" >
+                                <property>
+                                    <name>name</name>
+                                    <cstring>Horizontal Spacing1</cstring>
+                                </property>
+                                <property stdset="1">
+                                    <name>geometry</name>
+                                    <rect>
+                                        <x>11</x>
+                                        <y>20</y>
+                                        <width>1</width>
+                                        <height>20</height>
+                                    </rect>
+                                </property>
+                                <property stdset="1">
+                                    <name>orientation</name>
+                                    <enum>Horizontal</enum>
+                                </property>
+                                <property stdset="1">
+                                    <name>sizeType</name>
+                                    <enum>Expanding</enum>
+                                </property>
+                            </spacer>
+                            <widget row="0"  column="1" >
+                                <class>QToolButton</class>
+                                <property stdset="1">
+                                    <name>name</name>
+                                    <cstring>buttonDisabledPrevious</cstring>
+                                </property>
+                                <property stdset="1">
+                                    <name>text</name>
+                                    <string></string>
+                                </property>
+                                <property stdset="1">
+                                    <name>pixmap</name>
+                                    <pixmap>image1</pixmap>
+                                </property>
+                                <property stdset="1">
+                                    <name>focusPolicy</name>
+                                    <enum>TabFocus</enum>
+                                </property>
+                                <property>
+                                    <name>toolTip</name>
+                                    <string>previous preview</string>
+                                </property>
+                                <property>
+                                    <name>whatsThis</name>
+                                    <string>&lt;b&gt;Preview.&lt;/b&gt;&lt;p&gt;You can select several previews using the next/previous-buttons to test your palette.&lt;/p&gt;</string>
+                                </property>
+                            </widget>
+                            <widget row="0"  column="2" >
+                                <class>QToolButton</class>
+                                <property stdset="1">
+                                    <name>name</name>
+                                    <cstring>buttonDisabledNext</cstring>
+                                </property>
+                                <property stdset="1">
+                                    <name>text</name>
+                                    <string></string>
+                                </property>
+                                <property stdset="1">
+                                    <name>pixmap</name>
+                                    <pixmap>image0</pixmap>
+                                </property>
+                                <property stdset="1">
+                                    <name>focusPolicy</name>
+                                    <enum>TabFocus</enum>
+                                </property>
+                                <property>
+                                    <name>toolTip</name>
+                                    <string>next preview</string>
+                                </property>
+                                <property>
+                                    <name>whatsThis</name>
+                                    <string>&lt;b&gt;Preview.&lt;/b&gt;&lt;p&gt;You can select several previews using the next/previous-buttons to test your palette.&lt;/p&gt;</string>
+                                </property>
+                            </widget>
+                            <widget row="2"  column="0"  rowspan="1"  colspan="3" >
+                                <class>PreviewStack</class>
+                                <property stdset="1">
+                                    <name>name</name>
+                                    <cstring>previewDisabled</cstring>
+                                </property>
+                                <property stdset="1">
+                                    <name>sizePolicy</name>
+                                    <sizepolicy>
+                                        <hsizetype>7</hsizetype>
+                                        <vsizetype>7</vsizetype>
+                                    </sizepolicy>
+                                </property>
+                                <property stdset="1">
+                                    <name>enabled</name>
+                                    <bool>true</bool>
+                                </property>
+                                <property>
+                                    <name>toolTip</name>
+                                    <string>Check out the disabled colorgroup of your palette</string>
+                                </property>
+                                <property>
+                                    <name>whatsThis</name>
+                                    <string>&lt;b&gt;Preview.&lt;/b&gt;&lt;p&gt;You can select several previews using the next/previous-buttons to test your palette. This preview uses the disabled colorgroup which is used when a widget is disabled.&lt;/p&gt;</string>
+                                </property>
+                            </widget>
+                            <widget row="1"  column="0"  rowspan="1"  colspan="3" >
+                                <class>QFrame</class>
+                                <property stdset="1">
+                                    <name>name</name>
+                                    <cstring>Frame1</cstring>
+                                </property>
+                                <property stdset="1">
+                                    <name>frameShadow</name>
+                                    <enum>Sunken</enum>
+                                </property>
+                                <property stdset="1">
+                                    <name>frameShape</name>
+                                    <enum>HLine</enum>
+                                </property>
+                                <property stdset="1">
+                                    <name>minimumSize</name>
+                                    <size>
+                                        <width>0</width>
+                                        <height>2</height>
+                                    </size>
+                                </property>
+                            </widget>
+                        </grid>
+                    </widget>
+                    <widget row="1"  column="0" >
+                        <class>QGroupBox</class>
+                        <property stdset="1">
+                            <name>name</name>
+                            <cstring>groupDisabledCentral</cstring>
+                        </property>
+                        <property stdset="1">
+                            <name>title</name>
+                            <string>Central color &amp;roles</string>
+                        </property>
+                        <vbox>
+                            <property stdset="1">
+                                <name>margin</name>
+                                <number>11</number>
+                            </property>
+                            <property stdset="1">
+                                <name>spacing</name>
+                                <number>6</number>
+                            </property>
+                            <widget>
+                                <class>QComboBox</class>
+                                <item>
+                                    <property>
+                                        <name>text</name>
+                                        <string>Background</string>
+                                    </property>
+                                </item>
+                                <item>
+                                    <property>
+                                        <name>text</name>
+                                        <string>Foreground</string>
+                                    </property>
+                                </item>
+                                <item>
+                                    <property>
+                                        <name>text</name>
+                                        <string>Button</string>
+                                    </property>
+                                </item>
+                                <item>
+                                    <property>
+                                        <name>text</name>
+                                        <string>Base</string>
+                                    </property>
+                                </item>
+                                <item>
+                                    <property>
+                                        <name>text</name>
+                                        <string>Text</string>
+                                    </property>
+                                </item>
+                                <item>
+                                    <property>
+                                        <name>text</name>
+                                        <string>BrightText</string>
+                                    </property>
+                                </item>
+                                <item>
+                                    <property>
+                                        <name>text</name>
+                                        <string>ButtonText</string>
+                                    </property>
+                                </item>
+                                <item>
+                                    <property>
+                                        <name>text</name>
+                                        <string>Highlight</string>
+                                    </property>
+                                </item>
+                                <item>
+                                    <property>
+                                        <name>text</name>
+                                        <string>HighlightText</string>
+                                    </property>
+                                </item>
+                                <property stdset="1">
+                                    <name>name</name>
+                                    <cstring>comboDisabledCentral</cstring>
+                                </property>
+                                <property>
+                                    <name>toolTip</name>
+                                    <string>Choose central color role</string>
+                                </property>
+                                <property>
+                                    <name>whatsThis</name>
+                                    <string>&lt;b&gt;Select a color role.&lt;/b&gt;&lt;p&gt;Available central roles are: &lt;ul&gt; &lt;li&gt;Background - general background color. &lt;/li&gt; &lt;li&gt;Foreground - general foreground color. &lt;/li&gt; &lt;li&gt;Base - used as background color for e.g. text entry widgets, usually white or another light color. &lt;/li&gt; &lt;li&gt;Text - the forground color used with Base. Usually this is the same as the Foreground, in what case it must provide good contrast both with Background and Base. &lt;/li&gt; &lt;li&gt;Button - general button background color, where buttons need a background different from Background, as in the Macintosh style. &lt;/li&gt; &lt;li&gt;ButtonText - a foreground color used with the Button color. &lt;/li&gt; &lt;li&gt;Highlight - a color to indicate a selected or highlighted item. &lt;/li&gt; &lt;li&gt;HighlightedText - a text color that contrasts to Highlight. &lt;/li&gt; &lt;li&gt;BrightText - a text color that is very different from Foreground and contrasts well with e.g. black. &lt;/li&gt; &lt;/ul&gt; &lt;/p&gt;</string>
+                                </property>
+                            </widget>
+                            <widget>
+                                <class>QLayoutWidget</class>
+                                <property stdset="1">
+                                    <name>name</name>
+                                    <cstring>Layout31</cstring>
+                                </property>
+                                <hbox>
+                                    <property stdset="1">
+                                        <name>margin</name>
+                                        <number>0</number>
+                                    </property>
+                                    <property stdset="1">
+                                        <name>spacing</name>
+                                        <number>6</number>
+                                    </property>
+                                    <spacer>
+                                        <property>
+                                            <name>name</name>
+                                            <cstring>Horizontal Spacing3</cstring>
+                                        </property>
+                                        <property stdset="1">
+                                            <name>geometry</name>
+                                            <rect>
+                                                <x>1</x>
+                                                <y>3</y>
+                                                <width>1</width>
+                                                <height>20</height>
+                                            </rect>
+                                        </property>
+                                        <property stdset="1">
+                                            <name>orientation</name>
+                                            <enum>Horizontal</enum>
+                                        </property>
+                                        <property stdset="1">
+                                            <name>sizeType</name>
+                                            <enum>Expanding</enum>
+                                        </property>
+                                    </spacer>
+                                    <widget>
+                                        <class>QLabel</class>
+                                        <property stdset="1">
+                                            <name>name</name>
+                                            <cstring>labelDisabledPixmap</cstring>
+                                        </property>
+                                        <property stdset="1">
+                                            <name>text</name>
+                                            <string>choose &amp;Pixmap:</string>
+                                        </property>
+                                        <property stdset="1">
+                                            <name>sizePolicy</name>
+                                            <sizepolicy>
+                                                <hsizetype>1</hsizetype>
+                                                <vsizetype>1</vsizetype>
+                                            </sizepolicy>
+                                        </property>
+                                        <property>
+                                            <name>buddy</name>
+                                            <cstring>buttonDisabledPixmap</cstring>
+                                        </property>
+                                    </widget>
+                                    <widget>
+                                        <class>StyledButton</class>
+                                        <property stdset="1">
+                                            <name>name</name>
+                                            <cstring>buttonDisabledPixmap</cstring>
+                                        </property>
+                                        <property stdset="1">
+                                            <name>sizePolicy</name>
+                                            <sizepolicy>
+                                                <hsizetype>1</hsizetype>
+                                                <vsizetype>0</vsizetype>
+                                            </sizepolicy>
+                                        </property>
+                                        <property stdset="1">
+                                            <name>focusPolicy</name>
+                                            <enum>TabFocus</enum>
+                                        </property>
+                                        <property>
+                                            <name>scale</name>
+                                            <bool>true</bool>
+                                        </property>
+                                        <property>
+                                            <name>toolTip</name>
+                                            <string>Select a pixmap</string>
+                                        </property>
+                                        <property>
+                                            <name>whatsThis</name>
+                                            <string>Choose a pixmap-file for the selected central color role.</string>
+                                        </property>
+                                    </widget>
+                                    <widget>
+                                        <class>QLabel</class>
+                                        <property stdset="1">
+                                            <name>name</name>
+                                            <cstring>labelDisabledCentral</cstring>
+                                        </property>
+                                        <property stdset="1">
+                                            <name>text</name>
+                                            <string>&amp;select Color:</string>
+                                        </property>
+                                        <property stdset="1">
+                                            <name>minimumSize</name>
+                                            <size>
+                                                <width>0</width>
+                                                <height>0</height>
+                                            </size>
+                                        </property>
+                                        <property stdset="1">
+                                            <name>sizePolicy</name>
+                                            <sizepolicy>
+                                                <hsizetype>1</hsizetype>
+                                                <vsizetype>1</vsizetype>
+                                            </sizepolicy>
+                                        </property>
+                                        <property>
+                                            <name>buddy</name>
+                                            <cstring>buttonDisabledCentral</cstring>
+                                        </property>
+                                    </widget>
+                                    <widget>
+                                        <class>StyledButton</class>
+                                        <property stdset="1">
+                                            <name>name</name>
+                                            <cstring>buttonDisabledCentral</cstring>
+                                        </property>
+                                        <property stdset="1">
+                                            <name>sizePolicy</name>
+                                            <sizepolicy>
+                                                <hsizetype>1</hsizetype>
+                                                <vsizetype>0</vsizetype>
+                                            </sizepolicy>
+                                        </property>
+                                        <property stdset="1">
+                                            <name>focusPolicy</name>
+                                            <enum>TabFocus</enum>
+                                        </property>
+                                        <property>
+                                            <name>scale</name>
+                                            <bool>false</bool>
+                                        </property>
+                                        <property>
+                                            <name>toolTip</name>
+                                            <string>Choose a color</string>
+                                        </property>
+                                        <property>
+                                            <name>whatsThis</name>
+                                            <string>Choose a color for the selected central color role.</string>
+                                        </property>
+                                    </widget>
+                                </hbox>
+                            </widget>
+                        </vbox>
+                    </widget>
+                    <widget row="2"  column="0" >
+                        <class>QGroupBox</class>
+                        <property stdset="1">
+                            <name>name</name>
+                            <cstring>groupDisabledEffect</cstring>
+                        </property>
+                        <property stdset="1">
+                            <name>title</name>
+                            <string>3D shadow &amp;effects</string>
+                        </property>
+                        <vbox>
+                            <property stdset="1">
+                                <name>margin</name>
+                                <number>11</number>
+                            </property>
+                            <property stdset="1">
+                                <name>spacing</name>
+                                <number>6</number>
+                            </property>
+                            <widget>
+                                <class>QLayoutWidget</class>
+                                <property stdset="1">
+                                    <name>name</name>
+                                    <cstring>Layout7</cstring>
+                                </property>
+                                <hbox>
+                                    <property stdset="1">
+                                        <name>margin</name>
+                                        <number>0</number>
+                                    </property>
+                                    <property stdset="1">
+                                        <name>spacing</name>
+                                        <number>6</number>
+                                    </property>
+                                    <widget>
+                                        <class>QCheckBox</class>
+                                        <property stdset="1">
+                                            <name>name</name>
+                                            <cstring>checkBuildDisabledEffect</cstring>
+                                        </property>
+                                        <property stdset="1">
+                                            <name>text</name>
+                                            <string>Build &amp;from Buttoncolor</string>
+                                        </property>
+                                        <property stdset="1">
+                                            <name>checked</name>
+                                            <bool>true</bool>
+                                        </property>
+                                        <property>
+                                            <name>toolTip</name>
+                                            <string>Generate shadings</string>
+                                        </property>
+                                        <property>
+                                            <name>whatsThis</name>
+                                            <string>Check to let 3D-effect colors be calculated from button-color.</string>
+                                        </property>
+                                    </widget>
+                                    <widget>
+                                        <class>QComboBox</class>
+                                        <item>
+                                            <property>
+                                                <name>text</name>
+                                                <string>Light</string>
+                                            </property>
+                                        </item>
+                                        <item>
+                                            <property>
+                                                <name>text</name>
+                                                <string>Midlight</string>
+                                            </property>
+                                        </item>
+                                        <item>
+                                            <property>
+                                                <name>text</name>
+                                                <string>Mid</string>
+                                            </property>
+                                        </item>
+                                        <item>
+                                            <property>
+                                                <name>text</name>
+                                                <string>Dark</string>
+                                            </property>
+                                        </item>
+                                        <item>
+                                            <property>
+                                                <name>text</name>
+                                                <string>Shadow</string>
+                                            </property>
+                                        </item>
+                                        <property stdset="1">
+                                            <name>name</name>
+                                            <cstring>comboDisabledEffect</cstring>
+                                        </property>
+                                        <property>
+                                            <name>toolTip</name>
+                                            <string>Choose 3D-effect color role</string>
+                                        </property>
+                                        <property>
+                                            <name>whatsThis</name>
+                                            <string>&lt;b&gt;Select a color role.&lt;/b&gt;&lt;p&gt;Available effect roles are: &lt;ul&gt; &lt;li&gt;Light - lighter than Button color. &lt;/li&gt; &lt;li&gt;Midlight - between Button and Light. &lt;/li&gt; &lt;li&gt;Mid - between Button and Dark. &lt;/li&gt; &lt;li&gt;Dark - darker than Button. &lt;/li&gt; &lt;li&gt;Shadow - a very dark color. &lt;/li&gt; &lt;/ul&gt;</string>
+                                        </property>
+                                    </widget>
+                                </hbox>
+                            </widget>
+                            <widget>
+                                <class>QLayoutWidget</class>
+                                <property stdset="1">
+                                    <name>name</name>
+                                    <cstring>Layout19</cstring>
+                                </property>
+                                <hbox>
+                                    <property stdset="1">
+                                        <name>margin</name>
+                                        <number>0</number>
+                                    </property>
+                                    <property stdset="1">
+                                        <name>spacing</name>
+                                        <number>6</number>
+                                    </property>
+                                    <spacer>
+                                        <property>
+                                            <name>name</name>
+                                            <cstring>Horizontal Spacing3</cstring>
+                                        </property>
+                                        <property stdset="1">
+                                            <name>geometry</name>
+                                            <rect>
+                                                <x>1</x>
+                                                <y>3</y>
+                                                <width>150</width>
+                                                <height>20</height>
+                                            </rect>
+                                        </property>
+                                        <property stdset="1">
+                                            <name>orientation</name>
+                                            <enum>Horizontal</enum>
+                                        </property>
+                                        <property stdset="1">
+                                            <name>sizeType</name>
+                                            <enum>Expanding</enum>
+                                        </property>
+                                    </spacer>
+                                    <widget>
+                                        <class>QLabel</class>
+                                        <property stdset="1">
+                                            <name>name</name>
+                                            <cstring>labelDisabledEffect</cstring>
+                                        </property>
+                                        <property stdset="1">
+                                            <name>text</name>
+                                            <string>select Co&amp;lor:</string>
+                                        </property>
+                                        <property stdset="1">
+                                            <name>minimumSize</name>
+                                            <size>
+                                                <width>0</width>
+                                                <height>0</height>
+                                            </size>
+                                        </property>
+                                        <property stdset="1">
+                                            <name>sizePolicy</name>
+                                            <sizepolicy>
+                                                <hsizetype>1</hsizetype>
+                                                <vsizetype>1</vsizetype>
+                                            </sizepolicy>
+                                        </property>
+                                        <property>
+                                            <name>buddy</name>
+                                            <cstring>buttonDisabledEffect</cstring>
+                                        </property>
+                                    </widget>
+                                    <widget>
+                                        <class>StyledButton</class>
+                                        <property stdset="1">
+                                            <name>name</name>
+                                            <cstring>buttonDisabledEffect</cstring>
+                                        </property>
+                                        <property stdset="1">
+                                            <name>sizePolicy</name>
+                                            <sizepolicy>
+                                                <hsizetype>1</hsizetype>
+                                                <vsizetype>0</vsizetype>
+                                            </sizepolicy>
+                                        </property>
+                                        <property stdset="1">
+                                            <name>focusPolicy</name>
+                                            <enum>TabFocus</enum>
+                                        </property>
+                                        <property>
+                                            <name>scale</name>
+                                            <bool>false</bool>
+                                        </property>
+                                        <property>
+                                            <name>toolTip</name>
+                                            <string>Choose a color</string>
+                                        </property>
+                                        <property>
+                                            <name>whatsThis</name>
+                                            <string>Choose a color for the selected effect color role.</string>
+                                        </property>
+                                    </widget>
+                                </hbox>
+                            </widget>
+                        </vbox>
+                    </widget>
+                </grid>
+            </widget>
+        </widget>
+        <widget>
+            <class>QLayoutWidget</class>
+            <property stdset="1">
+                <name>name</name>
+                <cstring>Layout3</cstring>
+            </property>
+            <hbox>
+                <property stdset="1">
+                    <name>margin</name>
+                    <number>0</number>
+                </property>
+                <property stdset="1">
+                    <name>spacing</name>
+                    <number>6</number>
+                </property>
+                <widget>
+                    <class>QPushButton</class>
+                    <property stdset="1">
+                        <name>name</name>
+                        <cstring>buttonHelp</cstring>
+                    </property>
+                    <property stdset="1">
+                        <name>text</name>
+                        <string>&amp;Help</string>
+                    </property>
+                    <property stdset="1">
+                        <name>autoDefault</name>
+                        <bool>true</bool>
+                    </property>
+                </widget>
+                <spacer>
+                    <property>
+                        <name>name</name>
+                        <cstring>Horizontal Spacing11</cstring>
+                    </property>
+                    <property stdset="1">
+                        <name>geometry</name>
+                        <rect>
+                            <x>87</x>
+                            <y>5</y>
+                            <width>331</width>
+                            <height>20</height>
+                        </rect>
+                    </property>
+                    <property stdset="1">
+                        <name>orientation</name>
+                        <enum>Horizontal</enum>
+                    </property>
+                    <property stdset="1">
+                        <name>sizeType</name>
+                        <enum>Expanding</enum>
+                    </property>
+                </spacer>
+                <widget>
+                    <class>QPushButton</class>
+                    <property stdset="1">
+                        <name>name</name>
+                        <cstring>buttonApply</cstring>
+                    </property>
+                    <property stdset="1">
+                        <name>text</name>
+                        <string>&amp;Apply</string>
+                    </property>
+                    <property stdset="1">
+                        <name>autoDefault</name>
+                        <bool>true</bool>
+                    </property>
+                    <property>
+                        <name>whatsThis</name>
+                        <string>Apply all changes.</string>
+                    </property>
+                </widget>
+                <widget>
+                    <class>QPushButton</class>
+                    <property stdset="1">
+                        <name>name</name>
+                        <cstring>buttonOk</cstring>
+                    </property>
+                    <property stdset="1">
+                        <name>text</name>
+                        <string>&amp;OK</string>
+                    </property>
+                    <property stdset="1">
+                        <name>autoDefault</name>
+                        <bool>true</bool>
+                    </property>
+                    <property stdset="1">
+                        <name>default</name>
+                        <bool>true</bool>
+                    </property>
+                    <property>
+                        <name>whatsThis</name>
+                        <string>Close dialog and apply all changes.</string>
+                    </property>
+                </widget>
+                <widget>
+                    <class>QPushButton</class>
+                    <property stdset="1">
+                        <name>name</name>
+                        <cstring>buttonCancel</cstring>
+                    </property>
+                    <property stdset="1">
+                        <name>text</name>
+                        <string>&amp;Cancel</string>
+                    </property>
+                    <property stdset="1">
+                        <name>autoDefault</name>
+                        <bool>true</bool>
+                    </property>
+                    <property>
+                        <name>whatsThis</name>
+                        <string>Close dialog and discard all changes.</string>
+                    </property>
+                </widget>
+            </hbox>
+        </widget>
+    </vbox>
+</widget>
+<customwidgets>
+    <customwidget>
+        <class>StyledButton</class>
+        <header location="local">styledbutton.h</header>
+        <sizehint>
+            <width>40</width>
+            <height>25</height>
+        </sizehint>
+        <sizepolicy>
+            <hordata>5</hordata>
+            <verdata>5</verdata>
+        </sizepolicy>
+        <pixmap>image2</pixmap>
+        <signal>clicked()</signal>
+        <property type="Color">color</property>
+        <property type="Pixmap">pixmap</property>
+        <property type="Bool">scale</property>
+    </customwidget>
+    <customwidget>
+        <class>PreviewStack</class>
+        <header location="local">previewstack.h</header>
+        <sizehint>
+            <width>250</width>
+            <height>250</height>
+        </sizehint>
+        <sizepolicy>
+            <hordata>5</hordata>
+            <verdata>5</verdata>
+        </sizepolicy>
+        <pixmap>image3</pixmap>
+        <slot access="public">previousWidget()</slot>
+        <slot access="public">nextWidget()</slot>
+    </customwidget>
+</customwidgets>
+<images>
+    <image>
+        <name>image0</name>
+        <data format="XPM.GZ" length="1175">789c6592db52e2401086ef798a14b9a3b6901c2687b2f6425c0556405050746b2f2633138821a01c14b5f6dd377d902a21c5055ff73fddfdf7cc49cd9a0c7a56eda4b2dec84da62c35932baba6b745f1fee7efcfcf4ad509acf2277ccba9fea8545f2c65d94aa7419a023e01468974d200500186893494cd31eb252cee027a4e20086780b1af24e19c4a257cf602b34abb8463c046c3f5093b804ee429837d3f00a5322cde0226be0e682a9ba77248dc020c6439338a1376e492f811d07784561af09dcf4aca4ac228960af037a07043471bc0255b6071c106d97e1bedc7414c68c8a062bf132c25c3d860a92baa1cf1ae5232a859fc46e248134ed1911bb3b80fe8968da954bdc4fe7281ff35798f841280cf80a69c8f0e5ef2fc3cf08007e6b21b9cc1d7bca8b33d62768d3bd79abdbfee11b3bfa86f1c53f69ed618b3d90cd193dca8b917238ef04664e0d0cc0ff48a0497eaed11c5e7240e0555be23143ac1db5cd0a24241b8a346216787fcc6222a75836b6c78bec6beb7b40dd1a087b122838677754d623fe29d1f7cdf62b63c8e254a1fc54c3ad547676726d314934fb6aded7a5de6f379315d606cf9fcb25aaf37dbd75ce5f9fc6d874ff8a3286685392b147ccd73bc8f8bcb5c65590b22d9b4ddc1c7dcba6a777bfdeb41196a76877856766e6e473b2917cd3234befb3ecbfdb4371e1dcc37e90e4787333f80ea20f6b838dec1d7aefe9d56fe03b07a1256</data>
+    </image>
+    <image>
+        <name>image1</name>
+        <data format="XPM.GZ" length="1055">789c65924d6fe2400c86effc8a88dcd08a928f0989567b000ae5bbb4a795aa1e2633931202090d90865df5bf77c676d12e4404e9b19df1ebd773d7b27eaf1656ebae7138f2632a2cb1e6a5d592a7ddeefcf2faeb6fa3e90496fef9fabff9a3d18c2d61d9522937490c0a832a501c3133d88db9422c0d865e1c209e0c46bea06289c5a18ca5c1daa0ef741966b77494a394c1914127f4046677068594d46860d0edf83ee2115525d4e88364b849607068d0730207b329a922910f908d8208f10954f1ae449c19646e48229f0d762eaa0a83811b51f611345f54bd8366a6a85105c53ca293a738a04f47b5352e8b1c665fa1868009306a8e1a02897886d923464d7b6885272433780fc53ca471fe50d308adc8c1648fd3b70b6ae408f83601678476068a39d81873861b39a08d8c49c0351d459e6f707d31dd933e3ad365b86b1b8bc3081bbd612349ce28589f5e2de2126df442ecbb3718cb6f1b27b82fd6c179c764630735b7af9e4bcce637311e0b7e159342255775faeebfade57f31ad35dd64769b4b6ef3ad0d777ba7d23ccb8b6db2dfbfefcb03d8793c65795e6569fa51aef3fa0cfb28373a54554561deba075e0dee75281f8e06e7e1433d1c438fc974a64be6522e26bde578815ae68f75519116f9ad79357a9addccd67f9eda371ef497b7b17fbdfafcd9f80231a4f871</data>
+    </image>
+    <image>
+        <name>image2</name>
+        <data format="XPM.GZ" length="1112">789c9d924d8f9b301086eff91568735b55bb016c02aa7a082cc7563d56aa7ab0c7d97cd919620c2ca9fadfeb99ddb43d54aad4b19178783d5f661eef932f9f3f26f78f8b3ea8708004f6ca27f766706efefaedc3f7c55d962571e77992debd5bdc6102c9b21295ac04a16384ca544008844a28a9583d109a2d2dc23de1b6a045b86364237c267c2e68114e84ab7205ab92704398ae5291ae081bc6328594d587889ff0cc716692b25526323e19086526a5cc089f382c1b614d5864852c581d1955610a45a8b91d505bc5dd5d3972954156112e09b5d085e6662f9c48c94ab26f4f98a7b9c8f9de5e18ab1c72f61d08452a8460f54cb8ced7729d137a46bd366b4dd8119679294b562da32e4dc9aae2328cde6a43782204090548c223a3812db0bae54b66236cb90c254070cd86ff97348561df87bfda3f9425995a2aa5f84d6b0d4b56e22070dedd6eb7df1f8c399e94b6dc01ec0fc7e3e914f789dd3480b3675654841881bec4ed1c2076171e3cfaeafb3e20b8e01dd8c1a37d5300c6e925cc57749b5ae3dcdbdf3e38d51ab009d0d4d0c703b60b6f4abd710ea19edd3c5e66ebd0bef9800e734cecfcc6cefdd3100bb0bfa2b5514156a6a1e99cb59e15047dd93844181b9c5be87b8a165e15b0b12670d7c1c50abaa976d6bf56101baca7505f37d635c1b976f278f38939eab9e93b87c318d3f7177cf5c1981d636c447aac8ddbde941b77f66663cd237df6de9ffdf90f1b5b9eee07182f6db4a11dd8da104654ff35073fde2f7e0212bd308d</data>
+    </image>
+    <image>
+        <name>image3</name>
+        <data format="XPM.GZ" length="1052">789c9d92cb6e82401486f73cc54476a651181881345df8006dba6cd27431cc0c820a2817d1367df7ce3983a4c5c65e7e5df8e5633cf31f9d4fc9d3e33d99ceadbae14d2688487945a6b2cdf3d3f3cbdd9b35a194c03b22eee4c69a2822881d7aa11b7a803b40c1044d12c02d6024222919e00a5029c5b9002c015dc7f55d0730056494312f029c697c280b059f392acea48f436340ea509fe2c1e3d9320eb801743080af88a17e21560386806bc0055fc8059e3d21d20533751abca12e676e68f7731d17cf76881115e61af58078ff0cd08b3c61eae4805c705d1f5002faaeef9b464bc0c00b58807313c044279680e28c02d758e0c37120cd1af7f813c4a1340f1ff09bb92f7c6cd4f636320567dfe6276373133b1e1b2e4cb8547f31c94a27cdd69766b5197261b639a628d5d8e43bccfe9746f7490753d538cb9858ca6c304ddbb6cde1bc1da5d683e974b1eef8696f574cb1c79c2e4d599655d3755d3a367a96aadb7e815f0d9cfb8f813990d7b1991d8e7d96d7fe07efb7d6076378092b</data>
+    </image>
+</images>
+<connections>
+    <connection>
+        <sender>checkBuildPalette</sender>
+        <signal>toggled(bool)</signal>
+        <receiver>PaletteEditorBase</receiver>
+        <slot>onToggleBuildAll(bool)</slot>
+    </connection>
+    <connection>
+        <sender>checkBuildInactive</sender>
+        <signal>toggled(bool)</signal>
+        <receiver>PaletteEditorBase</receiver>
+        <slot>onToggleBuildInactive(bool)</slot>
+    </connection>
+    <connection>
+        <sender>checkBuildDisabled</sender>
+        <signal>toggled(bool)</signal>
+        <receiver>PaletteEditorBase</receiver>
+        <slot>onToggleBuildDisabled(bool)</slot>
+    </connection>
+    <connection>
+        <sender>buttonMainColor</sender>
+        <signal>clicked()</signal>
+        <receiver>PaletteEditorBase</receiver>
+        <slot>onChooseMainColor()</slot>
+    </connection>
+    <connection>
+        <sender>buttonMainColor2</sender>
+        <signal>clicked()</signal>
+        <receiver>PaletteEditorBase</receiver>
+        <slot>onChoose2ndMainColor()</slot>
+    </connection>
+    <connection>
+        <sender>checkBuildActiveEffect</sender>
+        <signal>toggled(bool)</signal>
+        <receiver>PaletteEditorBase</receiver>
+        <slot>onToggleActiveBuildEffects(bool)</slot>
+    </connection>
+    <connection>
+        <sender>checkBuildInactiveEffect</sender>
+        <signal>toggled(bool)</signal>
+        <receiver>PaletteEditorBase</receiver>
+        <slot>onToggleInactiveBuildEffects(bool)</slot>
+    </connection>
+    <connection>
+        <sender>checkBuildDisabledEffect</sender>
+        <signal>toggled(bool)</signal>
+        <receiver>PaletteEditorBase</receiver>
+        <slot>onToggleDisabledBuildEffects(bool)</slot>
+    </connection>
+    <connection>
+        <sender>buttonActiveCentral</sender>
+        <signal>clicked()</signal>
+        <receiver>PaletteEditorBase</receiver>
+        <slot>onChooseActiveCentralColor()</slot>
+    </connection>
+    <connection>
+        <sender>buttonActiveEffect</sender>
+        <signal>clicked()</signal>
+        <receiver>PaletteEditorBase</receiver>
+        <slot>onChooseActiveEffectColor()</slot>
+    </connection>
+    <connection>
+        <sender>buttonActivePixmap</sender>
+        <signal>clicked()</signal>
+        <receiver>PaletteEditorBase</receiver>
+        <slot>onChooseActivePixmap()</slot>
+    </connection>
+    <connection>
+        <sender>buttonInactiveCentral</sender>
+        <signal>clicked()</signal>
+        <receiver>PaletteEditorBase</receiver>
+        <slot>onChooseInactiveCentralColor()</slot>
+    </connection>
+    <connection>
+        <sender>buttonInactiveEffect</sender>
+        <signal>clicked()</signal>
+        <receiver>PaletteEditorBase</receiver>
+        <slot>onChooseInactiveEffectColor()</slot>
+    </connection>
+    <connection>
+        <sender>buttonInactivePixmap</sender>
+        <signal>clicked()</signal>
+        <receiver>PaletteEditorBase</receiver>
+        <slot>onChooseInactivePixmap()</slot>
+    </connection>
+    <connection>
+        <sender>buttonDisabledEffect</sender>
+        <signal>clicked()</signal>
+        <receiver>PaletteEditorBase</receiver>
+        <slot>onChooseDisabledEffectColor()</slot>
+    </connection>
+    <connection>
+        <sender>buttonDisabledCentral</sender>
+        <signal>clicked()</signal>
+        <receiver>PaletteEditorBase</receiver>
+        <slot>onChooseDisabledCentralColor()</slot>
+    </connection>
+    <connection>
+        <sender>buttonDisabledPixmap</sender>
+        <signal>clicked()</signal>
+        <receiver>PaletteEditorBase</receiver>
+        <slot>onChooseDisabledPixmap()</slot>
+    </connection>
+    <connection>
+        <sender>tabWidget</sender>
+        <signal>selected(const QString&amp;)</signal>
+        <receiver>PaletteEditorBase</receiver>
+        <slot>onTabPage(const QString&amp;)</slot>
+    </connection>
+    <connection>
+        <sender>comboActiveEffect</sender>
+        <signal>activated(int)</signal>
+        <receiver>PaletteEditorBase</receiver>
+        <slot>onActiveEffect(int)</slot>
+    </connection>
+    <connection>
+        <sender>comboInactiveEffect</sender>
+        <signal>activated(int)</signal>
+        <receiver>PaletteEditorBase</receiver>
+        <slot>onInactiveEffect(int)</slot>
+    </connection>
+    <connection>
+        <sender>comboDisabledCentral</sender>
+        <signal>activated(int)</signal>
+        <receiver>PaletteEditorBase</receiver>
+        <slot>onDisabledCentral(int)</slot>
+    </connection>
+    <connection>
+        <sender>comboDisabledEffect</sender>
+        <signal>activated(int)</signal>
+        <receiver>PaletteEditorBase</receiver>
+        <slot>onDisabledEffect(int)</slot>
+    </connection>
+    <connection>
+        <sender>comboActiveCentral</sender>
+        <signal>activated(int)</signal>
+        <receiver>PaletteEditorBase</receiver>
+        <slot>onActiveCentral(int)</slot>
+    </connection>
+    <connection>
+        <sender>comboInactiveCentral</sender>
+        <signal>activated(int)</signal>
+        <receiver>PaletteEditorBase</receiver>
+        <slot>onInactiveCentral(int)</slot>
+    </connection>
+    <connection>
+        <sender>buttonHelp</sender>
+        <signal>clicked()</signal>
+        <receiver>PaletteEditorBase</receiver>
+        <slot>showHelp()</slot>
+    </connection>
+    <connection>
+        <sender>buttonOk</sender>
+        <signal>clicked()</signal>
+        <receiver>PaletteEditorBase</receiver>
+        <slot>accept()</slot>
+    </connection>
+    <connection>
+        <sender>buttonCancel</sender>
+        <signal>clicked()</signal>
+        <receiver>PaletteEditorBase</receiver>
+        <slot>reject()</slot>
+    </connection>
+    <connection>
+        <sender>buttonApply</sender>
+        <signal>clicked()</signal>
+        <receiver>PaletteEditorBase</receiver>
+        <slot>apply()</slot>
+    </connection>
+    <connection>
+        <sender>checkBuildPalette</sender>
+        <signal>toggled(bool)</signal>
+        <receiver>labelMainColor</receiver>
+        <slot>setEnabled(bool)</slot>
+    </connection>
+    <connection>
+        <sender>checkBuildPalette</sender>
+        <signal>toggled(bool)</signal>
+        <receiver>buttonMainColor2</receiver>
+        <slot>setEnabled(bool)</slot>
+    </connection>
+    <connection>
+        <sender>checkBuildPalette</sender>
+        <signal>toggled(bool)</signal>
+        <receiver>buttonMainColor</receiver>
+        <slot>setEnabled(bool)</slot>
+    </connection>
+    <connection>
+        <sender>checkBuildPalette</sender>
+        <signal>toggled(bool)</signal>
+        <receiver>labelMainColor2</receiver>
+        <slot>setEnabled(bool)</slot>
+    </connection>
+    <connection>
+        <sender>buttonActivePrevious</sender>
+        <signal>clicked()</signal>
+        <receiver>previewActive</receiver>
+        <slot>previousWidget()</slot>
+    </connection>
+    <connection>
+        <sender>buttonActiveNext</sender>
+        <signal>clicked()</signal>
+        <receiver>previewActive</receiver>
+        <slot>nextWidget()</slot>
+    </connection>
+    <connection>
+        <sender>buttonInactivePrevious</sender>
+        <signal>clicked()</signal>
+        <receiver>previewInactive</receiver>
+        <slot>previousWidget()</slot>
+    </connection>
+    <connection>
+        <sender>buttonInactiveNext</sender>
+        <signal>clicked()</signal>
+        <receiver>previewInactive</receiver>
+        <slot>nextWidget()</slot>
+    </connection>
+    <connection>
+        <sender>buttonDisabledPrevious</sender>
+        <signal>clicked()</signal>
+        <receiver>previewDisabled</receiver>
+        <slot>previousWidget()</slot>
+    </connection>
+    <connection>
+        <sender>buttonDisabledNext</sender>
+        <signal>clicked()</signal>
+        <receiver>previewDisabled</receiver>
+        <slot>nextWidget()</slot>
+    </connection>
+    <slot access="public">apply()</slot>
+    <slot access="protected">onChooseActivePixmap()</slot>
+    <slot access="protected">onChooseInactivePixmap()</slot>
+    <slot access="protected">onChooseDisabledPixmap()</slot>
+    <slot access="protected">onActiveCentral(int)</slot>
+    <slot access="protected">onActiveEffect(int)</slot>
+    <slot access="protected">onChoose2ndMainColor()</slot>
+    <slot access="protected">onChooseActiveCentralColor()</slot>
+    <slot access="protected">onChooseActiveEffectColor()</slot>
+    <slot access="protected">onChooseDisabledCentralColor()</slot>
+    <slot access="protected">onChooseDisabledEffectColor()</slot>
+    <slot access="protected">onChooseInactiveCentralColor()</slot>
+    <slot access="protected">onChooseInactiveEffectColor()</slot>
+    <slot access="protected">onChooseMainColor()</slot>
+    <slot access="protected">onDisabledCentral(int)</slot>
+    <slot access="protected">onDisabledEffect(int)</slot>
+    <slot access="protected">onInactiveCentral(int)</slot>
+    <slot access="protected">onInactiveEffect(int)</slot>
+    <slot access="protected">onTabPage(const QString&amp;)</slot>
+    <slot access="protected">onToggleActiveBuildEffects(bool)</slot>
+    <slot access="protected">onToggleBuildAll(bool)</slot>
+    <slot access="protected">onToggleBuildDisabled(bool)</slot>
+    <slot access="protected">onToggleBuildInactive(bool)</slot>
+    <slot access="protected">onToggleDisabledBuildEffects(bool)</slot>
+    <slot access="protected">onToggleInactiveBuildEffects(bool)</slot>
+    <slot access="public">showHelp()</slot>
+</connections>
+<tabstops>
+    <tabstop>tabWidget</tabstop>
+    <tabstop>checkBuildPalette</tabstop>
+    <tabstop>buttonMainColor</tabstop>
+    <tabstop>buttonMainColor2</tabstop>
+    <tabstop>comboActiveCentral</tabstop>
+    <tabstop>buttonActivePixmap</tabstop>
+    <tabstop>buttonActiveCentral</tabstop>
+    <tabstop>checkBuildActiveEffect</tabstop>
+    <tabstop>comboActiveEffect</tabstop>
+    <tabstop>buttonActiveEffect</tabstop>
+    <tabstop>buttonActivePrevious</tabstop>
+    <tabstop>buttonActiveNext</tabstop>
+    <tabstop>checkBuildInactive</tabstop>
+    <tabstop>comboInactiveCentral</tabstop>
+    <tabstop>buttonInactivePixmap</tabstop>
+    <tabstop>buttonInactiveCentral</tabstop>
+    <tabstop>checkBuildInactiveEffect</tabstop>
+    <tabstop>comboInactiveEffect</tabstop>
+    <tabstop>buttonInactiveEffect</tabstop>
+    <tabstop>buttonInactivePrevious</tabstop>
+    <tabstop>buttonInactiveNext</tabstop>
+    <tabstop>checkBuildDisabled</tabstop>
+    <tabstop>comboDisabledCentral</tabstop>
+    <tabstop>buttonDisabledPixmap</tabstop>
+    <tabstop>buttonDisabledCentral</tabstop>
+    <tabstop>checkBuildDisabledEffect</tabstop>
+    <tabstop>comboDisabledEffect</tabstop>
+    <tabstop>buttonDisabledEffect</tabstop>
+    <tabstop>buttonDisabledPrevious</tabstop>
+    <tabstop>buttonDisabledNext</tabstop>
+    <tabstop>buttonHelp</tabstop>
+    <tabstop>buttonApply</tabstop>
+    <tabstop>buttonOk</tabstop>
+    <tabstop>buttonCancel</tabstop>
+</tabstops>
+</UI>

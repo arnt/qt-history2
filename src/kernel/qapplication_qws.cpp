@@ -5,13 +5,19 @@
 **
 ** Created : 991025
 **
-** Copyright (C) 1992-2000 Troll Tech AS.  All rights reserved.
+** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
 **
-** This file is part of the Qt GUI Toolkit.
+** This file is part of the kernel module of the Qt GUI Toolkit.
 **
-** Licensees holding valid Qt Professional Edition licenses may use this
-** file in accordance with the Qt Professional Edition License Agreement
-** provided with the Qt Professional Edition.
+** This file may be distributed under the terms of the Q Public License
+** as defined by Trolltech AS of Norway and appearing in the file
+** LICENSE.QPL included in the packaging of this file.
+**
+** Licensees holding valid Qt Enterprise Edition or Qt Professional Edition
+** licenses may use this file in accordance with the Qt Commercial License
+** Agreement provided with the Software.  This file is part of the kernel
+** module and therefore may only be used if the kernel module is specified
+** as Licensed on the Licensee's License Certificate.
 **
 ** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 ** information about the Professional Edition licensing.
@@ -68,7 +74,7 @@
 #include <sys/socket.h>
 
 #include <stdlib.h>
-#ifdef QT_SM_SUPPORT
+#ifndef QT_NO_SM_SUPPORT
 #include <pwd.h>
 #endif
 #include <ctype.h>
@@ -1221,7 +1227,7 @@ static int parseGeometry( const char* string,
 	int tempX=0, tempY=0;
 	char *nextCharacter;
 
-	if ( (string == NULL) || (*string == '\0')) return(mask);
+	if ( !string || (*string == '\0')) return(mask);
 	if (*string == '=')
 		string++;  /* ignore possible '=' at beg of geometry spec */
 
@@ -1818,6 +1824,23 @@ int QApplication::qwsProcessEvent( QWSEvent* event )
 	    else if ( widget )
 		keywidget = (QETWidget*)widget->topLevelWidget();
 	}
+    } else if ( event->type==QWSEvent::DesktopRect ) {
+	QRect r = ((QWSDesktopRectEvent*)event)->simpleData.rect;
+	desktop()->setGeometry(r); // for anyone with a filter on that
+	// Re-resize any maximized windows
+	QWidgetList* l = topLevelWidgets();
+	if ( l ) {
+	    QWidget *w = l->first();
+	    while ( w ) {
+		if ( w->isVisible() && w->isMaximized() )
+		{
+		    w->showMaximized();
+		}
+		w = l->next();
+	    }
+	    delete l;
+	}
+	return 0;
     } else if ( widget && event->type==QWSEvent::Mouse ) {
 	// The mouse event is to one of my top-level widgets
 	// which one?
@@ -2917,7 +2940,7 @@ int QApplication::doubleClickInterval()
 
 
 /*****************************************************************************
-  Session management support (-D QT_SM_SUPPORT to enable it)
+  Session management support
  *****************************************************************************/
 #ifndef QT_NO_SESSIONMANAGER
 
@@ -3024,30 +3047,64 @@ int QApplication::wheelScrollLines()
     return 0;
 }
 
-/*!
-  Wakes up the GUI thread.
+#if defined(QT_THREAD_SUPPORT)
 
-  \sa guiThreadAwake()
-*/
 void QApplication::wakeUpGuiThread()
 {
-#if defined(_OS_UNIX_) && defined(QT_THREAD_SUPPORT)
     char c = 0;
     int nbytes;
     if ( ::ioctl(qt_thread_pipe[1], FIONREAD, (char*)&nbytes) >= 0 && nbytes == 0 ) {
 	::write(  qt_thread_pipe[1], &c, 1  );
     }
-#endif
 }
 
-// We've now become the GUI thread
-void QApplication::guiThreadTaken()
-{
-#if defined(_OS_UNIX_) && defined(QT_THREAD_SUPPORT)
-    char c = 1;
-    int nbytes;
-    if ( ::ioctl(qt_thread_pipe[1], FIONREAD, (char*)&nbytes) >= 0 && nbytes == 0 ) {
-	::write(  qt_thread_pipe[1], &c, 1  );
-    }
 #endif
+
+void QApplication::setEffectEnabled( Qt::UIEffect effect, bool enable )
+{
+    switch (effect) {
+    case UI_AnimateMenu:
+	animate_menu = enable;
+	break;
+    case UI_FadeMenu:
+	if ( enable )
+	    animate_menu = TRUE;
+	fade_menu = enable;
+	break;
+    case UI_AnimateCombo:
+	animate_combo = enable;
+	break;
+    case UI_AnimateTooltip:
+	animate_tooltip = enable;
+	break;
+    case UI_FadeTooltip:
+	if ( enable )
+	    animate_tooltip = TRUE;
+	fade_tooltip = enable;
+	break;
+    default:
+	animate_ui = enable;
+	break;
+    }
+}
+
+bool QApplication::isEffectEnabled( Qt::UIEffect effect )
+{
+    if ( !animate_ui )
+	return FALSE;
+
+    switch( effect ) {
+    case UI_AnimateMenu:
+	return animate_menu;
+    case UI_FadeMenu:
+	return fade_menu;
+    case UI_AnimateCombo:
+	return animate_combo;
+    case UI_AnimateTooltip:
+	return animate_tooltip;
+    case UI_FadeTooltip:
+	return fade_tooltip;
+    default:
+	return animate_ui;
+    }
 }

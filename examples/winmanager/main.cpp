@@ -13,7 +13,7 @@ int main(int argc, char **argv)
     f.setPointSize(12);
     app.setFont(f);
 
-    app.qwsSetDecorator( new QWSMinimalDecorator() );
+    app.qwsSetDecoration( new QWSMinimalDecoration() );
 
     Hello hello("Hello World");
     hello.setCaption("Minimal window manager");

@@ -7,15 +7,17 @@
 **
 ** Copyright (C) 1992-2000 Troll Tech AS.  All rights reserved.
 **
-** This file is part of the Qt GUI Toolkit.
+** This file is part of the kernel module of the Qt GUI Toolkit.
 **
 ** This file may be distributed under the terms of the Q Public License
 ** as defined by Troll Tech AS of Norway and appearing in the file
 ** LICENSE.QPL included in the packaging of this file.
 **
-** Licensees holding valid Qt Professional Edition licenses may use this
-** file in accordance with the Qt Professional Edition License Agreement
-** provided with the Qt Professional Edition.
+** Licensees holding valid Qt Enterprise Edition or Qt Professional Edition
+** licenses may use this file in accordance with the Qt Commercial License
+** Agreement provided with the Software.  This file is part of the kernel
+** module and therefore may only be used if the kernel module is specified
+** as Licensed on the Licensee's License Certificate.
 **
 ** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 ** information about the Professional Edition licensing, or see
@@ -23,13 +25,16 @@
 **
 *****************************************************************************/
 
-#ifdef QT_THREAD_SUPPORT
-
 #define _GNU_SOURCE
+#define __USE_UNIX98
 
 #include "qthread.h"
+
+#if defined(QT_THREAD_SUPPORT)
+
 #include <pthread.h>
 #include <errno.h>
+#include <signal.h>
 #include <stdio.h>
 #include <string.h>
 #include <qlist.h>
@@ -37,95 +42,68 @@
 #include <qapplication.h>
 #include <qsocketnotifier.h>
 #include <qobject.h>
+#include <qptrdict.h>
 #include <sys/time.h>
+#include <unistd.h>
 
-class QMutexPrivate {
+// Thread definitions for UNIX platforms
 
-public:
+#if defined(_OS_LINUX_)
+#  include <features.h>
+#  if (__GLIBC__ == 2) && (__GLIBC_MINOR__ == 0)
+// Linux with glibc 2.0.x - POSIX 1003.4a thread implementation
+#    define Q_HAS_RECURSIVE_MUTEX
+#    define Q_USE_PTHREAD_MUTEX_SETKIND
+#    define Q_NORMAL_MUTEX_TYPE PTHREAD_MUTEX_ERRORCHECK_NP
+#    define Q_RECURSIVE_MUTEX_TYPE PTHREAD_MUTEX_RECURSIVE_NP
+#  else
+#    define Q_HAS_RECURSIVE_MUTEX
+#    undef  Q_USE_PTHREAD_MUTEX_SETKIND
+#    define Q_NORMAL_MUTEX_TYPE PTHREAD_MUTEX_DEFAULT
+#    define Q_RECURSIVE_MUTEX_TYPE PTHREAD_MUTEX_RECURSIVE
+#  endif
+#elif defined(_OS_OSF_)
+// Digital UNIX - 4.0 and later has a POSIX 1003.1c implementation - should we assume >4.0?
+#  define Q_HAS_RECURSIVE_MUTEX
+#  define Q_USE_PTHREAD_MUTEX_SETKIND
+#  define Q_NORMAL_MUTEX_TYPE MUTEX_NONRECURSIVE_NP
+#  define Q_MUTEX_TYPE MUTEX_RECURSIVE_NP
+#elif defined(_OS_AIX_)
+// AIX 4.3 says pthread_mutexattr_setkind_np is provided for compatibility, so
+// we assume that all versions of AIX have it (probably not the best thing to do)
+#  define Q_HAS_RECURSIVE_MUTEX
+#  define Q_USE_PTHREAD_MUTEX_SETKIND
+#  define Q_NORMAL_MUTEX_TYPE MUTEX_NONRECURSIVE_NP
+#  define Q_RECURSIVE_MUTEX_TYPE MUTEX_RECURSIVE_NP
+#elif defined(_OS_HPUX_)
+// HP/UX 10.30 (from documentation on hp.com)
+#  define Q_HAS_RECURSIVE_MUTEX
+#  define Q_USE_PTHREAD_MUTEX_SETKIND
+#  define Q_NORMAL_MUTEX_TYPE MUTEX_NONRECURSIVE_NP
+#  define Q_RECURSIVE_MUTEX_TYPE MUTEX_RECURSIVE_NP
+#elif defined (_OS_FREEBSD_) || defined(_OS_OPENBSD_)
+// FreeBSD and OpenBSD use the same user-space thread implementation
+#  define Q_HAS_RECURSIVE_MUTEX
+#  undef  Q_USE_PTHREAD_MUTEX_SETKIND
+#  define Q_NORMAL_MUTEX_TYPE PTHREAD_MUTEX_ERRORCHECK
+#  define Q_RECURSIVE_MUTEX_TYPE PTHREAD_MUTEX_RECURSIVE
+#else
+// Fall through for systems we don't know about
+#  warning "Assuming non-POSIX 1003.1c thread implementation. Talk to qt-bugs@trolltech.com."
+#  undef  Q_HAS_RECURSIVE_MUTEX
+#  undef  Q_USE_PTHREAD_MUTEX_SETKIND
+#  undef  Q_NORMAL_MUTEX_TYPE
+#  undef  Q_RECURSIVE_MUTEX_TYPE
+#endif
 
-    pthread_mutex_t mymutex;
-    pthread_mutex_t mutex2;
-    QMutexPrivate();
-    ~QMutexPrivate();
 
-    int count;
-    THREAD_HANDLE thread;
-
-};
-
-class QThreadPrivate {
-
-public:
-
-    pthread_t mythread;
-    QThreadEvent thread_done;      // Used for QThread::wait()
-    bool finished;
-
-};
-
-class QThreadEventPrivate {
-
-public:
-
-    pthread_cond_t mycond;
-    pthread_mutex_t mutex;
-
-    QThreadEventPrivate();
-    ~QThreadEventPrivate();
-
-};
-
-QMutexPrivate::QMutexPrivate()
-{
-    pthread_mutexattr_t attr;
-    pthread_mutexattr_init(&attr);
-    pthread_mutexattr_settype(&attr,PTHREAD_MUTEX_ERRORCHECK);
-    int ret = pthread_mutex_init( &mymutex, &attr );
-
-    if( ret ) {
-	qFatal( "Mutex init failure %s", strerror( ret ) );
-    }
-    count=0;
-
-}
-
-QMutexPrivate::~QMutexPrivate()
-{
-    int ret = pthread_mutex_destroy( &mymutex );
-    if( ret ) {
-	qWarning( "Mutex destroy failure %s", strerror( ret ) );
-    }
-}
-
-QThreadEventPrivate::QThreadEventPrivate()
-{
-    int ret=pthread_cond_init(&mycond,0);
-    if( ret ) {
-	qFatal( "Thread event init failure %s", strerror( ret ) );
-    }
-
-    pthread_mutexattr_t attr;
-    pthread_mutexattr_init(&attr);
-    pthread_mutexattr_settype(&attr,PTHREAD_MUTEX_ERRORCHECK);
-    ret = pthread_mutex_init(&mutex,&attr);
-
-    if (ret) qFatal("Thread event init failure: %s", strerror(ret));
-}
-
-QThreadEventPrivate::~QThreadEventPrivate()
-{
-    int ret=pthread_cond_destroy(&mycond);
-    if( ret ) {
-	qFatal( "Thread event init failure %s", strerror( ret ) );
-    }
-
-    ret = pthread_mutex_destroy(&mutex);
-    if (ret) qFatal("Thread event destroy failure: %s", strerror(ret));
-}
+/**************************************************************************
+ ** QMutex
+ *************************************************************************/
 
 /*!
   \class QMutex qthread.h
-  \brief The QMutex class provides access serialisation between threads.
+  \brief The QMutex class provides access serialization between threads.
 
   \ingroup environment
 
@@ -134,23 +112,28 @@ QThreadEventPrivate::~QThreadEventPrivate()
   (In Java terms, this is similar to the synchronized keyword).
   For example, say there is a method which prints a message to the
   user on two lines:
-
+  
+  \code
   void someMethod()
   {
      qDebug("Hello");
      qDebug("World");
   }
-
+  \endcode
+  
   If this method is called simultaneously from two threads then
   the following sequence could result:
 
+  \code
   Hello
   Hello
   World
   World
+  \endcode
 
   If we add a mutex:
 
+  \code
   QMutex mutex;
 
   void someMethod()
@@ -160,9 +143,11 @@ QThreadEventPrivate::~QThreadEventPrivate()
      qDebug("World");
      mutex.unlock();
   }
-
-  (In Java terms this would be:
-
+  \endcode
+  
+  In Java terms this would be:
+  
+  \code
   void someMethod()
   {
      synchronized {
@@ -170,8 +155,7 @@ QThreadEventPrivate::~QThreadEventPrivate()
        qDebug("World");
      }
   }
-
-  )
+  \endcode
 
   Then only one thread can execute someMethod at a time and the order
   of messages is always correct. This is a trivial example, of course,
@@ -180,181 +164,370 @@ QThreadEventPrivate::~QThreadEventPrivate()
 
 */
 
-QMutex::QMutex()
+
+class QMutexPrivate {
+public:
+    QMutexPrivate(bool recursive = FALSE);
+    virtual ~QMutexPrivate();
+
+    virtual void lock();
+    virtual void unlock();
+    virtual bool locked();
+
+#if defined(CHECK_RANGE) || !defined(Q_HAS_RECURSIVE_MUTEX)
+    virtual int type() const { return Q_MUTEX_NORMAL; }
+#endif
+
+    pthread_mutex_t mutex;
+};
+
+
+QMutexPrivate::QMutexPrivate(bool recursive)
 {
-    d = new QMutexPrivate();
     pthread_mutexattr_t attr;
     pthread_mutexattr_init(&attr);
-    pthread_mutexattr_settype(&attr,PTHREAD_MUTEX_ERRORCHECK);
-    pthread_mutex_init( &(d->mutex2),&attr);
+
+    if (recursive) {
+
+#if defined(Q_RECURSIVE_MUTEX_TYPE)
+#  if defined(Q_USE_PTHREAD_MUTEX_SETKIND)
+	pthread_mutexattr_setkind_np(&attr, Q_RECURSIVE_MUTEX_TYPE);
+#  else
+	pthread_mutexattr_settype(&attr, Q_RECURSIVE_MUTEX_TYPE);
+#  endif
+#endif
+
+    } else {
+
+#if defined(Q_NORMAL_MUTEX_TYPE)
+#  if defined(Q_USE_PTHREAD_MUTEX_SETKIND)
+	pthread_mutexattr_setkind_np(&attr, Q_NORMAL_MUTEX_TYPE);
+#  else
+	pthread_mutexattr_settype(&attr, Q_NORMAL_MUTEX_TYPE);
+#  endif
+#endif
+
+    }
+
+#ifdef CHECK_RANGE
+    int ret =
+#endif
+	pthread_mutex_init( &mutex, &attr );
+    
+    pthread_mutexattr_destroy(&attr);
+
+#ifdef CHECK_RANGE
+    if( ret )
+	qWarning( "QMutex::QMutex: init failure: %s", strerror( ret ) );
+#endif
 }
 
-/*!
-  Constructs a new mutex. The mutex is created in an unlocked state.
-*/
 
+QMutexPrivate::~QMutexPrivate()
+{
+#ifdef CHECK_RANGE
+    int ret =
+#endif
+	pthread_mutex_destroy( &mutex );
+
+#ifdef CHECK_RANGE
+    if ( ret )
+	qWarning( "QMutex::~QMutex: destroy failure: %s", strerror( ret ) );
+#endif
+}
+
+
+void QMutexPrivate::lock()
+{
+#ifdef CHECK_RANGE
+    int ret =
+#endif
+	pthread_mutex_lock(&mutex);
+
+#ifdef CHECK_RANGE
+    if (ret)
+	qWarning("QMutex::lock: mutex lock failure: %s", strerror(ret));
+#endif
+}
+
+
+void QMutexPrivate::unlock()
+{
+#ifdef CHECK_RANGE
+    int ret =
+#endif
+	pthread_mutex_unlock(&mutex);
+
+#ifdef CHECK_RANGE
+    if (ret)
+	qWarning("QMutex::unlock: mutex unlock failure: %s", strerror(ret));
+#endif
+}
+
+
+bool QMutexPrivate::locked()
+{
+    int ret = pthread_mutex_trylock(&mutex);
+
+    if (ret == EBUSY) {
+	return TRUE;
+    } else if (ret) {
+#ifdef CHECK_RANGE
+	qWarning("QMutex::locked: try lock failed: %s", strerror(ret));
+#endif
+    } else {
+	pthread_mutex_unlock(&mutex);
+    }
+
+    return FALSE;
+}
+
+
+class QRMutexPrivate : public QMutexPrivate
+{
+public:
+    QRMutexPrivate();
+
+#if defined(CHECK_RANGE) || !defined(Q_HAS_RECURSIVE_MUTEX)
+    int type() const { return Q_MUTEX_RECURSIVE; }
+#endif
+
+#ifndef Q_HAS_RECURSIVE_MUTEX
+    ~QRMutexPrivate();
+
+    void lock();
+    void unlock();
+    bool locked();
+
+    int count;
+    HANDLE owner;
+    pthread_mutex_t mutex2;
+#endif
+};
+
+
+QRMutexPrivate::QRMutexPrivate()
+    : QMutexPrivate(TRUE)
+{
+#ifndef Q_HAS_RECURSIVE_MUTEX
+    pthread_mutexattr_t attr;
+    pthread_mutexattr_init(&attr);
+
+#  ifdef CHECK_RANGE
+    int ret =
+#  endif
+	pthread_mutex_init( &mutex2, &attr );
+
+    pthread_mutexattr_destroy(&attr);
+
+#  ifdef CHECK_RANGE
+    if( ret )
+	qWarning( "QMutex::QMutex: init failure: %s", strerror( ret ) );
+#  endif
+
+    count = 0;
+#endif
+}
+
+
+#ifndef Q_HAS_RECURSIVE_MUTEX
+
+QRMutexPrivate::~QRMutexPrivate()
+{
+#  ifdef CHECK_RANGE
+    int ret =
+#  endif
+	pthread_mutex_destroy(&mutex2);
+
+#  ifdef CHECK_RANGE
+    if( ret )
+	qWarning( "QMutex::QMutex: destroy failure: %s", strerror( ret ) );
+#  endif
+
+}
+
+void QRMutexPrivate::lock()
+{
+    pthread_mutex_lock(&mutex2);
+
+    if(count > 0 && owner == QThread::currentThread()) {
+	count++;
+    } else {
+	pthread_mutex_unlock(&mutex2);
+	QMutexPrivate::lock();
+	pthread_mutex_lock(&mutex2);
+
+	count = 1;
+	owner = QThread::currentThread();
+    }
+
+    pthread_mutex_unlock(&mutex2);
+}
+
+
+void QRMutexPrivate::unlock()
+{
+    pthread_mutex_lock(&mutex2);
+
+    if (owner != QThread::currentThread()) {
+#ifdef CHECK_RANGE
+	qWarning("QMutex::unlock: unlock from different thread than locker");
+	qWarning("                was locked by %d, unlock attempt from %d",
+		 owner, QThread::currentThread());
+	pthread_mutex_unlock(&mutex2);
+#endif
+
+	return;
+    }
+
+    // do nothing if the count is already 0... to reflect the behaviour described
+    // in the docs
+    if (count && (--count) < 1) {
+	QMutexPrivate::unlock();
+	count=0;
+    }
+
+    pthread_mutex_unlock(&mutex2);
+}
+
+
+bool QRMutexPrivate::locked()
+{
+    pthread_mutex_lock(&mutex2);
+    bool ret = QMutexPrivate::locked();
+    pthread_mutex_unlock(&mutex2);
+
+    return ret;
+}
+
+#endif
+
+
+/*!
+  Constructs a new mutex. The mutex is created in an unlocked state. A
+  recursive mutex is created if \a recursive is TRUE; a normal mutex is
+  created if \a recursive is FALSE (default argument). With a recursive
+  mutex, a thread can lock the same mutex multiple times and it will
+  not be unlocked until a corresponding number of unlock() calls have
+  been made.
+*/
+QMutex::QMutex(bool recursive)
+{
+    if (recursive)
+	d = new QRMutexPrivate();
+    else
+	d = new QMutexPrivate();
+}
+
+
+/*!
+  Destroys the mutex.
+*/
 QMutex::~QMutex()
 {
     delete d;
 }
 
-/*!
-  Destroys the mutex
-*/
-
-void QMutex::lock()
-{
-    pthread_mutex_lock(&(d->mutex2));
-    if(d->count>0 && d->thread==QThread::currentThread()) {
-	d->count++;
-    } else {
-	pthread_mutex_unlock(&(d->mutex2));
-	int ret = pthread_mutex_lock( &( d->mymutex ) );
-	pthread_mutex_lock(&(d->mutex2));
-
-	if( ret ) {
-	    qFatal( "Mutex lock failure %s\n", strerror( ret ) );
-	}
-
-	d->count++;
-	d->thread=QThread::currentThread();
-    }
-    pthread_mutex_unlock(&(d->mutex2));
-}
 
 /*!
   Attempt to lock the mutex. If another thread has locked the mutex
   then this call will block until that thread has unlocked it.
-  Mutex locks and unlocks are recursive; that is, a thread can lock
-  the same mutex multiple times and it will not be unlocked until
-  a corresponding number of unlock() calls have been made.
-*/
 
+  \sa unlock()
+*/
+void QMutex::lock()
+{
+    d->lock();
+}
+
+
+/*!
+  Unlocks the mutex. Attempting to unlock a mutex in a different thread
+  to the one that locked it results in an error.  Unlocking a mutex that
+  is not locked results in undefined behaviour (varies between
+  different Operating Systems' thread implementations).
+
+  \sa lock()
+*/
 void QMutex::unlock()
 {
-    pthread_mutex_lock(&(d->mutex2));
-    if(d->thread!=QThread::currentThread()) {
-	fprintf(stderr,"Attempt to unlock from different thread than locker\n");
-	fprintf(stderr,"Was locked by %ld, unlock attempt from %ld\n",
-		d->thread,QThread::currentThread());
-	pthread_mutex_unlock(&(d->mutex2));
-	return;
-    }
-
-    d->count--;
-
-    if (d->count<1) {
-	int ret = pthread_mutex_unlock( &( d->mymutex ) );
-
-	if( ret ) {
-	    fprintf( stderr, "Mutex unlock failure %s\n", strerror( ret ) );
-	    abort();
-	}
-	d->count=0;
-    }
-    pthread_mutex_unlock(&(d->mutex2));
+    d->unlock();
 }
 
-/*!
-  Unlocks the mutex. If the number of unlocks correspond to the number
-  of preceding locks (i.e. if the mutex is locked twice and then unlocked
-  twice) another thread will be able to lock the mutex. Unlocking a
-  mutex that is already unlocked has no effect. Note that attempting
-  to unlock a mutex in a different thread to the one that locked it is
-  an error.
-*/
 
+/*!
+  Returns TRUE if the mutex is locked by another thread.
+*/
 bool QMutex::locked()
 {
-    int ret = pthread_mutex_trylock( &(d->mymutex) );
-    if(ret==EBUSY) {
-	return true;
-    } else if(ret) {
-	qFatal( "Mutex try lock failure %s\n", strerror( ret ) );
-    }
-    return false;
+    return d->locked();
 }
 
-/*!
-  Returns true if the mutex is locked.
-*/
 
-MUTEX_HANDLE QMutex::handle()
+/**************************************************************************
+ ** QThreadQtEvent, QConditionsPrivate
+ *************************************************************************/
+
+// this is for the magic QThread::postEvent()
+class QThreadQtEvent
 {
-    // Eeevil?
-    return (unsigned long) &( d->mymutex );
-}
-
-/*!
-  Returns the (platform-specific) identifier of the mutex. Using this
-  function is not unportable as such, but any use of the handle it returns
-  is likely to be.
-*/
-
-class QThreadQtEvent {
-
 public:
+    QThreadQtEvent(QObject *r, QEvent *e)
+	: receiver(r), event(e)
+    { ; }
 
-    QObject * o;
-    QEvent * e;
-
+    QObject *receiver;
+    QEvent *event;
 };
 
-class QThreadEventsPrivate : public QObject {
 
+class QThreadPostEventPrivate : public QObject
+{
     Q_OBJECT
-
 public:
+    QThreadPostEventPrivate();
 
-    QThreadEventsPrivate();
-
-    QList<QThreadQtEvent> myevents;
-    QMutex myeventmutex;
+    QList<QThreadQtEvent> events;
+    QMutex eventmutex;
 
 public slots:
-
-void sendEvents();
-
-private:
-
+    void sendEvents();
 };
 
-#include "qthread_unix.moc"
 
-static QThreadData * threadended;
-
-QThreadEventsPrivate::QThreadEventsPrivate()
+QThreadPostEventPrivate::QThreadPostEventPrivate()
 {
-    myevents.setAutoDelete( TRUE );
+    events.setAutoDelete( TRUE );
     connect( qApp, SIGNAL( guiThreadAwake() ), this, SLOT( sendEvents() ) );
-    threadended=new QThreadData;
 }
 
-void QThreadEventsPrivate::sendEvents()
+
+// this is called from the QApplication::guiThreadAwake signal, and the
+// application mutex is already locked
+void QThreadPostEventPrivate::sendEvents()
 {
-    myeventmutex.lock();
-    QThreadQtEvent * qte;
-    for( qte = myevents.first(); qte != 0; qte = myevents.next() ) {
-	qApp->postEvent( qte->o, qte->e );
+    eventmutex.lock();
+
+    QThreadQtEvent *qte;
+    for( qte = events.first(); qte != 0; qte = events.next() ) {
+	qApp->postEvent( qte->receiver, qte->event );
     }
-    myevents.clear();
-    qApp->sendPostedEvents();
-    myeventmutex.unlock();
+
+    events.clear();
+
+    // ## let event compression take full effect
+    // qApp->sendPostedEvents();
+
+    eventmutex.unlock();
 }
 
-static QThreadEventsPrivate * qthreadeventsprivate = 0;
 
-extern "C" {
-    static void * start_thread(void * t)
-    {
-	((QThread *)t)->runWrapper();
-	return 0;
-    }
+static QThreadPostEventPrivate * qthreadposteventprivate = 0;
 
-    void destruct_dummy(void *)
-    {
-    }
-}
+
+/**************************************************************************
+ ** QThread
+ *************************************************************************/
 
 /*!
   \class QThread qthread.h
@@ -366,9 +539,10 @@ extern "C" {
   it shares all data with other threads within the process but
   executes independently in the way that a separate program does on
   a multitasking operating system. Instead of starting in main(),
-  however, QThreads begin executing in QThread::run, which you inherit
+  however, QThreads begin executing in run(), which you inherit
   to provide your code. For instance:
 
+  \code
   class MyThread : public QThread {
 
   public:
@@ -387,45 +561,135 @@ extern "C" {
 
   int main()
   {
-      QThread a;
-      QThread b;
+      MyThread a;
+      MyThread b;
       a.start();
       b.start();
-      sleep(30);
+      a.wait();
+      b.wait();
   }
+  \endcode
 
   This will start two threads, each of which writes Ping! 20 times
-  to the screen and exits. The sleep() at the end of main() is necessary
-  because exiting main() ends the program, unceremoniously killing all
-  other threads. Each MyThread stops executing when it reaches the
-  end of MyThread::run, just as an application does when it leaves
-  main().
+  to the screen and exits. The wait() calls at the end of main() are
+  necessary because exiting main() ends the program, unceremoniously
+  killing all other threads. Each MyThread stops executing when it
+  reaches the end of MyThread::run(), just as an application does when
+  it leaves main().
 
 */
 
-THREAD_HANDLE QThread::currentThread()
-{
-    // A pthread_t is an int
-    return (THREAD_HANDLE)pthread_self();
+
+class QThreadPrivate {
+public:
+    QThreadPrivate();
+    ~QThreadPrivate();
+
+    void init(QThread *);
+
+    pthread_t thread_id;
+
+    QCondition thread_done;      // Used for QThread::wait()
+
+    bool finished, running;
+
+    static void internalRun(QThread *);
+};
+
+
+extern "C" {
+    static void * start_thread(void * t)
+    {
+	QThreadPrivate::internalRun( (QThread *) t );
+	return 0;
+    }
+
+    void destruct_dummy(void *)
+    {
+    }
 }
+
+
+static QMutex *dictMutex = 0;
+static QIntDict<QThread> *thrDict = 0;
+
+QThreadPrivate::QThreadPrivate()
+    : thread_id(0), finished(FALSE), running(FALSE)
+{
+    if (! dictMutex)
+	dictMutex = new QMutex;
+    if (! thrDict)
+	thrDict = new QIntDict<QThread>;
+}
+
+
+QThreadPrivate::~QThreadPrivate()
+{
+    dictMutex->lock();
+    if (thread_id)
+	thrDict->remove((HANDLE) thread_id);
+    dictMutex->unlock();
+
+    thread_id = 0;
+}
+
+
+void QThreadPrivate::init(QThread *that) {
+    pthread_attr_t attr;
+    pthread_attr_init(&attr);
+    pthread_attr_setinheritsched(&attr, PTHREAD_INHERIT_SCHED);
+    pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);
+
+    int ret = pthread_create( &thread_id, &attr, start_thread, (void *) that );
+
+    pthread_attr_destroy(&attr);
+
+    if ( ret ) {
+#ifdef CHECK_RANGE
+	qWarning("QThread::start: thread creation error: %s", strerror(ret));
+#endif
+
+       	return;
+    }
+}
+
+
+void QThreadPrivate::internalRun( QThread *that )
+{
+    dictMutex->lock();
+    thrDict->insert(QThread::currentThread(), that);
+    dictMutex->unlock();
+
+    that->d->running = TRUE;
+    that->d->finished = FALSE;
+
+    that->run();
+
+    dictMutex->lock();
+
+    QThread *there = thrDict->find(QThread::currentThread());
+    if (there) {
+	there->d->running = FALSE;
+	there->d->finished = TRUE;
+
+	there->d->thread_done.wakeAll();
+    }
+
+    thrDict->remove(QThread::currentThread());
+    dictMutex->unlock();
+}
+
 
 /*!
-  This returns the thread ID of the currently executing thread.
+  This returns the thread ID of the currently executing thread.  The
+  handle returned by this function is used for internal reasons and
+  should not be used in any application code.
 */
-
-void QThread::postEvent( QObject * o, QEvent * e )
+HANDLE QThread::currentThread()
 {
-    if( !qthreadeventsprivate ) {
-	qthreadeventsprivate = new QThreadEventsPrivate();
-    }
-    qthreadeventsprivate->myeventmutex.lock();
-    QThreadQtEvent * qte = new QThreadQtEvent;
-    qte->o = o;
-    qte->e = e;
-    qthreadeventsprivate->myevents.append( qte );
-    qthreadeventsprivate->myeventmutex.unlock();
-    qApp->wakeUpGuiThread();
+    return (HANDLE) pthread_self();
 }
+
 
 /*!
   Provides a way of posting an event from a thread which is not the
@@ -433,136 +697,208 @@ void QThread::postEvent( QObject * o, QEvent * e )
   event thread is woken which then sends the event to the object.
   It is important to note that the event handler for the event, when called,
   will be called from the event thread and not from the thread calling
-  QThread::postEvent.
+  QThread::postEvent().
+  
+  Same as with \l QApplication::postEvent(), \a event must be allocated on the
+  heap, as it is deleted when the event has been posted.
 */
-
-THREAD_HANDLE QThread::handle()
+void QThread::postEvent( QObject * receiver, QEvent * event )
 {
-    return (THREAD_HANDLE) d->mythread;
+    if( !qthreadposteventprivate )
+	qthreadposteventprivate = new QThreadPostEventPrivate();
+
+    qthreadposteventprivate->eventmutex.lock();
+    qthreadposteventprivate->events.append( new QThreadQtEvent(receiver, event) );
+    qApp->wakeUpGuiThread();
+    qthreadposteventprivate->eventmutex.unlock();
 }
+
 
 /*!
-  Returns the platform-specific handle of the thread represented by
-  this QThread. This value is not valid until QThread::start() has been
-  called.
+  System independent sleep.  This causes the current thread to sleep for
+  \a secs seconds.
 */
-
-void QThread::exit()
+void QThread::sleep( unsigned long secs )
 {
-    QThreadEvent * done=(QThreadEvent *)threadended->data();
-    done->wakeAll();
-    pthread_exit(0);
+    ::sleep(secs);
 }
+
 
 /*!
-  Ends execution of the currently-executing thread and wakes up any
-  threads waiting for its termination.
+  System independent sleep.  This causes the current thread to sleep for
+  \a msecs milliseconds
 */
-
-QThread::QThread()
+void QThread::msleep( unsigned long msecs )
 {
-    // Hmm. Not sure how to provide proper cleanup function here
-    d=new QThreadPrivate;
-    d->finished=false;
-    threadended->setData( (void *) &(d->thread_done) );
+    ::usleep( msecs * 1000);
 }
+
+
+/*!
+  System independent sleep.  This causes the current rhead to sleep for
+  \a usecs microseconds
+*/
+void QThread::usleep( unsigned long usecs )
+{
+    ::usleep( usecs );
+}
+
 
 /*!
   Constructs a new thread. The thread does not actually begin executing
-  (and QThread::handle() does not return a valid thread id) until
-  QThread::start is called.
+  until start() is called.
 */
-
-QThread::~QThread()
+QThread::QThread()
 {
-    delete d;
+    d = new QThreadPrivate;
 }
+
 
 /*!
   QThread destructor. Note that deleting a QThread object will not stop
   the execution of the thread it represents.
 */
-
-void QThread::wait()
+QThread::~QThread()
 {
-    if(d->finished)
-	return;
-    d->thread_done.wait();
+    delete d;
 }
 
-/*!
-  This allows similar functionality to Posix Threads' pthread_join.
-  A thread calling this will block until the thread associated with
-  the QThread object has finished executing (that is, when it
-  returns from QThread::run(). Multiple threads can wait for one thread to
-  finish, and all will be woken.
-*/
 
+/*!
+  Ends execution of the calling thread and wakes up any threads waiting
+  for its termination.
+*/
+void QThread::exit()
+{
+    dictMutex->lock();
+
+    QThread *there = thrDict->find(QThread::currentThread());
+    if (there) {
+	there->d->running = FALSE;
+	there->d->finished = TRUE;
+
+	there->d->thread_done.wakeAll();
+    }
+
+    dictMutex->unlock();
+
+    pthread_exit(0);
+}
+
+
+/*!
+  This allows similar functionality to POSIX pthread_join.  A thread
+  calling this will block until one of 2 conditions is met:
+  <ul>
+  <li> The thread associated with this QThread object has finished
+       execution (i.e. when it returns from run() ).  This
+       function will return TRUE if the thread has finished.
+  <li> \a time milliseconds has elapsed.  If \a time is ULONG_MAX (default
+       argument), then the wait will never timeout (the thread must
+       return from run() ).  This function will return FALSE
+       if the wait timed out.
+  </ul>
+*/
+bool QThread::wait(unsigned long time)
+{
+    if (d->finished)
+	return TRUE;
+
+    return d->thread_done.wait(time);
+}
+
+
+/*!
+  This begins actual execution of the thread by calling run(),
+  which should be reimplemented in a QThread subclass to contain your code.
+  If you try to start a thread that is already running, this call will
+  wait until the thread has finished, and then restart the thread.
+*/
 void QThread::start()
 {
-    // Error checking would be good
-    pthread_t foo;
-    pthread_create(&foo,0,start_thread,(void *)this);
-    pthread_detach(foo);
+    if (d->running) {
+#ifdef CHECK_RANGE
+	qWarning("QThread::start: thread already running");
+#endif
+
+	wait();
+
+	return;
+    }
+
+    d->init(this);
 }
 
+
 /*!
-  This begins actual execution of the thread. A new thread is created
-  and begins executing in QThread::run(), which should be reimplemented
-  in a QThread subclass to contain your code.
+  Returns TRUE is the thread is finished.
 */
-
-void QThread::run()
+bool QThread::finished() const
 {
-    // Default implementation does nothing
+    return d->finished;
 }
 
+
 /*!
-  The default implementation of this method does nothing; it simply returns
-  immediately, ending the thread's execution. It should be subclassed
+  Returns TRUE if the thread is running.
+*/
+bool QThread::running() const
+{
+    return d->running;
+}
+
+
+/*! \fn void QThread::run()
+
+  This method is pure virtual, and it must be implemented in derived classes
   in order to do useful work. Returning from this method will end execution
   of the thread.
 */
 
-void QThread::runWrapper()
-{
-    run();
-    // Tell any threads waiting for us to wake up
-    d->finished=true;
-    d->thread_done.wakeAll();
-}
+
+/**************************************************************************
+ ** QCondition
+ *************************************************************************/
 
 /*!
-  \class QThreadEvent qthread.h
-  \brief The QThreadEvent class provides signalling of the occurrence of
+  \class QCondition qthread.h
+  \brief The QCondition class provides signalling of the occurrence of
          events between threads
 
   \ingroup environment
 
-  QThreadEvents allow a thread to tell other threads that some sort
-  of event has happened; one or many threads can block waiting for
-  a QThreadEvent to signal an event, and a thread can call wakeOne
-  to wake one randomly-selected event or wakeAll to wake them all.
-  For example, say we have three tasks that should be performed every
-  time the user presses a key; each task could be split into a thread,
-  each of which would have a run() body like so:
+  QConditions allow a thread to tell other threads that some sort of
+  event has happened; one or many threads can block waiting for a
+  QCondition to signal an event, and a thread can call wakeOne() to
+  wake one randomly-selected event or wakeAll() to wake them all. For
+  example, say we have three tasks that should be performed every time
+  the user presses a key; each task could be split into a thread, each
+  of which would have a run() body like so:
 
+  \code
+  QCondition key_pressed;
+  
   while(1) {
-     key_pressed_event.wait();    // This is a QThreadEvent global variable
+     key_pressed.wait();    // This is a QCondition global variable
      // Key was pressed, do something interesting
      do_something();
   }
-
+  \endcode
+  
   A fourth thread would read key presses and wake the other three threads
   up every time it receives one, like so:
 
+  \code
+  QCondition key_pressed;
+  
   while(1) {
      getchar();
-     // Causes any thread in key_pressed_event.wait() to return from
+     // Causes any thread in key_pressed.wait() to return from
      // that method and continue processing
-     key_pressed_event.wakeAll();
+     key_pressed.wakeAll();
   }
-
+  \endcode
+  
   Note that the order the three threads are woken up in is undefined,
   and that if some or all of the threads are still in do_something()
   when the key is pressed, they won't be woken up (since they're not
@@ -570,12 +906,14 @@ void QThread::runWrapper()
   for that key press.  This can be avoided by, for example, doing something
   like this:
 
+  \code
   QMutex mymutex;
+  QCondition key_pressed;
   int mycount=0;
 
   // Worker thread code
   while(1) {
-     key_pressed_event.wait();    // This is a QThreadEvent global variable
+     key_pressed.wait();    // This is a QCondition global variable
      mymutex.lock();
      mycount++;
      mymutex.unlock();
@@ -591,195 +929,472 @@ void QThread::runWrapper()
      mymutex.lock();
      // Sleep until there are no busy worker threads
      while(count>0) {
+       mymutex.unlock();
        sleep(1);
+       mymutex.lock();
      }
      mymutex.unlock();
-     key_pressed_event.wakeAll();
+     key_pressed.wakeAll();
   }
-
+  \endcode
+  
   The mutexes are necessary because the results if two threads
   attempt to change the value of the same variable simultaneously
   are unpredictable.
 
 */
 
-QThreadEvent::QThreadEvent()
+
+/**************************************************************************
+ ** QConditionPrivate
+ *************************************************************************/
+
+class QConditionPrivate {
+public:
+    pthread_cond_t cond;
+    QMutex mutex;
+
+    QConditionPrivate();
+    ~QConditionPrivate();
+};
+
+
+QConditionPrivate::QConditionPrivate()
 {
-    d=new QThreadEventPrivate;
+    pthread_condattr_t cattr;
+    pthread_condattr_init(&cattr);
+
+#ifdef CHECK_RANGE
+    int ret =
+#endif
+	pthread_cond_init(&cond, &cattr);
+
+    pthread_condattr_destroy(&cattr);
+
+#ifdef CHECK_RANGE
+    if( ret )
+	qWarning( "QCondition::QCondition: event init failure %s", strerror( ret ) );
+#endif
 }
 
-/*!
-  Constructs a new thread event signalling object.
-*/
+QConditionPrivate::~QConditionPrivate()
+{
+    int ret = pthread_cond_destroy(&cond);
+    if( ret ) {
+#ifdef CHECK_RANGE
+	qWarning( "QCondition::~QCondition: event destroy failure %s", strerror( ret ) );
+#endif
 
-QThreadEvent::~QThreadEvent()
+	// seems we have threads waiting on us, lets wake them up
+	pthread_cond_broadcast(&cond);
+    }
+}
+
+
+/*!
+  Constructs a new event signalling object.
+*/
+QCondition::QCondition()
+{
+    d = new QConditionPrivate;
+}
+
+
+/*!
+  Deletes the event signalling object.
+*/
+QCondition::~QCondition()
 {
     delete d;
 }
-/*!
-  Deletes the thread signalling object.
-*/
 
-void QThreadEvent::wait()
-{
-    int ret=pthread_mutex_lock(& (d->mutex) );
-    if(ret) {
-	qWarning("Threadevent wait lock error:%s",strerror(ret));
-    }
-    ret=pthread_cond_wait (&( d->mycond ), &( d->mutex ));
-    if(ret) {
-	qWarning("Threadevent wait error:%s",strerror(ret));
-    }
-    ret=pthread_mutex_unlock(& (d->mutex) );
-    if(ret) {
-	qWarning("Threadevent wait unlock error:%s",strerror(ret));
-    }
-}
 
 /*!
   Wait on the thread event object. The thread calling this will block
-  until another thread signals it using QThread::wakeOne or
-  QThread::wakeAll.
-*/
+  until one of 2 conditions is met:
+  <ul>
+  <li> Another thread signals it using wakeOne() or wakeAll(). This
+       function will return TRUE in this case.
+  <li> \a time milliseconds has elapsed.  If \a time is ULONG_MAX (default
+       argument), then the wait will never timeout (the event must
+       signalled).  This function will return FALSE if the
+       wait timed out.
+  </ul>
 
-void QThreadEvent::wait(const QTime & t)
+  \sa wakeOne(), wakeAll()
+*/
+bool QCondition::wait(unsigned long time)
 {
-    // This is probably grotty
-    timeval now;
-    timespec ti;
-    gettimeofday(&now,0);
-    ti.tv_sec=now.tv_sec+t.second();
-    ti.tv_nsec=((now.tv_usec/1000)+t.msec())*1000000;
-    pthread_mutex_lock(& (d->mutex) );
-    int ret=pthread_cond_timedwait (&( d->mycond ), &( d->mutex ),
-				    &ti);
-    pthread_mutex_unlock(& (d->mutex) );
-    if(ret) {
-	qWarning("Threadevent timed wait error:%s",strerror(ret));
+    d->mutex.lock();
+
+    int ret;
+    if (time != ULONG_MAX) {
+	timespec ti;
+	ti.tv_sec = (time / 1000);
+	ti.tv_nsec = (time % 1000) * 1000000;
+
+	ret = pthread_cond_timedwait(&(d->cond), &(d->mutex.d->mutex), &ti);
+    } else {
+	ret = pthread_cond_wait ( &(d->cond), &(d->mutex.d->mutex) );
     }
+
+    d->mutex.unlock();
+
+#ifdef CHECK_RANGE
+    if( ret ) qWarning("QCondition::wait: wait error:%s",strerror(ret));
+#endif
+
+    return (ret == 0);
 }
 
-/*!
-  This is similar to QThreadEvent::wait, but will only wait until the time
-  specified by t, at which point it will return whether or not the
-  event was signalled.
-*/
 
-void QThreadEvent::wakeOne()
+/*!
+  Release the locked \a mutex and wait on the thread event object. The
+  \a mutex must be initially locked by the calling thread.  If \a mutex
+  is not in a locked state, this function returns immediately.  The
+  \a mutex will be unlocked, and the thread calling will block until
+  one of 2 conditions is met:
+  <ul>
+  <li> Another thread signals it using wakeOne() or wakeAll(). This
+       function will return TRUE in this case.
+  <li> \a time milliseconds has elapsed.  If \a time is ULONG_MAX (default
+       argument), then the wait will never timeout (the event must
+       signalled).  This function will return FALSE if the
+       wait timed out.
+  </ul>
+
+  The mutex will be returned to the same locked state.  This function is
+  provided to allow the atomic transition from the locked state to the
+  wait state.
+
+  \sa wakeOne(), wakeAll()
+*/
+bool QCondition::wait(QMutex *mutex, unsigned long time)
 {
-    int ret=pthread_mutex_lock(& (d->mutex) );
-    if(ret) {
-	qFatal("Threadevent wakeOne lock error: %s\n",strerror(ret));
+    if (! mutex) return FALSE;
+
+#ifdef CHECK_RANGE
+    if (mutex->d->type() == Q_MUTEX_RECURSIVE)
+	qWarning("QCondition::unlockAndWait: warning - using recursive mutexes with\n"
+		 "                             conditions undefined!");
+#endif
+
+#ifndef Q_HAS_RECURSIVE_MUTEX
+    int c = 0;
+    HANDLE id = 0;
+
+    if (mutex->d->type() == Q_MUTEX_RECURSIVE) {
+	QRMutexPrivate *rmp = (QRMutexPrivate *) mutex->d;
+	pthread_mutex_lock(&(rmp->mutex2));
+
+	if (! rmp->count) {
+#  ifdef CHECK_RANGE
+	    qWarning("QCondition::unlockAndWait: recursive mutex not locked!");
+#  endif
+
+	    return FALSE;
+	}
+
+	c = rmp->count;
+	id = rmp->owner;
+
+	rmp->count = 0;
+	rmp->owner = 0;
+
+	pthread_mutex_unlock(&(rmp->mutex2));
     }
-    ret=pthread_cond_signal(& (d->mycond) );
-    if(ret) {
-	qFatal("Threadevent wakeOne error: %s\n",strerror(ret));
+#endif
+
+    int ret;
+    if (time != ULONG_MAX) {
+	timespec ti;
+	ti.tv_sec = (time / 1000);
+	ti.tv_nsec = (time % 1000) * 1000000;
+
+	ret = pthread_cond_timedwait(&(d->cond), &(mutex->d->mutex), &ti);
+    } else {
+	ret = pthread_cond_wait ( &(d->cond), &(mutex->d->mutex) );
     }
-    ret=pthread_mutex_unlock(& (d->mutex) );
-    if(ret) {
-	qFatal("Threadevent wakeOne unlock error: %s\n",strerror(ret));
+
+#ifndef Q_HAS_RECURSIVE_MUTEX
+    if (mutex->d->type() == Q_MUTEX_RECURSIVE) {
+	QRMutexPrivate *rmp = (QRMutexPrivate *) mutex->d;
+	pthread_mutex_lock(&(rmp->mutex2));
+	rmp->count = c;
+	rmp->owner = id;
+	pthread_mutex_unlock(&(rmp->mutex2));
     }
+#endif
+
+#ifdef CHECK_RANGE
+    if ( ret ) qWarning("QCondition::wait: wait error:%s",strerror(ret));
+#endif
+
+    return (ret == 0);
 }
 
-/*!
-  This awakes one (randomly chosen) thread waiting on the QThreadEvent.
-*/
 
-void QThreadEvent::wakeAll()
+/*!
+  This wakes one thread waiting on the QCondition.  The thread that
+  woken up depends on the operating system's scheduling policies, and
+  cannot be controlled or predicted.
+  
+  \sa wakeAll()
+*/
+void QCondition::wakeOne()
 {
-    int ret=pthread_mutex_lock(& (d->mutex) );
-    if(ret) {
-	qFatal("Threadevent wakeAll lock error: %s\n",strerror(ret));
-    }
-    ret=pthread_cond_broadcast(& (d->mycond) );
-    if(ret) {
-	qFatal("Threadevent wakeAll error: %s\n",strerror(ret));
-    }
-    ret=pthread_mutex_unlock(& (d->mutex) );
-    if(ret) {
-	qFatal("Threadevent wakeAll unlock error: %s\n",strerror(ret));
-    }
+    d->mutex.lock();
+
+#ifdef CHECK_RANGE
+    int ret =
+#endif
+	pthread_cond_signal( &(d->cond) );
+
+#ifdef CHECK_RANGE
+    if ( ret ) qWarning("QCondition::wakeOne: wake error: %s",strerror(ret));
+#endif
+
+    d->mutex.unlock();
 }
 
-/*!
-  This wakes all threads waiting on the QThreadEvent.
-*/
 
-THREADEVENT_HANDLE QThreadEvent::handle()
+/*!
+  This wakes all threads waiting on the QCondition.  The order in
+  which the threads are woken up depends on the operating system's
+  scheduling policies, and cannot be controlled or predicted.
+  
+  \sa wakeOne()
+*/
+void QCondition::wakeAll()
 {
-    return (unsigned long) &( d->mycond );
+    d->mutex.lock();
+
+#ifdef CHECK_RANGE
+    int ret =
+#endif
+	pthread_cond_broadcast(& (d->cond) );
+
+#ifdef CHECK_RANGE
+    if( ret ) qWarning("QCondition::wakeAll: wake error: %s",strerror(ret));
+#endif
+
+    d->mutex.unlock();
 }
 
+
+/**************************************************************************
+ ** QSemaphore
+ *************************************************************************/
 /*!
-  Returns the platform-specific handle of the QThreadEvent. On a
-  Posix Threads system this is a pthread_cond_t *.
+  \class QSemaphore qthread.h
+  \brief The QSemaphore class provides a robust integer semaphore.
+
+  \ingroup environment
+
+  QSemaphore can be used to serialize thread execution, similar to a
+  QMutex.  A semaphore differs from a mutex, in that a semaphore can be
+  accessed by more than one thread at a time.
+  
+  An example would be an application that stores data in a large tree
+  structure.  The application creates 10 threads (commonly called a
+  thread pool) to do searches on the tree.  When the application searches
+  the tree for some piece of data, it uses one thread per base node to
+  do the searching.  A semaphore could be used to make sure that 2 threads
+  don't try to search the same branch of the tree.
+  
+  A real world example of a semaphore would be dining at a restuarant.
+  A semaphore initialized to have a maximum count equal to the number
+  of chairs in the restuarant.  As people arrive, they want a seat.  As
+  seats are filled, the semaphore is accessed, once per person.  As people
+  leave, the access is released, allowing more people to enter. If a
+  party of 10 people want to be seated, but there are only 9 seats, those
+  10 people will wait, but a party of 4 people would be seated (taking
+  the available seats to 5, making the party of 10 people wait longer).
 */
 
 
-class QThreadDataPrivate {
-
+class QSemaphorePrivate {
 public:
+    QSemaphorePrivate(int);
+    ~QSemaphorePrivate();
 
-    pthread_key_t mykey;
+    pthread_mutex_t mutex;
+    pthread_cond_t cond;
 
+    int value, max;
 };
 
-/*!
-  \class QThreadData qthread.h
-  \brief The QThreadData class provides access to per-thread data
 
-  QThreadData objects can be used to store data which is intended to
-  be private to each thread - for instance per-thread global variables.
-  Any thread can use setData() to store a pointer to some data and will
-  get that same pointer back when it calls data(), regardless of what
-  values other threads pass when calling setData on the same object.
-
-*/
-
-QThreadData::QThreadData()
+QSemaphorePrivate::QSemaphorePrivate(int m)
+    : value(0), max(m)
 {
-    d=new QThreadDataPrivate;
-    int ret=pthread_key_create( &(d->mykey), destruct_dummy);
-    if(ret) {
-	qFatal("Thread key create error: %s",strerror(ret));
-    }
+    pthread_mutex_init(&mutex, NULL);
+    pthread_cond_init(&cond, NULL);
 }
 
-/*!
-  Constructs a new thread data object.
-*/
 
-QThreadData::~QThreadData()
+QSemaphorePrivate::~QSemaphorePrivate()
+{
+    pthread_mutex_destroy(&mutex);
+    pthread_cond_destroy(&cond);
+}
+
+
+/*!
+  Creates a new semaphore.  The semaphore can be concurrently accessed at
+  most \a maxcount times.
+*/
+QSemaphore::QSemaphore(int maxcount)
+{
+    d = new QSemaphorePrivate(maxcount);
+}
+
+
+/*!
+  Destroys the semaphore.
+*/
+QSemaphore::~QSemaphore()
 {
     delete d;
 }
 
-/*!
-  Destroys the thread data object
-*/
 
-void QThreadData::setData(void * v)
+/*!
+  Postfix ++ operator.
+
+  Try to get access to the semaphore.  If \l available() is >= \l total(),
+  this call will block until it can get access.
+*/
+int QSemaphore::operator++(int)
 {
-    ret=pthread_setspecific( d->mykey, v);
-    if(ret) {
-	qWarning("Error setting thread data: %s",strerror(ret));
+    int ret;
+
+    pthread_mutex_lock( &(d->mutex) );
+
+    while (d->value >= d->max)
+	pthread_cond_wait( &(d->cond), &(d->mutex) );
+
+    ++(d->value);
+    if (d->value > d->max) d->value = d->max;
+    ret = d->value;
+
+    pthread_mutex_unlock( &(d->mutex) );
+
+    return ret;
+}
+
+
+/*!
+  Postfix -- operator.
+
+  Release access of the semaphore.  This wakes all threads waiting for
+  access to the semaphore.
+ */
+int QSemaphore::operator--(int)
+{
+    int ret;
+
+    pthread_mutex_lock( &(d->mutex) );
+
+    --(d->value);
+    if (d->value < 0) d->value = 0;
+    ret = d->value;
+
+    pthread_cond_broadcast( &(d->cond) );
+    pthread_mutex_unlock( &(d->mutex) );
+
+    return ret;
+}
+
+
+/*!
+  Try to get access to the semaphore.  If \l available() is >= \l total(),
+  the calling thread blocks until it can get access.   The calling will
+  only get access from the semaphore if it can get all \a n accesses
+  at once.
+*/
+int QSemaphore::operator+=(int n)
+{
+    int ret;
+
+    pthread_mutex_lock( &(d->mutex) );
+
+    while (d->value + n > d->max)
+	pthread_cond_wait( &(d->cond), &(d->mutex) );
+
+    d->value += n;
+
+#ifdef CHECK_RANGE
+    if (d->value > d->max) {
+	qWarning("QSemaphore::operator+=: attempt to allocate more resources than available");
+	d->value = d->max;
     }
-    return (unsigned int)mykey;
+#endif
+
+    ret = d->value;
+
+    pthread_mutex_unlock( &(d->mutex) );
+
+    return ret;
 }
 
-/*!
-  Sets a pointer to some thread data. If the same thread now calls
-  data() it will get this value back, regardless of what calls other
-  threads make to this object.
-*/
 
-void * QThreadData::data()
+/*!
+  Release \n accesses to the semaphore.
+ */
+int QSemaphore::operator-=(int n)
 {
-    return pthread_getspecific( d->mkey );
+    int ret;
+
+    pthread_mutex_lock( &(d->mutex) );
+
+    d->value -= n;
+
+#ifdef CHECK_RANGE
+    if (d->value < 0) {
+	qWarning("QSemaphore::operator-=: attempt to deallocate more resources than taken");
+	d->value = 0;
+    }
+#endif
+
+    ret = d->value;
+
+    pthread_cond_signal( &(d->cond) );
+    pthread_mutex_unlock( &(d->mutex) );
+
+    return ret;
 }
 
+
 /*!
-  Returns the pointer most recently set with setData().
-*/
+  This function returns the number of accesses currently available to
+  the semaphore.
+ */
+int QSemaphore::available() const {
+    int ret;
+
+    pthread_mutex_lock( &(d->mutex) );
+    ret = d->max - d->value;
+    pthread_mutex_unlock( &(d->mutex) );
+
+    return ret;
+}
+
+
+/*!
+  This function returns the total number of accesses to the semaphore.
+ */
+int QSemaphore::total() const {
+    int ret;
+
+    pthread_mutex_lock( &(d->mutex) );
+    ret = d->max;
+    pthread_mutex_unlock( &(d->mutex) );
+
+    return ret;
+}
+
+
+#include "qthread_unix.moc"
 
 #endif

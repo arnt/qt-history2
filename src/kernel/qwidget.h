@@ -7,15 +7,17 @@
 **
 ** Copyright (C) 1992-2000 Troll Tech AS.  All rights reserved.
 **
-** This file is part of the Qt GUI Toolkit.
+** This file is part of the kernel module of the Qt GUI Toolkit.
 **
 ** This file may be distributed under the terms of the Q Public License
 ** as defined by Troll Tech AS of Norway and appearing in the file
 ** LICENSE.QPL included in the packaging of this file.
 **
-** Licensees holding valid Qt Professional Edition licenses may use this
-** file in accordance with the Qt Professional Edition License Agreement
-** provided with the Qt Professional Edition.
+** Licensees holding valid Qt Enterprise Edition or Qt Professional Edition
+** licenses may use this file in accordance with the Qt Commercial License
+** Agreement provided with the Software.  This file is part of the kernel
+** module and therefore may only be used if the kernel module is specified
+** as Licensed on the Licensee's License Certificate.
 **
 ** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 ** information about the Professional Edition licensing, or see
@@ -116,12 +118,12 @@ public:
 
     WId		 winId() const;
     void	 setName( const char *name );
-
+#ifndef QT_NO_STYLE
     // GUI style setting
 
     QStyle     &style() const;
     void        setStyle( QStyle * );
-
+#endif
     // Widget types and states
 
     bool	 isTopLevel()	const;
@@ -342,6 +344,7 @@ public:
     QRect		visibleRect() const;
     bool 		isHidden() const;
     bool		isMinimized() const;
+    bool		isMaximized() const;
 
     virtual QSize	sizeHint() const;
     virtual QSize	minimumSizeHint() const;
@@ -460,7 +463,9 @@ protected:
     // Misc. protected functions
 
 protected:
+#ifndef QT_NO_STYLE
     virtual void styleChange( QStyle& );
+#endif
     virtual void enabledChange( bool );
     virtual void backgroundColorChange( const QColor & );
     virtual void backgroundPixmapChange( const QPixmap & );
@@ -537,6 +542,7 @@ private:
     uint 	 own_palette :1;
     uint 	 sizehint_forced :1;
     uint 	 is_closing :1;
+    uint 	 in_show : 1;
     QPoint	 fpos;
     QRect	 crect;
     QColor	 bg_col;
@@ -848,7 +854,9 @@ struct QWExtra {
     QRegion mask;				// widget mask
 #endif
     char     bg_mode;				// background mode
+#ifndef QT_NO_STYLE
     QStyle* style;
+#endif
     QRect micro_focus_hint;                     // micro focus hint
     QSizePolicy size_policy;
     void * posted_events;			// in qapplication

@@ -1,5 +1,5 @@
 #############################################################################
-# $Id: //depot/qt/main/tests/2000/GNUmakefile#3 $
+# $Id: //depot/qt/main/tests/2000/GNUmakefile#4 $
 #
 # Unix Makefile, requires GNU make (gmake).
 #

@@ -7,15 +7,17 @@
 **
 ** Copyright (C) 1998-2000 Troll Tech AS.  All rights reserved.
 **
-** This file is part of the Qt GUI Toolkit.
+** This file is part of the widgets module of the Qt GUI Toolkit.
 **
 ** This file may be distributed under the terms of the Q Public License
 ** as defined by Troll Tech AS of Norway and appearing in the file
 ** LICENSE.QPL included in the packaging of this file.
 **
-** Licensees holding valid Qt Professional Edition licenses may use this
-** file in accordance with the Qt Professional Edition License Agreement
-** provided with the Qt Professional Edition.
+** Licensees holding valid Qt Enterprise Edition or Qt Professional Edition
+** licenses may use this file in accordance with the Qt Commercial License
+** Agreement provided with the Software.  This file is part of the widgets
+** module and therefore may only be used if the widgets module is specified
+** as Licensed on the Licensee's License Certificate.
 **
 ** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 ** information about the Professional Edition licensing, or see
@@ -66,31 +68,6 @@ QPlatinumStyle::QPlatinumStyle()
 QPlatinumStyle::~QPlatinumStyle()
 {
 }
-
-// /*! \reimp */
-
-// void QPlatinumStyle::polish( QApplication* app)
-// {
-
-//     QColor standardLightGray( 222, 222, 222 );
-//     QColor light( 255, 255, 255 );
-//     QColor dark (98, 101, 98);
-//     QColor mid (139, 137, 139);
-//     QColorGroup nor( black, standardLightGray,
-// 			 light, dark, mid,
-// 			 black, white, white, standardLightGray );
-//     QColorGroup dis( darkGray, standardLightGray,
-// 			 light, dark, mid,
-// 			 darkGray, white, white, nor.background() );
-//     QColorGroup act( black, standardLightGray,
-// 			 light, dark, mid,
-// 			 black, white, white, nor.background() );
-
-//     app->setPalette(QPalette(nor, dis, act), TRUE );
-
-// }
-
-
 
 
 /*! \reimp */
@@ -449,7 +426,7 @@ QPlatinumStyle::drawPushButton( QPushButton* btn, QPainter *p)
     // small or square image buttons as well as toggle buttons are
     // bevel buttons (what a heuristic....)
     if ( btn->isToggleButton()
-	 || ( btn->pixmap() && 
+	 || ( btn->pixmap() &&
 	      (btn->width() * btn->height() < 1600 || QABS( btn->width() - btn->height()) < 10 )) )
 	useBevelButton = TRUE;
     else
@@ -953,20 +930,20 @@ void QPlatinumStyle::drawExclusiveIndicator( QPainter* p,
 				   bool on, bool down, bool /* enabled */ )
 {
     static const QCOORD pts1[] = {		// normal circle
-	5,0, 10,0, 11,1, 12,1, 13,2, 14,3, 14,4, 15,5,
-	15,10, 14,11, 14,12, 13,13, 12,14, 11,14, 10,15,
-	5,15, 4,14, 3,14, 2,13, 1,12, 1,11, 0,10, 0,5,
+	5,0, 8,0, 9,1, 10,1, 11,2, 12,3, 12,4, 13,5,
+	13,8, 12,9, 12,10, 11,11, 10,12, 9,12, 8,13,
+	5,13, 4,12, 3,12, 2,11, 1,10, 1,9, 0,8, 0,5,
 	1,4, 1,3, 2,2, 3,1, 4,1 };
     static const QCOORD pts2[] = {		// top left shadow
-	5,1, 10,1,	3,2, 7,2,  2,3, 5,3,  2,4, 4,4,
-	1,5, 3,5,  1,6, 1,10,  2,6, 2,7 };
+	5,1, 8,1,	3,2, 7,2,  2,3, 5,3,  2,4, 4,4,
+	1,5, 3,5,  1,6, 1,8,  2,6, 2,7 };
     static const QCOORD pts3[] = {		// bottom right, dark
-	5,14, 10,14,  7,13, 12,13,	10,12, 13,12,
-	11,11, 13,11,  12,10, 14,10,  13,8, 13,9,
-	14,5, 14,9 };
+	5,12, 8,12,  7,11, 10,11,	8,10, 11,10,
+	9,9, 11,9,  10,8, 12,8,  11,7, 11,7,
+	12,5, 12,7 };
     static const QCOORD pts4[] = {		// bottom right, light
-	5,14, 10,14,  9,13, 12,13,	11,12, 13,12,
-	12,11, 13,11,  13,9, 13,10,	 14,5, 14,10 };
+	5,12, 8,12,  7,11, 10,11,	9,10, 11,10,
+	10,9, 11,9,  11,7, 11,8,	 12,5, 12,8 };
     static const QCOORD pts5[] = {		// check mark
 	6,4, 8,4, 10,6, 10,8, 8,10, 6,10, 4,8, 4,6 };
     static const QCOORD pts6[] = {		// check mark extras
@@ -975,7 +952,7 @@ void QPlatinumStyle::drawExclusiveIndicator( QPainter* p,
     p->setBrush((down||on) ? g.brush( QColorGroup::Dark )   :
 			     g.brush( QColorGroup::Button ));
     p->setPen(NoPen);
-    p->drawEllipse( x, y, 15, 15);
+    p->drawEllipse( x, y, 13, 13);
     p->setPen( g.shadow() );
     QPointArray a( QCOORDARRLEN(pts1), pts1 );
     a.translate( x, y );
@@ -1005,8 +982,6 @@ void QPlatinumStyle::drawExclusiveIndicator( QPainter* p,
     p->drawLineSegments( a );
     if ( on ) {				// draw check mark
 	int x1=x, y1=y;
-	x1++;
-	y1++;
 	p->setBrush( g.foreground() );
 	p->setPen( g.foreground() );
 	a.setPoints( QCOORDARRLEN(pts5), pts5 );
@@ -1025,7 +1000,7 @@ void QPlatinumStyle::drawExclusiveIndicator( QPainter* p,
 QSize
 QPlatinumStyle::exclusiveIndicatorSize() const
 {
-    return QSize(18,18);
+    return QSize(15,15);
 }
 
 /*! \reimp */

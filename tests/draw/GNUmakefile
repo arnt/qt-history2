@@ -1,5 +1,5 @@
 #############################################################################
-# $Id: //depot/qt/main/tests/draw/GNUmakefile#1 $
+# $Id: //depot/qt/main/tests/draw/GNUmakefile#2 $
 #
 # Unix Makefile, requires GNU make (gmake).
 #

@@ -7,15 +7,17 @@
 **
 ** Copyright (C) 1998-2000 Troll Tech AS.  All rights reserved.
 **
-** This file is part of the Qt GUI Toolkit.
+** This file is part of the widgets module of the Qt GUI Toolkit.
 **
 ** This file may be distributed under the terms of the Q Public License
 ** as defined by Troll Tech AS of Norway and appearing in the file
 ** LICENSE.QPL included in the packaging of this file.
 **
-** Licensees holding valid Qt Professional Edition licenses may use this
-** file in accordance with the Qt Professional Edition License Agreement
-** provided with the Qt Professional Edition.
+** Licensees holding valid Qt Enterprise Edition or Qt Professional Edition
+** licenses may use this file in accordance with the Qt Commercial License
+** Agreement provided with the Software.  This file is part of the widgets
+** module and therefore may only be used if the widgets module is specified
+** as Licensed on the Licensee's License Certificate.
 **
 ** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 ** information about the Professional Edition licensing, or see
@@ -44,8 +46,7 @@
 #define INCLUDE_MENUITEM_DEF
 #include "qmenudata.h" // for now
 // #undef INCLUDE_MENUITEM_DEF
-// #include "qsgistyle.h" // for now
-
+#include "qmotifplusstyle.h" // fo rnow
 
 typedef void (QStyle::*QDrawMenuBarItemImpl) (QPainter *, int, int, int, int, QMenuItem *,
 					      QColorGroup &, bool, bool);
@@ -339,6 +340,149 @@ QRect QStyle::pushButtonContentsRect( QPushButton* btn )
 #endif
 }
 
+
+void QStyle::drawToolBarHandle( QPainter *p, const QRect &r, Qt::Orientation orientation,
+				bool highlight, const QColorGroup &cg,
+				bool drawBorder )
+{
+    p->save();
+    p->translate( r.x(), r.y() );
+
+    if ( guiStyle() == Qt::MotifStyle ) {
+	if (inherits("QMotifPlusStyle")) {
+	    QMotifPlusStyle *mp = (QMotifPlusStyle *) this;
+	    unsigned int i;
+	
+	    if (orientation == Qt::Vertical) {
+		mp->drawButton(p, r.x(), r.y(), r.width(), toolBarHandleExtent(),
+			       cg, FALSE, &cg.brush(((highlight) ?
+						     QColorGroup::Highlight :
+						     QColorGroup::Button)));
+		
+		if (r.width() > 8) {
+		    QPointArray a( 2 * ((r.width()-8)/3) );
+
+		    int x = 3 + (r.width()%3)/2;
+		    p->setPen( cg.dark() );
+		    for( i=0; 2*i < a.size(); i ++ ) {
+			a.setPoint( 2*i, x+1+3*i, 6 );
+			a.setPoint( 2*i+1, x+2+3*i, 3 );
+		    }
+		    p->drawPoints( a );
+		    p->setPen( cg.light() );
+		    for( i=0; 2*i < a.size(); i++ ) {
+			a.setPoint( 2*i, x+3*i, 5 );
+			a.setPoint( 2*i+1, x+1+3*i, 2 );
+		    }
+		    p->drawPoints( a );
+		}
+	    } else {
+		mp->drawButton(p, r.x(), r.y(), toolBarHandleExtent(), r.height(),
+			       cg, FALSE, &cg.brush(((highlight) ?
+						     QColorGroup::Highlight :
+						     QColorGroup::Button)));
+		
+		if ( r.height() > 8 ) {
+		    QPointArray a( 2 * ((r.height()-8)/3) );
+		
+		    int y = 3 + (r.height()%3)/2;
+		    p->setPen( cg.dark() );
+		    for( i=0; 2*i < a.size(); i ++ ) {
+			a.setPoint( 2*i, 5, y+1+3*i );
+			a.setPoint( 2*i+1, 2, y+2+3*i );
+		    }
+		    p->drawPoints( a );
+		    p->setPen( cg.light() );
+		    for( i=0; 2*i < a.size(); i++ ) {
+			a.setPoint( 2*i, 4, y+3*i );
+			a.setPoint( 2*i+1, 1, y+1+3*i );
+		    }
+		    p->drawPoints( a );
+		}
+	    }
+	} else {
+	    QColor dark( cg.dark() );
+	    QColor light( cg.light() );
+	    unsigned int i;
+	    if ( orientation == Qt::Vertical ) {
+		int w = r.width();
+		if ( w > 6 ) {
+		    if ( highlight )
+			p->fillRect( 1, 1, w - 2, 9, cg.highlight() );
+		    QPointArray a( 2 * ((w-6)/3) );
+
+		    int x = 3 + (w%3)/2;
+		    p->setPen( dark );
+		    p->drawLine( 1, 8, w-2, 8 );
+		    for( i=0; 2*i < a.size(); i ++ ) {
+			a.setPoint( 2*i, x+1+3*i, 6 );
+			a.setPoint( 2*i+1, x+2+3*i, 3 );
+		    }
+		    p->drawPoints( a );
+		    p->setPen( light );
+		    p->drawLine( 1, 9, w-2, 9 );
+		    for( i=0; 2*i < a.size(); i++ ) {
+			a.setPoint( 2*i, x+3*i, 5 );
+			a.setPoint( 2*i+1, x+1+3*i, 2 );
+		    }
+		    p->drawPoints( a );
+		    if ( drawBorder ) {
+			p->setPen( QPen( Qt::darkGray ) );
+			p->drawLine( r.width() - 1, 0,
+				     r.width() - 1, toolBarHandleExtent() );
+		    }
+		}
+	    } else {
+		int h = r.height();
+		if ( h > 6 ) {
+		    if ( highlight )
+			p->fillRect( 1, 1, 8, h - 2, cg.highlight() );
+		    QPointArray a( 2 * ((h-6)/3) );
+		    int y = 3 + (h%3)/2;
+		    p->setPen( dark );
+		    p->drawLine( 8, 1, 8, h-2 );
+		    for( i=0; 2*i < a.size(); i ++ ) {
+			a.setPoint( 2*i, 5, y+1+3*i );
+			a.setPoint( 2*i+1, 2, y+2+3*i );
+		    }
+		    p->drawPoints( a );
+		    p->setPen( light );
+		    p->drawLine( 9, 1, 9, h-2 );
+		    for( i=0; 2*i < a.size(); i++ ) {
+			a.setPoint( 2*i, 4, y+3*i );
+			a.setPoint( 2*i+1, 1, y+1+3*i );
+		    }
+		    p->drawPoints( a );
+		    if ( drawBorder ) {
+			p->setPen( QPen( Qt::darkGray ) );
+			p->drawLine( 0, r.height() - 1,
+				     toolBarHandleExtent(), r.height() - 1 );
+		    }
+		}
+	    }
+	}
+    } else {
+	if ( orientation == Qt::Vertical ) {
+	    if ( r.width() > 4 ) {
+		qDrawShadePanel( p, 2, 4, r.width() - 4, 3,
+				 cg, highlight, 1, 0 );
+		qDrawShadePanel( p, 2, 7, r.width() - 4, 3,
+				 cg, highlight, 1, 0 );
+	    }
+	} else {
+	    if ( r.height() > 4 ) {
+		qDrawShadePanel( p, 4, 2, 3, r.height() - 4,
+				 cg, highlight, 1, 0 );
+		qDrawShadePanel( p, 7, 2, 3, r.height() - 4,
+				 cg, highlight, 1, 0 );
+	    }
+	}
+    }
+
+    p->restore();
+}
+
+
 void QStyle::drawToolButton( QToolButton* btn, QPainter *p)
 {
 #ifndef QT_NO_COMPLEXWIDGETS
@@ -356,27 +500,42 @@ void QStyle::drawToolButton( QToolButton* btn, QPainter *p)
     if ( guiStyle() == WindowsStyle && btn->isOn() )
 	fill = QBrush( g.light(), Dense4Pattern );
 #if defined(_WS_WIN_)
-    // WIN2000 is really tricky here!
-    bool drawRect = btn->isOn();
-    if ( guiStyle() == WindowsStyle && btn->isOn() &&
-	 ( QApplication::winVersion() == Qt::WV_2000 || QApplication::winVersion() == Qt::WV_98 ) &&
-	 btn->uses3D() ) {
-	fill = btn->colorGroup().brush( QColorGroup::Button );
-	drawRect = FALSE;
-    }
-    if ( guiStyle() == WindowsStyle &&
-	 ( QApplication::winVersion() == Qt::WV_2000 || QApplication::winVersion() == Qt::WV_98 ) &&
-	 btn->autoRaise() ) {
-	drawPanel( p, x, y, w, h, g, sunken, 1, &fill );
-	if ( drawRect ) {
-	    p->setPen( QPen( g.color( QColorGroup::Button ) ) );
-	    p->drawRect( x + 1, y + 1, w - 2, h - 2 );
+    if ( btn->uses3D() || btn->isDown() || ( btn->isOn() && !btn->son ) ) {
+	// WIN2000 is really tricky here!
+	bool drawRect = btn->isOn();
+	if ( guiStyle() == WindowsStyle && btn->isOn() &&
+	     ( QApplication::winVersion() == Qt::WV_2000 || QApplication::winVersion() == Qt::WV_98 ) &&
+	     btn->uses3D() ) {
+	    fill = btn->colorGroup().brush( QColorGroup::Button );
+	    drawRect = FALSE;
 	}
-    } else {
-	drawToolButton( p, x, y, w, h, g, sunken, &fill );
+	if ( guiStyle() == WindowsStyle &&
+	     ( QApplication::winVersion() == Qt::WV_2000 || QApplication::winVersion() == Qt::WV_98 ) &&
+	     btn->autoRaise() ) {
+	    drawPanel( p, x, y, w, h, g, sunken, 1, &fill );
+	    if ( drawRect ) {
+		p->setPen( QPen( g.color( QColorGroup::Button ) ) );
+		p->drawRect( x + 1, y + 1, w - 2, h - 2 );
+	    }
+	} else {
+	    drawToolButton( p, x, y, w, h, g, sunken, &fill );
+	}
+    } else if ( btn->parentWidget() && btn->parentWidget()->backgroundPixmap() &&
+		!btn->parentWidget()->backgroundPixmap()->isNull() ) {
+ 	p->drawTiledPixmap( 0, 0, btn->width(), btn->height(),
+			    *btn->parentWidget()->backgroundPixmap(),
+			    btn->x(), btn->y() );
     }
 #else
-    drawToolButton( p, x, y, w, h, g, sunken, &fill );
+    if ( btn->uses3D() || btn->isDown() || ( btn->isOn() && !btn->son ) )
+	drawToolButton( p, x, y, w, h, g, sunken, &fill );
+    else if ( btn->parentWidget() && btn->parentWidget()->backgroundPixmap() &&
+	      !btn->parentWidget()->backgroundPixmap()->isNull() )
+ 	p->drawTiledPixmap( 0, 0, btn->width(), btn->height(),
+			    *btn->parentWidget()->backgroundPixmap(),
+			    btn->x(), btn->y() );
+    else
+	drawToolButton( p, x - 2, y - 2, w + 4, h + 4, g, sunken, &fill );
 #endif
 #endif
 }

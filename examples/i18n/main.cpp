@@ -113,15 +113,15 @@ int main( int argc, char** argv )
         lang = argv[1];
 
     if ( argc != 2 || lang == "all" ) {
+	QVDialog dlg(0,0,TRUE);
 	QCheckBox* qmb[sizeof(qm)/sizeof(qm[0])];
 	int r;
 	if ( lang == "all" ) {
 	    r = 2;
 	} else {
-	    QVDialog dlg(0,0,TRUE);
-	    QButtonGroup bg(4,Qt::Vertical,"Choose Locales",&dlg);
+	    QButtonGroup *bg = new QButtonGroup(4,Qt::Vertical,"Choose Locales",&dlg);
 	    for ( int i=0; qm[i]; i++ )
-		qmb[i] = new QCheckBox(qm[i],&bg);
+		qmb[i] = new QCheckBox(qm[i],bg);
 	    dlg.addButtons("Cancel","OK","All");
 	    r = dlg.exec();
 	}

@@ -215,7 +215,9 @@ void ApplicationWindow::print()
     if ( printer->setup(this) ) {		// printer dialog
 	statusBar()->message( "Printing..." );
 	QPainter p;
-	p.begin( printer );			// paint on printer
+	if( !p.begin( printer ) )
+	    return;				// paint on printer
+
 	p.setFont( e->font() );
 	int yPos	= 0;			// y position for each line
 	QFontMetrics fm = p.fontMetrics();

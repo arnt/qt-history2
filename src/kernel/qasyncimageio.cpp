@@ -5,17 +5,19 @@
 **
 ** Created : 970617
 **
-** Copyright (C) 1992-2000 Troll Tech AS.  All rights reserved.
+** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
 **
-** This file is part of the Qt GUI Toolkit.
+** This file is part of the kernel module of the Qt GUI Toolkit.
 **
 ** This file may be distributed under the terms of the Q Public License
-** as defined by Troll Tech AS of Norway and appearing in the file
+** as defined by Trolltech AS of Norway and appearing in the file
 ** LICENSE.QPL included in the packaging of this file.
 **
-** Licensees holding valid Qt Professional Edition licenses may use this
-** file in accordance with the Qt Professional Edition License Agreement
-** provided with the Qt Professional Edition.
+** Licensees holding valid Qt Enterprise Edition or Qt Professional Edition
+** licenses may use this file in accordance with the Qt Commercial License
+** Agreement provided with the Software.  This file is part of the kernel
+** module and therefore may only be used if the kernel module is specified
+** as Licensed on the Licensee's License Certificate.
 **
 ** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 ** information about the Professional Edition licensing, or see
@@ -361,7 +363,7 @@ int QImageDecoder::decode(const uchar* buffer, int length)
 
 /*!
   Returns a QImageFormatType by name. This might be used in cases where
-  the user needs to force data to be interpretted as being in a certain
+  the user needs to force data to be interpreted as being in a certain
   format.  \a name is one of the formats listed by
   QImageDecoder::inputFormats(). Note that you will still need to supply
   decodable data to result->decoderFor() before you can begin decoding
@@ -659,7 +661,7 @@ void QGIFFormat::disposePrevious( QImage& img, QImageConsumer* consumer )
       case RestoreBackground:
 	preserve_trans = FALSE;
 	if (trans>=0) {
-	    // Easy:  we use the transparent colour
+	    // Easy:  we use the transparent color
 	    fillRect(img, l, t, r-l+1, b-t+1, trans);
 	} else if (bgcol>=0) {
 	    // Easy:  we use the bgcol given
@@ -701,7 +703,7 @@ int QGIFFormat::decode(QImage& img, QImageConsumer* consumer,
     //    CompuServe Incorporated. GIF(sm) is a Service Mark property of
     //    CompuServe Incorporated."
 
-    #define LM(l, m) (((m)<<8)|l)
+#define LM(l, m) (((m)<<8)|l)
     digress = FALSE;
     int initial = length;
     uchar** line = img.jumpTable();
@@ -1118,7 +1120,7 @@ int QGIFFormat::decode(QImage& img, QImageConsumer* consumer,
 			}
 		    }
 		    trans = newtrans;
-		    if (trans >= 0) {
+		    if (trans >= 0 && trans < gncols) {
 			if (globalcmap)
 			    globalcmap[trans]&=0x00ffffff;
 		    }

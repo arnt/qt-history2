@@ -1,5 +1,5 @@
 #############################################################################
-# $Id: //depot/qt/main/tests/examples/tutorial/t12/GNUmakefile#1 $
+# $Id: //depot/qt/main/tests/examples/tutorial/t12/GNUmakefile#2 $
 #
 # Unix Makefile, requires GNU make (gmake).
 #

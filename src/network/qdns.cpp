@@ -7,15 +7,17 @@
 **
 ** Copyright (C) 1992-2000 Troll Tech AS.  All rights reserved.
 **
-** This file is part of the Qt GUI Toolkit.
+** This file is part of the network module of the Qt GUI Toolkit.
 **
 ** This file may be distributed under the terms of the Q Public License
 ** as defined by Troll Tech AS of Norway and appearing in the file
 ** LICENSE.QPL included in the packaging of this file.
 **
-** Licensees holding valid Qt Professional Edition licenses may use this
-** file in accordance with the Qt Professional Edition License Agreement
-** provided with the Qt Professional Edition.
+** Licensees holding valid Qt Enterprise Edition or Qt Professional Edition
+** licenses may use this file in accordance with the Qt Commercial License
+** Agreement provided with the Software.  This file is part of the network
+** module and therefore may only be used if the network module is specified
+** as Licensed on the Licensee's License Certificate.
 **
 ** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 ** information about the Professional Edition licensing, or see
@@ -175,7 +177,7 @@ public:
     bool ok;
 
 private:
-    QDnsQuery * q;
+    QDnsQuery * query;
 
     Q_UINT8 * answer;
     int size;
@@ -219,13 +221,13 @@ QDnsRR::~QDnsRR()
 
 
 // this one just sticks in a NXDomain
-QDnsAnswer::QDnsAnswer( QDnsQuery * query )
+QDnsAnswer::QDnsAnswer( QDnsQuery * query_ )
 {
     ok = TRUE;
 
     answer = 0;
     size = 0;
-    q = query;
+    query = query_;
     pp = 0;
     rrs = new QList<QDnsRR>;
     rrs->setAutoDelete( FALSE );
@@ -234,13 +236,13 @@ QDnsAnswer::QDnsAnswer( QDnsQuery * query )
     label = QString::null;
     rr = 0;
 
-    QDnsRR * rr = new QDnsRR( q->l );
-    rr->t = q->t;
-    rr->deleteTime = q->started + 10;
-    rr->expireTime = q->started + 10;
-    rr->nxdomain = TRUE;
-    rr->current = TRUE;
-    rrs->append( rr );
+    QDnsRR * newrr = new QDnsRR( query->l );
+    newrr->t = query->t;
+    newrr->deleteTime = query->started + 10;
+    newrr->expireTime = query->started + 10;
+    newrr->nxdomain = TRUE;
+    newrr->current = TRUE;
+    rrs->append( newrr );
 };
 
 
@@ -251,7 +253,7 @@ QDnsAnswer::QDnsAnswer( const QByteArray& answer_,
 
     answer = (Q_UINT8 *)(answer_.data());
     size = (int)answer_.size();
-    q = query_;
+    query = query_;
     pp = 0;
     rrs = new QList<QDnsRR>;
     rrs->setAutoDelete( FALSE );
@@ -266,10 +268,10 @@ QDnsAnswer::~QDnsAnswer()
 {
     if ( !ok && rrs ) {
 	QListIterator<QDnsRR> it( *rrs );
-	QDnsRR * rr;
-	while( (rr=it.current()) != 0 ) {
+	QDnsRR * tmprr;
+	while( (tmprr=it.current()) != 0 ) {
 	    ++it;
-	    rr->t = QDns::None; // will be deleted soonish
+	    tmprr->t = QDns::None; // will be deleted soonish
 	}
     }
 }
@@ -313,6 +315,9 @@ QString QDnsAnswer::readString()
 	    break;
 	}
     }
+#if defined(Q_SPURIOUS_NON_VOID_WARNING)
+    return QString::null;
+#endif
 }
 
 
@@ -527,13 +532,13 @@ void QDnsAnswer::parse()
 
     if ( (answer[3] & 0x0f) == 3 ) {
 #if defined(DEBUG_QDNS)
-	qDebug( "DNS Manager: saw NXDomain for %s", q->l.ascii() );
+	qDebug( "DNS Manager: saw NXDomain for %s", query->l.ascii() );
 #endif
 	// NXDomain.  cache that for one minute.
-	rr = new QDnsRR( q->l );
-	rr->t = q->t;
-	rr->deleteTime = q->started + 60;
-	rr->expireTime = q->started + 60;
+	rr = new QDnsRR( query->l );
+	rr->t = query->t;
+	rr->deleteTime = query->started + 60;
+	rr->expireTime = query->started + 60;
 	rr->nxdomain = TRUE;
 	rr->current = TRUE;
 	rrs->append( rr );
@@ -557,7 +562,7 @@ void QDnsAnswer::parse()
 
     // read query
     while( qdcount > 0 && pp < size ) {
-	// should I compare the string against q->l?
+	// should I compare the string against query->l?
 	(void)readString();
 	if ( !ok )
 	    return;
@@ -640,7 +645,7 @@ void QDnsAnswer::parse()
 	    }
 	    if ( rr ) {
 		rr->deleteTime = 0;
-		rr->expireTime = q->started + ttl;
+		rr->expireTime = query->started + ttl;
 		if ( rrno < ancount ) {
 		    answers++;
 		    rr->deleteTime = rr->expireTime;
@@ -672,7 +677,7 @@ void QDnsAnswer::parse()
 	if ( rr->target.length() && rr->deleteTime > 0 && rr->current )
 	    used.insert( rr->target, (void*)42 );
 	if ( ( rr->t == QDns::A || rr->t == QDns::Aaaa ) &&
-	     used.find( rr->domain->name() ) )
+	     used.find( rr->domain->name() ) != 0 )
 	    rr->deleteTime = rr->expireTime;
     }
 
@@ -686,7 +691,7 @@ void QDnsAnswer::parse()
 	    QDnsRR * older;
 	    while( (older=drrs->current()) != 0 ) {
 		if ( older != rr &&
-		     older->t == rr->t && 
+		     older->t == rr->t &&
 		     older->nxdomain == rr->nxdomain &&
 		     older->address == rr->address &&
 		     older->target == rr->target &&
@@ -728,19 +733,19 @@ public:
 
 void QDnsAnswer::notify()
 {
-    if ( !rrs || !ok || !q || !q->dns )
+    if ( !rrs || !ok || !query || !query->dns )
 	return;
 
     QPtrDict<void> notified;
     notified.setAutoDelete( FALSE );
 
-    QPtrDictIterator<void> it( *q->dns );
+    QPtrDictIterator<void> it( *query->dns );
     QDns * dns;
     it.toFirst();
     while( (dns=(QDns*)(it.current())) != 0 ) {
 	++it;
 	if ( notified.find( (void*)dns ) == 0 &&
-	     q->dns->find( (void*)dns ) != 0 ) {
+	     query->dns->find( (void*)dns ) != 0 ) {
 	    notified.insert( (void*)dns, (void*)42 );
 	    if ( rrs->count() == 0 ) {
 #if defined(DEBUG_QDNS)
@@ -753,14 +758,14 @@ void QDnsAnswer::notify()
 		bool found = FALSE;
 		while( i-- > 0 && !found )
 		    // ######## O(n*n)!! should use iterator!
-		    if ( n[i] == q->l )
+		    if ( n[i] == query->l )
 			found = TRUE;
 		if ( found )
 		    ((QDnsUgleHack*)dns)->ugle();
 #if defined(DEBUG_QDNS)
 		else
 		    qDebug( "DNS Manager: DNS thing %s not notified for %s",
-			    dns->label().ascii(), q->l.ascii() );
+			    dns->label().ascii(), query->l.ascii() );
 #endif
 	    }
 	}
@@ -991,9 +996,9 @@ void QDnsManager::answer()
 };
 
 
-void QDnsManager::transmitQuery( QDnsQuery * query )
+void QDnsManager::transmitQuery( QDnsQuery * query_ )
 {
-    if ( !query )
+    if ( !query_ )
 	return;
 
     uint i = 0;
@@ -1001,7 +1006,7 @@ void QDnsManager::transmitQuery( QDnsQuery * query )
 	i++;
     if ( i == queries.size() )
 	queries.resize( i+1 );
-    queries.insert( i, query );
+    queries.insert( i, query_ );
     transmitQuery( i );
 }
 
@@ -1412,7 +1417,7 @@ void QDnsSocket::answer()
 
   \brief The QDns class provides asynchronous DNS lookups.
 
-  \extension Network
+  \module network
 
   Both Windows and UNIX provides synchronous DNS lookups; Windows
   provides some asynchronous support too.  Neither OS provides
@@ -1441,6 +1446,8 @@ void QDnsSocket::answer()
   end up using (the exact meaning of that depends on the record type)
   and qualifiedNames() returns a list of the fully qualified names
   label() maps to.
+
+  \sa QSocket
 */
 
 /*!
@@ -1770,7 +1777,7 @@ QValueList<QHostAddress> QDns::addresses() const
 }
 
 
-// ### the \fn in the docu is not nice but qdoc wants it...
+// ### the \fn in the documentation is not nice but qdoc wants it...
 /*!
   \fn QValueList<MailServer> QDns::mailServers() const
 
@@ -1805,7 +1812,7 @@ QValueList<QDns::MailServer> QDns::mailServers() const
 }
 
 
-// ### the \fn in the docu is not nice but qdoc wants it...
+// ### the \fn in the documentation is not nice but qdoc wants it...
 /*!
   \fn QValueList<Server> QDns::servers() const
 
@@ -1934,9 +1941,18 @@ QString QDns::canonicalName() const
 // struct __res_state is part of the api.  normally not used, it says.
 // but we use it, to get various information.
 
+#include <sys/types.h>
 #include <netinet/in.h>
+#if defined (_OS_SCO_) // SCO OpenServer 5.0.5
+# define class c_class
+#endif
 #include <arpa/nameser.h>
+#if defined (_OS_SCO_)
+# undef class
+#endif
 #include <resolv.h>
+
+extern "C" int res_init();
 
 // if various defines aren't there, we'll set them safely.
 
@@ -2001,7 +2017,7 @@ static void doResInit()
 		QString hostname = line.left( n );
 		// ### in case of bad syntax, hostname is invalid. do we care?
 		if ( n ) {
-		    QDnsRR * rr = new QDnsRR( line.left( n ) );
+		    QDnsRR * rr = new QDnsRR( hostname );
 		    rr->t = QDns::A;
 		    rr->address = a;
 		    rr->deleteTime = UINT_MAX;
@@ -2018,7 +2034,7 @@ static void doResInit()
 				      ( a.ip4Addr() >>24 ) & 0xff );
 			QDnsRR * ptr = new QDnsRR( arpa );
 			ptr->t = QDns::Ptr;
-			ptr->target = line.left( n );
+			ptr->target = hostname;
 			ptr->deleteTime = UINT_MAX;
 			ptr->expireTime = UINT_MAX;
 			ptr->current = TRUE;
@@ -2032,6 +2048,34 @@ static void doResInit()
 #elif defined(_OS_WIN32_)
 
 #include <windows.h>
+
+// the following typedefs are needed for GetNetworkParams() API call
+#ifndef IP_TYPES_INCLUDED
+#define MAX_HOSTNAME_LEN    128
+#define MAX_DOMAIN_NAME_LEN 128
+#define MAX_SCOPE_ID_LEN    256
+typedef struct {
+    char String[4 * 4];
+} IP_ADDRESS_STRING, *PIP_ADDRESS_STRING, IP_MASK_STRING, *PIP_MASK_STRING;
+typedef struct _IP_ADDR_STRING {
+    struct _IP_ADDR_STRING* Next;
+    IP_ADDRESS_STRING IpAddress;
+    IP_MASK_STRING IpMask;
+    DWORD Context;
+} IP_ADDR_STRING, *PIP_ADDR_STRING;
+typedef struct {
+    char HostName[MAX_HOSTNAME_LEN + 4] ;
+    char DomainName[MAX_DOMAIN_NAME_LEN + 4];
+    PIP_ADDR_STRING CurrentDnsServer;
+    IP_ADDR_STRING DnsServerList;
+    UINT NodeType;
+    char ScopeId[MAX_SCOPE_ID_LEN + 4];
+    UINT EnableRouting;
+    UINT EnableProxy;
+    UINT EnableDns;
+} FIXED_INFO, *PFIXED_INFO;
+#endif
+typedef DWORD (WINAPI *GNP)( PFIXED_INFO, PULONG );
 
 //
 // We need to get information about DNS etc. from the Windows
@@ -2059,6 +2103,8 @@ static QString getWindowsRegString( HKEY key, const char *subKey )
 
 static void doResInit()
 {
+    char separator;
+
     if ( ns )
 	return;
     ns = new QList<QHostAddress>;
@@ -2067,26 +2113,80 @@ static void doResInit()
     domains->setAutoDelete( TRUE );
 
     QString domainName, nameServer, searchList;
-    HKEY k;
-    int r = RegOpenKeyExA( HKEY_LOCAL_MACHINE,
-			   "System\\CurrentControlSet\\Services\\Tcpip\\"
-			   "Parameters",
-			   0, KEY_READ, &k );
-    if ( r == ERROR_SUCCESS ) {
-	domainName = getWindowsRegString( k, "Domain" );
-	nameServer = getWindowsRegString( k, "NameServer" );
-	searchList = getWindowsRegString( k, "SearchList" );
-    } else {
-	// Could not access the TCP/IP parameters
-	nameServer = "127.0.0.1";
+    HKEY k1, k2;
+
+    bool gotNetworkParams = FALSE;
+    if ( QApplication::winVersion() == Qt::WV_98 ||
+	 QApplication::winVersion() == Qt::WV_2000 ) {
+	// for 98 and 2000 try the API call GetNetworkParams()
+	HINSTANCE hinstLib = LoadLibrary( LPCTSTR("iphlpapi") );
+	if ( hinstLib != 0 ) {
+	    GNP getNetworkParams = (GNP) GetProcAddress( hinstLib, "GetNetworkParams" );
+	    if ( getNetworkParams != 0 ) {
+		ULONG l = 0;
+		getNetworkParams( 0, &l );
+		FIXED_INFO *finfo = (FIXED_INFO*)new char[l];
+		DWORD res = (getNetworkParams)( finfo, &l );
+		if ( res == ERROR_SUCCESS ) {
+		    domainName = finfo->DomainName;
+		    nameServer = "";
+		    IP_ADDR_STRING *dnsServer = &finfo->DnsServerList;
+		    while ( dnsServer != 0 ) {
+			nameServer += dnsServer->IpAddress.String;
+			dnsServer = dnsServer->Next;
+			if ( dnsServer != 0 )
+			    nameServer += " ";
+		    }
+		    searchList = "";
+		    separator = ' ';
+		    gotNetworkParams = TRUE;
+		}
+		delete[] finfo;
+	    }
+	    FreeLibrary( hinstLib );
+	}
+	if ( !gotNetworkParams )
+	    qWarning( "QDns: call GetNetworkParams() was unsuccessful!" );
     }
-    RegCloseKey( k );
+    if ( !gotNetworkParams ) {
+	// this is for NT
+	int r = RegOpenKeyExA( HKEY_LOCAL_MACHINE,
+			       "System\\CurrentControlSet\\Services\\Tcpip\\"
+			       "Parameters",
+			       0, KEY_READ, &k1 );
+	if ( r == ERROR_SUCCESS ) {
+	    domainName = getWindowsRegString( k1, "Domain" );
+	    nameServer = getWindowsRegString( k1, "NameServer" );
+	    searchList = getWindowsRegString( k1, "SearchList" );
+	    separator = ' ';
+	} else {
+	    // this is for 95/98
+	    int r = RegOpenKeyExA( HKEY_LOCAL_MACHINE,
+				   "System\\CurrentControlSet\\Services\\VxD\\"
+				   "MSTCP",
+				   0, KEY_READ, &k2 );
+	    if ( r == ERROR_SUCCESS ) {
+		domainName = getWindowsRegString( k2, "Domain" );
+		nameServer = getWindowsRegString( k2, "NameServer" );
+		searchList = getWindowsRegString( k2, "SearchList" );
+		separator = ',';
+	    } else {
+		// Could not access the TCP/IP parameters
+		domainName = "";
+		nameServer = "127.0.0.1";
+		searchList = "";
+		separator = ' ';
+	    }
+	    RegCloseKey( k2 );
+	}
+	RegCloseKey( k1 );
+    }
 
     nameServer = nameServer.simplifyWhiteSpace();
     int first, last;
     first = 0;
     do {
-	last = nameServer.find( ' ', first );
+	last = nameServer.find( separator, first );
 	if ( last < 0 )
 	    last = nameServer.length();
 	QDns tmp( nameServer.mid( first, last-first ), QDns::A );
@@ -2101,7 +2201,7 @@ static void doResInit()
     searchList = searchList.simplifyWhiteSpace().lower();
     first = 0;
     do {
-	last = searchList.find( ' ', first );
+	last = searchList.find( separator, first );
 	if ( last < 0 )
 	    last = searchList.length();
 	domains->append( qstrdup( searchList.mid( first, last-first ) ) );

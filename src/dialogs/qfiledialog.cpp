@@ -7,15 +7,17 @@
 **
 ** Copyright (C) 1992-2000 Troll Tech AS.  All rights reserved.
 **
-** This file is part of the Qt GUI Toolkit.
+** This file is part of the dialogs module of the Qt GUI Toolkit.
 **
 ** This file may be distributed under the terms of the Q Public License
 ** as defined by Troll Tech AS of Norway and appearing in the file
 ** LICENSE.QPL included in the packaging of this file.
 **
-** Licensees holding valid Qt Professional Edition licenses may use this
-** file in accordance with the Qt Professional Edition License Agreement
-** provided with the Qt Professional Edition.
+** Licensees holding valid Qt Enterprise Edition or Qt Professional Edition
+** licenses may use this file in accordance with the Qt Commercial License
+** Agreement provided with the Software.  This file is part of the dialogs
+** module and therefore may only be used if the dialogs module is specified
+** as Licensed on the Licensee's License Certificate.
 **
 ** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 ** information about the Professional Edition licensing, or see
@@ -433,6 +435,11 @@ static QPixmap * previewContentsViewIcon = 0;
 static QPixmap * previewInfoViewIcon = 0;
 static QPixmap *goBackIcon = 0;
 static QSize *lastSize = 0;
+
+static bool isDirectoryMode( int m )
+{
+    return m == QFileDialog::Directory || m == QFileDialog::DirectoryOnly;
+}
 
 static void cleanup() {
     delete openFolderIcon;
@@ -1899,7 +1906,7 @@ static QStringList makeFiltersList( const QString &filter )
 // NOT REVISED
 /*!
   \class QFileDialog qfiledialog.h
-  \brief The QFileDialog provides a dialog widget for inputting file names.
+  \brief The QFileDialog class provides a dialog widget for inputting file names.
   \ingroup dialogs
 
   This class implements a dialog which can be used if the user should select
@@ -1956,6 +1963,7 @@ static QStringList makeFiltersList( const QString &filter )
   <li> \c AnyFile - Return the name of any file, whether existing or not.
   <li> \c ExistingFile - Return the name of a single, existing, file.
   <li> \c Directory - Return the name of a directory.
+  <li> \c DirectoryOnly - Return the name of a directory and display no files in the file views of the filedialog.
   <li> \c ExistingFiles - Return the names of zero or more existing files.
   </ul>
 */
@@ -2417,12 +2425,12 @@ void QFileDialog::init()
 
 void QFileDialog::fileNameEditReturnPressed()
 {
-    if ( d->mode != Directory ) {
+    if ( !isDirectoryMode( d->mode ) ) {
 	okClicked();
     } else {
 	d->currentFileName = QString::null;
 	if ( nameEdit->text().isEmpty() ) {
-	    emit fileSelected( d->currentFileName );
+	    emit fileSelected( selectedFile() );
 	    accept();
 	} else {
 	    QUrlInfo f;
@@ -2507,8 +2515,12 @@ QString QFileDialog::selectedFile() const
 {
     QString res;
     QUrl u( d->currentFileName );
-    if ( u.isLocalFile() )
-	return u.path();
+    if ( u.isLocalFile() ) {
+	QString s = u.toString();
+	if ( s.left( 5 ) == "file:" )
+	    s.remove( 0, 5 );
+	return s;
+    }
     return d->currentFileName;
 }
 
@@ -2808,7 +2820,7 @@ void qt_leave_modal( QWidget* );
 
   Only files matching \a filter are selectable.	 If \a filter is QString::null,
   all files are selectable. In the filter string multiple filters can be specified
-  seperated by either two semicolons next to each other or seperated by newlines. To add
+  separated by either two semicolons next to each other or separated by newlines. To add
   two filters, one to show all C++ files and one to show all header files, the filter
   string could look like "C++ Files (*.cpp *.cc *.C *.cxx *.c++);;Header Files (*.h *.hxx *.h++)"
 
@@ -2918,7 +2930,7 @@ QString QFileDialog::getOpenFileName( const QString & startWith,
 
   Only files matching \a filter are selectable.	 If \a filter is QString::null,
   all files are selectable. In the filter string multiple filters can be specified
-  seperated by either two semicolons next to each other or seperated by newlines. To add
+  separated by either two semicolons next to each other or separated by newlines. To add
   two filters, one to show all C++ files and one to show all header files, the filter
   string could look like "C++ Files (*.cpp *.cc *.C *.cxx *.c++);;Header Files (*.h *.hxx *.h++)"
 
@@ -3030,7 +3042,7 @@ void QFileDialog::okClicked()
     detailViewMode = files->isVisible();
     *lastSize = size();
 
-    if ( d->mode == Directory ) {
+    if ( isDirectoryMode( d->mode ) ) {
 	if ( d->ignoreReturn ) {
 	    d->ignoreReturn = FALSE;
 	    return;
@@ -3062,7 +3074,7 @@ void QFileDialog::okClicked()
     // If selection is valid, return it, else try
     // using selection as a directory to change to.
     if ( !d->currentFileName.isNull() && !d->currentFileName.contains( "*" ) ) {
-	emit fileSelected( d->currentFileName );
+	emit fileSelected( selectedFile() );
 	accept();
     } else {
 	QUrlInfo f;
@@ -3167,7 +3179,7 @@ bool QFileDialog::trySetSelection( bool isDir, const QUrlOperator &u, bool updat
 
     QString old = d->currentFileName;
 
-    if ( mode() == Directory ) {
+    if ( isDirectoryMode( mode() ) ) {
 	if ( isDir )
 	    d->currentFileName = u;
 	else
@@ -3198,12 +3210,12 @@ bool QFileDialog::trySetSelection( bool isDir, const QUrlOperator &u, bool updat
 	    QString okt = mode() == AnyFile ? tr("Save") : tr("OK");
 	    okB->setText( okt );
 	}
-    } else if ( d->mode != Directory ) {
+    } else if ( !isDirectoryMode( d->mode ) ) {
 	okB->setEnabled( FALSE );
     }
 
     if ( d->currentFileName.length() && old != d->currentFileName )
-	emit fileHighlighted( d->currentFileName );
+	emit fileHighlighted( selectedFile() );
 
     return !d->currentFileName.isNull();
 }
@@ -3415,21 +3427,21 @@ void QFileDialog::selectDirectoryOrFile( QListViewItem * newItem )
     QString oldName = nameEdit->text();
     if ( i->info.isDir() ) {
 	setUrl( QUrlOperator( d->url, i->info.name() + "/" ) );
-	if ( mode() == Directory ) {
+	if ( isDirectoryMode( mode() ) ) {
 	    QUrlInfo f ( d->url, QString::fromLatin1( "." ) );
 	    trySetSelection( f.isDir(), d->url, TRUE );
 	}
     } else if ( newItem->isSelectable() &&
 		trySetSelection( i->info.isDir(), QUrlOperator( d->url, i->info.name() ), TRUE ) ) {
-	if ( mode() != Directory ) {
-	    emit fileSelected( d->currentFileName );
+	if ( !isDirectoryMode( mode() ) ) {
+	    emit fileSelected( selectedFile() );
 	    accept();
 	}
-    } else if ( d->mode == Directory ) {
+    } else if ( isDirectoryMode( d->mode ) ) {
 	d->currentFileName = d->url;
 	accept();
     }
-    if ( !oldName.isEmpty() && mode() != Directory )
+    if ( !oldName.isEmpty() && !isDirectoryMode( mode() ) )
 	nameEdit->setText( oldName );
 }
 
@@ -3722,12 +3734,17 @@ void QFileDialog::createdDirectory( const QUrlInfo &info, QNetworkOperation * )
 
   If \a dir is null, getExistingDirectory() starts wherever the
   previous file dialog left off.
+
+  \a caption specifies the caption of the dialog, if this is empty a
+  default caption will be used. If \a dirOnly if TRUE no files will be
+  displayed in the file view widgets.
 */
 
 QString QFileDialog::getExistingDirectory( const QString & dir,
 					   QWidget *parent,
 					   const char* name,
-					   const QString& caption )
+					   const QString& caption,
+					   bool dirOnly )
 {
     makeVariables();
     QString wd;
@@ -3739,7 +3756,7 @@ QString QFileDialog::getExistingDirectory( const QString & dir,
     else
 	dialog->setCaption( QFileDialog::tr("Find Directory") );
 
-    dialog->setMode( Directory );
+    dialog->setMode( dirOnly ? DirectoryOnly : Directory );
 
     dialog->d->types->clear();
     dialog->d->types->insertItem( QFileDialog::tr("Directories") );
@@ -3758,7 +3775,8 @@ QString QFileDialog::getExistingDirectory( const QString & dir,
 		wd = dir_;
 	    }
 	} else if ( !wd.isEmpty() ) {
-	    QFileInfo f( QUrl( wd ).path() );
+	    QUrl tempUrl( wd );
+	    QFileInfo f( tempUrl.path() );
 	    if ( f.isDir() ) {
 		dialog->setDir( wd );
 	    }
@@ -3767,7 +3785,8 @@ QString QFileDialog::getExistingDirectory( const QString & dir,
 	    if ( theDir.isEmpty() ) {
 		theDir = QDir::currentDirPath();
 	    } if ( !theDir.isEmpty() ) {
-		QFileInfo f( QUrl( theDir ).path() );
+		QUrl tempUrl( theDir );
+		QFileInfo f( tempUrl.path() );
 		if ( f.isDir() ) {
 		    wd = theDir;
 		    dialog->setDir( theDir );
@@ -3802,6 +3821,16 @@ QString QFileDialog::getExistingDirectory( const QString & dir,
     return getExistingDirectory( dir, parent, name, QString::null );
 }
 
+/*!\overload
+ */
+QString QFileDialog::getExistingDirectory( const QString & dir,
+					   QWidget *parent,
+					   const char* name,
+					   const QString &caption )
+{
+    return getExistingDirectory( dir, parent, name, caption, FALSE );
+}
+
 /*!  Sets this file dialog to \a newMode, which can be one of \c
   Directory (directories are accepted), \c ExistingFile (existing
   files are accepted), \c AnyFile (any valid file name is accepted)
@@ -3816,7 +3845,7 @@ void QFileDialog::setMode( Mode newMode )
     if ( d->mode != newMode ) {
 	d->mode = newMode;
 	QString sel = d->currentFileName;
-	if ( newMode == Directory ) {
+	if ( isDirectoryMode( newMode ) ) {
 	    files->setMultiSelection( FALSE );
 	    d->moreFiles->setMultiSelection( FALSE );
 	    if ( sel.isNull() )
@@ -3852,9 +3881,9 @@ QFileDialog::Mode QFileDialog::mode() const
 void QFileDialog::done( int i )
 {
     if ( i == QDialog::Accepted && (d->mode == ExistingFile || d->mode == ExistingFiles) ) {
-	QStringList files = selectedFiles();
-	for ( uint f = 0; f < files.count(); f++ ) {
-	    QString file = files[f];
+	QStringList selection = selectedFiles();
+	for ( uint f = 0; f < selection.count(); f++ ) {
+	    QString file = selection[f];
 	    if ( file.isNull() )
 		continue;
 	    if ( d->url.isLocalFile() && !QFile::exists( file ) ) {
@@ -4612,7 +4641,7 @@ void QFileDialog::modeButtonsDestroyed()
 
   \a filter is the default glob pattern (which the user can change).
   The default is all files. In the filter string multiple filters can be specified
-  seperated by either two semicolons next to each other or seperated by newlines. To add
+  separated by either two semicolons next to each other or separated by newlines. To add
   two filters, one to show all C++ files and one to show all header files, the filter
   string could look like "C++ Files (*.cpp *.cc *.C *.cxx *.c++);;Header Files (*.h *.hxx *.h++)"
 
@@ -4795,7 +4824,7 @@ void QFileDialog::urlFinished( QNetworkOperation *op )
     if ( !op )
 	return;
 
-    if ( op && op->state() == QNetworkProtocol::StFailed ) {
+    if ( op->state() == QNetworkProtocol::StFailed ) {
 	if ( d->paths->hasFocus() )
 	    d->ignoreNextKeyPress = TRUE;
 
@@ -4903,6 +4932,8 @@ void QFileDialog::insertEntry( const QValueList<QUrlInfo> &lst, QNetworkOperatio
     QValueList<QUrlInfo>::ConstIterator it = lst.begin();
     for ( ; it != lst.end(); ++it ) {
 	const QUrlInfo &inf = *it;
+	if ( d->mode == DirectoryOnly && !inf.isDir() )
+	    continue;
 	if ( inf.name() == ".." ) {
 	    d->hadDotDot = TRUE;
 	    if ( isRoot( d->url ) )
@@ -4928,7 +4959,7 @@ void QFileDialog::insertEntry( const QValueList<QUrlInfo> &lst, QNetworkOperatio
 	    i2 = new QFileDialogPrivate::MCItem( d->moreFiles, i );
 
 	    if ( ( d->mode == ExistingFiles && inf.isDir() ) ||
-		 d->mode == Directory ) {
+		 isDirectoryMode( d->mode ) ) {
 		i->setSelectable( FALSE );
 		i2->setSelectable( FALSE );
 	    }
@@ -5175,7 +5206,7 @@ void QFileDialog::resortDir()
 	item->i = item2;
 	d->pendingItems.append( item );
 	if ( d->mode == ExistingFiles && item->info.isDir() ||
-	     d->mode == Directory ) {
+	     isDirectoryMode( d->mode ) ) {
 	    item->setSelectable( FALSE );
 	    item2->setSelectable( FALSE );
 	}

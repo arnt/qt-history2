@@ -7,15 +7,17 @@
 **
 ** Copyright (C) 1992-2000 Troll Tech AS.  All rights reserved.
 **
-** This file is part of the Qt GUI Toolkit.
+** This file is part of the kernel module of the Qt GUI Toolkit.
 **
 ** This file may be distributed under the terms of the Q Public License
 ** as defined by Troll Tech AS of Norway and appearing in the file
 ** LICENSE.QPL included in the packaging of this file.
 **
-** Licensees holding valid Qt Professional Edition licenses may use this
-** file in accordance with the Qt Professional Edition License Agreement
-** provided with the Qt Professional Edition.
+** Licensees holding valid Qt Enterprise Edition or Qt Professional Edition
+** licenses may use this file in accordance with the Qt Commercial License
+** Agreement provided with the Software.  This file is part of the kernel
+** module and therefore may only be used if the kernel module is specified
+** as Licensed on the Licensee's License Certificate.
 **
 ** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 ** information about the Professional Edition licensing, or see
@@ -295,8 +297,8 @@ static void remove_tree( QObject* obj )
   If the object is a widget, it will become a top-level window.
 
   The object name is a text that can be used to identify this QObject.
-  It's particularly useful in conjunction with the Qt Designer. See \l
-  http://www.trolltech.com/designer/ for more information about that.
+  It's particularly useful in conjunction with
+    <a href=designer.html>the Qt Designer</a>.
   You can find an object by name (and type) using child(), and more
   than one using queryList().
 
@@ -1092,7 +1094,7 @@ void QObject::removeChild( QObject *obj )
 	obj->parentObj = 0;
 	if ( !obj->wasDeleted ) {
 	    insert_tree( obj );			// it's a root object now
-	    isTree = TRUE;
+	    obj->isTree = TRUE;
 	}
 	if ( childObjects->isEmpty() ) {
 	    delete childObjects;		// last child removed
@@ -1383,10 +1385,11 @@ bool QObject::checkConnectArgs( const char    *signal,
 }
 
 /*!
-  Removes unused whitespaces from the signal or slot definition \a signalSlot.
+  Normlizes the signal or slot definition \a signalSlot by removing
+  unnecessary whitespaces.
 */
 
-QCString QObject::cleanArguments( const char *signalSlot )
+QCString QObject::normalizeSignalSlot( const char *signalSlot )
 {
     return  qt_rmWS( signalSlot );
 }
@@ -1908,6 +1911,7 @@ QMetaObject* QObject::staticMetaObject()
     props_tbl[0].enumData = 0;
     props_tbl[0].gspec = QMetaProperty::ConstCharStar;
     props_tbl[0].sspec = QMetaProperty::ConstCharStar;
+    props_tbl[0].setFlags(QMetaProperty::StdSet);
     QMetaEnum* enum_tbl = QMetaObject::new_metaenum( 3 );
     enum_tbl[0].name = "Alignment";
     enum_tbl[0].count = 8;

@@ -7,15 +7,17 @@
 **
 ** Copyright (C) 1992-2000 Troll Tech AS.  All rights reserved.
 **
-** This file is part of the Qt GUI Toolkit.
+** This file is part of the kernel module of the Qt GUI Toolkit.
 **
 ** This file may be distributed under the terms of the Q Public License
 ** as defined by Troll Tech AS of Norway and appearing in the file
 ** LICENSE.QPL included in the packaging of this file.
 **
-** Licensees holding valid Qt Professional Edition licenses may use this
-** file in accordance with the Qt Professional Edition License Agreement
-** provided with the Qt Professional Edition.
+** Licensees holding valid Qt Enterprise Edition or Qt Professional Edition
+** licenses may use this file in accordance with the Qt Commercial License
+** Agreement provided with the Software.  This file is part of the kernel
+** module and therefore may only be used if the kernel module is specified
+** as Licensed on the Licensee's License Certificate.
 **
 ** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 ** information about the Professional Edition licensing, or see
@@ -29,6 +31,7 @@
 #include "qfontinfo.h"
 #include "qwidget.h"
 #include "qpainter.h"
+#include "qpainter_p.h"
 #include "qmap.h"
 #include "qstrlist.h"
 #include "qdatastream.h"
@@ -208,7 +211,7 @@ void QFont::init()
     CHECK_PTR( d );
     d->req.pointSize     = 0;
     d->req.styleHint     = AnyStyle;
-    d->req.styleStrategie= PreferDefault;
+    d->req.styleStrategy = PreferDefault;
     d->req.charSet       = defaultCharSet;
     d->req.weight        = 0;
     d->req.italic        = FALSE;
@@ -695,9 +698,9 @@ void QFont::setFixedPitch( bool enable )
   \sa setStyleHint()
 */
 
-QFont::StyleStrategie QFont::styleStrategie() const
+QFont::StyleStrategy QFont::styleStrategy() const
 {
-    return (StyleStrategie)d->req.styleStrategie;
+    return (StyleStrategy)d->req.styleStrategy;
 }
 
 /*!
@@ -726,15 +729,15 @@ QFont::StyleHint QFont::styleHint() const
 */
 
 /*!
-  \enum QFont::StyleStrategie
+  \enum QFont::StyleStrategy
 
-  The style strategie tells the font matching algorithm what type
+  The style strategy tells the font matching algorithm what type
   of fonts should be used to find an appropriate default family.
 
   The algorithm won't prefer any type of font if \c NoStratgie is
   provided.
 
-  The other available strategies are \c QFont::PreferBitmap, \c
+  The other available strategys are \c QFont::PreferBitmap, \c
   QFont::PreferDevice, \c QFont::PreferOutline, \c QFont::ForceOutline
 
   Any of these may be ORed with a indicator whether exact matching or
@@ -744,13 +747,13 @@ QFont::StyleHint QFont::styleHint() const
 */
 
 /*!
-  Sets the style hint and strategie.
+  Sets the style hint and strategy.
 
   The style hint has a default value of \c AnyStyle which leaves the
   task of finding a good default family to the font matching
   algorithm.
 
-  The style strategie has a default value of \c PreferDefault which tells
+  The style strategy has a default value of \c PreferDefault which tells
   the algorithm not to prefer any type of font.
   Right now, the X version only supports bitmap fonts.
 
@@ -776,15 +779,15 @@ QFont::StyleHint QFont::styleHint() const
     }
   \endcode
 
-  \sa QFont::StyleHint, styleHint(), QFont::StyleStrategie, styleStrategie(), QFontInfo
+  \sa QFont::StyleHint, styleHint(), QFont::StyleStrategy, styleStrategy(), QFontInfo
 */
 
-void QFont::setStyleHint( StyleHint hint, StyleStrategie strategie )
+void QFont::setStyleHint( StyleHint hint, StyleStrategy strategy )
 {
     if ( (StyleHint)d->req.styleHint != hint ) {
         detach();
         d->req.styleHint        = hint;
-        d->req.styleStrategie   = strategie;
+        d->req.styleStrategy    = strategy;
         d->req.hintSetByUser    = TRUE;
         d->req.dirty            = TRUE;
     }
@@ -1030,6 +1033,24 @@ QString QFont::encodingName( CharSet cs )
     case QFont::Unicode:
         result = "iso10646";
         break;
+    case JIS_X_0201:
+	result = "jisx0201";
+        break;
+    case JIS_X_0208:
+	result = "jisx0208";
+        break;
+    case KSC_5601:
+	result = "ksc5601";
+        break;
+    case GB_2312:
+	result = "gb2312";
+        break;
+    case Big5:
+	result = "big5";
+        break;
+    case QFont::TSCII:
+	result = "TSCII";
+	break;
     }
     return result;
 }
@@ -1222,6 +1243,8 @@ static Q_UINT8 get_font_bits( const QFontDef &f )
     return bits;
 }
 
+
+#ifndef QT_NO_DATASTREAM
 /*
   Internal function. Sets boolean font settings (except dirty)
   from an unsigned 8-bit number. Used for serialization etc.
@@ -1236,7 +1259,7 @@ static void set_font_bits( Q_UINT8 bits, QFontDef *f )
     f->hintSetByUser = (bits & 0x10) != 0;
     f->rawMode       = (bits & 0x20) != 0;
 }
-
+#endif
 
 /* NOT USED
 static void hex2( uchar n, char *s )

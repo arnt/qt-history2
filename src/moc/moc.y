@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/moc/moc.y#186 $
+** $Id: //depot/qt/main/src/moc/moc.y#187 $
 **
 ** Parser and code generator for meta object compiler
 **
@@ -153,6 +153,13 @@ struct Property
     enum Specification  { Unspecified, Class, Reference, Pointer, ConstCharStar };
     Specification sspec;
     Specification gspec;
+
+    bool stdSet () {
+	QCString s = "set";
+	s += toupper( name[0] );
+	s +=name.mid(1);
+	return s ==set;
+    }
 
     static const char* specToString( Specification s )
     {
@@ -2361,22 +2368,24 @@ int generateProps()
 		    enumpos = k;
 	    }
 
+	    QCString flags;
+	
 	    // Is it an enum of this class ?
 	    if ( enumpos != -1 )
 		fprintf( out, "    props_tbl[%d].enumData = &enum_tbl[%i];\n", entry, enumpos );
 	    // Is it an unknown enum that needs to be resolved ?
 	    else if (!isPropertyType( it.current()->type ) ) {
 		if ( it.current()->oredEnum == 1 )
-		    fprintf( out, "    props_tbl[%d].setFlags(QMetaProperty::UnresolvedSet);\n", entry );
+		    flags += "QMetaProperty::UnresolvedSet|";
 		else if ( it.current()->oredEnum == 0 )
-		    fprintf( out, "    props_tbl[%d].setFlags(QMetaProperty::UnresolvedEnum);\n", entry );
+		    flags += "QMetaProperty::UnresolvedEnum|";
 		else
-		    fprintf( out, "    props_tbl[%d].setFlags(QMetaProperty::UnresolvedEnumOrSet);\n", entry );
+		    flags +="QMetaProperty::UnresolvedEnumOrSet|";
 	    }
 
 	    // Handle STORED
 	    if ( it.current()->stored == "false" )
-		fprintf( out, "    props_tbl[%d].setFlags(QMetaProperty::NotStored);\n", entry );
+		flags +="QMetaProperty::NotStored|";
 	    else if ( !it.current()->stored.isEmpty() && it.current()->stored != "true" )
 	    {
 		fprintf( out, "    typedef bool(%s::*s3_t%d)()const;\n", (const char*)className, count );
@@ -2388,17 +2397,26 @@ int generateProps()
 
 	    // OVERRIDE but no STORED ?
 	    if ( it.current()->override && it.current()->stored.isEmpty() )
-		fprintf( out, "    props_tbl[%d].setFlags(QMetaProperty::UnresolvedStored);\n", entry );
+		flags += "QMetaProperty::UnresolvedStored|";
 
 	    // Handle DESIGNABLE
 	    if ( it.current()->designable == 0 )
-		fprintf( out, "    props_tbl[%d].setFlags(QMetaProperty::NotDesignable);\n", entry );
+		flags += "QMetaProperty::NotDesignable|";
 	    // else { Default is TRUE -> do nothing }
 
 	    // OVERRIDE but no DESIGNABLE ?
 	    if ( it.current()->override && it.current()->designable == -1 )
-		fprintf( out, "    props_tbl[%d].setFlags(QMetaProperty::UnresolvedDesignable);\n", entry );
-
+		flags += "QMetaProperty::UnresolvedDesignable|";
+	
+	    if ( it.current()->stdSet() )
+		flags += "QMetaProperty::StdSet|";
+	
+	    if (!flags.isEmpty() ) {
+		if ( flags[ (int) flags.length() - 1] == '|' )
+		    flags.remove( flags.length()-1, 1);
+		fprintf( out, "    props_tbl[%d].setFlags(%s);\n", entry, flags.data() );
+	    }
+	
 	    ++entry;
 	    count += 3;
 	}
@@ -2435,7 +2453,7 @@ void generateClass()		      // generate C++ source code for a class
     char *hdr1 = "/****************************************************************************\n"
 		 "** %s meta object code from reading C++ file '%s'\n**\n";
     char *hdr2 = "** Created: %s\n"
-		 "**      by: The Qt MOC ($Id: //depot/qt/main/src/moc/moc.y#186 $)\n**\n";
+		 "**      by: The Qt MOC ($Id: //depot/qt/main/src/moc/moc.y#187 $)\n**\n";
     char *hdr3 = "** WARNING! All changes made in this file will be lost!\n";
     char *hdr4 = "*****************************************************************************/\n\n";
     int   i;
@@ -2528,11 +2546,11 @@ void generateClass()		      // generate C++ source code for a class
     fprintf( out, "#ifndef QT_NO_TRANSLATION\n\n" );
     fprintf( out, "QString %s::tr(const char* s)\n{\n",
 	     (const char*)qualifiedClassName() );
-    fprintf( out, "    return ((QNonBaseApplication*)qApp)->translate"
+    fprintf( out, "    return qApp->translate"
 	     "( \"%s\", s, 0 );\n}\n\n", (const char*)qualifiedClassName() );
     fprintf( out, "QString %s::tr(const char* s, const char * c)\n{\n",
 	     (const char*)qualifiedClassName() );
-    fprintf( out, "    return ((QNonBaseApplication*)qApp)->translate"
+    fprintf( out, "    return qApp->translate"
 	     "( \"%s\", s, c );\n}\n\n", (const char*)qualifiedClassName() );
     fprintf( out, "#endif // QT_NO_TRANSLATION\n\n" );
 

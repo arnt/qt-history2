@@ -7,15 +7,17 @@
 **
 ** Copyright (C) 1992-2000 Troll Tech AS.  All rights reserved.
 **
-** This file is part of the Qt GUI Toolkit.
+** This file is part of the kernel module of the Qt GUI Toolkit.
 **
 ** This file may be distributed under the terms of the Q Public License
 ** as defined by Troll Tech AS of Norway and appearing in the file
 ** LICENSE.QPL included in the packaging of this file.
 **
-** Licensees holding valid Qt Professional Edition licenses may use this
-** file in accordance with the Qt Professional Edition License Agreement
-** provided with the Qt Professional Edition.
+** Licensees holding valid Qt Enterprise Edition or Qt Professional Edition
+** licenses may use this file in accordance with the Qt Commercial License
+** Agreement provided with the Software.  This file is part of the kernel
+** module and therefore may only be used if the kernel module is specified
+** as Licensed on the Licensee's License Certificate.
 **
 ** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 ** information about the Professional Edition licensing, or see
@@ -234,16 +236,16 @@ QIconSet::QIconSet( const QIconSet& other )
 	d->ref();
 }
 
-/*!  Creates an iconset which uses the pixmap \a small for for
-  displaying small a small icon, and \a large for displaying a large
+/*!  Creates an iconset which uses the pixmap \a smallPix for for
+  displaying small a small icon, and \a largePix for displaying a large
   one.
 */
 
-QIconSet::QIconSet( const QPixmap &small, const QPixmap &large )
+QIconSet::QIconSet( const QPixmap &smallPix, const QPixmap &largePix )
 {
     d = 0;
-    reset( small, Small );
-    reset( large, Large );
+    reset( smallPix, Small );
+    reset( largePix, Large );
 }
 
 /*!
@@ -333,27 +335,39 @@ void QIconSet::setPixmap( const QPixmap & pm, Size size, Mode mode )
     if ( size == Large || (size == Automatic && pm.width() > 22)) {
 	switch( mode ) {
 	case Active:
-	    d->largeActive.pm = new QPixmap( pm );
+	    if ( !d->largeActive.pm )
+		d->largeActive.pm = new QPixmap();
+	    *d->largeActive.pm = pm;
 	    break;
 	case Disabled:
-	    d->largeDisabled.pm = new QPixmap( pm );
+	    if ( !d->largeDisabled.pm )
+		d->largeDisabled.pm = new QPixmap();
+	    *d->largeDisabled.pm = pm;
 	    break;
 	case Normal:
 	default:
-	    d->large.pm = new QPixmap( pm );
+	    if ( !d->large.pm )
+		d->large.pm = new QPixmap();
+	    *d->large.pm = pm;
 	    break;
 	}
     } else if ( size == Small  || (size == Automatic && pm.width() <= 22)) {
 	switch( mode ) {
 	case Active:
-	    d->smallActive.pm = new QPixmap( pm );
+	    if ( !d->smallActive.pm )
+		d->smallActive.pm = new QPixmap();
+	    *d->smallActive.pm = pm;
 	    break;
 	case Disabled:
-	    d->smallDisabled.pm = new QPixmap( pm );
+	    if ( !d->smallDisabled.pm )
+		d->smallDisabled.pm = new QPixmap();
+	    *d->smallDisabled.pm = pm;
 	    break;
 	case Normal:
 	default:
-	    d->small.pm = new QPixmap( pm );
+	    if ( !d->small.pm )
+		d->small.pm = new QPixmap();
+	    *d->small.pm = pm;
 	    break;
 	}
 #if defined(CHECK_RANGE)

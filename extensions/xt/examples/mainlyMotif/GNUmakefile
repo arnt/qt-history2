@@ -1,5 +1,5 @@
 #############################################################################
-# $Id: //depot/qt/main/extensions/xt/examples/mainlyMotif/GNUmakefile#1 $
+# $Id: //depot/qt/main/extensions/xt/examples/mainlyMotif/GNUmakefile#2 $
 #
 # Unix Makefile, requires GNU make (gmake).
 #

@@ -1,0 +1,82 @@
+/****************************************************************************
+** $Id: modules.doc,v 2.45 1999/10/05 12:12:08 arnt Exp $
+**
+** Documentation to some of the modules
+**
+** Copyright (C) 2000 Troll Tech AS.  All rights reserved.
+**
+** This file is part of the Qt GUI Toolkit.
+**
+** This file may be distributed under the terms of the Q Public License
+** as defined by Troll Tech AS of Norway and appearing in the file
+** LICENSE.QPL included in the packaging of this file.
+**
+** Licensees holding valid Qt Professional Edition licenses may use this
+** file in accordance with the Qt Professional Edition License Agreement
+** provided with the Qt Professional Edition.
+**
+** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
+** information about the Professional Edition licensing, or see
+** http://www.trolltech.com/qpl/ for QPL licensing information.
+**
+*****************************************************************************/
+
+/*! \page iconview.html
+
+\title Qt IconView Module
+
+The icon view module provides a powerful visualization widget dubbed
+\l QIconView. API and feature-wise it is similar to \l QListView and
+\l QListBox. It contains optinally labelled pixmap items that the user
+can select, drag around, rename, delete and more.
+
+<center><a href="qiconview.html"><img src="qiconview-w.png" alt="Screenshot of QIconVIew"></a></center>
+
+Please see the \link qiconview.html class documentation \endlink for
+details.
+*/
+
+/*! \page table.html
+
+\title Qt Table Module
+
+The table module provides a  flexible and editable table widget dubbed \l QTable.
+
+<center><a href="qtable.html"><img src="qtable.png" alt="Screenshot of QTable"></a></center>
+
+QTable is the abstract widget of choice whenever you need to present
+spreadsheet data to the user or let the user edit such data.
+
+Please see the \link qtable.html class documentation \endlink for
+details.
+*/
+
+/*! \page canvas.html
+
+\title Qt Canvas Module
+
+The canvas module provides a highly optimized 2D graphic area called \l QCanvas.
+Upon the canvas, you place \link QCanvasItem QCanvasItems \endlink and view
+the canvas with 1 or more \link QCanvasView QCanvasViews \endlink, which are
+QWidgets.
+
+<center><a href="qcanvas.html"><img src="qcanvas.png" alt="Screenshot
+of QCanvas"></a></center>
+
+QCanvas features fast redrawing, animation, collision detection and
+more.
+Please see the documentation of the above classes for details.
+*/
+
+/*! \page workspace.html
+
+\title Qt Workspace Module
+
+The workspace module provides a workspace window that can contain
+decorated document windows for Multi Document Interfaces (MDI).
+
+It is implemented in a single class \l QWorkspace.
+
+Please see the \link qworkspace.html class documentation \endlink for
+details.
+*/

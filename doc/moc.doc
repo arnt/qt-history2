@@ -158,7 +158,7 @@ automate the running of the moc. By adding some rules to the Makefile
 of your program, <var>make</var> can take care of running moc when
 necessary and handling the moc output.
 
-<p>We recommend using Troll Tech's free makefile generation tool
+<p>We recommend using Trolltech's free makefile generation tool
 <var>tmake</var> for building your Makefiles. This tool recognizes
 both Method A and B style source files, and generates a Makefile that
 does all necessary moc handling. tmake is available from <a

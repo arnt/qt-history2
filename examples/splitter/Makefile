@@ -1,5 +1,5 @@
 #############################################################################
-# $Id: //depot/qt/main/examples/splitter/Makefile#3 $
+# $Id: //depot/qt/main/examples/splitter/Makefile#4 $
 #
 # Win32 Makefile, requires Microsoft nmake.
 #

@@ -1,0 +1,204 @@
+/****************************************************************************
+** $Id: xml.doc,v 2.45 1999/10/05 12:12:08 arnt Exp $
+**
+** Documentation on the xml module
+**
+** Copyright (C) 2000 Troll Tech AS.  All rights reserved.
+**
+** This file is part of the Qt GUI Toolkit.
+**
+** This file may be distributed under the terms of the Q Public License
+** as defined by Troll Tech AS of Norway and appearing in the file
+** LICENSE.QPL included in the packaging of this file.
+**
+** Licensees holding valid Qt Professional Edition licenses may use this
+** file in accordance with the Qt Professional Edition License Agreement
+** provided with the Qt Professional Edition.
+**
+** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
+** information about the Professional Edition licensing, or see
+** http://www.trolltech.com/qpl/ for QPL licensing information.
+**
+*****************************************************************************/
+
+/*! \page XML.html
+
+\title Qt XML Module
+
+The XML module provides a well-formed XML parser with SAX2 (Simple API for
+XML) interface plus an implementation of the DOM Level 1 (Document Object
+Model).
+
+This document assumes that you are familiar with the XML terminology. It
+provides you with information how to use the XML classes in Qt. For basic
+information on XML you should look at another place
+(e.g. <a href="http://www.w3.org/XML/">http://www.w3.org/XML/</a>).
+
+
+
+
+
+
+<h2><a name="overview">Overview of the XML architecture in Qt</h2>
+
+The Qt XML Module provides two interfaces for XML: SAX2 and DOM Level 1.
+
+SAX2 is a very popular Java interface for XML parsers. It was also adopted
+for other languages. The interface in Qt is designed after the Java
+interface. The naming was adjusted to fit the Qt naming conventions.
+Details on SAX2 can be found at
+<a href="http://www.megginson.com/SAX/">http://www.megginson.com/SAX/</a>.
+
+Support for SAX2 filters and the reader factory are missing at the moment.
+Furthermore all classes that are in the Java interface for SAX1
+compatibility are omitted.
+
+DOM Level 1 is a W3C Recommendation for XML interfaces. Details and the
+specification of DOM Level 1 can be found at
+<a href="http://www.w3.org/DOM/">http://www.w3.org/DOM/</a>.
+
+See also the file
+"<a href="XML-SAX.html">How to use the Qt SAX2 classes</a>"
+for a description of the usage of SAX2.
+
+
+
+
+
+
+<h2><a name="introSAX2">Introduction to SAX2</h2>
+
+The SAX2 interface is a event-driven mechanism to provide the user with
+document information. "Event" in this context has nothing to do with the
+term "event" you probably know from windowing systems; it means that the
+parser reports certain document information while he parses the document.
+These reported information is referred to as "event".
+
+The parser in SAX2 is normally referred to as "reader". There is an
+abstract class, \l QXmlReader, which defines the interface for all readers.
+At the moment Qt provides one implementation of a reader, \l
+QXmlSimpleReader.
+
+The SAX2 interface gives you a serial access to the information in the
+document; i.e. the reader will parse the document serially and he will
+report the parsing events as soon as he finds the information in the
+document.
+
+The reader reports parsing events through special handler classes. The user
+has to install a certain handler class if he wants to get informed about
+parsing events. The following handler classes are available:
+<ul>
+<li>\l QXmlContentHandler
+    reports events related to the content of a document (e.g. a start tag,
+    characters, etc.)
+<li>\l QXmlDTDHandler
+    reports events related to the DTD (e.g. a notation declaration)
+<li>\l QXmlErrorHandler
+    reports errors or warnings that occurred during parsing
+<li>\l QXmlEntityResolver
+    reports external entities during parsing and allows the user to resolve
+    external entities himself instead of letting the reader to try it.
+<li>\l QXmlDeclHandler
+    reports more DTD related events (e.g. an attribute declaration, etc.).
+    There might be rare occasions you are intrested in these.
+<li>\l QXmlLexicalHandler
+    reports events related to the lexical structure of the document (e.g.
+    the beginning of the DTD, comments, etc.) There might be rare occasions
+    you are intrested in these.
+</ul>
+
+These classes are all abstract classes describing the interface. SAX2
+provides a default implementation of all these handler classes (\l
+QXmlDefaultHandler). So a user has only to implement the functions he is
+really intrested in. The default implementation is "do nothing".
+
+The input XML data is read through a special class, \l QXmlInputSource.
+
+There are some more classes for SAX2 support:
+<ul>
+<li> \l QXmlAttributes
+     is used to pass attributes in a start element event.
+<li> \l QXmlLocator
+     is used to get the actual parsing position of an event.
+<li> \l QXmlNamespaceSupport
+     is used to easily implement namespace support for a reader.
+</ul>
+
+For a more detailed description of the usage see the document
+"<a href="XML-SAX.html">How to use the Qt SAX2 classes</a>".
+
+
+
+
+
+
+<h2><a name="introDOM">Introduction to DOM</h2>
+
+DOM provides an interface to access and change the content and structore of
+an XML file. DOM gives a hierarchical view of the document (tree). All
+nodes in this tree are subclasses of \l QDomNode.
+
+The following table lists all node classes and the node classes that can be
+children of them:
+<table>
+<tr>
+    <th align="left">Node type</th>
+    <th align="left">Possible children</th>
+</tr>
+<tr>
+    <td>\l QDomDocument </td>
+    <td>\l QDomElement (maximum of one), \l QDomProcessingInstruction,
+	\l QDomComment, \l QDomDocumentType </td>
+</tr>
+<tr>
+    <td>\l QDomDocumentFragment </td>
+    <td>\l QDomElement, \l QDomProcessingInstruction, \l QDomComment,
+	\l QDomText, \l QDomCDATASection, \l QDomEntityReference </td>
+</tr>
+<tr><td>\l QDomDocumentType </td>
+    <td>no children </td>
+</tr>
+<tr><td>\l QDomEntityReference </td>
+    <td>\l QDomElement, \l QDomProcessingInstruction, \l QDomComment,
+	\l QDomText, \l QDomCDATASection, \l QDomEntityReference </td>
+</tr>
+<tr><td>\l QDomElement </td>
+    <td>\l QDomElement, \l QDomText, \l QDomComment,
+	\l QDomProcessingInstruction, \l QDomCDATASection,
+	\l QDomEntityReference </td>
+</tr>
+<tr><td>\l QDomAttr </td>
+    <td>\l QDomText, \l QDomEntityReference </td>
+</tr>
+<tr><td>\l QDomProcessingInstruction </td>
+    <td>no children </td>
+</tr>
+<tr><td>\l QDomComment </td>
+    <td>no children </td>
+</tr>
+<tr><td>\l QDomText </td>
+    <td>no children </td>
+</tr>
+<tr><td>\l QDomCDATASection </td>
+    <td>no children </td>
+</tr>
+<tr><td>\l QDomEntity </td>
+    <td>\l QDomElement, \l QDomProcessingInstruction, \l QDomComment,
+	\l QDomText, \l QDomCDATASection, \l QDomEntityReference </td>
+</tr>
+<tr><td>\l QDomNotation </td>
+    <td>no children </td>
+</tr>
+</table>
+
+There are also two collection classes: \l QDomNodeList is a list of nodes
+and \l QDomNamedNodeMap is used to handle unordered sets of nodes
+(especially used for attributes).
+
+The class \l QDomImplementation allows to query features of the
+DOM implementation.
+
+For getting started and for a description of the basic usage, take a look
+at the documentation of \l QDomDocument.
+
+*/

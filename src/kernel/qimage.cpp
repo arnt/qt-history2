@@ -7,15 +7,17 @@
 **
 ** Copyright (C) 1992-2000 Troll Tech AS.  All rights reserved.
 **
-** This file is part of the Qt GUI Toolkit.
+** This file is part of the kernel module of the Qt GUI Toolkit.
 **
 ** This file may be distributed under the terms of the Q Public License
 ** as defined by Troll Tech AS of Norway and appearing in the file
 ** LICENSE.QPL included in the packaging of this file.
 **
-** Licensees holding valid Qt Professional Edition licenses may use this
-** file in accordance with the Qt Professional Edition License Agreement
-** provided with the Qt Professional Edition.
+** Licensees holding valid Qt Enterprise Edition or Qt Professional Edition
+** licenses may use this file in accordance with the Qt Commercial License
+** Agreement provided with the Software.  This file is part of the kernel
+** module and therefore may only be used if the kernel module is specified
+** as Licensed on the Licensee's License Certificate.
 **
 ** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 ** information about the Professional Edition licensing, or see
@@ -30,8 +32,6 @@
 #include "qtextstream.h"
 #include "qbuffer.h"
 #include "qlist.h"
-#include "qdict.h"
-#include "qintdict.h"
 #include "qasyncimageio.h"
 #include "qpngio.h"
 #include "qmngio.h"
@@ -3733,7 +3733,8 @@ bool read_dib( QDataStream& s, int offset, int startpos, QImage& image )
     if ( d->atEnd() )				// end of stream/file
 	return FALSE;
 #if 0
-    //debug( "bfOffBits........%d", bf.bfOffBits );
+    qDebug( "offset...........%d", offset );
+    qDebug( "startpos.........%d", startpos );
     qDebug( "biSize...........%d", bi.biSize );
     qDebug( "biWidth..........%d", bi.biWidth );
     qDebug( "biHeight.........%d", bi.biHeight );
@@ -3793,7 +3794,8 @@ bool read_dib( QDataStream& s, int offset, int startpos, QImage& image )
 	}
     }
 
-    if (offset>=0)
+    // offset can be bogus, be careful
+    if (offset>=0 && startpos + offset > d->at() )
 	d->at( startpos + offset );		// start of image data
 
     int	     bpl = image.bytesPerLine();
@@ -3815,6 +3817,7 @@ bool read_dib( QDataStream& s, int offset, int startpos, QImage& image )
 	if ( comp == BMP_RLE4 ) {		// run length compression
 	    int x=0, y=0, b, c, i;
 	    register uchar *p = line[h-1];
+	    uchar *endp = line[h-1]+w;
 	    while ( y < h ) {
 		if ( (b=d->getch()) == EOF )
 		    break;
@@ -3832,9 +3835,20 @@ bool read_dib( QDataStream& s, int offset, int startpos, QImage& image )
 			case 2:			// delta (jump)
 			    x += d->getch();
 			    y += d->getch();
+
+			    // Protection
+			    if ( (uint)x >= (uint)w )
+				x = w-1;
+			    if ( (uint)y >= (uint)h )
+				y = h-1;
+
 			    p = line[h-y-1] + x;
 			    break;
 			default:		// absolute mode
+			    // Protection
+			    if ( p + b > endp )
+				b = endp-p;
+
 			    i = (c = b)/2;
 			    while ( i-- ) {
 				b = d->getch();
@@ -3848,6 +3862,10 @@ bool read_dib( QDataStream& s, int offset, int startpos, QImage& image )
 			    x += c;
 		    }
 		} else {			// encoded mode
+		    // Protection
+		    if ( p + b > endp )
+			b = endp-p;
+
 		    i = (c = b)/2;
 		    b = d->getch();		// 2 pixels to be repeated
 		    while ( i-- ) {
@@ -4686,9 +4704,7 @@ static void read_xpm_image_or_array( QImageIO * iio, const char ** source,
 	image.create( w, h, 8, ncols );
     }
 
-    QDict<void> colorMap( 569, TRUE );
-    colorMap.setAutoDelete( FALSE );
-
+    QMap<QString, int> colorMap;
     int currentColor;
 
     for( currentColor=0; currentColor < ncols; ++currentColor ) {
@@ -4727,19 +4743,19 @@ static void read_xpm_image_or_array( QImageIO * iio, const char ** source,
 	    if ( image.depth() == 8 ) {
 		image.setColor( transparentColor,
 				RGB_MASK & qRgb(198,198,198) );
-		colorMap.insert( index, (void*)(transparentColor+1) );
+		colorMap.insert( index, transparentColor );
 	    } else {
 		QRgb rgb = RGB_MASK & qRgb(198,198,198);
-		colorMap.insert( index, (void*)(rgb+1) );
+		colorMap.insert( index, rgb );
 	    }
 	} else {
 	    QColor c( buf.data() );
 	    if ( image.depth() == 8 ) {
 		image.setColor( currentColor, 0xff000000 | c.rgb() );
-		colorMap.insert( index, (void*)(currentColor+1) );
+		colorMap.insert( index, currentColor );
 	    } else {
 		QRgb rgb = 0xff000000 | c.rgb();
-		colorMap.insert( index, (void*)(rgb+1) );
+		colorMap.insert( index, rgb );
 	    }
 	}
     }
@@ -4762,14 +4778,14 @@ static void read_xpm_image_or_array( QImageIO * iio, const char ** source,
 		b[1] = '\0';
 		for ( x=0; x<w && d<end; x++ ) {
 		    b[0] = *d++;
-		    *p++ = (uchar)((int)(long)colorMap[b] - 1);
+		    *p++ = (uchar)colorMap[b];
 		}
 	    } else {
 		char b[16];
 		b[cpp] = '\0';
 		for ( x=0; x<w && d<end; x++ ) {
 		    strncpy( b, (char *)d, cpp );
-		    *p++ = (uchar)((int)(long)colorMap[b] - 1);
+		    *p++ = (uchar)colorMap[b];
 		    d += cpp;
 		}
 	    }
@@ -4782,7 +4798,7 @@ static void read_xpm_image_or_array( QImageIO * iio, const char ** source,
 	    b[cpp] = '\0';
 	    for ( x=0; x<w && d<end; x++ ) {
 		strncpy( b, (char *)d, cpp );
-		*p++ = (QRgb)((int)(long)colorMap[b] - 1);
+		*p++ = (QRgb)colorMap[b];
 		d += cpp;
 	    }
 	}
@@ -4806,18 +4822,18 @@ static char* xpm_color_name( int cpp, int index )
 {
     static char returnable[3];
     if ( cpp > 1 ) {
-	if ( index == 1 )
-	    index = 64*44+21+1;
-	else if ( index == 64*44+21+1 )
-	    index = 1;
+	if ( index == 0 )
+	    index = 64*44+21;
+	else if ( index == 64*44+21 )
+	    index = 0;
 	returnable[0] = ".#abcdefghijklmnopqrstuvwxyz"
-			"ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"[(index-1)/64];
+			"ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"[index / 64];
 	returnable[1] = ".#abcdefghijklmnopqrstuvwxyz"
-			"ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"[(index-1)%64];
+			"ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"[index % 64];
 	returnable[2] = '\0';
     } else {
 	returnable[0] = ".#abcdefghijklmnopqrstuvwxyz"
-			"ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"[index-1];
+			"ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"[index];
 	returnable[1] = '\0';
     }
     return returnable;
@@ -4839,43 +4855,43 @@ static void write_xpm_image( QImageIO * iio )
     else
 	image = iio->image();
 
-    QIntDict<void> colorMap( 569 );
+    QMap<QRgb, int> colorMap;
 
-    int w = image.width(), h = image.height(), colors=0;
+    int w = image.width(), h = image.height(), ncolors = 0;
     int x, y;
 
     // build color table
     for( y=0; y<h; y++ ) {
 	QRgb * yp = (QRgb *)image.scanLine( y );
 	for( x=0; x<w; x++ ) {
-	    int color = (int)*(yp + x);
-	    if ( !colorMap.find( color ) )
-		colorMap.insert( color, (void*)(++colors) );
+	    QRgb color = *(yp + x);
+	    if ( !colorMap.contains(color) )
+		colorMap.insert( color, ncolors++ );
 	}
     }
 
-    int cpp = colors > 64 ? 2 : 1;
+    int cpp = ncolors > 64 ? 2 : 1;
     QString line;
 
     // write header
     QTextStream s( iio->ioDevice() );
     s << "/* XPM */" << endl
       << "static char *" << fbname(iio->fileName()) << "[]={" << endl
-      << "\"" << w << " " << h << " " << colors << " " << cpp << "\"";
+      << "\"" << w << " " << h << " " << ncolors << " " << cpp << "\"";
 
     // write palette
-    QIntDictIterator<void> c( colorMap );
-    while ( c.current() ) {
-	QRgb color = (QRgb)c.currentKey();
+    QMap<QRgb, int>::Iterator c = colorMap.begin();
+    while ( c != colorMap.end() ) {
+	QRgb color = c.key();
 	if ( image.hasAlphaBuffer() && color == (color & RGB_MASK) )
 	    line.sprintf( "\"%s c None\"",
-			  xpm_color_name( cpp, (int)(long)c.current() ) );
+			  xpm_color_name(cpp, *c) );
 	else
 	    line.sprintf( "\"%s c #%02x%02x%02x\"",
-			  xpm_color_name( cpp, (int)(long)c.current() ),
-			  qRed( color ),
-			  qGreen( color ),
-			  qBlue( color ) );
+			  xpm_color_name(cpp, *c),
+			  qRed(color),
+			  qGreen(color),
+			  qBlue(color) );
 	++c;
 	s << "," << endl << line;
     }
@@ -4886,8 +4902,7 @@ static void write_xpm_image( QImageIO * iio )
 	QRgb * yp = (QRgb *) image.scanLine( y );
 	for( x=0; x<w; x++ ) {
 	    int color = (int)(*(yp + x));
-	    QCString chars = xpm_color_name( cpp,
-				     (int)(long)colorMap.find(color) );
+	    QCString chars = xpm_color_name( cpp, colorMap[color] );
 	    line[ x*cpp ] = chars[0];
 	    if ( cpp == 2 )
 		line[ x*cpp + 1 ] = chars[1];

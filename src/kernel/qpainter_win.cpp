@@ -7,11 +7,17 @@
 **
 ** Copyright (C) 1992-2000 Troll Tech AS.  All rights reserved.
 **
-** This file is part of the Qt GUI Toolkit Professional Edition.
+** This file is part of the kernel module of the Qt GUI Toolkit.
 **
-** Licensees holding valid Qt Professional Edition licenses may use this
-** file in accordance with the Qt Professional Edition License Agreement
-** provided with the Qt Professional Edition.
+** This file may be distributed under the terms of the Q Public License
+** as defined by Troll Tech AS of Norway and appearing in the file
+** LICENSE.QPL included in the packaging of this file.
+**
+** Licensees holding valid Qt Enterprise Edition or Qt Professional Edition
+** licenses may use this file in accordance with the Qt Commercial License
+** Agreement provided with the Software.  This file is part of the kernel
+** module and therefore may only be used if the kernel module is specified
+** as Licensed on the Licensee's License Certificate.
 **
 ** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 ** information about the Professional Edition licensing.
@@ -482,7 +488,7 @@ void QPainter::updatePen()
 	    qWarning( "QPainter::updatePen: Invalid pen style" );
 #endif
     }
-    if ( (qt_winver & WV_NT_based) && cpen.width() ) {
+    if ( (qt_winver & WV_NT_based) && cpen.width() > 1 ) {
 	LOGBRUSH lb;
 	lb.lbStyle = 0;
 	lb.lbColor = pix;
@@ -823,6 +829,7 @@ bool QPainter::end()
 #endif
 	return FALSE;
     }
+
     killPStack();
     if ( testf(FontMet) )			// remove references to this
 	QFontMetrics::reset( this );
@@ -867,6 +874,8 @@ bool QPainter::end()
 	SelectPalette( hdc, holdpal, TRUE );
 	RealizePalette( hdc );
     }
+    if ( !pdev )
+	return FALSE;
 
     if ( testf(ExtDev) )
 	pdev->cmd( QPaintDevice::PdcEnd, this, 0 );
@@ -1372,24 +1381,50 @@ void QPainter::drawRoundRect( int x, int y, int w, int h, int xRnd, int yRnd )
 
 	    // ###### WWA: this should use the new makeArc (with xmat)
 
-	    a.makeEllipse( x, y, rxx2, ryy2 );
+	    // Make the ellipse as close to the origin as possible to
+	    // avoid overflow if the coordinates are at extreme positions.
+	    int xneg = ( x<0 ? 1 : 0 );
+	    int yneg = ( y<0 ? 1 : 0 );
+	    a.makeEllipse( x + xneg*(w-rxx2), y + yneg*(h-ryy2), rxx2, ryy2 );
 	    int s = a.size()/4;
 	    int i = 0;
-	    while ( i < s ) {
+	    int dw = ( xneg ? rxx2-w : w-rxx2 );
+	    int dh = ( yneg ? ryy2-h : h-ryy2 );
+	    int start[3];
+	    if ( xneg && yneg ) {
+		start[0] = 2 * s;
+		start[1] = 0 * s;
+		start[2] = 1 * s;
+	    } else if ( !xneg &&  yneg ) {
+		start[0] = 3 * s;
+		start[1] = 1 * s;
+		start[2] = 0 * s;
+	    } else if (  xneg && !yneg ) {
+		start[0] = 1 * s;
+		start[1] = 3 * s;
+		start[2] = 2 * s;
+	    } else if ( !xneg && !yneg ) {
+		start[0] = 0 * s;
+		start[1] = 2 * s;
+		start[2] = 3 * s;
+	    }
+	    i= start[0];
+	    while ( i < start[0]+s ) {
 		a.point( i, &xx, &yy );
-		xx += w - rxx2;
+		xx += dw;
 		a.setPoint( i++, xx, yy );
 	    }
-	    i = 2*s;
-	    while ( i < 3*s ) {
+	    i= start[1];
+	    while ( i < start[1]+s ) {
 		a.point( i, &xx, &yy );
-		yy += h - ryy2;
+		yy += dh;
 		a.setPoint( i++, xx, yy );
 	    }
-	    while ( i < 4*s ) {
+	    i= start[2];
+	    while ( i < start[2]+s ) {
 		a.point( i, &xx, &yy );
-		xx += w - rxx2;
-		yy += h - ryy2;
+		xx += dw;
+		yy += dh;
 		a.setPoint( i++, xx, yy );
 	    }
 	    drawPolyInternal( xForm(a) );
@@ -2195,15 +2230,32 @@ void QPainter::drawText( int x, int y, const QString &str, int len )
 		drawPixmap( x, y, *wx_bm );
 		flags = oldf;
 	    } else {				// to screen/pixmap
-		// CopyROP only
+		// ### some exotic codes are still missing
+		DWORD ropCodes[] = {
+		    0x00b8074a, // PSDPxax,  CopyROP,
+		    0x00BA0B09, // DPSnao,   OrROP,
+		    0x009A0709, // DPSnax,   XorROP,
+		    0x008A0E06, // DSPnoa,   EraseROP=NotAndROP,
+		    0x00b8074a, //           NotCopyROP,
+		    0x00b8074a, //           NotOrROP,
+		    0x00b8074a, //           NotXorROP,
+		    0x00A803A9, // DPSoa,    NotEraseROP=AndROP,
+		    0x00A90189, // DPSoxn,   NotROP,
+		    0x008800C6, // DSa,      ClearROP,
+		    0x00BB0226, // DSno,     SetROP,
+		    0x00b8074a, //           NopROP,
+		    0x00b8074a, //           AndNotROP,
+		    0x00b8074a, //           OrNotROP,
+		    0x00b8074a, //           NandROP,
+		    0x00b8074a  //           NorROP,
+		};
 		HBRUSH b = CreateSolidBrush( COLOR_VALUE(cpen.data->color) );
 		COLORREF tc, bc;
 		b = (HBRUSH)SelectObject( hdc, b );
 		tc = SetTextColor( hdc, COLOR_VALUE(black) );
 		bc = SetBkColor( hdc, COLOR_VALUE(white) );
-		// PSDPxax    ((Pattern XOR Dest) AND Src) XOR Pattern
 		BitBlt( hdc, x, y, wx_bm->width(), wx_bm->height(),
-			wx_bm->handle(), 0, 0, 0x00b8074a );
+			wx_bm->handle(), 0, 0, ropCodes[rop] );
 		SetBkColor( hdc, bc );
 		SetTextColor( hdc, tc );
 		DeleteObject( SelectObject(hdc, b) );

@@ -1,3 +1,3 @@
-CONFIG      =	console qt warn_on release
+CONFIG      +=	console qt warn_on release
 SOURCES     =	qembed.cpp
 TARGET      =	qembed

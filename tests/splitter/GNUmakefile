@@ -1,5 +1,5 @@
 #############################################################################
-# $Id: //depot/qt/main/tests/splitter/GNUmakefile#3 $
+# $Id: //depot/qt/main/tests/splitter/GNUmakefile#4 $
 #
 # Unix Makefile, requires GNU make (gmake).
 #

@@ -5,17 +5,19 @@
 **
 ** Created : 930831
 **
-** Copyright (C) 1992-2000 Troll Tech AS.  All rights reserved.
+** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
 **
-** This file is part of the Qt GUI Toolkit.
+** This file is part of the tools module of the Qt GUI Toolkit.
 **
 ** This file may be distributed under the terms of the Q Public License
-** as defined by Troll Tech AS of Norway and appearing in the file
+** as defined by Trolltech AS of Norway and appearing in the file
 ** LICENSE.QPL included in the packaging of this file.
 **
-** Licensees holding valid Qt Professional Edition licenses may use this
-** file in accordance with the Qt Professional Edition License Agreement
-** provided with the Qt Professional Edition.
+** Licensees holding valid Qt Enterprise Edition or Qt Professional Edition
+** licenses may use this file in accordance with the Qt Commercial License
+** Agreement provided with the Software.  This file is part of the tools
+** module and therefore may only be used if the tools module is specified
+** as Licensed on the Licensee's License Certificate.
 **
 ** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 ** information about the Professional Edition licensing, or see
@@ -490,6 +492,41 @@ QDataStream &QDataStream::operator>>( Q_INT32 &i )
     return *this;
 }
 
+/*!
+  \fn QDataStream &QDataStream::operator>>( Q_UINT64 &i )
+  Reads an unsigned 64-bit integer from the stream and returns a reference to
+  the stream, or uses the Q_UINT32 operator if 64 bit is not available.
+*/
+
+/*!
+  Reads a signed 64-bit integer from the stream and returns a reference to
+  the stream, or uses the Q_UINT32 operator if 64 bit is not available.
+*/
+
+QDataStream &QDataStream::operator>>( Q_INT64 &i )
+{
+    CHECK_STREAM_PRECOND
+    if ( printable ) {				// printable data
+	i = read_int_ascii( this );
+    } else if ( noswap ) {			// no conversion needed
+	dev->readBlock( (char *)&i, sizeof(Q_INT64) );
+    } else {					// swap bytes
+	register uchar *p = (uchar *)(&i);
+	char b[sizeof(Q_INT64)];
+	dev->readBlock( b, sizeof(Q_INT64) );
+	if ( sizeof(Q_INT64) == 8 ) {
+	    *p++ = b[7];
+	    *p++ = b[6];
+	    *p++ = b[5];
+	    *p++ = b[4];
+	}
+	*p++ = b[3];
+	*p++ = b[2];
+	*p++ = b[1];
+	*p   = b[0];
+    }
+    return *this;
+}
 
 static double read_double_ascii( QDataStream *s )
 {
@@ -729,6 +766,43 @@ QDataStream &QDataStream::operator<<( Q_INT32 i )
     return *this;
 }
 
+/*!
+  \fn QDataStream &QDataStream::operator<<( Q_UINT64 i )
+  Writes an unsigned 64-bit integer to the stream and returns a reference to
+  the stream, or uses the Q_UINT32-operator if 64 bit is not available.
+*/
+
+/*!
+  Writes a signed 64-bit integer to the stream and returns a reference to
+  the stream, or calls the Q_INT32-operator if 64 bit is not available.
+*/
+
+QDataStream &QDataStream::operator<<( Q_INT64 i )
+{
+    CHECK_STREAM_PRECOND
+    if ( printable ) {				// printable data
+	char buf[20];
+	sprintf( buf, "%ld\n", i );
+	dev->writeBlock( buf, strlen(buf) );
+    } else if ( noswap ) {			// no conversion needed
+	dev->writeBlock( (char *)&i, sizeof(Q_INT64) );
+    } else {					// swap bytes
+	register uchar *p = (uchar *)(&i);
+	char b[sizeof(Q_INT64)];
+	if ( sizeof(Q_INT64) == 8 ) {
+	    b[7] = *p++;
+	    b[6] = *p++;
+	    b[5] = *p++;
+	    b[4] = *p++;
+	}
+	b[3] = *p++;
+	b[2] = *p++;
+	b[1] = *p++;
+	b[0] = *p;
+	dev->writeBlock( b, sizeof(Q_INT64) );
+    }
+    return *this;
+}
 
 /*!
   \fn QDataStream &QDataStream::operator<<( uint i )

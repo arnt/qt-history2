@@ -1,5 +1,5 @@
 #############################################################################
-# $Id: //depot/qt/main/examples/listboxcombo/GNUmakefile#1 $
+# $Id: //depot/qt/main/examples/listboxcombo/GNUmakefile#2 $
 #
 # Unix Makefile, requires GNU make (gmake).
 #

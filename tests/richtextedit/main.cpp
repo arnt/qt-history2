@@ -11,7 +11,7 @@
 int main( int argc, char* argv[]  )
 {
     QApplication a( argc, argv);
-    // Ignore any bodytext in <head>...</head>:
+    // Ignore any body text in <head>...</head>:
     QStyleSheetItem* style = new QStyleSheetItem( QStyleSheet::defaultSheet(), "head" );
     style->setDisplayMode(QStyleSheetItem::DisplayNone);
 

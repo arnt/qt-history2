@@ -7,15 +7,17 @@
 **
 ** Copyright (C) 1992-2000 Troll Tech AS.  All rights reserved.
 **
-** This file is part of the Qt GUI Toolkit.
+** This file is part of the widgets module of the Qt GUI Toolkit.
 **
 ** This file may be distributed under the terms of the Q Public License
 ** as defined by Troll Tech AS of Norway and appearing in the file
 ** LICENSE.QPL included in the packaging of this file.
 **
-** Licensees holding valid Qt Professional Edition licenses may use this
-** file in accordance with the Qt Professional Edition License Agreement
-** provided with the Qt Professional Edition.
+** Licensees holding valid Qt Enterprise Edition or Qt Professional Edition
+** licenses may use this file in accordance with the Qt Commercial License
+** Agreement provided with the Software.  This file is part of the widgets
+** module and therefore may only be used if the widgets module is specified
+** as Licensed on the Licensee's License Certificate.
 **
 ** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 ** information about the Professional Edition licensing, or see
@@ -89,7 +91,7 @@ static void popupSubMenuLater( int msec, QPopupMenu * receiver ) {
     singleSingleShot->start( msec, TRUE );
 }
 
-static QTimer * preventAnimation = 0;
+static bool preventAnimation = FALSE;
 
 // NOT REVISED
 /*!
@@ -138,7 +140,8 @@ static QTimer * preventAnimation = 0;
   setItemEnabled().  Just before a popup menu becomes visible, it
   emits the aboutToShow() signal. You can use this signal to set the
   correct enabled/disabled states of all menu items before the user
-  sees it.
+  sees it. The corresponding aboutToHide() signal is emitted when the
+  menu hides again.
 
   You can provide What's This? help for single menu items with
   setWhatsThis(). See QWhatsThis for general information about this
@@ -176,9 +179,16 @@ static QTimer * preventAnimation = 0;
   can connect it to any slot that sets up the menu contents (e.g. to
   ensure that the right items are enabled).
 
-  \sa setItemEnabled() setItemChecked() insertItem() removeItem()
+  \sa aboutToHide(), setItemEnabled(), setItemChecked(), insertItem(), removeItem()
 */
 
+/*! \fn void QPopupMenu::aboutToHide()
+
+  This signal is emitted just before the popup menu is hidden after it
+  has been displayed.
+
+  \sa aboutToShow(), setItemEnabled(), setItemChecked(), insertItem(), removeItem()
+*/
 
 
 
@@ -246,18 +256,12 @@ QPopupMenu::~QPopupMenu()
     if ( parentMenu )
 	parentMenu->removePopup( this );	// remove from parent menu
 
-    if ( preventAnimation ) {
-	delete preventAnimation;
-	preventAnimation = 0;
-    }
-
+    preventAnimation = FALSE;
 }
 
 
 /*!
   Updates the item with identity \a id.
-
-  \sa updateRow()
 */
 void QPopupMenu::updateItem( int id )		// update popup menu item
 {
@@ -428,20 +432,23 @@ void QPopupMenu::popup( const QPoint &pos, int indexAtPoint )
 
     int hGuess = QEffects::RightScroll;
     int vGuess = QEffects::DownScroll;
-    if ( x + w/2 < mouse.x() )
+    if ( snapToMouse && ( x + w/2 < mouse.x() ) ||
+	( parentMenu && parentMenu->isPopupMenu &&
+	( x + w/2 < ((QPopupMenu*)parentMenu)->mapToGlobal( ((QPopupMenu*)parentMenu)->pos() ).x() ) ) )
 	hGuess = QEffects::LeftScroll;
-    if ( y + h/2 < mouse.y() )
+    if ( snapToMouse && ( y + h/2 < mouse.y() ) ||
+	( parentMenu && parentMenu->isMenuBar &&
+	( y + h/2 < ((QMenuBar*)parentMenu)->mapToGlobal( ((QMenuBar*)parentMenu)->pos() ).y() ) ) )
 	vGuess = QEffects::UpScroll;
 
-    if ( QApplication::effectEnabled( UI_AnimateMenu ) && !preventAnimation ) {
-	if ( QApplication::effectEnabled( UI_FadeMenu ) ) {
+    if ( QApplication::isEffectEnabled( UI_AnimateMenu ) &&
+	 preventAnimation == FALSE ) {
+	if ( QApplication::isEffectEnabled( UI_FadeMenu ) )
 	    qFadeEffect( this );
-	} else {
-	    if ( parentMenu )
-		qScrollEffect( this, parentMenu->isPopupMenu ? hGuess : vGuess );
-	    else
-		qScrollEffect( this, hGuess | vGuess );
-	}
+	else if ( parentMenu )
+	    qScrollEffect( this, parentMenu->isPopupMenu ? hGuess : vGuess );
+	else
+	    qScrollEffect( this, hGuess | vGuess );
     } else {
 	show();
     }
@@ -570,9 +577,8 @@ void QPopupMenu::hideAllPopups()
 {
     register QMenuData *top = this;		// find top level popup
     if ( !preventAnimation )
-	preventAnimation = new QTimer( qApp );
-    preventAnimation->stop();
-    preventAnimation->singleShot( 10, this, SLOT(allowAnimation()) );
+	QTimer::singleShot( 10, this, SLOT(allowAnimation()) );
+    preventAnimation = TRUE;
 
     if ( !isPopup() )
 	return; // nothing to do
@@ -590,10 +596,9 @@ void QPopupMenu::hideAllPopups()
 
 void QPopupMenu::hidePopups()
 {
-    if ( !preventAnimation )
-	preventAnimation = new QTimer( qApp );
-    preventAnimation->stop();
-    preventAnimation->singleShot( 10, this, SLOT(allowAnimation()) );
+    if ( preventAnimation )
+	QTimer::singleShot( 10, this, SLOT(allowAnimation()) );
+    preventAnimation = TRUE;	
 
     QMenuItemListIt it(*mitems);
     register QMenuItem *mi;
@@ -648,8 +653,8 @@ bool QPopupMenu::tryMouseEvent( QPopupMenu *p, QMouseEvent * e)
 
 void QPopupMenu::byeMenuBar()
 {
-#ifndef QT_NO_MENUBAR
     hideAllPopups();
+#ifndef QT_NO_MENUBAR
     register QMenuData *top = this;		// find top level
     while ( top->parentMenu )
 	top = top->parentMenu;
@@ -1573,10 +1578,7 @@ void QPopupMenu::subMenuTimer() {
 
 void QPopupMenu::allowAnimation()
 {
-    if ( preventAnimation ) {
-	delete preventAnimation;
-	preventAnimation = 0;
-    }
+    preventAnimation = FALSE;
 }
 
 void QPopupMenu::updateRow( int row )
@@ -1914,6 +1916,65 @@ void QPopupMenu::toggleTearOff()
 	QMenuData::d->aWidget = p;
     }
 }
+
+/*! \reimp
+ */
+void QPopupMenu::activateItemAt( int index )
+{
+    if ( index >= 0 && index < (int) mitems->count() ) {
+	QMenuItem *mi = mitems->at( index );
+	if ( index != actItem )			// new item activated
+	    setActiveItem( index );
+	QPopupMenu *popup = mi->popup();
+	if ( popup ) {
+	    if ( popup->isVisible() ) {		// sub menu already open
+		int pactItem = popup->actItem;
+		popup->actItem = -1;
+		popup->hidePopups();
+		popup->updateRow( pactItem );
+	    } else {				// open sub menu
+		hidePopups();
+		actItem = index;
+		subMenuTimer();
+		popup->setFirstItemActive();
+	    }
+	} else {
+	    byeMenuBar();			// deactivate menu bar
+	    bool b = QWhatsThis::inWhatsThisMode();
+	    if ( !mi->isEnabled() ) {
+		if ( b ) {
+		    actItem = -1;
+		    updateItem( mi->id() );
+		    byeMenuBar();
+		    actSig( mi->id(), b);
+		}
+	    } else {
+		byeMenuBar();			// deactivate menu bar
+		if ( mi->isEnabled() ) {
+		    actItem = -1;
+		    updateItem( mi->id() );
+		    active_popup_menu = this;
+		    actSig( mi->id(), b );
+		    if ( mi->signal() && !b )
+			mi->signal()->activate();
+		    active_popup_menu = 0;
+		}
+	    }
+	}
+    } else {
+	if ( tornOff ) {
+	    close();
+	} else {
+	    hide();
+#ifndef QT_NO_MENUBAR
+	    if ( parentMenu && parentMenu->isMenuBar )
+		((QMenuBar*) parentMenu)->goodbye( TRUE );
+#endif
+	}
+    }
+
+}
+
 
 #endif // QT_NO_COMPLEXWIDGETS
 

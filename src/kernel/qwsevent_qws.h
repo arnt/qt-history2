@@ -25,6 +25,7 @@ struct QWSEvent : QWSProtocolItem {
 	SelectionClear,
 	SelectionRequest,
 	SelectionNotify,
+	DesktopRect,
 	NEvent
     };
 
@@ -55,6 +56,14 @@ struct QWSConnectedEvent : QWSEvent {
     char *display;
 };
 
+struct QWSDesktopRectEvent : QWSEvent {
+    QWSDesktopRectEvent()
+	: QWSEvent( DesktopRect, sizeof( simpleData ), (char*)&simpleData ) { }
+    struct SimpleData {
+	int window;
+	QRect rect;
+    } simpleData;
+};
 
 struct QWSMouseEvent : QWSEvent {
     QWSMouseEvent() 
@@ -136,7 +145,7 @@ struct QWSSelectionRequestEvent : QWSEvent {
 	int requestor; // window which wants the selection
 	int property; // property on requestor into which the selection should be stored, normally QWSProperty::PropSelection
 	int mimeTypes; // Value is stored in the property mimeType on the requestor window. This value may contain
-	// multiple mimeTypes seperated by ;; where the order reflects the priority
+	// multiple mimeTypes separated by ;; where the order reflects the priority
     } simpleData;
 };
 

@@ -8,6 +8,6 @@ normal pusbuttons and toggleable pushbuttons.
 These buttons are seperated in four groups using groupboxes. The example shows how
 to make a buttongroup totally exclusive (only one button can be checked), exclusive
 for radiobuttons only or non-exclusive. Also it is demonstrated how buttons (and
-other widgets too!) can be layouted in rows and columns in a groupbox.
+other widgets too!) can be laid out in rows and columns in a groupbox.
 
 Important parts of the source code are documented as well to make it easy to understand.

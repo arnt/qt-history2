@@ -552,8 +552,8 @@ main(int argc, char** argv)
     {
 	a="";
 	QTextOStream ts(&a);
-	ts << "pi = " << 3.125;
-	TEST(a,"pi = 3.125");
+	ts << "pi ±= " << 3.125;
+	TEST(a,"pi ±= 3.125");
     }
     {
 	a="123 456";

@@ -7,15 +7,17 @@
 **
 ** Copyright (C) 1992-2000 Troll Tech AS.  All rights reserved.
 **
-** This file is part of the Qt GUI Toolkit.
+** This file is part of the kernel module of the Qt GUI Toolkit.
 **
 ** This file may be distributed under the terms of the Q Public License
 ** as defined by Troll Tech AS of Norway and appearing in the file
 ** LICENSE.QPL included in the packaging of this file.
 **
-** Licensees holding valid Qt Professional Edition licenses may use this
-** file in accordance with the Qt Professional Edition License Agreement
-** provided with the Qt Professional Edition.
+** Licensees holding valid Qt Enterprise Edition or Qt Professional Edition
+** licenses may use this file in accordance with the Qt Commercial License
+** Agreement provided with the Software.  This file is part of the kernel
+** module and therefore may only be used if the kernel module is specified
+** as Licensed on the Licensee's License Certificate.
 **
 ** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 ** information about the Professional Edition licensing, or see
@@ -36,7 +38,7 @@
 #include "qsizegrip.h"
 
 
-// NOT REVISED
+// REVISED: arnt
 /*!
   \class QDialog qdialog.h
   \brief The QDialog class is the base class of dialog windows.
@@ -44,58 +46,43 @@
   \ingroup dialogs
   \ingroup abstractwidgets
 
-  A dialog window is a widget used to communicate with the user. It
-  offers mechanisms such as modality, default buttons and
-  extensibility.
+  A dialog window is a top-level window used for short-term tasks and
+  brief communications with the user. QDialog offers mechanisms such
+  as modality, default buttons, extensibility and a result value.
 
-  The dialog window can either be modeless or modal. A modeless dialog
-  is a normal secondary window, while a modal window must be finished
-  before the user can continue with other parts of the program. The
-  third constructor argument must be set to TRUE to create a modal
-  dialog, otherwise it will create a modeless dialog.
+  Modality means that the dialog blocks input to other windows: The
+  user \e has to finish interacting with the dialog and close it
+  before resuming work with the other window(s).  The only way to set
+  modality is by using the constructor, and the default is
+  modelessness.  For modal dialog, it's generally better to call
+  exec() than show; exec() returns when the dialog has been closed and
+  has a useful return value (see below).
 
-  Example (your own modal dialog):
-  \code
-    class Modal : public QDialog {
-	Q_OBJECT
-    public:
-	Modal( QWidget *parent, QString name );
-    };
+  The default button is the button that's pressed when the user
+  presses Enter or Return, to accept the things done using this dialog
+  and close it. QDialog uses QPushButton::autoDefault(),
+  QPushButton::isDefault() and QPushButton::setDefault() to make Enter
+  or Return map to the right button at any time.
 
-    Modal::Modal( QWidget *parent, QString name )
-	: QDialog( parent, name, TRUE )
-    {
-	QPushButton *ok, *cancel;
-	ok = new QPushButton( "OK", this );
-	ok->setGeometry( 10,10, 100,30 );
-	connect( ok, SIGNAL(clicked()), SLOT(accept()) );
-	cancel = new QPushButton( "Cancel", this );
-	cancel->setGeometry( 10,60, 100,30 );
-	connect( cancel, SIGNAL(clicked()), SLOT(reject()) );
-    }
-  \endcode
+  Extensibility is the ability to show more or less of the
+  dialog. Typically, the dialog starts out small, has a "More" button,
+  and when the user clicks "More", the dialog becomes bigger, and
+  shows some less-used options.  QDialog supports this using
+  setExtension(), setOrientation() and showExtension().
 
-  Note that the parent widget has an additional meaning for dialogs.
-  A dialog is placed on top of the parent widget and associated with
-  it (i.e. it stays on top of its parent and shares certain resources,
-  for example a common taskbar entry). If the parent widget is zero,
-  the dialog is centered on the screen.
+  Since dialogs typically tend to have result value (pressing
+  Enter/Return maps to one value and pressing Escape to the other),
+  QDialog supports that.  A dialog can finish by calling the slots
+  accept() or reject(), and exec() returns that result.
+  
+  Note that QDialog uses the parent widget a bit differently from
+  other classes in Qt.  A dialog is always a top-level widget, but if
+  it has a parent, its default location is on top of the parent, it
+  shares taskbar entry with its parent, and there are some minor
+  details.
 
-  You would normally call exec() to start a modal dialog. This enters
-  a local event loop, which is terminated when the modal dialog calls
-  done() (or accept() or reject()).
-
-  Example (using a modal dialog):
-  \code
-    Modal m;
-    if ( m.exec() ) {
-       // ok was pressed, then fetch the interesting dialog data
-    }
-  \endcode
-
-  A dialog can also provide a QSizeGrip in the lower-right corner.  By
-  default, this is disabled. You can enable it with
-  setSizeGripEnabled(TRUE);
+  QDialog also can provide a QSizeGrip in its lower-right corner. If
+  you want that, call setSizeGripEnabled( TRUE ).
 
   \sa QTabDialog QWidget QSemiModal
   <a href="guibooks.html#fowler">GUI Design Handbook: Dialogs, Standard.</a>
@@ -111,7 +98,7 @@ public:
 	: mainDef(0), orientation(Horizontal),extension(0)
 #ifndef QT_NO_SIZEGRIP
 	,resizer(0)
-#endif	
+#endif
 	{
     }
 
@@ -126,30 +113,23 @@ public:
 
 
 /*!
-  Constructs a dialog named \e name, which has a parent widget \e parent.
+  Constructs a dialog named \a name, which has a parent widget \a parent.
 
-  The dialog will by default be modeless, unless you set \e modal to
-  TRUE to construct a modal dialog.
+  The dialog is modal (blocks input to other windows) if \a modal is
+  TRUE, and modeless if \a modal is FALSE (this is the default).
 
-  The \a f argument is the \link QWidget::QWidget() widget flags,
-  \endlink which can be used to customize the window frame style.
+  The widget flags \a f are sent to the QWidget constructor, as usual.
 
   If you e.g. don't want a What"s this button in the titlebar of the dialog,
   pass WStyle_Customize | WStyle_NormalBorder | WStyle_Title | WStyle_SysMenu
   here.
 
-  A dialog is always a top level widget. The optional parent, however,
-  will know about this child and also delete it on
-  destruction. Furthermore, the window system will be able to tell
-  that both the dialog and the parent belong together. This works for
-  Windows and also some X11 window managers, that will for instance
-  provide a common taskbar entry in that case.
-
-  It is recommended to pass a parent.
+  We recommend always passing a parent.
 */
 
 QDialog::QDialog( QWidget *parent, const char *name, bool modal, WFlags f )
-    : QWidget( parent, name, (modal ? (f | WType_Modal) : f) | WType_TopLevel | WStyle_Dialog )
+    : QWidget( parent, name, 
+	       (modal ? (f|WType_Modal) : f) | WType_TopLevel | WStyle_Dialog )
 {
     rescode = 0;
     did_move = FALSE;
@@ -172,7 +152,7 @@ QDialog::~QDialog()
 
 /*!
   \internal
-  This function is called by the push button \e pushButton when it
+  This function is called by the push button \a pushButton when it
   becomes the default button. If \a pushButton is 0, the dialogs
   default default button becomes the default button. This is what a
   push button calls when it loses focus.
@@ -233,17 +213,11 @@ void QDialog::hideDefault()
 */
 
 
-/*!
-  For modal dialogs: Starts the dialog and returns the result code.
+/*! Starts the (modal) dialog, waits, and returns the result code when
+  it is done.
 
-  Equivalent to calling show(), then result().
-
-  This function is very useful for modal dialogs, but makes no sense for
-  modeless dialog. It enters a new local event loop. The event loop is
-  terminated when the dialog is hidden, usually by calling done().
-
-  A warning message is printed if you call this function for a modeless
-  dialog.
+  If the dialog is modeless, the behaviour of this function is
+  undefined.
 
   \sa show(), result()
 */
@@ -257,23 +231,27 @@ int QDialog::exec()
 #endif
     setResult( 0 );
     show();
+
+#ifdef _WS_QWS_ // QDialog::show is changed to 3.0 semantics for Qt/Embedded
+    if ( testWFlags(WType_Modal) && !in_loop ) {
+	in_loop = TRUE;
+	qApp->enter_loop();
+    }
+#endif
+
     return result();
 }
 
 
-/*!
-  Hides the dialog and sets the result code to \e r.
+/*! Hides the (modal) dialog and sets its result code to \a r. This
+  uses the local event loop to finish and exec() to return \a r.
 
-  Equivalent to calling hide(), then setResult(\e r ).
+  If the dialog has the \c WDestructiveClose flag set, done() also
+  deletes the dialog.
 
-  This function is very useful for modal dialogs. It leaves the local
-  event loop and returns from the exec() or show() function.
-
-  \warning Although done() will return to the caller also if this
-  dialog is modal, the local event loop is then marked for
-  termination. Hence, a program should not try to do anything that
-  depends on event handling before the corresponding exec() or show()
-  has returned.
+  At some future date, this function will probably close the dialog
+  instead of hiding it.  It currently calls hide() in order to avoid
+  breaking a large number of programs that reimplement closeEvent().
 
   \sa accept(), reject()
 */
@@ -286,19 +264,17 @@ void QDialog::done( int r )
     // flag when overloading close...
     hide();
     setResult( r );
-    
+
     // evil evil evil, but keeps the WDestructiveClose
     // semantics. There should not be much of a difference whether the
     // users types Alt-F4 or Escape. Without that, destructive-close
     // dialogs were more or less useless without subclassing.
-    if ( testWFlags(WDestructiveClose) ) 
-	delete this; 
+    if ( testWFlags(WDestructiveClose) )
+	delete this;
 }
 
 /*!
   Hides the dialog and sets the result code to \c Accepted.
-
-  Equivalent to done(Accepted);
 */
 
 void QDialog::accept()
@@ -308,8 +284,6 @@ void QDialog::accept()
 
 /*!
   Hides the dialog and sets the result code to \c Rejected.
-
-  Equivalent to done(Rejected);
 */
 
 void QDialog::reject()
@@ -322,13 +296,12 @@ void QDialog::reject()
   Event handlers
  *****************************************************************************/
 
-/*!\reimp
-*/
+/*! \reimp */
 void QDialog::keyPressEvent( QKeyEvent *e )
 {
-    //   Calls reject() if Escape is pressed.  Simulates a button click
-    //   for the default button if Enter is pressed.  All other keys are
-    //   ignored.
+    //   Calls reject() if Escape is pressed.  Simulates a button
+    //   click for the default button if Enter is pressed.  Move focus
+    //   for the arrow keys.  Ignore the rest.
     if ( e->state() == 0 ) {
 	switch ( e->key() ) {
 	case Key_Enter:
@@ -385,8 +358,7 @@ void QDialog::keyPressEvent( QKeyEvent *e )
     }
 }
 
-/*!\reimp
-*/
+/*! \reimp */
 void QDialog::closeEvent( QCloseEvent *e )
 {
     e->accept();
@@ -398,18 +370,18 @@ void QDialog::closeEvent( QCloseEvent *e )
   Geometry management.
  *****************************************************************************/
 
-/*!
-  Shows the dialog box on the screen, as QWidget::show() and enters a
-  local event loop if this dialog is modal (see constructor).
+/*! Shows the dialog box on the screen, as QWidget::show(), and
+  selects a suitable position and size if none has been specified yet.
 
-  This implementation also does automatic resizing and automatic
-  positioning. If you have not already resized or moved the dialog, it
-  will find a size that fits the contents and a position near the middle
-  of the screen (or centered relative to the parent widget if any).
-
-  \warning Calling show() for a modal dialog enters a local event loop.
-  The event loop is terminated when the dialog is hidden, usually by
-  calling done().
+  \warning
+  
+  In Qt 2.x, calling show() on a modal dialog enters a local event
+  loop, and work like exec(), but not returning the result code exec()
+  returns. Trolltech has always warned against doing this.
+  
+  In Qt 3.0 and later, calling show() on a modal dialog will return
+  immediately, \e not enter a local event loop. The dialog will of
+  course be modal.
 
   \sa exec()
 */
@@ -467,6 +439,8 @@ void QDialog::show()
     QWidget::show();
 
 
+#ifndef _WS_QWS_ // We remove this NOW for Qt/Embedded
+
     /*########### 3.0:
 
       This 'feature' is nonsense and will be removed in 3.0.
@@ -479,10 +453,10 @@ void QDialog::show()
 	in_loop = TRUE;
 	qApp->enter_loop();
     }
+#endif
 }
 
-/*!\reimp
-*/
+/*! \reimp */
 void QDialog::hide()
 {
     // Reimplemented to exit a modal when the dialog is hidden.
@@ -498,8 +472,7 @@ void QDialog::hide()
   Detects any widget geometry changes done by the user.
  *****************************************************************************/
 
-/*!\reimp
-*/
+/*! \reimp */
 
 void QDialog::move( int x, int y )
 {
@@ -507,8 +480,7 @@ void QDialog::move( int x, int y )
     QWidget::move( x, y );
 }
 
-/*!\reimp
-*/
+/*! \reimp */
 
 void QDialog::move( const QPoint &p )
 {
@@ -516,8 +488,7 @@ void QDialog::move( const QPoint &p )
     QWidget::move( p );
 }
 
-/*!\reimp
-*/
+/*! \reimp */
 
 void QDialog::resize( int w, int h )
 {
@@ -525,8 +496,7 @@ void QDialog::resize( int w, int h )
     QWidget::resize( w, h );
 }
 
-/*!\reimp
-*/
+/*! \reimp */
 
 void QDialog::resize( const QSize &s )
 {
@@ -534,8 +504,7 @@ void QDialog::resize( const QSize &s )
     QWidget::resize( s );
 }
 
-/*!\reimp
-*/
+/*! \reimp */
 
 void QDialog::setGeometry( int x, int y, int w, int h )
 {
@@ -544,8 +513,7 @@ void QDialog::setGeometry( int x, int y, int w, int h )
     QWidget::setGeometry( x, y, w, h );
 }
 
-/*!\reimp
-*/
+/*! \reimp */
 
 void QDialog::setGeometry( const QRect &r )
 {
@@ -555,10 +523,10 @@ void QDialog::setGeometry( const QRect &r )
 }
 
 
-/*!
-  Sets the dialog to extend horizontally or vertically,
-  depending on \a orientation.
-
+/*!  Sets the dialog to display its extension to the right of the main
+  are if \a orientation is \c Horizonal, and to display it below the
+  main area if \a orientation is \c Vertical.
+  
   \sa orientation(), setExtension()
 */
 void QDialog::setOrientation( Orientation orientation )
@@ -576,11 +544,13 @@ Qt::Orientation QDialog::orientation() const
     return d->orientation;
 }
 
-/*!
-  Sets \a extension to be the dialog's extension.
+/*!  Sets \a extension to be the dialog's extension, or deletes the
+  extensions if \a extension is 0.
 
   The dialogs takes over ownership of the extension. Any previously
-  defined extension is deleted.
+  set extension is deleted.
+
+  This function can only be called while the dialog is hidden.
 
   \sa showExtension(), setOrientation(), extension()
  */
@@ -588,8 +558,10 @@ void QDialog::setExtension( QWidget* extension )
 {
     delete d->extension;
     d->extension = extension;
+
     if ( !extension )
 	return;
+
     if ( extension->parentWidget() != this )
 	extension->reparent( this, QPoint(0,0) );
     else
@@ -598,7 +570,7 @@ void QDialog::setExtension( QWidget* extension )
 
 /*!
   Returns the dialog's extension or 0 if no extension has been
-  defined yet.
+  defined.
 
   \sa setExtension()
  */
@@ -609,14 +581,13 @@ QWidget* QDialog::extension() const
 
 
 /*!
-  Extends the dialog to show its extension if \a showIt is TRUE,
-  otherwise hides the extension.
+  Extends the dialog to show its extension if \a showIt is TRUE
+  and hides it else.
 
-  This slot is usually connected to the toggled-signal of a toggle
-  button (see QPushButton::toggled() ). Per default, the dialog
-  extends horizontally. Adjust this behaviour with setOrientation().
+  This slot is usually connected to the \l QButton::toggled() signal
+  of a QPushButton.
 
-  Nothing happens if the dialog is not visible yet.
+  If the dialog is not visible, nothing happens.
 
   \sa show(), setExtension(), setOrientation()
  */
@@ -657,8 +628,7 @@ void QDialog::showExtension( bool showIt )
 }
 
 
-/*!\reimp
- */
+/*! \reimp */
 QSize QDialog::sizeHint() const
 {
     if ( d->extension )
@@ -673,8 +643,7 @@ QSize QDialog::sizeHint() const
 }
 
 
-/*!\reimp
- */
+/*! \reimp */
 QSize QDialog::minimumSizeHint() const
 {
     if ( d->extension )
@@ -692,8 +661,8 @@ QSize QDialog::minimumSizeHint() const
 /*!
   \fn bool QDialog::isSizeGripEnabled() const
 
-  Returns whether the QSizeGrip in the bottom right of the dialog
-  is enabled.
+  Returns TRUE if the QDialog has a QSizeGrip in the bottom right of
+  the dialog, and FALSE if it does not.
 
   \sa setSizeGripEnabled()
 */
@@ -733,8 +702,7 @@ void QDialog::setSizeGripEnabled(bool enabled)
 
 
 
-/*!\reimp
- */
+/*! \reimp */
 void QDialog::resizeEvent( QResizeEvent * )
 {
 #ifndef QT_NO_SIZEGRIP
@@ -743,4 +711,4 @@ void QDialog::resizeEvent( QResizeEvent * )
 #endif
 }
 
-#endif QT_NO_DIALOG
+#endif // QT_NO_DIALOG

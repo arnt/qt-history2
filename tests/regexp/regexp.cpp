@@ -484,7 +484,7 @@ int main( int argc, const char** argv )
     TEST( c.contains(r3), 1 );
 
 
-    // Basic charcter matching, no special chars
+    // Basic character matching, no special chars
     QRegExp r1("Hei");
     TEST( a.find(r1), 0 );
     TEST( a.findRev(r1), 0 );

@@ -2,6 +2,11 @@
 
 
 @IGNORE = qw {
+    qconfig.h
+    qgfxlinuxfb_qws.h
+    qgfxvnc_qws.h
+    qvfbhdr_qws.h
+    qwsdisplay_qws.h
     qxt.h
     qgl.h
     qnp.h
@@ -22,14 +27,12 @@
     qthread.h
     qmutex.h
     qgeneric.h
-    qdom.h
     qpaintdevicedefs.h
     qwindow.h
     qtranslatordialog.h
 };
 
 @NETWORK_HEADERS = qw {
-    qhttp.h
     qftp.h
     qdns.h
     qhostaddress.h

@@ -1,5 +1,5 @@
 TEMPLATE	= app
-CONFIG		= qt warn_on release
+CONFIG		+= qt warn_on release
 HEADERS		= ab_centralwidget.h \
 		  ab_mainwindow.h
 SOURCES		= ab_centralwidget.cpp \

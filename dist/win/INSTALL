@@ -22,7 +22,7 @@
     Note: The path must not include directories that contain space(s)
     in their names, like e.g. "Program Files".
 
-    You must also set the PATH to locate the moc.exe program:
+    You must also set the PATH to locate applications like moc.exe, uic.exe, etc.
 
 	PATH=%QTDIR%\bin;%PATH%
 
@@ -43,30 +43,24 @@
 	cd qt
 	unzip mkfiles\borland.zip
 
+    If you use Microsoft Visual C++ and want to create a shared Qt
+    library (DLL), you have to do:
+
+	cd qt
+	unzip mkfiles\msvc-dll.zip
+
 
 4.  You are now ready to compile the Qt library:
 
-	cd qt\src
+	cd qt
 	nmake		(or "make" for Borland C++ users)
 
-    The qt.lib and qtmain.lib files are created in the qt\lib directory.
+    The qt.lib and qtmain.lib files are created in the qt\lib directory,
+    moc.exe, designer.exe, uic.exe and some other programs are
+    created in the qt\bin directory.
 
 
-5.  There are several makefiles in the examples and tutorial
-    directories. To compile an example program:
-
- 	cd qt\examples\tetrix
-	nmake		(or "make")
-
-    You can also compile all examples and all tutorial programs in one go:
-
-	cd qt\examples
-	nmake		(or "make")
-	cd ..\tutorial
-	nmake		(or "make")
-
-
-We recommend that you use tmake from Troll Tech to create makefiles. This
+We recommend that you use tmake from Trolltech to create makefiles. This
 is a free tool which eliminates the hassle of writing and maintaining
 makefiles across different platforms and compilers.  See README.tmake for
 more information.

@@ -219,7 +219,7 @@
   in a list and sort after inserting then you should use sort().
   inSort() takes up to O(n) compares. That means inserting n items in
   your list will need O(n^2) compares while sort() only needs O(n*logn)
-  for the same task. So you inSort() only if you already have a presorted
+  for the same task. So you inSort() only if you already have a pre-sorted
   list and want to insert only few additional items.
 
   \sa insert(), QGList::compareItems(), current(), sort()

@@ -1,21 +1,23 @@
 /****************************************************************************
 ** $Id$
 **
-** Implementation of Network Extension Library
+** Implementation of QFtp class.
 **
 ** Created : 970521
 **
 ** Copyright (C) 1992-2000 Troll Tech AS.  All rights reserved.
 **
-** This file is part of the Qt GUI Toolkit.
+** This file is part of the network module of the Qt GUI Toolkit.
 **
 ** This file may be distributed under the terms of the Q Public License
 ** as defined by Troll Tech AS of Norway and appearing in the file
 ** LICENSE.QPL included in the packaging of this file.
 **
-** Licensees holding valid Qt Professional Edition licenses may use this
-** file in accordance with the Qt Professional Edition License Agreement
-** provided with the Qt Professional Edition.
+** Licensees holding valid Qt Enterprise Edition or Qt Professional Edition
+** licenses may use this file in accordance with the Qt Commercial License
+** Agreement provided with the Software.  This file is part of the network
+** module and therefore may only be used if the network module is specified
+** as Licensed on the Licensee's License Certificate.
 **
 ** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 ** information about the Professional Edition licensing, or see
@@ -42,7 +44,7 @@
   \class QFtp qftp.h
   \brief The QFtp class implements the FTP protocol
 
-  \extension Network
+  \module network
 
   The QFtp class implements the FTP protocol. This class
   is derived from QNetworkProtocol and can be
@@ -283,11 +285,16 @@ void QFtp::parseDir( const QString &buffer, QUrlInfo &info )
     static int writable = 1;
     static int executable = 2;
 
-    bool perms[ 3 ][ 3 ] = {
-	{ tmp[ 1 ] == 'r', tmp[ 2 ] == 'w', tmp[ 3 ] == 'x' },
-	{ tmp[ 4 ] == 'r', tmp[ 5 ] == 'w', tmp[ 6 ] == 'x' },
-	{ tmp[ 7 ] == 'r', tmp[ 8 ] == 'w', tmp[ 9 ] == 'x' }
-    };
+    bool perms[ 3 ][ 3 ]; 
+    perms[0][0] = (tmp[ 1 ] == 'r');
+    perms[0][1] = (tmp[ 2 ] == 'w');
+    perms[0][2] = (tmp[ 3 ] == 'x');
+    perms[1][0] = (tmp[ 1 ] == 'r');
+    perms[1][1] = (tmp[ 2 ] == 'w');
+    perms[1][2] = (tmp[ 3 ] == 'x');
+    perms[2][0] = (tmp[ 1 ] == 'r');
+    perms[2][1] = (tmp[ 2 ] == 'w');
+    perms[2][2] = (tmp[ 3 ] == 'x');
 
     // owner
     tmp = lst[ 2 ];
@@ -330,22 +337,22 @@ void QFtp::parseDir( const QString &buffer, QUrlInfo &info )
 
     // date, time #### todo
     QDate date;
-    int m = 1, d;
-    for ( unsigned int i = 1; i <= 12; ++i ) {
+    int month = 1, day;
+    for ( uint i = 1; i <= 12; ++i ) {
 	if ( date.monthName( i ) == lst[ 5 ] ) {
-	    m = i;
+	    month = i;
 	    break;
 	}
     }
-    d = lst[ 6 ].toInt();
+    day = lst[ 6 ].toInt();
 
     if ( lst[ 7 ].contains( ":" ) ) {
 	QTime time( lst[ 7 ].left( 2 ).toInt(), lst[ 7 ].right( 2 ).toInt() );
-	date = QDate( QDate::currentDate().year(), m, d );
+	date = QDate( QDate::currentDate().year(), month, day );
 	info.setLastModified( QDateTime( date, time ) );
     } else {
-	int y = lst[ 7 ].toInt();
-	date = QDate( y, m, d );
+	int year = lst[ 7 ].toInt();
+	date = QDate( year, month, day );
 	info.setLastModified( QDateTime( date, QTime() ) );
     }
 
@@ -354,7 +361,7 @@ void QFtp::parseDir( const QString &buffer, QUrlInfo &info )
 	info.setName( lst[ 8 ].stripWhiteSpace() );
     else {
 	QString n;
-	for ( unsigned int i = 8; i < lst.count(); ++i )
+	for ( uint i = 8; i < lst.count(); ++i )
 	    n += lst[ i ] + " ";
 	n = n.stripWhiteSpace();
 	info.setName( n );
@@ -486,7 +493,7 @@ void QFtp::okGoOn( int code, const QCString &data )
 #ifdef QFTP_DEBUG
 	qDebug( "QFtp: write to command socket: \"%s\"", cmd.latin1() );
 #endif
-	
+
 	commandSocket->writeBlock( cmd, cmd.length() );
 	connectionReady = FALSE;
     } break;
@@ -509,15 +516,12 @@ void QFtp::okGoOn( int code, const QCString &data )
 	QStringList lst = QStringList::split( ',', s );
 	int port = ( lst[ 4 ].toInt() << 8 ) + lst[ 5 ].toInt();
 	dataSocket->connectToHost( lst[ 0 ] + "." + lst[ 1 ] + "." + lst[ 2 ] + "." + lst[ 3 ], port );
-	if ( operationInProgress() && operationInProgress()->operation() == OpListChildren )
-	    dataSocket->setMode( QSocket::Ascii );
     } break;
     case 250: { // file operation succesfully
 	if ( operationInProgress() && !passiveMode &&
 	     operationInProgress()->operation() == OpListChildren ) { // list dir
 	    if ( !errorInListChildren ) {
 		operationInProgress()->setState( StInProgress );
-		dataSocket->setMode( QSocket::Ascii );
 #ifdef QFTP_DEBUG
 		qDebug( "QFtp: list children (command socket is passive!" );
 #endif
@@ -852,13 +856,14 @@ void QFtp::error( int code )
 	 code == QSocket::ErrConnectionRefused ) {
 	if ( dataSocket->isOpen() )
 	    dataSocket->close();
-	if ( operationInProgress() ) {
+	QNetworkOperation *op = operationInProgress();
+	if ( op ) {
 	    QString msg = tr( "Host not found or couldn't connect to: \n" + url()->host() );
-	    operationInProgress()->setState( StFailed );
-	    operationInProgress()->setProtocolDetail( msg );
-	    operationInProgress()->setErrorCode( (int)ErrHostNotFound );
+	    op->setState( StFailed );
+	    op->setProtocolDetail( msg );
+	    op->setErrorCode( (int)ErrHostNotFound );
 	    clearOperationQueue();
-	    emit finished( operationInProgress() );
+	    emit finished( op );
 	}
     }
 }

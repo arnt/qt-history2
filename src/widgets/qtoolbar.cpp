@@ -7,15 +7,17 @@
 **
 ** Copyright (C) 1992-2000 Troll Tech AS.  All rights reserved.
 **
-** This file is part of the Qt GUI Toolkit.
+** This file is part of the widgets module of the Qt GUI Toolkit.
 **
 ** This file may be distributed under the terms of the Q Public License
 ** as defined by Troll Tech AS of Norway and appearing in the file
 ** LICENSE.QPL included in the packaging of this file.
 **
-** Licensees holding valid Qt Professional Edition licenses may use this
-** file in accordance with the Qt Professional Edition License Agreement
-** provided with the Qt Professional Edition.
+** Licensees holding valid Qt Enterprise Edition or Qt Professional Edition
+** licenses may use this file in accordance with the Qt Commercial License
+** Agreement provided with the Software.  This file is part of the widgets
+** module and therefore may only be used if the widgets module is specified
+** as Licensed on the Licensee's License Certificate.
 **
 ** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 ** information about the Professional Edition licensing, or see
@@ -279,8 +281,9 @@ void QToolBar::init()
     bl = new QBoxLayout( this, orientation() == Vertical
 			? QBoxLayout::Down : QBoxLayout::LeftToRight,
 			style() == WindowsStyle ? 2 : 1, 0 );
-    bl->setAutoAdd( TRUE );
-    bl->addSpacing( 9 );
+    boxLayout()->setAutoAdd( TRUE );
+    if ( !mw || mw->toolBarsMovable() )
+	boxLayout()->addSpacing( 9 );
 
     if ( mw ) {
 	connect( mw, SIGNAL( startMovingToolBar( QToolBar * ) ),
@@ -296,13 +299,29 @@ void QToolBar::init()
     setFocusPolicy( NoFocus );
 }
 
+QBoxLayout *QToolBar::boxLayout()
+{
+    if ( !layout() ) {
+	bl = new QBoxLayout( this, orientation() == Vertical
+			     ? QBoxLayout::Down : QBoxLayout::LeftToRight,
+			     style() == WindowsStyle ? 2 : 1, 0 );
+	if ( !mw || mw->toolBarsMovable() )
+	    boxLayout()->addSpacing( 9 );
+	return bl;
+    }
+
+    if ( bl == layout() || layout()->inherits( "QBoxLayout" ) ) {
+	bl = (QBoxLayout*)layout();
+	return (QBoxLayout*)layout();
+    }
+
+    return 0;
+}
 
 /*! Destructs the object and frees any allocated resources. */
 
 QToolBar::~QToolBar()
 {
-    delete bl;
-    bl = 0;
     d->menu = 0;
     delete d;
     d = 0;
@@ -339,9 +358,8 @@ void QToolBar::setOrientation( Orientation newOrientation )
 	    delete d->back;
 	    d->back = 0;
 	}
-	if ( bl )
-	    bl->setDirection( o==Horizontal ? QBoxLayout::LeftToRight :
-			      QBoxLayout::TopToBottom );
+	boxLayout()->setDirection( o==Horizontal ? QBoxLayout::LeftToRight :
+				   QBoxLayout::TopToBottom );
 	emit orientationChanged( newOrientation );
     }
 }
@@ -414,7 +432,7 @@ QMainWindow * QToolBar::mainWindow()
 void QToolBar::setStretchableWidget( QWidget * w )
 {
     sw = w;
-    bl->setStretchFactor( w, 1 );
+    boxLayout()->setStretchFactor( w, 1 );
 
     if ( !isHorizontalStretchable() && !isVerticalStretchable() ) {
 	if ( orientation() == Horizontal )
@@ -433,11 +451,11 @@ bool QToolBar::event( QEvent * e )
     //after the event filters have dealt with it:
     if ( e->type() == QEvent::ChildInserted ) {
 	QObject * child = ((QChildEvent*)e)->child();
-	if ( child && child->isWidgetType() && ((QWidget*)child) == sw )
-	    bl->setStretchFactor( (QWidget*)child, 1 );
-	if ( isVisibleTo( 0 ) && child && child->isWidgetType() &&
+	if ( isVisible() && child && child->isWidgetType() &&
 	     child->parent() == this && !child->inherits( "QPopupMenu" ) )
 	    ( (QWidget*)child )->show();
+	if ( child && child->isWidgetType() && ((QWidget*)child) == sw )
+	    boxLayout()->setStretchFactor( (QWidget*)child, 1 );
     } else if ( e->type() == QEvent::ChildRemoved ) {
 	QObject * child = ((QChildEvent*)e)->child();
 	if ( child == d->arrow )
@@ -492,11 +510,11 @@ void QToolBar::clear()
     if ( !children() )
 	return;
     QObjectListIt it( *children() );
-    QObject * o;
-    while( (o=it.current()) != 0 ) {
+    QObject * obj;
+    while( (obj=it.current()) != 0 ) {
 	++it;
-	if ( o->isWidgetType() )
-	    delete o;
+	if ( obj->isWidgetType() )
+	    delete obj;
     }
     d->menu = 0;
     d->arrow = 0;

@@ -30,6 +30,7 @@
 #include <qwindowsstyle.h>
 #include <qplatinumstyle.h>
 #include <qmotifstyle.h>
+#include <qmotifplusstyle.h>
 #include <qcdestyle.h>
 
 Themes::Themes( QWidget *parent, const char *name, WFlags f )
@@ -61,6 +62,7 @@ Themes::Themes( QWidget *parent, const char *name, WFlags f )
     sWindows = style->insertItem( "&Windows", this, SLOT( styleWindows() ) );
     sCDE = style->insertItem( "&CDE", this, SLOT( styleCDE() ) );
     sMotif = style->insertItem( "M&otif", this, SLOT( styleMotif() ) );
+    sMotifPlus = style->insertItem( "Motif P&lus", this, SLOT( styleMotifPlus() ) );
     style->insertSeparator();
     style->insertItem("&Quit", qApp, SLOT( quit() ), CTRL | Key_Q );
 
@@ -141,6 +143,15 @@ void Themes::styleMotif()
     selectStyleMenu( sMotif );
 }
 
+void Themes::styleMotifPlus()
+{
+    qApp->setStyle( new QMotifPlusStyle );
+    QPalette p( QColor( 192, 192, 192 ) );
+    qApp->setPalette( p, TRUE );
+    qApp->setFont( appFont, TRUE );
+    selectStyleMenu( sMotifPlus );
+}
+
 
 void Themes::about()
 {
@@ -165,5 +176,6 @@ void Themes::selectStyleMenu( int s )
     menuBar()->setItemChecked( sWindows, FALSE );
     menuBar()->setItemChecked( sCDE, FALSE );
     menuBar()->setItemChecked( sMotif, FALSE );
+    menuBar()->setItemChecked( sMotifPlus, FALSE );
     menuBar()->setItemChecked( s, TRUE );
 }

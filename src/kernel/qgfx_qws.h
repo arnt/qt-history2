@@ -7,11 +7,17 @@
 **
 ** Copyright (C) 1992-2000 Troll Tech AS.  All rights reserved.
 **
-** This file is part of the Qt GUI Toolkit.
+** This file is part of the kernel module of the Qt GUI Toolkit.
 **
-** Licensees holding valid Qt Professional Edition licenses may use this
-** file in accordance with the Qt Professional Edition License Agreement
-** provided with the Qt Professional Edition.
+** This file may be distributed under the terms of the Q Public License
+** as defined by Troll Tech AS of Norway and appearing in the file
+** LICENSE.QPL included in the packaging of this file.
+**
+** Licensees holding valid Qt Enterprise Edition or Qt Professional Edition
+** licenses may use this file in accordance with the Qt Commercial License
+** Agreement provided with the Software.  This file is part of the kernel
+** module and therefore may only be used if the kernel module is specified
+** as Licensed on the Licensee's License Certificate.
 **
 ** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 ** information about the Professional Edition licensing.
@@ -64,11 +70,12 @@ public:
     static bool enabled() { return qt_sw_cursor; }
 
 protected:
-    QImage cursor;
-    int hotx;
-    int hoty;
-
     QGfxRasterBase *gfx;
+    QGfxRasterBase *gfxunder;
+
+    QImage *imgunder;
+    QImage *cursor;
+
     uchar *fb_start;
     uchar *fb_end;
     bool save_under;
@@ -104,9 +111,9 @@ public:
     virtual bool onCard(unsigned char *) const;
     virtual bool onCard(unsigned char *, ulong& out_offset) const;
 
-    // sets a single colour in the colour map
+    // sets a single color in the colormap
     virtual void set(unsigned int,unsigned int,unsigned int,unsigned int);
-    // allocates a colour
+    // allocates a color
     virtual int alloc(unsigned int,unsigned int,unsigned int);
 
     int width() const { return w; }
@@ -182,7 +189,7 @@ public:
     virtual void drawPolyline( const QPointArray &,int,int )=0;
 
     // Fill operations - these use the current source (pixmap,
-    // colour, etc), and draws outline
+    // color, etc), and draws outline
     virtual void drawRect( int,int,int,int )=0;
     virtual void drawPolygon( const QPointArray &,bool,int,int )=0;
 
@@ -199,13 +206,13 @@ public:
 
     enum SourceType { SourcePen, SourceImage };
 
-    // Setting up source data - can be solid colour or pixmap data
+    // Setting up source data - can be solid color or pixmap data
     virtual void setSource(const QPaintDevice *)=0;
     virtual void setSource(const QImage *)=0;
     // This one is pen
     virtual void setSourcePen()=0;
     virtual void setSourceOffset(int,int)=0;
-    virtual void setMasking(bool on,int colour=0)=0;
+    virtual void setMasking(bool on,int color=0)=0;
 
     virtual void drawAlpha(int,int,int,int,int,int,int,int) {}
 
@@ -216,7 +223,7 @@ public:
     // class. It's not a high priority though.
 
     // Enum values: Ignore alpha information, alpha information encoded in
-    // 32-bit rgba along with colours, alpha information in 8bpp
+    // 32-bit rgba along with colors, alpha information in 8bpp
     // format in alphabits
 
     enum AlphaType { IgnoreAlpha, InlineAlpha, SeparateAlpha,

@@ -7,11 +7,17 @@
 **
 ** Copyright (C) 1992-2000 Troll Tech AS.  All rights reserved.
 **
-** This file is part of the Qt GUI Toolkit Professional Edition.
+** This file is part of the kernel module of the Qt GUI Toolkit.
 **
-** Licensees holding valid Qt Professional Edition licenses may use this
-** file in accordance with the Qt Professional Edition License Agreement
-** provided with the Qt Professional Edition.
+** This file may be distributed under the terms of the Q Public License
+** as defined by Troll Tech AS of Norway and appearing in the file
+** LICENSE.QPL included in the packaging of this file.
+**
+** Licensees holding valid Qt Enterprise Edition or Qt Professional Edition
+** licenses may use this file in accordance with the Qt Commercial License
+** Agreement provided with the Software.  This file is part of the kernel
+** module and therefore may only be used if the kernel module is specified
+** as Licensed on the Licensee's License Certificate.
 **
 ** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 ** information about the Professional Edition licensing.
@@ -39,6 +45,112 @@
 #include <termios.h>
 #include <sys/kd.h>
 #include <sys/vt.h>
+
+
+
+
+static const QWSServer::KeyMap keyM[] = {
+    {	Qt::Key_unknown,	0xffff  , 0xffff  , 0xffff  },
+    {	Qt::Key_Escape,		27      , 27      , 0xffff  },
+    {	Qt::Key_1,		'1'     , '!'     , 0xffff  },
+    {	Qt::Key_2,		'2'     , '@'     , 0xffff  },
+    {	Qt::Key_3,		'3'     , '#'     , 0xffff  },
+    {	Qt::Key_4,		'4'     , '$'     , 0xffff  },
+    {	Qt::Key_5,		'5'     , '%'     , 0xffff  },
+    {	Qt::Key_6,		'6'     , '^'     , 0xffff  },
+    {	Qt::Key_7,		'7'     , '&'     , 0xffff  },
+    {	Qt::Key_8,		'8'     , '*'     , 0xffff  },
+    {	Qt::Key_9,		'9'     , '('     , 0xffff  },	// 10
+    {	Qt::Key_0,		'0'     , ')'     , 0xffff  },
+    {	Qt::Key_Minus,		'-'     , '_'     , 0xffff  },
+    {	Qt::Key_Equal,		'='     , '+'     , 0xffff  },
+    {	Qt::Key_Backspace,	8       , 8       , 0xffff  },
+    {	Qt::Key_Tab,		9       , 9       , 0xffff  },
+    {	Qt::Key_Q,		'q'     , 'Q'     , 'Q'-64  },
+    {	Qt::Key_W,		'w'     , 'W'     , 'W'-64  },
+    {	Qt::Key_E,		'e'     , 'E'     , 'E'-64  },
+    {	Qt::Key_R,		'r'     , 'R'     , 'R'-64  },
+    {	Qt::Key_T,		't'     , 'T'     , 'T'-64  },  // 20
+    {	Qt::Key_Y,		'y'     , 'Y'     , 'Y'-64  },
+    {	Qt::Key_U,		'u'     , 'U'     , 'U'-64  },
+    {	Qt::Key_I,		'i'     , 'I'     , 'I'-64  },
+    {	Qt::Key_O,		'o'     , 'O'     , 'O'-64  },
+    {	Qt::Key_P,		'p'     , 'P'     , 'P'-64  },
+    {	Qt::Key_BraceLeft,	'['     , '{'     , 0xffff  },
+    {	Qt::Key_Escape,		']'     , '}'     , 0xffff  },
+    {	Qt::Key_Return,		13      , 13      , 0xffff  },
+    {	Qt::Key_Control,	0xffff  , 0xffff  , 0xffff  },
+    {	Qt::Key_A,		'a'     , 'A'     , 'A'-64  },  // 30
+    {	Qt::Key_S,		's'     , 'S'     , 'S'-64  },
+    {	Qt::Key_D,		'd'     , 'D'     , 'D'-64  },
+    {	Qt::Key_F,		'f'     , 'F'     , 'F'-64  },
+    {	Qt::Key_G,		'g'     , 'G'     , 'G'-64  },
+    {	Qt::Key_H,		'h'     , 'H'     , 'H'-64  },
+    {	Qt::Key_J,		'j'     , 'J'     , 'J'-64  },
+    {	Qt::Key_K,		'k'     , 'K'     , 'K'-64  },
+    {	Qt::Key_L,		'l'     , 'L'     , 'L'-64  },
+    {	Qt::Key_Semicolon,	';'     , ':'     , 0xffff  },
+    {	Qt::Key_Apostrophe,	'\''    , '"'     , 0xffff  },  // 40
+    {	Qt::Key_QuoteLeft,	'`'     , '~'     , 0xffff  },
+    {	Qt::Key_Shift,		0xffff  , 0xffff  , 0xffff  },
+    {	Qt::Key_Backslash,	'\\'    , '|'     , 0xffff  },
+    {	Qt::Key_Z,		'z'     , 'Z'     , 'Z'-64  },
+    {	Qt::Key_X,		'x'     , 'X'     , 'X'-64  },
+    {	Qt::Key_C,		'c'     , 'C'     , 'C'-64  },
+    {	Qt::Key_V,		'v'     , 'V'     , 'V'-64  },
+    {	Qt::Key_B,		'b'     , 'B'     , 'B'-64  },
+    {	Qt::Key_N,		'n'     , 'N'     , 'N'-64  },
+    {	Qt::Key_M,		'm'     , 'M'     , 'M'-64  },  // 50
+    {	Qt::Key_Comma,		','     , '<'     , 0xffff  },
+    {	Qt::Key_Period,		'.'     , '>'     , 0xffff  },
+    {	Qt::Key_Slash,		'/'     , '?'     , 0xffff  },
+    {	Qt::Key_Shift,		0xffff  , 0xffff  , 0xffff  },
+    {	Qt::Key_Asterisk,	'*'     , '*'     , 0xffff  },
+    {	Qt::Key_Alt,		0xffff  , 0xffff  , 0xffff  },
+    {	Qt::Key_Space,		' '     , ' '     , 0xffff  },
+    {	Qt::Key_CapsLock,	0xffff  , 0xffff  , 0xffff  },
+    {	Qt::Key_F1,		0xffff  , 0xffff  , 0xffff  },
+    {	Qt::Key_F2,		0xffff  , 0xffff  , 0xffff  },  // 60
+    {	Qt::Key_F3,		0xffff  , 0xffff  , 0xffff  },
+    {	Qt::Key_F4,		0xffff  , 0xffff  , 0xffff  },
+    {	Qt::Key_F5,		0xffff  , 0xffff  , 0xffff  },
+    {	Qt::Key_F6,		0xffff  , 0xffff  , 0xffff  },
+    {	Qt::Key_F7,		0xffff  , 0xffff  , 0xffff  },
+    {	Qt::Key_F8,		0xffff  , 0xffff  , 0xffff  },
+    {	Qt::Key_F9,		0xffff  , 0xffff  , 0xffff  },
+    {	Qt::Key_F10,		0xffff  , 0xffff  , 0xffff  },
+    {	Qt::Key_NumLock,	0xffff  , 0xffff  , 0xffff  },
+    {	Qt::Key_ScrollLock,	0xffff  , 0xffff  , 0xffff  },  // 70
+    {	Qt::Key_7,		'7'     , '7'     , 0xffff  },
+    {	Qt::Key_8,		'8'     , '8'     , 0xffff  },
+    {	Qt::Key_9,		'9'     , '9'     , 0xffff  },
+    {	Qt::Key_Minus,		'-'     , '-'     , 0xffff  },
+    {	Qt::Key_4,		'4'     , '4'     , 0xffff  },
+    {	Qt::Key_5,		'5'     , '5'     , 0xffff  },
+    {	Qt::Key_6,		'6'     , '6'     , 0xffff  },
+    {	Qt::Key_Plus,		'+'     , '+'     , 0xffff  },
+    {	Qt::Key_1,		'1'     , '1'     , 0xffff  },
+    {	Qt::Key_2,		'2'     , '2'     , 0xffff  },  // 80
+    {	Qt::Key_3,		'3'     , '3'     , 0xffff  },
+    {	Qt::Key_0,		'0'     , '0'     , 0xffff  },
+    {	Qt::Key_Period,		'.'     , '.'     , 0xffff  },
+    {	Qt::Key_unknown,	0xffff  , 0xffff  , 0xffff  },
+    {	Qt::Key_unknown,	0xffff  , 0xffff  , 0xffff  },
+    {	Qt::Key_unknown,	0xffff  , 0xffff  , 0xffff  },
+    {	Qt::Key_F11,		0xffff  , 0xffff  , 0xffff  },
+    {	Qt::Key_F12,		0xffff  , 0xffff  , 0xffff  },
+    {	Qt::Key_unknown,	0xffff  , 0xffff  , 0xffff  },
+    {	Qt::Key_unknown,	0xffff  , 0xffff  , 0xffff  }	// 90
+};
+
+
+const QWSServer::KeyMap *QWSServer::keyMap()
+{
+    return keyM;
+}
+
+
+#ifndef QT_NO_QWS_KEYBOARD
 
 #define VTSWITCHSIG SIGUSR2
 
@@ -147,105 +259,6 @@ void vtSwitchHandler(int /*sig*/)
 }
 
 
-static const QWSServer::KeyMap keyM[] = {
-    {	Qt::Key_unknown,	0xffff  , 0xffff  , 0xffff  },
-    {	Qt::Key_Escape,		27      , 27      , 0xffff  },
-    {	Qt::Key_1,		'1'     , '!'     , 0xffff  },
-    {	Qt::Key_2,		'2'     , '@'     , 0xffff  },
-    {	Qt::Key_3,		'3'     , '#'     , 0xffff  },
-    {	Qt::Key_4,		'4'     , '$'     , 0xffff  },
-    {	Qt::Key_5,		'5'     , '%'     , 0xffff  },
-    {	Qt::Key_6,		'6'     , '^'     , 0xffff  },
-    {	Qt::Key_7,		'7'     , '&'     , 0xffff  },
-    {	Qt::Key_8,		'8'     , '*'     , 0xffff  },
-    {	Qt::Key_9,		'9'     , '('     , 0xffff  },	// 10
-    {	Qt::Key_0,		'0'     , ')'     , 0xffff  },
-    {	Qt::Key_Minus,		'-'     , '_'     , 0xffff  },
-    {	Qt::Key_Equal,		'='     , '+'     , 0xffff  },
-    {	Qt::Key_Backspace,	8       , 8       , 0xffff  },
-    {	Qt::Key_Tab,		9       , 9       , 0xffff  },
-    {	Qt::Key_Q,		'q'     , 'Q'     , 'Q'-64  },
-    {	Qt::Key_W,		'w'     , 'W'     , 'W'-64  },
-    {	Qt::Key_E,		'e'     , 'E'     , 'E'-64  },
-    {	Qt::Key_R,		'r'     , 'R'     , 'R'-64  },
-    {	Qt::Key_T,		't'     , 'T'     , 'T'-64  },  // 20
-    {	Qt::Key_Y,		'y'     , 'Y'     , 'Y'-64  },
-    {	Qt::Key_U,		'u'     , 'U'     , 'U'-64  },
-    {	Qt::Key_I,		'i'     , 'I'     , 'I'-64  },
-    {	Qt::Key_O,		'o'     , 'O'     , 'O'-64  },
-    {	Qt::Key_P,		'p'     , 'P'     , 'P'-64  },
-    {	Qt::Key_BraceLeft,	'['     , '{'     , 0xffff  },
-    {	Qt::Key_Escape,		']'     , '}'     , 0xffff  },
-    {	Qt::Key_Return,		13      , 13      , 0xffff  },
-    {	Qt::Key_Control,	0xffff  , 0xffff  , 0xffff  },
-    {	Qt::Key_A,		'a'     , 'A'     , 'A'-64  },  // 30
-    {	Qt::Key_S,		's'     , 'S'     , 'S'-64  },
-    {	Qt::Key_D,		'd'     , 'D'     , 'D'-64  },
-    {	Qt::Key_F,		'f'     , 'F'     , 'F'-64  },
-    {	Qt::Key_G,		'g'     , 'G'     , 'G'-64  },
-    {	Qt::Key_H,		'h'     , 'H'     , 'H'-64  },
-    {	Qt::Key_J,		'j'     , 'J'     , 'J'-64  },
-    {	Qt::Key_K,		'k'     , 'K'     , 'K'-64  },
-    {	Qt::Key_L,		'l'     , 'L'     , 'L'-64  },
-    {	Qt::Key_Semicolon,	';'     , ':'     , 0xffff  },
-    {	Qt::Key_Apostrophe,	'\''    , '"'     , 0xffff  },  // 40
-    {	Qt::Key_QuoteLeft,	'`'     , '~'     , 0xffff  },
-    {	Qt::Key_Shift,		0xffff  , 0xffff  , 0xffff  },
-    {	Qt::Key_Backslash,	'\\'    , '|'     , 0xffff  },
-    {	Qt::Key_Z,		'z'     , 'Z'     , 'Z'-64  },
-    {	Qt::Key_X,		'x'     , 'X'     , 'X'-64  },
-    {	Qt::Key_C,		'c'     , 'C'     , 'C'-64  },
-    {	Qt::Key_V,		'v'     , 'V'     , 'V'-64  },
-    {	Qt::Key_B,		'b'     , 'B'     , 'B'-64  },
-    {	Qt::Key_N,		'n'     , 'N'     , 'N'-64  },
-    {	Qt::Key_M,		'm'     , 'M'     , 'M'-64  },  // 50
-    {	Qt::Key_Comma,		','     , '<'     , 0xffff  },
-    {	Qt::Key_Period,		'.'     , '>'     , 0xffff  },
-    {	Qt::Key_Slash,		'/'     , '?'     , 0xffff  },
-    {	Qt::Key_Shift,		0xffff  , 0xffff  , 0xffff  },
-    {	Qt::Key_Asterisk,	'*'     , '*'     , 0xffff  },
-    {	Qt::Key_Alt,		0xffff  , 0xffff  , 0xffff  },
-    {	Qt::Key_Space,		' '     , ' '     , 0xffff  },
-    {	Qt::Key_CapsLock,	0xffff  , 0xffff  , 0xffff  },
-    {	Qt::Key_F1,		0xffff  , 0xffff  , 0xffff  },
-    {	Qt::Key_F2,		0xffff  , 0xffff  , 0xffff  },  // 60
-    {	Qt::Key_F3,		0xffff  , 0xffff  , 0xffff  },
-    {	Qt::Key_F4,		0xffff  , 0xffff  , 0xffff  },
-    {	Qt::Key_F5,		0xffff  , 0xffff  , 0xffff  },
-    {	Qt::Key_F6,		0xffff  , 0xffff  , 0xffff  },
-    {	Qt::Key_F7,		0xffff  , 0xffff  , 0xffff  },
-    {	Qt::Key_F8,		0xffff  , 0xffff  , 0xffff  },
-    {	Qt::Key_F9,		0xffff  , 0xffff  , 0xffff  },
-    {	Qt::Key_F10,		0xffff  , 0xffff  , 0xffff  },
-    {	Qt::Key_NumLock,	0xffff  , 0xffff  , 0xffff  },
-    {	Qt::Key_ScrollLock,	0xffff  , 0xffff  , 0xffff  },  // 70
-    {	Qt::Key_7,		'7'     , '7'     , 0xffff  },
-    {	Qt::Key_8,		'8'     , '8'     , 0xffff  },
-    {	Qt::Key_9,		'9'     , '9'     , 0xffff  },
-    {	Qt::Key_Minus,		'-'     , '-'     , 0xffff  },
-    {	Qt::Key_4,		'4'     , '4'     , 0xffff  },
-    {	Qt::Key_5,		'5'     , '5'     , 0xffff  },
-    {	Qt::Key_6,		'6'     , '6'     , 0xffff  },
-    {	Qt::Key_Plus,		'+'     , '+'     , 0xffff  },
-    {	Qt::Key_1,		'1'     , '1'     , 0xffff  },
-    {	Qt::Key_2,		'2'     , '2'     , 0xffff  },  // 80
-    {	Qt::Key_3,		'3'     , '3'     , 0xffff  },
-    {	Qt::Key_0,		'0'     , '0'     , 0xffff  },
-    {	Qt::Key_Period,		'.'     , '.'     , 0xffff  },
-    {	Qt::Key_unknown,	0xffff  , 0xffff  , 0xffff  },
-    {	Qt::Key_unknown,	0xffff  , 0xffff  , 0xffff  },
-    {	Qt::Key_unknown,	0xffff  , 0xffff  , 0xffff  },
-    {	Qt::Key_F11,		0xffff  , 0xffff  , 0xffff  },
-    {	Qt::Key_F12,		0xffff  , 0xffff  , 0xffff  },
-    {	Qt::Key_unknown,	0xffff  , 0xffff  , 0xffff  },
-    {	Qt::Key_unknown,	0xffff  , 0xffff  , 0xffff  }	// 90
-};
-
-
-const QWSServer::KeyMap *QWSServer::keyMap()
-{
-    return keyM;
-}
 
 
 /*
@@ -338,7 +351,7 @@ void QWSTtyKeyboardHandler::readKeyboardData()
 	int ch = buf[loop];
 	int keyCode = Qt::Key_unknown;
 	bool release = false;
-
+	int keypad = 0;
 
 	if (ch == 224) {
 	    // extended
@@ -351,59 +364,75 @@ void QWSTtyKeyboardHandler::readKeyboardData()
 	    ch &= 0x7f;
 	}
 
-/*
+
+	if (extended) {
+	    switch (ch) {
+	    case 72:
+		keyCode = Qt::Key_Up;
+		break;
+	    case 75:
+		keyCode = Qt::Key_Left;
+		break;
+	    case 77:
+		keyCode = Qt::Key_Right;
+		break;
+	    case 80:
+		keyCode = Qt::Key_Down;
+		break;
+	    case 82:
+		keyCode = Qt::Key_Insert;
+		break;
+	    case 71:
+		keyCode = Qt::Key_Home;
+		break;
+	    case 73:
+		keyCode = Qt::Key_Prior;
+		break;
+	    case 83:
+		keyCode = Qt::Key_Delete;
+		break;
+	    case 79:
+		keyCode = Qt::Key_End;
+		break;
+	    case 81:
+		keyCode = Qt::Key_Next;
+		break;
+	    case 28:
+		keyCode = Qt::Key_Enter;
+		break;
+	    case 53:
+		keyCode = Qt::Key_Slash;
+		break;
+	    }
+	} else {
+	    if (ch < 90) {
+		keyCode = QWSServer::keyMap()[ch].key_code;
+	    }
+	}
+
+	/*
+	  Keypad consists of extended keys 53 and 28,
+	  and non-extended keys 55 and 71 through 83.
+	*/
+	if ( extended ? (ch == 53 || ch == 28) : 
+	     (ch == 55 || ( ch >= 71 && ch <= 83 )) )
+	    keypad = Qt::Keypad;
+
+	
+	
+#if 0 //debug
 	printf( "%d ", ch );
 	if (extended)
 	    printf(" (Extended) ");
 	if (release)
 	    printf(" (Release) ");
+	if (keypad)
+	    printf(" (Keypad) ");
 	printf("\r\n");
-*/
+#endif
 
-	if (extended)
-	{
-	    switch (ch)
-	    {
-		case 72:
-		    keyCode = Qt::Key_Up;
-		    break;
-		case 75:
-		    keyCode = Qt::Key_Left;
-		    break;
-		case 77:
-		    keyCode = Qt::Key_Right;
-		    break;
-		case 80:
-		    keyCode = Qt::Key_Down;
-		    break;
-		case 82:
-		    keyCode = Qt::Key_Insert;
-		    break;
-		case 71:
-		    keyCode = Qt::Key_Home;
-		    break;
-		case 73:
-		    keyCode = Qt::Key_Prior;
-		    break;
-		case 83:
-		    keyCode = Qt::Key_Delete;
-		    break;
-		case 79:
-		    keyCode = Qt::Key_End;
-		    break;
-		case 81:
-		    keyCode = Qt::Key_Next;
-		    break;
-	    }
-	}
-	else
-	{
-	    if (ch < 90)
-	    {
-		keyCode = QWSServer::keyMap()[ch].key_code;
-	    }
-	}
-
+	
+	
 	// Virtual console switching
 	int term = 0;
 	if (ctrl && alt && keyCode >= Qt::Key_F1 && keyCode <= Qt::Key_F10)
@@ -443,8 +472,12 @@ void QWSTtyKeyboardHandler::readKeyboardData()
 		else
 		    unicode =  QWSServer::keyMap()[ch].unicode ?  QWSServer::keyMap()[ch].unicode : 0xffff;
 		//printf("unicode: %c\r\n", unicode);
+	    } else {
+		if ( ch == 53 )
+		    unicode = '/';
 	    }
-	    int modifiers = alt | ctrl | shift;
+
+	    int modifiers = alt | ctrl | shift | keypad;
 	    bool repeat = FALSE;
 	    if (prevuni == unicode && prevkey == keyCode && !release)
 		repeat = TRUE;
@@ -813,3 +846,4 @@ QWSKeyboardHandler *QWSServer::newKeyboardHandler( const QString &spec )
 
 #include "qkeyboard_qws.moc"
 
+#endif //QT_NO_QWS_KEYBOARD

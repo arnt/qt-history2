@@ -46,18 +46,13 @@ template <class type> class QList;
 class QApplication;
 extern Q_EXPORT QApplication *qApp;		// global application object
 
-#if defined(QT_DLL) || defined(QT_MAKEDLL)
-#define QT_BASEAPP
-typedef QApplication QNonBaseApplication;
-#define QApplication QBaseApplication
-#else
-#define QNonBaseApplication QApplication
-#endif
-
 #if defined(QT_THREAD_SUPPORT)
 class QMutex;
 class QSemaphore;
 #endif
+
+// REMOVE IN 3.0 (just here for moc source compatibility)
+#define QNonBaseApplication QApplication
 
 class Q_EXPORT QApplication : public QObject
 {
@@ -221,7 +216,6 @@ public:
 #endif
 #if defined(QT_THREAD_SUPPORT)
     void	     wakeUpGuiThread();
-    void	     guiThreadTaken();
     void	     lock();
     void	     unlock(bool wakeUpGui = TRUE);
     bool 	     locked();
@@ -306,9 +300,6 @@ private:
     friend class QWidget;
     friend class QETWidget;
     friend class QEvent;
-#if defined QT_BASEAPP
-    friend QNonBaseApplication;
-#endif
 
 private: // Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
@@ -384,37 +375,8 @@ inline QSize QApplication::globalStrut()
     return app_strut;
 }
 
-#if defined(QT_BASEAPP)
-
-
-#undef QApplication
-
-class QApplication : public QBaseApplication
-{
-public:
-    QApplication( int &, char ** );
-    QApplication( int &, char **, bool );
-private:	// Disabled copy constructor and operator=
-#if defined(Q_DISABLE_COPY)
-    QApplication( const QApplication & );
-    QApplication &operator=( const QApplication & );
-#endif
-    friend QBaseApplication;
-};
-
-inline bool QBaseApplication::sendEvent( QObject *receiver, QEvent *event )
-{ return qApp->notify( receiver, event ); }
-
-#if defined(Q_MOC_OUTPUT_REVISION) && defined(Q_MOC_QApplication)
-#if defined(QT_MAKEDLL)
-#define QApplication QBaseApplication
-#endif
-#endif
-
-#else
 inline bool QApplication::sendEvent( QObject *receiver, QEvent *event )
 { return qApp->notify( receiver, event ); }
-#endif
 
 #ifdef QT_NO_TRANSLATION
 // Simple versions

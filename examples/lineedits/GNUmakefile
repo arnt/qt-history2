@@ -1,5 +1,5 @@
 #############################################################################
-# $Id: //depot/qt/main/examples/lineedits/GNUmakefile#1 $
+# $Id: //depot/qt/main/examples/lineedits/GNUmakefile#2 $
 #
 # Unix Makefile, requires GNU make (gmake).
 #

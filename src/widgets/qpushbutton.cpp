@@ -7,15 +7,17 @@
 **
 ** Copyright (C) 1992-2000 Troll Tech AS.  All rights reserved.
 **
-** This file is part of the Qt GUI Toolkit.
+** This file is part of the widgets module of the Qt GUI Toolkit.
 **
 ** This file may be distributed under the terms of the Q Public License
 ** as defined by Troll Tech AS of Norway and appearing in the file
 ** LICENSE.QPL included in the packaging of this file.
 **
-** Licensees holding valid Qt Professional Edition licenses may use this
-** file in accordance with the Qt Professional Edition License Agreement
-** provided with the Qt Professional Edition.
+** Licensees holding valid Qt Enterprise Edition or Qt Professional Edition
+** licenses may use this file in accordance with the Qt Commercial License
+** Agreement provided with the Software.  This file is part of the widgets
+** module and therefore may only be used if the widgets module is specified
+** as Licensed on the Licensee's License Certificate.
 **
 ** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 ** information about the Professional Edition licensing, or see
@@ -151,6 +153,7 @@ static QPtrDict<QPushButtonPrivate> *d_ptr = 0;
 static void cleanup_d_ptr()
 {
     delete d_ptr;
+    d_ptr = 0;
 }
 static QPushButtonPrivate* d( const QPushButton* foo )
 {
@@ -237,9 +240,9 @@ QPushButton::~QPushButton()
 void QPushButton::init()
 {
     defButton = FALSE;
-    lastDown = FALSE;
     lastEnabled = FALSE;
     hasMenuArrow = FALSE;
+    flt = FALSE;
     autoDefButton = topLevelWidget()->inherits("QDialog");
     setBackgroundMode( PaletteButton );
     setSizePolicy( QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Fixed ) );
@@ -398,17 +401,22 @@ QSize QPushButton::sizeHint() const
 	w += style().menuButtonIndicatorWidth( h );
 
 #ifndef _WS_QWS_
-    if ( style() == WindowsStyle ) {
+     if ( style() == WindowsStyle ) {
 	// in windows style, try a little harder to conform to
 	// microsoft's size specifications
 	if ( h <= 25 )
 	    h = 22;
 	if ( w < 85 && !pixmap() && ( isDefault() || autoDefault() ) )
 	    w = 80;
-    }
+     } else if ( !pixmap() && (isDefault() || autoDefault() ) ) {
+	 // un-unglify motifstyles until we fix boxlayout to treat
+	 // pushbuttons differently
+	 if ( w < 80 )
+	     w = 80;
+     }
 #endif
 
-    return QSize( w, h ).expandedTo( QApplication::globalStrut() );
+     return QSize( w, h ).expandedTo( QApplication::globalStrut() );
 }
 
 
@@ -507,7 +515,7 @@ void QPushButton::drawButton( QPainter *paint )
 		paint->fillRect( width()-diw, 0, diw, height(),
 				 colorGroup().brush(QColorGroup::Background) );
 	    }
-	    
+
 	}
     }
 
@@ -519,7 +527,6 @@ void QPushButton::drawButton( QPainter *paint )
  	QRect r(x1+2, y1+2, x2-x1-3, y2-y1-3);
  	style().drawFocusRect( paint, r , colorGroup(), &colorGroup().button() );
     }
-    lastDown = isDown();
     lastEnabled = isEnabled();
 }
 
@@ -637,11 +644,16 @@ void QPushButton::setPopup( QPopupMenu* popup )
  */
 void QPushButton::setIconSet( const QIconSet& icon )
 {
-    if ( ::d( this )->iconset )
-	*::d( this )->iconset = icon;
-    else
-	::d( this )->iconset = new QIconSet( icon );
-
+    if (! icon.isNull()) {
+	if ( ::d( this )->iconset )
+	    *::d( this )->iconset = icon;
+	else
+	    ::d( this )->iconset = new QIconSet( icon );
+    } else if (::d(this)->iconset) {
+	delete (::d(this)->iconset);
+	::d(this)->iconset = 0;
+    }
+	
     update();
     updateGeometry();
 }
@@ -680,4 +692,15 @@ void QPushButton::popupPressed()
 	setDown( FALSE );
     }
 }
+
+void QPushButton::setFlat( bool f )
+{
+    flt = f;
+}
+
+bool QPushButton::isFlat() const
+{
+    return flt;
+}
+
 #endif

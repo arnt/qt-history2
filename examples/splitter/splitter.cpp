@@ -26,7 +26,7 @@ private:
 
 
 Test::Test(QWidget* parent, const char* name, int f) :
-    QWidget(parent, name, f|WResizeNoErase)
+    QWidget(parent, name, f)
 {
 
 }

@@ -5,17 +5,19 @@
 **
 ** Created : 940922
 **
-** Copyright (C) 1992-2000 Troll Tech AS.  All rights reserved.
+** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
 **
-** This file is part of the Qt GUI Toolkit.
+** This file is part of the tools module of the Qt GUI Toolkit.
 **
 ** This file may be distributed under the terms of the Q Public License
-** as defined by Troll Tech AS of Norway and appearing in the file
+** as defined by Trolltech AS of Norway and appearing in the file
 ** LICENSE.QPL included in the packaging of this file.
 **
-** Licensees holding valid Qt Professional Edition licenses may use this
-** file in accordance with the Qt Professional Edition License Agreement
-** provided with the Qt Professional Edition.
+** Licensees holding valid Qt Enterprise Edition or Qt Professional Edition
+** licenses may use this file in accordance with the Qt Commercial License
+** Agreement provided with the Software.  This file is part of the tools
+** module and therefore may only be used if the tools module is specified
+** as Licensed on the Licensee's License Certificate.
 **
 ** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 ** information about the Professional Edition licensing, or see
@@ -222,14 +224,14 @@ QTextStream::QTextStream()
 }
 
 /*!
-  Constructs a text stream that uses the IO device \e d.
+  Constructs a text stream that uses the IO device \a iod.
 */
 
-QTextStream::QTextStream( QIODevice *d )
+QTextStream::QTextStream( QIODevice *iod )
 {
     init();
     setEncoding( Locale ); //###
-    dev = d;					// set device
+    dev = iod;					// set device
     reset();
 }
 
@@ -644,12 +646,18 @@ uint QTextStream::ts_getbuf( QChar* buf, uint len )
     if ( mapper ) {
 	if ( !d->decoder )
 	    d->decoder = mapper->makeDecoder();
-	QString s;
 	while( rnum < len ) {
+	    QString s;
 	    while ( s.isEmpty() ) {
 		// TODO: can this getch() call be optimized to read
 		// more than one character after another?  YES!
-		int c = (ungetHack == EOF) ? dev->getch() : ungetHack;
+		int c;
+		if ( ungetHack == EOF ) {
+		    c = dev->getch();
+		} else {
+		    c = ungetHack;
+		    ungetHack = EOF;
+		}
 		if ( c == EOF )
 		    return rnum;
 		char b = c;
@@ -890,17 +898,17 @@ void QTextStream::reset()
 */
 
 /*!
-  Sets the IO device to \e d.
+  Sets the IO device to \a iod.
   \sa device(), unsetDevice()
 */
 
-void QTextStream::setDevice( QIODevice *d )
+void QTextStream::setDevice( QIODevice *iod )
 {
     if ( owndev ) {
 	delete dev;
 	owndev = FALSE;
     }
-    dev = d;
+    dev = iod;
 }
 
 /*!
@@ -967,12 +975,11 @@ ulong QTextStream::input_bin()
 {
     ulong val = 0;
     QChar ch = eat_ws();
-    int d = ch.digitValue();
-    while (  d == 0 || d == 1 ) {
-	val <<= 1;
-	val += d;
+    int dv = ch.digitValue();
+    while (  dv == 0 || dv == 1 ) {
+	val = ( val << 1 ) + dv;
 	ch = ts_getc();
-	d = ch.digitValue();
+	dv = ch.digitValue();
     }
     if ( ch != QEOF )
 	ts_ungetc( ch );
@@ -983,14 +990,13 @@ ulong QTextStream::input_oct()
 {
     ulong val = 0;
     QChar ch = eat_ws();
-    int d = ch.digitValue();
-    while ( d >= 0 && d <= 7 ) {
-	val <<= 3;
-	val += d;
+    int dv = ch.digitValue();
+    while ( dv >= 0 && dv <= 7 ) {
+	val = ( val << 3 ) + dv;
 	ch = ts_getc();
-	d = ch.digitValue();
+	dv = ch.digitValue();
     }
-    if ( d == 8 || d == 9 ) {
+    if ( dv == 8 || dv == 9 ) {
 	while ( ts_isdigit(ch) )
 	    ch = ts_getc();
     }
@@ -1003,12 +1009,11 @@ ulong QTextStream::input_dec()
 {
     ulong val = 0;
     QChar ch = eat_ws();
-    int d = ch.digitValue();
+    int dv = ch.digitValue();
     while ( ts_isdigit(ch) ) {
-	val *= 10;
-	val += d;
+	val = val * 10 + dv;
 	ch = ts_getc();
-	d = ch.digitValue();
+	dv = ch.digitValue();
     }
     if ( ch != QEOF )
 	ts_ungetc( ch );
@@ -2021,6 +2026,8 @@ QTextStream &reset( QTextStream &s )
   <li> \c Unicode Using Unicode(utf16) for input and output. Output
   will be written in the order most efficient for the current platform
   (i.e. the order used internally in QString).
+  <li> \c UnicodeUTF8 Using Unicode(utf8) for input and output. If you use it
+  for input it will autodetect utf16 and use it instead of utf8.
   <li> \c Latin1  ISO-8859-1. Will not autodetect utf16.
   <li> \c UnicodeNetworkOrder Using network order Unicode(utf16) for
   input and output. Useful when reading Unicode data that does not
@@ -2047,6 +2054,12 @@ void QTextStream::setEncoding( Encoding e )
     switch ( e ) {
     case Unicode:
 	mapper = 0;
+	latin1 = FALSE;
+	doUnicodeHeader = TRUE;
+	internalOrder = TRUE;
+	break;
+    case UnicodeUTF8:
+	mapper = QTextCodec::codecForMib( 106 );
 	latin1 = FALSE;
 	doUnicodeHeader = TRUE;
 	internalOrder = TRUE;

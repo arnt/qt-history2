@@ -28,7 +28,7 @@ while ( <ARGV> ) {
     $classname = $1;
   }
 
-  if (/^<li><span class=\"fn\">.*<a href=\"(.*)\".*<b>(.*)<\/b>/g ) {
+  if (/^<li><div class=\"fn\">.*<a href=\"(.*)\".*<b>(.*)<\/b>/g ) {
     $key = $classname."/".$2;
     $functions{$key} = $1;
   }

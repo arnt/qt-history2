@@ -1,0 +1,49 @@
+/*!
+\page design.html
+
+<title>Design Overview</title>
+</head><body bgcolor="#ffffff">
+
+\postheader
+<h1 align=center>Design Overview</h1><br clear="all">
+
+This overview discusses following design decisions:
+<ul>
+<li>Editing Forms (2 phases)
+<li>Undo/Redo, Commands
+<li>Property editing
+<li>Saving/Loading
+<li>Code generation
+</ul>
+
+<h2 align=center>Editing Forms</h2>
+
+Creating a form in the Designer works normally in two steps:
+<ol>
+<li>Creating an placing widgets statically
+<li>Putting groups of widgets in layouts
+</ol>
+
+So the first step works without any layouting which makes it easier to
+implement it and easier to use when designing a dialog (no unexpected
+jumping around of widgets, etc.). In this mode widgets can be
+inserted, moved, resized, lowered, raised and removed. The widgets can
+be selected and deselected and a mode similar to the Extended
+Selectionmode.
+
+In the second step the user can select groups of widgets and layout
+them. It's possible to layout a group vertically, horizontally and in
+a grid. It is not decided yet if layouting in a grid should be done by
+an algorithm using some heuristics or by a more interactive way which
+gives the user more control but is also a bit more work for the user.
+
+<h2 align=center>Undo/Redo, Commands</h2>
+
+Each action or command which can be done in the Designer (like
+inserting a widget, etc.) has to be implemented as a command (derived
+from \c Command, see command.h). So for each action which is done an
+instance of the right command is created, executed and added to the
+command history. Each \c FormWindow holds its own command history
+which is used for Undo/Redo.
+
+*/

@@ -1,5 +1,5 @@
 #############################################################################
-# $Id: //depot/qt/main/GNUmakefile.inc#27 $
+# $Id: //depot/qt/main/GNUmakefile.inc#28 $
 #
 # Unix Makefile, requires GNU make (gmake).
 #
@@ -34,9 +34,12 @@ PROJMAK=-e-$(QT_EMBEDDED)
 TMAKEPATH=$(TMAKEDIR)/lib/qws/linux-$(QT_EMBEDDED)-g++
 export TMAKEPATH
 
+TMAKEPREHACK="CONFIG+=embedded" "CONFIG+=internal"
+
 else
 
 TMAKEHACK=$(TMAKEINSURE)
+TMAKEPREHACK="CONFIG+=internal"
 # Should do this too...
 #PROJOBJ=x11/
 #PROJMAK=-x11

@@ -1,0 +1,20 @@
+/*!
+\page index.html
+
+<title>Trolltech GUI Designer</title>
+</head><body bgcolor="#ffffff">
+
+\postheader
+<h1 align=center>Trolltech GUI Designer</h1><br clear="all">
+
+<ul>
+<li><a href="design.html">Design Overview</a>
+<li><a href="format.html">Qt UI XML Format Specification</a>
+<li><a href="classes.html">Class Documentation of the Designer</a>
+</ul>
+<hr>
+<ul>
+<li><a href="requests.html">Designer Feature Requests</a>
+<li><a href="requests.html">Designer Bugs</a>
+</ul>
+*/

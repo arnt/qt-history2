@@ -7,15 +7,17 @@
 **
 ** Copyright (C) 1998-2000 Troll Tech AS.  All rights reserved.
 **
-** This file is part of the Qt GUI Toolkit.
+** This file is part of the kernel module of the Qt GUI Toolkit.
 **
 ** This file may be distributed under the terms of the Q Public License
 ** as defined by Troll Tech AS of Norway and appearing in the file
 ** LICENSE.QPL included in the packaging of this file.
 **
-** Licensees holding valid Qt Professional Edition licenses may use this
-** file in accordance with the Qt Professional Edition License Agreement
-** provided with the Qt Professional Edition.
+** Licensees holding valid Qt Enterprise Edition or Qt Professional Edition
+** licenses may use this file in accordance with the Qt Commercial License
+** Agreement provided with the Software.  This file is part of the kernel
+** module and therefore may only be used if the kernel module is specified
+** as Licensed on the Licensee's License Certificate.
 **
 ** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 ** information about the Professional Edition licensing, or see
@@ -83,6 +85,10 @@ static bool match( const char* found, const char* target )
     return found[0] == '\0' || qstrcmp(found, target) == 0;
 }
 
+#if defined(Q_C_CALLBACKS)
+extern "C" {
+#endif
+
 static int cmp_uint32_little( const void* target, const void* candidate )
 {
     const uchar* t = (const uchar*) target;
@@ -102,6 +108,10 @@ static int cmp_uint32_big( const void* target, const void* candidate )
 	   : t[2] != c[2] ? (int) t[2] - (int) c[2]
 	   : (int) t[3] - (int) c[3];
 }
+
+#if defined(Q_C_CALLBACKS)
+}
+#endif
 
 static int systemWordSize = 0;
 static bool systemBigEndian;
@@ -228,8 +238,6 @@ public:
     <li> The \e comment - a comment which helps disambiguate different uses
     of the same text in the same context.
   </ul>
-  <li> The status of this item - "fully translated", "needs more work" or "not
-  currently in use".
   </ul>
 
   The minimum is, for each item, just the information that is
@@ -309,18 +317,18 @@ QTranslator::~QTranslator()
    <li>Filename stripped further, etc.
   </ol>
 
-  For example, load("foo_bar.baz", "/opt/foolib") will search for:
+  For example, an application running in the fr_CA locale
+  (Frech-speaking Canada) might call load("foo.fr_ca", "/opt/foolib"),
+  which would then try to open these files:
 
   <ol>
-   <li>/opt/foolib/foo_bar.baz
-   <li>/opt/foolib/foo_bar.baz.qm
-   <li>/opt/foolib/foo_bar
-   <li>/opt/foolib/foo_bar.qm
+   <li>/opt/foolib/foo.fr_ca
+   <li>/opt/foolib/foo.fr_ca.qm
+   <li>/opt/foolib/foo.fr
+   <li>/opt/foolib/foo.fr.qm
    <li>/opt/foolib/foo
    <li>/opt/foolib/foo.qm
   </ol>
-
-  This function works with stripped translator files.
 
   \sa save()
 */
@@ -355,7 +363,6 @@ bool QTranslator::load( const QString & filename, const QString & directory,
 	     QString::fromLatin1("_.") : search_delimiters;
 
     while( TRUE ) {
-	bool done = FALSE;
 	QFileInfo fi;
 
 	realname = prefix + fname;
@@ -368,18 +375,18 @@ bool QTranslator::load( const QString & filename, const QString & directory,
 	if ( fi.isReadable() )
 	    break;
 
-	int i = 0;
-	while( !done && i<(int)delims.length() ) {
-	    int dlm;
-	    if ( (dlm=fname.find(delims[i])) >= 0 ) {
-		// found a truncation
-		fname = fname.left(dlm);
-		done = TRUE;
-	    }
-	    i++;
+	int rightmost = 0;
+	for ( int i = 0; i < (int)delims.length(); i++ ) {
+	    int k = fname.findRev( delims[i] );
+	    if ( k > rightmost )
+		rightmost = k;
 	}
-	if ( !done )
-	    return FALSE; // No truncations - fail
+
+	// no truncations? fail
+	if ( rightmost == 0 )
+	    return FALSE;
+
+	fname.truncate( rightmost );
     }
 
     // realname is now the fully qualified name of a readable file.
@@ -451,7 +458,6 @@ bool QTranslator::load( const QString & filename, const QString & directory,
 	clear();
 	return FALSE;
     }
-
     // prepare to read.
     QByteArray tmpArray;
     tmpArray.setRawData( d->unmapPointer, d->unmapLength );
@@ -918,7 +924,7 @@ QTranslatorMessage QTranslator::findMessage( const char* context,
 	}
     }
 
-    uint h = elfHash( QCString(sourceText) + comment );
+    Q_UINT32 h = elfHash( QCString(sourceText) + comment );
 
     Q_UINT32 rh;
     Q_UINT32 ro;
@@ -1036,6 +1042,7 @@ QTranslatorMessage::QTranslatorMessage( QDataStream & stream )
 {
     QString str16;
     char tag;
+    Q_UINT8 obs1;
 
     while( TRUE ) {
 	tag = 0;
@@ -1043,7 +1050,8 @@ QTranslatorMessage::QTranslatorMessage( QDataStream & stream )
 	    stream.readRawBytes( &tag, 1 );
 	switch( (Tag)tag ) {
 	case Tag_End:
-	    h = elfHash( st + cm );
+	    if ( h == 0 )
+		h = elfHash( st + cm );
 	    return;
 	case Tag_SourceText16:
 	    stream >> str16;
@@ -1067,6 +1075,9 @@ QTranslatorMessage::QTranslatorMessage( QDataStream & stream )
 	    break;
 	case Tag_Comment:
 	    stream >> cm;
+	    break;
+	case Tag_Obsolete1:
+	    stream >> obs1;
 	    break;
 	default:
 	    h = 0;

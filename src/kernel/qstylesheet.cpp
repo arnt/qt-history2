@@ -7,15 +7,17 @@
 **
 ** Copyright (C) 1992-2000 Troll Tech AS.  All rights reserved.
 **
-** This file is part of the Qt GUI Toolkit.
+** This file is part of the kernel module of the Qt GUI Toolkit.
 **
 ** This file may be distributed under the terms of the Q Public License
 ** as defined by Troll Tech AS of Norway and appearing in the file
 ** LICENSE.QPL included in the packaging of this file.
 **
-** Licensees holding valid Qt Professional Edition licenses may use this
-** file in accordance with the Qt Professional Edition License Agreement
-** provided with the Qt Professional Edition.
+** Licensees holding valid Qt Enterprise Edition or Qt Professional Edition
+** licenses may use this file in accordance with the Qt Commercial License
+** Agreement provided with the Software.  This file is part of the kernel
+** module and therefore may only be used if the kernel module is specified
+** as Licensed on the Licensee's License Certificate.
 **
 ** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 ** information about the Professional Edition licensing, or see
@@ -90,8 +92,8 @@ public:
   <li> \c WhiteSpacePre - white space must be output exactly as given
   in the input.
 
-  <li> \c WhiteSpaceNoWrap - multiple spaces are collapsed as with 
-  WhiteSpaceNormal, but no  automatic line breaks occur. To break lines manually, 
+  <li> \c WhiteSpaceNoWrap - multiple spaces are collapsed as with
+  WhiteSpaceNormal, but no  automatic line breaks occur. To break lines manually,
   use the  \c&lt;br&gt; tag.
 
 </ul>
@@ -534,8 +536,8 @@ QStyleSheetItem::WhiteSpaceMode QStyleSheetItem::whiteSpaceMode() const
 	  - white spaces are preserved. This is particularly useful to
 	  display programming code.
    <li> \c WhiteSpaceNoWrap
-	  - multiple spaces are collapsed as with WhiteSpaceNormal, but no 
-	  automatic line breaks occur. To break lines manually, use the 
+	  - multiple spaces are collapsed as with WhiteSpaceNormal, but no
+	  automatic line breaks occur. To break lines manually, use the
 	  \c&lt;br&gt; tag.
   </ul>
  */
@@ -702,7 +704,7 @@ void QStyleSheetItem::setSelfNesting( bool nesting )
 /*!
   \class QStyleSheet qstylesheet.h
   \brief A collection of styles for rich text rendering and a generator of tags.
-  
+
   \ingroup drawing
   \ingroup helpsystem
 
@@ -1039,7 +1041,7 @@ void QStyleSheet::init()
      style = new QStyleSheetItem( this, QString::fromLatin1("head") );
      style->setDisplayMode(QStyleSheetItem::DisplayNone);
      style = new QStyleSheetItem( this, QString::fromLatin1("div") );
-     style->setDisplayMode(QStyleSheetItem::DisplayBlock);
+     style->setDisplayMode(QStyleSheetItem::DisplayInline);
      style = new QStyleSheetItem( this, QString::fromLatin1("dl") );
      style->setDisplayMode(QStyleSheetItem::DisplayBlock);
      style = new QStyleSheetItem( this, QString::fromLatin1("dt") );
@@ -1074,6 +1076,7 @@ static QStyleSheet* defaultsheet = 0;
 void qt_cleanup_defaultsheet()
 {
     delete defaultsheet;
+    defaultsheet = 0;
 }
 
 /*!

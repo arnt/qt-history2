@@ -8,7 +8,7 @@
 **
 *****************************************************************************/
 
-#include "../qtable.h"
+#include <qtable.h>
 #include <qapplication.h>
 #include <qintdict.h>
 
@@ -16,7 +16,7 @@ class MyTable : public QTable
 {
     Q_OBJECT
 public:
-    MyTable() : QTable( 6535, 6535, 0, 0 ), items( 1000 ), theWidgets( 1000 ) { theWidgets.setAutoDelete( TRUE ); }
+    MyTable() : QTable( 0, 0 ), items( 1000 ), theWidgets( 1000 ) { setNumRows( 6500 ); setNumCols( 6500 ); theWidgets.setAutoDelete( TRUE ); }
     virtual void setItem( int row, int col, QTableItem *item ) { items.insert( indexOf( row, col ), item ); item->setRow( row ); item->setCol( col ); }
     QTableItem *item( int row, int col ) const { return items[ indexOf( row, col ) ]; }
     virtual void clearCell( int row, int col ) { items.remove( indexOf( row, col ) ); };

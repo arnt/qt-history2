@@ -7,15 +7,17 @@
 **
 ** Copyright (C) 1992-2000 Troll Tech AS.  All rights reserved.
 **
-** This file is part of the Qt GUI Toolkit.
+** This file is part of the kernel module of the Qt GUI Toolkit.
 **
 ** This file may be distributed under the terms of the Q Public License
 ** as defined by Troll Tech AS of Norway and appearing in the file
 ** LICENSE.QPL included in the packaging of this file.
 **
-** Licensees holding valid Qt Professional Edition licenses may use this
-** file in accordance with the Qt Professional Edition License Agreement
-** provided with the Qt Professional Edition.
+** Licensees holding valid Qt Enterprise Edition or Qt Professional Edition
+** licenses may use this file in accordance with the Qt Commercial License
+** Agreement provided with the Software.  This file is part of the kernel
+** module and therefore may only be used if the kernel module is specified
+** as Licensed on the Licensee's License Certificate.
 **
 ** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 ** information about the Professional Edition licensing, or see
@@ -52,7 +54,7 @@ public:
 		     ISO_8859_8,
 		     ISO_8859_9,  Latin5 = ISO_8859_9,
 		     ISO_8859_10, Latin6 = ISO_8859_10,
-		     ISO_8859_11,
+		     ISO_8859_11, TIS620 = ISO_8859_11,
 		     ISO_8859_12,
 		     ISO_8859_13, Latin7 = ISO_8859_13,
 		     ISO_8859_14, Latin8 = ISO_8859_14,
@@ -66,25 +68,37 @@ public:
 		     Set_N = Set_Zh_TW,
 		     Unicode,
 		     /* The following will need to be re-ordered later,
-			since we accidientally left no room below "Unicode".
+			since we accidentally left no room below "Unicode".
 		        (For binary-compatibility that cannot change yet).
 			The above will be obsoleted and a same-named list
 			added below.
 		     */
 		     Set_GBK,
-		     Set_Big5
-		    };
+		     Set_Big5,
+
+		     /* The following are font-specific encodings that
+			we shouldn't need in a perfect world.
+		     */
+		     // 8-bit fonts
+		     JIS_X_0201 = 0xa0,
+		     // 16-bit fonts
+		     JIS_X_0208 = 0xc0, Enc16 = JIS_X_0208,
+		     KSC_5601,
+		     GB_2312,
+		     Big5,
+		     TSCII
+    };
     enum StyleHint { Helvetica, Times, Courier, OldEnglish,  System, AnyStyle,
 		     SansSerif	= Helvetica,
 		     Serif	= Times,
 		     TypeWriter = Courier,
 		     Decorative = OldEnglish};
-    enum StyleStrategie { PreferDefault = 0x0001, 
-			  PreferBitmap = 0x0002, 
+    enum StyleStrategy { PreferDefault = 0x0001,
+			  PreferBitmap = 0x0002,
 			  PreferDevice = 0x0004,
-			  PreferOutline = 0x0008, 
-			  ForceOutline = 0x0010, 
-			  PreferMatch = 0x0020, 
+			  PreferOutline = 0x0008,
+			  ForceOutline = 0x0010,
+			  PreferMatch = 0x0020,
 			  PreferQuality = 0x0040 };
     enum Weight	   { Light = 25, Normal = 50, DemiBold = 63,
 		     Bold  = 75, Black	= 87 };
@@ -120,8 +134,8 @@ public:
     void	setFixedPitch( bool );
     StyleHint	styleHint()	const;
     void	setStyleHint( StyleHint );
-    StyleStrategie styleStrategie() const;
-    void	setStyleHint( StyleHint, StyleStrategie );
+    StyleStrategy styleStrategy() const;
+    void	setStyleHint( StyleHint, StyleStrategy );
     CharSet	charSet()	const;
     void	setCharSet( CharSet );
 

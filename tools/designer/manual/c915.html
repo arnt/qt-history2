@@ -1,0 +1,845 @@
+<HTML
+><HEAD
+><TITLE
+>The File Format Of .ui Files</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.52"><LINK
+REL="HOME"
+HREF="book1.html"><LINK
+REL="UP"
+TITLE="Qt GUI Designer Reference Manual"
+HREF="p904.html"><LINK
+REL="PREVIOUS"
+TITLE="The Dialogs"
+HREF="c912.html"><LINK
+REL="NEXT"
+TITLE="The File Format Of .cw Files"
+HREF="c918.html"></HEAD
+><BODY
+CLASS="CHAPTER"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="c912.html"
+>Prev</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="c918.html"
+>Next</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="CHAPTER"
+><H1
+><A
+NAME="AEN915"
+>Chapter 9. The File Format Of .ui Files</A
+></H1
+>
+
+<p>
+This document describes the XML format which is used by the Qt
+Designer to describe dialogs and other widgets.  The XML document has
+to start with <i>&lt;!DOCTYPE UI&gt;&lt;UI&gt;</i>. After that some
+tags (<a href="#header">header-tags</a>) are following which store
+some general information. After that a <a
+href="#widget">&lt;widget&gt;....&lt;/widget&gt;</a> element is
+expected which describes the top-level widget. After that a <a
+href="#pixmapcollection">pixmap collection</a> tagged with
+&lt;images&gt;....&lt;/images&gt; might follow. After that optionally
+sections which describe the <a href="#customwidgets">Used
+Customwidgets</a>, the <a href="#connections">Defined Connections and
+Slots</a> and the <a href="#tabstops">Tab-Chain</a> follows. The XML
+document has to be closed with <i>&lt;/UI&gt;</i> then.
+<p>
+<hr noshade>
+<p>
+<a name="header"></a>
+<h2>Header tags</h2>
+<p>
+This tags describe some general information, all of them are optional.
+<p>
+<ul>
+<li>The <i>class</i> tag: If specified the name specified in this tag
+is used as classname in the generated code instead of the name of the
+toplevel widget.
+<li>The <i>comment</i> tag: Stores a comment about the form which can
+be entered in the Qt Designer.
+<li> The <i>author</i> tag: Stores information about the author of the
+dialog.
+<li> The <i>include</i> tag: Multiple of these can be specified which
+describe which additional files should be included in the generated
+code.
+<li> The <i>pixmapfunction</i> tag: If this is specified in the
+generated code the function which is specifed here will be used for
+loading pixmaps and pixmaps will not be saved inline.
+<p>
+</ul>
+<p>
+<hr noshade>
+<p>
+<a name="widget"></a>
+<h2>The &lt;widget&gt; element</h2>
+<p>
+This element describes a widget. Following child elements are defined:
+<ul>
+<li><b>(requried):</b> One &lt;class&gt; element which describes the
+class-type of the widget (like
+<i>&lt;class&gt;QWidget&lt;/class&gt;</i>)
+<li><b>(opt):</b> Multiple &lt;property&gt; elements which describe
+the properties of this widget (<a
+href="#property">more...</a>).
+<li><b>(opt):</b> Multiple &lt;attribute&gt; elements which describe
+the attributes of this widget (<a
+href="#attribute">more...</a>). Attributes are extra-properties of a
+widget which are not known defined by the widget and need extra
+treatment.
+<li><b>(opt):</b> Multiple &lt;item&gt; elements which describe the
+items of this widget if the widget can contain items. (<a
+href="#item">more...</a>)
+<li><b>(opt):</b> Multiple &lt;column&gt; elements which describe
+the columns of the widget if the widget is a listview (<a
+href="#column">more...</a>).
+<li><b>(opt):</b> Exactly one of the following:
+<p>
+<ul>
+<li>Multiple &lt;widget&gt; elements which describe the child widgets
+(<a href="#widget">more...</a>)
+<li>One &lt;hbox&gt; element which describes a HBox-Layout which does
+the layout for this widget (<a href="#hbox">more...</a>)
+<li>One &lt;vbox&gt; element which describes a VBox-Layout which does
+the layout for this widget (<a href="#vbox">more...</a>)
+<li>One &lt;grid&gt; element which describes a Grid-Layout which does
+the layout for this widget (<a href="#grid">more...</a>)
+<p>
+</ul>
+</ul>
+<p>
+<hr noshade>
+<p>
+<a name="hbox"></a>
+<h2>The &lt;hbox&gt; element</h2>
+<p>
+This element describes a layout which arranges all childs from the
+left to the right. It has to be a child of a <a
+href="#widget">widget-element</a> element. This widget is then
+normally a container widget (e.g. QGroupBox) or a temporary
+QLayoutWidget. Following child elements are defined:
+<p>
+<ul>
+<li><b>(opt):</b> Multiple &lt;property&gt; elements which describe
+the properties of the hbox layout (<a href="#property">more...</a>)
+<li><b>(opt):</b> Multiple &lt;widget&gt; elements which describe the
+child widgets (<a href="#widget">more...</a>)
+<li><b>(opt):</b> Multiple &lt;spacer&gt; elements which describe spacings
+(<a href="#spacer">more...</a>)
+<p>
+</ul>
+<p>
+<hr noshade>
+<p>
+<a name="vbox"></a>
+<h2>The &lt;vbox&gt; element</h2>
+<p>
+This element describes a layout which arranges all childs from the top
+to the bottom. It has to be a child of a <a
+href="#widget">widget-element</a> element. This widget is then
+normally a container widget (e.g. QGroupBox) or a temporary
+QLayoutWidget. Following child elements are defined:
+<p>
+<ul>
+<li><b>(opt):</b> Multiple &lt;property&gt; elements which describe
+the properties of the hbox layout (<a href="#property">more...</a>)
+<li><b>(opt):</b> Multiple &lt;widget&gt; elements which describe the
+child widgets (<a href="#widget">more...</a>)
+<li><b>(opt):</b> Multiple &lt;spacer&gt; elements which describe spacings
+(<a href="#spacer">more...</a>)
+<p>
+</ul>
+<p>
+<hr noshade>
+<p>
+<a name="grid"></a>
+<h2>The &lt;grid&gt; element</h2>
+<p>
+This element describes a layout which arranges all childs in a grid
+(in cells). It can also contain childs which use multiple cells. It
+has to be a child of a <a href="#widget">widget-element</a> which is
+normally a container widget or a temporary QLayoutWidget. Following
+child elements are defined:
+<p>
+<ul>
+<li><b>(opt):</b> Multiple &lt;property&gt; elements which describe
+the properties of the grid layout (<a href="#property">more...</a>)
+<li><b>(opt):</b> Multiple &lt;widget&gt; elements which describe the
+child widgets (<a href="#widget">more...</a>)
+<li><b>(opt):</b> Multiple &lt;spacer&gt; elements which describe spacings
+(<a href="#spacer">more...</a>)
+<p>
+</ul>
+<p>
+Widget, and Spacer-Tags which are inside a grid have two attributes,
+which describe the position of this item in the grid. These attributes
+are <i>row</i> and <i>col</i>. Optionally these tags have one or both
+of the following attributes (if they are multicells): <i>rowspan</i>
+and <i>colspan</i>. If these attributes are not given, these values
+default to 1.
+<p>
+<hr noshade>
+<p>
+<a name="property"></a>
+<h2>The &lt;property&gt; element</h2>
+<p>
+This element describes a property of a widget or a layout. Each
+property has as first child a name element which describes the name of
+the property (like <i>&lt;name&gt;geometry&lt;/name&gt;</i>). After
+that there follows an element which contains the value of the property
+and describes the data type of it. Following types are defined:
+<p>
+<table width=100%>
+<p>
+<tr bgcolor=darkblue>
+<td><b><font color=white>Element-Name</font></b></td>
+<td><b><font color=white>Type</font></b></td>
+<td><b><font color=white>Value-Description</font></b></td>
+<td><b><font color=white>Example</font></b></td>
+</tr>
+<p>
+<tr bgcolor=#D6D6D6>
+<td>string</td>
+<td>Any unicode string value (saved in utf8)</td>
+<td>String</td>
+<td>&lt;string&gt;A Text&lt;/string&gt;</td>
+</tr>
+<p>
+<tr bgcolor=#D6D6D6>
+<td>cstring</td>
+<td>Any c-string (8-bit) value</td>
+<td>CString</td>
+<td>&lt;string&gt;A Text&lt;/string&gt;</td>
+</tr>
+<p>
+<tr bgcolor=#D6D6D6>
+<td>bool</td>
+<td>Any bool value</td>
+<td>Bool (1|0)</td>
+<td>&lt;bool&gt;1&lt;/bool&gt;</td>
+</tr>
+<p>
+<tr bgcolor=#D6D6D6>
+<td>number</td>
+<td>Any signed numerical value</td>
+<td>Integer</td>
+<td>&lt;number&gt;-4&lt;/number&gt;</td>
+</tr>
+<p>
+<tr bgcolor=#D6D6D6>
+<td>number</td>
+<td>Any unsigned numerical value</td>
+<td>Unsigned Integer</td>
+<td>&lt;number&gt;1&lt;/number&gt;</td>
+</tr>
+<p>
+<tr bgcolor=#D6D6D6>
+<td>enum</td>
+<td>Enum Key</td>
+<td>String</td>
+<td>&lt;enum&gt;StrongFocus&lt;/enum&gt;</td>
+</tr>
+<p>
+<tr bgcolor=#D6D6D6>
+<td>set</td>
+<td>Set (or'd ints)</td>
+<td>StringList joined with '|'</td>
+<td>&lt;set&gt;AlignLeft|AlignTop|WordWrap&lt;/set&gt;</td>
+</tr>
+<p>
+<tr bgcolor=#D6D6D6>
+<td>rect</td>
+<td>Rectangles</td>
+<td>
+&lt;x&gt;Integer&lt;/x&gt;<br>
+&lt;y&gt;Integer&lt;/y&gt;<br>
+&lt;width&gt;Integer&lt;/width&gt;<br>
+&lt;height&gt;Integer&lt;/height&gt;<br>
+<i>If you leave out one of the elements, the value of it defaults to zero (0)</i>
+</td>
+<td>
+&lt;rect&gt;<br>
+&nbsp;&nbsp;&lt;x&gt;20&lt;/x&gt;<br>
+&nbsp;&nbsp;&lt;y&gt;30&lt;/y&gt;<br>
+&nbsp;&nbsp;&lt;width&gt;200&lt;/width&gt;<br>
+&nbsp;&nbsp;&lt;height&gt;25&lt;/height&gt;<br>
+&lt;/rect&gt;
+</td>
+</tr>
+<p>
+<tr bgcolor=#D6D6D6>
+<td>point</td>
+<td>Points (Coordinates)</td>
+<td>
+&lt;x&gt;Integer&lt;/x&gt;<br>
+&lt;y&gt;Integer&lt;/y&gt;<br>
+<i>If you leave out one of the elements, the value of it defaults to zero (0)</i>
+</td>
+<td>
+&lt;point&gt;<br>
+&nbsp;&nbsp;&lt;x&gt;20&lt;/x&gt;<br>
+&nbsp;&nbsp;&lt;y&gt;30&lt;/y&gt;<br>
+&lt;/point&gt;
+</td>
+</tr>
+<p>
+<tr bgcolor=#D6D6D6>
+<td>size</td>
+<td>Sizes</td>
+<td>
+&lt;width&gt;Integer&lt;/width&gt;<br>
+&lt;height&gt;Integer&lt;/height&gt;<br>
+<i>If you leave out one of the elements, the value of it defaults to zero (0)</i>
+</td>
+<td>
+&lt;size&gt;<br>
+&nbsp;&nbsp;&lt;width&gt;200&lt;/width&gt;<br>
+&nbsp;&nbsp;&lt;height&gt;25&lt;/height&gt;<br>
+&lt;/size&gt;
+</td>
+</tr>
+<p>
+<tr bgcolor=#D6D6D6>
+<td>font</td>
+<td>Font Description</td>
+<td>
+&lt;family&gt;String&lt;/family&gt;<br>
+&lt;pointsize&gt;Integer&lt;/pointsize&gt;<br>
+&lt;weight&gt;Integer&lt;/weight&gt;<br>
+&lt;italic&gt;Boolean&lt;/italic&gt;<br>
+&lt;underline&gt;Boolean&lt;/underline&gt;<br>
+&lt;strikeout&gt;Boolean&lt;/strikeout&gt;<br>
+</td>
+<td>
+&lt;font&gt;<br>
+&nbsp;&nbsp;&lt;family&gt;Times&lt;/family&gt;<br>
+&nbsp;&nbsp;&lt;pointsize&gt;12&lt;/pointsize&gt;<br>
+&nbsp;&nbsp;&lt;weight&gt;50&lt;/weight&gt;<br>
+&nbsp;&nbsp;&lt;italic&gt;1&lt;/italic&gt;<br>
+&nbsp;&nbsp;&lt;underline&gt;0&lt;/underline&gt;<br>
+&nbsp;&nbsp;&lt;strikeout&gt;0&lt;/strikeout&gt;<br>
+&lt;/font&gt;
+</td>
+</tr>
+<p>
+<tr bgcolor=#D6D6D6>
+<td>color</td>
+<td>Color Description</td>
+<td>
+&lt;red&gt;Integer&lt;/red&gt;<br>
+&lt;green&gt;Integer&lt;/green&gt;<br>
+&lt;blue&gt;Integer&lt;/blue&gt;<br>
+</td>
+<td>
+&lt;color&gt;<br>
+&nbsp;&nbsp;&lt;red&gt;192&lt;/red&gt;<br>
+&nbsp;&nbsp;&lt;green&gt;200&lt;/green&gt;<br>
+&nbsp;&nbsp;&lt;blue&gt;50&lt;/blue&gt;<br>
+&lt;/color&gt;
+</td>
+</tr>
+<p>
+<tr bgcolor=#D6D6D6>
+<td>pixmap/image/imageset</td>
+<td>Pixmap</td>
+<td>
+Depending on whether images are saved inline or not (see <a
+href="#header">header-tags</a>) this tag looks different:
+<ul>
+<li><b>Inline:</b> &lt;pixmap&gt;<i>&lt;key of pixmap in the pixmap
+collection&gt;</i>&lt;/pixmap&gt;<br><br> <i>The same is used for
+saving images and iconsets at the moment, just replace 'pixmap' with
+'image' or 'iconset' then. So the is no special support for iconsets
+yet.</i><br> <i>Details about the <a
+href="#pixmapcollection">Pixmap-Collection</a></i>
+<li><b>Not-Inline (Function)</b>: &lt;pixmap&gt;<i>&lt;Arguments for
+pixmap-loader function&gt;</i>&lt;/pixmap&gt;<br><br> <i>The same is
+used for saving images and iconsets at the moment, just replace
+'pixmap' with 'image' or 'iconset' then. So the is no special support
+for iconsets.
+<p>
+</ul>
+<p>
+</td>
+<td>&lt;pixmap&gt;image1&lt;/pixmap&gt;
+</td>
+</tr>
+<p>
+<tr bgcolor=#D6D6D6>
+<td>sizepolicy</td>
+<td>SizePolicy (saved as int)</td>
+<td>
+&lt;hsizetype&gt;SizeType&lt;/hsizetype&gt;<br>
+&lt;vsizetype&gt;SizeType&lt;/vsizetype&gt;<br>
+<i>SizeType is saved as int and can be one of</i>
+<ul>
+</ul>
+<li>Fixed (0)
+<li>Minimum (1)
+<li>Maximum (4)
+<li>Preferred (5)
+<li>MinimumExpanding (3)
+<li>Expanding (7)
+</ul>
+</td>
+<td>
+&lt;hsizetype&gt;1&lt;/hsizetype&gt;<br>
+&lt;vsizetype&gt;3&lt;/vsizetype&gt;<br>
+</td>
+</tr>
+<p>
+<tr bgcolor=#D6D6D6>
+<td>palette</td>
+<td>Palette</td>
+<td>
+&lt;palette&gt;<br>
+&nbsp;&nbsp;&lt;active&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;color&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i>rgb of Foreground</i><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;/color&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;color&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i>rgb of Button</i><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;/color&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;color&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i>rgb of Light</i><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;/color&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;color&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i>rgb of Midlight</i><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;/color&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;color&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i>rgb of Dark</i><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;/color&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;color&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i>rgb of Mid</i><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;/color&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;color&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i>rgb of Text</i><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;/color&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;color&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i>rgb of BrightText</i><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;/color&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;color&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i>rgb of ButtonText</i><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;/color&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;color&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i>rgb of Base</i><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;/color&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;color&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i>rgb of Background</i><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;/color&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;color&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i>rgb of Shadow</i><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;/color&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;color&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i>rgb of Highlight</i><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;/color&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;color&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i>rgb of HighlightText</i><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;/color&gt;<br>
+&nbsp;&nbsp;&lt;/active&gt;<br>
+&nbsp;&nbsp;&lt;disabled&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<i>ColorGroup of disabled palette<br>
+&nbsp;&nbsp;&lt;/disabled&gt;<br>
+&nbsp;&nbsp;&lt;inactive&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<i>ColorGroup of inactive palette<br>
+&nbsp;&nbsp;&lt;/inactive&gt;<br>
+&lt;/palette&gt;
+</td>
+<td>
+&lt;palette&gt;<br>
+<small>
+&nbsp;&nbsp;&lt;active&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;color&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;red&gt;0&lt;/red&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;green&gt;0&lt;/green&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;blue&gt;0&lt;/blue&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;/color&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;color&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;red&gt;170&lt;/red&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;green&gt;170&lt;/green&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;blue&gt;255&lt;/blue&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;/color&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;color&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;red&gt;255&lt;/red&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;green&gt;255&lt;/green&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;blue&gt;255&lt;/blue&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;/color&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;color&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;red&gt;212&lt;/red&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;green&gt;212&lt;/green&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;blue&gt;255&lt;/blue&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;/color&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;color&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;red&gt;85&lt;/red&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;green&gt;85&lt;/green&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;blue&gt;127&lt;/blue&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;/color&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;color&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;red&gt;113&lt;/red&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;green&gt;113&lt;/green&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;blue&gt;170&lt;/blue&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;/color&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;color&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;red&gt;0&lt;/red&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;green&gt;0&lt;/green&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;blue&gt;0&lt;/blue&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;/color&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;color&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;red&gt;255&lt;/red&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;green&gt;255&lt;/green&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;blue&gt;255&lt;/blue&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;/color&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;color&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;red&gt;0&lt;/red&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;green&gt;0&lt;/green&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;blue&gt;0&lt;/blue&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;/color&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;color&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;red&gt;255&lt;/red&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;green&gt;255&lt;/green&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;blue&gt;255&lt;/blue&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;/color&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;color&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;red&gt;218&lt;/red&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;green&gt;218&lt;/green&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;blue&gt;218&lt;/blue&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;/color&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;color&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;red&gt;0&lt;/red&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;green&gt;0&lt;/green&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;blue&gt;0&lt;/blue&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;/color&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;color&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;red&gt;90&lt;/red&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;green&gt;36&lt;/green&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;blue&gt;0&lt;/blue&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;/color&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;color&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;red&gt;255&lt;/red&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;green&gt;255&lt;/green&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;blue&gt;255&lt;/blue&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;/color&gt;<br>
+&nbsp;&nbsp;&lt;/active&gt;<br>
+<i>......</i><br>
+&nbsp;&nbsp;&lt;disabled&gt;<br>
+&nbsp;&nbsp;&lt;/disabled&gt;<br>
+&nbsp;&nbsp;&lt;inactive&gt;<br>
+<i>......</i><br>
+&nbsp;&nbsp;&lt;/inactive&gt;<br>
+&lt;/palette&gt;
+</small>
+</td>
+</tr>
+<p>
+<tr bgcolor=#D6D6D6>
+<td>cursor</td>
+<td>Cursor saved as int</td>
+<td>
+&lt;cursor&gt;cursor&lt;/cursor&gt;<br>
+<i>Following int values are defined for cursor:</i>
+<ul>
+<li>ArrowCursor (0)
+<li>UpArrowCursor (1)
+<li>CrossCursor (2)
+<li>WaitCursor (3)
+<li>IbeamCursor (4)
+<li>SizeVerCursor (5)
+<li>SizeHorCursor (6)
+<li>SizeBDiagCursor (7)
+<li>SizeFDiagCursor (8)
+<li>SizeAllCursor (9)
+<li>BlankCursor (10)
+<li>SplitVCursor (11)
+<li>SplitHCursor (12)
+<li>PointingHandCursor (13)
+<li>ForbiddenCursor (14)
+</ul>
+</td>
+<td>&lt;cursor&gt;5&lt;/cursor&gt;</td>
+</tr>
+<p>
+</table>
+<p>
+To find out the known properties of a widget look at the property
+table of that widget documentation in the <a
+href="http://doc.trolltech.com/classes.html">Qt Class Documentation</a>.
+<p>
+<hr noshade>
+<p>
+<a name="attribute"></a>
+<h2>The &lt;attribute&gt; element</h2>
+<p>
+The attribute element describes an attribute of a <a
+href="#widget">widget-element</a>. A widget may contain multiple
+attribute elements. The format of an attribute element is the same as
+the one of the <a href="#property">property</a> element, just that the
+name of the element is <i>attribute</i>. The only difference to a
+property is, that an attribute is not a property known by the widget
+and needs special treatment. Attributes of a widget are normally only
+interesting for the parent of the widget and not the widget
+itself. E.g. the title of a tab-page in a tabwidget is an attribute
+and not a property of the page widget.
+<p>
+<hr noshade>
+<p>
+<a name="spacer"></a>
+<h2>The &lt;spacer&gt; element</h2>
+<p>
+These elements describe spacer items inside a layout (see <a
+href="http://doc.trolltech.com/qspaceritem.htm">QSpacerItem</a>). The
+<i>orientation</i> property describes the orientation of the spacer
+(Horizontal or Vertical). The <i>sizeType</i> property describes the
+way this spacer item acts in the defined direction (vertical or
+horizontal). Although this is neither a QWidget nor a QObject in
+reality, there are properties defined for this item. These are:
+<p>
+<ul>
+<li><i>name</i> of type <i>string</i> which describes the name of the
+item.
+<li><i>orientation</i> of type <i>enum</i> which describes the
+orientation of the item.
+<li><i>sizeType</i> of type <i>enum</i> which describes the way the item
+expands in the defined direction as described in <a
+href="http://doc.trolltech.com/qsizepolicy.html#SizeType">The
+Size-Policy Documentation</a>.
+<li><i>geometry</i> of type <i>rect</i> which describes the geometry of
+the spacing which is normally only usful for fixed spacings.
+<p>
+</ul>
+<p>
+<hr noshade>
+<p>
+<a name="item"></a>
+<h2>The &lt;item&gt; element</h2>
+<p>
+The item element describes an item of a widget, if the widget can
+contain items (like listboxes, iconviews, etc.). The item element
+contains exactly one child element, which describes the item. This
+child element is a <a href="#property">property</a> element. The
+property names which are valid are <i>text</i> and <i>pixmap</i>
+depending on where to insert the item.
+<p>
+As Listviews can hold a tree of items, in this case a <i>item</i> tag
+can contain other <i>item</i> tags which are child items then. Also as
+listviews can have many columns, a <i>item</i> tag contais a
+<i>text</i> and <i>pixmap</i> property for each column. The columns of
+a listview are described using the <a href="#column">column-tag</a>.
+<p>
+<hr noshade>
+<p>
+<a name="column"></a>
+<h2>The &lt;column&gt; element</h2>
+<p>
+The column element describes a columns of a listview widget. A
+listview can contain multiple column elements. A column element
+contains following properties (all of them are optional):
+<p>
+<ul>
+<li><i>text</i> of type <i>string</i> which contains the column label.
+<li><i>pixmap</i> of type <i>pixmap</i> which contains the column pixmap.
+<li><i>resizable</i> of type <i>bool</i> which describes if the column
+can be resized by the user.
+<li><i>movable</i> of type <i>bool</i> which describes if the column
+can be moved by the user.
+<p>
+</ul>
+<p>
+<hr noshade>
+<p>
+<a name="pixmapcollection"></a>
+<h2>The Pixmap collection</h2>
+<p>
+To decerase the file size, images are saved shared. This means each
+image gets a key which is used in the pixmap/image/iconset
+properties. Later in the image collection all this images are saved
+once. The images are written in either PNG or zipped XPM (XPM.GZ)
+where each caracter is converted to HEX code. The format is specified
+in the data tag using the format attribute. So the image collection
+looks like this:
+<p>
+&lt;images&gt;<br>
+&nbsp;&nbsp;&lt;image&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;name&gt;key&lt;/name&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;data format="PNG|XPM.GZ"&gt;PNG or XPM.GZ data in HEX&lt;/data&gt;<br>
+&nbsp;&nbsp;&lt;/image&gt;<br>
+&lt;/images&gt;
+<p>
+<hr noshade>
+<p>
+<a name="customwidgets"></a>
+<h2>Customwidgets</h2>
+<p>
+A Dialog created by the Qt Designer can contain custom widgets. To
+be able to create code for that, some information about the used
+customwidgets has to be stored. This is done in the section which is
+encapsulated by the tags
+<i>&lt;customwidgets&gt;...&lt;/customwidgets&gt;</i>. Inside that for
+each customwidget there is an entry encapsulated by
+<i>&lt;customwidget&gt;...&lt;/customwidget&gt;</i>. Each of this
+customwidget entries has following child elements:
+<p>
+<ul>
+<li><i>&lt;class&gt;...&lt;/class&gt;</i>: Classname of the
+customwidget.
+<li><i>&lt;header&gt;...&lt;/header&gt;</i>: Headerfile of the
+customwidget which will be included in the code generation. This tag
+has the attribute <i>location</i> which can be <i>local</i> or
+<i>global</i>.
+<li><i>&lt;sizehint&gt;...&lt;/sizehint&gt;</i>: Describes the
+sizehint (by having two child elements <i>width</i> and
+<i>height</i>), which should be used in the designer.
+<li><i>&lt;pixmap&gt;...&lt;/pixmap&gt;</i>: Describes the pixmap
+which should be used to represent the custom widget in the designer.
+<li><i>&lt;signal&gt;...&lt;/signal&gt;</i>: Mutiple of these elements
+are allowed, which describe the signals which this custom widget has,
+so that they can be used in the designer.
+<li><i>&lt;slot&gt;...&lt;/slot&gt;</i>: Mutiple of these elements
+are allowed, which describe the slots which this custom widget has,
+so that they can be used in the designer.
+<li><i>&lt;property&gt;...&lt;/property&gt;</i>: Mutiple of these
+elements are allowed, which describe the properties which this custom
+widget has, so that they can be used in the designer. This tag has a
+attribute <i>type</i> which describes the type of the property.
+<p>
+</ul>
+<p>
+<hr noshade>
+<p>
+<a name="connections"></a>
+<h2>Connections</h2>
+<p>
+In the section which is encapsulated by
+<i>&lt;connections&gt;...&lt;/connections&gt;</i> all connections
+between the widgets of this form are stored. For each connection there
+is an entry encapsulated by
+<i>&lt;connection&gt;...&lt;/connection&gt;</i>. Inside this entry
+following elements are defined:
+<p>
+<ul>
+<li><i>&lt;sender&gt;...&lt;/sender&gt;</i>: Name of the sender widget
+<li><i>&lt;signal&gt;...&lt;/signal&gt;</i>: Signal of the sender
+<li><i>&lt;receiver&gt;...&lt;/receiver&gt;</i>: Name of the receiver widget
+<li><i>&lt;slot&gt;...&lt;/slot&gt;</i>: Slot of the receiver
+<p>
+</ul>
+<p>
+As it is possible to add custom slots to forms to which widgets can
+connect, these custom slots are defined in this section too. For each
+slots there exists a <i>&lt;slot&gt;...&lt;/slot&gt;</i> element which
+has an attribute <i>access</i> which describes the access policy of
+this slot which can be <i>public</i> or <i>protected</i>.
+<p>
+<hr noshade>
+<p>
+<a name="tabstops"></a>
+<h2>Tab-Chain</h2>
+<p>
+The tab-chain of the form is defined in the section which is
+encapsulated by the elements
+<i>&lt;tabstops&gt;...&lt;/tabstops&gt;</i>. Inside that there comes a
+element <i>&lt;tabstop&gt;WidgetName&lt;/tabstop&gt;</i> for each
+widget of the form which can accept keyboard focus. The tabchain is
+set in the order in which these <i>tabstop</i> elements are stored.
+
+
+
+<P
+></P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="c912.html"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="book1.html"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="c918.html"
+>Next</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>The Dialogs</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="p904.html"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>The File Format Of .cw Files</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

@@ -7,11 +7,17 @@
 **
 ** Copyright (C) 1992-2000 Troll Tech AS.  All rights reserved.
 **
-** This file is part of the Qt GUI Toolkit Professional Edition.
+** This file is part of the kernel module of the Qt GUI Toolkit.
 **
-** Licensees holding valid Qt Professional Edition licenses may use this
-** file in accordance with the Qt Professional Edition License Agreement
-** provided with the Qt Professional Edition.
+** This file may be distributed under the terms of the Q Public License
+** as defined by Troll Tech AS of Norway and appearing in the file
+** LICENSE.QPL included in the packaging of this file.
+**
+** Licensees holding valid Qt Enterprise Edition or Qt Professional Edition
+** licenses may use this file in accordance with the Qt Commercial License
+** Agreement provided with the Software.  This file is part of the kernel
+** module and therefore may only be used if the kernel module is specified
+** as Licensed on the Licensee's License Certificate.
 **
 ** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 ** information about the Professional Edition licensing.
@@ -842,6 +848,7 @@ void QWidget::showMaximized()
 	show();
     QEvent e( QEvent::ShowMaximized );
     QApplication::sendEvent( this, &e );
+    setWState(WState_Maximized);
 }
 
 void QWidget::showNormal()
@@ -925,6 +932,7 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
     QSize  olds( size() );
     if ( isMove == FALSE && olds.width()==w && olds.height()==h )
 	return;
+    clearWState(WState_Maximized);
     if ( testWState(WState_ConfigPending) ) {	// processing config event
 	qWinRequestConfig( winId(), isMove ? 2 : 1, x, y, w, h );
     } else {
@@ -939,8 +947,8 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
 	    }
 	    MoveWindow( winId(), fr.x(), fr.y(), fr.width(), fr.height(), TRUE );
 	} else {
-	    MoveWindow( winId(), x, y, w, h, TRUE );
 	    setCRect( QRect( x, y, w, h ) );
+	    MoveWindow( winId(), x, y, w, h, TRUE );
 	}
 	clearWState( WState_ConfigPending );
     }
@@ -1014,7 +1022,7 @@ void QWidget::setBaseSize( int w, int h )
 }
 
 
-extern void qt_erase_bg( HDC, int, int, int, int,
+extern void qt_erase_background( HDC, int, int, int, int,
 			 const QColor &, const QPixmap *, int, int );
 
 void QWidget::erase( int x, int y, int w, int h )
@@ -1036,9 +1044,9 @@ void QWidget::erase( int x, int y, int w, int h )
 	tmphdc = FALSE;
     }
     if ( backgroundOrigin() == ParentOrigin && !isTopLevel() )
-	qt_erase_bg( hdc, x, y, w, h, bg_col, backgroundPixmap(), this->x(), this->y() );
+	qt_erase_background( hdc, x, y, w, h, bg_col, backgroundPixmap(), this->x(), this->y() );
     else
-	qt_erase_bg( hdc, x, y, w, h, bg_col, backgroundPixmap(), 0, 0 );
+	qt_erase_background( hdc, x, y, w, h, bg_col, backgroundPixmap(), 0, 0 );
     if ( tmphdc ) {
 	ReleaseDC( winId(), hdc );
 	hdc = 0;
@@ -1061,10 +1069,10 @@ void QWidget::erase( const QRegion& rgn )
     }
     SelectClipRgn( hdc, rgn.handle() );
     if ( backgroundOrigin() == ParentOrigin && !isTopLevel() )
-	qt_erase_bg( hdc, 0, 0, crect.width(), crect.height(), bg_col,
+	qt_erase_background( hdc, 0, 0, crect.width(), crect.height(), bg_col,
 		     backgroundPixmap(), x(), y() );
     else
-	qt_erase_bg( hdc, 0, 0, crect.width(), crect.height(), bg_col,
+	qt_erase_background( hdc, 0, 0, crect.width(), crect.height(), bg_col,
 		     backgroundPixmap(), 0, 0 );
     SelectClipRgn( hdc, 0 );
     if ( tmphdc ) {

@@ -3,7 +3,7 @@
 
 static inline int blendComponent( int v, int av, int s, int as )
 {
-    //shadow gets a colour inversely proportional to the
+    //shadow gets a color inversely proportional to the
     //alpha value
     s = (s*(255-as))/255;
     //then do standard blending
@@ -58,7 +58,7 @@ int main( int*, char**)
 		b = (b*255)/(max-min);
 	    }
 	    int a = 255-min;
-	    a -=  (max-min)/3; //hack more transparency for colours.
+	    a -=  (max-min)/3; //hack more transparency for colors.
 	    line[x] = qRgba( r, g, b, a );
 	}
     }

@@ -13,16 +13,20 @@ chdir "$qtdir";
 $is_win32 = 0;
 $is_dll = 0;
 $tmakeargs = "";
-$dllargs = "";
+$ENV{"QT_DLL"}=0;
 
 while ( @ARGV ) {
     $_ = shift @ARGV;
     if ( /^-win32$/ ) {
 	$is_win32 = 1;
 	$tmakeargs .= " -win32";
+    } elsif ( /^-mt$/ ) {
+	$tmakeargs .= " 'CONFIG+=thread'";
     } elsif ( /^-dll$/ ) {
 	$is_dll = 1;
-	$dllargs = "DEFINES+=QT_DLL";
+	$ENV{"QT_DLL"}=1;
+    } elsif ( /^-enterprise$/ ) {
+	$tmakeargs .= " 'CONFIG+=enterprise'";
     }
 }
 
@@ -30,11 +34,12 @@ while ( @ARGV ) {
 push @projects, find_files('examples','\.pro$',1);
 push @projects, find_files('tutorial','\.pro$',1);
 push @projects, find_files('extensions','\.pro$',1);
+push @projects, find_files('tools','\.pro$',1);
 for $p ( @projects ) {
-    next if ( $p eq "src/qtinternal.pro" );    
     if ( ($p =~ /(.*\/)([^\/]+)/) ) {
 	$dir  = $1;
 	$file = $2;
+
 	chdir $dir;
 	$m = "Makefile";
 	if ( $is_win32 ) {
@@ -52,7 +57,7 @@ for $p ( @projects ) {
 	}
 	if ( $m ) {
 	    print STDERR "Building ${dir}$m\n";
-	    `tmake $tmakeargs $file $dllargs -o $m`;
+	    `tmake $tmakeargs $file -o $m`;
 	}
 	chdir $qtdir;
     }

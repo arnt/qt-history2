@@ -96,8 +96,8 @@ static QString keywords[] = {
 
 static QMap<int, QMap<QString, int > > *wordMap = 0;
 
-QCppSyntaxHighlighter::QCppSyntaxHighlighter( QTextEditDocument *d )
-    : QTextEditSyntaxHighlighter( d ), lastFormat( 0 ), lastFormatId( -1 )
+QCppSyntaxHighlighter::QCppSyntaxHighlighter( QTextDocument *d )
+    : QTextSyntaxHighlighter( d ), lastFormat( 0 ), lastFormatId( -1 )
 {
     createFormats();
     if ( wordMap )
@@ -121,30 +121,30 @@ void QCppSyntaxHighlighter::createFormats()
     QString commentFamily = "times";
     int normalWeight = qApp->font().weight();
     addFormat( Standard,
-	       new QTextEditFormat( QFont( normalFamily, normalSize, normalWeight ), Qt::black ) );
+	       new QTextFormat( QFont( normalFamily, normalSize, normalWeight ), Qt::black ) );
     addFormat( Comment,
-	       new QTextEditFormat( QFont( commentFamily, normalSize, normalWeight, TRUE ), Qt::red ) );
+	       new QTextFormat( QFont( commentFamily, normalSize, normalWeight, TRUE ), Qt::red ) );
     addFormat( Number,
-	       new QTextEditFormat( QFont( normalFamily, normalSize, normalWeight ), Qt::darkBlue ) );
+	       new QTextFormat( QFont( normalFamily, normalSize, normalWeight ), Qt::darkBlue ) );
     addFormat( String,
-	       new QTextEditFormat( QFont( normalFamily, normalSize, normalWeight ), Qt::darkGreen ) );
+	       new QTextFormat( QFont( normalFamily, normalSize, normalWeight ), Qt::darkGreen ) );
     addFormat( Type,
-	       new QTextEditFormat( QFont( normalFamily, normalSize, normalWeight ), Qt::darkMagenta ) );
+	       new QTextFormat( QFont( normalFamily, normalSize, normalWeight ), Qt::darkMagenta ) );
     addFormat( Keyword,
-	       new QTextEditFormat( QFont( normalFamily, normalSize, normalWeight ), Qt::darkYellow ) );
+	       new QTextFormat( QFont( normalFamily, normalSize, normalWeight ), Qt::darkYellow ) );
     addFormat( PreProcessor,
-	       new QTextEditFormat( QFont( normalFamily, normalSize, normalWeight ), Qt::darkBlue ) );
+	       new QTextFormat( QFont( normalFamily, normalSize, normalWeight ), Qt::darkBlue ) );
 }
 
-void QCppSyntaxHighlighter::highlighte( QTextEditParag *string, int start, bool invalidate )
+void QCppSyntaxHighlighter::highlighte( QTextParag *string, int start, bool invalidate )
 {
 
-    QTextEditFormat *formatStandard = format( Standard );
-    QTextEditFormat *formatComment = format( Comment );
-    QTextEditFormat *formatNumber = format( Number );
-    QTextEditFormat *formatString = format( String );
-    QTextEditFormat *formatType = format( Type );
-    QTextEditFormat *formatPreProcessor = format( PreProcessor );
+    QTextFormat *formatStandard = format( Standard );
+    QTextFormat *formatComment = format( Comment );
+    QTextFormat *formatNumber = format( Number );
+    QTextFormat *formatString = format( String );
+    QTextFormat *formatType = format( Type );
+    QTextFormat *formatPreProcessor = format( PreProcessor );
 
     QString s = string->string()->toString();
 
@@ -168,7 +168,7 @@ void QCppSyntaxHighlighter::highlighte( QTextEditParag *string, int start, bool 
 
     // tokens
     const int InputAlpha = 0;
-    const int InputNumber = 1;
+    //const int InputNumber = 1;
     const int InputAsterix = 2;
     const int InputSlash = 3;
     const int InputParen = 4;
@@ -244,11 +244,11 @@ void QCppSyntaxHighlighter::highlighte( QTextEditParag *string, int start, bool 
 		break;
 	    case '(': case '[': case '{':
 		input = InputParen;
-		string->parenList() << QTextEditParag::Paren( QTextEditParag::Paren::Open, c, i );
+		string->parenList() << QTextParag::Paren( QTextParag::Paren::Open, c, i );
 		break;
 	    case ')': case ']': case '}':
 		input = InputParen;
-		string->parenList() << QTextEditParag::Paren( QTextEditParag::Paren::Closed, c, i );
+		string->parenList() << QTextParag::Paren( QTextParag::Paren::Closed, c, i );
 		break;
 	    case '#':
 		input = InputHash;
@@ -426,7 +426,7 @@ void QCppSyntaxHighlighter::highlighte( QTextEditParag *string, int start, bool 
 
     if ( invalidate && string->next() &&
 	 !string->next()->firstHighlighte() && string->next()->endState() != -1 ) {
-	QTextEditParag *p = string->next();
+	QTextParag *p = string->next();
 	while ( p ) {
 	    if ( p->endState() == -1 )
 		return;
@@ -436,18 +436,18 @@ void QCppSyntaxHighlighter::highlighte( QTextEditParag *string, int start, bool 
     }
 }
 
-QTextEditFormat *QCppSyntaxHighlighter::format( int id )
+QTextFormat *QCppSyntaxHighlighter::format( int id )
 {
     if ( lastFormatId == id  && lastFormat )
 	return lastFormat;
 
-    QTextEditFormat *f = formats[ id ];
+    QTextFormat *f = formats[ id ];
     lastFormat = f ? f : formats[ 0 ];
     lastFormatId = id;
     return lastFormat;
 }
 
-void QCppSyntaxHighlighter::addFormat( int id, QTextEditFormat *f )
+void QCppSyntaxHighlighter::addFormat( int id, QTextFormat *f )
 {
     formats.insert( id, f );
 }
@@ -457,8 +457,8 @@ void QCppSyntaxHighlighter::removeFormat( int id )
     formats.remove( id );
 }
 
-QCppIndent::QCppIndent( QTextEditDocument *d )
-    : QTextEditIndent( d )
+QCppIndent::QCppIndent( QTextDocument *d )
+    : QTextIndent( d )
 {
 }
 
@@ -469,12 +469,12 @@ static void uncomment( QString &s )
 	s = s.remove( i, s.length() - i + 1 );
     if ( ( i = s.findRev( "/*" ) ) != -1 ) {
 	int j = s.find( "*/", i + 1 );
-	if ( j == -1 || j == s.length() - 2 )
+	if ( j == -1 || j == (int)s.length() - 2 )
 	    s = s.remove( i, s.length() - i + 1 );
     }
 }
 
-void QCppIndent::indent( QTextEditParag *parag, int *oldIndent, int *newIndent )
+void QCppIndent::indent( QTextParag *parag, int *oldIndent, int *newIndent )
 {
     // ####################
     // This is a very simple (and too simple for a good programming editor)
@@ -499,7 +499,7 @@ void QCppIndent::indent( QTextEditParag *parag, int *oldIndent, int *newIndent )
 
     int lastIndent = 0;
     QString indentString;
-    QTextEditParag *p = parag->prev();
+    QTextParag *p = parag->prev();
     if ( p ) {
 	i = 0;
 	while ( i < (int)p->string()->length() - 1 ) {

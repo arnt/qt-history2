@@ -1,5 +1,5 @@
 #############################################################################
-# $Id: //depot/qt/main/tests/dict/GNUmakefile#1 $
+# $Id: //depot/qt/main/tests/dict/GNUmakefile#2 $
 #
 # Unix Makefile, requires GNU make (gmake).
 #

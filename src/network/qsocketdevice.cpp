@@ -1,21 +1,23 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/network/qsocketdevice.cpp#1 $
+** $Id: //depot/qt/main/src/network/qsocketdevice.cpp#2 $
 **
-** Implementation of Network Extension Library
+** Implementation of QSocketDevice class.
 **
 ** Created : 970521
 **
 ** Copyright (C) 1992-2000 Troll Tech AS.  All rights reserved.
 **
-** This file is part of the Qt GUI Toolkit.
+** This file is part of the network module of the Qt GUI Toolkit.
 **
 ** This file may be distributed under the terms of the Q Public License
 ** as defined by Troll Tech AS of Norway and appearing in the file
 ** LICENSE.QPL included in the packaging of this file.
 **
-** Licensees holding valid Qt Professional Edition licenses may use this
-** file in accordance with the Qt Professional Edition License Agreement
-** provided with the Qt Professional Edition.
+** Licensees holding valid Qt Enterprise Edition or Qt Professional Edition
+** licenses may use this file in accordance with the Qt Commercial License
+** Agreement provided with the Software.  This file is part of the network
+** module and therefore may only be used if the network module is specified
+** as Licensed on the Licensee's License Certificate.
 **
 ** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 ** information about the Professional Edition licensing, or see
@@ -40,16 +42,16 @@ public:
 
 /*!
   \class QSocketDevice qsocketdevice.h
-  \brief QSocketDevice provides a platform-independent low-level socket API.
+  \brief The QSocketDevice class provides a platform-independent low-level socket API.
 
-  \extension Network
+  \module network
 
   This class is not really meant for use outside Qt.  It can be used
   to achieve some things that QSocket does not provide, but it's
   not particularly easy to understand or use.
 
   The basic purpose of the class is to provide a QIODevice that works
-  on sockets.
+  on sockets, wrapped in a platform-independent API.
 
   \sa QSocket, QSocketNotifier, QHostAddress
 */
@@ -306,7 +308,7 @@ int QSocketDevice::putch( int ch )
 
 /*! \reimp
 
-  This implementation of ungetch -1 (error).  A socket is a sequential
+  This implementation of ungetch returns -1 (error).  A socket is a sequential
   device and does not allow any ungetch operation.
 */
 int QSocketDevice::ungetch( int )
@@ -404,7 +406,7 @@ void QSocketDevice::setSendBufferSize( uint size )
   Returns the port number of this socket device. This may be 0 for a while,
   but is set to something sensible when there is a sensible value it can have.
 */
-uint QSocketDevice::port() const
+Q_UINT16 QSocketDevice::port() const
 {
     return p;
 }
@@ -418,7 +420,7 @@ uint QSocketDevice::port() const
   Note that for Datagram sockets, this is the source port of the last packet
   received.
 */
-uint QSocketDevice::peerPort() const
+Q_UINT16 QSocketDevice::peerPort() const
 {
     return pp;
 }

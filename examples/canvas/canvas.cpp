@@ -13,9 +13,10 @@
 
 #include <stdlib.h>
 
-
-static QBrush tb( Qt::red );
-static QPen tp( Qt::black );
+// We use a global variable to save memory - all the brushes and pens in
+// the mesh are shared.
+static QBrush *tb = 0;
+static QPen *tp = 0;
 
 class EdgeItem;
 class NodeItem;
@@ -99,8 +100,8 @@ EdgeItem::EdgeItem( NodeItem *from, NodeItem *to, QCanvas *canvas )
     : QCanvasLine( canvas )
 {
     c++;
-    setPen( tp );
-    setBrush( tb );
+    setPen( *tp );
+    setBrush( *tb );
     from->addOutEdge( this );
     to->addInEdge( this );
     setPoints( int(from->x()), int(from->y()), int(to->x()), int(to->y()) );
@@ -139,8 +140,8 @@ void NodeItem::moveBy(double dx, double dy)
 NodeItem::NodeItem( QCanvas *canvas )
     : QCanvasEllipse( 6, 6, canvas )
 {
-    setPen( tp );
-    setBrush( tb );
+    setPen( *tp );
+    setBrush( *tb );
     setZ( 128 );
 }
 
@@ -182,7 +183,7 @@ void Main::init()
     clear();
 
     static int r=24;
-    srand48(++r);
+    srand(++r);
 
     int i;
 
@@ -231,7 +232,7 @@ void BouncyLogo::initPos()
     initSpeed();
     int trial=1000;
     do {
-	move(lrand48()%canvas()->width(),lrand48()%canvas()->height());
+	move(rand()%canvas()->width(),rand()%canvas()->height());
 	advance(0);
     } while (trial-- && xVelocity()==0.0 && yVelocity()==0.0);
 }
@@ -239,7 +240,7 @@ void BouncyLogo::initPos()
 void BouncyLogo::initSpeed()
 {
     const double speed = 4.0;
-    double d = drand48();
+    double d = rand();
     setVelocity( d*speed*2-speed, (1-d)*speed*2-speed );
 }
 
@@ -409,7 +410,7 @@ void Main::shrink()
 void Main::addSprite()
 {
     QCanvasItem* i = new BouncyLogo(&canvas);
-    i->setZ(lrand48()%256);
+    i->setZ(rand()%256);
 }
 
 QString butterfly_fn;
@@ -431,10 +432,10 @@ void Main::addButterfly()
 	img[3] = img[0].smoothScale( int(img[0].width()*0.25),
 		int(img[0].height()*0.25) );
     }
-    QCanvasPolygonalItem* i = new ImageItem(img[lrand48()%4],&canvas);
-    i->move(lrand48()%(canvas.width()-img->width()),
-	    lrand48()%(canvas.height()-img->height()));
-    i->setZ(lrand48()%256+250);
+    QCanvasPolygonalItem* i = new ImageItem(img[rand()%4],&canvas);
+    i->move(rand()%(canvas.width()-img->width()),
+	    rand()%(canvas.height()-img->height()));
+    i->setZ(rand()%256+250);
 }
 
 void Main::addLogo()
@@ -452,10 +453,10 @@ void Main::addLogo()
 	img[3] = img[0].smoothScale( int(img[0].width()*0.25),
 		int(img[0].height()*0.25) );
     }
-    QCanvasPolygonalItem* i = new ImageItem(img[lrand48()%4],&canvas);
-    i->move(lrand48()%(canvas.width()-img->width()),
-	    lrand48()%(canvas.height()-img->width()));
-    i->setZ(lrand48()%256+256);
+    QCanvasPolygonalItem* i = new ImageItem(img[rand()%4],&canvas);
+    i->move(rand()%(canvas.width()-img->width()),
+	    rand()%(canvas.height()-img->width()));
+    i->setZ(rand()%256+256);
 }
 
 
@@ -463,9 +464,9 @@ void Main::addLogo()
 void Main::addCircle()
 {
     QCanvasPolygonalItem* i = new QCanvasEllipse(50,50,&canvas);
-    i->setBrush( QColor(lrand48()%32*8,lrand48()%32*8,lrand48()%32*8) );
-    i->move(lrand48()%canvas.width(),lrand48()%canvas.height());
-    i->setZ(lrand48()%256);
+    i->setBrush( QColor(rand()%32*8,rand()%32*8,rand()%32*8) );
+    i->move(rand()%canvas.width(),rand()%canvas.height());
+    i->setZ(rand()%256);
 }
 
 void Main::addHexagon()
@@ -480,9 +481,9 @@ void Main::addHexagon()
     pa[4] = QPoint(-size,size*173/100);
     pa[5] = QPoint(size,size*173/100);
     i->setPoints(pa);
-    i->setBrush( QColor(lrand48()%32*8,lrand48()%32*8,lrand48()%32*8) );
-    i->move(lrand48()%canvas.width(),lrand48()%canvas.height());
-    i->setZ(lrand48()%256);
+    i->setBrush( QColor(rand()%32*8,rand()%32*8,rand()%32*8) );
+    i->move(rand()%canvas.width(),rand()%canvas.height());
+    i->setZ(rand()%256);
 }
 
 void Main::addPolygon()
@@ -497,24 +498,27 @@ void Main::addPolygon()
     pa[4] = QPoint(size*3/4,size*3/4);
     pa[5] = QPoint(size*3/4,size/4);
     i->setPoints(pa);
-    i->setBrush( QColor(lrand48()%32*8,lrand48()%32*8,lrand48()%32*8) );
-    i->move(lrand48()%canvas.width(),lrand48()%canvas.height());
-    i->setZ(lrand48()%256);
+    i->setBrush( QColor(rand()%32*8,rand()%32*8,rand()%32*8) );
+    i->move(rand()%canvas.width(),rand()%canvas.height());
+    i->setZ(rand()%256);
 }
 
 void Main::addLine()
 {
     QCanvasLine* i = new QCanvasLine(&canvas);
-    i->setPoints( lrand48()%canvas.width(), lrand48()%canvas.height(),
-                  lrand48()%canvas.width(), lrand48()%canvas.height() );
-    i->setPen( QColor(lrand48()%32*8,lrand48()%32*8,lrand48()%32*8) );
-    i->setZ(lrand48()%256);
+    i->setPoints( rand()%canvas.width(), rand()%canvas.height(),
+                  rand()%canvas.width(), rand()%canvas.height() );
+    i->setPen( QPen(QColor(rand()%32*8,rand()%32*8,rand()%32*8), 6) );
+    i->setZ(rand()%256);
 }
 
 void Main::addMesh()
 {
     int x0 = 0;
     int y0 = 0;
+
+    if ( !tb ) tb = new QBrush( Qt::red );
+    if ( !tp ) tp = new QPen( Qt::black );
     
     int nodecount = 0;
     
@@ -537,7 +541,7 @@ void Main::addMesh()
 	for ( int i = 0; i < n; i++ ) {
 	    NodeItem *el = new NodeItem( &canvas );
 	    nodecount++;
-	    int r = lrand48();
+	    int r = rand();
 	    int xrand = r %20;
 	    int yrand = (r/20) %20;
 	    el->move( xrand + x0 + i*dist + (j%2 ? dist/2 : 0 ), 
@@ -571,10 +575,11 @@ void Main::addMesh()
 
 void Main::addRectangle()
 {
-    QCanvasPolygonalItem *i = new QCanvasRectangle( lrand48()%canvas.width(),lrand48()%canvas.height(),
+    QCanvasPolygonalItem *i = new QCanvasRectangle( rand()%canvas.width(),rand()%canvas.height(),
 			    canvas.width()/5,canvas.width()/5,&canvas);
-    int z = lrand48()%256;
+    int z = rand()%256;
     i->setBrush( QColor(z,z,z) );
+    i->setPen( QPen(QColor(rand()%32*8,rand()%32*8,rand()%32*8), 6) );
     i->setZ(z);
 }
 

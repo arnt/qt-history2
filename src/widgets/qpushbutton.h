@@ -7,15 +7,17 @@
 **
 ** Copyright (C) 1992-2000 Troll Tech AS.  All rights reserved.
 **
-** This file is part of the Qt GUI Toolkit.
+** This file is part of the widgets module of the Qt GUI Toolkit.
 **
 ** This file may be distributed under the terms of the Q Public License
 ** as defined by Troll Tech AS of Norway and appearing in the file
 ** LICENSE.QPL included in the packaging of this file.
 **
-** Licensees holding valid Qt Professional Edition licenses may use this
-** file in accordance with the Qt Professional Edition License Agreement
-** provided with the Qt Professional Edition.
+** Licensees holding valid Qt Enterprise Edition or Qt Professional Edition
+** licenses may use this file in accordance with the Qt Commercial License
+** Agreement provided with the Software.  This file is part of the widgets
+** module and therefore may only be used if the widgets module is specified
+** as Licensed on the Licensee's License Certificate.
 **
 ** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 ** information about the Professional Edition licensing, or see
@@ -44,6 +46,7 @@ class Q_EXPORT QPushButton : public QButton
 
     Q_OVERRIDE( bool toggleButton WRITE setToggleButton )
     Q_OVERRIDE( bool on WRITE setOn )
+    Q_PROPERTY( bool flat READ isFlat WRITE setFlat )
 
 public:
     QPushButton( QWidget *parent, const char *name=0 );
@@ -78,6 +81,9 @@ public:
     void setIconSet( const QIconSet& );
     QIconSet* iconSet() const;
 
+    void setFlat( bool );
+    bool isFlat() const;
+
 public slots:
     virtual void setOn( bool );
 
@@ -99,9 +105,9 @@ private:
 
     uint	autoDefButton	: 1;
     uint	defButton	: 1;
-    uint	lastDown		: 1;
-    uint	reserved		: 1;
-    uint	lastEnabled	: 1;
+    uint	flt		: 1;
+    uint	reserved		: 1; // UNUSED
+    uint	lastEnabled	: 1; // UNUSED
     uint	hasMenuArrow	: 1;
 
     friend class QDialog;

@@ -7,15 +7,17 @@
 **
 ** Copyright (C) 1992-2000 Troll Tech AS.  All rights reserved.
 **
-** This file is part of the Qt GUI Toolkit.
+** This file is part of the widgets module of the Qt GUI Toolkit.
 **
 ** This file may be distributed under the terms of the Q Public License
 ** as defined by Troll Tech AS of Norway and appearing in the file
 ** LICENSE.QPL included in the packaging of this file.
 **
-** Licensees holding valid Qt Professional Edition licenses may use this
-** file in accordance with the Qt Professional Edition License Agreement
-** provided with the Qt Professional Edition.
+** Licensees holding valid Qt Enterprise Edition or Qt Professional Edition
+** licenses may use this file in accordance with the Qt Commercial License
+** Agreement provided with the Software.  This file is part of the widgets
+** module and therefore may only be used if the widgets module is specified
+** as Licensed on the Licensee's License Certificate.
 **
 ** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 ** information about the Professional Edition licensing, or see
@@ -50,6 +52,7 @@ public:
 	tracking = TRUE;
 	doNotEmit = FALSE;
 	target = 3.7;
+	mousePressed = FALSE;
     }
 
     bool wrapping;
@@ -60,7 +63,8 @@ public:
     bool eraseAreaValid;
     bool showNotches;
     bool onlyOutside;
-
+    bool mousePressed;
+    
     QPointArray lines;
 };
 
@@ -68,7 +72,7 @@ public:
 // NOT REVISED
 /*! \class QDial qdial.h
 
-  \brief The QDial widget provides a dial (or speedometer, or potentiometer) widget.
+  \brief The QDial class provides a rounded rangecontrol (like a speedometer or potentiometer).
 
   \ingroup basic
 
@@ -127,9 +131,7 @@ QDial::QDial( QWidget *parent, const char *name )
     d->eraseAreaValid = FALSE;
     d->showNotches = FALSE;
     d->onlyOutside = FALSE;
-    setFocusPolicy( QWidget::/*Weak*/WheelFocus );
-    setBackgroundMode( NoBackground );
-    setSizePolicy( QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding ) );
+    setFocusPolicy( QWidget::WheelFocus );
 }
 
 
@@ -152,9 +154,7 @@ QDial::QDial( int minValue, int maxValue, int pageStep, int value,
     d->eraseAreaValid = FALSE;
     d->showNotches = FALSE;
     d->onlyOutside = FALSE;
-    setFocusPolicy( QWidget::/*Weak*/WheelFocus );
-    setBackgroundMode( NoBackground );
-    setSizePolicy( QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding ) );
+    setFocusPolicy( QWidget::WheelFocus );
 }
 
 /*!
@@ -411,6 +411,7 @@ void QDial::keyPressEvent( QKeyEvent * e )
 
 void QDial::mousePressEvent( QMouseEvent * e )
 {
+    d->mousePressed = TRUE;
     setValue( valueFromPoint( e->pos() ) );
     emit dialPressed();
 }
@@ -422,6 +423,7 @@ void QDial::mousePressEvent( QMouseEvent * e )
 
 void QDial::mouseReleaseEvent( QMouseEvent * e )
 {
+    d->mousePressed = FALSE;
     setValue( valueFromPoint( e->pos() ) );
     emit dialReleased();
 }
@@ -433,6 +435,8 @@ void QDial::mouseReleaseEvent( QMouseEvent * e )
 
 void QDial::mouseMoveEvent( QMouseEvent * e )
 {
+    if ( !d->mousePressed )
+	return;
     if ( !d->tracking || (e->state() & LeftButton) == 0 )
 	return;
     d->doNotEmit = TRUE;
@@ -735,7 +739,7 @@ bool QDial::notchesVisible() const
   \reimp
 */
 
-QSize QDial::minimumSize() const
+QSize QDial::minimumSizeHint() const
 {
     return QSize( 50, 50 );
 }
@@ -749,15 +753,7 @@ QSize QDial::sizeHint() const
     return QSize( 100, 100 ).expandedTo( QApplication::globalStrut() );
 }
 
-/*!
-  \reimp
-*/
 
-QSizePolicy QDial::sizePolicy() const
-{
-    //### removeme 3.0
-    return QWidget::sizePolicy();
-}
 
 /*!
   \internal
@@ -834,7 +830,7 @@ void QDial::calcLines()
 	double xc = width() / 2.0;
 	double yc = height() / 2.0;
 	int ns = notchSize();
-	int notches = ( maxValue() + notchSize() - 1 - minValue() ) / ns;
+	int notches = ( maxValue() + ns - 1 - minValue() ) / ns;
 	d->lines.resize( 2 + 2 * notches );
 	int smallLineSize = bigLineSize / 2;
 	int i;
@@ -842,10 +838,10 @@ void QDial::calcLines()
 	    double angle = d->wrapping
 		? m_pi * 3 / 2 - i * 2 * m_pi / notches
 		: (m_pi * 8 - i * 10 * m_pi / notches) / 6;
+	
 	    double s = sin( angle ); // sin/cos aren't defined as const...
 	    double c = cos( angle );
-	    if ( i == 0 ||
-		 ns * i /pageStep() > ns*( i - 1) / pageStep() ) {
+	    if ( i == 0 || ( ((ns * i ) % pageStep() ) == 0 ) ) {
 		d->lines[2*i] = QPoint( (int)( xc + ( r - bigLineSize ) * c ),
 					(int)( yc - ( r - bigLineSize ) * s ) );
 		d->lines[2*i+1] = QPoint( (int)( xc + r * c ),
@@ -858,6 +854,94 @@ void QDial::calcLines()
 	    }
 	}
     }
+}
+
+/*!
+  \reimp
+*/
+int QDial::minValue() const
+{
+    return QRangeControl::minValue();
+}
+
+/*!
+  \reimp
+*/
+int QDial::maxValue() const
+{
+    return QRangeControl::maxValue();
+}
+
+/*!
+  A convenience function which just calls
+  setRange( i, maxValue() )
+
+  \sa setRange()
+*/
+void QDial::setMinValue( int i )
+{
+    setRange( i, maxValue() );
+}
+
+/*!
+  A convenience function which just calls
+  setRange( minValue(), i )
+
+  \sa setRange()
+*/
+void QDial::setMaxValue( int i )
+{
+    setRange( minValue(), i );
+}
+
+/*!
+  \reimp
+*/
+int QDial::lineStep() const
+{
+    return QRangeControl::lineStep();
+}
+
+/*!
+  \reimp
+*/
+int QDial::pageStep() const
+{
+    return QRangeControl::pageStep();
+}
+
+/*!
+  Sets the line step to \e i.
+
+  Calls the virtual stepChange() function if the new line step is
+  different from the previous setting.
+
+  \sa lineStep() QRangeControl::setSteps() setPageStep() setRange()
+*/
+void QDial::setLineStep( int i )
+{
+    setSteps( i, pageStep() );
+}
+
+/*!
+  Sets the page step to \e i.
+
+  Calls the virtual stepChange() function if the new page step is
+  different from the previous setting.
+
+  \sa pageStep() QRangeControl::setSteps() setLineStep() setRange()
+*/
+void QDial::setPageStep( int i )
+{
+    setSteps( lineStep(), i );
+}
+
+/*!
+  \reimp
+*/
+int QDial::value() const
+{
+    return QRangeControl::value();
 }
 
 #endif // QT_FEATURE_DIAL

@@ -5,17 +5,19 @@
 **
 ** Created : 920529
 **
-** Copyright (C) 1992-2000 Troll Tech AS.  All rights reserved.
+** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
 **
-** This file is part of the Qt GUI Toolkit.
+** This file is part of the tools module of the Qt GUI Toolkit.
 **
 ** This file may be distributed under the terms of the Q Public License
-** as defined by Troll Tech AS of Norway and appearing in the file
+** as defined by Trolltech AS of Norway and appearing in the file
 ** LICENSE.QPL included in the packaging of this file.
 **
-** Licensees holding valid Qt Professional Edition licenses may use this
-** file in accordance with the Qt Professional Edition License Agreement
-** provided with the Qt Professional Edition.
+** Licensees holding valid Qt Enterprise Edition or Qt Professional Edition
+** licenses may use this file in accordance with the Qt Commercial License
+** Agreement provided with the Software.  This file is part of the tools
+** module and therefore may only be used if the tools module is specified
+** as Licensed on the Licensee's License Certificate.
 **
 ** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 ** information about the Professional Edition licensing, or see
@@ -28,7 +30,7 @@
 
 
 #define QT_VERSION	220
-#define QT_VERSION_STR	"2.2.0-beta1"
+#define QT_VERSION_STR	"2.2.0-beta2"
 
 
 //
@@ -178,6 +180,13 @@
 #define Q_FULL_TEMPLATE_INSTANTIATION
 #define Q_TEMPLATE_NEEDS_CLASS_DECLARATION
 #define Q_TEMPLATE_NEEDS_EXPLICIT_CONVERSION
+#define Q_SPURIOUS_NON_VOID_WARNING
+#endif
+#if __GNUC__ == 2 && __GNUC_MINOR__ >= 96
+#define Q_DELETING_VOID_UNDEFINED
+#endif
+#if (defined(__arm__) || defined(__ARMEL__)) && !defined(QT_MOC_CPP)
+#define Q_PACKED __attribute__ ((packed))
 #endif
 #elif defined(__xlC__)
 #define _CC_XLC_
@@ -218,6 +227,7 @@
 // this is the CC
 #define _CC_HP_
 #define Q_FULL_TEMPLATE_INSTANTIATION
+#define Q_TEMPLATE_NEEDS_EXPLICIT_CONVERSION
 #endif // __HP_aCC
 #else
 #error "Qt has not been tested with this compiler - talk to qt-bugs@trolltech.com"
@@ -227,9 +237,7 @@
 #define Q_C_CALLBACKS
 #endif
 
-#if defined(_CC_GNU_) && !defined(QT_MOC_CPP)
-#define Q_PACKED __attribute__ ((packed))
-#else
+#ifndef Q_PACKED
 #define Q_PACKED
 #endif
 
@@ -268,35 +276,6 @@
 
 #define Q_DISABLE_COPY
 
-//
-// Create Qt DLL if QT_DLL is defined (Windows only)
-//
-
-#if defined(_OS_WIN32_)
-#if defined(QT_NODLL)
-#undef QT_MAKEDLL
-#undef QT_DLL
-#endif
-#if defined(QT_MAKEDLL)		/* create a Qt DLL library */
-#undef QT_DLL
-#define Q_EXPORT  __declspec(dllexport)
-#define Q_TEMPLATEDLL
-#undef  Q_DISABLE_COPY		/* avoid unresolved externals */
-#endif
-#if defined(QT_DLL)		/* use a Qt DLL library */
-#define Q_EXPORT  __declspec(dllimport)
-#define Q_TEMPLATEDLL
-#undef  Q_DISABLE_COPY		/* avoid unresolved externals */
-#endif
-#else // ! _OS_WIN32_
-#undef QT_MAKEDLL		/* ignore these for other platforms */
-#undef QT_DLL
-#endif
-
-#ifndef Q_EXPORT
-#define Q_EXPORT
-#endif
-
 
 //
 // Useful type definitions for Qt
@@ -314,6 +293,12 @@
 #define Q_HAS_BOOL_TYPE
 #elif defined(__DECCXX) && (__DECCXX_VER >= 60060005)
 #define Q_HAS_BOOL_TYPE
+#elif defined(_AIX) && (__xlC__ >= 0x500)
+#define Q_HAS_BOOL_TYPE
+#endif
+
+#if (QT_VERSION >= 300)
+#error "Use an enum for bool"
 #endif
 
 #if !defined(Q_HAS_BOOL_TYPE)
@@ -390,7 +375,8 @@ typedef short		Q_INT16;		// 16 bit signed
 typedef unsigned short	Q_UINT16;		// 16 bit unsigned
 typedef int		Q_INT32;		// 32 bit signed
 typedef unsigned int	Q_UINT32;		// 32 bit unsigned
-
+typedef long		Q_INT64;		// up to 64 bit signed
+typedef unsigned long	Q_UINT64;		// up to 64 bit unsigned
 
 //
 // Data stream functions is provided by many classes (defined in qdatastream.h)
@@ -398,6 +384,46 @@ typedef unsigned int	Q_UINT32;		// 32 bit unsigned
 
 class QDataStream;
 
+
+
+#ifdef _WS_WIN_
+extern bool qt_winunicode;
+#endif
+
+#ifndef QT_H
+#include <qfeatures.h>
+#endif // QT_H
+
+//
+// Create Qt DLL if QT_DLL is defined (Windows only)
+//
+
+#if defined(_OS_WIN32_)
+#if defined(QT_NODLL)
+#undef QT_MAKEDLL
+#undef QT_DLL
+#endif
+#ifdef QT_DLL
+#if defined(QT_MAKEDLL)		/* create a Qt DLL library */
+#undef QT_DLL
+#define Q_EXPORT  __declspec(dllexport)
+#define Q_TEMPLATEDLL
+#undef  Q_DISABLE_COPY		/* avoid unresolved externals */
+#endif
+#endif
+#if defined(QT_DLL)		/* use a Qt DLL library */
+#define Q_EXPORT  __declspec(dllimport)
+#define Q_TEMPLATEDLL
+#undef  Q_DISABLE_COPY		/* avoid unresolved externals */
+#endif
+#else // ! _OS_WIN32_
+#undef QT_MAKEDLL		/* ignore these for other platforms */
+#undef QT_DLL
+#endif
+
+#ifndef Q_EXPORT
+#define Q_EXPORT
+#endif
 
 //
 // System information
@@ -547,13 +573,5 @@ Q_EXPORT void qObsolete( const char *obj, const char *oldfunc,
 Q_EXPORT void qObsolete( const char *obj, const char *oldfunc );
 Q_EXPORT void qObsolete( const char *message );
 #endif
-
-#ifdef _WS_WIN_
-extern bool qt_winunicode;
-#endif
-
-#ifndef QT_H
-#include <qfeatures.h>
-#endif // QT_H
 
 #endif // QGLOBAL_H

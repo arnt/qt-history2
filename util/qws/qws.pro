@@ -1,5 +1,5 @@
 TEMPLATE	= app
-CONFIG		= qt warn_on release
+CONFIG		+= qt warn_on release
 DEFINES += QWS
 LIBS		= -lqnetwork
 INCLUDEPATH	= $(QTDIR)/extensions/network/src $(QTDIR)/include $(QTDIR)/../e/src/kernel $(QTDIR)/../e/include

@@ -27,7 +27,7 @@ int main( int argc, char ** argv )
     // Modify the application-wide default style sheet to handle
     // some extra HTML gracefully.
     //
-    // Ignore any bodytext in <head>...</head>:
+    // Ignore any body text in <head>...</head>:
     style = new QStyleSheetItem( QStyleSheet::defaultSheet(), "head" );
     style->setDisplayMode(QStyleSheetItem::DisplayNone);
     //

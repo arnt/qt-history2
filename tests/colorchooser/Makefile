@@ -1,5 +1,5 @@
 #############################################################################
-# $Id: //depot/qt/main/tests/colorchooser/Makefile#1 $
+# $Id: //depot/qt/main/tests/colorchooser/Makefile#2 $
 #
 # Win32 Makefile, requires Microsoft nmake.
 #

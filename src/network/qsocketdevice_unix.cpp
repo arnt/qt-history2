@@ -1,21 +1,23 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/network/qsocketdevice_unix.cpp#1 $
+** $Id: //depot/qt/main/src/network/qsocketdevice_unix.cpp#2 $
 **
-** Implementation of Network Extension Library
+** Implementation of QSocketDevice class.
 **
 ** Created : 970521
 **
 ** Copyright (C) 1992-2000 Troll Tech AS.  All rights reserved.
 **
-** This file is part of the Qt GUI Toolkit.
+** This file is part of the network module of the Qt GUI Toolkit.
 **
 ** This file may be distributed under the terms of the Q Public License
 ** as defined by Troll Tech AS of Norway and appearing in the file
 ** LICENSE.QPL included in the packaging of this file.
 **
-** Licensees holding valid Qt Professional Edition licenses may use this
-** file in accordance with the Qt Professional Edition License Agreement
-** provided with the Qt Professional Edition.
+** Licensees holding valid Qt Enterprise Edition or Qt Professional Edition
+** licenses may use this file in accordance with the Qt Commercial License
+** Agreement provided with the Software.  This file is part of the network
+** module and therefore may only be used if the network module is specified
+** as Licensed on the Licensee's License Certificate.
 **
 ** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 ** information about the Professional Edition licensing, or see
@@ -27,7 +29,13 @@
 #include "qwindowdefs.h"
 #include <string.h>
 
+#if defined(_OS_AIX_)
+#include <strings.h>
+#include <sys/select.h>
+#endif
+
 #include <unistd.h>
+#include <sys/param.h>
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <sys/ioctl.h>
@@ -44,24 +52,32 @@
 #endif
 
 #ifdef __MIPSEL__
- #ifndef SOCK_DGRAM
-  #define SOCK_DGRAM 1
- #endif
- #ifndef SOCK_STREAM
-  #define SOCK_STREAM 2
- #endif
+#ifndef SOCK_DGRAM
+#define SOCK_DGRAM 1
 #endif
-
+#ifndef SOCK_STREAM
+#define SOCK_STREAM 2
+#endif
+#endif
 
 #if defined(_OS_SOLARIS_) || defined(_OS_UNIXWARE7_)
 // this should perhaps be included for all unixware versions?
 #include <sys/filio.h>
 #endif
+
 #if defined(_OS_SOLARIS_) || defined(_OS_UNIXWARE7_) || defined(_OS_OS2EMX_)
 // and this then?  unixware?
-#ifndef FNDELAY
+#if !defined(FNDELAY)
 #define FNDELAY O_NDELAY
 #endif
+#endif
+
+
+// no includes after this point
+
+
+#if defined(TIOCINQ) && !defined(FIONREAD)
+#define FIONREAD TIOCINQ
 #endif
 
 // this mess (it's not yet a mess but I'm sure it'll be one before
@@ -73,26 +89,31 @@
 #undef SOCKLEN_T
 #endif
 
-#if defined(_XOPEN_UNIX)
-
-// new linux, at least
+#if defined(_OS_LINUX_) && defined(__GLIBC__) && ( __GLIBC__ >= 2 )
+// new linux, not old.
 #define SOCKLEN_T socklen_t
-
-#else
-
-// caldera 1.3, for example... probably all linux-libc5 systems
+#elif defined(BSD4_4)
+// freebsd
+#define SOCKLEN_T socklen_t
+#ense
+// most unixes, including a least irix, osf1/du/tru64, solaris, h-pux
+// and old linux
 #define SOCKLEN_T int
-
 #endif
 
+// the next mess deals with EAGAIN and/or EWOULDBLOCK
 
-// test that EAGAIN exists, and that if EWOULDBLOCK also exists, that
-// they have the same value.
+#if !defined(EAGAIN) && !defined(EWOULDBLOCK)
+#error "requires EAGAIN or EWOULDBLOCK"
+#endif
 
-#if !defined(EAGAIN)
-#error "requires EAGAIN (mostly for simplicity)"
-#elif defined(EWOULDBLOCK) && ( EAGAIN != EWOULDBLOCK )
-#error "does not support EWOULDBLOCK that is different from EAGAIN"
+// if one is there, define the other one similarly, so we can switch()
+// easily
+#if defined(EAGAIN) && !defined(EWOULDBLOCK)
+#define EWOULDBLOCK EAGAIN
+#endif
+#if defined(EWOULDBLOCK) && !defined(EAGAIN)
+#define EAGAIN EWOULDBLOCK
 #endif
 
 
@@ -234,6 +255,9 @@ void QSocketDevice::setBlocking( bool enable )
 	break;
     case EFAULT:
     case EAGAIN:
+#if EAGAIN != EWOULDBLOCK
+    case EWOULDBLOCK:
+#endif
     case EDEADLK:
     case EINTR:
     case EINVAL:
@@ -270,7 +294,8 @@ int QSocketDevice::option( Option opt ) const
 	break;
     }
     if ( n != -1 ) {
-	SOCKLEN_T len = sizeof(v);
+	SOCKLEN_T len;
+	len = sizeof(v);
 	int r = ::getsockopt( fd, SOL_SOCKET, n, (char*)&v, &len );
 	if ( r >= 0 )
 	    return v;
@@ -346,7 +371,7 @@ void QSocketDevice::setOption( Option opt, int v )
   this just means that you can call connect() again in a little while
   and it'll probably succeed.
 */
-bool QSocketDevice::connect( const QHostAddress &addr, uint port )
+bool QSocketDevice::connect( const QHostAddress &addr, Q_UINT16 port )
 {
     if ( !isValid() )
 	return FALSE;
@@ -356,13 +381,13 @@ bool QSocketDevice::connect( const QHostAddress &addr, uint port )
 	e = Impossible;
 	return FALSE;
     }
-    struct sockaddr_in a;
-    memset( &a, 0, sizeof(a) );
-    a.sin_family = AF_INET;
-    a.sin_port = htons( port );
-    a.sin_addr.s_addr = htonl( addr.ip4Addr() );
+    struct sockaddr_in aa;
+    memset( &aa, 0, sizeof(aa) );
+    aa.sin_family = AF_INET;
+    aa.sin_port = htons( port );
+    aa.sin_addr.s_addr = htonl( addr.ip4Addr() );
 
-    int r = ::connect( fd, (struct sockaddr*)&a,
+    int r = ::connect( fd, (struct sockaddr*)&aa,
 		       sizeof(struct sockaddr_in) );
     if ( r == 0 ) {
 	fetchConnectionParameters();
@@ -370,7 +395,7 @@ bool QSocketDevice::connect( const QHostAddress &addr, uint port )
     }
     if ( errno == EISCONN || errno == EALREADY || errno == EINPROGRESS )
 	return TRUE;
-    if ( e != NoError )
+    if ( e != NoError || errno == EAGAIN || errno == EWOULDBLOCK )
 	return FALSE;
     switch( errno ) {
     case EBADF:
@@ -395,9 +420,6 @@ bool QSocketDevice::connect( const QHostAddress &addr, uint port )
     case EPERM:
 	e = Inaccessible;
 	break;
-    case EAGAIN:
-	// ignore that.  can retry.
-	break;
     default:
 	e = UnknownError;
 	break;
@@ -414,7 +436,7 @@ bool QSocketDevice::connect( const QHostAddress &addr, uint port )
   bind() is used by servers for setting up incoming connections.
   Call bind() before listen().
 */
-bool QSocketDevice::bind( const QHostAddress &address, uint port )
+bool QSocketDevice::bind( const QHostAddress &address, Q_UINT16 port )
 {
     if ( !isValid() )
 	return FALSE;
@@ -424,13 +446,13 @@ bool QSocketDevice::bind( const QHostAddress &address, uint port )
 	e = Impossible;
 	return FALSE;
     }
-    struct sockaddr_in a;
-    memset( &a, 0, sizeof(a) );
-    a.sin_family = AF_INET;
-    a.sin_port = htons( port );
-    a.sin_addr.s_addr = htonl( address.ip4Addr() );
+    struct sockaddr_in aa;
+    memset( &aa, 0, sizeof(aa) );
+    aa.sin_family = AF_INET;
+    aa.sin_port = htons( port );
+    aa.sin_addr.s_addr = htonl( address.ip4Addr() );
 
-    int r = ::bind( fd, (struct sockaddr*)&a,sizeof(struct sockaddr_in) );
+    int r = ::bind( fd, (struct sockaddr*)&aa,sizeof(struct sockaddr_in) );
     if ( r < 0 ) {
 	switch( errno ) {
 	case EINVAL:
@@ -499,17 +521,21 @@ int QSocketDevice::accept()
 {
     if ( !isValid() )
 	return FALSE;
-    struct sockaddr a;
+    struct sockaddr aa;
     SOCKLEN_T l = sizeof(struct sockaddr);
-    int s = ::accept( fd, (struct sockaddr*)&a, &l );
-    // we'll blithely throw away the stuff accept() wrote to a
+    int s = ::accept( fd, (struct sockaddr*)&aa, &l );
+    // we'll blithely throw away the stuff accept() wrote to aa
     if ( s < 0 && e == NoError ) {
 	switch( errno ) {
+#if defined(EPROTO)
 	case EPROTO:
+#endif
+#if defined(ENONET)
+	case ENONET:
+#endif
 	case ENOPROTOOPT:
 	case EHOSTDOWN:
 	case EOPNOTSUPP:
-	case ENONET:
 	case EHOSTUNREACH:
 	case ENETDOWN:
 	case ENETUNREACH:
@@ -521,6 +547,9 @@ int QSocketDevice::accept()
 	    // firewalling wouldn't let us accept.  we treat it like
 	    // the client-closed-quickly case.
 	case EAGAIN:
+#if EAGAIN != EWOULDBLOCK
+	case EWOULDBLOCK:
+#endif
 	    // the client closed the connection before we got around
 	    // to accept()ing it.
 	    break;
@@ -631,19 +660,19 @@ int QSocketDevice::readBlock( char *data, uint maxlen )
     int r = 0;
     while ( done == FALSE ) {
 	if ( t == Datagram ) {
-	    struct sockaddr_in a;
-	    memset( &a, 0, sizeof(a) );
+	    struct sockaddr_in aa;
+	    memset( &aa, 0, sizeof(aa) );
 	    SOCKLEN_T sz;
-	    sz = sizeof( a );
+	    sz = sizeof( aa );
 	    r = ::recvfrom( fd, data, maxlen, 0,
-			    (struct sockaddr *)&a, &sz );
-	    pp = ntohs( a.sin_port );
-	    pa = QHostAddress( ntohl( a.sin_addr.s_addr ) );
+			    (struct sockaddr *)&aa, &sz );
+	    pp = ntohs( aa.sin_port );
+	    pa = QHostAddress( ntohl( aa.sin_addr.s_addr ) );
 	} else {
 	    r = ::read( fd, data, maxlen );
 	}
 	done = TRUE;
-	if ( r >= 0 || errno == EAGAIN ) {
+	if ( r >= 0 || errno == EAGAIN || errno == EWOULDBLOCK ) {
 	    // nothing
 	} else if ( errno == EINTR ) {
 	    done = FALSE;
@@ -658,7 +687,9 @@ int QSocketDevice::readBlock( char *data, uint maxlen )
 	    case ENOTSOCK:
 		e = Impossible;
 		break;
+#if defined(ENONET)
 	    case ENONET:
+#endif
 	    case EHOSTUNREACH:
 	    case ENETDOWN:
 	    case ENETUNREACH:
@@ -712,7 +743,8 @@ int QSocketDevice::writeBlock( const char *data, uint len )
     while ( !done ) {
 	r = ::write( fd, data, len );
 	done = TRUE;
-	if ( r < 0 && e == NoError && errno != EAGAIN ) {
+	if ( r < 0 && e == NoError &&
+	     errno != EAGAIN && errno != EWOULDBLOCK ) {
 	    switch( errno ) {
 	    case EINTR: // signal - call read() or whatever again
 		done = FALSE;
@@ -728,7 +760,9 @@ int QSocketDevice::writeBlock( const char *data, uint len )
 	    case ENOTSOCK:
 		e = Impossible;
 		break;
+#if defined(ENONET)
 	    case ENONET:
+#endif
 	    case EHOSTUNREACH:
 	    case ENETDOWN:
 	    case ENETUNREACH:
@@ -753,7 +787,7 @@ int QSocketDevice::writeBlock( const char *data, uint len )
   \a host and \a port of the destination of the data.
 */
 int QSocketDevice::writeBlock( const char * data, uint len,
-			       const QHostAddress & host, uint port )
+			       const QHostAddress & host, Q_UINT16 port )
 {
     if ( t != Datagram ) {
 #if defined(CHECK_STATE) || defined(QSOCKETDEVICE_DEBUG)
@@ -791,11 +825,11 @@ int QSocketDevice::writeBlock( const char * data, uint len,
 	e = Impossible;
 	return FALSE;
     }
-    struct sockaddr_in a;
-    memset( &a, 0, sizeof(a) );
-    a.sin_family = AF_INET;
-    a.sin_port = htons( port );
-    a.sin_addr.s_addr = htonl( host.ip4Addr() );
+    struct sockaddr_in aa;
+    memset( &aa, 0, sizeof(aa) );
+    aa.sin_family = AF_INET;
+    aa.sin_port = htons( port );
+    aa.sin_addr.s_addr = htonl( host.ip4Addr() );
 
     // we'd use MSG_DONTWAIT + MSG_NOSIGNAL if Stevens were right.
     // but apparently Stevens and most implementors disagree
@@ -803,9 +837,10 @@ int QSocketDevice::writeBlock( const char * data, uint len,
     int r = 0;
     while ( !done ) {
 	r = ::sendto( fd, data, len, 0,
-		      (struct sockaddr *)(&a), sizeof(sockaddr_in) );
+		      (struct sockaddr *)(&aa), sizeof(sockaddr_in) );
 	done = TRUE;
-	if ( r < 0 && e != EAGAIN && e == NoError ) {
+	if ( r < 0 && e == NoError &&
+	     errno != EAGAIN && errno != EWOULDBLOCK ) {
 	    switch( errno ) {
 	    case EINTR: // signal - call read() or whatever again
 		done = FALSE;
@@ -821,7 +856,9 @@ int QSocketDevice::writeBlock( const char * data, uint len,
 	    case ENOTSOCK:
 		e = Impossible;
 		break;
+#if defined(ENONET)
 	    case ENONET:
+#endif
 	    case EHOSTUNREACH:
 	    case ENETDOWN:
 	    case ENETUNREACH:

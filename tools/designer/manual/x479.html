@@ -1,0 +1,204 @@
+<HTML
+><HEAD
+><TITLE
+>Connecting Widgets To Each Other</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.46"><LINK
+REL="HOME"
+HREF="book1.html"><LINK
+REL="UP"
+TITLE="Tutorial: Adding Additional Functionality To A Dialog By
+	  Subclassing"
+HREF="c289.html"><LINK
+REL="PREVIOUS"
+TITLE="Initializing The State Of Widgets In The Form"
+HREF="x438.html"><LINK
+REL="NEXT"
+TITLE="Tutorial: Using Layout Management"
+HREF="c498.html"></HEAD
+><BODY
+CLASS="SECT1"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="x438.html"
+>Prev</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+>Chapter 3. Tutorial: Adding Additional Functionality To A Dialog By
+	  Subclassing</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="c498.html"
+>Next</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="AEN479"
+>Connecting Widgets To Each Other</A
+></H1
+><P
+>We have one goal left: Enabling the <SPAN
+CLASS="GUILABEL"
+>Extra
+		Cheese</SPAN
+> checkbox when the
+		<SPAN
+CLASS="GUILABEL"
+>Anchovis</SPAN
+> checkbox is checked as well
+		disabling it when the <SPAN
+CLASS="GUILABEL"
+>Anchovis</SPAN
+> is
+		unchecked. You might perhaps expect
+		that this needs more additions to the
+		<TT
+CLASS="LITERAL"
+>PizzaEntryImpl</TT
+> class, but this is not case:
+		We have the fortunate situation here that we can just connect
+		the right signals and slots to each other and have Qt Designer
+		and <B
+CLASS="COMMAND"
+>uic</B
+> do the rest.</P
+><P
+>Start Qt Designer again and load
+		<TT
+CLASS="FILENAME"
+>pizza.ui</TT
+>. This time, we do not need to
+		create our own slots but just use predefined ones. So start
+		the <I
+CLASS="EMPHASIS"
+>connection tool</I
+> by hitting
+		<B
+CLASS="KEYCAP"
+>F3</B
+> or any other of the previously described
+		means and &#8220;draw&#8221; a connection between the
+		<SPAN
+CLASS="GUILABEL"
+>Anchovis</SPAN
+> checkbox and the <SPAN
+CLASS="GUILABEL"
+>Extra
+		Cheese</SPAN
+>. In the <SPAN
+CLASS="GUILABEL"
+>Connections</SPAN
+>
+		dialog that shows, connect the
+		<TT
+CLASS="LITERAL"
+>toggled(bool)</TT
+> signal which is emitted when
+		the <SPAN
+CLASS="GUILABEL"
+>Anchovis</SPAN
+> checkbox is operated to the
+		<TT
+CLASS="LITERAL"
+>setEnabled(bool)</TT
+> slot. Close the dialog
+		with <SPAN
+CLASS="GUILABEL"
+>OK</SPAN
+>. That's all! Save your work and
+		compile your program as described in the first section in this
+		tutorial. Run the program and check that it actually does what
+		we wanted.</P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="x438.html"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="book1.html"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="c498.html"
+>Next</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>Initializing The State Of Widgets In The Form</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="c289.html"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>Tutorial: Using Layout Management</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

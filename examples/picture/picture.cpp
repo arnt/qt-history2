@@ -34,7 +34,7 @@ void paintCar( QPainter *p )			// paint a car
     brush.setColor( windowColor );		// set this brush color
     p->setBrush( brush );			// set brush
     p->drawRect( 80, 80, 250, 70 );		// car window
-    p->drawText( 180, 80, 150, 70, Qt::AlignCenter, "--  Qt  --\nTroll Tech AS" );
+    p->drawText( 180, 80, 150, 70, Qt::AlignCenter, "--  Qt  --\nTrolltech AS" );
 
     QPixmap pixmap;
     if ( pixmap.load("flag.bmp") )		// load and draw image

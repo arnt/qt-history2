@@ -7,15 +7,17 @@
 **
 ** Copyright (C) 1998-2000 Troll Tech AS.  All rights reserved.
 **
-** This file is part of the Qt GUI Toolkit.
+** This file is part of the widgets module of the Qt GUI Toolkit.
 **
 ** This file may be distributed under the terms of the Q Public License
 ** as defined by Troll Tech AS of Norway and appearing in the file
 ** LICENSE.QPL included in the packaging of this file.
 **
-** Licensees holding valid Qt Professional Edition licenses may use this
-** file in accordance with the Qt Professional Edition License Agreement
-** provided with the Qt Professional Edition.
+** Licensees holding valid Qt Enterprise Edition or Qt Professional Edition
+** licenses may use this file in accordance with the Qt Commercial License
+** Agreement provided with the Software.  This file is part of the widgets
+** module and therefore may only be used if the widgets module is specified
+** as Licensed on the Licensee's License Certificate.
 **
 ** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 ** information about the Professional Edition licensing, or see
@@ -113,17 +115,17 @@ QSGIStyle::polish( QApplication* app)
     QMotifStyle::polish( app );
 
     QFont f = QApplication::font();
-    f.setBold( true );
-    f.setItalic( true );
+    f.setBold( TRUE );
+    f.setItalic( TRUE );
     QApplication::setFont( f, TRUE, "QPopupMenu" );
     QApplication::setFont( f, TRUE, "QMenuBar" );
     QApplication::setFont( f, TRUE, "QComboBox" );
 
     QPalette pal = QApplication::palette();
     // check this on SGI-Boxes
-    pal.setColor( QColorGroup::Background, pal.active().midlight() );
+    //pal.setColor( QColorGroup::Background, pal.active().midlight() );
     if (pal.active().button() == pal.active().background())
-	pal.setColor( QColorGroup::Button, pal.active().button().dark(110) );
+	pal.setColor( QColorGroup::Button, pal.active().button().dark(120) );
     // darker basecolor in list-widgets
     pal.setColor( QColorGroup::Base, pal.active().base().dark(130) );
     if (! useHighlightColors() ) {
@@ -149,10 +151,10 @@ QSGIStyle::polish( QApplication* app)
     QApplication::setPalette( pal, TRUE, "QMultiLineEdit" );
 
     pal = QApplication::palette();
-    pal.setColor( QColorGroup::Button, pal.active().midlight() );
+    pal.setColor( QColorGroup::Button, pal.active().background() );
     QApplication::setPalette( pal, TRUE, "QMenuBar" );
     QApplication::setPalette( pal, TRUE, "QToolBar" );
-    
+
     qt_set_draw_menu_bar_impl((QDrawMenuBarItemImpl) &QSGIStyle::drawMenuBarItem);
 }
 
@@ -166,7 +168,7 @@ QSGIStyle::unPolish( QApplication* /* app */ )
     QApplication::setFont( f, TRUE, "QPopupMenu" );
     QApplication::setFont( f, TRUE, "QMenuBar" );
     QApplication::setFont( f, TRUE, "QComboBox" );
-    
+
     qt_set_draw_menu_bar_impl(0);
 }
 
@@ -1140,7 +1142,7 @@ QSGIStyle::drawPopupMenuItem( QPainter* p, bool checkable, int maxpmw, int tab, 
 	    drawPanel( p, x+1, y+1, w-2, h-2, g, FALSE, 1,
 			     &g.brush( QColorGroup::Light ) );
     } else {
-	p->fillRect( x, y, w, h, g.brush( QColorGroup::Midlight ) );
+	p->fillRect( x, y, w, h, g.brush( QColorGroup::Background ) );
     }
 
     if ( !mi )
@@ -1154,7 +1156,7 @@ QSGIStyle::drawPopupMenuItem( QPainter* p, bool checkable, int maxpmw, int tab, 
     } else {
 	if ( !act )
 	    p->fillRect( x+sgiItemFrame, y+sgiItemFrame, checkcol, h-2*sgiItemFrame,
-	                g.brush( QColorGroup::Midlight ) );
+	                g.brush( QColorGroup::Background ) );
     }
 
     if ( mi->iconSet() ) {
@@ -1241,8 +1243,14 @@ QSGIStyle::drawPopupMenuItem( QPainter* p, bool checkable, int maxpmw, int tab, 
     \reimp
 */
 void QSGIStyle::drawMenuBarItem( QPainter* p, int x, int y, int w, int h,
-				QMenuItem* mi, QColorGroup& g, bool enabled, bool )
+				QMenuItem* mi, QColorGroup& g, bool enabled, bool active )
 {
+    if ( active ) {
+	p->setPen( QPen( g.shadow(), 1) );
+	p->drawRect( x, y, w, h );
+	qDrawShadePanel( p, QRect(x+1,y+1,w-2,h-2), g, FALSE, 2,
+			 &g.brush( QColorGroup::Light ));
+    }
     if ( mi->pixmap() )
 	drawItem( p, x, y, w, h, AlignCenter|DontClip|SingleLine,
 		g, enabled, mi->pixmap(), "", -1, &g.buttonText() );

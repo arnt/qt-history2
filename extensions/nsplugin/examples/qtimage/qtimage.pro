@@ -1,5 +1,5 @@
 TEMPLATE	= app
-CONFIG		= qt dll release
+CONFIG		+= qt dll release
 HEADERS		= 
 SOURCES		= qtimage.cpp
 unix:LIBS	= -lqnp -lXt

@@ -13,7 +13,7 @@ static char ident[] = "$Id: index.doc,v 1.5 1998/10/31 02:27:25 agulbra Exp $";
 
 /*! \page xt.html
 
-<title>Qt Documentation</title>
+<title>Qt Xt/Motif Support Extension</title>
 </head>
 
 <body bgcolor=#ffffff>
@@ -38,7 +38,7 @@ The Qt Xt/Motif Extension consists of the following classes:
 <ol>
  <li>Ensure you are using X11R6.
  <li>Ensure the programs you wish to port are compilable by a C++
-	compiler, or at least that this is the case for the parts 
+	compiler, or at least that this is the case for the parts
 	which need migration.
  <li>Decide whether you are writing a new Qt application reusing
 	old Xt widgets, or introducing new Qt widgets into an existing
