@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#219 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#220 $
 **
 ** Implementation of QListView widget class
 **
@@ -166,6 +166,9 @@ struct QListViewPrivate
 
     // whether to select or deselect during this mouse press.
     bool select;
+
+    // holds a list of iterators
+    QList<QListViewItemIterator> *iterators;
 };
 
 
@@ -476,6 +479,19 @@ void QListViewItem::init()
 
 QListViewItem::~QListViewItem()
 {
+    QListView *lv = listView();
+
+    if ( lv ) {
+        if ( lv->d->iterators ) {
+	    QListViewItemIterator *i = lv->d->iterators->first();
+	    while ( i ) {
+	        if ( i->current() == this )
+		    i->currentRemoved();
+		i = lv->d->iterators->next();
+	    }
+	}
+    }
+
     if ( parentItem )
 	parentItem->removeItem( this );
     QListViewItem * i = childItem;
@@ -534,6 +550,15 @@ void QListViewItem::removeItem( QListViewItem * tbg )
 
     QListView * lv = listView();
     if ( lv ) {
+
+        if ( lv->d->iterators ) {
+	    QListViewItemIterator *i = lv->d->iterators->first();
+	    while ( i ) {
+   	        if ( i->current() == tbg )
+		    i->currentRemoved();
+		i = lv->d->iterators->next();
+	    }
+	}	
 
 	invalidateHeight();
 
@@ -1480,6 +1505,7 @@ QListView::QListView( QWidget * parent, const char *name )
     d->buttonDown = FALSE;
     d->ignoreDoubleClick = FALSE;
     d->column.setAutoDelete( TRUE );
+    d->iterators = 0;
 
     connect( d->timer, SIGNAL(timeout()),
 	     this, SLOT(updateContents()) );
@@ -1513,6 +1539,15 @@ QListView::QListView( QWidget * parent, const char *name )
 
 QListView::~QListView()
 {
+    if ( d->iterators ) {
+        QListViewItemIterator *i = d->iterators->first();
+	while ( i ) {
+	    i->listView = 0L;
+	    i = d->iterators->next();
+	}
+	delete d->iterators;
+    }
+
     d->focusItem = 0;
     d->currentSelected = 0;
     delete d->r;
@@ -1859,8 +1894,16 @@ void QListView::insertItem( QListViewItem * i )
 
 void QListView::clear()
 {
+    if ( d->iterators ) {
+        QListViewItemIterator *i = d->iterators->first();
+	while ( i ) {
+	    i->curr = 0L;
+	    i = d->iterators->next();
+	}
+    }	
+
     if ( d->drawables )
-	d->drawables->clear();
+      d->drawables->clear();
     delete d->dirtyItems;
     d->dirtyItems = 0;
     d->dirtyItemTimer->stop();
@@ -4081,3 +4124,109 @@ void QListView::removeItem( QListViewItem * i )
 {
     d->r->removeItem( i );
 }
+
+/**********************************************************************
+ *
+ * Class QListViewItemIterator
+ *
+ **********************************************************************/
+
+
+QListViewItemIterator::QListViewItemIterator(QListViewItem *item)
+  : curr(item), listView(item ? item->listView() : 0L)
+{
+  addToListView();
+}
+
+QListViewItemIterator::QListViewItemIterator(const QListViewItemIterator& it)
+  : curr(it.curr), listView(it.listView)
+{
+  addToListView();
+}
+
+QListViewItemIterator::QListViewItemIterator(QListView *lv)
+  : curr(lv->firstChild()), listView(lv)
+{
+  addToListView();
+}
+
+QListViewItemIterator::~QListViewItemIterator()
+{
+  if (listView)
+    {
+      if (listView->d->iterators->removeRef(this))
+	{
+	  if (listView->d->iterators->count() == 0)
+	    {
+	      delete listView->d->iterators;
+	      listView->d->iterators = 0L;
+	    }
+	}
+    }
+}
+
+QListViewItemIterator& QListViewItemIterator::operator++()
+{
+  if (!curr)
+    return *this;
+
+  QListViewItem *item = curr->firstChild();
+  if (item)
+    {
+      curr = item;	
+      return *this;
+    }
+
+  item = curr->nextSibling();
+  if (item)
+    {
+      curr = item;
+      return *this;
+    }
+
+  curr = curr->parent();
+  if (curr)
+    curr = curr->nextSibling();
+
+  return *this;
+}
+
+const QListViewItemIterator QListViewItemIterator::operator++(int)
+{
+  QListViewItemIterator oldValue = *this;
+  ++(*this);
+  return oldValue;
+}
+
+QListViewItemIterator::QListViewItemIterator()
+  : curr(0L), listView(0L)
+{
+}
+
+void QListViewItemIterator::addToListView()
+{
+  if (listView)
+    {
+      if (!listView->d->iterators)
+	{
+	  listView->d->iterators = new QList<QListViewItemIterator>;
+	  CHECK_PTR(listView->d->iterators);
+	}
+      listView->d->iterators->append(this);
+    }
+}
+
+void QListViewItemIterator::currentRemoved()
+{
+  if (!curr) return;
+
+  if (curr->parent())
+    curr = curr->parent();
+  else if (curr->nextSibling())
+    curr = curr->nextSibling();
+  else if (listView && listView->firstChild() && listView->firstChild() != curr)
+    curr = listView->firstChild();
+  else
+    curr = 0L;
+}
+

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.h#75 $
+** $Id: //depot/qt/main/src/widgets/qlistview.h#76 $
 **
 ** Definition of QListView widget class
 **
@@ -32,7 +32,7 @@ class QHeader;
 
 class QListView;
 struct QListViewPrivate;
-
+class QListViewItemIterator;
 
 #ifndef QT_H
 #include "qscrollview.h"
@@ -41,6 +41,8 @@ struct QListViewPrivate;
 
 class Q_EXPORT QListViewItem: public Qt
 {
+friend QListViewItemIterator;
+
 public:
     QListViewItem( QListView * parent );
     QListViewItem( QListViewItem * parent );
@@ -158,6 +160,8 @@ private:
 
 class Q_EXPORT QListView: public QScrollView
 {
+friend class QListViewItemIterator;
+
     Q_OBJECT
 public:
     QListView( QWidget * parent = 0, const char *name = 0 );
@@ -329,5 +333,33 @@ private:
     void *reserved;
 };
 
+class Q_EXPORT QListViewItemIterator
+{
+  friend struct QListViewPrivate;
+  friend class QListView;
+  friend class QListViewItem;
+
+public:
+  QListViewItemIterator(QListViewItem *item);
+  QListViewItemIterator(const QListViewItemIterator& it);
+  QListViewItemIterator(QListView *lv);
+
+  ~QListViewItemIterator();
+
+  QListViewItemIterator& operator++();
+  const QListViewItemIterator operator++(int);
+
+  QListViewItem *current() const { return curr; }
+
+protected:
+  QListViewItem *curr;
+  QListView *listView;
+
+private:
+  QListViewItemIterator();
+  void addToListView();
+  void currentRemoved();
+
+};
 
 #endif // QLISTVIEW_H
