@@ -195,7 +195,8 @@ QWhatsThat::QWhatsThat(const QString& txt, QWidget* parent, QWidget *showTextFor
             sw = 300;
 
         r = fontMetrics().boundingRect(0, 0, sw, 1000,
-                                        Qt::AlignAuto + Qt::AlignTop + Qt::WordBreak + Qt::ExpandTabs,
+                                        Qt::AlignAuto + Qt::AlignTop
+                                        + Qt::TextWordBreak + Qt::TextExpandTabs,
                                         text);
     }
 #if defined(Q_WS_WIN)
@@ -327,7 +328,7 @@ void QWhatsThat::paintEvent(QPaintEvent*)
     else
 #endif
     {
-        p.drawText(r, Qt::AlignAuto + Qt::AlignTop + Qt::WordBreak + Qt::ExpandTabs, text);
+        p.drawText(r, Qt::AlignAuto + Qt::AlignTop + Qt::TextWordBreak + Qt::TextExpandTabs, text);
     }
 }
 
@@ -373,7 +374,7 @@ QWhatsThisPrivate::QWhatsThisPrivate()
 {
     instance = this;
     qApp->installEventFilter(this);
-    QApplication::setOverrideCursor(Qt::whatsThisCursor, false);
+    QApplication::setOverrideCursor(Qt::WhatsThisCursor, false);
 #ifndef QT_NO_ACCESSIBILITY
     QAccessible::updateAccessibility(this, 0, QAccessible::ContextHelpStart);
 #endif
@@ -383,8 +384,10 @@ QWhatsThisPrivate::~QWhatsThisPrivate()
 {
     if (action)
         action->setChecked(false);
+#ifdef QT_COMPAT
     if (button)
         button->setChecked(false);
+#endif
     QApplication::restoreOverrideCursor();
 #ifndef QT_NO_ACCESSIBILITY
     QAccessible::updateAccessibility(this, 0, QAccessible::ContextHelpEnd);

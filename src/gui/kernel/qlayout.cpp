@@ -1319,8 +1319,8 @@ QSizePolicy::ExpandData QGridLayout::expanding() const
 */
 void QGridLayout::setOrigin(Qt::Corner c)
 {
-    d->setReversed(c == Qt::BottomLeft || c == Qt::BottomRight,
-                       c == Qt::TopRight || c == Qt::BottomRight);
+    d->setReversed(c == Qt::BottomLeftCorner || c == Qt::BottomRightCorner,
+                       c == Qt::TopRightCorner || c == Qt::BottomRightCorner);
 }
 
 /*!

@@ -889,9 +889,6 @@ QApplication::~QApplication()
 
     eventLoop()->appClosingDown();
 
-    QObject *tipmanager = child("toolTipManager", "QTipManager", false);
-    delete tipmanager;
-
     delete qt_desktopWidget;
     qt_desktopWidget = 0;
     is_app_closing = true;
@@ -2588,7 +2585,7 @@ bool QApplication::notify(QObject *receiver, QEvent *e)
     if (!receiver->isWidgetType()) {
         res = notify_helper(receiver, e);
     } else switch (e->type()) {
-#if !defined QT_NO_COMPAT && !defined(QT_NO_ACCEL)
+#if defined QT_COMPAT && !defined(QT_NO_ACCEL)
     case QEvent::Accel:
     {
         if (d->use_compat()) {
@@ -2605,14 +2602,14 @@ bool QApplication::notify(QObject *receiver, QEvent *e)
         }
         break;
     }
-#endif //!QT_NO_COMPAT && !QT_NO_ACCEL
+#endif //QT_COMPAT && !QT_NO_ACCEL
     case QEvent::ShortcutOverride:
     case QEvent::KeyPress:
     case QEvent::KeyRelease:
         {
         QWidget* w = static_cast<QWidget*>(receiver);
         QKeyEvent* key = static_cast<QKeyEvent*>(e);
-#if !defined QT_NO_COMPAT && !defined(QT_NO_ACCEL)
+#if defined QT_COMPAT && !defined(QT_NO_ACCEL)
         if (d->use_compat() && d->qt_tryComposeUnicode(w, key))
             break;
 #endif

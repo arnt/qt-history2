@@ -3330,9 +3330,9 @@ void QWidget::setTabOrder(QWidget* first, QWidget *second)
         // that can take keyboard focus so that second is inserted after
         // that last child, and the focus order within first is (more
         // likely to be) preserved.
-        QObjectList l = first->queryList("QWidget");
+        QList<QWidget *> l = qFindChildren<QWidget *>(first);
         for (int i = l.size()-1; i >= 0; --i) {
-            QWidget * next = static_cast<QWidget*>(l.at(i));
+            QWidget * next = l.at(i);
             if (next->topLevelWidget() == fp->topLevelWidget()) {
                 fp = next;
                 if (fp->focusPolicy() != Qt::NoFocus)
@@ -4521,9 +4521,11 @@ bool QWidget::event(QEvent *e)
         if (! ((QTabletEvent*)e)->isAccepted())
             return d->compositeEvent(e);
         break;
+#ifdef QT_COMPAT
     case QEvent::Accel:
         ((QKeyEvent*)e)->ignore();
         return false;
+#endif
     case QEvent::KeyPress: {
         QKeyEvent *k = (QKeyEvent *)e;
         bool res = false;
@@ -4776,11 +4778,9 @@ bool QWidget::event(QEvent *e)
             layout()->activate();
             d->layout->activate();
         } else {
-            QObjectList llist = queryList("QLayout", 0, true, true);
-            for (int i = 0; i < llist.size(); ++i) {
-                QLayout *lay = static_cast<QLayout *>(llist.at(i));
-                lay->activate();
-            }
+            QList<QLayout *> llist = qFindChildren<QLayout *>(this);
+            for (int i = 0; i < llist.size(); ++i)
+                llist.at(i)->activate();
         }
         update();
         break;

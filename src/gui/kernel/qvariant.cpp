@@ -1080,10 +1080,12 @@ QVariant::QVariant(const QPixmap &val)
     d = create(Pixmap, &val);
 }
 
+#ifdef QT_COMPAT
 QPixmap& QVariant::asPixmap()
 {
     return *static_cast<QPixmap *>(castOrDetach(Pixmap));
 }
+#endif
 
 QPixmap QVariant::toPixmap() const
 {

@@ -4400,7 +4400,7 @@ static const unsigned int KeyTbl[] = {                // keyboard mapping table
     XF86XK_AudioRaiseVolume, Qt::Key_VolumeUp,
     XF86XK_AudioPlay,        Qt::Key_MediaPlay,
     XF86XK_AudioStop,        Qt::Key_MediaStop,
-    XF86XK_AudioPrev,        Qt::Key_MediaPrev,
+    XF86XK_AudioPrev,        Qt::Key_MediaPrevious,
     XF86XK_AudioNext,        Qt::Key_MediaNext,
     XF86XK_AudioRecord,        Qt::Key_MediaRecord,
 

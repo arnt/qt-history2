@@ -113,7 +113,7 @@ static struct {
     { Qt::Key_TrebleDown,   QT_TRANSLATE_NOOP("QShortcut", "Treble Down") },
     { Qt::Key_MediaPlay,    QT_TRANSLATE_NOOP("QShortcut", "Media Play") },
     { Qt::Key_MediaStop,    QT_TRANSLATE_NOOP("QShortcut", "Media Stop") },
-    { Qt::Key_MediaPrev,    QT_TRANSLATE_NOOP("QShortcut", "Media Previous") },
+    { Qt::Key_MediaPrevious,QT_TRANSLATE_NOOP("QShortcut", "Media Previous") },
     { Qt::Key_MediaNext,    QT_TRANSLATE_NOOP("QShortcut", "Media Next") },
     { Qt::Key_MediaRecord,  QT_TRANSLATE_NOOP("QShortcut", "Media Record") },
     { Qt::Key_HomePage,     QT_TRANSLATE_NOOP("QShortcut", "Home") },
