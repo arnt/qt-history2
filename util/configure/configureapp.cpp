@@ -32,7 +32,7 @@ ConfigureApp::ConfigureApp( int& argc, char** argv ) : QApplication( argc, argv 
     dictionary[ "GIF" ] = "no";
     dictionary[ "THREAD" ] = "yes";
     dictionary[ "ZLIB" ] = "yes";
-    dictionary[ "LIBPNG" ] = "yes";
+    dictionary[ "PNG" ] = "yes";
     dictionary[ "JPEG" ] = "yes";
     dictionary[ "MNG" ] = "no";
     dictionary[ "BUILD_QMAKE" ] = "yes";
@@ -155,28 +155,30 @@ void ConfigureApp::parseCmdLine()
 	    dictionary[ "GIF" ] = "yes";
 	else if( (*args) == "-no-zlib" ) {
 	    dictionary[ "ZLIB" ] = "no";
-	    dictionary[ "LIBPNG" ] = "no";
-	}
-	else if( (*args) == "-qt-zlib" )
+	    dictionary[ "PNG" ] = "no";
+	} 
+	else if( (*args) == "-zlib" )
 	    dictionary[ "ZLIB" ] = "yes";
 	else if( (*args) == "-system-zlib" )
 	    dictionary[ "ZLIB" ] = "system";
 	else if( (*args) == "-no-png" )
-	    dictionary[ "LIBPNG" ] = "no";
-	else if( (*args) == "-qt-libpng" )
-	    dictionary[ "LIBPNG" ] = "yes";
-	else if( (*args) == "-system-libpng" )
-	    dictionary[ "LIBPNG" ] = "system";
+	    dictionary[ "PNG" ] = "no";
+	else if( (*args) == "-qt-png" )
+	    dictionary[ "PNG" ] = "yes";
+	else if( (*args) == "-system-png" )
+	    dictionary[ "PNG" ] = "system";
 	else if( (*args) == "-no-mng" )
 	    dictionary[ "MNG" ] = "no";
+	else if( (*args) == "-qt-mng" )
+	    dictionary[ "MNG" ] = "yes";
 	else if( (*args) == "-system-mng" )
 	    dictionary[ "MNG" ] = "system";
 	else if( (*args) == "-no-jpeg" )
 	    dictionary[ "JPEG" ] = "no";
-	else if( (*args) == "-system-jpeg" )
-	    dictionary[ "JPEG" ] = "system";
 	else if( (*args) == "-qt-jpeg" )
 	    dictionary[ "JPEG" ] = "yes";
+	else if( (*args) == "-system-jpeg" )
+	    dictionary[ "JPEG" ] = "system";
 	else if( (*args) == "-internal" )
 	    dictionary[ "QMAKE_INTERNAL" ] = "yes";
 	else if( (*args) == "-no-qmake" )
@@ -310,41 +312,57 @@ bool ConfigureApp::displayHelp()
 	cout << "-platform           Specify a platform, uses %QMAKESPEC% as default." << endl;
 	cout << "-qconfig            Specify config, available configs:" << endl;
 	for( QStringList::Iterator config = allConfigs.begin(); config != allConfigs.end(); ++config )
-	    cout << "                        " << (*config).latin1() << endl;
+	    cout << "                        " << (*config).latin1() << endl << endl;
+
 	cout << "-qt-gif             Enable GIF support." << endl;
-	cout << "-no-gif           * Disable GIF support." << endl;
+	cout << "-no-gif           * Disable GIF support." << endl << endl;
+
 	cout << "-no-zlib            Disable zlib.  Implies -no-png." << endl;
 	cout << "-qt-zlib          * Compile in zlib." << endl;
-	cout << "-system-zlib        Use existing zlib in system." << endl;
-	cout << "-no-png             Disable PNG support." << endl;
-	cout << "-qt-libpng        * Compile in libPNG." << endl;
-	cout << "-system-libpng      Use existing libPNG in system." << endl;
-	cout << "-no-mng           * Disable MNG support." << endl;
+	cout << "-system-zlib        Use existing zlib in system." << endl << endl;
+
+	cout << "-no-png             PNG support through plugin." << endl;
+	cout << "-qt-png           * Compile in libPNG." << endl;
+	cout << "-system-png	     Use existing libPNG in system." << endl  << endl;
+
+	cout << "-no-mng           * MNG support through plugin." << endl;
+	cout << "-qt-mng           * Compile in libMNG." << endl;
 	cout << "-system-mng         Enable MNG support, use system MNG library." << endl;
+
 	cout << "-no-jpeg            Disable JPEG support." << endl;
-	cout << "-system-jpeg        Enable JPEG support, use system JPEG library" << endl;
 	cout << "-qt-jpeg          * Enable built-in JPEG support" << endl;
+	cout << "-system-jpeg        Enable JPEG support, use system JPEG library" << endl << endl;
+	
 	cout << "-stl                Enable STL support." << endl;
-	cout << "-no-stl           * Disable STL support." << endl;
+	cout << "-no-stl           * Disable STL support." << endl  << endl;
+
 	cout << "-accessibility      Enable Windows Active Accessibility." << endl;
-	cout << "-no-accessibility * Disable Windows Active Accessibility." << endl;
+	cout << "-no-accessibility * Disable Windows Active Accessibility." << endl  << endl;
+
 	cout << "-tablet             Enable tablet support." << endl;
-	cout << "-no-tablet        * Disable tablet support." << endl;
+	cout << "-no-tablet        * Disable tablet support." << endl  << endl;
+
 	cout << "-big-codecs         Enable the building of big codecs." << endl;
-	cout << "-no-big-codecs      Disable the building of big codecs." << endl;
+	cout << "-no-big-codecs      Disable the building of big codecs." << endl << endl;
+
 	cout << "-no-dsp             Disable the generation of VC++ .DSP-files." << endl;
-	cout << "-dsp              * Enable the generation of VC++ .DSP-files." << endl;
+	cout << "-dsp              * Enable the generation of VC++ .DSP-files." << endl << endl;
+
 	cout << "-no-qmake           Do not build qmake." << endl;
 	cout << "-lean               Only process the Qt core projects." << endl;
-	cout << "                    (qt.pro, qtmain.pro)." << endl;
+	cout << "                    (qt.pro, qtmain.pro)." << endl << endl;
+
 	cout << "-D <define>         Add <define> to the list of defines." << endl;
 	cout << "-I <includepath>    Add <includepath> to the include searchpath." << endl;
-	cout << "-l <library>        Add <library> to the library list." << endl;
+	cout << "-l <library>        Add <library> to the library list." << endl << endl;
+
 	cout << "-enable-*           Enable the specified module, where module is one of" << endl;
-	cout << "                    " << modules.join( " " ) << endl;
-	cout << "-disable-*          Disable the specified module, where module is one of" << endl;
 	cout << "                    " << modules.join( " " ) << endl << endl;
-	cout << "-sql-*              Compile the specified SQL driver." << endl << endl;
+
+	cout << "-disable-*          Disable the specified module, where module is one of" << endl;
+	cout << "                    " << modules.join( " " ) << endl << endl << endl;
+	cout << "-sql-*              Compile the specified SQL driver." << endl << endl << endl;
+
 	cout << "-redo               Run configure with the same parameters as last time." << endl << endl;
 	return true;
     }
@@ -365,11 +383,9 @@ void ConfigureApp::generateOutputVars()
     if( dictionary[ "THREAD" ] == "yes" ) {
 	qmakeConfig += "thread";
 	dictionary[ "QMAKE_OUTDIR" ] += "_mt";
-	qmakeDefines += "QT_THREAD_SUPPORT";
     }
     if( dictionary[ "ACCESSIBILITY" ] == "yes" ) {
 	qmakeConfig += "accessibility";
-	qmakeDefines += "QT_ACCESSIBILITY_SUPPORT";
     }
     if( dictionary[ "SHARED" ] == "yes" ) {
 	dictionary[ "QMAKE_OUTDIR" ] += "_shared";
@@ -377,6 +393,7 @@ void ConfigureApp::generateOutputVars()
     }
     else
 	dictionary[ "QMAKE_OUTDIR" ] += "_static";
+
     if( dictionary[ "STL" ] == "no" ) {
 	qmakeDefines += "QT_NO_STL";
     }
@@ -398,22 +415,28 @@ void ConfigureApp::generateOutputVars()
 	qmakeConfig += "jpeg";
     else if( dictionary[ "JPEG" ] == "system" )
 	qmakeConfig += "system-jpeg";
+
     if( dictionary[ "MNG" ] == "yes" )
 	qmakeConfig += "mng";
     else if( dictionary[ "MNG" ] == "system" )
 	qmakeConfig += "system-mng";
+
     if( dictionary[ "GIF" ] == "yes" )
 	qmakeConfig += "gif";
+
     if( dictionary[ "ZLIB" ] == "yes" )
 	qmakeConfig += "zlib";
     else if( dictionary[ "ZLIB" ] == "no" )
 	qmakeConfig += "no-zlib";
-    if( dictionary[ "LIBPNG" ] == "yes" )
+
+    if( dictionary[ "PNG" ] == "yes" )
 	qmakeConfig += "png";
-    else if( dictionary[ "LIBPNG" ] == "no" )
+    else if( dictionary[ "PNG" ] == "no" )
 	qmakeConfig += "no-png";
+
     if( dictionary[ "BIG_CODECS" ] == "yes" )
 	qmakeConfig += "bigcodecs";
+
     if( dictionary[ "TABLET" ] == "yes" )
 	qmakeConfig += "tablet";
 
@@ -562,7 +585,7 @@ void ConfigureApp::displayConfig()
     cout << "GIF support................." << dictionary[ "GIF" ] << endl;
     cout << "MNG support................." << dictionary[ "MNG" ] << endl;
     cout << "JPEG support................" << dictionary[ "JPEG" ] << endl;
-    cout << "PNG support................." << dictionary[ "LIBPNG" ] << endl << endl;
+    cout << "PNG support................." << dictionary[ "PNG" ] << endl << endl;
     if( !qmakeDefines.isEmpty() ) {
 	cout << "Defines.....................";
 	for( QStringList::Iterator defs = qmakeDefines.begin(); defs != qmakeDefines.end(); ++defs )

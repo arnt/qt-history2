@@ -23,7 +23,7 @@ public:
 //    virtual void clickedEnvironmentButton();
 
     virtual void showPage( QWidget* );
-    QApplication* app;
+
 protected:
 //    virtual void pageChanged( const QString& );
 private:
@@ -33,11 +33,6 @@ private:
     QProcess configure;
     QProcess make;
     QProcess integrator;
-    QCheckListItem* debugMode;
-    QCheckListItem* buildType;
-    QCheckListItem* threadModel;
-    QCheckListItem* modules;
-    QCheckListItem* sqldrivers;
 
     QString programsFolder;
     QString devSysFolder;
@@ -58,6 +53,9 @@ protected slots:
     virtual void readIntegratorOutput();
     virtual void readIntegratorError();
     virtual void timerFired();
+
+    void optionSelected( QListViewItem * );
+    void optionClicked( QListViewItem * );
 //    virtual void envDone();
 
 private:

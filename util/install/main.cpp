@@ -4,17 +4,15 @@
 
 int main( int argc, char** argv )
 {
-	QApplication* app = new QApplication( argc, argv );
-	SetupWizardImpl* w = new SetupWizardImpl;
+	QApplication app( argc, argv );
+	SetupWizardImpl w;
 
-	w->app = app;
-	w->show();
+	w.show();
 
-	app->setMainWidget( w );
+	app.setMainWidget( &w );
 
-	app->exec();
+	int res = app.exec();
 
-	w->stopProcesses();
-
-	return 0;
+	w.stopProcesses();
+	return res;
 }

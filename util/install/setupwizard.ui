@@ -1,5 +1,6 @@
 <!DOCTYPE UI><UI version="3.0" stdsetdef="1">
 <class>SetupWizard</class>
+<layoutdefaults spacing="6" margin="11"/>
 <widget class="QWizard">
     <property name="name">
         <cstring>SetupWizard</cstring>
@@ -8,8 +9,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>544</width>
-            <height>337</height>
+            <width>596</width>
+            <height>335</height>
         </rect>
     </property>
     <property name="caption">
@@ -216,7 +217,10 @@
                             <cstring>pathLabel</cstring>
                         </property>
                         <property name="text">
-                            <string>Destination path (appr. 250Mb free space required)</string>
+                            <string>Destination &amp;path (appr. 250Mb free space required)</string>
+                        </property>
+                        <property name="buddy" stdset="0">
+                            <cstring>installPath</cstring>
                         </property>
                     </widget>
                     <widget class="QLayoutWidget">
@@ -256,7 +260,7 @@
                             <cstring>installDocs</cstring>
                         </property>
                         <property name="text">
-                            <string>Install documentation</string>
+                            <string>Install &amp;documentation</string>
                         </property>
                         <property name="checked">
                             <bool>true</bool>
@@ -267,7 +271,7 @@
                             <cstring>installExamples</cstring>
                         </property>
                         <property name="text">
-                            <string>Install examples</string>
+                            <string>Install &amp;examples</string>
                         </property>
                         <property name="checked">
                             <bool>true</bool>
@@ -278,7 +282,7 @@
                             <cstring>installTutorials</cstring>
                         </property>
                         <property name="text">
-                            <string>Install tutorials</string>
+                            <string>Install &amp;tutorials</string>
                         </property>
                         <property name="checked">
                             <bool>true</bool>
@@ -308,7 +312,7 @@
                             <cstring>sysMsvc</cstring>
                         </property>
                         <property name="text">
-                            <string>Microsoft Visual C++</string>
+                            <string>Microsoft &amp;Visual C++</string>
                         </property>
                     </widget>
                     <widget class="QRadioButton">
@@ -316,7 +320,7 @@
                             <cstring>sysBorland</cstring>
                         </property>
                         <property name="text">
-                            <string>Borland C++</string>
+                            <string>&amp;Borland C++</string>
                         </property>
                     </widget>
                 </vbox>
@@ -473,7 +477,7 @@
                             </sizepolicy>
                         </property>
                         <property name="text">
-                            <string>Enter the supplied license information here, License ID and Products String are mandatory, the rest are optional.
+                            <string>Enter the supplied license information here, License ID and Products String are mandatory, the rest is optional.
 Alternatively, the installation wizard may read them from a license file.</string>
                         </property>
                         <property name="alignment">
@@ -485,7 +489,10 @@ Alternatively, the installation wizard may read them from a license file.</strin
                             <cstring>productsLabel</cstring>
                         </property>
                         <property name="text">
-                            <string>Products string</string>
+                            <string>Products strin&amp;g</string>
+                        </property>
+                        <property name="buddy" stdset="0">
+                            <cstring>productsString</cstring>
                         </property>
                     </widget>
                     <widget class="QLabel" row="3" column="0">
@@ -667,10 +674,13 @@ Alternatively, the installation wizard may read them from a license file.</strin
                             <cstring>folderLabel</cstring>
                         </property>
                         <property name="text">
-                            <string>Program folder</string>
+                            <string>Program &amp;folder</string>
+                        </property>
+                        <property name="buddy" stdset="0">
+                            <cstring>folderPath</cstring>
                         </property>
                     </widget>
-                    <widget class="QLayoutWidget" row="0" column="1">
+                    <widget class="QLayoutWidget" row="0" column="1" rowspan="1" colspan="2">
                         <property name="name">
                             <cstring>Layout2</cstring>
                         </property>
@@ -707,7 +717,10 @@ Alternatively, the installation wizard may read them from a license file.</strin
                             <cstring>qtDirLabel</cstring>
                         </property>
                         <property name="text">
-                            <string>Set QTDIR</string>
+                            <string>Set &amp;QTDIR</string>
+                        </property>
+                        <property name="buddy" stdset="0">
+                            <cstring>qtDirCheck</cstring>
                         </property>
                     </widget>
                     <widget class="QLabel" row="2" column="0">
@@ -721,10 +734,13 @@ Alternatively, the installation wizard may read them from a license file.</strin
                             </sizepolicy>
                         </property>
                         <property name="text">
-                            <string>path</string>
+                            <string>&amp;Path</string>
+                        </property>
+                        <property name="buddy" stdset="0">
+                            <cstring>devSysPath</cstring>
                         </property>
                     </widget>
-                    <widget class="QLayoutWidget" row="2" column="1">
+                    <widget class="QLayoutWidget" row="2" column="1" rowspan="1" colspan="2">
                         <property name="name">
                             <cstring>Layout3</cstring>
                         </property>
@@ -756,6 +772,28 @@ Alternatively, the installation wizard may read them from a license file.</strin
                             </widget>
                         </hbox>
                     </widget>
+                    <widget class="QLabel" row="3" column="0">
+                        <property name="name">
+                            <cstring>groupLabel</cstring>
+                        </property>
+                        <property name="text">
+                            <string>Folder &amp;group</string>
+                        </property>
+                        <property name="buddy" stdset="0">
+                            <cstring>folderGroups</cstring>
+                        </property>
+                    </widget>
+                    <widget class="QComboBox" row="3" column="1" rowspan="1" colspan="2">
+                        <property name="name">
+                            <cstring>folderGroups</cstring>
+                        </property>
+                        <property name="sizePolicy">
+                            <sizepolicy>
+                                <hsizetype>7</hsizetype>
+                                <vsizetype>0</vsizetype>
+                            </sizepolicy>
+                        </property>
+                    </widget>
                     <widget class="QCheckBox" row="1" column="1">
                         <property name="name">
                             <cstring>qtDirCheck</cstring>
@@ -767,25 +805,23 @@ Alternatively, the installation wizard may read them from a license file.</strin
                             <bool>true</bool>
                         </property>
                     </widget>
-                    <widget class="QLabel" row="3" column="0">
+                    <spacer row="1" column="2">
                         <property name="name">
-                            <cstring>groupLabel</cstring>
+                            <cstring>Spacer8</cstring>
                         </property>
-                        <property name="text">
-                            <string>Folder group</string>
+                        <property name="orientation">
+                            <enum>Horizontal</enum>
                         </property>
-                    </widget>
-                    <widget class="QComboBox" row="3" column="1">
-                        <property name="name">
-                            <cstring>folderGroups</cstring>
+                        <property name="sizeType">
+                            <enum>Expanding</enum>
                         </property>
-                        <property name="sizePolicy">
-                            <sizepolicy>
-                                <hsizetype>7</hsizetype>
-                                <vsizetype>0</vsizetype>
-                            </sizepolicy>
+                        <property name="sizeHint">
+                            <size>
+                                <width>20</width>
+                                <height>20</height>
+                            </size>
                         </property>
-                    </widget>
+                    </spacer>
                 </grid>
             </widget>
         </grid>
@@ -903,6 +939,273 @@ Alternatively, the installation wizard may read them from a license file.</strin
                         </widget>
                     </hbox>
                 </widget>
+            </widget>
+            <widget class="QTextView">
+                <property name="name">
+                    <cstring>explainOption</cstring>
+                </property>
+                <property name="sizePolicy">
+                    <sizepolicy>
+                        <hsizetype>5</hsizetype>
+                        <vsizetype>5</vsizetype>
+                    </sizepolicy>
+                </property>
+                <property name="minimumSize">
+                    <size>
+                        <width>200</width>
+                        <height>0</height>
+                    </size>
+                </property>
+                <property name="palette">
+                    <palette>
+                        <active>
+                            <color>
+                                <red>0</red>
+                                <green>0</green>
+                                <blue>0</blue>
+                            </color>
+                            <color>
+                                <red>212</red>
+                                <green>208</green>
+                                <blue>200</blue>
+                            </color>
+                            <color>
+                                <red>255</red>
+                                <green>255</green>
+                                <blue>255</blue>
+                            </color>
+                            <color>
+                                <red>233</red>
+                                <green>231</green>
+                                <blue>227</blue>
+                            </color>
+                            <color>
+                                <red>106</red>
+                                <green>104</green>
+                                <blue>100</blue>
+                            </color>
+                            <color>
+                                <red>141</red>
+                                <green>138</green>
+                                <blue>133</blue>
+                            </color>
+                            <color>
+                                <red>0</red>
+                                <green>0</green>
+                                <blue>0</blue>
+                            </color>
+                            <color>
+                                <red>255</red>
+                                <green>255</green>
+                                <blue>255</blue>
+                            </color>
+                            <color>
+                                <red>0</red>
+                                <green>0</green>
+                                <blue>0</blue>
+                            </color>
+                            <color>
+                                <red>212</red>
+                                <green>208</green>
+                                <blue>200</blue>
+                            </color>
+                            <color>
+                                <red>212</red>
+                                <green>208</green>
+                                <blue>200</blue>
+                            </color>
+                            <color>
+                                <red>0</red>
+                                <green>0</green>
+                                <blue>0</blue>
+                            </color>
+                            <color>
+                                <red>10</red>
+                                <green>36</green>
+                                <blue>106</blue>
+                            </color>
+                            <color>
+                                <red>255</red>
+                                <green>255</green>
+                                <blue>255</blue>
+                            </color>
+                            <color>
+                                <red>0</red>
+                                <green>0</green>
+                                <blue>255</blue>
+                            </color>
+                            <color>
+                                <red>255</red>
+                                <green>0</green>
+                                <blue>255</blue>
+                            </color>
+                        </active>
+                        <disabled>
+                            <color>
+                                <red>128</red>
+                                <green>128</green>
+                                <blue>128</blue>
+                            </color>
+                            <color>
+                                <red>212</red>
+                                <green>208</green>
+                                <blue>200</blue>
+                            </color>
+                            <color>
+                                <red>255</red>
+                                <green>255</green>
+                                <blue>255</blue>
+                            </color>
+                            <color>
+                                <red>243</red>
+                                <green>239</green>
+                                <blue>230</blue>
+                            </color>
+                            <color>
+                                <red>106</red>
+                                <green>104</green>
+                                <blue>100</blue>
+                            </color>
+                            <color>
+                                <red>141</red>
+                                <green>138</green>
+                                <blue>133</blue>
+                            </color>
+                            <color>
+                                <red>0</red>
+                                <green>0</green>
+                                <blue>0</blue>
+                            </color>
+                            <color>
+                                <red>255</red>
+                                <green>255</green>
+                                <blue>255</blue>
+                            </color>
+                            <color>
+                                <red>128</red>
+                                <green>128</green>
+                                <blue>128</blue>
+                            </color>
+                            <color>
+                                <red>212</red>
+                                <green>208</green>
+                                <blue>200</blue>
+                            </color>
+                            <color>
+                                <red>212</red>
+                                <green>208</green>
+                                <blue>200</blue>
+                            </color>
+                            <color>
+                                <red>0</red>
+                                <green>0</green>
+                                <blue>0</blue>
+                            </color>
+                            <color>
+                                <red>10</red>
+                                <green>36</green>
+                                <blue>106</blue>
+                            </color>
+                            <color>
+                                <red>255</red>
+                                <green>255</green>
+                                <blue>255</blue>
+                            </color>
+                            <color>
+                                <red>0</red>
+                                <green>0</green>
+                                <blue>255</blue>
+                            </color>
+                            <color>
+                                <red>255</red>
+                                <green>0</green>
+                                <blue>255</blue>
+                            </color>
+                        </disabled>
+                        <inactive>
+                            <color>
+                                <red>0</red>
+                                <green>0</green>
+                                <blue>0</blue>
+                            </color>
+                            <color>
+                                <red>212</red>
+                                <green>208</green>
+                                <blue>200</blue>
+                            </color>
+                            <color>
+                                <red>255</red>
+                                <green>255</green>
+                                <blue>255</blue>
+                            </color>
+                            <color>
+                                <red>243</red>
+                                <green>239</green>
+                                <blue>230</blue>
+                            </color>
+                            <color>
+                                <red>106</red>
+                                <green>104</green>
+                                <blue>100</blue>
+                            </color>
+                            <color>
+                                <red>141</red>
+                                <green>138</green>
+                                <blue>133</blue>
+                            </color>
+                            <color>
+                                <red>0</red>
+                                <green>0</green>
+                                <blue>0</blue>
+                            </color>
+                            <color>
+                                <red>255</red>
+                                <green>255</green>
+                                <blue>255</blue>
+                            </color>
+                            <color>
+                                <red>0</red>
+                                <green>0</green>
+                                <blue>0</blue>
+                            </color>
+                            <color>
+                                <red>212</red>
+                                <green>208</green>
+                                <blue>200</blue>
+                            </color>
+                            <color>
+                                <red>212</red>
+                                <green>208</green>
+                                <blue>200</blue>
+                            </color>
+                            <color>
+                                <red>0</red>
+                                <green>0</green>
+                                <blue>0</blue>
+                            </color>
+                            <color>
+                                <red>10</red>
+                                <green>36</green>
+                                <blue>106</blue>
+                            </color>
+                            <color>
+                                <red>255</red>
+                                <green>255</green>
+                                <blue>255</blue>
+                            </color>
+                            <color>
+                                <red>0</red>
+                                <green>0</green>
+                                <blue>255</blue>
+                            </color>
+                            <color>
+                                <red>255</red>
+                                <green>0</green>
+                                <blue>255</blue>
+                            </color>
+                        </inactive>
+                    </palette>
+                </property>
             </widget>
         </hbox>
     </widget>
@@ -1183,6 +1486,42 @@ Alternatively, the installation wizard may read them from a license file.</strin
         <receiver>SetupWizard</receiver>
         <slot>licenseChanged(const QString&amp;)</slot>
     </connection>
+    <connection language="C++">
+        <sender>configList</sender>
+        <signal>clicked(QListViewItem*)</signal>
+        <receiver>SetupWizard</receiver>
+        <slot>optionClicked(QListViewItem*)</slot>
+    </connection>
+    <connection language="C++">
+        <sender>configList</sender>
+        <signal>spacePressed(QListViewItem*)</signal>
+        <receiver>SetupWizard</receiver>
+        <slot>optionClicked(QListViewItem*)</slot>
+    </connection>
+    <connection language="C++">
+        <sender>configList</sender>
+        <signal>selectionChanged(QListViewItem*)</signal>
+        <receiver>SetupWizard</receiver>
+        <slot>optionSelected(QListViewItem*)</slot>
+    </connection>
+    <connection language="C++">
+        <sender>advancedList</sender>
+        <signal>clicked(QListViewItem*)</signal>
+        <receiver>SetupWizard</receiver>
+        <slot>optionClicked(QListViewItem*)</slot>
+    </connection>
+    <connection language="C++">
+        <sender>advancedList</sender>
+        <signal>selectionChanged(QListViewItem*)</signal>
+        <receiver>SetupWizard</receiver>
+        <slot>optionSelected(QListViewItem*)</slot>
+    </connection>
+    <connection language="C++">
+        <sender>advancedList</sender>
+        <signal>spacePressed(QListViewItem*)</signal>
+        <receiver>SetupWizard</receiver>
+        <slot>optionClicked(QListViewItem*)</slot>
+    </connection>
     <slot access="protected" language="C++" returnType="void">init()</slot>
     <slot access="protected" language="C++" returnType="void">destroy()</slot>
     <slot access="public" language="C++" returnType="void">clickedDevSysPath()</slot>
@@ -1193,6 +1532,8 @@ Alternatively, the installation wizard may read them from a license file.</strin
     <slot access="public" language="C++" returnType="void">clickedSystem( int )</slot>
     <slot access="public" language="C++" returnType="void">licenseAction( int )</slot>
     <slot access="public" language="C++" returnType="void">licenseChanged( const QString &amp; )</slot>
+    <slot access="public" language="C++" returnType="void">optionClicked(QListViewItem*)</slot>
+    <slot access="public" language="C++" returnType="void">optionSelected(QListViewItem*)</slot>
 </connections>
 <functions>
     <function name="init()" >{
@@ -1228,6 +1569,8 @@ Alternatively, the installation wizard may read them from a license file.</strin
     	else
 	    setNextEnabled( licensePage, false );
 }</function>
+    <function name="" ></function>
+    <function name="" ></function>
 </functions>
 <tabstops>
     <tabstop>introText</tabstop>
@@ -1242,17 +1585,18 @@ Alternatively, the installation wizard may read them from a license file.</strin
     <tabstop>customerID</tabstop>
     <tabstop>licenseID</tabstop>
     <tabstop>licenseeName</tabstop>
+    <tabstop>productsString</tabstop>
     <tabstop>expiryDate</tabstop>
+    <tabstop>readLicenseButton</tabstop>
     <tabstop>folderPath</tabstop>
     <tabstop>folderPathButton</tabstop>
     <tabstop>qtDirCheck</tabstop>
-    <tabstop>readLicenseButton</tabstop>
     <tabstop>devSysPath</tabstop>
     <tabstop>devSysPathButton</tabstop>
     <tabstop>folderGroups</tabstop>
     <tabstop>configList</tabstop>
-    <tabstop>advancedList</tabstop>
     <tabstop>configTabs</tabstop>
+    <tabstop>advancedList</tabstop>
     <tabstop>filesDisplay</tabstop>
     <tabstop>outputDisplay</tabstop>
     <tabstop>finishText</tabstop>

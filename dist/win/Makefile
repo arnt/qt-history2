@@ -33,7 +33,7 @@ src-moc: src-qmake $(FORCEDEP)
 	$(MAKE)
 	cd ..\..
 
-sub-tools: sub-codecs $(FORCEDEP)
+sub-tools: sub-plugins $(FORCEDEP)
 	cd tools
 	$(MAKE)
 	cd ..
@@ -47,10 +47,10 @@ sub-src: .qmake.cache $(FORCEDEP)
 	$(MAKE) -f Makefile.main
 	cd ..
 
-sub-codecs: sub-src .qmake.cache $(FORCEDEP)
-	cd plugins\src\codecs
+sub-plugins: sub-src .qmake.cache $(FORCEDEP)
+	cd plugins\src
 	$(MAKE)
-	cd ..\..\..
+	cd ..\..
 
 sub-tutorial: sub-src $(FORCEDEP)
 	cd tutorial

@@ -21,16 +21,16 @@
 #include <qtabwidget.h>
 
 #define BUFFERSIZE 64 * 1024
+#define FILESTOCOPY 4582
 
 //#define USE_ARCHIVES 1
 
 SetupWizardImpl::SetupWizardImpl( QWidget* pParent, const char* pName, bool modal, WFlags f ) :
-    SetupWizard( pParent, pName, modal, f | Qt::WStyle_Minimize ),
+    SetupWizard( pParent, pName, modal, f ),
     filesCopied( false ),
     filesToCompile( 0 ),
     filesCompiled( 0 ),
     sysID( 0 ),
-    app( NULL ),
     tmpPath( QEnvironment::getTempPath() )
 {
     totalFiles = 0;
@@ -193,10 +193,9 @@ void SetupWizardImpl::updateOutputDisplay( QProcess* proc )
 	    break;
 	case '\n':
 	    if( currentOLine.length() ) {
-		if( currentOLine.right( 4 ) == ".cpp" ) {
-		    filesCompiled++;
-		    compileProgress->setProgress( filesCompiled );
-		}
+		if( currentOLine.right( 4 ) == ".cpp" || currentOLine.right( 2 ) == ".c" )
+		    compileProgress->setProgress( ++filesCompiled );
+
 		logOutput( currentOLine );
 		currentOLine = "";
 	    }
@@ -406,40 +405,34 @@ void SetupWizardImpl::saveSet( QListView* list )
 {
     QSettings settings;
     settings.writeEntry( "/Trolltech/Qt/ResetDefaults", "FALSE" );
-    // radios
-    QListViewItem* config = list->firstChild();
-    while ( config ) {
-	QCheckListItem* item = (QCheckListItem*)config->firstChild();
-	while( item != 0 ) {
-	    if ( item->type() == QCheckListItem::RadioButton ) {
-		if ( item->isOn() ) {
-		    settings.writeEntry( "/Trolltech/Qt/" + config->text(0), item->text() );
-		    break;
-		}
-	    }
-	    item = (QCheckListItem*)item->nextSibling();
-	}
-	config = config->nextSibling();
-    }
 
-    // checks
-    config = list->firstChild();
-    QStringList lst;
-    while ( config ) {
-	bool foundChecks = FALSE;
-	QCheckListItem* item = (QCheckListItem*)config->firstChild();
-	while( item != 0 ) {
-	    if ( item->type() == QCheckListItem::CheckBox ) {
+    QListViewItemIterator it( list );
+    while ( it.current() ) {
+	QListViewItem *itm = it.current();
+	++it;
+	if ( itm->rtti() != QCheckListItem::RTTI )
+	    continue;	
+	QCheckListItem *item = (QCheckListItem*)itm;
+	if ( item->type() == QCheckListItem::RadioButton ) {
+	    if ( item->isOn() )
+		settings.writeEntry( "/Trolltech/Qt/" + item->parent()->text(0), item->text() );
+	} else if ( item->type() == QCheckListItem::CheckBox ) {
+	    QStringList lst;
+	    QListViewItem *p = item->parent();
+	    if ( p )
+		--it;
+	    QString c = p->text( 0 );
+	    while ( ( itm = it.current() ) &&
+		itm->rtti() == QCheckListItem::RTTI &&
+		item->type() == QCheckListItem::CheckBox ) {
+		item = (QCheckListItem*)itm;
+		++it;
 		if ( item->isOn() )
-		    lst += item->text();
-		foundChecks = TRUE;
+		    lst << item->text( 0 );
 	    }
-	    item = (QCheckListItem*)item->nextSibling();
+	    if ( lst.count() )
+		settings.writeEntry( "/Trolltech/Qt/" + p->text(0), lst, ',' );
 	}
-	if ( foundChecks )
-	    settings.writeEntry( "/Trolltech/Qt/" + config->text(0), lst, ',' );
-	config = config->nextSibling();
-	lst.clear();
     }
 }
 
@@ -458,7 +451,6 @@ void SetupWizardImpl::showPage( QWidget* newPage )
 	readLicense( installPath->text() + "/.qt-license" );
     }
     else if( newPage == foldersPage ) {
-
 	QStringList devSys = QStringList::split( ';',"Microsoft Visual Studio path;Borland C++ Builder path;GNU C++ path" );
 
 	devSysLabel->setText( devSys[ sysID ] );
@@ -546,66 +538,117 @@ void SetupWizardImpl::showPage( QWidget* newPage )
 	    QEnvironment::putEnv( "QMAKESPEC", mkSpecs[ sysID ], QEnvironment::LocalEnv );
 	}
 
+	bool enterprise = licenseInfo[ "PRODUCTS" ] == "qt-enterprise";
 
 	configList->clear();
 	advancedList->clear();
 	configList->setSorting( -1 );
 	advancedList->setSorting( -1 );
 	QCheckListItem* item;
+	QCheckListItem *folder;
+	QStringList::Iterator it;
 	connect( &configure, SIGNAL( processExited() ), this, SLOT( configDone() ) );
 	connect( &configure, SIGNAL( readyReadStdout() ), this, SLOT( readConfigureOutput() ) );
 	connect( &configure, SIGNAL( readyReadStderr() ), this, SLOT( readConfigureError() ) );
 
 	// general
-	modules = new QCheckListItem ( configList, "Modules" );
-	modules->setOpen( TRUE );
-	QStringList licensedModules = QStringList::split( " ", "styles tools kernel widgets dialogs iconview workspace" );
+	folder = new QCheckListItem ( configList, "Modules" );
+	folder->setOpen( TRUE );
 
-	if( licenseInfo[ "PRODUCTS" ] == "qt-enterprise" ) {
-	    licensedModules += QStringList::split( ' ', "network canvas table xml opengl sql" );
-	    // advanced
-	    sqldrivers = new QCheckListItem ( advancedList, "SQL Drivers" );
-	    sqldrivers->setOpen( true );
-	    QStringList sqlList = QStringList::split( " ", "mysql oci odbc psql" );
-	    for( QStringList::Iterator it2 = sqlList.begin(); it2 != sqlList.end(); ++it2 ) {
-		item = new QCheckListItem( sqldrivers, (*it2), QCheckListItem::CheckBox );
-		item->setOn( false );
-	    }
-	    // We have items on the advanced tab, so enable it
-	    configTabs->setTabEnabled( advancedTab, true );
+	QStringList licensedModules = QStringList::split( " ", "network canvas table xml opengl sql" );
+	for( it = licensedModules.begin(); it != licensedModules.end(); ++it ) {
+	    item = new QCheckListItem( folder, (*it), QCheckListItem::CheckBox );
+	    item->setOn( enterprise );
+	    item->setEnabled( enterprise );
 	}
-	else
-	    configTabs->setTabEnabled( advancedTab, false );
 
-	for( QStringList::Iterator it = licensedModules.begin(); it != licensedModules.end(); ++it ) {
-	    item = new QCheckListItem( modules, (*it), QCheckListItem::CheckBox );
+	licensedModules = QStringList::split( " ", "styles iconview workspace" );
+	for( it = licensedModules.begin(); it != licensedModules.end(); ++it ) {
+	    item = new QCheckListItem( folder, (*it), QCheckListItem::CheckBox );
 	    item->setOn( true );
 	}
-	threadModel = new QCheckListItem ( configList, "Threading" );
-	threadModel->setOpen( TRUE );
-	item = new QCheckListItem( threadModel, "Threaded", QCheckListItem::RadioButton );
-	item->setOn( TRUE );
-	item = new QCheckListItem( threadModel, "Non-threaded", QCheckListItem::RadioButton );
 
-	buildType = new QCheckListItem ( configList, "Build" );
-	buildType->setOpen( TRUE );
-	item = new QCheckListItem( buildType, "Static", QCheckListItem::RadioButton );
-	item = new QCheckListItem( buildType, "Shared", QCheckListItem::RadioButton );
+	QStringList requiredModules = QStringList::split( " ", "tools kernel widgets dialogs" );
+	for( it = requiredModules.begin(); it != requiredModules.end(); ++it ) {
+	    item = new QCheckListItem( folder, (*it), QCheckListItem::CheckBox );
+	    item->setOn( true );
+	    item->setEnabled( false );
+	}
+
+	folder = new QCheckListItem ( configList, "Threading" );
+	folder->setOpen( TRUE );
+	item = new QCheckListItem( folder, "Threaded", QCheckListItem::RadioButton );
+	item->setOn( TRUE );
+	item = new QCheckListItem( folder, "Non-threaded", QCheckListItem::RadioButton );
+
+	folder = new QCheckListItem ( configList, "Library" );
+	folder->setOpen( TRUE );
+	item = new QCheckListItem( folder, "Static", QCheckListItem::RadioButton );
+	item = new QCheckListItem( folder, "Shared", QCheckListItem::RadioButton );
 	item->setOn( TRUE );
 
-	debugMode = new QCheckListItem ( configList, "Mode" );
-	debugMode->setOpen( TRUE );
-	item = new QCheckListItem( debugMode, "Debug", QCheckListItem::RadioButton );
-	item = new QCheckListItem( debugMode, "Release", QCheckListItem::RadioButton );
+	folder = new QCheckListItem ( configList, "Build" );
+	folder->setOpen( TRUE );
+	item = new QCheckListItem( folder, "Debug", QCheckListItem::RadioButton );
+	item = new QCheckListItem( folder, "Release", QCheckListItem::RadioButton );	
 	item->setOn( TRUE );
 
+	// Advanced options
+	folder = new QCheckListItem ( advancedList, "SQL Drivers" );
+	folder->setOpen( true );
+	QStringList sqlList = QStringList::split( " ", "mysql oci odbc psql tds" );
+	for( it = sqlList.begin(); it != sqlList.end(); ++it ) {
+	    item = new QCheckListItem( folder, (*it), QCheckListItem::CheckBox );
+	    item->setOn( false );
+	    item->setEnabled( enterprise );
+	}
+
+	folder = new QCheckListItem( advancedList, "Big Textcodecs" );
+	folder->setOpen( true );
+	item = new QCheckListItem( folder, "Off", QCheckListItem::RadioButton );
+	item = new QCheckListItem( folder, "On", QCheckListItem::RadioButton );	
+	item->setOn( true );
+
+	folder = new QCheckListItem( advancedList, "Accessibility" );
+	folder->setOpen( true );
+	item = new QCheckListItem( folder, "Off", QCheckListItem::RadioButton );
+	item = new QCheckListItem( folder, "On", QCheckListItem::RadioButton );
+	item->setOn( true );
+
+	QCheckListItem *imfolder = new QCheckListItem( advancedList, "Image Formats" );
+	imfolder->setOpen( true );
+
+	folder = new QCheckListItem( imfolder, "MNG" );
+	folder->setOpen( true );
+	item = new QCheckListItem( folder, "Present", QCheckListItem::RadioButton );
+	item = new QCheckListItem( folder, "Direct", QCheckListItem::RadioButton );
+	item = new QCheckListItem( folder, "Plugin", QCheckListItem::RadioButton );
+	item->setOn( true );
+
+	folder = new QCheckListItem( imfolder, "JPEG" );
+	folder->setOpen( true );
+	item = new QCheckListItem( folder, "Present", QCheckListItem::RadioButton );
+	item = new QCheckListItem( folder, "Direct", QCheckListItem::RadioButton );
+	item = new QCheckListItem( folder, "Plugin", QCheckListItem::RadioButton );
+	item->setOn( true );
+
+	folder = new QCheckListItem( imfolder, "PNG" );
+	folder->setOpen( true );
+	item = new QCheckListItem( folder, "Present", QCheckListItem::RadioButton );
+	item = new QCheckListItem( folder, "Direct", QCheckListItem::RadioButton );
+	item->setOn( true );
+	item = new QCheckListItem( folder, "Plugin", QCheckListItem::RadioButton );
+
+
+	optionSelected( 0 );
 	setInstallStep( 5 );
     }
     else if( newPage == progressPage ) {
-	int totalSize( 0 );
+	saveSettings();
+	int totalSize = 0;
 	QFileInfo fi;
 	totalRead = 0;
-	bool copySuccessful( true );
+	bool copySuccessful = true;
 
 	setInstallStep( 6 );
 	if( !filesCopied ) {
@@ -643,7 +686,7 @@ void SetupWizardImpl::showPage( QWidget* newPage )
 	    if( installTutorials->isChecked() )
 		readArchive( "tutorial.arq", installPath->text() );
 #else
-	    operationProgress->setTotalSteps( 4600 );
+	    operationProgress->setTotalSteps( FILESTOCOPY );
 	    copySuccessful = copyFiles( QDir::currentDirPath(), installPath->text(), true );
 
 	    QFile inFile( installPath->text() + "\\bin\\quninstall.exe" );
@@ -661,13 +704,15 @@ void SetupWizardImpl::showPage( QWidget* newPage )
 		    inFile.close();
 		}
 	    }
-/*
-** These lines are only to be used when changing the filecount estimate
-**
+
+/*These lines are only to be used when changing the filecount estimate
+
 	    QString tmp( "%1" );
 	    tmp = tmp.arg( totalFiles );
 	    QMessageBox::information( this, tmp, tmp );
 */
+	    operationProgress->setProgress( FILESTOCOPY );
+
 #endif
 	    createDir( installPath->text() + "\\plugins\\designer" );
 	    filesCopied = copySuccessful;
@@ -678,7 +723,6 @@ void SetupWizardImpl::showPage( QWidget* newPage )
 		logFiles( "All files have been copied,\nThis log has been saved to the installation directory.\nThe build will start automatically in 30 seconds", true );
 	    else
 		logFiles( "One or more errors occurred during file copying,\nplease review the log and try to amend the situation.\n", true );
-
 	}
 	setNextEnabled( progressPage, copySuccessful );
     }
@@ -699,13 +743,13 @@ void SetupWizardImpl::showPage( QWidget* newPage )
 	    outputDisplay->append( "Execute configure...\n" );
 
 	    args << QEnvironment::getEnv( "QTDIR" ) + "\\bin\\configure.exe";
-	    entry = settings.readEntry( "/Trolltech/Qt/Mode", "Debug", &settingsOK );
+	    entry = settings.readEntry( "/Trolltech/Qt/Build", "Debug", &settingsOK );
 	    if ( entry == "Debug" )
 		args += "-debug";
 	    else
 		args += "-release";
 
-	    entry = settings.readEntry( "/Trolltech/Qt/Build", "Shared", &settingsOK );
+	    entry = settings.readEntry( "/Trolltech/Qt/Library", "Shared", &settingsOK );
 	    if ( entry == "Static" )
 		args += "-static";
 	    else
@@ -729,6 +773,42 @@ void SetupWizardImpl::showPage( QWidget* newPage )
 		args += QString( "-sql-" ) + entry;
 	    }
 
+	    entry = settings.readEntry( "/Trolltech/Qt/Accessibility", "On", &settingsOK );
+	    if ( entry == "On" )
+		args += "-accessibility";
+	    else
+		args += "-no-accessibility";
+
+	    entry = settings.readEntry( "/Trolltech/Qt/Big Textcodecs", "On", &settingsOK );
+	    if ( entry == "On" )
+		args += "-big-codecs";
+	    else
+		args += "-no-big-codecs";
+
+	    entry = settings.readEntry( "/Trolltech/Qt/PNG", "Direct", &settingsOK );
+	    if ( entry == "Plugin" )
+		args += "-no-png";
+	    else if ( entry == "Direct" )
+		args += "-qt-png";
+	    else if ( entry == "Present" )
+		args += "-system-png";
+
+	    entry = settings.readEntry( "/Trolltech/Qt/JPEG", "Direct", &settingsOK );
+	    if ( entry == "Plugin" )
+		args += "-no-jpeg";
+	    else if ( entry == "Direct" )
+		args += "-qt-jpeg";
+	    else if ( entry == "Present" )
+		args += "-system-jpeg";
+
+	    entry = settings.readEntry( "/Trolltech/Qt/MNG", "Direct", &settingsOK );
+	    if ( entry == "Plugin" )
+		args += "-no-mng";
+	    else if ( entry == "Direct" )
+		args += "-qt-mng";
+	    else if ( entry == "Present" )
+		args += "-system-mng";
+
 // When we change our minds again, uncomment this line....
 //	    args += "-no-qmake";
 
@@ -737,7 +817,7 @@ void SetupWizardImpl::showPage( QWidget* newPage )
 	    configure.setArguments( args );
 
 	    // Start the configure process
-	    compileProgress->setTotalSteps( filesToCompile * 1.2 );
+	    compileProgress->setTotalSteps( filesToCompile );
 	    if( !configure.start() )
 		logOutput( "Could not start configure process" );
 	}
@@ -748,13 +828,13 @@ void SetupWizardImpl::showPage( QWidget* newPage )
 	    if( outFile.open( IO_WriteOnly | IO_Translate ) ) {
 		outStream << "cd " << QEnvironment::getEnv( "QTDIR" ).latin1() << endl;
 		outStream << QEnvironment::getEnv( "QTDIR" ).latin1() << "\\bin\\configure.exe ";
-		entry = settings.readEntry( "/Trolltech/Qt/Mode", "Debug", &settingsOK );
+		entry = settings.readEntry( "/Trolltech/Qt/Build", "Debug", &settingsOK );
 		if ( entry == "Debug" )
 		    outStream << "-debug ";
 		else
 		    outStream << "-release ";
 
-		entry = settings.readEntry( "/Trolltech/Qt/Build", "Shared", &settingsOK );
+		entry = settings.readEntry( "/Trolltech/Qt/Library", "Shared", &settingsOK );
 		if ( entry == "Static" )
 		    outStream << "-static ";
 		else
@@ -803,6 +883,96 @@ void SetupWizardImpl::showPage( QWidget* newPage )
 	}
 	finishText->setText( finishMsg );
 	setInstallStep( 8 );
+    }
+}
+
+void SetupWizardImpl::optionClicked( QListViewItem *i )
+{
+    if ( !i || i->rtti() != QCheckListItem::RTTI )
+	return;
+
+    QCheckListItem *item = (QCheckListItem*)i;
+    if ( item->type() != QCheckListItem::RadioButton )
+	return;
+
+    if ( item->text(0) == "Static" && item->isOn() ) {
+	if ( !QMessageBox::information( this, "Are you sure?", "It will not be possible to build components "
+				  "or plugins if you select the static build of the Qt library.\n"
+				  "new features, e.g souce code editing in Qt Designer, will not "
+				  "be available, "
+				  "\nand you or users of your software might not be able "
+				  "to use all or new features, e.g. new styles.\n\n"
+				  "Are you sure you want to build a static Qt library?",
+				  "No, I want to use the cool new stuff", "Yes" ) ) {
+	    item->setOn( FALSE );
+	    if ( ( item = (QCheckListItem*)configList->findItem( "Shared", 0, 0 ) ) )
+		item->setOn( TRUE );
+	}
+	return;
+    }
+}
+
+void SetupWizardImpl::optionSelected( QListViewItem *i )
+{
+    if ( !i ) {
+	explainOption->setText( tr("Change the configuration.") );
+	return;
+    }
+
+    if ( i->rtti() != QCheckListItem::RTTI )
+	return;
+
+    if ( i->text(0) == "Required" ) {
+	explainOption->setText( tr("These modules are a necessary part of the Qt library. "
+				   "They can not be disabled.") );
+    } else if ( i->parent() && i->parent()->text(0) == "Required" ) {
+	explainOption->setText( tr("This module is a necessary part of the Qt library. "
+				   "It can not be disabled.") ); 
+    } else if ( i->text(0) == "Modules" ) {
+	explainOption->setText( tr("Some of these modules are optional. "
+				   "You can deselect the modules that you "
+				   "don't require for your development.\n"
+				   "By default, all modules are selected.") );
+    } else if ( i->parent() && i->parent()->text(0) == "Modules" ) {
+	QString moduleText;
+	// ### have some explanation of the module here
+	explainOption->setText( moduleText );
+    } else if ( i->text(0) == "Threading" ) {
+	explainOption->setText( tr("Build the Qt library with or without thread support. "
+			    "By default, threading is supported.") );
+    } else if ( i->parent() && i->parent()->text(0) == "Threading" ) {
+	if ( i->text(0) == "Threaded" ) {
+	    explainOption->setText("Select this option if you want to be able to use threads "
+				   "in your application.");
+	} else {
+	    explainOption->setText("Select this option if you do not need thread support.\n"
+				   "Some classes will not be available without thread support.");
+	}
+    } else if ( i->text(0) == "Build" || i->parent() && i->parent()->text(0) == "Build" ) {
+	explainOption->setText( tr("<p>Use the debug build of the Qt library to enhance "
+				   "debugging of your application. The release build "
+				   "is both smaller and faster.</p>") );
+    } else if ( i->text(0) == "Library" ) {
+	explainOption->setText( "Build a static or a shared Qt library." );
+    } else if ( i->parent() && i->parent()->text( 0 ) == "Library" ) {
+	if ( i->text(0) == "Static" ) {
+	    explainOption->setText( tr("<p>Build the Qt library as a static library."
+				       "All applications created with a static"
+				       "library will be at least 1.5MB big.</p>"
+				       "<p><font color=\"red\">It is not possible to "
+				       "build or use any components or plugins with a "
+				       "static Qt library!</font></p>") );
+	} else {
+	    explainOption->setText("<p>A shared Qt library makes it necessary to "
+				   "distribute the Qt DLL together with your software.</p>"
+				   "<p>Applications and libraries linked against a shared Qt library "
+				   "can be small and can make use of components and plugins.</p>" );
+	}
+    } else if ( i->text( 0 ) == "SQL Drivers" ) {
+	explainOption->setText("");
+    } else if ( i->parent() && i->parent()->text( 0 )== "SQL Drivers" ) {
+	//### have some explanation of the SQL Drivers here...
+	explainOption->setText("");
     }
 }
 
@@ -905,8 +1075,8 @@ void SetupWizardImpl::readArchive( const QString& arcname, const QString& instal
 			else
 			    break;
 		    }
-		    if( app ) {
-			app->processEvents();
+		    if( qApp ) {
+			qApp->processEvents();
 			operationProgress->setProgress( totalRead );
 			logFiles( dirName + "\\" );
 		    }
@@ -922,7 +1092,7 @@ void SetupWizardImpl::readArchive( const QString& arcname, const QString& instal
 		if( outFile.open( IO_WriteOnly ) ) {
 
 		    // Try to count the files to get some sort of idea of compilation progress
-		    if( ( entryName.right( 4 ) == ".cpp" ) || ( entryName.right( 2 ) == ".h" ) )
+		    if( ( entryName.right( 4 ) == ".cpp" ) || ( entryName.right( 2 ) == ".c" ) )
 			filesToCompile++;
 
 		    // Get timestamp from the archive
@@ -930,8 +1100,8 @@ void SetupWizardImpl::readArchive( const QString& arcname, const QString& instal
 //		    qDebug( "%s", timeStamp.toString().latin1() );
 		    outStream.setDevice( &outFile );
 		    inStream >> entryLength;
-		    if( app ) {
-			app->processEvents();
+		    if( qApp ) {
+			qApp->processEvents();
 			operationProgress->setProgress( totalRead );
 			logFiles( fileName );
 //			logFiles( QString( fileName + " (%1 bytes)" ).arg( entryLength )  );
@@ -996,36 +1166,22 @@ bool SetupWizardImpl::copyFiles( const QString& sourcePath, const QString& destP
 		if( doCopy )
 		    if( !copyFiles( entryName, targetName ) )
 			return false;
-	    }
-	    else {
-		if( app ) {
-		    app->processEvents();
-		    operationProgress->setProgress( operationProgress->progress() + 1 );
+	    } else {
+		if( qApp && !isHidden() ) {
+		    qApp->processEvents();
+		    operationProgress->setProgress( totalFiles );
 		    logFiles( targetName );
+		} else {
+		    return FALSE;
 		}
-		if( ( entryName.right( 4 ) == ".cpp" ) || ( entryName.right( 2 ) == ".h" ) )
+		if( ( entryName.right( 4 ) == ".cpp" ) || ( entryName.right( 2 ) == ".c" ) )
 		    filesToCompile++;
-		QByteArray buffer( fi->size() );
-		QFile inFile( entryName );
-		QFile outFile( targetName );
+		bool res = TRUE;
+		if ( !QFile::exists( targetName ) )
+		    res = CopyFileA( entryName.local8Bit(), targetName.local8Bit(), FALSE );
 
-		if( inFile.open( IO_ReadOnly ) ) {
-		    if( outFile.open( IO_WriteOnly ) ) {
-			if( buffer.size() ) {
-			    inFile.readBlock( buffer.data(), buffer.size() );
-			    outFile.writeBlock( buffer.data(), buffer.size() );
-			    totalFiles++;
-			}
-			outFile.close();
-		    }
-		    else {
-			QString error = QEnvironment::getLastError();
-			logFiles( QString( "   ERROR: " ) + error + "\n" );
-			if( QMessageBox::warning( this, "File output error", targetName + ": " + error, "Continue", "Cancel", QString::null, 0 ) )
-			    return false;
-		    }
-		    inFile.close();
-
+		if ( res ) {
+		    totalFiles++;
 		    HANDLE inFile, outFile;
 		    if( inFile = ::CreateFileA( entryName.latin1(), GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL ) ){
 			if( outFile = ::CreateFileA( targetName.latin1(), GENERIC_READ | GENERIC_WRITE, FILE_SHARE_WRITE, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL ) ){
@@ -1036,11 +1192,10 @@ bool SetupWizardImpl::copyFiles( const QString& sourcePath, const QString& destP
 			}
 			::CloseHandle( inFile );
 		    }
-		}
-		else {
+		} else {
 		    QString error = QEnvironment::getLastError();
 		    logFiles( QString( "   ERROR: " ) + error + "\n" );
-		    if( QMessageBox::warning( this, "File input error", entryName + ": " + error, "Continue", "Cancel", QString::null, 0 ) )
+		    if( QMessageBox::warning( this, "File copy error", entryName + ": " + error, "Continue", "Cancel", QString::null, 0 ) )
 			return false;
 		}
 	    }
