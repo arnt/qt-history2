@@ -690,6 +690,7 @@ void QTreeView::mousePressEvent(QMouseEvent *e)
             d->close(i);
         else
             d->open(i);
+        updateGeometries();
         viewport()->update();
     }
 }
@@ -817,10 +818,14 @@ QModelIndex QTreeView::moveCursor(QAbstractItemView::CursorAction cursorAction,
     case MoveLeft:
         if (d->viewItems.at(vi).open)
             d->close(vi);
+        updateGeometries();
+        viewport()->update();
         break;
     case MoveRight:
         if (!d->viewItems.at(vi).open)
             d->open(vi);
+        updateGeometries();
+        viewport()->update();
         break;
     case MovePageUp:
         return d->modelIndex(d->pageUp(vi));
