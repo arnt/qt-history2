@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/listbox_combo/listbox_combo.cpp#5 $
+** $Id: //depot/qt/main/examples/listbox_combo/listbox_combo.cpp#6 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -43,8 +43,8 @@ ListBoxCombo::ListBoxCombo( QWidget *parent, const char *name )
     lb1->insertItem( QPixmap( "qtlogo.png" ) );
     // ...and 100 text items
     for ( i = 0; i < 100; i++ ) {
-        str = QString( "Listbox Item %1" ).arg( i );
-        lb1->insertItem( str );
+	str = QString( "Listbox Item %1" ).arg( i );
+	lb1->insertItem( str );
     }
 
     // Create a pushbutton...
@@ -68,8 +68,8 @@ ListBoxCombo::ListBoxCombo( QWidget *parent, const char *name )
 
     //...and insert 50 items into the Combobox
     for ( i = 0; i < 50; i++ ) {
-        str = QString( "Combobox Item %1" ).arg( i );
-        cb1->insertItem( str );
+	str = QString( "Combobox Item %1" ).arg( i );
+	cb1->insertItem( str );
     }
 
     QVBox *box2 = new QVBox( row2 );
@@ -82,8 +82,12 @@ ListBoxCombo::ListBoxCombo( QWidget *parent, const char *name )
 
     // ... and insert 50 items into the Combobox
     for ( i = 0; i < 50; i++ ) {
-        str = QString( "Combobox Item %1" ).arg( i );
-        cb2->insertItem( str );
+	str = QString( "Combobox Item %1" ).arg( i );
+	if ( ( i / 3 ) * 3 == i ) { 
+	    cb2->insertItem( str );
+	} else {
+	    new QListBoxText( cb2->listBox()->item( cb2->listBox()->count() -1 ), str );
+	}
     }
 
     // Connect the activated SIGNALs of the Comboboxes with SLOTs
@@ -103,17 +107,17 @@ void ListBoxCombo::slotLeft2Right()
     // Go through all items of the first ListBox
     for ( unsigned int i = 0; i < lb1->count(); i++ ) {
 	QListBoxItem *item = lb1->item( i );
-        // if the item is selected...
-        if ( item->selected() ) {
-            // ...and it is a text item...
-            if ( !item->text().isEmpty() )
-                // ...insert an item with the same text into the second ListBox
-                lb2->insertItem( new QListBoxText( item->text() ), -1 );
-            // ...and if it is a pixmap item...
-            else if ( item->pixmap() )
-                // ...insert an item with the same pixmap into the second ListBox
-                lb2->insertItem( new QListBoxPixmap( *item->pixmap() ), -1 );
-        }
+	// if the item is selected...
+	if ( item->selected() ) {
+	    // ...and it is a text item...
+	    if ( !item->text().isEmpty() )
+		// ...insert an item with the same text into the second ListBox
+		lb2->insertItem( new QListBoxText( item->text() ), -1 );
+	    // ...and if it is a pixmap item...
+	    else if ( item->pixmap() )
+		// ...insert an item with the same pixmap into the second ListBox
+		lb2->insertItem( new QListBoxPixmap( *item->pixmap() ), -1 );
+	}
     }
 }
 
