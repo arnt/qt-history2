@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qheader.cpp#17 $
+** $Id: //depot/qt/main/src/widgets/qheader.cpp#18 $
 **
 **  Table header
 **
@@ -632,6 +632,7 @@ int QHeader::addLabel( const char *s, int size )
     sizes.resize( n + 1 );
     sizes[n-1] = size ? size : 88; //###
     a2l.resize( n + 1 );
+    l2a.resize( n + 1 );
     a2l[n-1] = n-1;
     l2a[n-1] = n-1;
     //    recalc();
