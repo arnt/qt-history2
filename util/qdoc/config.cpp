@@ -450,6 +450,41 @@ QString Config::findDepth( const QString& name,
     return QString::null;
 }
 
+QStringList Config::findAll( const QString& nameFilter,
+			     const QStringList& dirList ) const
+{
+    QStringList result;
+
+    QStringList::ConstIterator d = dirList.begin();
+    while ( d != dirList.end() ) {
+	QStringList fileNames;
+	QStringList::Iterator fn;
+	QDir dir( *d );
+
+	dir.setNameFilter( nameFilter );
+	dir.setSorting( QDir::Name );
+	dir.setFilter( QDir::Files );
+	fileNames = dir.entryList();
+	fn = fileNames.begin();
+	while ( fn != fileNames.end() ) {
+	    result += dir.filePath( *fn );
+	    ++fn;
+	}
+
+	dir.setNameFilter( QChar('*') );
+	dir.setFilter( QDir::Dirs );
+	fileNames = dir.entryList();
+	fn = fileNames.begin();
+	while ( fn != fileNames.end() ) {
+	    if ( *fn != QChar('.') && *fn != QString("..") )
+		result += findAll( nameFilter, dir.filePath(*fn) );
+	    ++fn;
+	}
+	++d;
+    }
+    return result;
+}
+
 bool Config::isTrue( const QString& condition ) const
 {
     return !falsesym.exactMatch( condition );

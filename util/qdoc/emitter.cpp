@@ -41,35 +41,6 @@ static int compareMtime( const void *n1, const void *n2 )
 	return 0;
 }
 
-static QStringList find( const QString& rootDir, const QString& nameFilter )
-{
-    QStringList result;
-    QStringList fileNames;
-    QStringList::Iterator fn;
-    QDir dir( rootDir );
-
-    dir.setNameFilter( nameFilter );
-    dir.setSorting( QDir::Name );
-    dir.setFilter( QDir::Files );
-    fileNames = dir.entryList();
-    fn = fileNames.begin();
-    while ( fn != fileNames.end() ) {
-	result += dir.filePath( *fn );
-	++fn;
-    }
-
-    dir.setNameFilter( QChar('*') );
-    dir.setFilter( QDir::Dirs );
-    fileNames = dir.entryList();
-    fn = fileNames.begin();
-    while ( fn != fileNames.end() ) {
-	if ( *fn != QChar('.') && *fn != QString("..") )
-	    result += find( dir.filePath(*fn), nameFilter );
-	++fn;
-    }
-    return result;
-}
-
 static QString protect( const QString& str, QChar metaCh )
 {
     /*
@@ -123,18 +94,9 @@ static QString fixedPropertyDoc( const QString& html, const QString& className )
 
 void BookEmitter::start( const Resolver *resolver )
 {
-    QDir dir( config->outputDir() );
-
-    QStringList::ConstIterator s;
-
-    QStringList bookFiles;
-    s = config->bookDirList().begin();
-    while ( s != config->bookDirList().end() ) {
-	bookFiles += find( *s, QString("*.book") );
-	++s;
-    }
-
-    s = bookFiles.begin();
+    QStringList bookFiles = config->findAll( QString("*.book"),
+					     config->bookDirList() );
+    QStringList::ConstIterator s = bookFiles.begin();
     while ( s != bookFiles.end() ) {
 	parseBookFile( *s, Html | Sgml, resolver );
 	++s;
@@ -143,40 +105,21 @@ void BookEmitter::start( const Resolver *resolver )
 
 void DocEmitter::start()
 {
-    QDir dir( config->outputDir() );
-
     QStringList::ConstIterator s;
 
-    // read the header files in some order
-    QStringList headerFiles;
-    s = config->includeDirList().begin();
-    while ( s != config->includeDirList().end() ) {
-	headerFiles += find( *s, QString("*.h") );
-	++s;
-    }
+    QStringList headerFiles = config->findAll( QString("*.h"),
+					       config->includeDirList() );
     s = headerFiles.begin();
-    while( s != headerFiles.end() ) {
+    while ( s != headerFiles.end() ) {
 	parseCppHeaderFile( this, *s );
 	++s;
     }
 
     nailDownDecls();
 
-    // then read the .cpp and .doc files, sorted by modification time,
-    // most recent first
-    QStringList sourceFiles;
-    s = config->sourceDirList().begin();
-    while ( s != config->sourceDirList().end() ) {
-	sourceFiles += find( *s, QString("*.cpp") );
-	++s;
-    }
-
-    s = config->docDirList().begin();
-    while ( s != config->docDirList().end() ) {
-	sourceFiles += find( *s, QString("*.doc") );
-	++s;
-    }
-
+    QStringList sourceFiles =
+	    config->findAll( QString("*.cpp"), config->sourceDirList() ) +
+	    config->findAll( QString("*.doc"), config->docDirList() );
     int i = 0;
     int n = sourceFiles.count();
     QString *files = new QString[n];
@@ -192,10 +135,10 @@ void DocEmitter::start()
     delete[] files;
     files = 0;
 
-    // finally, pick up old output for the supervisor
+    // pick up old output for the supervisor
     QStringList outputFiles;
     if ( config->supervisor() ) {
-	outputFiles = find( config->outputDir(), QString("*.html") );
+	outputFiles = config->findAll( QString("*.html"), config->outputDir() );
 	s = outputFiles.begin();
 	while ( s != outputFiles.end() ) {
 	    parseHtmlFile( this, *s );

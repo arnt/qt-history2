@@ -28,6 +28,8 @@ public:
     QString classImageHref( const QString& className ) const;
     QString defgroupHref( const QString& groupName ) const;
     QString findDepth( const QString& name, const QStringList& dirList ) const;
+    QStringList findAll( const QString& nameFilter,
+			 const QStringList& dirList ) const;
 
     const QStringList& sourceDirList() const { return sourcedirs; }
     const QStringList& docDirList() const { return docdirs; }
