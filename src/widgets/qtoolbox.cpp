@@ -364,6 +364,35 @@ void QToolBox::insertPage( const QString &label, const QIconSet &iconSet,
     updateTabs();
 }
 
+#ifndef Q_OS_WIN32
+
+#define INIT_TIMER \
+QTime t; \
+t.start()
+
+#define CHECK_TIMER \
+if ( t.elapsed() > 1 )
+
+#define REINIT_TIMER \
+t.restart()
+
+#else
+
+#define INIT_TIMER \
+LARGE_INTEGER count, next, oneMill; \
+QueryPerformanceFrequency( &count ); \
+QueryPerformanceCounter( &next ); \
+oneMill.QuadPart = count.QuadPart/1000
+
+#define CHECK_TIMER \
+QueryPerformanceCounter( &count ); \
+if ( count.QuadPart > next.QuadPart )
+
+#define REINIT_TIMER \
+do {} while( FALSE ) // just so we can put a semicolon after
+
+#endif
+
 void QToolBox::buttonClicked()
 {
     QToolBoxButton *tb = (QToolBoxButton*)sender();
@@ -402,12 +431,9 @@ void QToolBox::buttonClicked()
 	int dist = 0;
 	int h = d->currentPage->parentWidget()->height() - d->lastButton->height();
 
-#ifndef Q_OS_WIN32
-	QTime t;
-	t.start();
-
+	INIT_TIMER;
 	while ( dist < h ) {
-	    if ( t.elapsed() > 1 ) {
+	    CHECK_TIMER {
 		QWidgetListIt it( buttons );
 		while ( it.current() ) {
 		    it.current()->raise();
@@ -416,31 +442,10 @@ void QToolBox::buttonClicked()
 		    ++it;
 		}
 		dist += QABS( direction );
-		t.restart();
-	    }
-	       qApp->eventLoop()->processEvents( QEventLoop::ExcludeUserInput );
-	}
-#else
-	LARGE_INTEGER count, next, oneMill;
-	QueryPerformanceFrequency( &count );
-	QueryPerformanceCounter( &next ); // Tick/sec
-	oneMill.QuadPart = count.QuadPart/1000;
-	while ( dist < h ) {
-	    QueryPerformanceCounter( &count );
-	    if ( count.QuadPart > next.QuadPart ) {
-	    	next.QuadPart = count.QuadPart + oneMill.QuadPart;
-		QWidgetListIt it( buttons );
-		while ( it.current() ) {
-		    it.current()->raise();
-		    it.current()->move( it.current()->x(),
-					it.current()->y() + direction );
-		    ++it;
-		}
-		dist += QABS( direction );
+		REINIT_TIMER;
 	    }
 	    qApp->eventLoop()->processEvents( QEventLoop::ExcludeUserInput );
 	}
-#endif
     }
 
     setCurrentPage( page );
