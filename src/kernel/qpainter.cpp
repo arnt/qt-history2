@@ -3106,7 +3106,7 @@ void QPainter::restoreRedirected(const QPaintDevice *device)
 {
     Q_ASSERT(device != 0);
     redirections.ensure_constructed();
-    for (int i = redirections.size()-1; i > 0; --i)
+    for (int i = redirections.size()-1; i >= 0; --i)
 	if (redirections.at(i) == device ) {
 	    redirections.removeAt(i);
 	    return;
@@ -3123,7 +3123,7 @@ const QPaintDevice *QPainter::redirected(const QPaintDevice *device, QPoint *off
 {
     Q_ASSERT(device != 0);
     redirections.ensure_constructed();
-    for (int i = redirections.size()-1; i > 0; --i)
+    for (int i = redirections.size()-1; i >= 0; --i)
 	if (redirections.at(i) == device ) {
 	    if (offset)
 		*offset = redirections.at(i).offset;

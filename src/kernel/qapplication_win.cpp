@@ -368,7 +368,7 @@ public:
     bool	translateMouseEvent( const MSG &msg );
     bool	translateKeyEvent( const MSG &msg, bool grab );
     bool	translateWheelEvent( const MSG &msg );
-    bool	sendKeyEvent( QEvent::Type type, int code, int ascii,
+    bool	sendKeyEvent( QEvent::Type type, int code,
 			      int state, bool grab, const QString& text,
 			      bool autor=FALSE );
     bool	translatePaintEvent( const MSG &msg );
@@ -1700,7 +1700,7 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 			    else
 				widget = (QETWidget*)widget->topLevelWidget();
 			    if ( widget->isEnabled() )
-				res = ((QETWidget*)widget)->sendKeyEvent( QEvent::KeyPress, key, 0, state, FALSE, QString::null, g != 0 );
+				res = ((QETWidget*)widget)->sendKeyEvent( QEvent::KeyPress, key, state, FALSE, QString::null, g != 0 );
 			    if ( res )
 				return TRUE;
 			}
@@ -2850,8 +2850,8 @@ bool QETWidget::translateKeyEvent( const MSG &msg, bool grab )
 	QChar ch = wmchar_to_unicode(msg.wParam);
 	if (!ch.isNull())
 	    s += ch;
-	k0 = sendKeyEvent( QEvent::KeyPress, 0, msg.wParam, state, grab, s );
-	k1 = sendKeyEvent( QEvent::KeyRelease, 0, msg.wParam, state, grab, s );
+	k0 = sendKeyEvent( QEvent::KeyPress, 0, state, grab, s );
+	k1 = sendKeyEvent( QEvent::KeyRelease, 0, state, grab, s );
     }
     else if ( msg.message == WM_IME_CHAR ) {
 	// input method characters not found by our look-ahead
@@ -2859,8 +2859,8 @@ bool QETWidget::translateKeyEvent( const MSG &msg, bool grab )
 	QChar ch = imechar_to_unicode(msg.wParam);
 	if (!ch.isNull())
 	    s += ch;
-	k0 = sendKeyEvent( QEvent::KeyPress, 0, ch.row() ? 0 : ch.cell(), state, grab, s );
-	k1 = sendKeyEvent( QEvent::KeyRelease, 0, ch.row() ? 0 : ch.cell(), state, grab, s );
+	k0 = sendKeyEvent( QEvent::KeyPress, 0, state, grab, s );
+	k1 = sendKeyEvent( QEvent::KeyRelease, 0, state, grab, s );
     } else {
 	extern bool qt_use_rtl_extensions;
 	if ( qt_use_rtl_extensions ) {
@@ -2887,14 +2887,14 @@ bool QETWidget::translateKeyEvent( const MSG &msg, bool grab )
 		    if ( dirStatus == VK_LSHIFT &&
 			( msg.wParam == VK_SHIFT && GetKeyState( VK_LCONTROL )  ||
 			  msg.wParam == VK_CONTROL && GetKeyState( VK_LSHIFT ) ) ) {
-			k0 = sendKeyEvent( QEvent::KeyPress, Qt::Key_Direction_L, 0, 0, grab, QString::null );
-			k1 = sendKeyEvent( QEvent::KeyRelease, Qt::Key_Direction_L, 0, 0, grab, QString::null );
+			k0 = sendKeyEvent( QEvent::KeyPress, Qt::Key_Direction_L, 0, grab, QString::null );
+			k1 = sendKeyEvent( QEvent::KeyRelease, Qt::Key_Direction_L, 0, grab, QString::null );
 			dirStatus = 0;
 		    } else if ( dirStatus == VK_RSHIFT &&
 			( msg.wParam == VK_SHIFT && GetKeyState( VK_RCONTROL ) ||
 			  msg.wParam == VK_CONTROL && GetKeyState( VK_RSHIFT ) ) ) {
-			k0 = sendKeyEvent( QEvent::KeyPress, Qt::Key_Direction_R, 0, 0, grab, QString::null );
-			k1 = sendKeyEvent( QEvent::KeyRelease, Qt::Key_Direction_R, 0, 0, grab, QString::null );
+			k0 = sendKeyEvent( QEvent::KeyPress, Qt::Key_Direction_R, 0, grab, QString::null );
+			k1 = sendKeyEvent( QEvent::KeyRelease, Qt::Key_Direction_R, 0, grab, QString::null );
 			dirStatus = 0;
 		    } else {
 			dirStatus = 0;
@@ -3036,10 +3036,8 @@ bool QETWidget::translateKeyEvent( const MSG &msg, bool grab )
 	    if ( rec ) {
 		// it is already down (so it is auto-repeating)
 		if ( code < Key_Shift || code > Key_ScrollLock ) {
-		    k0 = sendKeyEvent( QEvent::KeyRelease, code, rec->ascii,
-				       state, grab, rec->text, TRUE);
-		    k1 = sendKeyEvent( QEvent::KeyPress, code, rec->ascii,
-				       state, grab, rec->text, TRUE);
+		    k0 = sendKeyEvent( QEvent::KeyRelease, code, state, grab, rec->text, TRUE);
+		    k1 = sendKeyEvent( QEvent::KeyPress, code, state, grab, rec->text, TRUE);
 		}
 	    } else {
 		QString text;
@@ -3047,8 +3045,7 @@ bool QETWidget::translateKeyEvent( const MSG &msg, bool grab )
 		    text += uch;
 		char a = uch.row() ? 0 : uch.cell();
 		store_key_rec( msg.wParam, a, text );
-		k0 = sendKeyEvent( QEvent::KeyPress, code, a,
-				   state, grab, text );
+		k0 = sendKeyEvent( QEvent::KeyPress, code, state, grab, text );
 	    }
 
 	} else {
@@ -3065,8 +3062,7 @@ bool QETWidget::translateKeyEvent( const MSG &msg, bool grab )
 		if ( code == Key_Tab && ( state & ShiftButton ) == ShiftButton )
 		    code = Key_BackTab;
 
-		k0 = sendKeyEvent( QEvent::KeyRelease, code, rec->ascii,
-				    state, grab, rec->text);
+		k0 = sendKeyEvent( QEvent::KeyRelease, code, state, grab, rec->text);
 		if ( code == Qt::Key_Alt )
 		    k0 = TRUE; // don't let window see the meta key
 	    }
@@ -3340,8 +3336,7 @@ static bool isModifierKey(int code)
     return code >= Qt::Key_Shift && code <= Qt::Key_ScrollLock;
 }
 
-// ###### remove ascii parameter
-bool QETWidget::sendKeyEvent( QEvent::Type type, int code, int ascii,
+bool QETWidget::sendKeyEvent( QEvent::Type type, int code,
 			      int state, bool grab, const QString& text,
 			      bool autor )
 {
@@ -3444,6 +3439,8 @@ bool QETWidget::translateConfigEvent( const MSG &msg )
 	    if ( isVisible() ) {
 		QResizeEvent e( newSize, oldSize );
 		QApplication::sendSpontaneousEvent( this, &e );
+		if ( !testWFlags( WStaticContents ) )
+		    repaint();
 	    } else {
 		QResizeEvent *e = new QResizeEvent( newSize, oldSize );
 		QApplication::postEvent( this, e );

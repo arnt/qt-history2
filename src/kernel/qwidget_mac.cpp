@@ -1337,10 +1337,6 @@ void QWidget::repaint(const QRegion &rgn)
 	return;
     if (rgn.isEmpty())
 	return;
-    if (testWState(WState_InPaintEvent)) {
-	qWarning("QWidget::repaint: recursive repaint detected.");
-       	return;
-    }
 
     setWState(WState_InPaintEvent);
     qt_set_paintevent_clipping(this, rgn, NULL);

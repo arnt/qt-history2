@@ -733,7 +733,8 @@ bool QPainter::begin( const QPaintDevice *pd, bool unclipped )
 	}
 	ww = vw = w->width();			// default view size
 	wh = vh = w->height();
-	if ( w->testWState(Qt::WState_InPaintEvent) ) {
+        usesWidgetDC = (w->hdc != 0);
+	if (usesWidgetDC) {
 	    hdc = w->hdc;			// during paint event
 	} else {
 	    if ( unclipped || w->testWFlags( WPaintUnclipped ) ) {
@@ -821,8 +822,11 @@ bool QPainter::begin( const QPaintDevice *pd, bool unclipped )
     }
     setf(DirtyFont);
 
-    if (!redirection_offset.isNull())
-	translate(-redirection_offset.x(), -redirection_offset.y());
+    if (!redirection_offset.isNull()) {
+	txop = TxTranslate;
+	setf(WxF, true);
+    }
+
     return TRUE;
 }
 
@@ -874,7 +878,7 @@ bool QPainter::end()
 	pdev->cmd( QPaintDevice::PdcEnd, this, 0 );
 
     if ( pdev->devType() == QInternal::Widget ) {
-	if ( !((QWidget*)pdev)->testWState(Qt::WState_InPaintEvent) ) {
+	if (!usesWidgetDC) {
 	    QWidget *w = (QWidget*)pdev;
 	    ReleaseDC( w->isDesktop() ? 0 : w->winId(), hdc );
 	    w->hdc = 0;
@@ -1107,6 +1111,7 @@ void QPainter::setClipping( bool enable )
     }
     if ( enable ) {
 	QRegion rgn = crgn;
+	rgn.translate(-redirection_offset);
 	if ( pdev == paintEventDevice )
 	    rgn = rgn.intersect( *paintEventClipRegion );
 #ifndef QT_NO_PRINTER
@@ -1153,8 +1158,6 @@ void QPainter::setClipRegion( const QRegion &rgn, CoordinateMode m )
 	qWarning( "QPainter::setClipRegion: Will be reset by begin()" );
     if ( m == CoordDevice ) {
 	crgn = rgn;
-	if (!redirection_offset.isNull())
-	    crgn.translate(-redirection_offset);
     } else
 	crgn = xmat * rgn;
 
@@ -1235,6 +1238,7 @@ void QPainter::drawPoints( const QPointArray& a, int index, int npoints )
 		index = 0;
 		npoints = pa.size();
 	    }
+	    pa.translate(-redirection_offset);
 	}
     }
     if ( cpen.style() != NoPen ) {
@@ -1810,6 +1814,7 @@ void QPainter::drawLineSegments( const QPointArray &a, int index, int nlines )
 		index  = 0;
 		nlines = pa.size()/2;
 	    }
+	    pa.translate(-redirection_offset);
 	}
     }
 
@@ -1885,6 +1890,7 @@ void QPainter::drawPolyline( const QPointArray &a, int index, int npoints )
 		index   = 0;
 		npoints = pa.size();
 	    }
+	    pa.translate(-redirection_offset);
 	}
     }
     int x1, y1, x2, y2, xsave, ysave;
@@ -1964,6 +1970,7 @@ void QPainter::drawPolygon( const QPointArray &a, bool winding, int index,
 		index   = 0;
 		npoints = pa.size();
 	    }
+	    pa.translate(-redirection_offset);
 	}
     }
 #ifndef Q_OS_TEMP
@@ -2006,8 +2013,10 @@ void QPainter::drawCubicBezier( const QPointArray &a, int index )
 		 || !hdc )
 		return;
 	}
-	if ( txop != TxNone )
+	if (txop != TxNone) {
 	    pa = xForm( pa );
+	    pa.translate(-redirection_offset);
+	}
     }
 #ifndef Q_OS_TEMP
     PolyBezier( hdc, (POINT*)(pa.data()+index), 4 );

@@ -1065,10 +1065,9 @@ void QWidgetPrivate::updateInheritedBackground(bool force)
 	force = (q->palette().brush(q->backgroundRole()).pixmap() || isTransparent());
     if (force) {
 	q->repaint();
-	QObjectList lst = q->children();
-	for (int i = 0; i < lst.size(); ++i)
-	    if (lst.at(i)->isWidgetType())
-		static_cast<QWidget*>(lst.at(i))->d->updateInheritedBackground(force);
+	for (int i = 0; i < children.size(); ++i)
+	    if (children.at(i)->isWidgetType())
+		static_cast<QWidget*>(children.at(i))->d->updateInheritedBackground(force);
     }
 }
 
@@ -1081,10 +1080,9 @@ void QWidgetPrivate::updateInheritedBackground(bool force)
  */
 void QWidgetPrivate::updatePropagatedBackground()
 {
-    QObjectList lst = q->children();
-    for (int i = 0; i < lst.size(); ++i)
-	if (lst.at(i)->isWidgetType())
-	    static_cast<QWidget*>(lst.at(i))->d->updateInheritedBackground(true);
+    for (int i = 0; i < children.size(); ++i)
+	if (children.at(i)->isWidgetType())
+	    static_cast<QWidget*>(children.at(i))->d->updateInheritedBackground(true);
 }
 
 void QWidgetPrivate::propagatePaletteChange()
@@ -1198,7 +1196,7 @@ void QPixmap::fill( const QWidget *widget, int xoff, int yoff )
     for (;;) {
 	if (w->testAttribute(QWidget::WA_ContentsPropagated)) {
 	    QPainter::setRedirected(w, this, offset);
-  	    QRect rr = widget->rect();
+  	    QRect rr = widget->d->clipRect();
  	    rr.moveBy(offset);
 	    QPaintEvent e(rr);
 	    QApplication::sendEvent(w, &e);

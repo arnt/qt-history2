@@ -774,16 +774,12 @@ void QWidget::repaint( const QRegion& rgn )
 	return;
     if (rgn.isEmpty())
 	return;
-    if (testWState(WState_InPaintEvent)) {
- 	qWarning("QWidget::repaint: recursive repaint detected.");
- 	return;
-    }
 
     setWState(WState_InPaintEvent);
     ValidateRgn( winId(), rgn.handle() );
     qt_set_paintevent_clipping( this, rgn );
 
-    if (false && !testAttribute(WA_NoBackground)) {
+    if (!testAttribute(WA_NoBackground)) {
 	QPoint offset;
 	QStack<QWidget*> parents;
 	QWidget *w = q;
@@ -794,18 +790,18 @@ void QWidget::repaint( const QRegion& rgn )
 	}
 
 	bool tmphdc = !hdc;
-	HDC lhdc = tmphdc ? GetDC(winId()) : hdc;
-	SelectClipRgn(lhdc, rgn.handle());
+	if (tmphdc)
+	    hdc = GetDC(winId());
+	SelectClipRgn(hdc, rgn.handle());
 	extern void qt_erase_background( HDC, int, int, int, int, const QBrush &, int, int );
-	qt_erase_background(lhdc, 0, 0, crect.width(), crect.height(),
+	qt_erase_background(hdc, 0, 0, crect.width(), crect.height(),
 			    palette().brush(w->d->bg_role), offset.x(), offset.y());
-
 	if (!!parents) {
 	    w = parents.pop();
 	    for (;;) {
 		if (w->testAttribute(QWidget::WA_ContentsPropagated)) {
 		    QPainter::setRedirected(w, q, offset);
-		    QRect rr = rect();
+		    QRect rr = d->clipRect();
 		    rr.moveBy(offset);
 		    QPaintEvent e(rr);
 		    QApplication::sendEvent(w, &e);
@@ -817,15 +813,16 @@ void QWidget::repaint( const QRegion& rgn )
 		offset -= w->pos();
 	    }
 	}
-	SelectClipRgn(lhdc, 0);
+	SelectClipRgn(hdc, 0);
 	if ( tmphdc ) {
-	    ReleaseDC( winId(), lhdc );
+	    ReleaseDC( winId(), hdc );
 	    hdc = 0;
 	}
     }
 
     QPaintEvent e(rgn);
     QApplication::sendSpontaneousEvent( this, &e );
+
     qt_clear_paintevent_clipping();
     clearWState(WState_InPaintEvent);
 }
@@ -1204,6 +1201,8 @@ void QWidget::setGeometry_helper( int x, int y, int w, int h, bool isMove )
 	clearWState( WState_ConfigPending );
     }
 
+    // Process events immediately rather than in translateConfigEvent to
+    // avoid windows message process delay.
     bool isResize = w != oldSize.width() || h != oldSize.height();
     if ( isVisible() ) {
 	if ( isMove && pos() != oldPos ) {
@@ -1213,6 +1212,8 @@ void QWidget::setGeometry_helper( int x, int y, int w, int h, bool isMove )
 	if ( isResize ) {
 	    QResizeEvent e( size(), oldSize );
 	    QApplication::sendEvent( this, &e );
+	    if (!testWFlags(WStaticContents))
+		repaint();
 	}
     } else {
 	if (isMove && pos() != oldPos)

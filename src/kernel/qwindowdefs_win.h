@@ -105,6 +105,8 @@ Q_EXPORT HDC	   qt_display_dc();
     HPALETTE	holdpal;	\
     uint	nocolBrush  : 1;\
     uint	pixmapBrush : 1;\
+    uint        usesWidgetDC : 1; \
     bool	nativeXForm( bool );
+
 
 #endif

@@ -130,12 +130,12 @@ private:
 	int	    ser_no;
     };
     QPaletteData *d;
+    ColorGroup current_group : 4;
 #ifndef QT_NO_COMPAT
     friend class QColorGroup;
     uint is_colorgroup : 1;
 #endif
     friend Q_EXPORT QDataStream &operator<<(QDataStream &s, const QPalette &p);
-    ColorGroup current_group;
     static QPaletteData *shared_default;
     static int palette_count;
 };
