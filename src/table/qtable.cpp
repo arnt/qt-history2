@@ -3853,6 +3853,7 @@ void QTable::updateGeometries()
     topLeftCorner->setGeometry( QStyle::visualRect( QRect(frameWidth(), frameWidth(), VERTICALMARGIN, topMargin() ), rect() ) );
     horizontalScrollBar()->raise();
     verticalScrollBar()->raise();
+    topHeader->updateStretches();
     inUpdateGeometries = FALSE;
 }
 
