@@ -292,7 +292,7 @@ QFont::QFont( const QString &family, int pointSize, int weight, bool italic )
 /*! \obsolete
   Constructs a font object with the specified family, pointSize, weight,
   italic and charSet settings. If pointSize is less than or equal to 0 it
-  is set to 1. 
+  is set to 1.
  */
 QFont::QFont(const QString &family, int pointSize, int weight, bool italic, CharSet)
 {
@@ -891,7 +891,7 @@ QString QFont::lastResortFamily() const
 /*!
   Returns a last resort raw font name for the font matching algorithm.
   This is used if even the last resort family is not available. It returns
-  \e something, almost no matter what. 
+  \e something, almost no matter what.
 
   The current implementation tries a wide variety of common fonts, returning
   the first one it finds. The implementation may change at any time.
@@ -2301,6 +2301,8 @@ void QFontCache::timerEvent(QTimerEvent *)
 #endif
 
 
+
+
 // **********************************************************************
 // QFontPrivate member methods
 // **********************************************************************
@@ -2631,7 +2633,8 @@ QFontPrivate::Script QFontPrivate::scriptForChar( const QChar &c )
     }
 
     // qDebug("QFP::scriptForChar: unknown character U+%04x", c.unicode());
-    return QFontPrivate::UnknownScript;
+    // return QFontPrivate::UnknownScript;
+    return QFontPrivate::Unicode;
 }
 
 
