@@ -23,7 +23,7 @@ TestConnection::~TestConnection()
 {
 }
 
-void TestConnection::request( const QHttpRequestHeader& header, const QByteArray& data )
+void TestConnection::request( const QHttpRequestHeader& header, const QByteArray& )
 {
     qDebug( "Request=%s", header.toString().latin1() );
 
