@@ -146,12 +146,6 @@ void TextEdit::setupEditActions()
     tb->addAction(a);
     menu->addAction(a);
     actionPaste->setEnabled(!QApplication::clipboard()->text().isEmpty());
-
-    QMenu *menu2 = new QMenu(tr("&Edit"), this);
-    menu->addMenu(menu2);
-    menu2->setTearOffEnabled(true);
-
-    menu2->addActions(menu->actions());
 }
 
 void TextEdit::setupTextActions()
