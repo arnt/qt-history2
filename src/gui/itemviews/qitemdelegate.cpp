@@ -314,6 +314,10 @@ QPixmap QItemDelegate::decoration(const QStyleOptionViewItem &option, const QVar
         static QPixmap checked(checked_xpm);
         static QPixmap unchecked(unchecked_xpm);
         return variant.toBool() ? checked : unchecked; }
+    case QVariant::Color: {
+        static QPixmap pixmap(20, 20);
+        pixmap.fill(variant.toColor());
+        return pixmap; }
     default:
         break;
     }
