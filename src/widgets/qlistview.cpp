@@ -6497,7 +6497,6 @@ void QCheckListItem::paintCell( QPainter * p, const QPalette & pal,
 					   QStyle::PM_CheckListButtonSize, lv);
     int marg = lv->itemMargin();
     int r = marg;
-    int iconWidth = 0;
 
     // Draw controller / checkbox / radiobutton ---------------------
     int styleflags = QStyle::Style_Default;
@@ -6550,26 +6549,6 @@ void QCheckListItem::paintCell( QPainter * p, const QPalette & pal,
 					      pal, styleflags, QStyleOption(this));
 	}
 	r += boxsize + 4;
-    }
-
-    // Draw icon ----------------------------------------------------
-    if ( icon ) {
-        iconWidth = icon->width() + lv->itemMargin();
-	int xo = r;
-	// we default to AlignVCenter.
-	int yo = ( height() - icon->height() ) / 2;
-
-	// I guess we may as well always respect vertical alignment.
-        if ( align & AlignBottom )
-    	    yo = height() - icon->height();
-
-	// respect horizontal alignment when there is no text for an item.
-	if ( text(column).isEmpty() ) {
-	    if ( align & AlignRight )
-		xo = width - 2 * marg - iconWidth;
-	    else if ( align & AlignHCenter )
-		xo = ( width - iconWidth ) / 2;
-	}
     }
 
     // Draw text ----------------------------------------------------
