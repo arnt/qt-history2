@@ -1752,7 +1752,7 @@ void QLineEdit::imComposeEvent( QIMEvent *e )
 {
     if ( d->readOnly ) {
 	e->ignore();
-    } else {
+    } else if (!e->text().isEmpty()) {
 	d->text.replace( d->imstart, d->imend - d->imstart, e->text() );
 	d->imend = d->imstart + e->text().length();
 	d->imselstart = d->imstart + e->cursorPos();
@@ -1769,7 +1769,7 @@ void QLineEdit::imEndEvent( QIMEvent *e )
 {
     if ( d->readOnly ) {
 	e->ignore();
-    } else {
+    } else if (!e->text().isEmpty()) {
 	d->text.remove( d->imstart, d->imend - d->imstart );
 	d->cursor = d->imselstart = d->imselend = d->imend = d->imstart;
 	d->textDirty = TRUE;
