@@ -306,10 +306,11 @@ void QSplitter::init()
 {
     d = new QSplitterPrivate;
     d->list.setAutoDelete( TRUE );
-    if ( orient == Horizontal )
-	setSizePolicy( QSizePolicy::Expanding, QSizePolicy::Preferred );
-    else
-	setSizePolicy( QSizePolicy::Preferred, QSizePolicy::Expanding );
+    QSizePolicy sp( QSizePolicy::Expanding, QSizePolicy::Preferred );
+    if ( orient == Vertical )
+	sp.transpose();
+    setSizePolicy( sp );
+    clearWState( WState_OwnSizePolicy );
 }
 
 /*!
@@ -333,11 +334,15 @@ void QSplitter::setOrientation( Orientation o )
 {
     if ( orient == o )
 	return;
-    orient = o;
 
-    QSizePolicy sp = sizePolicy();
-    sp.transpose();
-    setSizePolicy( sp );
+    if ( !testWState( WState_OwnSizePolicy ) ) {
+	QSizePolicy sp = sizePolicy();
+	sp.transpose();
+	setSizePolicy( sp );
+	clearWState( WState_OwnSizePolicy );
+    }
+
+    orient = o;
 
     QSplitterLayoutStruct *s = d->list.first();
     while ( s ) {
