@@ -149,9 +149,8 @@ void QAbstractItemViewPrivate::init()
     specify a delegate with setItemDelegate().
 
     QAbstractItemView provides a lot of protected functions. Some are
-    concerned with editing, for example, edit(), endEdit(), and
-    currentEditor(), whilst others are keyboard and mouse event
-    handlers.
+    concerned with editing, for example, edit(), and commitData(),
+    whilst others are keyboard and mouse event handlers.
 
     \sa \link model-view-programming.html Model/View Programming\endlink QAbstractItemModel
 
