@@ -421,6 +421,7 @@ void QSlider::mousePressEvent( QMouseEvent *e )
 	connect( timer, SIGNAL(timeout()), SLOT(repeatTimeout()) );
 	timer->start( thresholdTime, TRUE );
     }
+    update( sliderRect() );
 }
 
 /*!\reimp
@@ -473,6 +474,7 @@ void QSlider::wheelEvent( QWheelEvent * e){
 void QSlider::mouseReleaseEvent( QMouseEvent * )
 {
     resetState();
+    update( sliderRect() );
 }
 
 /*!\reimp
