@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qsplitter.cpp#22 $
+** $Id: //depot/qt/main/src/widgets/qsplitter.cpp#23 $
 **
 **  Splitter widget
 **
@@ -151,8 +151,10 @@ void QInternalSplitter::mouseMoveEvent( QMouseEvent *e )
 }
 void QInternalSplitter::mousePressEvent( QMouseEvent *e )
 {
-    if ( e->button() == LeftButton )
+    if ( e->button() == LeftButton ) {
 	s->startMoving();
+	s->moveTo( mapToParent( e->pos() ));
+    }
 }
 void QInternalSplitter::mouseReleaseEvent( QMouseEvent *e )
 {
@@ -390,7 +392,7 @@ void QSplitter::startMoving()
 void QSplitter::moveTo( QPoint mp )
 {
     if ( moving ) {
-	int p = adjustPos( pick( mp ) );
+	int p = adjustPos( pick(mp) - bord ); // measure from w1->right
 	if ( opaque )
 	    moveSplitter( p );
 	else
@@ -482,7 +484,6 @@ int QSplitter::adjustPos( int p )
     max = QMIN( max, p1 - pick( w2->minimumSize() ) -2*bord + 1 );
     max = QMIN( max, p0 + pick( w1->maximumSize() ) );
 
-    //    p -= bord; // measure from w1->right
     p = QMAX( min, QMIN( p, max ) );
 
     return p;
