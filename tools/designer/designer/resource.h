@@ -134,6 +134,7 @@ private:
     QMap<QString, QString> dbControls;
     QMap<QString, QStringList> dbTables;
     QString exportMacro;
+    bool hadGeometry;
 
 };
 

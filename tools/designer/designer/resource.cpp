@@ -113,6 +113,7 @@ Resource::Resource()
     toplevel = 0;
     copying = FALSE;
     pasting = FALSE;
+    hadGeometry = FALSE;
 }
 
 Resource::Resource( MainWindow* mw )
@@ -122,6 +123,7 @@ Resource::Resource( MainWindow* mw )
     toplevel = 0;
     copying = FALSE;
     pasting = FALSE;
+    hadGeometry = FALSE;
 }
 
 void Resource::setWidget( FormWindow *w )
@@ -279,8 +281,13 @@ bool Resource::load( QIODevice* dev, const QString& filename, bool keepname )
 
     if ( formwindow ) {
 	formwindow->killAccels( formwindow );
-	formwindow->resize( formwindow->size().expandedTo( formwindow->minimumSize().
-							   expandedTo( formwindow->minimumSizeHint() ) ) );
+	if ( hadGeometry ) {
+	    formwindow->resize( formwindow->size().expandedTo( formwindow->minimumSize().
+							       expandedTo( formwindow->minimumSizeHint() ) ) );
+	} else {
+	    formwindow->layout()->activate();
+	    formwindow->resize( formwindow->size().expandedTo( formwindow->sizeHint() ) );
+	}
     }
 
     return TRUE;
@@ -1536,9 +1543,11 @@ void Resource::setObjectProperty( QObject* obj, const QString &prop, const QDomE
 
     if ( prop == "geometry" ) {
 	if ( obj == toplevel ) {
+	    hadGeometry = TRUE;
 	    toplevel->resize( v.toRect().size() );
 	    return;
 	} else if ( obj == formwindow->mainContainer() ) {
+	    hadGeometry = TRUE;
 	    formwindow->resize( v.toRect().size() );
 	    return;
 	}
