@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Implementation of QSocketDevice class.
 **
@@ -56,6 +56,14 @@ inline int qt_socket_accept(int s, struct sockaddr *addr, QT_SOCKLEN_T *addrlen)
 { return ::accept(s, addr, addrlen); }
 #if defined(accept)
 # undef accept
+#endif
+
+// Solaris 2.6 redefines connect to __xnet_connect when _XOPEN_SOURCE_EXTENDED
+// is defined.  This breaks our sources.
+inline int qt_socket_connect(int s, const struct sockaddr *addr, QT_SOCKLEN_T addrlen)
+{ return ::connect(s, addr, addrlen); }
+#if defined(connect)
+# undef connect
 #endif
 
 // UnixWare 7 redefines listen() to _listen().  This breaks our sources.
@@ -330,7 +338,7 @@ bool QSocketDevice::connect( const QHostAddress &addr, Q_UINT16 port )
     aa.sin_port = htons( port );
     aa.sin_addr.s_addr = htonl( addr.ip4Addr() );
 
-    int r = ::connect( fd, (struct sockaddr*)&aa,
+    int r = qt_socket_connect( fd, (struct sockaddr*)&aa,
 		       sizeof(struct sockaddr_in) );
     if ( r == 0 ) {
 	fetchConnectionParameters();
