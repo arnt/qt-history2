@@ -136,8 +136,9 @@ protected:
     void mousePressEvent( QMouseEvent * );
     void mouseReleaseEvent( QMouseEvent * );
     void mouseMoveEvent( QMouseEvent * );
-    bool eventFilter( QObject *, QEvent * );
     void enterEvent( QEvent *e );
+
+    bool eventFilter( QObject *, QEvent * );    
 
 private:
     QToolButton* closeB;

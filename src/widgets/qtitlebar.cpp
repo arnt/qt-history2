@@ -411,9 +411,6 @@ void QTitleBar::mousePressEvent( QMouseEvent * e)
 	buttonDown = TRUE;
 	moveOffset = mapToParent( e->pos() );
 	emit doActivate();
-    } else if ( e->button() == RightButton ) {
-	emit doActivate();
-	emit popupOperationMenu( e->globalPos() );
     }
 }
 
@@ -449,7 +446,6 @@ void QTitleBar::mouseMoveEvent( QMouseEvent * e)
 
     parentWidget()->move( pp );
 }
-
 
 void QTitleBar::setText( const QString& title )
 {
