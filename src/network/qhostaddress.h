@@ -39,7 +39,7 @@ public:
     };
 
     QHostAddress();
-    QHostAddress(const QString &address);
+    explicit QHostAddress(const QString &address);
     QHostAddress(const QHostAddress &copy);
     QHostAddress(SpecialAddress address);
     virtual ~QHostAddress();
