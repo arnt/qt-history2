@@ -339,8 +339,11 @@ QMLNode* QMLNode::nextSibling() const
 QMLRow::QMLRow()
 {
     x = y = width = height = base = 0;
+    frameLeft = frameRight = 0;
     start = end = 0;
     parent = 0;
+    
+
     dirty = TRUE;
 }
 
@@ -443,21 +446,26 @@ void QMLRow::draw(QMLContainer* box, QPainter* p, int obx, int oby, int ox, int 
 
     if (start->isBox) {
 	//we have to draw the box
-	((QMLBox*)start)->draw(p, obx+x, oby+y, ox, oy, cx, cy, cw, ch, 
+	((QMLBox*)start)->draw(p, obx+x, oby+y, ox, oy, cx, cy, cw, ch,
 			       backgroundRegion, dirty?FALSE:onlyDirty, onlySelection);
 	dirty = FALSE;
 	return;
     }
 
-    QRegion r(x+obx-ox, y+oby-oy, width, height);
-    backgroundRegion = backgroundRegion.subtract(r);
-    
+    //     QRegion r(x+obx-ox, y+oby-oy, width, height);
+     QRegion r(x+obx-ox-frameLeft, y+oby-oy, width+frameLeft+frameRight, height);
+     p->drawTiledPixmap(x-frameLeft+obx-ox, y+oby-oy, frameLeft, height, *bg, x-frameLeft+obx, y+oby);
+     p->drawTiledPixmap(x+width+obx-ox, y+oby-oy, frameRight, height, *bg, x+width+obx, y+oby);
+// //     p->fillRect(x-frameLeft+obx-ox, y+oby-oy, frameLeft, height, Qt::red);
+// //     p->fillRect(x+width+obx-ox, y+oby-oy, frameRight, height, Qt::red);
+     backgroundRegion = backgroundRegion.subtract(r);
+
     if (onlyDirty) {
 	if (!dirty)
 	    return;
     }
 //     p->eraseRect(x+obx-ox, y+oby-oy, width, height);
-    
+
     dirty = FALSE;
     QMLNode* t = start;
     QMLContainer* par = parent;
@@ -514,7 +522,7 @@ QMLNode* QMLRow::hitTest(QMLContainer* box, QPainter* p, int obx, int oby, int x
 {
     if (!intersects(xarg-obx, yarg-oby, 0,0))
  	return 0;
-    
+
     if (start->isBox) {
 	return ((QMLBox*)start)->hitTest(p, obx+x, oby+y, xarg, yarg);
     }
@@ -678,25 +686,35 @@ QMLBox::~QMLBox()
 }
 
 // bool intersects(int x, int y, int w, int h, int x2, int y2,int w2, int h2) {
-    
+
 //     return QMAX( x, x2 ) <= QMIN( x+w, x2+w2 ) &&
 // 	     QMAX( y, y2 ) <= QMIN( y+h, y2+h2 ) );
 // }
 
 
-void QMLBox::draw(QPainter *p,  int obx, int oby, int ox, int oy, int cx, int cy, int cw, int ch, 
+#define IN16BIT(x) QMAX( (2<<15)-1, x)
+
+void QMLBox::draw(QPainter *p,  int obx, int oby, int ox, int oy, int cx, int cy, int cw, int ch,
 		  QRegion& backgroundRegion, bool onlyDirty, bool onlySelection)
 {
     for (QMLRow* row = rows.first(); row; row = rows.next()) {
 	row->draw(this, p, obx, oby, ox, oy, cx, cy, cw, ch, backgroundRegion, onlyDirty, onlySelection);
     }
+
+    // TODO
+    int frameRight = 5;
+    int frameLeft = 5;
+    p->drawTiledPixmap(-frameLeft+obx-ox, oby-oy, frameLeft, height, *bg, frameLeft+obx, oby);
+    p->drawTiledPixmap(width+obx-ox, oby-oy, frameRight, height, *bg, width+obx, oby);
     
-    QRegion oldR = p->clipRegion(); 
-    p->setClipRegion(backgroundRegion);
-    p->drawTiledPixmap(obx-ox, oby-oy, width, height, *bg, obx, oby);
-    p->setClipRegion(oldR);
-    QRegion r(obx-ox, oby-oy, width, height);
-    backgroundRegion = backgroundRegion.subtract(r);
+
+//      QRegion oldR = p->clipRegion();
+//      p->setClipRegion(backgroundRegion);
+//      p->drawTiledPixmap(obx-ox, oby-oy, IN16BIT(width), IN16BIT(height), *bg, obx, oby);
+//      p->setClipRegion(oldR);
+//      QRegion r(obx-ox, oby-oy, IN16BIT(width), IN16BIT(height));
+//      backgroundRegion = backgroundRegion.subtract(r);
+
 }
 
 
@@ -726,6 +744,8 @@ void QMLBox::resize(QPainter* p, int newWidth)
 	row = new QMLRow(this, p, n, par, colwidth-10);
 	row->x = 5;
 	row->y = h;
+	row->frameLeft = 5;
+	row->frameRight = 5;
 	newRows.append(row);
 	h += row->height;
     }
@@ -741,7 +761,7 @@ void QMLBox::resize(QPainter* p, int newWidth)
 	for (; row && colheight < h; row = newRows.next()) {
 	    row->x = col  * colwidth + 5;
 	    row->y = colheight;
-	    
+	
 	    if (old) {
 		if (old->start == row->start && old->end == row->end
 		&& old->height == row->height && old->width == old->width
@@ -749,7 +769,7 @@ void QMLBox::resize(QPainter* p, int newWidth)
 		    row->dirty = old->dirty;
 		old = rows.next();
 	    }
-	    
+	
 	    colheight += row->height;
 	}
 	height = QMAX( height, colheight );
@@ -930,7 +950,7 @@ void QMLCursor::right(QPainter* p, bool select)
 {
     QMLContainer* np = nodeParent;
     QMLNode* n = document->nextLeaf(node, np);
-    if (n) 
+    if (n)
 	goTo(n, np, select);
     calculatePosition(p);
 }
@@ -952,7 +972,7 @@ void QMLCursor::left(QPainter* p, bool select)
 	np = tmpParent;
 	tmp = document->nextLeaf(tmp, tmpParent);
     }
-    if (n) 
+    if (n)
 	goTo(n, np, select);
     calculatePosition(p);
 }
@@ -1244,7 +1264,7 @@ QMLView::QMLView()
 	
      viewport()->setBackgroundMode(NoBackground); //PaletteBase);
     //    viewport()->setBackgroundPixmap(*bg);
-    
+
     QPixmap pm("qt.bmp");
     QMLContext* context = new QMLContext();
     context->insert("qt.bmp", pm);
@@ -1277,7 +1297,7 @@ void QMLView::keyPressEvent( QKeyEvent * e)
 {
 
     bool select = e->state() & Qt::ShiftButton;
-    
+
     if (e->key() == Key_Right
 	|| e->key() == Key_Left
 	|| e->key() == Key_Up
@@ -1316,7 +1336,7 @@ void QMLView::keyPressEvent( QKeyEvent * e)
 		p.end();
 		{
 		    int oldContentsY = contentsY();
-		    if (!doc->cursor->ylineOffsetClean) 
+		    if (!doc->cursor->ylineOffsetClean)
 			doc->cursor->yline-=oldContentsY;
 		    scrollBy( 0, -viewport()->height() );
 		    if (oldContentsY == contentsY() )
@@ -1335,7 +1355,7 @@ void QMLView::keyPressEvent( QKeyEvent * e)
 		p.end();
 		{
 		    int oldContentsY = contentsY();
-		    if (!doc->cursor->ylineOffsetClean) 
+		    if (!doc->cursor->ylineOffsetClean)
 			doc->cursor->yline-=oldContentsY;
 		    scrollBy( 0, viewport()->height() );
 		    if (oldContentsY == contentsY() )
@@ -1356,11 +1376,13 @@ void QMLView::keyPressEvent( QKeyEvent * e)
 		int newCursorY = doc->cursor->y + doc->cursor->height/2;
 		int minY = QMAX(QMIN(oldCursorY, newCursorY), contentsY());
 		int maxY = QMIN(QMAX(oldCursorY, newCursorY), contentsY()+viewport()->height());
-		QRegion r(0, 0, viewport()->width(), viewport()->height());
-		doc->draw(&p, 0, 0, contentsX(), contentsY(), 
-			  contentsX(), minY, 
-			  viewport()->width(), maxY-minY, 
+		//QRegion r(0, 0, viewport()->width(), viewport()->height());
+		QRegion r;
+		doc->draw(&p, 0, 0, contentsX(), contentsY(),
+			  contentsX(), minY,
+			  viewport()->width(), maxY-minY,
 			  r, TRUE, TRUE);
+		p.end();
 	    }
 	}
 	showCursor();
@@ -1373,9 +1395,9 @@ void QMLView::keyPressEvent( QKeyEvent * e)
 		doc->cursor->insert( &p, e->text()[i] );
 	    //TODO this is the wrong way. use repaint to schedule events more clever
 	    QRegion r(0, 0, viewport()->width(), viewport()->height());
-	    doc->draw(&p, 0, 0, contentsX(), contentsY(), 
-		      contentsX(), contentsY(), 
-		      viewport()->width(), viewport()->height(), 
+	    doc->draw(&p, 0, 0, contentsX(), contentsY(),
+		      contentsX(), contentsY(),
+		      viewport()->width(), viewport()->height(),
 		      r, TRUE);
 	    p.setClipRegion(r);
 	    // 	p.fillRect(0, 0, viewport()->width(), viewport()->height(), Qt::white);
@@ -1411,7 +1433,7 @@ void QMLView::drawContentsOffset(QPainter*p, int ox, int oy,
     //    p->setClipRect( cx-ox, cy-oy, cw, ch );
 
     //    p->eraseRect(cx-ox, cy-oy, cw, ch);
-//     p->drawTiledPixmap(cx-ox, cy-oy, cw, ch, bg, ox, oy); 
+//     p->drawTiledPixmap(cx-ox, cy-oy, cw, ch, bg, ox, oy);
 
 
     QRegion r(cx-ox, cy-oy, cw, ch);
@@ -1423,7 +1445,7 @@ void QMLView::drawContentsOffset(QPainter*p, int ox, int oy,
 //     p->eraseRect(0, 0, viewport()->width(), viewport()->height());
 
     qApp->syncX();
-    
+
     p->setClipping( FALSE );
     if (!cursor_hidden)
 	doc->cursor->draw(p, ox, oy, cx, cy, cw, ch);

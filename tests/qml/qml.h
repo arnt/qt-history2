@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/qml/qml.h#4 $
+** $Id: //depot/qt/main/tests/qml/qml.h#5 $
 **
 ** Definition of something or other
 **
@@ -153,6 +153,10 @@ public:
     QMLNode* start;
     QMLNode* end;
     QMLContainer* parent;
+    
+    //avoid flickering
+    int frameLeft;
+    int frameRight;
 
 };
 
