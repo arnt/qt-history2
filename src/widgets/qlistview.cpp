@@ -6424,7 +6424,10 @@ void QListView::contentsDragEnterEvent( QDragEnterEvent *e )
 	d->focusItem->dragEntered();
 	d->focusItem->repaint();
     }
-    e->accept();
+    if ( i && i->dropEnabled() && i->acceptDrop( e ) )
+	e->accept();
+    else
+	e->ignore();
 }
 
 /*! \reimp */
@@ -6443,7 +6446,10 @@ void QListView::contentsDragMoveEvent( QDragMoveEvent *e )
 	    d->focusItem->dragEntered();
 	d->focusItem->repaint();
     }
-    e->accept();
+    if ( i && i->dropEnabled() && i->acceptDrop( e ) )
+	e->accept();
+    else
+	e->ignore();
 }
 
 /*! \reimp */
@@ -6463,7 +6469,7 @@ void QListView::contentsDropEvent( QDropEvent *e )
 {
     setCurrentItem( d->oldFocusItem );
     QListViewItem *i = itemAt( contentsToViewport( e->pos() ) );
-    if ( i )
+    if ( i && i->dropEnabled() && i->acceptDrop( e ) )
 	i->dropped( e );
     else
 	emit dropped( e );
