@@ -156,10 +156,10 @@ ISO8859-1 @CDot Western
 Apple Roman
 } 
 }
-@Place x { 38.75c } y { 1c }
+@Place x { 38.75c } y { 1.8c }
 { 0.715 @Scale grey @Colour 90d @Rotate {
 CHA500606NO-04"/"04 @CDot |1s
-Qt and the Trolltech logo are registered trademarks of Trolltech AS. @CDot |1s
+Qt and the Qt logo are registered trademarks of Trolltech AS. @CDot |1s
 Copyright @CopyRight 2002-2004 Trolltech AS. All Rights Reserved.}}
 @Place x { 29.6c } y { 4.85c }
 { 0.225 @Scale 

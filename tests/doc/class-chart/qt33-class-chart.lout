@@ -160,11 +160,11 @@ ISO8859-1 @CDot Western
 Apple Roman
 } 
 }
-@Place x { 26.25c } y { 30.25c }
+@Place x { 26.25c } y { 32.1c }
 { 0.75 @Scale grey @Colour 90d @Rotate
-clines @Break{
-Qt and the Trolltech logo are registered trademarks of Trolltech AS.
-Copyright @CopyRight 2003-2004 Trolltech AS. All Rights Reserved. @Sup{2.0}}
+lines @Break{
+Qt and the Qt logo are registered trademarks of Trolltech AS.
+Copyright @CopyRight 2002-2004 Trolltech AS. All Rights Reserved. @Sup{2.0}}
 }
 @Place x { 26.25c } y { 1c }
 { 0.25 @Scale 90d @Rotate
