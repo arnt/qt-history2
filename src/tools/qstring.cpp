@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#202 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#203 $
 **
 ** Implementation of the QString class and related Unicode functions
 **
@@ -13004,9 +13004,6 @@ QString QString::visual(int index, int len)
     if ((uint)index > l)
 	return QString::null;
 
-    level = new uchar[l];
-    dir   = new QChar::Direction[l];
-
     // find base direction
     unsigned int pos = 0;
     while ((pos < length()) &&
@@ -13023,7 +13020,13 @@ QString QString::visual(int index, int len)
 	base = 1;
 
     // is there any BiDi char at all?
-    if( base == 0 && pos == l ) return mid(index, len);
+    if ( base == 0 && pos == l ) {
+	return mid(index, len);
+    }
+
+
+    level = new uchar[l];
+    dir   = new QChar::Direction[l];
 
     // explicit override pass
     unsigned int code_count = 0;
@@ -13389,7 +13392,7 @@ QString::QString( const QString &s ) :
 /*!
   Private function.
 
-  Constructs a string with preallocated space for \a size - 1 characters.
+  Constructs a string with preallocated space for \a size characters.
 
   The string is empty.
 
@@ -13400,7 +13403,7 @@ QString::QString( int size )
 {
     if ( size ) {
 	Q2HELPER(stat_construct_int++);
-	int l = size-1;
+	int l = size;
 	Q2HELPER(stat_construct_int_size+=l);
 	d = new Data(new QChar[l],0,l);
     } else {
@@ -14252,7 +14255,7 @@ QString QString::left( uint len ) const
     } else if ( len > length() ) {
 	return *this;
     } else {
-	QString s( len+1 );
+	QString s( len );
 	memcpy( s.d->unicode, d->unicode, len*sizeof(QChar) );
 	s.d->len = len;
 	return s;
@@ -14283,7 +14286,7 @@ QString QString::right( uint len ) const
 	uint l = length();
 	if ( len > l )
 	    len = l;
-	QString s( len+1 );
+	QString s( len );
 	memcpy( s.d->unicode, d->unicode+(l-len), len*sizeof(QChar) );
 	s.d->len = len;
 	return s;
@@ -14315,8 +14318,10 @@ QString QString::mid( uint index, uint len ) const
     } else {
 	if ( len > slen-index )
 	    len = slen - index;
+	if ( index == 0 && len == length() )
+	    return *this;
 	register const QChar *p = unicode()+index;
-	QString s( len+1 );
+	QString s( len );
 	memcpy( s.d->unicode, p, len*sizeof(QChar) );
 	s.d->len = len;
 	return s;
