@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.h#86 $
+** $Id: //depot/qt/main/src/tools/qstring.h#87 $
 **
 ** Definition of the QString class, extended char array operations,
 ** and QByteArray and QCString classes
@@ -301,6 +301,12 @@ public:
 
     QString	copy()	const;
 
+    QString arg(int a, int fieldwidth=0) const;
+    QString arg(char a, int fieldwidth=0) const;
+    QString arg(QChar a, int fieldwidth=0) const;
+    QString arg(const QString& a, int fieldwidth=0) const;
+    QString arg(double a, int fieldwidth=0, char fmt='g', int prec=-1);
+
     QString    &sprintf( const char* format, ... )
 #if defined(_CC_GNU_)
 	__attribute__ ((format (printf, 2, 3)))
@@ -411,6 +417,7 @@ private:
     void deref();
     void real_detach();
     void subat( uint );
+    bool findArg(int& pos, int& len) const;
 
     struct Data : public QShared {
 	Data() :

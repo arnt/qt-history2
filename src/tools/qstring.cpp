@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#149 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#150 $
 **
 ** Implementation of extended char array operations, and QByteArray and
 ** QCString classes
@@ -896,12 +896,95 @@ void QString::setLength( uint len )
 }
 
 /*!
+  Returns a string equal to this one, but with the first
+  occurrence of <tt>%<em>digit</em></tt> replaced by the
+  text \a a.  This is particularly useful for translations,
+  as it allows the order of the replacements to be controlled by the
+  translator.  For example:
+
+  \code
+    label.setText( tr("I have %1 to your %2").arg(mine).arg(yours) );
+  \endcode
+
+  If there is no <tt>%<em>digit</em></tt> pattern, a
+  \link warning() warning message\endlink is printed and the
+  text as appended with a space at the end of the string.
+  This is error-recovery and should not be occur in correct code.
+
+  \sa QObject::tr()
+*/
+QString QString::arg(const QString& a, int fieldwidth) const
+{
+    int pos, len;
+    QString r = copy();
+
+    if ( findArg(pos,len) ) {
+	warning("Argument missing");
+	// Make sure the text at least appears SOMEWHERE
+	r += " ";
+	pos = r.length();
+	len = 0;
+    }
+
+    r.replace(pos,len,a);
+    if ( fieldwidth < 0 ) {
+	QString s;
+	while ( -fieldwidth > len ) {
+	    s += ' ';
+	    fieldwidth++;
+	}
+	r.insert(pos+len,s);
+    } else if ( fieldwidth ) {
+	QString s;
+	while ( fieldwidth > len ) {
+	    s += ' ';
+	    fieldwidth++;
+	}
+	r.insert(pos,s);
+
+    }
+    return r;
+}
+
+/*!
+  Just 1-digit arguments.
+*/
+bool QString::findArg(int& pos, int& len) const
+{
+    char lowest=0;
+    for (uint i=0; i<length(); i++) {
+	if ( at(i) == '%' ) {
+	    char d = at(i+1);
+	    if ( d >= '0' && d <= '9' ) {
+		if ( d < lowest ) {
+		    lowest = d;
+		    pos = i;
+		    len = 2;
+		}
+	    }
+	}
+    }
+    return lowest != 0;
+}
+
+/*!
   Safely builds a formatted string from a format string and an
   arbitrary list of arguments.  The format string supports all
   the escape sequences of printf() in the standard C library.
 
-  \b Note that this function offers no Unicode support.  For typesafe
-  string building, with full Unicode support, use QTextOStream like
+  For text that is \link QObject::tr() translated\endlink, especially
+  if it contains more than one escape sequence, you should consider
+  using one of the arg() function:
+
+  \code
+    label.setText( tr("I have %1 to your %2").arg(mine).arg(yours) );
+  \endcode
+
+  This allows the order of the replacements to be controlled by the
+  translator.
+
+  \b Note that sprintf also offers no Unicode support.  For typesafe
+  string building, with full Unicode support, you can use QTextOStream like
   this:
   \code
     int x = ...;
@@ -934,7 +1017,7 @@ QString &QString::sprintf( const char* cformat, ... )
     static QRegExp escape("%#?0?-? ?\\+?'?[0-9*]*\\.?[0-9*]*h?l?L?q?Z?");
 
     QString result;
-    int last=0;
+    uint last=0;
 
     int len=0;
     int pos=-1;
