@@ -2660,8 +2660,10 @@ QListView::~QListView()
 void QListView::drawContentsOffset( QPainter * p, int ox, int oy,
 				    int cx, int cy, int cw, int ch )
 {
-    if ( columns() == 0 )
+    if ( columns() == 0 ) {
+	paintEmptyArea( p, QRect( cx, cy, cw, ch ) );
 	return;
+    }
 
     if ( !d->drawables ||
 	 d->drawables->isEmpty() ||
