@@ -45,6 +45,9 @@ Bugs
    Modale vinduer skal alltid ligge øverst i applikasjonen, det gjør de
       ikke nå (ref: FrameMaker måten å gjøre det på, snakk med Eirik)
 
+   Dobbeltklikk bug:
+      Trippelklikk gir to dobbeltklikk.
+
 Funksjonalitet:
 ---------------
 
