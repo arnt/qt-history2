@@ -194,7 +194,7 @@ void Application::quit()
     delete docs;
     docs = 0;
 
-    delete ui;
+    ui->deleteLater();
     ui = 0;
     QTimer::singleShot(0, qApp, SLOT(quit()));
 }
@@ -224,7 +224,9 @@ int main(int argc, char **argv)
     QAxFactory::registerActiveObject(&appobject);
 
     appobject.setVisible(true);
+
     QObject::connect(qApp, SIGNAL(lastWindowClosed()), &appobject, SLOT(quit()));
 
+    app.setQuitOnLastWindowClosed(false);
     return app.exec();
 }
