@@ -67,7 +67,7 @@ public:
 
     void drawCursor( bool b ) { QTextEdit::drawCursor( b ); }
 
-    QPopupMenu *createPopupMenu();
+    QPopupMenu *createPopupMenu( const QPoint &p );
     bool eventFilter( QObject *o, QEvent *e );
 
 signals:

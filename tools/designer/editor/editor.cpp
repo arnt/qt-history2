@@ -178,9 +178,9 @@ void Editor::uncommentSelection()
     setModified( TRUE );
 }
 
-QPopupMenu *Editor::createPopupMenu()
+QPopupMenu *Editor::createPopupMenu( const QPoint &p )
 {
-    QPopupMenu *menu = QTextEdit::createPopupMenu();
+    QPopupMenu *menu = QTextEdit::createPopupMenu( p );
     menu->insertSeparator();
     menu->insertItem( tr( "C&omment Code\tAlt+C" ), this, SLOT( commentSelection() ) );
     menu->insertItem( tr( "Unco&mment Code\tAlt+U" ), this, SLOT( uncommentSelection() ) );

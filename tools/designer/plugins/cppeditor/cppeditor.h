@@ -41,7 +41,7 @@ public:
     void configChanged();
 
     bool supportsBreakPoints() const { return FALSE; }
-    QPopupMenu *createPopupMenu();
+    QPopupMenu *createPopupMenu( const QPoint &p );
 
     void paste();
 

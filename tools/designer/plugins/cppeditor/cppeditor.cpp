@@ -79,9 +79,9 @@ void CppEditor::configChanged()
     Editor::configChanged();
 }
 
-QPopupMenu *CppEditor::createPopupMenu()
+QPopupMenu *CppEditor::createPopupMenu( const QPoint &p )
 {
-    QPopupMenu *m = Editor::createPopupMenu();
+    QPopupMenu *m = Editor::createPopupMenu( p );
     m->insertSeparator();
     m->insertItem( tr( "Add Include File (in Declaration)..." ), this, SLOT( addInclDecl() ) );
     m->insertItem( tr( "Add Include File (in Implementation)..." ), this, SLOT( addInclImpl() ) );

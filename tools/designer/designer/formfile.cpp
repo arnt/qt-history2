@@ -467,7 +467,7 @@ void FormFile::createFormCode()
 	cod = "";
     QValueList<MetaDataBase::Slot> slotList = MetaDataBase::slotList( formWindow() );
     for ( QValueList<MetaDataBase::Slot>::Iterator it = slotList.begin(); it != slotList.end(); ++it ) {
-	cod += "\n\n" + iface->createFunctionStart( formWindow()->name(), (*it).slot,
+	cod += "\n\n" + iface->createFunctionStart( formWindow()->name(), make_func_pretty((*it).slot),
 						    (*it).returnType.isEmpty() ?
 						    QString( "void" ) :
 						    (*it).returnType, (*it).access ) +

@@ -279,134 +279,139 @@ iconSet is in the textedit directory and is called \File
 textitalic.xpm; add its pixmap in the same way that we added the bold
 pixmap. (For example, click the ellipsis (\Key {...}), click \Button
 Add, navigate to the textedit directory and click the \File
-textitalic.xpm pixmap. Then click the textitalic pixmap in the pixmap
-collection and click \OK). Change the action's \Property text to
-'italic', its \Property menuText to '\&Italic' and its \Property accel
-to 'CTRL+I'.
+textitalic.xpm pixmap and then click \Button Open. Then click the
+textitalic icon in the pixmap collection and click \OK). Change the
+action's \Property text to 'italic', its \Property menuText to
+'\&Italic' and its \Property accel to 'CTRL+I'.
 
-	    \i
+\i
 
-	    For the underline action change its \Property name
-	    to 'underlineAction'
-	    and set its \Property toggleAction property to True. The
-	    \Property iconSet is in
-	    the same directory and is called \File textunder.xpm; add it
-	    in the same way as the previous pixmaps. Change its \Property text to
-	    'underline', its \Property menuText to '\&Underline' and its
-	    \Property accel to 'CTRL+U'.
+For the underline action change its \Property name to
+'underlineAction' and set its \Property toggleAction property to True.
+The \Property iconSet is in the same directory and is called \File
+textunder.xpm; add it in the same way as the previous pixmaps. Change
+its \Property text to 'underline', its \Property menuText to
+'\&Underline' and its \Property accel to 'CTRL+U'.
 
-	    \endlist
+\endlist
 
-	    \section3 Creating Action Groups
+\section3 Creating Action Groups
 
-	    \index Actions and Action Groups!Adding Action Groups
+\index Actions and Action Groups!Adding Action Groups
 \index Adding!Actions and Action Groups
-It is perfectly possible to have bold, italic and underline
-	    all active at once. But for alignment, i.e. left align,
-	    right align and centered, it only makes sense for one of
-	    them to be active at any one time. Because we need the
-	    alignment actions to operate in sync with one another we
-	    must create an Action Group which will automatically
-	    manage the behaviour of the actions it contains in the way
-	    we require.
+It is perfectly possible to have bold, italic and underline all active
+at once. But for alignment, i.e. left align, right align and centered,
+it only makes sense for one of them to be active at any one time.
+Because we need the alignment actions to operate in sync with one
+another we must create an Action Group which will automatically manage
+the behaviour of the actions it contains in the way we require.
 
-	    \index Actions and Action Groups!Exclusive Actions
+\index Actions and Action Groups!Exclusive Actions
 \index Exclusive Actions, Actions and Action Groups
 Right click the \Dialog {Action Editor} then left click New Action
-	    Group. Change the action group's \Property name in the Property
-	    Editor to 'alignActionGroup', and change its \Property text to
-	    'align'. The '\Property {exclusive}' property's default is True.
-	    This ensures that only one action within the action group
-	    can be 'on' at any one time which is the behaviour we
-	    require.
+Group. Change the action group's \Property name in the Property Editor
+to 'alignActionGroup', and change its \Property text to 'align'. The
+'\Property {exclusive}' property's default is True. This ensures that
+only one action within the action group can be 'on' at any one time
+which is the behaviour we require.
 
-	    We create the actions within the action group in almost the
-	    same way as before. The only difference is that we must
-	    right click the alignActionGroup (rather than an Action) and
-	    then left click New Action to create a new action \e within
-	    the action group. We will create three new actions within
-	    the alignActionGroup:
-	    \list 1
-	    \i
+We create the actions within the action group in almost the same way
+as before. The only difference is that we must right click the
+alignActionGroup (rather than an Action) and then left click New
+Action to create a new action \e within the action group. We will
+create three new actions within the alignActionGroup: \list 1 \i
 
-	    \index Adding!Pixmaps
+\index Adding!Pixmaps
 \index Pixmaps!Adding
-Create a new action within the alignActionGroup action
-	    group. Change the \Property name of this action to 'leftAlignAction'
-	    and ensure its \Property toggleAction property is True. Use the
-	    \Property iconSet in the textedit directory called \File textleft.xpm,
-	    adding the pixmap to the pixmap collection in the same way
-	    as we added the textbold pixmap earlier. Change its \Property text to
-	    'left', its menuText to '\&Left' and its \Property accel to
-	    'CTRL+L'.
+Create a new action within the alignActionGroup action group. Change
+the \Property name of this action to 'leftAlignAction' and ensure its
+\Property toggleAction property is True. Use the \Property iconSet in
+the textedit directory called \File textleft.xpm, adding the pixmap to
+the pixmap collection in the same way as we added the textbold pixmap
+earlier. Change its \Property text to 'left', its menuText to '\&Left'
+and its \Property accel to 'CTRL+L'.
 
-	    \i
+\img qd-chapmainwin-actiongroup.png
+\caption Creating an Action group
 
-	    Create another new action within alignActionGroup. Change
-	    this action's \Property name to 'rightAlignAction' and set its
-	    \Property toggleAction property to True. Set its \Property iconSet to
-	    \File textright.xpm using the pixmap collection as before.
-	    Change its \Property text to 'right', its menuText to
-	    '\&Right' and its \Property accel to 'CTRL+R'.
+\i
 
-	    \i
+Create another new action within alignActionGroup. Change this
+action's \Property name to 'rightAlignAction' and set its \Property
+toggleAction property to True. Set its \Property iconSet to \File
+textright.xpm using the pixmap collection as before. Change its
+\Property text to 'right', its menuText to '\&Right' and its \Property
+accel to 'CTRL+R'.
 
-	    Create a third action within alignActionGroup. Change its
-	    \Property name to 'centerAlignAction' and make its
-	    \Property toggleAction property True. Change its \Property iconSet
-	    to \File textcenter.xpm. Change its \Property text to 'center'
-	    and its \Property menuText to '\&Center'. We won't set an
-	    accelerator for this action.
+\i
 
-	    \endlist
+Create a third action within alignActionGroup. Change its \Property
+name to 'centerAlignAction' and make its \Property toggleAction
+property True. Change its \Property iconSet to \File textcenter.xpm.
+Change its \Property text to 'center' and its \Property menuText to
+'\&Center'. We won't set an accelerator for this action.
 
-	    Note that the \Property toolTip and \Property statusTip properties were
-	    inherited from the action group; you may wish to change
-	    these to be specific to the actions concerned.
+\img qd-chapmainwin-alignactiongroup.png
+\caption Align Action Group
 
-	    \section3 Deleting Actions and Action Groups
+\endlist
 
-	    \index Actions and Action Groups!Deleting
+Note that the \Property toolTip and \Property statusTip properties
+were inherited from the action group; you may wish to change these to
+be specific to the actions concerned.
+
+\section3 Deleting Actions and Action Groups
+
+\index Actions and Action Groups!Deleting
 \index Deleting!Actions and Action Groups
-We have some actions that we don't intend providing for this
-	    first release, for example, the editFindAction and the
-	    filePrintAction. Click editFindAction and then click the
-	    \Toolbutton {Delete Action} toolbar button. Delete the
-	    filePrintAction in the same way. Action Groups (including
-	    any actions they contain) can also be deleted with the
-	    \Toolbutton {Delete Action} toolbar button.
+We have some actions that we don't intend providing for this first
+release, for example, the editFindAction and the filePrintAction.
+Click editFindAction and then click the \Toolbutton {Delete Action}
+toolbar button. Delete the filePrintAction in the same way. Action
+Groups (including any actions they contain) can also be deleted with
+the \Toolbutton {Delete Action} toolbar button.
 
-	\section2 Creating and Populating a Toolbar
+\img qd-chapmainwin-deleteaction.png
+\caption Deleting editFindAction
 
-	\index Creating Toolbars
+\section2 Creating and Populating a Toolbar
+
+\index Creating Toolbars
 \index Adding!Toolbars
 \index Toolbars, Creating
-All the actions we require are now in place and we are ready to
-	create a new toolbar and add some of our actions to it. Right
-	click on the right hand side of the toolbar area, or on the
-	form, then left click Add Toolbar. The new toolbar is empty and
-	is visible only by its \e {toolbar handle}. (Toolbar handle's are
-	usually represented as a gray area containing either two thick
-	vertical lines or with many small pits).
+All the actions we require are now in place and we are ready to create
+a new toolbar and add some of our actions to it. Right click on the
+right hand side of the toolbar area, or on the form, then left click
+Add Toolbar. The new toolbar is empty and is visible only by its \e
+{toolbar handle}. (Toolbar handle's are usually represented as a gray
+area containing either two thick vertical lines or with many small
+pits).
 
-	\index Actions and Action Groups!Adding to a Toolbar
+\img qd-chapmainwin-toolbarhandle.png
+\caption Toolbar Handle
+
+\index Actions and Action Groups!Adding to a Toolbar
 \index Separator!Toolbar button
 \index Adding!Actions and Action Groups to a Toolbar
 \index Adding!Toolbar Separators
 We'll add the new actions we've just created. Drag the
-	alignActionGroup, (not any action it contains), to the new
-	toolbar and drop it on the toolbar handle to the right
-	of the vertical lines. The three alignment actions will be added
-	to the toolbar. The bold, italic and underline actions do not
-	belong to an action group, and must be dragged to the toolbar
-	individually. Drag the bold action to the toolbar: when the
-	mouse is over the toolbar a thick red line will appear
-	indicating the position at which the toolbar button will be
-	inserted; drop the bold action on the toolbar. Drag the italic
-	and underline actions to the toolbar and drop them next to the
-	bold button. Separate the alignment toolbar buttons from the
-	font related buttons by right clicking the centered toolbar
-	button and clicking Insert Separator.
+alignActionGroup, (not any action it contains), to the new toolbar and
+drop it on the toolbar handle to the right of the vertical lines. The
+three alignment actions will be added to the toolbar.
+
+\img qd-chapmainwin-toolbarhandle2.png
+\img qd-chapmainwin-toolbaractiongroup1.png
+\caption Populating the Toolbar with an Action Group
+
+The bold, italic and underline actions do not belong to an action
+group, and must be dragged to the toolbar individually. Drag the bold
+action to the toolbar: when the mouse is over the toolbar a thick red
+line will appear indicating the position at which the toolbar button
+will be inserted; drop the bold action on the toolbar. Drag the italic
+and underline actions to the toolbar and drop them next to the bold
+button. Separate the alignment toolbar buttons from the font related
+buttons by right clicking the centered toolbar button and clicking
+Insert Separator.
 
 	\index Separator!Toolbar button
 \index Deleting!Toolbar Separators
@@ -420,72 +425,83 @@ Toolbar buttons and separators (usually represented as indented
 	deleted by right clicking their toolbar handle and clicking
 	Delete Toolbar.
 
-	\index Previewing!Toolbars
-If you preview the application you'll find that both the
-	original and new toolbar can be dragged to different docking
-	points or dragged out of the application as independent tool
-	windows.
+\index Previewing!Toolbars
+If you preview the application you'll find that both the original and
+new toolbar can be dragged to different docking points or dragged out
+of the application as independent tool windows. 
 
-	    \section3 Adding Widgets to the Toolbar
+\img qd-chapmainwin-previewing.png
+\caption Toolbar with all the Actions Added
 
-	    \index Toolbars!Adding Widgets
+\section3 Adding Widgets to the Toolbar
+
+\index Toolbars!Adding Widgets
 \index Widgets!Adding to Toolbars
 \index Adding!Widgets
-We want our users to be able to choose the font and font size
-	    from the toolbar. To achieve this we'll create a font combobox
-	    and a font size spinbox and place them in the formatting toolbar
-	    we created in the previous section.
+We want our users to be able to choose the font and font size from the
+toolbar. To achieve this we'll create a font combobox and a font size
+spinbox and place them in the formatting toolbar we created in the
+previous section.
 
-	    \index Widgets!ComboBox
+\index Widgets!ComboBox
 \index Widgets!SpinBox
 \index Separator!Toolbar button
-Click \QD's \Toolbutton ComboBox toolbar button and click
-	    the last (right-most) toolbar button in the application's
-	    new toolbar. Change the combobox's name to 'fontComboBox'.
-	    Click the \Toolbutton SpinBox toolbar button and click the
-	    combobox we've just added to insert the spinbox next to it.
-	    Change the spinbox's \Property minValue property to 6, its
-	    \Property value property to 10 and its \Property suffix to a space
-	    followed by 'pt'. Insert a separator to the left of the
-	    combobox.
+Click \QD's \Toolbutton ComboBox toolbar button and click the last
+(right-most) toolbar button in the application's new toolbar. Change
+the combobox's name to 'fontComboBox'. Click the \Toolbutton SpinBox
+toolbar button and click the combobox we've just added to insert the
+spinbox next to it. Change the spinbox's \Property minValue property
+to 6, its \Property value property to 10 and its \Property suffix to a
+space followed by 'pt'. Insert a separator to the left of the
+combobox.
 
-	   Although you can put any widget into a toolbar we recommend
-	   that widgets which can be associated with an action should
-	   \e not be added to the toolbar directly. For these widgets,
-	   i.e. menu items, toolbar buttons and lists of items, you should
-	   create an action (drop down action for a list of items),
-	   associate the action with the widget, and add the action to
-	   the toolbar. Widgets that can sensibly be inserted directly
-	   into a toolbar are \Widget {ComboBox}es, \Widget {SpinBox}es
-	   and \Widget {Line Edit}s.
+\img qd-chapmainwin-addwidg.png
+\caption Adding Widgets to the Toolbar
 
-	\section2 Creating Menus
+Although you can put any widget into a toolbar we recommend that
+widgets which can be associated with an action should \e not be added
+to the toolbar directly. For these widgets, i.e. menu items, toolbar
+buttons and lists of items, you should create an action (drop down
+action for a list of items), associate the action with the widget, and
+add the action to the toolbar. Widgets that can sensibly be inserted
+directly into a toolbar are \Widget {ComboBox}es, \Widget {SpinBox}es
+and \Widget {Line Edit}s.
 
-	\index Creating Menus
+\section2 Creating Menus
+
+\index Creating Menus
 \index Menus!Adding
 \index Adding!Menus
-We'll now add the actions we added to the new toolbar to a new
-	menu and modify the existing menus slightly.
+We'll now add the actions we added to the new toolbar to a new menu
+and modify the existing menus slightly.
 
-	\index Menus!Adding Menu Items
+\index Menus!Adding Menu Items
 \index Adding!Menu Items
-Right click our application's menu bar and click Add Menu Item.
-	A new menu item called 'Menu' will appear. Right click this menu
-	item and click Rename Item. Change its name to 'F\&ormat'.
-	Click the menu item and a red bar will appear beneath it --
-	this is the empty menu. Drag the alignActionGroup to the Format
-	menu item and drop the action group on the menu. (The menu's red
-	bar will appear and a thick red line will be drawn where the new
-	menu items will appear -- drop when the red line is in the
-	position you require.) Now if you click the Format menu item
-	the three alignment actions will be displayed. Just like the
-	toolbar we must add the bold, italic and underline actions
-	individually. Drag the bold action to the Format menu and move
-	the mouse so that the red line is positioned at the bottom of
-	the menu, then drop the action. Repeat this process for the
-	italic and underline actions.
+Right click our application's menu bar and click Add Menu Item. A new
+menu item called 'Menu' will appear. Right click this menu item and
+click Rename Item. Change its name to 'F\&ormat'.
 
-	\index Creating Menus
+\img qd-chapmainwin-namemenu.png
+\caption Format Menu
+
+Click the menu item and a red bar will appear beneath it -- this is
+the empty menu. Drag the alignActionGroup from the Action Editor to
+the Format menu item and drop the action group on the menu. (The
+menu's red bar will appear and a thick red line will be drawn where
+the new menu items will appear -- drop when the red line is in the
+position you require.) Now if you click the Format menu item the three
+alignment actions will be displayed. Just like the toolbar we must add
+the bold, italic and underline actions individually. Drag the bold
+action to the Format menu and move the mouse so that the red line is
+positioned at the bottom of the menu, then drop the action. Repeat
+this process for the italic and underline actions.
+
+\img qd-chapmainwin-dragtomenu.png
+\img qd-chapmainwin-dropinmenu1.png
+\img Dragging and Dropping Align Action Group to the Format Menu
+
+
+\index Creating Menus
 \index Menus!Adding
 \index Separator!Menu item
 \index Menus!Adding Menu Separators
@@ -494,83 +510,85 @@ Right click our application's menu bar and click Add Menu Item.
 \index Deleting!Menus
 \index Deleting!Menu Items
 \index Deleting!Menu Separators
-We'll now deal with the separators in the menus. Firstly we'll
-	add a separator in the Format menu and then we'll remove some
-	redundant separators from the other menus. Click the Format menu
-	and right click the bold item; click Insert Separator. Click the
-	File menu and right click one of the separators above the Exit
-	action; click Delete Item. Click the Edit menu, right click the
-	separator at the very bottom of the menu and click Delete Item.
-	Delete Item can be used to delete separators, menu
-	items and menus.
+We'll now deal with the separators in the menus. Firstly we'll add a
+separator in the Format menu and then we'll remove some redundant
+separators from the other menus. Click the Format menu and right click
+the bold item towards the top of the highlighted area; click Insert
+Separator. Note that you could also right click the center align item
+towards the bottom of the highlighted area to insert the separator
+between the align actions and the font actions. ###Click the File menu
+and right click one of the separators above the Exit action; click
+Delete Item. Click the Edit menu, right click the separator at the
+very bottom of the menu and click Delete Item. Delete Item can be used
+to delete separators, menu items and menus.###
 
-	\index Menus!Moving
-Click the Format menu and drag it to the left of the Help menu,
-	then drop the Format menu. (A thick red bar will appear to
-	indicate the insertion postion.) Both menus and menu items may
-	be dragged and dropped to different positions in the same way.
+\index Menus!Moving
+Click the Format menu and drag it to the left of the Help menu, then
+drop the Format menu. (A thick red bar will appear to indicate the
+insertion postion.) Both menus and menu items may be dragged and
+dropped to different positions in the same way.
 
-	\index Previewing!Menus
-Preview the application and try clicking the alignment and font
-	style toolbar buttons and menu items. Qt will automatically keep
-	the state of the menu items and the toolbar buttons
-	synchronized.
+\index Previewing!Menus
+Preview the application and try clicking the alignment and font style
+toolbar buttons and menu items. Qt will automatically keep the state
+of the menu items and the toolbar buttons synchronized.
 
-	\section2 Adding and Connecting the Main Widget
+\section2 Adding and Connecting the Main Widget
 
-	\index Main Widget
+\index Main Widget
 \index Adding!Main Widgets
 \index Widgets!Adding a Main Widget
 \index Main Window!Adding a Main Widget
 \index Signals and Slots
 Our application is a rich text editor, but so far there has been
-	nowhere for the user to edit text. We'll add a \Class QTextEdit
-	widget and use Qt's signals and slots mechanism to minimize the
-	code we have to write to make it functional.
+nowhere for the user to edit text. We'll add a \Class QTextEdit widget
+and use Qt's signals and slots mechanism to minimize the code we have
+to write to make it functional.
 
-	Click \QD's Richtext Editor (\Toolbutton {Text Edit}) toolbar
-	button and click in the center of the form. Click the form, then
-	click the \Toolbutton {Lay Out Horizontally} toolbar button. We're
-	now ready to make the connections we need; but first we will do
-	some renaming to make things easier to understand. Click on the
-	\Widget {Text Edit} widget and change its \Property name property to
-	'textEdit'. Change the \Property textFormat property to 'RichText'.
-	Change the \Property name of the form to 'EditorForm' and its
-	caption to 'Rich Edit'.
+Click \QD's Richtext Editor (\Toolbutton {Text Edit}) toolbar button
+and click in the center of the form. Click the form, then click the
+\Toolbutton {Lay Out Horizontally} toolbar button. We're now ready to
+make the connections we need; but first we will do some renaming to
+make things easier to understand. Click on the \Widget {Text Edit}
+widget and change its \Property name property to 'textEdit'. Change
+the \Property textFormat property to 'RichText'. Change the \Property
+name of the form to 'EditorForm' and its caption to 'Rich Edit'.
 
-	\index Clipboard
+\img qd-chapmainwin-addtextedit.png
+\caption Adding Rich Text Edit Widget
+
+\index Clipboard
 \index Cut and Paste (in Applications)
-The \Class QTextEdit widget contains built-in functionality for
-	cut and paste and various other editing functions. By connecting
-	the appropriate signals to our textEdit we can take advantage of
-	this functionality without the need to write any code.
+The \Class QTextEdit widget contains built-in functionality for cut
+and paste and various other editing functions. By connecting the
+appropriate signals to our textEdit we can take advantage of this
+functionality without the need to write any code.
 
-	    \section3 Connecting Actions to Change Font Attributes
+\section3 Connecting Actions to Change Font Attributes
 
-	    \index Signals and Slots!Connecting Actions
-Click the underlineAction in the \Dialog {Action Editor}, then
-	    click the Connect button. The \Dialog {Edit Connections} dialog will
-	    appear. Click the \index toggled()
-\SignalOrSlot toggled() signal. Since we wish to
-	    connect this signal to the text edit widget drop down the
-	    Slots combobox and click textEdit. The text edit's slots
-	    that can respond to a toggled signal will appear in the
-	    right hand list box. Click the \index setUnderline()
-\SignalOrSlot setUnderline() slot,
-	    then click \OK.
+\index Signals and Slots!Connecting Actions
+Click the underlineAction in the \Dialog {Action Editor}, then click
+the Connect button in the Action Editor toolbar. The \Dialog {Edit
+Connections} dialog will appear. Click the \index toggled()
+\SignalOrSlot toggled() signal. Since we wish to connect this signal
+to the text edit widget, drop down the Slots combobox and click
+textEdit. The text edit's slots that can respond to a toggled signal
+will appear in the right hand list box. Click the \index
+setUnderline() \SignalOrSlot setUnderline() slot, then click \OK.
 
-	    Connect up the bold and italic actions in the same way. (For
-	    example, click the bold action and click Connect. Click the
-	    \index toggled()
+\img qd-chapmainwin-connaction.png
+\caption Connecting the Underline Action
+
+Connect up the bold and italic actions in the same way. (For example,
+click the bold action and click Connect. Click the \index toggled()
 \SignalOrSlot toggled() signal, change the Slots combobox item to
-	    textEdit and click the \index setBold()
-\SignalOrSlot setBold() slot. Click \OK.) If
-	    you preview the form you'll find that you can enter text and
-	    that choosing bold, italic or underline will work.
+textEdit and click the \index setBold() \SignalOrSlot setBold() slot.
+Click \OK.) If you preview the form you'll find that you can enter
+text and that choosing bold, italic or underline will work.
 
-	    \section3 Connecting Actions to Implement Cut, Copy, Paste, Undo and Redo
+\section3 Connecting Actions to Implement Cut, Copy, Paste, Undo and Redo
 
-	    \index Clipboard
+\index Clipboard
 \index Cut and Paste (in Applications)
 \index Signals and Slots!Connecting for Cut
 \index Signals and Slots!Connecting for Copy
@@ -579,102 +597,89 @@ Click the underlineAction in the \Dialog {Action Editor}, then
 \index Signals and Slots!Connecting for Redo
 \index Previewing!Signals and Slots
 \index Signals and Slots!Previewing
-The cut, copy, paste, undo and redo actions are connected in
-	    the same way as the font attributes. For example, click the
-	    editPasteAction action and click Connect. Click the
-	    \index activated()
-\SignalOrSlot activated() signal, change the Slots combobox item to
-	    textEdit and click the \index paste()
-\SignalOrSlot paste() slot. Click \OK to
-	    save the connection. Connect the cut, copy, undo and redo
-	    actions in the same way. (For example, click the
-	    editCopyAction action, click Connect, click the
-	    \index activated()
-\SignalOrSlot activated() signal, change the Slots combobox item to
-	    textEdit, click the \index copy()
-\SignalOrSlot copy() slot then click \OK.) Then
-	    the cut, copy, paste, undo and redo actions will all work in
-	    preview mode.
+The cut, copy, paste, undo and redo actions are connected in the same
+way as the font attributes. For example, click the editPasteAction
+action and click Connect. Click the \index activated() \SignalOrSlot
+activated() signal, change the Slots combobox item to textEdit and
+click the \index paste() \SignalOrSlot paste() slot. Click \OK to save
+the connection. Connect the cut, copy, undo and redo actions in the
+same way. (For example, click the editCopyAction action, click
+Connect, click the \index activated() \SignalOrSlot activated()
+signal, change the Slots combobox item to textEdit, click the \index
+copy() \SignalOrSlot copy() slot then click \OK.) Then the cut, copy,
+paste, undo and redo actions will all work in preview mode.
 
-	    \section3 Connecting for Text Alignment
+\section3 Connecting for Text Alignment
 
-	    \index Signals and Slots!Connecting for Text Alignment
+\index Signals and Slots!Connecting for Text Alignment
 \index Text Alignment
-We need to create a slot to receive signals from alignment
-	    actions and set the textEdit widget's alignment state
-	    accordingly. One approach would be to connect each
-	    individual alignment action to our slot, but because the
-	    align actions are in a group we will connect the
-	    alignActionGroup to our slot and determine which alignment
-	    the user chose from the \Class QAction pointer that is
-	    passed.
+We need to create a slot to receive signals from alignment actions and
+set the textEdit widget's alignment state accordingly. One approach
+would be to connect each individual alignment action to our slot, but
+because the align actions are in a group we will connect the
+alignActionGroup to our slot and determine which alignment the user
+chose from the \Class QAction pointer that is passed.
 
-	    Create a new slot with the signature
-	    \SignalOrSlot changeAlignment(QAction *align). (Click
-	    \Menu Edit|Slots, click \Button {New Slot}, enter the slot's
-	    signature and click \OK.) Click alignActionGroup in the
-	    \Dialog {Action Editor}, then click \Button Connect. Connect the
-	    \index selected(QAction*)
-\SignalOrSlot selected(QAction*) signal to our change alignment slot,
-	    then click \OK.
+Create a new slot with the signature \SignalOrSlot
+changeAlignment(QAction *align). (Click \Menu Edit|Slots, click
+\Button {New Slot}, enter the slot's signature and click \OK.) Click
+alignActionGroup in the \Dialog {Action Editor}, then click \Button
+Connect. Connect the \index selected(QAction*) \SignalOrSlot
+selected(QAction*) signal to our change alignment slot, then click
+\OK.
 
-	    We'll have to write the code to set the alignment ourselves;
-	    we'll cover this in \l {Aligning
-	    Text}.
+\img qd-chapmainwin-connalign1.png
+\caption Connecting the Alignment Actions 
 
-	    \section3 Connecting for Font Names and Sizes
+We'll have to write the code to set the alignment ourselves; we'll
+cover this in \l {Aligning Text}.
 
-	    \index Connecting!Signals and Slots
+\section3 Connecting for Font Names and Sizes
+
+\index Connecting!Signals and Slots
 \index Signals and Slots!Connecting for Font Sizes
 \index Signals and Slots!Connecting for Font Names
 \index Font Sizes
 \index Previewing!Signals and Slots
 \index Signals and Slots!Previewing
-We'll start by dealing with font size since it's easiest.
-	    Click the \Toolbutton {Connect Signals/Slots} toolbar button then
-	    click the spinbox and drag to the text edit widget; release
-	    on the text edit. Click the \index valueChanged(int)
-\SignalOrSlot valueChanged(int) signal
-	    and on the textEdit's \index setPointSize(int)
-\SignalOrSlot setPointSize(int) slot. Click \OK
-	    and font sizes are done. (Since font sizes are handled
-	    purely through built-in signals and slots they work in
-	    preview mode.)
+We'll start by dealing with font size since it's easiest. Click the
+\Toolbutton {Connect Signals/Slots} toolbar button then click the
+spinbox and drag to the text edit widget; release on the text edit.
+Click the \index valueChanged(int) \SignalOrSlot valueChanged(int)
+signal and then click the textEdit's \index setPointSize(int) \SignalOrSlot
+setPointSize(int) slot. Click \OK and font sizes are done. (Since font
+sizes are handled purely through built-in signals and slots they work
+in preview mode.)
 
-	    Connect the fontComboBox's \index activated()
-\SignalOrSlot activated() signal to the
-	    textEdit's \index setFamily()
-\SignalOrSlot setFamily() slot. This connection will
-	    handle updating the textEdit's font family with the user's
-	    choice of font. Note that when you invoke the
-	    \Dialog {Edit Connections} dialog the first signal that is
-	    highlighted is \SignalOrSlot activated(int). Since the
-	    \index setFamily()
-\SignalOrSlot setFamily() slot takes a \Class QString argument it
-	    does \e not appear in the list of slots. Only those slots
-	    which are compatible with the highlighted signal are
-	    shown, in this case, slots which take no argument or which
-	    take an integer argument. Click the
-	    \SignalOrSlot activated(const QString\&) signal and the list of
-	    slots will change to those which take no argument or which
-	    take a \Class QString argument; the list will now include
-	    \index setFamily()
-\SignalOrSlot setFamily() since this takes a \Class QString
-	    argument. We will have to populate the combobox with the
-	    font names for the user to choose from in code. (See the
-	    \index init()
-\Func init() function in \l {Changing Fonts}.) It's a good idea to connect the
-	    fontComboBox's \index activate()
-\SignalOrSlot activate() signal to the textEdit's
-	    \index setFocus()
-\SignalOrSlot setFocus() slot; this will ensure that after the user
-	    has changed font the focus will return
-	    to the text.
+\img qd-chapmainwin-connfontsize.png
+\caption Connecting the Font Sizes
 
-	    The richedit application is nearly complete. We will have to
-	    write code to handle text alignment, font family and
-	    file loading and saving. We will also write the code
-	    for application exit to deal correctly with any unsaved changes.
+Connect the fontComboBox's \index activated()
+\SignalOrSlot activated() signal to the textEdit's \index setFamily()
+\SignalOrSlot setFamily() slot. This connection will handle updating
+the textEdit's font family with the user's choice of font. Note that
+when you invoke the \Dialog {Edit Connections} dialog the first signal
+that is highlighted is \SignalOrSlot activated(int). Since the \index
+setFamily() \SignalOrSlot setFamily() slot takes a \Class QString
+argument it does \e not appear in the list of slots. Only those slots
+which are compatible with the highlighted signal are shown, in this
+case, slots which take no argument or which take an integer argument.
+Click the \SignalOrSlot activated(const QString\&) signal and the list
+of slots will change to those which take no argument or which take a
+\Class QString argument; the list will now include \index setFamily()
+\SignalOrSlot setFamily() since this takes a \Class QString argument.
+We will have to populate the combobox with the font names for the user
+to choose from in code. (See the \index init() \Func init() function
+in \l {Changing Fonts}.) It's a good idea to connect the
+fontComboBox's \index activate() \SignalOrSlot activate() signal to
+the textEdit's \index setFocus() \SignalOrSlot setFocus() slot; this
+will ensure that after the user has changed font the focus will return
+to the text.
+
+The richedit application is nearly complete. We will have to write
+code to handle text alignment, font family and file loading and
+saving. We will also write the code for application exit to deal
+correctly with any unsaved changes.
 
     \section1 Converting the Design into an Executable Application
 
