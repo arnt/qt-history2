@@ -1364,6 +1364,8 @@ void QWidget::setGeometry_helper( int x, int y, int w, int h, bool isMove )
     QSize  oldSize( size() );
     QPoint oldPos( pos() );
 
+    if ( !isTopLevel() )
+	isMove = (crect.topLeft() != QPoint( x, y ));
     bool isResize = w != oldSize.width() || h != oldSize.height();
 
     if ( !isMove && !isResize )
