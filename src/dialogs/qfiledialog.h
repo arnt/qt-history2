@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.h#80 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.h#81 $
 **
 ** Definition of QFileDialog class
 **
@@ -124,7 +124,8 @@ private:
     QTimer *changeDirTimer;
     QTimer *dragScrollTimer;
     bool firstMousePressEvent;
-
+    QUrlOperator startDragUrl;
+    
 };
 
 
@@ -181,6 +182,7 @@ private:
     bool firstMousePressEvent;
     bool ascending;
     int sortcolumn;
+    QUrlOperator startDragUrl;
 
 };
 
@@ -304,7 +306,7 @@ protected:
     void addWidgets( QLabel *, QWidget *, QPushButton * );
 
     void drawDragShapes( const QPoint &pnt, bool multRow, int num );
-    
+
 private slots:
     void updateGeometries();
     void modeButtonsDestroyed();

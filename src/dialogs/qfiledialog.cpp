@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#332 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#333 $
 **
 ** Implementation of QFileDialog class
 **
@@ -641,6 +641,7 @@ void QFileListBox::dragObjDestroyed()
 
 void QFileListBox::viewportDragEnterEvent( QDragEnterEvent *e )
 {
+    startDragUrl = filedialog->url();
     startDragDir = filedialog->dirPath();
     currDropItem = 0;
     eraseDragShape = TRUE;
@@ -710,6 +711,7 @@ void QFileListBox::viewportDragLeaveEvent( QDragLeaveEvent * )
     dragScrollTimer->stop();
     filedialog->drawDragShapes( oldDragPos, TRUE, urls );
     setCurrentDropItem( QPoint( -1, -1 ) );
+    filedialog->setUrl( startDragUrl );
 }
 
 void QFileListBox::viewportDropEvent( QDropEvent *e )
@@ -1058,6 +1060,7 @@ void QFileListView::dragObjDestroyed()
 
 void QFileListView::viewportDragEnterEvent( QDragEnterEvent *e )
 {
+    startDragUrl = filedialog->url();
     startDragDir = filedialog->dirPath();
     currDropItem = 0;
     eraseDragShape = TRUE;
@@ -1127,6 +1130,7 @@ void QFileListView::viewportDragLeaveEvent( QDragLeaveEvent * )
     dragScrollTimer->stop();
     filedialog->drawDragShapes( oldDragPos, FALSE, urls );
     setCurrentDropItem( QPoint( -1, -1 ) );
+    filedialog->setUrl( startDragUrl );
 }
 
 void QFileListView::viewportDropEvent( QDropEvent *e )
@@ -1160,7 +1164,6 @@ void QFileListView::viewportDropEvent( QDropEvent *e )
 
     // ##### what is supportAction for?
     e->acceptAction();
-
     currDropItem = 0;
 }
 
@@ -3750,6 +3753,9 @@ void QFileDialog::urlFinished( QNetworkOperation *op )
 	    insertEntry( ui, 0 );
 	}
 	resortDir();
+//     } else if ( op->operation() == QNetworkProtocol::OpGet ||
+// 		op->operation() == QNetworkProtocol::OpPut ) {
+// 	rereadDir();
     }
     // ############# todo progressdia
 //     } else if ( ( op->operation() == QNetworkProtocol::OpCopy ||
