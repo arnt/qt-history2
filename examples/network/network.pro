@@ -1,7 +1,7 @@
 TEMPLATE      = subdirs
 SUBDIRS       = blockingfortuneclient \
-                broadcastclient \
-                broadcastserver \
+                broadcastreceiver \
+                broadcastsender \
                 fortuneclient \
                 fortuneserver \
                 ftp \
