@@ -5214,6 +5214,7 @@ bool QETWidget::translateKeyEvent( const XEvent *event, bool grab )
 		break;
 	    }
 	    if ( evPress.xkey.keycode != event->xkey.keycode ||
+		 evRelease.xkey.keycode != event->xkey.keycode ||
 		 (evPress.xkey.time - evRelease.xkey.time) > 10){
 		XPutBackEvent(dpy, &evRelease);
 		XPutBackEvent(dpy, &evPress);
