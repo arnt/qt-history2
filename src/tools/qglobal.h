@@ -772,6 +772,7 @@ class QDataStream;
 
 //
 // Create Qt DLL if QT_DLL is defined (Windows only)
+// or QT_SHARED is defined (Kylix only)
 //
 
 #if defined(Q_OS_WIN32) || defined(Q_OS_WIN64)
@@ -796,7 +797,18 @@ class QDataStream;
 #        define Q_TEMPLATE_EXTERN
 #      endif
 #    endif
-#    undef  Q_DISABLE_COPY  /* avoid unresolved externals */
+#    undef  Q_DISABLE_COPY	/* avoid unresolved externals */
+#  endif
+#elsif defined(Q_OS_LINUX) && defined(Q_CC_BOR)
+#  if defined(QT_SHARED)	/* create a Qt shared library */
+#    define Q_EXPORT  __declspec(dllexport)
+#    define Q_TEMPLATEDLL
+#    define Q_TEMPLATE_EXTERN
+#    undef  Q_DISABLE_COPY	/* avoid unresolved externals */
+#  else
+#    define Q_TEMPLATEDLL
+#    define Q_TEMPLATE_EXTERN
+#    undef  Q_DISABLE_COPY 	/* avoid unresolved externals */
 #  endif
 #else
 #  undef QT_MAKEDLL		/* ignore these for other platforms */

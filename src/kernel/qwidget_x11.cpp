@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
 ** Created : 931031
 **
-** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the kernel module of the Qt GUI Toolkit.
 **
@@ -1583,7 +1583,7 @@ bool QWidget::isMaximized() const
     return testWState(WState_Maximized);
 }
 
-void qt_wait_for_window_manager( QWidget* w )
+Q_EXPORT void qt_wait_for_window_manager( QWidget* w )
 {
     QApplication::flushX();
     XEvent ev;

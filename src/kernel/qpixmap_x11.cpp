@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Implementation of QPixmap class for X11
 **
 ** Created : 940501
 **
-** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the kernel module of the Qt GUI Toolkit.
 **
@@ -1906,7 +1906,7 @@ void QPixmap::x11SetScreen( int screen )
   \internal
   helper for blitting alpha data into another pixmap
 */
-void qt_x11_blit_alpha_pixmap(QPixmap *dst, int dx, int dy,
+Q_EXPORT void qt_x11_blit_alpha_pixmap(QPixmap *dst, int dx, int dy,
 			      const QPixmap *src, int sx, int sy,
 			      int sw, int sh)
 {
