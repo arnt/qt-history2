@@ -34,7 +34,14 @@ static QPixmap getPixmap(QTextDocument *doc, const QTextImageFormat &format)
     const bool hasHeight = format.hasProperty(QTextFormat::ImageHeight);
     const int height = format.height();
 
-    QString key = QString("$qt_rt_%1_%2_%3").arg(format.name()).arg(width).arg(height);
+    QTextBrowser *browser = qobject_cast<QTextBrowser *>(doc->parent());
+
+    QString name = format.name();
+    if (browser)
+        name.prepend(browser->source().toString());
+
+    QString key = QString("$qt_rt_%1_%2_%3").arg(name).arg(width).arg(height);
+
     if (!QPixmapCache::find(key, pm)) {
         QImage img;
         const QString name = format.name();
@@ -51,9 +58,8 @@ static QPixmap getPixmap(QTextDocument *doc, const QTextImageFormat &format)
             }
 
         QString context;
-        if (QTextBrowser *browser = qobject_cast<QTextBrowser *>(doc->parent())) {
+        if (browser)
             context = browser->source().toString();
-        }
 
         if (img.isNull() && QTextImageHandler::externalLoader)
             img = QTextImageHandler::externalLoader(name, context);
