@@ -2723,13 +2723,9 @@ static void hangul_shape_syllable( const QString &string, int from, int syllable
     {
 	Q_UNUSED(openType);
 	QChar c(composed);
-	const QChar *chars = ch;
 
 	// if we have a modern hangul use the composed form
-	if (composed) {
-	    chars = &c;
-	    len = 1;
-	}
+	if (composed) len = 1;
 
 	engine->ensureSpace(len);
 
