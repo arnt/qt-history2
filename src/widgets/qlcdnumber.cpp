@@ -59,7 +59,9 @@
 
   QLCDNumber emits the overflow() signal when it is asked to display
   something beyond its range.  The range is set by setNumDigits(), but
-  setSmallDecimalPoint() also influences it.
+  setSmallDecimalPoint() also influences it. If the display is set to
+  hexadecimal, octal or binary, the integer equivalent of the value is
+  displayed.
 
   These digits and other symbols can be shown: 0/O, 1, 2, 3, 4, 5/S,
   6, 7, 8, 9/g, minus, decimal point, A, B, C, D, E, F, h, H, L, o, P,
@@ -91,7 +93,10 @@
   \value Dec  Decimal
   \value Oct  Octal
   \value Bin  Binary
- */
+
+    If the display is set to hexadecimal, octal or binary, the integer
+    equivalent of the value is displayed.
+*/
 
 /*! \enum QLCDNumber::SegmentStyle
 
@@ -355,6 +360,9 @@ QLCDNumber::~QLCDNumber()
   QLCDNumber::smallDecimalPoint is FALSE, the decimal point occupies
   one digit position.
 
+    If the display is set to hexadecimal, octal or binary, the integer
+    equivalent of the value is displayed.
+
   \sa numDigits, smallDecimalPoint
 */
 
@@ -438,9 +446,9 @@ bool QLCDNumber::checkOverflow( double num ) const
   \brief the current display mode (number base)
 
   Corresponds to the current display mode, which is one of \c BIN, \c
-  OCT, \c DEC (the default) and \c HEX. All four modes can display
-  both integers, floating-point numbers and strings (subject to
-  character set limitations).
+  OCT, \c DEC (the default) and \c HEX. \c DEC mode can display
+  floating point values, the other modes display the integer
+  equivalent.
 
   \sa smallDecimalPoint(), setHexMode(), setDecMode(), setOctMode(), setBinMode()
 */
@@ -494,7 +502,8 @@ void QLCDNumber::display( double num )
   \brief the displayed value rounded to the nearest integer
 
   This property corresponds to the nearest integer to the
-  current value displayed by the LCDNumber.
+  current value displayed by the LCDNumber. This is the value used for
+  hexadecimal, octal and binary modes.
 
   If the displayed value is not a number, the property has
   a value of 0.
