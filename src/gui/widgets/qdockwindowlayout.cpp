@@ -891,11 +891,12 @@ static QRect trySplit(Qt::Orientation orientation,
                       const QRect &r,
                       const QPoint &p,
                       const QSize &sz1,
-                      const QSize &sz2)
+                      const QSize &sz2,
+                      int separatorExtent)
 {
     if (!r.contains(QRect(r.x(),
                           r.y(),
-                          sz1.width() + sz2.width(),
+                          sz1.width() + sz2.width() + separatorExtent,
                           qMax(sz1.height(), sz2.height())))) {
         DEBUG() << "    cannot split horizontally";
         allowedAreas &= ~(Qt::LeftDockWindowArea | Qt::RightDockWindowArea);
@@ -903,7 +904,7 @@ static QRect trySplit(Qt::Orientation orientation,
     if (!r.contains(QRect(r.x(),
                           r.y(),
                           qMax(sz1.width(), sz2.width()),
-                          sz1.height() + sz2.height()))) {
+                          sz1.height() + sz2.height() +separatorExtent))) {
         DEBUG() << "    cannot split vertically";
         allowedAreas &= ~(Qt::TopDockWindowArea | Qt::BottomDockWindowArea);
     }
@@ -995,16 +996,28 @@ static QRect trySplit(Qt::Orientation orientation,
     QRect rect;
     switch (area) {
     case Qt::LeftDockWindowArea:
-        rect.setRect(r.x(), r.y(), r.width() / 2, r.height());
+        rect.setRect(r.x(),
+                     r.y(),
+                     (r.width() - separatorExtent) / 2,
+                     r.height());
         break;
     case Qt::RightDockWindowArea:
-        rect.setRect(r.x() + r.width() / 2, r.y(), r.width() / 2, r.height());
+        rect.setRect(r.right() - (r.width() - separatorExtent - 1) / 2,
+                     r.y(),
+                     (r.width() - separatorExtent + 1) / 2,
+                     r.height());
         break;
     case Qt::TopDockWindowArea:
-        rect.setRect(r.x(), r.y(), r.width(), r.height() / 2);
+        rect.setRect(r.x(),
+                     r.y(),
+                     r.width(),
+                     (r.height() - separatorExtent) / 2);
         break;
     case Qt::BottomDockWindowArea:
-        rect.setRect(r.x(), r.y() + r.height() / 2, r.width(), r.height() / 2);
+        rect.setRect(r.x(),
+                     r.bottom() - (r.height() - separatorExtent - 1) / 2,
+                     r.width(),
+                     (r.height() - separatorExtent + 1) / 2);
         break;
     default:
         Q_ASSERT_X(false, "QDockWindowLayout", "internal error");
@@ -1083,10 +1096,13 @@ QRect QDockWindowLayout::place(QDockWindow *dockwindow, const QRect &r, const QP
                               geometry().y() + info.cur_pos,
                               geometry().width(),
                               info.cur_size));
+    const int separatorExtent =
+        parentWidget()->style()->pixelMetric(QStyle::PM_DockWindowSeparatorExtent);
 
-    DEBUG() << "  trySplit:"
-            << orientation << location.area << allowedAreas << r2 << p << sz1 << sz2;
-    target = ::trySplit(orientation, location.area, allowedAreas, r2, p, sz1, sz2);
+    DEBUG() << "  trySplit:" << orientation << location.area << allowedAreas << r2 << p
+            << sz1 << sz2 << separatorExtent;
+    target =
+        ::trySplit(orientation, location.area, allowedAreas, r2, p, sz1, sz2, separatorExtent);
     if (!target.isEmpty())
         target.moveTopLeft(parentWidget()->mapToGlobal(target.topLeft()));
     DEBUG() << "END of place, target is" << target;
@@ -1152,10 +1168,13 @@ void QDockWindowLayout::drop(QDockWindow *dockwindow, const QRect &r, const QPoi
                               geometry().y() + info.cur_pos,
                               geometry().width(),
                               info.cur_size));
+    const int separatorExtent =
+        parentWidget()->style()->pixelMetric(QStyle::PM_DockWindowSeparatorExtent);
 
-    DEBUG() << "  trySplit:"
-            << orientation << location.area << allowedAreas << r2 << p << sz1 << sz2;
-    QRect target = ::trySplit(orientation, location.area, allowedAreas, r2, p, sz1, sz2);
+    DEBUG() << "  trySplit:" << orientation << location.area << allowedAreas << r2 << p
+            << sz1 << sz2 << separatorExtent;
+    QRect target =
+        ::trySplit(orientation, location.area, allowedAreas, r2, p, sz1, sz2, separatorExtent);
     if (!target.isEmpty()) {
         QMainWindowLayout *layout = qt_cast<QMainWindowLayout *>(parentWidget()->layout());
         Q_ASSERT(layout != 0);
