@@ -271,6 +271,7 @@ void HelpDialog::initialize()
 
     termsEdit->setValidator( new SearchValidator( termsEdit ) );
 
+    initDoneMsgShown = FALSE;
     fullTextIndex = 0;
     indexDone = FALSE;
     contentsDone = FALSE;
@@ -383,6 +384,7 @@ void HelpDialog::loadIndexFile()
 	lastKeyword = (*it).keyword;
     }
     framePrepare->hide();
+    showInitDoneMessage();
     setCursor( arrowCursor );
 }
 
@@ -577,6 +579,14 @@ void HelpDialog::currentTabChanged( const QString &s )
     }
 }
 
+void HelpDialog::showInitDoneMessage()
+{
+    if ( initDoneMsgShown )
+	return;
+    initDoneMsgShown = TRUE;
+    help->statusBar()->message( tr( "done." ), 3000 );
+}
+
 void HelpDialog::currentIndexChanged( QListBoxItem * )
 {
 }
@@ -724,6 +734,7 @@ void HelpDialog::insertBookmarks()
 	i->setLink( ts.readLine() );
     }
     help->updateBookmarkMenu();
+    showInitDoneMessage();
 }
 
 void HelpDialog::currentBookmarkChanged( QListViewItem * )
@@ -800,6 +811,7 @@ void HelpDialog::insertContents()
 	    delete additionalDocu;
     }
     setCursor( arrowCursor );
+    showInitDoneMessage();
 
 #ifdef QT_PALMTOPCENTER_DOCS
     settings.insertSearchPath( QSettings::Unix,
@@ -1039,6 +1051,7 @@ void HelpDialog::setupFullTextIndex()
 	progressPrepare->setProgress( 100 );
 	framePrepare->hide();
 	setCursor( arrowCursor );
+	showInitDoneMessage();
     } else {
 	setCursor( waitCursor );
 	help->statusBar()->message( tr( "reading dictionary..." ) );

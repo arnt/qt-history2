@@ -128,6 +128,7 @@ private:
 			 HelpNavigationContentsItem *lastItem,
 			 HelpNavigationContentsItem *handbook );
     bool isValidCategory( QString category );
+    void showInitDoneMessage();
 
 private:
     QMap<QString, QString> titleMap;
@@ -140,6 +141,7 @@ private:
     Index *fullTextIndex;
     QStringList terms, foundDocs;
     bool newFullTextIndex;
+    bool initDoneMsgShown;
 };
 
 #endif

@@ -222,7 +222,6 @@ void MainWindow::setObjectsEnabled( bool b )
 {
     if ( b ) {
 	qApp->restoreOverrideCursor();
-	statusBar()->message( tr( "done." ), 1000 );
     } else {
 	qApp->setOverrideCursor( QCursor( Qt::WaitCursor ) );
 	statusBar()->message( tr( "initializing Qt Assistant..." ) );
