@@ -54,6 +54,9 @@ public:
     QString text() const;
     QString text( int parag, bool formatted = FALSE ) const;
     virtual void setText( const QString &txt );
+
+    bool find( const QString &expr, bool cs, bool wo, bool forward = TRUE,
+	       int *parag = 0, int *index = 0 );
     
 signals:
     void currentFontChanged( const QFont &f );

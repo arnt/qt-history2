@@ -333,6 +333,10 @@ void QTextEdit::keyPressEvent( QKeyEvent *e )
 		case Key_E:
 		    setAlignment( Qt::AlignRight );
 		    break;
+		case Key_S:
+		    if ( !find( "QString", FALSE, FALSE ) )
+			QApplication::beep();
+		    break;
 		}
 	    }
     }
@@ -1201,6 +1205,19 @@ void QTextEdit::setText( const QString &txt )
     cursor->setParag( doc->firstParag() );
     cursor->setIndex( 0 );
     viewport()->repaint( FALSE );
+}
+
+bool QTextEdit::find( const QString &expr, bool cs, bool wo, bool forward,
+			   int *parag, int *index )
+{
+    drawCursor( FALSE );
+    for ( int i = 0; i < doc->numSelections; ++i ) // start with 1 as we don't want to remove the Standard-Selection
+	doc->removeSelection( i );
+    bool found = doc->find( expr, cs, wo, found, parag, index, cursor );
+    ensureCursorVisible();
+    drawCursor( TRUE );
+    repaintChanged();
+    return found;
 }
 
 void QTextEdit::UndoRedoInfo::clear()

@@ -156,12 +156,12 @@ public:
 	ParenMismatch,
 	ParenMatch,
 	Search,
-	Temp // This selection must not be drawn, it's used e.g. by undo/redo to 
+	Temp // This selection must not be drawn, it's used e.g. by undo/redo to
 	// remove multiple lines with removeSelectedText()
     };
 
     static int numSelections;
-    
+
     enum Bullet {
 	FilledCircle,
 	FilledSquare,
@@ -239,6 +239,8 @@ public:
     int listIndent( int depth ) const;
     Bullet bullet( int depth ) const;
 
+    bool find( const QString &expr, bool cs, bool wo, bool forward, int *parag, int *index, QTextEditCursor *cursor );
+    
 private:
     struct Selection {
 	QTextEditParag *startParag, *endParag;
@@ -409,11 +411,11 @@ public:
 			QTextEditCursor *cusror = 0, bool drawSelections = FALSE );
 
 private:
-    void drawParagBuffer( QPainter &painter, const QString &buffer, int startX, 
+    void drawParagBuffer( QPainter &painter, const QString &buffer, int startX,
 			  int lastY, int baseLine, int bw, int h, bool drawSelections,
-			  QTextEditFormat *lastFormat, int i, int *selectionStarts, 
+			  QTextEditFormat *lastFormat, int i, int *selectionStarts,
 			  int *selectionEnds, const QColorGroup &cg  );
-    
+
 private:
     struct Selection {
 	int start, end;

@@ -1251,6 +1251,44 @@ QTextEditCursor *QTextEditDocument::redo( QTextEditCursor *c )
     return commandHistory->redo( c );
 }
 
+bool QTextEditDocument::find( const QString &expr, bool cs, bool wo, bool forward, 
+			      int *parag, int *index, QTextEditCursor *cursor )
+{
+    // #### wo and forward is ignored at the moment
+    QTextEditParag *p = fParag;
+    if ( parag )
+	p = paragAt( *parag );
+    else if ( cursor )
+	p = cursor->parag();
+    bool first = TRUE;
+
+    while ( p ) {
+	QString s = p->string()->toString();
+	int start = 0;
+	if ( first && index )
+	    start = *index;
+	else if ( first )
+	    start = cursor->index();
+	first = FALSE;
+	int res = s.find( expr, start, cs );
+	if ( res != -1 ) {
+	    cursor->setParag( p );
+	    cursor->setIndex( res );
+	    setSelectionStart( Search, cursor );
+	    cursor->setIndex( res + expr.length() );
+	    setSelectionEnd( Search, cursor );
+	    if ( parag )
+		*parag = p->paragId();
+	    if ( index )
+		*index = res;
+	    return TRUE;
+	}
+	p = p->next();
+    }
+    
+    return FALSE;
+}
+
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 QTextEditString::QTextEditString( QTextEditParag *p )
