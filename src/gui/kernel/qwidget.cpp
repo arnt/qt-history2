@@ -1162,8 +1162,6 @@ void QWidgetPrivate::updateInheritedBackground()
     for (int i = 0; i < children.size(); ++i)
         if (children.at(i)->isWidgetType())
             static_cast<QWidget*>(children.at(i))->d_func()->updateInheritedBackground();
-#else
-    Q_UNUSED(force)
 #endif
 }
 
