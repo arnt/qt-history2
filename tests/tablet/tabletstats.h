@@ -14,6 +14,7 @@
 #include <qwidget.h>
 #include <qframe.h>
 #include "canvas.h"
+#include "tabletstatsbase.h"
 
 class QLabel;
 
@@ -52,7 +53,7 @@ private:
     QRect r;
 };
 
-class TabletStats : public QWidget
+class TabletStats : public TabletStatsBase
 {
     Q_OBJECT
 public:
@@ -60,20 +61,11 @@ public:
     ~TabletStats();
 
 private slots:
-    void slotPressureChanged( int newPress );
     void slotTiltChanged( int newTiltX, int newTiltY );
     void slotDevChanged( int newDev );
     void slotLocationChanged( int newX, int newY );
 
 protected:
-    QLabel *lblXTilt,
-	   *lblYTilt,
-	   *lblPressure,
-	   *lblDev,
-	   *lblXPos,
-	   *lblYPos;
-    StatsCanvas *statCan;
-    MyOrientation *orient;
 };
 
 #endif

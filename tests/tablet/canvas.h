@@ -1,4 +1,5 @@
 /****************************************************************************
+
 ** $Id: $
 **
 ** Copyright ( C ) 1992-2001 Trolltech AS.  All rights reserved.
@@ -25,6 +26,7 @@ class Canvas : public QWidget
 
 public:
     Canvas( QWidget *parent = 0, const char *name = 0, WFlags fl = 0 );
+    virtual ~Canvas() {};
 
     void setPenColor( const QColor &c )
     { 	saveColor = c;
