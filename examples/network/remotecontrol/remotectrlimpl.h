@@ -19,7 +19,7 @@ private slots:
     void sendPalette();
 
 private:
-    void sendPacket( const QByteArray & );
+    void sendPacket( const QByteArray &, char );
 
     QSocket *socket;
 };

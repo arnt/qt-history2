@@ -1,6 +1,10 @@
 #include "ipcserver.h"
 
 #include <qsocket.h>
+#include <qvariant.h>
+#include <qimage.h>
+#include <qpalette.h>
+#include <qapplication.h>
 
 class IpcSocket : public QSocket
 {
@@ -10,6 +14,7 @@ public:
     IpcSocket( QObject *parent) : QSocket( parent )
     {
 	packetSize = 0;
+	packetType = 0;
 	connect( this, SIGNAL(readyRead()), SLOT(read()) );
     }
 
@@ -28,20 +33,39 @@ private slots:
 		    return;
 		ds >> packetSize;
 		bytesAvail -= 4;
+	    } else if ( packetType == 0 ) {
+		if ( bytesAvail < 1 )
+		    return;
+		ds >> packetType;
+		bytesAvail -= 1;
 	    } else {
 		if ( bytesAvail < packetSize )
 		    return;
-		QString txt;
-		ds >> txt;
-		bytesAvail -= packetSize;
+		if ( packetType == QVariant::String ) {
+		    QString txt;
+		    ds >> txt;
+		    bytesAvail -= packetSize;
+		    emit receivedText( txt );
+		} else if ( packetType == QVariant::Image ) {
+		    QImage image;
+		    ds >> image;
+		    bytesAvail -= packetSize;
+		    emit receivedPixmap( QPixmap(image) );
+		} else if ( packetType == QVariant::Palette ) {
+		    QPalette pal;
+		    ds >> pal;
+		    bytesAvail -= packetSize;
+		    QApplication::setPalette( pal, TRUE );
+		}
 		packetSize = 0;
-		emit receivedText( txt );
+		packetType = 0;
 	    }
 	}
     }
 
 private:
     Q_UINT32 packetSize;
+    Q_UINT8 packetType;
 };
 
 IpcServer::IpcServer( Q_UINT16 port, QObject *parent ) :
