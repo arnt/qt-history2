@@ -506,7 +506,6 @@ Qt base classes: assorted examples
 </tr>
 </table>
 
-Pages:
 <ul>
 <li> \link qaction-examples.html QAction and QActionGroup \endlink
 <li> \link qfont-examples.html QFont, QFontMetrics, QFontInfo and QFontDatabase \endlink
@@ -521,7 +520,6 @@ Qt modules: assorted examples
 </tr>
 </table>
 
-Pages:
 <ul>
 <li> \link xml-examples.html XML examples \endlink
 <li> \link network-examples.html Network examples \endlink
@@ -537,7 +535,6 @@ Qt extensions: assorted examples
 </tr>
 </table>
 
-Pages:
 <ul>
 <li> \link nsplugin-examples.html Qt-based plugins for web browsers \endlink
 <li> \link xt-motif-examples.html Xt/Motif support extension \endlink

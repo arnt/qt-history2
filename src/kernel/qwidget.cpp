@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#721 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#722 $
 **
 ** Implementation of QWidget class
 **
@@ -4011,6 +4011,11 @@ bool QWidget::event( QEvent *e )
 		return FALSE;
 	    break;
 #endif
+        case QEvent::Tablet:
+	    tabletEvent( (QTabletEvent*)e );
+	    if ( ! ((QTabletEvent*)e)->isAccepted() )
+		return FALSE;
+	    break;
 	case QEvent::KeyPress: {
 	    QKeyEvent *k = (QKeyEvent *)e;
 	    bool res = FALSE;
@@ -4302,6 +4307,18 @@ void QWidget::wheelEvent( QWheelEvent *e )
     e->ignore();
 }
 #endif
+
+/*!
+  This event handler can be reimplemented in a subclass to receive
+  tablet events for the widget.
+
+  ### More information to come.
+*/
+
+void QWidget::tabletEvent( QTabletEvent *e )
+{
+    e->ignore();
+}
 
 /*!
   This event handler can be reimplemented in a subclass to receive key

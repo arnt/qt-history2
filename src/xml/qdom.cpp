@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/xml/qdom.cpp#76 $
+** $Id: //depot/qt/main/src/xml/qdom.cpp#77 $
 **
 ** Implementation of QDomDocument and related classes.
 **
@@ -2122,7 +2122,7 @@ bool QDomNode::hasChildNodes() const
 {
     if ( !impl )
 	return FALSE;
-    return !IMPL->first;
+    return IMPL->first != 0;
 }
 
 /*!

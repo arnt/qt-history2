@@ -307,7 +307,6 @@ DspMakefileGenerator::init()
     if ( project->isActiveConfig("qt") ) {
 	if ( project->isActiveConfig( "plugin" ) ) {
 	    project->variables()["CONFIG"].append("dll");
-	    project->variables()["DEFINES"].append("QT_DLL");
 	}
 	if ( (project->variables()["DEFINES"].findIndex("QT_NODLL") == -1) &&
 	     ((project->variables()["DEFINES"].findIndex("QT_MAKEDLL") != -1 ||
@@ -362,7 +361,7 @@ DspMakefileGenerator::init()
 			(*libit).replace(QRegExp("qt(-mt)?\\.lib"), ver);
 		}
 	    }
-	    if ( !project->isActiveConfig("dll") ) {
+	    if ( !project->isActiveConfig("dll") && !project->isActiveConfig("plugin") ) {
 		project->variables()["QMAKE_LIBS"] +=project->variables()["QMAKE_LIBS_QT_DLL"];
 	    }
 	}

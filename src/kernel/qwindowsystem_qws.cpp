@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwindowsystem_qws.cpp#73 $
+** $Id: //depot/qt/main/src/kernel/qwindowsystem_qws.cpp#74 $
 **
 ** Implementation of Qt/FB central server
 **
@@ -2122,8 +2122,8 @@ void QWSServer::setScreenSaverInterval(int ms)
     if ( ms < qwsServer->screensaverinterval )
 	qwsServer->screenSaverWake();
     qwsServer->screensaverinterval = ms;
-    if ( !screensaverinterval )
-	if ( !screensavertimer->isActive() )
+    if ( !qwsServer->screensaverinterval )
+	if ( !qwsServer->screensavertimer->isActive() )
             qt_screen->blank(FALSE);
 }
 

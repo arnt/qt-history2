@@ -37,24 +37,30 @@
 
 #include <qglobal.h>
 #include <qptrdict.h>
+#include <qstringlist.h>
 #include <qdatetime.h>
 #include <qregexp.h>
-#ifdef Q_OS_WIN32    // We assume that MS SQL Server is used
-#ifdef Q_USE_SYBASE  // Force use of Sybase Libraries under Windows
+#ifdef Q_OS_WIN32    // We assume that MS SQL Server is used. Set Q_USE_SYBASE to force Sybase.
+#include <windows.h>
+#else
+#define Q_USE_SYBASE
+#endif
+
+#ifdef Q_USE_SYBASE
 #include <sybfront.h>
 #include <sybdb.h>
 #else
-#include <windows.h>
 #define DBNTWIN32 // indicates 32bit windows dblib
 #include <sqlfront.h>
 #include <sqldb.h>
-#endif //Q_USE_SYBASE
-#else
-#include <sybfront.h>
-#include <sybdb.h>
+#define CS_PUBLIC
 #endif //Q_OS_WIN32
 
+
+
 #ifdef DBNTWIN32
+#define QMSGHANDLE DBMSGHANDLE_PROC
+#define QERRHANDLE DBERRHANDLE_PROC
 #define QTDSCHAR SQLCHAR
 #define QTDSDATETIME4 SQLDATETIM4
 #define QTDSDATETIME SQLDATETIME
@@ -74,6 +80,8 @@
 #define QTDSTEXT SQLTEXT
 #define QTDSVARCHAR SQLVARCHAR
 #else
+#define QMSGHANDLE MHANDLEFUNC
+#define QERRHANDLE EHANDLEFUNC
 #define QTDSCHAR SYBCHAR
 #define QTDSDATETIME4 SYBDATETIME4
 #define QTDSDATETIME SYBDATETIME
@@ -98,9 +106,9 @@
 
 //#define DEBUG_TDS
 
-QSqlError qMakeError( const QString& err, int type )
+QSqlError qMakeError( const QString& err, int type, int errNo = -1 )
 {
-    return QSqlError("QTDS: " + err, QString(), type);
+    return QSqlError( "QTDS: " + err, QString::null, type, errNo );
 }
 
 class QTDSClientData: public QSqlClientData
@@ -155,68 +163,88 @@ class QTDSPrivate
 {
 public:
     QTDSPrivate():login(0), dbproc(0) {}
+    QTDSPrivate( const QTDSPrivate& other):login(other.login), dbproc(other.dbproc), errorMsgs(other.errorMsgs) {}
     LOGINREC*    login;  // login information
     DBPROCESS*   dbproc; // connection from app to server
     QSqlError    lastError;
+    void         addErrorMsg( QString& errMsg ) { errorMsgs.append( errMsg ); }
+    QString      getErrorMsgs() { return errorMsgs.join("\n"); }
+    void         clearErrorMsgs() { errorMsgs.clear(); }
 
+private:
+    QStringList  errorMsgs;
 };
 
 static QPtrDict<QTDSPrivate> errs;
 
 extern "C" {
-static int qTdsMsgHandler ( DBPROCESS* dbproc,
+static int CS_PUBLIC qTdsMsgHandler ( DBPROCESS* dbproc,
 			    DBINT msgno,
-			    int /*msgstate*/,
+			    int msgstate,
 			    int severity,
 			    char* msgtext,
 			    char* srvname,
 			    char* /*procname*/,
 			    int /*line*/)
 {
+#ifdef DEBUG_TDS
+    qDebug( QString( "QTDSDriver warning (%1, severity %4): [%2] from server [%3]" ).arg( msgstate ).arg( msgtext ).arg( srvname ).arg( severity ) );
+#endif
     QTDSPrivate* p = errs.find( dbproc );
-    if ( !p )
-	return 0;
 
-    if( severity >= 0 || msgno == 0 ) {
-	/* If the message was something other than informational, and
-	   the severity was greater than 0 */
-	if( msgno > 0 && severity > 0 ) {
-	    QString msg;
-	    msg += "server:" + QString( srvname );
-	    msg += " " + QString( msgtext );
-	    p->lastError = qMakeError( msg, QSqlError::Unknown );
-	} else {
-	    /* Otherwise, just an informational message from server */
-	    p->lastError = QSqlError();
-	}
+    if ( !p ) {
+#ifdef QT_RANGE_CHECK
+	qDebug( QString( "QTDSDriver warning (%1): [%2] from server [%3]" ).arg( msgstate ).arg( msgtext ).arg( srvname ) );
+#endif
+	return INT_CANCEL;
     }
 
-    return INT_CANCEL ;
+    if ( severity > 0 ) {
+	QString errMsg = QString( "%1 (%2)" ).arg( msgtext ).arg( msgstate );
+	p->addErrorMsg( errMsg );
+    }
+
+    return INT_CANCEL;
 }
 
-static int qTdsErrHandler( DBPROCESS* dbproc,
-			   int /*severity*/,
-			   int /*dberr*/,
-			   int /*oserr*/,
-			   char* dberrstr,
-			   char* /*oserrstr*/)
+static int CS_PUBLIC qTdsErrHandler( DBPROCESS* dbproc,
+				int /*severity*/,
+				int dberr,
+				int oserr,
+				char* dberrstr,
+				char* oserrstr)
 {
+#ifdef DEBUG_TDS
+    qDebug( QString( "QTDSDriver error (%1): [%2] [%3]" ).arg( dberr ).arg( dberrstr ).arg( oserrstr ) );
+#endif
     QTDSPrivate* p = errs.find( dbproc );
-    if ( !p )
+    if ( !p ) {
+#ifdef QT_RANGE_CHECK
+	qDebug( QString( "QTDSDriver error (%1): [%2] [%3]" ).arg( dberr ).arg( dberrstr ).arg( oserrstr ) );
+#endif
 	return INT_CANCEL;
+    }
     /*
      * If the process is dead or NULL and
      * we are not in the middle of logging in...
      */
     if( (dbproc == NULL || DBDEAD( dbproc )) ) {
-	//## TODO
+#ifdef QT_RANGE_CHECK	
+	qDebug( QString( "QTDSDriver error (%1): [%2] [%3]" ).arg( dberr ).arg( dberrstr ).arg( oserrstr ) );
+#endif
 	return INT_CANCEL;
     }
 
-    p->lastError = qMakeError( QString( dberrstr ), QSqlError::Unknown );
+
+    QString errMsg = QString( "%1 %2\n" ).arg( dberrstr ).arg( oserrstr );
+    errMsg += p->getErrorMsgs();
+    p->lastError = qMakeError( errMsg, QSqlError::Unknown, dberr );
+    p->clearErrorMsgs();
+
     return INT_CANCEL ;
 }
-} //class QTDSPrivate
+
+} //extern "C"
 
 
 QVariant::Type qDecodeTDSType( int type )
@@ -269,8 +297,9 @@ QTDSResult::QTDSResult( const QTDSDriver* db, const QTDSPrivate* p )
 #ifdef DEBUG_TDS
     qDebug( "QTDSResult::QTDSResult" );
 #endif
-    d =   new QTDSPrivate();
-    (*d) = (*p);
+    d =   new QTDSPrivate( *p );
+    // insert d in error handler dict
+    errs.insert( (void*)d->dbproc, d );
     set = new QSqlClientResultSet();
     buf = new QSqlClientResultBuffer();
     QTDSClientData* tcd = new QTDSClientData();
@@ -283,6 +312,8 @@ QTDSResult::~QTDSResult()
     qDebug( "QTDSResult::~QTDSResult" );
 #endif
     cleanup();
+    dbclose( d->dbproc );
+    errs.remove( d->dbproc );
     delete set;
     delete buf;
     delete d;
@@ -297,6 +328,7 @@ void QTDSResult::cleanup()
     setActive( FALSE );
     set->clear();
     buf->clear();
+    d->clearErrorMsgs();
 }
 
 bool QTDSResult::fetch( int i )
@@ -481,10 +513,11 @@ bool QTDSResult::reset ( const QString& query )
 	    ret = dbnullbind( d->dbproc, i+1, (DBINT*)buf->nullData( i )->binder() );
 	}
 	if ( ( ret != SUCCEED ) && ( ret != -1 ) ) {
-	    //### TODO, handle error
+	    setLastError( d->lastError );
 #ifdef DEBUG_TDS
 	    qDebug( "QTDSResult::reset: some bind error!" );
 #endif
+	    return FALSE;
 	}
 #ifdef DEBUG_TDS
     qDebug( "QTDSResult::reset: done, active" );
@@ -545,6 +578,8 @@ QTDSDriver::QTDSDriver( QObject * parent, const char * name )
     : QSqlDriver(parent,name ? name : "QTDS")
 {
     init();
+    dberrhandle( (QERRHANDLE)qTdsErrHandler );
+    dbmsghandle( (QMSGHANDLE)qTdsMsgHandler );
 }
 
 void QTDSDriver::init()
@@ -554,8 +589,14 @@ void QTDSDriver::init()
 
 QTDSDriver::~QTDSDriver()
 {
-    // dbexit() also calls dbclose if neccessary
+    dberrhandle( 0 );
+    dbmsghandle( 0 );
+    // dbexit also calls dbclose if neccessary
     dbexit();
+    if ( ( d->dbproc ) && ( errs.find( d->dbproc ) ) ) {
+	// remove dbproc from error handling dict
+	errs.remove( d->dbproc );
+    }
     delete d;
 }
 
@@ -567,13 +608,13 @@ bool QTDSDriver::hasTransactionSupport() const
 
 bool QTDSDriver::hasQuerySizeSupport() const
 {
-    //## TODO
+    // unfortunately no QuerySize support...
     return FALSE;
 }
 
 bool QTDSDriver::canEditBinaryFields() const
 {
-    //## TODO
+    // not supported yet.
     return FALSE;
 }
 
@@ -611,7 +652,8 @@ bool QTDSDriver::open( const QString & db,
 
     d->dbproc = dbopen( d->login, host.local8Bit().data() );
     if ( !d->dbproc ) {
-	setLastError( d->lastError );
+	// we have to manually set the error here because the error handler won't fire when no dbproc exists
+	setLastError( QSqlError( QString::null, tr( "Could not open database connection" ), QSqlError::Connection ) );
 	setOpenError( TRUE );
 	return FALSE;
     }
@@ -619,17 +661,16 @@ bool QTDSDriver::open( const QString & db,
     qDebug( "QTDSDriver::open: opened" );
 #endif
     if ( dbuse( d->dbproc, db.local8Bit().data() ) == FAIL ) {
-	setLastError( d->lastError );
+	setLastError( QSqlError( QString::null, tr( "Could not open database" ), QSqlError::Connection ) );
 	setOpenError( TRUE );
 	return FALSE;
     }
 #ifdef DEBUG_TDS
     qDebug( "QTDSDriver::open: database used" );
 #endif
-    //### TODO
-    //    dberrhandle( qTdsErrHandler );
-    //    dbmsghandle( qTdsMsgHandler );
     setOpen( TRUE );
+    dbName = db;
+    hostName = host;
     return TRUE;
 }
 
@@ -640,6 +681,8 @@ void QTDSDriver::close()
 #endif
     if ( isOpen() ) {
 	dbclose( d->dbproc );
+	errs.remove ( d->dbproc );
+	d->dbproc = 0;
 	setOpen( FALSE );
 	setOpenError( FALSE );
     }
@@ -650,7 +693,24 @@ QSqlQuery QTDSDriver::createQuery() const
 #ifdef DEBUG_TDS
     qDebug("QTDSDriver::createQuery()");
 #endif
-    return QSqlQuery( new QTDSResult( this, d ) );
+    QTDSPrivate d2;
+    d2.login = d->login;
+
+    d2.dbproc = dbopen( d2.login, hostName.local8Bit().data() );
+    if ( !d2.dbproc ) {
+	return QSqlQuery();
+    }
+#ifdef DEBUG_TDS
+    qDebug( "QTDSDriver::createQuery: opened" );
+#endif
+    if ( dbuse( d2.dbproc, dbName.local8Bit().data() ) == FAIL ) {
+	return QSqlQuery();
+    }
+#ifdef DEBUG_TDS
+    qDebug( "QTDSDriver::createQuery: database used" );
+#endif
+
+    return QSqlQuery( new QTDSResult( this, &d2 ) );
 }
 
 bool QTDSDriver::beginTransaction()

@@ -1,0 +1,21 @@
+\book Additional Functionality with Qt
+
+\class QDate
+\class QDateTime
+\class QDoubleValidator
+\class QEditorFactory
+\class QErrorMessage
+\class QGuardedPtr
+\class QIntValidator
+\class QMetaObject
+\class QMetaProperty
+\class QObject
+\class QRangeControl
+\class QRegExpValidator
+\class QSettings
+\class QSound
+\class Qt
+\class QTime
+\class QTimer
+\class QTimerEvent
+\class QValidator

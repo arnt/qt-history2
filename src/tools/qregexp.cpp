@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qregexp.cpp#153 $
+** $Id: //depot/qt/main/src/tools/qregexp.cpp#154 $
 **
 ** Implementation of QRegExp class
 **
@@ -95,20 +95,9 @@
   Experienced regexp users may prefer to skip the introduction and
   go directly to the relevant information:
 
-  \list
-  \i \link #characters-and-abbreviations-for-sets-of-characters
-  Characters and Abbreviations for Sets of Characters\endlink
-  \i \link #sets-of-characters Sets of Characters \endlink
-  \i \link #quantifiers Quantifiers \endlink
-  \i \link #capturing-text Capturing Text \endlink
-  \i \link #assertions Assertions \endlink
-  \i \link #wildcard-matching Wildcard Matching (globbing) \endlink
-  \i \link #perl-users Notes for Perl Users \endlink
-  \i \link #code-examples Code Examples \endlink
-  \i \link #member-function-documentation Member Function Documentation \endlink
-  \endlist
+  \tableofcontents
 
-  <b>Introduction</b>
+  \section1 Introduction
 
   Regexps are built up from expressions, quantifiers and assertions.
   The simplest form of expression is simply a character, e.g. <b>x</b>
@@ -214,8 +203,8 @@
   We will implement some the examples above in the
   \link #code-examples code examples \endlink section.
 
-  <a name="characters-and-abbreviations-for-sets-of-characters">
-  <b>Characters and Abbreviations for Sets of Characters</b></a>
+  \target characters-and-abbreviations-for-sets-of-characters
+  \section1 Characters and Abbreviations for Sets of Characters
 
   \list
 
@@ -253,7 +242,8 @@
   to include a <b>\\</b> in a regexp you will need to enter it twice,
   i.e. <b>\\\\</b>.}
 
-  <a name="sets-of-characters"><b>Sets of Characters</b></a>
+  \target sets-of-characters
+  \section1 Sets of Characters
 
   Square brackets are used to match any character in the set of
   characters contained within the square brackets. All the character
@@ -282,7 +272,8 @@
   Note that in most regexp literature sets of characters are called
   "character classes".
 
-  <a name="quantifiers"><b>Quantifiers</b></a>
+  \target quantifiers
+  \section1 Quantifiers
 
   By default an expression is automatically quantified by
   <b>{1,1}</b>, i.e. it should occur exactly once. In the following
@@ -343,7 +334,8 @@
   from the first zero it finds, e.g. '2.<u>000</u>5'. Quantifiers can
   be made non-greedy, see setMinimal().
 
-  <a name="capturing-text"><b>Capturing Text</b></a>
+  \target capturing-text
+  \section1 Capturing Text
 
   Parentheses allow us to group elements together so that we can
   quantify and capture them. For example if we have the expression
@@ -374,7 +366,8 @@
 
   Both capturing and non-capturing parentheses may be nested.
 
-  <a name="assertions"><b>Assertions</b></a>
+  \target assertions
+  \section1 Assertions
 
   Assertions make some statement about the text at the point where
   they occur in the regexp but they do not match any characters.
@@ -429,7 +422,8 @@
 
   \endlist
 
-  <a name="wildcard-matching"><b>Wildcard Matching (globbing)</b></a>
+  \target wildcard-matching
+  \section1 Wildcard Matching (globbing)
 
   Most command shells such as \e bash or \e cmd support "file
   globbing", the ability to identify a group of files by using
@@ -459,7 +453,8 @@
   This will match zero or more characters followed by a dot followed
   by 'h', 't', 'm' and 'l'.
 
-  <a name="perl-users"><b>Notes for Perl Users</b></a>
+  \target perl-users
+  \section1 Notes for Perl Users
 
   Most of the character class abbreviations supported by Perl are
   supported by QRegExp, see
@@ -522,7 +517,8 @@
   Note: because C++ transforms \\'s they must be written \e twice in
   code, e.g. <b>\\b</b> must be written <b>\\\\b</b>.
 
-  <a name="code-examples"><b>Code Examples</b></a>
+  \target code-examples
+  \section1 Code Examples
 
   \code
     QRegExp rx( "^\\d\\d?$" );  // match integers 0 to 99
@@ -661,7 +657,7 @@
 
   \sa QRegExpValidator QString QStringList
 
-  <a name="member-function-documentation"></a>
+  \target member-function-documentation
 */
 
 static const int NumBadChars = 128;
@@ -3630,7 +3626,7 @@ QStringList QRegExp::capturedTexts()
   Thus cap(1) is the text of the first capturing parentheses, cap(2)
   is the text of the second, and so on.
 
-  <a name="cap_in_a_loop"></a>
+  \target cap_in_a_loop
   Some patterns may lead to a number of matches which cannot be
   determined in advance, for example:
 

@@ -26,8 +26,6 @@
   \link qtdoc.html companion document \endlink explains how to write
   documentation for Qt.
 
-  This manual has four sections:
-
   \list 1
    \i \link #commands Giving commands to qdoc \endlink
    \i \link #food Feeding qdoc \endlink
@@ -76,6 +74,7 @@
   \link #img \\img \endlink,
   \link #important \\important \endlink,
   \link #include \\include \endlink,
+  \link #index \\index \endlink,
   \link #ingroup \\ingroup \endlink,
   \link #internal \\internal \endlink,
   \link #keyword \\keyword \endlink,
@@ -104,6 +103,7 @@
   \link #skipto \\skipto \endlink,
   \link #skipuntil \\skipuntil \endlink,
   \link #table \\table...\\endtable \endlink,
+  \link #tableofcontents \\tableofcontents \endlink,
   \link #target \\target \endlink,
   \link #title \\title \endlink,
   \link #value \\value \endlink,
@@ -710,7 +710,7 @@
    \i \target section
     <b>\\section</b> starts a new section, subsection, subsubsection
     or whatever. The first level is "\\section1"; the second level is
-    "\\section2"; and so on up to "\\section5":
+    "\\section2"; and so on up to "\\section4":
     <pre>
     /*! \\page norway-sports.html
 
@@ -720,7 +720,7 @@
 
 	<u>\\section2</u> Skating
 
-	  <u>\\section3</u> Conventional Skating
+	  <u>\\section3</u> Speed Skating
 
 	  <u>\\section3</u> Long-distance Skating
 
@@ -765,13 +765,19 @@
     <b>\\img</b> inclu ###
 
    \i \target caption
-    <b>\\caption</b> ...
+    <b>\\caption</b> ###
 
    \i \target table
     <b>\\table ... \\endtable</b> ...
 
    \i \target r
     <b>\\r</b> ...
+
+   \i \target tableofcontents
+    <b>\\tableofcontents</b> ###
+
+   \i \target index
+    <b>\\index</b> ###
 
    \i \target omit
     <b>\\omit ... \\endomit</b> comments out a block of text.
@@ -806,7 +812,7 @@
     an anchor name: \<a&nbsp;name="coordinate-system"\>. And
     "coordinate systems" in the qcomplextable.cpp becomes a link to
     coordsys.html#coordinate-system. Incidentally, it takes more than
-    an s to fool qdoc.
+    one s to fool qdoc.
 
    \i \target extension
     <b>\\extension</b> identifies a class as part of an extension to
@@ -894,7 +900,7 @@
 
     qdoc ignores all meaningless white space C++ senso when looking
     for a substring. This makes the documentation more independent to 
-    stylistic changes in the examples source code.
+    stylistic changes in the examples' source code.
 
    \i \target printto
     <b>\\printto</b> expands to all the lines from the current

@@ -108,10 +108,18 @@ static QString getWord()
 
 static void add( const QString& fileName )
 {
+    int slash = fileName.findRev( QChar('/') );
     (*yyCurrentBook).chapters.push_back( fileName );
-    if ( yyUsedQdocFiles.contains(fileName) )
-	qWarning( "File '%s' used twice", fileName.latin1() );
-    yyUsedQdocFiles.insert( fileName, 0 );
+    if ( yyUsedQdocFiles.contains(fileName.mid(slash + 1)) )
+	qWarning( "File '%s' used twice", fileName.mid(slash + 1).latin1() );
+    yyUsedQdocFiles.insert( fileName.mid(slash + 1), 0 );
+}
+
+static void stripComments()
+{
+    QRegExp cmt( QString("#[^\n]*") );
+
+    yyIn.replace( cmt, QString::null );
 }
 
 static bool matchCommand()
@@ -552,6 +560,7 @@ static bool laTeXifyImages( QString& html )
 	QString src = img.cap( 1 );
 	if ( src.startsWith(QChar('"')) || src.startsWith(QChar('\'')) )
 	    src = src.mid( 1, src.length() - 2 );
+	src.replace( QRegExp(QString("\\\\")), QString::null );
 	if ( fileContents(qdocOutputDir + src).isEmpty() )
 	    return FALSE;
 
@@ -607,6 +616,10 @@ static bool laTeXify( QString& html,
     QRegExp tt( QString(
 	"<\\s*([tT][tT]|[cC][oO][dD][eE])\\s*>(.*)<\\s*/\\s*\\1\\s*>") );
     tt.setMinimal( TRUE );
+
+    QRegExp u( QString(
+	"<\\s*[uU]\\s*>(.*)<\\s*/\\s*[uU]\\s*>") );
+    u.setMinimal( TRUE );
 
     QRegExp pre( QString(
 	"<\\s*[pP][rR][eE]\\s*>(.*)<\\s*/\\s*[pP][rR][eE]\\s*>") );
@@ -681,6 +694,7 @@ static bool laTeXify( QString& html,
     extendedReplace( html, em, QString("\\emph{%2}") );
     extendedReplace( html, b, QString("\\textbf{%2}") );
     extendedReplace( html, tt, QString("\\texttt{%2}") );
+    extendedReplace( html, u, QString("\\underline{%1}") );
     extendedReplace( html, center, QString(
 	"\\begin{center}\n"
 	"%2\n"
@@ -851,7 +865,8 @@ static void checkUnusedQdocFiles()
 	++f;
     }
     if ( numUnused > MaxUnused )
-	qWarning( "And %d more file(s)...", numUnused - MaxUnused );
+	qWarning( "And %d more file%s...", numUnused - MaxUnused,
+		  numUnused - MaxUnused == 1 ? "" : "s" );
 }
 
 int main( int argc, char **argv )
@@ -893,6 +908,8 @@ int main( int argc, char **argv )
 	if ( yyIn.isEmpty() )
 	    continue;
 
+	stripComments();
+
 	QString outFileName( fn );
 	if ( outFileName.endsWith(QString(".q2l")) )
 	    outFileName.truncate( outFileName.length() - 4 );
@@ -912,12 +929,13 @@ int main( int argc, char **argv )
 	}
 
 	if ( !findANames() )
-	    return FALSE;
+	    return 1;
     }
 
     yyCurrentBook = yyBooks.begin();
     while ( yyCurrentBook != yyBooks.end() ) {
-	emitBook( a4, letter, twoSided );
+	if ( !emitBook(a4, letter, twoSided) )
+	    return 1;
 	yyCurrentBook++;
     }
 

@@ -101,6 +101,8 @@ protected:
 private:
     void		init();
     QTDSPrivate*	d;
+    QString             dbName;
+    QString             hostName;
 };
 
 #endif

@@ -1,4 +1,4 @@
-\book Using Databases with Qt
+\book Databases with Qt
 
 \page sql.html
 \class QDataBrowser
@@ -18,3 +18,4 @@
 \class QSqlQuery
 \class QSqlRecord
 \class QSqlResult
+

@@ -3,7 +3,7 @@
 
 \title The Text Engine in Qt
 
-Qt 3 comes with a completely redesigned text processing and layouting
+Qt 3 comes with a completely redesigned text processing and layout
 engine that is used throughout the whole library.
 
 It has support for most writing systems that are used in todays

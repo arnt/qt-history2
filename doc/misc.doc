@@ -45,44 +45,45 @@ programming.
 Since its commercial introduction in early
 1996, Qt has formed the basis of many thousands of successful
 applications worldwide. Qt is also the basis of the popular
-<a class="r" href="http://www.kde.org/">KDE</a> Linux
+\link http://www.kde.org/ KDE \endlink Linux
 desktop environment, a standard component of all major Linux distributions.
 
 Qt is supported on the following platforms:
-<ul>
- <li><b>MS/Windows</b> - 95, 98, NT 4.0, ME, and 2000
- <li><b>Unix/X11</b> - Linux, Sun Solaris, HP-UX, Digital Unix,
+
+\list
+ \i <b>MS/Windows</b> - 95, 98, NT 4.0, ME, and 2000
+ \i <b>Unix/X11</b> - Linux, Sun Solaris, HP-UX, Digital Unix,
 	    IBM AIX, SGI IRIX and a wide range of others
- <li><b>Embedded</b> - Linux platforms with framebuffer support.
-</ul>
+ \i <b>Embedded</b> - Linux platforms with framebuffer support.
+\endlist
 
-Qt is a product of <a href="troll.html">Trolltech</a>.
+Qt is a product of \link troll.html Trolltech\endlink.
 
-Qt is released in different <a href="editions.html">editions</a>:
+Qt is released in different \link editions.html editions\endlink:
 
 <dl>
-<dd><b>Qt Enterprise <a href="editions.html">Edition</a></b> and <b>Qt Professional <a href="editions.html">Edition</a></b>
+<dd><b>Qt Enterprise \link editions.html Edition\endlink</b> and <b>Qt Professional \link editions.html Edition\endlink</b>
 provide for commercial software development.
 They permits traditional commercial software
 distribution and includes free upgrades and Technical Support
-Service. For the latest prices, please see the Trolltech web site, <a
-href="http://www.trolltech.com/pricing.html">Pricing and Availability</a>
-page, or contact <a href="mailto:sales@trolltech.com">sales@trolltech.com</a>.
+Service. For the latest prices, please see the Trolltech web site,
+\link http://www.trolltech.com/pricing.html">Pricing and Availability\endlink
+page, or contact \link mailto:sales@trolltech.com sales@trolltech.com\endlink.
 The Enterprise Edition offers \link modules.html extended modules
 \endlink over the Professional Edition.
 
-<dd><b>Qt Free <a href="editions.html">Edition</a></b> is the Unix/X11 version of Qt
-available for development of <em>Free and Open Source software</em>
+<dd><b>Qt Free \link editions.html Edition\endlink</b> is the Unix/X11 version of Qt
+available for development of \e {Free and Open Source software}
 only. It is provided free of charge under the terms of both the
-<a href="license.html">Q Public License</a> and the
-<a href="gpl.html">GNU General Public License</a>.
+\link license.html Q Public License\endlink and the
+\link gpl.html GNU General Public License\endlink.
 The latest version is available for
-<a href="http://www.trolltech.com/dl/qtfree-dl.html">download</a>.
+\link http://www.trolltech.com/dl/qtfree-dl.html download\endlink.
 
-<dd><b>Qt/Embedded Free <a href="editions.html">Edition</a></b> is the Embedded version of Qt
-available for development of <em>Free software</em>
+<dd><b>Qt/Embedded Free \link editions.html Edition\endlink</b> is the Embedded version of Qt
+available for development of \e {Free software}
 only. It is provided free of charge under the terms of the
-<a href="gpl.html">GNU General Public License</a>.
+\link gpl.html GNU General Public License\endlink.
 
 </dl>
 */
@@ -97,15 +98,15 @@ it explains the most common source of link errors with Qt.
 Other frequently asked questions can be found in the
 \link http://www.trolltech.com/developer/faq/ FAQ index \endlink .
 
-<h2>Link error, complaining about a lack of \c vtbl, \c _vtbl, \c
-__vtbl or similar </h2>
+\section1 Link error, complaining about a lack of \c vtbl, \c _vtbl, \c
+__vtbl or similar
 
 This indicates that you include the Q_OBJECT macro in a class declaration
 and probably also run the moc, but forget to link the moc-generated object
-code into your executable. Read <a href="moc.html">Using the Meta Object
-Compiler</a> for details on how to use moc.
+code into your executable. Read \link moc.html Using the Meta Object
+Compiler\endlink for details on how to use moc.
 
-<h2>Using different versions of Qt on the same machine</h2>
+\section1 Using different versions of Qt on the same machine
 
 Qt programs need the following components of the Qt distribution: <dl>
 
@@ -144,14 +145,13 @@ environment variable \c ${LD_LIBRARY_PATH} on Unix/Linux.
 
 Binary packages usually consist of two parts:
 
-<ul>
-<li>run time libraries in the run time package, usually called
-\c qt2.
+\list
+\i run time libraries in the run time package, usually called \c qt3.
 
-<li>header files, the moc and static libraries in the developers' kit,
-usually called \c qt2-dev.
+\i header files, the moc and static libraries in the developers' kit,
+usually called \c qt3-dev.
 
-</ul>
+\endlist
 
 Depending on how you are using Qt, you need to make specific parts of
 the Qt distribution available to your programs.  Typical situations are
@@ -167,36 +167,42 @@ on Qt 1.4x.  Qt packages are usually split into a shared library
 package with a name like \c qt and a developer package with a name
 like \c qt-dev.  You will need the appropriate packages:
 
-<ul>
+\list
 
-<li>To build programs you will need the header files, the moc and the
+\i To build programs you will need the header files, the moc and the
 libraries of Qt 2.x. They are included in the developer package of
 Qt 2.x (\c qt2-dev or the like).
 
-<li>To run programs you will need the shared libraries of Qt 2.x
+\i To run programs you will need the shared libraries of Qt 2.x
 and Qt 1.4x. They are included in the regular packages
 of Qt 2.x (\c qt2 or the like) and Qt 1.4x (\c qt1
 or the like).
 
-</ul>Just install those 3 packages. You may need to set the
+\endlist
+
+Just install those 3 packages. You may need to set the
 environment variable \c QTDIR.
 
 <dt><b>Developers building for two versions of Qt on Unix
 - Qt sources</b>
 
-<dd>You build and run programs for Qt v1.4x and Qt 2.x. You will need:<ul>
+<dd>You build and run programs for Qt v1.4x and Qt 2.x. You will need:
 
-<li>the \e header \e files, the \e moc and the \e libraries of Qt 2.x
+\list
+
+\i the \e header \e files, the \e moc and the \e libraries of Qt 2.x
 and Qt 1.4x to build programs,
 
-<li>the shared libraries of Qt 2.x and Qt 1.4x to run programs (if you
+\i the shared libraries of Qt 2.x and Qt 1.4x to run programs (if you
 use shared linking).
 
-</ul>
+\endlist
 
-Get source distributions of both Qt 1.4x and Qt 2.x. <ol>
+Get source distributions of both Qt 1.4x and Qt 2.x.
 
-<li>Install and build Qt 1.4x and Qt 2.x, usually in \c /opt or
+\list 1
+
+\i Install and build Qt 1.4x and Qt 2.x, usually in \c /opt or
 \c /usr/local. In the case of \c /opt:
 
 \code
@@ -215,7 +221,7 @@ $ configure [options]
 $ make
 \endcode
 
-<li>Make shared libraries available to programs at run time. Either
+\i Make shared libraries available to programs at run time. Either
 add both \c /opt/qt-1.44 and \c /opt/qt-2.0.1 to your environment
 variable \c LD_LIBRARY_PATH or make links to the libraries in a
 standard directory like \c /usr/local/lib:
@@ -226,7 +232,7 @@ ln -s /opt/qt-1.44/lib/libqt.so.1 .
 ln -s /opt/qt-2.1.0/lib/libqt.so.2 .
 \endcode
 
-</ol>
+\endlist
 
 To develop with Qt 1.4x use:
 
@@ -249,7 +255,7 @@ proper libraries.
 
 </dl>
 
-<h2>Using Qt on X11 without a window manager</h2>
+\section1 Using Qt on X11 without a window manager
 
 When using Qt without a window manager on Unix/X11, you will very
 likely experience focus problems. Without a window manager, there is
@@ -268,63 +274,66 @@ manager running, this is guaranteed to happen. For the curious reader:
 setActiveWindow() emulates a window manager by explicitly setting the
 X Input Focus to a widget's top level window.
 
-<h2>Other common problems</h2>
+\section1 Other common problems
 
 Other common problems are covered by the online
-<a href="http://www.trolltech.com/faq/tech.html">Technical FAQ</a>.
+\link http://www.trolltech.com/faq/tech.html Technical FAQ\endlink.
 
 */
 
 /*! \page bughowto.html
-\title How-To Report A Bug
+\title How to Report A Bug
 
-<p>If you think you have found a bug in Qt, we would like to hear
+If you think you have found a bug in Qt, we would like to hear
 about it so we can fix it.
 
-<p>Before reporting a bug, please check the
-<a class="r" href="http://www.trolltech.com/faq/">FAQs</a> and
-<a class="r" href="http://www.trolltech.com/platforms/">Platform Notes</a>
+Before reporting a bug, please check the
+\link http://www.trolltech.com/faq/ FAQs\endlink and
+\link http://www.trolltech.com/platforms/ Platform Notes\endlink
 on our web site to see if the issue is already known.
 
-<p>Always include the following information in your bug report:
-<nl>
-<li>The name and version number of your compiler
-<li>The name and version number of your operating system
-<li>The version of Qt you are using, and what configure options it was
-compiled with.
-</nl>
+Always include the following information in your bug report:
 
-<p>If the problem you are reporting is only visible run-time, try to
+\list 1
+\i The name and version number of your compiler
+\i The name and version number of your operating system
+\i The version of Qt you are using, and what configure options it was
+compiled with.
+\endlist
+
+If the problem you are reporting is only visible run-time, try to
 create a small test program that shows the problem when run.  Often,
 such a program can be made by simply doing some minor changes to one
 of the many example programs in the <tt>qt/examples</tt> directory.
 
-<p>Please send the bug report to
-<a href="mailto:qt-bugs@trolltech.com">qt-bugs@trolltech.com</a>.
+Please send the bug report to
+\link mailto:qt-bugs@trolltech.com qt-bugs@trolltech.com\endlink.
 */
 
 /*! \page buyhowto.html
-\title How-To Buy Qt
+\title How to Buy Qt
 
 You can order the Qt Enterprise Edition and Qt Professional Edition
 by printing out the
-<a class="r" href="http://www.trolltech.com/purchase/orderform.html">order
-form</a> and faxing it to <strong><nobr>+47 21 60 48 01</nobr></strong>. For
+\link http://www.trolltech.com/purchase/orderform.html order
+form\endlink and faxing it to <strong><nobr>+47 21 60 48 01</nobr></strong>. For
 prices, please see the
-<a class="r" href="http://www.trolltech.com/pricing.html">Pricing and
-Availability page.</a><p>
+\link http://www.trolltech.com/pricing.html Pricing and
+Availability page.\endlink
 
 We accept payment by:
-<ul>
-<li>Credit card (VISA, American Express, Mastercard, JCB)
-<li>Cheque (US or international)
-<li>SWIFT international bank transfer (see details on the
-<a href="http://www.trolltech.com/purchase/orderform.html">order form</a>)
-</ul>
-<p><small>(Due to restrictions imposed by the credit card companies,
+
+\list
+\i Credit card (VISA, American Express, Mastercard, JCB)
+\i Cheque (US or international)
+\i SWIFT international bank transfer (see details on the
+\link http://www.trolltech.com/purchase/orderform.html order form\endlink)
+\endlist
+
+<small>(Due to restrictions imposed by the credit card companies,
 we cannot accept credit card orders via the web or e-mail; we must
 receive the signed order form.)</small>
-<p>
+
 Cheques and order forms can also be sent by ordinary mail to:
 <strong>
 <blockquote>
@@ -334,13 +343,11 @@ N-0175 Oslo<br>
 NORWAY<br>
 </blockquote>
 </strong>
-<p>For questions regarding purchase and pricing, please contact us at
-<a href="mailto:sales@trolltech.com">sales@trolltech.com</a> or phone
-<nobr><b>+47 21 60 48 00</b></nobr>
+
+For questions regarding purchase and pricing, please contact us at
+\link mailto:sales@trolltech.com sales@trolltech.com\endlink or phone
+<nobr><b>+47 21 60 48 00</b></nobr>.
 */
-
-
-
 
 
 
@@ -348,38 +355,36 @@ NORWAY<br>
 
 \title Qt Free Edition License Agreement
 
-<p>The Qt Free Edition is distributed under the Q Public License (QPL).
+The Qt Free Edition is distributed under the Q Public License (QPL).
 It allows free use of Qt Free Edition for running software developed by
 others, and free use of Qt Free Edition for development of free/Open Source
-software. There is <a href="http://www.trolltech.com/qpl/">more information
-about the QPL</a> at the Trolltech web site.
+software. There is \link http://www.trolltech.com/qpl/ more information
+about the QPL\endlink at the Trolltech web site.
 
-<p>Note that the Qt/Embedded Free Edition is <b>not</b> distributed
-under the QPL, but under the <a href="gpl.html">GNU General Public
-License (GPL)</a>.
+Note that the Qt/Embedded Free Edition is <b>not</b> distributed
+under the QPL, but under the \link gpl.html GNU General Public
+License (GPL)\endlink.
 
-<p>For development non-free/proprietary software, the Qt Professional
+For development non-free/proprietary software, the Qt Professional
 Edition is available. It has a normal commercial library license, with
 none of the special restrictions of the QPL or the GPL.
 
 <hr>
 
 <center>
-<h1>
+<h2>
 THE Q PUBLIC LICENSE
 version 1.0
-</h1>
+</h2>
 <b>
 Copyright (C) 1999-2000 Trolltech AS, Norway.<br>
 Everyone is permitted to copy and distribute this license document.
 </b>
 </center>
 
-<p>
 The intent of this license is to establish freedom to share and change the
 software regulated by this license under the open source model.
 
-<p>
 This license applies to any software containing a notice placed by the
 copyright holder saying that it may be distributed under the terms of
 the Q Public License version 1.0.  Such software is herein referred to as
@@ -388,33 +393,29 @@ Software, use of third-party application programs based on the Software,
 and development of free software which uses the Software.
 
 
-<h2 align=center>
+<h3 align=center>
 				 Granted Rights
-</h2>
+</h3>
 
-<p>
 1. You are granted the non-exclusive rights set forth in this license
    provided you agree to and comply with any and all conditions in this
    license.  Whole or partial distribution of the Software, or software
    items that link with the Software, in any form signifies acceptance of
    this license.
 
-<p>
 2. You may copy and distribute the Software in unmodified form provided
    that the entire package, including - but not restricted to - copyright,
    trademark notices and disclaimers, as released by the initial developer
    of the Software, is distributed.
 
-<p>
 3. You may make modifications to the Software and distribute your
    modifications, in a form that is separate from the Software, such as
    patches. The following restrictions apply to modifications:
 
 <blockquote>
-<p>
      a. Modifications must not alter or remove any copyright notices in
         the Software.
-<p>
+
      b. When modifications to the Software are released under this
         license, a non-exclusive royalty-free right is granted to the
         initial developer of the Software to distribute your modification
@@ -423,67 +424,57 @@ and development of free software which uses the Software.
         the initial developer.
 </blockquote>
 
-<p>
 4. You may distribute machine-executable forms of the Software or
    machine-executable forms of modified versions of the Software, provided
    that you meet these restrictions:
-<blockquote>
-<p>
 
+<blockquote>
      a. You must include this license document in the distribution.
 
-<p>
      b. You must ensure that all recipients of the machine-executable forms
         are also able to receive the complete machine-readable source code
         to the distributed Software, including all modifications, without
         any charge beyond the costs of data transfer, and place prominent
         notices in the distribution explaining this.
 
-<p>
      c. You must ensure that all modifications included in the
         machine-executable forms are available under the terms of this
         license.
 
 </blockquote>
 
-<p>
 5. You may use the original or modified versions of the Software to
    compile, link and run application programs legally developed by you
    or by others.
 
-<p>
 6. You may develop application programs, reusable components and other
    software items that link with the original or modified versions of the
    Software.  These items, when distributed, are subject to the following
    requirements:
 
 <blockquote>
-<p>
      a. You must ensure that all recipients of machine-executable forms of
         these items are also able to receive and use the complete
         machine-readable source code to the items without any charge
         beyond the costs of data transfer.
 
-<p>
      b. You must explicitly license all recipients of your items to use
         and re-distribute original and modified versions of the items in
         both machine-executable and source code forms. The recipients must
         be able to do so without any charges whatsoever, and they must be
         able to re-distribute to anyone they choose.
 
-<p>
      c. If the items are not available to the general public, and the
         initial developer of the Software requests a copy of the items,
         then you must supply one.
-
 </blockquote>
 
 
-<h2 align=center>
+<h3 align=center>
 			    Limitations of Liability
-</h2>
+</h3>
 
-<p>In no event shall the initial developers or copyright holders be liable
+In no event shall the initial developers or copyright holders be liable
 for any damages whatsoever, including - but not restricted to - lost
 revenue or profits or other direct, indirect, special, incidental or
 consequential damages, even if they have been advised of the possibility
@@ -491,19 +482,18 @@ of such damages, except to the extent invariable law, if any, provides
 otherwise.
 
 
-<h2 align=center>
+<h3 align=center>
 			          No Warranty
-</h2>
+</h3>
 
-<p>The Software and this license document are provided AS IS with NO WARRANTY
+The Software and this license document are provided AS IS with NO WARRANTY
 OF ANY KIND, INCLUDING THE WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS
 FOR A PARTICULAR PURPOSE.
 
-<h2 align=center>
+<h3 align=center>
                                  Choice of Law
-</h2>
+</h3>
 
-<p>
 This license is governed by the Laws of Norway. Disputes shall be settled
 by Oslo City Court.
 
@@ -517,9 +507,9 @@ by Oslo City Court.
 
  The Qt Free Edition and the Qt/Embedded Free Edition are available
  under the GPL. The Qt Free Edition (for Unix/X11) is also available
- under the <a href="license.html">QPL</a>.
+ under the \link license.html QPL\endlink.
 
-<pre>
+\code
  You may use, distribute and copy the Qt GUI Toolkit under the terms of
  GNU General Public License version 2, which is displayed below.
 
@@ -862,7 +852,7 @@ proprietary programs.  If your program is a subroutine library, you may
 consider it more useful to permit linking proprietary applications with the
 library.  If this is what you want to do, use the GNU Library General
 Public License instead of this License.
-</pre>
+\endcode
 */
 
 
@@ -871,50 +861,76 @@ Public License instead of this License.
 
 \title Company Information
 
-<p>Trolltech AS is a computer software company. We provide software development tools and libraries, as well as expert consultancy services.</p>
-<p>Our flagship product is <a href="http://www.trolltech.com/products/qt.html">Qt</a>, the multi-platform, C++ Graphical User Interfaces toolkit. Qt enables you to build professional, efficient, portable and maintainable GUI applications quickly and easily.</p>
-<h2>Software that makes Sense</h2>
-<p>Our motto expresses the vision behind our products. We design our products to give our customers the feeling of &quot;this is the way that things were always meant to be&quot;.</p>
-<p>We know that it is crucial for our customers to have good tools for making good software. Therefore, we do not compromise our demands for superior design and technical quality when we develop our products.</p>
-<p>Trolltech is also known for providing top quality technical support to our customers. At Trolltech, support inquiries are handled by the most qualified developers and designers themselves.</p>
-<h2>History</h2>
-<p>Trolltech was founded in 1994. The core team of designers at Trolltech started developing Qt in 1992, and since then Qt has steadily expanded and improved. The first commercial version of Qt was in 1995. Since then, Trolltech has experienced rapid growth, and Qt is currently used in hundreds of successful software development projects world wide.</p>
-<p>
+Trolltech AS is a computer software company. We provide software
+development tools and libraries, as well as expert consultancy
+services.
 
-<h2>Contact Information</h2><br clear="all">
+Our flagship product is
+\link http://www.trolltech.com/products/qt.html Qt\endlink, the
+multi-platform, C++ Graphical User Interfaces toolkit. Qt enables you
+to build professional, efficient, portable and maintainable GUI
+applications quickly and easily.
+
+\section1 Software that makes Sense
+
+Our motto expresses the vision behind our products. We design our
+products to give our customers the feeling of "this is the way
+that things were always meant to be".
+
+We know that it is crucial for our customers to have good tools for
+making good software. Therefore, we do not compromise our demands for
+superior design and technical quality when we develop our
+products.
+
+Trolltech is also known for providing top quality technical support
+to our customers. At Trolltech, support inquiries are handled by the
+most qualified developers and designers themselves.
+
+\section1 History
+
+Trolltech was founded in 1994. The core team of designers at
+Trolltech started developing Qt in 1992, and since then Qt has
+steadily expanded and improved. The first commercial version of Qt
+was in 1995. Since then, Trolltech has experienced rapid growth, and
+Qt is currently used in hundreds of successful software development
+projects world wide.
+
+\section1 Contact Information
+
+<br clear="all">
 
 <table cellpadding=3 cellspacing=0 border="0" width=100% bgcolor=#E5E5E5>
 <tr><th colspan=6 valign=top bgcolor=#A2C511>Email</th></tr>
 <tr>
 <td width=3% rowspan=4><br></td>
-<td colspan=2><a href="mailto:info@trolltech.com"><strong>info@trolltech.com</strong></a>
+<td colspan=2>\link mailto:info@trolltech.com <strong>info@trolltech.com</strong>\endlink
 
-<td colspan=2><a href="mailto:sales@trolltech.com"><strong>sales@trolltech.com</strong></a>
+<td colspan=2>\link mailto:sales@trolltech.com <strong>sales@trolltech.com</strong>\endlink
 <td width=3% rowspan=4><br></td>
 <tr>
 <td width=3%><br></td>
 <td width="44%" valign="top"> General inquiries and questions. Please check the
-<a href="http://www.trolltech.com/faq/">FAQ</a> to see if your question is already answered there!</td>
+\link http://www.trolltech.com/faq/ FAQ\endlink to see if your question is already answered there.</td>
 <td width=3%><br></td>
 <td width="44%" valign="top"> Inquires related to purchasing, pricing and availability of Troll
 Tech products</td></tr>
 <tr>
-<td colspan=2><a href="mailto:www@trolltech.com"><strong>www@trolltech.com</strong></a>
-<td colspan=2><a href="mailto:qt-bugs@trolltech.com"><strong>qt-bugs@trolltech.com</strong></a>
+<td colspan=2>\link mailto:www@trolltech.com <strong>www@trolltech.com</strong>\endlink
+<td colspan=2>\link mailto:qt-bugs@trolltech.com <strong>qt-bugs@trolltech.com</strong>\endlink
 <tr>
 <td width=3%><br></td>
 <td valign="top"> Comments about our web pages</td>
 <td width=3%><br></td>
-<td valign="top"> For bug reports. Please check the <a href="http://www.trolltech.com/platforms">Platform Notes</a> and
-<a href="http://www.trolltech.com/faq/">FAQ</a> to
-see if the issue is already solved!
+<td valign="top"> For bug reports. Please check the \link http://www.trolltech.com/platforms Platform Notes\endlink and
+\link http://www.trolltech.com/faq/ FAQ\endlink to
+see if the issue is already solved.
 </td></tr>
 <tr><td width=3%><br></td>
 <td colspan=4 valign=top>Note that Trolltech uses the
-<a href="http://maps.vix.com/rbl/">RBL</a> and
-<a href="http://mail-abuse.org/rss/">RSS</a> databases to cut down on
+\link http://maps.vix.com/rbl/ RBL\endlink and
+\link http://mail-abuse.org/rss/ RSS\endlink databases to cut down on
 spam. If your mail server is listed, you will regrettably not be able to
-send us mail. The <a href="http://www.mail-abuse.org/tsi/">MAPS TSI</a>
+send us mail. The \link http://www.mail-abuse.org/tsi/ MAPS TSI\endlink
 pages provide information about how to secure your server.
 </td><td width=3%><br></td></tr>
 <tr bgcolor="#ffffff"><td bgcolor="#ffffff" cellspan="6"> <br> </td></tr>
@@ -963,15 +979,15 @@ pages provide information about how to secure your server.
 \title Mailing Lists
 
 Trolltech operates two mailing lists for Qt users:
-<code>qt-announce</code> and <code>qt-interest</code>.
+\c qt-announce and \c qt-interest.
 
-<h2>qt-announce</h2>
+\section1 qt-announce
 
 The subscribers to this mailing list receives all official Trolltech
 announcements when new versions of Qt and other Trolltech products
 are released, and other Trolltech announcements of general interest.
 
-To subscribe to the <code>qt-announce</code> mailing list, simply press
+To subscribe to the \c qt-announce mailing list, simply press
 the button below.
 
 <center>
@@ -980,43 +996,48 @@ the button below.
 <input type=submit value="Subscribe to Qt Announcement Mailing List"></form>
 </center>
 
-<p>You can also subscribe by sending an email containing just the word
-<tt>subscribe</tt> or <tt>subscribe <em>your@email.address</em></tt> to <a
-href="mailto:qt-announce-request@trolltech.com">qt-announce-request@trolltech.com</a>
+You can also subscribe by sending an email containing just the word
+<tt>subscribe</tt> or <tt>subscribe <em>your@email.address</em></tt> to
+\link mailto:qt-announce-request@trolltech.com
+qt-announce-request@trolltech.com\endlink.
 
-<p>To unsubscribe yourself from the <code>qt-announce</code> mailing
+To unsubscribe yourself from the \c qt-announce mailing
 list, similarly send an email containing just the word
 <tt>unsubscribe</tt> or
-<tt>unsubscribe <em>your@email.address</em></tt> to <a
-href="mailto:qt-announce-request@trolltech.com">qt-announce-request@trolltech.com</a>
+<tt>unsubscribe <em>your@email.address</em></tt> to
+\link mailto:qt-announce-request@trolltech.com
+qt-announce-request@trolltech.com\endlink.
 
 
-<h2>qt-interest</h2>
+\section1 qt-interest
 
 This mailing list is a discussion forum for Qt users. Typical traffic
-is 5-10 messages per day.
+is 10 to 20 messages per day.
 
 An archive of the messages from qt-interest is available on the Troll
-Tech web site: <a class="r" href="http://www.trolltech.com/qt-interest/">Qt
-Mailing List Archive</a>.
+Tech web site: \link http://www.trolltech.com/qt-interest/ Qt
+Mailing List Archive\endlink.
 
-To subscribe to the <code>qt-interest</code> mailing list, send an
+To subscribe to the \c qt-interest mailing list, send an
 email containing just the word <tt>subscribe</tt> or <tt>subscribe
- <em>your@email.address</em></tt> to <a
-href="mailto:qt-interest-request@trolltech.com">qt-interest-request@trolltech.com</a>
+ <em>your@email.address</em></tt> to \link
+mailto:qt-interest-request@trolltech.com
+qt-interest-request@trolltech.com\endlink.
 
-To unsubscribe yourself from the <code>qt-interest</code> mailing
+To unsubscribe yourself from the \c qt-interest mailing
 list, similarly send an email containing just the word
 <tt>unsubscribe</tt> or
-<tt>unsubscribe <em>your@email.address</em></tt> to <a
-href="mailto:qt-interest-request@trolltech.com">qt-interest-request@trolltech.com</a>
+<tt>unsubscribe <em>your@email.address</em></tt> to
+\link mailto:qt-interest-request@trolltech.com
+qt-interest-request@trolltech.com\endlink.
 
-<h2>snapshot-users</h2>
+\section1 snapshot-users
 
 There is a special mailing list, <tt>snapshot-users@trolltech.com</tt>, for
 discussion of Qt snapshot-related issues. To subscribe, send a message
-containing just the word "subscribe" (without the quotes) to <a
-href="mailto:snapshot-users-request@trolltech.com">snapshot-users-request@trolltech.com</a>. We
+containing just the word "subscribe" (without the quotes) to
+\link mailto:snapshot-users-request@trolltech.com
+snapshot-users-request@trolltech.com\endlink. We
 encourage you to use this mailing list in stead of
 <tt>qt-interest</tt> for snapshot-specific issues.
 
@@ -1108,83 +1129,84 @@ Amen!
 
 \title Books about GUI
 
-<p>This is not a comprehensive list of books, there are many other
+This is not a comprehensive list of books, there are many other
 books worth buying.  This is just a few GUI/UI books that don't gather
 dust in our shelves.
 
-<p><b>Programming with Qt</b> by Kalle Dalheimer, ISBN 1-56592-588-2
+<b>Programming with Qt</b> by Kalle Dalheimer, ISBN 1-56592-588-2
 is a simple introduction to programming with Qt.  For those wanting
 something more than our short tutorial, this is it.
-<a href="http://www.amazon.com/exec/obidos/ASIN/1565925882/trolltech/t">
-(Read more or buy it.)</a>
+\link http://www.amazon.com/exec/obidos/ASIN/1565925882/trolltech/t 
+(Read more or buy it.)\endlink
 
-<p><b>The Design of Everyday Things</b> by Donald Norman,
+<b>The Design of Everyday Things</b> by Donald Norman,
 ISBN 0-38526774-6, is one of the classics of human interface design.
 Norman shows how badly something as simple as a kitchen stove can be
 designed, and everyone should read it who will design a dialog box,
 write an error message, or design just about anything else humans are
 supposed to use.
-<a href="http://www.amazon.com/exec/obidos/ASIN/0385267746/trolltech/t">
-(Read more or buy it.)</a>
+\link http://www.amazon.com/exec/obidos/ASIN/0385267746/trolltech/t 
+(Read more or buy it.)\endlink
 
-<p><a name="fowler"></a><b>GUI Design Handbook</b> by Susan Fowler,
-ISBN 0-07-059274-8, is an alphabetical dictionary of widgets and other
-user interface elements, with comprehensive coverage of each.  Each
-chapter covers one widget or other element, contains the most
-important recommendation from the Macintosh, Windows and Motif style
-guides, notes about common problems, comparison with other widgets
-that can serve some of the same roles as this one, etc.
+\target fowler
+<b>GUI Design Handbook</b> by Susan Fowler, ISBN 0-07-059274-8, is an
+alphabetical dictionary of widgets and other user interface elements,
+with comprehensive coverage of each.  Each chapter covers one widget
+or other element, contains the most important recommendation from the
+Macintosh, Windows and Motif style guides, notes about common
+problems, comparison with other widgets that can serve some of the
+same roles as this one, etc.
 
-<p>There is an <a href="http://fast-consulting.com/chkbox.htm">example
-chapter</a> on the author's web site.
-<a href="http://www.amazon.com/exec/obidos/ASIN/0070592748/trolltech/t">
-(Read more or buy it.)</a>
+There is an \link http://fast-consulting.com/chkbox.htm example
+chapter\endlink on the author's web site.
+\link http://www.amazon.com/exec/obidos/ASIN/0070592748/trolltech/t 
+(Read more or buy it.)\endlink
 
-<p><b>Macintosh Human Interface Guidelines</b>, second edition, ISBN
-0-201-62216-5, is worth buying for the <em>don't</em>s alone.  Even
+<b>Macintosh Human Interface Guidelines</b>, second edition, ISBN
+0-201-62216-5, is worth buying for the \e {don't}s alone.  Even
 though you're not writing Macintosh software, avoiding most of what it
 advises against will produce more easily comprehensible software.
-Doing what it tells you to <em>do</em> helps, too.
-<a href="http://www.amazon.com/exec/obidos/ASIN/0201622165/trolltech/t">
-(Read more or buy it.)</a>
+Doing what it tells you to \e do helps, too.
+\link http://www.amazon.com/exec/obidos/ASIN/0201622165/trolltech/t 
+(Read more or buy it.)\endlink
 
 This book is now available
-<a href="http://developer.apple.com/techpubs/mac/HIGuidelines/HIGuidelines-2.html">
-on the web</a> and there is a
-<a href="http://developer.apple.com/techpubs/mac/HIGOS8Guide/thig-2.html">Mac
-OS 8 addendum.</a>
+\link http://developer.apple.com/techpubs/mac/HIGuidelines/HIGuidelines-2.html 
+on the web\endlink and there is a
+\link http://developer.apple.com/techpubs/mac/HIGOS8Guide/thig-2.html Mac
+OS 8 addendum.\endlink
 
-<p><b>The Microsoft Windows User Experience</b>, ISBN 1-55615-679-0,
+<b>The Microsoft Windows User Experience</b>, ISBN 1-55615-679-0,
 is Microsoft's look and feel Bible.  Indispensable for everyone who
 has customers that worship Microsoft, and it's quite good, too.
-<a href="http://www.amazon.com/exec/obidos/ASIN/0735605661/trolltech/t">
-(Read more or buy it.)</a>
+\link http://www.amazon.com/exec/obidos/ASIN/0735605661/trolltech/t 
+(Read more or buy it.)\endlink
 
-<p>Microsoft's guidelines are often available on the web, but have
+Microsoft's guidelines are often available on the web, but have
 occasionally been hidden in an impenetrable maze of javascript.
-<a href="http://msdn.microsoft.com/developer/userexperience/">Try and see.</a>
+\link http://msdn.microsoft.com/developer/userexperience/ Try and see.\endlink
 
-<p><b>The Icon Book</b> by William Horton, ISBN 0-471-59900-X, is a
+<b>The Icon Book</b> by William Horton, ISBN 0-471-59900-X, is a
 perhaps the only thorough coverage of icons and icon use in software.
 In order for icons to be successful, people must be able to do four
 things with them: decode, recognize, find and activate them.  This
 book explains these goals from scratch and how to reach them, both
 with single icons and icon families.  Some 500 examples are scattered
 throughout the text, generally in groups of four or five.
-<a href="http://www.amazon.com/exec/obidos/ASIN/047159900X/trolltech/t">
-(Read more or buy it.)</a>
+\link http://www.amazon.com/exec/obidos/ASIN/047159900X/trolltech/t 
+(Read more or buy it.)\endlink
 
-<h2><nobr>Buying these books from</nobr>
-<a href="http://www.amazon.com/text/">Amazon.com.</a></h2>
+\section1 <nobr>Buying these books from</nobr>
+\link http://www.amazon.com/text/ Amazon.com.\endlink
 
-<p>These books are made available in association with Amazon.com, our
+These books are made available in association with Amazon.com, our
 favorite on-line bookstore.  Here is more information about
-<a href="http://www.amazon.com/exec/obidos/subst/help/shipping-policy.html/t">
-Amazon.com's shipping options</a> and its
-<a href="http://www.amazon.com/exec/obidos/subst/help/desk.html/t">
-customer service.</a> When you buy a book by following one of these
+\link http://www.amazon.com/exec/obidos/subst/help/shipping-policy.html/t 
+Amazon.com's shipping options\endlink and its
+\link http://www.amazon.com/exec/obidos/subst/help/desk.html/t 
+customer service.\endlink When you buy a book by following one of these
 links, Amazon.com gives about 15% of the purchase price to
-<a href="http://www.amnesty.org">Amnesty International.</a>
+\link http://www.amnesty.org Amnesty International.\endlink
 
 */
 
@@ -1194,8 +1216,8 @@ links, Amazon.com gives about 15% of the purchase price to
 
 \heading The Twelve Networking Truths
 
-This is <a href="http://info.internet.isi.edu/1/in-notes/rfc">RFC
-1925</a> - copied in here since its truths are less limited than
+This is \link http://info.internet.isi.edu/1/in-notes/rfc RFC
+1925\endlink - copied in here since its truths are less limited than
 the author says.  5, 6, 6a and 7 in particular can often be quoted
 during software development discussions.
 
@@ -1213,20 +1235,20 @@ IOOF<br>
 </td>
 </tr></table>
 
-<h3>Status of this Memo</h3>
+\section1 Status of this Memo
 
    This memo provides information for the Internet community.  This memo
    does not specify an Internet standard of any kind.  Distribution of
    this memo is unlimited.
 
-<h3>Abstract</h3>
+\section1 Abstract
 
    This memo documents the fundamental truths of networking for the
    Internet community. This memo does not specify a standard, except in
    the sense that all standards must implicitly follow the fundamental
    truths.
 
-<h3>Acknowledgements</h3>
+\section1 Acknowledgements
 
    The truths described in this memo result from extensive study over an
    extended period of time by many people, some of whom did not intend
@@ -1234,84 +1256,84 @@ IOOF<br>
    truths, and would like to thank the networking community for
    originally illuminating these truths.
 
-<h3>1. Introduction</h3>
+\section1 1. Introduction
 
    This Request for Comments (RFC) provides information about the
    fundamental truths underlying all networking. These truths apply to
    networking in general, and are not limited to TCP/IP, the Internet,
    or any other subset of the networking community.
 
-<h3>2. The Fundamental Truths</h3>
+\section1 2. The Fundamental Truths
 
-   <ol>
-   <li> It Has To Work.
+   \list 1
+   \i   It Has To Work.
 
-   <li> No matter how hard you push and no matter what the priority,
+   \i   No matter how hard you push and no matter what the priority,
         you can't increase the speed of light.
 
-	<ol type="a"> <li> (corollary). No matter how hard you try, you
+	\list a \i (corollary). No matter how hard you try, you
 	can't make a baby in much less than 9 months. Trying to speed
-	this up <em>might</em> make it slower, but it won't make it
-	happen any quicker. </ol>
+	this up \e might make it slower, but it won't make it
+	happen any quicker. \endlist
 
-   <li> With sufficient thrust, pigs fly just fine. However, this is
+   \i   With sufficient thrust, pigs fly just fine. However, this is
         not necessarily a good idea. It is hard to be sure where they
         are going to land, and it could be dangerous sitting under them
         as they fly overhead.
 
-   <li> Some things in life can never be fully appreciated nor
+   \i   Some things in life can never be fully appreciated nor
         understood unless experienced firsthand. Some things in
         networking can never be fully understood by someone who neither
         builds commercial networking equipment nor runs an operational
         network.
 
-   <li> It is always possible to agglutinate multiple separate problems
+   \i   It is always possible to agglutinate multiple separate problems
         into a single complex interdependent solution. In most cases
         this is a bad idea.
 
-   <li> It is easier to move a problem around (for example, by moving
+   \i   It is easier to move a problem around (for example, by moving
         the problem to a different part of the overall network
         architecture) than it is to solve it.
 
-        <ol type="a"> <li> (corollary). It is always possible to add
-        another level of indirection. </ol>
+        \list a \i (corollary). It is always possible to add
+        another level of indirection. \endlist
 
-   <li> It is always something.
+   \i   It is always something.
 
-        <ol type="a"> <li> (corollary). Good, Fast, Cheap: Pick any two
-        (you can't have all three). </ol>
+        \list a \i (corollary). Good, Fast, Cheap: Pick any two
+        (you can't have all three).
 
-   <li> It is more complicated than you think.
+   \i   It is more complicated than you think.
 
-   <li> For all resources, whatever it is, you need more.
+   \i   For all resources, whatever it is, you need more.
 
-       <ol type="a"> <li> (corollary) Every networking problem always
-       takes longer to solve than it seems like it should.</ol>
+       \list a \i (corollary) Every networking problem always
+       takes longer to solve than it seems like it should. \endlist
 
-   <li> One size never fits all.
+   \i   One size never fits all.
 
-   <li> Every old idea will be proposed again with a different name and
+   \i   Every old idea will be proposed again with a different name and
         a different presentation, regardless of whether it works.
 
-        <ol type="a"> <li> (corollary). See rule 6a. </ol>
+        \list a \i (corollary). See rule 6a.
 
-   <li> In protocol design, perfection has been reached not when there
+   \i   In protocol design, perfection has been reached not when there
         is nothing left to add, but when there is nothing left to take
         away.
 
-   </ol>
+   \endlist
 
-<h3>Security Considerations</h3>
+\section1 Security Considerations
 
    This RFC raises no security issues. However, security protocols are
    subject to the fundamental networking truths.
 
-<h3>References</h3>
+\section1 References
 
    The references have been deleted in order to protect the guilty and
    avoid enriching the lawyers.
 
-<h3>Author's Address</h3>
+\section1 Author's Address
 
    Ross Callon<br>
    Internet Order of Old Farts<br>
@@ -1334,13 +1356,12 @@ below just covers this HTML page.)
 /*! \page licenses.html
 \title Licenses for Code Used in Qt
 
-Qt contains a little code that is not under the
-\link license.html QPL\endlink,
-the <a href=gpl.html>GPL</a>,
-or the Qt Commercial License Agreement, but rather
-under specific highly permissive license from the original authors.
-This page lists the licenses used for that code, names the authors,
-and links to the points where it is used.
+Qt contains a little code that is not under the \link license.html
+QPL\endlink, the \link gpl.html GPL\endlink, or the Qt Commercial
+License Agreement, but rather under specific highly permissive
+license from the original authors. This page lists the licenses used
+for that code, names the authors, and links to the points where it is
+used.
 
 Trolltech gratefully acknowledges these and others contribution to
 Qt.  We recommend that all programs that use Qt also acknowledge these
@@ -1355,7 +1376,7 @@ to the documentation.
 /*! \page geometry.html
 \title Window Geometry
 
-<h2> Overview</h2>
+\section1 Overview
 
 QWidget provides several functions that deal with a widget's
 geometry.  Some of these functions operate on the pure client area
@@ -1377,7 +1398,7 @@ widget's client geometry.
 This image shows most of the functions in use:
 <center><img src="geometry.png" alt="Illustrating image"></center>
 
-<h2> Unix/X11 peculiarities </h2>
+\section1 Unix/X11 peculiarities
 
 On Unix/X11, a window does not have a frame until the window manager
 decorates it. This happens asynchronously at some point in time after
@@ -1407,7 +1428,7 @@ feature. Its result depends totally on the result of frameGeometry()
 and the capability of the window manager to do proper window
 placement, both of which cannot be guaranteed.
 
-<h2>Restoring a Window's Geometry</h2>
+\section1 Restoring a Window's Geometry
 
 A common task in modern applications is to restore a window's geometry
 in a later session. On Windows, this is basically storing the result
@@ -1420,24 +1441,24 @@ theoretically provides a way to avoid this shift. Our tests have
 shown, though, that almost all window managers fail to implement this
 feature.
 
- A workaround is to call setGeometry() after show(). This has the
- two disadvantages that the widget appears at a wrong place for a
- millisecond (results in flashing) and that currently only every
- second window manager gets it right. A safer solution is to store
- both pos() and size() and to restore the geometry using resize() and
- move() before calling show(), as demonstrated in the following
- example:
+A workaround is to call setGeometry() after show(). This has the
+two disadvantages that the widget appears at a wrong place for a
+millisecond (results in flashing) and that currently only every
+second window manager gets it right. A safer solution is to store
+both pos() and size() and to restore the geometry using resize() and
+move() before calling show(), as demonstrated in the following
+example:
 
 \code
-	MyWidget* widget = new MyWidget
-	...
-	QPoint p = widget->pos();	// store position
-	QSize s = widget->size();	// store size
-	...
-	widget = new MyWidget;
-	widget->resize( s ); 	// restore size
-	widget->move( p ); 	// restore position
-	widget->show();		// show widget
+    MyWidget* widget = new MyWidget
+    ...
+    QPoint p = widget->pos();	// store position
+    QSize s = widget->size();	// store size
+    ...
+    widget = new MyWidget;
+    widget->resize( s ); 	// restore size
+    widget->move( p ); 		// restore position
+    widget->show();		// show widget
 \endcode
 
 This method works on both MS-Windows and most existing X11 window

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#533 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#534 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -112,6 +112,11 @@ extern bool qt_broken_wm;
 extern bool qt_net_supports(Atom);
 extern unsigned long *qt_net_virtual_root_list;
 
+#ifndef QT_NO_XINPUT
+extern XDevice *dev;
+extern XEventClass event_list[7];
+extern int curr_xinput_events;
+#endif
 
 const uint stdWidgetEventMask =			// X event mask
 	(uint)(
@@ -1002,6 +1007,12 @@ void QWidget::setMouseTracking( bool enable )
     } else {
 	XSelectInput( x11Display(), winId(),
 		      m | stdWidgetEventMask );
+#ifndef QT_NO_XINPUT
+	if ( dev != NULL ) {
+	    XSelectExtensionEvent( x11Display(), winId(), event_list,
+				   curr_xinput_events );
+	}
+#endif	
     }
 }
 

@@ -7,6 +7,7 @@
 
 #include <qmap.h>
 #include <qstring.h>
+#include <qvaluelist.h>
 
 #include "location.h"
 #include "stringset.h"
@@ -40,6 +41,33 @@ private:
     bool ininc;
     int ln;
     int uniq;
+};
+
+struct Section
+{
+    QString target;
+    QString title;
+    QValueList<Section> *subs;
+
+    Section() : subs( 0 ) { }
+    Section( const Section& s ) : subs( 0 ) { operator=( s ); }
+    ~Section() { delete subs; }
+
+    Section& operator=( const Section& s ) {
+	target = s.target;
+	title = s.title;
+	if ( subs == 0 )
+	    subs = new QValueList<Section>;
+	*subs = *s.subsections();
+	return *this;
+    }
+
+    QValueList<Section> *subsections() const {
+	if ( subs == 0 )
+	    ((Section *) this)->subs = new QValueList<Section>;
+	return subs;
+    }
+
 };
 
 class DocParser;
@@ -79,7 +107,7 @@ public:
     Doc( Kind kind, const Location& loc, const QString& htmlText,
 	 const QString& name = QString::null,
 	 const QString& whatsThis = QString::null );
-    virtual ~Doc() { }
+    virtual ~Doc() { delete toc; }
 
     void setName( const QString& name ) { nam = name; }
     void setWhatsThis( const QString& whatsThis ) { whats = whatsThis; }
@@ -95,6 +123,10 @@ public:
     void setDependsOn( const StringSet& dependsOn ) { deps = dependsOn; }
     void setHtmlLegalese( const QString& legalese ) { q = legalese; }
     void setLink( const QString& link, const QString& title );
+    void setTOC( QValueList<Section> *t ) {
+	delete toc;
+	toc = t;
+    }
 
     Kind kind() const { return ki; }
     const Location& location() const { return lo; }
@@ -122,6 +154,7 @@ private:
     Doc& operator=( const Doc& com );
 #endif
 
+    QString htmlTableOfContents() const;
     QString finalHtml() const;
 
     Kind ki;
@@ -137,8 +170,10 @@ private:
     StringSet kwords;
     StringSet gr;
     StringSet deps;
-    StringSet incl, thru;
+    StringSet incl;
+    StringSet thru;
     QString lnk;
+    QValueList<Section> *toc;
 
     static const Resolver *res;
     static QRegExp *megaRegExp;

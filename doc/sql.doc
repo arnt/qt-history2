@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: $
+** $Id: //depot/qt/main/doc/sql.doc#1 $
 **
 ** Documentation for sql programming
 **
@@ -70,61 +70,12 @@
  
 \title Qt SQL Module
 
-This module is part of the <a href="editions.html">Qt Enterprise Edition</a>.
+This module is part of the \link editions.html Qt Enterprise Edition \endlink.
 
-<ul>
-<li><a href="#Introduction">Introduction</a></li>
-<li><a href="#Architecture">SQL Module Architecture</a></li>
-<li><a href="#Plugins">SQL Driver Plugins</a></li>
-<li><a href="#Connecting_to_Databases">Connecting to Databases</a></li> 
-    <ul>
-    <li><a href="#Connecting_to_a_Single_Database">
-    Connecting to a Single Database</a></li>
-    <li><a href="#Connecting_to_Multiple_Databases">
-    Connecting to Multiple Databases</a></li>
-    </ul>
-<li><a href="#Executing_SQL_commands">
-Executing SQL Commands Using QSqlQuery</a></li> 
-    <ul>
-    <li><a href="#Transactions">Transactions</a></li>
-    <li><a href="#Basic_Browsing">Basic Browsing</a></li> 
-    <li><a href="#Basic_Data_Manipulation">Basic Data Manipulation</a></li> 
-    <li><a href="#Navigating_Result_Sets">Navigating Result Sets</a></li> 
-    </ul>
-<li><a href="#Using_QSqlCursor">Using QSqlCursor</a></li> 
-    <ul>
-    <li><a href="#Retrieving_Records">Retrieving Records</a></li>
-	<ul>
-	<li><a href="#Sorting_Data">Sorting and Filtering Records</a></li>
-	<li><a href="#Extracting_Data">Extracting Data</a></li>
-	</ul>
-    <li><a href="#Manipulating_Records">Manipulating Records</a></li>
-	<ul>
-	<li><a href="#Inserting_Records">Inserting Records</a></li>
-	<li><a href="#Updating_Records">Updating Records</a></li>
-	<li><a href="#Deleting_Records">Deleting Records</a></li>
-	</ul>
-    </ul>
-<li><a href="#Data-Aware_Widgets">Data-Aware Widgets</a></li>
-    <ul>
-    <li><a href="#Data-Aware_Tables">Data-Aware Tables</a></li>
-    <li><a href="#Creating_Forms">Creating Data-Aware Forms</a></li>
-	<ul>
-	<li><a href="#Displaying_a_Record">Displaying a Record</a></li>
-	<li><a href="#Displaying_a_Record_in_a_DataForm">Displaying a Record in a Data Form</a></li>
-	<li><a href="#Editing_a_Record">Editing a Record</a></li>
-	</ul>
-    <li><a href="#Custom_Editor_Widgets">Custom Editor Widgets</a></li> 
-	<ul>
-	<li><a href="#Custom_Editor_Widgets_for_Tables">
-	Custom Editor Widgets for QTables</a></li>
-	</ul>
-    </ul>
-<li><a href="#Subclassing_QSqlCursor">Subclassing QSqlCursor</a></li> 
-<li><a href="#Appendix_1_Tables">Appendix 1: The Example Tables</a></li> 
-</ul>
+\tableofcontents
 
-<h1><a name="Introduction">Introduction</a></h1>
+\target Introduction
+\section1 Introduction
 
 Qt's SQL classes help you provide seamless database integration to
 your Qt applications.
@@ -135,65 +86,66 @@ You should be able to understand simple \c SELECT, \c INSERT, \c UPDATE
 and \c DELETE commands. Although the \l QSqlCursor class provides an
 interface to database browsing and editing that does not \e require a
 knowledge of SQL, a basic understanding of SQL is highly recommended. A
-standard text covering SQL databases is <em>An Introduction to Database
-Systems (7th ed.)</em> by C. J. Date, ISBN 0201385902.
+standard text covering SQL databases is \e {An Introduction to Database
+Systems (7th ed.)} by C. J. Date, ISBN 0201385902.
 </blockquote>
 
 Whilst this module overview presents the classes from a purely
-programmatic point of view the <em>Qt Designer</em> manual's "Creating
+programmatic point of view the \e {Qt Designer} manual's "Creating
 Database Applications" chapter takes a higher-level approach
 demonstrating how to set up master-detail relationships between widgets,
 perform drilldown and handle foreign key lookups.
 
 This document is divided into six sections:
 
-<a href="#Architecture">SQL Module Architecture</a>. This describes the
+\link #Architecture SQL Module Architecture \endlink. This describes the
 how the classes fit together.
 
-<a href="#Connecting_to_Databases">Connecting to Databases</a>. 
+\link #Connecting_to_Databases Connecting to Databases \endlink. 
 This section explains how to set up database connections using the \l
 QSqlDatabase class.
 
-<a href="#Executing_SQL_commands">Executing SQL Commands</a>. This
+\link #Executing_SQL_commands Executing SQL Commands \endlink. This
 section demonstrates how to issue the standard data manipulation
 commands, \c SELECT, \c INSERT, \c UPDATE and \c DELETE on tables in
 the database (although any valid SQL statement can be sent to the
 database). The focus is purely on database interaction using \l
 QSqlQuery.
 
-<a href="#Using_QSqlCursor">Using Cursors</a>. This section explains
+\link #Using_QSqlCursor Using Cursors \endlink. This section explains
 how to use the QSqlCursor class which provides a more structured and
 powerful API than the raw SQL used with \l QSqlQuery.
 
-<a href="#Data-Aware_Widgets">Data-Aware Widgets</a>. This section shows
+\link #Data-Aware_Widgets Data-Aware Widgets \endlink. This section shows
 how to programmatically link your database to the user interface. In
 this section we introduce the \l QDataTable, \l QSqlForm, \l
 QSqlPropertyMap and QSqlEditorFactory classes and demonstrate how to use
-custom data-aware widgets. <em>Qt Designer</em> provides an easy visual
-way of achieving the same thing.  See the <em>Qt Designer</em> manual,
+custom data-aware widgets. \e {Qt Designer} provides an easy visual
+way of achieving the same thing.  See the \e {Qt Designer} manual,
 \l QDataBrowser and \l QDataView for more information.
 
-<a href="#Subclassing_QSqlCursor">Subclassing QSqlCursor</a>. This
+\link #Subclassing_QSqlCursor Subclassing QSqlCursor \endlink. This
 section gives examples of subclassing QSqlCursor. Subclassing can be
 used to provide default and calculated values for fields (such as
 auto-numbered primary index fields), and to display calculated data,
 e.g. showing names rather than ids of foreign keys. 
 
-<h1><a name="Architecture">SQL Module Architecture</a></h1>
+\target Architecture
+\section1 SQL Module Architecture
 
 The SQL classes are divided into three layers:
 
-<em>User Interface Layer.</em> These classes provide data-aware
+\e {User Interface Layer.} These classes provide data-aware
 widgets that can be connected to tables or views in the database (by
 using a QSqlCursor as a data source). End users can interact directly
-with these widgets to browse or edit data. <em>Qt Designer</em> is
+with these widgets to browse or edit data. \e {Qt Designer} is
 fully integrated with the SQL classes and can be used to create
 data-aware forms. The data-aware widgets can also be programmed
 directly with your own C++ code. The classes that support this layer
 include \l QSqlEditorFactory, \l QSqlForm, \l QSqlPropertyMap, \l
 QDataTable, \l QDataBrowser and \l QDataView.
 
-<em>SQL API Layer.</em> These classes provide access to databases.
+\e {SQL API Layer.} These classes provide access to databases.
 Connections are made using the \l QSqlDatabase class. Database
 interaction is achieved either by using the QSqlQuery class and
 executing SQL commands directly or by using the higher level \l
@@ -202,25 +154,25 @@ addition to \l QSqlDatabase, \l QSqlCursor and \l QSqlQuery, the SQL
 API layer is supported by QSqlError, QSqlField, QSqlIndex and
 QSqlRecord.
 
-<em><a href="sql-driver.html">Driver Layer</a>.</em> This comprises
-three classes, \l QSqlResult, \l QSqlDriver and
-QSqlDriverFactoryInterface. This layer provides the low level bridge
-between the database and the SQL classes. This layer is <a
-href="sql-driver.html">documented separately</a> since it is only
-relevant to driver writers, and is rarely used in standard database
-application programming.  See <a href="sql-driver.html">here</a> for
-more information on implementing a Qt SQL driver plugin.
+\e {Driver Layer.} This comprises three classes, \l QSqlResult, \l
+QSqlDriver and QSqlDriverFactoryInterface. This layer provides the
+low level bridge between the database and the SQL classes. This layer
+is \link sql-driver.html documented separately \endlink since it is
+only relevant to driver writers, and is rarely used in standard
+database application programming.  See \link sql-driver.html here
+\endlink for more information on implementing a Qt SQL driver plugin.
 
-<h1><a name="Plugins">SQL Driver Plugins</a></h1>
+\target Plugins
+\section1 SQL Driver Plugins
 
 The Qt SQL module can dynamically load new drivers at runtime using
-the <a href="component.html">Qt component model</a>.
+the \link component.html Qt component model \endlink.
 
 To compile plugins for a supported database, it may be necessary to
-customize the command line given to <a
-href="qmake.html"><em>qmake</em></a> in order to match the setup on your system.
+customize the command line given to \link qmake.html qmake \endlink
+in order to match the setup on your system.
 
-For example, when building the MySQL plugin on unix:
+For example, when building the MySQL plugin on Unix:
 
 \code
 cd $QTDIR/src/sql/src/mysql
@@ -237,7 +189,7 @@ nmake
 \endcode
 
 The above examples ensures that the proper include and library paths
-are used by <em>qmake</em> when generating the makefile for the MySQL
+are used by \e qmake when generating the makefile for the MySQL
 plugin.  Of course, you will need the proper development headers and
 libraries for MySQL installed before compiling the plugin.
 
@@ -247,7 +199,7 @@ for more information).
 
 Also, see the readme files for the driver you want to compile.  These
 files are located in the source directory for the specific driver,
-i.e. for the MySQL driver on unix:
+i.e. for the MySQL driver on Unix:
 
 \code $QTDIR/src/sql/src/mysql/README \endcode
 
@@ -256,7 +208,8 @@ And on windows:
 \code c:\qt\src\sql\src\mysql\README \endcode
 
 
-<h1><a name="Connecting_to_Databases">Connecting to Databases</a></h1> 
+\target Connecting_to_Databases
+\section1 Connecting to Databases
 
 At least one database connection must be created and opened before the
 \l QSqlQuery or \l QSqlCursor classes can be used.
@@ -268,8 +221,8 @@ these can easily be set up.
 
 \l QSqlDatabase requires the \c qsqldatabase.h header file.
 
-<h2><a name="Connecting_to_a_Single_Database">
-Connecting to a Single Database</a></h2>
+\target Connecting_to_a_Single_Database
+\section1 Connecting to a Single Database
 
 Making a database connection is a simple three step process: activate
 the driver, set up the connection information, and open the
@@ -280,7 +233,7 @@ connection.
 \printline include
 \printuntil return 0
 \printline
-<!-- \caption From \l sql/overview/connect1/main.cpp  -->
+\caption From \l sql/overview/connect1/main.cpp
 
 First we activate the driver by calling \l QSqlDatabase::addDatabase(),
 passing the name of the driver we wish to use for this connection. At
@@ -295,22 +248,22 @@ setHostName() to initialize the connection information.
 
 Third we call open() to open the database and give us access to the
 data. If this call fails it will return FALSE; error information can
-be determined using \l QSqlDatabase::lastError();
+be determined using \l QSqlDatabase::lastError().
 
-<h2><a name="Connecting_to_Multiple_Databases">
-Connecting to Multiple Databases</a></h2>
+\target Connecting_to_Multiple_Databases
+\section2 Connecting to Multiple Databases
 
 Connecting to multiple databases is achieved using the two argument form
 of \l QSqlDatabase::addDatabase() where the second argument is a unique
 identifier distinguishing the connection.
 
-<a name="create_connections"/>
+\target create_connections
 \walkthrough sql/overview/create_connections/main.cpp
 \skipto include
 \printline include
 \printuntil return TRUE 
 \printline
-<!-- \caption From \l sql/overview/create_connections/main.cpp  -->
+\caption From \l sql/overview/create_connections/main.cpp
 
 In the example above we have moved the connections into their own
 function, createConnections(), and added some basic error handling. The
@@ -328,7 +281,8 @@ connections, first close the database with QSqlDatabase::close(), and
 then remove it using the static function
 QSqlDatabase::removeDatabase().
 
-<h1><a name="Executing_SQL_commands">Executing SQL Commands Using QSqlQuery</a></h1> 
+\target Executing_SQL_commands
+\section1 Executing SQL Commands Using QSqlQuery
 
 The \l QSqlQuery class provides an interface for executing SQL commands.
 It also has functions for navigating through the result sets of \c SELECT
@@ -339,9 +293,10 @@ QSqlQuery and provides a higher level interface that composes SQL
 commands for us. \l QSqlCursor is particularly easy to integrate with
 on-screen widgets. Programmers unfamiliar with SQL can safely skip this
 section and use the \l QSqlCursor class covered in 
-<a href="#Using_QSqlCursor">"Using QSqlCursor"</a>.
+\link #Using_QSqlCursor "Using QSqlCursor" \endlink.
 
-<h2><a name="Transactions">Transactions</a></h2>
+\target Transactions
+\section2 Transactions
 
 If the underlying database engine supports transactions
 QSqlDriver::hasTransactionSupport() will return TRUE. You can use
@@ -349,14 +304,15 @@ QSqlDatabase::transaction() to initiate a transaction, followed by the
 SQL commands you want to execute within the context of the transaction,
 and then either QSqlDatabase::commit() or \l{QSqlDatabase::rollback()}.
 
-<h2><a name="Basic_Browsing">Basic Browsing</a></h2> 
+\target Basic_Browsing
+\section2 Basic Browsing
 
 \walkthrough sql/overview/basicbrowsing/main.cpp
 \skipto include
 \printline include
 \printuntil return 0 
 \printline
-<!-- \caption From \l sql/overview/basicbrowsing/main.cpp  -->
+\caption From \l sql/overview/basicbrowsing/main.cpp
 
 In the example above we've added an additional header file, 
 \c qsqlquery.h. The first query we create, \c target, uses the default
@@ -378,29 +334,31 @@ database using the \c target QSqlQuery.
 \printuntil numRows 
 \printline
 \printline
-<!-- \caption From \l sql/overview/basicbrowsing2/main.cpp  -->
+\caption From \l sql/overview/basicbrowsing2/main.cpp
 
 The above code introduces a count of how many records are successfully
 inserted. Note that isActive() returns FALSE if the query, e.g. the
 insertion, fails. numRowsAffected() returns -1 if the number of rows
 cannot be determined, e.g. if the query fails.
 
-<h2><a name="Basic_Data_Manipulation">Basic Data Manipulation</a></h2> 
+\target Basic_Data_Manipulation
+\section2 Basic Data Manipulation
 
 \walkthrough sql/overview/basicdatamanip/main.cpp
 \skipto main
 \printline main
 \printuntil return ( rows 
 \printline
-<!-- \caption From \l sql/overview/basicdatamanip/main.cpp  -->
+\caption From \l sql/overview/basicdatamanip/main.cpp
 
 This example demonstrates straightforward SQL DML (data manipulation
 language) commands. Since we did not specify a database in the \l
 QSqlQuery constructor the default database is used. \l QSqlQuery objects
 can also be used to execute SQL DDL (data definition language) commands
-such as <tt>CREATE TABLE</tt> and <tt>CREATE INDEX</tt>. 
+such as \c CREATE TABLE and \c CREATE INDEX.
 
-<h2><a name="Navigating_Result_Sets">Navigating Result Sets</a></h2> 
+\target Navigating_Result_Sets
+\section2 Navigating Result Sets
 
 Once a \c SELECT query has been executed successfully we have access
 to the result set of records that matched the query criteria. We have
@@ -412,7 +370,7 @@ calling isValid().
 
 We can also navigate to any arbitrary record using seek(). The
 first record in the dataset is zero. The number of the last record is
-<tt>size() - 1</tt>. Note that not all databases provide the size of a
+size() - 1. Note that not all databases provide the size of a
 \c SELECT query and in such cases size() returns -1.
 
 \walkthrough sql/overview/navigating/main.cpp
@@ -420,7 +378,7 @@ first record in the dataset is zero. The number of the last record is
 \printline if (
 \printuntil i == 4 
 \printline
-<!-- \caption From \l sql/overview/navigating/main.cpp  -->
+\caption From \l sql/overview/navigating/main.cpp
 
 The example above shows some of the navigation functions in use. 
 
@@ -449,7 +407,7 @@ retrieve data from it.
 \printline
 \printline
 \printline
-<!-- \caption From \l sql/overview/retrieve1/main.cpp  -->
+\caption From \l sql/overview/retrieve1/main.cpp
 
 Note that if you wish to iterate through the record set in order the
 only navigation function you need is next().
@@ -458,7 +416,8 @@ Tip: The lastQuery() function returns the text of the last query
 executed. This can be useful to check that the query you think is being
 executed is the one actually being executed.
 
-<h1><a name="Using_QSqlCursor">Using QSqlCursor</a></h1> 
+\target Using_QSqlCursor
+\section1 Using QSqlCursor
 
 The \l QSqlCursor class provides a high level interface to browsing and
 editing records in SQL database tables or views without the need to
@@ -490,34 +449,36 @@ the 'navigation buffer' which changes as the cursor moves from record
 to record.
 
 Before we can use \l QSqlCursor objects we must first create and open
-a database connection. Connecting is described in the <a
-href="#Connecting_to_Databases">"Connecting to Databases"</a> section
+a database connection. Connecting is described in the \link
+#Connecting_to_Databases Connecting to Databases \endlink section
 above. For the examples that follow we will assume that the
 connections have been created using the createConnections() function
-defined in the <a href="#create_connections">QSqlDatabase example</a>
+defined in the \link #create_connections QSqlDatabase example \endlink
 presented earlier.
 
-In the <a href="#Data-Aware_Widgets">data-aware widgets</a> section that
+In the \link #Data-Aware_Widgets data-aware widgets \endlink section that
 follows this one we show how to link widgets to database cursors. Once
 we have a knowledge of both cursors and data-aware widgets we can
-discuss <a href="#Subclassing_QSqlCursor">subclassing QSqlCursor</a>.
+discuss \link #Subclassing_QSqlCursor subclassing QSqlCursor \endlink.
 
 The \l QSqlCursor class requires the \c qsqlcursor.h header file.
 
-<h2><a name="Retrieving_Records">Retrieving Records</a></h2>
+\target Retrieving_Records
+\section2 Retrieving Records
 
 \walkthrough sql/overview/retrieve2/main.cpp
 \skipto include
 \printline include
 \printuntil return 0 
 \printline
-<!-- \caption From \l sql/overview/retrieve2/main.cpp  -->
+\caption From \l sql/overview/retrieve2/main.cpp
 
 We create the \l QSqlCursor object, specifying the table or view to use.
 If we need to use a database other than the default we can specify it
 in the QSqlCursor constructor.
 
-The SQL executed by the <tt>cur.select()</tt> call is<br> 
+The SQL executed by the cur.select() call is
+
 \code
     SELECT staff.id, staff.forename, staff.surname, staff.salary, staff.statusid FROM staff;
 \endcode
@@ -527,7 +488,8 @@ using cur.next().  Field values are retrieved in in a similar way to
 QSqlQuery, except that we pass field names rather than numeric indexes
 to value() and setValue().
 
-<h3><a name="Sorting_Data">Sorting and Filtering Records</a></h3>
+\target Sorting_Data
+\section3 Sorting and Filtering Records
 
 To specify a subset of records to retrieve we can pass filtering
 criteria to the select() function.  Each record that is returned will
@@ -590,7 +552,7 @@ QSqlIndex::setDescending(); the default is ascending.
 \skipto QSqlCursor
 \printline QSqlCursor
 \printuntil while 
-<!-- \caption From \l sql/overview/order1/main.cpp  -->
+\caption From \l sql/overview/order1/main.cpp
 
 Here we create a string list containing the fields we wish to sort by,
 in the order they are to be used. Then we create a \l QSqlIndex object
@@ -608,7 +570,7 @@ can create a filter based on an index.
 \skipto QSqlCursor
 \printline QSqlCursor
 \printuntil while 
-<!-- \caption From \l sql/overview/order2/main.cpp  -->
+\caption From \l sql/overview/order2/main.cpp
 
 This executes
 \code
@@ -620,18 +582,19 @@ The "order" \l QSqlIndex contains two fields, "id" and "forename"
 which are used to order the results. The "filter" \l QSqlIndex
 contains a single field, "surname". When an index is passed as a
 filter to the select() function, for each field in the filter, a
-<em>fieldname=value</em> subclause is created where the value
+\e fieldname=value subclause is created where the value
 is taken from the current cursor's value for that field. We use
 setValue() to ensure the value used is the one we want.
 
-<h3><a name="Extracting_Data">Extracting Data</a></h3>
+\target Extracting_Data
+\section3 Extracting Data
 
 \walkthrough sql/overview/extract/main.cpp
 \skipto QSqlCursor
 \printline QSqlCursor
 \printuntil qDebug
 \printline
-<!-- \caption From \l sql/overview/extract/main.cpp  -->
+\caption From \l sql/overview/extract/main.cpp
 
 In this example we begin by creating a cursor on the creditors table. We
 create two \l QSqlIndex objects. The first, "order", is created from the
@@ -654,7 +617,8 @@ Now we iterate through each matching record (if any). We retrieve the
 contents of the id, forename and surname fields and pass them on to some
 processing function, in this example a simple qDebug() call.
 
-<h2><a name="Manipulating_Records">Manipulating Records</a></h2>
+\target Manipulating_Records
+\section2 Manipulating Records
 
 Records can be inserted, updated or deleted in a table or view using a
 \l QSqlCursor providing that the table or view has a primary index
@@ -673,8 +637,8 @@ set each field's value. Then you call QSQlCursor::insert() to insert the
 contents of the edit buffer into the database.  Similarly, when updating
 (or deleting) a record, the values of the fields in the edit buffer are
 used to update (or delete) the record in the database.  The 'edit
-buffer' is unaffected by any <a href="#Navigating_Result_Sets">cursor
-navigation</a> functions. Note that if you pass a string value to
+buffer' is unaffected by any \link #Navigating_Result_Sets cursor
+navigation \endlink functions. Note that if you pass a string value to
 setValue() any single quotes will be escaped (turned into a pair of
 single quotes) since a single quote is a special character in SQL.
 
@@ -685,15 +649,15 @@ returning it.  By default,  QSqlCursor::primeInsert() clears all the
 field values in the edit buffer (see \l QSqlRecord::clearValues()).
 Both \l QSqlCursor::primeUpdate() and QSqlCursor::primeDelete()
 initialize the edit buffer with the current contents of the cursor
-before returning it.  All three of these functions are virtual, so you
-can redefine the behavior (for example, reimplementing primeInsert() to
-auto-number fields in the edit buffer). Data-aware user-interface
-controls emit signals, e.g. primeInsert(), that you can connect to;
-these pass a pointer to the appropriate buffer so subclassing may not be
-necessary. See <a href="#Subclassing_QSqlCursor">subclassing
-QSqlCursor</a> for more information on subclassing; see the <em>Qt
-Designer</em> manual for more on connecting to the primeInsert()
-signal.
+before returning it.  All three of these functions are virtual, so
+you can redefine the behavior (for example, reimplementing
+primeInsert() to auto-number fields in the edit buffer). Data-aware
+user-interface controls emit signals, e.g. primeInsert(), that you
+can connect to; these pass a pointer to the appropriate buffer so
+subclassing may not be necessary. See \link #Subclassing_QSqlCursor
+subclassing QSqlCursor \endlink for more information on subclassing;
+see the \e {Qt Designer} manual for more on connecting to the
+primeInsert() signal.
 
 When insert(), update() or del() is called on a cursor, it will be
 invalidated and will no longer be positioned on a valid record. If we
@@ -701,13 +665,14 @@ need to move to another record after performing an insert(), update()
 or del() we must make a fresh select() call.  This ensures that
 changes to the database are accurately reflected in the cursor.
 
-<h3><a name="Inserting_Records">Inserting Records</a></h3>
+\target Inserting_Records
+\section3 Inserting Records
 
 \walkthrough sql/overview/insert/main.cpp
 \skipto QSqlCursor
 \printline QSqlCursor
 \printuntil } 
-<!-- \caption From \l sql/overview/insert/main.cpp  -->
+\caption From \l sql/overview/insert/main.cpp
 
 In this example we create a cursor on the "prices" table. Next we
 create a list of product names which we iterate over. For each
@@ -725,14 +690,15 @@ meta-data about the record. In practice most interaction with a
 QSqlRecord consists of simple value() and setValue() calls as shown in
 this and the following example. 
 
-<h3><a name="Updating_Records">Updating Records</a></h3>
+\target Updating_Records
+\section3 Updating Records
 
 \walkthrough sql/overview/update/main.cpp
 \skipto QSqlCursor
 \printline QSqlCursor
 \printuntil update
 \printline
-<!-- \caption From \l sql/overview/update/main.cpp  -->
+\caption From \l sql/overview/update/main.cpp
 
 This example begins with the creation of a cursor over the prices table.
 We select the record we wish to update with the select() call and
@@ -751,13 +717,14 @@ with \l QSqlQuery is more efficient, e.g.
     QSqlQuery query( "UPDATE prices SET price = price * 1.05;"  );
 \endcode
 
-<h3><a name="Deleting_Records">Deleting Records</a></h3>
+\target Deleting_Records
+\section3 Deleting Records
 
 \walkthrough sql/overview/del/main.cpp
 \skipto QSqlCursor
 \printline QSqlCursor
 \printuntil del
-<!-- \caption From \l sql/overview/del/main.cpp  -->
+\caption From \l sql/overview/del/main.cpp
 
 To delete records, select the record to be deleted and navigate to it.
 Then call primeDelete() to populate the cursor with the primary key
@@ -772,24 +739,26 @@ e.g.
     QSqlQuery query( "DELETE FROM prices WHERE id >= 2450 AND id <= 2500;" );
 \endcode
 
-<h1><a name="Data-Aware_Widgets">Data-Aware Widgets</a></h1> 
+\target Data-Aware_Widgets
+\section1 Data-Aware Widgets
 
 Data-Aware Widgets provide a simple yet powerful means of connecting
 databases to Qt user interfaces. The easiest way of creating and
-manipulating data-aware widgets is with <em>Qt Designer</em>. 
+manipulating data-aware widgets is with \e {Qt Designer}. 
 For those who prefer a purely programmatic approach the following
 examples and explanations provide an introduction. Note that the
-"Creating Database Applications" chapter of the <em>Qt Designer</em>
+"Creating Database Applications" chapter of the \e {Qt Designer}
 manual and its accompanying examples provides additional information.
 
-<h2><a name="Data-Aware_Tables">Data-Aware Tables</a></h2> 
+\target Data-Aware_Tables
+\section2 Data-Aware Tables
 
 \walkthrough sql/overview/table1/main.cpp
 \skipto include
 \printline include
 \printuntil return 0
 \printline
-<!-- \caption From \l sql/overview/table1/main.cpp  -->
+\caption From \l sql/overview/table1/main.cpp
 
 Data-Aware tables require the \c qdatatable.h and \c qsqlcursor.h header
 files. We create our application object, call createConnections() and
@@ -807,7 +776,7 @@ function.
 \skipto staffCursor
 \printline staffCursor
 \printuntil show 
-<!-- \caption From \l sql/overview/table2/main.cpp  -->
+\caption From \l sql/overview/table2/main.cpp
 
 We create an empty \l QDataTable which we make into our main widget and
 then we manually add the columns we want in the order we wish them to
@@ -824,21 +793,23 @@ QDataTables only retrieve visible rows which (depending on the driver)
 allows even large tables to be displayed very quickly with minimal
 memory cost.
 
-<h2><a name="Creating_Forms">Creating Data-Aware Forms</a></h2>
+\target Creating_Forms
+\section2 Creating Data-Aware Forms
 
 Creating data-aware forms is more involved than using data-aware
 tables because we must take care of each field individually.  Most of
-the code below can be automatically generated by <em>Qt Designer</em>.
-See the <em>Qt Designer</em> manual for more details.
+the code below can be automatically generated by \e {Qt Designer}.
+See the \e {Qt Designer} manual for more details.
 
-<h3><a name="Displaying_a_Record">Displaying a Record</a></h3>
+\target Displaying_a_Record
+\section3 Displaying a Record
 
 \walkthrough sql/overview/form1/main.cpp
 \skipto include
 \printline include
 \printuntil app.exec
 \printline
-<!-- \caption From \l sql/overview/form1/main.cpp  -->
+\caption From \l sql/overview/form1/main.cpp
 
 We include the header files for the widgets that we need. We also
 include \c qsqldatabase.h and \c qsqlcursor.h as usual, but we now add
@@ -857,7 +828,8 @@ data-aware we insert a pointer to the widget and the associated field
 name into the \l QSqlForm. Finally we call readFields() to populate the
 widgets with data from the database via the cursor's buffer.
 
-<h3><a name="Displaying_a_Record_in_a_DataForm">Displaying a Record in a Data Form</a></h3>
+\target Displaying_a_Record_in_a_DataForm
+\section3 Displaying a Record in a Data Form
 
 \l QDataForm is a Widget that can hold a read-only \l QSqlForm. In
 addition to \l QSqlForm it offers the slot refresh ( \l QSqlRecord * ) so it
@@ -868,7 +840,8 @@ view of a record:
     connect( myDataTable, SIGNAL( currentChanged( QSqlRecord* ) ), myDataView, SLOT( refresh( QSqlRecord* ) ) );
 \endcode
 
-<h3><a name="Editing_a_Record">Editing a Record</a></h3>
+\target Editing_a_Record
+\section3 Editing a Record
 
 This example is similar to the previous one so we will focus on the
 differences.
@@ -877,7 +850,7 @@ differences.
 \skipto class
 \printline class
 \printuntil };
-<!-- \caption From \l sql/overview/form2/main.h  -->
+\caption From \l sql/overview/form2/main.h
 
 The save slot will be used for a button that the user can press to
 confirm their update. We also hold pointers to the \l QSqlCursor and the
@@ -958,12 +931,13 @@ QDataBrowser and QDataView are widgets which provide a great deal of
 the above functionality.  \l QDataBrowser provides a data form which
 allows editing of and navigation through records in a cursor.  \l
 QDataView provides a read only form for data in a cursor or database
-record.  See the class documentation or the <em>Qt Designer</em>
+record.  See the class documentation or the \e {Qt Designer}
 manual for more information on using these widgets.
 
 Link to \l sql/overview/form2/main.cpp
 
-<h2><a name="Custom_Editor_Widgets">Custom Editor Widgets</a></h2>
+\target Custom_Editor_Widgets
+\section2 Custom Editor Widgets
 
 QSqlForm uses QSqlPropertyMap to handle the transfer of data between
 widgets and database fields. Custom widgets can also be used in a form
@@ -1048,8 +1022,8 @@ The behaviour of this example is identical to the previous one except
 that the forename and surname fields will be uppercase since they use
 our CustomEdit widget.
 
-<h3><a name="Custom_Editor_Widgets_for_Tables">
-Custom Editor Widgets for QTables</a></h3>
+\target Custom_Editor_Widgets_for_Tables
+\section3 Custom Editor Widgets for QTables
 
 We must reimpliment QSqlEditorFactory to use custom editor widgets in
 tables. In the following example we will create a custom editor based on
@@ -1060,7 +1034,7 @@ a custom editor.
 \skipto StatusPicker
 \printline StatusPicker
 \printuntil }; 
-<!-- \caption From \l sql/overview/table3/main.h  -->
+\caption From \l sql/overview/table3/main.h
 
 We create a property, statusid, and define our READ and WRITE methods
 for it. The statusid's in the status table will probably be different
@@ -1080,7 +1054,7 @@ function since that is the only function we need to reimplement.
 \printuntil index2id
 \printline
 \printline
-<!-- \caption From \l sql/overview/table3/main.cpp  -->
+\caption From \l sql/overview/table3/main.cpp
 
 In the StatusPicker's constructor we create a cursor over the status
 table indexed by the name field. We then iterate over each record in the
@@ -1119,7 +1093,7 @@ subclass QDataTable and reimplement the paintField() function.
 \skipto CustomTable
 \printline CustomTable
 \printuntil };
-<!-- \caption From \l sql/overview/table4/main.h  -->
+\caption From \l sql/overview/table4/main.h
 
 We simply call the original QDataTable constructor without changing
 anything. We also declare the paintField function.
@@ -1129,23 +1103,24 @@ anything. We also declare the paintField function.
 \printline CustomTable
 \printuntil QDataTable
 \printline
-<!-- \caption From \l sql/overview/table4/main.cpp  -->
+\caption From \l sql/overview/table4/main.cpp
 
 The paintField code is based on QDataTable's source code. We need to make
-three changes. Firstly add an if clause <tt>field-&gt;name() ==
-"statusid"</tt> and look up the textual value for the id with a
+three changes. Firstly add an if clause \c {field->name() ==
+"statusid"} and look up the textual value for the id with a
 straighforward QSqlQuery. Secondly call the superclass to handle other
 fields. The last change is in our main function where we change
 staffTable from being a QDataTable to being a CustomTable. 
 
-<h2><a name="Subclassing_QSqlCursor">Subclassing QSqlCursor</a></h2>
+\target Subclassing_QSqlCursor
+\section1 Subclassing QSqlCursor
 
 \walkthrough sql/overview/subclass1/main.cpp
 \skipto include
 \printline include
 \printuntil return 1
 \printline
-<!-- \caption From \l sql/overview/subclass1/main.cpp  -->
+\caption From \l sql/overview/subclass1/main.cpp
 
 This example is very similar to the table1 example presented earlier. We
 create a cursor, add the fields and their display labels to a QDataTable,
@@ -1165,7 +1140,7 @@ the values when the user adds a new record.
 \printline InvoiceItem
 \printuntil };
 \printline
-<!-- \caption From \l sql/overview/subclass2/main.h  -->
+\caption From \l sql/overview/subclass2/main.h
 
 We have created a separate header file and subclassed QSqlCursor.
 
@@ -1173,7 +1148,7 @@ We have created a separate header file and subclassed QSqlCursor.
 \skipto InvoiceItem
 \printline InvoiceItem
 \printuntil }
-<!-- \caption From \l sql/overview/subclass2/main.cpp  -->
+\caption From \l sql/overview/subclass2/main.cpp
 
 In our class's constructor we call the QSqlCursor constructor with the
 name of the table. We don't have any other characteristics to add at this
@@ -1191,7 +1166,7 @@ We still need to show the product name rather than the pricesid.
 \skipto protected
 \printline protected
 \printline
-<!-- \caption From \l sql/overview/subclass3/main.h  -->
+\caption From \l sql/overview/subclass3/main.h
 
 The change in the header file is minimal: we simply add the signature of
 the calculateField() function since we will be reimplementing it.
@@ -1201,7 +1176,7 @@ the calculateField() function since we will be reimplementing it.
 \printline InvoiceItem
 \printuntil return QVariant
 \printline
-<!-- \caption From \l sql/overview/subclass3/main.cpp  -->
+\caption From \l sql/overview/subclass3/main.cpp
 
 We have changed the InvoiceItemCursor constructor. We now create a new
 QSqlField called productname and append this to the InvoiceItemCursor's
@@ -1232,7 +1207,7 @@ function require some simple expansion. We'll look at each in turn.
 \skipto InvoiceItem
 \printline InvoiceItem
 \printuntil }
-<!-- \caption From \l sql/overview/subclass4/main.cpp  -->
+\caption From \l sql/overview/subclass4/main.cpp
 
 We create two extra fields, price and cost, and append them to the
 cursor's set of fields. Both are registered as calculated fields with
@@ -1242,7 +1217,7 @@ calls to setCalculated().
 \printline InvoiceItem
 \printuntil QString::null
 \printline
-<!-- \caption From \l sql/overview/subclass4/main.cpp  -->
+\caption From \l sql/overview/subclass4/main.cpp
 
 The calculateField() function has expanded slightly because now we must
 calculate the value of three different fields. The productname and price
@@ -1261,7 +1236,7 @@ attempts to insert a new record.
 \walkthrough sql/overview/subclass5/main.h
 \skipto primeInsert
 \printline primeInsert
-<!-- \caption From \l sql/overview/subclass5/main.h  -->
+\caption From \l sql/overview/subclass5/main.h
 
 We declare our own primeInsert() function since we will need to
 reimplement this.
@@ -1272,7 +1247,7 @@ The constructor and the calculateField() function remain unchanged.
 \skipto primeInsert
 \printline primeInsert
 \printuntil }
-<!-- \caption From \l sql/overview/subclass5/main.cpp  -->
+\caption From \l sql/overview/subclass5/main.cpp
 
 We get a pointer to the internal edit buffer that the cursor uses for
 inserts and updates. The id field is a unique integer that we generate
@@ -1281,7 +1256,8 @@ today's date and default the quantity to 1. Finally we return a pointer
 to the buffer. The rest of the code is unchanged from the previous
 version.
 
-<h2><a name="Appendix_1_Tables">Appendix 1: The Example Tables</a></h2> 
+\target Appendix_1_Tables
+\section1 Appendix 1: The Example Tables
 
 The example tables used can be recreated with the following standard SQL.
 You may need to modify the SQL to match that used by your particular

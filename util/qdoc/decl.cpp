@@ -1496,7 +1496,7 @@ void EnumDecl::printHtmlShort( HtmlWriter& out ) const
 
 void EnumDecl::printHtmlLong( HtmlWriter& out ) const
 {
-    out.printfMeta( "<a name=\"%s\"></a><b>%s</b>", ref().latin1(),
+    out.printfMeta( "<a name=\"%s\"></a>%s", ref().latin1(),
 		    fullName().latin1() );
 }
 
@@ -1514,7 +1514,7 @@ void TypedefDecl::printHtmlShort( HtmlWriter& out ) const
 
 void TypedefDecl::printHtmlLong( HtmlWriter& out ) const
 {
-    out.printfMeta( "<a name=\"%s\"></a><b>%s</b>", ref().latin1(),
+    out.printfMeta( "<a name=\"%s\"></a>%s", ref().latin1(),
 		    fullName().latin1() );
 }
 

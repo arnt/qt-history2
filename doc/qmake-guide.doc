@@ -36,79 +36,85 @@
 
 \title qmake User's Guide
 
-<ul>
-<li><a href="#About">About This Manual</a></li>
-<li><a href="#Installation">Installing <em>qmake</em></a></li>
-<li><a href="#QuickStart">Quick Start: Running <em>qmake</em></a></li> 
-<li><a href="#Introduction">Introducing <em>qmake</em></a></li>
-<li><a href="#Concepts"><em>qmake</em> Concepts</a></li> 
-<li><a href="#Details"><em>qmake</em> Details</a></li> 
-<li><a href="#Tutorial"><em>qmake</em> tutorial</a></li>
-</ul>
+\list
+\i \link #About About This Manual \endlink
+\i \link #Installation Installing qmake \endlink
+\i \link #QuickStart Quick Start: Running qmake \endlink
+\i \link #Introduction Introducing qmake \endlink
+\i \link #Concepts qmake Concepts \endlink
+\i \link #Details qmake Details \endlink
+\i \link #Tutorial qmake tutorial \endlink
+\endlist
 
-See also the <a href="qmake-commandreference.html"><em>qmake</em> Command Reference</a>.
+See also the \link qmake-commandreference.html \e qmake Command
+Reference \endlink.
 
-<h1><a name="About">About This Manual</a></h1>
+\target About
+\section1 About This Manual
 
-This manual describes <em>qmake</em>, a cross-platform utility for
-generating makefiles.  <em>qmake</em> was written by Trolltech to
+This manual describes \e qmake, a cross-platform utility for
+generating makefiles.  \e qmake was written by Trolltech to
 provide a simple-to-use tool for supporting large and complex software
 builds across many platforms, including:
 
-<ul>
-<li>MS/Windows - 95, 98, NT, and 2000</li>
-<li>Unix/X11 - Linux, Sun Solaris, HP-UX, Tru64, IBM AIX, SGI IRIX and a wide range of others</li>
-<li>Embedded - Linux platforms</li>
-</ul>
+\list
+\i MS/Windows - 95, 98, NT, and 2000
+\i Unix/X11 - Linux, Sun Solaris, HP-UX, Tru64, IBM AIX, SGI IRIX and a wide range of others
+\i Embedded - Linux platforms
+\endlist
 
-<h1><a name="Installation">Installing <em>qmake</em></a></h1>
+\target Installation
+\section1 Installing \e qmake
 
-<em>qmake</em> is a standard part of the Qt library installation and
+\e qmake is a standard part of the Qt library installation and
 will be built and installed properly when building the Qt library.  To
-install <em>qmake</em> separately:
+install \e qmake separately:
 
-<ol>
-<li>Unpack the Qt archive, configure and build
-<li>The 'qmake' executable will then be located in the 'bin' subdirectory
-</ol>
+\list 1
+\i Unpack the Qt archive, configure and build.
+\i The 'qmake' executable will then be located in the 'bin' subdirectory.
+\endlist
 
-After <em>qmake</em> is built:
+After \e qmake is built:
 
-<ol> <li>Set the QMAKESPEC environment variable to point to a directory
-containing a description of your platform and compiler (see below) <li>Add
-the 'qmake' executable to your PATH </ol>
+\list 1
+\i Set the QMAKESPEC environment variable to point to a directory
+   containing a description of your platform and compiler (see below)
+\i Add the 'qmake' executable to your PATH
+\endlist
 
 Here are some examples:
 
-<ul>
-<li>Unix Bourne shell:<p>
+\list
+\i Unix Bourne shell:
 \code
 	QMAKESPEC=/usr/local/qt/mkspecs/linux-g++
 	PATH=$PATH:/local/qmake/bin
 	export QMAKESPEC PATH
 \endcode
 
-<li>Unix C shell:<p>
+\i Unix C shell:
 \code
 	setenv QMAKESPEC /usr/local/qt/mkspecs/linux-g++
 	setenv PATH $PATH:/local/qmake/bin
 \endcode
 
-<li>Microsoft Windows:<p>
+\i Microsoft Windows:
 \code
 	set QMAKESPEC=c:\qt\mkspecs\win32-msvc
 	set PATH=%PATH%;c:\qmake\bin
 \endcode
-</ul>
+\endlist
 
-<em>qmake</em> is now installed.
+\e qmake is now installed.
 
-<h1><a name="QuickStart">Quick Start: Running <em>qmake</em></a></h1> 
+\target QuickStart
+\section1 Quick Start: Running \e qmake
 
 Let's assume you have a small Qt application consisting of one C++ header
 file and two source files.
 
-First you need to create a <em>qmake</em> project file,
+First you need to create a \e qmake project file,
 e.g. hello.pro:
 
 \code
@@ -117,9 +123,9 @@ e.g. hello.pro:
   TARGET    =  hello
 \endcode
 
-This file contains information about the 'hello' <a
-href="#ProjectFiles">project</a>.  To create a makefile for this
-project, invoke <em>qmake</em> as follows:
+This file contains information about the 'hello' \link #ProjectFiles
+project \endlink.  To create a makefile for this project, invoke
+\e qmake as follows:
 
 \code
   qmake hello.pro -o Makefile
@@ -133,54 +139,56 @@ project, type:
 \endcode
 
 
-This builds the 'hello' program. Remember to set the <a href="#QMAKESPEC">QMAKESPEC</a> environment 
+This builds the 'hello' program. Remember to set the \link #QMAKESPEC QMAKESPEC \endlink environment 
 variable properly before you run qmake.
 
-<h1><a name="Introduction">Introducing qmake</a></h1>
+\target Introduction
+\section1 Introducing qmake
 
 \e qmake is a simple tool from Trolltech to create and maintain
 makefiles for software projects across multiple platforms.
-<em>qmake</em> provides all of the functionality involved in
+\e qmake provides all of the functionality involved in
 generating complex makefiles using a single 'project' specification.
 That 'project' can be targeted to create makefiles for different
 platforms.  It can be a painful task to manage makefiles manually,
 especially if you develop for more than one platform or use more than
-one compiler.  <em>qmake</em> automates and streamlines this process,
+one compiler.  \e qmake automates and streamlines this process,
 allowing you to spend your valuable time writing code, not
 makefiles.
 
-<em>qmake</em> can be used for any software project of any size,
+\e qmake can be used for any software project of any size,
 and also contains special features to support developing
-applications with <a href="http://www.trolltech.com/">Trolltech's</a>
-<a href="http://www.trolltech.com/qt/"> Qt</a> library.
+applications with \link http://www.trolltech.com/ Trolltech's \endlink
+\link http://www.trolltech.com/qt/  Qt \endlink library.
 
-<em>qmake</em> is a part of the Qt library and is licensed under several
-licenses, including the QPL, GPL and a commercial license.  See the <a
-href="http://doc.trolltech.com/licenses.html">Qt</a> LICENSE file for
-details.
+\e qmake is a part of the Qt library and is licensed under several
+licenses, including the QPL, GPL and a commercial license.  See the
+\link licenses.html Qt \endlink LICENSE file for details.
 
 
-<h1><a name="Concepts"><em>qmake</em> Concepts</a></h1> 
+\target Concepts
+\section1 \e qmake Concepts
 
-<h3>Running <em>qmake</em></h3>
+\section2 Running \e qmake
 
-<em>qmake</em> understands a simple language to describe a makefile,
+\e qmake understands a simple language to describe a makefile,
 and in turn will generate a project description as appropriate for
-your target platform. <em>qmake</em> currently generates output
+your target platform. \e qmake currently generates output
 for:
 
-<ul>
-<li>borland make makefiles
-<li>unix-style makefiles, i.e. suitable for gmake, etc.
-<li>msdev nmake makefiles
-<li>msdev dsp project files
-</ul>
+\list
+\i borland make makefiles
+\i unix-style makefiles, i.e. suitable for gmake, etc.
+\i msdev nmake makefiles
+\i msdev dsp project files
+\endlist
 
-<h3><a name="QMAKESPEC">QMAKESPEC</a></h3>
+\target QMAKESPEC
+\section2 QMAKESPEC
 
-<em>qmake</em> requires a description of your platform so that a
+\e qmake requires a description of your platform so that a
 suitable makefile can be generated.  These descriptions are kept in a
-'makefile specification' file called qmake.conf. <em>qmake</em>
+'makefile specification' file called qmake.conf. \e qmake
 needs this configuration file in order to generate appropriate
 makefiles for specific platform and compiler combinations.  The \c
 QMAKESPEC environment variable must be set to the name of a directory
@@ -188,18 +196,18 @@ which contains this configuration file.  The qmake.conf file will
 contain such basic information as the compiler to use, the names of
 system libraries and the location of system headers.  
 
-On startup, <em>qmake</em> will attempt to locate the qmake.conf file
+On startup, \e qmake will attempt to locate the qmake.conf file
 for your platform by using the QMAKESPEC environment variable.  Alternatively, it will 
 load all of the default values.  The QMAKESPEC environment variable
-can be used to tell <em>qmake</em> where to find this file, or a
-command line option can be given.  <em>qmake</em> ships with many
+can be used to tell \e qmake where to find this file, or a
+command line option can be given.  \e qmake ships with many
 standard QMAKESPEC files for many platform-compiler combinations.  See
-the <a href="qmake-commandreference.html#QMAKESPEC"<em>qmake</em>
-command reference</a> for more information.
+the \link qmake-commandreference.html#QMAKESPEC \e qmake
+command reference\endlink for more information.
 
 The QMAKESPEC environment variable should point to a directory which
 contains information about your platform and compiler.  When invoked,
-<em>qmake</em> will use the QMAKESPEC environment variable to find your 
+\e qmake will use the QMAKESPEC environment variable to find your 
 compiler specifications.
 
 This configuration file contains compiler options and lists tools and
@@ -208,63 +216,63 @@ libraries.
 You can find many platform-compiler combination descriptions in the
 'mkspecs' directory of your Qt installation.
 
-
-<h3><a name="ProjectFiles">Project Files</a></h3>
+\target ProjectFiles
+\section2 Project Files
 
 Armed with your platform description from the appropriate QMAKESPEC
-file, <em>qmake</em> will then load any specified 'project files'
+file, \e qmake will then load any specified 'project files'
 which describe your software project and generate a makefile to build
-that project.  A <em>project file</em> will typically contain a list
+that project.  A \e {project file} will typically contain a list
 of header and source files used by your project.  For Qt-based
-projects, <em>qmake</em> will automatically generate dependencies for
-<a href="moc.html">moc</a> and <a href="designer.html">uic</a>, if
+projects, \e qmake will automatically generate dependencies for
+\link moc.html moc \endlink and \link designer.html uic \endlink, if
 they are needed by your project.  The project file will also contain
 information about the type of project being created (for example, an
 application or a library), as well as configuration information (such
 as debug/release, project defines, and extra libraries used when
 linking).
 
-<h3>Project Templates</h3>
+\section2 Project Templates
 
-<em>qmake</em> understands several kinds of 'templates' which tell
-<em>qmake</em> what kind of project it is building. The supported
+\e qmake understands several kinds of 'templates' which tell
+\e qmake what kind of project it is building. The supported
 values are:
 
-<ul>
-<li>app - Creates a makefile for building applications (the default)
-<li>lib - Creates a makefile for building libraries
-<li>subdirs - Creates a makefile for building targets in subdirectories
-</ul>
+\list
+\i app - Creates a makefile for building applications (the default)
+\i lib - Creates a makefile for building libraries
+\i subdirs - Creates a makefile for building targets in subdirectories
+\endlist
 
 A project 'template' is specified using the TEMPLATE system variable.
 If no TEMPLATE is specified, 'app' is assumed.
 
-<h3>The Application Template</h3>
+\section2 The Application Template
 
 The application template, 'app', lets you generate makefiles to
 compile and link executable programs.
 
 This template recognizes several system variables
 
-<ul>
-<li>HEADERS - Header files
-<li>SOURCES - Source files
-<li>LEXSOURCES - <em>qmake</em> will generate a makefile to process the listed files with
+\list
+\i HEADERS - Header files
+\i SOURCES - Source files
+\i LEXSOURCES - \e qmake will generate a makefile to process the listed files with
         lex, and then compile it
-<li>YACCSOURCES - <em>qmake</em> will generate a makefile to process the listed files with
+\i YACCSOURCES - \e qmake will generate a makefile to process the listed files with
         yacc, and then compile it
-<li>TARGET - Name of executable (adds .exe if on Windows).
-<li>DESTDIR - Where to put the TARGET
-<li>DEFINES - Tell compiler to define C preprocessor macros (-D option)
-<li>INCLUDEPATH - Sets the include file search path for the compiler (-I option).
-<li>DEPENDPATH - Sets the dependency search path for the compiler
-<li>INTERFACES - Specify .ui files for addition to the build
-<li>DEF_FILE - Win32 only: Link with a .def file
-<li>RC_FILE - Win32 only: Use a .rc file (compile to temporary .res)
-<li>RES_FILE - Win32 only: Link with a .res file
-</ul>
+\i TARGET - Name of executable (adds .exe if on Windows).
+\i DESTDIR - Where to put the TARGET
+\i DEFINES - Tell compiler to define C preprocessor macros (-D option)
+\i INCLUDEPATH - Sets the include file search path for the compiler (-I option).
+\i DEPENDPATH - Sets the dependency search path for the compiler
+\i INTERFACES - Specify .ui files for addition to the build
+\i DEF_FILE - Win32 only: Link with a .def file
+\i RC_FILE - Win32 only: Use a .rc file (compile to temporary .res)
+\i RES_FILE - Win32 only: Link with a .res file
+\endlist
 
-<h3>The Library Template</h3>
+\section2 The Library Template
 
 The library template, 'lib', lets you generate makefiles to compile
 and create static or shared libraries.
@@ -272,83 +280,84 @@ and create static or shared libraries.
 This template supports the same project variables as 'app' (see
 above), as well as the following sytem variables:
 
-<ul>
-<li>VERSION - the version number of the target library, e.g. 1.40.  The version is
+\list
+\i VERSION - the version number of the target library, e.g. 1.40.  The version is
 important for shared libraries.
-</ul>
+\endlist
 
-<h3>The Subdirs Template</h3>
+\section2 The Subdirs Template
 
 The 'subdirs' template lets you generate makefiles to invoke
-<em>qmake</em> within subdirectories.
+\e qmake within subdirectories.
 
 This template recognizes the following system variables:
 
-<ul>
-<li>SUBDIRS - contains the name of all subdirectories to be processed
-</ul>
+\list
+\i SUBDIRS - contains the name of all subdirectories to be processed
+\endlist
 
-<em>qmake</em> assumes that each subdirectory contains additional project
+\e qmake assumes that each subdirectory contains additional project
 files to be processed.  Each sub-project file must be named the same as the
 directory (ie in subdirectory display, you must have a display.pro which
 will be made by built by qmake, and finally make the project).  See the
-<em>qmake</em> <a href="qmakecommandreference.html#subdirs">reference
-manual</a> for details.
+\e qmake \link qmakecommandreference.html#subdirs reference
+manual \endlink for details.
 
-<h3>Special Templates for Microsoft Visual C++</h3>
+\section2 Special Templates for Microsoft Visual C++
 
 If you have Microsoft Visual C++ 5.0, 6.0 or higher, you can use two
 special templates to generate a MSVC++ IDE project (.dsp file).  After
-you have generated e.g. hello.dsp, choose "File"->"Open Workspace" and
+you have generated e.g. hello.dsp, choose File|Open Workspace and
 select the hello.dsp file.  Visual C++ will then create a workspace
 (.dsw file) for you.  The additional templates for Microsoft Visual C++
 are:
 
-<ul>
-<li>vcapp - Creates an application project file
-<li>vclib - Creates a library project file
-</ul>
+\list
+\i vcapp - Creates an application project file
+\i vclib - Creates a library project file
+\endlist
 
-Run <em>qmake</em> to create a hello.dsp file (use -t to override the
+Run \e qmake to create a hello.dsp file (use -t to override the
 default template):
 
 \code
   qmake -t vcapp -o hello.dsp hello.pro
 \endcode
 
-<h3><a name="CONFIG">Project Configuration</a></h3>
+\target CONFIG
+\section2 Project Configuration
 
-The \c CONFIG system variable is recognized by <em>qmake</em> and
+The \c CONFIG system variable is recognized by \e qmake and
 specifies what compiler options to use and which extra libraries to
 link in. Anything may be assigned to this variable, however some
-values will be recognized internally by <em>qmake</em> and have
+values will be recognized internally by \e qmake and have
 special meaning as described below.
 
 These options control the compilation flags:
 
-<ul>
-<li>release - Compile with optimization enabled, ignored if
+\list
+\i release - Compile with optimization enabled, ignored if
     "debug" is specified
-<li>debug - Compile with debug options enabled
-<li>warn_on - The compiler should emit more warnings than normally, ignored if
+\i debug - Compile with debug options enabled
+\i warn_on - The compiler should emit more warnings than normally, ignored if
      "warn_off" is specified
-<li>warn_off - The compiler should emit as few warnings as possible,
+\i warn_off - The compiler should emit as few warnings as possible,
 preferably none at all.
-</ul>
+\endlist
 
 These options define the application/library type:
 
-<ul>
-<li>qt - The target is a Qt application/library and requires Qt header files/library.
-<li>opengl - The target requires the OpenGL (or Mesa) headers/libraries.
-<li>thread - The target is a multi-threaded application or library.
-<li>x11 - The target is a X11 application or library.
-<li>windows - The target is a Win32 window application (app only).
-<li>console - The target is a console application (app only).
-<li>dll - The target is a shared object/DLL.
-<li>staticlib - The target is a static library (lib only).
-<li>plugin - The target is a plugin (lib only). This enables dll as well.
-</ul>
+\list
+\i qt - The target is a Qt application/library and requires Qt header files/library.
+\i opengl - The target requires the OpenGL (or Mesa) headers/libraries.
+\i thread - The target is a multi-threaded application or library.
+\i x11 - The target is a X11 application or library.
+\i windows - The target is a Win32 window application (app only).
+\i console - The target is a console application (app only).
+\i dll - The target is a shared object/DLL.
+\i staticlib - The target is a static library (lib only).
+\i plugin - The target is a plugin (lib only). This enables dll as well.
+\endlist
 
 For example, if the 'hello' application uses both Qt and the OpenGL
 libraries, and you want to compile it with debugging symbols, the
@@ -359,46 +368,47 @@ following:
   CONFIG = qt opengl debug
 \endcode
 
-The CONFIG system variable is also used when <a
-href="#Scopes">scoping</a> variable assignments.
+The CONFIG system variable is also used when \link #Scopes
+scoping \endlink variable assignments.
 
-The most common <em>qmake</em> options and project variables are
-described here.  See the <em>qmake</em> <a
-href="qmakecommandreference.html#CONFIG">reference manual</a> for
+The most common \e qmake options and project variables are
+described here.  See the \e qmake
+\link qmakecommandreference.html#CONFIG reference manual \endlink for
 details.
 
-<h1><a name="Details"><em>qmake</em> Details</a></h1> 
+\target Details
+\section2 \e qmake Details
 
-<em>qmake</em> project files (typically having a .pro extension) are
+\e qmake project files (typically having a .pro extension) are
 parsed from top to bottom and consist of a series of user defined
 variables as well as operations on those variables.  When
-<em>qmake</em> is finished parsing the file without error, a makefile
+\e qmake is finished parsing the file without error, a makefile
 is generated for the platform-compiler combination specified by the
-QMAKESPEC file.  The order of execution for <em>qmake</em> is:
+QMAKESPEC file.  The order of execution for \e qmake is:
 
-<ol>
-<li>Parse the QMAKESPEC config file (qmake.conf)
-<li>Parse the cache file, if available (.qmake.cache)
-<li>Parse and command line options
-<li>Parse the project file
-</ol>
+\list 1
+\i Parse the QMAKESPEC config file (qmake.conf)
+\i Parse the cache file, if available (.qmake.cache)
+\i Parse and command line options
+\i Parse the project file
+\endlist
 
 When parsing, there are two classes of variables understood by
-<em>qmake</em>: user-defined variables and internal system variables.
+\e qmake: user-defined variables and internal system variables.
 Many internal system variables begin with 'QMAKE_' (user variables
 should of course use a different prefix), and there are a few
 common system variables with simpler names, such as PROJECT, CONFIG,
 SOURCES, HEADERS, etc (more on these project variables below). Below
-is an outline of the language features understood by <em>qmake</em>.
+is an outline of the language features understood by \e qmake.
 
-<h3>Syntax</h3>
+\section2 Syntax
 
-A <em>qmake</em> project file has a very simple syntax.  
+A \e qmake project file has a very simple syntax.  
 
 The # character begins a comment which lasts until the end of the
 line.
 
-<h3>Variables</h3>
+\section2 Variables
 
 You may set project variables, append to project variables, and remove
 from project variables.
@@ -420,7 +430,7 @@ If you cannot fit everything on one line, use '\' to split it up:
 A user variable name can be any string.  The five operators (~=, *=,
 =, -=, and +=) can be used together to operate on those
 variables. Using $$ you can refer to another variable previously
-defined in <em>qmake</em>.  There are several operators available to
+defined in \e qmake.  There are several operators available to
 work on lists of values.  For example:
 
 \code
@@ -431,15 +441,15 @@ work on lists of values.  For example:
   OTHERPIG=eat    #$$OTHERPIG now contains only eat
 \endcode
 
-See the <a href="qmake-commandreference.html#operators"<em>qmake</em>
-command reference</a> for more info.
+See the \link qmake-commandreference.html#operators \e qmake
+command reference \endlink for more info.
 
 Project variables contains lists of items (for system variables, these
 consist of things such as header files, compiler options etc.) and use
-whitespace to separate the items.  This means that <em>qmake</em>
+whitespace to separate the items.  This means that \e qmake
 cannot deal with items containing whitespace.  The INCLUDEPATH
 variable is an exception. If INCLUDEPATH contains one or more
-semicolons (;), <em>qmake</em> uses the semicolon to separate the
+semicolons (;), \e qmake uses the semicolon to separate the
 include directories, hence you can have include directories containing
 whitespace (this is quite common on Windows).
 
@@ -449,7 +459,7 @@ Here is an example:
     INCLUDEPATH = C:\Program Files\DBLib\Include;C:\qt\include
 \endcode
 
-<em>qmake</em> supports <em>project variable expansion</em>. Use $$ to
+\e qmake supports \e {project variable expansion}. Use $$ to
 expand any project variable:
 
 \code
@@ -471,28 +481,29 @@ add to, remove from or replace parts of a project variable:
     A  ~= s/ab[xc]/xyz/ # A = xyz def
 \endcode
 
-<p> You can also set variables from the command line when running the
-<em>qmake</em> program. For instance, if you want to generate a
+You can also set variables from the command line when running the
+\e qmake program. For instance, if you want to generate a
 makefile with debug information:
 
 \code
     qmake "CONFIG+=debug" hello.pro
 \endcode
 
-<h3><a name="Scopes">Scopes</a></h3>
+\target Scopes
+\section2 Scopes
 
 You may use scopes to conditionally assign to variables. There are
 several ways to test for something being "in scope":
 
-<ul>
-<li>It appears in the CONFIG variable (see the <a href="#CONFIG">CONFIG</a> section)
-<li>If <em>qmake</em> is in an OS mode (see the -unix/-win32 option in the
-    <a href="qmake-commandreference"> command reference</a>) you may
+\list
+\i It appears in the CONFIG variable (see the \link #CONFIG CONFIG \endlink section)
+\i If \e qmake is in an OS mode (see the -unix/-win32 option in the
+    \link qmake-commandreference.html command reference \endlink) you may
     use the OS dependent scope (unix/win32)
-<li>Function testing (see the <a href="#Functions">function tests</a> section)
-<li>If a given compiler is used as specified by the QMAKESPEC (see the 
-    <a href="#QMAKESPEC">QMAKESPEC</a> section).
-</ul>
+\i Function testing (see the \link #Functions function tests \endlink section)
+\i If a given compiler is used as specified by the QMAKESPEC (see the 
+    \link #QMAKESPEC QMAKESPEC \endlink section).
+\endlist
 
 Scopes must be colon separated from their assignment for example:
 
@@ -506,7 +517,7 @@ Scopes must be colon separated from their assignment for example:
 You may logically AND together scopes by separating multiple scopes with
 colons, similarly you may negate a scope with the '!' character. In
 some cases you may actually just want to execute the scope, and not do
-an assignment, this is perfectly legal in <em>qmake</em> - and the
+an assignment, this is perfectly legal in \e qmake - and the
 final colon is optional. For example:
 
 \code
@@ -544,43 +555,43 @@ blocks, e.g. For example:
     test:VARIABLE = value  
     \endcode 
 
-<a name="Functions"><h3>Functions</h3></a>
+\target Functions
+\section2 Functions
 
 As we've seen in some of the examples above, functions may be
 used to do advanced tests. For the most part simply testing for
 platform or the value appearing in the CONFIG variable should be
 sufficent, but there are other built in functions which can be
-used. The functions used by <em>qmake</em> may not be extended
+used. The functions used by \e qmake may not be extended
 externally, and this functionallity will probably not be added.  See
-the <a href="qmake-commandreference.html#Functions"<em>qmake</em>
-command reference</a> for more info.
+the \link qmake-commandreference.html#Functions \e qmake
+command reference\endlink for more info.
 
-<h3>Cache file</h3>
+\section2 Cache file
 
-<em>qmake</em> can optionally use a 'cache' file to prevent mistaken
-misconfiguration. <em>qmake</em> will never generate a cache file on its
+\e qmake can optionally use a 'cache' file to prevent mistaken
+misconfiguration. \e qmake will never generate a cache file on its
 own, it is the obligation of some outside program to do this. The
 syntax is identical to a normal .pro file. The cache file must be called \c
 .qmake.cache, and should be placed at the top directory of your project.
-<em>qmake</em> will later walk backwards in your project hierarchy to find
+\e qmake will later walk backwards in your project hierarchy to find
 it (ie starting at the your current working directory, then its parent, and
 so on until it reaches a .qmake.cache, or the root).
 
-<em>qmake</em> does not require the use of a .qmake.cache - and if it
-does not exist <em>qmake</em> will not complain. If it does exist,
-and you want to override it, you may use the -nocache option. See the <a
-href="qmake-commandreference.html#cache"<em>qmake</em> command
-reference</a> for more info.
+\e qmake does not require the use of a .qmake.cache - and if it
+does not exist \e qmake will not complain. If it does exist,
+and you want to override it, you may use the -nocache option. See the
+\link qmake-commandreference.html#cache \e qmake command
+reference \endlink for more info.
 
-
-
-<a name="Tutorial"><h3>Tutorial</h3></a>
+\target Tutorial
+\section2 Tutorial
 
 With all the above you have enough to design a simple
-build structure with <em>qmake</em>. In practice there are several
+build structure with \e qmake. In practice there are several
 caveats to setting up such a project, and this tutorial will try to
 run through a project file and describe what the output will be. It
-will also try to give some helpful pointers on using <em>qmake</em> in a
+will also try to give some helpful pointers on using \e qmake in a
 similar fashion as Trolltech. 
 
 So to start we will outline a simple build procedure. The first thing you
@@ -706,15 +717,16 @@ data.path=$$target.path/data
 data.files = data/*.dat
 INSTALLS += data
 \endcode
-We'll look at these three lines together because they're related. First
-we fill in an object called data. Strictly speaking these aren't
-objects, as you are free to assign to anything in data (data.qmake for
-example). Note that only certain variables will be looked at by qmake
-(outlined in <a href="#InstallDetails">Install Targets</a>). 
-Then it adds the 'data' object to the list of INSTALLS, which will later be
-processed by qmake to create an install target. And then
-<tt>target.path=/usr/local/$$TARGET</tt>
-sets the target.path to /usr/local/hello_world
+
+We'll look at these three lines together because they're related.
+First we fill in an object called data. Strictly speaking these
+aren't objects, as you are free to assign to anything in data
+(data.qmake for example). Note that only certain variables will be
+looked at by qmake (outlined in \link #InstallDetails Install Targets
+\endlink).  Then it adds the 'data' object to the list of INSTALLS,
+which will later be processed by qmake to create an install target.
+And then \c target.path=/usr/local/$$TARGET sets the target.path to
+/usr/local/hello_world
 
 INSTALLS += target
 This is similar to the above, but shows that target is a special install

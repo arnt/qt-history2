@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#821 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#822 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -265,6 +265,24 @@ static bool sm_blockUserInput = FALSE;		// session management
 // one day in the future we will be able to have static objects in libraries....
 static QGuardedPtr<QWidget>* activeBeforePopup = 0; // focus handling with popups
 
+#ifndef QT_NO_XINPUT
+// since XInput event classes aren't created until we actually open an XInput
+// device, here is a static list that we will use later on...
+const int INVALID_EVENT = -1;
+const int TOTAL_XINPUT_EVENTS = 7;
+
+XDevice *dev = NULL;
+XEventClass event_list[TOTAL_XINPUT_EVENTS];
+
+int curr_xinput_events = 0;
+
+static int xinput_motion = INVALID_EVENT;
+static int xinput_key_press = INVALID_EVENT;
+static int xinput_key_release = INVALID_EVENT;
+static int xinput_button_press = INVALID_EVENT;
+static int xinput_button_release = INVALID_EVENT;
+#endif
+
 typedef void (*VFPTR)();
 typedef QValueList<VFPTR> QVFuncList;
 static QVFuncList *postRList = 0;		// list of post routines
@@ -450,6 +468,10 @@ public:
     bool translateCloseEvent( const XEvent * );
     bool translateScrollDoneEvent( const XEvent * );
     bool translateWheelEvent( int global_x, int global_y, int delta, int state, Orientation orient );
+#ifndef QT_NO_XINPUT
+    bool translateXinputEvent( const XEvent* );
+#endif
+
 };
 
 
@@ -1781,6 +1803,78 @@ void qt_init_internal( int *argcptr, char **argv,
 	qt_set_x11_resources( appFont, appFGCol, appBGCol, appBTNCol);
     }
 
+#ifndef QT_NO_XINPUT
+    int ndev, i, j;
+    XDeviceInfo *devices;
+    XInputClassInfo *ip;
+    XAnyClassPtr any;
+    XValuatorInfoPtr v;
+    XAxisInfoPtr a;
+
+
+    if ( (devices = XListInputDevices( appDpy, &ndev)) == NULL ) {
+	qDebug( "Failed to get list of devices\n" );
+	ndev = -1;
+    }
+    for ( i = 0; i < ndev; i++ ) {
+	if ( !strncmp( devices[i].name, WACOM_NAME, sizeof(WACOM_NAME) -1 ) ) {
+	    dev = XOpenDevice( appDpy, devices[i].id );
+	    if ( dev == NULL ) {
+		qDebug( "Failed to open device" );		
+	    }
+	    if ( dev->num_classes > 0 ) {
+		for ( ip = dev->classes, j = 0; j < devices->num_classes;
+		      ip++, j++ ) {
+		    switch ( ip->input_class ) {
+		    case KeyClass:
+			DeviceKeyPress( dev, xinput_key_press,
+					event_list[curr_xinput_events] );
+			curr_xinput_events++;
+		        DeviceKeyRelease( dev, xinput_key_release,
+					  event_list[curr_xinput_events] );
+			curr_xinput_events++;
+			break;			
+		    case ButtonClass:
+			DeviceButtonPress( dev, xinput_button_press,
+					   event_list[curr_xinput_events] );
+			curr_xinput_events++;
+			DeviceButtonRelease( dev, xinput_button_release,
+					     event_list[curr_xinput_events] );
+			curr_xinput_events++;
+			break;
+		    case ValuatorClass:
+			// I'm only going to be interested in motion when the
+			// stylus is already down anyway!
+			DeviceMotionNotify( dev, xinput_motion,
+					     event_list[curr_xinput_events]);
+			curr_xinput_events++;
+			break;	
+		    default:
+			break;
+		    }
+		}
+	    }
+	    // get the min/max value for pressure!
+	    any = (XAnyClassPtr) ( devices->inputclassinfo );
+	    for ( int k = 0; k < devices->num_classes; k++ ) {
+		if ( any->c_class == ValuatorClass ) {
+		    v = (XValuatorInfoPtr) any;
+		    a = (XAxisInfoPtr) ( (char*)v + sizeof(XValuatorInfoPtr));
+		    qDebug( "%d", a[WAC_PRESSURE_I].min_value );
+		    qDebug( "%d", a[WAC_PRESSURE_I].max_value );
+		}
+	    }
+	
+	    // at this point we are assuming there is only one
+	    // wacom device...
+	    break;
+	}
+    }
+    //    QTabletEvent::setMaxPressure( 1023 );
+    //    QTabletEvent::setMinPressure( 16 );
+    XFreeDeviceList( devices );
+#endif // QT_NO_XINPUT
+
 #if defined(Q_OS_UNIX)
     pipe( qt_thread_pipe );
 #endif
@@ -1874,6 +1968,11 @@ void qt_cleanup()
 	QFont::cleanup();
 	QColor::cleanup();
     }
+
+#ifndef QT_NO_XINPUT
+    if ( dev != NULL )
+	XCloseDevice( appDpy, dev );
+#endif
 
 #if !defined(QT_NO_XIM)
     if ( qt_xim )
@@ -3367,6 +3466,14 @@ int QApplication::x11ProcessEvent( XEvent* event )
 
     if ( widget->x11Event(event) )		// send through widget filter
 	return 1;
+#ifndef QT_NO_XINPUT
+    // Right now I'm only caring about the valuator (MOTION) events, so I'll
+    // check them and let the rest go through as mouse events...
+    if ( event->type == xinput_motion ) {
+	widget->translateXinputEvent( event);
+	return 0;
+    }
+#endif
 
     switch ( event->type ) {
 
@@ -4524,6 +4631,78 @@ bool QETWidget::translateWheelEvent( int global_x, int global_y, int delta, int 
     return FALSE;
 }
 
+
+//
+// XInput Translation Event
+//
+#ifndef QT_NO_XINPUT
+bool QETWidget::translateXinputEvent( const XEvent *ev )
+{
+#if defined (Q_OS_IRIX)
+    // Wacom has put defines in their wacom.h file so it would be quite wise
+    // to use them, need to think of a decent way of getting rid of not using
+    // it when it doesn't exist...
+    XDeviceState *s;
+    XInputClass *iClass;
+    XValuatorState *vs;
+    QWidget *w = this;
+    QPoint global,
+	curr;
+    int pressure,
+	xTilt,
+	yTilt,
+	deviceType;
+    int j;
+    // Heh, we got an event from the stylus, but on Irix the event doesn't
+    // give us all the information we need (some of the values are horibbly
+    // wrong ),  It is slightly better to query the device state and get the
+    // real state of the valuators...
+    s = XQueryDeviceState( appDpy, dev );
+    if ( s == NULL )
+	return FALSE;
+    iClass = s->data;
+    for ( j = 0; j < s->num_classes; j++ ) {
+	if ( iClass->c_class == ValuatorClass ) {
+	    vs = (XValuatorState *)iClass;
+	    if ( vs->valuators[WAC_TRANSDUCER_I]
+		 & WAC_TRANSDUCER_PROX_MSK ) {
+		switch ( vs->valuators[WAC_TRANSDUCER_I]
+			 & WAC_TRANSDUCER_MSK ) {
+		case WAC_PUCK_ID:
+		    deviceType = QTabletEvent::PUCK;
+		    break;
+		case WAC_STYLUS_ID:
+		    deviceType = QTabletEvent::STYLUS;
+		    break;
+		case WAC_ERASER_ID:
+		    deviceType = QTabletEvent::ERASER;
+		    break;
+		}
+	    } else
+		deviceType = QTabletEvent::NONE;
+	    xTilt = vs->valuators[WAC_XTILT_I];
+	    yTilt = vs->valuators[WAC_YTILT_I];
+	    pressure = vs->valuators[WAC_PRESSURE_I] / 4;
+	    // why not use the high res values for global?
+	    global = QPoint( vs->valuators[WAC_XCOORD_I],
+			     vs->valuators[WAC_YCOORD_I] );
+	}
+	iClass = (XInputClass*)((char*)iClass + iClass->length);
+    }
+
+    // repeating the work here a lot, does it really need to be done like this?
+    XDeviceMotionEvent *motion = (XDeviceMotionEvent*)ev;
+    // figure out what device we have, based on bitmasking...
+    curr = QPoint( motion->x, motion->y );
+    QTabletEvent e( global, curr, deviceType, pressure, xTilt, yTilt );
+    QApplication::sendSpontaneousEvent( w, &e );
+    XFreeDeviceState( s );
+    return TRUE;
+#else   // nothing else is implemented at the moment...
+    return FALSE;
+#endif
+}
+#endif
 
 //
 // Keyboard event translation

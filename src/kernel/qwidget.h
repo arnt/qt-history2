@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.h#375 $
+** $Id: //depot/qt/main/src/kernel/qwidget.h#376 $
 **
 ** Definition of QWidget class
 **
@@ -451,6 +451,7 @@ protected:
     virtual void imStartEvent( QIMEvent * );
     virtual void imComposeEvent( QIMEvent * );
     virtual void imEndEvent( QIMEvent * );
+    virtual void tabletEvent( QTabletEvent * );
 
 #ifndef QT_NO_DRAGANDDROP
     virtual void dragEnterEvent( QDragEnterEvent * );

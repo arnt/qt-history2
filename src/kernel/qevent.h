@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qevent.h#142 $
+** $Id: //depot/qt/main/src/kernel/qevent.h#143 $
 **
 ** Definition of event classes
 **
@@ -118,6 +118,7 @@ public:
 	IMCompose = 84,				// input method composition
 	IMEnd = 85,				// input method composition end
 	Accessibility = 86,			// accessibility information is requested
+	Tablet = 87,				// Wacom Tablet Event
 	User = 1000,				// first user event id
 	MaxUser  = 65535                        // last user event id
     };
@@ -210,6 +211,47 @@ protected:
     Orientation o;
 };
 #endif
+
+// events from the Wacom Stylus...
+class Q_EXPORT QTabletEvent : public QEvent
+{
+public:
+    enum TabletDevices { NONE = -1, PUCK, STYLUS, ERASER, MENU };
+    QTabletEvent( const QPoint &pos, int device, int pressure, int xTilt, int yTilt )
+	: QEvent( Tablet ), p( pos ), dev( device ), press( pressure ),
+	  xT( xTilt ), yT( yTilt )
+     {};
+    QTabletEvent( const QPoint &pos, const QPoint &globalPos, int device,
+		  int pressure, int xTilt, int yTilt )
+	: QEvent( Tablet ), p( pos ), g( globalPos ), dev( device ),
+	  press( pressure ), xT( xTilt ), yT( yTilt )
+    {};
+    int pressure()	const { return press; };
+    int xTilt()		const { return xT; };
+    int yTilt()		const { return yT; };
+    const QPoint &pos()	const { return p; };
+    const QPoint &globalPos() const { return g; };
+    int x()		const { return p.x(); };
+    int y()		const { return p.y(); };
+    int globalX()	const { return g.x(); };
+    int globalY()	const { return g.y(); };
+    TabletDevices device() 	const { return TabletDevices(dev); };
+    int isAccepted() const { return accpt; };
+    void accept() { accpt = TRUE; };
+    void ignore() { accpt = FALSE; };
+    //    static void setMaxPressure( int newMax ) { maxPress = newMax; };
+    //    static void setMinPressure( int newMin ) { minPress = newMin; };
+protected:
+    QPoint p;
+    QPoint g;
+    int dev;
+    int press;
+    int xT;
+    int yT;
+    bool accpt;
+    //    static int maxPress;
+    //    static int minPress;
+};
 
 class Q_EXPORT QKeyEvent : public QEvent
 {

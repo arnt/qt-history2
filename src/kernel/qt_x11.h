@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qt_x11.h#34 $
+** $Id: //depot/qt/main/src/kernel/qt_x11.h#35 $
 **
 ** Includes X11 system header files.
 **
@@ -81,6 +81,11 @@
 #include <X11/extensions/shape.h>
 #endif // QT_NO_SHAPE
 
+// the wacom tablet ( Currently just the IRIX version )
+#ifndef QT_NO_XINPUT
+#  include <X11/extensions/XInput.h>
+#  include <wacom.h>  // wacom driver defines for IRIX (quite handy)
+#endif  // QT_NO_XINPUT
 
 // #define QT_NO_XINERAMA
 #ifndef QT_NO_XINERAMA

@@ -2,9 +2,7 @@
   doc.cpp
 */
 
-#include <qmap.h>
 #include <qregexp.h>
-#include <qstring.h>
 #include <qstringlist.h>
 
 #include <ctype.h>
@@ -22,6 +20,8 @@
 #include "stringset.h"
 
 static QString parenParen( QString("()") );
+static QString openCaption( "<blockquote><center><b>" );
+static QString closeCaption( "</b></center></blockquote>" );
 
 /*
   These three macros are used so often that all-upper-case names are
@@ -482,7 +482,8 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
     bool overloads = FALSE;
     int numBugs = 0;
     bool inValue = FALSE;
-    bool inHeading = FALSE;
+    bool inCaption = FALSE;
+    int headingBegin = -1;
     bool metNL = FALSE; // never met N.L.
     int begin, end;
     int k;
@@ -490,6 +491,8 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
     QValueStack<OpenedList> openedLists;
     int prevSectionLevel = 0;
     int sectionLevel;
+    QValueList<Section> *toc = 0;
+    int uniqueSection = 1;
 
     while ( yyPos < yyLen ) {
 	QChar ch = yyIn[yyPos++];
@@ -634,6 +637,11 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 		    setKind( Doc::Class, command );
 		}
 		prevSectionLevel = 1;
+		break;
+	    case hash( 'c', 7 ):
+		consume( "caption" );
+		yyOut += openCaption;
+		inCaption = TRUE;
 		break;
 	    case hash( 'd', 6 ):
 		consume( "define" );
@@ -792,6 +800,11 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 		    yyOut += QString( " alt=\"%1\"" ).arg( altText );
 		yyOut += QString( "> " );
 		break;
+	    case hash( 'i', 5 ):
+		consume( "index" );
+		yyOut += QString( "<!-- index %1 -->" )
+			 .arg( getRestOfLine(yyIn, yyPos) );
+		break;
 	    case hash( 'i', 7 ):
 		if ( command.length() != 7 )
 		    break;
@@ -847,6 +860,7 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 		consume( "keyword" );
 		x = getRestOfLine( yyIn, yyPos ).simplifyWhiteSpace();
 		keywords.insert( x );
+		yyOut += QString( "<!-- index %1 -->" ).arg( x );
 
 		/*
 		  The <a name="..."> for '\page's is put right here,
@@ -880,15 +894,6 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 		    yyOut += openedLists.top().begin();
 		}
 		break;
-#if 1
-	    case hash( 'm', 9 ):
-		// see also \footnote
-		consume( "mustquote" );
-		warning( 2, location(), "Command '%s' has been renamed '%s'",
-			 "\\mustquote", "\\legalese" );
-		command = QString( "legalese" );
-		// fall through
-#endif
 	    case hash( 'l', 8 ):
 		consume( "legalese" );
 		skipSpaces( yyIn, yyPos );
@@ -896,7 +901,6 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 		legaleseEnd = INT_MAX;
 		break;
 	    case hash( 'l', 12 ):
-legaleselist:
 		consume( "legaleselist" );
 		yyOut += Doc::htmlLegaleseList();
 		break;
@@ -1045,31 +1049,17 @@ legaleselist:
 		}
 		break;
 #if 1 // ###
-	    case hash( 'd', 11 ):
-		consume( "dontinclude" );
-		warning( 2, location(), "Command '%s' has been renamed '%s'",
-			 "\\dontinclude", "\\quotefile" );
-		goto quotefile;
 	    case hash( 'w', 11 ):
 		consume( "walkthrough" );
 #if 0
 		warning( 2, location(), "Command '%s' has been renamed '%s'",
 			 "\\walkthrough", "\\quotefile" );
 #endif
-		goto quotefile;
+		command = QString( "quotefile" );
+		// fall through
 #endif
 	    case hash( 'q', 9 ):
-#if 1
-		if ( command == QString("quotelist") ) {
-		    warning( 2, location(),
-			     "Command '%s' has been renamed '%s'",
-			     "\\quotelist", "\\legaleselist" );
-
-		    goto legaleselist;
-		}
-#endif
 		consume( "quotefile" );
-quotefile:
 		x = getWord( yyIn, yyPos );
 		skipRestOfLine( yyIn, yyPos );
 		if ( x != walk.fileName() )
@@ -1127,15 +1117,34 @@ quotefile:
 		    x = QChar( '1' );
 		}
 		sectionLevel = x[0].unicode() - '0';
-		if ( sectionLevel - prevSectionLevel > 1 )
+		if ( sectionLevel - prevSectionLevel > 1 ) {
 		    warning( 2, location(),
 			     "Unexpected '\\section %d' within '\\section %d'",
 			     sectionLevel, prevSectionLevel );
+		}
+
+		{
+		    if ( toc == 0 )
+			toc = new QValueList<Section>;
+		    QValueList<Section> *subsects = toc;
+		    for ( int i = 1; i < sectionLevel; i++ ) {
+			if ( subsects->isEmpty() ) {
+			    // ### should complain here, not up there
+			    subsects->push_back( Section() );
+			}
+			subsects = subsects->last().subsections();
+		    }
+		    subsects->push_back( Section() );
+		}
+
 		prevSectionLevel = sectionLevel;
 		if ( kindIs == Doc::Class )
 		    prevSectionLevel++;
 		yyOut += QString( "<h%1>" ).arg( prevSectionLevel + 1 );
-		inHeading = TRUE;
+		if ( headingBegin != -1 )
+		    warning( 2, location(),
+			     "Missing blank line after '\\section'" );
+		headingBegin = yyOut.length();
 		break;
 	    case hash( 's', 8 ):
 		consume( "skipline" );
@@ -1234,10 +1243,26 @@ quotefile:
 			yyOut += QString( "</ul>" );
 			inValue = FALSE;
 		    }
-		    if ( inHeading ) {
-			yyOut += QString( "</h%1>" )
+		    if ( inCaption ) {
+			yyOut += closeCaption;
+			inCaption = FALSE;
+		    }
+		    if ( headingBegin != -1 ) {
+			QValueList<Section> *subsects = toc;
+			while ( !subsects->last().subsections()->isEmpty() )
+			    subsects = subsects->last().subsections();
+			subsects->last().title = yyOut.mid( headingBegin );
+
+			yyOut += QString( "</h%1>\n" )
 				 .arg( prevSectionLevel + 1 );
-			inHeading = FALSE;
+			if ( subsects->last().target.isEmpty() ) {
+			    subsects->last().target = QString( "s%1" )
+						      .arg( uniqueSection++ );
+			    yyOut += QString( "<a name=\"%1\"></a>" )
+				     .arg( subsects->last().target );
+			}
+
+			headingBegin = -1;
 		    }
 		    if ( briefEnd == INT_MAX )
 			briefEnd = yyOut.length();
@@ -1250,6 +1275,11 @@ quotefile:
 
     if ( numBugs > 0 || inValue )
 	yyOut += QString( "</ul>" );
+    if ( inCaption )
+	yyOut += closeCaption;
+    if ( headingBegin != -1 )
+	warning( 2, location(), "Trailing '\\section'" );
+
     flushWalkthrough( walk, &included, &thruwalked );
 
     if ( footnotes.count() > 0 ) {
@@ -1346,6 +1376,7 @@ quotefile:
     doc->setKeywords( keywords );
     doc->setGroups( groups );
     doc->setContainsExamples( included, thruwalked );
+    doc->setTOC( toc );
     if ( legaleseBegin >= 0 )
 	doc->setHtmlLegalese( yyOut.mid(legaleseBegin,
 					legaleseEnd - legaleseBegin)
@@ -2065,7 +2096,7 @@ QString Doc::htmlClassHierarchy()
 
 QString Doc::htmlExtensionList()
 {
-    QString html( "" );
+    QString html;
 
     if ( !extlist.isEmpty() ) {
 	StringSet::ConstIterator e;
@@ -2082,10 +2113,39 @@ QString Doc::htmlExtensionList()
     return html;
 }
 
+static QString emitTOCSections( const QValueList<Section>& sections )
+{
+    QString html;
+
+    if ( !sections.isEmpty() ) {
+	html += QString( "<ul>\n" );
+
+	QValueList<Section>::ConstIterator s = sections.begin();
+	while ( s != sections.end() ) {
+	    html += QString( "<li><a href=\"#%1\">%2</a>\n" )
+		    .arg( (*s).target ).arg( (*s).title );
+	    html += emitTOCSections( *(*s).subsections() );
+	    ++s;
+	}
+	html += QString( "</ul>\n" );
+    }
+    return html;
+}
+
+QString Doc::htmlTableOfContents() const
+{
+    if ( toc == 0 ) {
+	return QString::null;
+    } else {
+	return QString( "<!-- toc -->\n" ) + emitTOCSections( *toc ) +
+	       QString( "<!-- endtoc -->\n" );
+    }
+}
+
 Doc::Doc( Kind kind, const Location& loc, const QString& htmlText,
 	  const QString& name, const QString& whatsThis )
     : html( htmlText ), ki( kind ), lo( loc ), nam( name ), whats( whatsThis ),
-      inter( FALSE ), obs( FALSE ), prel( FALSE )
+      inter( FALSE ), obs( FALSE ), prel( FALSE ), toc( 0 )
 {
 }
 
@@ -2395,6 +2455,10 @@ QString Doc::finalHtml() const
 		consume( "skipuntil" );
 		substr = getRestOfLine( yyIn, yyPos );
 		walk.skipuntil( substr, location() );
+		break;
+	    case hash( 't', 15 ):
+		consume( "tableofcontents" );
+		yyOut += htmlTableOfContents();
 		break;
 	    case hash( 'v', 7 ):
 		consume( "version" );
