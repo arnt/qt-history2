@@ -37,8 +37,6 @@
 
 extern HDC   shared_dc;		// common dc for all fonts
 
-static int max_font_count = 256;
-
 
 // ### maybe move to qapplication_win
 QFont qt_LOGFONTtoQFont(LOGFONT& lf, bool /*scale*/)

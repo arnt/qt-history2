@@ -265,7 +265,9 @@ extern HINSTANCE appPrevInst;			// handle to prev app instance
 extern int appCmdShow;				// main window show command
 static HWND	 curWin		= 0;		// current window
 static HDC	 displayDC	= 0;		// display device context
-static UINT	 appUniqueID	= 0;		// application id used by WinCE
+#ifdef Q_OS_TEMP
+static UINT	 appUniqueID	= 0;		// application id
+#endif
 
 // Session management
 static bool	sm_blockUserInput    = FALSE;

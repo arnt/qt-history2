@@ -316,7 +316,6 @@ bool QPrinter::newPage()
 				 -p.y - GetDeviceCaps( hdc, PHYSICALOFFSETY ),
 				 0 );
         } else {
-	    QSize margs = margins();
 	    POINT p;
 	    GetViewportOrgEx( hdc, &p );
 	    OffsetViewportOrgEx( hdc, -p.x, -p.y, 0 );

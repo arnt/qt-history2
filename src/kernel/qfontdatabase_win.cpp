@@ -19,7 +19,7 @@
 #include "qpaintdevice.h"
 
 extern HDC   shared_dc;		// common dc for all fonts
-extern HFONT stock_sysfont  = 0;
+static HFONT stock_sysfont  = 0;
 
 // see the Unicode subset bitfields in the MSDN docs
 static int requiredUnicodeBits[QFont::NScripts][2] = {
@@ -200,7 +200,11 @@ storeFont( ENUMLOGFONTEX* f, NEWTEXTMETRIC *textmetric, int type, LPARAM /*p*/ )
 	else
 	    styleKey.weight = QFont::Black;
 
+	QString rawName = familyName;
+	familyName.replace('-', ' ');
 	QtFontFamily *family = db->family( familyName, TRUE );
+	family->rawName = rawName;
+
 	QtFontFoundry *foundry = family->foundry( foundryName,  TRUE );
 	QtFontStyle *style = foundry->style( styleKey,  TRUE );
 	style->smoothScalable = TRUE;
@@ -516,7 +520,7 @@ QFontEngine *loadEngine( QFont::Script script, const QFontPrivate *fp,
 	    deffnt = SYSTEM_FONT;
 	else
 	    deffnt = DEFAULT_GUI_FONT;
-	QString fam = family->name.lower();
+	QString fam = family->rawName.lower();
 	if ( fam == "default" )
 	    f = deffnt;
 	else if ( fam == "system" )
@@ -624,7 +628,7 @@ QFontEngine *loadEngine( QFont::Script script, const QFontPrivate *fp,
 	lf.lfClipPrecision  = CLIP_DEFAULT_PRECIS;
 	lf.lfPitchAndFamily = DEFAULT_PITCH | hint;
 
-	QString fam = family->name;
+	QString fam = family->rawName;
 	if ( (fam == "MS Sans Serif") && (request.italic || (-lf.lfHeight > 18 && -lf.lfHeight != 24)) )
 	    fam = "Arial"; // MS Sans Serif has bearing problems in italic, and does not scale
 

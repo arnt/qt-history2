@@ -466,6 +466,9 @@ bool QDragManager::drag( QDragObject * o, QDragObject::DragMode mode )
       case QDragObject::DragCopyOrMove:
 	allowed_effects = DROPEFFECT_MOVE|DROPEFFECT_COPY;
 	break;
+      case QDragObject::DragLink:
+	allowed_effects = 0;
+	break;
     }
     acceptact = FALSE;
     allowed_effects |= DROPEFFECT_LINK;

@@ -363,7 +363,7 @@ void QFontEngineWin::draw( QPainter *p, int x, int y, const QTextEngine *engine,
 
 	// rotation + scale + translation
 	scale = sqrt( p->m11()*p->m22() - p->m12()*p->m21() );
-	angle = 1800*acos( p->m11()/scale )/M_PI;
+	angle = (int)(1800*acos( p->m11()/scale )/M_PI);
 	if ( p->m12() < 0 )
 	    angle = 3600 - angle;
 
