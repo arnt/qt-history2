@@ -36,8 +36,7 @@ QMakeLocalFileName::QMakeLocalFileName(const QString &name) : is_null(name.isNul
     if(!is_null) {
         real_name = name;
         real_name.replace("\"","");
-        local_name = Option::fixPathToLocalOS(real_name);
-        fixEnvVariables(local_name);
+        local_name = Option::fixPathToLocalOS(real_name, true);
     }
 }
 
@@ -615,7 +614,6 @@ bool QMakeSourceFileInfo::findMocs(SourceFile *file)
                 }
             }
         }
-#define SYMBOL_CHAR(x)
 
         bool interesting = *(buffer+x) == 'Q' &&
                            (!strncmp(buffer+x, "Q_OBJECT", Q_OBJECT_LEN) ||
