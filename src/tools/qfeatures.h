@@ -795,25 +795,6 @@
 # define QT_NO_TEXTBROWSER
 #endif
 
-#if defined(QT_NO_STYLE)
-    /*!
-	Windows style
-    */
-# define QT_NO_STYLE_WINDOWS
-    /*!
-	Motif style
-    */
-# define QT_NO_STYLE_MOTIF
-#endif
-
-#if defined(QT_NO_STYLE_MOTIF)
-    /*!
-	Motif-plus style
-    */
-# define QT_NO_STYLE_MOTIFPLUS
-#endif
-
-
 #if defined(QT_NO_SCROLLVIEW) || defined(QT_NO_STRINGLIST)
     /*!
 	QListBox
@@ -876,11 +857,30 @@
 # define QT_NO_LISTVIEW
 #endif
 
+#if defined(QT_NO_STYLE)
+    /*!
+	Windows style
+    */
+# define QT_NO_STYLE_WINDOWS
+    /*!
+	Motif style
+    */
+# define QT_NO_STYLE_MOTIF
+#endif
+
 #if defined(QT_NO_STYLE_WINDOWS)
     /*!
 	Compact Windows style
     */
 # define QT_NO_STYLE_COMPACT
+    /*!
+	Platinum style
+    */
+# define QT_NO_STYLE_PLATINUM
+    /*!
+	Aqua style
+    */
+# define QT_NO_STYLE_AQUA
 #endif
 
 #if defined(QT_NO_STYLE_MOTIF) || defined(QT_NO_TRANSFORMATIONS)
@@ -892,12 +892,10 @@
 	SGI style
     */
 # define QT_NO_STYLE_SGI
-#endif
-#if defined(QT_NO_STYLE_WINDOWS)
     /*!
-	Platinum style
+	Motif-plus style
     */
-# define QT_NO_STYLE_PLATINUM
+# define QT_NO_STYLE_MOTIFPLUS
 #endif
 
 /*!
