@@ -155,7 +155,7 @@ void MainWindow::setupEditActions()
     actionEditLower->setEnabled( FALSE );
 
     actionEditAccels = new QAction( tr( "Check Accelerators" ), QPixmap(),
-				    tr( "Check Accele&rators" ), ALT + Key_R, this, 0 );
+				    tr( "Chec&k Accelerators" ), ALT + Key_R, this, 0 );
     actionEditAccels->setStatusTip( tr("Checks if the accelerators used in the form are unique") );
     actionEditAccels->setWhatsThis( whatsThisFrom( "Edit|Check Accelerator" ) );
     connect( actionEditAccels, SIGNAL( activated() ), this, SLOT( editAccels() ) );
@@ -331,14 +331,14 @@ void MainWindow::setupLayoutActions()
     actionEditGridLayout->setEnabled( FALSE );
 
     actionEditSplitHorizontal = new QAction( tr( "Lay Out Horizontally (in Splitter)" ), createIconSet("editvlayoutsplit.xpm"),
-					     tr( "Lay Out Horizontally (in &Splitter)" ), 0, this, 0 );
+					     tr( "Lay Out Horizontally (in S&plitter)" ), 0, this, 0 );
     actionEditSplitHorizontal->setStatusTip(tr("Lays out the selected widgets horizontally in a splitter") );
     actionEditSplitHorizontal->setWhatsThis( whatsThisFrom( "Layout|Lay Out Horizontally (in Splitter)" ) );
     connect( actionEditSplitHorizontal, SIGNAL( activated() ), this, SLOT( editLayoutHorizontalSplit() ) );
     actionEditSplitHorizontal->setEnabled( FALSE );
 
     actionEditSplitVertical = new QAction( tr( "Lay Out Vertically (in Splitter)" ), createIconSet("edithlayoutsplit.xpm"),
-					     tr( "Lay Out Vertically (in &Splitter)" ), 0, this, 0 );
+					     tr( "Lay Out Vertically (in Sp&litter)" ), 0, this, 0 );
     actionEditSplitVertical->setStatusTip(tr("Lays out the selected widgets vertically in a splitter") );
     actionEditSplitVertical->setWhatsThis( whatsThisFrom( "Layout|Lay Out Vertically (in Splitter)" ) );
     connect( actionEditSplitVertical, SIGNAL( activated() ), this, SLOT( editLayoutVerticalSplit() ) );
@@ -622,7 +622,7 @@ void MainWindow::setupFileActions()
 
     a = new QAction( this, 0 );
     a->setText( tr( "Create Template" ) );
-    a->setMenuText( tr( "&Create Template..." ) );
+    a->setMenuText( tr( "Create &Template..." ) );
     a->setStatusTip( tr( "Creates a new template" ) );
     a->setWhatsThis( whatsThisFrom( "File|Create Template" ) );
     connect( a, SIGNAL( activated() ), this, SLOT( fileCreateTemplate() ) );
@@ -820,7 +820,7 @@ void MainWindow::setupWindowActions()
     actionWindowCascade->addTo( windowMenu );
     windowMenu->insertSeparator();
     windowMenu->insertItem( tr( "Vie&ws" ), createDockWindowMenu( NoToolBars ) );
-    windowMenu->insertItem( tr( "&Toolbars" ), createDockWindowMenu( OnlyToolBars ) );
+    windowMenu->insertItem( tr( "Tool&bars" ), createDockWindowMenu( OnlyToolBars ) );
     QWidgetList windows = qworkspace->windowList();
     if ( windows.count() && formWindow() )
 	windowMenu->insertSeparator();
