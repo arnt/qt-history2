@@ -171,14 +171,10 @@ public:
     virtual QMap<int, QVariant> itemData(const QModelIndex &index) const;
     virtual bool setItemData(const QModelIndex &index, const QMap<int, QVariant> &roles);
 
-    virtual bool insertRows(int row, const QModelIndex &parent = QModelIndex::Null,
-                            int count = 1);
-    virtual bool insertColumns(int column, const QModelIndex &parent = QModelIndex::Null,
-                               int count = 1);
-    virtual bool removeRows(int row, const QModelIndex &parent = QModelIndex::Null,
-                            int count = 1);
-    virtual bool removeColumns(int column, const QModelIndex &parent = QModelIndex::Null,
-                               int count = 1);
+    virtual bool insertRows(int row, const QModelIndex &parent, int count);
+    virtual bool insertColumns(int column, const QModelIndex &parent, int count);
+    virtual bool removeRows(int row, const QModelIndex &parent, int count);
+    virtual bool removeColumns(int column, const QModelIndex &parent, int count);
 
     inline bool insertRow(int row, const QModelIndex &parent = QModelIndex::Null)
     { return insertRows(row, parent, 1); }
@@ -252,6 +248,15 @@ public:
     virtual int columnCount() const = 0;
 
     QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex::Null) const;
+
+    inline bool insertRows(int row, int count)
+    { return QAbstractItemModel::insertRows(row, QModelIndex::Null, count); }
+    inline bool insertColumns(int column, int count)
+    { return QAbstractItemModel::insertColumns(column, QModelIndex::Null, count); }
+    inline bool removeRows(int row, int count)
+    { return QAbstractItemModel::removeRows(row, QModelIndex::Null, count); }
+    inline bool removeColumns(int column, int count)
+    { return QAbstractItemModel::removeColumns(column, QModelIndex::Null, count); }
 
 protected:
     QAbstractTableModel(QAbstractItemModelPrivate &dd, QObject *parent);
