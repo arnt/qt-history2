@@ -83,7 +83,7 @@ static const char* const ignore_slots[] = {
 };
 
 ConnectionItem::ConnectionItem( QTable *table, FormWindow *fw )
-    : QComboTableItem( table, QStringList(), FALSE ), formWindow( fw )
+    : QComboTableItem( table, QStringList(), FALSE ), formWindow( fw ), conn( 0 )
 {
     setReplaceable( FALSE );
 }
@@ -165,7 +165,7 @@ void ConnectionItem::paint( QPainter *p, const QColorGroup &cg,
 
     QFont f( p->font() );
     QFont oldf( p->font() );
-    if ( conn->isModified() ) {
+    if ( conn && conn->isModified() ) {
 	f.setBold( TRUE );
 	p->setFont( f );
     }
