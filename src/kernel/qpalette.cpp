@@ -610,15 +610,15 @@ QPalette &QPalette::operator=(const QPalette &p)
 const QBrush &QPalette::brush(ColorGroup gr, ColorRole cr) const
 {
     Q_ASSERT(cr < NColorRoles);
-    if(cg >= (int)NColorGroups) {
-	if(cg == Current) {
-	    cg = current_group;
+    if(gr >= (int)NColorGroups) {
+	if(gr == Current) {
+	    gr = current_group;
 	} else {
-	    qWarning("QPalette::brush: Unknown ColorGroup: %d", (int)cg);
-	    cg = Active;
+	    qWarning("QPalette::brush: Unknown ColorGroup: %d", (int)gr);
+	    gr = Active;
 	}
     }
-    return d->br[cg][cr];
+    return d->br[gr][cr];
 }
 
 /*!
