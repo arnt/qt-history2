@@ -523,7 +523,7 @@ bool QSqlTable::eventFilter( QObject *o, QEvent *e )
 		conf = confirmCancel( QSqlTable::Insert );
 	    if ( conf == Yes ) {
 		insertCancelled = TRUE;
-		endInsert(); // ### What happens to the keyboard focus??
+		endInsert(); // ### What happens to the keyboard focus?
 	    } else {
 		editorWidget->setActiveWindow();
 		editorWidget->setFocus();
@@ -764,7 +764,7 @@ void QSqlTable::endUpdate()
 
 bool QSqlTable::beginInsert()
 {
-    if ( !sqlCursor() || isReadOnly() || ! numCols() )
+    if ( !sqlCursor() || isReadOnly() || !numCols() )
 	return FALSE;
     if ( !sqlCursor()->canInsert() )
 	return FALSE;
@@ -1553,7 +1553,7 @@ void QSqlTable::setSize( QSqlCursor* sql )
 }
 
 /*!  Sets \a cursor as the data source for the table.  To force the
-  display of the data from \a cursor, use refresh(). If \q autoPopulate
+  display of the data from \a cursor, use refresh(). If \a autoPopulate
   is TRUE (the default is FALSE), columns are automatically created
   based upon the fields in the \a cursor record.  If \a autoDelete is
   TRUE (the default is FALSE), the table will take ownership of the \a
@@ -1577,7 +1577,8 @@ void QSqlTable::setCursor( QSqlCursor* cursor, bool autoPopulate, bool autoDelet
 	    for ( uint i = 0; i < sqlCursor()->count(); ++i )
 		addColumn( sqlCursor()->field( i )->name(), sqlCursor()->displayLabel( sqlCursor()->field( i )->name() ) );
 	}
-	setReadOnly( sqlCursor()->isReadOnly() ); // ## do this by default?
+	if ( sqlCursor()->isReadOnly() )
+	    setReadOnly( TRUE );
 	setNullText(sqlCursor()->driver()->nullText() );
 	setAutoDelete( autoDelete );
     }
