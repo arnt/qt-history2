@@ -29,7 +29,6 @@ extern WindowPtr qt_mac_window_for(HIViewRef); //qwidget_mac.cpp
 /*****************************************************************************
   Internal QCursorData class
  *****************************************************************************/
-#ifndef QMAC_NO_FAKECURSOR
 #include <qpainter.h>
 class QMacCursorWidget : public QWidget
 {
@@ -59,19 +58,13 @@ public:
             }
             QBitmap mask;
             mask = mi;
-#if 0
-            bitmap.setMask(mask);
-            setBackgroundColor(blue);
-#else
             setMask(mask);
-#endif
         }
     ~QMacCursorWidget() { }
 protected:
     void paintEvent(QPaintEvent *) { bitBlt(this, 0, 0, &bitmap); }
 };
 #include "qcursor_mac.moc"
-#endif
 
 class QMacAnimateCursor : public QObject
 {
