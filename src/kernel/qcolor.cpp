@@ -129,9 +129,8 @@
   A color can be set by passing setNamedColor() an RGB string like
   "#112233", or a color name, e.g. "blue". The names are taken from
   X11's rgb.txt database but can also be used under Windows. To get a
-  lighter or darker color use light() and dark() respectively. By
-  default colors are only allocated on demand; you can change this with
-  setLazyAlloc(). Colors can also be set using setRgb() and setHsv().
+  lighter or darker color use light() and dark() respectively.
+  Colors can also be set using setRgb() and setHsv().
   The color components can be accessed in one go with rgb() and hsv(), or
   individually with red(), green() and blue().
 
@@ -188,7 +187,7 @@ QT_STATIC_CONST_IMPL QColor & Qt::darkYellow = stdcol[18];
 
 bool QColor::color_init   = FALSE;		// color system not initialized
 bool QColor::globals_init = FALSE;		// global color not initialized
-bool QColor::lazy_alloc = TRUE;			// lazy color allocation
+QColor::ColorModel QColor::colormodel = d32;
 
 
 QColor* QColor::globalColors()
@@ -216,15 +215,17 @@ QColor* QColor::globalColors()
 void QColor::initGlobalColors()
 {
     globals_init = TRUE;
-    stdcol[ 0].pix = COLOR0_PIX;
-    stdcol[ 1].pix = COLOR1_PIX;
+
 #ifdef Q_WS_QWS
-    stdcol[ 0].rgbVal = 0;
-    stdcol[ 1].rgbVal = 0x00ffffff; //######### QWS color allocation is a mess
+    stdcol[ 0].d.argb = 0;
+    stdcol[ 1].d.argb = qRgb(255,255,255); // ##### WHY?
 #else
-    stdcol[ 0].rgbVal = 0x00ffffff;
-    stdcol[ 1].rgbVal = 0;
+    stdcol[ 0].d.argb = qRgb(255,255,255);
+    stdcol[ 1].d.argb = 0;
 #endif
+    stdcol[ 0].setPixel( COLOR0_PIX );
+    stdcol[ 1].setPixel( COLOR1_PIX );
+
     stdcol[ 2].setRgb(   0,   0,   0 );
     stdcol[ 3].setRgb( 255, 255, 255 );
     stdcol[ 4].setRgb( 128, 128, 128 );
@@ -291,8 +292,27 @@ QColor::QColor( QRgb rgb, uint pixel )
     if ( pixel == 0xffffffff ) {
 	setRgb( rgb );
     } else {
-	rgbVal = (rgb & RGB_MASK) | RGB_DIRECT;
-	pix    = pixel;
+	d.argb = rgb;
+	setPixel(pixel);
+    }
+}
+
+void QColor::setPixel( uint pixel )
+{
+    switch ( colormodel ) {
+      case d8:
+	d.d8.direct = TRUE;
+	d.d8.invalid = FALSE;
+	d.d8.dirty = FALSE;
+	d.d8.pix = pixel;
+	break;
+      case d16:
+	d.d16.invalid = FALSE;
+	d.d16.pix = pixel;
+	break;
+      case d32:
+	d.d32.pix = pixel;
+	break;
     }
 }
 
@@ -354,8 +374,8 @@ QColor::QColor( const QColor &c )
 {
     if ( !globals_init )
 	initGlobalColors();
-    rgbVal = c.rgbVal;
-    pix	   = c.pix;
+    d.argb = c.d.argb;
+    d.d32.pix = c.d.d32.pix;
 }
 
 
@@ -367,25 +387,38 @@ QColor &QColor::operator=( const QColor &c )
 {
     if ( !globals_init )
 	initGlobalColors();
-    rgbVal = c.rgbVal;
-    pix	   = c.pix;
+    d.argb = c.d.argb;
+    d.d32.pix = c.d.d32.pix;
     return *this;
 }
 
 
 /*!
-  \fn bool QColor::isValid() const
   Returns FALSE if the color is invalid, i.e., it was constructed using the
   default constructor.
-*/
 
-/*!
-  \fn bool QColor::isDirty() const
-  Returns TRUE if the color is dirty, i.e., lazy allocation is enabled and
-  an RGB/HSV value has been set but not allocated.
-  \sa setLazyAlloc(), alloc(), pixel()
+  Use of this function is discouraged,
+  as it is slightly slow on Truecolor displays. If you need a "null" QColor,
+  it may be better to use q QColor* where possible.
 */
-
+bool QColor::isValid() const
+{
+    switch ( colormodel ) {
+      case d8:
+	return !d.d8.invalid;
+      case d16:
+	return !d.d16.invalid;
+      case d32:
+	// not very fast
+	QColor* o = (QColor*)this;
+	uint p = o->d.d32.pix;
+	if ( o->alloc() != p ) {
+	    o->d.d32.pix = p;
+	    return FALSE;
+	}
+    }
+    return TRUE;
+}
 
 /*!  Returns the name of the color in the format "#RRGGBB", i.e., a
   "#" character followed by three two-digit hexadecimal numbers.
@@ -487,9 +520,9 @@ void QColor::hsv( int *h, int *s, int *v ) const
 {
     if ( !h || !s || !v )
 	return;
-    int r = qRed(rgbVal);
-    int g = qGreen(rgbVal);
-    int b = qBlue(rgbVal);
+    int r = qRed(d.argb);
+    int g = qGreen(d.argb);
+    int b = qBlue(d.argb);
     uint max = r;				// maximum RGB component
     int whatmax = 0;				// r=>0, g=>1, b=>2
     if ( (uint)g > max ) {
@@ -598,9 +631,9 @@ void QColor::setHsv( int h, int s, int v )
 
 void QColor::rgb( int *r, int *g, int *b ) const
 {
-    *r = qRed(rgbVal);
-    *g = qGreen(rgbVal);
-    *b = qBlue(rgbVal);
+    *r = qRed(d.argb);
+    *g = qGreen(d.argb);
+    *b = qBlue(d.argb);
 }
 
 
@@ -617,10 +650,11 @@ void QColor::setRgb( int r, int g, int b )
     if ( (uint)r > 255 || (uint)g > 255 || (uint)b > 255 )
 	qWarning( "QColor::setRgb: RGB parameter(s) out of range" );
 #endif
-    rgbVal = ((r & 0xff) << 16) | ((g & 0xff) << 8) | (b & 0xff);
-    if ( lazy_alloc || !color_init ) {
-	rgbVal |= RGB_DIRTY;			// alloc later
-	pix = 0;
+    d.argb = qRgb( r, g, b );
+    if ( colormodel == d8 ) {
+	d.d8.invalid = FALSE;
+	d.d8.direct = FALSE;
+	d.d8.dirty = TRUE;
     } else {
 	alloc();				// alloc now
     }
@@ -637,11 +671,12 @@ void QColor::setRgb( int r, int g, int b )
 
 void QColor::setRgb( QRgb rgb )
 {
-    if ( lazy_alloc || !color_init ) {
-	rgbVal = (rgb & RGB_MASK) | RGB_DIRTY;	// alloc later
-	pix = 0;
+    d.argb = rgb;
+    if ( colormodel == d8 ) {
+	d.d8.invalid = FALSE;
+	d.d8.direct = FALSE;
+	d.d8.dirty = TRUE;
     } else {
-	rgbVal = (rgb & RGB_MASK);
 	alloc();				// alloc now
     }
 }
@@ -744,43 +779,28 @@ QColor QColor::dark( int factor ) const
   or FALSE if they have equal RGB values.
 */
 
-
 /*!
-  \fn bool QColor::lazyAlloc()
-  Returns TRUE if lazy color allocation is enabled (on-demand allocation),
-  or FALSE if it is disabled (immediate allocation).
-  \sa setLazyAlloc()
-*/
-
-/*!
-  Enables or disables lazy color allocation.
-
-  If lazy allocation is enabled, colors are allocated the first time
-  they are used (upon calling the pixel() function).  If lazy
-  allocation is disabled, colors are allocated when they are
-  constructed or when either setRgb() or setHsv() is called.
-
-  Lazy color allocation is enabled by default.
-
-  \sa lazyAlloc(), pixel(), alloc()
-*/
-
-void QColor::setLazyAlloc( bool enable )
-{
-    lazy_alloc = enable;
-}
-
-
-/*!
-  \fn uint QColor::pixel() const
   Returns the pixel value.
 
   This value is used by the underlying window system to refer to a color.
   It can be thought of as an index into the display hardware's color table,
   but the value is an arbitrary 32-bit value.
 
-  \sa setLazyAlloc(), alloc()
+  \sa alloc()
 */
+uint QColor::pixel() const
+{
+    switch ( colormodel ) {
+      case d8:
+	return d.d8.dirty ? ((QColor*)this)->alloc() : d.d8.pix;
+      case d16:
+	return d.d16.pix;
+      case d32:
+	return d.d32.pix;
+    }
+    return 0;
+}
+
 
 
 /*****************************************************************************

@@ -57,6 +57,10 @@ void QColor::initialize()
     if ( color_init )				// already initialized
 	return;
     color_init = TRUE;
+    if (qApp->desktop()->qwsDisplay()->depth() <= 8)
+	colormodel = d8;
+    else
+	colormodel = d32;
 }
 
 void QColor::cleanup()
@@ -128,22 +132,20 @@ inline unsigned int closestMatch(int r,int g,int b)
 
 uint QColor::alloc()
 {
-    rgbVal &= RGB_MASK;
-
 // These macros mazimize optimizations even on dumb compilers.
 
 #define GET \
-    const int r = qRed(rgbVal);\
-    const int g = qGreen(rgbVal);\
-    const int b = qBlue(rgbVal);
+    const int r = qRed(d.argb);\
+    const int g = qGreen(d.argb);\
+    const int b = qBlue(d.argb);
 
     switch (qApp->desktop()->qwsDisplay()->depth()) {
       case 1: {
 	GET
-	return pix = qGray(r,g,b) < 128 ? 1 : 0;
+	return d.d8.pix = qGray(r,g,b) < 128 ? 1 : 0;
 #if !defined( QT_NO_IMAGE_16_BIT ) || !defined( QT_NO_QWS_DEPTH_16 )
       } case 16: {
-	return pix = qt_convRgbTo16(rgbVal);
+	return d.d16.pix = qt_convRgbTo16(d.argb);
 #endif	
       } case 24:
         case 32: {
@@ -157,20 +159,20 @@ uint QColor::alloc()
 #ifndef QT_NO_QWS_DEPTH_32_BGR
 	if ( qt_screen->pixelType() == QGfx::BGRPixel ) {
 	    const int tb = b << red_shift;
-	    pix = (r & blue_mask) | (tg & green_mask) | (tb & red_mask);
+	    d.d32.pix = (r & blue_mask) | (tg & green_mask) | (tb & red_mask);
 	} else 
 #endif
 	{
 	    const int tr = r << red_shift;
-	    pix = (b & blue_mask) | (tg & green_mask) | (tr & red_mask);
+	    d.d32.pix = (b & blue_mask) | (tg & green_mask) | (tr & red_mask);
 	}
-	return 0xff000000 | pix;
+	return 0xff000000 | d.d32.pix;
      } default: {
 	GET
 #ifndef QT_NO_QWS_DEPTH_8GRAYSCALE
-	return pix=qGray(r,g,b);
+	return d.d8.pix=qGray(r,g,b);
 #else
-	return pix=qt_screen->alloc(r,g,b);
+	return d.d8.pix=qt_screen->alloc(r,g,b);
 #endif
       }
     }
@@ -183,13 +185,14 @@ void QColor::setSystemNamedColor( const QString& name )
 	qWarning( "QColor::setSystemNamedColor: Cannot perform this operation "
 		 "because QApplication does not exist" );
 #endif
-	alloc();				// makes the color black
-	return;
+	d.argb = 0;
+    } else {
+	d.argb = qt_get_rgb_val( name.latin1() );
     }
-    rgbVal = qt_get_rgb_val( name.latin1() );
-    if ( lazy_alloc ) {
-	rgbVal |= RGB_DIRTY;			// alloc later
-	pix = 0;
+    if ( colormodel == d8 ) {
+	d.d8.invalid = FALSE;
+	d.d8.dirty = TRUE;
+	d.d8.pix = 0;
     } else {
 	alloc();				// alloc now
     }

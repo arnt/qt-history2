@@ -739,14 +739,14 @@ uint qt_get_rgb_val( const char *name )
     RGBData *r = (RGBData*)bsearch((char*)&x, (char*)rgbTbl, rgbTblSize,
 				   sizeof(RGBData), rgb_cmp);
     free(name_no_space);
-    return r ? r->value : RGB_INVALID;
+    return r ? r->value : 0;
 }
 
 #else
 
 uint qt_get_rgb_val( const char * )
 {
-    return RGB_INVALID;
+    return 0;
 }
 
 #endif // QT_NO_COLORNAMES

@@ -42,11 +42,7 @@
 #include "qwindowdefs.h"
 #endif // QT_H
 
-const QRgb  RGB_DIRTY	= 0x80000000;		// flags unset color
-const QRgb  RGB_INVALID = 0x40000000;		// flags invalid color
-const QRgb  RGB_DIRECT	= 0x20000000;		// flags directly set pixel
-const QRgb  RGB_MASK	= 0x00ffffff;		// masks RGB values
-
+const QRgb  RGB_MASK    = 0x00ffffff;		// masks RGB values
 
 Q_EXPORT inline int qRed( QRgb rgb )		// get red part of RGB
 { return (int)((rgb >> 16) & 0xff); }
@@ -112,8 +108,6 @@ public:
     bool   operator==( const QColor &c ) const;
     bool   operator!=( const QColor &c ) const;
 
-    static bool lazyAlloc();
-    static void setLazyAlloc( bool );
     uint   alloc();
     uint   pixel()  const;
 
@@ -137,58 +131,60 @@ public:
     static void cleanup();
 
 private:
-    void   setSystemNamedColor( const QString& name );
+    void setSystemNamedColor( const QString& name );
+    void setPixel( uint pixel );
     static void initGlobalColors();
+    static uint argbToPix32(QRgb);
     static QColor* globalColors();
     static bool color_init;
     static bool globals_init;
-    static bool lazy_alloc;
 #if defined(Q_WS_WIN)
     static HPALETTE hpal;
 #endif
-    uint   pix;
-    QRgb   rgbVal;
+    static enum ColorModel { d8, d16, d32 } colormodel;
+    union {
+	QRgb argb;
+	struct {
+	    QRgb argb;
+	    uchar pix;
+	    uchar invalid;
+	    uchar dirty;
+	    uchar direct;
+	} d8;
+	struct {
+	    QRgb argb;
+	    ushort pix;
+	    uchar invalid;
+	} d16;
+	struct {
+	    QRgb argb;
+	    ulong pix; // invalid if they don't match
+	} d32;
+    } d;
 };
 
 
 inline QColor::QColor()
-{ rgbVal = RGB_INVALID; pix = 0; }
+{ d.d32.argb = 0; d.d32.pix = 0xffffffff; }
 
 inline QColor::QColor( int r, int g, int b )
 { setRgb( r, g, b ); }
 
-inline bool QColor::isValid() const
-{ return (rgbVal & RGB_INVALID) == 0; }
-
-inline bool QColor::isDirty() const
-{ return (rgbVal & RGB_DIRTY) != 0; }
-
 inline QRgb QColor::rgb() const
-{ return rgbVal | ~RGB_MASK; }
+{ return d.argb; }
 
 inline int QColor::red() const
-{ return qRed(rgbVal); }
+{ return qRed(d.argb); }
 
 inline int QColor::green() const
-{ return qGreen(rgbVal); }
+{ return qGreen(d.argb); }
 
 inline int QColor::blue() const
-{ return qBlue(rgbVal); }
-
-inline uint QColor::pixel() const
-{ return (rgbVal & RGB_DIRTY) == 0 ? pix : ((QColor*)this)->alloc(); }
-
-inline bool QColor::lazyAlloc()
-{ return lazy_alloc; }
-
+{ return qBlue(d.argb); }
 
 inline bool QColor::operator==( const QColor &c ) const
 {
-    return isValid()==c.isValid() &&
-	((((rgbVal | c.rgbVal) & RGB_DIRECT) == 0 &&
-	    (rgbVal & RGB_MASK) == (c.rgbVal & RGB_MASK)) ||
-	   ((rgbVal & c.rgbVal & RGB_DIRECT) != 0 &&
-	    (rgbVal & RGB_MASK) == (c.rgbVal & RGB_MASK) && pix == c.pix));
+    return d.argb == c.d.argb && isValid() == c.isValid();
 }
 
 inline bool QColor::operator!=( const QColor &c ) const

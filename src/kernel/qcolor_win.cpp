@@ -85,6 +85,8 @@ void QColor::initialize()
     if ( numCols <= 16 || numCols > 256 )	// no need to create palette
 	return;
 
+    colormodel = d8;
+
     HDC dc = qt_display_dc();			// get global DC
 
     if ( QApplication::colorSpec() == QApplication::ManyColor )
@@ -231,21 +233,19 @@ uint QColor::realizePal( QWidget *widget )
 
 uint QColor::alloc()
 {
-    if ( (rgbVal & RGB_INVALID) || !color_init ) {
-	rgbVal = 0;				// invalid color or state
-	pix = 0;
+    if ( !color_init ) {
+	return d.d32.pix = 0;
     } else {
-	rgbVal &= RGB_MASK;
-	pix = qrgb2colorref( rgbVal );
 	if ( hpal ) {
+	    int pix = qrgb2colorref( d.argb );
 	    int idx = GetNearestPaletteIndex( hpal, pix );
 	    pix = PALETTEINDEX( idx );
 	    if ( QApplication::colorSpec() == QApplication::CustomColor ) {
 		// # Should speed up this using a dict into palArray
 		PALETTEENTRY fe;
 		GetPaletteEntries( hpal, idx, 1, &fe );
-		QRgb fc = qRgb( fe.peRed, fe.peGreen, fe.peBlue ) & RGB_MASK;
-		if ( fc != rgbVal ) {	// Color not found in palette
+		QRgb fc = qRgb( fe.peRed, fe.peGreen, fe.peBlue );
+		if ( fc != d.argb ) {	// Color not found in palette
 		    // Find a free palette entry
 		    bool found = FALSE;
 		    for ( int i = 0; i < numPalEntries; i++ ) {
@@ -264,13 +264,13 @@ uint QColor::alloc()
 		    if ( found ) {
 			// Change unused palette entry into the new color
 			PALETTEENTRY ne;
-			ne.peRed = qRed( rgbVal );
-			ne.peGreen = qGreen( rgbVal );
-			ne.peBlue = qBlue( rgbVal );
+			ne.peRed = qRed( d.argb );
+			ne.peGreen = qGreen( d.argb );
+			ne.peBlue = qBlue( d.argb );
 			ne.peFlags = 0;
 			SetPaletteEntries( hpal, idx, 1, &ne );
 			pix = PALETTEINDEX( idx );
-			colArray[idx] = rgbVal;
+			colArray[idx] = d.argb;
 			ctxArray[idx] = current_alloc_context;
 			HDC dc = qt_display_dc();
 			UnrealizeObject( hpal );
@@ -285,10 +285,11 @@ uint QColor::alloc()
 			ctxArray[idx] = 0;	// Set it to default ctx
 		}
 	    }
+	    return d.d8.pix = pix;
+	} else {
+	    return d.d32.pix = qrgb2colorref( a.argb );
 	}
     }
-
-    return pix;
 }
 
 void QColor::setSystemNamedColor( const QString& name )
@@ -298,13 +299,14 @@ void QColor::setSystemNamedColor( const QString& name )
 	qWarning( "QColor::setSystemNamedColor: Cannot perform this operation "
 		 "because QApplication does not exist" );
 #endif
-	alloc();				// makes the color black
-	return;
+	d.argb = 0;
+    } else {
+	d.argb = qt_get_rgb_val( name.latin1() );
     }
-    rgbVal = qt_get_rgb_val( name.latin1() );
-    if ( lazy_alloc ) {
-	rgbVal |= RGB_DIRTY;			// alloc later
-	pix = 0;
+    if ( colormodel == d8 ) {
+	d.d8.invalid = FALSE;
+	d.d8.dirty = TRUE;
+	d.d8.pix = 0;
     } else {
 	alloc();				// alloc now
     }

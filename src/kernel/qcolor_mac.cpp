@@ -38,14 +38,6 @@
 
 #include "qintdict.h"
 
-struct QColorData {
-    uint pix;					// allocated pixel value
-    int	 context;				// allocation context
-};
-
-typedef QIntDict<QColorData> QColorDict;
-typedef QIntDictIterator<QColorData> QColorDictIt;
-
 
 /*
   This function is called from the event loop. It resets the colors_avail
@@ -66,7 +58,7 @@ void qt_reset_color_avail()
 
 int QColor::maxColors()
 {
-    return 2^24;
+    return 1<<24;
 }
 
 int QColor::numBitPlanes()
@@ -94,15 +86,8 @@ void QColor::cleanup()
 
 uint QColor::alloc()
 {
-    if ( (rgbVal & RGB_INVALID) || !color_init ) {
-	rgbVal = 0;				// invalid color or state
-	pix = 0;
-    } else {
-	rgbVal &= RGB_MASK;
-	pix = qRed( rgbVal ) << 16 | qGreen( rgbVal ) << 8 | qBlue( rgbVal );
-    }
-
-    return pix;
+    d.d32.pix = qRed( d.argb ) << 16 | qGreen( d.argb ) << 8 | qBlue( d.argb );
+    return d.d32.pix;
 }
 
 
@@ -113,16 +98,11 @@ void QColor::setSystemNamedColor( const QString& name )
 	qWarning( "QColor::setSystemNamedColor: Cannot perform this operation "
 		 "because QApplication does not exist" );
 #endif
-	alloc();				// makes the color black
-	return;
-    }
-    rgbVal = qt_get_rgb_val( name.latin1() );
-    if ( lazy_alloc ) {
-	rgbVal |= RGB_DIRTY;			// alloc later
-	pix = 0;
+	d.argb = 0;
     } else {
-	alloc();				// alloc now
+	d.argb = qt_get_rgb_val( name.latin1() );
     }
+    alloc();
 }
 
 
