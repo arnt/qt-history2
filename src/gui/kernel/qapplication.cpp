@@ -1938,16 +1938,21 @@ void QApplication::syncX()        {}                // do nothing
 */
 #endif
 
-/*!\internal
+/*!
 
   Sets the active window in reaction to a system event. The function
   is called from the platform specific event handlers.
 
+  \warning This function does \e not set the keyboard focus to the
+  active widget. Call QWidget::setActiveWindow() instead.
+
   It sets the activeWindow() and focusWidget() attributes and sends
   proper WindowActivate/WindowDeactivate and FocusIn/FocusOut events
-  to all appropriate widgets.
+  to all appropriate widgets. The window will then be painted in
+  active state (e.g. cursors in line edits will blink), and it will
+  have tool tips enabled.
 
-  \sa activeWindow()
+  \sa activeWindow(), QWidget::setActiveWindow()
  */
 void QApplication::setActiveWindow(QWidget* act)
 {
