@@ -103,7 +103,7 @@ void Program::clear()
 }
 
 
-/*! sets the program counter so that \a i is the next instruction to
+/*! Sets the program counter so that \a i is the next instruction to
 be executed. If \a i is negative, it is interpreted as a label.
 
 */
@@ -113,6 +113,11 @@ void Program::setCounter( int i )
     if ( i < 0 ) {
 	if ( dirty ) {
 	    int instrNo = 0;
+
+	    /*
+	      First pass: Fill in the table that maps labels to
+	      instruction numbers.
+	    */
 	    localsql::Op *op = ops.first();
 	    while ( op != 0 ) {
 		if ( op->label() < 0 ) {
@@ -124,6 +129,14 @@ void Program::setCounter( int i )
 		instrNo++;
 		op = ops.next();
 	    }
+
+#if 0
+	    /*
+	      Second pass: Optimize gotos. If the instruction 
+	    */
+	    op
+#endif
+
 	    dirty = FALSE;
 	}
 
@@ -381,8 +394,8 @@ bool ResultSet::append( const localsql::Record& buf )
 
 /* Provided so that we can sort a list of variants. Note that this
    does not work for variant types that have no value (e.g., picture,
-   icon, etc), however we are only dealing with basic database types,
-   so its cool.
+   icon, etc.), however we are only dealing with basic database types,
+   so all is fine.
 */
 static bool operator<( const QVariant &v1, const QVariant& v2 )
 {

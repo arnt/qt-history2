@@ -681,6 +681,11 @@ void Parser::emitCondition( const QVariant& cond,
     int endRecords = yyNextLabel--;
 
     if ( NEED_A_LOOP() ) {
+	if ( saving ) {
+	    emitExprList( columnsToSave, FALSE );
+	    yyProg->append( new CreateResult(0) );
+	}
+
 	yyProg->appendLabel( nextRecord );
 	yyProg->append( new NextMarked(tableId, endRecords) );
 

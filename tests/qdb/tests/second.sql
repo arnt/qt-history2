@@ -1,3 +1,3 @@
-select id
+select authors.id, authors.name
 from authors, publishers
-where id = 1;
+where authors.id = 1 or authors.id = 2;
