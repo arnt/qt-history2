@@ -125,7 +125,6 @@ QToolButton::QToolButton(const QIcon& iconSet, const QString &textLabel,
 {
     setObjectName(name);
     d->init();
-    d->autoRaise = true;
     setIcon(iconSet);
     setText(textLabel);
     if (receiver && slot)
@@ -184,7 +183,7 @@ void QToolButtonPrivate::init()
 {
     delay = q->style()->styleHint(QStyle::SH_ToolButton_PopupDelay, 0, q);
     menu = 0;
-    autoRaise = false;
+    autoRaise = (qt_cast<QToolBar*>(q->parentWidget()) != 0);
     arrow = Qt::LeftArrow;
     instantPopup = false;
     discardNextMouseEvent = false;
@@ -195,7 +194,7 @@ void QToolButtonPrivate::init()
     hasArrow = false;
 
     q->setFocusPolicy(Qt::NoFocus);
-    q->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
+    q->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
 
     QObject::connect(q, SIGNAL(pressed()), q, SLOT(popupPressed()));
 }
@@ -230,16 +229,15 @@ QStyleOptionToolButton QToolButtonPrivate::getStyleOption() const
     if (down || (instantPopup && popupMode != QToolButton::MenuButtonPopupMode))
         opt.activeSubControls |= QStyle::SC_ToolButton;
 
+    opt.features = QStyleOptionToolButton::None;
     if ((menu || q->actions().size() > 1) && popupMode == QToolButton::MenuButtonPopupMode) {
         opt.subControls |= QStyle::SC_ToolButtonMenu;
+        opt.features |= QStyleOptionToolButton::Menu;
         if (instantPopup || down)
             opt.activeSubControls |= QStyle::SC_ToolButtonMenu;
     }
-    opt.features = QStyleOptionToolButton::None;
     if (hasArrow)
         opt.features |= QStyleOptionToolButton::Arrow;
-    if (menu && popupMode == QToolButton::MenuButtonPopupMode)
-        opt.features |= QStyleOptionToolButton::Menu;
     if (popupMode == QToolButton::DelayedPopupMode)
         opt.features |= QStyleOptionToolButton::PopupDelay;
     opt.toolButtonStyle = q->toolButtonStyle();
@@ -306,6 +304,7 @@ QSize QToolButton::sizeHint() const
     }
 
     QStyleOptionToolButton opt = d->getStyleOption();
+    opt.rect.setHeight(h); // PM_MenuButtonIndicator depends on the height
     if ((d->menu || actions().size() > 1) && d->popupMode == MenuButtonPopupMode)
         w += style()->pixelMetric(QStyle::PM_MenuButtonIndicator, &opt, this);
 
@@ -441,24 +440,27 @@ void QToolButton::paintEvent(QPaintEvent *)
 void QToolButton::actionEvent(QActionEvent *event)
 {
     QAction *action = event->action();
+    bool isButtonAction = (action == actions().value(0));
 
     switch (event->type()) {
     case QEvent::ActionAdded:
-        Q_ASSERT(actions().size() == 1);
-        action->connect(q, SIGNAL(clicked()), SLOT(trigger()));
+        if (isButtonAction)
+            action->connect(q, SIGNAL(clicked()), SLOT(trigger()));
         // fall through intended
 
     case QEvent::ActionChanged:
-        setText(action->iconText());
-        setIcon(action->icon());
-        setToolTip(action->toolTip());
-        setStatusTip(action->statusTip());
-        setWhatsThis(action->whatsThis());
-        setMenu(action->menu());
-        setCheckable(action->isCheckable());
-        setChecked(action->isChecked());
-        setEnabled(action->isEnabled());
-        setFont(actions().at(0)->font());
+        if (isButtonAction) {
+            setText(action->iconText());
+            setIcon(action->icon());
+            setToolTip(action->toolTip());
+            setStatusTip(action->statusTip());
+            setWhatsThis(action->whatsThis());
+            setMenu(action->menu());
+            setCheckable(action->isCheckable());
+            setChecked(action->isChecked());
+            setEnabled(action->isEnabled());
+            setFont(action->font());
+        }
         break;
 
     default:
@@ -502,6 +504,19 @@ void QToolButton::timerEvent(QTimerEvent *e)
         return;
     }
     QAbstractButton::timerEvent(e);
+}
+
+
+/*!
+    \reimp
+*/
+void QToolButton::changeEvent(QEvent *e)
+{
+    if (e->type() == QEvent::ParentChange) {
+        if (qt_cast<QToolBar*>(parentWidget()))
+            d->autoRaise = true;
+    }
+    QAbstractButton::changeEvent(e);
 }
 
 /*!
@@ -702,8 +717,8 @@ void QToolButtonPrivate::popupTimerDone()
     } else {
         actualMenu = new QMenu(q);
         QList<QAction*> actions = q->actions();
-        for(int i = 0; i < actions.size(); i++) //skip the first
-            actualMenu->addAction(actions[i]);
+        for(int i = 0; i < actions.size(); i++)
+            actualMenu->addAction(actions.at(i));
     }
     repeat = q->autoRepeat();
     q->setAutoRepeat(false);
@@ -715,37 +730,40 @@ void QToolButtonPrivate::popupTimerDone()
 #endif
     QPoint p;
     QRect screen = qApp->desktop()->availableGeometry(q);
+    QSize sh = actualMenu->sizeHint();
+    QRect rect = q->rect();
     if (horizontal) {
         if (q->isRightToLeft()) {
-            if (q->mapToGlobal(QPoint(0, q->rect().bottom())).y() + actualMenu->sizeHint().height() <= screen.height()) {
-                p = q->mapToGlobal(q->rect().bottomRight());
+            if (q->mapToGlobal(QPoint(0, rect.bottom())).y() + sh.height() <= screen.height()) {
+                p = q->mapToGlobal(rect.bottomRight());
             } else {
-                p = q->mapToGlobal(q->rect().topRight() - QPoint(0, actualMenu->sizeHint().height()));
+                p = q->mapToGlobal(rect.topRight() - QPoint(0, sh.height()));
             }
-            p.rx() -= actualMenu->sizeHint().width();
+            p.rx() -= sh.width();
         } else {
-            if (q->mapToGlobal(QPoint(0, q->rect().bottom())).y() + actualMenu->sizeHint().height() <= screen.height()) {
-                p = q->mapToGlobal(q->rect().bottomLeft());
+            if (q->mapToGlobal(QPoint(0, rect.bottom())).y() + sh.height() <= screen.height()) {
+                p = q->mapToGlobal(rect.bottomLeft());
             } else {
-                p = q->mapToGlobal(q->rect().topLeft() - QPoint(0, actualMenu->sizeHint().height()));
+                p = q->mapToGlobal(rect.topLeft() - QPoint(0, sh.height()));
             }
         }
     } else {
         if (q->isRightToLeft()) {
-            if (q->mapToGlobal(QPoint(q->rect().left(), 0)).x() - actualMenu->sizeHint().width() <= screen.x()) {
-                p = q->mapToGlobal(q->rect().topRight());
+            if (q->mapToGlobal(QPoint(rect.left(), 0)).x() - sh.width() <= screen.x()) {
+                p = q->mapToGlobal(rect.topRight());
             } else {
-                p = q->mapToGlobal(q->rect().topLeft());
-                p.rx() -= actualMenu->sizeHint().width();
+                p = q->mapToGlobal(rect.topLeft());
+                p.rx() -= sh.width();
             }
         } else {
-            if (q->mapToGlobal(QPoint(q->rect().right(), 0)).x() + actualMenu->sizeHint().width() <= screen.width()) {
-                p = q->mapToGlobal(q->rect().topRight());
+            if (q->mapToGlobal(QPoint(rect.right(), 0)).x() + sh.width() <= screen.width()) {
+                p = q->mapToGlobal(rect.topRight());
             } else {
-                p = q->mapToGlobal(q->rect().topLeft() - QPoint(actualMenu->sizeHint().width(), 0));
+                p = q->mapToGlobal(rect.topLeft() - QPoint(sh.width(), 0));
             }
         }
     }
+    p.rx() = qMax(0, qMin(p.x(), screen.right() - sh.width()));
     QPointer<QToolButton> that = q;
     actualMenu->setNoReplayFor(q);
     actualMenu->exec(p);
@@ -806,7 +824,7 @@ void QToolButton::setPopupMode(QToolButton::ToolButtonPopupMode mode)
     d->popupMode = mode;
 }
 
-QToolButton::ToolButtonPopupMode QToolButton::popupMode()
+QToolButton::ToolButtonPopupMode QToolButton::popupMode() const
 {
     return d->popupMode;
 }

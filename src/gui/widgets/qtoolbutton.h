@@ -24,9 +24,7 @@ class QMenu;
 class Q_GUI_EXPORT QToolButton : public QAbstractButton
 {
     Q_OBJECT
-    Q_DECLARE_PRIVATE(QToolButton)
-    Q_ENUMS(Qt::ToolButtonStyle)
-    Q_ENUMS(Qt::IconSize)
+    Q_ENUMS(Qt::ToolButtonStyle Qt::IconSize)
 
     Q_PROPERTY(QToolButton::ToolButtonPopupMode popupMode READ popupMode WRITE setPopupMode)
     Q_PROPERTY(Qt::ToolButtonStyle toolButtonStyle READ toolButtonStyle WRITE setToolButtonStyle)
@@ -57,7 +55,7 @@ public:
     void showMenu();
 
     void setPopupMode(QToolButton::ToolButtonPopupMode mode);
-    QToolButton::ToolButtonPopupMode popupMode();
+    QToolButton::ToolButtonPopupMode popupMode() const;
 
     void setAutoRaise(bool enable);
     bool autoRaise() const;
@@ -77,11 +75,13 @@ protected:
     void enterEvent(QEvent *);
     void leaveEvent(QEvent *);
     void timerEvent(QTimerEvent *);
+    void changeEvent(QEvent *);
 
     bool uses3D() const;
 
 private:
     Q_DISABLE_COPY(QToolButton)
+    Q_DECLARE_PRIVATE(QToolButton)
     Q_PRIVATE_SLOT(d, void popupPressed())
 
 #ifdef QT_COMPAT
