@@ -1043,7 +1043,7 @@ void QPocketPCStyle::drawControl( ControlElement element,
 #endif // QT_NO_PROGRESSBAR
 
     default:
-	QCommonStyle::drawControl(element, p, widget, r, cg, flags, opt);
+	QWindowsStyle::drawControl(element, p, widget, r, cg, flags, opt);
 
     }
 }
@@ -1823,7 +1823,7 @@ QPixmap QPocketPCStyle::stylePixmap(StylePixmap stylepixmap,
 	break;
     }
 
-    return QCommonStyle::stylePixmap(stylepixmap, widget, opt);
+    return QWindowsStyle::stylePixmap(stylepixmap, widget, opt);
 }
 
 
@@ -2018,7 +2018,7 @@ void QPocketPCStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
 	switch ( sub ) {
 	case SC_SpinWidgetUp:
 	case SC_SpinWidgetDown:
-	    QCommonStyle::drawComplexControl( ctrl, p, widget, r, cg, how,
+	    QWindowsStyle::drawComplexControl( ctrl, p, widget, r, cg, how,
 					      sub, subActive, opt );
 	    break;
 	case SC_SpinWidgetFrame:
@@ -2071,7 +2071,7 @@ void QPocketPCStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
 	}
 
 	if ( sub & SC_SliderTickmarks )
-	    QCommonStyle::drawComplexControl( ctrl, p, widget, r, cg, how,
+	    QWindowsStyle::drawComplexControl( ctrl, p, widget, r, cg, how,
 					      SC_SliderTickmarks, subActive,
 					      opt );
 
@@ -2283,7 +2283,7 @@ void QPocketPCStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
 #endif // QT_NO_SLIDER
 
 	default:
-	    QCommonStyle::drawComplexControl( ctrl, p, widget, r, cg, how, sub,
+	    QWindowsStyle::drawComplexControl( ctrl, p, widget, r, cg, how, sub,
 					      subActive, opt );
 	break;
     }
