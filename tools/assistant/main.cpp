@@ -199,9 +199,10 @@ void EditDocs::initDocFiles()
     QSettings settings;
     settings.insertSearchPath( QSettings::Windows, "/Trolltech" );
     QString keybase = "/Qt Assistant/3.1/";
-    bool firstRun = settings.readBoolEntry( keybase + "FirstRun", TRUE );
-    if ( !firstRun )
+    QString firstRunString = settings.readEntry( keybase + "FirstRunString" );
+    if ( firstRunString == QString( QT_VERSION_STR ) )
 	return;
+    qDebug( "first run" );
     QString path = QString( qInstallPathDocs() ) + "/html/";
     QStringList lst;
     lst.append( path + "qt.xml" );
@@ -219,7 +220,7 @@ void EditDocs::initDocFiles()
     settings.writeEntry( DocuParser::DocumentKey + "CategoriesAvailable", lst );
     lst.prepend( "all" );
     settings.writeEntry( DocuParser::DocumentKey + "CategoriesSelected", lst );
-    settings.writeEntry( keybase + "FirstRun", FALSE );
+    settings.writeEntry( keybase + "FirstRunString", QString( QT_VERSION_STR ) );
     settings.writeEntry( keybase + "NewDoc", TRUE );
 }
 
@@ -322,8 +323,8 @@ int main( int argc, char ** argv )
     bool max = config->readBoolEntry( keybase  + "GeometryMaximized", FALSE );
     QString link = config->readEntry( keybase + "Source", "" );
 
-    bool firstRun = config->readBoolEntry( keybase + "FirstRun", TRUE );
-    if ( firstRun ) {
+    QString firstRunString = config->readEntry( keybase + "FirstRunString" );
+    if ( firstRunString != QString( QT_VERSION_STR ) ) {
 	EditDocs ed;
 	ed.initDocFiles();
     }
