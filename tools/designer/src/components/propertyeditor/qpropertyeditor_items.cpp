@@ -283,6 +283,7 @@ void StringProperty::updateValue(QWidget *editor)
     }
 }
 
+
 // -------------------------------------------------------------------------
 ListProperty::ListProperty(const QStringList &items, int value, const QString &name)
     : AbstractProperty<int>(value, name), m_items(items)
@@ -1155,3 +1156,50 @@ void AlignmentProperty::setValue(const QVariant &value)
     propertyAt(1)->setValue(value.toUInt() & Qt::AlignVertical_Mask);
 }
 
+// -------------------------------------------------------------------------
+DoubleProperty::DoubleProperty(double value, const QString &name)
+    : AbstractProperty<double>(value, name)
+{
+}
+
+void DoubleProperty::setValue(const QVariant &value)
+{
+    m_value = value.toDouble();
+}
+
+QString DoubleProperty::toString() const
+{
+    return QString::number(m_value);
+}
+
+QWidget *DoubleProperty::createEditor(QWidget *parent, const QObject *target, const char *receiver) const
+{
+    QLineEdit *lineEdit = new QLineEdit(parent);
+    lineEdit->setFrame(0);
+    lineEdit->setValidator(new QDoubleValidator(lineEdit));
+
+    QObject::connect(lineEdit, SIGNAL(textChanged(const QString&)), target, receiver);
+    return lineEdit;
+}
+
+void DoubleProperty::updateEditorContents(QWidget *editor)
+{
+    if (QLineEdit *lineEdit = qobject_cast<QLineEdit*>(editor)) {
+        double v = lineEdit->text().toDouble();
+        if (v != m_value)
+            lineEdit->setText(QString::number(m_value));
+    }
+}
+
+void DoubleProperty::updateValue(QWidget *editor)
+{
+    if (QLineEdit *lineEdit = qobject_cast<QLineEdit*>(editor)) {
+        double newValue = lineEdit->text().toDouble();
+
+        if (newValue != m_value) {
+            m_value = newValue;
+            setChanged(true);
+        }
+
+    }
+}

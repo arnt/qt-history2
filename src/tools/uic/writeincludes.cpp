@@ -103,6 +103,8 @@ void WriteIncludes::add(const QString &className)
             || className == QLatin1String("QGridLayout")
             || className == QLatin1String("QSpacerItem")) {
         m_includes.insert(QLatin1String("qlayout.h"), true);
+    } else if (className == QLatin1String("QDoubleSpinBox")) {
+        m_includes.insert(QLatin1String("qspinbox.h"), true);
     } else if (className == QLatin1String("Line")) {
         m_includes.insert(QLatin1String("qframe.h"), true);
     } else if (className == QLatin1String("QDateEdit") // special case for datetime

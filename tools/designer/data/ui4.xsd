@@ -181,7 +181,7 @@
                 <xs:attribute name="rowSpan" type="xs:integer" />
                 <xs:attribute name="colSpan" type="xs:integer" />
         </xs:complexType>
-        
+
 <!-- item view begin -->
         <xs:complexType name="Row">
                 <xs:sequence maxOccurs="unbounded">
@@ -358,6 +358,8 @@
                         <xs:element name="string" type="String" />
                         <xs:element name="stringList" type="StringList" />
                         <xs:element name="number" type="xs:integer" />
+                        <xs:element name="float" type="xs:float" />
+                        <xs:element name="double" type="xs:double" />
                         <xs:element name="date" type="Date" />
                         <xs:element name="time" type="Time" />
                         <xs:element name="dateTime" type="DateTime" />
@@ -371,7 +373,7 @@
                     <xs:element name="connection" type="Connection" />
             </xs:sequence>
         </xs:complexType>
-        
+
         <xs:complexType name="Connection">
             <xs:sequence>
                 <xs:element name="sender" type="xs:string"/>
@@ -381,13 +383,13 @@
                 <xs:element name="hints" type="ConnectionHints"/>
             </xs:sequence>
         </xs:complexType>
-        
+
         <xs:complexType name="ConnectionHints">
             <xs:sequence maxOccurs="unbounded">
                 <xs:element name="hint" type="ConnectionHint" />
             </xs:sequence>
         </xs:complexType>
-        
+
         <xs:complexType name="ConnectionHint">
             <xs:sequence>
                 <xs:element name="x" type="xs:integer"/>

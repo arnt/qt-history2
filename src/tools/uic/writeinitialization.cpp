@@ -649,6 +649,12 @@ void WriteInitialization::writeProperties(const QString &varName,
         case DomProperty::Number:
             propertyValue = QString::number(p->elementNumber());
             break;
+        case DomProperty::Float:
+            propertyValue = QString::number(p->elementFloat());
+            break;
+        case DomProperty::Double:
+            propertyValue = QString::number(p->elementDouble());
+            break;
         case DomProperty::Date: {
             DomDate *d = p->elementDate();
             propertyValue = QString::fromLatin1("QDate(%1, %2, %3)")
@@ -997,7 +1003,7 @@ QString WriteInitialization::pixCall(DomResourcePixmap *r) const
 
         if (uic->hasExternalPixmap() || !declaredPix)
 			s = fixString(s);
-            
+
         if (pixFunc.isEmpty() && s == QLatin1String("\"\""))
             s.clear();
 

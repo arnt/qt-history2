@@ -1680,7 +1680,7 @@ public:
     inline void clearAttributeStdset() { m_has_attr_stdset = false; }
 
     // child element accessors
-    enum Kind { Unknown = 0, Bool, Color, Cstring, Cursor, Enum, Font, IconSet, Pixmap, Palette, Point, Rect, Set, SizePolicy, Size, String, StringList, Number, Date, Time, DateTime };
+    enum Kind { Unknown = 0, Bool, Color, Cstring, Cursor, Enum, Font, IconSet, Pixmap, Palette, Point, Rect, Set, SizePolicy, Size, String, StringList, Number, Float, Double, Date, Time, DateTime };
     inline Kind kind() { return m_kind; }
 
     inline QString elementBool() { return m_bool; }
@@ -1734,6 +1734,12 @@ public:
     inline int elementNumber() { return m_number; }
     void setElementNumber(int a);
 
+    inline float elementFloat() { return m_float; }
+    void setElementFloat(float a);
+
+    inline double elementDouble() { return m_double; }
+    void setElementDouble(double a);
+
     inline DomDate* elementDate() { return m_date; }
     void setElementDate(DomDate* a);
 
@@ -1773,6 +1779,8 @@ private:
     DomString* m_string;
     DomStringList* m_stringList;
     int m_number;
+    float m_float;
+    double m_double;
     DomDate* m_date;
     DomTime* m_time;
     DomDateTime* m_dateTime;

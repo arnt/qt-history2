@@ -3928,6 +3928,8 @@ void DomProperty::clear(bool clear_all)
     m_string = 0;
     m_stringList = 0;
     m_number = 0;
+    m_float = 0.0;
+    m_double = 0;
     m_date = 0;
     m_time = 0;
     m_dateTime = 0;
@@ -3953,6 +3955,8 @@ DomProperty::DomProperty()
     m_string = 0;
     m_stringList = 0;
     m_number = 0;
+    m_float = 0.0;
+    m_double = 0;
     m_date = 0;
     m_time = 0;
     m_dateTime = 0;
@@ -4076,6 +4080,14 @@ void DomProperty::read(const QDomElement &node)
         }
         if (tag == QLatin1String("number")) {
             setElementNumber(e.text().toInt());
+            continue;
+        }
+        if (tag == QLatin1String("float")) {
+            setElementFloat(e.text().toFloat());
+            continue;
+        }
+        if (tag == QLatin1String("double")) {
+            setElementDouble(e.text().toDouble());
             continue;
         }
         if (tag == QLatin1String("date")) {
@@ -4248,6 +4260,20 @@ QDomElement DomProperty::write(QDomDocument &doc, const QString &tagName)
             e.appendChild(child);
             break;
         }
+        case Float: {
+            QDomElement child = doc.createElement("float");
+            QDomText text = doc.createTextNode(QString::number(elementFloat()));
+            child.appendChild(text);
+            e.appendChild(child);
+            break;
+        }
+        case Double: {
+            QDomElement child = doc.createElement("double");
+            QDomText text = doc.createTextNode(QString::number(elementDouble()));
+            child.appendChild(text);
+            e.appendChild(child);
+            break;
+        }
         case Date: {
             DomDate* v = elementDate();
             if (v != 0) {
@@ -4398,6 +4424,20 @@ void DomProperty::setElementNumber(int a)
     clear(false);
     m_kind = Number;
     m_number = a;
+}
+
+void DomProperty::setElementFloat(float a)
+{
+    clear(false);
+    m_kind = Float;
+    m_float = a;
+}
+
+void DomProperty::setElementDouble(double a)
+{
+    clear(false);
+    m_kind = Double;
+    m_double = a;
 }
 
 void DomProperty::setElementDate(DomDate* a)

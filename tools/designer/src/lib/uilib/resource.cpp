@@ -454,6 +454,10 @@ QVariant Resource::toVariant(const QMetaObject *meta, DomProperty *p)
         v = p->elementNumber();
     } break;
 
+    case DomProperty::Double: {
+        v = p->elementDouble();
+    } break;
+
     case DomProperty::Color: {
         DomColor *color = p->elementColor();
         QColor c(color->elementRed(), color->elementGreen(), color->elementBlue());
@@ -817,6 +821,10 @@ DomProperty *Resource::createProperty(QObject *obj, const QString &pname, const 
 
         case QVariant::UInt: {
             dom_prop->setElementNumber(v.toUInt());
+        } break;
+
+        case QVariant::Double: {
+            dom_prop->setElementDouble(v.toDouble());
         } break;
 
         case QVariant::Bool: {

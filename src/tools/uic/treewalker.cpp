@@ -174,6 +174,8 @@ void TreeWalker::acceptProperty(DomProperty *property)
         case DomProperty::DateTime:
         case DomProperty::Unknown:
         case DomProperty::StringList:
+        case DomProperty::Float:
+        case DomProperty::Double:
             break;
     }
 }

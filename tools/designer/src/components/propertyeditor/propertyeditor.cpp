@@ -481,6 +481,9 @@ void PropertyEditor::createPropertySheet(PropertyCollection *root, QObject *obje
             case QVariant::UInt:
                 p = new IntProperty(value.toUInt(), pname);
                 break;
+            case QVariant::Double:
+                p = new DoubleProperty(value.toDouble(), pname);
+                break;
             case QVariant::Bool:
                 p = new BoolProperty(value.toBool(), pname);
                 break;
@@ -678,7 +681,7 @@ void PropertyEditor::resetProperty(const QString &prop_name)
         qWarning("PropertyEditor::resetProperty(): object is not a widget");
         return;
     }
-    
+
     AbstractFormWindow *form = AbstractFormWindow::findFormWindow(w);
     if (form == 0) {
         qWarning("PropertyEditor::resetProperty(): widget does not belong to any form");

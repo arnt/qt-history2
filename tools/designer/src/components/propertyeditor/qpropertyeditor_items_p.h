@@ -53,7 +53,7 @@ public:
 
     bool dirty() const { return m_dirty; }
     void setDirty(bool b);
-    
+
     bool hasReset() const { return m_reset; }
     void setHasReset(bool b) { m_reset = b; }
 
@@ -175,7 +175,7 @@ public:
 
     QWidget *createExternalEditor(QWidget *parent)
     { Q_UNUSED(parent); return 0; }
-    
+
 protected:
     QString m_name;
     QList<IProperty*> m_properties;
@@ -249,6 +249,19 @@ class QT_PROPERTYEDITOR_EXPORT BoolProperty: public AbstractProperty<bool>
 {
 public:
     BoolProperty(bool value, const QString &name);
+
+    void setValue(const QVariant &value);
+    QString toString() const;
+
+    QWidget *createEditor(QWidget *parent, const QObject *target, const char *receiver) const;
+    void updateEditorContents(QWidget *editor);
+    void updateValue(QWidget *editor);
+};
+
+class QT_PROPERTYEDITOR_EXPORT DoubleProperty: public AbstractProperty<double>
+{
+public:
+    DoubleProperty(double value, const QString &name);
 
     void setValue(const QVariant &value);
     QString toString() const;
