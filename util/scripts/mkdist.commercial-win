@@ -3,7 +3,4 @@
 # Creates a new Qt source distribution for Windows
 #
 
-DISTDIR=/tmp/qtdist
-export DISTDIR
-
-mkdist.generic commercial win $DISTDIR
+mkdist.generic commercial win /tmp/qtdist

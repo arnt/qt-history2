@@ -3,7 +3,4 @@
 # Creates a new Qt source distribution for X11
 #
 
-DISTDIR=/tmp/qtdist
-export DISTDIR
-
-mkdist.generic commercial x11 $DISTDIR
+mkdist.generic commercial x11 /tmp/qtdist

@@ -10,27 +10,29 @@ DISTDIR=$3
 unset goodparam1
 unset goodparam2
 
-if [ "$freecomm" = "free" -o "$freecomm" = "commercial" ]; then
+curdir=`/bin/pwd`
+
+if [ "${freecomm}" = "free" -o "${freecomm}" = "commercial" ]; then
   goodparam1=yes
 fi
 
-if [ "$platform" = "x11" -o "$platform" = "win" ]; then
+if [ "${platform}" = "x11" -o "${platform}" = "win" ]; then
   goodparam2=yes
 fi
 
-if [ "$goodparam1" = "" -o "$goodparam2" = "" -o "$DISTDIR" = "" ]; then
+if [ "${goodparam1}" = "" -o "${goodparam2}" = "" -o "${DISTDIR}" = "" ]; then
   echo 'Usage: mkdist.generic commercial|free x11|win dist-dir'
   exit
 fi
 
-if [ "$freecomm" = "free" -a "$platform" != "x11" ]; then
+if [ "${freecomm}" = "free" -a "${platform}" != "x11" ]; then
   echo 'Impossible. Only X11 versions have a free license'
 fi
 
-echo "Removing and creating new $DISTDIR"
-rm -rf $DISTDIR
-mkdir -p $DISTDIR
-cd $DISTDIR
+echo "Removing and creating new ${DISTDIR}"
+rm -rf ${DISTDIR}
+mkdir -p ${DISTDIR}
+cd ${DISTDIR}
 
 echo "Exporting the entire Qt archive"
 cvs checkout qt > /dev/null
@@ -47,23 +49,23 @@ echo "Auto-detect the Qt version number -- " $QTVER
 echo "Removing kernel .cpp files for other platforms..."
 cd qt/src/kernel
 find . -name '*_x11.cpp' -o -name '*_win.cpp' -o -name '*_os2.cpp' \
-	| grep -v "_$platform" | xargs rm -f
+	| grep -v "_${platform}" | xargs rm -f
 
-if [ "$freecomm" = "free" ]; then
+if [ "${freecomm}" = "free" ]; then
   echo "Adding non-commercial banner in .h and .cpp files"
-  cd $DISTDIR/qt/src
-  fixcopyright tools/*.h tools/*.cpp kernel/*.h kernel/*.cpp widgets/*.h widgets/*.cpp dialogs/*.h dialogs/*.cpp
+  cd ${DISTDIR}/qt/src
+  ${curdir}/fixcopyright tools/*.h tools/*.cpp kernel/*.h kernel/*.cpp widgets/*.h widgets/*.cpp dialogs/*.h dialogs/*.cpp
 fi
 
 echo "Generate lex and yacc files for moc"
-cd $DISTDIR/qt/src/moc
+cd ${DISTDIR}/qt/src/moc
 make moc.cpp
 
-if [ "$platform" = "win" ]; then
-  cd $DISTDIR/qt/src/moc
+if [ "${platform}" = "win" ]; then
+  cd ${DISTDIR}/qt/src/moc
   mv -f makefile.win Makefile
   echo "Moving include files"
-  cd $DISTDIR/qt/src
+  cd ${DISTDIR}/qt/src
   echo "Generating moc output"
   cd kernel
   make moc
@@ -78,22 +80,22 @@ if [ "$platform" = "win" ]; then
   mv tools/*.cpp kernel/*.cpp widgets/*.cpp dialogs/*.cpp win
   rm -rf tools kernel widgets dialogs Makefile*
 else
-  cd $DISTDIR/qt/src/moc
+  cd ${DISTDIR}/qt/src/moc
   rm makefile.win
   echo "Make include symlinks"
-  cd $DISTDIR/qt/include
+  cd ${DISTDIR}/qt/include
   ln -s ../src/tools/q*.h ../src/kernel/q*.h ../src/widgets/q*.h ../src/dialogs/q*.h .
-  cd $DISTDIR/qt/src
+  cd ${DISTDIR}/qt/src
   rm -f Makefile* tools/Makefile kernel/Makefile widgets/Makefile dialogs/Makefile
-  cd $DISTDIR/qt/lib
+  cd ${DISTDIR}/qt/lib
   ln -s libqt.so.$QTVER libqt.so
   ln -s libqt.so.$QTVER libqt.so.$QTVERMAJOR
 fi
 
 echo "Finally copy the README, LICENSE etc. files"
-cd $DISTDIR/qt/dist
+cd ${DISTDIR}/qt/dist
 cp [A-Z]* .. 2> /dev/null
-cp $freecomm/* ..
-cp $platform/* ..
-cd $DISTDIR
+cp ${freecomm}/* ..
+cp ${platform}/* ..
+cd ${DISTDIR}
 rm -rf qt/dist
