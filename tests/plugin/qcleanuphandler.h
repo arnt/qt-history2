@@ -15,7 +15,7 @@ public:
 	while ( it.current() ) {
 	    QGuardedPtr<Type>* guard = it.current();
 	    ++it;
-	    delete *guard;
+	    delete (Type*)*guard;
 	}
     }
 
