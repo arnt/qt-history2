@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwid_win.cpp#53 $
+** $Id: //depot/qt/main/src/kernel/qwid_win.cpp#54 $
 **
 ** Implementation of QWidget and QWindow classes for Win32
 **
@@ -25,7 +25,7 @@
 #include <windows.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwid_win.cpp#53 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwid_win.cpp#54 $");
 
 extern "C" LRESULT CALLBACK WndProc( HWND, UINT, WPARAM, LPARAM );
 
@@ -558,12 +558,18 @@ void QWidget::iconify()
 
 void QWidget::raise()
 {
+    QWidget *p = parentWidget();
+    if ( p && p->childObjects && p->childObjects->findRef(this) >= 0 )
+	p->childObjects->insert( 0, p->childObjects->take() );
     uint f = testWFlags(WStyle_Tool) ? SWP_NOACTIVATE : 0;
     SetWindowPos( winId(), HWND_TOP, 0, 0, 0, 0, f | SWP_NOMOVE | SWP_NOSIZE );
 }
 
 void QWidget::lower()
 {
+    QWidget *p = parentWidget();
+    if ( p && p->childObjects && p->childObjects->findRef(this) >= 0 )
+	p->childObjects->append( p->childObjects->take() );
     uint f = testWFlags(WStyle_Tool) ? SWP_NOACTIVATE : 0;
     SetWindowPos( winId(), HWND_BOTTOM, 0, 0, 0, 0, f | SWP_NOMOVE |
 		  SWP_NOSIZE );

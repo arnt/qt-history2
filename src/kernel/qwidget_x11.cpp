@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#148 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#149 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -21,7 +21,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#148 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#149 $");
 
 
 void qt_enter_modal( QWidget * );		// defined in qapp_x11.cpp
@@ -857,6 +857,9 @@ void QWidget::iconify()
 
 void QWidget::raise()
 {
+    QWidget *p = parentWidget();
+    if ( p && p->childObjects && p->childObjects->findRef(this) >= 0 )
+	p->childObjects->insert( 0, p->childObjects->take() );
     XRaiseWindow( dpy, winid );
 }
 
@@ -871,6 +874,9 @@ void QWidget::raise()
 
 void QWidget::lower()
 {
+    QWidget *p = parentWidget();
+    if ( p && p->childObjects && p->childObjects->findRef(this) >= 0 )
+	p->childObjects->append( p->childObjects->take() );
     XLowerWindow( dpy, winid );
 }
 
