@@ -18,12 +18,12 @@
 */
 
 #include <qapplication.h>
+#include <qdirmodel.h>
+#include <qitemselectionmodel.h>
+#include <qlistview.h>
+#include <qsplitter.h>
 #include <qtableview.h>
 #include <qtreeview.h>
-#include <qlistview.h>
-#include <qitemselectionmodel.h>
-#include <qdirmodel.h>
-#include <qsplitter.h>
 
 int main(int argc, char *argv[])
 {
