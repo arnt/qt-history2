@@ -1815,9 +1815,9 @@ then
     read CFG_QWS_QVFB
     if [ "$CFG_QWS_QVFB" != "n" -a "$CFG_QWS_QVFB" != "no" ]
     then
-	CFG_QWS_QVFB=y
+	CFG_QWS_QVFB=yes
     else
-	CFG_QWS_QVFB=n
+	CFG_QWS_QVFB=no
     fi
 fi
 
@@ -1837,7 +1837,7 @@ if [ -z "$CFG_QWS_MATROX" -a "$EMBEDDED" != "no" ]
 then
     D_FLAGS="$D_FLAGS QT_NO_QWS_MATROX"
 fi
-if [ "$CFG_QWS_QVFB" = "n" -a "$EMBEDDED" != "no" ]
+if [ "$CFG_QWS_QVFB" = "no" -a "$EMBEDDED" != "no" ]
 then
     D_FLAGS="$D_FLAGS QT_NO_QWS_VFB"
 fi
