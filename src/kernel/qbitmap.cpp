@@ -241,6 +241,8 @@ QBitmap &QBitmap::operator=( const QImage &image )
   \sa QPixmap::xForm()
 */
 
+#if QT_FEATURE_TRANSFORMATIONS
+
 QBitmap QBitmap::xForm( const QWMatrix &matrix ) const
 {
     QPixmap pm = QPixmap::xForm( matrix );
@@ -252,3 +254,6 @@ QBitmap QBitmap::xForm( const QWMatrix &matrix ) const
     bm = pm;
     return bm;
 }
+
+#endif // QT_FEATURE_TRANSFORMATIONS
+

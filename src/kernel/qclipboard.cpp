@@ -24,6 +24,9 @@
 *****************************************************************************/
 
 #include "qclipboard.h"
+
+#if QT_FEATURE_CLIPBOARD
+
 #include "qapplication.h"
 #include "qdragobject.h"
 #include "qpixmap.h"
@@ -225,4 +228,4 @@ void QClipboard::setPixmap( const QPixmap &pixmap )
     setData(new QImageDrag(pixmap.convertToImage()));
 }
 
-
+#endif // QT_FEATURE_CLIPBOARD

@@ -39,6 +39,8 @@ class QServerSocket : public QObject
 {
     Q_OBJECT
 public:
+    QServerSocket( const QString& localfile, int backlog = 0,
+		   QObject *parent=0, const char *name=0 );
     QServerSocket( int port, int backlog = 0,
 		   QObject *parent=0, const char *name=0 );
     QServerSocket( const QHostAddress & address, int port, int backlog = 0,
@@ -48,6 +50,8 @@ public:
     bool ok() const;
 
     uint port();
+    int socket();
+
     QHostAddress address();
 
     virtual void newConnection( int socket ) = 0;
@@ -58,6 +62,7 @@ private slots:
 private:
     QServerSocketPrivate *d;
     void init( const QHostAddress & address, int port, int backlog );
+    void init( const QString &, int backlog );
 };
 
 

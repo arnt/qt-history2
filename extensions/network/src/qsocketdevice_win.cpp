@@ -528,6 +528,23 @@ int QSocketDevice::bytesAvailable() const
 
 
 /*!
+  Wait upto \a msecs milliseconds for more data to be available.
+  If \a msecs is -1 the call will block indefinitely.
+  This is a blocking call and should be avoided in event driven
+  applications.
+  Returns the number of bytes available for reading, or -1 if an
+  error occurred.
+  \sa bytesAvailable()
+*/
+int QSocketDevice::waitForMore( int msecs )
+{
+#warning "QSocketDevice::waitForMore() not implemented for windows"
+    qWarning( "QSocketDevice::waitForMore() not implemented for windows" );
+    return -1;
+}
+
+
+/*!
   Reads max \a maxlen bytes from the socket into \a data and returns
   the number of bytes read.  Returns -1 if an error occurred.
 */

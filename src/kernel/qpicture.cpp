@@ -296,7 +296,9 @@ bool QPicture::exec( QPainter *painter, QDataStream &s, int nrecords )
     QPen	pen;
     QBrush	brush;
     QRegion	rgn;
+#if QT_FEATURE_TRANSFORMATIONS
     QWMatrix	matrix;
+#endif
 
     while ( nrecords-- && !s.eof() ) {
 	s >> c;					// read cmd
@@ -459,30 +461,42 @@ bool QPicture::exec( QPainter *painter, QDataStream &s, int nrecords )
 		break;
 	    case PdcSetVXform:
 		s >> i_8;
+#if QT_FEATURE_TRANSFORMATIONS
 		painter->setViewXForm( i_8 );
+#endif
 		break;
 	    case PdcSetWindow:
 		s >> r;
+#if QT_FEATURE_TRANSFORMATIONS
 		painter->setWindow( r );
+#endif
 		break;
 	    case PdcSetViewport:
 		s >> r;
+#if QT_FEATURE_TRANSFORMATIONS
 		painter->setViewport( r );
+#endif
 		break;
 	    case PdcSetWXform:
 		s >> i_8;
+#if QT_FEATURE_TRANSFORMATIONS
 		painter->setWorldXForm( i_8 );
+#endif
 		break;
 	    case PdcSetWMatrix:
+#if QT_FEATURE_TRANSFORMATIONS	// #### fix me!
 		s >> matrix >> i_8;
 		painter->setWorldMatrix( matrix, i_8 );
+#endif
 		break;
+#if QT_FEATURE_TRANSFORMATIONS
 	    case PdcSaveWMatrix:
 		painter->saveWorldMatrix();
 		break;
 	    case PdcRestoreWMatrix:
 		painter->restoreWorldMatrix();
 		break;
+#endif
 	    case PdcSetClip:
 		s >> i_8;
 		painter->setClipping( i_8 );
@@ -642,6 +656,7 @@ bool QPicture::cmd( int c, QPainter *, QPDevCmdParam *p )
 	case PdcSetClip:
 	    s << (Q_INT8)p[0].ival;
 	    break;
+#if QT_FEATURE_TRANSFORMATIONS
 	case PdcSetWindow:
 	case PdcSetViewport:
 	    s << *p[0].rect;
@@ -649,6 +664,7 @@ bool QPicture::cmd( int c, QPainter *, QPDevCmdParam *p )
 	case PdcSetWMatrix:
 	    s << *p[0].matrix << (Q_INT8)p[1].ival;
 	    break;
+#endif
 	case PdcSetClipRegion:
 	    s << *p[0].rgn;
 	    break;

@@ -30,6 +30,8 @@
 #include "qglobal.h"
 #endif // QT_H
 
+#if QT_FEATURE_WIDGETS
+
 
 class QRangeControlPrivate;
 
@@ -101,5 +103,7 @@ inline int QRangeControl::lineStep() const
 inline int QRangeControl::pageStep() const
 { return page; }
 
+
+#endif // QT_FEATURE_WIDGETS
 
 #endif // QRANGECONTROL_H

@@ -30,6 +30,8 @@
 #include "qhbox.h"
 #endif // QT_H
 
+#if QT_FEATURE_WIDGETS
+
 class Q_EXPORT QVBox : public QHBox
 {
     Q_OBJECT
@@ -42,4 +44,6 @@ private:	// Disabled copy constructor and operator=
 #endif
 };
 
-#endif //QVBOX_H
+#endif // QT_FEATURE_WIDGETS
+
+#endif // QVBOX_H

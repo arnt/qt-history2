@@ -31,6 +31,8 @@
 #include "qstring.h"
 #endif // QT_H
 
+#if QT_FEATURE_PRINTER
+
 #if defined(B0)
 #undef B0 // Terminal hang-up.  We assume that you do not want that.
 #endif
@@ -110,7 +112,7 @@ protected:
 #endif
 
 private:
-#if defined(_WS_X11_)
+#if defined(_WS_X11_) || defined(_WS_QWS_)
     QPaintDevice *pdrv;
     int		pid;
 #endif
@@ -182,5 +184,6 @@ inline int QPrinter::maxPage() const
 inline int QPrinter::numCopies() const
 { return ncopies; }
 
+#endif // QT_FEATURE_PRINTER
 
 #endif // QPRINTER_H

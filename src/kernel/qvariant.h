@@ -30,6 +30,8 @@
 #include "qstring.h"
 #endif // QT_H
 
+#if QT_FEATURE_PROPERTIES
+
 class QString;
 class QCString;
 class QFont;
@@ -301,5 +303,6 @@ Q_EXPORT QDataStream& operator<< ( QDataStream& s, const QVariant& p );
 Q_EXPORT QDataStream& operator>> ( QDataStream& s, QVariant::Type& p );
 Q_EXPORT QDataStream& operator<< ( QDataStream& s, const QVariant::Type p );
 
+#endif // QT_FEATURE_PROPERTIES
 
-#endif
+#endif // QVARIANT_H

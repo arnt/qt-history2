@@ -993,9 +993,11 @@ bool QLayout::eventFilter( QObject *o, QEvent *e )
 	    if ( c->child()->isWidgetType() ) {
 		QWidget *w = (QWidget*)c->child();
 		if ( !w->isTopLevel() ) {
+#if QT_FEATURE_WIDGETS
 		    if ( w->inherits( "QMenuBar" ) && ( !w->parent() || !w->parent()->inherits( "QToolBar" ) ) )
 			menubar = (QMenuBar*)w;
 		    else
+#endif
 			addItem( new QWidgetItem( w ) );
 		    QEvent *lh = new QEvent( QEvent::LayoutHint );
 		    QApplication::postEvent( o, lh );

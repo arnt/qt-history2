@@ -24,6 +24,7 @@
 *****************************************************************************/
 
 #include "qvbuttongroup.h"
+#if QT_FEATURE_WIDGETS
 
 // NOT REVISED
 /*!
@@ -68,3 +69,4 @@ QVButtonGroup::QVButtonGroup( const QString &title, QWidget *parent,
 QVButtonGroup::~QVButtonGroup()
 {
 }
+#endif

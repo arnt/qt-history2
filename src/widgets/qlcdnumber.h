@@ -31,6 +31,8 @@
 #include "qbitarray.h"
 #endif // QT_H
 
+#if QT_FEATURE_WIDGETS
+
 
 class QLCDNumberPrivate;
 
@@ -123,5 +125,7 @@ inline bool QLCDNumber::smallDecimalPoint() const
 inline int QLCDNumber::numDigits() const
 { return ndigits; }
 
+
+#endif // QT_FEATURE_WIDGETS
 
 #endif // QLCDNUMBER_H

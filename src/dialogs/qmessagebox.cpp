@@ -24,6 +24,9 @@
 *****************************************************************************/
 
 #include "qmessagebox.h"
+
+#if QT_FEATURE_MESSAGEBOX
+
 #include "qlabel.h"
 #include "qpushbutton.h"
 #include "qimage.h"
@@ -1330,7 +1333,6 @@ int QMessageBox::critical( QWidget *parent, const QString &caption,
 }
 
 
-
 /*!
   Displays a simple message box about Qt, with window caption \a
   caption and optionally centered over \a parent.  The message includes
@@ -1419,3 +1421,5 @@ void QMessageBox::setTextFormat( Qt::TextFormat format )
 // Apparently, I...
 //
 // http://www.people.cornell.edu/pages/mlj8/cant.gif
+
+#endif

@@ -75,6 +75,11 @@ public:
     void connectUpdate(QObject* receiver, const char *member);
     void disconnectUpdate(QObject* receiver, const char *member=0);
 
+#ifdef _WS_QWS_
+    // Temporary hack
+    void setDisplayWidget(QWidget * w);
+#endif
+
     enum Status { SourceEmpty=-2,
 	          UnrecognizedFormat=-1,
 	          Paused=1,

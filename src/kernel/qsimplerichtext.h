@@ -32,6 +32,8 @@
 #include "qregion.h"
 #endif // QT_H
 
+#if QT_FEATURE_RICHTEXT
+
 class QPainter;
 class QWidget;
 class QStyleSheet;
@@ -74,5 +76,6 @@ private:
     QSimpleRichTextData* d;
 };
 
+#endif // QT_FEATURE_RICHTEXT
 
-#endif
+#endif // QSIMPLERICHTEXT_H

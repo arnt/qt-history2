@@ -24,6 +24,9 @@
 *****************************************************************************/
 
 #include "qprinter.h"
+
+#if QT_FEATURE_PSPRINTER
+
 #include "qpaintdevicemetrics.h"
 #include "qfile.h"
 #include "qfileinfo.h"
@@ -419,3 +422,5 @@ QSize QPrinter::margins() const
 {
     return (orient == Portrait) ? QSize( 36, 22 ) : QSize( 22, 36 );
 }
+
+#endif

@@ -24,6 +24,9 @@
 *****************************************************************************/
 
 #include "qnetworkprotocol.h"
+
+#if QT_FEATURE_NETWORKPROTOCOL
+
 #include "qlocalfs.h"
 #include "qurloperator.h"
 #include "qtimer.h"
@@ -1156,3 +1159,5 @@ void QNetworkOperation::deleteMe()
 {
     delete this;
 }
+
+#endif

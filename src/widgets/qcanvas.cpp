@@ -25,6 +25,7 @@
 
 
 #include "qcanvas.h"
+#if QT_FEATURE_WIDGETS
 #include <qpainter.h>
 #include <qimage.h>
 #include <qwidget.h>
@@ -3846,3 +3847,4 @@ void QCanvasPolygonalItem::scanPolygon(const QPointArray& pa, int winding, QPoly
 }
 
 
+#endif

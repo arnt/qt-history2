@@ -31,6 +31,7 @@
 #include <qstring.h>
 #endif // QT_H
 
+#if QT_FEATURE_INPUTDIALOG
 
 class QInputDialogPrivate;
 
@@ -89,4 +90,6 @@ private:	// Disabled copy constructor and operator=
 #endif
 };
 
-#endif
+#endif // QT_FEATURE_INPUTDIALOG
+
+#endif // QINPUTDIALOG_H

@@ -308,6 +308,7 @@ protected:
     bool spont;
 };
 
+#if QT_FEATURE_DRAGANDDROP
 
 // This class is rather closed at the moment.  If you need to create your
 // own DND event objects, write to qt-bugs@trolltech.com and we'll try to
@@ -349,6 +350,7 @@ protected:
     uint resv:5;
     void * d;
 };
+
 
 
 class Q_EXPORT QDragMoveEvent : public QDropEvent
@@ -395,6 +397,7 @@ public:
 	: QEvent(DragLeave) {}
 };
 
+#endif // QT_FEATURE_DRAGANDDROP
 
 class Q_EXPORT QChildEvent : public QEvent
 {

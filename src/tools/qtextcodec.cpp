@@ -1140,7 +1140,7 @@ public:
 	int rlen = lenInOut*max_bytes_per_char;
 	QCString rstr(rlen);
 	char* cursor = rstr.data();
-	char* s;
+	char* s=0;
 	int l = lenInOut;
 	int lout = 0;
 	for (int i=0; i<l; i++) {
@@ -1642,8 +1642,106 @@ static void setupBuiltinCodecs()
 }
 
 #else
+
+class QLatin1Codec: public QTextCodec
+{
+public:
+    QLatin1Codec();
+    ~QLatin1Codec();
+
+    QString toUnicode(const char* chars, int len) const;
+    QCString fromUnicode(const QString& uc, int& lenInOut ) const;
+
+    const char* name() const;
+    int mibEnum() const;
+
+    int heuristicContentMatch(const char* chars, int len) const;
+
+    int heuristicNameMatch(const char* hint) const;
+
+private:
+    int forwardIndex;
+};
+
+
+QLatin1Codec::QLatin1Codec()
+    : QTextCodec()
+{
+}
+
+
+QLatin1Codec::~QLatin1Codec()
+{
+}
+
+// what happens if strlen(chars)<len?  what happens if !chars?  if len<1?
+QString QLatin1Codec::toUnicode(const char* chars, int len) const
+{
+    QString r;
+    const unsigned char * c = (const unsigned char *)chars;
+    for( int i=0; i<len && c[i]; i++ ) { // Note: NUL ends string
+	    r[i] = c[i];
+    }
+    return r;
+}
+
+
+QCString QLatin1Codec::fromUnicode(const QString& uc, int& len ) const
+{
+    if ( len <0 || len > (int)uc.length() )
+	len = uc.length();
+    QCString r( len+1 );
+    int i;
+    int u;
+    for( i=0; i<len; i++ ) {
+	u = uc[i].cell() + 256* uc[i].row();
+	r[i] = u < 255 ? u : '?';
+    }
+    r[len] = 0;
+    return r;
+}
+
+
+const char* QLatin1Codec::name() const
+{
+    return "iso8859-1";
+}
+
+
+int QLatin1Codec::mibEnum() const
+{
+    return 4;
+}
+
+int QLatin1Codec::heuristicNameMatch(const char* hint) const
+{
+    return QTextCodec::heuristicNameMatch(hint);
+}
+
+int QLatin1Codec::heuristicContentMatch(const char* chars, int len) const
+{
+    if ( len<1 || !chars )
+	return -1;
+    int i = 0;
+    const uchar * c = (const unsigned char *)chars;
+    int r = 0;
+    while( i<len && c && *c ) {
+	if ( *c >= 0x80 && *c < 0xa0 )
+	    return -1;
+	if ( (*c >= ' ' && *c < 127) ||
+	     *c == '\n' || *c == '\t' || *c == '\r' )
+	    r++;
+	i++;
+	c++;
+    }
+    return r;
+}
+
+
+
 static void setupBuiltinCodecs()
 {
+    (void)new QLatin1Codec;
 }
 #endif // QT_NO_CODECS
 

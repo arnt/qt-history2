@@ -24,6 +24,7 @@
 *****************************************************************************/
 
 #include "qtableview.h"
+#if QT_FEATURE_WIDGETS
 #include "qscrollbar.h"
 #include "qpainter.h"
 #include "qdrawutil.h"
@@ -1324,7 +1325,9 @@ void QTableView::paintEvent( QPaintEvent *e )
     QRect winR = viewRect();
     QRect cellR;
     QRect cellUR;
+#if QT_FEATURE_TRANSFORMATIONS
     QWMatrix matrix;
+#endif
 
     while ( yPos <= maxY && row < nRows ) {
 	nextY = yPos + (cellH ? cellH : cellHeight( row ));
@@ -1346,6 +1349,7 @@ void QTableView::paintEvent( QPaintEvent *e )
 		if ( eraseInPaint )
 		    paint.eraseRect( cellUR );
 
+#if QT_FEATURE_TRANSFORMATIONS
 		matrix.translate( xPos, yPos );
 		paint.setWorldMatrix( matrix );
 		if ( testTableFlags(Tbl_clipCellPainting) ||
@@ -1358,6 +1362,18 @@ void QTableView::paintEvent( QPaintEvent *e )
 		}
 		matrix.reset();
 		paint.setWorldMatrix( matrix );
+#else
+		paint.translate( xPos, yPos );
+		if ( testTableFlags(Tbl_clipCellPainting) ||
+		     frameWidth() > 0 && !winR.contains( cellR ) ) { //##arnt
+		    paint.setClipRect( cellUR );
+		    paintCell( &paint, row, col );
+		    paint.setClipping( FALSE );
+		} else {
+		    paintCell( &paint, row, col );
+		}
+		paint.translate( -xPos, -yPos );
+#endif
 	    }
 	    col++;
 	    xPos = nextX;
@@ -2254,3 +2270,4 @@ void QTableView::updateTableSize()
 }
 
 
+#endif

@@ -30,6 +30,8 @@
 #include "qgroupbox.h"
 #endif // QT_H
 
+#if QT_FEATURE_WIDGETS
+
 class Q_EXPORT QHGroupBox : public QGroupBox
 {
     Q_OBJECT
@@ -44,5 +46,7 @@ private:	// Disabled copy constructor and operator=
     QHGroupBox &operator=( const QHGroupBox & );
 #endif
 };
+
+#endif // QT_FEATURE_WIDGETS
 
 #endif // QHGROUPBOX_H

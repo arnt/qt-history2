@@ -32,6 +32,8 @@
 #include "qlist.h"
 #endif // QT_H
 
+#if QT_FEATURE_WIDGETS
+
 struct QMultiLineData;
 class QMultiLineEditCommand;
 class QValidator;
@@ -160,10 +162,12 @@ public slots:
     void       append( const QString &);
     void       deselect();
     void       selectAll();
+#if QT_FEATURE_CLIPBOARD
     void       paste();
     void       copyText() const;
     void       copy() const;
     void       cut();
+#endif
     void       insert( const QString& );
     void       undo();
     void       redo();
@@ -189,10 +193,12 @@ protected:
     void	leaveEvent( QEvent * );
     void	resizeEvent( QResizeEvent * );
 
+#if QT_FEATURE_DRAGANDDROP
     void	dragMoveEvent( QDragMoveEvent* );
     void	dragEnterEvent( QDragEnterEvent * );
     void	dropEvent( QDropEvent* );
     void	dragLeaveEvent( QDragLeaveEvent* );
+#endif
 
     bool	hasMarkedText() const;
     QString	markedText() const;
@@ -286,7 +292,9 @@ private:
     bool	beforeMark( int posx, int posy ) const;
     bool	afterMark( int posx, int posy ) const;
 
+#if QT_FEATURE_DRAGANDDROP
     void	doDrag();
+#endif
     void	startAutoScroll();
     void	stopAutoScroll();
 
@@ -350,4 +358,7 @@ inline int QMultiLineEdit::numLines() const
 {
     return contents->count();
 }
+
+#endif // QT_FEATURE_WIDGETS
+
 #endif // QMULTILINED_H

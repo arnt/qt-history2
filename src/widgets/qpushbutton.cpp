@@ -24,6 +24,7 @@
 *****************************************************************************/
 
 #include "qpushbutton.h"
+#if QT_FEATURE_WIDGETS
 #include "qdialog.h"
 #include "qfontmetrics.h"
 #include "qpainter.h"
@@ -397,7 +398,7 @@ QSize QPushButton::sizeHint() const
     if ( isMenuButton() )
 	w += style().menuButtonIndicatorWidth( h );
 
-
+#ifndef _WS_QWS_
     if ( style() == WindowsStyle ) {
 	// in windows style, try a little harder to conform to
 	// microsoft's size specifications
@@ -406,6 +407,7 @@ QSize QPushButton::sizeHint() const
 	if ( w < 85 && !pixmap() && ( isDefault() || autoDefault() ) )
 	    w = 80;
     }
+#endif
 
     return QSize( w, h );
 }
@@ -672,3 +674,4 @@ void QPushButton::popupPressed()
 	setDown( FALSE );
     }
 }
+#endif

@@ -30,6 +30,8 @@
 #include "qbutton.h"
 #endif // QT_H
 
+#if QT_FEATURE_WIDGETS
+
 class Q_EXPORT QCheckBox : public QButton
 {
     Q_OBJECT
@@ -69,5 +71,7 @@ inline bool QCheckBox::isChecked() const
 inline void QCheckBox::setChecked( bool check )
 { setOn( check ); }
 
+
+#endif // QT_FEATURE_WIDGETS
 
 #endif // QCHECKBOX_H

@@ -28,8 +28,11 @@
 
 #ifndef QGBKCODEC_H
 #define QGBKCODEC_H
+#ifndef QT_NO_CODECS
 
+#ifndef QT_H
 #include "qtextcodec.h"
+#endif // QT_H
 
 class Q_EXPORT QGbkCodec : public QTextCodec {
 public:
@@ -47,4 +50,5 @@ public:
     int heuristicNameMatch(const char* hint) const;
 };
 
+#endif
 #endif

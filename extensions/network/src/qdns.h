@@ -26,9 +26,11 @@
 #ifndef QDNS_H
 #define QDNS_H
 
+#ifndef QT_H
 #include "qobject.h"
 #include "qvaluelist.h"
 #include "qsocket.h"
+#endif // QT_H
 
 class QDnsPrivate;
 

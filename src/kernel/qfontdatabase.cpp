@@ -24,6 +24,12 @@
 *****************************************************************************/
 
 #include "qfontdatabase.h"
+
+#if QT_FEATURE_FONTDATABASE
+
+#ifdef _WS_QWS_
+#include "qfontmanager_qws.h"
+#endif
 #include "qmap.h"
 #include "qdict.h"
 #include "qfile.h"
@@ -103,6 +109,15 @@ extern int qFontGetWeight( const QCString &/*weightString*/,
 
 static void populate_database(const QString& fam);
 
+#endif
+
+#ifdef _WS_QWS_
+extern int qFontGetWeight( const QCString &/*weightString*/,
+			   bool /*adjustscore*/ = FALSE )
+{
+    // dummy
+    return 0;
+}
 #endif
 
 static QFont::CharSet getCharSet( const QString &name );
@@ -1644,7 +1659,7 @@ QFontDatabase::QFontDatabase()
 }
 
 /*!
-  Retrurns a list of names of all available font families in the current locale if
+  Returns a list of names of all available font families in the current locale if
   \a onlyForLocale is TRUE, otherwise really all available font families independent
   of the current locale are returned.
 */
@@ -1892,9 +1907,70 @@ QStringList QFontDatabase::charSets( const QString &family,
     return fam ? fam->charSets( onlyForLocale ) : emptyList;
 }
 
+#ifdef _WS_QWS_
+void QFontDatabase::createDatabase()
+{
+    if ( db ) return;
+    db = new QFontDatabasePrivate;
 
+    QDiskFont * qdf;
+    QString fname="Truetype";
+    QtFontFoundry * foundry=new QtFontFoundry(fname);
+    db->addFoundry(foundry);
 
+    if(!qt_fontmanager)
+	qt_fontmanager=new QFontManager();
+    
+    for(qdf=qt_fontmanager->diskfonts.first();qdf!=0;
+	qdf=qt_fontmanager->diskfonts.next()) {
+	QString familyname=qdf->name;
+	QtFontFamily * family=foundry->familyDict.find(familyname);
+	QtFontCharSet * mycharset;
+	if(!family) {
+	    family=new QtFontFamily(foundry,familyname);
+	    foundry->addFamily(family);
+	    mycharset=new QtFontCharSet(family,"iso646");
+	    family->addCharSet(mycharset);
+	}
+	mycharset=family->charSetDict.find("iso646");
+	QString weightString;
+	int weight=qdf->weight;
+	if ( weight <= QFont::Light ) {
+	    weight = QFont::Light;
+	    weightString = "Light";
+	} else if ( weight <= QFont::Normal ) {
+	    weight = QFont::Normal;
+	    weightString = "Regular";
+	} else if ( weight <= QFont::DemiBold ) {
+	    weight = QFont::DemiBold;
+	    weightString = "DemiBold";
+	} else if ( weight <= QFont::Bold ) {
+	    weight = QFont::Bold;
+	    weightString = "Bold";
+	} else {
+	    weight = QFont::Black;
+	    weightString = "Black";
+	}
+	QString style;
+	if(qdf->italic) {
+	    style=weightString+" Italic";
+	} else {
+	    style=weightString;
+	}
+	QtFontStyle * mystyle=mycharset->styleDict.find(style);
+	if(!mystyle) {
+	    mystyle=new QtFontStyle(mycharset,style);
+	    mystyle->ital=qdf->italic;
+	    mystyle->lesserItal=false;
+	    mystyle->weightString=weightString;
+	    mystyle->weightVal=weight;
+	    mystyle->weightDirty=false;
+	    mycharset->addStyle(mystyle);
+	}
+	mystyle->setSmoothlyScalable();
+    }
+}
 
+#endif
 
-
-
+#endif // QT_FEATURE_FONTDATABASE

@@ -24,6 +24,7 @@
 *****************************************************************************/
 
 #include "qcombobox.h"
+#if QT_FEATURE_WIDGETS
 #include "qpopupmenu.h"
 #include "qlistbox.h"
 #include "qpainter.h"
@@ -2033,3 +2034,6 @@ void QComboBox::setUpLineEdit()
 
     connect( d->ed, SIGNAL(returnPressed()), SLOT(returnPressed()) );
 }
+
+
+#endif

@@ -75,6 +75,7 @@
     int heuristicNameMatch(const char* hint) const;
 */
 
+#ifndef QT_NO_CODECS
 
 #include "qeuckrcodec.h"
 
@@ -1559,5 +1560,7 @@ static unsigned short uc_hangul2hwpc(unsigned short code)
 
   return 0x8000 | (f << 10) | (m << 5) | l;
 }
+
+#endif
 
 #endif

@@ -793,7 +793,9 @@ static void qDrawMotifArrow( QPainter *p, Qt::ArrowType type, bool down,
     QPointArray bTop;				// top shadow.
     QPointArray bBot;				// bottom shadow.
     QPointArray bLeft;				// left shadow.
+#if QT_FEATURE_TRANSFORMATIONS
     QWMatrix	matrix;				// xform matrix
+#endif
     bool vertical = type == Qt::UpArrow || type == Qt::DownArrow;
     bool horizontal = !vertical;
     int	 dim = w < h ? w : h;
@@ -842,6 +844,7 @@ static void qDrawMotifArrow( QPainter *p, Qt::ArrowType type, bool down,
     }
 
     if ( type == Qt::UpArrow || type == Qt::LeftArrow ) {
+#if QT_FEATURE_TRANSFORMATIONS	// #### fix me!
 	matrix.translate( x, y );
 	if ( vertical ) {
 	    matrix.translate( 0, h - 1 );
@@ -850,17 +853,20 @@ static void qDrawMotifArrow( QPainter *p, Qt::ArrowType type, bool down,
 	    matrix.translate( w - 1, h - 1 );
 	    matrix.rotate( 180 );
 	}
+#endif
 	if ( down )
 	    colspec = horizontal ? 0x2334 : 0x2343;
 	else
 	    colspec = horizontal ? 0x1443 : 0x1434;
     }
     else if ( type == Qt::DownArrow || type == Qt::RightArrow ) {
+#if QT_FEATURE_TRANSFORMATIONS	// #### fix me!
 	matrix.translate( x, y );
 	if ( vertical ) {
 	    matrix.translate( w-1, 0 );
 	    matrix.rotate( 90 );
 	}
+#endif
 	if ( down )
 	    colspec = horizontal ? 0x2443 : 0x2434;
 	else
@@ -880,13 +886,17 @@ static void qDrawMotifArrow( QPainter *p, Qt::ArrowType type, bool down,
 
     QPen     savePen   = p->pen();		// save current pen
     QBrush   saveBrush = p->brush();		// save current brush
+#if QT_FEATURE_TRANSFORMATIONS
     QWMatrix wxm = p->worldMatrix();
+#endif
     QPen     pen( Qt::NoPen );
     QBrush brush = g.brush( QColorGroup::Button );
 
     p->setPen( pen );
     p->setBrush( brush );
+#if QT_FEATURE_TRANSFORMATIONS
     p->setWorldMatrix( matrix, TRUE );		// set transformation matrix
+#endif
     p->drawPolygon( bFill );			// fill arrow
     p->setBrush( Qt::NoBrush );			// don't fill
 
@@ -897,7 +907,9 @@ static void qDrawMotifArrow( QPainter *p, Qt::ArrowType type, bool down,
     p->setPen( CBOT );
     p->drawLineSegments( bBot );
 
+#if QT_FEATURE_TRANSFORMATIONS
     p->setWorldMatrix( wxm );
+#endif
     p->setBrush( saveBrush );			// restore brush
     p->setPen( savePen );			// restore pen
 

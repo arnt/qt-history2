@@ -70,6 +70,7 @@
   OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
   SUCH DAMAGE.
 */
+#ifndef QT_NO_CODECS
 
 #include "qsjiscodec.h"
 
@@ -295,3 +296,4 @@ QTextDecoder* QSjisCodec::makeDecoder() const
     return new QSjisDecoder(conv);
 }
 
+#endif

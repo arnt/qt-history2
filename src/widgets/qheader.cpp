@@ -24,6 +24,7 @@
 *****************************************************************************/
 
 #include "qheader.h"
+#if QT_FEATURE_WIDGETS
 #include "qpainter.h"
 #include "qdrawutil.h"
 #include "qbitmap.h"
@@ -483,7 +484,7 @@ void QHeader::moveCell( int fromIdx, int toIdx )
 */
 void QHeader::mousePressEvent( QMouseEvent *e )
 {
-    if ( e->button() != LeftButton )
+    if ( e->button() != LeftButton || state != Idle )
 	return;
     handleIdx = 0;
     int c = orient == Horizontal ? e->pos().x() : e->pos().y();
@@ -1427,3 +1428,4 @@ bool QHeader::isMovingEnabled() const
 }
 
 //#### what about lastSectionCoversAll?
+#endif

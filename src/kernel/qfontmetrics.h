@@ -76,6 +76,7 @@ private:
     QFontMetrics( const QPainter * );
     static void reset( const QPainter * );
     const QFontDef *spec() const;
+
 #if defined(_WS_WIN_)
     void   *textMetric() const;
     HDC	    hdc() const;
@@ -84,7 +85,12 @@ private:
     void   *fontSet() const;
     const QTextCodec *mapper() const;
     int	    printerAdjusted(int) const;
+#elif defined(_WS_QWS_)
+    QFontInternal *internal();
 #endif
+
+    friend class QWidget;
+    friend class QPainter;
 
     QFontInternal *fin;
     QPainter      *painter;
@@ -94,9 +100,6 @@ private:
     bool    strikeOutFlag()  const { return (flags & 0x2) != 0; }
     void    setUnderlineFlag()	   { flags |= 0x1; }
     void    setStrikeOutFlag()	   { flags |= 0x2; }
-
-    friend class QWidget;
-    friend class QPainter;
 };
 
 

@@ -230,7 +230,11 @@
 #elif defined(_OS_OS2_)
 #error "Qt does not work with OS/2 Presentation Manager or Workplace Shell"
 #elif defined(UNIX)
+#ifdef QWS
+#define _WS_QWS_
+#else
 #define _WS_X11_
+#endif
 #endif
 
 #if defined(_WS_WIN16_) || defined(_WS_WIN32_)
@@ -529,5 +533,9 @@ Q_EXPORT void qObsolete( const char *message );
 #ifdef _WS_WIN_
 extern bool qt_winunicode;
 #endif
+
+#ifndef QT_H
+#include <qfeatures.h>
+#endif // QT_H
 
 #endif // QGLOBAL_H

@@ -26,6 +26,10 @@
 #ifndef QNETWORK_H
 #define QNETWORK_H
 
+#ifndef QT_H
+#include <qfeatures.h>
+#endif // QT_H
+
 void qInitNetworkProtocols();
 
 #endif

@@ -29,6 +29,8 @@
 
 // (Note: Ming-Che's code is also QPL'd, ref mail to into@trolltech.com)
 
+#ifndef QT_NO_CODECS
+
 #include "qbig5codec.h"
 
 static unsigned int qt_UnicodeToBig5(unsigned int unicode);
@@ -7995,4 +7997,4 @@ static bool ucsbig5(unsigned char *s,unsigned char *t)
 	} else return FALSE;
 }
 
-
+#endif

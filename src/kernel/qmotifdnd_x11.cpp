@@ -55,6 +55,9 @@ in doc/dnd.doc, where the documentation system can see it. */
 #include <unistd.h>
 
 #include "qapplication.h"
+
+#if QT_FEATURE_DRAGANDDROP
+
 #include "qwidget.h"
 
 #include <X11/Xlib.h>
@@ -892,3 +895,5 @@ void qt_motifdnd_handle_msg( QWidget * /* w */ , const XEvent * xe, bool /* pass
 	break;
     }   //  end of switch ( dnd_data.reason )
 }
+
+#endif // QT_FEATURE_DRAGANDDROP

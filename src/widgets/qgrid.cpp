@@ -21,6 +21,7 @@
 
 
 #include "qgrid.h"
+#if QT_FEATURE_WIDGETS
 #include "qlayout.h"
 #include "qapplication.h"
 
@@ -113,3 +114,4 @@ QSize QGrid::sizeHint() const
     QApplication::sendPostedEvents( mThis, QEvent::ChildInserted );
     return QFrame::sizeHint();
 }
+#endif

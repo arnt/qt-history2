@@ -39,6 +39,8 @@ class QListViewItemIterator;
 #include "qscrollview.h"
 #endif // QT_H
 
+#if QT_FEATURE_WIDGETS
+
 
 class Q_EXPORT QListViewItem: public Qt
 {
@@ -425,5 +427,7 @@ private:
     void currentRemoved();
 
 };
+
+#endif // QT_FEATURE_WIDGETS
 
 #endif // QLISTVIEW_H

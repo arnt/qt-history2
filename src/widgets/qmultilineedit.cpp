@@ -24,6 +24,7 @@
 *****************************************************************************/
 
 #include "qmultilineedit.h"
+#if QT_FEATURE_WIDGETS
 #include "qpainter.h"
 #include "qscrollbar.h"
 #include "qclipboard.h"
@@ -161,6 +162,18 @@ static const char * const arrow_xpm[] = {
     ".#####.."
 };
 
+enum { 
+    IdUndo,
+    IdRedo,
+#if QT_FEATURE_CLIPBOARD
+    IdCut,
+    IdCopy,
+    IdPaste,
+#endif
+    IdClear,
+    IdSelectAll
+};
+
 struct QMultiLineData
 {
     QMultiLineData() :
@@ -224,7 +237,10 @@ struct QMultiLineData
     }
     QPixmap arrow;
     QPoint dnd_startpos;
-    QTimer *blinkTimer, *scrollTimer, *dnd_timer;
+    QTimer *blinkTimer, *scrollTimer;
+#if QT_FEATURE_DRAGANDDROP
+    QTimer *dnd_timer;
+#endif
 };
 
 
@@ -427,9 +443,11 @@ QMultiLineEdit::QMultiLineEdit( QWidget *parent , const char *name )
     d->scrollTimer = new QTimer( this );
     connect( d->scrollTimer, SIGNAL( timeout() ),
 	     this, SLOT( scrollTimerTimeout() ) );
+#if QT_FEATURE_DRAGANDDROP
     d->dnd_timer = new QTimer( this );
     connect( d->dnd_timer, SIGNAL( timeout() ),
 	     this, SLOT( dndTimeout() ) );
+#endif
     d->scrollTime = 0;
 
     dummy = TRUE;
@@ -688,11 +706,17 @@ void QMultiLineEdit::paintCell( QPainter *painter, int row, int )
 	       cXPos + 2, cYPos + fm.height() - 2);
 	    */
 
+#if QT_FEATURE_TRANSFORMATIONS
 	    // TODO: set it other times, eg. when scrollbar moves view
 	    QWMatrix wm = painter->worldMatrix();
 	    setMicroFocusHint( int(wm.dx()+cXPos),
 			       int (wm.dy()+cYPos),
 			       1, fm.ascent() );
+#else
+	    setMicroFocusHint( cXPos,
+			       cYPos,
+			       1, fm.ascent() );
+#endif
 	}
     }
     p.end();
@@ -775,6 +799,7 @@ void QMultiLineEdit::timerEvent( QTimerEvent * )
     // ############ Remove in 3.0!!!!!!!!
 }
 
+#if QT_FEATURE_DRAGANDDROP
 void QMultiLineEdit::doDrag()
 {
     if ( d->dnd_timer ) {
@@ -792,6 +817,7 @@ void QMultiLineEdit::doDrag()
     }
     d->dnd_primed = FALSE;
 }
+#endif
 
 /*!
   If there is marked text, sets \a line1, \a col1, \a line2 and \a col2
@@ -1064,12 +1090,14 @@ void QMultiLineEdit::keyPressEvent( QKeyEvent *e )
 	case Key_Prior:
 	    setTopCell( QMAX( topCell() - pageSize, 0 ) );
 	    break;
+#if QT_FEATURE_CLIPBOARD
 	case Key_C:
 	    if ( echoMode() == Normal && (e->state()&ControlButton) )
 		copy();
 	    else
 		unknown++;
 	    break;
+#endif
 	default:
 	    unknown++;
 	}
@@ -1100,10 +1128,12 @@ void QMultiLineEdit::keyPressEvent( QKeyEvent *e )
 	case Key_B:
 	    cursorLeft( e->state() & ShiftButton );
 	    break;
+#if QT_FEATURE_CLIPBOARD
 	case Key_C:
 	    if ( echoMode() == Normal )
 		copy();
 	    break;
+#endif
 	case Key_D:
 	    del();
 	    break;
@@ -1144,12 +1174,14 @@ void QMultiLineEdit::keyPressEvent( QKeyEvent *e )
 	case Key_P:
 	    cursorUp( e->state() & ShiftButton );
 	    break;
+#if QT_FEATURE_CLIPBOARD
 	case Key_V:
 	    paste();
 	    break;
 	case Key_X:
 	    cut();
 	    break;
+#endif
 	case Key_Z:
 	    undo();
 	    break;
@@ -1916,47 +1948,53 @@ void QMultiLineEdit::mousePressEvent( QMouseEvent *e )
     if ( e->button() == RightButton ) {
 	QPopupMenu *popup = new QPopupMenu( this );
 	int id[ 7 ];
-	id[ 0 ] = popup->insertItem( tr( "Undo" ) );
-	id[ 1 ] = popup->insertItem( tr( "Redo" ) );
+	id[ IdUndo ] = popup->insertItem( tr( "Undo" ) );
+	id[ IdRedo ] = popup->insertItem( tr( "Redo" ) );
 	popup->insertSeparator();
-	id[ 2 ] = popup->insertItem( tr( "Cut" ) );
-	id[ 3 ] = popup->insertItem( tr( "Copy" ) );
-	id[ 4 ] = popup->insertItem( tr( "Paste" ) );
-	id[ 5 ] = popup->insertItem( tr( "Clear" ) );
+#if QT_FEATURE_CLIPBOARD
+	id[ IdCut ] = popup->insertItem( tr( "Cut" ) );
+	id[ IdCopy ] = popup->insertItem( tr( "Copy" ) );
+	id[ IdPaste ] = popup->insertItem( tr( "Paste" ) );
+#endif
+	id[ IdClear ] = popup->insertItem( tr( "Clear" ) );
 	popup->insertSeparator();
-	id[ 6 ] = popup->insertItem( tr( "Select All" ) );
-	popup->setItemEnabled( id[ 0 ],
+	id[ IdSelectAll ] = popup->insertItem( tr( "Select All" ) );
+	popup->setItemEnabled( id[ IdUndo ],
 				  !this->d->undoList.isEmpty() );
-	popup->setItemEnabled( id[ 1 ],
+	popup->setItemEnabled( id[ IdRedo ],
 				  !this->d->redoList.isEmpty() );
-	popup->setItemEnabled( id[ 2 ],
+#if QT_FEATURE_CLIPBOARD
+	popup->setItemEnabled( id[ IdCut ],
 			          !isReadOnly() && hasMarkedText() );
-	popup->setItemEnabled( id[ 3 ], hasMarkedText() );
-	popup->setItemEnabled( id[ 4 ],
+	popup->setItemEnabled( id[ IdCopy ], hasMarkedText() );
+	popup->setItemEnabled( id[ IdPaste ],
 	    !isReadOnly() && (bool)QApplication::clipboard()->text().length() );
-	popup->setItemEnabled( id[ 5 ],
+#endif
+	popup->setItemEnabled( id[ IdClear ],
 				  !isReadOnly() && (bool)text().length() );
 	int allSelected = markIsOn && markAnchorX == 0 && markAnchorY == 0 &&
 			  markDragY == numLines() - 1 && markDragX == lineLength( markDragY );
-	popup->setItemEnabled( id[ 6 ],
+	popup->setItemEnabled( id[ IdSelectAll ],
 				  (bool)text().length() && !allSelected );
 	
 	int r = popup->exec( e->globalPos() );
 	delete popup;
 
-	if ( r == id[ 0 ] )
+	if ( r == id[ IdUndo ] )
 	    undo();
-	else if ( r == id[ 1 ] )
+	else if ( r == id[ IdRedo ] )
 	    redo();
-	else if ( r == id[ 2 ] )
+#if QT_FEATURE_CLIPBOARD
+	else if ( r == id[ IdCut ] )
 	    cut();
-	else if ( r == id[ 3 ] )
+	else if ( r == id[ IdCopy ] )
 	    copy();
-	else if ( r == id[ 4 ] )
+	else if ( r == id[ IdPaste ] )
 	    paste();
-	else if ( r == id[ 5 ] )
+#endif
+	else if ( r == id[ IdClear ] )
 	    clear();
-	else if ( r == id[ 6 ] )
+	else if ( r == id[ IdSelectAll ] )
 	    selectAll();
 	return;
     }
@@ -1974,20 +2012,23 @@ void QMultiLineEdit::mousePressEvent( QMouseEvent *e )
 	return;
     }
 
+#if QT_FEATURE_DRAGANDDROP
     if (
 	inMark(newX, newY)		// Click on highlighted text
 	&& echoMode() == Normal		// No DnD of passwords, etc.
 	&& e->pos().y() < totalHeight() // Click past the end is not dragging
 	)
-	{
-	    // The user might be trying to drag
-	    d->dnd_primed = TRUE;
-	    d->dnd_timer->start( QApplication::startDragTime(), FALSE );
-	} else {
-	    wordMark = FALSE;
-	    dragMarking    = TRUE;
-	    setCursorPixelPosition(e->pos());
-	}
+    {
+	// The user might be trying to drag
+	d->dnd_primed = TRUE;
+	d->dnd_timer->start( QApplication::startDragTime(), FALSE );
+    } else
+#endif
+    {
+	wordMark = FALSE;
+	dragMarking    = TRUE;
+	setCursorPixelPosition(e->pos());
+    }
 }
 
 void QMultiLineEdit::pixelPosToCursorPos(QPoint p, int* x, int* y) const
@@ -2056,12 +2097,14 @@ void QMultiLineEdit::stopAutoScroll()
 */
 void QMultiLineEdit::mouseMoveEvent( QMouseEvent *e )
 {
+#if QT_FEATURE_DRAGANDDROP
     d->dnd_timer->stop();
     if ( d->dnd_primed &&
 	 ( d->dnd_startpos - e->pos() ).manhattanLength() > QApplication::startDragDistance() ) {
 	doDrag();
 	return;
     }
+#endif
     if ( !dragMarking )
 	return;
     if ( rect().contains( e->pos() ) ) {
@@ -2115,17 +2158,21 @@ void QMultiLineEdit::extendSelectionWord( int &newX, int&newY)
 void QMultiLineEdit::mouseReleaseEvent( QMouseEvent *e )
 {
     stopAutoScroll();
+#if QT_FEATURE_DRAGANDDROP
     if ( d->dnd_timer->isActive() ) {
 	d->dnd_timer->stop();
 	d->dnd_primed = FALSE;
 	setCursorPixelPosition(e->pos());
     }
+#endif
     wordMark = FALSE;
     dragMarking   = FALSE;
     textDirty = FALSE;
     d->isHandlingEvent = TRUE;
     if ( markAnchorY == markDragY && markAnchorX == markDragX )
 	markIsOn = FALSE;
+
+#if QT_FEATURE_CLIPBOARD
 #if defined(_WS_X11_)
     else if ( echoMode() == Normal )
 	copy();
@@ -2142,6 +2189,8 @@ void QMultiLineEdit::mouseReleaseEvent( QMouseEvent *e )
 	    paste();
 #endif
     }
+#endif
+
     d->isHandlingEvent = FALSE;
 
     if ( !readOnly && textDirty )
@@ -2168,6 +2217,8 @@ void QMultiLineEdit::mouseDoubleClickEvent( QMouseEvent *m )
 
     }
 }
+
+#if QT_FEATURE_DRAGANDDROP
 
 /*!
   \reimp
@@ -2255,6 +2306,8 @@ void QMultiLineEdit::dropEvent( QDropEvent* event )
 	update();
     }
 }
+
+#endif // QT_FEATURE_DRAGANDDROP
 
 
 /*!
@@ -2385,6 +2438,7 @@ void QMultiLineEdit::setBottomCell( int line )
     setYOffset( QMAX( newYPos, 0 ) );
 }
 
+#if QT_FEATURE_CLIPBOARD
 /*!
   Copies text from the clipboard onto the current cursor position.
   Any marked text is first deleted.
@@ -2420,6 +2474,7 @@ void QMultiLineEdit::paste()
 
     addUndoCmd( new QEndCommand );
 }
+#endif
 
 
 /*!
@@ -2527,12 +2582,14 @@ void QMultiLineEdit::markWord( int posx, int posy )
     markDragY = posy;
     markIsOn = ( markDragX != markAnchorX ||  markDragY != markAnchorY );
 
+#if QT_FEATURE_CLIPBOARD
 #if defined(_WS_X11_)
     if ( echoMode() == Normal )
 	copy();
 #else
     if ( style() == MotifStyle && echoMode() == Normal )
 	copy();
+#endif
 #endif
 }
 
@@ -2550,6 +2607,7 @@ int QMultiLineEdit::charClass( QChar ch )
     else return 3;
 }
 
+#if QT_FEATURE_CLIPBOARD
 /*!
   Copies the marked text to the clipboard.  Will only copy
   if echoMode() is Normal.
@@ -2584,7 +2642,6 @@ void QMultiLineEdit::copyText() const
     copy();
 }
 
-
 /*!
   Copies the selected text to the clipboard and deletes the selected text.
 */
@@ -2600,6 +2657,7 @@ void QMultiLineEdit::cut()
     }
 }
 
+#endif
 
 /*!
   This private slot is activated when this line edit owns the clipboard and
@@ -3903,5 +3961,9 @@ void QMultiLineEdit::scrollTimerTimeout()
 
 void QMultiLineEdit::dndTimeout()
 {
+#if QT_FEATURE_DRAGANDDROP
     doDrag();
+#endif
 }
+
+#endif

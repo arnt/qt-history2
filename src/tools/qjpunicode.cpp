@@ -107,6 +107,7 @@
   SUCH DAMAGE.
 
 */
+#ifndef QT_NO_CODECS
 
 #include "qcstring.h"
 #include <stdlib.h>
@@ -10561,3 +10562,5 @@ static uint Unicode11ToJisx0212(uint h, uint l)
 
 \internal
 */
+
+#endif

@@ -28,6 +28,8 @@
 
 #include "qwindowdefs.h"
 
+#if QT_FEATURE_FONTDIALOG
+
 //
 //  W A R N I N G
 //  -------------
@@ -118,5 +120,7 @@ private:	// Disabled copy constructor and operator=
     QFontDialog& operator=( const QFontDialog & );
 #endif
 };
+
+#endif
 
 #endif // QFONTDIALOG_H

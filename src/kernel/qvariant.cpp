@@ -25,6 +25,8 @@
 
 #include "qvariant.h"
 
+#if QT_FEATURE_PROPERTIES
+
 #include "qstring.h"
 #include "qfont.h"
 #include "qpixmap.h"
@@ -1860,3 +1862,5 @@ bool QVariant::operator!=( const QVariant &v ) const
 {
     return !( v == *this );
 }
+
+#endif // QT_FEATURE_PROPERTIES

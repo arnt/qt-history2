@@ -24,6 +24,7 @@
 *****************************************************************************/
 
 #include "qlcdnumber.h"
+#if QT_FEATURE_WIDGETS
 #include "qbitarray.h"
 #include "qpainter.h"
 
@@ -1149,3 +1150,4 @@ QSizePolicy QLCDNumber::sizePolicy() const
 {
     return QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Minimum );
 }
+#endif

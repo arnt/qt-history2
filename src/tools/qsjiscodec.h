@@ -54,6 +54,7 @@
 
 #ifndef QSJISCODEC_H
 #define QSJISCODEC_H
+#ifndef QT_NO_CODECS
 
 #ifndef QT_H
 #include "qtextcodec.h"
@@ -79,4 +80,5 @@ protected:
     const QJpUnicodeConv * const conv;
 };
 
+#endif
 #endif

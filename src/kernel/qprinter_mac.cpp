@@ -1,4 +1,7 @@
 #include "qprinter.h"
+
+#if QT_FEATURE_PRINTER
+
 #include <stdio.h>
 
 QPrinter::QPrinter()
@@ -40,5 +43,4 @@ int QPrinter::metric( int m ) const
     return 0;
 }
 
-
-
+#endif // QT_FEATURE_PRINTER

@@ -96,6 +96,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  */
+#ifndef QT_NO_CODECS
 
 #include "qeucjpcodec.h"
 
@@ -444,3 +445,4 @@ QTextDecoder* QEucJpCodec::makeDecoder() const
     return new QEucJpDecoder(conv);
 }
 
+#endif

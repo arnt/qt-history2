@@ -66,6 +66,7 @@ class QPicture;
 class QPrinter;
 class QAccel;
 class QTimer;
+class QTime;
 class QClipboard;
 
 
@@ -156,6 +157,69 @@ Q_EXPORT GC	 qt_xget_readonly_gc( bool monochrome=FALSE );
 Q_EXPORT GC	 qt_xget_temp_gc( bool monochrome=FALSE );
 
 #endif // _WS_X11_
+
+#if defined(_WS_QWS_)
+
+#include "qlock_qws.h"
+
+struct QWSEvent;
+typedef unsigned int WId;
+typedef void* HANDLE;
+
+class QWSDisplayData;
+class QGfx;
+class QWSRegionManager;
+
+class QWSDisplay
+{
+    friend class QApplication;
+    QWSDisplayData *d;
+
+public:
+    QWSDisplay();
+
+    bool eventPending() const;
+    QWSEvent *getEvent();
+    QGfx * screenGfx();
+    QWSRegionManager *regionManager();
+
+    uchar* frameBuffer() const;
+    int width() const;
+    int height() const;
+    int depth() const;
+    int greenDepth() const;
+
+    void addProperty( int winId, int property );
+    void setProperty( int winId, int property, int mode, const QByteArray &data );
+    void removeProperty( int winId, int property );
+    bool getProperty( int winId, int property, char *&data, int &len );
+
+    void requestRegion( int winId, QRegion );
+    void moveRegion( int winId, int dx, int dy );
+    void destroyRegion( int winId );
+    void requestFocus(int winId, bool get);
+    void setAltitude( int winId, int altitude, bool fixed = FALSE );
+    int takeId();
+    void setSelectionOwner( int winId, const QTime &time );
+    void convertSelection( int winId, int selectionProperty, const QString &mimeTypes );
+    void defineCursor(int id, const QBitmap &curs, const QBitmap &mask,
+			int hotX, int hotY);
+    void selectCursor( WId winId, unsigned int id );
+    void grabMouse( WId winId, bool grab );
+
+    // Lock display for access only by this process
+    static bool initLock( const QString &filename, bool create = FALSE );
+    static bool grabbed() { return lock->locked(); }
+    static void grab() { lock->lock( QLock::Write ); }
+    static void ungrab() { lock->unlock(); }
+
+private:
+    int getPropertyLen;
+    char *getPropertyData;
+    static QLock *lock;
+};
+
+#endif // _WS_QWS_
 
 class QApplication;
 

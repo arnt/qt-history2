@@ -31,9 +31,14 @@
 #include "qimage.h"
 #include "q1xcompatibility.h"
 #include "qpaintdevicemetrics.h"
+#ifdef _WS_QWS_
+#include "qgfx.h"
+#endif
 #include <stdlib.h>
 
+#if QT_FEATURE_TRANSFORMATIONS
 typedef QStack<QWMatrix> QWMatrixStack;
+#endif
 
 // REVISED: arnt
 /*!
@@ -422,8 +427,10 @@ QPainter::~QPainter()
 	end();
     if ( tabarray )				// delete tab array
 	delete [] tabarray;
+#if QT_FEATURE_TRANSFORMATIONS
     if (wm_stack )
 	delete (QWMatrixStack *)wm_stack;
+#endif
 }
 
 
@@ -524,7 +531,12 @@ struct QPState {				// painter state
     uchar	rop;
     QPoint	bro;
     QRect	wr, vr;
+#if QT_FEATURE_TRANSFORMATIONS
     QWMatrix	wm;
+#else
+    int		xlatex;
+    int		xlatey;
+#endif
     bool	vxf;
     bool	wxf;
     QRegion	rgn;
@@ -583,11 +595,16 @@ void QPainter::save()
 #if 0
     ps->pu    = pu;				// !!!not used
 #endif
+#if QT_FEATURE_TRANSFORMATIONS
     ps->wr    = QRect( wx, wy, ww, wh );
     ps->vr    = QRect( vx, vy, vw, vh );
     ps->wm    = wxmat;
     ps->vxf   = testf(VxF);
     ps->wxf   = testf(WxF);
+#else
+    ps->xlatex = xlatex;
+    ps->xlatey = xlatey;
+#endif
     ps->rgn   = crgn;
     ps->clip  = testf(ClipOn);
     ps->ts    = tabstops;
@@ -633,6 +650,7 @@ void QPainter::restore()
     if ( ps->pu != pu )				// !!!not used
 	pu = ps->pu;
 #endif
+#if QT_FEATURE_TRANSFORMATIONS
     QRect wr( wx, wy, ww, wh );
     QRect vr( vx, vy, vw, vh );
     if ( ps->wr != wr || hardRestore )
@@ -645,6 +663,10 @@ void QPainter::restore()
 	setViewXForm( ps->vxf );
     if ( ps->wxf != testf(WxF) || hardRestore )
 	setWorldXForm( ps->wxf );
+#else
+    xlatex = ps->xlatex;
+    xlatey = ps->xlatey;
+#endif
     if ( ps->rgn != crgn || hardRestore )
 	setClipRegion( ps->rgn );
     if ( ps->clip != testf(ClipOn) || hardRestore )
@@ -652,9 +674,11 @@ void QPainter::restore()
     tabstops = ps->ts;
     tabarray = ps->ta;
 
+#if QT_FEATURE_TRANSFORMATIONS
     if (wm_stack )
 	delete (QWMatrixStack *)wm_stack;
     wm_stack = ps->wm_stack;
+#endif
     delete ps;
 }
 
@@ -953,6 +977,8 @@ void QPainter::setTabArray( int *ta )
   QPainter xform settings
  *****************************************************************************/
 
+#if QT_FEATURE_TRANSFORMATIONS
+
 /*! Enables view transformations if \a enable is TRUE, or disables
 view transformations if \a enable is FALSE.
 
@@ -1079,6 +1105,7 @@ void QPainter::setViewport( int x, int y, int w, int h )
 	setViewXForm( TRUE );
 }
 
+
 /*!
   Enables world transformations if \a enable is TRUE, or disables
   world transformations if \a enable is FALSE. The world
@@ -1131,7 +1158,6 @@ const QWMatrix &QPainter::worldMatrix() const
   If \a m the identity matrix and \a combine is FALSE, this function calls
   setWorldXForm(FALSE).  (The identity matrix is the matrix where
   QWMatrix::m11() and QWMatrix::m22() are 1.0 and the rest are 0.0.)
-
 
   World transformations are applied after the view transformations
   (i.e. \link setWindow window\endlink and \link setViewport viewport\endlink).
@@ -1232,6 +1258,7 @@ void QPainter::restoreWorldMatrix()
     delete m;
 }
 
+#endif // QT_FEATURE_TRANSFORMATIONS
 
 /*!
   Translates the coordinate system by \a (dx,dy).
@@ -1250,13 +1277,23 @@ void QPainter::restoreWorldMatrix()
   \sa scale(), shear(), rotate(), resetXForm(), setWorldMatrix(), xForm()
 */
 
+#if QT_FEATURE_TRANSFORMATIONS
 void QPainter::translate( double dx, double dy )
 {
     QWMatrix m;
     m.translate( dx, dy );
     setWorldMatrix( m, TRUE );
 }
+#else
+void QPainter::translate( int dx, int dy )
+{
+    xlatex += dx;
+    xlatey += dy;
+    setf( VxF );
+}
+#endif
 
+#if QT_FEATURE_TRANSFORMATIONS
 /*!
   Scales the coordinate system by \a (sx,sy).
   \sa translate(), shear(), rotate(), resetXForm(), setWorldMatrix(),
@@ -1296,6 +1333,7 @@ void QPainter::rotate( double a )
     setWorldMatrix( m, TRUE );
 }
 
+
 /*!
   Resets any transformations that were made using translate(), scale(),
   shear(), rotate(), setWorldMatrix(), setViewport() and setWindow()
@@ -1313,12 +1351,10 @@ void QPainter::resetXForm()
     setWorldXForm( FALSE );
 }
 
-
 const int TxNone      = 0;			// transformation codes
 const int TxTranslate = 1;			// copy in qptr_xyz.cpp
 const int TxScale     = 2;
 const int TxRotShear  = 3;
-
 
 /*!
   \internal
@@ -1396,6 +1432,7 @@ void QPainter::updateInvXForm()
     ixmat = m.invert( &invertible );		// invert matrix
 }
 
+#endif // QT_FEATURE_TRANSFORMATIONS
 
 /*!
   \internal
@@ -1404,6 +1441,7 @@ void QPainter::updateInvXForm()
 
 void QPainter::map( int x, int y, int *rx, int *ry ) const
 {
+#if QT_FEATURE_TRANSFORMATIONS
      switch ( txop ) {
 	case TxNone:
 	    *rx = x;  *ry = y;
@@ -1426,6 +1464,10 @@ void QPainter::map( int x, int y, int *rx, int *ry ) const
 	    *ry = ty >= 0 ? int(ty + 0.5) : int(ty - 0.5);
 	    } break;
     }
+#else
+    *rx = x + xlatex;
+    *ry = y + xlatey;
+#endif
 }
 
 /*!
@@ -1437,6 +1479,7 @@ void QPainter::map( int x, int y, int *rx, int *ry ) const
 void QPainter::map( int x, int y, int w, int h,
 		    int *rx, int *ry, int *rw, int *rh ) const
 {
+#if QT_FEATURE_TRANSFORMATIONS
      switch ( txop ) {
 	case TxNone:
 	    *rx = x;  *ry = y;
@@ -1464,6 +1507,12 @@ void QPainter::map( int x, int y, int w, int h,
 #endif
 	    break;
     }
+
+#else
+    *rx = x + xlatex;
+    *ry = y + xlatey;
+    *rw = w;  *rh = h;
+#endif
 }
 
 /*!
@@ -1473,6 +1522,7 @@ void QPainter::map( int x, int y, int w, int h,
 
 void QPainter::mapInv( int x, int y, int *rx, int *ry ) const
 {
+#if QT_FEATURE_TRANSFORMATIONS
 #if defined(CHECK_STATE)
     if ( !txinv )
 	qWarning( "QPainter::mapInv: Internal error" );
@@ -1481,6 +1531,11 @@ void QPainter::mapInv( int x, int y, int *rx, int *ry ) const
     double ty = im12()*x + im22()*y+idy();
     *rx = tx >= 0 ? int(tx + 0.5) : int(tx - 0.5);
     *ry = ty >= 0 ? int(ty + 0.5) : int(ty - 0.5);
+
+#else
+    *rx = x - xlatex;
+    *ry = y - xlatey;
+#endif
 }
 
 /*!
@@ -1492,6 +1547,7 @@ void QPainter::mapInv( int x, int y, int *rx, int *ry ) const
 void QPainter::mapInv( int x, int y, int w, int h,
 		       int *rx, int *ry, int *rw, int *rh ) const
 {
+#if QT_FEATURE_TRANSFORMATIONS
 #if defined(CHECK_STATE)
     if ( !txinv || txop == TxRotShear )
 	qWarning( "QPainter::mapInv: Internal error" );
@@ -1504,6 +1560,13 @@ void QPainter::mapInv( int x, int y, int w, int h,
     *ry = ty >= 0 ? int(ty + 0.5) : int(ty - 0.5);
     *rw = tw >= 0 ? int(tw + 0.5) : int(tw - 0.5);
     *rh = th >= 0 ? int(th + 0.5) : int(th - 0.5);
+
+#else
+    *rx = x - xlatex;
+    *ry = y - xlatey;
+    *rw = w;
+    *rh = h;
+#endif
 }
 
 
@@ -1516,8 +1579,10 @@ void QPainter::mapInv( int x, int y, int w, int h,
 
 QPoint QPainter::xForm( const QPoint &pv ) const
 {
+#if QT_FEATURE_TRANSFORMATIONS
     if ( txop == TxNone )
 	return pv;
+#endif
     int x=pv.x(), y=pv.y();
     map( x, y, &x, &y );
     return QPoint( x, y );
@@ -1535,6 +1600,7 @@ QPoint QPainter::xForm( const QPoint &pv ) const
 
 QRect QPainter::xForm( const QRect &rv ) const
 {
+#if QT_FEATURE_TRANSFORMATIONS
     if ( txop == TxNone )
 	return rv;
 
@@ -1543,6 +1609,7 @@ QRect QPainter::xForm( const QRect &rv ) const
 	a = xForm( a );
 	return a.boundingRect();
     }
+#endif
 
     // Just translation/scale
     int x, y, w, h;
@@ -1561,7 +1628,11 @@ QRect QPainter::xForm( const QRect &rv ) const
 QPointArray QPainter::xForm( const QPointArray &av ) const
 {
     QPointArray a = av;
+#if QT_FEATURE_TRANSFORMATIONS
     if ( txop != TxNone ) {
+#else
+    if ( xlatex || xlatey ) {
+#endif
 	a = a.copy();
 	int x, y, i;
 	for ( i=0; i<(int)a.size(); i++ ) {
@@ -1617,12 +1688,14 @@ QPointArray QPainter::xForm( const QPointArray &av, int index,
 
 QPoint QPainter::xFormDev( const QPoint &pd ) const
 {
+#if QT_FEATURE_TRANSFORMATIONS
     if ( txop == TxNone )
 	return pd;
     if ( !txinv ) {
 	QPainter *that = (QPainter*)this;	// mutable
 	that->updateInvXForm();
     }
+#endif
     int x=pd.x(), y=pd.y();
     mapInv( x, y, &x, &y );
     return QPoint( x, y );
@@ -1640,6 +1713,7 @@ QPoint QPainter::xFormDev( const QPoint &pd ) const
 
 QRect QPainter::xFormDev( const QRect &rd ) const
 {
+#if QT_FEATURE_TRANSFORMATIONS
     if ( txop == TxNone )
 	return rd;
     if ( !txinv ) {
@@ -1651,6 +1725,7 @@ QRect QPainter::xFormDev( const QRect &rd ) const
 	a = xFormDev( a );
 	return a.boundingRect();
     }
+#endif
 
     // Just translation/scale
     int x, y, w, h;
@@ -1668,7 +1743,11 @@ QRect QPainter::xFormDev( const QRect &rd ) const
 QPointArray QPainter::xFormDev( const QPointArray &ad ) const
 {
     QPointArray a = ad;
+#if QT_FEATURE_TRANSFORMATIONS
     if ( txop != TxNone ) {
+#else
+    if ( xlatex || xlatey ) {
+#endif
 	a = a.copy();
 	int x, y, i;
 	for ( i=0; i<(int)a.size(); i++ ) {
@@ -1810,7 +1889,7 @@ void QPainter::fillRect( int x, int y, int w, int h, const QBrush &brush )
 */
 
 
-#if !defined(_WS_X11_)
+#if !defined(_WS_X11_) && !defined(_WS_QWS_)
 // The doc and X implementation of this functions is in qpainter_x11.cpp
 void QPainter::drawWinFocusRect( int, int, int, int,
 				 bool, const QColor & )
@@ -1869,6 +1948,40 @@ void QPainter::drawPixmap( const QPoint &p, const QPixmap &pm )
 void QPainter::drawImage( int x, int y, const QImage & image,
 			  int sx, int sy, int sw, int sh )
 {
+#ifdef _WS_QWS_
+    //### Hackish
+ #if QT_FEATURE_TRANSFORMATIONS
+    if ( gfx && (txop==TxNone||txop==TxTranslate) && !testf(ExtDev) ) {
+ #else
+    if ( gfx && !testf(ExtDev) ) {
+ #endif
+        if(sw<0)
+	    sw=image.width();
+        if(sh<0)
+	    sh=image.height();
+
+	QImage image2=image;
+	
+	// This is a bit dubious
+	if(image2.depth()==1) {
+	    image2.setNumColors( 2 );
+	    image2.setColor( 0, qRgb(255,255,255) );
+	    image2.setColor( 1, qRgb(0,0,0) );
+	}
+	if ( image2.hasAlphaBuffer() )
+	    gfx->setAlphaType(QGfx::InlineAlpha);
+	else
+	    gfx->setAlphaType(QGfx::IgnoreAlpha);
+	gfx->setSource(&image2);
+	gfx->setSourceOffset(sx,sy);
+	if ( testf(VxF|WxF) ) {
+	    map( x, y, &x, &y );
+	}
+	gfx->blt(x,y,sw,sh);
+    }
+    return;
+#endif
+
     if ( !isActive() || image.isNull() )
 	return;
 
@@ -1907,10 +2020,14 @@ void QPainter::drawImage( int x, int y, const QImage & image,
 	param[1].image = &subimage;
 #if defined(_WS_WIN_)
 	if ( !pdev->cmd( QPaintDevice::PdcDrawImage, this, param ) || !hdc )
+	    return;
+#elif defined(_WS_QWS_)
+	pdev->cmd( QPaintDevice::PdcDrawImage, this, param );
+	return;
 #else
 	if ( !pdev->cmd( QPaintDevice::PdcDrawImage, this, param ) || !hd )
-#endif
 	    return;
+#endif
     }
 
     QPixmap pm;
@@ -2063,12 +2180,16 @@ void QPainter::drawText( int x, int y, int w, int h, int tf,
 		if ( !pdev->cmd( QPaintDevice::PdcDrawText2Formatted,
 				 this, param) ||
 		     !hdc )
+		    return;			// QPrinter wants PdcDrawText2
+#elif defined(_WS_QWS_)
+		pdev->cmd( QPaintDevice::PdcDrawText2Formatted, this, param);
+		return;
 #else
 		if ( !pdev->cmd( QPaintDevice::PdcDrawText2Formatted,
 				 this, param) ||
 		     !hd )
-#endif
 		    return;			// QPrinter wants PdcDrawText2
+#endif
 	    }
 	}
     }
@@ -2431,14 +2552,18 @@ void qt_format_text( const QFontMetrics& fm, int x, int y, int w, int h,
     if ( (tf & Qt::DontClip) == 0 ) {		// clip text
 	QRegion new_rgn;
 	QRect r( x, y, w, h );
+#if QT_FEATURE_TRANSFORMATIONS
 	if ( painter->txop == TxRotShear ) {		// world xform active
 	    QPointArray a( r );			// complex region
 	    a = painter->xForm( a );
 	    new_rgn = QRegion( a );
 	} else {
+#endif
 	    r = painter->xForm( r );
 	    new_rgn = QRegion( r );
+#if QT_FEATURE_TRANSFORMATIONS
 	}
+#endif
 	if ( clip_on )				// combine with existing region
 	    new_rgn = new_rgn.intersect( painter->crgn );
 	painter->setClipRegion( new_rgn );
@@ -2527,10 +2652,9 @@ void qt_format_text( const QFontMetrics& fm, int x, int y, int w, int h,
     }
 
     if ( (tf & Qt::DontClip) == 0 ) {		// restore clipping
-	if ( clip_on ) {			// set original region
+	if ( clip_on ) {
 	    painter->setClipRegion( save_rgn );
-	} else {				// clipping was off
-	    painter->crgn = save_rgn;
+	} else {
 	    painter->setClipping( FALSE );
 	}
     }

@@ -24,6 +24,9 @@
 *****************************************************************************/
 
 #include "qrichtext_p.h"
+
+#if QT_FEATURE_RICHTEXT
+
 #include "qsimplerichtext.h"
 #include "qpainter.h"
 
@@ -320,3 +323,5 @@ bool QSimpleRichText::inText( const QPoint& pos ) const
     QRichTextIterator it( *d->doc );
     return it.goTo( pos );
 }
+
+#endif // QT_FEATURE_RICHTEXT

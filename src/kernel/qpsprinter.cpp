@@ -24,6 +24,9 @@
 *****************************************************************************/
 
 #include "qpsprinter_p.h"
+
+#if QT_FEATURE_PSPRINTER
+
 #include "qpainter.h"
 #include "qpaintdevicemetrics.h"
 #include "qimage.h"
@@ -49,6 +52,11 @@
 // Note: stripHeader() constrains the postscript used in this prolog.
 // only function/variable declarations are currently allowed, and
 // stripHeader knows a bit about the names of some functions.
+
+//
+// #### improve build process and qembed the result, saving RAM and ROM
+//
+
 static const char * const ps_header[] = {
 "/d  /def load def",
 "/D  {bind d} bind d",
@@ -2943,3 +2951,5 @@ void QPSPrinter::clippingSetup( QPainter *paint )
     }
     d->dirtyClipping = FALSE;
 }
+
+#endif

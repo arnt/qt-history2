@@ -41,6 +41,8 @@
 class QMetaObject;
 class QVariant;
 
+#ifndef QT_MOC_CPP
+
 class Q_EXPORT QObject: public Qt
 {
     Q_PROPERTY( QCString name READ name WRITE setName )
@@ -103,8 +105,10 @@ public:
     void	 dumpObjectTree();
     void	 dumpObjectInfo();
 
+#if QT_FEATURE_PROPERTIES
     bool setProperty( const char *name, const QVariant& value ); // virtual in Qt 3.0
     QVariant property( const char *name ) const;    // virtual in Qt 3.0
+#endif // QT_FEATURE_PROPERTIES
 
 signals:
     void	 destroyed();
@@ -180,6 +184,7 @@ public:
     QStringList  superClasses( bool includeThis = FALSE ) const; // obsolete, remove 3.0
 };
 
+#endif
 
 inline bool QObject::connect( const QObject *sender, const char *signal,
 			      const char *member ) const

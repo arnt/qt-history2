@@ -20,6 +20,7 @@
 *****************************************************************************/
 
 #include "qhbox.h"
+#if QT_FEATURE_WIDGETS
 #include "qlayout.h"
 #include "qapplication.h"
 #include "qobjectlist.h"
@@ -113,3 +114,4 @@ bool QHBox::setStretchFactor( QWidget* w, int stretch )
     QApplication::sendPostedEvents( mThis, QEvent::ChildInserted );
     return lay->setStretchFactor( w, stretch );
 }
+#endif

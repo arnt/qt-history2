@@ -43,6 +43,7 @@ public:
 
     QSocket::State	state;			// connection state
     QSocket::Mode	mode;			// mode for reading
+    QString		filename;
     QString		host;			// host name
     int			port;			// host port
     QSocketDevice      *socket;			// connection socket
@@ -286,6 +287,45 @@ void QSocket::connectToHost( const QString &host, int port )
     // First connection attempt, more to follow
     tryConnecting();
 };
+
+
+void QSocket::connectToLocalFile( const QString &filename )
+{
+#if defined(QSOCKET_DEBUG)
+    qDebug( "QSocket (%s)::connectToLocalFile: file %s",
+	    name(), filename.ascii() );
+#endif
+    if ( d->state != Idle )
+	close();
+    // Re-initialize
+    delete d;
+
+    d = new QSocketPrivate;
+    setSocket( -1, FALSE );
+
+    QObject * p = this;
+    while ( p && p->parent() )
+	p = p->parent();
+    p->QObject::dumpObjectTree();
+
+    d->state = HostLookup;
+    d->host = QString::null;
+    d->port = 0;
+    d->dns = 0;
+
+    d->state = Connecting;
+    if ( d->socket->connect( filename ) == FALSE ) {
+	if ( d->socket->error() == QSocketDevice::NoError )
+	    return; // not serious, try again later
+	d->state = Idle;
+	emit error( ErrConnectionRefused );
+    } else {
+	d->state = Connection;
+	emit connected();
+    }
+    // The socket write notifier will fire when the connection succeeds
+    d->wsn->setEnabled( TRUE );
+}
 
 
 /*!
@@ -723,6 +763,24 @@ int QSocket::bytesAvailable() const
 
 
 /*!
+  Wait upto \a msecs milliseconds for more data to be available.
+  If \a msecs is -1 the call will block indefinitely.
+  This is a blocking call and should be avoided in event driven
+  applications.
+  Returns the number of bytes available.
+  \sa bytesAvailable()
+*/
+
+int QSocket::waitForMore( int msecs )
+{
+    QSocket * that = (QSocket *)this;
+    if ( that->d->socket->waitForMore( msecs ) > 0 )
+	(void)that->sn_read();
+    return that->d->rsize;
+}
+
+
+/*!
   Returns the number of bytes that are waiting to be written, i.e. the
   size of the output buffer.
   \sa bytesAvailable()
@@ -897,7 +955,6 @@ QString QSocket::readLine()
     return s;
 }
 
-
 /*!
   Internal slot for handling socket read notifications.
 */
@@ -914,7 +971,7 @@ void QSocket::sn_read()
 	return;
     }
 
-    char buf[512];
+    char buf[4096];
     int  nbytes = d->socket->bytesAvailable();
     int  nread;
     QByteArray *a = 0;
@@ -965,8 +1022,19 @@ void QSocket::sn_read()
 #if defined(QSOCKET_DEBUG)
 	qDebug( "QSocket (%s): sn_read: %d incoming bytes", name(), nbytes );
 #endif
-	a = new QByteArray( nbytes );
-	nread = d->socket->readBlock( a->data(), nbytes );
+	if ( nbytes > (int)sizeof(buf) ) {
+	    // big
+	    a = new QByteArray( nbytes );
+	    nread = d->socket->readBlock( a->data(), nbytes );
+	} else {
+	    a = 0;
+	    nread = d->socket->readBlock( buf, sizeof(buf) );
+	    if ( nread > 0 ) {
+		// ##### could setRawData
+		a = new QByteArray( nread );
+		memcpy(a->data(),buf,nread);
+	    }
+	}
 	if ( nread < 0 ) {
 #if defined(CHECK_RANGE)
 	    qWarning( "QSocket::sn_read: Read error" );
@@ -975,7 +1043,7 @@ void QSocket::sn_read()
 	    emit error( ErrSocketRead );	// socket read error
 	    return;
 	}
-	if ( nread != nbytes ) {		// unexpected
+	if ( nread != (int)a->size() ) {		// unexpected
 #if defined(CHECK_RANGE)
 	    qWarning( "QSocket::sn_read: Unexpected short read" );
 #endif
@@ -1052,7 +1120,7 @@ int QSocket::socket() const
 /*!  Sets the socket to use \a socket and the state() to \c Connected.
 */
 
-void QSocket::setSocket( int socket )
+void QSocket::setSocket( int socket, bool inet )
 {
     if ( state() != Idle )
 	close();
@@ -1062,9 +1130,9 @@ void QSocket::setSocket( int socket )
 
     d = new QSocketPrivate;
     if ( socket >= 0 )
-	d->socket = new QSocketDevice( socket, QSocketDevice::Stream );
+	d->socket = new QSocketDevice( socket, QSocketDevice::Stream, inet );
     else
-	d->socket = new QSocketDevice( QSocketDevice::Stream );
+	d->socket = new QSocketDevice( QSocketDevice::Stream, inet );
     d->socket->setBlocking( FALSE );
     d->socket->setAddressReusable( TRUE );
     d->state = Connection;

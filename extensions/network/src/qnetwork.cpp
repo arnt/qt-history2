@@ -24,6 +24,9 @@
 *****************************************************************************/
 
 #include "qnetwork.h"
+
+#if QT_FEATURE_NETWORKPROTOCOL
+
 #include "qnetworkprotocol.h"
 
 // protocols
@@ -32,6 +35,12 @@
 
 void qInitNetworkProtocols()
 {
+#if QT_FEATURE_NETWORKPROTOCOL_FTP
     QNetworkProtocol::registerNetworkProtocol( "ftp", new QNetworkProtocolFactory< QFtp > );
+#endif
+#if QT_FEATURE_NETWORKPROTOCOL_HTTP
     QNetworkProtocol::registerNetworkProtocol( "http", new QNetworkProtocolFactory< QHttp > );
+#endif
 };
+
+#endif // QT_FEATURE_NETWORKPROTOCOL

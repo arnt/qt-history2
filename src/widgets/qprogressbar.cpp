@@ -24,6 +24,7 @@
 *****************************************************************************/
 
 #include "qprogressbar.h"
+#if QT_FEATURE_WIDGETS
 #include "qpainter.h"
 #include "qdrawutil.h"
 #include "qapplication.h"
@@ -437,3 +438,4 @@ void QProgressBar::drawContentsMask( QPainter *p )
 	p->drawRect( bar );
     }
 }
+#endif

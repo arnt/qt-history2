@@ -25,6 +25,8 @@
 
 #include "qwindowdefs.h"
 
+#if QT_FEATURE_FONTDIALOG
+
 #include "qfontdialog.h"
 
 #include "qlineedit.h"
@@ -789,3 +791,5 @@ void QFontDialog::emitSelectedFont()
 
   This signal is emitted, when the user changed a setting in the dialog.
 */
+
+#endif

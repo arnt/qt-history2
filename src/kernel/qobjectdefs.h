@@ -34,18 +34,31 @@
 // The following macros are our "extensions" to C++
 // They are used, strictly speaking, only by the moc.
 
-#define slots					// slots:   in class
-#define signals protected			// signals: in class
-#define emit					// emit signal
+#ifdef QT_MOC_CPP
+ #define slots			    slots
+ #define signals		    signals
+ #define Q_CLASSINFO( name, value ) Q_CLASSINFO( name, value )
+ #define Q_PROPERTY( text )	    Q_PROPERTY( text )
+ #define Q_OVERRIDE( text )	    Q_OVERRIDE( text )
+ #define Q_ENUMS( x )		    Q_ENUMS( x )
+ #define Q_SETS( x )		    Q_SETS( x )
+ /* tmake ignore Q_OBJECT */
+ #define Q_OBJECT		    Q_OBJECT
+ /* tmake ignore Q_OBJECT */
+ #define Q_OBJECT_FAKE		    Q_OBJECT_FAKE
 
-#define Q_CLASSINFO( name, value )		// class info
-#define Q_PROPERTY( text )			// property
-#define Q_OVERRIDE( text )			// override property
-#define Q_ENUMS( x )
-#define Q_SETS( x )
+#else
+ #define slots					// slots:   in class
+ #define signals protected			// signals: in class
+ #define emit					// emit signal
+ #define Q_CLASSINFO( name, value )		// class info
+ #define Q_PROPERTY( text )			// property
+ #define Q_OVERRIDE( text )			// override property
+ #define Q_ENUMS( x )
+ #define Q_SETS( x )
 
 /* tmake ignore Q_OBJECT */
-#define Q_OBJECT					\
+ #define Q_OBJECT					\
 public:							\
     QMetaObject *metaObject() const { 			\
          return staticMetaObject();			\
@@ -61,6 +74,7 @@ private:						\
 /* tmake ignore Q_OBJECT */
 #define Q_OBJECT_FAKE Q_OBJECT
 
+#endif
 
 // macro for naming members
 #if defined(_OLD_CPP_)

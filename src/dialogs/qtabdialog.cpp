@@ -25,6 +25,8 @@
 
 #include "qtabdialog.h"
 
+#if QT_FEATURE_TABDIALOG
+
 #include "qobjectlist.h"
 #include "qobjectdict.h"
 #include "qtabbar.h"
@@ -1123,3 +1125,5 @@ void QTabDialog::removePage( QWidget * w )
 {
     d->tw->removePage( w );
 }
+
+#endif

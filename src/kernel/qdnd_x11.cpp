@@ -24,6 +24,9 @@
 *****************************************************************************/
 
 #include "qapplication.h"
+
+#if QT_FEATURE_DRAGANDDROP
+
 #include "qwidget.h"
 #include "qintdict.h"
 #include "qdatetime.h"
@@ -1606,3 +1609,5 @@ void QDragManager::updatePixmap()
 	}
     }
 }
+
+#endif // QT_FEATURE_DRAGANDDROP

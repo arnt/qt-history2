@@ -365,7 +365,7 @@ QTranslator::QTranslator( QObject * parent, const char * name )
 
 QTranslator::~QTranslator()
 {
-    if ( qApp && parent() == qApp )
+    if ( qApp )
 	qApp->removeTranslator( this );
     clear();
     delete d;

@@ -44,6 +44,7 @@ class QNetworkOperation;
 #include "qurlinfo.h"
 #endif // QT_H
 
+#if QT_FEATURE_FILEDIALOG
 
 class Q_EXPORT QFileIconProvider : public QObject
 {
@@ -298,5 +299,7 @@ private:	// Disabled copy constructor and operator=
     QFileDialog &operator=( const QFileDialog & );
 #endif
 };
+
+#endif
 
 #endif // QFILEDIALOG_H

@@ -24,6 +24,7 @@
 *****************************************************************************/
 
 #include "qtabwidget.h"
+#if QT_FEATURE_WIDGETS
 #include "qobjectlist.h"
 #include "qobjectdict.h"
 #include "qtabbar.h"
@@ -639,3 +640,5 @@ QSizePolicy QTabWidget::sizePolicy() const
 {
     return QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding );
 }
+
+#endif

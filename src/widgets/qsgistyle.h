@@ -32,6 +32,8 @@
 #include "qguardedptr.h"
 #endif // QT_H
 
+#if QT_FEATURE_STYLE_SGI
+
 class QButton;
 
 class Q_EXPORT QSGIStyle: public QMotifStyle
@@ -119,5 +121,7 @@ protected:
 private:
     QGuardedPtr<QWidget> lastWidget;
 };
+
+#endif // QT_FEATURE_STYLE_SGI
 
 #endif // QSGISTYLE_H

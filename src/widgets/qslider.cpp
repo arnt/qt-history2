@@ -24,6 +24,7 @@
 *****************************************************************************/
 
 #include "qslider.h"
+#if QT_FEATURE_WIDGETS
 #include "qpainter.h"
 #include "qdrawutil.h"
 #include "qtimer.h"
@@ -1131,3 +1132,4 @@ int QSlider::value() const
 {
     return QRangeControl::value();
 }
+#endif

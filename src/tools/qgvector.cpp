@@ -440,7 +440,7 @@ int QGVector::bsearch( Item d ) const		// binary search; when sorted
     }
     int n1 = 0;
     int n2 = len - 1;
-    int mid;
+    int mid = 0;
     bool found = FALSE;
     while ( n1 <= n2 ) {
 	int  res;

@@ -22,6 +22,9 @@
 *****************************************************************************/
 
 #include "qdropsite.h"
+
+#if QT_FEATURE_DRAGANDDROP
+
 #include "qwidget.h"
 
 
@@ -59,3 +62,4 @@ QDropSite::~QDropSite()
 {
 }
 
+#endif // QT_FEATURE_DRAGANDDROP

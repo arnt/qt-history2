@@ -24,6 +24,7 @@
 *****************************************************************************/
 
 #include "qvalidator.h"
+#if QT_FEATURE_WIDGETS
 #include "qwidget.h"
 #include "qregexp.h"
 
@@ -463,3 +464,4 @@ void QDoubleValidator::setDecimals( int decimals )
 
   \sa bottom() top() setRange()
 */
+#endif

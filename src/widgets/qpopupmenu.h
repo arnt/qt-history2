@@ -31,6 +31,8 @@
 #include "qmenudata.h"
 #endif // QT_H
 
+#if QT_FEATURE_WIDGETS
+
 
 class Q_EXPORT QPopupMenu : public QFrame, public QMenuData
 {
@@ -148,5 +150,7 @@ private:	// Disabled copy constructor and operator=
 #endif
 };
 
+
+#endif // QT_FEATURE_WIDGETS
 
 #endif // QPOPUPMENU_H

@@ -39,6 +39,10 @@
 #include <stdlib.h>
 #include <ctype.h>
 
+#ifdef _WS_QWS_
+#include "qgfx.h"
+#endif
+
 
 // BEING REVISED: jo (QImageIO)
 /*!
@@ -192,24 +196,38 @@ public:
   QImage member functions
  *****************************************************************************/
 
-static bool  bitflip_init = FALSE;
-static uchar bitflip[256];			// table to flip bits
+// table to flip bits
+static const uchar bitflip[256] = {
+    /*
+	open OUT, "| fmt";
+	for $i (0..255) {
+	    print OUT (($i >> 7) & 0x01) | (($i >> 5) & 0x02) |
+		      (($i >> 3) & 0x04) | (($i >> 1) & 0x08) |
+		      (($i << 7) & 0x80) | (($i << 5) & 0x40) |
+		      (($i << 3) & 0x20) | (($i << 1) & 0x10), ", ";
+	}
+	close OUT;
+    */
+    0, 128, 64, 192, 32, 160, 96, 224, 16, 144, 80, 208, 48, 176, 112, 240,
+    8, 136, 72, 200, 40, 168, 104, 232, 24, 152, 88, 216, 56, 184, 120, 248,
+    4, 132, 68, 196, 36, 164, 100, 228, 20, 148, 84, 212, 52, 180, 116, 244,
+    12, 140, 76, 204, 44, 172, 108, 236, 28, 156, 92, 220, 60, 188, 124, 252,
+    2, 130, 66, 194, 34, 162, 98, 226, 18, 146, 82, 210, 50, 178, 114, 242,
+    10, 138, 74, 202, 42, 170, 106, 234, 26, 154, 90, 218, 58, 186, 122, 250,
+    6, 134, 70, 198, 38, 166, 102, 230, 22, 150, 86, 214, 54, 182, 118, 246,
+    14, 142, 78, 206, 46, 174, 110, 238, 30, 158, 94, 222, 62, 190, 126, 254,
+    1, 129, 65, 193, 33, 161, 97, 225, 17, 145, 81, 209, 49, 177, 113, 241,
+    9, 137, 73, 201, 41, 169, 105, 233, 25, 153, 89, 217, 57, 185, 121, 249,
+    5, 133, 69, 197, 37, 165, 101, 229, 21, 149, 85, 213, 53, 181, 117, 245,
+    13, 141, 77, 205, 45, 173, 109, 237, 29, 157, 93, 221, 61, 189, 125, 253,
+    3, 131, 67, 195, 35, 163, 99, 227, 19, 147, 83, 211, 51, 179, 115, 243,
+    11, 139, 75, 203, 43, 171, 107, 235, 27, 155, 91, 219, 59, 187, 123, 251,
+    7, 135, 71, 199, 39, 167, 103, 231, 23, 151, 87, 215, 55, 183, 119, 247,
+    15, 143, 79, 207, 47, 175, 111, 239, 31, 159, 95, 223, 63, 191, 127, 255
+};
 
-static void setup_bitflip()			// create bitflip table
+const uchar *qt_get_bitflip_array()			// called from QPixmap code
 {
-    if ( !bitflip_init ) {
-	for ( int i=0; i<256; i++ )
-	    bitflip[i] = ((i >> 7) & 0x01) | ((i >> 5) & 0x02) |
-			 ((i >> 3) & 0x04) | ((i >> 1) & 0x08) |
-			 ((i << 7) & 0x80) | ((i << 5) & 0x40) |
-			 ((i << 3) & 0x20) | ((i << 1) & 0x10);
-	bitflip_init = TRUE;
-    }
-}
-
-uchar *qt_get_bitflip_array()			// called from QPixmap code
-{
-    setup_bitflip();
     return bitflip;
 }
 
@@ -294,7 +312,13 @@ static void read_xpm_image_or_array( QImageIO *, const char **, QImage & );
 QImage::QImage( const char *xpm[] )
 {
     init();
+#if QT_FEATURE_IMAGIO_XPM
     read_xpm_image_or_array( 0, xpm, *this );
+#else
+    // We use a qFatal rather than disabling the whole function, as this
+    // constructor may be ambiguous.
+    qFatal("XPM not supported");
+#endif
 }
 
 /*!
@@ -343,6 +367,9 @@ QImage::QImage( uchar* yourdata, int w, int h, int depth,
 	break;
       case 8:
 	data->nbytes = w*h;
+	break;
+      case 16:
+	data->nbytes = w*h*2;
 	break;
       case 32:
 	data->nbytes = w*h*4;
@@ -522,15 +549,16 @@ QImage QImage::copy(int x, int y, int w, int h, int conversion_flags) const
   The image depth is the number of bits used to encode a single pixel, also
   called bits per pixel (bpp) or bit planes of an image.
 
-  The supported depths are 1, 8 and 32.
+  The supported depths are 1, 8, 16 and 32.
 */
 
 /*!
   \fn int QImage::numColors() const
   Returns the size of the color table for the image.
 
-  Notice that numColors() returns 0 for 32-bpp images, since these images
-  do not use color tables, but instead encode pixel values as RGB triplets.
+  Notice that numColors() returns 0 for 16-bpp and 32-bpp images,
+  since these images do not use color tables, but instead encode pixel
+  values as RGB triplets.
 */
 
 /*!
@@ -605,6 +633,9 @@ QImage QImage::copy(int x, int y, int w, int h, int conversion_flags) const
   platform. Hint: use \link ::qRed() qRed()\endlink and friends (qcolor.h)
   to access the pixels.
 
+  \warning If you are accessing 16-bpp image data, you have to handle
+  endianness yourself for now.
+
   \sa bits()
 */
 
@@ -670,6 +701,18 @@ void QImage::fill( uint pixel )
 	int bpl = bytesPerLine();
 	for ( int i=0; i<height(); i++ )
 	    memset( scanLine(i), pixel, bpl );
+    } else if ( depth() == 16 ) {
+	for ( int i=0; i<height(); i++ ) {
+	    //optimize with 32-bit writes, since image is always aligned
+	    uint *p = (uint *)scanLine(i);
+	    uint *end = (uint*)(((ushort*)p) + width());
+	    uint fill;
+	    ushort *f = (ushort*)&fill;
+	    f[0]=pixel;
+	    f[1]=pixel;
+	    while ( p < end )
+		*p++ = fill;
+	}
     } else if ( depth() == 32 ) {
 	if ( hasAlphaBuffer() ) {
 	    pixel &= 0x00ffffff;
@@ -874,6 +917,7 @@ bool QImage::create( int width, int height, int depth, int numColors,
     switch ( depth ) {
 	case 1:
 	case 8:
+	case 16:
 	case 32:
 	    break;
 	default:				// invalid depth
@@ -1643,12 +1687,78 @@ static bool dither_to_1( const QImage *src, QImage *dst,
     return TRUE;
 }
 
+//###### Endianness issues!
+static inline ushort convRgbTo16( QRgb c )
+{
+    int r = qRed(c) >> 3;
+    int g = qGreen(c) >> 2;
+    int b = qBlue(c) >> 3;
+    r = r << 11;
+    g = g << 5;
+    return r | g | b;
+}
+
+
+static inline QRgb conv16ToRgb( ushort c )
+{
+    int r=(c & 0xf800) >> 11;
+    int g=(c & 0x07e0) >> 5;
+    int b=(c & 0x001f);
+    r=r << 3;
+    g=g << 2;
+    b=b << 3;
+    return qRgb(r,g,b);
+}
+
+static inline bool is16BitGray( ushort c )
+{
+    int r=(c & 0xf800) >> 11;
+    int g=(c & 0x07e0) >> 6; //green/2
+    int b=(c & 0x001f);
+    return r == g && g == b;
+}
+
+
+static bool convert_16_to_32( const QImage *src, QImage *dst )
+{
+    if ( !dst->create(src->width(), src->height(), 32) )
+	return FALSE;				// create failed
+    dst->setAlphaBuffer( src->hasAlphaBuffer() );
+    for ( int y=0; y<dst->height(); y++ ) {	// for each scan line...
+	register uint *p = (uint *)dst->scanLine(y);
+	ushort  *s = (ushort*)src->scanLine(y);
+	uint *end = p + dst->width();
+	while ( p < end )
+	    *p++ = conv16ToRgb( *s++ );
+    }
+    return TRUE;
+}
+
+
+static bool convert_32_to_16( const QImage *src, QImage *dst )
+{
+    if ( !dst->create(src->width(), src->height(), 16) )
+	return FALSE;				// create failed
+    dst->setAlphaBuffer( src->hasAlphaBuffer() );
+    for ( int y=0; y<dst->height(); y++ ) {	// for each scan line...
+	register ushort *p = (ushort *)dst->scanLine(y);
+	uint  *s = (uint*)src->scanLine(y);
+	ushort *end = p + dst->width();
+	while ( p < end )
+	    *p++ = convRgbTo16( *s++ );
+    }
+    return TRUE;
+}
+
+
+
+
 
 /*!
   Converts the depth (bpp) of the image to \e depth and returns the
   converted image.  The original image is left undisturbed.
 
-  The \e depth argument must be 1, 8 or 32.
+  The \e depth argument must be 1, 8, 16 or 32.
 
   See QPixmap::convertFromImage for a description of the \a
   conversion_flags argument.
@@ -1672,6 +1782,14 @@ QImage QImage::convertDepth( int depth, int conversion_flags ) const
 	convert_1_to_8( this, &image );
     else if ( data->d == 1 && depth == 32 )	// 1 -> 32
 	convert_1_to_32( this, &image );
+    else if ( data->d == 16 && depth != 16 ) {
+	QImage tmp;
+	convert_16_to_32( this, &tmp );
+	image = tmp.convertDepth( depth, conversion_flags );
+    } else if ( data->d != 16 && depth == 16 ) {
+	QImage tmp = convertDepth( 32, conversion_flags );
+	convert_32_to_16( &tmp, &image );
+    }
     else if ( data->d == depth )
 	image = *this;				// no conversion
     else {
@@ -1729,10 +1847,11 @@ int QImage::pixelIndex( int x, int y ) const
 	    return (*(s + (x >> 3)) >> (7- (x & 7))) & 1;
     case 8:
 	return (int)s[x];
+    case 16:
     case 32:
 #if defined(CHECK_RANGE)
-	qWarning( "QImage::pixelIndex: Not applicable for 32-bpp images "
-		 "(no palette)" );
+	qWarning( "QImage::pixelIndex: Not applicable for %d-bpp images "
+		 "(no palette)", depth() );
 #endif
 	return 0;
     }
@@ -1766,6 +1885,8 @@ QRgb QImage::pixel( int x, int y ) const
 	    return color( (*(s + (x >> 3)) >> (7- (x & 7))) & 1 );
     case 8:
 	return color( (int)s[x] );
+    case 16:
+	return conv16ToRgb(((uint*)s)[x]);
     case 32:
 	return ((QRgb*)s)[x];
     default:
@@ -1820,6 +1941,9 @@ void QImage::setPixel( int x, int y, uint index_or_rgb )
 	}
 	uchar * s = scanLine( y );
 	s[x] = index_or_rgb;
+    } else if ( depth() == 16 ) {
+	ushort * s = (ushort*)scanLine( y );
+	s[x] = convRgbTo16(index_or_rgb);
     } else if ( depth() == 32 ) {
 	QRgb * s = (QRgb*)scanLine( y );
 	s[x] = index_or_rgb;
@@ -1848,7 +1972,6 @@ QImage QImage::convertBitOrder( Endian bitOrder ) const
 	return *this;
 
     QImage image( data->w, data->h, 1, data->ncols, bitOrder );
-    setup_bitflip();
     register uchar *p;
     uchar *end;
     uchar *b;
@@ -1872,7 +1995,7 @@ bool isGray(QRgb c)
 /*!
   Returns TRUE if all the colors in the image are shades of
   gray, that is their R, G, and B components are equal.
-  This function is slow for large 32-bit images.
+  This function is slow for large 16-bit and 32-bit images.
 */
 bool QImage::allGray() const
 {
@@ -1881,6 +2004,12 @@ bool QImage::allGray() const
 	QRgb* b = (QRgb*)bits();
 	while (p--)
 	    if (!isGray(*b++))
+		return FALSE;
+    } else if (depth()==16) {
+	int p = width()*height();
+	ushort* b = (ushort*)bits();
+	while (p--)
+	    if (!is16BitGray(*b++))
 		return FALSE;
     } else {
 	if (!data->ctbl) return TRUE;
@@ -1899,6 +2028,7 @@ bool QImage::isGrayscale() const
 {
     switch (depth()) {
       case 32:
+      case 16:
 	return allGray();
       case 8: {
 	for (int i=0; i<numColors(); i++)
@@ -2198,7 +2328,7 @@ QImage QImage::smoothScale(int w, int h) const
 	// 32-bpp to 32-bpp
 	pnmscale(*this,img);
 	return img;
-    } else if (allGray() && !hasAlphaBuffer()) {
+    } else if ( depth() != 16 && allGray() && !hasAlphaBuffer()) {
 	// Inefficient
 	return convertDepth(32).smoothScale(w,h).convertDepth(8);
     } else {
@@ -2396,6 +2526,16 @@ QImage QImage::mirror(bool horizontal, bool vertical) const
 		    *a2-- = c;
 		}
 	    }
+	} else if (result.depth() == 16) {
+	    for (int y = result.height()-1; y >= 0; y--) {
+		ushort* a1 = (ushort *)result.scanLine(y);
+		ushort* a2 = a1+result.width()-1;
+		while (a1 < a2) {
+		    ushort c = *a1;
+		    *a1++ = *a2;
+		    *a2-- = c;
+		}
+	    }
 	} else if (result.depth() == 8) {
 	    for (int y = result.height()-1; y >= 0; y--) {
 		uchar* a1 = result.scanLine(y);
@@ -2408,7 +2548,7 @@ QImage QImage::mirror(bool horizontal, bool vertical) const
 	    }
 	} else if (result.depth() == 1) {
 	    // Flip bytes
-	    uchar* fliptab = qt_get_bitflip_array();
+	    const uchar* fliptab = qt_get_bitflip_array();
 	    int bpl = (result.width()+7)/8;
 	    for (int y = result.height()-1; y >= 0; y--) {
 		uchar* a1 = result.scanLine(y);
@@ -2483,24 +2623,25 @@ QImage QImage::swapRGB() const
 {
     QImage res = copy();
     if ( !isNull() ) {
-	if ( depth() != 32 ) {
-	    uint* p = (uint*)colorTable();
-	    uint* q = (uint*)res.colorTable();
-	    if ( p && q ) {
-		for ( int i=0; i < numColors(); i++ ) {
+	if ( depth() == 32 ) {
+	    for ( int i=0; i < height(); i++ ) {
+		uint *p = (uint*)scanLine( i );
+		uint *q = (uint*)res.scanLine( i );
+		uint *end = p + width();
+		while ( p < end ) {
 		    *q = ((*p << 16) & 0xff0000) | ((*p >> 16) & 0xff) |
 			 (*p & 0xff00ff00);
 		    p++;
 		    q++;
 		}
 	    }
-	}
-	else {
-	    for ( int i=0; i < height(); i++ ) {
-		uint *p = (uint*)scanLine( i );
-		uint *q = (uint*)res.scanLine( i );
-		uint *end = p + width();
-		while ( p < end ) {
+	} else if ( depth() == 16 ) {
+	    qWarning( "QImage::swapRGB not implemented for 16bpp" );
+	} else  {
+	    uint* p = (uint*)colorTable();
+	    uint* q = (uint*)res.colorTable();
+	    if ( p && q ) {
+		for ( int i=0; i < numColors(); i++ ) {
 		    *q = ((*p << 16) & 0xff0000) | ((*p >> 16) & 0xff) |
 			 (*p & 0xff00ff00);
 		    p++;
@@ -2630,8 +2771,8 @@ bool QImage::loadFromData( QByteArray buf, const char *format )
 
 /*!
   Saves the image to the file \e fileName, using the image file format
-  \e format.  Returns TRUE if successful, or FALSE if the image could not
-  be saved.
+  \e format and default quality settings.
+  Returns TRUE if successful, or FALSE if the image could not be saved.
 
   \sa load(), loadFromData(), imageFormat(), QPixmap::save(), QImageIO
 */
@@ -2717,15 +2858,22 @@ QDataStream &operator>>( QDataStream &s, QImage &image )
  *****************************************************************************/
 
 // standard image io handlers (defined below)
+#if QT_FEATURE_IMAGIO_BMP
 static void read_bmp_image( QImageIO * );
 static void write_bmp_image( QImageIO * );
+#endif
+#if QT_FEATURE_IMAGIO_PPM
 static void read_pbm_image( QImageIO * );
 static void write_pbm_image( QImageIO * );
+#endif
+#if QT_FEATURE_IMAGIO_XBM
 static void read_xbm_image( QImageIO * );
 static void write_xbm_image( QImageIO * );
-
+#endif
+#if QT_FEATURE_IMAGIO_XPM
 static void read_xpm_image( QImageIO * );
 static void write_xpm_image( QImageIO * );
+#endif
 
 static void read_async_image( QImageIO * ); // Not in table of handlers
 
@@ -2753,6 +2901,7 @@ static QString fbname( const QString &fileName )	// get file basename (sort of)
     return s;
 }
 
+#if QT_FEATURE_IMAGIO_BMP
 static void swapPixel01( QImage *image )	// 1-bpp: swap 0 and 1 pixels
 {
     int i;
@@ -2773,6 +2922,7 @@ static void swapPixel01( QImage *image )	// 1-bpp: swap 0 and 1 pixels
 	image->setColor( 1, t );
     }
 }
+#endif
 
 
 /*****************************************************************************
@@ -2911,8 +3061,11 @@ static void init_image_handlers()		// initialize image handlers
 	CHECK_PTR( imageHandlers );
 	imageHandlers->setAutoDelete( TRUE );
 	qAddPostRoutine( cleanup_image_handlers );
+#if QT_FEATURE_IMAGIO_BMP
 	QImageIO::defineIOHandler( "BMP", "^BM", 0,
 				   read_bmp_image, write_bmp_image );
+#endif
+#if QT_FEATURE_IMAGIO_PPM
 	QImageIO::defineIOHandler( "PBM", "^P1", "t",
 				   read_pbm_image, write_pbm_image );
 	QImageIO::defineIOHandler( "PBMRAW", "^P4", "O",
@@ -2925,12 +3078,21 @@ static void init_image_handlers()		// initialize image handlers
 				   read_pbm_image, write_pbm_image );
 	QImageIO::defineIOHandler( "PPMRAW", "^P6", "O",
 				   read_pbm_image, write_pbm_image );
+#endif
+#if QT_FEATURE_IMAGIO_XBM
 	QImageIO::defineIOHandler( "XBM", "^#define", "T",
 				   read_xbm_image, write_xbm_image );
+#endif
+#if QT_FEATURE_IMAGIO_XPM
 	QImageIO::defineIOHandler( "XPM", "/\\*.XPM.\\*/", "T",
 				   read_xpm_image, write_xpm_image );
+#endif
+#if QT_FEATURE_IMAGIO_PNG
 	qInitPngIO();
+#endif
+#if QT_FEATURE_IMAGIO_JPEG
 	qInitJpegIO();
+#endif
     }
 }
 
@@ -2953,6 +3115,7 @@ struct QImageIOData //### use instead of QImageIO::params in 3.0
     const char *params;
     int quality;
 };
+
 
 /*!
   Defines a image IO handler for a specified image format.
@@ -3405,6 +3568,7 @@ bool QImageIO::write()
     return iostat == 0;				// image successfully written?
 }
 
+#if QT_FEATURE_IMAGIO_BMP
 
 /*****************************************************************************
   BMP (DIB) image read/write functions
@@ -3859,6 +4023,9 @@ static void write_bmp_image( QImageIO *iio )
     qt_write_dib( s, image );
 }
 
+#endif // QT_FEATURE_IMAGIO_BMP
+
+#if QT_FEATURE_IMAGIO_PPM
 
 /*****************************************************************************
   PBM/PGM/PPM (ASCII and RAW) image read/write functions
@@ -4141,6 +4308,7 @@ static void write_pbm_image( QImageIO *iio )
     iio->setStatus(0);
 }
 
+#endif // QT_FEATURE_IMAGIO_PPM
 
 class QImageIOFrameGrabber : public QImageConsumer {
 public:
@@ -4204,6 +4372,7 @@ static void read_async_image( QImageIO *iio )
     delete consumer;
 }
 
+#if QT_FEATURE_IMAGIO_XBM
 
 /*****************************************************************************
   X bitmap image read/write functions
@@ -4347,6 +4516,10 @@ static void write_xbm_image( QImageIO *iio )
     d->writeBlock( buf, strlen(buf) );
 }
 
+#endif QT_FEATURE_IMAGIO_XBM
+
+
+#if QT_FEATURE_IMAGIO_XPM
 
 /*****************************************************************************
   XPM image read/write functions
@@ -4646,6 +4819,8 @@ static void write_xpm_image( QImageIO * iio )
 
     iio->setStatus( 0 );
 }
+
+#endif // QT_FEATURE_IMAGIO_XPM
 
 /*!
   Note:  currently no closest-color search is made.  If colors are found that
@@ -5018,3 +5193,29 @@ void QImage::setText(const char* key, const char* lang, const QString& s)
     QImageTextKeyLang x(key,lang);
     misc().text_lang.replace(x,s);
 }
+
+#ifdef _WS_QWS_
+QGfx * QImage::graphicsContext()
+{
+    QGfx * ret=0;
+    if(depth()) {
+	ret=QGfx::createGfx(depth(),bits(),width(),height(),bytesPerLine());
+    } else {
+	qDebug("Trying to create image for null depth");
+	return 0;
+    }
+    if(depth()<=8) {
+	QRgb * tmp=colorTable();
+	int nc=numColors();
+	if(tmp==0) {
+	    tmp=new QRgb[depth()==1 ? 2 : 256];
+	    tmp[0]=qRgb(255,255,255);
+	    tmp[1]=qRgb(0,0,0);
+	    nc=2;
+	}
+	ret->setClut(tmp,nc);
+    }
+    return ret;
+}
+
+#endif

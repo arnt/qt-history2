@@ -24,6 +24,9 @@
 *****************************************************************************/
 
 #include "qfiledialog.h"
+
+#if QT_FEATURE_FILEDIALOG
+
 #include "qapplication.h"
 #include "qt_windows.h"
 #include "qregexp.h"
@@ -296,6 +299,10 @@ QString QFileDialog::winGetSaveFileName( const QString &initialSelection,
     if ( title.isNull() )
 	title = tr("Save As");
 
+    QString title = caption;
+    if ( title.isNull() )
+	title = tr("Save As");
+
     if ( qt_winver & WV_DOS_based ) {
 	// Use ANSI strings and API
 	OPENFILENAMEA* ofn = makeOFNA( parent, isel,
@@ -413,3 +420,4 @@ QStringList QFileDialog::winGetOpenFileNames( const QString &filter,
     return result;
 }
 
+#endif

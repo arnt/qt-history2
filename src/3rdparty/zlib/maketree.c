@@ -53,7 +53,7 @@ void main(void)
 {
   int r;
   uInt bl, bd;
-  inflate_huft *tl, *td;
+  const inflate_huft *tl, *td;
   z_stream z;
 
   z.zalloc = zcalloc;
@@ -76,10 +76,10 @@ void main(void)
   puts("");
   printf("local uInt fixed_bl = %d;\n", bl);
   printf("local uInt fixed_bd = %d;\n", bd);
-  printf("local inflate_huft fixed_tl[] = {");
+  printf("local const inflate_huft fixed_tl[] = {");
   maketree(bl, tl);
   puts("  };");
-  printf("local inflate_huft fixed_td[] = {");
+  printf("local const inflate_huft fixed_td[] = {");
   maketree(bd, td);
   puts("  };");
 }

@@ -24,6 +24,7 @@
 *****************************************************************************/
 
 #include "qwidget.h"
+#if QT_FEATURE_WIDGETS
 #include "qscrollbar.h"
 #include "qobjectlist.h"
 #include "qobjectdict.h"
@@ -113,8 +114,10 @@ struct QScrollViewData {
 	viewport( parent, "qt_viewport", vpwflags ),
 	clipped_viewport( 0 ),
 	flags( vpwflags ),
-	vx( 0 ), vy( 0 ), vwidth( 1 ), vheight( 1 ),
-	autoscroll_timer( parent ), drag_autoscroll( TRUE )
+	vx( 0 ), vy( 0 ), vwidth( 1 ), vheight( 1 )
+#if QT_FEATURE_DRAGANDDROP
+	, autoscroll_timer( parent ), drag_autoscroll( TRUE )
+#endif
     {
 	l_marg = r_marg = t_marg = b_marg = 0;
 	viewport.setBackgroundMode( QWidget::PaletteDark );
@@ -262,11 +265,13 @@ struct QScrollViewData {
     QScrollView::ResizePolicy policy;
     QScrollView::ScrollBarMode	vMode;
     QScrollView::ScrollBarMode	hMode;
+#if QT_FEATURE_DRAGANDDROP
     QPoint cpDragStart;
     QTimer autoscroll_timer;
     int autoscroll_time;
     int autoscroll_accel;
     bool drag_autoscroll;
+#endif
 
     // This variable allows ensureVisible to move the contents then
     // update both the sliders.  Otherwise, updating the sliders would
@@ -449,8 +454,10 @@ QScrollView::QScrollView( QWidget *parent, const char *name, WFlags f ) :
 {
     d = new QScrollViewData(this,WResizeNoErase |
 	    (f&WPaintClever) | (f&WRepaintNoErase) | (f&WNorthWestGravity) );
+#if QT_FEATURE_DRAGANDDROP
     connect( &d->autoscroll_timer, SIGNAL( timeout() ),
 	     this, SLOT( doDragAutoScroll() ) );
+#endif
 
     connect( &d->hbar, SIGNAL( valueChanged( int ) ),
 	this, SLOT( hslide( int ) ) );
@@ -1154,6 +1161,7 @@ bool QScrollView::eventFilter( QObject *obj, QEvent *e )
 	case QEvent::MouseMove:
 	    viewportMouseMoveEvent( (QMouseEvent*)e );
 	    break;
+#if QT_FEATURE_DRAGANDDROP
 	case QEvent::DragEnter:
 	    viewportDragEnterEvent( (QDragEnterEvent*)e );
 	    break;
@@ -1178,6 +1186,7 @@ bool QScrollView::eventFilter( QObject *obj, QEvent *e )
 	    stopDragAutoScroll();
 	    viewportDropEvent( (QDropEvent*)e );
 	    break;
+#endif // QT_FEATURE_DRAGANDDROP
 	case QEvent::Wheel:
 	    viewportWheelEvent( (QWheelEvent*)e );
 	    break;
@@ -1235,6 +1244,8 @@ void QScrollView::contentsMouseMoveEvent( QMouseEvent* )
 {
 }
 
+#if QT_FEATURE_DRAGANDDROP
+
 /*!
   This event handler is called whenever the QScrollView receives a
   dragEnterEvent() - the drag position is translated to be a
@@ -1270,6 +1281,8 @@ void QScrollView::contentsDragLeaveEvent( QDragLeaveEvent * )
 void QScrollView::contentsDropEvent( QDropEvent * )
 {
 }
+
+#endif // QT_FEATURE_DRAGANDDROP
 
 /*!
   This event handler is called whenever the QScrollView receives a
@@ -1394,6 +1407,8 @@ void QScrollView::viewportMouseMoveEvent( QMouseEvent* e )
     contentsMouseMoveEvent(&ce);
 }
 
+#if QT_FEATURE_DRAGANDDROP
+
 /*!
   To provide simple processing of events on the contents,
   this method receives all drag enter
@@ -1458,6 +1473,8 @@ void QScrollView::viewportDropEvent( QDropEvent* e )
     contentsDropEvent(e);
     e->setPoint(contentsToViewport(e->pos()));
 }
+
+#endif // QT_FEATURE_DRAGANDDROP
 
 /*!
   To provide simple processing of events on the contents,
@@ -1669,6 +1686,11 @@ void QScrollView::moveContents(int x, int y)
     }
     d->hideOrShowAll(this, TRUE );
 }
+
+#if QT_VERSION >= 300
+#error "Should rename contents{X,Y,Width,Height} to viewport{...}"
+// Because it's the viewport rectangle that is "moving", not the contents.
+#endif
 
 #if QT_VERSION >= 300
 #error "Should rename contents{X,Y,Width,Height} to viewport{...}"
@@ -2045,7 +2067,6 @@ int QScrollView::bottomMargin() const
     return d->b_marg;
 }
 
-
 /*!
   \reimp
 */
@@ -2238,6 +2259,8 @@ void QScrollView::drawContents( QPainter * )
 {
 }
 
+#if QT_FEATURE_DRAGANDDROP
+
 /*!
   \internal
 */
@@ -2317,3 +2340,7 @@ bool QScrollView::dragAutoScroll() const
 {
     return d->drag_autoscroll;
 }
+
+#endif // QT_FEATURE_DRAGANDDROP
+
+#endif // QT_FEATURE_WIDGETS

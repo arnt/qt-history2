@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/network/src/qsocketdevice.cpp#17 $
+** $Id: //depot/qt/main/extensions/network/src/qsocketdevice.cpp#18 $
 **
 ** Implementation of Network Extension Library
 **
@@ -103,7 +103,7 @@ Qt developers did not foresee.
   \c QSocketDevice::Datagram for an unreliable, connectionless UDP socket.
 */
 
-QSocketDevice::QSocketDevice( int socket, Type type )
+QSocketDevice::QSocketDevice( int socket, Type type, bool inet )
     : fd( -1 ), t( Stream ), p( 0 ), pp( 0 ), e( NoError ),
       d( new QSocketDevicePrivate )
 {
@@ -140,7 +140,7 @@ QSocketDevice::~QSocketDevice()
 
 bool QSocketDevice::isValid() const
 {
-    return t != -1;
+    return socket() != -1;
 }
 
 

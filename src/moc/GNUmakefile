@@ -313,6 +313,26 @@ qstringlist.o: ../tools/qstringlist.cpp \
 		../../include/qtextstream.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o qstringlist.o ../tools/qstringlist.cpp
 
+qstringlist.o: ../tools/qstringlist.cpp \
+		../../include/qstringlist.h \
+		../../include/qvaluelist.h \
+		../../include/qshared.h \
+		../../include/qglobal.h \
+		../../include/qdatastream.h \
+		../../include/qiodevice.h \
+		../../include/qcstring.h \
+		../../include/qarray.h \
+		../../include/qgarray.h \
+		../../include/qstring.h \
+		../../include/qregexp.h \
+		../../include/qstrlist.h \
+		../../include/qlist.h \
+		../../include/qglist.h \
+		../../include/qcollection.h \
+		../../include/qtl.h \
+		../../include/qtextstream.h
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o qstringlist.o ../tools/qstringlist.cpp
+
 qtextcodec.o: ../tools/qtextcodec.cpp \
 		../../include/qlist.h \
 		../../include/qglist.h \

@@ -25,6 +25,8 @@
 
 #include "qprintdialog.h"
 
+#if QT_FEATURE_PRINTDIALOG
+
 #include "qfiledialog.h"
 
 #include "qfile.h"
@@ -1268,3 +1270,5 @@ void QPrintDialog::fileNameEditChanged( const QString &text )
 {
     d->ok->setEnabled( !text.isEmpty() );
 }
+
+#endif

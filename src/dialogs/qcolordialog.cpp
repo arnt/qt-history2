@@ -25,6 +25,8 @@
 
 #include "qcolordialog.h"
 
+#if QT_FEATURE_COLORDIALOG
+
 #include "qpainter.h"
 #include "qlayout.h"
 #include "qlabel.h"
@@ -119,10 +121,12 @@ protected:
     void mousePressEvent( QMouseEvent *e );
     void mouseMoveEvent( QMouseEvent *e );
     void mouseReleaseEvent( QMouseEvent *e );
+#if QT_FEATURE_DRAGANDDROP
     void dragEnterEvent( QDragEnterEvent *e );
     void dragLeaveEvent( QDragLeaveEvent *e );
     void dragMoveEvent( QDragMoveEvent *e );
     void dropEvent( QDropEvent *e );
+#endif
 
 private:
     QRgb *values;
@@ -154,6 +158,7 @@ void QColorWell::mousePressEvent( QMouseEvent *e )
 void QColorWell::mouseMoveEvent( QMouseEvent *e )
 {
     QWellArray::mouseMoveEvent( e );
+#if QT_FEATURE_DRAGANDDROP
     if ( !mousePressed )
 	return;
     if ( ( pressPos - e->pos() ).manhattanLength() > QApplication::startDragDistance() ) {
@@ -170,8 +175,10 @@ void QColorWell::mouseMoveEvent( QMouseEvent *e )
 	mousePressed = FALSE;
 	drg->dragCopy();
     }
+#endif
 }
 
+#if QT_FEATURE_DRAGANDDROP
 void QColorWell::dragEnterEvent( QDragEnterEvent *e )
 {
     setFocus();
@@ -209,6 +216,8 @@ void QColorWell::dropEvent( QDropEvent *e )
 	e->ignore();
     }
 }
+
+#endif // QT_FEATURE_DRAGANDDROP
 
 void QColorWell::mouseReleaseEvent( QMouseEvent *e )
 {
@@ -580,9 +589,11 @@ protected:
     void mousePressEvent( QMouseEvent *e );
     void mouseMoveEvent( QMouseEvent *e );
     void mouseReleaseEvent( QMouseEvent *e );
+#if QT_FEATURE_DRAGANDDROP
     void dragEnterEvent( QDragEnterEvent *e );
     void dragLeaveEvent( QDragLeaveEvent *e );
     void dropEvent( QDropEvent *e );
+#endif
 
 private:
     QColor col;
@@ -615,6 +626,7 @@ void QColorShowLabel::mousePressEvent( QMouseEvent *e )
 
 void QColorShowLabel::mouseMoveEvent( QMouseEvent *e )
 {
+#if QT_FEATURE_DRAGANDDROP
     if ( !mousePressed )
 	return;
     if ( ( pressPos - e->pos() ).manhattanLength() > QApplication::startDragDistance() ) {
@@ -628,8 +640,10 @@ void QColorShowLabel::mouseMoveEvent( QMouseEvent *e )
 	mousePressed = FALSE;
 	drg->dragCopy();
     }
+#endif
 }
 
+#if QT_FEATURE_DRAGANDDROP
 void QColorShowLabel::dragEnterEvent( QDragEnterEvent *e )
 {
     if ( QColorDrag::canDecode( e ) )
@@ -653,6 +667,7 @@ void QColorShowLabel::dropEvent( QDropEvent *e )
 	e->ignore();
     }
 }
+#endif // QT_FEATURE_DRAGANDDROP
 
 void QColorShowLabel::mouseReleaseEvent( QMouseEvent * )
 {
@@ -1131,3 +1146,5 @@ int QColorDialog::selectedAlpha() const
 
 
 #include "qcolordialog.moc"
+
+#endif

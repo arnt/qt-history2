@@ -19,6 +19,9 @@
 *****************************************************************************/
 
 #include "qclipboard.h"
+
+#if QT_FEATURE_CLIPBOARD
+
 #include "qapplication.h"
 #include "qpixmap.h"
 #include "qdatetime.h"
@@ -335,3 +338,4 @@ void QClipboard::setData( QMimeSource* src )
     CloseClipboard();
 }
 
+#endif // QT_FEATURE_CLIPBOARD

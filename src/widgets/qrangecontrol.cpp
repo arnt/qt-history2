@@ -24,6 +24,7 @@
 *****************************************************************************/
 
 #include "qrangecontrol.h"
+#if QT_FEATURE_WIDGETS
 #include "qglobal.h"
 #include <limits.h>
 
@@ -490,3 +491,4 @@ int QRangeControl::valueFromPosition( int pos, int span ) const
     // no overflow because of this implicit assumption:
     // pos <= span < sqrt(INT_MAX+0.0625)+0.25 ~ sqrt(INT_MAX)
 }
+#endif

@@ -30,6 +30,8 @@
 #include "qwidget.h"
 #endif // QT_H
 
+#if QT_FEATURE_WIDGETS
+
 class Q_EXPORT QFrame : public QWidget			// frame class
 {
     Q_OBJECT
@@ -147,5 +149,7 @@ inline int QFrame::margin() const
 inline int QFrame::frameWidth() const
 { return fwidth; }
 
+
+#endif // QT_FEATURE_WIDGETS
 
 #endif // QFRAME_H

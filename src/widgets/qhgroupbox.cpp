@@ -24,6 +24,7 @@
 *****************************************************************************/
 
 #include "qhgroupbox.h"
+#if QT_FEATURE_WIDGETS
 
 // NOT REVISED
 /*!
@@ -66,3 +67,4 @@ QHGroupBox::QHGroupBox( const QString &title, QWidget *parent,
 QHGroupBox::~QHGroupBox()
 {
 }
+#endif

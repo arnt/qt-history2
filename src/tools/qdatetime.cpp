@@ -56,15 +56,15 @@ static const uint MSECS_PER_HOUR= 3600000;
 static const uint SECS_PER_MIN	= 60;
 static const uint MSECS_PER_MIN = 60000;
 
-static short monthDays[] ={0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
+static const short monthDays[] ={0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
 
 // ##### Localize.
 
-const char *QDate::monthNames[] = {
+const char * const QDate::monthNames[] = {
     "Jan", "Feb", "Mar", "Apr", "May", "Jun",
     "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" };
 
-const char *QDate::weekdayNames[] ={
+const char * const QDate::weekdayNames[] ={
     "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun" };
 
 

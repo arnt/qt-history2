@@ -30,6 +30,8 @@
 #include <qimage.h>
 #endif // QT_H
 
+#if QT_FEATURE_IMAGIO_PNG
+
 void qInitPngIO();
 
 class QIODevice;
@@ -73,4 +75,6 @@ private:
     int alignx;
 };
 
-#endif
+#endif // QT_FEATURE_IMAGIO_PNG
+
+#endif // QPNGIO_H

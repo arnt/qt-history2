@@ -50,16 +50,16 @@ struct inflate_codes_state {
   /* mode independent information */
   Byte lbits;           /* ltree bits decoded per branch */
   Byte dbits;           /* dtree bits decoder per branch */
-  inflate_huft *ltree;          /* literal/length/eob tree */
-  inflate_huft *dtree;          /* distance tree */
+  const inflate_huft *ltree;          /* literal/length/eob tree */
+  const inflate_huft *dtree;          /* distance tree */
 
 };
 
 
 inflate_codes_statef *inflate_codes_new(bl, bd, tl, td, z)
 uInt bl, bd;
-inflate_huft *tl;
-inflate_huft *td; /* need separate declaration for Borland C++ */
+const inflate_huft *tl;
+const inflate_huft *td; /* need separate declaration for Borland C++ */
 z_streamp z;
 {
   inflate_codes_statef *c;

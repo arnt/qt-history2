@@ -59,7 +59,8 @@ struct QMetaEnum 				// enumerator meta data
     bool set;					// Wether enum has to be treated as a set
 };
 
-class  Q_EXPORT  QMetaProperty 				// property meta data
+#if QT_FEATURE_PROPERTIES
+class Q_EXPORT QMetaProperty 				// property meta data
 {
 public:
     QMetaProperty();
@@ -112,6 +113,7 @@ public:
 private:
     uint flags;
 };
+#endif // QT_FEATURE_PROPERTIES
 
 struct QClassInfo 				// class info meta data
 {
@@ -130,8 +132,10 @@ public:
     QMetaObject( const char *class_name, const char *superclass_name,
 		 QMetaData *slot_data,	int n_slots,
 		 QMetaData *signal_data, int n_signals,
+#if QT_FEATURE_PROPERTIES
 		 QMetaProperty *prop_data, int n_props,
 		 QMetaEnum *enum_data, int n_enums,
+#endif
 		 QClassInfo *class_info, int n_info );
 
 
@@ -160,9 +164,11 @@ public:
     QClassInfo 	*classInfo( int index, bool super = FALSE ) const;
     const char 	*classInfo( const char* name, bool super = FALSE ) const;
 
+#if QT_FEATURE_PROPERTIES
     const QMetaProperty	*property( const char* name, bool super = FALSE ) const;
     QStrList		propertyNames( bool super = FALSE ) const;
     void		resolveProperty( QMetaProperty* prop );
+#endif
 
     // static wrappers around constructors, necessary to work around a
     // Windows-DLL limitation: objects can only be deleted within a
@@ -170,8 +176,10 @@ public:
     static QMetaObject	*new_metaobject( const char *, const char *,
 					QMetaData *, int,
 					QMetaData *, int,
+#if QT_FEATURE_PROPERTIES
 					QMetaProperty *prop_data, int n_props,
 					QMetaEnum *enum_data, int n_enums,
+#endif
 					QClassInfo * class_info, int n_info );
     static QMetaObject	*new_metaobject( const char *, const char *,
 					QMetaData *, int,
@@ -182,7 +190,9 @@ public:
     QMetaData::Access slot_access(int index, bool super = FALSE ); // ### remove in 3.0
     static QMetaEnum 		*new_metaenum( int );
     static QMetaEnum::Item 	*new_metaenum_item( int );
+#if QT_FEATURE_PROPERTIES
     static QMetaProperty 	*new_metaproperty( int );
+#endif
     static QClassInfo 		*new_classinfo( int );
 
 private:
@@ -208,6 +218,7 @@ private:	// Disabled copy constructor and operator=
 #endif
 };
 
+#if QT_FEATURE_PROPERTIES
 inline bool QMetaProperty::writeable() const
 { return set != 0; }
 inline bool QMetaProperty::testFlags( uint f ) const
@@ -224,6 +235,7 @@ inline void QMetaProperty::setFlags( uint f )
 { flags |= (uint)f; }
 inline void QMetaProperty::clearFlags( uint f )
 { flags &= ~(uint)f; }
+#endif
 
 // ### remove 3.0 (binary compatibility with Qt-2.0.2)
 class Q_EXPORT QMetaObjectInit {

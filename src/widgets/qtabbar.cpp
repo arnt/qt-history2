@@ -22,6 +22,7 @@
 *****************************************************************************/
 
 #include "qtabbar.h"
+#if QT_FEATURE_WIDGETS
 #include "qaccel.h"
 #include "qbitmap.h"
 #include "qtoolbutton.h"
@@ -122,7 +123,6 @@ QTab::~QTab()
 
   </ul>
 */
-
 
 struct QTabPrivate {
     int id;
@@ -932,3 +932,4 @@ void QTabBar::updateArrowButtons()
 	d->rightB->hide();
     }
 }
+#endif

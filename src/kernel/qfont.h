@@ -36,6 +36,7 @@ class QStringList;
 struct QFontDef;
 struct QFontData;
 class  QFontInternal;
+class QRenderedFont;
 
 
 class Q_EXPORT QFont					// font class
@@ -131,6 +132,8 @@ public:
 #elif defined(_WS_MAC_)
     HANDLE      handle() const;
 #elif defined(_WS_X11_)
+    HANDLE	handle() const;
+#elif defined(_WS_QWS_)
     HANDLE	handle() const;
 #endif
 

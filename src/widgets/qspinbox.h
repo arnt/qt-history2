@@ -31,6 +31,8 @@
 #include "qrangecontrol.h"
 #endif // QT_H
 
+#if QT_FEATURE_WIDGETS
+
 
 class QPushButton;
 class QLineEdit;
@@ -151,5 +153,6 @@ private:	// Disabled copy constructor and operator=
 
 };
 
+#endif // QT_FEATURE_WIDGETS
 
-#endif
+#endif // QSPINBOX_H

@@ -105,6 +105,10 @@ public:
     int		numBytes()	const;
     int		bytesPerLine()	const;
 
+#ifdef _WS_QWS_
+    QGfx * graphicsContext();
+#endif
+    
     bool	create( int width, int height, int depth, int numColors=0,
 			Endian bitOrder=IgnoreEndian );
     bool	create( const QSize&, int depth, int numColors=0,

@@ -40,6 +40,7 @@
 #include <ctype.h>
 #include <limits.h>
 
+
 /* -------------------------------------------------------------------------
  * unicode information
  * these tables are generated from the unicode reference file
@@ -181,6 +182,7 @@ for $row ( 0..255 ) {
 }
 
 print "// START OF GENERATED DATA\n\n";
+print "#ifndef QT_LITE_UNICODE\n\n";
 
 # Print pages...
 #
@@ -342,6 +344,7 @@ print "// $size bytes\n\n";
 
 
 
+print "#endif\n\n";
 print "// END OF GENERATED DATA\n\n";
 
 
@@ -351,6 +354,8 @@ __END__
 
 
 // START OF GENERATED DATA
+
+#ifndef QT_LITE_UNICODE
 
 static const Q_UINT8 ui_00[] = {
     10, 10, 10, 10, 10, 10, 10, 10,
@@ -9797,8 +9802,13 @@ static const Q_UINT8 * const direction_info[256] = {
 };
 // 26940 bytes
 
+#endif
+
 // END OF GENERATED DATA
 
+// This is generated too. Script?
+
+#ifndef QT_LITE_UNICODE
 
 static const Q_UINT16 case_0 [] = {
     0, 0, 0, 0, 0, 0, 0, 0,
@@ -10665,7 +10675,7 @@ static int symmetricPairsSize =
  * ----------------------------------------------------------------------
  */
 
-
+#endif
 
 
 static int ucstrcmp( const QString &as, const QString &bs )
@@ -11052,10 +11062,18 @@ bool QChar::isDigit() const
 */
 int QChar::digitValue() const
 {
+#ifdef QT_LITE_UNICODE
+    // ##### just latin1
+    if ( rw != 0 || cl < '0' || cl > '9' )
+	return -1; 
+    else
+	return cl - '0';
+#else
     const Q_INT8 *dec_row = decimal_info[row()];
     if( !dec_row )
 	return -1;
     return decimal_info[row()][cell()];
+#endif
 }
 
 /*!
@@ -11065,7 +11083,27 @@ int QChar::digitValue() const
 */
 QChar::Category QChar::category() const
 {
+#ifdef QT_LITE_UNICODE
+// ### just ASCII
+    if ( rw == 0 ) {
+	if ( cl >= '0' && cl <='9' )
+	    return Number_DecimalDigit;
+	if ( cl >= 'a' && cl <='z' )
+	    return Letter_Lowercase;
+	if ( cl >= 'A' && cl <='Z' )
+	    return Letter_Uppercase;
+	if ( cl == ' ' )
+	    return Separator_Space;
+	if ( cl == '\n' )
+	    return Separator_Line;
+	if ( cl < ' ' )
+	    return Other_Control;
+	return Symbol_Other; //#######
+    }
+    return Letter_Uppercase; //####### 
+#else
     return (Category)(unicode_info[row()][cell()]);
+#endif
 }
 
 /*!
@@ -11075,9 +11113,13 @@ QChar::Category QChar::category() const
 */
 QChar::Direction QChar::direction() const
 {
+#ifdef QT_LITE_UNICODE
+    return DirL;
+#else
   const Q_UINT8 *rowp = direction_info[row()];
   if(!rowp) return QChar::DirL;
   return (Direction) ( *(rowp+cell()) &0x1f );
+#endif
 }
 
 /*!
@@ -11089,10 +11131,14 @@ QChar::Direction QChar::direction() const
 */
 QChar::Joining QChar::joining() const
 {
+#ifdef QT_LITE_UNICODE
+    return OtherJoining;
+#else
   const Q_UINT8 *rowp = direction_info[row()];
   if ( !rowp )
       return QChar::OtherJoining;
   return (Joining) ((*(rowp+cell()) >> 5) &0x3);
+#endif
 }
 
 
@@ -11102,10 +11148,14 @@ QChar::Joining QChar::joining() const
 */
 bool QChar::mirrored() const
 {
+#ifdef QT_LITE_UNICODE
+    return FALSE;
+#else
   const Q_UINT8 *rowp = direction_info[row()];
   if ( !rowp )
       return FALSE;
   return *(rowp+cell())>128;
+#endif
 }
 
 /*!
@@ -11114,6 +11164,9 @@ bool QChar::mirrored() const
 */
 QChar QChar::mirroredChar() const
 {
+#ifdef QT_LITE_UNICODE
+    return *this;
+#else
     if(!mirrored()) return *this;
 
     int i;
@@ -11123,6 +11176,7 @@ QChar QChar::mirroredChar() const
           return symmetricPairs[i+1];
     }
     return 0;
+#endif
 }
 
 /*!
@@ -11131,6 +11185,9 @@ QChar QChar::mirroredChar() const
 */
 QString QChar::decomposition() const
 {
+#ifdef QT_LITE_UNICODE
+    return null;
+#else
     const Q_UINT16 *r = decomposition_info[row()];
     if(!r) return QString::null;
 
@@ -11143,6 +11200,7 @@ QString QChar::decomposition() const
     while((c = decomposition_map[pos++]) != 0) s += QChar(c);
 
     return s;
+#endif
 }
 
 /*!
@@ -11151,13 +11209,17 @@ QString QChar::decomposition() const
 */
 QChar::Decomposition QChar::decompositionTag() const
 {
-  const Q_UINT16 *r = decomposition_info[row()];
-  if(!r) return QChar::Single;
+#ifdef QT_LITE_UNICODE
+    return Single; // ########### FIX eg. just latin1
+#else
+    const Q_UINT16 *r = decomposition_info[row()];
+    if(!r) return QChar::Single;
 
-  Q_UINT16 pos = r[cell()];
-  if(!pos) return QChar::Single;
+    Q_UINT16 pos = r[cell()];
+    if(!pos) return QChar::Single;
 
-  return (QChar::Decomposition) decomposition_map[pos];
+    return (QChar::Decomposition) decomposition_map[pos];
+#endif
 }
 
 /*!
@@ -11166,10 +11228,18 @@ QChar::Decomposition QChar::decompositionTag() const
 */
 QChar QChar::lower() const
 {
+#ifdef QT_LITE_UNICODE
+//    return *this; // ########### FIX eg. just latin1
+    if (row())
+	return *this;
+    else
+	return QChar(tolower(latin1()));
+#else
     if(category() != Letter_Uppercase) return *this;
     Q_UINT16 lower = *(case_info[row()]+cell());
     if(lower == 0) return *this;
     return lower;
+#endif
 }
 
 /*!
@@ -11178,10 +11248,18 @@ QChar QChar::lower() const
 */
 QChar QChar::upper() const
 {
+#ifdef QT_LITE_UNICODE
+//    return *this; // ########### FIX eg. just latin1
+    if (row())
+	return *this;
+    else
+	return QChar(toupper(latin1()));
+#else
     if(category() != Letter_Lowercase) return *this;
     Q_UINT16 upper = *(case_info[row()]+cell());
     if(upper == 0) return *this;
     return upper;
+#endif
 }
 
 /*!
@@ -11344,6 +11422,8 @@ QChar QChar::upper() const
   character \a ch is greater than that of \a c.
 */
 
+#ifndef QT_LITE_UNICODE
+
 // small class used internally in QString::Compose()
 class QLigature
 {
@@ -11414,6 +11494,8 @@ int QLigature::match(QString & str, unsigned int index)
     return 0;
 }
 
+#endif
+
 // this function is just used in QString::compose()
 static inline bool format(QChar::Decomposition tag, QString & str,
 			  int index, int len)
@@ -11463,6 +11545,7 @@ static inline bool format(QChar::Decomposition tag, QString & str,
 */
 void QString::compose()
 {
+#ifndef QT_LITE_UNICODE
     unsigned int index=0, len;
     unsigned int cindex = 0;
 
@@ -11504,6 +11587,7 @@ void QString::compose()
 	index++;
     }
     *this = composed;
+#endif
 }
 
 static QChar LRM ((ushort)0x200e);
@@ -11537,6 +11621,7 @@ static inline bool is_neutral(unsigned short dir) {
   */
 QChar::Direction QString::basicDirection()
 {
+#ifndef QT_LITE_UNICODE
     // find base direction
     unsigned int pos = 0;
     while ((pos < length()) &&
@@ -11553,10 +11638,12 @@ QChar::Direction QString::basicDirection()
 	(at(pos) == RLE) ||
 	(at(pos) == RLO))
 	return QChar::DirR;
+#endif
 
     return QChar::DirL;
 }
 
+#ifndef QT_LITE_UNICODE
 // reverses part of the QChar array to get visual ordering
 // called from QString::visual()
 //
@@ -11609,6 +11696,8 @@ static QChar::Direction resolv[5][5] =
 	{ QChar::DirAN, QChar::DirR, NEG1,        NEG1,         QChar::DirAN }
 };
 
+#endif
+
 /*!
   This function returns the QString ordered visually. Useful for
   painting the string or when transforming to a visually ordered
@@ -11616,6 +11705,9 @@ static QChar::Direction resolv[5][5] =
 */
 QString QString::visual(int index, int len)
 {
+#ifdef QT_LITE_UNICODE
+    return mid(index,len);
+#else
     // #### This needs much more optimizing - it is called for
     // #### every text operation.
 
@@ -11843,6 +11935,7 @@ QString QString::visual(int index, int len)
     delete [] dir;
 
     return ret;
+#endif
 }
 
 
@@ -14220,8 +14313,8 @@ QCString QString::local8Bit() const
 #ifdef _WS_WIN_
     return qt_winQString2MB( *this );
 #endif
-#ifdef _WS_FB_
-    return utf8();
+#ifdef _WS_QWS_
+    return utf8(); // ##### if there is ANY 8 bit format supported?
 #endif
 }
 
@@ -14261,9 +14354,8 @@ QString QString::fromLocal8Bit(const char* local8Bit, int len)
     }
     return qt_winMB2QString( local8Bit );
 #endif
-#ifdef _WS_FB_
-    if ( len < 0 ) len = strlen(local8Bit);
-    return QString::fromUtf8(local8Bit,len);
+#ifdef _WS_QWS_
+    return fromUtf8(local8Bit,len);
 #endif
 }
 

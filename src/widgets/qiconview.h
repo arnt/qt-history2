@@ -40,6 +40,8 @@
 #include <qbitmap.h>
 #endif // QT_H
 
+#if QT_FEATURE_ICONVIEW
+
 class QIconView;
 class QFontMetrics;
 class QPainter;
@@ -451,4 +453,6 @@ private:	// Disabled copy constructor and operator=
 #endif
 };
 
-#endif
+#endif // QT_FEATURE_ICONVIEW
+
+#endif // QICONVIEW_H

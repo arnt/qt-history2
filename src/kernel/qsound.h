@@ -25,7 +25,9 @@
 #ifndef QSOUND_H
 #define QSOUND_H
 
+#ifndef QT_H
 #include "qobject.h"
+#endif // QT_H
 
 class QSoundData;
 class QAuServer;

@@ -77,8 +77,8 @@ protected:
     static uint	 greg2jul( int y, int m, int d );
     static void	 jul2greg( uint jd, int &y, int &m, int &d );
 private:
-    static const char *monthNames[];
-    static const char *weekdayNames[];
+    static const char * const monthNames[];
+    static const char * const weekdayNames[];
     uint	 jd;
     friend class QDateTime;
     friend Q_EXPORT QDataStream &operator<<( QDataStream &, const QDate & );

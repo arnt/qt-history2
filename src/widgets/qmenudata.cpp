@@ -25,6 +25,7 @@
 
 #define	 INCLUDE_MENUITEM_DEF
 #include "qmenudata.h"
+#if QT_FEATURE_WIDGETS
 #include "qpopupmenu.h"
 #include "qapplication.h"
 #include "qguardedptr.h"
@@ -1333,3 +1334,4 @@ bool QCustomMenuItem::isSeparator() const
  */
 
 
+#endif

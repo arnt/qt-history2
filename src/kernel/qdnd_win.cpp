@@ -19,6 +19,9 @@
 *****************************************************************************/
 
 #include "qapplication.h"
+
+#if QT_FEATURE_DRAGANDDROP
+
 #include "qpainter.h"
 #include "qwidget.h"
 #include "qdragobject.h"
@@ -1024,3 +1027,5 @@ void QDragManager::updatePixmap()
 	}
     }
 }
+
+#endif // QT_FEATURE_DRAGANDDROP

@@ -31,6 +31,8 @@
 #include "qobject.h"
 #endif // QT_H
 
+#if QT_FEATURE_CLIPBOARD 
+
 class QMimeSource;
 
 class Q_EXPORT QClipboard : public QObject
@@ -74,5 +76,6 @@ private:	// Disabled copy constructor and operator=
 #endif
 };
 
+#endif // QT_FEATURE_CLIPBOARD
 
 #endif // QCLIPBOARD_H

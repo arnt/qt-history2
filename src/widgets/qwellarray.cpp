@@ -24,6 +24,7 @@
 *****************************************************************************/
 
 #include "qwellarray_p.h"
+#if QT_FEATURE_WIDGETS
 
 //#include "qlayout.h"
 #include "qdrawutil.h"
@@ -378,3 +379,4 @@ void QWellArray::keyPressEvent( QKeyEvent* e )
     }
 
 }
+#endif

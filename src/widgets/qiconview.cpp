@@ -25,6 +25,8 @@
 
 #include "qiconview.h"
 
+#if QT_FEATURE_ICONVIEW
+
 #include "qpixmap.h"
 #include "qfontmetrics.h"
 #include "qpainter.h"
@@ -1116,6 +1118,7 @@ int QIconViewItem::index() const
 
     return -1;
 }
+
 
 
 /*! \overload
@@ -5415,3 +5418,5 @@ void QIconView::drawContents( QPainter * )
 }
 
 #include "qiconview.moc"
+
+#endif // QT_FEATURE_ICONVIEW

@@ -25,6 +25,8 @@
 
 #include "qrichtext_p.h"
 
+#if QT_FEATURE_RICHTEXT
+
 #include "qpainter.h"
 #include "qfile.h"
 #include "qtextstream.h"
@@ -197,6 +199,7 @@ void QTextImage::draw(QPainter* p, int x, int y,
     }
 
     if ( p->device()->devType() == QInternal::Printer ) {
+#if QT_FEATURE_TRANSFORMATIONS
 	p->saveWorldMatrix();
 	QPaintDeviceMetrics metrics(p->device());
 	p->translate( x-ox, y-oy );
@@ -204,6 +207,9 @@ void QTextImage::draw(QPainter* p, int x, int y,
 		  scale_factor( metrics.logicalDpiY() ) );
 	p->drawPixmap( 0, 0, pm );
 	p->restoreWorldMatrix();
+#else
+	p->drawPixmap( x-ox, y-oy, pm );
+#endif
 	return;
     }
 
@@ -2898,3 +2904,5 @@ void QTextFormatCollection::unregisterFormat( const QTextCharFormat &format )
 	}
     }
 }
+
+#endif QT_FEATURE_RICHTEXT

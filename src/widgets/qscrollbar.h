@@ -31,8 +31,10 @@ class QTimer;
 #ifndef QT_H
 #include "qwidget.h"
 #include "qrangecontrol.h"
-#include "qdrawutil.h"
+#include "qdrawutil.h" // REMOVE THIS IN 3.0
 #endif // QT_H
+
+#if QT_FEATURE_WIDGETS
 
 
 class Q_EXPORT QScrollBar : public QWidget, public QRangeControl
@@ -169,5 +171,7 @@ inline int QScrollBar::sliderStart() const
     return sliderPos;
 }
 
+
+#endif // QT_FEATURE_WIDGETS
 
 #endif // QSCROLLBAR_H

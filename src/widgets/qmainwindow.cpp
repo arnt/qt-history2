@@ -24,6 +24,7 @@
 *****************************************************************************/
 
 #include "qmainwindow.h"
+#if QT_FEATURE_WIDGETS
 
 #include "qtimer.h"
 #include "qlayout.h"
@@ -3168,3 +3169,4 @@ void QMainWindow::setDockMenuEnabled( bool b )
 {
     d->dockMenu = b;
 }
+#endif

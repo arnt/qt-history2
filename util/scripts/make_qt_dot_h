@@ -1,13 +1,65 @@
-#!/usr/bin/perl
+#!/usr/bin/perl -w
 
-$BOGUS="/extensions/|qmutex\.h|qt\.h";
-$HEADMARK='Q[A-Z][A-Z][A-Z]*_H';
+
+$network_extension = 1;
+
+@BOGUS = qw {
+    qxt.h
+    qgl.h
+    qnp.h
+    jri.h
+    jri_md.h
+    jritypes.h
+    npapi.h
+    npupp.h
+    qimageio.h
+    qjpegio.h
+    qt.h
+    qfeatures.h
+    q1xcompatibility.h
+    qt_mac.h
+    qt_x11.h
+    qt_windows.h
+    qgfxmach64_defs.h
+    qthread.h
+    qmutex.h
+    qgeneric.h
+    qdom.h
+    qpaintdevicedefs.h
+    qwindow.h
+    qtranslatordialog.h
+    qgfx.h
+    qgfxmach64_defs.h
+    qgfxraster.h
+    qgfxvoodoo_defs.h
+    qfontmanager_qws.h
+    qlock_qws.h
+    qmemorymanager_qws.h
+    qwindowsystem_qws.h
+    qwscommand.h
+    qwscursor_qws.h
+    qwsevent.h
+    qwsmanager.h
+    qwsproperty.h
+    qwsregionmanager.h
+    qwsutils.h
+};
+
+if ( !$network_extension ) {
+    @BOGUS = ( @BOGUS, "qhttp.h", "qftp.h", "qdns.h", "qhostaddress.h", "qserversocket.h", "qsocket.h", "qsocketdevice.h" );
+}
+
+$BOGUS=join "|", map { "\Q$_" } @BOGUS;
+
+$verbose = 0;
+
+#$HEADMARK='Q[A-Z][A-Z][A-Z]*_H';
 $STARTMARK='#ifndef QT_H';
 $ENDMARK='#endif // QT_H';
 $TAIL="#endif // QT_H";
 $DIR="$ENV{QTDIR}/include";
 
-if ( $ARGV[0] eq "--fix" ) {
+if ( defined($ARGV[0]) && $ARGV[0] eq "--fix" ) {
     $fix++;
     shift;
 }
@@ -21,7 +73,7 @@ opendir(INC, $DIR)
 	! -f "$ENV{QTDIR}/src/compat/$_"
     } readdir INC;
 
-open QT_H, ">$DIR/qt.h";
+open QT_H, ">$DIR/qt.h" or die "Cannot open $DIR/qt.h\n";
 
 print QT_H
 '/****************************************************************************
@@ -72,7 +124,7 @@ H: for $h ( @HEADERS ) {
 	    if ($incscan) {
 		$inc=$2;
 		$DEP{"$h $inc"}=1;
-		$LOCAL{$inc}=($1=='"');
+		$LOCAL{$inc}=($1 eq '"');
 		$FILE{$h}++;
 		$FILE{$inc}++;
 	    }
@@ -89,9 +141,11 @@ H: for $h ( @HEADERS ) {
 }
 
 @FILE=sort keys %FILE;
+
 $N=$#FILE;
 $done=0;
-# Bubble sort by dependency...
+
+# Bubble sort by dependency... (qsort can't do this)
 while (!$done) {
     $done=1;
     for $i (1..$N) {
@@ -107,12 +161,27 @@ while (!$done) {
     }
 }
 
+# Check for circularities
+for $f ( 0..$#FILE ) {
+    for $o ( ($f+1)..$#FILE ) {
+	print STDERR "Circularity in $FILE[$f] .. $FILE[$o]\n" if ( $DEP{"$FILE[$f] $FILE[$o]"} )
+    }
+}
+
+
 for $h ( @FILE ) {
     if ($LOCAL{$h}) {
-	print QT_H qq{#include "$h"\n};
+	print QT_H qq{#include "$h"};
     } else {
-	print QT_H qq{#include <$h>\n};
+	print QT_H qq{#include <$h>};
     }
+    if ( $verbose ) {
+	@deps = grep { $DEP{"$h $_"} } @FILE;
+	if ( @deps ) {
+	    print QT_H " // Depends on ",join ", ",@deps;
+	}
+    }
+    print QT_H "\n";
 }
 
 print QT_H "$TAIL";

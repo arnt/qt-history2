@@ -27,12 +27,12 @@ struct inflate_codes_state {int dummy;}; /* for buggy compilers */
 
 int inflate_fast(bl, bd, tl, td, s, z)
 uInt bl, bd;
-inflate_huft *tl;
-inflate_huft *td; /* need separate declaration for Borland C++ */
+const inflate_huft *tl;
+const inflate_huft *td; /* need separate declaration for Borland C++ */
 inflate_blocks_statef *s;
 z_streamp z;
 {
-  inflate_huft *t;      /* temporary pointer */
+  const inflate_huft *t;      /* temporary pointer */
   uInt e;               /* extra bits or operation */
   uLong b;              /* bit buffer */
   uInt k;               /* bits in bit buffer */

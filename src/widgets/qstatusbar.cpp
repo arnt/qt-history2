@@ -24,6 +24,7 @@
 *****************************************************************************/
 
 #include "qstatusbar.h"
+#if QT_FEATURE_WIDGETS
 
 #include "qlist.h"
 #include "qlayout.h"
@@ -430,3 +431,5 @@ bool QStatusBar::event( QEvent *e )
 	update();
     return QWidget::event( e );
 }
+
+#endif

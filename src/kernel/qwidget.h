@@ -44,6 +44,7 @@ struct QWExtra;
 struct QTLWExtra;
 class QFocusData;
 class QStyle;
+class QWSRegionManager;
 
 class Q_EXPORT QWidget : public QObject, public QPaintDevice
 {
@@ -386,9 +387,12 @@ public:
     static QWidget *	find( WId );
     static QWidgetMapper *wmapper();
 
-    // Event handlers
+#if defined(_WS_QWS_)
+    virtual QGfx * graphicsContext() const;
+#endif
 
 protected:
+    // Event handlers
     bool	 event( QEvent * );
     virtual void mousePressEvent( QMouseEvent * );
     virtual void mouseReleaseEvent( QMouseEvent * );
@@ -406,10 +410,12 @@ protected:
     virtual void resizeEvent( QResizeEvent * );
     virtual void closeEvent( QCloseEvent * );
 
+#if QT_FEATURE_DRAGANDDROP
     virtual void dragEnterEvent( QDragEnterEvent * );
     virtual void dragMoveEvent( QDragMoveEvent * );
     virtual void dragLeaveEvent( QDragLeaveEvent * );
     virtual void dropEvent( QDropEvent * );
+#endif
 
     virtual void showEvent( QShowEvent * );
     virtual void hideEvent( QHideEvent * );
@@ -426,6 +432,10 @@ protected:
     virtual bool winEvent( MSG * );		// Windows event
 #elif defined(_WS_X11_)
     virtual bool x11Event( XEvent * );		// X11 event
+#elif defined(_WS_QWS_)
+    virtual bool qwsEvent( QWSEvent * );	
+    virtual unsigned char * scanLine(int) const;
+    virtual int bytesPerLine() const;
 #endif
 
     virtual void updateMask();
@@ -508,6 +518,21 @@ private:
     QFont	 fnt;
     QLayout 	*lay_out;
     QWExtra	*extra;
+#if defined(_WS_QWS_)
+    QRegion	 req_region;			// Requested region
+    mutable QRegion      alloc_region;          // Allocated region
+    mutable bool         alloc_region_dirty;    // needs to be recalculated
+
+    int		 alloc_region_index;
+    int		 alloc_region_revision;
+
+    void setAllocatedRegionDirty();
+    bool isAllocatedRegionDirty() const;
+    QRegion requestedRegion() const;
+    QRegion allocatedRegion() const;
+    QRegion paintableRegion() const;
+    friend class QWSManager;
+#endif
 
     static void	 createMapper();
     static void	 destroyMapper();
@@ -729,6 +754,7 @@ inline bool QWidget::ownPalette() const
 //  - top-level widgets have extra extra data to reduce cost further
 
 class QFocusData;
+class QWSManager;
 #if defined(_WS_WIN_)
 class QOleDropTarget;
 #endif
@@ -753,6 +779,11 @@ struct QTLWExtra {
     uint     ussize : 1;                        // User defined size
     void    *xic;				// XIM Input Context
 #endif
+#if defined(_WS_QWS_)
+    QRegion alloc_region;			// Allocated region
+    QRegion decor_allocated_region;		// decoration allocated region
+    QWSManager *qwsManager;
+#endif
 #if defined(_WS_WIN_)
     HICON    winIcon;				// internal Windows icon
 #endif
@@ -774,6 +805,9 @@ struct QWExtra {
 #endif
 #if defined(_WS_X11_)
     WId	     xDndProxy;				// XDND forwarding to embedded windows
+#endif
+#if defined(_WS_QWS_)
+    QRegion mask;				// widget mask
 #endif
     char     bg_mode;				// background mode
     QStyle* style;

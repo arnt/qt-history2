@@ -30,6 +30,8 @@
 #include <qdialog.h>
 #endif // QT_H
 
+#if QT_FEATURE_COLORDIALOG
+
 class QColorDialogPrivate;
 
 class Q_EXPORT QColorDialog : public QDialog
@@ -68,5 +70,7 @@ private:	// Disabled copy constructor and operator=
     QColorDialog& operator=( const QColorDialog & );
 #endif
 };
+
+#endif
 
 #endif //QCOLORDIALOG_H

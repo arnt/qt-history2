@@ -22,6 +22,9 @@
 *****************************************************************************/
 
 #include "qtextcodec.h"
+
+#if QT_FEATURE_MIME
+
 #include "qdragobject.h"
 #include "qapplication.h"
 #include "qcursor.h"
@@ -229,6 +232,7 @@ static const char * const link_xpm[] = {
 "............. XXXXXXXXX ",
 ".............           "};
 
+#if QT_FEATURE_DRAGANDDROP
 
 // the universe's only drag manager
 static QDragManager * manager = 0;
@@ -261,7 +265,7 @@ QDragManager::~QDragManager()
     delete [] pm_cursor;
 }
 
-
+#endif
 
 
 /*!  Constructs a drag object which is a child of \a dragSource and
@@ -274,8 +278,10 @@ QDragObject::QDragObject( QWidget * dragSource, const char * name )
     : QObject( dragSource, name )
 {
     d = new QDragData();
+#if QT_FEATURE_DRAGANDDROP
     if ( !manager && qApp )
 	(void)new QDragManager();
+#endif
 }
 
 
@@ -284,11 +290,14 @@ QDragObject::QDragObject( QWidget * dragSource, const char * name )
 
 QDragObject::~QDragObject()
 {
+#if QT_FEATURE_DRAGANDDROP
     if ( manager && manager->object == this )
 	manager->cancel( FALSE );
+#endif
     delete d;
 }
 
+#if QT_FEATURE_DRAGANDDROP
 /*!
   Set the pixmap \a pm to display while dragging the object.
   The platform-specific
@@ -421,6 +430,7 @@ bool QDragObject::drag( DragMode mode )
 	return FALSE;
 }
 
+#endif
 
 
 /*!  Returns a pointer to the drag source where this object originated.
@@ -471,9 +481,14 @@ const char * staticCharset(int i)
 	return "UTF-8";
       case 1:
 	if ( localcharset.isNull() ) {
-	    localcharset = QTextCodec::codecForLocale()->name();
-	    localcharset = localcharset.lower();
-	    stripws(localcharset);
+	    QTextCodec *localCodec = QTextCodec::codecForLocale();
+	    if ( localCodec ) {
+		localcharset = localCodec->name();
+		localcharset = localcharset.lower();
+		stripws(localcharset);
+	    } else {
+		localcharset = "";
+	    }
 	}
 	return localcharset;
       case 2:
@@ -1294,6 +1309,7 @@ bool QUriDrag::decodeToUnicodeUris( const QMimeSource* e, QStringList& l )
 }
 
 
+#if QT_FEATURE_DRAGANDDROP
 /*!
   If the source of the drag operation is a widget in this application,
   this function returns that source, otherwise 0.  The source of the
@@ -1308,6 +1324,7 @@ QWidget* QDropEvent::source() const
 {
     return manager ? manager->dragSource : 0;
 }
+#endif
 
 /*! \class QColorDrag qdragobject.h
 
@@ -1384,3 +1401,5 @@ bool QColorDrag::decode( QMimeSource *e, QColor &col )
     col.setRgb( rgba[ 0 ] / 0xFF, rgba[ 1 ] / 0xFF, rgba[ 2 ] / 0xFF );
     return TRUE;
 }
+
+#endif // QT_FEATURE_MIME

@@ -19,6 +19,7 @@
 
 #ifndef QRTLCODEC_H
 #define QRTLCODEC_H
+#ifndef QT_NO_CODECS
 
 #ifndef QT_H
 #include "qtextcodec.h"
@@ -55,3 +56,4 @@ protected:
 
 #endif
 
+#endif

@@ -27,6 +27,8 @@
 #include "qwidget.h"
 #endif // QT_H
 
+#if QT_FEATURE_WIDGETS
+
 #include "qframe.h"
 
 class QBoxLayout;
@@ -48,4 +50,6 @@ private:
     QBoxLayout *lay;
 };
 
-#endif //QHBOX_H
+#endif // QT_FEATURE_WIDGETS
+
+#endif // QHBOX_H

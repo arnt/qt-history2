@@ -31,6 +31,8 @@
 #include "qiconset.h"
 #endif // QT_H
 
+#if QT_FEATURE_WIDGETS
+
 class QTabBar;
 class QTabWidgetData;
 class QTab;
@@ -115,5 +117,6 @@ private:	// Disabled copy constructor and operator=
 #endif
 };
 
+#endif // QT_FEATURE_WIDGETS
 
-#endif
+#endif // QTABWIDGET_H

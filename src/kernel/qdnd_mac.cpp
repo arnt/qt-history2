@@ -1,4 +1,7 @@
 #include "qdragobject.h"
+
+#if QT_FEATURE_DRAGANDDROP
+
 #include <stdio.h>
 
 bool QDragManager::eventFilter(QObject * o,QEvent * e)
@@ -31,4 +34,4 @@ void QDragManager::timerEvent ( QTimerEvent * e )
 {
 }
 
-
+#endif // QT_FEATURE_DRAGANDDROP

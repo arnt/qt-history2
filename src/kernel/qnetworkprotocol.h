@@ -36,6 +36,8 @@
 #include <qqueue.h>
 #endif // QT_H
 
+#if QT_FEATURE_NETWORKPROTOCOL
+
 class QNetworkProtocol;
 class QNetworkOperation;
 class QTimer;
@@ -206,4 +208,6 @@ private:
 
 };
 
-#endif
+#endif // QT_FEATURE_NETWORKPROTOCOL
+
+#endif // QNETWORKPROTOCOL_H

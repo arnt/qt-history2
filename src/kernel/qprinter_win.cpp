@@ -19,6 +19,9 @@
 *****************************************************************************/
 
 #include "qprinter.h"
+
+#if QT_FEATURE_PRINTER
+
 #include "qpainter.h"
 #include "qpixmap.h"
 #include "qimage.h"
@@ -655,4 +658,4 @@ QSize QPrinter::margins() const
 		  GetDeviceCaps( handle(), PHYSICALOFFSETY ) );
 }
 
-		
+#endif // QT_FEATURE_PRINTER

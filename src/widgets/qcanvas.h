@@ -26,11 +26,15 @@
 #ifndef QCANVAS_H
 #define QCANVAS_H
 
+#ifndef QT_H
 #include <qbitmap.h>
 #include <qwidget.h>
 #include <qscrollview.h>
 #include <qlist.h>
 #include <qptrdict.h>
+#endif // QT_H
+
+#if QT_FEATURE_WIDGETS
 
 class QCanvasSprite;
 class QCanvasPolygonalItem;
@@ -603,5 +607,7 @@ private:
 			 const QCanvasText* ) const;
 };
 
+
+#endif // QT_FEATURE_WIDGETS
 
 #endif // QCANVAS_H

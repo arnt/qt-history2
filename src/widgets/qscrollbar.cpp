@@ -24,6 +24,7 @@
 *****************************************************************************/
 
 #include "qscrollbar.h"
+#if QT_FEATURE_WIDGETS
 #include "qpainter.h"
 #include "qbitmap.h"
 #include "qapplication.h"
@@ -884,3 +885,4 @@ void QScrollBar::setValue( int i )
 
 #undef ADD_LINE_ACTIVE
 #undef SUB_LINE_ACTIVE
+#endif

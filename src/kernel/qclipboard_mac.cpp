@@ -1,4 +1,7 @@
 #include "qclipboard.h"
+
+#if QT_FEATURE_CLIPBOARD
+
 #include <stdio.h>
 
 void QClipboard::ownerDestroyed()
@@ -27,6 +30,4 @@ QMimeSource * QClipboard::data() const
     return 0;
 }
 
-
-
-
+#endif // QT_FEATURE_CLIPBOARD

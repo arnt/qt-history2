@@ -30,6 +30,8 @@
 #include "qwidget.h"
 #endif // QT_H
 
+#if QT_FEATURE_WIDGETS
+
 class QMenuBar;
 class QToolBar;
 class QStatusBar;
@@ -142,5 +144,6 @@ private:	// Disabled copy constructor and operator=
 #endif
 };
 
+#endif // QT_FEATURE_WIDGETS
 
-#endif
+#endif // QMAINWINDOW_H

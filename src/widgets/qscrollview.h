@@ -30,6 +30,8 @@
 #include "qscrollbar.h"
 #endif // QT_H
 
+#if QT_FEATURE_WIDGETS
+
 struct QScrollViewData;
 
 class Q_EXPORT QScrollView : public QFrame
@@ -45,7 +47,9 @@ class Q_EXPORT QScrollView : public QFrame
     Q_PROPERTY( int contentsHeight READ contentsHeight )
     Q_PROPERTY( int contentsX READ contentsX )
     Q_PROPERTY( int contentsY READ contentsY )
+#if QT_FEATURE_DRAGANDDROP
     Q_PROPERTY( bool dragAutoScroll READ dragAutoScroll WRITE setDragAutoScroll )
+#endif
 
 public:
     QScrollView(QWidget *parent=0, const char *name=0, WFlags f=0);
@@ -111,8 +115,10 @@ public:
 
     void	removeChild(QObject* child);
 
+#if QT_FEATURE_DRAGANDDROP
     void	setDragAutoScroll( bool b ); // #### virtual in 3.0
     bool	dragAutoScroll() const;
+#endif
 
 signals:
     void	contentsMoving(int x, int y);
@@ -138,10 +144,12 @@ protected:
     virtual void contentsMouseReleaseEvent( QMouseEvent* );
     virtual void contentsMouseDoubleClickEvent( QMouseEvent* );
     virtual void contentsMouseMoveEvent( QMouseEvent* );
+#if QT_FEATURE_DRAGANDDROP
     virtual void contentsDragEnterEvent( QDragEnterEvent * );
     virtual void contentsDragMoveEvent( QDragMoveEvent * );
     virtual void contentsDragLeaveEvent( QDragLeaveEvent * );
     virtual void contentsDropEvent( QDropEvent * );
+#endif
     virtual void contentsWheelEvent( QWheelEvent * );
 
     virtual void viewportPaintEvent( QPaintEvent* );
@@ -150,10 +158,12 @@ protected:
     virtual void viewportMouseReleaseEvent( QMouseEvent* );
     virtual void viewportMouseDoubleClickEvent( QMouseEvent* );
     virtual void viewportMouseMoveEvent( QMouseEvent* );
+#if QT_FEATURE_DRAGANDDROP
     virtual void viewportDragEnterEvent( QDragEnterEvent * );
     virtual void viewportDragMoveEvent( QDragMoveEvent * );
     virtual void viewportDragLeaveEvent( QDragLeaveEvent * );
     virtual void viewportDropEvent( QDropEvent * );
+#endif
     virtual void viewportWheelEvent( QWheelEvent * );
 
     virtual void drawContentsOffset(QPainter*, int ox, int oy,
@@ -181,9 +191,11 @@ private:
 private slots:
     void hslide(int);
     void vslide(int);
+#if QT_FEATURE_DRAGANDDROP
     void doDragAutoScroll();
     void startDragAutoScroll();
     void stopDragAutoScroll();
+#endif
 
 private:	// Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
@@ -193,4 +205,6 @@ private:	// Disabled copy constructor and operator=
     void changeFrameRect(const QRect&);
 };
 
-#endif
+#endif // QT_FEATURE_WIDGETS
+
+#endif // QSCROLLVIEW_H

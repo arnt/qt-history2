@@ -24,6 +24,9 @@
 *****************************************************************************/
 
 #include "qstylesheet.h"
+
+#if QT_FEATURE_RICHTEXT
+
 #include "qrichtext_p.h"
 #include "qapplication.h"
 #include "qlayout.h"
@@ -1328,3 +1331,5 @@ void QStyleSheet::scaleFont( QFont& font, int logicalSize ) const
     }
     font.setPointSize( s );
 }
+
+#endif // QT_FEATURE_RICHTEXT

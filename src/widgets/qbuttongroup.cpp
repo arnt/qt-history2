@@ -24,6 +24,7 @@
 *****************************************************************************/
 
 #include "qbuttongroup.h"
+#if QT_FEATURE_WIDGETS
 #include "qbutton.h"
 #include "qlist.h"
 #include "qradiobutton.h"
@@ -595,3 +596,4 @@ int QButtonGroup::id( QButton * button ) const
 	i = buttons->next();
     return i ? i->id : -1;
 }
+#endif

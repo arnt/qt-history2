@@ -33,6 +33,7 @@
 #include "qnamespace.h"
 #endif // QT_H
 
+class QGfx;
 
 #if defined(_WS_WIN_)
 // Internal pixmap memory optimization class for Windows 9x
@@ -86,8 +87,10 @@ public:
     static  QPixmap grabWidget( QWidget * widget,
 				int x=0, int y=0, int w=-1, int h=-1 );
 
+#if QT_FEATURE_TRANSFORMATIONS
     QPixmap	    xForm( const QWMatrix & ) const;
     static QWMatrix trueMatrix( const QWMatrix &, int w, int h );
+#endif
 
     QImage	convertToImage() const;
     bool	convertFromImage( const QImage &, ColorMode mode=Auto );
@@ -136,6 +139,13 @@ public:
     void	freeCell( bool = FALSE );
 #endif
 
+#if defined(_WS_QWS_)
+    virtual QGfx * graphicsContext() const;
+    virtual unsigned char * scanLine(int) const;
+    virtual int bytesPerLine() const;
+    QRgb * clut() const;
+#endif
+
 protected:
     QPixmap( int w, int h, const uchar *data, bool isXbitmap );
     int metric( int ) const;
@@ -168,6 +178,9 @@ protected:
 #elif defined(_WS_X11_)
 	void   *ximage;
 	void   *maskgc;
+#elif defined(_WS_QWS_)
+	int id;
+	QRgb * clut;
 #endif
 	Optimization optim;
     } *data;

@@ -24,6 +24,9 @@
 *****************************************************************************/
 
 #include "qurloperator.h"
+
+#if QT_FEATURE_NETWORKPROTOCOL
+
 #include "qurlinfo.h"
 #include "qnetworkprotocol.h"
 #include "qmap.h"
@@ -1130,3 +1133,5 @@ void QUrlOperator::deleteOperation( QNetworkOperation *op )
     if ( op )
 	d->oldOps.append( op );
 }
+
+#endif // QT_FEATURE_NETWORKPROTOCOL

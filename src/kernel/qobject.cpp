@@ -1836,6 +1836,7 @@ QMetaObject* QObject::staticMetaObject()
     QMetaData *signal_tbl = new QMetaData[1];
     signal_tbl[0].name = "destroyed()";
     signal_tbl[0].ptr = *((QMember*)&v2_0);
+#if QT_FEATURE_PROPERTIES
     QMetaProperty *props_tbl = new QMetaProperty[1];
     typedef const char*(QObject::*m3_t0)()const;
     typedef void(QObject::*m3_t1)(const char*);
@@ -1887,11 +1888,14 @@ QMetaObject* QObject::staticMetaObject()
     enum_tbl[2].items[1].value = (int) Qt::RichText;
     enum_tbl[2].items[2].key = "AutoText";
     enum_tbl[2].items[2].value = (int) Qt::AutoText;
+#endif
     metaObj = new QMetaObject( "QObject", "",
 	slot_tbl, 1,
 	signal_tbl, 1,
+#if QT_FEATURE_PROPERTIES
 	props_tbl, 1,
 	enum_tbl, 3,
+#endif
         0, 0 );
     metaObj->set_slot_access( slot_tbl_access ); // ### remove 3.0
     return metaObj;
@@ -2105,6 +2109,7 @@ void QObject::dumpObjectInfo()
 #endif
 }
 
+#if QT_FEATURE_PROPERTIES
 
 /*!
   Sets the object's property \a name to \a value.
@@ -3135,3 +3140,5 @@ QVariant QObject::property( const char *name ) const
     }
     return value;
 }
+
+#endif // QT_FEATURE_PROPERTIES

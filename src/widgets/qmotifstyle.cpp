@@ -24,6 +24,7 @@
 *****************************************************************************/
 
 #include "qmotifstyle.h"
+#if QT_FEATURE_STYLE_MOTIF
 #include "qapplication.h"
 #include "qpainter.h"
 #include "qdrawutil.h" // for now
@@ -1153,3 +1154,4 @@ QRect QMotifStyle::comboButtonFocusRect( int x, int y, int w, int h)
 			  ew, awh, ax, ay, sh, dh, sy );
     return QRect(ax-2, ay-2, awh+4, awh+sh+dh+4);
 }
+#endif

@@ -74,6 +74,14 @@ QServerSocket::QServerSocket( int port, int backlog,
     init( QHostAddress(), port, backlog );
 }
 
+QServerSocket::QServerSocket( const QString& localfile, int backlog,
+		   QObject *parent, const char *name )
+    : QObject( parent, name )
+{
+    d = new QServerSocketPrivate;
+    init( localfile, backlog );
+}
+
 
 /*!
   Creates a server socket object, that will serve the given \a port
@@ -107,6 +115,22 @@ void QServerSocket::init( const QHostAddress & address, int port, int backlog )
 {
     d->s = new QSocketDevice;
     if ( d->s->bind( address, port )
+      && d->s->listen( backlog ) )
+    {
+	d->n = new QSocketNotifier( d->s->socket(), QSocketNotifier::Read,
+				    this, "accepting new connections" );
+	connect( d->n, SIGNAL(activated(int)),
+		 this, SLOT(incomingConnection(int)) );
+    } else {
+	delete d->s;
+	d->s = 0;
+    }
+}
+
+void QServerSocket::init( const QString & filename, int backlog )
+{
+    d->s = new QSocketDevice(QSocketDevice::Stream,FALSE);
+    if ( d->s->bind( filename )
       && d->s->listen( backlog ) )
     {
 	d->n = new QSocketNotifier( d->s->socket(), QSocketNotifier::Read,
@@ -166,6 +190,10 @@ uint QServerSocket::port()
     return d->s->port();
 }
 
+int QServerSocket::socket()
+{
+    return d->s->socket();
+}
 
 /*!  Returns the address on which this object listens, or 0.0.0.0 if
 this object listens on more than one address. ok() must be TRUE before

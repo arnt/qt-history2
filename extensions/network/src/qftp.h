@@ -26,6 +26,7 @@
 #ifndef QFTP_H
 #define QFTP_H
 
+#ifndef QT_H
 #include "qsocket.h"
 #include "qapplication.h"
 #include "qstring.h"
@@ -33,6 +34,9 @@
 
 #include "qurlinfo.h"
 #include "qnetworkprotocol.h"
+#endif // QT_H
+
+#if QT_FEATURE_NETWORKPROTOCOL_FTP
 
 class QFtp : public QNetworkProtocol
 {
@@ -83,4 +87,6 @@ protected slots:
 
 };
 
-#endif
+#endif // QT_FEATURE_NETWORKPROTOCOL_FTP
+
+#endif // QFTP_H

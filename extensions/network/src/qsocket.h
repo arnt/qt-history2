@@ -56,9 +56,10 @@ public:
     void	 setMode( Mode );
 
     int		socket() const;
-    virtual void setSocket( int );
+    virtual void setSocket( int, bool inet=TRUE );
 
     virtual void connectToHost( const QString &host, int port );
+    virtual void connectToLocalFile( const QString &file );
     QString	 peerName() const;
 
     virtual bool listen( const QHostAddress &, int port = 0 );
@@ -73,6 +74,7 @@ public:
     bool	 atEnd() const;
 
     int		 bytesAvailable() const;
+    int		 waitForMore( int msecs );
     int		 bytesToWrite() const;
 
     int		 readBlock( char *data, uint maxlen );

@@ -161,7 +161,7 @@ static bool qt_create_mitshm_buffer( const QPaintDevice* dev, int w, int h )
   Internal functions
  *****************************************************************************/
 
-extern uchar *qt_get_bitflip_array();		// defined in qimage.cpp
+extern const uchar *qt_get_bitflip_array();		// defined in qimage.cpp
 
 static uchar *flip_bits( const uchar *bits, int len )
 {
@@ -169,7 +169,7 @@ static uchar *flip_bits( const uchar *bits, int len )
     const uchar *end = p + len;
     uchar *newdata = new uchar[len];
     uchar *b = newdata;
-    uchar *f = qt_get_bitflip_array();
+    const uchar *f = qt_get_bitflip_array();
     while ( p < end )
 	*b++ = f[*p++];
     return newdata;
@@ -934,7 +934,7 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 	    uchar *p, *b, *end;
 	    int y;
 	    if ( image.bitOrder() == QImage::BigEndian ) {
-		uchar *f = (uchar *)qt_get_bitflip_array();
+		const uchar *f = qt_get_bitflip_array();
 		b = tmp_bits;
 		for ( y=0; y<h; y++ ) {
 		    p = image.scanLine( y );

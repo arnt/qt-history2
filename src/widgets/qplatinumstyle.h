@@ -31,6 +31,8 @@
 #include "qpalette.h"
 #endif // QT_H
 
+#if QT_FEATURE_STYLE_PLATINUM
+
 class Q_EXPORT QPlatinumStyle : public QWindowsStyle
 {
     Q_OBJECT
@@ -112,5 +114,6 @@ private:	// Disabled copy constructor and operator=
 #endif
 };
 
+#endif // QT_FEATURE_STYLE_PLATINUM
 
-#endif
+#endif // QPLATINUMSTYLE_H

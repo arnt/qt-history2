@@ -37,6 +37,8 @@ class QValidator;
 #include "qstring.h"
 #endif // QT_H
 
+#if QT_FEATURE_WIDGETS
+
 class Q_EXPORT QLineEdit : public QWidget
 {
     Q_OBJECT
@@ -93,9 +95,11 @@ public:
 
     bool	validateAndSet( const QString &, int, int, int );
 
+#if QT_FEATURE_CLIPBOARD
     void	cut();
     void	copy() const;
     void	paste();
+#endif
 
     void setAlignment( int flag );
     int alignment() const;
@@ -142,8 +146,10 @@ protected:
     void	paintEvent( QPaintEvent * );
     void	resizeEvent( QResizeEvent * );
     void	leaveEvent( QEvent * );
+#if QT_FEATURE_DRAGANDDROP
     void	dragEnterEvent( QDragEnterEvent * );
     void	dropEvent( QDropEvent * );
+#endif
 
     void	repaintArea( int, int );
 
@@ -151,7 +157,9 @@ private slots:
     void	clipboardChanged();
     void	blinkSlot();
     void	dragScrollSlot();
+#if QT_FEATURE_DRAGANDDROP
     void 	doDrag();
+#endif
 
 private:
     // kept
@@ -190,5 +198,7 @@ private:	// Disabled copy constructor and operator=
 #endif
 };
 
+
+#endif // QT_FEATURE_WIDGETS
 
 #endif // QLINEEDIT_H

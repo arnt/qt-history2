@@ -33,6 +33,8 @@
 #include "qprogressbar.h"
 #endif // QT_H
 
+#if QT_FEATURE_PROGRESSDIALOG
+
 struct QProgressData;
 
 
@@ -109,5 +111,6 @@ private:	// Disabled copy constructor and operator=
 #endif
 };
 
+#endif // QT_FEATURE_PROGRESSDIALOG
 
 #endif // QPROGRESSDIALOG_H

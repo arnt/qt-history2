@@ -39,6 +39,9 @@
 
 
 #include "qstylesheet.h"
+
+#if QT_FEATURE_RICHTEXT
+
 #include "qstring.h"
 #include "qpixmap.h"
 #include "qmap.h"
@@ -715,5 +718,6 @@ inline QTextCharFormat* QRichTextFormatter::format() const
     return paragraph->text.formatAt( current );
 }
 
+#endif QT_FEATURE_RICHTEXT
 
 #endif // QRICHTEXT_P_H

@@ -70,6 +70,8 @@
   SUCH DAMAGE.
 */
 
+#ifndef QT_NO_CODECS
+
 #include "qjiscodec.h"
 
 static const uchar Esc = 0x1b;
@@ -617,3 +619,4 @@ QTextDecoder* QJisCodec::makeDecoder() const
     return new QJisDecoder(conv);
 }
 
+#endif

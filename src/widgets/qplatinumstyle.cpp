@@ -24,6 +24,7 @@
 *****************************************************************************/
 
 #include "qplatinumstyle.h"
+#if QT_FEATURE_STYLE_PLATINUM
 #include "qapplication.h"
 #include "qpainter.h"
 #include "qdrawutil.h" // for now
@@ -872,8 +873,8 @@ void QPlatinumStyle::drawIndicator( QPainter* p,
     p->setPen( g.shadow() );
     p->drawRect( x, y, w-2, h );
 
-    static QCOORD nochange_mark[] = { 3,5, 9,5,  3,6, 9,6 };
-    static QCOORD check_mark[] = {
+    static const QCOORD nochange_mark[] = { 3,5, 9,5,  3,6, 9,6 };
+    static const QCOORD check_mark[] = {
 	3,5, 5,5,  4,6, 5,6,  5,7, 6,7,  5,8, 6,8,	6,9, 9,9,
 	6,10, 8,10,	 7,11, 8,11,  7,12, 7,12,  8,8, 9,8,  8,7, 10,7,
 	9,6, 10,6,	9,5, 11,5,  10,4, 11,4,	 10,3, 12,3,
@@ -951,24 +952,24 @@ void QPlatinumStyle::drawExclusiveIndicator( QPainter* p,
 				   int x, int y, int w, int h, const QColorGroup &g,
 				   bool on, bool down, bool /* enabled */ )
 {
-    static QCOORD pts1[] = {		// normal circle
+    static const QCOORD pts1[] = {		// normal circle
 	5,0, 10,0, 11,1, 12,1, 13,2, 14,3, 14,4, 15,5,
 	15,10, 14,11, 14,12, 13,13, 12,14, 11,14, 10,15,
 	5,15, 4,14, 3,14, 2,13, 1,12, 1,11, 0,10, 0,5,
 	1,4, 1,3, 2,2, 3,1, 4,1 };
-    static QCOORD pts2[] = {		// top left shadow
+    static const QCOORD pts2[] = {		// top left shadow
 	5,1, 10,1,	3,2, 7,2,  2,3, 5,3,  2,4, 4,4,
 	1,5, 3,5,  1,6, 1,10,  2,6, 2,7 };
-    static QCOORD pts3[] = {		// bottom right, dark
+    static const QCOORD pts3[] = {		// bottom right, dark
 	5,14, 10,14,  7,13, 12,13,	10,12, 13,12,
 	11,11, 13,11,  12,10, 14,10,  13,8, 13,9,
 	14,5, 14,9 };
-    static QCOORD pts4[] = {		// bottom right, light
+    static const QCOORD pts4[] = {		// bottom right, light
 	5,14, 10,14,  9,13, 12,13,	11,12, 13,12,
 	12,11, 13,11,  13,9, 13,10,	 14,5, 14,10 };
-    static QCOORD pts5[] = {		// check mark
+    static const QCOORD pts5[] = {		// check mark
 	6,4, 8,4, 10,6, 10,8, 8,10, 6,10, 4,8, 4,6 };
-    static QCOORD pts6[] = {		// check mark extras
+    static const QCOORD pts6[] = {		// check mark extras
 	4,5, 5,4,  9,4, 10,5,  10,9, 9,10,	5,10, 4,9 };
     p->eraseRect(x,y,w,h);
     p->setBrush((down||on) ? g.brush( QColorGroup::Dark )   :
@@ -980,7 +981,7 @@ void QPlatinumStyle::drawExclusiveIndicator( QPainter* p,
     a.translate( x, y );
     p->drawPolyline( a );			// draw normal circle
     QColor tc, bc;
-    QCOORD *bp;
+    const QCOORD *bp;
     int	bl;
     if ( down || on) {			// pressed down or on
 	tc = g.dark().dark();
@@ -1513,3 +1514,4 @@ void QPlatinumStyle::getButtonShift( int &x, int &y)
     x = 0;
     y = 0;
 }
+#endif

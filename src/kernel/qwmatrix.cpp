@@ -31,6 +31,8 @@ double qsincos( double, bool calcCos );		// defined in qpainter_x11.cpp
 #include <math.h>
 #endif
 
+#if QT_FEATURE_TRANSFORMATIONS
+
 // NOT REVISED
 /*!
   \class QWMatrix qwmatrix.h
@@ -517,3 +519,6 @@ QDataStream &operator>>( QDataStream &s, QWMatrix &m )
     }
     return s;
 }
+
+#endif // QT_FEATURE_TRANSFORMATIONS
+

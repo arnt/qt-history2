@@ -32,6 +32,8 @@
 #include "qobject.h"
 #endif // QT_H
 
+#if QT_FEATURE_RICHTEXT
+
 class QStyleSheet;
 class QStyleSheetItemData;
 template<class Key, class T> class QMap;
@@ -181,5 +183,6 @@ private:
     QStyleSheetItem* nullstyle;
 };
 
+#endif // QT_FEATURE_RICHTEXT
 
 #endif // QSTYLESHEET_H

@@ -24,6 +24,7 @@
 *****************************************************************************/
 
 #include "qbutton.h"
+#if QT_FEATURE_WIDGETS
 #include "qbuttongroup.h"
 #include "qbitmap.h"
 #include "qpainter.h"
@@ -38,8 +39,15 @@
 static const int autoRepeatDelay  = 300;
 static const int autoRepeatPeriod = 100;
 
+#ifdef _WS_QWS_
+// Small in Qt/Embedded - 5K on 32bpp
+static const int drawingPixWidth  = 64;
+static const int drawingPixHeight = 20;
+#else
+// 120K on 32bpp
 static const int drawingPixWidth  = 300;
 static const int drawingPixHeight = 100;
+#endif
 
 
 /*
@@ -1009,3 +1017,4 @@ bool QButton::isExclusiveToggle() const
 			group()->isRadioButtonExclusive() &&
 			inherits( "QRadioButton" ) );
 }
+#endif

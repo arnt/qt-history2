@@ -23,6 +23,8 @@
 **
 *****************************************************************************/
 
+#ifndef QT_NO_CODECS
+
 #include "qkoi8codec.h"
 
 int QKoi8Codec::mibEnum() const
@@ -244,3 +246,5 @@ int QKoi8Codec::heuristicContentMatch(const char* chars, int len) const
     }
     return score;
 }
+
+#endif

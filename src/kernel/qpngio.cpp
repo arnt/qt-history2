@@ -23,7 +23,12 @@
 **
 *****************************************************************************/
 
+#include "qfeatures.h"
+
+#if QT_FEATURE_IMAGIO_PNG
+
 #include <png.h>
+
 #include "qimage.h"
 #include "qasyncimageio.h"
 #include "qiodevice.h"
@@ -1014,3 +1019,4 @@ void qInitPngIO()
     }
 }
 
+#endif // QT_FEATURE_IMAGIO_PNG

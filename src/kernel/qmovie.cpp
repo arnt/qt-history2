@@ -34,6 +34,10 @@
 #include "qbuffer.h"
 #include "qshared.h"
 
+#ifdef _WS_QWS_
+#include "qgfx.h"
+#endif
+
 #include "qasyncio.h"
 #include "qasyncimageio.h"
 
@@ -144,6 +148,7 @@ public slots:
 
 public:
     QMovie *that;
+    QWidget * display_widget;
 
     QImageDecoder *decoder;
 
@@ -185,6 +190,7 @@ QMovieFilePrivate::QMovieFilePrivate()
     pump = 0;
     source = 0;
     decoder = 0;
+    display_widget=0;
     init(FALSE);
 }
 
@@ -200,6 +206,7 @@ QMovieFilePrivate::QMovieFilePrivate(QDataSource* src, QMovie* movie, int bufsiz
     buffer = 0;
     decoder = 0;
     speed = 100;
+    display_widget=0;
     init(TRUE);
 }
 
@@ -309,15 +316,39 @@ void QMovieFilePrivate::updatePixmapFromImage()
     QPixmap lines;
     lines.convertFromImage(img);
     bitBlt(&mypixmap, changed_area.left(), changed_area.top(),
-	&lines, 0, 0, changed_area.width(), changed_area.height(),
-	CopyROP, !bg.isValid());
+	   &lines, 0, 0, changed_area.width(), changed_area.height(),
+	   CopyROP, !bg.isValid());
 
     if (!bg.isValid() && gimg.hasAlphaBuffer()) {
 	bitBlt(&mymask, changed_area.left(), changed_area.top(),
-	    lines.mask(), 0, 0, changed_area.width(), changed_area.height(),
-	    CopyROP, TRUE);
+	       lines.mask(), 0, 0, changed_area.width(),
+	       changed_area.height(),
+	       CopyROP, TRUE);
 	mypixmap.setMask(mymask);
     }
+
+#ifdef _WS_QWS_
+    if(display_widget) {
+	QGfx * mygfx=display_widget->graphicsContext();
+	if(mygfx) {
+	    double xscale,yscale;
+	    xscale=display_widget->width();
+	    yscale=display_widget->height();
+	    xscale=xscale/((double)mypixmap.width());
+	    yscale=yscale/((double)mypixmap.height());
+	    double xh,yh;
+	    xh=xscale*((double)changed_area.left());
+	    yh=yscale*((double)changed_area.top());
+	    mygfx->setSource(&mypixmap);
+	    mygfx->setSourceOffset(0,0);
+	    mygfx->setAlphaType(QGfx::IgnoreAlpha);
+	    mygfx->stretchBlt(0,0,display_widget->width(),
+			      display_widget->height(),mypixmap.width(),
+			      mypixmap.height());
+	    delete mygfx;
+	}
+    }
+#endif    
 }
 
 void QMovieFilePrivate::showChanges()
@@ -535,6 +566,13 @@ QMovie::QMovie()
 {
     d = new QMovieFilePrivate();
 }
+
+#ifdef _WS_QWS_ // ##### Temporary performance experiment
+void QMovie::setDisplayWidget(QWidget * w)
+{
+    d->display_widget=w;
+}
+#endif
 
 /*!
   Constructs a QMovie which reads an image sequence from the given

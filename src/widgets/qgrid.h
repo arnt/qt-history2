@@ -26,6 +26,8 @@
 #include "qframe.h"
 #endif // QT_H
 
+#if QT_FEATURE_WIDGETS
+
 class QGridLayout;
 
 class Q_EXPORT QGrid : public QFrame
@@ -51,4 +53,6 @@ private:	// Disabled copy constructor and operator=
 #endif
 };
 
-#endif //QGRID_H
+#endif // QT_FEATURE_WIDGETS
+
+#endif // QGRID_H

@@ -24,6 +24,7 @@
 *****************************************************************************/
 
 #include "qwindowsstyle.h"
+#if QT_FEATURE_STYLE_WINDOWS
 #include "qapplication.h"
 #include "qpainter.h"
 #include "qdrawutil.h" // for now
@@ -288,16 +289,16 @@ void QWindowsStyle::drawExclusiveIndicator( QPainter* p,
 				   bool on, bool down, bool /* enabled */ )
 {
 
-    static QCOORD pts1[] = {		// dark lines
+    static const QCOORD pts1[] = {		// dark lines
 	1,9, 1,8, 0,7, 0,4, 1,3, 1,2, 2,1, 3,1, 4,0, 7,0, 8,1, 9,1 };
-    static QCOORD pts2[] = {		// black lines
+    static const QCOORD pts2[] = {		// black lines
 	2,8, 1,7, 1,4, 2,3, 2,2, 3,2, 4,1, 7,1, 8,2, 9,2 };
-    static QCOORD pts3[] = {		// background lines
+    static const QCOORD pts3[] = {		// background lines
 	2,9, 3,9, 4,10, 7,10, 8,9, 9,9, 9,8, 10,7, 10,4, 9,3 };
-    static QCOORD pts4[] = {		// white lines
+    static const QCOORD pts4[] = {		// white lines
 	2,10, 3,10, 4,11, 7,11, 8,10, 9,10, 10,9, 10,8, 11,7,
 	11,4, 10,3, 10,2 };
-    static QCOORD pts5[] = {		// inner fill
+    static const QCOORD pts5[] = {		// inner fill
 	4,2, 7,2, 9,4, 9,7, 7,9, 4,9, 2,7, 2,4 };
     p->eraseRect( x, y, w, h );
     QPointArray a( QCOORDARRLEN(pts1), pts1 );
@@ -1299,3 +1300,4 @@ void QWindowsStyle::drawPopupMenuItem( QPainter* p, bool checkable, int maxpmw, 
 	}
     }
 }
+#endif

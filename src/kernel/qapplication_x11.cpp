@@ -1171,7 +1171,7 @@ void qt_init_internal( int *argcptr, char **argv, Display *display )
 
 }
 
-void qt_init( int *argcptr, char **argv )
+void qt_init( int *argcptr, char **argv, int )
 {
     qt_init_internal( argcptr, argv, 0 );
 }

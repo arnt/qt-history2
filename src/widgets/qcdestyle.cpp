@@ -24,6 +24,7 @@
 *****************************************************************************/
 
 #include "qcdestyle.h"
+#if QT_FEATURE_STYLE_CDE
 #include "qapplication.h"
 #include "qpainter.h"
 #include "qdrawutil.h" // for now
@@ -260,12 +261,12 @@ void QCDEStyle::drawExclusiveIndicator( QPainter* p,
 				   int x, int y, int w, int h, const QColorGroup &g,
 				   bool on, bool down, bool /* enabled */ )
 {
-    static QCOORD pts1[] = {		// up left  lines
+    static const QCOORD pts1[] = {		// up left  lines
 	1,9, 1,8, 0,7, 0,4, 1,3, 1,2, 2,1, 3,1, 4,0, 7,0, 8,1, 9,1 };
-    static QCOORD pts4[] = {		// bottom right  lines
+    static const QCOORD pts4[] = {		// bottom right  lines
 	2,10, 3,10, 4,11, 7,11, 8,10, 9,10, 10,9, 10,8, 11,7,
 	11,4, 10,3, 10,2 };
-    static QCOORD pts5[] = {		// inner fill
+    static const QCOORD pts5[] = {		// inner fill
 	4,2, 7,2, 9,4, 9,7, 7,9, 4,9, 2,7, 2,4 };
 
     p->eraseRect( x, y, w, h );
@@ -286,4 +287,4 @@ void QCDEStyle::drawExclusiveIndicator( QPainter* p,
     p->drawPolygon( a );
 }
 
-
+#endif

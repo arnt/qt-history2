@@ -30,6 +30,8 @@
 #include "qstyle.h"
 #endif // QT_H
 
+#if QT_FEATURE_WIDGETS
+
 class Q_EXPORT QCommonStyle: public QStyle
 {
     Q_OBJECT
@@ -92,5 +94,7 @@ private:	// Disabled copy constructor and operator=
 };
 
 
+
+#endif // QT_FEATURE_WIDGETS
 
 #endif // QCOMMONSTYLE_H

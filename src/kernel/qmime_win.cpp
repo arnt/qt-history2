@@ -19,6 +19,9 @@
 *****************************************************************************/
 
 #include "qmime.h"
+
+#if QT_FEATURE_MIME
+
 #include "qstrlist.h"
 #include "qimage.h"
 #include "qdatastream.h"
@@ -781,3 +784,4 @@ QList<QWindowsMime> QWindowsMime::all()
   All subclasses must reimplement this purely virtual function.
 */
 
+#endif // QT_FEATURE_MIME

@@ -39,7 +39,7 @@
 #include "qwmatrix.h"
 #endif // QT_H
 
-
+class QGfx;
 class QTextCodec;
 
 
@@ -55,6 +55,10 @@ public:
     bool	begin( const QPaintDevice *, const QWidget * );
     bool	end();
     QPaintDevice *device() const;
+
+#ifdef _WS_QWS_
+    QGfx * internalGfx();
+#endif
 
     static void redirect( QPaintDevice *pdev, QPaintDevice *replacement );
 
@@ -98,6 +102,7 @@ public:
 //    PaintUnit unit()	       const;		// get set painter unit
 //    void	setUnit( PaintUnit );		// NOT IMPLEMENTED!!!
 
+#if QT_FEATURE_TRANSFORMATIONS
     void	setViewXForm( bool );		// set xform on/off
     bool	hasViewXForm() const;
     QRect	window()       const;		// get window
@@ -115,13 +120,15 @@ public:
     void	saveWorldMatrix();
     void	restoreWorldMatrix();
 
-
     void	translate( double dx, double dy );
     void	scale( double sx, double sy );
     void	shear( double sh, double sv );
     void	rotate( double a );
 
     void	resetXForm();
+#else
+    void	translate( int dx, int dy );	// ###
+#endif
 
     QPoint	xForm( const QPoint & ) const;	// map virtual -> device
     QRect	xForm( const QRect & )	const;
@@ -244,8 +251,10 @@ private:
     void	updateFont();
     void	updatePen();
     void	updateBrush();
+#if QT_FEATURE_TRANSFORMATIONS
     void	updateXForm();
     void	updateInvXForm();
+#endif
     void	map( int, int, int *rx, int *ry ) const;
     void	map( int, int, int, int, int *, int *, int *, int * ) const;
     void	mapInv( int, int, int *, int * ) const;
@@ -281,6 +290,7 @@ private:
     int		tabarraylen;
 
     // Transformations
+#if QT_FEATURE_TRANSFORMATIONS
     QCOORD	wx, wy, ww, wh;
     QCOORD	vx, vy, vw, vh;
     QWMatrix	wxmat;
@@ -306,6 +316,13 @@ private:
 
     int		txop;
     bool	txinv;
+
+#else
+    // even without transformations we still have translations
+    int		xlatex;
+    int		xlatey;
+#endif
+
     void       *penRef;				// pen cache ref
     void       *brushRef;			// brush cache ref
     void       *ps_stack;
@@ -336,6 +353,8 @@ protected:
     int penx;
     int peny;
     void * hd;
+#elif defined(_WS_QWS_)
+    QGfx * gfx;
 #endif
     friend class QFontMetrics;
     friend class QFontInfo;
@@ -408,6 +427,7 @@ inline const QPoint &QPainter::brushOrigin() const
     return bro;
 }
 
+#if QT_FEATURE_TRANSFORMATIONS
 inline bool QPainter::hasViewXForm() const
 {
     return testf(VxF);
@@ -417,6 +437,7 @@ inline bool QPainter::hasWorldXForm() const
 {
     return testf(WxF);
 }
+#endif
 
 inline bool QPainter::hasClipping() const
 {
@@ -455,6 +476,7 @@ inline void QPainter::setBrushOrigin( const QPoint &p )
     setBrushOrigin( p.x(), p.y() );
 }
 
+#if QT_FEATURE_TRANSFORMATIONS
 inline void QPainter::setWindow( const QRect &r )
 {
     setWindow( r.x(), r.y(), r.width(), r.height() );
@@ -464,6 +486,7 @@ inline void QPainter::setViewport( const QRect &r )
 {
     setViewport( r.x(), r.y(), r.width(), r.height() );
 }
+#endif
 
 inline void QPainter::setClipRect( int x, int y, int w, int h )
 {
@@ -610,5 +633,11 @@ inline void *QPainter::textMetric()
 }
 #endif
 
+#if defined(_WS_QWS_)
+inline QGfx * QPainter::internalGfx()
+{
+    return gfx;
+}
+#endif
 
 #endif // QPAINTER_H

@@ -26,4 +26,7 @@
 #ifndef QSESSION_H
 #define QSESSION_H
 
+#ifndef QT_H
+#endif // QT_H
+
 #endif

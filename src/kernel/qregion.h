@@ -84,6 +84,12 @@ public:
     Region  handle() const { return data->rgn; }
 #elif defined(_WS_MAC_)
     void *  handle() const { return data->rgn; }
+#elif defined(_WS_QWS_)
+    // QGfx_QWS needs this for region drawing
+    void * handle() const { return data->rgn; }
+    // QWidget::internalSetGeometry needs this
+    bool fullyContains( const QRect &r ) const;
+    void setRects( const QRect *, int );
 #endif
 
     friend Q_EXPORT QDataStream &operator<<( QDataStream &, const QRegion & );
@@ -103,6 +109,8 @@ private:
 #elif defined(_WS_X11_)
 	Region rgn;
 #elif defined(_WS_MAC_)
+        void * rgn;
+#elif defined(_WS_QWS_)
         void * rgn;
 #endif
 	bool   is_null;

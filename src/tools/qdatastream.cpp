@@ -749,7 +749,7 @@ QDataStream &QDataStream::operator<<( float f )
     CHECK_STREAM_PRECOND
     if ( printable ) {				// printable data
 	char buf[32];
-	sprintf( buf, "%g\n", f );
+	sprintf( buf, "%g\n", (double)f );
 	dev->writeBlock( buf, strlen(buf) );
     } else {
 	float g = f;				// fixes float-on-stack problem

@@ -24,6 +24,7 @@
 *****************************************************************************/
 
 #include "qlistbox.h"
+#if QT_FEATURE_WIDGETS
 #include "qarray.h"
 #include "qfontmetrics.h"
 #include "qpainter.h"
@@ -3981,3 +3982,4 @@ void QListBox::selectRange( QListBoxItem *from, QListBoxItem *to, bool invert, b
     if ( changed )
 	emit selectionChanged();
 }
+#endif

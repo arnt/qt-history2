@@ -26,15 +26,16 @@
 #ifndef QFONTDATABASE_H
 #define QFONTDATABASE_H
 
-#include "qwindowdefs.h"
-
 #ifndef QT_H
+#include "qwindowdefs.h"
 #include "qstring.h"
 #include "qstringlist.h"
 #include "qfont.h"
 #include "qlist.h"
 #include "qvaluelist.h"
 #endif // QT_H
+
+#if QT_FEATURE_FONTDATABASE
 
 class QStringList;
 class QFontStylePrivate;
@@ -106,5 +107,7 @@ private:
     QFontDatabasePrivate *d;
 
 };
+
+#endif // QT_FEATURE_FONTDATABASE
 
 #endif // QFONTDATABASE_H

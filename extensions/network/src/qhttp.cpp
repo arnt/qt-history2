@@ -24,6 +24,9 @@
 *****************************************************************************/
 
 #include "qhttp.h"
+
+#if QT_FEATURE_NETWORKPROTOCOL_HTTP
+
 #include "qurlinfo.h"
 #include <stdlib.h>
 
@@ -142,3 +145,4 @@ void QHttp::readyRead()
     emit data( s, operationInProgress() );
 }
 
+#endif // QT_FEATURE_NETWORKPROTOCOL_HTTP

@@ -16,6 +16,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  */
+#ifndef QT_NO_CODECS
 
 #include "qrtlcodec.h"
 
@@ -495,3 +496,5 @@ int QArabicCodec::heuristicContentMatch(const char* chars, int len) const
     }
     return score;
 }
+
+#endif

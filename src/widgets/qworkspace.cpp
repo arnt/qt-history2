@@ -23,6 +23,7 @@
 **
 *****************************************************************************/
 #include "qworkspace.h"
+#if QT_FEATURE_WIDGETS
 #include "qapplication.h"
 #include "qobjectlist.h"
 #include "qlayout.h"
@@ -476,6 +477,7 @@ QWorkspace::QWorkspace( QWidget *parent, const char *name )
     a->connectItem( a->insertItem( CTRL +  ALT + SHIFT + Key_Tab),
 		    this, SLOT( activatePreviousWindow() ) );
 }
+
 
 
 /*!  Destroys the object and frees any allocated resources. */
@@ -1903,3 +1905,4 @@ void QWorkspaceChild::doMove()
 }
 
 #include "qworkspace.moc"
+#endif

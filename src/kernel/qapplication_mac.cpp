@@ -700,7 +700,7 @@ void qt_leave_modal( QWidget *widget )
     app_do_modal = qt_modal_stack != 0;
 }
 
-void qt_init( int *argcptr, char **argv )
+void qt_init( int *argcptr, char **argv, int )
 {
     InitGraf(&qd.thePort);
     InitFonts();

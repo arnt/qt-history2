@@ -24,6 +24,9 @@
 *****************************************************************************/
 
 #include "qurl.h"
+
+#if QT_FEATURE_NETWORKPROTOCOL
+
 #include "qnetworkprotocol.h"
 
 #include <stdlib.h>
@@ -1120,3 +1123,4 @@ bool QUrl::cdUp()
     return TRUE;
 }
 
+#endif // QT_FEATURE_NETWORKPROTOCOL

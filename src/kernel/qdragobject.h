@@ -35,6 +35,7 @@ class QWidget;
 #include "qcolor.h"
 #endif // QT_H
 
+#if QT_FEATURE_MIME
 
 class Q_EXPORT QDragObject: public QObject, public QMimeSource {
     Q_OBJECT
@@ -42,6 +43,7 @@ public:
     QDragObject( QWidget * dragSource = 0, const char * name = 0 );
     virtual ~QDragObject();
 
+#if QT_FEATURE_DRAGANDDROP
     bool drag();
     bool dragMove();
     void dragCopy();
@@ -50,16 +52,19 @@ public:
     virtual void setPixmap(QPixmap, QPoint hotspot);
     QPixmap pixmap() const;
     QPoint pixmapHotSpot() const;
+#endif
 
     QWidget * source();
     static QWidget * target();
 
     static void setTarget(QWidget*);
 
+#if QT_FEATURE_DRAGANDDROP
     enum DragMode { DragDefault, DragCopy, DragMove, DragCopyOrMove };
 
 protected:
     virtual bool drag(DragMode);
+#endif
 
 private:
     QDragData * d;
@@ -168,6 +173,8 @@ public:
 typedef QUriDrag QUrlDrag;
 #endif
 
+#if QT_FEATURE_DRAGANDDROP
+
 // QDragManager is not part of the public API.  It is defined in a
 // header file simply so different .cpp files can implement different
 // member functions.
@@ -209,5 +216,8 @@ private:
     int n_cursor;
 };
 
-
 #endif
+
+#endif // QT_FEATURE_MIME
+
+#endif // QDRAGOBJECT_H

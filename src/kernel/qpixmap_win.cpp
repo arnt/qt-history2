@@ -28,7 +28,7 @@
 
 
 extern Qt::WindowsVersion qt_winver;
-extern uchar *qt_get_bitflip_array();		// defined in qimage.cpp
+extern const uchar *qt_get_bitflip_array();		// defined in qimage.cpp
 
 #define DATA_HBM	 data->hbm_or_mcpi.hbm
 #define DATA_MCPI	 data->hbm_or_mcpi.mcpi
@@ -190,7 +190,7 @@ QPixmap::QPixmap( int w, int h, const uchar *bits, bool isXbitmap )
     int x, y, pad;
     pad = bpl - bitsbpl;
     if ( isXbitmap ) {				// flip and invert
-	uchar *f = qt_get_bitflip_array();
+	const uchar *f = qt_get_bitflip_array();
 	for ( y=0; y<h; y++ ) {
 	    for ( x=0; x<bitsbpl; x++ )
 		*p++ = ~f[*bits++];

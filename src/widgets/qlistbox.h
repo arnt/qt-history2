@@ -32,6 +32,8 @@
 #include "qtimer.h"
 #endif // QT_H
 
+#if QT_FEATURE_WIDGETS
+
 
 class QListBoxPrivate;
 class QListBoxItem;
@@ -390,5 +392,7 @@ private:	// Disabled copy constructor and operator=
 #endif
 };
 
+
+#endif // QT_FEATURE_WIDGETS
 
 #endif // QLISTBOX_H

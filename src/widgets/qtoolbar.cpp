@@ -24,6 +24,7 @@
 *****************************************************************************/
 
 #include "qtoolbar.h"
+#if QT_FEATURE_WIDGETS
 
 #include "qmainwindow.h"
 #include "qpushbutton.h"
@@ -927,3 +928,4 @@ more predictable.
 11.  Keep a single toolbar to fewer than 20 items divided into 4-7 groups of
 items.
 */
+#endif

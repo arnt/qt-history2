@@ -25,6 +25,8 @@
 
 #include "qinputdialog.h"
 
+#if QT_FEATURE_INPUTDIALOG
+
 #include <qlayout.h>
 #include <qlabel.h>
 #include <qlineedit.h>
@@ -451,3 +453,5 @@ void QInputDialog::tryAccept()
     if ( !d->lineEdit->text().isEmpty() )
 	accept();
 }
+
+#endif

@@ -45,6 +45,7 @@
 #include "qtextstream.h"
 #endif // QT_H
 
+#if QT_FEATURE_PSPRINTER
 
 struct QPSPrinterPrivate;
 
@@ -87,5 +88,6 @@ private:
     QPSPrinter &operator=( const QPSPrinter & );
 };
 
+#endif // QT_FEATURE_PSPRINTER
 
 #endif // QPSPRINTER_P_H

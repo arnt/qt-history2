@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/network/src/qsocketdevice_unix.cpp#5 $
+** $Id: //depot/qt/main/extensions/network/src/qsocketdevice_unix.cpp#6 $
 **
 ** Implementation of Network Extension Library
 **
@@ -38,13 +38,26 @@
 #include <sys/socket.h>
 #include <sys/ioctl.h>
 #include <sys/file.h>
+#include <sys/time.h>
 #include <fcntl.h>
 #include <netinet/in.h>
+#include <sys/un.h>
 #include <netdb.h>
 #include <errno.h>
 #endif
 
+#ifndef UNIX_PATH_MAX
+#define UNIX_PATH_MAX    108
+#endif
 
+#ifdef __MIPSEL__
+ #ifndef SOCK_DGRAM
+  #define SOCK_DGRAM 1
+ #endif
+ #ifndef SOCK_STREAM
+  #define SOCK_STREAM 2
+ #endif
+#endif
 //#define QSOCKETDEVICE_DEBUG
 
 
@@ -139,7 +152,7 @@ void QSocketDevice::init()
   \sa blocking()
 */
 
-QSocketDevice::QSocketDevice( Type type )
+QSocketDevice::QSocketDevice( Type type, bool inet )
     : fd( -1 ), t( Stream ), p( 0 ), pp( 0 ), e( NoError ), d( 0 )
 {
 #if defined(QSOCKETDEVICE_DEBUG)
@@ -147,7 +160,8 @@ QSocketDevice::QSocketDevice( Type type )
 	    this, type );
 #endif
     init();
-    int s = ::socket( AF_INET, type==Datagram?SOCK_DGRAM:SOCK_STREAM, 0 );
+    int s = ::socket( inet ? AF_INET : AF_UNIX,
+	    type==Datagram?SOCK_DGRAM:SOCK_STREAM, 0 );
     if ( s < 0 ) {
 	// leave fd at -1 but set the type
 	t = type;
@@ -459,6 +473,67 @@ bool QSocketDevice::connect( const QHostAddress &addr, uint port )
 #endif
 }
 
+bool QSocketDevice::connect( const QString &localfilename )
+{
+    if ( !isValid() )
+	return FALSE;
+
+    struct sockaddr_un a;
+    memset( &a, 0, sizeof(a) );
+    a.sun_family = AF_UNIX;
+    strncpy(a.sun_path,localfilename.local8Bit(),UNIX_PATH_MAX-1);
+
+    int r = ::connect( fd, (struct sockaddr*)&a,
+		       sizeof(struct sockaddr_un) );
+#if defined(_OS_WIN32_)
+    if ( r == SOCKET_ERROR )
+	return FALSE;
+    fetchConnectionParameters();
+    return TRUE;
+#elif defined(UNIX)
+    if ( r == 0 ) {
+	fetchConnectionParameters();
+	return TRUE;
+    }
+    if ( errno == EISCONN || errno == EALREADY || errno == EINPROGRESS )
+	return TRUE;
+    if ( e != NoError )
+	return FALSE;
+    switch( errno ) {
+    case EBADF:
+    case ENOTSOCK:
+	e = Impossible;
+	break;
+    case EFAULT:
+    case EAFNOSUPPORT:
+	e = Bug;
+	break;
+    case ECONNREFUSED:
+	e = ConnectionRefused;
+	break;
+    case ETIMEDOUT:
+    case ENETUNREACH:
+	e = NetworkFailure;
+	break;
+    case EADDRINUSE:
+	e = NoResources;
+	break;
+    case EACCES:
+    case EPERM:
+	e = Inaccessible;
+	break;
+    case EAGAIN:
+	// ignore that.  can retry.
+	break;
+    default:
+	e = UnknownError;
+	break;
+    }
+    return FALSE;
+#else
+    #error "This OS is not supported"
+#endif
+}
 
 /*!
   Assigns a name to an unnamed socket.  If the operation succeeds,
@@ -481,6 +556,50 @@ bool QSocketDevice::bind( const QHostAddress &address, uint port )
     a.sin_addr.s_addr = htonl( address.ip4Addr() );
 
     int r = ::bind( fd, (struct sockaddr*)&a,sizeof(struct sockaddr_in) );
+    if ( r < 0 ) {
+	switch( errno ) {
+	case EINVAL:
+	    e = AlreadyBound;
+	    break;
+	case EACCES:
+	    e = Inaccessible;
+	    break;
+	case ENOMEM:
+	    e = NoResources;
+	    break;
+	case EFAULT: // a was illegal
+	case ENAMETOOLONG: // sz was wrong
+	    e = Bug;
+	    break;
+	case EBADF: // AF_UNIX only
+	case ENOTSOCK: // AF_UNIX only
+	case EROFS: // AF_UNIX only
+	case ENOENT: // AF_UNIX only
+	case ENOTDIR: // AF_UNIX only
+	case ELOOP: // AF_UNIX only
+	    e = Impossible;
+	    break;
+	default:
+	    e = UnknownError;
+	    break;
+	}
+	return FALSE;
+    }
+    fetchConnectionParameters();
+    return TRUE;
+}
+
+bool QSocketDevice::bind( const QString & filename )
+{
+    if ( !isValid() )
+	return FALSE;
+
+    struct sockaddr_un a;
+    memset( &a, 0, sizeof(a) );
+    a.sun_family = AF_UNIX;
+    strncpy(a.sun_path, filename.local8Bit(),107);
+
+    int r = ::bind( fd, (struct sockaddr*)&a,sizeof(struct sockaddr_un) );
     if ( r < 0 ) {
 	switch( r ) {
 	case EINVAL:
@@ -618,6 +737,7 @@ int QSocketDevice::bytesAvailable() const
 	return -1;
     return nbytes;
 #elif defined(UNIX)
+    // gives shorter than true amounts on Unix domain sockets.
     int nbytes = 0;
     if ( ::ioctl(fd, FIONREAD, (char*)&nbytes) < 0 )
 	return -1;
@@ -625,6 +745,38 @@ int QSocketDevice::bytesAvailable() const
 #else
     #error "This OS is not supported"
 #endif
+}
+
+
+/*!
+  Wait upto \a msecs milliseconds for more data to be available.
+  If \a msecs is -1 the call will block indefinitely.
+  This is a blocking call and should be avoided in event driven
+  applications.
+  Returns the number of bytes available for reading, or -1 if an
+  error occurred.
+  \sa bytesAvailable()
+*/
+int QSocketDevice::waitForMore( int msecs )
+{
+    if ( !isValid() )
+	return -1;
+
+    fd_set fds;
+    struct timeval tv;
+
+    FD_ZERO( &fds );
+    FD_SET( fd, &fds );
+
+    tv.tv_sec = msecs / 1000;
+    tv.tv_usec = (msecs % 1000) * 1000;
+
+    int rv = select( fd+1, &fds, 0, 0, &tv );
+
+    if ( rv < 0 )
+	return -1;
+
+    return bytesAvailable();
 }
 
 

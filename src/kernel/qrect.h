@@ -99,6 +99,7 @@ public:
     QRect&  operator&=(const QRect &r);
 
     bool   contains( const QPoint &p, bool proper=FALSE ) const;
+    bool   contains( int x, int y, bool proper=FALSE ) const;
     bool   contains( const QRect &r, bool proper=FALSE ) const;
     QRect  unite( const QRect &r ) const;
     QRect  intersect( const QRect &r ) const;
@@ -226,5 +227,26 @@ inline int QRect::height() const
 inline QSize QRect::size() const
 { return QSize(x2-x1+1, y2-y1+1); }
 
+// worth inlining since proper is usually a constant (and usually FALSE)
+#ifndef QRECT_C
+inline bool QRect::contains( const QPoint &p, bool proper ) const
+{
+    if ( proper )
+        return p.x() > x1 && p.x() < x2 &&
+               p.y() > y1 && p.y() < y2;
+    else
+        return p.x() >= x1 && p.x() <= x2 &&
+               p.y() >= y1 && p.y() <= y2;
+}
+#endif
+inline bool QRect::contains( int x, int y, bool proper ) const
+{
+    if ( proper )
+        return x > x1 && x < x2 &&
+               y > y1 && y < y2;
+    else
+        return x >= x1 && x <= x2 &&
+               y >= y1 && y <= y2;
+}
 
 #endif // QRECT_H

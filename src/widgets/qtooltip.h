@@ -29,6 +29,8 @@
 #include "qtimer.h"
 #endif // QT_H
 
+#if QT_FEATURE_WIDGETS
+
 
 class QTipManager;
 class QLabel;
@@ -118,5 +120,7 @@ private:
     friend class QIconViewToolTip;
 };
 
+
+#endif // QT_FEATURE_WIDGETS
 
 #endif // QTOOLTIP_H

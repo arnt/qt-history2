@@ -27,6 +27,7 @@
 // ### could be reorganised by discarding INCLUDE_MENUITEM_DEF and put
 // the relevant declarations in a private header?
 #include "qmainwindow.h"
+#if QT_FEATURE_WIDGETS
 #define	 INCLUDE_MENUITEM_DEF
 #include "qmenubar.h"
 #include "qaccel.h"
@@ -1259,3 +1260,4 @@ bool QMenuBar::isDefaultUp() const
     return defaultup;
 }
 
+#endif

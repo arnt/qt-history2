@@ -24,6 +24,7 @@
 *****************************************************************************/
 
 #include "qwidgetstack.h"
+#if QT_FEATURE_WIDGETS
 
 #include "qobjectlist.h"
 #include "qobjectdict.h"
@@ -473,3 +474,4 @@ void QWidgetStack::childEvent( QChildEvent * e)
     if ( e->child()->isWidgetType() && e->removed() )
 	removeWidget( (QWidget*) e->child() );
 }
+#endif

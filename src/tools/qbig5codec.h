@@ -29,7 +29,7 @@
 
 #ifndef QBIG5CODEC_H
 #define QBIG5CODEC_H
-
+#ifndef QT_NO_CODECS
 
 #ifndef QT_H
 #include "qtextcodec.h"
@@ -49,4 +49,5 @@ public:
     int heuristicNameMatch(const char* hint) const;
 };
 
+#endif
 #endif

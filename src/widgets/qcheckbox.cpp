@@ -24,6 +24,7 @@
 *****************************************************************************/
 
 #include "qcheckbox.h"
+#if QT_FEATURE_WIDGETS
 #include "qpainter.h"
 #include "qdrawutil.h"
 #include "qpixmap.h"
@@ -357,3 +358,4 @@ QSizePolicy QCheckBox::sizePolicy() const
 {
     return QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Fixed );
 }
+#endif

@@ -24,6 +24,7 @@
 *****************************************************************************/
 
 #include "qvgroupbox.h"
+#if QT_FEATURE_WIDGETS
 
 // NOT REVISED
 /*!
@@ -66,3 +67,4 @@ QVGroupBox::QVGroupBox( const QString &title, QWidget *parent,
 QVGroupBox::~QVGroupBox()
 {
 }
+#endif

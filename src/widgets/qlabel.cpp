@@ -24,6 +24,7 @@
 *****************************************************************************/
 
 #include "qlabel.h"
+#if QT_FEATURE_WIDGETS
 #include "qbitmap.h"
 #include "qpainter.h"
 #include "qdrawutil.h"
@@ -975,3 +976,4 @@ void QLabel::fontChange( const QFont & )
     if ( !ltext.isEmpty() )
 	updateLabel( QSize( -1, -1 ) );
 }
+#endif

@@ -38,6 +38,9 @@
 #if defined(_WS_WIN_)
 #include "qt_windows.h"
 #endif
+#if defined(_WS_QWS_)
+#include "qwsmanager.h"
+#endif
 
 // NOT REVISED
 /*!
@@ -881,6 +884,7 @@ QTLWExtra *QWidget::topData()
     return extra->topextra;
 }
 
+
 void QWidget::createTLExtra()
 {
     if ( !extra )
@@ -902,6 +906,10 @@ void QWidget::createTLExtra()
 	x->dnd = 0;
 	x->uspos = 0;
 	x->ussize = 0;
+#endif
+#if defined(_WS_QWS_)
+	x->decor_allocated_region = QRegion();
+	x->qwsManager = 0;
 #endif
 	createTLSysExtra();
     }
@@ -945,6 +953,9 @@ void QWidget::deleteExtra()
 	    deleteTLSysExtra();
 	    delete extra->topextra->icon;
 	    delete extra->topextra->focusData;
+#if defined(_WS_QWS_)
+	    delete extra->topextra->qwsManager;
+#endif
 	    delete extra->topextra;
 	}
 	delete extra;
@@ -2441,7 +2452,7 @@ void QWidget::setFocus()
     if ( f->it.current() == this && qApp->focusWidget() == this )
 	return;
 
-    // ### why do we do this twice?
+    // ### why do we do this twice? - bad merge?
 
     f->it.toFirst();
     while ( f->it.current() != this && !f->it.atLast() )
@@ -2727,12 +2738,12 @@ void QWidget::reparentFocusWidgets( QWidget * oldtlw )
     if ( oldtlw == topLevelWidget() )
 	return; // nothing to do
 
-    QFocusData * from = oldtlw->topData()->focusData;
-    from->focusWidgets.first();
+    QFocusData * from = oldtlw ? oldtlw->topData()->focusData : 0;
     QFocusData * to;
     to = focusData();
 
     if ( from ) {
+	from->focusWidgets.first();
 	do {
 	    QWidget * pw = from->focusWidgets.current();
 	    while( pw && pw != this )
@@ -3791,6 +3802,7 @@ bool QWidget::event( QEvent *e )
 		return FALSE;
 	    }
 	    break;
+#if QT_FEATURE_DRAGANDDROP
 	case QEvent::Drop:
 	    dropEvent( (QDropEvent*) e);
 	    break;
@@ -3803,6 +3815,7 @@ bool QWidget::event( QEvent *e )
 	case QEvent::DragLeave:
 	    dragLeaveEvent( (QDragLeaveEvent*) e);
 	    break;
+#endif
 	case QEvent::Show:
 	    showEvent( (QShowEvent*) e);
 	    break;
@@ -4196,6 +4209,8 @@ void QWidget::closeEvent( QCloseEvent *e )
 }
 
 
+#if QT_FEATURE_DRAGANDDROP
+
 /*!
   This event handler is called when a drag is in progress and the
   mouse enters this widget.
@@ -4249,6 +4264,7 @@ void QWidget::dropEvent( QDropEvent * )
 {
 }
 
+#endif // QT_FEATURE_DRAGANDDROP
 
 /*!
   This event handler can be reimplemented in a subclass to receive
@@ -4351,6 +4367,26 @@ bool QWidget::winEvent( MSG * )
 */
 
 bool QWidget::x11Event( XEvent * )
+{
+    return FALSE;
+}
+
+#elif defined(_WS_QWS_)
+
+/*!
+  This special event handler can be reimplemented in a subclass to receive
+  native Qt/Embedded events.
+
+  If the event handler returns FALSE, this native event is passed back to
+  Qt, which translates the event into a Qt event and sends it to the
+  widget.  If the event handler returns TRUE, the event is stopped.
+
+  \warning This function is not portable.
+
+  QApplication::qwsEventFilter()
+*/
+
+bool QWidget::qwsEvent( QWSEvent * )
 {
     return FALSE;
 }

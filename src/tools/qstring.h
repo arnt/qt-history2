@@ -168,8 +168,9 @@ public:
     friend inline int operator<=( QChar c1, QChar c2 );
 
 private:
-#if defined(_WS_X11_) || defined(_OS_WIN32_BYTESWAP_)
+#if defined(_WS_X11_) || defined(_OS_WIN32_BYTESWAP_) || defined( _WS_QWS_ )
     // XChar2b on X11, ushort on _OS_WIN32_BYTESWAP_
+    //### QWS must be defined on a platform by platform basis
     uchar rw;
     uchar cl;
     enum { net_ordered = 1 };
@@ -287,6 +288,10 @@ public:
     bool	isEmpty()	const;
     uint	length()	const;
     void	truncate( uint pos );
+
+#if QT_VERSION >= 300
+#error "fill() Should return *this, or QChar constructor should take count=1"
+#endif
     void	fill( QChar c, int len = -1 );
 
     QString	copy()	const;

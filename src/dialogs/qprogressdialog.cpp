@@ -24,6 +24,9 @@
 *****************************************************************************/
 
 #include "qprogressdialog.h"
+
+#if QT_FEATURE_PROGRESSDIALOG
+
 #include "qaccel.h"
 #include "qpainter.h"
 #include "qdrawutil.h"
@@ -763,3 +766,5 @@ void QProgressDialog::showEvent( QShowEvent *e )
     int h = QMAX( isVisible() ? height() : 0, sizeHint().height() );
     resize( w, h );
 }
+
+#endif

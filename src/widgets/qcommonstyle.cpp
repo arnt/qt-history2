@@ -24,6 +24,7 @@
 *****************************************************************************/
 
 #include "qcommonstyle.h"
+#if QT_FEATURE_WIDGETS
 #include "qapplication.h"
 #include "qpainter.h"
 #include "qdrawutil.h" // for now
@@ -338,3 +339,4 @@ void QStyle::drawToolButton( QToolButton* btn, QPainter *p)
     drawToolButton( p, x, y, w, h, g, sunken, &fill );
 #endif
 }
+#endif

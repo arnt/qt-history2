@@ -43,6 +43,8 @@
 #include "qtableview.h"
 #endif // QT_H
 
+#if QT_FEATURE_WIDGETS
+
 struct QWellArrayData;
 
 class Q_EXPORT QWellArray : public QTableView
@@ -118,4 +120,6 @@ private:	// Disabled copy constructor and operator=
 #endif
 };
 
-#endif
+#endif // QT_FEATURE_WIDGETS
+
+#endif // QWELLARRAY_P_H

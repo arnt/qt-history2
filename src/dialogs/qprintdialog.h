@@ -30,6 +30,8 @@
 #include "qdialog.h"
 #endif // QT_H
 
+#if QT_FEATURE_PRINTDIALOG
+
 class QGroupBox;
 
 
@@ -82,5 +84,6 @@ private:	// Disabled copy constructor and operator=
 #endif
 };
 
+#endif
 
 #endif // QPRINTDIALOG_H

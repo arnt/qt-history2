@@ -172,8 +172,13 @@ void QColor::initGlobalColors()
     globals_init = TRUE;
     stdcol[ 0].pix = COLOR0_PIX;
     stdcol[ 1].pix = COLOR1_PIX;
+#ifdef _WS_QWS_
+    stdcol[ 0].rgbVal = 0;
+    stdcol[ 1].rgbVal = 0x00ffffff; //######### QWS color allocation is a mess
+#else
     stdcol[ 0].rgbVal = 0x00ffffff;
     stdcol[ 1].rgbVal = 0;
+#endif
     stdcol[ 2].setRgb(   0,   0,   0 );
     stdcol[ 3].setRgb( 255, 255, 255 );
     stdcol[ 4].setRgb( 128, 128, 128 );

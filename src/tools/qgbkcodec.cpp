@@ -60,6 +60,7 @@
   OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
   SUCH DAMAGE.
 */
+#ifndef QT_NO_CODECS
 
 #include "qgbkcodec.h"
 
@@ -7445,3 +7446,5 @@ static unsigned int qt_UnicodeToGBK(unsigned int code)
 	    return 0;
 	return ((cp[0] << 8) | cp[1]);
 }
+
+#endif

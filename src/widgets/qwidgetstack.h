@@ -32,6 +32,8 @@
 #include "qptrdict.h"
 #endif // QT_H
 
+#if QT_FEATURE_WIDGETS
+
 
 class QWidgetStackPrivate;
 
@@ -88,5 +90,6 @@ private:	// Disabled copy constructor and operator=
 #endif
 };
 
+#endif // QT_FEATURE_WIDGETS
 
-#endif
+#endif // QWIDGETSTACK_H

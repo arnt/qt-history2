@@ -22,6 +22,7 @@
 *****************************************************************************/
 
 #include "qwhatsthis.h"
+#if QT_FEATURE_WIDGETS
 
 #include "qapplication.h"
 #include "qpaintdevicemetrics.h"
@@ -138,7 +139,8 @@ public:
 
     // say it.
     void say( QWidget *, const QString&, const QPoint&  );
-
+    void say_helper(QWidget*,const QPoint& ppos,bool);
+    
     // setup and teardown
     static void tearDownWhatsThis();
     static void setUpWhatsThis();
@@ -154,6 +156,8 @@ public:
 
     QCursor * cursor;
 
+    QString currentText;
+    
 private slots:
     void cleanupWidget()
     {
@@ -322,6 +326,11 @@ bool QWhatsThisPrivate::eventFilter( QObject * o, QEvent * e )
 	    whatsThat->hide();
 	    return TRUE;
 	}
+#ifdef _WS_QWS_
+       else if ( e->type() == QEvent::Paint ) {
+	   wt->say_helper(0,QPoint(0,0),FALSE);
+       }
+#endif
 	return FALSE;
     }
 
@@ -426,30 +435,22 @@ void QWhatsThisPrivate::leaveWhatsThisMode()
     }
 }
 
-void QWhatsThisPrivate::say( QWidget * widget, const QString &text, const QPoint& ppos)
+
+
+void QWhatsThisPrivate::say_helper(QWidget* widget,const QPoint& ppos,bool init)
 {
     const int shadowWidth = 6;   // also used as '5' and '6' and even '8' below
     const int vMargin = 8;
     const int hMargin = 12;
 
-    if ( text.isEmpty() )
+    if ( currentText.isEmpty() )
 	return;
-
-    // make the widget, and set it up
-    if ( !whatsThat ) {
-	whatsThat = new QWidget( 0, "automatic what's this? widget",
-				 WType_Popup );
-	whatsThat->setBackgroundMode( QWidget::NoBackground );
-	whatsThat->setPalette( QToolTip::palette(), TRUE );
-	whatsThat->installEventFilter( this );
-    }
-
 
     QRect r;
     QSimpleRichText* doc = 0;
 
-    if ( QStyleSheet::mightBeRichText( text ) ) {
-	doc = new QSimpleRichText( text, whatsThat->font() );
+    if ( QStyleSheet::mightBeRichText( currentText ) ) {
+	doc = new QSimpleRichText( currentText, whatsThat->font() );
 	doc->adjustSize();
 	r.setRect( 0, 0, doc->width(), doc->height() );
     }
@@ -462,60 +463,62 @@ void QWhatsThisPrivate::say( QWidget * widget, const QString &text, const QPoint
 
 	r = whatsThat->fontMetrics().boundingRect( 0, 0, sw, 1000,
 			    AlignLeft + AlignTop + WordBreak + ExpandTabs,
-			    text );
+			    currentText );
     }
 
     int w = r.width() + 2*hMargin;
     int h = r.height() + 2*vMargin;
 
-    // okay, now to find a suitable location
+    if ( init ) {
+	// okay, now to find a suitable location
 
-    int x;
+	int x;
 
-    // first try locating the widget immediately above/below,
-    // with nice alignment if possible.
-    QPoint pos;
-    if ( widget )
-	pos = widget->mapToGlobal( QPoint( 0,0 ) );
+	// first try locating the widget immediately above/below,
+	// with nice alignment if possible.
+	QPoint pos;
+	if ( widget )
+	    pos = widget->mapToGlobal( QPoint( 0,0 ) );
 
-    if ( widget && w > widget->width() + 16 )
-	    x = pos.x() + widget->width()/2 - w/2;
-    else
-	x = ppos.x() - w/2;
+	if ( widget && w > widget->width() + 16 )
+		x = pos.x() + widget->width()/2 - w/2;
+	else
+	    x = ppos.x() - w/2;
 
-    // squeeze it in if that would result in part of what's this
-    // being only partially visible
-    if ( x + w > QApplication::desktop()->width() )
-	x = (widget? (QMIN(QApplication::desktop()->width(),
-			  pos.x() + widget->width())
-		     ) : QApplication::desktop()->width() )
-	    - w;
+	// squeeze it in if that would result in part of what's this
+	// being only partially visible
+	if ( x + w > QApplication::desktop()->width() )
+	    x = (widget? (QMIN(QApplication::desktop()->width(),
+			      pos.x() + widget->width())
+			 ) : QApplication::desktop()->width() )
+		- w;
 
-    if ( x < 0 )
-	x = 0;
+	if ( x < 0 )
+	    x = 0;
 
-    int y;
-    if ( widget && h > widget->height() + 16 ) {
-	y = pos.y() + widget->height() + 2; // below, two pixels spacing
-	// what's this is above or below, wherever there's most space
-	if ( y + h + 10 > QApplication::desktop()->height() )
-	    y = pos.y() + 2 - shadowWidth - h; // above, overlap
+	int y;
+	if ( widget && h > widget->height() + 16 ) {
+	    y = pos.y() + widget->height() + 2; // below, two pixels spacing
+	    // what's this is above or below, wherever there's most space
+	    if ( y + h + 10 > QApplication::desktop()->height() )
+		y = pos.y() + 2 - shadowWidth - h; // above, overlap
+	}
+	y = ppos.y() + 2;
+
+	// squeeze it in if that would result in part of what's this
+	// being only partially visible
+	if ( y + h > QApplication::desktop()->height() )
+	    y = ( widget ? (QMIN(QApplication::desktop()->height(),
+				 pos.y() + widget->height())
+			    ) : QApplication:: desktop()->height() )
+		- h;
+	if ( y < 0 )
+	    y = 0;
+
+
+	whatsThat->setGeometry( x, y, w + shadowWidth, h + shadowWidth );
+	whatsThat->show();
     }
-    y = ppos.y() + 2;
-
-    // squeeze it in if that would result in part of what's this
-    // being only partially visible
-    if ( y + h > QApplication::desktop()->height() )
-	y = ( widget ? (QMIN(QApplication::desktop()->height(),
-			     pos.y() + widget->height())
-			) : QApplication:: desktop()->height() )
-	    - h;
-    if ( y < 0 )
-	y = 0;
-
-
-    whatsThat->setGeometry( x, y, w + shadowWidth, h + shadowWidth );
-    whatsThat->show();
 
     // now for super-clever shadow stuff.  super-clever mostly in
     // how many window system problems it skirts around.
@@ -535,7 +538,7 @@ void QWhatsThisPrivate::say( QWidget * widget, const QString &text, const QPoint
     else {
 	p.drawText( hMargin, vMargin, r.width(), r.height(),
 		    AlignLeft + AlignTop + WordBreak + ExpandTabs,
-		    text );
+		    currentText );
     }
     p.setPen( whatsThat->colorGroup().shadow() );
 
@@ -554,6 +557,22 @@ void QWhatsThisPrivate::say( QWidget * widget, const QString &text, const QPoint
     for( ; i > 0 ; i -= 2 )
 	p.drawLine( 6, h + 6 - i,
 		    i + 5, h + 5 );
+}
+
+
+void QWhatsThisPrivate::say( QWidget * widget, const QString &text, const QPoint& ppos)
+{
+    currentText = text;
+
+    // make the widget, and set it up
+    if ( !whatsThat ) {
+	whatsThat = new QWidget( 0, "automatic what's this? widget",
+				 WType_Popup );
+	whatsThat->setBackgroundMode( QWidget::NoBackground );
+	whatsThat->setPalette( QToolTip::palette(), TRUE );
+	whatsThat->installEventFilter( this );
+    }
+    say_helper(widget,ppos,TRUE);
 }
 
 QWhatsThisPrivate::WhatsThisItem* QWhatsThisPrivate::newItem( QWidget * widget )
@@ -823,3 +842,4 @@ void QWhatsThis::leaveWhatsThisMode( const QString& text, const QPoint& pos )
 }
 
 #include "qwhatsthis.moc"
+#endif

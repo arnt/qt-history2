@@ -30,6 +30,8 @@
 #include "qwindowdefs.h"
 #endif // QT_H
 
+#if QT_FEATURE_MIME
+
 class Q_EXPORT QMimeSource {
 public:
     virtual ~QMimeSource();
@@ -102,7 +104,8 @@ public:
     virtual QByteArray convertFromMime( QByteArray data, const char* mime, int cf )=0;
 };
 
-#endif
+#endif // _WS_WIN_
 
+#endif // QT_FEATURE_MIME
 
 #endif // QMIME_H

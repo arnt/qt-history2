@@ -22,6 +22,9 @@
 *****************************************************************************/
 
 #include "qmime.h"
+
+#if QT_FEATURE_MIME
+
 #include "qmap.h"
 #include "qstringlist.h"
 #include "qfileinfo.h"
@@ -442,3 +445,5 @@ void QMimeSourceFactory::setDefaultFactory( QMimeSourceFactory* factory)
 	delete defaultfactory;
     defaultfactory = factory;
 }
+
+#endif // QT_FEATURE_MIME

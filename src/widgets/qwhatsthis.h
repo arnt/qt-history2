@@ -28,6 +28,8 @@
 #include "qobject.h"
 #endif // QT_H
 
+#if QT_FEATURE_WIDGETS
+
 #include "qcursor.h"
 
 class QToolButton;
@@ -55,4 +57,6 @@ public:
 
 };
 
-#endif
+#endif // QT_FEATURE_WIDGETS
+
+#endif // QWHATSTHIS_H

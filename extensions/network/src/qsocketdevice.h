@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/network/src/qsocketdevice.h#13 $
+** $Id: //depot/qt/main/extensions/network/src/qsocketdevice.h#14 $
 **
 ** Implementation of Network Extension Library
 **
@@ -29,9 +29,8 @@
 #ifndef QT_H
 #include "qiodevice.h"
 #include "qstring.h"
-#endif // QT_H
-
 #include "qhostaddress.h"
+#endif // QT_H
 
 
 class QSocketDevicePrivate;
@@ -44,8 +43,8 @@ friend class QSocket;
 public:
     enum Type { Stream, Datagram };
 
-    QSocketDevice( Type type = Stream );
-    QSocketDevice( int socket, Type type );
+    QSocketDevice( Type type = Stream, bool inet=TRUE );
+    QSocketDevice( int socket, Type type, bool inet=TRUE );
    ~QSocketDevice();
 
     bool	 isValid() const;
@@ -75,12 +74,15 @@ public:
     virtual void setSendBufferSize( uint );
 
     virtual bool connect( const QHostAddress &, uint );
+    virtual bool connect( const QString& localfilename );
 
     virtual bool bind( const QHostAddress &, uint );
+    virtual bool bind( const QString& );
     virtual bool listen( int backlog );
     virtual int	 accept();
 
     int		 bytesAvailable() const;
+    int		 waitForMore( int msecs );
     int		 readBlock( char *data, uint maxlen );
     int		 writeBlock( const char *data, uint len );
     virtual int  writeBlock( const char *data, uint len,

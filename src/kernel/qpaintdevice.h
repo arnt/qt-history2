@@ -31,6 +31,9 @@
 #include "qrect.h"
 #endif // QT_H
 
+#if defined(_WS_QWS_)
+class QGfx;
+#endif
 
 class QIODevice;
 class QString;
@@ -77,6 +80,8 @@ public:
     HANDLE	handle() const;
 #elif defined(_WS_MAC_)
     HANDLE      handle() const;
+#elif defined(_WS_QWS_)
+    HANDLE      handle() const;
 #endif
 
 #if defined(_WS_X11_)
@@ -101,6 +106,13 @@ public:
     static bool	    x11AppDefaultVisual();
     static void	    x11SetAppDpiX(int);
     static void	    x11SetAppDpiY(int);
+#endif
+
+#if defined(_WS_QWS_)
+    static QWSDisplay *qwsDisplay();
+    virtual unsigned char * scanLine(int) const;
+    virtual int bytesPerLine() const;
+    virtual QGfx * graphicsContext() const;
 #endif
 
     enum PDevCmd {
@@ -172,6 +184,8 @@ protected:
 #elif defined(_WS_MAC_)
     void * hd;
     virtual void fixport();
+#elif defined(_WS_QWS_)
+    HANDLE hd;
 #endif
 
     virtual bool cmd( int, QPainter *, QPDevCmdParam * );

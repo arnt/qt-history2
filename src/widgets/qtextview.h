@@ -33,6 +33,8 @@
 #include "qcolor.h"
 #endif // QT_H
 
+#if QT_FEATURE_WIDGETS
+
 class QRichText;
 class QTextViewData;
 class QStyleSheet;
@@ -96,7 +98,9 @@ public:
     QString selectedText() const;
 
 public slots:
+#if QT_FEATURE_CLIPBOARD
    void copy();
+#endif
    void selectAll();
 
 
@@ -121,7 +125,9 @@ protected:
 private slots:
     void doResize();
     void clipboardChanged();
+#if QT_FEATURE_DRAGANDDROP
     void doStartDrag();
+#endif
     void doAutoScroll();
 
 private:
@@ -140,5 +146,6 @@ private:	// Disabled copy constructor and operator=
 #endif
 };
 
+#endif // QT_FEATURE_WIDGETS
 
-#endif
+#endif // QTEXTVIEW_H

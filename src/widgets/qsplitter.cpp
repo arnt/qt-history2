@@ -23,6 +23,7 @@
 **
 *****************************************************************************/
 #include "qsplitter.h"
+#if QT_FEATURE_WIDGETS
 
 #include "qpainter.h"
 #include "qdrawutil.h"
@@ -1095,3 +1096,4 @@ void QSplitter::styleChange( QStyle& old )
     QFrame::styleChange( old );
 }
 
+#endif

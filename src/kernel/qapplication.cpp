@@ -29,6 +29,7 @@
 #include "qwidget.h"
 #include "qwidgetlist.h"
 #include "qwidgetintdict.h"
+
 #include "qwindowsstyle.h"
 #include "qmotifstyle.h"
 #include "qplatinumstyle.h"
@@ -38,6 +39,9 @@
 #include "qtextcodec.h"
 #include "qpngio.h"
 #include "qsessionmanager.h"
+#ifdef _WS_QWS_
+#include "qnetwork.h"
+#endif
 
 #if defined(QT_MAKEDLL)
 #define QApplication QBaseApplication
@@ -231,7 +235,7 @@
   qapplication_xyz.cpp file.
 */
 
-void qt_init( int *, char ** );
+void qt_init( int *, char **, int );
 void qt_cleanup();
 #if defined(_WS_X11_)
 void qt_init( Display* dpy );
@@ -339,29 +343,57 @@ void QApplication::process_cmdline( int* argcptr, char ** argv )
 	QCString arg = argv[i];
 	if ( arg == "-qdevel" || arg == "-qdebug") {
 	    makeqdevel = !makeqdevel;
+#if QT_FEATURE_STYLE_WINDOWS
 	} else if ( stricmp(arg, "-style=windows") == 0 ) {
 	    setStyle( new QWindowsStyle );
+#endif
+#if QT_FEATURE_STYLE_MOTIF
 	} else if ( stricmp(arg, "-style=motif") == 0 ) {
 	    setStyle( new QMotifStyle );
+#endif
+#if QT_FEATURE_STYLE_PLATINUM
 	} else if ( stricmp(arg, "-style=platinum") == 0 ) {
 	    setStyle( new QPlatinumStyle );
+#endif
+#if QT_FEATURE_STYLE_CDE
 	} else if ( stricmp(arg, "-style=cde") == 0 ) {
 	    setStyle( new QCDEStyle );
+#endif
+#if QT_FEATURE_STYLE_SGI
 	} else if ( stricmp(arg, "-style=sgi") == 0 ) {
 	    setStyle( new QSGIStyle );
+#endif
+#if QT_FEATURE_WIDGETS
 	} else if ( strcmp(arg,"-style") == 0 && i < argc-1 ) {
 	    QCString s = argv[++i];
 	    s = s.lower();
+#if QT_FEATURE_STYLE_WINDOWS
 	    if ( s == "windows" )
 		setStyle( new QWindowsStyle );
-	    else if ( s == "motif" )
+	    else
+#endif
+#if QT_FEATURE_STYLE_MOTIF
+	    if ( s == "motif" )
 		setStyle( new QMotifStyle );
-	    else if ( s == "platinum" )
+	    else
+#endif
+#if QT_FEATURE_STYLE_PLATINUM
+	    if ( s == "platinum" )
 		setStyle( new QPlatinumStyle );
-	    else if ( s == "cde" )
+	    else
+#endif
+#if QT_FEATURE_STYLE_CDE
+	    if ( s == "cde" )
 		setStyle( new QCDEStyle );
-	    else if ( s == "sgi" )
+	    else
+#endif
+#if QT_FEATURE_STYLE_SGI
+	    if ( s == "sgi" )
 		setStyle( new QSGIStyle );
+	    else
+#endif
+	    qWarning("Invalid -style option");
+#endif
 	} else if ( strcmp(arg,"-session") == 0 && i < argc-1 ) {
 	    QCString s = argv[++i];
 	    if ( !s.isEmpty() ) {
@@ -450,7 +482,7 @@ QApplication::QApplication( int &argc, char **argv )
 	argc = 0;
 	argv = &empty;
     }
-    qt_init( &argc, argv );   // Must be called before initialize()
+    qt_init( &argc, argv, 0 );   // Must be called before initialize()
     process_cmdline( &argc, argv );
 
     initialize( argc, argv );
@@ -506,7 +538,7 @@ QApplication::QApplication( int &argc, char **argv, bool GUIenabled  )
 	argc = 0;
 	argv = &empty;
     }
-    qt_init( &argc, argv );   // Must be called before initialize()
+    qt_init( &argc, argv, GUIenabled );   // Must be called before initialize()
     process_cmdline( &argc, argv );
     initialize( argc, argv );
 }
@@ -558,27 +590,50 @@ void QApplication::initialize( int argc, char **argv )
     (void) palette();  // trigger creation of application palette
     is_app_running = TRUE; // no longer starting up
 
-
+#if QT_FEATURE_WIDGETS
     if (!app_style) {
-#if defined(_WS_WIN_)
+
+// Somewhat complicated compile-time search for default style
+//
+#if defined(_WS_WIN_) && QT_FEATURE_STYLE_WINDOWS
 	app_style = new QWindowsStyle; // default style for Windows
-#elif defined(_WS_X11_)
-#if defined(_OS_IRIX_)
+#elif defined(_WS_X11_) && defined(_OS_IRIX_) && QT_FEATURE_STYLE_SGI
 	app_style = new QSGIStyle; // default comment
-#else
+#elif defined(_WS_X11_) && QT_FEATURE_STYLE_MOTIF
 	app_style = new QMotifStyle; // default style for X Windows
-#endif
-#elif defined(_WS_MAC_)
-	app_style = new QPlatinumStyle; // default comment
+#elif defined(_WS_MAC_) && QT_FEATURE_STYLE_PLATINUM
+	app_style = new QPlatinumStyle;
+#elif QT_FEATURE_STYLE_WINDOWS
+	app_style = new QWindowsStyle; // default style for Windows
+#elif QT_FEATURE_STYLE_MOTIF
+	app_style = new QMotifStyle; // default style for X Windows
+#elif QT_FEATURE_STYLE_PLATINUM
+	app_style = new QPlatinumStyle;
+#elif QT_FEATURE_STYLE_CDE
+	app_style = new QCDEStyle;
+#elif QT_FEATURE_STYLE_SGI
+	app_style = new QSGIStyle;
 #else
 #error "Toto... I have a feeling we're not in Kansas anymore."
 #endif
+
     }
+#endif
 
+#if QT_FEATURE_IMAGEIO_PNG
     qInitPngIO();
+#endif
+#ifdef _WS_QWS_
+#if QT_FEATURE_NETWORKPROTOCOL
+    qInitNetworkProtocols();
+#endif
+#endif
 
+#if QT_FEATURE_WIDGETS
     app_style->polish( *app_pal );
     app_style->polish( qApp ); //##### wrong place, still inside the qapplication constructor...grmbl....
+#endif
+
 #if 0
     if ( makeqdevel ) {
 	qdevel = new QDeveloper;
@@ -772,6 +827,7 @@ QApplication::~QApplication()
 
 void QApplication::setStyle( QStyle *style )
 {
+#if QT_FEATURE_WIDGETS
     QStyle* old = app_style;
     app_style = style;
 
@@ -828,6 +884,7 @@ void QApplication::setStyle( QStyle *style )
 	}
 	delete old;
     }
+#endif
 }
 
 
@@ -980,7 +1037,6 @@ QPalette QApplication::palette(const QWidget* w)
     }
     return *app_pal;
 }
-
 
 
 /*!
@@ -1385,6 +1441,7 @@ void QApplication::closeAllWindows()
   \sa wakeUpGuiThread()
 */
 
+
 /*!
   \fn bool QApplication::sendEvent( QObject *receiver, QEvent *event )
 
@@ -1443,6 +1500,7 @@ bool QApplication::notify( QObject *receiver, QEvent *event )
 	 && ((QWidget*)receiver)->isTopLevel() )
 	qdevel->addTopLevelWidget( (QWidget*)receiver );
 #endif
+
 
 
     if ( receiver->pendEvent && event->type() == QEvent::ChildRemoved ) {
@@ -1890,6 +1948,16 @@ void QApplication::sendPostedEvents( QObject *receiver, int event_type )
 		    w->repaint( erasePaintRegion, TRUE );
 		if ( !paintRegion.isEmpty() )
 		    w->repaint( paintRegion, FALSE );
+	    } else if ( !receiver->isWidgetType() ) {
+		// eg. Window Manager decorations in Qt/Embedded
+		if ( !erasePaintRegion.isEmpty() ) {
+		    QPaintEvent e( erasePaintRegion, TRUE );
+		    sendEvent( receiver, &e );
+		}
+		if ( !paintRegion.isEmpty() ) {
+		    QPaintEvent e( paintRegion, FALSE );
+		    sendEvent( receiver, &e );
+		}
 	    }
 	}
     }
@@ -2082,8 +2150,6 @@ void QApplication::setActiveWindow( QWidget* act )
     }
     QFocusEvent::resetReason();
 }
-
-
 
 /*!
   Returns the desktop widget (also called the root window).

@@ -35,7 +35,7 @@ struct inflate_huft_s {
 extern int inflate_trees_bits OF((
     uIntf *,                    /* 19 code lengths */
     uIntf *,                    /* bits tree desired/actual depth */
-    inflate_huft * FAR *,       /* bits tree result */
+    const inflate_huft * FAR *,       /* bits tree result */
     inflate_huft *,             /* space for trees */
     z_streamp));                /* for messages */
 
@@ -45,14 +45,14 @@ extern int inflate_trees_dynamic OF((
     uIntf *,                    /* that many (total) code lengths */
     uIntf *,                    /* literal desired/actual bit depth */
     uIntf *,                    /* distance desired/actual bit depth */
-    inflate_huft * FAR *,       /* literal/length tree result */
-    inflate_huft * FAR *,       /* distance tree result */
+    const inflate_huft * FAR *,       /* literal/length tree result */
+    const inflate_huft * FAR *,       /* distance tree result */
     inflate_huft *,             /* space for trees */
     z_streamp));                /* for messages */
 
 extern int inflate_trees_fixed OF((
     uIntf *,                    /* literal desired/actual bit depth */
     uIntf *,                    /* distance desired/actual bit depth */
-    inflate_huft * FAR *,       /* literal/length tree result */
-    inflate_huft * FAR *,       /* distance tree result */
+    const inflate_huft * FAR *,       /* literal/length tree result */
+    const inflate_huft * FAR *,       /* distance tree result */
     z_streamp));                /* for memory allocation */

@@ -30,6 +30,10 @@
 **
 *****************************************************************************/
 
+#ifndef QT_H
+#include <qfeatures.h>
+#endif // QT_H
+
 #ifndef QT_BUILTIN_GIF_READER
 #define QT_BUILTIN_GIF_READER 1
 #endif

@@ -24,6 +24,9 @@
 *****************************************************************************/
 
 #include "qclipboard.h"
+
+#if QT_FEATURE_CLIPBOARD
+
 #include "qapplication.h"
 #include "qbitmap.h"
 #include "qdatetime.h"
@@ -715,3 +718,4 @@ bool qt_check_selection_sentinel( XEvent* )
     return doIt;
 }
 
+#endif // QT_FEATURE_CLIPBOARD

@@ -111,10 +111,12 @@ QObjectDictionary *objectDict = 0;		// global object dictionary
 class QMetaObjectPrivate
 {
 public:
+#if QT_FEATURE_PROPERTIES
     QMetaEnum     *enumData;			// enumeration types
     int		   numEnumData;
     QMetaProperty *propData;                    // property meta data
     int            numPropData;
+#endif
     QClassInfo    *classInfo;			// class information
     int            numClassInfo;
     QMetaData::Access* slotAccess; // ### remove 3.0
@@ -193,10 +195,12 @@ QMetaObject::QMetaObject( const char *class_name, const char *superclass_name,
     d = new QMetaObjectPrivate;
     reserved = 0;
 
+#if QT_FEATURE_PROPERTIES
     d->enumData = 0;
     d->numEnumData = 0;
     d->propData = 0;
     d->numPropData = 0;
+#endif
     d->classInfo = 0;
     d->numClassInfo = 0;
     d->slotAccess = 0;
@@ -207,8 +211,10 @@ QMetaObject::QMetaObject( const char *class_name, const char *superclass_name,
 QMetaObject::QMetaObject( const char *class_name, const char *superclass_name,
 			  QMetaData *slot_data,	  int n_slots,
 			  QMetaData *signal_data, int n_signals,
+#if QT_FEATURE_PROPERTIES
 			  QMetaProperty *prop_data, int n_props,
 			  QMetaEnum *enum_data, int n_enums,
+#endif
 			  QClassInfo *class_info, int n_info )
 {
     if ( !objectDict ) {			// first meta object created
@@ -228,10 +234,12 @@ QMetaObject::QMetaObject( const char *class_name, const char *superclass_name,
     d = new QMetaObjectPrivate;
     reserved = 0;
 
+#if QT_FEATURE_PROPERTIES
     d->propData = prop_data;
     d->numPropData = n_props;
     d->enumData = enum_data;
     d->numEnumData = n_enums;
+#endif
     d->classInfo = class_info;
     d->numClassInfo = n_info;
 
@@ -249,10 +257,12 @@ QMetaObject::~QMetaObject()
 	delete [] slotData;			// delete arrays created in
     if ( signalData )
 	delete [] signalData;			//   initMetaObject()
+#if QT_FEATURE_PROPERTIES
     if ( d->enumData )
 	delete [] d->enumData;
     if ( d->propData )
 	delete [] d->propData;
+#endif
     if ( d->classInfo )
 	delete [] d->classInfo;
     if ( d->slotAccess )
@@ -380,13 +390,19 @@ QMetaObject *QMetaObject::new_metaobject( const char *classname,
 					  const char *superclassname,
 					  QMetaData *slot_data,	int n_slots,
 					  QMetaData *signal_data,int n_signals,
+#if QT_FEATURE_PROPERTIES
 					  QMetaProperty *prop_data, int n_props,
 					  QMetaEnum *enum_data, int n_enums,
+#endif
 					  QClassInfo * class_info, int n_info )
 {
     return new QMetaObject( classname, superclassname, slot_data, n_slots,
-			    signal_data, n_signals, prop_data, n_props,
-			    enum_data, n_enums, class_info, n_info );
+			    signal_data, n_signals,
+#if QT_FEATURE_PROPERTIES
+			    prop_data, n_props,
+			    enum_data, n_enums,
+#endif
+			    class_info, n_info );
 }
 
 /*!\internal
@@ -461,6 +477,7 @@ QMetaData::Access QMetaObject::slot_access(int index, bool super )
 #endif
 }
 
+#if QT_FEATURE_PROPERTIES
 /*!\internal
  */
 QMetaEnum *QMetaObject::new_metaenum( int numEntries )
@@ -481,6 +498,7 @@ QMetaProperty *QMetaObject::new_metaproperty( int numEntries )
 {
     return numEntries > 0 ? new QMetaProperty[numEntries] : 0;
 }
+#endif
 
 /*!\internal
  */
@@ -619,6 +637,7 @@ const char* QMetaObject::classInfo( const char* name, bool super ) const
     return superclass->classInfo( name, super );
 }
 
+#if QT_FEATURE_PROPERTIES
 /*!\internal
  */
 void QMetaObject::resolveProperty( QMetaProperty* prop )
@@ -741,6 +760,8 @@ QStrList QMetaObject::propertyNames( bool super ) const
     return l;
 }
 
+#endif // QT_FEATURE_PROPERTIES
+
 /*!
   Returns a list with the names of all signals for this class.
 
@@ -775,7 +796,7 @@ QStrList QMetaObject::slotNames( bool super ) const
     return l;
 }
 
-
+#if QT_FEATURE_PROPERTIES
 /*!\internal
  */
 QMetaEnum* QMetaObject::enumerator( const char* name, bool super ) const
@@ -787,6 +808,7 @@ QMetaEnum* QMetaObject::enumerator( const char* name, bool super ) const
 	return 0;
     return superclass->enumerator( name, super );
 }
+#endif
 
 /*!
   Returns TRUE if this class inherits \e clname within the meta
@@ -805,6 +827,7 @@ bool QMetaObject::inherits( const char* clname ) const
     return FALSE;
 }
 
+#if QT_FEATURE_PROPERTIES
 /*!
   \class QMetaProperty qmetaobject.h
 
@@ -1031,6 +1054,8 @@ bool QMetaProperty::stored( QObject* o ) const
 
   \internal
 */
+
+#endif // QT_FEATURE_PROPERTIES
 
 QMetaObjectInit::QMetaObjectInit(void(*)()) // ### remove 3.0
 {

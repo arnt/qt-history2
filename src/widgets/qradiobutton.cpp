@@ -24,6 +24,7 @@
 *****************************************************************************/
 
 #include "qradiobutton.h"
+#if QT_FEATURE_WIDGETS
 #include "qbuttongroup.h"
 #include "qpainter.h"
 #include "qdrawutil.h"
@@ -371,3 +372,4 @@ void QRadioButton::focusInEvent( QFocusEvent *e  )
 {
     QButton::focusInEvent( e ); // ### 3.0 remove
 }
+#endif

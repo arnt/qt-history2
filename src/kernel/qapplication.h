@@ -36,6 +36,9 @@
 class QSessionManager;
 class QStyle;
 class QTranslator;
+#if defined(_WS_QWS_)
+class QWSDecorator;
+#endif
 template <class type> class QList;
 
 class QApplication;
@@ -170,6 +173,11 @@ public:
     virtual bool     x11EventFilter( XEvent * );
     virtual int	     x11ClientMessage( QWidget*, XEvent*, bool passive_only);
     int              x11ProcessEvent( XEvent* );
+#elif defined(_WS_QWS_)
+    virtual bool     qwsEventFilter( QWSEvent * );
+    int              qwsProcessEvent( QWSEvent* );
+    static QWSDecorator &qwsDecorator();
+    static void      qwsSetDecorator( QWSDecorator *);
 #endif
 
 #if defined(_WS_WIN_)

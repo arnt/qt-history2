@@ -30,6 +30,8 @@
 #include "qwidget.h"
 #endif // QT_H
 
+#if QT_FEATURE_WIDGETS
+
 
 class QStatusBarPrivate;
 
@@ -68,5 +70,6 @@ private:	// Disabled copy constructor and operator=
 #endif
 };
 
+#endif // QT_FEATURE_WIDGETS
 
-#endif
+#endif // QSTATUSBAR_H

@@ -25,6 +25,7 @@
 
 
 #include "qvbox.h"
+#if QT_FEATURE_WIDGETS
 #include "qlayout.h"
 
 // NOT REVISED
@@ -49,3 +50,4 @@ QVBox::QVBox( QWidget *parent, const char *name, WFlags f, bool allowLines )
     :QHBox( FALSE, parent, name, f, allowLines )
 {
 }
+#endif

@@ -30,6 +30,8 @@
 #include "qwidget.h"
 #endif // QT_H
 
+#if QT_FEATURE_WIDGETS
+
 
 class QButtonGroup;
 struct QButtonData;
@@ -206,5 +208,7 @@ inline QButton::ToggleType QButton::toggleType() const
     return ToggleType(toggleTyp);
 }
 
+
+#endif // QT_FEATURE_WIDGETS
 
 #endif // QBUTTON_H
