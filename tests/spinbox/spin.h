@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/spinbox/spin.h#2 $
+** $Id: //depot/qt/main/tests/spinbox/spin.h#3 $
 **
 ** Definition of 
 **
@@ -35,6 +35,7 @@ public:
     QCheckBox* palCheck;
     QCheckBox* disableCheck;
     QCheckBox* styleCheck;
+    QCheckBox* symbolCheck;
     QLineEdit* suffixEd;
     QLineEdit* prefixEd;
     QLineEdit* minTxtEd;
@@ -49,6 +50,7 @@ public slots:
     void updatePalette();
     void updateDisabled();
     void updateStyle();
+    void updateSymbols();
     void updateSpecValTxt( const QString& s );
     void showValue( int i );
 
