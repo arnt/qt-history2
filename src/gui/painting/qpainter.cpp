@@ -2125,7 +2125,10 @@ void QPainter::drawPixmap(const QRect &r, const QPixmap &pm, const QRect &sr, bo
 		pmx.setMask(mask);
 	    }
 	}
-	pmx = pmx.xForm(mat);
+	if (scalex < 1.5 || scaley < 1.5) // Smoothscale small pixmaps...
+	    pmx = QPixmap(pmx.convertToImage().smoothScale(w, h));
+	else
+	    pmx = pmx.xForm(mat);
 	if (pmx.isNull())			// xformed into nothing
 	    return;
 	if (!pmx.mask() && d->state->txop == TxRotShear) {
