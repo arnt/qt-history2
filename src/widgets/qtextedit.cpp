@@ -577,6 +577,13 @@ static bool block_set_alignment = FALSE;
     of the paragraph. If the cursor is at the end of the paragraph,
     delete the hard line break at the end of the paragraph: this will
     cause this paragraph to be joined with the following paragraph.
+
+    \value ActionWordBackspace Delete the word to the left of the
+    cursor position.
+
+    \value ActionWordDelete Delete the word to the right of the
+    cursor position
+
 */
 
 /*!
