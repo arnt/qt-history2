@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/network/qdns.cpp#19 $
+** $Id: //depot/qt/main/src/network/qdns.cpp#20 $
 **
 ** Implementation of QDns class.
 **
@@ -34,6 +34,13 @@
 ** not clear to you.
 **
 **********************************************************************/
+
+// 'u_char' and other BSD unsigned things used in <arpa> are undefined
+// on Tru64 4.0f unless...
+#if !defined(Q_OS_OSF)
+// Has to appear before "qdns.h"??? Fix me!
+# define _OSF_SOURCE
+#endif
 
 #include "qdns.h"
 
@@ -1952,7 +1959,11 @@ QString QDns::canonicalName() const
 #endif
 #include <resolv.h>
 
+#if defined (Q_OS_SOLARIS)
+// According to changelog 23685, this was introduced to fix a problem under
+// Solaris.
 extern "C" int res_init();
+#endif
 
 // if various defines aren't there, we'll set them safely.
 
