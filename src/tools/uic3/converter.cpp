@@ -173,7 +173,7 @@ DomUI *Ui3Reader::generateUi4(const QDomElement &widget)
             QDomElement n2 = n.firstChild().toElement();
             while (!n2.isNull()) {
                 if (n2.tagName().toLower() == QLatin1String("toolbar")) {
-                    DomWidget *tb = createWidget(n2, QLatin1String("Q3ToolBar"));
+                    DomWidget *tb = createWidget(n2, QLatin1String("QToolBar"));
                     ui_toolbars.append(tb);
                 }
                 n2 = n2.nextSibling().toElement();
@@ -261,8 +261,6 @@ DomUI *Ui3Reader::generateUi4(const QDomElement &widget)
             baseClass = QLatin1String("QIconView");
         else if (customClass.endsWith("ComboBox"))
             baseClass = QLatin1String("QComboBox");
-        else if (customClass.endsWith("ToolBar"))
-            baseClass = QLatin1String("Q3ToolBar");
 
         if (baseClass.isEmpty())
             continue;
@@ -380,8 +378,6 @@ QString Ui3Reader::fixClassName(const QString &className) const
         return QLatin1String("Q3ButtonGroup");
     else if (className == QLatin1String("QTextEdit"))
         return QLatin1String("Q3TextEdit");
-    else if (className == QLatin1String("QMainWindow"))
-        return QLatin1String("Q3MainWindow");
     else if (className == QLatin1String("QListView"))
         return QLatin1String("Q3ListView");
     else if (className == QLatin1String("QDateEdit"))
@@ -422,8 +418,8 @@ DomWidget *Ui3Reader::createWidget(const QDomElement &w, const QString &widgetCl
 
     bool needPolish = FALSE;
 
-    createProperties(w, &ui_property_list);
-    createAttributes(w, &ui_attribute_list);
+    createProperties(w, &ui_property_list, className);
+    createAttributes(w, &ui_attribute_list, className);
 
     QDomElement e = w.firstChild().toElement();
     while (!e.isNull()) {
@@ -546,8 +542,8 @@ DomLayout *Ui3Reader::createLayout(const QDomElement &w)
 
     lay->setAttributeClass(className);
 
-    createProperties(w, &ui_property_list);
-    createAttributes(w, &ui_attribute_list);
+    createProperties(w, &ui_property_list, className);
+    createAttributes(w, &ui_attribute_list, className);
 
     bool needPolish = FALSE;
     QDomElement e = w.firstChild().toElement();
@@ -647,10 +643,9 @@ DomLayoutItem *Ui3Reader::createLayoutItem(const QDomElement &e)
     return lay_item;
 }
 
-void Ui3Reader::createProperties(const QDomElement &n, QList<DomProperty*> *properties)
+void Ui3Reader::createProperties(const QDomElement &n, QList<DomProperty*> *properties,
+                                 const QString &className)
 {
-    QString className = n.attribute("class");
-
     for (QDomElement e=n.firstChild().toElement(); !e.isNull(); e = e.nextSibling().toElement()) {
         if (e.tagName().toLower() == QLatin1String("property")) {
             QString name = e.attribute("name");
@@ -697,6 +692,12 @@ void Ui3Reader::createProperties(const QDomElement &n, QList<DomProperty*> *prop
                     prop->setAttributeName("modified");
                 } else if (name == QLatin1String("markedText")) {
                     prop->setAttributeName("selectedText");
+                }
+            }
+
+            if (className == QLatin1String("QToolBar")) {
+                if (name == QLatin1String("label")) {
+                    prop->setAttributeName("windowTitle");
                 }
             }
 
@@ -782,9 +783,10 @@ DomProperty *Ui3Reader::readProperty(const QDomElement &e)
     return p;
 }
 
-void Ui3Reader::createAttributes(const QDomElement &n, QList<DomProperty*> *properties)
+void Ui3Reader::createAttributes(const QDomElement &n, QList<DomProperty*> *properties,
+                                 const QString &className)
 {
-    QString className = n.attribute("class");
+    Q_UNUSED(className);
 
     for (QDomElement e=n.firstChild().toElement(); !e.isNull(); e = e.nextSibling().toElement()) {
         if (e.tagName().toLower() == QLatin1String("attribute")) {

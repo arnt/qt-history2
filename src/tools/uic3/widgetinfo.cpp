@@ -23,8 +23,9 @@ const QMetaObject *WidgetInfo::metaObject(const QString &widgetName)
 {
     if (widgetName == QLatin1String("QObject"))
         return &QObject::staticMetaObject;
-    if (widgetName == QLatin1String("QToolBar")
-            || widgetName == QLatin1String("Q3ToolBar"))
+    else if (widgetName == QLatin1String("QToolBar"))
+        return &QToolBar::staticMetaObject;
+    else if (widgetName == QLatin1String("Q3ToolBar"))
         return &Q3ToolBar::staticMetaObject;
     else if (widgetName == QLatin1String("QPushButton"))
         return &QPushButton::staticMetaObject;
@@ -88,6 +89,8 @@ const QMetaObject *WidgetInfo::metaObject(const QString &widgetName)
     else if (widgetName == QLatin1String("QFrame"))
         return &QFrame::staticMetaObject;
     else if (widgetName == QLatin1String("QMainWindow"))
+        return &QMainWindow::staticMetaObject;
+    else if (widgetName == QLatin1String("Q3MainWindow"))
         return &Q3MainWindow::staticMetaObject;
     else if (widgetName == QLatin1String("QToolBox"))
         return &QToolBox::staticMetaObject;

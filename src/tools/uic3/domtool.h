@@ -165,16 +165,40 @@ union Variant
     SizePolicy sizePolicy;
     Cursor cursor;
 
-    inline Variant() { common.kind = Common::Kind_Unknown; }
+    inline Variant()
+    { common.kind = Common::Kind_Unknown; }
 
-    inline int kind() const { return common.kind; }
-    inline Variant &createColor(int r, int g, int b) { color.init(r, g, b); return *this; }
-    inline Variant &createPoint(int x, int y) { point.init(x, y); return *this; }
-    inline Variant &createSize(int width, int height) { size.init(width, height); return *this; }
-    inline Variant &createRect(int x, int y, int w, int h) { rect.init(x, y, w, h); return *this; }
-    inline Variant &createFont() { font.init(); return *this; }
-    inline Variant &createSizePolicy() { sizePolicy.init(); return *this; }
-    inline Variant &createCursor(int shape) { cursor.init(shape); return *this; }
+    inline ~Variant()
+    {
+        if (common.kind == Common::Kind_Font) {
+            delete[] font.family;
+            font.family = 0;
+        }
+    }
+
+    inline int kind() const
+    { return common.kind; }
+
+    inline Variant &createColor(int r, int g, int b)
+    { color.init(r, g, b); return *this; }
+
+    inline Variant &createPoint(int x, int y)
+    { point.init(x, y); return *this; }
+
+    inline Variant &createSize(int width, int height)
+    { size.init(width, height); return *this; }
+
+    inline Variant &createRect(int x, int y, int w, int h)
+    { rect.init(x, y, w, h); return *this; }
+
+    inline Variant &createFont()
+    { font.init(); return *this; }
+
+    inline Variant &createSizePolicy()
+    { sizePolicy.init(); return *this; }
+
+    inline Variant &createCursor(int shape)
+    { cursor.init(shape); return *this; }
 };
 
 class DomTool

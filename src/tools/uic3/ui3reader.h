@@ -80,8 +80,8 @@ private:
 
     DomUI *generateUi4(const QDomElement &e);
     DomWidget *createWidget(const QDomElement &w, const QString &widgetClass = QString::null);
-    void createProperties(const QDomElement &e, QList<DomProperty*> *properties);
-    void createAttributes(const QDomElement &e, QList<DomProperty*> *properties);
+    void createProperties(const QDomElement &e, QList<DomProperty*> *properties, const QString &className);
+    void createAttributes(const QDomElement &e, QList<DomProperty*> *properties, const QString &className);
     DomLayout *createLayout(const QDomElement &e);
     DomLayoutItem *createLayoutItem(const QDomElement &e);
     DomProperty *readProperty(const QDomElement &e);
