@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbutton.cpp#86 $
+** $Id: //depot/qt/main/src/widgets/qbutton.cpp#87 $
 **
 ** Implementation of QButton widget class
 **
@@ -19,7 +19,7 @@
 #include "qpmcache.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qbutton.cpp#86 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qbutton.cpp#87 $");
 
 
 static const int autoRepeatDelay  = 300;
@@ -481,6 +481,8 @@ void QButton::setAutoRepeat( bool enable )
 void QButton::animateClick()
 {
     if ( !isEnabled() || animation )
+	return;
+    if ( isOn() && group() && group()->isExclusive() )
 	return;
     animation  = TRUE;
     buttonDown = TRUE;
