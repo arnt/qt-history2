@@ -45,8 +45,8 @@
     The human readable representation of the URL is fetched with
     toString(). This representation is appropriate for displaying a
     URL to a user in unencoded form. The encoded form however, as
-    returned by toEncoded(), is more suited for internal use, passing
-    to web servers, mail clients and so on.
+    returned by toEncoded(), is for internal use, passing to web
+    servers, mail clients and so on.
 */
 
 #include <private/qunicodetables_p.h>
