@@ -139,7 +139,7 @@ QIODevicePrivate::~QIODevicePrivate()
     \endlist
 
     QIODevice provides a QIOEngine which has the responsibility of
-    doing actual read, writes, file information. 
+    doing actual read, writes, file information.
 
     \sa QDataStream, QTextStream, QIOEngine
 */
@@ -152,7 +152,7 @@ QIODevicePrivate::~QIODevicePrivate()
     \value Direct
     \value Sequential
     \value Combined (Direct and Sequential)
-    \value TypeMask (internal)
+    \omitvalue TypeMask
 */
 
 /*!
@@ -173,7 +173,7 @@ QIODevicePrivate::~QIODevicePrivate()
     \value Append
     \value Truncate
     \value Translate translate line ending conventions
-    \value ModeMask (internal)
+    \omitvalue ModeMask
 */
 
 /*!

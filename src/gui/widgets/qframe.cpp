@@ -115,7 +115,7 @@ QFramePrivate::QFramePrivate()
     look depends upon the current GUI style.
     \value TabWidgetPanel is used to draw a frame suitable for tab widgets. The
     look depends upon the current GUI style.
-    \value MShape internal mask
+    \omitvalue MShape
 
     When it does not call QStyle, Shape interacts with QFrame::Shadow,
     the lineWidth() and the midLineWidth() to create the total result.
@@ -140,7 +140,7 @@ QFramePrivate::QFramePrivate()
     \value Sunken the frame and contents appear sunken; draws a 3D
     sunken line using the light and dark colors of the current color
     group
-    \value MShadow internal; mask for the shadow
+    \omitvalue MShadow
 
     Shadow interacts with QFrame::Shape, the lineWidth() and the
     midLineWidth(). See the \link #picture picture of the frames\endlink

@@ -629,25 +629,23 @@ static QPalette qt_naturalWidgetPalette(QWidget* w) {
 
     \value WShowModal see WType_Dialog
 
-    Internal flags.
-
-    \value WNoMousePropagation
-    \value WStyle_Reserved
-    \value WSubWindow
-    \value WWinOwnDC
-    \value WX11BypassWM
-    \value WMacSheet
-    \value WMacDrawer
-    \value WMacMetal
-    \value WStyle_Mask
-    \value WType_Mask
+    \omitvalue WNoMousePropagation
+    \omitvalue WStyle_Reserved
+    \omitvalue WSubWindow
+    \omitvalue WWinOwnDC
+    \omitvalue WX11BypassWM
+    \omitvalue WMacSheet
+    \omitvalue WMacDrawer
+    \omitvalue WMacMetal
+    \omitvalue WStyle_Mask
+    \omitvalue WType_Mask
 
 */
 
 /*!
     \enum Qt::WStateFlag
 
-    Internal flags.
+    \internal
 
     \value WState_AutoMask
     \value WState_BlockUpdates
@@ -665,14 +663,15 @@ static QPalette qt_naturalWidgetPalette(QWidget* w) {
     \value WState_OwnSizePolicy
     \value WState_Polished
     \value WState_Reparented
-    \value WState_Reserved0 \e internal
-    \value WState_Reserved2 \e internal
-    \value WState_Reserved3 \e internal
-    \value WState_Reserved4 \e internal
-    \value WState_Reserved5 \e internal
-    \value WState_Reserved6 \e internal
-    \value WState_Reserved7 \e internal
     \value WState_Visible
+
+    \omitvalue WState_Reserved0
+    \omitvalue WState_Reserved2
+    \omitvalue WState_Reserved3
+    \omitvalue WState_Reserved4
+    \omitvalue WState_Reserve5
+    \omitvalue WState_Reserve6
+    \omitvalue WState_Reserved7
 */
 
 

@@ -439,9 +439,9 @@ QWheelEvent::QWheelEvent(const QPoint &pos, int delta, int state, Qt::Orientatio
     \value META The Meta keys.
     \value CTRL The Ctrl keys.
     \value ALT The normal Alt keys, but not keys like AltGr.
-    \value MODIFIER_MASK A mask of Shift, Ctrl, Alt, and Meta.
     \value UNICODE_ACCEL The shortcut is specified as a Unicode code
     point, not as a Qt Key.
+    \omitvalue MODIFIER_MASK
 */
 
 /*!
@@ -833,8 +833,8 @@ Qt::ButtonState QKeyEvent::stateAfter() const
 
     \value Key_unknown
 
-    \value Key_Direction_L internal use only
-    \value Key_Direction_R internal use only
+    \omitvalue Key_Direction_L internal use only
+    \omitvalue Key_Direction_R internal use only
 
 */
 

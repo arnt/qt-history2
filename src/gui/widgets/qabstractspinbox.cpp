@@ -102,7 +102,7 @@ QAbstractSpinBox::~QAbstractSpinBox()
     \value UpDownArrows the buttons show little arrows in the classic
     style.
 
-    \value PlusMinus the buttons show <b>+</b> and <b>-</b> symbols.
+    \value PlusMinus the buttons show \bold{+} and \bold{-} symbols.
 
     \sa QAbstractSpinBox::buttonSymbols
 */

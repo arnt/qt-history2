@@ -236,7 +236,7 @@
   \value Letter 8.5 x 11 inches, 216 x 279 mm
   \value Tabloid 279 x 432 mm
   \value Custom
-  \value NPageSize (internal)
+  \omitvalue NPageSize
 
   With setFullPage(FALSE) (the default), the metrics will be a bit
   smaller; how much depends on the printer in use.

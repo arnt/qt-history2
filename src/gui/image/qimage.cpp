@@ -203,7 +203,7 @@
     \value ThresholdAlphaDither (default) - No dithering.
     \value OrderedAlphaDither A faster, more ordered dither.
     \value DiffuseAlphaDither A high-quality dither.
-    \value NoAlpha Not supported.
+    \omitvalue NoAlpha Not supported.
 
     Color matching versus dithering preference
     \value PreferDither (default when converting to a pixmap) - Always dither
@@ -211,15 +211,12 @@
     \value AvoidDither (default when converting for the purpose of saving to
            file) - Dither 32-bit images only if the image has more than 256
            colors and it is being converted to 8 bits.
-    \value AutoDither Not supported.
+    \omitvalue AutoDither Not supported.
 
-    The following are not values that are used directly, but masks for
-    the above classes:
-    \value ColorMode_Mask  Mask for the color mode.
-    \value Dither_Mask  Mask for the dithering mode for RGB channels.
-    \value AlphaDither_Mask  Mask for the dithering mode for the alpha channel.
-    \value DitherMode_Mask  Mask for the mode that determines the preference of
-           color matching versus dithering.
+    \omitvalue ColorMode_Mask
+    \omitvalue Dither_Mask
+    \omitvalue AlphaDither_Mask
+    \omitvalue DitherMode_Mask
 
     Using 0 as the conversion flag sets all the default options.
 */

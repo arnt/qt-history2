@@ -54,9 +54,9 @@
     \value AltButton       An Alt key on the keyboard is pressed.
     \value MetaButton      A Meta key on the keyboard is pressed.
     \value Keypad          A keypad button is pressed.
-    \value KeyButtonMask   A mask for ShiftButton, ControlButton,
-    AltButton, and MetaButton.
-    \value MouseButtonMask A mask for LeftButton, RightButton, and MidButton.
+
+    \omitvalue KeyButtonMask
+    \omitvalue MouseButtonMask
 */
 
 /*!
@@ -73,7 +73,6 @@
     \value ActionChanged      An action has been changed.
     \value ActionAdded        A new action has been added.
     \value ActionRemoved      An action has been removed.
-    \value ActivateControl    Internal event used by Qt on some platforms.
     \value ActivationChange   A widget's top-level window activation state has changed.
     \value ApplicationFontChange    The default application font has changed.
     \value ApplicationPaletteChange The default application palette has changed.
@@ -84,15 +83,12 @@
     \value Close          Widget was closed (permanently), \l{QCloseEvent}.
     \value ContextMenu    Context popup menu, \l{QContextMenuEvent}
     \value Create         Reserved.
-    \value DeactivateControl Internal event used by Qt on some platforms.
     \value DeferredDelete    The object will be deleted after it has cleaned up.
     \value Destroy      Reserved.
     \value DragEnter    The cursor enters a widget during a drag and drop action, \l{QDragEnterEvent}.
     \value DragLeave    The cursor leaves a widget during a drag and drop action, \l{QDragLeaveEvent}.
     \value DragMove     A drag and drop action is in progress, \l{QDragMoveEvent}.
-    \value DragResponse Internal event used by Qt on some platforms.
     \value Drop  A drag and drop action is completed, \l{QDropEvent}.
-    \value EmbeddingControl  Internal event used by Qt on some platforms.
     \value EmitSignal
     \value EnabledChange Widget's enabled state has changed
     \value Enter  Mouse enters widget's boundaries.
@@ -100,13 +96,11 @@
     \value FocusIn  Widget gains keyboard focus, \l{QFocusEvent}.
     \value FocusOut  Widget loses keyboard focus, \l{QFocusEvent}.
     \value FontChange Widget's font has changed
-    \value HelpRequest  Internal event used by Qt on some platforms.
     \value Hide  Widget was hidden, \l{QHideEvent}.
     \value HideToParent  A child widget has been hidden.
     \value IMCompose  Input method composition is taking place, \l{QIMEvent}.
     \value IMEnd  The end of input method composition, \l{QIMEvent}.
     \value IMStart  The start of input method composition, \l{QIMEvent}.
-    \value IconDrag     Internal event used by Qt on some platforms when proxy icon is dragged.
     \value IconTextChange Widget's icon text has been changed
     \value InvokeSlot
     \value KeyPress  Key press (including Shift, for example), \l{QKeyEvent}.
@@ -122,12 +116,11 @@
     \value MouseButtonRelease  Mouse release, \l{QMouseEvent}.
     \value MouseMove  Mouse move, \l{QMouseEvent}.
     \value Move  Widget's position changed, \l{QMoveEvent}.
-    \value OkRequest  Internal event used by Qt on some platforms.
     \value Paint  Screen update necessary, \l{QPaintEvent}.
     \value PaletteChange  Palette of the widget changed.
     \value Polish The widget is polished.
     \value PolishRequest The widget should be polished.
-    \value QWSUpdate internal.
+    \omitvalue QWSUpdate internal.
     \value Quit  Reserved.
     \value Reparent  Reserved.
     \value Resize  Widget's size changed, \l{QResizeEvent}.
@@ -143,7 +136,6 @@
     \value SockAct  Socket activated, used to implement \l{QSocketNotifier}.
     \value Speech  Reserved for speech input.
     \value StatusTip
-    \value Style  Internal use only
     \value StyleChange Widget's style has been changed
     \value TabletMove  A Wacom Tablet Move Event.
     \value TabletPress  A Wacom Tablet Press Event
@@ -164,6 +156,15 @@
 
     \value User  User-defined event.
     \value MaxUser  Last user event id.
+
+    \omitvalue ActivateControl
+    \omitvalue DeactivateControl
+    \omitvalue DragResponse
+    \omitvalue EmbeddingControl
+    \omitvalue HelpRequest
+    \omitvalue IconDrag
+    \omitvalue OkRequest
+    \omitvalue Style
 
     User events should have values between User and MaxUser inclusive.
 */

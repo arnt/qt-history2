@@ -363,20 +363,21 @@
 
   \obsolete
 
-  \value Qt::WindowsStyle
-  \value Qt::MotifStyle
+  \value WindowsStyle
+  \value MotifStyle
 */
 
 /*!
     \enum Qt::UIEffect
 
-    \value Qt::UI_General
-    \value Qt::UI_AnimateMenu
-    \value Qt::UI_FadeMenu
-    \value Qt::UI_AnimateCombo
-    \value Qt::UI_AnimateTooltip
-    \value Qt::UI_FadeTooltip
-    \value Qt::UI_AnimateToolBox Reserved
+    \value UI_General
+    \value UI_AnimateMenu
+    \value UI_FadeMenu
+    \value UI_AnimateCombo
+    \value UI_AnimateTooltip
+    \value UI_FadeTooltip
+
+    \omitvalue UI_AnimateToolBox
 */
 
 /*!
@@ -752,7 +753,7 @@ void QStyle::drawItem(QPainter *p, const QRect &r,
     \value PE_CheckListIndicator checkbox part of a listview item
     \value PE_CheckListExclusiveIndicator radiobutton part of a listview item
     \value PE_RubberBand rubber band used in such things as iconview
-    \value PE_RubberBandMask (internal)
+    \omitvalue PE_RubberBandMask
 
     \value PE_TreeBranch lines used to represent the branch of a tree
     in a tree view
@@ -1125,7 +1126,7 @@ void QStyle::drawItem(QPainter *p, const QRect &r,
 
 
     \value SC_ListView  the list view area.
-    \value SC_ListViewBranch  (internal)
+    \omitvalue SC_ListViewBranch
     \value SC_ListViewExpand  expand item (i.e. show/hide child items).
 
 

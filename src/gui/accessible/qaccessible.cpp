@@ -112,12 +112,11 @@
     \value Sizeable         The object can be resized, e.g. top-level windows.
     \value Traversed        The object is linked and has been visited.
     \value Unavailable      The object is unavailable to the user, e.g. a disabled widget.
-    \omit
-    \value AlertLow
-    \value AlertMedium
-    \value AlertHigh
-    \value Floating
-    \endomit
+
+    \omitvalue AlertLow
+    \omitvalue AlertMedium
+    \omitvalue AlertHigh
+    \omitvalue Floating
 
     Implementations of QAccessibleInterface::state() return a combination
     of these flags.
@@ -234,9 +233,8 @@
     \value UserRole         The first value to be used for user defined roles.
     \value Whitespace       Blank space between other objects.
     \value Window           A top level window.
-    \omit
-    \value DropList
-    \endomit
+
+    \omitvalue DropList
 */
 
 /*!
@@ -251,7 +249,6 @@
     \value Child            The first object is a direct child of the second object.
     \value Descendent       The first object is an indirect child of the second object.
     \value Sibling          The objects are siblings.
-    \value HierarchyMask    A mask for hierarchical relationships.
 
     \value Up               The first object is above the second object.
     \value Down             The first object is below the second object.
@@ -259,14 +256,16 @@
     \value Right            The first object is right of the second object.
     \value Covers           The first object covers the second object.
     \value Covered          The first object is covered by the second object.
-    \value GeometryMask     A mask for geometrical relationships. Geometrical relationships are only relevant between siblings.
 
     \value FocusChild       The first object is the second object's focus child.
     \value Label            The first object is the label of the second object.
     \value Labelled         The first object is labelled by the second object.
     \value Controller       The first object controls the second object.
     \value Controlled       The first object is controlled by the second object.
-    \value LogicalMask      A mask for logical relationships.
+
+    \omitvalue HierarchyMask
+    \omitvalue GeometryMask
+    \omitvalue LogicalMask
 
     Implementations of relationTo() return a combination of these flags.
     Some values are mutually exclusive.

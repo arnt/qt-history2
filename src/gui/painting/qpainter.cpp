@@ -307,6 +307,7 @@ void qt_fill_linear_gradient(const QRect &r, QPainter *pixmap, const QBrush &bru
 
 /*!
     \enum QPainter::TextDirection
+
     \value Auto
     \value RTL right to left
     \value LTR left to right

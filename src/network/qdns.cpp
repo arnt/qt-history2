@@ -31,7 +31,7 @@ Q_GLOBAL_STATIC(QDnsAgent, agent)
 //#define QDNS_DEBUG
 
 /*! \class QDns
-    \brief The QDns class provides a static function for host name lookups.
+    \brief The QDns class provides static functions for host name lookups.
     \reentrant
 
 \if defined(commercial)
@@ -42,18 +42,24 @@ Q_GLOBAL_STATIC(QDnsAgent, agent)
     \ingroup io
 
     QDns uses the lookup mechanisms provided by the operating system
-    to find the IP addresses of a host name.
+    to find the IP addresses of a host name. It provides two static
+    convenience functions, one that works asynchronously and emits a
+    signal once the host is found, and one that blocks.
 
-    To look up a host's IP address, call getHostByName(), which takes
-    the host name and a slot signature as arguments. The lookup is
-    asynchronous by default. If Qt is built without thread support,
-    this function blocks until the lookup has finished.
+    To look up a host's IP address asynchronously, call
+    getHostByName(), which takes the host name and a slot signature as
+    arguments. The lookup is asynchronous by default. If Qt is built
+    without thread support, this function blocks until the lookup has
+    finished.
 
     \code
         QDns::getHostByName("www.example.com", this, SLOT(printResults(const QDnsHostInfo &)));
     \endcode
 
     The slot is invoked once the results are ready.
+
+    If you want a blocking lookup use the overloaded getHostByName()
+    that takes a single string argument (the hostname).
 
     QDns supports Internationalized Domain Names (IDNs) through the
     IDNA and Punycode standards.
@@ -161,12 +167,13 @@ void QDns::getHostByName(const QString &name, QObject *receiver,
 #endif
 }
 
-/*!     
+/*!
     \overload
 
-    Performs a blocking name lookup. Execution of the program is
-    suspended until the results of the lookup are ready. Returns the
-    result of the lookup.
+    This function looks up the IP address for the given host \a name.
+    The function blocks during the lookup which means that execution
+    of the program is suspended until the results of the lookup are
+    ready. Returns the result of the lookup.
 */
 QDnsHostInfo QDns::getHostByName(const QString &name)
 {

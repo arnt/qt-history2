@@ -310,10 +310,10 @@ QFileEngine *QFileEngine::createFileEngine(const QString &file)
     \value Hidden
     \value Exists
 
-    \value PermsMask
-    \value TypeMask
-    \value FlagsMask
-    \value FileInfoAll
+    \omitvalue PermsMask
+    \omitvalue TypeMask
+    \omitvalue FlagsMask
+    \omitvalue FileInfoAll
 */
 
 /*!

@@ -362,13 +362,14 @@ void QPalette::setColorGroup(ColorGroup cg, const QColorGroup &g)
 /*!
     \enum QPalette::ColorGroup
 
-    \value Current internal.
     \value Disabled
     \value Active
     \value Inactive
-    \value NColorGroups internal.
-    \value All internal.
     \value Normal synonym for Active
+
+    \omitvalue All
+    \omitvalue NColorGroups
+    \omitvalue Current
 */
 
 /*!
@@ -435,7 +436,7 @@ void QPalette::setColorGroup(ColorGroup cg, const QColorGroup &g)
     \value LinkVisited a text color used for already visited hyperlinks.
     By default, the linkvisited color is \c Qt::magenta.
 
-    \value NColorRoles Internal.
+    \omitvalue NColorRoles
 
     Note that text colors can be used for things other than just
     words; text colors are \e usually used for text, but it's quite

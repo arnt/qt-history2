@@ -57,7 +57,6 @@
 
     This enum describes the regions in the window decorations.
 
-    \value None - used internally.
     \value All - the entire region used by the window decoration.
     \value Title - Displays the window title and allows the window to be
             moved by dragging.
@@ -75,6 +74,7 @@
     \value Normalize - returns a maximized window to its previous size.
     \value Menu - clicking in this region opens the window operations
             (system) menu.
+    \omitvalue None
 */
 
 /*!

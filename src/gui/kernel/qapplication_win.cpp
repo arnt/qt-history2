@@ -3534,20 +3534,20 @@ void QSessionManager::cancel()
 /*!
     \enum Qt::WindowsVersion
 
-    \value Qt::WV_32s
-    \value Qt::WV_95
-    \value Qt::WV_98
-    \value Qt::WV_Me
-    \value Qt::WV_DOS_based
+    \value WV_32s
+    \value WV_95
+    \value WV_98
+    \value WV_Me
+    \value WV_DOS_based
 
-    \value Qt::WV_NT
-    \value Qt::WV_2000
-    \value Qt::WV_XP
-    \value Qt::WV_2003
-    \value Qt::WV_NT_based
+    \value WV_NT
+    \value WV_2000
+    \value WV_XP
+    \value WV_2003
+    \value WV_NT_based
 
-    \value Qt::WV_CE
-    \value Qt::WV_CENET
-    \value Qt::WV_CE_based
+    \value WV_CE
+    \value WV_CENET
+    \value WV_CE_based
 */
 #endif

@@ -101,7 +101,7 @@
 
     \value DashDotDotLine  one dash, two dots, one dash, two dots.
 
-    \value MPenStyle mask of the pen styles.
+    \omitvalue MPenStyle
 
     \img pen-styles.png Pen Styles
 
@@ -119,7 +119,7 @@
     \value SquareCap  a square line end that covers the end point and
 	extends beyond it by half the line width.
     \value RoundCap  a rounded line end.
-    \value MPenCapStyle mask of the pen cap styles.
+    \omitvalue MPenCapStyle
 
     \img pen-cap-styles.png Pen Cap Styles
 
@@ -137,7 +137,7 @@
 	meet at an angle, and this area is filled.
     \value BevelJoin  The triangular notch between the two lines is filled.
     \value RoundJoin  A circular arc between the two lines is filled.
-    \value MPenJoinStyle mask of the pen join styles.
+    \omitvalue MPenJoinStyle
 
     \img pen-join-styles.png Pen Join Styles
 

@@ -852,11 +852,11 @@ public:
 
     This enum defines the order in which the sections that comprise a
     date appear.
+
     \value MDY month-day-year
     \value DMY day-month-year
     \value YMD year-month-day (the default)
-    \value YDM year-day-month (included for completeness; but should
-    not be used)
+    \omitvalue YDM
 */
 
 /*!

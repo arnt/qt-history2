@@ -788,21 +788,21 @@ QDir::filter() const
     systems that don't support symbolic links).
     \value All List directories, files, drives and symlinks (this does not list
     broken symlinks unless you specify System).
-    \value TypeMask A mask for the the Dirs, Files, Drives and
     NoSymLinks flags.
     \value  Readable  List files for which the application has read access.
     \value  Writable  List files for which the application has write access.
     \value  Executable  List files for which the application has execute
     access. Executables needs to be combined with Dirs or Files.
-    \value  RWEMask A mask for the Readable, Writable and Executable flags.
     \value  Modified  Only list files that have been modified (ignored
     under Unix).
     \value  Hidden  List hidden files (on Unix, files starting with a .).
     \value  System  List system files (on Unix, FIFOs, sockets and
     device files)
-    \value AccessMask A mask for the Readable, Writable, Executable
-    Modified, Hidden and System flags
-    \value DefaultFilter Internal flag.
+
+    \omitvalue DefaultFilter
+    \omitvalue TypeMask
+    \omitvalue  RWEMask
+    \omitvalue AccessMask
 
     If you do not set any of \c Readable, \c Writable, or \c
     Executable, QDir will set all three of them. This makes the
@@ -854,13 +854,14 @@ QDir::sorting() const
     \value Time  Sort by time (modification time).
     \value Size  Sort by file size.
     \value Unsorted  Do not sort.
-    \value SortByMask A mask for Name, Time and Size.
 
     \value DirsFirst  Put the directories first, then the files.
     \value DirsLast Put the files first, then the directories.
     \value Reversed  Reverse the sort order.
     \value IgnoreCase  Sort case-insensitively.
-    \value DefaultSort Internal flag.
+
+    \omitvalue SortByMask
+    \omitvalue DefaultSort
 
     You can only specify one of the first four.
 

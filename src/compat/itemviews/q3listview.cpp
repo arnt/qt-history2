@@ -5848,9 +5848,9 @@ struct QCheckListItemPrivate
 
     \value RadioButton
     \value CheckBox
-    \value Controller \e obsolete (use \c RadioButtonController instead)
     \value RadioButtonController
     \value CheckBoxController
+    \omitvalue Controller
 */
 
 /*!

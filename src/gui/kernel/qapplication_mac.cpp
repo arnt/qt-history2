@@ -2831,17 +2831,17 @@ bool QApplication::qt_mac_apply_settings()
 /*!
     \enum Qt::MacintoshVersion
 
-    \value Qt::MV_Unknown Version cannot be detected
-    \value Qt::MV_9 Mac OS 9
-    \value Qt::MV_10_DOT_3 Mac OS X 10.3
-    \value Qt::MV_10_DOT_2 Mac OS X 10.2
-    \value Qt::MV_10_DOT_1 Mac OS X 10.1
-    \value Qt::MV_10_DOT_0 Mac OS X 10.0
+    \value MV_Unknown Version cannot be detected
+    \value MV_9 Mac OS 9
+    \value MV_10_DOT_3 Mac OS X 10.3
+    \value MV_10_DOT_2 Mac OS X 10.2
+    \value MV_10_DOT_1 Mac OS X 10.1
+    \value MV_10_DOT_0 Mac OS X 10.0
 
-    \value Qt::MV_CHEETAH 10.0 Codename
-    \value Qt::MV_PUMA    10.1 Codename
-    \value Qt::MV_JAGUAR  10.2 Codename
-    \value Qt::MV_PANTHER 10.3 Codename
+    \value MV_CHEETAH 10.0 Codename
+    \value MV_PUMA    10.1 Codename
+    \value MV_JAGUAR  10.2 Codename
+    \value MV_PANTHER 10.3 Codename
 */
 #endif
 

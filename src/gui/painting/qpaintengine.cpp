@@ -80,7 +80,7 @@
 
   \value ClipTransform The engine is capable of transforming clip regions.
 
-  \value UsesFontEngine For internal use only.
+  \omitvalue UsesFontEngine For internal use only.
 */
 
 /*!
