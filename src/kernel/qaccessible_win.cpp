@@ -19,7 +19,6 @@
 #include "qapplication.h"
 #include "qt_windows.h"
 #include "qwidget.h"
-#include "qobjectlist.h"
 #include "qmessagebox.h" // ### dependency
 #include "qlibrary.h"
 

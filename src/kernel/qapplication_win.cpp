@@ -18,9 +18,9 @@
 #endif
 #include "private/qapplication_p.h"
 #include "qwidget.h"
+#include "qwidget_p.h"
 #include "qwidgetlist.h"
 #include "qwidgetintdict.h"
-#include "qobjectlist.h"
 #include "qpainter.h"
 #include "qpixmapcache.h"
 #include "qdatetime.h"
@@ -1176,19 +1176,16 @@ void QApplication::setGlobalMouseTracking( bool enable )
 
 static QWidget *findChildWidget( const QWidget *p, const QPoint &pos )
 {
-    if ( p->children() ) {
-	QWidget *w;
-	QObjectListIterator it( *p->children() );
-	it.toLast();
-	while ( it.current() ) {
-	    if ( it.current()->isWidgetType() ) {
-		w = (QWidget*)it.current();
-		if ( w->isVisible() && w->geometry().contains(pos) ) {
-		    QWidget *c = findChildWidget( w, w->mapFromParent(pos) );
-		    return c ? c : w;
-		}
+    QObjectList children = p->children();
+    for(int i = children.size(); i > 0 ; ) {
+	--i;
+	QObject *o = children.at(i);
+	if ( o->isWidgetType() ) {
+	    QWidget *w = (QWidget*)o;
+	    if ( w->isVisible() && w->geometry().contains(pos) ) {
+		QWidget *c = findChildWidget( w, w->mapFromParent(pos) );
+		return c ? c : w;
 	    }
-	    --it;
 	}
     }
     return 0;

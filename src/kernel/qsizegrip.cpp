@@ -24,7 +24,6 @@
 #include "qt_x11_p.h"
 extern Atom qt_sizegrip;			// defined in qapplication_x11.cpp
 #elif defined (Q_WS_WIN )
-#include "qobjectlist.h"
 #include "qt_windows.h"
 #elif defined(Q_WS_MAC)
 bool qt_mac_update_sizer(QWidget *, int); //qwidget_mac.cpp

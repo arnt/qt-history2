@@ -4582,7 +4582,7 @@ bool QWidget::event( QEvent *e )
 	    } else {
 		QObjectList llist = queryList( "QLayout", 0, TRUE, TRUE );
 		for (int i = 0; i < llist.size(); ++i) {
-		    QObject *lay = static_cast<QLayout *>(llist.at(i));
+		    QLayout *lay = static_cast<QLayout *>(llist.at(i));
 		    QHBoxLayout *hbox = ::qt_cast<QHBoxLayout*>(lay);
 		    if ( hbox )
 			hbox->setDirection( qApp->reverseLayout() ? QBoxLayout::RightToLeft : QBoxLayout::LeftToRight );

@@ -18,7 +18,7 @@
 #include "qbitmap.h"
 #include "qwidgetlist.h"
 #include "qwidgetintdict.h"
-#include "qobjectlist.h"
+#include "qwidget_p.h"
 #include "qaccel.h"
 #include "qimage.h"
 #include "qfocusdata.h"
@@ -402,15 +402,11 @@ void QWidget::destroy( bool destroyWindow, bool destroySubWindows )
     deactivateWidgetCleanup();
     if ( testWState(WState_Created) ) {
 	clearWState( WState_Created );
-	if ( children() ) {
-	    QObjectListIterator it(*children());
-	    register QObject *obj;
-	    while ( (obj=it.current()) ) {	// destroy all widget children
-		++it;
-		if ( obj->isWidgetType() )
-		    ((QWidget*)obj)->destroy(destroySubWindows,
-					     destroySubWindows);
-	    }
+	for(int i = 0; i < d->children.size(); ++i ) { // destroy all widget children
+	    register QObject *obj = d->children.at(i);
+	    if ( obj->isWidgetType() )
+		((QWidget*)obj)->destroy(destroySubWindows,
+					 destroySubWindows);
 	}
 	if ( mouseGrb == this )
 	    releaseMouse();
@@ -462,21 +458,17 @@ void QWidget::reparentSys( QWidget *parent, WFlags f, const QPoint &p,
     create();
     if ( isTopLevel() || (!parent || parent->isVisible() ) )
 	setWState(WState_Hidden);
-    const QObjectList *chlist = children();
-    if ( chlist ) {				// reparent children
-	QObjectListIterator it( *chlist );
-	QObject *obj;
-	while ( (obj=it.current()) ) {
-	    if ( obj->isWidgetType() ) {
-		QWidget *w = (QWidget *)obj;
-		if ( w->isPopup() )
-		    ;
-		else if ( w->isTopLevel() )
-		    w->reparent( this, w->getWFlags(), w->pos(), !w->isHidden() );
-		else
-		    SetParent( w->winId(), winId() );
-	    }
-	    ++it;
+    QObjectList chlist = children();
+    for(int i = 0; i < chlist.size(); ++i) { // reparent children
+	QObject *obj = chlist.at(i);
+	if ( obj->isWidgetType() ) {
+	    QWidget *w = (QWidget *)obj;
+	    if ( w->isPopup() )
+		;
+	    else if ( w->isTopLevel() )
+		w->reparent( this, w->getWFlags(), w->pos(), !w->isHidden() );
+	    else
+		SetParent( w->winId(), winId() );
 	}
     }
 
@@ -1006,8 +998,10 @@ void QWidget::showNormal()
 void QWidget::raise()
 {
     QWidget *p = parentWidget();
-    if ( p && p->childObjects && p->childObjects->findRef(this) >= 0 )
-	p->childObjects->append( p->childObjects->take() );
+    if ( p && p->d->children.indexOf(this) >= 0 ) {
+	p->d->children.remove( this );
+	p->d->children.append( this );
+    }
     uint f = ( isPopup() || testWFlags(WStyle_Tool) ) ? SWP_NOACTIVATE : 0;
     SetWindowPos( winId(), HWND_TOP, 0, 0, 0, 0, f | SWP_NOMOVE | SWP_NOSIZE );
 }
@@ -1015,8 +1009,10 @@ void QWidget::raise()
 void QWidget::lower()
 {
     QWidget *p = parentWidget();
-    if ( p && p->childObjects && p->childObjects->findRef(this) >= 0 )
-	p->childObjects->insert( 0, p->childObjects->take() );
+    if ( p && p->d->children.indexOf(this) >= 0 ) {
+	p->d->children.remove( this );
+	p->d->children.prepend( this );
+    }
     uint f = ( isPopup() || testWFlags(WStyle_Tool) ) ? SWP_NOACTIVATE : 0;
     SetWindowPos( winId(), HWND_BOTTOM, 0, 0, 0, 0, f | SWP_NOMOVE |
 		  SWP_NOSIZE );
@@ -1027,9 +1023,9 @@ void QWidget::stackUnder( QWidget* w)
     QWidget *p = parentWidget();
     if ( !w || isTopLevel() || p != w->parentWidget() || this == w )
 	return;
-    if ( p && p->childObjects && p->childObjects->findRef(w) >= 0 && p->childObjects->findRef(this) >= 0 ) {
-	p->childObjects->take();
-	p->childObjects->insert( p->childObjects->findRef(w), this );
+    if ( p && p->d->children.indexOf(w) >= 0 && p->d->children.indexOf(this) >= 0 ) {
+	p->d->children.remove(this);
+	p->d->children.insert( p->d->children.indexOf(w), this );
     }
     SetWindowPos( winId(), w->winId() , 0, 0, 0, 0, SWP_NOMOVE |
 		  SWP_NOSIZE );
