@@ -1545,8 +1545,8 @@ QString QTextView::text( int parag ) const
 void QTextView::setText( const QString &txt, const QString &context )
 {
     lastFormatted = 0;
-    doc->setText( txt, context );
     cursor->restoreState();
+    doc->setText( txt, context );
     resizeContents( 0, 0 );
     cursor->setDocument( doc );
     cursor->setParag( doc->firstParag() );

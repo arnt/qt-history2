@@ -3888,8 +3888,8 @@ void QTextFormatter::insertLineStart( QTextParag *parag, int index, QTextParag::
     if ( ( it = parag->lineStartList().find( index ) ) == parag->lineStartList().end() ) {
 	parag->lineStartList().insert( index, ls );
     } else {
-	parag->lineStartList().remove( it );
 	delete *it;
+	parag->lineStartList().remove( it );
 	parag->lineStartList().insert( index, ls );
     }
 }
