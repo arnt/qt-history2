@@ -619,7 +619,8 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
 	t << endl << endl;
     }
 
-    t << "mocables: $(SRCMOC)" << endl << endl;
+    t << "mocables: $(SRCMOC)" << endl
+      << "uicables: $(UICDECLS) $(UICIMPLS)" << endl << endl;
 
     if(!project->isActiveConfig("no_mocdepend")) {
 	//this is an implicity depend on moc, so it will be built if necesary, however
@@ -694,8 +695,8 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
       << endl << endl;
 
     QString clean_targets;
+    t << "mocclean:" << "\n";
     if(mocAware()) {
-	t << "mocclean:" << "\n";
 	if(!objMoc.isEmpty() || !srcMoc.isEmpty() || moc_incremental) {
 	    if(!objMoc.isEmpty())
 		t << "\t-$(DEL_FILE) $(OBJMOC)" << '\n';
@@ -979,7 +980,8 @@ UnixMakefileGenerator::writeSubdirs(QTextStream &t, bool direct)
     writeMakeQmake(t);
 
     if(project->isEmpty("SUBDIRS")) {
-	t << "all qmake_all distclean install uiclean mocclean lexclean yaccclean clean: FORCE" << endl;
+	t << "all qmake_all distclean uicables mocables install"
+	  << " uiclean mocclean lexclean yaccclean clean: FORCE" << endl;
     } else {
 	t << "all: $(SUBTARGETS)" << endl;
 	t << "qmake_all:";
@@ -997,7 +999,7 @@ UnixMakefileGenerator::writeSubdirs(QTextStream &t, bool direct)
 	      << " && $(MAKE) -f " << (*it)->makefile << " qmake_all" << "; ) || true";
 	}
 	t << endl;
-	t << "clean uninstall install uiclean mocclean lexclean yaccclean: qmake_all FORCE";
+	t << "clean uninstall uicables mocables install uiclean mocclean lexclean yaccclean: qmake_all FORCE";
 	for( it.toFirst(); it.current(); ++it) {
 	    t << "\n\t ( ";
 	    if(!(*it)->directory.isEmpty())

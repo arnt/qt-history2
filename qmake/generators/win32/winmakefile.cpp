@@ -172,7 +172,8 @@ Win32MakefileGenerator::writeSubDirs(QTextStream &t)
     }
     t << endl << endl;
 
-    QString targs[] = { QString("clean"), QString("install"), QString("mocclean"), QString::null };
+    QString targs[] = { QString("clean"), QString("install"), QString("mocables"), QString("uicables"),
+			QString("uicclean"), QString("mocclean"), QString::null };
     for(int x = 0; targs[x] != QString::null; x++) {
         t << targs[x] << ": qmake_all";
 	if(targs[x] == "clean")

@@ -250,7 +250,8 @@ NmakeMakefileGenerator::writeNmakeParts(QTextStream &t)
 	  << var("QMAKE_RC") << " " << var("RC_FILE") << endl << endl;
     }
 
-    t << "mocables: $(SRCMOC)" << endl << endl;
+    t << "mocables: $(SRCMOC)" << endl
+      << "uicables: $(UICIMPLS) $(UICDECLS)" << endl << endl;
 
     writeMakeQmake(t);
 
@@ -271,23 +272,27 @@ NmakeMakefileGenerator::writeNmakeParts(QTextStream &t)
       << "$(ZIP) " << var("QMAKE_ORIG_TARGET") << ".zip " << "$(SOURCES) $(HEADERS) $(DIST) $(FORMS) " 
       << dist_files.join(" ") << " " << var("TRANSLATIONS") << " " << var("IMAGES") << endl << endl;
 
-    t << "clean:"
-      << varGlue("OBJECTS","\n\t-del ","\n\t-del ","")
-      << varGlue("SRCMOC" ,"\n\t-del ","\n\t-del ","")
-      << varGlue("OBJMOC" ,"\n\t-del ","\n\t-del ","")
+    t << "uicclean:"
       << varGlue("UICDECLS" ,"\n\t-del ","\n\t-del ","")
-      << varGlue("UICIMPLS" ,"\n\t-del ","\n\t-del ","")
-      << varGlue("QMAKE_CLEAN","\n\t-del ","\n\t-del ","")
-      << varGlue("CLEAN_FILES","\n\t-del ","\n\t-del ","");
+      << varGlue("UICIMPLS" ,"\n\t-del ","\n\t-del ","") << endl;
+	
+    t << "mocclean:"
+      << varGlue("SRCMOC" ,"\n\t-del ","\n\t-del ","")
+      << varGlue("OBJMOC" ,"\n\t-del ","\n\t-del ","") << endl;
     
+    t << "clean: uiclean mocclean"
+      << varGlue("OBJECTS","\n\t-del ","\n\t-del ","")
+      << varGlue("QMAKE_CLEAN","\n\t-del ","\n\t-del ","\n")
+      << varGlue("CLEAN_FILES","\n\t-del ","\n\t-del ","\n");
     if ( project->isActiveConfig("activeqt")) {
 	t << ("\n\t-del tmp\\" + targetfilename + ".*");
 	t << "\n\t-del tmp\\dump.*";
     }
     if(!project->isEmpty("IMAGES"))
 	t << varGlue("QMAKE_IMAGE_COLLECTION", "\n\t-del ", "\n\t-del ", "");
+    t << endl;
 
-    // blasted user defined targets
+    // user defined targets
     QStringList &qut = project->variables()["QMAKE_EXTRA_WIN_TARGETS"];
     for(QStringList::Iterator it = qut.begin(); it != qut.end(); ++it) {
 	QString targ = var((*it) + ".target"),
@@ -304,7 +309,6 @@ NmakeMakefileGenerator::writeNmakeParts(QTextStream &t)
 	t << "\n\n" << targ << ":" << deps << "\n\t"
 	  << cmd;
     }
-
     t << endl << endl;
 
     t << "distclean: clean"
