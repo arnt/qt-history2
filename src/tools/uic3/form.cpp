@@ -101,7 +101,6 @@ void Ui3Reader::createFormDecl(const QDomElement &e)
                 if (n2.tagName().toLower() == QLatin1String("customwidget")) {
                     QDomElement n3 = n2.firstChild().toElement();
                     QString cl;
-                    // ### WidgetDatabaseRecord *r = new WidgetDatabaseRecord;
                     while (!n3.isNull()) {
                         QString tagName = n3.tagName().toLower();
                         if (tagName == QLatin1String("class")) {
@@ -109,15 +108,12 @@ void Ui3Reader::createFormDecl(const QDomElement &e)
                             if (!nofwd)
                                 forwardDecl << cl;
                             customWidgets.insert(cl, 0);
-                            // ### r->name = cl;
                         } else if (tagName == QLatin1String("header")) {
                             CustomInclude ci;
                             ci.header = n3.firstChild().toText().data();
                             ci.location = n3.attribute("location", "global");
-                            // ### r->includeFile = ci.header;
                             customWidgetIncludes.insert(cl, ci);
                         }
-                        // ### WidgetDatabase::append(r);
                         n3 = n3.nextSibling().toElement();
                     }
                 }

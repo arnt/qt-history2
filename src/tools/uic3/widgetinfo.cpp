@@ -102,9 +102,6 @@ const QMetaObject *WidgetInfo::metaObject(const QString &widgetName)
     else if (widgetName == QLatin1String("QAction"))
         return &QAction::staticMetaObject;
 
-    //qWarning("widget '%s' is not supported!!!", widgetName.latin1());
-
-    // ### custom widgets
     return 0;
 }
 

@@ -398,9 +398,9 @@ DomWidget *Ui3Reader::createWidget(const QDomElement &w, const QString &widgetCl
     className = fixClassName(className);
 
     if ((className.endsWith("ListView") && className != QLatin1String("Q3ListView"))
-            || (className.endsWith("ListBox") && className != QLatin1String("QListBox")) // ### Q3ComboBox??
-            || (className.endsWith("ComboBox") && className != QLatin1String("QComboBox")) // ### Q3ComboBox??
-            || (className.endsWith("IconView") && className != QLatin1String("QIconView"))) // ### Q3IconView??
+            || (className.endsWith("ListBox") && className != QLatin1String("QListBox"))
+            || (className.endsWith("ComboBox") && className != QLatin1String("QComboBox"))
+            || (className.endsWith("IconView") && className != QLatin1String("QIconView")))
         candidateCustomWidgets.insert(className, true);
 
     bool isMenu = (className == QLatin1String("QMenuBar") || className == QLatin1String("QMenu"));
@@ -553,7 +553,7 @@ DomLayout *Ui3Reader::createLayout(const QDomElement &w)
                  || t == QLatin1String("hbox")
                  || t == QLatin1String("grid")
                  || t == QLatin1String("spacer")
-                 || t == QLatin1String("widget")) { // ### cleanup
+                 || t == QLatin1String("widget")) {
             DomLayoutItem *lay_item = createLayoutItem(e);
             Q_ASSERT(lay_item != 0);
             ui_item_list.append(lay_item);
