@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont.cpp#39 $
+** $Id: //depot/qt/main/src/kernel/qfont.cpp#40 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes
 **
@@ -20,7 +20,7 @@
 #include "qstrlist.h"
 #include "qdstream.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qfont.cpp#39 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qfont.cpp#40 $")
 
 
 /*----------------------------------------------------------------------------
@@ -919,13 +919,15 @@ static void insertFontMetrics( QFontMetrics *fm )
 
 static void removeFontMetrics( QFontMetrics *fm )
 {
-    ASSERT( fm_list );
-    if ( fm_list->findRef( fm ) >= 0 ) {
-	fm_list->remove();
-	if ( fm_list->count() == 0 ) {
-	    delete fm_list;
-	    fm_list = 0;
-	}
+    if ( !fm_list ) {
+#if defined(CHECK_NULL)
+	warning( "QFontMetrics::~QFontMetrics: Internal error" );
+#endif
+	return;
+    }
+    if ( fm_list->removeRef(fm) && fm_list->isEmpty() ) {
+	delete fm_list;
+	fm_list = 0;
     }
 }
 
