@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtoolbutton.cpp#17 $
+** $Id: //depot/qt/main/src/widgets/qtoolbutton.cpp#18 $
 **
 ** Implementation of QToolButton class
 **
@@ -22,7 +22,7 @@
 #include "qiconset.h"
 
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qtoolbutton.cpp#17 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qtoolbutton.cpp#18 $");
 
 
 static QToolButton * threeDeeButton = 0;
@@ -92,8 +92,9 @@ QToolButton::QToolButton( const QPixmap & pm, const char * textLabel,
     setTextLabel( textLabel );
     setUsesBigPixmap( FALSE );
     connect( this, SIGNAL(clicked()), receiver, slot );
-    connect( parent, SIGNAL(useBigPixmaps(bool)),
+    /*    connect( parent, SIGNAL(useBigPixmaps(bool)),
 	     this, SLOT(setUsesBigPixmap(bool)) );
+	     */
     if ( grouptext && *grouptext )
 	warning( "QToolButton::QToolButton: (%s) Not using grouptext \"%s\"",
 		 name, grouptext );
