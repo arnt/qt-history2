@@ -29,7 +29,7 @@ static void report_error(int code, const char *where, const char *what)
 
 
 /*!
-    \class QMutex qmutex.h
+    \class QMutex
     \threadsafe
     \brief The QMutex class provides access serialization between threads.
 
@@ -39,81 +39,81 @@ static void report_error(int code, const char *where, const char *what)
 
     The purpose of a QMutex is to protect an object, data structure or
     section of code so that only one thread can access it at a time
-    (This is similar to the Java \c synchronized keyword). It is
+    (this is similar to the Java \c synchronized keyword). It is
     usually best to use a mutex with a QMutexLocker since this makes
     it easy to ensure that locking and unlocking are performed
     consistently.
 
-    For example, say there is a method which prints a message to the
+    For example, say there is a method that prints a message to the
     user on two lines:
 
     \code
-    int number = 6;
+        int number = 6;
 
-    void method1()
-    {
-        number *= 5;
-        number /= 4;
-    }
+        void method1()
+        {
+            number *= 5;
+            number /= 4;
+        }
 
-    void method2()
-    {
-        number *= 3;
-        number /= 2;
-    }
+        void method2()
+        {
+            number *= 3;
+            number /= 2;
+        }
     \endcode
 
     If these two methods are called in succession, the following happens:
 
     \code
-    // method1()
-    number *= 5;        // number is now 30
-    number /= 4;        // number is now 7
+        // method1()
+        number *= 5;        // number is now 30
+        number /= 4;        // number is now 7
 
-    // method2()
-    number *= 3;        // nubmer is now 21
-    number /= 2;        // number is now 10
+        // method2()
+        number *= 3;        // nubmer is now 21
+        number /= 2;        // number is now 10
     \endcode
 
     If these two methods are called simultaneously from two threads then the
     following sequence could result:
 
     \code
-    // Thread 1 calls method1()
-    number *= 5;        // number is now 30
+        // Thread 1 calls method1()
+        number *= 5;        // number is now 30
 
-    // Thread 2 calls method2().
-    //
-    // Most likely Thread 1 has been put to sleep by the operating
-    // system to allow Thread 2 to run.
-    number *= 3;        // number is now 90
-    number /= 2;        // number is now 45
+        // Thread 2 calls method2().
+        //
+        // Most likely Thread 1 has been put to sleep by the operating
+        // system to allow Thread 2 to run.
+        number *= 3;        // number is now 90
+        number /= 2;        // number is now 45
 
-    // Thread 1 finishes executing.
-    number /= 4;        // number is now 11, instead of 10
+        // Thread 1 finishes executing.
+        number /= 4;        // number is now 11, instead of 10
     \endcode
 
     If we add a mutex, we should get the result we want:
 
     \code
-    QMutex mutex;
-    int number = 6;
+        QMutex mutex;
+        int number = 6;
 
-    void method1()
-    {
-        mutex.lock();
-        number *= 5;
-        number /= 4;
-        mutex.unlock();
-    }
+        void method1()
+        {
+            mutex.lock();
+            number *= 5;
+            number /= 4;
+            mutex.unlock();
+        }
 
-    void method2()
-    {
-        mutex.lock();
-        number *= 3;
-        number /= 2;
-        mutex.unlock();
-    }
+        void method2()
+        {
+            mutex.lock();
+            number *= 3;
+            number /= 2;
+            mutex.unlock();
+        }
     \endcode
 
     Then only one thread can modify \c number at any given time and
@@ -249,8 +249,9 @@ void QMutex::unlock()
 */
 
 /*!
-    \class QMutexLocker qmutex.h
-    \brief The QMutexLocker class simplifies locking and unlocking QMutexes.
+    \class QMutexLocker
+    \brief The QMutexLocker class is a convenience class that simplifies
+    locking and unlocking mutexes.
 
     \threadsafe
 
@@ -259,10 +260,9 @@ void QMutex::unlock()
 
     The purpose of QMutexLocker is to simplify QMutex locking and
     unlocking. Locking and unlocking a QMutex in complex functions and
-    statements or in exception handling code is error prone and
-    difficult to debug. QMutexLocker should be used in such situations
-    to ensure that the state of the mutex is well defined and always
-    locked and unlocked properly.
+    statements or in exception handling code is error-prone and
+    difficult to debug. QMutexLocker can be used in such situations
+    to ensure that the state of the mutex is always well-defined.
 
     QMutexLocker should be created within a function where a QMutex
     needs to be locked. The mutex is locked when QMutexLocker is
@@ -272,44 +272,38 @@ void QMutex::unlock()
     the function and unlocks the mutex at all the exit points:
 
     \code
-    int complexFunction(int flag)
-    {
-        mutex.lock();
+        int complexFunction(int flag)
+        {
+            mutex.lock();
 
-        int return_value = 0;
+            int retVal = 0;
 
-        switch (flag) {
-        case 0:
-        case 1:
-            {
+            switch (flag) {
+            case 0:
+            case 1:
                 mutex.unlock();
                 return moreComplexFunction(flag);
-            }
-
-        case 2:
-            {
-                int status = anotherFunction();
-                if (status < 0) {
-                    mutex.unlock();
-                    return -2;
+            case 2:
+                {
+                    int status = anotherFunction();
+                    if (status < 0) {
+                        mutex.unlock();
+                        return -2;
+                    }
+                    retVal = status + flag;
                 }
-                return_value = status + flag;
                 break;
-            }
-
-        default:
-            {
+            default:
                 if (flag > 10) {
                     mutex.unlock();
                     return -1;
                 }
                 break;
             }
-        }
 
-        mutex.unlock();
-        return return_value;
-    }
+            mutex.unlock();
+            return retVal;
+        }
     \endcode
 
     This example function will get more complicated as it is
@@ -319,38 +313,32 @@ void QMutex::unlock()
     readable:
 
     \code
-    int complexFunction(int flag)
-    {
-        QMutexLocker locker(&mutex);
+        int complexFunction(int flag)
+        {
+            QMutexLocker locker(&mutex);
 
-        int return_value = 0;
+            int retVal = 0;
 
-        switch (flag) {
-        case 0:
-        case 1:
-            {
+            switch (flag) {
+            case 0:
+            case 1:
                 return moreComplexFunction(flag);
-            }
-
-        case 2:
-            {
-                int status = anotherFunction();
-                if (status < 0)
-                    return -2;
-                return_value = status + flag;
+            case 2:
+                {
+                    int status = anotherFunction();
+                    if (status < 0)
+                        return -2;
+                    retVal = status + flag;
+                }
                 break;
-            }
-
-        default:
-            {
+            default:
                 if (flag > 10)
                     return -1;
                 break;
             }
-        }
 
-        return return_value;
-    }
+            return retVal;
+        }
     \endcode
 
     Now, the mutex will always be unlocked when the QMutexLocker
@@ -368,34 +356,28 @@ void QMutex::unlock()
     QWaitCondition::wait(). For example:
 
     \code
-    class SignalWaiter
-    {
-    private:
-        QMutexLocker locker;
-
-    public:
-        SignalWaiter(QMutex *mutex)
-            : locker(mutex)
+        class SignalWaiter
         {
-        }
+        private:
+            QMutexLocker locker;
 
-        void waitForSignal()
-        {
-            ...
-            ...
-            ...
+        public:
+            SignalWaiter(QMutex *mutex)
+                : locker(mutex)
+            {
+            }
 
-            while (! signalled)
-                waitcondition.wait(locker.mutex());
-
-            ...
-            ...
-            ...
-        }
-    };
+            void waitForSignal()
+            {
+                ...
+                while (!signalled)
+                    waitCondition.wait(locker.mutex());
+                ...
+            }
+        };
     \endcode
 
-    \sa QMutex, QWaitCondition
+    \sa QReadLocker, QWriteLocker, QMutex
 */
 
 /*!
@@ -411,19 +393,17 @@ void QMutex::unlock()
 /*!
     \fn QMutexLocker::~QMutexLocker()
 
-    Destroys the QMutexLocker and unlocks the mutex which was locked
+    Destroys the QMutexLocker and unlocks the mutex that was locked
     in the constructor.
 
-    \sa QMutexLocker::QMutexLocker(), QMutex::unlock()
+    \sa QMutex::unlock()
 */
 
 /*!
     \fn QMutex *QMutexLocker::mutex() const
 
-    Returns a pointer to the mutex which was locked in the
+    Returns a pointer to the mutex that was locked in the
     constructor.
-
-    \sa QMutexLocker::QMutexLocker()
 */
 
 /*!
@@ -437,7 +417,7 @@ void QMutex::unlock()
 /*!
     \fn void QMutexLocker::relock()
 
-    Relocks an  unlocked mutex locker.
+    Relocks an unlocked mutex locker.
 
     \sa unlock()
 */

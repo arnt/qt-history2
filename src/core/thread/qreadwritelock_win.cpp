@@ -17,10 +17,10 @@
 #include "qreadwritelock_p.h"
 
 
-QReadWriteLock::QReadWriteLock(const int maxReaders)
+QReadWriteLock::QReadWriteLock()
 :d(new QReadWriteLockPrivate())
 {
-    d->maxReaders = maxReaders;
+    d->maxReaders = INT_MAX;
     d->accessCount = 0;
     d->waitingWriters = 0;
     d->waitingReaders = 0;

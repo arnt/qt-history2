@@ -19,6 +19,7 @@
 #include <errno.h>
 #include <string.h>
 #include <pthread.h>
+
 /*
     Duplicated code from qmutex_unix.cpp
 */
@@ -55,15 +56,14 @@ static void report_error(int code, const char *where, const char *what)
 */
 
 /*!
-    Constructs a QReadWriteLock object allowing \a maxReaders concurrent
-    readers. The default is INT_MAX.
+    Constructs a QReadWriteLock object.
 
     \sa lock()
 */
-QReadWriteLock::QReadWriteLock(const int maxReaders)
+QReadWriteLock::QReadWriteLock()
 :d(new QReadWriteLockPrivate())
 {
-    d->maxReaders=maxReaders;
+    d->maxReaders=INT_MAX;
     d->waitingReaders=0;
     report_error(pthread_mutex_init(&d->mutex, NULL), "QReadWriteLock", "mutex init");
     report_error(pthread_cond_init(&d->readerWait, NULL), "QReadWriteLock", "cv init");
@@ -233,3 +233,185 @@ void QReadWriteLock::unlock()
         report_error(pthread_mutex_unlock(&d->mutex), "QReadWriteLock::unlock()", "mutex unlock");
     }
 }
+
+/*!
+    \class QReadLocker
+    \brief The QReadLocker class is a convenience class that
+    simplifies locking and unlocking read-write locks for read access.
+
+    \threadsafe
+
+    \ingroup thread
+    \ingroup environment
+
+    The purpose of QReadLock (and QWriteLock) is to simplify
+    QReadWriteLock locking and unlocking. Locking and unlocking
+    statements or in exception handling code is error-prone and
+    difficult to debug. QReadLocker can be used in such situations
+    to ensure that the state of the lock is always well-defined.
+
+    Here's an example that uses QReadLocker to lock and unlock a
+    read-write lock for reading:
+
+    \code
+        QReadWriteLock lock;
+
+        QByteArray readData()
+        {
+            QReadLocker locker(&lock);
+            ...
+            return data;
+        }
+    \endcode
+
+    It is equivalent to the following code:
+
+    \code
+        QReadWriteLock lock;
+
+        QByteArray readData()
+        {
+            locker.lockForRead();
+            ...
+            locker.unlock();
+            return data;
+        }
+    \endcode
+
+    The QMutexLocker documentation shows examples where the use of a
+    locker object greatly simplifies programming.
+
+    \sa QWriteLocker, QReadWriteLock
+*/
+
+/*!
+    \fn QReadLocker::QReadLocker(QReadWriteLock *lock)
+
+    Constructs a QReadLocker and locks \a lock for reading. The lock
+    will be unlocked when the QReadLocker is destroyed. If \c lock is
+    zero, QReadLocker does nothing.
+
+    \sa QReadWriteLock::lockForRead()
+*/
+
+/*!
+    \fn QReadLocker::~QReadLocker()
+
+    Destroys the QReadLocker and unlocks the lock that was passed to
+    the constructor.
+
+    \sa QReadWriteLock::unlock()
+*/
+
+/*!
+    \fn void QReadLocker::unlock()
+
+    Unlocks the lock associated with this locker.
+
+    \sa QReadWriteLock::unlock()
+*/
+
+/*!
+    \fn void QReadLocker::relock()
+
+    Relocks an unlocked lock.
+
+    \sa unlock()
+*/
+
+/*!
+    \fn QReadWriteLock *QReadLocker::readWriteLock() const
+
+    Returns a pointer to the read-write lock that was passed
+    to the constructor.
+*/
+
+/*!
+    \class QWriteLocker
+    \brief The QWriteLocker class is a convenience class that
+    simplifies locking and unlocking read-write locks for write access.
+
+    \threadsafe
+
+    \ingroup thread
+    \ingroup environment
+
+    The purpose of QWriteLock (and QReadLock) is to simplify
+    QReadWriteLock locking and unlocking. Locking and unlocking
+    statements or in exception handling code is error-prone and
+    difficult to debug. QWriteLocker can be used in such situations
+    to ensure that the state of the lock is always well-defined.
+
+    Here's an example that uses QWriteLocker to lock and unlock a
+    read-write lock for writing:
+
+    \code
+        QReadWriteLock lock;
+
+        void writeData(const QByteArray &data)
+        {
+            QWriteLocker locker(&lock);
+            ...
+        }
+    \endcode
+
+    It is equivalent to the following code:
+
+    \code
+        QReadWriteLock lock;
+
+        void writeData(const QByteArray &data)
+        {
+            locker.lockForWrite();
+            ...
+            locker.unlock();
+        }
+    \endcode
+
+    The QMutexLocker documentation shows examples where the use of a
+    locker object greatly simplifies programming.
+
+    \sa QReadLocker, QReadWriteLock
+*/
+
+/*!
+    \fn QWriteLocker::QWriteLocker(QReadWriteLock *lock)
+
+    Constructs a QWriteLocker and locks \a lock for writing. The lock
+    will be unlocked when the QWriteLocker is destroyed. If \c lock is
+    zero, QWriteLocker does nothing.
+
+    \sa QReadWriteLock::lockForWrite()
+*/
+
+/*!
+    \fn QWriteLocker::~QWriteLocker()
+
+    Destroys the QWriteLocker and unlocks the lock that was passed to
+    the constructor.
+
+    \sa QReadWriteLock::unlock()
+*/
+
+/*!
+    \fn void QWriteLocker::unlock()
+
+    Unlocks the lock associated with this locker.
+
+    \sa QReadWriteLock::unlock()
+*/
+
+/*!
+    \fn void QWriteLocker::relock()
+
+    Relocks an unlocked lock.
+
+    \sa unlock()
+*/
+
+/*!
+    \fn QReadWriteLock *QWriteLocker::readWriteLock() const
+
+    Returns a pointer to the read-write lock that was passed
+    to the constructor.
+*/

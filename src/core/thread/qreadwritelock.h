@@ -22,7 +22,7 @@ struct QReadWriteLockPrivate;
 class Q_CORE_EXPORT QReadWriteLock
 {
 public:
-    explicit QReadWriteLock(const int maxReaders=INT_MAX);
+    QReadWriteLock();
     ~QReadWriteLock();
 
     void lockForRead();
@@ -42,40 +42,46 @@ class Q_CORE_EXPORT QReadLocker
 {
 public:
     inline QReadLocker(QReadWriteLock *readWriteLock)
-        : lock(readWriteLock)
+        : q_lock(readWriteLock)
     { relock(); }
     inline ~QReadLocker()
     { unlock(); }
 
     inline void unlock()
-    { if (lock) lock->unlock(); }
+    { if (q_lock) q_lock->unlock(); }
 
     inline void relock()
-    { if (lock) lock->lockForRead(); }
+    { if (q_lock) q_lock->lockForRead(); }
+
+    inline QReadWriteLock *readWriteLock() const
+    { return q_lock; }
 
 private:
     Q_DISABLE_COPY(QReadLocker)
-    QReadWriteLock *lock;
+    QReadWriteLock *q_lock;
 };
 
 class Q_CORE_EXPORT QWriteLocker
 {
 public:
     inline QWriteLocker(QReadWriteLock *readWriteLock)
-        : lock(readWriteLock)
+        : q_lock(readWriteLock)
     { relock(); }
     inline ~QWriteLocker()
     { unlock(); }
 
     inline void unlock()
-    { if (lock) lock->unlock(); }
+    { if (q_lock) q_lock->unlock(); }
 
     inline void relock()
-    { if (lock) lock->lockForWrite(); }
+    { if (q_lock) q_lock->lockForWrite(); }
+
+    inline QReadWriteLock *readWriteLock() const
+    { return q_lock; }
 
 private:
     Q_DISABLE_COPY(QWriteLocker)
-    QReadWriteLock *lock;
+    QReadWriteLock *q_lock;
 };
 
 #endif
