@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#429 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#430 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -199,7 +199,7 @@ void CALLBACK   qt_simple_timer_func( HWND, UINT, UINT, DWORD );
 
 static void	initTimers();
 static void	cleanupTimers();
-static void	dispatchTimer( uint, MSG * );
+static bool	dispatchTimer( uint, MSG * );
 static bool	activateTimer( uint );
 static void	activateZeroTimers();
 
@@ -1367,11 +1367,12 @@ bool QApplication::processNextEvent( bool canWait )
 #if defined(QT_THREAD_SUPPORT)
 	qApp->lock();
 #endif
-	dispatchTimer( msg.wParam, &msg );
+	const bool handled = dispatchTimer( msg.wParam, &msg );
 #if defined(QT_THREAD_SUPPORT)
 	qApp->unlock( FALSE );
 #endif
-	return TRUE;
+	if ( handled )
+	    return TRUE;
     }
     TranslateMessage( &msg );			// translate to WM_CHAR
 
@@ -2014,12 +2015,12 @@ void CALLBACK qt_simple_timer_func( HWND, UINT, UINT idEvent, DWORD )
 
 // Activate a timer, used by both event-loop based and simple timers.
 
-static void dispatchTimer( uint timerId, MSG *msg )
+static bool dispatchTimer( uint timerId, MSG *msg )
 {
 #if defined(USE_HEARTBEAT)
     if ( timerId != (WPARAM)heartBeat ) {
 	if ( !msg || !qApp || !qt_winEventFilter(msg) )
-	    activateTimer( timerId );
+	    return activateTimer( timerId );
     } else if ( curWin && qApp ) {		// process heartbeat
 	POINT p;
 	GetCursorPos( &p );
@@ -2031,8 +2032,9 @@ static void dispatchTimer( uint timerId, MSG *msg )
     }
 #else
     if ( !msg || !qApp || !qt_winEventFilter(msg) )
-	activateTimer( timerId );
+	return activateTimer( timerId );
 #endif
+    return TRUE;
 }
 
 
