@@ -354,7 +354,7 @@ void QComboBoxPopupItem::paint( QPainter* p, const QColorGroup&, bool,
 class QComboBoxData
 {
 public:
-    QComboBoxData( QComboBox *cb ): usingLBox( FALSE ), pop( 0 ), lBox( 0 ), combo( cb )
+    QComboBoxData( QComboBox *cb ): usingLBox( FALSE ), ed( 0 ), pop( 0 ), lBox( 0 ), combo( cb )
     {
 	duplicatesEnabled = TRUE;
 	cb->setSizePolicy( QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Fixed ) );
