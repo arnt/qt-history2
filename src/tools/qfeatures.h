@@ -105,7 +105,7 @@
 /*!
   Dynamic module linking
 */
-//#define QT_NO_PLUGIN
+//#define QT_NO_COMPONENT
 
 
 // Images
@@ -563,11 +563,6 @@
 #ifdef QT_NO_LAYOUT
 # define QT_NO_TOOLBAR
 #endif
-
-/*!
-  Dynamic module linking
-*/
-//#define QT_NO_PLUGIN
 
 /*!
   Buttons

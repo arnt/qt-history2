@@ -7,7 +7,7 @@
 #include "qguardedptr.h"
 #endif // QT_H
 
-#ifndef QT_NO_PLUGIN
+#ifndef QT_NO_COMPONENT
 
 class QInterfaceList;
 class QRegExp;
@@ -66,6 +66,6 @@ public:
     #endif
 #endif
 
-#endif
+#endif //QT_NO_COMPONENT
 
 #endif //QCOMPONENTINTERFACE_H

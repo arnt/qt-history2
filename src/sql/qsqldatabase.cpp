@@ -314,7 +314,7 @@ QStringList QSqlDatabase::drivers()
 #ifdef QT_SQL_OCI
     l << "QOCI";
 #endif
-#ifndef QT_NO_PLUGIN
+#ifndef QT_NO_COMPONENT
     QInterfaceManager<QSqlDriverInterface> *plugIns;
     plugIns = new QInterfaceManager<QSqlDriverInterface>( "QSqlDriverInterface", QString((char*)getenv( "QTDIR" )) + "/lib" ); //###
     l += plugIns->featureList();
@@ -389,7 +389,7 @@ void QSqlDatabase::init( const QString& type, const QString&  )
 
     }
 
-#ifndef QT_NO_PLUGIN
+#ifndef QT_NO_COMPONENT
     if ( !d->driver ) {
 	d->plugIns = new QInterfaceManager<QSqlDriverInterface>( "QSqlDriverInterface", QString((char*)getenv( "QTDIR" )) + "/lib" ); // ###
 	QSqlDriverInterface *iface = d->plugIns->queryInterface( type );

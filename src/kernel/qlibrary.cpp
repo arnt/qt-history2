@@ -36,7 +36,7 @@
 **********************************************************************/
 
 #include "qcomponentinterface.h"
-#ifndef QT_NO_PLUGIN
+#ifndef QT_NO_COMPONENT
 #include "qlibrary.h"
 
 #ifndef QT_H
@@ -367,4 +367,4 @@ QUnknownInterface* QLibrary::queryInterface( const char *request )
     return iface;
 }
 
-#endif // QT_NO_PLUGIN
+#endif // QT_NO_COMPONENT

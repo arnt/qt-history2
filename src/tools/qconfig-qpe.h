@@ -64,7 +64,7 @@
 //#define QT_NO_TABDIALOG
 #define QT_NO_WIZARD
 #define QT_NO_EFFECTS
-#define QT_NO_PLUGIN
+#define QT_NO_COMPONENT
 #define QT_NO_DOM
 #define QT_NO_SEMIMODAL
 #define QT_NO_PROGRESSBAR

@@ -45,7 +45,7 @@
 #include "qstringlist.h"
 #endif // QT_H
 
-#ifndef QT_NO_PLUGIN
+#ifndef QT_NO_COMPONENT
 
 template<class Type>
 class Q_EXPORT QInterfaceManager
@@ -211,6 +211,6 @@ private:
     QLibrary::Policy defPol;
 };
 
-#endif
+#endif //QT_NO_COMPONENT
 
 #endif //QINTERFACEMANAGER_H

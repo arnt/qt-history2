@@ -51,9 +51,8 @@
 #include "qaquastyle.h"
 #include <stdlib.h>
 
-
+#ifndef QT_NO_COMPONENT
 static QInterfaceManager<QStyleInterface> *manager = 0;
-
 
 static void ensureManager() {
         if ( !manager ) {
@@ -73,15 +72,18 @@ static void ensureManager() {
     }
 }
 
+#endif //QT_NO_COMPONENT
 
 QStyle *QStyleFactory::create( const QString& s )
 {
+#ifndef QT_NO_COMPONENT
     ensureManager();
 
     QStyleInterface *iface = manager->queryInterface( s );
 
     if ( iface )
         return iface->create( s );
+#endif
 
     QString style = s.lower();
 #ifndef QT_NO_STYLE_WINDOWS
@@ -130,9 +132,13 @@ QStyle *QStyleFactory::create( const QString& s )
 
 QStringList QStyleFactory::styles()
 {
+#ifndef QT_NO_COMPONENT
     ensureManager();
 
     QStringList list = manager->featureList();
+#else
+    QStringList list;
+#endif //QT_NO_COMPONENT
 
 #ifndef QT_NO_STYLE_WINDOWS
     list << "Windows";

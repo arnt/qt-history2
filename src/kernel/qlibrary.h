@@ -43,7 +43,7 @@
 #include "qobject.h"
 #endif // QT_H
 
-#ifndef QT_NO_PLUGIN
+#ifndef QT_NO_COMPONENT
 
 class QUnknownInterface;
 
@@ -88,7 +88,7 @@ private:	// Disabled copy constructor and operator=
 #endif
 };
 
-#endif
+#endif //QT_NO_COMPONENT
 
 #endif //QLIBRARY_H
 

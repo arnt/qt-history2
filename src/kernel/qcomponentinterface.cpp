@@ -1,5 +1,5 @@
 #include "qcomponentinterface.h"
-#ifndef QT_NO_PLUGIN
+#ifndef QT_NO_COMPONENT
 
 #include "qapplication.h"
 #include "qdir.h"
@@ -255,4 +255,4 @@ QString QComponentInterface::interfaceId() const
 */
 
 
-#endif
+#endif //QT_NO_COMPONENT
