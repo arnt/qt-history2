@@ -100,7 +100,7 @@ protected:
 
 public:
 #ifdef QT_COMPAT
-    QAbstractButton(QWidget *parent, const char *name, Qt::WFlags f=0);
+    QT_COMPAT_CONSTRUCTOR QAbstractButton(QWidget *parent, const char *name, Qt::WFlags f=0);
     inline QT_COMPAT bool isOn() const { return isChecked(); }
     inline QT_COMPAT QPixmap *pixmap() const { return 0; } // help styles compile
     QT_COMPAT QIconSet *iconSet() const;

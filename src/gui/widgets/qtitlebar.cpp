@@ -153,11 +153,9 @@ QStyleOptionTitleBar QTitleBarPrivate::getStyleOption() const
     return opt;
 }
 
-QTitleBar::QTitleBar(QWidget *w, QWidget *parent, const char *name)
+QTitleBar::QTitleBar(QWidget *w, QWidget *parent)
     : QWidget(*new QTitleBarPrivate, parent, Qt::WStyle_Customize | Qt::WStyle_NoBorder)
 {
-    setObjectName(name);
-
     d->window = w;
     d->buttonDown = QStyle::SC_None;
     d->act = 0;

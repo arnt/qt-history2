@@ -57,10 +57,11 @@ protected:
 
 #ifdef QT_COMPAT
 public:
-    QSlider(QWidget *parent, const char *name);
-    QSlider(Qt::Orientation, QWidget *parent, const char *name);
-    QSlider(int minValue, int maxValue, int pageStep, int value, Qt::Orientation orientation,
-                      QWidget *parent = 0, const char *name = 0);
+    QT_COMPAT_CONSTRUCTOR QSlider(QWidget *parent, const char *name);
+    QT_COMPAT_CONSTRUCTOR QSlider(Qt::Orientation, QWidget *parent, const char *name);
+    QT_COMPAT_CONSTRUCTOR QSlider(int minValue, int maxValue, int pageStep, int value,
+                                  Qt::Orientation orientation,
+                                  QWidget *parent = 0, const char *name = 0);
 public slots:
     inline QT_MOC_COMPAT void addStep() { triggerAction(SliderSingleStepAdd); };
     inline QT_MOC_COMPAT void subtractStep() { triggerAction(SliderSingleStepSub); };

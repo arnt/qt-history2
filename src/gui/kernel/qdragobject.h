@@ -40,7 +40,10 @@ class Q_GUI_EXPORT QDragObject: public QObject, public QMimeSource {
     Q_OBJECT
     Q_DECLARE_PRIVATE(QDragObject)
 public:
-    QDragObject(QWidget * dragSource = 0, const char * name = 0);
+    QDragObject(QWidget *dragSource = 0);
+#ifdef QT_COMPAT
+    QT_COMPAT_CONSTRUCTOR QDragObject(QWidget * dragSource, const char *name);
+#endif
     virtual ~QDragObject();
 
 #ifndef QT_NO_DRAGANDDROP
@@ -79,8 +82,10 @@ class Q_GUI_EXPORT QStoredDrag: public QDragObject {
     Q_OBJECT
     Q_DECLARE_PRIVATE(QStoredDrag)
 public:
-    QStoredDrag(const char * mimeType,
-                 QWidget * dragSource = 0, const char * name = 0);
+    QStoredDrag(const char *mimeType, QWidget *dragSource = 0);
+#ifdef QT_COMPAT
+    QT_COMPAT_CONSTRUCTOR QStoredDrag(const char *mimeType, QWidget *dragSource, const char *name);
+#endif
     ~QStoredDrag();
 
     virtual void setEncodedData(const QByteArray &);
@@ -102,9 +107,12 @@ class Q_GUI_EXPORT QTextDrag: public QDragObject {
     Q_OBJECT
     Q_DECLARE_PRIVATE(QTextDrag)
 public:
-    QTextDrag(const QString &,
-               QWidget * dragSource = 0, const char * name = 0);
-    QTextDrag(QWidget * dragSource = 0, const char * name = 0);
+    QTextDrag(const QString &, QWidget *dragSource = 0);
+    QTextDrag(QWidget *dragSource = 0);
+#ifdef QT_COMPAT
+    QT_COMPAT_CONSTRUCTOR QTextDrag(const QString &, QWidget *dragSource, const char *name);
+    QT_COMPAT_CONSTRUCTOR QTextDrag(QWidget * dragSource, const char * name);
+#endif
     ~QTextDrag();
 
     virtual void setText(const QString &);
@@ -131,8 +139,12 @@ class Q_GUI_EXPORT QImageDrag: public QDragObject {
     Q_OBJECT
     Q_DECLARE_PRIVATE(QImageDrag)
 public:
-    QImageDrag(QImage image, QWidget * dragSource = 0, const char * name = 0);
-    QImageDrag(QWidget * dragSource = 0, const char * name = 0);
+    QImageDrag(QImage image, QWidget * dragSource = 0);
+    QImageDrag(QWidget * dragSource = 0);
+#ifdef QT_COMPAT
+    QT_COMPAT_CONSTRUCTOR QImageDrag(QImage image, QWidget * dragSource, const char * name);
+    QT_COMPAT_CONSTRUCTOR QImageDrag(QWidget * dragSource, const char * name);
+#endif
     ~QImageDrag();
 
     virtual void setImage(QImage image);
@@ -159,8 +171,13 @@ class Q_GUI_EXPORT QUriDrag: public QStoredDrag {
     Q_OBJECT
 
 public:
-    QUriDrag(const QList<QByteArray> &uris, QWidget * dragSource = 0, const char * name = 0);
-    QUriDrag(QWidget * dragSource = 0, const char * name = 0);
+    QUriDrag(const QList<QByteArray> &uris, QWidget * dragSource = 0);
+    QUriDrag(QWidget * dragSource = 0);
+#ifdef QT_COMPAT
+    QT_COMPAT_CONSTRUCTOR QUriDrag(const QList<QByteArray> &uris, QWidget * dragSource,
+                                   const char * name);
+    QT_COMPAT_CONSTRUCTOR QUriDrag(QWidget * dragSource, const char * name);
+#endif
     ~QUriDrag();
 
     void setFilenames(const QStringList & fnames) { setFileNames(fnames); }
@@ -190,8 +207,12 @@ class Q_GUI_EXPORT QColorDrag : public QStoredDrag
     QColor color;
 
 public:
-    QColorDrag(const QColor &col, QWidget *dragsource = 0, const char *name = 0);
-    QColorDrag(QWidget * dragSource = 0, const char * name = 0);
+    QColorDrag(const QColor &col, QWidget *dragsource = 0);
+    QColorDrag(QWidget * dragSource = 0);
+#ifdef QT_COMPAT
+    QT_COMPAT_CONSTRUCTOR QColorDrag(const QColor &col, QWidget *dragsource, const char *name);
+    QT_COMPAT_CONSTRUCTOR QColorDrag(QWidget * dragSource, const char * name);
+#endif
     void setColor(const QColor &col);
 
     static bool canDecode(QMimeSource *);

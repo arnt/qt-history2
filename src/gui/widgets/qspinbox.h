@@ -20,8 +20,9 @@ class Q_GUI_EXPORT QSpinBox : public QAbstractSpinBox
 public:
     QSpinBox(QWidget *parent = 0);
 #ifdef QT_COMPAT
-    QSpinBox(QWidget *parent, const char *name);
-    QSpinBox(int min, int max, int step, QWidget *parent, const char *name);
+    QT_COMPAT_CONSTRUCTOR QSpinBox(QWidget *parent, const char *name);
+    QT_COMPAT_CONSTRUCTOR QSpinBox(int min, int max, int step, QWidget *parent,
+                                   const char *name = 0);
 #endif
 
     int value() const;

@@ -1665,7 +1665,7 @@ QWorkspaceChild::QWorkspaceChild(QWidget* window, QWorkspace *parent)
     }
 
     if (window && window->testWFlags(Qt::WStyle_Title)) {
-        titlebar = new QTitleBar(window, this, "qt_ws_titlebar");
+        titlebar = new QTitleBar(window, this);
         connect(titlebar, SIGNAL(doActivate()),
                  this, SLOT(activate()));
         connect(titlebar, SIGNAL(doClose()),

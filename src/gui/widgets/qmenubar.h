@@ -38,7 +38,7 @@ public:
     using QWidget::addAction;
 #endif
     QAction *addAction(const QString &text);
-    QAction *addAction(const QString &text, const QObject *receiver, const char* member, 
+    QAction *addAction(const QString &text, const QObject *receiver, const char* member,
                        const QKeySequence& shortcut = 0);
     QAction *addMenu(const QString &title, QMenu *menu);
     QAction *addSeparator();
@@ -92,7 +92,7 @@ protected:
 
 #ifdef QT_COMPAT
 public:
-    QMenuBar(QWidget *parent, const char *name);
+    QT_COMPAT_CONSTRUCTOR QMenuBar(QWidget *parent, const char *name);
     inline QT_COMPAT uint count() const { return actions().count(); }
     inline QT_COMPAT int insertItem(const QString &text, const QObject *receiver, const char* member,
                                     const QKeySequence& shortcut = 0, int id = -1, int index = -1) {

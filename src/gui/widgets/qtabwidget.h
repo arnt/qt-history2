@@ -115,7 +115,7 @@ private:        // Disabled copy constructor and operator=
 #ifdef QT_COMPAT
 public:
 
-    QTabWidget(QWidget *parent, const char *name, Qt::WFlags f = 0);
+    QT_COMPAT_CONSTRUCTOR QTabWidget(QWidget *parent, const char *name, Qt::WFlags f = 0);
 
     inline QT_COMPAT void insertTab(QWidget * w, const QString &s, int index = -1) { insertTab(index, w, s); }
     inline QT_COMPAT void insertTab(QWidget *child, const QIconSet& iconset,
