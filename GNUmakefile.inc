@@ -1,5 +1,5 @@
 #############################################################################
-# $Id: //depot/qt/main/GNUmakefile.inc#10 $
+# $Id: //depot/qt/main/GNUmakefile.inc#11 $
 #
 # Unix Makefile, requires GNU make (gmake).
 #
@@ -32,7 +32,7 @@ $(PROJECT).pro:
 
 
 %: GNUmakefile.% $(MORETARGETS)
-	$(MAKE) -f GNUmakefile.$*
+	$(MAKE) -j4 -f GNUmakefile.$*
 
 static: static-debug
 
