@@ -36,7 +36,7 @@ QDocMainWindow::QDocMainWindow( QWidget* parent, const char* name ) : QMainWindo
     connect( classList, SIGNAL(doubleClicked(QListViewItem*)), this, SLOT(activateEditor(QListViewItem*)) );
     vb->addWidget( classList );
     QHBoxLayout* hb = new QHBoxLayout( this );
-    QPushButton *redo = new QPushButton( "&Repopulate", this );
+    redo = new QPushButton( "&Repopulate", this );
     hb->addWidget( redo );
     connect( redo, SIGNAL(clicked()), this, SLOT(populateListView()) );
     QPushButton *quit = new QPushButton( "&Quit", this );
@@ -61,6 +61,7 @@ void QDocMainWindow::init()
 
 void QDocMainWindow::populateListView()
 {
+    redo->setEnabled( FALSE );
     waitText = new QLabel( "Currently qdocing", this, "wait", WStyle_Customize | WStyle_NormalBorder );
     vb->addWidget( waitText );
     waitText->setCaption( "qdoc GUI - Waiting" );
@@ -226,7 +227,7 @@ void QDocMainWindow::finished()
 	classList->sort();
     }
     waitText->hide();
-
+    redo->setEnabled( TRUE );
     qDebug( "%d warnings", count );
 }
 

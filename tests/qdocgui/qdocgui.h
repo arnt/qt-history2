@@ -4,6 +4,8 @@
 #include <qmultilineedit.h>
 #include <qlabel.h>
 
+class QPushButton;
+
 class QDocMainWindow : public QMainWindow
 {
     Q_OBJECT
@@ -28,6 +30,7 @@ private:
     QString filename;
     QLabel* waitText;
     QString editText;
+    QPushButton* redo;
 };
 
 class QDocListItem : public QListViewItem
