@@ -56,6 +56,9 @@ QPainter's complex drawText() function has been highly
 optimized. Despite its support for complex unicode scripts it now
 performs better than its less unicode-capable counterpart in Qt 2.3.
 
+QPixmap supports now pixmaps with alpha channel (semi transparency) on all
+Windows versions except Windows 95 and Windows NT.
+
 The print dialog now supports "selection" as print range as well as
 the possibility to enable/disable all different printer options
 individually.
