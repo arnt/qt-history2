@@ -196,7 +196,6 @@ static void construct(QCoreVariant::Private *x, const void *copy)
             Q_ASSERT_X(x->data.shared->value.ptr, "QCoreVariant::construct()", "Unknown datatype");
             break;
         }
-        x->is_null = false;
     } else {
         switch (x->type) {
         case QCoreVariant::Invalid:
