@@ -4129,6 +4129,30 @@ bool QWidget::event( QEvent *e )
 		return FALSE;
 	    break;
 
+        case QEvent::IMStart: {
+	    QIMEvent *i = (QIMEvent *) e;
+	    imStartEvent(i);
+	    if (! i->isAccepted())
+		return FALSE;
+	    }
+	    break;
+
+        case QEvent::IMCompose: {
+	    QIMEvent *i = (QIMEvent *) e;
+            imComposeEvent(i);
+            if (! i->isAccepted())
+	        return FALSE;
+	    }
+	    break;
+
+        case QEvent::IMEnd: {
+	    QIMEvent *i = (QIMEvent *) e;
+            imEndEvent(i);
+	    if (! i->isAccepted())
+	        return FALSE;
+	    }
+	    break;
+
 	case QEvent::FocusIn:
 	    focusInEvent( (QFocusEvent*)e );
 	    setFontSys();
@@ -4726,7 +4750,15 @@ void QWidget::contextMenuEvent( QContextMenuEvent *e )
 
 
 /*!
+  This event handler can be reimplemented in a subclass to receive
+  Input Method composition events.  This handler is called when
+  the user begins inputting text via an Input Method.
 
+  The default implementation calls e->ignore(), which rejects the
+  Input Method event.
+  See the QIMEvent documentation for more details.
+
+  \sa event(), QIMEvent
  */
 void QWidget::imStartEvent( QIMEvent *e )
 {
@@ -4734,7 +4766,15 @@ void QWidget::imStartEvent( QIMEvent *e )
 }
 
 /*!
+  This event handler can be reimplemented in a subclass to receive
+  Input Method composition events.  This handler is called when
+  the user has entered some text via an Input Method.
 
+  The default implementation calls e->ignore(), which rejects the
+  Input Method event.
+  See the QIMEvent documentation for more details.
+
+  \sa event(), QIMEvent
  */
 void QWidget::imComposeEvent( QIMEvent *e )
 {
@@ -4743,12 +4783,21 @@ void QWidget::imComposeEvent( QIMEvent *e )
 
 
 /*!
+  This event handler can be reimplemented in a subclass to receive
+  Input Method composition events.  This handler is called when
+  the user has finished inputting text via an Input Method.
 
+  The default implementation calls e->ignore(), which rejects the
+  Input Method event.
+  See the QIMEvent documentation for more details.
+
+  \sa event(), QIMEvent
  */
 void QWidget::imEndEvent( QIMEvent *e )
 {
     e->ignore();
 }
+
 
 #ifndef QT_NO_DRAGANDDROP
 
