@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qlayout.cpp#50 $
+** $Id: //depot/qt/main/src/kernel/qlayout.cpp#51 $
 **
 ** Implementation of layout classes
 **
@@ -1769,9 +1769,6 @@ bool QLayout::activate()
     setGeometry( QRect( outsideBorder, mbh + outsideBorder,
 			s.width() - 2*outsideBorder,
 			s.height() - mbh - 2*outsideBorder ) );
-    debug( "sg %d,%d,%d,%d", outsideBorder, mbh + outsideBorder,
-			s.width() - 2*outsideBorder,
-			s.height() - mbh - 2*outsideBorder );
 #endif
     return TRUE;
 }
