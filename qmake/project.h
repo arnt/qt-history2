@@ -26,15 +26,8 @@ class QMakeProperty;
 class QMakeProject
 {
     struct ScopeIterator;
+    struct ScopeBlock;
     friend struct ScopeIterator;
-    struct ScopeBlock {
-	enum TestStatus { TestNone, TestFound, TestSeek };
-	ScopeBlock() : iterate(0), ignore(FALSE), else_status(TestNone) { }
-	ScopeBlock(bool i) : iterate(0), ignore(i), else_status(TestNone) { }
-	~ScopeBlock();
-	QMakeProject::ScopeIterator *iterate;
-	uint ignore : 1, else_status : 2;
-    };
     QStack<ScopeBlock> scope_blocks;
     ScopeIterator *iterator;
 
@@ -100,5 +93,16 @@ inline QString QMakeProject::first(const QString &v)
 
 inline QMap<QString, QStringList> &QMakeProject::variables()
 { return vars; }
+
+struct QMakeProject::ScopeBlock
+{
+    enum TestStatus { TestNone, TestFound, TestSeek };
+    ScopeBlock() : iterate(0), ignore(FALSE), else_status(TestNone) { }
+    ScopeBlock(bool i) : iterate(0), ignore(i), else_status(TestNone) { }
+    ~ScopeBlock();
+    QMakeProject::ScopeIterator *iterate;
+    uint ignore : 1, else_status : 2;
+};
+
 
 #endif /* __PROJECT_H__ */

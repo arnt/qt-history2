@@ -1157,6 +1157,11 @@ public:
 
 #else
 
+// It is not possible to delete const pointers on MSVC 6.0, here's the workaround...
+#if defined Q_CC_MSVC && _MSC_VER < 1300
+inline void qDelete(const char *c) { delete (char *) c; }
+#endif
+
 /*
   Lack of partial template specialization mostly on MSVC compilers
   makes it hard to distinguish between pointers and non-pointer types.

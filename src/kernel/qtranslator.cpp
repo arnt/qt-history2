@@ -755,7 +755,6 @@ void QTranslator::squeeze( SaveMode mode )
 	t.device()->at( 2 + (hTableSize << 1) );
 	t << (Q_UINT16) 0; // the entry at offset 0 cannot be used
 	uint upto = 2;
-
 	for ( int i = 0; i < hTableSize; i++ ) {
 	    const char *con = hDict[i];
 	    if ( con == 0 ) {
