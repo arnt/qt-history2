@@ -1576,8 +1576,16 @@ void QWindowsStyle::drawToolButton( QPainter *p, int x, int y, int w, int h,
     QBrush onfill( g.light(), Dense4Pattern );
 
     const QBrush *thefill = fill;
+#if defined(Q_WS_WIN)
+    if ( !thefill && on && !autoRaised && 
+	( qWinVersion() == WV_2000 || 
+	  qWinVersion() == WV_98 ||
+	  qWinVersion() == WVXP ) )
+	thefill = &onfill;
+#else
     if ( !thefill && on && !autoRaised )
 	thefill = &onfill;
+#endif
 
     if ( !autoRaised )
 	QCommonStyle::drawToolButton( p, x, y, w, h, g, on || down, thefill );
