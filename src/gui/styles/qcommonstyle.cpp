@@ -812,7 +812,7 @@ void QCommonStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, Q
     case PE_IndicatorSpinDown: {
         QRect r = opt->rect;
         int fw = pixelMetric(PM_DefaultFrameWidth, opt, widget);
-        QRect br = r.adjusted(fw, fw, -fw, -fw);
+        // QRect br = r.adjusted(fw, fw, -fw, -fw);
         int x = r.x(), y = r.y(), w = r.width(), h = r.height();
         int sw = w-4;
         if (sw < 3)
