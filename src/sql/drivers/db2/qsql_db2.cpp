@@ -1069,11 +1069,9 @@ bool QDB2Driver::open(const QString& db, const QString& user, const QString& pas
         return false;
     }
     // Set connection attributes
-    const QStringList opts(connOpts.split(';'));
+    const QStringList opts(connOpts.split(';', QString::StripEmptyEntries));
     for (int i = 0; i < opts.count(); ++i) {
         const QString tmp(opts.at(i));
-        if (tmp.isEmpty())
-            continue;
         int idx;
         if ((idx = tmp.indexOf('=')) == -1) {
             qWarning("QDB2Driver::open: Illegal connect option value '%s'", tmp.latin1());

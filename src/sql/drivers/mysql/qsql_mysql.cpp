@@ -443,13 +443,11 @@ bool QMYSQLDriver::open(const QString& db,
         close();
 
     unsigned int optionFlags = 0;
-    const QStringList opts(connOpts.split(';'));
+    const QStringList opts(connOpts.split(';', QString::StripEmptyEntries));
 
     // extract the real options from the string
     for (int i = 0; i < opts.count(); ++i) {
         QString tmp(opts.at(i).simplified());
-        if (tmp.isEmpty())
-            continue;
         int idx;
         if ((idx = tmp.indexOf('=')) != -1) {
             QString val(tmp.mid(idx + 1).simplified());
