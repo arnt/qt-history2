@@ -46,6 +46,7 @@
 #include <limits.h>
 #include "qt_windows.h"
 #include "qapplication_p.h"
+#include "qapplication.h"
 #include "qpaintdevicemetrics.h"
 #include <private/qunicodetables_p.h>
 #include <qfontdatabase.h>
