@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#92 $
+** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#93 $
 **
 ** Implementation of QMenuBar class
 **
@@ -17,7 +17,7 @@
 #include "qapp.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qmenubar.cpp#92 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qmenubar.cpp#93 $");
 
 
 /*!
@@ -528,6 +528,10 @@ int QMenuBar::calculateRects( int max_width )
     bool update = ( max_width < 0 );
 
     if ( update ) {
+        if (width() == 1) { // gcc Linux/Alpha
+	    show();
+	    return 0;
+	}
 	if ( !badSize )				// size was not changed
 	    return 0;
 	delete [] irects;
@@ -566,7 +570,7 @@ int QMenuBar::calculateRects( int max_width )
 		w += 2*motifItemFrame;
 		h += 2*motifItemFrame;
 	    }
-	    if ( x + w + motifBarFrame > max_width && nlitems > 0 ) {
+	    if ( x + w + motifBarFrame - max_width > 0 && nlitems > 0 ) {
 		nlitems = 0;
 		x = motifBarFrame + motifBarHMargin;
 		y += h + motifBarHMargin;
