@@ -72,49 +72,48 @@ static QByteArray qt_prettyDebug(const char *data, int len, int maxSize)
 
     To start a process, pass the name and command line arguments of
     the program you want to run as arguments to start(). QProcess then
-    enters the \l Starting state, and when the program has started,
-    QProcess enters the \l Running state and emits started().
+    enters the \c Starting state, and when the program has started,
+    QProcess enters the \c Running state and emits started().
 
     QProcess allows you to treat a process as a sequential I/O
     device. You can write to and read from the process just as you
     would access a network connection using QTcpSocket. You can then
     write to the process's standard input by calling write(), and
-    read the standard output by calling read(), readLine() and
+    read the standard output by calling read(), readLine(), and
     getChar(). Because it inherits QIODevice, QProcess can also be
-    used as an input source for QXmlReader or for generating data to
+    used as an input source for QXmlReader, or for generating data to
     be uploaded using QFtp.
 
-    When the process exits, QProcess reenters the NotRunning state
-    (the initial state) and emits finished().
+    When the process exits, QProcess reenters the \c NotRunning state
+    (the initial state), and emits finished().
 
     The finished() signal provides the exit code of the process as an
-    argument, and you can also call exitCode(), which returns the
-    exit code of the last process that finished. At an error occurs
-    at any point in time, QProcess will emit the error() signal. You
-    can also call error() to find the type of error that
-    occurred last, and state() to find the current process
-    state.
+    argument, and you can also call exitCode() to obtain the exit code
+    of the last process that finished. If an error occurs at any point
+    in time, QProcess will emit the error() signal. You can also call
+    error() to find the type of error that occurred last, and state()
+    to find the current process state.
 
-    Processes have two predefined output channels: the standard
-    output channel (for regular console output) and the standard
-    error channel (where errors are usually printed). These channels
-    represent two separate streams of data. You can toggle between
-    the two channels by calling setInputChannel(). QProcess emits
-    readyRead() when data is available on the current input channel.
-    It also emits readyReadStandardOutput() when new standard output
-    data is available, and when new standard error data is available,
-    readyReadStandardError() is emitted. Instead of calling read(),
-    readLine(), or readChar(), you can explicitly read all data from
-    either of the two channels by calling readAllStandardOutput() or
-    readAllStandardError().
+    Processes have two predefined output channels: The standard
+    output channel supplies regular console output, and the standard
+    error channel usually supplies the errors that are printed by the
+    process. These channels represent two separate streams of data.
+    You can toggle between them by calling setInputChannel(). QProcess
+    emits readyRead() when data is available on the current input
+    channel. It also emits readyReadStandardOutput() when new standard
+    output data is available, and when new standard error data is
+    available, readyReadStandardError() is emitted. Instead of calling
+    read(), readLine(), or readChar(), you can explicitly read all data
+    from either of the two channels by calling readAllStandardOutput()
+    or readAllStandardError().
 
     QProcess can merge the two output channels, so that standard
     output and standard error data from the running process both use
     the standard output channel. Call setInputChannelMode() with
-    MergedOutputChannels before starting the process to activative
+    \c MergedOutputChannels before starting the process to activative
     this feature. You also have the option of forwarding the output of
     the running process to the calling, main process, by passing
-    ForwardedOutputChannels as the argument.
+    \c ForwardedOutputChannels as the argument.
 
     Certain processes need special environment settings in order to
     operate. You can set environment variables for your process by
@@ -152,22 +151,24 @@ static QByteArray qt_prettyDebug(const char *data, int len, int maxSize)
     \sa QBuffer, QFile, QTcpSocket
 */
 
-/*! \enum QProcess::ProcessChannel
+/*! 
+    \enum QProcess::ProcessChannel
 
-    This enum describes the process channels. Pass one of these values
-    to QProcess::setInputChannel() to set the current input channel of
-    QProcess.
+    This enum describes the process channels used by the running process.
+    Pass one of these values to QProcess::setInputChannel() to set the
+    current input channel of QProcess.
 
     \value StandardOutput The standard output (stdout) of the running
-    process.
+           process.
 
     \value StandardError The standard error (stderr) of the running
-    process.
+           process.
 
     \sa QProcess::setInputChannel()
 */
 
-/*! \enum QProcess::ProcessChannelMode
+/*! 
+    \enum QProcess::ProcessChannelMode
 
     This enum describes the process channel modes of QProcess. Pass
     one of these values to QProcess::setInputChannelMode() to set the
@@ -192,7 +193,8 @@ static QByteArray qt_prettyDebug(const char *data, int len, int maxSize)
     \sa QProcess::setInputChannelMode()
 */
 
-/*! \enum QProcess::ProcessError
+/*! 
+    \enum QProcess::ProcessError
 
     This enum describes the different types of errors that are
     reported by QProcess.
@@ -201,7 +203,7 @@ static QByteArray qt_prettyDebug(const char *data, int len, int maxSize)
     invoked program is missing, or you may have insufficient
     permissions to invoke the program.
 
-    \value Crashed The process crashed some time after having started
+    \value Crashed The process crashed some time after starting
     successfully.
 
     \value Timedout The last waitFor...() function timed out. The
@@ -221,7 +223,8 @@ static QByteArray qt_prettyDebug(const char *data, int len, int maxSize)
     \sa QProcess::error()
 */
 
-/*! \enum QProcess::ProcessState
+/*! 
+    \enum QProcess::ProcessState
 
     This enum describes the different states of QProcess.
 
@@ -236,35 +239,42 @@ static QByteArray qt_prettyDebug(const char *data, int len, int maxSize)
     \sa QProcess::state()
 */
 
-/*! \fn QProcess::error(ProcessError error)
+/*! 
+    \fn QProcess::error(ProcessError error)
 
     This signal is emitted when an error occurs with the process. The
-    \a error argument describes the type of error.
+    specified \a error describes the type of error that occurred.
 
     \sa QProcess::ProcessError
 */
 
-/*! \fn QProcess::started()
+/*! 
+    \fn QProcess::started()
 
     This signal is emitted by QProcess when the process has started,
-    and QProcess::state() returns Running.
+    and QProcess::state() returns \c Running.
+
+    \sa QProcess::ProcessState
 */
 
-/*! \fn QProcess::stateChanged(ProcessState newState)
+/*! 
+    \fn QProcess::stateChanged(ProcessState newState)
 
     This signal is emitted whenever the state of QProcess changes. The
     \a newState argument is the state QProcess changed to.
 */
 
-/*! \fn QProcess::finished(int exitCode)
+/*! 
+    \fn QProcess::finished(int exitCode)
 
     This signal is emitted when the process finishes. \a exitCode is
     the exit code of the process. After the process has finished, the
-    buffers in QProcess are still intact.  You can still read any data
+    buffers in QProcess are still intact. You can still read any data
     that the process may have written before it finished.
 */
 
-/*! \fn QProcess::readyReadStandardOutput()
+/*! 
+    \fn QProcess::readyReadStandardOutput()
 
     This signal is emitted when new data has arrived in the standard
     output channel of QProcess. It is emitted regardless of the current
@@ -273,7 +283,8 @@ static QByteArray qt_prettyDebug(const char *data, int len, int maxSize)
     \sa QProcess::readAllStandardOutput()
 */
 
-/*! \fn QProcess::readyReadStandardError()
+/*! 
+    \fn QProcess::readyReadStandardError()
 
     This signal is emitted when new data has arrived in the standard
     error channel of QProcess. It is emitted regardless of the current
@@ -583,7 +594,7 @@ QProcess::~QProcess()
 }
 
 /*!
-    Returns the input channel mode of QProcess.
+    Returns the input channel mode of the QProcess.
 
     \sa setInputChannelMode(), ProcessChannelMode, setInputChannel()
 */
@@ -594,8 +605,8 @@ QProcess::ProcessChannelMode QProcess::inputChannelMode() const
 }
 
 /*!
-    Sets the input channel mode of QProcess to \a mode. This mode will
-    be used the next time start() is called. Example:
+    Sets the input channel mode of the QProcess to the \a mode specified.
+    This mode will be used the next time start() is called. For example:
 
     \code
         QProcess builder;
@@ -616,7 +627,7 @@ void QProcess::setInputChannelMode(ProcessChannelMode mode)
 }
 
 /*!
-    Returns the current input channel of QProcess.
+    Returns the current input channel of the QProcess.
 
     \sa setInputChannel()
 */
@@ -627,10 +638,10 @@ QProcess::ProcessChannel QProcess::inputChannel() const
 }
 
 /*!
-    Sets the current input channel of QProcess to \a channel. The
-    current input channel is used by the functions read(), readAll(),
-    readLine() and getChar(). It also decides which channel triggers
-    QProcess to emit readyRead().
+    Sets the current input channel of the QProcess to the \a channel
+    specified. The current input channel is used by the functions read(),
+    readAll(), readLine(), and getChar(). It also determines which
+    channel triggers QProcess to emit readyRead().
 
     \sa inputChannel()
 */
@@ -929,7 +940,9 @@ bool QProcess::waitForFinished(int msecs)
 }
 
 /*!
-    Sets the current state of QProcess to \a state.
+    Sets the current state of the QProcess to the \a state specified.
+
+    \sa state()
 */
 void QProcess::setProcessState(ProcessState state)
 {
