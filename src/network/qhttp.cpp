@@ -1269,7 +1269,7 @@ QString QHttpRequestHeader::toString() const
     To make an HTTP request you must set up suitable HTTP headers. The
     following example demonstrates, how to request the main HTML page
     from the Trolltech home page (i.e. the URL
-    http://www.trolltech.com/index.html):
+    \c http://www.trolltech.com/index.html):
 
     \code
     QHttpRequestHeader header("GET", "/index.html");
@@ -1336,7 +1336,7 @@ QString QHttpRequestHeader::toString() const
     but not yet executed commands) are cleared and no signals are
     emitted for them.
 
-    For example, if you have the following sequence of reqeusts
+    For example, if you have the following sequence of requests
 
     \code
     http->setHost("www.foo.bar");       // id == 1
@@ -1375,7 +1375,10 @@ QString QHttpRequestHeader::toString() const
     The functions hasPendingRequests() and clearPendingRequests()
     allow you to query and clear the list of pending requests.
 
-    \sa {networking.html}{Networking Overview}, QFtp
+    The \l{network/http}{HTTP} example illustrates how to write HTTP
+    clients using QHttp.
+
+    \sa {Network Module}, QFtp
 */
 
 /*!

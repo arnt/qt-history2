@@ -1325,7 +1325,10 @@ int QFtpPrivate::addCommand(QFtpCommand *cmd)
     complete control you can use rawCommand() to execute arbitrary FTP
     commands.
 
-    \sa {networking.html}{Networking Overview}, QHttp
+    The \l{network/ftp}{FTP} example illustrates how to write FTP clients
+    using QFtp.
+
+    \sa {Network Module}, QHttp
 */
 
 

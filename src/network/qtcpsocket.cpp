@@ -30,7 +30,8 @@
     data. See the QAbstractSocket documentation for details.
 
     The \l{network/fortuneserver}{Fortune Server},
-    \l{network/fortuneclient}{Fortune Client}, and
+    \l{network/fortuneclient}{Fortune Client},
+    \l{network/threadedfortuneserver}{Threaded Fortune Server}, and
     \l{network/blockingfortuneclient}{Blocking Fortune Client}
     examples illustrate how to use QTcpSocket in applications.
 
