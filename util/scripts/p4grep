@@ -22,7 +22,15 @@ while ( @ARGV ) {
   shift;
 }
 
-$pattern && $file || die "Usage:  p4grep pattern file\n";
+$pattern && $file || die
+    "Usage:  p4grep pattern p4files\n".
+    "   p4files - eg. //.../qwidget.cpp\n";
+
+open P4, "p4 files $file |";
+map { m/(.*)#/ && $is_file{$1}++ } <P4>;
+
+defined %is_file || die
+    "No such files: $file\n";
 
 open p4, "p4 changes $file |";
 
@@ -43,8 +51,8 @@ sub flush {
 	    }
 	  }
 
-	  if ( /^==== / ) {
-	    $on = $_ =~ m{$file};
+	  if ( /^==== (.*)#/ ) {
+	    $on = $is_file{$1};
 	  } elsif ( $on ) {
 	    if ( /^[<>]/ && $_ =~ m{$pattern}sm ) {
 	      if ( $long_format ) {
