@@ -30,7 +30,7 @@ sub find_exports {
 	    if(!-l $file) {
 		if (-d $file) {
 		    push @subdirs, $file;
-		} elsif($file =~ m/\.cpp$/ || $file =~ m/\.h$/) {
+		} elsif($file =~ m/\.h$/) {
 		    my $parsable = "";
 		    if(open(F, "<$file")) {
 			while(<F>) {
