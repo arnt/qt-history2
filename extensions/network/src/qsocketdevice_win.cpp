@@ -750,5 +750,16 @@ void QSocketDevice::fetchConnectionParameters()
 	pa = QHostAddress();
 	return;
     }
-    // ### don't we need a fetch here?
+    struct sockaddr_in sa;
+    memset( &sa, 0, sizeof(sa) );
+    SOCKLEN_T sz;
+    sz = sizeof( sa );
+    if ( !::getsockname( fd, (struct sockaddr *)(&sa), &sz ) ) {
+	p = ntohs( sa.sin_port );
+	a = QHostAddress( ntohl( sa.sin_addr.s_addr ) );
+    }
+    if ( !::getpeername( fd, (struct sockaddr *)(&sa), &sz ) ) {
+	pp = ntohs( sa.sin_port );
+	pa = QHostAddress( ntohl( sa.sin_addr.s_addr ) );
+    }
 }

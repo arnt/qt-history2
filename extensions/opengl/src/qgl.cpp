@@ -208,7 +208,7 @@ QGLFormat::QGLFormat( int options, int plane )
 */
 
 /*!
-  Sets double buffering if \a enable is TRUE og single buffering if
+  Sets double buffering if \a enable is TRUE or single buffering if
   \a enable is FALSE.
 
   Double buffering is enabled by default.
@@ -621,7 +621,7 @@ QGLFormat QGLFormat::defaultOverlayFormat()
     QGLFormat::setDefaultOverlayFormat( f );
   \endcode
 
-  As ususal, you can test after the widget creation whether the
+  As usual, you can test after the widget creation whether the
   underlying OpenGL system was able to provide the requested
   specification:
 
