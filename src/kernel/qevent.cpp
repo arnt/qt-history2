@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qevent.cpp#110 $
+** $Id: //depot/qt/main/src/kernel/qevent.cpp#111 $
 **
 ** Implementation of event classes
 **
@@ -315,12 +315,9 @@ QMouseEvent::QMouseEvent( Type type, const QPoint &pos, int button, int state )
   \fn ButtonState QMouseEvent::stateAfter() const
 
   Returns the state of buttons after the event.
-  
-  \warning This function cannot be trusted.
-  
+
   \sa state()
 */
-//###### We must check with XGetModifierMapping 
 Qt::ButtonState QMouseEvent::stateAfter() const
 {
     if ( type() == QEvent::MouseButtonDblClick ) {
@@ -563,8 +560,11 @@ QWheelEvent::QWheelEvent( const QPoint &pos, int delta, int state )
   Returns the keyboard modifier flags that existed immediately after
   the event occurred.
 
+  \warning This function cannot be trusted.
+
   \sa state()
 */
+//###### We must check with XGetModifierMapping
 Qt::ButtonState QKeyEvent::stateAfter() const
 {
     if ( key() == Key_Shift )
