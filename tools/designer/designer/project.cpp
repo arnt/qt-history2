@@ -687,6 +687,11 @@ void Project::saveConnections()
     if ( inSaveConnections )
 	return;
     inSaveConnections = TRUE;
+    if ( dbFile.isEmpty() ) {
+	QFileInfo fi( fileName() );
+	dbFile = fi.baseName() + ".db";
+    }
+
     if ( !QFile::exists( makeAbsolute( dbFile ) ) ) {
 	QFileInfo fi( fileName() );
 	setDatabaseDescription( fi.baseName() + ".db" );
