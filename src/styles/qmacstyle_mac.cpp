@@ -1800,21 +1800,15 @@ QSize QMacStyle::sizeFromContents(ContentsType contents,
 	    if(macsz.height() != -1)
 		sz.setHeight(macsz.height());
 	}
-	if(contents == CT_PushButton) { //I hate to do this, but it seems to be needed
+	//I hate to do this, but it seems to be needed
+	if(contents == CT_PushButton || contents == CT_ToolButton) {
 	    ThemeButtonKind bkind = kThemePushButton;
+	    if(contents == CT_ToolButton)
+	      bkind = kThemeBevelButton;
 	    ThemeButtonDrawInfo info = { kThemeStateActive, kThemeButtonOff, kThemeAdornmentNone };
 	    Rect macRect, myRect;
 	    SetRect(&myRect,0, 0, sz.width(), sz.height());
 	    GetThemeButtonBackgroundBounds(&myRect, bkind, &info, &macRect);
-	    sz.setWidth(sz.width() + 
-			(myRect.left - macRect.left) + (macRect.bottom - myRect.bottom));
-	    sz.setHeight(sz.height() + 
-			 (myRect.top - macRect.top) + (macRect.bottom - myRect.bottom));
-	} else if(contents == CT_ToolButton) {
-	    ThemeButtonDrawInfo info = { kThemeStateActive, kThemeButtonOff, kThemeAdornmentNone };
-	    Rect macRect, myRect;
-	    SetRect(&myRect,0, 0, sz.width(), sz.height());
-	    GetThemeButtonBackgroundBounds(&myRect, kThemeBevelButton, &info, &macRect);
 	    sz.setWidth(sz.width() + 
 			(myRect.left - macRect.left) + (macRect.bottom - myRect.bottom));
 	    sz.setHeight(sz.height() + 
