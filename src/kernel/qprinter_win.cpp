@@ -883,6 +883,7 @@ bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
                 // StretchDIBits supported
                 StretchDIBits( hdc, pos.x(), pos.y(), dw, dh, 0, 0, w, h,
                                bits, bmi, DIB_RGB_COLORS, SRCCOPY );
+	    }
             if ( image.isNull() ) {
                 delete [] bits;
             }
