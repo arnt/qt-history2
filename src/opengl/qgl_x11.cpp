@@ -69,37 +69,34 @@ CMapEntry::~CMapEntry()
 	XFreeColormap( QX11Info::appDisplay(), cmap );
 }
 
-static QHash<int, CMapEntry *> *cmap_dict = 0;
+static QHash<int, CMapEntry *> cmap_hash;
 static bool mesa_gl = false;
-static QHash<int, QMap<int, QRgb> > *qglcmap_dict = 0;
+static bool first_time = true;
+static QHash<int, QMap<int, QRgb> > qglcmap_hash;
 
 static void cleanup_cmaps()
 {
-    if (cmap_dict) {
-	QHash<int, CMapEntry *>::ConstIterator it = cmap_dict->constBegin();
-        while (it != cmap_dict->constEnd()) {
-	    delete it.value();
-            ++it;
-	}
-	delete cmap_dict;
-	cmap_dict = 0;
+    QHash<int, CMapEntry *>::ConstIterator it = cmap_hash.constBegin();
+    while (it != cmap_hash.constEnd()) {
+	delete it.value();
+        ++it;
     }
-    delete qglcmap_dict;
-    qglcmap_dict = 0;
+    cmap_hash.clear();
 }
 
 static Colormap choose_cmap( Display *dpy, XVisualInfo *vi )
 {
-    if ( !cmap_dict ) {
-	cmap_dict = new QHash<int, CMapEntry *>;
+    if (first_time) {
+	cmap_hash.ensure_constructed();
 	const char *v = glXQueryServerString( dpy, vi->screen, GLX_VERSION );
-	if ( v )
-	    mesa_gl = strstr(v,"Mesa") != 0;
-	qAddPostRoutine( cleanup_cmaps );
+	if (v)
+	    mesa_gl = (strstr(v, "Mesa") != 0);
+	qAddPostRoutine(cleanup_cmaps);
+        first_time = false;
     }
 
-    QHash<int, CMapEntry*>::Iterator it = cmap_dict->find( (long) vi->visualid + ( vi->screen * 256 ) );
-    if (it != cmap_dict->end())
+    QHash<int, CMapEntry *>::ConstIterator it = cmap_hash.find( (long) vi->visualid + ( vi->screen * 256 ) );
+    if (it != cmap_hash.constEnd())
 	return it.value()->cmap; // found colormap for visual
 
     CMapEntry *x = new CMapEntry();
@@ -162,7 +159,7 @@ static Colormap choose_cmap( Display *dpy, XVisualInfo *vi )
     }
 
     // associate cmap with visualid
-    cmap_dict->insert( (long) vi->visualid + ( vi->screen * 256 ), x );
+    cmap_hash.insert( (long) vi->visualid + ( vi->screen * 256 ), x );
     return x->cmap;
 }
 
@@ -624,11 +621,11 @@ uint QGLContext::colorIndex( const QColor& c ) const
 	    return c.pixel( screen );		// We're using QColor's cmap
 
 	XVisualInfo *info = (XVisualInfo *) vi;
-	QHash<int, CMapEntry*>::Iterator it = cmap_dict->find( (long) info->visualid + ( info->screen * 256 ) );
+	QHash<int, CMapEntry*>::ConstIterator it = cmap_hash.find( (long) info->visualid + ( info->screen * 256 ) );
 	CMapEntry *x = 0;
-	if (it != cmap_dict->end())
+	if (it != cmap_hash.constEnd())
 	    x = it.value();
-	if ( x && !x->alloc) {		// It's a standard colormap
+	if (x && !x->alloc) {		// It's a standard colormap
 	    int rf = (int)(((float)c.red() * (x->scmap.red_max+1))/256.0);
 	    int gf = (int)(((float)c.green() * (x->scmap.green_max+1))/256.0);
 	    int bf = (int)(((float)c.blue() * (x->scmap.blue_max+1))/256.0);
@@ -638,9 +635,8 @@ uint QGLContext::colorIndex( const QColor& c ) const
 		     + ( bf * x->scmap.blue_mult );
 	    return p;
 	} else {
-	    if (!qglcmap_dict)
-		qglcmap_dict = new QHash<int, QMap<int, QRgb> >;
-	    QMap<int, QRgb> &cmap = (*qglcmap_dict)[(long)info->visualid];
+	    qglcmap_hash.ensure_constructed();
+	    QMap<int, QRgb> &cmap = qglcmap_hash[(long)info->visualid];
 
 	    // already in the map?
 	    QRgb target = c.rgb();
