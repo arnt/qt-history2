@@ -5,7 +5,6 @@
 #include <qstack.h>
 #include <qlist.h>
 #include <qtextstream.h>
-#include <qvaluelist.h>
 
 class FileDriver : public qdb::FileDriver
 {
@@ -69,7 +68,7 @@ public:
     ResultSet& operator=( const ResultSet& other );
 
     bool setHeader( const qdb::List& list );
-    bool append( QValueList<QVariant>& buf );
+    bool append( const qdb::Record& buf );
     void clear();
     bool sort( const qdb::List& index );
     bool first();

@@ -201,7 +201,7 @@ bool ResultSet::setHeader( const qdb::List& list )
 	return 0;
     }
     for ( int i = 0; i < (int)list.count(); ++i ) {
-	QValueList<QVariant> fieldDescription = list[i].toList();
+	qdb::List fieldDescription = list[i].toList();
 	if ( fieldDescription.count() != 2 ) {
 	    env->setLastError("ResultSet::setHeader: bad field description");
 	    return 0;
@@ -216,7 +216,7 @@ bool ResultSet::setHeader( const qdb::List& list )
 
 */
 
-bool ResultSet::append( QValueList<QVariant>& buf )
+bool ResultSet::append( const qdb::Record& buf )
 {
     if ( !env ) {
 	qWarning( "ResultSet: no environment" );

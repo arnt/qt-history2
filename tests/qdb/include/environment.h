@@ -3,6 +3,7 @@
 
 #include <qvariant.h>
 #include <qvaluestack.h>
+#include <qvaluelist.h>
 #include <qtextstream.h>
 
 class QIODevice;
@@ -23,7 +24,7 @@ namespace qdb {
     {
 	virtual void clear() = 0;
 	virtual bool setHeader( const List& data ) = 0;
-	virtual bool append( Record& buf ) = 0;
+	virtual bool append( const Record& buf ) = 0;
 	virtual bool sort( const List& index ) = 0;
 	virtual bool first() = 0;
 	virtual bool last() = 0;

@@ -5,7 +5,6 @@
 #include "sqlinterpreter.h"
 #include <qvariant.h>
 #include <qlist.h>
-#include <qvaluelist.h>
 
 /* Base class for all ops.
 */
@@ -408,7 +407,7 @@ public:
 	    env->setLastError("PushList: not enough stack elements");
 	    return 0;
 	}
-	QValueList<QVariant> rec;
+	qdb::List rec;
 	for ( int i = 0; i < p1.toInt(); ++i )
 	    rec.prepend( env->stack()->pop() );
 	env->stack()->push( rec );
@@ -445,7 +444,7 @@ public:
     QString name() const { return "Create"; }
     int exec( qdb::Environment* env )
     {
-	QValueList<QVariant> list = env->stack()->pop().toList();
+	qdb::List list = env->stack()->pop().toList();
 	if ( !list.count() ) {
 	    env->setLastError("Create: no fields defined!");
 	    return 0;

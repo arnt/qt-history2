@@ -126,7 +126,7 @@ bool FileDriver::create( const qdb::List& data )
     xbSchema x;
     uint i = 0;
     for ( i = 0; i < data.count(); ++i ) {
-	QValueList<QVariant> fieldDescription = data[i].toList();
+	qdb::List fieldDescription = data[i].toList();
 	if ( fieldDescription.count() != 4 ) {
 	    ERROR_RETURN( "FileDriver::create: bad field description" );
 	}
@@ -365,7 +365,7 @@ bool FileDriver::fieldDescription( int i, QVariant& v )
     if ( i == -1 || i > d->file.FieldCount()-1 ) {
 	ERROR_RETURN( "FileDriver::fieldDescription: field does not exist" );
     }
-    QValueList<QVariant> field;
+    qdb::List field;
     QVariant::Type type = xbaseTypeToVariant( d->file.GetFieldType( i ) );
     int len = d->file.GetFieldLen( i );
     int prec = d->file.GetFieldDecimal( i );
