@@ -543,7 +543,8 @@ void FormWindow::handleMousePress( QMouseEvent *e, QWidget *w )
 		QWidget *wid = w;
 		while ( TRUE ) {
 		    int id = WidgetDatabase::idFromClassName( WidgetFactory::classNameOf( wid ) );
-		    if ( ( WidgetDatabase::isContainer( id ) || wid == mainContainer() ) && !wid->inherits( "QLayoutWidget" ) ) {
+		    if ( ( WidgetDatabase::isContainer( id ) || wid == mainContainer() ) &&
+			 !wid->inherits( "QLayoutWidget" ) && !wid->inherits( "QSplitter" ) ) {
 			insertParent = WidgetFactory::containerOfWidget( wid ); // found another parent, store it
 			break;
 		    } else {
@@ -2182,6 +2183,8 @@ QWidget *FormWindow::containerAt( const QPoint &pos, QWidget *notParentOf )
 
     for ( ; it.current(); ++it ) {
 	if ( it.current()->inherits( "QLayoutWidget" ) )
+	    continue;
+	if ( it.current()->inherits( "QSplitter" ) )
 	    continue;
 	if ( !it.current()->isVisibleTo( this ) )
 	    continue;

@@ -737,7 +737,7 @@ WidgetFactory::LayoutType WidgetFactory::layoutType( QWidget *w, QLayout *&layou
     if ( w && w->inherits( "QWidgetStack" ) )
 	w = ((QWidgetStack*)w)->visibleWidget();
 
-    if ( w->inherits( "QSplitter" ) )
+    if ( w && w->inherits( "QSplitter" ) )
 	return ( (QSplitter*)w )->orientation() == Horizontal ? HBox : VBox;
 
     if ( !w || !w->layout() )
