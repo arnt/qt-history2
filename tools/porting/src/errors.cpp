@@ -12,8 +12,7 @@
 **
 ****************************************************************************/
 #include "errors.h"
-#include <klocale.h>
 
-QT_STATIC_CONST_IMPL Error& Errors::InternalError = Error( 1, -1, i18n("Internal Error") );
-QT_STATIC_CONST_IMPL Error& Errors::SyntaxError = Error( 2, -1, i18n("Syntax Error before '%1'") );
-QT_STATIC_CONST_IMPL Error& Errors::ParseError = Error( 3, -1, i18n("Parse Error before '%1'") );
+QT_STATIC_CONST_IMPL Error& Errors::InternalError = Error( 1, -1, "Internal Error" );
+QT_STATIC_CONST_IMPL Error& Errors::SyntaxError = Error( 2, -1, "Syntax Error before '%1'" );
+QT_STATIC_CONST_IMPL Error& Errors::ParseError = Error( 3, -1, "Parse Error before '%1'" );

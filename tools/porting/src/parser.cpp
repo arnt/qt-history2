@@ -15,7 +15,6 @@
 // c++ support
 #include "parser.h"
 #include "tokens.h"
-#include "lexer.h"
 #include "errors.h"
 
 // qt
@@ -23,14 +22,12 @@
 #include <qstringlist.h>
 #include <qdatetime.h>
 
-#include <klocale.h>
-
 #define TT (tokenStream->currentTokenText().data())
 
 #define ADVANCE(tk, descr) \
 { \
   if (tokenStream->lookAhead() != tk) { \
-    reportError(i18n("'%1' expected found '%2'").arg(QString(descr)).arg(QString(tokenStream->currentTokenText()))); \
+    reportError(QString("'%1' expected found '%2'").arg(QString(descr)).arg(QString(tokenStream->currentTokenText()))); \
       return false; \
   } \
   advance(); \
@@ -81,6 +78,11 @@
   } while (0)
 
 #define RXX_NO_ERROR
+
+QString i18n(QString arg)
+{
+    return arg;
+}
 
 
 //@todo remove me
