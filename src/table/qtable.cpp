@@ -746,12 +746,14 @@ void QTableItem::paint( QPainter *p, const QPalette &pal,
     If you reimplement this function you'll almost certainly need to
     reimplement setContentFromEditor(), and may need to reimplement
     sizeHint().
+    Also note that you need to call setReplaceable( FALSE ) when creating the item.
+    Otherwise a QLineEdit is used as the editor.
 
     \quotefile table/statistics/statistics.cpp
     \skipto createEditor
     \printto }
 
-    \sa QTable::createEditor() setContentFromEditor() QTable::viewport()
+    \sa QTable::createEditor() setContentFromEditor() QTable::viewport() setReplaceable()
 */
 
 QWidget *QTableItem::createEditor() const
