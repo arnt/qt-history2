@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#17 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#18 $
 **
 ** Implementation of QWidget class
 **
@@ -21,7 +21,7 @@
 #include "qcolor.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget.cpp#17 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget.cpp#18 $";
 #endif
 
 
@@ -101,7 +101,8 @@ inline bool QWidgetMapper::remove( WId id )
 //
 
 QWidget::QWidget( QWidget *parent, const char *name, WFlags f )
-	: QObject( parent, name )
+	: QObject( parent, name ),
+          fnt( TRUE )                           // create a default font
 {
     initMetaObject();				// initialize meta object
     isWidget = TRUE;				// is a widget

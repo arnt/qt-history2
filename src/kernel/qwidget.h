@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.h#23 $
+** $Id: //depot/qt/main/src/kernel/qwidget.h#24 $
 **
 ** Definition of QWidget class
 **
@@ -17,7 +17,8 @@
 #include "qobject.h"
 #include "qpaintd.h"
 #include "qcolor.h"
-#include "qfont.h"
+#include "qfontmet.h"
+#include "qfontinf.h"
 #include "qcursor.h"
 #include "qevent.h"
 
@@ -71,9 +72,11 @@ public:
     virtual void setBackgroundColor( const QColor & );
     virtual void setForegroundColor( const QColor & );
 
-    QFont   font() const;			// get/set font
-    virtual void setFont( const QFont & );
+    QFontMetrics fontMetrics()  const { return QFontMetrics(fnt); }
+    QFontInfo	 fontInfo()	const { return QFontInfo(fnt); }
 
+    QFont       &font(); 	                // get/set font
+    virtual void setFont( const QFont & );
     QCursor cursor() const;			// get/set cursor
     void    setCursor( const QCursor & );
 
@@ -186,6 +189,7 @@ protected:
 #endif
 
 private:
+    const QFont  &fontRef() const {return fnt;} // used by QPainter
     void    set_id( WId );			// set widget id
     bool    create();				// create widget
     bool    destroy();				// destroy widget

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwid_x11.cpp#33 $
+** $Id: //depot/qt/main/src/kernel/qwid_x11.cpp#34 $
 **
 ** Implementation of QWidget and QView classes for X11
 **
@@ -21,7 +21,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qwid_x11.cpp#33 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qwid_x11.cpp#34 $";
 #endif
 
 
@@ -268,9 +268,10 @@ void QWidget::setForegroundColor( const QColor &c )
     update();
 }
 
-
-QFont QWidget::font() const			// get font
+QFont &QWidget::font()
 {
+    if ( fnt.isDefaultFont() )
+        fnt = fnt.copy();
     return fnt;
 }
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qptr_x11.cpp#28 $
+** $Id: //depot/qt/main/src/kernel/qptr_x11.cpp#29 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -22,7 +22,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qptr_x11.cpp#28 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qptr_x11.cpp#29 $";
 #endif
 
 
@@ -270,6 +270,7 @@ QPnList *QPainter::list = 0;
 
 
 QPainter::QPainter()
+         : cfont( TRUE )                        // create a default font
 {
     if ( !list )				// create list
 	list = new QPnList;
@@ -305,6 +306,12 @@ QPainter::~QPainter()
 #endif
 }
 
+QFont &QPainter::font()
+{
+    if ( cfont.isDefaultFont() )
+        cfont = cfont.copy();
+    return cfont;
+}
 
 void QPainter::setFont( const QFont &font )	// set current font
 {
@@ -377,7 +384,7 @@ void QPainter::updateFont()			// update after changed font
     }
     if ( borrowWidgetGC ) {
 	QWidget *w = (QWidget *)pdev;
-	if ( cfont.handle() == w->font().handle() )
+	if ( cfont.handle() == w->fontRef().handle() )
 	    return;				// can still use widget's gc
 	createOwnGC();
     }
@@ -577,7 +584,7 @@ bool QPainter::begin( const QPaintDevice *pd )	// begin painting in device
     }
     else if ( pdev->devType() != PDT_WIDGET ) {	// i.e. pixmap device
 	if ( reinit ) {
-	    QFont  defaultFont;			// default drawing tools
+	    QFont  defaultFont(TRUE);			// default drawing tools
 	    QPen   defaultPen;
 	    QBrush defaultBrush;
 	    cfont  = defaultFont;		// set these drawing tools
@@ -597,7 +604,7 @@ bool QPainter::begin( const QPaintDevice *pd )	// begin painting in device
     sx = sy = tx = ty = 0;			// default view origins
     if ( pdev->devType() == PDT_WIDGET ) {	// device is a widget
 	QWidget *w = (QWidget*)pdev;
-	cfont = w->font();			// use widget font
+	cfont = w->fontRef();			// use widget font
 	bg_col = w->backgroundColor();		// use widget bg color
 	sw = tw = w->clientSize().width();	// default view size
 	sh = th = w->clientSize().height();
@@ -2214,7 +2221,7 @@ void QPainter::drawText( int x, int y, int w, int h, int tf,
 	pp = new QPainter;
 	pp->begin( pm );
 	pp->setBackgroundColor( bg_col );
-	pp->setFont( font() );
+	pp->setFont( cfont );
 	pp->setPen( cpen.color() );
 	pp->updatePen();
 	pp->setBrush( QBrush(bg_col, Pix1Pattern) );
@@ -2319,7 +2326,7 @@ QRect QPainter::calcRect( int x, int y, int w, int h, int tf,
 {
     if ( len < 0 )
 	len = strlen( str );
-    QFontMetrics fm( font() );
+    QFontMetrics fm( cfont );
     int fheight = fm.height();
     if ( tf & SingleLine ) {
 	w = fm.width( str );
