@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/richtext/main.cpp#1 $
+** $Id: //depot/qt/main/examples/xmlquotes/main.cpp#4 $
 **
 ** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
 **
