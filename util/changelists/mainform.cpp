@@ -1,4 +1,5 @@
 #include "mainform.h"
+#include "changeitem.h"
 
 #include <qpushbutton.h>
 #include <qcombobox.h>
@@ -216,13 +217,13 @@ void MainForm::processExited()
 		while ( !TO_AT_END ) {
 		    if ( FROM_AT_END ) {
 			while ( !TO_AT_END ) {
-			    changes->insertItem( new QListViewItem( changes, QString::number( *itTo ) ) );
+			    changes->insertItem( new ChangeItem( changes, *itTo ) );
 			    itTo++;
 			}
 			break;
 		    }
 		    while ( *itFrom > *itTo ) {
-			changes->insertItem( new QListViewItem( changes, QString::number( *itTo ) ) );
+			changes->insertItem( new ChangeItem( changes, *itTo ) );
 			itTo++;
 			if ( TO_AT_END )
 			    break;

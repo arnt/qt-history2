@@ -6,6 +6,6 @@ TEMPLATE += app
 TARGET += changelists
 
 # Input
-HEADERS += mainform.h
+HEADERS += mainform.h changeitem.h
 INTERFACES += mainformbase.ui
-SOURCES += main.cpp mainform.cpp
+SOURCES += main.cpp mainform.cpp changeitem.cpp
