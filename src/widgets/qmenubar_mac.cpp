@@ -80,10 +80,11 @@ public:
 
     class PopupBinding {
     public:
-	PopupBinding(QPopupMenu *m, MenuRef r, bool b) : qpopup(m), macpopup(r), tl(b) { }
+	PopupBinding(QPopupMenu *m, MenuRef r, int i, bool b) : qpopup(m), macpopup(r), id(i), tl(b) { }
 	~PopupBinding() { if(tl) DeleteMenu(GetMenuID(macpopup)); DisposeMenu(macpopup); }
 	QPopupMenu *qpopup;
 	MenuRef macpopup;
+	int id;
 	bool tl;
     };
     QHash<int, PopupBinding*> *popups;
@@ -468,7 +469,7 @@ bool QMenuBar::syncPopups(MenuRef ret, QPopupMenu *d)
 		    DisableMenuItem(ret, id);
 		CheckMenuItem(ret, id, item->isChecked() ? true : false);
 		if(item->popup()) {
-		    SetMenuItemHierarchicalMenu(ret, id, createMacPopup(item->popup()));
+		    SetMenuItemHierarchicalMenu(ret, id, createMacPopup(item->popup(), item->id()));
 		} else if(accel_key != Qt::Key_unknown) {
 		    char mod = 0;
 		    if((accel_key & Qt::CTRL) != Qt::CTRL)
@@ -537,7 +538,7 @@ bool QMenuBar::syncPopups(MenuRef ret, QPopupMenu *d)
     return added != 0;
 }
 
-MenuRef QMenuBar::createMacPopup(QPopupMenu *d, bool top_level)
+MenuRef QMenuBar::createMacPopup(QPopupMenu *d, int id, bool top_level)
 {
     static int mid = 0;
     MenuAttributes attr = 0;
@@ -550,8 +551,7 @@ MenuRef QMenuBar::createMacPopup(QPopupMenu *d, bool top_level)
     MenuRef ret;
     if(CreateNewMenu(0, attr, &ret) != noErr)
 	return 0;
-
-    if(!syncPopups(ret, d) && d->count() && !d->receivers(SIGNAL(aboutToShow()))) {
+    if(d && !syncPopups(ret, d) && d->count() && !d->receivers(SIGNAL(aboutToShow()))) {
 	ReleaseMenu(ret);
 	ret = 0;
     } else {
@@ -564,8 +564,7 @@ MenuRef QMenuBar::createMacPopup(QPopupMenu *d, bool top_level)
 	qt_mac_install_menubar_event(ret);
 #endif
 	activeMenuBar->mac_d->popups->insert(mid,
-					     new QMenuBar::MacPrivate::PopupBinding(d, ret,
-										    top_level));
+					     new QMenuBar::MacPrivate::PopupBinding(d, ret, id, top_level));
     }
     return ret;
 }
@@ -587,11 +586,9 @@ bool QMenuBar::updateMenuBar()
 
     for(QMenuItemListIt it(*mitems); it.current(); ++it) {
 	QMenuItem *item = (*it);
-	// Mac doesn't support serperators and we shouldn't create stuff
-	// for things with no popups
-	if (item->isSeparator() || !item->popup())
+	if (item->isSeparator()) //mac doesn't support these
 	    continue;
-	if(MenuRef mp = createMacPopup(item->popup(), true)) {
+	if(MenuRef mp = createMacPopup(item->popup(), item->id(), true)) {
 	    CFStringRef cfref;
 	    qt_mac_no_ampersands(item->text(), &cfref);
 	    SetMenuTitleWithCFString(mp, cfref);
@@ -847,6 +844,9 @@ bool QMenuBar::macUpdatePopup(MenuRef mr)
 		activeMenuBar->syncPopups(mr, mpb->qpopup);
 		return true;
 	    }
+	} else {
+	    activeMenuBar->activateItemAt(activeMenuBar->indexOf(mpb->id));
+	    HiliteMenu(0);
 	}
     }
     return false;
