@@ -188,7 +188,7 @@ void QTextRow::paint(QPainter &painter, int _x, int _y, QTextAreaCursor *cursor,
 
     int curx = -1;
     int curh;
-    
+
     for ( i = 0 ; i < reorderedText.length(); i++ ) {
 	chr = &reorderedText.at( i );
 	cw = chr->format->width( chr->c );
@@ -968,7 +968,7 @@ QTextAreaCursor::QTextAreaCursor( QTextArea *a )
     parag = area->firstParagraph();
     line = parag->first();
     if( line->hasComplexText() ) {
-	if( basicDirection( *parag->string() ) == QChar::DirR ) {
+	if( parag->basicDirection() == QChar::DirR ) {
 	    idx = line->length();
 	    leftToRight = false;
 	} else
@@ -1022,15 +1022,25 @@ void QTextAreaCursor::gotoLeft()
 {
     tmpIndex = -1;
     if ( idx > 0 ) {
-	idx--;
-    } else if ( line->prev() ) {
-	line = line->prev();
-	// ### wrong in RTL
-	idx = line->length();
-    } else if ( parag->prev() ) {
-	parag = parag->prev();
-	line = parag->last();
-	idx = line->length() - 1;
+	    idx--;
+    } else if(parag->basicDirection() == QChar::DirL) {
+	if ( line->prev() ) {
+	    line = line->prev();
+	    idx = line->length() - 1;
+	} else if ( parag->prev() ) {
+	    parag = parag->prev();
+	    line = parag->last();
+	    idx = line->length() - 1;
+	}
+    } else {
+	if ( line->next() ) {
+	    line = line->next();
+	    idx = line->length() - 1;
+	} else if ( parag->next() ) {
+	    parag = parag->next();
+	    line = parag->first();
+	    idx = line->length() - 1;
+	}
     }
 }
 
@@ -1039,13 +1049,24 @@ void QTextAreaCursor::gotoRight()
     tmpIndex = -1;
     if ( idx < line->length() - 1 ) {
 	idx++;
-    } else if ( line->next() ) {
-	line = line->next();
-	idx = 0;
-    } else if ( parag->next() ) {
-	parag = parag->next();
-	line = parag->first();
-	idx = 0;
+    } else if ( parag->basicDirection() == QChar::DirL ) {
+	if ( line->next() ) {
+	    line = line->next();
+	    idx = 0;
+	} else if ( parag->next() ) {
+	    parag = parag->next();
+	    line = parag->first();
+	    idx = 0;
+	}
+    } else {
+	if ( line->prev() ) {
+	    line = line->prev();
+	    idx = 0;
+	} else if ( parag->prev() ) {
+	    parag = parag->prev();
+	    line = parag->last();
+	    idx = 0;
+	}
     }
 }
 
@@ -1060,7 +1081,7 @@ void QTextAreaCursor::gotoUp()
 	line = parag->last();
     } else
 	return;
-    idx = QMIN(line->length(), tmpIndex);
+    idx = QMIN(line->length()-1, tmpIndex);
 }
 
 void QTextAreaCursor::gotoDown()
@@ -1074,7 +1095,7 @@ void QTextAreaCursor::gotoDown()
 	line = parag->first();
     } else
 	return;
-    idx = QMIN(line->length(), tmpIndex);
+    idx = QMIN(line->length()-1, tmpIndex);
 }
 
 void QTextAreaCursor::gotoLineEnd()
@@ -1472,7 +1493,8 @@ QParagraph::QParagraph(const QRichTextString &t, QTextArea *a, QParagraph *lastP
     n = 0;
 
     hAlign = AlignAuto;
-
+    basicDir = QChar::DirON;
+    
     // get last paragraph so we know where we want to place the next line
     if ( lastPar ) {
 	QPoint p = lastPar->nextLine();
@@ -1487,6 +1509,13 @@ QParagraph::QParagraph(const QRichTextString &t, QTextArea *a, QParagraph *lastP
 
 QParagraph::~QParagraph()
 {
+}
+
+QChar::Direction QParagraph::basicDirection() const 
+{
+    if(basicDir == QChar::DirON) 
+	basicDir = ::basicDirection(text);
+    return basicDir;
 }
 
 QPoint QParagraph::nextLine() const
@@ -1510,7 +1539,7 @@ void QParagraph::paint(QPainter &p, int x, int y, QTextAreaCursor *c)
     // #### add a check if we need to paint at all!!!
     HAlignment align = hAlign;
     if(align == AlignAuto) {
-	if(basicDirection(text) == QChar::DirL)
+	if(basicDirection() == QChar::DirL)
 	    align = AlignLeft;
 	else
 	    align = AlignRight;

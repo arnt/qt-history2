@@ -178,6 +178,8 @@ public:
     void setHAlignment( HAlignment a ) { hAlign = a; }
     HAlignment hAlignment() const { return hAlign; }
 
+    QChar::Direction basicDirection() const;
+    
 protected:
     virtual void layout();
 
@@ -188,7 +190,8 @@ private:
     QParagraph *p, *n;
 
     QRichTextString text;
-
+    mutable QChar::Direction basicDir;
+    
     int xPos;
     int yPos;
     QRect bRect;
