@@ -439,6 +439,13 @@ bool QHttpHeader::parse( const QString& str )
     return TRUE;
 }
 
+/*! \internal
+*/
+void QHttpHeader::setValid( bool v )
+{
+    valid = v;
+}
+
 /*!
     Returns the value for the entry with the given \a key. If no entry
     has this \a key, an empty string is returned.
@@ -526,6 +533,9 @@ bool QHttpHeader::parseLine( const QString& line, int )
 */
 QString QHttpHeader::toString() const
 {
+    if ( !isValid() )
+	return "";
+
     QString ret = "";
 
     QMap<QString,QString>::ConstIterator it = values.begin();
@@ -637,6 +647,7 @@ void QHttpHeader::setContentType( const QString& type )
 */
 QHttpResponseHeader::QHttpResponseHeader()
 {
+    setValid( FALSE );
 }
 
 /*!
@@ -674,6 +685,7 @@ QHttpResponseHeader::QHttpResponseHeader( const QString& str )
 */
 void QHttpResponseHeader::setStatusLine( int code, const QString& text, int majorVer, int minorVer )
 {
+    setValid( TRUE );
     statCode = code;
     reasonPhr = text;
     majVer = majorVer;
@@ -800,6 +812,7 @@ QString QHttpResponseHeader::toString() const
 QHttpRequestHeader::QHttpRequestHeader()
     : QHttpHeader()
 {
+    setValid( FALSE );
 }
 
 /*!
@@ -837,6 +850,7 @@ QHttpRequestHeader::QHttpRequestHeader( const QString& str )
 */
 void QHttpRequestHeader::setRequest( const QString& method, const QString& path, int majorVer, int minorVer )
 {
+    setValid( TRUE );
     m = method;
     p = path;
     majVer = majorVer;
@@ -1686,6 +1700,9 @@ void QHttp::slotConnected()
     QString str = d->header.toString();
     d->bytesTotal = str.length();
     d->socket.writeBlock( str.latin1(), d->bytesTotal );
+#if defined(QHTTP_DEBUG)
+    qDebug( "QHttp: write request header:\n---{\n%s}---", str.latin1() );
+#endif
 
     if ( d->postDevice ) {
 	d->bytesTotal += d->postDevice->size();

@@ -99,6 +99,7 @@ public:
 protected:
     virtual bool parseLine( const QString& line, int number );
     bool parse( const QString& str );
+    void setValid( bool );
 
 private:
     QMap<QString,QString> values;
