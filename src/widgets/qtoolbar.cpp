@@ -88,12 +88,11 @@ class QToolBarExtensionWidget;
 class QToolBarPrivate
 {
 public:
-    QToolBarPrivate() : moving( FALSE ), firstShow( TRUE ) {
+    QToolBarPrivate() : moving( FALSE ) {
 	extensionSubMenues.setAutoDelete(TRUE);
     }
 
     bool moving;
-    bool firstShow;
     QToolBarExtensionWidget *extension;
     QPopupMenu *extensionPopup;
     QObjectList extensionSubMenues;
@@ -518,7 +517,7 @@ void QToolBar::setStretchableWidget( QWidget * w )
 bool QToolBar::event( QEvent * e )
 {
     bool r =  QDockWindow::event( e );
-    //after the event filters have dealt with it:
+    // After the event filters have dealt with it, do our stuff.
     if ( e->type() == QEvent::ChildInserted ) {
 	QObject * child = ((QChildEvent*)e)->child();
 	if ( child && child->isWidgetType() && !((QWidget*)child)->isTopLevel()
@@ -536,10 +535,8 @@ bool QToolBar::event( QEvent * e )
 	}
 	if ( child && child->isWidgetType() && ((QWidget*)child) == sw )
 	    boxLayout()->setStretchFactor( (QWidget*)child, 1 );
-    } else if ( e->type() == QEvent::Show && d->firstShow ) {
-	QWidget::layout()->invalidate();
-	QWidget::layout()->activate();
-	d->firstShow = FALSE;
+    } else if ( e->type() == QEvent::Show ) {
+	layout()->activate();
     } else if ( e->type() == QEvent::LayoutHint && place() == OutsideDock ) {
 	adjustSize();
     }
