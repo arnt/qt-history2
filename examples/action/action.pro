@@ -10,3 +10,4 @@ QTDIR_build:REQUIRES	= "contains(QT_CONFIG, full-config)"
 HEADERS		= application.h
 SOURCES		= application.cpp \
 		  main.cpp
+QT	+= compat

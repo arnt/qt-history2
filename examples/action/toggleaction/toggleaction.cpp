@@ -1,16 +1,18 @@
 #include <qapplication.h>
-#include <qmainwindow.h>
-#include <qtoolbar.h>
+#include <q3mainwindow.h>
+#include <q3toolbar.h>
 #include <qaction.h>
+
+#include <qpixmap.h>
 
 #include "labelonoff.xpm"
 
 int main( int argc, char **argv )
 {
     QApplication app( argc, argv );
-    QMainWindow * window = new QMainWindow;
+    Q3MainWindow * window = new Q3MainWindow;
     window->setWindowTitle("Qt Example - Toggleaction");
-    QToolBar * toolbar = new QToolBar( window );
+    Q3ToolBar * toolbar = new Q3ToolBar( window );
 
     QAction * labelonoffaction = new QAction( window, "labelonoff" );
     labelonoffaction->setToggleAction( TRUE );
