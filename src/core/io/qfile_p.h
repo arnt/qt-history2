@@ -49,11 +49,11 @@ protected:
     mutable QFileEngine *fileEngine;
     bool isOpen;
 
-    QFile::Error error;
+    QFile::FileError error;
     QString errorString;
-    void setError(QFile::Error err);
-    void setError(QFile::Error err, const QString &errorString);
-    void setError(QFile::Error err, int errNum);
+    void setError(QFile::FileError err);
+    void setError(QFile::FileError err, const QString &errorString);
+    void setError(QFile::FileError err, int errNum);
 
 private:
     static QFile::EncoderFn encoder;

@@ -34,7 +34,7 @@ class Q_CORE_EXPORT QFile : public QIODevice
 
 public:
 
-    enum Error {
+    enum FileError {
         NoError = 0,
         ReadError = 1,
         WriteError = 2,
@@ -71,7 +71,7 @@ public:
 #endif
     ~QFile();
 
-    Error error() const;
+    FileError error() const;
     void unsetError();
 
     QString fileName() const;

@@ -45,7 +45,7 @@ public:
     virtual qint64 read(char *data, qint64 maxlen) = 0;
     virtual qint64 write(const char *data, qint64 len) = 0;
 
-    virtual QFile::Error error() const;
+    virtual QFile::FileError error() const;
     virtual QString errorString() const;
 
     virtual bool remove() = 0;
@@ -153,7 +153,7 @@ public:
     virtual bool seek(qint64);
     virtual qint64 read(char *data, qint64 maxlen);
     virtual qint64 write(const char *data, qint64 len);
-    virtual QFile::Error error() const;
+    virtual QFile::FileError error() const;
     virtual QString errorString() const;
 
     virtual bool remove();

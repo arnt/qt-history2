@@ -90,21 +90,21 @@ QFilePrivate::openExternalFile(int flags, FILE *fh)
 }
 
 void
-QFilePrivate::setError(QFile::Error err)
+QFilePrivate::setError(QFile::FileError err)
 {
     error = err;
     d->errorString.clear();
 }
 
 void
-QFilePrivate::setError(QFile::Error err, const QString &errStr)
+QFilePrivate::setError(QFile::FileError err, const QString &errStr)
 {
     error = err;
     d->errorString = errStr;
 }
 
 void
-QFilePrivate::setError(QFile::Error err, int errNum)
+QFilePrivate::setError(QFile::FileError err, int errNum)
 {
     error = err;
     errorString = qt_error_string(errNum);
@@ -192,7 +192,7 @@ QFilePrivate::setError(QFile::Error err, int errNum)
 */
 
 /*!
-    \enum QFile::Error
+    \enum QFile::FileError
 
     This enum describes the errors that may be returned by the error()
     function.
@@ -842,7 +842,7 @@ QFile::open(OpenMode mode)
         setOpenMode(mode);
         return true;
     }
-    QFile::Error err = fileEngine()->error();
+    QFile::FileError err = fileEngine()->error();
     if(err == QFile::UnspecifiedError)
         err = QFile::OpenError;
     d->setError(err, fileEngine()->errorString());
@@ -1090,7 +1090,7 @@ bool QFile::seek(qint64 off)
         return false;
     }
     if(!fileEngine()->seek(off)) {
-        QFile::Error err = fileEngine()->error();
+        QFile::FileError err = fileEngine()->error();
         if(err == QFile::UnspecifiedError)
             err = QFile::PositionError;
         d->setError(err, fileEngine()->errorString());
@@ -1166,7 +1166,7 @@ qint64 QFile::readData(char *data, qint64 len)
 #endif
 
     if(ret < 0) {
-        QFile::Error err = fileEngine()->error();
+        QFile::FileError err = fileEngine()->error();
         if(err == QFile::UnspecifiedError)
             err = QFile::ReadError;
         d->setError(err, fileEngine()->errorString());
@@ -1200,7 +1200,7 @@ QFile::writeData(const char *data, qint64 len)
 #endif
     qint64 ret = fileEngine()->write(data, len);
     if(ret < 0) {
-        QFile::Error err = fileEngine()->error();
+        QFile::FileError err = fileEngine()->error();
         if(err == QFile::UnspecifiedError)
             err = QFile::WriteError;
         d->setError(err, fileEngine()->errorString());
@@ -1254,7 +1254,7 @@ QFileEngine
     \sa unsetError()
 */
 
-QFile::Error
+QFile::FileError
 QFile::error() const
 {
     return d->error;

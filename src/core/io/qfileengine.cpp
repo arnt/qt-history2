@@ -283,13 +283,13 @@ QFileEngine *QFileEngine::createFileEngine(const QString &file)
 */
 
 /*!
-  Returns the QFile::Error that resulted from the last failed
+  Returns the QFile::FileError that resulted from the last failed
   operation. If QFile::UnspecifiedError is returned, QFile will
   use its own idea of the error status.
 
-  \sa QFile::Error, errorString
+  \sa QFile::FileError, errorString
  */
-QFile::Error QFileEngine::error() const
+QFile::FileError QFileEngine::error() const
 {
     return QFile::UnspecifiedError;
 }
@@ -837,7 +837,7 @@ QFSFileEngine::fileTime(FileTime time) const
     return ret;
 }
 
-QFile::Error
+QFile::FileError
 QFSFileEngine::error() const
 {
     return d->error;

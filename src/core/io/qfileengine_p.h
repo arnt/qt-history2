@@ -57,15 +57,15 @@ public:
         error = QFile::UnspecifiedError;
         errorString.clear();
     }
-    inline void setError(QFile::Error err, int errorCode) {
+    inline void setError(QFile::FileError err, int errorCode) {
         error = err;
         errorString = qt_error_string(errorCode);
     }
-    inline void setError(QFile::Error err, QString errStr = QString()) {
+    inline void setError(QFile::FileError err, QString errStr = QString()) {
         error = err;
         errorString = errStr;
     }
-    QFile::Error error;
+    QFile::FileError error;
     QString errorString;
 
     int fd;
