@@ -16,11 +16,13 @@
 
 #ifndef QT_NO_SPINWIDGET
 
-#include "qrect.h"
-#include "qtimer.h"
-#include "qstyle.h"
-#include "qpainter.h"
+#include "qabstractspinbox.h"
 #include "qevent.h"
+#include "qpainter.h"
+#include "qrect.h"
+#include "qstyle.h"
+#include "qstyleoption.h"
+#include "qtimer.h"
 
 class QSpinWidgetPrivate
 {
@@ -146,19 +148,40 @@ void QSpinWidget::mousePressEvent(QMouseEvent *e)
 
 }
 
+static Q4StyleOptionSpinBox getStyleOption(const QSpinWidget *spin)
+{
+    Q4StyleOptionSpinBox opt(0);
+    opt.init(spin);
+    opt.parts = 0;
+    opt.buttonSymbols = static_cast<QAbstractSpinBox::ButtonSymbols>(spin->buttonSymbols());
+    opt.percentage = 0; // no way to get this information as it is in QRangeControl.
+    opt.slider = false;
+    opt.stepEnabled = 0;
+    if (spin->isUpEnabled())
+        opt.stepEnabled |= QAbstractSpinBox::StepUpEnabled;
+    if (spin->isDownEnabled())
+        opt.stepEnabled |= QAbstractSpinBox::StepDownEnabled;
+    opt.activeParts = 0;
+    return opt;
+}
+
 /*!
 
 */
 
 void QSpinWidget::arrange()
 {
-    d->up = QStyle::visualRect(style().querySubControlMetrics(QStyle::CC_SpinBox, this,
-                                                                QStyle::SC_SpinBoxUp), this);
-    d->down = QStyle::visualRect(style().querySubControlMetrics(QStyle::CC_SpinBox, this,
-                                                                  QStyle::SC_SpinBoxDown), this);
+    Q4StyleOptionSpinBox opt = getStyleOption(this);
+    opt.parts = QStyle::SC_SpinBoxUp;
+    d->up = QStyle::visualRect(style().querySubControlMetrics(QStyle::CC_SpinBox, &opt, this),
+                               this);
+    opt.parts = QStyle::SC_SpinBoxDown;
+    d->down = QStyle::visualRect(style().querySubControlMetrics(QStyle::CC_SpinBox, &opt, this),
+                                 this);
     if (d->ed) {
-        QRect r = QStyle::visualRect(style().querySubControlMetrics(QStyle::CC_SpinBox, this,
-                                                                  QStyle::SC_SpinBoxEditField), this);
+        opt.parts = QStyle::SC_SpinBoxEditField;
+        QRect r = QStyle::visualRect(style().querySubControlMetrics(QStyle::CC_SpinBox, &opt, this),
+                                     this);
         d->ed->setGeometry(r);
     }
 }
@@ -294,29 +317,19 @@ void QSpinWidget::wheelEvent(QWheelEvent *e)
 void QSpinWidget::paintEvent(QPaintEvent *)
 {
     QPainter p(this);
+    Q4StyleOptionSpinBox opt = getStyleOption(this);
 
-    QStyle::SFlags flags = QStyle::Style_Default;
-    if (isEnabled())
-        flags |= QStyle::Style_Enabled;
-    if (hasFocus() || focusProxy() && focusProxy()->hasFocus())
-        flags |= QStyle::Style_HasFocus;
-
-    QStyle::SCFlags active;
     if (d->theButton & 1)
-        active = QStyle::SC_SpinBoxDown;
+        opt.activeParts = QStyle::SC_SpinBoxDown;
     else if (d->theButton & 2)
-        active = QStyle::SC_SpinBoxUp;
+        opt.activeParts = QStyle::SC_SpinBoxUp;
     else
-        active = QStyle::SC_None;
-
-    QRect fr = QStyle::visualRect(
-        style().querySubControlMetrics(QStyle::CC_SpinBox, this,
-                                        QStyle::SC_SpinBoxFrame), this);
-    style().drawComplexControl(QStyle::CC_SpinBox, &p, this,
-                                fr, palette(),
-                                flags,
-                                QStyle::SC_All,
-                                active);
+        opt.activeParts = QStyle::SC_None;
+    opt.parts = QStyle::SC_SpinBoxFrame;
+    opt.rect = QStyle::visualRect(style().querySubControlMetrics(QStyle::CC_SpinBox, &opt, this),
+                                  this);
+    opt.parts = QStyle::SC_All;
+    style().drawComplexControl(QStyle::CC_SpinBox, &opt, &p, this);
 }
 
 

@@ -1756,7 +1756,8 @@ void QMacStyleCG::drawComplexControl(ComplexControl cc, const Q4StyleOptionCompl
             if (sb->parts & SC_SpinBoxFrame) {
                 newSB.parts = SC_SpinBoxFrame;
                 Q4StyleOptionFrame lineedit(0);
-                lineedit.rect = querySubControlMetrics(CC_SpinBox, &newSB, widget),
+                lineedit.rect = QStyle::visualRect(querySubControlMetrics(CC_SpinBox, &newSB,
+                                                                          widget), widget);
                 lineedit.palette = sb->palette;
                 lineedit.state = Style_Sunken;
                 lineedit.lineWidth = 0;
@@ -1936,6 +1937,7 @@ QRect QMacStyleCG::querySubControlMetrics(ComplexControl cc, const Q4StyleOption
                                 spin->rect.height());
                     break;
                 default:
+                    ret = QWindowsStyle::querySubControlMetrics(cc, spin, widget);
                     break;
             }
         }
