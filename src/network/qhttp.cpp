@@ -80,15 +80,16 @@ public:
  *
  ****************************************************/
 
-/*
+/*!
     \class QHttpHeader qhttp.h
+
     \brief The QHttpHeader class contains header information for HTTP.
 
     \ingroup io
     \module network
 
     In most cases you should use the more specialized derivatives of
-    this class, QHttpReplyHeader and QHttpRequestHeader, rather than
+    this class, QHttpResponseHeader and QHttpRequestHeader, rather than
     directly using QHttpHeader.
 
     QHttpHeader provides the header fields. A HTTP header field
@@ -116,7 +117,7 @@ public:
     set the value for a key which already exists the previous value
     will be discarded.
 
-    \sa QHttpRequestHeader QHttpReplyHeader
+    \sa QHttpRequestHeader QHttpResponseHeader
 */
 
 /*!
@@ -591,8 +592,9 @@ QString QHttpResponseHeader::toString() const
  *
  ****************************************************/
 
-/*
+/*!
     \class QHttpRequestHeader qhttp.h
+
     \brief The QHttpRequestHeader class contains request header information for
     HTTP.
 
