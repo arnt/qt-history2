@@ -5,8 +5,9 @@ SUBDIRS       = designer \
                 layouts \
                 mainwindows \
                 network \
-		painting \
+                painting \
                 sql \
-		threads \
+                threads \
                 tools \
-                widgets
+                widgets \
+                xml

@@ -2,26 +2,26 @@
 
 #include <math.h>
 
-#include "calculator.h"
 #include "button.h"
+#include "calculator.h"
 
 Calculator::Calculator(QWidget *parent)
     : QDialog(parent)
 {
-    sumSoFar = 0.0;
-    pendingTerm = 0.0;
     sumInMemory = 0.0;
+    sumSoFar = 0.0;
+    factorSoFar = 0.0;
     waitingForOperand = true;
 
-    lineEdit = new QLineEdit("0", this);
-    lineEdit->setReadOnly(true);
-    lineEdit->setAlignment(Qt::AlignRight);
-    lineEdit->setMaxLength(15);
-    lineEdit->installEventFilter(this);
+    display = new QLineEdit("0", this);
+    display->setReadOnly(true);
+    display->setAlignment(Qt::AlignRight);
+    display->setMaxLength(15);
+    display->installEventFilter(this);
 
-    QFont font = lineEdit->font();
+    QFont font = display->font();
     font.setPointSize(font.pointSize() + 8);
-    lineEdit->setFont(font);
+    display->setFont(font);
 
     QColor digitColor(150, 205, 205);
     QColor backspaceColor(225, 185, 135);
@@ -30,16 +30,16 @@ Calculator::Calculator(QWidget *parent)
 
     for (int i = 0; i < NumDigitButtons; ++i) {
 	digitButtons[i] = createButton(QString::number(i), digitColor,
-                                       SLOT(digitPressed()));
+                                       SLOT(digitClicked()));
     }
 
-    pointButton = createButton(tr("."), digitColor, SLOT(pointPressed()));
-    changeSignButton = createButton(tr("±"), digitColor, SLOT(changeSignPressed()));
+    pointButton = createButton(tr("."), digitColor, SLOT(pointClicked()));
+    changeSignButton = createButton(tr("±"), digitColor, SLOT(changeSignClicked()));
    
     backspaceButton = createButton(tr("Backspace"), backspaceColor,
-                                   SLOT(backspacePressed()));
-    clearButton = createButton(tr("C"), backspaceColor, SLOT(clear()));
-    clearAllButton = createButton(tr("CA"), backspaceColor.light(120),
+                                   SLOT(backspaceClicked()));
+    clearButton = createButton(tr("Clear"), backspaceColor, SLOT(clear()));
+    clearAllButton = createButton(tr("Clear All"), backspaceColor.light(120),
                                   SLOT(clearAll()));
 
     clearMemoryButton = createButton(tr("MC"), memoryColor,
@@ -50,27 +50,27 @@ Calculator::Calculator(QWidget *parent)
                                      SLOT(addToMemory()));
 
     divisionButton = createButton(tr("÷"), operatorColor,
-                                  SLOT(multiplicativeOperatorPressed()));
+                                  SLOT(multiplicativeOperatorClicked()));
     timesButton = createButton(tr("×"), operatorColor,
-                               SLOT(multiplicativeOperatorPressed()));
+                               SLOT(multiplicativeOperatorClicked()));
     minusButton = createButton(tr("-"), operatorColor,
-                               SLOT(additiveOperatorPressed()));
+                               SLOT(additiveOperatorClicked()));
     plusButton = createButton(tr("+"), operatorColor,
-                              SLOT(additiveOperatorPressed()));
+                              SLOT(additiveOperatorClicked()));
 
     squareRootButton = createButton(tr("Sqrt"), operatorColor,
-                                    SLOT(unaryOperatorPressed()));
+                                    SLOT(unaryOperatorClicked()));
     powerButton = createButton(tr("x²"), operatorColor,
-                               SLOT(unaryOperatorPressed()));
+                               SLOT(unaryOperatorClicked()));
     reciprocalButton = createButton(tr("1/x"), operatorColor,
-                                    SLOT(unaryOperatorPressed()));
+                                    SLOT(unaryOperatorClicked()));
     equalButton = createButton(tr("="), operatorColor.light(120),
-                               SLOT(equalPressed()));
+                               SLOT(equalClicked()));
    
     QGridLayout *mainLayout = new QGridLayout(this);
     mainLayout->setSizeConstraint(QLayout::SetFixedSize);
 
-    mainLayout->addWidget(lineEdit, 0, 0, 1, 6);
+    mainLayout->addWidget(display, 0, 0, 1, 6);
     mainLayout->addWidget(backspaceButton, 1, 0, 1, 2);
     mainLayout->addWidget(clearButton, 1, 2, 1, 2);
     mainLayout->addWidget(clearAllButton, 1, 4, 1, 2);
@@ -105,149 +105,159 @@ Calculator::Calculator(QWidget *parent)
 
 bool Calculator::eventFilter(QObject *target, QEvent *event)
 {
-    if (target == lineEdit) {
+    if (target == display) {
         if (event->type() == QEvent::MouseButtonPress
                 || event->type() == QEvent::MouseButtonDblClick
-                || event->type() == QEvent::MouseButtonRelease) {
-            QPalette palette = lineEdit->palette();
-            palette.setColor(QPalette::Base,
-                             lineEdit->palette().color(QPalette::Text));
-            palette.setColor(QPalette::Text,
-                             lineEdit->palette().color(QPalette::Base));
-            lineEdit->setPalette(palette);
+                || event->type() == QEvent::MouseButtonRelease
+                || event->type() == QEvent::ContextMenu) {
+            QMouseEvent *mouseEvent = static_cast<QMouseEvent *>(event);
+            if (mouseEvent->buttons() & Qt::LeftButton) {
+                QPalette newPalette = palette();
+                newPalette.setColor(QPalette::Base,
+                                    display->palette().color(QPalette::Text));
+                newPalette.setColor(QPalette::Text,
+                                    display->palette().color(QPalette::Base));
+                display->setPalette(newPalette);
+            } else {
+                display->setPalette(palette());
+            }
+            return true;
         }
     }
     return QDialog::eventFilter(target, event);
 }
 
-void Calculator::digitPressed()
+void Calculator::digitClicked()
 {
-    QToolButton *button = qobject_cast<QToolButton *>(sender());
-    int digitValue = button->text().toInt();
-    if (lineEdit->text() == "0" && digitValue == 0.0)
+    Button *clickedButton = qobject_cast<Button *>(sender());
+    int digitValue = clickedButton->text().toInt();
+    if (display->text() == "0" && digitValue == 0.0)
         return;
 
     if (waitingForOperand) {
-        lineEdit->clear();
+        display->clear();
 	waitingForOperand = false;
     }
-    lineEdit->setText(lineEdit->text() + digitButtons[digitValue]->text());
+    display->setText(display->text() + QString::number(digitValue));
 }
 
-void Calculator::unaryOperatorPressed()
+void Calculator::unaryOperatorClicked()
 {
-    QToolButton *button = qobject_cast<QToolButton *>(sender());
-    double nextOperand = lineEdit->text().toDouble();
-    QString theOperator = button->text();
+    Button *clickedButton = qobject_cast<Button *>(sender());
+    QString clickedOperator = clickedButton->text();
+    double operand = display->text().toDouble();
+    double result;
 
-    if (theOperator == tr("Sqrt")) {
-        if (nextOperand < 0.0) {
+    if (clickedOperator == tr("Sqrt")) {
+        if (operand < 0.0) {
             abortOperation();
             return;
         }
-        sumSoFar = sqrt(nextOperand);
-    } else if (theOperator == tr("x²")) {
-        sumSoFar = pow(nextOperand, 2.0);
-    } else if (theOperator == tr("1/x")) {
-        if (nextOperand == 0.0) {
+        result = sqrt(operand);
+    } else if (clickedOperator == tr("x²")) {
+        result = pow(operand, 2.0);
+    } else if (clickedOperator == tr("1/x")) {
+        if (operand == 0.0) {
 	    abortOperation();
 	    return;        
         }
-        sumSoFar = 1.0 / nextOperand;
+        result = 1.0 / operand;
     }
-    lineEdit->setText(QString::number(sumSoFar));
+    display->setText(QString::number(result));
     waitingForOperand = true;
 }
 
-void Calculator::additiveOperatorPressed()
+void Calculator::additiveOperatorClicked()
 {
-    QToolButton *button = qobject_cast<QToolButton *>(sender());
-    double nextOperand = lineEdit->text().toDouble();
-    QString theOperator = button->text();
+    Button *clickedButton = qobject_cast<Button *>(sender());
+    QString clickedOperator = clickedButton->text();
+    double operand = display->text().toDouble();
 
     if (!pendingMultiplicativeOperator.isEmpty()) {
-        if (!calculate(nextOperand, pendingMultiplicativeOperator)) {
+        if (!calculate(operand, pendingMultiplicativeOperator)) {
             abortOperation();
 	    return;
         }
-        lineEdit->setText(QString::number(pendingTerm));
-        nextOperand = pendingTerm;
+        display->setText(QString::number(factorSoFar));
+        operand = factorSoFar;
+        factorSoFar = 0.0;
         pendingMultiplicativeOperator.clear();
     }
 
-    if (!pendingAdditiveOperator.isEmpty()){
-        if (!calculate(nextOperand, pendingAdditiveOperator)) {
+    if (!pendingAdditiveOperator.isEmpty()) {
+        if (!calculate(operand, pendingAdditiveOperator)) {
             abortOperation();
 	    return;
         }
-        lineEdit->setText(QString::number(sumSoFar));
+        display->setText(QString::number(sumSoFar));
     } else {
-        sumSoFar = nextOperand;
+        sumSoFar = operand;
     }
 
-    pendingAdditiveOperator = theOperator;
+    pendingAdditiveOperator = clickedOperator;
     waitingForOperand = true;
 }
 
-void Calculator::multiplicativeOperatorPressed()
+void Calculator::multiplicativeOperatorClicked()
 {
-    QToolButton *button = qobject_cast<QToolButton *>(sender());
-    double nextOperand = lineEdit->text().toDouble();
-    QString theOperator = button->text();
+    Button *clickedButton = qobject_cast<Button *>(sender());
+    QString clickedOperator = clickedButton->text();
+    double operand = display->text().toDouble();
 
     if (!pendingMultiplicativeOperator.isEmpty()) {
-        if (!calculate(nextOperand, pendingMultiplicativeOperator)) {
+        if (!calculate(operand, pendingMultiplicativeOperator)) {
             abortOperation();
 	    return;
         }
-        lineEdit->setText(QString::number(pendingTerm));
+        display->setText(QString::number(factorSoFar));
     } else {
-        pendingTerm = nextOperand;
+        factorSoFar = operand;
     }
 
-    pendingMultiplicativeOperator = theOperator;
+    pendingMultiplicativeOperator = clickedOperator;
     waitingForOperand = true;
 }
 
-void Calculator::equalPressed()
+void Calculator::equalClicked()
 {
-    double nextOperand = lineEdit->text().toDouble();
+    double operand = display->text().toDouble();
 
     if (!pendingMultiplicativeOperator.isEmpty()) {
-        if (!calculate(nextOperand, pendingMultiplicativeOperator)) {
+        if (!calculate(operand, pendingMultiplicativeOperator)) {
             abortOperation();
 	    return;
         }
-        nextOperand = pendingTerm;
+        operand = factorSoFar;
+        factorSoFar = 0.0;
+        pendingMultiplicativeOperator.clear();
     }
     if (!pendingAdditiveOperator.isEmpty()) {
-        if (!calculate(nextOperand, pendingAdditiveOperator)) {
+        if (!calculate(operand, pendingAdditiveOperator)) {
             abortOperation();
 	    return;
         }
+        pendingAdditiveOperator.clear();
     } else {
-        sumSoFar = nextOperand;
+        sumSoFar = operand;
     }
    
-    lineEdit->setText(QString::number(sumSoFar));
-    pendingMultiplicativeOperator.clear();
-    pendingAdditiveOperator.clear();
-    pendingTerm = 0.0;
+    display->setText(QString::number(sumSoFar));
     sumSoFar = 0.0;
     waitingForOperand = true;
 }
 
-void Calculator::pointPressed()
+void Calculator::pointClicked()
 {
-  if (!lineEdit->text().contains(".")) {
-        lineEdit->setText(lineEdit->text() + tr("."));
-        waitingForOperand = false;
-  }
+    if (waitingForOperand)
+        display->setText("0");
+    if (!display->text().contains("."))
+        display->setText(display->text() + tr("."));
+    waitingForOperand = false;
 }
 
-void Calculator::changeSignPressed()
+void Calculator::changeSignClicked()
 {
-    QString text = lineEdit->text();
+    QString text = display->text();
     double value = text.toDouble();
 
     if (value > 0.0) {
@@ -255,36 +265,39 @@ void Calculator::changeSignPressed()
     } else if (value < 0.0) {
         text.remove(0, 1);
     }
-    lineEdit->setText(text);
+    display->setText(text);
 }
 
-void Calculator::backspacePressed()
+void Calculator::backspaceClicked()
 {
     if (waitingForOperand)
         return;
 
-    QString text = lineEdit->text();
+    QString text = display->text();
     text.chop(1);
     if (text.isEmpty()) {
         text = "0";
         waitingForOperand = true;
     }
-    lineEdit->setText(text);
+    display->setText(text);
 }
 
 void Calculator::clear()
 {
-    lineEdit->setText("0");
+    if (waitingForOperand)
+        return;
+
+    display->setText("0");
     waitingForOperand = true;
 }
 
 void Calculator::clearAll()
 {
     sumSoFar = 0.0;
-    pendingTerm = 0.0;
+    factorSoFar = 0.0;
     pendingAdditiveOperator.clear();
     pendingMultiplicativeOperator.clear();
-    lineEdit->setText("0");
+    display->setText("0");
     waitingForOperand = true;
 }
 
@@ -295,51 +308,48 @@ void Calculator::clearMemory()
 
 void Calculator::readMemory()
 {
-    lineEdit->setText(QString::number(sumInMemory));
+    display->setText(QString::number(sumInMemory));
+    waitingForOperand = true;
 }
 
 void Calculator::setMemory()
 {
-    sumInMemory = lineEdit->text().toDouble();
-    waitingForOperand = true;
+    equalClicked();
+    sumInMemory = sumSoFar;
 }
 
 void Calculator::addToMemory()
 {
-    sumInMemory += lineEdit->text().toDouble();
-    waitingForOperand = true;
+    equalClicked();
+    sumInMemory += sumSoFar;
 }
 
-QToolButton *Calculator::createButton(const QString &text, const QColor &color,
-                                      const char *slot)
+Button *Calculator::createButton(const QString &text, const QColor &color,
+                                 const char *member)
 {
-    QToolButton *button = new Button(text, color, this);
-    connect(button, SIGNAL(pressed()), this, slot);
+    Button *button = new Button(text, color, this);
+    connect(button, SIGNAL(clicked()), this, member);
     return button;
 }
 
 void Calculator::abortOperation()
 {
-    lineEdit->setText(tr("####"));
-    pendingAdditiveOperator.clear();
-    pendingMultiplicativeOperator.clear();
-    pendingTerm = 0.0;
-    sumSoFar = 0.0;
-    waitingForOperand = true;
+    clearAll();
+    display->setText(tr("####"));
 }
 
-bool Calculator::calculate(double nextOperand, const QString &theOperator)
+bool Calculator::calculate(double rightOperand, const QString &pendingOperator)
 {
-    if (theOperator == tr("+")) {
-        sumSoFar += nextOperand;
-    } else if (theOperator == tr("-")) {
-        sumSoFar -= nextOperand;
-    } else if (theOperator == tr("×")) {
-        pendingTerm *= nextOperand;
-    } else if (theOperator == tr("÷")) {
-	if (nextOperand == 0.0)
+    if (pendingOperator == tr("+")) {
+        sumSoFar += rightOperand;
+    } else if (pendingOperator == tr("-")) {
+        sumSoFar -= rightOperand;
+    } else if (pendingOperator == tr("×")) {
+        factorSoFar *= rightOperand;
+    } else if (pendingOperator == tr("÷")) {
+	if (rightOperand == 0.0)
 	    return false;       
-	pendingTerm /= nextOperand;
+	factorSoFar /= rightOperand;
     }
     return true;
 }

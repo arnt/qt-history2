@@ -4,7 +4,7 @@
 #include <QDialog>
 
 class QLineEdit;
-class QToolButton;
+class Button;
 
 class Calculator : public QDialog
 {
@@ -17,14 +17,14 @@ protected:
     bool eventFilter(QObject *target, QEvent *event);
 
 private slots:
-    void digitPressed();
-    void unaryOperatorPressed();
-    void additiveOperatorPressed();
-    void multiplicativeOperatorPressed();
-    void equalPressed();
-    void pointPressed();
-    void changeSignPressed();
-    void backspacePressed();
+    void digitClicked();
+    void unaryOperatorClicked();
+    void additiveOperatorClicked();
+    void multiplicativeOperatorClicked();
+    void equalClicked();
+    void pointClicked();
+    void changeSignClicked();
+    void backspaceClicked();
     void clear();
     void clearAll();
     void clearMemory();
@@ -33,41 +33,41 @@ private slots:
     void addToMemory();
 
 private:
-    QToolButton *createButton(const QString &text, const QColor &color,
-                              const char *slot);
+    Button *createButton(const QString &text, const QColor &color,
+                         const char *member);
     void abortOperation();
-    bool calculate(double nextOperand, const QString &theOperator);
+    bool calculate(double rightOperand, const QString &pendingOperator);
 
-    double sumSoFar;
-    double pendingTerm;
     double sumInMemory;
-    bool waitingForOperand;
+    double sumSoFar;
+    double factorSoFar;
     QString pendingAdditiveOperator;
     QString pendingMultiplicativeOperator;
+    bool waitingForOperand;
 
-    QLineEdit *lineEdit;
+    QLineEdit *display;
 
     enum { NumDigitButtons = 10 };
-    QToolButton *digitButtons[NumDigitButtons];
+    Button *digitButtons[NumDigitButtons];
 
-    QToolButton *pointButton;
-    QToolButton *changeSignButton;
-    QToolButton *backspaceButton;
-    QToolButton *clearButton;
-    QToolButton *clearAllButton;
-    QToolButton *clearMemoryButton;
-    QToolButton *readMemoryButton;
-    QToolButton *setMemoryButton;
-    QToolButton *addToMemoryButton;
+    Button *pointButton;
+    Button *changeSignButton;
+    Button *backspaceButton;
+    Button *clearButton;
+    Button *clearAllButton;
+    Button *clearMemoryButton;
+    Button *readMemoryButton;
+    Button *setMemoryButton;
+    Button *addToMemoryButton;
    
-    QToolButton *divisionButton;
-    QToolButton *timesButton;
-    QToolButton *minusButton;
-    QToolButton *plusButton;
-    QToolButton *squareRootButton;
-    QToolButton *powerButton;
-    QToolButton *reciprocalButton;
-    QToolButton *equalButton;
+    Button *divisionButton;
+    Button *timesButton;
+    Button *minusButton;
+    Button *plusButton;
+    Button *squareRootButton;
+    Button *powerButton;
+    Button *reciprocalButton;
+    Button *equalButton;
 };
 
 #endif
