@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcolor.cpp#79 $
+** $Id: //depot/qt/main/src/kernel/qcolor.cpp#80 $
 **
 ** Implementation of QColor class
 **
@@ -517,7 +517,7 @@ void QColor::setRgb( QRgb rgb )
 
 
 /*!
-  \fn int QColor::greeen() const
+  \fn int QColor::green() const
   Returns the G (green) component of the RGB value.
 */
 
