@@ -26,3 +26,15 @@ DESTDIR		= ../../../bin
 
 target.path=$$bins.path
 INSTALLS        += target
+
+*-mwerks {
+   TEMPLATE = lib
+   TARGET = McUic
+   CONFIG -= static
+   CONFIG += shared plugin
+   DEFINES += UIC_MWERKS_PLUGIN
+   MWERKSDIR = $(QTDIR)/util/mwerks_plugin
+   INCLUDEPATH += $$MWERKSDIR/Headers
+   LIBS += $$MWERKSDIR/Libraries/PluginLib4.shlb
+   SOURCES += mwerks_mac.cpp
+}

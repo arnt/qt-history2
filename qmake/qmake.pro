@@ -52,7 +52,6 @@ qnx {
 }
 #installation
 target.path=$$bins.path
-
 INSTALLS        += target
 
 
