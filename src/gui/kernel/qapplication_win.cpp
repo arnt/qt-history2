@@ -307,6 +307,7 @@ public:
     void        setWState(Qt::WState f)        { QWidget::setWState(f); }
     void        clearWState(Qt::WState f) { QWidget::clearWState(f); }
     QWExtra    *xtra()                        { return d->extraData(); }
+    QTLWExtra  *topData()                     { return d->topData(); }
     bool        winEvent(MSG *m, long *r)        { return QWidget::winEvent(m, r); }
     void        markFrameStrutDirty()        { data->fstrut_dirty = 1; }
     bool        translateMouseEvent(const MSG &msg);
@@ -1526,6 +1527,21 @@ LRESULT CALLBACK QtWndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam
             break;
 
 #ifndef Q_OS_TEMP
+        case WM_NCHITTEST:
+            if (widget->isTopLevel()) {
+                QPoint pos = widget->mapFromGlobal(QPoint(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam)));
+                // don't show resize-cursors for fixed-size widgets
+                int fleft = widget->topData()->fleft;
+                int ftop = widget->topData()->ftop;
+
+                if (widget->minimumWidth() == widget->maximumWidth() && (pos.x() < 0 || pos.x() >= widget->width()))
+                    break;
+                if (widget->minimumHeight() == widget->maximumHeight() && (pos.y() < -(ftop - fleft) || pos.y() >= widget->height()))
+                    break;
+            }
+
+            result = false;
+            break;
         case WM_NCMOUSEMOVE:
             {
                 // span the application wide cursor over the
@@ -2064,8 +2080,7 @@ static bool qt_try_modal(QWidget *widget, MSG *msg, int& ret)
     bool block_event = false;
 #ifndef Q_OS_TEMP
     if (type == WM_NCHITTEST) {
-      //block_event = true;
-        // QApplication::beep();
+        block_event = true;
     } else
 #endif
         if ((type >= WM_MOUSEFIRST && type <= WM_MOUSELAST) ||
