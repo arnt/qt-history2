@@ -1184,7 +1184,7 @@ bool QLayout::activate()
 		       s.height() - mbh - 2 * b) );
     if ( frozen ) {
 	// will trigger resize
-	mainWidget()->setFixedSize( totalSizeHint() ); 
+	mainWidget()->setFixedSize( totalSizeHint() );
     } else if ( autoMinimum ) {
 	ms = totalMinimumSize();
     } else if ( autoResizeMode && topLevel && mainWidget()
@@ -1466,6 +1466,12 @@ bool QLayout::activate()
     Sets the vertical stretch factor of the size policy to \a sf.
 
     \sa verStretch() setHorStretch()
+*/
+
+/*!
+    \fn void QSizePolicy::transpose()
+
+    Swaps the horizontal and vertical policies and stretches.
 */
 
 
