@@ -1592,7 +1592,7 @@ MakefileGenerator::writeSubTargets(QTextStream &t, QList<MakefileGenerator::SubT
         QString mkfile = (*it)->makefile, cdin, cdout;
         if(have_dir) {
             mkfile.prepend((*it)->directory + Option::dir_sep);
-            if(project->isActiveConfig("win32")) {
+            if(project->isActiveConfig("cd_change_global")) {
                 cdin = "\n\t@cd " + (*it)->directory + "\n\t";
                 cdout = "\n\t@cd ..";
                 const int subLevels = (*it)->directory.count(Option::dir_sep);
