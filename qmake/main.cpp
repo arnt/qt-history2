@@ -48,23 +48,6 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 
-static bool createDir(const QString& fullPath)
-{
-    QDir dirTmp;
-    bool ret = TRUE;
-    QString pathComponent, tmpPath;
-    QStringList hierarchy = QStringList::split(QString(Option::dir_sep), fullPath, TRUE);
-    for(QStringList::Iterator it = hierarchy.begin(); it != hierarchy.end(); ++it) {
-	pathComponent = *it + QDir::separator();
-	tmpPath += pathComponent;
-	if(!dirTmp.mkdir(tmpPath)) {
-	    ret = FALSE;
-//	    break;
-	}
-    }
-    return ret;
-}
-
 // for Borland, main is defined to qMain which breaks qmake
 #undef main
 
@@ -124,58 +107,21 @@ int main(int argc, char **argv)
 		      Option::qmake_mode == Option::QMAKE_GENERATE_PROJECT)) {
 	    //open output
 	    if(!(Option::output.state() & IO_Open)) {
-		QString default_makefile;
-		if(Option::qmake_mode == Option::QMAKE_GENERATE_MAKEFILE)
-		    default_makefile = proj.first("QMAKE_MAKEFILE");
-		if(default_makefile.isEmpty()) {
-		    default_makefile = mkfile->defaultMakefile();
-		    proj.variables()["QMAKE_MAKEFILE"].append(default_makefile);
-		}
-
-		if(!Option::output.name().isEmpty() && Option::output.name() != "-") {
-		    QFileInfo fi(Option::output);
-		    if(fi.isDir()) { 
-			default_makefile.prepend(Option::output.name() + QDir::separator());
-			Option::output.setName("");
-		    }
-		}
-		Option::fixPathToLocalOS(default_makefile);
-		if(Option::output.name().isEmpty()) {
-		    if(default_makefile.findRev(Option::dir_sep) != -1) 
-			createDir(default_makefile.left(
-			    default_makefile.findRev(Option::dir_sep)));
-		    Option::output.setName(default_makefile);
-		} 
-		if(Option::output.name().isEmpty() || Option::output.name() == "-") {
+		if(Option::output.name() == "-") {
 		    Option::output.setName("");
+		    Option::output_dir = QDir::currentDirPath();
 		    Option::output.open(IO_WriteOnly | IO_Translate, stdout);
 		    using_stdout = TRUE;
 		} else {
-		    if(Option::qmake_mode == Option::QMAKE_GENERATE_MAKEFILE &&
-		       QDir::isRelativePath(Option::output.name()) && 
-		       proj.first("TEMPLATE").find(QRegExp("^vc.*")) != -1) {
-			QString ofile;
-			ofile = Option::output.name();
-			int slashfind = ofile.findRev('\\');
-			if (slashfind == -1)
-			    ofile = ofile.replace('-', '_');
-			else { 
-			    int hypenfind = ofile.find('-', slashfind);
-			    while (hypenfind != -1 && slashfind < hypenfind) {
-				ofile = ofile.replace(hypenfind, 1, "_");
-				hypenfind = ofile.find('-', hypenfind + 1);
-			    }
-			}
-			Option::output.setName(Option::fixPathToLocalOS(oldpwd + Option::dir_sep + ofile));
-		    }
-
-		    QFileInfo fi(Option::output);
-		    Option::output_dir = Option::fixPathToTargetOS(
-			    (fi.isSymLink() ? fi.readLink() : fi.dirPath()) );
-		    if(!Option::output.open(IO_WriteOnly | IO_Translate)) {
+		    if(Option::output.name().isEmpty() && Option::qmake_mode == Option::QMAKE_GENERATE_MAKEFILE)
+			Option::output.setName(proj.first("QMAKE_MAKEFILE"));
+		    if(!mkfile->openOutput(Option::output)) {
 			fprintf(stderr, "Failure to open file: %s\n",
 				Option::output.name().isEmpty() ? "(stdout)" : Option::output.name().latin1());
 			return 5;
+		    } else {
+			QFileInfo fi(Option::output);
+			Option::output_dir = Option::fixPathToTargetOS((fi.isSymLink() ? fi.readLink() : fi.dirPath()) );
 		    }
 		}
 	    }

@@ -895,3 +895,32 @@ DspMakefileGenerator::endGroups(QTextStream &t)
     currentGroup = "";
     return dirs.count();
 }
+
+bool
+DspMakefileGenerator::openOutput(QFile &file) const
+{
+    QString outdir;
+    if(!file.name().isEmpty()) {
+	QFileInfo fi(file);
+	if(fi.isDir())
+	    outdir = fi.dirPath() + QDir::separator();
+    }
+    if(!outdir.isEmpty() || file.name().isEmpty())
+	file.setName(outdir + project->first("TARGET") + project->first("DSP_EXTENSION"));
+    if(QDir::isRelativePath(file.name())) {
+	QString ofile;
+	ofile = file.name();
+	int slashfind = ofile.findRev('\\');
+	if (slashfind == -1) {
+	    ofile = ofile.replace(QRegExp("-"), "_");
+	} else { 
+	    int hypenfind = ofile.find('-', slashfind);
+	    while (hypenfind != -1 && slashfind < hypenfind) {
+		ofile = ofile.replace(hypenfind, 1, "_");
+		hypenfind = ofile.find('-', hypenfind + 1);
+	    }
+	}
+	file.setName(Option::fixPathToLocalOS(QDir::currentDirPath() + Option::dir_sep + ofile));
+    }
+    return Win32MakefileGenerator::openOutput(file);
+}

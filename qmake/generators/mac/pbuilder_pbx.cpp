@@ -847,12 +847,27 @@ ProjectBuilderMakefileGenerator::keyFor(QString block)
     return ret;
 }
 
-QString
-ProjectBuilderMakefileGenerator::defaultMakefile() const
+bool
+ProjectBuilderMakefileGenerator::openOutput(QFile &file) const
 {
-    if(project->first("TEMPLATE") == "subdirs")
-	return UnixMakefileGenerator::defaultMakefile();
-    return project->first("TARGET") + ".pbproj/project.pbxproj";
+    if(project->first("TEMPLATE") != "subdirs") {
+	QFileInfo fi(file);
+	if(fi.extension() != "pbxproj" || file.name().isEmpty()) {
+	    QString output = file.name();
+	    if(fi.isDir())
+		output += QDir::separator();
+	    if(fi.extension() != "pbproj") {
+		output += QString(".pbproj") + QDir::separator();
+		if(file.name().isEmpty() || fi.isDir())
+		    output += project->first("TARGET");
+	    } else if(output.right(1) != QDir::separator()) {
+		output += QDir::separator();
+	    }
+	    output += QString("project.pbxproj");
+	    file.setName(output);
+	}
+    }
+    return UnixMakefileGenerator::openOutput(file);
 }
 
 /* This function is such a hack it is almost pointless, but it

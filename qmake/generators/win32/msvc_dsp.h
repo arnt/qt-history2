@@ -57,7 +57,7 @@ public:
     DspMakefileGenerator(QMakeProject *p);
     ~DspMakefileGenerator();
 
-    QString defaultMakefile() const;
+    bool openOutput(QFile &file) const;
 
 protected:
     virtual void processPrlVariable(const QString &, const QStringList &);
@@ -66,11 +66,6 @@ protected:
 
 inline DspMakefileGenerator::~DspMakefileGenerator()
 { }
-
-inline QString DspMakefileGenerator::defaultMakefile() const
-{
-    return project->first("TARGET") + project->first("DSP_EXTENSION");
-}
 
 inline bool DspMakefileGenerator::findLibraries()
 { return Win32MakefileGenerator::findLibraries("MSVCDSP_LIBS"); }

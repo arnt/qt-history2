@@ -59,6 +59,22 @@
 #define S_ISDIR(m)	(((m) & S_IFMT) == S_IFDIR)
 #endif
 
+static bool createDir(const QString& fullPath)
+{
+    QDir dirTmp;
+    bool ret = TRUE;
+    QString pathComponent, tmpPath;
+    QStringList hierarchy = QStringList::split(QString(Option::dir_sep), fullPath, TRUE);
+    for(QStringList::Iterator it = hierarchy.begin(); it != hierarchy.end(); ++it) {
+	pathComponent = *it + QDir::separator();
+	tmpPath += pathComponent;
+	if(!dirTmp.mkdir(tmpPath)) {
+	    ret = FALSE;
+//	    break;
+	}
+    }
+    return ret;
+}
 
 
 MakefileGenerator::MakefileGenerator(QMakeProject *p) : init_opath_already(FALSE),
@@ -502,7 +518,19 @@ MakefileGenerator::initOutPaths()
 		}
 	    }
 	}
-	if ( !v["QMAKE_ABSOLUTE_SOURCE_PATH"].isEmpty() ) {
+	if(!v.contains("QMAKE_ABSOLUTE_SOURCE_PATH")) {
+	    QString absolute_dir = Option::output_dir;
+	    if(absolute_dir == ".") {
+		absolute_dir = QDir::currentDirPath();
+	    } else if(QDir::isRelativePath(absolute_dir)) {
+		QFileInfo fi(absolute_dir);
+		if(!fi.convertToAbs())
+		    absolute_dir = fi.filePath();
+	    }
+	    if(absolute_dir != QDir::currentDirPath())
+		v.insert("QMAKE_ABSOLUTE_SOURCE_PATH", absolute_dir);
+	}
+	if(!v["QMAKE_ABSOLUTE_SOURCE_PATH"].isEmpty()) {
 	    QString &asp = v["QMAKE_ABSOLUTE_SOURCE_PATH"].first();
 	    asp = Option::fixPathToTargetOS( asp );
 	    if(asp.isEmpty() || asp == Option::output_dir) //if they're the same, why bother?
@@ -753,7 +781,8 @@ MakefileGenerator::init()
 				if(!d.count()) {
 				    debug_msg(1, "Failure to find %s in vpath (%s)",
 					      (*val_it).latin1(), vpath.join("::").latin1());
-				    warn_msg(WarnLogic, "Failure to find: %s", (*val_it).latin1());
+				    warn_msg(WarnLogic, "Failure to find(%s:%d): %s", __FILE__, __LINE__, 
+					     (*val_it).latin1());
 				    continue;
 				} else {
 				    (*val_it) = dir + d[0];
@@ -764,7 +793,8 @@ MakefileGenerator::init()
 				debug_msg(1, "Cannot match %s%c%s, as %s does not exist.",
 					  real_dir.latin1(), QDir::separator(), regex.latin1(),
 					  real_dir.latin1());
-				warn_msg(WarnLogic, "Failure to find: %s", (*val_it).latin1());
+				warn_msg(WarnLogic, "Failure to find(%s:%d): %s", __FILE__, __LINE__, 
+					 (*val_it).latin1());
 			    }
 			}
 		    }
@@ -1969,4 +1999,24 @@ MakefileGenerator::create(QMakeProject *proj)
     return mkfile;
 }
 
-
+bool
+MakefileGenerator::openOutput(QFile &file) const
+{
+    {
+	QString outdir;
+	if(!file.name().isEmpty()) {
+	    QFileInfo fi(file);
+	    if(fi.isDir())
+		outdir = fi.dirPath() + QDir::separator();
+	}
+	if(!outdir.isEmpty() || file.name().isEmpty())
+	    file.setName(outdir + "Makefile");
+    }
+    if(project->isEmpty("QMAKE_MAKEFILE"))
+	project->variables()["QMAKE_MAKEFILE"].append(file.name());
+    int slsh = file.name().findRev(Option::dir_sep);
+    if(slsh != -1)
+	createDir(file.name().left(slsh));
+    qDebug("Opening %s", file.name().latin1());
+    return file.open(IO_WriteOnly | IO_Translate);
+}

@@ -56,7 +56,7 @@ public:
     MetrowerksMakefileGenerator(QMakeProject *p);
     ~MetrowerksMakefileGenerator();
 
-    QString defaultMakefile() const;
+    bool openOutput(QFile &file) const;
 protected:
     virtual void processPrlFiles();
     virtual void processPrlVariable(const QString &var, const QStringList &l);
@@ -66,8 +66,4 @@ protected:
 inline MetrowerksMakefileGenerator::~MetrowerksMakefileGenerator()
 { }
 
-inline QString MetrowerksMakefileGenerator::defaultMakefile() const
-{
-    return project->first("TARGET") + ".xml";
-}
 #endif /* __METROWERKSMAKE_H__ */

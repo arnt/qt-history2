@@ -446,12 +446,21 @@ ProjectGenerator::getWritableVar(const QString &v, bool /*fixPath*/)
     return ret + join + "\n";
 }
 
-QString
-ProjectGenerator::defaultMakefile() const
+bool
+ProjectGenerator::openOutput(QFile &file) const
 {
-    QString dir = QDir::currentDirPath();
-    int s = dir.findRev('/');
-    if(s != -1)
-	dir = dir.right(dir.length() - (s + 1));
-    return dir + ".pro";
+    QString outdir;
+    if(!file.name().isEmpty()) {
+	QFileInfo fi(file);
+	if(fi.isDir())
+	    outdir = fi.dirPath() + QDir::separator();
+    }
+    if(!outdir.isEmpty() || file.name().isEmpty()) {
+	QString dir = QDir::currentDirPath();
+	int s = dir.findRev('/');
+	if(s != -1)
+	    dir = dir.right(dir.length() - (s + 1));
+	file.setName(outdir + dir + ".pro");
+    }
+    return MakefileGenerator::openOutput(file);
 }

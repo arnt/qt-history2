@@ -51,7 +51,7 @@ protected:
 public:
     ProjectGenerator(QMakeProject *p);
     ~ProjectGenerator();
-    virtual QString defaultMakefile() const;
+    virtual bool openOutput(QFile &) const;
 };
 
 inline ProjectGenerator::~ProjectGenerator()

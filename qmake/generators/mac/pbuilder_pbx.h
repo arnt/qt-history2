@@ -54,7 +54,7 @@ public:
     ProjectBuilderMakefileGenerator(QMakeProject *p);
     ~ProjectBuilderMakefileGenerator();
 
-    QString defaultMakefile() const;
+    virtual bool openOutput(QFile &) const;
 protected:
     virtual bool doDepends() const { return FALSE; } //never necesary
 };

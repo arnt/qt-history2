@@ -805,3 +805,18 @@ MetrowerksMakefileGenerator::processPrlVariable(const QString &var, const QStrin
 	MakefileGenerator::processPrlVariable(var, l);
     }
 }
+
+
+bool
+MetrowerksMakefileGenerator::openOutput(QFile &file) const
+{
+    QString outdir;
+    if(!file.name().isEmpty()) {
+	QFileInfo fi(file);
+	if(fi.isDir())
+	    outdir = fi.dirPath() + QDir::separator();
+    }
+    if(!outdir.isEmpty() || file.name().isEmpty()) 
+	file.setName(outdir + project->first("TARGET") + ".xml");
+    return MakefileGenerator::openOutput(file);
+}
