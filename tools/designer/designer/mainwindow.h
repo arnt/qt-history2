@@ -170,6 +170,8 @@ public:
 
     void shuttingDown();
     void showGUIStuff( bool b );
+    void setEditorsReadOnly( bool b );
+    bool areEditorsReadOnly() const { return editorsReadOnly; }
     void writeConfig();
 
     void openProject( const QString &fn );
@@ -446,7 +448,8 @@ private:
     bool singleProject;
     QCategoryWidget *toolBox;
     int toolsMenuId, toolsMenuIndex;
-    bool guiStuffVisible;
+    uint guiStuffVisible : 1;
+    uint editorsReadOnly : 1;
 #ifndef Q_OS_WIN32
     AssistProc *assistant;
 #endif

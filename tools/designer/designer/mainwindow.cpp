@@ -133,6 +133,7 @@ MainWindow::MainWindow( bool asClient, bool single, const QString &plgDir )
     setPluginDirectory( plgDir );
     customWidgetToolBar = customWidgetToolBar2 = 0;
     guiStuffVisible = TRUE;
+    editorsReadOnly = FALSE;
     init_colors();
     shStartDialog = TRUE;
 
@@ -3590,6 +3591,11 @@ void MainWindow::showGUIStuff( bool b )
 	actionFileSave->addTo( projectToolBar );
 	actionFileExit->addTo( fileMenu );
     }
+}
+
+void MainWindow::setEditorsReadOnly( bool b )
+{
+    editorsReadOnly = b;
 }
 
 void MainWindow::setPluginDirectory( const QString &pd )

@@ -59,6 +59,7 @@ Editor::Editor( const QString &fn, QWidget *parent, const char *name )
     accelUncomment = new QAccel( this );
     accelUncomment->connectItem( accelUncomment->insertItem( ALT + Key_U ),
 				 this, SLOT( uncommentSelection() ) );
+    editable = TRUE;
 }
 
 void Editor::cursorPosChanged( QTextCursor *c )
@@ -195,4 +196,37 @@ bool Editor::eventFilter( QObject *o, QEvent *e )
 	accelComment->setEnabled( e->type() == QEvent::FocusIn );
     }
     return QTextEdit::eventFilter( o, e );
+}
+
+void Editor::doKeyboardAction( KeyboardAction action )
+{
+    if ( !editable )
+	return;
+    QTextEdit::doKeyboardAction( action );
+}
+
+void Editor::keyPressEvent( QKeyEvent *e )
+{
+    if ( editable ) {
+	QTextEdit::keyPressEvent( e );
+	return;
+    }
+
+    switch ( e->key() ) {
+    case Key_Left:
+    case Key_Right:
+    case Key_Up:
+    case Key_Down:
+    case Key_Home:
+    case Key_End:
+    case Key_Prior:
+    case Key_Next:
+    case Key_Direction_L:
+    case Key_Direction_R:
+	QTextEdit::keyPressEvent( e );
+	break;
+    default:
+	e->accept();
+	break;
+    }
 }

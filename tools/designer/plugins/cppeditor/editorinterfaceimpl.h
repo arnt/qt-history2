@@ -41,7 +41,7 @@ public:
     QRESULT queryInterface( const QUuid&, QUnknownInterface** );
     Q_REFCOUNT;
 
-    QWidget *editor( QWidget *parent, QUnknownInterface *designerIface );
+    QWidget *editor( bool readonly, QWidget *parent, QUnknownInterface *designerIface );
 
     void setText( const QString &txt );
     QString text() const;

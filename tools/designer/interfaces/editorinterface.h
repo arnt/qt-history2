@@ -55,7 +55,9 @@ struct EditorInterface : public QUnknownInterface
 	Debugging
     };
 
-    virtual QWidget *editor( QWidget *parent, QUnknownInterface *designerIface ) = 0;
+    virtual QWidget *editor( bool readOnly,
+			     QWidget *parent,
+			     QUnknownInterface *designerIface ) = 0;
 
     virtual void setText( const QString &txt ) = 0;
     virtual QString text() const = 0;

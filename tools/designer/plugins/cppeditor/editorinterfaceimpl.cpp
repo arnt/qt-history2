@@ -58,7 +58,8 @@ QRESULT EditorInterfaceImpl::queryInterface( const QUuid &uuid, QUnknownInterfac
     return QS_OK;
 }
 
-QWidget *EditorInterfaceImpl::editor( QWidget *parent, QUnknownInterface *iface )
+QWidget *EditorInterfaceImpl::editor( bool readonly,
+				      QWidget *parent, QUnknownInterface *iface )
 {
     if ( !viewManager ) {
 	( (EditorInterfaceImpl*)this )->viewManager = new ViewManager( parent, 0 );
@@ -66,6 +67,7 @@ QWidget *EditorInterfaceImpl::editor( QWidget *parent, QUnknownInterface *iface 
 	if ( iface )
 	    iface->queryInterface( IID_Designer, (QUnknownInterface**) &dIface );
 	CppEditor *e = new CppEditor( QString::null, viewManager, "editor", dIface );
+	e->setEditable( !readonly );
 	e->installEventFilter( this );
 	connect( e, SIGNAL( intervalChanged() ), this, SLOT( intervalChanged() ) );
 	QApplication::sendPostedEvents( viewManager, QEvent::ChildInserted );

@@ -69,6 +69,12 @@ public:
     QPopupMenu *createPopupMenu( const QPoint &p );
     bool eventFilter( QObject *o, QEvent *e );
 
+    void setEditable( bool b ) { editable = b; }
+
+protected:
+    void doKeyboardAction( KeyboardAction action );
+    void keyPressEvent( QKeyEvent *e );
+
 signals:
     void clearErrorMarker();
     void intervalChanged();
@@ -85,6 +91,7 @@ protected:
     Config *cfg;
     bool hasError;
     QAccel *accelComment, *accelUncomment;
+    bool editable;
 
 };
 

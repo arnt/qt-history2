@@ -37,7 +37,8 @@ SourceEditor::SourceEditor( QWidget *parent, EditorInterface *iface, LanguageInt
 {
     iFace->addRef();
     lIface->addRef();
-    editor = iFace->editor( this, MainWindow::self->designerInterface() );
+    editor = iFace->editor( MainWindow::self->areEditorsReadOnly(),
+			    this, MainWindow::self->designerInterface() );
     iFace->onBreakPointChange( MainWindow::self, SLOT( breakPointsChanged() ) );
     resize( 600, 400 );
     setIcon( PixmapChooser::loadPixmap( "filenew.xpm", PixmapChooser::Small ) );
