@@ -92,7 +92,7 @@ public:
     int columnCount(const QModelIndex &parent) const;
     bool hasChildren(const QModelIndex &parent) const;
 
-    QVariant data(const QModelIndex &index, int role = DisplayRole) const;
+    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
 
     QString fileName() const { return m_resource_file.fileName(); }
     void setFileName(const QString &file_name) { m_resource_file.setFileName(file_name); }

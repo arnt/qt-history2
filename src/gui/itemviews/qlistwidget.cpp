@@ -38,13 +38,13 @@ public:
     QModelIndex index(QListWidgetItem *item) const;
     QModelIndex index(int row, int column = 0, const QModelIndex &parent = QModelIndex()) const;
 
-    QVariant data(const QModelIndex &index, int role = QAbstractItemModel::DisplayRole) const;
+    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
     bool setData(const QModelIndex &index, const QVariant &value, int role);
 
     bool insertRows(int row, int count = 1, const QModelIndex &parent = QModelIndex());
     bool removeRows(int row, int count = 1, const QModelIndex &parent = QModelIndex());
 
-    QAbstractItemModel::ItemFlags flags(const QModelIndex &index) const;
+    Qt::ItemFlags flags(const QModelIndex &index) const;
 
     void sort(int column, Qt::SortOrder order);
     static bool itemLessThan(const QListWidgetItem *left, const QListWidgetItem *right);
@@ -202,10 +202,10 @@ bool QListModel::removeRows(int row, int count, const QModelIndex &)
     return false;
 }
 
-QAbstractItemModel::ItemFlags QListModel::flags(const QModelIndex &index) const
+Qt::ItemFlags QListModel::flags(const QModelIndex &index) const
 {
     if (!index.isValid() || index.row() >= lst.count())
-        return QAbstractItemModel::ItemIsDropEnabled; // we allow drops outside the items
+        return Qt::ItemIsDropEnabled; // we allow drops outside the items
     return lst.at(index.row())->flags();
 }
 
@@ -290,7 +290,7 @@ void QListModel::updatePersistentIndexes(int row, int count)
     with setToolTip(), setStatusTip(), and setWhatsThis().
 
     Items can be made checkable by calling setFlags() with the appropriate
-    value (see \l{QAbstractItemModel::ItemFlags}). Checkable items can be
+    value (see \l{Qt::ItemFlags}). Checkable items can be
     checked and unchecked with the setChecked() function. The corresponding
     checked() function indicates whether the item is currently checked.
 
@@ -315,9 +315,9 @@ void QListModel::updatePersistentIndexes(int row, int count)
 */
 QListWidgetItem::QListWidgetItem(QListWidget *view)
     : view(view), model(0),
-      itemFlags(QAbstractItemModel::ItemIsSelectable
-                |QAbstractItemModel::ItemIsUserCheckable
-                |QAbstractItemModel::ItemIsEnabled)
+      itemFlags(Qt::ItemIsSelectable
+                |Qt::ItemIsUserCheckable
+                |Qt::ItemIsEnabled)
 {
     if (view)
         model = ::qobject_cast<QListModel*>(view->model());
@@ -334,11 +334,11 @@ QListWidgetItem::QListWidgetItem(QListWidget *view)
 */
 QListWidgetItem::QListWidgetItem(const QString &text, QListWidget *view)
     : view(view), model(0),
-      itemFlags(QAbstractItemModel::ItemIsSelectable
-                |QAbstractItemModel::ItemIsUserCheckable
-                |QAbstractItemModel::ItemIsEnabled)
+      itemFlags(Qt::ItemIsSelectable
+                |Qt::ItemIsUserCheckable
+                |Qt::ItemIsEnabled)
 {
-    setData(QAbstractItemModel::DisplayRole, text);
+    setData(Qt::DisplayRole, text);
     if (view)
         model = ::qobject_cast<QListModel*>(view->model());
     if (model)
@@ -366,12 +366,12 @@ QListWidgetItem *QListWidgetItem::clone() const
 
 /*!
   This function sets the data for a given \a role to the given \a value (see
-  \l{QAbstractItemModel::Role}). Reimplement this function if you need
+  \l{Qt::ItemDataRole}). Reimplement this function if you need
   extra roles or special behavior for certain roles.
 */
 void QListWidgetItem::setData(int role, const QVariant &value)
 {
-    role = (role == QAbstractItemModel::EditRole ? QAbstractItemModel::DisplayRole : role);
+    role = (role == Qt::EditRole ? Qt::DisplayRole : role);
     for (int i = 0; i < values.count(); ++i) {
         if (values.at(i).role == role) {
             values[i].value = value;
@@ -385,12 +385,12 @@ void QListWidgetItem::setData(int role, const QVariant &value)
 
 /*!
    This function returns the item's data for a given \a role (see
-   {QAbstractItemModel::Role}). Reimplement this function if you need
+   {Qt::ItemDataRole}). Reimplement this function if you need
    extra roles or special behavior for certain roles.
 */
 QVariant QListWidgetItem::data(int role) const
 {
-    role = (role == QAbstractItemModel::EditRole ? QAbstractItemModel::DisplayRole : role);
+    role = (role == Qt::EditRole ? Qt::DisplayRole : role);
     for (int i = 0; i < values.count(); ++i)
         if (values.at(i).role == role)
             return values.at(i).value;
@@ -472,9 +472,9 @@ QDataStream &operator>>(QDataStream &in, QListWidgetItem &item)
 #endif // QT_NO_DATASTREAM
 
 /*!
-  \fn QAbstractItemModel::ItemFlags QListWidgetItem::flags() const
+  \fn Qt::ItemFlags QListWidgetItem::flags() const
 
-  Returns the item flags for this item (see {QAbstractItemModel::ItemFlags}).
+  Returns the item flags for this item (see {Qt::ItemFlags}).
 */
 
 /*!
@@ -554,10 +554,10 @@ QDataStream &operator>>(QDataStream &in, QListWidgetItem &item)
 */
 
 /*!
-  \fn void QListWidgetItem::setFlags(QAbstractItemModel::ItemFlags flags)
+  \fn void QListWidgetItem::setFlags(Qt::ItemFlags flags)
 
   Sets the item flags for the list item to \a flags (see
-  \l{QAbstractItemModel::ItemFlags}).
+  \l{Qt::ItemFlags}).
 */
 
 /*!

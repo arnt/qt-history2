@@ -36,7 +36,7 @@ public:
     QVariant display() const;
 
     inline QString formula() const
-        { return QTableWidgetItem::data(QAbstractItemModel::DisplayRole).toString(); }
+        { return QTableWidgetItem::data(Qt::DisplayRole).toString(); }
 
     QPoint convertCoords(const QString coords) const;
 
@@ -59,17 +59,17 @@ QTableWidgetItem *SpreadSheetItem::clone() const
 
 QVariant SpreadSheetItem::data(int role) const
 {
-    if (role == QAbstractItemModel::EditRole || role == QAbstractItemModel::StatusTipRole)
+    if (role == Qt::EditRole || role == Qt::StatusTipRole)
         return formula();
 
-    if (role == QAbstractItemModel::DisplayRole)
+    if (role == Qt::DisplayRole)
         return display();
 
     QString t = display().toString();
     bool isNumber = false;
     int number = t.toInt(&isNumber);
 
-    if (role == QAbstractItemModel::TextColorRole) {
+    if (role == Qt::TextColorRole) {
         if (!isNumber)
             return qVariantFromValue(QColor(Qt::black));
         else if (number < 0)
@@ -77,7 +77,7 @@ QVariant SpreadSheetItem::data(int role) const
         return qVariantFromValue(QColor(Qt::blue));
     }
 
-    if (role == QAbstractItemModel::TextAlignmentRole)
+    if (role == Qt::TextAlignmentRole)
         if (!t.isEmpty() && (t.at(0).isNumber() || t.at(0) == '-'))
             return (int)(Qt::AlignRight | Qt::AlignVCenter);
 
@@ -270,7 +270,7 @@ SpreadSheet::SpreadSheet(int rows, int cols, QWidget *parent)
 void SpreadSheet::updateStatus(QTableWidgetItem *item)
 {
     if (item && item == table->currentItem())
-        statusBar()->showMessage(item->data(QAbstractItemModel::StatusTipRole).toString(), 1000);
+        statusBar()->showMessage(item->data(Qt::StatusTipRole).toString(), 1000);
 }
 
 void SpreadSheet::updateColor(QTableWidgetItem *item)
@@ -290,7 +290,7 @@ void SpreadSheet::updateLineEdit(QTableWidgetItem *item)
     if (item != table->currentItem())
         return;
     if (item)
-        lineEdit->setText(item->data(QAbstractItemModel::EditRole).toString());
+        lineEdit->setText(item->data(Qt::EditRole).toString());
     else
         lineEdit->clear();
 }
@@ -304,7 +304,7 @@ void SpreadSheet::returnPressed()
     if (!item)
         table->setItem(row, col, new SpreadSheetItem(text));
     else
-        item->setData(QAbstractItemModel::EditRole, text);
+        item->setData(Qt::EditRole, text);
     table->viewport()->update();
 }
 

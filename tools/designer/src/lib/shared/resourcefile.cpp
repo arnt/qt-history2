@@ -440,20 +440,20 @@ QVariant ResourceModel::data(const QModelIndex &index, int role) const
     QVariant result;
 
     switch (role) {
-        case DisplayRole:
+        case Qt::DisplayRole:
             if (d == -1)
                 result = m_resource_file.prefix(index.row());
             else
                 result = QFileInfo(m_resource_file.file(d, index.row())).fileName();
             break;
-        case DecorationRole:
+        case Qt::DecorationRole:
             if (d != -1) {
                 QIcon icon(m_resource_file.absolutePath(m_resource_file.file(d, index.row())));
                 if (!icon.isNull())
                     result = icon;
             }
             break;
-        case ToolTipRole:
+        case Qt::ToolTipRole:
             if (d != -1)
                 result = m_resource_file.relativePath(m_resource_file.file(d, index.row()));
             break;

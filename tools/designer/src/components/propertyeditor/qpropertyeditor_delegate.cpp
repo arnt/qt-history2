@@ -234,7 +234,7 @@ void Delegate::setModelData(QWidget *editor,
 
     if (IProperty *property = static_cast<const Model*>(model)->privateData(index)) {
         property->updateValue(editor);
-        model->setData(index, property->value(), Model::EditRole);
+        model->setData(index, property->value(), Qt::EditRole);
     }
 }
 

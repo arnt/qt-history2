@@ -1183,6 +1183,37 @@ public:
         Checked
     };
 
+    enum ItemDataRole {
+        DisplayRole = 0,
+        DecorationRole = 1,
+        EditRole = 2,
+        ToolTipRole = 3,
+        StatusTipRole = 4,
+        WhatsThisRole = 5,
+        // Metadata
+        FontRole = 6,
+        TextAlignmentRole = 7,
+        BackgroundColorRole = 8,
+        TextColorRole = 9,
+        CheckStateRole = 10,
+        // Accessibility
+        AccessibleTextRole = 11,
+        AccessibleDescriptionRole = 12,
+        // Reserved
+        UserRole = 32
+    };
+
+    enum ItemFlag {
+        ItemIsSelectable = 1,
+        ItemIsEditable = 2,
+        ItemIsDragEnabled = 4,
+        ItemIsDropEnabled = 8,
+        ItemIsUserCheckable = 16,
+        ItemIsEnabled = 32,
+        ItemIsTristate = 64
+    };
+    Q_DECLARE_FLAGS(ItemFlags, ItemFlag)
+
 #if defined(Q_WS_MAC)
     typedef void * HANDLE;
 #elif defined(Q_WS_WIN)
@@ -1205,6 +1236,7 @@ Q_DECLARE_OPERATORS_FOR_FLAGS(Qt::DockWidgetAreas)
 Q_DECLARE_OPERATORS_FOR_FLAGS(Qt::ToolBarAreas)
 Q_DECLARE_OPERATORS_FOR_FLAGS(Qt::WindowStates)
 Q_DECLARE_OPERATORS_FOR_FLAGS(Qt::DropActions)
+Q_DECLARE_OPERATORS_FOR_FLAGS(Qt::ItemFlags);
 
 class Q_CORE_EXPORT QInternal {
 public:

@@ -391,7 +391,7 @@ void QTableView::paintEvent(QPaintEvent *e)
                 option.state = state;
                 if (sels && sels->isSelected(index))
                     option.state |= QStyle::State_Selected;
-                if ((model()->flags(index) & QAbstractItemModel::ItemIsEnabled) == 0)
+                if ((model()->flags(index) & Qt::ItemIsEnabled) == 0)
                     option.state &= ~QStyle::State_Enabled;
                 if (focus && index == current)
                         option.state |= QStyle::State_HasFocus;

@@ -28,10 +28,10 @@ public:
     ~DownloadDelegate();
 
     enum Roles {
-        CheckRole = QAbstractItemModel::CheckStateRole,
-        DateRole = QAbstractItemModel::DisplayRole,
-        ProgressRole = QAbstractItemModel::DisplayRole,
-        RatingRole = QAbstractItemModel::DisplayRole
+        CheckRole = Qt::CheckStateRole,
+        DateRole = Qt::DisplayRole,
+        ProgressRole = Qt::DisplayRole,
+        RatingRole = Qt::DisplayRole
     };  
     
     void paint(QPainter *painter, const QStyleOptionViewItem &option,
@@ -105,7 +105,7 @@ QSize DownloadDelegate::sizeHint(const QStyleOptionViewItem &option,
         return QSize();
 
     if (index.column() == 3) {
-        int rating = index.model()->data(index, QAbstractItemModel::DisplayRole).toInt();
+        int rating = index.model()->data(index, Qt::DisplayRole).toInt();
         return QSize(rating * star.width(), star.height()) + QSize(1, 1);
     }
     
@@ -144,7 +144,7 @@ int main(int argc, char *argv[])
       item->setData(1, DownloadDelegate::DateRole, QDate(2004, 9, 11 + i));
       item->setData(2, DownloadDelegate::ProgressRole, 0.25 * (i % 4) + 0.10);
       item->setData(3, DownloadDelegate::RatingRole, (i % 6) + 1);
-      item->setFlags(item->flags()|QAbstractItemModel::ItemIsEditable);
+      item->setFlags(item->flags()|Qt::ItemIsEditable);
   }
 
   view->setWindowIcon(QPixmap(":/images/interview.png"));

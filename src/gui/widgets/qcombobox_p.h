@@ -142,7 +142,7 @@ protected:
     QSize sizeHint(const QStyleOptionViewItem &option,
                    const QModelIndex &index) const {
         QStyleOptionMenuItem opt = getStyleOption(option, index);
-        QVariant value = index.model()->data(index, QAbstractItemModel::FontRole);
+        QVariant value = index.model()->data(index, Qt::FontRole);
         QFont fnt = value.isValid() ? qvariant_cast<QFont>(value) : option.font;
         return mCombo->style()->sizeFromContents(
             QStyle::CT_MenuItem, &opt, option.rect.size(), 0);

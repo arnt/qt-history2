@@ -102,8 +102,7 @@ void MainWindow::openFile(const QString &path)
                     model->setData(model->index(row, 1, QModelIndex()),
                                    pieces.value(1));
                     model->setData(model->index(row, 0, QModelIndex()),
-                                   QColor(pieces.value(2)),
-                                   QAbstractItemModel::DecorationRole);
+                                   QColor(pieces.value(2)), Qt::DecorationRole);
                     row++;
                 }
             } while (!line.isEmpty());
@@ -129,11 +128,11 @@ void MainWindow::saveFile()
                 QStringList pieces;
 
                 pieces.append(model->data(model->index(row, 0, QModelIndex()),
-                    QAbstractItemModel::DisplayRole).toString());
+                                          Qt::DisplayRole).toString());
                 pieces.append(model->data(model->index(row, 1, QModelIndex()),
-                    QAbstractItemModel::DisplayRole).toString());
+                                          Qt::DisplayRole).toString());
                 pieces.append(model->data(model->index(row, 0, QModelIndex()),
-                    QAbstractItemModel::DecorationRole).toString());
+                                          Qt::DecorationRole).toString());
 
                 stream << pieces.join(",") << "\n";
             }

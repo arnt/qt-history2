@@ -77,7 +77,7 @@ int Model::columnCount(const QModelIndex &parent) const
 bool Model::setData(const QModelIndex &index, const QVariant &value, int role)
 {
     if (IProperty *property = privateData(index)) {
-        if (role == EditRole) {
+        if (role == Qt::EditRole) {
             property->setValue(value);
             refresh(property);
 
@@ -107,8 +107,8 @@ QVariant Model::data(const QModelIndex &index, int role) const
     switch (index.column()) {  // ### cleanup
         case 0:
             switch (role) {
-                case EditRole:
-                case DisplayRole:
+                case Qt::EditRole:
+                case Qt::DisplayRole:
                     return o->propertyName().isEmpty()
                         ? QLatin1String("<noname>")
                         : o->propertyName();
@@ -119,11 +119,11 @@ QVariant Model::data(const QModelIndex &index, int role) const
 
         case 1: {
             switch (role) {
-                case EditRole:
+                case Qt::EditRole:
                     return o->value();
-                case DisplayRole:
+                case Qt::DisplayRole:
                     return o->toString();
-                case DecorationRole:
+                case Qt::DecorationRole:
                     return o->decoration();
                 default:
                     break;
@@ -212,17 +212,17 @@ QModelIndex Model::buddy(const QModelIndex &index) const
 QVariant Model::headerData(int section, Qt::Orientation orientation, int role) const
 {
     if (orientation == Qt::Horizontal) {
-        if (role != DisplayRole)
+        if (role != Qt::DisplayRole)
             return QVariant();
         return columnText(section);
     }
     return QAbstractItemModel::headerData(section, orientation, role);
 }
 
-QAbstractItemModel::ItemFlags Model::flags(const QModelIndex &index) const
+Qt::ItemFlags Model::flags(const QModelIndex &index) const
 {
-    ItemFlags foo = QAbstractItemModel::flags(index);
+    Qt::ItemFlags foo = QAbstractItemModel::flags(index);
     if (isEditable(index))
-        foo |= ItemIsEditable;
+        foo |= Qt::ItemIsEditable;
     return foo;
 }

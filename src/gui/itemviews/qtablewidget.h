@@ -50,58 +50,58 @@ public:
 
     inline QTableWidget *tableWidget() const { return view; }
 
-    inline QAbstractItemModel::ItemFlags flags() const { return itemFlags; }
-    inline void setFlags(QAbstractItemModel::ItemFlags flags) { itemFlags = flags; }
+    inline Qt::ItemFlags flags() const { return itemFlags; }
+    inline void setFlags(Qt::ItemFlags flags) { itemFlags = flags; }
 
     inline QString text() const
-        { return data(QAbstractItemModel::DisplayRole).toString(); }
+        { return data(Qt::DisplayRole).toString(); }
     inline void setText(const QString &text)
-        { setData(QAbstractItemModel::DisplayRole, text); }
+        { setData(Qt::DisplayRole, text); }
 
     inline QIcon icon() const
-        { return qvariant_cast<QIcon>(data(QAbstractItemModel::DecorationRole)); }
+        { return qvariant_cast<QIcon>(data(Qt::DecorationRole)); }
     inline void setIcon(const QIcon &icon)
-        { setData(QAbstractItemModel::DecorationRole, icon); }
+        { setData(Qt::DecorationRole, icon); }
 
     inline QString statusTip() const
-        { return data(QAbstractItemModel::StatusTipRole).toString(); }
+        { return data(Qt::StatusTipRole).toString(); }
     inline void setStatusTip(const QString &statusTip)
-        { setData(QAbstractItemModel::StatusTipRole, statusTip); }
+        { setData(Qt::StatusTipRole, statusTip); }
 
     inline QString toolTip() const
-        { return data(QAbstractItemModel::ToolTipRole).toString(); }
+        { return data(Qt::ToolTipRole).toString(); }
     inline void setToolTip(const QString &toolTip)
-         { setData(QAbstractItemModel::ToolTipRole, toolTip); }
+         { setData(Qt::ToolTipRole, toolTip); }
 
     inline QString whatsThis() const
-        { return data(QAbstractItemModel::WhatsThisRole).toString(); }
+        { return data(Qt::WhatsThisRole).toString(); }
     inline void setWhatsThis(const QString &whatsThis)
-        { setData(QAbstractItemModel::WhatsThisRole, whatsThis); }
+        { setData(Qt::WhatsThisRole, whatsThis); }
 
     inline QFont font() const
-        { return qvariant_cast<QFont>(data(QAbstractItemModel::FontRole)); }
+        { return qvariant_cast<QFont>(data(Qt::FontRole)); }
     inline void setFont(const QFont &font)
-        { setData(QAbstractItemModel::FontRole, font); }
+        { setData(Qt::FontRole, font); }
 
     inline int textAlignment() const
-        { return data(QAbstractItemModel::TextAlignmentRole).toInt(); }
+        { return data(Qt::TextAlignmentRole).toInt(); }
     inline void setTextAlignment(int alignment)
-        { setData(QAbstractItemModel::TextAlignmentRole, alignment); }
+        { setData(Qt::TextAlignmentRole, alignment); }
 
     inline QColor backgroundColor() const
-        { return qvariant_cast<QColor>(data(QAbstractItemModel::BackgroundColorRole)); }
+        { return qvariant_cast<QColor>(data(Qt::BackgroundColorRole)); }
     inline void setBackgroundColor(const QColor &color)
-        { setData(QAbstractItemModel::BackgroundColorRole, color); }
+        { setData(Qt::BackgroundColorRole, color); }
 
     inline QColor textColor() const
-        { return qvariant_cast<QColor>(data(QAbstractItemModel::TextColorRole)); }
+        { return qvariant_cast<QColor>(data(Qt::TextColorRole)); }
     inline void setTextColor(const QColor &color)
-        { setData(QAbstractItemModel::TextColorRole, color); }
+        { setData(Qt::TextColorRole, color); }
 
     inline Qt::CheckState checkState() const
-        { return static_cast<Qt::CheckState>(data(QAbstractItemModel::CheckStateRole).toInt()); }
+        { return static_cast<Qt::CheckState>(data(Qt::CheckStateRole).toInt()); }
     inline void setCheckState(Qt::CheckState state)
-        { setData(QAbstractItemModel::CheckStateRole, state); }
+        { setData(Qt::CheckStateRole, state); }
 
     virtual QVariant data(int role) const;
     virtual void setData(int role, const QVariant &value);
@@ -118,7 +118,7 @@ private:
     QVector<QWidgetItemData> values;
     QTableWidget *view;
     QTableModel *model;
-    QAbstractItemModel::ItemFlags itemFlags;
+    Qt::ItemFlags itemFlags;
 };
 
 #ifndef QT_NO_DATASTREAM

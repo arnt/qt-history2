@@ -510,11 +510,11 @@ QDebug operator<<(QDebug dbg, const QPersistentModelIndex &idx)
     Every item has an index(), and possibly a sibling() index; child
     items have a parent() index. hasChildren() is true for items that
     have children. Each item has a number of data elements associated
-    with them, each with a particular \c Role. Data elements are set
+    with them, each with a particular \c Qt::ItemDataRole. Data elements are set
     individually with setData(), or for all roles with setItemData().
     Data is retrieved from an item with data() (for a single role), or
     with itemData() (for every role). Items can be queried with
-    flags() (see {QAbstractTableModel::ItemFlag}) to see if they
+    flags() (see {Qt::ItemFlag}) to see if they
     are selectable, dragable etc.  An item can be searched for using
     match().
 
@@ -753,51 +753,6 @@ QAbstractItemModel::~QAbstractItemModel()
 */
 
 /*!
-    \enum QAbstractItemModel::Role
-
-    Each item in the model has a set of data elements associated with
-    it, each with its own role. The roles are used by the view to indicate
-    to the model which type of data it needs.
-
-    The general purpose roles are:
-
-    \value DisplayRole    The key data to be rendered (usually text).
-    \value DecorationRole The data to be rendered as a decoration (usually an icon).
-    \value EditRole       The data in a form suitable for editing in an
-                          editor.
-    \value ToolTipRole    The data displayed in the item's tooltip.
-    \value StatusTipRole  The data displayed in the status bar.
-    \value WhatsThisRole  The data displayed for the item in "What's This?"
-                          mode.
-
-    Roles describing appearance and meta data:
-
-    \value FontRole            The font used for items rendered with the default
-                               delegate.
-    \value TextAlignmentRole   The alignment of the text for items rendered with the
-                               default delegate.
-    \value BackgroundColorRole The background color used for items rendered with
-                               the default delegate.
-    \value TextColorRole       The text color used for items rendered with
-                               the default delegate.
-    \value CheckStateRole      This role is used to obtain the checked state of
-                               an item (see \l Qt::CheckState).
-
-    Accessibility roles:
-
-    \value AccessibleTextRole        The text to be used by accessibility
-                                     extensions and plugins, such as screen
-                                     readers.
-    \value AccessibleDescriptionRole A description of the item for accessibility
-                                     purposes.
-
-    User roles:
-
-    \value UserRole       The first role that can be used for
-                                     application-specific purposes.
-*/
-
-/*!
   Returns true if the model returns a valid QModelIndex for \a row and
   \a column with \a parent, otherwise returns false.
 */
@@ -827,12 +782,12 @@ bool QAbstractItemModel::hasChildren(const QModelIndex &parent) const
     This must be reimplemented if you want to extend the model with
     custom roles.
 
-    \sa Role data()
+    \sa Qt::ItemDataRole data()
 */
 QMap<int, QVariant> QAbstractItemModel::itemData(const QModelIndex &index) const
 {
     QMap<int, QVariant> roles;
-    for (int i = 0; i < UserRole; ++i) {
+    for (int i = 0; i < Qt::UserRole; ++i) {
         QVariant variantData = data(index, i);
         if (variantData.type() != QVariant::Invalid)
             roles.insert(i, variantData);
@@ -865,7 +820,7 @@ bool QAbstractItemModel::setData(const QModelIndex &index, const QVariant &value
 */
 
 /*!
-    For every \c Role in \a roles, sets the role data for the item at
+    For every \c Qt::ItemDataRole in \a roles, sets the role data for the item at
     \a index to the associated value in \a roles. Returns true if
     successful; otherwise returns false.
 
@@ -1039,20 +994,6 @@ void QAbstractItemModel::fetchMore(const QModelIndex &)
 }
 
 /*!
-    \enum QAbstractItemModel::ItemFlag
-
-    This enum describes the properties of an item:
-
-    \value ItemIsSelectable It can be selected.
-    \value ItemIsEditable It can be edited.
-    \value ItemIsDragEnabled It can be dragged.
-    \value ItemIsDropEnabled It can be used as a drop target.
-    \value ItemIsUserCheckable It can be checked or unchecked by the user.
-    \value ItemIsEnabled The user can interact with the item.
-    \value ItemIsTristate The item is checkable with three separate states.
-*/
-
-/*!
     Returns the item flags for the given \a index.
 
     The base class implementation returns a combination of flags that
@@ -1061,10 +1002,10 @@ void QAbstractItemModel::fetchMore(const QModelIndex &)
 
     \sa ItemFlag
 */
-QAbstractItemModel::ItemFlags QAbstractItemModel::flags(const QModelIndex &index) const
+Qt::ItemFlags QAbstractItemModel::flags(const QModelIndex &index) const
 {
     Q_UNUSED(index);
-    return ItemIsSelectable | ItemIsEnabled;
+    return Qt::ItemIsSelectable|Qt::ItemIsEnabled;
 }
 
 /*!
@@ -1210,11 +1151,11 @@ void QAbstractItemModel::revert()
 
 QVariant QAbstractItemModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
-    if (role == DisplayRole) {
+    if (role == Qt::DisplayRole) {
         if ((orientation == Qt::Horizontal && section < columnCount())
             || (orientation == Qt::Vertical && section < rowCount()))
             return QString::number(section + 1);
-    } else if (role == TextAlignmentRole)
+    } else if (role == Qt::TextAlignmentRole)
         return Qt::AlignVCenter;
     return QVariant();
 }
@@ -1461,7 +1402,7 @@ int QAbstractItemModel::persistentIndexPosition(const QModelIndex &index, int fr
 
     Editable models need to implement setData(), and implement flags() to
     return a value containing
-    \l{QAbstractItemModel::ItemFlags}{ItemIsEditable}.
+    \l{Qt::ItemFlags}{Qt::ItemIsEditable}.
 
     Models that provide interfaces to resizable data structures can
     provide implementations of insertRows(), removeRows(), insertColumns(),
@@ -1587,7 +1528,7 @@ bool QAbstractTableModel::hasChildren(const QModelIndex &) const
 
     For editable list models, you must also provide an implementation of
     setData(), implement the flags() function so that it returns a value
-    containing \l{QAbstractItemModel::ItemFlags}{ItemIsEditable}.
+    containing \l{Qt::ItemFlags}{Qt::ItemIsEditable}.
 
     Note that QAbstractListModel provides a default implementation of
     columnCount() that informs views that there is only a single column

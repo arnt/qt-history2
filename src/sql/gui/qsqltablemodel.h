@@ -38,12 +38,12 @@ public:
     void setTable(const QString &tableName);
     QString tableName() const;
 
-    ItemFlags flags(const QModelIndex &index) const;
+    Qt::ItemFlags flags(const QModelIndex &index) const;
 
-    QVariant data(const QModelIndex &idx, int role = DisplayRole) const;
-    bool setData(const QModelIndex &index, const QVariant &value, int role = EditRole);
+    QVariant data(const QModelIndex &idx, int role = Qt::DisplayRole) const;
+    bool setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole);
 
-    QVariant headerData(int section, Qt::Orientation orientation, int role = DisplayRole) const;
+    QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const;
 
     bool isDirty(const QModelIndex &index) const;
     void clear();

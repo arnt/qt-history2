@@ -49,7 +49,7 @@ QVariant TreeModel::data(const QModelIndex &index, int role) const
     if (!index.isValid())
         return QVariant();
 
-    if (role != DisplayRole)
+    if (role != Qt::DisplayRole)
         return QVariant();
 
     TreeItem *item = static_cast<TreeItem*>(index.data());
@@ -57,18 +57,18 @@ QVariant TreeModel::data(const QModelIndex &index, int role) const
     return item->data(index.column());
 }
 
-QAbstractItemModel::ItemFlags TreeModel::flags(const QModelIndex &index) const
+Qt::ItemFlags TreeModel::flags(const QModelIndex &index) const
 {
     if (!index.isValid())
-        return ItemIsEnabled;
+        return Qt::ItemIsEnabled;
 
-    return ItemIsEnabled | ItemIsSelectable;
+    return Qt::ItemIsEnabled | Qt::ItemIsSelectable;
 }
 
 QVariant TreeModel::headerData(int section, Qt::Orientation orientation,
                                int role) const
 {
-    if (orientation == Qt::Horizontal && role == QAbstractItemModel::DisplayRole)
+    if (orientation == Qt::Horizontal && role == Qt::DisplayRole)
         return rootItem->data(section);
 
     return QVariant();

@@ -321,7 +321,7 @@ bool QSqlTableModel::select()
 QVariant QSqlTableModel::data(const QModelIndex &index, int role) const
 {
     Q_D(const QSqlTableModel);
-    if (!index.isValid() || role & ~(DisplayRole | EditRole))
+    if (!index.isValid() || role & ~(Qt::DisplayRole | Qt::EditRole))
         return QVariant();
 
     QModelIndex item = indexInQuery(index);
@@ -421,7 +421,7 @@ bool QSqlTableModel::isDirty(const QModelIndex &index) const
 bool QSqlTableModel::setData(const QModelIndex &index, const QVariant &value, int role)
 {
     Q_D(QSqlTableModel);
-    if (role & ~EditRole)
+    if (role & ~Qt::EditRole)
         return QSqlQueryModel::setData(index, value, role);
 
     if (index.column() >= d->rec.count() || index.row() >= rowCount())
@@ -1134,15 +1134,15 @@ void QSqlTableModel::clear()
 
 /*! \reimp
 */
-QSqlTableModel::ItemFlags QSqlTableModel::flags(const QModelIndex &index) const
+Qt::ItemFlags QSqlTableModel::flags(const QModelIndex &index) const
 {
     Q_D(const QSqlTableModel);
     if (index.data() || index.column() < 0 || index.column() >= d->rec.count()
         || index.row() < 0)
         return 0;
     if (d->rec.field(index.column()).isReadOnly())
-        return ItemIsSelectable | ItemIsEnabled;
-    return ItemIsSelectable | ItemIsEnabled | ItemIsEditable;
+        return Qt::ItemIsSelectable | Qt::ItemIsEnabled;
+    return Qt::ItemIsSelectable | Qt::ItemIsEnabled | Qt::ItemIsEditable;
 }
 
 /*!
@@ -1166,7 +1166,7 @@ bool QSqlTableModel::setRecord(int row, const QSqlRecord &record)
             int idx = d->rec.indexOf(record.fieldName(i));
             if (idx == -1)
                 continue;
-            isOk |= setData(createIndex(row, idx), record.value(i), QAbstractItemModel::EditRole);
+            isOk |= setData(createIndex(row, idx), record.value(i), Qt::EditRole);
         }
         return isOk;
     case OnManualSubmit: {

@@ -65,7 +65,7 @@ int QFontListModel::rowCount(const QModelIndex &) const
 
 QVariant QFontListModel::data(const QModelIndex &index, int role) const
 {
-    if (role == QAbstractListModel::DisplayRole)
+    if (role == Qt::DisplayRole)
         return lst.at(index.row());
     return QVariant();
 }

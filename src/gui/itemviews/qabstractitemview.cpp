@@ -821,7 +821,7 @@ bool QAbstractItemView::event(QEvent *e)
         QPoint margins = d->viewport->geometry().topLeft();
         QModelIndex index = indexAt(he->pos() - margins);
         if (index.isValid()) {
-            QString tooltip = model()->data(index, QAbstractItemModel::ToolTipRole).toString();
+            QString tooltip = model()->data(index, Qt::ToolTipRole).toString();
             QToolTip::showText(he->globalPos(), tooltip, this);
         }
         return true; }
@@ -830,7 +830,7 @@ bool QAbstractItemView::event(QEvent *e)
         QPoint margins = d->viewport->geometry().topLeft();
         QModelIndex index = indexAt(he->pos() - margins);
         if (index.isValid()) {
-            QString whatsthis = model()->data(index, QAbstractItemModel::WhatsThisRole).toString();
+            QString whatsthis = model()->data(index, Qt::WhatsThisRole).toString();
             QWhatsThis::showText(he->globalPos(), whatsthis, this);
         }
         return true; }
@@ -839,7 +839,7 @@ bool QAbstractItemView::event(QEvent *e)
         QPoint margins = d->viewport->geometry().topLeft();
         QModelIndex index = indexAt(he->pos() - margins);
         if (index.isValid()) {
-            QString statustip = model()->data(index, QAbstractItemModel::StatusTipRole).toString();
+            QString statustip = model()->data(index, Qt::StatusTipRole).toString();
             if (!statustip.isEmpty())
                 setStatusTip(statustip);
         }
@@ -943,7 +943,7 @@ void QAbstractItemView::mouseMoveEvent(QMouseEvent *e)
         return; // if the left button is not pressed there is nothing more to do
 
     if (index.isValid() && d->dragEnabled && state() != DragSelectingState) {
-        bool dragging = model()->flags(index) & QAbstractItemModel::ItemIsDragEnabled;
+        bool dragging = model()->flags(index) & Qt::ItemIsDragEnabled;
         bool selected = selectionModel()->isSelected(index);
         if (dragging && selected) {
             setState(DraggingState);
@@ -1045,7 +1045,7 @@ void QAbstractItemView::dragMoveEvent(QDragMoveEvent *e)
                     d->dropIndicator->setGeometry(geometry);
                 break; }
             case QAbstractItemViewPrivate::On: {
-                if (model()->flags(index) & QAbstractItemModel::ItemIsDropEnabled) {
+                if (model()->flags(index) & Qt::ItemIsDropEnabled) {
                     if (global != d->dropIndicator->geometry()) {
                         d->dropIndicator->setGeometry(global);
                         QRegion top(0, 0, rect.width(), 3);
@@ -1107,8 +1107,8 @@ void QAbstractItemView::dropEvent(QDropEvent *e)
     if (model()->supportedDropActions() & e->proposedAction()) {
         // find the parent index and the row to drop after
         int row = -1; // prepend
-        if (model()->flags(index) & QAbstractItemModel::ItemIsDropEnabled
-            || model()->flags(index.parent()) & QAbstractItemModel::ItemIsDropEnabled) {
+        if (model()->flags(index) & Qt::ItemIsDropEnabled
+            || model()->flags(index.parent()) & Qt::ItemIsDropEnabled) {
             switch(d->position(pos, visualRect(index), 2)) {
             case QAbstractItemViewPrivate::Above:
                 row = index.row();
@@ -1580,7 +1580,7 @@ void QAbstractItemView::keyboardSearch(const QString &search)
     // search from start with wraparound
     QString searchString = sameKey ? QString(d->keyboardInput.at(0)) : d->keyboardInput;
     QModelIndexList match;
-    match = model()->match(start, QAbstractItemModel::DisplayRole, searchString);
+    match = model()->match(start, Qt::DisplayRole, searchString);
     if (!match.isEmpty() && match.at(0).isValid()) {
         selectionModel()->setCurrentIndex(match.at(0),
             (d->selectionMode == SingleSelection
@@ -2070,7 +2070,7 @@ bool QAbstractItemViewPrivate::shouldEdit(QAbstractItemView::EditTrigger trigger
 {
     if (!index.isValid())
         return false;
-    if ((model->flags(index) & QAbstractItemModel::ItemIsEditable) == 0)
+    if ((model->flags(index) & Qt::ItemIsEditable) == 0)
         return false;
     if (state == QAbstractItemView::EditingState)
         return false;

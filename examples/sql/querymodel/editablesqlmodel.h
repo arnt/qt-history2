@@ -10,7 +10,7 @@ class EditableSqlModel : public QSqlQueryModel
 public:
     EditableSqlModel(QObject *parent = 0);
 
-    ItemFlags flags(const QModelIndex &index) const;
+    Qt::ItemFlags flags(const QModelIndex &index) const;
     bool setData(const QModelIndex &index, const QVariant &value, int role);
 
 private:

@@ -57,13 +57,13 @@ public:
     int rowCount(const QModelIndex &parent = QModelIndex()) const;
     int columnCount(const QModelIndex &parent = QModelIndex()) const;
 
-    QVariant data(const QModelIndex &index, int role = QAbstractItemModel::DisplayRole) const;
+    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
     bool setData(const QModelIndex &index, const QVariant &value, int role);
 
     QVariant headerData(int section, Qt::Orientation orientation, int role) const;
     bool setHeaderData(int section, Qt::Orientation orientation, const QVariant &value, int role);
 
-    QAbstractItemModel::ItemFlags flags(const QModelIndex &index) const;
+    Qt::ItemFlags flags(const QModelIndex &index) const;
 
     void sort(int column, Qt::SortOrder order);
     static bool itemLessThan(const QTableWidgetItem *left, const QTableWidgetItem *right);
@@ -356,15 +356,15 @@ bool QTableModel::setData(const QModelIndex &index, const QVariant &value, int r
     return true;
 }
 
-QAbstractItemModel::ItemFlags QTableModel::flags(const QModelIndex &index) const
+Qt::ItemFlags QTableModel::flags(const QModelIndex &index) const
 {
     QTableWidgetItem *itm = item(index);
     if (itm)
         return itm->flags();
-    return QAbstractItemModel::ItemIsEditable
-        |QAbstractItemModel::ItemIsSelectable
-        |QAbstractItemModel::ItemIsUserCheckable
-        |QAbstractItemModel::ItemIsEnabled;
+    return Qt::ItemIsEditable
+        |Qt::ItemIsSelectable
+        |Qt::ItemIsUserCheckable
+        |Qt::ItemIsEnabled;
 }
 
 void QTableModel::sort(int column, Qt::SortOrder order)
@@ -410,9 +410,9 @@ QVariant QTableModel::headerData(int section, Qt::Orientation orientation, int r
         itm = vertical.at(section);
     if (itm)
         return itm->data(role);
-    if (role == DisplayRole)
+    if (role == Qt::DisplayRole)
         return QVariant(section);
-    if (role == TextAlignmentRole)
+    if (role == Qt::TextAlignmentRole)
         return Qt::AlignVCenter;
     return QVariant();
 }
@@ -599,7 +599,7 @@ QTableWidgetSelectionRange::~QTableWidgetSelectionRange()
 */
 
 /*!
-    \fn QAbstractItemModel::ItemFlags QTableWidgetItem::flags() const
+    \fn Qt::ItemFlags QTableWidgetItem::flags() const
 
     Returns the flags used to describe the item. These determine whether
     the item can be checked, edited, and selected.
@@ -608,7 +608,7 @@ QTableWidgetSelectionRange::~QTableWidgetSelectionRange()
 */
 
 /*!
-    \fn void QTableWidgetItem::setFlags(QAbstractItemModel::ItemFlags flags)
+    \fn void QTableWidgetItem::setFlags(Qt::ItemFlags flags)
 
     Sets the flags for the item to the given \a flags. These determine whether
     the item can be selected or modified.
@@ -762,10 +762,10 @@ QTableWidgetSelectionRange::~QTableWidgetSelectionRange()
 */
 QTableWidgetItem::QTableWidgetItem()
     : view(0), model(0),
-      itemFlags(QAbstractItemModel::ItemIsEditable
-                |QAbstractItemModel::ItemIsSelectable
-                |QAbstractItemModel::ItemIsUserCheckable
-                |QAbstractItemModel::ItemIsEnabled)
+      itemFlags(Qt::ItemIsEditable
+                |Qt::ItemIsSelectable
+                |Qt::ItemIsUserCheckable
+                |Qt::ItemIsEnabled)
 {
 }
 
@@ -774,12 +774,12 @@ QTableWidgetItem::QTableWidgetItem()
 */
 QTableWidgetItem::QTableWidgetItem(const QString &text)
     : view(0), model(0),
-      itemFlags(QAbstractItemModel::ItemIsEditable
-                |QAbstractItemModel::ItemIsSelectable
-                |QAbstractItemModel::ItemIsUserCheckable
-                |QAbstractItemModel::ItemIsEnabled)
+      itemFlags(Qt::ItemIsEditable
+                |Qt::ItemIsSelectable
+                |Qt::ItemIsUserCheckable
+                |Qt::ItemIsEnabled)
 {
-    setData(QAbstractItemModel::DisplayRole, text);
+    setData(Qt::DisplayRole, text);
 }
 
 /*!
@@ -806,7 +806,7 @@ QTableWidgetItem *QTableWidgetItem::clone() const
 */
 void QTableWidgetItem::setData(int role, const QVariant &value)
 {
-    role = (role == QAbstractItemModel::EditRole ? QAbstractItemModel::DisplayRole : role);
+    role = (role == Qt::EditRole ? Qt::DisplayRole : role);
     for (int i = 0; i < values.count(); ++i) {
         if (values.at(i).role == role) {
             values[i].value = value;
@@ -823,7 +823,7 @@ void QTableWidgetItem::setData(int role, const QVariant &value)
 */
 QVariant QTableWidgetItem::data(int role) const
 {
-    role = (role == QAbstractItemModel::EditRole ? QAbstractItemModel::DisplayRole : role);
+    role = (role == Qt::EditRole ? Qt::DisplayRole : role);
     for (int i = 0; i < values.count(); ++i)
         if (values.at(i).role == role)
             return values.at(i).value;

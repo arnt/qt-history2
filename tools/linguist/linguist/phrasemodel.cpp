@@ -101,7 +101,7 @@ int PhraseModel::columnCount(const QModelIndex &) const
 
 QVariant PhraseModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
-    if ((role == QAbstractItemModel::DisplayRole) && (orientation == Qt::Horizontal)) {
+    if ((role == Qt::DisplayRole) && (orientation == Qt::Horizontal)) {
         switch(section) {
         case 0:
             return tr("Source phrase");
@@ -125,7 +125,7 @@ QVariant PhraseModel::data(const QModelIndex &index, int role) const
 
     Phrase phrase = plist.at(row);
 
-    if (role == QAbstractItemModel::DisplayRole) {
+    if (role == Qt::DisplayRole) {
         switch(column) {
         case 0: // source phrase
             return phrase.source().simplified();

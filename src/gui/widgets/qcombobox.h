@@ -66,8 +66,8 @@ public:
     inline int findText(const QString &text,
                         QAbstractItemModel::MatchFlags flags =
                         QAbstractItemModel::MatchExactly | QAbstractItemModel::MatchCase) const
-        { return findData(text, QAbstractItemModel::EditRole, flags); }
-    int findData(const QVariant &data, int role = QAbstractItemModel::UserRole,
+        { return findData(text, Qt::EditRole, flags); }
+    int findData(const QVariant &data, int role = Qt::UserRole,
                  QAbstractItemModel::MatchFlags flags =
                  QAbstractItemModel::MatchExactly | QAbstractItemModel::MatchCase) const;
 
@@ -131,7 +131,7 @@ public:
 
     QString itemText(int index) const;
     QIcon itemIcon(int index) const;
-    QVariant itemData(int index, int role = QAbstractItemModel::UserRole) const;
+    QVariant itemData(int index, int role = Qt::UserRole) const;
 
     inline void addItem(const QString &text, const QVariant &userData = QVariant())
         { insertItem(count(), text, userData); }
@@ -151,7 +151,7 @@ public:
 
     void setItemText(int index, const QString &text);
     void setItemIcon(int index, const QIcon &icon);
-    void setItemData(int index, const QVariant &value, int role = QAbstractItemModel::UserRole);
+    void setItemData(int index, const QVariant &value, int role = Qt::UserRole);
 
     QAbstractItemView *view() const;
     void setView(QAbstractItemView *itemView);

@@ -228,7 +228,7 @@ class EditableResourceModel : public ResourceModel
 
 public:
     EditableResourceModel(const ResourceFile &resource_file, QObject *parent = 0);
-    virtual ItemFlags flags(const QModelIndex &index) const;
+    virtual Qt::ItemFlags flags(const QModelIndex &index) const;
     virtual QModelIndex addFiles(const QModelIndex &idx, const QStringList &file_list);
     virtual bool reload();
     virtual bool save();
@@ -238,28 +238,26 @@ private slots:
 };
 
 EditableResourceModel::EditableResourceModel(const ResourceFile &resource_file,
-                                                QObject *parent)
+                                             QObject *parent)
     : ResourceModel(resource_file, parent)
 {
 }
 
-QAbstractItemModel::ItemFlags EditableResourceModel::flags(const QModelIndex &index) const
+Qt::ItemFlags EditableResourceModel::flags(const QModelIndex &index) const
 {
-    QAbstractItemModel::ItemFlags result
-        = ItemIsSelectable
-            | ItemIsEnabled;
+    Qt::ItemFlags result = Qt::ItemIsSelectable | Qt::ItemIsEnabled;
     
     QString prefix, file;
     getItem(index, prefix, file);
     
     if (file.isEmpty())
-        result |= ItemIsEditable;
+        result |= Qt::ItemIsEditable;
 
     return result;
 }
 
 QModelIndex EditableResourceModel::addFiles(const QModelIndex &idx,
-                                                const QStringList &file_list)
+                                            const QStringList &file_list)
 {
     QModelIndex result;
 

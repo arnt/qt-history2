@@ -31,7 +31,7 @@
 
 enum NewForm_CustomRole
 {
-    TemplateNameRole = QAbstractItemModel::UserRole + 100
+    TemplateNameRole = Qt::UserRole + 100
 };
 
 NewForm::NewForm(QDesignerWorkbench *workbench, QWidget *parentWidget)

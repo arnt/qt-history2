@@ -43,8 +43,7 @@ QWidget *SpinBoxDelegate::createEditor(QWidget *parent,
 void SpinBoxDelegate::setEditorData(QWidget *editor,
                                     const QModelIndex &index) const
 {
-    int value = index.model()->data(index,
-        QAbstractItemModel::DisplayRole).toInt();
+    int value = index.model()->data(index, Qt::DisplayRole).toInt();
 
     QSpinBox *spinBox = static_cast<QSpinBox*>(editor);
     spinBox->setValue(value);

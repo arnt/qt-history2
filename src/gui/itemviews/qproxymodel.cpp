@@ -268,9 +268,9 @@ void QProxyModel::fetchMore(const QModelIndex &parent)
 /*!
     Returns the item flags for the given \a index.
 
-    \sa QAbstractItemModel::flags()
+    \sa Qt::flags()
 */
-QAbstractItemModel::ItemFlags QProxyModel::flags(const QModelIndex &index) const
+Qt::ItemFlags QProxyModel::flags(const QModelIndex &index) const
 {
     return d->model->flags(index);
 }

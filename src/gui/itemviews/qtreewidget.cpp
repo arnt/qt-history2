@@ -45,7 +45,7 @@ public:
     int columnCount(const QModelIndex &parent = QModelIndex()) const;
     bool hasChildren(const QModelIndex &parent) const;
 
-    QVariant data(const QModelIndex &index, int role = QAbstractItemModel::DisplayRole) const;
+    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
     bool setData(const QModelIndex &index, const QVariant &value, int role);
 
     QVariant headerData(int section, Qt::Orientation orientation, int role) const;
@@ -55,7 +55,7 @@ public:
     bool insertRows(int row, int count, const QModelIndex &parent);
     bool removeRows(int row, int count, const QModelIndex &parent);
 
-    QAbstractItemModel::ItemFlags flags(const QModelIndex &index) const;
+    Qt::ItemFlags flags(const QModelIndex &index) const;
 
     void sort(int column, Qt::SortOrder order);
     static bool itemLessThan(const QTreeWidgetItem *left, const QTreeWidgetItem *right);
@@ -454,10 +454,10 @@ bool QTreeModel::removeRows(int row, int count, const QModelIndex &parent)
   Returns the flags for the item refered to the given \a index.
 */
 
-QAbstractItemModel::ItemFlags QTreeModel::flags(const QModelIndex &index) const
+Qt::ItemFlags QTreeModel::flags(const QModelIndex &index) const
 {
     if (!index.isValid())
-        return QAbstractItemModel::ItemIsDropEnabled; // can drop on the viewport
+        return Qt::ItemIsDropEnabled; // can drop on the viewport
     QTreeWidgetItem *itm = item(index);
     Q_ASSERT(itm);
     return itm->flags();
@@ -748,7 +748,7 @@ void QTreeModel::invalidatePersistentIndexRow(QTreeWidgetItem *item)
 */
 
 /*!
-    \fn QAbstractItemModel::ItemFlags QTreeWidgetItem::flags() const
+    \fn Qt::ItemFlags QTreeWidgetItem::flags() const
 
     Returns the flags used to describe the item. These determine whether
     the item can be checked, edited, and selected.
@@ -757,7 +757,7 @@ void QTreeModel::invalidatePersistentIndexRow(QTreeWidgetItem *item)
 */
 
 /*!
-    \fn void QTreeWidgetItem::setFlags(QAbstractItemModel::ItemFlags flags)
+    \fn void QTreeWidgetItem::setFlags(Qt::ItemFlags flags)
 
     Sets the flags for the item to the given \a flags. These determine whether
     the item can be selected or modified.
@@ -968,9 +968,9 @@ void QTreeModel::invalidatePersistentIndexRow(QTreeWidgetItem *item)
 
 QTreeWidgetItem::QTreeWidgetItem()
     : view(0), model(0), par(0),
-      itemFlags(QAbstractItemModel::ItemIsSelectable
-                |QAbstractItemModel::ItemIsUserCheckable
-                |QAbstractItemModel::ItemIsEnabled)
+      itemFlags(Qt::ItemIsSelectable
+                |Qt::ItemIsUserCheckable
+                |Qt::ItemIsEnabled)
 {
 }
 
@@ -983,9 +983,9 @@ QTreeWidgetItem::QTreeWidgetItem()
 
 QTreeWidgetItem::QTreeWidgetItem(QTreeWidget *view)
     : view(view), model(0), par(0),
-      itemFlags(QAbstractItemModel::ItemIsSelectable
-                |QAbstractItemModel::ItemIsUserCheckable
-                |QAbstractItemModel::ItemIsEnabled)
+      itemFlags(Qt::ItemIsSelectable
+                |Qt::ItemIsUserCheckable
+                |Qt::ItemIsEnabled)
 {
     if (view) {
         model = ::qobject_cast<QTreeModel*>(view->model());
@@ -1005,9 +1005,9 @@ QTreeWidgetItem::QTreeWidgetItem(QTreeWidget *view)
 
 QTreeWidgetItem::QTreeWidgetItem(QTreeWidget *view, QTreeWidgetItem *after)
     : view(view), model(0), par(0),
-      itemFlags(QAbstractItemModel::ItemIsSelectable
-                |QAbstractItemModel::ItemIsUserCheckable
-                |QAbstractItemModel::ItemIsEnabled)
+      itemFlags(Qt::ItemIsSelectable
+                |Qt::ItemIsUserCheckable
+                |Qt::ItemIsEnabled)
 {
     if (view) {
         model = ::qobject_cast<QTreeModel*>(view->model());
@@ -1025,9 +1025,9 @@ QTreeWidgetItem::QTreeWidgetItem(QTreeWidget *view, QTreeWidgetItem *after)
 
 QTreeWidgetItem::QTreeWidgetItem(QTreeWidgetItem *parent)
     : view(0), model(0), par(parent),
-      itemFlags(QAbstractItemModel::ItemIsSelectable
-                |QAbstractItemModel::ItemIsUserCheckable
-                |QAbstractItemModel::ItemIsEnabled)
+      itemFlags(Qt::ItemIsSelectable
+                |Qt::ItemIsUserCheckable
+                |Qt::ItemIsEnabled)
 {
     if (parent)
         parent->addChild(this);
@@ -1042,9 +1042,9 @@ QTreeWidgetItem::QTreeWidgetItem(QTreeWidgetItem *parent)
 
 QTreeWidgetItem::QTreeWidgetItem(QTreeWidgetItem *parent, QTreeWidgetItem *after)
     : view(0), model(0), par(parent),
-      itemFlags(QAbstractItemModel::ItemIsSelectable
-                |QAbstractItemModel::ItemIsUserCheckable
-                |QAbstractItemModel::ItemIsEnabled)
+      itemFlags(Qt::ItemIsSelectable
+                |Qt::ItemIsUserCheckable
+                |Qt::ItemIsEnabled)
 {
     if (parent) {
         int i = parent->indexOfChild(after) + 1;
@@ -1094,12 +1094,12 @@ QTreeWidgetItem *QTreeWidgetItem::clone() const
 void QTreeWidgetItem::setData(int column, int role, const QVariant &value)
 {
     // special case for check state in tristate
-    if (role == QAbstractItemModel::CheckStateRole
-        && (itemFlags & QAbstractItemModel::ItemIsTristate))
+    if (role == Qt::CheckStateRole
+        && (itemFlags & Qt::ItemIsTristate))
         for (int i = 0; i < children.count(); ++i)
             children.at(i)->setData(column, role, value);
     // set the item data
-    role = (role == QAbstractItemModel::EditRole ? QAbstractItemModel::DisplayRole : role);
+    role = (role == Qt::EditRole ? Qt::DisplayRole : role);
     if (column >= values.count())
         values.resize(column + 1);
     QVector<QWidgetItemData> column_values = values.at(column);
@@ -1120,11 +1120,11 @@ void QTreeWidgetItem::setData(int column, int role, const QVariant &value)
 QVariant QTreeWidgetItem::data(int column, int role) const
 {
     // special case for check state in tristate
-    if (role == QAbstractItemModel::CheckStateRole
-        && (itemFlags & QAbstractItemModel::ItemIsTristate) && children.count())
+    if (role == Qt::CheckStateRole
+        && (itemFlags & Qt::ItemIsTristate) && children.count())
         return childrenCheckState(column);
     // return the item data
-    role = (role == QAbstractItemModel::EditRole ? QAbstractItemModel::DisplayRole : role);
+    role = (role == Qt::EditRole ? Qt::DisplayRole : role);
     if (column < values.size()) {
         const QVector<QWidgetItemData> column_values = values.at(column);
         for (int i = 0; i < column_values.count(); ++i)
@@ -1247,7 +1247,7 @@ QVariant QTreeWidgetItem::childrenCheckState(int column) const
 {
     int checkedChildrenCount = 0;
     for (int i = 0; i < children.count(); ++i) {
-        QVariant value = children.at(i)->data(column, QAbstractItemModel::CheckStateRole);
+        QVariant value = children.at(i)->data(column, Qt::CheckStateRole);
         if (static_cast<Qt::CheckState>(value.toInt()) != Qt::Unchecked)
             ++checkedChildrenCount;
     }

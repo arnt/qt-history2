@@ -1702,7 +1702,7 @@ QModelIndex QtUndoListModel::index(int row, int column, const QModelIndex &paren
 QVariant QtUndoListModel::data(const QModelIndex &index, int role) const
 {
     switch (role) {
-    case DisplayRole:
+    case Qt::DisplayRole:
         if (index.row() < m_items.size())
             return m_items.at(index.row());
         else if (index.row() == m_items.size())

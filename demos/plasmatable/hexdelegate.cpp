@@ -35,7 +35,7 @@ void HexDelegate::paint(QPainter *painter,
     static QPoint pt;
 
     textHex.resize(2);
-    uint col = index.model()->data(index, QAbstractItemModel::DisplayRole).toInt();
+    uint col = index.model()->data(index, Qt::DisplayRole).toInt();
     textHex += QString::number(col, 16).toUpper();
 
     // Layout text

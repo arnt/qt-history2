@@ -59,11 +59,11 @@ QVariant FlagBoxModel::data(const QModelIndex &index, int role) const
     const FlagBoxModelItem &item = m_items.at(index.row());
 
     switch (role) {
-    case DisplayRole:
-    case EditRole:
+    case Qt::DisplayRole:
+    case Qt::EditRole:
         return item.name();
 
-    case CheckStateRole:
+    case Qt::CheckStateRole:
         return item.isChecked();
 
     default:
@@ -78,12 +78,12 @@ bool FlagBoxModel::setData(const QModelIndex &index, const QVariant &value, int 
     FlagBoxModelItem &item = m_items[index.row()];
 
     switch (role) {
-    case EditRole:
-    case DisplayRole: {
+    case Qt::EditRole:
+    case Qt::DisplayRole: {
         item.setName(value.toString());
     } return true;
 
-    case CheckStateRole: {
+    case Qt::CheckStateRole: {
         item.setChecked(value.toBool());
         emit dataChanged(index, index);
     } return true;

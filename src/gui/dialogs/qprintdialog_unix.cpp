@@ -110,7 +110,7 @@ int QPrinterModel::columnCount(const QModelIndex &) const
 QVariant QPrinterModel::data(const QModelIndex &index, int role) const
 {
     if (index.isValid() && index.row() < (int)lst.count()
-        && role == QAbstractItemModel::DisplayRole) {
+        && role == Qt::DisplayRole) {
         const QPrinterDescription &desc = lst.at(index.row());
         switch(index.column()) {
         case 0:

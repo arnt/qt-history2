@@ -1399,16 +1399,16 @@ void QHeaderView::paintSection(QPainter *painter, const QRect &rect, int logical
 
     // setup the style options structure
     int textAlignment = d->model->headerData(logicalIndex, orientation(),
-                                             QAbstractItemModel::TextAlignmentRole).toInt();
+                                             Qt::TextAlignmentRole).toInt();
     opt.rect = rect;
     opt.section = logicalIndex;
     opt.state |= state;
     opt.textAlignment = Qt::Alignment(textAlignment);
     opt.iconAlignment = Qt::AlignVCenter;
     opt.text = d->model->headerData(logicalIndex, orientation(),
-                                    QAbstractItemModel::DisplayRole).toString();
+                                    Qt::DisplayRole).toString();
     opt.icon = qvariant_cast<QIcon>(d->model->headerData(logicalIndex, orientation(),
-                                    QAbstractItemModel::DecorationRole));
+                                    Qt::DecorationRole));
     // the section position
     int visual = visualIndex(logicalIndex);
     if (visual == 0)
@@ -1447,9 +1447,9 @@ QSize QHeaderView::sectionSizeFromContents(int logicalIndex) const
     fnt.setBold(true);
     opt.fontMetrics = QFontMetrics(fnt); // do the metrics with a bold font
     opt.text = d->model->headerData(logicalIndex, orientation(),
-                                    QAbstractItemModel::DisplayRole).toString();
+                                    Qt::DisplayRole).toString();
     opt.icon = qvariant_cast<QIcon>(d->model->headerData(logicalIndex, orientation(),
-                                    QAbstractItemModel::DecorationRole));
+                                    Qt::DecorationRole));
     size = style()->sizeFromContents(QStyle::CT_HeaderSection, &opt, size, this);
 
     if (isSortIndicatorShown() && sortIndicatorSection() == logicalIndex) {

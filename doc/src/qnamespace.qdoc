@@ -1826,3 +1826,62 @@
     \value ImSurroundingText
     \value ImCurrentSelection
 */
+
+/*!
+    \enum Qt::ItemDataRole
+
+    Each item in the model has a set of data elements associated with
+    it, each with its own role. The roles are used by the view to indicate
+    to the model which type of data it needs.
+
+    The general purpose roles are:
+
+    \value DisplayRole    The key data to be rendered (usually text).
+    \value DecorationRole The data to be rendered as a decoration (usually an icon).
+    \value EditRole       The data in a form suitable for editing in an
+                          editor.
+    \value ToolTipRole    The data displayed in the item's tooltip.
+    \value StatusTipRole  The data displayed in the status bar.
+    \value WhatsThisRole  The data displayed for the item in "What's This?"
+                          mode.
+
+    Roles describing appearance and meta data:
+
+    \value FontRole            The font used for items rendered with the default
+                               delegate.
+    \value TextAlignmentRole   The alignment of the text for items rendered with the
+                               default delegate.
+    \value BackgroundColorRole The background color used for items rendered with
+                               the default delegate.
+    \value TextColorRole       The text color used for items rendered with
+                               the default delegate.
+    \value CheckStateRole      This role is used to obtain the checked state of
+                               an item (see \l Qt::CheckState).
+
+    Accessibility roles:
+
+    \value AccessibleTextRole        The text to be used by accessibility
+                                     extensions and plugins, such as screen
+                                     readers.
+    \value AccessibleDescriptionRole A description of the item for accessibility
+                                     purposes.
+
+    User roles:
+
+    \value UserRole       The first role that can be used for
+                                     application-specific purposes.
+*/
+
+/*!
+    \enum Qt::ItemFlag
+
+    This enum describes the properties of an item:
+
+    \value ItemIsSelectable It can be selected.
+    \value ItemIsEditable It can be edited.
+    \value ItemIsDragEnabled It can be dragged.
+    \value ItemIsDropEnabled It can be used as a drop target.
+    \value ItemIsUserCheckable It can be checked or unchecked by the user.
+    \value ItemIsEnabled The user can interact with the item.
+    \value ItemIsTristate The item is checkable with three separate states.
+*/

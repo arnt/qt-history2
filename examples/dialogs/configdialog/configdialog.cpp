@@ -47,20 +47,17 @@ void ConfigDialog::createIcons()
     QListWidgetItem *configButton = new QListWidgetItem(contentsWidget);
     configButton->setIcon(QIcon(":/images/config.png"));
     configButton->setText(tr("Configuration"));
-    configButton->setFlags(QAbstractItemModel::ItemIsSelectable
-                           | QAbstractItemModel::ItemIsEnabled);
+    configButton->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled);
 
     QListWidgetItem *updateButton = new QListWidgetItem(contentsWidget);
     updateButton->setIcon(QIcon(":/images/update.png"));
     updateButton->setText(tr("Update"));
-    updateButton->setFlags(QAbstractItemModel::ItemIsSelectable
-                           | QAbstractItemModel::ItemIsEnabled);
+    updateButton->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled);
 
     QListWidgetItem *queryButton = new QListWidgetItem(contentsWidget);
     queryButton->setIcon(QIcon(":/images/query.png"));
     queryButton->setText(tr("Query"));
-    queryButton->setFlags(QAbstractItemModel::ItemIsSelectable
-                          | QAbstractItemModel::ItemIsEnabled);
+    queryButton->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled);
 
     connect(contentsWidget,
             SIGNAL(currentItemChanged(QListWidgetItem *, QListWidgetItem *)),

@@ -66,9 +66,9 @@ QVariant Model::data(const QModelIndex &index, int role) const
 {
     static QIcon folder(QPixmap(":/images/folder.png"));
 
-    if (role == DisplayRole)
+    if (role == Qt::DisplayRole)
 	return "Item " + QString::number(index.row()) + ":" + QString::number(index.column());
-    if (role == DecorationRole)
+    if (role == Qt::DecorationRole)
 	return qVariantFromValue(folder);
     return QVariant();
 }
@@ -76,9 +76,9 @@ QVariant Model::data(const QModelIndex &index, int role) const
 QVariant Model::headerData(int section, Qt::Orientation orientation, int role) const
 {
     static QIcon services(QPixmap(":/images/services.png"));
-    if (role == DisplayRole)
+    if (role == Qt::DisplayRole)
         return QString::number(section);
-    if (role == DecorationRole)
+    if (role == Qt::DecorationRole)
         return qVariantFromValue(services);
     return QAbstractItemModel::headerData(section, orientation, role);
 }
@@ -89,11 +89,9 @@ bool Model::hasChildren(const QModelIndex &parent) const
     return rc > 0 && cc > 0;
 }
 
-QAbstractItemModel::ItemFlags Model::flags(const QModelIndex &) const
+Qt::ItemFlags Model::flags(const QModelIndex &) const
 {
-    return (QAbstractItemModel::ItemIsDragEnabled
-            |QAbstractItemModel::ItemIsSelectable
-            |QAbstractItemModel::ItemIsEnabled);
+    return (Qt::ItemIsDragEnabled|Qt::ItemIsSelectable|Qt::ItemIsEnabled);
 }
 
 Model::Node *Model::node(int row, Node *parent) const

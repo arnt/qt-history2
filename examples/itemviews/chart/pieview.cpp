@@ -363,8 +363,7 @@ void PieView::paintEvent(QPaintEvent *event)
                 double angle = 360*value/totalValue;
 
                 QModelIndex colorIndex = model()->index(row, 0, rootIndex());
-                QColor color = QColor(model()->data(colorIndex,
-                    QAbstractItemModel::DecorationRole).toString());
+                QColor color = QColor(model()->data(colorIndex, Qt::DecorationRole).toString());
 
                 painter.setBrush(QBrush(color));
                 painter.drawPie(0, 0, pieSize, pieSize, int(startAngle*16),
@@ -392,8 +391,7 @@ void PieView::paintEvent(QPaintEvent *event)
                 QModelIndex labelIndex = model()->index(row, 0, rootIndex());
 
                 QString label = model()->data(labelIndex).toString();
-                QColor color = QColor(model()->data(labelIndex,
-                    QAbstractItemModel::DecorationRole).toString());
+                QColor color = QColor(model()->data(labelIndex, Qt::DecorationRole).toString());
 
                 painter.setBrush(QBrush(color));
                 painter.setPen(textPen);

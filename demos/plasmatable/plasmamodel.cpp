@@ -62,7 +62,7 @@ int PlasmaModel::columnCount(const QModelIndex &) const
 
 QVariant PlasmaModel::data(const QModelIndex &index, int role) const
 {
-    if (index.isValid() && role == QAbstractItemModel::DisplayRole)
+    if (index.isValid() && role == Qt::DisplayRole)
         return value(index.row(), index.column());
     return QVariant();
 }

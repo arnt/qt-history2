@@ -165,7 +165,7 @@ QVariant QSqlQueryModel::data(const QModelIndex &item, int role) const
         return QVariant();
 
     QVariant v;
-    if (role & ~(DisplayRole | EditRole))
+    if (role & ~(Qt::DisplayRole | Qt::EditRole))
         return v;
 
     if (!d->rec.isGenerated(item.column()))
@@ -189,7 +189,7 @@ QVariant QSqlQueryModel::data(const QModelIndex &item, int role) const
 QVariant QSqlQueryModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
     Q_D(const QSqlQueryModel);
-    if (orientation == Qt::Horizontal && role == DisplayRole) {
+    if (orientation == Qt::Horizontal && role == Qt::DisplayRole) {
         QVariant val = d->headers.value(section);
         if (val.isValid())
             return val;
@@ -302,7 +302,7 @@ void QSqlQueryModel::clear()
     the specified \a value. This is useful if the model is used to
     display data in a view (e.g., QTableView).
 
-    Returns true if \a role is \c QAbstractItemModel::DisplayRole and
+    Returns true if \a role is \c Qt::DisplayRole and
     the \a section refers to a valid section; otherwise returns
     false.
 
@@ -315,7 +315,8 @@ bool QSqlQueryModel::setHeaderData(int section, Qt::Orientation orientation,
                                    const QVariant &value, int role)
 {
     Q_D(QSqlQueryModel);
-    if ((role != EditRole && role != DisplayRole) || orientation != Qt::Horizontal || section < 0)
+    if ((role != Qt::EditRole && role != Qt::DisplayRole)
+        || orientation != Qt::Horizontal || section < 0)
         return false;
 
     if (d->headers.size() <= section)
@@ -375,7 +376,7 @@ QSqlRecord QSqlQueryModel::record(int row) const
 
     QSqlRecord rec = d->rec;
     for (int i = 0; i < rec.count(); ++i)
-        rec.setValue(i, data(createIndex(row, i), EditRole));
+        rec.setValue(i, data(createIndex(row, i), Qt::EditRole));
     return rec;
 }
 

@@ -207,8 +207,8 @@ public:
     bool hasChildren(const QModelIndex &parent) const
     { return rowCount(parent) > 0; }
 
-    QVariant data(const QModelIndex &index, int role = DisplayRole) const;
-    ItemFlags flags(const QModelIndex &index) const;
+    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
+    Qt::ItemFlags flags(const QModelIndex &index) const;
 
     int categoryCount() const;
     Category category(int cat_idx) const;
@@ -398,9 +398,9 @@ WidgetCollectionModel::Category WidgetCollectionModel::loadCustomCategory()
     return result;
 }
 
-QAbstractItemModel::ItemFlags WidgetCollectionModel::flags(const QModelIndex &) const
+Qt::ItemFlags WidgetCollectionModel::flags(const QModelIndex &) const
 {
-    return ItemIsEnabled;
+    return Qt::ItemIsEnabled;
 }
 
 WidgetCollectionModel::Category WidgetCollectionModel::category(int cat_idx) const
@@ -565,7 +565,7 @@ QVariant WidgetCollectionModel::data(const QModelIndex &index, int role) const
     QVariant result;
 
     switch (role) {
-        case DisplayRole:
+        case Qt::DisplayRole:
             if (d == -1) {
                 Category cat = category(index.row());
                 if (!cat.isNull())
@@ -576,7 +576,7 @@ QVariant WidgetCollectionModel::data(const QModelIndex &index, int role) const
                     result = wgt.name();
             }
             break;
-        case DecorationRole:
+        case Qt::DecorationRole:
             if (d != -1) {
                 Widget wgt = widget(d, index.row());
                 if (!wgt.isNull())

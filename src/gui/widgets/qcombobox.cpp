@@ -62,9 +62,8 @@ QStyleOptionMenuItem MenuDelegate::getStyleOption(const QStyleOptionViewItem &op
     menuOption.checkType = QStyleOptionMenuItem::NonExclusive;
     menuOption.checked = mCombo->currentIndex() == index.row();
     menuOption.menuItemType = QStyleOptionMenuItem::Normal;
-    menuOption.icon = qvariant_cast<QIcon>(index.model()->data(index,
-                         QAbstractItemModel::DecorationRole));
-    menuOption.text = index.model()->data(index, QAbstractItemModel::DisplayRole).toString();
+    menuOption.icon = qvariant_cast<QIcon>(index.model()->data(index, Qt::DecorationRole));
+    menuOption.text = index.model()->data(index, Qt::DisplayRole).toString();
     menuOption.tabWidth = 0;
     menuOption.maxIconWidth = 0;
     menuOption.maxIconWidth =  option.decorationSize.width() + 4;
@@ -783,10 +782,10 @@ void QComboBoxPrivate::complete()
     }
     QString text = lineEdit->text();
     if (!text.isEmpty()) {
-        QModelIndexList list = model->match(currentIndex, QAbstractItemModel::EditRole, text);
+        QModelIndexList list = model->match(currentIndex, Qt::EditRole, text);
         if (!list.count())
             return;
-        QString completed = model->data(list.first(), QAbstractItemModel::EditRole).toString();
+        QString completed = model->data(list.first(), Qt::EditRole).toString();
         int start = completed.length();
         int length = text.length() - start; // negative length
         lineEdit->setText(completed);
@@ -809,7 +808,7 @@ void QComboBoxPrivate::itemSelected(const QModelIndex &item)
 void QComboBoxPrivate::emitActivated(const QModelIndex &index)
 {
     Q_Q(QComboBox);
-    QString text(q->model()->data(index, QAbstractItemModel::EditRole).toString());
+    QString text(q->model()->data(index, Qt::EditRole).toString());
     emit q->activated(index.row());
     emit q->activated(text);
 }
@@ -817,7 +816,7 @@ void QComboBoxPrivate::emitActivated(const QModelIndex &index)
 void QComboBoxPrivate::emitHighlighted(const QModelIndex &index)
 {
     Q_Q(QComboBox);
-    QString text(q->model()->data(index, QAbstractItemModel::EditRole).toString());
+    QString text(q->model()->data(index, Qt::EditRole).toString());
     emit q->highlighted(index.row());
     emit q->highlighted(text);
 }
@@ -1098,7 +1097,7 @@ void QComboBox::setLineEdit(QLineEdit *edit)
 	Q_ASSERT(edit != 0);
 	return;
     }
-    if (!(model()->flags(model()->index(0, 0, rootModelIndex())) & QAbstractItemModel::ItemIsEditable)) {
+    if (!(model()->flags(model()->index(0, 0, rootModelIndex())) & Qt::ItemIsEditable)) {
         delete edit;
         return;
     }
@@ -1291,7 +1290,7 @@ QString QComboBox::currentText() const
     if (d->lineEdit)
         return d->lineEdit->text();
     else if (d->currentIndex.isValid())
-	return model()->data(d->currentIndex, QAbstractItemModel::EditRole).toString();
+	return model()->data(d->currentIndex, Qt::EditRole).toString();
     else
 	return QString::null;
 }
@@ -1303,7 +1302,7 @@ QString QComboBox::currentText() const
 QString QComboBox::itemText(int index) const
 {
     QModelIndex mi = model()->index(index, 0, rootModelIndex());
-    return model()->data(mi, QAbstractItemModel::EditRole).toString();
+    return model()->data(mi, Qt::EditRole).toString();
 }
 
 /*!
@@ -1314,7 +1313,7 @@ QIcon QComboBox::itemIcon(int index) const
     Q_D(const QComboBox);
     QStyleOptionComboBox opt = d->getStyleOption();
     QModelIndex item = model()->index(index, 0, rootModelIndex());
-    return qvariant_cast<QIcon>(model()->data(item, QAbstractItemModel::DecorationRole))
+    return qvariant_cast<QIcon>(model()->data(item, Qt::DecorationRole))
         .pixmap(style()->pixelMetric(QStyle::PM_SmallIconSize),
                 opt.state & QStyle::State_Enabled ? QIcon::Normal : QIcon::Disabled);
 }
@@ -1349,9 +1348,9 @@ void QComboBox::insertItem(int index, const QIcon &icon, const QString &text, co
     if (model()->insertRows(index, 1, rootModelIndex())) {
         item = model()->index(index, 0, rootModelIndex());
         QMap<int, QVariant> values;
-        values.insert(QAbstractItemModel::EditRole, text);
-        values.insert(QAbstractItemModel::DecorationRole, icon);
-        values.insert(QAbstractItemModel::UserRole, userData);
+        values.insert(Qt::EditRole, text);
+        values.insert(Qt::DecorationRole, icon);
+        values.insert(Qt::UserRole, userData);
         model()->setItemData(item, values);
     }
 }
@@ -1373,7 +1372,7 @@ void QComboBox::insertItems(int index, const QStringList &list)
         QModelIndex item;
         for (int i = 0; i < list.count(); ++i) {
             item = model()->index(i+index, 0, rootModelIndex());
-            model()->setData(item, list.at(i), QAbstractItemModel::EditRole);
+            model()->setData(item, list.at(i), Qt::EditRole);
         }
     }
 }
@@ -1398,7 +1397,7 @@ void QComboBox::setItemText(int index, const QString &text)
 {
     QModelIndex item = model()->index(index, 0, rootModelIndex());
     if (item.isValid()) {
-        model()->setData(item, text, QAbstractItemModel::EditRole);
+        model()->setData(item, text, Qt::EditRole);
     }
 }
 
@@ -1410,7 +1409,7 @@ void QComboBox::setItemIcon(int index, const QIcon &icon)
 {
     QModelIndex item = model()->index(index, 0, rootModelIndex());
     if (item.isValid()) {
-        model()->setData(item, icon, QAbstractItemModel::DecorationRole);
+        model()->setData(item, icon, Qt::DecorationRole);
     }
 }
 
@@ -1690,7 +1689,7 @@ void QComboBox::paintEvent(QPaintEvent *)
 
     // draw the icon and text
     if (d->currentIndex.isValid()) {
-        QString txt = model()->data(d->currentIndex, QAbstractItemModel::DisplayRole).toString();
+        QString txt = model()->data(d->currentIndex, Qt::DisplayRole).toString();
         const QIcon &icon = itemIcon(currentIndex());
         QRect editRect = QStyle::visualRect(opt.direction, opt.rect, style()->subControlRect(
                                                  QStyle::CC_ComboBox, &opt,

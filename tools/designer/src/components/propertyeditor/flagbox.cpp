@@ -37,7 +37,7 @@ FlagBox::~FlagBox()
 
 void FlagBox::slotActivated(int index)
 {
-    bool checked = itemData(index, FlagBoxModel::CheckStateRole).toBool();
+    bool checked = itemData(index, Qt::CheckStateRole).toBool();
 
-    setItemData(index, !checked, FlagBoxModel::CheckStateRole);
+    setItemData(index, !checked, Qt::CheckStateRole);
 }

@@ -160,7 +160,7 @@ bool QStandardItemModel::hasChildren(const QModelIndex &parent) const
 QVariant QStandardItemModel::data(const QModelIndex &index, int role) const
 {
     Q_D(const QStandardItemModel);
-    role = (role == QAbstractItemModel::EditRole ? QAbstractItemModel::DisplayRole : role);
+    role = (role == Qt::EditRole ? Qt::DisplayRole : role);
     if (index.isValid()) {
         QStdModelRow *modelRow = d->containedRow(index, false);
         if (modelRow && modelRow->items.count() > index.column()) {
@@ -178,7 +178,7 @@ QVariant QStandardItemModel::data(const QModelIndex &index, int role) const
 bool QStandardItemModel::setData(const QModelIndex &index, const QVariant &value, int role)
 {
     Q_D(const QStandardItemModel);
-    role = (role == QAbstractItemModel::EditRole ? QAbstractItemModel::DisplayRole : role);
+    role = (role == Qt::EditRole ? Qt::DisplayRole : role);
     if (index.isValid()) {
         QStdModelRow *modelRow = d->containedRow(index, true);
         int count = modelRow->items.count();
@@ -209,7 +209,7 @@ QVariant QStandardItemModel::headerData(int section, Qt::Orientation orientation
     const QStdModelItem *headerItem = 0;
     const QVector<QStdModelItem*> &header = (orientation == Qt::Horizontal
                                              ? d->horizontalHeader : d->verticalHeader);
-    role = (role == QAbstractItemModel::EditRole ? QAbstractItemModel::DisplayRole : role);
+    role = (role == Qt::EditRole ? Qt::DisplayRole : role);
     if (header.size() > section)
         headerItem = header.at(section);
 
@@ -234,7 +234,7 @@ bool QStandardItemModel::setHeaderData(int section, Qt::Orientation orientation,
     QStdModelItem *headerItem = 0;
     QVector<QStdModelItem*> &header = (orientation == Qt::Horizontal
                                        ? d->horizontalHeader : d->verticalHeader);
-    role = (role == QAbstractItemModel::EditRole ? QAbstractItemModel::DisplayRole : role);
+    role = (role == Qt::EditRole ? Qt::DisplayRole : role);
     if (header.size() <= section)
         header.resize(section + 1);
     headerItem = header[section];
@@ -483,9 +483,9 @@ bool QStandardItemModel::removeColumns(int column, int count, const QModelIndex 
 
     \sa ItemFlag
 */
-QAbstractItemModel::ItemFlags QStandardItemModel::flags(const QModelIndex &index) const
+Qt::ItemFlags QStandardItemModel::flags(const QModelIndex &index) const
 {
-    return QAbstractItemModel::flags(index) | QAbstractItemModel::ItemIsEditable;
+    return QAbstractItemModel::flags(index) | Qt::ItemIsEditable;
 }
 
 /*!

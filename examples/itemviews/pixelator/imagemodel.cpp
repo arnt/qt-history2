@@ -22,7 +22,7 @@ QVariant ImageModel::data(const QModelIndex &index, int role) const
 {
     if (!index.isValid())
         return QVariant();
-    else if (role == QAbstractItemModel::ToolTipRole)
+    else if (role == Qt::ToolTipRole)
         return QVariant();
 
     return qGray(modelImage.pixel(index.column(), index.row()));

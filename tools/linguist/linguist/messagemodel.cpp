@@ -99,7 +99,7 @@ int MessageModel::columnCount(const QModelIndex &) const
 
 QVariant MessageModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
-    if ((role == QAbstractItemModel::DisplayRole) && (orientation == Qt::Horizontal)) {
+    if ((role == Qt::DisplayRole) && (orientation == Qt::Horizontal)) {
         switch(section)
         {
         case 0:
@@ -130,7 +130,7 @@ QVariant MessageModel::data(const QModelIndex &index, int role) const
 
     MessageItem *msgItem = cntxtItem->messageItem(row);
 
-    if (role == QAbstractItemModel::DisplayRole) {
+    if (role == Qt::DisplayRole) {
         switch(column) {
         case 0: // done
             return QVariant();
@@ -140,7 +140,7 @@ QVariant MessageModel::data(const QModelIndex &index, int role) const
             return msgItem->translation().simplified();
         }
     }
-    else if ((role == QAbstractItemModel::DecorationRole) && (column == 0)) {
+    else if ((role == Qt::DecorationRole) && (column == 0)) {
         if (msgItem->message().type() == MetaTranslatorMessage::Unfinished && msgItem->translation().isEmpty())
             return qVariantFromValue(*TrWindow::pxEmpty);
         else if (msgItem->message().type() == MetaTranslatorMessage::Unfinished && msgItem->danger())

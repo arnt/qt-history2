@@ -27,7 +27,7 @@ public:
     int rowCount(const QModelIndex &) const;
     int columnCount(const QModelIndex &) const;
 
-    QVariant data(const QModelIndex &index, int role = QAbstractItemModel::DisplayRole) const;
+    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
 
 protected:
     void timerEvent(QTimerEvent *e);

@@ -55,7 +55,7 @@ public:
     bool insertColumns(int column, int count, const QModelIndex &parent);
 
     void fetchMore(const QModelIndex &parent);
-    QAbstractItemModel::ItemFlags flags(const QModelIndex &index) const;
+    Qt::ItemFlags flags(const QModelIndex &index) const;
 
     void sort(int column, Qt::SortOrder order);
 

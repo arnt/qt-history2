@@ -5,8 +5,8 @@
 #include "renderarea.h"
 #include "window.h"
 
-const int IdRole = QAbstractItemModel::UserRole;
-const int ColorRole = QAbstractItemModel::UserRole + 1;
+const int IdRole = Qt::UserRole;
+const int ColorRole = Qt::UserRole + 1;
 const float Pi = 3.14159;
 
 Window::Window()

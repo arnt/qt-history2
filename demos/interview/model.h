@@ -35,7 +35,7 @@ public:
     QVariant headerData(int section, Qt::Orientation orientation, int role) const;
 
     bool hasChildren(const QModelIndex &parent) const;
-    ItemFlags flags(const QModelIndex &index) const;
+    Qt::ItemFlags flags(const QModelIndex &index) const;
     bool isDragEnabled(const QModelIndex &index) const;
 
 private:

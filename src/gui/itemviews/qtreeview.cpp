@@ -647,7 +647,7 @@ void QTreeView::drawRow(QPainter *painter, const QStyleOptionViewItem &option,
             opt.state |= QStyle::State_Selected;
         if (focus && current == modelIndex)
             opt.state |= QStyle::State_HasFocus;
-        if ((model()->flags(index) & QAbstractItemModel::ItemIsEnabled) == 0)
+        if ((model()->flags(index) & Qt::ItemIsEnabled) == 0)
             opt.state &= ~QStyle::State_Enabled;
         if (headerSection == 0) {
             int i = d->indentation(d->current);

@@ -59,7 +59,7 @@ void setEditorData(QWidget *editor, const QModelIndex &index) const
     }
 
     int childColIndex = childModel->fieldIndex(sqlModel->relation(index.column()).displayColumn());
-    QVariant parentEditValue = sqlModel->data(index, QAbstractItemModel::EditRole);
+    QVariant parentEditValue = sqlModel->data(index, Qt::EditRole);
 
     combo->clear();
     int currentItem = -1;
@@ -73,8 +73,7 @@ void setEditorData(QWidget *editor, const QModelIndex &index) const
         combo->setCurrentIndex(currentItem);
 }
 
-void setModelData(QWidget *editor, QAbstractItemModel *model,
-                                          const QModelIndex &index) const
+void setModelData(QWidget *editor, QAbstractItemModel *model, const QModelIndex &index) const
 {
     if (!index.isValid())
         return;
@@ -93,12 +92,10 @@ void setModelData(QWidget *editor, QAbstractItemModel *model,
     int childEditIndex = childModel->fieldIndex(sqlModel->relation(
                             index.column()).indexColumn());
     QVariant val;
-    val = childModel->data(childModel->index(currentItem, childColIndex),
-                           QAbstractItemModel::DisplayRole);
-    sqlModel->setData(index, val, QAbstractItemModel::DisplayRole);
-    val = childModel->data(childModel->index(currentItem, childEditIndex),
-                           QAbstractItemModel::EditRole);
-    sqlModel->setData(index, val, QAbstractItemModel::EditRole);
+    val = childModel->data(childModel->index(currentItem, childColIndex), Qt::DisplayRole);
+    sqlModel->setData(index, val, Qt::DisplayRole);
+    val = childModel->data(childModel->index(currentItem, childEditIndex), Qt::EditRole);
+    sqlModel->setData(index, val, Qt::EditRole);
 }
 
 };

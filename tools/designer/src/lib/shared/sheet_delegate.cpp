@@ -43,7 +43,7 @@ void SheetDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option,
         buttonOption.rect = option.rect;
         buttonOption.palette = option.palette;
         buttonOption.features = QStyleOptionButton::None;
-        buttonOption.text = model->data(index, QAbstractItemModel::DisplayRole).toString();
+        buttonOption.text = model->data(index, Qt::DisplayRole).toString();
         m_view->style()->drawControl(QStyle::CE_PushButton, &buttonOption, painter, m_view);
 
         QStyleOption branchOption;

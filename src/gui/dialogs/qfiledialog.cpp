@@ -1711,8 +1711,7 @@ QAbstractItemView::SelectionMode QFileDialogPrivate::selectionMode(QFileDialog::
 
 QModelIndex QFileDialogPrivate::matchDir(const QString &text, const QModelIndex &first) const
 {
-    QModelIndexList matches = model->match(first,
-                                           QAbstractItemModel::DisplayRole,
+    QModelIndexList matches = model->match(first, Qt::DisplayRole,
                                            text, model->rowCount(first.parent()),
                                            QAbstractItemModel::MatchFromStart
                                            |QAbstractItemModel::MatchWrap
@@ -1725,9 +1724,7 @@ QModelIndex QFileDialogPrivate::matchDir(const QString &text, const QModelIndex 
 
 QModelIndex QFileDialogPrivate::matchName(const QString &name, const QModelIndex &first) const
 {
-    QModelIndexList matches = model->match(first,
-                                           QAbstractItemModel::DisplayRole,
-                                           name, 1,
+    QModelIndexList matches = model->match(first, Qt::DisplayRole, name, 1,
                                            QAbstractItemModel::MatchFromStart
                                            |QAbstractItemModel::MatchWrap
                                            |QAbstractItemModel::MatchCase);

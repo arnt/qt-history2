@@ -123,37 +123,37 @@ void QItemDelegate::paint(QPainter *painter,
     QStyleOptionViewItem opt = option;
 
     // set font
-    QVariant value = model->data(index, QAbstractItemModel::FontRole);
+    QVariant value = model->data(index, Qt::FontRole);
     if (value.isValid())
         opt.font = qvariant_cast<QFont>(value);
 
     // set text alignment
-    value = model->data(index, QAbstractItemModel::TextAlignmentRole);
+    value = model->data(index, Qt::TextAlignmentRole);
     if (value.isValid())
         opt.displayAlignment = QFlag(value.toInt());
 
     // set text color
-    value = model->data(index, QAbstractItemModel::TextColorRole);
+    value = model->data(index, Qt::TextColorRole);
     if (value.isValid() && qvariant_cast<QColor>(value).isValid())
         opt.palette.setColor(QPalette::Text, qvariant_cast<QColor>(value));
 
     // do layout
-    value = model->data(index, QAbstractItemModel::DecorationRole);
+    value = model->data(index, Qt::DecorationRole);
     QPixmap pixmap = decoration(opt, value);
     QRect pixmapRect = pixmap.rect();
 
     QFontMetrics fontMetrics(opt.font);
-    QString text = model->data(index, QAbstractItemModel::DisplayRole).toString();
+    QString text = model->data(index, Qt::DisplayRole).toString();
     QRect textRect(0, 0, fontMetrics.width(text), fontMetrics.lineSpacing());
 
-    value = model->data(index, QAbstractItemModel::CheckStateRole);
+    value = model->data(index, Qt::CheckStateRole);
     QRect checkRect = check(opt, value);
     Qt::CheckState checkState = static_cast<Qt::CheckState>(value.toInt());
 
     doLayout(opt, &checkRect, &pixmapRect, &textRect, false);
 
     // draw the background color
-    value = model->data(index, QAbstractItemModel::BackgroundColorRole);
+    value = model->data(index, Qt::BackgroundColorRole);
     if (value.isValid() && qvariant_cast<QColor>(value).isValid())
         painter->fillRect(option.rect, qvariant_cast<QColor>(value));
 
@@ -177,17 +177,17 @@ QSize QItemDelegate::sizeHint(const QStyleOptionViewItem &option,
     const QAbstractItemModel *model = index.model();
     Q_ASSERT(model);
 
-    QVariant value = model->data(index, QAbstractItemModel::FontRole);
+    QVariant value = model->data(index, Qt::FontRole);
     QFont fnt = value.isValid() ? qvariant_cast<QFont>(value) : option.font;
-    QString text = model->data(index, QAbstractItemModel::DisplayRole).toString();
+    QString text = model->data(index, Qt::DisplayRole).toString();
     QRect pixmapRect;
-    if (model->data(index, QAbstractItemModel::DecorationRole).isValid())
+    if (model->data(index, Qt::DecorationRole).isValid())
         pixmapRect = QRect(0, 0, option.decorationSize.width(),
                            option.decorationSize.height());
 
     QFontMetrics fontMetrics(fnt);
     QRect textRect(0, 0, fontMetrics.width(text), fontMetrics.lineSpacing());
-    QRect checkRect = check(option, model->data(index, QAbstractItemModel::CheckStateRole));
+    QRect checkRect = check(option, model->data(index, Qt::CheckStateRole));
     doLayout(option, &checkRect, &pixmapRect, &textRect, true);
 
     return pixmapRect.unite(textRect).size();
@@ -207,7 +207,7 @@ QWidget *QItemDelegate::createEditor(QWidget *parent,
 {
     if (!index.isValid())
         return 0;
-    QVariant::Type t = index.model()->data(index, QAbstractItemModel::EditRole).type();
+    QVariant::Type t = index.model()->data(index, Qt::EditRole).type();
     QWidget *w = QItemEditorFactory::defaultFactory()->createEditor(t, parent);
     if (w) w->installEventFilter(const_cast<QItemDelegate *>(this));
     return w;
@@ -220,7 +220,7 @@ QWidget *QItemDelegate::createEditor(QWidget *parent,
 
 void QItemDelegate::setEditorData(QWidget *editor, const QModelIndex &index) const
 {
-    QVariant v = index.model()->data(index, QAbstractItemModel::EditRole);
+    QVariant v = index.model()->data(index, Qt::EditRole);
     QByteArray n = d->editorFactory()->valuePropertyName(v.type());
     if (!n.isEmpty())
         editor->setProperty(n, v);
@@ -236,10 +236,10 @@ void QItemDelegate::setModelData(QWidget *editor,
                                  const QModelIndex &index) const
 {
     Q_ASSERT(model);
-    QVariant::Type t = model->data(index, QAbstractItemModel::EditRole).type();
+    QVariant::Type t = model->data(index, Qt::EditRole).type();
     QByteArray n = d->editorFactory()->valuePropertyName(t);
     if (!n.isEmpty())
-        model->setData(index, editor->property(n), QAbstractItemModel::EditRole);
+        model->setData(index, editor->property(n), Qt::EditRole);
 }
 
 /*!
@@ -255,11 +255,11 @@ void QItemDelegate::updateEditorGeometry(QWidget *editor,
         Q_ASSERT(index.isValid());
         const QAbstractItemModel *model = index.model();
         Q_ASSERT(model);
-        QPixmap pixmap = decoration(option, model->data(index, QAbstractItemModel::DecorationRole));
-        QString text = model->data(index, QAbstractItemModel::EditRole).toString();
+        QPixmap pixmap = decoration(option, model->data(index, Qt::DecorationRole));
+        QString text = model->data(index, Qt::EditRole).toString();
         QRect pixmapRect = pixmap.rect();
         QRect textRect(0, 0, editor->fontMetrics().width(text), editor->fontMetrics().lineSpacing());
-        QRect checkRect = check(option, model->data(index, QAbstractItemModel::CheckStateRole));
+        QRect checkRect = check(option, model->data(index, Qt::CheckStateRole));
         doLayout(option, &checkRect, &pixmapRect, &textRect, false);
         editor->setGeometry(textRect);
     }
@@ -633,11 +633,11 @@ bool QItemDelegate::editorEvent(QEvent *event,
 
     // make sure that we have the right event type and that the item is checkable
     if ((event->type() != QEvent::MouseButtonPress && event->type() != QEvent::MouseButtonDblClick)
-        || ((model->flags(index) & QAbstractItemModel::ItemIsUserCheckable) == 0))
+        || ((model->flags(index) & Qt::ItemIsUserCheckable) == 0))
         return false;
 
     // check if the event happened in the right place
-    QVariant value = model->data(index, QAbstractItemModel::CheckStateRole);
+    QVariant value = model->data(index, Qt::CheckStateRole);
     QRect checkRect = QStyle::alignedRect(option.direction, Qt::AlignCenter,
                                           check(option, value).size(),
                                           QRect(option.rect.x(), option.rect.y(),
@@ -645,7 +645,7 @@ bool QItemDelegate::editorEvent(QEvent *event,
     if (checkRect.contains(static_cast<QMouseEvent*>(event)->pos())) {
         Qt::CheckState state = static_cast<Qt::CheckState>(value.toInt());
         return model->setData(index, (state == Qt::Unchecked ? Qt::Checked : Qt::Unchecked),
-                              QAbstractItemModel::CheckStateRole);
+                              Qt::CheckStateRole);
     }
 
     return false;

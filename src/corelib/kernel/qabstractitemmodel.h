@@ -102,25 +102,6 @@ class Q_CORE_EXPORT QAbstractItemModel : public QObject
     Q_OBJECT
 
 public:
-    enum Role {
-        DisplayRole = 0,
-        DecorationRole = 1,
-        EditRole = 2,
-        ToolTipRole = 3,
-        StatusTipRole = 4,
-        WhatsThisRole = 5,
-        // Metadata
-        FontRole = 6,
-        TextAlignmentRole = 7,
-        BackgroundColorRole = 8,
-        TextColorRole = 9,
-        CheckStateRole = 10,
-        // Accessibility
-        AccessibleTextRole = 11,
-        AccessibleDescriptionRole = 12,
-        // Reserved
-        UserRole = 32
-    };
 
     enum MatchFlag {
         MatchContains = 0,
@@ -130,20 +111,7 @@ public:
         MatchCase = 4,
         MatchWrap = 8
     };
-
     Q_DECLARE_FLAGS(MatchFlags, MatchFlag)
-
-    enum ItemFlag {
-        ItemIsSelectable = 1,
-        ItemIsEditable = 2,
-        ItemIsDragEnabled = 4,
-        ItemIsDropEnabled = 8,
-        ItemIsUserCheckable = 16,
-        ItemIsEnabled = 32,
-        ItemIsTristate = 64
-    };
-
-    Q_DECLARE_FLAGS(ItemFlags, ItemFlag)
 
     explicit QAbstractItemModel(QObject *parent = 0);
     virtual ~QAbstractItemModel();
@@ -160,13 +128,13 @@ public:
     virtual int columnCount(const QModelIndex &parent = QModelIndex()) const = 0;
     virtual bool hasChildren(const QModelIndex &parent = QModelIndex()) const;
 
-    virtual QVariant data(const QModelIndex &index, int role = DisplayRole) const = 0;
-    virtual bool setData(const QModelIndex &index, const QVariant &value, int role = EditRole);
+    virtual QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const = 0;
+    virtual bool setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole);
 
     virtual QVariant headerData(int section, Qt::Orientation orientation,
-                                int role = DisplayRole) const;
+                                int role = Qt::DisplayRole) const;
     virtual bool setHeaderData(int section, Qt::Orientation orientation, const QVariant &value,
-                               int role = EditRole);
+                               int role = Qt::EditRole);
 
     virtual QMap<int, QVariant> itemData(const QModelIndex &index) const;
     virtual bool setItemData(const QModelIndex &index, const QMap<int, QVariant> &roles);
@@ -192,7 +160,7 @@ public:
         { return removeColumns(column, 1, parent); }
 
     virtual void fetchMore(const QModelIndex &parent);
-    virtual ItemFlags flags(const QModelIndex &index) const;
+    virtual Qt::ItemFlags flags(const QModelIndex &index) const;
     virtual void sort(int column, Qt::SortOrder order = Qt::AscendingOrder);
     virtual QModelIndex buddy(const QModelIndex &index) const;
     virtual QModelIndexList match(const QModelIndex &start, int role, const QVariant &value,
@@ -242,7 +210,6 @@ private:
 };
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(QAbstractItemModel::MatchFlags);
-Q_DECLARE_OPERATORS_FOR_FLAGS(QAbstractItemModel::ItemFlags);
 
 class Q_CORE_EXPORT QAbstractTableModel : public QAbstractItemModel
 {

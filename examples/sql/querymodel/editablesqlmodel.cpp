@@ -7,12 +7,12 @@ EditableSqlModel::EditableSqlModel(QObject *parent)
 {
 }
 
-QAbstractItemModel::ItemFlags EditableSqlModel::flags(
+Qt::ItemFlags EditableSqlModel::flags(
         const QModelIndex &index) const
 {
-    ItemFlags flags = QSqlQueryModel::flags(index);
+    Qt::ItemFlags flags = QSqlQueryModel::flags(index);
     if (index.column() == 1 || index.column() == 2)
-        flags |= ItemIsEditable;
+        flags |= Qt::ItemIsEditable;
     return flags;
 }
 

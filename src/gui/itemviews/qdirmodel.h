@@ -45,7 +45,11 @@ class Q_GUI_EXPORT QDirModel : public QAbstractItemModel
     Q_PROPERTY(bool lazyChildCount READ lazyChildCount WRITE setLazyChildCount)
 
 public:
-    enum Roles { FileIconRole = DecorationRole, FilePathRole = UserRole + 1, FileNameRole };
+    enum Roles {
+        FileIconRole = Qt::DecorationRole,
+        FilePathRole = Qt::UserRole + 1,
+        FileNameRole
+    };
 
     QDirModel(const QStringList &nameFilters, QDir::Filters filters,
               QDir::SortFlags sort, QObject *parent = 0);
@@ -58,13 +62,13 @@ public:
     int rowCount(const QModelIndex &parent) const;
     int columnCount(const QModelIndex &parent) const;
 
-    QVariant data(const QModelIndex &index, int role = QAbstractItemModel::DisplayRole) const;
+    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
     bool setData(const QModelIndex &index, const QVariant &value, int role);
 
     QVariant headerData(int section, Qt::Orientation orientation, int role) const;
 
     bool hasChildren(const QModelIndex &index) const;
-    QAbstractItemModel::ItemFlags flags(const QModelIndex &index) const;
+    Qt::ItemFlags flags(const QModelIndex &index) const;
 
     void sort(int column, Qt::SortOrder order);
 

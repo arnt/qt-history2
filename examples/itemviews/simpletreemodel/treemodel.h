@@ -28,9 +28,9 @@ public:
     ~TreeModel();
 
     QVariant data(const QModelIndex &index, int role) const;
-    ItemFlags flags(const QModelIndex &index) const;
+    Qt::ItemFlags flags(const QModelIndex &index) const;
     QVariant headerData(int section, Qt::Orientation orientation,
-                        int role = DisplayRole) const;
+                        int role = Qt::DisplayRole) const;
     QModelIndex index(int row, int column,
                       const QModelIndex &parent = QModelIndex()) const;
     QModelIndex parent(const QModelIndex &index) const;

@@ -3,7 +3,7 @@
 #include "renderarea.h"
 #include "window.h"
 
-const int IdRole = QAbstractItemModel::UserRole;
+const int IdRole = Qt::UserRole;
 
 Window::Window()
 {

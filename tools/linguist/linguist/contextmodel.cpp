@@ -161,7 +161,7 @@ int ContextModel::columnCount(const QModelIndex &) const
 
 QVariant ContextModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
-    if ((role == QAbstractItemModel::DisplayRole) && (orientation == Qt::Horizontal)) {
+    if ((role == Qt::DisplayRole) && (orientation == Qt::Horizontal)) {
         switch(section)    {
         case 0:
             return tr("Done");
@@ -187,7 +187,7 @@ QVariant ContextModel::data(const QModelIndex &index, int role) const
 
     ContextItem *cntxtItem = cntxtList.at(row);
 
-    if (role == QAbstractItemModel::DisplayRole) {
+    if (role == Qt::DisplayRole) {
         switch(column) {
         case 0: // done
             return QVariant();
@@ -203,7 +203,7 @@ QVariant ContextModel::data(const QModelIndex &index, int role) const
             return s;
         }
     }
-    else if ((role == QAbstractItemModel::DecorationRole) && (column == 0)) {
+    else if ((role == Qt::DecorationRole) && (column == 0)) {
         if (cntxtItem->isContextObsolete())
             return qVariantFromValue(*TrWindow::pxObsolete);
         else if (cntxtItem->finished())

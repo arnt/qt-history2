@@ -208,7 +208,7 @@ QSqlRelationalTableModel::~QSqlRelationalTableModel()
 QVariant QSqlRelationalTableModel::data(const QModelIndex &index, int role) const
 {
     Q_D(const QSqlRelationalTableModel);
-    if (role == DisplayRole && index.column() > 0 && index.column() < d->relations.count()) {
+    if (role == Qt::DisplayRole && index.column() > 0 && index.column() < d->relations.count()) {
         const QVariant v = d->relations.at(index.column()).displayValues.value(index.row());
         if (v.isValid())
             return v;
@@ -235,7 +235,7 @@ bool QSqlRelationalTableModel::setData(const QModelIndex &index, const QVariant 
                                        int role)
 {
     Q_D(QSqlRelationalTableModel);
-    if (role == DisplayRole && index.column() > 0 && index.column() < d->relations.count()) {
+    if (role == Qt::DisplayRole && index.column() > 0 && index.column() < d->relations.count()) {
         d->relations[index.column()].displayValues[index.row()] = value;
         return true;
     }

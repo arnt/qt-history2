@@ -508,10 +508,10 @@ void QListView::setRowHidden(int row, bool hide)
     else
         d->hiddenRows.remove(d->hiddenRows.indexOf(row));
 
-    if (isVisible())
-        doItemsLayout(); // FIXME: start from the hidden item row
-    else
-        d->doDelayedItemsLayout();
+//     if (isVisible())
+//         doItemsLayout(); // FIXME: start from the hidden item row
+//     else
+    d->doDelayedItemsLayout();
 }
 
 /*!
@@ -724,7 +724,7 @@ void QListView::dragMoveEvent(QDragMoveEvent *e)
             // check if we allow drops here
             if (e->source() == this && d->draggedItems.contains(index))
                 e->accept(); // allow changing item position
-            else if (model()->flags(index) & QAbstractItemModel::ItemIsDropEnabled)
+            else if (model()->flags(index) & Qt::ItemIsDropEnabled)
                 e->accept(); // allow dropping on dropenabled items
             else if (!index.isValid())
                 e->accept(); // allow dropping in empty areas
@@ -812,7 +812,7 @@ void QListView::internalDrag(Qt::DropActions supportedActions)
     if (indexes.count() > 0 ) {
         QModelIndexList::ConstIterator it = indexes.begin();
         for (; it != indexes.end(); ++it)
-            if (model()->flags(*it) & QAbstractItemModel::ItemIsDragEnabled)
+            if (model()->flags(*it) & Qt::ItemIsDragEnabled)
                 d->draggedItems.push_back(*it);
         QDrag *drag = new QDrag(this);
         drag->setMimeData(model()->mimeData(indexes));
@@ -872,7 +872,7 @@ void QListView::paintEvent(QPaintEvent *e)
         option.state = state;
         if (selections && selections->isSelected(*it))
             option.state |= QStyle::State_Selected;
-        if ((model()->flags(*it) & QAbstractItemModel::ItemIsEnabled) == 0)
+        if ((model()->flags(*it) & Qt::ItemIsEnabled) == 0)
             option.state &= ~QStyle::State_Enabled;
         if (focus && current == *it) {
             option.state |= QStyle::State_HasFocus;

@@ -46,7 +46,7 @@ public:
     inline IProperty *privateData(const QModelIndex &index) const
     { return static_cast<IProperty*>(index.data()); }
 
-    ItemFlags flags(const QModelIndex &index) const;
+    Qt::ItemFlags flags(const QModelIndex &index) const;
 
 signals:
     void propertyChanged(IProperty *property);

@@ -460,7 +460,7 @@ QVariant QDirModel::data(const QModelIndex &index, int role) const
     QDirModelPrivate::QDirNode *node = static_cast<QDirModelPrivate::QDirNode*>(index.data());
     Q_ASSERT(node);
 
-    if (role == DisplayRole || role == EditRole) {
+    if (role == Qt::DisplayRole || role == Qt::EditRole) {
         QFileInfo info = node->info;
         switch (index.column()) {
 	case 0:	if (info.isRoot()) {
@@ -502,7 +502,7 @@ bool QDirModel::setData(const QModelIndex &index, const QVariant &value, int rol
 {
     Q_D(QDirModel);
     if (!index.isValid() || index.column() != 0
-        || (flags(index) & ItemIsEditable) == 0 || role != EditRole)
+        || (flags(index) & Qt::ItemIsEditable) == 0 || role != Qt::EditRole)
         return false;
 
     QDirModelPrivate::QDirNode *node = static_cast<QDirModelPrivate::QDirNode*>(index.data());
@@ -531,7 +531,7 @@ bool QDirModel::setData(const QModelIndex &index, const QVariant &value, int rol
 QVariant QDirModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
     if (orientation == Qt::Horizontal) {
-        if (role != DisplayRole)
+        if (role != Qt::DisplayRole)
             return QVariant();
 	switch (section) {
         case 0: return tr("Name");
@@ -567,23 +567,23 @@ bool QDirModel::hasChildren(const QModelIndex &parent) const
 /*!
   Returns the item flags for the given \a index in the model.
 
-  \sa QAbstractItemModel::flags() QAbstractItemModel::ItemFlags
+  \sa Qt::flags() Qt::ItemFlags
 */
-QAbstractItemModel::ItemFlags QDirModel::flags(const QModelIndex &index) const
+Qt::ItemFlags QDirModel::flags(const QModelIndex &index) const
 {
     Q_D(const QDirModel);
-    QAbstractItemModel::ItemFlags flags = QAbstractItemModel::flags(index);
+    Qt::ItemFlags flags = QAbstractItemModel::flags(index);
     if (!index.isValid())
         return flags;
-    flags |= QAbstractItemModel::ItemIsDragEnabled;
+    flags |= Qt::ItemIsDragEnabled;
     if (d->readOnly)
         return flags;
     QDirModelPrivate::QDirNode *node = static_cast<QDirModelPrivate::QDirNode*>(index.data());
     Q_ASSERT(node);
     if ((index.column() == 0) && node->info.isWritable()) {
-        flags |= QAbstractItemModel::ItemIsEditable;
+        flags |= Qt::ItemIsEditable;
         if (fileInfo(index).isDir()) // is directory and is editable
-            flags |= QAbstractItemModel::ItemIsDropEnabled;
+            flags |= Qt::ItemIsDropEnabled;
     }
     return flags;
 }

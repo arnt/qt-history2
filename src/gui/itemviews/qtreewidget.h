@@ -36,58 +36,58 @@ public:
 
     inline QTreeWidget *treeWidget() const { return view; }
 
-    inline QAbstractItemModel::ItemFlags flags() const { return itemFlags; }
-    inline void setFlags(QAbstractItemModel::ItemFlags flags) { itemFlags = flags; }
+    inline Qt::ItemFlags flags() const { return itemFlags; }
+    inline void setFlags(Qt::ItemFlags flags) { itemFlags = flags; }
 
     inline QString text(int column) const
-        { return data(column, QAbstractItemModel::DisplayRole).toString(); }
+        { return data(column, Qt::DisplayRole).toString(); }
     inline void setText(int column, const QString &text)
-        { setData(column, QAbstractItemModel::DisplayRole, text); }
+        { setData(column, Qt::DisplayRole, text); }
 
     inline QIcon icon(int column) const
-        { return qvariant_cast<QIcon>(data(column, QAbstractItemModel::DecorationRole)); }
+        { return qvariant_cast<QIcon>(data(column, Qt::DecorationRole)); }
     inline void setIcon(int column, const QIcon &icon)
-        { setData(column, QAbstractItemModel::DecorationRole, icon); }
+        { setData(column, Qt::DecorationRole, icon); }
 
     inline QString statusTip(int column) const
-        { return data(column, QAbstractItemModel::StatusTipRole).toString(); }
+        { return data(column, Qt::StatusTipRole).toString(); }
     inline void setStatusTip(int column, const QString &statusTip)
-        { setData(column, QAbstractItemModel::StatusTipRole, statusTip); }
+        { setData(column, Qt::StatusTipRole, statusTip); }
 
     inline QString toolTip(int column) const
-        { return data(column, QAbstractItemModel::ToolTipRole).toString(); }
+        { return data(column, Qt::ToolTipRole).toString(); }
     inline void setToolTip(int column, const QString &toolTip)
-        { setData(column, QAbstractItemModel::ToolTipRole, toolTip); }
+        { setData(column, Qt::ToolTipRole, toolTip); }
 
     inline QString whatsThis(int column) const
-        { return data(column, QAbstractItemModel::WhatsThisRole).toString(); }
+        { return data(column, Qt::WhatsThisRole).toString(); }
     inline void setWhatsThis(int column, const QString &whatsThis)
-        { setData(column, QAbstractItemModel::WhatsThisRole, whatsThis); }
+        { setData(column, Qt::WhatsThisRole, whatsThis); }
 
     inline QFont font(int column) const
-        { return qvariant_cast<QFont>(data(column, QAbstractItemModel::FontRole)); }
+        { return qvariant_cast<QFont>(data(column, Qt::FontRole)); }
     inline void setFont(int column, const QFont &font)
-        { setData(column, QAbstractItemModel::FontRole, font); }
+        { setData(column, Qt::FontRole, font); }
 
     inline int textAlignment(int column) const
-        { return data(column, QAbstractItemModel::TextAlignmentRole).toInt(); }
+        { return data(column, Qt::TextAlignmentRole).toInt(); }
     inline void setTextAlignment(int column, int alignment)
-        { setData(column, QAbstractItemModel::TextAlignmentRole, alignment); }
+        { setData(column, Qt::TextAlignmentRole, alignment); }
 
     inline QColor backgroundColor(int column) const
-        { return qvariant_cast<QColor>(data(column, QAbstractItemModel::BackgroundColorRole)); }
+        { return qvariant_cast<QColor>(data(column, Qt::BackgroundColorRole)); }
     inline void setBackgroundColor(int column, const QColor &color)
-        { setData(column, QAbstractItemModel::BackgroundColorRole, color); }
+        { setData(column, Qt::BackgroundColorRole, color); }
 
     inline QColor textColor(int column) const
-        { return qvariant_cast<QColor>(data(column, QAbstractItemModel::TextColorRole)); }
+        { return qvariant_cast<QColor>(data(column, Qt::TextColorRole)); }
     inline void setTextColor(int column, const QColor &color)
-        { setData(column, QAbstractItemModel::TextColorRole, color); }
+        { setData(column, Qt::TextColorRole, color); }
 
     inline Qt::CheckState checkState(int column) const
-        { return static_cast<Qt::CheckState>(data(column, QAbstractItemModel::CheckStateRole).toInt()); }
+        { return static_cast<Qt::CheckState>(data(column, Qt::CheckStateRole).toInt()); }
     inline void setCheckState(int column, Qt::CheckState state)
-        { setData(column, QAbstractItemModel::CheckStateRole, state); }
+        { setData(column, Qt::CheckStateRole, state); }
 
     virtual QVariant data(int column, int role) const;
     virtual void setData(int column, int role, const QVariant &value);
@@ -122,7 +122,7 @@ private:
     QTreeModel *model;
     QTreeWidgetItem *par;
     QList<QTreeWidgetItem*> children;
-    QAbstractItemModel::ItemFlags itemFlags;
+    Qt::ItemFlags itemFlags;
 };
 
 #ifndef QT_NO_DATASTREAM
