@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#131 $
+** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#132 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -26,7 +26,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#131 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#132 $")
 
 
 // --------------------------------------------------------------------------
@@ -558,15 +558,19 @@ void QPainter::setBrush( const QBrush &brush )
   \sa brush(), QBrush
 */
 
-void QPainter::setBrush( BrushStyle style )	// set brush
+void QPainter::setBrush( BrushStyle style )
 {
-    register QBrush::QBrushData *d = cbrush.data; // low level access!
+    register QBrush::QBrushData *d = cbrush.data; // low level access
     if ( d->count != 1 ) {
 	cbrush.detach();
 	d = cbrush.data;
     }
     d->style = style;
     d->color = black;
+    if ( d->pixmap ) {
+	delete data->pixmap;
+	data->pixmap = 0;
+    }
     updateBrush();
 }
 
@@ -576,15 +580,19 @@ void QPainter::setBrush( BrushStyle style )	// set brush
   \sa brush(), QBrush
 */
 
-void QPainter::setBrush( const QColor &color )	// set solid brush width color
+void QPainter::setBrush( const QColor &color )
 {
-    register QBrush::QBrushData *d = cbrush.data; // low level access!
+    register QBrush::QBrushData *d = cbrush.data; // low level access
     if ( d->count != 1 ) {
 	cbrush.detach();
 	d = cbrush.data;
     }
     d->style = SolidPattern;
     d->color = color;
+    if ( d->pixmap ) {
+	delete data->pixmap;
+	data->pixmap = 0;
+    }
     updateBrush();
 }
 
