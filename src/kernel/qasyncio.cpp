@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qasyncio.cpp#18 $
+** $Id: //depot/qt/main/src/kernel/qasyncio.cpp#19 $
 **
 ** Implementation of asynchronous I/O classes
 **
@@ -36,8 +36,7 @@
   mechanism to allow large files or slow data sources to be processed
   without using large amounts of memory, or blocking the user interface.
 
-  This facility is used in Qt to drive animated images.  See QImageConsumer
-  and QImageSource.
+  This facility is used in Qt to drive animated images.  See QImageConsumer.
 */
 
 
@@ -150,7 +149,7 @@ void QDataSource::maybeReady()
   it to the given data sink.  The count will be no more than the amount
   indicated by the most recent call to readyToSend().  The source must
   use all the provided data, and the sink will be prepared to accept at
-  least this much data.  
+  least this much data.
 */
 
 /*!
@@ -321,7 +320,7 @@ void QDataPump::tryToPump()
     }
     interval = 0;
     if (supply < 0) {
-	// All done (until source signals change in readiness) 
+	// All done (until source signals change in readiness)
 	sink->eof();
 	return;
     }
