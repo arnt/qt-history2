@@ -65,8 +65,8 @@ QCString QUtf8Codec::fromUnicode(const QString& uc, int& len_in_out) const
 	    *cursor++ = 0x80 | (ch.cell()&0x3f);
 	}
     }
-    *cursor = 0x00; // NUL terminator
     len_in_out = cursor - (uchar*)rstr.data();
+    rstr.truncate(len_in_out);
     return rstr;
 }
 

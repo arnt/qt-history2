@@ -82,7 +82,7 @@ QCString QBig5Codec::fromUnicode(const QString& uc, int& len_in_out) const
     }
   }
   len_in_out = cursor - (uchar*)rstr.data();
-  *cursor = 0;
+  rstr.truncate(len_in_out);
   return rstr;
 }
 
