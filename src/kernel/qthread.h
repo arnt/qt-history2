@@ -31,15 +31,11 @@
 #include <qobject.h>
 #include <qevent.h>
 
-#ifdef UNIX
-#include <pthread.h>
-#endif
+class QMutexPrivate;
 
 class QMutex {
 
-#ifdef UNIX
-  pthread_mutex_t mymutex;
-#endif
+  QMutexPrivate * d;
 
 public:
 

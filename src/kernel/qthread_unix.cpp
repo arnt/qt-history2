@@ -29,11 +29,22 @@
 #include <errno.h>
 #include <string.h>
 #include <qlist.h>
+#include <unistd.h>
 #include <qapplication.h>
 #include <qsocketnotifier.h>
 #include <qobject.h>
 
-QMutex::QMutex()
+class QMutexPrivate {
+    
+public:
+    
+    pthread_mutex_t mymutex;   
+    QMutexPrivate();
+    ~QMutexPrivate();
+
+};
+
+QMutexPrivate::QMutexPrivate()
 {
     int ret=pthread_mutex_init(&mymutex,0);
     if(ret) {
@@ -41,7 +52,7 @@ QMutex::QMutex()
     }
 }
 
-QMutex::~QMutex()
+QMutexPrivate::~QMutexPrivate()
 {
     int ret=pthread_mutex_destroy(&mymutex);
     if(ret) {
@@ -49,9 +60,19 @@ QMutex::~QMutex()
     }
 }
 
+QMutex::QMutex()
+{
+    d=new QMutexPrivate();
+}
+
+QMutex::~QMutex()
+{
+    delete d;
+}
+
 void QMutex::lock()
 {
-    int ret=pthread_mutex_lock(&mymutex);
+    int ret=pthread_mutex_lock(&(d->mymutex));
     if(ret) {
 	printf("Mutex lock failure %s\n",strerror(ret));
     }
@@ -59,7 +80,7 @@ void QMutex::lock()
 
 void QMutex::unlock()
 {
-    int ret=pthread_mutex_unlock(&mymutex);
+    int ret=pthread_mutex_unlock(&(d->mymutex));
     if(ret) {
 	printf("Mutex unlock failure %s\n",strerror(ret));
     }

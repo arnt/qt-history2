@@ -26,6 +26,9 @@
 
 #include "qthread.h"
 
+class QMutexPrivate {
+};
+
 // Stub implementation
 
 QMutex::QMutex()
