@@ -810,6 +810,7 @@ void QMLCursor::goTo(QMLNode* n, QMLContainer* par)
 void QMLCursor::calculatePosition(QPainter* p)
 {
     row = nodeParent->box()->locate(p, node, x, y, height, rowY, rowHeight);
+    xline = x;
 }
 
 void QMLCursor::goTo(QPainter* p, int xarg, int yarg)
@@ -818,7 +819,6 @@ void QMLCursor::goTo(QPainter* p, int xarg, int yarg)
     if (n)
 	goTo(n, n->parent());
     calculatePosition(p);
-    xline = x;
 }
 
 
@@ -856,7 +856,6 @@ void QMLCursor::right(QPainter* p)
 	nodeParent = np;
     }
     calculatePosition(p);
-    xline = x;
 }
 
 void QMLCursor::left(QPainter* p)
@@ -882,7 +881,6 @@ void QMLCursor::left(QPainter* p)
 	nodeParent = np;
     }
     calculatePosition(p);
-    xline = x;
 }
 
 void QMLCursor::up(QPainter* p)
@@ -894,7 +892,9 @@ void QMLCursor::up(QPainter* p)
     }
     if (tmp)
 	goTo(tmp, tmp->parent() );
+    int oldXline = xline;
     calculatePosition(p);
+    xline = oldXline;
 }
 
 void QMLCursor::down(QPainter* p)
@@ -906,8 +906,9 @@ void QMLCursor::down(QPainter* p)
     }
     if (tmp)
 	goTo(tmp, tmp->parent() );
+    int oldXline = xline;
     calculatePosition(p);
-
+    xline = oldXline;
 }
 
 
@@ -946,8 +947,6 @@ QMLDocument::QMLDocument(const QString &doc,  const QMLContext* context,
     int pos = 0;
     parse(this, 0, doc, pos);
     cursor = new QMLCursor(this);
-    // todo parse error here
-
 }
 
 QMLDocument::~QMLDocument()
@@ -1297,6 +1296,7 @@ void QMLView::resizeEvent(QResizeEvent*e)
     {
 	QPainter p( this );
 	doc->resize(&p, viewport()->width());
+	doc->cursor->calculatePosition(&p);
     }
     resizeContents(doc->width, doc->height);
 }
