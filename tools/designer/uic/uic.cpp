@@ -1204,7 +1204,8 @@ void Uic::createFormImpl( const QDomElement &e )
     }
 
 
-    // find additional slots
+    QMap<QString, QString> functionImpls;
+    // find additional slots and functions
     QStringList publicSlots, protectedSlots;
     for ( n = e; !n.isNull(); n = n.nextSibling().toElement() ) {
 	if ( n.tagName()  == "connections" ) {
@@ -1219,6 +1220,14 @@ void Uic::createFormImpl( const QDomElement &e )
 		    }
 		}
 	    }
+	} else if ( n.tagName() == "functions" ) {
+	    for ( QDomElement n2 = n.firstChild().toElement(); !n2.isNull(); n2 = n2.nextSibling().toElement() ) {
+		if ( n2.tagName() == "function" ) {
+		    QString fname = n2.attribute( "name" );
+		    fname = fname.left( fname.find( "(" ) );
+		    functionImpls.insert( fname, n2.firstChild().toText().data() );
+		}
+	    }
 	}
     }
 
@@ -1226,9 +1235,21 @@ void Uic::createFormImpl( const QDomElement &e )
     if ( !publicSlots.isEmpty() ) {
 	for ( it = publicSlots.begin(); it != publicSlots.end(); ++it ) {
 	    out << "void " << nameOfClass << "::" << (*it) << endl;
-	    out << "{" << endl;
-	    out << "    qWarning( \"" << nameOfClass << "::" << (*it) << ": Not implemented yet!\" );" << endl;
-	    out << "}" << endl;
+	    bool createWarning = TRUE;
+	    QString fname = (*it).left( (*it).find( "(" ) );
+	    QMap<QString, QString>::Iterator fit = functionImpls.find( fname );
+	    if ( fit != functionImpls.end() ) {
+		int begin = (*fit).find( "{" );
+		QString body = (*fit).mid( begin + 1, (*fit).find( "}" ) - begin - 1 );
+		createWarning = body.simplifyWhiteSpace().isEmpty();
+		if ( !createWarning )
+		    out << *fit << endl;
+	    }
+	    if ( createWarning ) {
+		out << "{" << endl;
+		out << "    qWarning( \"" << nameOfClass << "::" << (*it) << ": Not implemented yet!\" );" << endl;
+		out << "}" << endl;
+	    }
 	    out << endl;
 	}
     }
@@ -1237,9 +1258,21 @@ void Uic::createFormImpl( const QDomElement &e )
     if ( !protectedSlots.isEmpty() ) {
 	for ( it = protectedSlots.begin(); it != protectedSlots.end(); ++it ) {
 	    out << "void " << nameOfClass << "::" << (*it) << endl;
-	    out << "{" << endl;
-	    out << "    qWarning( \"" << nameOfClass << "::" << (*it) << ": Not implemented yet!\" );" << endl;
-	    out << "}" << endl;
+	    bool createWarning = TRUE;
+	    QString fname = (*it).left( (*it).find( "(" ) );
+	    QMap<QString, QString>::Iterator fit = functionImpls.find( fname );
+	    if ( fit != functionImpls.end() ) {
+		int begin = (*fit).find( "{" );
+		QString body = (*fit).mid( begin + 1, (*fit).find( "}" ) - begin - 1 );
+		createWarning = body.simplifyWhiteSpace().isEmpty();
+		if ( !createWarning )
+		    out << *fit << endl;
+	    }
+	    if ( createWarning ) {
+		out << "{" << endl;
+		out << "    qWarning( \"" << nameOfClass << "::" << (*it) << ": Not implemented yet!\" );" << endl;
+		out << "}" << endl;
+	    }
 	    out << endl;
 	}
     }
