@@ -292,13 +292,13 @@ void QStatusBar::reformat()
     vbox->addSpacing( 5 );
     QBoxLayout* l = new QHBoxLayout( vbox );
     l->addSpacing( 3 );
+    l->setSpacing( 4 );
 
     int maxH = fontMetrics().height();
 
     QStatusBarPrivate::SBItem* item = d->items.first();
     while ( item && !item->p ) {
 	l->addWidget( item->w, item->s );
-	l->addSpacing( 4 );
 	int itemH = QMIN(item->w->sizeHint().height(),
 			 item->w->maximumHeight());
 	maxH = QMAX( maxH, itemH );
@@ -309,12 +309,12 @@ void QStatusBar::reformat()
 
     while ( item ) {
 	l->addWidget( item->w, item->s );
-	l->addSpacing( 4 );
 	int itemH = QMIN(item->w->sizeHint().height(),
 			 item->w->maximumHeight());
 	maxH = QMAX( maxH, itemH );
 	item = d->items.next();
     }
+    l->addSpacing( 4 );
 #ifndef QT_NO_SIZEGRIP
     if ( d->resizer ) {
 	maxH = QMAX( maxH, d->resizer->sizeHint().height() );
