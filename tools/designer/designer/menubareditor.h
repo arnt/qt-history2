@@ -77,8 +77,8 @@ public:
 
     MenuBarEditorItem * createItem( int index = -1, bool addToCmdStack = TRUE );
     void insertItem( MenuBarEditorItem * item, int index = -1 );
-    void insertItem( QString text, PopupMenuEditor * menu, int index = -1 );
-    void insertItem( QString text, QActionGroup * group, int index = -1 );
+    void insertItem( const QString &text, PopupMenuEditor * menu, int index = -1 );
+    void insertItem( const QString &text, QActionGroup * group, int index = -1 );
 
     void insertSeparator( int index = -1 );
     
@@ -87,12 +87,12 @@ public:
     
     int findItem( MenuBarEditorItem * item );
     int findItem( PopupMenuEditor * menu );
-    int findItem( QPoint & pos );
+    int findItem( const QPoint &pos );
     
     MenuBarEditorItem * item( int index = -1 );
 
-    int count();
-    int current();
+    int count() const;
+    int current() const;
 
     void cut( int index );
     void copy( int index );
@@ -136,15 +136,15 @@ protected:
     void resizeInternals();
     
     void drawItems( QPainter & p );
-    void drawItem( QPainter & p, MenuBarEditorItem * i, int idx, QPoint & pos );
-    void drawSeparator( QPainter & p, QPoint & pos );
+    void drawItem( QPainter & p, MenuBarEditorItem * i, int idx, const QPoint &pos );
+    void drawSeparator( QPainter & p, const QPoint &pos );
     
     QSize itemSize( MenuBarEditorItem * i );
     void addItemSizeToCoords( MenuBarEditorItem * i, int & x, int & y, int w );
 
     QPoint itemPos( int index );
-    QPoint snapToItem( const QPoint & pos );
-    void dropInPlace( MenuBarEditorItem * i, const QPoint & pos );
+    QPoint snapToItem( const QPoint &pos );
+    void dropInPlace( MenuBarEditorItem * i, const QPoint &pos );
 
     void safeDec();
     void safeInc();

@@ -200,7 +200,7 @@ void MenuBarEditor::insertItem( MenuBarEditorItem * item, int index )
 	update();
 }
 
-void MenuBarEditor::insertItem( QString text, PopupMenuEditor * menu, int index )
+void MenuBarEditor::insertItem( const QString &text, PopupMenuEditor * menu, int index )
 {
     MenuBarEditorItem * item = new MenuBarEditorItem( menu, this );
     if ( !text.isNull() )
@@ -208,7 +208,7 @@ void MenuBarEditor::insertItem( QString text, PopupMenuEditor * menu, int index 
     insertItem( item, index );
 }
 
-void MenuBarEditor::insertItem( QString text, QActionGroup * group, int index )
+void MenuBarEditor::insertItem( const QString &text, QActionGroup * group, int index )
 {
     MenuBarEditorItem * item = new MenuBarEditorItem( group, this );
     if ( !text.isNull() )
@@ -274,7 +274,7 @@ int MenuBarEditor::findItem( PopupMenuEditor * menu )
     return -1;
 }
 
-int MenuBarEditor::findItem( QPoint & pos )
+int MenuBarEditor::findItem( const QPoint &pos )
 {
     int x = borderSize;
     int dx = 0;
@@ -339,12 +339,12 @@ MenuBarEditorItem * MenuBarEditor::item( int index )
     return itemList.at( index );
 }
 
-int MenuBarEditor::count()
+int MenuBarEditor::count() const
 {
     return itemList.count();
 }
 
-int MenuBarEditor::current()
+int MenuBarEditor::current() const
 {
     return currentIndex;
 }
@@ -823,7 +823,7 @@ void MenuBarEditor::drawItems( QPainter & p )
 void MenuBarEditor::drawItem( QPainter & p,
 			      MenuBarEditorItem * i,
 			      int idx,
-			      QPoint & pos )
+			      const QPoint &pos )
 {
     int w = itemSize( i ).width();
 
@@ -848,7 +848,7 @@ void MenuBarEditor::drawItem( QPainter & p,
     pos.rx() += w;
 }
 
-void MenuBarEditor::drawSeparator( QPainter & p, QPoint & pos )
+void MenuBarEditor::drawSeparator( QPainter & p, const QPoint &pos )
 {
     p.save();
     p.setPen( darkBlue );
@@ -919,7 +919,7 @@ QPoint MenuBarEditor::itemPos( int index )
     return QPoint( x, y );
 }
 
-QPoint MenuBarEditor::snapToItem( const QPoint & pos )
+QPoint MenuBarEditor::snapToItem( const QPoint &pos )
 {
     int x = borderSize;
     int y = 0;
@@ -947,7 +947,7 @@ QPoint MenuBarEditor::snapToItem( const QPoint & pos )
     return QPoint( x, y );
 }
 
-void MenuBarEditor::dropInPlace( MenuBarEditorItem * i, const QPoint & pos )
+void MenuBarEditor::dropInPlace( MenuBarEditorItem * i, const QPoint &pos )
 {
     int x = borderSize;
     int y = 0;

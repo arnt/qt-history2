@@ -25,7 +25,7 @@ public:
     VariableDialog( FormWindow *fw, QWidget* parent = 0 );
     ~VariableDialog();
 
-    void setCurrentItem( QString text );
+    void setCurrentItem( const QString &text );
 
 protected slots:
     void okClicked();

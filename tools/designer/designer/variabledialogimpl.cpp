@@ -46,7 +46,7 @@ VariableDialog::~VariableDialog()
 {
 }
 
-void VariableDialog::setCurrentItem( QString text )
+void VariableDialog::setCurrentItem( const QString &text )
 {
     QListViewItem *i = varView->findItem( text, 0 );
     if ( i )

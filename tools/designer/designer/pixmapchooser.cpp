@@ -69,7 +69,7 @@ void PixmapView::previewUrl( const QUrl &u )
 static void buildImageFormatList( QString &filter, QString &all )
 {
     all = qApp->translate( "qChoosePixmap", "All Pixmaps (" );
-    for ( uint i = 0; i < QImageIO::outputFormats().count(); i++ ) {
+    for ( int i = 0; i < QImageIO::outputFormats().count(); i++ ) {
 	QString outputFormat = QImageIO::outputFormats().at( i );
 	QString outputExtension;
 	if ( outputFormat != "JPEG" )
