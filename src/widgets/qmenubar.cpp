@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#172 $
+** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#173 $
 **
 ** Implementation of QMenuBar class
 **
@@ -186,6 +186,7 @@ QMenuBar::QMenuBar( QWidget *parent, const char *name )
 	case MotifStyle:
 	    setFrameStyle( QFrame::Panel | QFrame::Raised );
 	    setLineWidth( motifBarFrame );
+	    setMouseTracking( FALSE );
 	    break;
 	default:
 	    break;
@@ -848,7 +849,7 @@ void QMenuBar::mouseReleaseEvent( QMouseEvent *e )
 void QMenuBar::mouseMoveEvent( QMouseEvent *e )
 {
     int item = itemAtPos( e->pos() );
-    if ( style() == WindowsStyle && !mouseBtDn && !popupvisible) {
+    if ( !mouseBtDn && !popupvisible) {
 	if ( item >= 0 ) {
 	    if ( !hasmouse ) {
 		hasmouse = 1;
@@ -859,8 +860,7 @@ void QMenuBar::mouseMoveEvent( QMouseEvent *e )
 	}
 	return;
     }
-
-    if ( item >= 0 ) //&& mouseBtDn )
+    if ( item >= 0  && ( popupvisible || mouseBtDn ) )
 	setActiveItem( item, TRUE, FALSE );
 }
 
