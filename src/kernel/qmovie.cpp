@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qmovie.cpp#53 $
+** $Id: //depot/qt/main/src/kernel/qmovie.cpp#54 $
 **
 ** Implementation of movie classes
 **
@@ -1286,7 +1286,14 @@ void QMovie::disconnectStatus(QObject* receiver, const char *member)
 }
 
 
-QMovieFrame::QMovieFrame( QPixmap& pix, int dx, int dy, int dtime )
+QMovieFrame::QMovieFrame()
+{
+  x_offset = 0;
+  y_offset = 0;
+  time_offset = 0;
+}
+
+QMovieFrame::QMovieFrame( const QPixmap& pix, int dx, int dy, int dtime )
 {
   x_offset = dx;
   y_offset = dy;
@@ -1294,7 +1301,7 @@ QMovieFrame::QMovieFrame( QPixmap& pix, int dx, int dy, int dtime )
   mypixmap = pix;
 }
 
-void QMovieFrame::set( QPixmap& pix, int dx, int dy, int dtime )
+void QMovieFrame::set( const QPixmap& pix, int dx, int dy, int dtime )
 {
   x_offset = dx;
   y_offset = dy;
@@ -1312,7 +1319,7 @@ bool QMovieFrame::operator<( const QMovieFrame& _frame )
   return ( ( y_offset < _frame.yOffset() ) ? true : false );
 }
 
-QPixmap& QMovieFrame::pixmap() const
+const QPixmap& QMovieFrame::pixmap() const
 {
   return mypixmap;
 }
@@ -1345,14 +1352,19 @@ QDataStream& operator>>(QDataStream& str, QMovieFrame& frame)
 QDataStream& operator>>(QDataStream& str, QMovieFrames& frames)
 {
   frames.clear();
+  frames.setAutoDelete( true );
 
   Q_INT32 count;
   str >> count;
 
   for( int i = 0; i < count; i++ )
   {
-    QMovieFrame* f;
-    str >> *f;
+    Q_INT32 x, y, t;
+    QPixmap p;
+    str >> x >> y >> t >> p;
+
+    QMovieFrame* f = new QMovieFrame(p,x,y,t);
+    // str >> *f;
     frames.append( f );
   }
 
@@ -1387,7 +1399,7 @@ QDataStream& operator<<(QDataStream& str, QMovieFrames& frames)
 ** QMovieFilePrivate meta object code from reading C++ file 'standard input'
 **
 ** Created: Fri Aug 21 01:55:09 1998
-**      by: The Qt Meta Object Compiler ($Revision: 1.53 $)
+**      by: The Qt Meta Object Compiler ($Revision: 1.54 $)
 **
 ** WARNING! All changes made in this file will be lost!
 *****************************************************************************/
