@@ -169,7 +169,7 @@ NmakeMakefileGenerator::writeNmakeParts(QTextStream &t)
 
     if ( project->variables()["PRECOMPCPP"].size() > 1 )
 	warn_msg(WarnLogic, "nmake generator doesn't support multiple files in PRECOMPCPP, only first one used" );
-    QString precomph = Option::fixPathToTargetOS(project->first("PRECOMPH"));
+    precomph = Option::fixPathToTargetOS(project->first("PRECOMPH"));
     precompcpp = Option::fixPathToTargetOS(project->first("PRECOMPCPP"));
     pch = QString(precomph).replace(".h", ".pch");
     usePCH = !precomph.isEmpty();
