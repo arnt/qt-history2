@@ -161,3 +161,84 @@ bool QSignalEmitter::disconnect(const QObject *receiver, const char *member)
     signal.prepend('0' + QSIGNAL_CODE);
     return QObject::disconnect(this, signal, receiver, member);
 }
+
+
+/*! internal
+ */
+bool qInvokeSlot(QObject *obj, const char *slotName,
+                 QGenericReturnArgument ret,
+                 QGenericArgument val0,
+                 QGenericArgument val1,
+                 QGenericArgument val2,
+                 QGenericArgument val3,
+                 QGenericArgument val4,
+                 QGenericArgument val5,
+                 QGenericArgument val6,
+                 QGenericArgument val7,
+                 QGenericArgument val8,
+                 QGenericArgument val9)
+{
+    if (!obj || !slotName)
+        return false;
+
+    QByteArray sig;
+    sig.reserve(512);
+    sig.append(slotName).append('(');
+    if (val0.name())
+        sig.append(val0.name()).append(',');
+    if (val1.name())
+        sig.append(val1.name()).append(',');
+    if (val2.name())
+        sig.append(val2.name()).append(',');
+    if (val3.name())
+        sig.append(val3.name()).append(',');
+    if (val4.name())
+        sig.append(val4.name()).append(',');
+    if (val5.name())
+        sig.append(val5.name()).append(',');
+    if (val6.name())
+        sig.append(val6.name()).append(',');
+    if (val7.name())
+        sig.append(val7.name()).append(',');
+    if (val8.name())
+        sig.append(val8.name()).append(',');
+    if (val9.name())
+        sig.append(val9.name()).append(',');
+    if (sig.endsWith(','))
+        sig.truncate(sig.length() - 1);
+    sig.append(')');
+
+    int idx = obj->metaObject()->indexOfSlot(sig.data());
+    if (idx < 0)
+        idx = obj->metaObject()->indexOfSlot(QMetaObject::normalizedSignature(sig.data()).data());
+    if (idx < 0)
+        return false;
+
+    // check return type
+    if (ret.data() && qstrcmp(ret.name(), obj->metaObject()->slot(idx).type()) != 0)
+        return false;
+
+    void *param[] = {ret.data(), val0.data(), val1.data(), val2.data(), val3.data(), val4.data(),
+                        val5.data(), val6.data(), val7.data(), val8.data(), val9.data() };
+    obj->qt_metacall(QMetaObject::InvokeSlot, idx, param);
+
+    return true;
+}
+
+/*! internal
+ */
+bool qInvokeSlot(QObject *obj, const char *slotName,
+                 QGenericArgument val0,
+                 QGenericArgument val1,
+                 QGenericArgument val2,
+                 QGenericArgument val3,
+                 QGenericArgument val4,
+                 QGenericArgument val5,
+                 QGenericArgument val6,
+                 QGenericArgument val7,
+                 QGenericArgument val8,
+                 QGenericArgument val9)
+{
+    return qInvokeSlot(obj, slotName, QGenericReturnArgument(), val0, val1, val2, val3,
+                       val4, val5, val6, val7, val8, val9);
+}
