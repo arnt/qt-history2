@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qtabdialog.cpp#32 $
+** $Id: //depot/qt/main/src/dialogs/qtabdialog.cpp#33 $
 **
 ** Implementation of QTabDialog class
 **
@@ -15,7 +15,7 @@
 #include "qpainter.h"
 #include "qpixmap.h"
 
-RCSTAG("$Id: //depot/qt/main/src/dialogs/qtabdialog.cpp#32 $");
+RCSTAG("$Id: //depot/qt/main/src/dialogs/qtabdialog.cpp#33 $");
 
 
 /*!
@@ -72,9 +72,10 @@ RCSTAG("$Id: //depot/qt/main/src/dialogs/qtabdialog.cpp#32 $");
   visible at the moment you call setTabEnabled().
 
   While tab dialogs can be a very good way to split up a complex
-  dialog, it's also very easy to make a royal mess.  Here is some
-  advice (greatly inspired by a USENET posting by Jared M. Spool
-  \<jared@uie.com\>):
+  dialog, it's also very easy to make a royal mess out of a tab
+  dialog.  Here is some advice (greatly inspired by a USENET posting
+  by Jared M. Spool of <a href="http://www.uie.com">User Interface
+  Engineering</a>):
 
   <ol><li> Make sure that each page forms a logical whole which is
   adequately described by the label on the tab.
@@ -437,9 +438,12 @@ void QTabDialog::setTabEnabled( const char * name, bool enable )
     if ( !name || !*name )
 	return;
     int i;
-    for( i=0; i<(int)d->children.size(); i++ )
-	if ( qstrcmp( d->children[i]->name(), name ) == 0 )
+    for( i=0; i<(int)d->children.size(); i++ ) {
+	if ( qstrcmp( d->children[i]->name(), name ) == 0 ) {
 	    d->tabs->setTabEnabled( i, enable );
+	    return;
+	}
+    }
 }
 
 
