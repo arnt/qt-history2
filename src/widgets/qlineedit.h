@@ -115,7 +115,7 @@ public:
     QString markedText() const;
     bool dragEnabled() const;
 
-    bool getSelection( int &start, int &end );
+    bool getSelection( int *start, int *end );
 
 public slots:
     virtual void setText( const QString &);

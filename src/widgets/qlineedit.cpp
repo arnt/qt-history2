@@ -1992,12 +1992,14 @@ bool QLineEdit::dragEnabled() const
   if there is a selection. Else it returns FALSE:
 */
 
-bool QLineEdit::getSelection( int &start, int &end )
+bool QLineEdit::getSelection( int *start, int *end )
 {
+    if ( !start || !end )
+	return FALSE;
     if ( !hasMarkedText() )
 	return FALSE;
-    start = d->parag->selectionStart( QTextDocument::Standard );
-    end = d->parag->selectionEnd( QTextDocument::Standard );
+    *start = d->parag->selectionStart( QTextDocument::Standard );
+    *end = d->parag->selectionEnd( QTextDocument::Standard );
     return TRUE;
 }
 
