@@ -152,7 +152,7 @@ const QPixmap TrWindow::pageCurl()
 }
 
 TrWindow::TrWindow()
-    : QMainWindow(0, Qt::WType_TopLevel)
+    : QMainWindow(0, Qt::Window)
 {
     setAttribute(Qt::WA_DeleteOnClose);
     ac = 0;
