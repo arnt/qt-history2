@@ -275,6 +275,10 @@ QComboBox
   Be able to have right aligned text, on Windows, this means putting the arrow on the left
   hand side of the combobox.
 
+QLCDNumber
+  Support leading zeros, so you can have a number like 0003.
+
+
 New functionality
 -----------------
 
