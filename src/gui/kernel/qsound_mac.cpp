@@ -51,7 +51,7 @@ private:
     QPixmap *offscreen;
     friend class QAuServerMacCleanupHandler;
 };
-class QAuServerMacCleanupHandler {
+class QAuServerMacCleanupHandler : public QObject {
 private:
     int loops;
     QAuServerMac *qsound_server;
@@ -64,7 +64,7 @@ private:
         QAuServerMacCleanupHandler *iteration = (QAuServerMacCleanupHandler*)data;
         if(iteration->loops != -1) { //forever
             if((--iteration->loops) <= 0) {
-                delete iteration;
+                iteration->deleteLater();
                 return;
             }
             if(iteration->qsound)
