@@ -4047,12 +4047,15 @@ void QFileDialog::popupContextMenu( const QString &filename, bool,
     m.setCheckable( TRUE );
 
     if ( !glob ) {
-	QString okt =
-		     QUrlInfo( d->url, filename ).isDir()
-		     ? tr( "&Open" )
-	 : ( mode() == AnyFile
-	     ? tr( "&Save" )
-	     : tr( "&Open" ) );
+	QString okt;
+	if ( QUrlInfo( d->url, filename ).isDir() ) {
+	    okt = tr( "&Open" );
+	} else {
+	    if ( mode() == AnyFile )
+		okt = tr( "&Save" );
+	    else
+		okt = tr( "&Open" );
+	}
 	int ok = m.insertItem( okt );
 
 	m.insertSeparator();
