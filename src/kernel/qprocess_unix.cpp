@@ -343,7 +343,7 @@ void QProcessManager::sigchldHnd( int fd )
     // meantime.
     if ( sn ) {
 	if ( !sn->isEnabled() )
-	    return
+	    return;
 	sn->setEnabled( FALSE );
     }
 
