@@ -20,7 +20,7 @@
 
 #include "treeitem.h"
 
-TreeItem::TreeItem(QStringList data, TreeItem *parent)
+TreeItem::TreeItem(QList<QVariant> data, TreeItem *parent)
 {
     parentItem = parent;
     itemData = data;
@@ -58,10 +58,7 @@ int TreeItem::columnCount() const
 
 QVariant TreeItem::data(int column) const
 {
-    if (column >= 0 && column < itemData.count())
-        return itemData[column];
-
-    return QVariant();
+    return itemData.value(column);
 }
 
 TreeItem *TreeItem::parent()

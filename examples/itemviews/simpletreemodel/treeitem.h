@@ -19,7 +19,7 @@
 class TreeItem
 {
 public:
-    TreeItem(QStringList data, TreeItem *parent = 0);
+    TreeItem(QList<QVariant> data, TreeItem *parent = 0);
     ~TreeItem();
 
     void appendChild(TreeItem *child);
@@ -35,7 +35,7 @@ private:
     int childRow(TreeItem *item) const;
 
     QList<TreeItem*> childItems;
-    QStringList itemData;
+    QList<QVariant> itemData;
     TreeItem *parentItem;
 };
 

@@ -25,7 +25,7 @@
 TreeModel::TreeModel(const QString &data, QObject *parent)
     : QAbstractItemModel(parent)
 {
-    QStringList rootData;
+    QList<QVariant> rootData;
     rootData << "Title" << "Summary";
     rootItem = new TreeItem(rootData);
     addModelData(data.split(QString("\n")), rootItem);
@@ -57,7 +57,10 @@ void TreeModel::addModelData(const QStringList &lines, TreeItem *parent)
 
         if (!lineData.isEmpty()) {
             // Read the column data from the rest of the line.
-            QStringList columnData = lineData.split("\t", QString::SkipEmptyParts);
+            QStringList columnStrings = lineData.split("\t", QString::SkipEmptyParts);
+            QList<QVariant> columnData;
+            for (int column = 0; column < columnStrings.count(); ++column)
+                columnData << columnStrings[column];
 
             if (position > indentations.last()) {
                 // The last child of the current parent is now the new parent
