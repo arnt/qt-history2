@@ -644,9 +644,10 @@ void QOpenGLPaintEngine::drawPolygon(const QPolygon &pa, PolygonDrawMode mode)
         return;
     dgl->makeCurrent();
     dgl->qglColor(d->cbrush.color());
-    qgl_draw_poly(pa);
-    dgl->qglColor(d->cpen.color());
+    if (d->cbrush.style() != Qt::NoBrush && mode != PolylineMode)
+        qgl_draw_poly(pa);
     if (d->cpen.style() != Qt::NoPen) {
+        dgl->qglColor(d->cpen.color());
         float x1 = pa.at(pa.size()-1).x();
         float y1 = pa.at(pa.size()-1).y();
         float x2 = pa.at(0).x();
