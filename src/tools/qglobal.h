@@ -1,12 +1,12 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglobal.h#8 $
+** $Id: //depot/qt/main/src/tools/qglobal.h#9 $
 **
 ** Global type declarations and definitions
 **
 ** Author  : Haavard Nord
 ** Created : 920529
 **
-** Copyright (C) 1992-1994 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1992-1995 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
@@ -21,7 +21,7 @@
 //   OS2    -	OS/2 ver 2.0 or newer (*)
 //   WINNT  -	Windows NT (*)
 //   SUN    -	SunOS 4.X (*)
-//   SOLARIS-	Sun Solaris
+//   SOLARIS-	Sun Solaris (*)
 //   HPUX   -	HP-UX (*)
 //   ULTRIX -	DEC Ultrix (*)
 //   LINUX  -	Linux (*)
@@ -35,11 +35,14 @@
 #define _OS_OS2_
 #elif defined(__NT__) || defined(_WIN32)
 #define _OS_WINNT_
-#elif defined(sun)
+#elif defined(sun) || defined(__sun) || defined(__sun__)
 #define _OS_SUN_
-#elif defined(hpux)
+#if defined(solaris)
+#define _OS_SOLARIS_
+#endif
+#elif defined(hpux) || defined(__hpux) || defined(__hpux__)
 #define _OS_HPUX_
-#elif defined(ultrix)
+#elif defined(ultrix) || defined(__ultrix) || defined(__ultrix__)
 #define _OS_ULTRIX_
 #elif defined(linux)
 #define _OS_LINUX_
@@ -215,8 +218,8 @@ typedef void (*dbg_handler)(char *);
 dbg_handler installDebugHandler( dbg_handler ); // install debug handler
 
 
-#if defined(TRACE_FS)
-#include "qtracefs.h"
+#if defined(CHECK_MEMORY)
+#include "qmemchk.h"
 #endif
 
 
