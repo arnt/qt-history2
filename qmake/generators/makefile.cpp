@@ -1600,7 +1600,7 @@ MakefileGenerator::writeExtraTargets(QTextStream &t)
 {
     QStringList &qut = project->variables()["QMAKE_EXTRA_TARGETS"];
     for(QStringList::Iterator it = qut.begin(); it != qut.end(); ++it) {
-        QString targ = fileFixify(var((*it) + ".target")),
+        QString targ = var((*it) + ".target"),
                  cmd = var((*it) + ".commands"), deps;
         if(targ.isEmpty())
             targ = (*it);
@@ -1611,6 +1611,8 @@ MakefileGenerator::writeExtraTargets(QTextStream &t)
                 dep = (*dep_it);
             deps += " " + dep;
         }
+        if(project->variables()[(*it) + ".CONFIG"].indexOf("fix_target") != -1)
+            targ = fileFixify(targ);
         if(project->isEmpty("QMAKE_NOFORCE") &&
            project->variables()[(*it) + ".CONFIG"].indexOf("phony") != -1)
             deps += QString(" ") + "FORCE";
