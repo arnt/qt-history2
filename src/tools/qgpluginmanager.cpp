@@ -28,7 +28,6 @@ void QGPluginManager::addLibraryPath( const QString& path )
     QStringList plugins = QDir(path).entryList( "*." + filter );
     for ( QStringList::Iterator p = plugins.begin(); p != plugins.end(); ++p ) {
 	QString lib = path + "/" + *p;
-	lib = lib.left( lib.length() - filter.length() - 1 );
 	libList.append( lib );
 
 	if ( defPol == QLibrary::Immediately ) {

@@ -169,15 +169,19 @@ bool QLibrary::Private::loadLibrary()
     if ( pHnd )
 	return TRUE;
 
+    QString filename = library->library();
+    if ( filename.find( ".dll" ) == -1 )
+	filename += ".dll";
+
 #if defined(UNICODE)
     if ( qWinVersion() & Qt::WV_NT_based )
-	pHnd = LoadLibraryW( (TCHAR*)qt_winTchar(library->library() + ".dll", TRUE) );
+	pHnd = LoadLibraryW( (TCHAR*)qt_winTchar( filename, TRUE) );
     else
 #endif
-	pHnd = LoadLibraryA(QFile::encodeName( library->library() + ".dll" ).data());
+	pHnd = LoadLibraryA(QFile::encodeName( filename ).data());
 #if defined(QT_DEBUG) || defined(QT_DEBUG_COMPONENT)
     if ( !pHnd )
-	qSystemWarning( QString("Failed to load library %1.dll!").arg( library->library() ) );
+	qSystemWarning( QString("Failed to load library %1!").arg( filename ) );
 #endif
 
     return pHnd != 0;
@@ -222,10 +226,14 @@ bool QLibrary::Private::loadLibrary()
 	return TRUE;
 
     shl_t handle = new shl_t;
-    *handle = shl_load( QString( library->library() + ".so" ).latin1(), BIND_DEFERRED | BIND_NONFATAL | DYNAMIC_PATH, 0 );
+    QString filename = library->library();
+    if ( filename.find( ".so" ) == -1 )
+	filename = QString( "lib%1.so" ).arg( filename );
+
+    *handle = shl_load( filename.latin1(), BIND_DEFERRED | BIND_NONFATAL | DYNAMIC_PATH, 0 );
 #if defined(QT_DEBUG) || defined(QT_DEBUG_COMPONENT)
     if ( !handle )
-	qDebug( "Failed to load library %1.so!", library->library().latin1() );
+	qDebug( "Failed to load library %1!", filename.latin1() );
 #endif
     pHnd = (void*)handle;
     return pHnd != 0;
@@ -291,19 +299,23 @@ bool QLibrary::Private::loadLibrary()
     if ( pHnd )
 	return TRUE;
 
+    QString filename = library->library();
+    if ( filename.find( ".dylib" ) == -1 )
+	filenam += ".dylib";
+
     if(!glibs_loaded)
 	glibs_loaded = new QDict<void>();
-    else if( ( pHnd = glibs_loaded->find(library->library() ) ))
+    else if( ( pHnd = glibs_loaded->find( filename ) ))
 	return TRUE;
 
 #ifdef DO_MAC_LIBRARY
     NSObjectFileImage img;
-    if( NSCreateObjectFileImageFromFile(library->library() + ".dylib", &img)  != NSObjectFileImageSuccess )
+    if( NSCreateObjectFileImageFromFile( filename, &img)  != NSObjectFileImageSuccess )
 	return FALSE;
 
-    pHnd = (void *)NSLinkModule(img, library->library() + ".dylib", NSLINKMODULE_OPTION_PRIVATE);
+    pHnd = (void *)NSLinkModule(img, filename, NSLINKMODULE_OPTION_PRIVATE);
     if ( pHnd ) {
-	glibs_loaded->insert( library->library(), pHnd ); //insert it in the loaded hash
+	glibs_loaded->insert( filename, pHnd ); //insert it in the loaded hash
 	return pHnd;
     }
 #else
@@ -374,7 +386,11 @@ bool QLibrary::Private::loadLibrary()
     if ( pHnd )
 	return TRUE;
 
-    pHnd = dlopen( QString( library->library() + ".so" ) , RTLD_LAZY );
+    QString filename = library->library();
+    if ( filename.find( ".so" ) != -1 )
+	filename = QString( "lib%1.so" ).arg( filename );
+
+    pHnd = dlopen( filename.latin1() , RTLD_LAZY );
 #if defined(QT_DEBUG) || defined(QT_DEBUG_COMPONENT)
     if ( !pHnd )
 	qWarning( dlerror() );
