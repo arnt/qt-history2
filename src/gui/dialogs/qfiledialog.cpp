@@ -731,6 +731,24 @@ QFileDialog::AcceptMode QFileDialog::acceptMode() const
 }
 
 /*!
+  \property QFileDialog::readOnly
+  \brief Wether the file dialog is readonly.
+
+  If this property is set to false, the filedialog will allow creating, renaming, copying
+  and deleting files and directories.
+*/
+
+void QFileDialog::setReadOnly(bool enabled)
+{
+    d->model->setReadOnly(enabled);
+}
+
+bool QFileDialog::isReadOnly() const
+{
+    return d->model->isReadOnly();
+}
+
+/*!
  \reimp*/
 
 void QFileDialog::done(int result)
@@ -987,6 +1005,8 @@ void QFileDialogPrivate::keyPressed(const QModelIndex &index,
 
 void QFileDialogPrivate::deletePressed(const QModelIndex &index)
 {
+    if (model->isReadOnly())
+        return;
     if (model->isDir(index))
         model->rmdir(index);
     else
@@ -1155,6 +1175,8 @@ void QFileDialogPrivate::populateContextMenu(QMenu *menu, const QModelIndex &ind
         menu->addSeparator();
         menu->addAction(renameAction);
         menu->addAction(deleteAction);
+        renameAction->setEnabled(!model->isReadOnly());
+        deleteAction->setEnabled(!model->isReadOnly());
     } else {
         // view context menu
         menu->addAction(reloadAction);
@@ -1618,6 +1640,7 @@ void QFileDialogPrivate::updateButtons(const QModelIndex &index)
         return;
     toParent->setEnabled(index.isValid());
     back->setEnabled(history.count() > 0);
+    newFolder->setEnabled(!model->isReadOnly());
     QString pth = toNative(d->model->path(index));
     QIcon icn = d->model->icon(index);
     int i = lookIn->findItem(pth, QAbstractItemModel::MatchExactly);

@@ -28,6 +28,7 @@ class Q_GUI_EXPORT QFileDialog : public QDialog
     Q_PROPERTY(ViewMode viewMode READ viewMode WRITE setViewMode)
     Q_PROPERTY(FileMode fileMode READ fileMode WRITE setFileMode)
     Q_PROPERTY(AcceptMode acceptMode READ acceptMode WRITE setAcceptMode)
+    Q_PROPERTY(bool readOnly READ isReadOnly WRITE setReadOnly)
     Q_ENUMS(ViewMode FileMode AcceptMode)
 
 public:
@@ -70,6 +71,9 @@ public:
 
     void setAcceptMode(AcceptMode mode);
     AcceptMode acceptMode() const;
+
+    void setReadOnly(bool enabled);
+    bool isReadOnly() const;
 
 signals:
     void filesSelected(const QStringList &);
