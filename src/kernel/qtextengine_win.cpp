@@ -131,6 +131,8 @@ const QFont::Script traditionalChinese_tryScripts[] = {
 
 const QFont::Script *tryScripts = japanese_tryScripts;
 
+static void uspAppendItems(QTextEngine *engine, int &start, int &stop, BidiControl &control, QChar::Direction dir);
+
 static void resolveUsp10()
 {
 #ifndef QT_NO_COMPONENT
@@ -194,6 +196,8 @@ static void resolveUsp10()
 	default:
 	    break;
 	}
+
+	appendItems = uspAppendItems;
     }
 #endif
 }
@@ -285,7 +289,7 @@ static unsigned char script_for_win_language[ 0x80 ] = {
     //0x29 LANG_FARSI Farsi
     QFont::NScripts,
     //0x2a LANG_VIETNAMESE Vietnamese
-    QFont::NScripts,
+    QFont::Latin, // ##### maybe use QFont::CombiningMarks instead?
     //0x2b LANG_ARMENIAN Armenian
     QFont::Armenian,
     //0x2c LANG_AZERI Azeri
@@ -421,7 +425,132 @@ static inline QFont::Script scriptForWinLanguage( DWORD langid )
     return script;
 }
 
+static inline bool isAsian( unsigned short ch )
+{
+    return (ch > 0x2dff && ch < 0xfb00) || (ch & 0xff00 == 0x1100);
+}
 
+
+// we're not using Uniscribe's BiDi algorithm, since it is (a) not 100% Unicode compliant and
+// (b) seems to work wrongly when trying to use it with a base level != 0.
+//
+// This function does uses Uniscribe to do the script analysis and creates items from this.
+static void uspAppendItems(QTextEngine *engine, int &start, int &stop, BidiControl &control, QChar::Direction dir) 
+{
+    QScriptItemArray &items = engine->items;
+    const QChar *text = engine->string.unicode();
+
+    if ( start > stop ) {
+	// #### the algorithm is currently not really safe against this. Still needs fixing.
+// 	qWarning( "Bidi: appendItems() internal error" );
+	return;
+    }
+
+    int level = control.level();
+
+    if(dir != QChar::DirON) {
+	// add level of run (cases I1 & I2)
+	if( level % 2 ) {
+	    if(dir == QChar::DirL || dir == QChar::DirAN || dir == QChar::DirEN )
+		level++;
+	} else {
+	    if( dir == QChar::DirR )
+		level++;
+	    else if( dir == QChar::DirAN || dir == QChar::DirEN )
+		level += 2;
+	}
+    }
+
+    SCRIPT_ITEM s_items[256];
+    SCRIPT_ITEM *usp_items = s_items;
+
+    int numItems;
+    HRESULT res = ScriptItemize( (WCHAR *)(text+start), stop-start+1, 255, 0, 0, usp_items, &numItems );
+
+    if ( res == E_OUTOFMEMORY ) {
+	int alloc = 256;
+	usp_items = 0;
+	while( res == E_OUTOFMEMORY ) {
+	    alloc *= 2;
+	    usp_items = (SCRIPT_ITEM *)realloc( usp_items, alloc * sizeof( SCRIPT_ITEM ) );
+	    res = ScriptItemize( (WCHAR *)(text+start), stop-start+1, alloc-1, 0, 0, usp_items, &numItems );
+	}
+    }
+    items.resize( items.size() + numItems );
+    int i;
+    qDebug("num items=%d", numItems );
+    if ( control.singleLine ) {
+	for( i = 0; i < numItems; i++ ) {
+	    QScriptItem item;
+	    item.analysis = usp_items[i].a;
+	    item.position = usp_items[i].iCharPos+start;
+	    item.analysis.bidiLevel = level;
+	    item.analysis.override = control.override();
+	    item.analysis.reserved = 0;
+	    items.append( item );
+	}
+    } else {
+	for( i = 0; i < numItems; i++ ) {
+	    QScriptItem item;
+	    item.analysis = usp_items[i].a;
+	    item.position = usp_items[i].iCharPos+start;
+	    item.analysis.bidiLevel = level;
+	    item.analysis.override = control.override();
+	    item.analysis.reserved = 0;
+
+	    int rstart = usp_items[i].iCharPos;
+	    int rstop = usp_items[i+1].iCharPos-1;
+	    bool b = TRUE;
+	    for ( int j = rstart; j <= rstop; j++ ) {
+
+		unsigned short uc = text[j+start].unicode();
+		QChar::Category category = ::category( uc );
+		if ( uc == 0xfffcU || uc == 0x2028U ) {
+		    item.analysis.script = usp_latin_script;
+		    item.isObject = TRUE;
+		    b = TRUE;
+		} else if ((uc >= 9 && uc <=13) ||
+			   (category >= QChar::Separator_Space && category <= QChar::Separator_Paragraph)) {
+		    item.analysis.script = usp_latin_script;
+		    item.isSpace = TRUE;
+		    item.isTab = (uc == '\t');
+		    if (item.isTab)
+			item.analysis.bidiLevel = control.baseLevel();
+		    b = TRUE;
+		} else if (b) {
+		    b = FALSE;
+		} else {
+		    continue;
+		}
+
+		item.position = j+start;
+		items.append( item );
+		item.analysis = usp_items[i].a;
+		item.analysis.bidiLevel = level;
+		item.analysis.override = control.override();
+		item.analysis.reserved = 0;
+		item.isSpace = item.isTab = item.isObject = FALSE;
+	    }
+	}
+    }
+
+    QCharAttributes *charAttributes = (QCharAttributes *)engine->memory;
+    for ( i = 0; i < numItems; i++ ) {
+	int from = usp_items[i].iCharPos;
+	int len = usp_items[i+1].iCharPos - from;
+	// Something I consider a Uniscribe bug: They don't set the softBreak property for asian text (it's just set after
+	// spaces in asian text runs. We work around it by calling our implementation for asian text
+	if (isAsian(text[from].unicode()))
+	    scriptEngines[QFont::Han].charAttributes(QFont::Han, engine->string, from + start, len, charAttributes);
+	else
+	    ScriptBreak( (const WCHAR *)text + from + start, len, &(usp_items[i].a), charAttributes+from);
+
+    }
+
+    if ( usp_items != s_items )
+	free( usp_items );
+
+}
 // -----------------------------------------------------------------------------------------------------
 //
 // Text engine classes
@@ -453,127 +582,6 @@ void QScriptItemArray::resize( int s )
     d = (QScriptItemArrayPrivate *)realloc( d, sizeof( QScriptItemArrayPrivate ) +
 		 sizeof( QScriptItem ) * alloc );
     d->alloc = alloc;
-}
-
-
-static inline bool isAsian( unsigned short ch )
-{
-    return (ch > 0x2dff && ch < 0xfb00) || (ch & 0xff00 == 0x1100);
-}
-
-void QTextEngine::itemize( int mode )
-{
-    if ( !(mode & NoBidi) ) {
-	if ( direction == QChar::DirON )
-	    direction = basicDirection( string );
-    }
-    if ( !items.d ) {
-	int size = 1;
-	items.d = (QScriptItemArrayPrivate *)malloc( sizeof( QScriptItemArrayPrivate ) +
-						    sizeof( QScriptItem ) * size );
-	items.d->alloc = size;
-    }
-    items.d->size = 0;
-    if ( string.length() == 0 )
-	return;
-
-    if ( hasUsp10 ) {
-	SCRIPT_CONTROL s_ctrl;
-	SCRIPT_CONTROL *control = 0;
-	SCRIPT_STATE s_state;
-	SCRIPT_STATE *state = 0;
-	if ( !(mode & NoBidi) ) {
-	    control = &s_ctrl;
-	    state = &s_state;
-	    state->uBidiLevel = (direction == QChar::DirR ? 1 : 0);
-	    state->fOverrideDirection = false;
-	    state->fInhibitSymSwap = false;
-	    state->fDigitSubstitute = false;
-	    state->fInhibitLigate = false;
-	    state->fDisplayZWG = false;
-	    state->fArabicNumContext = false;
-	    state->fGcpClusters = false;
-	    state->fReserved = 0;
-	    state->fEngineReserved = 0;
-	}
-	SCRIPT_ITEM s_items[256];
-	SCRIPT_ITEM *usp_items = s_items;
-
-	int numItems;
-	HRESULT res = ScriptItemize( (WCHAR *)string.unicode(), string.length(), 255, control, state, usp_items, &numItems );
-
-	if ( res == E_OUTOFMEMORY ) {
-	    int alloc = 256;
-	    usp_items = 0;
-	    while( res == E_OUTOFMEMORY ) {
-		alloc *= 2;
-		usp_items = (SCRIPT_ITEM *)realloc( usp_items, alloc * sizeof( SCRIPT_ITEM ) );
-		res = ScriptItemize( (WCHAR *)string.unicode(), string.length(), alloc-1, control, state, usp_items, &numItems );
-	    }
-	}
-	items.resize( numItems );
-	int i;
-	for( i = 0; i < numItems; i++ ) {
-	    QScriptItem item;
-	    item.analysis = usp_items[i].a;
-	    item.position = usp_items[i].iCharPos;
-	    int start = usp_items[i].iCharPos;
-	    int stop = usp_items[i+1].iCharPos-1;
-	    bool b = TRUE;
-	    for ( int j = start; j <= stop; j++ ) {
-
-		unsigned short uc = string.unicode()[j].unicode();
-		QChar::Category category = ::category( uc );
-		if ( uc == 0xfffcU || uc == 0x2028U ) {
-		    item.analysis.script = usp_latin_script;
-		    item.isObject = TRUE;
-		    b = TRUE;
-		} else if ((uc >= 9 && uc <=13) ||
-			   (category >= QChar::Separator_Space && category <= QChar::Separator_Paragraph)) {
-		    item.analysis.script = usp_latin_script;
-		    item.isSpace = TRUE;
-		    item.isTab = (uc == '\t');
-		    if (item.isTab)
-			item.analysis.bidiLevel = (direction == QChar::DirR ? 1 : 0);
-		    b = TRUE;
-		} else if (b) {
-		    b = FALSE;
-		} else {
-		    continue;
-		}
-
-		item.position = j;
-		items.append( item );
-		item.analysis = usp_items[i].a;
-		item.isSpace = item.isTab = item.isObject = FALSE;
-	    }
-	}
-
-	QCharAttributes *charAttributes = (QCharAttributes *)memory;
-	for ( i = 0; i < numItems; i++ ) {
-	    int from = usp_items[i].iCharPos;
-	    int len = usp_items[i+1].iCharPos - from;
-	    // Something I consider a Uniscribe bug: They don't set the softBreak property for asian text (it's just set after
-	    // spaces in asian text runs. We work around it by calling our implementation for asian text
-	    if (isAsian(string.unicode()[from].unicode()))
-		scriptEngines[QFont::Han].charAttributes(QFont::Han, string, from, len, charAttributes);
-	    else
-		ScriptBreak( (const WCHAR *)string.unicode() + from, len, &(usp_items[i].a), charAttributes+from);
-	}
-
-	if ( usp_items != s_items )
-	    free( usp_items );
-	return;
-    }
-
-    if ( !(mode & NoBidi) ) {
-	bidiItemize( string, items, direction == QChar::DirR, mode );
-    } else {
-	BidiControl control( false );
-	int start = 0;
-	int stop = string.length() - 1;
-	appendItems(items, start, stop, control, QChar::DirL, string.unicode() );
-    }
 }
 
 

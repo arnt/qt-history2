@@ -32,28 +32,6 @@ void QScriptItemArray::resize( int s )
     d->alloc = alloc;
 }
 
-void QTextEngine::itemize( int mode )
-{
-    if ( !items.d ) {
-	int size = 1;
-	items.d = (QScriptItemArrayPrivate *)malloc( sizeof( QScriptItemArrayPrivate ) +
-						    sizeof( QScriptItem ) * size );
-	items.d->alloc = size;
-    }
-    items.d->size = 0;
-
-    if ( !(mode & NoBidi) ) {
-	if ( direction == QChar::DirON )
-	    direction = basicDirection( string );
-	bidiItemize( string, items, direction == QChar::DirR, mode );
-    } else {
-	BidiControl control( false );
-	int start = 0;
-	int stop = string.length() - 1;
-	appendItems(items, start, stop, control, QChar::DirL, string.unicode() );
-    }
-}
-
 void QTextEngine::shape( int item ) const
 {
     QScriptItem &si = items[item];

@@ -116,10 +116,11 @@ static QChar::Direction basicDirection( const QString &str )
 }
 
 
+static void qAppendItems(QTextEngine *engine, int &start, int &stop, BidiControl &control, QChar::Direction dir ) 
+{
+    QScriptItemArray &items = engine->items;
+    const QChar *text = engine->string.unicode();
 
-
-static void appendItems(QScriptItemArray &items, int &start, int &stop, BidiControl &control, QChar::Direction dir,
-			const QChar *text ) {
     if ( start > stop ) {
 	// #### the algorithm is currently not really safe against this. Still needs fixing.
 // 	qWarning( "Bidi: appendItems() internal error" );
@@ -202,10 +203,14 @@ static void appendItems(QScriptItemArray &items, int &start, int &stop, BidiCont
     start = stop;
 }
 
+typedef void (* fAppendItems)(QTextEngine *, int &start, int &stop, BidiControl &control, QChar::Direction dir);
+static fAppendItems appendItems = qAppendItems;
 
 // creates the next QScript items.
-static void bidiItemize( const QString &text, QScriptItemArray &items, bool rightToLeft, int mode )
+static void bidiItemize( QTextEngine *engine, bool rightToLeft, int mode )
 {
+    QScriptItemArray &items = engine->items;
+
     BidiControl control( rightToLeft );
     if ( mode & QTextEngine::SingleLine )
 	control.singleLine = TRUE;
@@ -218,12 +223,12 @@ static void bidiItemize( const QString &text, QScriptItemArray &items, bool righ
     // ### should get rid of this!
     bool first = TRUE;
 
-    int length = text.length();
+    int length = engine->string.length();
 
     if ( !length )
 	return;
 
-    const QChar *unicode = text.unicode();
+    const QChar *unicode = engine->string.unicode();
     int current = 0;
 
     BidiStatus status;
@@ -269,7 +274,7 @@ static void bidiItemize( const QString &text, QScriptItemArray &items, bool righ
 		    level++;
 		if(level < 61) {
 		    if ( !first )
-			appendItems( items, sor, eor, control, dir, unicode );
+			appendItems(engine, sor, eor, control, dir);
 		    dir = QChar::DirON; status.eor = QChar::DirON;
 		    QChar::Direction edir = (rtl ? QChar::DirR : QChar::DirL );
 		    control.embed( edir, override );
@@ -281,7 +286,7 @@ static void bidiItemize( const QString &text, QScriptItemArray &items, bool righ
 	case QChar::DirPDF:
 	    {
 		if ( !first )
-		    appendItems( items, sor, eor, control, dir, unicode );
+		    appendItems(engine, sor, eor, control, dir);
 		dir = QChar::DirON; status.eor = QChar::DirON;
 		status.last = control.direction();
 		control.pdf();
@@ -306,7 +311,7 @@ static void bidiItemize( const QString &text, QScriptItemArray &items, bool righ
 		case QChar::DirEN:
 		case QChar::DirAN:
 		    if ( !first ) {
-			appendItems( items, sor, eor, control, dir, unicode );
+			appendItems(engine, sor, eor, control, dir);
 			dir = eor < length ? direction( unicode[eor] ) : control.basicDirection();
 			status.eor = dir;
 		    }
@@ -324,17 +329,17 @@ static void bidiItemize( const QString &text, QScriptItemArray &items, bool righ
 			if( control.direction() == QChar::DirR ) {
 			    if(status.eor != QChar::DirR) {
 				// AN or EN
-				appendItems( items, sor, eor, control, dir, unicode );
+				appendItems(engine, sor, eor, control, dir);
 				status.eor = QChar::DirON;
 				dir = QChar::DirR;
 			    }
 			    eor = current - 1;
-			    appendItems( items, sor, eor, control, dir, unicode );
+			    appendItems(engine, sor, eor, control, dir);
 			    dir = eor < length ? direction( unicode[eor] ) : control.basicDirection();
 			    status.eor = dir;
 			} else {
 			    if(status.eor != QChar::DirL) {
-				appendItems( items, sor, eor, control, dir, unicode );
+				appendItems(engine, sor, eor, control, dir);
 				status.eor = QChar::DirON;
 				dir = QChar::DirL;
 			    } else {
@@ -358,7 +363,7 @@ static void bidiItemize( const QString &text, QScriptItemArray &items, bool righ
 		case QChar::DirEN:
 		case QChar::DirAN:
 		    if ( !first ) {
-			appendItems( items, sor, eor, control, dir, unicode );
+			appendItems(engine, sor, eor, control, dir);
 			dir = QChar::DirON; status.eor = QChar::DirON;
 			break;
 		    }
@@ -376,13 +381,13 @@ static void bidiItemize( const QString &text, QScriptItemArray &items, bool righ
 		    if( status.eor != QChar::DirR && status.eor != QChar::DirAL ) {
 			//last stuff takes embedding dir
 			if(control.direction() == QChar::DirR || status.lastStrong == QChar::DirR) {
-			    appendItems( items, sor, eor, control, dir, unicode );
+			    appendItems(engine, sor, eor, control, dir);
 			    dir = QChar::DirON; status.eor = QChar::DirON;
 			    dir = QChar::DirR;
 			    eor = current;
 			} else {
 			    eor = current - 1;
-			    appendItems( items, sor, eor, control, dir, unicode );
+			    appendItems(engine, sor, eor, control, dir);
 			    dir = QChar::DirON; status.eor = QChar::DirON;
 			    dir = QChar::DirR;
 			}
@@ -413,7 +418,7 @@ static void bidiItemize( const QString &text, QScriptItemArray &items, bool righ
 		    {
 		    case QChar::DirET:
 			if ( status.lastStrong == QChar::DirR || status.lastStrong == QChar::DirAL ) {
-			    appendItems( items, sor, eor, control, dir, unicode );
+			    appendItems(engine, sor, eor, control, dir);
 			    status.eor = QChar::DirON;
 			    dir = QChar::DirAN;
 			}
@@ -427,7 +432,7 @@ static void bidiItemize( const QString &text, QScriptItemArray &items, bool righ
 		    case QChar::DirAL:
 		    case QChar::DirAN:
 			if ( !first )
-			    appendItems( items, sor, eor, control, dir, unicode );
+			    appendItems(engine, sor, eor, control, dir);
 			status.eor = QChar::DirEN;
 			dir = QChar::DirAN; break;
 		    case QChar::DirES:
@@ -443,7 +448,7 @@ static void bidiItemize( const QString &text, QScriptItemArray &items, bool righ
 			if(status.eor == QChar::DirR) {
 			    // neutrals go to R
 			    eor = current - 1;
-			    appendItems( items, sor, eor, control, dir, unicode );
+			    appendItems(engine, sor, eor, control, dir);
 			    dir = QChar::DirON; status.eor = QChar::DirEN;
 			    dir = QChar::DirAN;
 			}
@@ -453,11 +458,11 @@ static void bidiItemize( const QString &text, QScriptItemArray &items, bool righ
 			} else {
 			    // numbers on both sides, neutrals get right to left direction
 			    if(dir != QChar::DirL) {
-				appendItems( items, sor, eor, control, dir, unicode );
+				appendItems(engine, sor, eor, control, dir);
 				dir = QChar::DirON; status.eor = QChar::DirON;
 				eor = current - 1;
 				dir = QChar::DirR;
-				appendItems( items, sor, eor, control, dir, unicode );
+				appendItems(engine, sor, eor, control, dir);
 				dir = QChar::DirON; status.eor = QChar::DirON;
 				dir = QChar::DirAN;
 			    } else {
@@ -481,7 +486,7 @@ static void bidiItemize( const QString &text, QScriptItemArray &items, bool righ
 		case QChar::DirAL:
 		case QChar::DirEN:
 		    if ( !first )
-			appendItems( items, sor, eor, control, dir, unicode );
+			appendItems(engine, sor, eor, control, dir);
 		    dir = QChar::DirON; status.eor = QChar::DirAN;
 		    break;
 		case QChar::DirCS:
@@ -498,7 +503,7 @@ static void bidiItemize( const QString &text, QScriptItemArray &items, bool righ
 		    if(status.eor == QChar::DirR) {
 			// neutrals go to R
 			eor = current - 1;
-			appendItems( items, sor, eor, control, dir, unicode );
+			appendItems(engine, sor, eor, control, dir);
 			status.eor = QChar::DirAN;
 			dir = QChar::DirAN;
 		    } else if( status.eor == QChar::DirL ||
@@ -507,11 +512,11 @@ static void bidiItemize( const QString &text, QScriptItemArray &items, bool righ
 		    } else {
 			// numbers on both sides, neutrals get right to left direction
 			if(dir != QChar::DirL) {
-			    appendItems( items, sor, eor, control, dir, unicode );
+			    appendItems(engine, sor, eor, control, dir);
 			    status.eor = QChar::DirON;
 			    eor = current - 1;
 			    dir = QChar::DirR;
-			    appendItems( items, sor, eor, control, dir, unicode );
+			    appendItems(engine, sor, eor, control, dir);
 			    status.eor = QChar::DirAN;
 			    dir = QChar::DirAN;
 			} else {
@@ -598,7 +603,7 @@ static void bidiItemize( const QString &text, QScriptItemArray &items, bool righ
     eor = current - 1; // remove dummy char
 
     if ( sor <= eor )
-	appendItems( items, sor, eor, control, dir, unicode );
+	appendItems(engine, sor, eor, control, dir);
 
 
 }
@@ -880,6 +885,36 @@ int QTextEngine::width( int from, int len ) const
     }
 //     qDebug("   --> w= %d ", w );
     return w;
+}
+
+void QTextEngine::itemize( int mode )
+{
+    if ( !items.d ) {
+	int size = 8;
+	items.d = (QScriptItemArrayPrivate *)malloc( sizeof( QScriptItemArrayPrivate ) +
+						    sizeof( QScriptItem ) * size );
+	items.d->alloc = size;
+    }
+    items.d->size = 0;
+    if ( string.length() == 0 )
+	return;
+
+    if ( !(mode & NoBidi) ) {
+	if ( direction == QChar::DirON )
+	    direction = basicDirection( string );
+	bidiItemize( this, direction == QChar::DirR, mode );
+    } else {
+	BidiControl control( false );
+	if ( mode & QTextEngine::SingleLine )
+	    control.singleLine = TRUE;
+	int start = 0;
+	int stop = string.length() - 1;
+	appendItems(this, start, stop, control, QChar::DirL);
+    }
+    if ( (mode & WidthOnly) == WidthOnly )
+	widthOnly = TRUE;
+
+    qDebug("itemization done");
 }
 
 glyph_metrics_t QTextEngine::boundingBox( int from,  int len ) const
