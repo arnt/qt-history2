@@ -266,85 +266,86 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
 	  << "\t\t" << "};" << "\n";
     }
 
-    //DUMP LIBRARIES
-    QStringList &libdirs = project->variables()["QMAKE_PBX_LIBPATHS"];
-    QString libs[] = { "QMAKE_LIBDIR_FLAGS", "QMAKE_LIBS", QString::null };
-    for(i = 0; !libs[i].isNull(); i++) {
-	tmp = project->variables()[libs[i]];
-	for(QStringList::Iterator it = tmp.begin(); it != tmp.end();) {
-	    bool remove = FALSE;
-	    QString library, name;
-	    if((*it).left(2) == "-L") {
-		QString r = (*it).right((*it).length() - 2);
-		fixEnvVariables(r);
-		libdirs.append(r);
-	    } else if((*it).left(2) == "-l") {
-		name = (*it).right((*it).length() - 2);
-		QString lib("lib" + name  + ".");
-		for(QStringList::Iterator lit = libdirs.begin(); lit != libdirs.end(); ++lit) {
-		    QString extns[] = { "dylib", "so", "a", QString::null };
-		    for(int n = 0; !extns[n].isNull(); n++) {
-			QString tmp =  (*lit) + Option::dir_sep + lib + extns[n];
-			if(QFile::exists(tmp)) {
-			    library = tmp;
-			    //don't remove, so it gets into LDFLAGS for now -- FIXME
-			    //remove = TRUE
+    if(!project->isActiveConfig("staticlib")) { //DUMP LIBRARIES
+	QStringList &libdirs = project->variables()["QMAKE_PBX_LIBPATHS"];
+	QString libs[] = { "QMAKE_LIBDIR_FLAGS", "QMAKE_LIBS", QString::null };
+	for(i = 0; !libs[i].isNull(); i++) {
+	    tmp = project->variables()[libs[i]];
+	    for(QStringList::Iterator it = tmp.begin(); it != tmp.end();) {
+		bool remove = FALSE;
+		QString library, name;
+		if((*it).left(2) == "-L") {
+		    QString r = (*it).right((*it).length() - 2);
+		    fixEnvVariables(r);
+		    libdirs.append(r);
+		} else if((*it).left(2) == "-l") {
+		    name = (*it).right((*it).length() - 2);
+		    QString lib("lib" + name  + ".");
+		    for(QStringList::Iterator lit = libdirs.begin(); lit != libdirs.end(); ++lit) {
+			QString extns[] = { "dylib", "so", "a", QString::null };
+			for(int n = 0; !extns[n].isNull(); n++) {
+			    QString tmp =  (*lit) + Option::dir_sep + lib + extns[n];
+			    if(QFile::exists(tmp)) {
+				library = tmp;
+				//don't remove, so it gets into LDFLAGS for now -- FIXME
+				//remove = TRUE
+				break;
+			    }
+			}
+		    }
+		} else if((*it) == "-framework") {
+		    ++it;
+		    if(it == tmp.end())
+			break;
+		    QStringList &fdirs = project->variables()["QMAKE_FRAMEWORKDIR"];
+		    if(fdirs.isEmpty())
+			fdirs.append("/System/Library/Frameworks/");
+		    for(QStringList::Iterator fit = fdirs.begin(); fit != fdirs.end(); ++fit) {
+			if(QFile::exists((*fit) + QDir::separator() + (*it) + ".framework")) {
+			    --it;
+			    it = tmp.remove(it);
+			    remove = TRUE;
+			    library = (*fit) + Option::dir_sep + (*it) + ".framework";
 			    break;
 			}
 		    }
+		} else if((*it).left(1) != "-") {
+		    remove = TRUE;
+		    library = (*it);
 		}
-	    } else if((*it) == "-framework") {
-		++it;
-		if(it == tmp.end())
-		    break;
-		QStringList &fdirs = project->variables()["QMAKE_FRAMEWORKDIR"];
-		if(fdirs.isEmpty())
-		    fdirs.append("/System/Library/Frameworks/");
-		for(QStringList::Iterator fit = fdirs.begin(); fit != fdirs.end(); ++fit) {
-		    if(QFile::exists((*fit) + QDir::separator() + (*it) + ".framework")) {
-			--it;
-			it = tmp.remove(it);
-			remove = TRUE;
-			library = (*fit) + Option::dir_sep + (*it) + ".framework";
-			break;
+		if(!library.isEmpty()) {
+		    if(name.isEmpty()) {
+			int slsh = library.findRev(Option::dir_sep);
+			if(slsh != -1)
+			    name = library.right(library.length() - slsh - 1);
 		    }
+		    fileFixify(library);
+		    QString key = keyFor(library);
+		    bool is_frmwrk = (library.right(10) == ".framework");
+		    t << "\t\t" << key << " = {" << "\n"
+		      << "\t\t\t" << "isa = " << (is_frmwrk ? "PBXFrameworkReference" : "PBXFileReference") << ";" << "\n"
+		      << "\t\t\t" << "name = \"" << name << "\";" << "\n"
+		      << "\t\t\t" << "path = \"" << library << "\";" << "\n"
+		      << "\t\t\t" << "refType = 0;" << "\n"
+		      << "\t\t" << "};" << "\n";
+		    project->variables()["QMAKE_PBX_LIBRARIES"].append(key);
+		    QString obj_key = library + ".o";
+		    obj_key = keyFor(obj_key);
+		    t << "\t\t" << obj_key << " = {" << "\n"
+		      << "\t\t\t" << "fileRef = " << key << ";" << "\n"
+		      << "\t\t\t" << "isa = PBXBuildFile;" << "\n"
+		      << "\t\t\t" << "settings = {" << "\n"
+		      << "\t\t\t" << "};" << "\n"
+		      << "\t\t" << "};" << "\n";
+		    project->variables()["QMAKE_PBX_BUILD_LIBRARIES"].append(obj_key);
 		}
-	    } else if((*it).left(1) != "-") {
-		remove = TRUE;
-		library = (*it);
+		if(remove)
+		    it = tmp.remove(it);
+		else
+		    ++it;
 	    }
-	    if(!library.isEmpty()) {
-		if(name.isEmpty()) {
-		    int slsh = library.findRev(Option::dir_sep);
-		    if(slsh != -1)
-			name = library.right(library.length() - slsh - 1);
-		}
-		fileFixify(library);
-		QString key = keyFor(library);
-		bool is_frmwrk = (library.right(10) == ".framework");
-		t << "\t\t" << key << " = {" << "\n"
-		  << "\t\t\t" << "isa = " << (is_frmwrk ? "PBXFrameworkReference" : "PBXFileReference") << ";" << "\n"
-		  << "\t\t\t" << "name = \"" << name << "\";" << "\n"
-		  << "\t\t\t" << "path = \"" << library << "\";" << "\n"
-		  << "\t\t\t" << "refType = 0;" << "\n"
-		  << "\t\t" << "};" << "\n";
-		project->variables()["QMAKE_PBX_LIBRARIES"].append(key);
-		QString obj_key = library + ".o";
-		obj_key = keyFor(obj_key);
-		t << "\t\t" << obj_key << " = {" << "\n"
-		  << "\t\t\t" << "fileRef = " << key << ";" << "\n"
-		  << "\t\t\t" << "isa = PBXBuildFile;" << "\n"
-		  << "\t\t\t" << "settings = {" << "\n"
-		  << "\t\t\t" << "};" << "\n"
-		  << "\t\t" << "};" << "\n";
-		project->variables()["QMAKE_PBX_BUILD_LIBRARIES"].append(obj_key);
-	    }
-	    if(remove)
-		it = tmp.remove(it);
-	    else
-		++it;
+	    project->variables()[libs[i]] = tmp;
 	}
-	project->variables()[libs[i]] = tmp;
     }
     //SUBLIBS BUILDPHASE (just another makefile)
     if(!project->isEmpty("SUBLIBS")) {
@@ -462,9 +463,11 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
 	    QString lib = project->first("QMAKE_ORIG_TARGET");
 	    if(project->first("TEMPLATE") == "app") {
 		lib += ".app";
-	    } else if(!project->isActiveConfig("staticlib") &&
-		      !project->isActiveConfig("frameworklib")) {
-		lib = project->first("TARGET_");
+	    } else if(!project->isActiveConfig("frameworklib")) {
+		if(project->isActiveConfig("staticlib"))
+		    lib = project->first("TARGET");
+		else
+		    lib = project->first("TARGET_");
 		int slsh = lib.findRev(Option::dir_sep);
 		if(slsh != -1)
 		    lib = lib.right(lib.length() - slsh - 1);
@@ -522,15 +525,17 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
 	<< "\t\t\t" << "path = " << project->first("QMAKE_ORIG_TARGET") << ".app;" << "\n";
     } else {
 	QString lib = project->first("QMAKE_ORIG_TARGET");
-	if(!project->isActiveConfig("staticlib") && !project->isActiveConfig("frameworklib")) {
+	if(project->isActiveConfig("staticlib")) {
+	    lib = project->first("TARGET");
+	} else if(!project->isActiveConfig("frameworklib")) {
 	    if(project->isActiveConfig("plugin"))
-	       lib = project->first("TARGET");
+		lib = project->first("TARGET");
 	    else
 		lib = project->first("TARGET_");
-	    int slsh = lib.findRev(Option::dir_sep);
-	    if(slsh != -1)
-		lib = lib.right(lib.length() - slsh - 1);
 	}
+	int slsh = lib.findRev(Option::dir_sep);
+	if(slsh != -1)
+	    lib = lib.right(lib.length() - slsh - 1);
 	t << "\t\t\t" << "isa = PBXLibraryReference;" << "\n"
 	  << "\t\t\t" << "path = " << lib << ";\n";
     }
@@ -553,15 +558,16 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
       << "\t\t\t\t" << "OTHER_CPLUSPLUSFLAGS = \"" <<
 	fixEnvsList("QMAKE_CXXFLAGS") << varGlue("PRL_EXPORT_DEFINES"," -D"," -D","") <<
 	varGlue("DEFINES"," -D"," -D","") << "\";" << "\n"
-      << "\t\t\t\t" << "OTHER_LDFLAGS = \"" << fixEnvsList("SUBLIBS") << " " <<
-	fixEnvsList("QMAKE_LFLAGS") << " " << fixEnvsList("QMAKE_LIBDIR_FLAGS") <<
-	" " << fixEnvsList("QMAKE_LIBS") << "\";" << "\n"
       << "\t\t\t\t" << "OTHER_REZFLAGS = \"\";" << "\n"
       << "\t\t\t\t" << "SECTORDER_FLAGS = \"\";" << "\n"
       << "\t\t\t\t" << "WARNING_CFLAGS = \"\";" << "\n";
 #if 1
     t << "\t\t\t\t" << "BUILD_ROOT = \"" << QDir::currentDirPath() << "\";" << "\n";
 #endif
+    if(!project->isActiveConfig("staticlib")) 
+	t << "\t\t\t\t" << "OTHER_LDFLAGS = \"" << fixEnvsList("SUBLIBS") << " " <<
+	    fixEnvsList("QMAKE_LFLAGS") << " " << fixEnvsList("QMAKE_LIBDIR_FLAGS") <<
+	    " " << fixEnvsList("QMAKE_LIBS") << "\";" << "\n";
     if(!project->isEmpty("DESTDIR"))
 	t << "\t\t\t\t" << "INSTALL_PATH = \"" << project->first("DESTDIR") << "\";" << "\n";
     if(!project->isEmpty("VERSION") && project->first("VERSION") != "0.0.0")
@@ -575,6 +581,7 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
 	QString lib = project->first("QMAKE_ORIG_TARGET");
 	if(!project->isActiveConfig("plugin") && project->isActiveConfig("staticlib")) {
 	    t << "\t\t\t\t" << "LIBRARY_STYLE = STATIC;" << "\n";
+	    lib = project->first("TARGET");
 	} else {
 	    t << "\t\t\t\t" << "LIBRARY_STYLE = DYNAMIC;" << "\n";
 	    if(!project->isActiveConfig("frameworklib")) {
@@ -582,11 +589,11 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
 		    lib = project->first("TARGET");
 		else
 		    lib = project->first("TARGET_");
-		int slsh = lib.findRev(Option::dir_sep);
-		if(slsh != -1)
-		    lib = lib.right(lib.length() - slsh - 1);
 	    }
 	}
+	int slsh = lib.findRev(Option::dir_sep);
+	if(slsh != -1)
+	    lib = lib.right(lib.length() - slsh - 1);
 	t << "\t\t\t\t" << "PRODUCT_NAME = " << lib << ";" << "\n";
     }
     tmp = project->variables()["QMAKE_PBX_VARS"];
