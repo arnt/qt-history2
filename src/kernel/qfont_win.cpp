@@ -876,6 +876,8 @@ int QFontMetrics::lineSpacing() const
 
 int QFontMetrics::width( QChar ch ) const
 {
+    if ( ch.combiningClass() > 0 )
+	return 0;
     //qObsolete( "QFontMetrics", "width" );
     QString s(ch);
     return width(s,1);
