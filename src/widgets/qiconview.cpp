@@ -1109,7 +1109,7 @@ QIconViewItem *QIconViewItem::nextItem() const
 }
 
 /*!
-  Returns the index of this item in the iconview, or -1 if an error occured.
+  Returns the index of this item in the iconview, or -1 if an error occurred.
 */
 
 int QIconViewItem::index() const
@@ -2085,7 +2085,7 @@ void QIconViewItem::checkRect()
 
 /*! \fn void  QIconView::dropped ( QDropEvent * e, const QValueList<QIconDragItem> &lst )
 
-  This signal is emitted, when a drop event occured onto the viewport
+  This signal is emitted, when a drop event occurred onto the viewport
   (not onto an icon), which the iconview itself can't handle.
 
   \a e gives you all information about the drop. If the drag object of

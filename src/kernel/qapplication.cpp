@@ -2930,7 +2930,7 @@ void MyApplication::commitData( QSessionManager& sm ) {
 }
 \endcode
 
-  If an error occured within the application while saving its data,
+  If an error occurred within the application while saving its data,
   you may want to try allowsErrorInteraction() instead.
 
    \sa QApplication::commitData(), release(), cancel()
@@ -2941,7 +2941,7 @@ void MyApplication::commitData( QSessionManager& sm ) {
   \fn bool QSessionManager::allowsErrorInteraction()
 
   Like allowsInteraction() but tells the session manager in addition
-  that an error occured. Session managers may give error interaction
+  that an error occurred. Session managers may give error interaction
   request higher priority. That means it is more likely that an error
   interaction is granted. However, you are still not guaranteed that
   the session manager will grant your request.

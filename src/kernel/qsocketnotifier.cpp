@@ -55,7 +55,7 @@ extern bool qt_set_socket_handler( int, int, QObject *, bool );
   <ol>
   <li> \c QSocketNotifier::Read: There is data to be read (socket read event).
   <li> \c QSocketNotifier::Write: Data can be written (socket write event).
-  <li> \c QSocketNofifier::Exception: An exception has occured (socket
+  <li> \c QSocketNofifier::Exception: An exception has occurred (socket
   exception event).  We recommend against using this.
   </ol>
 
@@ -104,7 +104,7 @@ extern bool qt_set_socket_handler( int, int, QObject *, bool );
 
   The behaviour of a write notifier that is left in enabled state
   after having emitting the first activated() signal (and no "would
-  block" error has occured) is undefined. Depending on the operating
+  block" error has occurred) is undefined. Depending on the operating
   system, it may fire on every pass of the event loop, or not at all.
 
   If you need a time-out for your sockets, you can use either
@@ -170,7 +170,7 @@ QSocketNotifier::~QSocketNotifier()
   <ol>
   <li> \c QSocketNotifier::Read: There is data to be read (socket read event).
   <li> \c QSocketNotifier::Write: Data can be written (socket write event).
-  <li> \c QSocketNofifier::Exception: An exception has occured (socket
+  <li> \c QSocketNofifier::Exception: An exception has occurred (socket
   exception event).
   </ol>
 

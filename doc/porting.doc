@@ -621,7 +621,7 @@ event slightly faster.
 The protected member QIODevice::index is renamed to QIODevice::ioIndex
 to avoid warnings and to allow compilation with bad C libraries that
 #define index to strchr.  If you have made a subclass of QIODevice,
-check every occurence of the string "index" in the implementation, since
+check every occurrence of the string "index" in the implementation, since
 a compiler will not always catch cases like \code(uint)index\endcode
 that need to be changed.
 

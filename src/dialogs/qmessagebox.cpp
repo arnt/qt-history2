@@ -364,9 +364,9 @@ static const char * const qtlogo_xpm[] = {
 
   \code
     QMessageBox::critical( 0, "Application name here",
-                           QString("An internal error occured. Please call ") +
-			   "technical support at 123456789 and report these\n"+
-			   "numbers:\n\n" + errorDetails +
+                           QString("An internal error occurred. Please ") +
+			   "call technical support at 123456789 and report\n"+
+			   "these numbers:\n\n" + errorDetails +
 			   "\n\n<Application> will now exit." );
   \endcode
 

@@ -349,7 +349,7 @@ that can be used to attach additional name/value-pairs to a classes'
 meta object, for example:
 
 \code
-Q_CLASSINFO( "Status", "Very nice class")
+Q_CLASSINFO( "Status", "Very nice class" )
 \endcode
 
 Like other meta data, class information is accessible at runtime
@@ -363,7 +363,7 @@ through the meta object, see \l QMetaObject::classInfo() for details.
 
 An event, in Qt, is an object that inherits \l QEvent.  Events are
 delivered to objects that inherit \l QObject through calling \l
-QObject::event().  Event delivery means that an event has occured, the
+QObject::event().  Event delivery means that an event has occurred, the
 QEvent indicates precisely what, and the QObject needs to react.  Most
 events are specific to \l QWidget and its subclasses, but there are
 important events that aren't related to graphics, such as socket

@@ -621,7 +621,7 @@ chapter.  Again, the difference lies in the implementation.
 
 Initialize each slider with a different/random value on startup.
 
-The source contains three occurences of "4".  What happens if you
+The source contains three occurrences of "4".  What happens if you
 change the one in the \l QGrid constructor call?  What about the other
 two?  Why is this?
 

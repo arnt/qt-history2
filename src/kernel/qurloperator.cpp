@@ -311,7 +311,7 @@ QUrlOperator::~QUrlOperator()
   and after the last one finished() is emitted.
   For each list of new entries, the newChildren()
   signals is emitted.
-  If an error occures, also the signal finished()
+  If an error occurs, also the signal finished()
   is emitted, so check the state of the network operation pointer!
 
   As the operation will not be executed immediately, a pointer to the

@@ -141,7 +141,7 @@ QRangeControl::QRangeControl( int minValue, int maxValue,
   \fn int QRangeControl::prevValue() const
 
   Returns the previous value of the range control. "Previous value"
-  means the value before the last change occured. Setting a new range
+  means the value before the last change occurred. Setting a new range
   may affect the value, too, since the value is forced to be inside
   the specified range. When the range
   control is initially created, this is the same as value().

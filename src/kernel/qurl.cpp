@@ -44,7 +44,7 @@ struct QUrlPrivate
 };
 
 /*!
-  Replaces backslashes with slashes and removes multiple occurences
+  Replaces backslashes with slashes and removes multiple occurrences
   of slashes or backslashes if \c allowMultiple is FALSE.
 */
 

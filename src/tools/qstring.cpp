@@ -12434,7 +12434,7 @@ void QString::setLength( uint newLen )
 }
 
 /*!  Returns a string equal to this one, but with the lowest-numbered
-  occurence of \c %i (for a positive integer i) replaced by \a a.
+  occurrence of \c %i (for a positive integer i) replaced by \a a.
 
   \code
     label.setText( tr("Rename %1 to %2?").arg(oldName).arg(newName) );

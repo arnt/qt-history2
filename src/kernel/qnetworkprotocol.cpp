@@ -241,7 +241,7 @@ struct QNetworkProtocolPrivate
   and is waiting for being prcessed
   <li> \c StInProgress - The operation is just processed
   <li> \c StDone - The operation has been processed succesfully
-  <li> \c StFailed - The operation has been processed but an error occured
+  <li> \c StFailed - The operation has been processed but an error occurred
   <li> \c StStopped - The operation has been processed but has been stopped before it finished
   </ul>
 */
@@ -285,19 +285,19 @@ struct QNetworkProtocolPrivate
   of the operation returns an error code, which is one of following values:
 
   <ul>
-  <li>\c NoError - No error occured
+  <li>\c NoError - No error occurred
   <li>\c ErrValid - The URL you are operating on is not valid
   <li>\c ErrUnknownProtocol - There is no protocol implementation available for the protocol of the URL you are operating on (e.g. if the protocol is http and no http implementation has been registered)
   <li>\c ErrUnsupported - The operation is not supported by the protocol
   <li>\c ErrParse - Parse error of the URL
   <li>\c ErrLoginIncorrect - You needed to login but the username and or password are wrong
   <li>\c ErrHostNotFound - The specified host (in the URL) couldn´t be found
-  <li>\c ErrListChlidren - An error occured while listing the children
-  <li>\c ErrMkdir - An error occured when creating a directory
-  <li>\c ErrRemove - An error occured while removing a child
-  <li>\c ErrRename  - An error occured while renaming a child
-  <li>\c ErrGet - An error occured while getting (retrieving) data
-  <li>\c ErrPut - An error occured while putting (uploading) data
+  <li>\c ErrListChlidren - An error occurred while listing the children
+  <li>\c ErrMkdir - An error occurred when creating a directory
+  <li>\c ErrRemove - An error occurred while removing a child
+  <li>\c ErrRename  - An error occurred while renaming a child
+  <li>\c ErrGet - An error occurred while getting (retrieving) data
+  <li>\c ErrPut - An error occurred while putting (uploading) data
   <li>\c ErrFileNotExisting - A file which is needed by the operation doesn't exist
   <li>\c ErrPermissionDenied - The permission for doing the operation has been denied
   </ul>
