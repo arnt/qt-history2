@@ -854,18 +854,16 @@ bool QEventLoop::processEvents(ProcessEventsFlags flags)
     return nevents > 0;
 }
 
-void QEventLoop::timeToWait() const
+int QEventLoop::timeToWait() const
 {
     if (!qt_is_gui_used)
 	return -1;
-
-    timeval *tm = qt_wait_timer();
-    if ( ! tm )	// no active timers
-	return -1;
-    return (tm->tv_sec*1000) + (tm->tv_usec/1000);
+    if(timeval *tm = qt_wait_timer())
+	return (tm->tv_sec*1000) + (tm->tv_usec/1000);
+    return -1;
 }
 
-void QEventLoop::activateTimers()
+int QEventLoop::activateTimers()
 {
     if (!qt_is_gui_used)
 	return 0;
