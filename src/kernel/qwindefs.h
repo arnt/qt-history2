@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwindefs.h#101 $
+** $Id: //depot/qt/main/src/kernel/qwindefs.h#102 $
 **
 ** Definition of general window system dependent functions, types and
 ** constants
@@ -295,18 +295,18 @@ const int MonoOnly               = 0x00000002;
 //        Reserved               = 0x00000001;
 const int AlphaDither_Mask       = 0x0000000c;
 const int ThresholdAlphaDither   = 0x00000000;
-const int OrderedAlphaDither       = 0x00000004;
-const int DiffuseAlphaDither       = 0x00000008;
+const int OrderedAlphaDither     = 0x00000004;
+const int DiffuseAlphaDither     = 0x00000008;
 //        ReservedAlphaDither    = 0x0000000c;
 const int Dither_Mask            = 0x00000030;
-const int DiffuseDither            = 0x00000000;
-const int OrderedDither            = 0x00000010;
+const int DiffuseDither          = 0x00000000;
+const int OrderedDither          = 0x00000010;
 const int ThresholdDither        = 0x00000020;
 //        ReservedDither         = 0x00000030;
 const int DitherMode_Mask        = 0x000000c0;
 const int AutoDither             = 0x00000000;
-const int AlwaysDither           = 0x00000040;
-const int DemandDither           = 0x00000080;
+const int PreferDither           = 0x00000040;
+const int AvoidDither            = 0x00000080;
 
 
 #endif // QWINDEFS_H
