@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#264 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#265 $
 **
 ** Implementation of the QString class and related Unicode functions
 **
@@ -12489,7 +12489,7 @@ QString &QString::operator+=( QChar c )
 
 QString &QString::operator+=( char c )
 {
-    Setlength(length()+1);
+    setLength(length()+1);
     d->unicode[length()-1] = c;
     return *this;
 }
