@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap.cpp#27 $
+** $Id: //depot/qt/main/src/kernel/qpixmap.cpp#28 $
 **
 ** Implementation of QPixmap class
 **
@@ -15,7 +15,7 @@
 #include "qdstream.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpixmap.cpp#27 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpixmap.cpp#28 $";
 #endif
 
 
@@ -142,28 +142,31 @@ QPixmap &QPixmap::operator=( const QImage &image )
 
 /*!
   \fn QSize QPixmap::size() const
-  Returns the size of the pixmap.
-  \sa width(), height(), rect()
+
+  Returns the size of the pixmap.  A null pixmap has size (0,0).
+
+  \sa width(), height(), rect() isNull.
 */
 
 /*!
   \fn QRect QPixmap::rect() const
-  Returns the enclosing rectangle of the pixmap.
-  \sa width(), height(), size()
-*/
+  Returns the enclosing rectangle of the pixmap, or (0,0,0,0) for a
+  null pixmap.
+  \sa width(), height(), size() */
 
 /*!
   \fn int QPixmap::depth() const
   Returns the depth of the image.
   The pixmap depth is also called bits per pixel (bpp) or bit planes
-  of a pixmap.
-  \sa numColors()
+  of a pixmap.  A null pixmap has depth 0.
+  \sa numColors(), isNull()
 */
 
 /*!
   \fn int QPixmap::numColors() const
   Returns the maximum number of colors that can be used for the pixmap.
   Equivalent to 2^depth().
+  \sa depth()
 */
 
 
