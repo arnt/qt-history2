@@ -215,37 +215,40 @@ void LightStyleV3::drawPrimitive(PrimitiveElement pe,
 
     switch (pe) {
     case PE_HeaderSection:
-	// don't draw any headers sunken
-	flags = ((flags | Style_Sunken) ^ Style_Sunken) | Style_Raised;
+	{
+	    bool sunken = (flags & Style_Down);
+	    bool highlight = sunken || (flags & Style_Sunken);
 
-	p->setPen(pal.background());
-	// hard border at the bottom/right of the header
-	if (flags & Style_Horizontal) {
-	    p->drawLine(br.bottomLeft(), br.bottomRight());
-	    br.addCoords(0, 0, 0, -1);
-	} else {
-	    p->drawLine(br.topRight(), br.bottomRight());
-	    br.addCoords(0, 0, -1, 0);
+	    p->setPen(pal.background());
+	    // hard border at the bottom/right of the header
+	    if (flags & Style_Horizontal) {
+		p->drawLine(br.bottomLeft(), br.bottomRight());
+		br.addCoords(0, 0, 0, -1);
+	    } else {
+		p->drawLine(br.topRight(), br.bottomRight());
+		br.addCoords(0, 0, -1, 0);
+	    }
+	    if (! br.isValid()) break;
+
+	    // draw the header (just an etching)
+	    drawLightEtch(p, br, (highlight ? pal.mid() : pal.button()), sunken);
+
+	    br.addCoords(1, 1, -1, -1);
+	    if (! br.isValid()) break;
+
+	    // fill the header
+	    p->fillRect(br, pal.brush(highlight ? QPalette::Mid : QPalette::Button));
+
+	    // the taskbuttons in kicker seem to allow the style to set the pencolor
+	    // here, which will be used to draw the text for focused window buttons...
+	    // how utterly silly
+	    p->setPen(pal.buttonText());
+	    break;
 	}
-
-	// draw the header (just an etching)
-	if (! br.isValid())
-	    break;
-	drawLightEtch(p, br, ((flags & Style_Down) ?
-			      pal.midlight() : pal.button()),
-		      (flags & Style_Down));
-	br.addCoords(1, 1, -1, -1);
-
-	// fill the header
-	if (! br.isValid())
-	    break;
-	p->fillRect(br, pal.brush((flags & Style_Down) ?
-				  QPalette::Midlight : QPalette::Button));
-
-	// the taskbuttons in kicker seem to allow the style to set the pencolor
-	// here, which will be used to draw the text for focused window buttons...
-	// how utterly silly
-	p->setPen(pal.buttonText());
+    case PE_HeaderArrow:
+	if (!(flags & Style_Up)) break;
+	br.addCoords(0, 0, 0, -br.top());
+      	basestyle->drawPrimitive(PE_ArrowUp, p, br, pal, flags, data);
 	break;
 
     case PE_ButtonCommand:
@@ -1717,6 +1720,9 @@ int LightStyleV3::styleHint(StyleHint stylehint,
 
     case SH_ScrollBar_BackgroundMode:
 	return NoBackground;
+
+    case SH_Header_ArrowAlignment:
+        return Qt::AlignRight;
 
     default: break;
     }
