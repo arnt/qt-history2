@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#100 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#101 $
 **
 ** Implementation of QWidget class
 **
@@ -20,7 +20,7 @@
 #include "qkeycode.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#100 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#101 $")
 
 
 /*----------------------------------------------------------------------------
@@ -992,7 +992,7 @@ bool QWidget::close( bool forceKill )
 bool QWidget::isActive() const
 {
     warning( "QWidget::isActive: This function is OBSOLETE" );
-    return FALSE;  // it's not really the truth, so don't return TRUE :)
+    return FALSE;
 }
 
 #endif // OBSOLETE
@@ -1305,9 +1305,8 @@ void QWidget::keyReleaseEvent( QKeyEvent *e )
   order to receive focus events.
 
   The default implementation calls repaint() since the widget's \link
-  QColorGroup color group \endlink changes from normal to active.  You
-  may want to call repaint( FALSE ) to reduce flicker in any
-  reimplementation.
+  QColorGroup color group\endlink changes from normal to active.  You
+  may want to call repaint(FALSE) to reduce flicker in any reimplementation.
 
   \sa focusOutEvent(), setAcceptFocus(),
   keyPressEvent(), keyReleaseEvent(), event(), QFocusEvent
@@ -1326,9 +1325,8 @@ void QWidget::focusInEvent( QFocusEvent * )
   order to receive focus events.
 
   The default implementation calls repaint() since the widget's \link
-  QColorGroup color group \endlink changes from active to normal.  You
-  may want to call repaint( FALSE ) to reduce flicker in any
-  reimplementation.
+  QColorGroup color group\endlink changes from active to normal.  You
+  may want to call repaint(FALSE) to reduce flicker in any reimplementation.
 
   \sa focusInEvent(), setAcceptFocus(),
   keyPressEvent(), keyReleaseEvent(), event(), QFocusEvent
