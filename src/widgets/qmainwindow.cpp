@@ -1809,7 +1809,9 @@ QPtrList<QDockWindow> QMainWindow::dockWindows( Dock dock ) const
     return lst;
 }
 
-/*! Returns the list of dock windows which belong to this main window,
+/*!
+    \overload
+    Returns the list of dock windows which belong to this main window,
     regardless of which dock area they are in or what their state is,
     (e.g. irrespective of whether they are visible or not).
 */

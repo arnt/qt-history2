@@ -47,7 +47,6 @@
 
 //#define QLOCALFS_DEBUG
 
-// NOT REVISED
 
 /*!
   \class QLocalFs qlocalfs.h
@@ -56,13 +55,25 @@
 
   \ingroup io
 
-  This class is a subclass of QNetworkProtocol and works
-  on the local file system. If you want to write a network
-  transparent application using QNetworkProtocol,
-  QUrlOperator, etc., this class is used for accessing
-  the local file system by QUrlOperator.
+  \module network
 
-  \sa QUrlOperator, QNetworkProtocol
+  This class is derived from QNetworkProtocol. QLocalFs is not
+  normally used directly, but rather through a QUrlOperator, for
+  example:
+
+  \code
+  QUrlOperator op( "file:///tmp" );
+  op.listChildren(); // Asks the server to provide a directory listing
+  \endcode
+
+  This code will only work if the QLocalFs class is registered; to register the
+  class, you must call qInitNetworkProtocols() before using a QUrlOperator
+  with QLocalFs.
+
+  If you really need to use QLocalFs directly, don't forget
+  to set its QUrlOperator with setUrl().
+
+  \sa \link network.html Qt Network Documentation \endlink QNetworkProtocol, QUrlOperator
 */
 
 /*!

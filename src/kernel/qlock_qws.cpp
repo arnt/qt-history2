@@ -72,11 +72,12 @@ public:
 
 /*!
   \fn QLock::QLock( const QString &filename, char id, bool create )
-  Creates a lock. \a filename is the file path of the Unix-domain socket
-  the Qt/Embedded client is using. \a id is the name of the particular lock
-  to be created on that socket. \a create is TRUE if it is to be created
-  (as the Qt/Embedded server does), FALSE if it is expected to already
-  exist (as the Qt/Embedded client does).
+  Creates a lock. \a filename is the file path of the Unix-domain
+  socket the Qt/Embedded client is using. \a id is the name of the
+  particular lock to be created on that socket. If \a create is TRUE
+  the lock is to be created (as the Qt/Embedded server does); if \a
+  create is FALSE the lock should exist already (as the Qt/Embedded
+  client expects).
 */
 
 QLock::QLock( const QString &filename, char id, bool create )
@@ -118,13 +119,13 @@ QLock::~QLock()
 
 /*!
 \fn bool QLock::isValid() const
-Returns true if the lock constructor was succesful, false if the lock
-could not be created or was not available to connect to.
+Returns TRUE if the lock constructor was succesful; returns FALSE if
+the lock could not be created or was not available to connect to.
 */
 
 bool QLock::isValid() const
 {
-#ifndef QT_NO_QWS_MULTIPROCESS    
+#ifndef QT_NO_QWS_MULTIPROCESS
     return (data->id != -1);
 #else
     return TRUE;
@@ -136,15 +137,15 @@ bool QLock::isValid() const
   Read or Write. If a lock is Read, attempts to lock by other
   processes as Read will succeed, Write attempts will block until the
   lock is unlocked. If locked as Write, all attempts to lock by other
-  processes will lock until the lock is unlocked. Locks are recursive;
-  that is a given QLock can be locked multiple times by the same
+  processes will block until the lock is unlocked. Locks are stacked:
+  i.e. a given QLock can be locked multiple times by the same
   process without blocking, and will only be unlocked after a
   corresponding number of unlock() calls.
 */
 
 void QLock::lock( Type t )
 {
-#ifndef QT_NO_QWS_MULTIPROCESS    
+#ifndef QT_NO_QWS_MULTIPROCESS
     if ( !data->count ) {
 	sembuf sops;
 	sops.sem_num = 0;
@@ -177,7 +178,7 @@ the semaphore, one of them will wake up and succeed in lock()ing.
 
 void QLock::unlock()
 {
-#ifndef QT_NO_QWS_MULTIPROCESS    
+#ifndef QT_NO_QWS_MULTIPROCESS
     if ( data->count ) {
 	data->count--;
 	if ( !data->count ) {
@@ -205,7 +206,8 @@ void QLock::unlock()
 
 /*!
 \fn bool QLock::locked() const
-Returns true if the lock is currently held by the current process.
+Returns TRUE if the lock is currently held by the current process;
+otherwise returns FALSE.
 */
 
 bool QLock::locked() const
@@ -214,6 +216,6 @@ bool QLock::locked() const
     return (data->count > 0);
 #else
     return FALSE;
-#endif    
+#endif
 }
 
