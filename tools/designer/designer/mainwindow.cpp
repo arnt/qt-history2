@@ -2426,7 +2426,7 @@ bool MainWindow::openEditor( QWidget *w, FormWindow *f )
 		    fullSignal = iface->createArguments( fullSignal.simplifyWhiteSpace() );
 		    s += "(" + fullSignal + ")";
 		    if ( !MetaDataBase::hasFunction( f, s.latin1() ) )
-			MetaDataBase::addFunction( f, s.latin1(), "", "public", "function",
+			MetaDataBase::addFunction( f, s.latin1(), "", "public", "slot",
 						   f->project()->language(), "void" );
 		    s = s.left( s.find( '(' ) ).latin1();
 		    if ( !MetaDataBase::hasConnection( f, w, defSignal.latin1(), f->mainContainer(), s.latin1() ) ) {

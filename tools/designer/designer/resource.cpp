@@ -2742,8 +2742,11 @@ void Resource::loadExtraSource( FormWindow *formwindow, const QString &currFileN
 	    QString access = (*fit).access;
 	    if ( access.isEmpty() )
 		access = "protected";
+	    QString type = "function";
+	    if ( (*fit).returnType == "void" )
+		type = "slot";
 	    MetaDataBase::addFunction( formwindow, (*fit).name.latin1(), "virtual", (*fit).access,
-				       "function", lang, (*fit).returnType );
+				       type, lang, (*fit).returnType );
 	}
     }
 }

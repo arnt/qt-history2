@@ -575,9 +575,12 @@ void FormFile::parseCode( const QString &txt, bool allowModify )
 	    function.access = "public";
 	    if ( function.function == "init()" || function.function == "destroy()" )
 		function.access = "private";
-	    function.type = "function";
 	    function.language = pro->language();
 	    function.returnType = (*it).returnType;
+	    if ( function.returnType == "void" )
+		function.type = "slot";
+	    else
+		function.type = "function";
 	    newFunctions << function;
 	    funcs.insert( (*it).name, (*it).body );
 	    if ( allowModify )
