@@ -212,6 +212,7 @@ EditorPage::EditorPage( QWidget * parent, const char * name )
     p = transLbl->palette();
     p.setColor( QPalette::Active, QColorGroup::Background, palette().active().base() );
     p.setColor( QPalette::Inactive, QColorGroup::Background, palette().inactive().base() );
+    p.setColor( QPalette::Disabled, QColorGroup::Background, palette().disabled().base() );
     transLbl->setPalette( p );
 
     QFont fnt = font();
