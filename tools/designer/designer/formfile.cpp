@@ -207,9 +207,7 @@ bool FormFile::save( bool withMsgBox )
     resource.setWidget( formWindow() );
     if ( !resource.save( pro->makeAbsolute( filename ) ) ) {
 	MainWindow::self->statusBar()->message( tr( "Failed to save file %1.").arg( filename ), 5000 );
-	if ( withMsgBox )
-	    QMessageBox::warning( MainWindow::self, tr( "Save" ), tr( "Couldn't save file %1" ).arg( filename ) );
-	return FALSE;
+	return saveAs();
     }
     MainWindow::self->statusBar()->message( tr( "%1 saved.").arg( filename ), 3000 );
     timeStamp.update();
@@ -351,10 +349,15 @@ void FormFile::showFormWindow()
 
 void FormFile::showEditor()
 {
-    if ( !hasFormCode() )
+    bool modify = FALSE;
+    if ( !hasFormCode() ) {
 	createFormCode();
+	modify = TRUE;
+    }
     showFormWindow();
     MainWindow::self->editSource();
+    if ( modify )
+	setModified( TRUE );
 }
 
 static int count = 0;
