@@ -118,11 +118,11 @@ QString ProjectPorter::portProFile(QString contents, QMap<QString, QString> tagM
 
     Logger *logger = Logger::instance();
 
-    //add compat to the Qt tag
+    //add qt3support to the Qt tag
     QStringList QTTagAdd;
     QStringList qt = tagMap["QT"].split(" ", QString::SkipEmptyParts);
-    if (!qt.contains("compat"))
-        QTTagAdd.append("compat");
+    if (!qt.contains("qt3support"))
+        QTTagAdd.append("qt3support");
     QStringList config = tagMap["CONFIG"].split(" ", QString::SkipEmptyParts);
     if (config.contains("opengl"))
         QTTagAdd.append("opengl");
