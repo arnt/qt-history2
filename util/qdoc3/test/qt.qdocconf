@@ -80,6 +80,7 @@ Cpp.ignoredirectives    = Q_DECLARE_INTERFACE \
                           Q_DECLARE_OPERATORS_FOR_FLAGS \
                           Q_DECLARE_PRIVATE \
                           Q_DECLARE_PUBLIC \
+			  Q_DISABLE_COPY \
 			  Q_DUMMY_COMPARISON_OPERATOR \
                           Q_ENUMS \
                           Q_FLAGS \
