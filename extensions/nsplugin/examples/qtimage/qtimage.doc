@@ -15,7 +15,7 @@
   qtimage.so or \c npqtimage.dll to the Plugins directory of your web
   browser.
 
-  <embed src=\"pnglogo.png\" width=256 height=192>
+  <embed src="pnglogo.png" width=256 height=192>
 
   This plugin displays a \link http://www.libpng.org/pub/png/
   PNG format \endlink image.
