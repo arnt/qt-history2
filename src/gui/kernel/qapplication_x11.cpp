@@ -2164,6 +2164,8 @@ void qt_cleanup()
         delete [] QX11Info::x_appdepth_arr;
     if (QX11Info::x_appcells_arr)
         delete [] QX11Info::x_appcells_arr;
+    if (QX11Info::x_approotwindow_arr)
+        delete [] QX11Info::x_approotwindow_arr;
     if (QX11Info::x_appcolormap_arr)
         delete []QX11Info::x_appcolormap_arr;
     if (QX11Info::x_appdefcolormap_arr)
