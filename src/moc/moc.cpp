@@ -330,7 +330,7 @@ void Moc::parseFunctionArguments(FunctionDef *def)
     }
 }
 
-void Moc::parseFunction(FunctionDef *def)
+void Moc::parseFunction(FunctionDef *def, bool inMacro)
 {
     test(VIRTUAL);
     while (test(INLINE) || test(STATIC))
@@ -369,7 +369,7 @@ void Moc::parseFunction(FunctionDef *def)
         next(RPAREN);
     }
     def->isConst = test(CONST);
-    if (def->inPrivateClass.size()) {
+    if (inMacro) {
         next(RPAREN);
     } else {
         if (test(SEMIC))
@@ -506,6 +506,9 @@ void Moc::parse()
                     break;
                 case Q_INTERFACES_TOKEN:
                     parseInterfaces(&def);
+                    break;
+                case Q_SLOT_TOKEN:
+                    parseSlot(&def, access);
                     break;
                 case Q_PRIVATE_SLOT_TOKEN:
                     parseSlotInPrivate(&def, access);
@@ -774,6 +777,20 @@ void Moc::parseInterfaces(ClassDef *def)
 
 }
 
+void Moc::parseSlot(ClassDef *def, FunctionDef::Access access)
+{
+    next(LPAREN);
+    FunctionDef funcDef;
+    funcDef.access = access;
+    parseFunction(&funcDef, true);
+    def->slotList += funcDef;
+    while (funcDef.arguments.size() > 0 && funcDef.arguments.last().isDefault) {
+        funcDef.wasCloned = true;
+        funcDef.arguments.removeLast();
+        def->slotList += funcDef;
+    }
+}
+
 void Moc::parseSlotInPrivate(ClassDef *def, FunctionDef::Access access)
 {
     next(LPAREN);
@@ -782,7 +799,7 @@ void Moc::parseSlotInPrivate(ClassDef *def, FunctionDef::Access access)
     funcDef.inPrivateClass = lexem();
     next(COMMA);
     funcDef.access = access;
-    parseFunction(&funcDef);
+    parseFunction(&funcDef, true);
     def->slotList += funcDef;
     while (funcDef.arguments.size() > 0 && funcDef.arguments.last().isDefault) {
         funcDef.wasCloned = true;
