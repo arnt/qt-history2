@@ -829,9 +829,12 @@ Q_LONGLONG QSocketLayerPrivate::nativeSendDatagram(const char *data, Q_LONGLONG 
 Q_LONGLONG QSocketLayerPrivate::nativeWrite(const char *data, Q_LONGLONG len)
 {
     Q_LONGLONG ret = -1;
+    //### this only sends a small amount at a time ... is this the best idea (see the loop back example with out this)
+    // this only lest us write about 8k when in fact can write upto 15MB without a problem, so now this is slow.
+    Q_LONGLONG bytesToSend = qMin(option(SendBufferSocketOption), len);
     WSABUF buf;
     buf.buf = (char*)data;
-    buf.len = len;
+    buf.len = bytesToSend;
     DWORD flags = 0;
     DWORD bytesWritten = 0;
     if (::WSASend(socketDescriptor, &buf, 1, &bytesWritten, flags, 0,0) ==  SOCKET_ERROR) {
