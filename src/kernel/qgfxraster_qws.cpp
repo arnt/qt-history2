@@ -869,7 +869,7 @@ QGfxRasterBase::QGfxRasterBase(unsigned char * b,int w,int h) :
 #ifdef QT_PAINTER_LOCKING
     QWSDisplay::grab();
 #endif
-    
+
     gfx_screen=qt_screen;
 #ifndef QT_NO_QWS_CURSOR
     gfx_screencursor=qt_screencursor;
@@ -6101,6 +6101,23 @@ struct DriverTable
     { 0, 0, 0 },
 };
 
+#ifndef QT_NO_QWS_REPEATER
+QScreen *qt_lookup_screen( int display_id, QString driver )
+{
+    QScreen * ret;
+    int i = 0;
+    while ( driverTable[i].name ) {
+	if ( driver.isEmpty() || QString( driverTable[i].name ) == driver ) {
+	    ret = driverTable[i].qt_get_screen( display_id );
+	    if(ret)
+		return ret;
+	}
+	i++;
+    }
+    return 0;    
+}
+#endif
+
 /*
 Given a display_id (number of the Qt/Embedded server to connect to)
 and a spec (e.g. Mach64:/dev/fb0) return a QScreen-descendant.
@@ -6110,6 +6127,7 @@ in that table using the spec and calls the appropriate function.
 People writing new graphics drivers should hook their own
 QScreen-descendant-returning function into the DriverTable.
 */
+
 
 QScreen *qt_get_screen( int display_id, const char *spec )
 {

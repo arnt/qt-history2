@@ -47,8 +47,8 @@ public:
     ~QRepeaterGfx();
     void addScreen(QScreen *,QScreenCursor *,int,int,bool);
 
-    virtual void setClipDeviceRegion(const QRegion &) {}
-    virtual void setWidgetDeviceRegion(const QRegion &) {}
+    virtual void setClipDeviceRegion(const QRegion &);
+    virtual void setWidgetDeviceRegion(const QRegion &);
 
     virtual void setPen(const QPen &);
     virtual void setFont(const QFont &);
@@ -205,6 +205,29 @@ void QRepeaterGfx::setClipRect (int x, int y, int w, int h)
 	r1=r1.intersect(r2);
 	r1.moveBy(-xoffs,-yoffs);
 	walker->gfx->setClipRect(r1.left(),r1.top(),r1.width(),r1.height());
+    }
+}
+
+void QRepeaterGfx::setClipDeviceRegion (const QRegion & r)
+{
+    for(QGfxRec * walker=gfxen.first();walker;walker=gfxen.next()) {
+	QRegion r1(QRect(walker->xoffs,walker->yoffs,walker->w,walker->h));
+	QRegion r2=r;
+	r2.translate(xoffs,yoffs);
+	r2=r1.intersect(r2);
+	r2.translate(-xoffs,-yoffs);
+	walker->gfx->setClipDeviceRegion(r2);
+    }
+}
+
+void QRepeaterGfx::setWidgetDeviceRegion (const QRegion & r)
+{
+   for(QGfxRec * walker=gfxen.first();walker;walker=gfxen.next()) {
+	QRegion r1=r;
+	r1.translate(-(walker->xoffs),-(walker->yoffs));
+	QRegion r2(0,0,walker->w,walker->h);
+	r1=r1.intersect(r2);
+	walker->gfx->setWidgetDeviceRegion(r1);
     }
 }
 
@@ -643,6 +666,8 @@ QImage * QRepeaterScreen::readScreen(int x,int y,int w,int h,QRegion & r)
 
 extern char * qt_qws_hardcoded_slot;
 
+extern QScreen *qt_lookup_screen( int , QString );
+
 QRepeaterScreen::QRepeaterScreen(int)
     : QScreen(0)
 {
@@ -674,7 +699,7 @@ QRepeaterScreen::QRepeaterScreen(int)
 	    int y;
 	    sscanf(buf,"%s %d %s %d %s %d %d",name,&num,spec,&swcursor,
 		   pci,&x,&y);
-	    QScreen * tmp=qt_get_screen(num,name);
+	    QScreen * tmp=qt_lookup_screen(num,name);
 	    if(!tmp) {
 		qDebug("Failure to find screen %s",buf);
 	    } else {
