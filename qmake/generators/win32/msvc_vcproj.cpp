@@ -74,7 +74,8 @@ bool use_net2003_version()
 };
 
 // Flatfile Tags ----------------------------------------------------
-const char* _snlHeader		= "Microsoft Visual Studio Solution File, Format Version 7.00";
+const char* _slnHeader70	= "Microsoft Visual Studio Solution File, Format Version 7.00";
+const char* _slnHeader71	= "Microsoft Visual Studio Solution File, Format Version 8.00";
 				  // The following UUID _may_ change for later servicepacks...
 				  // If so we need to search through the registry at
 				  // HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\VisualStudio\7.0\Projects
@@ -82,24 +83,25 @@ const char* _snlHeader		= "Microsoft Visual Studio Solution File, Format Version
 				  // containing "vcproj"...
 				  // Use the hardcoded value for now so projects generated on other
 				  // platforms are actually usable.
-const char* _snlMSVCvcprojGUID  = "{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}";
-const char* _snlProjectBeg	= "\nProject(\"";
-const char* _snlProjectMid	= "\") = ";
-const char* _snlProjectEnd	= "\nEndProject";
-const char* _snlGlobalBeg	= "\nGlobal";
-const char* _snlGlobalEnd	= "\nEndGlobal";
-const char* _snlSolutionConf	= "\n\tGlobalSection(SolutionConfiguration) = preSolution"
-				  "\n\t\tConfigName.0 = Release"
+const char* _slnMSVCvcprojGUID  = "{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}";
+const char* _slnProjectBeg	= "\nProject(\"";
+const char* _slnProjectMid	= "\") = ";
+const char* _slnProjectEnd	= "\nEndProject";
+const char* _slnGlobalBeg	= "\nGlobal";
+const char* _slnGlobalEnd	= "\nEndGlobal";
+const char* _slnSolutionConf	= "\n\tGlobalSection(SolutionConfiguration) = preSolution"
+				  "\n\t\tConfigName.0 = Debug"
+				  "\n\t\tConfigName.1 = Release"
 				  "\n\tEndGlobalSection";
-const char* _snlProjDepBeg	= "\n\tGlobalSection(ProjectDependencies) = postSolution";
-const char* _snlProjDepEnd	= "\n\tEndGlobalSection";
-const char* _snlProjConfBeg	= "\n\tGlobalSection(ProjectConfiguration) = postSolution";
-const char* _snlProjRelConfTag1	= ".Release.ActiveCfg = Release|Win32";
-const char* _snlProjRelConfTag2	= ".Release.Build.0 = Release|Win32";
-const char* _snlProjDbgConfTag1	= ".Release.ActiveCfg = Debug|Win32";
-const char* _snlProjDbgConfTag2	= ".Release.Build.0 = Debug|Win32";
-const char* _snlProjConfEnd	= "\n\tEndGlobalSection";
-const char* _snlExtSections	= "\n\tGlobalSection(ExtensibilityGlobals) = postSolution"
+const char* _slnProjDepBeg	= "\n\tGlobalSection(ProjectDependencies) = postSolution";
+const char* _slnProjDepEnd	= "\n\tEndGlobalSection";
+const char* _slnProjConfBeg	= "\n\tGlobalSection(ProjectConfiguration) = postSolution";
+const char* _slnProjRelConfTag1	= ".Release.ActiveCfg = Release|Win32";
+const char* _slnProjRelConfTag2	= ".Release.Build.0 = Release|Win32";
+const char* _slnProjDbgConfTag1	= ".Debug.ActiveCfg = Debug|Win32";
+const char* _slnProjDbgConfTag2	= ".Debug.Build.0 = Debug|Win32";
+const char* _slnProjConfEnd	= "\n\tEndGlobalSection";
+const char* _slnExtSections	= "\n\tGlobalSection(ExtensibilityGlobals) = postSolution"
 				  "\n\tEndGlobalSection"
 				  "\n\tGlobalSection(ExtensibilityAddIns) = postSolution"
 				  "\n\tEndGlobalSection";
@@ -211,7 +213,7 @@ void VcprojGenerator::writeSubDirs(QTextStream &t)
 	return;
     }
 
-    t << _snlHeader;
+    t << (use_net2003_version() ? _slnHeader71 : _slnHeader70);
 
     QHash<QString, VcsolutionDepend*> solution_depends;
     QList<VcsolutionDepend*> solution_cleanup;
@@ -319,10 +321,10 @@ void VcprojGenerator::writeSubDirs(QTextStream &t)
 #endif
 			solution_cleanup.append(newDep);
   			solution_depends.insert(newDep->target, newDep);
-			t << _snlProjectBeg << _snlMSVCvcprojGUID << _snlProjectMid
+			t << _slnProjectBeg << _slnMSVCvcprojGUID << _slnProjectMid
 			    << "\"" << newDep->orig_target << "\", \"" << newDep->vcprojFile
 			    << "\", \"" << newDep->uuid << "\"";
-			t << _snlProjectEnd;
+			t << _slnProjectEnd;
 		    }
 		}
 nextfile:
@@ -330,9 +332,9 @@ nextfile:
 	    }
 	}
     }
-    t << _snlGlobalBeg;
-    t << _snlSolutionConf;
-    t << _snlProjDepBeg;
+    t << _slnGlobalBeg;
+    t << _slnSolutionConf;
+    t << _slnProjDepBeg;
 
     // Figure out dependencies
     for(QList<VcsolutionDepend*>::Iterator it = solution_cleanup.begin(); it != solution_cleanup.end(); ++it) {
@@ -344,15 +346,17 @@ nextfile:
 		t << "\n\t\t" << (*it)->uuid << "." << cnt++ << " = " << vc->uuid;
 	}
     }
-    t << _snlProjDepEnd;
-    t << _snlProjConfBeg;
+    t << _slnProjDepEnd;
+    t << _slnProjConfBeg;
     for(QList<VcsolutionDepend*>::Iterator it = solution_cleanup.begin(); it != solution_cleanup.end(); ++it) {
-	t << "\n\t\t" << (*it)->uuid << ((*it)->debugBuild?_snlProjDbgConfTag1:_snlProjRelConfTag1);
-	t << "\n\t\t" << (*it)->uuid << ((*it)->debugBuild?_snlProjDbgConfTag2:_snlProjRelConfTag2);
+	t << "\n\t\t" << (*it)->uuid << _slnProjDbgConfTag1;
+	t << "\n\t\t" << (*it)->uuid << _slnProjDbgConfTag2;
+	t << "\n\t\t" << (*it)->uuid << _slnProjRelConfTag1;
+	t << "\n\t\t" << (*it)->uuid << _slnProjRelConfTag1;
     }
-    t << _snlProjConfEnd;
-    t << _snlExtSections;
-    t << _snlGlobalEnd;
+    t << _slnProjConfEnd;
+    t << _slnExtSections;
+    t << _slnlGlobalEnd;
 
 
     while (!solution_cleanup.isEmpty())
