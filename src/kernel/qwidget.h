@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.h#68 $
+** $Id: //depot/qt/main/src/kernel/qwidget.h#69 $
 **
 ** Definition of QWidget class
 **
@@ -36,7 +36,6 @@ public:
 
     GUIStyle	 style() const;
     virtual void setStyle( GUIStyle );
-    virtual bool styleChange( GUIStyle );
 
   // Widget control functions
 
@@ -80,20 +79,16 @@ public:
     const QColor &backgroundColor() const;
     const QColor &foregroundColor() const;
     virtual void setBackgroundColor( const QColor & );
-    virtual bool backgroundColorChange( const QColor & );
 
     const QPixmap *backgroundPixmap() const;
     virtual void setBackgroundPixmap( const QPixmap & );
-    virtual bool backgroundPixmapChange( const QPixmap & );
 
     const QColorGroup &colorGroup() const;
     const QPalette    &palette()    const;
     virtual void       setPalette( const QPalette & );
-    virtual bool       paletteChange( const QPalette & );
 
     const QFont &font()		const;
     virtual void setFont( const QFont & );
-    virtual bool fontChange( const QFont & );
     QFontMetrics fontMetrics()	const;
     QFontInfo	 fontInfo()	const;
 
@@ -207,6 +202,12 @@ protected:
   // Misc. protected functions
 
 protected:
+    virtual bool styleChange( GUIStyle );
+    virtual bool backgroundColorChange( const QColor & );
+    virtual bool backgroundPixmapChange( const QPixmap & );
+    virtual bool paletteChange( const QPalette & );
+    virtual bool fontChange( const QFont & );
+
     bool	 acceptFocus()	const;
     void	 setAcceptFocus( bool );
     long	 metric( int )	const;

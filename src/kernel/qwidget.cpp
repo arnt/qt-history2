@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#103 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#104 $
 **
 ** Implementation of QWidget class
 **
@@ -20,7 +20,7 @@
 #include "qkeycode.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#103 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#104 $")
 
 
 /*----------------------------------------------------------------------------
@@ -715,7 +715,7 @@ bool QWidget::backgroundColorChange( const QColor & )
   Returns the background pixmap, or null if no background pixmap has not
   been set.
 
-  \sa setBackgroundPixmap(), backgroundPixmapChange()
+  \sa setBackgroundPixmap()
  ----------------------------------------------------------------------------*/
 
 const QPixmap *QWidget::backgroundPixmap() const
@@ -773,7 +773,7 @@ const QColorGroup &QWidget::colorGroup() const
 /*----------------------------------------------------------------------------
   \fn const QPalette &QWidget::palette() const
   Returns the widget palette.
-  \sa setPalette(), colorGroup(), paletteChange()
+  \sa setPalette(), colorGroup()
  ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
@@ -821,7 +821,7 @@ bool QWidget::paletteChange( const QPalette & )
 
   fontInfo() tells you what font is actually being used.
 
-  \sa setFont(), fontChange(), fontInfo(), fontMetrics()
+  \sa setFont(), fontInfo(), fontMetrics()
  ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
