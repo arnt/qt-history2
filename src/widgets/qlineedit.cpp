@@ -1084,7 +1084,7 @@ void QLineEdit::backspace()
 {
     if ( hasMarkedText() ) {
 	removeSelectedText();
-    } else {
+    } else if ( d->cursor->index() > 0 ) {
 	d->checkUndoRedoInfo( UndoRedoInfo::Delete );
 	if ( !d->undoRedoInfo.valid() ) {
 	    d->undoRedoInfo.index = d->cursor->index();
