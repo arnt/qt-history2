@@ -365,7 +365,7 @@ void PopupMenuEditor::init()
 		      this, SLOT( remove( QAction * ) ) );
 }
 
-void PopupMenuEditor::insert( PopupMenuEditorItem * item, const int index )
+void PopupMenuEditor::insert( PopupMenuEditorItem * item, int index )
 {
     if ( index == -1 ) {
 	itemList.append( item );
@@ -385,12 +385,12 @@ void PopupMenuEditor::insert( PopupMenuEditorItem * item, const int index )
     emit inserted( item->anyAction() );
 }
 
-void PopupMenuEditor::insert( QAction * action, const int index )
+void PopupMenuEditor::insert( QAction * action, int index )
 {
     insert( new PopupMenuEditorItem( action, this ), index );
 }
 
-void PopupMenuEditor::insert( QActionGroup * actionGroup, const int index )
+void PopupMenuEditor::insert( QActionGroup * actionGroup, int index )
 {
     insert( new PopupMenuEditorItem( actionGroup, this ), index );
 }
@@ -422,7 +422,7 @@ int PopupMenuEditor::count()
     return itemList.count();
 }
 
-PopupMenuEditorItem * PopupMenuEditor::at( const int index )
+PopupMenuEditorItem * PopupMenuEditor::at( int index )
 {
     return itemList.at( index );
 }
@@ -441,7 +441,7 @@ void PopupMenuEditor::exchange( int a, int b )
     ib->setDirty( TRUE );
 }
 
-void PopupMenuEditor::cut( const int index )
+void PopupMenuEditor::cut( int index )
 {
     int idx = ( index == -1 ? currentIndex : index );
 
@@ -463,7 +463,7 @@ void PopupMenuEditor::cut( const int index )
     cmd->execute();
 }
 
-void PopupMenuEditor::copy( const int index )
+void PopupMenuEditor::copy( int index )
 {
     int idx = ( index == -1 ? currentIndex : index );
 
@@ -479,7 +479,7 @@ void PopupMenuEditor::copy( const int index )
     }
 }
 
-void PopupMenuEditor::paste( const int index )
+void PopupMenuEditor::paste( int index )
 {
     int idx = ( index == -1 ? currentIndex : index );
 
@@ -511,7 +511,7 @@ void PopupMenuEditor::show()
     QWidget::show();
 }
 
-void PopupMenuEditor::choosePixmap( const int index )
+void PopupMenuEditor::choosePixmap( int index )
 {
     int idx = ( index == -1 ? currentIndex : index );
 
@@ -533,7 +533,7 @@ void PopupMenuEditor::choosePixmap( const int index )
     cmd->execute();
 }
 
-void PopupMenuEditor::showLineEdit( const int index )
+void PopupMenuEditor::showLineEdit( int index )
 {
     int idx = ( index == -1 ? currentIndex : index );
 
@@ -553,7 +553,7 @@ void PopupMenuEditor::showLineEdit( const int index )
     lineEdit->setFocus();
 }
 
-void PopupMenuEditor::setAccelerator( const int key, const Qt::ButtonState state, const int index )
+void PopupMenuEditor::setAccelerator( int key, const Qt::ButtonState state, int index )
 {
     // FIXME: make this a command
 
@@ -604,7 +604,7 @@ void PopupMenuEditor::resizeToContents()
     // in between the two ( despite the WRepaintNoErase flag ).
 }
 
-void PopupMenuEditor::showSubMenu( const int index )
+void PopupMenuEditor::showSubMenu( int index )
 {
     int idx = ( index == -1 ? currentIndex : index );
     if ( idx < (int)itemList.count() ) {
@@ -615,14 +615,14 @@ void PopupMenuEditor::showSubMenu( const int index )
     }
 }
 
-void PopupMenuEditor::hideSubMenu( const int index )
+void PopupMenuEditor::hideSubMenu( int index )
 {
     int idx = ( index == -1 ? currentIndex : index );
     if ( idx < (int)itemList.count() )
 	itemList.at( idx )->hideMenu();
 }
 
-void PopupMenuEditor::focusOnSubMenu( const int index )
+void PopupMenuEditor::focusOnSubMenu( int index )
 {
     int idx = ( index == -1 ? currentIndex : index );
     if ( idx < (int)itemList.count() )
@@ -632,7 +632,7 @@ void PopupMenuEditor::focusOnSubMenu( const int index )
 // This function has no undo. It is only here to remove an item when its action was
 // removed from the action editor.
 // Use removeItem to put the command on the command stack.
-void PopupMenuEditor::remove( const int index )
+void PopupMenuEditor::remove( int index )
 {
     int idx = ( index == -1 ? currentIndex : index );
     PopupMenuEditorItem * i = itemList.at( idx );
@@ -656,7 +656,7 @@ PopupMenuEditorItem * PopupMenuEditor::createItem( QAction * a )
     return i;
 }
 
-void PopupMenuEditor::removeItem( const int index )
+void PopupMenuEditor::removeItem( int index )
 {
     int idx = ( index == -1 ? currentIndex : index );
     if ( idx < (int)itemList.count() ) {
@@ -686,7 +686,7 @@ PopupMenuEditorItem * PopupMenuEditor::currentItem()
     return &addSeparator;
 }
 
-PopupMenuEditorItem * PopupMenuEditor::itemAt( const int y )
+PopupMenuEditorItem * PopupMenuEditor::itemAt( int y )
 {
     PopupMenuEditorItem * i = itemList.first();
     int iy = 0;
@@ -1021,7 +1021,7 @@ void PopupMenuEditor::focusOutEvent( QFocusEvent * )
 }
 
 void PopupMenuEditor::drawItem( QPainter * p, PopupMenuEditorItem * i,
-				const QRect & r, const int f ) const
+				const QRect & r, int f ) const
 {
     int x = r.x();
     int y = r.y();
