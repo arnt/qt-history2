@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/url/qfiledialog.cpp#24 $
+** $Id: //depot/qt/main/tests/url/qfiledialog.cpp#25 $
 **
 ** Implementation of QFileDialog class
 **
@@ -1551,8 +1551,8 @@ void QFileDialog::init()
              this, SLOT( removeEntry( const QString & ) ) );
     connect( &d->url, SIGNAL( createdDirectory( const QUrlInfo & ) ),
              this, SLOT( createdDirectory( const QUrlInfo & ) ) );
-    connect( &d->url, SIGNAL( couldNotDelete( const QString & ) ),
-             this, SLOT( couldNotDelete( const QString & ) ) );
+    connect( &d->url, SIGNAL( error( int, const QString & ) ),
+             this, SLOT( error( int, const QString & ) ) );
     connect( &d->url, SIGNAL( itemChanged( const QString &, const QString & ) ),
              this, SLOT( itemChanged( const QString &, const QString & ) ) );
 
@@ -2904,21 +2904,9 @@ void QFileDialog::deleteFile( const QString &filename )
 
 }
 
-void QFileDialog::couldNotDelete( const QString &filename )
+void QFileDialog::error( int, const QString &msg )
 {
-    QUrlInfo fi( d->url, filename );
-    QString t = "file";
-    if ( fi.isDir() )
-	t = "directory";
-    if ( fi.isSymLink() )
-	t = "symlink";
-
-    QMessageBox::critical( this,
-			   tr( "ERROR: Delete %1" ).arg( t ),
-			   QString( tr( "<qt>Could not delete the %1 \"%2\".</qt>" )
-					    .arg( t )
-					    .arg(filename) )
-	);
+    QMessageBox::critical( this, tr( "ERROR" ), msg );
 }
 
 void QFileDialog::fileSelected( int  )

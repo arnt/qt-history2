@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/url/qurl.h#14 $
+** $Id: //depot/qt/main/tests/url/qurl.h#15 $
 **
 ** Implementation of QFileDialog class
 **
@@ -39,6 +39,13 @@ class QUrl : public QObject
     Q_OBJECT
 
 public:
+    enum Error {
+	DeleteFile = -1,
+	RenameFile = -2,
+	CopyFile = -3,
+	ReadDir = -4,
+    };
+    
     QUrl();
     QUrl( const QString& url );
     QUrl( const QUrl& url );
@@ -119,19 +126,18 @@ public:
     virtual QUrlInfo info( const QString &entry ) const;
     operator QString() const;
     virtual QString toString() const;
-    
+
     virtual bool cdUp();
 
 signals:
     void entry( const QUrlInfo & );
-    void error( int, const QString & );
     void finished();
     void start();
     void createdDirectory( const QUrlInfo & );
     void removed( const QString & );
-    void couldNotDelete( const QString & );
     void itemChanged( const QString &oldname, const QString &newname );
-
+    void error( int ecode, const QString &msg );
+    
 protected:
     virtual void reset();
     virtual void parse( const QString& url );

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/url/qurl.cpp#27 $
+** $Id: //depot/qt/main/tests/url/qurl.cpp#28 $
 **
 ** Implementation of QFileDialog class
 **
@@ -901,8 +901,10 @@ void QUrl::remove( const QString &filename )
     QDir dir( d->path );
     if ( dir.remove( filename ) )
 	emit removed( filename );
-    else
-	emit couldNotDelete( filename );
+    else {
+	QString msg = QUrl::tr( "Could not delete file\n" + filename );
+	emit error( DeleteFile, msg );
+    }
 }
 
 void QUrl::rename( const QString &oldname, const QString &newname )
@@ -990,9 +992,9 @@ QUrlInfo QUrl::makeInfo() const
 			 inf.size(), inf.lastModified(), inf.lastRead(), inf.isDir(), inf.isFile(),
 			 inf.isSymLink(), inf.isWritable(), inf.isReadable(), inf.isExecutable() );
     }
-    
+
     qDebug( "shiiiiiiiiit: %s", toString().latin1() );
-    
+
     return QUrlInfo();
 }
 
