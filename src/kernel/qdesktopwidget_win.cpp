@@ -434,3 +434,7 @@ void QDesktopWidget::resizeEvent( QResizeEvent * )
 /*! \fn void QDesktopWidget::insertChild( QObject *child )
     \reimp
 */
+
+/*! \fn void QDesktopWidget::resized( int screen )
+    This signal is emitted when the size of \a screen changes.
+*/
