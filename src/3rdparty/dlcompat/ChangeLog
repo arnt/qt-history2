@@ -1,6 +1,16 @@
+2003-07-04  Peter O'Gorman <ogorman@users.sourceforge.net>
+
+	* dlfcn.c: Fix gcc-3.3 warning about comparison between signed and unsigned.
+
+2003-07-01  Peter O'Gorman <ogorman@users.sourceforge.net>
+
+	* dlfcn.c: I broke dlopening dylibs with neither RTLD_LOCAL or RTLD_GLOBAL specified. In
+	this case the docs say that RTLD_GLOBAL is the default, I had changed it to be RTLD_LOCAL
+	everywhere. Thanks to Daniel Macks <dmacks@users.sourceforge.net> for noticing.
+
 2003-06-29  Peter O'Gorman <ogorman@users.sourceforge.net>
 
-	* configure.in, dlopen.3.in, dladdr.3: Release 20030629, tell people to use the native
+	* configure.in, dlopen.3.in, Makefile.in: Release 20030629, tell people to use the native
 	funcs in new code. Add dladdr.3 to the dist.
 
 2003-06-23  Peter O'Gorman <ogorman@users.sourceforge.net>

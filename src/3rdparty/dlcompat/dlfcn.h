@@ -31,6 +31,10 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #ifndef _DLFCN_H_
 #define _DLFCN_H_
 
+#if 0  // Trolltech remove this so that we don't can't strange warnings for users.
+#warning "You are using dlopen(), a legacy API. Please use the Mach-O dylib loading APIs if at all possible"
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif
