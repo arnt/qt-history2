@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qfile.cpp#72 $
+** $Id: //depot/qt/main/src/tools/qfile.cpp#73 $
 **
 ** Implementation of QFile class
 **
@@ -809,7 +809,16 @@ int QFile::getch()
 	return EOF;
     }
 #endif
+    
     int ch;
+
+    if ( !ungetchBuffer.isEmpty() ) {
+	int len = ungetchBuffer.length();
+	ch = ungetchBuffer[ len-1 ];
+	ungetchBuffer.truncate( len - 1 );
+	return ch;
+    }
+    
     if ( isRaw() ) {				// raw file (inefficient)
 	char buf[1];
 	ch = readBlock( buf, 1 ) == 1 ? buf[0] : EOF;
@@ -883,6 +892,13 @@ int QFile::ungetch( int ch )
 #endif
     if ( ch == EOF )				// cannot unget EOF
 	return ch;
+    
+    if ( isSequentialAccess() && !fh) {
+	// pipe or similar => we cannot ungetch, so do it manually
+	ungetchBuffer +=ch;
+	return ch;
+    }
+    
     if ( isRaw() ) {				// raw file (very inefficient)
 	char buf[1];
 	at( index-1 );

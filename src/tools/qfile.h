@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qfile.h#31 $
+** $Id: //depot/qt/main/src/tools/qfile.h#32 $
 **
 ** Definition of QFile class
 **
@@ -82,6 +82,7 @@ protected:
 
 private:
     void	init();
+    QCString ungetchBuffer;
 
 private:	// Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
