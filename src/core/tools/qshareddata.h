@@ -24,8 +24,8 @@ class Q_CORE_EXPORT QSharedData
 public:
     QAtomic ref;
 
-    QSharedData() { ref = 0; }
-    QSharedData(const QSharedData &) { ref = 0; }
+    inline QSharedData() : ref(0) { }
+    inline QSharedData(const QSharedData &) : ref(0) { }
 
 private:
     // using the assignment operator would lead to corruption in the ref-counting
