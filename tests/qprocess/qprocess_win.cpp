@@ -1,8 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include <winsock2.h>
-
 #include "qapplication.h"
 #include "qprocess.h"
 
@@ -23,24 +21,6 @@ void QProcess::init()
 	socketStderr[0] = 0;
 	socketStderr[1] = 0;
 
-#if 0
-	overlapStdin.Internal = 0;
-	overlapStdin.InternalHigh = 0;
-	overlapStdin.Offset = 0;
-	overlapStdin.OffsetHigh = 0;
-	overlapStdin.hEvent = 0;
-	overlapStdout.Internal = 0;
-	overlapStdout.InternalHigh = 0;
-	overlapStdout.Offset = 0;
-	overlapStdout.OffsetHigh = 0;
-	overlapStdout.hEvent = 0;
-	overlapStderr.Internal = 0;
-	overlapStderr.InternalHigh = 0;
-	overlapStderr.Offset = 0;
-	overlapStderr.OffsetHigh = 0;
-	overlapStderr.hEvent = 0;
-#endif
-
 	WSADATA wsaData;
 	WSAStartup( MAKEWORD( 2, 2 ), &wsaData );
     } else {
@@ -56,14 +36,17 @@ void QProcess::init()
 
 static bool socketpair( int type, int s[2] )
 {
-#if 1
+    // make non-overlapped sockets
+    int optionValue = SO_SYNCHRONOUS_NONALERT; 
+    setsockopt( INVALID_SOCKET, SOL_SOCKET, SO_OPENTYPE,
+	(char*)&optionValue, sizeof(optionValue) ); 
+
     SOCKET so;
     struct sockaddr_in sock_in;
     int len = sizeof( sock_in );
 
     // create socket and bind it to unused port
-//    so = socket( AF_INET, type, 0 );
-    so = WSASocket( AF_INET, type, 0, 0, 0, 0 );
+    so = socket( AF_INET, type, 0 );
     if ( so == INVALID_SOCKET ) {
 	return FALSE;
     }
@@ -81,8 +64,7 @@ static bool socketpair( int type, int s[2] )
     listen( so, 2 );
 
     // create the outsocket
-//    s[1] = socket (AF_INET, type, 0);
-    s[1] = WSASocket( AF_INET, type, 0, 0, 0, 0 );
+    s[1] = socket (AF_INET, type, 0);
     if ( s[1] == INVALID_SOCKET ) {
 	closesocket( so );
 	s[1] = 0;
@@ -108,24 +90,6 @@ static bool socketpair( int type, int s[2] )
     closesocket (so);
 
     return TRUE;
-#else
-    struct sockaddr_in sock_in;
-
-    s[0] = socket( AF_INET, type, 0 );
-    if ( s[0] == INVALID_SOCKET ) {
-	s[0] = 0;
-	return FALSE;
-    }
-    s[1] = s[0];
-
-    sock_in.sin_family = AF_INET;
-    sock_in.sin_port = 0;
-    sock_in.sin_addr.s_addr = INADDR_ANY;
-    if ( bind( s[0], (struct sockaddr *) &sock_in, sizeof( sock_in ) ) < 0 ) {
-	closesocket( s[0] );
-	return FALSE;
-    }
-#endif
 }
 
 

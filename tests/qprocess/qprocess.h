@@ -78,9 +78,6 @@ private:
     int socketStdout[2];
     int socketStderr[2];
 #if defined( _WS_WIN_ )
-//    OVERLAPPED overlapStdin;
-//    OVERLAPPED overlapStdout;
-//    OVERLAPPED overlapStderr;
     HANDLE pipeStdin[2];
     HANDLE pipeStdout[2];
     HANDLE pipeStderr[2];
