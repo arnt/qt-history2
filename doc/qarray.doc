@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: qarray.doc,v 2.9 1999/04/28 09:54:05 aavit Exp $
+** $Id: qarray.doc,v 2.10 1999/06/09 10:19:37 paul Exp $
 **
 ** QArray class documentation
 **
@@ -32,8 +32,8 @@
 
   \ingroup tools
 
-  QArray is implemented as both a template and a macro class. Define a
-  template instance QArray\<X\> to create an array that contains X items.
+  QArray is implemented as a template class. Define a template
+  instance QArray\<X\> to create an array that contains X items.
 
   The QVector collection class is also a kind of array.  Like all
   \link collection.html collection classes\endlink, it has pointers to the

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: qcache.doc,v 2.14 1999/04/28 09:54:06 aavit Exp $
+** $Id: qcache.doc,v 2.15 1999/06/09 10:19:38 paul Exp $
 **
 ** QCache and QCacheIterator class documentation
 **
@@ -33,9 +33,9 @@
   \ingroup collection
   \ingroup tools
 
-  QCache is implemented as both a template and a macro class. Define a
-  template instance QCache\<X\> to create a cache that operates on
-  pointers to X, or X*.
+  QCache is implemented as a template class. Define a template
+  instance QCache\<X\> to create a cache that operates on pointers to
+  X, or X*.
 
   A cache is a least recently used (LRU) list of cache items.  Each
   cache item has a cost.  The sum of item costs, totalCost(), will not
@@ -429,7 +429,7 @@
   \ingroup collection
   \ingroup tools
 
-  QIntCache is implemented as both a template and a macro class. Define a
+  QIntCache is implemented as a template class. Define a
   template instance QIntCache\<X\> to create a cache that operates on
   pointers to X, or X*.
 

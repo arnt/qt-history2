@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: qdict.doc,v 2.9 1999/04/28 09:54:07 aavit Exp $
+** $Id: qdict.doc,v 2.10 1999/06/09 10:19:39 paul Exp $
 **
 ** QDict and QDictIterator class documentation
 **
@@ -33,7 +33,7 @@
   \ingroup collection
   \ingroup tools
 
-  QDict is implemented as both a template and a macro class. Define a
+  QDict is implemented as a template class. Define a
   template instance QDict\<X\> to create a dictionary that operates on
   pointers to X, or X*.
 
@@ -78,11 +78,6 @@
   Note that the mapping is case insensitive (set in the
   \link QDict::QDict() constructor\endlink).  QDict implements the \link
   operator[] [] operator\endlink to lookup an item.
-
-  A QDict can also be instantiated through a macro expansion, but this
-  is necessary only for compilers that do not support templates. See the
-  \link collection.html collection classes documentation\endlink
-  for a general discussion on template-based versus macro-based collections.
 
   QDict is implemented by QGDict as a hash array with a fixed number of
   entries. Each array entry points to a singly linked list of buckets, in
@@ -399,7 +394,7 @@
   \ingroup collection
   \ingroup tools
 
-  QDictIterator is implemented as both a template and a macro class.
+  QDictIterator is implemented as a template class.
   Define a template instance QDictIterator\<X\> to create a
   dictionary iterator that operates on QDict\<X\> (dictionary of X*).
 
@@ -435,11 +430,6 @@
 
   Note that the traversal order is arbitrary, you are not guaranteed the
   order above.
-
-  A QDictIterator can also be instantiated through a macro expansion, but this
-  is necessary only for compilers that do not support templates. See the
-  \link collection.html collection classes documentation\endlink
-  for a general discussion on template-based versus macro-based collections.
 
   Multiple iterators may independently traverse the same dictionary.
   A QDict knows about all iterators that are operating on the dictionary.

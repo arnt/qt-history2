@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: qptrdict.doc,v 2.6 1999/04/28 09:54:10 aavit Exp $
+** $Id: qptrdict.doc,v 2.7 1999/06/09 10:19:41 paul Exp $
 **
 ** QPtrDict and QPtrDictIterator class documentation
 **
@@ -33,7 +33,7 @@
   \ingroup collection
   \ingroup tools
 
-  QPtrDict is implemented as both a template and a macro class. Define a
+  QPtrDict is implemented as a template class. Define a
   template instance QPtrDict\<X\> to create a dictionary that operates on
   pointers to X, or X*.
 
@@ -81,11 +81,6 @@
   The dictionary in our example maps \c int* keys to \c char* items.
   QPtrDict implements the \link operator[] [] operator\endlink to lookup
   an item.
-
-  A QPtrDict can also be instantiated through a macro expansion, but this
-  is necessary only for compilers that do not support templates. See the
-  \link collection.html collection classes documentation\endlink
-  for a general discussion on template-based versus macro-based collections.
 
   QPtrDict is implemented by QGDict as a hash array with a fixed number of
   entries. Each array entry points to a singly linked list of buckets, in
@@ -354,7 +349,7 @@
   \ingroup collection
   \ingroup tools
 
-  QPtrDictIterator is implemented as both a template and a macro class.
+  QPtrDictIterator is implemented as a template class.
   Define a template instance QPtrDictIterator\<X\> to create a
   dictionary iterator that operates on QPtrDict\<X\> (dictionary of X*).
 
@@ -394,11 +389,6 @@
 
   Note that the traversal order is arbitrary, you are not guaranteed the
   order above.
-
-  A QPtrDictIterator can also be instantiated through a macro expansion,
-  but this is necessary only for compilers that do not support templates.
-  See the \link collection.html collection classes documentation\endlink
-  for a general discussion on template-based versus macro-based collections.
 
   Multiple iterators may independently traverse the same dictionary.
   A QPtrDict knows about all iterators that are operating on the dictionary.

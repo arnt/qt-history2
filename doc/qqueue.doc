@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: qqueue.doc,v 2.5 1999/04/28 09:54:11 aavit Exp $
+** $Id: qqueue.doc,v 2.6 1999/06/09 10:19:42 paul Exp $
 **
 ** QQueue class documentation
 **
@@ -33,11 +33,13 @@
   \ingroup collection
   \ingroup tools
 
-  QQueue is implemented as both a template and a macro class. Define a
-  template instance QQueue\<X\> to create a queue that operates on
-  pointers to X, or X*.
+  QQueue is implemented as a template class. Define a template
+  instance QQueue\<X\> to create a queue that operates on pointers to
+  X, or X*.
 
-  A stack is a collection that can be used to enqueue and dequeue items.
+  A queue is a First In, First Out (FIFO) structure. Items are added
+  to the back of the queue with enqueue() and retrieved from the front
+  with dequeue().
 
   \sa \link collection.html Collection Classes\endlink
 */
@@ -49,7 +51,7 @@
 /*! \fn QQueue::QQueue (const QQueue<type>& queue) 
   Creates a queue from another.
 
-  Only the pointers are copied.
+  Only the pointers are copied (shallow copy).
 */
 
 /*! \fn QQueue::~QQueue () 
@@ -70,34 +72,34 @@
 
 /*! \fn void QQueue::enqueue (const type* d) 
 
-  Adds an item to the queue.  Last in, last out.
+  Adds an item to the back of the queue.  First in, first out.
 */
 
 /*! \fn type* QQueue::dequeue () 
 
-  Removes the front item from the queue.  Last in, last out.
+  Takes the front item from the queue.  First in, first out.
 */
 
 /*! \fn bool QQueue::remove () 
 
-  Removes the front item from the queue.  Last in, last out.
+  Removes the front item from the queue.  First in, first out.
   The item is deleted if autoDelete() is TRUE.
   Returns TRUE if there was an item to remove.
 */
 
 /*! \fn type* QQueue::head () const 
-  Returns a reference to the first item in the queue.  The queue is
+  Returns a reference to the front item in the queue.  The queue is
   not changed.
 */
 
 /*! \fn QQueue::operator type* ()const 
 
-  Returns a reference to the first item in the queue.  The queue is
+  Returns a reference to the front item in the queue.  The queue is
   not changed.
 */
 
 /*! \fn type* QQueue::current () const 
 
-  Returns a reference to the first item in the queue.  The queue is
+  Returns a reference to the front item in the queue.  The queue is
   not changed.
 */
