@@ -1849,6 +1849,42 @@ bool QConfFileSettingsPrivate::writeIniFile(QIODevice &device, const SettingsKey
     \sa status()
 */
 
+/*! \enum QSettings::Format
+
+    This enum type specifies the storage format used by QCoreSettings
+    and QSettings.
+
+    \value NativeFormat  Store the settings using the most
+                         appropriate storage format for the platform.
+                         On Windows, this means the system registry;
+                         on Mac OS X, this means the CFPreferences
+                         API; on Unix/X11, this means textual
+                         configuration files in INI format.
+    \value IniFormat  Store the settings in INI files.
+
+    On Unix/X11, \c NativeFormat and \c IniFormat mean the same
+    thing, except that the file extension is different (\c .conf for
+    \c NativeFormat, \c .ini for \c IniFormat).
+
+    The INI file format is a standard Windows file format that Qt
+    supports on all platforms.
+*/
+
+/*! \enum QSettings::Scope
+
+    This enum specifies whether settings are user-specific or shared
+    by all users of the same system.
+
+    \value UserScope  Store settings in a location specific to the
+                      current user (e.g., in the user's home
+                      directory).
+    \value SystemScope  Store settings in a global location, so that
+                        all users on the same machine access the same
+                        set of settings.
+    \omitvalue User
+    \omitvalue Global
+*/
+
 #ifndef QT_NO_QOBJECT
 /*!
     Constructs a QSettings object for accessing settings of the

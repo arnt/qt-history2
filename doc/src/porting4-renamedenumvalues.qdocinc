@@ -52,6 +52,8 @@
 \row \o QImage::ScaleMax \o Qt::KeepAspectRatioByExpanding
 \row \o QImage::ScaleMin \o Qt::KeepAspectRatio
 \row \o QMacStyle::SizeNone \o QMacStyle::SizeDefault
+\row \o QSettings::Global \o QSettings::SystemScope
+\row \o QSettings::User \o QSettings::UserScope
 \row \o QSize::ScaleFree \o Qt::IgnoreAspectRatio
 \row \o QSize::ScaleMax \o Qt::KeepAspectRatioByExpanding
 \row \o QSize::ScaleMin \o Qt::KeepAspectRatio
@@ -120,6 +122,7 @@
 \row \o QWidget::StrongFocus \o Qt::StrongFocus
 \row \o QWidget::TabFocus \o Qt::TabFocus
 \row \o QWidget::WheelFocus \o Qt::WheelFocus
+\row \o Qt::AlignAuto \o Qt::AlignLeft
 \row \o Qt::AltButton \o Qt::AltModifier
 \row \o Qt::Ascending \o Qt::AscendingOrder
 \row \o Qt::Bottom \o Qt::DockBottom

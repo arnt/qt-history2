@@ -40,14 +40,13 @@
 
     The horizontal flags are:
 
-    \value AlignAuto Aligns according to the language. Left for most,
-	right for Arabic and Hebrew.
     \value AlignLeft Aligns with the left edge.
     \value AlignRight Aligns with the right edge.
     \value AlignHCenter Centers horizontally in the available space.
     \value AlignJustify Justifies the text in the available space.
 	Does not work for everything and may be interpreted as
 	AlignAuto in some cases.
+    \omitvalue AlignAuto
 
     The vertical flags are:
 
@@ -62,6 +61,19 @@
 
     You can use at most one horizontal and one vertical flag at a time. \c
     AlignCenter counts as both horizontal and vertical.
+
+    Three enum values are useful in applications that can be run in
+    right-to-left mode:
+
+    \value AlignAbsolute  If the widget's layout direction is
+        Qt::RightToLeft (instead of Qt::LeftToRight, the default),
+        Qt::AlignLeft refers to the \e right edge and Qt::AlignRight
+        to the \e left edge. This is normally the desired behavior.
+        If you want Qt::AlignLeft to always mean "left" and
+        Qt::AlignRight to always mean "right", combine the flag with
+        Qt::AlignAbsolute.
+    \value AlignLeading  Synonyn for Qt::AlignLeft.
+    \value AlignTrailing  Synonyn for Qt::AlignRight.
 
     Masks:
 
@@ -297,6 +309,8 @@
     \value FDiagPattern  Forward diagonal lines.
     \value DiagCrossPattern  Crossing diagonal lines.
     \value LinearGradientPattern  Linear gradient (set using dedicated QBrush constructor).
+    \value ConicalGradientPattern  Linear gradient (set using dedicated QBrush constructor).
+    \value RadialGradientPattern  Linear gradient (set using dedicated QBrush constructor).
     \value TexturePattern  Custom pattern (see QBrush::setTexture()).
 
     \omitvalue CustomPattern
@@ -330,9 +344,6 @@
     it.
     \value TextIncludeTrailingSpaces Don't automatically delete
     trailing whitespace.
-    \value TextOverline Draw a line \e over the text.
-    \value TextUnderline Underline the text.
-    \value TextStrikeOut Draw a line through the text.
 
     \omitvalue BreakAnywhere
     \omitvalue DontClip
@@ -340,11 +351,8 @@
     \omitvalue ExpandTabs
     \omitvalue IncludeTrailingSpaces
     \omitvalue NoAccel
-    \omitvalue Overline
     \omitvalue ShowPrefix
     \omitvalue SingleLine
-    \omitvalue StrikeOut
-    \omitvalue Underline
     \omitvalue WordBreak
 
     You can use as many modifier flags as you want, except that \c
@@ -418,23 +426,19 @@
     \value BottomToolBarArea
     \value AllToolBarAreas
 
-    \omitvalue ToolBarAreaMask
-    \omitvalue NToolBarAreas
     \omitvalue ToolBarArea_Mask
 */
 
 /*!
-    \enum Qt::DockWindowArea
+    \enum Qt::DockWidgetArea
 
-    \value LeftDockWindowArea
-    \value RightDockWindowArea
-    \value TopDockWindowArea
-    \value BottomDockWindowArea
-    \value AllDockWindowAreas
+    \value LeftDockWidgetArea
+    \value RightDockWidgetArea
+    \value TopDockWidgetArea
+    \value BottomDockWidgetArea
+    \value AllDockWidgetAreas
 
-    \omitvalue DockWindowAreaMask
-    \omitvalue NDockWindowAreas
-    \omitvalue DockWindowArea_Mask
+    \omitvalue DockWidgetArea_Mask
 */
 
 /*!
@@ -771,6 +775,35 @@
     \value WA_MouseTracking Indicates that the widget has mouse tracking
     enabled. See QWidget::mouseTracking.
 
+    \value WA_GroupLeader  Makes this window a group leader. A group
+        leader should \e not have a parent (i.e. it should be a
+        top-level window). Any decendant windows (direct or indirect)
+        of a group leader are in its group; other windows are not. If
+        you show a secondary window from the group (i.e. show a
+        window whose top-most parent is a group leader), that window
+        will be modal with respect to the other windows in the group,
+        but modeless with respect to windows in other groups.
+
+    \value WA_InputMethodEnabled
+    \value WA_MacNoClickThrough
+    \value WA_MouseNoMask
+    \value WA_NoMousePropagation
+    \value WA_RightToLeft
+    \value WA_SetLayoutDirection
+    \value WA_ShowModal
+
+    \omitvalue WA_WState_AutoMask
+    \omitvalue WA_WState_CompressKeys
+    \omitvalue WA_WState_ConfigPending
+    \omitvalue WA_WState_Created
+    \omitvalue WA_WState_DND
+    \omitvalue WA_WState_ExplicitShowHide
+    \omitvalue WA_WState_Hidden
+    \omitvalue WA_WState_InPaintEvent
+    \omitvalue WA_WState_OwnSizePolicy
+    \omitvalue WA_WState_Polished
+    \omitvalue WA_WState_Reparented
+    \omitvalue WA_WState_Visible
     \omitvalue WA_ForegroundInherited
     \omitvalue WA_SetWindowIcon
     \omitvalue WA_PendingUpdate
@@ -781,40 +814,6 @@
     \omitvalue WA_ForceUpdatesDisabled
 
     \omitvalue WA_AttributeCount
-*/
-
-/*! \enum Qt::SettingsFormat
-
-    This enum type specifies the storage format used by QCoreSettings
-    and QSettings.
-
-    \value NativeFormat  Store the settings using the most
-                         appropriate storage format for the platform.
-                         On Windows, this means the system registry;
-                         on Mac OS X, this means the CFPreferences
-                         API; on Unix/X11, this means textual
-                         configuration files in INI format.
-    \value IniFormat  Store the settings in INI files.
-
-    On Unix/X11, \c NativeFormat and \c IniFormat mean the same
-    thing, except that the file extension is different (\c .conf for
-    \c NativeFormat, \c .ini for \c IniFormat).
-
-    The INI file format is a standard Windows file format that Qt
-    supports on all platforms.
-*/
-
-/*! \enum Qt::SettingsScope
-
-    This enum specifies whether settings are user-specific or shared
-    by all users of the same system.
-
-    \value UserScope  Store settings in a location specific to the
-                      current user (e.g., in the user's home
-                      directory).
-    \value SystemScope  Store settings in a global location, so that
-                        all users on the same machine access the same
-                        set of settings.
 */
 
 /*! \typedef Qt::HANDLE
@@ -1234,32 +1233,6 @@
 
 
 /*!
-    \enum Qt::WindowType
-
-    \value Widget 
-    \value Window 
-    \value Dialog 
-    \value Sheet 
-    \value Drawer 
-    \value Popup 
-    \value Tool 
-    \value ToolTip 
-    \value SplashScreen 
-    \value Desktop
-    \value WindowType_Mask 
-    \value MSWindowsFixedSizeDialogHint 
-    \value X11BypassWindowManagerHint 
-    \value FramelessWindowHint 
-    \value WindowTitleHint 
-    \value WindowSystemMenuHint 
-    \value WindowMinimizeButtonHint 
-    \value WindowMaximizeButtonHint 
-    \value WindowMinMaxButtonsHint 
-    \value WindowContextHelpButtonHint 
-    \value WindowStaysOnTopHint
-*/
-
-/*!
     \enum Qt::ToolButtonStyle
 
     The style of the tool button, describing how the button's text and
@@ -1340,37 +1313,6 @@
 */
 
 /*!
-    \enum Qt::WStateFlag
-
-    \internal
-
-    \value WState_AutoMask
-    \value WState_BlockUpdates
-    \value WState_CompressKeys
-    \value WState_ConfigPending
-    \value WState_Created
-    \value WState_DND
-    \value WState_ExplicitShowHide
-    \value WState_FullScreen
-    \value WState_Hidden
-    \value WState_InPaintEvent
-    \value WState_Maximized
-    \value WState_Minimized
-    \value WState_OwnSizePolicy
-    \value WState_Polished
-    \value WState_Reparented
-    \value WState_Visible
-
-    \omitvalue WState_Reserved0
-    \omitvalue WState_Reserved2
-    \omitvalue WState_Reserved3
-    \omitvalue WState_Reserved4
-    \omitvalue WState_Reserve5
-    \omitvalue WState_Reserve6
-    \omitvalue WState_Reserved7
-*/
-
-/*!
     \enum Qt::WindowState
 
     \keyword window state
@@ -1433,7 +1375,14 @@
 */
 
 /*!
-    \enum Qt::WFlag
+    \typedef Qt::WFlags
+    \obsolete
+
+    Use Qt::WindowFlags instead.
+*/
+
+/*!
+    \enum Qt::WindowType
 
     \keyword window flag
 
@@ -1446,133 +1395,139 @@
 
     The main types are
 
-    \value WType_TopLevel  indicates that this widget is a top-level
-    widget, usually with a window-system frame and so on.
+    \value Widget
 
-    \value WType_Dialog  indicates that this widget is a top-level
+    \value Window  indicates that this widget is a window,
+    usually with a window system frame and a title bar.
+
+    \value Dialog  indicates that this widget is a top-level
     window that should be decorated as a dialog (i.e. typically no
     maximize or minimize buttons in the title bar). If you want to use
     it as a modal dialog it should be launched from another window, or
     have a parent and this flag should be combined with \c WShowModal.
     If you make it modal, the dialog will prevent other top-level
-    windows in the application from getting any input. \c WType_Dialog
-    implies \c WType_TopLevel. We refer to a top-level window that has
+    windows in the application from getting any input. \c Dialog
+    implies \c Window. We refer to a top-level window that has
     a parent as a \e secondary window. (See also \c WGroupLeader.)
 
-    \value WType_Popup  indicates that this widget is a popup
-    top-level window, i.e. that it is modal, but has a window system
-    frame appropriate for popup menus. \c WType_Popup implies
-    WType_TopLevel.
+    \value Sheet
 
-    \value WType_Desktop  indicates that this widget is the desktop.
-    See also \c WPaintDesktop below. \c WType_Desktop implies \c
-    WType_TopLevel.
+    \value Drawer
+
+    \value Popup  indicates that this widget is a popup
+    top-level window, i.e. that it is modal, but has a window system
+    frame appropriate for popup menus. \c Popup implies
+    \c Window.
+
+    \value Tool  Makes the window a tool window. A tool window
+    is often a small window with a smaller than usual title bar and
+    decoration, typically used for collections of tool buttons. It
+    there is a parent, the tool window will always be kept on top of
+    it. If there isn't a parent, you may consider using
+    Qt::WindowStaysOnTopHint as well. If the window system supports it, a
+    tool window can be decorated with a somewhat lighter frame. It can
+    also be combined with Qt::FramelessWindowHint.
+
+    \value ToolTip
+
+    \value SplashScreen  Indicates that the window is a splash screen.
+
+    \value Desktop  indicates that this widget is the desktop.
+    See also \c WPaintDesktop below. \c Desktop implies \c
+    Window.
+
+    \value SubWindow
 
     There are also a number of flags which you can use to customize
     the appearance of top-level windows. These have no effect on other
     windows:
 
-    \value WStyle_Customize  indicates that the \c WStyle_* flags
-    should be used to build the window instead of the default flags.
+    \value MSWindowsFixedSizeDialogHint  Gives the window a thin dialog border on Windows.
+           This style is traditionally used for fixed-size dialogs.
 
-    \value WStyle_NormalBorder  gives the window a normal border.
-    This cannot be combined with \c WStyle_DialogBorder or \c
-    WStyle_NoBorder.
+    \value X11BypassWindowManagerHint  Bypass the window
+           manager completely. This results in a borderless window
+           that is not managed at all (i.e. no keyboard input unless
+           you call QWidget::activateWindow() manually).
 
-    \value WStyle_DialogBorder  gives the window a thin dialog border.
-    This cannot be combined with \c WStyle_NormalBorder or \c
-    WStyle_NoBorder.
+    \value FramelessWindowHint  Produces a borderless window.
+           The user cannot move or resize a borderless window via the window
+           system. On X11, the result of the flag is dependent on the window manager and its
+           ability to understand Motif and/or NETWM hints. Most existing
+           modern window managers can handle this.
 
-    \value WStyle_NoBorder  produces a borderless window. Note that
-    the user cannot move or resize a borderless window via the window
-    system. This cannot be combined with \c WStyle_NormalBorder or \c
-    WStyle_DialogBorder. On Windows, the flag works fine. On X11, the
-    result of the flag is dependent on the window manager and its
-    ability to understand MOTIF and/or NETWM hints: most existing
-    modern window managers can handle this. With \c WX11BypassWM, you
-    can bypass the window manager completely. This results in a
-    borderless window that is not managed at all (i.e. no keyboard
-    input unless you call activateWindow() manually).
+    \value WindowTitleHint  Gives the window a title bar.
 
-    \value WStyle_Title  gives the window a title bar.
+    \value WindowSystemMenuHint  Adds a window system menu.
 
-    \value WStyle_SysMenu  adds a window system menu.
+    \value WindowMinimizeButtonHint  Adds a minimize button. On
+           Windows, this flag must be combined with \c
+           Qt::WindowSystemMenuHint for it to work.
 
-    \value WStyle_Minimize  adds a minimize button. Note that on
-    Windows this has to be combined with \c WStyle_SysMenu for it to
-    work.
+    \value WindowMaximizeButtonHint  Adds a maximize button. On
+           Windows, this flag must be combined with \c
+           Qt::WindowSystemMenuHint for it to work.
 
-    \value WStyle_Maximize  adds a maximize button. Note that on
-    Windows this has to be combined with \c WStyle_SysMenu for it to work.
+    \value WindowMinMaxButtonsHint  Adds a minimize and a maximize
+           button. On Windows, this flag must be combined with \c
+           Qt::WindowSystemMenuHint for it to work.
 
-    \value WStyle_MinMax  is equal to \c
-    WStyle_Minimize|WStyle_Maximize. Note that on Windows this has to
-    be combined with \c WStyle_SysMenu to work.
+    \value WindowContextHelpButtonHint  Adds a context help button to dialogs.
 
-    \value WStyle_ContextHelp  adds a context help button to dialogs.
+    \value WindowShadeButtonHint
+    \value WindowStaysOnTopHint  Informs the window system that the
+           window should stay on top of all other windows. Note that
+           on some window managers on X11 you also have to pass \c
+           WX11BypassWindowManagerHint for this flag to work
+           correctly.
 
-    \value WStyle_Tool  makes the window a tool window. A tool window
-    is often a small window with a smaller than usual title bar and
-    decoration, typically used for collections of tool buttons. It
-    there is a parent, the tool window will always be kept on top of
-    it. If there isn't a parent, you may consider passing \c
-    WStyle_StaysOnTop as well. If the window system supports it, a
-    tool window can be decorated with a somewhat lighter frame. It can
-    also be combined with \c WStyle_NoBorder.
+    \value WindowType_Mask
 
-    \value WStyle_StaysOnTop  informs the window system that the
-    window should stay on top of all other windows. Note that on some
-    window managers on X11 you also have to pass \c WX11BypassWM for
-    this flag to work correctly.
+    Obsolete flags:
 
-    \value WStyle_Splash  indicates that the window is a splash screen.
-    On X11, we try to follow NETWM standard for a splash screen window if the
-    window manager supports is otherwise it is equivalent to \c WX11BypassWM. On
-    other platforms, it is equivalent to \c WStyle_NoBorder \c | \c WMacSheet \c |
-    \c WStyle_Tool \c | \c WWinOwnDC
+    \value WMouseNoMask         Use Qt::WA_MouseNoMask instead.
+    \value WDestructiveClose    Use Qt::WA_DeleteOnClose instead.
+    \value WStaticContents      Use Qt::WA_StaticContents instead.
+    \value WGroupLeader         Use Qt::WA_GroupLeader instead.
+    \value WShowModal           Use Qt::WA_ShowModal instead.
+    \value WNoMousePropagation  Use Qt::WA_NoMousePropagation instead.
+    \value WType_TopLevel       Use Qt::Window instead.
+    \value WType_Dialog         Use Qt::Dialog instead.
+    \value WType_Popup          Use Qt::Popup instead.
+    \value WType_Desktop        Use Qt::Desktop instead.
+    \value WType_Mask           Use Qt::WindowType_Mask instead.
 
-    Modifier flags:
+    \value WStyle_Customize     No longer needed.
+    \value WStyle_NormalBorder  No longer needed.
+    \value WStyle_DialogBorder  Use Qt::MSWindowsFixedSizeDialogHint instead.
+    \value WStyle_NoBorder      Use Qt::FramelessWindowHint instead.
+    \value WStyle_Title         Use Qt::WindowTitleHint instead.
+    \value WStyle_SysMenu       Use Qt::WindowSystemMenuHint instead.
+    \value WStyle_Minimize      Use Qt::WindowMinimizeButtonHint instead.
+    \value WStyle_Maximize      Use Qt::WindowMaximizeButtonHint instead.
+    \value WStyle_MinMax        Use Qt::WindowMinMaxButtonsHint instead.
+    \value WStyle_Tool          Use Qt::Tool instead.
+    \value WStyle_StaysOnTop    Use Qt::WindowStaysOnTopHint instead.
+    \value WStyle_ContextHelp   Use Qt::WindowContextHelpButtonHint instead.
 
-    \value WPaintDesktop  gives this widget paint events for the
-    desktop.
+    \value WPaintDesktop        No longer needed.
+    \value WPaintClever         No longer needed.
 
-    \value WMouseNoMask  indicates that even if the widget has a mask,
-    it wants mouse events for its entire rectangle.
+    \value WX11BypassWM         Use Qt::X11BypassWindowManagerHint instead.
+    \value WWinOwnDC            No longer needed.
+    \value WMacSheet            Use Qt::Sheet instead.
+    \value WMacDrawer           Use Qt::Drawer instead.
 
-    \value WGroupLeader  makes this window a group leader. A group
-    leader should \e not have a parent (i.e. it should be a top-level
-    window). Any decendant windows (direct or indirect) of a group
-    leader are in its group; other windows are not. If you show a
-    secondary window from the group (i.e. show a window whose top-most
-    parent is a group leader), that window will be modal with respect
-    to the other windows in the group, but modeless with respect to
-    windows in other groups.
+    \value WStyle_Splash        Use Qt::SplashScreen instead.
 
-    Miscellaneous flags
-
-    \value WShowModal see WType_Dialog
-
-    \omitvalue WDestructiveClose
-    \omitvalue WMacDrawer
-    \omitvalue WMacNoSheet
-    \omitvalue WMacSheet
-    \omitvalue WNoAutoErase
-    \omitvalue WNoMousePropagation
-    \omitvalue WNorthWestGravity
-    \omitvalue WPaintClever
-    \omitvalue WRepaintNoErase
-    \omitvalue WResizeNoErase
-    \omitvalue WStaticContents
-    \omitvalue WStyle_Dialog
-    \omitvalue WStyle_Mask
-    \omitvalue WStyle_NoBorderEx
-    \omitvalue WStyle_Reserved
-    \omitvalue WSubWindow
-    \omitvalue WType_Mask
-    \omitvalue WType_Modal
-    \omitvalue WWinOwnDC
-    \omitvalue WX11BypassWM
-
+    \value WNoAutoErase         No longer needed.
+    \value WRepaintNoErase      No longer needed.
+    \value WNorthWestGravity    Use Qt::WA_StaticContents instead.
+    \value WType_Modal          Use Qt::Dialog and Qt::WA_ShowModal instead.
+    \value WStyle_Dialog        Use Qt::Dialog instead.
+    \value WStyle_NoBorderEx    Use Qt::FramelessWindowHint instead.
+    \value WResizeNoErase       No longer needed.
+    \value WMacNoSheet          No longer needed.
 */
 
 /*!
@@ -1589,6 +1544,7 @@
 #if defined(Q_OS_WIN) && defined(QT3_SUPPORT)
 /*!
     \enum Qt::WindowsVersion
+    \compat
 
     \value WV_32s
     \value WV_95
@@ -1609,6 +1565,7 @@
 #if defined(Q_OS_MAC) && defined(QT3_SUPPORT)
 /*!
     \enum Qt::MacintoshVersion
+    \compat
 
     \value MV_Unknown  Use QSysInfo::MV_Unknown instead.
     \value MV_9        Use QSysInfo::MV_9 instead.
@@ -1687,6 +1644,9 @@
 
     \value DescendingOrder The items are sorted descending e.g. starts with
     'ZZZ' ends with 'AAA' in Latin-1 locales
+
+    \omitvalue Ascending
+    \omitvalue Descending
 */
 
 /*!
@@ -1825,4 +1785,35 @@
     Screenshot:
 
     \image cursors.png Cursor Shapes
+*/
+
+/*!
+    \typedef Qt::TextFlags
+    \compat
+
+    Use Qt::TextFlag instead.
+*/
+
+/*!
+    \enum Qt::LayoutDirection
+
+    Specifies the direction of Qt's layouts:
+
+    \value LeftToRight  Left-to-right layout.
+    \value RightToLeft  Right-to-left layout.
+
+    Right-to-left layouts are necessary for certain languages,
+    notably Arabic and Hebrew.
+
+    \sa QApplication::setLayoutDirection(), QWidget::setLayoutDirection()
+*/
+
+/*!
+    \enum Qt::InputMethodQuery
+
+    \value ImMicroFocus
+    \value ImFont
+    \value ImCursorPosition
+    \value ImSurroundingText
+    \value ImCurrentSelection
 */
