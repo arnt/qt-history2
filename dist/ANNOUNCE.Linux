@@ -5,6 +5,9 @@ complete Qt source code for X.
 
 Qt 0.96 includes clipboard support.
 
+Qt 0.96 includes makefiles for Linux, HP-UX and Solaris. New platforms
+will be added in the near future.
+
 Qt is a complete and well-developed object-oriented framework for
 developing graphical user interface applications using C++. It has been
 used professionally for over a year.
@@ -73,7 +76,7 @@ And here is the LSM entry:
 Begin3
 Title:          Qt toolkit
 Version:        0.96
-Entered-date:   21may96
+Entered-date:   23may96
 Description:    C++ GUI class library with Motif look and feel
 Keywords:       gui library motif c++
 Author:         qt-bugs@troll.no
