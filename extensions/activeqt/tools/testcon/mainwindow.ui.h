@@ -17,7 +17,7 @@
 
 #include <qt_windows.h>
 #include <oaidl.h>
-#include "../../shared/types.h"
+#include "../../shared/qaxtypes.h"
 #include <qaxfactory.h>
 #include <qmenudata.h>
 #include <qtextedit.h>

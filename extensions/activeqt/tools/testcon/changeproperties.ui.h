@@ -86,7 +86,7 @@ void ChangeProperties::setValue()
 	    QColor col;
 	    col.setNamedColor( editValue->text() );
 	    if ( col.isValid() ) {
-		value = col;
+		value = qVariant(col);
 	    } else {
 		QMessageBox::warning( this, tr("Can't parse input"), 
 		                            QString( tr("Failed to create a color from %1\n"
@@ -100,7 +100,7 @@ void ChangeProperties::setValue()
 	{
 	    QFont fnt;
 	    if ( fnt.fromString( editValue->text() ) ) {
-		value = fnt;
+		value = qVariant(fnt);
 	    } else {
 		QMessageBox::warning( this, tr("Can't parse input"), 
 		                            QString( tr("Failed to create a font from %1\n"
@@ -119,7 +119,7 @@ void ChangeProperties::setValue()
 	    if ( pm.isNull() )
 		return;
 
-	    value = pm;
+	    value = qVariant(pm);
 	}
 	break;
     case QVariant::Bool:
@@ -200,13 +200,13 @@ void ChangeProperties::updateProperties()
 	    switch ( var.type() ) {
 	    case QVariant::Color:
 		{
-		    QColor col = var.toColor();
+		    QColor col = qVariant_to<QColor>(var);
 		    item->setText( 2, col.name() );
 		}
 		break;
 	    case QVariant::Font:
 		{
-		    QFont fnt = var.toFont();
+		    QFont fnt = qVariant_to<QFont>(var);
 		    item->setText( 2, fnt.toString() );
 		}
 		break;
@@ -217,7 +217,7 @@ void ChangeProperties::updateProperties()
 		break;
 	    case QVariant::Pixmap:
 		{
-		    QPixmap pm = var.toPixmap();
+		    QPixmap pm = qVariant_to<QPixmap>(var);
 		    item->setPixmap( 2, pm );
 		}
 		break;
