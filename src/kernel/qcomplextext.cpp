@@ -638,12 +638,12 @@ void QComplexText::glyphPositions( QTextString *str )
                 lastChar = i;
                 break;
         }
-        qDebug("glyph U+%x type=%d", ch->c.unicode(), type );
+        //qDebug("glyph U+%x type=%d", ch->c.unicode(), type );
         ch->hasCursor = TRUE;
         lastShape = shape;
         ++ch;
     }
-    qDebug("---- end string ---");
+    //qDebug("---- end string ---");
 }
 
 QPointArray QComplexText::positionMarks( const QFont &f, const QString &str, int pos )
