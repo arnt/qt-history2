@@ -60,16 +60,32 @@ void FindDialog::doFind(bool forward)
         onceFound = false;
     findExpr = ui.comboFind->currentText();
 
+    QTextDocument::FindFlags flags = 0;
+
+    if (ui.checkCase->isChecked())
+        flags |= QTextDocument::FindCaseSensitively;
+
+    if (ui.checkWords->isChecked())
+        flags |= QTextDocument::FindWholeWords;
+
+    QTextCursor c = browser->cursor();
+
     bool found;
     if (browser->hasSelectedText()) { // Search either forward or backward from cursor.
-        found = browser->find(findExpr, ui.checkCase->isChecked(), ui.checkWords->isChecked(),
-                              forward);
+        c = browser->document()->find(findExpr, c, flags,
+                                      forward ? QTextDocument::FindForward : QTextDocument::FindBackward);
     } else {
-        int para = forward ? 0 : INT_MAX;
-        int index = forward ? 0 : INT_MAX;
-        found = browser->find(findExpr, ui.checkCase->isChecked(), ui.checkWords->isChecked(),
-                              forward, &para, &index);
+        if (forward)
+            c.movePosition(QTextCursor::Start);
+        else
+            c.movePosition(QTextCursor::End);
+
+        c = browser->document()->find(findExpr, c, flags,
+                                      forward ? QTextDocument::FindForward : QTextDocument::FindBackward);
     }
+
+    found = !c.isNull();
+    browser->setCursor(c);
 
     if (!found) {
         if (onceFound) {

@@ -309,6 +309,7 @@ void MainWindow::on_actionGoHome_triggered()
 
 void MainWindow::on_actionFilePrint_triggered()
 {
+    /* ### FIXME (Simon)
     QPrinter printer(QPrinter::HighResolution);
     printer.setFullPage(true);
 
@@ -352,6 +353,7 @@ void MainWindow::on_actionFilePrint_triggered()
         qApp->eventLoop()->processEvents(QEventLoop::ExcludeUserInput);
         qApp->restoreOverrideCursor();
     }
+    */
 }
 
 void MainWindow::updateBookmarkMenu()
@@ -492,7 +494,8 @@ void MainWindow::showSettingsDialog(int page)
     settingsDia->fontCombo()->lineEdit()->setText(tabs->browserFont().family());
     settingsDia->fixedFontCombo()->clear();
     settingsDia->fixedFontCombo()->insertStringList(fonts.families());
-    settingsDia->fixedFontCombo()->lineEdit()->setText(tabs->styleSheet()->item(QLatin1String("pre"))->fontFamily());
+    // ### FIXME
+    //settingsDia->fixedFontCombo()->lineEdit()->setText(tabs->styleSheet()->item(QLatin1String("pre"))->fontFamily());
     settingsDia->linkUnderlineCB()->setChecked(tabs->linkUnderline());
 
     QPalette pal = settingsDia->colorButton()->palette();
@@ -532,10 +535,12 @@ void MainWindow::showSettingsDialog(int page)
 
     QString family = settingsDia->fixedFontCombo()->currentText();
 
+    /* ### FIXME
     QStyleSheet *sh = tabs->styleSheet();
     sh->item(QLatin1String("pre"))->setFontFamily(family);
     sh->item(QLatin1String("code"))->setFontFamily(family);
     sh->item(QLatin1String("tt"))->setFontFamily(family);
+    */
     tabs->currentBrowser()->setText(tabs->currentBrowser()->text());
     showLink(tabs->currentBrowser()->source());
 }
@@ -565,7 +570,8 @@ void MainWindow::saveSettings()
     Config *config = Config::configuration();
     config->setFontFamily(tabs->browserFont().family());
     config->setFontSize(tabs->currentBrowser()->font().pointSize());
-    config->setFontFixedFamily(tabs->styleSheet()->item(QLatin1String("pre"))->fontFamily());
+    // ### FIXME
+    //config->setFontFixedFamily(tabs->styleSheet()->item(QLatin1String("pre"))->fontFamily());
     config->setLinkUnderline(tabs->linkUnderline());
     config->setLinkColor(tabs->palette().color(QPalette::Active, QPalette::Link).name());
     config->setSideBarPage(helpDock->tabWidget()->currentIndex());
@@ -600,18 +606,18 @@ void MainWindow::showSearchLink(const QString &link, const QStringList &terms)
 {
     HelpWindow * hw = tabs->currentBrowser();
     hw->blockScrolling(true);
-    hw->setCursor(Qt::waitCursor);
+    hw->QWidget::setCursor(Qt::waitCursor);
     if (hw->source() == link)
         hw->reload();
     else
         showLink(link);
-    hw->sync();
-    hw->setCursor(Qt::arrowCursor);
+    hw->QWidget::setCursor(Qt::arrowCursor);
 
     hw->viewport()->setUpdatesEnabled(false);
     int minPar = INT_MAX;
     int minIndex = INT_MAX;
     foreach (QString term, terms) {
+        /* ### FIXME
         int para = 0;
         int index = 0;
         bool found = hw->find(term, false, true, true, &para, &index);
@@ -623,11 +629,12 @@ void MainWindow::showSearchLink(const QString &link, const QStringList &terms)
             hw->setColor(Qt::red);
             found = hw->find(term, false, true, true);
         }
+        */
     }
     hw->blockScrolling(false);
     hw->viewport()->setUpdatesEnabled(true);
-    hw->setCursorPosition(minPar, minIndex);
-    hw->updateContents();
+    // ### FIXME
+    //hw->setCursorPosition(minPar, minIndex);
 }
 
 

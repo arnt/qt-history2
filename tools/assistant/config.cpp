@@ -93,35 +93,34 @@ void Config::load()
     const QString key = QLatin1String("/Qt Assistant/") + getVersionString() + QLatin1String("/");
     const QString profkey = key + QLatin1String("Profile/") + profil->props[QLatin1String("name")] + QLatin1String("/");
 
-    QSettings settings;
-    settings.insertSearchPath( QSettings::Windows, QLatin1String("/Trolltech") );
+    QSettings settings(Qt::UserScope, QLatin1String("Trolltech"));
 
-    webBrows = settings.readEntry( key + QLatin1String("Webbrowser") );
-    home = settings.readEntry( profkey + QLatin1String("Homepage") );
-    pdfApp = settings.readEntry( key + QLatin1String("PDFApplication") );
-    linkUnder = settings.readBoolEntry( key + QLatin1String("LinkUnderline"), true );
-    linkCol = settings.readEntry( key + QLatin1String("LinkColor"), QLatin1String("#0000FF") );
-    src = settings.readListEntry( profkey + QLatin1String("Source") );
-    sideBar = settings.readNumEntry( key + QLatin1String("SideBarPage") );
+    webBrows = settings.value( key + QLatin1String("Webbrowser") ).toString();
+    home = settings.value( profkey + QLatin1String("Homepage") ).toString();
+    pdfApp = settings.value( key + QLatin1String("PDFApplication") ).toString();
+    linkUnder = settings.value( key + QLatin1String("LinkUnderline"), true ).toBool();
+    linkCol = settings.value( key + QLatin1String("LinkColor"), QVariant("#0000FF") ).toString();
+    src = settings.value( profkey + QLatin1String("Source") ).toStringList();
+    sideBar = settings.value( key + QLatin1String("SideBarPage") ).toInt();
     if (qApp->type() != QApplication::Tty) {
-        fontFam = settings.readEntry( key + QLatin1String("Family"), qApp->font().family() );
+        fontFam = settings.value( key + QLatin1String("Family"), qApp->font().family() ).toString();
 
-        fontFix = settings.readEntry( key + QLatin1String("FixedFamily"), QLatin1String("courier") );
-        fontSiz = settings.readNumEntry( key + QLatin1String("Size"), -1 );
+        fontFix = settings.value( key + QLatin1String("FixedFamily"), QVariant("courier") ).toString();
+        fontSiz = settings.value( key + QLatin1String("Size"), -1 ).toInt();
         if ( fontSiz == -1 ) {
             QFontInfo fi( qApp->font() );
             fontSiz = fi.pointSize();
         }
-        geom.setRect( settings.readNumEntry( key + QLatin1String("GeometryX"), QApplication::desktop()->availableGeometry().x() ),
-                      settings.readNumEntry( key + QLatin1String("GeometryY"), QApplication::desktop()->availableGeometry().y() ),
-                      settings.readNumEntry( key + QLatin1String("GeometryWidth"), 800 ),
-                      settings.readNumEntry( key + QLatin1String("GeometryHeight"), 600 ) );
-        maximized = settings.readBoolEntry( key + QLatin1String("GeometryMaximized"), false );
+        geom.setRect( settings.value( key + QLatin1String("GeometryX"), QApplication::desktop()->availableGeometry().x() ).toInt(),
+                      settings.value( key + QLatin1String("GeometryY"), QApplication::desktop()->availableGeometry().y() ).toInt(),
+                      settings.value( key + QLatin1String("GeometryWidth"), 800 ).toInt(),
+                      settings.value( key + QLatin1String("GeometryHeight"), 600 ).toInt() );
+        maximized = settings.value( key + QLatin1String("GeometryMaximized"), false ).toBool();
     }
-    mainWinLayout = settings.readEntry( key + QLatin1String("MainwindowLayout") );
-    rebuildDocs = settings.readBoolEntry( key + QLatin1String("RebuildDocDB"), true );
+    mainWinLayout = settings.value( key + QLatin1String("MainwindowLayout") ).toString();
+    rebuildDocs = settings.value( key + QLatin1String("RebuildDocDB"), true ).toBool();
 
-    profileNames = settings.entryList( key + QLatin1String("Profile") );
+    profileNames = settings.value( key + QLatin1String("Profile") ).toStringList();
 }
 
 void Config::save()
@@ -132,32 +131,31 @@ void Config::save()
 
 void Config::saveSettings()
 {
-    const QString key = QLatin1String("/Qt Assistant/") + getVersionString() + QLatin1String("/");
+    const QString key = QLatin1String("Qt Assistant/") + getVersionString() + QLatin1String("/");
     const QString profkey = key + QLatin1String("Profile/") + profil->props[QLatin1String("name")] + QLatin1String("/");
 
-    QSettings settings;
-    settings.insertSearchPath( QSettings::Windows, QLatin1String("/Trolltech"));
+    QSettings settings(Qt::UserScope, QLatin1String("Trolltech"));
 
-    settings.writeEntry( key + QLatin1String("Webbrowser"), webBrows );
-    settings.writeEntry( profkey + QLatin1String("Homepage"), home );
-    settings.writeEntry( key + QLatin1String("PDFApplication"), pdfApp );
-    settings.writeEntry( key + QLatin1String("LinkUnderline"), linkUnder );
-    settings.writeEntry( key + QLatin1String("LinkColor"), linkCol );
-    settings.writeEntry( profkey + QLatin1String("Source"), src );
-    settings.writeEntry( key + QLatin1String("SideBarPage"), sideBarPage() );
+    settings.setValue( key + QLatin1String("Webbrowser"), webBrows );
+    settings.setValue( profkey + QLatin1String("Homepage"), home );
+    settings.setValue( key + QLatin1String("PDFApplication"), pdfApp );
+    settings.setValue( key + QLatin1String("LinkUnderline"), linkUnder );
+    settings.setValue( key + QLatin1String("LinkColor"), linkCol );
+    settings.setValue( profkey + QLatin1String("Source"), src );
+    settings.setValue( key + QLatin1String("SideBarPage"), sideBarPage() );
     if (qApp->type() != QApplication::Tty) {
-        settings.writeEntry( key + QLatin1String("GeometryX"), geom.x() );
-        settings.writeEntry( key + QLatin1String("GeometryY"), geom.y() );
-        settings.writeEntry( key + QLatin1String("GeometryWidth"), geom.width() );
-        settings.writeEntry( key + QLatin1String("GeometryHeight"), geom.height() );
-        settings.writeEntry( key + QLatin1String("GeometryMaximized"), maximized );
-        settings.writeEntry( key + QLatin1String("Family"),  fontFam );
-        settings.writeEntry( key + QLatin1String("Size"),  fontSiz );
-        settings.writeEntry( key + QLatin1String("FixedFamily"), fontFix );
+        settings.setValue( key + QLatin1String("GeometryX"), geom.x() );
+        settings.setValue( key + QLatin1String("GeometryY"), geom.y() );
+        settings.setValue( key + QLatin1String("GeometryWidth"), geom.width() );
+        settings.setValue( key + QLatin1String("GeometryHeight"), geom.height() );
+        settings.setValue( key + QLatin1String("GeometryMaximized"), maximized );
+        settings.setValue( key + QLatin1String("Family"),  fontFam );
+        settings.setValue( key + QLatin1String("Size"),  fontSiz );
+        settings.setValue( key + QLatin1String("FixedFamily"), fontFix );
     }
     if ( !hideSidebar )
-        settings.writeEntry( key + QLatin1String("MainwindowLayout"), mainWinLayout );
-    settings.writeEntry( key + QLatin1String("RebuildDocDB"), rebuildDocs );
+        settings.setValue( key + QLatin1String("MainwindowLayout"), mainWinLayout );
+    settings.setValue( key + QLatin1String("RebuildDocDB"), rebuildDocs );
 }
 
 #ifdef ASSISTANT_DEBUG
@@ -174,12 +172,11 @@ static void dumpmap( const QMap<QString,QString> &m, const QString &header )
 
 void Config::loadDefaultProfile()
 {
-    QSettings settings;
-    settings.insertSearchPath( QSettings::Windows, QLatin1String("/Trolltech"));
-    const QString key = QLatin1String("/Qt Assistant/") + QLatin1String(QT_VERSION_STR) + QLatin1String("/Profile");
+    QSettings settings(Qt::UserScope, QLatin1String("/Trolltech"));
+    const QString key = QLatin1String("Qt Assistant/") + QLatin1String(QT_VERSION_STR) + QLatin1String("/Profile");
     const QString profKey = key + QLatin1String("/default/");
 
-    if( settings.entryList( key + QLatin1String("/default")).count() == 0 ) {
+    if( settings.value( key + QLatin1String("/default")).toStringList().count() == 0 ) {
         return;
     }
 
@@ -190,11 +187,11 @@ void Config::loadDefaultProfile()
     profil->docs.clear();
     profil->dcfTitles.clear();
 
-    QStringList titles = settings.readListEntry( profKey + QLatin1String("Titles") );
-    QStringList iconLst = settings.readListEntry( profKey + QLatin1String("DocIcons") );
-    QStringList indexLst = settings.readListEntry( profKey + QLatin1String("IndexPages") );
-    QStringList imgDirLst = settings.readListEntry( profKey + QLatin1String("ImageDirs") );
-    QStringList dcfs = settings.readListEntry( profKey + QLatin1String("DocFiles") );
+    QStringList titles = settings.value( profKey + QLatin1String("Titles") ).toStringList();
+    QStringList iconLst = settings.value( profKey + QLatin1String("DocIcons") ).toStringList();
+    QStringList indexLst = settings.value( profKey + QLatin1String("IndexPages") ).toStringList();
+    QStringList imgDirLst = settings.value( profKey + QLatin1String("ImageDirs") ).toStringList();
+    QStringList dcfs = settings.value( profKey + QLatin1String("DocFiles") ).toStringList();
 
     QStringList::ConstIterator it = titles.begin();
     QStringList::ConstIterator iconIt = iconLst.begin();
@@ -222,12 +219,11 @@ void Config::saveProfile( Profile *profile )
 {
     if (profil->profileType() == Profile::UserProfile)
         return;
-    QSettings settings;
-    settings.insertSearchPath( QSettings::Windows, QLatin1String("/Trolltech") );
+    QSettings settings(Qt::UserScope, QLatin1String("Trolltech"));
     QString versionString = (profile->props[QLatin1String("name")] == QLatin1String("default"))
         ? QLatin1String(QT_VERSION_STR)
         : getVersionString();
-    const QString key = QLatin1String("/Qt Assistant/") + versionString + QLatin1String("/");
+    const QString key = QLatin1String("Qt Assistant/") + versionString + QLatin1String("/");
     const QString profKey = key + QLatin1String("Profile/") + profile->props[QLatin1String("name")] + QLatin1String("/");
 
     QStringList indexes, icons, imgDirs, dcfs;
@@ -240,11 +236,11 @@ void Config::saveProfile( Profile *profile )
         dcfs << profile->dcfTitles[*it];
     }
 
-    settings.writeEntry( profKey + QLatin1String("Titles"), titles );
-    settings.writeEntry( profKey + QLatin1String("DocFiles"), dcfs );
-    settings.writeEntry( profKey + QLatin1String("IndexPages"), indexes );
-    settings.writeEntry( profKey + QLatin1String("DocIcons"), icons );
-    settings.writeEntry( profKey + QLatin1String("ImageDirs"), imgDirs );
+    settings.setValue( profKey + QLatin1String("Titles"), titles );
+    settings.setValue( profKey + QLatin1String("DocFiles"), dcfs );
+    settings.setValue( profKey + QLatin1String("IndexPages"), indexes );
+    settings.setValue( profKey + QLatin1String("DocIcons"), icons );
+    settings.setValue( profKey + QLatin1String("ImageDirs"), imgDirs );
 
 #if ASSISTANT_DEBUG
     qDebug( "Titles:\n  - " + ( (QStringList*) &titles )->join( "\n  - " ) );

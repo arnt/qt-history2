@@ -30,7 +30,6 @@ public:
 
     MainWindow *mainWindow() const;
     HelpWindow *currentBrowser() const;
-    QStyleSheet *styleSheet() const;
     bool linkUnderline() const;
     QStringList sources() const;
     QFont browserFont() const;
@@ -69,9 +68,7 @@ public slots:
 
 private:
     Ui::TabbedBrowser ui;
-    QStyleSheet *tabStyleSheet;
     bool tabLinkUnderline;
-    QMimeSourceFactory *mimeSourceFactory;
     QWidget *lastCurrentTab;
     QFont tabFont;
 };

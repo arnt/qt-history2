@@ -20,6 +20,7 @@ class MainWindow;
 class QKeyEvent;
 class QMime;
 class QMouseEvent;
+class QPopupMenu;
 
 class HelpWindow : public QTextBrowser
 {
@@ -33,7 +34,7 @@ public:
     void openLinkInNewPage( const QString &link );
     void addMimePath( const QString &path );
 
-    void contentsMousePressEvent(QMouseEvent *e);
+    void mousePressEvent(QMouseEvent *e);
     void keyPressEvent(QKeyEvent *);
 
 signals:
@@ -54,8 +55,6 @@ private:
     bool blockScroll;
     bool shiftPressed;
     bool newWindow;
-    QMimeSourceFactory *mimeSourceFactory;
-
 };
 
 #endif

@@ -30,6 +30,7 @@
 #include <qevent.h>
 #include <qtextstream.h>
 #include <qtextcodec.h>
+#include <qabstracttextdocumentlayout.h>
 
 #if defined(Q_OS_WIN32)
 #include <windows.h>
@@ -47,7 +48,9 @@ void HelpWindow::setSource(const QString &name)
         return;
 
     if (newWindow || shiftPressed) {
-        removeSelection();
+        QTextCursor c = cursor();
+        c.clearSelection();
+        setCursor(c);
         mw->saveSettings();
         mw->saveToolbarSettings();
         MainWindow *nmw = new MainWindow;
@@ -133,7 +136,7 @@ void HelpWindow::setSource(const QString &name)
         return;
     }
 
-    QUrl u(context());
+    QUrl u(source());
     if (u.resolved(QUrl::fromLocalFile(name)).toLocalFile().isEmpty()) {
         QMessageBox::information(mw, tr("Help"), tr("Can't load and display non-local file\n"
                     "%1").arg(name));
@@ -180,7 +183,7 @@ void HelpWindow::openLinkInNewPage(const QString &link)
 QPopupMenu *HelpWindow::createPopupMenu(const QPoint& pos)
 {
     QPopupMenu *m = new QPopupMenu(0);
-    lastAnchor = anchorAt(pos);
+    lastAnchor = document()->documentLayout()->anchorAt(pos);
     if (!lastAnchor.isEmpty()) {
         if (lastAnchor.at(0) == QLatin1Char('#')) {
             QString src = source();
@@ -207,10 +210,10 @@ void HelpWindow::ensureCursorVisible()
         QTextBrowser::ensureCursorVisible();
 }
 
-void HelpWindow::contentsMousePressEvent(QMouseEvent *e)
+void HelpWindow::mousePressEvent(QMouseEvent *e)
 {
     shiftPressed = (e->state() & Qt::ShiftButton);
-    QTextBrowser::contentsMousePressEvent(e);
+    QTextBrowser::mousePressEvent(e);
 }
 
 void HelpWindow::keyPressEvent(QKeyEvent *e)

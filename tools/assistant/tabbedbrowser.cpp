@@ -35,8 +35,6 @@ TabbedBrowser::TabbedBrowser(MainWindow *parent)
 
 TabbedBrowser::~TabbedBrowser()
 {
-    delete mimeSourceFactory;
-    mimeSourceFactory = 0;
 }
 
 MainWindow *TabbedBrowser::mainWindow() const
@@ -105,9 +103,9 @@ HelpWindow *TabbedBrowser::createHelpWindow(const QString &title)
     HelpWindow *win = new HelpWindow(mainWin, 0, "qt_assistant_helpwin");
     win->setFont(browserFont());
     win->setPalette(palette());
-    win->setLinkUnderline(tabLinkUnderline);
-    win->setStyleSheet(tabStyleSheet);
-    win->setMimeSourceFactory(mimeSourceFactory);
+    // ### FIXME
+    //win->setLinkUnderline(tabLinkUnderline);
+    //win->setStyleSheet(tabStyleSheet);
     ui.tab->addTab(win, reduceLabelLength(title));
     connect(win, SIGNAL(highlighted(const QString &)),
              (const QObject*) (mainWin->statusBar()), SLOT(message(const QString &)));
@@ -145,18 +143,20 @@ void TabbedBrowser::newTab(const QString &lnk)
 
 void TabbedBrowser::zoomIn()
 {
-    currentBrowser()->zoomIn();
+    // ### FIXME
+    //currentBrowser()->zoomIn();
 }
 
 void TabbedBrowser::zoomOut()
 {
-    currentBrowser()->zoomOut();
+    // ### FIXME
+    //currentBrowser()->zoomOut();
 }
 
 void TabbedBrowser::init()
 {
     tabLinkUnderline = false;
-    tabStyleSheet = new QStyleSheet(QStyleSheet::defaultSheet());
+    //tabStyleSheet = new QStyleSheet(QStyleSheet::defaultSheet());
     lastCurrentTab = 0;
     while(ui.tab->count()) {
         QWidget *page = ui.tab->widget(0);
@@ -164,6 +164,7 @@ void TabbedBrowser::init()
         delete page;
     }
 
+    /*
     mimeSourceFactory = new QMimeSourceFactory();
     mimeSourceFactory->setExtensionType(QLatin1String("html"), "text/html;charset=UTF-8");
     mimeSourceFactory->setExtensionType(QLatin1String("htm"), "text/html;charset=UTF-8");
@@ -171,6 +172,7 @@ void TabbedBrowser::init()
     mimeSourceFactory->setExtensionType(QLatin1String("jpg"), "image/jpeg");
     mimeSourceFactory->setExtensionType(QLatin1String("jpeg"), "image/jpeg");
     setMimePath(Config::configuration()->mimePaths());
+    */
 
     connect(ui.tab, SIGNAL(currentChanged(QWidget*)),
              this, SLOT(transferFocus()));
@@ -213,13 +215,16 @@ void TabbedBrowser::init()
 
 void TabbedBrowser::setMimePath(QStringList lst)
 {
-    mimeSourceFactory->setFilePath(lst);
+    // ### FIXME
+    //mimeSourceFactory->setFilePath(lst);
 }
 
 void TabbedBrowser::setMimeExtension(const QString &ext)
 {
+    /*
     mimeSourceFactory->setExtensionType(QLatin1String("html"), ext);
     mimeSourceFactory->setExtensionType(QLatin1String("htm"), ext);
+    */
 }
 
 void TabbedBrowser::updateTitle(const QString &title)
@@ -266,10 +271,12 @@ void TabbedBrowser::setup()
 
     tabLinkUnderline = config->isLinkUnderline();
 
+    /* ### FIXME
     QString family = config->fontFixedFamily();
     tabStyleSheet->item(QLatin1String("pre"))->setFontFamily(family);
     tabStyleSheet->item(QLatin1String("code"))->setFontFamily(family);
     tabStyleSheet->item(QLatin1String("tt"))->setFontFamily(family);
+    */
 
     newTab(QString::null);
 }
@@ -280,8 +287,10 @@ void TabbedBrowser::setLinkUnderline(bool uline)
         return;
     tabLinkUnderline = uline;
     int cnt = ui.tab->count();
+    /* ### FIXME
     for(int i=0; i<cnt; i++)
         ((QTextBrowser*) ui.tab->widget(i))->setLinkUnderline(tabLinkUnderline);
+        */
 }
 
 QFont TabbedBrowser::browserFont() const
@@ -307,11 +316,6 @@ void TabbedBrowser::setPalette(const QPalette &pal)
     int cnt = ui.tab->count();
     for(int i=0; i<cnt; i++)
         ((QTextBrowser*) ui.tab->widget(i))->setPalette(pal);
-}
-
-QStyleSheet* TabbedBrowser::styleSheet() const
-{
-    return tabStyleSheet;
 }
 
 bool TabbedBrowser::linkUnderline() const

@@ -44,6 +44,7 @@
 #include <qtimer.h>
 #include <qurl.h>
 #include <qvalidator.h>
+#include <qdatetime.h>
 
 #include <stdlib.h>
 #include <limits.h>
@@ -706,7 +707,7 @@ void HelpDialog::addBookmark()
 {
     if (!bookmarksInserted)
         insertBookmarks();
-    QString link = QUrl(help->browsers()->currentBrowser()->context()).resolved(help->browsers()->currentBrowser()->source()).path();
+    QString link = QUrl(help->browsers()->currentBrowser()->source()).resolved(help->browsers()->currentBrowser()->source()).path();
     QString title = help->browsers()->currentBrowser()->documentTitle();
     if (title.isEmpty())
         title = titleOfLink(link);
