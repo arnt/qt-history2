@@ -591,8 +591,8 @@ QWidget *WidgetFactory::createWidget( const QString &className, QWidget *parent,
 	    FormWindow *fw = find_formwindow( parent );
 	    QWidget *w = fw ? new QDesignerWidget( fw, tw, "tab" ) : new QWidget( tw, "tab" );
 	    tw->addTab( w, MainWindow::tr("Tab 1") );
+	    MetaDataBase::addEntry( w );
 	    w = fw ? new QDesignerWidget( fw, tw, "tab" ) : new QWidget( tw, "tab" );
-	    MetaDataBase::addEntry( tw );
 	    tw->addTab( w, MainWindow::tr("Tab 2") );
 	    MetaDataBase::addEntry( tw );
 	    MetaDataBase::addEntry( w );
