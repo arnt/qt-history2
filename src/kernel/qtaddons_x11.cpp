@@ -24,187 +24,20 @@
 
 #include "qt_x11.h"
 
+#if !defined(QT_NO_XFTFREETYPE) && !defined(QT_XFT2)
+
+#include <X11/Xft/Xft.h>
+
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
 
-#ifndef QT_NO_XFTFREETYPE
-#ifdef QT_NO_XFTNAMEUNPARSE
-
-extern "C" {
-
-#include <X11/Xft/XftFreetype.h>
-
-
-typedef struct _XftObjectType {
-    const char  *object;
-    XftType     type;
-} XftObjectType;
-
-
-static const XftObjectType _XftObjectTypes[] = {
-    { XFT_FAMILY,       XftTypeString, },
-    { XFT_STYLE,        XftTypeString, },
-    { XFT_SLANT,        XftTypeInteger, },
-    { XFT_WEIGHT,       XftTypeInteger, },
-    { XFT_SIZE,         XftTypeDouble, },
-    { XFT_PIXEL_SIZE,   XftTypeDouble, },
-    { XFT_ENCODING,     XftTypeString, },
-    { XFT_SPACING,      XftTypeInteger, },
-    { XFT_FOUNDRY,      XftTypeString, },
-    { XFT_CORE,         XftTypeBool, },
-    { XFT_ANTIALIAS,    XftTypeBool, },
-    { XFT_XLFD,         XftTypeString, },
-    { XFT_FILE,         XftTypeString, },
-    { XFT_INDEX,        XftTypeInteger, },
-    { XFT_RASTERIZER,   XftTypeString, },
-    { XFT_OUTLINE,      XftTypeBool, },
-    { XFT_SCALABLE,     XftTypeBool, },
-    { XFT_RGBA,         XftTypeInteger, },
-    { XFT_SCALE,        XftTypeDouble, },
-    { XFT_RENDER,       XftTypeBool, },
-};
-
-
-#define NUM_OBJECT_TYPES    (sizeof _XftObjectTypes / sizeof _XftObjectTypes[0])
-
-
-static Bool
-_XftNameUnparseString (const char *string, char *escape, char **destp, int *lenp)
-{
-    int	    len = *lenp;
-    char    *dest = *destp;
-    char    c;
-
-    while ((c = *string++))
-    {
-	if (escape && strchr (escape, c))
-	{
-	    if (len-- == 0)
-		return False;
-	    *dest++ = escape[0];
-	}
-	if (len-- == 0)
-	    return False;
-	*dest++ = c;
-    }
-    *destp = dest;
-    *lenp = len;
-    return True;
-}
-
-static Bool
-_XftNameUnparseValue (XftValue v, char *escape, char **destp, int *lenp)
-{
-    char    temp[1024];
-
-    switch (v.type) {
-    case XftTypeVoid:
-	return True;
-    case XftTypeInteger:
-	sprintf (temp, "%d", v.u.i);
-	return _XftNameUnparseString (temp, 0, destp, lenp);
-    case XftTypeDouble:
-	sprintf (temp, "%g", v.u.d);
-	return _XftNameUnparseString (temp, 0, destp, lenp);
-    case XftTypeString:
-	return _XftNameUnparseString (v.u.s, escape, destp, lenp);
-    case XftTypeBool:
-	return _XftNameUnparseString (v.u.b ? "True" : "False", 0, destp, lenp);
-
-	/*
-	  case XftTypeMatrix:
-	  sprintf (temp, "%g %g %g %g",
-	  v.u.m->xx, v.u.m->xy, v.u.m->yx, v.u.m->yy);
-	  return _XftNameUnparseString (temp, 0, destp, lenp);
-	*/
-    }
-    return False;
-}
-
-static Bool
-_XftNameUnparseValueList (XftValueList *v, char *escape, char **destp, int *lenp)
-{
-    while (v)
-    {
-	if (!_XftNameUnparseValue (v->value, escape, destp, lenp))
-	    return False;
-	if ((v = v->next))
-	    if (!_XftNameUnparseString (",", 0, destp, lenp))
-		return False;
-    }
-    return True;
-}
-
-#define XFT_ESCAPE_FIXED    "\\-:,"
-#define XFT_ESCAPE_VARIABLE "\\=_:,"
-
-Bool
-XftNameUnparse (XftPattern *pat, char *dest, int len)
-{
-    unsigned int	i;
-    XftPatternElt	*e;
-    const XftObjectType *o;
-
-    e = XftPatternFind (pat, XFT_FAMILY, False);
-    if (e)
-	{
-	    if (!_XftNameUnparseValueList (e->values, XFT_ESCAPE_FIXED,
-					   &dest, &len))
-		return False;
-	}
-    e = XftPatternFind (pat, XFT_SIZE, False);
-    if (e)
-	{
-	    if (!_XftNameUnparseString ("-", 0, &dest, &len))
-		return False;
-	    if (!_XftNameUnparseValueList (e->values, XFT_ESCAPE_FIXED, &dest, &len))
-		return False;
-	}
-    for (i = 0; i < NUM_OBJECT_TYPES; i++)
-	{
-	    o = &_XftObjectTypes[i];
-	    if (!strcmp (o->object, XFT_FAMILY) ||
-		!strcmp (o->object, XFT_SIZE) ||
-		!strcmp (o->object, XFT_FILE))
-		continue;
-
-	    e = XftPatternFind (pat, o->object, False);
-	    if (e)
-		{
-		    if (!_XftNameUnparseString (":", 0, &dest, &len))
-			return False;
-		    if (!_XftNameUnparseString (o->object, XFT_ESCAPE_VARIABLE,
-						&dest, &len))
-			return False;
-		    if (!_XftNameUnparseString ("=", 0, &dest, &len))
-			return False;
-		    if (!_XftNameUnparseValueList (e->values, XFT_ESCAPE_VARIABLE,
-						   &dest, &len))
-			return False;
-		}
-	}
-    if (len == 0)
-	return False;
-    *dest = '\0';
-    return True;
-}
-
-}
-
-#endif // QT_NO_XFTNAMEUNPARSE
-
-
-
-
-#ifndef QT_XFT2
-
-#include <X11/Xft/Xft.h>
-
 extern bool qt_use_xrender; // defined in qapplication_x11.cpp
 
 extern "C" {
+
 #define XFT_DRAW_N_SRC 2
+
 struct _XftDraw {
     Display *dpy;
     Drawable drawable;
@@ -289,5 +122,5 @@ XftDraw *XftDrawCreateAlpha( Display *display,
 }
 
 }
-#endif // QT_XFT2
-#endif // QT_NO_XFTFREETYPE
+
+#endif // !QT_NO_XFTFREETYPE && !QT_XFT2

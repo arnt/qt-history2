@@ -112,12 +112,6 @@ if [ "$XFT" = "yes" ] && [ "$XFT2" = "no" ]; then
     fi
 fi
 
-# check for XftNameUnparse in X11/Xft/Xft.h
-XFTNAMEUNPARSE=yes
-if [ "$XFT" = "yes" ] && [ "$XFT2" = "no" ]; then
-    grep XftNameUnparse $XFT_H >/dev/null || XFTNAMEUNPARSE=no
-fi
-
 # check for freetype2 headers
 FREETYPE2_INCDIR=
 if [ "$XFT" = "yes" ]; then
@@ -166,8 +160,6 @@ if [ "$XFT" != "yes" ]; then
     exit 0
 else
     [ "$VERBOSE" = "yes" ] && echo "Xft enabled."
-    [ "$XFTNAMEUNPARSE" = "no" ] && \
-	echo "xftnameunparse" > $OUTDIR/config.tests/x11/xft.cfg
     [ "$XFT2_HEADER" = "yes" ] && \
 	echo "xft2header" > $OUTDIR/config.tests/x11/xft.cfg
     echo "$FREETYPE2_INCDIR" > $OUTDIR/config.tests/x11/xft.inc
