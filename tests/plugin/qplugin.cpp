@@ -99,26 +99,28 @@ bool QPlugIn::load()
 bool QPlugIn::unload( bool force )
 {
     if ( pHnd ) {
-	if ( count ) {
-#ifdef CHECK_RANGE
-	    qWarning("Library is still used!");
-#endif
-	    if ( !force )
-		return FALSE;
-	}
 	if ( ifc ) {
-	    delete ifc;
-	    ifc = 0;
-
 	    ConnectProc dc;
-#if defined(_WS_WIN_)
+    #if defined(_WS_WIN_)
 	    dc = (ConnectProc) GetProcAddress( pHnd, "onDisconnect" );
-#elif defined(_WS_X11_)
+    #elif defined(_WS_X11_)
 	    dc = (ConnectProc) dlsym( pHnd, "onDisconnect" );
-#endif
+    #endif
 	    if ( dc )
 		if ( !dc( qApp ) )
 		    return FALSE;
+
+	    delete ifc;
+	    ifc = 0;
+
+	    if ( count ) {
+#ifdef CHECK_RANGE
+		qWarning("Library is still used!");
+#endif
+		if ( !force )
+		    return FALSE;
+	    }
+
 #if defined(_WS_WIN_)
 	    FreeLibrary( pHnd );
 #elif defined(_WS_X11_)
@@ -276,7 +278,7 @@ QString QPlugIn::name()
     if ( !use() )
 	return QString::null;
 
-    QString str = iface()->name();
+    QString str = plugInterface()->name();
     unuse();
 
     return str;
@@ -290,7 +292,7 @@ QString QPlugIn::description()
     if ( !use() )
 	return QString::null;
 
-    QString str = iface()->description();
+    QString str = plugInterface()->description();
     unuse();
 
     return str;
@@ -304,7 +306,7 @@ QString QPlugIn::author()
     if ( !use() )
 	return QString::null;
 
-    QString str = iface()->author();
+    QString str = plugInterface()->author();
     unuse();
 
     return str;
@@ -318,31 +320,14 @@ QStringList QPlugIn::featureList()
     if ( !use() )
 	return QStringList();
 
-    QStringList list = iface()->featureList();
+    QStringList list = plugInterface()->featureList();
     unuse();
 
     return list;
 }
 
 /*!
-  \fn bool QPlugIn::addToManager( QPlugInDict& dict )
-
-  Registers this plugin in \a dict and returns TRUE if successful.
-  This pure virtual function gets called by QPlugInManager::addPlugIn() and has
-  to be reimplemented for custom extensions.
-*/
-
-/*!
-  \fn bool QPlugIn::removeFromManager( QPlugInDict& dict )
-
-  Remove this plugin from \a dict and returns TRUE if successful.
-
-  This pure virtual function gets called by QPlugInManager::removePlugIn() and has
-  to be reimplemented for custom extensions.
-*/
-
-/*!
-  \class QPlugInManager qplugin.h
+  \class QPlugInManager qpluginmanager.h
   \brief Template class for plugin management.
 
   The QPlugInManager provides basic support for plugins.

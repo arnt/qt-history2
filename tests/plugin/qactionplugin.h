@@ -14,7 +14,6 @@ public:
     QString queryInterface() { return "QActionInterface"; }
 
     QAction* create( const QString& classname, QObject* parent = 0 );
-    QApplicationInterface* appInterface();
 };
 
 class QActionPlugInManager : public QPlugInManager<QActionPlugIn>, public QActionFactory

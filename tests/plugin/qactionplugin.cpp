@@ -22,19 +22,7 @@ QAction* QActionPlugIn::create( const QString& classname, QObject* parent )
     if ( !use() )
 	return 0;
 
-    QAction* w = ((QActionInterface*)iface())->create( classname, parent );
-    guard( w );
-    return w;
-}
-
-/*! \reimp
-*/
-QApplicationInterface* QActionPlugIn::appInterface()
-{
-    if ( !use() )
-	return 0;
-
-    QApplicationInterface* w = ((QActionInterface*)iface())->appInterface();
+    QAction* w = ((QActionInterface*)plugInterface())->create( classname, parent );
     guard( w );
     return w;
 }

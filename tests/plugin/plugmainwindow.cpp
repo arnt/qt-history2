@@ -77,7 +77,6 @@ void PlugMainWindow::fileOpen()
 		QMessageBox::information( this, "Error", tr("Couldn't create action\n%1").arg( al[a] ) );
 	    }
 	}
-	connect( ((QActionPlugIn*)plugin)->appInterface(), SIGNAL( openFile() ), this, SLOT( fileOpen() ));
     } else {
 	QMessageBox::information( this, "Error", tr("Couldn't load plugin\n%1").arg( file ) );
 	return;
@@ -175,24 +174,13 @@ void PlugMainWindow::fileClose()
 		return;
 	    }
 	} else if ( item->parent() == aplugins ) {
-	    QPlugIn* plugin = actionManager->plugInFromFile( file );
-	    if ( plugin ) {
-		info = QString( "\"%1\"").arg( ((QPlugIn*)plugin)->name() );
-		{
-		    QStringList wl = plugin->featureList();
-		    for ( uint i = 0; i < wl.count(); i++ ) {
-			QString w = wl[i];
-			int* id = menuIDs[w];
-			if ( id )
-			    actionMenu->removeItem( *id );
-			menuIDs.remove( w );
-		    }
-		}
-	    }
 	    if ( !actionManager->removeLibrary( file ) ) {
 		QMessageBox::information( this, "Error", tr("Couldn't unload library\n%1").arg( file ) );
 		return;
 	    }
+	} else {
+	    qDebug( "Bogus plugin!" );
+	    return;
 	}
 	statusBar()->message( tr("Plugin %1 unloaded").arg( info ), 3000 );
     }
@@ -215,7 +203,7 @@ void PlugMainWindow::runWidget( int id )
 	return;
     }
     setCentralWidget( w );
-    QToolTip::add( w, QString("%1 ( %2 )").arg( w->className() ).arg( QWidgetFactory::widgetFactory( it.currentKey() )->factoryName() ) );
+    QToolTip::add( w, QString("%1 ( %2 )").arg( it.currentKey() ).arg( QWidgetFactory::widgetFactory( it.currentKey() )->factoryName() ) );
 }
 
 bool PlugMainWindow::addAction( QAction* action )

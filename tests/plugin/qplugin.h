@@ -50,7 +50,7 @@ protected slots:
 
 protected:
     bool loadInterface();
-    QPlugInInterface* iface() { return ifc; }
+    QPlugInInterface* plugInterface() { return ifc; }
     void guard( QObject* o );
 
 private slots:

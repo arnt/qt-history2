@@ -49,7 +49,7 @@ public:
 	    return FALSE;
 
 
-	return FALSE;
+	return TRUE;
     }
 
     Type* addLibrary( const QString& file )
