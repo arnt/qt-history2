@@ -797,6 +797,20 @@ void QWidgetFactory::setProperty( QObject* obj, const QString &prop, const QDomE
     QString comment;
     QVariant v( DomTool::elementToVariant( e, defVarient, comment ) );
 
+    if ( e.tagName() == "pixmap" ) {
+	QPixmap pix = loadPixmap( e );
+	if ( pix.isNull() )
+	    return;
+	v = QVariant( pix );
+    } else if ( e.tagName() == "iconset" ) {
+	QPixmap pix = loadPixmap( e );
+	if ( pix.isNull() )
+	    return;
+	v = QVariant( QIconSet( pix ) );
+    } else if ( e.tagName() == "image" ) {
+	v = QVariant( loadFromCollection( v.toString() ) );
+    }
+
     if ( !p ) {
 	if ( obj->isWidgetType() ) {
 	    if ( prop == "toolTip" ) {
@@ -840,19 +854,7 @@ void QWidgetFactory::setProperty( QObject* obj, const QString &prop, const QDomE
 	}
     }
 
-    if ( e.tagName() == "pixmap" ) {
-	QPixmap pix = loadPixmap( e );
-	if ( pix.isNull() )
-	    return;
-	v = QVariant( pix );
-    } else if ( e.tagName() == "iconset" ) {
-	QPixmap pix = loadPixmap( e );
-	if ( pix.isNull() )
-	    return;
-	v = QVariant( QIconSet( pix ) );
-    } else if ( e.tagName() == "image" ) {
-	v = QVariant( loadFromCollection( v.toString() ) );
-    } else if ( e.tagName() == "palette" ) {
+    if ( e.tagName() == "palette" ) {
 	QDomElement n = e.firstChild().toElement();
 	QPalette p;
 	while ( !n.isNull() ) {
