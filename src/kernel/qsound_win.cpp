@@ -69,7 +69,7 @@ void QAuServerWindows::play( const QString& filename, int loop )
 #ifndef Q_OS_TEMP
     if ( qWinVersion() == Qt::WV_NT ) {
 #endif
-	PlaySoundW( (TCHAR*)qt_winTchar(filename,TRUE), 0, flags );
+	PlaySoundW( filename.ucs2(), 0, flags );
 #ifndef Q_OS_TEMP
     } else
 #endif

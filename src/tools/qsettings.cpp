@@ -277,7 +277,7 @@ static HANDLE openlock( const QString &name, int /*type*/ )
 
 #if defined(UNICODE)
     if ( qWinVersion() & Qt::WV_NT_based )
-	fd = CreateFileW( (TCHAR*)qt_winTchar(name, TRUE), GENERIC_READ, FILE_SHARE_READ|FILE_SHARE_WRITE, NULL, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL );
+	fd = CreateFileW( name.ucs2(), GENERIC_READ, FILE_SHARE_READ|FILE_SHARE_WRITE, NULL, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL );
     else
 #endif
 	fd = CreateFileA( name.local8Bit(), GENERIC_READ, FILE_SHARE_READ|FILE_SHARE_WRITE, NULL, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL );
@@ -449,9 +449,9 @@ QSettingsPrivate::QSettingsPrivate()
 	if ( SHGetSpecialFolderPath ) {
 	    TCHAR path[MAX_PATH];
 	    SHGetSpecialFolderPath( 0, path, CSIDL_APPDATA, FALSE );
-	    appSettings  = qt_winQString( path );
+	    appSettings  = path;
 	    SHGetSpecialFolderPath( 0, path, CSIDL_COMMON_APPDATA, FALSE );
-	    defPath = qt_winQString( path );
+	    defPath = path;
 	}
     } else
 #endif

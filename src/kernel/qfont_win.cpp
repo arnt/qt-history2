@@ -64,7 +64,7 @@ QFont qt_LOGFONTtoQFont(LOGFONT& lf, bool /*scale*/)
 {
     QString family =
 	(qt_winver & Qt::WV_NT_based)
-	    ? qt_winQString(lf.lfFaceName)
+	    ? QString(lf.lfFaceName)
 	    : QString::fromLatin1((char*)lf.lfFaceName);
     QFont qf(family);
     if (lf.lfItalic)
@@ -298,7 +298,7 @@ void QFontPrivate::initFontInfo()
 #  endif
 	TCHAR n[64];
 	GetTextFaceW( fin->dc(), 64, n );
-	actual.family = qt_winQString(n);
+	actual.family = QString(n);
 	actual.fixedPitch = !(fin->textMetricW()->tmPitchAndFamily & TMPF_FIXED_PITCH);
 #  ifndef Q_OS_TEMP
     } else 
@@ -581,8 +581,7 @@ HFONT QFontPrivate::create( bool *stockFont, HDC hdc, bool compatMode )
 #  ifndef Q_OS_TEMP
     if ( qt_winver & Qt::WV_NT_based ) {
 #  endif
-	memcpy(lf.lfFaceName,qt_winTchar( fam, TRUE ),
-	    sizeof(TCHAR)*QMIN(fam.length()+1,32));  // 32 = Windows hard-coded
+	memcpy(lf.lfFaceName, fam.ucs2(), sizeof(TCHAR)*QMIN(fam.length()+1,32));  // 32 = Windows hard-coded
 	hfont = CreateFontIndirect( &lf );
 #ifndef QT_NO_DEBUG
 	if ( !hfont )
@@ -831,8 +830,8 @@ bool QFontMetrics::inFont(QChar ch) const
 #ifndef Q_OS_TEMP
     {
 	TEXTMETRICA *f = TMA;
-	if ( ch.row() || (WCHAR)ch.cell() < f->tmFirstChar
-	    || (WCHAR)ch.cell() > f->tmLastChar )
+	if ( ch.row() || ch.cell() < f->tmFirstChar
+	    || ch.cell() > f->tmLastChar )
 	    return FALSE;
 	return !d->boundingRect( ch ).isEmpty();
     }
@@ -856,7 +855,7 @@ int QFontMetrics::leftBearing(QChar ch) const
 	{
 	    uint ch8;
 	    if ( ch.row() || ch.cell() > 125 ) {
-		QCString w = qt_winQString2MB(QString(ch));
+		QCString w = QString(ch).local8Bit();
 		if ( w.length() != 1 )
 		    return 0;
 		ch8 = w[0];
@@ -901,7 +900,7 @@ int QFontMetrics::rightBearing(QChar ch) const
 	{
 	    uint ch8;
 	    if ( ch.row() || ch.cell() > 125 ) {
-		QCString w = qt_winQString2MB(QString(ch));
+		QCString w = QString(ch).local8Bit();
 		if ( w.length() != 1 )
 		    return 0;
 		ch8 = w[0];

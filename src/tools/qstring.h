@@ -384,12 +384,14 @@ public:
 #ifndef QT_NO_CAST_ASCII
     QString( const char *str );                 // deep copy
 #endif
+    QString( const unsigned short *ucs2 ); // deep copy
     ~QString();
 
     QString    &operator=( const QString & );   // impl-shared copy
 #ifndef QT_NO_CAST_ASCII
     QString    &operator=( const char * );      // deep copy
 #endif
+    QString    &operator=( const unsigned short *ucs2 ); // deep copy
     QString    &operator=( const QCString& );   // deep copy
     QString    &operator=( QChar c );
     QString    &operator=( char c );
@@ -578,6 +580,7 @@ public:
 #ifndef QT_NO_ASCII_CAST
     operator const char *() const { return latin1(); }
 #endif
+    const unsigned short *ucs2() const;
 
     QString &setUnicode( const QChar* unicode, uint len );
     QString &setUnicodeCodes( const ushort* unicode_as_ushorts, uint len );

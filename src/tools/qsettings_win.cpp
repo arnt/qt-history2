@@ -234,7 +234,7 @@ HKEY QSettingsSysPrivate::openKey( const QString &key, bool write, bool remove )
 #ifndef Q_OS_TEMP
 	if ( qWinVersion() & Qt::WV_NT_based )
 #endif
-	    res = RegOpenKeyExW( user, (TCHAR*)qt_winTchar( f, TRUE ), 0, KEY_ALL_ACCESS, &handle );
+	    res = RegOpenKeyExW( user, f.ucs2(), 0, KEY_ALL_ACCESS, &handle );
 #ifndef Q_OS_TEMP
 	else
 #endif
@@ -250,9 +250,9 @@ HKEY QSettingsSysPrivate::openKey( const QString &key, bool write, bool remove )
 	if ( qWinVersion() & Qt::WV_NT_based ) {
 #endif
 	    if ( write && !remove )
-		res = RegCreateKeyExW( local, (TCHAR*)qt_winTchar( f, TRUE ), 0, L"", REG_OPTION_NON_VOLATILE, KEY_WRITE, NULL, &handle, NULL );
+		res = RegCreateKeyExW( local, f.ucs2(), 0, L"", REG_OPTION_NON_VOLATILE, KEY_WRITE, NULL, &handle, NULL );
 	    else
-		res = RegOpenKeyExW( local, (TCHAR*)qt_winTchar( f, TRUE ), 0, KEY_ALL_ACCESS, &handle );
+		res = RegOpenKeyExW( local, f.ucs2(), 0, KEY_ALL_ACCESS, &handle );
 #ifndef Q_OS_TEMP
 	} else
 #endif
@@ -272,9 +272,9 @@ HKEY QSettingsSysPrivate::openKey( const QString &key, bool write, bool remove )
 	if ( qWinVersion() & Qt::WV_NT_based ) {
 #endif
 	    if ( write && !remove )
-		res = RegCreateKeyExW( user, (TCHAR*)qt_winTchar( f, TRUE ), 0, L"", REG_OPTION_NON_VOLATILE, KEY_WRITE, NULL, &handle, NULL );
+		res = RegCreateKeyExW( user, f.ucs2(), 0, L"", REG_OPTION_NON_VOLATILE, KEY_WRITE, NULL, &handle, NULL );
 	    else
-		res = RegOpenKeyExW( user, (TCHAR*)qt_winTchar( f, TRUE ), 0, KEY_ALL_ACCESS, &handle );
+		res = RegOpenKeyExW( user, f.ucs2(), 0, KEY_ALL_ACCESS, &handle );
 #ifndef Q_OS_TEMP
 	} else
 #endif
@@ -312,11 +312,11 @@ bool QSettingsSysPrivate::writeKey( const QString &key, const QByteArray &value,
 
     if ( value.size() ) {
 #ifdef Q_OS_TEMP
-	res = RegSetValueExW( handle, e.isEmpty() ? 0 : (TCHAR*)qt_winTchar( e, TRUE ), 0, type, (const uchar*)value.data(), value.size() );
+	res = RegSetValueExW( handle, e.isEmpty() ? 0 : e.ucs2(), 0, type, (const uchar*)value.data(), value.size() );
 #else
 #if defined(UNICODE)
 	if ( qWinVersion() & Qt::WV_NT_based )
-	    res = RegSetValueExW( handle, e.isEmpty() ? 0 : (TCHAR*)qt_winTchar( e, TRUE ), 0, type, (const uchar*)value.data(), value.size() );
+	    res = RegSetValueExW( handle, e.isEmpty() ? 0 : e.ucs2(), 0, type, (const uchar*)value.data(), value.size() );
 	else
 #endif
 	    res = RegSetValueExA( handle, e.isEmpty() ? (const char*)0 : (const char*)e.local8Bit(), 0, type, (const uchar*)value.data(), value.size() );
@@ -339,11 +339,11 @@ HKEY QSettingsSysPrivate::readKeyHelper( HKEY root, const QString &folder, const
     HKEY handle;
     LONG res = ERROR_ACCESS_DENIED;
 #ifdef Q_OS_TEMP
-    res = RegOpenKeyExW( root, (TCHAR*)qt_winTchar( folder, TRUE ), 0, KEY_READ, &handle );
+    res = RegOpenKeyExW( root, folder.ucs2(), 0, KEY_READ, &handle );
 #else
 #if defined(UNICODE)
     if ( qWinVersion() & Qt::WV_NT_based )
-	res = RegOpenKeyExW( root, (TCHAR*)qt_winTchar( folder, TRUE ), 0, KEY_READ, &handle );
+	res = RegOpenKeyExW( root, folder.ucs2(), 0, KEY_READ, &handle );
     else
 #endif
 	res = RegOpenKeyExA( root, folder.local8Bit(), 0, KEY_READ, &handle );
@@ -351,11 +351,11 @@ HKEY QSettingsSysPrivate::readKeyHelper( HKEY root, const QString &folder, const
     
     if ( res == ERROR_SUCCESS ) {
 #ifdef Q_OS_TEMP
-	res = RegQueryValueExW( handle, entry.isEmpty() ? 0 : (TCHAR*)qt_winTchar( entry, TRUE ), NULL, NULL, NULL, &size );
+	res = RegQueryValueExW( handle, entry.isEmpty() ? 0 : entry.ucs2(), NULL, NULL, NULL, &size );
 #else
 #if defined(UNICODE)
 	if ( qWinVersion() & Qt::WV_NT_based )
-	    res = RegQueryValueExW( handle, entry.isEmpty() ? 0 : (TCHAR*)qt_winTchar( entry, TRUE ), NULL, NULL, NULL, &size );
+	    res = RegQueryValueExW( handle, entry.isEmpty() ? 0 : entry.ucs2(), NULL, NULL, NULL, &size );
 	else
 #endif
 	    res = RegQueryValueExA( handle, entry.isEmpty() ? (const char*)0 : (const char*)entry.local8Bit(), NULL, NULL, NULL, &size );
@@ -428,11 +428,11 @@ QByteArray QSettingsSysPrivate::readKey( const QString &key, bool *ok )
 
     uchar* data = new uchar[ size ];
 #ifdef Q_OS_TEMP
-    RegQueryValueExW( handle, e.isEmpty() ? 0 : (TCHAR*)qt_winTchar( e, TRUE ), NULL, NULL, data, &size );
+    RegQueryValueExW( handle, e.isEmpty() ? 0 : e.ucs2(), NULL, NULL, data, &size );
 #else
 #if defined(UNICODE)
     if ( qWinVersion() & Qt::WV_NT_based )
-	RegQueryValueExW( handle, e.isEmpty() ? 0 : (TCHAR*)qt_winTchar( e, TRUE ), NULL, NULL, data, &size );
+	RegQueryValueExW( handle, e.isEmpty() ? 0 : e.ucs2(), NULL, NULL, data, &size );
     else
 #endif
 	RegQueryValueExA( handle, e.isEmpty() ? (const char*)0 : (const char*)e.local8Bit(), NULL, NULL, data, &size );
@@ -664,11 +664,11 @@ bool QSettingsPrivate::sysRemoveEntry( const QString &key )
     if ( e == "Default" )
 	e = "";
 #ifdef Q_OS_TEMP
-    res = RegDeleteValueW( handle, (TCHAR*)qt_winTchar( e, TRUE ) );
+    res = RegDeleteValueW( handle, e.ucs2() );
 #else
 #if defined(UNICODE)
     if ( qWinVersion() & Qt::WV_NT_based )
-	res = RegDeleteValueW( handle, (TCHAR*)qt_winTchar( e, TRUE ) );
+	res = RegDeleteValueW( handle, e.ucs2() );
     else
 #endif
 	res = RegDeleteValueA( handle, e.local8Bit() );
@@ -684,8 +684,8 @@ bool QSettingsPrivate::sysRemoveEntry( const QString &key )
     DWORD vnamesz = 1;
     FILETIME lastWrite;
 #ifdef Q_OS_TEMP
-    LONG res2 = RegEnumValue( handle, 0, (LPTSTR)qt_winTchar(vname,TRUE), &vnamesz, NULL, NULL, NULL, NULL );
-    LONG res3 = RegEnumKeyEx( handle, 0, (LPTSTR)qt_winTchar(vname,TRUE), &vnamesz, NULL, NULL, NULL, &lastWrite );
+    LONG res2 = RegEnumValue( handle, 0, vname.ucs2(), &vnamesz, NULL, NULL, NULL, NULL );
+    LONG res3 = RegEnumKeyEx( handle, 0, vname.ucs2(), &vnamesz, NULL, NULL, NULL, &lastWrite );
 #else
     LONG res2 = RegEnumValueA( handle, 0, vname, &vnamesz, NULL, NULL, NULL, NULL );
     LONG res3 = RegEnumKeyExA( handle, 0, vname, &vnamesz, NULL, NULL, NULL, &lastWrite );
@@ -750,7 +750,7 @@ QStringList QSettingsPrivate::sysEntryList( const QString &key ) const
 #endif
 	    res = RegEnumValueW( handle, index, vnameT, &vnamesz, NULL, NULL, NULL, NULL );
 	    if ( res == ERROR_SUCCESS )
-		qname = qt_winQString( vnameT );
+		qname = QString( vnameT );
 #ifndef Q_OS_TEMP
 	} else
 #endif
@@ -828,7 +828,7 @@ QStringList QSettingsPrivate::sysSubkeyList( const QString &key ) const
 #endif
 	    res = RegEnumKeyExW( handle, index, vnameT, &vnamesz, NULL, NULL, NULL, &lastWrite );
 	    if ( res == ERROR_SUCCESS )
-		qname = qt_winQString( vnameT );
+		qname = QString( vnameT );
 #ifndef Q_OS_TEMP
 	} else
 #endif

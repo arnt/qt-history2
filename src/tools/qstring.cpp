@@ -13205,6 +13205,28 @@ QString::QString( const char *str )
     d = new QStringData(uc,l,l);
 }
 
+/*!
+  Constructs a string that is a deep copy of \a str, interpreted as a
+  UCS2 encoded, zero terminated, Unicode string.
+
+  If \a str is 0, then a null string is created.
+
+  \sa isNull()
+*/
+QString::QString( const unsigned short *str )
+{
+    if ( !str ) {
+	d = shared_null ? shared_null : makeSharedNull();
+	d->ref();
+    } else {
+	int length = 0;
+	while( str[length] != 0 )
+	    length++;
+	QChar* uc = QT_ALLOC_QCHAR_VEC( length );
+	memcpy( uc, str, length*sizeof(QChar) );
+	d = new QStringData( uc, length, length );
+    }
+}
 
 /*! \fn QString::~QString()
 
@@ -13290,6 +13312,32 @@ QString &QString::operator=( const char *str )
     return setLatin1(str);
 }
 
+
+/*! \overload
+
+  Assigns a deep copy of \a str, interpreted as a UCS2 encoded 0 terminated Unicode 
+  string to this string and returns a reference to this string.
+
+  If \a str is 0, then a null string is created.
+
+  \sa isNull()
+*/
+QString &QString::operator=( const unsigned short *str )
+{
+    d->deref();
+    if ( !str ) {
+	d = shared_null ? shared_null : makeSharedNull();
+	d->ref();
+    } else {
+	int length = 0;
+	while( str[length] != 0 )
+	    length++;
+	QChar* uc = QT_ALLOC_QCHAR_VEC( length );
+	memcpy( uc, str, length*sizeof(QChar) );
+	d = new QStringData( uc, length, length );
+    }
+    return *this;
+}
 
 /*!
   \fn bool QString::isNull() const
@@ -16282,6 +16330,35 @@ QString QString::fromLocal8Bit( const char* local8Bit, int len )
   described under operator!().
 */
 
+
+/*!
+    returns the QString as a zero terminated array of unsigned shorts.
+
+  The result remains valid so long as one unmodified
+  copy of the source string exists.
+
+    The method is currently available on Windows only.
+*/
+const unsigned short *QString::ucs2() const
+{
+    unsigned int len = d->len;
+    if ( d->maxl < len + 1 ) {
+	// detach, grow or shrink
+	Q2HELPER(stat_copy_on_write++)
+	Q2HELPER(stat_copy_on_write_size += len)
+	uint newMax = computeNewMax( len + 1 );
+	QChar* nd = QT_ALLOC_QCHAR_VEC( newMax );
+	if ( nd ) {
+	    if ( d->unicode )
+		memcpy( nd, d->unicode, sizeof(QChar)*len );
+	    ((QString *)this)->deref();
+	    ((QString *)this)->d = new QStringData( nd, len, newMax );
+	}
+    }
+    d->unicode[len] = 0;
+    return (unsigned short *) d->unicode;
+}
+
 /*!
   \fn QChar QString::at( uint ) const
 
@@ -16576,8 +16653,8 @@ int QString::localeAwareCompare( const QString& s ) const
     if ( qWinVersion() & Qt::WV_NT_based ) {
 #endif
 	TCHAR* s1 = new TCHAR[ length() + 1 ];
-	wcscpy( s1, (TCHAR*)qt_winTchar( *this, TRUE ) );
-	TCHAR* s2 = (TCHAR*)qt_winTchar( s, TRUE );
+	wcscpy( s1, ucs2() );
+	const TCHAR* s2 = s.ucs2();
 	res = CompareStringW( LOCALE_USER_DEFAULT, 0, s1, length(), s2, s.length() );
 	delete[] s1;
 	switch ( res ) {

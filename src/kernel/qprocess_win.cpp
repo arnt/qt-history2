@@ -278,7 +278,7 @@ bool QProcess::start( QStringList *env )
 		QString tmp = QString( "PATH=%1" ).arg( getenv( "PATH" ) );
 		uint tmpSize = sizeof(TCHAR) * (tmp.length()+1);
 		envlist.resize( envlist.size() + tmpSize );
-		memcpy( envlist.data()+pos, qt_winTchar(tmp,TRUE), tmpSize );
+		memcpy( envlist.data()+pos, tmp.ucs2(), tmpSize );
 		pos += tmpSize;
 	    }
 	    // add the user environment
@@ -286,7 +286,7 @@ bool QProcess::start( QStringList *env )
 		QString tmp = *it;
 		uint tmpSize = sizeof(TCHAR) * (tmp.length()+1);
 		envlist.resize( envlist.size() + tmpSize );
-		memcpy( envlist.data()+pos, qt_winTchar(tmp,TRUE), tmpSize );
+		memcpy( envlist.data()+pos, tmp.ucs2(), tmpSize );
 		pos += tmpSize;
 	    }
 	    // add the 2 terminating 0 (actually 4, just to be on the safe side)
@@ -302,7 +302,7 @@ bool QProcess::start( QStringList *env )
 		| CREATE_UNICODE_ENVIRONMENT
 #endif
 		, env==0 ? 0 : envlist.data(),
-		(TCHAR*)qt_winTchar(workingDir.absPath(),TRUE),
+		workingDir.absPath().ucs2(),
 		&startupInfo, d->pid );
 	delete[] commandLine;
 #  ifndef Q_OS_TEMP

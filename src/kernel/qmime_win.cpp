@@ -127,9 +127,9 @@ static QPtrList<QWindowsRegisteredMimeType> mimetypes;
 int QWindowsMime::registerMimeType(const char *mime)
 {
 #ifdef Q_OS_TEMP
-    CLIPFORMAT f = RegisterClipboardFormat((LPCWSTR)qt_winTchar(mime, TRUE));
+    CLIPFORMAT f = RegisterClipboardFormat( QString( mime ).ucs2() );
 #else
-    CLIPFORMAT f = RegisterClipboardFormatA(mime);
+    CLIPFORMAT f = RegisterClipboardFormatA( mime );
 #endif
 #ifndef QT_NO_DEBUG
     if ( !f )
@@ -589,14 +589,14 @@ QByteArray QWindowsMimeUri::convertToMime( QByteArray data, const char* mime, in
     int i=0;
     if ( hdrop->fWide ) {
 	while ( filesw[i] ) {
-	    QString fn = qt_winQString( (void*)(filesw+i) );
+	    QString fn = QString( filesw+i );
 	    texturi += QUriDrag::localFileToUri(fn);
 	    texturi += "\r\n";
 	    i += fn.length()+1;
 	}
     } else {
 	while ( files[i] ) {
-	    QString fn = qt_winMB2QString( files+i );
+	    QString fn = QString::fromLocal8Bit( files+i );
 	    texturi += QUriDrag::localFileToUri(fn);
 	    texturi += "\r\n";
 	    i += fn.length()+1;
@@ -640,9 +640,8 @@ QByteArray QWindowsMimeUri::convertFromMime( QByteArray data, const char* mime, 
 	TCHAR* f = (TCHAR*)files;
 
 	for ( i = fn.begin(); i!=fn.end(); ++i ) {
-	    const void* tc = qt_winTchar(*i,FALSE);
 	    int l = (*i).length();
-	    memcpy(f, tc, l*sizeof(TCHAR));
+	    memcpy(f, (*i).ucs2(), l*sizeof(TCHAR));
 	    for (int j = 0; j<l; j++)
 		if ( f[j] == '/' )
 		    f[j] = '\\';

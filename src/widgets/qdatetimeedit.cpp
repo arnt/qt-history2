@@ -118,18 +118,18 @@ static void readLocaleSettings()
     if ( qWinVersion() & Qt::WV_NT_based ) {
 #endif
 	TCHAR data[10];
-	GetLocaleInfo( LOCALE_USER_DEFAULT, LOCALE_SDATE, (TCHAR*)&data, 10 );
-	*lDateSep = qt_winQString( data );
-	GetLocaleInfo( LOCALE_USER_DEFAULT, LOCALE_STIME, (TCHAR*)&data, 10 );
-	*lTimeSep = qt_winQString( data );
-	GetLocaleInfo( LOCALE_USER_DEFAULT, LOCALE_ITIME, (TCHAR*)&data, 10 );
-	lAMPM = qt_winQString( data ).toInt()==0;
-	GetLocaleInfo( LOCALE_USER_DEFAULT, LOCALE_S1159, (TCHAR*)&data, 10 );
-	QString am( qt_winQString( data ) );
+	GetLocaleInfo( LOCALE_USER_DEFAULT, LOCALE_SDATE, data, 10 );
+	*lDateSep = data;
+	GetLocaleInfo( LOCALE_USER_DEFAULT, LOCALE_STIME, data, 10 );
+	*lTimeSep = data;
+	GetLocaleInfo( LOCALE_USER_DEFAULT, LOCALE_ITIME, data, 10 );
+	lAMPM = QString( data ).toInt()==0;
+	GetLocaleInfo( LOCALE_USER_DEFAULT, LOCALE_S1159, data, 10 );
+	QString am( data );
 	if ( !am.isEmpty() )
 	    lAM = new QString( am );
-	GetLocaleInfo( LOCALE_USER_DEFAULT, LOCALE_S2359, (TCHAR*)&data, 10 );
-	QString pm( qt_winQString( data ) );
+	GetLocaleInfo( LOCALE_USER_DEFAULT, LOCALE_S2359, data, 10 );
+	QString pm( data );
 	if ( !pm.isEmpty()  )
 	    lPM = new QString( pm );
 #ifndef Q_OS_TEMP
@@ -140,17 +140,17 @@ static void readLocaleSettings()
     {
 	char data[10];
 	GetLocaleInfoA( LOCALE_USER_DEFAULT, LOCALE_SDATE, (char*)&data, 10 );
-	*lDateSep = data;
+	*lDateSep = QString::fromLocal8Bit( data );
 	GetLocaleInfoA( LOCALE_USER_DEFAULT, LOCALE_STIME, (char*)&data, 10 );
-	*lTimeSep = data;
+	*lTimeSep = QString::fromLocal8Bit( data );
 	GetLocaleInfoA( LOCALE_USER_DEFAULT, LOCALE_ITIME, (char*)&data, 10 );
-	lAMPM = QString( data ).toInt()==0;
+	lAMPM = QString::fromLocal8Bit( data ).toInt()==0;
 	GetLocaleInfoA( LOCALE_USER_DEFAULT, LOCALE_S1159, (char*)&data, 10 );
-	QString am( data );
+	QString am = QString::fromLocal8Bit( data );
 	if ( !am.isEmpty() )
 	    lAM = new QString( am );
 	GetLocaleInfoA( LOCALE_USER_DEFAULT, LOCALE_S2359, (char*)&data, 10 );
-	QString pm( data );
+	QString pm = QString::fromLocal8Bit( data );
 	if ( !pm.isEmpty() )
 	    lPM = new QString( pm );
     }
@@ -561,7 +561,7 @@ bool QDateTimeEditor::eventFilter( QObject *o, QEvent *e )
 	    QKeyEvent *ke = (QKeyEvent*)e;
 	    switch ( ke->key() ) {
 	    case Key_Right:
-		if ( d->focusSection() < d->sectionCount()-1 ) {
+		if ( d->focusSection() < (int)d->sectionCount()-1 ) {
 		    if ( cw->setFocusSection( focusSection()+1 ) )
 			repaint( rect(), FALSE );
 		}

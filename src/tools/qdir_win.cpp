@@ -70,11 +70,11 @@ static void QDir::slashify( QString& n)
 QString QDir::homeDirPath()
 {
     QString d;
-    d = QString::fromLatin1( getenv("HOME") );
+    d = QString::fromLocal8Bit( getenv("HOME") );
     if ( d.isEmpty() || !QFile::exists( d ) ) {
-	d = QString::fromLatin1( getenv("USERPROFILE") );
+	d = QString::fromLocal8Bit( getenv("USERPROFILE") );
 	if ( d.isEmpty() || !QFile::exists( d ) ) {
-	    d = QString::fromLatin1( getenv("HOMEDRIVE") ) + QString::fromLatin1( getenv("HOMEPATH") );
+	    d = QString::fromLocal8Bit( getenv("HOMEDRIVE") ) + QString::fromLocal8Bit( getenv("HOMEPATH") );
 	    if ( d.isEmpty() || !QFile::exists( d ) )
 		d = rootDirPath();
 	}
@@ -103,17 +103,20 @@ QString QDir::canonicalPath() const
 
     char cur[PATH_MAX];
     QT_GETCWD( cur, PATH_MAX );
+#ifdef UNICODE
     if ( qt_winunicode ) {
-	if ( ::_tchdir((TCHAR*)qt_winTchar(dPath,TRUE)) >= 0 ) {
+	if ( ::_wchdir( dPath.ucs2() ) >= 0 ) {
 	    TCHAR tmp[PATH_MAX];
-	    if ( ::_tgetcwd( tmp, PATH_MAX ) )
-		r = qt_winQString(tmp);
+	    if ( ::_wgetcwd( tmp, PATH_MAX ) )
+		r = tmp;
 	}
-    } else {
+    } else 
+#endif
+    {
 	if ( QT_CHDIR(qt_win95Name(dPath)) >= 0 ) {
 	    char tmp[PATH_MAX];
 	    if ( QT_GETCWD( tmp, PATH_MAX ) )
-		r = tmp;
+		r = QString::fromLocal8Bit( tmp );
 	}
     }
     QT_CHDIR( cur );
@@ -135,11 +138,12 @@ QString QDir::canonicalPath() const
 
 bool QDir::mkdir( const QString &dirName, bool acceptAbsPath ) const
 {
-    if ( qt_winunicode ) {
-	return ::_tmkdir((const TCHAR*)qt_winTchar(filePath(dirName,acceptAbsPath),TRUE)) == 0;
-    } else {
+#ifdef UNICODE
+    if ( qt_winunicode )
+	return ::_wmkdir( filePath(dirName,acceptAbsPath).ucs2() ) == 0;
+    else
+#endif
 	return _mkdir(qt_win95Name(filePath(dirName,acceptAbsPath))) == 0;
-    }
 }
 
 /*!
@@ -158,11 +162,12 @@ bool QDir::mkdir( const QString &dirName, bool acceptAbsPath ) const
 
 bool QDir::rmdir( const QString &dirName, bool acceptAbsPath ) const
 {
-    if ( qt_winunicode ) {
-	return ::_trmdir((const TCHAR*)qt_winTchar(filePath(dirName,acceptAbsPath),TRUE)) == 0;
-    } else {
+#ifdef UNICODE
+    if ( qt_winunicode )
+	return ::_wrmdir( filePath(dirName,acceptAbsPath).ucs2() ) == 0;
+    else
+#endif
 	return _rmdir(qt_win95Name(filePath(dirName,acceptAbsPath))) == 0;
-    }
 }
 
 
@@ -177,11 +182,12 @@ bool QDir::rmdir( const QString &dirName, bool acceptAbsPath ) const
 
 bool QDir::isReadable() const
 {
-    if ( qt_winunicode ) {
-	return ::_taccess((const TCHAR*)qt_winTchar(dPath,TRUE), R_OK) == 0;
-    } else {
+#ifdef UNICODE
+    if ( qt_winunicode )
+	return ::_waccess( dPath.ucs2(), R_OK ) == 0;
+    else
+#endif
 	return QT_ACCESS(qt_win95Name(dPath), R_OK) == 0;
-    }
 }
 
 /*!
@@ -236,12 +242,13 @@ bool QDir::rename( const QString &oldName, const QString &newName,
     }
     QString fn1 = filePath( oldName, acceptAbsPaths );
     QString fn2 = filePath( newName, acceptAbsPaths );
+#ifdef UNICODE
     if ( qt_winunicode ) {
-	TCHAR* t2 = (TCHAR*)qt_winTchar_new(fn2);
-	bool r = ::_trename((const TCHAR*)qt_winTchar(fn1,TRUE), t2) == 0;
-	delete [] t2;
+	bool r = ::_wrename( fn1.ucs2(), fn2.ucs2() ) == 0;
 	return r;
-    } else {
+    } else 
+#endif
+    {
 	return ::rename(qt_win95Name(fn1), qt_win95Name(fn2)) == 0;
     }
 }
@@ -256,11 +263,12 @@ bool QDir::setCurrent( const QString &path )
 {
     int r;
 
-    if ( qt_winunicode ) {
-	r = ::_tchdir((const TCHAR*)qt_winTchar(path,TRUE));
-    } else {
+#ifdef UNICODE
+    if ( qt_winunicode )
+	r = ::_wchdir( path.ucs2() );
+    else
+#endif
 	r = QT_CHDIR(qt_win95Name(path));
-    }
 
     return r >= 0;
 }
@@ -274,15 +282,18 @@ QString QDir::currentDirPath()
 {
     QString result;
 
+#ifdef UNICODE
     if ( qt_winunicode ) {
 	TCHAR currentName[PATH_MAX];
-	if ( ::_tgetcwd(currentName,PATH_MAX) != 0 ) {
-	    result = qt_winQString(currentName);
+	if ( ::_wgetcwd(currentName,PATH_MAX) != 0 ) {
+	    result = currentName;
 	}
-    } else {
+    } else 
+#endif
+    {
 	char currentName[PATH_MAX];
 	if ( QT_GETCWD(currentName,PATH_MAX) != 0 ) {
-	    result = QString::fromLatin1(currentName);
+	    result = QString::fromLocal8Bit(currentName);
 	}
     }
     slashify( result );
@@ -390,16 +401,14 @@ bool QDir::readDirEntries( const QString &nameFilter,
 	p += '/';
     p += QString::fromLatin1("*.*");
 
-#ifndef Q_OS_TEMP
-    if ( qt_winunicode ) {
+#ifdef UNICODE
+    if ( qt_winunicode )
+	ff = FindFirstFile( p.ucs2(), &finfo );
+    else 
 #endif
-	ff = FindFirstFile((TCHAR*)qt_winTchar(p,TRUE),&finfo);
-#ifndef Q_OS_TEMP
-    } else {
 	// Cast is safe, since char is at end of WIN32_FIND_DATA
 	ff = FindFirstFileA(qt_win95Name(p),(WIN32_FIND_DATAA*)&finfo);
-    }
-#endif
+
     if ( ff == FF_ERROR ) {
 	// if it is a floppy disk drive, it might just not have a file on it
 	if ( plen > 1 && p[1] == ':' &&
@@ -413,11 +422,9 @@ bool QDir::readDirEntries( const QString &nameFilter,
 	    }
 	    return TRUE;
 	}
-#ifndef QT_NO_CODECS
 #if defined(QT_CHECK_RANGE)
 	qWarning( "QDir::readDirEntries: Cannot read the directory: %s (UTF8)",
 		  dPath.utf8().data() );
-#endif
 #endif
 	return FALSE;
     }
@@ -434,17 +441,16 @@ bool QDir::readDirEntries( const QString &nameFilter,
 	if ( first )
 	    first = FALSE;
 	else {
-#ifndef Q_OS_TEMP
+#ifdef UNICODE
 	    if ( qt_winunicode ) {
-#endif
 		if ( !FindNextFile(ff,&finfo) )
 		    break;
-#ifndef Q_OS_TEMP
-	    } else {
+	    } else 
+#endif
+	    {
 		if ( !FindNextFileA(ff,(WIN32_FIND_DATAA*)&finfo) )
 		    break;
 	    }
-#endif
 	}
 	int  attrib = finfo.dwFileAttributes;
 	bool isDir	= (attrib & IS_SUBDIR) != 0;
@@ -458,11 +464,13 @@ bool QDir::readDirEntries( const QString &nameFilter,
 	bool isSystem	= (attrib & IS_SYSTEM) != 0;
 
 	QString fname;
-	if ( qt_winunicode ) {
-	    fname = qt_winQString(finfo.cFileName);
-	} else {
-	    fname = qt_winMB2QString((const char*)finfo.cFileName);
-	}
+#ifdef UNICODE
+	if ( qt_winunicode )
+	    fname = (unsigned short *)finfo.cFileName;
+	else 
+#endif
+	    fname = QString::fromLocal8Bit( (const char*)finfo.cFileName );
+
 	if ( !match( filters, fname ) && !(allDirs && isDir) )
 	    continue;
 

@@ -4834,28 +4834,39 @@ QFileIconProvider * QFileDialog::iconProvider()
 
 #if defined(Q_WS_WIN)
 
-static QString getWindowsRegString( HKEY key, const char *subKey )
+// ### FIXME: this code is duplicated in qdns.cpp
+static QString getWindowsRegString( HKEY key, const QString &subKey )
 {
     QString s;
-    char  buf[512];
-    DWORD bsz = sizeof(buf);
-#ifdef Q_OS_TEMP
-    int r = RegQueryValueEx( key, (LPCTSTR)qt_winTchar(subKey, TRUE), 0, 0, (LPBYTE)buf, &bsz );
-#else
-    int r = RegQueryValueExA( key, subKey, 0, 0, (LPBYTE)buf, &bsz );
+#ifdef UNICODE
+    if ( qt_winunicode ) {
+	char buf[1024];
+	DWORD bsz = sizeof(buf);
+	int r = RegQueryValueEx( key, subKey.ucs2(), 0, 0, (LPBYTE)buf, &bsz );
+	if ( r == ERROR_SUCCESS ) {
+	    s = (unsigned short *)buf;
+	} else if ( r == ERROR_MORE_DATA ) {
+	    char *ptr = new char[bsz+1];
+	    r = RegQueryValueEx( key, subKey.ucs2(), 0, 0, (LPBYTE)ptr, &bsz );
+	    if ( r == ERROR_SUCCESS )
+		s = ptr;
+	    delete [] ptr;
+	}
+    } else 
 #endif
-    if ( r == ERROR_SUCCESS ) {
-	s = buf;
-    } else if ( r == ERROR_MORE_DATA ) {
-	char *ptr = new char[bsz+1];
-#ifdef Q_OS_TEMP
-	r = RegQueryValueEx( key, (LPCTSTR)qt_winTchar(subKey, TRUE), 0, 0, (LPBYTE)ptr, &bsz );
-#else
-	r = RegQueryValueExA( key, subKey, 0, 0, (LPBYTE)ptr, &bsz );
-#endif
-	if ( r == ERROR_SUCCESS )
-	    s = ptr;
-	delete [] ptr;
+    {
+	char buf[512];
+	DWORD bsz = sizeof(buf);
+	int r = RegQueryValueExA( key, subKey.local8Bit(), 0, 0, (LPBYTE)buf, &bsz );
+	if ( r == ERROR_SUCCESS ) {
+	    s = buf;
+	} else if ( r == ERROR_MORE_DATA ) {
+	    char *ptr = new char[bsz+1];
+	    r = RegQueryValueExA( key, subKey.local8Bit(), 0, 0, (LPBYTE)ptr, &bsz );
+	    if ( r == ERROR_SUCCESS )
+		s = ptr;
+	    delete [] ptr;
+	}
     }
     return s;
 }
@@ -4877,32 +4888,33 @@ QWindowsIconProvider::QWindowsIconProvider( QObject *parent, const char *name )
     QString s;
     UINT res;
 
-#ifdef Q_OS_TEMP
     // ---------- get default folder pixmap
-    r = RegOpenKeyEx( HKEY_CLASSES_ROOT,
-		       L"folder\\DefaultIcon",
-		       0, KEY_READ, &k );
-#else
-    // ---------- get default folder pixmap
-    r = RegOpenKeyExA( HKEY_CLASSES_ROOT,
-		       "folder\\DefaultIcon",
-		       0, KEY_READ, &k );
+#ifdef UNICODE
+    if ( qt_winunicode )
+	r = RegOpenKeyEx( HKEY_CLASSES_ROOT,
+			   L"folder\\DefaultIcon",
+			   0, KEY_READ, &k );
+    else
 #endif
+	r = RegOpenKeyExA( HKEY_CLASSES_ROOT,
+			   "folder\\DefaultIcon",
+			   0, KEY_READ, &k );
     if ( r == ERROR_SUCCESS ) {
-	s = getWindowsRegString( k, 0 );
+	s = getWindowsRegString( k, QString::null );
 	RegCloseKey( k );
 
 	QStringList lst = QStringList::split( ",", s );
 
-#ifdef Q_OS_TEMP
-	res = (UINT)ExtractIconEx( (LPCTSTR)qt_winTchar( lst[ 0 ].simplifyWhiteSpace(), TRUE ),
-			      lst[ 1 ].simplifyWhiteSpace().toInt(),
-			      0, &si, 1 );
-#else
-	res = ExtractIconExA( lst[ 0 ].simplifyWhiteSpace().latin1(),
-			      lst[ 1 ].simplifyWhiteSpace().toInt(),
-			      0, &si, 1 );
+#ifdef UNICODE
+	if ( qt_winunicode ) 
+	    res = (UINT)ExtractIconEx( lst[ 0 ].simplifyWhiteSpace().ucs2(),
+				  lst[ 1 ].simplifyWhiteSpace().toInt(),
+				  0, &si, 1 );
+	else
 #endif
+	    res = ExtractIconExA( lst[ 0 ].simplifyWhiteSpace().local8Bit(),
+				  lst[ 1 ].simplifyWhiteSpace().toInt(),
+				  0, &si, 1 );
 
 	if ( res ) {
 	    defaultFolder.resize( pixw, pixh );
@@ -4920,15 +4932,15 @@ QWindowsIconProvider::QWindowsIconProvider( QObject *parent, const char *name )
 	RegCloseKey( k );
     }
 
-#ifdef Q_OS_TEMP
     //------------------------------- get default file pixmap
-    res = (UINT)ExtractIconEx( L"shell32.dll",
-			     0, 0, &si, 1 );
-#else
-    //------------------------------- get default file pixmap
-    res = ExtractIconExA( "shell32.dll",
-			     0, 0, &si, 1 );
+#ifdef UNICODE
+    if ( qt_winunicode )
+	res = (UINT)ExtractIconEx( L"shell32.dll",
+				 0, 0, &si, 1 );
+    else
 #endif
+	res = ExtractIconExA( "shell32.dll",
+				 0, 0, &si, 1 );
 
     if ( res ) {
 	defaultFile.resize( pixw, pixh );
@@ -4943,15 +4955,15 @@ QWindowsIconProvider::QWindowsIconProvider( QObject *parent, const char *name )
 	defaultFile = *fileIcon;
     }
 
-#ifdef Q_OS_TEMP
     //------------------------------- get default exe pixmap
-    res = (UINT)ExtractIconEx( L"shell32.dll",
-			  2, 0, &si, 1 );
-#else
-    //------------------------------- get default exe pixmap
-    res = ExtractIconExA( "shell32.dll",
-			  2, 0, &si, 1 );
+#ifdef UNICODE
+if ( qt_winunicode )
+	res = (UINT)ExtractIconEx( L"shell32.dll",
+			      2, 0, &si, 1 );
+    else
 #endif
+	res = ExtractIconExA( "shell32.dll",
+			  2, 0, &si, 1 );
 
     if ( res ) {
 	defaultExe.resize( pixw, pixh );
@@ -4987,18 +4999,18 @@ const QPixmap * QWindowsIconProvider::pixmap( const QFileInfo &fi )
 	    return &( *it );
 
 	HKEY k, k2;
-#ifdef Q_OS_TEMP
-	int r = RegOpenKeyEx( HKEY_CLASSES_ROOT,
-			       (LPCTSTR)qt_winTchar(ext, TRUE),
-			       0, KEY_READ, &k );
-#else
-	int r = RegOpenKeyExA( HKEY_CLASSES_ROOT,
-			       ext.latin1(),
-			       0, KEY_READ, &k );
+	int r;
+#ifdef UNICODE
+	if ( qt_winunicode ) 
+	    r = RegOpenKeyEx( HKEY_CLASSES_ROOT, ext.ucs2(),
+			      0, KEY_READ, &k );
+	else
 #endif
+	    r = RegOpenKeyExA( HKEY_CLASSES_ROOT, ext.local8Bit(),
+			       0, KEY_READ, &k );
 	QString s;
 	if ( r == ERROR_SUCCESS ) {
-	    s = getWindowsRegString( k, 0 );
+	    s = getWindowsRegString( k, QString::null );
 	} else {
 	    cache[ key ] = defaultFile;
 	    RegCloseKey( k );
@@ -5006,17 +5018,16 @@ const QPixmap * QWindowsIconProvider::pixmap( const QFileInfo &fi )
 	}
 	RegCloseKey( k );
 
-#ifdef Q_OS_TEMP
-	r = RegOpenKeyEx( HKEY_CLASSES_ROOT,
-			   (LPCTSTR)qt_winTchar( s + "\\DefaultIcon", TRUE ),
-			   0, KEY_READ, &k2 );
-#else
-	r = RegOpenKeyExA( HKEY_CLASSES_ROOT,
-			   QString( s + "\\DefaultIcon" ).latin1() ,
-			   0, KEY_READ, &k2 );
+#ifdef UNICODE
+	if ( qt_winunicode )
+	    r = RegOpenKeyEx( HKEY_CLASSES_ROOT, QString( s + "\\DefaultIcon" ).ucs2(),
+			       0, KEY_READ, &k2 );
+	else
 #endif
+	    r = RegOpenKeyExA( HKEY_CLASSES_ROOT, QString( s + "\\DefaultIcon" ).local8Bit() ,
+	    		       0, KEY_READ, &k2 );
 	if ( r == ERROR_SUCCESS ) {
-	    s = getWindowsRegString( k2, 0 );
+	    s = getWindowsRegString( k2, QString::null );
 	} else {
 	    cache[ key ] = defaultFile;
 	    RegCloseKey( k2 );
@@ -5037,15 +5048,14 @@ const QPixmap * QWindowsIconProvider::pixmap( const QFileInfo &fi )
 	    }
 	}
 
-#ifdef Q_OS_TEMP
-	res = (UINT)ExtractIconEx( (LPCTSTR)qt_winTchar(filepath, TRUE),
-			      lst[ 1 ].stripWhiteSpace().toInt(),
-			      NULL, &si, 1 );
-#else
-	res = ExtractIconExA( filepath.latin1(),
-			      lst[ 1 ].stripWhiteSpace().toInt(),
-			      NULL, &si, 1 );
+#ifdef UNICODE
+	if ( qt_winunicode )
+	    res = (UINT)ExtractIconEx( filepath.ucs2(), lst[ 1 ].stripWhiteSpace().toInt(),
+				  NULL, &si, 1 );
+	else
 #endif
+	    res = ExtractIconExA( filepath.local8Bit(), lst[ 1 ].stripWhiteSpace().toInt(),
+				  NULL, &si, 1 );
 
 	if ( res ) {
 	    pix.resize( pixw, pixh );
@@ -5064,28 +5074,26 @@ const QPixmap * QWindowsIconProvider::pixmap( const QFileInfo &fi )
     } else {
 	HICON si;
 	UINT res;
-#ifdef Q_OS_TEMP
-	res = (UINT)ExtractIconEx( (LPCTSTR)qt_winTchar(fi.absFilePath(), TRUE),
-			      -1,
-			      0, 0, 1 );
-#else
-	res = ExtractIconExA( fi.absFilePath().latin1(),
-			      -1,
-			      0, 0, 1 );
+#ifdef UNICODE
+	if ( qt_winunicode )
+	    res = (UINT)ExtractIconEx( fi.absFilePath().ucs2(), -1,
+				  0, 0, 1 );
+	else
 #endif
+	    res = ExtractIconExA( fi.absFilePath().local8Bit(), -1,
+				  0, 0, 1 );
 
 	if ( res == 0 ) {
 	    return &defaultExe;
 	} else {
-#ifdef Q_OS_TEMP
-	    res = (UINT)ExtractIconEx( (LPCTSTR)qt_winTchar(fi.absFilePath(), TRUE),
-				  res - 1,
-				  0, &si, 1 );
-#else
-	    res = ExtractIconExA( fi.absFilePath().latin1(),
-				  res - 1,
-				  0, &si, 1 );
+#ifdef UNICODE
+	    if ( qt_winunicode )
+		res = (UINT)ExtractIconEx( fi.absFilePath().ucs2(), res - 1,
+				      0, &si, 1 );
+	    else
 #endif
+		res = ExtractIconExA( fi.absFilePath().local8Bit(), res - 1,
+				      0, &si, 1 );
 	}
 
 	if ( res ) {
@@ -5696,7 +5704,7 @@ void QFileDialog::insertEntry( const QValueList<QUrlInfo> &lst, QNetworkOperatio
 		QString file = d->url.path() + inf.name();
 #if defined(UNICODE)
 		if ( qWinVersion() & Qt::WV_NT_based ) {
-		    if ( GetFileAttributesW( (TCHAR*)qt_winTchar( file, TRUE ) ) & FILE_ATTRIBUTE_HIDDEN )
+		    if ( GetFileAttributesW( file.ucs2() ) & FILE_ATTRIBUTE_HIDDEN )
 			continue;
 		}
 		else

@@ -80,7 +80,7 @@ bool QLibraryPrivate::loadLibrary()
 #else
 #if defined(UNICODE)
 	if ( qWinVersion() & Qt::WV_NT_based )
-	    pHnd = LoadLibraryW( (TCHAR*)qt_winTchar( filename, TRUE) );
+	    pHnd = LoadLibraryW( filename.ucs2() );
 	else
 #endif
 	    pHnd = LoadLibraryA(QFile::encodeName( filename ).data());

@@ -42,7 +42,7 @@ QCString qt_win95Name(const QString s)
 	int n = ss.find('/');
 	if ( n >= 0 )
 	    ss[n] = '\\';
-	return qt_winQString2MB(ss);
+	return ss.local8Bit();
     } else if ( s.length() > 3 && s[2] == '/' && s[3] == '/' ) {
 	QString ss(s);
 	ss[2] = '\\';
@@ -50,9 +50,9 @@ QCString qt_win95Name(const QString s)
 	int n = ss.find('/');
 	if ( n >= 0 )
 	    ss[n] = '\\';
-	return qt_winQString2MB(ss);
+	return ss.local8Bit();
     } else {
-	return qt_winQString2MB(s);
+	return s.local8Bit();
     }
 }
 
@@ -60,9 +60,11 @@ bool qt_file_access( const QString& fn, int t )
 {
     if ( fn.isEmpty() )
 	return FALSE;
+#ifdef UNICODE
     if ( qt_winunicode )
-	return ::_taccess((TCHAR*)qt_winTchar(fn,TRUE), t) == 0;
+	return ::_waccess( fn.ucs2(), t) == 0;
     else
+#endif
 	return QT_ACCESS(qt_win95Name(fn), t) == 0;
 }
 
@@ -74,10 +76,11 @@ bool QFile::remove( const QString &fileName )
 #endif
 	return FALSE;
     }
-    // use standard ANSI remove
+#ifdef UNICODE
     if ( qt_winunicode )
-	return ::_tremove((const TCHAR*)qt_winTchar(fileName,TRUE)) == 0;
+	return ::_wremove( fileName.ucs2() ) == 0;
     else
+#endif
 	return ::remove(qt_win95Name(fileName)) == 0;
 }
 
@@ -134,9 +137,9 @@ bool QFile::open( int m )
 	if ( isAsynchronous() )
 	    oflags |= QT_OPEN_ASYNC;
 #endif
-#ifndef Q_OS_TEMP
+#ifdef UNICODE
 	if ( qt_winunicode )
-	    fd = ::_topen((const TCHAR*)qt_winTchar(fn,TRUE), oflags, 0666 );
+	    fd = ::_wopen( fn.ucs2(), oflags, 0666 );
 	else
 #endif
 	    fd = QT_OPEN(qt_win95Name(fn), oflags, 0666 );
@@ -182,14 +185,14 @@ bool QFile::open( int m )
 	    strcat( perm2, "b" );
 #endif
 	for (;;) { // At most twice
-#ifndef Q_OS_TEMP
+#ifdef UNICODE
 	    if ( qt_winunicode ) {
 		TCHAR tperm2[4];
 		tperm2[0] = perm2[0];
 		tperm2[1] = perm2[1];
 		tperm2[2] = perm2[2];
 		tperm2[3] = perm2[3];
-		fh = ::_tfopen((const TCHAR*)qt_winTchar(fn,TRUE), tperm2 );
+		fh = ::_wfopen( fn.ucs2(), tperm2 );
 	    } else
 #endif
 	    {
@@ -289,9 +292,12 @@ QIODevice::Offset QFile::size() const
     if ( isOpen() ) {
 	QT_FSTAT( fh ? QT_FILENO(fh) : fd, &st );
     } else {
+#ifdef UNICOCE
 	if ( qt_winunicode ) {
-	    ::_tstat((const TCHAR*)qt_winTchar(fn,TRUE), (QT_STATBUF4TSTAT*)&st);
-	} else {
+	    ::_wstat( fn.ucs2(), (QT_STATBUF4TSTAT*)&st );
+	} else 
+#endif
+	{
 	    QT_STAT(qt_win95Name(fn), &st);
 	}
     }

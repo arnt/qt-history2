@@ -511,8 +511,8 @@ QString QDate::shortMonthName( int month )
     if ( qWinVersion() & Qt::WV_NT_based ) {
 #endif
 	TCHAR buf[255];
-	if ( GetDateFormat( LOCALE_USER_DEFAULT, 0, &st, L"MMM", (TCHAR*)&buf, 255 ) )
-	    return qt_winQString( &buf );
+	if ( GetDateFormat( LOCALE_USER_DEFAULT, 0, &st, L"MMM", buf, 255 ) )
+	    return buf;
 #ifndef Q_OS_TEMP
     } else
 #endif
@@ -565,8 +565,8 @@ QString QDate::longMonthName( int month )
     if ( qWinVersion() & Qt::WV_NT_based ) {
 #endif
 	TCHAR buf[255];
-	if ( GetDateFormat( LOCALE_USER_DEFAULT, 0, &st, L"MMMM", (TCHAR*)&buf, 255 ) )
-	    return qt_winQString( &buf );
+	if ( GetDateFormat( LOCALE_USER_DEFAULT, 0, &st, L"MMMM", buf, 255 ) )
+	    return buf;
 #ifndef Q_OS_TEMP
     } else
 #endif
@@ -627,8 +627,8 @@ QString QDate::shortDayName( int weekday )
     if ( qWinVersion() & Qt::WV_NT_based ) {
 #endif
 	TCHAR buf[255];
-	if ( GetDateFormat( LOCALE_USER_DEFAULT, 0, &st, L"ddd", (TCHAR*)&buf, 255 ) )
-	    return qt_winQString( &buf );
+	if ( GetDateFormat( LOCALE_USER_DEFAULT, 0, &st, L"ddd", buf, 255 ) )
+	    return buf;
 #ifndef Q_OS_TEMP
     } else
 #endif
@@ -682,8 +682,8 @@ QString QDate::longDayName( int weekday )
     if ( qWinVersion() & Qt::WV_NT_based ) {
 #endif
 	TCHAR buf[255];
-	if ( GetDateFormat( LOCALE_USER_DEFAULT, 0, &st, L"dddd", (TCHAR*)&buf, 255 ) )
-	    return qt_winQString( &buf );
+	if ( GetDateFormat( LOCALE_USER_DEFAULT, 0, &st, L"dddd", buf, 255 ) )
+	    return buf;
 #ifndef Q_OS_TEMP
     } else
 #endif
@@ -752,8 +752,8 @@ QString QDate::toString( Qt::DateFormat f ) const
 	    if ( qWinVersion() & Qt::WV_NT_based ) {
 #endif
 		TCHAR buf[255];
-		if ( GetDateFormat( LOCALE_USER_DEFAULT, 0, &st, 0, (TCHAR*)&buf, 255 ) )
-		    return qt_winQString( &buf );
+		if ( GetDateFormat( LOCALE_USER_DEFAULT, 0, &st, 0, buf, 255 ) )
+		    return buf;
 #ifndef Q_OS_TEMP
 	    } else
 #endif
@@ -797,8 +797,8 @@ QString QDate::toString( Qt::DateFormat f ) const
 	    if ( qWinVersion() & Qt::WV_NT_based ) {
 #endif
 		TCHAR out[255];
-		GetLocaleInfo( LOCALE_USER_DEFAULT, LOCALE_ILDATE, (TCHAR*)&out, 255 );
-		winstr = qt_winQString( &out );
+		GetLocaleInfo( LOCALE_USER_DEFAULT, LOCALE_ILDATE, out, 255 );
+		winstr = out;
 #ifndef Q_OS_TEMP
 	    } else
 #endif
@@ -1425,8 +1425,8 @@ QString QTime::toString( Qt::DateFormat f ) const
 	    if ( qWinVersion() & Qt::WV_NT_based ) {
 #endif
 		TCHAR buf[255];
-		if ( GetTimeFormat( LOCALE_USER_DEFAULT, 0, &st, 0, (TCHAR*)&buf, 255 ) )
-		    return qt_winQString( &buf );
+		if ( GetTimeFormat( LOCALE_USER_DEFAULT, 0, &st, 0, buf, 255 ) )
+		    return buf;
 #ifndef Q_OS_TEMP
 	    } else
 #endif
@@ -2123,8 +2123,8 @@ QString QDateTime::toString( Qt::DateFormat f ) const
 	if ( qWinVersion() & Qt::WV_NT_based ) {
 #endif
 	    TCHAR out[255];
-	    GetLocaleInfo( LOCALE_USER_DEFAULT, LOCALE_ILDATE, (TCHAR*)&out, 255 );
-	    winstr = qt_winQString( &out );
+	    GetLocaleInfo( LOCALE_USER_DEFAULT, LOCALE_ILDATE, out, 255 );
+	    winstr = out;
 #ifndef Q_OS_TEMP
 	} else
 #endif

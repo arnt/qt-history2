@@ -34,6 +34,7 @@
 #include "qfiledefs_p.h"
 #include "qdatetime.h"
 #include "qdir.h"
+#include "qapplication.h"
 
 #ifdef QT_THREAD_SUPPORT
 #  include <private/qmutexpool_p.h>
@@ -123,15 +124,18 @@ static QString currentDirOfDrive( char ch )
 {
     QString result;
 
+#ifdef UNICODE
     if ( qt_winunicode ) {
 	TCHAR currentName[PATH_MAX];
-	if ( _tgetdcwd( toupper( (uchar) ch ) - 'A' + 1, currentName, PATH_MAX ) >= 0 ) {
-	    result = qt_winQString(currentName);
+	if ( _wgetdcwd( toupper( (uchar) ch ) - 'A' + 1, currentName, PATH_MAX ) >= 0 ) {
+	    result = currentName;
 	}
-    } else {
+    } else 
+#endif
+    {
 	char currentName[PATH_MAX];
 	if ( _getdcwd( toupper( (uchar) ch ) - 'A' + 1, currentName, PATH_MAX ) >= 0 ) {
-	    result = QString::fromLatin1(currentName);
+	    result = QString::fromLocal8Bit(currentName);
 	}
     }
     return result;
@@ -188,46 +192,77 @@ bool QFileInfo::isSymLink() const
 QString QFileInfo::readLink() const
 {
 #ifndef QT_NO_COMPONENT
-#ifndef Q_OS_TEMP // ### What's this about, does this need supporting on CE?
-    IShellLink *psl;                            // pointer to IShellLink i/f
-    HRESULT hres;
-    WIN32_FIND_DATA wfd;
-    QString fileLinked;
-    char szGotPath[MAX_PATH];
-    // Get pointer to the IShellLink interface.
+#ifdef UNICODE
+    if ( qWinVersion() & Qt::WV_NT_based ) {
+	IShellLink *psl;                            // pointer to IShellLink i/f
+	HRESULT hres;
+	WIN32_FIND_DATA wfd;
+	QString fileLinked;
+	TCHAR szGotPath[MAX_PATH];
+	// Get pointer to the IShellLink interface.
 
-    hres = CoCreateInstance(CLSID_ShellLink, NULL, CLSCTX_INPROC_SERVER,
-                                IID_IShellLink, (LPVOID *)&psl);
+	hres = CoCreateInstance(CLSID_ShellLink, NULL, CLSCTX_INPROC_SERVER,
+				    IID_IShellLink, (LPVOID *)&psl);
 
-    if (SUCCEEDED(hres)) {    // Get pointer to the IPersistFile interface.
-        IPersistFile *ppf;
-        hres = psl->QueryInterface(IID_IPersistFile, (LPVOID *)&ppf);
-        if (SUCCEEDED(hres))  {
-            QString fn2 = fn + QChar();
-            hres = ppf->Load( (LPOLESTR)fn2.unicode(), STGM_READ);
-            if (SUCCEEDED(hres)) {        // Resolve the link.
+	if (SUCCEEDED(hres)) {    // Get pointer to the IPersistFile interface.
+	    IPersistFile *ppf;
+	    hres = psl->QueryInterface(IID_IPersistFile, (LPVOID *)&ppf);
+	    if (SUCCEEDED(hres))  {
+		hres = ppf->Load( (LPOLESTR)fn.ucs2(), STGM_READ);
+		if (SUCCEEDED(hres)) {        // Resolve the link.
 
-                hres = psl->Resolve(0, SLR_ANY_MATCH);
+		    hres = psl->Resolve(0, SLR_ANY_MATCH);
 
-                if (SUCCEEDED(hres)) {
-                    qstrcpy(szGotPath, fn.latin1());
+		    if (SUCCEEDED(hres)) {
+			memcpy( szGotPath, fn.ucs2(), (fn.length()+1)*sizeof(QChar) );
+			hres = psl->GetPath( szGotPath, MAX_PATH, &wfd, SLGP_SHORTPATH );
+			fileLinked = szGotPath;
+		    }
+		}
+		ppf->Release();
+	    }
+	    psl->Release();
+	}
 
-                    hres = psl->GetPath((TCHAR*)szGotPath, MAX_PATH,
-                                (WIN32_FIND_DATA *)&wfd, SLGP_SHORTPATH);
-
-                    fileLinked = qt_winQString(szGotPath);
-
-                }
-            }
-            ppf->Release();
-        }
-        psl->Release();
-    }
-
-    return fileLinked;
+	return fileLinked;
+    } else 
 #endif
+    {
+	IShellLinkA *psl;                            // pointer to IShellLink i/f
+	HRESULT hres;
+	WIN32_FIND_DATAA wfd;
+	QString fileLinked;
+	char szGotPath[MAX_PATH];
+	// Get pointer to the IShellLink interface.
+
+	hres = CoCreateInstance(CLSID_ShellLink, NULL, CLSCTX_INPROC_SERVER,
+				    IID_IShellLinkA, (LPVOID *)&psl);
+
+	if (SUCCEEDED(hres)) {    // Get pointer to the IPersistFile interface.
+	    IPersistFile *ppf;
+	    hres = psl->QueryInterface(IID_IPersistFile, (LPVOID *)&ppf);
+	    if (SUCCEEDED(hres))  {
+		hres = ppf->Load( (LPOLESTR)fn.ucs2(), STGM_READ);
+		if (SUCCEEDED(hres)) {        // Resolve the link.
+
+		    hres = psl->Resolve(0, SLR_ANY_MATCH);
+
+		    if (SUCCEEDED(hres)) {
+			QCString lfn = fn.local8Bit();
+			memcpy( szGotPath, lfn.data(), (lfn.length()+1)*sizeof(char) );
+			hres = psl->GetPath((char*)szGotPath, MAX_PATH, &wfd, SLGP_SHORTPATH);
+			fileLinked = QString::fromLocal8Bit(szGotPath);
+
+		    }
+		}
+		ppf->Release();
+	    }
+	    psl->Release();
+	}
+
+	return fileLinked;
+    }
 #else
-    // ### Does this need supporting on CE?
     return QString();
 #endif
 }
@@ -244,7 +279,7 @@ QString QFileInfo::owner() const
 
 #if defined(UNICODE)
 	if ( ptrGetNamedSecurityInfoW && ptrLookupAccountSidW ) {
-	    if ( ptrGetNamedSecurityInfoW( (TCHAR*)qt_winTchar( fn, TRUE ), SE_FILE_OBJECT, OWNER_SECURITY_INFORMATION, &pOwner, NULL, NULL, NULL, &pSD ) == ERROR_SUCCESS ) {
+	    if ( ptrGetNamedSecurityInfoW( (TCHAR *)fn.ucs2(), SE_FILE_OBJECT, OWNER_SECURITY_INFORMATION, &pOwner, NULL, NULL, NULL, &pSD ) == ERROR_SUCCESS ) {
 		DWORD lowner = 0, ldomain = 0;
 		SID_NAME_USE use;
 		// First call, to determine size of the strings (with '\0').
@@ -253,7 +288,7 @@ QString QFileInfo::owner() const
 		TCHAR *domain = new TCHAR[ldomain];
 		// Second call, size is without '\0'
 		if ( ptrLookupAccountSidW( NULL, pOwner, (LPWSTR)owner, &lowner, (LPWSTR)domain, &ldomain, &use ) ) {
-		    name = qt_winQString(owner);
+		    name = owner;
 		}
 		LocalFree( pSD );
 		delete [] owner;
@@ -309,7 +344,7 @@ QString QFileInfo::group() const
 
 #if defined(UNICODE)
 	if ( ptrGetNamedSecurityInfoW && ptrLookupAccountSidW ) {
-	    if ( ptrGetNamedSecurityInfoW( (TCHAR*)qt_winTchar( fn, TRUE ), SE_FILE_OBJECT, GROUP_SECURITY_INFORMATION, NULL, &pGroup, NULL, NULL, &pSD ) == ERROR_SUCCESS ) {
+	    if ( ptrGetNamedSecurityInfoW( (TCHAR *)fn.ucs2(), SE_FILE_OBJECT, GROUP_SECURITY_INFORMATION, NULL, &pGroup, NULL, NULL, &pSD ) == ERROR_SUCCESS ) {
 		DWORD lgroup = 0, ldomain = 0;
 		SID_NAME_USE use;
 		// First call, to determine size of the strings (with '\0').
@@ -318,7 +353,7 @@ QString QFileInfo::group() const
 		TCHAR *domain = new TCHAR[ldomain];
 		// Second call, size is without '\0'
 		if ( ptrLookupAccountSidW( NULL, pGroup, (LPWSTR)group, &lgroup, (LPWSTR)domain, &ldomain, &use ) ) {
-		    name = qt_winQString(group);
+		    name = group;
 		}
 		LocalFree( pSD );
 		delete [] group;
@@ -377,7 +412,7 @@ bool QFileInfo::permission( int p ) const
         TRUSTEE_W trustee;
 	PTRUSTEE_W pTrustee = &trustee;
 	if ( ptrGetNamedSecurityInfoW && ptrAllocateAndInitializeSid && ptrBuildTrusteeWithSidW && ptrGetEffectiveRightsFromAclW && ptrFreeSid ) {
-	    if ( ptrGetNamedSecurityInfoW( (TCHAR*)qt_winTchar( fn, TRUE ), SE_FILE_OBJECT,
+	    if ( ptrGetNamedSecurityInfoW( (TCHAR *)fn.ucs2(), SE_FILE_OBJECT,
 			OWNER_SECURITY_INFORMATION | GROUP_SECURITY_INFORMATION | DACL_SECURITY_INFORMATION,
 			&pOwner, &pGroup, &pDacl, NULL, &pSD ) == ERROR_SUCCESS ) {
 
@@ -469,9 +504,9 @@ bool QFileInfo::permission( int p ) const
     // just check if it's ReadOnly
 
 #if defined(UNICODE)
-    if ( qWinVersion() & Qt::WV_NT_based ) {
+    if ( qt_winunicode ) {
 	if ( p & ( WriteUser | WriteGroup | WriteOther ) ) {
-	    DWORD attr = GetFileAttributes( (TCHAR*)qt_winTchar( fn, TRUE ) );
+	    DWORD attr = GetFileAttributes( fn.ucs2() );
 	    if ( attr & FILE_ATTRIBUTE_READONLY )
 		return FALSE;
 	}
@@ -499,9 +534,11 @@ void QFileInfo::doStat() const
     QT_STATBUF *b = &that->fic->st;
 
     int r;
+#ifdef UNICODE
     if ( qt_winunicode )
-	r = _tstat((const TCHAR*)qt_winTchar(fn,TRUE), (QT_STATBUF4TSTAT*)b);
+	r = _wstat(fn.ucs2(), (QT_STATBUF4TSTAT*)b);
     else
+#endif
 	r = QT_STAT(qt_win95Name(fn), b);
     if ( r!=0 ) {
 	bool is_dir=FALSE;
@@ -599,7 +636,7 @@ bool QFileInfo::isHidden() const
 {
 #if defined(UNICODE)
     if ( qWinVersion() & Qt::WV_NT_based )
-	return GetFileAttributesW( (TCHAR*)qt_winTchar( fn, TRUE ) ) & FILE_ATTRIBUTE_HIDDEN;
+	return GetFileAttributesW( fn.ucs2() ) & FILE_ATTRIBUTE_HIDDEN;
 #endif
-    return GetFileAttributesA( fn ) & FILE_ATTRIBUTE_HIDDEN;
+    return GetFileAttributesA( fn.local8Bit() ) & FILE_ATTRIBUTE_HIDDEN;
 }

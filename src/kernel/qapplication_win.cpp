@@ -365,7 +365,7 @@ static void set_winapp_name()
 #ifndef Q_OS_TEMP
 	GetModuleFileNameA( 0, appFileName, sizeof(appFileName) );
 #else
-	GetModuleFileName( 0, (unsigned short *)qt_winTchar(appFileName,TRUE), sizeof(appFileName) );
+	GetModuleFileName( 0, appFilename.ucs2(), sizeof(appFileName) );
 #endif
 	const char *p = strrchr( appFileName, '\\' );	// skip path
 	if ( p )
@@ -927,7 +927,7 @@ static void msgHandler( QtMsgType t, const char* str )
 #ifndef Q_OS_TEMP
     OutputDebugStringA( s.data() );
 #else
-    OutputDebugString( (unsigned short *)qt_winTchar(s,TRUE) );
+    OutputDebugString( QString( s ).ucs2() );
 #endif
     if ( t == QtFatalMsg )
 #ifndef Q_OS_TEMP
@@ -1029,9 +1029,7 @@ const QString qt_reg_winclass( int flags )	// register window class
 	wc.cbWndExtra	= 0;
 	wc.hInstance	= (HINSTANCE)qWinAppInst();
 	if ( icon ) {
-	    TCHAR* irc = (TCHAR*)qt_winTchar( QString::fromLatin1("IDI_ICON1"),
-					      TRUE );
-	    wc.hIcon = LoadIcon( appInst, irc );
+	    wc.hIcon = LoadIcon( appInst, L"IDI_ICON1" );
 #ifndef Q_OS_TEMP
 	    if ( !wc.hIcon )
 		wc.hIcon = LoadIcon( 0, IDI_APPLICATION );
@@ -1044,7 +1042,7 @@ const QString qt_reg_winclass( int flags )	// register window class
 	wc.hCursor	= 0;
 	wc.hbrBackground= 0;
 	wc.lpszMenuName	= 0;
-	wc.lpszClassName= (TCHAR*)qt_winTchar(cname,TRUE);
+	wc.lpszClassName= cname.ucs2();
 	RegisterClass( &wc );
 #ifndef Q_OS_TEMP
     } else
@@ -1086,13 +1084,11 @@ static void unregWinClasses()
     const char *k;
     while ( (k = it.currentKey()) ) {
 #ifdef Q_OS_TEMP
-	    UnregisterClass( (TCHAR*)qt_winTchar(QString::fromLatin1(k),TRUE),
-			     (HINSTANCE)qWinAppInst() );
+	    UnregisterClass( QString::fromLatin1(k).ucs2(), (HINSTANCE)qWinAppInst() );
 #else
 #if defined(UNICODE)
 	if ( qt_winver & Qt::WV_NT_based ) {
-	    UnregisterClass( (TCHAR*)qt_winTchar(QString::fromLatin1(k),TRUE),
-			     (HINSTANCE)qWinAppInst() );
+	    UnregisterClass( QString::fromLatin1(k).ucs2(), (HINSTANCE)qWinAppInst() );
 	} else
 #endif
 	{
@@ -1796,9 +1792,9 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 	case WM_SETTINGCHANGE:
 	    if ( !msg.wParam ) {
 		QString area =
-    #if defined(UNICODE)
-		    ( qt_winver & Qt::WV_NT_based ) ? qt_winQString( (void*)msg.lParam ) :
-    #endif
+#if defined(UNICODE)
+		    ( qt_winver & Qt::WV_NT_based ) ? QString( (unsigned short *)msg.lParam ) :
+#endif
 		    QString::fromLocal8Bit( (char*)msg.lParam );
 		if ( area == "intl" )
 		    QApplication::postEvent( widget, new QEvent( QEvent::LocaleChange ) );
@@ -3420,11 +3416,11 @@ bool QETWidget::translateConfigEvent( const MSG &msg )
 
 	    if ( !!txt ) {
 #ifdef Q_OS_TEMP
-		    SetWindowText( winId(), (TCHAR*)qt_winTchar(txt,TRUE) );
+		    SetWindowText( winId(), txt.ucs2() );
 #else
 #if defined(UNICODE)
 		if ( qt_winver & Qt::WV_NT_based )
-		    SetWindowText( winId(), (TCHAR*)qt_winTchar(txt,TRUE) );
+		    SetWindowText( winId(), txt.ucs2() );
 		else
 #endif
 		    SetWindowTextA( winId(), txt.local8Bit() );

@@ -85,7 +85,7 @@ void QAccessible::updateAccessibility( QObject *o, int who, Event reason )
     if ( !!soundName ) {
 #if defined(UNICODE)
 	if ( qWinVersion() & Qt::WV_NT_based )
-	    PlaySoundW( (TCHAR*)qt_winTchar( soundName, TRUE ), NULL, SND_ALIAS | SND_ASYNC | SND_NODEFAULT | SND_NOWAIT );
+	    PlaySoundW( soundName.ucs2(), NULL, SND_ALIAS | SND_ASYNC | SND_NODEFAULT | SND_NOWAIT );
 	else
 #endif
 	    PlaySoundA( soundName.local8Bit(), NULL, SND_ALIAS | SND_ASYNC | SND_NODEFAULT | SND_NOWAIT  );

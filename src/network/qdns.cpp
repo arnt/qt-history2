@@ -2260,50 +2260,59 @@ typedef struct {
 #endif
 typedef DWORD (WINAPI *GNP)( PFIXED_INFO, PULONG );
 
-//
-// We need to get information about DNS etc. from the Windows
-// registry.  We don't worry about Unicode strings here.
-//
-
-static QString getWindowsRegString( HKEY key, const char *subKey )
+// ### FIXME: this code is duplicated in qfiledialog.cpp
+static QString getWindowsRegString( HKEY key, const QString &subKey )
 {
     QString s;
-    char  buf[512];
-    DWORD bsz = sizeof(buf);
-#ifdef Q_OS_TEMP
-    int r = RegQueryValueEx( key, (LPCTSTR)qt_winTchar(subKey,TRUE), 0, 0, (LPBYTE)buf, &bsz );
-#else
-    int r = RegQueryValueExA( key, subKey, 0, 0, (LPBYTE)buf, &bsz );
+#ifdef UNICODE
+    if ( qt_winunicode ) {
+	char buf[1024];
+	DWORD bsz = sizeof(buf);
+	int r = RegQueryValueEx( key, subKey.ucs2(), 0, 0, (LPBYTE)buf, &bsz );
+	if ( r == ERROR_SUCCESS ) {
+	    s = (unsigned short *)buf;
+	} else if ( r == ERROR_MORE_DATA ) {
+	    char *ptr = new char[bsz+1];
+	    r = RegQueryValueEx( key, subKey.ucs2(), 0, 0, (LPBYTE)ptr, &bsz );
+	    if ( r == ERROR_SUCCESS )
+		s = ptr;
+	    delete [] ptr;
+	}
+    } else 
 #endif
-    if ( r == ERROR_SUCCESS ) {
-	s = buf;
-    } else if ( r == ERROR_MORE_DATA ) {
-	char *ptr = new char[bsz+1];
-#ifdef Q_OS_TEMP
-	r = RegQueryValueEx( key, (LPCTSTR)qt_winTchar(subKey, TRUE), 0, 0, (LPBYTE)ptr, &bsz );
-#else
-	r = RegQueryValueExA( key, subKey, 0, 0, (LPBYTE)ptr, &bsz );
-#endif
-	if ( r == ERROR_SUCCESS )
-	    s = ptr;
-	delete [] ptr;
+    {
+	char buf[512];
+	DWORD bsz = sizeof(buf);
+	int r = RegQueryValueExA( key, subKey.local8Bit(), 0, 0, (LPBYTE)buf, &bsz );
+	if ( r == ERROR_SUCCESS ) {
+	    s = buf;
+	} else if ( r == ERROR_MORE_DATA ) {
+	    char *ptr = new char[bsz+1];
+	    r = RegQueryValueExA( key, subKey.local8Bit(), 0, 0, (LPBYTE)ptr, &bsz );
+	    if ( r == ERROR_SUCCESS )
+		s = ptr;
+	    delete [] ptr;
+	}
     }
     return s;
 }
 
-static bool getDnsParamsFromRegistry( const char *path,
+static bool getDnsParamsFromRegistry( const QString &path,
 	QString *domainName, QString *nameServer, QString *searchList )
 {
     HKEY k;
-#ifdef Q_OS_TEMP
-    int r = RegOpenKeyEx( HKEY_LOCAL_MACHINE,
-	    (LPCTSTR)qt_winTchar(path,TRUE),
-	    0, KEY_READ, &k );
-#else
-    int r = RegOpenKeyExA( HKEY_LOCAL_MACHINE,
-	    path,
-	    0, KEY_READ, &k );
+    int r;
+#ifdef UNICODE
+    if ( qt_winunicode )
+	r = RegOpenKeyEx( HKEY_LOCAL_MACHINE,
+			  path.ucs2(),
+			  0, KEY_READ, &k );
+    else
 #endif
+	r = RegOpenKeyExA( HKEY_LOCAL_MACHINE,
+			   path,
+			   0, KEY_READ, &k );
+
     if ( r == ERROR_SUCCESS ) {
 	*domainName = getWindowsRegString( k, "DhcpDomain" );
 	if ( domainName->isEmpty() )
@@ -2374,14 +2383,12 @@ static void doResInit()
     }
     if ( !gotNetworkParams ) {
 	if ( getDnsParamsFromRegistry(
-		    "System\\CurrentControlSet\\Services\\Tcpip\\"
-		    "Parameters",
+		    QString( L"System\\CurrentControlSet\\Services\\Tcpip\\Parameters" ),
 		    &domainName, &nameServer, &searchList )) {
 	    // for NT
 	    separator = ' ';
 	} else if ( getDnsParamsFromRegistry( 
-		    "System\\CurrentControlSet\\Services\\VxD\\"
-		    "MSTCP",
+		    QString( L"System\\CurrentControlSet\\Services\\VxD\\MSTCP" ),
 		    &domainName, &nameServer, &searchList )) {
 	    // for 95/98
 	    separator = ',';

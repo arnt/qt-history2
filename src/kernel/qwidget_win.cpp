@@ -149,7 +149,8 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
     parentw = parentWidget() ? parentWidget()->winId() : 0;
 
 #ifdef UNICODE
-    TCHAR* title = 0;
+    QString title;
+    const TCHAR *ttitle = 0;
 #endif
     const char *title95 = 0;
     int	 style = WS_CHILD;
@@ -224,8 +225,8 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 #  ifndef Q_OS_TEMP
 	if ( qt_winver & Qt::WV_NT_based ) {
 #  endif
-	    title = isTopLevel() ? (TCHAR*)qt_winTchar_new(QString::fromLatin1(qAppName())) :
-				   (TCHAR*)qt_winTchar_new(QString::fromLatin1(name()));
+	    title = QString::fromLocal8Bit( isTopLevel() ? qAppName() : name() );
+	    ttitle = title.ucs2();
 #  ifndef Q_OS_TEMP
 	} else
 #  endif
@@ -289,22 +290,22 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 
 	TCHAR *cname = (TCHAR*)qt_winTchar(windowClassName,TRUE);
 	if ( exsty )
-	    id = CreateWindowEx( exsty, cname, title, style, x, y, cx, cy, parentw, 0, appinst, 0 );
+	    id = CreateWindowEx( exsty, cname, ttitle, style, x, y, cx, cy, parentw, 0, appinst, 0 );
 	else
-	    id = CreateWindow( cname, title, style, x, y, cx, cy, parentw, 0, appinst, 0 );
+	    id = CreateWindow( cname, ttitle, style, x, y, cx, cy, parentw, 0, appinst, 0 );
 #else
 
 #  ifdef UNICODE
 	if ( qt_winver & Qt::WV_NT_based ) {
 		// ### can this give problems due to the buffer in qt_winTchar????
-	    TCHAR *cname = (TCHAR*)qt_winTchar(windowClassName,TRUE);
+	    const TCHAR *cname = windowClassName.ucs2();
 	    if ( exsty )
-		id = CreateWindowEx( exsty, cname, title, style,
+		id = CreateWindowEx( exsty, cname, ttitle, style,
 		    		    CW_USEDEFAULT, CW_USEDEFAULT,
 				    CW_USEDEFAULT, CW_USEDEFAULT,
 				    parentw, 0, appinst, 0 );
 	    else
-		id = CreateWindow( cname, title, style,
+		id = CreateWindow( cname, ttitle, style,
 				    CW_USEDEFAULT, CW_USEDEFAULT,
 				    CW_USEDEFAULT, CW_USEDEFAULT,
 				    parentw, 0, appinst, 0 );
@@ -337,8 +338,8 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 #ifndef Q_OS_TEMP
 	if ( qt_winver & Qt::WV_NT_based ) {
 #endif
-	    TCHAR *cname = (TCHAR*)qt_winTchar(windowClassName,TRUE);
-	    id = CreateWindow( cname, title, style, 0, 0, 100, 30,
+	    const TCHAR *cname = windowClassName.ucs2();
+	    id = CreateWindow( cname, ttitle, style, 0, 0, 100, 30,
 			    parentw, NULL, appinst, NULL );
 #ifndef Q_OS_TEMP
 	} else
@@ -423,11 +424,6 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
     if ( destroyw ) {
 	DestroyWindow( destroyw );
     }
-
-#ifdef UNICODE
-    if ( title )
-	delete [] title;
-#endif	
 
     setFontSys();
 }
@@ -653,7 +649,7 @@ void QWidget::setCaption( const QString &caption )
     topData()->caption = caption;
 
 #ifdef Q_OS_TEMP
-    SetWindowText( winId(), (TCHAR*)qt_winTchar(caption,TRUE) );
+    SetWindowText( winId(), caption.ucs2() );
 #else
 #if defined(QT_NON_COMMERCIAL)
     QT_NC_CAPTION
@@ -662,7 +658,7 @@ void QWidget::setCaption( const QString &caption )
 #endif
 #if defined(UNICODE)
     if ( qt_winver & WV_NT_based )
-	SetWindowText( winId(), (TCHAR*)qt_winTchar(cap,TRUE) );
+	SetWindowText( winId(), cap.ucs2() );
     else
 #endif
 	SetWindowTextA( winId(), cap.local8Bit() );

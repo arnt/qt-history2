@@ -120,7 +120,7 @@ void newWinFont( void * p )
 
     QString familyName;
     if ( qt_winver & Qt::WV_NT_based ) {
-        familyName = qt_winQString((void*)tc);
+        familyName = QString( tc );
     } else {
         familyName = QString::fromLocal8Bit((const char*)tc);
     }
@@ -143,7 +143,7 @@ void newWinFont( void * p )
 
     QString styleName;
     if ( qt_winver & Qt::WV_NT_based ) {
-        styleName = qt_winQString((void*)tc);
+        styleName = QString( tc );
     } else {
         styleName = QString::fromLocal8Bit((const char*)tc);
     }
@@ -198,8 +198,7 @@ void populate_database(const QString& fam)
         if ( fam.isNull() ) {
             lf.lfFaceName[0] = 0;
         } else {
-            memcpy(lf.lfFaceName,qt_winTchar( fam, TRUE ),
-                sizeof(TCHAR)*QMIN(fam.length()+1,32));  // 32 = Windows hard-coded
+            memcpy( lf.lfFaceName, fam.ucs2(), sizeof(TCHAR)*QMIN(fam.length()+1,32));  // 32 = Windows hard-coded
         }
         lf.lfPitchAndFamily = 0;
 

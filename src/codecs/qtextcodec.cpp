@@ -1679,14 +1679,16 @@ const char* QTextCodec::locale()
     if ( qWinVersion() & Qt::WV_NT_based ) {
 #endif
 	TCHAR out[256];
-	if ( GetLocaleInfo( LOCALE_USER_DEFAULT, LOCALE_SISO639LANGNAME , (TCHAR*)&out, 255 ) )
-	    lang = qt_winQString( out );
-	else if ( GetLocaleInfo( LOCALE_USER_DEFAULT, LOCALE_SISO3166CTRYNAME, (TCHAR*)&out, 255 ) )
-	    lang = qt_winQString( out );
-	else if ( GetLocaleInfo( LOCALE_USER_DEFAULT, LOCALE_SABBREVLANGNAME, (TCHAR*)&out, 255 ) )
-	    lang = qt_winQString( out );
-	else if ( GetLocaleInfo( LOCALE_USER_DEFAULT, LOCALE_SENGLANGUAGE, (TCHAR*)&out, 255 ) )
-	    lang = qt_winQString( out );
+	QString language;
+	if ( GetLocaleInfo( LOCALE_USER_DEFAULT, LOCALE_SISO639LANGNAME , out, 255 ) )
+	    language = out;
+	else if ( GetLocaleInfo( LOCALE_USER_DEFAULT, LOCALE_SISO3166CTRYNAME, out, 255 ) )
+	    language = out;
+	else if ( GetLocaleInfo( LOCALE_USER_DEFAULT, LOCALE_SABBREVLANGNAME, out, 255 ) )
+	    language = out;
+	else if ( GetLocaleInfo( LOCALE_USER_DEFAULT, LOCALE_SENGLANGUAGE, out, 255 ) )
+	    language = out;
+	lang = language.local8Bit();
 #ifndef Q_OS_TEMP
     } else
 #endif
@@ -1694,13 +1696,13 @@ const char* QTextCodec::locale()
 #ifndef Q_OS_TEMP
     {
 	char out[256];
-	if ( GetLocaleInfoA( LOCALE_USER_DEFAULT, LOCALE_SISO639LANGNAME, (char*)&out, 255 ) )
+	if ( GetLocaleInfoA( LOCALE_USER_DEFAULT, LOCALE_SISO639LANGNAME, out, 255 ) )
 	    lang = QString::fromLocal8Bit( out );
-	else if ( GetLocaleInfoA( LOCALE_USER_DEFAULT, LOCALE_SISO3166CTRYNAME, (char*)&out, 255 ) )
+	else if ( GetLocaleInfoA( LOCALE_USER_DEFAULT, LOCALE_SISO3166CTRYNAME, out, 255 ) )
 	    lang = QString::fromLocal8Bit( out );
-	else if ( GetLocaleInfoA( LOCALE_USER_DEFAULT, LOCALE_SABBREVLANGNAME, (char*)&out, 255 ) )
+	else if ( GetLocaleInfoA( LOCALE_USER_DEFAULT, LOCALE_SABBREVLANGNAME, out, 255 ) )
 	    lang = QString::fromLocal8Bit( out );
-	else if ( GetLocaleInfoA( LOCALE_USER_DEFAULT, LOCALE_SENGLANGUAGE, (char*)&out, 255 ) )
+	else if ( GetLocaleInfoA( LOCALE_USER_DEFAULT, LOCALE_SENGLANGUAGE, out, 255 ) )
 	    lang = QString::fromLocal8Bit( out );
     }
 #endif
