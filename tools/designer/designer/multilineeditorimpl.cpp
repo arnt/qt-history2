@@ -545,7 +545,7 @@ QTextParagraph* TextEdit::paragraph()
 MultiLineEditor::MultiLineEditor( QWidget *parent, QWidget *editWidget,
     FormWindow *fw, const QString &text )
     : MultiLineEditorBase( parent, 0,
-	WType_Dialog | WShowModal | WDestructiveClose ), formwindow( fw )
+	WType_Dialog | WShowModal ), formwindow( fw )
 {
     callStatic = FALSE;
 
@@ -704,7 +704,7 @@ int MultiLineEditor::exec()
 void MultiLineEditor::okClicked()
 {
     applyClicked();
-    hide();
+    close();
 }
 
 void MultiLineEditor::applyClicked()
@@ -724,7 +724,7 @@ void MultiLineEditor::applyClicked()
 void MultiLineEditor::cancelClicked()
 {
     res = 0;
-    hide();
+    close();
 }
 
 void MultiLineEditor::closeEvent( QCloseEvent *e )
