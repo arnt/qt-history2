@@ -937,12 +937,34 @@ const char* QClipboardWatcher::format( int n ) const
 
 	QClipboardWatcher *that = (QClipboardWatcher *) this;
 	QByteArray ba = getDataInFormat(xa_targets);
-	Atom *target = (Atom *) ba.data();
+	Atom *unsorted_target = (Atom *) ba.data();
 	static Atom xa_utf8_string = *qt_xdnd_str_to_atom( "UTF8_STRING" );
 	static Atom xa_text = *qt_xdnd_str_to_atom( "TEXT" );
 	static Atom xa_compound_text = *qt_xdnd_str_to_atom( "COMPOUND_TEXT" );
 	int i, size = ba.size() / sizeof(Atom);
+
+	// sort TARGETS to prefer some types over others.  some apps
+	// will report XA_STRING before COMPOUND_TEXT, and we want the
+	// latter, not the former (if it is present).
+	QByteArray sorted( ba.size() + 4 );
+	sorted.fill( 0 );
+	Atom *target = (Atom *) sorted.data();
+	for ( i = 0; i < sorted.size(); ++i ) {
+	    if ( unsorted_target[i] == xa_utf8_string )
+		target[0] = unsorted_target[i];
+	    else if ( unsorted_target[i] == xa_compound_text )
+		target[1] = unsorted_target[i];
+	    else if ( unsorted_target[i] == xa_text )
+		target[2] = unsorted_target[i];
+	    else if ( unsorted_target[i] == XA_STRING )
+		target[3] = unsorted_target[i];
+	    else
+		target[i + 4] = unsorted_target[i];
+	}
+
 	for (i = 0; i < size; ++i) {
+	    if ( target[i] == 0 ) continue;
+
 	    if ( target[i] == XA_PIXMAP )
 		that->formatList.append("image/ppm");
 	    else if ( target[i] == XA_STRING )
