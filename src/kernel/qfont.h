@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont.h#8 $
+** $Id: //depot/qt/main/src/kernel/qfont.h#9 $
 **
 ** Definition of QFont class
 **
@@ -16,6 +16,7 @@
 #include "qwindefs.h"
 #include "qstring.h"
 
+struct QFontData;
 
 class QFont
 {
@@ -24,7 +25,7 @@ friend class QPainter;
 public:
     enum StyleHint { Helvetica, Times, Courier, Decorative, System, AnyStyle };
     enum Weight    { Light = 25, Normal = 50, Bold = 75, AnyWeight = -1 };
-    enum CharSet   { Latin1, ANSI, IBMPC, MAC, AnyCharSet };
+    enum CharSet   { Latin1, AnyCharSet };
 
     QFont();				 	    // default font
     QFont( const char *family, int pointSize = 120, // 12.0 default point size
@@ -43,17 +44,17 @@ public:
     void        setStyleHint( StyleHint );
     void        setCharSet( CharSet );
     
-    const char *family() const;
-    int         pointSize() const ;
-    bool        italic() const ;
-    int         weight() const ;
-    bool        fixedPitch() const ;
-    StyleHint   styleHint() const ;
-    CharSet     charSet() const ;
-    bool        exactMatch();
+    const char *family()	const;
+    int         pointSize()	const;
+    bool        italic()	const;
+    int         weight()	const;
+    bool        fixedPitch()	const;
+    StyleHint   styleHint()	const;
+    CharSet     charSet()	const;
+    bool        exactMatch()	const;
 
     void        setRawMode( bool );
-    bool        rawMode() const;
+    bool        rawMode()	const;
 
 
     bool	operator==( const QFont &f ) const;
@@ -67,27 +68,6 @@ public:
     static void initialize();			// initialize font system
     static void cleanup();			// cleanup font system
 
-private:
-    struct QFontData : QShared {		// font data
-	QString   family;
-        short     pointSize;
-        uint      styleHint     : 8;
-        uint      charSet       : 8;
-        uint      weight        : 8;
-        uint      italic        : 1;
-        uint      fixedPitch    : 1;
-        uint      hintSetByUser : 1;
-        uint      rawMode       : 1;
-        uint      dirty         : 1;
-        uint      exactMatch    : 1;
-#if defined(_WS_WIN_)
-	HANDLE	hfont;
-#elif defined(_WS_PM_)
-#elif defined(_WS_X11_)
-	QXFontStruct *f;
-#endif
-    } *data;
-
 protected:
     QString defaultFamily()       { return "helvetica"; };
     QString systemDefaultFamily() { return "helvetica"; };
@@ -95,10 +75,12 @@ protected:
 
 private:
     void init();
-    void loadFont();
+    void loadFont() const;
 
     friend QDataStream &operator<<( QDataStream &, const QFont & );
     friend QDataStream &operator>>( QDataStream &, QFont & );
+
+    QFontData *data;	// font data
 };
 
 
@@ -110,46 +92,5 @@ QDataStream &operator<<( QDataStream &, const QFont & );
 QDataStream &operator>>( QDataStream &, QFont & );
 
 
-
-inline const char *QFont::family() const
-{
-    return data->family;
-}
-
-inline int QFont::pointSize() const
-{
-    return data->pointSize;
-}
-
-inline bool QFont::italic() const
-{
-    return data->italic;
-}
-
-inline int QFont::weight() const
-{
-    return (int) data->weight;
-}
-
-inline bool QFont::fixedPitch() const
-{
-    return data->fixedPitch;
-}
-
-inline QFont::StyleHint QFont::styleHint() const
-{
-    return (StyleHint) data->styleHint;
-}
-
-inline QFont::CharSet QFont::charSet() const
-{
-    return (CharSet) data->charSet;
-}
-
-inline bool QFont::rawMode() const
-{
-    return data->rawMode;
-}
-
-
 #endif // QFONT_H
+

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont.cpp#2 $
+** $Id: //depot/qt/main/src/kernel/qfont.cpp#3 $
 **
 ** Implementation of QFont and QFontMetrics classes
 **
@@ -11,10 +11,11 @@
 *****************************************************************************/
 
 #include "qfont.h"
+#include "qfontdta.h"
 #include "qpainter.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qfont.cpp#2 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qfont.cpp#3 $";
 #endif
 
 QFont::QFont( const QFont &font )
@@ -123,7 +124,47 @@ void QFont::setCharSet( CharSet c )
     }
 }
 
-bool QFont::exactMatch()
+const char *QFont::family() const
+{
+    return data->family;
+}
+
+int QFont::pointSize() const
+{
+    return data->pointSize;
+}
+
+bool QFont::italic() const
+{
+    return data->italic;
+}
+
+int QFont::weight() const
+{
+    return (int) data->weight;
+}
+
+bool QFont::fixedPitch() const
+{
+    return data->fixedPitch;
+}
+
+QFont::StyleHint QFont::styleHint() const
+{
+    return (StyleHint) data->styleHint;
+}
+
+QFont::CharSet QFont::charSet() const
+{
+    return (CharSet) data->charSet;
+}
+
+bool QFont::rawMode() const
+{
+    return data->rawMode;
+}
+
+bool QFont::exactMatch() const
 {
     if ( data->dirty )
         loadFont();
@@ -207,5 +248,80 @@ QDataStream &operator>>( QDataStream &s, QFont &f )
 
     return s;
 }
+
+
+const char *QFontMetrics::family() const
+{
+    if ( data->dirty || f->data->dirty )
+        updateData();
+    return data->family;
+}
+
+int QFontMetrics::pointSize() const
+{
+    if ( data->dirty || f->data->dirty )
+        updateData();
+    return data->pointSize;
+}
+
+bool QFontMetrics::italic() const
+{
+    if ( data->dirty || f->data->dirty )
+        updateData();
+    return data->italic;
+}
+
+int QFontMetrics::weight() const
+{
+    if ( data->dirty || f->data->dirty )
+        updateData();
+    return (int) data->weight;
+}
+
+bool QFontMetrics::fixedPitch() const
+{
+    if ( data->dirty || f->data->dirty )
+        updateData();
+    return data->fixedPitch;
+}
+
+QFont::StyleHint QFontMetrics::styleHint() const
+{
+    if ( data->dirty || f->data->dirty )
+        updateData();
+    return (QFont::StyleHint) data->styleHint;
+}
+
+QFont::CharSet QFontMetrics::charSet() const
+{
+    if ( data->dirty || f->data->dirty )
+        updateData();
+    return (QFont::CharSet) data->charSet;
+}
+
+bool QFontMetrics::rawMode() const
+{
+    if ( data->dirty || f->data->dirty )
+        updateData();
+    return data->rawMode;
+}
+
+bool QFontMetrics::exactMatch() const
+{
+    if ( data->dirty || f->data->dirty )
+        updateData();
+    return data->exactMatch;
+}
+
+int QFontMetrics::width( char ch ) const
+{
+    char tmp[2];
+
+    tmp[1] = '\0';
+    tmp[0] = ch;
+    return width( tmp, 1 );
+}
+
+
 
 
