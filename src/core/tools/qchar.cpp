@@ -532,6 +532,8 @@ bool QChar::isSymbol() const
     return c >= Symbol_Math && c <= Symbol_Other;
 }
 
+extern const Q_INT8 qt_decimal_info[];
+
 /*!
     Returns the numeric value of the digit, or -1 if the character is
     not a digit.
@@ -539,10 +541,10 @@ bool QChar::isSymbol() const
 int QChar::digitValue() const
 {
 #ifndef QT_NO_UNICODETABLES
-    register int pos = QUnicodeTables::decimal_info[row()];
+    register int pos = qt_decimal_info[row()];
     if(!pos)
         return -1;
-    return QUnicodeTables::decimal_info[(pos<<8) + cell()];
+    return qt_decimal_info[(pos<<8) + cell()];
 #else
     // ##### just latin1
     if (ucs < '0' || ucs > '9')
@@ -602,6 +604,9 @@ QChar QChar::mirroredChar() const
     return ::mirroredChar(*this);
 }
 
+extern const Q_UINT16 qt_decomposition_map[];
+extern const Q_UINT16 qt_decomposition_info[];
+
 /*!
     Decomposes a character into its parts. Returns an empty string if
     no decomposition exists.
@@ -609,16 +614,16 @@ QChar QChar::mirroredChar() const
 QString QChar::decomposition() const
 {
 #ifndef QT_NO_UNICODETABLES
-    register int pos = QUnicodeTables::decomposition_info[row()];
+    register int pos = qt_decomposition_info[row()];
     if(!pos) return QString::null;
 
-    pos = QUnicodeTables::decomposition_info[(pos<<8)+cell()];
+    pos = qt_decomposition_info[(pos<<8)+cell()];
     if(!pos) return QString::null;
     pos+=2;
 
     QString s;
     Q_UINT16 c;
-    while ((c = QUnicodeTables::decomposition_map[pos++]) != 0)
+    while ((c = qt_decomposition_map[pos++]) != 0)
         s += QChar(c);
     return s;
 #else
@@ -633,15 +638,15 @@ QString QChar::decomposition() const
 QChar::Decomposition QChar::decompositionTag() const
 {
 #ifndef QT_NO_UNICODETABLES
-    register int pos = QUnicodeTables::decomposition_info[row()];
-    if(!pos) return QChar::Single;
+    register int pos = qt_decomposition_info[row()];
+    if(!pos) return QChar::NoDecomposition;
 
-    pos = QUnicodeTables::decomposition_info[(pos<<8)+cell()];
-    if(!pos) return QChar::Single;
+    pos = qt_decomposition_info[(pos<<8)+cell()];
+    if(!pos) return QChar::NoDecomposition;
 
-    return (QChar::Decomposition) QUnicodeTables::decomposition_map[pos];
+    return (QChar::Decomposition) qt_decomposition_map[pos];
 #else
-    return Single; // ########### FIX eg. just latin1
+    return NoDecomposition; // ########### FIX eg. just latin1
 #endif
 }
 

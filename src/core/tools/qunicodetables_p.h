@@ -29,32 +29,13 @@
 #include "qstring.h"
 #endif // QT_H
 
-#ifdef QT_NO_UNICODETABLES
-# include <ctype.h>
+#ifdef Q_CC_GNU
+#define FASTCALL __attribute__((regparm(3)))
+#else
+#define FASTCALL
 #endif
 
-class Q_CORE_EXPORT QUnicodeTables {
-public:
-    static const Q_UINT8 unicode_info[];
-#ifndef QT_NO_UNICODETABLES
-    static const Q_UINT16 decomposition_map[];
-    static const Q_UINT16 decomposition_info[];
-    static const Q_UINT16 ligature_map[];
-    static const Q_UINT16 ligature_info[];
-    static const Q_UINT8 direction_info[];
-    static const Q_UINT8 combining_info[];
-    static const Q_UINT16 case_info[];
-    static const Q_INT8 decimal_info[];
-    static const Q_UINT16 symmetricPairs[];
-    static const int symmetricPairsSize;
-    static const Q_UINT8 line_break_info[];
-#else
-    static const Q_UINT8 latin1_line_break_info[];
-#endif
-    static const unsigned char otherScripts[];
-    static const unsigned char indicScripts[];
-    static const unsigned char scriptTable[];
-    enum { SCRIPTS_INDIC = 0x7e };
+namespace QUnicodeTables {
 
     // see http://www.unicode.org/reports/tr14/tr14-13.html
     // we don't use the XX and AI properties and map them to AL instead.
@@ -66,161 +47,76 @@ public:
         LineBreak_SA, LineBreak_BK, LineBreak_CR, LineBreak_LF, LineBreak_SG,
         LineBreak_CB, LineBreak_SP
     };
+
+    Q_CORE_EXPORT QChar::Category category(int ucs4) FASTCALL;
+    Q_CORE_EXPORT unsigned char combiningClass(int ucs4) FASTCALL;
+    Q_CORE_EXPORT QChar::Direction direction(int ucs4) FASTCALL;
+    Q_CORE_EXPORT QChar::UnicodeVersion unicodeVersion(int ucs4) FASTCALL;
+    Q_CORE_EXPORT QChar::Joining joining(int ucs4) FASTCALL;
+    Q_CORE_EXPORT bool mirrored(int ucs4) FASTCALL;
+    Q_CORE_EXPORT int mirroredChar(int ucs4) FASTCALL;
+    Q_CORE_EXPORT int upper(int ucs4) FASTCALL;
+    Q_CORE_EXPORT int lower(int ucs4) FASTCALL;
 };
 
 
 inline QChar::Category category(const QChar &c)
 {
-#ifdef QT_NO_UNICODETABLES
-    if (c.unicode() > 0xff) return QChar::Letter_Uppercase; //########
-    return (QChar::Category)QUnicodeTables::unicode_info[c.unicode()];
-#else
-    register int uc = ((int)QUnicodeTables::unicode_info[c.row()]) << 8;
-    uc += c.cell();
-    return (QChar::Category)QUnicodeTables::unicode_info[uc];
-#endif // QT_NO_UNICODETABLES
+    return QUnicodeTables::category(c.unicode());
 }
 
 inline QChar lower(const QChar &c)
 {
-#ifndef QT_NO_UNICODETABLES
-    int row = c.row();
-    int cell = c.cell();
-    register int ci = QUnicodeTables::case_info[row];
-    register int uc = ((int)QUnicodeTables::unicode_info[c.row()]) << 8;
-    uc += c.cell();
-    if (QUnicodeTables::unicode_info[uc] != QChar::Letter_Uppercase || !ci)
-        return c;
-    Q_UINT16 lower = QUnicodeTables::case_info[(ci<<8)+cell];
-    return lower ? QChar(lower) : c;
-#else
-    if (c.row())
-        return c;
-    return QChar(tolower((uchar) c.latin1()));
-#endif
+    return QChar(QUnicodeTables::lower(c.unicode()));
 }
 
 inline QChar upper(const QChar &c)
 {
-#ifndef QT_NO_UNICODETABLES
-    int row = c.row();
-    int cell = c.cell();
-    register int ci = QUnicodeTables::case_info[row];
-    register int uc = ((int)QUnicodeTables::unicode_info[c.row()]) << 8;
-    uc += c.cell();
-    if (QUnicodeTables::unicode_info[uc] != QChar::Letter_Lowercase || !ci)
-        return c;
-    Q_UINT16 upper = QUnicodeTables::case_info[(ci<<8)+cell];
-    return upper ? QChar(upper) : c;
-#else
-    if (c.row())
-        return c;
-    return QChar(toupper((uchar) c.latin1()));
-#endif
+    return QChar(QUnicodeTables::upper(c.unicode()));
 }
 
 inline QChar::Direction direction(const QChar &c)
 {
-#ifndef QT_NO_UNICODETABLES
-    register int pos = QUnicodeTables::direction_info[c.row()];
-    return (QChar::Direction) (QUnicodeTables::direction_info[(pos<<8)+c.cell()] & 0x1f);
-#else
-    Q_UNUSED(c);
-    return QChar::DirL;
-#endif
+    return QUnicodeTables::direction(c.unicode());
 }
 
 inline bool mirrored(const QChar &c)
 {
-#ifndef QT_NO_UNICODETABLES
-    register int pos = QUnicodeTables::direction_info[c.row()];
-    return QUnicodeTables::direction_info[(pos<<8)+c.cell()] > 128; // ### >= 128?
-#else
-    Q_UNUSED(c);
-    return false;
-#endif
+    return QUnicodeTables::mirrored(c.unicode());
 }
 
 
-inline QChar mirroredChar(const QChar &ch)
+inline QChar mirroredChar(const QChar &c)
 {
-#ifndef QT_NO_UNICODETABLES
-    if(!::mirrored(ch))
-        return ch;
-
-    int i;
-    int c = ch.unicode();
-    for (i = 0; i < QUnicodeTables::symmetricPairsSize; i ++) {
-        if (QUnicodeTables::symmetricPairs[i] == c)
-            return QUnicodeTables::symmetricPairs[(i%2) ? (i-1) : (i+1)];
-    }
-#endif
-    return ch;
+    return QUnicodeTables::mirroredChar(c.unicode());
 }
 
-inline QChar::Joining joining(const QChar &ch)
+inline QChar::Joining joining(const QChar &c)
 {
-#ifndef QT_NO_UNICODETABLES
-    register int pos = QUnicodeTables::direction_info[ch.row()];
-    return (QChar::Joining) ((QUnicodeTables::direction_info[(pos<<8)+ch.cell()] >> 5) &0x3);
-#else
-    Q_UNUSED(ch);
-    return QChar::OtherJoining;
-#endif
+    return QUnicodeTables::joining(c.unicode());
 }
 
 inline bool isMark(const QChar &ch)
 {
-    QChar::Category c = ::category(ch);
+    QChar::Category c = QUnicodeTables::category(ch.unicode());
     return c >= QChar::Mark_NonSpacing && c <= QChar::Mark_Enclosing;
 }
 
 inline unsigned char combiningClass(const QChar &ch)
 {
-#ifndef QT_NO_UNICODETABLES
-    const int pos = QUnicodeTables::combining_info[ch.row()];
-    return QUnicodeTables::combining_info[(pos<<8) + ch.cell()];
-#else
-    Q_UNUSED(ch);
-    return 0;
-#endif
+    return QUnicodeTables::combiningClass(ch.unicode());
 }
 
 inline bool isSpace(const QChar &ch)
 {
     if(ch.unicode() >= 9 && ch.unicode() <=13) return true;
-    QChar::Category c = ::category(ch);
+    QChar::Category c = QUnicodeTables::category(ch.unicode());
     return c >= QChar::Separator_Space && c <= QChar::Separator_Paragraph;
 }
 
-inline int lineBreakClass(const QChar &ch)
-{
-#ifdef QT_NO_UNICODETABLES
-    return ch.row() ? (int)QUnicodeTables::LineBreak_AL
-        : (int)QUnicodeTables::latin1_line_break_info[ch.cell()];
-#else
-    register int pos = ((int)QUnicodeTables::line_break_info[ch.row()] << 8) + ch.cell();
-    return QUnicodeTables::line_break_info[pos];
-#endif
-}
+Q_CORE_EXPORT int lineBreakClass(const QChar &ch);
 
-inline int scriptForChar(ushort uc)
-{
-    unsigned char script = QUnicodeTables::scriptTable[(uc>>8)];
-    if (script >= QUnicodeTables::SCRIPTS_INDIC) {
-        if (script == QUnicodeTables::SCRIPTS_INDIC) {
-            script = QUnicodeTables::indicScripts[(uc-0x0900)>>7];
-        } else {
-            // 0x80 + SCRIPTS_xx
-            unsigned char index = script-0x80;
-            unsigned char cell = uc &0xff;
-            while(QUnicodeTables::otherScripts[index++] < cell)
-                index++;
-            script = QUnicodeTables::otherScripts[index];
-        }
-    }
-    return script;
-}
+Q_CORE_EXPORT int scriptForChar(ushort uc);
 
 #ifdef Q_WS_X11
 #define SCRIPT_FOR_CHAR(script, c)         \

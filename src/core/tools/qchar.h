@@ -104,7 +104,11 @@ public:
 
     enum Decomposition
     {
-        Single, Canonical, Font, NoBreak, Initial, Medial,
+        NoDecomposition,
+#ifdef QT_COMPAT
+        Single = NoDecomposition,
+#endif
+        Canonical, Font, NoBreak, Initial, Medial,
         Final, Isolated, Circle, Super, Sub, Vertical,
         Wide, Narrow, Small, Square, Compat, Fraction
     };
@@ -139,6 +143,16 @@ public:
         Combining_IotaSubscript           = 240
     };
 
+    enum UnicodeVersion {
+        Unassigned,
+        Unicode_1_1,
+        Unicode_2_0,
+        Unicode_2_1_2,
+        Unicode_3_0,
+        Unicode_3_1,
+        Unicode_3_2,
+        Unicode_4_0
+    };
     // ****** WHEN ADDING FUNCTIONS, CONSIDER ADDING TO QCharRef TOO
 
     int digitValue() const;
