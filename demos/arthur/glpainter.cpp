@@ -174,6 +174,8 @@ void GLWidget::paintEvent(QPaintEvent *)
     glTranslatef(-0.5, -0.5, -0.5);
 
     glColor4ub(255, 255, 255, dw->attribs()->alpha ? 127 : 255);
+
+    glClear(GL_DEPTH_BUFFER_BIT);
     glBindTexture(GL_TEXTURE_2D, cubeTextureId);
     glCallList(cubeList);
 
