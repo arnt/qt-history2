@@ -101,9 +101,10 @@ public:
     uint verStretch() const { return (data >> 16) & 0xff; }
     void setHorStretch( uchar sf ) { data = (data&0x00ffffff) | (uint(sf)<<24); }
     void setVerStretch( uchar sf ) { data = (data&0xff00ffff) | (uint(sf)<<16); }
+    inline void transpose();
 
 private:
-    QSizePolicy( int i ): data( (Q_UINT32)i ) { }
+    QSizePolicy( int i ) : data( (Q_UINT32)i ) { }
 
     Q_UINT32 data;
 };
@@ -112,6 +113,11 @@ inline QSizePolicy::QSizePolicy( SizeType hor, SizeType ver, uchar hors, uchar v
     : data( hor | (ver<<HSize) | (hfw ? (Q_UINT32)(1<<2*HSize) : 0) ) {
     setHorStretch( hors );
     setVerStretch( vers );
+}
+
+inline void QSizePolicy::transpose() {
+    *this = QSizePolicy( verData(), horData(), verStretch(), horStretch(),
+			 hasHeightForWidth() );
 }
 
 #endif // QSIZEPOLICY_H
