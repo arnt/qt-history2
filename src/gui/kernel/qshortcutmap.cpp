@@ -218,66 +218,6 @@ int QShortcutMap::setShortcutEnabled(bool enable, int id, QObject *owner, const 
 
 
 /*! \internal
-    Returns the id of the first shortcutentry matching the \a owner and \a key.
-    Returns 0, if no matching shortcut entry.
-*/
-int QShortcutMap::changeShortcut(QObject *owner, const QKeySequence &key, bool enabled)
-{
-    Q_ASSERT(owner);
-    Q_D(QShortcutMap);
-    QList<QShortcutEntry> newEntries;
-
-    int itemsModified = 0;
-    int i = d->sequences.size() - 1;
-    while (i>=0)
-    {
-        QShortcutEntry entry = d->sequences.at(i);
-        if (entry.owner == owner) {
-#if 0
-            if (entry.keyseq == key && entry.enabled == enabled) {
-                if (itemsModified != 0) {
-                    qDebug() << "Items removed:";
-                    for(int j = 0; j < newEntries.count(); ++j) {
-                        QShortcutEntry itm = newEntries.at(j);
-                        qDebug() << " --> " << &itm;
-                    }
-                    qDebug() << "Matching item:\n" << &entry;
-#ifdef Dump_QShortcutMap
-                    qDebug() << "Current shortcut map";
-                    dumpMap();
-#endif
-                }
-                Q_ASSERT_X(itemsModified == 0,
-                           "QShortcutMap::changeMonitorKey",
-                           "Invalid function end! Shortcuts removed, but not readded!");
-                return 0;
-            }
-#endif
-            entry.keyseq = key;
-            entry.enabled = enabled;
-            newEntries += entry;
-            d->sequences.removeAt(i);
-            ++itemsModified;
-        }
-        --i;
-    }
-
-    // Add back entries with new keysequence
-    if (!key.isEmpty())
-        for (int j = 0; j < newEntries.count(); ++j) {
-            QShortcutEntry &newEntry = newEntries[j];
-            QList<QShortcutEntry>::iterator it
-                = qUpperBound(d->sequences.begin(), d->sequences.end(), newEntry);
-            d->sequences.insert(it, newEntry); // Insert sorted
-        }
-#if defined(Debug_QShortcutMap)
-    qDebug().nospace()
-        << "QShortcutMap::changeMonitorKey(" << owner << ", " << key << ") = " << itemsModified;
-#endif
-    return itemsModified;
-}
-
-/*! \internal
     Resets the state of the statemachine to NoMatch
 */
 void QShortcutMap::resetState()

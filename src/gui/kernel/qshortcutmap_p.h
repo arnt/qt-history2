@@ -48,8 +48,6 @@ public:
     int addShortcut(QObject *owner, const QKeySequence &key, Qt::ShortcutContext context);
     int removeShortcut(int id, QObject *owner, const QKeySequence &key = QKeySequence());
     int setShortcutEnabled(bool enable, int id, QObject *owner, const QKeySequence &key = QKeySequence());
-    int changeShortcut(QObject *owner, const QKeySequence &key, bool enabled);
-
 
     void resetState();
     QKeySequence::SequenceMatch nextState(QKeyEvent *e);
