@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qtextstream.cpp#119 $
+** $Id: //depot/qt/main/src/tools/qtextstream.cpp#120 $
 **
 ** Implementation of QTextStream class
 **
@@ -1914,7 +1914,7 @@ QTextStream &reset( QTextStream &s )
   order. The initial byte order marker will be stripped off before data is read.
 
   \note This function should be called before any data is read to/written from the stream.
-  \sa setCodec
+  \sa setCodec()
 */
 
 void QTextStream::setEncoding( Encoding e )
@@ -1966,7 +1966,7 @@ void QTextStream::setEncoding( Encoding e )
   Sets the codec for this stream to \a codec. Will not try to autodetect Unicode.
 
     \note This function should be called before any data is read to/written from the stream.
-    \sa setEncoding
+    \sa setEncoding()
 */
 
 void QTextStream::setCodec( QTextCodec *codec )

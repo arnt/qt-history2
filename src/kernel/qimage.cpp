@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.cpp#233 $
+** $Id: //depot/qt/main/src/kernel/qimage.cpp#234 $
 **
 ** Implementation of QImage and QImageIO classes
 **
@@ -1759,7 +1759,7 @@ void QImage::setPixel( int x, int y, uint index_or_rgb )
   Returns \c *this if the \e bitOrder is equal to the image bit order, or a
   null image if this image cannot be converted.
 
-  \sa bitOrder(), setBitOrder()
+  \sa bitOrder(), systemBitOrder()
 */
 
 QImage QImage::convertBitOrder( Endian bitOrder ) const

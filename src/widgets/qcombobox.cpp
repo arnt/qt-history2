@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#223 $
+** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#224 $
 **
 ** Implementation of QComboBox widget class
 **
@@ -1633,7 +1633,7 @@ void QComboBox::setMaxCount( int count )
 /*!
   Returns the current insertion policy of the combo box.
 
-  \sa setPolicy()
+  \sa setInsertionPolicy()
 */
 
 QComboBox::Policy QComboBox::insertionPolicy() const
@@ -1655,7 +1655,7 @@ QComboBox::Policy QComboBox::insertionPolicy() const
 
   The default insertion policy is \c AtBottom.
 
-  \sa policy()
+  \sa insertionPolicy()
 */
 
 void QComboBox::setInsertionPolicy( Policy policy )

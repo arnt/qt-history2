@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.cpp#221 $
+** $Id: //depot/qt/main/src/kernel/qobject.cpp#222 $
 **
 ** Implementation of QObject class
 **
@@ -539,7 +539,7 @@ QStringList QObject::superClasses( bool includeThis ) const
   \fn const char *QObject::name() const
 
   Returns the name of this object. If the object does not have a name,
-  it will return "unnamed", so that printf() (used in debug()) will
+  it will return "unnamed", so that printf() (used in qDebug()) will
   not be asked to output a null pointer.  If you want a null pointer
   to be returned for unnamed objects, you can call name(0).
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qasyncio.cpp#19 $
+** $Id: //depot/qt/main/src/kernel/qasyncio.cpp#20 $
 **
 ** Implementation of asynchronous I/O classes
 **
@@ -167,7 +167,7 @@ bool QDataSource::rewindable() const
   is TRUE, then the data source must take measures to allow the rewind()
   function to subsequently operate as described.  If rewindable() is FALSE,
   the function should call QDataSource::enableRewind(), which aborts with
-  a fatal() error.
+  a qFatal() error.
 
   For example, a network connection may choose to utilize a disk cache
   of input only if rewinding is enabled before the first buffer-full of

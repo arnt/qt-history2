@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qtabdialog.cpp#93 $
+** $Id: //depot/qt/main/src/dialogs/qtabdialog.cpp#94 $
 **
 ** Implementation of QTabDialog class
 **
@@ -261,8 +261,8 @@ void QTabDialog::setFont( const QFont & font )
 /*!
   Returns TRUE if the tab dialog has a Defaults button, FALSE if not.
 
-  \sa setApplyButton() applyButtonPressed() hasCancelButton()
-  hasDefaultButton()
+  \sa setDefaultButton() defaultButtonPressed() hasApplyButton()
+  hasCancelButton()
 */
 
 bool QTabDialog::hasDefaultButton() const
@@ -274,8 +274,8 @@ bool QTabDialog::hasDefaultButton() const
 /*!
   Returns TRUE if the tab dialog has a Help button, FALSE if not.
 
-  \sa setApplyButton() applyButtonPressed() hasCancelButton()
-  hasHelpButton()
+  \sa setHelpButton() helpButtonPressed() hasApplyButton()
+  hasCancelButton()
 */
 
 bool QTabDialog::hasHelpButton() const
@@ -301,8 +301,8 @@ bool QTabDialog::hasHelpButton() const
 /*!
   Returns TRUE if the tab dialog has a Cancel button, FALSE if not.
 
-  \sa setCancelButton() cancelButtonPressed() hasDefaultButton()
-  hasApplyButton()
+  \sa setCancelButton() cancelButtonPressed() hasApplyButton()
+  hasDefaultButton()
 */
 
 bool QTabDialog::hasCancelButton() const
@@ -338,8 +338,8 @@ bool QTabDialog::hasCancelButton() const
 /*!
   Returns TRUE if the tab dialog has an Apply button, FALSE if not.
 
-  \sa setDefaultsButton() defaultButtonPressed() hasApplyButton()
-  hasCancelButton()
+  \sa setApplyButton() applyButtonPressed() hasCancelButton()
+  hasDefaultButton()
 */
 
 bool QTabDialog::hasApplyButton() const
@@ -351,8 +351,8 @@ bool QTabDialog::hasApplyButton() const
 /*!
   Returns TRUE if the tab dialog has an OK button, FALSE if not.
 
-  \sa setDefaultsButton() defaultButtonPressed() hasOkButton()
-  hasCancelButton()
+  \sa setOkButton() hasApplyButton() hasCancelButton()
+  hasDefaultButton()
 */
 
 bool QTabDialog::hasOkButton() const
@@ -809,7 +809,7 @@ void QTabDialog::setDefaultButton()
   \link QString::operator!() null string\endlink,
   no button is shown.
 
-  \sa setApplyButton setDefaultButton() cancelButtonPressed()
+  \sa setApplyButton() setDefaultButton() cancelButtonPressed()
 */
 
 void QTabDialog::setCancelButton( const QString &text )

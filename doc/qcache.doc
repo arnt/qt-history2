@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: qcache.doc,v 2.16 1999/06/23 18:48:00 hanord Exp $
+** $Id: qcache.doc,v 2.17 1999/08/10 16:35:32 paul Exp $
 **
 ** QCache and QCacheIterator class documentation
 **
@@ -357,7 +357,7 @@
 
   Sets the iterator to null and returns null if if the cache is empty.
 
-  \sa toLast() isEmpty()
+  \sa toFirst() isEmpty()
 */
 
 /*!

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcolor.cpp#99 $
+** $Id: //depot/qt/main/src/kernel/qcolor.cpp#100 $
 **
 ** Implementation of QColor class
 **
@@ -318,6 +318,7 @@ inline static int hex2int( QChar hexchar )
   <li> A named from the X color database (rgb.txt),  e.g.
   "steelblue" or "gainsboro".  These color names also work
   under Qt for Windows.
+  </ul>
 */
 
 void QColor::setNamedColor( const QString& name )

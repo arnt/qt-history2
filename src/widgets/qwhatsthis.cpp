@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qwhatsthis.cpp#54 $
+** $Id: //depot/qt/main/src/widgets/qwhatsthis.cpp#55 $
 **
 ** Implementation of QWhatsThis class
 **
@@ -408,7 +408,7 @@ void QWhatsThisPrivate::say( QWidget * widget, const QString &text, const QPoint
 {
     const int shadowWidth = 6;   // also used as '5' and '6' and even '8' below
     const int vMargin = 8;
-    const int hMargin = 12; 
+    const int hMargin = 12;
 
     // make the widget, and set it up
     if ( !whatsThat ) {
@@ -705,8 +705,6 @@ QWhatsThis::~QWhatsThis()
   This text for a position, QString::null may be returned.
 
   The default implementation returns QString::null.
-
-  \sa qml()
 */
 
 QString QWhatsThis::text( const QPoint & )

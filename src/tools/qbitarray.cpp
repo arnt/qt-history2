@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qbitarray.cpp#47 $
+** $Id: //depot/qt/main/src/tools/qbitarray.cpp#48 $
 **
 ** Implementation of QBitArray class
 **
@@ -38,27 +38,27 @@
 */
 
 /*!
-  \fn QBitVal::QBitVal (QBitArray* a, uint i) 
+  \fn QBitVal::QBitVal (QBitArray* a, uint i)
 
   Constructs a reference to an element in a QBitArray.  This is
   what QBitArray::operator[] contructs its return value with.
 */
 
 /*!
-  \fn QBitVal::operator int() 
+  \fn QBitVal::operator int()
 
   Returns the value referenced by the QBitVal.
 */
 
 /*!
-  \fn QBitVal& QBitVal::operator= (const QBitVal& v) 
+  \fn QBitVal& QBitVal::operator= (const QBitVal& v)
 
   Sets the value referenced by the QBitVal to that referenced by another
   QBitVal.
 */
 
 /*!
-  \fn QBitVal& QBitVal::operator= (int v) 
+  \fn QBitVal& QBitVal::operator= (int v)
 
   Sets the value referenced by the QBitVal.
 */
@@ -329,7 +329,7 @@ bool QBitArray::toggleBit( uint index )
 /*!
   \fn bool QBitArray::at( uint index ) const
   Returns the value (0 or 1) of the bit at position \e index.
-  \sa operator[]
+  \sa operator[]()
 */
 
 /*!

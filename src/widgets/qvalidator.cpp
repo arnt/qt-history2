@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qvalidator.cpp#32 $
+** $Id: //depot/qt/main/src/widgets/qvalidator.cpp#33 $
 **
 ** Implementation of validator classes.
 **
@@ -381,7 +381,7 @@ void QDoubleValidator::setRange( double bottom, double top, int decimals )
 
   Returns the highest valid number according to this validator.
 
-  \sa bottom() decimals setRange()
+  \sa bottom() decimals() setRange()
 */
 
 

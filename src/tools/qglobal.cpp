@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglobal.cpp#71 $
+** $Id: //depot/qt/main/src/tools/qglobal.cpp#72 $
 **
 ** Global functions
 **
@@ -59,7 +59,7 @@ static bool si_bigEndian;
   The \e *bigEndian is set to TRUE if this is a big-endian machine,
   or to FALSE if this is a little-endian machine.
 
-  This function calls fatal() with a message if the computer is truly weird
+  This function calls qFatal() with a message if the computer is truly weird
   (i.e. different endianness for 16 bit and 32 bit integers).
 */
 
@@ -158,7 +158,7 @@ static msg_handler handler = 0;			// pointer to debug handler
   \warning The internal buffer is limited to 512 bytes (including the
   0-terminator).
 
-  \sa warning(), fatal(), qInstallMsgHandler(),
+  \sa qWarning(), qFatal(), qInstallMsgHandler(),
   \link debug.html Debugging\endlink
 */
 
@@ -222,7 +222,7 @@ void debug( const char *msg, ... )
   \warning The internal buffer is limited to 512 bytes (including the
   0-terminator).
 
-  \sa debug(), fatal(), qInstallMsgHandler(),
+  \sa qDebug(), qFatal(), qInstallMsgHandler(),
   \link debug.html Debugging\endlink
 */
 
@@ -287,7 +287,7 @@ void warning( const char *msg, ... )
   \warning The internal buffer is limited to 512 bytes (including the
   0-terminator).
 
-  \sa debug(), warning(), qInstallMsgHandler(),
+  \sa qDebug(), qWarning(), qInstallMsgHandler(),
   \link debug.html Debugging\endlink
 */
 
@@ -365,12 +365,12 @@ void fatal( const char *msg, ... )
   \endcode
 
   If \c b is zero, the ASSERT statement will output the following message
-  using the warning() function:
+  using the qWarning() function:
   \code
     ASSERT: "b == 0" in div.cpp (9)
   \endcode
 
-  \sa warning(), \link debug.html Debugging\endlink
+  \sa qWarning(), \link debug.html Debugging\endlink
 */
 
 
@@ -391,7 +391,7 @@ void fatal( const char *msg, ... )
     CHECK_PTR( a );			// this is fine
   \endcode
 
-  \sa fatal(), \link debug.html Debugging\endlink
+  \sa qFatal(), \link debug.html Debugging\endlink
 */
 
 
@@ -520,7 +520,7 @@ void qObsolete(	 const char *message )
     }
   \endcode
 
-  \sa debug(), warning(), fatal(), \link debug.html Debugging\endlink
+  \sa qDebug(), qWarning(), qFatal(), \link debug.html Debugging\endlink
 */
 
 Q_EXPORT

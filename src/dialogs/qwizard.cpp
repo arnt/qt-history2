@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qwizard.cpp#36 $
+** $Id: //depot/qt/main/src/dialogs/qwizard.cpp#37 $
 **
 ** Implementation of QWizard class.
 **
@@ -277,9 +277,7 @@ void QWizard::next()
 */
 
 /*!  This slot either makes the wizard help you, if it can.  The only
-way it knows is to emit the helpClicked() signal, and perhaps the
-QWizardPage::helpClicked() signal too, if a QWizardPage is currently
-being displayed.
+way it knows is to emit the helpClicked() signal.
 */
 
 void QWizard::help()
@@ -714,8 +712,8 @@ bool QWizard::setConfiguration( const QDomElement& element )
 	    addPage( w, title );
 	  }
 	}
-      }    
-    }  
+      }
+    }
 
     if ( !QDialog::setConfiguration( element ) )
       return FALSE;

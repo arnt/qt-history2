@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qevent.cpp#100 $
+** $Id: //depot/qt/main/src/kernel/qevent.cpp#101 $
 **
 ** Implementation of event classes
 **
@@ -566,7 +566,7 @@ Qt::ButtonState QKeyEvent::stateAfter() const
   The event handlers QWidget::focusInEvent() and QWidget::focusOutEvent()
   receive focus events.
 
-  \sa QWidget::setFocus(), QWidget::setFocusEnabled()
+  \sa QWidget::setFocus(), QWidget::setFocusPolicy()
 */
 
 /*!
@@ -737,7 +737,7 @@ Qt::ButtonState QKeyEvent::stateAfter() const
 	e->ignore();				// does not hide the widget
     }
   \endcode
-  
+
   A typical reimplementation of a close event handler is shown in the
   qwerty/qwerty.cpp example: If the document wasn't changed, the close
   event is accepted with \a e->except(). If there are unsaved changes,
@@ -759,12 +759,12 @@ Qt::ButtonState QKeyEvent::stateAfter() const
   QObject emits the \link QObject::destroyed() destroyed()\endlink signal
   when it is deleted.  This is a useful signal if a widget needs to know
   when another widget is deleted.
-  
+
   If the last toplevel window is closed, the
   QApplication::lastWindowClosed() signal is emitted.
 
   \sa QWidget::close(), QWidget::hide(), QObject::destroyed(),
-  QApplication::setMainWidget(), QApplication::lastWindowClosed(), 
+  QApplication::setMainWidget(), QApplication::lastWindowClosed(),
    QApplication::quit()
 */
 
@@ -800,7 +800,7 @@ Qt::ButtonState QKeyEvent::stateAfter() const
   Clears the accept flag of the close event object.
 
   Clearing the accept flag indicates that the receiver of this event does not
-  want the widget to be closed. 
+  want the widget to be closed.
 
   The accept flag is not set by default.
 
@@ -908,7 +908,7 @@ Qt::ButtonState QKeyEvent::stateAfter() const
 */
 
 /*!
-  \fn QRect  QDragMoveEvent::answerRect() const { return rect; }
+  \fn QRect  QDragMoveEvent::answerRect() const
 
   Returns the rectangle for which the acceptance of
   the move event applies.

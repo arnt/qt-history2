@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#464 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#465 $
 **
 ** Implementation of QWidget class
 **
@@ -1619,6 +1619,8 @@ QWidget::BackgroundMode QWidget::backgroundMode() const
     return extra ? (BackgroundMode)extra->bg_mode : PaletteBackground;
 }
 
+//use palette() . \link QColorGroup::fillForeground() fillForeground()\endlink
+
 /*! \enum QWidget::BackgroundMode
 
   This enum describes how the background of a widget changes, as the
@@ -1626,38 +1628,25 @@ QWidget::BackgroundMode QWidget::backgroundMode() const
 
   The background is what the widget contains when paintEvent() is called.
   To minimize flicker, this should be the most common color in the
-  widget.
+  widget. For \c PaletteBackground, use colorGroup() . \link QColorGroup::brush()
+  brush\endlink ( \c QColorGroup::Background ), and so on. 
 
   The following values are valid:  <ul>
 
   <li> \c PaletteForeground
-	- use palette() . \link QColorGroup::fillForeground() fillForeground()\endlink
     <li> \c PaletteBackground
-	- use palette() . \link QColorGroup::fillBackground() fillBackground()\endlink
     <li> \c PaletteButton
-	- use palette() . \link QColorGroup::fillButton() fillButton()\endlink
     <li> \c PaletteLight
-	- use palette() . \link QColorGroup::fillLight() fillLight()\endlink
     <li> \c PaletteMidlight
-	- use palette() . \link QColorGroup::fillMidlight() fillMidlight()\endlink
     <li> \c PaletteDark
-	- use palette() . \link QColorGroup::fillDark() fillDark()\endlink
     <li> \c PaletteMid
-	- use palette() . \link QColorGroup::fillMid() fillMid()\endlink
     <li> \c PaletteText
-	- use palette() . \link QColorGroup::fillText() fillText()\endlink
     <li> \c PaletteBrightText
-	- use palette() . \link QColorGroup::fillBrightText() fillBrightText()\endlink
     <li> \c PaletteButtonText
-	- use palette() . \link QColorGroup::fillButtonText() fillButtonText()\endlink
     <li> \c PaletteBase
-	- use palette() . \link QColorGroup::fillBase() fillBase()\endlink
     <li> \c PaletteShadow
-	- use palette() . \link QColorGroup::fillShadow() fillShadow()\endlink
     <li> \c PaletteHighlight
-	- use palette() . \link QColorGroup::fillHighlight() fillHighlight()\endlink
     <li> \c PaletteHighlightedText
-	- use palette() . \link QColorGroup::fillHighlightedText() fillHighlightedText()\endlink
     <li> \c NoBackground
 	- no color or pixmap is used - the paintEvent() must completely
 	    cover the drawing area.  This can help avoid flicker.
@@ -3039,8 +3028,8 @@ void QWidget::hide()
     QApplication::sendEvent( this, &e );
 
     // post layout hint for non toplevels. The parent widget check is
-    // necessary since the function is called in the destructor    
-    if ( !isTopLevel() && parentWidget() ) 
+    // necessary since the function is called in the destructor
+    if ( !isTopLevel() && parentWidget() )
 	QApplication::postEvent( parentWidget(),
 				 new QEvent( QEvent::LayoutHint) );
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qfile.cpp#90 $
+** $Id: //depot/qt/main/src/tools/qfile.cpp#91 $
 **
 ** Implementation of QFile class
 **
@@ -43,7 +43,7 @@
 QCString qt_win95Name(const QString s)
 {
     if ( s[0] == '/' && s[1] == '/' ) {
- 	// Win95 cannot handle slash-slash needs slosh-slosh. 
+ 	// Win95 cannot handle slash-slash needs slosh-slosh.
 	QString ss(s);
 	ss[0] = '\\';
 	ss[1] = '\\';
@@ -897,7 +897,7 @@ int QFile::getch()
 	return EOF;
     }
 #endif
-    
+
     int ch;
 
     if ( !ungetchBuffer.isEmpty() ) {
@@ -906,7 +906,7 @@ int QFile::getch()
 	ungetchBuffer.truncate( len - 1 );
 	return ch;
     }
-    
+
     if ( isRaw() ) {				// raw file (inefficient)
 	char buf[1];
 	ch = readBlock( buf, 1 ) == 1 ? buf[0] : EOF;
@@ -980,13 +980,13 @@ int QFile::ungetch( int ch )
 #endif
     if ( ch == EOF )				// cannot unget EOF
 	return ch;
-    
+
     if ( isSequentialAccess() && !fh) {
 	// pipe or similar => we cannot ungetch, so do it manually
 	ungetchBuffer +=ch;
 	return ch;
     }
-    
+
     if ( isRaw() ) {				// raw file (very inefficient)
 	char buf[1];
 	at( ioIndex-1 );
@@ -1053,7 +1053,7 @@ static QFile::EncoderFn encoder = locale_encoder;
   store in filenames in UTF-8, etc., but beware that such filenames
   would probably then be unrecognizable when seen by other programs.
 
-  \sa decodedName().
+  \sa decodeName().
 */
 QCString QFile::encodeName( const QString &fileName )
 {
@@ -1093,7 +1093,7 @@ QString QFile::decodeName( const QCString &localFileName )
   Sets the function for decoding 8-bit filenames.
   The default uses the locale-specific 8-bit encoding.
 
-  \sa encodeName(), decodedName()
+  \sa encodeName(), decodeName()
 */
 void QFile::setDecodingFunction( DecoderFn f )
 {

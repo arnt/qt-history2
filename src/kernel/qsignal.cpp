@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsignal.cpp#31 $
+** $Id: //depot/qt/main/src/kernel/qsignal.cpp#32 $
 **
 ** Implementation of QSignal class
 **
@@ -175,7 +175,8 @@ bool QSignal::disconnect( const QObject *receiver, const char *member )
 /*!
   \fn void QSignal::activate()
   Emits the signal.
-  \sa isBlock()
+  
+  \sa isBlocked()
 */
 void  QSignal::activate()
 {

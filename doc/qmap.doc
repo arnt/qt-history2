@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: qmap.doc,v 1.3 1999/07/12 19:16:12 warwick Exp $
+** $Id: qmap.doc,v 1.4 1999/08/10 16:35:34 paul Exp $
 **
 ** QMap and QMapIterator class documentation
 **
@@ -215,6 +215,7 @@
 /*!
   \fn uint QMap::count() const
   Returns the number of items in the ap.
+
   \sa isEmpty()
 */
 
@@ -238,8 +239,7 @@
   \fn void QMap::remove( Iterator it )
   Removes the item at position \e it in the map.
 
-  \sa clear()
-  \sa QMapIterator
+  \sa clear() QMapIterator
 */
 
 /*!
@@ -254,9 +254,7 @@
   Replaces the value with key \e k from the map if possible and
   inserts the new value \e v with key \k in the map.
 
-  \sa insert()
-  \sa remove()
-  \sa QMapIterator
+  \sa insert() remove() QMapIterator
 */
 
 /*!
@@ -294,8 +292,7 @@
   Returns an iterator pointing to the first element in the map. This
   iterator equals end() if the map is empty;
 
-  \sa end()
-  \sa QMapIterator
+  \sa end() QMapIterator
 */
 
 /*!
@@ -303,8 +300,7 @@
   Returns an iterator pointing to the first element in the map. This
   iterator equals end() if the map is empty;
 
-  \sa end()
-  \sa QMapConstIterator
+  \sa end() QMapConstIterator
 */
 
 /*!
@@ -312,8 +308,7 @@
   Returns an iterator pointing behind the last element in the map. This
   iterator equals begin() if the map is empty.
 
-  \sa begin()
-  \sa QMapIterator
+  \sa begin() QMapIterator
 */
 
 /*!
@@ -321,8 +316,7 @@
   Returns an iterator pointing behind the last element in the map. This
   iterator equals begin() if the map is empty.
 
-  \sa begin()
-  \sa QMapConstIterator
+  \sa begin() QMapConstIterator
 */
 
 /*!
@@ -526,8 +520,7 @@
 
   For more informations on QMap iterators see QMapIterator.
 
-  \sa QMap
-  \sa QMapIterator
+  \sa QMap QMapIterator
 */
 
 /*!

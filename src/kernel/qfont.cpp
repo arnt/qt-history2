@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont.cpp#139 $
+** $Id: //depot/qt/main/src/kernel/qfont.cpp#140 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes
 **
@@ -113,7 +113,7 @@
   what happens if a font's family isn't installed using
   insertSubstitution() and removeSubstitution(), ask what happens for
   a single family using substitute() and you can get a complete list of
-  the fallback families using listSubstitutions().
+  the fallback families using substitutions().
 
   cacheStatistics() offers cache effectiveness information; this is
   useful mostly for debugging.
@@ -121,12 +121,12 @@
   Finally, QApplication::setFont() allows you to set the default font.
   The default default font is chosen at application startup from a set of
   common installed fonts that support the correct character set for the
-  current locale. \endlink Of course, the initialization algorithm has a
+  current locale. Of course, the initialization algorithm has a
   default, too: The default default default font!
 
   For more general information on fonts, see the
   <a href="http://www.nwalsh.com/comp.fonts/FAQ/">comp.fonts FAQ</a>
-  and for more general information on encodings, see or <a
+  and for more general information on encodings, see <a
   href="http://czyborra.com/charsets/">Roman Czyborra's font
   encodings.</a>
 
@@ -217,7 +217,7 @@ QFont::QFont()
   Constructs a font object with the specified \e family, \e pointSize,
   \e weight and \e italic settings.  The \link charSet() character set
   \endlink is copied from the \link QApplication::font() default font
-  \endlink and the rest of the settings ser set reasonably.
+  \endlink and the rest of the settings are set reasonably.
 
   If \e pointSize is less than or equal to 0 it is set to 1.
 
@@ -1096,7 +1096,7 @@ QString QFont::substitute( const QString &familyName )
   If \e familyName already exists in the substitution table, it will
   be replaced with this new substitution.
 
-  \sa removeSubstitution(), listSubstitutions(), substitute()
+  \sa removeSubstitution(), substitutions(), substitute()
 */
 
 void QFont::insertSubstitution( const QString &familyName,
@@ -1110,7 +1110,7 @@ void QFont::insertSubstitution( const QString &familyName,
   Removes a font family name substitution from the family substitution
   table.
 
-  \sa insertSubstitution(), listSubstitutions(), substitute()
+  \sa insertSubstitution(), substitutions(), substitute()
 */
 
 void QFont::removeSubstitution( const QString &familyName )

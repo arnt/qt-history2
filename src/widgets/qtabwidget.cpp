@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtabwidget.cpp#24 $
+** $Id: //depot/qt/main/src/widgets/qtabwidget.cpp#25 $
 **
 ** Implementation of QTabWidget class
 **
@@ -42,10 +42,7 @@
   or by pressing the indicated Alt-(letter) key combination.
 
   QTabWidget does not provide more than one row of tabs, and does not
-  provide tabs along the sides or bottom of the pages.  It also does
-  not offer any way to find out which page is currently visible or to
-  set the visible page.
-
+  provide tabs along the sides or bottom of the pages.
 
   The normal way to use QTabWidget is to do the following in the
   constructor: <ol> <li> Create a QTabWidget. <li> Create a QWidget
@@ -261,7 +258,7 @@ void QTabWidget::insertTab( QWidget *child, QTab* tab, int index)
 
 
 /*!
-  Defines a new label for the tab of page \w
+  Defines a new label for the tab of page \a w
  */
 void QTabWidget::changeTab( QWidget *w, const QString &label)
 {
@@ -279,7 +276,7 @@ void QTabWidget::changeTab( QWidget *w, const QString &label)
 }
 
 /*
-  Defines a new iconset and a new label for the tab of page \w
+  Defines a new iconset and a new label for the tab of page \a w
  */
 void QTabWidget::changeTab( QWidget *w, const QIconSet& iconset, const QString &label)
 {
@@ -592,7 +589,7 @@ void QTabWidget::updateMask()
  */
 bool QTabWidget::eventFilter( QObject *o, QEvent * e)
 {
-    if ( o == d->stack && e->type() == QEvent::ChildRemoved 
+    if ( o == d->stack && e->type() == QEvent::ChildRemoved
 	 && ( (QChildEvent*)e )->child()->isWidgetType() ) {
 	removePage( (QWidget*)  ( (QChildEvent*)e )->child() );
 	return TRUE;

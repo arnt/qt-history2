@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#161 $
+** $Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#162 $
 **
 ** Implementation of QPixmap class for X11
 **
@@ -909,7 +909,7 @@ QImage QPixmap::convertToImage() const
   \bug Does not support 2 or 4 bit display hardware.
 
   \sa convertToImage(), isQBitmap(), QImage::convertDepth(), defaultDepth(),
-    hasAlphaBuffer()
+  QImage::hasAlphaBuffer()
 */
 
 bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )

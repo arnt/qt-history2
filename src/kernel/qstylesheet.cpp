@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qstylesheet.cpp#18 $
+** $Id: //depot/qt/main/src/kernel/qstylesheet.cpp#19 $
 **
 ** Implementation of the QStyleSheet class
 **
@@ -164,7 +164,7 @@ QStyleSheetItem::DisplayMode QStyleSheetItem::displayMode() const
 }
 
 /*! \enum QStyleSheetItem::DisplayMode
-  
+
   This enum type defines the way adjacent elements are displayed.  The possible values are: <ul>
 
   <li> \c DisplayBlock
@@ -284,7 +284,7 @@ bool QStyleSheetItem::definesFontUnderline() const
   Returns the font weight setting of the style. This is either a
   valid QFont::Weight or the value QStyleSheetItem::Undefined.
 
- \sa setFontWeight, QFont
+ \sa setFontWeight(), QFont
  */
 int QStyleSheetItem::fontWeight() const
 {
@@ -568,7 +568,7 @@ QStyleSheetItem::ListStyle QStyleSheetItem::listStyle() const
   This is used by nested elements which have a display mode of
   DisplayListItem.
 
-  \sa listStyle() DisplayMode 
+  \sa listStyle() DisplayMode
  */
 void QStyleSheetItem::setListStyle(ListStyle s)
 {

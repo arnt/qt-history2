@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qiconset.cpp#29 $
+** $Id: //depot/qt/main/src/kernel/qiconset.cpp#30 $
 **
 ** Implementation of QIconSet class
 **
@@ -108,7 +108,7 @@ struct QIconSetPrivate: public QShared
 
 /*!
   Constructs an icons set of an empty pixmap.
-  
+
   \sa reset()
 */
 
@@ -198,7 +198,7 @@ void QIconSet::reset( const QPixmap & pm, Size s )
 }
 
 
-/*!  Sets this icon set to display \a pn in size \a s/mode \a m, and
+/*!  Sets this icon set to display \a pm in size \a s and mode \a m, and
   perhaps to use \a pm for deriving some other varieties.
 
   \a s must be Large or Small; it cannot be Automatic.
@@ -248,7 +248,7 @@ void QIconSet::setPixmap( const QPixmap & pm, Size s, Mode m )
 
 
 /*!  Sets this icon set to load \a fileName as a pixmap and display it
-  in size \a s/mode \a m, and perhaps to use \a pm for deriving some
+  in size \a s and mode \a m, and perhaps to use \a fileName for deriving some
   other varieties.
 */
 

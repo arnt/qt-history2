@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#265 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#266 $
 **
 ** Implementation of the QString class and related Unicode functions
 **
@@ -10421,8 +10421,8 @@ char* QString::unicodeToAscii(const QChar *uc, uint l)
   Note that if you find that you are mixing usage of QCString, QString,
   and QByteArray, this causes lots of unnecessary copying and might
   indicate that the true nature of the data you are dealing with is
-  uncertain.  If the data is NUL-terminates 8-bit data, use QCString;
-  if it is unterminated (ie. contains NULs) 8-bit daya, use QByteArray;
+  uncertain.  If the data is NUL-terminated 8-bit data, use QCString;
+  if it is unterminated (ie. contains NULs) 8-bit data, use QByteArray;
   if it is text, use QString.
 
   \sa \link shclass.html Shared classes\endlink
@@ -12533,7 +12533,7 @@ const char* QString::ascii() const
 
   See QTextCodec for more diverse coding/decoding of Unicode strings.
 
-  \sa QString::fromUtf8(), local8Bit()
+  \sa QString::fromUtf8(), local8Bit(), latin1()
 */
 QCString QString::utf8() const
 {
@@ -12593,7 +12593,7 @@ QString QString::fromLatin1(const char* chars, int len)
 
   See QTextCodec for more diverse coding/decoding of Unicode strings.
 
-  \sa QString::fromLocal8Bit(), local8Bit(), utf8()
+  \sa QString::fromLocal8Bit(), latin1(), utf8()
 */
 QCString QString::local8Bit() const
 {

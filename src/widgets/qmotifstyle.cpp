@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmotifstyle.cpp#16 $
+** $Id: //depot/qt/main/src/widgets/qmotifstyle.cpp#17 $
 **
 ** Implementation of Motif-like style class
 **
@@ -76,7 +76,7 @@ QMotifStyle::QMotifStyle( bool useHighlightCols ) : QCommonStyle(MotifStyle)
   via QApplication::setPalette(). The current color palette of the
   application remains unchanged.
 
-  \sa QStyle::polish( QPalette& ), selectionOnlyInverse()
+  \sa QStyle::polish( QPalette& )
  */
 void QMotifStyle::setUseHighlightColors( bool arg)
 {
@@ -87,8 +87,6 @@ void QMotifStyle::setUseHighlightColors( bool arg)
   Returns whether the style treats the highlight colors of the palette
   Motif-like, which is a simple inversion between the base and the
   text color. The default is FALSE.
-
-  \sa setSelectionOnlyInverse()
  */
 bool QMotifStyle::useHighlightColors() const
 {

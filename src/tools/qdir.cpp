@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdir.cpp#106 $
+** $Id: //depot/qt/main/src/tools/qdir.cpp#107 $
 **
 ** Implementation of QDir class
 **
@@ -694,7 +694,7 @@ void QDir::setMatchAllDirs( bool enable )
 /*!
   Returns the number of files that was found.
   Equivalent to entryList().count().
-  \sa operator[], entryList()
+  \sa operator[](), entryList()
 */
 
 uint QDir::count() const
