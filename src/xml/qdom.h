@@ -64,24 +64,24 @@ class QLayout;
 class QIODevice;
 class QTextStream;
 
-class QDOM_DocumentPrivate;
-class QDOM_DocumentTypePrivate;
-class QDOM_DocumentFragmentPrivate;
-class QDOM_NodePrivate;
-class QDOM_NodeListPrivate;
-class QDOM_ImplementationPrivate;
-class QDOM_ElementPrivate;
-class QDOM_NotationPrivate;
-class QDOM_EntityPrivate;
-class QDOM_EntityReferencePrivate;
-class QDOM_ProcessingInstructionPrivate;
-class QDOM_AttrPrivate;
-class QDOM_CharacterDataPrivate;
-class QDOM_TextPrivate;
-class QDOM_CommentPrivate;
-class QDOM_CDATASectionPrivate;
-class QDOM_NamedNodeMapPrivate;
-class QDOM_ImplementationPrivate;
+class QDomDocumentPrivate;
+class QDomDocumentTypePrivate;
+class QDomDocumentFragmentPrivate;
+class QDomNodePrivate;
+class QDomNodeListPrivate;
+class QDomImplementationPrivate;
+class QDomElementPrivate;
+class QDomNotationPrivate;
+class QDomEntityPrivate;
+class QDomEntityReferencePrivate;
+class QDomProcessingInstructionPrivate;
+class QDomAttrPrivate;
+class QDomCharacterDataPrivate;
+class QDomTextPrivate;
+class QDomCommentPrivate;
+class QDomCDATASectionPrivate;
+class QDomNamedNodeMapPrivate;
+class QDomImplementationPrivate;
 
 class QDomNodeList;
 class QDomElement;
@@ -117,9 +117,9 @@ public:
     bool isNull();
 
 private:
-    QDomImplementation( QDOM_ImplementationPrivate* );
+    QDomImplementation( QDomImplementationPrivate* );
 
-    QDOM_ImplementationPrivate* impl;
+    QDomImplementationPrivate* impl;
 
     friend class QDomDocument;
 };
@@ -213,8 +213,8 @@ public:
     void save( QTextStream&, int ) const;
 
 protected:
-    QDOM_NodePrivate* impl;
-    QDomNode( QDOM_NodePrivate* );
+    QDomNodePrivate* impl;
+    QDomNode( QDomNodePrivate* );
 
 private:
     friend class QDomDocument;
@@ -237,9 +237,9 @@ public:
     virtual uint length() const;
     uint count() const { return length(); } // Qt API consitancy
 
-    QDomNodeList( QDOM_NodeListPrivate* );
+    QDomNodeList( QDomNodeListPrivate* );
 private:
-    QDOM_NodeListPrivate* impl;
+    QDomNodeListPrivate* impl;
 };
 
 class QM_EXPORT QDomDocumentType : public QDomNode
@@ -259,7 +259,7 @@ public:
     bool isDocumentType() const;
 
 private:
-    QDomDocumentType( QDOM_DocumentTypePrivate* );
+    QDomDocumentType( QDomDocumentTypePrivate* );
 
     friend class QDomDocument;
     friend class QDomNode;
@@ -305,7 +305,7 @@ public:
     QCString toCString() const { return toString().utf8(); }
 
 private:
-    QDomDocument( QDOM_DocumentPrivate* );
+    QDomDocument( QDomDocumentPrivate* );
 
     friend class QDomNode;
 };
@@ -332,9 +332,9 @@ private:
     friend class QDomDocumentType;
     friend class QDomElement;
 
-    QDomNamedNodeMap( QDOM_NamedNodeMapPrivate* );
+    QDomNamedNodeMap( QDomNamedNodeMapPrivate* );
 
-    QDOM_NamedNodeMapPrivate* impl;
+    QDomNamedNodeMapPrivate* impl;
 };
 
 class QM_EXPORT QDomDocumentFragment : public QDomNode
@@ -350,7 +350,7 @@ public:
     bool isDocumentFragment() const;
 
 private:
-    QDomDocumentFragment( QDOM_DocumentFragmentPrivate* );
+    QDomDocumentFragment( QDomDocumentFragmentPrivate* );
 
     friend class QDomDocument;
     friend class QDomNode;
@@ -379,7 +379,7 @@ public:
     bool isCharacterData() const;
 
 private:
-    QDomCharacterData( QDOM_CharacterDataPrivate* );
+    QDomCharacterData( QDomCharacterDataPrivate* );
 
     friend class QDomDocument;
     friend class QDomText;
@@ -405,7 +405,7 @@ public:
     bool isAttr() const;
 
 private:
-    QDomAttr( QDOM_AttrPrivate* );
+    QDomAttr( QDomAttrPrivate* );
 
     friend class QDomDocument;
     friend class QDomElement;
@@ -443,7 +443,7 @@ public:
     QString text() const;
 
 private:
-    QDomElement( QDOM_ElementPrivate* );
+    QDomElement( QDomElementPrivate* );
 
     friend class QDomDocument;
     friend class QDomNode;
@@ -464,7 +464,7 @@ public:
     bool isText() const;
 
 private:
-    QDomText( QDOM_TextPrivate* );
+    QDomText( QDomTextPrivate* );
 
     friend class QDomCDATASection;
     friend class QDomDocument;
@@ -484,7 +484,7 @@ public:
     bool isComment() const;
 
 private:
-    QDomComment( QDOM_CommentPrivate* );
+    QDomComment( QDomCommentPrivate* );
 
     friend class QDomDocument;
     friend class QDomNode;
@@ -503,7 +503,7 @@ public:
     bool isCDATASection() const;
 
 private:
-    QDomCDATASection( QDOM_CDATASectionPrivate* );
+    QDomCDATASection( QDomCDATASectionPrivate* );
 
     friend class QDomDocument;
     friend class QDomNode;
@@ -525,7 +525,7 @@ public:
     bool isNotation() const;
 
 private:
-    QDomNotation( QDOM_NotationPrivate* );
+    QDomNotation( QDomNotationPrivate* );
 
     friend class QDomDocument;
     friend class QDomNode;
@@ -548,7 +548,7 @@ public:
     bool isEntity() const;
 
 private:
-    QDomEntity( QDOM_EntityPrivate* );
+    QDomEntity( QDomEntityPrivate* );
 
     friend class QDomNode;
 };
@@ -566,7 +566,7 @@ public:
     bool isEntityReference() const;
 
 private:
-    QDomEntityReference( QDOM_EntityReferencePrivate* );
+    QDomEntityReference( QDomEntityReferencePrivate* );
 
     friend class QDomDocument;
     friend class QDomNode;
@@ -589,7 +589,7 @@ public:
     bool isProcessingInstruction() const;
 
 private:
-    QDomProcessingInstruction( QDOM_ProcessingInstructionPrivate* );
+    QDomProcessingInstruction( QDomProcessingInstructionPrivate* );
 
     friend class QDomDocument;
     friend class QDomNode;

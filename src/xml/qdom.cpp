@@ -54,7 +54,7 @@
 #  endif
 #endif
 
-// template class QDict<QDOM_NodePrivate>;
+// template class QDict<QDomNodePrivate>;
 
 // NOT REVISED
 
@@ -93,7 +93,7 @@
 class QDomHandler : public QXmlDefaultHandler
 {
 public:
-    QDomHandler( QDOM_DocumentPrivate* d );
+    QDomHandler( QDomDocumentPrivate* d );
     ~QDomHandler();
 
     // content handler
@@ -122,8 +122,8 @@ public:
 
 private:
     QXmlLocator* loc;
-    QDOM_DocumentPrivate* doc;
-    QDOM_NodePrivate* node;
+    QDomDocumentPrivate* doc;
+    QDomNodePrivate* node;
     bool cdata;
 };
 
@@ -133,31 +133,31 @@ private:
 
 /**************************************************************
  *
- * QDOM_ImplementationPrivate
+ * QDomImplementationPrivate
  *
  **************************************************************/
 
-class QDOM_ImplementationPrivate : public QShared
+class QDomImplementationPrivate : public QShared
 {
 public:
-    QDOM_ImplementationPrivate();
-    ~QDOM_ImplementationPrivate();
+    QDomImplementationPrivate();
+    ~QDomImplementationPrivate();
 
-    QDOM_ImplementationPrivate* clone();
+    QDomImplementationPrivate* clone();
 
 };
 
-QDOM_ImplementationPrivate::QDOM_ImplementationPrivate()
+QDomImplementationPrivate::QDomImplementationPrivate()
 {
 }
 
-QDOM_ImplementationPrivate::~QDOM_ImplementationPrivate()
+QDomImplementationPrivate::~QDomImplementationPrivate()
 {
 }
 
-QDOM_ImplementationPrivate* QDOM_ImplementationPrivate::clone()
+QDomImplementationPrivate* QDomImplementationPrivate::clone()
 {
-    QDOM_ImplementationPrivate* p = new QDOM_ImplementationPrivate;
+    QDomImplementationPrivate* p = new QDomImplementationPrivate;
     // We are not interested in this node
     p->deref();
     return p;
@@ -211,7 +211,7 @@ QDomImplementation::QDomImplementation( const QDomImplementation& x )
 /*!
   \internal
 */
-QDomImplementation::QDomImplementation( QDOM_ImplementationPrivate* p )
+QDomImplementation::QDomImplementation( QDomImplementationPrivate* p )
 {
     // We want to be co-owners, so increase the reference count
     impl = p;
@@ -285,36 +285,36 @@ bool QDomImplementation::isNull()
 
 /**************************************************************
  *
- * QDOM_NodeListPrivate
+ * QDomNodeListPrivate
  *
  **************************************************************/
 
-class QDOM_NodePrivate : public QShared
+class QDomNodePrivate : public QShared
 {
 public:
-    QDOM_NodePrivate( QDOM_DocumentPrivate*, QDOM_NodePrivate* parent = 0 );
-    QDOM_NodePrivate( QDOM_NodePrivate* n, bool deep );
-    virtual ~QDOM_NodePrivate();
+    QDomNodePrivate( QDomDocumentPrivate*, QDomNodePrivate* parent = 0 );
+    QDomNodePrivate( QDomNodePrivate* n, bool deep );
+    virtual ~QDomNodePrivate();
 
     QString nodeName() const { return name; }
     QString nodeValue() const { return value; }
     void setNodeValue( const QString& v ) { value = v; }
 
-    QDOM_DocumentPrivate*     ownerDocument();
+    QDomDocumentPrivate*     ownerDocument();
 
-    virtual QDOM_NamedNodeMapPrivate* attributes();
-    virtual QDOM_NodePrivate* insertBefore( QDOM_NodePrivate* newChild, QDOM_NodePrivate* refChild );
-    virtual QDOM_NodePrivate* insertAfter( QDOM_NodePrivate* newChild, QDOM_NodePrivate* refChild );
-    virtual QDOM_NodePrivate* replaceChild( QDOM_NodePrivate* newChild, QDOM_NodePrivate* oldChild );
-    virtual QDOM_NodePrivate* removeChild( QDOM_NodePrivate* oldChild );
-    virtual QDOM_NodePrivate* appendChild( QDOM_NodePrivate* newChild );
+    virtual QDomNamedNodeMapPrivate* attributes();
+    virtual QDomNodePrivate* insertBefore( QDomNodePrivate* newChild, QDomNodePrivate* refChild );
+    virtual QDomNodePrivate* insertAfter( QDomNodePrivate* newChild, QDomNodePrivate* refChild );
+    virtual QDomNodePrivate* replaceChild( QDomNodePrivate* newChild, QDomNodePrivate* oldChild );
+    virtual QDomNodePrivate* removeChild( QDomNodePrivate* oldChild );
+    virtual QDomNodePrivate* appendChild( QDomNodePrivate* newChild );
 
-    QDOM_NodePrivate* namedItem( const QString& name );
+    QDomNodePrivate* namedItem( const QString& name );
 
-    virtual QDOM_NodePrivate* cloneNode( bool deep = TRUE );
+    virtual QDomNodePrivate* cloneNode( bool deep = TRUE );
     virtual void clear();
 
-    void setParent( QDOM_NodePrivate* );
+    void setParent( QDomNodePrivate* );
 
     // Dynamic cast
     virtual bool isAttr() { return FALSE; }
@@ -334,41 +334,41 @@ public:
     virtual void save( QTextStream&, int ) const;
 
     // Variables
-    QDOM_NodePrivate* prev;
-    QDOM_NodePrivate* next;
-    QDOM_NodePrivate* parent;
-    QDOM_NodePrivate* first;
-    QDOM_NodePrivate* last;
+    QDomNodePrivate* prev;
+    QDomNodePrivate* next;
+    QDomNodePrivate* parent;
+    QDomNodePrivate* first;
+    QDomNodePrivate* last;
 
     QString name;
     QString value;
 };
 
-class QDOM_NodeListPrivate : public QShared
+class QDomNodeListPrivate : public QShared
 {
 public:
-    QDOM_NodeListPrivate( QDOM_NodePrivate* );
-    QDOM_NodeListPrivate( QDOM_NodePrivate*, const QString&  );
-    virtual ~QDOM_NodeListPrivate();
+    QDomNodeListPrivate( QDomNodePrivate* );
+    QDomNodeListPrivate( QDomNodePrivate*, const QString&  );
+    virtual ~QDomNodeListPrivate();
 
-    virtual bool operator== ( const QDOM_NodeListPrivate& ) const;
-    virtual bool operator!= ( const QDOM_NodeListPrivate& ) const;
+    virtual bool operator== ( const QDomNodeListPrivate& ) const;
+    virtual bool operator!= ( const QDomNodeListPrivate& ) const;
 
-    virtual QDOM_NodePrivate* item( int index );
+    virtual QDomNodePrivate* item( int index );
     virtual uint length() const;
 
-    QDOM_NodePrivate* node_impl;
+    QDomNodePrivate* node_impl;
     QString tagname;
 };
 
-QDOM_NodeListPrivate::QDOM_NodeListPrivate( QDOM_NodePrivate* n_impl )
+QDomNodeListPrivate::QDomNodeListPrivate( QDomNodePrivate* n_impl )
 {
     node_impl = n_impl;
     if ( node_impl )
 	node_impl->ref();
 }
 
-QDOM_NodeListPrivate::QDOM_NodeListPrivate( QDOM_NodePrivate* n_impl, const QString& name )
+QDomNodeListPrivate::QDomNodeListPrivate( QDomNodePrivate* n_impl, const QString& name )
 {
     node_impl = n_impl;
     if ( node_impl )
@@ -376,25 +376,25 @@ QDOM_NodeListPrivate::QDOM_NodeListPrivate( QDOM_NodePrivate* n_impl, const QStr
     tagname = name;
 }
 
-QDOM_NodeListPrivate::~QDOM_NodeListPrivate()
+QDomNodeListPrivate::~QDomNodeListPrivate()
 {
     if ( node_impl && node_impl->deref() )
 	delete node_impl;
 }
 
-bool QDOM_NodeListPrivate::operator== ( const QDOM_NodeListPrivate& other ) const
+bool QDomNodeListPrivate::operator== ( const QDomNodeListPrivate& other ) const
 {
     return ( node_impl == other.node_impl ) && ( tagname == other.tagname ) ;
 }
 
-bool QDOM_NodeListPrivate::operator!= ( const QDOM_NodeListPrivate& other ) const
+bool QDomNodeListPrivate::operator!= ( const QDomNodeListPrivate& other ) const
 {
     return ( node_impl != other.node_impl ) || ( tagname != other.tagname ) ;
 }
 
-QDOM_NodePrivate* QDOM_NodeListPrivate::item( int index )
+QDomNodePrivate* QDomNodeListPrivate::item( int index )
 {
-    QDOM_NodePrivate* p = node_impl->first;
+    QDomNodePrivate* p = node_impl->first;
     int i = 0;
     if ( tagname.isNull() ) {
 	while ( i < index && p ) {
@@ -425,10 +425,10 @@ QDOM_NodePrivate* QDOM_NodeListPrivate::item( int index )
     return p;
 }
 
-uint QDOM_NodeListPrivate::length() const
+uint QDomNodeListPrivate::length() const
 {
     uint i = 0;
-    QDOM_NodePrivate* p = node_impl->first;
+    QDomNodePrivate* p = node_impl->first;
     if ( tagname.isNull() ) {
 	while ( p ) {
 	    p = p->next;
@@ -490,7 +490,7 @@ QDomNodeList::QDomNodeList()
 
 /*! \internal
 */
-QDomNodeList::QDomNodeList( QDOM_NodeListPrivate* p )
+QDomNodeList::QDomNodeList( QDomNodeListPrivate* p )
 {
     impl = p;
 }
@@ -588,11 +588,11 @@ uint QDomNodeList::length() const
 
 /**************************************************************
  *
- * QDOM_NodePrivate
+ * QDomNodePrivate
  *
  **************************************************************/
 
-QDOM_NodePrivate::QDOM_NodePrivate( QDOM_DocumentPrivate* /* qd */, QDOM_NodePrivate *par )
+QDomNodePrivate::QDomNodePrivate( QDomDocumentPrivate* /* qd */, QDomNodePrivate *par )
 {
     parent = par;
     prev = 0;
@@ -601,7 +601,7 @@ QDOM_NodePrivate::QDOM_NodePrivate( QDOM_DocumentPrivate* /* qd */, QDOM_NodePri
     last = 0;
 }
 
-QDOM_NodePrivate::QDOM_NodePrivate( QDOM_NodePrivate* n, bool deep )
+QDomNodePrivate::QDomNodePrivate( QDomNodePrivate* n, bool deep )
 {
     parent = 0;
     prev = 0;
@@ -615,14 +615,14 @@ QDOM_NodePrivate::QDOM_NodePrivate( QDOM_NodePrivate* n, bool deep )
     if ( !deep )
 	return;
 
-    for ( QDOM_NodePrivate* x = n->first; x; x = x->next )
+    for ( QDomNodePrivate* x = n->first; x; x = x->next )
 	appendChild( x->cloneNode( TRUE ) );
 }
 
-QDOM_NodePrivate::~QDOM_NodePrivate()
+QDomNodePrivate::~QDomNodePrivate()
 {
-    QDOM_NodePrivate* p = first;
-    QDOM_NodePrivate* n;
+    QDomNodePrivate* p = first;
+    QDomNodePrivate* n;
 
     while ( p ) {
 	n = p->next;
@@ -637,10 +637,10 @@ QDOM_NodePrivate::~QDOM_NodePrivate()
     last = 0;
 }
 
-void QDOM_NodePrivate::clear()
+void QDomNodePrivate::clear()
 {
-    QDOM_NodePrivate* p = first;
-    QDOM_NodePrivate* n;
+    QDomNodePrivate* p = first;
+    QDomNodePrivate* n;
 
     while ( p ) {
 	n = p->next;
@@ -653,9 +653,9 @@ void QDOM_NodePrivate::clear()
     last = 0;
 }
 
-QDOM_NodePrivate* QDOM_NodePrivate::namedItem( const QString& n )
+QDomNodePrivate* QDomNodePrivate::namedItem( const QString& n )
 {
-    QDOM_NodePrivate* p = first;
+    QDomNodePrivate* p = first;
     while ( p ) {
 	if ( p->nodeName() == n )
 	    return p;
@@ -665,12 +665,12 @@ QDOM_NodePrivate* QDOM_NodePrivate::namedItem( const QString& n )
     return 0;
 }
 
-QDOM_NamedNodeMapPrivate* QDOM_NodePrivate::attributes()
+QDomNamedNodeMapPrivate* QDomNodePrivate::attributes()
 {
     return 0;
 }
 
-QDOM_NodePrivate* QDOM_NodePrivate::insertBefore( QDOM_NodePrivate* newChild, QDOM_NodePrivate* refChild )
+QDomNodePrivate* QDomNodePrivate::insertBefore( QDomNodePrivate* newChild, QDomNodePrivate* refChild )
 {
     // Error check
     if ( !newChild )
@@ -692,7 +692,7 @@ QDOM_NodePrivate* QDOM_NodePrivate::insertBefore( QDOM_NodePrivate* newChild, QD
 	    return newChild;
 
 	// New parent
-	QDOM_NodePrivate* n = newChild->first;
+	QDomNodePrivate* n = newChild->first;
 	while ( n )  {
 	    n->parent = this;
 	    n = n->next;
@@ -759,7 +759,7 @@ QDOM_NodePrivate* QDOM_NodePrivate::insertBefore( QDOM_NodePrivate* newChild, QD
     return newChild;
 }
 
-QDOM_NodePrivate* QDOM_NodePrivate::insertAfter( QDOM_NodePrivate* newChild, QDOM_NodePrivate* refChild )
+QDomNodePrivate* QDomNodePrivate::insertAfter( QDomNodePrivate* newChild, QDomNodePrivate* refChild )
 {
     // Error check
     if ( !newChild )
@@ -781,7 +781,7 @@ QDOM_NodePrivate* QDOM_NodePrivate::insertAfter( QDOM_NodePrivate* newChild, QDO
 	    return newChild;
 
 	// New parent
-	QDOM_NodePrivate* n = newChild->first;
+	QDomNodePrivate* n = newChild->first;
 	while ( n ) {
 	    n->parent = this;
 	    n = n->next;
@@ -850,7 +850,7 @@ QDOM_NodePrivate* QDOM_NodePrivate::insertAfter( QDOM_NodePrivate* newChild, QDO
     return newChild;
 }
 
-QDOM_NodePrivate* QDOM_NodePrivate::replaceChild( QDOM_NodePrivate* newChild, QDOM_NodePrivate* oldChild )
+QDomNodePrivate* QDomNodePrivate::replaceChild( QDomNodePrivate* newChild, QDomNodePrivate* oldChild )
 {
     // Error check
     if ( oldChild->parent != this )
@@ -872,7 +872,7 @@ QDOM_NodePrivate* QDOM_NodePrivate::replaceChild( QDOM_NodePrivate* newChild, QD
 	    return newChild;
 
 	// New parent
-	QDOM_NodePrivate* n = newChild->first;
+	QDomNodePrivate* n = newChild->first;
 	while ( n ) {
 	    n->parent = this;
 	    n = n->next;
@@ -942,7 +942,7 @@ QDOM_NodePrivate* QDOM_NodePrivate::replaceChild( QDOM_NodePrivate* newChild, QD
     return oldChild;
 }
 
-QDOM_NodePrivate* QDOM_NodePrivate::removeChild( QDOM_NodePrivate* oldChild )
+QDomNodePrivate* QDomNodePrivate::removeChild( QDomNodePrivate* oldChild )
 {
     // Error check
     if ( oldChild->parent != this )
@@ -973,38 +973,38 @@ QDOM_NodePrivate* QDOM_NodePrivate::removeChild( QDOM_NodePrivate* oldChild )
     return oldChild;
 }
 
-QDOM_NodePrivate* QDOM_NodePrivate::appendChild( QDOM_NodePrivate* newChild )
+QDomNodePrivate* QDomNodePrivate::appendChild( QDomNodePrivate* newChild )
 {
     // No reference manipulation needed. Done in insertAfter.
     return insertAfter( newChild, 0 );
 }
 
-void QDOM_NodePrivate::setParent( QDOM_NodePrivate* n )
+void QDomNodePrivate::setParent( QDomNodePrivate* n )
 {
     // Dont take over ownership of our parent :-)
     parent = n;
 }
 
-QDOM_DocumentPrivate* QDOM_NodePrivate::ownerDocument()
+QDomDocumentPrivate* QDomNodePrivate::ownerDocument()
 {
-    QDOM_NodePrivate* p = this;
+    QDomNodePrivate* p = this;
     while ( p && p->isDocumentType() )
 	p = p->parent;
 
-    return (QDOM_DocumentPrivate*)p;
+    return (QDomDocumentPrivate*)p;
 }
 
-QDOM_NodePrivate* QDOM_NodePrivate::cloneNode( bool deep )
+QDomNodePrivate* QDomNodePrivate::cloneNode( bool deep )
 {
-    QDOM_NodePrivate* p = new QDOM_NodePrivate( this, deep );
+    QDomNodePrivate* p = new QDomNodePrivate( this, deep );
     // We are not interested in this node
     p->deref();
     return p;
 }
 
-void QDOM_NodePrivate::save( QTextStream& s, int indent ) const
+void QDomNodePrivate::save( QTextStream& s, int indent ) const
 {
-    const QDOM_NodePrivate* n = first;
+    const QDomNodePrivate* n = first;
     while ( n ) {
 	n->save( s, indent );
 	n = n->next;
@@ -1017,7 +1017,7 @@ void QDOM_NodePrivate::save( QTextStream& s, int indent ) const
  *
  **************************************************************/
 
-#define IMPL ((QDOM_NodePrivate*)impl)
+#define IMPL ((QDomNodePrivate*)impl)
 
 /*!
   \class QDomNode qdom.h
@@ -1081,7 +1081,7 @@ QDomNode::QDomNode( const QDomNode& n )
 /*!
   \internal
 */
-QDomNode::QDomNode( QDOM_NodePrivate* n )
+QDomNode::QDomNode( QDomNodePrivate* n )
 {
     impl = n;
     if ( impl ) impl->ref();
@@ -1268,7 +1268,7 @@ QDomNodeList QDomNode::childNodes() const
 {
     if ( !impl )
 	return QDomNodeList();
-    return QDomNodeList( new QDOM_NodeListPrivate( impl ) );
+    return QDomNodeList( new QDomNodeListPrivate( impl ) );
 }
 
 /*!
@@ -1750,20 +1750,20 @@ bool QDomNode::isComment() const
 
 /**************************************************************
  *
- * QDOM_NamedNodeMapPrivate
+ * QDomNamedNodeMapPrivate
  *
  **************************************************************/
 
-class QDOM_NamedNodeMapPrivate : public QShared
+class QDomNamedNodeMapPrivate : public QShared
 {
 public:
-    QDOM_NamedNodeMapPrivate( QDOM_NodePrivate* );
-    ~QDOM_NamedNodeMapPrivate();
+    QDomNamedNodeMapPrivate( QDomNodePrivate* );
+    ~QDomNamedNodeMapPrivate();
 
-    QDOM_NodePrivate* namedItem( const QString& name ) const;
-    QDOM_NodePrivate* setNamedItem( QDOM_NodePrivate* arg );
-    QDOM_NodePrivate* removeNamedItem( const QString& name );
-    QDOM_NodePrivate* item( int index ) const;
+    QDomNodePrivate* namedItem( const QString& name ) const;
+    QDomNodePrivate* setNamedItem( QDomNodePrivate* arg );
+    QDomNodePrivate* removeNamedItem( const QString& name );
+    QDomNodePrivate* item( int index ) const;
     uint length() const;
     bool contains( const QString& name ) const;
 
@@ -1776,7 +1776,7 @@ public:
     bool isAppendToParent() { return appendToParent; }
     /**
      * If TRUE, then the node will redirect insert/remove calls
-     * to its parent by calling QDOM_NodePrivate::appendChild or removeChild.
+     * to its parent by calling QDomNodePrivate::appendChild or removeChild.
      * In addition the map wont increase or decrease the reference count
      * of the nodes it contains.
      *
@@ -1789,34 +1789,34 @@ public:
      * Creates a copy of the map. It is a deep copy
      * that means that all children are cloned.
      */
-    QDOM_NamedNodeMapPrivate* clone( QDOM_NodePrivate* parent );
+    QDomNamedNodeMapPrivate* clone( QDomNodePrivate* parent );
 
     // Variables
-    QDict<QDOM_NodePrivate> map;
-    QDOM_NodePrivate* parent;
+    QDict<QDomNodePrivate> map;
+    QDomNodePrivate* parent;
     bool readonly;
     bool appendToParent;
 };
 
-QDOM_NamedNodeMapPrivate::QDOM_NamedNodeMapPrivate( QDOM_NodePrivate* n )
+QDomNamedNodeMapPrivate::QDomNamedNodeMapPrivate( QDomNodePrivate* n )
 {
     readonly = FALSE;
     parent = n;
     appendToParent = FALSE;
 }
 
-QDOM_NamedNodeMapPrivate::~QDOM_NamedNodeMapPrivate()
+QDomNamedNodeMapPrivate::~QDomNamedNodeMapPrivate()
 {
     clearMap();
 }
 
-QDOM_NamedNodeMapPrivate* QDOM_NamedNodeMapPrivate::clone( QDOM_NodePrivate* p )
+QDomNamedNodeMapPrivate* QDomNamedNodeMapPrivate::clone( QDomNodePrivate* p )
 {
-    QDOM_NamedNodeMapPrivate* m = new QDOM_NamedNodeMapPrivate( p );
+    QDomNamedNodeMapPrivate* m = new QDomNamedNodeMapPrivate( p );
     m->readonly = readonly;
     m->appendToParent = appendToParent;
 
-    QDictIterator<QDOM_NodePrivate> it ( map );
+    QDictIterator<QDomNodePrivate> it ( map );
     for ( ; it.current(); ++it )
 	m->setNamedItem( it.current()->cloneNode() );
 
@@ -1825,11 +1825,11 @@ QDOM_NamedNodeMapPrivate* QDOM_NamedNodeMapPrivate::clone( QDOM_NodePrivate* p )
     return m;
 }
 
-void QDOM_NamedNodeMapPrivate::clearMap()
+void QDomNamedNodeMapPrivate::clearMap()
 {
     // Dereference all of our children if we took references
     if ( !appendToParent ) {
-	QDictIterator<QDOM_NodePrivate> it( map );
+	QDictIterator<QDomNodePrivate> it( map );
 	for ( ; it.current(); ++it )
 	    if ( it.current()->deref() )
 		delete it.current();
@@ -1838,13 +1838,13 @@ void QDOM_NamedNodeMapPrivate::clearMap()
     map.clear();
 }
 
-QDOM_NodePrivate* QDOM_NamedNodeMapPrivate::namedItem( const QString& name ) const
+QDomNodePrivate* QDomNamedNodeMapPrivate::namedItem( const QString& name ) const
 {
-    QDOM_NodePrivate* p = map[ name ];
+    QDomNodePrivate* p = map[ name ];
     return p;
 }
 
-QDOM_NodePrivate* QDOM_NamedNodeMapPrivate::setNamedItem( QDOM_NodePrivate* arg )
+QDomNodePrivate* QDomNamedNodeMapPrivate::setNamedItem( QDomNodePrivate* arg )
 {
     if ( readonly || !arg )
 	return 0;
@@ -1858,12 +1858,12 @@ QDOM_NodePrivate* QDOM_NamedNodeMapPrivate::setNamedItem( QDOM_NodePrivate* arg 
     return arg;
 }
 
-QDOM_NodePrivate* QDOM_NamedNodeMapPrivate::removeNamedItem( const QString& name )
+QDomNodePrivate* QDomNamedNodeMapPrivate::removeNamedItem( const QString& name )
 {
     if ( readonly )
 	return 0;
 
-    QDOM_NodePrivate* p = namedItem( name );
+    QDomNodePrivate* p = namedItem( name );
     if ( p == 0 )
 	return 0;
     if ( appendToParent )
@@ -1875,23 +1875,23 @@ QDOM_NodePrivate* QDOM_NamedNodeMapPrivate::removeNamedItem( const QString& name
     return p;
 }
 
-QDOM_NodePrivate* QDOM_NamedNodeMapPrivate::item( int index ) const
+QDomNodePrivate* QDomNamedNodeMapPrivate::item( int index ) const
 {
     if ( (uint)index >= length() )
 	return 0;
 
-    QDictIterator<QDOM_NodePrivate> it( map );
+    QDictIterator<QDomNodePrivate> it( map );
     for ( int i = 0; i < index; ++i, ++it )
 	;
     return it.current();
 }
 
-uint QDOM_NamedNodeMapPrivate::length() const
+uint QDomNamedNodeMapPrivate::length() const
 {
     return map.count();
 }
 
-bool QDOM_NamedNodeMapPrivate::contains( const QString& name ) const
+bool QDomNamedNodeMapPrivate::contains( const QString& name ) const
 {
     return ( map[ name ] != 0 );
 }
@@ -1902,7 +1902,7 @@ bool QDOM_NamedNodeMapPrivate::contains( const QString& name ) const
  *
  **************************************************************/
 
-#define IMPL ((QDOM_NamedNodeMapPrivate*)impl)
+#define IMPL ((QDomNamedNodeMapPrivate*)impl)
 
 /*!
   \class QDomNamedNodeMap qdom.h
@@ -1957,7 +1957,7 @@ QDomNamedNodeMap::QDomNamedNodeMap( const QDomNamedNodeMap& n )
 /*!
   \internal
 */
-QDomNamedNodeMap::QDomNamedNodeMap( QDOM_NamedNodeMapPrivate* n )
+QDomNamedNodeMap::QDomNamedNodeMap( QDomNamedNodeMapPrivate* n )
 {
     impl = n;
     if ( impl )
@@ -2029,7 +2029,7 @@ QDomNode QDomNamedNodeMap::setNamedItem( const QDomNode& newNode )
 {
     if ( !impl )
 	return QDomNode();
-    return QDomNode( IMPL->setNamedItem( (QDOM_NodePrivate*)newNode.impl ) );
+    return QDomNode( IMPL->setNamedItem( (QDomNodePrivate*)newNode.impl ) );
 }
 
 /*!
@@ -2091,58 +2091,58 @@ bool QDomNamedNodeMap::contains( const QString& name ) const
 
 /**************************************************************
  *
- * QDOM_DocumentTypePrivate
+ * QDomDocumentTypePrivate
  *
  **************************************************************/
 
-class QDOM_DocumentTypePrivate : public QDOM_NodePrivate
+class QDomDocumentTypePrivate : public QDomNodePrivate
 {
 public:
-    QDOM_DocumentTypePrivate( QDOM_DocumentPrivate*, QDOM_NodePrivate* parent = 0 );
-    QDOM_DocumentTypePrivate( QDOM_DocumentTypePrivate* n, bool deep );
-    ~QDOM_DocumentTypePrivate();
+    QDomDocumentTypePrivate( QDomDocumentPrivate*, QDomNodePrivate* parent = 0 );
+    QDomDocumentTypePrivate( QDomDocumentTypePrivate* n, bool deep );
+    ~QDomDocumentTypePrivate();
 
-    //     virtual QDOM_NamedNodeMapPrivate* entities();
-    //     virtual QDOM_NamedNodeMapPrivate* notations();
+    //     virtual QDomNamedNodeMapPrivate* entities();
+    //     virtual QDomNamedNodeMapPrivate* notations();
 
-    // Overloaded from QDOM_NodePrivate
-    virtual QDOM_NodePrivate* cloneNode( bool deep = TRUE );
-    virtual QDOM_NodePrivate* insertBefore( QDOM_NodePrivate* newChild, QDOM_NodePrivate* refChild );
-    virtual QDOM_NodePrivate* insertAfter( QDOM_NodePrivate* newChild, QDOM_NodePrivate* refChild );
-    virtual QDOM_NodePrivate* replaceChild( QDOM_NodePrivate* newChild, QDOM_NodePrivate* oldChild );
-    virtual QDOM_NodePrivate* removeChild( QDOM_NodePrivate* oldChild );
-    virtual QDOM_NodePrivate* appendChild( QDOM_NodePrivate* newChild );
+    // Overloaded from QDomNodePrivate
+    virtual QDomNodePrivate* cloneNode( bool deep = TRUE );
+    virtual QDomNodePrivate* insertBefore( QDomNodePrivate* newChild, QDomNodePrivate* refChild );
+    virtual QDomNodePrivate* insertAfter( QDomNodePrivate* newChild, QDomNodePrivate* refChild );
+    virtual QDomNodePrivate* replaceChild( QDomNodePrivate* newChild, QDomNodePrivate* oldChild );
+    virtual QDomNodePrivate* removeChild( QDomNodePrivate* oldChild );
+    virtual QDomNodePrivate* appendChild( QDomNodePrivate* newChild );
 
-    // Overloaded from QDOM_DocumentTypePrivate
+    // Overloaded from QDomDocumentTypePrivate
     virtual bool isDocumentType() { return TRUE; }
     virtual void save( QTextStream& s, int ) const;
 
     // Variables
-    QDOM_NamedNodeMapPrivate* entities;
-    QDOM_NamedNodeMapPrivate* notations;
+    QDomNamedNodeMapPrivate* entities;
+    QDomNamedNodeMapPrivate* notations;
 };
 
-QDOM_DocumentTypePrivate::QDOM_DocumentTypePrivate( QDOM_DocumentPrivate* doc, QDOM_NodePrivate* parent )
-    : QDOM_NodePrivate( doc, parent )
+QDomDocumentTypePrivate::QDomDocumentTypePrivate( QDomDocumentPrivate* doc, QDomNodePrivate* parent )
+    : QDomNodePrivate( doc, parent )
 {
-    entities = new QDOM_NamedNodeMapPrivate( this );
-    notations = new QDOM_NamedNodeMapPrivate( this );
+    entities = new QDomNamedNodeMapPrivate( this );
+    notations = new QDomNamedNodeMapPrivate( this );
 
     entities->setAppendToParent( TRUE );
     notations->setAppendToParent( TRUE );
 }
 
-QDOM_DocumentTypePrivate::QDOM_DocumentTypePrivate( QDOM_DocumentTypePrivate* n, bool deep )
-    : QDOM_NodePrivate( n, deep )
+QDomDocumentTypePrivate::QDomDocumentTypePrivate( QDomDocumentTypePrivate* n, bool deep )
+    : QDomNodePrivate( n, deep )
 {
-    entities = new QDOM_NamedNodeMapPrivate( this );
-    notations = new QDOM_NamedNodeMapPrivate( this );
+    entities = new QDomNamedNodeMapPrivate( this );
+    notations = new QDomNamedNodeMapPrivate( this );
 
     entities->setAppendToParent( TRUE );
     notations->setAppendToParent( TRUE );
 
     // Refill the maps with our new children
-    QDOM_NodePrivate* p = first;
+    QDomNodePrivate* p = first;
     while ( p ) {
 	if ( p->isEntity() )
 	    // Dont use normal insert function since we would create infinite recursion
@@ -2153,7 +2153,7 @@ QDOM_DocumentTypePrivate::QDOM_DocumentTypePrivate( QDOM_DocumentTypePrivate* n,
     }
 }
 
-QDOM_DocumentTypePrivate::~QDOM_DocumentTypePrivate()
+QDomDocumentTypePrivate::~QDomDocumentTypePrivate()
 {
     if ( entities->deref() )
 	delete entities;
@@ -2161,18 +2161,18 @@ QDOM_DocumentTypePrivate::~QDOM_DocumentTypePrivate()
 	delete notations;
 }
 
-QDOM_NodePrivate* QDOM_DocumentTypePrivate::cloneNode( bool deep)
+QDomNodePrivate* QDomDocumentTypePrivate::cloneNode( bool deep)
 {
-    QDOM_NodePrivate* p = new QDOM_DocumentTypePrivate( this, deep );
+    QDomNodePrivate* p = new QDomDocumentTypePrivate( this, deep );
     // We are not interested in this node
     p->deref();
     return p;
 }
 
-QDOM_NodePrivate* QDOM_DocumentTypePrivate::insertBefore( QDOM_NodePrivate* newChild, QDOM_NodePrivate* refChild )
+QDomNodePrivate* QDomDocumentTypePrivate::insertBefore( QDomNodePrivate* newChild, QDomNodePrivate* refChild )
 {
     // Call the origianl implementation
-    QDOM_NodePrivate* p = QDOM_NodePrivate::insertBefore( newChild, refChild );
+    QDomNodePrivate* p = QDomNodePrivate::insertBefore( newChild, refChild );
     // Update the maps
     if ( p && p->isEntity() )
 	entities->map.insert( p->nodeName(), p );
@@ -2182,10 +2182,10 @@ QDOM_NodePrivate* QDOM_DocumentTypePrivate::insertBefore( QDOM_NodePrivate* newC
     return p;
 }
 
-QDOM_NodePrivate* QDOM_DocumentTypePrivate::insertAfter( QDOM_NodePrivate* newChild, QDOM_NodePrivate* refChild )
+QDomNodePrivate* QDomDocumentTypePrivate::insertAfter( QDomNodePrivate* newChild, QDomNodePrivate* refChild )
 {
     // Call the origianl implementation
-    QDOM_NodePrivate* p = QDOM_NodePrivate::insertAfter( newChild, refChild );
+    QDomNodePrivate* p = QDomNodePrivate::insertAfter( newChild, refChild );
     // Update the maps
     if ( p && p->isEntity() )
 	entities->map.insert( p->nodeName(), p );
@@ -2195,10 +2195,10 @@ QDOM_NodePrivate* QDOM_DocumentTypePrivate::insertAfter( QDOM_NodePrivate* newCh
     return p;
 }
 
-QDOM_NodePrivate* QDOM_DocumentTypePrivate::replaceChild( QDOM_NodePrivate* newChild, QDOM_NodePrivate* oldChild )
+QDomNodePrivate* QDomDocumentTypePrivate::replaceChild( QDomNodePrivate* newChild, QDomNodePrivate* oldChild )
 {
     // Call the origianl implementation
-    QDOM_NodePrivate* p = QDOM_NodePrivate::replaceChild( newChild, oldChild );
+    QDomNodePrivate* p = QDomNodePrivate::replaceChild( newChild, oldChild );
     // Update the maps
     if ( p ) {
 	if ( oldChild && oldChild->isEntity() )
@@ -2215,10 +2215,10 @@ QDOM_NodePrivate* QDOM_DocumentTypePrivate::replaceChild( QDOM_NodePrivate* newC
     return p;
 }
 
-QDOM_NodePrivate* QDOM_DocumentTypePrivate::removeChild( QDOM_NodePrivate* oldChild )
+QDomNodePrivate* QDomDocumentTypePrivate::removeChild( QDomNodePrivate* oldChild )
 {
     // Call the origianl implementation
-    QDOM_NodePrivate* p = QDOM_NodePrivate::removeChild(  oldChild );
+    QDomNodePrivate* p = QDomNodePrivate::removeChild(  oldChild );
     // Update the maps
     if ( p && p->isEntity() )
 	entities->map.remove( p->nodeName() );
@@ -2228,12 +2228,12 @@ QDOM_NodePrivate* QDOM_DocumentTypePrivate::removeChild( QDOM_NodePrivate* oldCh
     return p;
 }
 
-QDOM_NodePrivate* QDOM_DocumentTypePrivate::appendChild( QDOM_NodePrivate* newChild )
+QDomNodePrivate* QDomDocumentTypePrivate::appendChild( QDomNodePrivate* newChild )
 {
     return insertAfter( newChild, 0 );
 }
 
-void QDOM_DocumentTypePrivate::save( QTextStream& s, int ) const
+void QDomDocumentTypePrivate::save( QTextStream& s, int ) const
 {
     if ( name.isEmpty() )
 	return;
@@ -2244,11 +2244,11 @@ void QDOM_DocumentTypePrivate::save( QTextStream& s, int ) const
     if ( entities->length() > 0 || notations->length() > 0 ) {
 	s << "[ ";
 
-	QDictIterator<QDOM_NodePrivate> it2( notations->map );
+	QDictIterator<QDomNodePrivate> it2( notations->map );
 	for ( ; it2.current(); ++it2 )
 	    it2.current()->save( s, 0 );
 
-	QDictIterator<QDOM_NodePrivate> it( entities->map );
+	QDictIterator<QDomNodePrivate> it( entities->map );
 	for ( ; it.current(); ++it )
 	    it.current()->save( s, 0 );
 
@@ -2264,7 +2264,7 @@ void QDOM_DocumentTypePrivate::save( QTextStream& s, int ) const
  *
  **************************************************************/
 
-#define IMPL ((QDOM_DocumentTypePrivate*)impl)
+#define IMPL ((QDomDocumentTypePrivate*)impl)
 
 /*!
   \class QDomDocumentType qdom.h
@@ -2303,7 +2303,7 @@ QDomDocumentType::QDomDocumentType( const QDomDocumentType& n )
 /*!
   \internal
 */
-QDomDocumentType::QDomDocumentType( QDOM_DocumentTypePrivate* n )
+QDomDocumentType::QDomDocumentType( QDomDocumentTypePrivate* n )
     : QDomNode( n )
 {
 }
@@ -2388,46 +2388,46 @@ bool QDomDocumentType::isDocumentType() const
 
 /**************************************************************
  *
- * QDOM_DocumentFragmentPrivate
+ * QDomDocumentFragmentPrivate
  *
  **************************************************************/
 
-class QDOM_DocumentFragmentPrivate : public QDOM_NodePrivate
+class QDomDocumentFragmentPrivate : public QDomNodePrivate
 {
 public:
-    QDOM_DocumentFragmentPrivate( QDOM_DocumentPrivate*, QDOM_NodePrivate* parent = 0 );
-    QDOM_DocumentFragmentPrivate( QDOM_NodePrivate* n, bool deep );
-    ~QDOM_DocumentFragmentPrivate();
+    QDomDocumentFragmentPrivate( QDomDocumentPrivate*, QDomNodePrivate* parent = 0 );
+    QDomDocumentFragmentPrivate( QDomNodePrivate* n, bool deep );
+    ~QDomDocumentFragmentPrivate();
 
-    // Overloaded from QDOM_NodePrivate
-    virtual QDOM_NodePrivate* cloneNode( bool deep = TRUE );
+    // Overloaded from QDomNodePrivate
+    virtual QDomNodePrivate* cloneNode( bool deep = TRUE );
     virtual bool isDocumentFragment() { return TRUE; }
 
     static QString* dfName;
 };
 
-QString* QDOM_DocumentFragmentPrivate::dfName = 0;
+QString* QDomDocumentFragmentPrivate::dfName = 0;
 
-QDOM_DocumentFragmentPrivate::QDOM_DocumentFragmentPrivate( QDOM_DocumentPrivate* doc, QDOM_NodePrivate* parent )
-    : QDOM_NodePrivate( doc, parent )
+QDomDocumentFragmentPrivate::QDomDocumentFragmentPrivate( QDomDocumentPrivate* doc, QDomNodePrivate* parent )
+    : QDomNodePrivate( doc, parent )
 {
     if ( !dfName )
 	dfName = new QString( "#document-fragment" );
     name = *dfName;
 }
 
-QDOM_DocumentFragmentPrivate::QDOM_DocumentFragmentPrivate( QDOM_NodePrivate* n, bool deep )
-    : QDOM_NodePrivate( n, deep )
+QDomDocumentFragmentPrivate::QDomDocumentFragmentPrivate( QDomNodePrivate* n, bool deep )
+    : QDomNodePrivate( n, deep )
 {
 }
 
-QDOM_DocumentFragmentPrivate::~QDOM_DocumentFragmentPrivate()
+QDomDocumentFragmentPrivate::~QDomDocumentFragmentPrivate()
 {
 }
 
-QDOM_NodePrivate* QDOM_DocumentFragmentPrivate::cloneNode( bool deep)
+QDomNodePrivate* QDomDocumentFragmentPrivate::cloneNode( bool deep)
 {
-    QDOM_NodePrivate* p = new QDOM_DocumentFragmentPrivate( this, deep );
+    QDomNodePrivate* p = new QDomDocumentFragmentPrivate( this, deep );
     // We are not interested in this node
     p->deref();
     return p;
@@ -2439,7 +2439,7 @@ QDOM_NodePrivate* QDOM_DocumentFragmentPrivate::cloneNode( bool deep)
  *
  **************************************************************/
 
-#define IMPL ((QDOM_DocumentFragmentPrivate*)impl)
+#define IMPL ((QDomDocumentFragmentPrivate*)impl)
 
 /*!
   \class QDomDocumentFragment qdom.h
@@ -2474,7 +2474,7 @@ QDomDocumentFragment::QDomDocumentFragment()
 /*!
   \internal
 */
-QDomDocumentFragment::QDomDocumentFragment( QDOM_DocumentFragmentPrivate* n )
+QDomDocumentFragment::QDomDocumentFragment( QDomDocumentFragmentPrivate* n )
     : QDomNode( n )
 {
 }
@@ -2536,16 +2536,16 @@ bool QDomDocumentFragment::isDocumentFragment() const
 
 /**************************************************************
  *
- * QDOM_CharacterDataPrivate
+ * QDomCharacterDataPrivate
  *
  **************************************************************/
 
-class QDOM_CharacterDataPrivate : public QDOM_NodePrivate
+class QDomCharacterDataPrivate : public QDomNodePrivate
 {
 public:
-    QDOM_CharacterDataPrivate( QDOM_DocumentPrivate*, QDOM_NodePrivate* parent, const QString& data );
-    QDOM_CharacterDataPrivate( QDOM_CharacterDataPrivate* n, bool deep );
-    ~QDOM_CharacterDataPrivate();
+    QDomCharacterDataPrivate( QDomDocumentPrivate*, QDomNodePrivate* parent, const QString& data );
+    QDomCharacterDataPrivate( QDomCharacterDataPrivate* n, bool deep );
+    ~QDomCharacterDataPrivate();
 
     uint dataLength() const;
     QString substringData( unsigned long offset, unsigned long count ) const;
@@ -2554,18 +2554,18 @@ public:
     void    deleteData( unsigned long offset, unsigned long count );
     void    replaceData( unsigned long offset, unsigned long count, const QString& arg );
 
-    // Overloaded from QDOM_NodePrivate
+    // Overloaded from QDomNodePrivate
     virtual bool isCharacterData() { return TRUE; }
-    virtual QDOM_NodePrivate* cloneNode( bool deep = TRUE );
+    virtual QDomNodePrivate* cloneNode( bool deep = TRUE );
 
     static QString* cdName;
 };
 
-QString* QDOM_CharacterDataPrivate::cdName = 0;
+QString* QDomCharacterDataPrivate::cdName = 0;
 
-QDOM_CharacterDataPrivate::QDOM_CharacterDataPrivate( QDOM_DocumentPrivate* d, QDOM_NodePrivate* p,
+QDomCharacterDataPrivate::QDomCharacterDataPrivate( QDomDocumentPrivate* d, QDomNodePrivate* p,
 						      const QString& data )
-    : QDOM_NodePrivate( d, p )
+    : QDomNodePrivate( d, p )
 {
     value = data;
 
@@ -2574,49 +2574,49 @@ QDOM_CharacterDataPrivate::QDOM_CharacterDataPrivate( QDOM_DocumentPrivate* d, Q
     name = *cdName;
 }
 
-QDOM_CharacterDataPrivate::QDOM_CharacterDataPrivate( QDOM_CharacterDataPrivate* n, bool deep )
-    : QDOM_NodePrivate( n, deep )
+QDomCharacterDataPrivate::QDomCharacterDataPrivate( QDomCharacterDataPrivate* n, bool deep )
+    : QDomNodePrivate( n, deep )
 {
 }
 
-QDOM_CharacterDataPrivate::~QDOM_CharacterDataPrivate()
+QDomCharacterDataPrivate::~QDomCharacterDataPrivate()
 {
 }
 
-QDOM_NodePrivate* QDOM_CharacterDataPrivate::cloneNode( bool deep )
+QDomNodePrivate* QDomCharacterDataPrivate::cloneNode( bool deep )
 {
-    QDOM_NodePrivate* p = new QDOM_CharacterDataPrivate( this, deep );
+    QDomNodePrivate* p = new QDomCharacterDataPrivate( this, deep );
     // We are not interested in this node
     p->deref();
     return p;
 }
 
-uint QDOM_CharacterDataPrivate::dataLength() const
+uint QDomCharacterDataPrivate::dataLength() const
 {
     return value.length();
 }
 
-QString QDOM_CharacterDataPrivate::substringData( unsigned long offset, unsigned long n ) const
+QString QDomCharacterDataPrivate::substringData( unsigned long offset, unsigned long n ) const
 {
     return value.mid( offset, n );
 }
 
-void QDOM_CharacterDataPrivate::insertData( unsigned long offset, const QString& arg )
+void QDomCharacterDataPrivate::insertData( unsigned long offset, const QString& arg )
 {
     value.insert( offset, arg );
 }
 
-void QDOM_CharacterDataPrivate::deleteData( unsigned long offset, unsigned long n )
+void QDomCharacterDataPrivate::deleteData( unsigned long offset, unsigned long n )
 {
     value.remove( offset, n );
 }
 
-void QDOM_CharacterDataPrivate::replaceData( unsigned long offset, unsigned long n, const QString& arg )
+void QDomCharacterDataPrivate::replaceData( unsigned long offset, unsigned long n, const QString& arg )
 {
     value.replace( offset, n, arg );
 }
 
-void QDOM_CharacterDataPrivate::appendData( const QString& arg )
+void QDomCharacterDataPrivate::appendData( const QString& arg )
 {
     value += arg;
 }
@@ -2627,7 +2627,7 @@ void QDOM_CharacterDataPrivate::appendData( const QString& arg )
  *
  **************************************************************/
 
-#define IMPL ((QDOM_CharacterDataPrivate*)impl)
+#define IMPL ((QDomCharacterDataPrivate*)impl)
 
 /*!
   \class QDomCharacterData qdom.h
@@ -2663,7 +2663,7 @@ QDomCharacterData::QDomCharacterData( const QDomCharacterData& x )
 /*!
   \internal
 */
-QDomCharacterData::QDomCharacterData( QDOM_CharacterDataPrivate* n )
+QDomCharacterData::QDomCharacterData( QDomCharacterDataPrivate* n )
     : QDomNode( n )
 {
 }
@@ -2788,21 +2788,21 @@ bool QDomCharacterData::isCharacterData() const
 
 /**************************************************************
  *
- * QDOM_TextPrivate
+ * QDomTextPrivate
  *
  **************************************************************/
 
-class QDOM_TextPrivate : public QDOM_CharacterDataPrivate
+class QDomTextPrivate : public QDomCharacterDataPrivate
 {
 public:
-    QDOM_TextPrivate( QDOM_DocumentPrivate*, QDOM_NodePrivate* parent, const QString& value );
-    QDOM_TextPrivate( QDOM_TextPrivate* n, bool deep );
-    ~QDOM_TextPrivate();
+    QDomTextPrivate( QDomDocumentPrivate*, QDomNodePrivate* parent, const QString& value );
+    QDomTextPrivate( QDomTextPrivate* n, bool deep );
+    ~QDomTextPrivate();
 
-    QDOM_TextPrivate* splitText( int offset );
+    QDomTextPrivate* splitText( int offset );
 
-    // Overloaded from QDOM_NodePrivate
-    virtual QDOM_NodePrivate* cloneNode( bool deep = TRUE );
+    // Overloaded from QDomNodePrivate
+    virtual QDomNodePrivate* cloneNode( bool deep = TRUE );
     virtual bool isText() { return TRUE; }
     virtual void save( QTextStream& s, int ) const;
 
@@ -2815,21 +2815,21 @@ public:
 
 /**************************************************************
  *
- * QDOM_AttrPrivate
+ * QDomAttrPrivate
  *
  **************************************************************/
 
-class QDOM_AttrPrivate : public QDOM_NodePrivate
+class QDomAttrPrivate : public QDomNodePrivate
 {
 public:
-    QDOM_AttrPrivate( QDOM_DocumentPrivate*, QDOM_NodePrivate* parent, const QString& name );
-    QDOM_AttrPrivate( QDOM_AttrPrivate* n, bool deep );
-    ~QDOM_AttrPrivate();
+    QDomAttrPrivate( QDomDocumentPrivate*, QDomNodePrivate* parent, const QString& name );
+    QDomAttrPrivate( QDomAttrPrivate* n, bool deep );
+    ~QDomAttrPrivate();
 
     bool specified() const;
 
-    // Overloaded from QDOM_NodePrivate
-    virtual QDOM_NodePrivate* cloneNode( bool deep = TRUE );
+    // Overloaded from QDomNodePrivate
+    virtual QDomNodePrivate* cloneNode( bool deep = TRUE );
     virtual bool isAttr() { return TRUE; }
     virtual void save( QTextStream& s, int ) const;
 
@@ -2837,35 +2837,35 @@ public:
     bool m_specified;
 };
 
-QDOM_AttrPrivate::QDOM_AttrPrivate( QDOM_DocumentPrivate* d, QDOM_NodePrivate* parent, const QString& name_ )
-    : QDOM_NodePrivate( d, parent )
+QDomAttrPrivate::QDomAttrPrivate( QDomDocumentPrivate* d, QDomNodePrivate* parent, const QString& name_ )
+    : QDomNodePrivate( d, parent )
 {
     name = name_;
     m_specified = FALSE;
     // qDebug("ATTR");
 }
 
-QDOM_AttrPrivate::QDOM_AttrPrivate( QDOM_AttrPrivate* n, bool deep )
-    : QDOM_NodePrivate( n, deep )
+QDomAttrPrivate::QDomAttrPrivate( QDomAttrPrivate* n, bool deep )
+    : QDomNodePrivate( n, deep )
 {
     m_specified = n->specified();
     // qDebug("ATTR");
 }
 
-QDOM_AttrPrivate::~QDOM_AttrPrivate()
+QDomAttrPrivate::~QDomAttrPrivate()
 {
     // qDebug("~ATTR %s=%s", nodeName().latin1(), nodeValue().latin1() );
 }
 
-QDOM_NodePrivate* QDOM_AttrPrivate::cloneNode( bool deep )
+QDomNodePrivate* QDomAttrPrivate::cloneNode( bool deep )
 {
-    QDOM_NodePrivate* p = new QDOM_AttrPrivate( this, deep );
+    QDomNodePrivate* p = new QDomAttrPrivate( this, deep );
     // We are not interested in this node
     p->deref();
     return p;
 }
 
-bool QDOM_AttrPrivate::specified() const
+bool QDomAttrPrivate::specified() const
 {
     return m_specified;
 }
@@ -2899,7 +2899,7 @@ static QString encodeAttr( const QString& str )
     return tmp;
 }
 
-void QDOM_AttrPrivate::save( QTextStream& s, int ) const
+void QDomAttrPrivate::save( QTextStream& s, int ) const
 {
     s << name << "=\"" << encodeAttr( value ) << "\"";
 }
@@ -2910,7 +2910,7 @@ void QDOM_AttrPrivate::save( QTextStream& s, int ) const
  *
  **************************************************************/
 
-#define IMPL ((QDOM_AttrPrivate*)impl)
+#define IMPL ((QDomAttrPrivate*)impl)
 
 /*!
   \class QDomAttr qdom.h
@@ -2969,7 +2969,7 @@ QDomAttr::QDomAttr( const QDomAttr& x )
 /*!
   \internal
 */
-QDomAttr::QDomAttr( QDOM_AttrPrivate* n )
+QDomAttr::QDomAttr( QDomAttrPrivate* n )
     : QDomNode( n )
 {
 }
@@ -3065,24 +3065,24 @@ bool QDomAttr::isAttr() const
 
 /**************************************************************
  *
- * QDOM_ElementPrivate
+ * QDomElementPrivate
  *
  **************************************************************/
 
-static void qNormalizeElement( QDOM_NodePrivate* n )
+static void qNormalizeElement( QDomNodePrivate* n )
 {
-    QDOM_NodePrivate* p = n->first;
-    QDOM_TextPrivate* t = 0;
+    QDomNodePrivate* p = n->first;
+    QDomTextPrivate* t = 0;
 
     while ( p ) {
 	if ( p->isText() ) {
 	    if ( t ) {
-		QDOM_NodePrivate* tmp = p->next;
+		QDomNodePrivate* tmp = p->next;
 		t->appendData( p->nodeValue() );
 		n->removeChild( p );
 		p = tmp;
 	    } else {
-		t = (QDOM_TextPrivate*)p;
+		t = (QDomTextPrivate*)p;
 		p = p->next;
 	    }
 	} else {
@@ -3093,141 +3093,141 @@ static void qNormalizeElement( QDOM_NodePrivate* n )
 }
 
 
-class QDOM_ElementPrivate : public QDOM_NodePrivate
+class QDomElementPrivate : public QDomNodePrivate
 {
 public:
-    QDOM_ElementPrivate( QDOM_DocumentPrivate*, QDOM_NodePrivate* parent, const QString& name );
-    QDOM_ElementPrivate( QDOM_ElementPrivate* n, bool deep );
-    ~QDOM_ElementPrivate();
+    QDomElementPrivate( QDomDocumentPrivate*, QDomNodePrivate* parent, const QString& name );
+    QDomElementPrivate( QDomElementPrivate* n, bool deep );
+    ~QDomElementPrivate();
 
     virtual QString   attribute( const QString& name,  const QString& defValue ) const;
     virtual void      setAttribute( const QString& name, const QString& value );
     virtual void      removeAttribute( const QString& name );
-    virtual QDOM_AttrPrivate* attributeNode( const QString& name);
-    virtual QDOM_AttrPrivate* setAttributeNode( QDOM_AttrPrivate* newAttr );
-    virtual QDOM_AttrPrivate* removeAttributeNode( QDOM_AttrPrivate* oldAttr );
+    virtual QDomAttrPrivate* attributeNode( const QString& name);
+    virtual QDomAttrPrivate* setAttributeNode( QDomAttrPrivate* newAttr );
+    virtual QDomAttrPrivate* removeAttributeNode( QDomAttrPrivate* oldAttr );
     virtual bool hasAttribute( const QString& name );
     virtual void normalize();
 
     QString text();
 
-    // Overloaded from QDOM_NodePrivate
-    virtual QDOM_NamedNodeMapPrivate* attributes() { return m_attr; }
+    // Overloaded from QDomNodePrivate
+    virtual QDomNamedNodeMapPrivate* attributes() { return m_attr; }
     virtual bool isElement() { return TRUE; }
-    virtual QDOM_NodePrivate* cloneNode( bool deep = TRUE );
+    virtual QDomNodePrivate* cloneNode( bool deep = TRUE );
     virtual void save( QTextStream& s, int ) const;
 
     // Variables
-    QDOM_NamedNodeMapPrivate* m_attr;
+    QDomNamedNodeMapPrivate* m_attr;
 };
 
-QDOM_ElementPrivate::QDOM_ElementPrivate( QDOM_DocumentPrivate* d, QDOM_NodePrivate* p,
+QDomElementPrivate::QDomElementPrivate( QDomDocumentPrivate* d, QDomNodePrivate* p,
 					  const QString& tagname )
-    : QDOM_NodePrivate( d, p )
+    : QDomNodePrivate( d, p )
 {
     name = tagname;
-    m_attr = new QDOM_NamedNodeMapPrivate( this );
+    m_attr = new QDomNamedNodeMapPrivate( this );
 }
 
-QDOM_ElementPrivate::QDOM_ElementPrivate( QDOM_ElementPrivate* n, bool deep ) :
-    QDOM_NodePrivate( n, deep )
+QDomElementPrivate::QDomElementPrivate( QDomElementPrivate* n, bool deep ) :
+    QDomNodePrivate( n, deep )
 {
     m_attr = n->m_attr->clone( this );
     // Reference is down to 0, so we set it to 1 here.
     m_attr->ref();
 }
 
-QDOM_ElementPrivate::~QDOM_ElementPrivate()
+QDomElementPrivate::~QDomElementPrivate()
 {
     // qDebug("~Element=%s", nodeName().latin1() );
     if ( m_attr->deref() )
 	delete m_attr;
 }
 
-QDOM_NodePrivate* QDOM_ElementPrivate::cloneNode( bool deep)
+QDomNodePrivate* QDomElementPrivate::cloneNode( bool deep)
 {
-    QDOM_NodePrivate* p = new QDOM_ElementPrivate( this, deep );
+    QDomNodePrivate* p = new QDomElementPrivate( this, deep );
     // We are not interested in this node
     p->deref();
     return p;
 }
 
-QString QDOM_ElementPrivate::attribute( const QString& name_, const QString& defValue ) const
+QString QDomElementPrivate::attribute( const QString& name_, const QString& defValue ) const
 {
-    QDOM_NodePrivate* n = m_attr->namedItem( name_ );
+    QDomNodePrivate* n = m_attr->namedItem( name_ );
     if ( !n )
 	return defValue;
 
     return n->nodeValue();
 }
 
-void QDOM_ElementPrivate::setAttribute( const QString& aname, const QString& newValue )
+void QDomElementPrivate::setAttribute( const QString& aname, const QString& newValue )
 {
     removeAttribute( aname );
 
-    QDOM_NodePrivate* n = new QDOM_AttrPrivate( ownerDocument(), this, aname );
+    QDomNodePrivate* n = new QDomAttrPrivate( ownerDocument(), this, aname );
     n->setNodeValue( newValue );
 
     // Referencing is done by the map, so we set the reference
-    // counter back to 0 here. This is ok since we created the QDOM_AttrPrivate.
+    // counter back to 0 here. This is ok since we created the QDomAttrPrivate.
     n->deref();
     m_attr->setNamedItem( n );
 }
 
-void QDOM_ElementPrivate::removeAttribute( const QString& aname )
+void QDomElementPrivate::removeAttribute( const QString& aname )
 {
-    QDOM_NodePrivate* p = m_attr->removeNamedItem( aname );
+    QDomNodePrivate* p = m_attr->removeNamedItem( aname );
     if ( p && p->count == 0 )
 	delete p;
 }
 
-QDOM_AttrPrivate* QDOM_ElementPrivate::attributeNode( const QString& aname )
+QDomAttrPrivate* QDomElementPrivate::attributeNode( const QString& aname )
 {
-    return (QDOM_AttrPrivate*)m_attr->namedItem( aname );
+    return (QDomAttrPrivate*)m_attr->namedItem( aname );
 }
 
-QDOM_AttrPrivate* QDOM_ElementPrivate::setAttributeNode( QDOM_AttrPrivate* newAttr )
+QDomAttrPrivate* QDomElementPrivate::setAttributeNode( QDomAttrPrivate* newAttr )
 {
-    QDOM_NodePrivate* n = m_attr->namedItem( newAttr->nodeName() );
+    QDomNodePrivate* n = m_attr->namedItem( newAttr->nodeName() );
 
     // Referencing is done by the maps
     m_attr->setNamedItem( newAttr );
 
-    return (QDOM_AttrPrivate*)n;
+    return (QDomAttrPrivate*)n;
 }
 
-QDOM_AttrPrivate* QDOM_ElementPrivate::removeAttributeNode( QDOM_AttrPrivate* oldAttr )
+QDomAttrPrivate* QDomElementPrivate::removeAttributeNode( QDomAttrPrivate* oldAttr )
 {
-    return (QDOM_AttrPrivate*)m_attr->removeNamedItem( oldAttr->nodeName() );
+    return (QDomAttrPrivate*)m_attr->removeNamedItem( oldAttr->nodeName() );
 }
 
-bool QDOM_ElementPrivate::hasAttribute( const QString& aname )
+bool QDomElementPrivate::hasAttribute( const QString& aname )
 {
     return m_attr->contains( aname );
 }
 
-void QDOM_ElementPrivate::normalize()
+void QDomElementPrivate::normalize()
 {
     qNormalizeElement( this );
 }
 
-QString QDOM_ElementPrivate::text()
+QString QDomElementPrivate::text()
 {
     QString t( "" );
 
-    QDOM_NodePrivate* p = first;
+    QDomNodePrivate* p = first;
     while ( p ) {
 	if ( p->isText() || p->isCDATASection() )
 	    t += p->nodeValue();
 	else if ( p->isElement() )
-	    t += ((QDOM_ElementPrivate*)p)->text();
+	    t += ((QDomElementPrivate*)p)->text();
 	p = p->next;
     }
 
     return t;
 }
 
-void QDOM_ElementPrivate::save( QTextStream& s, int indent ) const
+void QDomElementPrivate::save( QTextStream& s, int indent ) const
 {
     for ( int i = 0; i < indent; ++i )
 	s << " ";
@@ -3236,7 +3236,7 @@ void QDOM_ElementPrivate::save( QTextStream& s, int indent ) const
 
     if ( !m_attr->map.isEmpty() ) {
 	s << " ";
-	QDictIterator<QDOM_NodePrivate> it( m_attr->map );
+	QDictIterator<QDomNodePrivate> it( m_attr->map );
 	for ( ; it.current(); ++it ) {
 	    it.current()->save( s, 0 );
 	    s << " ";
@@ -3248,7 +3248,7 @@ void QDOM_ElementPrivate::save( QTextStream& s, int indent ) const
 	    s << ">";
 	else
 	    s << ">" << endl;
-	QDOM_NodePrivate::save( s, indent + 1 );
+	QDomNodePrivate::save( s, indent + 1 );
  	if ( !last->isText() )
  	    for( int i = 0; i < indent; ++i )
  		s << " ";
@@ -3264,7 +3264,7 @@ void QDOM_ElementPrivate::save( QTextStream& s, int indent ) const
  *
  **************************************************************/
 
-#define IMPL ((QDOM_ElementPrivate*)impl)
+#define IMPL ((QDomElementPrivate*)impl)
 
 /*!
   \class QDomElement qdom.h
@@ -3307,7 +3307,7 @@ QDomElement::QDomElement( const QDomElement& x )
 /*!
   \internal
 */
-QDomElement::QDomElement( QDOM_ElementPrivate* n )
+QDomElement::QDomElement( QDomElementPrivate* n )
     : QDomNode( n )
 {
 }
@@ -3462,7 +3462,7 @@ QDomAttr QDomElement::setAttributeNode( const QDomAttr& newAttr )
 {
     if ( !impl )
 	return QDomAttr();
-    return QDomAttr( IMPL->setAttributeNode( ((QDOM_AttrPrivate*)newAttr.impl) ) );
+    return QDomAttr( IMPL->setAttributeNode( ((QDomAttrPrivate*)newAttr.impl) ) );
 }
 
 /*!
@@ -3474,7 +3474,7 @@ QDomAttr QDomElement::removeAttributeNode( const QDomAttr& oldAttr )
 {
     if ( !impl )
 	return QDomAttr(); // ### should this return oldAttr?
-    return QDomAttr( IMPL->removeAttributeNode( ((QDOM_AttrPrivate*)oldAttr.impl) ) );
+    return QDomAttr( IMPL->removeAttributeNode( ((QDomAttrPrivate*)oldAttr.impl) ) );
 }
 
 /*!
@@ -3484,7 +3484,7 @@ QDomAttr QDomElement::removeAttributeNode( const QDomAttr& oldAttr )
 */
 QDomNodeList QDomElement::elementsByTagName( const QString& tagname ) const
 {
-    return QDomNodeList( new QDOM_NodeListPrivate( impl, tagname ) );
+    return QDomNodeList( new QDomNodeListPrivate( impl, tagname ) );
 }
 
 
@@ -3560,45 +3560,45 @@ QString QDomElement::text() const
 
 /**************************************************************
  *
- * QDOM_TextPrivate
+ * QDomTextPrivate
  *
  **************************************************************/
 
-QString* QDOM_TextPrivate::textName = 0;
+QString* QDomTextPrivate::textName = 0;
 
-QDOM_TextPrivate::QDOM_TextPrivate( QDOM_DocumentPrivate* d, QDOM_NodePrivate* parent, const QString& value )
-    : QDOM_CharacterDataPrivate( d, parent, value )
+QDomTextPrivate::QDomTextPrivate( QDomDocumentPrivate* d, QDomNodePrivate* parent, const QString& value )
+    : QDomCharacterDataPrivate( d, parent, value )
 {
     if ( !textName )
 	textName = new QString( "#text" );
     name = *textName;
 }
 
-QDOM_TextPrivate::QDOM_TextPrivate( QDOM_TextPrivate* n, bool deep )
-    : QDOM_CharacterDataPrivate( n, deep )
+QDomTextPrivate::QDomTextPrivate( QDomTextPrivate* n, bool deep )
+    : QDomCharacterDataPrivate( n, deep )
 {
 }
 
-QDOM_TextPrivate::~QDOM_TextPrivate()
+QDomTextPrivate::~QDomTextPrivate()
 {
 }
 
-QDOM_NodePrivate* QDOM_TextPrivate::cloneNode( bool deep)
+QDomNodePrivate* QDomTextPrivate::cloneNode( bool deep)
 {
-    QDOM_NodePrivate* p = new QDOM_TextPrivate( this, deep );
+    QDomNodePrivate* p = new QDomTextPrivate( this, deep );
     // We are not interested in this node
     p->deref();
     return p;
 }
 
-QDOM_TextPrivate* QDOM_TextPrivate::splitText( int offset )
+QDomTextPrivate* QDomTextPrivate::splitText( int offset )
 {
     if ( !parent ) {
 	qWarning( "QDomText::splitText  The node has no parent. So I can not split" );
 	return 0;
     }
 
-    QDOM_TextPrivate* t = new QDOM_TextPrivate( ownerDocument(), 0, value.mid( offset ) );
+    QDomTextPrivate* t = new QDomTextPrivate( ownerDocument(), 0, value.mid( offset ) );
     value.truncate( offset );
 
     parent->insertAfter( t, this );
@@ -3606,7 +3606,7 @@ QDOM_TextPrivate* QDOM_TextPrivate::splitText( int offset )
     return t;
 }
 
-void QDOM_TextPrivate::save( QTextStream& s, int ) const
+void QDomTextPrivate::save( QTextStream& s, int ) const
 {
     s << encodeAttr( value );
 }
@@ -3617,7 +3617,7 @@ void QDOM_TextPrivate::save( QTextStream& s, int ) const
  *
  **************************************************************/
 
-#define IMPL ((QDOM_TextPrivate*)impl)
+#define IMPL ((QDomTextPrivate*)impl)
 
 /*!
   \class QDomText qdom.h
@@ -3655,7 +3655,7 @@ QDomText::QDomText( const QDomText& x )
 /*!
   \internal
 */
-QDomText::QDomText( QDOM_TextPrivate* n )
+QDomText::QDomText( QDomTextPrivate* n )
     : QDomCharacterData( n )
 {
 }
@@ -3717,53 +3717,53 @@ bool QDomText::isText() const
 
 /**************************************************************
  *
- * QDOM_CommentPrivate
+ * QDomCommentPrivate
  *
  **************************************************************/
 
-class QDOM_CommentPrivate : public QDOM_CharacterDataPrivate
+class QDomCommentPrivate : public QDomCharacterDataPrivate
 {
 public:
-    QDOM_CommentPrivate( QDOM_DocumentPrivate*, QDOM_NodePrivate* parent, const QString& value );
-    QDOM_CommentPrivate( QDOM_CommentPrivate* n, bool deep );
-    ~QDOM_CommentPrivate();
+    QDomCommentPrivate( QDomDocumentPrivate*, QDomNodePrivate* parent, const QString& value );
+    QDomCommentPrivate( QDomCommentPrivate* n, bool deep );
+    ~QDomCommentPrivate();
 
-    // Overloaded from QDOM_NodePrivate
-    virtual QDOM_NodePrivate* cloneNode( bool deep = TRUE );
+    // Overloaded from QDomNodePrivate
+    virtual QDomNodePrivate* cloneNode( bool deep = TRUE );
     bool isComment() { return TRUE; }
     virtual void save( QTextStream& s, int ) const;
 
     static QString* commentName;
 };
 
-QString* QDOM_CommentPrivate::commentName = 0;
+QString* QDomCommentPrivate::commentName = 0;
 
-QDOM_CommentPrivate::QDOM_CommentPrivate( QDOM_DocumentPrivate* d, QDOM_NodePrivate* parent, const QString& value )
-    : QDOM_CharacterDataPrivate( d, parent, value )
+QDomCommentPrivate::QDomCommentPrivate( QDomDocumentPrivate* d, QDomNodePrivate* parent, const QString& value )
+    : QDomCharacterDataPrivate( d, parent, value )
 {
     if ( !commentName )
 	commentName = new QString( "#comment" );
     name = *commentName;
 }
 
-QDOM_CommentPrivate::QDOM_CommentPrivate( QDOM_CommentPrivate* n, bool deep )
-    : QDOM_CharacterDataPrivate( n, deep )
+QDomCommentPrivate::QDomCommentPrivate( QDomCommentPrivate* n, bool deep )
+    : QDomCharacterDataPrivate( n, deep )
 {
 }
 
-QDOM_CommentPrivate::~QDOM_CommentPrivate()
+QDomCommentPrivate::~QDomCommentPrivate()
 {
 }
 
-QDOM_NodePrivate* QDOM_CommentPrivate::cloneNode( bool deep)
+QDomNodePrivate* QDomCommentPrivate::cloneNode( bool deep)
 {
-    QDOM_NodePrivate* p = new QDOM_CommentPrivate( this, deep );
+    QDomNodePrivate* p = new QDomCommentPrivate( this, deep );
     // We are not interested in this node
     p->deref();
     return p;
 }
 
-void QDOM_CommentPrivate::save( QTextStream& s, int ) const
+void QDomCommentPrivate::save( QTextStream& s, int ) const
 {
     s << "<!--" << value << "-->";
 }
@@ -3774,7 +3774,7 @@ void QDOM_CommentPrivate::save( QTextStream& s, int ) const
  *
  **************************************************************/
 
-#define IMPL ((QDOM_CommentPrivate*)impl)
+#define IMPL ((QDomCommentPrivate*)impl)
 
 /*!
   \class QDomComment qdom.h
@@ -3817,7 +3817,7 @@ QDomComment::QDomComment( const QDomComment& x )
 /*!
   \internal
 */
-QDomComment::QDomComment( QDOM_CommentPrivate* n )
+QDomComment::QDomComment( QDomCommentPrivate* n )
     : QDomCharacterData( n )
 {
 }
@@ -3864,54 +3864,54 @@ bool QDomComment::isComment() const
 
 /**************************************************************
  *
- * QDOM_CDATASectionPrivate
+ * QDomCDATASectionPrivate
  *
  **************************************************************/
 
-class QDOM_CDATASectionPrivate : public QDOM_TextPrivate
+class QDomCDATASectionPrivate : public QDomTextPrivate
 {
 public:
-    QDOM_CDATASectionPrivate( QDOM_DocumentPrivate*, QDOM_NodePrivate* parent, const QString& value );
-    QDOM_CDATASectionPrivate( QDOM_CDATASectionPrivate* n, bool deep );
-    ~QDOM_CDATASectionPrivate();
+    QDomCDATASectionPrivate( QDomDocumentPrivate*, QDomNodePrivate* parent, const QString& value );
+    QDomCDATASectionPrivate( QDomCDATASectionPrivate* n, bool deep );
+    ~QDomCDATASectionPrivate();
 
-    // Overloaded from QDOM_NodePrivate
-    virtual QDOM_NodePrivate* cloneNode( bool deep = TRUE );
+    // Overloaded from QDomNodePrivate
+    virtual QDomNodePrivate* cloneNode( bool deep = TRUE );
     virtual bool isCDATASection() { return TRUE; }
     virtual void save( QTextStream& s, int ) const;
 
     static QString* cdataName;
 };
 
-QString* QDOM_CDATASectionPrivate::cdataName = 0;
+QString* QDomCDATASectionPrivate::cdataName = 0;
 
-QDOM_CDATASectionPrivate::QDOM_CDATASectionPrivate( QDOM_DocumentPrivate* d, QDOM_NodePrivate* parent,
+QDomCDATASectionPrivate::QDomCDATASectionPrivate( QDomDocumentPrivate* d, QDomNodePrivate* parent,
 						    const QString& value )
-    : QDOM_TextPrivate( d, parent, value )
+    : QDomTextPrivate( d, parent, value )
 {
     if ( !cdataName )
 	cdataName = new QString( "#cdata-section" );
     name = *cdataName;
 }
 
-QDOM_CDATASectionPrivate::QDOM_CDATASectionPrivate( QDOM_CDATASectionPrivate* n, bool deep )
-    : QDOM_TextPrivate( n, deep )
+QDomCDATASectionPrivate::QDomCDATASectionPrivate( QDomCDATASectionPrivate* n, bool deep )
+    : QDomTextPrivate( n, deep )
 {
 }
 
-QDOM_CDATASectionPrivate::~QDOM_CDATASectionPrivate()
+QDomCDATASectionPrivate::~QDomCDATASectionPrivate()
 {
 }
 
-QDOM_NodePrivate* QDOM_CDATASectionPrivate::cloneNode( bool deep)
+QDomNodePrivate* QDomCDATASectionPrivate::cloneNode( bool deep)
 {
-    QDOM_NodePrivate* p = new QDOM_CDATASectionPrivate( this, deep );
+    QDomNodePrivate* p = new QDomCDATASectionPrivate( this, deep );
     // We are not interested in this node
     p->deref();
     return p;
 }
 
-void QDOM_CDATASectionPrivate::save( QTextStream& s, int ) const
+void QDomCDATASectionPrivate::save( QTextStream& s, int ) const
 {
     // #### How do we escape "]]>" ?
     s << "<![CDATA[" << value << "]]>";
@@ -3923,7 +3923,7 @@ void QDOM_CDATASectionPrivate::save( QTextStream& s, int ) const
  *
  **************************************************************/
 
-#define IMPL ((QDOM_CDATASectionPrivate*)impl)
+#define IMPL ((QDomCDATASectionPrivate*)impl)
 
 /*!
   \class QDomCDATASection qdom.h
@@ -3970,7 +3970,7 @@ QDomCDATASection::QDomCDATASection( const QDomCDATASection& x )
 /*!
   \internal
 */
-QDomCDATASection::QDomCDATASection( QDOM_CDATASectionPrivate* n )
+QDomCDATASection::QDomCDATASection( QDomCDATASectionPrivate* n )
     : QDomText( n )
 {
 }
@@ -4017,20 +4017,20 @@ bool QDomCDATASection::isCDATASection() const
 
 /**************************************************************
  *
- * QDOM_NotationPrivate
+ * QDomNotationPrivate
  *
  **************************************************************/
 
-class QDOM_NotationPrivate : public QDOM_NodePrivate
+class QDomNotationPrivate : public QDomNodePrivate
 {
 public:
-    QDOM_NotationPrivate( QDOM_DocumentPrivate*, QDOM_NodePrivate* parent, const QString& name,
+    QDomNotationPrivate( QDomDocumentPrivate*, QDomNodePrivate* parent, const QString& name,
 			  const QString& pub, const QString& sys );
-    QDOM_NotationPrivate( QDOM_NotationPrivate* n, bool deep );
-    ~QDOM_NotationPrivate();
+    QDomNotationPrivate( QDomNotationPrivate* n, bool deep );
+    ~QDomNotationPrivate();
 
-    // Overloaded from QDOM_NodePrivate
-    virtual QDOM_NodePrivate* cloneNode( bool deep = TRUE );
+    // Overloaded from QDomNodePrivate
+    virtual QDomNodePrivate* cloneNode( bool deep = TRUE );
     virtual bool isNotation() { return TRUE; }
     virtual void save( QTextStream& s, int ) const;
 
@@ -4039,36 +4039,36 @@ public:
     QString m_pub;
 };
 
-QDOM_NotationPrivate::QDOM_NotationPrivate( QDOM_DocumentPrivate* d, QDOM_NodePrivate* parent,
+QDomNotationPrivate::QDomNotationPrivate( QDomDocumentPrivate* d, QDomNodePrivate* parent,
 					    const QString& aname,
 					    const QString& pub, const QString& sys )
-    : QDOM_NodePrivate( d, parent )
+    : QDomNodePrivate( d, parent )
 {
     name = aname;
     m_pub = pub;
     m_sys = sys;
 }
 
-QDOM_NotationPrivate::QDOM_NotationPrivate( QDOM_NotationPrivate* n, bool deep )
-    : QDOM_NodePrivate( n, deep )
+QDomNotationPrivate::QDomNotationPrivate( QDomNotationPrivate* n, bool deep )
+    : QDomNodePrivate( n, deep )
 {
     m_sys = n->m_sys;
     m_pub = n->m_pub;
 }
 
-QDOM_NotationPrivate::~QDOM_NotationPrivate()
+QDomNotationPrivate::~QDomNotationPrivate()
 {
 }
 
-QDOM_NodePrivate* QDOM_NotationPrivate::cloneNode( bool deep)
+QDomNodePrivate* QDomNotationPrivate::cloneNode( bool deep)
 {
-    QDOM_NodePrivate* p = new QDOM_NotationPrivate( this, deep );
+    QDomNodePrivate* p = new QDomNotationPrivate( this, deep );
     // We are not interested in this node
     p->deref();
     return p;
 }
 
-void QDOM_NotationPrivate::save( QTextStream& s, int ) const
+void QDomNotationPrivate::save( QTextStream& s, int ) const
 {
     s << "<!NOTATION " << name << " ";
     if ( !m_pub.isEmpty() )  {
@@ -4087,7 +4087,7 @@ void QDOM_NotationPrivate::save( QTextStream& s, int ) const
  *
  **************************************************************/
 
-#define IMPL ((QDOM_NotationPrivate*)impl)
+#define IMPL ((QDomNotationPrivate*)impl)
 
 /*!
   \class QDomNotation qdom.h
@@ -4133,7 +4133,7 @@ QDomNotation::QDomNotation( const QDomNotation& x )
 /*!
   \internal
 */
-QDomNotation::QDomNotation( QDOM_NotationPrivate* n )
+QDomNotation::QDomNotation( QDomNotationPrivate* n )
     : QDomNode( n )
 {
 }
@@ -4201,20 +4201,20 @@ bool QDomNotation::isNotation() const
 
 /**************************************************************
  *
- * QDOM_EntityPrivate
+ * QDomEntityPrivate
  *
  **************************************************************/
 
-class QDOM_EntityPrivate : public QDOM_NodePrivate
+class QDomEntityPrivate : public QDomNodePrivate
 {
 public:
-    QDOM_EntityPrivate( QDOM_DocumentPrivate*, QDOM_NodePrivate* parent, const QString& name,
+    QDomEntityPrivate( QDomDocumentPrivate*, QDomNodePrivate* parent, const QString& name,
 			const QString& pub, const QString& sys, const QString& notation );
-    QDOM_EntityPrivate( QDOM_EntityPrivate* n, bool deep );
-    ~QDOM_EntityPrivate();
+    QDomEntityPrivate( QDomEntityPrivate* n, bool deep );
+    ~QDomEntityPrivate();
 
-    // Overloaded from QDOM_NodePrivate
-    virtual QDOM_NodePrivate* cloneNode( bool deep = TRUE );
+    // Overloaded from QDomNodePrivate
+    virtual QDomNodePrivate* cloneNode( bool deep = TRUE );
     virtual bool isEntity() { return TRUE; }
     virtual void save( QTextStream& s, int ) const;
 
@@ -4224,10 +4224,10 @@ public:
     QString m_notationName;
 };
 
-QDOM_EntityPrivate::QDOM_EntityPrivate( QDOM_DocumentPrivate* d, QDOM_NodePrivate* parent,
+QDomEntityPrivate::QDomEntityPrivate( QDomDocumentPrivate* d, QDomNodePrivate* parent,
 					const QString& aname,
 					const QString& pub, const QString& sys, const QString& notation )
-    : QDOM_NodePrivate( d, parent )
+    : QDomNodePrivate( d, parent )
 {
     name = aname;
     m_pub = pub;
@@ -4235,21 +4235,21 @@ QDOM_EntityPrivate::QDOM_EntityPrivate( QDOM_DocumentPrivate* d, QDOM_NodePrivat
     m_notationName = notation;
 }
 
-QDOM_EntityPrivate::QDOM_EntityPrivate( QDOM_EntityPrivate* n, bool deep )
-    : QDOM_NodePrivate( n, deep )
+QDomEntityPrivate::QDomEntityPrivate( QDomEntityPrivate* n, bool deep )
+    : QDomNodePrivate( n, deep )
 {
     m_sys = n->m_sys;
     m_pub = n->m_pub;
     m_notationName = n->m_notationName;
 }
 
-QDOM_EntityPrivate::~QDOM_EntityPrivate()
+QDomEntityPrivate::~QDomEntityPrivate()
 {
 }
 
-QDOM_NodePrivate* QDOM_EntityPrivate::cloneNode( bool deep)
+QDomNodePrivate* QDomEntityPrivate::cloneNode( bool deep)
 {
-    QDOM_NodePrivate* p = new QDOM_EntityPrivate( this, deep );
+    QDomNodePrivate* p = new QDomEntityPrivate( this, deep );
     // We are not interested in this node
     p->deref();
     return p;
@@ -4291,7 +4291,7 @@ static QCString encodeEntity( const QCString& str )
     return tmp;
 }
 
-void QDOM_EntityPrivate::save( QTextStream& s, int ) const
+void QDomEntityPrivate::save( QTextStream& s, int ) const
 {
     if ( m_sys.isEmpty() && m_pub.isEmpty() ) {
 	s << "<!ENTITY " << name << " \"" << encodeEntity( value.utf8() ) << "\">";
@@ -4311,7 +4311,7 @@ void QDOM_EntityPrivate::save( QTextStream& s, int ) const
  *
  **************************************************************/
 
-#define IMPL ((QDOM_EntityPrivate*)impl)
+#define IMPL ((QDomEntityPrivate*)impl)
 
 /*!
   \class QDomEntity qdom.h
@@ -4360,7 +4360,7 @@ QDomEntity::QDomEntity( const QDomEntity& x )
 /*!
   \internal
 */
-QDomEntity::QDomEntity( QDOM_EntityPrivate* n )
+QDomEntity::QDomEntity( QDomEntityPrivate* n )
     : QDomNode( n )
 {
 }
@@ -4441,47 +4441,47 @@ bool QDomEntity::isEntity() const
 
 /**************************************************************
  *
- * QDOM_EntityReferencePrivate
+ * QDomEntityReferencePrivate
  *
  **************************************************************/
 
-class QDOM_EntityReferencePrivate : public QDOM_NodePrivate
+class QDomEntityReferencePrivate : public QDomNodePrivate
 {
 public:
-    QDOM_EntityReferencePrivate( QDOM_DocumentPrivate*, QDOM_NodePrivate* parent, const QString& name );
-    QDOM_EntityReferencePrivate( QDOM_NodePrivate* n, bool deep );
-    ~QDOM_EntityReferencePrivate();
+    QDomEntityReferencePrivate( QDomDocumentPrivate*, QDomNodePrivate* parent, const QString& name );
+    QDomEntityReferencePrivate( QDomNodePrivate* n, bool deep );
+    ~QDomEntityReferencePrivate();
 
-    // Overloaded from QDOM_NodePrivate
-    virtual QDOM_NodePrivate* cloneNode( bool deep = TRUE );
+    // Overloaded from QDomNodePrivate
+    virtual QDomNodePrivate* cloneNode( bool deep = TRUE );
     virtual bool isEntityReference() { return TRUE; }
     virtual void save( QTextStream& s, int ) const;
 };
 
-QDOM_EntityReferencePrivate::QDOM_EntityReferencePrivate( QDOM_DocumentPrivate* d, QDOM_NodePrivate* parent, const QString& aname )
-    : QDOM_NodePrivate( d, parent )
+QDomEntityReferencePrivate::QDomEntityReferencePrivate( QDomDocumentPrivate* d, QDomNodePrivate* parent, const QString& aname )
+    : QDomNodePrivate( d, parent )
 {
     name = aname;
 }
 
-QDOM_EntityReferencePrivate::QDOM_EntityReferencePrivate( QDOM_NodePrivate* n, bool deep )
-    : QDOM_NodePrivate( n, deep )
+QDomEntityReferencePrivate::QDomEntityReferencePrivate( QDomNodePrivate* n, bool deep )
+    : QDomNodePrivate( n, deep )
 {
 }
 
-QDOM_EntityReferencePrivate::~QDOM_EntityReferencePrivate()
+QDomEntityReferencePrivate::~QDomEntityReferencePrivate()
 {
 }
 
-QDOM_NodePrivate* QDOM_EntityReferencePrivate::cloneNode( bool deep)
+QDomNodePrivate* QDomEntityReferencePrivate::cloneNode( bool deep)
 {
-    QDOM_NodePrivate* p = new QDOM_EntityReferencePrivate( this, deep );
+    QDomNodePrivate* p = new QDomEntityReferencePrivate( this, deep );
     // We are not interested in this node
     p->deref();
     return p;
 }
 
-void QDOM_EntityReferencePrivate::save( QTextStream& s, int ) const
+void QDomEntityReferencePrivate::save( QTextStream& s, int ) const
 {
     s << "&" << name << ";";
 }
@@ -4492,7 +4492,7 @@ void QDOM_EntityReferencePrivate::save( QTextStream& s, int ) const
  *
  **************************************************************/
 
-#define IMPL ((QDOM_EntityReferencePrivate*)impl)
+#define IMPL ((QDomEntityReferencePrivate*)impl)
 
 /*!
   \class QDomEntityReference qdom.h
@@ -4550,7 +4550,7 @@ QDomEntityReference::QDomEntityReference( const QDomEntityReference& x )
 /*!
   \internal
 */
-QDomEntityReference::QDomEntityReference( QDOM_EntityReferencePrivate* n )
+QDomEntityReference::QDomEntityReference( QDomEntityReferencePrivate* n )
     : QDomNode( n )
 {
 }
@@ -4598,52 +4598,52 @@ bool QDomEntityReference::isEntityReference() const
 
 /**************************************************************
  *
- * QDOM_ProcessingInstructionPrivate
+ * QDomProcessingInstructionPrivate
  *
  **************************************************************/
 
-class QDOM_ProcessingInstructionPrivate : public QDOM_NodePrivate
+class QDomProcessingInstructionPrivate : public QDomNodePrivate
 {
 public:
-    QDOM_ProcessingInstructionPrivate( QDOM_DocumentPrivate*, QDOM_NodePrivate* parent, const QString& target,
+    QDomProcessingInstructionPrivate( QDomDocumentPrivate*, QDomNodePrivate* parent, const QString& target,
 				       const QString& data);
-    QDOM_ProcessingInstructionPrivate( QDOM_ProcessingInstructionPrivate* n, bool deep );
-    ~QDOM_ProcessingInstructionPrivate();
+    QDomProcessingInstructionPrivate( QDomProcessingInstructionPrivate* n, bool deep );
+    ~QDomProcessingInstructionPrivate();
 
-    // Overloaded from QDOM_NodePrivate
-    virtual QDOM_NodePrivate* cloneNode( bool deep = TRUE );
+    // Overloaded from QDomNodePrivate
+    virtual QDomNodePrivate* cloneNode( bool deep = TRUE );
     virtual bool isProcessingInstruction() { return TRUE; }
     virtual void save( QTextStream& s, int ) const;
 };
 
-QDOM_ProcessingInstructionPrivate::QDOM_ProcessingInstructionPrivate( QDOM_DocumentPrivate* d,
-								      QDOM_NodePrivate* parent,
+QDomProcessingInstructionPrivate::QDomProcessingInstructionPrivate( QDomDocumentPrivate* d,
+								      QDomNodePrivate* parent,
 								      const QString& target,
 								      const QString& data )
-    : QDOM_NodePrivate( d, parent )
+    : QDomNodePrivate( d, parent )
 {
     name = target;
     value = data;
 }
 
-QDOM_ProcessingInstructionPrivate::QDOM_ProcessingInstructionPrivate( QDOM_ProcessingInstructionPrivate* n, bool deep )
-    : QDOM_NodePrivate( n, deep )
+QDomProcessingInstructionPrivate::QDomProcessingInstructionPrivate( QDomProcessingInstructionPrivate* n, bool deep )
+    : QDomNodePrivate( n, deep )
 {
 }
 
-QDOM_ProcessingInstructionPrivate::~QDOM_ProcessingInstructionPrivate()
+QDomProcessingInstructionPrivate::~QDomProcessingInstructionPrivate()
 {
 }
 
-QDOM_NodePrivate* QDOM_ProcessingInstructionPrivate::cloneNode( bool deep)
+QDomNodePrivate* QDomProcessingInstructionPrivate::cloneNode( bool deep)
 {
-    QDOM_NodePrivate* p = new QDOM_ProcessingInstructionPrivate( this, deep );
+    QDomNodePrivate* p = new QDomProcessingInstructionPrivate( this, deep );
     // We are not interested in this node
     p->deref();
     return p;
 }
 
-void QDOM_ProcessingInstructionPrivate::save( QTextStream& s, int ) const
+void QDomProcessingInstructionPrivate::save( QTextStream& s, int ) const
 {
     s << "<?" << name << " " << value << "?>";
 }
@@ -4654,7 +4654,7 @@ void QDOM_ProcessingInstructionPrivate::save( QTextStream& s, int ) const
  *
  **************************************************************/
 
-#define IMPL ((QDOM_ProcessingInstructionPrivate*)impl)
+#define IMPL ((QDomProcessingInstructionPrivate*)impl)
 
 /*!
   \class QDomProcessingInstruction qdom.h
@@ -4696,7 +4696,7 @@ QDomProcessingInstruction::QDomProcessingInstruction( const QDomProcessingInstru
 /*!
   \internal
 */
-QDomProcessingInstruction::QDomProcessingInstruction( QDOM_ProcessingInstructionPrivate* n )
+QDomProcessingInstruction::QDomProcessingInstruction( QDomProcessingInstructionPrivate* n )
     : QDomNode( n )
 {
 }
@@ -4779,107 +4779,107 @@ bool QDomProcessingInstruction::isProcessingInstruction() const
 
 /**************************************************************
  *
- * QDOM_DocumentPrivate
+ * QDomDocumentPrivate
  *
  **************************************************************/
 
-class QDOM_DocumentPrivate : public QDOM_NodePrivate
+class QDomDocumentPrivate : public QDomNodePrivate
 {
 public:
-    QDOM_DocumentPrivate();
-    QDOM_DocumentPrivate( const QString& name );
-    QDOM_DocumentPrivate( QDOM_DocumentPrivate* n, bool deep );
-    ~QDOM_DocumentPrivate();
+    QDomDocumentPrivate();
+    QDomDocumentPrivate( const QString& name );
+    QDomDocumentPrivate( QDomDocumentPrivate* n, bool deep );
+    ~QDomDocumentPrivate();
 
     bool setContent( QXmlInputSource& source );
 
     // Attributes
-    QDOM_DocumentTypePrivate* doctype() { return type; };
-    QDOM_ImplementationPrivate* implementation() { return impl; };
-    QDOM_ElementPrivate* documentElement();
+    QDomDocumentTypePrivate* doctype() { return type; };
+    QDomImplementationPrivate* implementation() { return impl; };
+    QDomElementPrivate* documentElement();
 
     // Factories
-    QDOM_ElementPrivate*               createElement( const QString& tagName );
-    QDOM_DocumentFragmentPrivate*      createDocumentFragment();
-    QDOM_TextPrivate*                  createTextNode( const QString& data );
-    QDOM_CommentPrivate*               createComment( const QString& data );
-    QDOM_CDATASectionPrivate*          createCDATASection( const QString& data );
-    QDOM_ProcessingInstructionPrivate* createProcessingInstruction( const QString& target, const QString& data );
-    QDOM_AttrPrivate*                  createAttribute( const QString& name );
-    QDOM_EntityReferencePrivate*       createEntityReference( const QString& name );
-    QDOM_NodeListPrivate*              elementsByTagName( const QString& tagname );
+    QDomElementPrivate*               createElement( const QString& tagName );
+    QDomDocumentFragmentPrivate*      createDocumentFragment();
+    QDomTextPrivate*                  createTextNode( const QString& data );
+    QDomCommentPrivate*               createComment( const QString& data );
+    QDomCDATASectionPrivate*          createCDATASection( const QString& data );
+    QDomProcessingInstructionPrivate* createProcessingInstruction( const QString& target, const QString& data );
+    QDomAttrPrivate*                  createAttribute( const QString& name );
+    QDomEntityReferencePrivate*       createEntityReference( const QString& name );
+    QDomNodeListPrivate*              elementsByTagName( const QString& tagname );
 
-    // Overloaded from QDOM_NodePrivate
-    virtual QDOM_NodePrivate* cloneNode( bool deep = TRUE );
+    // Overloaded from QDomNodePrivate
+    virtual QDomNodePrivate* cloneNode( bool deep = TRUE );
     virtual bool isDocument() { return TRUE; }
     virtual void clear();
     virtual void save( QTextStream&, int ) const;
 
     // Variables
-    QDOM_ImplementationPrivate* impl;
-    QDOM_DocumentTypePrivate* type;
+    QDomImplementationPrivate* impl;
+    QDomDocumentTypePrivate* type;
 
     static QString* docName;
 };
 
-QString* QDOM_DocumentPrivate::docName = 0;
+QString* QDomDocumentPrivate::docName = 0;
 
-QDOM_DocumentPrivate::QDOM_DocumentPrivate()
-    : QDOM_NodePrivate( 0 )
+QDomDocumentPrivate::QDomDocumentPrivate()
+    : QDomNodePrivate( 0 )
 {
-    impl = new QDOM_ImplementationPrivate();
-    type = new QDOM_DocumentTypePrivate( this, this );
+    impl = new QDomImplementationPrivate();
+    type = new QDomDocumentTypePrivate( this, this );
 
     if ( !docName )
 	docName = new QString( "#document" );
     name = *docName;
 }
 
-QDOM_DocumentPrivate::QDOM_DocumentPrivate( const QString& aname )
-    : QDOM_NodePrivate( 0 )
+QDomDocumentPrivate::QDomDocumentPrivate( const QString& aname )
+    : QDomNodePrivate( 0 )
 {
-    impl = new QDOM_ImplementationPrivate();
-    type = new QDOM_DocumentTypePrivate( this, this );
+    impl = new QDomImplementationPrivate();
+    type = new QDomDocumentTypePrivate( this, this );
     type->name = aname;
 
     if ( !docName )
 	docName = new QString( "#document" );
-    QDOM_DocumentPrivate::name = *docName;
+    QDomDocumentPrivate::name = *docName;
 }
 
-QDOM_DocumentPrivate::QDOM_DocumentPrivate( QDOM_DocumentPrivate* n, bool deep )
-    : QDOM_NodePrivate( n, deep )
+QDomDocumentPrivate::QDomDocumentPrivate( QDomDocumentPrivate* n, bool deep )
+    : QDomNodePrivate( n, deep )
 {
     impl = n->impl->clone();
     // Reference count is down to 0, so we set it to 1 here.
     impl->ref();
-    type = (QDOM_DocumentTypePrivate*)n->type->cloneNode();
+    type = (QDomDocumentTypePrivate*)n->type->cloneNode();
     type->setParent( this );
     // Reference count is down to 0, so we set it to 1 here.
     type->ref();
 }
 
-QDOM_DocumentPrivate::~QDOM_DocumentPrivate()
+QDomDocumentPrivate::~QDomDocumentPrivate()
 {
     // qDebug("~Document %x", this);
     if ( impl->deref() ) delete impl;
     if ( type->deref() ) delete type;
 }
 
-void QDOM_DocumentPrivate::clear()
+void QDomDocumentPrivate::clear()
 {
     if ( impl->deref() ) delete impl;
     if ( type->deref() ) delete type;
     impl = 0;
     type = 0;
-    QDOM_NodePrivate::clear();
+    QDomNodePrivate::clear();
 }
 
-bool QDOM_DocumentPrivate::setContent( QXmlInputSource& source )
+bool QDomDocumentPrivate::setContent( QXmlInputSource& source )
 {
     clear();
-    impl = new QDOM_ImplementationPrivate;
-    type = new QDOM_DocumentTypePrivate( this, this );
+    impl = new QDomImplementationPrivate;
+    type = new QDomDocumentTypePrivate( this, this );
 
     QXmlSimpleReader reader;
     QDomHandler hnd( this );
@@ -4904,84 +4904,84 @@ bool QDOM_DocumentPrivate::setContent( QXmlInputSource& source )
     return TRUE;
 }
 
-QDOM_NodePrivate* QDOM_DocumentPrivate::cloneNode( bool deep)
+QDomNodePrivate* QDomDocumentPrivate::cloneNode( bool deep)
 {
-    QDOM_NodePrivate* p = new QDOM_DocumentPrivate( this, deep );
+    QDomNodePrivate* p = new QDomDocumentPrivate( this, deep );
     // We are not interested in this node
     p->deref();
     return p;
 }
 
-QDOM_ElementPrivate* QDOM_DocumentPrivate::documentElement()
+QDomElementPrivate* QDomDocumentPrivate::documentElement()
 {
-    QDOM_NodePrivate* p = first;
+    QDomNodePrivate* p = first;
     while ( p && !p->isElement() )
 	p = p->next;
 
-    return (QDOM_ElementPrivate*)p;
+    return (QDomElementPrivate*)p;
 }
 
-QDOM_ElementPrivate* QDOM_DocumentPrivate::createElement( const QString& tagName )
+QDomElementPrivate* QDomDocumentPrivate::createElement( const QString& tagName )
 {
-    QDOM_ElementPrivate* e = new QDOM_ElementPrivate( this, this, tagName );
+    QDomElementPrivate* e = new QDomElementPrivate( this, this, tagName );
     e->deref();
     return e;
 }
 
-QDOM_DocumentFragmentPrivate* QDOM_DocumentPrivate::createDocumentFragment()
+QDomDocumentFragmentPrivate* QDomDocumentPrivate::createDocumentFragment()
 {
-    QDOM_DocumentFragmentPrivate* f = new QDOM_DocumentFragmentPrivate( this, this );
+    QDomDocumentFragmentPrivate* f = new QDomDocumentFragmentPrivate( this, this );
     f->deref();
     return f;
 }
 
-QDOM_TextPrivate* QDOM_DocumentPrivate::createTextNode( const QString& data )
+QDomTextPrivate* QDomDocumentPrivate::createTextNode( const QString& data )
 {
-    QDOM_TextPrivate* t = new QDOM_TextPrivate( this, this, data );
+    QDomTextPrivate* t = new QDomTextPrivate( this, this, data );
     t->deref();
     return t;
 }
 
-QDOM_CommentPrivate* QDOM_DocumentPrivate::createComment( const QString& data )
+QDomCommentPrivate* QDomDocumentPrivate::createComment( const QString& data )
 {
-    QDOM_CommentPrivate* c = new QDOM_CommentPrivate( this, this, data );
+    QDomCommentPrivate* c = new QDomCommentPrivate( this, this, data );
     c->deref();
     return c;
 }
 
-QDOM_CDATASectionPrivate* QDOM_DocumentPrivate::createCDATASection( const QString& data )
+QDomCDATASectionPrivate* QDomDocumentPrivate::createCDATASection( const QString& data )
 {
-    QDOM_CDATASectionPrivate* c = new QDOM_CDATASectionPrivate( this, this, data );
+    QDomCDATASectionPrivate* c = new QDomCDATASectionPrivate( this, this, data );
     c->deref();
     return c;
 }
 
-QDOM_ProcessingInstructionPrivate* QDOM_DocumentPrivate::createProcessingInstruction( const QString& target, const QString& data )
+QDomProcessingInstructionPrivate* QDomDocumentPrivate::createProcessingInstruction( const QString& target, const QString& data )
 {
-    QDOM_ProcessingInstructionPrivate* p = new QDOM_ProcessingInstructionPrivate( this, this, target, data );
+    QDomProcessingInstructionPrivate* p = new QDomProcessingInstructionPrivate( this, this, target, data );
     p->deref();
     return p;
 }
 
-QDOM_AttrPrivate* QDOM_DocumentPrivate::createAttribute( const QString& aname )
+QDomAttrPrivate* QDomDocumentPrivate::createAttribute( const QString& aname )
 {
-    QDOM_AttrPrivate* a = new QDOM_AttrPrivate( this, this, aname );
+    QDomAttrPrivate* a = new QDomAttrPrivate( this, this, aname );
     a->deref();
     return a;
 }
 
-QDOM_EntityReferencePrivate* QDOM_DocumentPrivate::createEntityReference( const QString& aname )
+QDomEntityReferencePrivate* QDomDocumentPrivate::createEntityReference( const QString& aname )
 {
-    QDOM_EntityReferencePrivate* e = new QDOM_EntityReferencePrivate( this, this, aname );
+    QDomEntityReferencePrivate* e = new QDomEntityReferencePrivate( this, this, aname );
     e->deref();
     return e;
 }
 
-void QDOM_DocumentPrivate::save( QTextStream& s, int ) const
+void QDomDocumentPrivate::save( QTextStream& s, int ) const
 {
     bool doc = FALSE;
 
-    QDOM_NodePrivate* n = first;
+    QDomNodePrivate* n = first;
     while ( n ) {
 	if ( !doc && !n->isProcessingInstruction() ) {
 	    type->save( s, 0 );
@@ -4998,7 +4998,7 @@ void QDOM_DocumentPrivate::save( QTextStream& s, int ) const
  *
  **************************************************************/
 
-#define IMPL ((QDOM_DocumentPrivate*)impl)
+#define IMPL ((QDomDocumentPrivate*)impl)
 
 /*!
   \class QDomDocument qdom.h
@@ -5079,7 +5079,7 @@ QDomDocument::QDomDocument()
 QDomDocument::QDomDocument( const QString& name )
 {
     // We take over ownership
-    impl = new QDOM_DocumentPrivate( name );
+    impl = new QDomDocumentPrivate( name );
 }
 
 /*!
@@ -5096,7 +5096,7 @@ QDomDocument::QDomDocument( const QDomDocument& x )
 /*!
   \internal
 */
-QDomDocument::QDomDocument( QDOM_DocumentPrivate* x )
+QDomDocument::QDomDocument( QDomDocumentPrivate* x )
     : QDomNode( x )
 {
 }
@@ -5126,7 +5126,7 @@ QDomDocument::~QDomDocument()
 bool QDomDocument::setContent( const QString& text )
 {
     if ( !impl )
-	impl = new QDOM_DocumentPrivate;
+	impl = new QDomDocumentPrivate;
     QXmlInputSource source;
     source.setData( text );
     return IMPL->setContent( source );
@@ -5138,7 +5138,7 @@ bool QDomDocument::setContent( const QString& text )
 bool QDomDocument::setContent( const QByteArray& buffer )
 {
     if ( !impl )
-	impl = new QDOM_DocumentPrivate;
+	impl = new QDomDocumentPrivate;
     QTextStream ts( buffer, IO_ReadOnly );
     QXmlInputSource source( ts );
     return IMPL->setContent( source );
@@ -5158,7 +5158,7 @@ bool QDomDocument::setContent( const QCString& buffer )
 bool QDomDocument::setContent( QIODevice* dev )
 {
     if ( !impl )
-	impl = new QDOM_DocumentPrivate;
+	impl = new QDomDocumentPrivate;
     QTextStream ts( dev );
     QXmlInputSource source( ts );
     return IMPL->setContent( source );
@@ -5304,7 +5304,7 @@ QDomEntityReference QDomDocument::createEntityReference( const QString& name )
 */
 QDomNodeList QDomDocument::elementsByTagName( const QString& tagname ) const
 {
-    return QDomNodeList( new QDOM_NodeListPrivate( impl, tagname ) );
+    return QDomNodeList( new QDomNodeListPrivate( impl, tagname ) );
 }
 
 /*!
@@ -5339,7 +5339,7 @@ bool QDomDocument::isDocument() const
 QDomAttr QDomNode::toAttr()
 {
     if ( impl && impl->isAttr() )
-	return QDomAttr( ((QDOM_AttrPrivate*)impl) );
+	return QDomAttr( ((QDomAttrPrivate*)impl) );
     return QDomAttr();
 }
 
@@ -5352,7 +5352,7 @@ QDomAttr QDomNode::toAttr()
 QDomCDATASection QDomNode::toCDATASection()
 {
     if ( impl && impl->isCDATASection() )
-	return QDomCDATASection( ((QDOM_CDATASectionPrivate*)impl) );
+	return QDomCDATASection( ((QDomCDATASectionPrivate*)impl) );
     return QDomCDATASection();
 }
 
@@ -5365,7 +5365,7 @@ QDomCDATASection QDomNode::toCDATASection()
 QDomDocumentFragment QDomNode::toDocumentFragment()
 {
     if ( impl && impl->isDocumentFragment() )
-	return QDomDocumentFragment( ((QDOM_DocumentFragmentPrivate*)impl) );
+	return QDomDocumentFragment( ((QDomDocumentFragmentPrivate*)impl) );
     return QDomDocumentFragment();
 }
 
@@ -5378,7 +5378,7 @@ QDomDocumentFragment QDomNode::toDocumentFragment()
 QDomDocument QDomNode::toDocument()
 {
     if ( impl && impl->isDocument() )
-	return QDomDocument( ((QDOM_DocumentPrivate*)impl) );
+	return QDomDocument( ((QDomDocumentPrivate*)impl) );
     return QDomDocument();
 }
 
@@ -5391,7 +5391,7 @@ QDomDocument QDomNode::toDocument()
 QDomDocumentType QDomNode::toDocumentType()
 {
     if ( impl && impl->isDocumentType() )
-	return QDomDocumentType( ((QDOM_DocumentTypePrivate*)impl) );
+	return QDomDocumentType( ((QDomDocumentTypePrivate*)impl) );
     return QDomDocumentType();
 }
 
@@ -5404,7 +5404,7 @@ QDomDocumentType QDomNode::toDocumentType()
 QDomElement QDomNode::toElement()
 {
     if ( impl && impl->isElement() )
-	return QDomElement( ((QDOM_ElementPrivate*)impl) );
+	return QDomElement( ((QDomElementPrivate*)impl) );
     return QDomElement();
 }
 
@@ -5417,7 +5417,7 @@ QDomElement QDomNode::toElement()
 QDomEntityReference QDomNode::toEntityReference()
 {
     if ( impl && impl->isEntityReference() )
-	return QDomEntityReference( ((QDOM_EntityReferencePrivate*)impl) );
+	return QDomEntityReference( ((QDomEntityReferencePrivate*)impl) );
     return QDomEntityReference();
 }
 
@@ -5430,7 +5430,7 @@ QDomEntityReference QDomNode::toEntityReference()
 QDomText QDomNode::toText()
 {
     if ( impl && impl->isText() )
-	return QDomText( ((QDOM_TextPrivate*)impl) );
+	return QDomText( ((QDomTextPrivate*)impl) );
     return QDomText();
 }
 
@@ -5443,7 +5443,7 @@ QDomText QDomNode::toText()
 QDomEntity QDomNode::toEntity()
 {
     if ( impl && impl->isEntity() )
-	return QDomEntity( ((QDOM_EntityPrivate*)impl) );
+	return QDomEntity( ((QDomEntityPrivate*)impl) );
     return QDomEntity();
 }
 
@@ -5456,7 +5456,7 @@ QDomEntity QDomNode::toEntity()
 QDomNotation QDomNode::toNotation()
 {
     if ( impl && impl->isNotation() )
-	return QDomNotation( ((QDOM_NotationPrivate*)impl) );
+	return QDomNotation( ((QDomNotationPrivate*)impl) );
     return QDomNotation();
 }
 
@@ -5469,7 +5469,7 @@ QDomNotation QDomNode::toNotation()
 QDomProcessingInstruction QDomNode::toProcessingInstruction()
 {
     if ( impl && impl->isProcessingInstruction() )
-	return QDomProcessingInstruction( ((QDOM_ProcessingInstructionPrivate*)impl) );
+	return QDomProcessingInstruction( ((QDomProcessingInstructionPrivate*)impl) );
     return QDomProcessingInstruction();
 }
 
@@ -5482,7 +5482,7 @@ QDomProcessingInstruction QDomNode::toProcessingInstruction()
 QDomCharacterData QDomNode::toCharacterData()
 {
     if ( impl && impl->isCharacterData() )
-	return QDomCharacterData( ((QDOM_CharacterDataPrivate*)impl) );
+	return QDomCharacterData( ((QDomCharacterDataPrivate*)impl) );
     return QDomCharacterData();
 }
 
@@ -5495,7 +5495,7 @@ QDomCharacterData QDomNode::toCharacterData()
 QDomComment QDomNode::toComment()
 {
     if ( impl && impl->isComment() )
-	return QDomComment( ((QDOM_CommentPrivate*)impl) );
+	return QDomComment( ((QDomCommentPrivate*)impl) );
     return QDomComment();
 }
 
@@ -5503,7 +5503,7 @@ QDomComment QDomNode::toComment()
 /*                      QDomHandler                             */
 /*==============================================================*/
 
-QDomHandler::QDomHandler( QDOM_DocumentPrivate* adoc )
+QDomHandler::QDomHandler( QDomDocumentPrivate* adoc )
 {
     doc = adoc;
     node = doc;
@@ -5546,7 +5546,7 @@ bool QDomHandler::startElement( const QString&, const QString&, const QString& q
 	}
     }
 #endif
-    QDOM_NodePrivate* n = doc->createElement( qName );
+    QDomNodePrivate* n = doc->createElement( qName );
     node->appendChild( n );
     node = n;
 
@@ -5557,7 +5557,7 @@ bool QDomHandler::startElement( const QString&, const QString&, const QString& q
 	    // TODO: Exception
 	    return FALSE;
 	}
-	((QDOM_ElementPrivate*)node)->setAttribute( atts.qName(i), atts.value(i) );
+	((QDomElementPrivate*)node)->setAttribute( atts.qName(i), atts.value(i) );
     }
 
     return TRUE;
@@ -5620,7 +5620,7 @@ bool QDomHandler::comment( const QString& ch )
 
 bool QDomHandler::unparsedEntityDecl( const QString &name, const QString &publicId, const QString &systemId, const QString &notationName )
 {
-    QDOM_EntityPrivate* e = new QDOM_EntityPrivate( doc, 0, name,
+    QDomEntityPrivate* e = new QDomEntityPrivate( doc, 0, name,
 	    publicId, systemId, notationName );
     doc->doctype()->appendChild( e );
     return TRUE;
@@ -5633,7 +5633,7 @@ bool QDomHandler::externalEntityDecl( const QString &name, const QString &public
 
 bool QDomHandler::notationDecl( const QString & name, const QString & publicId, const QString & systemId )
 {
-    QDOM_NotationPrivate* n = new QDOM_NotationPrivate( doc, 0, name, publicId, systemId );
+    QDomNotationPrivate* n = new QDomNotationPrivate( doc, 0, name, publicId, systemId );
     doc->doctype()->appendChild( n );
     return TRUE;
 }
@@ -5641,7 +5641,7 @@ bool QDomHandler::notationDecl( const QString & name, const QString & publicId, 
 #if 0
 bool QDomConsumer::entity( const QString& name, const QString& value )
 {
-    QDOM_EntityPrivate* e = new QDOM_EntityPrivate( doc, 0, name, QString::null, QString::null, QString::null );
+    QDomEntityPrivate* e = new QDomEntityPrivate( doc, 0, name, QString::null, QString::null, QString::null );
     e->value = value;
     doc->doctype()->appendChild( e );
 
@@ -5654,10 +5654,10 @@ bool QDomConsumer::entityRef( const QString& name )
 	return FALSE;
 
     // TODO: Find corresponding entity
-    QDOM_NamedNodeMapPrivate* m = doc->doctype()->entities;
+    QDomNamedNodeMapPrivate* m = doc->doctype()->entities;
     if ( !m )
 	return FALSE;
-    QDOM_NodePrivate* n = m->namedItem( name );
+    QDomNodePrivate* n = m->namedItem( name );
     if ( !n || !n->isEntity() ) {
 	qWarning( "Entity of name %s unsupported", name.latin1() );
 	return FALSE;
