@@ -754,13 +754,15 @@ void QGIFFormat::disposePrevious( QImage& img, QImageConsumer* consumer )
 	    consumer->changed(QRect(l, t, r-l+1, b-t+1));
 	break;
       case RestoreImage: {
-	QRgb** line = (QRgb **)img.jumpTable();
-	for (int ln=t; ln<=b; ln++) {
-	    memcpy(line[ln]+l,
-		backingstore.scanLine(ln-t),
-		(r-l+1)*sizeof(QRgb) );
+	if ( frame > 0 ) {
+	    QRgb** line = (QRgb **)img.jumpTable();
+	    for (int ln=t; ln<=b; ln++) {
+		memcpy(line[ln]+l,
+		    backingstore.scanLine(ln-t),
+		    (r-l+1)*sizeof(QRgb) );
+	    }
+	    consumer->changed(QRect(l, t, r-l+1, b-t+1));
 	}
-	consumer->changed(QRect(l, t, r-l+1, b-t+1));
       }
     }
     disposal = NoDisposal; // Until an extension says otherwise.
