@@ -117,6 +117,7 @@ public:
     bool externalEntityDecl( const QString &name, const QString &publicId, const QString &systemId ) ;
 
     // DTD handler
+    bool notationDecl( const QString & name, const QString & publicId, const QString & systemId );
     bool unparsedEntityDecl( const QString &name, const QString &publicId, const QString &systemId, const QString &notationName ) ;
 
 private:
@@ -5630,6 +5631,13 @@ bool QDomHandler::externalEntityDecl( const QString &name, const QString &public
     return unparsedEntityDecl( name, publicId, systemId, QString::null );
 }
 
+bool QDomHandler::notationDecl( const QString & name, const QString & publicId, const QString & systemId )
+{
+    QDOM_NotationPrivate* n = new QDOM_NotationPrivate( doc, 0, name, publicId, systemId );
+    doc->doctype()->appendChild( n );
+    return TRUE;
+}
+
 #if 0
 bool QDomConsumer::entity( const QString& name, const QString& value )
 {
@@ -5659,13 +5667,6 @@ bool QDomConsumer::entityRef( const QString& name )
 
     return TRUE;
 }
-
-bool QDomConsumer::notation( const QString& name, const QString& publicId, const QString& systemId )
-{
-    QDOM_NotationPrivate* n = new QDOM_NotationPrivate( doc, 0, name, publicId, systemId );
-    doc->doctype()->appendChild( n );
-    return TRUE;
-}
-
 #endif
+
 #endif //QT_NO_DOM
