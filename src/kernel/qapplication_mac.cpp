@@ -1408,15 +1408,16 @@ bool QApplication::do_mouse_down(Point *pt, bool *mouse_down_unhandled)
 	break;
     }
     case inCollapseBox: {
-	widget->showMinimized();
+	widget->setWindowState(widget->windowState() | WindowMinimized);
+	//we send a hide to be like X11/Windows
 	QEvent e(QEvent::Hide);
 	QApplication::sendSpontaneousEvent(widget, &e);
 	break; }
     case inZoomIn:
-	widget->showNormal();
+	widget->setWindowState(WindowNoState);
 	break;
     case inZoomOut:
-	widget->showMaximized();
+	widget->setWindowState(widget->windowState() | WindowMaximized);
 	break;
     case inProxyIcon: {
 	QEvent e(QEvent::IconDrag);
@@ -2413,6 +2414,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 	} else if(ekind == kEventWindowDispose) {
 	    qt_mac_unicode_cleanup(widget);
 	} else if(ekind == kEventWindowExpanded) {
+	    widget->setWindowState(WindowNoState);
 	    QShowEvent qse;
 	    QApplication::sendSpontaneousEvent(widget, &qse);
 	} else if(ekind == kEventWindowBoundsChanged) {

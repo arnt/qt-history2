@@ -1029,7 +1029,7 @@ void QWidget::repaint(const QRegion& rgn)
 }
 
 
-void QWidget::setWindowState(uint newstate)
+void QWidget::setWindowState_helper(uint newstate)
 {
     uint oldstate = windowState();
 

@@ -235,6 +235,7 @@ public:
     Q_DECLARE_FLAGS(WFlags, WindowFlags);
 
     enum WindowState {
+	WindowNoState   = 0x00000000,
 	WindowMinimized = 0x00000001,
 	WindowMaximized = 0x00000002,
 	WindowFullScreen = 0x00000004,

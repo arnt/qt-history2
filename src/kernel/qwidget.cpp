@@ -674,6 +674,7 @@ static QPalette qt_naturalWidgetPalette( QWidget* w ) {
 
     The states are
 
+    \value WindowNoState   The window has no state set (in normal state).
     \value WindowMinimized The window is minimized (i.e. iconified).
     \value WindowMaximized The window is maximized with a frame around it.
     \value WindowFullScreen The window fills the entire screen without any frame around it.
@@ -1455,7 +1456,9 @@ QStyle* QWidget::setStyle( const QString &style )
     \sa showMinimized(), visible, show(), hide(), showNormal(), maximized
 */
 bool QWidget::isMinimized() const
-{ return testWState(WState_Minimized); }
+{ 
+    return testWState(WState_Minimized); 
+}
 
 /*!
     Shows the widget minimized, as an icon.
@@ -1468,7 +1471,7 @@ bool QWidget::isMinimized() const
 */
 void QWidget::showMinimized()
 {
-    setWindowState((windowState() & ~WindowActive) | WindowMinimized);
+    setWindowState(windowState() | WindowMinimized);
     show();
 }
 
@@ -1487,7 +1490,9 @@ void QWidget::showMinimized()
     \sa windowState(), showMaximized(), visible, show(), hide(), showNormal(), minimized
 */
 bool QWidget::isMaximized() const
-{ return testWState(WState_Maximized); }
+{ 
+    return testWState(WState_Maximized); 
+}
 
 
 
@@ -1512,8 +1517,6 @@ uint QWidget::windowState() const
 }
 
 /*!
-  \fn void QWidget::setWindowState(uint windowState)
-
   Sets the window state to \a windowState. The window state is a OR'ed
   combination of Qt::WindowState: \c WindowMinimized, \c
   WindowMaximized, \c WindowFullScreen and \c WindowActive.
@@ -1539,6 +1542,14 @@ uint QWidget::windowState() const
 
   \sa Qt::WindowState windowState()
 */
+void QWidget::setWindowState(uint windowState)
+{
+    if(windowState & WindowMaximized)
+	windowState = windowState & ~WindowMinimized;
+    if(windowState & WindowMinimized)
+	windowState = windowState & ~WindowActive;
+    setWindowState_helper(windowState);
+}
 
 /*!
     \property QWidget::fullScreen
@@ -1547,7 +1558,9 @@ uint QWidget::windowState() const
     \sa windowState(), minimized, maximized
 */
 bool QWidget::isFullScreen() const
-{ return testWState(WState_FullScreen); }
+{ 
+    return testWState(WState_FullScreen); 
+}
 
 /*!
     Shows the widget in full-screen mode.
@@ -1599,7 +1612,7 @@ void QWidget::showFullScreen()
 */
 void QWidget::showMaximized()
 {
-    setWindowState((windowState() & ~WindowMinimized) | WindowMaximized);
+    setWindowState(windowState() | WindowMaximized);
     show();
 }
 
@@ -1613,7 +1626,7 @@ void QWidget::showMaximized()
 */
 void QWidget::showNormal()
 {
-    setWindowState(0);
+    setWindowState(WindowNoState);
     show();
 }
 
