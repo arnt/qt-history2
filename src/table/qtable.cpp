@@ -4396,7 +4396,7 @@ void QTable::endEdit( int row, int col, bool accept, bool replace )
     viewport()->setFocus();
     updateCell( row, col );
 
-    if ( !i || editor->inherits( "QLineEdit" ) && i && i->txt !=  ( (QLineEdit*)editor )->text() )
+    if ( !i || editor->inherits( "QLineEdit" ) )
 	emit valueChanged( row, col );
 
     clearCellWidget( row, col );
