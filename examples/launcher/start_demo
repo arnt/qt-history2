@@ -2,6 +2,7 @@
 
 # Special features
 #DEMO_ARGS="-im hiragana.im" # Input Method for Hiragana
+#DEMO_ARGS="-im latin1.im" # Input Method for Latin1 characters
 DEMO_ARGS=""
 
 # Sanity checking
@@ -12,26 +13,8 @@ then
 fi
 if [ ! -f ./examples/launcher/launcher -a ! -f launcher ]
 then
-	echo "Could not find demo program. Will try to make it."
-	QTDIR=`pwd`
-	if [ ! -f $TMAKEDIR/lib/linux-qws-g++/tmake.conf ]
-	then
-		TMAKEDIR=$QTDIR/../tmake
-		if [ ! -f $TMAKEDIR/lib/linux-qws-g++/tmake.conf ]
-		then
-				echo " trying $TMAKEDIR"
-			echo "Could not find tmake. See the INSTALL file for information."
-			exit 1
-		fi
-		PATH=$TMAKEDIR/bin:$PATH
-		export PATH TMAKEDIR
-	fi
-	export QTDIR
-	make
-	if [ $? != 0 ]
-	then
-		exit 1
-	fi
+	echo "Could not find the demo program. Please read the INSTALL file."
+	exit 1
 fi
 if [ "$TERM" == xterm ]
 then
@@ -58,11 +41,10 @@ fi
 cat <<EOF
 ------------------------------------------------------------------------------
 
-                       Qt/Embedded Alpha Release
+                       Qt/Embedded Beta Release
                       -----------------------------
 
-  This is an ALPHA QUALITY release. Expect strange crashes, odd memory and
-  performance characteristics.
+  This is a BETA release. Please report any bugs to Qt-bugs@trolltech.com
 
 ------------------------------------------------------------------------------
 
@@ -152,9 +134,7 @@ then
     then
 	FBSET=/sbin/fbset
     fi
-    if [ ! -f "$FBSET" ]
-    then
-	echo "WARNING: the fbset command is not on your \$PATH"
+    if [ -f "$FBSET" ]
     else
 	echo "Change to display mode $MODE? [yes]"
 	read y
