@@ -155,22 +155,20 @@ public:
     SpreadSheetTable(int rows, int columns, QWidget *parent) :
         QTableWidget(rows, columns, parent) {}
 
-    QItemSelectionModel::SelectionFlags selectionCommand(Qt::ButtonState state,
-                                                         const QModelIndex &index,
-                                                         QEvent::Type type,
-                                                         Qt::Key key) const;
+    QItemSelectionModel::SelectionFlags selectionCommand(const QModelIndex &index,
+                                                         const QEvent *event) const;
 protected:
     QTableWidgetItem *createItem() const;
 };
 
-QItemSelectionModel::SelectionFlags SpreadSheetTable::selectionCommand(Qt::ButtonState state,
-                                                                       const QModelIndex &index,
-                                                                       QEvent::Type type,
-                                                                       Qt::Key key) const
+QItemSelectionModel::SelectionFlags SpreadSheetTable::selectionCommand(const QModelIndex &index,
+                                                                       const QEvent *event) const
 {
-    if (state & Qt::RightButton || state & Qt::MidButton)
+    const QMouseEvent *me = event->type() == QEvent::MouseButtonPress
+                            ? static_cast<const QMouseEvent *>(event) : 0;
+    if (me && (me->buttons() & Qt::RightButton || me->buttons() & Qt::MidButton))
         return QItemSelectionModel::NoUpdate;
-    return QTableWidget::selectionCommand(state, index, type, key);
+    return QTableWidget::selectionCommand(index, event);
 }
 
 QTableWidgetItem *SpreadSheetTable::createItem() const
