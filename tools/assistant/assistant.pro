@@ -51,7 +51,7 @@ else:QT += xml
 include( ../../src/qt_professional.pri )
 
 win32 {
-    LIBS += shell32.lib
+    LIBS += -lshell32
     RC_FILE = assistant.rc
 }
 
