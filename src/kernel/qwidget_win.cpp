@@ -398,7 +398,7 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 	DestroyWindow( destroyw );
     }
 
-    setFontSys();
+    d->setFont_syshelper();
     QInputContext::enable( this, im_enabled & isEnabled() );
 
 #ifdef Q_Q4PAINTER
@@ -539,7 +539,7 @@ QPoint QWidget::mapFromGlobal( const QPoint &pos ) const
 
 void QWidgetPrivate::setFont_syshelper( QFont *f )
 {
-    QInputContext::setFont( this, (f ? *f : font()) );
+    QInputContext::setFont( q, (f ? *f : q->font()) );
 }
 
 void QWidget::setMicroFocusHint(int x, int y, int width, int height, bool text, QFont *f)
@@ -550,7 +550,7 @@ void QWidget::setMicroFocusHint(int x, int y, int width, int height, bool text, 
 
     if ( text )
 	QInputContext::setFocusHint( x, y, width, height, this );
-    setFontSys( f );
+    d->setFont_syshelper( f );
 
     if ( QRect( x, y, width, height ) != microFocusHint() ) {
 	if ( d && d->extraData() )
