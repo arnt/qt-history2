@@ -131,17 +131,48 @@ public:
     QMacStyleFocusWidget(QWidget *w) : QAquaFocusWidget(FALSE, w) { }
 
 protected:
+    void drawFocusRect(QMacPainter *p);
+
+    virtual QRegion focusRegion();
     virtual void paintEvent(QPaintEvent *);
     virtual int focusOutset();
 };
+QRegion QMacStyleFocusWidget::focusRegion()
+{
+    const QRgb fillColor = qRgb(192, 191, 190);
+    QImage img;
+    {
+	QPixmap pix(size(), 32);
+	pix.fill(fillColor);
+	QMacPainter p(&pix);
+	drawFocusRect(&p);
+	img = pix;
+    }
+    QImage mask(img.width(), img.height(), 1, 2, QImage::LittleEndian);
+    for(int y = 0; y < img.height(); y++) {
+	for(int x = 0; x < img.width(); x++) {
+	    QRgb clr = img.pixel(x, y);
+	    int diff = (((qRed(clr)-qRed(fillColor))*((qRed(clr)-qRed(fillColor)))) +
+			((qGreen(clr)-qGreen(fillColor))*((qGreen(clr)-qGreen(fillColor)))) +
+			((qBlue(clr)-qBlue(fillColor))*((qBlue(clr)-qBlue(fillColor)))));
+	    mask.setPixel(x, y, diff < 100);
+	}
+    }
+    QBitmap qmask;
+    qmask = mask;
+    return QRegion(qmask);
+}
 void QMacStyleFocusWidget::paintEvent(QPaintEvent *)
 {
     QMacPainter p(this);
-    p.setport();
-    QRect r(focusOutset(), focusOutset(),
-	    width() - (focusOutset()*2),
+    drawFocusRect(&p);
+}
+void QMacStyleFocusWidget::drawFocusRect(QMacPainter *p)
+{
+    p->setport();
+    QRect r(focusOutset(), focusOutset(),  width() - (focusOutset()*2),
 	    height() - (focusOutset()*2));
-    DrawThemeFocusRect(qt_glb_mac_rect(r, this, TRUE, QRect(1, 1, 1, 1)), true);
+    DrawThemeFocusRect(qt_glb_mac_rect(r, p, TRUE, QRect(1, 1, 1, 1)), true);
 }
 int QMacStyleFocusWidget::focusOutset()
 {
@@ -252,8 +283,7 @@ void QMacStylePrivate::doFocus(QWidget *w)
 {
     if(!focusWidget)
 	focusWidget = new QMacStyleFocusWidget(w);
-    else
-	focusWidget->setFocusWidget(w);
+    focusWidget->setFocusWidget(w);
 }
 
 bool QMacStylePrivate::overrideFocusable(const QWidget *widget) const
@@ -1526,6 +1556,8 @@ void QMacStyle::drawComplexControl(ComplexControl ctrl, QPainter *p,
 	    break;
 	QComboBox *cbox = (QComboBox *)widget;
 	ThemeButtonDrawInfo info = { tds, kThemeButtonOff, kThemeAdornmentNone };
+	if(flags & Style_HasFocus)
+	    info.adornment |= kThemeAdornmentFocus;
 	if(subActive & QStyle::SC_ComboBoxArrow)
 	    info.state = kThemeStatePressed;
 	p->fillRect(r, pal.brush(QPalette::Button)); //make sure it is filled
