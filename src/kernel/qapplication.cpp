@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.cpp#112 $
+** $Id: //depot/qt/main/src/kernel/qapplication.cpp#113 $
 **
 ** Implementation of QApplication class
 **
@@ -15,7 +15,7 @@
 #include "qwidcoll.h"
 #include "qpalette.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication.cpp#112 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication.cpp#113 $");
 
 
 /*!
@@ -225,8 +225,9 @@ void QApplication::initialize( int argc, char **argv )
 
 
 /*!
-  Closes all widgets and cleans up all window system resources.
-  Sets \c qApp to 0.
+  Deletes all remaining widgets and cleans up any window system
+  resources that were allocated by this application.  Sets the global \c
+  qApp to null.
 */
 
 QApplication::~QApplication()
