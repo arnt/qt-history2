@@ -60,6 +60,9 @@ signals:
     void targetChanged(QWidget *newTarget);
 
 private:
+#ifdef Q_WS_MAC
+    friend class QWidgetPrivate;
+#endif
     friend class QDragManager;
     Q_DISABLE_COPY(QDrag)
 };

@@ -63,6 +63,9 @@ class Q_GUI_EXPORT QDragManager: public QObject {
     friend class QDragMoveEvent;
     friend class QDropEvent;
     friend class QApplication;
+#ifdef Q_WS_MAC
+    friend class QWidgetPrivate; //dnd is implemented here
+#endif
 
     bool eventFilter(QObject *, QEvent *);
     void timerEvent(QTimerEvent*);

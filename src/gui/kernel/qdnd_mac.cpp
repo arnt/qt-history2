@@ -42,9 +42,7 @@
  *****************************************************************************/
 bool qt_mac_in_drag = false;
 static QDrag::DropAction current_drag_action; //current active drag action
-static QDrag *global_src = 0;
 static DragReference current_dropobj = 0;
-static QDrag::DropAction accept_action;
 
 /*****************************************************************************
   Externals
@@ -124,7 +122,7 @@ static const char* default_pm[] = {
 };
 
 //used to set the dag state
-void updateDragMode(DragReference drag) {
+void updateDragMode(DragReference drag, QDrag::DropActions actions) {
     SInt16 mod;
     GetDragModifiers(drag, &mod, 0, 0);
     QDrag::DropAction op = QDrag::IgnoreAction;
@@ -134,7 +132,7 @@ void updateDragMode(DragReference drag) {
         op = QDrag::CopyAction;
     else
         op = QDrag::MoveAction;
-    if(accept_action & op)
+    if(actions & op)
         current_drag_action = op;
 }
 
@@ -272,7 +270,7 @@ void QDragManager::drop()
 bool QWidgetPrivate::qt_mac_dnd_event(uint kind, DragRef dragRef)
 {
     current_dropobj = dragRef;
-    updateDragMode(dragRef);
+    updateDragMode(dragRef, QDragManager::self()->object->d->possible_actions);
 
     Point mouse;
     GetDragMouse(dragRef, &mouse, 0L);
@@ -317,8 +315,8 @@ bool QWidgetPrivate::qt_mac_dnd_event(uint kind, DragRef dragRef)
         QDropEvent de(q->mapFromGlobal(QPoint(mouse.h, mouse.v)), event_action,
                       QDragManager::self()->dropData);
         de.accept();
-        if(global_src)
-            QDragManager::self()->dragPrivate()->target = q;
+        QDragManager::self()->dragPrivate()->target = q;
+        QDragManager::self()->dragPrivate()->executed_action = current_drag_action;
         QApplication::sendEvent(q, &de);
         if(!de.isAccepted())
             ret = false;
@@ -407,7 +405,6 @@ QDrag::DropAction QDragManager::drag(QDrag *o)
     }
 
     object = o;
-    global_src = o;
     o->d->target = 0;
 
 #ifndef QT_NO_ACCESSIBILITY
@@ -504,7 +501,7 @@ QDrag::DropAction QDragManager::drag(QDrag *o)
     { //do the drag
         qt_mac_in_drag = true;
         QMacBlockingFunction block;
-        updateDragMode(theDrag);
+        updateDragMode(theDrag, o->possible_actions);
         result = TrackDrag(theDrag, &fakeEvent, dragRegion.handle(true));
         qt_mac_in_drag = false;
     }
