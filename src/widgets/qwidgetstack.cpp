@@ -123,18 +123,13 @@ QWidgetStack::~QWidgetStack()
 
 /*!  Adds widget \a w to this stack of widgets, with id \a id.
 
-  If you pass an id >= 0 this id is used. If you pass an \a id of -1
-  (the default), the widgets will be numbered automatically starting
-  at 0. If you pass any other negative integer a unique negative
-  integer (\<= -2) will be generated. No widget has an id of -1.
+  If you pass an id \>= 0 this id is used. If you pass an \a id of -1
+  (the default), the widgets will be numbered automatically. If you
+  pass -2 a unique negative integer will be generated. No widget has
+  an id of -1.
 
-  The aboutToShow(int) signal is only emitted for widgets with id >=
-  0. The aboutToShow(QWidget *) signal is emitted for any widget.
-
-  If \a w is not a child of \c this, QWidgetStack moves it using
+  If \a w is not a child of this QWidgetStack moves it using
   reparent().
-
-  \sa aboutToShow()
 */
 
 int QWidgetStack::addWidget( QWidget * w, int id )
@@ -149,7 +144,9 @@ int QWidgetStack::addWidget( QWidget * w, int id )
 	id = nseq_no--;
     else if ( id == -1 )
 	id = pseq_no++;
-    // else use id >= 0 as-is
+    else
+	pseq_no = QMAX(pseq_no, id + 1);
+	// use id >= 0 as-is
 
     dict->insert( id, w );
 
@@ -174,7 +171,7 @@ int QWidgetStack::addWidget( QWidget * w, int id )
 
 /*!  Removes widget \a w from this stack of widgets.  Does not delete \a
   w. If \a w is the currently visible widget, no other widget is
-  substituted.
+  substituted. pareent
   \sa visibleWidget() raiseWidget()
 */
 
