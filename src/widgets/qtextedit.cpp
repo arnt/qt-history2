@@ -74,6 +74,8 @@
 #define ACCEL_KEY(k) "\t" + QString("Ctrl+" #k)
 #endif
 
+static bool qt_enable_richtext_copy = FALSE;
+
 struct QUndoRedoInfoPrivate
 {
     QTextString text;
@@ -2840,7 +2842,7 @@ void QTextEdit::cut()
 
     QString t;
     if ( doc->hasSelection( QTextDocument::Standard ) &&
-	 !( t = doc->selectedText( QTextDocument::Standard, TRUE ) ).isEmpty() ) {
+	 !( t = doc->selectedText( QTextDocument::Standard, qt_enable_richtext_copy ) ).isEmpty() ) {
 	QApplication::clipboard()->setText( t );
 	removeSelectedText();
     }
@@ -2854,7 +2856,7 @@ void QTextEdit::cut()
 
 void QTextEdit::copy()
 {
-    QString t = doc->selectedText( QTextDocument::Standard, TRUE );
+    QString t = doc->selectedText( QTextDocument::Standard, qt_enable_richtext_copy );
 #ifdef QT_TEXTEDIT_OPTIMIZATION
     if ( d->optimMode && optimHasSelection() )
 	QApplication::clipboard()->setText( optimSelectedText() );
@@ -3805,7 +3807,7 @@ void QTextEdit::startDrag()
 #ifndef QT_NO_DRAGANDDROP
     mousePressed = FALSE;
     inDoubleClick = FALSE;
-    QDragObject *drag = new QTextDrag( doc->selectedText( QTextDocument::Standard, TRUE ), viewport() );
+    QDragObject *drag = new QTextDrag( doc->selectedText( QTextDocument::Standard, qt_enable_richtext_copy ), viewport() );
     if ( isReadOnly() ) {
 	drag->dragCopy();
     } else {
