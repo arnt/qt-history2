@@ -817,7 +817,6 @@ QX11PaintEngine::QX11PaintEngine()
     : QPaintEngine(*(new QX11PaintEnginePrivate), UsesFontEngine
 #if !defined(QT_NO_XFT) && !defined(QT_NO_XRENDER)
                    | AlphaFillPolygon
-                   | LinearGradientFillPolygon
 #endif
         )
 {
@@ -826,17 +825,14 @@ QX11PaintEngine::QX11PaintEngine()
     d->hd = 0;
     d->xft_hd = 0;
     d->xinfo = 0;
-    if (!X11->use_xrender) {
+    if (!X11->use_xrender)
         gccaps &= ~AlphaFillPolygon;
-        gccaps &= ~LinearGradientFillPolygon;
-    }
 }
 
 QX11PaintEngine::QX11PaintEngine(QX11PaintEnginePrivate &dptr)
     : QPaintEngine(dptr, UsesFontEngine
 #if !defined(QT_NO_XFT) && !defined(QT_NO_XRENDER)
                    | AlphaFillPolygon
-                   | LinearGradientFillPolygon
 #endif
         )
 {
@@ -845,10 +841,8 @@ QX11PaintEngine::QX11PaintEngine(QX11PaintEnginePrivate &dptr)
     d->hd = 0;
     d->xft_hd = 0;
     d->xinfo = 0;
-    if (!X11->use_xrender) {
+    if (!X11->use_xrender)
         gccaps &= ~AlphaFillPolygon;
-        gccaps &= ~LinearGradientFillPolygon;
-    }
 }
 
 QX11PaintEngine::~QX11PaintEngine()
