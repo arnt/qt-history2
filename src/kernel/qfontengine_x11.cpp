@@ -399,7 +399,8 @@ void QFontEngineXLFD::draw( QPainter *p, int x, int y, const QTextEngine *engine
 
     Qt::HANDLE font_id = _fs->fid;
     if ( p->txop > QPainter::TxTranslate ) {
-	if ( xlfd_transformations != XlfdTrUnsupported ) {
+	bool degenerate = QABS( p->m11()*p->m22() - p->m12()*p->m21() ) < 0.01;
+	if ( !degenerate && xlfd_transformations != XlfdTrUnsupported ) {
 	    // need a transformed font from the server
 	    QCString xlfd_transformed = _name;
 	    int field = 0;
@@ -416,21 +417,30 @@ void QFontEngineXLFD::draw( QPainter *p, int x, int y, const QTextEngine *engine
 	    float size = xlfd_transformed.mid( pos, endPos-pos ).toInt();
 	    float mat[4];
 	    mat[0] = p->m11()*size*_scale;
-	    mat[1] = p->m21()*size*_scale;
-	    mat[2] = p->m12()*size*_scale;
+	    mat[1] = -p->m12()*size*_scale;
+	    mat[2] = -p->m21()*size*_scale;
 	    mat[3] = p->m22()*size*_scale;
 
 	    // check if we have it cached
 	    TransformedFont *trf = transformed_fonts;
 	    TransformedFont *prev = 0;
+	    int i = 0;
 	    while ( trf ) {
 		if ( trf->xx == mat[0] &&
 		     trf->xy == mat[1] &&
 		     trf->yx == mat[2] &&
 		     trf->yy == mat[3] )
 		    break;
-		prev = trf;
+		TransformedFont *tmp = trf;
 		trf = trf->next;
+		if (i > 10) {
+		    XUnloadFont( QPaintDevice::x11AppDisplay(), tmp->xlfd_font );
+		    delete tmp;
+		    prev->next = trf;
+		} else {
+		    prev = tmp;
+		}
+		++i;
 	    }
 	    if ( trf ) {
 		if ( prev ) {
@@ -448,10 +458,11 @@ void QFontEngineXLFD::draw( QPainter *p, int x, int y, const QTextEngine *engine
 			matrix += '~';
 			f = -f;
 		    }
-		    matrix += QString::number( f ).latin1();
+		    matrix += QString::number( f, 'f', 5 ).latin1();
 		    matrix += ' ';
 		}
 		matrix += ']';
+		//qDebug("m: %2.2f %2.2f %2.2f %2.2f, matrix=%s", p->m11(), p->m12(), p->m21(), p->m22(), matrix.data());
 		xlfd_transformed.replace( pos, endPos-pos, matrix );
 
 		x_font_load_error = FALSE;
@@ -475,7 +486,7 @@ void QFontEngineXLFD::draw( QPainter *p, int x, int y, const QTextEngine *engine
 		}
 	    }
 	}
-	if ( xlfd_transformations == XlfdTrUnsupported ) {
+	if ( degenerate || xlfd_transformations == XlfdTrUnsupported ) {
 	    // XServer or font don't support server side transformations, need to do it by hand
             QRect bbox( 0, 0, si->width, si->ascent + si->descent + 1 );
             int w=bbox.width(), h=bbox.height();
@@ -1531,21 +1542,30 @@ void QFontEngineXft::draw( QPainter *p, int x, int y, const QTextEngine *engine,
 	XftPatternGetMatrix( pattern, XFT_MATRIX, 0, &mat );
 	XftMatrix m2;
 	m2.xx = p->m11()*_scale;
-	m2.xy = p->m12()*_scale;
-	m2.yx = p->m21()*_scale;
+	m2.xy = -p->m21()*_scale;
+	m2.yx = -p->m12()*_scale;
 	m2.yy = p->m22()*_scale;
 
 	// check if we have it cached
 	TransformedFont *trf = transformed_fonts;
 	TransformedFont *prev = 0;
+	int i = 0;
 	while ( trf ) {
 	    if ( trf->xx == (float)m2.xx &&
 		 trf->xy == (float)m2.xy &&
 		 trf->yx == (float)m2.yx &&
 		 trf->yy == (float)m2.yy )
 		break;
-	    prev = trf;
+	    TransformedFont *tmp = trf;
 	    trf = trf->next;
+	    if (i > 10) {
+		XftFontClose( QPaintDevice::x11AppDisplay(), tmp->xft_font );
+		delete tmp;
+		prev->next = trf;
+	    } else {
+		prev = tmp;
+	    }
+	    ++i;
 	}
 	if ( trf ) {
 	    if ( prev ) {
