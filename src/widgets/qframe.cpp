@@ -576,6 +576,10 @@ void QFrame::drawFrame( QPainter *p )
 	flags |= QStyle::Style_Sunken;
     else if (cstyle == Raised)
 	flags |= QStyle::Style_Raised;
+    if (hasFocus())
+	flags |= QStyle::Style_HasFocus;
+    if (hasMouse())
+	flags |= QStyle::Style_MouseOver;
 #endif // QT_NO_STYLE
 
     switch ( type ) {
