@@ -4495,12 +4495,26 @@ void QTextEdit::pasteSubType( const QCString& subtype )
 	return;
     if ( st == "application/x-qrichtext" ) {
 	if ( t.startsWith( "<selstart/>" ) ) {
-	    t.remove( 0, 11 );
 	    QTextCursor oldC = *cursor;
+
+	    // during the setRichTextInternal() call the cursors
+	    // paragraph might get joined with the provious one, so
+	    // the cursors one would get deleted and oldC.paragraph()
+	    // would be a dnagling pointer. To avoid that try to go
+	    // one letter back and later go one forward again.
+	    oldC.gotoPreviousLetter();
+	    bool couldGoBack = oldC != *cursor;
+
+	    t.remove( 0, 11 );
 	    lastFormatted = cursor->paragraph();
 	    if ( lastFormatted->prev() )
 		lastFormatted = lastFormatted->prev();
 	    doc->setRichTextInternal( t, cursor );
+
+	    // if we went back one letter before (see last comment),
+	    // go one forward to point to the right position
+	    if ( couldGoBack )
+		oldC.gotoNextLetter();
 
 	    if ( undoEnabled && !isReadOnly() ) {
 		doc->setSelectionStart( QTextDocument::Temp, oldC );
