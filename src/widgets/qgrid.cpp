@@ -40,6 +40,9 @@
 
   <img src=qgrid-m.png>
 
+  For more general control over grid layout, including multi-column and
+  multi-row widgets, use the QGridLayout class directly.
+
   \sa QVBox and QHBox
  */
 
