@@ -57,9 +57,10 @@
 class QPSQLPrivate
 {
 public:
-  QPSQLPrivate():connection(0), result(0){}
+  QPSQLPrivate():connection(0), result(0), isUtf8(FALSE) {}
     PGconn	*connection;
     PGresult	*result;
+    bool        isUtf8;
 };
 
 QSqlError qMakeError( const QString& err, int type, const QPSQLPrivate* p )
@@ -238,7 +239,12 @@ QTime qTimeFromDouble( double tm )
 QVariant QPSQLResult::data( int i )
 {
     QVariant::Type type = qFieldType( d, i );
-    QString val( PQgetvalue( d->result, at(), i ) );
+    QString val;
+    if ( d->isUtf8 ) {
+	val = QString::fromUtf8( PQgetvalue( d->result, at(), i ) );
+    } else {
+	val = QString::fromLocal8Bit( PQgetvalue( d->result, at(), i ) );
+    }
     switch ( type ) {
     case QVariant::Bool:
 	{
@@ -376,7 +382,11 @@ bool QPSQLResult::reset ( const QString& query )
     setAt( QSql::BeforeFirst );
     if ( d->result )
 	PQclear( d->result );
-    d->result = PQexec( d->connection, (const char*)query );
+    if ( d->isUtf8 ) {
+	d->result = PQexec( d->connection, query.utf8().data() );
+    } else {
+	d->result = PQexec( d->connection, query.local8Bit().data() );
+    }
     int status =  PQresultStatus( d->result );
     if ( status == PGRES_COMMAND_OK || status == PGRES_TUPLES_OK ) {
 	setSelect( (status == PGRES_TUPLES_OK) );
@@ -485,6 +495,7 @@ bool QPSQLDriver::open( const QString & db,
 			const QString & host,
 			int port )
 {
+    int status;
     if ( isOpen() )
 	close();
     QString connectString;
@@ -505,6 +516,15 @@ bool QPSQLDriver::open( const QString & db,
 	return FALSE;
     }
 
+// Unicode support is only working if the client library has been compiled with
+// multibyte support.
+#ifdef MULTIBYTE
+    status = PQsetClientEncoding( d->connection, "UNICODE" );
+    if ( status == 0 ) {
+	d->isUtf8 = TRUE;
+    }
+#endif
+
     pro = getPSQLVersion( d->connection );
 
     PGresult* dateResult = 0;
@@ -518,7 +538,7 @@ bool QPSQLDriver::open( const QString & db,
 	break;
     }
 #ifdef QT_CHECK_RANGE
-    int status =  PQresultStatus( dateResult );
+    status =  PQresultStatus( dateResult );
     if ( status != PGRES_COMMAND_OK )
 	qWarning( PQerrorMessage( d->connection ) );
 #endif
