@@ -80,7 +80,7 @@ QWidgetPrivate::QWidgetPrivate(int version) :
         qFatal("Cannot mix incompatible Qt libraries");
 
     isWidget = true;
-    high_attributes[0] = 0;
+    memset(high_attributes, 0, sizeof(high_attributes));
 }
 
 
