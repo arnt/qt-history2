@@ -1,12 +1,12 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenudata.h#5 $
+** $Id: //depot/qt/main/src/widgets/qmenudata.h#6 $
 **
 ** Definition of QMenuData class
 **
 ** Author  : Haavard Nord
 ** Created : 941128
 **
-** Copyright (C) 1994 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1994,1995 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
@@ -123,6 +123,7 @@ protected:
 
 private:
     void	insertAny( const char *, QBitMap *, QPopupMenu *, int, int );
+    void	removePopup( QPopupMenu * );
 };
 
 

@@ -1,12 +1,12 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenudta.cpp#8 $
+** $Id: //depot/qt/main/src/widgets/qmenudta.cpp#9 $
 **
 ** Implementation of QMenuData class
 **
 ** Author  : Haavard Nord
 ** Created : 941128
 **
-** Copyright (C) 1994 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1994,1995 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
@@ -15,7 +15,7 @@
 #include "qpopmenu.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qmenudta.cpp#8 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qmenudta.cpp#9 $";
 #endif
 
 
@@ -35,7 +35,6 @@ QMenuItem::QMenuItem()				// initialize menu item
 QMenuItem::~QMenuItem()
 {
     delete bitmap_data;
-    delete popup_menu;
     delete signal_data;
 }
 
@@ -57,6 +56,12 @@ QMenuData::QMenuData()
 
 QMenuData::~QMenuData()
 {
+    register QMenuItem *mi = mitems->first();
+    while ( mi ) {
+	if ( mi->popup_menu )			// reset parent pointer for all
+	    mi->popup_menu->parentMenu = 0;	//   child menus
+	mi = mitems->next();
+    }
     delete mitems;				// delete menu item list
 }
 
@@ -118,6 +123,20 @@ void QMenuData::insertAny( const char *string, QBitMap *bitmap,
     }
     mitems->insert( index, mi );
     menuContentsChanged();			// menu data changed
+}
+
+void QMenuData::removePopup( QPopupMenu *popup )
+{						// remove sub menu
+    int index = 0;
+    register QMenuItem *mi = mitems->first();
+    while ( mi ) {
+	if ( mi->popup_menu == popup )		// found popup
+	    break;
+	index++;
+	mi = mitems->next();
+    }
+    if ( mi )
+	removeItem( index );
 }
 
 void QMenuData::insertItem( const char *string, int id, int index )
