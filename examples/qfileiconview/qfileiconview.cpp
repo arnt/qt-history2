@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/qfileiconview/qfileiconview.cpp#27 $
+** $Id: //depot/qt/main/examples/qfileiconview/qfileiconview.cpp#28 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -751,6 +751,16 @@ void QtFileIconView::viewSmall()
     alignInGrid();
 }
 
+void QtFileIconView::viewBottom()
+{
+    setItemTextPos( Bottom );
+}
+
+void QtFileIconView::viewRight()
+{
+    setItemTextPos( Right );
+}
+
 void QtFileIconView::alignInGrid()
 {
     orderItemsInGrid();
@@ -789,6 +799,9 @@ void QtFileIconView::slotViewportRightClicked()
     menu->insertItem( "&Large View", this, SLOT( viewLarge() ) );
     menu->insertItem( "&Normal View", this, SLOT( viewNormal() ) );
     menu->insertItem( "&Small View", this, SLOT( viewSmall() ) );
+    menu->insertSeparator();
+    menu->insertItem( "Text at the &bottom", this, SLOT( viewBottom() ) );
+    menu->insertItem( "Text at the &right", this, SLOT( viewRight() ) );
     menu->insertSeparator();
     menu->insertItem( "Align Items in &Grid", this, SLOT( alignInGrid() ) );
 
