@@ -326,7 +326,6 @@ P4Interface::~P4Interface()
 
 bool P4Interface::initialize( QApplicationInterface* appIface )
 {
-    qDebug( "P4Interface::INIT" );
     if ( !( appInterface = appIface ) )
 	return FALSE;
 
@@ -342,6 +341,8 @@ bool P4Interface::initialize( QApplicationInterface* appIface )
 			     this, SLOT( p4MightEdit( bool, const QString & ) ) );
     fwIface->release();
     flIface->release();
+
+    qDebug( "P4Interface::INIT" );
 
     P4Init* init = new P4Init;
     return init->execute();
