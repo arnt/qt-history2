@@ -1,5 +1,18 @@
 /****************************************************************************
 **
+** Copyright (C) 1992-$THISYEAR$ Trolltech AS. All rights reserved.
+**
+** This file is part of the $MODULE$ of the Qt Toolkit.
+**
+** $LICENSE$
+**
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+**
+****************************************************************************/
+
+/****************************************************************************
+**
 ** Implementation of QXIMInputContext class
 **
 ** Copyright (C) 2003-2004 immodule for Qt Project.  All rights reserved.
@@ -9,19 +22,6 @@
 ** description is copied from their original file headers. Contact
 ** immodule-qt@freedesktop.org if any conditions of this licensing are
 ** not clear to you.
-**
-****************************************************************************/
-
-/****************************************************************************
-**
-** Copyright (C) 1992-$THISYEAR$ Trolltech AS. All rights reserved.
-**
-** This file is part of the $MODULE$ of the Qt Toolkit.
-**
-** $LICENSE$
-**
-** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
-** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ****************************************************************************/
 

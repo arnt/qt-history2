@@ -14,7 +14,6 @@
 #ifndef QAPPLICATION_P_H
 #define QAPPLICATION_P_H
 
-
 //
 //  W A R N I N G
 //  -------------
@@ -25,7 +24,6 @@
 // without notice, or even be removed.
 //
 // We mean it.
-//
 //
 
 #include "qfont.h"
@@ -184,4 +182,5 @@ public:
     static bool qt_mac_apply_settings();
 #endif
 };
-#endif
+
+#endif // QAPPLICATION_P_H

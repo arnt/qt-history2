@@ -11,6 +11,9 @@
 **
 ****************************************************************************/
 
+#ifndef QABSTRACTITEMMODEL_P_H
+#define QABSTRACTITEMMODEL_P_H
+
 //
 //  W A R N I N G
 //  -------------
@@ -22,9 +25,6 @@
 // We mean it.
 //
 //
-
-#ifndef QABSTRACTITEMMODEL_P_H
-#define QABSTRACTITEMMODEL_P_H
 
 #include <private/qobject_p.h>
 

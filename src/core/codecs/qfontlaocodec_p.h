@@ -24,7 +24,6 @@
 //
 // We mean it.
 //
-//
 
 #include "qglobal.h"
 #include "qstring.h"
@@ -47,4 +46,4 @@ public:
 
 #endif // QT_NO_CODECS
 
-#endif // QFONTCODECS_P_H
+#endif // QFONTLAOCODEC_P_H

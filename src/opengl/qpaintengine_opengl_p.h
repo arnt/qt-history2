@@ -11,8 +11,8 @@
 **
 ****************************************************************************/
 
-#ifndef QPAINTENGINE_OPENGL_H
-#define QPAINTENGINE_OPENGL_H
+#ifndef QPAINTENGINE_OPENGL_P_H
+#define QPAINTENGINE_OPENGL_P_H
 
 #include "qpaintengine.h"
 

@@ -14,7 +14,6 @@
 #ifndef QOBJECT_P_H
 #define QOBJECT_P_H
 
-
 //
 //  W A R N I N G
 //  -------------
@@ -24,7 +23,6 @@
 // file may change from version to version without notice, or even be removed.
 //
 // We mean it.
-//
 //
 
 #include "qobject.h"
@@ -80,4 +78,4 @@ private:
     void **args_;
 };
 
-#endif
+#endif // QOBJECT_P_H

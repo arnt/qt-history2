@@ -14,6 +14,17 @@
 #ifndef QPIXMAP_P_H
 #define QPIXMAP_P_H
 
+//
+//  W A R N I N G
+//  -------------
+//
+// This file is not part of the Qt API.  It exists purely as an
+// implementation detail.  This header file may change from version to
+// version without notice, or even be removed.
+//
+// We mean it.
+//
+
 #include <qpixmap.h>
 #if defined(Q_WS_X11)
 #include <qx11info_x11.h>
@@ -98,6 +109,4 @@ struct QPixmapData { // internal pixmap data
 #endif
 };
 
-
 #endif
-

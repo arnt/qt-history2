@@ -24,7 +24,6 @@
 //
 // We mean it.
 //
-//
 
 #include "private/qsqlquerymodel_p.h"
 #include "qmap.h"

@@ -14,19 +14,16 @@
 #ifndef Q3TITLEBAR_P_H
 #define Q3TITLEBAR_P_H
 
-
 //
 //  W A R N I N G
 //  -------------
 //
-// This file is not part of the Qt API.  It exists for the convenience
-// of qworkspace.cpp and qdockwindow.cpp.  This header file may change
-// from version to version without notice, or even be removed.
+// This file is not part of the Qt API.  It exists purely as an
+// implementation detail.  This header file may change from version to
+// version without notice, or even be removed.
 //
 // We mean it.
 //
-//
-
 
 #include "qwidget.h"
 #include "qstyleoption.h"

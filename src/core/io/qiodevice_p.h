@@ -24,7 +24,6 @@
 //
 // We mean it.
 //
-//
 
 #include "qbytearray.h"
 

@@ -11,8 +11,19 @@
 **
 ****************************************************************************/
 
-#ifndef QWINEVENTNOTIFIER_H
-#define QWINEVENTNOTIFIER_H
+#ifndef QWINEVENTNOTIFIER_P_H
+#define QWINEVENTNOTIFIER_P_H
+
+//
+//  W A R N I N G
+//  -------------
+//
+// This file is not part of the Qt API.  It exists for the convenience
+// of other Qt classes.  This header file may change from version to
+// version without notice, or even be removed.
+//
+// We mean it.
+//
 
 #include "qobject.h"
 #include "qt_windows.h"
@@ -45,5 +56,4 @@ private:
     bool enabled;
 };
 
-
-#endif // QWINEVENTNOTIFIER_H
+#endif // QWINEVENTNOTIFIER_P_H

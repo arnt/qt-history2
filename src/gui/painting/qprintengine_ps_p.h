@@ -11,8 +11,8 @@
 **
 ****************************************************************************/
 
-#ifndef QPRINTENGINE_PS_H
-#define QPRINTENGINE_PS_H
+#ifndef QPRINTENGINE_PS_P_H
+#define QPRINTENGINE_PS_P_H
 
 //
 //  W A R N I N G
@@ -25,8 +25,6 @@
 //
 // We mean it.
 //
-//
-
 
 #include "qpaintengine.h"
 #include "qprintengine.h"
@@ -139,4 +137,5 @@ private:
 };
 
 #endif // QT_NO_PRINTER
-#endif // QPSPRINTENGINE_PS_H
+
+#endif // QPRINTENGINE_PS_P_H

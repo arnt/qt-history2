@@ -24,7 +24,6 @@
 //
 // We mean it.
 //
-//
 
 #include "private/qabstractitemmodel_p.h"
 
@@ -54,4 +53,3 @@ public:
 };
 
 #endif
-

@@ -24,7 +24,6 @@
 //
 // We mean it.
 //
-//
 
 #include "qapplication.h"
 #include "qcolor.h"
@@ -2049,6 +2048,6 @@ inline int Q3TextStringChar::descent() const
 #endif
 }
 
-#endif //QT_NO_RICHTEXT
+#endif // QT_NO_RICHTEXT
 
-#endif
+#endif // QRICHTEXT_P_H

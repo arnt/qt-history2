@@ -11,6 +11,9 @@
 **
 ****************************************************************************/
 
+#ifndef QTOOLBAREXTENSION_P_H
+#define QTOOLBAREXTENSION_P_H
+
 //
 //  W A R N I N G
 //  -------------
@@ -21,9 +24,6 @@
 //
 // We mean it.
 //
-
-#ifndef QTOOLBAREXTENSION_P_H
-#define QTOOLBAREXTENSION_P_H
 
 #include <qtoolbutton.h>
 

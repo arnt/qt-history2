@@ -11,6 +11,9 @@
 **
 ****************************************************************************/
 
+#ifndef QTOOLBARHANDLE_P_H
+#define QTOOLBARHANDLE_P_H
+
 //
 //  W A R N I N G
 //  -------------
@@ -21,9 +24,6 @@
 //
 // We mean it.
 //
-
-#ifndef QTOOLBARHANDLE_P_H
-#define QTOOLBARHANDLE_P_H
 
 #include <qwidget.h>
 

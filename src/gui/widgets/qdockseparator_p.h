@@ -11,6 +11,9 @@
 **
 ****************************************************************************/
 
+#ifndef QDOCKSEPARATOR_P_H
+#define QDOCKSEPARATOR_P_H
+
 //
 //  W A R N I N G
 //  -------------
@@ -21,9 +24,6 @@
 //
 // We mean it.
 //
-
-#ifndef QDOCKSEPARATOR_P_H
-#define QDOCKSEPARATOR_P_H
 
 #include <qwidget.h>
 

@@ -24,7 +24,6 @@
 //
 // We mean it.
 //
-//
 
 #include "qcorevariant.h"
 #include "qsqldriver.h"

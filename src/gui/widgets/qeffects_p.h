@@ -14,7 +14,6 @@
 #ifndef QEFFECTS_P_H
 #define QEFFECTS_P_H
 
-
 //
 //  W A R N I N G
 //  -------------
@@ -25,7 +24,6 @@
 // or even be removed.
 //
 // We mean it.
-//
 //
 
 #include "qnamespace.h"

@@ -14,6 +14,17 @@
 #ifndef QPAINTENGINE_MAC_P_H
 #define QPAINTENGINE_MAC_P_H
 
+//
+//  W A R N I N G
+//  -------------
+//
+// This file is not part of the Qt API.  It exists purely as an
+// implementation detail.  This header file may change from version to
+// version without notice, or even be removed.
+//
+// We mean it.
+//
+
 #include "qpaintengine.h"
 #ifdef Q_WS_MAC //just for now (to get the coregraphics switch) ###
 #  include <private/qt_mac_p.h>
@@ -202,6 +213,5 @@ public:
         CGContextSetTextMatrix(hd, CGContextGetCTM(hd));
     }
 };
-
 
 #endif // QPAINTENGINE_MAC_P_H

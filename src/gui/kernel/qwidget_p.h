@@ -24,7 +24,7 @@
 //
 // We mean it.
 //
-//
+
 #include <private/qobject_p.h>
 
 #include <qrect.h>

@@ -13,6 +13,7 @@
 
 #ifndef QCURSOR_P_H
 #define QCURSOR_P_H
+
 //
 //  W A R N I N G
 //  -------------
@@ -23,7 +24,7 @@
 //
 // We mean it.
 //
-//
+
 #include <qatomic.h>
 #include <qglobal.h>
 #include <qnamespace.h>

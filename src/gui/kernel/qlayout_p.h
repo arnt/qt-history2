@@ -10,8 +10,10 @@
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ****************************************************************************/
+
 #ifndef QLAYOUT_P_H
 #define QLAYOUT_P_H
+
 //
 //  W A R N I N G
 //  -------------
@@ -22,7 +24,7 @@
 //
 // We mean it.
 //
-//
+
 #include <private/qobject_p.h>
 
 class Q_GUI_EXPORT QLayoutPrivate : public QObjectPrivate

@@ -11,6 +11,9 @@
 **
 ****************************************************************************/
 
+#ifndef QDOCKWINDOWSEPARATOR_P_H
+#define QDOCKWINDOWSEPARATOR_P_H
+
 //
 //  W A R N I N G
 //  -------------
@@ -21,9 +24,6 @@
 //
 // We mean it.
 //
-
-#ifndef QDOCKWINDOWSEPARATOR_P_H
-#define QDOCKWINDOWSEPARATOR_P_H
 
 #include <qwidget.h>
 

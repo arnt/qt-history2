@@ -24,7 +24,7 @@
 //
 // We mean it.
 //
-//
+
 #include "qnamespace.h"
 #include "qlist.h"
 #include "qiodevice.h"

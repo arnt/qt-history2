@@ -14,6 +14,17 @@
 #ifndef QPRINTENGINE_MAC_P_H
 #define QPRINTENGINE_MAC_P_H
 
+//
+//  W A R N I N G
+//  -------------
+//
+// This file is not part of the Qt API.  It exists purely as an
+// implementation detail.  This header file may change from version to
+// version without notice, or even be removed.
+//
+// We mean it.
+//
+
 #ifndef QT_NO_PRINTER
 
 #include "qprinter.h"
@@ -148,7 +159,6 @@ public:
     void initialize();
     bool newPage_helper();
 };
-
 
 #endif // QT_NO_PRINTER
 

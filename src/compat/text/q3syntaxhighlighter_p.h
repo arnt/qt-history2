@@ -14,6 +14,17 @@
 #ifndef Q3SYNTAXHIGHLIGHTER_P_H
 #define Q3SYNTAXHIGHLIGHTER_P_H
 
+//
+//  W A R N I N G
+//  -------------
+//
+// This file is not part of the Qt API.  It exists purely as an
+// implementation detail.  This header file may change from version to
+// version without notice, or even be removed.
+//
+// We mean it.
+//
+
 #ifndef QT_NO_SYNTAXHIGHLIGHTER
 #include "q3syntaxhighlighter.h"
 #include "private/q3richtext_p.h"

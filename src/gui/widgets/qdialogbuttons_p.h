@@ -14,6 +14,17 @@
 #ifndef QDIALOGBUTTONS_P_H
 #define QDIALOGBUTTONS_P_H
 
+//
+//  W A R N I N G
+//  -------------
+//
+// This file is not part of the Qt API.  It exists purely as an
+// implementation detail.  This header file may change from version to
+// version without notice, or even be removed.
+//
+// We mean it.
+//
+
 #include "qwidget.h"
 
 #ifndef QT_NO_DIALOGBUTTONS
@@ -85,5 +96,7 @@ private:
     QDialogButtonsPrivate *d;
     void init(Q_UINT32, Qt::Orientation);
 };
+
 #endif //QT_NO_DIALOGBUTTONS
+
 #endif //QDIALOGBUTTONS_P_H

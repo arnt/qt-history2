@@ -11,8 +11,8 @@
 **
 ****************************************************************************/
 
-#ifndef QSQLCACHEDRESULT_H
-#define QSQLCACHEDRESULT_H
+#ifndef QSQLCACHEDRESULT_P_H
+#define QSQLCACHEDRESULT_P_H
 
 //
 //  W A R N I N G
@@ -23,7 +23,6 @@
 // version without notice, or even be removed.
 //
 // We mean it.
-//
 //
 
 #include <qsqlresult.h>

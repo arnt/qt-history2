@@ -24,7 +24,6 @@
 //
 // We mean it.
 //
-//
 
 #include "qfont.h"
 #include "qmap.h"

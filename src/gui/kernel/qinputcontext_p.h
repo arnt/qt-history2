@@ -14,7 +14,6 @@
 #ifndef QINPUTCONTEXT_P_H
 #define QINPUTCONTEXT_P_H
 
-
 //
 //  W A R N I N G
 //  -------------
@@ -24,7 +23,6 @@
 // without notice, or even be removed.
 //
 // We mean it.
-//
 //
 
 #include "qglobal.h"

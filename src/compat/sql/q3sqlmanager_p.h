@@ -24,7 +24,6 @@
 //
 // We mean it.
 //
-//
 
 #include "qcorevariant.h"
 #include "qglobal.h"
@@ -124,6 +123,6 @@ private:
     Q3DataManagerPrivate* d;
 };
 
-
 #endif
+
 #endif

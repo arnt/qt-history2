@@ -24,8 +24,6 @@
 //
 // We mean it.
 //
-//
-
 
 #ifdef Q_WS_WIN
 # include "qt_windows.h"

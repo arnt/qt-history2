@@ -25,7 +25,6 @@
 // We mean it.
 //
 
-
 #ifdef Q_OS_UNIX
 struct QMutexPrivate
 {

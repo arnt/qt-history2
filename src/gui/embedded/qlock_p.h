@@ -24,7 +24,6 @@
 //
 // We mean it.
 //
-//
 
 #include "qstring.h"
 
@@ -69,4 +68,3 @@ private:
 };
 
 #endif
-
