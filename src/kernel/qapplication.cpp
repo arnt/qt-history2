@@ -313,6 +313,7 @@ int	  QApplication::app_cspec      = QApplication::NormalColor;
 QPalette *QApplication::app_pal	       = 0;	// default application palette
 #endif
 QFont	 *QApplication::app_font       = 0;	// default application font
+bool	  qt_app_has_font	       = FALSE;
 #ifndef QT_NO_CURSOR
 QCursor	 *QApplication::app_cursor     = 0;	// default application cursor
 #endif
@@ -1724,6 +1725,7 @@ void QApplication::setFont( const QFont &font, bool informWidgets,
     bool all = FALSE;
     if ( !className ) {
 	if ( !app_font ) {
+	    qt_app_has_font = TRUE;
 	    app_font = new QFont( font );
 	    Q_CHECK_PTR( app_font );
 	} else {

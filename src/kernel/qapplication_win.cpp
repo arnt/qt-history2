@@ -694,6 +694,9 @@ static void qt_set_windows_resources()
   qt_init() - initializes Qt for Windows
  *****************************************************************************/
 
+// need to get default font?
+extern bool qt_app_has_font;
+
 void qt_init( int *argcptr, char **argv, QApplication::Type )
 {
 
@@ -758,7 +761,7 @@ void qt_init( int *argcptr, char **argv, QApplication::Type )
     qApp->setName( appName );
 
     // default font
-    {
+    if ( !qt_app_has_font ) {
 	HFONT hfont = (HFONT)GetStockObject( DEFAULT_GUI_FONT );
 	QFont f("MS Sans Serif",8);
 	QT_WA( {
