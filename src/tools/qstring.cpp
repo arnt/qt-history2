@@ -15549,7 +15549,7 @@ QString QString::fromLocal8Bit(const char* local8Bit, int len)
 */
 
 /*!
-  \fn const QChar QString::at( uint ) const
+  \fn const QChar& QString::at( uint ) const
 
   Returns the character at index \a i, or 0 if \a i is beyond the length
   of the string.
@@ -15565,7 +15565,7 @@ QString QString::fromLocal8Bit(const char* local8Bit, int len)
 */
 
 /*!
-  \fn const QChar QString::constref(uint i) const
+  \fn const QChar& QString::constref(uint i) const
 
   Returns the QChar at index \a i by value.
 
@@ -15591,13 +15591,13 @@ QString QString::fromLocal8Bit(const char* local8Bit, int len)
 */
 
 /*!
-  \fn const QChar QString::operator[]( int ) const
+  \fn const QChar& QString::operator[]( int ) const
 
   Returns the character at index \a i, or QChar::null if \a i is beyond the
   length of the string.
 
   If the QString is not const (i.e., const QString) or const\&
-  (i.e., const QString \&), then the non-const overload of operator[] will be
+  (i.e., const QString\&), then the non-const overload of operator[] will be
   used instead.
 */
 
