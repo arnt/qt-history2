@@ -953,8 +953,6 @@ QGroupBox *QPrintDialogUnix::setupDestination()
     QGroupBox *g = new QGroupBox(tr("Print destination"), this);
 
     QBoxLayout *tll = new QBoxLayout(QBoxLayout::Down, g);
-    tll->setMargin(12);
-    tll->setSpacing(0);
     d->printerOrFile = new QPrintDialogUnixButtonGroup(this);
     d->printerOrFile->hide();
     connect(d->printerOrFile, SIGNAL(clicked(int)),
@@ -1082,8 +1080,6 @@ QGroupBox *QPrintDialogUnix::setupDestination()
 //                                  3 * h);
     horiz->addWidget(d->view, 3);
 
-    tll->addSpacing(6);
-
     // file radio button, edit/browse
     d->printToFileButton = new QRadioButton(tr("Print to file:"), g);
     tll->addWidget(d->printToFileButton);
@@ -1097,7 +1093,6 @@ QGroupBox *QPrintDialogUnix::setupDestination()
     connect(d->fileName, SIGNAL(textChanged(QString)),
              this, SLOT(fileNameEditChanged(QString)));
     horiz->addWidget(d->fileName, 1);
-    horiz->addSpacing(6);
     d->browse = new QPushButton(tr("Browse..."), g);
     d->browse->setAutoDefault(false);
 #ifdef QT_NO_FILEDIALOG
@@ -1110,8 +1105,6 @@ QGroupBox *QPrintDialogUnix::setupDestination()
     d->fileName->setEnabled(false);
     d->browse->setEnabled(false);
 
-    tll->activate();
-
     return g;
 }
 
@@ -1121,8 +1114,6 @@ QGroupBox *QPrintDialogUnix::setupOptions()
     QGroupBox *g = new QGroupBox(tr("Options"), this);
 
     QBoxLayout *lay = new QBoxLayout(QBoxLayout::LeftToRight, g);
-    lay->setMargin(12);
-    lay->setSpacing(0);
     QBoxLayout *tll = new QBoxLayout(QBoxLayout::Down, lay);
 
     d->printRange = new QPrintDialogUnixButtonGroup(this);
@@ -1210,8 +1201,6 @@ QGroupBox *QPrintDialogUnix::setupOptions()
     d->lastPageLabel->setMinimumSize(s);
     l->setMinimumSize(s.width() + 19, s.height());
 
-    tll->activate();
-
     return g;
 }
 
@@ -1231,8 +1220,6 @@ QGroupBox *QPrintDialogUnix::setupPaper()
     QGroupBox *g = new QGroupBox(tr("Paper format"), this);
 
     QBoxLayout *tll = new QBoxLayout(QBoxLayout::Down, g);
-    tll->setMargin(12);
-    tll->setSpacing(0);
     d->pageSize = QPrinter::A4;
 
     // page orientation
@@ -1242,8 +1229,6 @@ QGroupBox *QPrintDialogUnix::setupPaper()
     tll->addWidget(d->orientationCombo);
 
     d->orientation = QPrinter::Portrait;
-
-    tll->addSpacing(8);
 
     connect(d->orientationCombo, SIGNAL(activated(int)),
              this, SLOT(orientSelected(int)));
@@ -1574,15 +1559,11 @@ void QPrintDialogUnixPrivate::init()
     numCopies = 1;
 
     QBoxLayout *tll = new QBoxLayout(QBoxLayout::Down, q);
-    tll->setMargin(12);
-    tll->setSpacing(0);
 
     // destination
     QGroupBox *g;
     g = q->setupDestination();
     tll->addWidget(g, 1);
-
-    tll->addSpacing(12);
 
     // printer and paper settings
     QBoxLayout *lay = new QBoxLayout(QBoxLayout::LeftToRight);
@@ -1591,24 +1572,18 @@ void QPrintDialogUnixPrivate::init()
     g = q->setupPrinterSettings();
     lay->addWidget(g, 1);
 
-    lay->addSpacing(12);
-
     g = q->setupPaper();
     lay->addWidget(g);
-
-    tll->addSpacing(12);
 
     // options
     g = q->setupOptions();
     tll->addWidget(g);
-    tll->addSpacing(12);
 
     QBoxLayout *l = new QBoxLayout(QBoxLayout::LeftToRight);
     customLayout = new QBoxLayout(QBoxLayout::LeftToRight);
     tll->addLayout(l);
     l->addLayout(customLayout);
     l->addStretch();
-    tll->addSpacing(12);
 
     // buttons
     QBoxLayout *horiz = new QBoxLayout(QBoxLayout::LeftToRight);
@@ -1625,20 +1600,9 @@ void QPrintDialogUnixPrivate::init()
     horiz->addWidget(ok);
     if (! rightalign)
         horiz->addStretch(1);
-    horiz->addSpacing(6);
 
     QPushButton *cancel = new QPushButton(q->tr("Cancel"), q);
     horiz->addWidget(cancel);
-
-    QSize s1 = ok->sizeHint();
-    QSize s2 = cancel->sizeHint();
-    s1 = QSize(qMax(s1.width(), s2.width()),
-                qMax(s1.height(), s2.height()));
-
-    ok->setFixedSize(s1);
-    cancel->setFixedSize(s1);
-
-    tll->activate();
 
     QObject::connect(ok, SIGNAL(clicked()), q, SLOT(okClicked()));
     QObject::connect(cancel, SIGNAL(clicked()), q,  SLOT(reject()));
