@@ -1930,6 +1930,8 @@ Qt/Embedded only:
                          linked to at run time.
     -no-gfx-<driver> ... Disable graphics <driver> entirely.
 
+                         Possible values for <driver>: [ $CFG_GFX_AVAILABLE ]
+
     -qt-kbd-<driver> ... Enable a keyboard <driver> in the Qt Library.
     -no-kbd-<driver> ... Disable keyboard <driver> entirely.
 
