@@ -906,6 +906,7 @@ QIconViewItem::~QIconViewItem()
 {
     if ( view && !view->d->clearing )
 	view->takeItem( this );
+    removeRenameBox();
     view = 0;
     if ( itemIcon && itemIcon->serialNumber() != unknown_icon->serialNumber() )
 	delete itemIcon;
@@ -3776,6 +3777,7 @@ void QIconView::clear()
     }
 
     QIconViewItem *item = d->firstItem, *tmp;
+    d->firstItem = 0;
     while ( item ) {
 	tmp = item->next;
 	delete item;
@@ -3790,7 +3792,6 @@ void QIconView::clear()
     d->firstContainer = d->lastContainer = 0;
 
     d->count = 0;
-    d->firstItem = 0;
     d->lastItem = 0;
     setCurrentItem( 0 );
     d->highlightedItem = 0;
