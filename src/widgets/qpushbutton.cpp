@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpushbutton.cpp#141 $
+** $Id: //depot/qt/main/src/widgets/qpushbutton.cpp#142 $
 **
 ** Implementation of QPushButton class
 **
@@ -178,20 +178,23 @@ void QPushButton::setAutoDefault( bool enable )
 
 /*!
   \fn bool QPushButton::isDefault() const
-  Returns TRUE if the button is default.
+  Returns TRUE if the button is currently default.
 
   \sa setDefault()
 */
 
-/*!
-  Sets the button to be the default button if \a enable is TRUE, or
-  to be a normal button if \a enable is FALSE.
+/*! 
+  Sets this button to be the current default button of a
+  \link QDialog dialog\endlink if \a enable is TRUE, or to be a normal button
+  if \a enable is FALSE.
 
-  A default push button in a \link QDialog dialog\endlink emits the
-  QButton::clicked() signal if the user presses the Enter key.	Only
-  one push button in the dialog can be default.
+  The current default button gets clicked when the user presses the "Enter"
+  key, independently of which widget in the dialog currently has the keyboard
+  input focus. Only one push button can at any time be the default button.
 
-  Default push buttons are only allowed in dialogs.
+  The default button behaviour is only provided in dialogs. Buttons can always
+  be clicked from the keyboard by pressing the spacebar whern the button has
+  focus.
 
   \sa isDefault(), setAutoDefault(), QDialog
 */
