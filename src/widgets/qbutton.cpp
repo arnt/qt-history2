@@ -69,14 +69,14 @@ static const int drawingPixHeight = 100;
 
 static QPixmap *drawpm = 0;
 
-QCleanUpHandler<QPixmap> qbt_cleanup_pixmap;
+QCleanupHandler<QPixmap> qbt_cleanup_pixmap;
 
 static inline void makeDrawingPixmap()
 {
     if ( !drawpm ) {
 	drawpm = new QPixmap( drawingPixWidth, drawingPixHeight );
 	CHECK_PTR( drawpm );
-	qbt_cleanup_pixmap.addCleanUp( drawpm );
+	qbt_cleanup_pixmap.add( drawpm );
     }
 }
 

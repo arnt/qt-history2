@@ -140,7 +140,7 @@ private:
 static QTipManager *tipManager	  = 0;
 static bool	    initializedTM = FALSE;
 
-QGuardedCleanUpHandler<QTipManager> qtip_cleanup_manager;
+QGuardedCleanupHandler<QTipManager> qtip_cleanup_manager;
 
 static void initTipManager()
 {
@@ -150,7 +150,7 @@ static void initTipManager()
     }
     if ( !initializedTM ) {
 	initializedTM = TRUE;
-	qtip_cleanup_manager.addCleanUp( tipManager );
+	qtip_cleanup_manager.add( tipManager );
     }
 }
 

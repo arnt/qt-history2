@@ -1075,7 +1075,7 @@ void QStyleSheet::init()
 
 
 static QStyleSheet* defaultsheet = 0;
-static QCleanUpHandler<QStyleSheet> qt_cleanup_stylesheet;
+static QCleanupHandler<QStyleSheet> qt_cleanup_stylesheet;
 
 /*!
   Returns the application-wide default style sheet.This style sheet is
@@ -1091,7 +1091,7 @@ QStyleSheet* QStyleSheet::defaultSheet()
 {
     if (!defaultsheet) {
 	defaultsheet = new QStyleSheet();
-	qt_cleanup_stylesheet.addCleanUp( defaultsheet );
+	qt_cleanup_stylesheet.add( defaultsheet );
     }
     return defaultsheet;
 }

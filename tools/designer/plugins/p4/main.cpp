@@ -311,7 +311,7 @@ private:
     QAction *actionDelete;
     QAction *actionDiff;
 
-    QGuardedCleanUpHandler<QAction> actions;
+    QGuardedCleanupHandler<QAction> actions;
     QApplicationInterface* appInterface;
 };
 
@@ -409,7 +409,7 @@ QAction* P4Interface::create( const QString& actionname, QObject* parent )
     a = new QAction( "P4 Refresh", QIconSet((const char**)refresh_xpm), "Refres&h", 0, ag, "P4 Refresh" );
     connect( a, SIGNAL( activated() ), this, SLOT( p4Refresh() ) );
 
-    actions.addCleanUp( ag );
+    actions.add( ag );
     
     actionSync->setEnabled( FALSE );
     actionEdit->setEnabled( FALSE );

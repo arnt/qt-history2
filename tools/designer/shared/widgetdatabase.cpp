@@ -51,7 +51,7 @@ static QStrList *invisibleGroups;
 static bool whatsThisLoaded = FALSE;
 static WidgetPlugInManager *widgetPluginManager = 0;
 
-QCleanUpHandler<WidgetPlugInManager> cleanup_manager;
+QCleanupHandler<WidgetPlugInManager> cleanup_manager;
 
 WidgetDatabaseRecord::WidgetDatabaseRecord()
 {
@@ -709,7 +709,7 @@ WidgetPlugInManager *widgetManager()
     dir += "/plugins";
     if ( !widgetPluginManager ) {
 	widgetPluginManager = new WidgetPlugInManager( dir );
-	cleanup_manager.addCleanUp( widgetPluginManager );
+	cleanup_manager.add( widgetPluginManager );
     }
     return widgetPluginManager;
 }

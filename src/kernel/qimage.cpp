@@ -3173,7 +3173,7 @@ QImageHandler::QImageHandler( const char *f, const char *h, const QCString& fl,
 typedef QList<QImageHandler> QIHList;// list of image handlers
 static QIHList *imageHandlers = 0;
 
-QCleanUpHandler<QIHList> qimg_cleanup_handler;
+QCleanupHandler<QIHList> qimg_cleanup_handler;
 
 void qt_init_image_handlers()		// initialize image handlers
 {
@@ -3181,7 +3181,7 @@ void qt_init_image_handlers()		// initialize image handlers
 	imageHandlers = new QIHList;
 	CHECK_PTR( imageHandlers );
 	imageHandlers->setAutoDelete( TRUE );
-	qimg_cleanup_handler.addCleanUp( imageHandlers );
+	qimg_cleanup_handler.add( imageHandlers );
 #ifndef QT_NO_IMAGEIO_BMP
 	QImageIO::defineIOHandler( "BMP", "^BM", 0,
 				   read_bmp_image, write_bmp_image );

@@ -118,13 +118,13 @@ static QPixmap *unknown_icon = 0;
 static QPixmap *qiv_buffer_pixmap = 0;
 static QPixmap *qiv_selection = 0;
 
-QCleanUpHandler<QPixmap> qiv_cleanup_pixmap;
+QCleanupHandler<QPixmap> qiv_cleanup_pixmap;
 
 #if !defined(Q_WS_X11)
 static void createSelectionPixmap( const QColorGroup &cg )
 {
     qiv_selection = new QPixmap( 2, 2 );
-    qiv_cleanup_pixmap.addCleanUp( qiv_selection );
+    qiv_cleanup_pixmap.add( qiv_selection );
     qiv_selection->fill( Qt::color0 );
     QBitmap m( 2, 2 );
     m.fill( Qt::color1 );
@@ -143,7 +143,7 @@ static QPixmap *get_qiv_buffer_pixmap( const QSize &s )
 {
     if ( !qiv_buffer_pixmap ) {
 	qiv_buffer_pixmap = new QPixmap( s );
-	qiv_cleanup_pixmap.addCleanUp( qiv_buffer_pixmap );
+	qiv_cleanup_pixmap.add( qiv_buffer_pixmap );
 	return qiv_buffer_pixmap;
     }
 
@@ -2219,7 +2219,7 @@ QIconView::QIconView( QWidget *parent, const char *name, WFlags f )
 {
     if ( !unknown_icon ) {
 	unknown_icon = new QPixmap( (const char **)unknown_xpm );
-	qiv_cleanup_pixmap.addCleanUp( unknown_icon );
+	qiv_cleanup_pixmap.add( unknown_icon );
     }
 
     d = new QIconViewPrivate;

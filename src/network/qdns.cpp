@@ -61,7 +61,7 @@ static Q_UINT16 id; // ### seeded started by now()
 
 static QDateTime * originOfTime = 0;
 
-QCleanUpHandler<QDateTime> qdns_cleanup_time;
+QCleanupHandler<QDateTime> qdns_cleanup_time;
 
 static Q_UINT32 now()
 {
@@ -70,7 +70,7 @@ static Q_UINT32 now()
 
     originOfTime = new QDateTime( QDateTime::currentDateTime() );
     ::id = originOfTime->time().msec() * 60 + originOfTime->time().second();
-    qdns_cleanup_time.addCleanUp( originOfTime );
+    qdns_cleanup_time.add( originOfTime );
     return 0;
 }
 

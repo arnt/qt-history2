@@ -24,7 +24,7 @@ public:
     bool isContainer( const QString& );
 
 private:
-    QGuardedCleanUpHandler<QObject> objects;
+    QGuardedCleanupHandler<QObject> objects;
 };
 
 OpenGLWidgetInterface::OpenGLWidgetInterface( QUnknownInterface *parent, const char *name )
@@ -38,7 +38,7 @@ OpenGLWidgetInterface::~OpenGLWidgetInterface()
 
 bool OpenGLWidgetInterface::disconnectNotify()
 {
-    if ( !objects.isClean() )
+    if ( !objects.isEmpty() )
 	return FALSE;
     return TRUE;
 }
@@ -59,7 +59,7 @@ QWidget* OpenGLWidgetInterface::create( const QString &description, QWidget* par
     if ( description == "QGLWidget" )
 	w = new GLWidget( parent, name );
 
-    objects.addCleanUp( w );
+    objects.add( w );
     return w;
 }
 

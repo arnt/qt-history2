@@ -184,7 +184,7 @@ private slots:
 // static, but static the less-typing way
 static QWhatsThisPrivate * wt = 0;
 
-QCleanUpHandler<QWhatsThisPrivate> qwt_cleanup_private;
+QCleanupHandler<QWhatsThisPrivate> qwt_cleanup_private;
 
 // the item
 QWhatsThisPrivate::WhatsThisItem::~WhatsThisItem()
@@ -431,7 +431,7 @@ void QWhatsThisPrivate::setUpWhatsThis()
 {
     if ( !wt ) {
 	wt = new QWhatsThisPrivate();
-	qwt_cleanup_private.addCleanUp( wt );
+	qwt_cleanup_private.add( wt );
     }
 }
 

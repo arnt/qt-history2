@@ -63,13 +63,13 @@ static QBitmap * horizontalLine = 0;
 
 static QPixmap *buffer = 0;
 
-QCleanUpHandler<QBitmap> qlv_cleanup_bitmap;
-QCleanUpHandler<QPixmap> qlv_cleanup_pixmap;
+QCleanupHandler<QBitmap> qlv_cleanup_bitmap;
+QCleanupHandler<QPixmap> qlv_cleanup_pixmap;
 
 static QPixmap *getCacheBuffer( const QSize &sz )
 {
     if ( !buffer ) {
-	qlv_cleanup_pixmap.addCleanUp( buffer );
+	qlv_cleanup_pixmap.add( buffer );
 	buffer = new QPixmap;
     }
 
@@ -1528,8 +1528,8 @@ void QListViewItem::paintBranches( QPainter * p, const QColorGroup & cg,
 	    p.end();
 	    QApplication::flushX();
 	    horizontalLine->setMask( *horizontalLine );
-	    qlv_cleanup_bitmap.addCleanUp( verticalLine );
-	    qlv_cleanup_bitmap.addCleanUp( horizontalLine );
+	    qlv_cleanup_bitmap.add( verticalLine );
+	    qlv_cleanup_bitmap.add( horizontalLine );
 	}
 	int line; // index into dotlines
 	for( line = 0; line < c; line += 2 ) {

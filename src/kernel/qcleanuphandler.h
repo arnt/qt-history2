@@ -7,12 +7,12 @@
 #endif // QT_H
 
 template<class Type>
-class Q_EXPORT QGuardedCleanUpHandler
+class Q_EXPORT QGuardedCleanupHandler
 {
 public:
-    ~QGuardedCleanUpHandler()
+    ~QGuardedCleanupHandler()
     {
-	QListIterator<QGuardedPtr<Type> > it( cleanUpObjects );
+	QListIterator<QGuardedPtr<Type> > it( cleanupObjects );
 	it.toLast();
 	while ( it.current() ) {
 	    QGuardedPtr<Type>* guard = it.current();
@@ -22,14 +22,28 @@ public:
 	}
     }
 
-    void addCleanUp( Type* object )
+    void add( Type* object )
     {
-	cleanUpObjects.insert( 0, new QGuardedPtr<Type>(object) );
+	cleanupObjects.insert( 0, new QGuardedPtr<Type>(object) );
     }
 
-    bool isClean()
+    void remove( Type *object )
     {
-	QListIterator<QGuardedPtr<Type> > it( cleanUpObjects );
+	QListIterator<QGuardedPtr<Type> > it( cleanupObjects );
+	while ( it.current() ) {
+	    QGuardedPtr<Type>* guard = it.current();
+	    ++it;
+	    if ( guard == object ) {
+		cleanupObject.removeRef( guard );
+		delete guard;
+		break;
+	    }
+	}
+    }
+
+    bool isEmpty() const
+    {
+	QListIterator<QGuardedPtr<Type> > it( cleanupObjects );
 	while ( it.current() ) {
 	    QGuardedPtr<Type>* guard = it.current();
 	    ++it;
@@ -40,16 +54,16 @@ public:
     }
 
 private:
-    QList<QGuardedPtr<Type> > cleanUpObjects;
+    QList<QGuardedPtr<Type> > cleanupObjects;
 };
 
 template<class Type>
-class Q_EXPORT QCleanUpHandler
+class Q_EXPORT QCleanupHandler
 {
 public:
-    ~QCleanUpHandler()
+    ~QCleanupHandler()
     {
-	QListIterator<Type> it( cleanUpObjects );
+	QListIterator<Type> it( cleanupObjects );
 	it.toLast();
 	while ( it.current() ) {
 	    Type* object = it.current();
@@ -58,19 +72,25 @@ public:
 	}
     }
 
-    void addCleanUp( Type* object )
+    void add( Type* object )
     {
 	if ( object )
-	    cleanUpObjects.insert( 0, object );
+	    cleanupObjects.insert( 0, object );
     }
 
-    bool isClean()
+    void remove( Type *object )
     {
-	return cleanUpObject.isEmpty();
+	if ( object )
+	    cleanupObjects.removeRef( object );
+    }
+
+    bool isEmpty() const
+    {
+	return cleanupObject.isEmpty();
     }
 
 private:
-    QList<Type> cleanUpObjects;
+    QList<Type> cleanupObjects;
 };
 
 #endif //QCLEANUPHANDLER_H

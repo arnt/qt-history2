@@ -1114,7 +1114,7 @@ bool operator!=( const QCIString &s1, const QCIString &s2 )
 typedef QMap<QCIString,QString> QFontSubst;
 static QFontSubst *fontSubst = 0;
 
-QCleanUpHandler<QFontSubst> qfont_cleanup_fontsubst;
+QCleanupHandler<QFontSubst> qfont_cleanup_fontsubst;
 
 static void initFontSubst()                     // create substitution dict
 {
@@ -1139,7 +1139,7 @@ static void initFontSubst()                     // create substitution dict
         fontSubst->insert(
             QString::fromLatin1(initTbl[i]),
             QString::fromLatin1(initTbl[i+1]) );
-    qfont_cleanup_fontsubst.addCleanUp( fontSubst );
+    qfont_cleanup_fontsubst.add( fontSubst );
 }
 
 
@@ -1394,13 +1394,13 @@ QDataStream &operator>>( QDataStream &s, QFont &f )
 typedef QList<QFontMetrics> QFontMetricsList;
 static QFontMetricsList *fm_list = 0;
 
-QCleanUpHandler<QFontMetricsList> qfont_cleanup_fontmetricslist;
+QCleanupHandler<QFontMetricsList> qfont_cleanup_fontmetricslist;
 
 static void insertFontMetrics( QFontMetrics *fm ) {
     if ( !fm_list ) {
         fm_list = new QFontMetricsList;
         CHECK_PTR( fm_list );
-	qfont_cleanup_fontmetricslist.addCleanUp( fm_list );
+	qfont_cleanup_fontmetricslist.add( fm_list );
     }
     fm_list->append( fm );
 }
@@ -1742,14 +1742,14 @@ QSize QFontMetrics::size( int flgs, const QString &str, int len, int tabstops,
 typedef QList<QFontInfo> QFontInfoList;
 static QFontInfoList *fi_list = 0;
 
-QCleanUpHandler<QFontInfoList> qfont_cleanup_fontinfolist;
+QCleanupHandler<QFontInfoList> qfont_cleanup_fontinfolist;
 
 static void insertFontInfo( QFontInfo *fi )
 {
     if ( !fi_list ) {
         fi_list = new QFontInfoList;
         CHECK_PTR( fi_list );
-	qfont_cleanup_fontinfolist.addCleanUp( fi_list );
+	qfont_cleanup_fontinfolist.add( fi_list );
     }
     fi_list->append( fi );
 }

@@ -44,7 +44,7 @@
 static QGLFormat* qgl_default_format = 0;
 static QGLFormat* qgl_default_overlay_format = 0;
 
-static QCleanUpHandler<QGLFormat> qgl_cleanup_format;
+static QCleanupHandler<QGLFormat> qgl_cleanup_format;
 
 /*!
   \relates QGLFormat
@@ -550,7 +550,7 @@ QGLFormat QGLFormat::defaultFormat()
 {
     if ( !qgl_default_format ) {
 	qgl_default_format = new QGLFormat;
-	qgl_cleanup_format.addCleanUp( qgl_default_format );
+	qgl_cleanup_format.add( qgl_default_format );
     }
     return *qgl_default_format;
 }
@@ -573,7 +573,7 @@ void QGLFormat::setDefaultFormat( const QGLFormat &f )
 {
     if ( !qgl_default_format ) {
 	qgl_default_format = new QGLFormat;
-	qgl_cleanup_format.addCleanUp( qgl_default_format );
+	qgl_cleanup_format.add( qgl_default_format );
     }
     *qgl_default_format = f;
 }
@@ -605,7 +605,7 @@ QGLFormat QGLFormat::defaultOverlayFormat()
 	qgl_default_overlay_format = new QGLFormat;
 	qgl_default_overlay_format->opts = DirectRendering;
 	qgl_default_overlay_format->pln = 1;
-	qgl_cleanup_format.addCleanUp( qgl_default_overlay_format );
+	qgl_cleanup_format.add( qgl_default_overlay_format );
     }
     return *qgl_default_overlay_format;
 }
@@ -648,7 +648,7 @@ void QGLFormat::setDefaultOverlayFormat( const QGLFormat &f )
 {
     if ( !qgl_default_overlay_format ) {
 	qgl_default_overlay_format = new QGLFormat;
-	qgl_cleanup_format.addCleanUp( qgl_default_overlay_format );
+	qgl_cleanup_format.add( qgl_default_overlay_format );
     }
     *qgl_default_overlay_format = f;
     // Make sure the user doesn't request that the overlays themselves

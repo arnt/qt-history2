@@ -49,7 +49,7 @@ private slots:
     void countWidgets();
 
 private:
-    QGuardedCleanUpHandler<QAction> actions;
+    QGuardedCleanupHandler<QAction> actions;
     TestThread* thread;
     QDialog* dialog;
     QLCDNumber* lcd;
@@ -91,12 +91,12 @@ QAction* TestInterface::create( const QString& actionname, QObject* parent )
     if ( actionname == "Start Thread" ) {
 	QAction* a = new QAction( actionname, QIconSet(), "St&art...", 0, parent, actionname );
 	connect( a, SIGNAL(activated()), this, SLOT(startThread()) );
-	actions.addCleanUp( a );
+	actions.add( a );
 	return a;
     } else if ( actionname == "Count Widgets" ) {
 	QAction* a = new QAction( actionname, QIconSet(), "&Count", 0, parent, actionname );
 	connect( a, SIGNAL(activated()), this, SLOT(countWidgets()) );
-	actions.addCleanUp( a );
+	actions.add( a );
 	return a;
     }
 

@@ -23,7 +23,7 @@ public:
     QString whatsThis( const QString& );
     bool isContainer( const QString& );
 
-    QGuardedCleanUpHandler<QObject> objects;
+    QGuardedCleanupHandler<QObject> objects;
 };
 
 ExtraWidgetsInterface::ExtraWidgetsInterface( QUnknownInterface *parent, const char *name )
@@ -38,7 +38,7 @@ ExtraWidgetsInterface::~ExtraWidgetsInterface()
 bool ExtraWidgetsInterface::disconnectNotify()
 {
     qDebug( "ExtraWidgetsInterface::disconnectNotify()" );
-    if ( !objects.isClean() )
+    if ( !objects.isEmpty() )
 	return FALSE;
     return TRUE;
 }
@@ -57,11 +57,11 @@ QWidget* ExtraWidgetsInterface::create( const QString &description, QWidget* par
     QWidget* w = 0;
     if ( description == "QCanvasView" ) {
 	QCanvas* canvas = new QCanvas;
-	objects.addCleanUp( canvas );
+	objects.add( canvas );
 	w = new QCanvasView( canvas, parent, name );
     }
 
-    objects.addCleanUp( w );
+    objects.add( w );
     return w;
 }
 

@@ -129,7 +129,7 @@ QClipboard::~QClipboard()
   QApplication member functions related to QClipboard.
  *****************************************************************************/
 
-QGuardedCleanUpHandler<QObject> qt_cleanup_clipboard;
+QGuardedCleanupHandler<QObject> qt_cleanup_clipboard;
 
 /*!
   Returns a pointer to the application global clipboard.
@@ -140,7 +140,7 @@ QClipboard *QApplication::clipboard()
     if ( qt_clipboard == 0 ) {
 	qt_clipboard = new QClipboard;
 	CHECK_PTR( qt_clipboard );
-	qt_cleanup_clipboard.addCleanUp( qt_clipboard );
+	qt_cleanup_clipboard.add( qt_clipboard );
     }
     return (QClipboard *)qt_clipboard;
 }
