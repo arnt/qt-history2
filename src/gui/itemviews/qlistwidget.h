@@ -147,7 +147,7 @@ public:
                                       QAbstractItemModel::MatchFlags flags
                                       = QAbstractItemModel::MatchDefault) const;
 
-    bool isVisible(const QListWidgetItem *item) const;
+    bool isItemVisible(const QListWidgetItem *item) const;
 
 public slots:
     void ensureItemVisible(const QListWidgetItem *item);

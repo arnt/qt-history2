@@ -151,8 +151,12 @@ public:
     QList<QTableWidgetItem*> findItems(const QString &text,
                                        QAbstractItemModel::MatchFlags flags
                                        = QAbstractItemModel::MatchDefault) const;
-    
-    bool isVisible(const QTableWidgetItem *item) const;
+
+    int visualRow(const QTableWidgetItem *item) const;
+    int visualColumn(const QTableWidgetItem *item) const;
+    QTableWidgetItem *visualItem(int visualRow, int visualColumn) const;
+
+    bool isItemVisible(const QTableWidgetItem *item) const;
 
 public slots:
     void ensureItemVisible(const QTableWidgetItem *item);

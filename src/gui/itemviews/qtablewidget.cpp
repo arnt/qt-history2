@@ -920,10 +920,40 @@ QList<QTableWidgetItem*> QTableWidget::findItems(const QString &text,
 }
 
 /*!
+  Returns the visual row of the given \a item.
+*/
+
+int QTableWidget::visualRow(const QTableWidgetItem *item) const
+{
+    return verticalHeader()->index(row(item));
+}
+
+/*!
+  Returns the visual column of the given \a item.
+*/
+
+int QTableWidget::visualColumn(const QTableWidgetItem *item) const
+{
+    return horizontalHeader()->index(column(item));
+}
+
+/*!
+  Returns a pointer to the item at the \a visualRow
+  and \a visualColumn in the view.
+*/
+
+QTableWidgetItem *QTableWidget::visualItem(int visualRow, int visualColumn) const
+{
+    int row = verticalHeader()->section(visualRow);
+    int column = horizontalHeader()->section(visualColumn);
+    return item(row, column);
+}
+
+/*!
   Returns true if the \a item is in the viewport, otherwise returns false.
 */
 
-bool QTableWidget::isVisible(const QTableWidgetItem *item) const
+bool QTableWidget::isItemVisible(const QTableWidgetItem *item) const
 {
     Q_ASSERT(item);
     QModelIndex index = d->model()->index(const_cast<QTableWidgetItem*>(item));

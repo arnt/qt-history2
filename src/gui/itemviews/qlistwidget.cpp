@@ -983,7 +983,7 @@ QList<QListWidgetItem*> QListWidget::findItems(const QString &text,
   Returns true if the \a item is in the viewport; otherwise returns false.
 */
 
-bool QListWidget::isVisible(const QListWidgetItem *item) const
+bool QListWidget::isItemVisible(const QListWidgetItem *item) const
 {
     Q_ASSERT(item);
     QModelIndex index = d->model()->index(const_cast<QListWidgetItem*>(item));
