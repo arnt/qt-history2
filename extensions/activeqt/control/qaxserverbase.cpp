@@ -33,6 +33,10 @@
 
 #include "../shared/types.h"
 
+#ifndef ULONG_PTR
+#define ULONG_PTR DWORD
+#endif
+
 // in qaxservermain.cpp
 extern ITypeLib *qAxTypeLibrary;
 extern QAxFactoryInterface *qAxFactory();
