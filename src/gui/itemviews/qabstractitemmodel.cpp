@@ -115,34 +115,154 @@ const char *QAbstractItemModelDrag::format()
 }
 
 /*!
-  \class QModelIndex qgenericitemmodel.h
+    \class QModelIndex qgenericitemmodel.h
 
-  \brief class used to access data in the data model.
+    \brief The QModelIndex class is used to locate data in a data model.
 
-  This class is used as an index into QAbstractItemModel derived data models.
-  The index is used by itemviews, delegates and selection models to represent an item in the model.
-  QModelIndex objects are created by the model.
+    This class is used as an index into QAbstractItemModel derived
+    data models. The index is used by item views, delegates and
+    selection models to locate an item in the model. QModelIndex
+    objects are created by the model.
+
+    A model index has a row(), a column(), and a type().
+    \omit
+    It can also provide a \c{void} \c{*} pointer to the data() located
+    at the index position.
+    \endomit
 */
 
 /*!
-  \class QAbstractItemModel qabstractitemmodel.h
+    \enum QModelIndex::Type
 
-  \brief Abstract class used to provide abitrary data.
+    A model index locates an item in a view or in a view's horizontal
+    or vertical header.
 
-  This class is an abstract class which provides data.  The data model is a hierarchy of rows. The data is accessed
-  by calling data() with a QModelIndex object.  Functions rowCunt() and columnCount() returns
-  the size of the data source which is provided by the model on each leve in the heierarchy.
-
-  fetchMore() can be reimplemented by models where it is hard  to determine the final size of the data (e.g. data streams).
-  The model is also responsible for sorting its data through the virtual functions
-  sort() and isSortable().
-
-  To notify about changes (e.g. an item changed, new data was added, etc.), the QAbstractItemModel emits the contentsChanged,
-  contentsInserted and/or contentsRemoved signals.
+    \value View
+    \value HorizontalHeader
+    \value VerticalHeader
 */
 
 /*!
-  Constructs a itemmodel.
+    \fn QModelIndex::QModelIndex(int row, int column, void *data, Type type)
+
+    \internal
+
+    Creates a new model index at the given \a row and \a column,
+    pointing to data \a data, and of type \a type.
+*/
+
+/*!
+    \fn QModelIndex::QModelIndex(const QModelIndex &other)
+
+    \internal
+
+    Creates a new model index that is a copy of the \a other model
+    index.
+*/
+
+/*!
+    \fn QModelIndex::~QModelIndex()
+
+    \internal
+*/
+
+/*!
+    \fn int QModelIndex::row() const
+
+    Returns the row this model index refers to.
+*/
+
+
+/*!
+    \fn int QModelIndex::column() const
+
+    Returns the column this model index refers to.
+*/
+
+
+/*!
+    \fn void *QModelIndex::data() const
+
+    \internal
+
+    Returns a \c{void} \c{*} pointer to the data located at this model
+    index position.
+*/
+
+
+/*!
+    \fn Type QModelIndex::type() const
+
+    Returns the \c Type of this model index.
+*/
+
+
+/*!
+    \fn bool QModelIndex::isValid() const
+
+    Returns true if this model index is valid; otherwise returns
+    false.
+*/
+
+
+/*!
+    \fn bool QModelIndex::operator==(const QModelIndex &other) const
+
+    Returns true if this model index refers to the same location as
+    the \a other model index; otherwise returns false.
+*/
+
+
+/*!
+    \fn bool QModelIndex::operator!=(const QModelIndex &other) const
+
+    Returns true if this model index does not refer to the same
+    location as the \a other model index; otherwise returns false.
+*/
+
+
+/*!
+    \class QAbstractItemModel qabstractitemmodel.h
+
+    \brief The QAbstractItemModel class provides an abstract model of
+    a set of arbitrary data.
+
+    The underlying data model is a hierarchy of rows. If you don't
+    make use of the hierarchy, then the model is a simple table of
+    rows and columns. Each item has a unique index specified by a
+    QModelIndex.
+
+    Every item has an index(), and possibly a sibling() index; child
+    items have a parent() index. hasChildren() is true for items that
+    have children. Each item has a number of data elements associated
+    with them, each with a particular \c Role. Data elements are set
+    individually with setData(), or for all roles with setItemData().
+    Data is retrieved with data() (for an element with a given role),
+    or with itemData() (for every role's element data). Items can be
+    queried with isSelectable() and isEditable(). An item can be
+    searched for using match().
+
+    To customize sorting and searching, comparison functions can be
+    reimplemented, for example, lessThan(), equal(), and
+    greaterThan().
+
+    The model has a rowCount() and a columnCount() for each level of
+    the hierarchy, and indexes for the topLeft() and bottomRight().
+    Sometimes it is difficult to determine the size of a model (for
+    example, if it is being delivered via a data stream), in which
+    case it may be necessary to implement fetchMore(). If the model
+    isSortable(), it can be sorted with sort().
+
+    Rows and columns can be inserted and removed with insertRow(),
+    insertColumn(), removeRow(), and removeColumn().
+
+    The model emits signals to indicate changes, for example,
+    contentsChanged(), contentsInserted(), and contentsRemoved().
+
+*/
+
+/*!
+    Constructs an abstract item model with parent \a parent.
 */
 QAbstractItemModel::QAbstractItemModel(QObject *parent)
     : QObject(parent)
@@ -158,52 +278,99 @@ QAbstractItemModel::QAbstractItemModel(QObjectPrivate &dp, QObject *parent)
 }
 
 /*!
-  Destroys the itemmodel.
+    Destroys the abstract item model.
 */
 QAbstractItemModel::~QAbstractItemModel()
 {
 }
 
 /*!
-  \fn void QAbstractItemModel::contentsChanged()
+    \fn QModelIndex QAbstractItemModel::topLeft(const QModelIndex &parent = 0) const
 
-  This signal is emitted when the data in exiting items changes.
+    Returns the index of the top left item for the given \a parent.
+*/
 
-  \sa setData()
+
+/*!
+    \fn QModelIndex QAbstractItemModel::bottomRight(const QModelIndex &parent = 0) const
+
+    Returns the index of the bottom right item for the given \a parent.
+*/
+
+
+/*!
+    \fn QModelIndex QAbstractItemModel::sibling(int row, int column, const QModelIndex &idx) const
+
+    Returns the index of the sibling of the item at the given \a row,
+    \a column, and index \a idx.
+*/
+
+
+/*!
+    \fn int QAbstractItemModel::rowCount(const QModelIndex &parent = 0) const = 0
+
+    Returns the number of rows under the given \a parent.
+*/
+
+
+/*!
+    \fn int QAbstractItemModel::columnCount(const QModelIndex &parent = 0) const = 0;
+    Returns the number of columns for the given \a parent.
+*/
+
+
+/*!
+    \fn void QAbstractItemModel::contentsChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight)
+
+    This signal is emitted whenever the data in an existing item
+    changes. The affected items are those between \a topLeft and \a
+    bottomRight inclusive.
+
+    \sa contentsInserted() contentsRemoved() setData()
 */
 
 /*!
-  \fn void QAbstractItemModel::contentsInserted()
+    \fn void QAbstractItemModel::contentsInserted(const QModelIndex &topLeft, const QModelIndex &bottomRight)
 
-  This signal is emitted when rows or columns are inserted in the model.
+    This signal is emitted when rows or columns are inserted into the
+    model. The new items are those between \a topLeft and \a
+    bottomRight inclusive.
 
-  \sa insertRow() insertColumn()
-*/
-
-/* \fn void QAbstractItemModel::contentsRemoved()
-
-This signal is emitted before rows or columns are removed from the model.
-
-\sa removeRow() removeColumn()
+    \sa insertRow() insertColumn()
 */
 
 /*!
-  \enum QAbstractItemModel::Role
+    \fn void QAbstractItemModel::contentsRemoved(const QModelIndex &topLeft, const QModelIndex &bottomRight)
 
-  Each item in the model can have a set of data with associated roles.
-  The roles are used when visualizing and editing the items in the view.
+    This signal is emitted just before rows or columns are removed
+    from the model. The removed items are those between \a topLeft and
+    \a bottomRight inclusive.
 
-  \value Display The data rendered as item text
-  \value Decoration The data rendered as item icon
-  \value Edit The data edited in the item editor.
-  \value ToolTip The data displayed in the item tooltip
-  \value StatusTip The data displayed in the status bar
-  \value WhatsThis The data displayed in what's this mode
-  \value User The first custom role defined by the user
+    \sa removeRow() removeColumn()
 */
 
 /*!
-  Returns the QModelIndex object associated with the data in \a row \a column with \a parent.
+    \enum QAbstractItemModel::Role
+
+    Each item in the model has a set of data elements associated with
+    it, each with its own role. The roles are used when visualizing
+    and editing the items in the views.
+
+    \value Display The data rendered as text.
+    \value Decoration The data rendered as an icon.
+    \value Edit The data in a form suitable for editing in an item editor.
+    \value ToolTip The data displayed in the item's tooltip.
+    \value StatusTip The data displayed in the status bar.
+    \value WhatsThis The data displayed for the item in What's This?
+    mode.
+    \value User The first custom role defined by the user.
+*/
+
+/*!
+    Returns the index of the data in \a row and \a column with \a
+    parent, of type \a type.
+
+    \sa parent()
  */
 QModelIndex QAbstractItemModel::index(int row, int column, const QModelIndex &parent,
                                      QModelIndex::Type type) const
@@ -214,7 +381,9 @@ QModelIndex QAbstractItemModel::index(int row, int column, const QModelIndex &pa
 }
 
 /*!
-  Returns the parent QModelIndex object of \a child.
+    Returns the index of the parent of \a child.
+
+    \sa index() hasChildren()
 */
 QModelIndex QAbstractItemModel::parent(const QModelIndex &) const
 {
@@ -222,24 +391,24 @@ QModelIndex QAbstractItemModel::parent(const QModelIndex &) const
 }
 
 /*!
-  Returns true if \a parent has any children; otherwise returns false.
+    Returns true if \a parent has any children; otherwise returns false.
+
+    \sa parent() index()
 */
 bool QAbstractItemModel::hasChildren(const QModelIndex &parent) const
 {
     return (rowCount(parent) > 0) && (columnCount(parent) > 0);
 }
 
-/*!
-  FIXME
-*/
+// ### DOC: write something or make it \internal!
 void QAbstractItemModel::fetchMore()
 {
     // do nothing
 }
 
 /*!
-  Returns true if decode() would be able to decode \a src;
-  otherwise returns false.
+    Returns true if decode() would be able to decode \a src; otherwise
+    returns false.
 */
 bool QAbstractItemModel::canDecode(QMimeSource *src) const
 {
@@ -247,10 +416,11 @@ bool QAbstractItemModel::canDecode(QMimeSource *src) const
 }
 
 /*!
-  Decodes data from \a e, inserting the data under \a parent (if possible).
+    Decodes data from \a e, inserting the data under \a parent (if
+    possible).
 
-  Returns true if the data was successfully decoded and inserted;
-  otherwise returns false.
+    Returns true if the data was successfully decoded and inserted;
+    otherwise returns false.
 */
 bool QAbstractItemModel::decode(QDropEvent *e, const QModelIndex &parent)
 {
@@ -258,20 +428,24 @@ bool QAbstractItemModel::decode(QDropEvent *e, const QModelIndex &parent)
 }
 
 /*!
-  Returns a pointer to a QDragObject object containing the data associated with \a indices.
+    Returns a pointer to a QDragObject object containing the data
+    associated with the \a indices from the \a dragSource.
 
-  \sa itemData
- */
+    \sa itemData()
+*/
 QDragObject *QAbstractItemModel::dragObject(const QModelIndexList &indices, QWidget *dragSource)
 {
     return new QAbstractItemModelDrag(indices, this, dragSource);
 }
 
 /*!
-  Returns a map with values for all predefined roles in the model. Must be reimplemented if you extend the model
-  with customized roles.
+    Returns a map with values for all predefined roles in the model
+    for the item at the given \a index.
 
-  \sa Role
+    This must be reimplemented if you want to extend the model with
+    customized roles.
+
+    \sa Role data()
 */
 QMap<int, QVariant> QAbstractItemModel::itemData(const QModelIndex &index) const
 {
@@ -284,18 +458,25 @@ QMap<int, QVariant> QAbstractItemModel::itemData(const QModelIndex &index) const
     return roles;
 }
 
-/*! \fn bool setData(const QModelIndex &index, const QVariant &value)
-    \overload
-    Sets the data in \a index to \a value.
+/*!
+    \fn bool QAbstractItemModel::setData(const QModelIndex &index, const QVariant &value)
 
-    \sa data
- */
+    \overload
+
+    Sets the \c Edit role data for the item at \a index to \a value.
+    Returns true if successful; otherwise returns false.
+
+    \sa data() itemData()
+*/
 
 /*!
-  Sets the data in \a index, \a role to \a value.
-  Returns true if successfull; otherwise returns false.
+    Sets the \a role data for the item at \a index to \a value.
+    Returns true if successful; otherwise returns false.
 
-  \sa data
+    The base class implementation returns false. This function (and
+    data()) must be reimplemented.
+
+    \sa data() itemData()
 */
 bool QAbstractItemModel::setData(const QModelIndex &, int, const QVariant &)
 {
@@ -303,7 +484,17 @@ bool QAbstractItemModel::setData(const QModelIndex &, int, const QVariant &)
 }
 
 /*!
-  FIXME
+    \fn QVariant QAbstractItemModel::data(const QModelIndex &index, int role = Display) const = 0
+
+    Returns the data of role \a role for the item at \a index.
+*/
+
+/*!
+    For every \c Role in \a roles, sets the role data for the item at
+    \a index to the associated value in \a roles. Returns true if
+    successful; otherwise returns false.
+
+    \sa setData() data() itemData()
 */
 bool QAbstractItemModel::setItemData(const QModelIndex &index, const QMap<int, QVariant> &roles)
 {
@@ -314,8 +505,13 @@ bool QAbstractItemModel::setItemData(const QModelIndex &index, const QMap<int, Q
 }
 
 /*!
-  Inserts a new row in the model after \a row. The row will be a child of \a parent.
-  Returns true if the row was successfully inserted; otherwise returns false.
+    Inserts a new row into the model after \a row. The row will be a
+    child of \a parent (which can be 0). Returns true if the row was
+    successfully inserted; otherwise returns false.
+
+    The base class implementation does nothing and returns false. If
+    you want to be able to insert rows you must reimplement this
+    function.
 */
 bool QAbstractItemModel::insertRow(int, const QModelIndex &)
 {
@@ -323,8 +519,13 @@ bool QAbstractItemModel::insertRow(int, const QModelIndex &)
 }
 
 /*!
-  Inserts a new column in the model after \a column. The column will be a child of \a parent.
-  Returns true if the column was successfully inserted; otherwise returns false.
+    Inserts a new column in the model after \a column. The column will
+    be a child of \a parent (which can be 0). Returns true if the
+    column was successfully inserted; otherwise returns false.
+
+    The base class implementation does nothing and returns false. If
+    you want to be able to insert columns you must reimplement this
+    function.
 */
 bool QAbstractItemModel::insertColumn(int, const QModelIndex &)
 {
@@ -332,8 +533,10 @@ bool QAbstractItemModel::insertColumn(int, const QModelIndex &)
 }
 
 /*!
-  Removes row \a row in the model.
-  Returns true if the row was successfully removed; otherwise returns false.
+    Removes row \a row under parent \a parent from the model. Returns
+    true if the row was successfully removed; otherwise returns false.
+
+    The base class implementation does nothing and returns false.
 */
 bool QAbstractItemModel::removeRow(int, const QModelIndex &)
 {
@@ -341,8 +544,11 @@ bool QAbstractItemModel::removeRow(int, const QModelIndex &)
 }
 
 /*!
-  Removes column \a column in the model.
-  Returns true if the column was successfully removed; otherwise returns false.
+    Removes column \a column under parent \a parent from the model.
+    Returns true if the column was successfully removed; otherwise
+    returns false.
+
+    The base class implementation does nothing and returns false.
 */
 bool QAbstractItemModel::removeColumn(int, const QModelIndex &)
 {
@@ -350,7 +556,10 @@ bool QAbstractItemModel::removeColumn(int, const QModelIndex &)
 }
 
 /*!
-  Returns true if the item associated with \a index is selectable; otherwise returns false.
+    Returns true if the item at \a index is selectable; otherwise
+    returns false.
+
+    The base class implementation returns false.
 */
 bool QAbstractItemModel::isSelectable(const QModelIndex &) const
 {
@@ -358,7 +567,10 @@ bool QAbstractItemModel::isSelectable(const QModelIndex &) const
 }
 
 /*!
-  Returns true if the item associated with \a index is editable; otherwise returns false.
+    Returns true if the item at \a index is editable; otherwise
+    returns false.
+
+    The base class implementation returns false.
 */
 bool QAbstractItemModel::isEditable(const QModelIndex &) const
 {
@@ -366,7 +578,10 @@ bool QAbstractItemModel::isEditable(const QModelIndex &) const
 }
 
 /*!
-  Returns true if the item associated with \a index can be dragged; otherwise returns false.
+    Returns true if the item at \a index can be dragged; otherwise
+    returns false.
+
+    The base class implementation returns false.
 */
 bool QAbstractItemModel::isDragEnabled(const QModelIndex &) const
 {
@@ -374,8 +589,10 @@ bool QAbstractItemModel::isDragEnabled(const QModelIndex &) const
 }
 
 /*!
-  Returns true if other items can be dropped on the item associated with \a index;
-  otherwise returns false.
+    Returns true if other items can be dropped on the item at \a
+    index; otherwise returns false.
+
+    The base class implementation returns false.
 */
 bool QAbstractItemModel::isDropEnabled(const QModelIndex &) const
 {
@@ -383,9 +600,12 @@ bool QAbstractItemModel::isDropEnabled(const QModelIndex &) const
 }
 
 /*!
-  Returns true if the items in the model can be sorted; otherwise returns false.
+    Returns true if the items in the model can be sorted; otherwise
+    returns false.
 
-  \sa sort()
+    The base class implementation returns false.
+
+    \sa sort()
 */
 bool QAbstractItemModel::isSortable() const
 {
@@ -393,9 +613,12 @@ bool QAbstractItemModel::isSortable() const
 }
 
 /*!
-  Sorts the model if it is sortable.
+    Sorts the model, if it is sortable, by column \a column in the
+    given \a order.
 
-  \sa isSortable()
+    The base class implementation does nothing.
+
+    \sa isSortable()
 */
 void QAbstractItemModel::sort(int, SortOrder)
 {
@@ -403,21 +626,31 @@ void QAbstractItemModel::sort(int, SortOrder)
 }
 
 /*!
-  Returns true if the data associated with \a left and \a right are equal; otherwise returns false.
+    Returns true if the data at indexes \a left and \a right are
+    equal; otherwise returns false.
 
-  \sa greater()
- */
+    \sa greaterThan() lessThan()
+*/
 bool QAbstractItemModel::equal(const QModelIndex &left, const QModelIndex &right) const
 {
     return left == right;
 }
 
 /*!
-  Returns true if the data associated with \a left is less than the data associated with \a right;
-  otherwise returns false.
+    \fn bool QAbstractItemModel::greaterThan(const QModelIndex &left, const QModelIndex &right) const
 
-  \sa equal()
- */
+    Returns true if the data at index \a left is greater than the
+    data at index \a right; otherwise returns false.
+
+    \sa equal() lessThan()
+*/
+
+/*!
+    Returns true if the data at index \a left is less than the
+    data at index \a right; otherwise returns false.
+
+    \sa equal() greaterThan()
+*/
 bool QAbstractItemModel::lessThan(const QModelIndex &left, const QModelIndex &right) const
 {
     if (left.row() == right.row())
@@ -426,10 +659,13 @@ bool QAbstractItemModel::lessThan(const QModelIndex &left, const QModelIndex &ri
 }
 
 /*!
-  Retuns the list of the QModelIndex objects associated with the data items matching \a value in role \a role.
-  The search starts from \a start and continues the number of matching data items equals \a hits
-  or the search reaches the last row or \ start, depending on if \a wrap is true or false.
- */
+    Retuns a list of indexes for the items matching \a value in role
+    \a role. The list may be empty. The search starts from index \a
+    start and continues until the number of matching data items equals
+    \a hits or the search reaches the last row or \a start, depending
+    on whether \a wrap is true (search from \a start and work
+    forwards), or false (search from \a start and work backwards).
+*/
 QModelIndexList QAbstractItemModel::match(const QModelIndex &start, int role,
                                           const QVariant &value, int hits, bool wrap) const
 {
