@@ -3052,13 +3052,16 @@ bool QETWidget::translateWheelEvent( const MSG &msg )
     else
 	delta = (int) msg.wParam;
 
+    Orientation orient = ( state&AltButton
+#if 0 // disabled for now - Trenton's one-wheel mouse makes trouble...
     // "delta" for usual wheels is +-120. +-240 seems to indicate the second wheel
     // see more recent MSDN for WM_MOUSEWHEEL
 
-    Orientation orient =
-	( state&AltButton || delta == 240 || delta == -240 )?Horizontal:Vertical;
+	 || delta == 240 || delta == -240 )?Horizontal:Vertical;
     if ( delta == 240 || delta == -240 )
 	delta /= 2;
+#endif
+	)? Horizontal:Vertical;
 
     QPoint globalPos;
 
