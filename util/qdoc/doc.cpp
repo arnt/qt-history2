@@ -84,6 +84,40 @@ static QString htmlProtect( const QString& str )
     return t;
 }
 
+static QString getEscape( const QString& in, int& pos )
+{
+    switch ( in[pos].unicode() ) {
+    case '&':
+	pos++;
+	return QString( "&amp;" );
+    case '<':
+	pos++;
+	return QString( "&lt;" );
+    case '>':
+	pos++;
+	return QString( "&gt;" );
+    case '\\':
+	// double backslash is turned into &#92; so that pass 2 leaves it alone
+	pos++;
+	return QString( "&#92;" );
+    default:
+	return QChar( '\\' );
+    }
+}
+
+static QString processBackslashes( const QString& str )
+{
+    QString t;
+
+    for ( int i = 0; i < (int) str.length(); i++ ) {
+	if ( str[i].unicode() == '\\' )
+	    t += getEscape( str, i );
+	else
+	    t += str[i];
+    }
+    return t;
+}
+
 /*
   This function is imperfect.  If sophisticated '\keyword's are needed, it can
   always be changed.
@@ -247,28 +281,7 @@ static QString getArgument( const QString& in, int& pos )
 
 	if ( pos > begin + 1 && punctuation.find(in[pos - 1]) != -1 )
 	    pos--;
-	return in.mid( begin, pos - begin );
-    }
-}
-
-static QString getEscape( const QString& in, int& pos )
-{
-    switch ( in[pos].unicode() ) {
-    case '&':
-	pos++;
-	return QString( "&amp;" );
-    case '<':
-	pos++;
-	return QString( "&lt;" );
-    case '>':
-	pos++;
-	return QString( "&gt;" );
-    case '\\':
-	// double backslash is turned into &#92; so that pass 2 leaves it alone
-	pos++;
-	return QString( "&#92;" );
-    default:
-	return QChar( '\\' );
+	return processBackslashes( in.mid(begin, pos - begin) );
     }
 }
 
@@ -391,7 +404,8 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 	    switch ( h ) {
 	    case hash( '\0', 1 ):
 		consume( "" );
-		yyOut += getEscape( yyIn, yyPos );
+		if ( yyPos < yyLen )
+		    yyPos++;
 		break;
 	    case hash( 'a', 1 ):
 		consume( "a" );
@@ -687,6 +701,7 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 	    case hash( 'n', 4 ):
 		consume( "note" );
 		yyOut += QString( "Note:" );
+		warning( 2, location(), "No such command '%s'", "\\note" );
 		break;
 	    case hash( 'o', 8 ):
 		if ( command.length() != 8 )
@@ -697,7 +712,7 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 		    yyOut += QString( "<b>This %1 is obsolete.</b> It is"
 				      " provided to keep old source working,"
 				      " and will probably be removed in a"
-				      " future version of %2.  We strongly"
+				      " future version of %2. We strongly"
 				      " advise against using it in new"
 				      " code.\n" ).arg( what(kindIs) )
 						  .arg( config->moduleShort() );
@@ -706,7 +721,7 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 		    consume( "overload" );
 		    overloads = TRUE;
 		    yyOut += QString( "This is an overloaded member function, "
-				      "provided for convenience.  It behaves "
+				      "provided for convenience. It behaves "
 				      "essentially like the above function.\n");
 		    metNL = TRUE;
 
@@ -1598,7 +1613,7 @@ QString Doc::finalHtml() const
 		yyPos++;
 	    }
 	    if ( yyPos == begin )
-		command = QChar( ' ' );
+		command = QChar( '\0' );
 
 	    /*
 	      If you have to insert a new command to qdoc, here's the other
@@ -1609,9 +1624,9 @@ QString Doc::finalHtml() const
 	    bool consumed = FALSE;
 
 	    switch ( h ) {
-	    case hash( ' ', 1 ):
-		consume( " " );
-		yyOut += QChar( '\\' );
+	    case hash( '\0', 1 ):
+		consume( "" );
+		yyOut += getEscape( yyIn, yyPos );
 		break;
 	    case hash( 'a', 18 ):
 		consume( "annotatedclasslist" );
