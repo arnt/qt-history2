@@ -4896,7 +4896,7 @@ void QTable::showRow( int row )
     if ( h ) {
 	setRowHeight( row, *h );
 	d->hiddenRows.remove( row );
-    } else {
+    } else if ( rowHeight( row ) == 0 ) {
 	setRowHeight( row, 20 );
     }
     leftHeader->setResizeEnabled( TRUE, row );
@@ -4913,7 +4913,7 @@ void QTable::showColumn( int col )
     if ( w ) {
 	setColumnWidth( col, *w );
 	d->hiddenCols.remove( col );
-    } else {
+    } else if ( columnWidth( col ) == 0 ) {
 	setColumnWidth( col, 20 );
     }
     topHeader->setResizeEnabled( TRUE, col );
