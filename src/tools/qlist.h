@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qlist.h#11 $
+** $Id: //depot/qt/main/src/tools/qlist.h#12 $
 **
 ** Definition of QList template/macro class
 **
@@ -63,7 +63,7 @@ public:									      \
     uint  contains( const type *d )	{ return QGList::contains((GCI)d); }  \
     uint  containsRef( const type *d )	{ return QGList::containsRef((GCI)d);}\
     type *at( uint i )			{ return (type *)QGList::at(i); }     \
-    uint  at() const			{ return QGList::at(); }	      \
+    int   at() const			{ return QGList::at(); }	      \
     type *current()  const		{ return (type *)QGList::get(); }     \
     QLNode *currentNode()  const	{ return QGList::currentNode(); }     \
     type *getFirst() const		{ return (type *)QGList::cfirst(); }  \
@@ -146,7 +146,7 @@ public:
     uint  contains( const type *d )	{ return QGList::contains((GCI)d); }
     uint  containsRef( const type *d )	{ return QGList::containsRef((GCI)d); }
     type *at( uint i )			{ return (type *)QGList::at(i); }
-    uint  at() const			{ return QGList::at(); }
+    int   at() const			{ return QGList::at(); }
     type *current()  const		{ return (type *)QGList::get(); }
     QLNode *currentNode()  const	{ return QGList::currentNode(); }
     type *getFirst() const		{ return (type *)QGList::cfirst(); }
