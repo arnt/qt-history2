@@ -1,7 +1,11 @@
 <!DOCTYPE UI><UI version="3.0" stdsetdef="1">
 <class>ReplaceDialog</class>
+<include location="global" impldecl="in implementation">qlineedit.h</include>
 <include location="local" impldecl="in implementation">../interfaces/editorinterface.h</include>
+<include location="local" impldecl="in implementation">formwindow.h</include>
+<forward>class FormWindow;</forward>
 <forward>struct EditorInterface;</forward>
+<variable>FormWindow *formWindow;</variable>
 <variable>EditorInterface *editor;</variable>
 <widget class="QDialog">
     <property name="name">
@@ -11,14 +15,14 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>314</width>
-            <height>188</height>
+            <width>298</width>
+            <height>215</height>
         </rect>
     </property>
     <property name="caption">
         <string>Replace Text</string>
     </property>
-    <vbox>
+    <grid>
         <property name="name">
             <cstring>unnamed</cstring>
         </property>
@@ -28,7 +32,7 @@
         <property name="spacing">
             <number>6</number>
         </property>
-        <widget class="QLayoutWidget">
+        <widget class="QLayoutWidget" row="0" column="0" rowspan="1" colspan="2">
             <property name="name">
                 <cstring>Layout3</cstring>
             </property>
@@ -94,58 +98,7 @@
                 </widget>
             </grid>
         </widget>
-        <widget class="QButtonGroup">
-            <property name="name">
-                <cstring>ButtonGroup1</cstring>
-            </property>
-            <property name="title">
-                <string>&amp;Options</string>
-            </property>
-            <grid>
-                <property name="margin">
-                    <number>11</number>
-                </property>
-                <property name="spacing">
-                    <number>6</number>
-                </property>
-                <widget class="QCheckBox" row="0" column="0">
-                    <property name="name">
-                        <cstring>checkWords</cstring>
-                    </property>
-                    <property name="text">
-                        <string>&amp;Whole words only</string>
-                    </property>
-                </widget>
-                <widget class="QCheckBox" row="1" column="0">
-                    <property name="name">
-                        <cstring>checkCase</cstring>
-                    </property>
-                    <property name="text">
-                        <string>&amp;Case sensitive</string>
-                    </property>
-                </widget>
-                <widget class="QRadioButton" row="1" column="1">
-                    <property name="name">
-                        <cstring>radioBackward</cstring>
-                    </property>
-                    <property name="text">
-                        <string>&amp;Backward</string>
-                    </property>
-                </widget>
-                <widget class="QRadioButton" row="0" column="1">
-                    <property name="name">
-                        <cstring>radioForward</cstring>
-                    </property>
-                    <property name="text">
-                        <string>Forwar&amp;d</string>
-                    </property>
-                    <property name="checked">
-                        <bool>true</bool>
-                    </property>
-                </widget>
-            </grid>
-        </widget>
-        <widget class="QLayoutWidget">
+        <widget class="QLayoutWidget" row="2" column="0" rowspan="1" colspan="2">
             <property name="name">
                 <cstring>Layout5</cstring>
             </property>
@@ -205,7 +158,82 @@
                 </widget>
             </hbox>
         </widget>
-    </vbox>
+        <widget class="QButtonGroup" row="1" column="0">
+            <property name="name">
+                <cstring>ButtonGroup1</cstring>
+            </property>
+            <property name="title">
+                <string>&amp;Options</string>
+            </property>
+            <vbox>
+                <property name="margin">
+                    <number>11</number>
+                </property>
+                <property name="spacing">
+                    <number>6</number>
+                </property>
+                <widget class="QCheckBox">
+                    <property name="name">
+                        <cstring>checkWords</cstring>
+                    </property>
+                    <property name="text">
+                        <string>&amp;Whole words only</string>
+                    </property>
+                </widget>
+                <widget class="QCheckBox">
+                    <property name="name">
+                        <cstring>checkCase</cstring>
+                    </property>
+                    <property name="text">
+                        <string>&amp;Case sensitive</string>
+                    </property>
+                </widget>
+                <widget class="QCheckBox">
+                    <property name="name">
+                        <cstring>checkBegin</cstring>
+                    </property>
+                    <property name="text">
+                        <string>Start at &amp;Beginnig</string>
+                    </property>
+                </widget>
+            </vbox>
+        </widget>
+        <widget class="QButtonGroup" row="1" column="1">
+            <property name="name">
+                <cstring>ButtonGroup2</cstring>
+            </property>
+            <property name="title">
+                <string>&amp;Direction</string>
+            </property>
+            <vbox>
+                <property name="margin">
+                    <number>11</number>
+                </property>
+                <property name="spacing">
+                    <number>6</number>
+                </property>
+                <widget class="QRadioButton">
+                    <property name="name">
+                        <cstring>radioForward</cstring>
+                    </property>
+                    <property name="text">
+                        <string>Forwar&amp;d</string>
+                    </property>
+                    <property name="checked">
+                        <bool>true</bool>
+                    </property>
+                </widget>
+                <widget class="QRadioButton">
+                    <property name="name">
+                        <cstring>radioBackward</cstring>
+                    </property>
+                    <property name="text">
+                        <string>&amp;Backward</string>
+                    </property>
+                </widget>
+            </vbox>
+        </widget>
+    </grid>
 </widget>
 <connections>
     <connection>
@@ -230,27 +258,61 @@
     <slot access="protected" language="C++">destroy()</slot>
     <slot access="public" language="C++">doReplace()</slot>
     <slot access="public" language="C++">doReplaceAll()</slot>
-    <slot access="public" language="C++">setEditor( EditorInterface *e )</slot>
+    <slot access="public" language="C++">setEditor( EditorInterface *e,FormWindow *fw )</slot>
 </connections>
 <functions>
     <function name="destroy()" >{
     if ( editor )
 	editor-&gt;release();
+    editor = 0;
+    formWindow = 0;
 }</function>
     <function name="doReplace()" >{
-    
+    if ( !editor ) 
+	return; 
+     
+    if ( !editor-&gt;replace( comboFind-&gt;currentText(), comboReplace-&gt;currentText(), checkCase-&gt;isChecked(), 
+	checkWords-&gt;isChecked(), radioForward-&gt;isChecked(), !checkBegin-&gt;isChecked(), FALSE ) ) 
+	checkBegin-&gt;setChecked( TRUE ); 
+    else 
+	checkBegin-&gt;setChecked( FALSE ); 
 }</function>
     <function name="doReplaceAll()" >{
-    
+    if ( !editor )  
+	return;  
+      
+    if ( !editor-&gt;replace( comboFind-&gt;currentText(), comboReplace-&gt;currentText(), checkCase-&gt;isChecked(),  
+	checkWords-&gt;isChecked(), radioForward-&gt;isChecked(), !checkBegin-&gt;isChecked(), TRUE ) )  
+	checkBegin-&gt;setChecked( TRUE );  
+    else  
+	checkBegin-&gt;setChecked( FALSE );  
 }</function>
     <function name="init()" >{
     editor = 0;
+    formWindow = 0;
+    connect( comboReplace-&gt;lineEdit(), SIGNAL( returnPressed() ), 
+    		this, SLOT( doFind() ) ); 
 }</function>
-    <function name="setEditor(EditorInterface*)" >{
+    <function name="setEditor(EditorInterface*,FormWindow*)" >{
+    if ( fw != formWindow )
+	checkBegin-&gt;setChecked( TRUE );
+    formWindow = fw;
     if ( editor )
 	editor-&gt;release();
     editor = e;
     editor-&gt;addRef();
 }</function>
 </functions>
+<tabstops>
+    <tabstop>comboFind</tabstop>
+    <tabstop>comboReplace</tabstop>
+    <tabstop>checkWords</tabstop>
+    <tabstop>checkCase</tabstop>
+    <tabstop>checkBegin</tabstop>
+    <tabstop>radioForward</tabstop>
+    <tabstop>radioBackward</tabstop>
+    <tabstop>buttonReplace</tabstop>
+    <tabstop>buttonReplaceAll</tabstop>
+    <tabstop>PushButton2</tabstop>
+</tabstops>
 </UI>

@@ -60,6 +60,7 @@ class OutputWindow;
 class QTimer;
 class FindDialog;
 struct DesignerProject;
+class ReplaceDialog;
 
 #if defined(Q_FULL_TEMPLATE_INSTANTIATION)
 #include <qtoolbar.h>
@@ -369,6 +370,7 @@ private:
     QTimer *updateSlotsTimer;
     QLineEdit *incrementalSearch;
     QGuardedPtr<FindDialog> findDialog;
+    QGuardedPtr<ReplaceDialog> replaceDialog;
 
 };
 

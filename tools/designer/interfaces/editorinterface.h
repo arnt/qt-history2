@@ -48,7 +48,7 @@ struct EditorInterface : public QUnknownInterface
     virtual void paste() = 0;
     virtual void selectAll() = 0;
     virtual bool find( const QString &expr, bool cs, bool wo, bool forward, bool startAtCursor ) = 0;
-    virtual bool replace( const QString &find, const QString &replace, bool cs, bool wo, bool forward, bool startAtCursor ) = 0;
+    virtual bool replace( const QString &find, const QString &replace, bool cs, bool wo, bool forward, bool startAtCursor, bool replaceAll ) = 0;
     virtual void gotoLine( int line ) = 0;
     virtual void indent() = 0;
     virtual void scrollTo( const QString &txt ) = 0;

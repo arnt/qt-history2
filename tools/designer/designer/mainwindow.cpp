@@ -102,6 +102,7 @@
 #include <qtimer.h>
 #include <qtooltip.h>
 #include "finddialog.h"
+#include "replacedialog.h"
 
 static int forms = 0;
 
@@ -2128,6 +2129,18 @@ void MainWindow::searchIncremetalFindNext()
 
 void MainWindow::searchReplace()
 {
+    if ( !workSpace()->activeWindow() ||
+	 !workSpace()->activeWindow()->inherits( "SourceEditor" ) )
+	 return;
+
+    if ( !replaceDialog )
+	replaceDialog = new ReplaceDialog( this, 0, FALSE );
+    replaceDialog->show();
+    replaceDialog->raise();
+    replaceDialog->setEditor( ( (SourceEditor*)workSpace()->activeWindow() )->editorInterface(),
+			   ( (SourceEditor*)workSpace()->activeWindow() )->form() );
+    replaceDialog->comboFind->setFocus();
+    replaceDialog->comboFind->lineEdit()->selectAll();
 }
 
 void MainWindow::searchGotoLine()

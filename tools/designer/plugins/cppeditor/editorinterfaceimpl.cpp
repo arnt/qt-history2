@@ -153,9 +153,44 @@ bool EditorInterfaceImpl::find( const QString &expr, bool cs, bool wo, bool forw
     return e->find( expr, cs, wo, forward, &dummy, &dummy );
 }
 
-bool EditorInterfaceImpl::replace( const QString &find, const QString &replace, bool cs, bool wo, bool forward, bool startAtCursor )
+bool EditorInterfaceImpl::replace( const QString &find, const QString &replace, bool cs, bool wo,
+				   bool forward, bool startAtCursor, bool replaceAll )
 {
-    return FALSE;
+    if ( !viewManager || !viewManager->currentView() )
+	return FALSE;
+    CppEditor *e = (CppEditor*)viewManager->currentView();
+    bool ok = FALSE;
+    if ( startAtCursor ) {
+	ok = e->find( find, cs, wo, forward );
+    } else {
+	int dummy = 0;
+	ok =  e->find( find, cs, wo, forward, &dummy, &dummy );
+    }
+
+    if ( ok ) {
+	e->removeSelectedText();
+	e->insert( replace, FALSE, FALSE );
+    }
+
+    if ( !replaceAll || !ok ) {
+	if ( ok )
+	    e->setSelection( e->textCursor()->parag()->paragId(),
+			     e->textCursor()->index() - replace.length(),
+			     e->textCursor()->parag()->paragId(),
+			     e->textCursor()->index() );
+	return ok;
+    }
+
+    bool ok2 = TRUE;
+    while ( ok2 ) {
+	ok2 = e->find( find, cs, wo, forward );
+	if ( ok2 ) {
+	    e->removeSelectedText();
+	    e->insert( replace, FALSE, FALSE );
+	}
+    }
+
+    return TRUE;
 }
 
 void EditorInterfaceImpl::gotoLine( int line )
