@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlineedit.h#64 $
+** $Id: //depot/qt/main/src/widgets/qlineedit.h#65 $
 **
 ** Definition of QLineEdit widget class
 **
@@ -45,27 +45,27 @@ public:
 
     QString text() const;
     int		maxLength()	const;
-    virtual void	setMaxLength( int );
+    virtual void setMaxLength( int );
 
-    virtual void	setFrame( bool );
+    virtual void setFrame( bool );
     bool	frame() const;
 
     enum	EchoMode { Normal, NoEcho, Password };
-    virtual void	setEchoMode( EchoMode );
+    virtual void setEchoMode( EchoMode );
     EchoMode 	echoMode() const;
 
-    virtual void	setValidator( QValidator * );
+    virtual void setValidator( QValidator * );
     QValidator * validator() const;
 
     QSize	sizeHint() const;
     QSizePolicy sizePolicy() const;
 
-    virtual void	setEnabled( bool );
-    virtual void	setFont( const QFont & );
-    virtual void	setPalette( const QPalette & );
+    virtual void setEnabled( bool );
+    virtual void setFont( const QFont & );
+    virtual void setPalette( const QPalette & );
 
-    virtual void	setSelection( int, int );
-    virtual void	setCursorPosition( int );
+    virtual void setSelection( int, int );
+    virtual void setCursorPosition( int );
     int		cursorPosition() const;
 
     bool	validateAndSet( const QString &, int, int, int );
@@ -73,12 +73,12 @@ public:
     void	cut();
     void	copy() const;
     void	paste();
-    
-    void setAlignment(int flag);
+
+    void setAlignment( int flag );
     int alignment() const;
-    
+
 public slots:
-    virtual void	setText( const QString &);
+    virtual void setText( const QString &);
     void	selectAll();
     void	deselect();
 
@@ -149,8 +149,8 @@ private:
     bool	cursorOn;
     bool	dragScrolling;
     bool	scrollingLeft;
-    int alignmentFlag;
-    int alignOffset;
+    int		alignmentFlag;
+    int 	alignOffset;
 
 private:	// Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
