@@ -57,7 +57,7 @@ struct DesignerInterface : public QUnknownInterface
     virtual DesignerProject *currentProject() const = 0;
     virtual DesignerFormWindow *currentForm() const = 0;
     virtual QList<DesignerProject> projectList() const = 0;
-    virtual void showStatusMessage( const QString & ) const = 0;
+    virtual void showStatusMessage( const QString &, int ms = 0 ) const = 0;
     virtual DesignerDock *createDock() const = 0;
     virtual DesignerOutputDock *outputDock() const = 0;
     virtual void setModified( bool b, QWidget *window ) = 0;

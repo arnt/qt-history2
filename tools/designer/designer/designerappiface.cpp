@@ -82,8 +82,16 @@ QList<DesignerProject> DesignerInterfaceImpl::projectList() const
     return QList<DesignerProject>();
 }
 
-void DesignerInterfaceImpl::showStatusMessage( const QString & ) const
+void DesignerInterfaceImpl::showStatusMessage( const QString &text, int ms ) const
 {
+    if ( text.isEmpty() ) {
+	mainWindow->statusBar()->clear();
+	return;
+    }
+    if ( ms )
+	mainWindow->statusBar()->message( text, ms );
+    else 
+	mainWindow->statusBar()->message( text );
 }
 
 DesignerDock *DesignerInterfaceImpl::createDock() const
