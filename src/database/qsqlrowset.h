@@ -24,6 +24,7 @@ public:
 
     QVariant& operator[]( int i );
     QVariant& operator[]( const QString& name );
+    QVariant& value( int i ) { return QSqlFieldList::value( i ); }
 
     bool select();
     bool select( const QSqlIndex& sort );
@@ -39,6 +40,7 @@ protected:
     QString fieldEqualsValue( const QString& fieldSep, const QSqlIndex & i = QSqlIndex() );
 
 private:
+    QSqlFieldList   fields() const;     //hide
     void      sync();
     int       lastAt;
     QString   tableName;

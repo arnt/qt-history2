@@ -27,7 +27,6 @@ public:
 #if defined(Q_FULL_TEMPLATE_INSTANTIATION)
     bool operator==( const QSqlResultField& ) const { return FALSE; }
 #endif
-
 private:
     QVariant      val;
     QString       nm;
@@ -48,16 +47,18 @@ public:
     bool          isNull() const { return nul; }
     void          setPrimaryIndex( bool primaryIndex ) { pIdx = primaryIndex; }
     bool          isPrimaryIndex() const { return pIdx; }
-
+    void          setIsVisible( bool visible ) { iv = visible; }
+    bool          isVisible() const { return iv; }
+    
 #if defined(Q_FULL_TEMPLATE_INSTANTIATION)
     bool operator==( const QSqlField& ) const { return FALSE; }
 #endif
-
 private:
     QString       label;
     bool          ro;
     bool          nul;
     bool          pIdx;
+    bool          iv;
 };
 
 template< class T >
@@ -65,11 +66,15 @@ class Q_EXPORT QSqlFields
 {
 public:
     QSqlFields() {}
-    QSqlFields ( const QSqlFields<T>& l )
+    QSqlFields( const QSqlFields<T>& l )
     {
 	fieldList = l.fieldList;
 	fieldListStr = l.fieldListStr;
 	posMap = l.posMap;
+    }
+    QSqlFields( const T& t )
+    {
+	append( t );
     }
     virtual ~QSqlFields() {}
     QVariant& operator[]( int i ) { return value( i ); }
@@ -97,7 +102,9 @@ public:
 	return fieldList[ position( name ) ].value();
     }
     T& field( int i ) { return fieldList[ i ]; }
+    const T& field( int i ) const { return fieldList[ i ]; }
     T& field( const QString& name ) { return fieldList[ position( name ) ]; }
+    const T& field( const QString& name ) const { return fieldList[ position( name ) ]; }    
     int position( const QString& name )
     {
 	if ( posMap.contains( name ) )
@@ -120,8 +127,8 @@ public:
 	posMap.clear();
     }
     uint count() const { return fieldList.count(); }
-    QString toString( const QString& prefix = QString::null ) const 
-    { 
+    QString toString( const QString& prefix = QString::null ) const
+    {
 	if ( prefix.isNull() )
 	    return fieldListStr;
 	QString pfix =  prefix + ".";

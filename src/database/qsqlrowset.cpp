@@ -9,7 +9,7 @@
 QString qOrderByClause( const QSqlIndex & i, const QString& prefix = QString::null )
 {
     QString str;
-    int k = i.fields().count();
+    int k = i.count();
     if( k == 0 ) return QString::null;
     str = " order by " + i.toString( prefix );
     return str;
@@ -137,13 +137,15 @@ QString qMakeFieldValue( const QString& prefix, QSqlField& field, const QString&
 QString QSqlRowset::fieldEqualsValue( const QString& fieldSep, const QSqlIndex & i )
 {
     QString filter;
-    int k = i.fields().count();
+    int k = i.count();
 
     if ( k ) { // use index
 	for( int j = 0; j < k; ++j ){
 	    if( j > 0 )
 		filter += " " + fieldSep + " " ;
-	    filter += qMakeFieldValue( tableName, field( i.fields().field(j).name() ) );
+	    QString fn = i.field(j).name();
+	    QSqlField f = field( fn );
+	    filter += qMakeFieldValue( tableName, f );
 	}
     } else { // use all fields
  	for ( uint j = 0; j < count(); ++j ) {
