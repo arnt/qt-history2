@@ -1302,7 +1302,8 @@ QSize QComboBox::sizeHint() const
     // height
     const QFontMetrics &fm = fontMetrics();
     d->sizeHint.setHeight(qMax(fm.lineSpacing(), 14) + 2);
-    d->sizeHint.setHeight(qMax(d->sizeHint.height(), iconSize().height() + 2));
+    if (hasIcon)
+        d->sizeHint.setHeight(qMax(d->sizeHint.height(), iconSize().height() + 2));
 
     // text width
     switch (d->sizeAdjustPolicy) {
