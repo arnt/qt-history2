@@ -128,13 +128,22 @@ public:
                 doBottom = true;
         }
 
-        if (doLeft) {
+        if (doLeft && clipped->size() > 1) {
             QDataBuffer<OutType> *tmp = source;
             source = clipped;
             clipped = tmp;
             clipped->reset();
-            int lastPos = inCount - 1;
-            for (int i=0; i<inCount; ++i) {
+            int lastPos, start;
+            if (closePolygon) {
+                lastPos = source->size() - 1;
+                start = 0;
+            } else {
+                lastPos = 0;
+                start = 1;
+                if (source->at(0).x >= x1)
+                    clipped->add(source->at(0));
+            }
+            for (int i=start; i<inCount; ++i) {
                 const OutType &cpt = source->at(i);
                 const OutType &ppt = source->at(lastPos);
 
@@ -152,13 +161,22 @@ public:
             }
         }
 
-        if (doRight) {
+        if (doRight && clipped->size() > 1) {
             QDataBuffer<OutType> *tmp = source;
             source = clipped;
             clipped = tmp;
             clipped->reset();
-            int lastPos = source->size() - 1;
-            for (int i=0; i<source->size(); ++i) {
+            int lastPos, start;
+            if (closePolygon) {
+                lastPos = source->size() - 1;
+                start = 0;
+            } else {
+                lastPos = 0;
+                start = 1;
+                if (source->at(0).x <= x2)
+                    clipped->add(source->at(0));
+            }
+            for (int i=start; i<source->size(); ++i) {
                 const OutType &cpt = source->at(i);
                 const OutType &ppt = source->at(lastPos);
 
@@ -178,13 +196,22 @@ public:
 
         }
 
-        if (doTop) {
+        if (doTop && clipped->size() > 1) {
             QDataBuffer<OutType> *tmp = source;
             source = clipped;
             clipped = tmp;
             clipped->reset();
-            int lastPos = source->size() - 1;
-            for (int i=0; i<source->size(); ++i) {
+            int lastPos, start;
+            if (closePolygon) {
+                lastPos = source->size() - 1;
+                start = 0;
+            } else {
+                lastPos = 0;
+                start = 1;
+                if (source->at(0).y >= y1)
+                    clipped->add(source->at(0));
+            }
+            for (int i=start; i<source->size(); ++i) {
                 const OutType &cpt = source->at(i);
                 const OutType &ppt = source->at(lastPos);
 
@@ -203,13 +230,22 @@ public:
             }
         }
 
-        if (doBottom) {
+        if (doBottom && clipped->size() > 1) {
             QDataBuffer<OutType> *tmp = source;
             source = clipped;
             clipped = tmp;
             clipped->reset();
-            int lastPos = source->size() - 1;
-            for (int i=0; i<source->size(); ++i) {
+            int lastPos, start;
+            if (closePolygon) {
+                lastPos = source->size() - 1;
+                start = 0;
+            } else {
+                lastPos = 0;
+                start = 1;
+                if (source->at(0).y <= y2)
+                    clipped->add(source->at(0));
+            }
+            for (int i=start; i<source->size(); ++i) {
                 const OutType &cpt = source->at(i);
                 const OutType &ppt = source->at(lastPos);
 
