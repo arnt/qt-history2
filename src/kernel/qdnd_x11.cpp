@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdnd_x11.cpp#95 $
+** $Id: //depot/qt/main/src/kernel/qdnd_x11.cpp#96 $
 **
 ** XDND implementation for Qt.  See http://www.cco.caltech.edu/~jafl/xdnd/
 **
@@ -1380,8 +1380,13 @@ static QByteArray qt_xdnd_obtain_data( const char *format )
 		} else if ( type != *a ) {
 		    // (includes None) debug( "Qt clipboard: unknown atom %ld", type);
 		}
+#if 0
+		// this needs to be matched by a qt_xdnd_target_data->clear()
+		// when each drag is finished.  for 2.0, we do the safe thing
+		// and disable the entire caching.
 		if ( type != None )
 		    qt_xdnd_target_data->insert( (int)((long)a), new QByteArray(result) );
+#endif
 	    }
 	}
 	if ( qt_xdnd_current_widget->isDesktop() ) {
