@@ -565,7 +565,7 @@ FormDefinitionView::FormDefinitionView( QWidget *parent, FormWindow *fw )
 
 void FormDefinitionView::setup()
 {
-    if ( popupOpen )
+    if ( popupOpen || !formWindow )
 	return;
     if ( !folderPixmap ) {
 	folderPixmap = new QPixmap( folder_xpm );
