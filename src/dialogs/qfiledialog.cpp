@@ -1954,12 +1954,9 @@ QString QFileDialogPrivate::File::text( int column ) const
 	if ( info.isFile() ) {
 #if (QT_VERSION-0 >= 0x040000)
 #  ifdef Q_CC_GNU
-#    warning "clean up, especially in cases where QString::setNum() supports 64-bit"
+#    warning "clean up Large File Support"
 #  endif
-	    // #elif defined(QT_ABI_QT4)
 	    QIODevice::Offset size = info.size();
-#else
-	    uint size = info.size();
 #endif
 #if defined(QT_LARGEFILE_SUPPORT) && defined(Q_OS_UNIX)
 	    // ### the following code should not be needed as soon
