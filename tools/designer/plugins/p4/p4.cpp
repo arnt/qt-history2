@@ -306,11 +306,14 @@ P4Revert::P4Revert( const QString &filename )
 
 bool P4Revert::execute()
 {
-    if ( QMessageBox::information( 0, tr( "P4 Submit" ), tr( "Reverting will overwrite all changes to the file\n%1!\n"
-					    "Proceed with revert?" ).
-					    arg( fileName() ),
-					    tr( "&Yes" ), tr( "&No" ) ) == 1 )
-	return FALSE;
+    P4Info *p4i = P4Info::files[fileName()];
+    if ( p4i && p4i->action == P4Info::Edit ) {
+	if ( QMessageBox::information( 0, tr( "P4 Revert" ), tr( "<p>Reverting will <b>overwrite</b> all changes to the local file<pre>%1</pre></p>"
+						"<p>Proceed with revert?</p>" ).
+						arg( fileName() ),
+						tr( "&Yes" ), tr( "&No" ) ) == 1 )
+	    return FALSE;
+    }
 
     return run( QString("p4 revert %1").arg( fileName() ) );
 }
@@ -342,11 +345,15 @@ P4Delete::P4Delete( const QString &filename )
 
 bool P4Delete::execute()
 {
-    if ( QMessageBox::information( 0, tr( "P4 Submit" ), tr( "The file\n%1\nwill be deleted by the next sync.\n"
-					    "Proceed with delete?" ).
-					    arg( fileName() ),
-					    tr( "&Yes" ), tr( "&No" ) ) == 1 )
+    P4Info *p4i = P4Info::files[fileName()];
+    if ( p4i ) {
+	if ( QMessageBox::information( 0, tr( "P4 Delete" ), tr( "<p>This will delete the <b>local</b> file <pre>%1</pre></p>"
+						"<p>The <b>depot</b> file<pre>%2</pre>will be deleted by the next sync.</p>"
+						"<p>Proceed with delete?</p>" ).
+						arg( fileName() ).arg( p4i->depotFile ),
+						tr( "&Yes" ), tr( "&No" ) ) == 1 )
 	return FALSE;
+    }
 
     return run( QString("p4 delete %1").arg( fileName() ) );
 }
