@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#133 $
+** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#134 $
 **
 ** Implementation of QWidget and QWindow classes for Win32
 **
@@ -264,6 +264,8 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
     }
 }
 
+void QWidget::setSizeGrip(bool /* sizegrip */){
+}
 
 void QWidget::destroy( bool destroyWindow, bool destroySubWindows )
 {

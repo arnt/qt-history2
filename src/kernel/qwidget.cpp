@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#288 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#289 $
 **
 ** Implementation of QWidget class
 **
@@ -825,6 +825,7 @@ void QWidget::createExtra()
 	extra->icon = extra->bg_pix = 0;
 	extra->bg_mode = PaletteBackground;
 	extra->focusData = 0;
+	extra->sizegrip = 0;
 	extra->propagateFont = 0;
 	extra->propagatePalette = 0;
 	createSysExtra();
@@ -2165,6 +2166,17 @@ QFocusData * QWidget::focusData( bool create )
     return ed ? ed->focusData : 0;
 }
 
+/*!
+  \fn void QWidget::setSizeGrip(bool sizegrip)
+
+  Informs the underlying window system that this widget is a size grip
+  (if sizegrip is TRUE). An example is the nifty decoration in the
+  bottom right corner of a QStatusBar.
+  
+  This function does yet nothing under Windows. Under X11, the window
+  manager has to support the QT_SIZEGRIP protocol.
+*/
+
 
 /*!
   Moves the \a second widget around the ring of focus widgets
@@ -3281,7 +3293,7 @@ void QWidget::moveEvent( QMoveEvent * )
   possibly also the right-edge and bottom-edge of the button frame
   (depending on the actual resize) You should also use
   QPaintEvent::region() rather than QPaintEvent::rect() when you \link
-  QPainter::setClipRegion() set clipping\endlink in the paintEvent().  
+  QPainter::setClipRegion() set clipping\endlink in the paintEvent().
 
   The old size is accessible through QResizeEvent::oldSize().
 

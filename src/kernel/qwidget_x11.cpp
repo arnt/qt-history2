@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#273 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#274 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -313,15 +313,19 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 	    setWFlags( WState_Visible );
     }
 
-    //resize grip
-    if ( !topLevel && testWFlags(WStyle_Sizegrip) ) {
-	XChangeProperty(qt_xdisplay(), topLevelWidget()->winId(),
-			qt_sizegrip, qt_sizegrip, 32,
-			PropModeReplace, (unsigned char *)&id, 1);
-    }
-
     if ( destroyw )
 	qt_XDestroyWindow( this, dpy, destroyw );
+}
+
+
+void QWidget::setSizeGrip(bool sizegrip){
+    createExtra();
+    WId	   id = winId();
+    if (extra->sizegrip != sizegrip) {
+	XChangeProperty(qt_xdisplay(), topLevelWidget()->winId(),
+			qt_sizegrip, qt_sizegrip, 32, PropModeReplace,
+			sizegrip?((unsigned char *)&id):None, 1);
+    }
 }
 
 
