@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/xml/qsvgdevice.cpp#33 $
+** $Id: //depot/qt/main/src/xml/qsvgdevice.cpp#34 $
 **
 ** Implementation of the QSvgDevice class
 **
@@ -35,7 +35,7 @@
 **
 *****************************************************************************/
 
-#include "qsvgdevice.h"
+#include "qsvgdevice_p.h"
 
 #ifndef QT_NO_SVG
 
