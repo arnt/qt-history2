@@ -160,7 +160,10 @@ void QDesignerTaskMenu::promoteToCustomWidget()
 
     fw->beginCommand(tr("Promote to custom widget"));
 
-    QDesignerPromotedWidget *promoted = new QDesignerPromotedWidget(wgt, parent);
+    QDesignerPromotedWidget *promoted
+        = new QDesignerPromotedWidget(ui.m_class_name_input->text(),
+                                        ui.m_header_file_input->text(),
+                                        wgt, fw->core(), parent);
     promoted->setGeometry(wgt->geometry());
     InsertWidgetCommand *insert_cmd = new InsertWidgetCommand(fw);
     insert_cmd->init(promoted);

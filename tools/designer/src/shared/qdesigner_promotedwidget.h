@@ -6,6 +6,7 @@
 #include "shared_global.h"
 #include "propertysheet.h"
 #include <default_extensionfactory.h>
+#include <abstractformeditor.h>
 
 class QDesignerPromotedWidget;
 class QExtensionManager;
@@ -60,14 +61,23 @@ class QT_SHARED_EXPORT QDesignerPromotedWidget : public QWidget
 {
     Q_OBJECT
 public:
-    QDesignerPromotedWidget(QWidget *child, QWidget *parent = 0);
+    QDesignerPromotedWidget(const QString &class_name, const QString &include_file,
+                            QWidget *child, AbstractFormEditor *core, QWidget *parent = 0);
+    ~QDesignerPromotedWidget();
 
     QWidget *child() const { return m_child; }
+    const char *customClassName() const { return m_custom_class_name.constData(); }
+    QString includeFile() const { return m_include_file; }
     
 protected:
     virtual void childEvent(QChildEvent *e);
+    virtual void resizeEvent(QResizeEvent *e);
+
 private:
+    QByteArray m_custom_class_name;
+    QString m_include_file;
     QWidget *m_child;
+    bool m_child_inserted;
 };
 
 #endif // QDESIGNER_PROMOTED_WIDGET_H

@@ -21,6 +21,7 @@
 #include <abstractformwindowcursor.h>
 #include <abstractwidgetdatabase.h>
 #include <treewidget.h>
+#include <qdesigner_promotedwidget.h>
 
 // Qt
 #include <QApplication>
@@ -100,7 +101,12 @@ void ObjectInspector::setFormWindow(AbstractFormWindow *fw)
         QObject *object = workingList.top().second;
         workingList.pop();
 
-        QString objectName = object->objectName();
+        QString objectName;
+        if (QDesignerPromotedWidget *promoted = qt_cast<QDesignerPromotedWidget*>(object))
+            objectName = promoted->child()->objectName();
+        else
+            objectName = object->objectName();
+            
         if (objectName.isEmpty())
             objectName = tr("<noname>");
 
@@ -129,7 +135,11 @@ void ObjectInspector::setFormWindow(AbstractFormWindow *fw)
                 workingList.append(qMakePair(pageItem, page));
             }
         } else {
-            QList<QObject*> children = object->children();
+            QList<QObject*> children;
+            if (QDesignerPromotedWidget *promoted = qt_cast<QDesignerPromotedWidget*>(object))
+                children = promoted->child()->children();
+            else
+                children = object->children();
             qSort(children.begin(), children.end(), ObjectInspector::sortEntry);
             foreach (QObject *child, children) {
                 if (!child->isWidgetType() || !fw->isManaged(static_cast<QWidget*>(child)))

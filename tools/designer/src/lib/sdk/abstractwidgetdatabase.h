@@ -59,6 +59,9 @@ struct AbstractWidgetDataBaseItem
 
     virtual QString pluginPath() const = 0;
     virtual void setPluginPath(const QString &path) = 0;
+
+    virtual bool isPromoted() const = 0;
+    virtual void setPromoted(bool b) = 0;
 };
 
 class QT_SDK_EXPORT AbstractWidgetDataBase: public QObject

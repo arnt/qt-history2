@@ -17,6 +17,7 @@
 #include "qdesigner_toolbox.h"
 #include "qdesigner_stackedbox.h"
 #include "qdesigner_customwidget.h"
+#include "qdesigner_promotedwidget.h"
 #include "widgetdatabase.h"
 #include "formwindow.h"
 #include "layout.h"
@@ -141,6 +142,9 @@ const char *WidgetFactory::classNameOf(QObject* o)
         return "QWidget";
     else if (qt_cast<QDesignerLabel*>(o))
         return "QLabel";
+    else if (QDesignerPromotedWidget *promoted = qt_cast<QDesignerPromotedWidget*>(o)) {
+        return promoted->customClassName();
+    }
     return o->metaObject()->className();
 }
 

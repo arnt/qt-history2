@@ -423,8 +423,6 @@ void FormWindow::handleMousePressEvent(QWidget *w, QMouseEvent *e)
         sizePreviewLabel->setFrameStyle(QFrame::Plain | QFrame::Box);
     }
 
-    qDebug() << "FormWindow::handleMousePressEvent():" << w;
-    
     switch (editMode()) {
     case WidgetEditMode:
         // if the dragged widget is not in a layout, raise it

@@ -62,6 +62,9 @@ struct WidgetDataBaseItem: public AbstractWidgetDataBaseItem
     QString pluginPath() const;
     void setPluginPath(const QString &path);
 
+    bool isPromoted() const { return false; }
+    void setPromoted(bool) {}
+    
 private:
     QString m_name;
     QString m_group;
