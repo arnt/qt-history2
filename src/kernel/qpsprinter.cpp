@@ -4972,7 +4972,7 @@ QPSPrinterFont::QPSPrinterFont(const QFont& f, int script, QPSPrinterPrivate *pr
 	// memory mapping would be better here
 	if (fontfilename.length() > 0) { // maybe there is no file name
 	    QFile fontfile(fontfilename);
-	    if ( file.exists() ) {
+	    if ( fontfile.exists() ) {
 		printf("font name %s size = %d\n",fontfilename.latin1(),fontfile.size());
 		data = QByteArray( fontfile.size() );
 
