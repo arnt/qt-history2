@@ -50,7 +50,8 @@ struct QLineEditUndoItem
 
 struct QLineEditPrivate {
     QLineEditPrivate( QLineEdit * l ):
-	frame(TRUE), mode(QLineEdit::Normal), validator( 0 ),
+	frame(TRUE), mode(QLineEdit::Normal),
+	readonly(FALSE), validator( 0 ),
 	pm(0), pmDirty( TRUE ),
 	blinkTimer( l, "QLineEdit blink timer" ),
 	dragTimer( l, "QLineEdit drag timer" ),
