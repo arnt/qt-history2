@@ -14,7 +14,8 @@ up keyboard accelerators.  In some very odd cases, this could cause
 changes of behaviour.
 
 The QColor::light() function now works, and anything which relied on
-its buggy behaviour will have to change.
+its buggy behaviour might be a little darker than expected until changed,
+usually just recompiling (the default argument has also changed).
 
 The colors used have been tuned a bit; pixmaps that "know" the RGB
 values of colorGroup().background() and the like will look just a tiny
@@ -39,9 +40,13 @@ none
 ****************************************************************************
 
 QApplication::setColorMode()
+ - see QApplication::setColorSpec(int)
 QRegion::xor()
+ - see QRegion::eor()
 QMessageBox::message()
+ - see QMessageBox::information/warning/critical
 QMultiLineEdit::getCursorPosition()
+ - see QMultiLineEdit::cursorPosition()
 
 ****************************************************************************
 * 			     New classes				   *
@@ -49,7 +54,7 @@ QMultiLineEdit::getCursorPosition()
 
 QProgressBar
 QProgressDialog
-QMovie and friends.
+QMovie
 QHBoxLayout
 QVBoxLayout
 
@@ -65,8 +70,8 @@ QMultiLineEdit is usable for much bigger documents than in 1.2
 
 More sizeHint() functions added, some existing ones tweaked.
 
-Many widgets have improved look and feel, particularly in Windows GUI
-style.
+Many widgets have improved look and feel, particularly changes to
+Windows GUI style to match Windows more closely.
 
 Improved Postscript output.
 
@@ -79,3 +84,77 @@ GIF and PPM support.
 QMessageBox has a number of new static functions to replace the
 venerable message(): information(), warning(), critical() and about().
 
+
+****************************************************************************
+*             New public functions added to existing classes               *
+****************************************************************************
+
+QApplication::hasGlobalMouseTracking(void)
+QApplication::processEvents(int)
+QApplication::processOneEvent(void)
+QApplication::setGlobalMouseTracking(bool)
+QButton::accel(void) const
+QButton::animateClick(void)
+QButton::enabledChange(bool)
+QButton::setAccel(int)
+QGridLayout::addColSpacing(int, int)
+QGridLayout::addRowSpacing(int, int)
+QImage::convertDepth(int, int) const
+QImage::create(QSize const &, int, int, QImage::Endian)
+QImage::createAlphaMask(int) const
+QImage::inputFormats(void)
+QImage::outputFormats(void)
+QLabel::movie(void) const
+QLabel::setMovie(QMovie const &)
+QLabel::unsetMovie(void)
+QListBox::clearSelection(void)
+QListBox::highlighted(char const *)
+QListBox::isMultiSelection(void) const
+QListBox::isSelected(int) const
+QListBox::selected(char const *)
+QListBox::selectionChanged(void)
+QListBox::setMultiSelection(bool)
+QListBox::setSelected(int, bool)
+QListBox::toggleCurrentItem(void)
+QMenuBar::heightForWidth(int) const
+QMenuBar::separatorUsage(void) const
+QMenuBar::setSeparatorUsage(int)
+QMessageBox::about(QWidget *, char const *, char const *)
+QMessageBox::buttonText(int) const
+QMessageBox::critical(QWidget *, char const *, char const *, int, int, int)
+QMessageBox::icon(void) const
+QMessageBox::iconPixmap(void) const
+QMessageBox::information(QWidget *, char const *, char const *, int, int, int)
+QMessageBox::setButtonText(int, char const *)
+QMessageBox::setIcon(QMessageBox::Icon)
+QMessageBox::setIconPixmap(QPixmap const &)
+QMessageBox::standardIcon(QMessageBox::Icon, GUIStyle)
+QMessageBox::warning(QWidget *, char const *, char const *, int, int, int)
+QPainter::drawPoints(QPointArray const &, int, int)
+QPixmap::convertFromImage(QImage const &, int)
+QPixmap::load(char const *, char const *, int)
+QPixmap::loadFromData(unsigned char const *, unsigned int, char const *, int)
+QSize::transpose(void)
+QTabBar::setCurrentTab(QTab *)
+QTabBar::setCurrentTab(int)
+QTabBar::tab(int)
+QTabDialog::selected(char const *)
+QTabDialog::showPage(QWidget *)
+QTabDialog::styleChange(GUIStyle)
+QTabDialog::tabLabel(QWidget *)
+QTableView::minViewX(void) const
+QTableView::minViewY(void) const
+QToolTip::font(void)
+QToolTip::palette(void)
+QToolTip::setFont(QFont const &)
+QToolTip::setPalette(QPalette const &)
+QWidget::backgroundEmpty(void) const
+QWidget::isVisibleToTLW(void) const
+QWidget::setBackgroundEmpty(void)
+QWidget::setFixedHeight(int)
+QWidget::setFixedWidth(int)
+QWidget::setMaximumHeight(int)
+QWidget::setMaximumWidth(int)
+QWidget::setMinimumHeight(int)
+QWidget::setMinimumWidth(int)
+QWidget::setTabOrder(QWidget *, QWidget *)
