@@ -146,8 +146,8 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
 	t << endl << endl;
     }
     if(!project->variables()["QMAKE_APP_FLAG"].isEmpty()) {
-	t << "all: " << ofile <<  " " << varGlue("ALL_DEPS",""," "," ") <<  "$(TARGET)" << endl << endl;
-	t << "$(TARGET): $(UICDECLS) $(OBJECTS) $(OBJMOC) " << var("TARGETDEPS") << "\n\t"
+	t << "all: " << ofile <<  " " << varGlue("ALL_DEPS",""," "," ") <<  var("TARGET") << endl << endl;
+	t << var("TARGET") << ": $(UICDECLS) $(OBJECTS) $(OBJMOC) " << var("TARGETDEPS") << "\n\t"
 	  << "$(LINK) $(LFLAGS) -o $(TARGET) $(OBJECTS) $(OBJMOC) $(LIBS)" << endl << endl;
     }
     else if(!project->isActiveConfig("staticlib")) {
@@ -201,7 +201,10 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
     //this is an implicity depend on moc, so it will be built if necesary, however
     //moc itself shouldn't have this dependancy - this is a little kludgy but it is 
     //better than the alternative for now.
-    if(project->variables()["TARGET"] != project->variables()["QMAKE_MOC"]) {
+    QString target = project->variables()["QMAKE_MOC"].first(), moc = project->variables()["TARGET"].first();
+    fixEnvVariables(target);
+    fixEnvVariables(moc);
+    if(target != moc) {
 	t << "$(MOC): \n\t"
 	  << "make -C $(QTDIR)/src/moc" << "\n\t"
 	  << "cp $(QTDIR)/src/moc/moc $(MOC)" << endl << endl;
@@ -239,7 +242,7 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
 	      << var(QString("MAKELIB") + (*it)) << endl << endl;
     }
 
-    if ( project->isActiveConfig("embedded") && !project->variables()["PRECOMPH"].isEmpty() ) {
+    if ( !project->variables()["PRECOMPH"].isEmpty() ) {
 	QString outdir = project->variables()["MOC_DIR"].first();
 	QString qt_dot_h = Option::fixPathToLocalOS(project->variables()["PRECOMPH"].first());
 	t << "###### Combined headers" << endl << endl;
@@ -266,16 +269,16 @@ UnixMakefileGenerator::writeSubdirs(QTextStream &t)
 
     t << "all: " << ofile << " $(SUBDIRS)" << endl << endl;
 
-    t << "$(SUBDIRS): tmake_all FORCE" << "\n\t"
+    t << "$(SUBDIRS): qmake_all FORCE" << "\n\t"
       << "cd $@ && $(MAKE)" << endl << endl;
 
     writeMakeQmake(t);
 
-    t << "tmake_all:" << "\n\t"
+    t << "qmake_all:" << "\n\t"
       << "for i in $(SUBDIRS); do ( if [ -d $$i ]; then cd $$i ; "
       << "[ ! -f $(MAKEFILE) ] && $(QMAKE) $$i.pro -o $(MAKEFILE); "
-      << "grep \"^tmake_all:$$\" $$i.pro 2>/dev/null >/dev/null && "
-      << "$(MAKE) -f $(MAKEFILE) tmake_all || true; fi; ) ; done" << endl << endl;
+      << "grep \"^qmake_all:$$\" $$i.pro 2>/dev/null >/dev/null && "
+      << "$(MAKE) -f $(MAKEFILE) qmake_all || true; fi; ) ; done" << endl << endl;
 
     t <<"clean release debug:" << "\n\t"
       << "for i in $(SUBDIRS); do ( if [ -d $$i ]; then cd $$i ; $(MAKE) $@; fi; ) ; done" << endl << endl;
@@ -415,7 +418,7 @@ UnixMakefileGenerator::init()
 	project->variables()["QMAKE_RUN_CXX_IMP"].append("$(CXX) -c $(CXXFLAGS) $(INCPATH) -o $@ $<");
     }
     project->variables()["QMAKE_FILETAGS"] += QStringList::split("HEADERS SOURCES TARGET DESTDIR", " ");
-    if ( project->isActiveConfig("embedded") && !project->variables()["PRECOMPH"].isEmpty() ) {
+    if ( !project->variables()["PRECOMPH"].isEmpty() ) {
 	project->variables()["SOURCES"].append(project->variables()["MOC_DIR"].first() + "allmoc.cpp");
 	project->variables()["HEADERS_ORIG"] = project->variables()["HEADERS"];
 	project->variables()["HEADERS"].clear();

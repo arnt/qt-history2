@@ -22,13 +22,9 @@ all: qmake symlinks src-moc sub-src sub-tools sub-tutorial sub-examples
 
 qmake: symlinks FORCE
 	cd qmake; $(MAKE)
-	-rm -f bin/qmake
-	cp qmake/qmake bin/qmake
 
 src-moc: .qmake.cache symlinks  FORCE
 	cd src/moc; $(MAKE)
-	-rm -f bin/moc
-	cp src/moc/moc bin/moc
 
 sub-tools: sub-src FORCE
 	cd tools; $(MAKE)
