@@ -114,7 +114,7 @@ public:
     static bool setClipRegion(const QRegion &r);
     static bool setPaintDevice(QPaintDevice *);
     static bool flush(QPaintDevice *);
-    static bool flush(QPaintDevice *, const QRegion &r, bool force=FALSE);
+    static bool flush(QPaintDevice *, QRegion r, bool force=FALSE);
     static void setAlphaTransparancy(QWidget *, float);
 };
 
@@ -132,11 +132,12 @@ inline bool QMacSavedPortInfo::flush(QPaintDevice *pdev)
     return FALSE;
 }
 
-inline bool QMacSavedPortInfo::flush(QPaintDevice *pdev, const QRegion &r, bool force) 
+inline bool QMacSavedPortInfo::flush(QPaintDevice *pdev, QRegion r, bool force) 
 {
 #ifdef Q_WS_MACX
     if ( pdev->devType() == QInternal::Widget ) {
 	QWidget *w = (QWidget *)pdev;
+	r.translate(w->topLevelWidget()->geometry().x(), w->topLevelWidget()->geometry().y());
 	if ( !w->isHidden() || QDIsPortBuffered(GetWindowPort((WindowPtr)w->handle()))) {
 	    QDFlushPortBuffer(GetWindowPort((WindowPtr)w->handle()), r.handle(force));
 	    return TRUE;

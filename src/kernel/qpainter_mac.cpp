@@ -645,7 +645,6 @@ void QPainter::flush(const QRegion &rgn, CoordinateMode m)
     else
 	b = xmat * rgn;
     b.translate(d->offx, d->offy);
-    qDebug("Some dubiousness here, look at this ####Sam");
     QMacSavedPortInfo::flush(pdev, b & d->cache.paintreg, TRUE);
 }
 
