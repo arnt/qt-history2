@@ -1878,7 +1878,7 @@ QRect QMacStyle::subRect(SubRect r, const QWidget *w) const
 		ret = QRect(fw + help_width, fw, start - help_width - (fw*2) - bspace, wrect.height() - (fw*2));
 	    else
 		ret = QRect(fw, start, wrect.width() - (fw*2), wrect.height() - help_height - start - (fw*2));
-	} else if(r == SR_DialogButtonHelp && dbtns->buttonText(QDialogButtons::Help)) {
+	} else if(r == SR_DialogButtonHelp && !dbtns->buttonText(QDialogButtons::Help).isNull()) {
 	    ret = QRect(fw, wrect.height() - help_height - fw, help_width, help_height);
 	}
 	break; }
