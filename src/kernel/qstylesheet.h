@@ -60,6 +60,8 @@ public:
     QStyleSheetItem( const QStyleSheetItem & );
     ~QStyleSheetItem();
 
+    QStyleSheetItem& operator=( const QStyleSheetItem& other );
+    
     QString name() const;
 
     QStyleSheet* styleSheet();

@@ -165,7 +165,19 @@ QStyleSheetItem::~QStyleSheetItem()
     delete d;
 }
 
-
+/*!
+  Assignment. Assings a copy of \a other that is not bound to any style sheet.
+  Unbounds first from previous style sheet.
+ */
+QStyleSheetItem& QStyleSheetItem::operator=( const QStyleSheetItem& other )
+{
+    if ( &other == this )
+	return *this;
+    delete d;
+    d = new QStyleSheetItemData;
+    *d = *other.d;
+    return *this;
+}
 
 /*!
   Returns the style sheet this item is in.
