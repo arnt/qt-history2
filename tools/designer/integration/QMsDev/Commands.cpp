@@ -1139,8 +1139,8 @@ STDMETHODIMP CCommands::QMsDevNewQtProject()
 						       classname, instancename, instancecall, projectName) );
 	    uiFile.Close();
 
-	    CString hFileName(classheader+".h");
-	    CString iFileName(classheader+".cpp");
+	    CString hFileName(classheader+"impl.h");
+	    CString iFileName(classheader+"impl.cpp");
 	    m_pApplication->PrintToOutputWindow( CComBSTR("\tcreating basic dialog implementation...") );
 	    CStdioFile hFile( baseDir + hFileName, CFile::modeCreate | CFile::modeWrite );
 	    hFile.WriteString( replaceTemplateStrings(dialog_h, classheader, 
@@ -1191,8 +1191,8 @@ STDMETHODIMP CCommands::QMsDevNewQtProject()
 		classname, instancename, instancecall, projectName) );
 	    uiFile.Close();
 	    
-	    CString hFileName(classheader+".h");
-	    CString iFileName(classheader+".cpp");
+	    CString hFileName(classheader+"impl.h");
+	    CString iFileName(classheader+"impl.cpp");
 	    m_pApplication->PrintToOutputWindow( CComBSTR("\tcreating basic main window implementation...") );
 	    CStdioFile hFile( baseDir + hFileName, CFile::modeCreate | CFile::modeWrite );
 	    hFile.WriteString( replaceTemplateStrings(window_h, classheader, 
@@ -1300,8 +1300,8 @@ STDMETHODIMP CCommands::QMsDevNewQtDialog()
     if ( ::MessageBox( NULL, "Do you want me to add a basic implementation for your dialog?", 
 	"Question", MB_YESNOCANCEL | MB_ICONQUESTION ) == IDYES ) {
 	m_pApplication->PrintToOutputWindow( CComBSTR("\tcreating implementation...") );
-	int error = system( "uic -subdecl "+classname+" "+filename+".h "+ "\"" + filepath+filename+".ui\" -o "+ "\"" + filepath+filename+"impl.h\"" );
-	error +=    system( "uic -subimpl "+classname+" "+filename+"impl.h " + "\"" +filepath+filename+".ui\" -o "+ "\"" + filepath+filename+"impl.cpp\"" );
+	int error = system( "uic -subdecl "+classname+"Impl"+" "+filename+".h "+ "\"" + filepath+filename+".ui\" -o "+ "\"" + filepath+filename+"impl.h\"" );
+	error +=    system( "uic -subimpl "+classname+"Impl"+" "+filename+"impl.h " + "\"" +filepath+filename+".ui\" -o "+ "\"" + filepath+filename+"impl.cpp\"" );
 	if ( error ) {
 	    ::MessageBox( NULL, "Failed to create subclass implementation!", "Error", MB_OK );
 	    VERIFY_OK(m_pApplication->EnableModeless(VARIANT_TRUE));

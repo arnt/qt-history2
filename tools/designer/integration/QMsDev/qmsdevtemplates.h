@@ -225,19 +225,19 @@ const char dialogbase_ui[] = {
 const char dialog_h[] = {
 "#include \"$QMSDEVCLASSHEADER.h\"\n"
 "\n\n"
-"class $QMSDEVCLASSNAME : public $QMSDEVCLASSNAME\n"
+"class $QMSDEVCLASSNAMEImpl : public $QMSDEVCLASSNAME\n"
 "{\n"
 "\tQ_OBJECT\n"
 "public:\n"
-"\t$QMSDEVCLASSNAME( QWidget* parent = 0, const char* name = 0, bool modal = FALSE, WFlags f = 0 );\n"
+"\t$QMSDEVCLASSNAMEImpl( QWidget* parent = 0, const char* name = 0, bool modal = FALSE, WFlags f = 0 );\n"
 "};\n"
 "\n"
 };
 
 const char dialog_cpp[] = {
-"#include \"$QMSDEVCLASSHEADER.h\"\n"
+"#include \"$QMSDEVCLASSHEADERimpl.h\"\n"
 "\n\n"
-"$QMSDEVCLASSNAME::$QMSDEVCLASSNAME( QWidget* parent, const char* name, bool modal, WFlags f )\n"
+"$QMSDEVCLASSNAMEImpl::$QMSDEVCLASSNAMEImpl( QWidget* parent, const char* name, bool modal, WFlags f )\n"
 "\t: $QMSDEVCLASSNAME( parent, name, modal, f )\n"
 "{\n"
 "\n"
@@ -249,19 +249,19 @@ const char dialog_cpp[] = {
 const char window_h[] = {
     "#include \"$QMSDEVCLASSNAME.h\"\n"
     "\n\n"
-    "class $QMSDEVCLASSNAME : public $QMSDEVCLASSNAME\n"
+    "class $QMSDEVCLASSNAMEImpl : public $QMSDEVCLASSNAME\n"
     "{\n"
     "\tQ_OBJECT\n"
     "public:\n"
-    "\t$QMSDEVCLASSNAME( QWidget* parent = 0, const char* name = 0, WFlags f = WType_TopLevel );\n"
+    "\t$QMSDEVCLASSNAMEImpl( QWidget* parent = 0, const char* name = 0, WFlags f = WType_TopLevel );\n"
     "};\n"
     "\n"
 };
 
 const char window_cpp[] = {
-    "#include \"$QMSDEVCLASSHEADER.h\"\n"
+    "#include \"$QMSDEVCLASSHEADERimpl.h\"\n"
     "\n\n"
-    "$QMSDEVCLASSNAME::$QMSDEVCLASSNAME( QWidget* parent, const char* name, WFlags f )\n"
+    "$QMSDEVCLASSNAMEImpl::$QMSDEVCLASSNAMEImpl( QWidget* parent, const char* name, WFlags f )\n"
     "\t: $QMSDEVCLASSNAME( parent, name, f )\n"
     "{\n"
     "\tsetCaption(\"$QMSDEVPROJECTNAME\");\n"
