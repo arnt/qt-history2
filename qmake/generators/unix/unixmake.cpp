@@ -411,6 +411,7 @@ UnixMakefileGenerator::init()
     }
     project->variables()["DESTDIR_TARGET"].append("$(TARGET)");
     if ( !project->variables()["TMAKE_APP_FLAG"].isEmpty() ) {
+#if 0
 	if ( project->isActiveConfig("dll") ) {
 	    project->variables()["TARGET"] += project->variables()["TARGET.so"];
 	    if(project->variables()["TMAKE_LFLAGS_SHAPP"].isEmpty())
@@ -418,6 +419,7 @@ UnixMakefileGenerator::init()
 	    if(!project->variables()["TMAKE_LFLAGS_SONAME"].isEmpty())
 		project->variables()["TMAKE_LFLAGS_SONAME"].first() += project->variables()["TARGET"].first();
 	}
+#endif
 	project->variables()["TARGET"].first().prepend(project->variables()["DESTDIR"].first());
     } else if ( project->isActiveConfig("staticlib") ) {
 	project->variables()["TARGET"].first().prepend(project->variables()["DESTDIR"].first() + "lib");
