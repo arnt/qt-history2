@@ -418,6 +418,10 @@ public:
     QValueList() { sh = new QValueListPrivate<T>; }
     QValueList( const QValueList<T>& l ) { sh = l.sh; sh->ref(); }
 #ifndef QT_NO_STL
+#  ifdef Q_CC_HPACC    // HP-UX aCC does require typename in some place
+#    undef Q_TYPENAME  // but not accept them at others.
+#    define Q_TYPENAME // also doesn't like re-defines ...
+#  endif
     QValueList( const Q_TYPENAME std::list<T>& l )
     {
 	sh = new QValueListPrivate<T>;
@@ -454,6 +458,10 @@ public:
 	    return FALSE;
 	return TRUE;
     }
+#  ifdef Q_CC_HPACC    // undo the HP-UX aCC hackery done above
+#    undef Q_TYPENAME 
+#    define Q_TYPENAME typename
+#  endif
 #endif
     bool operator== ( const QValueList<T>& l ) const;
     bool operator!= ( const QValueList<T>& l ) const { return !( *this == l ); }
