@@ -145,9 +145,6 @@ signals:
     QT_COMPAT void activated();
 #endif
 
-//private slots:
-//    void sendShortcutActivated();
-
 private:
 #ifdef QT_COMPAT
     friend class QMenuItem;
