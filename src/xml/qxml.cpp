@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/xml/qxml.cpp#84 $
+** $Id: //depot/qt/main/src/xml/qxml.cpp#85 $
 **
 ** Implementation of QXmlSimpleReader and related classes.
 **
@@ -4422,23 +4422,27 @@ bool QXmlSimpleReader::parsePEReference()
     while ( TRUE ) {
 	switch ( state ) {
 	    case Name:
-		if ( d->parameterEntities.find( ref() ) == d->parameterEntities.end() ) {
-		    // ### skip it???
-		    if ( contentHnd ) {
-			if ( !contentHnd->skippedEntity( QString("%") + ref() ) ) {
-			    reportParseError( contentHnd->errorString() );
-			    return FALSE;
+		{
+		    QMap<QString,QString>::Iterator it;
+		    it = d->parameterEntities.find( ref() );
+		    if ( it == d->parameterEntities.end() ) {
+			// ### skip it???
+			if ( contentHnd ) {
+			    if ( !contentHnd->skippedEntity( QString("%") + ref() ) ) {
+				reportParseError( contentHnd->errorString() );
+				return FALSE;
+			    }
 			}
-		    }
-		} else {
-		    if ( d->parsePEReference_context == InEntityValue ) {
-			// Included in literal
-			if ( !insertXmlRef( d->parameterEntities.find(ref()).data(), ref(), TRUE ) )
-			    return FALSE;
-		    } else if ( d->parsePEReference_context == InDTD ) {
-			// Included as PE
-			if ( !insertXmlRef( QString(" ")+d->parameterEntities.find(ref()).data()+QString(" "), ref(), FALSE ) )
-			    return FALSE;
+		    } else {
+			if ( d->parsePEReference_context == InEntityValue ) {
+			    // Included in literal
+			    if ( !insertXmlRef( it.data(), ref(), TRUE ) )
+				return FALSE;
+			} else if ( d->parsePEReference_context == InDTD ) {
+			    // Included as PE
+			    if ( !insertXmlRef( QString(" ")+it.data()+QString(" "), ref(), FALSE ) )
+				return FALSE;
+			}
 		    }
 		}
 		break;
