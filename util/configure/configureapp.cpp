@@ -30,7 +30,16 @@ Configure::Configure( int& argc, char** argv )
     dictionary[ "LEAN" ]	    = "no";
     dictionary[ "NOPROCESS" ]	    = "no";
     dictionary[ "STL" ]		    = "no";
-    dictionary[ "VERSION" ]	    = QString("%1").arg(QT_VERSION);
+
+    /*
+	Figure out the version number doing:
+      
+	    QT_MAJOR = QT_VERSION >> 16;
+	    QT_MINOR = ( QT_VERSION >> 8 ) & 0xff;
+	    QT_PATCH = QT_VERSION & 0xff;
+    */
+
+    dictionary[ "VERSION" ]	    = QString("%1%2%3").arg(QT_VERSION>>16).arg(((QT_VERSION>>8)&0xff)).arg(QT_VERSION&0xff);
     dictionary[ "REDO" ]	    = "no";
     dictionary[ "FORCE_PROFESSIONAL" ] = getenv( "FORCE_PROFESSIONAL" );
     dictionary[ "DEPENDENCIES" ]    = "no";
