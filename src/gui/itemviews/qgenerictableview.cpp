@@ -395,12 +395,14 @@ void QGenericTableView::updateGeometries()
 
     int w = d->viewport->width();
     int col = model()->columnCount(0);
-    horizontalScrollBar()->setPageStep(w / def.width() * horizontalFactor());
+    int factor = horizontalFactor();
+    if (def.width() && factor)
+        horizontalScrollBar()->setPageStep(w / def.width() * factor);
     while (w > 0 && col > 0)
         w -= d->topHeader->sectionSize(--col);
-    max = col * horizontalFactor();
+    max = col * factor;
     if (w < 0)
-        max += (horizontalFactor() * -w / d->topHeader->sectionSize(col));
+        max += (factor * -w / d->topHeader->sectionSize(col));
     horizontalScrollBar()->setRange(0, max);
 }
 
