@@ -220,22 +220,22 @@ QMotifWidget::QMotifWidget( QWidget *parent, WidgetClass widgetclass,
     if ( ! motifparent || ( widgetclass == applicationShellWidgetClass ||
 			    widgetclass == topLevelShellWidgetClass ) ) {
 	ArgList realargs = new Arg [argcount + 3];
+	Cardinal nargs = argcount;
 	memcpy( realargs, args, sizeof( Arg ) * argcount );
 
 	if ( ! QPaintDevice::x11AppDefaultVisual() ) {
 	    // make Motif use the same visual/colormap/depth as Qt (if
 	    // Qt is not using the default)
-	    XtSetArg( realargs[ argcount++ ], XtNvisual,
+	    XtSetArg( realargs[ nargs++ ], XtNvisual,
 		      QPaintDevice::x11AppVisual() );
-	    XtSetArg( realargs[ argcount++ ], XtNcolormap,
+	    XtSetArg( realargs[ nargs++ ], XtNcolormap,
 		      QPaintDevice::x11AppColormap() );
-	    XtSetArg( realargs[ argcount++ ], XtNdepth,
+	    XtSetArg( realargs[ nargs++ ], XtNdepth,
 		      QPaintDevice::x11AppDepth() );
 	}
 
 	d->shell = XtAppCreateShell( name, name, qmotifWidgetShellWidgetClass,
-				     QPaintDevice::x11AppDisplay(),
-				     realargs, argcount );
+				     QPaintDevice::x11AppDisplay(), realargs, nargs );
 	( (QMotifWidgetShellWidget) d->shell )->qmotifwidgetshell.widget = this;
 	motifparent = d->shell;
 
