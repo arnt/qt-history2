@@ -1,5 +1,7 @@
 isEmpty(TARGET):error(You must set TARGET before includ()'ing ${FILE})
 INCLUDEPATH *= $$QMAKE_INCDIR_QT/$$TARGET #just for today to have some compat
+TEMPLATE	= lib
+VERSION		= 4.0.0
 
 # debug/release combos for our libraries
 dll:unix {
@@ -20,7 +22,7 @@ dll:unix {
 }
 
 #exported symbol table (for linux only now)
-sam_version_map:linux-g++:!isEmpty(QPRO_PWD) {
+sam_version_map:dll:linux-g++:!isEmpty(QPRO_PWD) {
    0:exists($(QTDIR)/src/libqt.map) {
        QMAKE_LFLAGS += -Wl,--version-script=$(QTDIR)/src/libqt.map
        TARGETDEPS += $(QTDIR)/src/libqt.map
@@ -30,7 +32,7 @@ sam_version_map:linux-g++:!isEmpty(QPRO_PWD) {
            QMAKE_LFLAGS += -Wl,--version-script=$${TARGET_MAP}
            TARGETDEPS += $$TARGET_MAP
            contains(QT_PRODUCT, qt-internal) {
-               VERSION_MAP.commands = $(QTDIR)/util/scripts/exports.pl -o $$TARGET_MAP $$QPRO_PWD $$QPRO_SYMBOLS
+               VERSION_MAP.commands = $(QTDIR)/util/scripts/exports.pl -name Qt$$VERSION -o $$TARGET_MAP $$QPRO_PWD $$QPRO_SYMBOLS
                VERSION_MAP.target = $$TARGET_MAP
                QMAKE_EXTRA_TARGETS += VERSION_MAP
                exports.commands = [ -w "$$TARGET_MAP" ] || p4 edit "$$TARGET_MAP"; $$VERSION_MAP.commands
@@ -40,9 +42,7 @@ sam_version_map:linux-g++:!isEmpty(QPRO_PWD) {
    }
 }
 
-# Qt project file
-TEMPLATE	= lib
-VERSION		= 4.0.0
+#version overriding 
 win32 {
     #because libnetwork.pro could be qmake'd (qmade?) before libqcore.pro we
     #need to override the version of libq* in all other libq*'s just to be
@@ -54,6 +54,8 @@ win32 {
 	eval(QMAKE_$${upper($$lib)}D_VERSION_OVERRIDE = $$QT_LIBS_OVERRIDE)
     }
 }
+
+#other
 DESTDIR		= $$QMAKE_LIBDIR_QT
 DLLDESTDIR	= $$QT_INSTALL_PREFIX/bin
 

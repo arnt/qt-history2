@@ -4,6 +4,7 @@ use strict;
 
 my $EXPORT_OUT = "-";
 my @EXPORT_DIRECTORIES;
+my $EXPORT_NAME = "Qt";
 my $EXPORT_SYMBOL = "Q[^ ]*(?:_[^ ]*)?_EXPORT(?:_[^ ]*)?";
 while($#ARGV >= 0) {
     if($ARGV[0] eq "-o") {
@@ -12,6 +13,9 @@ while($#ARGV >= 0) {
     } elsif($ARGV[0] eq "-symbol") {
 	shift;
 	$EXPORT_SYMBOL = $ARGV[0];
+    } elsif($ARGV[0] eq "-name") {
+	shift;
+	$EXPORT_NAME = $ARGV[0];
     } else {
 	push @EXPORT_DIRECTORIES, $ARGV[0];
     }
@@ -140,7 +144,7 @@ if("$EXPORT_OUT" eq "-") {
 } else {
     open(OUTPUT, ">$EXPORT_OUT") || die "Cannot open $EXPORT_OUT!!";
 }
-print OUTPUT "VERSION\n";
+print OUTPUT "$EXPORT_NAME\n";
 print OUTPUT "{\n";
 print OUTPUT "  global:\n";
 print OUTPUT "  extern \"C++\"\n";
