@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#11 $
+** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#12 $
 **
 ** Implementation of QMenuBar class
 **
@@ -17,7 +17,7 @@
 #include "qapp.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qmenubar.cpp#11 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qmenubar.cpp#12 $";
 #endif
 
 
@@ -305,8 +305,9 @@ int QMenuBar::itemAtPos( const QPoint &pos )	// get item at pos (x,y)
 
 void QMenuBar::paintEvent( QPaintEvent *e )	// paint menu bar
 {
-    QPainter paint;
-    QPixMap *pm = 0;
+    QPainter  paint;
+    QPainter *paint_pixmap;
+    QPixMap  *pm = 0;
     register QPainter *p = &paint;
     QFontMetrics fm = fontMetrics();
     QSize sz = clientSize();
@@ -322,29 +323,32 @@ void QMenuBar::paintEvent( QPaintEvent *e )	// paint menu bar
 	QRect r = irects[i];
 	if ( mi->isDisabled() ) {
 	    pm = new QPixMap( r.width(), r.height() );
-	    p->end();
-	    p->begin( pm );
-	    r = QRect( 0, 0, r.width(), r.height() );
-	    p->setBackgroundColor( backgroundColor() );
-	    p->eraseRect( r );
+	    CHECK_PTR( pm );
+	    pm->fill( backgroundColor() );
+	    paint_pixmap = new QPainter;
+	    paint_pixmap->begin( pm );		// draw menu item in pixmap
+	    CHECK_PTR( paint_pixmap );
+	    paint_pixmap->setBackgroundColor( backgroundColor() );
+	    p = paint_pixmap;			// redirect painting
+	    r.setRect( 0, 0, r.width(), r.height() );
 	}
 	if ( i == actItem )			// active item frame
 	    p->drawShadePanel( r, lightColor, darkColor, motifItemFrame );
 	else					// incognito frame
 	    p->drawShadePanel( r, normalColor, normalColor, motifItemFrame );
 	if ( mi->image() )
-	    p->drawPixMap( r.left() + motifItemFrame,
-			   r.top() + motifItemFrame,
+	    p->drawPixMap( r.left() + motifItemFrame, r.top() + motifItemFrame,
 			   *mi->image() );
 	else if ( mi->string() )
 	    p->drawText( r, AlignCenter | AlignVCenter | ShowPrefix | DontClip,
 			 mi->string() );
-	if ( mi->isDisabled() ) {
-	    p->setPen( QPen(NoPen) );
+	if ( mi->isDisabled() ) {		// overwrite with gray brush
+	    p->setPen( NoPen );
 	    p->setBrush( QBrush(backgroundColor(),Pix1Pattern) );
 	    p->drawRect( r );
-	    p->end();
-	    p->begin( this );
+	    paint_pixmap->end();
+	    delete paint_pixmap;
+	    p = &paint;
 	    p->drawPixMap( irects[i].topLeft(), *pm );
 	    delete pm;
 	}
