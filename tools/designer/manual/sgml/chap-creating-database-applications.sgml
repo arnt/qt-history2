@@ -812,15 +812,81 @@ a single field, in a combobox for example.
 	    <para>
 	    We don't want to see the formatid and authorid foreign keys
 	    on the form, so move them both to the Available Fields list
-	    box.
-	    <!-- @@@@@@@@@@@@@@@@@@@@ -->
+	    box. Move the title field to the top of the Displayed Fields
+	    list. Click the <guibutton>Next</> button. 
 	    </para>
 	</listitem>
 
 	<listitem>
 	    <para>
+	    The <emphasis>Navigation and Editing</> wizard page allows
+	    us to choose which navigation and editing buttons should
+	    appear on the form.
+	    </para>
+	    
+	    <para>
+	    We will accept the defaults and simply click the
+	    <guibutton>Next</> button. 
 	    </para>
 	</listitem>
+
+	<listitem>
+	    <para>
+	    The <emphasis>SQL</> wizard page is used to set
+	    the &dt;'s Filter and Sort properties. The Filter is an SQL
+	    <literal>WHERE</> clause (without the word 'WHERE'). For
+	    example, to only list book that cost less than 50 (of our
+	    currency, e.g. dollars), we 
+	    would enter <literal>price < 50</>. The Available Fields
+	    list box lists all the fields. The Sort By list box lists the
+	    fields that the &dt; is to sort by and the direction of their
+	    sorting (ASCending or DESCending). The left and right blue
+	    arrows are used to move fields between the two list boxes. The
+	    up and down blue arrows move fields up and down within the Sort
+	    By list box. The ASC or DESC setting is changed with the sort
+	    order button.
+	    </para>
+
+	    <para>
+	    Move the title field into the Sort By list box and click
+	    <guibutton>Next</>.
+	    </para>
+	</listitem>
+
+	<listitem>
+	    <para>
+	    The <emphasis>Layout</> wizard page is used to specify the
+	    initial layout of the form.
+	    </para>
+
+	    <para>
+	    Change the Number of Columns to 1, then click
+	    <guibutton>Next</>. Now click <guibutton>Finish</>.
+	    </para>
+	</listitem>
+
+	<listitem>
+	    <para>
+	    The &db; will now appear on the form. Drag the bottom of the
+	    form up to make it shorter. Click the &db; then click the
+	    <guibutton>Break Layout</> toolbar button. Click the buttons
+	    then click the <guibutton>Break Layout</> toolbar button. 
+	    Add another button called 'ButtonPushButton' with the text
+	    '&amp;Close' and place it to the right of the Delete button.
+	    </para>
+	</listitem>
+
+	<listitem>
+	    <para>
+	    Shift+Click the Insert, Update, Delete and Close
+	    buttons, then click the <guibutton>Lay Out Horizontally</>
+	    toolbar button. Click the &db;, then click the
+	    <guibutton>Lay Out in a Grid</> toolbar button. Finally
+	    click the form and click the <guibutton>Lay Out
+	    Vertically</> toolbar button.
+	    </para>
+	</listitem>
+
     </orderedlist>
     </para>
 
