@@ -20,6 +20,7 @@ SUBDIRS	=	aclock \
 		forever \
 		gridview \
 		hello \
+		helpdemo \
 		helpviewer \
 		i18n \
 		layout \
