@@ -2290,7 +2290,7 @@ int QDateTime::daysTo( const QDateTime &dt ) const
     Example:
     \code
     QDateTime dt = QDateTime::currentDateTime();
-    QDateTime xmas( QDate(dt.year(),12,24), QTime(17,00) );
+    QDateTime xmas( QDate(dt.date().year(),12,24), QTime(17,00) );
     qDebug( "There are %d seconds to Christmas", dt.secsTo(xmas) );
     \endcode
 
