@@ -307,13 +307,13 @@ QValidator::State QIntValidator::validate( QString & input, int & ) const
 
 /*!
     Sets the range of the validator to only accept integers between \a
-    minimum and \a maximum inclusive.
+    bottom and \a top inclusive.
 */
 
-void QIntValidator::setRange( int minimum, int maximum )
+void QIntValidator::setRange( int bottom, int top )
 {
-    b = minimum;
-    t = maximum;
+    b = bottom;
+    t = top;
 }
 
 
