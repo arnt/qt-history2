@@ -1001,8 +1001,15 @@ void QPainterPath::addRect(const QRectF &r)
 #undef d
 
 /*!
-    Adds the \a text to this path as a set of closed subpaths. The
-    text is outlined using the font \a f.
+    \fn void QPainterPath::addText(const QPointF &point, const QFont &font, const QString &text)
+
+    Adds the given \a text to this path as a set of closed subpaths created
+    from the \a font supplied. The subpaths are positioned so that the left
+    end of the text's baseline lies at the \a point specified.
+
+    \img qpainterpath-addtext.png
+
+    \sa QPainter::drawText
 */
 void QPainterPath::addText(const QPointF &point, const QFont &f, const QString &text)
 {
