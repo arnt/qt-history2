@@ -458,6 +458,9 @@ void QAquaStylePrivate::doAnimate(QAquaAnimate::Animates as)
 */
 QAquaStyle::QAquaStyle()
 {
+    /* I am doing this for binary compatability */
+    installEventFilter(this);
+
     d = new QAquaStylePrivate;
     d->focusWidget = 0;
     d->progressOff = 0;
@@ -565,6 +568,12 @@ void QAquaStyle::unPolish( QWidget * w )
 /*! \reimp */
 bool QAquaStyle::eventFilter( QObject * o, QEvent * e )
 {
+    if(o == this) {
+	if(e->type() == QEvent::Style)
+	    appearanceChanged();
+	return FALSE;
+    }
+
     if(o->isWidgetType() &&
        d->focusWidget && d->focusWidget->widget() && QAquaFocusWidget::handles((QWidget *)o) &&
        ((e->type() == QEvent::FocusOut && d->focusWidget->widget() == o) ||

@@ -56,9 +56,7 @@
 #include "qcursor.h"
 #include <qsettings.h>
 #include <qstylefactory.h>
-#ifndef QT_NO_STYLE_AQUA
-#include "qaquastyle.h"
-#endif
+#include <qstyle.h>
 
 //#define QMAC_LAME_TIME_LIMITED
 #ifdef QMAC_LAME_TIME_LIMITED
@@ -352,6 +350,7 @@ static EventTypeSpec events[] = {
     { kEventClassKeyboard, kEventRawKeyDown },
 
     { kEventClassCommand, kEventCommandProcess },
+    { kEventClassAppleEvent, kEventAppleEvent },
     { kAppearanceEventClass, kAEAppearanceChanged }
 };
 
@@ -433,10 +432,10 @@ void qt_init( int* argcptr, char **argv, QApplication::Type )
 			     events, (void *)qApp, &app_proc_handler);
     }
 
-#ifndef QT_NO_STYLE_AQUA
-    if(qt_is_gui_used)
-	QAquaStyle::appearanceChanged();
-#endif
+    if(qt_is_gui_used && QApplication::app_style) {
+	QEvent ev(QEvent::Style);
+	QApplication::sendSpontaneousEvent(QApplication::app_style, &ev);
+    }
 
     QApplication::qt_mac_apply_settings();
 }
@@ -2109,11 +2108,13 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 		}
 	    }
 	} else if(ekind == kEventWindowActivated) {
-#ifndef QT_NO_STYLE_AQUA
-	    //I shouldn't have to do this, but the StyleChanged isn't happening as I expected
-	    //so this is in for now, FIXME!
-	    QAquaStyle::appearanceChanged();
-#endif
+	    if(QApplication::app_style) {
+		//I shouldn't have to do this, but the StyleChanged isn't happening as I expected
+		//so this is in for now, FIXME!
+		QEvent ev(QEvent::Style);
+		QApplication::sendSpontaneousEvent(QApplication::app_style, &ev);
+	    }
+
 	    if( app_do_modal && !qt_try_modal(widget, event) )
 		return 1;
 
@@ -2180,14 +2181,33 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 #endif
 	break;
     case kAppearanceEventClass:
-#ifndef QT_NO_STYLE_AQUA
-	if(ekind == kAEAppearanceChanged) 
-	    QAquaStyle::appearanceChanged();
-	else
+	if(ekind == kAEAppearanceChanged && QApplication::app_style) {
+	    QEvent ev(QEvent::Style);
+	    QApplication::sendSpontaneousEvent(QApplication::app_style, &ev);
+	} else {
 	    handled_event = FALSE;
-#else
+	}
+	break;
+    case kEventClassAppleEvent:
 	handled_event = FALSE;
-#endif
+	if(ekind == kEventAppleEvent) {
+	    OSType aeID, aeClass;
+	    GetEventParameter(event, kEventParamAEEventClass, typeType, 
+			      NULL, sizeof(aeClass), NULL, &aeClass);
+	    GetEventParameter(event, kEventParamAEEventID, typeType, 
+			      NULL, sizeof(aeID), NULL, &aeID);
+	    if(aeClass == kCoreEventClass) {
+		switch(aeID) {
+		case kAEQuitApplication:
+		    handled_event = TRUE;
+		    qApp->closeAllWindows();
+		    qApp->quit();
+		    break;
+		default:
+		    break;
+		}      
+	    }
+	}
 	break;
     case kEventClassCommand:
 	if(ekind == kEventCommandProcess) {
@@ -2199,12 +2219,14 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 	       !QMenuBar::activate(cmd.menu.menuRef, cmd.menu.menuItemIndex)) 
 		handled_event = FALSE;
 #else
-	    if(cmd.commandID == kHICommandQuit)
+	    if(cmd.commandID == kHICommandQuit) {
 		qApp->closeAllWindows();
-	    else if(cmd.commandID == kHICommandAbout)
+		qApp->quit();
+	    } else if(cmd.commandID == kHICommandAbout) {
 		QMessageBox::aboutQt(NULL);
-	    else
+	    } else {
 		handled_event = FALSE;
+	    }
 #endif
 	}
 	break;

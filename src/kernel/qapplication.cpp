@@ -779,16 +779,15 @@ void QApplication::initialize( int argc, char **argv )
 	style = "SGI";			// default style for X11 on IRIX
 #elif defined(Q_WS_X11)
 	style = "Motif";		// default style for X11
-#elif defined(Q_WS_MAC9)
-	style = "Platinum";		// round style for round devices
-#elif defined( Q_WS_MACX)
-	style = "Aqua";
+#elif defined(Q_WS_MAC)
+	style = "Macintosh";		// default style for all Mac's
 #elif defined(Q_WS_QWS)
 	style = "Compact";		// default style for small devices
 #endif
 	app_style = QStyleFactory::create( style );
 	if ( !app_style &&		// platform default style not available, try alternatives
 	     !(app_style = QStyleFactory::create( "Windows" ) ) &&
+	     !(app_style = QStyleFactory::create( "Macintosh" ) ) &&
 	     !(app_style = QStyleFactory::create( "Platinum" ) ) &&
 	     !(app_style = QStyleFactory::create( "MotifPlus" ) ) &&
 	     !(app_style = QStyleFactory::create( "Motif" ) ) &&

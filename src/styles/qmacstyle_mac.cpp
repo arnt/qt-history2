@@ -29,8 +29,8 @@
 
 /* broken things:
    titlebar isn't complete
-   headers are too short
    we don't animate yet
+   focus rects aren't drawn
 */
 
 #include "qmacstyle_mac.h"
@@ -192,6 +192,8 @@ void QMacStyle::polish( QApplication* app )
     pal.setColor( QPalette::Inactive, QColorGroup::ButtonText, QColor( 148,148,148 ));
     pal.setColor( QPalette::Disabled, QColorGroup::ButtonText, QColor( 148,148,148 ));
 
+    QEvent ev(QEvent::Style);
+    QApplication::sendEvent(this, &ev);
     pal.setColor( QPalette::Active, QColorGroup::Highlight, qt_mac_highlight_color );
     pal.setColor( QPalette::Inactive, QColorGroup::Highlight, qt_mac_highlight_color.light() );
     pal.setColor( QPalette::Disabled, QColorGroup::Highlight, QColor( 0xC2, 0xC2, 0xC2 ) );
@@ -286,10 +288,18 @@ void QMacStyle::drawPrimitive( PrimitiveElement pe,
 	p->setBrush( NoBrush );
 	p->restore();
 	break; }
+    case PE_SizeGrip: {
+	const Rect *rect = qt_glb_mac_rect(r, p->device());
+	Point orig = { rect->top, rect->left };
+	((QMacPainter *)p)->noop();
+	DrawThemeStandaloneGrowBox(orig, kThemeGrowRight | kThemeGrowDown, false, 
+				   kThemeStateActive);
+	break; }
     case PE_GroupBoxFrame: {
 	if ( opt.isDefault() )
 	    break;
 	if(opt.frameShape() == QFrame::Box && opt.frameShadow() == QFrame::Sunken) {
+	    ((QMacPainter *)p)->noop();
 	    DrawThemePrimaryGroup(qt_glb_mac_rect(r, p->device()), kThemeStateActive);
 	} else {
 	    QWindowsStyle::drawPrimitive(pe, p, r, cg, flags, opt);
@@ -728,12 +738,17 @@ void QMacStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
 		break;
 	    QListViewItem *item = opt.listViewItem();
 	    int y=r.y(), h=r.height();
+	    ((QMacPainter *)p)->noop();
 	    for(QListViewItem *child = item->firstChild(); child && y < h;
 		y += child->totalHeight(), child = child->nextSibling()) {
 		if(y + child->height() > 0) {
-		    if ( child->isExpandable() || child->childCount() )
-			drawPrimitive( child->isOpen() ? PE_ArrowDown : PE_ArrowRight, p,
-				       QRect(r.right() - 10, (y + child->height()/2) - 4, 9, 9), cg );
+		    if ( child->isExpandable() || child->childCount() ) {
+			DrawThemePopupArrow(qt_glb_mac_rect(QRect(r.right() - 10, 
+								  (y + child->height()/2) - 4, 9, 9), 
+							    p->device()),
+					    child->isOpen() ? kThemeArrowDown : kThemeArrowRight,
+					    kThemeArrow5pt, kThemeStateActive, NULL, 0);
+		    }
 		}
 	    }
 	}
@@ -1193,6 +1208,37 @@ QSize QMacStyle::sizeFromContents( ContentsType contents,
 	break;
     }
     return sz;
+}
+
+bool QMacStyle::event(QEvent *e)
+{
+    if(e->type() == QEvent::Style) {
+	Collection c=NewCollection();
+	GetTheme(c);
+
+	RGBColor color;
+	SInt32 s = sizeof(color);
+	if(!GetCollectionItem(c, kThemeHighlightColorTag, 0, &s, &color)) {
+	    QColor qc(color.red/256, color.green/256, color.blue/256);
+	    if(qt_mac_highlight_color != qc) {
+		qt_mac_highlight_color = qc;
+		if(e->spontaneous()) {
+		    QPalette pal = qApp->palette();
+		    pal.setColor( QPalette::Active, QColorGroup::Highlight,
+				  qt_mac_highlight_color );
+		    pal.setColor( QPalette::Inactive, QColorGroup::Highlight, 
+				  qt_mac_highlight_color.light() );
+		    qApp->setPalette( pal, TRUE );
+		}
+	    }
+	} else {
+	    qDebug("Shouldn't happen %s:%d", __FILE__, __LINE__);
+	}
+
+	//cleanup
+	DisposeCollection(c);
+    }
+    return FALSE;
 }
 
 #endif

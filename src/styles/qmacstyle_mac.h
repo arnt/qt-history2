@@ -42,7 +42,7 @@
 #include "qwindowsstyle.h"
 #endif // QT_H
 
-#if defined( Q_WS_MAC ) && !defined( QT_NO_STYLE_AQUA )
+#if defined( Q_WS_MAC ) && !defined( QT_NO_STYLE_MAC ) 
 
 class QPalette;
 
@@ -119,6 +119,10 @@ public:
 			    const QWidget *w,
 			    const QSize &contentsSize,
 			    const QStyleOption& = QStyleOption::Default ) const;
+
+
+protected:
+    bool event(QEvent *);
 
 private:        // Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
