@@ -26,8 +26,8 @@ QDomDocument *XmlWriter::toXml()
         document->appendChild(blockElement);
 
         readFragment(currentBlock, blockElement, document);
-        /* Include an ellipsis here for easy quoting:
-        ...
+        /* Include some text here for easy quoting:
+        processBlock(currentBlock);
         */
         currentBlock = currentBlock.next();
     }
@@ -51,8 +51,8 @@ void XmlWriter::readFragment(const QTextBlock &currentBlock,
             QDomText fragmentText = document->createTextNode(fragment.text());
 
             fragmentElement.appendChild(fragmentText);
-            /* Include an ellipsis here for easy quoting:
-            ...
+            /* Include some text here for easy quoting:
+            processFragment(currentBlock);
             */
         }
     }

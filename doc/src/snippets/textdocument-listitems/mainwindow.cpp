@@ -51,7 +51,7 @@ void MainWindow::highlightListItems()
                                 QTextCursor::KeepAnchor);
         itemCursor.setBlockFormat(newBlockFormat);
         /*
-        ...
+        processListItem(listItem);
         */
     }
     cursor.endEditBlock();
@@ -114,6 +114,9 @@ void MainWindow::showList()
                 }
                 item->setText(0, block.text());
                 lastItem = item;
+                /*
+                processListItem(list, index);
+                */
             }
         }
     }

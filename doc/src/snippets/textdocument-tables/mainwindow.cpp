@@ -115,7 +115,7 @@ void MainWindow::showTable()
             QTableWidgetItem *newItem = new QTableWidgetItem(text);
             tableWidget->setItem(row, column, newItem);
             /*
-            ...
+            processTableCell(tableCell);
             */
         }
     }

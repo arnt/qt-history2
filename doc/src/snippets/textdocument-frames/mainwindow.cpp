@@ -19,10 +19,14 @@ MainWindow::MainWindow()
     QTextCursor cursor(editor->textCursor());
     cursor.movePosition(QTextCursor::Start); 
 
+    QTextFrame *mainFrame = cursor.currentFrame();
+    
     QTextCharFormat plainCharFormat;
     QTextCharFormat boldCharFormat;
     boldCharFormat.setFontWeight(QFont::Bold);
-
+/*
+    cursor.insertText(...);
+*/
     cursor.insertText("Text documents are represented by the "
                       "QTextDocument class, rather than by QString objects. "
                       "Each QTextDocument object contains information about "
@@ -33,20 +37,24 @@ MainWindow::MainWindow()
                       "classes, but also provides a focus for the framework.",
                       plainCharFormat);
 
-    QTextFrame *mainFrame = cursor.currentFrame();
-    
     QTextFrameFormat frameFormat;
     frameFormat.setMargin(32);
     frameFormat.setPadding(8);
     frameFormat.setBorder(4);
     cursor.insertFrame(frameFormat);
 
+/*
+    cursor.insertText(...);
+*/
     cursor.insertText("Documents are either converted from external sources "
                       "or created from scratch using Qt. The creation process "
                       "can done by an editor widget, such as QTextEdit, or by "
                       "explicit calls to the Scribe API.", boldCharFormat);
 
     cursor = mainFrame->lastCursorPosition();
+/*
+    cursor.insertText(...);
+*/
     cursor.insertText("There are two complementary ways to visualize the "
                       "contents of a document: as a linear buffer that is "
                       "used by editors to modify the contents, and as an "

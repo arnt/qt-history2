@@ -22,12 +22,12 @@ QDomDocument *XmlWriter::toXml()
     QTextFrame *root = textDocument->rootFrame();
     
     if (root)
-        createItems(documentElement, root);
+        processFrame(documentElement, root);
 
     return document;
 }
 
-void XmlWriter::createItems(QDomElement &parent, const QTextBlock &block)
+void XmlWriter::processBlock(QDomElement &parent, const QTextBlock &block)
 {
     QDomElement blockElement = document->createElement("block");
     blockElement.setAttribute("position", block.position());
@@ -50,7 +50,7 @@ void XmlWriter::createItems(QDomElement &parent, const QTextBlock &block)
     }
 }
 
-void XmlWriter::createItems(QDomElement &parent, QTextFrame *frame)
+void XmlWriter::processFrame(QDomElement &parent, QTextFrame *frame)
 {
     QDomElement frameElement = document->createElement("frame");
     frameElement.setAttribute("begin", frame->firstPosition());
@@ -63,9 +63,48 @@ void XmlWriter::createItems(QDomElement &parent, QTextFrame *frame)
         QTextFrame *childFrame = it.currentFrame();
         QTextBlock childBlock = it.currentBlock();
 
-        if (childFrame)
-            createItems(frameElement, childFrame);
-        else if (childBlock.isValid())
-            createItems(frameElement, childBlock);
+        if (childFrame) {
+            QTextTable *childTable = qt_cast<QTextTable*>(childFrame);
+
+            if (childTable)
+                processTable(frameElement, childTable);
+            else
+                processFrame(frameElement, childFrame);
+
+        } else if (childBlock.isValid())
+            processBlock(frameElement, childBlock);
     }
+}
+
+void XmlWriter::processTable(QDomElement &parent, QTextTable *table)
+{
+    QDomElement element = document->createElement("table");
+
+    for (int row = 0; row < table->rows(); ++row) {
+        for (int column = 0; column < table->columns(); ++column) {
+            QTextTableCell cell = table->cellAt(row, column);
+            processTableCell(element, cell);
+        }
+    }
+    parent.appendChild(element);
+}
+
+void XmlWriter::processTableCell(QDomElement &parent, const QTextTableCell &cell)
+{
+    QDomElement element = document->createElement("cell");
+    element.setAttribute("row", cell.row());
+    element.setAttribute("column", cell.column());
+    
+    QTextFrame::iterator it;
+    for (it = cell.begin(); !(it.atEnd()); ++it) {
+
+        QTextFrame *childFrame = it.currentFrame();
+        QTextBlock childBlock = it.currentBlock();
+
+        if (childFrame)
+            processFrame(element, childFrame);
+        else if (childBlock.isValid())
+            processBlock(element, childBlock);
+    }
+    parent.appendChild(element);
 }

@@ -22,12 +22,12 @@ QDomDocument *XmlWriter::toXml()
     QTextFrame *root = textDocument->rootFrame();
     
     if (root)
-        createItems(documentElement, root);
+        processFrame(documentElement, root);
 
     return document;
 }
 
-void XmlWriter::createItems(QDomElement &parent, const QTextBlock &block)
+void XmlWriter::processBlock(QDomElement &parent, const QTextBlock &block)
 {
     QDomElement blockElement = document->createElement("block");
     blockElement.setAttribute("position", block.position());
@@ -50,7 +50,7 @@ void XmlWriter::createItems(QDomElement &parent, const QTextBlock &block)
     }
 }
 
-void XmlWriter::createItems(QDomElement &parent, QTextFrame *frame)
+void XmlWriter::processFrame(QDomElement &parent, QTextFrame *frame)
 {
     QDomElement frameElement = document->createElement("frame");
     frameElement.setAttribute("begin", frame->firstPosition());
@@ -64,14 +64,8 @@ void XmlWriter::createItems(QDomElement &parent, QTextFrame *frame)
         QTextBlock childBlock = it.currentBlock();
 
         if (childFrame)
-        /*
-            ...
-        */
-            createItems(frameElement, childFrame);
+            processFrame(frameElement, childFrame);
         else if (childBlock.isValid())
-        /*
-            ...
-        */
-            createItems(frameElement, childBlock);
+            processBlock(frameElement, childBlock);
     }
 }

@@ -12,8 +12,10 @@ public:
     QDomDocument *toXml();
 
 private:
-    void createItems(QDomElement &parent, const QTextBlock &block);
-    void createItems(QDomElement &parent, QTextFrame *frame);
+    void processBlock(QDomElement &parent, const QTextBlock &block);
+    void processFrame(QDomElement &parent, QTextFrame *frame);
+    void processTable(QDomElement &parent, QTextTable *table);
+    void processTableCell(QDomElement &parent, const QTextTableCell &cell);
 
     QDomDocument *document;
     QTextDocument *textDocument;

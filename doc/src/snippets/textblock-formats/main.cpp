@@ -3,8 +3,8 @@
 int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
-    QTextEdit *editor = new QTextEdit();
 
+    QTextEdit *editor = new QTextEdit();
     QTextCursor cursor(editor->textCursor());
     cursor.movePosition(QTextCursor::Start); 
 
