@@ -1147,14 +1147,15 @@ void Uic::createFormImpl( const QDomElement &e )
 		    QString conn = getDatabaseInfo( n, "connection" );
 		    QString tab = getDatabaseInfo( n, "table" );
 		    if ( !( conn.isEmpty() || tab.isEmpty() ) ) {
-			out << indent << indent << "QSqlCursor* c = " << c << "->defaultCursor();" << endl;
-			out << indent << indent << "if ( !c ) {" << endl;
+			out << indent << indent << "if ( " << c << " ) {" << endl;
+			out << indent << indent << indent << "QSqlCursor* c = " << c << "->defaultCursor();" << endl;
+			out << indent << indent << indent << "if ( !c ) {" << endl;
 			if ( conn == "(default)" )
-			    out << indent << indent << indent << "c = new QSqlCursor( \"" << tab << "\" );" << endl;
+			    out << indent << indent << indent << indent << "c = new QSqlCursor( \"" << tab << "\" );" << endl;
 			else
-			    out << indent << indent << indent << "QSqlCursor* c = new QSqlCursor( \"" << tab << "\", " << conn << "Connection );" << endl;
-			out << indent << indent << indent << c << "->setCursor( c, FALSE, TRUE );" << endl;
-			out << indent << indent << "}" << endl;
+			    out << indent << indent << indent << indent << "QSqlCursor* c = new QSqlCursor( \"" << tab << "\", " << conn << "Connection );" << endl;
+			out << indent << indent << indent << indent << c << "->setCursor( c, FALSE, TRUE );" << endl;
+			out << indent << indent << indent << "}" << endl;
 			// create implementation // ## move this elsewhere?  do we -require- a delayed QSqlTable implementation?
 			QDomElement n2;
 			for ( n2 = n.firstChild().toElement(); !n2.isNull(); n2 = n2.nextSibling().toElement() ) {
@@ -1170,13 +1171,14 @@ void Uic::createFormImpl( const QDomElement &e )
 					fieldName = n3.firstChild().firstChild().toText().data();
 				}
 				if ( !fieldName.isEmpty() && !fieldLabel.isEmpty() ) {
-				    out << indent << indent << "c->setDisplayLabel( \"" << fieldName << "\" , \"" << fieldLabel << "\" );" << endl;
-				    out << indent << indent << c << "->addColumn( c->field( \"" << fieldName << "\" ) );" << endl;
+				    out << indent << indent << indent << "c->setDisplayLabel( \"" << fieldName << "\" , \"" << fieldLabel << "\" );" << endl;
+				    out << indent << indent << indent << c << "->addColumn( c->field( \"" << fieldName << "\" ) );" << endl;
 				}
 			    }
 			}
-			out << indent << indent << "if ( !c->isActive() )" << endl;
-			out << indent << indent << indent << c << "->refresh();" << endl;
+			out << indent << indent << indent << "if ( !c->isActive() )" << endl;
+			out << indent << indent << indent << indent << c << "->refresh();" << endl;
+			out << indent << indent << "}" << endl;
 		    }
 		}
 	    }
