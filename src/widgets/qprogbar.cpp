@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qprogbar.cpp#11 $
+** $Id: //depot/qt/main/src/widgets/qprogbar.cpp#12 $
 **
 ** Implementation of QProgressBar class
 **
@@ -14,7 +14,7 @@
 #include "qdrawutl.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qprogbar.cpp#11 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qprogbar.cpp#12 $");
 
 
 /*!
@@ -231,14 +231,14 @@ void QProgressBar::drawContents( QPainter *p )
     } else {
 	int pw = bar.width() * progress_val / total_steps;
 
-	p->setPen( white );
+	p->setPen( colorGroup().base() );
 	p->setClipRect( bar.x(), bar.y(), pw, bar.height() );
 	p->fillRect( bar, QApplication::winStyleHighlightColor() );
 	p->drawText( bar, AlignCenter, progress_str );
 
 	p->setPen( QApplication::winStyleHighlightColor() );
 	p->setClipRect( bar.x()+pw, bar.y(), bar.width()-pw, bar.height() );
-	p->fillRect( bar, white );
+	p->fillRect( bar, colorGroup().base() );
 	p->drawText( bar, AlignCenter, progress_str );
     }
 }
