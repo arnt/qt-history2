@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont.cpp#86 $
+** $Id: //depot/qt/main/src/kernel/qfont.cpp#87 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes
 **
@@ -28,69 +28,96 @@
 
   \ingroup fonts
   \ingroup drawing
+  
+  QFont, more precisely, is a collection of attributes of a font.
+  When Qt needs to draw text, it will look up and load the \link
+  fontmatch.html closest matching installed font \endlink and use
+  that.
 
-  A QFont has a series of attributes that can be set to specify an abstract
-  font. When actual drawing of text is done Qt will select a font in the
-  underlying window system that \link fontmatch.html matches\endlink
-  the abstract font as close as possible. The most important attributes
-  are
-  \link setFamily() family\endlink,
-  \link setPointSize() point size\endlink,
-  \link setWeight() weight\endlink and
-  \link setItalic() italic\endlink.
-
-  One of the QFont constructors take exactly these attributes as
-  arguments:
+  The most important attributes of a QFont are \link setFamily()
+  family\endlink, \link setPointSize() point size\endlink, \link
+  setWeight() weight\endlink and \link setItalic() italic\endlink.
+  There are QFont constructors that take these attributes as
+  arguments, as shown in this example:
 
   \code
     void MyWidget::paintEvent( QPaintEvent * )
     {
-	QPainter p;
-	p.begin( this );
-					// times, 12pt, normal
+	QPainter p( this );
+
+	// times, 12pt, normal
 	p.setFont( QFont( "times" ) );
 	p.drawText( 10, 20, "Text1" );
-					// helvetica, 18pt, normal
+
+	// helvetica, 18pt, normal
 	p.setFont( QFont( "helvetica", 18 ) );
 	p.drawText( 10, 120, "Text2" );
-					// courier, 24pt, bold
+
+	// courier, 24pt, bold
 	p.setFont( QFont( "courier", 24, QFont::Bold ) );
 	p.drawText( 10, 220, "Text3" );
-					// lucida, 36pt, bold, italic
+
+	// lucida, 36pt, bold, italic
 	p.setFont( QFont( "lucida", 36, QFont::Bold, TRUE ) );
 	p.drawText( 10, 320, "Text4" );
-
-	p.end();
     }
   \endcode
+  
+  The default QFont constructor makes a copy of the \link
+  setDefaultFont() default font. \endlink
 
-  In general font handling and loading are costly operations that put
-  a heavy load on the window system, this is especially true for
-  X11. The QFont class has an internal sharing and reference
-  count mechanism in order to speed up copies so QFonts may be passed
-  around as arguments, and it has a lazy loading mechanism and does
-  not load a font until it \e really has to. It also caches previously
-  loaded fonts and under X it caches previously matched font attribute
-  combinations.
+  You can also change these attributes of an existsing QFont object
+  using functions such as setFamily(), setPointSize(), setWeight() and
+  setItalic().
+  
+  There are also some less-used attributes.  setUnderline() decides
+  whether the font is or not; setStrikeOut() can be used to get
+  overstrike (a horizontal line through the middle of the characters);
+  setFixedPitch() determines whether Qt should give preference to
+  fixed-pitch or variable-pitch fonts when it needs to choose an
+  installed font; setStyleHint() can be used to offer more general
+  help to the font matching algorithm, and on X11 setRawMode() can be
+  used to bypass the entire font matching and use an X11 XLFD.
 
-  Note that the functions returning attribute values in QFont return
-  the values previously set, \e not the attributes of the actual
-  window system font used for drawing. To get information about the
-  actual font use QFontInfo.
+  Of course there is also a reader function for each of these set*()
+  functions.  Note that the reader functions return the values
+  previously set, \e not the attributes of the actual window system
+  font that will be used for drawing.  You can get information about
+  the font that will be used for drawing by using QFontInfo, but be
+  aware that QFontInfo may be slow, and that its results depend on
+  what fonts are installed.
 
-  To get font size information use the class QFontMetrics.
+  In general font handling and loading are costly operations, this is
+  especially true for X11. The QFont class contains extensive
+  optimizations to make copying of QFont objects fast, and to cache
+  the results of the slow window system functions it uses.
 
-  QFont objects make use of implicit sharing.
+  QFont also offers a few static functions, mostly to tune the \link
+  fontmatch.html font matching algorithm: \endlink You can control
+  what happens if a font's family isn't installed using
+  insertSubstitution() and removeSubstitution() and get a complete
+  list of the fallback families using listSubstitutions().
+
+  cacheStatistics() offers cache effectiveness information; this can
+  be useful for debugging.
+  
+  Finally, setDefaultFont() allows you to set the default font.  The
+  default default font is chosen at application startup from a set of
+  common installed fonts that support the correct \link QFont::CharSet
+  character set. \endlink Of course the initialization algorithm has a
+  default to: The default default default font!
 
   For more general information on fonts, see the
-  <a href="http://www.ora.com/homepages/comp.fonts/ifa/">Internet Font
+  <a href="http://www.oreilly.com/homepages/comp.fonts/ifa/">Internet Font
   Archive</a> and in particular its extensive FAQs: <ul>
-  <li> <a href="http://www.oreilly.com/homepages/comp.fonts/FAQ/">questions
+  <li> <a href="http://www.oreilly.com/homepages/comp.fonts/FAQ/">Questions
   about fonts in general</a> (from <a href="news:comp.fonts">comp.fonts</a>)
-  <li> <a href="http://www.ora.com/homepages/comp.fonts/ifa/faq.htm">questions
-  about the IFA and fonts on the Internet.</a></ul>
+  <li> <a href="http://www.oreilly.com/homepages/comp.fonts/ifa/faq.htm">
+  Questions about the IFA and fonts on the Internet.</a></ul>
 
-  \sa QApplication::setFont(), QWidget::setFont(), QPainter::setFont()
+  \sa QFontMetrics QFontInfo QApplication::setFont()
+  QWidget::setFont() QPainter::setFont() QFont::StyleHint
+  QFont::CharSet QFont::Weight
 */
 
 
@@ -396,6 +423,8 @@ int QFont::weight() const
 /*!
   Sets the weight (or boldness).
 
+  \define QFont::Weight
+
   The enum \c QFont::Weight contains the predefined font weights:<ul>
   <li> \c QFont::Light (25)
   <li> \c QFont::Normal (50)
@@ -567,17 +596,20 @@ QFont::StyleHint QFont::styleHint() const
 /*!
   Sets the style hint.
 
-  The style hint is used by the \link fontmatch.html font matching\endlink
-  algorithm when a selected font family cannot be found and is used to
-  find an appropriate default family.
+  \define QFont::StyleHint
 
-  The style hint has a default value of \c AnyStyle which leaves the task of
-  finding a good default family to the font matching algorithm.
+  The style hint is used by the \link fontmatch.html font
+  matching\endlink algorithm when a selected font family cannot be
+  found and is used to find an appropriate default family.
 
-  In this example (which is a complete program) the push button
-  will display its text label with the Bavaria font family if this family
-  is available, if not it will display its text label with the Times font
-  family:
+  The style hint has a default value of \c AnyStyle which leaves the
+  task of finding a good default family to the font matching
+  algorithm.
+
+  In this example (which is a complete program) the push button will
+  display its text label with the Bavaria font family if this family
+  is available, if not it will display its text label with another
+  serif font:
   \code
     #include <qapp.h>
     #include <qpushbt.h>
@@ -589,12 +621,15 @@ QFont::StyleHint QFont::styleHint() const
 	QPushButton  push("Push me");
 
 	QFont font( "Bavaria", 18 );	    // preferrred family is Bavaria
-	font.setStyleHint( QFont::Times );  // use Times if Bavaria isn't here
+	font.setStyleHint( QFont::Serif );  // can also use any serif font
 
 	push.setFont( font );
 	return app.exec( &push );
     }
   \endcode
+  
+  The other available style hints are \c QFont::SansSerif, \c
+  QFont::TypeWriter, \c QFont::OldEnglish, \c QFont::System
 
   \sa styleHint(), QFontInfo, \link fontmatch.html font matching\endlink
 */
@@ -623,15 +658,17 @@ QFont::CharSet QFont::charSet() const
 }
 
 /*!
-  Sets the character set (e.g. \c Latin1).
+  Sets the character set encoding (e.g. \c Latin1).
 
-  If the character set is not available another will be used, for most
-  non-trivial applications you will probably not want this to happen since
-  it can totally obscure the text shown to the user when the font is
-  used. This is why the \link fontmatch.html font matching\endlink
-  algorithm gives high priority to finding the correct character set.
+  \define QFont::CharSet
+  
+  If the character set encoding is not available another will be used,
+  for most non-trivial applications you will probably not want this to
+  happen since it can totally obscure the text shown to the user.
+  This is why the \link fontmatch.html font matching\endlink algorithm
+  gives high priority to finding the correct character set.
 
-  To ensure that the character set is correct you can use the QFontInfo
+  You can test that the character set is correct using the QFontInfo
   class.
 
   Example:
@@ -641,6 +678,21 @@ QFont::CharSet QFont::charSet() const
     if ( info.charSet() != Latin1 )	     // check actual font
 	fatal( "Cannot find a Latin 1 Times font" );
   \endcode
+  
+  In Qt 1.40, the following character set encodings are available: <ul>
+  <li> \c QFont::Latin1 - ISO 8859-1, common in much of Europe
+  <li> \c QFont::Latin2 - ISO 8859-2, less common European character set
+  <li> \c QFont::Latin3 - ISO 8859-3, less common European character set
+  <li> \c QFont::Latin4 - ISO 8859-4, less common European character set
+  <li> \c QFont::Latin5 - ISO 8859-5, Cyrillic
+  <li> \c QFont::Latin6 - ISO 8859-6, Arabic
+  <li> \c QFont::Latin7 - ISO 8859-7, Greek
+  <li> \c QFont::Latin8 - ISO 8859-8, Hebrew
+  <li> \c QFont::Latin9 - ISO 8859-9, less common European character set
+  <li> \c QFont::KOI8R - KOI8-R, Cyrillic, defined in
+       <a href="http://ds.internic.net/rfc/rfc1489.txt">RFC 1489.</a>
+  <li> \c QFont::AnyCharSet - whatever is handiest.
+  </ul>
 
   \sa charSet(), QFontInfo, \link fontmatch.html font matching\endlink
 */
@@ -1828,7 +1880,7 @@ QSize QFontMetrics::size( int flags, const char *str, int len, int tabstops,
 /*!  Returns TRUE if this font and \a f are copies of each other,
   ie. one of them was created as a copy of the other and neither was
   subsequently modified.  This is much stricter than equality.
-  
+
   \sa operator=, operator==
 */
 
