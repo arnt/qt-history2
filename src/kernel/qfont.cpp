@@ -2775,7 +2775,6 @@ bool QFontInfo::fixedPitch() const
 {
     QFontEngine *engine = d->engineForScript( (QFont::Script) fscript );
     Q_ASSERT( engine != 0 );
-#endif // QT_CHECK_STATE
 #ifdef Q_OS_MAC
     if (!engine->fontDef.fixedPitchComputed) {
 	QChar ch[2] = { QChar('i'), QChar('m') };

@@ -1021,8 +1021,7 @@ QFontDatabase::findFont( QFont::Script script, const QFontPrivate *fp,
 #else
 				    fp->screen
 #endif
-		) {
-		QFontCache::Key key( request, script, fp->screen );
+		    );
 		QFontCache::instance->insertEngine( key, fe );
 	    }
 

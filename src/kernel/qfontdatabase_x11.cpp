@@ -47,6 +47,8 @@ extern double qt_pixelSize(double pointSize, QPaintDevice *paintdevice, int scre
 #define QPaintDevice QX11GC
 #endif
 
+extern bool qt_has_xft;
+
 static inline void capitalize ( char *s )
 {
     bool space = TRUE;
@@ -1350,7 +1352,7 @@ QFontEngine *loadEngine( QFont::Script script,
 			 QtFontEncoding *encoding, bool forced_encoding )
 {
     if ( fp && fp->rawMode ) {
-	QCString xlfd = request.family.latin1();
+	QByteArray xlfd = request.family.toLatin1();
 	FM_DEBUG( "Loading XLFD (rawmode) '%s'", xlfd.data() );
 
 	XFontStruct *xfs;
@@ -1380,11 +1382,11 @@ QFontEngine *loadEngine( QFont::Script script,
 
 	if ( !foundry->name.isEmpty() )
 	    XftPatternAddString( pattern, XFT_FOUNDRY,
-				 foundry->name.utf8().data() );
+				 foundry->name.utf8() );
 
 	if ( !family->rawName.isEmpty() )
 	    XftPatternAddString( pattern, XFT_FAMILY,
-				 family->rawName.utf8().data() );
+				 family->rawName.utf8() );
 
 
 	char pitch_value = ( encoding->pitch == 'c' ? XFT_CHARCELL :
@@ -1545,7 +1547,7 @@ static QFontEngine *loadFontConfigFont(const QFontPrivate *fp, const QFontDef &r
 	QString family, foundry;
 	for (QStringList::ConstIterator it = family_list.begin(); it != family_list.end(); ++it) {
 	    parseFontName(*it, foundry, family);
-	    XftPatternAddString(pattern, XFT_FAMILY, family.utf8().data());
+	    XftPatternAddString(pattern, XFT_FAMILY, family.utf8());
 	}
     }
 
@@ -1573,7 +1575,7 @@ static QFontEngine *loadFontConfigFont(const QFontPrivate *fp, const QFontDef &r
 	extern QString qt_fallback_font_family( QFont::Script );
 	QString fallback = qt_fallback_font_family( script );
 	if ( ! fallback.isEmpty() && ! family_list.contains( fallback ) ) {
-	    QCString cs = fallback.utf8();
+	    QByteArray cs = fallback.toUtf8();
 	    value.u.s = (const FcChar8 *)cs.data();
 	    FcPatternAddWeak(pattern, FC_FAMILY, value, FcTrue);
 	}
@@ -1581,7 +1583,7 @@ static QFontEngine *loadFontConfigFont(const QFontPrivate *fp, const QFontDef &r
 	// add the default family
 	QString defaultFamily = QApplication::font().family();
 	if ( ! family_list.contains( defaultFamily ) ) {
-	    QCString cs = defaultFamily.utf8();
+	    QByteArray cs = defaultFamily.toUtf8();
 	    value.u.s = (const FcChar8 *)cs.data();
 	    FcPatternAddWeak(pattern, FC_FAMILY, value, FcTrue);
 	}
@@ -1590,7 +1592,7 @@ static QFontEngine *loadFontConfigFont(const QFontPrivate *fp, const QFontDef &r
 	// previous versions
 	defaultFamily = QApplication::font().defaultFamily();
 	if ( ! family_list.contains( defaultFamily ) ) {
-	    QCString cs = defaultFamily.utf8();
+	    QByteArray cs = defaultFamily.toUtf8();
 	    value.u.s = (const FcChar8 *)cs.data();
 	    FcPatternAddWeak(pattern, FC_FAMILY, value, FcTrue);
 	}
