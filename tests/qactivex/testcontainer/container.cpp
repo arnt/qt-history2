@@ -1,7 +1,15 @@
+#include <qapplication.h>
+
 #include <qaxobject.h>
 #include <qmetaobject.h>
 #include <limits.h>
 #include <qcolor.h>
+#include <qdatetime.h>
+#include <qfont.h>
+#include <qpixmap.h>
+
+#define PROP(prop) return m_##prop;
+#define SET_PROP(prop) m_##prop = prop;
 
 static inline QString constRefify( const QString& type )
 {
@@ -17,6 +25,8 @@ static inline QString constRefify( const QString& type )
 	crtype = "const QColor&";
     else if ( type == "QFont" )
 	crtype = "const QFont&";
+    else if ( type == "QPixmap" )
+	crtype = "const QPixmap&";
     else
 	crtype = type;
 
@@ -32,6 +42,11 @@ class QTestContainer : public QObject
     Q_PROPERTY( uint posnumber READ posnumber WRITE setPosnumber )
     Q_PROPERTY( double real READ real WRITE setReal )
     Q_PROPERTY( QColor color READ color WRITE setColor )
+    Q_PROPERTY( QDateTime date READ date WRITE setDate )
+    Q_PROPERTY( QDateTime time READ time WRITE setTime )
+    Q_PROPERTY( QDateTime datetime READ datetime WRITE setDatetime )
+    Q_PROPERTY( QFont font READ font WRITE setFont )
+    Q_PROPERTY( QPixmap pixmap READ pixmap WRITE setPixmap )
 
 /*
     Q_PROPERTY( short shortnumber READ shortnumber WRITE setShortnumber )
@@ -47,6 +62,12 @@ public:
 	m_posnumber = UINT_MAX;
 	m_real = 3.1415927;
 	m_color = red;
+	m_date = QDate( 2002, 8, 7 );
+	m_time = QDate( 10, 30, 45 );
+	m_datetime = QDateTime( QDate( 2001, 12, 31 ), QTime( 23, 59, 59 ) );
+	m_font = QFont( "Times New Roman", 12 );
+	m_pixmap = QPixmap( 100, 100 );
+	m_pixmap.fill( green );
 
 /*
 	m_shortnumber = 23;
@@ -58,7 +79,7 @@ public:
 	    return;
 
 	QString str = object->generateDocumentation();
-	qDebug( "%s", str.latin1() );
+	qDebug( "%s\n\n", str.latin1() );
 
 	QCString sigcode = "2";
 	QCString slotcode = "1";
@@ -93,7 +114,7 @@ public:
 	    if ( !prop )
 		continue;
 
-	    qDebug( "Testing property %s of type %s", prop->name(), prop->type() );
+	    qDebug( "\nTesting property %s of type %s", prop->name(), prop->type() );
 	    QVariant defvalue;
 	    QVariant::Type proptype = QVariant::nameToType( prop->type() );
 	    defvalue.cast( proptype );
@@ -104,6 +125,7 @@ public:
 	    // Get container's value
 	    containerValue = property( prop->name() );
 	    Q_ASSERT( containerValue.isValid() );
+	    Q_ASSERT( defvalue != containerValue );
 
 	    // Initialize property with default value, and verify initialization
 	    Q_ASSERT( object->setProperty( prop->name(), defvalue ) );
@@ -152,6 +174,7 @@ public:
 	    // Call and verify set<Prop>Slot
 	    QCString setPropSlot = "set" + ftemplate + "Slot(";
 	    setPropSlot += constRefify( prop->type() ) + ")";
+	    //** if this crashes, see QStringToQUType...
 	    object->dynamicCall( setPropSlot, containerValue );
 	    Q_ASSERT( object->property( prop->name() ) == containerValue );
 
@@ -180,6 +203,7 @@ public:
 	    // Call and verify emit<Prop>GetSignal
 	    // (the signal calls the <prop>RefSignal slot of "this" and updates the value, and returns the old value)
 	    QCString emitPropRefSignal = "emit" + ftemplate + "RefSignal()";
+	    //** if this crashes, see... QUObjectToVARIANT and makeReference
 	    Q_ASSERT( object->dynamicCall( emitPropRefSignal ) == defvalue );
 
 	    qDebug( "\tSynchronizing values..." );
@@ -191,6 +215,7 @@ public:
 
 	    qDebug( "\tSynchronizing values via %sChanged...", prop->name() );
 	    // Synchronize values in container - both are "containerValue"
+	    // If this crashes, see QVariantToQUObject
 	    Q_ASSERT( object->setProperty( prop->name(), defvalue ) );
 	    Q_ASSERT( property( prop->name() ) == defvalue );
 	    Q_ASSERT( object->property( prop->name() ) == defvalue );
@@ -202,23 +227,38 @@ public:
 	return 0;
     }
 
-    void setUnicode( const QString &unicode ) { m_unicode = unicode; }
-    QString unicode() const { return m_unicode; }
+    QString unicode() const { PROP(unicode) }
+    void setUnicode( const QString &unicode ){ SET_PROP(unicode) }
 
-    void setBoolval( bool boolval ) { m_boolval = boolval; }
-    bool boolval() const { return m_boolval; }
+    bool boolval() const { PROP(boolval) }
+    void setBoolval( bool boolval ) { SET_PROP(boolval) }
+    
+    int number() const { PROP(number) }
+    void setNumber( int number ) { SET_PROP(number) }
 
-    void setNumber( int number ) { m_number = number; }
-    int number() const { return m_number; }
+    uint posnumber() const { PROP(posnumber) }
+    void setPosnumber( uint posnumber ) { SET_PROP(posnumber) }
 
-    void setPosnumber( uint posnumber ) { m_posnumber = posnumber; }
-    uint posnumber() const { return m_posnumber; }
+    double real() const { PROP(real) }
+    void setReal( double real ) { SET_PROP(real) }
 
-    void setReal( double real ) { m_real = real; }
-    double real() const { return m_real; }
+    QColor color() const { PROP(color) }
+    void setColor( const QColor &color ) { SET_PROP(color) }
 
-    void setColor( QColor color ) { m_color = color; }
-    QColor color() const { return m_color; }
+    QDateTime date() const { PROP(date) }
+    void setDate( QDateTime date ) { SET_PROP(date) }
+
+    QDateTime time() const { PROP(time) }
+    void setTime( QDateTime time ) { SET_PROP(time) }
+
+    QDateTime datetime() const { PROP(datetime) }
+    void setDatetime( const QDateTime &datetime ) { SET_PROP(datetime) }
+
+    QFont font() const { PROP(font) }
+    void setFont( QFont font ) { SET_PROP(font) }
+
+    QPixmap pixmap() const { PROP(pixmap) }
+    void setPixmap( QPixmap pixmap ) { SET_PROP(pixmap) }
 
 /*
     void setShortnumber( short shortnumber ) { m_shortnumber = shortnumber; }
@@ -249,6 +289,21 @@ public slots:
     void colorChanged( const QColor &color ) { m_color = color; }
     void colorRefSignal( QColor &color ) { color = m_color; }
 
+    void dateChanged( const QDateTime &date ) { m_date = date; }
+    void dateRefSignal( QDateTime &date ) { date = m_date; }
+    
+    void timeChanged( const QDateTime &time ) { m_time = time; }
+    void timeRefSignal( QDateTime &time ) { time = m_time; }
+
+    void datetimeChanged( const QDateTime &datetime) { m_datetime = datetime; }
+    void datetimeRefSignal( QDateTime &datetime ) { datetime = m_datetime; }
+
+    void fontChanged( const QFont &font ) { m_font = font; }
+    void fontRefSignal( QFont &font ) { font = m_font; }
+
+    void pixmapChanged( const QPixmap &pixmap ) { m_pixmap = pixmap; }
+    void pixmapRefSignal( QPixmap &pixmap ) { pixmap = m_pixmap; }
+
 /*
     void shortnumberChanged( short shortnumber ) { m_shortnumber = shortnumber; }
     void shortnumberRefSignal( short &shortnumber ) { shortnumber = m_shortnumber; }
@@ -269,6 +324,11 @@ private:
     uint m_posnumber;
     double m_real;
     QColor m_color;
+    QDateTime m_date;
+    QDateTime m_time;
+    QDateTime m_datetime;
+    QFont m_font;
+    QPixmap m_pixmap;
 
 /*
     short m_shortnumber;
@@ -280,6 +340,8 @@ private:
 
 int main( int argc, char **argv )
 {
+    QApplication app( argc, argv );
+
     QTestContainer container( "testcontrol.QTestControl" );
     return container.run();
 }

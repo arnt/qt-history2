@@ -15,6 +15,9 @@
 #include <qaxbindable.h>
 #include <qaxfactory.h>
 
+#include <qdatetime.h>
+#include <qpixmap.h>
+
 #define PROP(prop) return m_##prop;
 #define SET_PROP(prop) m_##prop = prop;
 #define GET_PROP_SLOT(prop) return m_##prop;
@@ -31,6 +34,11 @@ class QTestControl : public QWidget, public QAxBindable
     Q_PROPERTY( uint posnumber READ posnumber WRITE setPosnumber )
     Q_PROPERTY( double real READ real WRITE setReal )
     Q_PROPERTY( QColor color READ color WRITE setColor )
+    Q_PROPERTY( QDateTime date READ date WRITE setDate )
+    Q_PROPERTY( QDateTime time READ time WRITE setTime )
+    Q_PROPERTY( QDateTime datetime READ datetime WRITE setDatetime )
+    Q_PROPERTY( QFont font READ font WRITE setFont )
+    Q_PROPERTY( QPixmap pixmap READ pixmap WRITE setPixmap )
     
 //  QVariant does not support short or long
 //    Q_PROPERTY( short shortnumber READ shortnumber WRITE setShortnumber )
@@ -60,7 +68,22 @@ public:
 
     QColor color() const { PROP(color) }
     void setColor( QColor color ) { SET_PROP(color) }
-    
+
+    QDateTime date() const { PROP(date) }
+    void setDate( QDateTime date ) { SET_PROP(date) }
+
+    QDateTime time() const { PROP(time) }
+    void setTime( QDateTime time ) { SET_PROP(time) }
+
+    QDateTime datetime() const { PROP(datetime) }
+    void setDatetime( QDateTime datetime ) { SET_PROP(datetime) }
+
+    QFont font() const { PROP(font) }
+    void setFont( QFont font ) { SET_PROP(font) }
+
+    QPixmap pixmap() const { PROP(pixmap) }
+    void setPixmap( QPixmap pixmap ) { SET_PROP(pixmap) }
+
 /*
     short shortnumber() const { PROP(shortnumber) }
     void setShortnumber( short shortnumber ) { SET_PROP(shortnumber) }
@@ -99,6 +122,31 @@ public slots:
     QColor getAndSetColorSlot( QColor& color ) { GET_AND_SET(color, QColor) }
     QColor emitColorRefSignal() { EMIT_REF(color, QColor) }
 
+    QDateTime getDateSlot() const { GET_PROP_SLOT(date) }
+    void setDateSlot( QDateTime date ) { SET_PROP_SLOT(date) }
+    QDateTime getAndSetDateSlot( QDateTime& date ) { GET_AND_SET(date, QDateTime) }
+    QDateTime emitDateRefSignal() { EMIT_REF(date, QDateTime) }
+
+    QDateTime getTimeSlot() const { GET_PROP_SLOT(time) }
+    void setTimeSlot( QDateTime time ) { SET_PROP_SLOT(time) }
+    QDateTime getAndSetTimeSlot( QDateTime& time ) { GET_AND_SET(time, QDateTime) }
+    QDateTime emitTimeRefSignal() { EMIT_REF(time, QDateTime) }
+
+    QDateTime getDatetimeSlot() const { GET_PROP_SLOT(datetime) }
+    void setDatetimeSlot( QDateTime datetime ) { SET_PROP_SLOT(datetime) }
+    QDateTime getAndSetDatetimeSlot( QDateTime& datetime ) { GET_AND_SET(datetime, QDateTime) }
+    QDateTime emitDatetimeRefSignal() { EMIT_REF(datetime, QDateTime) }
+
+    QFont getFontSlot() const { GET_PROP_SLOT(font) }
+    void setFontSlot( QFont font ) { SET_PROP_SLOT(font) }
+    QFont getAndSetFontSlot( QFont& font ) { GET_AND_SET(font, QFont) }
+    QFont emitFontRefSignal() { EMIT_REF(font, QFont) }
+
+    QPixmap getPixmapSlot() const { GET_PROP_SLOT(pixmap) }
+    void setPixmapSlot( QPixmap pixmap ) { SET_PROP_SLOT(pixmap) }
+    QPixmap getAndSetPixmapSlot( QPixmap& pixmap ) { GET_AND_SET(pixmap, QPixmap) }
+    QPixmap emitPixmapRefSignal() { EMIT_REF(pixmap, QPixmap) }
+
 /*
     short getShortnumberSlot() const { GET_PROP_SLOT(shortnumber) }
     void setShortnumberSlot( short shortnumber ) { SET_PROP_SLOT(shortnumber) }
@@ -126,8 +174,23 @@ signals:
     void realChanged( double );
     void realRefSignal( double& );
 
-    void colorChanged( QColor );
+    void colorChanged( const QColor& );
     void colorRefSignal( QColor& );
+
+    void dateChanged( const QDateTime& );
+    void dateRefSignal( QDateTime& );
+    
+    void timeChanged( const QDateTime& );
+    void timeRefSignal( QDateTime& );
+
+    void datetimeChanged( const QDateTime& );
+    void datetimeRefSignal( QDateTime& );
+
+    void fontChanged( const QFont& );
+    void fontRefSignal( QFont& );
+
+    void pixmapChanged( const QPixmap& );
+    void pixmapRefSignal( QPixmap& );
 
 /*
     void shortnumberChanged( short );
@@ -143,6 +206,12 @@ private:
     uint m_posnumber;
     double m_real;
     QColor m_color;
+    QDateTime m_date;
+    QDateTime m_time;
+    QDateTime m_datetime;
+    QFont m_font;
+    QPixmap m_pixmap;
+
 /*
     short m_shortnumber;
     long m_longnumber;
