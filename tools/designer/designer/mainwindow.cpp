@@ -3040,6 +3040,13 @@ FormList *MainWindow::formlist() const
     return formList;
 }
 
+PropertyEditor *MainWindow::propertyeditor() const
+{
+    if ( !propertyEditor )
+	( (MainWindow*)this )->setupPropertyEditor();
+    return propertyEditor;
+}
+
 bool MainWindow::openEditor( QWidget *w )
 {
     if ( WidgetFactory::hasSpecialEditor( WidgetDatabase::idFromClassName( WidgetFactory::classNameOf( w ) ) ) ) {

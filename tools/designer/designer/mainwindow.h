@@ -67,6 +67,7 @@ public:
 
     HierarchyView *objectHierarchy() const;
     FormList *formlist() const;
+    PropertyEditor *propertyeditor() const;
 
     void resetTool();
     int currentTool() const;
