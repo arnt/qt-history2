@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobjdefs.h#20 $
+** $Id: //depot/qt/main/src/kernel/qobjdefs.h#21 $
 **
 ** Macros and definitions related to QObject
 **
@@ -25,15 +25,17 @@
 #define signals protected			// signals: in class
 #define emit					// emit signal
 
+/* tmake ignore Q_OBJECT */
 #define Q_OBJECT							      \
 public:									      \
     QMetaObject *metaObject() const { return metaObj; }			      \
-    const char *className()   const;					      \
+    const char  *className()  const;					      \
 protected:								      \
-    void  initMetaObject();						      \
+    void	 initMetaObject();					      \
 private:								      \
     static QMetaObject *metaObj;
 
+/* tmake ignore Q_OBJECT */
 #define Q_OBJECT_FAKE Q_OBJECT
 						// macro for naming members
 #if defined(_OLD_CPP_)
