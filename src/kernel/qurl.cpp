@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qurl.cpp#46 $
+** $Id: //depot/qt/main/src/kernel/qurl.cpp#47 $
 **
 ** Implementation of QFileDialog class
 **
@@ -26,7 +26,9 @@
 #include "qurl.h"
 #include "qnetworkprotocol.h"
 
-struct QUrlPrivate
+#include <stdlib.h>
+
+struct QUrlPrivate 
 {
     QString protocol;
     QString user;
@@ -95,8 +97,7 @@ QUrl::QUrl( const QString& url )
     d = new QUrlPrivate;
     d->protocol = "file";
     d->port = -1;
-    QString tmp = url.stripWhiteSpace();
-    parse( tmp );
+    parse( url );
 }
 
 /*!
@@ -436,20 +437,49 @@ bool QUrl::parse( const QString& url )
     };
 
     bool relPath = FALSE;
-    if ( url.find( ":/" ) == -1 ) {
+    int cs = url.find( ":/" ); 
+    table[ 4 ][ 1 ] = User;
+    if ( cs == -1 ) { // we have a relative file (no path, host, protocol, etc.)
 	table[ 0 ][ 1 ] = Path;
 	relPath = TRUE;
-    } else
+    } else { // some checking
 	table[ 0 ][ 1 ] = Protocol;
+	
+	// find the part between the protocol and the path as the meaning
+	// of that part is dependend on some chars
+	++cs;
+	while ( url[ cs ] == "/" )
+	    ++cs;
+	int slash = url.find( "/", cs );
+	if ( slash == -1 )
+	    slash = url.length() - 1;
+	QString tmp = url.mid( cs, slash - cs + 1 );
+	
+	if ( !tmp.isEmpty() ) { // if this part exists
+	
+	    // look for the @ in this part
+	    int at = tmp.find( "@" );
+	    if ( at != -1 )
+		at += cs;
+	    // we have no @, which means
+	    // host[:port], so directly after the protocol the host starts,
+	    // or if the protocol is file, it´s the path
+	    if ( at == -1 ) {
+		if ( url.left( 4 ) == "file" )
+		    table[ 4 ][ 1 ] = Path;
+		else
+		    table[ 4 ][ 1 ] = Host;
+	    }
+	}
+    }
 	
     int state = Init; // parse state
     int input; // input token
-    bool hasAt = url.find( "@" ) != -1;
-
-    QString buffer;
+    
     QChar c = url[ 0 ];
     int i = 0;
-
+    QString port;
+    
     while ( TRUE ) {
 	
 	switch ( c ) {
@@ -461,6 +491,7 @@ bool QUrl::parse( const QString& url )
 	    break;
 	case '@':
 	    input = InputAt;
+	    
 	    break;
 	case ':':
 	    input = InputColon;
@@ -477,17 +508,6 @@ bool QUrl::parse( const QString& url )
 	}
 
     	state = table[ state ][ input ];
-
-	// #### hack: don't know how to make this better...
-	if ( ( state == Pass || state == User ) && !hasAt ) {
-	    QString p = d->protocol;
-	    if ( p.isEmpty() )
-		p = "file";
-	    if ( p == "file" )
-		state = Path;
-	    else
-		state = Host;
-	}
 	
 	switch ( state ) {
 	case Protocol:
@@ -511,18 +531,13 @@ bool QUrl::parse( const QString& url )
 	case Query:
 	    d->queryEncoded += c;
 	    break;
-	case Port: {
-	    if ( d->port == -1 )
-		d->port = 0;
-	    QString p;
-	    p.setNum( d->port );
-	    p += c;
-	    d->port = p.toInt();
-	} break;
+	case Port:
+	    port += c;
+	    break;
 	default:
 	    break;
 	}
-
+	
 	++i;
 	if ( i > (int)url.length() - 1 || state == Done || state == 0 )
 	    break;
@@ -530,12 +545,18 @@ bool QUrl::parse( const QString& url )
 	
     }
 
+    if ( !port.isEmpty() ) {
+	port.remove( 0, 1 );
+	d->port = atoi( port.latin1() );
+    }
+    
     // error
     if ( i < (int)url.length() - 1 ) {
 	d->isValid = FALSE;
 	return FALSE;
     }
 	
+    
     if ( d->protocol.isEmpty() )
 	d->protocol = oldProtocol;
 
@@ -560,7 +581,7 @@ bool QUrl::parse( const QString& url )
 
     decode( d->path );
 
-#if 0
+#if 0 
     qDebug( "URL: %s", url.latin1() );
     qDebug( "protocol: %s", d->protocol.latin1() );
     qDebug( "user: %s", d->user.latin1() );
@@ -569,7 +590,7 @@ bool QUrl::parse( const QString& url )
     qDebug( "path: %s", path().latin1() );
     qDebug( "ref: %s", d->refEncoded.latin1() );
     qDebug( "query: %s", d->queryEncoded.latin1() );
-    qDebug( "port: %d\n", d->port );
+    qDebug( "port: %d\n\n----------------------------\n\n", d->port );
 #endif
 
     return TRUE;
