@@ -58,7 +58,6 @@ SOURCES	+= command.cpp \
 		outputwindow.cpp \
 		../shared/widgetdatabase.cpp \
 		../shared/parser.cpp \
-		config.cpp \
 		pixmapcollection.cpp \
 		previewframe.cpp \
 		previewwidgetimpl.cpp \
@@ -123,7 +122,6 @@ HEADERS	+= command.h \
 		outputwindow.h \
 		../shared/widgetdatabase.h \
 		../shared/parser.h \
-		config.h \
 		previewframe.h \
 		previewwidgetimpl.h \
 		paletteeditoradvancedimpl.h \
