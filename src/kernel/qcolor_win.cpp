@@ -89,18 +89,17 @@ void QColor::initialize()
     if ( QApplication::colorSpec() == QApplication::ManyColor )
 	numPalEntries = 20 + 6*6*6;		// System + cube
     else
-	numPalEntries = 20;			// Just system
+	numPalEntries = 0;			// allocate in alloc()
 
     LOGPALETTE* pal = (LOGPALETTE*)malloc( sizeof(LOGPALETTE)
 				     + numPalEntries * sizeof(PALETTEENTRY) );
     pal->palVersion = 0x300;
     pal->palNumEntries = numPalEntries;
 
-    // Fill with system colors
-    GetSystemPaletteEntries( dc, 0, 10, pal->palPalEntry );
-    GetSystemPaletteEntries( dc, 246, 10, pal->palPalEntry + 10 );
-
     if ( QApplication::colorSpec() == QApplication::ManyColor ) {
+	// Fill with system colors
+	GetSystemPaletteEntries( dc, 0, 10, pal->palPalEntry );
+	GetSystemPaletteEntries( dc, 246, 10, pal->palPalEntry + 10 );
 	// Make 6x6x6 color cube
 	int idx = 20;
 	for( int ir = 0x0; ir <= 0xff; ir+=0x33 ) {
@@ -281,11 +280,7 @@ uint QColor::alloc()
 			colArray[idx] = d.argb;
 			ctxArray[idx] = current_alloc_context;
 			HDC dc = qt_display_dc();
-#ifndef Q_OS_TEMP
-		    UnrealizeObject( hpal );
-#else
-			GetStockObject( DEFAULT_PALETTE );
-#endif
+			UnrealizeObject( hpal );
 			SelectPalette( dc, hpal, FALSE );
 			RealizePalette( dc );
 		    }
