@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qlist.h#10 $
+** $Id: //depot/qt/main/src/tools/qlist.h#11 $
 **
 ** Definition of QList template/macro class
 **
@@ -48,6 +48,7 @@ public:									      \
     bool  remove( uint i )		{ return QGList::removeAt(i); }	      \
     bool  remove()			{ return QGList::remove((GCI)0); }    \
     bool  remove( const type *d )	{ return QGList::remove((GCI)d); }    \
+    bool  removeRef( const type *d )	{ return QGList::removeRef((GCI)d); } \
     bool  removeNode( QLNode *n )	{ return QGList::removeNode(n); }     \
     bool  removeFirst()			{ return QGList::removeFirst(); }     \
     bool  removeLast()			{ return QGList::removeLast(); }      \
@@ -63,7 +64,6 @@ public:									      \
     uint  containsRef( const type *d )	{ return QGList::containsRef((GCI)d);}\
     type *at( uint i )			{ return (type *)QGList::at(i); }     \
     uint  at() const			{ return QGList::at(); }	      \
-	  operator type *() const	{ return (type *)QGList::get(); }     \
     type *current()  const		{ return (type *)QGList::get(); }     \
     QLNode *currentNode()  const	{ return QGList::currentNode(); }     \
     type *getFirst() const		{ return (type *)QGList::cfirst(); }  \
@@ -131,6 +131,7 @@ public:
     bool  remove( uint i )		{ return QGList::removeAt(i); }
     bool  remove()			{ return QGList::remove((GCI)0); }
     bool  remove( const type *d )	{ return QGList::remove((GCI)d); }
+    bool  removeRef( const type *d )	{ return QGList::removeRef((GCI)d); }
     bool  removeNode( QLNode *n )	{ return QGList::removeNode(n); }
     bool  removeFirst()			{ return QGList::removeFirst(); }
     bool  removeLast()			{ return QGList::removeLast(); }
@@ -146,7 +147,6 @@ public:
     uint  containsRef( const type *d )	{ return QGList::containsRef((GCI)d); }
     type *at( uint i )			{ return (type *)QGList::at(i); }
     uint  at() const			{ return QGList::at(); }
-	  operator type *() const	{ return (type *)QGList::get(); }
     type *current()  const		{ return (type *)QGList::get(); }
     QLNode *currentNode()  const	{ return QGList::currentNode(); }
     type *getFirst() const		{ return (type *)QGList::cfirst(); }
