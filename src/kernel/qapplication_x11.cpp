@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#402 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#403 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -419,44 +419,6 @@ static void qt_x11_process_intern_atoms()
   set_local_font() - tries to set a sensible default font char set
  *****************************************************************************/
 
-/* locale names mostly copied from XFree86 */
-static const char * iso8859_2locales[] = {
-    "croatian", "cs", "cs_CS", "cs_CZ","cz", "cz_CZ", "czech", "hr",
-    "hr_HR", "hu", "hu_HU", "hungarian", "pl", "pl_PL", "polish", "ro",
-    "ro_RO", "rumanian", "serbocroatian", "sh", "sh_SP", "sh_YU", "sk",
-    "sk_SK", "sl", "sl_CS", "sl_SI", "slovak", "slovene", "sr_SP", 0 };
-
-static const char * iso8859_5locales[] = {
-    "bg", "bg_BG", "bulgarian", "mk", "mk_MK", "ru", "ru_RU", "ru_SU",
-    "russian", "sp", "sp_YU", 0 };
-
-static const char * iso8859_6locales[] = {
-    "ar_AA", "ar_SA", "arabic", 0 };
-
-static const char * iso8859_7locales[] = {
-    "el", "el_GR", "greek", 0 };
-
-static const char * iso8859_8locales[] = {
-    "hebrew", "iw", "iw_IL", 0 };
-
-static const char * iso8859_9locales[] = {
-    "tr", "tr_TR", "turkish", 0 };
-
-static bool try_locale( const char * locale[], const char * lang,
-			QFont::CharSet encoding )
-{
-    int i;
-    for( i=0; locale[i] && strcmp(locale[i], lang); i++ )
-	;
-    if ( locale[i] ) {
-	QFont::setDefaultFont( QFont( "Helvetica", 12,
-				      QFont::Normal, FALSE, encoding ) );
-	return TRUE;
-    }
-    return FALSE;
-}
-
-
 static struct {
     const char * name;
     QFont::CharSet cs;
@@ -479,42 +441,26 @@ static struct {
     { 0, /* anything */ QFont::ISO_8859_1 }
 };
 
-
-	
 static void set_local_font()
 {
-    char * lang = qstrdup( getenv( "LANG" ) );
-    char * p = lang;
-    while( p && *p ) {
-	if ( *p == '.' ) {
-	    *p++ = 0;
-	    int i=0;
-	    while( encoding_names[i].name &&
-		   qstricmp( p, encoding_names[i].name ) )
-		i++;
-	    if ( encoding_names[i].name ) {
-		QFont::setDefaultFont( QFont( "Helvetica", 12, QFont::Normal,
-					      FALSE, encoding_names[i].cs ) );
-		return;
-	    }
-	    p--;
-	} else {
-	    p++;
+    QTextCodec * t = QTextCodec::codecForLocale();
+    const char * p = t ? t->name() : 0;
+    if ( p && *p ) {
+	int i=0;
+	while( encoding_names[i].name &&
+	       qstricmp( p, encoding_names[i].name ) )
+	    i++;
+	if ( encoding_names[i].name ) {
+	    QFont::setDefaultFont( QFont( "Helvetica", 12, QFont::Normal,
+					  FALSE, encoding_names[i].cs ) );
+	    return;
 	}
     }
 
-    if ( lang &&
-	 !try_locale( iso8859_2locales, lang, QFont::ISO_8859_2 ) &&
-	 !try_locale( iso8859_5locales, lang, QFont::ISO_8859_5 ) &&
-	 !try_locale( iso8859_6locales, lang, QFont::ISO_8859_6 ) &&
-	 !try_locale( iso8859_7locales, lang, QFont::ISO_8859_7 ) &&
-	 !try_locale( iso8859_8locales, lang, QFont::ISO_8859_8 ) &&
-	 !try_locale( iso8859_9locales, lang, QFont::ISO_8859_9 ) )
-	QFont::setDefaultFont( QFont( "Helvetica", 12,
-				      QFont::Normal, FALSE, QFont::Latin1 ) );
-    if ( lang )				// Avoid purify complaint
-	delete[] lang;
+    QFont::setDefaultFont( QFont( "Helvetica", 12,
+				  QFont::Normal, FALSE, QFont::Latin1 ) );
 }
+
 
 
 // set font, foreground and background from x11 resources. The

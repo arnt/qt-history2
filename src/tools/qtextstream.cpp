@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qtextstream.cpp#78 $
+** $Id: //depot/qt/main/src/tools/qtextstream.cpp#79 $
 **
 ** Implementation of QTextStream class
 **
@@ -550,9 +550,9 @@ QChar QTextStream::ts_getc()
 	    return QEOF;
 	int c2 = dev->getch();
 	if ( isNetworkOrder() )
-	    r = QChar( c2, c1 ); 
+	    r = QChar( c2, c1 );
 	else
-	    r = QChar( c1, c2 ); 
+	    r = QChar( c1, c2 );
     }
     return r;
 }
@@ -1792,7 +1792,7 @@ QTextStream &reset( QTextStream &s )
   <ul>
   <li> \c Locale Using local file format (Latin1 if locale is not set), but autodetecting Unicode
   on input.
-  <li> \c Unicode Using Unicode for input and output. Output will be written in the order 
+  <li> \c Unicode Using Unicode for input and output. Output will be written in the order
   most efficient for the current platform (i.e. the order used internally in QString).
   <li> \c Latin1  ISO-8859-1. Will not autodetect Unicode.
   <li> \c UnicodeNetworkOrder Using network order Unicode for input and output. Useful when
@@ -1800,15 +1800,15 @@ QTextStream &reset( QTextStream &s )
   <li> \c UnicodeReverse Using reverse network order Unicode for input and output. Useful when
   reading Unicode data that does not start with the byte order marker, or writing data that should be
   read by buggy Windows applications.
-  <li> \c RawUnicode Like Unicode, but does not write the byte order marker, nor does it 
-  autodetect the byte order. Only useful when writing to non-persistent storage 
+  <li> \c RawUnicode Like Unicode, but does not write the byte order marker, nor does it
+  autodetect the byte order. Only useful when writing to non-persistent storage
   used by a single process.
   </ul>
 
   \c Locale and all Unicode encodings, except \c RawUnicode, will look
   at the first two bytes in a input stream to determine the byte
   order. The initial byte order marker will be stripped off before data is read.
-  
+
   \note This function should be called before any data is read to/written from the stream.
   \sa setCodec
 */
@@ -1840,15 +1840,11 @@ void QTextStream::setEncoding( Encoding e )
 	doUnicodeHeader = FALSE;
 	internalOrder = TRUE;
 	break;
-    case Locale: {
+    case Locale:
 	latin1 = TRUE; //fallback to Latin 1
-	mapper = QTextCodec::codecForName( QTextCodec::locale() );
-	debug ( "mapper: %p, name: %s, MIBenum: %d", mapper,
-		mapper?mapper->name():"(none)",
-		mapper?mapper->mib():-1 );
+	mapper = QTextCodec::codecForLocale();
 	doUnicodeHeader = TRUE;
-    }
-    break;
+	break;
     case Latin1:
 	mapper = 0;
 	doUnicodeHeader = FALSE;

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qtextcodec.cpp#20 $
+** $Id: //depot/qt/main/src/tools/qtextcodec.cpp#21 $
 **
 ** Implementation of QTextCodec class
 **
@@ -27,6 +27,7 @@
 #include "qstrlist.h"
 #include <stdlib.h>
 #include <ctype.h>
+#include "qstring.h"
 
 static QList<QTextCodec> * all = 0;
 
@@ -61,7 +62,6 @@ static void realSetup()
 {
     all = new QList<QTextCodec>;
     all->setAutoDelete( TRUE );
-    //qAddPostRoutine( cleanup );
     setupBuiltinCodecs();
 }
 
@@ -255,6 +255,79 @@ QTextCodec* QTextCodec::codecForMib(int mib)
 	    break;
     }
     return result;
+}
+
+
+
+
+
+/* locale names mostly copied from XFree86 */
+static const char * iso8859_2locales[] = {
+    "croatian", "cs", "cs_CS", "cs_CZ","cz", "cz_CZ", "czech", "hr",
+    "hr_HR", "hu", "hu_HU", "hungarian", "pl", "pl_PL", "polish", "ro",
+    "ro_RO", "rumanian", "serbocroatian", "sh", "sh_SP", "sh_YU", "sk",
+    "sk_SK", "sl", "sl_CS", "sl_SI", "slovak", "slovene", "sr_SP", 0 };
+
+static const char * iso8859_5locales[] = {
+    "bg", "bg_BG", "bulgarian", "mk", "mk_MK", "ru", "ru_RU", "ru_SU",
+    "russian", "sp", "sp_YU", 0 };
+
+static const char * iso8859_6locales[] = {
+    "ar_AA", "ar_SA", "arabic", 0 };
+
+static const char * iso8859_7locales[] = {
+    "el", "el_GR", "greek", 0 };
+
+static const char * iso8859_8locales[] = {
+    "hebrew", "iw", "iw_IL", 0 };
+
+static const char * iso8859_9locales[] = {
+    "tr", "tr_TR", "turkish", 0 };
+
+
+static bool try_locale_list( const char * locale[], const char * lang )
+{
+    int i;
+    for( i=0; locale[i] && strcmp(locale[i], lang); i++ )
+	;
+    return locale[i] != 0;
+}
+
+
+static QTextCodec * localeMapper = 0;
+
+/*!  Returns a pointer to the codec most suitable for this locale. */
+
+QTextCodec* QTextCodec::codecForLocale()
+{
+    if ( localeMapper )
+	return localeMapper;
+
+    char * lang = qstrdup( getenv( "LANG" ) );
+    char * p = lang ? strchr( lang, '.' ) : 0;
+    if( p && *p == '.' ) {
+	 // if there is an encoding and we don't know it, we return 0
+	*p++ = 0;
+	localeMapper = codecForName( p );
+    } else {
+	// if there is none, we default to 8859-1 :)
+	if ( try_locale_list( iso8859_2locales, lang ) )
+	    localeMapper = codecForName( "ISO 8859-2" );
+	else if ( try_locale_list( iso8859_5locales, lang ) )
+	    localeMapper = codecForName( "ISO 8859-5" );
+	else if ( try_locale_list( iso8859_6locales, lang ) )
+	    localeMapper = codecForName( "ISO 8859-6" );
+	else if ( try_locale_list( iso8859_7locales, lang ) )
+	    localeMapper = codecForName( "ISO 8859-7" );
+	else if ( try_locale_list( iso8859_8locales, lang ) )
+	    localeMapper = codecForName( "ISO 8859-8" );
+	else if ( try_locale_list( iso8859_9locales, lang ) )
+	    localeMapper = codecForName( "ISO 8859-9" );
+	else
+	    localeMapper = codecForName( "ISO 8859-1" );
+    }
+    delete[] lang;
+    return localeMapper;
 }
 
 
@@ -849,6 +922,7 @@ const char* QTextCodec::locale()
 	if ( lang.isEmpty() )
 	    lang = "C";
     }
+    debug( "l <%s>", lang.data() );
     return lang;
 }
 
