@@ -1473,7 +1473,7 @@ static void indic_shape_syllable( int script, const QString &string, int from, i
     int firstGlyph = si->num_glyphs;
 
     bool control = FALSE;
-    for (int i = 0; i < len; ++i)
+    for (i = 0; i < len; ++i)
 	control |= (form(reordered[i]) == Control);
 
 #ifndef QT_NO_XFTFREETYPE
