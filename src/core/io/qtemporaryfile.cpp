@@ -51,10 +51,8 @@ QTemporaryFileEngine::open(int flags)
 #ifdef HAS_MKSTEMP
     d->fd = mkstemp(filename);
 #else
-    char *tempfilename = mktemp(filename);
-    free(filename);
-    filename = tempfilename;
-    d->fd = d->sysOpen(filename, QT_OPEN_RDWR | QT_OPEN_CREAT);
+    if(mktemp(filename)) 
+        d->fd = d->sysOpen(filename, QT_OPEN_RDWR | QT_OPEN_CREAT);
 #endif
     if(d->fd != -1) {
         d->file = filename; //changed now!
