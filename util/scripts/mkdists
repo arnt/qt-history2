@@ -332,7 +332,6 @@ done
 qglobal="$DISTDIR/qt/src/tools/qglobal.h"
 TYPE=`grep QT_VERSION_STR $DISTDIR/qt/src/tools/qglobal.h | awk '{ print $3 }' | sed 's,["0-9.]*\(-.*\)",\1,'`
 VERSION_STR=${BRANCH}${TYPE} && [ "$TYPE" = "-snapshot" ] && VERSION_STR=`date "+${VERSION_STR}-%Y%m%d"`
-echo $VERSION_STR
 sed -e "s,\(\#define *QT_VERSION  *\)[0-9]*,\1${BRANCH_DIGITS},g" \
     -e "s,\(\#define *QT_VERSION_STR  *\"\)\(.*\),\1${VERSION_STR}\",g" $qglobal >${TMP_FILE}
 mv ${TMP_FILE} $qglobal
