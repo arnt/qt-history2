@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#352 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#353 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -1321,10 +1321,10 @@ void QApplication::winFocus( QWidget *widget, bool gotFocus )
 	if ( active_window->testWFlags( WStyle_Dialog ) ) {
 	  // raise the entire application, not just the dialog
 	  QWidget* mw = active_window;
-	  while( mw->parentWidget() )
-	    mw = mw->parentWidget();
+	  while( mw->parentWidget() && mw->testWFlags( WStyle_Dialog) )
+	      mw = mw->parentWidget()->topLevelWidget();
 	  if ( mw != active_window )
-	    SetWindowPos( mw->winId(), HWND_TOP, 0, 0, 0, 0, SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE );
+	      SetWindowPos( mw->winId(), HWND_TOP, 0, 0, 0, 0, SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE );
 	}
     } else {
 	active_window = 0;
