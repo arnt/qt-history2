@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qplugin_p.h#1 $
+** $Id: //depot/qt/main/src/kernel/qlibrary_p.h#1 $
 **
 ** Definition of some Qt private functions.
 **
@@ -35,8 +35,8 @@
 **
 **********************************************************************/
 
-#ifndef QPLUGIN_P_H
-#define QPLUGIN_P_H
+#ifndef QLIBRARY_P_H
+#define QLIBRARY_P_H
 
 
 //
@@ -177,4 +177,4 @@ void* qt_resolve_symbol( void* handle, const char* f )
 }
 #endif
 
-#endif //QPLUGIN_P_H
+#endif //QLIBRARY_P_H

@@ -1,7 +1,7 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qplugin.cpp#1 $
+** $Id: //depot/qt/main/src/kernel/qlibrary.cpp#1 $
 **
-** Implementation of QPlugIn class
+** Implementation of QLibrary class
 **
 ** Created : 2000-01-01
 **
@@ -36,30 +36,30 @@
 **********************************************************************/
 #include "qcomponentinterface.h"
 #ifndef QT_NO_PLUGIN
-#include "qplugin.h"
-#include "qplugin_p.h"
+#include "qlibrary.h"
+#include "qlibrary_p.h"
 
 /*!
-  \class QCleanUpHandler qcleanuphandler.h
+  \class QCleanupHandler qcleanuphandler.h
 
   \brief Provides a save class for memory cleanup.
 */
 
 /*!
-  \fn QCleanUpHandler::~QCleanUpHandler()
+  \fn QCleanupHandler::~QCleanupHandler()
 
   This destructor will delete all handled objects.
 */
 
 /*!
-  \fn void QCleanUpHandler::addCleanUp( Type* object )
+  \fn void QCleanupHandler::addCleanUp( Type* object )
 
   Adds an object to the list that will be destroyed upon
   destruction of the cleanup handler itself.
 */
 
 /*!
-  \fn bool QCleanUpHandler::isClean()
+  \fn bool QCleanupHandler::isClean()
 
   Return TRUE if there are any undeleted objects this handler
   has to care about.
@@ -70,14 +70,14 @@
 
 
 /*!
-  \class QPlugIn qplugin.h
+  \class QLibrary qplugin.h
 
   \brief This class provides a wrapper for library loading and unloading.
   \ingroup component
 */
 
 /*!
-  \enum QPlugIn::LibraryPolicy
+  \enum QLibrary::Policy
 
   This enum type is used to set and read the plugin's library
   policy.
@@ -90,13 +90,13 @@
 */
 
 /*!
-  Creates a QPlugIn object for the shared library \a filename, propagating \a appIface
+  Creates a QLibrary object for the shared library \a filename, propagating \a appIface
   to all interfaces created within this library.
   The library get's loaded immediately if \a pol is OptimizeSpeed.
 
   \sa setPolicy(), load()
 */
-QPlugIn::QPlugIn( const QString& filename, QApplicationInterface* appIface, LibraryPolicy pol )
+QLibrary::QLibrary( const QString& filename, QApplicationInterface* appIface, Policy pol )
     : info( 0 ), pHnd( 0 ), libfile( filename ), libPol( pol ), appInterface( appIface )
 {
     if ( pol == OptimizeSpeed )
@@ -104,21 +104,21 @@ QPlugIn::QPlugIn( const QString& filename, QApplicationInterface* appIface, Libr
 }
 
 /*!
-  Deletes the QPlugIn object.
+  Deletes the QLibrary object.
 
   When the library policy is not Manual, the library will be unloaded.
 
   \sa unload()
 */
-QPlugIn::~QPlugIn()
+QLibrary::~QLibrary()
 {
     if ( libPol != Manual )
 	unload();
 }
 
 /*!
-  Loads the shared library and initializes the connection to the QPlugInInterface.
-  Returns a pointer to the QPlugInInterface if the library was loaded successfully,
+  Loads the shared library and initializes the connection to the QComponentInterface.
+  Returns a pointer to the QComponentInterface if the library was loaded successfully,
   otherwise returns null.
 
   This function gets called automatically if the policy is not Manual.
@@ -126,7 +126,7 @@ QPlugIn::~QPlugIn()
 
   \sa setPolicy()
 */
-QPlugInInterface* QPlugIn::load()
+QComponentInterface* QLibrary::load()
 {
     if ( libfile.isEmpty() )
 	return 0;
@@ -146,13 +146,13 @@ QPlugInInterface* QPlugIn::load()
 /*!
   Returns TRUE if the library is loaded.
 */
-bool QPlugIn::loaded() const
+bool QLibrary::loaded() const
 {
     return pHnd != 0;
 }
 
 /*!
-  Releases the QPlugInInterface and unloads the library when successful.
+  Releases the QComponentInterface and unloads the library when successful.
   Returns TRUE if the library could be unloaded, otherwise FALSE.
 
   \warning
@@ -162,7 +162,7 @@ bool QPlugIn::loaded() const
 
   \sa load
 */
-bool QPlugIn::unload( bool force )
+bool QLibrary::unload( bool force )
 {
     if ( pHnd ) {
 	if ( info ) {
@@ -180,7 +180,7 @@ bool QPlugIn::unload( bool force )
 }
 
 
-bool QPlugIn::use()
+bool QLibrary::use()
 {
     if ( !pHnd || !info ) {
 	if ( libPol != Manual )
@@ -194,16 +194,16 @@ bool QPlugIn::use()
     return TRUE;
 }
 
-QPlugInInterface* QPlugIn::loadInterface()
+QComponentInterface* QLibrary::loadInterface()
 {
     if ( !pHnd ) {
 #if defined(QT_CHECK_RANGE)
-	qWarning("QPlugIn::loadInterface(): Failed to load library - no handle!");
+	qWarning("QLibrary::loadInterface(): Failed to load library - no handle!");
 #endif
 	return 0;
     }
 
-    typedef QPlugInInterface* (*QtLoadInfoProc)();
+    typedef QComponentInterface* (*QtLoadInfoProc)();
     QtLoadInfoProc infoProc;
     infoProc = (QtLoadInfoProc) qt_resolve_symbol( pHnd, "qt_load_interface" );
 
@@ -229,7 +229,7 @@ QPlugInInterface* QPlugIn::loadInterface()
 
   \sa LibraryPolicy
 */
-void QPlugIn::setPolicy( LibraryPolicy pol )
+void QLibrary::setPolicy( Policy pol )
 {
     libPol = pol;
 
@@ -240,25 +240,25 @@ void QPlugIn::setPolicy( LibraryPolicy pol )
 /*!
   Returns the current policy.
 */
-QPlugIn::LibraryPolicy QPlugIn::policy() const
+QLibrary::Policy QLibrary::policy() const
 {
     return libPol;
 }
 
 /*!
-  Returns the filename of the shared library this QPlugIn object handles.
+  Returns the filename of the shared library this QLibrary object handles.
 */
-QString QPlugIn::library() const
+QString QLibrary::library() const
 {
     return libfile;
 }
 
 /*!
-  Forwards the query to the QPlugInInterface and returns the result.
+  Forwards the query to the QComponentInterface and returns the result.
 
   \sa QUnknownInterface::queryInterface
 */
-QUnknownInterface* QPlugIn::queryInterface( const QString &request, bool recusive, bool regexp )
+QUnknownInterface* QLibrary::queryInterface( const QString &request, bool recusive, bool regexp )
 {
     if ( !use() )
 	return 0;

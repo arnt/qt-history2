@@ -54,7 +54,7 @@ kernel {
 		  $$KERNEL_H/qpicture.h \
 		  $$KERNEL_H/qpixmap.h \
 		  $$KERNEL_H/qpixmapcache.h \
-		  $$KERNEL_H/qplugin.h \
+		  $$KERNEL_H/qlibrary.h \
 		  $$KERNEL_H/qinterfacemanager.h \
 		  $$KERNEL_H/qpointarray.h \
 		  $$KERNEL_H/qpoint.h \
@@ -190,7 +190,7 @@ kernel {
 		  $$KERNEL_CPP/qpicture.cpp \
 		  $$KERNEL_CPP/qpixmap.cpp \
 		  $$KERNEL_CPP/qpixmapcache.cpp \
-		  $$KERNEL_CPP/qplugin.cpp \
+		  $$KERNEL_CPP/qlibrary.cpp \
 		  $$KERNEL_CPP/qpointarray.cpp \
 		  $$KERNEL_CPP/qpoint.cpp \
 		  $$KERNEL_CPP/qpolygonscanner.cpp \

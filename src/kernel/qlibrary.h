@@ -1,7 +1,7 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qplugin.h#1 $
+** $Id: //depot/qt/main/src/kernel/qlibrary.h#1 $
 **
-** Definition of QPlugIn class
+** Definition of QLibrary class
 **
 ** Created : 2000-01-01
 **
@@ -35,8 +35,8 @@
 **
 **********************************************************************/
 
-#ifndef QPLUGIN_H
-#define QPLUGIN_H
+#ifndef QLIBRARY_H
+#define QLIBRARY_H
 
 #ifndef QT_H
 #include "qwindowdefs.h"
@@ -47,27 +47,27 @@
 
 class QApplicationInterface;
 class QUnknownInterface;
-class QPlugInInterface;
+class QComponentInterface;
 
-class Q_EXPORT QPlugIn
+class Q_EXPORT QLibrary
 {
 public:
-    enum LibraryPolicy
+    enum Policy
     { 
 	Default,
 	OptimizeSpeed,
 	Manual
     };
 
-    QPlugIn( const QString& filename, QApplicationInterface* appIface = 0, LibraryPolicy = Default );
-    ~QPlugIn();
+    QLibrary( const QString& filename, QApplicationInterface* appIface = 0, Policy = Default );
+    ~QLibrary();
 
-    QPlugInInterface* load();
+    QComponentInterface* load();
     bool unload( bool force = FALSE );
     bool loaded() const;
 
-    void setPolicy( LibraryPolicy pol );
-    LibraryPolicy policy() const;
+    void setPolicy( Policy pol );
+    Policy policy() const;
 
     QString library() const;
 
@@ -75,8 +75,8 @@ public:
 
 private:
     bool use();
-    QPlugInInterface* loadInterface();
-    QPlugInInterface* info;
+    QComponentInterface* loadInterface();
+    QComponentInterface* info;
 
 #ifdef Q_WS_WIN
     HINSTANCE pHnd;
@@ -84,17 +84,17 @@ private:
     void* pHnd;
 #endif
     QString libfile;
-    LibraryPolicy libPol;
+    Policy libPol;
     QApplicationInterface* appInterface;
 
 private:	// Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
-    QPlugIn( const QPlugIn & );
-    QPlugIn &operator=( const QPlugIn & );
+    QLibrary( const QLibrary & );
+    QLibrary &operator=( const QLibrary & );
 #endif
 };
 
 #endif
 
-#endif // QPLUGIN_H
+#endif //QLIBRARY_H
 
