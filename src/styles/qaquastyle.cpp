@@ -29,7 +29,6 @@
 #include "qbitmap.h"
 #include "qtoolbutton.h"
 #include "qtoolbar.h"
-#include "qobjectlist.h"
 #include "qlayout.h"
 #include "qptrlist.h"
 #include "qbuttongroup.h"
@@ -498,7 +497,7 @@ void QAquaStyle::drawPrimitive(PrimitiveElement pe,
 	    bool highlight = flags & Style_On;
 	    QColor dark(cg.dark());
 	    QColor light(cg.light());
-	    unsigned int i;
+	    int i;
 	    if(flags & Style_Horizontal) {
 		int h = r.height();
 		if(h > 6) {
@@ -1009,9 +1008,9 @@ void QAquaStyle::drawControl(ControlElement element,
 	} else {
 	    p->fillRect(r, cg.brush(QColorGroup::Button));
 	}
-	drawItem(p, r, AlignCenter|DontClip|SingleLine|ShowPrefix,
-		  cg, mi->isEnabled(), mi->pixmap(), mi->text(), -1,
-		  (down && active) ? &white : &cg.buttonText());
+	QWindowsStyle::drawItem(p, r, AlignCenter|DontClip|SingleLine|ShowPrefix,
+				cg, mi->isEnabled(), mi->pixmap(), mi->text(), -1,
+				(down && active) ? &white : &cg.buttonText());
 	break; }
 
     case CE_PushButton: {
@@ -1131,8 +1130,8 @@ void QAquaStyle::drawControl(ControlElement element,
 	    w -= pixw + 4;
 	}
 
-	drawItem(p, QRect(x, y, w, h), AlignCenter|ShowPrefix, cg, btn->isEnabled(),
-		  btn->pixmap(), btn->text(), -1);
+	QWindowsStyle::drawItem(p, QRect(x, y, w, h), AlignCenter|ShowPrefix, cg, btn->isEnabled(),
+				btn->pixmap(), btn->text(), -1);
 #endif
 	break; }
 
@@ -1676,15 +1675,13 @@ void QAquaStyle::drawComplexControl(ComplexControl ctrl, QPainter *p,
 		    QToolBar * bar  = (QToolBar *) btn_prnt;
 		    if(bar->orientation() == Qt::Vertical)
 			mod += "v";
-		    QObjectList * l = bar->queryList("QToolButton", 0, FALSE, FALSE);
-		    QObjectListIterator it(*l);
-		    if(it.toFirst() == toolbutton)
+		    QObjectList list = bar->queryList("QPushButton");
+		    if(list.first() == toolbutton)
 			mod += "left";
-		    else if(it.toLast() == toolbutton && !toolbutton->popup())
+		    else if(list.last() == toolbutton && !toolbutton->popup())
 			mod += "right";
 		    else
 			mod += "mid";
-		    delete l;
 		} else {
 		    mod += "mid";
 		}
@@ -1708,18 +1705,16 @@ void QAquaStyle::drawComplexControl(ComplexControl ctrl, QPainter *p,
 		QToolBar * bar  = (QToolBar *) btn_prnt;
 		if(bar->orientation() == Qt::Vertical)
 		    mod += "v";
-		QObjectList * l = bar->queryList("QToolButton", 0, FALSE, FALSE);
-		QObjectListIterator it(*l);
-		if(it.toFirst() == toolbutton) {
+		QObjectList list = bar->queryList("QPushButton");
+		if(list.first() == toolbutton) {
 		    if(bar->orientation() == Qt::Horizontal)
 			mod += "left";
-		} else if(it.toLast() == toolbutton && !toolbutton->popup()) {
+		} else if(list.last() == toolbutton && !toolbutton->popup()) {
 		    if(bar->orientation() == Qt::Horizontal)
 			mod += "right";
 		} else {
 		    mod += "mid";
 		}
-		delete l;
 	    } else {
 		mod += "mid";
 	    }
