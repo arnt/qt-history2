@@ -81,6 +81,8 @@ public:
 
     virtual void drawItemText(QPainter *p, const QRect &r, int flags, const QPalette &pal,
                               bool enabled, const QString &text, const QColor *penColor = 0) const;
+
+    bool event(QEvent *e);
 private:
     Q_DISABLE_COPY(QMacStyle)
 

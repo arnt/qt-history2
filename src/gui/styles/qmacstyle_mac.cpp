@@ -50,6 +50,7 @@
 #include <qtoolbutton.h>
 #include <qtreeview.h>
 #include <qtimer.h>
+#include <qfocusframe.h>
 #include <private/qaquatabpix_mac_p.h>
 
 extern QRegion qt_mac_convert_mac_region(RgnHandle); //qregion_mac.cpp
@@ -152,175 +153,6 @@ static inline ThemeTabDirection getTabDirection(QTabBar::Shape shape)
 }
 
 
-class QAquaFocusWidget : public QWidget
-{
-    Q_OBJECT
-public:
-    QAquaFocusWidget(bool noerase=true, QWidget *w=0);
-    ~QAquaFocusWidget() { }
-    void setFocusedWidget(QWidget * widget);
-    QWidget *focusedWidget() const { return mFocusedWidget; }
-    QSize sizeHint() const { return QSize(0, 0); }
-
-protected:
-    inline void mousePressEvent(QMouseEvent *ev) { ev->ignore(); }
-    inline void mouseMoveEvent(QMouseEvent *ev) { ev->ignore(); }
-    inline void mouseReleaseEvent(QMouseEvent *ev) { ev->ignore(); }
-    bool eventFilter(QObject *o, QEvent *e);
-
-protected:
-    void paintEvent(QPaintEvent *pe);
-    int focusOutset() const;
-    QRegion focusRegion() const;
-private:
-    void drawFocusRect(QPainter *p) const;
-    QPointer<QWidget> mFocusedWidget;
-};
-
-QAquaFocusWidget::QAquaFocusWidget(bool noerase, QWidget *w)
-    : QWidget(w)
-{
-    setObjectName("magicFocusWidget");
-    setFocusPolicy(Qt::NoFocus);
-    if (noerase)
-        setAttribute(Qt::WA_NoSystemBackground, true);
-}
-#if 0
-/* It's a real bummer I cannot use this, but you'll notice that sometimes
-   the widget will scroll "offscreen" and the focus widget will remain visible
-   (which looks quite bad). --Sam */
-#define FOCUS_WIDGET_PARENT(x) x->topLevelWidget()
-#else
-#define FOCUS_WIDGET_PARENT(x) (x->isTopLevel() ? 0 : x->parentWidget())
-#endif
-
-void QAquaFocusWidget::setFocusedWidget(QWidget *widget)
-{
-    hide();
-    if (mFocusedWidget) {
-        if (mFocusedWidget->parentWidget())
-            mFocusedWidget->parentWidget()->removeEventFilter(this);
-        mFocusedWidget->removeEventFilter(this);
-    }
-    mFocusedWidget = 0;
-    if (widget && widget->parentWidget()) {
-        mFocusedWidget = widget;
-        setParent(FOCUS_WIDGET_PARENT(mFocusedWidget));
-        move(pos());
-        mFocusedWidget->installEventFilter(this);
-        mFocusedWidget->parentWidget()->installEventFilter(this); //we do this so we can trap the ChildAdded event
-        QPoint p(widget->mapTo(parentWidget(), QPoint(0, 0)));
-        int focusWidgetWidth = widget->width();
-        setGeometry(p.x() - focusOutset(), p.y() - focusOutset(),
-                    focusWidgetWidth + (focusOutset() * 2), widget->height() + (focusOutset() * 2));
-        setPalette(widget->palette());
-        setMask(QRegion(rect()) - focusRegion());
-        stackUnder(mFocusedWidget);
-        show();
-    }
-}
-
-bool QAquaFocusWidget::eventFilter(QObject *o, QEvent *e)
-{
-    if ((e->type() == QEvent::ChildAdded || e->type() == QEvent::ChildRemoved)
-        && ((QChildEvent*)e)->child() == this) {
-        if (e->type() == QEvent::ChildRemoved)
-            o->removeEventFilter(this); //once we're removed, stop listening
-        return true; //block child events
-    } else if (o == mFocusedWidget) {
-        switch (e->type()) {
-        case QEvent::PaletteChange:
-            setPalette(mFocusedWidget->palette());
-            break;
-        case QEvent::Hide:
-            hide();
-            break;
-        case QEvent::Show:
-            show();
-            break;
-        case QEvent::Move: {
-            QPoint p(mFocusedWidget->mapTo(parentWidget(), QPoint(0, 0)));
-            move(p.x() - focusOutset(), p.y() - focusOutset());
-            break;
-        }
-        case QEvent::Resize: {
-            QResizeEvent *re = (QResizeEvent*)e;
-            resize(re->size().width() + (focusOutset() * 2),
-                    re->size().height() + (focusOutset() * 2));
-            setMask(QRegion(rect()) - focusRegion());
-            break;
-        }
-        case QEvent::ParentChange: {
-            QWidget *newp = FOCUS_WIDGET_PARENT(mFocusedWidget);
-            QPoint p(mFocusedWidget->mapTo(newp, QPoint(0, 0)));
-            newp->installEventFilter(this);
-            setParent(newp);
-            show();
-            move(p);
-            raise();
-            break; }
-        default:
-            break;
-        }
-    }
-    return false;
-}
-
-int QAquaFocusWidget::focusOutset() const
-{
-    SInt32 ret = 0;
-    GetThemeMetric(kThemeMetricFocusRectOutset, &ret);
-    return ret;
-}
-
-QRegion QAquaFocusWidget::focusRegion() const
-{
-    const QRgb fillColor = qRgb(192, 191, 190);
-    QImage img;
-    {
-        QPixmap pix(size(), 32);
-        pix.fill(fillColor);
-        QPainter p(&pix);
-        drawFocusRect(&p);
-        img = pix.toImage();
-    }
-    QImage mask(img.width(), img.height(), 1, 2, QImage::LittleEndian);
-    for (int y = 0; y < img.height(); y++) {
-        for (int x = 0; x < img.width(); x++) {
-            QRgb clr = img.pixel(x, y);
-            int diff = (((qRed(clr)-qRed(fillColor))*((qRed(clr)-qRed(fillColor)))) +
-                        ((qGreen(clr)-qGreen(fillColor))*((qGreen(clr)-qGreen(fillColor)))) +
-                        ((qBlue(clr)-qBlue(fillColor))*((qBlue(clr)-qBlue(fillColor)))));
-            mask.setPixel(x, y, diff < 100);
-        }
-    }
-    QBitmap qmask;
-    qmask = mask;
-    return QRegion(qmask);
-}
-
-void QAquaFocusWidget::paintEvent(QPaintEvent *)
-{
-    QPainter p(this);
-    drawFocusRect(&p);
-}
-
-void QAquaFocusWidget::drawFocusRect(QPainter *p) const
-{
-    int fo = focusOutset();
-    if (isQDPainter(p) || QSysInfo::MacintoshVersion < QSysInfo::MV_10_3) {
-        qt_mac_set_port(p);
-        QRect r(fo, fo,  width() - (fo*2), height() - (fo*2));
-        DrawThemeFocusRect(qt_glb_mac_rect(r, p, true, QRect(1, 1, 1, 1)), true);
-    }
-#if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
-    else {
-        HIRect rect = CGRectMake(fo, fo, width() - 2 * fo, height() - 2 * fo);
-        HIThemeDrawFocusRect(&rect, true, QMacCGContext(p), kHIThemeOrientationNormal);
-    }
-#endif
-}
-
 class QMacStylePrivate : public QObject
 {
     Q_OBJECT
@@ -341,8 +173,6 @@ public:
 
     bool doAnimate(Animates);
     inline int animateSpeed(Animates) const { return 33; }
-    void focusOnWidget(QWidget *);
-    void doFocus(QWidget *w);
 
     struct PolicyState {
         static QMap<const QWidget*, QMacStyle::FocusRectPolicy> focusMap;
@@ -404,23 +234,21 @@ protected:
     void timerEvent(QTimerEvent *);
 
 private slots:
-    void objDestroyed(QObject *o);
     void startAnimationTimer();
 
 public:
     bool useHITheme;
-    QPointer<QWidget> animationFocusWidget; //the focus widget
     QPointer<QPushButton> defaultButton; //default pushbuttons
     int timerID;
-    QList<QPointer<QWidget> > progressBars; //It's really only progress bar information
+    QList<QPointer<QWidget> > progressBars; //existing progressbars that need animation
 
     struct ButtonState {
         int frame;
         enum { ButtonDark, ButtonLight } dir;
     } buttonState;
     UInt8 progressFrame;
+    QPointer<QFocusFrame> focusWidget;
     CFAbsoluteTime defaultButtonStart;
-    QPointer<QAquaFocusWidget> aquaFocus;
     QMacStyle *q;
 };
 
@@ -999,7 +827,7 @@ static void getSliderInfo(QStyle::ComplexControl cc, const QStyleOptionSlider *s
 }
 
 QMacStylePrivate::QMacStylePrivate(QMacStyle *style)
-    : useHITheme(false), timerID(-1), progressFrame(0), aquaFocus(0), q(style)
+    : useHITheme(false), timerID(-1), progressFrame(0), q(style)
 {
 #if !defined(QMAC_NO_COREGRAPHICS) && (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
     if (QSysInfo::MacintoshVersion >= QSysInfo::MV_10_3 && !qgetenv("QT_MAC_USE_APPMANAGER")
@@ -1067,45 +895,6 @@ bool QMacStylePrivate::focusable(const QWidget *w) const
              || w->inherits("QListBox") || w->inherits("QListView")
 #endif
            );
-}
-
-void QMacStylePrivate::focusOnWidget(QWidget *w)
-{
-    if (w) {
-        QWidget *top = w->parentWidget();
-        while (top && !top->isTopLevel() && !top->testWFlags(Qt::WSubWindow))
-            top = top->parentWidget();
-#ifndef QT_NO_MAINWINDOW
-        if (qt_cast<QMainWindow *>(top)) {
-            QWidget *central = static_cast<QMainWindow *>(top)->centralWidget();
-            for (const QWidget *par = w; par; par = par->parentWidget()) {
-                if (par == central) {
-                    top = central;
-                    break;
-                }
-                if (par->isTopLevel())
-                    break;
-            }
-        }
-#endif
-        if (!(top && (w->width() < top->width() - 30 || w->height() < top->height() - 40)))
-            w = 0;
-    }
-    if (w == animationFocusWidget)
-        return;
-    doFocus(const_cast<QWidget*>(w));
-    if (animationFocusWidget)
-        QObject::disconnect(animationFocusWidget, SIGNAL(destroyed(QObject*)),
-                            this, SLOT(objDestroyed(QObject*)));
-    animationFocusWidget = w;
-    if (animationFocusWidget)
-        QObject::connect(w, SIGNAL(destroyed(QObject*)), this, SLOT(objDestroyed(QObject*)));
-}
-
-void QMacStylePrivate::objDestroyed(QObject *o)
-{
-    if (o == animationFocusWidget)
-        focusOnWidget(0);
 }
 
 enum { TabNormalLeft, TabNormalMid, TabNormalRight, TabSelectedActiveLeft,
@@ -1282,11 +1071,6 @@ void QMacStylePrivate::drawPantherTab(const QStyleOptionTab *tabOpt, QPainter *p
 
 bool QMacStylePrivate::addWidget(QWidget *w)
 {
-    if (focusable(w)) {
-        if (w->hasFocus())
-            focusOnWidget(w);
-        w->installEventFilter(this);
-    }
     //already knew of it
     if (static_cast<QPushButton*>(w) == defaultButton
             || progressBars.contains(static_cast<QProgressBar*>(w)))
@@ -1314,8 +1098,6 @@ bool QMacStylePrivate::addWidget(QWidget *w)
 
 void QMacStylePrivate::removeWidget(QWidget *w)
 {
-    if (animationFocusWidget == w)
-        focusOnWidget(0);
     QPushButton *btn = qt_cast<QPushButton *>(w);
     if (btn && btn == defaultButton) {
         stopAnimate(AquaPushButton, btn);
@@ -1411,18 +1193,6 @@ void QMacStylePrivate::timerEvent(QTimerEvent *)
 
 bool QMacStylePrivate::eventFilter(QObject *o, QEvent *e)
 {
-    //focus
-    if (o->isWidgetType() && animationFocusWidget && focusable(static_cast<QWidget *>(o))
-        && ((e->type() == QEvent::FocusOut && animationFocusWidget == o)
-            || (e->type() == QEvent::FocusIn && animationFocusWidget != o)))  { //restore it
-        if (static_cast<QFocusEvent *>(e)->reason() != Qt::PopupFocusReason)
-            focusOnWidget(0);
-    }
-    if (o && o->isWidgetType() && e->type() == QEvent::FocusIn) {
-        QWidget *w = static_cast<QWidget *>(o);
-        if (focusable(w))
-            focusOnWidget(w);
-    }
     //animate
     if (QProgressBar *pb = qt_cast<QProgressBar *>(o)) {
         switch (e->type()) {
@@ -1488,13 +1258,6 @@ bool QMacStylePrivate::doAnimate(QMacStylePrivate::Animates as)
         // To be revived later...
     }
     return true;
-}
-
-void QMacStylePrivate::doFocus(QWidget *w)
-{
-    if (!aquaFocus)
-        aquaFocus = new QAquaFocusWidget(w);
-    aquaFocus->setFocusedWidget(w);
 }
 
 void QMacStylePrivate::HIThemePolish(QWidget *w)
@@ -1962,6 +1725,13 @@ void QMacStylePrivate::HIThemeDrawControl(QStyle::ControlElement ce, const QStyl
     ThemeDrawState tds = getDrawState(opt->state);
     QMacCGContext cg(p);
     switch (ce) {
+    case QStyle::CE_FocusFrame: {
+        SInt32 fo;
+        GetThemeMetric(kThemeMetricFocusRectOutset, &fo);
+        HIRect hirect = CGRectMake(fo, fo, opt->rect.width() - 2 * fo,
+                                   opt->rect.height() - 2 * fo);
+        HIThemeDrawFocusRect(&hirect, true, QMacCGContext(p), kHIThemeOrientationNormal);
+        break; }
     case QStyle::CE_PushButtonBevel:
         if (const QStyleOptionButton *btn = ::qt_cast<const QStyleOptionButton *>(opt)) {
             if (!(btn->state & (QStyle::State_Raised | QStyle::State_Down | QStyle::State_On)))
@@ -3608,6 +3378,13 @@ void QMacStylePrivate::AppManDrawControl(QStyle::ControlElement ce, const QStyle
 {
     ThemeDrawState tds = getDrawState(opt->state);
     switch (ce) {
+    case QStyle::CE_FocusFrame: {
+        SInt32 fo;
+        GetThemeMetric(kThemeMetricFocusRectOutset, &fo);
+        QRect r(fo, fo,  opt->rect.width() - (fo*2), opt->rect.height() - (fo*2));
+        qt_mac_set_port(p);
+        DrawThemeFocusRect(qt_glb_mac_rect(r, p, true, QRect(1, 1, 1, 1)), true);
+        break; }
     case QStyle::CE_PushButtonBevel:
         if (const QStyleOptionButton *btn = qt_cast<const QStyleOptionButton *>(opt)) {
             if (!(btn->state & (QStyle::State_Raised | QStyle::State_Down | QStyle::State_On)))
@@ -4922,7 +4699,13 @@ int QMacStyle::pixelMetric(PixelMetric metric, const QStyleOption *opt, const QW
 {
     SInt32 ret = 0;
     switch (metric) {
+    case PM_FocusFrameVMargin:
+    case PM_FocusFrameHMargin:
+        GetThemeMetric(kThemeMetricFocusRectOutset, &ret);
+        break;
+
     case PM_CheckListControllerSize:
+        ret = 0;
         break;
     case PM_CheckListButtonSize: {
         switch (qt_aqua_size_constrain(widget)) {
@@ -5543,11 +5326,41 @@ void QMacStyle::drawControlMask(ControlElement ce, const QStyleOption *opt, QPai
                                 const QWidget *w) const
 {
     switch (ce) {
-    default:
-        QWindowsStyle::drawControlMask(ce, opt, p, w);
-        break;
     case CE_RubberBand:
         p->fillRect(opt->rect, Qt::color1);
+        break;
+    case CE_FocusFrame: {
+#if 0
+        const QRgb fillColor = qRgb(192, 191, 190);
+        QImage img;
+        {
+            QPixmap pix(opt->rect.size(), 32);
+            pix.fill(fillColor);
+            QPainter pix_paint(&pix);
+            drawControl(CE_FocusFrame, opt, &pix_paint, w);
+            pix_paint.end();
+            img = pix.toImage();
+        }
+        QImage mask(img.width(), img.height(), 1, 2, QImage::LittleEndian);
+        for (int y = 0; y < img.height(); y++) {
+            for (int x = 0; x < img.width(); x++) {
+                QRgb clr = img.pixel(x, y);
+                int diff = (((qRed(clr)-qRed(fillColor))*((qRed(clr)-qRed(fillColor)))) +
+                            ((qGreen(clr)-qGreen(fillColor))*((qGreen(clr)-qGreen(fillColor)))) +
+                            ((qBlue(clr)-qBlue(fillColor))*((qBlue(clr)-qBlue(fillColor)))));
+                mask.setPixel(x, y, diff < 100);
+            }
+        }
+        QBitmap qmask;
+        qmask = mask;
+        p->drawPixmap(0, 0, mask);
+#else
+        p->fillRect(opt->rect, Qt::color1);
+#endif
+        break; }
+
+    default:
+        QWindowsStyle::drawControlMask(ce, opt, p, w);
         break;
     }
 }
@@ -5784,3 +5597,47 @@ void QMacStyle::drawItemText(QPainter *p, const QRect &r, int flags, const QPale
 }
 
 #endif
+
+
+bool
+QMacStyle::event(QEvent *e)
+{
+    if(e->type() == QEvent::FocusIn) {
+        QWidget *f = 0;
+        if(QApplication::focusWidget() &&
+           d->focusable(QApplication::focusWidget())) {
+            f = QApplication::focusWidget();
+            QWidget *top = f->parentWidget();
+            while (top && !top->isTopLevel() && !top->testWFlags(Qt::WSubWindow))
+                top = top->parentWidget();
+#ifndef QT_NO_MAINWINDOW
+            if (qt_cast<QMainWindow *>(top)) {
+                QWidget *central = static_cast<QMainWindow *>(top)->centralWidget();
+                for (const QWidget *par = f; par; par = par->parentWidget()) {
+                    if (par == central) {
+                        top = central;
+                        break;
+                    }
+                    if (par->isTopLevel())
+                        break;
+                }
+            }
+#endif
+            if (!(top && (f->width() < top->width() - 30 || f->height() < top->height() - 40)))
+                f = 0;
+        }
+        if (f) {
+            if(d->focusWidget)
+                d->focusWidget->setWidget(QApplication::focusWidget());
+            else
+                d->focusWidget = new QFocusFrame(QApplication::focusWidget());
+        } else if(d->focusWidget) {
+            d->focusWidget->setWidget(0);
+        }
+    } else if(e->type() == QEvent::FocusOut) {
+        if(d->focusWidget)
+            d->focusWidget->setWidget(0);
+    }
+    return false;
+}
+

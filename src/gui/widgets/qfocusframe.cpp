@@ -29,8 +29,22 @@ public:
         sendChildEvents = false;
     }
     void updateSize();
+    void updateMask();
+    void update();
     QStyleOption getStyleOption() const;
 };
+
+void QFocusFramePrivate::update()
+{
+    Q_Q(QFocusFrame);
+    q->setParent(widget->parentWidget());
+    updateSize();
+    if (q->parentWidget()->rect().contains(q->geometry())) {
+        q->stackUnder(widget);
+        q->raise();
+        q->show();
+    }
+}
 
 void QFocusFramePrivate::updateSize()
 {
@@ -40,19 +54,22 @@ void QFocusFramePrivate::updateSize()
     QRect geom(widget->x()-hmargin, widget->y()-vmargin,
                widget->width()+(hmargin*2), widget->height()+(vmargin*2));
     if(geom != q->geometry()) {
-        bool sizeChanged = geom.size() != q->geometry().size();
         q->setGeometry(geom);
-        if(true || sizeChanged) { // #### true necessary, setParent apparently messes up the mask
-            QBitmap bm(q->size());
-            bm.fill(Qt::color0);
-
-            QStylePainter p(&bm, q);
-            p.drawControlMask(QStyle::CE_FocusFrame, getStyleOption());
-            p.end();
-
-            q->setMask(bm);
-        }
+        updateMask();
     }
+}
+
+void QFocusFramePrivate::updateMask()
+{
+    Q_Q(QFocusFrame);
+    QBitmap bm(q->size());
+    bm.fill(Qt::color0);
+
+    QStylePainter p(&bm, q);
+    p.drawControlMask(QStyle::CE_FocusFrame, getStyleOption());
+    p.end();
+
+    q->setMask(bm);
 }
 
 QStyleOption QFocusFramePrivate::getStyleOption() const
@@ -68,6 +85,8 @@ QStyleOption QFocusFramePrivate::getStyleOption() const
 QFocusFrame::QFocusFrame(QWidget *widget)
     : QWidget(*new QFocusFramePrivate, widget ? widget->parentWidget() : 0, 0)
 {
+    setFocusPolicy(Qt::NoFocus);
+    setAttribute(Qt::WA_NoSystemBackground, true);
     setAttribute(Qt::WA_NoChildEventsForParent, true);
     setWidget(widget);
 }
@@ -90,12 +109,7 @@ QFocusFrame::setWidget(QWidget *widget)
     if(widget && widget->parentWidget()) {
         d->widget = widget;
         widget->installEventFilter(this);
-        setParent(widget->parentWidget());
-        d->updateSize();
-        if (parentWidget()->rect().contains(geometry())) {
-            raise();
-            show();
-        }
+        d->update();
     } else {
         d->widget = 0;
         hide();
@@ -119,11 +133,40 @@ QFocusFrame::paintEvent(QPaintEvent *)
 }
 
 /*! \reimp */
+void
+QFocusFrame::resizeEvent(QResizeEvent *)
+{
+    Q_D(QFocusFrame);
+    d->updateMask();
+}
+
+/*! \reimp */
 bool
 QFocusFrame::eventFilter(QObject *o, QEvent *e)
 {
     Q_D(QFocusFrame);
-    if(o == d->widget && (e->type() == QEvent::Move || e->type() == QEvent::Resize))
-        d->updateSize();
+    if(o == d->widget) {
+        switch(e->type()) {
+        case QEvent::Move:
+        case QEvent::Resize:
+            d->updateSize();
+            break;
+        case QEvent::Hide:
+            hide();
+            break;
+        case QEvent::Show:
+        case QEvent::ParentChange:
+            d->update();
+            break;
+        case QEvent::PaletteChange:
+            setPalette(d->widget->palette());
+            break;
+        case QEvent::Destroy:
+            setWidget(0);
+            break;
+        default:
+            break;
+        }
+    }
     return false;
 }

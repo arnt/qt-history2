@@ -28,6 +28,7 @@ public:
 
 protected:
     bool eventFilter(QObject *, QEvent *);
+    void resizeEvent(QResizeEvent *);
     void paintEvent(QPaintEvent *);
 
 private:
