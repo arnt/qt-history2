@@ -43,6 +43,7 @@
 #include "qptrlist.h"
 #include "qtextcodecfactory.h"
 #include "qutfcodec.h"
+#include "qnamespace.h"
 #ifndef QT_NO_CODECS
 #include "qrtlcodec.h"
 #include "qtsciicodec.h"
@@ -1614,10 +1615,39 @@ const char* QTextCodec::locale()
 {
     static QCString lang;
     if ( lang.isEmpty() ) {
-	lang = getenv( "LANG" ); //########Windows??
+#ifndef Q_WS_WIN
+	lang = getenv( "LANG" );
+#else
+#if defined(UNICODE)
+	if ( qWinVersion() & Qt::WV_NT_based ) {
+	    TCHAR out[256];
+	    if ( GetLocaleInfo( LOCALE_USER_DEFAULT, LOCALE_SISO639LANGNAME , (TCHAR*)&out, 255 ) )
+		lang = qt_winQString( out );
+	    else if ( GetLocaleInfo( LOCALE_USER_DEFAULT, LOCALE_SISO3166CTRYNAME, (TCHAR*)&out, 255 ) )
+		lang = qt_winQString( out );
+	    else if ( GetLocaleInfo( LOCALE_USER_DEFAULT, LOCALE_SABBREVLANGNAME, (TCHAR*)&out, 255 ) )
+		lang = qt_winQString( out );
+	    else if ( GetLocaleInfo( LOCALE_USER_DEFAULT, LOCALE_SENGLANGUAGE, (TCHAR*)&out, 255 ) )
+		lang = qt_winQString( out );
+	} else
+#endif
+	{
+	    char out[256];
+	    if ( GetLocaleInfoA( LOCALE_USER_DEFAULT, LOCALE_SISO639LANGNAME, (char*)&out, 255 ) )
+		lang = QString::fromLocal8Bit( out );
+	    else if ( GetLocaleInfoA( LOCALE_USER_DEFAULT, LOCALE_SISO3166CTRYNAME, (char*)&out, 255 ) )
+		lang = QString::fromLocal8Bit( out );
+	    else if ( GetLocaleInfoA( LOCALE_USER_DEFAULT, LOCALE_SABBREVLANGNAME, (char*)&out, 255 ) )
+		lang = QString::fromLocal8Bit( out );
+	    else if ( GetLocaleInfoA( LOCALE_USER_DEFAULT, LOCALE_SENGLANGUAGE, (char*)&out, 255 ) )
+		lang = QString::fromLocal8Bit( out );
+	}
+#endif
 	if ( lang.isEmpty() )
 	    lang = "C";
     }
+
+
     return lang;
 }
 
