@@ -530,7 +530,7 @@ int QGArray::find( const char *d, uint index, uint sz ) const
 	    }
 	    break;
 	case 2: {				// 16 bit elements
-	    register Q_INT16 *x = (INT16*)(data() + index);
+	    register Q_INT16 *x = (Q_INT16*)(data() + index);
 	    Q_INT16 v = *((Q_INT16*)d);
 	    for ( i=index; i<shd->len; i+=2 ) {
 		if ( *x++ == v )
