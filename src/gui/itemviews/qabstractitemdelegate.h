@@ -18,8 +18,8 @@ public:
     QItemOptions()
         : palette(), itemRect(), selected(false), open(false),
           focus(false), disabled(false), smallItem(true), editing(false),
-          iconAlignment(Qt::AlignLeft|Qt::AlignVCenter),
-          textAlignment(Qt::AlignLeft|Qt::AlignVCenter) {}
+          iconAlignment(Qt::AlignAuto|Qt::AlignVCenter),
+          textAlignment(Qt::AlignAuto|Qt::AlignVCenter) {}
 
     QPalette palette;
     QRect itemRect;

@@ -9,7 +9,7 @@
 #include <qrect.h>
 
 QItemDelegate::QItemDelegate(QAbstractItemModel *model, QObject *parent)
-    : QAbstractItemDelegate(model, parent), spacing(4)
+    : QAbstractItemDelegate(model, parent)
 {
 }
 
@@ -102,12 +102,12 @@ void QItemDelegate::drawText(QPainter *painter, const QItemOptions &options, con
     } else {
         painter->setPen(options.palette.text());
     }
-    if (options.iconAlignment & Qt::AlignLeft) {
-        painter->drawText(QRect(rect.x() + spacing, rect.y(), rect.width() - spacing, rect.height()),
-                          options.textAlignment, text);
-    } else {
+    bool reverse = QApplication::reverseLayout() && options.iconAlignment == Qt::AlignAuto;
+    if (reverse || (options.iconAlignment & Qt::AlignRight))
         painter->drawText(rect, options.textAlignment, text);
-    }
+    else
+        painter->drawText(QRect(rect.x(), rect.y(), rect.width(), rect.height()),
+                          options.textAlignment, text);
     painter->setPen(old);
 }
 
@@ -136,22 +136,27 @@ void QItemDelegate::doLayout(const QItemOptions &options, QRect *iconRect, QRect
     if (iconRect && textRect) {
         int x = options.itemRect.left();
         int y = options.itemRect.top();
-        if (options.iconAlignment & Qt::AlignLeft) {
-            int height = hint ? qMax(textRect->height(), iconRect->height()) : options.itemRect.height();
-            QRect leftRect(x, y, iconRect->width(), height);
-            QRect rightRect(x + iconRect->width(), y, textRect->width(), height);
-            iconRect->moveCenter(leftRect.center());
-            textRect->setRect(rightRect.x(), rightRect.y(),
-                              hint ? rightRect.width() + spacing : options.itemRect.width() - leftRect.width(),
-                              rightRect.height());
-            return;
-        }
         if (options.iconAlignment & Qt::AlignTop) {
             int width = hint ? qMax(textRect->width(), iconRect->width()) : options.itemRect.width();
             QRect topRect(x, y, width, iconRect->height());
             QRect bottomRect(x, y + iconRect->height(), width, textRect->height());
             iconRect->moveCenter(topRect.center());
-            textRect->setRect(bottomRect.x(), bottomRect.y() + spacing, bottomRect.width(), bottomRect.height());
+            textRect->setRect(bottomRect.x(), bottomRect.y(), bottomRect.width(), bottomRect.height());
+            return;
+        }
+        int height = hint ? qMax(textRect->height(), iconRect->height()) : options.itemRect.height();
+        bool reverse = QApplication::reverseLayout() && options.iconAlignment == Qt::AlignAuto;
+        if (reverse || (options.iconAlignment & Qt::AlignRight)) {
+            int w = hint ? textRect->width() : options.itemRect.width() - iconRect->width();
+            textRect->setRect(x, y, w, height);
+            iconRect->moveCenter(QRect(x + w, y, iconRect->width(), height).center());
+            return;
+        } else {
+            QRect leftRect(x, y, iconRect->width(), height);
+            QRect rightRect(x + leftRect.width(), y, textRect->width(), height);
+            iconRect->moveCenter(leftRect.center());
+            int w = hint ? rightRect.width() : options.itemRect.width() - leftRect.width();
+            textRect->setRect(rightRect.x(), y, w, height);
             return;
         }
     }

@@ -31,9 +31,6 @@ protected:
     void doLayout(const QItemOptions &options, QRect *iconRect, QRect *textRect, bool hint) const;
     QSize textSize(const QFontMetrics &fontMetrics, const QItemOptions &options, const QString &text) const;
     QSize iconSize(const QItemOptions &options, const QIconSet &icons) const;
-
-private:
-    int spacing;
 };
 
 #endif
