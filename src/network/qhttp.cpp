@@ -22,7 +22,6 @@
 #include "qlist.h"
 #include "qstring.h"
 #include "qstringlist.h"
-#include "qcstring.h"
 #include "qbuffer.h"
 #include "qurloperator.h"
 #include "qtimer.h"
