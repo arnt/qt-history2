@@ -50,8 +50,8 @@ QString processCodeHtml( const QString& code, const Resolver *res,
     static QRegExp ginclude( QString("#include +&lt;([^&]*)&gt;") );
     static QRegExp linclude( QString("#include +\"([^\"]*)\"") );
     static QRegExp xInheritsY( QString(
-		"class +(?:[a-zA-Z_0-9]+[ \n]+)*([a-zA-Z_0-9]+)[ \n]*"
-		":[ \n]*public[ \n]+([a-zA-Z_0-9]+)") );
+	    "class +(?:[a-zA-Z_0-9]+[ \n]+)*([a-zA-Z_0-9]+)[ \n]*"
+	    ":[ \n]*public[ \n]+([a-zA-Z_0-9]+)") );
     static QRegExp yHasTypeX( QString(
 	    "(?:[\n:;{(]|const) +([a-zA-Z_][a-zA-Z_0-9]*)"
 	    "(?:&lt;[^;{}]+&gt;)?(?: *[*&] *| +)([a-zA-Z_][a-zA-Z_0-9]*)?"
