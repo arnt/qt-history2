@@ -1,4 +1,4 @@
-#!/bin/sh -x
+#!/bin/sh
 # 
 # Copyright 1997 Troll Tech AS.  All rights reserved.
 #
@@ -72,13 +72,12 @@ echo '%: configs/%'
 echo '	./propagate configs/$*'
 echo
 #
-# Explicit...
-#for a in configs/* ; do
-#	A=`echo $a | sed -e 's-.*/--'`
-#	echo ${A}: Makefile
-#	echo '	./propagate configs/'${A}
-#	echo
-#done
+# Explicit rules, for sucky makes...
+for a in $(cd configs; ls); do
+	echo ${a}: Makefile
+	echo '	./propagate configs/'${a}
+	echo
+done
 
 cat <<EOF
 
