@@ -2,6 +2,7 @@
 #define CPPCOMPLETION_H
 
 #include <completion.h>
+#include <qguardedptr.h>
 
 class CppEditorCompletion : public EditorCompletion
 {
@@ -13,6 +14,9 @@ public:
     bool doObjectCompletion( const QString &object );
     QStringList functionParameters( const QString &func, QChar & );
     void setContext( QObjectList *toplevels, QObject *this_ );
+
+private:
+    QGuardedPtr<QObject> ths;
 
 };
 

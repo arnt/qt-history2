@@ -1228,6 +1228,7 @@ void MainWindow::setupRMBMenus()
     actionEditSlots->addTo( rmbFormWindow );
     actionEditConnections->addTo( rmbFormWindow );
     actionEditSource->addTo( rmbFormWindow );
+    rmbFormWindow->insertSeparator();
     actionEditFormSettings->addTo( rmbFormWindow );
 }
 

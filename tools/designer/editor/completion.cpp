@@ -427,3 +427,22 @@ QStringList EditorCompletion::functionParameters( const QString &, QChar & )
 void EditorCompletion::setContext( QObjectList *, QObject * )
 {
 }
+
+void EditorCompletion::showCompletion( const QStringList &lst )
+{
+    QTextCursor *cursor = curEditor->textCursor();
+    QTextStringChar *chr = cursor->parag()->at( cursor->index() );
+    int h = cursor->parag()->lineHeightOfChar( cursor->index() );
+    int x = cursor->parag()->rect().x() + chr->x;
+    int y, dummy;
+    cursor->parag()->lineHeightOfChar( cursor->index(), &dummy, &y );
+    y += cursor->parag()->rect().y();
+    completionListBox->clear();
+    completionListBox->insertStringList( lst );
+    cList = lst;
+    completionPopup->resize( completionListBox->sizeHint() + QSize( 4, 4 ) );
+    completionListBox->setCurrentItem( 0 );
+    completionListBox->setFocus();
+    completionPopup->move( curEditor->mapToGlobal( curEditor->contentsToViewport( QPoint( x, y + h ) ) ) );
+    completionPopup->show();
+}

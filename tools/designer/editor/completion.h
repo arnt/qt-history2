@@ -44,6 +44,7 @@ public:
 
 protected:
     virtual bool continueComplete();
+    virtual void showCompletion( const QStringList &lst );
 
 protected:
     QVBox *completionPopup;
