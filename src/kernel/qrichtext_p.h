@@ -868,6 +868,8 @@ public:
     bool hasFocusParagraph() const;
     QString focusHref() const;
 
+    void invalidateOriginalText() { oTextValid = FALSE; }
+
 signals:
     void minimumWidthChanged( int );
 
@@ -936,6 +938,7 @@ private:
     QPtrList<QTextDocument> childList;
     int nSelections;
     bool addMargs;
+    bool oTextValid;
 
 };
 
@@ -1795,7 +1798,9 @@ inline void QTextDocument::setTabStops( int tw )
 
 inline QString QTextDocument::originalText() const
 {
-    return oText;
+    if ( oTextValid )
+	return oText;
+    return text();
 }
 
 inline void QTextDocument::setFlow( QTextFlow *f )

@@ -1277,6 +1277,7 @@ void QTextDocument::init()
 #if defined(PARSER_DEBUG)
     qDebug( debug_indent + "new QTextDocument (%p)", this );
 #endif
+    oTextValid = TRUE;
     if ( par )
 	par->insertChild( this );
     pProcessor = 0;
@@ -1785,6 +1786,7 @@ void QTextDocument::setRichTextInternal( const QString &text )
 
 void QTextDocument::setText( const QString &text, const QString &context )
 {
+    oTextValid = TRUE;
     oText = text;
     focusIndicator.parag = 0;
     selections.clear();

@@ -2047,6 +2047,7 @@ void QTextEdit::insert( const QString &text, bool indent, bool checkNewLine, boo
 	setMicroFocusHint( cursor->x() - contentsX() + frameWidth(),
 			   cursor->y() + cursor->parag()->rect().y() - contentsY() + frameWidth(), 0, h, TRUE, &f );
     }
+    doc->invalidateOriginalText();
 }
 
 /*! Inserts \a text in the paragraph \a para and position \a index */
@@ -3931,8 +3932,8 @@ bool QTextEdit::getParagraphFormat( int para, QFont *font, QColor *color,
 
 
 
-/*!  
-  
+/*!
+
     This function is called to create a right mouse button popup menu
      at the document position \a pos.  If you want to create a custom
      popup menu, reimplement this function and return the created
