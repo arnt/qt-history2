@@ -2229,7 +2229,7 @@ bool QApplication::notify( QObject *receiver, QEvent *e )
 	    }
 #if defined(QT_TABLET_SUPPORT)
 	    if ( tablet->isAccepted() )
-		chokeMouse = true;
+		chokeMouse = TRUE;
 #endif
 	}
 	break;

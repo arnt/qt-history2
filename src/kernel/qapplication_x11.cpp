@@ -3789,12 +3789,13 @@ int QApplication::x11ProcessEvent( XEvent* event )
 
     case MotionNotify:
 #if defined(QT_TABLET_SUPPORT)
-	if ( !chokeMouse )
+	if ( !chokeMouse ) {
+#endif
 	    widget->translateMouseEvent( event );
-	else
+#if defined(QT_TABLET_SUPPORT)
+	} else {
 	    chokeMouse = FALSE;
-#else
-	widget->translateMouseEvent( event );
+	}
 #endif
 	break;
 
@@ -4808,6 +4809,20 @@ bool QETWidget::translateMouseEvent( const XEvent *event )
 	    return TRUE;
 	}
 	if ( event->type == ButtonPress ) {	// mouse button pressed
+#if defined(Q_OS_IRIX) && defined(QT_TABLET_SUPPORT)
+	    XEvent myEv;
+	    XPeekEvent( appDpy, &myEv );
+	    if ( myEv.type == xinput_button_press ) {
+		XNextEvent( appDpy, &myEv );
+		if ( translateXinputEvent( &myEv ) ) {
+		    //Spontaneous event sent.  Check if we need to continue.
+		    if ( chokeMouse ) {
+			chokeMouse = FALSE;
+			return FALSE;
+		    }
+		}
+	    }
+#endif
 	    qt_button_down = childAt( pos );	//magic for masked widgets
 	    if ( !qt_button_down || !qt_button_down->testWFlags(WMouseNoMask) )
 		qt_button_down = this;
@@ -4829,6 +4844,20 @@ bool QETWidget::translateMouseEvent( const XEvent *event )
 	    mouseGlobalXPos = globalPos.x();
 	    mouseGlobalYPos = globalPos.y();
 	} else {				// mouse button released
+#if defined(Q_OS_IRIX) && defined(QT_TABLET_SUPPORT)
+	    XEvent myEv;
+	    XPeekEvent( appDpy, &myEv );
+	    if ( myEv.type == xinput_button_release ) {
+		XNextEvent( appDpy, &myEv );	
+		if ( translateXinputEvent( &myEv ) ) {
+		    //Spontaneous event sent.  I guess we just check if we should continue.
+		    if ( chokeMouse ) {
+			chokeMouse = FALSE;
+			return FALSE;
+		    }
+		}
+	    }
+#endif
 	    if ( manualGrab ) {			// release manual grab
 		manualGrab = FALSE;
 		XUngrabPointer( x11Display(), CurrentTime );
@@ -5038,6 +5067,24 @@ bool QETWidget::translateXinputEvent( const XEvent *ev )
 	motion = (XDeviceMotionEvent*)ev;
 	t = QEvent::TabletMove;
 	curr = QPoint( motion->x, motion->y );
+/*
+	qDebug( "\n\nXInput Crazy Motion Event" );
+	qDebug( "serial:\t%d", motion->serial );
+	qDebug( "send_event:\t%d", motion->send_event );
+	qDebug( "display:\t%p", motion->display );
+	qDebug( "window:\t%d", motion->window );
+	qDebug( "deviceID:\t%d", motion->deviceid );
+	qDebug( "root:\t%d", motion->root );
+	qDebug( "subwindot:\t%d", motion->subwindow );
+	qDebug( "x:\t%d", motion->x );
+	qDebug( "y:\t%d", motion->y );
+	qDebug( "x_root:\t%d", motion->x_root );
+	qDebug( "y_root:\t%d", motion->y_root );
+	qDebug( "state:\t%d", motion->state );
+	qDebug( "is_hint:\t%d", motion->is_hint );
+	qDebug( "same_screen:\t%d", motion->same_screen );	
+	qDebug( "time:\t%d", motion->time );
+*/
     } else {
 	if ( ev->type == xinput_button_press ) {
 	    t = QEvent::TabletPress;
@@ -5045,6 +5092,26 @@ bool QETWidget::translateXinputEvent( const XEvent *ev )
 	    t = QEvent::TabletRelease;
 	}
 	button = (XDeviceButtonEvent*)ev;
+/*
+	qDebug( "\n\nXInput Button Event" );
+	qDebug( "serial:\t%d", button->serial );
+	qDebug( "send_event:\t%d", button->send_event );
+	qDebug( "display:\t%p", button->display );
+	qDebug( "window:\t%d", button->window );
+	qDebug( "deviceID:\t%d", button->deviceid );
+	qDebug( "root:\t%d", button->root );
+	qDebug( "subwindot:\t%d", button->subwindow );
+	qDebug( "x:\t%d", button->x );
+	qDebug( "y:\t%d", button->y );
+	qDebug( "x_root:\t%d", button->x_root );
+	qDebug( "y_root:\t%d", button->y_root );
+	qDebug( "state:\t%d", button->state );
+	qDebug( "button:\t%d", button->button );
+	qDebug( "same_screen:\t%d", button->same_screen );
+	qDebug( "time:\t%d", button->time );
+*/
+	
+	
 	curr = QPoint( button->x, button->y );
     }
 #if defined(Q_OS_IRIX)
