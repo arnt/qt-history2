@@ -591,6 +591,7 @@ void MenuBarEditor::mouseMoveEvent( QMouseEvent * e )
 	    // in the list.
 	    itemList.find( draggedItem );
 	    QLNode * node = itemList.currentNode();
+	    dropConfirmed = FALSE;
 	    d->dragCopy(); // dragevents and stuff happens
 	    if ( draggedItem ) { // item was not dropped
 		if ( itemCreated ) {
@@ -601,7 +602,8 @@ void MenuBarEditor::mouseMoveEvent( QMouseEvent * e )
 		    draggedItem = 0;
 		    showItem();
 		}
-	    } else { // item was dropped
+	    } else if ( dropConfirmed ) { // item was dropped
+		dropConfirmed = FALSE;
 		hideItem();
 		itemList.takeNode( node )->setVisible( TRUE );
 		showItem();
@@ -941,10 +943,20 @@ void MenuBarEditor::dropInPlace( MenuBarEditorItem * i, const QPoint & pos )
 	idx++;
     }
 
-    AddMenuCommand * cmd = new AddMenuCommand( "Add Menu", formWnd, this, i, idx );
+    hideItem();
+    Command * cmd = 0;
+    int iidx = itemList.findRef( i );
+    if ( iidx != -1 ) { // internal dnd
+	cmd = new MoveMenuCommand( "Item Dragged", formWnd, this, iidx, idx );
+	item( iidx )->setVisible( TRUE );
+    } else {
+	cmd = new AddMenuCommand( "Add Menu", formWnd, this, i, idx );
+	dropConfirmed = TRUE; // let mouseMoveEvent set the item visible
+    }
     formWnd->commandHistory()->addCommand( cmd );
     cmd->execute();
     currentIndex = idx;
+    showItem();
 }
 
 

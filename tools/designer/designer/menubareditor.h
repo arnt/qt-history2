@@ -156,6 +156,7 @@ private:
     int borderSize;
     bool hideWhenEmpty;
     bool hasSeparator;
+    bool dropConfirmed;
     
     enum ClipboardOperation {
 	None = 0,

@@ -2239,6 +2239,7 @@ RemoveMenuCommand::RemoveMenuCommand( const QString &n,
 
 void RemoveMenuCommand::execute()
 {
+    mb->hideItem( index );
     AddMenuCommand::unexecute();
 }
 
@@ -2265,6 +2266,36 @@ void ExchangeMenuCommand::execute()
 void ExchangeMenuCommand::unexecute()
 {
     execute();
+}
+
+// ------------------------------------------------------------
+
+MoveMenuCommand::MoveMenuCommand( const QString &n,
+				  FormWindow *fw,
+				  MenuBarEditor *b,
+				  int i,
+				  int j )
+    : Command( n, fw ), bar( b ), from( i ), to( j )
+{ }
+
+void MoveMenuCommand::execute()
+{
+    bar->hideItem( from );
+    MenuBarEditorItem * i = bar->item( from );
+    bar->removeItemAt( from );
+    int t = ( from > to ? to : to - 1 );
+    bar->insertItem( i, t );
+    bar->showItem( to );
+}
+
+void MoveMenuCommand::unexecute()
+{
+    bar->hideItem( to );
+    int t = ( from > to ? to : to - 1 );
+    MenuBarEditorItem * i = bar->item( t );
+    bar->removeItemAt( t );
+    bar->insertItem( i, from );
+    bar->showItem( from );
 }
 
 // ------------------------------------------------------------

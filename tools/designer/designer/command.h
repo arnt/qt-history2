@@ -113,11 +113,13 @@ public:
 	AddActionToPopup,
 	RemoveActionFromPopup,
 	ExchangeActionInPopup,
+	//MoveActionInPopup,
 	RenameAction,
 	SetActionIcons,
 	AddMenu,
 	RemoveMenu,
 	ExchangeMenu,
+	MoveMenu,
 	RenameMenu,
 	AddToolBoxPage,
 	DeleteToolBoxPage
@@ -1048,7 +1050,25 @@ private:
     int c;
     int d;
 };
-
+/*
+class MoveActionInPopupCommand : public Command
+{
+public:
+    MoveActionInPopupCommand( const QString &n,
+			      FormWindow *fw,
+			      PopupMenuEditor *m,
+			      int a,
+			      int b );
+    void execute();
+    void unexecute();
+    Type type() const { return MoveActionInPopup; }
+protected:
+private:
+    PopupMenuEditor *menu;
+    int from;
+    int to;
+};
+*/
 class ActionCommand : public Command
 {
 public:
@@ -1155,6 +1175,25 @@ private:
     MenuBarEditor *bar;
     int k;
     int l;
+};
+
+
+class MoveMenuCommand : public Command
+{
+public:
+    MoveMenuCommand( const QString &n,
+		     FormWindow *fw,
+		     MenuBarEditor *b,
+		     int i,
+		     int j );
+    void execute();
+    void unexecute();
+    Type type() const { return MoveMenu; }
+protected:
+private:
+    MenuBarEditor *bar;
+    int from;
+    int to;
 };
 
 class RenameMenuCommand : public Command
