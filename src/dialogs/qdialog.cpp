@@ -539,10 +539,9 @@ void QDialog::show()
     if ( !did_resize )
 	adjustSize();
     if ( has_relpos ) {
-	if ( parentWidget() )
-	    adjustPositionInternal( parentWidget(), TRUE );
+	adjustPositionInternal( parentWidget() ? parentWidget() : qApp->mainWidget(), TRUE );
     } else if ( !did_move ) {
-	adjustPositionInternal( parentWidget() );
+	adjustPositionInternal( parentWidget() ? parentWidget() : qApp->mainWidget() );
     }
     QWidget::show();
 #ifndef QT_NO_PUSHBUTTON
@@ -626,35 +625,34 @@ void QDialog::adjustPositionInternal( QWidget*w, bool useRelPos)
     int extraw = 0, extrah = 0, scrn = 0;
     if ( w )
 	w = w->topLevelWidget();
-    QWidget *relative = w ? w : qApp->mainWidget();
     QRect desk;
-    if ( relative ) {
-	scrn =  QApplication::desktop()->screenNumber( relative);
+    if ( w ) {
+	scrn =  QApplication::desktop()->screenNumber( w );
 
 #if defined(Q_WS_X11)
         // make sure the transient for hint is set properly
-        XSetTransientForHint( QPaintDevice::x11AppDisplay(), winId(),
-                              relative->winId() );
+        XSetTransientForHint( x11Display(), winId(), w->winId() );
 #endif
-        } else
+    } else {
 	scrn = QApplication::desktop()->screenNumber( QCursor::pos() );
+    } 
     desk = QApplication::desktop()->availableGeometry( scrn );
 
     QWidgetList  *list = QApplication::topLevelWidgets();
     QWidgetListIt it( *list );
     while ( (extraw == 0 || extrah == 0) &&
 	    it.current() != 0 ) {
-	int w, h;
+	int framew, frameh;
 	QWidget * current = it.current();
 	++it;
-        if ( ! current->isVisible() )
-            continue;
+	if ( ! current->isVisibleTo( 0 ) )
+	    continue;
 
-	w = current->geometry().x() - current->x();
-	h = current->geometry().y() - current->y();
+	framew = current->geometry().x() - current->x();
+	frameh = current->geometry().y() - current->y();
 
-	extraw = QMAX( extraw, w );
-	extrah = QMAX( extrah, h );
+	extraw = QMAX( extraw, framew );
+	extrah = QMAX( extrah, frameh );
     }
     delete list;
 
@@ -665,7 +663,6 @@ void QDialog::adjustPositionInternal( QWidget*w, bool useRelPos)
 
     if ( useRelPos ) {
 	p = w->pos() + d->relPos;
-
     } else {
 	if ( w ) {
 	    // Use mapToGlobal rather than geometry() in case w might
