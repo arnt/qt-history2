@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_win.cpp#164 $
+** $Id: //depot/qt/main/src/kernel/qpainter_win.cpp#165 $
 **
 ** Implementation of QPainter class for Win32
 **
@@ -26,6 +26,7 @@
 #include "qpixmapcache.h"
 #include "qlist.h"
 #include "qintdict.h"
+#include "qprinter.h"
 #include <stdlib.h>
 #include <math.h>
 #include "qt_windows.h"
@@ -1005,10 +1006,20 @@ void QPainter::setClipping( bool enable )
 	if ( !pdev->cmd(QPaintDevice::PdcSetClip,this,param) || !hdc )
 	    return;
     }
-    if ( enable )
-	SelectClipRgn( hdc, crgn.handle()  );
-    else
+    if ( enable ) {
+	QRegion rcrgn = crgn;
+	if ( pdev->devType() == QInternal::Printer ) {
+	    QPrinter* printer = (QPrinter*)pdev;
+	    if ( printer->fullPage() ) {	// must adjust for margins
+		QSize margins = printer->margins();
+		rcrgn.translate( -margins.width(), -margins.height() );
+	    }
+	}
+	SelectClipRgn( hdc, rcrgn.handle() );
+    }
+    else {
 	SelectClipRgn( hdc, 0 );
+    }
 }
 
 
