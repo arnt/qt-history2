@@ -108,13 +108,13 @@ public:
 	if ( iFace ) {
 	    QFeatureListInterface *fliFace = 0;
 	    QComponentInterface *cpiFace = 0;
-	    iFace->queryInterface( IID_QFeatureListInterface, (QUnknownInterface**)&fliFace );
+	    iFace->queryInterface( IID_QFeatureList, (QUnknownInterface**)&fliFace );
 	    if ( !fliFace )
-		plugin->queryInterface( IID_QFeatureListInterface, (QUnknownInterface**)&fliFace );
+		plugin->queryInterface( IID_QFeatureList, (QUnknownInterface**)&fliFace );
 	    if ( !fliFace ) {
-		iFace->queryInterface( IID_QComponentInterface, (QUnknownInterface**)&cpiFace );
+		iFace->queryInterface( IID_QComponent, (QUnknownInterface**)&cpiFace );
 		if ( !cpiFace )
-		    plugin->queryInterface( IID_QComponentInterface, (QUnknownInterface**)&cpiFace );
+		    plugin->queryInterface( IID_QComponent, (QUnknownInterface**)&cpiFace );
 	    }
 	    QStringList fl;
 	    if ( fliFace )
@@ -176,13 +176,13 @@ public:
 	if ( iFace ) {
 	    QFeatureListInterface *fliFace = 0;
 	    QComponentInterface *cpiFace = 0;
-	    fliFace = (QFeatureListInterface*)iFace->queryInterface( IID_QFeatureListInterface, (QUnknownInterface**)&iFace );
+	    fliFace = (QFeatureListInterface*)iFace->queryInterface( IID_QFeatureList, (QUnknownInterface**)&iFace );
 	    if ( !fliFace )
-		plugin->queryInterface( IID_QFeatureListInterface, (QUnknownInterface**)&fliFace );
+		plugin->queryInterface( IID_QFeatureList, (QUnknownInterface**)&fliFace );
 	    if ( !fliFace ) {
-		iFace->queryInterface( IID_QComponentInterface, (QUnknownInterface**)&cpiFace );
+		iFace->queryInterface( IID_QComponent, (QUnknownInterface**)&cpiFace );
 		if ( !cpiFace )
-		    plugin->queryInterface( IID_QComponentInterface, (QUnknownInterface**)&cpiFace );
+		    plugin->queryInterface( IID_QComponent, (QUnknownInterface**)&cpiFace );
 	    }
 	    QStringList fl;
 	    if ( fliFace )

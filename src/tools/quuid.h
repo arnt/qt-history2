@@ -3,7 +3,6 @@
 
 #ifndef QT_H
 #include <qstring.h>
-#include <ucom.h>
 #endif // QT_H
 
 #include <memory.h>
@@ -22,7 +21,7 @@ typedef struct _GUID
 #endif
 #endif
 
-struct Q_EXPORT QUuid : public UUid
+struct Q_EXPORT QUuid
 {
     QUuid()
     {
@@ -57,6 +56,16 @@ struct Q_EXPORT QUuid : public UUid
 	return QUuid( orig );
     }
 
+    bool operator==(const QUuid &orig ) const
+    {
+	return !memcmp( this, &orig, sizeof(QUuid) );
+    }
+
+    bool operator!=(const QUuid &orig ) const
+    {
+	return !( *this == orig );
+    }
+
 #if defined(Q_OS_WIN32)
     // On Windows we have a type GUID that is used by the platform API, so we
     // provide convenience operators to cast from and to this type.
@@ -86,16 +95,11 @@ struct Q_EXPORT QUuid : public UUid
 	return !( *this == guid );
     }
 #endif
-    // Convenience operators to cast from and to the UCOM type UUid.
-    QUuid( const UUid &guid )
-    {
-	memcpy( this, &guid, sizeof(UUid) );
-    }
 
-    QUuid operator=(const UUid &orig )
-    {
-	return QUuid( orig );
-    }
+    uint   data1;
+    ushort data2;
+    ushort data3;
+    uchar  data4[ 8 ];
 };
 
 #endif //QUUID_H

@@ -46,7 +46,6 @@ tools {
 		  $$TOOLS_H/qtextstream.h \
 		  $$TOOLS_H/qptrvector.h \
 	          $$TOOLS_H/qvaluelist.h \
-		  $$TOOLS_H/ucom.h \
 		  $$TOOLS_H/qcom.h \
 		  $$TOOLS_H/quuid.h
 

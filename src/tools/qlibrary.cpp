@@ -489,7 +489,7 @@ void QLibrary::createInstanceInternal()
 	ucmProc = (UCMProc) resolve( "ucm_instantiate" );
 	entry = ucmProc ? ucmProc() : 0;
 	if ( entry ) {
-	    entry->queryInterface( IID_QLibraryInterface , (QUnknownInterface**)&d->libIface);
+	    entry->queryInterface( IID_QLibrary, (QUnknownInterface**)&d->libIface);
 	    if ( d->libIface ) {
 		if ( !d->libIface->init() ) {
 #if defined(QT_DEBUG_COMPONENT)

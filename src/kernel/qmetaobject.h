@@ -48,13 +48,13 @@
 #endif
 
 class QObject;
-struct UMethod;
+struct QUMethod;
 
 struct QMetaData				// - member function meta data
 {						//   for signal and slots
     const char *name;				// - member name
     QMember ptr;				// - member "pointer"
-    const UMethod* method;			// - detailed method description
+    const QUMethod* method;			// - detailed method description
     enum Access { Private, Protected, Public };
     Access access;				// - access permission
 };

@@ -53,7 +53,7 @@ class QMetaObject;
 class QVariant;
 class QMetaProperty;
 class QPostEventList;
-struct UObject;
+struct QUObject;
 
 #ifndef QT_MOC_CPP
 
@@ -65,8 +65,8 @@ public:
     QObject( QObject *parent=0, const char *name=0 );
     virtual ~QObject();
 
-    virtual bool qt_invoke( int, UObject* );
-    virtual bool qt_emit( int, UObject* );
+    virtual bool qt_invoke( int, QUObject* );
+    virtual bool qt_emit( int, QUObject* );
 #ifndef QT_NO_PROPERTIES
     virtual bool qt_property( const QMetaProperty*, int, QVariant* );
 #endif
@@ -151,7 +151,7 @@ protected:
     void	activate_signal( int signal, double );
     void	activate_signal( int signal, QString );
     void	activate_signal_bool( int signal, bool );
-    void 	activate_signal( QConnectionList *clist, UObject *o );
+    void 	activate_signal( QConnectionList *clist, QUObject *o );
 
     const QObject *sender();
 

@@ -52,7 +52,7 @@
 
 // The following macros are our "extensions" to C++
 // They are used, strictly speaking, only by the moc.
-struct UObject;
+struct QUObject;
 
 #ifdef QT_MOC_CPP
  #define slots			    slots
@@ -84,8 +84,8 @@ public:								\
          return staticMetaObject();				\
     }								\
     const char *className() const;				\
-    bool qt_invoke( int, UObject* ); 				\
-    bool qt_emit( int, UObject* ); 				\
+    bool qt_invoke( int, QUObject* ); 				\
+    bool qt_emit( int, QUObject* ); 				\
     bool qt_property( const QMetaProperty*, int, QVariant* );	\
     static QMetaObject* staticMetaObject();			\
     QObject* qObject() { return this; } 			\

@@ -1929,12 +1929,12 @@ QMetaObject* QObject::staticMetaObject()
 	{ "BackgroundMode", 18, enum_3, FALSE }
     };
 
-    static const UMethod method_slot_0 = {"cleanupEventFilter", 0,  0 };
+    static const QUMethod method_slot_0 = {"cleanupEventFilter", 0,  0 };
     int slot_offset = 0;
     static const QMetaData slot_tbl[] = {
 	{ "cleanupEventFilter()", slot_offset + 0, &method_slot_0, QMetaData::Private }
     };
-    static const UMethod method_signal_0 = {"destroyed", 0,  0 };
+    static const QUMethod method_signal_0 = {"destroyed", 0,  0 };
     int signal_offset = 0;
     static const QMetaData signal_tbl[] = {
 	{ "destroyed()", signal_offset + 0, &method_signal_0, QMetaData::Public }
@@ -1974,13 +1974,13 @@ void QObject::activate_signal( int signal )
     QConnectionList *clist = connections->at( signal );
     if ( !clist )
 	return;
-    UObject o[1];
+    QUObject o[1];
     activate_signal( clist, o );
 }
 
 /*! \internal */
 
-void QObject::activate_signal( QConnectionList *clist, UObject *o )
+void QObject::activate_signal( QConnectionList *clist, QUObject *o )
 {
     if ( !clist )
 	return;
@@ -2022,8 +2022,8 @@ void QObject::FNAME( int signal, TYPE param )				      \
     QConnectionList *clist = connections->at( signal );			      \
     if ( !clist )							      \
 	return;								      \
-    UObject o[2];							      \
-    pUType_##TYPE->set( o+1, param );					      \
+    QUObject o[2];							      \
+    pQUType_##TYPE->set( o+1, param );					      \
     activate_signal( clist, o );					      \
 }
 
@@ -2225,7 +2225,7 @@ QVariant QObject::property( const char *name ) const
 
 /*!\internal
  */
-bool QObject::qt_invoke( int _id, UObject* )
+bool QObject::qt_invoke( int _id, QUObject* )
 {
     switch ( _id ) {
     case 0:
@@ -2239,7 +2239,7 @@ bool QObject::qt_invoke( int _id, UObject* )
 
 /*!\internal
  */
-bool QObject::qt_emit( int _id, UObject * )
+bool QObject::qt_emit( int _id, QUObject * )
 {
     switch ( _id ) {
     case 0:

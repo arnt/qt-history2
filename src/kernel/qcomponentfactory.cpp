@@ -61,7 +61,7 @@ QRESULT QComponentFactory::createInstance( const QUuid &cid, const QUuid &iid, Q
     qt_component_server_cleanup.add( library );
 
     QComponentFactoryInterface *cfIface =0;
-    library->queryInterface( IID_QComponentFactoryInterface, (QUnknownInterface**)&cfIface );
+    library->queryInterface( IID_QComponentFactory, (QUnknownInterface**)&cfIface );
     if ( cfIface ) {
 	cfIface->createInstance( iid, cid, instance, outer );
 	cfIface->release();
@@ -83,7 +83,7 @@ bool QComponentFactory::registerServer( const QString &filename )
 {
     QLibrary lib( filename, QLibrary::Immediately );
     QComponentServerInterface *iface = 0;
-    lib.queryInterface( IID_QComponentServerInterface, (QUnknownInterface**)&iface );
+    lib.queryInterface( IID_QComponentServer, (QUnknownInterface**)&iface );
     if ( !iface )
 	return FALSE;
     bool ok = iface->registerComponents( filename );
@@ -104,7 +104,7 @@ bool QComponentFactory::unregisterServer( const QString &filename )
 {
     QLibrary lib( filename, QLibrary::Immediately );
     QComponentServerInterface *iface = 0;
-    lib.queryInterface( IID_QComponentServerInterface, (QUnknownInterface**)&iface );
+    lib.queryInterface( IID_QComponentServer, (QUnknownInterface**)&iface );
     if ( !iface )
 	return FALSE;
     bool ok = iface->unregisterComponents();
