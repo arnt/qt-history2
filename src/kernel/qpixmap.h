@@ -212,7 +212,10 @@ private:
     QPixmap	copy( bool ignoreMask = FALSE ) const;
 #if defined(Q_WS_WIN)
     void initAlphaPixmap( uchar *bytes, int length, struct tagBITMAPINFO *bmi );
-    void convertToAlphaPixmap();
+    void convertToAlphaPixmap( bool initAlpha=TRUE );
+    static void bitBltAlphaPixmap( QPixmap *dst, int dx, int dy,
+				   const QPixmap *src, int sx, int sy,
+				   int sw, int sh, bool useDstAlpha );
 #endif
     static Optimization defOptim;
     friend Q_EXPORT void bitBlt( QPaintDevice *, int, int,

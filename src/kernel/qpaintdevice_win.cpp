@@ -432,15 +432,20 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
 	if ( td==QInternal::Pixmap && ((QPixmap *)dst)->isQBitmap() ) {
 	    BitBlt( dst_dc, dx, dy, sw, sh, src_dc, sx, sy, ropCodes[ qt_map_rop_for_bitmaps(rop) ] );
 	} else if ( src_pm && td==QInternal::Pixmap && ((QPixmap *)dst)->data->realAlphaBits ) {
-	    src_pm->convertToAlphaPixmap();
 	    QPixmap *dst_pm = (QPixmap *)dst;
-	    if ( dst_pm->mask() ) {
-		int width = QMIN( dst_pm->mask()->width()-dx, sw );
-		int height = QMIN( dst_pm->mask()->height()-dy, sh );
-		MaskBlt( dst_dc, dx, dy, width, height, src_pm->hdc, sx, sy, dst_pm->mask()->hbm(),
-			dx, dy, MAKEROP4(0x00aa0000,ropCodes[rop]) );
+	    if ( rop == Qt::CopyROP ) {
+		src_pm->convertToAlphaPixmap( FALSE );
+		QPixmap::bitBltAlphaPixmap( dst_pm, dx, dy, src_pm, sx, sy, sw, sh, TRUE );
 	    } else {
-		BitBlt( dst_dc, dx, dy, sw, sh, src_pm->hdc, sx, sy, ropCodes[rop] );
+		src_pm->convertToAlphaPixmap();
+		if ( dst_pm->mask() ) {
+		    int width = QMIN( dst_pm->mask()->width()-dx, sw );
+		    int height = QMIN( dst_pm->mask()->height()-dy, sh );
+		    MaskBlt( dst_dc, dx, dy, width, height, src_pm->hdc, sx, sy, dst_pm->mask()->hbm(),
+			    dx, dy, MAKEROP4(0x00aa0000,ropCodes[rop]) );
+		} else {
+		    BitBlt( dst_dc, dx, dy, sw, sh, src_pm->hdc, sx, sy, ropCodes[rop] );
+		}
 	    }
 #ifdef Q_OS_TEMP
 	} else if ( (GetTextColor( dst_dc ) & 0xffffff) != 0 &&

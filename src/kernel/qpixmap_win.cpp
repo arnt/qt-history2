@@ -1430,7 +1430,7 @@ bool QPixmap::hasAlphaChannel() const
     return data->realAlphaBits != 0;
 }
 
-void QPixmap::convertToAlphaPixmap()
+void QPixmap::convertToAlphaPixmap( bool initAlpha )
 {
     int	  bmi_data_len = sizeof(BITMAPINFO);
     char *bmi_data = new char[bmi_data_len];
@@ -1452,11 +1452,17 @@ void QPixmap::convertToAlphaPixmap()
 
 #ifndef Q_OS_TEMP
     GetDIBits( qt_display_dc(), DATA_HBM, 0, height(), pm.data->realAlphaBits, bmi, DIB_RGB_COLORS );
-    uchar *p = pm.data->realAlphaBits + 3;
-    uchar *pe = p + bmh->biSizeImage;
-    while ( p < pe ) {
-	*p = 0xff;
-	p += 4;
+    if ( initAlpha ) {
+	// In bitBlt(), if the destination has an alpha channel and the source
+	// doesn't have one, we bitBlt() the source with the destination's
+	// alpha channel. In that case, there is no need to initialize the
+	// alpha values.
+	uchar *p = pm.data->realAlphaBits + 3;
+	uchar *pe = p + bmh->biSizeImage;
+	while ( p < pe ) {
+	    *p = 0xff;
+	    p += 4;
+	}
     }
 #else
     memcpy( pm.data->ppvBits, data->ppvBits, bmh->biSizeImage );
@@ -1465,6 +1471,75 @@ void QPixmap::convertToAlphaPixmap()
 	pm.setMask( *mask() );
 
     *this = pm;
+}
+
+void QPixmap::bitBltAlphaPixmap( QPixmap *dst, int dx, int dy,
+			         const QPixmap *src, int sx, int sy,
+			         int sw, int sh, bool useDstAlpha )
+{
+    if ( sw < 0 )
+	sw = src->width() - sx;
+    else
+	sw = QMIN( src->width()-sx, sw );
+    sw = QMIN( dst->width()-dx, sw );
+
+    if ( sh < 0 )
+	sh = src->height() - sy ;
+    else
+	sh = QMIN( src->height()-sy, sh );
+    sh = QMIN( dst->height()-dy, sh );
+
+    if ( sw <= 0 || sh <= 0 )
+	return;
+
+#ifndef Q_OS_TEMP
+    GdiFlush();
+#endif
+    uchar *sBits = src->data->realAlphaBits + ( sy * src->width() + sx ) * 4;
+    uchar *dBits = dst->data->realAlphaBits + ( dy * dst->width() + dx ) * 4;
+    int sw4 = sw * 4;
+    int src4 = src->width() * 4;
+    int dst4 = dst->width() * 4;
+    if ( useDstAlpha ) {
+	// Copy the source pixels premultiplied with the destination's alpha
+	// channel. The alpha channel remains the destination's alpha channel.
+	uchar *sCur;
+	uchar *dCur;
+	uchar alphaByte;
+	for ( int i=0; i<sh; i++ ) {
+	    sCur = sBits;
+	    dCur = dBits;
+	    for ( int j=0; j<sw; j++ ) {
+		alphaByte = *(dCur+3);
+		if ( alphaByte == 0 ) {
+		    dCur += 4;
+		    sCur += 4;
+		} else if ( alphaByte == 255 ) {
+		    *(dCur++) = *(sCur++);
+		    *(dCur++) = *(sCur++);
+		    *(dCur++) = *(sCur++);
+		    dCur++;
+		    sCur++;
+		} else {
+		    *(dCur++) = ( (*(sCur++)) * (int)alphaByte + 127 ) / 255;
+		    *(dCur++) = ( (*(sCur++)) * (int)alphaByte + 127 ) / 255;
+		    *(dCur++) = ( (*(sCur++)) * (int)alphaByte + 127 ) / 255;
+		    dCur++;
+		    sCur++;
+		}
+	    }
+	    sBits += src4;
+	    dBits += dst4;
+	}
+    } else {
+	// Copy the source into the destination. Use the source's alpha
+	// channel.
+	for ( int i=0; i<sh; i++ ) {
+	    memcpy( dBits, sBits, sw4 );
+	    sBits += src4;
+	    dBits += dst4;
+	}
+    }
 }
 
 Q_EXPORT void copyBlt( QPixmap *dst, int dx, int dy,
@@ -1490,34 +1565,9 @@ Q_EXPORT void copyBlt( QPixmap *dst, int dx, int dy,
     }
 
     if ( src->data->realAlphaBits ) {
-	if ( sw < 0 )
-	    sw = src->width() - sx;
-	else
-	    sw = QMIN( src->width()-sx, sw );
-	sw = QMIN( dst->width()-dx, sw );
-
-	if ( sh < 0 )
-	    sh = src->height() - sy ;
-	else
-	    sh = QMIN( src->height()-sy, sh );
-	sh = QMIN( dst->height()-dy, sh );
-
-	if ( sw <= 0 || sh <= 0 )
-	    return;
-
 	if ( !dst->data->realAlphaBits )
 	    dst->convertToAlphaPixmap();
-
-	uchar *sBits = src->data->realAlphaBits + ( sy * src->width() + sx ) * 4;
-	uchar *dBits = dst->data->realAlphaBits + ( dy * dst->width() + dx ) * 4;
-	int sw4 = sw * 4;
-	int src4 = src->width() * 4;
-	int dst4 = dst->width() * 4;
-	for ( int i=0; i<sh; i++ ) {
-	    memcpy( dBits, sBits, sw4 );
-	    sBits += src4;
-	    dBits += dst4;
-	}
+	QPixmap::bitBltAlphaPixmap( dst, dx, dy, src, sx, sy, sw, sh, FALSE );
     } else {
 	// copy pixel data
 	bitBlt( dst, dx, dy, src, sx, sy, sw, sh, Qt::CopyROP, TRUE );
