@@ -206,7 +206,7 @@ else
 	    then
 		# we have to test for Qt/Embedded
 	        case $keyTest in
-		A|B|C|D|E|F|G|H)
+		A|B|C|D|E|F|G|H|a|b|c|d|e|f|g|h)
 		    # Feature_Embedded
 		    echo ;;
 		*)
@@ -234,7 +234,7 @@ else
                 esac
             else
 	        case $keyTest in
-		6|7|8|9|E|F|G|H)
+		6|7|8|9|E|F|G|H|e|f|g|h)
 		    # Feature_Unix
 		    echo ;;
 		*)
@@ -248,7 +248,7 @@ else
                 esac
 	    fi
 	    case $keyTest in
-	    4|5|8|9|C|D|G|H)
+	    4|5|8|9|C|D|G|H|c|d|g|h)
 		# Feature_Enterprise
 		Desc=Enterprise
 		Edition=ent ;;
@@ -258,7 +258,7 @@ else
 		Edition=pro ;;
 	    esac
 	    case $keyTest in
-	    3|5|7|9|B|D|F|H)
+	    3|5|7|9|B|D|F|H|b|d|f|h)
 		# Feature_US
 		cp -f $relpath/.LICENSE-US $relpath/LICENSE
 		;;
@@ -995,11 +995,11 @@ if echo $MODULES | grep sql >/dev/null
 then
     SQL_AVAIL=`find $relpath/plugins/src/sqldrivers/* -prune -type d -print | awk -F/ '{print $NF}'`
     SQL_AVAIL=`echo $SQL_AVAIL`
-    MYSQL_REQ="-llibmysqlclient.* mysql.h"
-    OCI_REQ="-llibclntsh.* -llibwtc8.* oci.h"
-    PSQL_REQ="-llibpq.* postgres.h libpq/libpq-fs.h catalog/pg_type.h libpq-fe.h"
-    ODBC_REQ="-llibodbc.* sql.h sqlext.h"
-    TDS_REQ="-llibsybdb.* sybfront.h sybdb.h"
+    MYSQL_REQ="-lmysqlclient mysql.h"
+    OCI_REQ="-lclntsh -lwtc8 oci.h"
+    PSQL_REQ="-lpq postgres.h libpq/libpq-fs.h catalog/pg_type.h libpq-fe.h"
+    ODBC_REQ="-lodbc sql.h sqlext.h"
+    TDS_REQ="-lsybdb sybfront.h sybdb.h"
     for _SQLDR in $SQL_AVAIL
     do
 	case $_SQLDR in
@@ -1036,13 +1036,13 @@ then
     # Auto-detect OpenGL support
     if echo $MODULES | grep opengl >/dev/null
     then
-	$x11tests/opengl.test $XQMAKESPEC $THREAD $VERBOSE && MODULES=`echo $MODULES | sed -e 's/opengl//'`
+	$x11tests/opengl.test $XQMAKESPEC $THREAD $VERBOSE $L_FLAGS $I_FLAGS && MODULES=`echo $MODULES | sed -e 's/opengl//'`
     fi
     # Auto-detect XRender support
     if [ $XRENDER != no ]
     then
 	XRENDER=yes
-	$x11tests/xrender.test $XQMAKESPEC $VERBOSE && XRENDER=no && XFTFREETYPE=no
+	$x11tests/xrender.test $XQMAKESPEC $VERBOSE $L_FLAGS $I_FLAGS && XRENDER=no && XFTFREETYPE=no
     else
 	XFTFREETYPE=no
     fi
@@ -1050,7 +1050,7 @@ then
     if [ $XRENDER = yes ] && [ $XFTFREETYPE != no ]
     then
 	XFTFREETYPE=yes
-	$x11tests/xfreetype.test $XQMAKESPEC $VERBOSE $x11tests && XFTFREETYPE=no
+	$x11tests/xfreetype.test $XQMAKESPEC $VERBOSE $x11tests $L_FLAGS $I_FLAGS && XFTFREETYPE=no
     fi
     # Add freetype2 include path
     if [ $XFTFREETYPE = yes ] && [ -f $x11tests/xfreetype.inc ]
@@ -1068,13 +1068,13 @@ then
     if [ $SM = auto ]
     then
 	SM=yes
-	$x11tests/sm.test $XQMAKESPEC $VERBOSE && SM=no
+	$x11tests/sm.test $XQMAKESPEC $VERBOSE $L_FLAGS $I_FLAGS && SM=no
     fi
     # Auto-detect Xinerama support
     if [ $XINERAMA != no ]
     then
 	XINERAMA=yes
-	$x11tests/xinerama.test $XQMAKESPEC $VERBOSE && XINERAMA=no
+	$x11tests/xinerama.test $XQMAKESPEC $VERBOSE $L_FLAGS $I_FLAGS && XINERAMA=no
     fi
     # Auto-detect Tablet support (currenlty only in IRIX)
     case $PLATFORM in
@@ -1082,7 +1082,7 @@ then
 	if [ $TABLET = auto ]
 	then
 	    TABLET=yes
-	    $x11tests/xinput.test $XQMAKESPEC $VERBOSE && TABLET=no
+	    $x11tests/xinput.test $XQMAKESPEC $VERBOSE $L_FLAGS $I_FLAGS && TABLET=no
 	fi
 	;;
     *)
@@ -1096,15 +1096,12 @@ then
     if [ $XKB != no ]
     then
 	XKB=yes
-	$x11tests/xkb.test $XQMAKESPEC $VERBOSE && XKB=no
+	$x11tests/xkb.test $XQMAKESPEC $VERBOSE $L_FLAGS $I_FLAGS && XKB=no
     fi
     # Work around broken X11 headers when using GCC 2.95 or later
     NOTYPE=no
     $x11tests/notype.test $XQMAKESPEC $VERBOSE $relpath $outpath && NOTYPE=yes
-    if [ "x$NOTYPE" = "xyes" ]
-    then
-	QMAKE_VARS="$QMAKE_VARS  \"QMAKE_CXXFLAGS+=-fpermissive\""
-    fi
+    [ "x$NOTYPE" = "xyes" ] && QMAKE_VARS="$QMAKE_VARS  \"QMAKE_CXXFLAGS+=-fpermissive\""
 fi
 
 # Next, emit a usage message if something failed.
@@ -1433,7 +1430,7 @@ then
 	    echo
 	    echo "  You may continue to use your last licensed release"
 	    echo "  of Qt under the terms of your existing license"
-	    echo "  agreement, but you are not entitled to technical"
+	    echo "  agreement. But you are not entitled to technical"
 	    echo "  support, nor are you entitled to use any more recent"
 	    echo "  Qt releases."
 	    echo

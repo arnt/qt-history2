@@ -7,18 +7,12 @@ SRCDIR=$3
 OUTDIR=$4
 
 # debuggery
-
-if [ "$VERBOSE" = "yes" ]
-then
-    echo "Detecting broken X11 headers... ($*)"
-fi
-
+[ "$VERBOSE" = "yes" ] && echo "Detecting broken X11 headers... ($*)"
 
 # Detect broken X11 headers when using GCC 2.95 or later
 #   Xsun on Solaris 2.5.1 and 2.6:
 #   	Patches are available for Solaris 7 and Solaris 8 but
 #   	not for Solaris 2.5.1 or 2.6.
-
 NOTYPE=no
 
 if [ $XPLATFORM = "solaris-g++" ]
@@ -44,20 +38,12 @@ then
     [ -x notypetest ] && NOTYPE=no
 fi
 
-
 # done
-
 if [ "$NOTYPE" = "yes" ]
 then
-    if [ "$VERBOSE" = "yes" ]
-    then
-	echo "Broken X11 headers detected."
-    fi
+    [ "$VERBOSE" = "yes" ] && echo "Broken X11 headers detected."
     exit 0
 else
-    if [ "$VERBOSE" = "yes" ]
-    then
-	echo "X11 headers look good."
-    fi
+    [ "$VERBOSE" = "yes" ] && echo "X11 headers look good."
     exit 1
 fi
