@@ -116,7 +116,7 @@ public:
     }
 
 #if defined(Q_WS_WIN)
-    static HTHEME getThemeData( unsigned short *c )
+    static HTHEME getThemeData( TCHAR*c )
     {
 	if ( !use_xp || !OpenThemeData )
 	    return NULL;
