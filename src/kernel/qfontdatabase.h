@@ -65,7 +65,6 @@ public:
 
     QStringList families() const;
     QStringList styles( const QString & ) const;
-    QStringList charSets( const QString & ) const;
     QValueList<int> pointSizes( const QString &, const QString & = QString::null);
     QValueList<int> smoothSizes( const QString &, const QString &);
     QString styleString( const QFont &);
@@ -90,7 +89,6 @@ public:
 
     QStringList families(bool) const;
     QStringList styles( const QString &, const QString & ) const;
-    QStringList charSets( const QString &, bool ) const;
     QValueList<int> pointSizes( const QString &, const QString &, const QString & );
     QValueList<int> smoothSizes( const QString &, const QString &, const QString & );
 
@@ -111,10 +109,16 @@ public:
 private:
     static void createDatabase();
 
+    static void parseFontName(const QString &, QString &, QString &);
+
     friend class QtFontStyle;
     friend class QtFontFamily;
     friend class QtFontFoundry;
     friend class QFontDatabasePrivate;
+
+    // for parseFontName
+    friend class QFontPrivate;
+    friend class QFontDialog;
 
     QFontDatabasePrivate *d;
 };
@@ -131,12 +135,6 @@ inline QStringList QFontDatabase::styles( const QString &family,
 					  const QString & ) const
 {
     return styles(family);
-}
-
-inline QStringList QFontDatabase::charSets( const QString &family,
-					    bool ) const
-{
-    return charSets(family);
 }
 
 inline QValueList<int> QFontDatabase::pointSizes( const QString &family,

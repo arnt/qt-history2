@@ -496,7 +496,7 @@ bool QFontDialog::eventFilter( QObject * o , QEvent * e )
 
 
 #ifdef Q_WS_MAC
-//#define SHOW_FONTS_IN_FAMILIES
+// #define SHOW_FONTS_IN_FAMILIES
 #endif
 
 #ifdef SHOW_FONTS_IN_FAMILIES
@@ -558,11 +558,7 @@ void QFontDialog::updateFamilies()
 #endif
     for( ; it != d->familyNames.end() ; it++ ) {
 	s = *it;
-	if ( s.contains('-') ) {
-	    int i = s.find('-');
-	    s = s.right( s.length() - i - 1 ) + " [" + s.left( i ) + "]";
-	}
-	s[0] = s[0].upper();
+
 #if 0
 	if ( d->fdb.isSmoothlyScalable( *it ) )
 	    newList.append( s + "(TT)" );
@@ -752,32 +748,33 @@ void QFontDialog::sizeHighlighted( const QString &s )
 
 void QFontDialog::setFont( const QFont &f )
 {
-#ifdef Q_WS_WIN
-    QString famNam = f.family();
-#else
-    QString famNam = f.family().lower();
-#endif
+    QString foundryName1, familyName1, foundryName2, familyName2;
+    int bestFamilyMatch = -1;
+
+    QFontDatabase::parseFontName(f.family(), foundryName1, familyName1);
 
     QStringList::Iterator it;
     it = d->familyNames.begin();
     int i = 0;
     for( ; it != d->familyNames.end() ; ++it ) {
-	QString s = *it;
-	if ( famNam == s ) {
-	    d->familyList->setCurrentItem( i );
-	    i = -1;
-	    break;
-	}
-	if ( s.contains('-') ) {
-	    int j = s.find('-');
-	    if ( famNam == s.right( s.length() - j - 1 ) ) {
-		d->familyList->setCurrentItem( i );
+
+	QFontDatabase::parseFontName(*it, foundryName2, familyName2);
+
+	if (foundryName1 == foundryName2) {
+	    if (familyName1 == familyName2) {
+		d->familyList->setCurrentItem(i);
 		i = -1;
 		break;
 	    }
+	} else if (bestFamilyMatch != -1 && familyName1 == familyName2) {
+	    bestFamilyMatch = i;
 	}
+
 	i++;
     }
+
+    if (i != -1 && bestFamilyMatch != -1)
+	d->familyList->setCurrentItem(bestFamilyMatch);
 
     QString styleString = d->fdb.styleString( f );
     if ( !styleString.isEmpty() && d->styleList->count() != 0 ) {

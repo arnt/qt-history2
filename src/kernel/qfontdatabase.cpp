@@ -256,7 +256,7 @@ private:
 #endif
 #if defined( Q_WS_MAC )
     friend void add_style( QtFontFamily *family, const QString& styleName,
-                bool italic, bool lesserItalic, int weight );
+			   bool italic, bool lesserItalic, int weight );
 #endif
 
 
@@ -571,37 +571,57 @@ const QStringList &QFontDatabasePrivate::families() const
         QDict<QtFontFoundry> firstFoundryForFamily;
         QDict<int> doubles;
         QtFontFoundry *foundry;
-        QString s;
         QDictIterator<QtFontFoundry> iter( foundryDict );
+	QString s, f;
+	int index;
 
         for( ; (foundry = iter.current()) ; ++iter ) {
             QStringList l = foundry->families();
 
             for ( QStringList::Iterator it = l.begin(); it != l.end(); ++it ) {
-                if ( !firstFoundryForFamily.find( *it ) ) {
-                    that->familyNames.append( *it );
-                    firstFoundryForFamily.insert( *it, foundry );
-                } else {
-                    QString s;
+		s = *it;
+		s[0] = s[0].upper();
+		index = -1;
+		while ((index = s.find(' ', index + 1)) != -1 &&
+		       uint(index + 1) < s.length() - 1)
+		    s[index + 1] = s[index + 1].upper();
 
-                    if ( !doubles.find(*it) ) { // 2nd foundry for family?
-                        doubles.insert( *it, (int*)1 );
-                        QtFontFoundry *tmp = firstFoundryForFamily.find(*it);
-                        QString firstFoundryName;
+                if ( !firstFoundryForFamily.find( s ) ) {
+		    that->familyNames.append( s );
+		    firstFoundryForFamily.insert( s, foundry );
+                } else {
+		    if ( !doubles.find(s) ) { // 2nd foundry for family?
+                        doubles.insert( s, (int*)1 );
+                        QtFontFoundry *tmp = firstFoundryForFamily.find(s);
+			that->familyNames.remove( s );
 
                         if ( tmp )
-                            firstFoundryName = tmp->name();
+                            f = tmp->name();
                         else
                             qWarning( "QFontDatabasePrivate::families:"
 				      "Internal error, Cannot find first foundry");
 
-                        that->familyNames.remove( *it );
-                        s = firstFoundryName + "-" + *it;
-                        that->familyNames.append( s );
+			f[0] = f[0].upper();
+			index = -1;
+			while ((index = f.find(' ', index + 1)) != -1 &&
+			       uint(index + 1) < f.length() - 1)
+			    f[index + 1] =
+				f[index + 1].upper();
+
+			that->familyNames.append( s + " [" + f + "]" );
                     }
 
-                    s = foundry->name() + "-" + *it;
-                    that->familyNames.append( s );
+
+		    f = foundry->name();
+		    f[0] = f[0].upper();
+		    index = -1;
+		    while ((index = f.find(' ', index + 1)) != -1 &&
+			   uint(index + 1) < f.length() - 1)
+			f[index + 1] =
+			    f[index + 1].upper();
+
+                    s += " [" + f + "]";
+		    that->familyNames.append( s );
                 }
             }
         }
@@ -623,14 +643,13 @@ const QtFontFamily *QFontDatabasePrivate::family( const QString &name ) const
     const QtFontFamily *result = bestFamilyDict.find(name);
 
     if ( !result ) {
+	QString familyName, foundryName;
         const QtFontFoundry *fndry;
         const QtFontFamily *fam;
 
-        if ( name.contains('-') ) {
-            int i = name.find('-');
-            QString foundryName = name.left( i );
-            QString familyName = name.right( name.length() - i - 1 );
-            fndry = foundry( foundryName );
+	QFontDatabase::parseFontName(name, foundryName, familyName);
+	if (! foundryName.isNull()) {
+	    fndry = foundry( foundryName );
 
             if ( fndry ) {
                 fam = fndry->family( familyName );
@@ -640,14 +659,14 @@ const QtFontFamily *QFontDatabasePrivate::family( const QString &name ) const
                     return fam;
                 }
             }
-        }
+	}
 
         QDictIterator<QtFontFoundry> iter( foundryDict );
         const QtFontFamily *nonScalable    = 0;
         const QtFontFamily *bitmapScalable = 0;
 
         for( ; (fndry = iter.current()) ; ++iter ) {
-            fam = fndry->family( name );
+            fam = fndry->family( name.lower() );
 
             if ( fam ) {
                 if ( fam->isSmoothlyScalable() ) {
@@ -1395,8 +1414,7 @@ static QStringList emptyList;
   underlying window system.
 
   Most often you will simply want to query the database for all font
-  families(), and their respective pointSizes(), styles() and
-  charSets().
+  families(), and their respective pointSizes() and styles().
 */
 
 
@@ -1563,7 +1581,7 @@ QFont QFontDatabase::font( const QString &family, const QString &style,
 {
     const QtFontStyle *sty = 0;
 
-    sty =  getStyle( d, family, style);
+    sty = getStyle( d, family, style);
     if ( !sty ) {
         qWarning( "QFontDatabase::font: Style not found for %s, %s, %d",
 		  family.latin1(), style.latin1(), pointSize);
@@ -1638,23 +1656,6 @@ int QFontDatabase::weight( const QString &family,
 {
     const QtFontStyle *sty = getStyle( d, family, style );
     return sty ? sty->weight() : -1;
-}
-
-/*! \obsolete
-  In Qt 3.0 and higher, this returns a QStringList containing only "Unicode".
-
-  Previous versions returned a list of all character sets in which the
-  font \e family was available.
-*/
-QStringList QFontDatabase::charSets( const QString & ) const
-{
-    static QStringList charSetsList;
-
-    if (! charSetsList.count()) {
-	charSetsList.append("Unicode");
-    }
-
-    return charSetsList;
 }
 
 
@@ -2163,5 +2164,42 @@ void QFontDatabase::createDatabase()
 }
 
 #endif // Q_WS_QWS
+
+
+/*!
+  \internal
+
+  This makes sense of the font family name:
+
+  1) if the family name contains a '-' (ie. "Adobe-Courier"), then we split
+     at the '-', and use the string as the foundry, and the string to the right as
+     the family
+
+  2) if the family name contains a '[' and a ']', then we take the text between
+     the square brackets as the foundry, and the text before the square brackets
+     as the family (ie. "Arial [Monotype]")
+*/
+void QFontDatabase::parseFontName(const QString &name, QString &foundry, QString &family)
+{
+    if ( name.contains('-') ) {
+	int i = name.find('-');
+	foundry = name.left( i ).lower();
+	family = name.right( name.length() - i - 1 ).lower();
+    } else if ( name.contains('[') && name.contains(']')) {
+	int i = name.find('[');
+	int li = name.findRev(']');
+
+	if (i < li) {
+	    foundry = name.mid(i + 1, li - i - 1).lower();
+	    if (name[i - 1] == ' ')
+		i--;
+	    family = name.left(i).lower();
+	}
+    } else {
+	foundry = QString::null;
+	family = name.lower();
+    }
+}
+
 
 #endif // QT_NO_FONTDATABASE

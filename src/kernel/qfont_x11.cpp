@@ -77,7 +77,8 @@
 // to get which font encodings are installed:
 // xlsfonts | egrep -- "^-.*-.*-.*$" | cut -f 14- -d- | sort | uniq
 
-static const char * const empty_encodings[] = { 0 };
+// because of the way the font matcher works - these lists must have atleast 2 entries
+static const char * const empty_encodings[] = { 0, 0 };
 static const char * const latin_encodings[] = { "iso8859-1", 0 };
 static const char * const greek_encodings[] = { "iso8859-7", 0 };
 static const char * const cyrillic_encodings[] = { "iso8859-5", "koi8-r", "koi8-ru", 0 };
@@ -284,7 +285,8 @@ static QFontNameDict *fontNameDict = 0;
   */
 void qX11ClearFontNameCache()
 {
-    if (fontNameDict) fontNameDict->clear();
+    if (fontNameDict)
+	fontNameDict->clear();
 }
 
 
@@ -386,9 +388,8 @@ QString QFontPrivate::lastResortFont() const
     while ( (f = tryFonts[i]) ) {
 	last = QString::fromLatin1(f);
 
-	if ( fontExists(last) ) {
+	if ( fontExists(last) )
 	    return last;
-	}
 
 	i++;
     }
@@ -1232,16 +1233,9 @@ bool QFontPrivate::inFont( const QChar &ch )
 // be found
 XftPattern *QFontPrivate::findXftFont(const QChar &sample) const
 {
-    // if the family name contains a '-' (ie. "Adobe-Courier"), then we split
-    // at the '-', and use the string as the foundry, and the string to the right as
-    // the family
-    QString familyName = request.family;
+    QString familyName;
     QString foundryName;
-    if ( familyName.contains('-') ) {
-	int i = familyName.find('-');
-	foundryName = familyName.left( i );
-	familyName = familyName.right( familyName.length() - i - 1 );
-    }
+    QFontDatabase::parseFontName(request.family, foundryName, familyName);
 
     XftPattern *match = bestXftPattern(familyName, foundryName);
 
@@ -1267,19 +1261,14 @@ XftPattern *QFontPrivate::findXftFont(const QChar &sample) const
 	return match;
 
     // try font substitutions
-    QStringList list = QFont::substitutes(request.family);
+    QStringList list = QFont::substitutes(familyName);
     QStringList::Iterator sit = list.begin();
 
     while (sit != list.end() && ! match) {
 	familyName = *sit++;
 
 	if (request.family != familyName) {
-	    if ( familyName.contains('-') ) {
-		int i = familyName.find('-');
-		foundryName = familyName.left( i );
-		familyName = familyName.right( familyName.length() - i - 1 );
-	    }
-
+	    QFontDatabase::parseFontName(familyName, foundryName, familyName);
 	    match = bestXftPattern(familyName, foundryName);
 
 	    if (sample.unicode() != 0 && match) {
@@ -1302,30 +1291,32 @@ XftPattern *QFontPrivate::findXftFont(const QChar &sample) const
 	}
     }
 
-    if (match)
-	return match;
-
-    match = bestXftPattern(QString::null, QString::null);
-
-    if (sample.unicode() != 0 && match) {
-	// check if the character is actually in the font - this does result in
-	// a font being loaded, but since Xft is completely client side, we can
-	// do this efficiently
-	XftFontStruct *xftfs = XftFreeTypeOpen(QPaintDevice::x11AppDisplay(),
-					       match);
-
-	if (xftfs) {
-	    if (! XftFreeTypeGlyphExists(QPaintDevice::x11AppDisplay(), xftfs,
-					 sample.unicode())) {
-		XftPatternDestroy(match);
-		match = 0;
-	    }
-
-	    XftFreeTypeClose(QPaintDevice::x11AppDisplay(), xftfs);
-	}
-    }
-
+    // if (match)
     return match;
+
+    /*
+      match = bestXftPattern(QString::null, QString::null);
+
+      if (sample.unicode() != 0 && match) {
+      // check if the character is actually in the font - this does result in
+      // a font being loaded, but since Xft is completely client side, we can
+      // do this efficiently
+      XftFontStruct *xftfs = XftFreeTypeOpen(QPaintDevice::x11AppDisplay(),
+      match);
+
+      if (xftfs) {
+      if (! XftFreeTypeGlyphExists(QPaintDevice::x11AppDisplay(), xftfs,
+      sample.unicode())) {
+      XftPatternDestroy(match);
+      match = 0;
+      }
+
+      XftFreeTypeClose(QPaintDevice::x11AppDisplay(), xftfs);
+      }
+      }
+
+      return match;
+    */
 }
 
 
@@ -1447,15 +1438,8 @@ QCString QFontPrivate::findFont(QFont::Script script, bool *exact) const
 	*exact = FALSE;
     }
 
-    // if the family name contains a '-' (ie. "Adobe-Courier"), then we split
-    // at the '-', and use the string as the foundry, and the string to the right as
-    // the family
-    QString foundry;
-    if ( familyName.contains('-') ) {
-	int i = familyName.find('-');
-	foundry = familyName.left( i );
-	familyName = familyName.right( familyName.length() - i - 1 );
-    }
+    QString foundryName;
+    QFontDatabase::parseFontName(familyName, foundryName, familyName);
 
     int score;
 
@@ -1464,7 +1448,7 @@ QCString QFontPrivate::findFont(QFont::Script script, bool *exact) const
     int start_index = script_table[script].index;
 
     while (! done) {
-	bestName = bestFamilyMember(script, foundry, familyName, &score);
+	bestName = bestFamilyMember(script, foundryName, familyName, &score);
 
 	if (bestName.isNull()) {
 	    if (! script_table[script].list[++script_table[script].index])
@@ -1483,7 +1467,7 @@ QCString QFontPrivate::findFont(QFont::Script script, bool *exact) const
 	return bestName;
 
     // try substitution
-    QStringList list = QFont::substitutes( request.family );
+    QStringList list = QFont::substitutes( familyName );
     QStringList::Iterator sit = list.begin();
 
     while (sit != list.end() && bestName.isNull()) {
@@ -1492,15 +1476,10 @@ QCString QFontPrivate::findFont(QFont::Script script, bool *exact) const
 	if (request.family != familyName) {
 	    done = FALSE;
 	    script_table[script].index = start_index;
-
-	    if ( familyName.contains('-') ) {
-		int i = familyName.find('-');
-		foundry = familyName.left( i );
-		familyName = familyName.right( familyName.length() - i - 1 );
-	    }
+	    QFontDatabase::parseFontName(familyName, foundryName, familyName);
 
 	    while (! done) {
-		bestName = bestFamilyMember(script, foundry, familyName, &score);
+		bestName = bestFamilyMember(script, foundryName, familyName, &score);
 
 		if (bestName.isNull()) {
 		    if (! script_table[script].list[++script_table[script].index])
@@ -1528,7 +1507,7 @@ QCString QFontPrivate::findFont(QFont::Script script, bool *exact) const
 	script_table[script].index = start_index;
 
 	while (! done) {
-	    bestName = bestFamilyMember(script, foundry, familyName, &score);
+	    bestName = bestFamilyMember(script, foundryName, familyName, &score);
 
 	    if (bestName.isNull()) {
 		if (! script_table[script].list[++script_table[script].index])
@@ -1553,7 +1532,7 @@ QCString QFontPrivate::findFont(QFont::Script script, bool *exact) const
 	script_table[script].index = start_index;
 
 	while (! done) {
-	    bestName = bestFamilyMember(script, foundry, familyName, &score);
+	    bestName = bestFamilyMember(script, foundryName, familyName, &score);
 
 	    if (bestName.isNull()) {
 		if (! script_table[script].list[++script_table[script].index])
@@ -1578,7 +1557,7 @@ QCString QFontPrivate::findFont(QFont::Script script, bool *exact) const
 	script_table[script].index = start_index;
 
 	while (! done) {
-	    bestName = bestFamilyMember(script, foundry, familyName, &score);
+	    bestName = bestFamilyMember(script, foundryName, familyName, &score);
 
 	    if (bestName.isNull()) {
 		if (! script_table[script].list[++script_table[script].index])
