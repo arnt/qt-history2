@@ -11,6 +11,7 @@
 **
 ****************************************************************************/
 
+#include "qstring.h"
 #include "qplatformdefs.h"
 #include "qsocketnotifier.h"
 #include "qcoreapplication.h"

@@ -11,6 +11,7 @@
 **
 ****************************************************************************/
 
+#include "qstring.h"
 #include "qplatformdefs.h"
 #include "qlocale.h"
 #include "qlocale_p.h"

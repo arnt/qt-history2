@@ -34,6 +34,11 @@
 #include <qcstring.h>
 #endif
 
+// POSIX defines truncate to truncate64
+#ifdef truncate
+#error qstring.h must be included before any header file that defines truncate
+#endif
+
 class QCharRef;
 class QRegExp;
 class QStringList;

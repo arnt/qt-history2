@@ -11,12 +11,8 @@
 **
 ****************************************************************************/
 
+#include "qfile.h"
 #include "qplatformdefs.h"
-
-// POSIX Large File Support redefines open -> open64
-#if defined(open)
-# undef open
-#endif
 
 #ifndef QT_NO_MIME
 
@@ -34,6 +30,11 @@
 #include "qdir.h"
 #include <private/qdragobject_p.h>
 #include <ctype.h>
+
+// POSIX Large File Support redefines open -> open64
+#if defined(open)
+# undef open
+#endif
 
 static QWidget* last_target;
 

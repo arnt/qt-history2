@@ -11,12 +11,9 @@
 **
 ****************************************************************************/
 
+#include "qfile.h"
 #include "qplatformdefs.h"
 
-// UNIX Large File Support redefines open -> open64
-#if defined(open)
-# undef open
-#endif
 
 #include "qtextcodec.h"
 
@@ -38,8 +35,6 @@
 #include "qjiscodec_p.h"
 #include "qsjiscodec_p.h"
 #endif // QT_NO_BIG_CODECS
-#include "qfile.h"
-#include "qstring.h"
 #include <private/qlocale_p.h>
 #include <private/qmutexpool_p.h>
 #include <stdlib.h>
@@ -49,6 +44,11 @@
 #endif
 #if defined(_XOPEN_UNIX) && !defined(Q_OS_QNX6)
 #include <langinfo.h>
+#endif
+
+// UNIX Large File Support redefines open -> open64
+#if defined(open)
+# undef open
 #endif
 
 static QList<QTextCodec*> *all = 0;

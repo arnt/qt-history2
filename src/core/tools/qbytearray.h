@@ -19,6 +19,11 @@
 
 #include <string.h>
 
+// POSIX defines truncate to truncate64
+#ifdef truncate
+#error qbytearray.h must be included before any header file that defines truncate
+#endif
+
 /*****************************************************************************
   Safe and portable C string functions; extensions to standard string.h
  *****************************************************************************/

@@ -11,6 +11,7 @@
 **
 ****************************************************************************/
 
+#include "qstring.h"
 #include "qeventloop_p.h" // includes qplatformdefs.h
 #include "qeventloop.h"
 #include "qcoreapplication.h"
