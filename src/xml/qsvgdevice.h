@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/xml/qsvgdevice.h#5 $
+** $Id: //depot/qt/main/src/xml/qsvgdevice.h#6 $
 **
 ** Definition of the QSVGDevice class
 **
@@ -57,6 +57,7 @@
 
 class QPainter;
 class QDomNode;
+class QDomNamedNodeMap;
 class QSVGDevicePrivate;
 
 class Q_EXPORT QSVGDevice : public QPaintDevice
@@ -77,6 +78,9 @@ protected:
 private:
     bool play( const QDomNode &node );
     QColor parseColor( const QString &col );
+    double parseLen( const QString &str, bool *ok=0 ) const;
+    int lenToInt( const QDomNamedNodeMap &map, const QString &attr,
+		  int def=0 ) const;
 
     enum ElementType {
 	InvalidElement = 0,

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/xml/qsvgdevice.cpp#8 $
+** $Id: //depot/qt/main/src/xml/qsvgdevice.cpp#9 $
 **
 ** Implementation of the QSVGDevice class
 **
@@ -117,6 +117,12 @@ bool QSVGDevice::play( QPainter *painter )
 	return FALSE;
     }
 
+    QDomNamedNodeMap attr = svg.attributes();
+    int w = lenToInt( attr, "width" );
+    int h = lenToInt( attr, "height" );
+    brect.setWidth( w );
+    brect.setHeight( h );
+
     const struct ElementTable {
 	const char *name;
 	ElementType type;
@@ -219,15 +225,38 @@ bool QSVGDevice::play( const QDomNode &node )
     while ( !child.isNull() ) {
 	pt->save();
 
+	QDomNamedNodeMap attr = child.attributes();
+	int x1, y1, x2, y2, rx, ry;
 	ElementType t = typeMap[ child.nodeName() ];
 	switch ( t ) {
 	case RectElement:
+	    break;
 	case CircleElement:
+	    x1 = lenToInt( attr, "cx" );
+	    y1 = lenToInt( attr, "cy" );
+	    rx = lenToInt( attr, "r" );
+	    pt->drawEllipse( x1-rx, y1-rx, 2*rx, 2*rx );
+	    break;
 	case EllipseElement:
+	    x1 = lenToInt( attr, "cx" );
+	    y1 = lenToInt( attr, "cy" );
+	    rx = lenToInt( attr, "rx" );
+	    ry = lenToInt( attr, "ry" );
+	    pt->drawEllipse( x1-rx, y1-ry, 2*rx, 2*ry );
+	    break;
 	case LineElement:
+	    x1 = lenToInt( attr, "x1" );
+	    x2 = lenToInt( attr, "x2" );
+	    y1 = lenToInt( attr, "y1" );
+	    y2 = lenToInt( attr, "y2" );
+	    pt->drawLine( x1, y1, x2, y2 );
+	    break;
 	case PolylineElement:
 	case PolygonElement:
+	    break;
 	case GroupElement:
+	    play( child );
+	    break;
 	case PathElement:
 	case TextElement:
 	case ImageElement:
@@ -306,6 +335,47 @@ QColor QSVGDevice::parseColor( const QString &col )
 
     // check for predefined Qt color objects, #RRGGBB and #RGB
     return QColor( col );
+}
+
+/*!
+  \internal
+  Parse a <length> datatype consisting of a number followed by an optional
+  unit specifier. Can be used for type <coordinate> as well.
+*/
+
+double QSVGDevice::parseLen( const QString &str, bool *ok ) const
+{
+    QRegExp reg( "([+-]*\\d*\\.*\\d*[Ee]?[+-]?\\d*)(em|ex|px|pt|pc|cm|mm|)" );
+    if ( reg.search( str ) == -1 ) {
+	qWarning( "QSVGDevice::parseLen: couldn't parse " + str );
+	if ( ok )
+	    *ok = FALSE;
+	return 0.0;
+    }
+
+    double d = reg.cap( 1 ).toDouble();
+    // ### respect unit identifier
+    if ( ok )
+	*ok = TRUE;
+    return d;
+}
+
+/*!
+  \internal
+  Returns the length specified in attribute \a attr in \a map. If the
+  specified attribute doesn't exist or can't be parsed \a def is returned.
+*/
+
+int QSVGDevice::lenToInt( const QDomNamedNodeMap &map, const QString &attr,
+			  int def ) const
+{
+    if ( map.contains( attr ) ) {
+	bool ok;
+	double d = parseLen( map.namedItem( attr ).nodeValue(), &ok );
+	if ( ok )
+	    return int(d);
+    }
+    return def;
 }
 
 #endif // QT_NO_SVG
