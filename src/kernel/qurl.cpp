@@ -137,9 +137,9 @@ static void slashify( QString& s, bool allowMultiple = TRUE )
        \i "http"
   \row \i \l host()
        \i "doc.trolltech.com"
-  \row \l fileName()
+  \row \i \l fileName()
        \i "qdockarea.html"
-  \row \l ref()
+  \row \i \l ref()
        \i "lines"
   \endtable
 
