@@ -115,8 +115,8 @@ debug your application.
 After a few hours of coding, you might have made a start on the
 platform specific part of your application, and decided to keep the
 platform dependent code separate.  So you now have two new files to
-include into your project file - \e hello_win.cpp and \e
-hello_unix.cpp.  We can't just add these to the \e SOURCES
+include into your project file - \e hellowin.cpp and \e
+hellounix.cpp.  We can't just add these to the \e SOURCES
 variable since this will put both files in the makefile.  So what we
 need to do here is to use a scope which will be processed depending on
 which platform \e qmake is run on.
@@ -126,11 +126,11 @@ Windows looks like this:
 
 \code
     win32 {
-	SOURCES += hello_win.cpp
+	SOURCES += hellowin.cpp
     }
 \endcode
 
-So if \e qmake is run on Windows, it will add \e hello_win.cpp to the
+So if \e qmake is run on Windows, it will add \e hellowin.cpp to the
 list of source files.  If \e qmake is run on any other platform, it
 will simply ignore it.  Now all that is left to be done is to create a
 scope for the unix dependent file.
@@ -144,10 +144,10 @@ something like this:
     SOURCES += hello.cpp
     SOURCES += main.cpp 
     win32 {
-	SOURCES += hello_win.cpp
+	SOURCES += hellowin.cpp
     }
     unix {
-	SOURCES += hello_unix.cpp
+	SOURCES += hellounix.cpp
     }
 \endcode
 
@@ -177,10 +177,10 @@ file doesn't exist.
     SOURCES += hello.cpp
     SOURCES += main.cpp 
     win32 {
-	SOURCES += hello_win.cpp
+	SOURCES += hellowin.cpp
     }
     unix {
-	SOURCES += hello_unix.cpp
+	SOURCES += hellounix.cpp
     }
     !exists( main.cpp ) {
 	error( "No main.cpp file found" )
@@ -221,10 +221,10 @@ project file looks like this:
     SOURCES += hello.cpp
     SOURCES += main.cpp 
     win32 {
-	SOURCES += hello_win.cpp
+	SOURCES += hellowin.cpp
     }
     unix {
-	SOURCES += hello_unix.cpp
+	SOURCES += hellounix.cpp
     }
     !exists( main.cpp ) {
 	error( "No main.cpp file found" )
