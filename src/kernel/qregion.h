@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qregion.h#28 $
+** $Id: //depot/qt/main/src/kernel/qregion.h#29 $
 **
 ** Definition of QRegion class
 **
@@ -55,7 +55,7 @@ public:
 // case someone is using #define xor ^ to work around deficiencies in
 // their compiler that cause problems with some other header files.
 //
-#if !(defined(__STRICT_ANSI__) && defined(_CC_GNU_)) && !defined(_CC_EDG_) && !defined(xor)
+#if !(defined(__STRICT_ANSI__) && defined(_CC_GNU_)) && !defined(_CC_EDG_) && !defined(_CC_HP_) && !defined(xor)
     QRegion xor( const QRegion & )	const;
 #endif
     QRegion eor( const QRegion & )	const;
