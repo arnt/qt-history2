@@ -37,6 +37,7 @@
 #include <qclipboard.h>
 #include <qcombobox.h>
 #include <qspinbox.h>
+#include <qinputdialog.h>
 
 #include "defs.h"
 #include "project.h"
@@ -553,16 +554,46 @@ void MainWindow::setupFileActions()
 
     QAction *a = 0;
 
-    a = new QAction( this, 0 );
-    a->setText( tr( "New" ) );
-    a->setMenuText( tr( "&New..." ) );
-    a->setIconSet( createIconSet("filenew.xpm") );
-    a->setAccel( CTRL + Key_N );
-    a->setStatusTip( tr( "Creates a new project, form or source file." ) );
-    a->setWhatsThis( whatsThisFrom( "File|New" ) );
-    connect( a, SIGNAL( activated() ), this, SLOT( fileNew() ) );
-    a->addTo( tb );
-    a->addTo( fileMenu );
+    if ( !singleProject ) {
+	a = new QAction( this, 0 );
+	a->setText( tr( "New" ) );
+	a->setToolTip( tr( "New Dialog or File" ) );
+	a->setMenuText( tr( "&New..." ) );
+	a->setIconSet( createIconSet("filenew.xpm") );
+	a->setAccel( CTRL + Key_N );
+	a->setStatusTip( tr( "Creates a new project, form or source file." ) );
+	a->setWhatsThis( whatsThisFrom( "File|New" ) );
+	connect( a, SIGNAL( activated() ), this, SLOT( fileNew() ) );
+	a->addTo( tb );
+	a->addTo( fileMenu );
+    } else {
+	a = new QActionGroup( this, 0, FALSE );
+	( (QActionGroup*)a )->setUsesDropDown( TRUE );
+	a->setText( tr( "New" ) );
+	a->setMenuText( tr( "&New..." ) );
+	a->setIconSet( createIconSet("form.xpm") );
+	a->setStatusTip( tr( "Creates a new dialog or file" ) );
+	a->setWhatsThis( whatsThisFrom( "File|New" ) );
+
+	QAction *newForm = new QAction( a, 0 );
+	newForm->setText( tr( "New Dialog" ) );
+	newForm->setMenuText( tr( "&Dialog..." ) );
+	newForm->setIconSet( createIconSet("form.xpm") );
+	newForm->setAccel( CTRL + Key_N );
+	newForm->setStatusTip( tr( "Creates a new dialog." ) );
+	connect( newForm, SIGNAL( activated() ), this, SLOT( fileNewDialog() ) );
+	
+	QAction *newFile = new QAction( a, 0 );
+	newFile->setText( tr( "New File" ) );
+	newFile->setMenuText( tr( "&File..." ) );
+	newFile->setIconSet( createIconSet("filenew.xpm") );
+	newFile->setAccel( ALT + Key_N );
+	newFile->setStatusTip( tr( "Creates a new file." ) );
+	connect( newFile, SIGNAL( activated() ), this, SLOT( fileNewFile() ) );
+
+	a->addTo( tb );
+	a->addTo( fileMenu );
+    }
 
     a = new QAction( this, 0 );
     a->setText( tr( "Open" ) );
@@ -925,6 +956,38 @@ void MainWindow::fileNew()
     NewForm dlg( this, projectNames(), currentProject->projectName(), templatePath() );
     dlg.exec();
     statusBar()->clear();
+}
+
+void MainWindow::fileNewDialog()
+{
+    static int forms = 0;
+    QString n = "Dialog" + QString::number( ++forms );
+    FormWindow *fw = 0;
+    FormFile *ff = new FormFile( n, FALSE, currentProject );
+    fw = new FormWindow( ff, MainWindow::self, MainWindow::self->qWorkspace(), n );
+    fw->setProject( currentProject );
+    MetaDataBase::addEntry( fw );
+    QWidget *w = WidgetFactory::create( WidgetDatabase::idFromClassName( "QDialog" ), fw, n.latin1() );
+    fw->setMainContainer( w );
+    fw->setCaption( n );
+    fw->resize( 600, 480 );
+    insertFormWindow( fw );
+    fw->killAccels( fw );
+    fw->project()->setModified( TRUE );
+    fw->setFocus();
+    fw->setSavePixmapInProject( TRUE );
+    fw->setSavePixmapInline( FALSE );
+}
+
+void MainWindow::fileNewFile()
+{
+    QString name = QInputDialog::getText( tr( "Name of File" ), tr( "Enter the name of the new source file:" ) );
+    if ( name.isEmpty() )
+	return;
+    if ( name.right( 3 ) != ".qs" )
+	name += ".qs";
+    SourceFile *f = new SourceFile( name, FALSE, currentProject );
+    MainWindow::self->editSource( f );
 }
 
 void MainWindow::fileQuit()

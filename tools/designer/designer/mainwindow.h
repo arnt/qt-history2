@@ -201,6 +201,8 @@ protected:
 
 public slots:
     void fileNew();
+    void fileNewDialog();
+    void fileNewFile();
     void fileClose();
     void fileQuit();
     void fileCloseProject(); // not visible in menu, called from fileClose
