@@ -108,11 +108,12 @@ The default property mappings used by Qt widgets are:
         \l QRadioButton
      \i checked
 \row \i \l QComboBox,
-        \l QListBox
+        \l Q3ListBox
      \i currentItem
-\row \i \l QDateEdit
+\row \i \l Q3DateEdit
      \i date
-\row \i \l QDateTimeEdit
+\row \i \l Q3DateTimeEdit
+        \l QDateTimeEdit
      \i dateTime
 \row \i \l QTextBrowser
      \i source
@@ -124,7 +125,7 @@ The default property mappings used by Qt widgets are:
         \l QPushButton,
         \l QTextEdit,
      \i text
-\row \i \l QTimeEdit
+\row \i \l Q3TimeEdit
      \i time
 \row \i \l QLCDNumber,
         \l QScrollBar
@@ -141,28 +142,29 @@ Q3SqlPropertyMap::Q3SqlPropertyMap()
         const char *classname;
         const char *property;
     } mapData[] = {
-        { "QButton",                 "text" },
-        { "QCheckBox",                 "checked" },
-        { "QRadioButton",        "checked" },
-        { "QComboBox",                 "currentItem" },
-        { "QDateEdit",                 "date" },
-        { "QDateTimeEdit",        "dateTime" },
-        { "QDial",                 "value" },
-        { "QLabel",                 "text" },
-        { "QLCDNumber",                "value" },
-        { "QLineEdit",                "text" },
-        { "QListBox",                "currentItem" },
-        { "QMultiLineEdit",        "text" },
-        { "QPushButton",        "text" },
-        { "QScrollBar",                "value" },
-        { "QSlider",                "value" },
-        { "QSpinBox",                "value" },
-        { "QTabBar",                "currentTab" },
-        { "QTabWidget",                "currentPage" },
-        { "QTextBrowser",        "source" },
-        { "QTextEdit",                "text" },
-        { "QTextView",                "text" },
-        { "QTimeEdit",                "time" }
+        { "Q3DateEdit", "date" },
+        { "Q3DateTimeEdit", "dateTime" },
+        { "Q3ListBox", "currentItem" },
+        { "Q3TimeEdit", "time" },
+        { "QAbstractButton", "text" },
+        { "QCheckBox", "checked" },
+        { "QRadioButton", "checked" },
+        { "QComboBox", "currentItem" },
+        { "QDateTimeEdit", "dateTime" },
+        { "QDial", "value" },
+        { "QLabel", "text" },
+        { "QLCDNumber", "value" },
+        { "QLineEdit", "text" },
+        { "QMultiLineEdit", "text" },
+        { "QPushButton", "text" },
+        { "QScrollBar", "value" },
+        { "QSlider", "value" },
+        { "QSpinBox", "value" },
+        { "QTabBar", "currentTab" },
+        { "QTabWidget", "currentPage" },
+        { "QTextBrowser", "source" },
+        { "QTextEdit", "text" },
+        { "QTextView", "text" }
     };
 
     const MapData *m = mapData;
