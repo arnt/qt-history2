@@ -1,0 +1,44 @@
+diff -uwr template/Makefile freebsd-gcc-static/Makefile
+--- template/Makefile	Thu Aug 22 20:31:11 1996
++++ freebsd-gcc-static/Makefile	Thu Aug 22 20:42:09 1996
+@@ -5,8 +5,8 @@
+ #
+ 
+ CC	= gcc
+-CFLAGS	= -O2 -fno-strength-reduce -Wall -W
+-LFLAGS	= -lqt
++CFLAGS	= -O2 -fno-strength-reduce -Wall -W -I/usr/X11R6/include
++LFLAGS	= -lqt -L/usr/X11R6/lib -lX11
+ 
+ all: moc library tutorial examples
+ 
+diff -uwr template/library/Makefile freebsd-gcc-static/library/Makefile
+--- template/library/Makefile	Thu Aug 22 20:31:45 1996
++++ freebsd-gcc-static/library/Makefile	Thu Aug 22 20:41:33 1996
+@@ -76,7 +76,7 @@
+ .SUFFIXES: .cpp
+ 
+ .cpp.o:
+-	$(CC) -I$(INCDIR) -c $(CFLAGS) -fpic $<
++	$(CC) -I$(INCDIR) -c $(CFLAGS) $<
+ 
+ # VERSION - the version number of the shared library, where applicable
+ 
+@@ -85,14 +85,9 @@
+ # Creates the library when all files have been compiled
+ 
+ library: $(OBJECTS) $(METAOBJ)
+-	-rm -f ../lib/libqt.so.$(VERSION)
+-	$(CC) -shared -Wl,-soname,libqt.so.1 \
+-		-o ../lib/libqt.so.$(VERSION) \
+-		$(OBJECTS) $(METAOBJ) -lX11
+-	-rm -f ../lib/libqt.so
+-	-ln -sf libqt.so.$(VERSION) ../lib/libqt.so
+-	-rm -f ../lib/libqt.so.1
+-	-ln -s libqt.so.$(VERSION) ../lib/libqt.so.1
++	ar q libqt.a $(OBJECTS) $(METAOBJ)
++	ranlib libqt.a
++	mv libqt.a ../lib
+ 
+ depend:
+ 	makedepend $(SOURCES) 2> /dev/null
