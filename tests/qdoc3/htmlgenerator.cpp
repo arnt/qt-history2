@@ -91,14 +91,7 @@ int HtmlGenerator::generateAtom( const Atom *atom, const Node *relative,
 	    str[0] = str[0].lower();
 	    if ( str.right(1) == "." )
 		str.truncate( str.length() - 1 );
-
-qDebug( "******************** str['%s']", str.left(10).latin1() );
-	    if ( str.startsWith("whether") ) {
-		out() << "Returns <tt>true</tt> if " << str.mid(8)
-		      << "; otherwise returns <tt>false</tt>.";
-	    } else {
-		out() << "Returns " << str << ".";
-	    }
+	    out() << "This property holds " << str << ".";
 	}
 	break;
     case Atom::BriefRight:
