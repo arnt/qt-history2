@@ -89,7 +89,7 @@ QAxSelect::QAxSelect(QWidget *parent, Qt::WFlags f)
     setupUi(this);
     ActiveXList->setModel(new ControlList(this));
     QApplication::restoreOverrideCursor();
-    ActiveXList->setFocus();
+    //ActiveXList->setFocus(); ### crashes
 
     connect(buttonOk, SIGNAL(clicked()), this, SLOT(accept()));
     connect(buttonCancel, SIGNAL(clicked()), this, SLOT(reject()));
