@@ -2,6 +2,9 @@ REQUIRES = !qt_one_lib
 TARGET		= qcore
 QCONFIG         =
 
+CONFIG += console
+CONFIG -= opengl x11sm
+
 DEFINES += QT_BUILD_CORE_LIB 
 
 include(../qbase.pri)
