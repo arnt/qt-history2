@@ -2642,9 +2642,10 @@ void QXmlSimpleReader::setFeature( const QString& name, bool value )
 */
 bool QXmlSimpleReader::hasFeature( const QString& name ) const
 {
-    if (    name == "http://xml.org/sax/features/namespaces" ||
-	    name == "http://xml.org/sax/features/namespace-prefixes" ||
-	    name == "http://trolltech.com/xml/features/report-whitespace-only-CharData" ) {
+    if ( name == "http://xml.org/sax/features/namespaces"
+	    || name == "http://xml.org/sax/features/namespace-prefixes"
+	    || name == "http://trolltech.com/xml/features/report-whitespace-only-CharData"
+	    || name == "http://trolltech.com/xml/features/report-start-end-entity" ) {
 	return TRUE;
     } else {
 	return FALSE;
