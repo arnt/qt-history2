@@ -14,8 +14,7 @@ static inline void tag_to_string( char *string, FT_ULong tag )
     string[4] = 0;
 }
 
-#define DefaultLangSys 0xffff;
-#define ALWAYS_APPLY 0xc000
+#define DefaultLangSys 0xffff
 
 struct Features {
     FT_ULong tag;
@@ -24,6 +23,13 @@ struct Features {
 
 // GPOS features are always applied. We only have to note the GSUB features that should not get
 // applied in all cases here.
+
+const Features standardFeatures[] = {
+    { FT_MAKE_TAG( 'c', 'c', 'm', 'p' ), 0x8000 },
+    { FT_MAKE_TAG( 'l', 'i', 'g', 'a' ), 0x8000 },
+    { FT_MAKE_TAG( 'c', 'l', 'i', 'g' ), 0x8000 },
+    { 0,  0 }
+};
 
 // always keep in sync with Shape enum in scriptenginearabic.cpp
 const Features arabicFeatures[] = {
@@ -57,35 +63,100 @@ const Features syriacFeatures[] = {
     { 0,  0 }
 };
 
+
+
 struct SupportedScript {
     FT_ULong tag;
     const Features *features;
     unsigned short required_bits;
+    unsigned short always_apply;
 };
 
 static const SupportedScript supported_scripts[] = {
-    { OpenTypeIface::Arabic, arabicFeatures, 0x400e },
-    { OpenTypeIface::Syriac, syriacFeatures, 0x400e },
-    { 0,  0,  0 }
+    { OpenTypeIface::Arabic, arabicFeatures, 0x400e, 0xc000 },
+
+    // Indic scripts, still unsupported:
+
+// 	Bengali = FT_MAKE_TAG( 'b', 'e', 'n', 'g' ),
+// 	Devanagari = FT_MAKE_TAG( 'd', 'e', 'v', 'a' ),
+// 	Gujarati = FT_MAKE_TAG( 'g', 'u', 'j', 'r' ),
+// 	Gurmukhi = FT_MAKE_TAG( 'g', 'u', 'r', 'u' ),
+// 	Kannada = FT_MAKE_TAG( 'k', 'n', 'd', 'a' ),
+// 	Tamil = FT_MAKE_TAG( 't', 'a', 'm', 'l' ),
+// 	Telugu = FT_MAKE_TAG( 't', 'e', 'l', 'u' ),
+// 	Oriya = FT_MAKE_TAG( 'o', 'r', 'y', 'a' ),
+
+    // other unsupported:
+
+// 	Khmer = FT_MAKE_TAG( 'k', 'h', 'm', 'r' ),
+// 	Tibetan = FT_MAKE_TAG( 't', 'i', 'b', 't' ),
+
+    // these have no open type engine according to MS. Usually the default language system will
+    // do. We however need to make sure default substitutions in HAN happen according to
+    // the correct language.
+
+// 	Bopomofo = FT_MAKE_TAG( 'b', 'o', 'p', 'o' ),
+// 	Braille = FT_MAKE_TAG( 'b', 'r', 'a', 'i' ),
+// 	ByzantineMusic = FT_MAKE_TAG( 'b', 'y', 'z', 'm' ),
+// 	CanadianSyllabics = FT_MAKE_TAG( 'c', 'a', 'n', 's' ),
+// 	Cherokee = FT_MAKE_TAG( 'c', 'h', 'e', 'r' ),
+// 	Han = FT_MAKE_TAG( 'h', 'a', 'n', 'i' ),
+// 	Ethiopic = FT_MAKE_TAG( 'e', 't', 'h', 'i' ),
+// 	HangulJamo = FT_MAKE_TAG( 'j', 'a', 'm', 'o' ),
+// 	Hangul = FT_MAKE_TAG( 'h', 'a', 'n', 'g' ),
+
+// 	Hiragana = FT_MAKE_TAG( 'k', 'a', 'n', 'a' ),
+// 	Katakana = FT_MAKE_TAG( 'k', 'a', 'n', 'a' ),
+// 	Malayalam = FT_MAKE_TAG( 'm', 'l', 'y', 'm' ),
+// 	Mongolian = FT_MAKE_TAG( 'm', 'o', 'n', 'g' ),
+// 	Myanmar = FT_MAKE_TAG( 'm', 'y', 'm', 'r' ),
+// 	Sinhala = FT_MAKE_TAG( 's', 'i', 'n', 'h' ),
+    { OpenTypeIface::Syriac, syriacFeatures, 0x400e, 0xc000 },
+// 	Yi = FT_MAKE_TAG( 'y', 'i', ' ', ' ' ),
+
+    // standard scripts:
+
+// 	Armenian = FT_MAKE_TAG( 'a', 'r', 'm', 'n' ),
+// 	Cyrillic = FT_MAKE_TAG( 'c', 'y', 'r', 'l' ),
+// 	Default = FT_MAKE_TAG( 'D', 'F', 'L', 'T' ),
+// 	Georgian = FT_MAKE_TAG( 'g', 'e', 'o', 'r' ),
+// 	Greek = FT_MAKE_TAG( 'g', 'r', 'e', 'k' ),
+// 	Latin = FT_MAKE_TAG( 'l', 'a', 't', 'n' ),
+// 	Ogham = FT_MAKE_TAG( 'o', 'g', 'a', 'm' ),
+// 	Runic = FT_MAKE_TAG( 'r', 'u', 'n', 'r' ),
+
+    // MS has a special engine for these, for now the standard one should be able to deal with them
+
+// 	Hebrew = FT_MAKE_TAG( 'h', 'e', 'b', 'r' ),
+// 	Lao = FT_MAKE_TAG( 'l', 'a', 'o', '' ),
+// 	Thaana = FT_MAKE_TAG( 't', 'h', 'a', 'a' ),
+// 	Thai = FT_MAKE_TAG( 't', 'h', 'a', 'i' ),
+    { OpenTypeIface::Default, standardFeatures, 0x8000, 0x8000 }
 };
 
 bool OpenTypeIface::loadTables( FT_ULong script)
 {
+    always_apply = 0;
+
     // find script in our list of supported scripts.
     const SupportedScript *s = supported_scripts;
-    while ( s->tag != 0 ) {
+    while ( s->tag != OpenTypeIface::Default ) {
 	if ( s->tag == script )
 	    break;
 	++s;
     }
-    if ( supported_scripts->tag == 0 )
-	return FALSE;
-
 
     FT_Error error = TT_GSUB_Select_Script( gsub, script, &script_index );
     if ( error ) {
-	qDebug("could not select arabic script: %d", error );
-	return FALSE;
+	qDebug("could not select script %d: %d", (int)script, error );
+	if ( s->tag == OpenTypeIface::Default ) {
+	    // try to load default language system
+	    error = TT_GSUB_Select_Script( gsub, Default, &script_index );
+	    if ( error )
+		return FALSE;
+	} else {
+	    return FALSE;
+	}
     }
 
 //     qDebug("arabic is script %d", script_index );
@@ -110,7 +181,8 @@ bool OpenTypeIface::loadTables( FT_ULong script)
 	    f++;
 	}
 	FT_UShort feature_index;
-	TT_GSUB_Select_Feature( gsub, f->tag, script_index, 0xffff, &feature_index );
+	TT_GSUB_Select_Feature( gsub, f->tag, script_index, DefaultLangSys,
+				&feature_index );
 	TT_GSUB_Add_Feature( gsub, feature_index, f->bit );
 
 // 	char featureString[5];
@@ -136,7 +208,7 @@ bool OpenTypeIface::loadTables( FT_ULong script)
 	    TTO_FeatureRecord *r = featurelist.FeatureRecord + i;
 	    FT_UShort feature_index;
 	    TT_GPOS_Select_Feature( gpos, r->FeatureTag, script_index, 0xffff, &feature_index );
-	    TT_GPOS_Add_Feature( gpos, feature_index, ALWAYS_APPLY );
+	    TT_GPOS_Add_Feature( gpos, feature_index, s->always_apply );
 
 	    char featureString[5];
 	    tag_to_string( featureString, r->FeatureTag );
@@ -151,6 +223,8 @@ bool OpenTypeIface::loadTables( FT_ULong script)
 	return FALSE;
     }
 //     qDebug("found_bits = %x",  (uint)found_bits );
+
+    always_apply = s->always_apply;
 
     return TRUE;
 }
@@ -217,7 +291,7 @@ bool OpenTypeIface::applyGlyphSubstitutions( unsigned int script, ShapedItem *sh
     }
 
     for ( int i = 0; i < shaped->d->num_glyphs; i++ ) {
-	featuresToApply[i] |= ALWAYS_APPLY;
+	featuresToApply[i] |= always_apply;
     }
 
 
