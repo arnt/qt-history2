@@ -179,6 +179,12 @@ protected:
     void resizeEvent( QResizeEvent * );
     bool eventFilter( QObject *, QEvent * );
 
+    void mousePressEvent( QMouseEvent *e ) { e->accept(); }
+    void mouseReleaseEvent( QMouseEvent *e ) { e->accept(); }
+    void mouseMoveEvent( QMouseEvent *e ) { e->accept(); }
+    void mouseDoubleClickEvent( QMouseEvent *e ) { e->accept(); }
+    void contextMenuEvent( QContextMenuEvent *e ) { e->accept(); }
+
     bool focusNextPrevChild( bool );
 
 private:
@@ -1239,7 +1245,7 @@ void QWorkspace::tile()
 QWorkspaceChild::QWorkspaceChild( QWidget* window, QWorkspace *parent,
 				  const char *name )
     : QFrame( parent, name,
-	      WStyle_Customize | WStyle_NoBorder  | WDestructiveClose )
+	      WStyle_Customize | WStyle_NoBorder  | WDestructiveClose | WNoMousePropagation )
 {
     widgetResizeHandler = new QWidgetResizeHandler( this, window );
     widgetResizeHandler->setMovingEnabled( FALSE );

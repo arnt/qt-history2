@@ -1833,7 +1833,7 @@ bool QApplication::notify( QObject *receiver, QEvent *e )
 		else
 		    cevent->ignore();
 		delete ce;
-		if ( res || cevent->isAccepted() || w->isTopLevel() )
+		if ( res || cevent->isAccepted() || w->isTopLevel() || w->testWFlags( WNoMousePropagation ) )
 		    break;
 
 		w = w->parentWidget();
