@@ -488,8 +488,10 @@ bool QPainter::begin( const QPaintDevice *pd, bool unclipped )
 	    gfx->setClipping( FALSE );
     }
 
-    if (!redirection_offset.isNull())
-	translate(-redirection_offset.x(), -redirection_offset.y());
+    if (!redirection_offset.isNull()) {
+	txop = TxTranslate; //### will not work if QT_NO_TRANSFORMATIONS
+	setf(WxF, true);
+    }
     return TRUE;
 }
 
@@ -645,6 +647,7 @@ void QPainter::setClipping( bool enable )
 	    return;
     }
     if ( enable ) {
+	//note that gfx is already translated by redirection_offset
 	gfx->setClipRegion( crgn );
     } else {
 	gfx->setClipping( FALSE );
@@ -769,6 +772,7 @@ void QPainter::drawPoints( const QPointArray& a, int index, int npoints )
 		index = 0;
 		npoints = pa.size();
 	    }
+	    pa.translate(-redirection_offset);
 	}
     }
     gfx->drawPoints( pa, index, npoints );
@@ -851,7 +855,9 @@ void QPainter::drawRect( int x, int y, int w, int h )
 #ifndef QT_NO_TRANSFORMATIONS
 	if ( txop == TxRotShear ) {		// rotate/shear polygon
 	    QPointArray a( QRect(x,y,w,h), TRUE );
-	    drawPolyInternal( xForm(a) );
+	    a = xForm(a);
+	    a.translate(-redirection_offset);
+	    drawPolyInternal( a );
 	    return;
 	}
 #endif
@@ -1021,7 +1027,9 @@ void QPainter::drawRoundRect( int x, int y, int w, int h, int xRnd, int yRnd )
 	yy += h - ryy2;
 	a.setPoint( i++, xx, yy );
     }
-    drawPolyInternal( xForm(a) );
+    a = xForm(a);
+    a.translate(-redirection_offset);
+    drawPolyInternal( a );
 }
 
 
@@ -1039,6 +1047,7 @@ void QPainter::drawEllipse( int x, int y, int w, int h )
     QPointArray a;
 #ifndef QT_NO_TRANSFORMATIONS
     a.makeArc( x, y, w, h, 0, 360*16, xmat );
+    a.translate(-redirection_offset);
 #else
     map( x, y, &x, &y );
     a.makeArc( x, y, w, h, 0, 360*16 );
@@ -1068,6 +1077,7 @@ void QPainter::drawArc( int x, int y, int w, int h, int a, int alen )
     QPointArray pa;
 #ifndef QT_NO_TRANSFORMATIONS
     pa.makeArc( x, y, w, h, a, alen, xmat );	// arc polyline
+    pa.translate(-redirection_offset);
 #else
     map( x, y, &x, &y );
     pa.makeArc( x, y, w, h, a, alen );		// arc polyline
@@ -1222,6 +1232,7 @@ void QPainter::drawPolyline( const QPointArray &a, int index, int npoints )
 		index   = 0;
 		npoints = pa.size();
 	    }
+	    pa.translate(-redirection_offset);
 	}
     }
     if ( cpen.style() != NoPen )
@@ -1271,6 +1282,7 @@ void QPainter::drawPolygon( const QPointArray &a, bool winding,
 		index   = 0;
 		npoints = pa.size();
 	    }
+	    pa.translate(-redirection_offset);
 	}
     }
     gfx->drawPolygon( pa, winding, index, npoints );
@@ -1306,7 +1318,10 @@ void QPainter::drawCubicBezier( const QPointArray &a, int index )
 #else
 	if ( xlatex || xlatey )
 #endif
+	{
 	    pa = xForm( pa );
+	    pa.translate(-redirection_offset);
+	}
     }
     if ( cpen.style() != NoPen ) {
 	pa = pa.cubicBezier();
