@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#447 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#448 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -211,7 +211,7 @@ QObject	       *qt_clipboard   = 0;
 
 extern QCursor *qt_grab_cursor();
 
-#if defined(Q_WS_WIN32)
+#if defined(Q_WS_WIN)
 #define __export
 #endif
 

@@ -10326,10 +10326,10 @@ void QAquaStyle::drawPopupMenuItem( QPainter* p, bool checkable,
     QColorGroup itemg = dis ? pal.disabled() : pal.active();
 
     if ( checkable ) {
-#if defined(Q_WS_WIN32)
+#if defined(Q_WS_WIN)
         if ( QApplication::winVersion() == Qt::WV_2000 ||
              QApplication::winVersion() == Qt::WV_98 )
-            maxpmw = QMAX( maxpmw, 16);
+            maxpmw = QMAX( maxpmw, 16 );
 #endif
         maxpmw = QMAX( maxpmw, 12 ); // space for the checkmarks
     }

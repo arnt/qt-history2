@@ -414,7 +414,7 @@ void QTabBar::paintLabel( QPainter* p, const QRect& br,
  	tr.setBottom( tr.bottom() - style().defaultFrameWidth() );
 
     if ( t->enabled && isEnabled()  ) {
-#if defined(Q_WS_WIN32)
+#if defined(Q_WS_WIN)
 	if ( colorGroup().brush( QColorGroup::Button ) == colorGroup().brush( QColorGroup::Background ) )
 	    p->setPen( colorGroup().buttonText() );
 	else

@@ -1324,14 +1324,14 @@ void QWindowsStyle::drawPopupMenuItem( QPainter* p, bool checkable, int maxpmw,
     QColorGroup itemg = dis ? pal.disabled() : pal.active();
 
     if ( checkable ) {
-#if defined(Q_WS_WIN32)
+#if defined(Q_WS_WIN)
         if ( QApplication::winVersion() == Qt::WV_2000 || QApplication::winVersion() == Qt::WV_98 )
-            maxpmw = QMAX( maxpmw, 16);
+            maxpmw = QMAX( maxpmw, 16 );
 #endif
         maxpmw = QMAX( maxpmw, 12 ); // space for the checkmarks
     }
 
-    int checkcol          =     maxpmw;
+    int checkcol = maxpmw;
 
     if ( mi && mi->isSeparator() ) {                    // draw separator
         p->setPen( g.dark() );
@@ -1528,4 +1528,3 @@ int QWindowsStyle::menuBarFrameWidth() const
     return 0;
 }
 #endif
-
