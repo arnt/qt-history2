@@ -637,50 +637,49 @@ QRectF QPainterPath::boundingRect() const
     Returns true if there are no elements in this path.
 */
 
-#if 0
 /*!
     Creates a reversed copy of this path and returns it
 */
-QPainterPath QPainterPath::createReversed() const;
+QPainterPath QPainterPath::toReversed() const
 {
-    if (isEmpty())
-        return *this;
-
     QPainterPath rev;
-    QPainterPath::iterator it = end();
 
-    --it;
-    rev.moveTo(it.point());
+    if (isEmpty()) {
+        rev = *this;
+        return rev;
+    }
 
-    for (; !it.atStart(); --it) {
-        switch (it.type) {
-        case QPainterPath::LineToElement:
-            rev.lineTo(ip.prevPoint());
+    rev.moveTo(elements.at(elements.size()-1).x, elements.at(elements.size()-1).y);
+
+    for (int i=elements.size()-1; i>=1; --i) {
+        const QPainterPath::Element &elm = elements.at(i);
+        const QPainterPath::Element &prev = elements.at(i-1);
+        switch (elm.type) {
+        case LineToElement:
+            rev.lineTo(prev.x, prev.y);
             break;
-        case QPainterPath::CurveToDataElement: {
-            --it;
-            Q_ASSERT(it.type == QPainterPath::CurveToDataElement);
-            QPointF cp2 = it.point();
-            --it;
-            Q_ASSERT(it.type == QPainterPath::CurveToElement);
-            QPointF cp1 = it.point();
-            QPointF sp = it.prevPoint();
-            rev.curveTo(cp2, cp1, sp);
+        case MoveToElement:
+            rev.moveTo(prev.x, prev.y);
             break;
-        }
-        case QPainterPath::MoveToElement:
-            if (!it.atStart())
-                rev.moveTo(ip.prevPoint());
-            break;
-        case QPainterPath::CurveToElement:
-            qFatal("qt_path_reverse, CurveToElement out of place");
+        case CurveToDataElement:
+            {
+                Q_ASSERT(i>=3);
+                const QPainterPath::Element &cp1 = elements.at(i-2);
+                const QPainterPath::Element &sp = elements.at(i-3);
+                Q_ASSERT(prev.type == CurveToDataElement);
+                Q_ASSERT(cp1.type == CurveToElement);
+                rev.curveTo(prev.x, prev.y, cp1.x, cp1.y, sp.x, sp.y);
+                i -= 2;
+                break;
+            }
+        default:
+            Q_ASSERT(!"qt_reversed_path");
             break;
         }
     }
-
+    qt_debug_path(rev);
     return rev;
 }
-#endif
 
 
 QList<QPolygon> QPainterPath::toSubpathPolygons() const

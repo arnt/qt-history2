@@ -84,6 +84,7 @@ public:
 
     inline bool isEmpty() const;
 
+    QPainterPath toReversed() const;
     QList<QPolygon> toSubpathPolygons() const;
     QList<QPolygon> toFillPolygons() const;
     QPolygon toFillPolygon() const;
