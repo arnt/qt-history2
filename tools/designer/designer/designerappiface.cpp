@@ -21,9 +21,9 @@ DesignerApplicationInterface::DesignerApplicationInterface()
     new DesignerConfigurationInterface( 0, this );
 }
 
-QString DesignerApplicationInterface::interfaceID() const
+QString DesignerApplicationInterface::interfaceId() const
 { 
-    return createID( QApplicationInterface::interfaceID(), "DesignerApplicationInterface" );
+    return createId( QApplicationInterface::interfaceId(), "DesignerApplicationInterface" );
 }
 
 /*

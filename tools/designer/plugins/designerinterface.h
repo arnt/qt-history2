@@ -21,7 +21,7 @@ public:
     DesignerMainWindowInterface( QObject *c, QUnknownInterface *parent = 0, const char *name = 0 )
 	: QApplicationComponentInterface( c, parent, name ) {}
 
-    QString interfaceID() const { return createID( QApplicationComponentInterface::interfaceID(), "DesignerMainWindowInterface" ); }
+    QString interfaceId() const { return createId( QApplicationComponentInterface::interfaceId(), "DesignerMainWindowInterface" ); }
 };
 
 class DesignerStatusBarInterface : public QApplicationComponentInterface
@@ -30,7 +30,7 @@ public:
     DesignerStatusBarInterface( QObject *c, QUnknownInterface *parent = 0, const char *name = 0 )
 	: QApplicationComponentInterface( c, parent, name ) {}
 
-    QString interfaceID() const { return createID( QApplicationComponentInterface::interfaceID(), "DesignerStatusBarInterface" ); }
+    QString interfaceId() const { return createId( QApplicationComponentInterface::interfaceId(), "DesignerStatusBarInterface" ); }
 };
 
 /*
@@ -43,7 +43,7 @@ public:
     DesignerWidgetInterface( QObject *w, QUnknownInterface *parent = 0, const char *name = 0 )
 	: QApplicationComponentInterface( w, parent, name ) {}
 
-    QString interfaceID() const { return createID( QApplicationComponentInterface::interfaceID(), "DesignerWidgetInterface" ); }
+    QString interfaceId() const { return createId( QApplicationComponentInterface::interfaceId(), "DesignerWidgetInterface" ); }
 
     virtual void setSelected( bool ) = 0;
     virtual bool selected() const = 0;
@@ -57,7 +57,7 @@ public:
     DesignerWidgetListInterface( QObject *fw, QUnknownInterface *parent = 0, const char *name = 0 )
 	: QApplicationComponentInterface( fw, parent, name ) {}
 
-    QString interfaceID() const { return createID( QApplicationComponentInterface::interfaceID(), "DesignerWidgetListInterface" ); }
+    QString interfaceId() const { return createId( QApplicationComponentInterface::interfaceId(), "DesignerWidgetListInterface" ); }
 
     virtual uint count() const = 0;
     virtual DesignerWidgetInterface *toFirst() = 0;
@@ -78,7 +78,7 @@ public:
     DesignerFormWindowInterface( QObject *fw, QUnknownInterface *parent, const char *name = 0 )
 	: QApplicationComponentInterface( fw, parent, name ) {}
 
-    QString interfaceID() const { return createID( QApplicationComponentInterface::interfaceID(), "DesignerFormWindowInterface" ); }
+    QString interfaceId() const { return createId( QApplicationComponentInterface::interfaceId(), "DesignerFormWindowInterface" ); }
 
     virtual void save() const = 0;
     virtual void close() const = 0;
@@ -91,7 +91,7 @@ class DesignerFormListInterface : public QApplicationComponentInterface
 public:
     DesignerFormListInterface( QObject *li, QUnknownInterface* parent, const char *name = 0 ) 
 	: QApplicationComponentInterface( li, parent, name ) {}
-    QString interfaceID() const { return createID( QApplicationComponentInterface::interfaceID(), "DesignerFormListInterface" ); }
+    QString interfaceId() const { return createId( QApplicationComponentInterface::interfaceId(), "DesignerFormListInterface" ); }
 
     virtual const QPixmap* pixmap( DesignerFormWindowInterface*, int col ) const = 0;
     virtual void setPixmap( DesignerFormWindowInterface*, int col, const QPixmap& ) = 0;
@@ -119,7 +119,7 @@ public:
     DesignerPropertyEditorInterface( QObject *pe, QUnknownInterface *parent, const char *name = 0 )
 	: QApplicationComponentInterface( pe, parent, name ) {}
 
-    QString interfaceID() const { return createID( QApplicationComponentInterface::interfaceID(), "DesignerPropertyEditorInterface" ); }
+    QString interfaceId() const { return createId( QApplicationComponentInterface::interfaceId(), "DesignerPropertyEditorInterface" ); }
 };
 
 /*
@@ -132,7 +132,7 @@ public:
     DesignerHierarchyViewInterface( QObject *pe, QUnknownInterface *parent, const char *name = 0 )
 	: QApplicationComponentInterface( pe, parent, name ) {}
 
-    QString interfaceID() const { return createID( QApplicationComponentInterface::interfaceID(), "DesignerHierarchyViewInterface" ); }
+    QString interfaceId() const { return createId( QApplicationComponentInterface::interfaceId(), "DesignerHierarchyViewInterface" ); }
 };
 
 /*
@@ -145,7 +145,7 @@ public:
     DesignerConfigurationInterface( QObject *pe, QUnknownInterface *parent, const char *name = 0 )
 	: QApplicationComponentInterface( pe, parent, name ) {}
 
-    QString interfaceID() const { return createID( QApplicationComponentInterface::interfaceID(), "DesignerConfigurationInterface" ); }
+    QString interfaceId() const { return createId( QApplicationComponentInterface::interfaceId(), "DesignerConfigurationInterface" ); }
 };
 
 #endif //DESIGNERINTERFACE_H

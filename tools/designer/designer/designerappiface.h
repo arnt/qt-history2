@@ -45,7 +45,7 @@ class DesignerActiveFormWindowInterfaceImpl : public DesignerFormWindowInterface
 public:
     DesignerActiveFormWindowInterfaceImpl( FormList *fl, QUnknownInterface *parent, const char *name = 0 );
 
-    QString interfaceID() const { return createID( DesignerFormWindowInterface::interfaceID(), "DesignerActiveFormWindowInterface" ); }
+    QString interfaceId() const { return createId( DesignerFormWindowInterface::interfaceId(), "DesignerActiveFormWindowInterface" ); }
 
     bool initialize( QApplicationInterface * );
 
@@ -150,7 +150,7 @@ class DesignerActiveWidgetInterfaceImpl : public DesignerWidgetInterfaceImpl
 public:
     DesignerActiveWidgetInterfaceImpl( PropertyEditor *pe, QUnknownInterface *parent );
 
-    QString interfaceID() const { return createID( DesignerWidgetInterfaceImpl::interfaceID(), "DesignerActiveWidgetInterface" ); }
+    QString interfaceId() const { return createId( DesignerWidgetInterfaceImpl::interfaceId(), "DesignerActiveWidgetInterface" ); }
 
     bool initialize( QApplicationInterface* );
 
@@ -167,7 +167,7 @@ class DesignerApplicationInterface : public QApplicationInterface
 public:
     DesignerApplicationInterface();
 
-    QString interfaceID() const;
+    QString interfaceId() const;
 
     QString name() const { return "Qt Designer"; }
     QString description() const { return "GUI Editor for the Qt Toolkit"; }
