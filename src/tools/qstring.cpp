@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#226 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#227 $
 **
 ** Implementation of the QString class and related Unicode functions
 **
@@ -12287,6 +12287,81 @@ QString &QString::setNum( double n, char f, int prec )
 
   Returns a reference to the string.
 */
+
+
+
+/*!
+  A convenience factory function that returns a string representation
+  of the number \a n.
+  
+  \sa setNum()
+ */
+QString QString::number( long n, int base=10 )
+{
+    QString s;
+    s.setNum( n, base );
+    return s;
+}
+
+/*!
+  A convenience factory function that returns a string representation
+  of the number \a n.
+  
+  \sa setNum()
+ */
+QString QString::number( ulong n, int base=10)
+{
+    QString s;
+    s.setNum( n, base );
+    return s;
+}
+
+/*!
+  A convenience factory function that returns a string representation
+  of the number \a n.
+  
+  \sa setNum()
+ */
+QString QString::number( int n, int base=10 )
+{
+    QString s;
+    s.setNum( n, base );
+    return s;
+}
+
+/*!
+  A convenience factory function that returns a string representation
+  of the number \a n.
+  
+  \sa setNum()
+ */
+QString QString::number( uint n, int base=10)
+{
+    QString s;
+    s.setNum( n, base );
+    return s;
+}
+
+/*!
+  A convenience factory function that returns a string representation
+  of the number \a n.
+  
+  \arg \a f is the format specifier: 'f', 'F', 'e', 'E', 'g', 'G' (same
+  as sprintf()).
+  \arg \a prec is the precision.
+  
+  \sa setNum()
+ */
+QString QString::number( double n, char f='g', int prec=6 )
+{
+    QString s;
+    s.setNum( n, f, prec );
+    return s;
+}
+
+
+
+
 
 
 /*!
