@@ -1513,40 +1513,47 @@ QDataStream& operator<< ( QDataStream& s, const QVariant::Type p )
 
 /*!
   Returns the variant as a QString if the variant has type()
-  String, CString, ByteArray, Int, Uint, Bool, Double, Date, Time, or DateTime,
-  or QString::null otherwise.
+  String, CString, ByteArray, Int, Uint, Bool, Double, Date, Time, DateTime,
+  KeySequence, Font or Color, or QString::null otherwise.
 
   \sa asString()
 */
 const QString QVariant::toString() const
 {
-    if ( d->typ == CString )
+    switch( d->typ ) {
+    case CString:
 	return QString::fromLatin1( toCString() );
-    if ( d->typ == Int )
+    case Int:
 	return QString::number( toInt() );
-    if ( d->typ == UInt )
+    case UInt:
 	return QString::number( toUInt() );
-    if ( d->typ == Double )
+    case Double:
 	return QString::number( toDouble() );
 #if !defined(QT_NO_SPRINTF) && !defined(QT_NO_DATESTRING)
-    if ( d->typ == Date )
+    case Date:
 	return toDate().toString( Qt::ISODate );
-    if ( d->typ == Time )
+    case Time:
 	return toTime().toString( Qt::ISODate );
-    if ( d->typ == DateTime )
+    case DateTime:
 	return toDateTime().toString( Qt::ISODate );
 #endif
-    if ( d->typ == Bool )
+    case Bool:
 	return QString::number( toInt() );
-#ifndef QT_NO_ACCEL
-    if ( d->typ == KeySequence )
+#ifndef QT_NO_ACCEL    
+    case KeySequence:
 	return (QString) *( (QKeySequence*)d->value.ptr );
 #endif
-    if ( d->typ == ByteArray )
+    case ByteArray:
 	return QString( *((QByteArray*)d->value.ptr) );
-    if ( d->typ != String )
+    case Font:
+	return toFont().toString();
+    case Color:
+	return toColor().name();
+    case String:
+	return *((QString*)d->value.ptr);
+    default:
 	return QString::null;
-    return *((QString*)d->value.ptr);
+    }
 }
 /*!
   Returns the variant as a QCString if the variant has type()
@@ -1640,10 +1647,18 @@ const QMap<QString, QVariant> QVariant::toMap() const
 */
 const QFont QVariant::toFont() const
 {
-    if ( d->typ != Font )
+    switch ( d->typ ) {
+    case String: 
+	{
+	    QFont fnt;
+	    fnt.fromString( toString() );
+	    return fnt;
+	}
+    case Font:
+	return *((QFont*)d->value.ptr);
+    default:
 	return QFont();
-
-    return *((QFont*)d->value.ptr);
+    }
 }
 
 /*!
@@ -1738,10 +1753,18 @@ const QSize QVariant::toSize() const
 */
 const QColor QVariant::toColor() const
 {
-    if ( d->typ != Color )
+    switch ( d->typ ) {
+    case String:
+	{
+	    QColor col;
+	    col.setNamedColor( toString() );
+	    return col;
+	}
+    case Color:
+	return *((QColor*)d->value.ptr);
+    default:
 	return QColor();
-
-    return *((QColor*)d->value.ptr);
+    }
 }
 #ifndef QT_NO_PALETTE
 /*!
@@ -2555,13 +2578,15 @@ QMap<QString, QVariant>& QVariant::asMap()
   \list
   \i Bool => Double, Int, UInt
   \i CString => String
+  \i Color => String
   \i Date => String
   \i DateTime => String, Date, Time
   \i Double => String, Int, Bool, UInt
+  \i Font => String
   \i Int => String, Double, Bool, UInt
   \i List => StringList (if the list contains strings or something
        that can be cast to a string)
-  \i String => CString, Int, Uint, Double, Date, Time, DateTime
+  \i String => CString, Int, Uint, Double, Date, Time, DateTime, KeySequence, Font, Color
   \i StringList => List
   \i Time => String
   \i UInt => String, Double, Bool, Int
@@ -2581,7 +2606,7 @@ bool QVariant::canCast( Type t ) const
 	return TRUE;
     if ( t == CString && d->typ == String )
 	return TRUE;
-    if ( t == String && ( d->typ == CString || d->typ == Int || d->typ == UInt || d->typ == Double || d->typ == Date || d->typ == Time || d->typ == DateTime || d->typ == KeySequence ) )
+    if ( t == String && ( d->typ == CString || d->typ == Int || d->typ == UInt || d->typ == Double || d->typ == Date || d->typ == Time || d->typ == DateTime || d->typ == KeySequence || d->typ == Font || d->typ == Color ) )
 	return TRUE;
     if ( t == Date && ( d->typ == String || d->typ == DateTime ) )
 	return TRUE;
@@ -2590,6 +2615,10 @@ bool QVariant::canCast( Type t ) const
     if ( t == DateTime && d->typ == String )
 	return TRUE;
     if ( ( t == KeySequence && ( d->typ == String || d->typ == Int ) ) )
+	return TRUE;
+    if ( ( t == Font && ( d->typ == String ) ) )
+	return TRUE;
+    if ( ( t == Color && ( d->typ = String ) ) )
 	return TRUE;
 #ifndef QT_NO_STRINGLIST
     if ( t == List && d->typ == StringList )
