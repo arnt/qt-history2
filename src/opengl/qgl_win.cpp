@@ -1099,3 +1099,12 @@ void QGLWidget::cleanupColormaps()
 void QGLWidget::macInternalFixBufferRect()
 {
 }
+
+void QGLWidget::generateFontDisplayLists( const QFont & fnt, int listBase )
+{
+    HDC glHdc = GetDC( winId() );
+    SelectObject( glHdc, fnt.handle() );
+    wglUseFontBitmaps( glHdc, 0, 256, listBase );
+    ReleaseDC( winId(), glHdc );
+}
+
