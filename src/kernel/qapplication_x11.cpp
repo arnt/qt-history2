@@ -94,8 +94,10 @@
 
 #if defined(Q_OS_UNIX)
 
-// strcasecmp() in <strings.h> on both UNIX 95 and UNIX 98
+// strcasecmp() in documented to live in <strings.h> by XPG4v2 and XPG5.
 #include <strings.h>
+
+// FIONREAD and ioctl() hackery.
 
 #if defined(Q_OS_SOLARIS) || defined(Q_OS_UNIXWARE7)
 // Needed for FIONREAD.
@@ -104,7 +106,10 @@
 #  define BSD_COMP
 #endif
 #if defined(Q_OS_HPUX)
-// needed for ioctl() and FIONREAD
+// Needed for ioctl() and FIONREAD on HP-UX 10.20.
+// SUSv2 documents ioctl() to live in <stropts.h> so we should probably
+// just include <stropts.h> instead of defining _HPUX_SOURCE. But then
+// remains the case of FIONREAD. Will have to check that...
 #  define _HPUX_SOURCE
 #endif
 #include <sys/ioctl.h>
@@ -116,15 +121,17 @@
 #endif
 
 #if defined(Q_OS_SCO)
-#  include <strings.h>    // for strcasecmp
-#  include <sys/socket.h> // for FIONREAD on SCO OpenServer 5.0.x
+// Needed for FIONREAD on SCO OpenServer 5.0.x.
+#  include <sys/socket.h>
 #endif
 
 #if defined(Q_OS_DYNIX)
-#  include <sys/sockio.h> // for FIONREAD on Dynix 4.x
+// Needed for FIONREAD on SCO Dynix 4.x.
+#  include <sys/sockio.h>
 #endif
 
 static int qt_thread_pipe[2];
+
 #endif
 
 
@@ -138,12 +145,6 @@ static int qt_thread_pipe[2];
 // Please add comments! Which version of Irix?
 // Why <bstring.h> instead of <strings.h>?
 #include <bstring.h>
-#endif
-
-#if defined(Q_OS_AIX) || defined(Q_OS_UNIXWARE7) || defined (Q_OS_HPUX)
-// Please add comments! Which version of AIX? Why?
-// needed for strcasecmp() on HP-UX 10.xx
-#include <strings.h>
 #endif
 
 #if defined(Q_OS_AIX) && defined(Q_CC_GNU)
@@ -1266,11 +1267,11 @@ static void qt_set_input_encoding()
 	str = str.lower();
 	if ( !str.compare( "locale" ) )
 #else
-	    if ( !strcasecmp( data, "locale" ) )
+	if ( !strcasecmp( data, "locale" ) )
 #endif
-		input_mapper = QTextCodec::codecForLocale();
-	    else
-		input_mapper = QTextCodec::codecForName( data );
+	    input_mapper = QTextCodec::codecForLocale();
+	else
+	    input_mapper = QTextCodec::codecForName( data );
 	// make sure we have an input codec
 	if( !input_mapper )
 	    input_mapper = QTextCodec::codecForName( "ISO 8859-1" );
