@@ -2010,11 +2010,7 @@ void QPainter::drawRoundRect(const QRect &r, int xRnd, int yRnd)
 
     QPainterPath path;
 
-    int subtract =
-#if 0
-        d->state->pen != Qt::NoPen && d->state->pen.width() == 0 ? -1 :
-#endif
-        0;
+    int subtract = d->rectSubtraction();
 
     int x = rect.x();
     int y = rect.y();

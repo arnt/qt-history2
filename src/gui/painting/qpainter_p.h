@@ -193,6 +193,10 @@ public:
     void updateInvMatrix();
     void init();
 
+    int rectSubtraction() const {
+        return d->state->pen != Qt::NoPen && d->state->pen.width() == 0 ? 1 : 0;
+    }
+
     QPaintDevice *device;
     QPaintEngine *engine;
 };
