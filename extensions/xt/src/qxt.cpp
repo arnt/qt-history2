@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/xt/src/qxt.cpp#12 $
+** $Id: //depot/qt/main/extensions/xt/src/qxt.cpp#13 $
 **
 ** Implementation of Qt extension classes for Xt/Motif support.
 **
@@ -226,6 +226,7 @@ void np_event_proc( XEvent* e )
     if ( xtw && qApp->loopLevel() > 0 ) {
 	// Allow Xt to process the event
 	qt_np_cascade_event_handler[e->type]( e );
+    }
 }
 
 static void np_set_timer( int interval )
