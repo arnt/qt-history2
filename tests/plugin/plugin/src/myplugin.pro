@@ -4,13 +4,11 @@ win32:CONFIG	+= dll
 
 HEADERS	= previewstack.h \
 		  styledbutton.h \
-		  ../../../qtable/qtable.h \
-		  ../../../../include/qdefaultinterface.h
+		  ../../qdefaultinterface.h
 
 SOURCES	= init.cpp \
 		  previewstack.cpp \
 		  styledbutton.cpp \
-		  ../../../qtable/qtable.cpp		  
 
 TARGET		= myplugin
 DESTDIR		= $(QTDIR)/plugins
