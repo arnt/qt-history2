@@ -1012,7 +1012,7 @@ int QMessageBox::information( QWidget *parent,
 {
     QMessageBox *mb = new QMessageBox( caption, text, Information,
                                        button0, button1, button2,
-                                       parent, "qt_msgbox_information",
+                                       parent, "qt_msgbox_information", TRUE,
 				       WDestructiveClose);
     Q_CHECK_PTR( mb );
     int reply = mb->exec();
@@ -1055,7 +1055,7 @@ int QMessageBox::warning( QWidget *parent,
 {
     QMessageBox *mb = new QMessageBox( caption, text, Warning,
                                        button0, button1, button2,
-                                       parent, "qt_msgbox_warning",
+                                       parent, "qt_msgbox_warning", TRUE,
 				       WDestructiveClose);
     Q_CHECK_PTR( mb );
     int reply = mb->exec();
@@ -1098,7 +1098,7 @@ int QMessageBox::critical( QWidget *parent,
 {
     QMessageBox *mb = new QMessageBox( caption, text, Critical,
                                        button0, button1, button2,
-                                       parent, "qt_msgbox_critical",
+                                       parent, "qt_msgbox_critical", TRUE,
 				       WDestructiveClose);
     Q_CHECK_PTR( mb );
     int reply = mb->exec();
@@ -1132,7 +1132,7 @@ void QMessageBox::about( QWidget *parent, const QString &caption,
     QMessageBox *mb = new QMessageBox( caption, text,
                                        Information,
                                        Ok + Default, 0, 0,
-                                       parent, "qt_msgbox_simple_about_box",
+                                       parent, "qt_msgbox_simple_about_box", TRUE,
 				       WDestructiveClose);
     Q_CHECK_PTR( mb );
     QPixmap i;
@@ -1187,7 +1187,7 @@ static int textBox( QWidget *parent, QMessageBox::Icon severity,
 
     QMessageBox *mb = new QMessageBox( caption, text, severity,
                                        b[0], b[1], b[2],
-                                       parent, "qt_msgbox_information",
+                                       parent, "qt_msgbox_information", TRUE,
 				       Qt::WDestructiveClose);
     Q_CHECK_PTR( mb );
     if ( button0Text.isEmpty() )
