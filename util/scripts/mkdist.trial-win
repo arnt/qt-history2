@@ -1,0 +1,6 @@
+#!/bin/sh
+#
+# Creates a new Qt source distribution for Windows
+#
+
+mkdist.generic trial win /tmp/qtdist
