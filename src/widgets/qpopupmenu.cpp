@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#261 $
+** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#262 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -543,12 +543,6 @@ QRect QPopupMenu::itemGeometry( int index )
 }
 
 
-class QProtectedWidget : public QWidget
-{
-public:
-    WFlags getWFlags() const { return QWidget::getWFlags(); }
-};
-
 /*!
   \internal
   Calculates and sets the size of the popup menu, based on the size
@@ -572,9 +566,7 @@ void QPopupMenu::updateSize()
     for ( QMenuItemListIt it( *mitems ); it.current(); ++it ) {
 	mi = it.current();
 	if ( mi->widget() && mi->widget()->parentWidget() != this ) {
-	    WFlags flags = ((QProtectedWidget*)mi->widget() )->getWFlags();
-	    flags = flags & ~WType_Mask;
-	    mi->widget()->reparent( this, flags, QPoint(0,0), TRUE );
+	    mi->widget()->reparent( this, QPoint(0,0), TRUE );
 	}
 	if ( mi->iconSet() != 0)
 	    maxPMWidth = QMAX( maxPMWidth,

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#407 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#408 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -453,6 +453,7 @@ void QWidget::reparent( QWidget *parent, WFlags f, const QPoint &p,
 	oldcurs = cursor();
 	unsetCursor();
     }
+    
     WId old_winid = winid;
     if ( testWFlags(WType_Desktop) )
 	old_winid = 0;

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qworkspace.cpp#20 $
+** $Id: //depot/qt/main/src/widgets/qworkspace.cpp#21 $
 **
 ** Implementation of the QWorkspace class
 **
@@ -648,7 +648,7 @@ void QWorkspace::normalizeActive()
   \fn void QWorkspace::clientActivated( QWidget* w )
 
   This signal is emitted when the client widget \a w becomes active.
-  
+
   \sa activeClient(), clientList()
 */
 
@@ -843,10 +843,9 @@ bool QWorkspaceChildTitleBar::isActive() const
     return act;
 }
 
-class QProtectedWidget : public QWidget
+class QWorkSpaceChildProtectedWidget : public QWidget
 {
 public:
-    WFlags getWFlags() const { return QWidget::getWFlags(); }
     void reasonableFocus() { if ( !isFocusEnabled() )
 	(void) focusNextPrevChild( TRUE );
     }
@@ -885,11 +884,8 @@ QWorkspaceChild::QWorkspaceChild( QWidget* window, QWorkspace *parent,
 	if( clientw->icon() )
 		titlebar->setIcon( *clientw->icon() );
 
-    WFlags flags = ((QProtectedWidget*)clientw)->getWFlags();
-    flags = flags & ~WType_Mask;
-
     bool hasBeenResize = clientw->testWState( WState_Resized );
-    clientw->reparent( this, flags, QPoint( contentsRect().x()+BORDER, TITLEBAR_HEIGHT + BORDER + contentsRect().y() ), TRUE  );
+    clientw->reparent( this, QPoint( contentsRect().x()+BORDER, TITLEBAR_HEIGHT + BORDER + contentsRect().y() ), TRUE  );
 
     if ( !hasBeenResize ) {
 	QSize cs = clientw->sizeHint();
@@ -1156,7 +1152,7 @@ void QWorkspaceChild::setActive( bool b)
 	}
 	if ( !hasFocus ) {
 	    clientw->setFocus(); // insufficient, need toplevel semantics ########
-	    ( (QProtectedWidget*)clientw)->reasonableFocus();
+	    ( (QWorkSpaceChildProtectedWidget*)clientw)->reasonableFocus();
 	}
 	delete ol;
 	

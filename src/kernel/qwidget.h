@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.h#242 $
+** $Id: //depot/qt/main/src/kernel/qwidget.h#243 $
 **
 ** Definition of QWidget class
 **
@@ -271,6 +271,8 @@ public:
     QLayout *		layout() const { return lay_out; }
     void		updateGeometry();
     virtual void 	reparent( QWidget *parent, WFlags, const QPoint &,
+				  bool showIt=FALSE );
+    void		reparent( QWidget *parent, const QPoint &,
 				  bool showIt=FALSE );
 #ifndef QT_NO_COMPAT
     void		recreate( QWidget *parent, WFlags f, const QPoint & p,

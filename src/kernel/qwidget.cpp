@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#482 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#483 $
 **
 ** Implementation of QWidget class
 **
@@ -3003,11 +3003,11 @@ void QWidget::show()
     QApplication::sendPostedEvents( this, QEvent::ChildInserted );
     QApplication::sendPostedEvents( this, QEvent::Move );
     QApplication::sendPostedEvents( this, QEvent::Resize );
-    
+
     bool sendLayoutHint = testWState( WState_Withdrawn ) && !isTopLevel();
     clearWState( WState_Withdrawn );
     setWState( WState_Visible );
-    
+
      if ( parentWidget() )
 	 QApplication::sendPostedEvents( parentWidget(),
 					 QEvent::ChildInserted );
@@ -4391,6 +4391,18 @@ void QWidget::setStyle( QStyle *style )
 	QWidget::style().polish( this );
 	styleChange( old );
     }
+}
+
+/*!
+  A convenience version of reparent that does not take widget
+  flags as argument. 
+  
+  Calls reparent(\a parent, getWFlags()&~WType_Mask, \a p, \a showit )
+*/
+void  QWidget::reparent( QWidget *parent, const QPoint & p,
+			 bool showIt )
+{
+    reparent( parent, getWFlags() & ~WType_Mask, p, showIt );
 }
 
 #ifdef QT_BUILDER
