@@ -458,8 +458,8 @@ void QListView::setViewMode(ViewMode mode)
         if (!(d->modeProperties & QListViewPrivate::Movement))
             d->movement = Static;
         if (!(d->modeProperties & QListViewPrivate::IconSize)) {
-            int icone = style()->pixelMetric(QStyle::PM_SmallIconSize);
-            d->iconSize = QSize(icone, icone);
+            int pm = style()->pixelMetric(QStyle::PM_ListViewIconSize);
+            d->iconSize = QSize(pm, pm);
         }
         if (!(d->modeProperties & QListViewPrivate::ResizeMode))
             d->resizeMode = Fixed;
@@ -475,8 +475,8 @@ void QListView::setViewMode(ViewMode mode)
         if (!(d->modeProperties & QListViewPrivate::Movement))
             d->movement = Free;
         if (!(d->modeProperties & QListViewPrivate::IconSize)) {
-            int icone = style()->pixelMetric(QStyle::PM_LargeIconSize);
-            d->iconSize = QSize(icone, icone);
+            int pm = style()->pixelMetric(QStyle::PM_IconViewIconSize);
+            d->iconSize = QSize(pm, pm);
         }
         if (!(d->modeProperties & QListViewPrivate::ResizeMode))
             d->resizeMode = Fixed;
@@ -648,7 +648,7 @@ void QListView::mouseMoveEvent(QMouseEvent *e)
                        d->pressedPosition.y() - verticalOffset());
         QRect rect(mapToGlobal(topLeft), mapToGlobal(e->pos()));
         d->rubberBand->setGeometry(rect.normalize());
-        if (!d->rubberBand->isVisible() && d->hasLargeIcons()) {
+        if (!d->rubberBand->isVisible() && d->viewMode == IconMode) {
             d->rubberBand->show();
             d->rubberBand->raise();
         }

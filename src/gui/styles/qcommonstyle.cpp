@@ -2786,6 +2786,13 @@ int QCommonStyle::pixelMetric(PixelMetric m, const QStyleOption *opt, const QWid
         ret = pixelMetric(PM_SmallIconSize);
         break;
 
+    case PM_ListViewIconSize:
+        ret = pixelMetric(PM_SmallIconSize);
+        break;
+    case PM_IconViewIconSize:
+        ret = pixelMetric(PM_LargeIconSize);
+        break;
+
     case PM_SmallIconSize:
         ret = 22;
         break;

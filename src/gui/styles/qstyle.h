@@ -410,6 +410,8 @@ public:
         PM_DefaultLayoutSpacing,
 
         PM_ToolBarIconSize,
+        PM_ListViewIconSize,
+        PM_IconViewIconSize,
         PM_SmallIconSize,
         PM_LargeIconSize,
 
