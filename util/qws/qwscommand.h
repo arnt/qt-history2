@@ -29,7 +29,7 @@
  *
  *********************************************************************/
 
-static void qws_write_command( QSocket *socket, int type, 
+static void qws_write_command( QSocket *socket, int type,
 			       char *simpleData, int simpleLen, char *rawData, int rawLen )
 {
     qws_write_uint( socket, type );
@@ -77,17 +77,17 @@ static bool qws_read_command( QSocket *socket, char *simpleData, int &simpleLen,
  *
  *********************************************************************/
 
-struct QWSCommand 
+struct QWSCommand
 {
     // ctor - dtor
     QWSCommand( int t, int len, char *ptr ) : type( t ),
-	simpleLen( len ), rawLen( -1 ), rawData( 0 ), 
+	simpleLen( len ), rawLen( -1 ), rawData( 0 ),
 	simpleDataPtr( ptr ), bytesRead( 0 ) {}
     ~QWSCommand() { delete rawData; }
 
     enum Type {
 	Unknown = 0,
-	Create, 
+	Create,
 	Destroy,
 	Region,
 	SetProperty,
@@ -100,7 +100,7 @@ struct QWSCommand
     int simpleLen;
     int rawLen;
     char *rawData;
-    
+
     // functions
     void write( QSocket *s ) {
 	qws_write_command( s, type, simpleDataPtr, simpleLen, rawData, rawLen );
@@ -110,7 +110,7 @@ struct QWSCommand
 				 rawData, rawLen, bytesRead );
 	return b;
     }
-	    
+	
     // temp variables
     char *simpleDataPtr;
     int bytesRead;
@@ -125,45 +125,45 @@ struct QWSCommand
 
 struct QWSCreateCommand : public QWSCommand
 {
-    QWSCreateCommand() : 
-	QWSCommand( QWSCommand::Create, sizeof( simpleData ), (char*)&simpleData ) {} 
+    QWSCreateCommand() :
+	QWSCommand( QWSCommand::Create, sizeof( simpleData ), (char*)&simpleData ) {}
 
     struct SimpleData {
     } simpleData;
-    
+
 };
 
 struct QWSAddPropertyCommand : public QWSCommand
 {
-    QWSAddPropertyCommand() : 
-	QWSCommand( QWSCommand::AddProperty, sizeof( simpleData ), (char*)&simpleData ) {} 
+    QWSAddPropertyCommand() :
+	QWSCommand( QWSCommand::AddProperty, sizeof( simpleData ), (char*)&simpleData ) {}
 
     struct SimpleData {
 	int winId, property;
     } simpleData;
-    
+
 };
 
 struct QWSSetPropertyCommand : public QWSCommand
 {
-    QWSSetPropertyCommand() : 
-	QWSCommand( QWSCommand::SetProperty, sizeof( simpleData ), (char*)&simpleData ) {} 
+    QWSSetPropertyCommand() :
+	QWSCommand( QWSCommand::SetProperty, sizeof( simpleData ), (char*)&simpleData ) {}
 
     struct SimpleData {
 	int winId, property, mode;
     } simpleData;
-    
+
 };
 
 struct QWSRemovePropertyCommand : public QWSCommand
 {
-    QWSRemovePropertyCommand() : 
-	QWSCommand( QWSCommand::RemoveProperty, sizeof( simpleData ), (char*)&simpleData ) {} 
+    QWSRemovePropertyCommand() :
+	QWSCommand( QWSCommand::RemoveProperty, sizeof( simpleData ), (char*)&simpleData ) {}
 
     struct SimpleData {
 	int winId, property;
     } simpleData;
-    
+
 };
 
 #endif

@@ -34,8 +34,8 @@
 
 static char *int_to_hex( int i )
 {
-    char *s = new char[ 4 ];
-    sprintf( s, "%04X", i );
+    char *s = new char[ 8 ];
+    sprintf( s, "%08X", i );
     return s;
 }
 
@@ -52,10 +52,14 @@ static ushort hex_ushort_to_int( ushort c )
 
 static int hex_to_int( char *array )
 {
-    return ( 16 * 16 * 16 * hex_ushort_to_int( array[ 0 ] ) +
-	     16 * 16 * hex_ushort_to_int( array[ 1 ] ) +
-	     16 * hex_ushort_to_int( array[ 2 ] ) +
-	     hex_ushort_to_int( array[ 3 ] ) );
+    return ( 16 * 16 * 16 * 16 * 16 * 16 * 16 * hex_ushort_to_int( array[ 0 ] ) +
+	     16 * 16 * 16 * 16 * 16 * 16 * hex_ushort_to_int( array[ 1 ] ) +
+	     16 * 16 * 16 * 16 * 16 * hex_ushort_to_int( array[ 2 ] ) + 
+	     16 * 16 * 16 * 16 * hex_ushort_to_int( array[ 3 ] ) +
+	     16 * 16 * 16 * hex_ushort_to_int( array[ 4 ] ) +
+	     16 * 16 * hex_ushort_to_int( array[ 5 ] ) +
+	     16 * hex_ushort_to_int( array[ 6 ] ) +
+	     hex_ushort_to_int( array[ 7 ] ) );
 }
 
 /********************************************************************
@@ -69,10 +73,10 @@ static int qws_read_uint( QSocket *socket )
     if ( !socket )
 	return -1;
 
-    int i;
-    socket->readBlock( (char*)&i, sizeof( int ) );
+    char i[ 8 ];
+    socket->readBlock( i, 8 );
 
-    return hex_to_int( (char*)&i );
+    return hex_to_int( i );
 }
 
 static void qws_write_uint( QSocket *socket, int i )
@@ -81,7 +85,7 @@ static void qws_write_uint( QSocket *socket, int i )
 	return;
 
     char *s = int_to_hex( i );
-    socket->writeBlock( s, strlen( s ) );
+    socket->writeBlock( s, 8 );
     delete [] s;
 }
 
