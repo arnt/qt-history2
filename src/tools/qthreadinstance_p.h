@@ -79,7 +79,7 @@ public:
 
 #ifdef Q_OS_WIN32
     HANDLE handle;
-    unsigned int id;
+    unsigned int thread_id;
 
     static unsigned int __stdcall start( void * );
     static void finish( QThreadInstance * );

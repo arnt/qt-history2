@@ -88,7 +88,7 @@ QThreadInstance *QThreadInstance::current()
 	ret->running = TRUE;
 	ret->orphan = TRUE;
 	ret->handle = GetCurrentThread();
-	ret->id = GetCurrentThreadId();
+	ret->thread_id = GetCurrentThreadId();
 
 	TlsSetValue( qt_tls_index, ret );
     }
@@ -105,7 +105,7 @@ void QThreadInstance::init(unsigned int stackSize)
     orphan = FALSE;
 
     handle = 0;
-    id = 0;
+    thread_id = 0;
 
     // threads have not been initialized yet, do it now
     if ( ! qt_thread_mutexpool ) QThread::initialize();
@@ -148,7 +148,7 @@ void QThreadInstance::finish( QThreadInstance *d )
     QThreadStorageData::finish( d->thread_storage );
     d->thread_storage = 0;
 
-    d->id = 0;
+    d->thread_id = 0;
 
     if ( d->orphan ) {
         d->deinit();
@@ -175,7 +175,7 @@ void QThreadInstance::terminate()
     running = FALSE;
     finished = TRUE;
     args[0] = args[1] = 0;
-    id = 0;
+    thread_id = 0;
 
     if ( orphan ) {
         deinit();
@@ -271,7 +271,7 @@ void QThread::start(Priority priority)
       its 'parent' and runs at normal priority.
     */
     d->handle = (Qt::HANDLE) _beginthreadex(NULL, d->stacksize, QThreadInstance::start,
-					    d->args, CREATE_SUSPENDED, &(d->id));
+					    d->args, CREATE_SUSPENDED, &(d->thread_id));
 
     if ( !d->handle ) {
 #ifdef QT_CHECK_STATE
@@ -342,7 +342,7 @@ bool QThread::wait( unsigned long time )
 {
     QMutexLocker locker( d->mutex() );
 
-    if ( d->id == GetCurrentThreadId() ) {
+    if ( d->thread_id == GetCurrentThreadId() ) {
 #ifdef QT_CHECK_RANGE
 	qWarning( "Thread tried to wait on itself" );
 #endif
@@ -390,7 +390,7 @@ void QThread::exit()
     QThreadStorageData::finish( d->thread_storage );
     d->thread_storage = 0;
 
-    d->id = 0;
+    d->thread_id = 0;
 
     CloseHandle( d->handle );
 
