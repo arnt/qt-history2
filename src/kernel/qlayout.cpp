@@ -1004,11 +1004,7 @@ int QGridLayout::numCols() const
 */
 QSize QGridLayout::sizeHint() const
 {
-    QSize sz = data->sizeHint( spacing() ) +
-	       QSize( 2 * margin(), 2 * margin() );
-    if ( hasHeightForWidth() )
-	sz.setHeight( heightForWidth(sz.width()) );
-    return sz;
+    return data->sizeHint( spacing() ) + QSize( 2 * margin(), 2 * margin() );
 }
 
 /*!
@@ -1643,10 +1639,7 @@ QSize QBoxLayout::sizeHint() const
 	QBoxLayout *that = (QBoxLayout*)this;
 	that->setupGeom();
     }
-    QSize sz = data->sizeHint + QSize( 2 * margin(), 2 * margin() );
-    if ( hasHeightForWidth() )
-	sz.setHeight( heightForWidth(sz.width()) );
-    return sz;
+    return data->sizeHint + QSize( 2 * margin(), 2 * margin() );
 }
 
 /*!

@@ -982,6 +982,8 @@ QSize QLayout::totalSizeHint() const
     int b = ( topLevel && !marginImpl ) ? 2 * outsideBorder : 0;
 
     QSize s = sizeHint();
+    if ( hasHeightForWidth() )
+	s.setHeight( heightForWidth(s.width()) );
     int h = b;
 #ifndef QT_NO_MENUBAR
     if ( menubar && !menubar->isTopLevel() )
