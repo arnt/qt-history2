@@ -106,7 +106,7 @@ public:									\
     virtual bool qt_emit( int, QUObject* ); 				\
     QT_PROP_FUNCTIONS							\
     static QMetaObject* staticMetaObject();				\
-    QObject* qObject() { return this; } 				\
+    QObject* qObject() { return (QObject*)this; } 			\
     QT_TR_FUNCTIONS							\
 private:								\
     static QMetaObject *metaObj;
