@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#3 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#4 $
 **
 ** Implementation of QWidget class
 **
@@ -19,7 +19,7 @@
 #include "qcolor.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget.cpp#3 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget.cpp#4 $";
 #endif
 
 
@@ -221,11 +221,6 @@ bool QWidget::setMouseMoveEvents( bool onOff )
 }
 #endif // _WS_X11_
 
-
-QRect QWidget::clientRect() const		// get client rect
-{
-    return QRect( QPoint(0,0), rect.size() );
-}
 
 void QWidget::setRect( const QRect &r )		// set rect, update ncrect
 {

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.h#4 $
+** $Id: //depot/qt/main/src/kernel/qwidget.h#5 $
 **
 ** Definition of QWidget class
 **
@@ -54,7 +54,8 @@ public:
     QRect    geometry()		const	{ return ncrect; }
     QRect    clientGeometry()	const	{ return rect; }
     QSize    clientSize()	const	{ return rect.size(); }
-    QRect    clientRect()	const;
+    QRect    clientRect()	const	{ return QRect(0,0,rect.width(),
+						       rect.height()); }
 
   // Widget coordinate mapping
 
