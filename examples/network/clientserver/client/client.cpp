@@ -49,7 +49,7 @@ public:
 		SLOT(socketError(int)) );
 
 	// connect to the server
-	infoText->append( tr("Try to connect to server\n") );
+	infoText->append( tr("Trying to connect to the server\n") );
 	socket->connectToHost( host, port );
     }
 

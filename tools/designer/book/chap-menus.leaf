@@ -647,14 +647,14 @@ options:
 \list 
 
 \i \Menu{Help|Contents}\BR Click this menu option (or press \Key F1)
-to invoke the \l{Qt Assistant} application which provides on-line
-help. The on-line help is context sensitive, so you can type the item
-you want more information about in the line edit and Qt Assistant will
-automatically find it if it is available.
+to invoke the \link assistant.book Qt Assistant\endlink application
+which provides on-line help. The on-line help is context sensitive, so
+you can type the item you want more information about in the line edit
+and Qt Assistant will automatically find it if it is available.
 
 \i \Menu{Help|Manual}\BR Click this menu option (or press \Key Ctrl+M) to
-invoke the \l{Qt Assistant} application which opens showing this
-manual.
+invoke the \link assistant.book Qt Assistant\endlink application which
+opens showing this manual.
 
 \i \Menu{Help|About...}\BR Click this menu option to invoke the About
 \QD dialog which gives the version number and some licensing

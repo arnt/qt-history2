@@ -1597,7 +1597,7 @@ void QTextEdit::contentsMousePressEvent( QMouseEvent *e )
 #ifndef QT_NO_CLIPBOARD
     } else if ( e->button() == MidButton && !isReadOnly() ) {
         // only do middle-click pasting on systems that have selections (ie. X11)
-        if (QApplication::clipboard()->supportsSelection()) { 
+        if (QApplication::clipboard()->supportsSelection()) {
             drawCursor( FALSE );
             placeCursor( e->pos() );
             ensureCursorVisible();
@@ -1610,7 +1610,7 @@ void QTextEdit::contentsMousePressEvent( QMouseEvent *e )
                 doc->setSelectionStart( QTextDocument::Standard, cursor );
             }
             // start with 1 as we don't want to remove the Standard-Selection
-            for ( int i = 1; i < doc->numSelections(); ++i ) 
+            for ( int i = 1; i < doc->numSelections(); ++i )
                 redraw = doc->removeSelection( i ) || redraw;
             if ( !redraw ) {
                 drawCursor( TRUE );
@@ -3890,10 +3890,11 @@ int QTextEdit::length() const
     return document()->length();
 }
 
-/*! Returns the tab width used by the text edit.
+/*!
+  \property QTextEdit::tabStopWidth
+  \brief the tab stop width in pixels
 
-    \sa setTabStopWidth()
- */
+*/
 
 int QTextEdit::tabStopWidth() const
 {
@@ -3904,11 +3905,6 @@ void QTextEdit::setUndoDepth( int d )
 {
     document()->setUndoDepth( d );
 }
-
-/*! Sets the tab width used by the text edit to \a ts.
-
-    \sa tabStopWidth()
- */
 
 void QTextEdit::setTabStopWidth( int ts )
 {
