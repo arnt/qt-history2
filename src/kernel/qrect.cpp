@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qrect.cpp#39 $
+** $Id: //depot/qt/main/src/kernel/qrect.cpp#40 $
 **
 ** Implementation of QRect class
 **
@@ -13,7 +13,7 @@
 #include "qrect.h"
 #include "qdstream.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qrect.cpp#39 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qrect.cpp#40 $");
 
 
 /*!
@@ -550,8 +550,10 @@ bool QRect::contains( const QRect &r, bool proper ) const
 }
 
 /*!
-  Returns the union rectangle of this rectangle and \e r.
-  If \e r is empty, this rectangle is returned unchanged.
+  Returns the union rectangle of this rectangle and \e r.  The union
+  rectangle of a nonempty rectangle and an empty or invalid rectangle
+  is defined to be the nonempty rectangle.
+
   \sa intersect(), intersects(), contains()
 */
 
