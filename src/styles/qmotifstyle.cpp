@@ -1433,7 +1433,7 @@ void QMotifStyle::drawComplexControl( ComplexControl control,
 
 		int line; // index into dotlines
 		p->setPen( cg.text() );
-		for( line = 0; line < c; line += 2 ) {
+		if ( sub & SC_ListViewBranch ) for( line = 0; line < c; line += 2 ) {
 		    p->drawLine( dotlines[line].x(), dotlines[line].y(),
 				 dotlines[line+1].x(), dotlines[line+1].y() );
 		}

@@ -1621,7 +1621,7 @@ void QWindowsXPStyle::drawComplexControl( ComplexControl control,
 		}
 
 		int line; // index into dotlines
-		for( line = 0; line < c; line += 2 ) {
+		if ( sub & SC_ListViewBranch ) for( line = 0; line < c; line += 2 ) {
 		    // assumptions here: lines are horizontal or vertical.
 		    // lines always start with the numerically lowest
 		    // coordinate.
