@@ -5645,7 +5645,7 @@ int QTextFormatterBreakWords::format( QTextDocument *doc, QTextParagraph *parag,
 	h = QMAX( h, tmph );
 	lineStart->h = h;
 	// last line in a paragraph is not justified
-	if ( align == Qt::AlignJustify || lastChr == QChar_linesep )
+	if ( align == Qt::AlignJustify )
 	    align = Qt::AlignAuto;
  	DO_FLOW( lineStart );
 	lineStart = formatLine( parag, string, lineStart, firstChar, c, align, SPACE(w - x) );
