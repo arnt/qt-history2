@@ -83,6 +83,7 @@ public:
                           const QString &text, int len = -1,
                           const QColor *penColor = 0) const;
     using QStyle::drawItem;
+
 private:
     Q_DISABLE_COPY(QMacStyle)
 

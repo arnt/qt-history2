@@ -1716,4 +1716,32 @@ int QStyle::valueFromPosition(int min, int max, int pos, int span, bool upsideDo
     // pos <= span < sqrt(INT_MAX+0.0625)+0.25 ~ sqrt(INT_MAX)
 }
 
+/*! \fn void QStyle::drawItem(QPainter *p, const QRect &r,
+                              int flags, const QColorGroup &colorgroup, bool enabled,
+                              const QString &text, int len = -1,
+                              const QColor *penColor = 0) const
+
+    Use one of the drawItem() overloads that takes a QPalette instead
+    of a QColorGroup.
+*/
+
+/*! \fn void QStyle::drawItem(QPainter *p, const QRect &r,
+                              int flags, const QColorGroup colorgroup, bool enabled,
+                              const QPixmap &pixmap,
+                              const QColor *penColor = 0) const
+
+    Use one of the drawItem() overloads that takes a QPalette instead
+    of a QColorGroup.
+*/
+
+/*! void QStyle::drawItem(QPainter *p, const QRect &r,
+                          int flags, const QColorGroup colorgroup, bool enabled,
+                          const QPixmap *pixmap,
+                          const QString &text, int len = -1,
+                          const QColor *penColor = 0) const
+
+    Use one of the drawItem() overloads that takes a QPalette instead
+    of a QColorGroup.
+*/
+
 #endif // QT_NO_STYLE

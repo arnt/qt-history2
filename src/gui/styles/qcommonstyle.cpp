@@ -38,7 +38,7 @@
 #include <limits.h>
 
 /*!
-    \class QCommonStyle qcommonstyle.h
+    \class QCommonStyle
     \brief The QCommonStyle class encapsulates the common Look and Feel of a GUI.
 
     \ingroup appearance
@@ -1167,8 +1167,9 @@ void QCommonStyle::drawControlMask(ControlElement ce, const QStyleOption *opt, Q
 
 /*!
     Returns the rectangle occupied by sub-rectangle \a sr, with style
-    options \a opt. The widget \a w is optional and may contain a widget
-    that is useful for drawing the sub-rectangle.
+    options \a opt and font metrics \a fm. The \a widget parameter is
+    optional and may contain a widget that is useful for drawing the
+    sub-rectangle.
 */
 QRect QCommonStyle::subRect(SubRect sr, const QStyleOption *opt, const QFontMetrics &fm,
                             const QWidget *widget) const

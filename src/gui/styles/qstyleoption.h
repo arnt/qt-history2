@@ -10,6 +10,7 @@
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ****************************************************************************/
+
 #ifndef QSTYLEOPTION_H
 #define QSTYLEOPTION_H
 
@@ -339,8 +340,8 @@ public:
 
     QStyleOptionComplex(int version = QStyleOptionComplex::Version, int type = SO_Complex);
 
-    QDOC_PROPERTY(QStyle::SubControls parts);
-    QDOC_PROPERTY(QStyle::SubControls activeParts);
+    QDOC_PROPERTY(QStyle::SubControls subControls);
+    QDOC_PROPERTY(QStyle::SubControls activeSubControls);
 
 protected:
     QStyleOptionComplex(int version);
