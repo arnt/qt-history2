@@ -314,6 +314,11 @@ Option::parseCommandLine(int argc, char **argv)
 	    Option::dir_sep = "/";
 	Option::obj_ext = ".o";
     }
+
+    //add -tp [prefix] to the before_user_vars
+    if(!Option::user_template_prefix.isEmpty())
+        before_user_vars.append("TEMPLATE_PREFIX="+Option::user_template_prefix);
+
     return TRUE;
 }
 
