@@ -529,7 +529,6 @@ void QTreeView::paintEvent(QPaintEvent *e)
     d->left = qMin(d->left, d->right);
     d->right = qMax(tmp, d->right);
 
-    QModelIndex current = selectionModel()->currentIndex();
     QStyle::StyleFlags state = option.state;
     bool alternate = d->alternatingColors;
     QColor oddColor = d->oddColor;
@@ -1064,7 +1063,6 @@ void QTreeView::updateGeometries()
 
     // update scrollbars
     if (model() && model()->rowCount(root()) > 0 && model()->columnCount(root()) > 0) {
-        QModelIndex topLeft = model()->index(0, 0, root());
         d->updateVerticalScrollbar();
         d->updateHorizontalScrollbar();
     }
@@ -1275,7 +1273,6 @@ int QTreeViewPrivate::indentation(int i) const
 
 int QTreeViewPrivate::coordinate(int item) const
 {
-    QStyleOptionViewItem option = q->viewOptions();
     int scrollbarValue = q->verticalScrollBar()->value();
     int viewItemIndex = itemAt(scrollbarValue); // first item (may start above the page)
     int viewItemHeight = height(viewItemIndex);
@@ -1297,7 +1294,6 @@ int QTreeViewPrivate::coordinate(int item) const
 
 int QTreeViewPrivate::item(int coordinate) const
 {
-    QStyleOptionViewItem option = q->viewOptions();
     int scrollbarValue = q->verticalScrollBar()->value();
     int viewItemIndex = itemAt(scrollbarValue);
     if (viewItemIndex >= viewItems.count())
