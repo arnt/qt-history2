@@ -1,6 +1,6 @@
 <ui version="4.0" >
  <comment></comment>
- <class>Form</class>
+ <class>ImageDialog</class>
  <widget class="QDialog" >
   <property name="windowTitle" >
    <string>Create Image</string>
