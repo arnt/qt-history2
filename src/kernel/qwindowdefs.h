@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwindowdefs.h#127 $
+** $Id: //depot/qt/main/src/kernel/qwindowdefs.h#128 $
 **
 ** Definition of general window system dependent functions, types and
 ** constants
@@ -34,7 +34,6 @@
 
 // Class forward definitions
 
-class QApplication;
 class QPaintDevice;
 class QPaintDeviceMetrics;
 class QWidget;
@@ -108,6 +107,8 @@ enum WindowsVersion { WV_NT, WV_95, WV_98, WV_32s };
 class QBaseApplication;
 #define QApplication QBaseApplication
 #endif
+// Forward declaration
+class QApplication;
 
 #endif // _WS_WIN16_ or _WS_WIN32_
 
