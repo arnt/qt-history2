@@ -38,6 +38,7 @@
 #ifndef QT_NO_COMPLEXTEXT
 #include "private/qrichtext_p.h"
 #include "private/qfontdata_p.h"
+#include "private/qunicodetables_p.h"
 #include "qfontmetrics.h"
 #include "qrect.h"
 
@@ -121,7 +122,7 @@ static inline const QChar *prevChar( const QString &str, int pos )
     pos--;
     const QChar *ch = str.unicode() + pos;
     while( pos > -1 ) {
-	if( !ch->isMark() )
+	if( !isMark( *ch ) )
 	    return ch;
 	pos--;
 	ch--;
@@ -136,7 +137,7 @@ static inline const QChar *nextChar( const QString &str, int pos)
     const QChar *ch = str.unicode() + pos;
     while( pos < len ) {
 	//qDebug("rightChar: %d isLetter=%d, joining=%d", pos, ch.isLetter(), ch.joining());
-	if( !ch->isMark() )
+	if( !isMark( *ch ) )
 	    return ch;
 	// assume it's a transparent char, this might not be 100% correct
 	pos++;
@@ -153,14 +154,14 @@ static inline bool prevVisualCharJoins( const QString &str, int pos)
 
 static inline bool nextVisualCharJoins( const QString &str, int pos)
 {
-    QChar::Joining join = nextChar( str, pos )->joining();
+    QChar::Joining join = joining( nextChar( str, pos ) );
     return ( join == QChar::Dual || join == QChar::Center );
 }
 
 QComplexText::Shape QComplexText::glyphVariant( const QString &str, int pos)
 {
     // ignores L1 - L3, done in the codec
-    QChar::Joining joining = str[pos].joining();
+    QChar::Joining joining = joining( str.unicode()[pos] );
     //qDebug("checking %x, joining=%d", str[pos].unicode(), joining);
     switch ( joining ) {
 	case QChar::OtherJoining:
@@ -184,12 +185,12 @@ QComplexText::Shape QComplexText::glyphVariant( const QString &str, int pos)
  */
 static inline bool prevLogicalCharJoins( const QString &str, int pos)
 {
-    return (     nextChar( str, pos )->joining() != QChar::OtherJoining );
+    return ( joining( *nextChar( str, pos ) ) != QChar::OtherJoining );
 }
 
 static inline bool nextLogicalCharJoins( const QString &str, int pos)
 {
-    QChar::Joining join = prevChar( str, pos )->joining();
+    QChar::Joining join = joining( *prevChar( str, pos ) );
     return ( join == QChar::Dual || join == QChar::Center );
 }
 
@@ -197,7 +198,7 @@ static inline bool nextLogicalCharJoins( const QString &str, int pos)
 static inline Shape glyphVariantLogical( const QString &str, int pos)
 {
     // ignores L1 - L3, ligatures are job of the codec
-    QChar::Joining joining = str[pos].joining();
+    QChar::Joining joining = ::joining( str.unicode()[pos] );
     //qDebug("checking %x, joining=%d", str[pos].unicode(), joining);
     switch ( joining ) {
 	case QChar::OtherJoining:
@@ -556,13 +557,13 @@ QString QComplexText::shapedString(const QString& uc, int from, int len, QPainte
     // we have to ignore NSMs at the beginning and add at the end.
     int num = uc.length() - from - len;
     const QChar *ch = uc.unicode() + from + len;
-    while ( num > 0 && ch->combiningClass() != 0 ) {
+    while ( num > 0 && combiningClass( *ch ) != 0 ) {
 	ch++;
 	num--;
 	len++;
     }
     ch = uc.unicode() + from;
-    while ( len > 0 && ch->combiningClass() != 0 ) {
+    while ( len > 0 && combiningClass( *ch ) != 0 ) {
 	ch++;
 	len--;
 	from++;
@@ -590,7 +591,7 @@ QString QComplexText::shapedString(const QString& uc, int from, int len, QPainte
 		    goto skip;
 	    }
 	    if ( dir == QPainter::RTL )
-		*data = ch->mirroredChar();
+		*data = mirroredChar( *ch );
 	    else
 		*data = *ch;
 	    data++;
@@ -654,14 +655,14 @@ QString QComplexText::shapedString(const QString& uc, int from, int len, QPainte
 	QChar *s = shapeBuffer;
 	int i = 0;
 	while ( i < lenOut ) {
-	    if ( s->combiningClass() != 0 ) {
+	    if ( combiningClass( *s ) != 0 ) {
 		// non spacing marks
 		int clen = 1;
 		QChar *ch = s;
 		do {
 		    ch++;
 		    clen++;
-		} while ( ch->combiningClass() != 0 );
+		} while ( combiningClass( *ch ) != 0 );
 
 		int j = 0;
 		QChar *cp = s;
@@ -741,7 +742,7 @@ QPointArray QComplexText::positionMarks( QFontPrivate *f, const QString &str,
 {
     int len = str.length();
     int nmarks = 0;
-    while ( pos + nmarks < len && str[pos+nmarks +1].combiningClass() > 0 )
+    while ( pos + nmarks < len && combiningClass( str.unicode()[pos+nmarks +1] ) > 0 )
 	nmarks++;
 
     if ( !nmarks )
@@ -761,8 +762,8 @@ QPointArray QComplexText::positionMarks( QFontPrivate *f, const QString &str,
     if ( boundingRect )
 	*boundingRect = baseRect;
     for( i = 0; i < nmarks; i++ ) {
-	QChar mark = str[pos+i+1];
-	unsigned char cmb = mark.combiningClass();
+	QChar mark = str.unicode()[pos+i+1];
+	unsigned char cmb = combiningClass( mark );
 	if ( cmb < 200 ) {
 	    // fixed position classes. We approximate by mapping to one of the others.
 	    // currently I added only the ones for arabic, hebrew and thai.
@@ -879,7 +880,7 @@ static QChar::Direction basicDirection(const QString &str, int start = 0)
     int pos = start > len ? len -1 : start;
     const QChar *uc = str.unicode() + pos;
     while( pos < len ) {
-	switch( uc->direction() )
+	switch( direction( *uc ) )
 	{
 	case QChar::DirL:
 	case QChar::DirLRO:
@@ -952,7 +953,7 @@ QPtrList<QTextRun> *QComplexText::bidiReorderLine( QBidiControl *control, const 
 	} else if ( current == last ) {
 	    dirCurrent = ( basicDir != QChar::DirON ? basicDir : basicDirection( text, current ) );
 	} else
-	    dirCurrent = unicode[current].direction();
+	    dirCurrent = ::direction( unicode[current] );
 
 
 #if (BIDI_DEBUG >= 2)
@@ -1088,7 +1089,7 @@ QPtrList<QTextRun> *QComplexText::bidiReorderLine( QBidiControl *control, const 
 			runs->append( new QTextRun(sor, eor, context, dir) );
 			++eor;
 			sor = eor;
-			dir = unicode[eor].direction(); status.eor = dir;
+			dir = direction( unicode[eor] ); status.eor = dir;
 		    }
 		    break;
 		case QChar::DirES:
@@ -1111,7 +1112,7 @@ QPtrList<QTextRun> *QComplexText::bidiReorderLine( QBidiControl *control, const 
 			    else
 				eor = current - 1;
 			    runs->append( new QTextRun(sor, eor, context, dir) );
-			    ++eor; sor = eor; dir = unicode[eor].direction(); status.eor = dir;
+			    ++eor; sor = eor; dir = direction( unicode[eor] ); status.eor = dir;
 			} else {
 			    if(status.eor != QChar::DirL) {
 				runs->append( new QTextRun(sor, eor, context, dir) );
@@ -1496,7 +1497,7 @@ QString QComplexText::bidiReorderString( const QString &str, QChar::Direction ba
 		// odd level, need to reverse the string
 		int pos = r->stop;
 		while(pos >= r->start) {
-		    *vch = str_uc[pos].mirroredChar();
+		    *vch = mirroredChar( str_uc[pos] );
 		    vch++;
 		    pos--;
 		}
