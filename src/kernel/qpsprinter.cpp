@@ -5567,9 +5567,14 @@ QPSPrinterPrivate::QPSPrinterPrivate( QPrinter *prt, int filedes )
 			fs=fs.stripWhiteSpace();
 			if (fs.left(9)=="catalogue" && fs.contains('=')) {
 			    fs=fs.mid(fs.find('=')+1).stripWhiteSpace();
-			    while(f.status()==IO_Ok && fs.right(1)==",") {
-				if (!fs.contains(":unscaled"))
-				    fontpath += fs.left(fs.length()-1);
+			    bool end = FALSE;
+			    while( f.status()==IO_Ok && !end ) {
+				if ( fs[fs.length()-1] == ',' )
+				    fs = fs.left(fs.length()-1);
+				else
+				    end = TRUE;
+				if (fs[0] != '#' && !fs.contains(":unscaled"))
+				    fontpath += fs;
 				f.readLine(fs, 1024);
 				fs=fs.stripWhiteSpace();
 			    }
