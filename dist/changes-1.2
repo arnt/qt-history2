@@ -13,11 +13,18 @@ reversed.) If you have worked around this bug, your widgets may now be
 incorrectly aligned.
 
 
+QWidget: Every widget is now guaranteed move and resize events. The
+event is deferred until the first show(). This may cause problems in
+rare cases involving event filters.
+
+The XPM file format is now supported.
+
 ****************************************************************************
 *               Changes that might generate compile errors                 *
 *                        when compiling old code                           *
 ****************************************************************************
 
+none
 
 
 ****************************************************************************
@@ -27,7 +34,6 @@ incorrectly aligned.
 none
 
 
-
 ****************************************************************************
 * 			Deprecated functions				   *
 ****************************************************************************
@@ -35,18 +41,17 @@ none
 QApplication::setColorMode() and colorMode() will be obsoleted. Use
 setColorSpec() and colorSpec() instead.
 
+qchecksum() will be obsoleted. Please use qChecksum() instead.
+
 ****************************************************************************
 * 			     New classes				   *
 ****************************************************************************
 
-QSlider is a range input widget. If you have been using a standalone
-QScrollBar, you will probably want to switch to a QSlider.
+QSlider is a widget to input values from a range. If you have been
+using a standalone QScrollBar, you will probably want to switch to a
+QSlider.
 
-QSpinBox provides a spin box, sometimes called up-down widget, little
-arrows widget or spin button.
-
-
-QGLWidget...
+QGLWidget, QGLContext and QGLFormat ...
 
 ****************************************************************************
 *		       Other changes from 1.1 to 1.2			   *
@@ -55,30 +60,62 @@ QGLWidget...
 QApplication::setColorSpec() can specify private colormaps or
 non-default visuals
 
-QButton	setAutoRepeat
+New function QButton::setAutoRepeat().
 
-QComboBox::currentText()
+QComboBox: New function currentText(), two new insertion policies:
+AfterCurrent and BeforeCurrent.
 
-QFont   fontMetrics directly for a font
+QCursor: added new global cursor blankCursor.
 
-QImage  XPM can now be read/written
-	Alpha channel
-	reasonableMask()
+QFont::key(), new function for caching.
 
-QLCDNumber::setSegmentStyle()
+QFontMetrics::QFontMetrics( const Font& ) new constructor gives
+fontmetrics directly for a font. This is much faster than using
+QWidget::fontMetrics() or QPainter::fontmetrics().
 
-QLabel::setBuddy(), buddy(), new constructor
+QImage: image load/save functions:
+		QImage( const char *filename )
+		imageFormat(), load(), loadFromData(), save()
+		operator>>(), operator<<()
+	XPM support, QImage( const *xpm[] )
+	Alpha channel support: 
+		hasAlphaBuffer(), setAlphaBuffer()
+		createAlphaMask(), 
+	Automatic mask generaton: createHeuristicMask() 
+	Filling the entire image: fill()
 
-QLineEdit::setFrame(), frame(), setEchoMode()
+QLCDNumber now supports filled segments:
+	setSegmentStyle(), segmentStyle()
 
-QPainter	new constructor  flush() ?
+QLabel now supports accellerated labels:
+	setBuddy(), buddy() and a  new constructor.
 
-QPixmap::selfMask
+QLineEdit new functions:
+	show/hide frame: setFrame(), frame()
+	password entry mode: setEchoMode(), echoMode()
 
-QTabDialog::setOKButton()
+QMouseEvent: x() and y() convenience functions.
 
-Workarounds for Watcom C++.
+QPainter: new constructor QPainter( const QPaintDevice* ) does automatic
+begin() and end(). New function	flush().
 
-qChecksum() instead of qchecksum.
+QPixmap new functions:
+	serialNumber() for caching purposes.
+	selfMask()  QPixmap( const char *xpm[] )
+	createHeuristicMask()
 
-qDrawItem
+
+QPopupMenu: Added functions to enable checkmarks:
+	setCheckable(), isCheckable()
+
+QScrollBar: sizeHint() implemented.
+
+QTabBar now supports keyboard input. New function currentTab().
+
+QTabDialog: new function setOKButton().
+
+Added support for XFree86 on OS/2.
+
+New examples:
+	examples/tellme demonstrates dynamic tooltips	
+	examples/table demonstrates QTableView
