@@ -68,6 +68,12 @@ public:
         wrapper[0] = new QMimeDataWrapper();
         wrapper[1] = new QMimeDataWrapper();
     }
+    ~QClipboardPrivate() {
+        delete wrapper[0];
+        delete wrapper[1];
+        delete compat_data[0];
+        delete compat_data[1];
+    }
 
     mutable QMimeDataWrapper *wrapper[2];
     mutable QMimeSource *compat_data[2];
