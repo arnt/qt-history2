@@ -6086,10 +6086,6 @@ void QCheckListItem::activate()
 	    r.setRect( 3, 2, boxsize-3, boxsize-3 );
 	// columns might have been swapped
 	r.moveBy( lv->header()->sectionPos( 0 ), 0 );
-	if ( lv && lv->columnAlignment( 0 ) == AlignCenter ) {
-	    QFontMetrics fm( lv->font() );
-	    r.moveBy( (lv->columnWidth( 0 ) - (boxsize + fm.width( text() ))) / 2, 0 );
-	}
 	if ( !r.contains( pos ) )
 	    return;
     }
@@ -6325,17 +6321,19 @@ void QCheckListItem::paintCell( QPainter * p, const QColorGroup & cg,
 	return;
     }
 
-    int marg = lv->itemMargin();
-    int r = marg;
-
-    int boxsize = lv->style().pixelMetric(QStyle::PM_CheckListButtonSize, lv);
-    QFontMetrics fm( lv->fontMetrics() );
-
     bool parentControl = FALSE;
     if ( parent() && parent()->rtti() == 1  &&
 	 ((QCheckListItem*) parent())->type() == RadioButtonController )
 	parentControl = TRUE;
 
+    QFontMetrics fm( lv->fontMetrics() );
+    const QPixmap * icon = pixmap( column );
+    int boxsize = lv->style().pixelMetric(QStyle::PM_CheckListButtonSize, lv);
+    int marg = lv->itemMargin();
+    int r = marg;
+    int iconWidth = 0;
+
+    // Draw controller / checkbox / radiobutton ---------------------
     int styleflags = QStyle::Style_Default;
     if ( internalState() == On ) {
 	styleflags |= QStyle::Style_On;
@@ -6363,18 +6361,16 @@ void QCheckListItem::paintCell( QPainter * p, const QColorGroup & cg,
 				  cg, styleflags, QStyleOption(this));
 	    r += boxsize + 4;
 	}
-
     } else {
 	Q_ASSERT( lv ); //###
-	//	QFontMetrics fm( lv->font() );
-	//	int d = fm.height();
 	int x = 0;
+	int y = 0;
 	if ( !parentControl )
 	    x += 3;
-	if ( align == AlignCenter )
-	    x = (width - boxsize - fm.width(text()))/2;
-	int y = (fm.height() + 2 + marg - boxsize) / 2;
-	//	p->setPen( QPen( cg.text(), winStyle ? 2 : 1 ) );
+	if ( align & AlignVCenter )
+	    y = ( ( height() - boxsize ) / 2 ) + marg;
+	else
+	    y = (fm.height() + 2 + marg - boxsize) / 2;
 
 	if ( ( myType == CheckBox ) || ( myType == CheckBoxController ) ) {
 	    lv->style().drawPrimitive(QStyle::PE_CheckListIndicator, p,
@@ -6390,13 +6386,27 @@ void QCheckListItem::paintCell( QPainter * p, const QColorGroup & cg,
 	r += boxsize + 4;
     }
 
-    if ( align == AlignCenter ) {
-	QFontMetrics fm( lv->font() );
-	r += (width - boxsize - fm.width(text()))/2;
-        // the text should not be centered when we have a centered checkbox
-	align &= ~AlignCenter;
+    // Draw icon ----------------------------------------------------
+    if ( icon ) {
+        iconWidth = icon->width() + lv->itemMargin();
+	int xo = r;
+	// we default to AlignVCenter.
+	int yo = ( height() - icon->height() ) / 2;
+
+	// I guess we may as well always respect vertical alignment.
+        if ( align & AlignBottom )
+    	    yo = height() - icon->height();
+
+	// respect horizontal alignment when there is no text for an item.
+	if ( text(column).isEmpty() ) {
+	    if ( align & AlignRight )
+		xo = width - 2 * marg - iconWidth;
+	    else if ( align & AlignHCenter )
+		xo = ( width - iconWidth ) / 2;
+	}
     }
 
+    // Draw text ----------------------------------------------------
     p->translate( r, 0 );
     p->setPen( QPen( cg.text() ) );
     QListViewItem::paintCell( p, cg, column, width - r, align );
