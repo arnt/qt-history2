@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#215 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#216 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -67,7 +67,7 @@ extern "C" int select( int, void *, void *, void *, struct timeval * );
 extern "C" void bzero(void *, size_t len);
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#215 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#216 $");
 
 #if !defined(XlibSpecificationRelease)
 typedef char *XPointer;				// X11R4
@@ -1117,9 +1117,9 @@ typedef Q_DECLARE(QListM,QSockNot)	   QSNList;
 typedef Q_DECLARE(QListIteratorM,QSockNot) QSNListIt;
 
 static int	sn_highest = -1;
-static QSNList *sn_read	  = 0;
-static QSNList *sn_write  = 0;
-static QSNList *sn_except = 0;
+static QSNList *sn_read	   = 0;
+static QSNList *sn_write   = 0;
+static QSNList *sn_except  = 0;
 
 static fd_set	sn_readfds;			// fd set for reading
 static fd_set	sn_writefds;			// fd set for writing
@@ -1138,10 +1138,29 @@ static struct SN_Type {
     { &sn_write,  &sn_writefds,	 &app_writefds,  &sn_queued_write },
     { &sn_except, &sn_exceptfds, &app_exceptfds, &sn_queued_except } };
 
-typedef Q_DECLARE(QIntDictM,QSockNot)	     QSockNotRndDict;
-typedef Q_DECLARE(QIntDictIteratorM,QSockNot) QSockNotRndDictIt;
 
-static QSockNotRndDict *sn_rnd_dict = 0;
+static QSNList *sn_act_list = 0;
+
+
+static void sn_cleanup()
+{
+    delete sn_act_list;
+    sn_act_list = 0;
+    for ( int i=0; i<3; i++ ) {
+	delete *sn_vec[i].list;
+	*sn_vec[i].list = 0;
+    }	
+}
+
+
+static void sn_init()
+{
+    if ( !sn_act_list ) {
+	sn_act_list = new QSNList;
+	CHECK_PTR( sn_act_list );
+	qAddPostRoutine( sn_cleanup );
+    }
+}
 
 
 bool qt_set_socket_handler( int sockfd, int type, QObject *obj, bool enable )
@@ -1159,6 +1178,7 @@ bool qt_set_socket_handler( int sockfd, int type, QObject *obj, bool enable )
 
     if ( enable ) {				// enable notifier
 	if ( !list ) {
+	    sn_init();
 	    list = new QSNList;			// create new list
 	    CHECK_PTR( list );
 	    list->setAutoDelete( TRUE );
@@ -1183,12 +1203,17 @@ bool qt_set_socket_handler( int sockfd, int type, QObject *obj, bool enable )
 		warning( "QSocketNotifier: Multiple socket notifiers for "
 			 "same socket %d and type %s", sockfd, t[type] );
 	    }
-#endif
-	    list->insert( list->at(), sn );
+#endif	    
+	    if ( p )
+		list->insert( list->at(), sn );
+	    else
+		list->append( sn );
 	}
 	FD_SET( sockfd, fds );
 	sn_highest = QMAX(sn_highest,sockfd);
+
     } else {					// disable notifier
+
 	if ( list == 0 )
 	    return FALSE;			// no such fd set
 	QSockNot *sn = list->first();
@@ -1196,32 +1221,24 @@ bool qt_set_socket_handler( int sockfd, int type, QObject *obj, bool enable )
 	    sn = list->next();
 	if ( !sn )				// not found
 	    return FALSE;
-	list->remove();				// remove this notifier
 	FD_CLR( sockfd, fds );			// clear fd bit
-	if ( sn_rnd_dict )
-	    sn_rnd_dict->remove( (long)sn );	// remove from TBD dict
-	FD_CLR( sockfd, sn_vec[type].queue );
-	if ( list->isEmpty() ) {		// no more notifiers
-	    delete list;			// delete list
-	    *sn_vec[type].list = 0;
-	}
+	FD_CLR( sockfd, sn->queue );
+	if ( sn_act_list )
+	    sn_act_list->removeRef( sn );	// remove from activation list
+	list->remove();				// remove notifier found above
 	if ( sn_highest == sockfd ) {		// find highest fd
 	    sn_highest = -1;
 	    for ( int i=0; i<3; i++ ) {
-		if ( *sn_vec[i].list )		// list is fd-sorted
-		    sn_highest = QMAX(sn_highest,
-				      (*(sn_vec[i].list))->getFirst()->fd);
+		if ( *sn_vec[i].list && (*sn_vec[i].list)->count() )
+		    sn_highest = QMAX(sn_highest,  // list is fd-sorted
+				      (*sn_vec[i].list)->getFirst()->fd);
 	    }
 	}
     }
+
     return TRUE;
 }
 
-
-static void sn_cleanup()
-{
-    delete sn_rnd_dict;
-}
 
 //
 // We choose a random activation order to be more fair under high load.
@@ -1234,11 +1251,8 @@ static void sn_cleanup()
 
 static int sn_activate()
 {
-    if ( !sn_rnd_dict ) {
-	sn_rnd_dict = new QSockNotRndDict( 53 );
-	CHECK_PTR( sn_rnd_dict );
-	qAddPostRoutine( sn_cleanup );
-    }
+    if ( !sn_act_list )
+	sn_init();
     int i, n_act = 0;
     for ( i=0; i<3; i++ ) {			// for each list...
 	if ( *sn_vec[i].list ) {		// any entries?
@@ -1248,22 +1262,23 @@ static int sn_activate()
 	    while ( sn ) {
 		if ( FD_ISSET( sn->fd, fds ) &&	// store away for activation
 		     !FD_ISSET( sn->fd, sn->queue ) ) {
-		    sn_rnd_dict->insert( rand(), sn );
+		    sn_act_list->insert( (rand() & 0xff) %
+					 (sn_act_list->count()+1),
+					 sn );
 		    FD_SET( sn->fd, sn->queue );
 		}
 		sn = list->next();
 	    }
 	}
     }
-    if ( sn_rnd_dict->count() > 0 ) {           // activate entries
+    if ( sn_act_list->count() > 0 ) {		// activate entries
 	QEvent event( Event_SockAct );
-	QSockNotRndDictIt it( *sn_rnd_dict );
+	QSNListIt it( *sn_act_list );
 	QSockNot *sn;
 	while ( (sn=it.current()) ) {
-	    long key = it.currentKey();
 	    ++it;
-	    sn_rnd_dict->remove( key );
-	    if ( FD_ISSET( sn->fd, sn->queue ) ) {
+	    sn_act_list->removeRef( sn );
+	    if ( FD_ISSET(sn->fd, sn->queue) ) {
 		FD_CLR( sn->fd, sn->queue );
 		QApplication::sendEvent( sn->obj, &event );
 		n_act++;
@@ -1524,7 +1539,7 @@ bool QApplication::processNextEvent( bool canWait )
 	tm->tv_sec  = 0;			// no time to wait
 	tm->tv_usec = 0;
     }
-    if ( sn_highest >= 0 ) {
+    if ( sn_highest >= 0 ) {			// has socket notifier(s)
 	if ( sn_read )
 	    app_readfds = sn_readfds;
 	else
