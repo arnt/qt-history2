@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtoolbutton.cpp#65 $
+** $Id: //depot/qt/main/src/widgets/qtoolbutton.cpp#66 $
 **
 ** Implementation of QToolButton class
 **
@@ -47,6 +47,7 @@ public:
     QPopupMenu* popup;
     QTimer* popupTimer;
     int delay;
+    bool autoraise;
 };
 
 
@@ -86,6 +87,7 @@ void QToolButton::init()
     d->delay = 600;
     d->popup = 0;
     d->popupTimer = 0;
+    d->autoraise = TRUE;
     bpID = bp.serialNumber();
     spID = sp.serialNumber();
 
@@ -433,9 +435,11 @@ void QToolButton::drawButtonLabel( QPainter * p )
 
 void QToolButton::enterEvent( QEvent * e )
 {
-    threeDeeButton = this;
-    if ( isEnabled() )
-	repaint();
+    if ( autoRaise() ) {
+	threeDeeButton = this;
+	if ( isEnabled() )
+	    repaint();
+    }
     QButton::enterEvent( e );
 }
 
@@ -444,10 +448,12 @@ void QToolButton::enterEvent( QEvent * e )
 
 void QToolButton::leaveEvent( QEvent * e )
 {
-    QToolButton * o = threeDeeButton;
-    threeDeeButton = 0;
-    if ( o && o->isEnabled() )
-	o->repaint();
+    if ( autoRaise() ) {
+	QToolButton * o = threeDeeButton;
+	threeDeeButton = 0;
+	if ( o && o->isEnabled() )
+	    o->repaint();
+    }
     QButton::leaveEvent( e );
 }
 
@@ -458,7 +464,7 @@ void QToolButton::leaveEvent( QEvent * e )
 
 bool QToolButton::uses3D() const
 {
-    return threeDeeButton == this && isEnabled();
+    return !autoRaise() || ( threeDeeButton == this && isEnabled() );
 }
 
 
@@ -643,4 +649,26 @@ void QToolButton::setPopupDelay( int delay )
 int QToolButton::popupDelay() const
 {
     return d->delay;
+}
+
+
+/*!
+  Enables or disables auto-raising according to \a enable. The default
+  is TRUE.
+
+  \sa autoRaise
+ */
+void QToolButton::setAutoRaise( bool enable )
+{
+    d->autoraise = enable;
+}
+
+/*!
+  Returns whether auto-raising is enabled or not.
+  
+  \sa setAutoRaise
+ */
+bool QToolButton::autoRaise() const
+{
+    return d->autoraise;
 }

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtoolbutton.h#18 $
+** $Id: //depot/qt/main/src/widgets/qtoolbutton.h#19 $
 **
 ** Definition of a buttom customized for tool bar use
 **
@@ -69,6 +69,9 @@ public:
 
     void setPopupDelay( int delay );
     int popupDelay() const;
+    
+    void setAutoRaise( bool enable );
+    bool autoRaise() const;
 	
 public slots:
     virtual void setUsesBigPixmap( bool enable );
