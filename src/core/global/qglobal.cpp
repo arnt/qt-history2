@@ -67,7 +67,7 @@ const int QSysInfo::ByteOrder = ((*((unsigned char *) &qt_one) == 0) ? BigEndian
 
 // This function has descended from Apple Source Code (FSpLocationFromFullPath),
 // but changes have been made. [Creates a minimal alias from the full pathname]
-OSErr qt_mac_create_fsspec(const QString &file, FSSpec *spec)
+Q_CORE_EXPORT OSErr qt_mac_create_fsspec(const QString &file, FSSpec *spec)
 {
     FSRef fref;
     QByteArray utfs = file.utf8();
@@ -77,7 +77,7 @@ OSErr qt_mac_create_fsspec(const QString &file, FSSpec *spec)
     return ret;
 }
 
-void qstring2pstring(QString s, Str255 str, TextEncoding encoding=0, int len=-1)
+Q_CORE_EXPORT void qt_mac_to_pascal_string(QString s, Str255 str, TextEncoding encoding=0, int len=-1)
 {
     if(len == -1)
         len = s.length();
@@ -99,15 +99,8 @@ void qstring2pstring(QString s, Str255 str, TextEncoding encoding=0, int len=-1)
     DisposeUnicodeToTextInfo(&info);
 }
 
-QString pstring2qstring(const unsigned char *c) {
-    return QCFString(CFStringCreateWithPascalString(0, c, CFStringGetSystemEncoding()));
-}
-
-unsigned char *p_str(const QString &s)
-{
-    uchar *p = (uchar*)malloc(256);
-    CFStringGetPascalString(QCFString(s), p, 256, CFStringGetSystemEncoding());
-    return p;
+Q_CORE_EXPORT QString qt_mac_from_pascal_string(const Str255 pstr) {
+    return QCFString::toQString(CFStringCreateWithPascalString(0, pstr, CFStringGetSystemEncoding()));
 }
 
 static QSysInfo::MacVersion macVersion()
@@ -293,9 +286,9 @@ extern bool qt_is_gui_used;
 static void mac_default_handler(const char *msg)
 {
     if (qt_is_gui_used) {
-        const unsigned char *p = p_str(msg);
-        DebugStr(p);
-        free((void*)p);
+        Str255 pmsg;
+        qt_mac_to_pascal_string(msg, pmsg);
+        DebugStr(pmsg);
     } else {
         fprintf(stderr, msg);
     }

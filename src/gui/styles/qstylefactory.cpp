@@ -32,9 +32,9 @@
 #endif
 
 #if !defined(QT_NO_STYLE_MAC) && defined(Q_WS_MAC)
-QString pstring2qstring(const unsigned char *c); //qglobal.cpp
 #  include <private/qt_mac_p.h>
 #  include "qmacstyle_mac.h"
+QString qt_mac_from_pascal_string(const Str255); //qglobal.cpp
 #endif
 
 #ifndef QT_NO_COMPONENT
@@ -184,7 +184,7 @@ QStringList QStyleFactory::keys()
         Str255 str;
         long int s = 256;
         if(!GetCollectionItem(c, kThemeNameTag, 0, &s, &str))
-            mstyle += " (" + pstring2qstring(str) + ")";
+            mstyle += " (" + qt_mac_from_pascal_string(str) + ")";
     }
     if (!list.contains(mstyle))
         list << mstyle;

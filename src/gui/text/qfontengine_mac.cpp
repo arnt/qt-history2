@@ -27,10 +27,6 @@
 
 #include <ApplicationServices/ApplicationServices.h>
 
-//Externals
-extern void qstring2pstring(QString s, Str255 str, TextEncoding encoding=0, int len=-1); //qglobal.cpp
-extern QByteArray pstring2qstring(const unsigned char *c); //qglobal.cpp
-
 //Generic engine
 QFontEngine::~QFontEngine()
 {

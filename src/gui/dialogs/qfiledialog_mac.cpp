@@ -213,7 +213,6 @@ static const NavEventUPP make_navProcUPP()
     return mac_navProcUPP = NewNavEventUPP(qt_mac_filedialog_event_proc);
 }
 
-const unsigned char * p_str(const char *, int len=-1);
 OSErr qt_mac_create_fsspec(const QString &path, FSSpec *spec); //qglobal.cpp
 
 QStringList qt_mac_get_open_file_names(const QString &filter, QString *pwd,

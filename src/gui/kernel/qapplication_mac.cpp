@@ -141,7 +141,7 @@ extern WindowPtr qt_mac_window_for(const QWidget*); //qwidget_mac.cpp
 extern QWidget *qt_mac_find_window(WindowPtr); //qwidget_mac.cpp
 extern void qt_mac_set_cursor(const QCursor *, const Point *); //qcursor_mac.cpp
 extern bool qt_mac_is_macsheet(const QWidget *); //qwidget_mac.cpp
-extern QString pstring2qstring(const unsigned char *); //qglobal.cpp
+extern QString qt_mac_from_pascal_string(const Str255); //qglobal.cpp
 extern void qt_mac_command_set_enabled(MenuRef, UInt32, bool); //qmenu_mac.cpp
 
 /* Unicode input entry magic */
@@ -369,7 +369,7 @@ void qt_mac_update_os_settings()
         SInt16 f_size;
         Style f_style;
         GetThemeFont(kThemeApplicationFont, smSystemScript, f_name, &f_size, &f_style);
-        QApplication::setFont(QFont(pstring2qstring(f_name), f_size,
+        QApplication::setFont(QFont(qt_mac_from_pascal_string(f_name), f_size,
                                     (f_style & ::bold) ? QFont::Bold : QFont::Normal,
                                     (bool)(f_style & ::italic)));
     }
@@ -396,7 +396,7 @@ void qt_mac_update_os_settings()
         Style f_style;
         for(int i = 0; mac_widget_fonts[i].qt_class; i++) {
             GetThemeFont(mac_widget_fonts[i].font_key, smSystemScript, f_name, &f_size, &f_style);
-            QFont fnt(pstring2qstring(f_name), f_size, (f_style & ::bold) ? QFont::Bold : QFont::Normal,
+            QFont fnt(qt_mac_from_pascal_string(f_name), f_size, (f_style & ::bold) ? QFont::Bold : QFont::Normal,
                       (bool)(f_style & ::italic));
             bool set_font = true;
             extern QHash<QByteArray, QFont> *qt_app_fonts_hash(); // qapplication.cpp

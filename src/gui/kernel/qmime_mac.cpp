@@ -51,8 +51,8 @@ static void cleanup_mimes()
 }
 
 //functions
-QByteArray pstring2qstring(const unsigned char *); //qglobal.cpp
-unsigned char * p_str(const QString &s); //qglobal.cpp
+extern QString qt_mac_from_pascal_string(const Str255);  //qglobal.cpp
+extern void qt_mac_from_pascal_string(QString, Str255, TextEncoding encoding=0, int len=-1);  //qglobal.cpp
 OSErr qt_mac_create_fsspec(const QString &path, FSSpec *spec); //qglobal_mac.cpp
 
 /*!
@@ -170,7 +170,9 @@ bool QMacMimeAnyMime::loadMimeRegistry()
     ICBegin(internet_config, icReadOnlyPerm);
     Handle hdl = NewHandle(0);
     ICAttr attr = kICAttrNoChange;
-    ICFindPrefHandle(internet_config, p_str("Mapping"), &attr, hdl);
+    Str255 mapping_name;
+    qt_mac_to_pascal_string("Mapping", mapping_name);
+    ICFindPrefHandle(internet_config, mapping_name, &attr, hdl);
 
     //get count
     long count;
@@ -181,7 +183,7 @@ bool QMacMimeAnyMime::loadMimeRegistry()
     for(int i = 0; i < count; i++) {
         long pos;
         ICGetIndMapEntry(internet_config, hdl, i, &pos, &entry);
-        QString mime = pstring2qstring(entry.MIMEType);
+        QString mime = qt_mac_from_pascal_string(entry.MIMEType);
         if(!mime.isEmpty())
             mime_registry.insert(mime, entry.fileType);
     }
@@ -230,13 +232,15 @@ int QMacMimeAnyMime::registerMimeType(const char *mime)
                     qt_mac_copy_to_str255(QString("Qt Library mime mapping (%1)").arg(mime), entry.postAppName);
 
                     //insert into the config
+                    Str255 mapping_name;
+                    qt_mac_to_pascal_string("Mapping", mapping_name);
                     ICBegin(internet_config, icReadWritePerm);
                     Handle hdl = NewHandle(0);
                     ICAttr attr;
-                    ICFindPrefHandle(internet_config, p_str("Mapping"), &attr, hdl);
+                    ICFindPrefHandle(internet_config, mapping_name, &attr, hdl);
 
                     ICAddMapEntry(internet_config, hdl, &entry);
-                    ICSetPrefHandle(internet_config, p_str("Mapping"), attr, hdl);
+                    ICSetPrefHandle(internet_config, mapping_name, attr, hdl);
                     mime_registry.insert(mime, ret);
 
                     //cleanup

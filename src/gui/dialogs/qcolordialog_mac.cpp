@@ -18,12 +18,13 @@
 #include <private/qt_mac_p.h>
 #include <string.h>
 
-const unsigned char * p_str(const QString &s); //qglobal.cpp
+extern void qt_mac_to_pascal_string(QString s, Str255 str, TextEncoding encoding=0, int len=-1);  //qglobal.cpp
 
 QRgb macGetRgba(QRgb initial, bool *ok, QWidget *parent, const char*)
 {
     Point p = { -1, -1 };
-    const uchar *pstr = p_str("Choose a color");
+    Str255 title;
+    qt_mac_to_pascal_string("Choose a color", title);
     static const int sw = 420, sh = 300;
     if(parent) {
         parent = parent->topLevelWidget();
@@ -54,7 +55,7 @@ QRgb macGetRgba(QRgb initial, bool *ok, QWidget *parent, const char*)
     Boolean rval = false;
     {
         QMacBlockingFunction block;
-        rval = GetColor(place, pstr, &rgb, &rgbout);
+        rval = GetColor(place, title, &rgb, &rgbout);
     }
 #else
     ColorPickerInfo     cpInfo;
@@ -76,7 +77,7 @@ QRgb macGetRgba(QRgb initial, bool *ok, QWidget *parent, const char*)
     cpInfo.eventProc = 0L;
     cpInfo.colorProc = 0L;
     cpInfo.colorProcData = 0L;
-    memcpy(cpInfo.prompt, pstr, pstr[0]+1);
+    memcpy(cpInfo.prompt, title, title[0]+1);
     Boolean rval = false;
     {
         QMacBlockingFunction block;
@@ -93,7 +94,6 @@ QRgb macGetRgba(QRgb initial, bool *ok, QWidget *parent, const char*)
         }
     }
 #endif
-    free((void *)pstr);
     if(ok)
         (*ok) = rval;
     if(!rval)
