@@ -3923,8 +3923,11 @@ void QListView::contentsMousePressEvent( QMouseEvent * e )
 	i = 0;
     d->pressedItem = i;
 
-    emit pressed( i );
-    emit pressed( i, viewport()->mapToGlobal( vp ), d->h->mapToLogical( d->h->cellAt( vp.x() ) ) );
+    if ( i && i->isEnabled() ) {
+	emit pressed( i );
+	emit pressed( i, viewport()->mapToGlobal( vp ), d->h->mapToLogical( d->h->cellAt( vp.x() ) ) );
+    }
+
     emit mouseButtonPressed( e->button(), i, viewport()->mapToGlobal( vp ),
 			     i ? d->h->mapToLogical( d->h->cellAt( vp.x() ) ) : -1 );
 
@@ -4006,8 +4009,10 @@ void QListView::contentsMouseReleaseEvent( QMouseEvent * e )
     d->pressedItem = 0;
 
     if ( emitClicked ) {
-	emit clicked( i );
-	emit clicked( i, viewport()->mapToGlobal( vp ), d->h->mapToLogical( d->h->cellAt( vp.x() ) ) );
+	if ( i && i->isEnabled() ) {
+	    emit clicked( i );
+	    emit clicked( i, viewport()->mapToGlobal( vp ), d->h->mapToLogical( d->h->cellAt( vp.x() ) ) );
+	}
 	emit mouseButtonClicked( e->button(), i, viewport()->mapToGlobal( vp ),
 				 i ? d->h->mapToLogical( d->h->cellAt( vp.x() ) ) : -1 );
 
