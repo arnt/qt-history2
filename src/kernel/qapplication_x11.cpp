@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#1 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#2 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -23,7 +23,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#1 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#2 $";
 #endif
 
 
@@ -49,6 +49,9 @@ static void	initTimers();
 static void	cleanupTimers();
 static timeval *waitTimer();
 static bool	activateTimer();
+
+void		qResetColorAvailFlag();		// defined in qcolor.cpp
+
 
 class QETWidget : public QWidget {		// event translator widget
 public:
@@ -321,6 +324,7 @@ int QApplication::exec( QWidget *mainWidget )	// main event loop
 	FD_SET( x_fd, &in_fdset );
 	timeval *tm = waitTimer();		// wait for timer or X event
 	select( fd_width, &in_fdset, NULL, NULL, tm );
+	qResetColorAvailFlag();			// color approx. optimization
 	activateTimer();			// activate timer(s)
     }
 
@@ -495,7 +499,7 @@ static void insertTimer( const TimerInfo *ti )	// insert timer info into list
 
 static inline void getTime( timeval &t )	// get time of day
 {
-    gettimeofday( &t, NULL );
+    gettimeofday( &t, 0 );
 #if defined(_OS_SUN_)
     while ( t.tv_usec >= 1000000 ) {		// correct if NTP daemon bug
 	t.tv_usec -= 1000000;			// same as done in X Intrinsics
