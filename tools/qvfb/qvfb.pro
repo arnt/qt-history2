@@ -3,7 +3,7 @@ CONFIG          += qt warn_on uic
 TARGET          = qvfb
 
 DEPENDPATH      = ../../include
-DEFINES         += QT3_SUPPORT
+QT		+= qt3support
 
 FORMS           = config.ui
 HEADERS         = qvfb.h \
