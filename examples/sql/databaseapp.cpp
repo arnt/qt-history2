@@ -153,7 +153,12 @@ void DatabaseFrontEnd::init()
     // customer table
     customerTable->setConfirmEdits( TRUE );
     customerTable->setConfirmCancels( TRUE );
-    customerTable->setCursor( &customerCr );
+    customerTable->setCursor( &customerCr, FALSE );
+    customerTable->addColumn( customerCr.field( "name" ) );
+    customerTable->addColumn( customerCr.field( "city" ) );    
+    customerTable->addColumn( customerCr.field( "postalcode" ) );
+    customerTable->addColumn( customerCr.field( "country" ) );    
+        
     connect( customerTable, SIGNAL( currentChanged( const QSqlRecord * ) ),
 	     SLOT( updateCustomerInfo( const QSqlRecord * ) ) );
     QSqlRecord r = customerTable->currentFieldSelection();
@@ -352,16 +357,16 @@ void DatabaseApp::createDatabase()
     /* load sql script and execute each statement */
     QFile sqlScript( "create_db.sql" );
     if ( sqlScript.open( IO_ReadOnly ) ) {
-        QTextStream t( &sqlScript );    
+        QTextStream t( &sqlScript );
 	QString stmt;
-        while ( !t.eof() ) {    
-            stmt += t.readLine();    
+        while ( !t.eof() ) {
+            stmt += t.readLine();
 	    if ( stmt[ stmt.length()-1 ] == ';' ) {
 		db->exec( stmt );
 		stmt = QString::null;
 	    }
         }
-        sqlScript.close();	
+        sqlScript.close();
     }
 }
 
