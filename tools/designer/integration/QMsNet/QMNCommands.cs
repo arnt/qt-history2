@@ -16,7 +16,8 @@ namespace QMsNet
 	{
 	}
 
-	public static void addMocStep() {
+	public static void addMocStep() 
+	{
 	    try {
 		Document doc = Connect.applicationObject.ActiveDocument;
 		if ( doc == null ) {
@@ -50,6 +51,21 @@ namespace QMsNet
 	    catch( System.Exception e ) {
 		Debug.Write( e.Message + "\r\n" + e.StackTrace.ToString(),
 			     "Couldn't addMocStep()" );
+	    }
+	}
+
+	public static void makeProjectDll() 
+	{
+	    ProjectItem itm = Connect.applicationObject
+		.ActiveDocument.ProjectItem;
+	    VCProject prj = (VCProject)((VCProjectItem)itm.Object).Project;
+	    foreach ( VCConfiguration pc in (IVCCollection)prj.Configurations ) {
+		pc.ConfigurationType = ConfigurationTypes.typeDynamicLibrary;
+		VCLinkerTool lt = (VCLinkerTool)((IVCCollection)pc.Tools).Item("VCLinkerTool");
+
+		int index = lt.OutputFile.LastIndexOf( '.' );
+		string filename = lt.OutputFile.Substring( 0, index );
+		lt.OutputFile = filename + ".dll";
 	    }
 	}
     }

@@ -124,7 +124,7 @@ namespace QMsNet
 			extLoader.saveProject();
 		    } else if ( commandName == Resource.DLLQtProjectFullCommand ) {
 			handled = true;
-			MessageBox.Show( "DLL Project", "Command" );
+			QMNCommands.makeProjectDll();
 		    } else if ( commandName == Resource.AddMocStepFullCommand ) {
 			handled = true;
 			QMNCommands.addMocStep();
