@@ -112,7 +112,9 @@ public:
 	    return 0;
 	}
 
-    // #### improve that algorithm
+    // #### improve that algorithm // at the moment that one finds the
+    // #### first available page, but it really should look in both
+    // #### directions and find the closest available page
     QWidget *findClosestPage( QWidget *page )
 	{
 	    QWidget *p;
