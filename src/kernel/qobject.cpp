@@ -35,13 +35,16 @@
 #include "qpixmap.h"
 #include "qiconset.h"
 #include "qimage.h"
+#include "qregion.h"
+#include "qbitmap.h"
+#include "qpointarray.h"
 
 // NOT REVISED
 /*! \class Qt qnamespace.h
 
   \brief The Qt class is a namespace for miscellaneous identifiers
   that need to be global-like.
-  
+
   \ingroup misc
 
   Normally, you can ignore this class.  QObject and a few other
@@ -2130,15 +2133,18 @@ bool QObject::setProperty( const char *name, const QVariant& value )
     typedef void (QObject::*ProtoColorGroup)( QColorGroup );
     typedef void (QObject::*RProtoColorGroup)( const QColorGroup& );
 
+    typedef void (QObject::*ProtoBitmap)( QBitmap );
+    typedef void (QObject::*RProtoBitmap)( const QBitmap& );
+
+    typedef void (QObject::*ProtoRegion)( QRegion );
+    typedef void (QObject::*RProtoRegion)( const QRegion& );
+
+    typedef void (QObject::*ProtoPointArray)( QPointArray );
+    typedef void (QObject::*RProtoPointArray)( const QPointArray& );
+    
     typedef void (QObject::*ProtoIconSet)( QIconSet );
     typedef void (QObject::*RProtoIconSet)( const QIconSet& );
-    /*
-    typedef void (QObject::*ProtoIntList)( QValueList<int> );
-    typedef void (QObject::*RProtoIntList)( const QValueList<int>& );
 
-    typedef void (QObject::*ProtoDoubleList)( QValueList<double> );
-    typedef void (QObject::*RProtoDoubleList)( const QValueList<double>& );
-    */
     typedef void (QObject::*ProtoImage)( QImage );
     typedef void (QObject::*RProtoImage)( const QImage& );
 
@@ -2416,6 +2422,51 @@ bool QObject::setProperty( const char *name, const QVariant& value )
 	    ASSERT( 0 );
 	return TRUE;
 
+    case QVariant::Bitmap:
+	if ( p->sspec == QMetaProperty::Class ) {
+	    ProtoBitmap m;
+	    m = *((ProtoBitmap*)&p->set);
+	    (this->*m)( value.toBitmap() );
+	}
+	else if ( p->sspec == QMetaProperty::Reference )  {
+	    RProtoBitmap m;
+	    m = *((RProtoBitmap*)&p->set);
+	    (this->*m)( value.toBitmap() );
+	}
+	else
+	    ASSERT( 0 );
+	return TRUE;
+
+    case QVariant::Region:
+	if ( p->sspec == QMetaProperty::Class ) {
+	    ProtoRegion m;
+	    m = *((ProtoRegion*)&p->set);
+	    (this->*m)( value.toRegion() );
+	}
+	else if ( p->sspec == QMetaProperty::Reference )  {
+	    RProtoRegion m;
+	    m = *((RProtoRegion*)&p->set);
+	    (this->*m)( value.toRegion() );
+	}
+	else
+	    ASSERT( 0 );
+	return TRUE;
+
+    case QVariant::PointArray:
+	if ( p->sspec == QMetaProperty::Class ) {
+	    ProtoPointArray m;
+	    m = *((ProtoPointArray*)&p->set);
+	    (this->*m)( value.toPointArray() );
+	}
+	else if ( p->sspec == QMetaProperty::Reference )  {
+	    RProtoPointArray m;
+	    m = *((RProtoPointArray*)&p->set);
+	    (this->*m)( value.toPointArray() );
+	}
+	else
+	    ASSERT( 0 );
+	return TRUE;
+
     case QVariant::IconSet:
 	if ( p->sspec == QMetaProperty::Class ) {
 	    ProtoIconSet m;
@@ -2599,6 +2650,18 @@ QVariant QObject::property( const char *name ) const
     typedef QPoint (QObject::*ProtoPoint)() const;
     typedef const QPoint* (QObject::*PProtoPoint)() const;
     typedef const QPoint& (QObject::*RProtoPoint)() const;
+
+    typedef QBitmap (QObject::*ProtoBitmap)() const;
+    typedef const QBitmap* (QObject::*PProtoBitmap)() const;
+    typedef const QBitmap& (QObject::*RProtoBitmap)() const;
+    
+    typedef QRegion (QObject::*ProtoRegion)() const;
+    typedef const QRegion* (QObject::*PProtoRegion)() const;
+    typedef const QRegion& (QObject::*RProtoRegion)() const;
+
+    typedef QPointArray (QObject::*ProtoPointArray)() const;
+    typedef const QPointArray* (QObject::*PProtoPointArray)() const;
+    typedef const QPointArray& (QObject::*RProtoPointArray)() const;
 
     typedef QImage (QObject::*ProtoImage)() const;
     typedef const QImage* (QObject::*PProtoImage)() const;
@@ -3035,6 +3098,78 @@ QVariant QObject::property( const char *name ) const
 		value.setValue( *p );
 	    else
 		value.setValue( QColorGroup() );
+	}
+	else
+	    ASSERT( 0 );
+	return value;
+
+    case QVariant::Bitmap:
+	if ( p->gspec == QMetaProperty::Class ) {
+	    ProtoBitmap m;
+	    m = *((ProtoBitmap*)&p->get);
+	    value.setValue( (this->*m)() );
+	}
+	else if ( p->gspec == QMetaProperty::Reference ) {
+	    RProtoBitmap m;
+	    m = *((RProtoBitmap*)&p->get);
+	    value.setValue( (this->*m)() );
+	}
+	else if ( p->gspec == QMetaProperty::Pointer ) {
+	    PProtoBitmap m;
+	    m = *((PProtoBitmap*)&p->get);
+	    const QBitmap* p = (this->*m)();
+	    if ( p )
+		value.setValue( *p );
+	    else
+		value.setValue( QBitmap() );
+	}
+	else
+	    ASSERT( 0 );
+	return value;
+
+    case QVariant::PointArray:
+	if ( p->gspec == QMetaProperty::Class ) {
+	    ProtoPointArray m;
+	    m = *((ProtoPointArray*)&p->get);
+	    value.setValue( (this->*m)() );
+	}
+	else if ( p->gspec == QMetaProperty::Reference ) {
+	    RProtoPointArray m;
+	    m = *((RProtoPointArray*)&p->get);
+	    value.setValue( (this->*m)() );
+	}
+	else if ( p->gspec == QMetaProperty::Pointer ) {
+	    PProtoPointArray m;
+	    m = *((PProtoPointArray*)&p->get);
+	    const QPointArray* p = (this->*m)();
+	    if ( p )
+		value.setValue( *p );
+	    else
+		value.setValue( QPointArray() );
+	}
+	else
+	    ASSERT( 0 );
+	return value;
+
+    case QVariant::Region:
+	if ( p->gspec == QMetaProperty::Class ) {
+	    ProtoRegion m;
+	    m = *((ProtoRegion*)&p->get);
+	    value.setValue( (this->*m)() );
+	}
+	else if ( p->gspec == QMetaProperty::Reference ) {
+	    RProtoRegion m;
+	    m = *((RProtoRegion*)&p->get);
+	    value.setValue( (this->*m)() );
+	}
+	else if ( p->gspec == QMetaProperty::Pointer ) {
+	    PProtoRegion m;
+	    m = *((PProtoRegion*)&p->get);
+	    const QRegion* p = (this->*m)();
+	    if ( p )
+		value.setValue( *p );
+	    else
+		value.setValue( QRegion() );
 	}
 	else
 	    ASSERT( 0 );
