@@ -73,10 +73,10 @@ showbeta:
 moc:
 
 depend:
-	makedepend -I$(INCDIR) $(SOURCES) 2> /dev/null
+	gcc -I$(INCDIR) -M $(SOURCES) > .depend
 
 clean:
-	rm -f *.o *.bak *~ *% #*
+	rm -f *.o .depend *.bak *~ *% #*
 
 
-# DO NOT DELETE THIS LINE -- make depend depends on it.
+-include .depend

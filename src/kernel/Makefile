@@ -95,10 +95,10 @@ showbeta:
 moc: $(SRCMETA)
 
 depend: $(SRCMETA)
-	makedepend -I$(INCDIR) $(SOURCES) $(SRCMETA) 2> /dev/null
+	gcc -I$(INCDIR) -M $(SOURCES) $(SRCMETA) > .depend
 
 clean:
-	rm -f *.o *.bak *~ *% #*
+	rm -f *.o .depend *.bak *~ *% #*
 	rm -f $(SRCMETA)
 
 ####### Meta classes
@@ -128,4 +128,4 @@ mwindow.cpp: qwindow.h
 	moc qwindow.h -o mwindow.cpp
 
 
-# DO NOT DELETE THIS LINE -- make depend depends on it.
+-include .depend
