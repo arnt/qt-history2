@@ -504,15 +504,15 @@ bool QSvgDevice::cmd ( int c, QPainter *painter, QPDevCmdParam *p )
 	double y1 = y0 - ry*sin(a);
 	double x2 = x0 + rx*cos(a+al);
 	double y2 = y0 - ry*sin(a+al);
-	int large = al > 180.0 ? 1 : 0;
-	int sweep = al > 0.0 ? 1 : 0;
+	int large = QABS( al ) > ( 180.0 * deg2rad ) ? 1 : 0;
+	int sweep = al < 0.0 ? 1 : 0;
 	if ( c == PdcDrawPie )
 	    str = QString( "M %1 %2 L %3 %4 " ).arg( x0 ).arg( y0 )
 		  .arg( x1 ).arg( y1 );
 	else
 	    str = QString( "M %1 %2 " ).arg( x1 ).arg( y1 );
-	str += QString( "A %1 %2 0 %3 %4 %5 %6" )
-	       .arg( rx ).arg( ry ).arg( large ).arg( sweep )
+	str += QString( "A %1 %2 %3 %4 %5 %6 %7" )
+	       .arg( rx ).arg( ry ).arg( a/deg2rad ). arg( large ).arg( sweep )
 	       .arg( x2 ).arg( y2 );
 	if ( c != PdcDrawArc )
 	    str += "z";
