@@ -1,15 +1,20 @@
-#ifndef REGEXP_H
-#define REGEXP_H
+#ifndef REGEXPDIALOG_H
+#define REGEXPDIALOG_H
 
 #include <QtGui>
 
-class Regexp : public QDialog
+class RegExpWindow : public QMainWindow
 {
     Q_OBJECT
 
 public:
-    Regexp(QWidget* parent = 0);
+    RegExpWindow(QWidget *parent = 0);
 
+private slots:
+    void copy();
+    void executeRegExp();
+
+private:
     QLabel *regexLabel;
     QComboBox *regexComboBox;
     QLabel *textLabel;
@@ -21,14 +26,6 @@ public:
     QPushButton *executePushButton;
     QPushButton *copyPushButton;
     QPushButton *quitPushButton;
-    QStatusBar *statusBar;
-
-public slots:
-    void copy();
-    void execute();
-
-private:
-    void languageChange();
 };
 
 #endif

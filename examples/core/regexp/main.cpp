@@ -1,12 +1,12 @@
 #include <QtGui>
 
-#include "regexp.h"
+#include "regexpdialog.h"
 
-int main(int argc, char **argv)
+int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
-    Regexp form;
-    form.show();
-    app.connect(&app, SIGNAL(lastWindowClosed()), &app, SLOT(quit()));
+    RegExpDialog dialog;
+    app.setMainWidget(&dialog);
+    dialog.show();
     return app.exec();
 }
