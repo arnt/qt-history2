@@ -261,23 +261,28 @@
 #elif defined(__GNUC__)
 #  define Q_CC_GNU
 #  define Q_C_CALLBACKS
-#  if __GNUC__ == 2 && __GNUC_MINOR__ <= 7
-#    define Q_FULL_TEMPLATE_INSTANTIATION
-#  endif
+#  if defined(__INTEL_COMPILER)
+/* Intel C++ also masquerades as GCC 3.2.0 */
+#    define Q_CC_INTEL
+#  else
+#    if __GNUC__ == 2 && __GNUC_MINOR__ <= 7
+#      define Q_FULL_TEMPLATE_INSTANTIATION
+#    endif
 /* GCC 2.95 knows "using" but does not support it correctly */
-#  if __GNUC__ == 2 && __GNUC_MINOR__ <= 95
-#    define Q_NO_USING_KEYWORD
-#  endif
+#    if __GNUC__ == 2 && __GNUC_MINOR__ <= 95
+#      define Q_NO_USING_KEYWORD
+#    endif
 /* GCC 3.1 and GCC 3.2 wrongly define _SB_CTYPE_MACROS on HP-UX */
-#  if defined(Q_OS_HPUX) && __GNUC__ == 3 && __GNUC_MINOR__ >= 1
-#    define Q_WRONG_SB_CTYPE_MACROS
-#  endif
-#  if (defined(__arm__) || defined(__ARMEL__)) && !defined(QT_MOC_CPP)
-#    define Q_PACKED __attribute__ ((__packed__))
-#  endif
-#  if !defined(__EXCEPTIONS)
-#    define Q_NO_EXCEPTIONS
-#  endif
+#    if defined(Q_OS_HPUX) && __GNUC__ == 3 && __GNUC_MINOR__ >= 1
+#      define Q_WRONG_SB_CTYPE_MACROS
+#    endif
+#    if (defined(__arm__) || defined(__ARMEL__)) && !defined(QT_MOC_CPP)
+#      define Q_PACKED __attribute__ ((__packed__))
+#    endif
+#    if !defined(__EXCEPTIONS)
+#      define Q_NO_EXCEPTIONS
+#    endif
+#  endif // __INTEL_COMPILER
 
 /* IBM compiler versions are a bit messy. There are actually two products:
    the C product, and the C++ product. The C++ compiler is always packaged
@@ -1546,12 +1551,12 @@ typedef uint Flags
 
 
 
-#if defined(Q_CC_GNU)
+#if defined(Q_CC_GNU) && !(defined(Q_CC_INTEL) && __ia64__)
 // make use of typeof-extension
 template <typename T>
 class QForeachContainer {
 public:
-    QForeachContainer(const T& t): c(t), i(c.begin()), e(c.end()){};
+    inline QForeachContainer(const T& t) : c(t), i(c.begin()), e(c.end()) { }
     const T c;
     typename T::const_iterator i, e;
 };
