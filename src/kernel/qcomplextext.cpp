@@ -3,8 +3,6 @@
 **
 ** Implementation of some internal classes
 **
-** Created :
-**
 ** Copyright (C) 2001 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the kernel module of the Qt GUI Toolkit.

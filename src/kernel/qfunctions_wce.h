@@ -1,9 +1,9 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Compatibility functionality for WindowsCE platforms 
 **
-** Created : 2001/06/13
+** Created : 010613
 **
 ** Copyright (C) 2001-2002 Trolltech AS.  All rights reserved.
 **
@@ -26,6 +26,7 @@
 ** not clear to you.
 **
 **********************************************************************/
+
 #ifndef QFUNCTIONS_WCE_H
 #define QFUNCTIONS_WCE_H
 

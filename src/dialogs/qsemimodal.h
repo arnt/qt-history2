@@ -3,7 +3,7 @@
 **
 ** Definition of QSemiModal class for source compatibility
 **
-** Created : 2000-10-10
+** Created : 001010
 **
 ** Copyright (C) 2000-2002 Trolltech AS.  All rights reserved.
 **

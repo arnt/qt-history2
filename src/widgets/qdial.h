@@ -1,9 +1,9 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Definition of the dial widget
 **
-** Created : 1999.01.04
+** Created : 990104
 **
 ** Copyright (C) 1999-2000 Trolltech AS.  All rights reserved.
 **

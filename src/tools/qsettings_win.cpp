@@ -3,7 +3,7 @@
 **
 ** Implementation of QSettings class
 **
-** Created : 2000.06.26
+** Created : 000626
 **
 ** Copyright (C) 1992-2002 Trolltech AS.  All rights reserved.
 **

@@ -1,9 +1,7 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Implementation of compatibility functions for WindowsCE platforms 
-**
-** Created : 2001/06/13
 **
 ** Copyright (C) 2001-2002 Trolltech AS.  All rights reserved.
 **

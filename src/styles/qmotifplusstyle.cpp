@@ -1,9 +1,9 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Implementation of QMotifPlusStyle class
 **
-** Created : 2000.07.27
+** Created : 000727
 **
 ** Copyright (C) 2000 Trolltech AS.  All rights reserved.
 **

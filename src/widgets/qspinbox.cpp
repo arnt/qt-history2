@@ -1,9 +1,9 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Implementation of QSpinBox widget class
 **
-** Created : 1997
+** Created : 970101
 **
 ** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
 **

@@ -3,7 +3,7 @@
 **
 ** Definition of QUuid class
 **
-** Created: 010523
+** Created : 010523
 **
 ** Copyright (C) 1992-2001 Trolltech AS.  All rights reserved.
 **

@@ -3,7 +3,7 @@
 **
 ** Implementation of PocketPC-like style class
 **
-** Created : 2001/08/07 
+** Created : 010807 
 **
 ** Copyright (C) 2001-2002 Trolltech AS.  All rights reserved.
 **
@@ -26,6 +26,7 @@
 ** not clear to you.
 **
 **********************************************************************/
+
 #include "qpocketpcstyle_wce.h"
 
 #ifndef QT_NO_STYLE_POCKETPC

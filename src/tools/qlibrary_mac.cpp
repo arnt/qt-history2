@@ -3,7 +3,7 @@
 **
 ** Implementation of QLibraryPrivate class
 **
-** Created : 2000-01-01
+** Created : 000101
 **
 ** Copyright (C) 1992-2002 Trolltech AS.  All rights reserved.
 **

@@ -1,9 +1,9 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 **  Splitter widget
 **
-**  Created:  980105
+**  Created : 980105
 **
 ** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
 **

@@ -3,7 +3,7 @@
 **
 ** Definition of the QSvgDevice class
 **
-** Created : 20001024
+** Created : 001024
 **
 ** Copyright (C) 2000-2002 Trolltech AS.  All rights reserved.
 **

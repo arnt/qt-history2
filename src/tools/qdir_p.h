@@ -3,7 +3,7 @@
 **
 ** Definition of some private QDir functions.
 **
-** Created : 2000.11.06
+** Created : 001106
 **
 ** Copyright (C) 2000 Trolltech AS.  All rights reserved.
 **

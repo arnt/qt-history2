@@ -3,7 +3,7 @@
 **
 ** Definition of QGridView class
 **
-** Created: 2001.05.23
+** Created : 010523
 **
 ** Copyright (C) 1992-2001 Trolltech AS.  All rights reserved.
 **

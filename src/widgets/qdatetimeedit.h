@@ -1,8 +1,9 @@
 /****************************************************************************
+** $Id$
 **
 ** Definition of date and time edit classes
 **
-** Created : 2000-11-03
+** Created : 001103
 **
 ** Copyright (C) 2000 Trolltech AS.  All rights reserved.
 **

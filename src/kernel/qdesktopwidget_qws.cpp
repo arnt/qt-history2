@@ -3,8 +3,6 @@
 **
 ** Implementation of QDesktopWidget class.
 **
-** Created : 
-**
 ** Copyright (C) 1992-2001 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the kernel module of the Qt GUI Toolkit.

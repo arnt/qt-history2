@@ -1,9 +1,9 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Definition of QEffects functions
 **
-** Created : 2000.06.21
+** Created : 000621
 **
 ** Copyright (C) 2000 Trolltech AS.  All rights reserved.
 **

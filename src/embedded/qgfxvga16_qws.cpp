@@ -3,8 +3,6 @@
 **
 ** Implementation of QGfxVga16 (graphics context) class for VGA cards
 **
-** Created :
-**
 ** Copyright (C) 1992-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the kernel module of the Qt GUI Toolkit.

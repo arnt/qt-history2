@@ -3,7 +3,7 @@
 **
 ** Definition of a nice qInstallErrorMessage() handler
 **
-** Created : 2000-05-27, after Kalle Dalheimer's birthday
+** Created : 000527, after Kalle Dalheimer's birthday
 **
 ** Copyright (C) 1992-2002 Trolltech AS.  All rights reserved.
 **

@@ -3,7 +3,7 @@
 **
 ** Implementation of QSqlDriverPlugin class
 **
-** Created : 010920
+** Created : 2001-09-20
 **
 ** Copyright (C) 2001-2002 Trolltech AS.  All rights reserved.
 **

@@ -3,7 +3,7 @@
 **
 ** Compatibility functionality for different Windows platforms 
 **
-** Created : 2001/06/13
+** Created : 010613
 **
 ** Copyright (C) 2001-2002 Trolltech AS.  All rights reserved.
 **

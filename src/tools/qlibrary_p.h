@@ -3,7 +3,7 @@
 **
 ** Definition of an internal QLibrary class
 **
-** Created : 2000-01-01
+** Created : 000101
 **
 ** Copyright (C) 2000-2002 Trolltech AS.  All rights reserved.
 **

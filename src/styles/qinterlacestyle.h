@@ -1,9 +1,9 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Implementation of QInterlaceStyle widget class
 **
-** Created : 22 January 2001
+** Created : 010122
 **
 ** Copyright (C) 1992-2001 Trolltech AS.  All rights reserved.
 **
