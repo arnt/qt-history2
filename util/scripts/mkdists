@@ -776,7 +776,7 @@ for plat in mac win x11 embedded; do
 	if [ "$plat" != "mac" ]; then
 	    rm -f "$PLATDIR/src/styles/qaquastyle.h"
 	    rm -f "$PLATDIR/src/styles/qaquastyle_p.h"
-	    rm -f "$PLATDIR/include/qaquastyle.h" "$PLATDIR/src/include/private/qaquastyle_p.h"
+	    rm -f "$PLATDIR/include/qaquastyle.h" "$PLATDIR/include/private/qaquastyle_p.h"
 	    rm -f "$PLATDIR/src/styles/qaquastyle.cpp"
 	    rm -rf "$PLATDIR/src/styles/src/aqua"
 	    rm -rf "$PLATDIR/plugins/src/styles/aqua"
