@@ -1,7 +1,7 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qprintdialog.cpp#10 $
+** $Id: //depot/qt/main/src/dialogs/qprintdialog.cpp#11 $
 **
-** Implementation of QPrintDialog class for X-Windows
+** Implementation of internal print dialog (X11) used by QPrinter::select().
 **
 ** Author  : Haavard Nord
 ** Created : 950829
@@ -19,7 +19,7 @@
 #include "qpushbt.h"
 #include "qprinter.h"
 
-RCSTAG("$Id: //depot/qt/main/src/dialogs/qprintdialog.cpp#10 $")
+RCSTAG("$Id: //depot/qt/main/src/dialogs/qprintdialog.cpp#11 $")
 
 
 //

@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qprintdialog.h#4 $
+** $Id: //depot/qt/main/src/dialogs/qprintdialog.h#5 $
 **
 **		      ***   INTERNAL HEADER FILE   ***
 **
 **		This file is NOT a part of the Qt interface!
 **
-** Internal print dialog for the QPrinter class.
+** Definition of internal print dialog (X11) used by QPrinter::select().
 **
 ** Author  : Haavard Nord
 ** Created : 950829
