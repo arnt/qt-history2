@@ -35,6 +35,7 @@
 **
 **********************************************************************/
 
+#include "qlayout.h"
 #include "private/qlayoutengine_p.h"
 
 #ifndef QT_NO_LAYOUT
