@@ -780,9 +780,12 @@ void QComboBox::changeItem( const QString &t, int index )
 	d->listBox()->changeItem( t, index );
     else
 	d->popup()->changeItem( t, index );
-    if ( index == d->current && d->ed ) {
-	d->ed->setText( text( d->current ) );
-	d->updateLinedGeometry();
+    if ( index == d->current ) {
+	if ( d->ed ) {
+	    d->ed->setText( text( d->current ) );
+	    d->updateLinedGeometry();
+	} else
+	    update();
     }
 }
 
@@ -801,6 +804,8 @@ void QComboBox::changeItem( const QPixmap &im, int index )
 	d->listBox()->changeItem( im, index );
     else
 	d->popup()->changeItem( im, index );
+    if ( index == d->current )
+	update();
 }
 
 /*!
@@ -822,6 +827,8 @@ void QComboBox::changeItem( const QPixmap &im, const QString &t, int index )
 	d->listBox()->changeItem( im, t, index );
     else
 	d->popup()->changeItem( im, t, index );
+    if ( index == d->current )
+	update();
 }
 
 
