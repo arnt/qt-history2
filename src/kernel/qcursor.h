@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcursor.h#18 $
+** $Id: //depot/qt/main/src/kernel/qcursor.h#19 $
 **
 ** Definition of QCursor class
 **
@@ -63,7 +63,7 @@ inline void QCursor::setPos( const QPoint &p )
 // Cursor shape identifiers (correspond to global cursor objects)
 //
 
-enum CursorShape {
+enum QCursorShape {
     ArrowCursor, UpArrowCursor, CrossCursor, WaitCursor, IbeamCursor,
     SizeVerCursor, SizeHorCursor, SizeBDiagCursor, SizeFDiagCursor,
     SizeAllCursor, BitmapCursor=24 };
