@@ -506,7 +506,7 @@ bool QFileInfo::isExecutable() const
 #ifndef Q_WS_WIN
 bool QFileInfo::isHidden() const
 {
-    return fileName()[ 0 ] == QChar( '.' ) && fileName() != QString( "." );
+    return fileName()[ 0 ] == QChar( '.' );
 }
 #endif
 
