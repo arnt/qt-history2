@@ -2192,6 +2192,7 @@ void QWidget::propagateUpdates(bool update_rgn)
 #ifdef DEBUG_WINDOW_RGNS
     debug_wndw_rgn("*****propagatUpdates", widg, rgn, true);
 #endif
+    qt_paint_children(widg, rgn);
     if(update_rgn)
 	EndUpdate((WindowPtr)hd);
 }
