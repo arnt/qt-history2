@@ -459,7 +459,7 @@ QRect QTreeView::visualRect(const QModelIndex &index) const
 void QTreeView::scrollTo(const QModelIndex &index)
 {
     // check if we really need to do anything
-    if (isIndexHidden(index))
+    if (d->header->count() <= 0 || !index.isValid() || isIndexHidden(index))
         return;
     QRect rect = visualRect(index);
     if (rect.isEmpty())
@@ -1181,11 +1181,11 @@ int QTreeView::indexRowSizeHint(const QModelIndex &left) const
     int end = d->header->visualIndexAt(width);
 
     if (isRightToLeft()) {
-        start = start == -1 ? d->header->count() - 1 : start;
+        start = start == -1 ? d->header->count() : start;
         end = end == -1 ? 0 : end;
     } else {
         start = start == -1 ? 0 : start;
-        end = end == -1 ? d->header->count() - 1 : end;
+        end = end == -1 ? d->header->count() : end;
     }
 
     int tmp = start;
@@ -1194,7 +1194,7 @@ int QTreeView::indexRowSizeHint(const QModelIndex &left) const
 
     QModelIndex parent = left.parent();
     const QVector<QTreeViewItem> viewItems = d->viewItems;
-    for (int column = start; column <= end; ++column) {
+    for (int column = start; column < end; ++column) {
         QModelIndex index = d->model->index(left.row(), column, parent);
         height = qMax(height, delegate->sizeHint(option, index).height());
     }
