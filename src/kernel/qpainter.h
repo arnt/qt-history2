@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.h#125 $
+** $Id: //depot/qt/main/src/kernel/qpainter.h#126 $
 **
 ** Definition of QPainter class
 **
@@ -226,7 +226,11 @@ public:
     int	       *tabArray() const;
     void	setTabArray( int * );
 
+#if defined(_WS_WIN_)
     HDC		handle() const;
+#elif defined(_WS_X11_)
+    HANDLE	handle() const;
+#endif
 
     static void initialize();
     static void cleanup();
@@ -433,15 +437,17 @@ inline int *QPainter::tabArray() const
     return tabarray;
 }
 
+#if defined(_WS_WIN_)
 inline HDC QPainter::handle() const
 {
-#if defined(_WS_WIN_)
     return hdc;
-#elif defined(_WS_X11_)
-    return hd;
-#endif
 }
-
+#elif defined(_WS_X11_)
+inline HANDLE QPainter::handle() const
+{
+    return hd;
+}
+#endif
 
 inline void QPainter::setBrushOrigin( const QPoint &p )
 {
