@@ -435,8 +435,8 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 	}
 
 	XClassHint class_hint;
-	class_hint.res_class = (char*) title;	// app name and widget name
-	class_hint.res_name = name(0) ? (char*) name(0) : (char*) title;
+	class_hint.res_class = (char*) title;	// app name
+	class_hint.res_name = (char*) title; 	// maybe some day we need a function for that
 	XSetWMProperties( dpy, id, 0, 0, 0, 0, &size_hints, &wm_hints,
 			  &class_hint );
 	XResizeWindow( dpy, id, crect.width(), crect.height() );
