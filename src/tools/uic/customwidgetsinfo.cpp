@@ -41,4 +41,13 @@ void CustomWidgetsInfo::accept(DomCustomWidget *node)
     m_customWidgets.insert(node->elementClass(), node);
 }
 
+bool CustomWidgetsInfo::extends(const QString &className, const QString &baseClassName) const
+{
+    if (className == baseClassName)
+        return true;
 
+    if (DomCustomWidget *c = customWidget(className))
+        return c->elementExtends() == baseClassName;
+
+    return false;
+}

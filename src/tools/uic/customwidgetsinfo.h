@@ -38,6 +38,8 @@ public:
     inline DomCustomWidget *customWidget(const QString &name) const
     { return m_customWidgets.value(name); }
 
+    bool extends(const QString &className, const QString &baseClassName) const;
+
 private:
     Driver *driver;
     QMap<QString, DomCustomWidget*> m_customWidgets;

@@ -129,16 +129,16 @@ void WriteInitialization::accept(DomWidget *node)
 
     parentWidget = savedParentWidget;
 
-    if (className == QLatin1String("QListBox")) {
+    if (uic->customWidgetsInfo()->extends(className, "QListBox")) {
         initializeListBox(node);
+    } else if (uic->customWidgetsInfo()->extends(className, "QComboBox")) {
+        initializeListBox(node);
+    } else if (uic->customWidgetsInfo()->extends(className, "Q3ListView")) {
+        initializeListView(node);
     } else if (className == QLatin1String("QIconView")) {
         initializeIconView(node);
     } else if (className == QLatin1String("QTable")) {
         initializeTable(node);
-    } else if (className.mid(1) == QLatin1String("ComboBox")) {
-        initializeListBox(node);
-    } else if (className == QLatin1String("Q3ListView")) {
-        initializeListView(node);
     } else if (className == QLatin1String("QDataTable")) {
         initializeSqlDataTable(node);
     } else if (className == QLatin1String("QDataBrowser")) {
