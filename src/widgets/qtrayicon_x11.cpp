@@ -1,4 +1,5 @@
 #include "qtrayicon.h"
+#include <qwidget.h>
 
 class QTrayIcon::QTrayIconPrivate : public QWidget
 {
@@ -15,7 +16,7 @@ public:
 
 void QTrayIcon::sysInstall()
 {
-    d = new QTrayIconPrivate(this);
+    d = new QTrayIconPrivate();
 }
 
 void QTrayIcon::sysRemove()
