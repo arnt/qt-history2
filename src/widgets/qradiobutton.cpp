@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qradiobutton.cpp#72 $
+** $Id: //depot/qt/main/src/widgets/qradiobutton.cpp#73 $
 **
 ** Implementation of QRadioButton class
 **
@@ -18,7 +18,7 @@
 #include "qbitmap.h"
 #include "qkeycode.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qradiobutton.cpp#72 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qradiobutton.cpp#73 $");
 
 
 /*!
@@ -49,6 +49,9 @@ static QSize sizeOfBitmap( GUIStyle gs )
 	    return QSize(10,10);
     }
 }
+
+static const int gutter = 6; // between button and text
+static const int margin = 2; // to right of text
 
 
 /*!
@@ -130,7 +133,9 @@ QSize QRadioButton::sizeHint() const
     if ( sz.height() < bmsz.height() )
 	sz.setHeight( bmsz.height() );
 
-    return sz + QSize( 8+bmsz.width(), 4 );
+    return sz + QSize( bmsz.width()
+			+ (text() ? gutter+margin : 0),
+			4 );
 }
 
 
@@ -289,7 +294,7 @@ void QRadioButton::drawButtonLabel( QPainter *p )
     if ( gs == WindowsStyle )
 	sz.setWidth(sz.width()+1);
     y = 0;
-    x = sz.width() + 6;
+    x = sz.width() + gutter;
     w = width() - x;
     h = height();
 

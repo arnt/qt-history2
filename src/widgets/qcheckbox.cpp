@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qcheckbox.cpp#69 $
+** $Id: //depot/qt/main/src/widgets/qcheckbox.cpp#70 $
 **
 ** Implementation of QCheckBox class
 **
@@ -15,7 +15,7 @@
 #include "qpixmap.h"
 #include "qpmcache.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qcheckbox.cpp#69 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qcheckbox.cpp#70 $");
 
 
 /*!
@@ -43,7 +43,6 @@ static QSize sizeOfBitmap( GUIStyle gs )
 	    return QSize( 10, 10 );
     }
 }
-
 
 /*!
   Constructs a check box with no text.
@@ -114,7 +113,9 @@ QSize QCheckBox::sizeHint() const
     if ( sz.height() < bmsz.height() )
 	sz.setHeight( bmsz.height() );
 
-    return sz + QSize( 4+bmsz.width() + extraWidth(gs), 4 );
+    return sz + QSize( bmsz.width() + (style()==MotifStyle ? 1 : 0)
+			+ (text() ? 4 + extraWidth(gs) : 0),
+			4 );
 }
 
 
