@@ -68,7 +68,6 @@ void MainForm::startChanges( QString label )
     //qDebug( args.join( " " ) );
     process.kill();
     start( args );
-    QApplication::setOverrideCursor( Qt::waitCursor );
 }
 
 void MainForm::go()
@@ -95,13 +94,11 @@ void MainForm::currentChanged( QListViewItem *li )
     } else {
 	if ( process.isRunning() ) {
 	    //qWarning( "Process is running!!!!" );
-	    QApplication::restoreOverrideCursor();
 	}
 	QStringList args;
 	args << "p4" << "describe" << "-du" << li->text(0);
 	//qDebug( args.join( " " ) );
 	start( args );
-	QApplication::setOverrideCursor( Qt::waitCursor );
     }
 }
 
@@ -192,6 +189,8 @@ void MainForm::processExited()
     readyReadStderr();
 #endif
 
+    while ( QApplication::overrideCursor() )
+	QApplication::restoreOverrideCursor();
     QString command = process.arguments()[1];
 
     if ( command == "labels" ) {
@@ -252,8 +251,6 @@ void MainForm::processExited()
 		    }
 		}
 		errorView->append( QString("%1 changes found\n").arg(changes->childCount()) );
-		QApplication::restoreOverrideCursor();
-		QApplication::restoreOverrideCursor();
 		delete changeListFrom;
 		delete changeListTo;
 		delete changeDateTo;
@@ -265,7 +262,6 @@ void MainForm::processExited()
     } else if ( command == "describe" ) {
 	QString desc( process.readStdout() );
 	parseDescribe( desc );
-	QApplication::restoreOverrideCursor();
     }
 }
 
@@ -275,6 +271,8 @@ void MainForm::start( const QStringList& args )
     if ( !process.start() ) {
 	QMessageBox::critical( this, tr("Error starting process"),
 		tr("Could not start p4. Please check your path") );
+    } else {
+	QApplication::setOverrideCursor( Qt::waitCursor );
     }
 }
 
