@@ -15,126 +15,159 @@
 #define QCOLOR_H
 
 #ifndef QT_H
-#  include "qwindowdefs.h"
 #  include "qstringlist.h"
 #  include "qnamespace.h"
 #  include "qrgb.h"
 #endif // QT_H
 
+class QColormap;
+
 class Q_GUI_EXPORT QColor
 {
 public:
-    enum Spec { Rgb, Hsv };
+    enum Spec { Invalid, Rgb, Hsv, Cmyk };
 
     QColor();
     QColor(Qt::GlobalColor color);
     QColor(int r, int g, int b, int a = 255);
-    QColor(int x, int y, int z, Spec);
-    QColor(QRgb rgb, uint pixel=0xffffffff);
+    QColor(QRgb rgb);
     QColor(const QString& name);
     QColor(const char *name);
-    QColor(const QColor &);
+    QColor(const QColor &color);
+
+    bool isValid() const;
+
+    QString name() const;
+    void setNamedColor(const QString& name);
+
+    static QStringList colorNames();
+
+    inline Spec spec() const
+    { return cspec; }
+
+    int alpha() const;
+
+    float alphaF() const;
+
+    int red() const;
+    int green() const;
+    int blue() const;
+
+    float redF() const;
+    float greenF() const;
+    float blueF() const;
+
+    void getRgb(int *r, int *g, int *b, int *a = 0) const;
+    void setRgb(int r, int g, int b, int a = 255);
+
+    void getRgb(float *r, float *g, float *b, float *a = 0) const;
+    void setRgb(float r, float g, float b, float a = 1.0);
+
+    QRgb rgb() const;
+    void setRgb(QRgb rgb);
+
+    int hue() const; // 0 <= hue < 360
+    int saturation() const;
+    int value() const;
+
+    float hueF() const; // 0.0 <= hueF < 360.0
+    float saturationF() const;
+    float valueF() const;
+
+    void getHsv(int *h, int *s, int *v, int *a = 0) const;
+    void setHsv(int h, int s, int v, int a = 255);
+
+    void getHsv(float *h, float *s, float *v, float *a = 0) const;
+    void setHsv(float h, float s, float v, float a = 1.0);
+
+    int cyan() const;
+    int magenta() const;
+    int yellow() const;
+    int black() const;
+
+    float cyanF() const;
+    float magentaF() const;
+    float yellowF() const;
+    float blackF() const;
+
+    void getCmyk(int *c, int *m, int *y, int *k, int *a = 0);
+    void setCmyk(int c, int m, int y, int k, int a = 255);
+
+    void getCmyk(float *c, float *m, float *y, float *k, float *a = 0);
+    void setCmyk(float c, float m, float y, float k, float a = 1.0);
+
+    QColor toRgb() const;
+    QColor toHsv() const;
+    QColor toCmyk() const;
+
+    QColor convertTo(Spec colorSpec) const;
+
+    static QColor fromRgb(float r, float g, float b, float a = 1.0);
+    static QColor fromHsv(float h, float s, float v, float a = 1.0);
+    static QColor fromCmyk(float c, float m, float y, float k, float a = 1.0);
+
+    QColor light(int f = 150) const;
+    QColor dark(int f = 200) const;
+
     QColor &operator=(const QColor &);
     QColor &operator=(Qt::GlobalColor color);
 
-    bool   isValid() const;
-    bool   isDirty() const;
-    QString name() const;
-    void   setNamedColor(const QString& name);
-
-    inline QRgb rgb()    const;
-    void   setRgb(int r, int g, int b);
-    void   setRgb(QRgb rgb);
-    inline void getRgb(int *r, int *g, int *b) const;
-
-    void setRgba(int r, int g, int b, int a);
-    inline void getRgba(int *r, int *g, int *b, int *a) const;
-
-    int           red()    const;
-    int           green()  const;
-    int           blue()   const;
-    int    alpha()  const;
-
-    void   setHsv(int h, int s, int v);
-    void   getHsv(int *h, int *s, int *v) const;
+    bool operator==(const QColor &c) const;
+    bool operator!=(const QColor &c) const;
 
 #ifdef QT_COMPAT
-    inline QT_COMPAT void rgb(int *r, int *g, int *b) const;
-    inline QT_COMPAT void hsv(int *h, int *s, int *v) const { getHsv(h, s, v); }
-    inline QT_COMPAT void getHsv(int &h, int &s, int &v) const { getHsv(&h, &s, &v); }
+    inline QT_COMPAT_CONSTRUCTOR QColor(int x, int y, int z, Spec colorSpec)
+    { if (colorSpec == Hsv) setHsv(x, y, z); else setRgb(x, y, z); }
+
+    inline QT_COMPAT void rgb(int *r, int *g, int *b) const
+    { getRgb(r, g, b); }
+    inline QT_COMPAT void hsv(int *h, int *s, int *v) const
+    { getHsv(h, s, v); }
+
+    inline QT_COMPAT void setRgba(int r, int g, int b, int a)
+    { setRgb(r, g, b, a); }
+    inline QT_COMPAT void getRgba(int *r, int *g, int *b, int *a) const
+    { getRgb(r, g, b, a); }
+
+    QT_COMPAT uint pixel(int screen = -1) const;
 #endif
-
-    QColor light(int f = 150) const;
-    QColor dark(int f = 200)        const;
-
-    bool   operator==(const QColor &c) const;
-    bool   operator!=(const QColor &c) const;
-
-    uint   alloc(int screen = -1);
-    uint   pixel(int screen = -1)  const;
-
-    static int  maxColors();
-    static int  numBitPlanes();
-
-    static int  enterAllocContext();
-    static void leaveAllocContext();
-    static int  currentAllocContext();
-    static void destroyAllocContext(int);
-
-#if defined(Q_WS_WIN)
-    static const QRgb* palette(int* numEntries = 0);
-    static int setPaletteEntries(const QRgb* entries, int numEntries,
-                                  int base = -1);
-    static HPALETTE hPal()  { return hpal; }
-    static uint        realizePal(QWidget *);
-#endif
-
-    static void initialize();
-    static void cleanup();
-    static QStringList colorNames();
-    enum { Dirt = 0x44495254, Invalid = 0x49000000 };
 
 private:
-    void setSystemNamedColor(const QString& name);
-    void setPixel(uint pixel);
     void invalidate();
-    static uint argbToPix32(QRgb);
-    static bool color_init;
-#if defined(Q_WS_WIN)
-    static HPALETTE hpal;
-#endif
-    static enum ColorModel { d8, d32 } colormodel;
+
+    Spec cspec;
     union {
-        QRgb argb;
-        struct D8 {
-            QRgb argb;
-            uchar pix;
-            uchar invalid;
-            uchar dirty;
-            uchar direct;
-        } d8;
-        struct D32 {
-            QRgb argb;
-            uint pix;
-            bool invalid() const { return argb == QColor::Invalid && pix == QColor::Dirt; }
-            bool probablyDirty() const { return pix == QColor::Dirt; }
-        } d32;
-    } d;
+        struct {
+            ushort alpha;
+            ushort red;
+            ushort green;
+            ushort blue;
+            ushort pad;
+        } argb;
+        struct {
+            ushort alpha;
+            ushort hue;
+            ushort saturation;
+            ushort value;
+            ushort pad;
+        } ahsv;
+        struct {
+            ushort alpha;
+            ushort cyan;
+            ushort magenta;
+            ushort yellow;
+            ushort black;
+        } acmyk;
+    };
+
+    friend class QColormap;
 };
 
-
 inline QColor::QColor()
-{ d.d32.argb = Invalid; d.d32.pix = Dirt; }
+{ invalidate(); }
 
 inline QColor::QColor(int r, int g, int b, int a)
-{
-    d.d32.argb = Invalid;
-    d.d32.pix = Dirt;
-    if (a!=255)
-        setRgba(r, g, b, a);
-    else
-        setRgb(r, g, b);
-}
+{ setRgb(r, g, b, a); }
 
 inline QColor::QColor(const char *name)
 { setNamedColor(QLatin1String(name)); }
@@ -142,74 +175,20 @@ inline QColor::QColor(const char *name)
 inline QColor::QColor(const QString& name)
 { setNamedColor(name); }
 
-inline QColor::QColor(const QColor &c)
-{ d.argb = c.d.argb; d.d32.pix = c.d.d32.pix; }
-
-inline QColor &QColor::operator=(const QColor &c)
-{ d.argb = c.d.argb; d.d32.pix = c.d.d32.pix; return *this; }
-
-inline QRgb QColor::rgb() const
-{ return d.argb; }
-
-inline void QColor::getRgb(int *r, int *g, int *b) const
-{ *r = qRed(d.argb); *g = qGreen(d.argb); *b = qBlue(d.argb); }
-
-inline void QColor::getRgba(int *r, int *g, int *b, int *a) const
-{ getRgb(r, g, b); *a = qAlpha(d.argb); }
-
-#ifdef QT_COMPAT
-inline void QColor::rgb(int *r, int *g, int *b) const
-{ *r = qRed(d.argb); *g = qGreen(d.argb); *b = qBlue(d.argb); }
-#endif
-
-inline int QColor::red() const
-{ return qRed(d.argb); }
-
-inline int QColor::green() const
-{ return qGreen(d.argb); }
-
-inline int QColor::blue() const
-{ return qBlue(d.argb); }
-
-inline int QColor::alpha() const
-{ return qAlpha(d.argb); }
+inline QColor::QColor(const QColor &color)
+    : cspec(color.cspec)
+{ argb = color.argb; }
 
 inline bool QColor::isValid() const
-{
-    if (colormodel == d8)
-        return !d.d8.invalid;
-    else
-        return !d.d32.invalid();
-}
-
-inline void QColor::invalidate()
-{
-    if (colormodel == d8) {
-        d.d8.invalid = true;
-    } else {
-        d.d32.argb = Invalid;
-        d.d32.pix = Dirt;
-    }
-}
-
-inline bool QColor::operator==(const QColor &c) const
-{
-    return d.argb == c.d.argb && isValid() == c.isValid();
-}
-
-inline bool QColor::operator!=(const QColor &c) const
-{
-    return !operator==(c);
-}
-
-#ifndef QT_NO_DEBUG
-Q_GUI_EXPORT QDebug operator<<(QDebug, const QColor &);
-#endif
+{ return cspec != Invalid; }
 
 /*****************************************************************************
   QColor stream functions
  *****************************************************************************/
 
+#ifndef QT_NO_DEBUG
+Q_GUI_EXPORT QDebug operator<<(QDebug, const QColor &);
+#endif
 #ifndef QT_NO_DATASTREAM
 Q_GUI_EXPORT QDataStream &operator<<(QDataStream &, const QColor &);
 Q_GUI_EXPORT QDataStream &operator>>(QDataStream &, QColor &);

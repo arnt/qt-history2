@@ -236,19 +236,9 @@ static const int rgbTblSize = sizeof(rgbTbl) / sizeof(RGBData);
 
 #undef rgb
 
-
 #ifndef QT_NO_COLORNAMES
 
 #include <stdlib.h>
-
-
-
-
-
-
-
-
-
 
 #if defined(Q_C_CALLBACKS)
 extern "C" {
@@ -278,18 +268,13 @@ bool qt_get_named_rgb(const char *name, QRgb* rgb)
 
     RGBData x;
     x.name = name_no_space;
-    // Funtion bsearch() is supposed to be
-    // void *bsearch(const void *key, const void *base, ...
-    // So why (char*)? Are there broken bsearch() declarations out there?
-    RGBData *r = (RGBData*)bsearch((char*)&x, (char*)rgbTbl, rgbTblSize,
-                                   sizeof(RGBData), rgb_cmp);
+    RGBData *r = (RGBData*)bsearch(&x, rgbTbl, rgbTblSize, sizeof(RGBData), rgb_cmp);
     free(name_no_space);
     if (r) {
         *rgb = r->value;
         return true;
-    } else {
-        return false;
     }
+    return false;
 }
 
 uint qt_get_rgb_val(const char *name)
@@ -298,6 +283,7 @@ uint qt_get_rgb_val(const char *name)
     qt_get_named_rgb(name,&r);
     return r;
 }
+
 QStringList qt_get_colornames()
 {
     int i = 0;
@@ -306,6 +292,7 @@ QStringList qt_get_colornames()
         lst << rgbTbl[i].name;
     return lst;
 }
+
 #else
 
 bool qt_get_named_rgb(const char *, QRgb*)
