@@ -12,6 +12,7 @@
 ****************************************************************************/
 
 #include "widgetfactory.h"
+#include "widgetdatabase.h"
 #include "qlayout_widget.h"
 #include "qdesigner_widget.h"
 #include "qdesigner_tabwidget.h"
@@ -127,10 +128,22 @@ QWidget *WidgetFactory::createWidget(const QString &widgetName, QWidget *parentW
                 child->setParent(w, 0);
             }
         } else {
-            QDesignerCustomWidget *customWidget = new QDesignerCustomWidget(fw, parentWidget);
-            customWidget->setWidgetClassName(widgetName);
-            qWarning("widget %s not found", widgetName.toLatin1().constData());
-            w = customWidget;
+            qDebug() << "widget" << widgetName << "not found! Created a generic custom widget";
+
+            // step 1) create a new entry in widget database
+            AbstractWidgetDataBaseItem *item = new WidgetDataBaseItem(widgetName, tr("%1 Widget").arg(widgetName));
+            item->setCustom(true);
+            item->setPromoted(true); // ### ??
+            item->setExtends(QLatin1String("QWidget"));
+            item->setIncludeFile(widgetName.toLower() + QLatin1String(".h"));
+            db->append(item);
+
+            // step 2) create the actual widget
+            QWidget *actualWidget = new QWidget();
+
+            // step 3) create a QDesignerPromotedWidget
+            QDesignerPromotedWidget *promotedWidget = new QDesignerPromotedWidget(item, actualWidget, parentWidget);
+            w = promotedWidget;
         }
     }
 
