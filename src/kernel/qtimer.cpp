@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qtimer.cpp#17 $
+** $Id: //depot/qt/main/src/kernel/qtimer.cpp#18 $
 **
 ** Implementation of QTimer class
 **
@@ -10,8 +10,9 @@
 *****************************************************************************/
 
 #include "qtimer.h"
+#include "qsignal.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qtimer.cpp#17 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qtimer.cpp#18 $");
 
 
 /*!
@@ -150,5 +151,58 @@ bool QTimer::event( QEvent *e )
     if ( single )				// stop single shot timer
 	stop();
     emit timeout();				// emit timeout signal
+    return TRUE;
+}
+
+
+/*
+  The QSingleShotTimer class is an internal class for implementing
+  QTimer::singleShot(). It starts a timer and emits the signal
+  and kills itself when it gets the timeout.
+*/
+
+class QSingleShotTimer : public QSignal
+{
+    Q_OBJECT
+public:
+    bool    start( int msec, QObject *r, const char *m );
+protected:
+    bool    event( QEvent * );
+};
+
+bool QSingleShotTimer::start( int msec, QObject *r, const char *m )
+{
+    int qStartTimer( int, QObject * );		// in qapp_xxx.cpp	
+    bool ok = connect( r, m );
+    if ( ok )
+	ok = qStartTimer(msec, (QObject *)this) != 0;
+    return ok;
+}
+
+bool QSingleShotTimer::event( QEvent * )
+{
+    activate();					// emits the signal
+    delete this;				// and kills itself
+    return TRUE;
+}
+
+
+/*!
+  This static function creates a single shot timer and connects it
+  to a slot. Returns TRUE if successful or FALSE if it could not
+  create a timer.
+
+  It is very convenient to use this function because you do not need to
+  bother with a \link QObject::timerEvent() timerEvent\endlink or
+  to create a local QTimer object.
+*/
+
+bool QTimer::singleShot( int msec, QObject *receiver, const char *member )
+{
+    QSingleShotTimer *sst = new QSingleShotTimer;
+    if ( !sst->start(msec, receiver, member) ) { // could not start
+	delete sst;
+	return FALSE;
+    }
     return TRUE;
 }
