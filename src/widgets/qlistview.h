@@ -322,7 +322,7 @@ public:
     virtual void setRootIsDecorated( bool );
     bool rootIsDecorated() const;
 
-    virtual void setSorting( int column, bool increasing = TRUE );
+    virtual void setSorting( int column, bool ascending = TRUE );
     int sortColumn() const;
     virtual void sort();
 
