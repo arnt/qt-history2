@@ -1916,6 +1916,8 @@ void QWin32PaintEnginePrivate::beginGdiplus()
                  | QPaintEngine::PixmapTransform
                  | QPaintEngine::ClipTransform;
 
+    q->gccaps &= ~QPaintEngine::LinearGradients;
+
     Q_ASSERT(!gdiplusEngine);
     gdiplusEngine = new QGdiplusPaintEngine();
     gdiplusEngine->begin(pdev);
