@@ -2645,7 +2645,7 @@ bool QApplication::desktopSettingsAware()
   \fn bool QApplication::isSessionRestored() const
 
   Returns TRUE if the application has been restored from an earlier
-  session; otherwise returns FALSE.
+  \link session.html session\endlink; otherwise returns FALSE.
 
   \sa sessionId(), commitData(), saveState()
 */
@@ -2654,7 +2654,7 @@ bool QApplication::desktopSettingsAware()
 /*!
   \fn QString QApplication::sessionId() const
 
-  Returns the current session's identifier.
+  Returns the current \link session.html session's\endlink identifier.
 
   If the application has been restored from an earlier session, this
   identifier is the same as it was in that previous session.
@@ -2668,7 +2668,8 @@ bool QApplication::desktopSettingsAware()
 /*!
   \fn QString QApplication::sessionKey() const
 
-  Returns the session key in the current session.
+  Returns the session key in the current \link session.html
+  session\endlink.
 
   If the application has been restored from an earlier session, this
   key is the same as it was when the previous session ended.
@@ -2700,8 +2701,9 @@ QString QApplication::sessionKey() const
 /*!
   \fn void QApplication::commitData( QSessionManager& sm )
 
-  This function deals with session management. It is invoked when the
-  QSessionManager wants the application to commit all its data.
+  This function deals with \link session.html session
+  management\endlink. It is invoked when the QSessionManager wants the
+  application to commit all its data.
 
   Usually this means saving all open files, after getting
   permission from the user. Furthermore you may want to provide a means
@@ -2721,7 +2723,7 @@ QString QApplication::sessionKey() const
   event to all visible top level widgets. If any event was
   rejected, the shutdown is cancelled.
 
-  \sa isSessionRestored(), sessionId(), saveState()
+  \sa isSessionRestored(), sessionId(), saveState(), \link session.html the Session Management overview\endlink
 */
 #ifndef QT_NO_SESSIONMANAGER
 void QApplication::commitData( QSessionManager& sm  )
@@ -2754,7 +2756,8 @@ void QApplication::commitData( QSessionManager& sm  )
 /*!
   \fn void QApplication::saveState( QSessionManager& sm )
 
-  This function deals with session management. It is invoked when the
+  This function deals with \link session.html session
+  management\endlink. It is invoked when the
   \link QSessionManager session manager \endlink wants the application
   to preserve its state for a future session.
 
@@ -2774,7 +2777,7 @@ void QApplication::commitData( QSessionManager& sm  )
   See QSessionManager::allowsInteraction() and
   QSessionManager::allowsErrorInteraction() for details.
 
-  \sa isSessionRestored(), sessionId(), commitData()
+  \sa isSessionRestored(), sessionId(), commitData(), \link session.html the Session Management overview\endlink
 */
 
 void QApplication::saveState( QSessionManager& /* sm */ )
