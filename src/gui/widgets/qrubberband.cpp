@@ -19,7 +19,7 @@
 #include "qstyle.h"
 #include "qstyleoption.h"
 #ifdef Q_WS_MAC
-# include "qt_mac.h"
+#  include <private/qt_mac_p.h>
 #endif
 
 #include <private/qwidget_p.h>

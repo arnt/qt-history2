@@ -51,7 +51,7 @@
 #endif
 
 #if !defined(QWS) && defined(Q_OS_MAC)
-# include <qcore_mac.h>
+#   include <private/qcore_mac_p.h>
 #endif
 
 // mingw defines NAN and INFINITY to 0/0 and x/0

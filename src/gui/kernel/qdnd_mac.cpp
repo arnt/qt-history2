@@ -17,7 +17,7 @@
 #include "qdatetime.h"
 #include "qdragobject.h"
 #include "qbitmap.h"
-#include "qt_mac.h"
+#include <private/qt_mac_p.h>
 #include "qpainter.h"
 #include "qcursor.h"
 #include "qevent.h"

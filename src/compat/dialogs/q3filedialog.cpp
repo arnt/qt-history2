@@ -85,7 +85,7 @@ Q_GUI_EXPORT HDC qt_winHDC(const QPaintDevice *dev);
 #include <ctype.h>
 
 #ifdef Q_WS_MAC
-#include "qt_mac.h"
+#include <private/qt_mac_p.h>
 #undef check
 #endif
 

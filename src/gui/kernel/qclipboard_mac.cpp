@@ -20,7 +20,7 @@
 #include "qdatetime.h"
 #include "qdragobject.h"
 #include "qapplication_p.h"
-#include "qt_mac.h"
+#include <private/qt_mac_p.h>
 #include "qevent.h"
 #include <stdlib.h>
 #include <string.h>

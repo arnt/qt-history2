@@ -20,10 +20,10 @@
 #include "qmenu.h"
 #include "qpainter.h"
 #include "private/qpainter_p.h"
-#include "qpaintengine_mac.h"
+#include <qpaintengine_mac.h>
 #include "qgroupbox.h"
 #include "qmap.h"
-#include "qt_mac.h"
+#include <private/qt_mac_p.h>
 #include "qrubberband.h"
 #include "qstyleoption.h"
 
@@ -56,7 +56,7 @@ void QMacStyleQDPainter::setport()
     NormalizeThemeDrawingState();
 }
 
-#include <qt_mac.h>
+#include <private/qt_mac_p.h>
 #include <qaquastyle_mac.h>
 #include <qapplication.h>
 #include <qbitmap.h>

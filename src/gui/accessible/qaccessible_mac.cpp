@@ -15,7 +15,7 @@
 #include "qaccessible.h"
 
 #ifndef QT_NO_ACCESSIBILITY
-#include "qt_mac.h"
+#include <private/qt_mac_p.h>
 #include "qhash.h"
 #include "qpointer.h"
 #include "qapplication.h"

@@ -24,7 +24,7 @@
 #include <qpixmap.h>
 #include <qpainter.h>
 #include <qapplication.h>
-#include "qt_mac.h"
+#include <private/qt_mac_p.h>
 #undef check
 
 /*****************************************************************************

@@ -17,7 +17,7 @@
 #include <qfile.h>
 #include <qfileinfo.h>
 #ifdef Q_OS_MAC
-# include <qcore_mac.h>
+#  include <private/qcore_mac_p.h>
 #endif
 
 #if defined(QT_AOUT_UNDERSCORE)

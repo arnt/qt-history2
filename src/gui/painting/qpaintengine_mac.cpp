@@ -19,7 +19,7 @@
 #include <qpixmapcache.h>
 #include <qprinter.h>
 #include <qstack.h>
-#include <qt_mac.h>
+#include <private/qt_mac_p.h>
 #include <qtextcodec.h>
 #include <qtextcodec.h>
 #include <qwidget.h>

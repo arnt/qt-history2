@@ -13,7 +13,7 @@
 ****************************************************************************/
 
 #include "qcoreapplication.h"
-#include "qcore_mac.h"
+#include <private/qcore_mac_p.h>
 
 /*****************************************************************************
   Internal variables and functions

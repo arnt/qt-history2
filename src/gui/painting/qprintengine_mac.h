@@ -23,7 +23,7 @@
 #include <private/qpainter_p.h>
 
 class QMacPrintEnginePrivate;
-class QMacPrintEngine : public QPrintEngine, public QCoreGraphicsPaintEngine
+class QMacPrintEngine : public QCoreGraphicsPaintEngine, public QPrintEngine
 {
     Q_DECLARE_PRIVATE(QMacPrintEngine);
 public:

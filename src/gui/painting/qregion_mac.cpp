@@ -12,7 +12,7 @@
 **
 ****************************************************************************/
 
-#include "qt_mac.h"
+#include <private/qt_mac_p.h>
 #include "qcoreapplication.h"
 
 QRegion::QRegionData QRegion::shared_empty = { Q_ATOMIC_INIT(1), 0, 0 };

@@ -16,7 +16,7 @@
 #define QPAINTENGINE_MAC_H
 #include "qpaintengine.h"
 #ifdef Q_WS_MAC //just for now (to get the coregraphics switch) ###
-# include "qt_mac.h"
+#  include <private/qt_mac_p.h>
 #endif
 
 class QQuickDrawPaintEnginePrivate;

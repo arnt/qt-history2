@@ -28,9 +28,9 @@
 //
 
 #ifndef QT_H
-# include "qstyle.h"
-# include "qt_mac.h"
-# include "qwidget.h"
+#  include <private/qt_mac_p.h>
+#  include "qstyle.h"
+#  include "qwidget.h"
 #endif // QT_H
 
 

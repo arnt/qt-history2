@@ -72,7 +72,7 @@ public:
 
 
 #ifndef QT_NO_DEBUG
-static QDebug &operator<<(QDebug &debug, const QTextFormatProperty &property)
+QDebug &operator<<(QDebug &debug, const QTextFormatProperty &property)
 {
     switch (property.type) {
         case QTextFormat::Undefined: debug << "[Undefined]"; break;

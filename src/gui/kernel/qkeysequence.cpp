@@ -24,7 +24,7 @@
 #endif
 
 #ifdef Q_WS_MAC
-# include "qt_mac.h"
+# include <private/qt_mac_p.h>
 # define QMAC_CTRL QChar(kCommandUnicode)
 # define QMAC_META QChar(kControlUnicode)
 # define QMAC_ALT  QChar(kOptionUnicode)

@@ -22,7 +22,7 @@
 #include <qmap.h>
 #include <qsettings.h>
 #ifdef Q_OS_MAC
-# include <qcore_mac.h>
+#  include <private/qcore_mac_p.h>
 #endif
 #ifndef NO_ERRNO_H
 #include <errno.h>

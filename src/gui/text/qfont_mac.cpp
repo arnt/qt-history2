@@ -20,7 +20,7 @@
 #include "qpaintdevice.h"
 #include "qpaintdevicemetrics.h"
 #include "qstring.h"
-#include "qt_mac.h"
+#include <private/qt_mac_p.h>
 #include <private/qunicodetables_p.h>
 #include <qapplication.h>
 #include "qfontdatabase.h"

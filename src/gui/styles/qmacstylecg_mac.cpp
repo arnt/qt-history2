@@ -19,7 +19,7 @@
 #include <qscrollbar.h>
 #include <qslider.h>
 #include <qstyleoption.h>
-#include <qt_mac.h>
+#include <private/qt_mac_p.h>
 #include <qtabbar.h>
 #include <qaquastyle_mac.h>
 #include <qbitmap.h>

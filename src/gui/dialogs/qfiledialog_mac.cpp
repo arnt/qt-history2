@@ -23,7 +23,7 @@
 
 #include <qapplication.h>
 #include <private/qapplication_p.h>
-#include <qt_mac.h>
+#include <private/qt_mac_p.h>
 #include <qregexp.h>
 #include <qbuffer.h>
 #include <qstringlist.h>

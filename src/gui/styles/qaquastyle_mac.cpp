@@ -32,7 +32,7 @@
 #include <qtoolbutton.h>
 
 #include <qmacstyle_mac.h>
-#include <qt_mac.h>
+#include <private/qt_mac_p.h>
 #include <stdlib.h>
 class QListViewItem;
 

@@ -19,7 +19,7 @@
 #ifndef QT_NO_SETTINGS
 #include "qstring.h"
 #include "qcleanuphandler.h"
-#include "qcore_mac.h"
+#include <private/qcore_mac_p.h>
 #include <stdlib.h>
 
 /*****************************************************************************

@@ -15,7 +15,7 @@
 #include "qmenu.h"
 #include "qhash.h"
 #include "qapplication.h"
-#include "qt_mac.h"
+#include <private/qt_mac_p.h>
 #include "qregexp.h"
 #include "qdockwindow.h"
 #include "qtoolbar.h"

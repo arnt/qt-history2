@@ -14,7 +14,7 @@
 #include "qguieventloop.h"
 #include "qapplication.h"
 #include "qevent.h"
-#include "qt_mac.h"
+#include <private/qt_mac_p.h>
 #include <qhash.h>
 #include "qsocketnotifier.h"
 #include "private/qwidget_p.h"

@@ -12,7 +12,7 @@
 **
 ****************************************************************************/
 
-#include "qt_mac.h"
+#include <private/qt_mac_p.h>
 #include "qfontengine_p.h"
 #include <stdlib.h>
 

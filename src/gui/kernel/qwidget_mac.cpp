@@ -12,7 +12,7 @@
 **
 ****************************************************************************/
 
-#include "qt_mac.h"
+#include <private/qt_mac_p.h>
 
 #include "qapplication.h"
 #include "qapplication_p.h"
@@ -24,7 +24,7 @@
 #include "qimage.h"
 #include "qlayout.h"
 #include "qpaintdevicemetrics.h"
-#include "qpaintengine_mac.h"
+#include <qpaintengine_mac.h>
 #include "qpainter.h"
 #include "qstack.h"
 #include "qstyle.h"

@@ -15,7 +15,7 @@
 #ifndef QT_MAC_H
 #define QT_MAC_H
 
-#include <qcore_mac.h>
+#include <private/qcore_mac_p.h>
 #include "qglobal.h"
 
 #if (MAC_OS_X_VERSION_MAX_ALLOWED < MAC_OS_X_VERSION_10_3)

@@ -403,7 +403,7 @@ private:
 
 
 #elif defined(Q_WS_MAC)
-#include "qt_mac.h"
+#include <private/qt_mac_p.h>
 #include <qmap.h>
 #include <qcache.h>
 

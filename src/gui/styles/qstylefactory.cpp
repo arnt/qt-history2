@@ -34,8 +34,8 @@
 
 #if !defined(QT_NO_STYLE_MAC) && defined(Q_WS_MAC)
 QString pstring2qstring(const unsigned char *c); //qglobal.cpp
-#include "qt_mac.h"
-#include "qmacstyle_mac.h"
+#  include <private/qt_mac_p.h>
+#  include "qmacstyle_mac.h"
 #endif
 
 #ifndef QT_NO_COMPONENT

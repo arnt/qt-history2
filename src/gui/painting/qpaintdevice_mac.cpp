@@ -18,7 +18,7 @@
 #include "qwidget.h"
 #include "qbitmap.h"
 #include "qapplication.h"
-#include "qt_mac.h"
+#include <private/qt_mac_p.h>
 
 /*****************************************************************************
   Internal variables and functions

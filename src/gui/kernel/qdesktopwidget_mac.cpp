@@ -14,7 +14,7 @@
 
 #include "qapplication.h"
 #include "qdesktopwidget.h"
-#include "qt_mac.h"
+#include <private/qt_mac_p.h>
 
 /*****************************************************************************
   Externals

@@ -39,7 +39,7 @@
 #include "qtextcodec.h"
 #include "qregexp.h"
 #include "qmap.h"
-#include "qt_mac.h"
+#include <private/qt_mac_p.h>
 
 typedef QList<QMacMime*> MimeList;
 Q_GLOBAL_STATIC(MimeList, globalMimeList)

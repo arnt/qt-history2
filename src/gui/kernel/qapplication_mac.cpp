@@ -25,7 +25,7 @@
 #include "qmessagebox.h"
 #include "qmime.h"
 #include "qpaintdevicemetrics.h"
-#include "qpaintengine_mac.h"
+#include <qpaintengine_mac.h>
 #include "qpixmapcache.h"
 #include "qsessionmanager.h"
 #include "qsettings.h"

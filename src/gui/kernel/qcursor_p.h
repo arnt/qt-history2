@@ -28,7 +28,7 @@
 #ifndef QT_H
 #include <qatomic.h>
 # if defined (Q_WS_MAC)
-#  include <qt_mac.h>
+#  include <private/qt_mac_p.h>
 #if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
 #    define QMAC_USE_BIG_CURSOR_API
 #  endif

@@ -13,7 +13,7 @@
 ****************************************************************************/
 
 #include "qprintdialog_mac.h"
-#include "qt_mac.h"
+#include <private/qt_mac_p.h>
 
 #include <qprintengine_mac.h>
 #include <private/qabstractprintdialog_p.h>
