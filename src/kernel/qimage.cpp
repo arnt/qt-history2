@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.cpp#55 $
+** $Id: //depot/qt/main/src/kernel/qimage.cpp#56 $
 **
 ** Implementation of QImage and QImageIO classes
 **
@@ -20,7 +20,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#55 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#56 $")
 
 
 /*----------------------------------------------------------------------------
@@ -76,9 +76,9 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#55 $")
     QImage image;
       // sets 24 bit pixel at (x,y) to yellow.
     uchar *p = image.scanLine(y) + 3*x;
-    *p++ = 255;		// red
-    *p++ = 255;		// green
-    *p   = 0;		// blue
+    p[0] = 255;		// red
+    p[1] = 255;		// green
+    p[2] = 0;		// blue
   \endcode
 
   The scanlines are 32-bit aligned for all depths.
@@ -712,10 +712,6 @@ static bool convert_1_to_8( const QImage *src, QImage *dst )
 // Floyd-Steinberg dithering is a one-pass algorithm that moves errors
 // rightwards.
 //
-// It happens to be the first dithering algorithm in most textbooks
-//
-// It loses badly and should be replaces ASAP
-//
 
 static bool dither_image( const QImage *src, QImage *dst )
 {
@@ -733,80 +729,78 @@ static bool dither_image( const QImage *src, QImage *dst )
     }
     int *line1 = new int[w];
     int *line2 = new int[w];
-    uchar *bmline = new uchar[w];
     int bmwidth = (w+7)/8;
-    if ( !(line1 && line2 && bmline) )
+    if ( !(line1 && line2) )
 	return FALSE;
     register uchar *p;
-    int *b1, *b2, *end;
+    uchar *end;
+    int *b1, *b2;
+    int wbytes = w * (src->depth()/8);
     p = src->bits();
+    end = p + wbytes;
     b2 = line2;
-    end = b2 + w;
     if ( use_gray ) {				// 8 bit image
-	while ( b2 < end )
+	while ( p < end )
 	    *b2++ = gray[*p++];
     }
     else {					// 24 bit image
-	while ( b2 < end ) {
+	while ( p < end ) {
 	    *b2++ = QGRAY(p[0],p[1],p[2]);
 	    p += 3;
 	}
     }
-    for ( int y=0; y<h; y++ ) {			// for each scan line...
+    int x, y;
+    for ( y=0; y<h; y++ ) {			// for each scan line...
 	int *tmp = line1; line1 = line2; line2 = tmp;
 	bool not_last_line = y < h - 1;
 	if ( not_last_line ) {			// calc. grayvals for next line
 	    p = src->scanLine(y+1);
+	    end = p + wbytes;
 	    b2 = line2;
-	    end = b2 + w;
 	    if ( use_gray ) {			// 8 bit image
-		while ( b2 < end )
+		while ( p < end )
 		    *b2++ = gray[*p++];
 	    }
 	    else {				// 24 bit image
-		while ( b2 < end ) {
+		while ( p < end ) {
 		    *b2++ = QGRAY(p[0],p[1],p[2]);
 		    p += 3;
 		}
 	    }
 	}
 	int err;
-	p = bmline;
-	b1 = line1;  b2 = line2;
-	end = b1 + w;
-	while ( b1 < end ) {
+	p = dst->scanLine( y );
+	memset( p, 0, bmwidth );
+	b1 = line1;
+	b2 = line2;
+	int bit = 7;
+	for ( x=1; x<=w; x++ ) {
 	    if ( *b1 < 128 ) {			// black pixel
 		err = *b1++;
-		*p++ = 1;
-	    }
-	    else {				// white pixel
+		*p |= 1 << bit;
+	    } else {				// white pixel
 		err = *b1++ - 255;
-		*p++ = 0;
 	    }
-	    if ( b1 != end )
+	    if ( bit == 0 ) {
+		p++;
+		bit = 7;
+	    } else {
+		bit--;
+	    }
+	    if ( x < w )
 		*b1 += (err*7)/16;		// spread error to right pixel
 	    if ( not_last_line ) {
 		b2[0] += (err*5)/16;		// pixel below
-		if ( b1 != end )
-		    b2[1] += err/16;		// pixel below right
-		if ( b1 != line1 )
+		if ( x > 1 )
 		    b2[-1] += (err*3)/16;	// pixel below left
+		if ( x < w )
+		    b2[1] += err/16;		// pixel below right
 	    }
 	    b2++;
-	}
-	p = bmline;
-	uchar *b = dst->scanLine(y);
-	memset( b, 0, bmwidth );
-	for ( int x=0; x<w; x++ ) {
-	    if ( *p++ )
-		*b |= 1 << (7 - (x & 7));
-	    if ( (x & 7) == 7 )
-		b++;
 	}
     }
     delete [] line1;
     delete [] line2;
-    delete [] bmline;
     return TRUE;
 }
 
