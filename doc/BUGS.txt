@@ -39,6 +39,9 @@ QToolButton (for 3.0)
 QWorkspace
     QWidget::isMinimzed(), isMaximized() return wrong value, and setFocus doesn't de-iconify child
 
+WType_Popup
+    Children don't get enter/leave events.
+
 Cosmetic
 --------
 
