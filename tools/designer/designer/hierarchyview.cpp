@@ -645,6 +645,7 @@ void FunctionList::save( QListViewItem *p )
     lIface->setDefinitionEntries( p->text( 0 ), lst, hierarchyView->formWindow()->mainWindow()->designerInterface() );
     lIface->release();
     setup();
+    hierarchyView->formWindow()->commandHistory()->setModified( TRUE );
 }
 
 // ------------------------------------------------------------
