@@ -1,20 +1,43 @@
 <!DOCTYPE UI><UI version="3.0" stdsetdef="1">
-<class>Form1</class>
+<class>EditorForm</class>
+<include location="global" impldecl="in declaration">qfontdatabase.h</include>
+<include location="global" impldecl="in declaration">qfiledialog.h</include>
+<include location="global" impldecl="in declaration">qmessagebox.h</include>
+<include location="global" impldecl="in declaration">qapplication.h</include>
 <widget class="QMainWindow">
     <property name="name">
-        <cstring>Form1</cstring>
+        <cstring>EditorForm</cstring>
     </property>
     <property name="geometry">
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>632</width>
-            <height>496</height>
+            <width>686</width>
+            <height>484</height>
         </rect>
     </property>
     <property name="caption">
-        <string>Form1</string>
+        <string>Rich Edit</string>
     </property>
+    <hbox>
+        <property name="name">
+            <cstring>unnamed</cstring>
+        </property>
+        <property name="margin">
+            <number>11</number>
+        </property>
+        <property name="spacing">
+            <number>6</number>
+        </property>
+        <widget class="QTextEdit">
+            <property name="name">
+                <cstring>textEdit</cstring>
+            </property>
+            <property name="textFormat">
+                <enum>RichText</enum>
+            </property>
+        </widget>
+    </hbox>
 </widget>
 <menubar>
     <item text="&amp;File" name="fileMenu">
@@ -72,12 +95,18 @@
         <separator/>
         <widget class="QComboBox">
             <property name="name">
-                <cstring>ComboBox3</cstring>
+                <cstring>fontComboBox</cstring>
             </property>
         </widget>
         <widget class="QSpinBox">
             <property name="name">
                 <cstring>SpinBox2</cstring>
+            </property>
+            <property name="minValue">
+                <number>5</number>
+            </property>
+            <property name="value">
+                <number>10</number>
             </property>
         </widget>
     </toolbar>
@@ -463,80 +492,122 @@
     <connection>
         <sender>fileNewAction</sender>
         <signal>activated()</signal>
-        <receiver>Form1</receiver>
+        <receiver>EditorForm</receiver>
         <slot>fileNew()</slot>
     </connection>
     <connection>
         <sender>fileOpenAction</sender>
         <signal>activated()</signal>
-        <receiver>Form1</receiver>
+        <receiver>EditorForm</receiver>
         <slot>fileOpen()</slot>
     </connection>
     <connection>
         <sender>fileSaveAction</sender>
         <signal>activated()</signal>
-        <receiver>Form1</receiver>
+        <receiver>EditorForm</receiver>
         <slot>fileSave()</slot>
     </connection>
     <connection>
         <sender>fileSaveAsAction</sender>
         <signal>activated()</signal>
-        <receiver>Form1</receiver>
+        <receiver>EditorForm</receiver>
         <slot>fileSaveAs()</slot>
     </connection>
     <connection>
         <sender>fileExitAction</sender>
         <signal>activated()</signal>
-        <receiver>Form1</receiver>
+        <receiver>EditorForm</receiver>
         <slot>fileExit()</slot>
-    </connection>
-    <connection>
-        <sender>editUndoAction</sender>
-        <signal>activated()</signal>
-        <receiver>Form1</receiver>
-        <slot>editUndo()</slot>
-    </connection>
-    <connection>
-        <sender>editRedoAction</sender>
-        <signal>activated()</signal>
-        <receiver>Form1</receiver>
-        <slot>editRedo()</slot>
-    </connection>
-    <connection>
-        <sender>editCutAction</sender>
-        <signal>activated()</signal>
-        <receiver>Form1</receiver>
-        <slot>editCut()</slot>
-    </connection>
-    <connection>
-        <sender>editCopyAction</sender>
-        <signal>activated()</signal>
-        <receiver>Form1</receiver>
-        <slot>editCopy()</slot>
-    </connection>
-    <connection>
-        <sender>editPasteAction</sender>
-        <signal>activated()</signal>
-        <receiver>Form1</receiver>
-        <slot>editPaste()</slot>
     </connection>
     <connection>
         <sender>helpIndexAction</sender>
         <signal>activated()</signal>
-        <receiver>Form1</receiver>
+        <receiver>EditorForm</receiver>
         <slot>helpIndex()</slot>
     </connection>
     <connection>
         <sender>helpContentsAction</sender>
         <signal>activated()</signal>
-        <receiver>Form1</receiver>
+        <receiver>EditorForm</receiver>
         <slot>helpContents()</slot>
     </connection>
     <connection>
         <sender>helpAboutAction</sender>
         <signal>activated()</signal>
-        <receiver>Form1</receiver>
+        <receiver>EditorForm</receiver>
         <slot>helpAbout()</slot>
+    </connection>
+    <connection>
+        <sender>SpinBox2</sender>
+        <signal>valueChanged(int)</signal>
+        <receiver>textEdit</receiver>
+        <slot>setPointSize(int)</slot>
+    </connection>
+    <connection>
+        <sender>editCutAction</sender>
+        <signal>activated()</signal>
+        <receiver>textEdit</receiver>
+        <slot>cut()</slot>
+    </connection>
+    <connection>
+        <sender>editPasteAction</sender>
+        <signal>activated()</signal>
+        <receiver>textEdit</receiver>
+        <slot>paste()</slot>
+    </connection>
+    <connection>
+        <sender>editCopyAction</sender>
+        <signal>activated()</signal>
+        <receiver>textEdit</receiver>
+        <slot>copy()</slot>
+    </connection>
+    <connection>
+        <sender>editRedoAction</sender>
+        <signal>activated()</signal>
+        <receiver>textEdit</receiver>
+        <slot>redo()</slot>
+    </connection>
+    <connection>
+        <sender>editUndoAction</sender>
+        <signal>activated()</signal>
+        <receiver>textEdit</receiver>
+        <slot>undo()</slot>
+    </connection>
+    <connection>
+        <sender>alignActionGroup</sender>
+        <signal>selected(QAction*)</signal>
+        <receiver>EditorForm</receiver>
+        <slot>changeAlignment(QAction*)</slot>
+    </connection>
+    <connection>
+        <sender>underlineAction</sender>
+        <signal>toggled(bool)</signal>
+        <receiver>textEdit</receiver>
+        <slot>setUnderline(bool)</slot>
+    </connection>
+    <connection>
+        <sender>italicAction</sender>
+        <signal>toggled(bool)</signal>
+        <receiver>textEdit</receiver>
+        <slot>setItalic(bool)</slot>
+    </connection>
+    <connection>
+        <sender>boldAction</sender>
+        <signal>toggled(bool)</signal>
+        <receiver>textEdit</receiver>
+        <slot>setBold(bool)</slot>
+    </connection>
+    <connection>
+        <sender>fontComboBox</sender>
+        <signal>activated(const QString&amp;)</signal>
+        <receiver>textEdit</receiver>
+        <slot>setFamily(const QString&amp;)</slot>
+    </connection>
+    <connection>
+        <sender>fontComboBox</sender>
+        <signal>activated(const QString&amp;)</signal>
+        <receiver>textEdit</receiver>
+        <slot>setFocus()</slot>
     </connection>
     <slot access="protected" language="C++">init()</slot>
     <slot access="protected" language="C++">destroy()</slot>
@@ -544,16 +615,104 @@
     <slot access="public" language="C++">fileOpen()</slot>
     <slot access="public" language="C++">fileSave()</slot>
     <slot access="public" language="C++">fileSaveAs()</slot>
-    <slot access="public" language="C++">filePrint()</slot>
-    <slot access="public" language="C++">fileExit()</slot>
-    <slot access="public" language="C++">editUndo()</slot>
-    <slot access="public" language="C++">editRedo()</slot>
-    <slot access="public" language="C++">editCut()</slot>
-    <slot access="public" language="C++">editCopy()</slot>
-    <slot access="public" language="C++">editPaste()</slot>
-    <slot access="public" language="C++">editFind()</slot>
-    <slot access="public" language="C++">helpIndex()</slot>
-    <slot access="public" language="C++">helpContents()</slot>
     <slot access="public" language="C++">helpAbout()</slot>
+    <slot access="public" language="C++">helpContents()</slot>
+    <slot access="public" language="C++">helpIndex()</slot>
+    <slot access="public" language="C++">fileExit()</slot>
+    <slot access="public" language="C++">changeAlignment( QAction *align )</slot>
+    <slot access="public" language="C++">saveAndContinue( int &amp;continueAction,const QString &amp;action )</slot>
 </connections>
+<functions>
+    <function name="init()" >{
+    textEdit-&gt;setFocus();  
+    QFontDatabase fonts;
+    fontComboBox-&gt;insertStringList( fonts.families() );
+    QString font = textEdit-&gt;family();
+    font = font.lower();
+    for ( int i = 0 ; i &lt; fontComboBox-&gt;count(); i++ ) {
+	if ( font == fontComboBox-&gt;text( i ) ) {
+	    fontComboBox-&gt;setCurrentItem( i );
+	    break;
+	}
+    }
+}</function>
+    <function name="destroy()" >{
+    
+}</function>
+    <function name="fileNew()" >{
+    int continueAction;
+    saveAndContinue( continueAction, "New" );
+    if ( continueAction )
+    	textEdit-&gt;clear();
+}</function>
+    <function name="fileOpen()" >{
+    int continueAction;
+    saveAndContinue( continueAction, "Open" );
+    if ( continueAction ) {
+    	QString fileName( QFileDialog::getOpenFileName( 
+				QString::null, 
+				"Rich Text Files (*.rtx)", this ) );   
+    	if ( ! fileName.isEmpty() )
+		textEdit-&gt;load( fileName );
+    }
+}</function>
+    <function name="fileSave()" >{
+    QString fileName = textEdit-&gt;fileName();
+    if ( fileName.isEmpty() )
+	fileSaveAs();
+    else
+	textEdit-&gt;save( fileName );
+}</function>
+    <function name="fileSaveAs()" >{
+    QString fileName = QFileDialog::getSaveFileName( 
+    				"", "Rich Text Files (*.rtx)", this );
+    if ( ! fileName.isEmpty() )
+    	textEdit-&gt;save( fileName );
+}</function>
+    <function name="helpAbout()" >{
+    
+}</function>
+    <function name="helpContents()" >{
+    
+}</function>
+    <function name="helpIndex()" >{
+    
+}</function>
+    <function name="fileExit()" >{
+    int continueAction;
+    saveAndContinue( continueAction, "Exit" );
+    if ( continueAction )
+	qApp-&gt;exit();
+}</function>
+    <function name="changeAlignment(QAction*)" >{
+    if ( align == leftAlignAction ) 
+	textEdit-&gt;setAlignment( Qt::AlignLeft );
+    else if ( align == rightAlignAction )
+	textEdit-&gt;setAlignment( Qt::AlignRight );
+    else if ( align == centerAlignAction )
+	textEdit-&gt;setAlignment( Qt::AlignCenter );
+}</function>
+    <function name="saveAndContinue(int&amp;,const QString&amp;)" >{
+    continueAction = 1;
+    
+    if ( textEdit-&gt;isModified() ) {  
+	switch( QMessageBox::information(     
+		this, "Rich Edit",   
+		"The document contains unsaved changes.\n"   
+		"Do you want to save the changes?",   
+		"&amp;Save", "&amp;Don't Save", "&amp;Cancel " + action,   
+		0, // Enter == button 0   
+		2 ) ) { // Escape == button 2   
+	case 0: // Save; continue  
+     		fileSave();  
+        	break;   
+    	case 1: // Don't save; continue
+        	break;   
+    	case 2: // Cancel
+		continueAction = 0;
+        	break;  
+    	}	  
+    }  
+}</function>
+</functions>
 </UI>

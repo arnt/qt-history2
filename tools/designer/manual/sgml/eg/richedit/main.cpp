@@ -16,7 +16,7 @@ int main( int argc, char *argv[] )
 {
     QApplication app( argc, argv );
 
-    FormRichEdit richeditForm;
+    EditorForm richeditForm;
     app.setMainWidget( &richeditForm );
     richeditForm.show();
 
