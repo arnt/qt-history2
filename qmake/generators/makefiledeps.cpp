@@ -24,10 +24,11 @@ QMakeLocalFileName::QMakeLocalFileName(const QString &name) : is_null(name.isNul
 
 struct SourceDependChildren;
 struct SourceFile {
-    SourceFile() : deps(0), mocable(0), traversed(0), exists(1) { }
+    SourceFile() : deps(0), mocable(0), traversed(0), exists(1),
+		   moc_checked(0), dep_checked(0) { }
     QMakeLocalFileName file;
     SourceDependChildren *deps;
-    uint mocable : 1, traversed : 1, exists : 1;
+    uint mocable : 1, traversed : 1, exists : 1, moc_checked : 1,  dep_checked : 1;
 };
 struct SourceDependChildren {
     SourceFile **children;
@@ -66,7 +67,7 @@ SourceFiles::SourceFiles()
     for(int n = 0; n < num_nodes; n++)
 	nodes[n] = 0;
 }
- 
+
 SourceFiles::~SourceFiles()
 {
     for(int n = 0; n < num_nodes; n++) {
@@ -168,7 +169,7 @@ QStringList QMakeSourceFileInfo::dependencies(const QString &file)
 
 bool QMakeSourceFileInfo::mocable(const QString &file)
 {
-    if(SourceFile *node = files->lookupFile(file)) 
+    if(SourceFile *node = files->lookupFile(file))
 	return node->mocable;
     return false;
 }
@@ -180,7 +181,7 @@ QMakeSourceFileInfo::QMakeSourceFileInfo()
     spare_buffer_size = 0;
 }
 
-QMakeSourceFileInfo::~QMakeSourceFileInfo() 
+QMakeSourceFileInfo::~QMakeSourceFileInfo()
 {
     delete files;
     if(spare_buffer) {
@@ -200,14 +201,14 @@ void QMakeSourceFileInfo::addSourceFiles(const QStringList &l, uchar seek)
 	if(!file) {
 	    file = new SourceFile;
 	    file->file = fn;
-	    /* Do moc before dependency checking since some includes can come from
-	       moc_*.cpp files */
-	    if(seek & SEEK_MOCS)
-		findMocs(file);
-	    if(seek & SEEK_DEPS)
-		findDeps(file);
-	    files->addFile(file);
 	}
+	/* Do moc before dependency checking since some includes can come from
+	   moc_*.cpp files */
+	if(seek & SEEK_MOCS && !file->moc_checked)
+	    findMocs(file);
+	if(seek & SEEK_DEPS && !file->dep_checked)
+	    findDeps(file);
+	files->addFile(file);
     }
 }
 
@@ -239,6 +240,7 @@ QMakeLocalFileName QMakeSourceFileInfo::findFileForDep(const QMakeLocalFileName 
 
 bool QMakeSourceFileInfo::findDeps(SourceFile *file)
 {
+    file->dep_checked = true;
     if(!file->deps)
 	file->deps = new SourceDependChildren;
     struct stat fst;
@@ -388,7 +390,7 @@ bool QMakeSourceFileInfo::findDeps(SourceFile *file)
 			term = '\'';
 		    if(term != '\n')
 			x++;
-		
+
 		    int msg_len;
 		    for(msg_len = 0; *(buffer + x + msg_len) != term && *(buffer + x + msg_len) != '\n'; msg_len++);
 		    *(buffer + x + msg_len) = '\0';
@@ -413,7 +415,7 @@ bool QMakeSourceFileInfo::findDeps(SourceFile *file)
 	    }
 
 	    if(dep->exists) {
-		debug_msg(5, "%s:%d Found dependency to %s", file->file.real().latin1(), 
+		debug_msg(5, "%s:%d Found dependency to %s", file->file.real().latin1(),
 			  line_count, dep->file.local().latin1());
 		file->deps->addChild(dep);
 	    }
@@ -423,7 +425,7 @@ bool QMakeSourceFileInfo::findDeps(SourceFile *file)
         line_count++;
     }
     for(int i = 0; i < file->deps->used_nodes; i++) { //now recurse
-	if(!file->deps->children[i]->deps) 
+	if(!file->deps->children[i]->deps)
 	    findDeps(file->deps->children[i]);
     }
     return true;
@@ -431,6 +433,8 @@ bool QMakeSourceFileInfo::findDeps(SourceFile *file)
 
 bool QMakeSourceFileInfo::findMocs(SourceFile *file)
 {
+    file->moc_checked = true;
+
     int buffer_len;
     char *buffer = 0;
     {
@@ -448,6 +452,7 @@ bool QMakeSourceFileInfo::findMocs(SourceFile *file)
 	close(fd);
     }
 
+    debug_msg(2, "findMocs: %s", file->file.local().latin1());
     int line_count = 1;
     bool ignore_qobject = false;
  /* qmake ignore Q_OBJECT */
@@ -487,6 +492,12 @@ bool QMakeSourceFileInfo::findMocs(SourceFile *file)
 #define SYMBOL_CHAR(x) ((x >= 'a' && x <= 'z') || (x >= 'A' && x <= 'Z') || \
 			(x <= '0' && x >= '9') || x == '_')
 
+// 	if (file->file.local().contains("qobject")) {
+// 	    char str[20];
+// 	    memcpy(str, buffer+x, 19);
+// 	    str[19]=0;
+// 	    qDebug("checking line %d , x=%d, char='%s'", line_count, x, str);
+// 	}
 	bool interesting = *(buffer+x) == 'Q' && (!strncmp(buffer+x, "Q_OBJECT", OBJ_LEN) ||
 						      !strncmp(buffer+x, "Q_DISPATCH", DIS_LEN));
 	if(interesting) {
