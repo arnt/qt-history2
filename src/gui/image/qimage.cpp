@@ -666,7 +666,7 @@ QImage QImage::copy() const
 
     \sa bitBlt() Qt::ImageConversionFlags
 */
-inline QImage QImage::copy(const QRect& r, int conversion_flags) const
+QImage QImage::copy(const QRect& r, int conversion_flags) const
 {
     int x = r.x();
     int y = r.y();
