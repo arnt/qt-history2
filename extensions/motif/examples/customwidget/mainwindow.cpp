@@ -11,19 +11,18 @@
 **
 ****************************************************************************/
 
-#include "mainwindow.h"
+#include <QApplication>
+#include <QMenuBar>
+#include <QMenu>
+#include <QStatusBar>
 
-#include <qapplication.h>
-#include <qmenubar.h>
-#include <qmenu.h>
-#include <qstatusbar.h>
+#include "mainwindow.h"
 
 #include <QtMotif/QMotifWidget>
 
 #include <Xm/Form.h>
 #include <Xm/PushB.h>
 #include <Xm/Text.h>
-
 
 MainWindow::MainWindow()
     : QMainWindow()
@@ -34,8 +33,7 @@ MainWindow::MainWindow()
     menuBar()->addMenu(filemenu);
     statusBar()->message( tr("This is a QMainWindow with an XmText widget.") );
 
-    customwidget =
-	new QMotifWidget( this, xmFormWidgetClass, NULL, 0, "form" );
+    customwidget = new QMotifWidget("form", xmFormWidgetClass, this);
 
     XmString str;
     Arg args[6];
@@ -65,4 +63,3 @@ MainWindow::MainWindow()
 
     resize( 400, 600 );
 }
-

@@ -11,17 +11,18 @@
 **
 ****************************************************************************/
 
+#include <QApplication>
+
 #include "mainwindow.h"
 
-#include <QApplication>
 #include <QtMotif/QMotif>
 
 int main( int argc, char **argv )
 {
     XtSetLanguageProc( NULL, NULL, NULL );
 
-    QApplication app( argc, argv );
     QMotif integrator( "customwidget" );
+    QApplication app( argc, argv );
 
     MainWindow mainwindow;
     app.setMainWidget( &mainwindow );
