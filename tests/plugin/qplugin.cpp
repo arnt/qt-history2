@@ -445,12 +445,14 @@ QStringList QPlugIn::featureList()
 */
 
 /*!
-  \fn QPlugInManager::QPlugInManager( const QString &path, QPlugIn::LibraryPolicy pol )
+  \fn QPlugInManager::QPlugInManager( const QString &path, const QString &filter, QPlugIn::LibraryPolicy pol, const char* fn )
 
   Creates a plugin manager.
-  The manager looks up and loads all shared libraries in \a path.
+  The manager looks up and loads all shared libraries in \a path that match the filter.
 
-  \sa addPlugInPath(), addPlugIn()
+  The default policy \a pol and the library function name \a fn will be passed to the QPlugIn constructor.
+
+  \sa QPlugIn::QPlugIn(), addPlugInPath(), addPlugIn()
 */
 
 /*!
@@ -463,9 +465,10 @@ QStringList QPlugIn::featureList()
 /*!
   \fn void QPlugInManager::setDefaultPolicy( QPlugIn::LibraryPolicy pol )
 
-  Sets the current default policy to \a pol.
+  Sets the current default policy to \a pol, which will be used for all
+  libraries that are added to this manager.
   The default policy does not affect plugins already registered to
-  this manager.
+  the manager.
 
   \sa QPlugIn::setPolicy
 */
@@ -479,24 +482,85 @@ QStringList QPlugIn::featureList()
 */
 
 /*!
+  \fn void QPlugInManager::setDefaultFunction( const char* fn ) const
+
+  Sets the default function that will be used to look up the QPlugInInterface.
+  The default lookup function does not affect plugins already registered to
+  the manager.
+*/
+
+/*!
+  \fn const char* QPlugInManager::defaultFunction() const
+
+  Returns the current default lookup function.
+
+  \sa setDefaultFunction
+*/
+
+/*!
   \fn QPlugIn* QPlugInManager::addLibrary( const QString& file )
 
-  Loads the shared library \a file and registers all provided
-  widgets and actions. Returns the QPlugIn* created when successful, 
-  otherwise 0.
+  Loads the shared library \a file and registers the provided
+  features. Returns the QPlugIn created when successful, 
+  otherwise null.
 
-  \sa addPlugIn()
+  The default library policy and the lookup function name will be 
+  passed to the created QPlugIn object.
+  
+  \sa setDefaultPolicy, setDefaultFunction
 */
 
 /*!
   \fn bool QPlugInManager::removeLibrary( const QString& file )
 
-  Tries to unload the library. Returns TRUE when successful, and removes 
-  the library from management. Otherwise returns FALSE.
+  Tries to unload the library and removes the library from management. All features
+  provided by the specified library will no longer be available using this plugin
+  manager, and the corresponding QPlugIn object will be deleted in any case.
+  
+  Returns TRUE when successful, otherwise returns FALSE.
 */
 
 /*!
   \fn void QPlugInManager::addPlugInPath( const QString& path, const QString& filter )
 
   Tries to add all shared libraries matching \a filter in \a path.
+*/
+
+/*!
+  \fn QPlugIn* QPlugInManager::plugIn( const QString &feature )
+
+  Returns the QPlugIn object that provides \a feature, or null if the feature is
+  not know to this manager.
+*/
+
+
+/*!
+  \fn QPlugIn* QPlugInManager::plugInFromFile( const QString& file )
+  
+  Returns the QPlugIn object that provides acces to the library \a file, or null
+  if the library is not know to this manager.
+*/
+
+/*!
+  \fn QList<QPlugIn> QPlugInManager::plugInList()
+
+  Returns a list of all QPlugIn object known to this manager.
+*/
+
+/*!
+  \fn QStringList QPlugInManager::libraryList()
+
+  Returns a list of all library files this manager handles.
+*/
+
+/*!
+  \fn QStringList QPlugInManager::features()
+
+  Returns a list of all features known to this manager.
+  The method will call the features() method for all QPlugIn objects handled by this
+  plugin manager and return the results, so calling this function may be quite ineffective. 
+  
+  Use plugIn() to get access to the plugin object providing the specified feature.
+
+  \sa plugIn, plugInFromFile
 */
