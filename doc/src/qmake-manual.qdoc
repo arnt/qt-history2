@@ -260,7 +260,7 @@
 
     \code
         SOURCES = hello.cpp \
-	          main.cpp
+                  main.cpp
     \endcode
 
     Now that the source files are listed in the project file, the header
@@ -345,7 +345,7 @@
 
     \code
         win32 {
-	    SOURCES += hellowin.cpp
+            SOURCES += hellowin.cpp
         }
     \endcode
 
@@ -363,10 +363,10 @@
         SOURCES += hello.cpp
         SOURCES += main.cpp 
         win32 {
-	    SOURCES += hellowin.cpp
+            SOURCES += hellowin.cpp
         }
         unix {
-	    SOURCES += hellounix.cpp
+            SOURCES += hellounix.cpp
         }
     \endcode
 
@@ -382,7 +382,7 @@
 
     \code
         !exists( main.cpp ) {
-	    error( "No main.cpp file found" )
+            error( "No main.cpp file found" )
         }
     \endcode
 
@@ -396,13 +396,13 @@
         SOURCES += hello.cpp
         SOURCES += main.cpp 
         win32 {
-	    SOURCES += hellowin.cpp
+            SOURCES += hellowin.cpp
         }
         unix {
-	    SOURCES += hellounix.cpp
+            SOURCES += hellounix.cpp
         }
         !exists( main.cpp ) {
-	    error( "No main.cpp file found" )
+            error( "No main.cpp file found" )
         }
     \endcode
 
@@ -425,9 +425,9 @@
 
     \code
         win32 {
-	    debug {
-	        CONFIG += console
-	    }
+            debug {
+                CONFIG += console
+            }
         }
     \endcode
 
@@ -440,16 +440,16 @@
         SOURCES += hello.cpp
         SOURCES += main.cpp 
         win32 {
-	    SOURCES += hellowin.cpp
+            SOURCES += hellowin.cpp
         }
         unix {
-	    SOURCES += hellounix.cpp
+            SOURCES += hellounix.cpp
         }
         !exists( main.cpp ) {
-	    error( "No main.cpp file found" )
+            error( "No main.cpp file found" )
         }
         win32:debug {
-	    CONFIG += console
+            CONFIG += console
         }
     \endcode
 
