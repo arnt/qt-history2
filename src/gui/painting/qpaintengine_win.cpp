@@ -1036,7 +1036,7 @@ void QWin32PaintEngine::drawPixmap(const QRect &r, const QPixmap &pixmap, const 
     bool stretch = r.width() != sr.width() || r.height() != sr.height();
 
     if (!imask && mask) {
-        if (stretch) {
+        if (stretch || d->pdev->devType() == QInternal::Printer) {
             QImage imageData(pixmap);
             QImage imageMask = imageData.createAlphaMask();
             QBitmap tmpbm = imageMask;
