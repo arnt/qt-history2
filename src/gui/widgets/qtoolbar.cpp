@@ -190,7 +190,7 @@ int QToolBarPrivate::indexOf(QAction *action) const
 /*!
     \fn void QToolBar::toolButtonStyleChanged(Qt::ToolButtonStyle toolButtonStyle)
 
-    This signal is emitted when the tool button style is changed.  The
+    This signal is emitted when the tool button style is changed. The
     \a toolButtonStyle parameter holds the toolbar's new tool button
     style.
 
