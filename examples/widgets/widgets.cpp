@@ -734,16 +734,13 @@ void WidgetView::showProperties()
 {
     if ( !qApp->focusWidget() )
 	return;
-    QStrList properties
-	= qApp->focusWidget()->metaObject()->propertyNames( TRUE );
     QCString output;
     output.sprintf( "Properties for class '%s'",
 		    qApp->focusWidget()->className() );
     int i = 0;
-    while( i < (int) properties.count() ) {
+    while( i < (int) qApp->focusWidget()->metaObject()->numProperties( TRUE ) ) {
 	const QMetaProperty* p
-	    = qApp->focusWidget()->metaObject()->property( properties.at(i),
-							   TRUE );
+	    = qApp->focusWidget()->metaObject()->property( i, TRUE );
 	QCString tmp;
 	tmp.sprintf( "\n %2d: %s (read-%s, %s)", ++i, p->name(),
 		     p->writable() ? "write" : "only", p->type() );
