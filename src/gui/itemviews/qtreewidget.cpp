@@ -390,8 +390,16 @@ QDrag::DropActions QTreeModel::supportedDropActions() const
 
 bool QTreeModel::insertRows(int row, const QModelIndex &parent, int count)
 {
+    // prepare for updating persistent model indexes
+    QVector<int> toBeUpdated;
+    for (int i = 0; i < persistentIndexesCount(); ++i) {
+        QModelIndex idx = persistentIndexAt(i);
+        if (idx.row() >= row && idx.parent() == parent)
+            toBeUpdated.append(i);
+    }
     QTreeWidgetItem *c = 0;
     if (parent.isValid()) {
+        // add items
         QTreeWidgetItem *p = item(parent);
         Q_ASSERT(p);
         for (int r = row; r < row + count; ++r) {
@@ -401,7 +409,17 @@ bool QTreeModel::insertRows(int row, const QModelIndex &parent, int count)
             c->par = p;
             p->children.insert(r, c);
         }
+        // update persistent model indexes
+        for (int j = 0; j < toBeUpdated.count(); ++j) {
+            int i = toBeUpdated.at(j);
+            QModelIndex idx = persistentIndexAt(i);
+            if (idx.row() >= p->children.count())
+                setPersistentIndex(i, QModelIndex::Null);
+            else if (idx.row() >= row)
+                setPersistentIndex(i, index(idx.row() + count, idx.column(), parent));
+        }
     } else {
+        // add items
         QTreeWidget *view = ::qt_cast<QTreeWidget*>(QObject::parent());
         for (int r = row; r < row + count; ++r) {
             c = new QTreeWidgetItem();
@@ -409,6 +427,15 @@ bool QTreeModel::insertRows(int row, const QModelIndex &parent, int count)
             c->model = this;
             c->par = 0;
             tree.insert(r, c);
+        }
+        // update persistent model indexes
+        for (int j = 0; j < toBeUpdated.count(); ++j) {
+            int i = toBeUpdated.at(j);
+            QModelIndex idx = persistentIndexAt(i);
+            if (idx.row() >= tree.count())
+                setPersistentIndex(i, QModelIndex::Null);
+            else if (idx.row() >= row)
+                setPersistentIndex(i, index(idx.row() + count, idx.column(), parent));
         }
     }
     emit rowsInserted(parent, row, row + count - 1);
@@ -425,22 +452,44 @@ bool QTreeModel::insertRows(int row, const QModelIndex &parent, int count)
 bool QTreeModel::removeRows(int row, const QModelIndex &parent, int count)
 {
     emit rowsAboutToBeRemoved(parent, row, row + count - 1);
+
+    // invalidate the subtrees of the deleted rows
+    for (int r = row; r < row + count; ++r)
+        invalidatePersistentIndexes(index(r, 0, parent));
+
+    int itemsCount = 0;
     QTreeWidgetItem *c = 0;
     if (parent.isValid()) {
+        // remove items
         QTreeWidgetItem *p = item(parent);
         Q_ASSERT(p);
         for (int r = row; r < row + count; ++r) {
              c = p->children.takeAt(r);
+             c->par = 0;
              c->view = 0;
              c->model = 0;
              delete c;
         }
+        itemsCount = p->children.count();
     } else {
+        // remove items
         for (int r = row; r < row + count; ++r) {
             c = tree.takeAt(r);
             c->view = 0;
             c->model = 0;
             delete c;
+        }
+        itemsCount = tree.count();
+    }
+
+    // prepare for updating persistent model indexes
+    for (int i = 0; i < persistentIndexesCount(); ++i) {
+        QModelIndex idx = persistentIndexAt(i); // invalidated index
+        if (idx.isValid() && idx.parent() == parent) {
+            if (idx.row() >= itemsCount)
+                setPersistentIndex(i, QModelIndex::Null);
+            else if (idx.row() >= row)
+                setPersistentIndex(i, index(idx.row() - count, idx.column(), parent));
         }
     }
     return true;
@@ -1004,7 +1053,6 @@ QTreeWidgetItem::~QTreeWidgetItem()
         child->model = 0;
         delete child;
     }
-
     children.clear();
 
     if (par) {

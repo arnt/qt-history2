@@ -982,18 +982,22 @@ void QTreeView::rowsAboutToBeRemoved(const QModelIndex &parent, int start, int e
     if (d->viewItems.isEmpty())
         return;
 
-    for (int i = start; i <= end; ++i) {
-        QModelIndex idx = model()->index(i, 0, parent);
+    // close all children
+    for (int i = start; i <= end; ++i)
         close(model()->index(i, 0, parent));
-    }
 
+    // close parent
     int p = d->viewIndex(parent);
-    d->close(p, false);
-    d->reopen = p;
-
-    // make a delayed function call
-    int slot = metaObject()->indexOfSlot("reopen()");
-    QApplication::postEvent(this, new QMetaCallEvent(slot, this));
+    if (p > 0) {
+        d->close(p, false);
+        // reopen parent using a delayed function call
+        d->reopen = p; // p is safe because all the changes happens after this one
+        int slot = metaObject()->indexOfSlot("reopen()");
+        QApplication::postEvent(this, new QMetaCallEvent(slot, this));
+    } else {
+        d->viewItems.clear();
+        d->doDelayedItemsLayout();
+    }
 }
 
 /*!
@@ -1385,7 +1389,7 @@ void QTreeViewPrivate::relayout(const QModelIndex &parent)
 void QTreeViewPrivate::reopenChildren(const QModelIndex &parent, bool update)
 {
     // FIXME: this is slow: optimize
-    QVector<QModelIndex> o = openedIndexes;
+    QVector<QPersistentModelIndex> o = openedIndexes;
     for (int j = 0; j < o.count(); ++j) {
         QModelIndex index = o.at(j);
         if (index.parent() == parent) {

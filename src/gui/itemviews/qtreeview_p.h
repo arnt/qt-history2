@@ -19,7 +19,7 @@
 struct QTreeViewItem
 {
     QTreeViewItem() : open(false), total(0), level(0), height(0) {}
-    QModelIndex index;
+    QModelIndex index; // FIXME: should be persistent
     uint open : 1;
     uint total : 30; // total number of children visible (+ hidden children)
     uint level : 16; // indentation
@@ -93,7 +93,7 @@ public:
     int current;
 
     // used when opening and closing items
-    QVector<QModelIndex> openedIndexes;
+    QVector<QPersistentModelIndex> openedIndexes;
     int reopen;
 
     // used when hiding and showing items

@@ -1403,7 +1403,13 @@ void QAbstractItemView::updateEditorGeometries()
             it.value()->show();
         else
             it.value()->hide();
-        itemDelegate()->updateEditorGeometry(it.value(), option, it.key());
+        if (it.key().isValid()) {
+            itemDelegate()->updateEditorGeometry(it.value(), option, it.key());
+        } else {
+            // remove editors in deleted indexes
+            itemDelegate()->releaseEditor(it.value());
+            d->editors.erase(it);
+        }
     }
 }
 
@@ -2161,7 +2167,6 @@ QWidget *QAbstractItemViewPrivate::editor(const QModelIndex &index,
 
 void QAbstractItemViewPrivate::removeSelectedRows()
 {
-    // remove selected rows (anything else is will just be copied)
     const QItemSelection selection = selectionModel->selection();
     QList<QItemSelectionRange>::const_iterator it = selection.begin();
     for (; it != selection.end(); ++it) {

@@ -1247,6 +1247,7 @@ void QAbstractItemModel::resetPersistentIndexes()
     This function is used in model subclasses that can manage persistent
     model indexes.
 
+    NOTE: this function is recursive
 */
 void QAbstractItemModel::invalidatePersistentIndexes(const QModelIndex &parent)
 {
@@ -1255,6 +1256,7 @@ void QAbstractItemModel::invalidatePersistentIndexes(const QModelIndex &parent)
     for (; it != d->persistentIndexes.end(); ++it) {
         if (all || (*it)->index.parent() == parent) {
             Q_ASSERT((*it) != &QPersistentModelIndexData::shared_null);
+            if (!all) invalidatePersistentIndexes((*it)->index); // recursive
             (*it)->index = QModelIndex::Null;
         }
     }
