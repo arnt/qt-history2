@@ -476,10 +476,10 @@ errors which can't be easily fixed:
 
   <img src=qmsgbox-m.png> <img src=qmsgbox-w.png>
 
-  \sa QDialog, <a href="http://www.iarchitect.com/errormsg.htm">Isys on
-  error messages,</a>
-  <a href="guibooks.html#fowler">GUI Design Handbook: Message Box.</a>
-
+  \sa QDialog,
+      \link http://www.iarchitect.com/errormsg.htm
+	    Isys on error messages \endlink,
+      \link guibooks.html#fowler GUI Design Handbook: Message Box \endlink
 */
 
 
