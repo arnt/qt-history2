@@ -218,7 +218,7 @@ static void qAppendItems(QTextEngine *engine, int &start, int &stop, BidiControl
             } else if (uc == 9) {
                 item.analysis.script = QFont::Latin;
                 item.isSpace = true;
-                item.isTab = true
+                item.isTab = true;
                 item.analysis.bidiLevel = control.baseLevel();
                 s = QFont::NoScript;
 #endif
