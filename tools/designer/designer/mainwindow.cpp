@@ -263,15 +263,6 @@ MainWindow::~MainWindow()
     desInterface->release();
     desInterface = 0;
 
-    QStringList lst = actionPluginManager->featureList();
-    for ( QStringList::Iterator it = lst.begin(); it != lst.end(); ++it ) {
-	ActionInterface *iface = actionPluginManager->queryInterface( *it );
-	if ( !iface )
-	    continue;
-	//### calling some disconnect/cleanup function that destroys the action?
-	iface->release();
-    }
-
     delete actionPluginManager;
     delete programPluginManager;
     delete templateWizardPluginManager;
