@@ -1003,8 +1003,10 @@ void QLineEdit::imEndEvent( QIMEvent *e )
 
     if (d->preeditLength > 0)
 	d->parag->remove(d->preeditStart, d->preeditLength);
-    d->cursor->setIndex( d->preeditStart );
-    insert( e->text() );
+    if ( d->preeditStart >= 0 ) {
+	d->cursor->setIndex( d->preeditStart );
+	insert( e->text() );
+    }
     d->preeditStart = d->preeditLength = -1;
 
     e->accept();
