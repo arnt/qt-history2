@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#230 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#231 $
 **
 ** Implementation of QListView widget class
 **
@@ -1081,13 +1081,12 @@ void QListViewItem::setPixmap( int column, const QPixmap & pm )
 
 const QPixmap * QListViewItem::pixmap( int column ) const
 {
-    column = 0;
     QListViewPrivate::ItemColumnInfo * l
 	= (QListViewPrivate::ItemColumnInfo*) columns;
 
     while( column && l ) {
-	l = l->next;
-	column--;
+		l = l->next;
+		column--;
     }
 
     return (l && l->pm) ? l->pm : 0;
@@ -4421,10 +4420,10 @@ QListViewItemIterator &QListViewItemIterator::operator--()
 	if ( !curr )
 		return *this;
 
-	if ( !curr->parent() ) { 
+	if ( !curr->parent() ) {
        // we are in the first depth
 	   if ( curr->listView() ) {
-			if ( curr->listView()->firstChild() != curr ) { 
+			if ( curr->listView()->firstChild() != curr ) {
 			   // go the previous sibling
 				QListViewItem *i = curr->listView()->firstChild();
 				while ( i && i->siblingItem != curr )
@@ -4432,7 +4431,7 @@ QListViewItemIterator &QListViewItemIterator::operator--()
 	
 				curr = i;
 	
-				if ( i && i->firstChild() ) { 
+				if ( i && i->firstChild() ) {
 				   // go to the last child of this item
 					QListViewItemIterator it( curr->firstChild() );
 					for ( ; it.current() && it.current()->parent(); ++it )
@@ -4440,7 +4439,7 @@ QListViewItemIterator &QListViewItemIterator::operator--()
 				}
 
 				return *this;
-			} else { 
+			} else {
 			   // we are already the first child of the listview, so it's over
 				curr = 0L;
 				return *this;
@@ -4450,7 +4449,7 @@ QListViewItemIterator &QListViewItemIterator::operator--()
     } else {
 		QListViewItem *parent = curr->parent();
 
-		if ( curr != parent->firstChild() ) { 
+		if ( curr != parent->firstChild() ) {
 		   // go to the previous sibling
 			QListViewItem *i = parent->firstChild();
 			while ( i && i->siblingItem != curr )
@@ -4458,7 +4457,7 @@ QListViewItemIterator &QListViewItemIterator::operator--()
 	
 			curr = i;
 
-			if ( i && i->firstChild() ) { 
+			if ( i && i->firstChild() ) {
 			   // go to the last child of this item
 				QListViewItemIterator it( curr->firstChild() );
 				for ( ; it.current() && it.current()->parent() != parent; ++it )
@@ -4466,7 +4465,7 @@ QListViewItemIterator &QListViewItemIterator::operator--()
 			}
 	
 			return *this;
-		} else { 
+		} else {
 		   // make our parent the current item
 			curr = parent;
 			return *this;
