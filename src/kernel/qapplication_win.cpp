@@ -2328,6 +2328,9 @@ void QApplication::openPopup( QWidget *popup )
 	Q_CHECK_PTR( popupWidgets );
     }
     popupWidgets->append( popup );		// add to end of list
+    if ( !popup->isEnabled() )
+	return;
+
     if ( popupWidgets->count() == 1 && !qt_nograb() )
 	setAutoCapture( popup->winId() );	// grab mouse/keyboard
     // Popups are not focus-handled by the window system (the first
@@ -2353,6 +2356,8 @@ void QApplication::closePopup( QWidget *popup )
 	popupCloseDownMode = TRUE;		// control mouse events
 	delete popupWidgets;
 	popupWidgets = 0;
+	if ( !popup->isEnabled() )
+	    return;
 	if ( !qt_nograb() )			// grabbing not disabled
 	    releaseAutoCapture();
 	if ( active_window ) {
