@@ -1,10 +1,10 @@
-			   INSTALLING Qt/Windows
+                    INSTALLING Qt/Windows Version %VERSION%
 
-    The Qt Technology Preview must be built manually. Please follow the
-    following steps:
+    The source package of Qt %VERSION% must be built manually. Please
+    follow the following steps:
 
     1. Uncompress the files into the directory you want to use, e.g.
-       C:\Qt\4.0.0-beta
+       C:\Qt\%VERSION%
 
     2. Copy the license file from your account on dist.trolltech.com
        into your home directory (this may be known as the userprofile
@@ -24,7 +24,8 @@
 	    - Microsoft Visual Studio .NET: 	win32-msvc.net
 	    - Intel C++ Compiler: 		win32-icc
 	    - MingGW: 				win32-g++
-          Other compilers are not supported for the tech preview.
+          Please see the PLATFORMS file for all supported Windows platforms
+          in this release.
 
        c. Extend your PATH variable by %QTDIR%\bin to make sure that the Qt
           tools are found.
