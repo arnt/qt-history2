@@ -91,7 +91,7 @@
   <b>chapter[1-5].tex</b>) found in many command interpreters.  More on this
   later.
 
-  Now to the nitty-gritty of regular expression syntax:  You can use any of
+  Now to the nitty-gritty of regular expression syntax.  You can use any of
   these atoms to match a single character:
 
   <ul plain>
@@ -1381,9 +1381,10 @@ bool QRegExpEngine::badCharMatch()
 #else
 bool QRegExpEngine::bruteMatch()
 {
-    for ( mmPos = 0; mmPos <= mmLen; mmPos++ ) {
+    while ( mmPos <= mmLen ) {
 	if ( matchHere() )
 	    return TRUE;
+	mmPos++;
     }
     return FALSE;
 }
@@ -2735,7 +2736,7 @@ static void derefEngine( QRegExpEngine *eng, const QString& pattern )
 	     engineCache->insert(pattern, eng, 4 + pattern.length() / 4) )
 	    return;
 #else
-	Q_UNUSED( pattern );
+	Q_CONST_UNUSED( pattern );
 #endif
 	delete eng;
     }
@@ -3120,7 +3121,7 @@ int QRegExp::searchRev( const QString& str, int start )
     priv->capturedCache.clear();
 #endif
     if ( start < 0 || start > (int) str.length() ) {
-        priv->captured.detach();
+	priv->captured.detach();
 	priv->captured.fill( -1 );
 	return -1;
     }
@@ -3253,7 +3254,8 @@ void QRegExp::compile( bool caseSensitive )
 	priv->rxpattern = wc2rx( priv->pattern );
     else
 #endif
-	priv->rxpattern = priv->pattern;
+	priv->rxpattern = priv->pattern.isNull() ? QString::fromLatin1( "" )
+			  : priv->pattern;
     eng = newEngine( priv->rxpattern, caseSensitive );
 #ifndef QT_NO_REGEXP_CAPTURE
     priv->t = QString::null;
