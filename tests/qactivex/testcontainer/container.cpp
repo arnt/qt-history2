@@ -10,9 +10,14 @@
 #include <qimage.h>
 
 static int errorcount = 0;
+static int loopcount = 50;
 
 #define PROP(prop) return m_##prop;
 #define SET_PROP(prop) m_##prop = prop;
+
+#define TEST_PROP_LOOP(prop) QVariant prop = property( #prop ); for ( i = 0; i < loopcount; ++i ) {object->setProperty( #prop, prop ); object->property( #prop );}
+#define TEST_DYNC_LOOP(prop) QVariant prop = property( #prop ); for ( i = 0; i < loopcount; ++i ) {object->dynamicCall( #prop, prop ); object->dynamicCall( #prop );}
+#define TEST_EMITPSIG_LOOP(prop) for ( i = 0; i < loopcount; ++i ) emit prop##PointerSlot( m_##prop );
 
 #define VERIFY_EQUAL( value, expected ) { \
     QVariant valvar = value; \
@@ -168,7 +173,10 @@ public:
 	    if ( !prop )
 		continue;
 
-	    qDebug( "\nTesting property %s of type %s", prop->name(), prop->type() );
+	    // Generate Slot-names
+	    QCString ftemplate = prop->name();
+	    ftemplate[0] = QChar(ftemplate[0]).upper();
+
 	    QVariant defvalue;
 	    if ( !prop->isEnumType() ) {
 		QVariant::Type proptype = QVariant::nameToType( prop->type() );
@@ -194,6 +202,24 @@ public:
 	    } else {
 		defvalue.cast( QVariant::Int );
 	    }
+/*
+	    if ( 
+		 defvalue.type() == QVariant::String ||
+		 defvalue.type() == QVariant::Bool ||
+		 defvalue.type() == QVariant::Int ||
+		 defvalue.type() == QVariant::UInt ||
+		 defvalue.type() == QVariant::Color ||
+		 defvalue.type() == QVariant::Double ||
+		 defvalue.type() == QVariant::Date ||
+		 defvalue.type() == QVariant::Time ||
+		 defvalue.type() == QVariant::DateTime ||
+		 defvalue.type() == QVariant::Font ||
+		 defvalue.type() == QVariant::List
+		 defvalue.type() == QVariant::Pixmap
+		 )
+		continue;
+*/
+	    qDebug( "\nTesting property %s of type %s", prop->name(), prop->type() );
 
 	    // Get container's value
 	    containerValue = property( prop->name() );
@@ -234,10 +260,6 @@ public:
 	    VERIFY_EQUAL( object->property( prop->name() ), containerValue );
 	    // Reset property
 	    Q_ASSERT( object->setProperty( prop->name(), defvalue ) );
-
-	    // Generate Slot-names
-	    QCString ftemplate = prop->name();
-	    ftemplate[0] = QChar(ftemplate[0]).upper();
 
 	    qDebug( "\tget%sSlot...", (const char*)ftemplate );
 	    // Call and verify get<Prop>Slot
@@ -310,7 +332,7 @@ public:
 	VERIFY_EQUAL( object->property( "unicode" ), m_unicode );
 	emit textPointerSlot( m_text );
 	VERIFY_EQUAL( object->property( "text" ), m_text );
-	emit boolPointerSlot( m_boolval );
+	emit boolvalPointerSlot( m_boolval );
 	VERIFY_EQUAL( object->property( "boolval" ), m_boolval );
 	emit numberPointerSlot( m_number );
 	VERIFY_EQUAL( object->property( "number" ), m_number );
@@ -336,8 +358,100 @@ public:
 	VERIFY_EQUAL( object->property( "beta" ), m_beta );
 */
 	
-	qDebug( "\nTest of %s finished with %d errors after %dms\n", object->control().latin1(), errorcount, runtimer.elapsed() );
+	qDebug( "\nFunctional test of %s finished with %d errors after %dms\n", object->control().latin1(), errorcount, runtimer.elapsed() );
 	return errorcount;
+    }
+
+    void runPropertyPerformance()
+    {
+	QTime timer;
+	timer.start();
+
+	int i = 0;
+	TEST_PROP_LOOP(unicode);
+	TEST_PROP_LOOP(boolval);
+	TEST_PROP_LOOP(number);
+	TEST_PROP_LOOP(beta);
+	TEST_PROP_LOOP(color);
+	TEST_PROP_LOOP(time);
+	TEST_PROP_LOOP(datetime);
+	TEST_PROP_LOOP(font);
+	TEST_PROP_LOOP(list);
+
+	qDebug( "Performance test of setProperty and property finished after %dms", timer.elapsed() );
+    }
+
+    void runDynamicCallPerformance()
+    {
+	QTime timer;
+	timer.start();
+
+	int i = 0;
+	TEST_DYNC_LOOP(unicode);
+	TEST_DYNC_LOOP(boolval);
+	TEST_DYNC_LOOP(number);
+	TEST_DYNC_LOOP(beta);
+	TEST_DYNC_LOOP(color);
+	TEST_DYNC_LOOP(time);
+	TEST_DYNC_LOOP(datetime);
+	TEST_DYNC_LOOP(font);
+	TEST_DYNC_LOOP(list);
+
+	qDebug( "Performance test of dynamicCall finished after %dms", timer.elapsed() );
+    }
+
+    void runSetSlotPerformance()
+    {
+	QTime timer;
+	timer.start();
+
+	int i = 0;
+	for ( i = 0; i < loopcount; ++i ) object->dynamicCall( "setUnicodeSlot(const QString&)", m_unicode );
+	for ( i = 0; i < loopcount; ++i ) object->dynamicCall( "setBoolvalSlot(bool)", QVariant( m_boolval, 23 ) );
+	for ( i = 0; i < loopcount; ++i ) object->dynamicCall( "setNumberSlot(int)", m_number );
+	for ( i = 0; i < loopcount; ++i ) object->dynamicCall( "setColorSlot(const QColor&)", m_color );
+	for ( i = 0; i < loopcount; ++i ) object->dynamicCall( "setTimeSlot(const QDateTime&)", m_time );
+	for ( i = 0; i < loopcount; ++i ) object->dynamicCall( "setDatetimeSlot(const QDateTime&)", m_datetime );
+	for ( i = 0; i < loopcount; ++i ) object->dynamicCall( "setFontSlot(const QFont&)", m_font );
+	for ( i = 0; i < loopcount; ++i ) object->dynamicCall( "setListSlot(const QValueList<QVariant>&)", QVariant(m_list) );
+
+	qDebug( "Performance test of setSlot calling finished after %dms", timer.elapsed() );
+    }
+
+    void runGetSlotPerformance()
+    {
+	QTime timer;
+	timer.start();
+
+	int i = 0;
+	for ( i = 0; i < loopcount; ++i ) object->dynamicCall( "getUnicodeSlot()" );
+	for ( i = 0; i < loopcount; ++i ) object->dynamicCall( "getBoolvalSlot()" );
+	for ( i = 0; i < loopcount; ++i ) object->dynamicCall( "getNumberSlot()" );
+	for ( i = 0; i < loopcount; ++i ) object->dynamicCall( "getColorSlot()" );
+	for ( i = 0; i < loopcount; ++i ) object->dynamicCall( "getTimeSlot()" );
+	for ( i = 0; i < loopcount; ++i ) object->dynamicCall( "getDatetimeSlot()" );
+	for ( i = 0; i < loopcount; ++i ) object->dynamicCall( "getFontSlot()" );
+	for ( i = 0; i < loopcount; ++i ) object->dynamicCall( "getListSlot()" );
+
+	qDebug( "Performance test of getSlot calling finished after %dms", timer.elapsed() );
+    }
+
+    void runEmitPointerSlotPerformance()
+    {
+	QTime timer;
+	timer.start();
+
+	int i = 0;
+	TEST_EMITPSIG_LOOP(unicode);
+	TEST_EMITPSIG_LOOP(boolval);
+	TEST_EMITPSIG_LOOP(number);
+	TEST_EMITPSIG_LOOP(color);
+	TEST_EMITPSIG_LOOP(time);
+	TEST_EMITPSIG_LOOP(datetime);
+	TEST_EMITPSIG_LOOP(font);
+	TEST_EMITPSIG_LOOP(list);
+
+	qDebug( "Performance test of signal emitting finished after %dms", timer.elapsed() );
     }
 
     QString unicode() const { PROP(unicode) }
@@ -448,7 +562,7 @@ signals:
 
     void unicodePointerSlot( const QString &string );
     void textPointerSlot( const QString &string );
-    void boolPointerSlot( bool boolval );
+    void boolvalPointerSlot( bool boolval );
     void numberPointerSlot( int number );
     void posnumberPointerSlot( uint posnumber );
     void realPointerSlot( double real );
@@ -492,5 +606,11 @@ int main( int argc, char **argv )
     QApplication app( argc, argv );
 
     QTestContainer container( "testcontrol.QTestControl" );
-    return container.run();
+    container.run();
+    container.runPropertyPerformance();
+    container.runDynamicCallPerformance();
+    container.runSetSlotPerformance();
+    container.runGetSlotPerformance();
+    container.runEmitPointerSlotPerformance();
+    return 0;
 }
