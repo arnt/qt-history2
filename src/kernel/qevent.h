@@ -1,12 +1,12 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qevent.h#2 $
+** $Id: //depot/qt/main/src/kernel/qevent.h#3 $
 **
 ** Definition of QEvent classes
 **
 ** Author  : Haavard Nord
 ** Created : 931029
 **
-** Copyright (C) 1993 by Troll Tech as.  All rights reserved.
+** Copyright (C) 1993 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
@@ -33,9 +33,11 @@
 #define Event_Show		   13		// before widget is displayed
 #define Event_Hide		   14		// before widget is hidden
 #define Event_Close		   15		// request to close widget
-#define Event_Enter		   16		// mouse enters widget
-#define Event_Leave		   17		// mouse leaves widget
-#define Event_Quit		   18		// request to quit application
+#define Event_FocusIn		   16		// keyboard focus received
+#define Event_FocusOut		   17		// keyboard focus lost
+#define Event_Enter		   18		// mouse enters widget
+#define Event_Leave		   19		// mouse leaves widget
+#define Event_Quit		   20		// request to quit application
 #define Event_User		 1000		// first user event id
 
 
