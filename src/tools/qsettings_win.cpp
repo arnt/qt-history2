@@ -86,7 +86,7 @@ QSettingsPrivate::~QSettingsPrivate()
 
 inline QString QSettingsPrivate::folder( const QString &key )
 {
-    return key.mid( 1, key.findRev( "/" )-1 ).replace( QRegExp("/"), "\\\\" );
+    return key.mid( 1, key.findRev( "/" )-1 ).replace( QRegExp("/"), "\\" );
 }
 
 inline QString QSettingsPrivate::entry( const QString &key )
