@@ -161,7 +161,7 @@ QTextFormatProperty &QTextFormatProperty::operator=(const QTextFormatProperty &r
 
     if (type == QTextFormat::String)
         new (&data.ptr) QString(rhs.stringValue());
-    else
+    else if (type != QTextFormat::Undefined)
         data = rhs.data;
 
     return *this;
