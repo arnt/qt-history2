@@ -16,12 +16,15 @@
 
 #ifndef QT_H
 #include "qwindowdefs.h"
+#include "qsize.h"
 #endif // QT_H
+
 
 class Q_GUI_EXPORT QSizeFloat
 {
 public:
     QSizeFloat();
+    QSizeFloat(const QSize &sz);
     QSizeFloat(float w, float h);
 
     bool isNull() const;
@@ -61,6 +64,8 @@ public:
     friend inline const QSizeFloat operator/(const QSizeFloat &, int);
     friend inline const QSizeFloat operator/(const QSizeFloat &, float);
 
+    inline QSize toSize() const;
+
 private:
     float wd;
     float ht;
@@ -81,6 +86,11 @@ Q_GUI_EXPORT QDataStream &operator>>(QDataStream &, QSizeFloat &);
 
 inline QSizeFloat::QSizeFloat()
 { wd = ht = -1.; }
+
+inline QSizeFloat::QSizeFloat(const QSize &sz)
+    : wd(sz.width()), ht(sz.height())
+{
+}
 
 inline QSizeFloat::QSizeFloat(float w, float h)
 { wd = w; ht = h; }
@@ -185,6 +195,11 @@ inline QSizeFloat QSizeFloat::expandedTo(const QSizeFloat & otherSize) const
 inline QSizeFloat QSizeFloat::boundedTo(const QSizeFloat & otherSize) const
 {
     return QSizeFloat(qMin(wd,otherSize.wd), qMin(ht,otherSize.ht));
+}
+
+inline QSize QSizeFloat::toSize() const
+{
+    return QSize(qRound(wd), qRound(ht));
 }
 
 #ifndef QT_NO_DEBUG
