@@ -54,7 +54,7 @@
 #include "private/qpluginmanager_p.h"
 #include "qobject.h"
 #include "private/qobject_p.h"
-#include "qguardedptr.h"
+#include "qpointer.h"
 #include "qcleanuphandler.h"
 #include <stdlib.h>
 
@@ -158,7 +158,7 @@ QDriverDict &QSqlDatabaseManager::driverDict()
 */
 QSqlDatabaseManager* QSqlDatabaseManager::instance()
 {
-    static QGuardedPtr<QSqlDatabaseManager> sqlConnection = 0;
+    static QPointer<QSqlDatabaseManager> sqlConnection = 0;
     if (!sqlConnection) {
         if(QCoreApplication::instance() == 0){
             qFatal("QSqlDatabaseManager: A QCoreApplication object has to be "

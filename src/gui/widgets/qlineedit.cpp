@@ -28,7 +28,7 @@
 #include "qtimer.h"
 #include "qpopupmenu.h"
 #include "qstringlist.h"
-#include "qguardedptr.h"
+#include "qpointer.h"
 #include "qstyle.h"
 #include "qwhatsthis.h"
 #include <private/qinternal_p.h>
@@ -1823,8 +1823,8 @@ void QLineEdit::contextMenuEvent(QContextMenuEvent * e)
 #ifndef QT_NO_POPUPMENU
     d->separate();
 
-    QGuardedPtr<QPopupMenu> popup = createPopupMenu();
-    QGuardedPtr<QLineEdit> that = this;
+    QPointer<QPopupMenu> popup = createPopupMenu();
+    QPointer<QLineEdit> that = this;
     QPoint pos = e->reason() == QContextMenuEvent::Mouse ? e->globalPos() :
                  mapToGlobal(QPoint(e->pos().x(), 0)) + QPoint(width() / 2, height() / 2);
     int r = popup->exec(pos);

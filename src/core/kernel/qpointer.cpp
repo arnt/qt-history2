@@ -13,16 +13,16 @@
 ****************************************************************************/
 
 /*!
-    \class QPointer qpointer.h
+    \class QPointer
     \brief The QPointer class is a template class that provides guarded pointers to QObjects.
 
     \ingroup objectmodel
     \mainclass
 
-    A guarded pointer, \c{QPointer<T>}, behaves like a normal C++
-    pointer \c{T*}, except that it is automatically set to 0 when
-    the referenced object is destroyed (unlike normal C++ pointers,
-    which become "dangling pointers" in such cases). \c T must be a
+    A guarded pointer, QPointer\<T\>, behaves like a normal C++
+    pointer \c{T*}, except that it is automatically set to 0 when the
+    referenced object is destroyed (unlike normal C++ pointers, which
+    become "dangling pointers" in such cases). \c T must be a
     subclass of QObject.
 
     Guarded pointers are useful whenever you need to store a pointer
@@ -70,9 +70,6 @@
 
     Note again that class \c T \e must inherit QObject, or a
     compilation or link error will result.
-
-    This class replaces the QGuardedPtr class from earlier Qt
-    versions.
 */
 
 /*!

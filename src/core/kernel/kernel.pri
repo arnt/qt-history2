@@ -4,7 +4,6 @@ HEADERS += \
 	kernel/qbasictimer.h \
 	kernel/qeventloop.h\
 	kernel/qpointer.h \
-	kernel/qguardedptr.h \
 	kernel/qcoreapplication.h \
 	kernel/qcoreevent.h \
 	kernel/qcorevariant.h \

@@ -64,7 +64,7 @@
 #include "qcleanuphandler.h"
 #include "qstyle.h"
 #include "qcursor.h"
-#include "qguardedptr.h"
+#include "qpointer.h"
 #include "qlibrary.h"
 #include "qdesktopwidget.h"
 
@@ -6187,7 +6187,7 @@ void QFileDialog::doMimeTypeLookup()
             item->hasMimePixmap = true;
 
             // evil hack to avoid much too much repaints!
-            QGuardedPtr<QFileDialog> that(this); // this may be deleted by an event handler
+            QPointer<QFileDialog> that(this); // this may be deleted by an event handler
             qApp->processEvents();
             if (that.isNull())
                 return;

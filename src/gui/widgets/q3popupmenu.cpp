@@ -25,7 +25,7 @@
 #include "qpixmapcache.h"
 #include "qtimer.h"
 #include "qwhatsthis.h"
-#include "qguardedptr.h"
+#include "qpointer.h"
 #include <private/qeffects_p.h>
 #include "qcursor.h"
 #include "qstyle.h"
@@ -694,7 +694,7 @@ void Q3PopupMenu::accelActivated(int id)
 {
     Q3MenuItem *mi = findItem(id);
     if (mi && mi->isEnabledAndVisible()) {
-        QGuardedPtr<QSignalEmitter> signal = mi->signal();
+        QPointer<QSignalEmitter> signal = mi->signal();
         int value = mi->signalValue();
         fromAccel = true;
         actSig(mi->id());
@@ -1674,7 +1674,7 @@ void Q3PopupMenu::mouseReleaseEvent(QMouseEvent *e)
                 actItem = -1;
                 updateItem(mi->id());
                 active_popup_menu = this;
-                QGuardedPtr<QSignalEmitter> signal = mi->signal();
+                QPointer<QSignalEmitter> signal = mi->signal();
                 int value = mi->signalValue();
                 actSig(mi->id(), b);
                 if (signal && !b)
@@ -1922,7 +1922,7 @@ void Q3PopupMenu::keyPressEvent(QKeyEvent *e)
                 byeMenuBar();
                 if (mi->isEnabledAndVisible() || b) {
                     active_popup_menu = this;
-                    QGuardedPtr<QSignalEmitter> signal = mi->signal();
+                    QPointer<QSignalEmitter> signal = mi->signal();
                     int value = mi->signalValue();
                     actSig(mi->id(), b);
                     if (signal && !b)
@@ -2004,7 +2004,7 @@ void Q3PopupMenu::keyPressEvent(QKeyEvent *e)
 #endif
                 if (mi->isEnabledAndVisible() || b) {
                     active_popup_menu = this;
-                    QGuardedPtr<QSignalEmitter> signal = mi->signal();
+                    QPointer<QSignalEmitter> signal = mi->signal();
                     int value = mi->signalValue();
                     actSig(mi->id(), b);
                     if (signal && !b )
@@ -2391,7 +2391,7 @@ int Q3PopupMenu::exec(const QPoint & pos, int indexAtPoint)
     syncMenu = this;
     syncMenuId = -1;
 
-    QGuardedPtr<Q3PopupMenu> that = this;
+    QPointer<Q3PopupMenu> that = this;
     connectModal(that, true);
     popup(pos, indexAtPoint);
     qApp->enter_loop();
@@ -2703,7 +2703,7 @@ void Q3PopupMenu::activateItemAt(int index)
                     actItem = -1;
                     updateItem(mi->id());
                     active_popup_menu = this;
-                    QGuardedPtr<QSignalEmitter> signal = mi->signal();
+                    QPointer<QSignalEmitter> signal = mi->signal();
                     int value = mi->signalValue();
                     actSig(mi->id(), b);
                     if (signal && !b)

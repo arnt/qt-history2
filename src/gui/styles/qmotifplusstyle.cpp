@@ -34,7 +34,7 @@
 #include "qscrollbar.h"
 #include "qtabbar.h"
 #include "qtoolbar.h"
-#include "qguardedptr.h"
+#include "qpointer.h"
 #include "qlayout.h"
 
 
@@ -42,10 +42,9 @@ struct QMotifPlusStylePrivate
 {
     QMotifPlusStylePrivate()
         : hoverWidget(0), hovering(false), sliderActive(false), mousePressed(false),
-          scrollbarElement(0), ref(1)
-    { ; }
+          scrollbarElement(0), ref(1) {}
 
-    QGuardedPtr<QWidget> hoverWidget;
+    QPointer<QWidget> hoverWidget;
     bool hovering, sliderActive, mousePressed;
     int scrollbarElement, ref;
     QPoint mousePos;

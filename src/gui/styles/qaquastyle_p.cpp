@@ -18,7 +18,7 @@
 #include <qcombobox.h>
 #include <qdatetimeedit.h>
 #include <qevent.h>
-#include <qguardedptr.h>
+#include <qpointer.h>
 #include <qheader.h>
 #include <qlabel.h>
 #include <qlineedit.h>

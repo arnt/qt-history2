@@ -17,7 +17,7 @@
 
 #include <qapplication.h>
 #include <qpushbutton.h>
-#include <qguardedptr.h>
+#include <qpointer.h>
 #include <qmap.h>
 #include <qvariant.h>
 #ifndef QT_NO_DIALOG
@@ -31,7 +31,7 @@ struct QDialogButtonsPrivate
 {
     QMap<int, QString> text;
     QMap<QDialogButtons::Button, QWidget *> buttons;
-    QGuardedPtr<QWidget> custom;
+    QPointer<QWidget> custom;
     Q_UINT32 enabled, visible;
     QDialogButtons::Button def;
     Qt::Orientation orient;

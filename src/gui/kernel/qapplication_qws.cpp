@@ -236,10 +236,10 @@ static QWidget     *popupButtonFocus = 0;
 static QWidget     *popupOfPopupButtonFocus = 0;
 static bool            popupCloseDownMode = false;
 static bool            popupGrabOk;
-static QGuardedPtr<QWidget> *mouseInWidget = 0;
+static QPointer<QWidget> *mouseInWidget = 0;
 
 static bool sm_blockUserInput = false;                // session management
-static QGuardedPtr<QWidget>* activeBeforePopup = 0; // focus handling with popu
+static QPointer<QWidget>* activeBeforePopup = 0; // focus handling with popu
 
 QWidget               *qt_button_down         = 0;                // widget got last button-down
 WId qt_last_cursor = 0xffffffff;  // Was -1, but WIds are unsigned
@@ -1585,7 +1585,7 @@ void qt_init(QApplicationPrivate *priv, int type)
 
     priv->argc = j;
 
-    mouseInWidget = new QGuardedPtr<QWidget>;
+    mouseInWidget = new QPointer<QWidget>;
 
     //We only support 10 displays, so the string should be ".*:[0-9]"
     //    QRegExp r(":[0-9]");  // only supports 10 displays
@@ -2447,10 +2447,8 @@ void QApplication::openPopup(QWidget *popup)
     if (!popupWidgets) {                        // create list
         popupWidgets = new QWidgetList;
        if (!activeBeforePopup)
-           activeBeforePopup = new QGuardedPtr<QWidget>;
-       (*activeBeforePopup) = active_window;
-
-
+           activeBeforePopup = new QPointer<QWidget>;
+        (*activeBeforePopup) = active_window;
 
         /* only grab if you are the first/parent popup */
         QPaintDevice::qwsDisplay()->grabMouse(popup,true);

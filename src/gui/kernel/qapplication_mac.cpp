@@ -12,7 +12,6 @@
 **
 ****************************************************************************/
 
-
 #include "qapplication.h"
 #include "qbitarray.h"
 #include "qbuffer.h"
@@ -23,7 +22,7 @@
 #include "qdesktopwidget.h"
 #include "qdockarea.h"
 #include "qevent.h"
-#include "qguardedptr.h"
+#include "qpointer.h"
 #include "qhash.h"
 #include "qmessagebox.h"
 #include "qmime.h"
@@ -113,9 +112,9 @@ extern bool qt_resolve_symlinks; // from qapplication.cpp
 extern bool qt_tab_all_widgets; // from qapplication.cpp
 bool qt_mac_app_fullscreen = false;
 bool qt_scrollbar_jump_to_pos = false;
-QGuardedPtr<QWidget> qt_button_down;                // widget got last button-down
+QPointer<QWidget> qt_button_down;                // widget got last button-down
 extern bool qt_tryAccelEvent(QWidget*, QKeyEvent*); // def in qaccel.cpp
-static QGuardedPtr<QWidget> qt_mouseover;
+static QPointer<QWidget> qt_mouseover;
 static QHash<WindowRef, int> unhandled_dialogs;        //all unhandled dialogs (ie mac file dialog)
 static enum { QT_MAC_OFFTHESPOT, QT_MAC_ONTHESPOT } qt_mac_input_spot = QT_MAC_ONTHESPOT;
 #if defined(QT_DEBUG)
@@ -158,7 +157,7 @@ extern void qt_mac_command_set_enabled(MenuRef, UInt32, bool); //qmenu_mac.cpp
 /* Unicode input entry magic */
 class QTSMDocumentWrapper
 {
-    QGuardedPtr<QWidget> act;
+    QPointer<QWidget> act;
     TSMDocumentID id;
 public:
     QTSMDocumentWrapper() {
@@ -626,7 +625,7 @@ void qt_event_request_wakeup()
 
 /* activation */
 static struct {
-    QGuardedPtr<QWidget> widget;
+    QPointer<QWidget> widget;
     EventRef event;
     EventLoopTimerRef timer;
     EventLoopTimerUPP timerUPP;
@@ -1543,7 +1542,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
     QApplication *app = (QApplication *)data;
     if(app->macEventFilter(er, event)) //someone else ate it
         return noErr;
-    QGuardedPtr<QWidget> widget;
+    QPointer<QWidget> widget;
 
     /*Only certain event don't remove the context timer (the left hold context menu),
       otherwise we just turn it off. Similarly we assume all events are handled and in

@@ -1,6 +1,6 @@
 #include "qabstractitemview.h"
 #include <qitemdelegate.h>
-#include <qguardedptr.h>
+#include <qpointer.h>
 #include <qapplication.h>
 #include <qpainter.h>
 #include <qstyle.h>

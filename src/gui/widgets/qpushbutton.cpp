@@ -21,7 +21,7 @@
 #include "qpixmap.h"
 #include "qbitmap.h"
 #include "qpopupmenu.h"
-#include "qguardedptr.h"
+#include "qpointer.h"
 #include "qapplication.h"
 #include "qdesktopwidget.h"
 #include "qtoolbar.h"
@@ -240,7 +240,7 @@ public:
 #endif
     }
 #ifndef QT_NO_POPUPMENU
-    QGuardedPtr<QPopupMenu> popup;
+    QPointer<QPopupMenu> popup;
 #endif
     QIconSet* iconset;
 };

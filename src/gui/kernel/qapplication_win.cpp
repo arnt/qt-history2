@@ -18,7 +18,7 @@
 #include "qclipboard.h"
 #include "qcursor.h"
 #include "qdatetime.h"
-#include "qguardedptr.h"
+#include "qpointer.h"
 #include "qhash.h"
 #include "qlibrary.h"
 #include "qmetaobject.h"

@@ -19,7 +19,7 @@
 #include "qapplication.h"
 #include "qapplication_p.h"
 #include <qfile.h>
-#include "qguardedptr.h"
+#include "qpointer.h"
 
 #include <qt_windows.h>
 
@@ -81,7 +81,7 @@ DWORD WINAPI SoundPlayProc(LPVOID param)
 
     // copy data before waking up GUI thread
     QAuServerWindows *server = info->server;
-    QGuardedPtr<QSound> sound = info->sound;
+    QPointer<QSound> sound = info->sound;
     int loops = info->loops;
     QString filename(info->filename);
     HANDLE mutex = server->mutex;

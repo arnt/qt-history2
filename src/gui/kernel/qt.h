@@ -82,7 +82,6 @@
 #include <qdataview.h>
 #include "qbitmap.h"
 #include "qpointer.h"
-#include "qguardedptr.h"
 #include "qurlinfo.h"
 #include "qgarray.h"
 #include "qgb18030codec.h"

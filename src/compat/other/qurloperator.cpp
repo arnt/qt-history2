@@ -21,7 +21,7 @@
 #include "qmap.h"
 #include "qhash.h"
 #include "qdir.h"
-#include "qguardedptr.h"
+#include "qpointer.h"
 
 //#define QURLOPERATOR_DEBUG
 
@@ -54,7 +54,7 @@ public:
     QHash<QNetworkOperation *, QNetworkProtocol *> getOpPutProtMap;
     QHash<QNetworkOperation *, QNetworkProtocol *> getOpGetProtMap;
     QHash<QNetworkOperation *, QNetworkOperation *> getOpRemoveOpMap;
-    QGuardedPtr<QNetworkProtocol> currPut;
+    QPointer<QNetworkProtocol> currPut;
     QStringList waitingCopies;
     QString waitingCopiesDest;
     bool waitingCopiesMove;

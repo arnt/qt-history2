@@ -29,7 +29,7 @@
 #include "qmainwindow.h"
 #include "qtimer.h"
 #include "qtooltip.h"
-#include "qguardedptr.h"
+#include "qpointer.h"
 #include "qcursor.h"
 #include "qstyle.h"
 
@@ -323,7 +323,7 @@ private:
     uint mousePressed        : 1;
     uint hadDblClick        : 1;
     uint ctrlDown : 1;
-    QGuardedPtr<QWidget> oldFocus;
+    QPointer<QWidget> oldFocus;
 };
 
 class QDockWindowTitleBar : public QTitleBar
@@ -353,7 +353,7 @@ private:
     uint hadDblClick : 1;
     uint opaque : 1;
     uint ctrlDown : 1;
-    QGuardedPtr<QWidget> oldFocus;
+    QPointer<QWidget> oldFocus;
 
 };
 

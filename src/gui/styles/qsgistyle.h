@@ -17,7 +17,7 @@
 
 #ifndef QT_H
 #include "qmotifstyle.h"
-#include "qguardedptr.h"
+#include "qpointer.h"
 #include "qwidget.h"
 #endif // QT_H
 

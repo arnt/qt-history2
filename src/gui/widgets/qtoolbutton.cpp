@@ -30,14 +30,14 @@
 #include "qiconset.h"
 #include "qtimer.h"
 #include "qpopupmenu.h"
-#include "qguardedptr.h"
+#include "qpointer.h"
 
 class QToolButtonPrivate
 {
     // ### add tool tip magic here
 public:
 #ifndef QT_NO_POPUPMENU
-    QGuardedPtr<QPopupMenu> popup;
+    QPointer<QPopupMenu> popup;
     QTimer* popupTimer;
     int delay;
 #endif
@@ -865,7 +865,7 @@ void QToolButton::openPopup()
     repaint();
     if (d->popupTimer)
         d->popupTimer->stop();
-    QGuardedPtr<QToolButton> that = this;
+    QPointer<QToolButton> that = this;
     popupTimerDone();
     if (!that)
         return;
@@ -926,7 +926,7 @@ void QToolButton::popupTimerDone()
             }
         }
     }
-    QGuardedPtr<QToolButton> that = this;
+    QPointer<QToolButton> that = this;
     d->popup->exec(p, -1);
     if (!that)
         return;

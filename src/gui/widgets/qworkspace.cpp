@@ -27,7 +27,7 @@
 #include "qmenubar.h"
 #include "qpopupmenu.h"
 #include "q3menubar.h"
-#include "qguardedptr.h"
+#include "qpointer.h"
 #include "qiconset.h"
 #include "../widgets/qwidgetresizehandler_p.h"
 #include "qdatetime.h"
@@ -163,10 +163,10 @@ protected:
 
 private:
     QWidget* childWidget;
-    QGuardedPtr<QWidget> lastfocusw;
+    QPointer<QWidget> lastfocusw;
     QWidgetResizeHandler *widgetResizeHandler;
-    QTitleBar* titlebar;
-    QGuardedPtr<QTitleBar>  iconw;
+    QTitleBar *titlebar;
+    QPointer<QTitleBar> iconw;
     QSize windowSize;
     QSize shadeRestore;
     QSize shadeRestoreMin;
@@ -189,13 +189,13 @@ public:
     QList<QWidget *> icons;
     QWorkspaceChild* maxWindow;
     QRect maxRestore;
-    QGuardedPtr<QFrame> maxcontrols;
-    QGuardedPtr<Q3MenuBar> maxmenubar;
+    QPointer<QFrame> maxcontrols;
+    QPointer<Q3MenuBar> maxmenubar;
 
     int px;
     int py;
     QWidget *becomeActive;
-    QGuardedPtr<QLabel> maxtools;
+    QPointer<QLabel> maxtools;
     QPopupMenu* popup;
     QPopupMenu* toolPopup;
     int menuId;

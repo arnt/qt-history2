@@ -17,7 +17,7 @@
 #include "q3popupmenu.h"
 #include "q3menubar.h"
 #include "qapplication.h"
-#include "qguardedptr.h"
+#include "qpointer.h"
 #include "qsignal.h"
 
 class Q3MenuItemData {
@@ -29,7 +29,7 @@ class Q3MenuDataData {
     // attention: also defined in q3menubar.cpp and q3popupmenu.cpp
 public:
     Q3MenuDataData();
-    QGuardedPtr<QWidget> aWidget;
+    QPointer<QWidget> aWidget;
     int aInt;
 };
 Q3MenuDataData::Q3MenuDataData()

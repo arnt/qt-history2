@@ -58,7 +58,7 @@ void QMacStyleQDPainter::setport()
 #include <qbuttongroup.h>
 #include <qcombobox.h>
 #include <qdrawutil.h>
-#include <qguardedptr.h>
+#include <qpointer.h>
 #include <qlayout.h>
 #include <qlineedit.h>
 #include <qlistview.h>
@@ -201,7 +201,7 @@ int QMacStyleQDFocusWidget::focusOutset() const
 
 class QMacStyleQDPrivate : public QAquaAnimate
 {
-    QGuardedPtr<QMacStyleQDFocusWidget> focusWidget;
+    QPointer<QMacStyleQDFocusWidget> focusWidget;
 public:
     struct ButtonState {
         int frame;

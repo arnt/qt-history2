@@ -146,7 +146,7 @@ QMetaCallEvent::~QMetaCallEvent()
 
     When an object is deleted, it emits a destroyed() signal. You can
     catch this signal to avoid dangling references to QObjects. The
-    QGuardedPtr class provides an elegant way to use this feature.
+    QPointer class provides an elegant way to use this feature.
 
     QObjects can receive events through event() and filter the events
     of other objects. See installEventFilter() and eventFilter() for

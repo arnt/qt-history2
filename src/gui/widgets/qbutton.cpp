@@ -23,7 +23,7 @@
 #include "qapplication.h"
 #include "qpushbutton.h"
 #include "qradiobutton.h"
-#include "qguardedptr.h"
+#include "qpointer.h"
 #include <private/qinternal_p.h>
 #include "qevent.h"
 
@@ -760,7 +760,7 @@ void QButton::mousePressEvent(QMouseEvent *e)
 #if defined(QT_ACCESSIBILITY_SUPPORT)
         QAccessible::updateAccessibility(this, 0, QAccessible::StateChanged);
 #endif
-        QGuardedPtr<QTimer> t = timer();
+        QPointer<QTimer> t = timer();
         emit pressed();
         if (t && repeat)
             t->start(AUTO_REPEAT_DELAY, true);
@@ -869,7 +869,7 @@ void QButton::focusOutEvent(QFocusEvent * e)
 void QButton::autoRepeatTimeout()
 {
     if (mlbDown && isEnabled() && autoRepeat()) {
-        QGuardedPtr<QTimer> t = timer();
+        QPointer<QTimer> t = timer();
         if (buttonDown) {
             emit released();
             emit clicked();

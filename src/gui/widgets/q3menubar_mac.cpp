@@ -21,7 +21,7 @@
 #include <qapplication.h>
 #include <qdockarea.h>
 #include <qdockwindow.h>
-#include <qguardedptr.h>
+#include <qpointer.h>
 #include <qhash.h>
 #include <qmainwindow.h>
 #include <q3menubar.h>
@@ -104,8 +104,8 @@ public:
         }
     }
 };
-static QGuardedPtr<Q3MenuBar> fallbackMenuBar; //The current global menubar
-static QGuardedPtr<Q3MenuBar> activeMenuBar; //The current global menubar
+static QPointer<Q3MenuBar> fallbackMenuBar; //The current global menubar
+static QPointer<Q3MenuBar> activeMenuBar; //The current global menubar
 
 extern void qt_mac_set_modal_state(MenuRef, bool); //qmenu_mac.cpp
 static void qt_mac_set_modal_state(bool b, Q3MenuBar *mb)

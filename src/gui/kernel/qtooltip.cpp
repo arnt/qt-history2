@@ -17,7 +17,7 @@
 #include "qevent.h"
 #include "qhash.h"
 #include "qapplication.h"
-#include "qguardedptr.h"
+#include "qpointer.h"
 #include "qtimer.h"
 #include <private/qeffects_p.h>
 #include "qdebug.h"
@@ -109,7 +109,7 @@ private:
     QHash<QWidget *, Tip *> *tips;
     QTipLabel *label;
     QPoint pos;
-    QGuardedPtr<QWidget> widget;
+    QPointer<QWidget> widget;
     Tip *currentTip;
     Tip *previousTip;
     bool preventAnimation;

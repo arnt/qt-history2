@@ -19,7 +19,7 @@
 #include "qscrollview.h"
 #include "qpixmap.h"
 #include "qheader.h"
-#include "qguardedptr.h"
+#include "qpointer.h"
 #include "qshared.h"
 #include "qhash.h"
 #include "qstringlist.h"

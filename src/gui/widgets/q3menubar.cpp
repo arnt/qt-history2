@@ -25,7 +25,7 @@
 #include "qpainter.h"
 #include "qdrawutil.h"
 #include "qapplication.h"
-#include "qguardedptr.h"
+#include "qpointer.h"
 #include "qlayout.h"
 #include "qcleanuphandler.h"
 #include <private/qinternal_p.h>
@@ -40,7 +40,7 @@ class Q3MenuDataData {
     // attention: also defined in q3menudata.cpp
 public:
     Q3MenuDataData();
-    QGuardedPtr<QWidget> aWidget;
+    QPointer<QWidget> aWidget;
     int aInt;
 };
 

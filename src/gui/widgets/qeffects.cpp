@@ -21,7 +21,7 @@
 #include "qimage.h"
 #include "qtimer.h"
 #include "qdatetime.h"
-#include "qguardedptr.h"
+#include "qpointer.h"
 #include "qscrollview.h"
 
 /*
@@ -67,7 +67,7 @@ private:
     QImage back;
     QImage front;
     QImage mixed;
-    QGuardedPtr<QAccessWidget> widget;
+    QPointer<QAccessWidget> widget;
     int duration;
     int elapsed;
     bool showWidget;
@@ -300,7 +300,7 @@ private slots:
     void scroll();
 
 private:
-    QGuardedPtr<QAccessWidget> widget;
+    QPointer<QAccessWidget> widget;
 
     int currentHeight;
     int currentWidth;

@@ -759,7 +759,7 @@ void QDataTable::contentsContextMenuEvent(QContextMenuEvent* e)
             IdUpdate,
             IdDelete
         };
-        QGuardedPtr<Q3PopupMenu> popup = new Q3PopupMenu(this, "qt_datatable_menu");
+        QPointer<Q3PopupMenu> popup = new Q3PopupMenu(this, "qt_datatable_menu");
         int id[3];
         id[IdInsert] = popup->insertItem(tr("Insert"));
         id[IdUpdate] = popup->insertItem(tr("Update"));

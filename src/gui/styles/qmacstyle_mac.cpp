@@ -22,7 +22,7 @@
 #include <qpaintdevice.h>
 #include <qpixmap.h>
 #include <qmap.h>
-#include <qguardedptr.h>
+#include <qpointer.h>
 
 #include "qmacstyleqd_mac.h"
 #include "qmacstylecg_mac.h"
@@ -48,7 +48,7 @@ public slots:
 
 void QMacStylePrivate::PolicyState::watchObject(const QObject *o)
 {
-    static QGuardedPtr<QMacStylePrivateObjectWatcher> watcher;
+    static QPointer<QMacStylePrivateObjectWatcher> watcher;
     if(!watcher)
         watcher = new QMacStylePrivateObjectWatcher(NULL);
     QObject::connect(o, SIGNAL(destroyed(QObject*)), watcher, SLOT(destroyedObject(QObject*)));
