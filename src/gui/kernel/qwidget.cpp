@@ -1990,7 +1990,7 @@ QPoint QWidget::pos() const
     \property QWidget::size
     \brief the size of the widget excluding any window frame
 
-    When resizing, the widget, if visible, receives a resize event
+    If the widget is visible when it is being resized, it receives a resize event
     (resizeEvent()) immediately. If the widget is not currently
     visible, it is guaranteed to receive an event before it is shown.
 
