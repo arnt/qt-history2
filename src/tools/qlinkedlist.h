@@ -17,7 +17,7 @@ struct Q_EXPORT QLinkedListData
 };
 
 template <typename T>
-struct QLinkedListNode 
+struct QLinkedListNode
 {
     inline QLinkedListNode(const T &arg): t(arg) { }
     QLinkedListNode *n, *p;
@@ -29,7 +29,7 @@ class QLinkedList
 {
     typedef QLinkedListNode<T> Node;
     union { QLinkedListData *d; QLinkedListNode<T> *e; };
-    
+
 public:
     inline QLinkedList() : d(&QLinkedListData::shared_null) { ++d->ref; };
     inline QLinkedList(const QLinkedList &l):d(l.d) { ++d->ref; }
@@ -201,7 +201,7 @@ template <typename T>
 void QLinkedList<T>::free(QLinkedListData *x)
 {
     Node *y = (Node*)x;
-    Node *i = e->n;
+    Node *i = y->n;
     if (QTypeInfo<T>::isPointer && x->autoDelete == this) {
     	while(i != y) {
 	    qDelete(i->t);
