@@ -797,7 +797,7 @@ QDir::SortSpec QDirModel::sorting() const
 }
 
 /*!
-  Refreshes (updates) the \a parent model item.
+  Refreshes (rereads) the children of \a parent.
 
 */
 

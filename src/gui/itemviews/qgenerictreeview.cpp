@@ -26,23 +26,6 @@
 #define q q_func()
 
 /*!
-  \class QGenericTreeViewItem qgenerictreeview.cpp
-
-  \brief This class implements a QViewItem working on a QGenericTreeView.
-
-  \ingroup model-view
-
-
-  \sa \link model-view-programming.html Model/View Programming\endlink.
-
-*/
-
-/*!
-    \fn QGenericTreeViewItem::QGenericTreeViewItem()
-    \internal
-*/
-
-/*!
   \class QGenericTreeView qgenerictreeview.h
   
   \brief The QGenericTreeView class provides a default model/view implementation of a tree view.
@@ -139,7 +122,7 @@ void QGenericTreeView::setHeader(QGenericHeader *header)
 }
 
 /*!
-  \property QGenericTreeView::intentation
+  \property QGenericTreeView::indentation
   \brief indentation of the items in the tree view.
 
   This property holds the indentation of the items for each level in the tree view.
@@ -351,7 +334,6 @@ void QGenericTreeView::ensureItemVisible(const QModelIndex &index)
         int a = (-x * horizontalFactor()) / columnWidth(c);
         horizontalScrollBar()->setValue(++c * horizontalFactor() + a);
     }
-
 }
 
 /*!
