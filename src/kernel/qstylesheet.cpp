@@ -1204,6 +1204,7 @@ void QStyleSheet::init()
     style->setFontFamily( QString::fromLatin1("courier") );
     style->setDisplayMode(QStyleSheetItem::DisplayBlock);
     style->setWhiteSpaceMode(QStyleSheetItem::WhiteSpacePre);
+    style-> setMargin(QStyleSheetItem::MarginVertical, 12);
 
     style = new QStyleSheetItem( this, QString::fromLatin1("blockquote") );
     style->setDisplayMode(QStyleSheetItem::DisplayBlock);

@@ -1564,7 +1564,6 @@ void QTextDocument::setRichTextInternal( const QString &text, QTextCursor* curso
 		    }  else if ( tagname == "hr" ) {
 			emptyTag = space = TRUE;
 			custom = sheet_->tag( tagname, attr, contxt, *factory_ , emptyTag, this );
-			NEWPAR;
 		    } else if ( tagname == "table" ) {
 			emptyTag = space = TRUE;
 			QTextFormat format = curtag.format.makeTextFormat(  nstyle, attr, scaleFontsFactor );
@@ -1681,6 +1680,11 @@ void QTextDocument::setRichTextInternal( const QString &text, QTextCursor* curso
 		    curtag.style = nstyle;
 		    if ( int(nstyle->whiteSpaceMode())  != QStyleSheetItem::Undefined )
 			curtag.wsm = nstyle->whiteSpaceMode();
+		
+		    /* netscape compatibility: eat a newline and only a newline if a pre block starts */
+		    if ( curtag.wsm == QStyleSheetItem::WhiteSpacePre &&
+			 nstyle->displayMode() == QStyleSheetItem::DisplayBlock )
+			eat( doc, length, pos, '\n' );
 
 		    /* ignore whitespace for inline elements if there
 		       was already one*/
