@@ -3818,38 +3818,41 @@ void QIconView::contentsMousePressEvent( QMouseEvent *e )
 			       0, 0 );
 		else
 		    r = QRect( 0, 0, 0, 0 );
-		if ( d->currentItem->x() < item->x() )
-		    r.setWidth( item->x() - d->currentItem->x() + item->width() );
-		else
-		    r.setWidth( d->currentItem->x() - item->x() + d->currentItem->width() );
-		if ( d->currentItem->y() < item->y() )
-		    r.setHeight( item->y() - d->currentItem->y() + item->height() );
-		else
-		    r.setHeight( d->currentItem->y() - item->y() + d->currentItem->height() );
-		r = r.normalize();
-		QIconViewPrivate::ItemContainer *c = d->firstContainer;
-		bool alreadyIntersected = FALSE;
-		QRect redraw;
-		for ( ; c; c = c->n ) {
- 		    if ( c->rect.intersects( r ) ) {
-			alreadyIntersected = TRUE;
-			QIconViewItem *i = c->items.first();
-			for ( ; i; i = c->items.next() ) {
- 			    if ( r.intersects( i->rect() ) ) {
-				redraw = redraw.unite( i->rect() );
- 				i->setSelected( select, TRUE );
+		if ( d->currentItem ) {
+		    if ( d->currentItem->x() < item->x() )
+			r.setWidth( item->x() - d->currentItem->x() + item->width() );
+		    else
+			r.setWidth( d->currentItem->x() - item->x() + d->currentItem->width() );
+		    if ( d->currentItem->y() < item->y() )
+			r.setHeight( item->y() - d->currentItem->y() + item->height() );
+		    else
+			r.setHeight( d->currentItem->y() - item->y() + d->currentItem->height() );
+		    r = r.normalize();
+		    QIconViewPrivate::ItemContainer *c = d->firstContainer;
+		    bool alreadyIntersected = FALSE;
+		    QRect redraw;
+		    for ( ; c; c = c->n ) {
+			if ( c->rect.intersects( r ) ) {
+			    alreadyIntersected = TRUE;
+			    QIconViewItem *i = c->items.first();
+			    for ( ; i; i = c->items.next() ) {
+				if ( r.intersects( i->rect() ) ) {
+				    redraw = redraw.unite( i->rect() );
+				    i->setSelected( select, TRUE );
+				}
 			    }
+			} else {
+			    if ( alreadyIntersected )
+				break;
 			}
- 		    } else {
-  			if ( alreadyIntersected )
-  			    break;
- 		    }
+		    }
+		    redraw = redraw.unite( item->rect() );
+		    viewport()->setUpdatesEnabled( TRUE );
+		    repaintContents( redraw, FALSE );
 		}
-		item->setSelected( select, TRUE );
-		redraw = redraw.unite( item->rect() );
 		blockSignals( block );
 		viewport()->setUpdatesEnabled( TRUE );
-		repaintContents( redraw, FALSE );
+		item->setSelected( select, TRUE );
 		emit selectionChanged();
 	    } else if ( e->state() & ControlButton ) {
 		d->pressedSelected = FALSE;
