@@ -1050,9 +1050,9 @@ QString &QString::append(const QString &str)
             d->cache = 0;
             if (d->ref != 1 || d->size + str.d->size > d->alloc)
                 realloc(grow(d->size + str.d->size));
-            // include null terminator
-            memcpy(d->data + d->size, str.d->data, (str.d->size + 1) * sizeof(QChar));
+            memcpy(d->data + d->size, str.d->data, str.d->size * sizeof(QChar));
             d->size += str.d->size;
+            d->data[d->size] = '\0';
         }
     }
     return *this;

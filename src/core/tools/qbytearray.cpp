@@ -1387,8 +1387,9 @@ QByteArray &QByteArray::append(const QByteArray &ba)
     } else if (ba.d != &shared_null) {
         if (d->ref != 1 || d->size + ba.d->size > d->alloc)
             realloc(qAllocMore(d->size + ba.d->size, sizeof(Data)));
-        memcpy(d->data + d->size, ba.d->data, ba.d->size + 1); // include null terminator
+        memcpy(d->data + d->size, ba.d->data, ba.d->size);
         d->size += ba.d->size;
+        d->data[d->size] = '\0';
     }
     return *this;
 }
