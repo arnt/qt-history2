@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qfileinfo.cpp#42 $
+** $Id: //depot/qt/main/src/tools/qfileinfo.cpp#43 $
 **
 ** Implementation of QFileInfo class
 **
@@ -423,25 +423,31 @@ QString QFileInfo::baseName() const
 /*!
   Returns the extension name of the file.
 
-  The file name extension consists of all characters in the file name
-  after (but not including) the first '.' character.
+  If \a complete is TRUE (the default), extension() returns the string
+  of all characters in the file name after (but not including) the
+  first '.'  character.  For a file named "archive.tar.gz" this
+  returns "tar.gz".
 
-  For a file named "archive.tar.gz" this function will return "tar.gz".
+  If \a complete is FALSE, extension() returns the string of all
+  characters in the file name after (but not including) the last '.'
+  character.  For a file named "archive.tar.gz" this returns "gz".
 
   Example:
   \code
-     QFileInfo fi( "/tmp/abdomen.lower" );
-     QString ext = fi.extension();		// ext = "lower"
+     QFileInfo fi( "lex.yy.c" );
+     QString ext = fi.extension();		// ext = "yy.c"
+     QString ext = fi.extension( FALSE );	// ext = "c"
   \endcode
 
   \sa fileName(), baseName()
+
 */
 
-QString QFileInfo::extension() const
+QString QFileInfo::extension( bool complete ) const
 {
     QString s = fileName();
-    int pos = s.find( '.' );
-    if ( pos == -1 )
+    int pos = complete ? s.find( '.' ) : s.findRev( '.' );
+    if ( pos < 0 )
 	return QString( "" );
     else
 	return s.right( s.length() - pos - 1 );
