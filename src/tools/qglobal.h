@@ -561,12 +561,7 @@
 //
 
 #if defined(Q_NO_BOOL_TYPE)
-#if defined(Q_CC_HP)
-// bool is an unsupported reserved keyword in later versions
-#define bool int
-#else
-typedef int bool;
-#endif
+#error "Compiler doesn't support the 'bool' type!"
 #endif
 
 typedef unsigned char   uchar;
