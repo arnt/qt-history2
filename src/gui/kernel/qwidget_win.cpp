@@ -13,28 +13,26 @@
 
 #include "qapplication.h"
 #include "qapplication_p.h"
-#include "qpainter.h"
 #include "qbitmap.h"
+#include "qcleanuphandler.h"
+#include "qcursor.h"
+#include "qdesktopwidget.h"
+#include "qevent.h"
 #include "qimage.h"
 #include "qlayout.h"
-#include "qt_windows.h"
-#include "qcursor.h"
-#include <private/qapplication_p.h>
-#include <private/qinputcontext_p.h>
-#include "qevent.h"
+#include "qlibrary.h"
+#include "qpainter.h"
 #include "qstack.h"
+#include "qt_windows.h"
 #include "qwidget.h"
 #include "qwidget_p.h"
-#include "qlibrary.h"
-#include "qdesktopwidget.h"
-#include <private/qpaintengine_win_p.h>
-#include "qcleanuphandler.h"
 
 #include <qdebug.h>
 
-#ifdef QT_RASTER_PAINTENGINE
-#include "private/qpaintengine_raster_p.h"
-#endif
+#include <private/qapplication_p.h>
+#include <private/qinputcontext_p.h>
+#include <private/qpaintengine_raster_p.h>
+#include <private/qpaintengine_win_p.h>
 
 typedef BOOL    (WINAPI *PtrSetLayeredWindowAttributes)(HWND hwnd, COLORREF crKey, BYTE bAlpha, DWORD dwFlags);
 static PtrSetLayeredWindowAttributes ptrSetLayeredWindowAttributes = 0;
@@ -827,11 +825,9 @@ void QWidget::repaint(const QRegion& rgn)
     QRect brWS = d->mapToWS(br);
     bool do_clipping = (br != QRect(0, 0, data->crect.width(), data->crect.height()));
 
-#ifdef QT_RASTER_PAINTENGINE
     QRasterPaintEngine *rasterEngine = 0;
     if (paintEngine()->type() == QPaintEngine::Raster)
 	rasterEngine = static_cast<QRasterPaintEngine *>(paintEngine());
-#endif
 
     qt_set_paintevent_clipping(this, rgn);
 
@@ -841,10 +837,19 @@ void QWidget::repaint(const QRegion& rgn)
     QPaintEvent e(rgn);
     QApplication::sendSpontaneousEvent(this, &e);
 
-#ifdef QT_RASTER_PAINTENGINE
-    if (rasterEngine)
+    if (rasterEngine) {
+        bool tmp_dc = !d->hd;
+        if (tmp_dc)
+            d->hd = GetDC(winId());
+
 	rasterEngine->flush(this);
-#endif
+
+        if (tmp_dc) {
+            ReleaseDC(winId(), (HDC)d->hd);
+            d->hd = 0;
+        }
+    }
+
 
     if (do_clipping)
         qt_clear_paintevent_clipping();
@@ -1658,7 +1663,6 @@ qreal QWidget::windowOpacity() const
     return isWindow() ? (d->topData()->opacity / 255.0) : 0.0;
 }
 
-#ifdef QT_RASTER_PAINTENGINE
 static QSingleCleanupHandler<QRasterPaintEngine> qt_paintengine_cleanup_handler;
 static QRasterPaintEngine *qt_widget_paintengine = 0;
 QPaintEngine *QWidget::paintEngine() const
@@ -1678,22 +1682,3 @@ QPaintEngine *QWidget::paintEngine() const
 
     return qt_widget_paintengine;
 }
-#else
-static QSingleCleanupHandler<QWin32PaintEngine> qt_paintengine_cleanup_handler;
-static QWin32PaintEngine *qt_widget_paintengine = 0;
- QPaintEngine *QWidget::paintEngine() const
- {
-     if (!qt_widget_paintengine) {
-         qt_widget_paintengine = new QWin32PaintEngine();
-         qt_paintengine_cleanup_handler.set(&qt_widget_paintengine);
-     }
-
-     if (qt_widget_paintengine->isActive()) {
-        QPaintEngine *extraEngine = new QWin32PaintEngine();
-         extraEngine->setAutoDestruct(true);
-         return extraEngine;
-     }
-
-     return qt_widget_paintengine;
- }
-#endif
