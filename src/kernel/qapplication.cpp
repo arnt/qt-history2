@@ -102,9 +102,8 @@
   \i It specifies how the application is to allocate colors.
   See setColorSpec() for details.
 
-  \i It specifies the default text encoding (see \l{setDefaultCodec()})
-  and provides localization of strings that are visible to the user via
-  translate().
+  \i It provides localization of strings that are visible to the user
+  via translate().
 
   \i It provides some magical objects like the desktop() and the
   clipboard().
@@ -202,7 +201,6 @@
     \row
      \i Text handling
      \i
-	setDefaultCodec(),
 	installTranslator(),
 	removeTranslator()
 	translate().
@@ -482,9 +480,6 @@ QWidgetList *QApplication::popupWidgets = 0;	// has keyboard input focus
 QDesktopWidget *qt_desktopWidget = 0;		// root window widgets
 #ifndef QT_NO_CLIPBOARD
 QClipboard	      *qt_clipboard = 0;	// global clipboard object
-#endif
-#ifndef QT_NO_TRANSLATION
-static QTextCodec *default_codec = 0;		// root window widget
 #endif
 QWidgetList * qt_modal_stack=0;		// stack of modal widgets
 
@@ -2616,50 +2611,20 @@ void QApplication::removeTranslator( QTranslator * mf )
 }
 
 
-/*!
-  Sets the default codec of the application to \a codec.
-
-  If the literal quoted text in the program is not in the Latin1
-  encoding, this function can be used to set the appropriate encoding.
-  For example, software developed by Korean programmers might use
-  eucKR for all the text in the program, in which case the main()
-  function might look like this:
-
-  \code
-    int main(int argc, char** argv)
-    {
-	QApplication app(argc, argv);
-	... install any additional codecs ...
-	app.setDefaultCodec( QTextCodec::codecForName("eucKR") );
-	...
-    }
-  \endcode
-
-  Note that this is \e not the way to select the encoding that the \e
-  user has chosen. For example, to convert an application containing
-  literal English strings to Korean, all that is needed is for the
-  English strings to be passed through tr() and for translation files
-  to be loaded. For details of internationalization, see the \link
-  i18n.html Qt internationalization documentation\endlink.
-
-  Note also that some Qt built-in classes call tr() with various
-  strings. These strings are in English, so for a full translation, a
-  codec would be required for these strings.
+/*! \obsolete
+  This is the same as QTextCodec::setCodecForTr().
 */
-
 void QApplication::setDefaultCodec( QTextCodec* codec )
 {
-    default_codec = codec;
+    QTextCodec::setCodecForTr( codec );
 }
 
-/*!
-  Returns the default codec (see setDefaultCodec()).
-  Returns 0 by default (no codec).
+/*! \obsolete
+  Returns QTextCodec::codecForTr().
 */
-
 QTextCodec* QApplication::defaultCodec() const
 {
-    return default_codec;
+    return QTextCodec::codecForTr();
 }
 
 /*! \enum QApplication::Encoding
@@ -2667,8 +2632,8 @@ QTextCodec* QApplication::defaultCodec() const
   This enum type defines the 8-bit encoding of character string
   arguments to translate():
 
-  \value DefaultCodec - the defaultCodec()'s encoding (Latin-1 if
-	 none is set)
+  \value DefaultCodec - the encoding specified by
+  QTextCodec::codecForTr() (Latin-1 if none has been set)
   \value UnicodeUTF8 - UTF-8
 
   \sa QObject::tr(), QObject::trUtf8(), QString::fromUtf8()
@@ -2731,8 +2696,8 @@ QString QApplication::translate( const char * context, const char * sourceText,
 #ifndef QT_NO_TEXTCODEC
     if ( encoding == UnicodeUTF8 )
 	return QString::fromUtf8( sourceText );
-    else if ( default_codec != 0 )
-	return default_codec->toUnicode( sourceText );
+    else if ( QTextCodec::codecForTr() != 0 )
+	return QTextCodec::codecForTr()->toUnicode( sourceText );
     else
 #endif
 	return QString::fromLatin1( sourceText );

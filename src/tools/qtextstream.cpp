@@ -1089,7 +1089,7 @@ QTextStream &QTextStream::writeBlock( const QChar* p, uint len )
     } else
 #endif
     if ( latin1 ) {
-	char *str = QString::unicodeToAscii( p, len );
+	char *str = QString::unicodeToLatin1( p, len );
 	dev->writeBlock( str, len );
 	delete [] str;
     } else if ( internalOrder ) {
