@@ -481,8 +481,21 @@ void QTextDocumentLayoutPrivate::drawListItem(const QPoint &offset, QPainter *pa
     const QTextListFormat lf = object->format().toListFormat();
     const int style = lf.style();
     QString itemText;
-    const QPoint pos = bl.layout()->rect().topLeft() + offset;
     QSize size;
+
+    QTextLine firstLine = bl.layout()->lineAt(0);
+    Q_ASSERT(firstLine.isValid());
+    QPoint pos = offset 
+                 + bl.layout()->rect().topLeft()
+                 + QPoint(firstLine.x(), firstLine.y());
+
+    {
+        Qt::Alignment a = blockFormat.alignment();
+        if (a == Qt::AlignRight)
+            pos.rx() += firstLine.width() - firstLine.textWidth();
+        else if (a == Qt::AlignHCenter)
+            pos.rx() += (firstLine.width() - firstLine.textWidth()) / 2;
+    }
 
     switch (style) {
         case QTextListFormat::ListDecimal:
@@ -509,7 +522,7 @@ void QTextDocumentLayoutPrivate::drawListItem(const QPoint &offset, QPainter *pa
 
     QRect r(pos, size);
 
-    r.moveBy(blockFormat.leftMargin() + indent(bl) - size.width(),
+    r.moveBy( - size.width(),
              (fontMetrics.height() / 2 - size.height() / 2));
 
     r.moveBy(-fontMetrics.width(" "), 0);
