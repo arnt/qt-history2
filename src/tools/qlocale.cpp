@@ -5,46 +5,85 @@
 #include <sys/types.h>
 #include <limits.h>
 #include <ctype.h>
+#include <ctype.h>
+#include <float.h>
 
 #include "qlocale.h"
 #include "qlocale_p.h"
 
+class StaticData
+{
+public:
+    static const double &inf() { init(); return d->m_inf; }
+    static const double &nan() { init(); return d->m_nan; }
+    static bool bigEndian() { init(); return d->m_big_endian; }
+    static const QString &nanStr() { init(); return d->m_nan_str; }
+    static const QString &infStr() { init(); return d->m_inf_str; }
+    static const void init() {
+    	if (d == 0)
+	    d = new StaticData;
+    }
+
+    StaticData();
+
+private:
+    double m_inf, m_nan;
+    bool m_big_endian;
+    QString m_nan_str, m_inf_str;
+    
+    static const StaticData *d;
+};
+
+const StaticData *StaticData::d = 0;
+
+StaticData::StaticData() 
+{
+    int word_size;
+    qSysInfo(&word_size, &m_big_endian);
+    
+    const unsigned char be_inf_bytes[] = { 0x7f, 0xf0, 0, 0, 0, 0, 0, 0 };
+    const unsigned char le_inf_bytes[] = { 0, 0, 0, 0, 0, 0, 0xf0, 0x7f };
+    const unsigned char be_nan_bytes[] = { 0x7f, 0xf8, 0, 0, 0, 0, 0, 0 };
+    const unsigned char le_nan_bytes[] = { 0, 0, 0, 0, 0, 0, 0xf8, 0x7f };
+    
+    if (m_big_endian) {
+    	m_inf = *(const double*)be_inf_bytes;
+    	m_nan = *(const double*)be_nan_bytes;
+    } else {
+    	m_inf = *(const double*)le_inf_bytes;
+    	m_nan = *(const double*)le_nan_bytes;
+    }
+
+    m_nan_str = "nan";
+    m_inf_str = "inf";
+}
+
 #ifdef Q_WS_WIN
-#include <float.h>
-#define isinf(d) (!_finite(d) && !_isnan(d))
-#define isnan(d) _isnan(d)
-#define ULLONG_MAX _UI64_MAX
-#define LLONG_MAX _I64_MAX
-#define LLONG_MIN _I64_MIN
-#endif // Q_WS_WIN
+#   define isinf(d) (!_finite(d) && !_isnan(d))
+#   define isnan(d) _isnan(d)
+#   define ULLONG_MAX _UI64_MAX
+#   define LLONG_MAX _I64_MAX
+#   define LLONG_MIN _I64_MIN
+#endif
 
 #if !defined(INFINITY)
-// POSIX says HUGE_VAL is equal to +infinity
-#  define INFINITY (HUGE_VAL)
+#   define INFINITY (StaticData::inf())
 #endif
 
-#if !defined(NAN) && defined(Q_BYTE_ORDER)
-#  if Q_BYTE_ORDER == Q_BIG_ENDIAN
-const unsigned char NaN_Bytes[] = { 0x7f, 0xf8, 0, 0, 0, 0, 0, 0 };
-#  else Q_BYTE_ORDER == Q_LITTLE_ENDIAN
-const unsigned char NaN_Bytes[] = { 0, 0, 0, 0, 0, 0, 0xf8, 0x7f };
-#  endif
-#  define NAN (*(const double *) NaN_Bytes)
-#endif //NAN
-
-#ifndef NAN
-#  define NAN (sqrt(-1.))
+#if !defined(NAN)
+#   define NAN (StaticData::nan())
 #endif
 
-// Sizes as defined by the ISO C99 standard
+
+// Sizes as defined by the ISO C99 standard - fallback
 #ifndef LLONG_MAX
-#define LLONG_MAX Q_INT64_C(9223372036854775807)
+#   define LLONG_MAX Q_INT64_C(9223372036854775807)
 #endif
 #ifndef LLONG_MIN
-#define LLONG_MIN (-LLONG_MAX - Q_INT64_C(1))
+#   define LLONG_MIN (-LLONG_MAX - Q_INT64_C(1))
 #endif
 #ifndef ULLONG_MAX
-#define ULLONG_MAX Q_UINT64_C(18446744073709551615)
+#   define ULLONG_MAX Q_UINT64_C(18446744073709551615)
 #endif
 
 static char *qdtoa(double d, int mode, int ndigits, int *decpt,
@@ -52,10 +91,6 @@ static char *qdtoa(double d, int mode, int ndigits, int *decpt,
 static double qstrtod(const char *s00, char const **se, bool *ok);
 static Q_LLONG qstrtoll(const char *nptr, const char **endptr, register int base, bool *ok);
 static Q_ULLONG qstrtoull(const char *nptr, const char **endptr, register int base, bool *ok);
-
-const QString QLocalePrivate::m_infinity = "inf";
-const QString QLocalePrivate::m_nan = "nan";
-const QChar QLocalePrivate::m_plus = '+';
 
 static uint locale_index[] = {
      0, // Default
@@ -332,7 +367,17 @@ static QLocalePrivate locale_data[] = {
     {      0,     0,     0,     0,     0,     0,     0,     0,     0 }  // trailing 0s
 };
 
-const QLocalePrivate *QLocale::default_d = locale_data;
+const QLocalePrivate *QLocale::default_d = 0;
+
+const QString &QLocalePrivate::infinity() const
+{
+    return StaticData::infStr();
+}
+
+const QString &QLocalePrivate::nan() const
+{
+    return StaticData::nanStr();
+}
 
 static QLocalePrivate *findLocale(QLocale::Language language,
     	    	    	    	    QLocale::Country country)
@@ -827,6 +872,9 @@ static QLocalePrivate *findLocale(QLocale::Language language,
 
 QLocale::QLocale(Language language, Country country)
 {
+    if (default_d == 0)
+    	default_d = locale_data;
+
     if (language == DefaultLanguage) {
     	d = default_d;
 	return;
@@ -1449,7 +1497,6 @@ double QLocale::toDouble(const QString &s, bool *ok) const
     return d->stringToDouble(s, ok);
 }
 
-
 /*!
     Converts \a i to a string containing its localized representation.
 
@@ -2014,7 +2061,6 @@ QString &QLocalePrivate::numberToCLocale(QString &l_num) const
 	    idx += nan().length();
 	    break;
 	}
-
 	QChar &c = l_num.ref(idx);
 
 	if (c == plus()) {
@@ -2108,7 +2154,6 @@ double QLocalePrivate::stringToDouble(QString num,
         return d;
 }
 
-
 Q_LLONG QLocalePrivate::stringToLongLong(QString num, int base,
                                     bool *ok) const
 {
@@ -2164,7 +2209,6 @@ Q_ULLONG QLocalePrivate::stringToUnsLongLong(QString num, int base,
         *ok = true;
     return l;
 }
-
 
 /*-
  * Copyright (c) 1992, 1993
@@ -2475,20 +2519,14 @@ static Q_LLONG qstrtoll(const char *nptr, const char **endptr, register int base
  *	directly -- and assumed always to succeed.
  */
 
-// #include <sys/cdefs.h>
 #if defined(LIBC_SCCS) && !defined(lint)
 __RCSID("$NetBSD: strtod.c,v 1.26 1998/02/03 18:44:21 perry Exp $");
 #endif /* LIBC_SCCS and not lint */
 
 #if defined(__m68k__)    || defined(__sparc__) || defined(__i386__) || \
-    defined(__mips__)    || defined(__ns32k__) || defined(__alpha__) || \
-    defined(__powerpc__) || defined(Q_OS_WIN) || defined(Q_OS_MACX)
-#include <sys/types.h>
-#if defined(BYTEORDER) && defined(BIG_ENDIAN) && (BYTE_ORDER == BIG_ENDIAN)
-#define IEEE_BIG_ENDIAN
-#else
-#define IEEE_LITTLE_ENDIAN
-#endif
+     defined(__mips__)    || defined(__ns32k__) || defined(__alpha__) || \
+     defined(__powerpc__) || defined(Q_OS_WIN) || defined(Q_OS_MACX)
+#   	define IEEE_BIG_OR_LITTLE_ENDIAN 1
 #endif
 
 #ifdef __arm32__
@@ -2497,7 +2535,7 @@ __RCSID("$NetBSD: strtod.c,v 1.26 1998/02/03 18:44:21 perry Exp $");
  * byte and word endianness. The byte order is still little endian
  * but the word order is big endian.
  */
-#define IEEE_BIG_ENDIAN
+#define IEEE_BIG_OR_LITTLE_ENDIAN
 #endif
 
 #ifdef vax
@@ -2511,96 +2549,12 @@ __RCSID("$NetBSD: strtod.c,v 1.26 1998/02/03 18:44:21 perry Exp $");
 #define Long	Q_INT32
 #define ULong	Q_UINT32
 
-#ifdef DEBUG
+#define MALLOC malloc
+#define CONST const
+
+#ifdef BSD_QDTOA_DEBUG
 #include <stdio.h>
 #define Bug(x) {fprintf(stderr, "%s\n", x); exit(1);}
-#endif
-
-/*
-#ifdef __cplusplus
-#include "malloc.h"
-#include "memory.h"
-#else
-#ifndef KR_headers
-#include "stdlib.h"
-#include "string.h"
-#include "locale.h"
-#else
-#include "malloc.h"
-#include "memory.h"
-#endif
-#endif
-*/
-
-#include <stdlib.h>
-
-/* char *__dtoa __P((double, int, int, int *, int *, char **, char **)); */
-
-#ifdef MALLOC
-#ifdef KR_headers
-extern char *MALLOC();
-#else
-extern void *MALLOC(size_t);
-#endif
-#else
-#define MALLOC malloc
-#endif
-
-#include <ctype.h>
-/* #include "errno.h" */
-
-#ifdef Bad_float_h
-#undef __STDC__
-#ifdef IEEE_BIG_ENDIAN
-#define IEEE_ARITHMETIC
-#endif
-#ifdef IEEE_LITTLE_ENDIAN
-#define IEEE_ARITHMETIC
-#endif
-
-#ifdef IEEE_ARITHMETIC
-#define DBL_DIG 15
-#define DBL_MAX_10_EXP 308
-#define DBL_MAX_EXP 1024
-#define FLT_RADIX 2
-#define FLT_ROUNDS 1
-#define DBL_MAX 1.7976931348623157e+308
-#endif
-
-#ifdef IBM
-#define DBL_DIG 16
-#define DBL_MAX_10_EXP 75
-#define DBL_MAX_EXP 63
-#define FLT_RADIX 16
-#define FLT_ROUNDS 0
-#define DBL_MAX 7.2370055773322621e+75
-#endif
-
-#ifdef VAX
-#define DBL_DIG 16
-#define DBL_MAX_10_EXP 38
-#define DBL_MAX_EXP 127
-#define FLT_RADIX 2
-#define FLT_ROUNDS 1
-#define DBL_MAX 1.7014118346046923e+38
-#endif
-
-#ifndef LONG_MAX
-#define LONG_MAX 2147483647
-#endif
-#else
-#include "float.h"
-#endif
-#ifndef __MATH_H__
-#include "math.h"
-#endif
-
-#ifndef CONST
-#ifdef KR_headers
-#define CONST /* blank */
-#else
-#define CONST const
-#endif
 #endif
 
 #ifdef Unsigned_Shifts
@@ -2609,10 +2563,11 @@ extern void *MALLOC(size_t);
 #define Sign_Extend(a,b) /*no-op*/
 #endif
 
-#if (defined(IEEE_LITTLE_ENDIAN) + defined(IEEE_BIG_ENDIAN) + defined(VAX) + defined(IBM)) != 1
-#error Exactly one of IEEE_LITTLE_ENDIAN IEEE_BIG_ENDIAN, VAX, or IBM should be defined.
+#if (defined(IEEE_BIG_OR_LITTLE_ENDIAN) + defined(VAX) + defined(IBM)) != 1
+#error Exactly one of IEEE_BIG_OR_LITTLE_ENDIAN, VAX, or IBM should be defined.
 #endif
 
+/*
 #ifdef IEEE_LITTLE_ENDIAN
 #define word0(x) ((ULong *)&x)[1]
 #define word1(x) ((ULong *)&x)[0]
@@ -2620,11 +2575,28 @@ extern void *MALLOC(size_t);
 #define word0(x) ((ULong *)&x)[0]
 #define word1(x) ((ULong *)&x)[1]
 #endif
+*/
+
+inline ULong &word0(double &x)
+{
+    if (StaticData::bigEndian())
+    	return ((ULong *)&x)[0];
+    return ((ULong *)&x)[1];
+}
+
+inline ULong &word1(double &x)
+{
+    if (StaticData::bigEndian())
+    	return ((ULong *)&x)[1];
+    return ((ULong *)&x)[0];
+}
 
 /* The following definition of Storeinc is appropriate for MIPS processors.
  * An alternative that might be better on some machines is
  * #define Storeinc(a,b,c) (*a++ = b << 16 | c & 0xffff)
  */
+
+/* 
 #if defined(IEEE_LITTLE_ENDIAN) + defined(VAX) + defined(__arm32__)
 #define Storeinc(a,b,c) (((unsigned short *)a)[1] = (unsigned short)b, \
 ((unsigned short *)a)[0] = (unsigned short)c, a++)
@@ -2632,6 +2604,36 @@ extern void *MALLOC(size_t);
 #define Storeinc(a,b,c) (((unsigned short *)a)[0] = (unsigned short)b, \
 ((unsigned short *)a)[1] = (unsigned short)c, a++)
 #endif
+*/
+
+inline void Storeinc(ULong *&a, const ULong &b, const ULong &c)
+{
+
+#   if defined(VAX) + defined(__arm32__)
+#   	define USE_LITTLE_ENDIAN 1
+#   else
+#   	define USE_LITTLE_ENDIAN 0
+#   endif
+
+#   if defined(IEEE_BIG_OR_LITTLE_ENDIAN)
+#   	define USE_IEEE 1
+#   else
+#   	define USE_IEEE 0
+#   endif
+
+    if (!StaticData::bigEndian() && USE_IEEE || USE_LITTLE_ENDIAN) {
+	((unsigned short *)a)[1] = (unsigned short)b;
+	((unsigned short *)a)[0] = (unsigned short)c;
+    } else {
+    	((unsigned short *)a)[0] = (unsigned short)b;
+    	((unsigned short *)a)[1] = (unsigned short)c;
+    }
+    
+    ++a;
+
+#   undef USE_LITTLE_ENDIAN
+#   undef USE_IEEE
+}
 
 /* #define P DBL_MANT_DIG */
 /* Ten_pmax = floor(P*log(2)/log(5)) */
@@ -2639,7 +2641,7 @@ extern void *MALLOC(size_t);
 /* Quick_max = floor((P-1)*log(FLT_RADIX)/log(10) - 1) */
 /* Int_max = floor(P*log(FLT_RADIX)/log(10) - 1) */
 
-#if defined(IEEE_LITTLE_ENDIAN) + defined(IEEE_BIG_ENDIAN)
+#if defined(IEEE_BIG_OR_LITTLE_ENDIAN)
 #define Exp_shift  20
 #define Exp_shift1 20
 #define Exp_msk1    0x100000
@@ -3178,7 +3180,7 @@ cmp
 
 	i = a->wds;
 	j = b->wds;
-#ifdef DEBUG
+#ifdef BSD_QDTOA_DEBUG
 	if (i > 1 && !a->x[i-1])
 		Bug("cmp called with a->x[a->wds-1] == 0");
 	if (j > 1 && !b->x[j-1])
@@ -3340,7 +3342,7 @@ b2d
 	xa0 = a->x;
 	xa = xa0 + a->wds;
 	y = *--xa;
-#ifdef DEBUG
+#ifdef BSD_QDTOA_DEBUG
 	if (!y) Bug("zero y in b2d");
 #endif
 	k = hi0bits(y);
@@ -3438,7 +3440,7 @@ d2b
 		i = b->wds = (x[1] = z) ? 2 : 1;
 		}
 	else {
-#ifdef DEBUG
+#ifdef BSD_QDTOA_DEBUG
 		if (!z)
 			Bug("Zero passed to d2b");
 #endif
@@ -3472,7 +3474,7 @@ d2b
 			}
 		}
 	else {
-#ifdef DEBUG
+#ifdef BSD_QDTOA_DEBUG
 		if (!z)
 			Bug("Zero passed to d2b");
 #endif
@@ -4170,7 +4172,7 @@ quorem
 #endif
 
 	n = S->wds;
-#ifdef DEBUG
+#ifdef BSD_QDTOA_DEBUG
 	/*debug*/ if (b->wds > n)
 	/*debug*/	Bug("oversize b in quorem");
 #endif
@@ -4181,7 +4183,7 @@ quorem
 	bx = b->x;
 	bxe = bx + n;
 	q = *bxe / (*sxe + 1);	/* ensure q <= true quotient */
-#ifdef DEBUG
+#ifdef BSD_QDTOA_DEBUG
 	/*debug*/ if (q > 9)
 	/*debug*/	Bug("oversized quotient in quorem");
 #endif
@@ -4905,3 +4907,4 @@ qdtoa
 		*rve = s;
 	return s0;
 	}
+

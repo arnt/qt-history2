@@ -11,11 +11,11 @@ struct QLocalePrivate
 	const QChar &list() const { return (QChar&)m_list; }
 	const QChar &percent() const { return (QChar&)m_percent; }
 	const QChar &zero() const { return (QChar&)m_zero; }
-	const QChar &plus() const { return m_plus; }
+	const QChar plus() const { return QChar('+'); }
 	const QChar &minus() const { return (QChar&)m_minus; }
 	const QChar &exponential() const { return (QChar&)m_exponential; }
-	const QString &infinity() const { return m_infinity; }
-	const QString &nan() const { return m_nan; }
+	const QString &infinity() const;
+	const QString &nan() const;
 	
 	Q_UINT32 languageId() const { return m_language_id; }
 	Q_UINT32 countryId() const { return m_country_id; }
