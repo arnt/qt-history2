@@ -70,7 +70,7 @@ public:
     QSqlQuery( QSqlResult * r );
     QSqlQuery( const QString& query = QString::null, QSqlDatabase* db = 0 );
     QSqlQuery( const QSqlQuery& other );
-    QSqlQuery&          operator=( const QSqlQuery& other );
+    QSqlQuery& operator=( const QSqlQuery& other );
     virtual ~QSqlQuery();
 
     bool                isValid() const;
@@ -102,7 +102,7 @@ public:
     void 		bindValue( const QString& placeholder, const QVariant& val );
     void 		bindValue( int pos, const QVariant& val );
     void 		addBindValue( const QVariant& val );
-    
+
 protected:
     virtual void        beforeSeek();
     virtual void        afterSeek();
@@ -112,10 +112,6 @@ private:
     bool                checkDetach();
     QSqlResultShared*   d;
 
-#if defined(Q_DISABLE_COPY) // Disabled copy constructor and operator=
-    QSqlQuery( const QSqlQuery & );
-    QSqlQuery &operator=( const QSqlQuery & );
-#endif
 };
 
 
