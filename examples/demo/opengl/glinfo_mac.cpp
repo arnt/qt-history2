@@ -138,12 +138,8 @@ GLInfo::GLInfo()
     } while (rf != NULL);
 }
 
-QString GLInfo::extensions()
+QString GLInfo::info()
 {
     return infotext;
 }
 
-QString GLInfo::configs()
-{
-  return config;
-}

@@ -22,7 +22,7 @@ typedef const char * (WINAPI * PFNWGLGETEXTENSIONSSTRINGARBPROC) (HDC hdc);
 
 GLInfo::GLInfo()
 {
-    QGLWidget gl( 0 );
+    QGLWidget gl((QGLWidget *) 0);
     gl.makeCurrent();
 
     // get hold of WGL extensions
@@ -41,6 +41,9 @@ GLInfo::GLInfo()
     infotext.sprintf( "%sOpenGL extensions:\n", infotext.ascii() );
     infotext += QString( (char *) glGetString( GL_EXTENSIONS ) ).replace( ' ', '\n' );
     
+    infotext += "\n PF  Color  Draw  Trans  buff lev render DB ste  r   g   b   a  aux dep ste  accum buffers  MS   MS\n"
+	     " id  depth   to   parent size el   type     reo sz  sz  sz  sz  buf th  ncl  r   g   b   a  num bufs\n"
+	     "----------------------------------------------------------------------------------------------------\n";
     HDC dc;
     dc = GetDC( gl.winId() );
     
@@ -67,12 +70,34 @@ GLInfo::GLInfo()
 	else 
 	    str.sprintf( "%s.        ", str.ascii() );
 		
-	/* should find transparent pixel from LAYERPLANEDESCRIPTOR */
-	str.sprintf( "%s0     %2d   ", str.ascii(), pfd.cColorBits );
-		
-	/* bReserved field indicates number of over/underlays */
+	LAYERPLANEDESCRIPTOR lpfd;
+	if ( pfd.bReserved ) {
+	    wglDescribeLayerPlane( dc, i, pfd.bReserved,
+				   sizeof( LAYERPLANEDESCRIPTOR ), &lpfd );
+	    if ( lpfd.dwFlags & LPD_TRANSPARENT && lpfd.iPixelType == PFD_TYPE_RGBA )
+		str.sprintf( "%s%06x %2d   ", str.ascii(), lpfd.crTransparent );
+	    else
+		str.sprintf( "%s%d     %2d   ", str.ascii(), lpfd.crTransparent, pfd.cColorBits );
+	} else {
+	    str.sprintf( "%s0     %2d   ", str.ascii(), pfd.cColorBits );
+	}
 	str.sprintf( "%s%d   ", str.ascii(), pfd.bReserved );
-	str.sprintf( "%srgba  ", str.ascii() );
+	if ( pfd.bReserved ) {
+	    bool mpTypeRgba = pfd.iPixelType == PFD_TYPE_RGBA;
+	    bool lpTypeRgba = lpfd.iPixelType == PFD_TYPE_RGBA;
+	    QString type;
+	    if ( mpTypeRgba && lpTypeRgba )
+		type = "rg/rg ";
+	    else if ( mpTypeRgba && !lpTypeRgba )
+		type = "rg/ci ";
+	    else if ( !mpTypeRgba && lpTypeRgba )
+		type = "ci/rg ";
+	    else
+		type = "ci/ci ";
+	    str.sprintf("%s%s ", str.ascii(), type.ascii() );	    
+	} else {
+	    str.sprintf("%s%s", str.ascii(), pfd.iPixelType == PFD_TYPE_RGBA ? "rgba   " : "ci     " );
+	}
 	str.sprintf( "%s%c   %c   ", str.ascii(),
 		     pfd.dwFlags & PFD_DOUBLEBUFFER ? 'y' : 'n',
 		     pfd.dwFlags & PFD_STEREO ? 'y' : 'n' );
@@ -90,20 +115,12 @@ GLInfo::GLInfo()
 
 	/* no multisample in Win32 */
 	str.append( "0   0\n" );
-	config.append( str );
+	infotext.append( str );
     }
-    config = "\n PF  Color  Draw  Trans  buff lev render DB ste  r   g   b   a  aux dep ste  accum buffers  MS   MS\n"
-	     " id  depth   to   parent size el   type     reo sz  sz  sz  sz  buf th  ncl  r   g   b   a  num bufs\n"
-	     "----------------------------------------------------------------------------------------------------\n" + config;
     ReleaseDC( gl.winId(), dc );
 }
 
-QString GLInfo::extensions()
+QString GLInfo::info()
 {
     return infotext;
-}
-
-QString GLInfo::configs()
-{
-    return config;
 }

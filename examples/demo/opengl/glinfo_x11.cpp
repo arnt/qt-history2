@@ -244,18 +244,13 @@ GLInfo::GLInfo()
     
     for ( scrNum = 0; scrNum < numScreens; scrNum++ ) {
 	screenInfo( dpy, scrNum, infotext );
-	visualInfo( dpy, scrNum, config );
+	visualInfo( dpy, scrNum, infotext );
 	if ( scrNum + 1 < numScreens )
 	    infotext.append( "\n\n" );
     }    
 }
 
-QString GLInfo::extensions()
+QString GLInfo::info()
 {
     return infotext;
-}
-
-QString GLInfo::configs()
-{
-    return config;
 }

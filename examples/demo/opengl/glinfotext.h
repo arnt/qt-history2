@@ -15,8 +15,8 @@ public:
 	QHBoxLayout *l = new QHBoxLayout(this);
 	l->addWidget(view);
 	GLInfo info;
-	view->setText(info.extensions());
-	view->append(info.configs());
+	view->setText(info.info());
+	//	view->append(info.configs());
     }
     
 private:

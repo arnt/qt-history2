@@ -17,11 +17,11 @@ class GLInfo
 {
 public:
     GLInfo();
-    QString extensions();
-    QString configs();
+    QString info();//extensions();
+/*     QString configs(); */
 
 protected:
     QString infotext;
-    QString config;
+/*     QString config; */
 };
 #endif
