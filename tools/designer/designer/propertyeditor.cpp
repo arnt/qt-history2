@@ -438,7 +438,7 @@ void PropertyItem::placeEditor( QWidget *w )
     listview->moveChild( w, r.x(), r.y() );
     resetButton->parentWidget()->resize( resetButton->sizeHint().width() + 10, r.height() );
     listview->moveChild( resetButton->parentWidget(), r.x() + r.width() - 8, r.y() );
-    resetButton->setFixedHeight( r.height() - 3 );
+    resetButton->setFixedHeight( QMAX( 0, r.height() - 3 ) );
 }
 
 /*!  This should be called by subclasses if the use changed the value
@@ -1310,7 +1310,7 @@ void PropertyLayoutItem::setValue()
     PropertyItem::setValue( spinBox()->value() );
     notifyValueChange();
 }
-    
+
 
 // --------------------------------------------------------------
 
@@ -2983,7 +2983,7 @@ void PropertyList::valueChanged( PropertyItem *i )
 						      editor->widget(), editor,
 						      i->name(), WidgetFactory::property( editor->widget(), i->name() ),
 						      i->value(), i->currentItem(), i->currentItemFromObject() );
-    
+
     cmd->execute();
     editor->formWindow()->commandHistory()->addCommand( cmd, TRUE );
 }
