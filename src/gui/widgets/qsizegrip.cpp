@@ -151,7 +151,7 @@ QSizeGrip::~QSizeGrip()
 #if defined(Q_WS_X11)
     if (!QApplication::closingDown() && parentWidget()) {
         WId id = XNone;
-        XChangeProperty(qt_xdisplay(), window()->winId(),
+        XChangeProperty(X11->display, window()->winId(),
                         ATOM(_QT_SIZEGRIP), XA_WINDOW, 32, PropModeReplace,
                         (unsigned char *)&id, 1);
     }

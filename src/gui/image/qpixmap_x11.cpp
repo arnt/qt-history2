@@ -1939,7 +1939,7 @@ QPixmap QPixmap::transformed(const QMatrix &matrix, Qt::TransformationMode mode)
     qSafeXDestroyImage(xi);
 
     if (depth1) {                                // mono bitmap
-        QPixmap pm(w, h, dptr, QImage::systemBitOrder() != QImage::BigEndian);
+        QPixmap pm(w, h, dptr, BitmapBitOrder(X11->display) != MSBFirst);
         pm.data->bitmap = data->bitmap;
         free(dptr);
         if (data->x11_mask)

@@ -27,15 +27,6 @@
 #include <private/qdrawhelper_p.h>
 #include <private/qpixmap_p.h>
 
-#if defined(Q_WS_X11)
-#include <private/qt_x11_p.h>
-
-QImage::Endian qX11BitmapBitOrder()
-{
-    return BitmapBitOrder(qt_xdisplay()) == MSBFirst ? QImage::BigEndian : QImage::LittleEndian;
-}
-#endif
-
 #ifdef QT_RASTER_IMAGEENGINE
 #include <private/qpaintengine_raster_p.h>
 #else
@@ -1434,7 +1425,6 @@ void QImage::setAlphaBuffer(bool enable)
     \sa fill() width() height() depth() numColors() bitOrder()
     jumpTable() scanLine() bits() bytesPerLine() numBytes()
 */
-#ifdef QT3_SUPPORT
 bool QImage::create(int width, int height, int depth, int numColors, Endian bitOrder)
 {
     if (d && !d->ref.deref())
@@ -1456,7 +1446,6 @@ bool QImage::create(const QSize& size, int depth, int numColors, QImage::Endian 
     d = QImageData::create(size, formatFor(depth, bitOrder), numColors);
     return true;
 }
-#endif
 #endif // QT3_SUPPORT
 
 /*****************************************************************************
@@ -4027,3 +4016,19 @@ QImage QImage::alphaChannel() const
 
     return image;
 }
+
+
+#ifdef QT3_SUPPORT
+#if defined(Q_WS_X11)
+#include <private/qt_x11_p.h>
+#endif
+
+inline QImage::Endian QImage::systemBitOrder()
+{
+#if defined(Q_WS_X11)
+    return BitmapBitOrder(X11->display) == MSBFirst ? BigEndian : LittleEndian;
+#else
+    return BigEndian;
+#endif
+}
+#endif

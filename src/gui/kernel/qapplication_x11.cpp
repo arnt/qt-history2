@@ -2061,24 +2061,9 @@ QString qAppName()                                // get application name
     return QString::fromLatin1(appName);
 }
 
-const char *qAppClass()                                // get application class
+const char *QX11Info::appClass()
 {
-    return appClass;
-}
-
-Display *qt_xdisplay()                                // get current X display
-{
-    return X11->display;
-}
-
-int qt_xscreen()                                // get current X screen
-{
-    return X11->defaultScreen;
-}
-
-WId qt_xrootwin(int scrn)                        // get X root window for screen
-{
-    return QX11Info::appRootWindow(scrn);
+    return ::appClass;
 }
 
 bool qt_nograb()                                // application no-grab option
@@ -5410,7 +5395,7 @@ static void sm_performSaveYourself(QSessionManagerPrivate* smd)
     // generate a restart and discard command that makes sense
     QStringList restart;
     restart  << qApp->argv()[0] << "-session" << smd->sessionId + "_" + smd->sessionKey;
-    if (qstricmp(appName, qAppClass()) != 0)
+    if (qstricmp(appName, QX11Info::appClass()) != 0)
         restart << "-name" << qAppName();
     sm->setRestartCommand(restart);
     QStringList discard;

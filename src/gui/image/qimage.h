@@ -166,8 +166,6 @@ public:
 #endif
     QImage rgbSwapped() const;
 
-    static Endian systemBitOrder();
-
 #ifndef QT_NO_IMAGEIO
     bool load(const QString &fileName, const char* format=0);
     bool loadFromData(const uchar *buf, int len, const char *format = 0);
@@ -229,6 +227,7 @@ public:
         { return copy(QRect(x, y, w, h)); }
     inline QT3_SUPPORT QImage copy(const QRect &rect, Qt::ImageConversionFlags) const
         { return copy(rect); }
+    static QT3_SUPPORT Endian systemBitOrder();
 #ifndef QT_NO_IMAGEIO
     inline QT3_SUPPORT_CONSTRUCTOR QImage(const QByteArray &data)
         : QPaintDevice(QInternal::Image)
@@ -259,19 +258,5 @@ Q_GUI_EXPORT QDataStream &operator>>(QDataStream &, QImage &);
 Q_GUI_EXPORT QT3_SUPPORT void bitBlt(QImage* dst, int dx, int dy, const QImage* src,
                                      int sx=0, int sy=0, int sw=-1, int sh=-1, Qt::ImageConversionFlags flags = Qt::AutoColor);
 #endif
-
-/*****************************************************************************
-  QImage member functions
- *****************************************************************************/
-
-inline QImage::Endian QImage::systemBitOrder()
-{
-#if defined(Q_WS_X11)
-    extern QImage::Endian qX11BitmapBitOrder();
-    return qX11BitmapBitOrder();
-#else
-    return BigEndian;
-#endif
-}
 
 #endif // QIMAGE_H

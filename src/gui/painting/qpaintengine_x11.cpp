@@ -1288,10 +1288,6 @@ void QX11PaintEngine::drawPixmap(const QRectF &r, const QPixmap &pm, const QRect
         XSetClipOrigin(d->dpy, d->gc, 0, 0);
     } else {
         XCopyArea(d->dpy, pixmap.handle(), d->hd, d->gc, sx, sy, sw, sh, x, y);
-        // copy or merge the mask
-        if (d->pdev->devType() == QInternal::Pixmap) {
-            QPixmap *pm = static_cast<QPixmap *>(d->pdev);
-        }
     }
 
     if (restore_clip) {
@@ -1437,7 +1433,7 @@ void QX11PaintEngine::drawTiledPixmap(const QRectF &r, const QPixmap &pixmap, co
         XSetTSOrigin(d->dpy, d->gc, 0, 0);
         XSetFillStyle(d->dpy, d->gc, FillSolid);
     } else {
-	qt_draw_tile(this, x, y, w, h, pixmap, sx, sy, mode);
+	qt_draw_tile(this, x, y, w, h, pixmap, sx, sy);
     }
 }
 

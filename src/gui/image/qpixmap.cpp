@@ -967,7 +967,7 @@ Q_GUI_EXPORT void copyBlt(QPixmap *dst, int dx, int dy,
     QImage image = dst->toImage();
     QPainter p(&image);
     p.setCompositionMode(QPainter::CompositionMode_Source);
-    p.drawImage(dx, dy, *src, sx, sy, sw, sh);
+    p.drawPixmap(dx, dy, *src, sx, sy, sw, sh);
     *dst = QPixmap::fromImage(image);
 }
 #endif

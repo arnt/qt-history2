@@ -2557,7 +2557,7 @@ static QStringList fontPath()
 
     int npaths;
     char** font_path;
-    font_path = XGetFontPath(qt_xdisplay(), &npaths);
+    font_path = XGetFontPath(X11->display, &npaths);
     bool xfsconfig_read = false;
     for (int i=0; i<npaths; i++) {
         // If we're using xfs, append font paths from /etc/X11/fs/config
@@ -3856,7 +3856,7 @@ void QPSPrintEngine::drawTiledPixmap(const QRectF &r, const QPixmap &pixmap, con
                 drawW = r.x() + r.width() - xPos;
             // ########
             painter()->drawPixmap( QPointF(xPos, yPos).toPoint(), pixmap,
-                                   QRectF(xOff, yOff, drawW, drawH).toRect(), mode);
+                                   QRectF(xOff, yOff, drawW, drawH).toRect());
             xPos += drawW;
             xOff = 0;
         }
