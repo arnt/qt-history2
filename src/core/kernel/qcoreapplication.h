@@ -22,6 +22,10 @@
 #include <QtCore/qstringlist.h>
 #endif
 
+#if defined(Q_WS_WIN) && !defined(tagMSG)
+typedef struct tagMSG MSG;
+#endif
+
 class QCoreApplicationPrivate;
 class QTextCodec;
 class QTranslator;
