@@ -74,7 +74,7 @@ struct QLineEditPrivate : public Qt
     QLineEditPrivate( QLineEdit *q )
 	: q(q), cursor(0), cursorTimer(0), tripleClickTimer(0), frame(1),
 	  cursorVisible(0), separator(0), readOnly(0), modified(0),
-	  direction(QChar::DirON), dragEnabled(1), alignment(0),
+	  direction(QChar::DirON), dragEnabled(0), alignment(0),
 	  echoMode(0), textDirty(0), selDirty(0), validInput(1),
 	  ascent(0), maxLength(32767), menuId(0),
 	  hscroll(0), validator(0), maskData(0),
