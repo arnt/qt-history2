@@ -61,7 +61,17 @@ public:
 	    SCFlags subActive = SC_None,
 	    const QStyleOption& = QStyleOption::Default ) const;
 
-    QRect subRect(SubRect c, const QWidget *widget) const;
+    int pixelMetric( PixelMetric, const QWidget *widget = 0) const;
+    
+    QRect querySubControlMetrics( ComplexControl, 
+	    			  const QWidget *widget,
+				  SubControl sc,
+				  const QStyleOption& = QStyleOption::Default) const;
+
+    SubControl querySubControl( ComplexControl,
+	    			const QWidget *widget,
+				const QPoint &pos,
+				const QStyleOption& = QStyleOption::Default) const;
 
     void polish(QWidget *);
     void polish(QApplication *);

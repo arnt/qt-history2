@@ -6,6 +6,7 @@
 #include <qrect.h>
 #include <qdict.h>
 #include <qvaluestack.h>
+#include <qvaluevector.h>
 #include <qptrvector.h>
 #include <qtextstream.h>
 #include <qptrlist.h>
@@ -15,6 +16,7 @@
 #include <qbitmap.h>
 #include <qpalette.h>
 #include <qslider.h>
+#include <qcolor.h>
 
 class QSkinStyleItem
 {
@@ -32,6 +34,9 @@ public:
 
     QDict<QPixmap> imageSets;
     QDict< QVector< QRect > > clipSets;
+
+    QValueVector<QPoint> line; /* just one of those things we might need for
+				  a widget */
 
     bool hasMask;
     QBitmap mask;
@@ -835,6 +840,7 @@ void QSkinStyle::drawImage(QPainter *p, const QWidget *w, const QString &i) cons
 }
 
 
+/* many flaws, the first of which is ignore all the flags */
 void QSkinStyle::drawComplexControl(ComplexControl element,
 	    QPainter *p,
 	    const QWidget *widget,
@@ -860,27 +866,62 @@ void QSkinStyle::drawComplexControl(ComplexControl element,
 		    QPixmap *pix = i->imageSets.find("Base");
 		    QVector<QRect> *set = i->clipSets.find("Base");
 
-		    int steps = set->size();
-		    if( steps == 0 )
-			break;;
+		    if (pix && set) {
+			int steps = set->size();
+			if( steps == 0 )
+			    break;
 
-		    /* scale between value the number of images we have */
-		    int scale = sl->maxValue() - sl->minValue();
-		    int pos = sl->value() - sl->minValue();
+			/* scale between value the number of images we have */
+			int scale = sl->maxValue() - sl->minValue();
+			int pos = sl->value() - sl->minValue();
 
-		    pos = (pos * steps) / scale;
+			pos = (pos * steps) / scale;
 
-		    if (pos >= steps)
-		       pos = steps - 1;
-		    if (pos < 0)
-		       pos = 0;
+			if (pos >= steps)
+			    pos = steps - 1;
+			if (pos < 0)
+			    pos = 0;
 
-		    QRect *clip = set->at(pos);
+			QRect *clip = set->at(pos);
 
-		    if (!(pix && clip)) {
-			break;
+			if (!(pix && clip)) {
+			    break;
+			}
+			p->drawPixmap(r.topLeft(), *pix, *clip);
+		    } else {
+			/* no 'set' of images.  try the individual approach */
+			/* images
+			   Groove
+			   Handle
+			   Line--- not image, but generated from one */
+			QPixmap *pixGroove = i->images.find("Groove");
+			QRect  *clipGroove = i->clips.find("Groove");
+			QPixmap *pixHandle = i->images.find("Handle");
+			QRect  *clipHandle = i->clips.find("Handle");
+
+			if(pixGroove && clipGroove && pixHandle && clipHandle
+				&& i->line.size() > 3) {
+
+			    QPoint handlePos = querySubControlMetrics(element, widget, SC_SliderHandle).topLeft();
+
+
+			    QPixmap buffer(r.size());
+			    QPainter pb(&buffer);
+			    QRect rb = r;
+			    rb.moveTopLeft(QPoint(0,0));
+			    if (sub & SC_SliderGroove) {
+				// do this for the sake of shaped handles.
+				pb.fillRect(rb, cg.brush(QColorGroup::Background));
+				pb.drawPixmap(QPoint(0,0), *pixGroove, *clipGroove);
+			    }
+
+			    pb.drawPixmap(handlePos, *pixHandle, *clipHandle);
+			    p->drawPixmap(r.topLeft(), buffer);
+
+			} else {
+			    break;
+			}
 		    }
-		    p->drawPixmap(r.topLeft(), *pix, *clip);
 		}
 		return;
 	}
@@ -1046,35 +1087,86 @@ void QSkinStyle::drawControl(ControlElement element,
     }
 }
 
-QRect QSkinStyle::subRect( SubRect sr, const QWidget *widget) const
+int QSkinStyle::pixelMetric( PixelMetric pm, const QWidget *widget ) const
 {
-    /* haven't successfully loaded the skin */
-    if(!d || !widget) {
-	return QWindowsStyle::subRect(sr, widget);
-    }
-
-    QSkinStyleItem *i = d->getItem(widget);
-    if(i) {
-	switch(sr) {
-	    case SR_SliderHandleRect: 
+    if(d && widget) {
+	QSkinStyleItem *i = d->getItem(widget);
+	if(i) {
+	    switch(pm) {
+		case PM_SliderSpaceAvailable:
 		{
-		    /* we re-draw the entire slider for when updating the 
-		       handle if we have a set of images */
-		    QPixmap *pix = i->imageSets.find("Base");
-		    QRect *clip = i->clipSets.find("Base")->at(0);
+		    QSlider *sl = (QSlider *)widget;
+		    QVector<QRect> *set = i->clipSets.find("Base");
+		    if (set) {
+			break;  /* we do the same as before */
+		    } else {
+			//QRect  *clipHandle = i->clips.find("Handle");
+			if (i->line.size() > 3) {
+			    return (i->line.back().x() - i->line.at(0).x());
 
-		    if (!(pix && clip)) {
-			break;
+			}
 		    }
-		    return *clip;
 		}
-		break;
-	    default:
-		break;
+	    }
 	}
     }
-    return QWindowsStyle::subRect(sr, widget);
+    return QWindowsStyle::pixelMetric(pm, widget);
 }
+    
+QRect QSkinStyle::querySubControlMetrics( ComplexControl cc, 
+	const QWidget *widget, SubControl sc, 
+	const QStyleOption &opt ) const
+{
+    /* have we successfully loaded the skin? */
+    if(d) {
+	QSkinStyleItem *i = d->getItem(widget);
+	if(i) {
+	    switch(sc) {
+		case SC_SliderHandle:
+		{
+		    QSlider *sl = (QSlider *)widget;
+		    QVector<QRect> *set = i->clipSets.find("Base");
+		    if (set) {
+			return *(set->at(0));
+		    } else {
+			QRect  *clipHandle = i->clips.find("Handle");
+			if (clipHandle) {
+			    //int steps = i->line.back().x() - i->line[0].x();
+			    //if( steps == 0 )
+				//break;
+
+			    /* scale between value the number of images we have */
+			    //int scale = sl->maxValue() - sl->minValue();
+			    //int pos = sl->value() - sl->minValue();
+
+			    //pos = (pos * steps) / scale;
+
+			    //if (pos >= i->line.size())
+				//pos = i->line.size() - 1;
+			    //if (pos < 0)
+				//pos = 0;
+			    int pos = sl->sliderStart();
+
+			    QPoint handlePos = i->line[pos];
+			    handlePos -= QPoint(clipHandle->width() / 2, clipHandle->height() / 2);
+			    return QRect(handlePos.x(), handlePos.y(), 
+				    clipHandle->width(), clipHandle->height());
+			}
+		    }
+		}
+	    }
+	}
+    }
+    return QWindowsStyle::querySubControlMetrics(cc, widget, sc, opt);
+}
+
+QStyle::SubControl QSkinStyle::querySubControl( ComplexControl cc, 
+	const QWidget *widget, const QPoint &pos, 
+	const QStyleOption &opt ) const
+{
+    return QWindowsStyle::querySubControl(cc, widget, pos, opt);
+}
+
 
 void QSkinStyle::polish( QWidget *widget )
 {
@@ -1094,7 +1186,6 @@ void QSkinStyle::polish( QWidget *widget )
 	   known */
 	if (d->backgroundPixmap) {
 	    widget->setErasePixmap(*(d->backgroundPixmap));
-	    widget->setBackgroundOrigin(QWidget::WindowOrigin);
 	}
 
 	if (i->geom.width() > 0 && i->geom.height() > 0)
@@ -1103,6 +1194,41 @@ void QSkinStyle::polish( QWidget *widget )
 	if (i->isDragable) {
 	    /* install the event filter on its ass. */
 	    widget->installEventFilter(this);
+	}
+
+	// lots of setting up to do for sliders
+	if (!qstrcmp(i->type, "QSlider")) {
+	    widget->setBackgroundMode(NoBackground);
+	    /* one of the images may be a 'Line' for positional information */
+	    QPixmap *p = i->images.find("Line");
+	    QRect *r = i->clips.find("Line");
+	    if (p && r) {
+		/* generate a line */
+		QValueVector<QPoint> line;
+		line.resize(p->width());
+		QImage im = p->convertToImage();
+		int j = 0;
+		int k = 0;
+		while (j < r->width()) {
+		    int l = 0;
+		    while (l < r->height()) 
+		    {
+			if (qAlpha(im.pixel(r->x() + j, r->y() + l)) == 255)
+			    break;
+			l++;
+		    }
+		    if (l != r->height()) 
+		    {
+			line[k] =  QPoint(j, l);
+			k++;
+		    }
+		    j++;
+
+		}
+		line.resize(k);
+		i->line = line;
+	    }
+	    
 	}
     }
 }

@@ -121,18 +121,35 @@
 </widget>
 <widget type="QSlider" name="horizontal_s">
     <size>
-        <width>400</width><height>20</height>
+        <width>546</width><height>146</height>
     </size>
-    <imageset name="Base">
-        <source>th_range.png</source>
+    <mask>
+        <source>th_hslider.png</source>
 	<rect>
-	    <x>0</x><y>0</y>
-	    <width>400</width><height>20</height>
+	    <x>21</x><y>3</y>
+	    <width>546</width><height>146</height>
 	</rect>
-	<offset>
-	    <x>0</x><y>5</y>
-	</offset>
-	<count>76</count>
-    </imageset>
+    </mask>
+    <image name="Groove">
+        <source>th_hslider.png</source>
+	<rect>
+	    <x>21</x><y>3</y>
+	    <width>546</width><height>146</height>
+	</rect>
+    </image>
+    <image name="Handle">
+        <source>th_hslider.png</source>
+	<rect>
+	    <x>19</x><y>156</y>
+	    <width>27</width><height>27</height>
+	</rect>
+    </image>
+    <image name="Line">
+        <source>th_hslider_mask.png</source>
+	<rect>
+	    <x>21</x><y>3</y>
+	    <width>546</width><height>146</height>
+	</rect>
+    </image>
 </widget>
 </skin>

@@ -342,24 +342,17 @@ QRect QSlider::sliderRect() const
 
 void QSlider::reallyMoveSlider( int newPos )
 {
-    QRect oldR = sliderRect();
+    QRegion oldR(sliderRect());
     sliderPos = newPos;
-    QRect newR = sliderRect();
-    //since sliderRect isn't virtual, I know that oldR and newR
-    // are the same size.
-    if ( orient == Horizontal ) {
-	if ( oldR.left() < newR.left() )
-	    oldR.setRight( QMIN ( oldR.right(), newR.left()));
-	else           //oldR.right() >= newR.right()
-	    oldR.setLeft( QMAX ( oldR.left(), newR.right()));
-    } else {
-	if ( oldR.top() < newR.top() )
-	    oldR.setBottom( QMIN ( oldR.bottom(), newR.top()));
-	else           //oldR.bottom() >= newR.bottom()
-	    oldR.setTop( QMAX ( oldR.top(), newR.bottom()));
+    QRegion newR(sliderRect());
+
+    /* just the one repaint if no background */
+    if (backgroundMode() == NoBackground)
+	repaint(newR | oldR, FALSE);
+    else {
+	repaint(oldR.subtract(newR));
+	repaint(newR, FALSE);
     }
-    repaint( oldR );
-    repaint( newR, FALSE );
 }
 
 
