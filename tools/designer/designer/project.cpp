@@ -301,7 +301,7 @@ void Project::parse()
 	QString s = parse_part( part );
 	QStringList lst = QStringList::split( ' ', s );
 	for ( QStringList::Iterator it = lst.begin(); it != lst.end(); ++it )
-	    sources.append( new SourceFile( *it ) );
+	    sources.append( new SourceFile( makeAbsolute( *it ) ) );
     }
 
     updateCustomSettings();
@@ -497,7 +497,7 @@ void Project::save()
     if ( !sources.isEmpty() ) {
 	contents += "DESIGNER_SOURCES\t=";
 	for ( SourceFile *f = sources.first(); f; f = sources.next() )
-	    contents += f->fileName() + " ";
+	    contents += makeRelative( f->fileName() ) + " ";
 	contents += "\n";
     }
 

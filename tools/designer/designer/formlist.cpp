@@ -266,7 +266,7 @@ void FormList::setProject( Project *pro )
 
     QList<SourceFile> sources = pro->sourceFiles();
     for ( SourceFile *f = sources.first(); f; f = sources.next() )
-	(void)new FormListItem( sourceParent, f->fileName(), f );
+	(void)new FormListItem( sourceParent, pro->makeRelative( f->fileName() ), f );
 }
 
 void FormList::addForm( FormWindow *fw )
@@ -466,7 +466,7 @@ void FormList::rmbClicked( QListViewItem *i )
 	    iface->fileFilters( extensionFilterMap );
 	    QString fn = QFileDialog::getSaveFileName( QString::null, *extensionFilterMap.begin(), mainWindow );
 	    if ( !fn.isEmpty() ) {
-		SourceFile *sf = new SourceFile( mainWindow->currProject()->makeRelative( fn ) );
+		SourceFile *sf = new SourceFile( fn );
 		mainWindow->currProject()->addSourceFile( sf );
 		setProject( mainWindow->currProject() );
 	    }
