@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgdict.cpp#29 $
+** $Id: //depot/qt/main/src/tools/qgdict.cpp#30 $
 **
 ** Implementation of QGDict and QGDictIterator classes
 **
@@ -16,7 +16,7 @@
 #include "qdstream.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qgdict.cpp#29 $")
+RCSTAG("$Id: //depot/qt/main/src/tools/qgdict.cpp#30 $")
 
 
 /*----------------------------------------------------------------------------
@@ -57,7 +57,7 @@ int QGDict::hashKey( const char *key )
 #endif
     if ( cases ) {				// case sensitive
 #if 0
-	ulong h=0, g;				// ELF hash function
+	uint h=0, g;				// ELF hash function
 	while ( *k ) {
 	    h = (h<<4) + *k++;
 	    if ( g = h & 0xf0000000 )
