@@ -22,8 +22,7 @@ QWidget* QWidgetPlugIn::create( const QString& classname, QWidget* parent, const
     if ( !use() )
 	return 0;
 
-    QWidget* w = ((QWidgetInterface*)plugInterface())->create( classname, parent, name );
-    return w;
+    return ((QWidgetInterface*)plugInterface())->create( classname, parent, name );
 }
 
 /*!
