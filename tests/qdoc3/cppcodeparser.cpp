@@ -637,7 +637,7 @@ bool CppCodeParser::matchClassDecl( InnerNode *parent )
     return matches;
 }
 
-bool CppCodeParser::matchEnumItem( EnumNode * /* enume */ )
+bool CppCodeParser::matchEnumItem( EnumNode *enume )
 {
     if ( !match(Tok_Ident) )
 	return FALSE;
@@ -652,9 +652,7 @@ bool CppCodeParser::matchEnumItem( EnumNode * /* enume */ )
 	    readToken();
 	}
     }
-#if notyet
-    enume->addItem( new EnumItemNode(name, val) );
-#endif
+    enume->addItem( EnumItem(name, val.toString()) );
     return TRUE;
 }
 

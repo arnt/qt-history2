@@ -7,6 +7,8 @@
 
 #include <qstring.h>
 
+// ### get rid of that class
+
 /*
   The CodeChunk class represents a tiny piece of C++ code.
 

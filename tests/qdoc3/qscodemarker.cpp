@@ -39,8 +39,6 @@ QString QsCodeMarker::markedUpSynopsis( const Node *node,
 					const Node * /* relative */,
 					SynopsisStyle style )
 {
-    const FunctionNode *func;
-    const PropertyNode *property;
     QString synopsis;
     QStringList extras;
     QString name;
@@ -59,46 +57,75 @@ QString QsCodeMarker::markedUpSynopsis( const Node *node,
         synopsis = "class " + name;
         break;
     case Node::Function:
-        func = (const FunctionNode *) node;
-	if ( style == Summary )
-	    synopsis = "function ";
-	synopsis += name + " (";
-        if ( !func->parameters().isEmpty() ) {
-            synopsis += " ";
-            QValueList<Parameter>::ConstIterator p = func->parameters().begin();
-            while ( p != func->parameters().end() ) {
-                if ( p != func->parameters().begin() )
-                    synopsis += ", ";
-		synopsis += "var";
-		if ( !(*p).name().isEmpty() )
-		    synopsis += " <@param>" + protect( (*p).name() ) +
-				"</@param>";
-		synopsis += " : " + protect( (*p).leftType() );
-                ++p;
-            }
-            synopsis += " ";
-        }
-        synopsis += ")";
-	if ( !func->returnType().isEmpty() )
-	    synopsis += " : " + protect( func->returnType() );
+	{
+            const FunctionNode *func = (const FunctionNode *) node;
 
-        if ( style == Detailed ) {
-            if ( func->metaness() == FunctionNode::Signal )
-                extras << "[signal]";
-        }
-        break;
-    case Node::Property:
-        property = (const PropertyNode *) node;
-	if ( style == Summary )
-	    synopsis = "var ";
-	synopsis += name + " : " + property->dataType();
-	if ( style == Detailed ) {
-	    if ( property->setter().isEmpty() )
-		extras << "[read only]";
+	    if ( style == Summary )
+		synopsis = "function ";
+	    synopsis += name + " (";
+
+            if ( !func->parameters().isEmpty() ) {
+        	synopsis += " ";
+        	QValueList<Parameter>::ConstIterator p =
+			func->parameters().begin();
+        	while ( p != func->parameters().end() ) {
+                    if ( p != func->parameters().begin() )
+                	synopsis += ", ";
+		    synopsis += "var";
+		    if ( !(*p).name().isEmpty() )
+			synopsis += " <@param>" + protect( (*p).name() ) +
+				    "</@param>";
+		    synopsis += " : " + protect( (*p).leftType() );
+                    ++p;
+        	}
+        	synopsis += " ";
+            }
+            synopsis += ")";
+
+	    if ( !func->returnType().isEmpty() )
+		synopsis += " : " + protect( func->returnType() );
+
+            if ( style == Detailed ) {
+        	if ( func->metaness() == FunctionNode::Signal )
+                    extras << "[signal]";
+            }
 	}
         break;
-    case Node::Namespace:
+    case Node::Property:
+	{
+            const PropertyNode *property = (const PropertyNode *) node;
+
+	    if ( style == Summary )
+		synopsis = "var ";
+	    synopsis += name + " : " + property->dataType();
+	    if ( style == Detailed ) {
+		if ( property->setter().isEmpty() )
+		    extras << "[read only]";
+	    }
+	}
+        break;
     case Node::Enum:
+	{
+	    // X or x occur in 0X32 or 0x32
+	    QRegExp letterRegExp( "[A-WYZa-wyz]" );
+	    const EnumNode *enume = (const EnumNode *) node;
+
+	    synopsis = name;
+	    if ( style == Summary && !enume->items().isEmpty() ) {
+		synopsis += " : ";
+		QValueList<EnumItem>::ConstIterator it = enume->items().begin();
+		while ( it != enume->items().end() ) {
+		    if ( it != enume->items().begin() )
+			synopsis += ", ";
+		    synopsis += (*it).name();
+		    if ( (*it).value().find(letterRegExp) != -1 )
+			synopsis += " = " + (*it).value();
+		    ++it;
+		}
+	    }
+	}
+	break;
+    case Node::Namespace:
     case Node::Typedef:
     default:
         synopsis = name;
