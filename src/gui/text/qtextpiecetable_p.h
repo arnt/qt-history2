@@ -8,7 +8,7 @@
 #include <qlist.h>
 #include <qobject.h>
 #include "qfragmentmap_p.h"
-#include <private/qtextlayout_p.h>
+#include <qtextlayout.h>
 #include <private/qtextformat_p.h>
 #include <qshareddatapointer.h>
 

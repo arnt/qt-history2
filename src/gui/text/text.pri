@@ -10,7 +10,7 @@ HEADERS += \
 	text/qscriptengine_p.h \
 	text/qtextengine_p.h \
 	text/qfontengine_p.h \
-	text/qtextlayout_p.h \
+	text/qtextlayout.h \
 	text/qtextformat.h \
 	text/qtextformat_p.h \
 	text/qfragmentmap_p.h \

@@ -17,7 +17,7 @@
 #include "qglobal.h"
 #include "qstring.h"
 #include "qnamespace.h"
-#include "private/qtextlayout_p.h"
+#include "qtextlayout.h"
 #include <private/qfontdata_p.h>
 #include <qvector.h>
 #include <qpaintengine.h>

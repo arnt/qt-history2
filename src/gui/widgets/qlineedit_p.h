@@ -3,7 +3,7 @@
 
 #include <private/qwidget_p.h>
 
-#include "private/qtextlayout_p.h"
+#include <qtextlayout.h>
 #include <qbasictimer.h>
 
 class QLineEditPrivate : public QWidgetPrivate

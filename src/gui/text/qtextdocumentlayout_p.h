@@ -10,7 +10,7 @@
 #include "qtextglobal_p.h"
 #include "qtextcursor.h"
 
-#include <private/qtextlayout_p.h>
+#include <qtextlayout.h>
 #endif // QT_H
 
 class QTextBlockLayouter;

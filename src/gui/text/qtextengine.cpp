@@ -13,7 +13,7 @@
 #include "qtextformat.h"
 #include "qtextformat_p.h"
 #include "qtextengine_p.h"
-#include "qtextlayout_p.h"
+#include "qtextlayout.h"
 
 #include <qvarlengtharray.h>
 

@@ -75,7 +75,7 @@
 #if defined (Q_WS_X11) || defined (Q_WS_QWS)
 #include <private/qfontdata_p.h>
 #include <private/qfontengine_p.h>
-#include <private/qtextlayout_p.h>
+#include <qtextlayout.h>
 #include <private/qtextengine_p.h>
 #endif
 

@@ -3,7 +3,7 @@
 
 #ifndef QT_H
 #include <qhash.h>
-#include <private/qtextlayout_p.h>
+#include <qtextlayout.h>
 
 #include "qtextglobal_p.h"
 #endif // QT_H

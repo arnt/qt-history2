@@ -28,7 +28,7 @@
 #include <private/qwidget_p.h>
 #include <private/qfontengine_p.h>
 #include <private/qtextengine_p.h>
-#include <private/qtextlayout_p.h>
+#include <qtextlayout.h>
 
 void qt_format_text(const QFont &font, const QRect &_r, int tf, const QString& str,
 		    int len, QRect *brect, int tabstops, int* tabarray, int tabarraylen,
@@ -955,8 +955,6 @@ void QPainter::setWorldXForm(bool enable)
     d->state->WxF = enable;
     updateXForm();
 }
-
-#include <private/qtextlayout_p.h>
 
 #ifndef QT_NO_TRANSFORMATIONS
 /*!

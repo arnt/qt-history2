@@ -10,7 +10,7 @@
 **
 ****************************************************************************/
 
-#include "qtextlayout_p.h"
+#include "qtextlayout.h"
 #include "qtextengine_p.h"
 
 #include <qfont.h>

@@ -3,14 +3,14 @@
 
 #ifndef QT_H
 #include <qobject.h>
-#include <private/qtextlayout_p.h>
+#include <qtextlayout.h>
 
 #include "qtextglobal_p.h"
 #endif // QT_H
 
 class QTextImageFormat;
 
-class QTextImageHandler : public QObject, 
+class QTextImageHandler : public QObject,
 			public QTextInlineObjectInterface
 {
     Q_OBJECT

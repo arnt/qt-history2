@@ -26,7 +26,7 @@
 #include "qcoreevent.h"
 
 #include "qpainter_p.h"
-#include <private/qtextlayout_p.h>
+#include <qtextlayout.h>
 #include <private/qfontdata_p.h>
 #include <private/qfontengine_p.h>
 #include <private/qtextengine_p.h>

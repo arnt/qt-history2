@@ -7,7 +7,7 @@
 #include "qtexttablemanager_p.h"
 #include "qtexttable.h"
 
-#include <private/qtextlayout_p.h>
+#include <qtextlayout.h>
 #include <qdebug.h>
 
 enum {

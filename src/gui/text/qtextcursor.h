@@ -3,7 +3,7 @@
 
 #include <qstring.h>
 
-#include <private/qtextlayout_p.h>
+#include <qtextlayout.h>
 #include <qshareddatapointer.h>
 #include "qtextlist.h"
 
