@@ -500,8 +500,8 @@ void QOpenGLPaintEngine::drawLine(const QLineF &line)
     dgl->qglColor(d->cpen.color());
     glBegin(GL_LINES);
     {
-        glVertex2d(qToDouble(line.startX()), qToDouble(line.startY()));
-        glVertex2d(qToDouble(line.endX()), qToDouble(line.endY()));
+        glVertex2d(qToDouble(line.x1()), qToDouble(line.y1()));
+        glVertex2d(qToDouble(line.x2()), qToDouble(line.y2()));
     }
     glEnd();
 }
@@ -564,8 +564,8 @@ void QOpenGLPaintEngine::drawLines(const QLineF *lines, int lineCount)
     glBegin(GL_LINES);
     {
         for (int i = 0; i < lineCount; ++i) {
-            glVertex2d(qToDouble(lines[i].startX()), qToDouble(lines[i].startY()));
-            glVertex2d(qToDouble(lines[i].endX()), qToDouble(lines[i].endY()));
+            glVertex2d(qToDouble(lines[i].x1()), qToDouble(lines[i].y1()));
+            glVertex2d(qToDouble(lines[i].x2()), qToDouble(lines[i].y2()));
         }
     }
     glEnd();
@@ -695,7 +695,7 @@ void QOpenGLPaintEngine::drawPixmap(const QRectF &r, const QPixmap &pm, const QR
 	return;
     }
     GLenum target = QGLExtensions::glExtensions & QGLExtensions::TextureRectangle
-		    ? GL_TEXTURE_RECTANGLE_NV 
+		    ? GL_TEXTURE_RECTANGLE_NV
 		    : GL_TEXTURE_2D;
     dgl->makeCurrent();
     dgl->bindTexture(pm, target);
@@ -731,13 +731,13 @@ void QOpenGLPaintEngine::drawTiledPixmap(const QRectF &r, const QPixmap &pm, con
     {
 	glTexCoord2d(0.0, 0.0);
 	glVertex2d(qToDouble(r.x()), qToDouble(r.y()));
-	
+
 	glTexCoord2d(tc_w, 0.0);
 	glVertex2d(qToDouble(r.x()+r.width()), qToDouble(r.y()));
-	
+
 	glTexCoord2d(tc_w, tc_h);
 	glVertex2d(qToDouble(r.x()+r.width()), qToDouble(r.y()+r.height()));
-	
+
 	glTexCoord2d(0.0, tc_h);
 	glVertex2d(qToDouble(r.x()), qToDouble(r.y()+r.height()));
     }
@@ -752,7 +752,7 @@ void QOpenGLPaintEngine::drawImage(const QRectF &r, const QImage &image, const Q
                                    Qt::ImageConversionFlags)
 {
     GLenum target = QGLExtensions::glExtensions & QGLExtensions::TextureRectangle
-		    ? GL_TEXTURE_RECTANGLE_NV 
+		    ? GL_TEXTURE_RECTANGLE_NV
 		    : GL_TEXTURE_2D;
     dgl->makeCurrent();
     dgl->bindTexture(image, target);
@@ -783,16 +783,16 @@ void QOpenGLPaintEngine::drawTextureRect(int tx_width, int tx_height, const QRec
 	    y1 = sr.y();
 	    y2 = sr.height();
 	}
-	
-        glTexCoord2d(qToDouble(x1), qToDouble(y2)); 
+
+        glTexCoord2d(qToDouble(x1), qToDouble(y2));
 	glVertex2d(qToDouble(r.x()), qToDouble(r.y()));
-	
-        glTexCoord2d(qToDouble(x2), qToDouble(y2)); 
+
+        glTexCoord2d(qToDouble(x2), qToDouble(y2));
 	glVertex2d(qToDouble(r.x()+r.width()), qToDouble(r.y()));
-	
+
         glTexCoord2d(qToDouble(x2), qToDouble(y1));
 	glVertex2d(qToDouble(r.x()+r.width()), qToDouble(r.y()+r.height()));
-	
+
         glTexCoord2d(qToDouble(x1), qToDouble(y1));
 	glVertex2d(qToDouble(r.x()), qToDouble(r.y()+r.height()));
     }

@@ -815,13 +815,13 @@ void QPaintEngine::drawPath(const QPainterPath &)
 void QPaintEngine::drawLine(const QLineF &line)
 {
     if (hasFeature(PainterPaths)) {
-        QPainterPath path(line.start());
-        path.lineTo(line.end());
+        QPainterPath path(line.p1());
+        path.lineTo(line.p2());
         updateBrush(QBrush(), QPointF(0, 0));
         drawPath(path);
         setDirty(QPaintEngine::DirtyBrush);
     } else {
-        QPointF pts[2] = { line.start(), line.end() };
+        QPointF pts[2] = { line.p1(), line.p2() };
         drawPolygon(pts, 2, PolylineMode);
     }
 }

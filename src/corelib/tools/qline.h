@@ -16,6 +16,127 @@
 
 #include <QtCore/qpoint.h>
 
+/*******************************************************************************
+ * class QLine
+ *******************************************************************************/
+
+class Q_CORE_EXPORT QLine {
+public:
+
+    inline QLine();
+    inline QLine(const QPoint &pt1, const QPoint &pt2);
+    inline QLine(int x1, int y1, int x2, int y2);
+
+    inline bool isNull() const;
+
+    inline QPoint p1() const;
+    inline QPoint p2() const;
+
+    inline int x1() const;
+    inline int y1() const;
+
+    inline int x2() const;
+    inline int y2() const;
+
+    inline int dx() const;
+    inline int dy() const;
+
+    int manhattanLenth();
+
+    inline void translate(const QPoint &p);
+    inline void translate(int dx, int dy);
+
+    inline bool operator==(const QLine &d) const;
+    inline bool operator!=(const QLine &d) const { return !(*this == d); }
+
+private:
+    QPoint pt1, pt2;
+};
+Q_DECLARE_TYPEINFO(QLine, Q_MOVABLE_TYPE);
+
+/*******************************************************************************
+ * class QLine inline members
+ *******************************************************************************/
+
+inline QLine::QLine() { }
+
+inline QLine::QLine(const QPoint &pt1_, const QPoint &pt2_) : pt1(pt1_), pt2(pt2_) { }
+
+inline QLine::QLine(int x1, int y1, int x2, int y2) : pt1(QPoint(x1, y1)), pt2(QPoint(x2, y2)) { }
+
+inline bool QLine::isNull() const
+{
+    return pt1 == pt2;
+}
+
+inline int QLine::x1() const
+{
+    return pt1.x();
+}
+
+inline int QLine::y1() const
+{
+    return pt1.y();
+}
+
+inline int QLine::x2() const
+{
+    return pt2.x();
+}
+
+inline int QLine::y2() const
+{
+    return pt2.y();
+}
+
+inline QPoint QLine::p1() const
+{
+    return pt1;
+}
+
+inline QPoint QLine::p2() const
+{
+    return pt2;
+}
+
+inline int QLine::dx() const
+{
+    return pt2.x() - pt1.x();
+}
+
+inline int QLine::dy() const
+{
+    return pt2.y() - pt1.y();
+}
+
+inline void QLine::translate(const QPoint &point)
+{
+    pt1 += point;
+    pt2 += point;
+}
+
+inline void QLine::translate(int dx, int dy)
+{
+    this->translate(QPoint(dx, dy));
+}
+
+inline bool QLine::operator==(const QLine &d) const
+{
+    return pt1 == d.pt1 && pt2 == d.pt2;
+}
+
+#ifndef QT_NO_DEBUG_STREAM
+Q_CORE_EXPORT QDebug operator<<(QDebug d, const QLine &p);
+#endif
+
+#ifndef QT_NO_DATASTREAM
+Q_CORE_EXPORT QDataStream &operator<<(QDataStream &, const QLine &);
+Q_CORE_EXPORT QDataStream &operator>>(QDataStream &, QLine &);
+#endif
+
+/*******************************************************************************
+ * class QLineF
+ *******************************************************************************/
 class Q_CORE_EXPORT QLineF {
 public:
 
@@ -24,20 +145,21 @@ public:
     inline QLineF();
     inline QLineF(const QPointF &pt1, const QPointF &pt2);
     inline QLineF(qreal x1, qreal y1, qreal x2, qreal y2);
+    inline QLineF(const QLine &line) : pt1(line.p1()), pt2(line.p2()) { }
 
     inline bool isNull() const;
 
-    inline QPointF start() const;
-    inline QPointF end() const;
+    inline QPointF p1() const;
+    inline QPointF p2() const;
 
-    inline qreal startX() const;
-    inline qreal startY() const;
+    inline qreal x1() const;
+    inline qreal y1() const;
 
-    inline qreal endX() const;
-    inline qreal endY() const;
+    inline qreal x2() const;
+    inline qreal y2() const;
 
-    inline qreal vx() const;
-    inline qreal vy() const;
+    inline qreal dx() const;
+    inline qreal dy() const;
 
     qreal length() const;
     void setLength(qreal len);
@@ -53,94 +175,89 @@ public:
 #ifdef QT_USE_FIXED_POINT
     QPointF pointAt(QFixedPointLong t) const;
 #endif
-    inline void translate(const QLineF &p);
     inline void translate(const QPointF &p);
     inline void translate(qreal dx, qreal dy);
 
-    inline void operator+=(const QPointF &d);
-    inline void operator-=(const QPointF &d);
     inline bool operator==(const QLineF &d) const;
+    inline bool operator!=(const QLineF &d) const { return !(*this == d); }
 
 private:
-    QPointF p1, p2;
+    QPointF pt1, pt2;
 };
 Q_DECLARE_TYPEINFO(QLineF, Q_MOVABLE_TYPE);
+
+/*******************************************************************************
+ * class QLineF inline members
+ *******************************************************************************/
 
 inline QLineF::QLineF()
 {
 }
 
 inline QLineF::QLineF(const QPointF &pt1, const QPointF &pt2)
-    : p1(pt1), p2(pt2)
+    : pt1(pt1), pt2(pt2)
 {
 }
 
 inline QLineF::QLineF(qreal x1, qreal y1, qreal x2, qreal y2)
-    : p1(x1, y1), p2(x2, y2)
+    : pt1(x1, y1), pt2(x2, y2)
 {
 }
 
 inline bool QLineF::isNull() const
 {
-    return p1 == p2;
+    return pt1 == pt2;
 }
 
-inline qreal QLineF::startX() const
+inline qreal QLineF::x1() const
 {
-    return p1.x();
+    return pt1.x();
 }
 
-inline qreal QLineF::startY() const
+inline qreal QLineF::y1() const
 {
-    return p1.y();
+    return pt1.y();
 }
 
-inline qreal QLineF::endX() const
+inline qreal QLineF::x2() const
 {
-    return p2.x();
+    return pt2.x();
 }
 
-inline qreal QLineF::endY() const
+inline qreal QLineF::y2() const
 {
-    return p2.y();
+    return pt2.y();
 }
 
-inline QPointF QLineF::start() const
+inline QPointF QLineF::p1() const
 {
-    return p1;
+    return pt1;
 }
 
-inline QPointF QLineF::end() const
+inline QPointF QLineF::p2() const
 {
-    return p2;
+    return pt2;
 }
 
-inline qreal QLineF::vx() const
+inline qreal QLineF::dx() const
 {
-    return p2.x() - p1.x();
+    return pt2.x() - pt1.x();
 }
 
-inline qreal QLineF::vy() const
+inline qreal QLineF::dy() const
 {
-    return p2.y() - p1.y();
+    return pt2.y() - pt1.y();
 }
 
 inline QLineF QLineF::normalVector() const
 {
-    return QLineF(start(), start() + QPointF(vy(), -vx()));
-}
-
-inline void QLineF::translate(const QLineF &l)
-{
-    QPointF point(l.vx(), l.vy());
-    p1 += point;
-    p2 += point;
+    return QLineF(p1(), p1() + QPointF(dy(), -dx()));
 }
 
 inline void QLineF::translate(const QPointF &point)
 {
-    p1 += point;
-    p2 += point;
+    pt1 += point;
+    pt2 += point;
 }
 
 inline void QLineF::translate(qreal dx, qreal dy)
@@ -153,40 +270,28 @@ inline void QLineF::setLength(qreal len)
     if (isNull())
         return;
     QLineF v = unitVector();
-    p2 = QPointF(p1.x() + v.vx() * len, p1.y() + v.vy() * len);
+    pt2 = QPointF(pt1.x() + v.dx() * len, pt1.y() + v.dy() * len);
 }
 
 inline QPointF QLineF::pointAt(qreal t) const
 {
-    qreal vx = p2.x() - p1.x();
-    qreal vy = p2.y() - p1.y();
-    return QPointF(p1.x() + vx * t, p1.y() + vy * t);
+    qreal vx = pt2.x() - pt1.x();
+    qreal vy = pt2.y() - pt1.y();
+    return QPointF(pt1.x() + vx * t, pt1.y() + vy * t);
 }
 
 #ifdef QT_USE_FIXED_POINT
 inline QPointF QLineF::pointAt(QFixedPointLong t) const
 {
-    QFixedPointLong vx = p2.x() - p1.x();
-    QFixedPointLong vy = p2.y() - p1.y();
-    return QPointF((p1.x() + vx * t).toFixed(), (p1.y() + vy * t).toFixed());
+    QFixedPointLong vx = pt2.x() - pt1.x();
+    QFixedPointLong vy = pt2.y() - pt1.y();
+    return QPointF((pt1.x() + vx * t).toFixed(), (pt1.y() + vy * t).toFixed());
 }
 #endif
 
-inline void QLineF::operator+=(const QPointF &point)
-{
-    p1 += point;
-    p2 += point;
-}
-
-inline void QLineF::operator-=(const QPointF &point)
-{
-    p1 -= point;
-    p2 -= point;
-}
-
 inline bool QLineF::operator==(const QLineF &d) const
 {
-    return p1 == d.p1 && p2 == d.p2;
+    return pt1 == d.pt1 && pt2 == d.pt2;
 }
 
 #ifndef QT_NO_DEBUG_STREAM

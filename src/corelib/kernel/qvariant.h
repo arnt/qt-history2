@@ -24,6 +24,7 @@ class QBitArray;
 class QDataStream;
 class QDate;
 class QDateTime;
+class QLine;
 class QLineF;
 class QLocale;
 class QString;
@@ -32,6 +33,7 @@ class QTime;
 class QPoint;
 class QPointF;
 class QSize;
+class QSizeF;
 class QRect;
 class QRectF;
 class QTextFormat;
@@ -102,6 +104,7 @@ class Q_CORE_EXPORT QVariant
         LineF = 40,
         RectF = 41,
         PointF = 42,
+        Line = 43,
         UserType = 127,
         LastType = 0xffffffff // need this so that gcc >= 3.4 allocates 32 bits for Type
 #ifdef QT3_SUPPORT
@@ -145,10 +148,12 @@ class Q_CORE_EXPORT QVariant
 #endif
 #ifndef QT_NO_GEOM_VARIANT
     QVariant(const QSize &size);
-    QVariant(const QRect &rect);
+    QVariant(const QSizeF &size);
     QVariant(const QPoint &pt);
     QVariant(const QPointF &pt);
+    QVariant(const QLine &line);
     QVariant(const QLineF &line);
+    QVariant(const QRect &rect);
     QVariant(const QRectF &rect);
 #endif
     QVariant(const QUrl &url);
@@ -202,6 +207,8 @@ class Q_CORE_EXPORT QVariant
     QPointF toPointF() const;
     QRect toRect() const;
     QSize toSize() const;
+    QSizeF toSizeF() const;
+    QLine toLine() const;
     QLineF toLineF() const;
     QRectF toRectF() const;
 #endif
@@ -439,6 +446,8 @@ template<>
 inline int qt_variant_metatype_id(QLocale *) { return QVariant::Locale; }
 template<>
 inline int qt_variant_metatype_id(QLineF *) { return QVariant::LineF; }
+template<>
+inline int qt_variant_metatype_id(QLine *) { return QVariant::Line; }
 template<>
 inline int qt_variant_metatype_id(QRectF *) { return QVariant::RectF; }
 #ifdef QT3_SUPPORT

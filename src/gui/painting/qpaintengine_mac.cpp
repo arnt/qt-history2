@@ -250,8 +250,8 @@ QQuickDrawPaintEngine::drawLine(const QLineF &line)
     if(d->clip.paintable.isEmpty())
         return;
     setupQDPen();
-    MoveTo(qRound(line.startX())+d->offx,qRound(line.startY())+d->offy);
-    LineTo(qRound(line.endX())+d->offx,qRound(line.endY())+d->offy);
+    MoveTo(qRound(line.x1())+d->offx,qRound(line.y1())+d->offy);
+    LineTo(qRound(line.x2())+d->offx,qRound(line.y2())+d->offy);
 }
 
 void
@@ -412,7 +412,7 @@ QQuickDrawPaintEngine::drawLines(const QLineF *lines, int lineCount)
 
     setupQDPen();
     for(int i = 0; i < lineCount; i++) {
-        const QPointF start = lines[i].start(), end = lines[i].end();
+        const QPointF start = lines[i].p1(), end = lines[i].p2();
         MoveTo(qRound(start.x()) + d->offx, qRound(start.y()) + d->offy);
         LineTo(qRound(end.x()) + d->offx, qRound(end.y()) + d->offy);
     }
@@ -1346,8 +1346,8 @@ QCoreGraphicsPaintEngine::drawLine(const QLineF &line)
     Q_ASSERT(isActive());
 
     CGContextBeginPath(d->hd);
-    CGContextMoveToPoint(d->hd, line.startX(), line.startY()+1);
-    CGContextAddLineToPoint(d->hd, line.endX(), line.endY()+1);
+    CGContextMoveToPoint(d->hd, line.x1(), line.y1()+1);
+    CGContextAddLineToPoint(d->hd, line.x2(), line.y2()+1);
     d->drawPath(QCoreGraphicsPaintEnginePrivate::CGStroke);
 }
 
@@ -1462,7 +1462,7 @@ QCoreGraphicsPaintEngine::drawLines(const QLineF *lines, int lineCount)
 
     CGContextBeginPath(d->hd);
     for(int i = 0; i < lineCount; i++) {
-        const QPointF start = lines[i].start(), end = lines[i].end();
+        const QPointF start = lines[i].p1(), end = lines[i].p2();
         CGContextMoveToPoint(d->hd, start.x(), start.y()+1);
         CGContextAddLineToPoint(d->hd, end.x(), end.y()+1);
     }

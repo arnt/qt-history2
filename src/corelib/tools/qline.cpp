@@ -18,6 +18,179 @@
 
 #include <math.h>
 
+/*!
+    \class QLine
+
+    \brief The QLine class provides a two-dimensional vector that
+    uses integer point coordinates for accuracy.
+
+    A QLine describes a finite length line on a two-dimensional surface.
+    The start and end points of the line are specified using floating point
+    coordinates for accuracy.
+
+    Use isNull() to determine whether the QLine represents a valid line
+    or a null line.
+
+    The positions of the line's end points can be found with the x1(),
+    y1(), x2(), and y2() functions. The horizontal and vertical
+    components of the line are returned by the dx() and dy() functions.
+
+    The line can be translated along the length of another line with the
+    translate() function.
+
+    \sa QPoint QSize QRect QLineF
+*/
+
+/*!
+    \fn QLine::QLine()
+
+    Constructs a null line.
+*/
+
+/*!
+    \fn QLine::QLine(const QPoint &pt1, const QPoint &pt2)
+
+    Constructs a line object that represents the line between \a pt1 and
+    \a pt2.
+*/
+
+/*!
+    \fn QLine::QLine(int x1, int y1, int x2, int y2)
+
+    Constructs a line object that represents the line between (\a x1, \a y1) and
+    (\a x2, \a y2).
+*/
+
+/*!
+    \fn bool QLine::isNull() const
+
+    Returns true if the line is not set up with valid start and end point;
+    otherwise returns false.
+*/
+
+/*!
+    \fn QPoint QLine::p1() const
+
+    Returns the line's start point.
+*/
+
+/*!
+    \fn QPoint QLine::p2() const
+
+    Returns the line's end point.
+*/
+
+/*!
+    \fn int QLine::x1() const
+
+    Returns the x-coordinate of the line's start point.
+*/
+
+/*!
+    \fn int QLine::y1() const
+
+    Returns the y-coordinate of the line's start point.
+*/
+
+/*!
+    \fn int QLine::x2() const
+
+    Returns the x-coordinate of the line's end point.
+*/
+
+/*!
+    \fn int QLine::y2() const
+
+    Returns the y-coordinate of the line's end point.
+*/
+
+/*!
+    \fn int QLine::dx() const
+
+    Returns the horizontal component of the line's vector.
+*/
+
+/*!
+    \fn int QLine::dy() const
+
+    Returns the vertical component of the line's vector.
+*/
+
+/*!
+    \fn void QLine::operator+=(const QPoint &point)
+
+    Translates this line with the \a point given.
+*/
+
+/*!
+    \fn bool QLine::operator==(const QLine &other) const
+
+    Returns true if \a other is the same line as this line.
+
+    A line is identical if the two points are the same and their
+    order is the same.
+*/
+
+/*!
+    \fn void QLine::translate(const QPoint &point)
+
+    Translates this line with the \a point given.
+*/
+
+/*!
+    \fn void QLine::translate(int dx, int dy)
+
+    \overload
+
+    Translates this line the distance \a dx and \a dy.
+*/
+
+#ifndef QT_NO_DEBUG_STREAM
+QDebug operator<<(QDebug d, const QLine &p)
+{
+    d << "QLine(" << p.p1() << "," << p.p2() << ")";
+    return d;
+}
+#endif
+
+#ifndef QT_NO_DATASTREAM
+/*!
+    \relates QLine
+
+    Writes the \a line to the \a stream and returns a reference to
+    the stream.
+
+    \sa \link datastreamformat.html Format of the QDataStream operators \endlink
+*/
+
+QDataStream &operator<<(QDataStream &stream, const QLine &line)
+{
+    stream << line.p1() << line.p2();
+    return stream;
+}
+
+/*!
+    \relates QLine
+
+    Reads a QLine from the \a stream into the \a line and returns a
+    reference to the stream.
+
+    \sa \link datastreamformat.html Format of the QDataStream operators \endlink
+*/
+
+QDataStream &operator>>(QDataStream &stream, QLine &line)
+{
+    QPoint p1, p2;
+    stream >> p1;
+    stream >> p2;
+    line = QLine(p1, p2);
+
+    return stream;
+}
+
+#endif // QT_NO_DATASTREAM
+
+
 #ifndef M_2PI
 #define M_2PI 6.28318530717958647692528676655900576
 #endif
@@ -35,9 +208,9 @@
     Use isNull() to determine whether the QLineF represents a valid line
     or a null line.
 
-    The positions of the line's end points can be found with the startX(),
-    startY(), endX(), and endY() functions. The horizontal and vertical
-    components of the line are returned by the vx() and vy() functions.
+    The positions of the line's end points can be found with the x1(),
+    y1(), x2(), and y2() functions. The horizontal and vertical
+    components of the line are returned by the dx() and dy() functions.
 
     Convenience functions are provided for finding the lines's length(),
     the unitVector() along the line, whether two lines intersect(), and
@@ -101,49 +274,49 @@
 */
 
 /*!
-    \fn QPointF QLineF::start() const
+    \fn QPointF QLineF::p1() const
 
     Returns the line's start point.
 */
 
 /*!
-    \fn QPointF QLineF::end() const
+    \fn QPointF QLineF::p2() const
 
     Returns the line's end point.
 */
 
 /*!
-    \fn qreal QLineF::startX() const
+    \fn qreal QLineF::x1() const
 
     Returns the x-coordinate of the line's start point.
 */
 
 /*!
-    \fn qreal QLineF::startY() const
+    \fn qreal QLineF::y1() const
 
     Returns the y-coordinate of the line's start point.
 */
 
 /*!
-    \fn qreal QLineF::endX() const
+    \fn qreal QLineF::x2() const
 
     Returns the x-coordinate of the line's end point.
 */
 
 /*!
-    \fn qreal QLineF::endY() const
+    \fn qreal QLineF::y2() const
 
     Returns the y-coordinate of the line's end point.
 */
 
 /*!
-    \fn qreal QLineF::vx() const
+    \fn qreal QLineF::dx() const
 
     Returns the horizontal component of the line's vector.
 */
 
 /*!
-    \fn qreal QLineF::vy() const
+    \fn qreal QLineF::dy() const
 
     Returns the vertical component of the line's vector.
 */
@@ -194,8 +367,8 @@
 */
 qreal QLineF::length() const
 {
-    qreal x = p2.x() - p1.x();
-    qreal y = p2.y() - p1.y();
+    qreal x = pt2.x() - pt1.x();
+    qreal y = pt2.y() - pt1.y();
     return sqrt(x*x + y*y);
 }
 
@@ -241,12 +414,12 @@ static qint64 sqrt_64(qint64  x)
 */
 QLineF QLineF::unitVector() const
 {
-    qreal x = p2.x() - p1.x();
-    qreal y = p2.y() - p1.y();
+    qreal x = pt2.x() - pt1.x();
+    qreal y = pt2.y() - pt1.y();
 #ifndef QT_USE_FIXED_POINT
 
     qreal len = sqrt(x*x + y*y);
-    QLineF f(start(), QPointF(p1.x() + x/len, p1.y() + y/len));
+    QLineF f(p1(), QPointF(pt1.x() + x/len, pt1.y() + y/len));
 #else
 
     qint64 xx = x.value();
@@ -257,7 +430,7 @@ QLineF QLineF::unitVector() const
     qreal dx = QFixedPoint(int((xx<<36)/len), QFixedPoint::FixedPoint);
     qreal dy = QFixedPoint(int((yy<<36)/len), QFixedPoint::FixedPoint);
 
-    QLineF f(start(), QPointF(p1.x() + dx, p1.y() + dy));
+    QLineF f(p1(), QPointF(pt1.x() + dx, pt1.y() + dy));
 #endif
 
 #ifndef QT_NO_DEBUG
@@ -312,44 +485,37 @@ static bool qt_linef_intersect(qreal x1, qreal y1, qreal x2, qreal y2,
 QLineF::IntersectType QLineF::intersect(const QLineF &l, QPointF *intersectionPoint) const
 {
     if (isNull() || l.isNull()
-        || !qIsFinite(p1.x()) || !qIsFinite(p1.y()) || !qIsFinite(p2.x()) || !qIsFinite(p2.y())
-        || !qIsFinite(l.p1.x()) || !qIsFinite(l.p1.y()) || !qIsFinite(l.p2.x()) || !qIsFinite(l.p2.y()))
+        || !qIsFinite(pt1.x()) || !qIsFinite(pt1.y()) || !qIsFinite(pt2.x()) || !qIsFinite(pt2.y())
+        || !qIsFinite(l.pt1.x()) || !qIsFinite(l.pt1.y()) || !qIsFinite(l.pt2.x()) || !qIsFinite(l.pt2.y()))
         return NoIntersection;
 
     QPointF isect;
-    IntersectType type = qt_linef_intersect(p1.x(), p1.y(), p2.x(), p2.y(),
-                                            l.startX(), l.startY(), l.endX(), l.endY())
+    IntersectType type = qt_linef_intersect(pt1.x(), pt1.y(), pt2.x(), pt2.y(),
+                                            l.x1(), l.y1(), l.x2(), l.y2())
                          ? BoundedIntersection : UnboundedIntersection;
 
     // For special case where one of the lines are vertical
-    if (vx() == 0 && l.vx() == 0) {
+    if (dx() == 0 && l.dx() == 0) {
         type = NoIntersection;
-    } else if (vx() == 0) {
-        qreal la = l.vy() / l.vx();
-        isect = QPointF(p1.x(), la * p1.x() + l.startY() - la*l.startX());
-    } else if (l.vx() == 0) {
-        qreal ta = vy() / vx();
-        isect = QPointF(l.startX(), ta * l.startX() + startY() - ta*startX());
+    } else if (dx() == 0) {
+        qreal la = l.dy() / l.dx();
+        isect = QPointF(pt1.x(), la * pt1.x() + l.y1() - la*l.x1());
+    } else if (l.dx() == 0) {
+        qreal ta = dy() / dx();
+        isect = QPointF(l.x1(), ta * l.x1() + y1() - ta*x1());
     } else {
-        qreal ta = vy()/vx();
-        qreal la = l.vy()/l.vx();
+        qreal ta = dy()/dx();
+        qreal la = l.dy()/l.dx();
         if (ta == la) // no intersection
             return NoIntersection;
 
-        qreal x = ( - l.startY() + la * l.startX() + p1.y() - ta * p1.x() ) / (la - ta);
-        isect = QPointF(x, ta*(x - p1.x()) + p1.y());
+        qreal x = ( - l.y1() + la * l.x1() + pt1.y() - ta * pt1.x() ) / (la - ta);
+        isect = QPointF(x, ta*(x - pt1.x()) + pt1.y());
     }
     if (intersectionPoint)
         *intersectionPoint = isect;
     return type;
 }
-
-
-/*!
-    \fn void QLineF::translate(const QLineF &line)
-
-    Translates this line by the vector specified by the \a line given.
-*/
 
 /*!
     \fn void QLineF::translate(const QPointF &point)
@@ -376,7 +542,7 @@ qreal QLineF::angle(const QLineF &l) const
 {
     if (isNull() || l.isNull())
         return 0;
-    qreal rad = acos( (vx()*l.vx() + vy()*l.vy()) / (length()*l.length()) );
+    qreal rad = acos( (dx()*l.dx() + dy()*l.dy()) / (length()*l.length()) );
     return rad * 360 / M_2PI;
 }
 
@@ -384,7 +550,7 @@ qreal QLineF::angle(const QLineF &l) const
 #ifndef QT_NO_DEBUG_STREAM
 QDebug operator<<(QDebug d, const QLineF &p)
 {
-    d << "QLineF(" << p.start() << "," << p.end() << ")";
+    d << "QLineF(" << p.p1() << "," << p.p2() << ")";
     return d;
 }
 #endif
@@ -401,7 +567,7 @@ QDebug operator<<(QDebug d, const QLineF &p)
 
 QDataStream &operator<<(QDataStream &stream, const QLineF &line)
 {
-    stream << line.start() << line.end();
+    stream << line.p1() << line.p2();
     return stream;
 }
 

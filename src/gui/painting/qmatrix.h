@@ -49,6 +49,7 @@ public:
 
     QPoint map(const QPoint &p) const;
     QPointF map(const QPointF&p) const;
+    QLine map(const QLine &l) const;
     QLineF map(const QLineF &l) const;
     QPolygonF map(const QPolygonF &a) const;
     QPolygon map(const QPolygon &a) const;
@@ -96,6 +97,8 @@ inline Q_GUI_EXPORT QPoint operator*(const QPoint &p, const QMatrix &m)
 inline Q_GUI_EXPORT QPointF operator*(const QPointF &p, const QMatrix &m)
 { return m.map(p); }
 inline Q_GUI_EXPORT QLineF operator*(const QLineF &l, const QMatrix &m)
+{ return m.map(l); }
+inline Q_GUI_EXPORT QLine operator*(const QLine &l, const QMatrix &m)
 { return m.map(l); }
 inline Q_GUI_EXPORT QPolygon operator *(const QPolygon &a, const QMatrix &m)
 { return m.map(a); }

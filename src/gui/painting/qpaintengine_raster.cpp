@@ -990,7 +990,7 @@ void QRasterPaintEngine::drawLine(const QLineF &l)
 {
 #ifdef QT_DEBUG_DRAW
     qDebug(" - QRasterPaintEngine::drawLine(), x1=%.2f, y1=%.2f, x2=%.2f, y2=%.2f",
-           l.startX(), l.startY(), l.endX(), l.endY());
+           l.x1(), l.y1(), l.x2(), l.y2());
 #endif
 #if 0
     Q_D(QRasterPaintEngine);
@@ -999,15 +999,15 @@ void QRasterPaintEngine::drawLine(const QLineF &l)
         && d->pen.style() == Qt::SolidLine
         && (d->pen.widthF() == 0 || d->pen.widthF() == 1)
         && d->txop <= QPainterPrivate::TxTranslate
-        && (l.vx() == 0 || l.vy() == 0)) {
+        && (l.dx() == 0 || l.dy() == 0)) {
 
         QLineF line(l);
         line.translate(d->matrix.dx(), d->matrix.dy());
 
-        int x1 = qRound(line.startX());
-        int x2 = qRound(line.endX());
-        int y1 = qRound(line.startY());
-        int y2 = qRound(line.endY());
+        int x1 = qRound(line.x1());
+        int x2 = qRound(line.y1());
+        int y1 = qRound(line.x2());
+        int y2 = qRound(line.y2());
 
         int rbw = d->rasterBuffer->width();
         int rbh = d->rasterBuffer->height();
@@ -1037,7 +1037,7 @@ void QRasterPaintEngine::drawLine(const QLineF &l)
             if (span.len <= 0)
                 return;
 
-            func(line.startY(), 1, &span, data);
+            func(line.y1(), 1, &span, data);
 
         } else { // Vertical lines
             if (x1 < 0 || x2 >= rbw - 1)

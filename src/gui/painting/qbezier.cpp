@@ -115,14 +115,14 @@ QPolygonF QBezier::toPolygon() const
             || (s.t_end - s.t_start).value() == 1
 #endif
             ) {
-            polygon.append(s.l.end());
+            polygon.append(s.l.p2());
         } else {
             if (pos >= alloc - 2) {
                 alloc *= 2;
                 lines = (QBezierLineSegment *) qRealloc(lines, alloc*sizeof(QBezierLineSegment));
             }
-            lines[pos++] = QBezierLineSegment(t_half, s.t_end, QLineF(curvePt, s.l.end())); // push
-            lines[pos++] = QBezierLineSegment(s.t_start, t_half, QLineF(s.l.start(), curvePt)); // push
+            lines[pos++] = QBezierLineSegment(t_half, s.t_end, QLineF(curvePt, s.l.p2())); // push
+            lines[pos++] = QBezierLineSegment(s.t_start, t_half, QLineF(s.l.p1(), curvePt)); // push
         }
     }
     qFree(lines);
@@ -194,11 +194,11 @@ int QBezier::shifted(QBezier *curveSegments, int maxSegments, float offset, floa
     // We offset the control vectors to have a basis for the offset.
     QLineF l1(x1, y1, x2, y2);
     QLineF l1n = l1.normalVector().unitVector();
-    l1.translate(l1n.vx() * offset, l1n.vy() * offset);
+    l1.translate(l1n.dx() * offset, l1n.dy() * offset);
     QLineF l2(x3, y3, x4, y4);
     QLineF l2n = l2.normalVector().unitVector();
-    l2.translate(l2n.vx() * offset, l2n.vy() * offset);
-    QBezier shifted(l1.start(), l1.end(), l2.start(), l2.end());
+    l2.translate(l2n.dx() * offset, l2n.dy() * offset);
+    QBezier shifted(l1.p1(), l1.p2(), l2.p1(), l2.p2());
 
     // Locate the center off the offsetted curve.
     QPointF offsetCenter = shifted.midPoint();
@@ -207,7 +207,7 @@ int QBezier::shifted(QBezier *curveSegments, int maxSegments, float offset, floa
     QPointF center = midPoint();
     QLineF centerTangent = midTangent();
     QLineF ctn = centerTangent.normalVector().unitVector();
-    center += QPointF(ctn.vx() * offset, ctn.vy() * offset);
+    center += QPointF(ctn.dx() * offset, ctn.dy() * offset);
 
     // Recurse if the distance between actual and expected is greater than threshold
     if (QLineF(center, offsetCenter).length() > qAbs(threshold) && maxSegments > 1) {

@@ -527,7 +527,7 @@ void QPainterPath::arcTo(const QRectF &rect, qreal startAngle, qreal sweepLength
 
         if (startPoint != QPointF(d->elements.last().x, d->elements.last().y))
             lineTo(startPoint);
-        cubicTo(controlLine1.end(), controlLine2.end(), endPoint);
+        cubicTo(controlLine1.p2(), controlLine2.p2(), endPoint);
     }
 }
 
@@ -1308,10 +1308,10 @@ void QPainterPathStrokerPrivate::joinPoints(const QLineF &nextLine, QPainterPath
 {
 #ifdef QPP_STROKE_DEBUG
     printf(" -----> joinPoints: (%.2f, %.2f) (%.2f, %.2f), mode=%d\n",
-           nextLine.startX(), nextLine.startY(), nextLine.endX(), nextLine.endY(), join);
+           nextLine.x1(), nextLine.y1(), nextLine.x2(), nextLine.y2(), join);
 #endif
     if (join == FlatJoin) {
-        stroke->lineTo(nextLine.start());
+        stroke->lineTo(nextLine.p1());
     } else {
         int elmCount = stroke->elementCount();
         Q_ASSERT(elmCount >= 2);
@@ -1325,35 +1325,35 @@ void QPainterPathStrokerPrivate::joinPoints(const QLineF &nextLine, QPainterPath
 
         if (join == MiterJoin) {
             if (type == QLineF::NoIntersection) {
-                stroke->lineTo(nextLine.start());
+                stroke->lineTo(nextLine.p1());
                 return;
             }
             QLineF miterLine(QPointF(back1.x, back1.y), isect);
             if (miterLine.length() > appliedMiterLimit) {
                 miterLine.setLength(appliedMiterLimit);
-                back1.x = miterLine.endX();
-                back1.y = miterLine.endY();
+                back1.x = miterLine.x2();
+                back1.y = miterLine.y2();
             } else {
                 back1.x = isect.x();
                 back1.y = isect.y();
             }
-            stroke->lineTo(nextLine.start());
+            stroke->lineTo(nextLine.p1());
 
         } else { // Round and square
             QLineF l1(prevLine);
-            l1.translate(l1.vx(), l1.vy());
+            l1.translate(l1.dx(), l1.dy());
             l1.setLength(offset);
 
-            QLineF l2(nextLine.end(), nextLine.start());
-            l2.translate(l2.vx(), l2.vy());
+            QLineF l2(nextLine.p2(), nextLine.p1());
+            l2.translate(l2.dx(), l2.dy());
             l2.setLength(offset);
 
             if (join == RoundJoin) {
-                stroke->cubicTo(l1.end(), l2.end(), l2.start());
+                stroke->cubicTo(l1.p2(), l2.p2(), l2.p1());
             } else { //
-                stroke->lineTo(l1.end());
-                stroke->lineTo(l2.end());
-                stroke->lineTo(l2.start());
+                stroke->lineTo(l1.p2());
+                stroke->lineTo(l2.p2());
+                stroke->lineTo(l2.p1());
             }
         }
     }
@@ -1417,11 +1417,11 @@ template <class Iterator> bool qt_stroke_subpath_side(Iterator *it, QPainterPath
             QLineF normal = line.normalVector();
             normal.setLength(data->offset);
             QLineF ml(line);
-            ml.translate(normal);
+            ml.translate(normal.dx(), normal.dy());
 
             // If we are starting a new subpath, move to correct starting point.
             if (stroke->elementAt(stroke->elementCount()-1).isMoveTo()) {
-                stroke->moveTo(ml.start());
+                stroke->moveTo(ml.p1());
             } else if (capFirst) {
                 data->joinPoints(ml, stroke, data->capStyle);
                 capFirst = false;
@@ -1430,7 +1430,7 @@ template <class Iterator> bool qt_stroke_subpath_side(Iterator *it, QPainterPath
             }
 
             // Add the stroke for this line.
-            stroke->lineTo(ml.end());
+            stroke->lineTo(ml.p2());
             prev = e;
 
         // CurveToElement
@@ -1710,7 +1710,7 @@ QPainterPath qt_stroke_dash(const QPainterPath &path,
                 if (dpos > elen) { // dash extends this line
                     doffset = dashes[idash] - (dpos - elen); // subtract the part already used
                     pos = estop; // move pos to next path element
-                    p2 = cline.end();
+                    p2 = cline.p2();
                 } else { // Dash is on this line
                     p2 = cline.pointAt(dpos/elen);
                     pos = dpos + estart;

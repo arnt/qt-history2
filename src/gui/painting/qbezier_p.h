@@ -73,8 +73,8 @@ inline QLineF QBezier::midTangent() const
 {
     QPointF mid = midPoint();
     QLineF dir(QLineF(x1, y1, x2, y2).pointAt(0.5), QLineF(x3, y3, x4, y4).pointAt(0.5));
-    return QLineF(mid.x() - dir.vx(), mid.y() - dir.vy(),
-                  mid.x() + dir.vx(), mid.y() + dir.vy());
+    return QLineF(mid.x() - dir.dx(), mid.y() - dir.dy(),
+                  mid.x() + dir.dx(), mid.y() + dir.dy());
 }
 
 #ifdef QT_USE_FIXED_POINT

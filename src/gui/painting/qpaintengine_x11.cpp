@@ -653,8 +653,8 @@ void QX11PaintEngine::drawLine(const QLineF &line)
         return;
     if (d->cpen.style() != Qt::NoPen)
         XDrawLine(d->dpy, d->hd, d->gc,
-                  qRound(line.startX()), qRound(line.startY()),
-                  qRound(line.endX()), qRound(line.endY()));
+                  qRound(line.x1()), qRound(line.y1()),
+                  qRound(line.x2()), qRound(line.y2()));
 }
 
 void QX11PaintEngine::drawRect(const QRectF &rect)

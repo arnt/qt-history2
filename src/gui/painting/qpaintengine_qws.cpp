@@ -332,7 +332,7 @@ void QWSPaintEngine::drawLine(const QLineF &line)
 {
     if (state->pen.style() == Qt::NoPen)
         return;
-    d->gfx->drawLine(qRound(line.startX()), qRound(line.startY()), qRound(line.endX()), qRound(line.endY()));
+    d->gfx->drawLine(qRound(line.x1()), qRound(line.y1()), qRound(line.x2()), qRound(line.y2()));
 }
 
 void QWSPaintEngine::drawRect(const QRectF &r)

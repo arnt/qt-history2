@@ -2024,7 +2024,7 @@ void QPainter::drawLine(const QLineF &l)
 #ifdef QT_DEBUG_DRAW
     if (qt_show_painter_debug_output)
         printf("QPainter::drawLine(), p1=(%.2f,%.2f), p2=(%.2f,%.2f)\n",
-               l.startX(), l.startY(), l.endX(), l.endY());
+               l.x1(), l.y1(), l.x2(), l.y2());
 #endif
 
     if (!isActive())
@@ -2042,10 +2042,10 @@ void QPainter::drawLine(const QLineF &l)
     if (lineEmulation) {
         if (lineEmulation == QPaintEngine::CoordTransform
             && d->state->txop == QPainterPrivate::TxTranslate) {
-            line += QPointF(d->state->matrix.dx(), d->state->matrix.dy());
+            line.translate(d->state->matrix.dx(), d->state->matrix.dy());
         } else {
-            QPainterPath linePath(line.start());
-            linePath.lineTo(line.end());
+            QPainterPath linePath(line.p1());
+            linePath.lineTo(line.p2());
             d->draw_helper(linePath, QPainterPrivate::StrokeDraw);
             return;
         }

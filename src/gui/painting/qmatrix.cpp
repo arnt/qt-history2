@@ -454,7 +454,22 @@ QPointF QMatrix::map(const QPointF &point) const
 */
 QLineF QMatrix::map(const QLineF &line) const
 {
-    return QLineF(map(line.start()), map(line.end()));
+    return QLineF(map(line.p1()), map(line.p2()));
+}
+
+/*!
+    \overload
+
+    Transforms both ends of \a line using these formulas:
+
+    \code
+        retx = m11 * px + m21 * py + dx
+        rety = m22 * py + m12 * px + dy
+    \endcode
+*/
+QLine QMatrix::map(const QLine &line) const
+{
+    return QLine(map(line.p1()), map(line.p2()));
 }
 
 /*!

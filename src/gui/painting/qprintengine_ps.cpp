@@ -3725,8 +3725,8 @@ void QPSPrintEngine::updateClipRegion(const QRegion &region, Qt::ClipOperation /
 
 void QPSPrintEngine::drawLine(const QLineF &line)
 {
-    d->pageStream << POINT(line.end())
-                  << POINT(line.start()) << "DL\n";
+    d->pageStream << POINT(line.p2())
+                  << POINT(line.p1()) << "DL\n";
 }
 
 void QPSPrintEngine::drawRect(const QRectF &r)

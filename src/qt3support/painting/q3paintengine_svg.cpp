@@ -333,10 +333,10 @@ void Q3SVGPaintEngine::drawLines(const QLineF *lines, int lineCount)
 
     for (int i = 0; i < lineCount; ++i) {
         e = d->doc.createElement("line");
-        e.setAttribute("x1", lines[i].startX());
-        e.setAttribute("y1", lines[i].startY());
-        e.setAttribute("x2", lines[i].endX());
-        e.setAttribute("y2", lines[i].endY());
+        e.setAttribute("x1", lines[i].x1());
+        e.setAttribute("y1", lines[i].y1());
+        e.setAttribute("x2", lines[i].x2());
+        e.setAttribute("y2", lines[i].y2());
         d->appendChild(e, QPicturePrivate::PdcDrawLineSegments);
     }
 }

@@ -297,7 +297,7 @@ void QWin32PaintEngine::drawLine(const QLineF &line)
 #endif
     Q_ASSERT(isActive());
 
-    qreal x1 = line.startX(), x2 = line.endX(), y1 = line.startY(), y2 = line.endY();
+    qreal x1 = line.x1(), x2 = line.x2(), y1 = line.y1(), y2 = line.y2();
     bool plot_pixel = false;
     plot_pixel = (d->pWidth == 0) && (d->penStyle == Qt::SolidLine);
     if (plot_pixel) {

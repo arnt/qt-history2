@@ -157,10 +157,10 @@ void QCommonStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, Q
             p->setPen(opt->palette.highlightedText().color());
             QPoint offset(1, 1);
             for (pnt = 0; pnt < a.size(); ++pnt)
-                a[pnt] += offset;
+                a[pnt].translate(offset.x(), offset.y());
             p->drawLines(a);
             for (pnt = 0; pnt < a.size(); ++pnt)
-                a[pnt] -= offset;
+                a[pnt].translate(offset.x(), offset.y());
         }
         p->setPen(opt->palette.text().color());
         p->drawLines(a);

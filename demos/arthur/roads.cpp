@@ -88,12 +88,12 @@ void Roads::paintEvent(QPaintEvent *)
                      ? QLineF(carVectors.at(i).at(0), carVectors.at(i).at(1))
                      : QLineF(carVectors.at(i).at(t), carVectors.at(i).at(t+1));
         p.save();
-        p.translate(vec.start().toPoint());
+        p.translate(vec.p1().toPoint());
         vec = vec.normalVector();
         qreal angle = vec.angle(QLineF(0, 0, 1, 0));
 
         // Shift angle to 360
-        if (vec.vy() < 0)
+        if (vec.dy() < 0)
             angle = 360 - angle;
 
         p.setPen(Qt::NoPen);
@@ -103,7 +103,7 @@ void Roads::paintEvent(QPaintEvent *)
         // p.drawRect(-8, -4, 16, 8);
         p.drawPixmap(-pixmap.width() / 2, -pixmap.height() / 2, pixmap);
 
-        p.translate(-vec.start().toPoint());
+        p.translate(-vec.p1().toPoint());
         p.restore();
     }
 }

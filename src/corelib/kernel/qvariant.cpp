@@ -86,6 +86,9 @@ static void construct(QVariant::Private *x, const void *copy)
     case QVariant::LineF:
         v_construct<QLineF>(x, copy);
         break;
+    case QVariant::Line:
+        v_construct<QLine>(x, copy);
+        break;
     case QVariant::RectF:
         v_construct<QRectF>(x, copy);
         break;
@@ -183,6 +186,9 @@ static void clear(QVariant::Private *d)
     case QVariant::LineF:
         v_clear<QLineF>(d);
         break;
+    case QVariant::Line:
+        v_clear<QLine>(d);
+        break;
     case QVariant::RectF:
         v_clear<QRectF>(d);
         break;
@@ -236,6 +242,8 @@ static bool isNull(const QVariant::Private *d)
         return v_cast<QSize>(d)->isNull();
     case QVariant::Rect:
         return v_cast<QRect>(d)->isNull();
+    case QVariant::Line:
+        return v_cast<QLine>(d)->isNull();
     case QVariant::LineF:
         return v_cast<QLineF>(d)->isNull();
     case QVariant::RectF:
@@ -299,6 +307,9 @@ static void load(QVariant::Private *d, QDataStream &s)
         break;
     case QVariant::Rect:
         s >> *v_cast<QRect>(d);
+        break;
+    case QVariant::Line:
+        s >> *v_cast<QLine>(d);
         break;
     case QVariant::LineF:
         s >> *v_cast<QLineF>(d);
@@ -399,6 +410,9 @@ static void save(const QVariant::Private *d, QDataStream &s)
     case QVariant::Rect:
         s << *v_cast<QRect>(d);
         break;
+    case QVariant::Line:
+        s << *v_cast<QLine>(d);
+        break;
     case QVariant::LineF:
         s << *v_cast<QLineF>(d);
         break;
@@ -493,6 +507,8 @@ static bool compare(const QVariant::Private *a, const QVariant::Private *b)
         return *v_cast<QSize>(a) == *v_cast<QSize>(b);
     case QVariant::Rect:
         return *v_cast<QRect>(a) == *v_cast<QRect>(b);
+    case QVariant::Line:
+        return *v_cast<QLine>(a) == *v_cast<QLine>(b);
     case QVariant::LineF:
         return *v_cast<QLineF>(a) == *v_cast<QLineF>(b);
     case QVariant::RectF:
@@ -1063,6 +1079,9 @@ void streamDebug(QDebug dbg, const QVariant &v)
     case QVariant::Size:
         dbg.nospace() << v.toSize();
         break;
+    case QVariant::Line:
+        dbg.nospace() << v.toLine();
+        break;
     case QVariant::LineF:
         dbg.nospace() << v.toLineF();
         break;
@@ -1202,6 +1221,7 @@ const QVariant::Handler *QVariant::handler = &qt_kernel_variant_handler;
     \value Int  an int
     \value KeySequence  a QKeySequence
     \value LineF  a QLineF
+    \value Line  a QLine
     \value List  a QVariantList
     \value LongLong a long long
     \value ULongLong an unsigned long long
@@ -1416,6 +1436,12 @@ QVariant::QVariant(const char *val)
  */
 
 /*!
+  \fn QVariant::QVariant(const QLine &val)
+
+  Constructs a new variant with a line value of \a val.
+ */
+
+/*!
   \fn QVariant::QVariant(const QRect &val)
 
   Constructs a new variant with a rect value of \a val.
@@ -1527,6 +1553,7 @@ QVariant::QVariant(const QPoint &pt) { create(Point, &pt); }
 QVariant::QVariant(const QPointF &pt) { create (PointF, &pt); }
 QVariant::QVariant(const QRectF &r) { create (RectF, &r); }
 QVariant::QVariant(const QLineF &l) { create (LineF, &l); }
+QVariant::QVariant(const QLine &l) { create (Line, &l); }
 QVariant::QVariant(const QRect &r) { create(Rect, &r); }
 QVariant::QVariant(const QSize &s) { create(Size, &s); }
 #endif
@@ -1637,7 +1664,7 @@ void QVariant::clear()
 
    (Search for the word 'Attention' in generator.cpp)
 */
-enum { ntypes = 43 };
+enum { ntypes = 44 };
 static const char* const type_map[ntypes] =
 {
     0,
@@ -1686,7 +1713,8 @@ static const char* const type_map[ntypes] =
     "QLocale",
     "QLineF",
     "QRectF",
-    "QPointF"
+    "QPointF",
+    "QLine"
 };
 
 
@@ -1854,6 +1882,7 @@ Q_VARIANT_TO(Rect)
 Q_VARIANT_TO(Point)
 Q_VARIANT_TO(PointF)
 Q_VARIANT_TO(LineF)
+Q_VARIANT_TO(Line)
 Q_VARIANT_TO(RectF)
 #endif
 
@@ -2008,6 +2037,13 @@ QVariantMap QVariant::toMap() const
 
   Returns the variant as a QLineF if the variant has type()
   LineF; otherwise returns an invalid QLineF.
+ */
+
+/*!
+  \fn QLine QVariant::toLine() const
+
+  Returns the variant as a QLine if the variant has type()
+  Line; otherwise returns an invalid QLine.
  */
 
 /*!

@@ -300,8 +300,8 @@ void QPicturePaintEngine::drawLine(const QLineF &line)
 #endif
     int pos;
     SERIALIZE_CMD(QPicturePrivate::PdcDrawLine);
-    d->s << line.start() << line.end();
-    writeCmdLength(pos, QRectF(line.startX(), line.startY(), line.vx(), line.vy()).normalize(), true);
+    d->s << line.p1() << line.p2();
+    writeCmdLength(pos, QRectF(line.x1(), line.y1(), line.dx(), line.dy()).normalize(), true);
 }
 
 void QPicturePaintEngine::drawRect(const QRectF &r)
