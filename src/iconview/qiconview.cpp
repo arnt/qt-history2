@@ -3096,11 +3096,11 @@ QIconViewItem *QIconView::findItem( const QPoint &pos ) const
     if ( !d->firstItem )
 	return 0;
 
-    QIconViewPrivate::ItemContainer *c = d->firstContainer;
-    for ( ; c; c = c->n ) {
+    QIconViewPrivate::ItemContainer *c = d->lastContainer;
+    for ( ; c; c = c->p ) {
 	if ( c->rect.contains( pos ) ) {
-	    QIconViewItem *item = c->items.first();
-	    for ( ; item; item = c->items.next() )
+	    QIconViewItem *item = c->items.last();
+	    for ( ; item; item = c->items.prev() )
 		if ( item->contains( pos ) )
 		    return item;
 	}
