@@ -91,10 +91,10 @@ inline void *q_atomic_set_ptr(void * volatile *ptr, void *newval)
 
 #elif defined(Q_OS_WIN) && (defined(Q_CC_MSVC) || defined(Q_CC_INTEL))
 
-inline int q_atomic_test_and_set_int(volatile int *ptr, int expected, int newval)
+inline int q_atomic_test_and_set_int(volatile int *pointer, int expected, int newval)
 {
     __asm {
-	mov EBX,ptr
+	mov EBX,pointer
 	mov EAX,expected
 	mov ECX,newval
         lock cmpxchg dword ptr[EBX],ECX
@@ -105,19 +105,19 @@ inline int q_atomic_test_and_set_int(volatile int *ptr, int expected, int newval
     return newval;
 }
 
-inline int q_atomic_test_and_set_ptr(void * volatile *ptr, void *expected, void *newval)
+inline int q_atomic_test_and_set_ptr(void * volatile *pointer, void *expected, void *newval)
 {
-    unsigned int ret;
+    unsigned int result;
     __asm {
-	mov EBX,ptr
+	mov EBX,pointer
 	mov EAX,expected
 	mov ECX,newval
         lock cmpxchg dword ptr[EBX],ECX
 	mov EAX,0
 	sete AL
-        mov ret,EAX
+        mov result,EAX
     }
-    return ret;
+    return result;
 }
 
 #else
