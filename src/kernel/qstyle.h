@@ -185,6 +185,9 @@ public:
 
     // push buttons
     virtual void drawPushButton( QPushButton* btn, QPainter *p) = 0;
+    virtual int  buttonDefaultIndicatorWidth() const;
+    virtual int  buttonMargin() const;
+
     /// ### add this in 3.0
     // virtual void drawPushButtonMask(QPushButton *btn, QPainter *p) = 0;
     virtual void drawPushButtonLabel( QPushButton* btn, QPainter *p) = 0;
@@ -223,6 +226,7 @@ public:
 
     // sliders
     virtual int sliderLength() const = 0;
+    virtual int sliderThickness() const;
     virtual void drawSlider( QPainter *p,
 			     int x, int y, int w, int h,
 			     const QColorGroup &g,
@@ -241,6 +245,7 @@ public:
 				       Orientation );
     virtual int maximumSliderDragDistance() const;
 
+    // splitter
     virtual int splitterWidth() const = 0;
     virtual void drawSplitter( QPainter *p,
 			     int x, int y, int w, int h,
@@ -267,9 +272,6 @@ public:
 				    bool act, bool enabled,
 				    int x, int y, int w, int h) = 0;
     virtual QSize scrollBarExtent() const;
-    virtual int   buttonDefaultIndicatorWidth() const;
-    virtual int   buttonMargin() const;
-    virtual int   sliderThickness() const;
 
     // menu bars
     virtual void drawMenuBarItem( QPainter* p, int x, int y, int w, int h,

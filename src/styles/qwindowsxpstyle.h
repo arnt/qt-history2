@@ -93,11 +93,16 @@ public:
 				      const QColorGroup & cg, const QTabWidget * tw );
 
     // ScrollBar
+    QSize scrollBarExtent() const;
+
     void drawScrollBarControls( QPainter*,  const QScrollBar*,
 			    int sliderStart, uint controls, uint activeControl );
 
 
     // Slider
+    int sliderLength() const;
+    int sliderThickness() const;
+
     void drawSlider( QPainter *p,
 			    int x, int y, int w, int h,
 			    const QColorGroup &g,

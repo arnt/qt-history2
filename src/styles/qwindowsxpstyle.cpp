@@ -13,6 +13,8 @@
 #include <qgroupbox.h>
 #include <qapplication.h>
 #include <qcursor.h>
+#include <qscrollbar.h>
+#include <qslider.h>
 
 #if defined (Q_WS_WIN)
 # include <qt_windows.h>
@@ -735,9 +737,10 @@ void QWindowsXPStyle::drawPanel( QPainter *p, int x, int y, int w, int h,
 #if 0 // strange place for a brute force algorithm...
     HWND hwnd = ((QWidget*)p->device())->winId();
     unsigned short* const bla = new unsigned short[40];
+    const int start = 3;
     for ( int a = 0; a < 40; ++a )
 	bla[a] = '\0';
-    bla[0] = 'A';bla[1] = 'K';bla[2] = 'S';bla[3] = 'C';bla[4] = 'U';bla[5] = 'B';bla[6] = 'L';
+    bla[0] = 'P';bla[1] = 'O';bla[2] = 'P';
 
     while( TRUE ) {
 	
@@ -749,15 +752,10 @@ void QWindowsXPStyle::drawPanel( QPainter *p, int x, int y, int w, int h,
 		HRESULT res = Private::CloseThemeData( htheme );
 		if ( res != S_OK )
 		    qDebug( "Handle couldn't be closed" );
+		return;
 	    }
-	    /*
-	    else {
-		QString str = qt_winQString( bla );
-		qDebug( "No theme for %s", str.latin1() );
-	    }
-	    */
-	    if ( bla[0] == 'Z' ) {
-		int b = 0;
+	    if ( bla[start] == 'Z' ) {
+		int b = start;
 		while ( b < 39 && bla[b] == 'Z' ) {
 		    bla[b] = 'A';
 		    b+=1;
@@ -766,13 +764,13 @@ void QWindowsXPStyle::drawPanel( QPainter *p, int x, int y, int w, int h,
 		    if ( bla[b] == 0 )
 			bla[b] = 'A';
 		    else
-			bla[b] = bla[b] + 1;
+			bla[b] += 1;
 		} else {
 		    qDebug( "Done!" );
-		    while ( TRUE );
+		    return;
 		}
 	    } else {
-		bla[0] = bla[0] + 1;
+		bla[start] += 1;
 	    }
 	}
     }
@@ -1255,15 +1253,235 @@ void QWindowsXPStyle::drawTabBarExtension( QPainter * p, int x, int y, int w, in
 }
 
 // ScrollBar
+QSize QWindowsXPStyle::scrollBarExtent() const
+{
+#if defined(Q_WS_WIN)
+    HTHEME htheme = Private::getThemeData( L"SCROLLBAR" );
+    if ( !htheme ) {
+	return QWindowsStyle::scrollBarExtent();
+    }
+
+    RECT cr;
+    RECT r;
+    RECT bound;
+    bound.left = 0;
+    bound.right = 16;
+    bound.top = 0;
+    bound.bottom = 16;
+    Private::GetThemeBackgroundContentRect( htheme, 0, 1, 1, &bound, &cr );
+    Private::GetThemeBackgroundExtent( htheme, 0, 1, 1, &cr, &r );
+
+    int hsize = r.right - r.left;
+    int vsize = r.bottom - r.top;
+
+    return QSize( vsize, hsize );
+#else
+    return QWindowsStyle::scrollBarExtent();
+#endif
+}
+
 void QWindowsXPStyle::drawScrollBarControls( QPainter *p,  const QScrollBar *sb,
 			int sliderStart, uint controls, uint activeControl )
 {
 #if defined(Q_WS_WIN)
-    HTHEME htheme = Private::getThemeData( L"" );
+    HTHEME htheme = Private::getThemeData( L"SCROLLBAR" );
     if ( !htheme ) {
 	QWindowsStyle::drawScrollBarControls( p, sb, sliderStart, controls, activeControl );
 	return;
     }
+
+#define HORIZONTAL      (sb->orientation() == QScrollBar::Horizontal)
+#define VERTICAL        !HORIZONTAL
+#define WINDOWS_BORDER  2
+#define SLIDER_MIN      9
+
+    QColorGroup g = sb->colorGroup();
+
+    int sliderMin, sliderMax, sliderLength, buttonDim;
+    scrollBarMetrics( sb, sliderMin, sliderMax, sliderLength, buttonDim );
+
+    if (sliderStart > sliderMax) // sanity check
+        sliderStart = sliderMax;
+
+    int b = 0;
+    int dimB = buttonDim;
+    QRect addB;
+    QRect subB;
+    QRect addPageR;
+    QRect subPageR;
+    QRect sliderR;
+    int addX, addY, subX, subY;
+    int length = HORIZONTAL ? sb->width()  : sb->height();
+    int extent = HORIZONTAL ? sb->height() : sb->width();
+
+    if ( HORIZONTAL ) {
+        subY = addY = ( extent - dimB ) / 2;
+        subX = b;
+        addX = length - dimB - b;
+    } else {
+        subX = addX = ( extent - dimB ) / 2;
+        subY = b;
+        addY = length - dimB - b;
+    }
+
+    subB.setRect( subX,subY,dimB,dimB );
+    addB.setRect( addX,addY,dimB,dimB );
+
+    int sliderEnd = sliderStart + sliderLength;
+    int sliderW = extent - b*2;
+    if ( HORIZONTAL ) {
+        subPageR.setRect( subB.right() + 1, b,
+                          sliderStart - subB.right() - 1 , sliderW );
+        addPageR.setRect( sliderEnd, b, addX - sliderEnd, sliderW );
+        sliderR .setRect( sliderStart, b, sliderLength, sliderW );
+    } else {
+        subPageR.setRect( b, subB.bottom() + 1, sliderW,
+                          sliderStart - subB.bottom() - 1 );
+        addPageR.setRect( b, sliderEnd, sliderW, addY - sliderEnd );
+        sliderR .setRect( b, sliderStart, sliderW, sliderLength );
+    }
+
+    bool maxedOut = (sb->maxValue() == sb->minValue());
+
+    if ( controls & AddLine ) {
+	RECT r;
+	r.left = addB.left();
+	r.right = addB.right();
+	r.top = addB.top();
+	r.bottom = addB.bottom();
+
+	int stateId;
+	if ( maxedOut )
+	    stateId = 8;
+	else if ( activeControl == AddLine )
+	    stateId = 7;
+	else if ( d->hotWidget == (QWidget*)sb && addB.contains( d->hotSpot ) )
+	    stateId = 6;
+	else
+	    stateId = 5;
+	if ( HORIZONTAL )
+	    stateId += 8;
+
+	Private::DrawThemeBackground( htheme, p->handle(), 1, stateId, &r, 0 );
+    } 
+    if ( controls & SubLine ) {
+	RECT r;
+	r.left = subB.left();
+	r.right = subB.right();
+	r.top = subB.top();
+	r.bottom = subB.bottom();
+	
+	int stateId;
+	if ( maxedOut )
+	    stateId = 4;
+	else if ( activeControl == SubLine )
+	    stateId = 3;
+	else if ( d->hotWidget == (QWidget*)sb && subB.contains( d->hotSpot ) )
+	    stateId = 2;
+	else
+	    stateId = 1;
+	if ( HORIZONTAL )
+	    stateId += 8;
+
+	Private::DrawThemeBackground( htheme, p->handle(), 1, stateId, &r, 0 );
+    }
+    if ( maxedOut ) {
+	RECT r;
+	r.left = sliderR.left();
+	r.right = sliderR.right() + HORIZONTAL;
+	r.top = sliderR.top();
+	r.bottom = sliderR.bottom() + !HORIZONTAL;
+
+	const int swidth = r.right - r.left;
+	const int sheight = r.bottom - r.top;
+
+	RECT gr;
+	if ( HORIZONTAL ) {
+	    gr.left = r.left + swidth/2 - 5;
+	    gr.right = gr.left + 10;
+	    gr.top = r.top + sheight/2 - 3;
+	    gr.bottom = gr.top + 6;
+	} else {
+	    gr.left = r.left + swidth/2 - 3;
+	    gr.right = gr.left + 6;
+	    gr.top = r.top + sheight/2 - 5;
+	    gr.bottom = gr.top + 10;
+	}
+
+	Private::DrawThemeBackground( htheme, p->handle(), HORIZONTAL ? 2 : 3, 4, &r, 0 );
+	Private::DrawThemeBackground( htheme, p->handle(), HORIZONTAL ? 8 : 9, 4, &gr, 0 );
+    } else {
+        if (controls & SubPage ) {
+	    RECT r;
+	    r.left = subPageR.left();
+	    r.right = subPageR.right() + HORIZONTAL;
+	    r.top = subPageR.top();
+	    r.bottom = subPageR.bottom() + !HORIZONTAL;
+
+	    int stateId;
+	    if ( SubPage == activeControl )
+		stateId = 3;
+	    else
+		stateId = 1;
+
+	    Private::DrawThemeBackground( htheme, p->handle(), HORIZONTAL ? 4 : 5, stateId, &r, 0 );
+        } 
+	if ( controls  & AddPage ) {
+	    RECT r;
+	    r.left = addPageR.left() - HORIZONTAL;
+	    r.right = addPageR.right();
+	    r.top = addPageR.top() - !HORIZONTAL;
+	    r.bottom = addPageR.bottom();
+
+	    int stateId;
+	    if ( AddPage == activeControl )
+		stateId = 3;
+	    else
+		stateId = 1;
+
+	    Private::DrawThemeBackground( htheme, p->handle(), HORIZONTAL ? 4 : 5, stateId, &r, 0 );
+	}
+        if ( controls & Slider ) {
+            if ( !maxedOut ) {
+		RECT r;
+		r.left = sliderR.left();
+		r.right = sliderR.right();
+		r.top = sliderR.top();
+		r.bottom = sliderR.bottom();
+
+		int stateId;
+		if ( activeControl == Slider )
+		    stateId = 3;
+		else
+		    stateId = 1;
+
+		const int swidth = r.right - r.left;
+		const int sheight = r.bottom - r.top;
+
+		RECT gr;
+		if ( HORIZONTAL ) {
+		    gr.left = r.left + swidth/2 - 5;
+		    gr.right = gr.left + 10;
+		    gr.top = r.top + sheight/2 - 3;
+		    gr.bottom = gr.top + 6;
+		} else {
+		    gr.left = r.left + swidth/2 - 3;
+		    gr.right = gr.left + 6;
+		    gr.top = r.top + sheight/2 - 5;
+		    gr.bottom = gr.top + 10;
+		}
+
+		Private::DrawThemeBackground( htheme, p->handle(), HORIZONTAL ? 2 : 3, stateId, &r, 0 );
+		Private::DrawThemeBackground( htheme, p->handle(), HORIZONTAL ? 8 : 9, stateId, &gr, 0 );
+            }
+        }
+    }
+    // ### perhaps this should not be able to accept focus if maxedOut?
+    if ( sb->hasFocus() && (controls & Slider) )
+        drawFocusRect(p, QRect(sliderR.x()+2, sliderR.y()+2,
+                               sliderR.width()-5, sliderR.height()-5), g,
+                      &sb->backgroundColor());
+
     Private::CloseThemeData( htheme );
 #else
     QWindowsStyle::drawScrollBarControls( p, sb, sliderStart, controls, activeControl );
@@ -1271,6 +1489,16 @@ void QWindowsXPStyle::drawScrollBarControls( QPainter *p,  const QScrollBar *sb,
 }
 
 // Slider
+int QWindowsXPStyle::sliderLength() const
+{
+    return 19;
+}
+
+int QWindowsXPStyle::sliderThickness() const
+{
+    return 19;
+}
+
 void QWindowsXPStyle::drawSlider( QPainter *p,
 			int x, int y, int w, int h,
 			const QColorGroup &g,
@@ -1282,6 +1510,36 @@ void QWindowsXPStyle::drawSlider( QPainter *p,
 	QWindowsStyle::drawSlider( p, x, y, w, h, g, orientation, tickAbove, tickBelow );
 	return;
     }
+
+    Q_RECT
+
+    int statusId;
+    int partId = 3;
+/*    if ( disabled )
+	statusId = 5;
+    else if ( down )
+	statusId = 3;
+    else */if ( d->hotWidget == p->device() )
+	statusId = 2;
+    else
+	statusId = 1;
+
+    if ( orientation == Horizontal ) {
+	if ( tickBelow )
+	    r.bottom += 6;
+	if ( tickAbove )
+	    r.top -= 3;
+    } else {
+	if ( tickBelow )
+	    r.right += 6;
+	if ( tickAbove )
+	    r.left -= 3;
+    }
+
+    if ( orientation == Vertical || !tickBelow)
+	partId = 4;
+
+    Private::DrawThemeBackground( htheme, p->handle(), partId, statusId, &r, 0 );
 
     Private::CloseThemeData( htheme );
 #else
@@ -1300,6 +1558,21 @@ void QWindowsXPStyle::drawSliderGroove( QPainter *p,
 	QWindowsStyle::drawSliderGroove( p, x, y, w, h, g, c, orientation );
 	return;
     }
+
+    RECT r;
+    if ( orientation == Horizontal ) {
+	r.left = x;
+	r.right = x+w;
+	r.top = y + 6;
+	r.bottom = y+h - 6;
+    } else {
+	r.left = x + 6;
+	r.right = x+w - 6;
+	r.top = y;
+	r.bottom = y+h;
+    }
+
+    Private::DrawThemeBackground( htheme, p->handle(), 1, 1, &r, 0 );
 
     Private::CloseThemeData( htheme );
 #else
@@ -1680,7 +1953,11 @@ void QWindowsXPStyle::drawProgressChunk( QPainter *p, int x, int y, int w, int h
 	return;
     }
 
-    Q_RECT
+    RECT r;
+    r.left = x + 1;
+    r.right = x+w-1;
+    r.top = y + 1;
+    r.bottom = y+h-1;
 
     Private::DrawThemeBackground( htheme, p->handle(), 3, 1, &r, 0 );
 
