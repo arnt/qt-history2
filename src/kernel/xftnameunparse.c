@@ -137,7 +137,7 @@ _XftNameUnparseValueList (XftValueList *v, char *escape, char **destp, int *lenp
 Bool
 XftNameUnparse (XftPattern *pat, char *dest, int len)
 {
-    int			i;
+    unsigned int	i;
     XftPatternElt	*e;
     const XftObjectType *o;
 
