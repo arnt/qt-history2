@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qtextstream.cpp#70 $
+** $Id: //depot/qt/main/src/tools/qtextstream.cpp#71 $
 **
 ** Implementation of QTextStream class
 **
@@ -580,7 +580,7 @@ void QTextStream::ts_putc( QChar c )
 	    doUnicodeHeader = FALSE;
 	    ts_putc( QChar::byteOrderMark );
 	}
-	if ( QChar::networkOrdered ) { //#####
+	if ( swapUnicode ) { //##### we should do "native" by default
 	    dev->putch(c.row);
 	    dev->putch(c.cell);
 	} else {
