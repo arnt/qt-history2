@@ -56,7 +56,7 @@ else
 fi
 
 # Check licensed modules
-MODULES="tools kernel widgets dialogs iconview workspace network canvas table xml opengl styles"
+MODULES="tools kernel widgets dialogs iconview workspace network canvas table xml opengl sql styles"
 
 # Free edition - may only be used under the terms of the QPL or GPL.
 if [ -f LICENSE.QPL -a -f LICENSE.GPL ]
@@ -834,6 +834,8 @@ then
     QMAKE_OUTDIR="${QMAKE_OUTDIR}-mt"
     QMAKE_CONFIG="$QMAKE_CONFIG thread"
 fi
+# QMAKE_OUTDIR="${QMAKE_OUTDIR}-`uname -n`"
+
 if [ '!' "x$EMBEDDED" = "xno" ]
 then
     QMAKE_OUTDIR="${QMAKE_OUTDIR}-emb-$EMBEDDED"
