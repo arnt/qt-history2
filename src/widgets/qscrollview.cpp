@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#93 $
+** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#94 $
 **
 ** Implementation of QScrollView class
 **
@@ -396,9 +396,7 @@ QScrollView::~QScrollView()
 	d->clipped_viewport->removeEventFilter( this );
     else
 	d->viewport.removeEventFilter( this );
-    QScrollViewData * d2 = d;
-    d = 0;
-    delete d2;
+    delete d;
 }
 
 
