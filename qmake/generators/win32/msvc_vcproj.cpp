@@ -294,7 +294,7 @@ bool VcprojGenerator::writeMakefile(QTextStream &t)
 bool VcprojGenerator::writeProjectMakefile()
 {
     usePlatformDir();
-    QMakeOutTextStream t(&Option::output);
+    QTextStream t(&Option::output);
 
     // Check if all requirements are fullfilled
     if(!project->variables()["QMAKE_FAILED_REQUIREMENTS"].isEmpty()) {

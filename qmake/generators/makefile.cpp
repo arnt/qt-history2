@@ -92,83 +92,6 @@ static bool createDir(QString path)
     return ret;
 }
 
-#if 1
-// buffered streaming
-class QMakeBufferedDevice : public QBuffer
-{
-    bool opened;
-    int used, maximum;
-    QIODevice *outDevice;
-public:
-    QMakeBufferedDevice(QIODevice *device) : QBuffer()
-    {
-        maximum = 102400; // 100K
-        buffer().reserve(maximum);
-        used = 0;
-        outDevice = device;
-        open(QIODevice::WriteOnly);
-        opened = outDevice->isOpen();
-    }
-    ~QMakeBufferedDevice()
-    {
-        if(opened && !outDevice->isOpen())
-            qDebug("Potential problem! Must use QMakeOutTextStream to close your device!");
-        if(used)
-            outDevice->write(buffer().constData(), used);
-    }
-    qint64 writeData(const char *data, qint64 len)
-    {
-        if (!opened)
-            return 0;
-
-        qint64 ret = 0;
-        if(len > maximum) {
-            outDevice->write(buffer().constData(), used);
-            ret = outDevice->write(data, len);
-            used = 0;
-            QBuffer::seek(used);
-        } else if((len+used) > maximum) {
-            outDevice->write(buffer().constData(), used);
-            QBuffer::seek(0);
-            ret = QBuffer::writeData(data, len);
-            used = ret;
-        } else {
-            ret = QBuffer::writeData(data, len);
-            used += ret;
-        }
-        return ret;
-    }
-};
-QMakeOutTextStream::QMakeOutTextStream(QFile *file) : QTextStream(new QMakeBufferedDevice(file))
-{
-}
-QMakeOutTextStream::~QMakeOutTextStream()
-{
-    flush();
-    delete device();
-}
-#elif 0
-QMakeOutTextStream::QMakeOutTextStream(QFile *file) : QTextStream(file)
-{
-    if(FILE *fp = fopen(file->fileName().toUtf8(), "w")) {
-        QIODevice::OpenMode mode = file->openMode();
-        file->close();
-        file->open(mode, fp);
-    }
-}
-QMakeOutTextStream::~QMakeOutTextStream()
-{
-}
-#else
-QMakeOutTextStream::QMakeOutTextStream(QFile *file) : QTextStream(file)
-{
-}
-QMakeOutTextStream::~QMakeOutTextStream()
-{
-}
-#endif
-
-
 // ** base makefile generator
 MakefileGenerator::MakefileGenerator() :
     init_opath_already(false), init_already(false), no_io(false), project(0)
@@ -968,7 +891,7 @@ bool
 MakefileGenerator::writeProjectMakefile()
 {
     usePlatformDir();
-    QMakeOutTextStream t(&Option::output);
+    QTextStream t(&Option::output);
 
     //header
     writeHeader(t);
@@ -1015,7 +938,7 @@ MakefileGenerator::write()
     writePrlFile();
     if(Option::qmake_mode == Option::QMAKE_GENERATE_MAKEFILE || //write makefile
        Option::qmake_mode == Option::QMAKE_GENERATE_PROJECT) {
-        QMakeOutTextStream t(&Option::output);
+        QTextStream t(&Option::output);
         writeMakefile(t);
     }
     return true;
@@ -1047,7 +970,7 @@ MakefileGenerator::writePrlFile()
 	if(ft.open(QIODevice::WriteOnly)) {
 	    project->variables()["ALL_DEPS"].append(prl);
 	    project->variables()["QMAKE_INTERNAL_PRL_FILE"].append(prl);
-	    QMakeOutTextStream t(&ft);
+	    QTextStream t(&ft);
 	    writePrlFile(t);
 	}
     }
