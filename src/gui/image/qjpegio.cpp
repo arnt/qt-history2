@@ -26,6 +26,9 @@
 #include <stdio.h>      // jpeglib needs this to be pre-included
 #include <setjmp.h>
 
+#ifdef FAR
+#undef FAR
+#endif
 
 // including jpeglib.h seems to be a little messy
 extern "C" {
