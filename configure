@@ -1438,6 +1438,13 @@ if [ "$CFG_CUPS" != "no" ]; then
     $unixtests/cups.test $XQMAKESPEC $OPT_VERBOSE $L_FLAGS $I_FLAGS && CFG_CUPS=no
 fi
 
+#mac
+if [ "$PLATFORM_MAC" = "yes" ]; then
+    mactests=$relpath/config.tests/mac
+
+    $mactests/mac102.test "$OPT_VERBOSE" "$relpath" "$outpath" && D_FLAGS="$D_FLAGS MACOSX_102" #10.2?
+fi
+
 # x11
 if [ "$PLATFORM_X11" = "yes" ]; then
     x11tests=$relpath/config.tests/x11

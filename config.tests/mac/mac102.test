@@ -27,8 +27,8 @@ MAC102=$?
 # done
 if [ "$MAC102" -ne 0 ]; then
     [ "$VERBOSE" = "yes" ] && echo "Mac 10.2 support enabled."
-    exit 1
+    exit 0
 else
     [ "$VERBOSE" = "yes" ] && echo "Mac 10.2 support disabled."
-    exit 0
+    exit 1
 fi
