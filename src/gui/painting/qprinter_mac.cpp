@@ -404,29 +404,21 @@ int QPrinter::metric(int m) const
     int val = 1;
     switch(m) {
     case QPaintDeviceMetrics::PdmWidth:
-    {
-	if(fullPage()) {
-	    PMRect r;
-	    if(PMGetAdjustedPaperRect(pformat, &r) == noErr)
-		val = (int)(r.right - r.left);
-	} else {
-	    PMRect r;
-	    if(PMGetAdjustedPageRect(pformat, &r) == noErr)
-		val = (int)(r.right - r.left);
-	}
-        break;
-    }
     case QPaintDeviceMetrics::PdmHeight:
     {
+	PMRect r;
 	if(fullPage()) {
-	    PMRect r;
-	    if(PMGetAdjustedPaperRect(pformat, &r) == noErr)
-		val = (int)(r.bottom - r.top);
+	    if(PMGetAdjustedPaperRect(pformat, &r) != noErr)
+		break;
 	} else {
-	    PMRect r;
-	    if(PMGetAdjustedPageRect(pformat, &r) == noErr)
-		val = (int)(r.bottom - r.top);
+	    if(PMGetAdjustedPageRect(pformat, &r) != noErr)
+		break;
 	}
+	if((m == QPaintDeviceMetrics::PdmHeight && orientation() != Portrait) || 
+	   (m == QPaintDeviceMetrics::PdmWidth && orientation() == Portrait))
+	    val = (int)(r.bottom - r.top);
+	else
+	    val = (int)(r.right - r.left);
         break;
     }
     case QPaintDeviceMetrics::PdmPhysicalDpiX:
