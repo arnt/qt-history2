@@ -308,7 +308,7 @@ bool
 QTemporaryFile::open(int mode)
 {
     if(QFile::open(mode)) {
-        setFileName(d->fileEngine->fileName(QFileEngine::DefaultName));
+        d->fileName = d->fileEngine->fileName(QFileEngine::DefaultName);
         return true;
     }
     return false;
