@@ -460,6 +460,9 @@ void QTextBrowser::mouseReleaseEvent(QMouseEvent *ev)
     Q_D(QTextBrowser);
     QTextEdit::mouseReleaseEvent(ev);
 
+    if (!(ev->button() & Qt::LeftButton))
+        return;
+
     QString anchor = d->doc->documentLayout()->anchorAt(d->translateCoordinates(ev->pos()));
     if (!anchor.isEmpty()) {
         d->textOrSourceChanged = false;
