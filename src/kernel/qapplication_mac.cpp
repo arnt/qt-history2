@@ -108,7 +108,6 @@ typedef int timeval;
 
 //for qt_mac.h
 QPaintDevice *qt_mac_safe_pdev = 0;
-QPtrList<QMacSavedPortInfo> QMacSavedPortInfo::gports;
 #ifdef QT_THREAD_SUPPORT
 QMutex *qt_mac_port_mutex = NULL;
 #endif
@@ -123,8 +122,8 @@ extern bool qt_mac_in_drag; //qdnd_mac.cpp
 extern bool qt_resolve_symlinks; // from qapplication.cpp
 static char    *appName;                        // application name
 QGuardedPtr<QWidget> qt_button_down;		// widget got last button-down
-QGuardedPtr<QWidget> qt_mouseover;
-QPtrDict<void> unhandled_dialogs;             //all unhandled dialogs (ie mac file dialog)
+static QGuardedPtr<QWidget> qt_mouseover;
+static QPtrDict<void> unhandled_dialogs;        //all unhandled dialogs (ie mac file dialog)
 #if defined(QT_DEBUG)
 static bool	appNoGrab	= FALSE;	// mouse/keyboard grabbing
 #endif
@@ -132,8 +131,6 @@ static bool	appNoGrab	= FALSE;	// mouse/keyboard grabbing
 static int qt_thread_pipe[2];
 #endif
 static EventLoopTimerRef mac_context_timer = NULL;
-
-
 static EventLoopTimerUPP mac_context_timerUPP = NULL;
 static EventLoopTimerRef mac_select_timer = NULL;
 static EventLoopTimerUPP mac_select_timerUPP = NULL;
@@ -209,6 +206,12 @@ bool qt_nograb()				// application no-grab option
     return FALSE;
 #endif
 }
+void qt_mac_clear_mouse_state()
+{
+    mouse_button_state = 0;
+    qt_button_down = 0;
+}
+
 
 //pre/post select callbacks
 typedef void (*VFPTR)();
@@ -1090,7 +1093,6 @@ bool qt_set_socket_handler( int sockfd, int type, QObject *obj, bool enable )
 	    InstallEventLoopTimer(GetMainEventLoop(), 0.1, 0.1,
 				  mac_select_timerUPP, (void *)qApp, &mac_select_timer);
 	}
-
     } else {					// disable notifier
 	if ( list == 0 ) {
 	    if(sn_highest == -1 && mac_select_timer) {
@@ -1215,9 +1217,8 @@ static int qt_mac_do_select(timeval *tm)
 	    errno = 0;
 	}
     } else if (nsel > 0 && highest >= 0) {
-	if(qt_is_gui_used) {
+	if(qt_is_gui_used) 
 	    qt_event_request_updates();
-	} 
 #ifdef Q_OS_MACX
 	else if(FD_ISSET( qt_thread_pipe[0], &app_readfds)) {
 	    char c;
@@ -1267,8 +1268,9 @@ bool QApplication::processNextEvent(bool canWait)
 	first = TRUE;
 	QDate dt = QDate::currentDate();
 	if(dt.year() != 2001) {
-	    fprintf(stderr, "Sorry, your evaluation has expired.\n" 
-		    "Please contact sales@trolltech.com to continue using Qt/Mac\n");
+	    const char *out_str = "Sorry, your evaluation has expired.\n" 
+				  "Please contact sales@trolltech.com to continue using Qt/Mac\n"
+	    fprintf(stderr, str);
 	    if(qt_is_gui_used) {
 		QTimer tb;
 		QObject::connect(&tb, SIGNAL(timeout()), qApp, SLOT(quit()));

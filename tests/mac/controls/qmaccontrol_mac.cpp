@@ -36,15 +36,7 @@
 
 const OSType qControlWidgetTag = 'qmct';
 const OSType qControlWidgetCreator = 'CUTE';
-
-//hack, but usefull
-#include <qpainter.h>
-class QMacPainter : public QPainter
-{
-public:
-    QMacPainter(QPaintDevice *p) : QPainter(p) { }
-    void setPort() { QPainter::initPaintDevice(TRUE); }
-};
+void qt_mac_clear_mouse_state(); // qapplication_mac.cpp
 QCString p2qstring(const unsigned char *); //qglobal.cpp
 
 struct QMacControlPrivate
@@ -283,8 +275,7 @@ QMacControl::event(QEvent *e)
 	else
 	    ActivateControl(d->ctrl);
 	//now draw it
-	QMacPainter p(this);
-	p.setPort(); //make sure the clipped region is right
+	QMacSavedPortInfo pi(this, TRUE);
 	Draw1Control(d->ctrl);
 	break; }
     case QEvent::Move: {
@@ -304,6 +295,7 @@ QMacControl::event(QEvent *e)
 	QPoint p = ((QMouseEvent*)e)->globalPos();
 	QMacTrackEvent te(this, topLevelWidget()->mapFromGlobal(p));
 	QApplication::sendEvent(this, &te); 
+	qt_mac_clear_mouse_state();
 	if(te.isAccepted())
 	    repaint();
 	break; } 
@@ -356,8 +348,7 @@ QMacControl::ctrlEventProcessor(EventHandlerCallRef er, EventRef event, void *da
 	    if(!once) {
 		once = TRUE;
 		call_back = FALSE;
-		QMacPainter p(ctrl);
-		p.setPort(); //make sure the clipped region is right
+		QMacSavedPortInfo pi(ctrl, TRUE);
 		DrawControlInCurrentPort(ctrl->d->ctrl);
 		once = FALSE;
 	    }
