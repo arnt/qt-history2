@@ -15,6 +15,12 @@
 #include "qt_mac9.h"
 #endif
 
+#ifdef Q_WS_MACX
+#define QMAC_DEFAULT_STYLE "QAquaStyle"
+#else
+#define QMAC_DEFAULT_STYLE "QPlatinumStyle"
+#endif
+
 #undef DEBUG
 #ifdef OLD_DEBUG
 #define DEBUG OLD_DEBUG

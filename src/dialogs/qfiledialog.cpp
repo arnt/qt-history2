@@ -80,6 +80,10 @@
 #include <ctype.h>
 #include <stdlib.h>
 
+#ifdef Q_WS_MAC
+#include <qt_mac.h>
+#endif
+
 #if defined(Q_OS_UNIX)
 // getlogin()
 # include <unistd.h>
@@ -3098,9 +3102,8 @@ QString QFileDialog::getOpenFileName( const QString & startWith,
     if ( qApp->style() == WindowsStyle )
 	return winGetOpenFileName( initialSelection, filter, workingDirectory,
 				   parent, name, caption );
-#endif
-#if defined(Q_WS_MACX)
-    if( ( qApp->style().inherits("QAquaStyle") ) )
+#elif defined(Q_WS_MAC)
+    if( ( qApp->style().inherits(QMAC_DEFAULT_STYLE) ) )
 	return macGetOpenFileName( initialSelection, filter, workingDirectory,
 				   parent, name, caption );
 #endif
@@ -3195,9 +3198,8 @@ QString QFileDialog::getSaveFileName( const QString & startWith,
     if ( qApp->style() == WindowsStyle )
 	return winGetSaveFileName( initialSelection, filter, workingDirectory,
 				   parent, name, caption );
-#endif
-#if defined(Q_WS_MACX)
-    if( ( qApp->style().inherits("QAquaStyle") ) )
+#elif defined(Q_WS_MAC)
+    if( ( qApp->style().inherits(QMAC_DEFAULT_STYLE) ) )
 	return macGetSaveFileName( initialSelection, filter, workingDirectory,
 				   parent, name, caption );
 #endif
@@ -4992,9 +4994,8 @@ QStringList QFileDialog::getOpenFileNames( const QString & filter,
 #if defined(Q_WS_WIN)
     if ( qApp->style() == WindowsStyle )
 	return winGetOpenFileNames( filter, workingDirectory, parent, name, caption );
-#endif
-#if defined(Q_WS_MACX)
-    if( ( qApp->style().inherits("QAquaStyle") ) )
+#elif defined(Q_WS_MAC)
+    if( ( qApp->style().inherits(QMAC_DEFAULT_STYLE) ) )
 	return macGetOpenFileNames(filter, workingDirectory, parent, name, caption );
 #endif
 

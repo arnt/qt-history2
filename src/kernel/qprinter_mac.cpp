@@ -181,7 +181,7 @@ bool QPrinter::setup( QWidget *  )
 {
     if(!psession && PMCreateSession(&psession) != noErr)
 	return FALSE;
-    if( ( qApp->style().inherits("QAquaStyle") ) ) {
+    if( ( qApp->style().inherits(QMAC_DEFAULT_STYLE) ) ) {
 	Boolean ret;
 
 	//page format
