@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qgroupbox.cpp#48 $
+** $Id: //depot/qt/main/src/widgets/qgroupbox.cpp#49 $
 **
 ** Implementation of QGroupBox widget class
 **
@@ -131,7 +131,7 @@ void QGroupBox::setTitle( const QString &title )
     QChar s( shortcutChar( title ) );
     if ( s != QChar::null ) {
 	accel = new QAccel( this, "automatic focus-change accelerator" );
-	accel->connectItem( accel->insertItem( s, 0 ),
+	accel->connectItem( accel->insertItem( Qt::ALT + (char)s, 0 ),
 			    this, SLOT(fixFocus()) );
     }
     repaint();
