@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/xml/qdom.cpp#62 $
+** $Id: //depot/qt/main/src/xml/qdom.cpp#63 $
 **
 ** Implementation of QDomDocument and related classes.
 **
@@ -1662,22 +1662,22 @@ void QDomNode::setNodeValue( const QString& v )
   \enum QDomNode::NodeType
 
   This enum defines the type of the node:
-  \value QDomNode::ElementNode  the node is an element
-  \value QDomNode::AttributeNode  the node is an attribute
-  \value QDomNode::TextNode  the node is a text
-  \value QDomNode::CDATASectionNode  the node is a CDATA section
-  \value QDomNode::EntityReferenceNode  the node is an entity reference
-  \value QDomNode::EntityNode  the node is an entity
-  \value QDomNode::ProcessingInstructionNode  the node is a processing
+  \value ElementNode  the node is an element
+  \value AttributeNode  the node is an attribute
+  \value TextNode  the node is a text
+  \value CDATASectionNode  the node is a CDATA section
+  \value EntityReferenceNode  the node is an entity reference
+  \value EntityNode  the node is an entity
+  \value ProcessingInstructionNode  the node is a processing
           instruction
-  \value QDomNode::CommentNode  the node is a comment
-  \value QDomNode::DocumentNode  the node is a document
-  \value QDomNode::DocumentTypeNode  the node is a document type
-  \value QDomNode::DocumentFragmentNode  the node is a document fragment
-  \value QDomNode::NotationNode  the node is a notation
-  \value QDomNode::BaseNode  the node is a QDomNode object rather than a
+  \value CommentNode  the node is a comment
+  \value DocumentNode  the node is a document
+  \value DocumentTypeNode  the node is a document type
+  \value DocumentFragmentNode  the node is a document fragment
+  \value NotationNode  the node is a notation
+  \value BaseNode  the node is a QDomNode object rather than a
           subclass of it
-  \value QDomNode::CharacterDataNode  the node is a QDomCharacterData object
+  \value CharacterDataNode  the node is a QDomCharacterData object
           rather than a subclass of it.
 */
 /*!
