@@ -223,7 +223,7 @@ QMAKE_PROJECTS=""
 # Parse the arguments, setting things to "yes" or "no".
 while [ -n "$1" ]; do
    case $1 in
-   -config) 
+   -config)
 	shift
 	QMAKE_CONFIG="$QMAKE_CONFIG $1"
 	;;
@@ -736,22 +736,22 @@ case $Products in
    *) ;;
 esac
 
-if [ "x$DEBUG" = "xyes" ] 
+if [ "x$DEBUG" = "xyes" ]
 then
     QMAKE_OUTDIR="${QMAKE_OUTDIR}debug"
     QMAKE_CONFIG="$QMAKE_CONFIG debug"
 fi
-if [ "x$DEBUG" = "xno" ] 
+if [ "x$DEBUG" = "xno" ]
 then
     QMAKE_OUTDIR="${QMAKE_OUTDIR}release"
     QMAKE_CONFIG="$QMAKE_CONFIG release"
 fi
-if [ "x$THREAD" = "xyes" ] 
+if [ "x$THREAD" = "xyes" ]
 then
     QMAKE_OUTDIR="${QMAKE_OUTDIR}-mt"
     QMAKE_CONFIG="$QMAKE_CONFIG thread"
 fi
-if [ '!' "x$EMBEDDED" = "xno" ] 
+if [ '!' "x$EMBEDDED" = "xno" ]
 then
     QMAKE_OUTDIR="${QMAKE_OUTDIR}-emb-$EMBEDDED"
     QMAKE_ARGS="$QMAKE_ARGS \"TMAKE_LIBDIR_QT=$QTDIR/lib-e-$EMBEDDED\""
@@ -779,12 +779,12 @@ QMAKE_ARGS="$QMAKE_ARGS \"OBJECTS_DIR=.obj/$QMAKE_OUTDIR\" \"MOC_DIR=.moc/$QMAKE
 [ "x$ZLIB" = "xyes" ] && QMAKE_CONFIG="$QMAKE_CONFIG zlib"
 [ "x$LIBPNG" = "xyes" ] && QMAKE_CONFIG="$QMAKE_CONFIG png"
 
-if [ ! -z "$l_FLAGS" ] || [ ! -z "$L_FLAGS" ] 
+if [ ! -z "$l_FLAGS" ] || [ ! -z "$L_FLAGS" ]
 then
     QMAKE_ARGS="$QMAKE_ARGS \"LIBS+=$L_FLAGS $l_FLAGS\""
 fi
 [ ! -z $R_FLAGS ] && QMAKE_ARGS="$QMAKE_ARGS \"TMAKE_LFLAGS+=$R_FLAGS\""
-if [ ! -z $I_FLAGS ] 
+if [ ! -z $I_FLAGS ]
 then
     QMAKE_ARGS="$QMAKE_ARGS \"TMAKE_CFLAGS+=$I_FLAGS\""
     QMAKE_ARGS="$QMAKE_ARGS \"TMAKE_CXXFLAGS+=$I_FLAGS\""
@@ -825,7 +825,7 @@ do
 	QMAKE_CONFIG="$QMAKE_CONFIG $MODULE"
     fi
 done
-#because things depend on qmodules.h, I conditionally copy 
+#because things depend on qmodules.h, I conditionally copy
 #so I don't rebuild them when I configure but change nothing..
 QMOD_CHANGES=`diff src/tools/qmodules.h src/tools/qmodules.h.new 2>&1 | wc -l | sed "s, ,,g"`
 if [ -f src/tools/qmodules.h ] && [ "x$QMOD_CHANGES" = "x0" ]
@@ -903,9 +903,9 @@ for a in $QMAKE_PROJECTS ; do
     esac
 
     EXEC="$QTDIR/bin/qmake $QMAKE_ALL_ARGS -o $MFILE -mkspec $CONF $file"
+    echo "  Creating $N (`basename $CONF`)"
     if [ "$VERBOSE" = "yes" ]; then
-	echo "  Creating $N (`basename $CONF`)"
-	#echo $EXEC
+	echo $EXEC
     fi
     (cd $dir; [ -f $MFILE ] && chmod +w $MFILE; /bin/sh -c "$EXEC")
 done
