@@ -14,22 +14,23 @@ public:
     virtual ~QActionFactory() { QActionFactory::removeActionFactory( this ); }
 
     static QAction* create( const QString& actionname, bool& self, QObject* parent = 0 );
+    virtual QString factoryName() const = 0;
 
     static void installActionFactory( QActionFactory* factory );
     static void removeActionFactory( QActionFactory* factory );
 
-//### only for testing?
     static QList<QActionFactory> factoryList();
     static QStringList actionList();
-    static QString actionFactory( const QString& actionname );
+    static QActionFactory *actionFactory( const QString& actionname );
 
 private:
-    virtual QString factoryName() const = 0;
-
-    virtual QAction* newAction( const QString& classname, bool& self, QObject* parent = 0 ) = 0;
+    virtual QAction *compose( const QString& description );
+    virtual QAction *newAction( const QString& classname, bool& self, QObject* parent = 0 ) = 0;
     virtual QStringList actions() = 0;
 
-    static QDict<QActionFactory> factories;
+    static QList<QActionFactory> factories;
+    static QDict<QActionFactory> factory;
+    static QActionFactory *that;
 };
 
 #endif // QACTIONFACTORY_H

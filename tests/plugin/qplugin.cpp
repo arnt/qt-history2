@@ -53,9 +53,8 @@ QPlugIn::~QPlugIn()
 }
 
 /*!
-  Loads the shared library and initializes function pointers. Calls the
-  onConnect routine and returns TRUE if the library was loaded successfully,
-  otherwise does nothing and returns FALSE.
+  Loads the shared library and initializes function pointers. Returns TRUE if 
+  the library was loaded successfully, otherwise does nothing and returns FALSE.
 
   This function gets called automatically if the policy is not ManualPolicy. 
   Otherwise you have to make sure that the library has been loaded before usage.
@@ -75,14 +74,7 @@ bool QPlugIn::load()
 #endif
 	if ( !pHnd )
 	    return FALSE;
-#if defined(_WS_WIN_)
-	ConnectProc c = (ConnectProc) GetProcAddress( pHnd, "onConnect" );
-#elif defined(_WS_X11_)
-	ConnectProc c = (ConnectProc) dlsym( pHnd, "onConnect" );
-#endif
-	if( c )
-	    if ( !c(  qApp ) )
-		return FALSE;
+
 	emit loaded();
     }
 
@@ -112,22 +104,25 @@ bool QPlugIn::unload( bool force )
 	    if ( !force )
 		return FALSE;
 	}
-	delete ifc;
-	ifc = 0;
+	if ( ifc ) {
+	    delete ifc;
+	    ifc = 0;
 
-#ifdef _WS_WIN_
-	ConnectProc dc = (ConnectProc) GetProcAddress( pHnd, "onDisconnect" );
-	if ( dc )
-	    if ( !dc( qApp ) )
-		return FALSE;
-	FreeLibrary( pHnd );
-#else
-	ConnectProc dc = (ConnectProc) dlsym( pHnd, "onDisconnect" );
-	if ( dc )
-	    if( !dc( qApp ) )
-		return FALSE;
-	dlclose( pHnd );
+	    ConnectProc dc;
+#if defined(_WS_WIN_)
+	    dc = (ConnectProc) GetProcAddress( pHnd, "onDisconnect" );
+#elif defined(_WS_X11_)
+	    dc = (ConnectProc) dlsym( pHnd, "onDisconnect" );
+#endif
+	    if ( dc )
+		if ( !dc( qApp ) )
+		    return FALSE;
+#if defined(_WS_WIN_)
+	    FreeLibrary( pHnd );
+#elif defined(_WS_X11_)
+	    dlclose( pHnd );
 #endif	
+	}
 	emit unloaded();
     }
     pHnd = 0;
@@ -231,8 +226,8 @@ void QPlugIn::unuse()
 }
 
 /*!
-  Loads the interface of the shared library and returns TRUE if successful, 
-  or FALSE if the interface could not be loaded.
+  Loads the interface of the shared library and alls the onConnect routine.
+  Returns TRUE if successful, or FALSE if the interface could not be loaded.
 */
 bool QPlugIn::loadInterface()
 {
@@ -249,9 +244,26 @@ bool QPlugIn::loadInterface()
 #endif
     if ( !proc )
 	return FALSE;
-
     ifc = proc();
-    return ifc; // && ifc->inherits( "QPlugInInterface" );
+
+    if ( !ifc )
+	return FALSE;
+
+    if ( ifc->queryInterface() != queryInterface() ) {
+	delete ifc;
+	ifc = 0;
+	return FALSE;
+    }
+
+#if defined(_WS_WIN_)
+    ConnectProc c = (ConnectProc) GetProcAddress( pHnd, "onConnect" );
+#elif defined(_WS_X11_)
+    ConnectProc c = (ConnectProc) dlsym( pHnd, "onConnect" );
+#endif
+    if( c )
+	c( qApp );
+
+    return ifc != 0;
 }
 
 /*!
@@ -284,7 +296,7 @@ QString QPlugIn::description()
 QString QPlugIn::author()
 {
     use();
-    QString str = iface()->description();
+    QString str = iface()->author();
     unuse();
 
     return str;

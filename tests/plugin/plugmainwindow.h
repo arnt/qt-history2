@@ -7,7 +7,9 @@
 class QHBox;
 class QScrollView;
 class QWidgetPlugInManager;
+class QActionPlugInManager;
 class QPopupMenu;
+class QToolBar;
 
 class PlugMainWindow : public QMainWindow
 {
@@ -24,9 +26,12 @@ public slots:
 protected:
     QPopupMenu* actionMenu;
     QPopupMenu* widgetMenu;
+    QPopupMenu* pluginMenu;
+    QToolBar* pluginTool;
     QHBox *box;
     QScrollView *sv;
-    QWidgetPlugInManager* manager;
+    QWidgetPlugInManager* widgetManager;
+    QActionPlugInManager* actionManager;
 
 private:
     QDict<int> menuIDs;

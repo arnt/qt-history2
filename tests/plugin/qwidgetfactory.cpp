@@ -76,6 +76,7 @@ void QWidgetFactory::installWidgetFactory( QWidgetFactory* f )
 
     if ( !factories.contains( f ) )
 	factories.append( f );
+
     QStringList widgets = f->widgets();
     for ( QStringList::Iterator w = widgets.begin(); w != widgets.end(); w++ ) {
 #ifdef CHECK_RANGE
@@ -181,9 +182,22 @@ QWidget* QWidgetFactory::create( const QString& description, QWidget* parent, co
 		w->reparent( parent, w->pos() );
 	    w->setName( name );
 	}
+	return w;
     }
 
     QWidgetFactory* fact = factory[description];
+    if ( !fact ) {
+	QListIterator<QWidgetFactory> it( factories );
+	while ( it.current() ) {
+	    if ( it.current()->widgets().contains( description ) ) {
+		factory.insert( description, it.current() );
+		fact = it.current();
+		break;
+	    }
+	    ++it;
+	}
+    }
+
     if ( fact )
 	return fact->newWidget( description, parent, name );
     return 0;

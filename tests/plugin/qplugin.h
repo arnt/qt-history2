@@ -3,7 +3,6 @@
 
 #include <qdict.h>
 #include <qdir.h>
-#include <qwidget.h>
 #include <qapplication.h>
 
 #include "qplugininterface.h"
@@ -29,7 +28,7 @@ public:
     };
 
     QPlugIn( const QString& filename, LibraryPolicy = Default );
-    virtual ~QPlugIn();
+    ~QPlugIn();
 
     bool load();
     bool unload( bool = FALSE );
@@ -38,6 +37,7 @@ public:
     LibraryPolicy policy() const;
 
     QString library() const;
+
     QString name();
     QString description();
     QString author();
@@ -127,7 +127,7 @@ public:
 	if ( result ) {
 #ifdef CHECK_RANGE
 	    if ( libDict[plugin->library()] )
-		qWarning("QPlugInManager: Tried to insert %s twice!", plugin->library().latin1() );
+		qWarning( "QPlugInManager: Can't manage library twice! (%s)", plugin->library().latin1() );
 #endif
 	    libDict.replace( plugin->library(), plugin );
 	} else {

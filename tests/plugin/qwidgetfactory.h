@@ -1,9 +1,9 @@
 #ifndef QWIDGETFACTORY_H
 #define QWIDGETFACTORY_H
 
+#include <qdict.h>
 #include <qlist.h>
 #include <qstringlist.h>
-#include <qdict.h>
 
 class QWidget;
 
@@ -20,13 +20,10 @@ public:
 
     static QList<QWidgetFactory> factoryList();
     static QStringList widgetList();
-    static void updateWidgetList();
     static QWidgetFactory *widgetFactory( const QString& description );
 
-protected:
-    QWidget* compose( const QString& description );
-
 private:
+    virtual QWidget* compose( const QString& description );
     virtual QWidget* newWidget( const QString& classname, QWidget* parent = 0, const char* name = 0 );
     virtual QStringList widgets();
 

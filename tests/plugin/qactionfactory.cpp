@@ -1,9 +1,12 @@
 #include "qactionfactory.h"
+#include <qaction.h>
 
 // some important stuff
 extern const unsigned int prime[6] = { 53, 151, 503, 1511, 5101, 15101 };
 static int actionPrimeSize = 0;
-QDict<QActionFactory> QActionFactory::factories( prime[0] );
+QDict<QActionFactory> QActionFactory::factory( prime[0] );
+QList<QActionFactory> QActionFactory::factories = QList<QActionFactory>();
+QActionFactory* QActionFactory::that = 0;
 
 /*!
   \class QActionFactory qactionfactory.h
@@ -11,40 +14,31 @@ QDict<QActionFactory> QActionFactory::factories( prime[0] );
 */
 
 /*!
-  Returns an action with name \a actionname.
-  Looks up the action factory that provides the action \a actionname and creates
-  the action with \a parent. Return 0 if the action is not provided in any 
-  factory.
-
-  \sa installActionFactory()
-*/
-QAction* QActionFactory::create( const QString &actionname, bool& self, QObject *parent )
-{
-    QActionFactory* fact = factories[actionname];
-
-    if ( fact )
-	return fact->newAction( actionname, self, parent );
-    return 0;
-}
-
-/*!
   Installs a QActionFactory.
-  Gets the list of actions \a factory provides. Prints a warning if an action is 
+  Gets the list of actions \a f provides. Prints a warning if an action is 
   already supported. In this case createAction() uses the factory added last.
 
   \sa actionList()
 */
-void QActionFactory::installActionFactory( QActionFactory* factory )
+void QActionFactory::installActionFactory( QActionFactory* f )
 {
-    QStringList actions = factory->actions();
+    if ( !that )
+	that = f;
+
+    if ( !factories.contains( f ) )
+	factories.append( f );
+
+    QStringList actions = f->actions();
     for ( QStringList::Iterator a = actions.begin(); a != actions.end(); a++ ) {
-	if ( factories[*a] && factories[*a] != factory )
+#ifdef CHECK_RANGE
+	if ( factory[*a] && factory[*a] != f )
 	    qWarning("More than one factory creating %s", (*a).latin1() );
-	factories.insert( *a, factory );
+#endif
+	factory.insert( *a, f );
     }
-    if ( factories.count() > prime[actionPrimeSize] ) {
+    if ( factory.count() > prime[actionPrimeSize] ) {
 	if ( actionPrimeSize <= 6 )
-	    factories.resize( prime[++actionPrimeSize] );
+	    factory.resize( prime[++actionPrimeSize] );
     }
 }
 
@@ -54,13 +48,14 @@ void QActionFactory::installActionFactory( QActionFactory* factory )
 
   \sa installActionFactory(), create()
 */
-void QActionFactory::removeActionFactory( QActionFactory* factory )
+void QActionFactory::removeActionFactory( QActionFactory* f )
 {
-    QDictIterator<QActionFactory> it( factories );
+    factories.remove( f );
+    QDictIterator<QActionFactory> it( factory );
 
     while (it.current() ) {
-	if ( it.current() == factory )
-	    factories.remove( it.currentKey() );
+	if ( it.current() == f )
+	    factory.remove( it.currentKey() );
 	else
 	    ++it;
     }
@@ -73,18 +68,7 @@ void QActionFactory::removeActionFactory( QActionFactory* factory )
 */
 QList<QActionFactory> QActionFactory::factoryList()
 {
-    QList<QActionFactory> list;
-
-    QDictIterator<QActionFactory> it( factories );
-
-    while ( it.current() ) {
-	if ( !list.contains( it.current() ) )
-	    list.append( it.current() );
-
-	++it;
-    }
-
-    return list;
+    return factories;
 }
 
 /*!
@@ -96,7 +80,7 @@ QStringList QActionFactory::actionList()
 {
     QStringList l;
 
-    QList<QActionFactory> list = factoryList();
+    QList<QActionFactory> list = factories;
     QListIterator<QActionFactory> it( list );
 
     while ( it.current() ) {
@@ -116,13 +100,65 @@ QStringList QActionFactory::actionList()
 
   \sa installActionFactory()
 */
-QString QActionFactory::actionFactory( const QString& actionname )
+QActionFactory* QActionFactory::actionFactory( const QString& actionname )
 {
-    QActionFactory* f = factories[actionname];
-    if ( f )
-	return f->factoryName();
-    else
-	return "";
+    return factory[actionname];
+}
+
+/*!
+  Returns an action with name \a actionname.
+  Looks up the action factory that provides the action \a actionname and creates
+  the action with \a parent. Return 0 if the action is not provided in any 
+  factory.
+
+  \sa installActionFactory()
+*/
+QAction* QActionFactory::create( const QString &description, bool& self, QObject *parent )
+{
+    if ( description.isEmpty() )
+	return 0;
+    if ( description[0] == "<" ) {
+	QAction* a = 0;
+/*	if ( !that )
+	    installWidgetFactory( new QActionFactory );*/
+	a = that->compose( description );
+	
+	if ( a ) {
+	    if ( parent )
+		parent->insertChild( a );
+	    return a;
+	} 
+    }
+
+    QActionFactory* fact = factory[description];
+
+    if ( !fact ) {
+	QListIterator<QActionFactory> it( factories );
+	while ( it.current() ) {
+	    if ( it.current()->actions().contains( description ) ) {
+		factory.insert( description, it.current() );
+		fact = it.current();
+		break;
+	    }
+	    ++it;
+	}
+    }
+    if ( fact )
+	return fact->newAction( description, self, parent );
+    return 0;
+}
+
+/*!
+  Processes \a description and returns a corresponding action if successful.
+  Otherwise returns NULL.
+*/
+QAction* QActionFactory::compose( const QString& description )
+{
+    qDebug("Imagine I process %s", description.latin1() );
+
+    // TODO: process document
+
+    return 0;
 }
 
 /*!
