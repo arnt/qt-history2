@@ -76,6 +76,21 @@
 /*! \fn bool QStack::remove () 
   Removes the top item from the stack and deletes it if
   if autoDelete() is TRUE.  Returns TRUE if there was an item to pop.
+
+  \sa clear()
+*/
+
+/*! \fn void QStack::clear()
+  Removes all items from the stack, deleting them if
+  if autoDelete() is TRUE.
+
+  \sa remove()
+*/
+
+/*! \fn int QStack::count()
+  Returns the number of items in the stack.
+
+  \sa isEmpty()
 */
 
 /*! \fn type* QStack::top () const 
@@ -91,6 +106,20 @@
 /*! \fn type* QStack::current () const 
   Returns a reference to the top item on the stack (most recently pushed).
   The stack is not changed.
+*/
+
+/*! \fn bool QStack::autoDelete() const
+
+  The same as QCollection::autoDelete().
+
+  \sa setAutoDelete()
+*/
+
+/*! \fn void QStack::setAutoDelete( bool enable ) 
+
+  The same as QCollection::setAutoDelete().
+ 
+  \sa autoDelete()
 */
 
 
