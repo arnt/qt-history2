@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombo.cpp#95 $
+** $Id: //depot/qt/main/src/widgets/qcombo.cpp#96 $
 **
 ** Implementation of QComboBox widget class
 **
@@ -23,7 +23,7 @@
 #include "qlined.h"
 #include <limits.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qcombo.cpp#95 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qcombo.cpp#96 $");
 
 
 /*!
@@ -1503,7 +1503,7 @@ void QComboBox::returnPressed()
 	c = 0;
 	break;
     case AtBottom:
-	c = count() - 1;
+	c = count();
 	break;
     case BeforeCurrent:
 	c = currentItem();
