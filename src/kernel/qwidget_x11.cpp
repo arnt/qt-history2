@@ -740,7 +740,7 @@ void QWidget::setMicroFocusHint(int x, int y, int width, int height, bool text, 
 	QWidget* tlw = topLevelWidget();
 	if ( tlw->extra && tlw->extra->topextra &&
 	     tlw->extra->topextra->xic ) {
-	    QPoint p( x, y ); 
+	    QPoint p( x, y );
 	    mapTo ( topLevelWidget(), p );
 
 	    XPoint spot;
@@ -1086,9 +1086,10 @@ void QWidget::setIconText( const QString &iconText )
     XSetWMIconName( x11Display(), winId(), qstring_to_xtp(iconText) );
 }
 
+
 void QWidget::setAccessibilityHint( const QString &hint )
 {
-    if ( topLevel() )
+    if ( isTopLevel() )
 	return;
 
     if ( !extra )
