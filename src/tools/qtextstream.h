@@ -156,7 +156,7 @@ private:
     QTextStream &output_int( int, ulong, bool );
     QIODevice	*dev;
 #ifndef QT_NO_COMPAT    
-    bool	isNetworkOrder() { return internalOrder == QChar::networkOrdered(); }
+    bool	isNetworkOrder() { return internalOrder == FALSE; }
 #endif
 
     int		 fflags;
