@@ -2047,7 +2047,7 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
             }
 
             if (tb->subControls & SC_TitleBarMaxButton
-                && tb->titleBarFlags & Qt::WStyle_Maximize) {
+                && tb->titleBarFlags & Qt::WindowMaximizeButtonHint) {
                 ir = visualRect(opt->direction, opt->rect,
                         subControlRect(CC_TitleBar, tb, SC_TitleBarMaxButton, widget));
 
@@ -2067,7 +2067,7 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
 
             if ((tb->subControls & SC_TitleBarNormalButton
                  || tb->subControls & SC_TitleBarMinButton)
-                && tb->titleBarFlags & Qt::WStyle_Minimize) {
+                && tb->titleBarFlags & Qt::WindowMinimizeButtonHint) {
                 ir = visualRect(opt->direction, opt->rect,
                         subControlRect(CC_TitleBar, tb, SC_TitleBarMinButton, widget));
 
@@ -2125,7 +2125,7 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
                 p->restore();
             }
             if (tb->subControls & SC_TitleBarContextHelpButton
-                && tb->titleBarFlags & Qt::WStyle_ContextHelp) {
+                && tb->titleBarFlags & Qt::WindowContextHelpButtonHint) {
                 ir = visualRect(opt->direction, opt->rect,
                         subControlRect(CC_TitleBar, tb, SC_TitleBarContextHelpButton,
                                                widget));
@@ -2143,7 +2143,7 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
                 p->restore();
             }
 #ifndef QT_NO_WIDGET_TOPEXTRA
-            if (tb->subControls & SC_TitleBarSysMenu && tb->titleBarFlags & Qt::WStyle_SysMenu) {
+            if (tb->subControls & SC_TitleBarSysMenu && tb->titleBarFlags & Qt::WindowSystemMenuHint) {
                 ir = visualRect(opt->direction, opt->rect,
                         subControlRect(CC_TitleBar, tb, SC_TitleBarSysMenu, widget));
                 if (!tb->icon.isNull()) {

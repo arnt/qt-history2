@@ -152,7 +152,7 @@ class QShapedPixmapWidget : public QWidget {
 public:
     QShapedPixmapWidget(int screen = -1) :
         QWidget(QApplication::desktop()->screen(screen),
-                Qt::WStyle_Customize | Qt::WStyle_Tool | Qt::WStyle_NoBorder | Qt::WX11BypassWM)
+                Qt::Tool | Qt::FramelessWindowHint | Qt::X11BypassWindowManagerHint)
     {
     }
 

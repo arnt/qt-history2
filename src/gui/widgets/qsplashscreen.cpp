@@ -111,7 +111,7 @@ public:
     perhaps \c Qt::WStyle_StaysOnTop.
 */
 QSplashScreen::QSplashScreen(const QPixmap &pixmap, Qt::WFlags f)
-    : QWidget(*(new QSplashScreenPrivate()), 0, Qt::WStyle_Customize | Qt::WStyle_Splash | f)
+    : QWidget(*(new QSplashScreenPrivate()), 0, Qt::SplashScreen | f)
 {
     d->pixmap = pixmap;
     setPixmap(d->pixmap);  // Does an implicit repaint

@@ -507,7 +507,7 @@ void QComboBoxPrivate::init()
 {
     QListView *l = new QListView(0);
     container = new ItemViewContainer(l, q);
-    container->setParent(q, Qt::WType_Popup);
+    container->setParent(q, Qt::Popup);
     q->setModel(new QStandardItemModel(0, 1, q));
     q->setFocusPolicy(Qt::TabFocus);
     q->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);

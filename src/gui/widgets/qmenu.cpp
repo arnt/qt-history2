@@ -53,7 +53,7 @@ public:
         d->tornoff = 1;
         d->causedPopup = ((QTornOffMenu*)p)->d->causedPopup;
 
-        setParent(p, Qt::WType_TopLevel | Qt::WStyle_Tool | Qt::WStyle_NormalBorder);
+        setParent(p, Qt::Window | Qt::Tool);
 	setAttribute(Qt::WA_DeleteOnClose, true);
         p->setWindowTitle(p->windowTitle());
         setEnabled(p->isEnabled());

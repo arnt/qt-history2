@@ -1850,7 +1850,7 @@ const QGLContext* QGLContext::currentContext()
 */
 
 QGLWidget::QGLWidget(QWidget *parent, const QGLWidget* shareWidget, Qt::WFlags f)
-    : QWidget(*(new QGLWidgetPrivate), parent, f | Qt::WWinOwnDC)
+    : QWidget(*(new QGLWidgetPrivate), parent, f)
 {
     setAttribute(Qt::WA_PaintOnScreen);
     setAttribute(Qt::WA_NoSystemBackground);
@@ -1888,7 +1888,7 @@ QGLWidget::QGLWidget(QWidget *parent, const QGLWidget* shareWidget, Qt::WFlags f
 
 QGLWidget::QGLWidget(const QGLFormat &format, QWidget *parent, const QGLWidget* shareWidget,
                      Qt::WFlags f)
-    : QWidget(*(new QGLWidgetPrivate), parent, f | Qt::WWinOwnDC)
+    : QWidget(*(new QGLWidgetPrivate), parent, f)
 {
     setAttribute(Qt::WA_PaintOnScreen);
     setAttribute(Qt::WA_NoSystemBackground);
@@ -1922,7 +1922,7 @@ QGLWidget::QGLWidget(const QGLFormat &format, QWidget *parent, const QGLWidget* 
 */
 QGLWidget::QGLWidget(QGLContext *context, QWidget *parent, const QGLWidget *shareWidget,
                      Qt::WFlags f)
-    : QWidget(*(new QGLWidgetPrivate), parent, f | Qt::WWinOwnDC)
+    : QWidget(*(new QGLWidgetPrivate), parent, f)
 {
     setAttribute(Qt::WA_PaintOnScreen);
     setAttribute(Qt::WA_NoSystemBackground);
@@ -2917,7 +2917,7 @@ QPaintEngine *QGLWidget::paintEngine() const
  */
 QGLWidget::QGLWidget(QWidget *parent, const char *name,
                       const QGLWidget* shareWidget, Qt::WFlags f)
-    : QWidget(*(new QGLWidgetPrivate), parent, f | Qt::WWinOwnDC)
+    : QWidget(*(new QGLWidgetPrivate), parent, f)
 {
     if (name)
         setObjectName(name);
@@ -2933,7 +2933,7 @@ QGLWidget::QGLWidget(QWidget *parent, const char *name,
 QGLWidget::QGLWidget(const QGLFormat &format, QWidget *parent,
                       const char *name, const QGLWidget* shareWidget,
                       Qt::WFlags f)
-    : QWidget(*(new QGLWidgetPrivate), parent, f | Qt::WWinOwnDC)
+    : QWidget(*(new QGLWidgetPrivate), parent, f)
 {
     if (name)
         setObjectName(name);
@@ -2948,7 +2948,7 @@ QGLWidget::QGLWidget(const QGLFormat &format, QWidget *parent,
  */
 QGLWidget::QGLWidget(QGLContext *context, QWidget *parent,
                       const char *name, const QGLWidget *shareWidget, Qt::WFlags f)
-    : QWidget(*(new QGLWidgetPrivate), parent, f | Qt::WWinOwnDC)
+    : QWidget(*(new QGLWidgetPrivate), parent, f)
 {
     if (name)
         setObjectName(name);

@@ -237,7 +237,7 @@ void QMainWindowPrivate::init()
     widget \a flags.
  */
 QMainWindow::QMainWindow(QWidget *parent, Qt::WFlags flags)
-    : QWidget(*(new QMainWindowPrivate()), parent, flags | Qt::WType_TopLevel)
+    : QWidget(*(new QMainWindowPrivate()), parent, flags | Qt::Window)
 {
     d->init();
 }

@@ -289,10 +289,12 @@ int QAccessibleApplication::navigate(RelationFlag relation, int entry,
 QString QAccessibleApplication::text(Text t, int) const
 {
     switch (t) {
+#if defined(QT3_SUPPORT)
     case Name:
         if (qApp->mainWidget())
             return qApp->mainWidget()->windowTitle();
         break;
+#endif
     case Description:
         return qApp->applicationFilePath();
     default:
@@ -323,7 +325,10 @@ int QAccessibleApplication::userActionCount(int) const
 bool QAccessibleApplication::doAction(int action, int child, const QVariantList &param)
 {
     if (action == 0 || action == 1) {
-        QWidget *w = qApp->mainWidget();
+        QWidget *w = 0;
+#if defined(QT3_SUPPORT)
+        w = qApp->mainWidget();
+#endif
         if (!w)
             w = topLevelWidgets().at(0);
         if (!w)

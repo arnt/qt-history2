@@ -1392,8 +1392,8 @@ void QColorDialogPrivate::addCustom()
 */
 
 QColorDialog::QColorDialog(QWidget* parent, bool modal) :
-    QDialog(*new QColorDialogPrivate, parent, (Qt::WType_Dialog | Qt::WStyle_Customize | Qt::WStyle_Title |
-                     Qt::WStyle_DialogBorder | Qt::WStyle_SysMenu))
+    QDialog(*new QColorDialogPrivate, parent, (Qt::Dialog | Qt::WindowTitleHint |
+                     Qt::MSWindowsFixedSizeDialogHint | Qt::WindowSystemMenuHint))
 {
     Q_D(QColorDialog);
     setModal(modal);

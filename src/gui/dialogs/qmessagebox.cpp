@@ -447,7 +447,7 @@ const char * mb_texts[] = {
 
 QMessageBox::QMessageBox(QWidget *parent)
     : QDialog(*new QMessageBoxPrivate, parent,
-              Qt::WStyle_Customize | Qt::WStyle_DialogBorder | Qt::WStyle_Title | Qt::WStyle_SysMenu)
+              Qt::MSWindowsFixedSizeDialogHint | Qt::WindowTitleHint | Qt::WindowSystemMenuHint)
 {
     Q_D(QMessageBox);
     setModal(true);
@@ -520,7 +520,7 @@ QMessageBox::QMessageBox(const QString& caption,
                           int button0, int button1, int button2,
                           QWidget *parent, Qt::WFlags f)
     : QDialog(*new QMessageBoxPrivate, parent,
-              f | Qt::WStyle_Customize | Qt::WStyle_DialogBorder | Qt::WStyle_Title | Qt::WStyle_SysMenu)
+              f | Qt::MSWindowsFixedSizeDialogHint | Qt::WindowTitleHint | Qt::WindowSystemMenuHint)
 {
     Q_D(QMessageBox);
     d->init(button0, button1, button2);
