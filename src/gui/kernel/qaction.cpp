@@ -133,53 +133,84 @@ QAction::QAction(QWidget* parent)
 }
 
 /*!
-    Constructs an action with some \a text for the \a parent action
+    Constructs an action with some \a menuText for the \a parent action
     group. The action will be automatically inserted into the
     action group.
+
+    The action uses a stripped version of \a menuText (e.g. "\&Menu
+    Option..." becomes "Menu Option") as descriptive text for
+    toolbuttons. You can override this by setting a specific
+    description with setText(). The same text will be used for
+    tool tips unless you specify a different test using
+    setToolTip().
+
 */
-QAction::QAction(const QString &text, QActionGroup* parent)
+QAction::QAction(const QString &menuText, QActionGroup* parent)
     : QObject(*(new QActionPrivate), parent)
 {
-    d->text = text;
+    d->menuText = menuText;
     d->group = parent;
     if(parent)
         parent->addAction(this);
 }
 
 /*!
-    Constructs an action with an \a icon and some \a text for the
+    Constructs an action with an \a icon and some \a menuText for the
     \a parent action group. The action will be automatically inserted
     into the action group.
+
+    The action uses a stripped version of \a menuText (e.g. "\&Menu
+    Option..." becomes "Menu Option") as descriptive text for
+    toolbuttons. You can override this by setting a specific
+    description with setText(). The same text will be used for
+    tool tips unless you specify a different test using
+    setToolTip().
 */
-QAction::QAction(const QIconSet &icon, const QString &text, QActionGroup* parent)
+QAction::QAction(const QIconSet &icon, const QString &menuText, QActionGroup* parent)
     : QObject(*(new QActionPrivate), parent)
 {
     d->icons = new QIconSet(icon);
-    d->text = text;
+    d->menuText = menuText;
     d->group = parent;
     if(parent)
         parent->addAction(this);
 }
 
 /*!
-    Constructs an action with some \a text for the \a parent widget.
+    Constructs an action with some \a menuText for the \a parent widget.
     The action will \e not be automatically inserted into the widget.
+
+    The action uses a stripped version of \a menuText (e.g. "\&Menu
+    Option..." becomes "Menu Option") as descriptive text for
+    toolbuttons. You can override this by setting a specific
+    description with setText(). The same text will be used for
+    tool tips unless you specify a different test using
+    setToolTip().
+
 */
-QAction::QAction(const QString &text, QWidget* parent)
+QAction::QAction(const QString &menuText, QWidget* parent)
     : QObject(*(new QActionPrivate), parent)
 {
-    d->text = text;
+    d->menuText = menuText;
 }
 
 /*!
     Constructs an action with an \a icon and some \a text for the
     \a parent widget. The action will \e not be automatically inserted
     into the widget.
+
+    The action uses a stripped version of \a menuText (e.g. "\&Menu
+    Option..." becomes "Menu Option") as descriptive text for
+    toolbuttons. You can override this by setting a specific
+    description with setText(). The same text will be used for
+    tool tips unless you specify a different test using
+    setToolTip().
+
 */
-QAction::QAction(const QIconSet &icon, const QString &text, QWidget* parent)
+QAction::QAction(const QIconSet &icon, const QString &menuText, QWidget* parent)
     : QObject(*(new QActionPrivate), parent)
 {
-    d->text = text;
+    d->menuText = menuText;
     d->icons = new QIconSet(icon);
 }
 
@@ -426,8 +457,16 @@ void QAction::setText(const QString &text)
 }
 
 
+
+
 QString QAction::text() const
 {
+    if (d->text.isEmpty()) {
+        QString s = d->menuText;
+        s.remove(QLatin1String("..."));
+        s.remove(QChar('&')); //## for loop because of &&
+        return s.trimmed();
+    }
     return d->text;
 }
 
@@ -451,12 +490,12 @@ void QAction::setMenuText(const QString &text)
 
 QString QAction::menuText() const
 {
-    QString ret = d->menuText;
-    if(ret.isEmpty()) {
-        ret = d->text;
-        ret.replace('&', "&&");
+    QString s = d->menuText;
+    if(s.isEmpty()) {
+        s = d->text;
+        s.replace('&', "&&");
     }
-    return ret;
+    return s;
 }
 
 
@@ -467,11 +506,7 @@ QString QAction::menuText() const
     This text is used for the tool tip. If no status tip has been set
     the tool tip will be used for the status tip.
 
-    If no tool tip is specified the action's text is used, and if that
-    hasn't been specified the description text is used as the tool tip
-    text.
-
-    There is no default tool tip text.
+    If no tool tip is specified the action's text is used.
 
     \sa setStatusTip() setShortcut()
 */
@@ -483,6 +518,8 @@ void QAction::setToolTip(const QString &tooltip)
 
 QString QAction::toolTip() const
 {
+    if (d->tooltip.isEmpty())
+        return text();
     return d->tooltip;
 }
 
@@ -493,8 +530,6 @@ QString QAction::toolTip() const
     The statusTip is displayed on all status bars provided by the
     action's top-level parent widget. It can be set, and is provided as the parameter
     of the showStatusMessage() signal.
-
-    If no status tip is defined, the action uses the tool tip text.
 
     There is no default statusTip text.
 
@@ -508,8 +543,6 @@ void QAction::setStatusTip(const QString &statustip)
 
 QString QAction::statusTip() const
 {
-    if(d->statustip.isNull())
-        return d->tooltip;
     return d->statustip;
 }
 

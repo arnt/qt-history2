@@ -50,10 +50,10 @@ class Q_GUI_EXPORT QAction : public QObject
 public:
     QAction(QActionGroup* parent);
     QAction(QWidget* parent=0);
-    QAction(const QString &text, QWidget* parent=0);
-    QAction(const QIconSet &icon, const QString &text, QWidget* parent=0);
-    QAction(const QString &text, QActionGroup* parent);
-    QAction(const QIconSet &icon, const QString &text, QActionGroup* parent);
+    QAction(const QString &menuText, QWidget* parent=0);
+    QAction(const QIconSet &icon, const QString &menuText, QWidget* parent=0);
+    QAction(const QString &menuText, QActionGroup* parent);
+    QAction(const QIconSet &icon, const QString &menuText, QActionGroup* parent);
 
 #ifdef QT_COMPAT
     QT_COMPAT_CONSTRUCTOR QAction(QWidget* parent, const char* name);
