@@ -275,4 +275,5 @@ inline QMacSavedPortInfo::~QMacSavedPortInfo()
 #endif
 }
 
+#endif //Q_WS_MAC
 #endif // QT_MAC_H
