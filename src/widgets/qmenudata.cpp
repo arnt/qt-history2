@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenudata.cpp#23 $
+** $Id: //depot/qt/main/src/widgets/qmenudata.cpp#24 $
 **
 ** Implementation of QMenuData class
 **
@@ -16,7 +16,7 @@
 #include "qapp.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qmenudata.cpp#23 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qmenudata.cpp#24 $";
 #endif
 
 
@@ -232,7 +232,7 @@ Inserts a menu item with a text. Returns the menu item identifier.
 
 The menu item gets the identifier \e id if \e id >= 0 or a unique, negative
 identifier if \e id == -1 (default).
-The \e id must not less than -1.
+The \e id must not be less than -1.
 
 The \e index specifies the position in the menu.  The menu item is
 appended at the end of the list if \e index is negative.
