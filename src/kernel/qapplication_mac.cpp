@@ -1275,18 +1275,34 @@ bool QApplication::do_mouse_down( Point *pt )
 	}
 	break;
     case 13: { //hide toolbars thing
-	QObjectList *l = NULL;
-	if(widget && (l = widget->queryList("QToolBar"))) {
-	    for(QObjectListIt it(*l); it.current(); ++it) {
-		QWidget *t = (QWidget *)(*it);
-		if(t->topLevelWidget() == widget) {
-		    if(t->isVisible())
-			t->hide();
-		    else
-			t->show();
+	if(widget) {
+	    if(const QObjectList *chldrn = widget->children()) {
+		for(QObjectListIt it(*chldrn); it.current(); ++it) {
+		    if(it.current()->isWidgetType() && it.current()->inherits("QDockArea")) {
+			QWidget *w = (QWidget *)it.current();
+			int oh = w->sizeHint().height();
+			if(oh < 0)
+			    oh = 0;
+			if(QObjectList *l = w->queryList("QToolBar")) {
+			    for(QObjectListIt it2(*l); it2.current(); ++it2) {
+				QWidget *t = (QWidget *)(*it2);
+				if(t->topLevelWidget() == widget) {
+				    if(t->isVisible())
+					t->hide();
+				    else
+					t->show();
+				}
+			    }
+			    delete l;
+			}
+			int nh = w->sizeHint().height();
+			if(nh < 0)
+			    nh = 0;
+			if(oh != nh)
+			    widget->resize(widget->width(), widget->height() - (oh - nh));
+		    }
 		}
 	    }
-	    delete l;
 	}
 	break; }
     case inDrag:
