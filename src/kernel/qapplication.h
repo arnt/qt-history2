@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.h#93 $
+** $Id: //depot/qt/main/src/kernel/qapplication.h#94 $
 **
 ** Definition of QApplication class
 **
@@ -38,10 +38,10 @@ class QStyle;
 #error "TrueColor already #defined by X11/X.h. Include X11/X.h after qapplication.h"
 #endif
 
-extern QApplication *qApp;			// global application object
 
+extern Q_EXPORT QApplication *qApp;		// global application object
 
-class Q_EXPORT QApplication : public QObject		// application class
+class Q_EXPORT QApplication : public QObject
 {
     Q_OBJECT
 public:
@@ -54,8 +54,8 @@ public:
     int		    argc()	const;
     char	  **argv()	const;
 
-    QStyle&  style();
-    void setStyle( QStyle* );
+    QStyle&	    style();
+    void	    setStyle( QStyle* );
 
 #if 1	/* OBSOLETE */
     enum ColorMode { NormalColors, CustomColors };
@@ -164,7 +164,7 @@ private:
     char	   **app_argv;
     bool	     quit_now;
     int		     quit_code;
-    QStyle  *app_style;
+    QStyle	    *app_style;
     static int	     app_cspec;
     static QPalette *app_pal;
     static QFont    *app_font;
@@ -244,6 +244,24 @@ inline QWidget *QApplication::widgetAt( const QPoint &p, bool child )
 {
     return widgetAt( p.x(), p.y(), child );
 }
+
+
+#if defined(QT_BASEAPP) && !defined(QT_MAKEDLL)
+
+#undef QApplication
+
+class QApplication : public QBaseApplication
+{
+public:
+    QApplication( int &, char ** );
+private:	// Disabled copy constructor and operator=
+#if defined(Q_DISABLE_COPY)
+    QApplication( const QApplication & );
+    QApplication &operator=( const QApplication & );
+#endif
+};
+
+#endif
 
 
 #endif // QAPPLICATION_H
