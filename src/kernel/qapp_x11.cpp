@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#314 $
+** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#315 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -2991,9 +2991,7 @@ bool QETWidget::translateKeyEvent( const XEvent *event, bool grab )
 	    asciiDict->replace( keycode, new QString(ascii) );
     } else {
 	key = (int)keyDict->find( keycode );
-	if ( !key )
-	    key = Key_unknown;
-	else
+	if ( key )
 	    keyDict->take( keycode );
 	QString * s = asciiDict->find( keycode );
 	if ( s ) {
