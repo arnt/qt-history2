@@ -139,7 +139,7 @@ static void parsePrintcap( QListView * printers )
 		    // try extracting a comment from the aliases...
 		    printerComment = qApp->translate( "QPrintDialog",
 						      "Aliases: " );
-		    printerComment += printerDesc.mid( 0, j );
+		    printerComment += printerDesc.mid( j+1, i-j-1 );
 		    j=printerComment.length();
 		    while( j > 0 ) {
 			j--;
