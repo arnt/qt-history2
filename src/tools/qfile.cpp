@@ -350,11 +350,11 @@ Q_LONG QFile::readLine( char *p, Q_ULONG maxlen )
 
   Reads bytes from the file into string \a s, until end-of-line or \a
   maxlen bytes have been read, whichever occurs first. Returns the
-  number of bytes read, or -1 if there was an error.g. end of file.
+  number of bytes read, or -1 if there was an error, e.g. end of file.
   The terminating newline is not stripped.
 
-  This function is efficient only for buffered files.  Avoid
-  readLine() for files that have been opened with the \c IO_Raw
+  This function is only efficient for buffered files.  Avoid
+  using readLine() for files that have been opened with the \c IO_Raw
   flag.
 
   Note that the string is read as plain Latin1 bytes, not Unicode.
