@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpaintd.h#30 $
+** $Id: //depot/qt/main/src/kernel/qpaintd.h#31 $
 **
 ** Definition of QPaintDevice class
 **
@@ -43,18 +43,17 @@ class QPaintDevice				// device for QPainter
 public:
     virtual ~QPaintDevice();
 
-    int	     devType()	      const { return devFlags & PDT_MASK; }
-    bool     isExtDev()	      const { return devFlags & PDF_EXTDEV; }
-    bool     paintingActive() const { return (devFlags & PDF_PAINTACTIVE) ==
-					     PDF_PAINTACTIVE; }
+    int	     devType()	      const;
+    bool     isExtDev()	      const;
+    bool     paintingActive() const;
 
 #if defined(_WS_WIN_)
-    HDC	     handle()  const { return hdc; }	// get device context
+    HDC	     handle()  const;			// get device context
 #elif defined(_WS_PM_)
-    HPS	     handle()  const { return hps; }	// get presentation space
+    HPS	     handle()  const;			// get presentation space
 #elif defined(_WS_X11_)
-    Display *display() const { return dpy; }	// get display
-    WId	     handle()  const { return hd; }	// get drawable
+    Display *display() const;			// get display
+    WId	     handle()  const;			// get drawable
 #endif
 
 protected:
@@ -80,14 +79,37 @@ protected:
 			int, int, int, int, RasterOp );
 };
 
+
 void bitBlt( QPaintDevice *dst, int dx, int dy,
 	     const QPaintDevice *src, int sx=0, int sy=0, int sw=-1, int sh=-1,
 	     RasterOp = CopyROP );
 
-inline
-void bitBlt( QPaintDevice *dst, const QPoint &dp,
-	     const QPaintDevice *src, const QRect &sr = QRect(0,0,-1,-1),
-	     RasterOp rop = CopyROP )
+
+// ----------------------------------------------------------------------------
+// Inline functions
+//
+
+inline int QPaintDevice::devType() const
+{ return devFlags & PDT_MASK; }
+
+inline bool QPaintDevice::isExtDev() const
+{ return (devFlags & PDF_EXTDEV) != 0; }
+
+inline bool QPaintDevice::paintingActive() const
+{ return (devFlags & PDF_PAINTACTIVE) != 0; }
+
+#if defined(_WS_WIN_)
+inline HDC      QPaintDevice::handle()  const { return hdc; }
+#elif defined(_WS_PM_)
+inline HPS      QPaintDevice::handle()  const { return hps; }
+#elif defined(_WS_X11_)
+inline Display *QPaintDevice::display() const { return dpy; }
+inline WId	QPaintDevice::handle()  const { return hd; }
+#endif
+
+inline void bitBlt( QPaintDevice *dst, const QPoint &dp,
+		    const QPaintDevice *src, const QRect &sr =QRect(0,0,-1,-1),
+		    RasterOp rop = CopyROP )
 {
     bitBlt( dst, dp.x(), dp.y(), src, sr.x(), sr.y(), sr.width(), sr.height(),
 	    rop );
