@@ -28,10 +28,14 @@
 #include "qfontmanager_qws.h"
 #endif // QT_H
 
-extern bool qt_sw_cursor;
 
 const int SourceSolid=0;
 const int SourcePixmap=1;
+
+#ifndef QT_NO_QWS_CURSOR
+
+extern bool qt_sw_cursor;
+
 
 #define SW_CURSOR_DATA_SIZE	4096  // 64x64 8-bit cursor
 
@@ -77,6 +81,8 @@ protected:
 };
 
 extern QScreenCursor * qt_screencursor;
+
+#endif //QT_NO_QWS_CURSOR
 
 struct fb_cmap;
 

@@ -496,6 +496,7 @@ void QWSManager::mouseReleaseEvent(QMouseEvent *e)
 
 void QWSManager::mouseMoveEvent(QMouseEvent *e)
 {
+#ifndef QT_NO_CURSOR
     static QCursorShape shape[] = { ArrowCursor, ArrowCursor, ArrowCursor,
 			    SizeVerCursor, SizeVerCursor, SizeHorCursor,
 			    SizeHorCursor, SizeFDiagCursor, SizeBDiagCursor,
@@ -512,7 +513,7 @@ void QWSManager::mouseMoveEvent(QMouseEvent *e)
 	}
     } else
 	qwsd->selectCursor(managed, shape[activeRegion]);
-
+#endif //QT_NO_CURSOR
     // resize/move regions
     dx = e->globalX() - mousePos.x();
     dy = e->globalY() - mousePos.y();

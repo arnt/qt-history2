@@ -32,11 +32,16 @@
 #include "qnamespace.h"
 #endif // QT_H
 
+#if defined(QT_NO_QWS_CURSOR) && defined(_WS_QWS_)
+#define QT_NO_CURSOR
+#endif
 
-struct QCursorData;				// internal cursor data
+#ifndef QT_NO_CURSOR
+
+struct QCursorData;
 
 
-class Q_EXPORT QCursor				// cursor class
+class Q_EXPORT QCursor
 {
 public:
     QCursor();					// create default arrow cursor
@@ -82,11 +87,6 @@ private:
 };
 
 
-inline void QCursor::setPos( const QPoint &p )
-{
-    setPos( p.x(), p.y() );
-}
-
 
 /*****************************************************************************
   Cursor shape identifiers (correspond to global cursor objects)
@@ -107,5 +107,24 @@ enum QCursorShape {
 Q_EXPORT QDataStream &operator<<( QDataStream &, const QCursor & );
 Q_EXPORT QDataStream &operator>>( QDataStream &, QCursor & );
 
+
+#else // QT_NO_CURSOR
+class Q_EXPORT QCursor
+{
+public:
+    static QPoint pos();
+    static void	  setPos( int x, int y );
+    static void	  setPos( const QPoint & );
+private:
+    QCursor();
+};
+
+#endif // QT_NO_CURSOR
+
+
+inline void QCursor::setPos( const QPoint &p )
+{
+    setPos( p.x(), p.y() );
+}
 
 #endif // QCURSOR_H

@@ -855,7 +855,9 @@ static void init_display()
 
     QColor::initialize();
     QFont::initialize();
+#ifndef QT_NO_CURSOR
     QCursor::initialize();
+#endif
     QPainter::initialize();
     QFontManager::initialize();
 
@@ -1002,7 +1004,9 @@ void qt_cleanup()
     cleanupTimers();
     QPixmapCache::clear();
     QPainter::cleanup();
+#ifndef QT_NO_CURSOR
     QCursor::cleanup();
+#endif
     QFont::cleanup();
     QColor::cleanup();
     QFontManager::cleanup();
@@ -1248,11 +1252,10 @@ void QApplication::setMainWidget( QWidget *mainWidget )
 /*****************************************************************************
   QApplication cursor stack
  *****************************************************************************/
-
+#ifndef QT_NO_CURSOR
 typedef QList<QCursor> QCursorList;
 
 static QCursorList *cursorStack = 0;
-
 void QApplication::setOverrideCursor( const QCursor &cursor, bool replace )
 {
     if ( !cursorStack ) {
@@ -1287,6 +1290,7 @@ void QApplication::restoreOverrideCursor()
     } else
 	desktop()->qwsDisplay()->selectCursor(w, (int)app_cursor->handle());
 }
+#endif// QT_NO_CURSOR
 
 
 void QApplication::setGlobalMouseTracking( bool enable )
@@ -1721,6 +1725,7 @@ int QApplication::qwsProcessEvent( QWSEvent* event )
 		btnstate = 0;
 		gw = 0;
 	    }
+#ifndef QT_NO_CURSOR
 	    if ( !gw || gw == w ) {
 		QCursor *curs = app_cursor;
 		if (!curs && w->extraData())
@@ -1732,6 +1737,7 @@ int QApplication::qwsProcessEvent( QWSEvent* event )
 		    desktop()->qwsDisplay()->selectCursor(widget, ArrowCursor);
 		}
 	    }
+#endif	    
 	    widget = w;
 	}
     }

@@ -24,8 +24,10 @@
 #include <sys/types.h>
 #include <dirent.h>
 
+#ifndef QT_NO_QWS_CURSOR
 bool qt_sw_cursor=false;
 QScreenCursor * qt_screencursor=0;
+#endif
 QScreen * qt_screen=0;
 
 QGfx *QGfx::createGfx( int depth, unsigned char *buffer, int w, int h,

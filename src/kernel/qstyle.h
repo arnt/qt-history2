@@ -22,7 +22,6 @@
 ** http://www.trolltech.com/qpl/ for QPL licensing information.
 **
 *****************************************************************************/
-
 #ifndef QSTYLE_H
 #define QSTYLE_H
 
@@ -31,6 +30,7 @@
 #include "qobject.h"
 #endif // QT_H
 
+#ifndef QT_NO_STYLE
 class QButton;
 class QPushButton;
 class QScrollBar;
@@ -260,5 +260,5 @@ private:	// Disabled copy constructor and operator=
 #endif
 };
 
-
+#endif // QT_NO_STYLE
 #endif // QSTYLE_H

@@ -30,7 +30,7 @@
 #include "qpixmap.h"
 #endif // QT_H
 
-
+#ifndef QT_NO_ICONSET
 struct QIconSetPrivate;
 
 
@@ -66,5 +66,5 @@ private:
     QIconSetPrivate * d;
 };
 
-
+#endif // QT_NO_ICONSET
 #endif

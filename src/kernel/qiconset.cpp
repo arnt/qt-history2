@@ -24,6 +24,9 @@
 *****************************************************************************/
 
 #include "qiconset.h"
+
+#ifndef QT_NO_ICONSET
+
 #include "qimage.h"
 #include "qbitmap.h"
 #include "qapplication.h"
@@ -640,3 +643,5 @@ void QIconSet::detach()
     d->deref();
     d = p;
 }
+
+#endif // QT_NO_ICONSET

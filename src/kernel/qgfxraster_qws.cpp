@@ -72,7 +72,7 @@ typedef long long QuadByte;
 #define QWS_EXPERIMENTAL_FASTPATH
 
 #define QGfxRaster_Generic 0
-
+#ifndef QT_NO_QWS_CURSOR
 struct SWCursorData {
     unsigned char cursor[SW_CURSOR_DATA_SIZE];
     unsigned char under[SW_CURSOR_DATA_SIZE*4];	// room for 32bpp display
@@ -100,6 +100,13 @@ struct SWCursorData {
 			qt_screencursor->saveUnder(); \
 		    endDraw(); \
 		}
+#else //QT_NO_QWS_CURSOR
+
+#define GFX_START(r) if(is_screen_gfx) \
+			beginDraw();
+#define GFX_END if(is_screen_gfx) \
+		    endDraw();
+#endif //QT_NO_QWS_CURSOR
 
 #ifndef QT_NO_QWS_DEPTH_8GRAYSCALE
     #define GFX_8BPP_PIXEL(r,g,b) qGray((r),(g),(b))
@@ -110,6 +117,7 @@ struct SWCursorData {
 static int optype;
 static int lastop;
 
+#ifndef QT_NO_QWS_CURSOR
 QScreenCursor::QScreenCursor()
 {
 }
@@ -441,6 +449,8 @@ void QScreenCursor::drawCursor()
     }
 #endif
 }
+
+#endif // QT_NO_QWS_CURSOR
 
 QGfxRasterBase::QGfxRasterBase(unsigned char * b,int w,int h) :
     buffer(b)
@@ -1011,6 +1021,7 @@ int QScreen::totalSize()
 // The end_of_location parameter is unusual: it's the address AFTER the cursor data.
 int QScreen::initCursor(void* end_of_location, bool init)
 {
+#ifndef QT_NO_QWS_CURSOR
     qt_sw_cursor=true;
     // ### until QLumpManager works Ok with multiple connected clients,
     // we steal a chunk of shared memory
@@ -1018,10 +1029,14 @@ int QScreen::initCursor(void* end_of_location, bool init)
     qt_screencursor=new QScreenCursor();
     qt_screencursor->init( data, init );
     return sizeof(SWCursorData);
+#else
+    return 0;
+#endif    
 }
 
 void QGfxRasterBase::paintCursor(const QImage& image, int hotx, int hoty, QPoint cursorPos)
 {
+#ifndef QT_NO_QWS_CURSOR
     if (QScreenCursor::enabled())
     {
 	setSource(&image);
@@ -1030,6 +1045,7 @@ void QGfxRasterBase::paintCursor(const QImage& image, int hotx, int hoty, QPoint
 		cursorPos.y()-hoty-1,
 		image.width(), image.height());
     }
+#endif
 }
 
 #ifndef QT_NO_QWS_VGA_16
@@ -3716,9 +3732,10 @@ bool QScreen::initCard()
 void QScreen::shutdownCard()
 {
     // Set back the original mode
+#ifndef QT_NO_QWS_CURSOR
     if ( qt_sw_cursor )
 	qt_screencursor->hide();
-
+#endif
     // Causing crashes. Not needed.
     //setMode(startupw,startuph,startupd);
 /*

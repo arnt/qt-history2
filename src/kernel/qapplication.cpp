@@ -248,7 +248,9 @@ QStyle   *QApplication::app_style      = 0;	// default application style
 int	  QApplication::app_cspec = QApplication::NormalColor;
 QPalette *QApplication::app_pal	       = 0;	// default application palette
 QFont	 *QApplication::app_font       = 0;	// default application font
+#ifndef QT_NO_CURSOR
 QCursor	 *QApplication::app_cursor     = 0;	// default application cursor
+#endif
 int	  QApplication::app_tracking   = 0;	// global mouse tracking
 bool	  QApplication::is_app_running = FALSE;	// app starting up if FALSE
 bool	  QApplication::is_app_closing = FALSE;	// app closing down if TRUE
@@ -717,12 +719,15 @@ QApplication::~QApplication()
     app_palettes = 0;
     delete app_fonts;
     app_fonts = 0;
+#ifndef QT_NO_STYLE
     delete app_style;
     app_style = 0;
+#endif
     qt_cleanup();
+#ifndef QT_NO_CURSOR
     delete app_cursor;
     app_cursor = 0;
-
+#endif
     /*
     Cannot delete objectDict, as then all Class::metaObj variables
     become invalid.  We could make a separate function to do this
@@ -1077,9 +1082,10 @@ void QApplication::setPalette( const QPalette &palette, bool informWidgets,
 			       const char* className )
 {
     QPalette pal = palette;
+#ifndef QT_NO_STYLE
     if ( !startingUp() )
 	qApp->style().polish( pal );	// NB: non-const reference
-
+#endif
     bool all = FALSE;
     if ( !className ) {
 	if ( !app_pal ) {

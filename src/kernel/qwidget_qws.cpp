@@ -87,30 +87,39 @@ static void paint_children(QWidget * p,const QRect& r)
     }
 }
 
-#if 0
-static void paint_children(QWidget * p,const QRegion& r)
+
+#if 0    
+void QWidget::repaintUnclipped( const QRegion &r, bool erase_r )
 {
-    if(!p)
+    if (r.isEmpty())
 	return;
-    QObjectList * childObjects=(QObjectList*)p->children();
-    if(childObjects) {
-	QObject * o;
-	for(o=childObjects->first();o!=0;o=childObjects->next()) {
-	    if( o->isWidgetType() ) {
-		QWidget *w = (QWidget *)o;
-		if ( w->testWState(Qt::WState_Visible) ) {
-		    QRect wr = w->geometry() & r;
-		    if ( !wr.isEmpty() ) {
-			wr.moveBy(-w->x(),-w->y());
-			paint_children(w,wr);
-			w->repaint(wr);
-		    }
-		}
+
+    if ( erase_r && !testWFlags( WRepaintNoErase ) )
+	erase(r);
+
+    QPaintEvent e( r );
+    setWState( WState_InPaintEvent );
+    qt_set_paintevent_clipping( this, r);
+    QApplication::sendEvent( this, &e );
+    qt_clear_paintevent_clipping();
+    clearWState( WState_InPaintEvent );
+
+    if ( children() ) {
+	QObjectListIt it(*children());
+	register QObject *obj;
+	while ( (obj=it.current()) ) {
+	    ++it;
+	    if ( obj->isWidgetType() ) {
+		QWidget* w = (QWidget*)obj;
+		QRegion cr = r&w->geometry();;
+		cr.translate(-w->x(),-w->y());
+		w->repaintUnclipped(cr, erase_r );
 	    }
 	}
     }
 }
-#endif
+#endif    
+
 /*****************************************************************************
   QWidget member functions
  *****************************************************************************/
@@ -310,12 +319,14 @@ void QWidget::destroy( bool destroyWindow, bool destroySubWindows )
 void QWidget::reparent( QWidget *parent, WFlags f, const QPoint &p,
 			bool showIt )
 {
+#ifndef QT_NO_CURSOR
     QCursor oldcurs;
     bool setcurs=testWState(WState_OwnCursor);
     if ( setcurs ) {
 	oldcurs = cursor();
 	unsetCursor();
     }
+#endif    
     WId old_winid = winid;
     if ( testWFlags(WType_Desktop) )
 	old_winid = 0;
@@ -370,11 +381,12 @@ void QWidget::reparent( QWidget *parent, WFlags f, const QPoint &p,
     if ( old_winid ) {
 	// XXX qt_XDestroyWindow( this, dpy, old_winid );
     }
-
+#ifndef QT_NO_CURSOR
     if ( setcurs ) {
 	setCursor(oldcurs);
     }
-
+#endif
+#ifndef QT_NO_ACCEL
     QObjectList	*accelerators = queryList( "QAccel" );
     QObjectListIt it( *accelerators );
     QObject *obj;
@@ -383,6 +395,7 @@ void QWidget::reparent( QWidget *parent, WFlags f, const QPoint &p,
 	((QAccel*)obj)->repairEventFilter();
     }
     delete accelerators;
+#endif // QT_NO_ACCEL
     if ( !parent ) {
 	QFocusData *fd = focusData( TRUE );
 	if ( fd->focusWidgets.findRef(this) < 0 )
@@ -415,8 +428,18 @@ QPoint QWidget::mapFromGlobal( const QPoint &pos ) const
     return QPoint( x, y );
 }
 
-void QWidget::setMicroFocusHint(int,int,int,int,bool)
+void QWidget::setMicroFocusHint( int x, int y, int width, int height, 
+				 bool text)
 {
+    //XXX not implemented
+#if 0    
+    if ( QRect( x, y, width, height ) != microFocusHint() )
+	extraData()->micro_focus_hint.setRect( x, y, width, height );
+
+    if ( text ) {
+	
+    }
+#endif    
 }
 
 
@@ -479,6 +502,7 @@ void QWidget::setBackgroundEmpty()
     allow_null_pixmaps--;
 }
 
+#ifndef QT_NO_CURSOR    
 
 void QWidget::setCursor( const QCursor &cursor )
 {
@@ -503,6 +527,7 @@ void QWidget::unsetCursor()
 	// XXX XDefineCursor( x11Display(), winId(), None );
     }
 }
+#endif //QT_NO_CURSOR
 
 void QWidget::setCaption( const QString &caption )
 {
@@ -558,8 +583,9 @@ void QWidget::grabMouse( const QCursor &cursor )
 	mouseGrb->releaseMouse();
 
     qwsDisplay()->grabMouse(this,TRUE);
+#ifndef QT_NO_CURSOR    
     qwsDisplay()->selectCursor(this, (int)cursor.handle());
-
+#endif
     mouseGrb = this;
 }
 

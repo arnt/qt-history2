@@ -30,7 +30,7 @@
 #include "qobject.h"
 #endif // QT_H
 
-
+#ifndef QT_ACCEL
 class QAccelPrivate;				// internal class
 
 
@@ -89,5 +89,5 @@ private:	// Disabled copy constructor and operator=
 #endif
 };
 
-
+#endif // QT_NO_ACCEL
 #endif // QACCEL_H

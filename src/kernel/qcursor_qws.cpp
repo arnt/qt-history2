@@ -19,6 +19,8 @@
 *****************************************************************************/
 
 #include "qcursor.h"
+
+#ifndef QT_NO_CURSOR
 #include "qbitmap.h"
 #include "qimage.h"
 #include "qapplication.h"
@@ -242,27 +244,6 @@ QPoint QCursor::hotSpot() const
     return QPoint( data->hx, data->hy );
 }
 
-extern int qt_last_x,qt_last_y;
-
-QPoint QCursor::pos()
-{
-    // This doesn't know about hotspots yet so we disable it
-    //qt_accel_update_cursor();
-    return QPoint( qt_last_x,qt_last_y );
-}
-
-void QCursor::setPos( int x, int y )
-{
-    // Need to check, since some X servers generate null mouse move
-    // events, causing looping in applications which call setPos() on
-    // every mouse move event.
-    //
-    if (pos() == QPoint(x,y))
-	return;
-
-    // XXX XWarpPointer( qt_xdisplay(), None, qt_xrootwin(), 0, 0, 0, 0, x, y );
-}
-
 void QCursor::update() const
 {
     if ( !initialized )
@@ -290,4 +271,29 @@ void QCursor::update() const
     }
 
     // XXX standard shapes?
+}
+
+#endif //QT_NO_CURSOR
+
+
+
+extern int qt_last_x,qt_last_y;
+
+QPoint QCursor::pos()
+{
+    // This doesn't know about hotspots yet so we disable it
+    //qt_accel_update_cursor();
+    return QPoint( qt_last_x,qt_last_y );
+}
+
+void QCursor::setPos( int x, int y )
+{
+    // Need to check, since some X servers generate null mouse move
+    // events, causing looping in applications which call setPos() on
+    // every mouse move event.
+    //
+    if (pos() == QPoint(x,y))
+	return;
+
+    // XXX XWarpPointer( qt_xdisplay(), None, qt_xrootwin(), 0, 0, 0, 0, x, y );
 }

@@ -24,6 +24,9 @@
 *****************************************************************************/
 
 #include "qaccel.h"
+
+#ifndef QT_ACCEL
+
 #include "qapplication.h"
 #include "qwidget.h"
 #include "qlist.h"
@@ -813,3 +816,4 @@ to help. Ask then for ISBN 1859121047. (This ISBN is correct, but is
 not listed in any database we have seen.)
 
 */
+#endif QT_NO_ACCEL

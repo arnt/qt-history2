@@ -105,15 +105,20 @@ class QDialogPrivate : public Qt
 public:
 
     QDialogPrivate()
-	: mainDef(0), orientation(Horizontal),extension(0),resizer(0) {
+	: mainDef(0), orientation(Horizontal),extension(0)
+#ifndef QT_NO_SIZEGRIP
+	,resizer(0) 
+#endif	
+	{
     }
 
     QPushButton* mainDef;
     Orientation orientation;
     QWidget* extension;
     QSize size, min, max;
-    
+#ifndef QT_NO_SIZEGRIP    
     QSizeGrip* resizer;
+#endif    
 };
 
 
@@ -681,7 +686,11 @@ QSize QDialog::minimumSizeHint() const
 
 bool QDialog::isSizeGripEnabled() const
 {
+#ifndef QT_NO_SIZEGRIP
     return (bool)d->resizer;
+#else
+    return FALSE;
+#endif    
 }
 
 /*!
@@ -692,6 +701,7 @@ bool QDialog::isSizeGripEnabled() const
 */
 void QDialog::setSizeGripEnabled(bool enabled)
 {
+#ifndef QT_NO_SIZEGRIP
     if ( !enabled != !d->resizer ) {
 	if ( enabled ) {
 	    d->resizer = new QSizeGrip( this, "QDialog::resizer" );
@@ -704,6 +714,7 @@ void QDialog::setSizeGripEnabled(bool enabled)
 	    d->resizer = 0;
 	}
     }
+#endif //QT_NO_SIZEGRIP
 }
 
 
@@ -712,6 +723,8 @@ void QDialog::setSizeGripEnabled(bool enabled)
  */
 void QDialog::resizeEvent( QResizeEvent * )
 {
+#ifndef QT_NO_SIZEGRIP
     if ( d->resizer )
 	d->resizer->move( rect().bottomRight() -d->resizer->rect().bottomRight() ); 
+#endif
 }

@@ -30,6 +30,7 @@
 #include "qwidget.h"
 #endif // QT_H
 
+#ifndef QT_NO_SIZEGRIP
 
 class Q_EXPORT QSizeGrip: public QWidget
 {
@@ -51,4 +52,5 @@ private:
     int d;
 };
 
+#endif //QT_NO_SIZEGRIP
 #endif

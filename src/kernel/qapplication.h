@@ -81,11 +81,11 @@ public:
     enum ColorSpec { NormalColor=0, CustomColor=1, ManyColor=2 };
     static int	     colorSpec();
     static void      setColorSpec( int );
-
+#ifndef QT_NO_CURSOR
     static QCursor  *overrideCursor();
     static void	     setOverrideCursor( const QCursor &, bool replace=FALSE );
     static void	     restoreOverrideCursor();
-
+#endif
     static bool	     hasGlobalMouseTracking();
     static void	     setGlobalMouseTracking( bool enable );
 
@@ -233,7 +233,9 @@ private:
     static int	     app_cspec;
     static QPalette *app_pal;
     static QFont    *app_font;
+#ifndef QT_NO_CURSOR
     static QCursor  *app_cursor;
+#endif
     static int	     app_tracking;
     static bool	     is_app_running;
     static bool	     is_app_closing;
@@ -293,11 +295,12 @@ inline QStyle& QApplication::style()
     return *app_style;
 }
 
+#ifndef QT_NO_CURSOR
 inline QCursor *QApplication::overrideCursor()
 {
     return app_cursor;
 }
-
+#endif
 inline bool QApplication::hasGlobalMouseTracking()
 {
     return app_tracking > 0;

@@ -226,12 +226,12 @@ public:
 
     PropagationMode	palettePropagation() const; // obsolete, remove 3.0
     virtual void	setPalettePropagation( PropagationMode ); // obsolete, remove 3.0
-
+#ifndef QT_NO_CURSOR
     const QCursor      &cursor() const;
     bool		ownCursor() const;
     virtual void	setCursor( const QCursor & );
     virtual void	unsetCursor();
-
+#endif
     QString		caption() const;
     const QPixmap      *icon() const;
     QString		iconText() const;
@@ -286,6 +286,9 @@ public:
 
     bool	 	isUpdatesEnabled() const;
 
+#if 0 //def _WS_QWS_    
+    void		repaintUnclipped( const QRegion &, bool erase = TRUE );
+#endif
 public slots:
     virtual void	setUpdatesEnabled( bool enable );
     void		update();
@@ -737,12 +740,12 @@ inline void QWidget::constPolish() const
         that->setWState(WState_Polished); // be on the safe side...
     }
 }
-
+#ifndef QT_NO_CURSOR
 inline bool QWidget::ownCursor() const
 {
     return testWState( WState_OwnCursor );
 }
-
+#endif
 inline bool QWidget::ownFont() const
 {
     return own_font;
@@ -806,7 +809,9 @@ struct QWExtra {
     Q_INT16  maxw, maxh;			// maximum size
     QPixmap *bg_pix;				// background pixmap
     QWidget *focus_proxy;
+#ifndef QT_NO_CURSOR
     QCursor *curs;
+#endif
     QTLWExtra *topextra;			// only useful for TLWs
 #if defined(_WS_WIN_)
     QOleDropTarget *dropTarget;			// drop target

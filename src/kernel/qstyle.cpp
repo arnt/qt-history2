@@ -22,8 +22,8 @@
 ** http://www.trolltech.com/qpl/ for QPL licensing information.
 **
 *****************************************************************************/
-
 #include "qstyle.h"
+#ifndef QT_NO_STYLE
 #include "qapplication.h"
 #include "qpainter.h"
 #include "qdrawutil.h" // for now
@@ -972,3 +972,4 @@ int QStyle::menuButtonIndicatorWidth( int h )
 
   \sa drawPopupMenuItem()
 */
+#endif // QT_NO_STYLE

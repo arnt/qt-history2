@@ -24,6 +24,9 @@
 *****************************************************************************/
 
 #include "qcursor.h"
+
+#ifndef QT_NO_CURSOR
+
 #include "qbitmap.h"
 #include "qimage.h"
 #include "qdatastream.h"
@@ -198,3 +201,5 @@ QCursor::QCursor( const QBitmap &bitmap, const QBitmap &mask,
 {
     setBitmap(bitmap,mask,hotX,hotY);
 }
+
+#endif // QT_NO_CURSOR

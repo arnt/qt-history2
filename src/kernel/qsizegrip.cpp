@@ -24,6 +24,9 @@
 *****************************************************************************/
 
 #include "qsizegrip.h"
+
+#ifndef QT_NO_SIZEGRIP
+
 #include "qpainter.h"
 #include "qapplication.h"
 
@@ -208,3 +211,5 @@ QSizePolicy QSizeGrip::sizePolicy() const
     //### removeme 3.0
     return QWidget::sizePolicy();
 }
+
+#endif //QT_NO_SIZEGRIP

@@ -937,7 +937,9 @@ void QWidget::createExtra()
 	extra->maxw = extra->maxh = QWIDGETSIZE_MAX;
 	extra->bg_pix = 0;
 	extra->focus_proxy = 0;
+#ifndef QT_NO_CURSOR
 	extra->curs = 0;
+#endif
 	extra->topextra = 0;
 	extra->bg_mode = PaletteBackground;
 	extra->style = 0;
@@ -958,7 +960,9 @@ void QWidget::deleteExtra()
 {
     if ( extra ) {				// if exists
 	delete extra->bg_pix;
+#ifndef QT_NO_CURSOR
 	delete extra->curs;
+#endif
 	deleteSysExtra();
 	if ( extra->topextra ) {
 	    deleteTLSysExtra();
@@ -2278,7 +2282,7 @@ void QWidget::fontChange( const QFont & )
   widget's cursor is returned.
   \sa setCursor(), unsetCursor();
 */
-
+#ifndef QT_NO_CURSOR
 const QCursor &QWidget::cursor() const
 {
     if ( testWState(WState_OwnCursor) )
@@ -2288,7 +2292,7 @@ const QCursor &QWidget::cursor() const
     else
 	return isTopLevel() ? arrowCursor : parentWidget()->cursor();
 }
-
+#endif
 
 /*!
   Returns the widget caption.  If no caption has been set (common for
@@ -4744,6 +4748,7 @@ void QWidget::updateGeometry()
 
 void QWidget::setStyle( QStyle *style )
 {
+#ifndef QT_NO_STYLE
     QStyle& old  = QWidget::style();
     createExtra();
     extra->style = style;
@@ -4753,6 +4758,7 @@ void QWidget::setStyle( QStyle *style )
 	QWidget::style().polish( this );
     }
     styleChange( old );
+#endif
 }
 
 /*!\overload
