@@ -465,8 +465,6 @@ static bool block_set_alignment = FALSE;
     \i Functions that deal with rich text formatting and cursor
     movement will not work or return anything valid.
     \i Lines are equivalent to paragraphs.
-    \i Inserting lines is not supported. It is only possible to append
-    lines.
     \endlist
 
     \section1 Using QTextEdit as an Editor
@@ -2977,8 +2975,6 @@ void QTextEdit::insert( const QString &text, uint insertionFlags )
 
 /*!
     Inserts \a text in the paragraph \a para at position \a index.
-
-    If the widget is in \c LogText mode this function will do nothing.
 */
 
 void QTextEdit::insertAt( const QString &text, int para, int index )
@@ -3004,14 +3000,13 @@ void QTextEdit::insertAt( const QString &text, int para, int index )
     Inserts \a text as a new paragraph at position \a para. If \a para
     is -1, the text is appended. Use append() if the append operation
     is performance critical.
-
-    If the widget is in \c LogText mode this function will do nothing.
 */
 
 void QTextEdit::insertParagraph( const QString &text, int para )
 {
 #ifdef QT_TEXTEDIT_OPTIMIZATION
     if ( d->optimMode )
+	optimInsert( text + "\n", para, 0 );
 	return;
 #endif
     for ( int i = 0; i < (int)doc->numSelections(); ++i )
@@ -6398,7 +6393,6 @@ void QTextEdit::optimInsert(const QString& text, int line, int index)
     // recalculate the pixel width of the longest line - slow!
     QFontMetrics fm( QScrollView::font() );
     int lWidth = 0;
-    int oldMax = d->od->maxLineWidth;
     d->od->maxLineWidth = 0;
     for (x = 0; x < d->od->numLines-1; x++) {
 	lWidth = fm.width(d->od->lines[x]);
