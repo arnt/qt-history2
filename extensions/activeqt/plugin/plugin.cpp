@@ -3,7 +3,7 @@
 **
 ** Implementation of the Qt Designer integration plugin
 **
-** Copyright (C) 2001-2002 Trolltech AS.  All rights reserved.
+** Copyright (C) 2001-2003 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the Active Qt integration.
 **
