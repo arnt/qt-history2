@@ -85,9 +85,13 @@ static int timer_id = 0;
 static int pending_timer_id = 0;
 static bool pending_clipboard_changed = FALSE;
 static bool pending_selection_changed = FALSE;
+
+// event capture mechanism for qt_xclb_wait_for_event
 static bool waiting_for_data = FALSE;
-static bool caught_selection_notify = FALSE;
-static XEvent selnot_event;
+static bool has_captured_event = FALSE;
+static Window capture_event_win = None;
+static int capture_event_type = -1;
+static XEvent captured_event;
 
 class QClipboardWatcher; // forward decl
 static QClipboardWatcher *selection_watcher = 0;
@@ -331,6 +335,24 @@ void QClipboard::clobber()
 }
 
 
+// event filter function... captures interesting events while
+// qt_xclb_wait_for_event is running the event loop
+static int qt_xclb_event_filter(XEvent *event)
+{
+    if (event->xany.type == capture_event_type &&
+	event->xany.window == capture_event_win) {
+#ifdef QCLIPBOARD_DEBUG_VERBOSE
+	qDebug( "qt_xclb_event_filter: caught event type %d", event->type );
+#endif
+
+	has_captured_event = TRUE;
+	captured_event = *event;
+	return 1;
+    }
+
+    return 0;
+}
+
 bool qt_xclb_wait_for_event( Display *dpy, Window win, int type, XEvent *event,
 			     int timeout )
 {
@@ -342,11 +364,19 @@ bool qt_xclb_wait_for_event( Display *dpy, Window win, int type, XEvent *event,
     QTime started = QTime::currentTime();
     QTime now = started;
 
-    caught_selection_notify = FALSE;
+    has_captured_event = FALSE;
+    capture_event_win = win;
+    capture_event_type = type;
+
+    // from qapplication_x11.cpp
+    typedef int (*QX11EventFilter) (XEvent*);
+    extern QX11EventFilter qt_set_x11_event_filter (QX11EventFilter filter);
+    QX11EventFilter old_event_filter = qt_set_x11_event_filter(qt_xclb_event_filter);
 
     do {
 	if ( XCheckTypedWindowEvent(dpy,win,type,event) ) {
 	    waiting_for_data = FALSE;
+	    qt_set_x11_event_filter(old_event_filter);
 	    return TRUE;
 	}
 
@@ -359,14 +389,16 @@ bool qt_xclb_wait_for_event( Display *dpy, Window win, int type, XEvent *event,
 					  QEventLoop::ExcludeSocketNotifiers |
 					  QEventLoop::WaitForMore | 0x08 );
 
-	if ( type == SelectionNotify && caught_selection_notify ) {
+	if ( has_captured_event ) {
 	    waiting_for_data = FALSE;
-	    *event = selnot_event;
+	    *event = captured_event;
+	    qt_set_x11_event_filter(old_event_filter);
 	    return TRUE;
 	}
     } while ( started.msecsTo(now) < timeout );
 
     waiting_for_data = FALSE;
+    qt_set_x11_event_filter(old_event_filter);
 
     return FALSE;
 }
@@ -377,7 +409,6 @@ static inline int maxSelectionIncr( Display *dpy )
     return XMaxRequestSize(dpy) > 65536 ?
 	4*65536 : XMaxRequestSize(dpy)*4 - 100;
 }
-
 
 // uglyhack: externed into qt_xdnd.cpp. qt is really not designed for
 // single-platform, multi-purpose blocks of code...
@@ -526,12 +557,6 @@ QByteArray qt_xclb_read_incremental_property( Display *dpy, Window win,
     int  length;
     int  offset = 0;
 
-    XWindowAttributes wa;
-    XGetWindowAttributes( dpy, win, &wa );
-    // Change the event mask for the window, it will be restored before
-    // this function ends
-    XSelectInput( dpy, win, PropertyChangeMask);
-
     if ( nbytes > 0 ) {
 	// Reserve buffer + zero-terminator (for text data)
 	// We want to complete the INCR transfer even if we cannot
@@ -548,7 +573,7 @@ QByteArray qt_xclb_read_incremental_property( Display *dpy, Window win,
 	     event.xproperty.state != PropertyNewValue )
 	    continue;
 	if ( qt_xclb_read_property(dpy, win, property, TRUE, &tmp_buf,
-					&length,0, 0, nullterm) ) {
+				   &length,0, 0, nullterm) ) {
 	    if ( length == 0 ) {		// no more data, we're done
 		buf.at( offset ) = '\0';
 		buf.resize( offset+1 );
@@ -568,11 +593,85 @@ QByteArray qt_xclb_read_incremental_property( Display *dpy, Window win,
 	    break;
 	}
     }
-    // Restore the event mask
-    XSelectInput( dpy, win, wa.your_event_mask & ~PropertyChangeMask );
     return buf;
 }
 
+static void qt_xclb_send_incremental_property(Display *dpy, const Window window,
+					      const Atom property, const Atom xtarget,
+					      const int xformat, const QByteArray &data,
+					      const unsigned int increment)
+{
+#ifdef QCLIPBOARD_DEBUG
+    qDebug("QClipboard: starting INCR transfer, %d bytes", data.size());
+#endif
+
+    unsigned int offset = 0;
+    unsigned int bytes_left = data.size();
+    bool proto_error = FALSE;
+    while (bytes_left > 0) {
+	XEvent event;
+	if (! qt_xclb_wait_for_event(dpy, window, PropertyNotify,
+				     &event, 5000)) {
+#ifdef QCLIPBOARD_DEBUG
+	    qDebug("QClipboard: INCR: timeout waiting for PropertyDelete");
+#endif
+	    proto_error = TRUE;
+	    break;
+	}
+
+	if (event.xproperty.state != PropertyDelete ||
+	    event.xproperty.atom != property)
+	    continue;
+
+	unsigned int xfer = QMIN(increment, bytes_left);
+
+#ifdef QCLIPBOARD_DEBUG_VERBOSE
+	qDebug("QClipboard: sending %d bytes", xfer);
+#endif
+
+	XChangeProperty(dpy, window, property, xtarget, xformat,
+			PropModeReplace, (uchar *) data.data() + offset, xfer);
+	XFlush(dpy);
+
+	offset += xfer;
+	bytes_left -= xfer;
+
+#ifdef QCLIPBOARD_DEBUG_VERBOSE
+	qDebug("QClipboard: INCR: %d bytes remaining", bytes_left);
+#endif
+    }
+
+    if (! proto_error) {
+#ifdef QCLIPBOARD_DEBUG
+	qDebug("QClipboard: finished sending INCR data");
+#endif
+
+	bool finished = FALSE;
+	while (! finished) {
+	    XEvent event;
+	    if (! qt_xclb_wait_for_event(dpy, window, PropertyNotify, &event, 5000)) {
+#ifdef QCLIPBOARD_DEBUG
+		qDebug("QClipboard: INCR: timeout waiting for PropertyDelete");
+#endif
+		break;
+	    }
+
+	    if (event.xproperty.state != PropertyDelete ||
+		event.xproperty.atom != property)
+		continue;
+
+#ifdef QCLIPBOARD_DEBUG_VERBOSE
+	    qDebug("QClipboard: INCR: sending 0 bytes (final XChangeProperty)");
+#endif
+
+	    XChangeProperty(dpy, window, property, xtarget, xformat,
+			    PropModeReplace, (uchar *) data.data(), 0);
+	    finished = TRUE;
+	}
+    }
+
+    XSelectInput(dpy, window, NoEventMask);
+}
 
 /*! \internal
     Internal cleanup for Windows.
@@ -653,7 +752,7 @@ bool QClipboard::event( QEvent *e )
 	if (xevent->xselectionclear.selection == XA_PRIMARY) {
 
 #if defined(QCLIPBOARD_DEBUG)
-	    qDebug("qclipboard_x11.cpp: new selection owner 0x%lx",
+	    qDebug("QClipboard: new selection owner 0x%lx",
 		   XGetSelectionOwner(dpy, XA_PRIMARY));
 #endif
 	    if ( ! waiting_for_data ) {
@@ -694,10 +793,6 @@ bool QClipboard::event( QEvent *e )
 	  Note: *emacs seems to like to send 2 SelectionNotify events
 	  for every ConvertSelection request.  fun fun...
 	*/
-	if ( waiting_for_data ) {
-	    selnot_event = *xevent;
-	    caught_selection_notify = TRUE;
-	}
 	break;
 
     case SelectionRequest:
@@ -722,9 +817,9 @@ bool QClipboard::event( QEvent *e )
 		   "                    to 0x%lx (%s) 0x%lx (%s)",
 		   req->requestor,
 		   req->selection,
-		   XGetAtomName(req->display, req->selection),
+		   qt_xdnd_atom_to_str(req->selection),
 		   req->target,
-		   XGetAtomName(req->display, req->target));
+		   qt_xdnd_atom_to_str(req->target));
 #endif
 
 	    QClipboardData *d;
@@ -773,6 +868,7 @@ bool QClipboard::event( QEvent *e )
 	    while ( imulti < nmulti ) {
 		Window target;
 		Atom property;
+		bool send_selection_notify = TRUE;
 
 		evt.xselection.property = None;
 
@@ -829,7 +925,7 @@ bool QClipboard::event( QEvent *e )
 		    for (int index = 0; index < n; index++) {
 			qDebug("qclipboard_x11.cpp: atom %d: 0x%lx (%s)",
 			       index, atarget[index],
-			       XGetAtomName(dpy, atarget[index]));
+			       qt_xdnd_atom_to_str(atarget[index]));
 		    }
 
 		    qDebug("qclipboard_x11.cpp:%d: after standard, n(%d) atoms(%d)",
@@ -844,16 +940,23 @@ bool QClipboard::event( QEvent *e )
 		    if ( multi )
 			delete[] multi;
 		} else {
-		    bool already_done = FALSE;
+		    bool already_formatted = FALSE;
+		    bool already_sent = FALSE;
+		    Atom xtarget = 0;
+		    int xformat = 0;
 		    if ( target == XA_STRING ||
 			 ( target == xa_text &&
 			   QTextCodec::codecForLocale()->mibEnum() == 4 ) ) {
 			// the ICCCM states that STRING is latin1 plus newline and tab
 			// see section 2.6.2
 			fmt = "text/plain;charset=ISO-8859-1";
+			xtarget = XA_STRING;
+			xformat = 8;
 		    } else if ( target == xa_utf8_string ) {
 			// proposed UTF8_STRING conversion type
 			fmt = "text/plain;charset=UTF-8";
+			xtarget = xa_utf8_string;
+			xformat = 8;
 		    } else if ( target == xa_text || target == xa_compound_text ) {
 			// the ICCCM states that TEXT and COMPOUND_TEXT are in the
 			// encoding of choice, so we choose the encoding of the locale
@@ -872,11 +975,23 @@ bool QClipboard::event( QEvent *e )
 			if ( list[0] != NULL &&
 			     XmbTextListToTextProperty( dpy, list, 1, style,
 							&textprop ) == Success ) {
-			    XSetTextProperty( dpy, req->requestor, &textprop, property );
+
+			    xtarget = textprop.encoding;
+			    xformat = textprop.format;
+
+			    int sz;
+			    switch (xformat) {
+			    default:
+			    case 8:  sz = sizeof( char); break;
+			    case 16: sz = sizeof(short); break;
+			    case 32: sz = sizeof( long); break;
+			    }
+			    data.duplicate((const char *)textprop.value,
+					   textprop.nitems * sz);
+
 			    XFree( textprop.value );
-			    evt.xselection.property = property;
 			}
-			already_done = TRUE;
+			already_formatted = TRUE;
 		    } else if ( target == XA_PIXMAP ) {
 			fmt = "image/ppm";
 			data = d->source()->encodedData(fmt);
@@ -890,7 +1005,8 @@ bool QClipboard::event( QEvent *e )
 					  sizeof(Pixmap));
 			evt.xselection.property = property;
 			d->addTransferredPixmap(pm);
-			already_done = TRUE;
+			already_formatted = TRUE;
+			already_sent = TRUE;
 		    } else if ( target == XA_BITMAP ) {
 			fmt = "image/pbm";
 			data = d->source()->encodedData(fmt);
@@ -918,34 +1034,75 @@ bool QClipboard::event( QEvent *e )
 			    evt.xselection.property = property;
 			    d->addTransferredPixmap(pm);
 			}
-			already_done = TRUE;
+			already_formatted = TRUE;
+			already_sent = TRUE;
 		    } else {
 			fmt = qt_xdnd_atom_to_str(target);
+			xtarget = target;
+			xformat = 8;
 			if ( fmt && !d->source()->provides(fmt) ) {
 			    fmt = 0; // Not a MIME type we can produce
 			}
 		    }
 		    if ( fmt ) {
-			if ( !already_done ) {
+			if (! already_formatted)
 			    data = d->source()->encodedData(fmt);
-			    XChangeProperty ( dpy, req->requestor, property,
-					      target, 8,
-					      PropModeReplace,
-					      (uchar *)data.data(),
-					      data.size() );
-			    evt.xselection.property = property;
+
+			if (! already_sent) {
+			    int sz;
+			    switch (xformat) {
+			    default:
+			    case 8:  sz = sizeof( char); break;
+			    case 16: sz = sizeof(short); break;
+			    case 32: sz = sizeof( long); break;
+			    }
+
+#if defined(QCLIPBOARD_DEBUG)
+			    qDebug( "qclipboard_x11.cpp: property type %lx '%s' format %d",
+				    xtarget, qt_xdnd_atom_to_str(xtarget), xformat);
+#endif
+
+			    const unsigned int increment =
+				(XMaxRequestSize(dpy) >= 65536 ?
+				 65536 : XMaxRequestSize(dpy));
+			    if ( data.size() > increment ) {
+				long bytes = data.size();
+				XChangeProperty(dpy, req->requestor, property,
+						qt_x_incr, 32, PropModeReplace,
+						(uchar *) &bytes, 1);
+				evt.xselection.property = property;
+
+				XSelectInput(dpy, req->requestor, PropertyChangeMask);
+				XSendEvent(dpy, req->requestor, False, 0, &evt);
+				XFlush(dpy);
+
+				qt_xclb_send_incremental_property(dpy, req->requestor,
+								  property, xtarget,
+								  xformat, data,
+								  increment);
+				send_selection_notify = FALSE;
+			    } else {
+				XChangeProperty ( dpy, req->requestor, property,
+						  xtarget, xformat,
+						  PropModeReplace,
+						  (uchar *)data.data(),
+						  data.size() / sz);
+				evt.xselection.property = property;
+			    }
 			}
 		    }
 		}
 
+		if (send_selection_notify) {
 #if defined(QCLIPBOARD_DEBUG)
-		qDebug("qclipboard_x11.cpp: SelectionNotify to 0x%lx\n"
-		       "                    property 0x%lx (%s)",
-		       req->requestor, evt.xselection.property,
-		       XGetAtomName(dpy, evt.xselection.property));
+		    qDebug("qclipboard_x11.cpp: SelectionNotify to 0x%lx\n"
+			   "                    property 0x%lx (%s)",
+			   req->requestor, evt.xselection.property,
+			   qt_xdnd_atom_to_str(evt.xselection.property));
 #endif
 
-		XSendEvent( dpy, req->requestor, False, 0, &evt );
+		    XSendEvent( dpy, req->requestor, False, 0, &evt );
+		}
 		if ( !nmulti )
 		    break;
 	    }
@@ -1144,6 +1301,8 @@ QByteArray QClipboardWatcher::getDataInFormat(Atom fmtatom) const
 	    qt_xdnd_atom_to_str( fmtatom ) );
 #endif // QCLIPBOARD_DEBUG
 
+    XSelectInput(dpy, win, NoEventMask); // don't listen for any events
+
     XConvertSelection( dpy, atom,
 		       fmtatom, qt_selection_property, win, qt_x_time );
     XFlush( dpy );
@@ -1167,6 +1326,8 @@ QByteArray QClipboardWatcher::getDataInFormat(Atom fmtatom) const
 
     Atom   type;
 
+    XSelectInput(dpy, win, PropertyChangeMask);
+
     if ( qt_xclb_read_property(dpy,win,qt_selection_property,TRUE,
 			       &buf,0,&type,0,FALSE) ) {
 	if ( type == qt_x_incr ) {
@@ -1176,6 +1337,8 @@ QByteArray QClipboardWatcher::getDataInFormat(Atom fmtatom) const
 						     nbytes, FALSE );
 	}
     }
+
+    XSelectInput(dpy, win, NoEventMask);
 
 #ifdef QCLIPBOARD_DEBUG
     qDebug( "QClipboardWatcher::getDataInFormat: %d bytes received", buf.size() );
@@ -1266,7 +1429,7 @@ void QClipboard::setData( QMimeSource* src, Mode mode )
     if ( XGetSelectionOwner(dpy, atom) != win ) {
 #ifdef QT_CHECK_STATE
 	qWarning( "QClipboard::setData: Cannot set X11 selection owner for %s",
-		  XGetAtomName(dpy, atom));
+		  qt_xdnd_atom_to_str(atom));
 #endif // QT_CHECK_STATE
 	return;
     }
