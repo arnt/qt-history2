@@ -11,104 +11,11 @@
 #include "editwidget.h"
 
 // const char *family = "Arial Unicode Ms"; // generic
-// const char *family = "Mangal"; // Devanagari
+const char *family = "Mangal"; // Devanagari
 // const char *family = "Diwani Letter"; // arabic
 // const char *family = "Serto Jerusalem"; // syriac
 // const char *family = "Akaash"; // Bengali
-const char *family = "Latha"; // Tamil
-
-class MyWidget : public QWidget
-{
-public:
-    MyWidget( QWidget *parent = 0,  const char *name = 0);
-
-    QString string;
-protected:
-    void paintEvent( QPaintEvent *e);
-    void mouseMoveEvent( QMouseEvent *e );
-    void mousePressEvent( QMouseEvent *e );
-
-    int getCursorPosition( int x );
-    int cursor;
-};
-
-
-MyWidget::MyWidget( QWidget *parent, const char *name )
-    : QWidget( parent, name )
-{
-    setMouseTracking( TRUE );
-    cursor = 0;
-}
-
-
-void MyWidget::paintEvent( QPaintEvent * )
-{
-
-    QPainter p( this );
-    QFont f(family);
-    f.setPointSize( 48 );
-    p.setFont( f );
-    p.drawText( 10, 50, string );
-    p.drawText( 10, 100, string, 0, 10 );
-    p.drawText( 10, 150, string, 5, 10 );
-}
-
-void MyWidget::mouseMoveEvent( QMouseEvent *e )
-{
-//     getCursorPosition( e->x() - 10 );
-}
-
-void MyWidget::mousePressEvent( QMouseEvent *e )
-{
-    cursor = getCursorPosition( e->x() - 10 ) + 10;
-    update();
-}
-
-int MyWidget::getCursorPosition( int _x )
-{
-    QFont f;
-    f.setFamily( family );
-    f.setPointSize( 48 );
-    const TextLayout *layout = TextLayout::instance();
-    ScriptItemArray items;
-    layout->itemize( items, string );
-
-    unsigned char levels[256];
-    int visualOrder[256];
-    int i;
-    int cp = 0;
-    int xcp = 0;
-
-    for ( i = 0; i < items.size(); i++ )
-	levels[i] = items[i].analysis.bidiLevel;
-    layout->bidiReorder( items.size(), (unsigned char *)levels, (int *)visualOrder );
-
-    int x = 0;
-
-    int current;
-//      qDebug("QPainter::drawText: num items=%d",  items.size() );
-    for ( int i = 0; i < items.size(); i++ ) {
-	current = visualOrder[i];
-	ShapedItem shaped;
-	layout->shape( shaped, f, string, items, current );
-
-        cp = layout->xToCursor( shaped, _x );
-
-	xcp = layout->cursorToX( shaped, cp, TextLayout::Leading );
-	int xoff = 0;
-	const Offset *advances = shaped.advances();
-	int i = shaped.count();
-	while ( i-- ) {
-	    xoff += advances->x;
-	    ++advances;
-	}
-	x += xoff;
-	if ( _x < x )
-	    break;
-    }
-    qDebug("cursor at position %d in item %d", items[current].position+cp, current );
-    return xcp;
-}
+// const char *family = "Latha"; // Tamil
 
 
 //const char *s = "some string";
@@ -132,7 +39,7 @@ int MyWidget::getCursorPosition( int _x )
 // const char *s = "ܠܡܢܐܠܐܡܡܠܠܝܢܣܘܪܝܝܐ";
 
 // Devanagari
-// const char *s = "रूस के राष्ट्रपति व्लादिमीर पुतिन ने बीजिंग पहुँचकर चीन के राष्ट्रपति जियांग ज़ेमिन से बातचीत की. बातचीत के बाद संयुक्त घोषणा में रूस और चीन ने उत्तर कोरिया, इराक़ और द्विपक्षीय मामलों पर अपना पक्ष रखा.";
+const char *s = "रूस के राष्ट्रपति व्लादिमीर पुतिन ने बीजिंग पहुँचकर चीन के राष्ट्रपति जियांग ज़ेमिन से बातचीत की. बातचीत के बाद संयुक्त घोषणा में रूस और चीन ने उत्तर कोरिया, इराक़ और द्विपक्षीय मामलों पर अपना पक्ष रखा.";
 
 
 // Bengali
@@ -144,16 +51,42 @@ int MyWidget::getCursorPosition( int _x )
 // "Arabic: أوروبا, برمجيات الحاسوب "
 // "Hebrew: תוכנה והאינטרנט ";
 
-const char *s = "";
+// const char *s = "";
 
 int main( int argc, char **argv )
 {
     QApplication a(argc, argv);
 
+    QFontDatabase fdb;
+
 #if 0
     // QFontDatabase test
     QFontDatabase fdb;
 
+    QString family = "Arial";
+    QString foundry;
+    int weight = 50;
+    bool italic = FALSE;
+    bool oblique = FALSE;
+    int pixelSize = 11;
+    bool reg;
+    bool fixed;
+    QCString encoding;
+
+    if ( QFontDatabase::findFont( QFont::Unicode, QFont::PreferDefault,
+				  family, foundry, weight, italic, oblique, pixelSize,
+				  fixed, reg, encoding ) ) {
+	qDebug( "found a font:" );
+	qDebug( "family: %s\nfoundry: %s\nweight %d\nitalic %d\noblique %d\n",
+		family.latin1(), foundry.latin1(), weight, italic, oblique );
+	qDebug( "pixelSize: %d\nregular: %d\nencoding: %s",
+		pixelSize, reg, encoding.data() );
+    }
+
+    return 0;
+#endif
+
+#if 0
     QStringList list1, list2;
     QStringList::const_iterator it1, end1, it2, end2;
 
@@ -184,7 +117,7 @@ int main( int argc, char **argv )
 #endif
 
     QFont f( family );
-    f.setPointSize( 38 );
+    f.setPointSize( 18 );
     a.setFont( f );
 
 #if 1

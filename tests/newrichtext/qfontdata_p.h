@@ -169,31 +169,6 @@ public:
     static bool fillFontDef(XFontStruct *, QFontDef *, int);
     static bool fillFontDef(const QCString &, QFontDef *, int);
 
-    static inline bool isZero(char *x)
-    {
-	return (x[0] == '0' && x[1] == 0);
-    }
-
-    static inline bool isScalable( char **tokens )
-    {
-	return (isZero(tokens[PixelSize]) &&
-		isZero(tokens[PointSize]) &&
-		isZero(tokens[AverageWidth]));
-    }
-
-    static inline bool isSmoothlyScalable( char **tokens )
-    {
-	return (isZero(tokens[ResolutionX]) && isZero(tokens[ResolutionY]));
-    }
-
-    static inline bool isFixedPitch( char **tokens )
-    {
-	return (tokens[Spacing][0] == 'm' ||
-		tokens[Spacing][0] == 'c' ||
-		tokens[Spacing][0] == 'M' ||
-		tokens[Spacing][0] == 'C');
-    }
-
     // XLFD fields
     enum FontFieldNames {
 	Foundry,
@@ -213,19 +188,8 @@ public:
 	NFontFields
     };
 
-#ifndef QT_NO_XFTFREETYPE
-    XftPattern *findXftFont(const QChar &, bool *, double *scale) const;
-    XftPattern *bestXftPattern(const QString &, const QString &, const QChar &, double *scale) const;
-#endif // QT_NO_XFTFREETYPE
-    QCString findFont(QFont::Script, bool *, double *) const;
-    QCString bestFamilyMember(QFont::Script, const QString &, const QString &,
-			      const QString &, int *, double *) const;
-    QCString bestMatch(const char *, int *, QFont::Script, double *) const;
-    int fontMatchScore(const char *, QCString &, float *, int *, bool *,
-		       bool *, QFont::Script, double *) const;
     void initFontInfo(QFont::Script, double scale);
     void load(QFont::Script = QFont::NoScript, bool = TRUE);
-    bool loadUnicode(QFont::Script, const QChar &);
     void computeLineWidth();
 
     QFontX11Data x11data;

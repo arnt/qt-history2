@@ -507,6 +507,32 @@ static inline void capitalize ( char *s )
     }
 }
 
+static inline bool isZero(char *x)
+{
+    return (x[0] == '0' && x[1] == 0);
+}
+
+static inline bool isScalable( char **tokens )
+{
+    return (isZero(tokens[QFontPrivate::PixelSize]) &&
+	    isZero(tokens[QFontPrivate::PointSize]) &&
+	    isZero(tokens[QFontPrivate::AverageWidth]));
+}
+
+static inline bool isSmoothlyScalable( char **tokens )
+{
+    return (isZero(tokens[QFontPrivate::ResolutionX]) &&
+	    isZero(tokens[QFontPrivate::ResolutionY]));
+}
+
+static inline bool isFixedPitch( char **tokens )
+{
+    return (tokens[QFontPrivate::Spacing][0] == 'm' ||
+	    tokens[QFontPrivate::Spacing][0] == 'c' ||
+	    tokens[QFontPrivate::Spacing][0] == 'M' ||
+	    tokens[QFontPrivate::Spacing][0] == 'C');
+}
+
 extern bool qt_has_xft; // defined in qfont_x11.cpp
 
 
@@ -545,14 +571,14 @@ static void loadXlfdEncoding( int encoding_id )
 
 	bool smooth_scalable = FALSE;
 	bool bitmap_scalable = FALSE;
-	if ( QFontPrivate::isScalable(tokens) ) {
-	    if ( QFontPrivate::isSmoothlyScalable( tokens ) )
+	if ( isScalable(tokens) ) {
+	    if ( isSmoothlyScalable( tokens ) )
 		smooth_scalable = TRUE;
 	    else
 		bitmap_scalable = TRUE;
 	}
 	int pixelSize = atoi( tokens[QFontPrivate::PixelSize] );
-	bool fixedPitch = QFontPrivate::isFixedPitch( tokens );
+	bool fixedPitch = isFixedPitch( tokens );
 
 	for ( int script = 0; script < QFont::NScripts + 1; script++ ) {
 	    if ( !scripts_for_xlfd_encoding[encoding_id][script] )
@@ -631,7 +657,7 @@ static void loadXft()
 	QtFontStyle *style = foundry->style( styleKey,  TRUE );
 
 	style->smoothScalable = TRUE;
-	family->fixedPitch = ( spacing_value < XFT_MONO );
+	family->fixedPitch = ( spacing_value >= XFT_MONO );
 
 	QtFontSize *size = style->pixelSize( SMOOTH_SCALABLE, TRUE );
 	size->encodingID( -1, TRUE );
@@ -721,7 +747,7 @@ void QFontDatabase::createDatabase()
 bool QFontDatabase::findFont( int script, int styleStrategy,
 			      QString &family, QString &foundry,
 			      int &weight, bool &italic, bool &oblique, int &pixelSize,
-			      bool &xlfd_uses_regular, QCString &encoding )
+			      bool &fixed, bool &xlfd_uses_regular, QCString &encoding )
 {
     QtFontScript &scr = db->scripts[script];
     QtFontFamily *fam = 0;
@@ -730,7 +756,6 @@ bool QFontDatabase::findFont( int script, int styleStrategy,
     else
 	fam = scr.family( family );
     if ( !fam ) return FALSE;
-    family = fam->name;
 
     QtFontFoundry *fnd = 0;
     if ( !foundry.isEmpty() ) {
@@ -741,7 +766,6 @@ bool QFontDatabase::findFont( int script, int styleStrategy,
     // ### the best match in all foundries
     if ( !fnd )
 	fnd = fam->foundries[0];
-    foundry = fnd->name;
 
     QtFontStyle::Key styleKey;
     styleKey.italic = italic;
@@ -757,11 +781,6 @@ bool QFontDatabase::findFont( int script, int styleStrategy,
 	sty = fnd->styles[0];
     }
 
-    italic  = sty->key.italic;
-    oblique = sty->key.oblique;
-    weight  = sty->key.weight;
-
-    xlfd_uses_regular = sty->xlfd_uses_regular;
 
     int px = pixelSize;
     if ( sty->smoothScalable )
@@ -782,8 +801,17 @@ bool QFontDatabase::findFont( int script, int styleStrategy,
 	}
     }
 
-    pixelSize = size->pixelSize;
-
+    // set all the out values
+    family = fam->name;
+    foundry = fnd->name;
+    weight  = sty->key.weight;
+    italic  = sty->key.italic;
+    oblique = sty->key.oblique;
+    if ( !sty->smoothScalable )
+	pixelSize = size->pixelSize;
+    fixed = fam->fixedPitch;
+    xlfd_uses_regular = sty->xlfd_uses_regular;
     encoding = xlfd_for_id( size->encodings[0] );
+
     return TRUE;
 }
