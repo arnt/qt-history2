@@ -388,6 +388,12 @@ void QGridLayoutData::setSize( int r, int c )
 	    cStretch[i] = 0;
 	}
     }
+
+    if ( hfwData && (int)hfwData->size() < r ) {
+	delete hfwData;
+	hfwData = 0;
+	hfw_width = -1;
+    }
     rr = r;
     cc = c;
 }
