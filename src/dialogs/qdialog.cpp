@@ -849,6 +849,8 @@ QWidget* QDialog::extension() const
 
   If the dialog is not visible, or has no extension, nothing happens.
 
+  A dialog with a visible extension is not resizeable.
+
   \sa show(), setExtension(), setOrientation()
  */
 void QDialog::showExtension( bool showIt )
