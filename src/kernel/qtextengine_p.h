@@ -21,9 +21,9 @@ class QPainter;
 // * negative yoff means the following stuff is drawn higher up.
 // the characters bounding rect is given by QRect( x,y,width,height), it's advance by
 // xoo and yoff
-struct QGlyphMetrics
+struct glyph_metrics_t
 {
-    QGlyphMetrics() {
+    inline glyph_metrics_t() {
 	x = 100000;
 	y = 100000;
 	width = 0;
@@ -31,7 +31,7 @@ struct QGlyphMetrics
 	xoff = 0;
 	yoff = 0;
     }
-    QGlyphMetrics( int _x, int _y, int _width, int _height, int _xoff, int _yoff ) {
+    inline glyph_metrics_t( int _x, int _y, int _width, int _height, int _xoff, int _yoff ) {
 	x = _x;
 	y = _y;
 	width = _width;
@@ -47,7 +47,7 @@ struct QGlyphMetrics
     int yoff;
 };
 
-#if defined( Q_WS_X11 )
+#if defined( Q_WS_X11 ) || defined ( Q_WS_QWS )
 typedef unsigned short glyph_t;
 
 struct offset_t {
@@ -202,7 +202,7 @@ class QFontEngine;
 
 struct QScriptItem
 {
-    QScriptItem() : position( 0 ), baselineAdjustment( 0 ), ascent( 0 ), descent( 0 ), 
+    QScriptItem() : position( 0 ), baselineAdjustment( 0 ), ascent( 0 ), descent( 0 ),
 		    x( 0 ), y( 0 ), width( 0 ), shaped( 0 ), fontEngine( 0 ) { }
     int position;
     QScriptAnalysis analysis;
@@ -280,7 +280,7 @@ public:
     };
 
     int width( int charFrom, int numChars ) const;
-    QGlyphMetrics boundingBox( int from,  int len ) const;
+    glyph_metrics_t boundingBox( int from,  int len ) const;
 
     QScriptItemArray items;
     QString string;

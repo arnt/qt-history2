@@ -863,7 +863,7 @@ QRect QFontMetrics::boundingRect( QChar ch ) const
     int nglyphs = 9;
     advance_t advances[10];
     d->fin->stringToCMap( &ch, 1, glyphs, advances, &nglyphs );
-    QGlyphMetrics gi = d->fin->boundingBox( glyphs[0] );
+    glyph_metrics_t gi = d->fin->boundingBox( glyphs[0] );
     return QRect( gi.x, gi.y, gi.width, gi.height );
 }
 
@@ -877,7 +877,7 @@ QRect QFontMetrics::boundingRect( const QString &str, int len ) const
 
     QTextEngine layout( str, d );
     layout.itemize( FALSE );
-    QGlyphMetrics gm = layout.boundingBox( 0, len );
+    glyph_metrics_t gm = layout.boundingBox( 0, len );
     return QRect( gm.x, gm.y, gm.width, gm.height );
 }
 

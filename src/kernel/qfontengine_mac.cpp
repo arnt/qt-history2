@@ -90,21 +90,21 @@ QFontEngineMac::draw(QPainter *p, int x, int y, const glyph_t *glyphs,
     } 
     }
 
-QGlyphMetrics 
+glyph_metrics_t 
 QFontEngineMac::boundingBox(const glyph_t *, const advance_t *advances, const offset_t *, int numGlyphs)
 {
     int w = 0;
     const advance_t *end = advances + numGlyphs;
     while(end > advances)
 	w += *(--end);
-    return QGlyphMetrics(0, -(ascent()), w, ascent()+descent(), w, 0);
+    return glyph_metrics_t(0, -(ascent()), w, ascent()+descent(), w, 0);
 }
 
-QGlyphMetrics 
+glyph_metrics_t 
 QFontEngineMac::boundingBox(glyph_t glyph)
 {
     int w = doTextTask((QChar*)&glyph, 0, 1, 1, WIDTH);
-    return QGlyphMetrics(0, -(ascent()), w, ascent()+descent(), w, 0 );
+    return glyph_metrics_t(0, -(ascent()), w, ascent()+descent(), w, 0 );
 }
 
 bool 

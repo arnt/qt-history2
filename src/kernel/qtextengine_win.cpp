@@ -680,9 +680,9 @@ int QTextEngine::width( int from, int len ) const
     return w;
 }
 
-QGlyphMetrics QTextEngine::boundingBox( int from,  int len ) const
+glyph_metrics_t QTextEngine::boundingBox( int from,  int len ) const
 {
-    QGlyphMetrics gm;
+    glyph_metrics_t gm;
 
     for ( int i = 0; i < items.size(); i++ ) {
 	QScriptItem &item = items[i];
@@ -711,7 +711,7 @@ QGlyphMetrics QTextEngine::boundingBox( int from,  int len ) const
 		glyphEnd = (charEnd == ilen) ? shaped->num_glyphs : shaped->logClusters[charEnd];
 		if ( glyphStart <= glyphEnd  ) {
 		    QFontEngine *fe = item.fontEngine;
-		    QGlyphMetrics m = fe->boundingBox( shaped->glyphs+glyphStart, shaped->advances+glyphStart,
+		    glyph_metrics_t m = fe->boundingBox( shaped->glyphs+glyphStart, shaped->advances+glyphStart,
 						       shaped->offsets+glyphStart, glyphEnd-glyphStart );
 		    gm.x = QMIN( gm.x, m.x + gm.xoff );
 		    gm.y = QMIN( gm.y, m.x + gm.yoff );

@@ -179,8 +179,9 @@ public:
 #endif //QT_NO_STRINGLIST
     static void initialize();
     static void cleanup();
+#ifndef Q_WS_QWS
     static void cacheStatistics();
-
+#endif
 
 #if defined(Q_WS_QWS)
     void qwsRenderToDisk(bool all=TRUE);

@@ -44,7 +44,7 @@
 #endif // QT_H
 
 #ifdef Q_WS_QWS
-class QFontStruct;
+class QFontEngine;
 #endif
 
 class QTextCodec;
@@ -101,7 +101,7 @@ private:
     void   *textMetric() const;
     HDC	    hdc() const;
 #elif defined(Q_WS_QWS)
-    QFontStruct *internal();
+    QFontEngine *internal() const;
 #endif
 
     friend class QWidget;

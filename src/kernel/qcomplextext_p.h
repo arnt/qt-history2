@@ -104,14 +104,6 @@ struct Q_EXPORT QTextRun {
 
 class Q_EXPORT QComplexText {
 public:
-    static QString shapedString( const QString &str, int from = 0, int len = -1, QPainter::TextDirection dir = QPainter::Auto, const QFontMetrics *fm = 0);
-    static QChar shapedCharacter(const QString &str, int pos, const QFontMetrics *fm = 0);
-
-#if !defined( Q_WS_X11 ) && !defined( Q_WS_WIN )
-    // positions non spacing marks relative to the base character at position pos.
-    static QPointArray positionMarks( QFontPrivate *f, const QString &str, int pos, QRect *boundingRect = 0 );
-#endif
-
     static QPtrList<QTextRun> *bidiReorderLine( QBidiControl *control, const QString &str, int start, int len,
 						QChar::Direction basicDir = QChar::DirON );
     static QString bidiReorderString( const QString &str, QChar::Direction basicDir = QChar::DirON );

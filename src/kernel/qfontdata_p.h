@@ -102,15 +102,15 @@ struct QFontDef {
 
 class QTextCodec;
 
-#if defined(Q_WS_X11) || defined (Q_WS_WIN) || defined (Q_WS_MAC)
 
-struct QGlyphMetrics;
+struct glyph_metrics_t;
 class QChar;
 typedef unsigned short glyph_t;
 struct offset_t;
 typedef int advance_t;
 class QOpenType;
 
+#if defined(Q_WS_X11) || defined (Q_WS_WIN) || defined (Q_WS_MAC)
 class QFontEngine : public QShared
 {
 public:
@@ -148,9 +148,9 @@ public:
     virtual void draw( QPainter *p, int x, int y, const glyph_t *glyphs,
 		       const advance_t *advances, const offset_t *offsets, int numGlyphs, bool reverse ) = 0;
 
-    virtual QGlyphMetrics boundingBox( const glyph_t *glyphs,
+    virtual glyph_metrics_t boundingBox( const glyph_t *glyphs,
 				    const advance_t *advances, const offset_t *offsets, int numGlyphs ) = 0;
-    virtual QGlyphMetrics boundingBox( glyph_t glyph ) = 0;
+    virtual glyph_metrics_t boundingBox( glyph_t glyph ) = 0;
 
     virtual int ascent() const = 0;
     virtual int descent() const = 0;
@@ -188,9 +188,45 @@ public:
     void *script_cache;
 #endif
 };
+#elif defined( Q_WS_QWS )
+class QGfx;
 
+class QFontEngine : public QShared
+{
+public:
+    QFontEngine( const QFontDef& );
+   ~QFontEngine();
+    /*QMemoryManager::FontID*/ void *handle() const;
 
-typedef QFontEngine QFontStruct;
+    enum Error {
+	NoError,
+	OutOfMemory
+    };
+    /* returns 0 as glyph index for non existant glyphs */
+    Error stringToCMap( const QChar *str, int len, glyph_t *glyphs, advance_t *advances, int *nglyphs ) const;
+
+    void draw( QPainter *p, int x, int y, const glyph_t *glyphs,
+	       const advance_t *advances, const offset_t *offsets, int numGlyphs, bool reverse );
+
+    glyph_metrics_t boundingBox( const glyph_t *glyphs,
+			       const advance_t *advances, const offset_t *offsets, int numGlyphs );
+    glyph_metrics_t boundingBox( glyph_t glyph );
+
+    int ascent() const;
+    int descent() const;
+    int leading() const;
+    int maxCharWidth() const;
+    int minLeftBearing() const;
+    int minRightBearing() const;
+    int underlinePos() const;
+    int lineWidth() const;
+
+    bool canRender( const QChar *string,  int len );
+
+    QFontDef s;
+    /*QMemoryManager::FontID*/ void *id;
+    int cache_cost;
+};
 #endif // WIN || X11 || MAC
 
 
@@ -201,7 +237,7 @@ class QFontX11Data  // used as a QFontPrivate member
 {
 public:
     // X fontstruct handles for each character set
-    QFontStruct *fontstruct[QFont::LastPrivateScript];
+    QFontEngine *fontstruct[QFont::LastPrivateScript];
 
     uchar widthCache[widthCacheSize];
 
@@ -209,10 +245,9 @@ public:
     ~QFontX11Data();
 };
 
-#elif defined( Q_WS_QWS )
-class QFontStruct;
-class QGfx;
 #endif
+
+typedef QFontEngine QFontStruct;
 
 typedef QCacheIterator<QFontStruct> QFontCacheIterator;
 class QFontCache : public QObject, public QCache<QFontStruct>
@@ -261,51 +296,6 @@ public:
 
     static int getFontWeight(const QCString &, bool = FALSE);
 
-#if !defined( Q_WS_X11 ) && !defined( Q_WS_WIN ) && !defined( Q_WS_MAC )
-    QRect boundingRect( const QChar &ch );
-
-    struct TextRun {
-	TextRun()
-	{
-	    xoff = 0;
-	    yoff = 0;
-	    x2off = 0;
-	    script = QFont::NoScript;
-	    string = 0;
-	    length = 0;
-	    next = 0;
-	}
-
-	~TextRun()
-	{
-	    if ( next )
-		delete next;
-	}
-
-	void setParams( int x, int y, int x2, const QChar *s, int len,
-			QFont::Script sc = QFont::NoScript ) {
-	    xoff = x;
-	    yoff = y;
-	    x2off = x2;
-	    string = s;
-	    length = len;
-	    script = sc;
-	}
-	int xoff;
-	int yoff;
-	int x2off;
-	QFont::Script script;
-	const QChar *string;
-	int length;
-	TextRun *next;
-    };
-
-    // some replacement functions for native calls. This is needed, because shaping and
-    // non spacing marks can change the extents of a string to draw. At the same time
-    // drawing needs to take care to correctly position non spacing marks.
-    int textWidth( const QString &str, int pos, int len );
-#endif
-
 #ifdef Q_WS_X11
     QFontEngine *engineForScript( QFont::Script script ) const;
 
@@ -348,25 +338,24 @@ public:
     QPaintDevice *paintdevice;
 
 #ifdef Q_WS_WIN
-    QFontEngine *engineForScript( QFont::Script ) const { return fin; }
+    QFontEngine *engineForScript( QFont::Script ) const { ((QFontPrivate*)this)->load(); return fin; }
     void load();
     void initFontInfo();
     HFONT create( bool *stockFont, HDC hdc = 0, bool compatMode = FALSE );
-    QFontStruct *fin;
+    QFontEngine *fin;
 #endif // Q_WS_WIN
 
 #ifdef Q_WS_QWS
+    QFontEngine *engineForScript( QFont::Script ) const { ((QFontPrivate*)this)->load(); return fin; }
     void load();
-    QFontStruct *fin;
-    int textWidth( const QString &str, int pos, int len, TextRun *cache );
-    void drawText( QGfx *gfx, int x, int y, const TextRun *cache );
+    QFontEngine *fin;
 #endif
 
 #if defined( Q_WS_MAC )
     QFontEngine *engineForScript(QFont::Script) const { ((QFontPrivate*)this)->load(); return fin; }
     void computeLineWidth();
     void load();
-    QFontStruct *fin;
+    QFontEngine *fin;
 #endif
 
 };

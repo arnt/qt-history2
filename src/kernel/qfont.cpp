@@ -47,7 +47,7 @@
 #include "qapplication.h"
 #include "qcleanuphandler.h"
 #include "qstringlist.h"
-
+#include "qtextengine_p.h"
 
 // #define QFONTCACHE_DEBUG
 
@@ -1889,7 +1889,13 @@ QFontMetrics &QFontMetrics::operator=( const QFontMetrics &fm )
 #if !defined( Q_WS_X11 ) && !defined( Q_WS_WIN ) && !defined( Q_WS_MAC )
 QRect QFontMetrics::boundingRect( QChar ch ) const
 {
-    return d->boundingRect( ch );
+    d->load();
+    glyph_t glyphs[10];
+    int nglyphs = 9;
+    advance_t advances[10];
+    d->fin->stringToCMap( &ch, 1, glyphs, advances, &nglyphs );
+    glyph_metrics_t gi = d->fin->boundingBox( glyphs[0] );
+    return QRect( gi.x, gi.y, gi.width, gi.height );
 }
 #endif
 
@@ -2372,7 +2378,6 @@ bool QFontInfo::exactMatch() const
 
 
 
-#ifndef Q_WS_QWS
 // **********************************************************************
 // QFontCache
 // **********************************************************************
@@ -2566,7 +2571,6 @@ void QFontCache::timerEvent(QTimerEvent *)
 #endif // QFONTCACHE_DEBUG
 
 }
-#endif
 
 
 

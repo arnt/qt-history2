@@ -199,6 +199,7 @@
 #include "qsortedlist.h"
 #include "qsound.h"
 #include "qspinbox.h"
+#include "qsplashscreen.h"
 #include "qsplitter.h"
 #include "qsqlerror.h"
 #include "qeditorfactory.h"

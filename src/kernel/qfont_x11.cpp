@@ -1071,7 +1071,7 @@ int QFontMetrics::leftBearing(QChar ch) const
     int nglyphs = 9;
     fe->stringToCMap( &ch, 1, glyphs, 0, &nglyphs );
     // ### can nglyphs != 1 happen at all? Not currently I think
-    QGlyphMetrics gi = fe->boundingBox( glyphs[0] );
+    glyph_metrics_t gi = fe->boundingBox( glyphs[0] );
     return gi.x;
 }
 
@@ -1102,7 +1102,7 @@ int QFontMetrics::rightBearing(QChar ch) const
     int nglyphs = 9;
     fe->stringToCMap( &ch, 1, glyphs, 0, &nglyphs );
     // ### can nglyphs != 1 happen at all? Not currently I think
-    QGlyphMetrics gi = fe->boundingBox( glyphs[0] );
+    glyph_metrics_t gi = fe->boundingBox( glyphs[0] );
     return gi.xoff - gi.x - gi.width;
 }
 
@@ -1348,7 +1348,7 @@ QRect QFontMetrics::boundingRect( QChar ch ) const
     glyph_t glyphs[10];
     int nglyphs = 9;
     fe->stringToCMap( &ch, 1, glyphs, 0, &nglyphs );
-    QGlyphMetrics gi = fe->boundingBox( glyphs[0] );
+    glyph_metrics_t gi = fe->boundingBox( glyphs[0] );
     return QRect( gi.x, gi.y, gi.width, gi.height );
 }
 
@@ -1380,7 +1380,7 @@ QRect QFontMetrics::boundingRect( const QString &str, int len ) const
 
     QTextEngine layout( str, d );
     layout.itemize( FALSE );
-    QGlyphMetrics gm = layout.boundingBox( 0, len );
+    glyph_metrics_t gm = layout.boundingBox( 0, len );
     return QRect( gm.x, gm.y, gm.width, gm.height );
 }
 

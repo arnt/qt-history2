@@ -32,7 +32,7 @@ static inline void positionCluster( QScriptItem *item, int gfrom,  int glast )
 
     QShapedItem *shaped = item->shaped;
     QFontEngine *f = item->fontEngine;
-    QGlyphMetrics baseInfo = f->boundingBox( shaped->glyphs[gfrom] );
+    glyph_metrics_t baseInfo = f->boundingBox( shaped->glyphs[gfrom] );
     QRect baseRect( baseInfo.x, baseInfo.y, baseInfo.width, baseInfo.height );
 
 //     qDebug("---> positionCluster: cluster from %d to %d", gfrom, glast );
@@ -49,7 +49,7 @@ static inline void positionCluster( QScriptItem *item, int gfrom,  int glast )
     for( i = 1; i <= nmarks; i++ ) {
 	glyph_t mark = shaped->glyphs[gfrom+i];
 	QPoint p;
-	QGlyphMetrics markInfo = f->boundingBox( mark );
+	glyph_metrics_t markInfo = f->boundingBox( mark );
 	QRect markRect( markInfo.x, markInfo.y, markInfo.width, markInfo.height );
 
 	int offset = offsetBase;
@@ -287,7 +287,7 @@ void q_calculateAdvances( QScriptItem *item )
 
     item->width = 0;
     for ( int i = 0; i < shaped->num_glyphs; i++ ) {
-	QGlyphMetrics gi = item->fontEngine->boundingBox( shaped->glyphs[i] );
+	glyph_metrics_t gi = item->fontEngine->boundingBox( shaped->glyphs[i] );
 	shaped->advances[i] = gi.xoff;
 // 	qDebug("setting advance of glyph %d to %d", i, gi.xoff );
 	int y = shaped->offsets[i].y + gi.y;
@@ -932,4 +932,6 @@ static void arabic_shape( int /*script*/, const QString &string, int from, int l
 # include "qscriptengine_win.cpp"
 #elif defined( Q_WS_MAC )
 # include "qscriptengine_mac.cpp"
+#elif defined( Q_WS_QWS )
+# include "qscriptengine_qws.cpp"
 #endif

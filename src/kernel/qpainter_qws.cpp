@@ -44,6 +44,8 @@
 #include "qpaintdevicemetrics.h"
 #include "qgfx_qws.h"
 #include <string.h>
+#include "qtextlayout.h"
+#include "qtextengine_p.h"
 
 /* paintevent magic to provide Windows semantics on Qt/E
  */
@@ -1613,43 +1615,28 @@ void QPainter::drawText( int x, int y, const QString &str, int from, int len,
     if ( len == 0 )				// empty string
 	return;
 
-#ifndef QT_NO_COMPLEXTEXT
-    QFontMetrics fm( fontMetrics() );
-    QString shaped = QComplexText::shapedString( str, from, len, dir, &fm );
-#else
-    QString shaped = str.mid(from,len); //### ugly and inefficient
-#endif
-    len = shaped.length();
-
     if ( testf(DirtyFont|ExtDev|VxF|WxF) ) {
 	if ( testf(DirtyFont) )
 	    updateFont();
 
 	if ( testf(ExtDev) ) {
-	    QPDevCmdParam param[3];
-	    QFontPrivate::TextRun *cache = new QFontPrivate::TextRun();
-	    pfont->d->textWidth( shaped, 0, len, cache ); // create cache
-	    bool retval = FALSE;
-	    QFontPrivate::TextRun *runs = cache;
-	    while ( cache ) {
-		QPoint p( x + cache->xoff, y + cache->yoff );
-		QString s =
-		    QConstString( cache->string, cache->length ).string();
-		param[0].point = &p;
-		param[1].str = &s;
-		param[2].ival = cache->script;
-		retval = pdev->cmd(QPaintDevice::PdcDrawText2, this, param);
-		cache = cache->next;
-	    }
-	    delete runs;
-	    if ( !retval || !gfx )
-		return;
+            QPDevCmdParam param[3];
+	    QPoint p(x, y);
+	    QString string = str.mid( from, len );
+	    param[0].point = &p;
+	    param[1].str = &string;
+	    param[2].ival = QFont::Latin;// #######
+	    bool retval = pdev->cmd(QPaintDevice::PdcDrawText2, this, param);
+            if ( !retval || !gfx )
+                return;
 	}
 #ifndef QT_NO_TRANSFORMATIONS
 	if ( txop >= TxScale ) {
+	    QString string = str.mid( from,  len );
 	    QFontMetrics fm = fontMetrics();
 	    QFontInfo	 fi = fontInfo();
-	    QRect bbox = fm.boundingRect( shaped, len );
+	    // #### not exact!
+	    QRect bbox = fm.boundingRect( string, len );
 	    int w=bbox.width(), h=bbox.height();
 	    int aw, ah;
 	    int tx=-bbox.x(),  ty=-bbox.y();	// text position
@@ -1661,7 +1648,7 @@ void QPainter::drawText( int x, int y, const QString &str, int from, int len,
 		newSize = QMAX( 6.0, QMIN( newSize, 72.0 ) ); // empirical values
 		dfont.setPointSizeFloat( newSize );
 		QFontMetrics fm2( dfont );
-		QRect abbox = fm2.boundingRect( shaped, len );
+		QRect abbox = fm2.boundingRect( string, len );
 		aw = abbox.width();
 		ah = abbox.height();
 		tx = -abbox.x();
@@ -1691,7 +1678,7 @@ void QPainter::drawText( int x, int y, const QString &str, int from, int len,
 		paint.fillRect(pm.rect(),Qt::black);
 		paint.setFont( dfont );
 		paint.setPen(QPen(Qt::white));
-		paint.drawText( tx, ty, shaped, len );
+		paint.drawText( tx, ty, string, len );
 		paint.end();
 		// Now we have an image with r,g,b gray scale set.
 		// Put this in alpha channel and set pixmap to pen color.
@@ -1714,7 +1701,7 @@ void QPainter::drawText( int x, int y, const QString &str, int from, int len,
 		    return;
 		}
 	    } else {
-		bm_key = gen_text_bitmap_key( mat2, dfont, shaped, len );
+		bm_key = gen_text_bitmap_key( mat2, dfont, string, len );
 		wx_bm = get_text_bitmap( bm_key );
 		create_new_bm = wx_bm == 0;
 		if ( create_new_bm && !empty ) {// no such cached bitmap
@@ -1723,7 +1710,7 @@ void QPainter::drawText( int x, int y, const QString &str, int from, int len,
 		    paint.begin( &bm );		// draw text in bitmap
 		    paint.setPen( color1 );
 		    paint.setFont( dfont );
-		    paint.drawText( tx, ty, shaped, len );
+		    paint.drawText( tx, ty, string, len );
 		    paint.end();
 #ifndef QT_NO_PIXMAP_TRANSFORMATION
 		    wx_bm = new QBitmap( bm.xForm(mat2) ); // transform bitmap
@@ -1739,7 +1726,7 @@ void QPainter::drawText( int x, int y, const QString &str, int from, int len,
 	    if ( bg_mode == OpaqueMode ) {	// opaque fill
 		int fx = x;
 		int fy = y - fm.ascent();
-		int fw = fm.width(shaped,len);
+		int fw = fm.width(string,len);
 		int fh = fm.ascent() + fm.descent();
 		int m, n;
 		QPointArray a(5);
@@ -1793,39 +1780,103 @@ void QPainter::drawText( int x, int y, const QString &str, int from, int len,
 #endif
     }
 
-    QRect bbox;
-    int   lw, underlinepos, strikeoutpos, ascent;
-    QString newstr = str.left(len);
+    QTextLayout layout( str, this );
+    layout.beginLayout();
 
-    if( cfont.underline() || cfont.strikeOut() || bg_mode == OpaqueMode ) {
-	QFontMetrics fm = fontMetrics();
-	lw = fm.lineWidth();
-	underlinepos = fm.underlinePos();
-	strikeoutpos = fm.strikeOutPos();
-	ascent = fm.ascent();
-	bbox = fm.boundingRect( newstr, len );
+    layout.setBoundary( from );
+    layout.setBoundary( from + len );
+
+    QTextEngine *engine = layout.d;
+
+    // small hack to force skipping of unneeded items
+    int start = 0;
+    while ( engine->items[start].position < from )
+	++start;
+    engine->currentItem = start;
+    layout.beginLine( 0xfffffff );
+    int end = start;
+    while ( !layout.atEnd() && layout.currentItem().from() < from + len ) {
+	layout.addCurrentItem();
+	end++;
+    }
+    int ascent;
+    layout.endLine( 0, 0, Qt::AlignLeft, &ascent, 0 );
+
+    // do _not_ call endLayout() here, as it would clean up the shaped items and we would do shaping another time
+    // for painting.
+
+    for ( int i = start; i < end; i++ ) {
+	QScriptItem &si = engine->items[i];
+
+	QFontEngine *fe = si.fontEngine;
+	assert( fe );
+	QShapedItem *shaped = si.shaped;
+	assert( shaped );
+
+	int xpos = x + si.x;
+	int ypos = y + si.y - ascent;
+
+	bool rightToLeft = si.analysis.bidiLevel % 2;
+
 	if ( bg_mode == OpaqueMode ) {		// opaque: fill background
 	    gfx->setBrush( QBrush(backgroundColor()) );
-	    gfx->fillRect( x, y-ascent, bbox.width(), bbox.height() );
+	    gfx->fillRect( xpos, ypos, si.width, si.ascent+si.descent );
+	    gfx->setBrush( cbrush );
+	}
+	fe->draw( this, xpos,  ypos, shaped->glyphs, shaped->advances,
+		  shaped->offsets, shaped->num_glyphs, rightToLeft );
+
+	if ( cfont.underline() || cfont.strikeOut() ) {
+	    QFontMetrics fm = fontMetrics();
+	    int lw = fm.lineWidth();
+	    gfx->setBrush( cpen.color() );
+	    if ( cfont.underline() )		// draw underline effect
+		gfx->fillRect( xpos, ypos+fm.underlinePos(), si.width, lw );
+	    if ( cfont.strikeOut() )		// draw strikeout effect
+		gfx->fillRect( xpos, ypos-fm.strikeOutPos(), si.width, lw );
 	    gfx->setBrush( cbrush );
 	}
     }
-
-    QFontPrivate::TextRun *cache = new QFontPrivate::TextRun();
-    int width=cfont.d->textWidth( shaped, 0, len, cache );
-    cfont.d->drawText( gfx, x, y, cache );
-    delete cache;
-
-    if ( cfont.underline() || cfont.strikeOut() ) {
-	gfx->setBrush( cpen.color() );
-        if ( cfont.underline() )		// draw underline effect
-	    gfx->fillRect( x, y+underlinepos, width, lw );
-        if ( cfont.strikeOut() )		// draw strikeout effect
-	    gfx->fillRect( x, y-strikeoutpos, width, lw );
-	gfx->setBrush( cbrush );
-    }
 }
 
+
+void QPainter::drawTextItem( int x,  int y, const QTextItem &ti )
+{
+    if ( testf(DirtyFont) ) {
+	updateFont();
+    }
+    if ( testf(ExtDev|VxF|WxF) ) {
+	drawText( x+ti.x(), y+ti.y(), ti.engine->string, ti.from(), ti.length(),
+		  (ti.engine->items[ti.item].analysis.bidiLevel %2) ? QPainter::RTL : QPainter::LTR );
+	return;
+    }
+
+    QScriptItem &si = ti.engine->items[ti.item];
+
+    QShapedItem *shaped = ti.engine->shape( ti.item );
+    QFontEngine *fe = si.fontEngine;
+    assert( fe );
+
+    x += ti.x();
+    y += ti.y();
+
+    bool rightToLeft = si.analysis.bidiLevel % 2;
+
+    fe->draw( this, x,  y, shaped->glyphs, shaped->advances,
+		  shaped->offsets, shaped->num_glyphs, rightToLeft );
+
+    if ( cfont.underline() || cfont.strikeOut() ) {
+	QFontMetrics fm = fontMetrics();
+	int lw = fm.lineWidth();
+	gfx->setBrush( cpen.color() );
+	if ( cfont.underline() )		// draw underline effect
+	    gfx->fillRect( x, y+fm.underlinePos(), si.width, lw );
+	if ( cfont.strikeOut() )		// draw strikeout effect
+	    gfx->fillRect( x, y-fm.strikeOutPos(), si.width, lw );
+	gfx->setBrush( cbrush );
+    }
+
+}
 
 QPoint QPainter::pos() const
 {

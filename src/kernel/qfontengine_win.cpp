@@ -186,21 +186,21 @@ void QFontEngineWin::draw( QPainter *p, int x, int y, const glyph_t *glyphs,
     }
 }
 
-QGlyphMetrics QFontEngineWin::boundingBox( const glyph_t *glyphs,
+glyph_metrics_t QFontEngineWin::boundingBox( const glyph_t *glyphs,
 				const advance_t *advances, const offset_t *offsets, int numGlyphs )
 {
     if ( numGlyphs == 0 )
-	return QGlyphMetrics();
+	return glyph_metrics_t();
 
     int w = 0;
     const advance_t *end = advances + numGlyphs;
     while( end > advances )
 	w += *(--end);
 
-    return QGlyphMetrics(0, -tm.w.tmAscent, w, tm.w.tmHeight, w, 0 );
+    return glyph_metrics_t(0, -tm.w.tmAscent, w, tm.w.tmHeight, w, 0 );
 }
 
-QGlyphMetrics QFontEngineWin::boundingBox( glyph_t glyph )
+glyph_metrics_t QFontEngineWin::boundingBox( glyph_t glyph )
 {
     GLYPHMETRICS gm;
 
@@ -208,7 +208,7 @@ QGlyphMetrics QFontEngineWin::boundingBox( glyph_t glyph )
 	SIZE s;
 	WCHAR ch = glyph;
 	BOOL res = GetTextExtentPoint32W( dc(), &ch, 1, &s );
-	return QGlyphMetrics( 0, -tm.a.tmAscent, s.cx, tm.a.tmHeight, s.cx, 0 );
+	return glyph_metrics_t( 0, -tm.a.tmAscent, s.cx, tm.a.tmHeight, s.cx, 0 );
     } else {
 	DWORD res = 0;
 	MAT2 mat;
@@ -222,10 +222,10 @@ QGlyphMetrics QFontEngineWin::boundingBox( glyph_t glyph )
 	    res = GetGlyphOutlineA( dc(), glyph, GGO_METRICS|GGO_GLYPH_INDEX, &gm, 0, 0, &mat );
 	} );
 	if ( res != GDI_ERROR )
-	    return QGlyphMetrics( gm.gmptGlyphOrigin.x, -gm.gmptGlyphOrigin.y-gm.gmBlackBoxY, 
+	    return glyph_metrics_t( gm.gmptGlyphOrigin.x, -gm.gmptGlyphOrigin.y-gm.gmBlackBoxY, 
 				  gm.gmBlackBoxX, gm.gmBlackBoxY, gm.gmCellIncX, gm.gmCellIncY );
     }
-    return QGlyphMetrics();
+    return glyph_metrics_t();
 }
 
 int QFontEngineWin::ascent() const
