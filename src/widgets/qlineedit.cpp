@@ -1031,7 +1031,9 @@ bool QLineEdit::event( QEvent * e )
   		case Key_Home:
   		case Key_End:
   		case Key_Backspace:
-  		    ke->accept();
+ 		case Key_Left:
+		case Key_Right:
+ 		    ke->accept();
  		default:
   		    break;
   		}
