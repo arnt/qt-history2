@@ -249,7 +249,7 @@ void QToolBarPrivate::actionTriggered()
 
 void QToolBarPrivate::init()
 {
-    q->setFrameStyle(QFrame::Panel | QFrame::Raised);
+    q->setFrameStyle(QFrame::ToolBarPanel | QFrame::Raised);
 
     QBoxLayout *layout = new QBoxLayout(QBoxLayout::LeftToRight, q);
     layout->setSpacing(2);
