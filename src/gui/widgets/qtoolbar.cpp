@@ -696,14 +696,10 @@ void QToolBar::resizeEvent(QResizeEvent *event)
 	    >= (pick(orientation, size()) - ((use_extension && d->extension->isShown())
                                              ? pick(orientation, d->extension->size()) : 0))) {
             w->hide();
-	    if (w->actions().size() > 0)
-		w->actions()[0]->setVisible(false);
             d->items[i - 1].hidden = true;
             ++hidden_count;
         } else {
 	    w->show();
-	    if (w->actions().size() > 0)
-		w->actions()[0]->setVisible(true);
             d->items[i - 1].hidden = false;
 	}
 	++i;
