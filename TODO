@@ -16,3 +16,21 @@ QImage::systemByteOrder ska'n vekk, elle?
 Klin inn kule sider mellom tutorial og doc i ps. (signal/slot, debugging, etc.)
 
 Alle changes filene paa web
+
+Spacing er borte i ps versjonen av tutorialen
+
+oooops 3 reserverte ord i qt: signals, slots, emit
+
+	debug, warning, fatal
+
+	ASSERT
+
+	chk_pointer
+
+	CHECK_PTR
+
+	INT8, UINT8, ...
+
+	OBSOLETE
+
+TEST_OBSOLETE
