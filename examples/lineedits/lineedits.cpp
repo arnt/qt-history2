@@ -31,7 +31,7 @@ LineEdits::LineEdits( QWidget *parent )
 {
     setAlignment(Qt::Horizontal);
 
-    QVBoxLayout* box = new QVBoxLayout( layout() );
+    QVBoxLayout* box = new QVBoxLayout( this );
 
     QHBoxLayout *row1 = new QHBoxLayout( box );
     row1->setMargin( 5 );
