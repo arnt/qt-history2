@@ -3836,7 +3836,7 @@ struct Qargb {
 
 static void scaleX(QImage *image, int height, int iwidth, int owidth)
 {
-    qDebug("scaleX: height=%d, iwidth=%d, owidth=%d", height, iwidth, owidth);
+//     qDebug("scaleX: height=%d, iwidth=%d, owidth=%d", height, iwidth, owidth);
     if (iwidth == owidth)
         return;
 
@@ -3903,7 +3903,7 @@ static void scaleX(QImage *image, int height, int iwidth, int owidth)
 
 static void scaleY(QImage *image, int width, int iheight, int oheight)
 {
-    qDebug("scaleY: width=%d, iheight=%d, oheight=%d", width, iheight, oheight);
+//     qDebug("scaleY: width=%d, iheight=%d, oheight=%d", width, iheight, oheight);
     if (iheight == oheight)
         return;
 
@@ -3968,7 +3968,7 @@ static void scaleY(QImage *image, int width, int iheight, int oheight)
 
 static void shearX(QImage *image, int height, int iwidth, double shear)
 {
-    qDebug("shearX: height=%d, iwidth=%d, shear=%f", height, iwidth, shear);
+//     qDebug("shearX: height=%d, iwidth=%d, shear=%f", height, iwidth, shear);
     if (QABS(shear*height) < 0.3)
         return;
 
@@ -4008,7 +4008,7 @@ static void shearX(QImage *image, int height, int iwidth, double shear)
 
 static void shearY(QImage *image, int width, int iheight, double shear)
 {
-    qDebug("shearX: width=%d, iheight=%d, shear=%f", width, iheight, shear);
+//     qDebug("shearX: width=%d, iheight=%d, shear=%f", width, iheight, shear);
     if (QABS(shear*width) < 0.3)
         return;
 
@@ -4077,7 +4077,7 @@ QImage smoothXForm(const QImageData *data, const QMatrix &matrix)
            v2x = matrix.m21(),
            v2y = matrix.m22();
 
-    qDebug("\nv1=(%f/%f), v2=(%f/%f)", v1x, v1y, v2x, v2y);
+//     qDebug("\nv1=(%f/%f), v2=(%f/%f)", v1x, v1y, v2x, v2y);
 
     bool v1Horizontal = QABS(v1x) > QABS(v1y);
     bool v2Horizontal = QABS(v2x) > QABS(v2y);
@@ -4095,7 +4095,7 @@ QImage smoothXForm(const QImageData *data, const QMatrix &matrix)
         else
             v1Horizontal = true;
     }
-    qDebug("v1Horizontal=%d, v2Horizontal=%d", v1Horizontal, v2Horizontal);
+//     qDebug("v1Horizontal=%d, v2Horizontal=%d", v1Horizontal, v2Horizontal);
 
     /* Now that we know this, we can turn/mirror the image to the corresponding axes */
 
@@ -4119,7 +4119,7 @@ QImage smoothXForm(const QImageData *data, const QMatrix &matrix)
         rotate = (4 - v1Axis) % 4;
     }
 
-    qDebug("v1Axis=%d, v2Axis=%d, mirror=%d, rotate=%d", v1Axis, v2Axis, mirror, rotate);
+//     qDebug("v1Axis=%d, v2Axis=%d, mirror=%d, rotate=%d", v1Axis, v2Axis, mirror, rotate);
 
     // now mirror and rotate the image.
     // #### optimise and don't do a deep copy if !rotate && !mirror.
@@ -4228,7 +4228,7 @@ QImage smoothXForm(const QImageData *data, const QMatrix &matrix)
     double shear_y = mat.m12()/scale_x;
     double shear_x = mat.m21()/scale_y;
 
-    qDebug("scale_x=%f,scale_y=%f, shear_x=%f, shear_y=%f", scale_x,scale_y,shear_x,shear_y);
+//     qDebug("scale_x=%f,scale_y=%f, shear_x=%f, shear_y=%f", scale_x,scale_y,shear_x,shear_y);
 
     int iwidth = result.width();
     int owidth = qRound(iwidth*scale_x);
@@ -4242,7 +4242,7 @@ QImage smoothXForm(const QImageData *data, const QMatrix &matrix)
     int sheared_height = oheight + QABS(qRound(shear_y*sheared_width));
     s = s.expandedTo(QSize(sheared_width, sheared_height));
     QImage result2(s, 32);
-    qDebug("result2: width %d height %d", result2.width(), result2.height());
+//     qDebug("result2: width %d height %d", result2.width(), result2.height());
     for (int y = 0; y < result.height(); ++y)
         memcpy(result2.jumpTable()[y], result.jumpTable()[y], result.bytesPerLine());
 
@@ -4254,8 +4254,8 @@ QImage smoothXForm(const QImageData *data, const QMatrix &matrix)
     QImage final(qRound(QABS(v1x*data->w) + QABS(v2x*data->h)),
                  qRound(QABS(v1y*data->w) + QABS(v2y*data->h)), 32);
     final.setAlphaBuffer(true);
-    qDebug("result2.height() = %d, final.height() = %d", result2.height(), final.height());
-    int yoff = (result2.height() - final.height())/2;
+//     qDebug("result2.height() = %d, final.height() = %d", result2.height(), final.height());
+    int yoff = 0;//(result2.height() - final.height())/2;
     for (int y = 0; y < final.height(); ++y)
         memcpy(final.jumpTable()[y], result2.jumpTable()[y+yoff], final.bytesPerLine());
 
