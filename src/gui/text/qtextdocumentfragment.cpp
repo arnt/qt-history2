@@ -119,8 +119,7 @@ QMap<int, int> QTextDocumentFragmentPrivate::fillFormatCollection(QTextFormatCol
     QMap<int, int> formatIndexMap;
 
     // maps from object index used in formats to real object index
-    typedef QMap<int, int> GroupMap;
-    GroupMap insertedGroups;
+    QMap<int, int> insertedGroups;
 
     const QVector<int> &objFormats = formatCollection.objFormats;
     for (int i = 0; i < objFormats.size(); ++i) {
@@ -258,10 +257,12 @@ QString QTextDocumentFragment::toPlainText() const
 */
 QDataStream &operator<<(QDataStream &stream, const QTextDocumentFragment &fragment)
 {
-    if (!fragment.d)
-        return stream;
+    if (!fragment.d) {
+        // null marker
+        return stream << Q_INT8(false);
+    }
 
-    return stream << *fragment.d;
+    return stream << Q_INT8(true) << *fragment.d;
 }
 
 /*!
@@ -269,6 +270,16 @@ QDataStream &operator<<(QDataStream &stream, const QTextDocumentFragment &fragme
 */
 QDataStream &operator>>(QDataStream &stream, QTextDocumentFragment &fragment)
 {
+    Q_INT8 marker;
+
+    stream >> marker;
+
+    if (marker == false) {
+        delete fragment.d;
+        fragment.d = 0;
+        return stream;
+    }
+
     if (!fragment.d)
         fragment.d = new QTextDocumentFragmentPrivate;
 
