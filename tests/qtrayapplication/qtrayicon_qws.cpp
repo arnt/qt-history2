@@ -18,7 +18,6 @@ public:
 	QByteArray data;
 	QDataStream stream( data, IO_WriteOnly );
 	stream << id;
-qDebug("remove %d",id);
 	QCopChannel::send("Qt/Tray", "remove(int)", data);
     }
 
