@@ -1568,8 +1568,8 @@ QRect QMotifStyle::querySubControlMetrics( ComplexControl control,
 	    return QRect(x, y, bs.width(), widget->height() - 2*fw);
 	case SC_SpinWidgetEditField:
 	    return QRect(lx, fw, rx, widget->height() - 2*fw);
-	case SC_SpinWidgetFrame:
-	    return QRect( widget->x(), widget->y(),
+	case SC_SpinWidgetFrame: 
+	    return QRect( 0, 0,
 			  widget->width() - bs.width(), widget->height() );
 	default:
 	    break;
