@@ -202,11 +202,11 @@ void QFontEngineFT::draw(QPaintEngine *p, int x, int y, const QTextItem &si)
         p->updateBrush(p->painterState()->pen.color(), QPoint(0,0));
 
         if (si.flags & QTextItem::Underline)
-            qpe->fillRect(x, y+qRound(underlinePosition()), int(si.width), lw);
+            qpe->fillRect(x, y+qRound(underlinePosition()), qRound(si.width), lw);
         if (si.flags & QTextItem::StrikeOut)
-            qpe->fillRect(x, y-qRound(ascent())/3, int(si.width), lw);
+            qpe->fillRect(x, y-qRound(ascent())/3, qRound(si.width), lw);
         if (si.flags & QTextItem::Overline)
-            qpe->fillRect(x, y-qRound(ascent())-1, int(si.width), lw);
+            qpe->fillRect(x, y-qRound(ascent())-1, qRound(si.width), lw);
 
         p->updateBrush(p->painterState()->brush, p->painterState()->bgOrigin);
     }
@@ -258,7 +258,7 @@ glyph_metrics_t QFontEngineFT::boundingBox(const QGlyphLayout *glyphs, int numGl
     if (numGlyphs == 0)
         return glyph_metrics_t();
 
-    float w = 0;
+    qReal w = 0;
     const QGlyphLayout *end = glyphs + numGlyphs;
     while(end > glyphs)
         w += (--end)->advance.x();
@@ -296,7 +296,7 @@ static void addCurve(QPainterPath *path, const QPointF &cp, const QPointF &endPo
     }
 }
 
-void QFontEngineFT::addOutlineToPath(float x, float y, const QGlyphLayout *glyphs, int numGlyphs, QPainterPath *path)
+void QFontEngineFT::addOutlineToPath(qReal x, qReal y, const QGlyphLayout *glyphs, int numGlyphs, QPainterPath *path)
 {
     if (FT_IS_SCALABLE(face)) {
         QPointF point = QPointF(x, y);
@@ -372,46 +372,46 @@ bool QFontEngineFT::canRender(const QChar *string,  int len)
 #define CEIL(x)   (((x)+63) & -64)
 #define TRUNC(x)  ((x) >> 6)
 
-float QFontEngineFT::ascent() const
+qReal QFontEngineFT::ascent() const
 {
     return face->size->metrics.ascender/64.;
 }
 
-float QFontEngineFT::descent() const
+qReal QFontEngineFT::descent() const
 {
     return -face->size->metrics.descender/64.;
 }
 
-float QFontEngineFT::leading() const
+qReal QFontEngineFT::leading() const
 {
     return (face->size->metrics.height
             - face->size->metrics.ascender /*ascent*/
             + face->size->metrics.descender)/64.;
 }
 
-float QFontEngineFT::maxCharWidth() const
+qReal QFontEngineFT::maxCharWidth() const
 {
     return face->size->metrics.max_advance/64.;
 }
 
-float QFontEngineFT::minLeftBearing() const
+qReal QFontEngineFT::minLeftBearing() const
 {
     return 0;
 //     return (memorymanager->fontMinLeftBearing(handle())*_scale)>>8;
 }
 
-float QFontEngineFT::minRightBearing() const
+qReal QFontEngineFT::minRightBearing() const
 {
     return 0;
 //     return (memorymanager->fontMinRightBearing(handle())*_scale)>>8;
 }
 
-float QFontEngineFT::underlinePosition() const
+qReal QFontEngineFT::underlinePosition() const
 {
     return FT_MulFix(face->underline_position, face->size->metrics.y_scale)/64.;
 }
 
-float QFontEngineFT::lineThickness() const
+qReal QFontEngineFT::lineThickness() const
 {
     return FT_MulFix(face->underline_thickness, face->size->metrics.y_scale)/64.;
 }
@@ -511,23 +511,23 @@ glyph_metrics_t QFontEngineBox::boundingBox(glyph_t)
     return glyph_metrics_t(0, _size, _size, _size, _size, 0);
 }
 
-float QFontEngineBox::ascent() const
+qReal QFontEngineBox::ascent() const
 {
     return _size;
 }
 
-float QFontEngineBox::descent() const
+qReal QFontEngineBox::descent() const
 {
     return 0;
 }
 
-float QFontEngineBox::leading() const
+qReal QFontEngineBox::leading() const
 {
     int l = qRound(_size * 0.15);
     return (l > 0) ? l : 1;
 }
 
-float QFontEngineBox::maxCharWidth() const
+qReal QFontEngineBox::maxCharWidth() const
 {
     return _size;
 }
@@ -548,7 +548,7 @@ QFontEngine::Type QFontEngineBox::type() const
 }
 
 
-float QFontEngine::lineThickness() const
+qReal QFontEngine::lineThickness() const
 {
     // ad hoc algorithm
     int score = fontDef.weight * fontDef.pixelSize;
@@ -561,7 +561,7 @@ float QFontEngine::lineThickness() const
     return lw;
 }
 
-float QFontEngine::underlinePosition() const
+qReal QFontEngine::underlinePosition() const
 {
     return ((lineThickness() * 2) + 3) / 6;
 }
@@ -957,11 +957,11 @@ void QFontEngineQPF::draw(QPaintEngine *p, int x, int y, const QTextItem &si)
         p->updateBrush(p->painterState()->pen.color(), QPoint(0,0));
 
         if (si.flags & QTextItem::Underline)
-            qpe->fillRect(x, y+qRound(underlinePosition()), int(si.width), lw);
+            qpe->fillRect(x, y+qRound(underlinePosition()), qRound(si.width), lw);
         if (si.flags & QTextItem::StrikeOut)
-            qpe->fillRect(x, y-qRound(ascent())/3, int(si.width), lw);
+            qpe->fillRect(x, y-qRound(ascent())/3, qRound(si.width), lw);
         if (si.flags & QTextItem::Overline)
-            qpe->fillRect(x, y-qRound(ascent())-1, int(si.width), lw);
+            qpe->fillRect(x, y-qRound(ascent())-1, qRound(si.width), lw);
 
         p->updateBrush(p->painterState()->brush, p->painterState()->bgOrigin);
     }
@@ -998,7 +998,7 @@ glyph_metrics_t QFontEngineQPF::boundingBox(const QGlyphLayout *glyphs, int numG
    if (numGlyphs == 0)
         return glyph_metrics_t();
 
-    float w = 0;
+    qReal w = 0;
     const QGlyphLayout *end = glyphs + numGlyphs;
     while(end > glyphs)
         w += (--end)->advance.x();
@@ -1015,22 +1015,22 @@ glyph_metrics_t QFontEngineQPF::boundingBox(glyph_t glyph)
                             g->metrics->advance, 0);
 }
 
-float QFontEngineQPF::ascent() const
+qReal QFontEngineQPF::ascent() const
 {
     return d->fm.ascent;
 }
 
-float QFontEngineQPF::descent() const
+qReal QFontEngineQPF::descent() const
 {
     return d->fm.descent;
 }
 
-float QFontEngineQPF::leading() const
+qReal QFontEngineQPF::leading() const
 {
     return d->fm.leading;
 }
 
-float QFontEngineQPF::maxCharWidth() const
+qReal QFontEngineQPF::maxCharWidth() const
 {
     return d->fm.maxwidth;
 }
@@ -1053,22 +1053,22 @@ QFontEngine::Type QFontEngineQPF::type() const
     return QPF;
 }
 
-float QFontEngineQPF::minLeftBearing() const
+qReal QFontEngineQPF::minLeftBearing() const
 {
     return d->fm.leftbearing;
 }
 
-float QFontEngineQPF::minRightBearing() const
+qReal QFontEngineQPF::minRightBearing() const
 {
     return d->fm.rightbearing;
 }
 
-float QFontEngineQPF::underlinePosition() const
+qReal QFontEngineQPF::underlinePosition() const
 {
     return d->fm.underlinepos;
 }
 
-float QFontEngineQPF::lineThickness() const
+qReal QFontEngineQPF::lineThickness() const
 {
     return d->fm.underlinewidth;
 }

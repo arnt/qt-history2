@@ -188,7 +188,7 @@ int QFontMetrics::charWidth(const QString &str, int pos) const
     QFont::Script script;
     SCRIPT_FOR_CHAR(script, ch);
 
-    float width;
+    qReal width;
 
     if (script >= QFont::Arabic && script <= QFont::Khmer) {
         // complex script shaping. Have to do some hard work

@@ -3159,8 +3159,8 @@ void Q3TextDocument::draw(QPainter *p, const QRect &rect, const QPalette &pal,
         return;
 
     if (paper) {
-        p->setBrushOrigin(-int(p->translationX()),
-                           -int(p->translationY()));
+        p->setBrushOrigin(-qIntCast(p->translationX()),
+                           -qIntCast(p->translationY()));
 
         p->fillRect(rect, *paper);
     }

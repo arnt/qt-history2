@@ -310,7 +310,7 @@ void QWSPaintEngine::updateBrush(const QBrush &brush, const QPointF &bgOrigin)
     if (!d->gfx)
         return;
     d->gfx->setBrush(brush);
-    d->gfx->setBrushOrigin(int(bgOrigin.x()), int(bgOrigin.y()));
+    d->gfx->setBrushOrigin(qRound(bgOrigin.x()), qRound(bgOrigin.y()));
 }
 
 void QWSPaintEngine::updateFont(const QFont & /*font*/)
@@ -362,17 +362,17 @@ void QWSPaintEngine::drawLine(const QLineF &line)
 {
     if (state->pen.style() == Qt::NoPen)
         return;
-    d->gfx->drawLine(int(line.startX()), int(line.startY()), int(line.endX()), int(line.endY()));
+    d->gfx->drawLine(qRound(line.startX()), qRound(line.startY()), qRound(line.endX()), qRound(line.endY()));
 }
 
 void QWSPaintEngine::drawRect(const QRectF &r)
 {
-    int w = int(r.width());
-    int h = int(r.height());
+    int w = qRound(r.width());
+    int h = qRound(r.height());
     if (!w && !h)
         return;
-    int x1 = int(r.x());
-    int y1 = int(r.y());
+    int x1 = qRound(r.x());
+    int y1 = qRound(r.y());
 
     if (state->pen.style() != Qt::NoPen) {
         if (state->pen.width() > 1) {
@@ -406,7 +406,7 @@ void QWSPaintEngine::drawRect(const QRectF &r)
 
 void QWSPaintEngine::drawPoint(const QPointF &p)
 {
-    d->gfx->drawPoint(int(p.x()), int(p.y()));
+    d->gfx->drawPoint(qRound(p.x()), qRound(p.y()));
 }
 
 void QWSPaintEngine::drawPolyInternal(const QPolygon &a, bool close)
@@ -471,15 +471,15 @@ void QWSPaintEngine::drawPolygon(const QPointF *points, int pointCount, PolygonD
 void QWSPaintEngine::drawPixmap(const QRectF &r, const QPixmap &pixmap, const QRectF &sr,
                                 Qt::PixmapDrawingMode mode)
 {
-    int x = int(r.x());
-    int y = int(r.y());
-    int w = int(r.width());
-    int h = int(r.height());
+    int x = qRound(r.x());
+    int y = qRound(r.y());
+    int w = qRound(r.width());
+    int h = qRound(r.height());
 
-    int sx = int(sr.x());
-    int sy = int(sr.y());
-    int sw = int(sr.width());
-    int sh = int(sr.height());
+    int sx = qRound(sr.x());
+    int sy = qRound(sr.y());
+    int sw = qRound(sr.width());
+    int sh = qRound(sr.height());
 
     bool hasAlpha = pixmap.data->hasAlpha;
     bool hasMask = pixmap.mask();
@@ -603,7 +603,7 @@ void QWSPaintEngine::tiledBlt(const QImage &src, int rx,int ry,int w,int h, int 
     d->gfx->setBrushOrigin(rx-sx, ry-sy);
     d->gfx->tiledBlt(rx, ry, w, h);
     if (state)
-        d->gfx->setBrushOrigin(int(state->bgOrigin.x()), int(state->bgOrigin.y()));
+        d->gfx->setBrushOrigin(qRound(state->bgOrigin.x()), qRound(state->bgOrigin.y()));
     else
         d->gfx->setBrushOrigin(0, 0);
 }

@@ -198,6 +198,41 @@ qReal QLineF::length() const
     return sqrt(x*x + y*y);
 }
 
+#ifdef QT_USE_FIXED_POINT
+/*
+
+Returns sqrt(x / (1 <<56)) * (1<<56)
+
+*/
+
+static Q_INT64 sqrt_64(Q_INT64  x)
+{
+    if (x <= 0)
+        return 0;
+
+    Q_UINT64 root = 0;
+
+    Q_UINT64 rem_hi = 0;
+    Q_UINT64 rem_lo = x;
+    int count  = 60;
+    do
+    {
+        rem_hi   = ( rem_hi << 2 ) | ( rem_lo >> 62 );
+        rem_lo <<= 2;
+        root   <<= 1;
+        Q_UINT64 test_div = ( root << 1 ) + 1;
+
+        if ( rem_hi >= test_div )
+        {
+            rem_hi -= test_div;
+            root   += 1;
+        }
+    } while ( --count );
+
+    return root;
+}
+#endif
+
 /*!
     Returns a normalized version of this line, starting at the same
     point as this line. A normalized line is a line of unit length
@@ -207,10 +242,25 @@ QLineF QLineF::unitVector() const
 {
     qReal x = p2.x() - p1.x();
     qReal y = p2.y() - p1.y();
+#ifndef QT_USE_FIXED_POINT
 
     qReal len = sqrt(x*x + y*y);
     QLineF f(start(), QPointF(p1.x() + x/len, p1.y() + y/len));
     Q_ASSERT(qAbs(f.length() - 1) < 0.001);
+#else
+
+    Q_INT64 xx = x.value();
+    Q_INT64 yy = y.value();
+
+    Q_INT64 len = sqrt_64(xx*xx + yy*yy); // in 28.36 fixed point
+
+    qReal dx = QFixedPoint(int((xx<<36)/len), QFixedPoint::FixedPoint);
+    qReal dy = QFixedPoint(int((yy<<36)/len), QFixedPoint::FixedPoint);
+
+    QLineF f(start(), QPointF(p1.x() + dx, p1.y() + dy));
+
+    Q_ASSERT(qAbs(f.length() - 1).value() < 4 );
+#endif
     return f;
 }
 
