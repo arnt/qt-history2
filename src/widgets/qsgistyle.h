@@ -36,6 +36,12 @@
 
 class QButton;
 
+#if defined(Q_TEMPLATEDLL)
+// MOC_SKIP_BEGIN
+template class Q_EXPORT QGuardedPtr<QWidget>;
+// MOC_SKIP_END
+#endif
+
 class Q_EXPORT QSGIStyle: public QMotifStyle
 {
     Q_OBJECT
