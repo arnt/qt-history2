@@ -244,7 +244,7 @@ sub syncHeader {
         mkpath $header_dir, 0777;
     
         #write it
-        my $iheader_out = fixPaths($iheader, $header);
+        my $iheader_out = fixPaths($iheader, $header_dir);
         open HEADER, ">$header" || die "Could not open $header for writing!\n";
         print HEADER "#include \"$iheader_out\"\n";
         close HEADER;
@@ -254,51 +254,46 @@ sub syncHeader {
 }
 
 ######################################################################
-# Syntax:  fixPaths(file1, file2)
-# Params:  file1, string, filepath to be made relative to POO
-#          file2, string, filepath for point of origin (POO)
+# Syntax:  fixPaths(file, dir)
+# Params:  file, string, filepath to be made relative to dir
+#          dir, string, dirpath for point of origin
 #
-# Purpose: file1 is made relative (if possible) of file2.
+# Purpose: file is made relative (if possible) of dir.
 # Returns: String with the above applied conversion.
 ######################################################################
 sub fixPaths {
-    my ($file1, $file2) = @_;
-    if(!($basedir eq $out_basedir)) {
-	$file2 =~ s=^$basedir=$out_basedir=;
-    }
-    $file1 =~ s=\\=/=g;
-    $file2 =~ s=\\=/=g;
+    my ($file, $dir) = @_;
+    $dir =~ s=^$basedir=$out_basedir= if(!($basedir eq $out_basedir));
+    $file =~ s=\\=/=g;
+    $dir =~ s=\\=/=g;
 
     #setup
-    my $ret = $file1;
-    my $file1_dir = $file1;
-    $file1_dir = dirname($file1) unless(-d "$file1_dir");
-    my $file2_dir = $file2;
-    $file2_dir = dirname($file2) unless(-d "$file2_dir");
-    return basename($file1) if("$file1" eq "$file2");
-    if($file1_dir eq ".") {
-        $file1_dir = getcwd();
-        $file1_dir =~ s=\\=/=g;
+    my $ret = $file;
+    my $file_dir = dirname($file);
+    if($file_dir eq ".") {
+        $file_dir = getcwd();
+        $file_dir =~ s=\\=/=g;
     }
-    $file1_dir =~ s,/cygdrive/([a-zA-Z])/,$1:,g;
-    if($file2_dir eq ".") {
-        $file2_dir = getcwd();
-        $file2_dir =~ s=\\=/=g;
+    $file_dir =~ s,/cygdrive/([a-zA-Z])/,$1:,g;
+    if($dir eq ".") {
+        $dir = getcwd();
+        $dir =~ s=\\=/=g;
     }
-    $file2_dir =~ s,/cygdrive/([a-zA-Z])/,$1:/,g;
+    $dir =~ s,/cygdrive/([a-zA-Z])/,$1:/,g;
+    return basename($file) if("$file_dir" eq "$dir");
 
     #guts
     my $match_dir = 0;
-    for(my $i = 1; $i < length($file1_dir); $i++) {
-        my $slash = index($file1_dir, "/", $i);
+    for(my $i = 1; $i < length($file_dir); $i++) {
+        my $slash = index($file_dir, "/", $i);
         last if($slash == -1);
-        my $tmp = substr($file1_dir, 0, $slash);
-        last unless($file2_dir =~ m,^$tmp/,);
+        my $tmp = substr($file_dir, 0, $slash);
+        last unless($dir =~ m,^$tmp/,);
         $match_dir = $tmp;
         $i = $slash;
     }
     if($match_dir) {
-        my $after = substr($file2_dir, length($match_dir));
+        my $after = substr($dir, length($match_dir));
         my $count = ($after =~ tr,/,,);
         my $dots = "";
         for(my $i = 0; $i < $count; $i++) {
@@ -744,7 +739,7 @@ foreach (@modules_to_sync) {
     unless($showonly) {
         #generate the "master" include file
         my $master_include = "$out_basedir/include/$lib/$lib";
-	$pri_install_files .= fixPaths($master_include, "$basedir/src/$lib/$lib") . " "; #get the master file installed too
+	$pri_install_files .= fixPaths($master_include, "$basedir/src/$lib") . " "; #get the master file installed too
         if(-e "$master_include") {
             open MASTERINCLUDE, "<$master_include";
             local $/;
