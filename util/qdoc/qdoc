@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: //depot/qt/main/util/qdoc/qdoc#13 $
+# $Id: //depot/qt/main/util/qdoc/qdoc#14 $
 #
 # this is a massive hack, written very quickly
 #
@@ -51,8 +51,6 @@ sub processcode {
     s/\s+$/\n/s;
     s/\n\s*\n/\n<br>\n/gs;
     s!\\/(.*?\n)!//$1!gs;
-
-#   print $_, "\n";
 
     join($_, "<blockquote><pre>\n", "</pre></blockquote>\n");
 }
@@ -120,6 +118,7 @@ sub processdocs {
 
 	$doc =~ s!\\e\s+(\S+)!<em>$1</em>!gs;
 
+	$doc =~ s/\s*$/\n/s;
 	$doc =~ s-\s*\n\s*\n\s*-\n<p>-gs;
 
 	undef %word;
@@ -426,7 +425,6 @@ sub makenames {
     foreach ( sort keys %name ) {
 	$anchor{$name{$_}} = $_ unless (defined($anchor{$name{$_}}));
     }
-#    foreach (sort keys %anchor) { print $_, ": ", $anchor{$_}, "\n"; }
 }
 
 #
@@ -639,7 +637,6 @@ sub printout {
 	    $name = $url;
 	    $name =~ s/^[^\#]*\#//;
 	    s;([^\(]*)\b(\w+);$1<strong><a name=$name>$2</a></strong>;s;
-#	    s%\(%<a name=$name>\(</a>%s;
 	    print O "<p><dt>", $_, "\n<dd>", $doc{$url};
 	}
     }
