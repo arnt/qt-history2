@@ -209,6 +209,10 @@ int main( int argc, char ** argv )
     translator.load( QString("assistant_") + QTextCodec::locale(), resourceDir );
     a.installTranslator( &translator );
 
+    QTranslator qtTranslator( 0 );
+    qtTranslator.load( QString("qt_") + QTextCodec::locale(), resourceDir );
+    a.installTranslator( &qtTranslator );
+
     Config *conf = new Config( profileName );
     if ( !conf->validProfileName() ) {
 	fprintf( stderr, "Profile '%s' does not exist!\n", profileName.latin1() );
