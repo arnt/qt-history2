@@ -661,8 +661,8 @@ void QTextCursor::gotoLeft()
 	}
     }
 
-    if ( string->at( idx )->isCustom() &&
-	 string->at( idx )->customItem()->isNested() ) {
+    const QTextStringChar *tsc = string->at( idx );
+    if ( tsc && tsc->isCustom() && tsc->customItem()->isNested() ) {
 	processNesting( EnterEnd );
     }
 }
@@ -820,8 +820,8 @@ void QTextCursor::gotoRight()
 {
     tmpIndex = -1;
 
-    if ( string->at( idx )->isCustom() &&
-	 string->at( idx )->customItem()->isNested() ) {
+    const QTextStringChar *tsc = string->at( idx );
+    if ( tsc && tsc->isCustom() && tsc->customItem()->isNested() ) {
 	processNesting( EnterBegin );
 	return;
     }
@@ -3400,7 +3400,7 @@ QTextStringChar *QTextStringChar::clone() const
 QTextParag::QTextParag( QTextDocument *d, QTextParag *pr, QTextParag *nx, bool updateIds )
     : invalid( 0 ), p( pr ), n( nx ), doc( d ), align( 0 ), numSubParag( -1 ),
       tm( -1 ), bm( -1 ), lm( -1 ), rm( -1 ), flm( -1 ), tc( 0 ),
-      numCustomItems( 0 ), pFormatter( 0 ),
+      numCustomItems( 0 ), commandHistory( 0 ), pFormatter( 0 ),
       tArray( 0 ), tabStopWidth( 0 ), eData( 0 ), pntr( 0 )
 {
     bgcol = 0;
