@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwid_x11.cpp#32 $
+** $Id: //depot/qt/main/src/kernel/qwid_x11.cpp#33 $
 **
 ** Implementation of QWidget and QView classes for X11
 **
@@ -21,7 +21,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qwid_x11.cpp#32 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qwid_x11.cpp#33 $";
 #endif
 
 
@@ -145,7 +145,7 @@ bool QWidget::create()				// create widget
 				 &v );
     }
     setMouseTracking( FALSE );			// also sets event mask
-    gc = qXAllocGC( fnt.fontId(), bg_col.pixel(),
+    gc = qXAllocGC( fnt.handle(), bg_col.pixel(),
 		    fg_col.pixel(), !testFlag(WPaintUnclipped) );
     if ( testFlag(WPaintUnclipped) )		// paint direct on device
 	XSetSubwindowMode( dpy, gc, IncludeInferiors );
@@ -254,7 +254,7 @@ QColor QWidget::foregroundColor() const		// get foreground color
 void QWidget::setBackgroundColor( const QColor &c )
 {						// set background color
     bg_col = c;
-    gc = qXChangeGC( gc, fnt.fontId(), bg_col.pixel(), fg_col.pixel(),
+    gc = qXChangeGC( gc, fnt.handle(), bg_col.pixel(), fg_col.pixel(),
 		     !testFlag(WPaintUnclipped) );
     XSetWindowBackground( dpy, ident, bg_col.pixel() );
     update();
@@ -263,7 +263,7 @@ void QWidget::setBackgroundColor( const QColor &c )
 void QWidget::setForegroundColor( const QColor &c )
 {						// set foreground color
     fg_col = c;
-    gc = qXChangeGC( gc, fnt.fontId(), bg_col.pixel(), fg_col.pixel(),
+    gc = qXChangeGC( gc, fnt.handle(), bg_col.pixel(), fg_col.pixel(),
 		     !testFlag(WPaintUnclipped) );
     update();
 }
@@ -277,7 +277,7 @@ QFont QWidget::font() const			// get font
 void QWidget::setFont( const QFont &font )	// set font
 {
 
-    Font fid = font.fontId();
+    Font fid = font.handle();
     gc = qXChangeGC( gc, fid, bg_col.pixel(), fg_col.pixel(),
 		     !testFlag(WPaintUnclipped) );
     fnt = font;
