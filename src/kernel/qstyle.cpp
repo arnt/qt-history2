@@ -105,6 +105,12 @@ public:
 */
 
 /*!
+    \fn QStyleOption::QStyleOption(int)
+
+    Pass one integer, \a in1. For example, headerSection.
+*/
+
+/*!
     \fn QStyleOption::QStyleOption(int, int)
 
     Pass two integers, \a in1 and \a in2. For example, linewidth and
@@ -231,6 +237,13 @@ public:
     \fn int QStyleOption::tabWidth() const
 
     Returns the tab indent width if the appropriate constructor was
+    called; otherwise the return value is undefined.
+*/
+
+/*!
+    \fn int QStyleOption::headerSection() const
+
+    Returns the header section if the appropriate constructor was
     called; otherwise the return value is undefined.
 */
 

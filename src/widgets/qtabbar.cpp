@@ -314,6 +314,12 @@ private:
     page in a slot connected to this signal.
 */
 
+/*!
+    \fn void QTabBar::layoutChanged()
+
+    QTabBar emits the signal whenever the layout of the tab bar has
+    been recalculated, for example when the contents of a tab change.
+*/
 
 /*!
     Constructs a new, empty tab bar; the \a parent and \a name

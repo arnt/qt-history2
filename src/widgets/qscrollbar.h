@@ -75,8 +75,7 @@ public:
     virtual void setPalette( const QPalette & );
     virtual QSize sizeHint() const;
     virtual void setSizePolicy( QSizePolicy sp );
-    inline void	setSizePolicy( QSizePolicy::SizeType hor, QSizePolicy::SizeType ver, bool hfw = FALSE )
-    { QWidget::setSizePolicy( hor, ver, hfw ); }
+    void setSizePolicy( QSizePolicy::SizeType hor, QSizePolicy::SizeType ver, bool hfw = FALSE );
 
     int	 minValue() const;
     int	 maxValue() const;
@@ -182,6 +181,11 @@ inline QScrollBar::Orientation QScrollBar::orientation() const
 inline int QScrollBar::sliderStart() const
 {
     return sliderPos;
+}
+
+inline void QScrollBar::setSizePolicy( QSizePolicy::SizeType hor, QSizePolicy::SizeType ver, bool hfw = FALSE )
+{ 
+    QWidget::setSizePolicy( hor, ver, hfw ); 
 }
 
 

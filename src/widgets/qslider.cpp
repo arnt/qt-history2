@@ -754,6 +754,10 @@ QSize QSlider::minimumSizeHint() const
     return s;
 }
 
+/*! \fn void QSlider::setSizePolicy( QSizePolicy::SizeType, QSizePolicy::SizeType, bool )
+    \reimp
+*/
+
 /*! \reimp */
 void QSlider::setSizePolicy( QSizePolicy sp )
 {

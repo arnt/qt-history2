@@ -455,4 +455,9 @@ QStringList QStringList::fromStrList(const QStrList& ascii)
     return res;
 }
 
+/*! \fn void QStringList::detach()
+    \reimp
+*/
+
+
 #endif //QT_NO_STRINGLIST

@@ -372,6 +372,10 @@ QSize QScrollBar::sizeHint() const
     }
 }
 
+/*! \fn void QScrollBar::setSizePolicy( QSizePolicy::SizeType, QSizePolicy::SizeType, bool )
+    \reimp
+*/
+
 /*! \reimp */
 void QScrollBar::setSizePolicy( QSizePolicy sp )
 {

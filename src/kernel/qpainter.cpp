@@ -2690,6 +2690,11 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
     \sa QPainter::TextDirection
 */
 
+/*!
+    \fn void QPainter::drawTextItem(const QPoint &, const QTextItem &, int)
+    \internal
+*/
+
 static inline void fix_neg_rect( int *x, int *y, int *w, int *h )
 {
     if ( *w < 0 ) {

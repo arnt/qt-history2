@@ -83,8 +83,7 @@ public:
     QRect sliderRect() const;
     QSize sizeHint() const;
     void setSizePolicy( QSizePolicy sp );
-    inline void	setSizePolicy( QSizePolicy::SizeType hor, QSizePolicy::SizeType ver, bool hfw = FALSE )
-    { QWidget::setSizePolicy( hor, ver, hfw ); }
+    void setSizePolicy( QSizePolicy::SizeType hor, QSizePolicy::SizeType ver, bool hfw = FALSE );
 
     QSizePolicy sizePolicy() const;
     QSize minimumSizeHint() const;
@@ -185,6 +184,11 @@ inline QSlider::Orientation QSlider::orientation() const
 inline int QSlider::sliderStart() const
 {
     return sliderPos;
+}
+
+inline void QSlider::setSizePolicy( QSizePolicy::SizeType hor, QSizePolicy::SizeType ver, bool hfw = FALSE )
+{ 
+    QWidget::setSizePolicy( hor, ver, hfw ); 
 }
 
 #endif // QT_NO_SLIDER
