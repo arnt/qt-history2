@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#32 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#33 $
 **
 ** Implementation of QListBox widget class
 **
@@ -18,7 +18,7 @@
 #include "qpixmap.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qlistbox.cpp#32 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qlistbox.cpp#33 $";
 #endif
 
 
@@ -47,7 +47,7 @@ static inline bool checkInsertIndex( const char *method, int count, int *index)
 {
     if ( *index > count ) {
 #if defined(CHECK_RANGE)
-	warning( "QListBox::%s Index %i out of range", method, index );
+	warning( "QListBox::%s Index %i out of range", method, *index );
 #endif
 	return FALSE;
     }
@@ -858,8 +858,8 @@ void QListBox::paintCell( QPainter *p, int row, int column )
     if ( !lbi )
 	return;
     if ( lbi->type != LBI_String && lbi->type != LBI_Pixmap ) {
-	warning( "QListBox::paintCell: illegal item type (%i) in"
-		 " non-ownerdrawn list box." );
+	warning( "QListBox::paintCell: illegal item type (%d) in"
+		 " non-ownerdrawn list box", lbi->type );
 	return;
     }
 
