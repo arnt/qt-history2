@@ -318,6 +318,8 @@ public:
 	// Netscape's call.  Do it later (but soon).
 	// ### should this problem be hidden within our API?
 	startTimer(0);
+	//const char* rawsrc = arg("rawsrc");
+	//if (rawsrc) getURL(rawsrc);
     }
 
     void timerEvent(QTimerEvent*)
@@ -422,7 +424,6 @@ public:
 
     int write(QNPStream* /*str*/, int /*offset*/, int len, void* buffer)
     {
-//printf("writing %d bytes of %s data...\n",len,str->type());
 	char* txt = (char*)buffer;
 	for (int i=0; i<len; i++) {
 	    char ch = txt[i];
@@ -483,7 +484,7 @@ public:
 
     const char* getMIMEDescription() const
     {
-	return "graphable/1n::Graphable ASCII numeric data";
+	return "application/x-graphable:g1n:Graphable ASCII numeric data";
     }
 
     const char * getPluginNameString() const

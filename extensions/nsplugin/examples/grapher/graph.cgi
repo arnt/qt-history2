@@ -1,7 +1,7 @@
 #!/bin/sh
 
-echo "Content-type: graphable/1n"
+echo "Content-type: application/x-graphable"
 echo
 
-cat graph.data
-# ./slowcat < graph.data
+cat graph.g1n
+# ./slowcat < graph.g1n
