@@ -16,9 +16,10 @@
 
 class QSettingsPrivate;
 
-class Q_CORE_EXPORT QSettings
 #ifndef QT_NO_QOBJECT
-    : public QObject
+class Q_CORE_EXPORT QSettings : public QObject
+#else
+class Q_CORE_EXPORT QSettings 
 #endif
 {
 #ifndef QT_NO_QOBJECT
