@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwid_x11.cpp#211 $
+** $Id: //depot/qt/main/src/kernel/qwid_x11.cpp#212 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -22,7 +22,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwid_x11.cpp#211 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwid_x11.cpp#212 $");
 
 
 void qt_enter_modal( QWidget * );		// defined in qapp_x11.cpp
@@ -575,21 +575,10 @@ void QWidget::setBackgroundPixmap( const QPixmap &pixmap )
 /*!
   Sets the window-system background of the widget to nothing.
 
-  If the paintEvent() function of the widget \e always paints the
-  entire clip area of the event, calling this function will improve
-  the smoothness of display update as the window-system will
-  not needlessly draw a background prior to sending the paint event.
-
-  If the paintEvent() function does \e not paint the entire clip area
-  of the event, window repaints will have unsightly undefined contents
-  in the unpainted areas.
-
   Note that `nothing' is actually a pixmap that isNull(), thus you
   can check for an empty background by checking backgroundPixmap().
 
   \sa setBackgroundPixmap(), setBackgroundColor()
-
-  \internal
 
   This class should \e NOT be made virtual - it is an alternate usage
   of setBackgroundPixmap().

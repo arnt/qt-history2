@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#213 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#214 $
 **
 ** Implementation of QWidget class
 **
@@ -28,7 +28,7 @@
 #endif
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#213 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#214 $");
 
 
 /*!
@@ -1403,7 +1403,7 @@ QWidget::BackgroundMode QWidget::backgroundMode() const
 	- use palette() . \link QColorGroup::base() base()\endlink
     <li> \c NoBackground
 	- no color or pixmap is used - the paintEvent() must completely
-	    cover the drawing area.
+	    cover the drawing area.  This can help avoid flicker.
   </ul>
 
   If setBackgroundPixmap() or setBackgroundColor() is called, the
