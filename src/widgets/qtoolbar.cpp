@@ -52,8 +52,6 @@
 #include "qpopupmenu.h"
 #include "qtimer.h"
 
-bool toolbarHackFor30Development = TRUE;
-
 class QArrowWidget : public QWidget
 {
 public:
@@ -89,7 +87,7 @@ class QToolBarPrivate
 {
 public:
     QToolBarPrivate() : moving( FALSE ), arrow( 0 ), menu( 0 ), back( 0 ), button( 0 )
-    { stretchable[ 0 ] = FALSE; stretchable[ 1 ] = FALSE; hiddenItems.setAutoDelete( FALSE ); }
+    { stretchable[ 0 ] = FALSE; stretchable[ 1 ] = FALSE; hiddenItems.setAutoDelete( FALSE ); hideHandle = FALSE; }
 
     bool moving;
     bool stretchable[ 2 ];
@@ -98,7 +96,8 @@ public:
     QArrowWidget *back;
     QIntDict<QButton> hiddenItems;
     QButton *button;
-
+    bool hideHandle;
+    
 };
 
 
@@ -118,6 +117,7 @@ private:
     Orientation orient;
 };
 
+void QToolBar::setShowHandle( bool b ) { d->hideHandle = !b; }
 
 
 QToolBarSeparator::QToolBarSeparator(Orientation o , QToolBar *parent,
@@ -288,7 +288,7 @@ void QToolBar::init()
 					       QBoxLayout::LeftToRight ),
 			style() == WindowsStyle ? 2 : 1, 0 );
     boxLayout()->setAutoAdd( TRUE );
-    if ( !mw || mw->toolBarsMovable() || !toolbarHackFor30Development )
+    if ( ( !mw || mw->toolBarsMovable() ) && !d->hideHandle )
 	boxLayout()->addSpacing( 9 );
 
     if ( mw ) {
@@ -312,7 +312,7 @@ QBoxLayout *QToolBar::boxLayout()
 			     ? QBoxLayout::Down : ( QApplication::reverseLayout() ? QBoxLayout::RightToLeft :
 						    QBoxLayout::LeftToRight ),
 			     style() == WindowsStyle ? 2 : 1, 0 );
-	if ( !mw || mw->toolBarsMovable() || !toolbarHackFor30Development )
+	if ( ( !mw || mw->toolBarsMovable() ) && !d->hideHandle )
 	    boxLayout()->addSpacing( 9 );
 	return bl;
     }
@@ -889,7 +889,7 @@ void QToolBar::emulateButtonClicked()
 
 void QToolBar::paintToolBar()
 {
-    if ( mw && ( !mw->toolBarsMovable() || !toolbarHackFor30Development ) )
+    if ( ( mw && !mw->toolBarsMovable() ) || d->hideHandle ) 
 	return;
 
     QPainter p( this );

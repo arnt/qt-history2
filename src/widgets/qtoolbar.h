@@ -91,9 +91,11 @@ public:
     QSize minimumSize() const;
     QSize minimumSizeHint() const;
 
+    void setShowHandle( bool b ); // ### just for experiencing
+    
 public slots:
     virtual void setOrientation( Orientation );
-    
+
 protected:
     void paintEvent( QPaintEvent * );
     void resizeEvent( QResizeEvent * );
