@@ -77,9 +77,9 @@ if [ "$local" = "yes" ]; then
   find qt -path 'qt/doc/html' -prune -o \( \( \( -type f -o -type l \) -a ! \( -perm +011 -a \( -path '*examples*' -o -path '*tutorial*' \) \) \) \) -print | \
     egrep -v 'CVS|.cvsignore|.depend|core$|\.o$|\.a$|\.so|~|#|\.debug|moc_|\.moc$' | \
     tar cfT - - | ( cd ${DISTDIR} ; tar xf - )
-  rm -f ${DISTDIR}/qt/include/*  
-  rm -f ${DISTDIR}/qt/bin/moc    
-  rm -f ${DISTDIR}/qt/src/moc/moc    
+  rm -f ${DISTDIR}/qt/include/*
+  rm -f ${DISTDIR}/qt/bin/moc
+  rm -f ${DISTDIR}/qt/src/moc/moc
 else
   echo "Exporting the entire Qt archive..." >&2
   cvs -Q export -rHEAD qt
@@ -167,7 +167,6 @@ else
   mv ${DISTDIR}/qt/doc/html ${DISTDIR}/qt
   cd ${DISTDIR}
   mv -f ${DISTDIR}/qt/gif/*.png ${DISTDIR}/qt/html
-  mv -f ${DISTDIR}/qt/gif/*.gif ${DISTDIR}/qt/html
   mv -f ${DISTDIR}/qt/gif/*.jpg ${DISTDIR}/qt/html
 #   mv -f ${DISTDIR}/qt/doc/.qdoc-links ${DISTDIR}
   mv -f ${DISTDIR}/qt/doc ${DISTDIR}/qt/src
