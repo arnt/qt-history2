@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#12 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#13 $
 **
 ** Implementation of QWidget and QView classes for X11
 **
@@ -14,14 +14,13 @@
 #include "qobjcoll.h"
 #include "qapp.h"
 #include "qpixmap.h"
-#include "qwininfo.h"
 #define	 GC GC_QQQ
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#12 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#13 $";
 #endif
 
 
@@ -47,42 +46,61 @@ bool QWidget::create()				// create widget
     if ( testFlag( WState_Created ) )		// already created
 	return FALSE;
 
+    setFlag( WState_Created );			// set created flag
+    setDevType( PDT_WIDGET );			// set widget paint device flag
+
     if ( !parentWidget() )
 	setFlag( WType_Overlap );		// overlapping widget
 
     int	   screen = qXScreen();			// X11 screen
-    QSize  dsz = QWinInfo::displaySize();	// size of display
+    int	   sw = DisplayWidth( dpy, screen );	// screen width
+    int	   sh = DisplayHeight( dpy, screen );	// screen height
     bool   overlap = testFlag( WType_Overlap );
-    bool   popup = testFlag( WType_Popup );
+    bool   popup   = testFlag( WType_Popup );
+    bool   desktop = testFlag( WType_Desktop );
     Window parentwin;
-    int	   border;
+    int	   border = 0;
     WId	   id;
 
-    ncrect.setRect( dsz.width()/2-dsz.width()/4,// default non-client rect
-		    dsz.height()/2 - dsz.height()/5,
-		    dsz.width()/2, 2*dsz.height()/5 );
+    fg_col = black;				// set default foreground color
+    bg_col = white;				// set default background color
+
+    if ( desktop ) {				// desktop widget
+	ncrect.setRect( 0, 0, sw, sh );
+	overlap = popup = FALSE;		// force these flags off
+    }
+    else					// default non-client rect
+	ncrect.setRect( sw/2 - sw/4, sh/2 - sh/5, sw/2, 2*sh/5 );
     rect = ncrect;				// default client rect
 
-    if ( overlap || popup ) {			// overlapping widget
-	parentwin = RootWindow(dpy,screen);
-	border = 0;
-    }
+    if ( overlap || popup || desktop )		// overlapping widget
+	parentwin = RootWindow( dpy, screen );
     else {					// child widget
 	parentwin = parentWidget()->id();
-	border = testFlag(WStyle_Border) ? 1 : 0;
+	if ( testFlag(WStyle_Border) )		// has a border
+	    border = 1;
     }
 
-    fg_col = black;
-    bg_col = white;
-
-    id = XCreateSimpleWindow( dpy, parentwin,
-			      ncrect.left(), ncrect.top(),
-			      ncrect.width(), ncrect.height(),
-			      border,
-			      fg_col.pixel(),
-			      bg_col.pixel() );
-    set_id( id );				// set widget id/handle + hd
-    setDevType( PDT_WIDGET );
+    if ( desktop ) {				// desktop widget
+	id = parentwin;				// id = root window
+	QWidget *otherDesktop = find( id );	// is there another desktop?
+	if ( otherDesktop && otherDesktop->testFlag(WPaintDesktop) ) {
+	    otherDesktop->set_id( 0 );		// remove id from widget mapper
+	    set_id( id );			// make sure otherDesktop is
+	    otherDesktop->set_id( id );		//   found first
+	}
+	else
+	    set_id( id );
+    }
+    else {
+	id = XCreateSimpleWindow( dpy, parentwin,
+				  ncrect.left(), ncrect.top(),
+				  ncrect.width(), ncrect.height(),
+				  border,
+				  fg_col.pixel(),
+				  bg_col.pixel() );
+	set_id( id );				// set widget id/handle + hd
+    }
 
     if ( popup ) {				// popup widget
 	XSetTransientForHint( dpy, parentwin, id );
@@ -93,7 +111,7 @@ bool QWidget::create()				// create widget
 				 CWOverrideRedirect | CWSaveUnder,
 				 &v );
     }
-    else if ( overlap ) {			// only top level widgets
+    else if ( overlap ) {			// top level widget
 	XSizeHints size_hints;
 	size_hints.flags = PPosition | PSize | PWinGravity;
 	size_hints.x = rect.left();
@@ -119,8 +137,8 @@ bool QWidget::create()				// create widget
     setMouseMoveEvents( FALSE );		// events only when button down
     gc = qXAllocGC( fnt.fontId(), bg_col.pixel(),
 		    fg_col.pixel() );
-    setCursor( arrowCursor );			// default cursor
-    setFlag( WState_Created );
+    if ( !desktop )
+	setCursor( arrowCursor );		// default cursor
     return TRUE;
 }
 
@@ -141,7 +159,8 @@ bool QWidget::destroy()				// destroy widget
 	    }
 	}
 	qXFreeGC( gc );				// free graphics context
-	XDestroyWindow( dpy, ident );
+	if ( !testFlag(WType_Desktop) )
+	    XDestroyWindow( dpy, ident );
 	set_id( 0 );
     }
     return TRUE;
@@ -150,18 +169,23 @@ bool QWidget::destroy()				// destroy widget
 
 bool QWidget::setMouseMoveEvents( bool onOff )
 {
-    bool v = testFlag( WEtc_MouseMove );
+    bool v = testFlag( WGetMouseMove );
     ulong mm;
     if ( onOff ) {
 	mm = PointerMotionMask;
-	setFlag( WEtc_MouseMove );
+	setFlag( WGetMouseMove );
     }
     else {
 	mm = 0;
-	clearFlag( WEtc_MouseMove );
+	clearFlag( WGetMouseMove );
     }
-    XSelectInput( dpy, ident,			// specify events
-		  mm | stdWidgetEventMask );
+    if ( testFlag(WType_Desktop) ) {		// desktop widget?
+	if ( testFlag(WPaintDesktop) )		// get desktop paint events
+	    XSelectInput( dpy, ident, ExposureMask );
+    }
+    else
+	XSelectInput( dpy, ident,		// specify events
+		      mm | stdWidgetEventMask );
     return v;
 }
 
@@ -309,7 +333,7 @@ void QWidget::show()				// show widget
 	    object = it.current();		//   (except popups)
 	    if ( object->isWidgetType() ) {
 		widget = (QWidget*)object;
-		if ( !widget->testFlag(WEtc_DoHide) )
+		if ( !widget->testFlag(WExplicitHide) )
 		    widget->show();
 	    }
 	    ++it;
@@ -317,7 +341,7 @@ void QWidget::show()				// show widget
     }
     XMapWindow( dpy, ident );
     setFlag( WState_Visible );
-    clearFlag( WEtc_DoHide );
+    clearFlag( WExplicitHide );
     if ( testFlag(WType_Popup) )
 	qXOpenPopup( this );
 }
@@ -325,7 +349,7 @@ void QWidget::show()				// show widget
 void QWidget::hide()				// hide widget
 {
     if ( !testFlag(WState_Visible) ) {		// not visible
-	setFlag( WEtc_DoHide );
+	setFlag( WExplicitHide );
 	return;
     }
     if ( testFlag(WType_Popup) )
@@ -377,7 +401,7 @@ void QWidget::move( int x, int y )		// move widget
 {
     QPoint p(x,y);
     QRect r = ncrect;
-    if ( r.topLeft() == p )			// same position
+    if ( r.topLeft() == p || testFlag(WType_Desktop) )
 	return;
     qXRequestConfig( this );
     r.setTopLeft( p );
@@ -402,7 +426,7 @@ void QWidget::resize( int w, int h )		// resize widget
 	h = 1;
     QRect r = rect;
     QSize s(w,h);
-    if ( r.size() == s )			// same size
+    if ( r.size() == s || testFlag(WType_Desktop) )
 	return;
     qXRequestConfig( this );
     r.setSize( s );
@@ -426,7 +450,7 @@ void QWidget::changeGeometry( int x, int y, int w, int h )
     if ( h < 1 )
 	h = 1;
     QRect  r( x, y, w, h );
-    if ( r == rect )
+    if ( r == rect || testFlag(WType_Desktop) )
 	return;
     qXRequestConfig( this );
     setRect( r );
