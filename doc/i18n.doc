@@ -262,9 +262,10 @@ QApplication::installTranslator().
 If you have been using the old Qt tools (\c findtr, \c msg2qm and \c
 mergetr), you can use \e qm2ts to convert your old \c .qm files.
 
-\e linguist, \e lupdate and \e lrelease are installed in \c
-$QTDIR/bin. Click Help|Manual in \e{Qt Linguist} to access the user's
-manual; it contains a tutorial to get you started.
+\e linguist, \e lupdate and \e lrelease are installed in the \c bin
+subdirectory of the base directory Qt is installed into. Click Help|Manual
+in \e{Qt Linguist} to access the user's manual; it contains a tutorial
+to get you started.
 
 While these utilities offer a convenient way to create \c .qm files,
 any system that writes \c .qm files is sufficient. You could make an
