@@ -477,3 +477,7 @@ QToolTip:
 Text Double-Buffering:
     Double buffer the text, I don't know if we want to do this or anything, but a user asked
     for it, so here it is.
+
+QSound:
+    Extend the functionality of QSound to be able to play back a portion of an audio file among 
+    other things, see info/arc-14/28658 for more.
