@@ -335,5 +335,27 @@ Q_CORE_EXPORT QDataStream& operator>> ( QDataStream& s, QCoreVariant::Type& p );
 Q_CORE_EXPORT QDataStream& operator<< ( QDataStream& s, const QCoreVariant::Type p );
 #endif
 
+template<typename T> T qt_cast(const QCoreVariant &v);
+template<> inline int qt_cast<int>(const QCoreVariant &v) { return v.toInt(); }
+template<> inline uint qt_cast<uint>(const QCoreVariant &v) { return v.toUInt(); }
+template<> inline Q_LLONG qt_cast<Q_LLONG>(const QCoreVariant &v) { return v.toLongLong(); }
+template<> inline Q_ULLONG qt_cast<Q_ULLONG>(const QCoreVariant &v) { return v.toULongLong(); }
+template<> inline bool qt_cast<bool>(const QCoreVariant &v) { return v.toBool(); }
+template<> inline double qt_cast<double>(const QCoreVariant &v) { return v.toDouble(); }
+template<> inline QByteArray qt_cast<QByteArray>(const QCoreVariant &v) { return v.toByteArray(); }
+
+template<> QString qt_cast<QString>(const QCoreVariant &v);
+template<> QBitArray qt_cast<QBitArray>(const QCoreVariant &v);
+#ifndef QT_NO_STRINGLIST
+template<> QStringList qt_cast<QStringList>(const QCoreVariant &v);
+#endif
+template<> QDate qt_cast<QDate>(const QCoreVariant &v);
+template<> QTime qt_cast<QTime>(const QCoreVariant &v);
+template<> QDateTime qt_cast<QDateTime>(const QCoreVariant &v);
+#ifndef QT_NO_TEMPLATE_VARIANT
+template<> QList<QCoreVariant> qt_cast<QList<QCoreVariant> >(const QCoreVariant &v);
+template<> QMap<QString,QCoreVariant> qt_cast<QMap<QString,QCoreVariant> >(const QCoreVariant &v);
+#endif
+
 #endif //QT_NO_VARIANT
 #endif // QCOREVARIANT_H

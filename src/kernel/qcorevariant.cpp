@@ -29,6 +29,22 @@
 #define DBL_DIG 10
 #endif //DBL_DIG
 
+template<> QBitArray qt_cast<QBitArray>(const QCoreVariant &v) { return v.toBitArray(); }
+template<> QString qt_cast<QString>(const QCoreVariant &v) { return v.toString(); }
+#ifndef QT_NO_STRINGLIST
+template<> QStringList qt_cast<QStringList>(const QCoreVariant &v)
+{ return v.toStringList(); }
+#endif
+template<> QDate qt_cast<QDate>(const QCoreVariant &v) { return v.toDate(); }
+template<> QTime qt_cast<QTime>(const QCoreVariant &v) { return v.toTime(); }
+template<> QDateTime qt_cast<QDateTime>(const QCoreVariant &v) { return v.toDateTime(); }
+#ifndef QT_NO_TEMPLATE_VARIANT
+template<> QList<QCoreVariant> qt_cast<QList<QCoreVariant> >(const QCoreVariant &v) 
+{ return v.toList(); }
+template<> QMap<QString,QCoreVariant> qt_cast<QMap<QString,QCoreVariant> >(const QCoreVariant &v)
+{ return v.toMap(); }
+#endif
+
 QCoreVariant::Private QCoreVariant::shared_invalid = { Q_ATOMIC_INIT(1), Invalid, true, {0} };
 
 static void construct(QCoreVariant::Private *x, const void *v)
