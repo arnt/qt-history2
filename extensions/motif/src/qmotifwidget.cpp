@@ -138,7 +138,7 @@ public:
     \class QMotifWidget
     \brief The QMotifWidget class provides the QWidget API for Xt/Motif widgets.
 
-    \extension QMotif
+    \extension Motif
 
     QMotifWidget has a single purpose, to provide a QWidget that can
     act as a parent for any Xt/Motif widget.  Since the QMotifWidget
@@ -207,12 +207,12 @@ QMotifWidget::QMotifWidget( QWidget *parent, WidgetClass widgetclass,
 */
 QMotifWidget::~QMotifWidget()
 {
-    QMotif::mapper()->remove( winId() );
+    QMotif::unregisterWidget( this );
+    XtDestroyWidget( d->widget );
     if ( d->shell ) {
 	( (QMotifWidgetShellWidget) d->shell )->qmotifwidgetshell.widget = 0;
 	XtDestroyWidget( d->shell );
     }
-    XtDestroyWidget( d->widget );
     delete d;
 
     destroy( FALSE );
@@ -227,7 +227,7 @@ Widget QMotifWidget::motifWidget() const
     return d->widget;
 }
 
-/*!
+/*! \reimp
     Manages the embedded Xt/Motif widget and shows the widget.
 */
 void QMotifWidget::show()
@@ -244,8 +244,8 @@ void QMotifWidget::show()
     QWidget::show();
 }
 
-/*!
-    Unmanaged the embedded Xt/Motif widget and hides the widget.
+/*!\reimp
+    Unmanages the embedded Xt/Motif widget and hides the widget.
 */
 void QMotifWidget::hide()
 {
@@ -339,7 +339,7 @@ void QMotifWidget::realize( Widget w )
 			     x(), y() );
 	}
     }
-    QMotif::mapper()->insert( winId(), this );
+    QMotif::registerWidget( this );
 }
 
 /*! \internal
@@ -386,9 +386,41 @@ void qmotif_widget_shell_change_managed( Widget w )
     }
 }
 
+/*!\reimp
+ */
 bool QMotifWidget::event( QEvent* e )
 {
-    if ( QMotif::dispatchQEvent( e, this ) )
+    if ( dispatchQEvent( e, this ) )
 	return TRUE;
     return QWidget::event( e );
+}
+
+bool QMotifWidget::dispatchQEvent( QEvent* e, QWidget* w)
+{
+    switch ( e->type() ) {
+    case QEvent::KeyPress:
+    case QEvent::KeyRelease:
+	if ( QMotif::lastEvent() ) {
+	    QMotif::lastEvent()->xany.window = w->winId();
+	    QMotif::redeliverEvent( QMotif::lastEvent() );
+	}
+	break;
+    case QEvent::FocusIn:
+    {
+	XFocusInEvent ev = { XFocusIn, 0, TRUE, w->x11Display(), w->winId(),
+			       NotifyNormal, NotifyPointer  };
+	QMotif::redeliverEvent( (XEvent*)&ev );
+	break;
+    }
+    case QEvent::FocusOut:
+    {
+	XFocusOutEvent ev = { XFocusOut, 0, TRUE, w->x11Display(), w->winId(),
+			       NotifyNormal, NotifyPointer  };
+	QMotif::redeliverEvent( (XEvent*)&ev );
+	break;
+    }
+    default:
+	break;
+    }
+    return FALSE;
 }

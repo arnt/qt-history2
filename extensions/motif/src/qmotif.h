@@ -1,37 +1,40 @@
 #ifndef QMOTIF_H
 #define QMOTIF_H
 
-#include <qnamespace.h>
-#include <qwidgetintdict.h>
+#include <qeventloop.h>
 
 #include <X11/Intrinsic.h>
 
 class QMotifPrivate;
 
-class QMotif : public Qt
+class QMotif : public QEventLoop
 {
+    Q_OBJECT
+
 public:
-    QMotif();
-    virtual ~QMotif();
+    QMotif( const char *applicationClass, XtAppContext context = NULL, XrmOptionDescRec *options = 0, int numOptions = 0);
+    ~QMotif();
 
     XtAppContext applicationContext() const;
-    void setApplicationContext( XtAppContext );
 
-    void initialize( int *argc, char **argv, char *applicationClass,
-		     XrmOptionDescRec *options, int numOptions );
+    void registerSocketNotifier( QSocketNotifier * );
+    void unregisterSocketNotifier( QSocketNotifier * );
 
-    static bool redeliverEvent( XEvent * );
+    static void registerWidget( QWidget* );
+    static void unregisterWidget( QWidget* );
+    static bool redeliverEvent( XEvent *event );
+    static XEvent* lastEvent();
+
+protected:
+    bool processNextEvent( ProcessEventsFlags flags, bool canWait );
 
 private:
+    void appStartingUp();
+    void appClosingDown();
     QMotifPrivate *d;
 
-    static QWidgetIntDict *mapper();
-
-    friend class QMotifEventLoop;
-    friend class QMotifDialog;
-    friend class QMotifWidget;
-    static bool dispatchQEvent( QEvent*, QWidget*);
-    friend Boolean qmotif_event_dispatcher( XEvent * );
 };
+
+
 
 #endif // QMOTIF_H

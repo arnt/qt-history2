@@ -776,6 +776,8 @@ void QApplication::construct( int &argc, char **argv, Type type )
     initialize( argc, argv );
     if ( qt_is_gui_used )
 	qt_maxWindowRect = desktop()->rect();
+    if ( eventloop )
+	eventloop->appStartingUp();
 }
 
 /*!
@@ -939,6 +941,8 @@ QWidget *QApplication::activeModalWidget()
 
 QApplication::~QApplication()
 {
+    if ( eventloop )
+	eventloop->appClosingDown();
     if ( postRList ) {
 	QVFuncList::Iterator it = postRList->begin();
 	while ( it != postRList->end() ) {	// call post routines

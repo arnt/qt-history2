@@ -56,7 +56,7 @@
     be delivered.
 
     QEventLoop also allows the integration of an external event loop with
-    the Qt event loop.  The QMotif Extension included with Qt includes
+    the Qt event loop.  The Motif Extension included with Qt includes
     a reimplementation of QEventLoop for merging Qt and Motif events
     together.
 */
@@ -333,3 +333,6 @@ void QEventLoop::processEvents( ProcessEventsFlags flags, int maxTime )
 /*! \fn void QEventLoop::macHandleTimer( TimerInfo * )
     \internal
 */
+
+void QEventLoop::appStartingUp(){}
+void QEventLoop::appClosingDown(){}

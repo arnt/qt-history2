@@ -33,6 +33,8 @@ private:
     friend void qmotif_widget_shell_realize( Widget, XtValueMask *,
                                              XSetWindowAttributes *);
     friend void qmotif_widget_shell_change_managed( Widget );
+    static bool dispatchQEvent( QEvent*, QWidget*);
+    friend class QMotifDialog;
 };
 
 #endif // QMOTIFWIDGET_H

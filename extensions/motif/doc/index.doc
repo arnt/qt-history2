@@ -1,25 +1,24 @@
 /*
-    Index page for QMotif Extension
+    Index page for Motif Extension
 */
 
-/*! \page qmotif-extension.html
+/*! \page motif-extension.html
 
-\title QMotif Extension
-\keyword QMotif
+\title Motif Extension
+\keyword Motif
 
-The QMotif Extension assists the migration of old Xt and Motif based
+The Motif Extension assists the migration of old Xt and Motif based
 code to the more comfortable Qt toolkit. This extension replaces the
-older Qt Xt/Motif Supprt Extension included with earlier versions of
+older Qt Xt/Motif Support Extension included with earlier versions of
 Qt.
 
 \section1 Information
 
-The QMotif Extension consists of the follow classes:
+The Motif Extension consists of the follow classes:
 \list
 \i \l QMotif
 \i \l QMotifWidget
 \i \l QMotifDialog
-\i \l QMotifEventLoop
 \endlist
 
 \section1 How-to
@@ -32,6 +31,6 @@ need migration.
 \endlist
 
 
-See also the \link qmotif-examples.html QMotif Examples\endlink.
+See also the \link motif-examples.html Motif Examples\endlink.
 
 */

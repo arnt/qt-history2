@@ -1,7 +1,6 @@
 #include "qmotif.h"
-#include "qmotif_p.h"
-
 #include <qapplication.h>
+#include <qwidgetintdict.h>
 
 // resolve the conflict between X11's FocusIn and QEvent::FocusIn
 const int XFocusOut = FocusOut;
@@ -14,11 +13,62 @@ const int XKeyRelease = KeyRelease;
 #undef KeyPress
 #undef KeyRelease
 
+Boolean qmotif_event_dispatcher( XEvent *event );
+
+class QMotifPrivate
+{
+public:
+    QMotifPrivate();
+
+    void hookMeUp();
+    void unhook();
+
+    XtAppContext appContext, ownContext;
+    QMemArray<XtEventDispatchProc> dispatchers;
+    QWidgetIntDict mapper;
+
+    QIntDict<QSocketNotifier> socknotDict;
+    bool activate_timers;
+    int timerid;
+
+    // arguments for Xt display initialization
+    const char* applicationClass;
+    XrmOptionDescRec* options;
+    int numOptions;
+};
+static QMotifPrivate *static_d = 0;
+static XEvent* last_xevent = 0;
+
+
+/*! \internal
+  Redeliver the given XEvent to Xt.
+
+  Rationale: An XEvent handled by Qt does not go through the Xt event
+  handlers, and the internal state of Xt/Motif widgets will not be
+  updated.  This function should only be used if an event delivered by
+  Qt to a QWidget needs to be sent to an Xt/Motif widget.
+*/
+bool QMotif::redeliverEvent( XEvent *event )
+{
+    // redeliver the event to Xt, NOT through Qt
+    if ( static_d->dispatchers[ event->type ]( event ) )
+	return TRUE;
+    return FALSE;
+};
+
+
+/*!\internal
+ */
+XEvent* QMotif::lastEvent()
+{
+    return last_xevent;
+}
+
 
 QMotifPrivate::QMotifPrivate()
-    : appContext(NULL)
+    : appContext(NULL), ownContext(NULL),
+      activate_timers(FALSE), timerid(-1)
 {
-    eventloop = 0;
 }
 
 void QMotifPrivate::hookMeUp()
@@ -47,20 +97,22 @@ void QMotifPrivate::unhook()
 	(void) XtSetEventDispatcher( QPaintDevice::x11AppDisplay(),
 				     et, dispatchers[ et ] );
     dispatchers.resize( 0 );
+
+    /*
+      We cannot destroy the app context here because it closes the X
+      display, something QApplication does as well a bit later.
+      if ( ownContext )
+          XtDestroyApplicationContext( ownContext );
+     */
+    appContext = ownContext = 0;
 }
-
-
-static QMotif *QMotif_INSTANCE = 0;
-
-static XEvent* last_xevent = 0;
-
 
 extern bool qt_try_modal( QWidget *, XEvent * ); // defined in qapplication_x11.cpp
 Boolean qmotif_event_dispatcher( XEvent *event )
 {
     QApplication::sendPostedEvents();
 
-    QWidgetIntDict *mapper = QMotif::mapper();
+    QWidgetIntDict *mapper = &static_d->mapper;
     QWidget* qMotif = mapper->find( event->xany.window );
     if ( !qMotif && QWidget::find( event->xany.window) == 0 ) {
 	// event is not for Qt, try Xt
@@ -118,7 +170,7 @@ Boolean qmotif_event_dispatcher( XEvent *event )
 
     }
 
-    if ( QMotif_INSTANCE->d->dispatchers[ event->type ]( event ) )
+    if ( static_d->dispatchers[ event->type ]( event ) )
 	// Xt handled the event.
 	return True;
 
@@ -126,41 +178,12 @@ Boolean qmotif_event_dispatcher( XEvent *event )
 }
 
 
-bool QMotif::dispatchQEvent( QEvent* e, QWidget* w)
-{
-    switch ( e->type() ) {
-    case QEvent::KeyPress:
-    case QEvent::KeyRelease:
-	if ( last_xevent ) {
-	    last_xevent->xany.window = w->winId();
-	    redeliverEvent( last_xevent );
-	}
-	break;
-    case QEvent::FocusIn:
-    {
-	XFocusInEvent ev = { XFocusIn, 0, TRUE, w->x11Display(), w->winId(),
-			       NotifyNormal, NotifyPointer  };
-	redeliverEvent( (XEvent*)&ev );
-	break;
-    }
-    case QEvent::FocusOut:
-    {
-	XFocusOutEvent ev = { XFocusOut, 0, TRUE, w->x11Display(), w->winId(),
-			       NotifyNormal, NotifyPointer  };
-	redeliverEvent( (XEvent*)&ev );
-	break;
-    }
-    default:
-	break;
-    }
-    return FALSE;
-}
 
 /*!
     \class QMotif
-    \brief The QMotif class is the core behind the QMotif Extension.
+    \brief The QMotif class is the core behind the Motif Extension.
 
-    \extension QMotif
+    \extension Motif
 
     QMotif only provides a few public functions, but is the brains
     behind the integration.  QMotif is responsible for initializing
@@ -168,8 +191,8 @@ bool QMotif::dispatchQEvent( QEvent* e, QWidget* w)
     connection to the X server, this is done by using QApplication.
 
     The only member function in QMotif that depends on an X server
-    connection is QMotif::initialize().	 QMotif can be created before
-    or after QApplication.
+    connection is QMotif::initialize(). QMotif must be created before
+    QApplication.
 
     Example usage of QMotif and QApplication:
 
@@ -180,23 +203,14 @@ bool QMotif::dispatchQEvent( QEvent* e, QWidget* w)
 
     int main(int argc, char **argv)
     {
-	QMotif integrator;
-
+	QMotif integrator( "AppClass" );
 	XtAppSetFallbackResources( integrator.applicationContext(),
 				   resources );
-
 	QApplication app( argc, argv );
-	integrator.initialize( &argc, argv, "AppClass", NULL, 0 );
 
 	...
 
-
-	int ret = app.exec();
-
-	XtDestroyApplication( integrator.applicationContext() );
-	integrator.setApplicationContext( 0 );
-
-	return ret;
+	return app.exec();
     }
     \endcode
 */
@@ -204,111 +218,209 @@ bool QMotif::dispatchQEvent( QEvent* e, QWidget* w)
 /*!
   Creates QMotif, which allows Qt and Xt/Motif integration.
 
-  The Xt toolkit is initialized by this constructor by calling
-  XtToolkitInitialize().
+  If \a context is NULL, QMotif creates a default application context
+  itself. The context is accessible through applicationContext().
+
+  All arguments passed to this function (\a applicationClass, \a
+  options and \a numOptions) are used to call XtDisplayInitialize()
+  after QApplication has been constructed.
 */
-QMotif::QMotif()
+
+
+
+QMotif::QMotif( const char *applicationClass, XtAppContext context, XrmOptionDescRec *options , int numOptions)
 {
 #if defined(QT_CHECK_STATE)
-    if ( QMotif_INSTANCE )
+    if ( static_d )
 	qWarning( "QMotif: should only have one QMotif instance!" );
 #endif
 
-    QMotif_INSTANCE = this;
-    d = new QMotifPrivate;
+    d = static_d = new QMotifPrivate;
     XtToolkitInitialize();
+    if ( context )
+	d->appContext = context;
+    else
+	d->ownContext = d->appContext = XtCreateApplicationContext();
+
+    d->applicationClass = applicationClass;
+    d->options = options;
+    d->numOptions = numOptions;
 }
 
 
 /*!
   Destroys QMotif.
-
-  \warning The application context is not destroyed automatically.
-  This must be done before destroying the QMotif instance.
 */
 QMotif::~QMotif()
 {
-    d->unhook();
+  //   d->unhook();
     delete d;
 }
 
 /*!
-  Returns the application context.  If no application context has been
-  set, then QMotif creates one.
-
-  The applicaiton context is \e not destroyed in the QMotif destructor
-  if QMotif created the application context.  The application
-  programmer must do this before destroying the QMotif instance.
+  Returns the application context.
 */
 XtAppContext QMotif::applicationContext() const
 {
-    if ( d->appContext == NULL )
-	d->appContext = XtCreateApplicationContext();
     return d->appContext;
 }
 
-/*!
-    Sets the application context to \a appContext.
-*/
-void QMotif::setApplicationContext( XtAppContext appContext )
-{
-#if defined(QT_CHECK_STATE)
-    if ( d->appContext != NULL )
-	qWarning( "QMotif: WARNING: only one application context should be used." );
-#endif // QT_CHECK_STATE
-    d->appContext = appContext;
-}
 
-/*!
-    Initialize the application context. All arguments passed to this
-    function (\a argc, \a argv, \a applicationClass, \a options and \a
-    numOptions) are used to call XtDisplayInitialize().
-*/
-void QMotif::initialize( int *argc, char **argv, char *applicationClass,
-			      XrmOptionDescRec *options, int numOptions )
+void QMotif::appStartingUp()
 {
-    XtDisplayInitialize( applicationContext(),
+    int argc = qApp->argc();
+    XtDisplayInitialize( d->appContext,
 			 QPaintDevice::x11AppDisplay(),
 			 qApp->name(),
-			 applicationClass,
-			 options,
-			 numOptions,
-			 argc,
-			 argv );
+			 d->applicationClass,
+			 d->options,
+			 d->numOptions,
+			 &argc,
+			 qApp->argv() );
     d->hookMeUp();
 }
 
-/*! \internal
-  Redeliver the given XEvent to Xt.  This is used by QMotifDialog and
-  QMotifWidget.
-
-  Rationale: An XEvent handled by Qt does not go through the Xt event
-  handlers, and the internal state of Xt/Motif widgets will not be
-  updated.  This function should only be used if an event delivered by
-  Qt to a QWidget needs to be sent to an Xt/Motif widget.
-
-  You should not need to call this function.
-*/
-bool QMotif::redeliverEvent( XEvent *event )
+void QMotif::appClosingDown()
 {
-    // redeliver the event to Xt, NOT through Qt
-    if ( QMotif_INSTANCE->d->dispatchers[ event->type ]( event ) )
-	return TRUE;
-    return FALSE;
-};
+    d->unhook();
+}
+
+
+/*!\internal
+ */
+void QMotif::registerWidget( QWidget* w )
+{
+    if ( !static_d )
+	return;
+    static_d->mapper.insert( w->winId(), w );
+}
+
+
+/*!\internal
+ */
+void QMotif::unregisterWidget( QWidget* w )
+{
+    if ( !static_d )
+	return;
+    static_d->mapper.remove( w->winId() );
+}
+
 
 /*! \internal
-  Returns the the Xt/Motif to QWidget mapper.  This mapper is used for
-  delivery of modal events in QMotifDialog/QMotifWidget.
-*/
-QWidgetIntDict *QMotif::mapper()
+ */
+void qmotif_socknot_handler( XtPointer pointer, int *, XtInputId *id )
 {
-#if defined(QT_CHECK_STATE)
-    if ( ! QMotif_INSTANCE ) {
-	qWarning( "QMotif::mapper: must create a QMotif first!" );
-	return 0;
+    QMotif *eventloop = (QMotif *) pointer;
+    QSocketNotifier *socknot = static_d->socknotDict.find( *id );
+    if ( ! socknot ) // this shouldn't happen
+	return;
+    eventloop->setSocketNotifierPending( socknot );
+}
+
+/*! \reimp
+ */
+void QMotif::registerSocketNotifier( QSocketNotifier *notifier )
+{
+    XtInputMask mask;
+    switch ( notifier->type() ) {
+    case QSocketNotifier::Read:
+	mask = XtInputReadMask;
+	break;
+
+    case QSocketNotifier::Write:
+	mask = XtInputWriteMask;
+	break;
+
+    case QSocketNotifier::Exception:
+	mask = XtInputExceptMask;
+	break;
+
+    default:
+	qWarning( "QMotifEventLoop: socket notifier has invalid type" );
+	return;
     }
-#endif // QT_CHECK_STATE
 
-    return &QMotif_INSTANCE->d->mapper;
+    XtInputId id = XtAppAddInput( d->appContext,
+				  notifier->socket(), (XtPointer) mask,
+				  qmotif_socknot_handler, this );
+    d->socknotDict.insert( id, notifier );
+
+    QEventLoop::registerSocketNotifier( notifier );
+}
+
+/*! \reimp
+ */
+void QMotif::unregisterSocketNotifier( QSocketNotifier *notifier )
+{
+    QIntDictIterator<QSocketNotifier> it( d->socknotDict );
+    while ( it.current() && notifier != it.current() )
+	++it;
+    if ( ! it.current() ) {
+	// this shouldn't happen
+	qWarning( "QMotifEventLoop: failed to unregister socket notifier" );
+	return;
+    }
+
+    XtRemoveInput( it.currentKey() );
+    d->socknotDict.remove( it.currentKey() );
+
+    QEventLoop::unregisterSocketNotifier( notifier );
+}
+
+/*! \internal
+ */
+void qmotif_timeout_handler( XtPointer, XtIntervalId * )
+{
+    static_d->activate_timers = TRUE;
+    static_d->timerid = -1;
+}
+
+/*! \reimp
+ */
+bool QMotif::processNextEvent( ProcessEventsFlags flags, bool canWait )
+{
+    // Qt uses posted events to do lots of delayed operations, like repaints... these
+    // need to be delivered before we go to sleep
+    QApplication::sendPostedEvents();
+
+    // make sure we fire off Qt's timers
+    int ttw = timeToWait();
+    if ( d->timerid != -1 ) {
+	XtRemoveTimeOut( d->timerid );
+    }
+    d->timerid = -1;
+    if ( ttw != -1 ) {
+	d->timerid =
+	    XtAppAddTimeOut( d->appContext, ttw,
+			     qmotif_timeout_handler, 0 );
+    }
+
+    // get the pending event mask from Xt and process the next event
+    XtInputMask pendingmask = XtAppPending( d->appContext );
+    XtInputMask mask = pendingmask;
+    if ( pendingmask & XtIMTimer ) {
+	mask &= ~XtIMTimer;
+	// zero timers will starve the Xt X event dispatcher... so process
+	// something *instead* of a timer first...
+	if ( mask != 0 )
+	    XtAppProcessEvent( d->appContext, mask );
+	// and process a timer afterwards
+	mask = pendingmask & XtIMTimer;
+    }
+
+    if ( canWait )
+	XtAppProcessEvent( d->appContext, XtIMAll );
+    else
+	XtAppProcessEvent( d->appContext, mask );
+
+    int nevents = 0;
+    if ( ! ( flags & ExcludeSocketNotifiers ) )
+	nevents += activateSocketNotifiers();
+
+    if ( d->activate_timers ) {
+	nevents += activateTimers();
+    }
+    d->activate_timers = FALSE;
+
+    return ( canWait || ( pendingmask != 0 ) || nevents > 0 );
 }

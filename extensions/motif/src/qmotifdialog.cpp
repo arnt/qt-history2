@@ -1,5 +1,6 @@
-#include "qmotifdialog.h"
 #include "qmotif.h"
+#include "qmotifdialog.h"
+#include "qmotifwidget.h"
 
 #include <qapplication.h>
 #include <qobjectlist.h>
@@ -132,7 +133,7 @@ public:
     \class QMotifDialog
     \brief The QMotifDialog class provides the QDialog API for Motif dialogs.
 
-    \extension QMotif
+    \extension Motif
 
     QMotifDialog provides the QDialog API for Motif dialogs.
     Applications moving to Qt will need to not only rewrite Motif
@@ -370,7 +371,7 @@ QMotifDialog::QMotifDialog( Widget parent, ArgList args, Cardinal argcount,
 */
 QMotifDialog::~QMotifDialog()
 {
-    QMotif::mapper()->remove( winId() );
+    QMotif::unregisterWidget( this );
     ( (QMotifDialogWidget) d->shell )->qmotifdialog.dialog = 0;
     XtDestroyWidget( d->shell );
     delete d;
@@ -519,7 +520,7 @@ void QMotifDialog::realize( Widget w )
 	    XSetTransientForHint( QPaintDevice::x11AppDisplay(), newid,
 				  XtWindow( XtParent( d->shell ) ) );
     }
-    QMotif::mapper()->insert( winId(), this );
+    QMotif::registerWidget( this );
 }
 
 /*! \internal
@@ -632,9 +633,11 @@ void qmotif_dialog_change_managed( Widget w )
     }
 }
 
+/*!\reimp
+ */
 bool QMotifDialog::event( QEvent* e )
 {
-    if ( QMotif::dispatchQEvent( e, this ) )
+    if ( QMotifWidget::dispatchQEvent( e, this ) )
 	return TRUE;
     return QWidget::event( e );
 }

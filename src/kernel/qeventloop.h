@@ -104,6 +104,8 @@ private:
     // internal initialization/cleanup - implemented in various platform specific files
     void init();
     void cleanup();
+    virtual void appStartingUp();
+    virtual void appClosingDown();
 
     // data for the default implementation - other implementations should not
     // use/need this data
