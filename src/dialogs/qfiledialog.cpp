@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#297 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#298 $
 **
 ** Implementation of QFileDialog class
 **
@@ -497,6 +497,9 @@ void QFileListBox::viewportMousePressEvent( QMouseEvent *e )
     }
 
     int i = currentItem();
+    bool wasSelected = FALSE;
+    if ( i != -1 )
+	wasSelected = item( i )->selected();
     QListBox::viewportMousePressEvent( e );
 
     if ( itemAt( e->pos() ) != item( i ) ) {
@@ -505,7 +508,7 @@ void QFileListBox::viewportMousePressEvent( QMouseEvent *e )
     }
 
      if ( !firstMousePressEvent && !didRename && i == currentItem() && currentItem() != -1 &&
-	 filedialog->mode() != QFileDialog::ExistingFiles &&
+	 wasSelected && filedialog->mode() != QFileDialog::ExistingFiles &&
 	 QUrlInfo( filedialog->d->url, "." ).isWritable() && item( currentItem() )->text() != ".." ) {
 	renameTimer->start( QApplication::doubleClickInterval(), TRUE );
 	renameItem = item( i );
