@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwindowdefs.h#60 $
+** $Id: //depot/qt/main/src/kernel/qwindowdefs.h#61 $
 **
 ** Definition of general window system dependent functions, types and
 ** constants
@@ -189,7 +189,7 @@ const ulong WStyle_All		= 0x0003f000;
 const ulong WFont_Metrics	= 0x00040000;	// misc widget flags
 const ulong WFont_Info		= 0x00080000;
 const ulong WMouseTracking	= 0x00100000;
-const ulong WHasAccel		= 0x00200000;
+const ulong WReserved1		= 0x00200000;
 const ulong WConfigPending	= 0x00400000;
 const ulong WResizeNoErase	= 0x00800000;
 const ulong WExplicitHide	= 0x01000000;
@@ -199,6 +199,7 @@ const ulong WPaintUnclipped	= 0x08000000;
 const ulong WPaintClever	= 0x10000000;
 const ulong WNoUpdates		= 0x20000000;
 const ulong WRecreated		= 0x40000000;
+const ulong WReserved2		= 0x80000000;
 
 
 // Extra QWidget data
