@@ -1817,7 +1817,7 @@ LRESULT CALLBACK QtWndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam
 		    mmi->ptMaxTrackSize.x = x->maxw + x->topextra->fright + x->topextra->fleft;
                     // windows with titlebar have an implicit sizelimit of 112 pixels
                     if (widget->windowFlags() & Qt::WindowTitleHint)
-                        mmi->ptMaxTrackSize.x = qMax(mmi->ptMaxTrackSize.x, 112);
+                        mmi->ptMaxTrackSize.x = qMax<long>(mmi->ptMaxTrackSize.x, 112);
                 }
 		if ( x->maxh < QWIDGETSIZE_MAX )
 		    mmi->ptMaxTrackSize.y = x->maxh + x->topextra->ftop + x->topextra->fbottom;
