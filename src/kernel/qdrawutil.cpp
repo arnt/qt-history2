@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdrawutil.cpp#22 $
+** $Id: //depot/qt/main/src/kernel/qdrawutil.cpp#23 $
 **
 ** Implementation of draw utilities
 **
@@ -13,7 +13,7 @@
 #include "qbitmap.h"
 #include "qpmcache.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qdrawutil.cpp#22 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qdrawutil.cpp#23 $");
 
 
 /*!
@@ -552,23 +552,16 @@ void qDrawItem( QPainter *p, GUIStyle gs,
 		}
 	    } else if ( pm.depth() == 1 ) {
 		pm.setMask( *((QBitmap *)&pm) );
-	    } else if ( pm.depth() > 1 ) {
-		if ( pm.mask() ) {
-		    pm = *pm.mask();
-		} else {
-		    QString k;
-		    k.sprintf( "$qt-drawitem-%x", pm.serialNumber() );
-		    QPixmap * mask = QPixmapCache::find(k);
-		    if ( !mask ) {
-			if ( pixmap->mask() )
-			    mask = new QPixmap( *pixmap->mask() );
-			else
-			    mask = new QPixmap( pm.createHeuristicMask() );
-			mask->setMask( *((QBitmap*)mask) );
-			QPixmapCache::insert( k, mask );
-		    }
-		    pm = *mask;
+	    } else {
+		QString k;
+		k.sprintf( "$qt-drawitem-%x", pm.serialNumber() );
+		QPixmap *mask = QPixmapCache::find(k);
+		if ( !mask ) {
+		    mask = new QPixmap( pm.createHeuristicMask() );
+		    mask->setMask( *((QBitmap*)mask) );
+		    QPixmapCache::insert( k, mask );
 		}
+		pm = *mask;
 	    }
 	    if ( gs == WindowsStyle ) {
 		p->setPen( g.light() );
