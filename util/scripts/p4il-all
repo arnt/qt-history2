@@ -1,0 +1,6 @@
+#!/bin/sh
+while echo y | p4il --force; do
+  echo "Integrate!"
+done
+
+  
