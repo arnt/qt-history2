@@ -3408,7 +3408,7 @@ int QListBox::currentColumn() const
 
 void QListBox::setTopItem( int index )
 {
-    if ( index >= (int)count() )
+    if ( index >= (int)count() || count() == 0 )
 	return;
     int col = index / numRows();
     int y = d->rowPos[index-col*numRows()];
