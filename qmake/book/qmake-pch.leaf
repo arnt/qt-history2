@@ -39,9 +39,7 @@ platforms and build environments, including:
 \section2 Contents of the precompiled header file
 
 The precompiled header must contain code which is \e stable
-and \e static throughout your project. When compiling Qt programs, it
-may be wise to add an include to \e qt.h in your precompiled header,
-to significantly increase compilation speed. A typical PCH might look
+and \e static throughout your project. A typical PCH might look
 like this:
 \section3 stable.h
 
@@ -53,7 +51,9 @@ like this:
 	#include <stdlib>
 	#include <iostream>
 	#include <vector>
-	#include <qt.h> // Includes all of Qt
+	#include <qapplication.h> // Qt includes
+	#include <qpushbutton.h>
+	#include <qlabel.h>
 	#include "thirdparty/include/libmain.h"
 	#include "my_stable_class.h"
 	...
