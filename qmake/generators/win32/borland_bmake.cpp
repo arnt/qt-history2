@@ -99,29 +99,21 @@ BorlandMakefileGenerator::init()
 void BorlandMakefileGenerator::writeBuildRulesPart(QTextStream &t)
 {
     t << "all: " << fileFixify(Option::output.fileName()) << " " << varGlue("ALL_DEPS"," "," "," ") << " $(TARGET)" << endl << endl;
-    t << "$(TARGET): " << var("PRE_TARGETDEPS") << " $(OBJECTS) $(OBJMOC) " << var("POST_TARGETDEPS");
-    if(!project->variables()["QMAKE_APP_OR_DLL"].isEmpty()) {
+    t << "$(TARGET): " << var("PRE_TARGETDEPS") << " $(OBJECTS) " << var("POST_TARGETDEPS");
+    if(project->isActiveConfig("staticlib")) {
         t << "\n\t" << "$(LINK) @&&|" << "\n\t"
-          << "$(LFLAGS) $(OBJECTS) $(OBJMOC),$(TARGET),,$(LIBS),$(DEF_FILE),$(RES_FILE)";
+          << "$(LFLAGS) $(OBJECTS),$(TARGET),,$(LIBS),$(DEF_FILE),$(RES_FILE)";
     } else {
         t << "\n\t-$(DEL_FILE) $(TARGET)"
           << "\n\t" << "$(LIB) $(TARGET) @&&|" << " \n+"
-          << project->variables()["OBJECTS"].join(" \\\n+") << " \\\n+"
-          << project->variables()["OBJMOC"].join(" \\\n+");
+          << project->variables()["OBJECTS"].join(" \\\n+");
     }
     t << endl << "|" << endl;
 }
 
 void BorlandMakefileGenerator::writeCleanParts(QTextStream &t)
 {
-    QString mocclean = varGlue("SRCMOC" ,"\n\t-$(DEL_FILE) ","\n\t-$(DEL_FILE) ","") +
-                       varGlue("OBJMOC" ,"\n\t-$(DEL_FILE) ","\n\t-$(DEL_FILE) ","");
-    if(mocclean.isEmpty())
-        mocclean = "@cd .";
-    t << "mocclean:" << endl;
-    t << "\t" << mocclean << endl;
-
-    t << "clean: mocclean"
+    t << "clean: "
         << varGlue("OBJECTS","\n\t-$(DEL_FILE) ","\n\t-$(DEL_FILE) ","")
         << varGlue("QMAKE_CLEAN","\n\t-$(DEL_FILE) ","\n\t-$(DEL_FILE) ","\n")
         << varGlue("CLEAN_FILES","\n\t-$(DEL_FILE) ","\n\t-$(DEL_FILE) ","\n");

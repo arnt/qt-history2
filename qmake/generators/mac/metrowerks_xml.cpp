@@ -427,46 +427,6 @@ MetrowerksMakefileGenerator::writeMakeParts(QTextStream &t)
     t << endl;
     file.close();
 
-    if(mocAware()) {
-        QString mocs = project->first("MOCS");
-        QFile mocfile(mocs);
-        if(!mocfile.open(QIODevice::WriteOnly)) {
-            fprintf(stderr, "Cannot open MOCS file: %s\n", mocs.toLatin1().constData());
-        } else {
-            createFork(mocs);
-            QTextStream mocs(&mocfile);
-            const QStringList &list = project->variables()["SOURCES"];
-            for(QStringList::ConstIterator it = list.begin(); it != list.end(); ++it) {
-                if(!QMakeSourceFileInfo::mocable((*it)))
-                    continue;
-                QString src = QMakeSourceFileInfo::mocFile((*it));
-                if(src.lastIndexOf('/') != -1)
-                    src = src.right(src.length() - src.lastIndexOf('/') - 1);
-                mocs << src << endl;
-            }
-            mocfile.close();
-        }
-    }
-
-    if(!project->isEmpty("FORMS")) {
-        QString uics = project->first("UICS");
-        QFile uicfile(uics);
-        if(!uicfile.open(QIODevice::WriteOnly)) {
-            fprintf(stderr, "Cannot open UICS file: %s\n", uics.toLatin1().constData());
-        } else {
-            createFork(uics);
-            QTextStream uics(&uicfile);
-            QStringList &list = project->variables()["FORMS"];
-            for(QStringList::Iterator it = list.begin(); it != list.end(); ++it) {
-                QString ui = (*it);
-                if(ui.lastIndexOf('/') != -1)
-                    ui = ui.right(ui.length() - ui.lastIndexOf('/') - 1);
-                uics << ui << endl;
-            }
-            uicfile.close();
-        }
-    }
-
     if(!project->isEmpty("CODEWARRIOR_PREFIX_HEADER")) {
         QFile prefixfile(project->first("CODEWARRIOR_PREFIX_HEADER"));
         if(!prefixfile.open(QIODevice::WriteOnly)) {
@@ -534,7 +494,6 @@ MetrowerksMakefileGenerator::init()
         if(project->first("TEMPLATE") == "lib")
             mocfile += project->isActiveConfig("staticlib") ? "_static" : "_shared";
         project->variables()["MOCS"].append(mocfile + ".mocs");
-        setMocAware(true);
     }
     if(!project->isEmpty("FORMS")) {
         QString uicfile = project->first("TARGET");

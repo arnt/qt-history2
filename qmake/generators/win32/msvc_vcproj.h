@@ -44,7 +44,6 @@ public:
     virtual bool doDepends() const { return false; } //never necesary
     QString precompH, precompHFilename,
             precompObj, precompPch;
-    QString mocFile(const QString &file) { return Win32MakefileGenerator::mocFile(file); }
     static bool hasBuiltinCompiler(const QString &file);
 
     QMap<QString, QStringList> extraCompilerSources;

@@ -224,8 +224,7 @@ ProjectGenerator::init()
         QMakeSourceFileInfo::SourceFileType type = QMakeSourceFileInfo::TYPE_C;
         if(srcs[i] == "FORMS")
             type = QMakeSourceFileInfo::TYPE_UI;
-        QMakeSourceFileInfo::addSourceFiles(l, QMakeSourceFileInfo::SEEK_MOCS|QMakeSourceFileInfo::SEEK_DEPS,
-                                            type);
+        QMakeSourceFileInfo::addSourceFiles(l, QMakeSourceFileInfo::SEEK_DEPS, type);
         for(QStringList::Iterator val_it = l.begin(); val_it != l.end(); ++val_it) {
             QStringList tmp = QMakeSourceFileInfo::dependencies((*val_it));
             if(!tmp.isEmpty()) {
@@ -271,18 +270,12 @@ ProjectGenerator::init()
                               file_no_path.startsWith(Option::lex_mod)) {
                         addConfig("lex_included");
                     }
-                    if(!h.contains((*dep_it))) {
-                        if(QMakeSourceFileInfo::mocable((*dep_it)))
-                            h += (*dep_it);
-                    }
+                    if(!h.contains((*dep_it)))
+                        h += (*dep_it);
                 }
             }
         }
     }
-#if 0
-    if(h.isEmpty())
-        addConfig("moc", false);
-#endif
 
     //if we find a file that matches an forms it needn't be included in the project
     QStringList &u = v["INTERFACES"];

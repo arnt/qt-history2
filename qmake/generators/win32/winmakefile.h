@@ -36,7 +36,6 @@ protected:
     virtual void writeLibDirPart(QTextStream &t);
     virtual void writeLibsPart(QTextStream &t);
     virtual void writeObjectsPart(QTextStream &t);
-    virtual void writeObjMocPart(QTextStream &t);
     virtual void writeImplicitRulesPart(QTextStream &t);
     virtual void writeBuildRulesPart(QTextStream &);
 
@@ -46,13 +45,11 @@ protected:
     bool findLibraries(const QString &);
     virtual bool findLibraries();
 
-    virtual void processMocConfig();
     virtual void processPrlFiles();
     virtual void processVars();
     virtual void fixTargetExt();
     virtual void processRcFileVar();
     virtual void processQtConfig();
-    virtual void processDllConfig();
     virtual void processFileTagsVar();
 };
 

@@ -1448,7 +1448,7 @@ QMakeProject::doProjectExpand(QString func, QStringList args,
 {
     func = func.trimmed();
     for(QStringList::Iterator arit = args.begin(); arit != args.end(); ++arit) {
-        (*arit) = (*arit).trimmed(); // blah, get rid of space
+//        (*arit) = (*arit).trimmed(); // blah, get rid of space
         doVariableReplace((*arit), place);
     }
 

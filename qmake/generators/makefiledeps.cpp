@@ -29,6 +29,8 @@
 #include <qbuffer.h>
 #define QMAKE_EOL(x) (x == '\r' || x == '\n')
 
+//#define QMAKE_USE_CACHE
+
 QMakeLocalFileName::QMakeLocalFileName(const QString &name) : is_null(name.isNull())
 {
     if(!is_null) {
@@ -44,7 +46,7 @@ struct SourceFile {
     SourceFile() : deps(0), type(QMakeSourceFileInfo::TYPE_UNKNOWN),
                    mocable(0), traversed(0), exists(1),
                    moc_checked(0), dep_checked(0), included_count(0) { }
-    QMakeLocalFileName file, mocfile;
+    QMakeLocalFileName file;
     SourceDependChildren *deps;
     QMakeSourceFileInfo::SourceFileType type;
     uint mocable : 1, traversed : 1, exists : 1;
@@ -70,7 +72,6 @@ public:
     SourceFiles();
     ~SourceFiles();
 
-    SourceFile *lookupMocFile(const QString &mocfile);
     SourceFile *lookupFile(const char *);
     inline SourceFile *lookupFile(const QString &f) { return lookupFile(f.toLatin1().constData()); }
     inline SourceFile *lookupFile(const QMakeLocalFileName &f) { return lookupFile(f.local().toLatin1().constData()); }
@@ -124,20 +125,6 @@ SourceFile *SourceFiles::lookupFile(const char *file)
     for(SourceFileNode *p = nodes[h]; p; p = p->next) {
         if(!strcmp(p->key, file))
             return p->file;
-    }
-    return 0;
-}
-
-SourceFile *SourceFiles::lookupMocFile(const QString &mocfile)
-{
-    for(register int n = 0; n < num_nodes; n++) {
-        if(nodes[n]) {
-            for(SourceFileNode *next = nodes[n]; next; ) {
-                if (next->file->mocable && mocfile == next->file->mocfile.local())
-                    return next->file;
-                next = next->next;
-            }
-        }
     }
     return 0;
 }
@@ -215,24 +202,6 @@ bool QMakeSourceFileInfo::mocable(const QString &file)
     return false;
 }
 
-QString QMakeSourceFileInfo::mocFile(const QString &file)
-{
-    if (!files)
-        return QString();
-    if(SourceFile *node = files->lookupFile(file))
-        return node->mocfile.real();
-    return QString();
-}
-
-QString QMakeSourceFileInfo::mocSource(const QString &mocfile)
-{
-    if (!files)
-        return QString();
-    if (SourceFile *node = files->lookupMocFile(mocfile))
-        return node->file.real();
-    return QString();
-}
-
 QMakeSourceFileInfo::QMakeSourceFileInfo(const QString &cf)
 {
     //quick project lookups
@@ -272,37 +241,41 @@ void QMakeSourceFileInfo::setCacheFile(const QString &cf)
     loadCache(cachefile);
 }
 
-void QMakeSourceFileInfo::addSourceFiles(const QStringList &l, uchar seek, 
+void QMakeSourceFileInfo::addSourceFiles(const QStringList &l, uchar seek,
                                          QMakeSourceFileInfo::SourceFileType type)
+{
+    for(QStringList::ConstIterator it = l.begin(); it != l.end(); ++it)
+        addSourceFile((*it), seek, type);
+}
+void QMakeSourceFileInfo::addSourceFile(const QString &f, uchar seek,
+                                        QMakeSourceFileInfo::SourceFileType type)
 {
     if(!files)
         files = new SourceFiles;
-    for(QStringList::ConstIterator it = l.begin(); it != l.end(); ++it) {
-        QMakeLocalFileName fn((*it));
-        SourceFile *file = files->lookupFile(fn);
-        if(!file) {
-            file = new SourceFile;
-            file->file = fn;
-            files->addFile(file);
-        } else {
-            if(file->type != type && file->type != TYPE_UNKNOWN)
-                warn_msg(WarnLogic, "%s is marked as %d, then %d!", (*it).toLatin1().constData(), 
-                         file->type, type);
-        }
-        file->type = type;
 
-        /* Do moc before dependency checking since some includes can come from
-           moc_*.cpp files */
-        if(seek & ADD_MOC) {
-            files_changed = true;
-            file->mocable = true;
-            file->mocfile = findFileForMoc(file->file);
-        } else if(seek & SEEK_MOCS) {
-            findMocs(file);
-        }
-        if(seek & SEEK_DEPS)
-            findDeps(file);
+    QMakeLocalFileName fn(f);
+    SourceFile *file = files->lookupFile(fn);
+    if(!file) {
+        file = new SourceFile;
+        file->file = fn;
+        files->addFile(file);
+    } else {
+        if(file->type != type && file->type != TYPE_UNKNOWN)
+            warn_msg(WarnLogic, "%s is marked as %d, then %d!", f.toLatin1().constData(),
+                     file->type, type);
     }
+    file->type = type;
+
+/* Do moc before dependency checking since some includes can come from
+   moc_*.cpp files */
+    if(seek & ADD_MOC) {
+        files_changed = true;
+        file->mocable = true;
+    } else if(seek & SEEK_MOCS) {
+        findMocs(file);
+    }
+    if(seek & SEEK_DEPS)
+        findDeps(file);
 }
 
 char *QMakeSourceFileInfo::getBuffer(int s) {
@@ -314,11 +287,6 @@ char *QMakeSourceFileInfo::getBuffer(int s) {
 #ifdef Q_WS_WIN
 #define S_ISDIR(x) (x & _S_IFDIR)
 #endif
-
-QMakeLocalFileName QMakeSourceFileInfo::findFileForMoc(const QMakeLocalFileName &)
-{
-    return QMakeLocalFileName();
-}
 
 QMakeLocalFileName QMakeSourceFileInfo::fixPathForFile(const QMakeLocalFileName &f, bool)
 {
@@ -554,7 +522,7 @@ bool QMakeSourceFileInfo::findDeps(SourceFile *file)
                 } else {
                     dep->exists = exists;
 #if 0
-                    warn_msg(WarnLogic, "%s is found to exist after not existing before!", 
+                    warn_msg(WarnLogic, "%s is found to exist after not existing before!",
                              lfn.local().toLatin1());
 #endif
                 }
@@ -670,7 +638,6 @@ bool QMakeSourceFileInfo::findMocs(SourceFile *file)
                 debug_msg(2, "Mocgen: %s:%d Found MOC symbol %s", file->file.real().toLatin1().constData(),
                           line_count, buffer+x);
                 file->mocable = true;
-                file->mocfile = findFileForMoc(file->file);
                 break;
             }
         }
@@ -686,7 +653,7 @@ bool QMakeSourceFileInfo::findMocs(SourceFile *file)
 
 void QMakeSourceFileInfo::saveCache(const QString &cf)
 {
-#if 0
+#ifdef QMAKE_USE_CACHE
     if(cf.isEmpty())
         return;
 
@@ -705,7 +672,7 @@ void QMakeSourceFileInfo::saveCache(const QString &cf)
         }
         if(files->nodes) {
             for(int file = 0; file < files->num_nodes; ++file) {
-                for(SourceFiles::SourceFileNode *node = files->nodes[file]; 
+                for(SourceFiles::SourceFileNode *node = files->nodes[file];
                     node; node = node->next) {
                     stream << node->file->file.local() << endl; //source
                     stream << node->file->type << endl; //type
@@ -719,7 +686,7 @@ void QMakeSourceFileInfo::saveCache(const QString &cf)
                             stream << node->file->deps->children[depend]->file.local();
                         }
                     }
-                    stream << endl; 
+                    stream << endl;
 
                     stream << node->file->mocable << endl; //mocable
                     stream << endl; //just for human readability
@@ -736,7 +703,7 @@ void QMakeSourceFileInfo::loadCache(const QString &cf)
     if(cf.isEmpty())
         return;
 
-#if 0
+#ifdef QMAKE_USE_CACHE
     struct stat cache_st;
     int fd = open(QMakeLocalFileName(cf).local().toLatin1(), O_RDONLY);
     if(fd == -1 || fstat(fd, &cache_st) || S_ISDIR(cache_st.st_mode))
@@ -761,7 +728,7 @@ void QMakeSourceFileInfo::loadCache(const QString &cf)
             }
             verified = verifyCache(verify);
         }
-        if(verified) { 
+        if(verified) {
             stream.skipWhiteSpace();
             if(!files)
                 files = new SourceFiles;
@@ -808,8 +775,7 @@ void QMakeSourceFileInfo::loadCache(const QString &cf)
                     }
                     if(!file->moc_checked) { //get mocs
                         file->moc_checked = true;
-                        if((file->mocable = mocable.toInt()))
-                            file->mocfile = findFileForMoc(file->file);
+                        file->mocable = mocable.toInt();
                     }
                 }
             }

@@ -68,21 +68,6 @@ for (int iconfig = 0; iconfig < configurations.count(); ++iconfig) { \
         t << "!ELSEIF"; \
 } \
 
-void DspMakefileGenerator::writeMocStep(QTextStream &t, const QString &mocSource, const QString &mocFile)
-{
-    t << "USERDEP_" << mocSource << "=\"" << mocPath << "\"";
-    if (mocFile.endsWith(Option::cpp_moc_ext))
-        t << "\t\"" << mocSource << "\"";
-    t << endl << endl;
-    begin_configs(config);
-        t << "# Begin Custom Build - Moc'ing " << mocSource << "..." << endl;
-        t << "InputPath=.\\" << mocSource << endl << endl;
-        t << "\"" << mocFile << "\": $(SOURCE) \"$(INTDIR)\" \"$(OUTDIR)\"" << endl;
-        t << "\t" << mocPath << " " << mocSource << mocArgs << " -o " << mocFile << endl << endl;
-        t << "# End Custom Build" << endl << endl;
-    end_configs();
-}
-
 bool DspMakefileGenerator::writeBuildstepForFile(QTextStream &t, const QString &file)
 {
     if (usePCH) {
@@ -108,31 +93,6 @@ bool DspMakefileGenerator::writeBuildstepForFile(QTextStream &t, const QString &
 
     QString fileBase = file.left(file.lastIndexOf('.'));
     fileBase = fileBase.mid(fileBase.lastIndexOf('\\') + 1);
-
-    { // moc rules
-        QString mocFile(QMakeSourceFileInfo::mocFile(file));
-
-        QStringList generated(project->variables()["GENERATED"]);
-        if (generated.contains(file)) {
-            if (file.endsWith(".idl")) {
-                t << "# PROP Exclude_From_Build 1" << endl;
-            } else if (!file.endsWith(Option::cpp_moc_ext)) {
-                QStringList srcmoc(project->variables()["SRCMOC"]);
-                QStringList objmoc(project->variables()["OBJMOC"]);
-                int index = srcmoc.indexOf(file);
-                if (index >= objmoc.count())
-                    t << "# PROP Exclude_From_Build 1" << endl;
-            }
-        }
-
-        if (!mocFile.isEmpty() && !mocFile.endsWith(Option::cpp_moc_ext)) {
-            writeMocStep(t, file, QMakeSourceFileInfo::mocFile(file));
-            return true;
-        } else if (file.endsWith(Option::cpp_moc_ext)) {
-            writeMocStep(t, QMakeSourceFileInfo::mocSource(file), file);
-            return true;
-        }
-    }
 
     bool hasBuildStep = false;
     QStringList buildSteps;
@@ -426,8 +386,6 @@ DspMakefileGenerator::init()
 
     project->variables()["QMAKE_ORIG_TARGET"] = project->variables()["TARGET"];
 
-    processDllConfig();
-
     if(!project->variables()["VERSION"].isEmpty()) {
         QString version = project->variables()["VERSION"].first();
         int firstDot = version.indexOf(".");
@@ -484,8 +442,6 @@ DspMakefileGenerator::init()
         msvcdsp_project = project->variables()["TARGET"].first();
 
     project->variables()["TARGET"].first() += project->first("TARGET_EXT");
-    if(project->isActiveConfig("moc"))
-        setMocAware(true);
 
     project->variables()["QMAKE_LIBS"] += project->variables()["LIBS"];
     processFileTagsVar();
@@ -650,21 +606,6 @@ DspMakefileGenerator::init()
             project->variables()["SOURCES"].append(*hit + ".h");
     }
     project->variables()["QMAKE_INTERNAL_PRL_LIBS"] << "MSVCDSP_LIBS";
-
-    project->variables()["GENERATED"] += project->variables()["SRCMOC"];
-    mocPath = var("QMAKE_MOC");
-    // defines
-    mocArgs = varGlue("PRL_EXPORT_DEFINES"," -D"," -D","") + varGlue("DEFINES"," -D"," -D","") +
-              varGlue("QMAKE_COMPILER_DEFINES"," -D"," -D","");
-    // includes
-    mocArgs += " -I" + specdir();
-    if(!project->isActiveConfig("no_include_pwd")) {
-        QString pwd = fileFixify(qmake_getpwd());
-        if(pwd.isEmpty())
-            pwd = ".";
-        mocArgs += " -I" + pwd;
-    }
-    mocArgs += varGlue("INCLUDEPATH"," -I", " -I", "");
 
     // Move some files around
     if (!project->variables()["IMAGES"].isEmpty()) {

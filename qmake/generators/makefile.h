@@ -28,11 +28,10 @@
 class MakefileGenerator : protected QMakeSourceFileInfo
 {
     QString spec;
-    bool init_opath_already, init_already, moc_aware, no_io;
+    bool init_opath_already, init_already, no_io;
     QStringList createObjectList(const QStringList &sources);
     QString build_args();
     void checkMultipleDefinition(const QString &, const QString &);
-    QString createMocFileName(const QString &);
     QMap<QString, QString> fileFixed;
     QMap<QString, QMakeLocalFileName> depHeuristics;
     QMap<QString, QStringList> depends;
@@ -40,8 +39,6 @@ class MakefileGenerator : protected QMakeSourceFileInfo
 protected:
     void writePrlFile();
     void writeObj(QTextStream &, const QString &obj, const QString &src);
-    void writeMocObj(QTextStream &, const QString &obj, const QString &src);
-    void writeMocSrc(QTextStream &, const QString &src);
     void writeLexSrc(QTextStream &, const QString &lex);
     void writeYaccSrc(QTextStream &, const QString &yac);
     void writeInstalls(QTextStream &t, const QString &installs);
@@ -53,6 +50,8 @@ protected:
     void writeExtraTargets(QTextStream &t);
     void writeExtraCompilerTargets(QTextStream &t);
     void writeExtraCompilerVariables(QTextStream &t);
+
+    bool verifyExtraCompiler(const QString &c, const QString &f);
 
     struct SubTarget
     {
@@ -68,7 +67,6 @@ protected:
     //interface to the source file info
     QMakeLocalFileName fixPathForFile(const QMakeLocalFileName &, bool);
     QMakeLocalFileName findFileForDep(const QMakeLocalFileName &, const QMakeLocalFileName &);
-    QMakeLocalFileName findFileForMoc(const QMakeLocalFileName &);
     QMakeProject *project;
 
     virtual void init();
@@ -79,9 +77,6 @@ protected:
 
     void setNoIO(bool o);
     bool noIO() const;
-
-    void setMocAware(bool o);
-    bool mocAware() const;
 
     virtual bool doDepends() const { return Option::mkfile::do_deps; }
     virtual bool writeMakefile(QTextStream &);
@@ -135,12 +130,6 @@ public:
     virtual bool mergeBuildProject(MakefileGenerator * /*other*/) { return false; }
     virtual bool openOutput(QFile &, const QString &build) const;
 };
-
-inline void MakefileGenerator::setMocAware(bool o)
-{ moc_aware = o; }
-
-inline bool MakefileGenerator::mocAware() const
-{ return moc_aware; }
 
 inline void MakefileGenerator::setNoIO(bool o)
 { no_io = o; }

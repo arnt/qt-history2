@@ -71,7 +71,7 @@ Win32MakefileGenerator::findLibraries(const QString &where)
     QList<QMakeLocalFileName> dirs;
     {
         QStringList &libpaths = project->variables()["QMAKE_LIBDIR"];
-        for(QStringList::Iterator libpathit = libpaths.begin(); 
+        for(QStringList::Iterator libpathit = libpaths.begin();
             libpathit != libpaths.end(); ++libpathit)
             dirs.append(QMakeLocalFileName((*libpathit)));
     }
@@ -93,7 +93,7 @@ Win32MakefileGenerator::findLibraries(const QString &where)
         } else if(opt.startsWith("-l") || opt.startsWith("/l")) {
             QString lib = opt.right(opt.length() - 2), out;
             if(!lib.isEmpty()) {
-                for(QList<QMakeLocalFileName>::Iterator it = dirs.begin(); 
+                for(QList<QMakeLocalFileName>::Iterator it = dirs.begin();
                     it != dirs.end(); ++it) {
                     QString extension;
                     int ver = findHighestVersion((*it).local(), lib);
@@ -107,7 +107,7 @@ Win32MakefileGenerator::findLibraries(const QString &where)
                     }
                 }
             }
-            if(out.isEmpty()) 
+            if(out.isEmpty())
                 out = lib + ".lib";
             modified_opt = true;
             (*it) = out;
@@ -245,9 +245,7 @@ void Win32MakefileGenerator::processVars()
     fixTargetExt();
     processRcFileVar();
     processFileTagsVar();
-    processMocConfig();
     processQtConfig();
-    processDllConfig();
 }
 
 void Win32MakefileGenerator::fixTargetExt()
@@ -307,35 +305,28 @@ void Win32MakefileGenerator::processQtConfig()
     }
 }
 
-void Win32MakefileGenerator::processDllConfig()
-{
-    if(project->isActiveConfig("dll") || !project->variables()["QMAKE_APP_FLAG"].isEmpty()) {
-        project->variables()["CONFIG"].removeAll("staticlib");
-        project->variables()["QMAKE_APP_OR_DLL"].append("1");
-    } else {
-        project->variables()["CONFIG"].append("staticlib");
-    }
-}
-
 void Win32MakefileGenerator::processFileTagsVar()
 {
-    char *filetags[] = { "HEADERS", "SOURCES", "DEF_FILE", "RC_FILE", "TARGET", "QMAKE_LIBS", "DESTDIR", "DLLDESTDIR", "INCLUDEPATH", NULL };
-    for(int i = 0; filetags[i]; i++) {
-        project->variables()["QMAKE_FILETAGS"] << filetags[i];
-        //clean path
-        QStringList &gdmf = project->variables()[filetags[i]];
-        for(QStringList::Iterator it = gdmf.begin(); it != gdmf.end(); ++it)
-            (*it) = Option::fixPathToTargetOS((*it), false);
+    QStringList tags;
+    char *builtins[] = { "SOURCES", "DEF_FILE", "RC_FILE", "TARGET", "QMAKE_LIBS", "DESTDIR", "DLLDESTDIR", "INCLUDEPATH", NULL };
+    for(int i = 0; builtins[i]; i++)
+        tags += project->variables()[builtins[i]];
+    if(!project->isEmpty("QMAKE_EXTRA_COMPILERS")) {
+        const QStringList &quc = project->variables()["QMAKE_EXTRA_COMPILERS"];
+        for(QStringList::ConstIterator it = quc.begin(); it != quc.end(); ++it)
+            tags += project->variables()[(*it)+".input"];
+    }
+
+    //clean path
+    QStringList &filetags = project->variables()["QMAKE_FILETAGS"];
+    for(int i = 0; i < tags.size(); ++i) {
+        filetags += Option::fixPathToTargetOS(tags.at(i), false);
     }
 }
 
 void Win32MakefileGenerator::writeCleanParts(QTextStream &t)
 {
-    QString mocclean = varGlue("SRCMOC" ,"\n\t-$(DEL_FILE) ","\n\t-$(DEL_FILE) ","") +
-                       varGlue("OBJMOC" ,"\n\t-$(DEL_FILE) ","\n\t-$(DEL_FILE) ","");
-    t << "mocclean:" << mocclean << endl;
-
-    t << "clean: compiler_clean mocclean"
+    t << "clean: compiler_clean"
       << varGlue("OBJECTS","\n\t-$(DEL_FILE) ","\n\t-$(DEL_FILE) ","")
       << varGlue("QMAKE_CLEAN","\n\t-$(DEL_FILE) ","\n\t-$(DEL_FILE) ","\n")
       << varGlue("CLEAN_FILES","\n\t-$(DEL_FILE) ","\n\t-$(DEL_FILE) ","\n");
@@ -380,12 +371,6 @@ void Win32MakefileGenerator::writeStandardParts(QTextStream &t)
 
     writeLibsPart(t);
 
-    t << "MOC           = " << (project->isEmpty("QMAKE_MOC") ? QString("moc") :
-                              Option::fixPathToTargetOS(var("QMAKE_MOC"), false)) << endl;
-    t << "UIC3          = " << (project->isEmpty("QMAKE_UIC3") ? QString("uic3") :
-                              Option::fixPathToTargetOS(var("QMAKE_UIC3"), false)) << endl;
-    t << "UIC           = " << (project->isEmpty("QMAKE_UIC") ? QString("uic") :
-                              Option::fixPathToTargetOS(var("QMAKE_UIC"), false)) << endl;
     t << "QMAKE         = " << (project->isEmpty("QMAKE_QMAKE") ? QString("qmake") :
                               Option::fixPathToTargetOS(var("QMAKE_QMAKE"), false)) << endl;
     t << "IDC           = " << (project->isEmpty("QMAKE_IDC") ? QString("idc") :
@@ -412,21 +397,13 @@ void Win32MakefileGenerator::writeStandardParts(QTextStream &t)
         t << "OBJECTS_DIR   = " << var("OBJECTS_DIR").replace(QRegExp("\\\\$"),"") << endl;
     else
         t << "OBJECTS_DIR   = . " << endl;
-    if(!project->variables()["MOC_DIR"].isEmpty())
-        t << "MOC_DIR       = " << var("MOC_DIR").replace(QRegExp("\\\\$"),"") << endl;
-    else
-        t << "MOC_DIR       = . " << endl;
     t << endl;
 
     t << "####### Files" << endl << endl;
-    t << "HEADERS       = " << varList("HEADERS") << endl;
     t << "SOURCES       = " << varList("SOURCES") << endl;
 
     writeObjectsPart(t);
 
-    t << "SRCMOC        = " << varList("SRCMOC") << endl;
-
-    writeObjMocPart(t);
     writeExtraCompilerVariables(t);
     writeExtraVariables(t);
 
@@ -437,7 +414,7 @@ void Win32MakefileGenerator::writeStandardParts(QTextStream &t)
     t << "DESTDIR       = " << var("DESTDIR") << " #avoid trailing-slash linebreak" << endl;
     t << "TARGET        = ";
     if(!project->isEmpty("DESTDIR"))
-        t << project->first("DESTDIR") 
+        t << project->first("DESTDIR")
 	  << project->first("TARGET") << project->first("TARGET_EXT");
     else
         t << project->first("TARGET") << project->first("TARGET_EXT");
@@ -462,8 +439,6 @@ void Win32MakefileGenerator::writeStandardParts(QTextStream &t)
 
     writeRcFilePart(t);
 
-    t << "mocables: $(SRCMOC)" << endl;
-
     writeMakeQmake(t);
 
     QStringList dist_files = Option::mkfile::project_files;
@@ -480,8 +455,18 @@ void Win32MakefileGenerator::writeStandardParts(QTextStream &t)
         }
     }
     t << "dist:" << "\n\t"
-      << "$(ZIP) " << var("QMAKE_ORIG_TARGET") << ".zip " << "$(SOURCES) $(HEADERS) $(DIST) $(FORMS) "
-      << dist_files.join(" ") << " " << var("TRANSLATIONS") << " " << var("IMAGES") << endl << endl;
+      << "$(ZIP) " << var("QMAKE_ORIG_TARGET") << ".zip " << "$(SOURCES) $(DIST) "
+      << dist_files.join(" ") << " " << var("TRANSLATIONS") << " ";
+    if(!project->isEmpty("QMAKE_EXTRA_COMPILERS")) {
+        const QStringList &quc = project->variables()["QMAKE_EXTRA_COMPILERS"];
+        for(QStringList::ConstIterator it = quc.begin(); it != quc.end(); ++it) {
+            const QStringList &inputs = project->variables()[(*it)+".input"];
+            for(QStringList::ConstIterator input = inputs.begin(); input != inputs.end(); ++input) {
+                t << (*input) << " ";
+            }
+        }
+    }
+    t << endl << endl;
 
     writeCleanParts(t);
     writeExtraTargets(t);
@@ -491,15 +476,15 @@ void Win32MakefileGenerator::writeStandardParts(QTextStream &t)
 
 void Win32MakefileGenerator::writeLibsPart(QTextStream &t)
 {
-    if(!project->variables()["QMAKE_APP_OR_DLL"].isEmpty()) {
+    if(project->isActiveConfig("staticlib")) {
+        t << "LIB           = " << var("QMAKE_LIB") << endl;
+    } else {
         t << "LINK          = " << var("QMAKE_LINK") << endl;
         t << "LFLAGS        = ";
         if(!project->variables()["QMAKE_LIBDIR"].isEmpty())
             writeLibDirPart(t);
         t << var("QMAKE_LFLAGS") << endl;
         t << "LIBS          = " << var("QMAKE_LIBS") << endl;
-    } else {
-        t << "LIB           = " << var("QMAKE_LIB") << endl;
     }
 }
 
@@ -508,20 +493,9 @@ void Win32MakefileGenerator::writeLibDirPart(QTextStream &t)
     t << varGlue("QMAKE_LIBDIR","-L\"","\" -L\"","\"") << " ";
 }
 
-void Win32MakefileGenerator::processMocConfig()
-{
-    if(project->isActiveConfig("moc"))
-        setMocAware(true);
-}
-
 void Win32MakefileGenerator::writeObjectsPart(QTextStream &t)
 {
     t << "OBJECTS       = " << varList("OBJECTS") << endl;
-}
-
-void Win32MakefileGenerator::writeObjMocPart(QTextStream &t)
-{
-    t << "OBJMOC        = " << varList("OBJMOC") << endl;
 }
 
 void Win32MakefileGenerator::writeImplicitRulesPart(QTextStream &t)

@@ -26,7 +26,6 @@ private:
     void writeLibsPart(QTextStream &t);
     bool writeMakefile(QTextStream &);
     void writeObjectsPart(QTextStream &t);
-    void writeObjMocPart(QTextStream &t);
     void writeBuildRulesPart(QTextStream &t);
     void writeRcFilePart(QTextStream &t);
     void init();
@@ -36,7 +35,7 @@ private:
     void processQtConfig();
 
     bool init_flag;
-    QString objmocLinkLine, objectsLinkLine;
+    QString objectsLinkLine;
 };
 
 inline MingwMakefileGenerator::~MingwMakefileGenerator()

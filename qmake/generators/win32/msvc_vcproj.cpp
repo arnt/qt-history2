@@ -1007,8 +1007,10 @@ void VcprojGenerator::initHeaderFiles()
     if (usePCH) // Generated PCH cpp file
         vcProject.HeaderFiles.addFile(precompH);
 
+#if 0 //SAM
     for(int index = 0; index < list.count(); ++index)
         vcProject.HeaderFiles.addFile(VCFilterFile(list.at(index), mocFile(list.at(index))));
+#endif
 
     vcProject.HeaderFiles.Project = this;
     vcProject.HeaderFiles.Config = &(vcProject.Configuration);
@@ -1026,6 +1028,7 @@ void VcprojGenerator::initGeneratedFiles()
     QStringList &objl = project->variables()["OBJMOC"],
                 &srcl = project->variables()["SRCMOC"];
     int index = 0;
+#if 0 //SAM
     for(; index < objl.count() && index < srcl.count(); ++index) {
         vcProject.GeneratedFiles.addFile(VCFilterFile(srcl.at(index), mocSource(srcl.at(index))));
     }
@@ -1036,6 +1039,7 @@ void VcprojGenerator::initGeneratedFiles()
                               mocSource(srcl.at(index)),
                               srcl.at(index).endsWith(Option::cpp_moc_ext)
                               ? false : true));
+#endif
 
     // ### These cannot have CustomBuild (mocSrc)!!
     vcProject.GeneratedFiles.addFiles(project->variables()["RESOURCES"]);
@@ -1199,8 +1203,6 @@ void VcprojGenerator::initOld()
     if(project->variables()["QMAKESPEC"].isEmpty())
         project->variables()["QMAKESPEC"].append(qgetenv("QMAKESPEC"));
 
-    processDllConfig();
-
     // Decode version, and add it to $$MSVCPROJ_VERSION --------------
     if(!project->variables()["VERSION"].isEmpty()) {
         QString version = project->variables()["VERSION"][0];
@@ -1233,7 +1235,6 @@ void VcprojGenerator::initOld()
     }
 
     fixTargetExt();
-    processMocConfig();
 
     // /VERSION:x.yz -------------------------------------------------
     if(!project->variables()["VERSION"].isEmpty()) {

@@ -55,7 +55,7 @@ UnixMakefileGenerator::writeMakefile(QTextStream &t)
         QStringList &qut = project->variables()["QMAKE_EXTRA_TARGETS"];
         for(QStringList::ConstIterator it = qut.begin(); it != qut.end(); ++it)
             t << *it << " ";
-        t << "first all clean install distclean mocables uninstall uicables:" << "\n\t"
+        t << "first all clean install distclean uninstall:" << "\n\t"
           << "@echo \"Some of the required modules ("
           << var("QMAKE_FAILED_REQUIREMENTS") << ") are not available.\"" << "\n\t"
           << "@echo \"Skipped.\"" << endl << endl;
@@ -82,7 +82,7 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
                            !project->variables()["QMAKE_INCREMENTAL"].isEmpty() &&
                            (!project->variables()["QMAKE_APP_FLAG"].isEmpty() ||
                             (!project->isActiveConfig("staticlib")))),
-         src_incremental=false, moc_incremental=false;
+         src_incremental=false;
 
     t << "####### Compiler, tools and options" << endl << endl;
     t << "CC            = " << var("QMAKE_CC") << endl;
@@ -113,9 +113,6 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
 
     t << "AR            = " << var("QMAKE_AR") << endl;
     t << "RANLIB        = " << var("QMAKE_RANLIB") << endl;
-    t << "MOC           = " << var("QMAKE_MOC") << endl;
-    t << "UIC3          = " << var("QMAKE_UIC3") << endl;
-    t << "UIC           = " << var("QMAKE_UIC") << endl;
     t << "QMAKE         = " << (project->isEmpty("QMAKE_QMAKE") ? QString("qmake") : var("QMAKE_QMAKE")) << endl;
     t << "TAR           = " << var("QMAKE_TAR") << endl;
     t << "COMPRESS      = " << var("QMAKE_GZIP") << endl;
@@ -147,7 +144,6 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
 
     /* files */
     t << "####### Files" << endl << endl;
-    t << "HEADERS       = " << varList("HEADERS") << endl;
     t << "SOURCES       = " << varList("SOURCES") << endl;
     if(do_incremental) {
         QStringList &objs = project->variables()["OBJECTS"], &incrs = project->variables()["QMAKE_INCREMENTAL"], incrs_out;
@@ -177,38 +173,7 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
     } else {
         t << "OBJECTS       = " << varList("OBJECTS") << endl;
     }
-    QString srcMoc = varList("SRCMOC"), objMoc = varList("OBJMOC");
-    t << "SRCMOC        = " << srcMoc << endl;
-    if(do_incremental) {
-        QStringList &objs = project->variables()["OBJMOC"],
-                   &incrs = project->variables()["QMAKE_INCREMENTAL"], incrs_out;
-        t << "OBJMOC        = ";
-        for(QStringList::Iterator objit = objs.begin(); objit != objs.end(); ++objit) {
-            bool increment = false;
-            for(QStringList::Iterator incrit = incrs.begin(); incrit != incrs.end(); ++incrit) {
-                if((*objit).indexOf(QRegExp((*incrit), Qt::CaseSensitive,
-                                    QRegExp::Wildcard)) != -1) {
-                    increment = true;
-                    incrs_out.append((*objit));
-                    break;
-                }
-            }
-            if(!increment)
-                t << "\\\n\t\t" << (*objit);
-        }
-        if(incrs_out.count() == objs.count()) { //we just switched places, no real incrementals to be done!
-            t << incrs_out.join(" \\\n\t\t") << endl;
-        } else if(!incrs_out.count()) {
-            t << endl;
-        } else {
-            moc_incremental = true;
-            t << endl;
-            t << "INCREMENTAL_OBJMOC = " << incrs_out.join(" \\\n\t\t") << endl;
-        }
-    } else {
-        t << "OBJMOC        = " << objMoc << endl;
-    }
-    if(do_incremental && !moc_incremental && !src_incremental)
+    if(do_incremental && !src_incremental)
         do_incremental = false;
     t << "DIST          = " << valList(fileFixify(project->variables()["DISTFILES"])) << endl;
     t << "QMAKE_TARGET  = " << var("QMAKE_ORIG_TARGET") << endl;
@@ -274,7 +239,7 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
         t << mkdir_p_asstring("$(@D)") << "\n\t"
           << "@$(CC) " << cmd << " $< | sed \"s,^\\($(*F).o\\):," << odir << "\\1:,g\" >$@" << endl << endl;
 
-        QString src[] = { "SOURCES", "UICIMPLS", "SRCMOC", QString::null };
+        QString src[] = { "SOURCES", QString::null };
         for(int x = 0; !src[x].isNull(); x++) {
             QStringList &l = project->variables()[src[x]];
             for(QStringList::Iterator it = l.begin(); it != l.end(); ++it) {
@@ -349,7 +314,7 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
                   << "ld -r  -o "<< incr_target_dir << " $(OBJECTS)" << endl;
                 //communicated below
                 deps.prepend(incr_target_dir + " ");
-                incr_deps = "$(INCREMENTAL_OBJECTS) $(INCREMENTAL_OBJMOC) $(OBJMOC)";
+                incr_deps = "$(INCREMENTAL_OBJECTS)";
                 if(!incr_objs.isEmpty())
                     incr_objs += " ";
                 incr_objs += incr_target_dir;
@@ -362,11 +327,11 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
                     incr_lflags += var("QMAKE_LFLAGS_DEBUG");
                 else
                     incr_lflags += var("QMAKE_LFLAGS_RELEASE");
-                t << incr_target_dir << ": $(INCREMENTAL_OBJECTS) $(INCREMENTAL_OBJMOC)" << "\n\t";
+                t << incr_target_dir << ": $(INCREMENTAL_OBJECTS)" << "\n\t";
                 if(!destdir.isEmpty())
                     t << "\n\t" << mkdir_p_asstring(destdir) << "\n\t";
                 t << "$(LINK) " << incr_lflags << " -o "<< incr_target_dir <<
-                    " $(INCREMENTAL_OBJECTS) $(INCREMENTAL_OBJMOC)" << endl;
+                    " $(INCREMENTAL_OBJECTS)" << endl;
                 //communicated below
                 if(!destdir.isEmpty()) {
                     if(!incr_objs.isEmpty())
@@ -381,7 +346,7 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
                     incr_objs += " ";
                 incr_objs += " -l" + incr_target;
                 deps.prepend(incr_target_dir + " ");
-                incr_deps = "$(OBJECTS) $(OBJMOC)";
+                incr_deps = "$(OBJECTS)";
             }
             t << "all: " << deps <<  " " << varGlue("ALL_DEPS",""," "," ") <<  "$(TARGET)"
               << endl << endl;
@@ -401,13 +366,13 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
             t << "all: " << deps <<  " " << varGlue("ALL_DEPS",""," "," ") <<  "$(TARGET)"
               << endl << endl;
 
-            t << "$(TARGET): " << var("PRE_TARGETDEPS") << " $(OBJECTS) $(OBJMOC) "
+            t << "$(TARGET): " << var("PRE_TARGETDEPS") << " $(OBJECTS) "
               << target_deps << " " << var("POST_TARGETDEPS") << "\n\t";
             if(!destdir.isEmpty())
                 t << mkdir_p_asstring(destdir) << "\n\t";
             if(!project->isEmpty("QMAKE_PRE_LINK"))
                 t << var("QMAKE_PRE_LINK") << "\n\t";
-            t << "$(LINK) $(LFLAGS) -o $(TARGET) $(OBJECTS) $(OBJMOC) $(OBJCOMP) $(LIBS)";
+            t << "$(LINK) $(LFLAGS) -o $(TARGET) $(OBJECTS) $(OBJCOMP) $(LIBS)";
             if(!project->isEmpty("QMAKE_POST_LINK"))
                 t << "\n\t" << var("QMAKE_POST_LINK");
             t << endl << endl;
@@ -425,16 +390,15 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
             if(project->first("QMAKE_INCREMENTAL_STYLE") == "ld") {
                 QString incr_target_dir = var("OBJECTS_DIR") + incr_target + Option::obj_ext;
                 //actual target
-                const QString link_deps = "$(OBJECTS) $(OBJMOC)";
+                const QString link_deps = "$(OBJECTS) ";
                 t << incr_target_dir << ": " << link_deps << "\n\t"
                   << "ld -r  -o " << incr_target_dir << " " << link_deps << endl;
                 //communicated below
                 QStringList &cmd = project->variables()["QMAKE_LINK_SHLIB_CMD"];
-                cmd.first().replace("$(OBJECTS) $(OBJMOC)",
-                                    "$(INCREMENTAL_OBJECTS) $(INCREMENTAL_OBJMOC)"); //ick
+                cmd.first().replace("$(OBJECTS) ", "$(INCREMENTAL_OBJECTS)"); //ick
                 cmd.append(incr_target_dir);
                 deps.prepend(incr_target_dir + " ");
-                incr_deps = "$(INCREMENTAL_OBJECTS) $(INCREMENTAL_OBJMOC)";
+                incr_deps = "$(INCREMENTAL_OBJECTS)";
             } else {
                 //actual target
                 QString incr_target_dir = var("DESTDIR") + "lib" + incr_target + "." + s_ext;
@@ -445,18 +409,18 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
                     incr_lflags += var("QMAKE_LFLAGS_DEBUG");
                 else
                     incr_lflags += var("QMAKE_LFLAGS_RELEASE");
-                t << incr_target_dir << ": $(INCREMENTAL_OBJECTS) $(INCREMENTAL_OBJMOC)" << "\n\t";
+                t << incr_target_dir << ": $(INCREMENTAL_OBJECTS)" << "\n\t";
                 if(!destdir.isEmpty())
                     t << mkdir_p_asstring(destdir) << "\n\t";
                 t << "$(LINK) " << incr_lflags << " -o "<< incr_target_dir <<
-                    " $(INCREMENTAL_OBJECTS) $(INCREMENTAL_OBJMOC)" << endl;
+                    " $(INCREMENTAL_OBJECTS)" << endl;
                 //communicated below
                 QStringList &cmd = project->variables()["QMAKE_LINK_SHLIB_CMD"];
                 if(!destdir.isEmpty())
                     cmd.append(" -L" + destdir);
                 cmd.append(" -l" + incr_target);
                 deps.prepend(incr_target_dir + " ");
-                incr_deps = "$(OBJECTS) $(OBJMOC)";
+                incr_deps = "$(OBJECTS)";
             }
 
             t << "all: " << " " << deps << " " << varGlue("ALL_DEPS",""," ","")
@@ -469,7 +433,7 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
             t << "all: " << deps << " " << varGlue("ALL_DEPS",""," ","") << " " <<
                 var("DESTDIR_TARGET") << endl << endl;
             t << var("DESTDIR_TARGET") << ": " << var("PRE_TARGETDEPS")
-              << " $(OBJECTS) $(OBJMOC) $(SUBLIBS) $(OBJCOMP) " << target_deps
+              << " $(OBJECTS) $(SUBLIBS) $(OBJCOMP) " << target_deps
               << " " << var("POST_TARGETDEPS");
         }
         if(!destdir.isEmpty())
@@ -525,14 +489,14 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
 
         if (! project->isActiveConfig("plugin")) {
             t << "staticlib: $(TARGETA)" << endl << endl;
-            t << "$(TARGETA): " << var("PRE_TARGETDEPS") << " $(OBJECTS) $(OBJMOC) $(OBJCOMP)";
+            t << "$(TARGETA): " << var("PRE_TARGETDEPS") << " $(OBJECTS) $(OBJCOMP)";
             if(do_incremental)
-                t << " $(INCREMENTAL_OBJECTS) $(INCREMENTAL_OBJMOC)";
+                t << " $(INCREMENTAL_OBJECTS) ";
             t << var("POST_TARGETDEPS") << "\n\t"
               << "-$(DEL_FILE) $(TARGETA) " << "\n\t"
               << var("QMAKE_AR_CMD");
             if(do_incremental)
-                t << " $(INCREMENTAL_OBJECTS) $(INCREMENTAL_OBJMOC)";
+                t << " $(INCREMENTAL_OBJECTS)";
             if(!project->isEmpty("QMAKE_RANLIB"))
                 t << "\n\t" << "$(RANLIB) $(TARGETA)";
             t << endl << endl;
@@ -543,8 +507,8 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
           << "staticlib: " << var("DESTDIR") << "$(TARGET)" << "\n\n";
         if(project->isEmpty("QMAKE_AR_SUBLIBS")) {
             t << var("DESTDIR") << "$(TARGET): " << var("PRE_TARGETDEPS")
-              << " $(OBJECTS) $(OBJMOC) $(OBJCOMP) " << var("POST_TARGETDEPS") << "\n\t";
-            if(!project->isEmpty("DESTDIR")) 
+              << " $(OBJECTS) $(OBJCOMP) " << var("POST_TARGETDEPS") << "\n\t";
+            if(!project->isEmpty("DESTDIR"))
                 t << mkdir_p_asstring(project->first("DESTDIR")) << "\n\t";
             t << "-$(DEL_FILE) $(TARGET)" << "\n\t"
               << var("QMAKE_AR_CMD") << "\n";
@@ -557,8 +521,7 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
                   << "\t" << "-$(MOVE) $(TARGET) " << var("DESTDIR") << "\n";
         } else {
             int max_files = project->first("QMAKE_MAX_FILES_PER_AR").toInt();
-            QStringList objs = project->variables()["OBJECTS"] + project->variables()["OBJMOC"] +
-                               project->variables()["OBJCOMP"],
+            QStringList objs = project->variables()["OBJECTS"] + project->variables()["OBJCOMP"],
                         libs = project->variables()["QMAKE_AR_SUBLIBS"];
             libs.prepend("$(TARGET)");
             for(QStringList::Iterator libit = libs.begin(), objit = objs.begin();
@@ -571,13 +534,12 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
                     t << var("DESTDIR") << "$(TARGET): " << var("PRE_TARGETDEPS")
                       << " " << var("POST_TARGETDEPS") << valList(build) << "\n\t";
                     ar = project->variables()["QMAKE_AR_CMD"].first();
-                    ar = ar.replace("$(OBJMOC)", "").replace("$(OBJECTS)",
-                                                             build.join(" "));
+                    ar = ar.replace("$(OBJECTS)", build.join(" "));
                 } else {
                     t << (*libit) << ": " << valList(build) << "\n\t";
                     ar = "$(AR) " + (*libit) + " " + build.join(" ");
                 }
-                if(!project->isEmpty("DESTDIR")) 
+                if(!project->isEmpty("DESTDIR"))
                     t << mkdir_p_asstring(project->first("DESTDIR")) << "\n\t";
                 t << "-$(DEL_FILE) " << (*libit) << "\n\t"
                   << ar << "\n";
@@ -591,23 +553,6 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
             }
         }
         t << endl << endl;
-    }
-
-    t << "mocables: $(SRCMOC)" << endl;
-
-    if(!project->isActiveConfig("no_mocdepend")) {
-        //this is an implicity depend on moc, so it will be built if necesary, however
-        //moc itself shouldn't have this dependency - this is a little kludgy but it is
-        //better than the alternative for now.
-        QString moc = project->first("QMAKE_MOC"), target = project->first("TARGET"),
-            moc_dir = "$(QTDIR)/src/moc";
-        if(!project->isEmpty("QMAKE_MOC_SRC"))
-            moc_dir = project->first("QMAKE_MOC_SRC");
-        fixEnvVariables(target);
-        fixEnvVariables(moc);
-        if(target != moc)
-            t << "$(MOC): \n\t"
-              << "(cd " << moc_dir << " && $(MAKE))"  << endl << endl;
     }
 
     writeMakeQmake(t);
@@ -693,21 +638,15 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
                                  project->first("OBJECTS_DIR")) + ddir);
     t << "dist: " << "\n\t"
       << mkdir_p_asstring(ddir_c) << "\n\t"
-      << "$(COPY_FILE) --parents $(SOURCES) $(HEADERS) $(FORMS) $(DIST) " << ddir_c << Option::dir_sep << " && ";
+      << "$(COPY_FILE) --parents $(SOURCES) $(DIST) " << ddir_c << Option::dir_sep << " && ";
+    if(!project->isEmpty("QMAKE_EXTRA_COMPILERS")) {
+        const QStringList &quc = project->variables()["QMAKE_EXTRA_COMPILERS"];
+        for(QStringList::ConstIterator it = quc.begin(); it != quc.end(); ++it)
+            t << "$(COPY_FILE) --parents " << project->variables()[(*it)+".input"].join(" ")
+              << "$(DIST) " << ddir_c << Option::dir_sep << " && ";
+    }
     if(!project->isEmpty("TRANSLATIONS"))
         t << "$(COPY_FILE) --parents " << var("TRANSLATIONS") << " " << ddir_c << Option::dir_sep << " && ";
-    if(!project->isEmpty("IMAGES"))
-        t << "$(COPY_FILE) --parents " << var("IMAGES") << " " << ddir_c << Option::dir_sep << " && ";
-    if(!project->isEmpty("FORMS")) {
-        QStringList &forms = project->variables()["FORMS"], ui_headers;
-        for(QStringList::Iterator formit = forms.begin(); formit != forms.end(); ++formit) {
-            QString ui_h = fileFixify((*formit) + Option::h_ext.first());
-            if(QFile::exists(ui_h))
-               ui_headers << ui_h;
-        }
-        if(!ui_headers.isEmpty())
-            t << "$(COPY_FILE) --parents " << val(ui_headers) << " " << ddir_c << Option::dir_sep << " && ";
-    }
     t << "(cd `dirname " << ddir_c << "` && "
       << "$(TAR) " << var("QMAKE_ORIG_TARGET") << ".tar " << ddir << " && "
       << "$(COMPRESS) " << var("QMAKE_ORIG_TARGET") << ".tar) && "
@@ -715,23 +654,9 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
       << "$(DEL_FILE) -r " << ddir_c
       << endl << endl;
 
-    QString clean_targets = "compiler_clean";
-    clean_targets += " " + var("CLEAN_DEPS");
-    t << "mocclean:" << "\n";
-    if(mocAware()) {
-        if(!objMoc.isEmpty() || !srcMoc.isEmpty() || moc_incremental) {
-            if(!objMoc.isEmpty())
-                t << "\t-$(DEL_FILE) $(OBJMOC)" << '\n';
-            if(!srcMoc.isEmpty())
-                t << "\t-$(DEL_FILE) $(SRCMOC)" << '\n';
-            if(moc_incremental)
-                t << "\t-$(DEL_FILE) $(INCREMENTAL_OBJMOC)" << '\n';
-            clean_targets += " mocclean";
-        }
-        t << endl;
-    }
     t << endl;
 
+    QString clean_targets = "compiler_clean " + var("CLEAN_DEPS");
     t << "yaccclean:" << "\n";
     if(!var("YACCSOURCES").isEmpty()) {
         QStringList clean, &l = project->variables()["YACCSOURCES"];
@@ -775,8 +700,6 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
         t << "incrclean:" << "\n";
         if(src_incremental)
             t << "\t-$(DEL_FILE) $(INCREMENTAL_OBJECTS)" << "\n";
-        if(moc_incremental)
-            t << "\t-$(DEL_FILE) $(INCREMENTAL_OBJMOC)" << '\n';
         t << endl;
     }
 
@@ -855,20 +778,6 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
               << "\n\t" << compiler << flags << " $(INCPATH) " << precomph << " -o " << outfile << endl << endl;
         }
     }
-    if(!project->isEmpty("ALLMOC_HEADER")) {
-        QString outdir = project->first("MOC_DIR");
-        QString precomph = fileFixify(project->first("ALLMOC_HEADER"));
-        t << "###### Combined headers" << endl << endl
-          << outdir << "allmoc.cpp: " << precomph << " "
-          << varList("HEADERS_ORIG") << "\n\t"
-          << "echo '#include \"" << precomph << "\"' >" << outdir << "allmoc.cpp" << "\n\t"
-          << "$(CXX) -E -DQT_MOC_CPP -DQT_NO_STL $(CXXFLAGS) $(INCPATH) >" << outdir << "allmoc.h "
-          << outdir << "allmoc.cpp" << "\n\t"
-          << "$(MOC) $(DEFINES) -o " << outdir << "allmoc.cpp " << outdir << "allmoc.h" << "\n\t"
-          << "perl -pi -e 's{#include \"allmoc.h\"}{#define QT_H_CPP\\n#include \""
-          << precomph << "\"}' " << outdir << "allmoc.cpp" << "\n\t"
-          << "$(DEL_FILE) " << outdir << "allmoc.h" << endl << endl;
-    }
 
     writeExtraTargets(t);
     writeExtraCompilerTargets(t);
@@ -905,7 +814,7 @@ void UnixMakefileGenerator::init2()
         project->variables()["TARGET"].first().prepend("lib");
         project->variables()["TARGET"].first() += ".a";
         if(project->variables()["QMAKE_AR_CMD"].isEmpty())
-            project->variables()["QMAKE_AR_CMD"].append("$(AR) $(TARGET) $(OBJECTS) $(OBJMOC)");
+            project->variables()["QMAKE_AR_CMD"].append("$(AR) $(TARGET) $(OBJECTS)");
     } else {
         project->variables()["TARGETA"].append(project->first("DESTDIR") + "lib" + project->first("TARGET") + ".a");
         if(project->isActiveConfig("compile_libtool"))
@@ -914,7 +823,7 @@ void UnixMakefileGenerator::init2()
         if (!project->variables()["QMAKE_AR_CMD"].isEmpty())
             project->variables()["QMAKE_AR_CMD"].first().replace("(TARGET)","(TARGETA)");
         else
-            project->variables()["QMAKE_AR_CMD"].append("$(AR) $(TARGETA) $(OBJECTS) $(OBJMOC)");
+            project->variables()["QMAKE_AR_CMD"].append("$(AR) $(TARGETA) $(OBJECTS)");
         if(project->isActiveConfig("compile_libtool")) {
             project->variables()["TARGET"] = project->variables()["TARGET_la"];
         } else if(project->isActiveConfig("plugin")) {
@@ -1022,7 +931,7 @@ void UnixMakefileGenerator::init2()
         }
         if (project->variables()["QMAKE_LINK_SHLIB_CMD"].isEmpty())
             project->variables()["QMAKE_LINK_SHLIB_CMD"].append(
-                "$(LINK) $(LFLAGS) -o $(TARGET) $(OBJECTS) $(OBJMOC) $(LIBS) $(OBJCOMP)");
+                "$(LINK) $(LFLAGS) -o $(TARGET) $(OBJECTS) $(LIBS) $(OBJCOMP)");
     }
     if (!project->variables()["QMAKE_APP_FLAG"].isEmpty()) {
         project->variables()["QMAKE_CFLAGS"] += project->variables()["QMAKE_CFLAGS_APP"];

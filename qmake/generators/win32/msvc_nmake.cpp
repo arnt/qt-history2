@@ -201,7 +201,7 @@ void NmakeMakefileGenerator::writeImplicitRulesPart(QTextStream &t)
             if(!dirTemp.isEmpty())
                 source_directories.insertMulti(dirTemp, (void*)1);
         }
-        QString srcs[] = { QString("SOURCES"), QString("SRCMOC"), QString::null };
+        QString srcs[] = { QString("SOURCES"), QString::null };
         for(int x = 0; !srcs[x].isNull(); x++) {
             QStringList &l = project->variables()[srcs[x]];
             for(QStringList::Iterator sit = l.begin(); sit != l.end(); ++sit) {
@@ -238,13 +238,13 @@ void NmakeMakefileGenerator::writeBuildRulesPart(QTextStream &t)
 {
     t << "first: all" << endl;
     t << "all: " << fileFixify(Option::output.fileName()) << " " << varGlue("ALL_DEPS"," "," "," ") << "$(TARGET)" << endl << endl;
-    t << "$(TARGET): " << var("PRE_TARGETDEPS") << " $(OBJECTS) $(OBJMOC) " << var("POST_TARGETDEPS");
-    if(!project->variables()["QMAKE_APP_OR_DLL"].isEmpty()) {
-        t << "\n\t" << "$(LINK) $(LFLAGS) /OUT:$(TARGET) @<< " << "\n\t  "
-          << "$(OBJECTS) $(OBJMOC) $(LIBS)";
-    } else {
+    t << "$(TARGET): " << var("PRE_TARGETDEPS") << " $(OBJECTS) " << var("POST_TARGETDEPS");
+    if(project->isActiveConfig("staticlib")) {
         t << "\n\t" << "$(LIB) /OUT:$(TARGET) @<<" << "\n\t  "
-          << "$(OBJECTS) $(OBJMOC)";
+          << "$(OBJECTS)";
+    } else {
+        t << "\n\t" << "$(LINK) $(LFLAGS) /OUT:$(TARGET) @<< " << "\n\t  "
+          << "$(OBJECTS) $(LIBS)";
     }
     t << endl << "<<" << endl;
 }

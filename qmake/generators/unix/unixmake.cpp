@@ -118,8 +118,6 @@ UnixMakefileGenerator::init()
             project->variables()["QMAKE_LIBDIR_FLAGS"] += "-L" + (*it);
         }
     }
-    if(project->isActiveConfig("moc"))
-        setMocAware(true);
     QString compile_flag = var("QMAKE_COMPILE_FLAG");
     if(compile_flag.isEmpty())
         compile_flag = "-c";
@@ -128,13 +126,6 @@ UnixMakefileGenerator::init()
         if(prefix_flags.isEmpty())
             prefix_flags = "-include";
         compile_flag += " " + prefix_flags + " " + project->first("QMAKE_ORIG_TARGET");
-    }
-    if(!project->isEmpty("ALLMOC_HEADER")) {
-        initOutPaths();         // Need to fix outdirs since we do this before init() (because we could add to SOURCES et al)
-        QString allmoc = fileFixify(project->first("MOC_DIR") + "/allmoc.cpp", qmake_getpwd(), Option::output_dir);
-        project->variables()["SOURCES"].prepend(allmoc);
-        project->variables()["HEADERS_ORIG"] = project->variables()["HEADERS"];
-        project->variables()["HEADERS"].clear();
     }
     if(project->isEmpty("QMAKE_RUN_CC"))
         project->variables()["QMAKE_RUN_CC"].append("$(CC) " + compile_flag + " $(CFLAGS) $(INCPATH) -o $obj $src");
@@ -145,9 +136,14 @@ UnixMakefileGenerator::init()
     if(project->isEmpty("QMAKE_RUN_CXX_IMP"))
         project->variables()["QMAKE_RUN_CXX_IMP"].append("$(CXX) " + compile_flag + " $(CXXFLAGS) $(INCPATH) -o $@ $<");
 
-    char *filetags[] = { "HEADERS", "SOURCES", "TARGET", "DESTDIR", NULL };
+    char *filetags[] = { "SOURCES", "TARGET", "DESTDIR", NULL };
     for(int i = 0; filetags[i]; i++)
         project->variables()["QMAKE_FILETAGS"] << filetags[i];
+    if(!project->isEmpty("QMAKE_EXTRA_COMPILERS")) {
+        const QStringList &quc = project->variables()["QMAKE_EXTRA_COMPILERS"];
+        for(QStringList::ConstIterator it = quc.begin(); it != quc.end(); ++it)
+            project->variables()["QMAKE_FILETAGS"] += project->variables()[(*it)+".input"];
+    }
 
     if(project->isActiveConfig("GNUmake") && !project->isEmpty("QMAKE_CFLAGS_DEPS"))
         include_deps = true; //do not generate deps
@@ -201,7 +197,7 @@ UnixMakefileGenerator::init()
     if(!project->isEmpty("QMAKE_MAX_FILES_PER_AR")) {
         bool ok;
         int max_files = project->first("QMAKE_MAX_FILES_PER_AR").toInt(&ok);
-        QStringList ar_sublibs, objs = project->variables()["OBJECTS"] + project->variables()["OBJMOC"];
+        QStringList ar_sublibs, objs = project->variables()["OBJECTS"];
         if(ok && max_files > 5 && max_files < (int)objs.count()) {
             int obj_cnt = 0, lib_cnt = 0;
             QString lib;

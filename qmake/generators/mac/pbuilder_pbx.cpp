@@ -338,8 +338,6 @@ ProjectBuilderSources::ProjectBuilderSources(const QString &k,
             group = "Sources";
         else if(k == "HEADERS")
             group = "Headers";
-        else if(k == "SRCMOC")
-            group = "Sources [moc]";
         else if(k == "QMAKE_INTERNAL_INCLUDED_FILES")
             group = "Sources [qmake]";
         else
@@ -420,7 +418,6 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
     QList<ProjectBuilderSources> sources;
     sources.append(ProjectBuilderSources("SOURCES"));
     sources.append(ProjectBuilderSources("HEADERS"));
-    sources.append(ProjectBuilderSources("SRCMOC"));
     sources.append(ProjectBuilderSources("QMAKE_INTERNAL_INCLUDED_FILES"));
     if(!project->isEmpty("QMAKE_EXTRA_COMPILERS")) {
         const QStringList &quc = project->variables()["QMAKE_EXTRA_COMPILERS"];
@@ -446,8 +443,6 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
             bool buildable = false;
             if(sources.at(source).keyName() == "SOURCES")
                 buildable = true;
-            else if(sources.at(source).keyName() == "SRCMOC")
-                buildable = (f < project->variables()["OBJMOC"].count());
 
             QString file = files[f];
             if(file.length() >= 2 && (file[0] == '"' || file[0] == '\'') && file[(int) file.length()-1] == file[0])
@@ -553,8 +548,7 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
     }
 
     //PREPROCESS BUILDPHASE (just a makefile)
-    if(!project->isEmpty("UICIMPLS") || !project->isEmpty("SRCMOC") ||
-        !project->isEmpty("YACCSOURCES") || !project->isEmpty("LEXSOURCES")) {
+    {
         QString mkfile = pbx_dir + Option::dir_sep + "qt_preprocess.mak";
         QFile mkf(mkfile);
         if(mkf.open(QIODevice::WriteOnly | QIODevice::Text)) {
@@ -582,7 +576,6 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
             mkt << "DEL_FILE  = " << var("QMAKE_DEL_FILE") << endl;
             mkt << "MOVE      = " << var("QMAKE_MOVE") << endl << endl;
             mkt << "IMAGES = " << varList("QMAKE_IMAGE_COLLECTION") << endl;
-            mkt << "MOCS = " << varList("SRCMOC") << endl;
             mkt << "PARSERS =";
             if(!project->isEmpty("YACCSOURCES")) {
                 QStringList &yaccs = project->variables()["YACCSOURCES"];
@@ -601,16 +594,11 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
                 }
             }
             mkt << "\n";
-            mkt << "preprocess: $(MOCS) $(PARSERS) compilers" << endl;
-            mkt << "clean preprocess_clean: mocclean parser_clean compiler_clean" << endl << endl;
-            mkt << "mocclean:" << "\n";
-            if(!project->isEmpty("SRCMOC"))
-                mkt << "\t-rm -f $(MOCS)" << "\n";
+            mkt << "preprocess: $(PARSERS) compilers" << endl;
+            mkt << "clean preprocess_clean: parser_clean compiler_clean" << endl << endl;
             mkt << "parser_clean:" << "\n";
             if(!project->isEmpty("YACCSOURCES") || !project->isEmpty("LEXSOURCES"))
                 mkt << "\t-rm -f $(PARSERS)" << "\n";
-            writeMocSrc(mkt, "HEADERS");
-            writeMocSrc(mkt, "SOURCES");
             writeYaccSrc(mkt, "YACCSOURCES");
             writeLexSrc(mkt, "LEXSOURCES");
             writeExtraTargets(mkt);
@@ -1301,7 +1289,7 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
             debug_msg(1, "pbuilder: Creating file: %s", mkwrap.toLatin1().constData());
             QTextStream mkwrapt(&mkwrapf);
             writeHeader(mkwrapt);
-            const char cleans[] = "mocclean preprocess_clean ";
+            const char cleans[] = "preprocess_clean ";
             mkwrapt << "#This is a makefile wrapper for PROJECT BUILDER\n"
                     << "all:" << "\n\t"
                     << "cd " << project->first("QMAKE_ORIG_TARGET") << projectSuffix() << "/ && " << pbxbuild() << "\n"

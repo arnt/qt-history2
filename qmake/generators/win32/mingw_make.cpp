@@ -139,16 +139,15 @@ void MingwMakefileGenerator::fixTargetExt()
 
 void MingwMakefileGenerator::writeLibsPart(QTextStream &t)
 {
-   if(!project->variables()["QMAKE_APP_OR_DLL"].isEmpty()) {
+    if(project->isActiveConfig("staticlib")) {
+        t << "LIB        =        " << var("QMAKE_LIB") << endl;
+    } else {
         t << "LINK        =        " << var("QMAKE_LINK") << endl;
         t << "LFLAGS        =        " << var("QMAKE_LFLAGS") << endl;
         t << "LIBS        =        ";
         if(!project->variables()["QMAKE_LIBDIR"].isEmpty())
             writeLibDirPart(t);
         t << var("QMAKE_LIBS").replace(QRegExp("(\\slib|^lib)")," -l") << endl;
-    }
-    else {
-        t << "LIB        =        " << var("QMAKE_LIB") << endl;
     }
 }
 
@@ -172,45 +171,29 @@ void MingwMakefileGenerator::processQtConfig()
 
 void MingwMakefileGenerator::writeObjectsPart(QTextStream &t)
 {
-    if ((!project->variables()["QMAKE_APP_OR_DLL"].isEmpty())
+    if(project->isActiveConfig("staticlib")
         && project->variables()["OBJECTS"].count() > var("QMAKE_LINK_OBJECT_MAX").toInt()) {
+        objectsLinkLine = "$(OBJECTS)";
+    } else {
         QString ld_script_file = var("QMAKE_LINK_OBJECT_SCRIPT") + "." + var("TARGET");
 	if (!var("BUILD_NAME").isEmpty()) {
 	    ld_script_file += "." + var("BUILD_NAME");
 	}
 	createLdObjectScriptFile(ld_script_file, project->variables()["OBJECTS"]);
         objectsLinkLine = ld_script_file;
-    } else {
-        objectsLinkLine = "$(OBJECTS)";
     }
     Win32MakefileGenerator::writeObjectsPart(t);
-}
-
-void MingwMakefileGenerator::writeObjMocPart(QTextStream &t)
-{
-    if ((!project->variables()["QMAKE_APP_OR_DLL"].isEmpty())
-        && project->variables()["OBJMOC"].count() > var("QMAKE_LINK_OBJECT_MAX").toInt()) {
-        QString ld_script_file = var("QMAKE_LINK_OBJMOC_SCRIPT") + "." + var("TARGET");
-	if (!var("BUILD_NAME").isEmpty()) {
-	    ld_script_file += "." + var("BUILD_NAME");
-	}
-	createLdObjectScriptFile(ld_script_file, project->variables()["OBJMOC"]);
-        objmocLinkLine = ld_script_file;
-    } else {
-        objmocLinkLine = "$(OBJMOC)";
-    }
-    Win32MakefileGenerator::writeObjMocPart(t);
 }
 
 void MingwMakefileGenerator::writeBuildRulesPart(QTextStream &t)
 {
     t << "first: all" << endl;
     t << "all: " << fileFixify(Option::output.fileName()) << " " << varGlue("ALL_DEPS"," "," "," ") << " $(TARGET)" << endl << endl;
-    t << "$(TARGET): " << var("PRE_TARGETDEPS") << " $(OBJECTS) $(OBJMOC) " << var("POST_TARGETDEPS");
-    if(!project->variables()["QMAKE_APP_OR_DLL"].isEmpty()) {
-        t << "\n\t" << "$(LINK) $(LFLAGS) -o $(TARGET) " << objectsLinkLine << " " << objmocLinkLine << " $(LIBS)";
+    t << "$(TARGET): " << var("PRE_TARGETDEPS") << " $(OBJECTS) " << var("POST_TARGETDEPS");
+    if(project->isActiveConfig("staticlib")) {
+        t << "\n\t" << "$(LIB) $(TARGET) " << objectsLinkLine << " " ;
     } else {
-        t << "\n\t" << "$(LIB) $(TARGET) " << objectsLinkLine << " " << objmocLinkLine;
+        t << "\n\t" << "$(LINK) $(LFLAGS) -o $(TARGET) " << objectsLinkLine << " " << " $(LIBS)";
     }
 }
 
