@@ -200,9 +200,11 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 	    style |= WS_CLIPSIBLINGS | WS_CLIPCHILDREN ;
 	if ( topLevel ) {
 #ifndef Q_OS_TEMP
-	    if ( testWFlags(WStyle_NormalBorder) )
+	    if ( testWFlags(WStyle_NormalBorder) ) {
 		style |= WS_THICKFRAME;
-	    else if ( testWFlags(WStyle_DialogBorder) )
+		if( !testWFlags(WStyle_Title | WStyle_SysMenu | WStyle_Minimize | WStyle_Maximize | WStyle_ContextHelp) )
+		    style |= WS_POPUP;
+	    } else if ( testWFlags(WStyle_DialogBorder) )
 		style |= WS_POPUP | WS_DLGFRAME;
 #else
 	    if ( testWFlags(WStyle_DialogBorder) )
