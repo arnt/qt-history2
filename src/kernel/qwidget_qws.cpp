@@ -1131,6 +1131,10 @@ int QWidget::metric( int m ) const
 	val = crect.height();
     } else if ( m == QPaintDeviceMetrics::PdmDepth ) {
 	return qwsDisplay()->depth();
+    } else if ( m == QPaintDeviceMetrics::PdmDpiX ) {
+	return 72;
+    } else if ( m == QPaintDeviceMetrics::PdmDpiY ) {
+	return 72;
     } else {
 	val = QPaintDevice::metric(m);// XXX
     }
