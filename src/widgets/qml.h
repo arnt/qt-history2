@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qml.h#11 $
+** $Id: //depot/qt/main/src/widgets/qml.h#12 $
 **
 ** Definition of QML classes
 **
@@ -92,6 +92,8 @@ public:
     void setContexts( const QString& );
     bool allowedInContext( const QMLStyle* ) const;
 
+    bool selfNesting() const;
+    void setSelfNesting( bool );
 
 private:
     void init();

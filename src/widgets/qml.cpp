@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qml.cpp#34 $
+** $Id: //depot/qt/main/src/widgets/qml.cpp#35 $
 **
 ** Implementation of QML classes
 **
@@ -54,6 +54,7 @@ public:
     QMLStyle::ListStyle list;
     QMLStyle::WhiteSpaceMode whitespacemode;
     QString contxt;
+    bool selfnest;
 };
 
 /*!
@@ -116,6 +117,7 @@ void QMLStyle::init()
     d->margin[3] = Undefined;
     d->list = QMLStyle::ListDisc;
     d->whitespacemode = QMLStyle::WhiteSpaceNormal;
+    d->selfnest = TRUE;
 }
 
 /*!
@@ -494,6 +496,17 @@ bool QMLStyle::allowedInContext( const QMLStyle* s) const
 }
 
 
+bool QMLStyle::selfNesting() const
+{
+    return d->selfnest;
+}
+
+void QMLStyle::setSelfNesting( bool nesting )
+{
+    d->selfnest = nesting;
+}
+
+
 //************************************************************************
 
 
@@ -527,6 +540,10 @@ public:
     uint isBox:1;
     uint isSelected: 1;
     uint isSelectionDirty: 1;
+    
+    int w;
+    int h;
+    int asc;
 };
 
 
@@ -814,7 +831,7 @@ public:
 
     <li>\c &lt;a&gt;...&lt;/a&gt;
 	- An anchor or link. The reference target is defined in the
-	\c href attribute of the tag as in \c&lt;a \c href="target.qml"&gt;...&lt;/a&gt;. 
+	\c href attribute of the tag as in \c&lt;a \c href="target.qml"&gt;...&lt;/a&gt;.
 	You can also specify an additional anchor within the specified target document, for
 	example \c &lt;a \c href="target.qml#123"&gt;...&lt;/a&gt;.  If
 	\c a is meant to be an anchor, the reference source is given in
@@ -1102,7 +1119,7 @@ QMLNode* QMLStyleSheet::tag( const QString& name,
     if ( emptyTag ) { // w know nothing about that, make a null node
 	return new QMLNode;
     }
-    
+
     // process containers
     switch ( style->displayMode() ) {
     case QMLStyle::DisplayBlock:
@@ -1165,6 +1182,7 @@ QMLNode::QMLNode()
     isBox = 0;
     isSelected = 0;
     isSelectionDirty = 0;
+    w = h = 0;
 }
 
 
@@ -1332,16 +1350,22 @@ QMLRow::QMLRow( QMLContainer* box, QPainter* p, QMLNode* &t, QMLContainer* &par,
     bool noSpaceFound = TRUE;
 
     while (i && !i->isBox) {
-	p->setFont( par->font() );
-	QFontMetrics fm = p->fontMetrics();
-
 	int h,a,d;
 	if (i->isSimpleNode) {
-	    if (!i->isNull())
-		tx += fm.width(i->c);
-	    h = fm.height();
-	    a = fm.ascent();
-	    d = h-a;
+	    if ( i->h * i->w ){
+		tx += i->w;
+		h = i->h;
+		a = i->asc;
+		d = h-a;
+	    } else {
+		p->setFont( par->font() );
+		QFontMetrics fm = p->fontMetrics();
+		if (!i->isNull())
+		    tx += fm.width(i->c);
+		h = fm.height();
+		a = fm.ascent();
+		d = h-a;
+	    }
 	}
 	else {
 	    tx += ((QMLCustomNode*)i)->width;
@@ -2071,45 +2095,51 @@ void QMLBox::setWidth(QPainter* p, int newWidth, bool forceResize)
 	}
 	row = new QMLRow(this, p, n, par, colwidth-marginvertical - label_offset, alignment() );
 	rows.append(row);
+	row->x = marginleft + label_offset;
+	row->y = h;
 	h += row->height;
     }
 
-    // do multi columns if required. Also check with the old rows to
-    // optimize the refresh
+    height = h;
+    
+    if (!oldRows.isEmpty() || ncols > 1 ) {
+	// do multi columns if required. Also check with the old rows to
+	// optimize the refresh
 
-    row = rows.first();
-    QMLRow* old = oldRows.first();
-    height = 0;
-    h /= ncols;
-    for (int col = 0; col < ncols; col++) {
-	int colheight = margintop;
-	for (; row && colheight < h; row = rows.next()) {
-	    row->x = col  * colwidth + marginleft + label_offset;
-	    row->y = colheight;
-	
-	    colheight += row->height;
-	
-	    if ( old) {
-		if ( row->start->isBox ) {
-		    // do not check a height changes of box rows!
-		    if (old->start == row->start && old->end == row->end
-			&& old->width == old->width
-			&& old->x == row->x && old->y == row->y)
+	row = rows.first();
+	QMLRow* old = oldRows.first();
+	height = 0;
+	h /= ncols;
+	for (int col = 0; col < ncols; col++) {
+	    int colheight = margintop;
+	    for (; row && colheight < h; row = rows.next()) {
+		row->x = col  * colwidth + marginleft + label_offset;
+		row->y = colheight;
+		
+		colheight += row->height;
+		
+		if ( old) {
+		    if ( row->start->isBox ) {
+			// do not check a height changes of box rows!
+			if (old->start == row->start && old->end == row->end
+			    && old->width == old->width
+			    && old->x == row->x && old->y == row->y)
+			    {
+				row->dirty = old->dirty;
+			    }
+		    }
+		    else if (old->start == row->start && old->end == row->end
+			     && old->height == row->height && old->width == old->width
+			     && old->x == row->x && old->y == row->y)
 			{
 			    row->dirty = old->dirty;
 			}
+		    
+		    old = oldRows.next();
 		}
-		else if (old->start == row->start && old->end == row->end
-			 && old->height == row->height && old->width == old->width
-			 && old->x == row->x && old->y == row->y)
-		    {
-			row->dirty = old->dirty;
-		    }
-
-		old = oldRows.next();
 	    }
+	    height = QMAX( height, colheight );
 	}
-	height = QMAX( height, colheight );
     }
 
     // collapse the bottom margin
@@ -3068,6 +3098,11 @@ bool QMLDocument::parse (QMLContainer* current, QMLNode* lastChild, const QStrin
 		pos = beforePos;
 		return FALSE;
 	    }
+	    
+ 	    if ( nstyle && !nstyle->selfNesting() && ( tagname == current->style->name() ) ) {
+ 		pos = beforePos;
+ 		return FALSE;
+ 	    }
 	
 	    QMLNode* tag = sheet_->tag(tagname, attr, *provider_);
 	    if (tag->isContainer ) {
@@ -3258,7 +3293,7 @@ QString QMLDocument::parseWord(const QString& doc, int& pos, bool insideTag, boo
     }
     else {
 	while( pos < int(doc.length()) &&
-	       ( !insideTag || (doc[pos] != '>' && !hasPrefix( doc, pos, "/>")) ) 
+	       ( !insideTag || (doc[pos] != '>' && !hasPrefix( doc, pos, "/>")) )
 	       && doc[pos] != '<'
 	       && doc[pos] != '='
 	       && !doc[pos].isSpace())  {
@@ -3316,7 +3351,13 @@ bool QMLDocument::hasPrefix(const QString& doc, int pos, const QChar& c)
 
 bool QMLDocument::hasPrefix(const QString& doc, int pos, const QString& s)
 {
-    return valid && doc.mid(pos, s.length()) == s;
+    if ( pos + s.length() >= doc.length() )
+	return FALSE;
+    for (int i = 0; i < int(s.length()); i++) {
+	if (doc[pos+i] != s[i])
+	    return FALSE;
+    }
+    return TRUE;
 }
 
 QString QMLDocument::parseOpenTag(const QString& doc, int& pos,
@@ -3382,7 +3423,7 @@ QString QMLDocument::parseOpenTag(const QString& doc, int& pos,
     }
     else
 	eat(doc, pos, '>');
-    
+
     return tag;
 }
 
