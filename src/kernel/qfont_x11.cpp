@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#52 $
+** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#53 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for X11
 **
@@ -24,7 +24,7 @@
 #include <ctype.h>
 #include <stdlib.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qfont_x11.cpp#52 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qfont_x11.cpp#53 $")
 
 
 static const int fontFields = 14;
@@ -799,12 +799,9 @@ int QFontMetrics::leading() const
 {
     QFont f = data.widget ? data.w->font() : data.p->font();
     f.handle();
-    int l = f.d->xfd->f->ascent		  + f.d->xfd->f->descent -
-	   f.d->xfd->f->max_bounds.ascent - f.d->xfd->f->max_bounds.descent;
-    if ( l > 0 )
-	return l;
-    else
-	return 0;
+    int l = f.d->xfd->f->ascent		   + f.d->xfd->f->descent -
+	    f.d->xfd->f->max_bounds.ascent - f.d->xfd->f->max_bounds.descent;
+    return l > 0 ? l : 0;
 }
 
 
@@ -812,17 +809,13 @@ int QFontMetrics::leading() const
   Returns the distance from one base line to the next.
 
   This value is always equal to leading()+height().
+
   \sa height(), leading()
  ----------------------------------------------------------------------------*/
 
 int QFontMetrics::lineSpacing() const
 {
-    /*
-    QFont f = data.widget ? data.w->font() : data.p->font();
-    f.handle();
-    return f.d->xfd->f->ascent + f.d->xfd->f->descent;
-    */
-    return leading()+height();
+    return leading() + height();
 }
 
 
