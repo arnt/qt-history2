@@ -176,6 +176,18 @@ void QtServicePrivate::setStatus( DWORD state )
 */
 
 /*!
+    \enum QtService::EventType
+    
+    This enum describes different types of events reported by a service to the system log.
+
+    \value Success An operation has succeeded, e.g. the service has been installed
+    \value Error An operation failed, e.g. the service failed to start
+    \value Warning An operation caused a warning that might require user interaction
+    \value Information Any type of usually non-critical information
+*/
+
+
+/*!
     Constructs a QtService object with the name \a name. The service can pause and
     continue if \a canPause is TRUE, and interact with the desktop (ie. open a window) 
     if \a interactive is TRUE (the default).
