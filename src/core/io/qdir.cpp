@@ -184,7 +184,7 @@ inline void QDirPrivate::sortFileList(int sortSpec, QStringList &l,
         QDirSortItem *si= new QDirSortItem[l.count()];
         int i;
         for (i = 0; i < l.size(); ++i) 
-            si[i].item = QFileInfo(l.at(i));
+            si[i].item = QFileInfo(data->path + QDir::separator() + l.at(i));
         qt_cmp_si_sortSpec = sortSpec;
         qsort(si, i, sizeof(si[0]), qt_cmp_si);
         // put them back in the list(s)
