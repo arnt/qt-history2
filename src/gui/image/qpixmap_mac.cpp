@@ -413,7 +413,7 @@ void QPixmap::fill(const QColor &fillColor)
     if(fillColor.alpha() == 255) {
         delete data->alphapm;
         data->alphapm = 0;
-    } else if(data->alphapm || fillColor.alpha()) { 
+    } else { 
         if(!data->alphapm)
             data->alphapm = new QPixmap(data->w, data->h, 32);
         uint *aptr = (uint *)GetPixBaseAddr(GetGWorldPixMap(static_cast<GWorldPtr>(data->alphapm->data->hd)));
