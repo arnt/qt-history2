@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#33 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#34 $
 **
 ** Implementation of QWidget class
 **
@@ -21,9 +21,17 @@
 #include "qapp.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget.cpp#33 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget.cpp#34 $";
 #endif
 
+/*! \class QWidget qwidget.h
+
+  \brief QWidget is the base class of all Qt classes that represent
+  on-screen objects.
+
+  Lots of verbiage here...
+
+*/
 
 // --------------------------------------------------------------------------
 // Internal QWidgetMapper class
@@ -109,7 +117,6 @@ inline bool QWidgetMapper::remove( WId id )
   If \e parent is NULL, the new widget will be a window of its own.
 
 \todo explain widget name
-
 */
 
 QWidget::QWidget( QWidget *parent, const char *name, WFlags f )
@@ -292,7 +299,7 @@ Returns the height of the widget, excluding any window frames.  \sa
 size(), width(), rect(), geometry(). */
 
 /*!
-\fn QRext QWidget::rect() const
+\fn QRect QWidget::rect() const
 
 Returns the the internal geometry of the widget; a rectangle whose
 opposite corners are (0,0) and (width(),height()).  \sa geometry(),
@@ -333,13 +340,13 @@ void QWidget::setPalette( const QPalette &p )	// set widget palette
     update();
 }
 
-/*! \fn QFontMetrics fontMetrics() const
+/*! \fn QFontMetrics QWidget::fontMetrics() const
 
   Returns the font metrics of the font currently in use by this
   widget.  Each widget gets a default font when it's created.  \sa
   QFont, QFontMetrics, font(), setFont() and fontInfo(). */
 
-/*!  \fn QFontInfo fontInfo() const
+/*!  \fn QFontInfo QWidget::fontInfo() const
 
   Returns the font information for the font the widget is currently
   using, ie. the closest font the window system was able to offer
