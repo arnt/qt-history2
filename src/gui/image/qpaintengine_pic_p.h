@@ -126,6 +126,13 @@ protected:
 
 private:
     void writeCmdLength(int pos, const QRect &r, bool corr);
+    bool checkFormat();
+    void resetFormat();
+    bool play(QPainter *p);
+    bool exec(QPainter *p, QDataStream &s, int nrecords);
+
+    friend class QPicture;
+    friend QDataStream &operator>>( QDataStream &s, QPicture &r );
 
     Q_DECL_PRIVATE(QPicturePaintEngine);
 

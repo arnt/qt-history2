@@ -11,7 +11,6 @@
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ****************************************************************************/
-
 #include "private/qpaintengine_p.h"
 #include "private/qpainter_p.h"
 #include "qbuffer.h"
@@ -162,8 +161,8 @@ void QPicturePaintEngine::updateRasterOp(QPainterState *ps)
 void QPicturePaintEngine::updateBackground(QPainterState *ps)
 {
     int pos;
-    SERIALIZE_CMD(PdcSetBkColor);
-    d->s << ps->bgColor;
+    SERIALIZE_CMD(PdcSetBrush);
+    d->s << ps->bgBrush;
     writeCmdLength(pos, QRect(), false);
 
     SERIALIZE_CMD(PdcSetBkMode);
@@ -350,6 +349,10 @@ void QPicturePaintEngine::drawCubicBezier(const QPointArray &a, int index)
 
 void QPicturePaintEngine::drawPixmap(const QRect &r, const QPixmap &pm, const QRect &sr)
 {
+    int pos;
+    SERIALIZE_CMD(PdcDrawPixmap);
+    d->s << r << pm;
+    writeCmdLength(pos, r, false);
 }
 
 void QPicturePaintEngine::drawTiledPixmap(const QRect &r, const QPixmap &pixmap, const QPoint &s, bool optim)
@@ -362,4 +365,381 @@ void QPicturePaintEngine::drawTextItem(const QPoint &p, const QTextItem &ti, int
 //     SERIALIZE_CMD(PdcDrawText2);
 //     d->s << p << QString(ti.chars, ti.num_chars);
 //     writeCmdLength(pos, QRect(p, p), true);
+}
+
+/*!
+  \internal
+
+  Sets formatOk to false and resets the format version numbers to default
+*/
+
+void QPicturePaintEngine::resetFormat()
+{
+    d->formatOk = false;
+    d->formatMajor = mfhdr_maj;
+    d->formatMinor = mfhdr_min;
+}
+
+
+/*!
+  \internal
+
+  Checks data integrity and format version number. Set formatOk to
+  true on success, to false otherwise. Returns the resulting formatOk
+  value.
+*/
+bool QPicturePaintEngine::checkFormat()
+{
+    resetFormat();
+
+    // can't check anything in an empty buffer
+    if ( d->pictb->size() == 0 )
+	return false;
+
+    d->pictb->open( IO_ReadOnly );			// open buffer device
+    QDataStream s;
+    s.setDevice( d->pictb );			// attach data stream to buffer
+
+    char mf_id[4];				// picture header tag
+    s.readRawBytes( mf_id, 4 );			// read actual tag
+    if ( memcmp(mf_id, mfhdr_tag, 4) != 0 ) { 	// wrong header id
+	qWarning( "QPicturePaintEngine::checkFormat: Incorrect header" );
+	d->pictb->close();
+	return false;
+    }
+
+    int cs_start = sizeof(Q_UINT32);		// pos of checksum word
+    int data_start = cs_start + sizeof(Q_UINT16);
+    Q_UINT16 cs,ccs;
+    QByteArray buf = d->pictb->buffer();	// pointer to data
+
+    s >> cs;				// read checksum
+    ccs = (Q_UINT16) qChecksum( buf.constData() + data_start, buf.size() - data_start );
+    if ( ccs != cs ) {
+	qWarning( "QPicturePaintEngine::checkFormat: Invalid checksum %x, %x expected",
+		  ccs, cs );
+	d->pictb->close();
+	return false;
+    }
+
+    Q_UINT16 major, minor;
+    s >> major >> minor;			// read version number
+    if ( major > mfhdr_maj ) {		// new, incompatible version
+	qWarning( "QPicturePaintEngine::checkFormat: Incompatible version %d.%d",
+		  major, minor);
+	d->pictb->close();
+	return false;
+    }
+    s.setVersion( major != 4 ? major : 3 );
+
+    Q_UINT8  c, clen;
+    s >> c >> clen;
+    if ( c == PdcBegin ) {
+	if ( !( major >= 1 && major <= 3 )) {
+	    Q_INT32 l, t, w, h;
+	    s >> l >> t >> w >> h;
+	    d->brect = QRect( l, t, w, h );
+	}
+    } else {
+	qWarning( "QPicturePaintEngine::checkFormat: Format error" );
+	d->pictb->close();
+	return false;
+    }
+    d->pictb->close();
+
+    d->formatOk = true;			// picture seems to be ok
+    d->formatMajor = major;
+    d->formatMinor = minor;
+    return true;
+}
+
+
+bool QPicturePaintEngine::play(QPainter *painter)
+{
+    if ( d->pictb->size() == 0 )			// nothing recorded
+	return true;
+
+    if ( !d->formatOk && !checkFormat() )
+	return false;
+
+    d->pictb->open( IO_ReadOnly );		// open buffer device
+    QDataStream s;
+    s.setDevice( d->pictb );			// attach data stream to buffer
+    s.device()->at( 10 );			// go directly to the data
+    s.setVersion( d->formatMajor == 4 ? 3 : d->formatMajor );
+
+    Q_UINT8  c, clen;
+    Q_UINT32 nrecords;
+    s >> c >> clen;
+    Q_ASSERT( c == PdcBegin );
+    // bounding rect was introduced in ver 4. Read in checkFormat().
+    if ( d->formatMajor >= 4 ) {
+	Q_INT32 dummy;
+	s >> dummy >> dummy >> dummy >> dummy;
+    }
+    s >> nrecords;
+    if ( !exec( painter, s, nrecords ) ) {
+	qWarning( "QPicturePaintEngine::play: Format error" );
+	d->pictb->close();
+	return false;
+    }
+    d->pictb->close();
+    return true;				// no end-command
+}
+
+
+/*!
+  \internal
+  Iterates over the internal picture data and draws the picture using
+  \a painter.
+*/
+
+bool QPicturePaintEngine::exec(QPainter *painter, QDataStream &s, int nrecords)
+{
+#if defined(QT_DEBUG)
+    int		strm_pos;
+#endif
+    Q_UINT8	c;				// command id
+    Q_UINT8	tiny_len;			// 8-bit length descriptor
+    Q_INT32	len;				// 32-bit length descriptor
+    Q_INT16	i_16, i1_16, i2_16;		// parameters...
+    Q_INT8	i_8;
+    Q_UINT32	ul;
+    QByteArray	str1;
+    QString	str;
+    QPoint	p, p1, p2;
+    QRect	r;
+    QPointArray a;
+    QColor	color;
+    QFont	font;
+    QPen	pen;
+    QBrush	brush;
+    QRegion	rgn;
+#ifndef QT_NO_TRANSFORMATIONS
+    QWMatrix	matrix;
+#endif
+
+    while ( nrecords-- && !s.eof() ) {
+	s >> c;					// read cmd
+	s >> tiny_len;				// read param length
+	if ( tiny_len == 255 )			// longer than 254 bytes
+	    s >> len;
+	else
+	    len = tiny_len;
+#if defined(QT_DEBUG)
+	strm_pos = s.device()->at();
+#endif
+	switch ( c ) {				// exec cmd
+	    case PdcNOP:
+		break;
+	    case PdcDrawPoint:
+		s >> p;
+		painter->drawPoint( p );
+		break;
+	    case PdcDrawLine:
+		s >> p1 >> p2;
+		painter->drawLine( p1, p2 );
+		break;
+	    case PdcDrawRect:
+		s >> r;
+		painter->drawRect( r );
+		break;
+	    case PdcDrawRoundRect:
+		s >> r >> i1_16 >> i2_16;
+		painter->drawRoundRect( r, i1_16, i2_16 );
+		break;
+	    case PdcDrawEllipse:
+		s >> r;
+		painter->drawEllipse( r );
+		break;
+	    case PdcDrawArc:
+		s >> r >> i1_16 >> i2_16;
+		painter->drawArc( r, i1_16, i2_16 );
+		break;
+	    case PdcDrawPie:
+		s >> r >> i1_16 >> i2_16;
+		painter->drawPie( r, i1_16, i2_16 );
+		break;
+	    case PdcDrawChord:
+		s >> r >> i1_16 >> i2_16;
+		painter->drawChord( r, i1_16, i2_16 );
+		break;
+	    case PdcDrawLineSegments:
+		s >> a;
+		painter->drawLineSegments( a );
+		break;
+	    case PdcDrawPolyline:
+		s >> a;
+		painter->drawPolyline( a );
+		break;
+	    case PdcDrawPolygon:
+		s >> a >> i_8;
+		painter->drawPolygon( a, i_8 );
+		break;
+	    case PdcDrawCubicBezier:
+		s >> a;
+#ifndef QT_NO_BEZIER
+		painter->drawCubicBezier( a );
+#endif
+		break;
+	    case PdcDrawText:
+		s >> p >> str1;
+		painter->drawText( p, str1 );
+		break;
+	    case PdcDrawTextFormatted:
+		s >> r >> i_16 >> str1;
+		painter->drawText( r, i_16, str1 );
+		break;
+	    case PdcDrawText2:
+		s >> p >> str;
+		painter->drawText( p, str );
+		break;
+	    case PdcDrawText2Formatted:
+		s >> r >> i_16 >> str;
+		painter->drawText( r, i_16, str );
+		break;
+	    case PdcDrawPixmap: {
+		QPixmap pixmap;
+		if ( d->formatMajor < 4 ) {
+		    s >> p >> pixmap;
+		    painter->drawPixmap( p, pixmap );
+		} else {
+		    s >> r >> pixmap;
+		    painter->drawPixmap( r, pixmap );
+		}
+	                }
+		break;
+	    case PdcDrawImage: {
+		QImage image;
+		if ( d->formatMajor < 4 ) {
+		    s >> p >> image;
+		    painter->drawImage( p, image );
+		} else {
+		    s >> r >> image;
+		    painter->drawImage( r, image );
+		}
+		}
+		break;
+	    case PdcBegin:
+		s >> ul;			// number of records
+		if ( !exec( painter, s, ul ) )
+		    return FALSE;
+		break;
+	    case PdcEnd:
+		if ( nrecords == 0 )
+		    return TRUE;
+		break;
+	    case PdcSave:
+		painter->save();
+		break;
+	    case PdcRestore:
+		painter->restore();
+		break;
+	    case PdcSetBkColor:
+		s >> color;
+		painter->setBackgroundColor( color );
+		break;
+	    case PdcSetBkMode:
+		s >> i_8;
+		painter->setBackgroundMode( (Qt::BGMode)i_8 );
+		break;
+	    case PdcSetROP:
+		s >> i_8;
+		painter->setRasterOp( (Qt::RasterOp)i_8 );
+		break;
+	    case PdcSetBrushOrigin:
+		s >> p;
+		painter->setBrushOrigin( p );
+		break;
+	    case PdcSetFont:
+		s >> font;
+		painter->setFont( font );
+		break;
+	    case PdcSetPen:
+		s >> pen;
+		painter->setPen( pen );
+		break;
+	    case PdcSetBrush:
+		s >> brush;
+		painter->setBrush( brush );
+		break;
+// #ifdef Q_Q3PAINTER
+// 	case PdcSetTabStops:
+// 		s >> i_16;
+// 		painter->setTabStops( i_16 );
+// 		break;
+// 	    case PdcSetTabArray:
+// 		s >> i_16;
+// 		if ( i_16 == 0 ) {
+// 		    painter->setTabArray( 0 );
+// 		} else {
+// 		    int *ta = new int[i_16];
+// 		    for ( int i=0; i<i_16; i++ ) {
+// 			s >> i1_16;
+// 			ta[i] = i1_16;
+// 		    }
+// 		    painter->setTabArray( ta );
+// 		    delete [] ta;
+// 		}
+// 		break;
+// #endif
+	    case PdcSetVXform:
+		s >> i_8;
+#ifndef QT_NO_TRANSFORMATIONS
+		painter->setViewXForm( i_8 );
+#endif
+		break;
+	    case PdcSetWindow:
+		s >> r;
+#ifndef QT_NO_TRANSFORMATIONS
+		painter->setWindow( r );
+#endif
+		break;
+	    case PdcSetViewport:
+		s >> r;
+#ifndef QT_NO_TRANSFORMATIONS
+		painter->setViewport( r );
+#endif
+		break;
+	    case PdcSetWXform:
+		s >> i_8;
+#ifndef QT_NO_TRANSFORMATIONS
+		painter->setWorldXForm( i_8 );
+#endif
+		break;
+	    case PdcSetWMatrix:
+#ifndef QT_NO_TRANSFORMATIONS	// #### fix me!
+		s >> matrix >> i_8;
+		painter->setWorldMatrix( matrix, i_8 );
+#endif
+		break;
+#ifndef QT_NO_TRANSFORMATIONS
+// #ifdef Q_Q3PAINTER
+// 	    case PdcSaveWMatrix:
+// 		painter->saveWorldMatrix();
+// 		break;
+// 	    case PdcRestoreWMatrix:
+// 		painter->restoreWorldMatrix();
+// 		break;
+// #endif
+#endif
+	    case PdcSetClip:
+		s >> i_8;
+		painter->setClipping( i_8 );
+		break;
+	    case PdcSetClipRegion:
+		s >> rgn >> i_8;
+		painter->setClipRegion( rgn, (QPainter::CoordinateMode)i_8 );
+		break;
+	    default:
+		qWarning( "QPicture::play: Invalid command %d", c );
+		if ( len )			// skip unknown command
+		    s.device()->at( s.device()->at()+len );
+	}
+#if defined(QT_DEBUG)
+	//qDebug( "device->at(): %i, strm_pos: %i len: %i", s.device()->at(), strm_pos, len );
+	Q_ASSERT( Q_INT32(s.device()->at() - strm_pos) == len );
+#endif
+    }
+    return false;
 }

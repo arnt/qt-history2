@@ -76,11 +76,6 @@
 */
 
 
-static const char  *mfhdr_tag = "QPIC";		// header tag
-static const Q_UINT16 mfhdr_maj = 6;		// major version #
-static const Q_UINT16 mfhdr_min = 0;		// minor version #
-
-
 /*!
     Constructs an empty picture.
 
@@ -110,18 +105,18 @@ QPicture::QPicture( int formatVersion )
     d = new QPicturePrivate;
     d->paintEngine = 0;
 
-    if ( formatVersion == 0 )
-	qWarning( "QPicture: invalid format version 0" );
+//     if ( formatVersion == 0 )
+// 	qWarning( "QPicture: invalid format version 0" );
 
-    // still accept the 0 default from before Qt 3.0.
-    if ( formatVersion > 0 && formatVersion != (int)mfhdr_maj ) {
-	d->formatMajor = formatVersion;
-	d->formatMinor = 0;
-	d->formatOk = FALSE;
-    }
-    else {
-	d->resetFormat();
-    }
+//     // still accept the 0 default from before Qt 3.0.
+//     if ( formatVersion > 0 && formatVersion != (int)mfhdr_maj ) {
+// 	d->formatMajor = formatVersion;
+// 	d->formatMinor = 0;
+// 	d->formatOk = FALSE;
+//     }
+//     else {
+// 	d->resetFormat();
+//     }
 }
 
 /*!
@@ -179,10 +174,10 @@ QPicture::~QPicture()
 
 void QPicture::setData( const char* data, uint size )
 {
-    detach();
-    QByteArray a(data, size);
-    d->pictb.setBuffer( a );			// set byte array in buffer
-    d->resetFormat();				// we'll have to check
+//     detach();
+//     QByteArray a(data, size);
+//     d->pictb.setBuffer( a );			// set byte array in buffer
+//     d->resetFormat();				// we'll have to check
 }
 
 
@@ -239,6 +234,7 @@ bool QPicture::load( QIODevice *dev, const char *format )
 	bool result = io.read();
 	if ( result ) {
 	    operator=( io.picture() );
+
 	} else if ( format )
 #else
 	    bool result = FALSE;
@@ -251,8 +247,19 @@ bool QPicture::load( QIODevice *dev, const char *format )
 
     detach();
     QByteArray a = dev->readAll();
+#if 0 // ### debug - remember to remove me!
+    QByteArray ba = a;
+    for (int i = 1; i <=  ba.size(); ++i) {
+	fprintf(stderr,"%02x", (uchar) ba.at(i-1));
+	if ((i % 2) == 0)
+	    fprintf(stderr," ");
+	if ((i % 20) == 0)
+	    fprintf(stderr,"\n");
+    }
+    fprintf(stderr,"\n###\n");
+#endif
     d->pictb.setBuffer( a );			// set byte array in buffer
-    return d->checkFormat();
+    return static_cast<QPicturePaintEngine *>(engine())->checkFormat();
 }
 
 /*!
@@ -345,7 +352,7 @@ bool QPicture::save( QIODevice *dev, const char *format )
 QRect QPicture::boundingRect() const
 {
     if ( !d->formatOk )
-        d->checkFormat();
+        static_cast<QPicturePaintEngine *>(engine())->checkFormat();
     return d->brect;
 }
 
@@ -357,7 +364,7 @@ QRect QPicture::boundingRect() const
 void QPicture::setBoundingRect( const QRect &r )
 {
     if ( !d->formatOk )
-        d->checkFormat();
+        static_cast<QPicturePaintEngine *>(engine())->checkFormat();
     d->brect = r;
 }
 
@@ -371,11 +378,13 @@ void QPicture::setBoundingRect( const QRect &r )
 
 bool QPicture::play( QPainter *painter )
 {
+    return static_cast<QPicturePaintEngine *>(engine())->play(painter);
+
 // #if 0 // ### port
     if ( d->pictb.size() == 0 )			// nothing recorded
 	return true;
 
-    if ( !d->formatOk && !d->checkFormat() )
+    if ( !d->formatOk && !static_cast<QPicturePaintEngine *>(engine())->checkFormat() )
 	return false;
 
     d->pictb.open( IO_ReadOnly );		// open buffer device
@@ -660,7 +669,7 @@ bool QPicture::exec( QPainter *painter, QDataStream &s, int nrecords )
 #endif
     }
 // #endif // 0
-    return FALSE;
+    return false;
 }
 
 
@@ -1058,91 +1067,6 @@ QPicture& QPicture::operator= (const QPicture& p)
 }
 
 
-/*!
-  \internal
-
-  Sets formatOk to FALSE and resets the format version numbers to default
-*/
-
-void QPicture::QPicturePrivate::resetFormat()
-{
-    formatOk = FALSE;
-    formatMajor = mfhdr_maj;
-    formatMinor = mfhdr_min;
-}
-
-/*!
-  \internal
-
-  Checks data integrity and format version number. Set formatOk to TRUE
-  on success, to FALSE otherwise. Returns the resulting formatOk value.
-*/
-
-bool QPicture::QPicturePrivate::checkFormat()
-{
-    resetFormat();
-
-    // can't check anything in an empty buffer
-    if ( pictb.size() == 0 )
-	return FALSE;
-
-    pictb.open( IO_ReadOnly );			// open buffer device
-    QDataStream s;
-    s.setDevice( &pictb );			// attach data stream to buffer
-
-    char mf_id[4];				// picture header tag
-    s.readRawBytes( mf_id, 4 );			// read actual tag
-    if ( memcmp(mf_id, mfhdr_tag, 4) != 0 ) { 	// wrong header id
-	qWarning( "QPicture::checkFormat: Incorrect header" );
-	pictb.close();
-	return FALSE;
-    }
-
-    int cs_start = sizeof(Q_UINT32);		// pos of checksum word
-    int data_start = cs_start + sizeof(Q_UINT16);
-    Q_UINT16 cs,ccs;
-    QByteArray buf = pictb.buffer();	// pointer to data
-
-    s >> cs;				// read checksum
-    ccs = (Q_UINT16) qChecksum( buf.constData() + data_start, buf.size() - data_start );
-    if ( ccs != cs ) {
-	qWarning( "QPicture::checkFormat: Invalid checksum %x, %x expected",
-		  ccs, cs );
-	pictb.close();
-	return FALSE;
-    }
-
-    Q_UINT16 major, minor;
-    s >> major >> minor;			// read version number
-    if ( major > mfhdr_maj ) {		// new, incompatible version
-	qWarning( "QPicture::checkFormat: Incompatible version %d.%d",
-		  major, minor);
-	pictb.close();
-	return FALSE;
-    }
-    s.setVersion( major != 4 ? major : 3 );
-
-    Q_UINT8  c, clen;
-    s >> c >> clen;
-    if ( c == PdcBegin ) {
-	if ( !( major >= 1 && major <= 3 )) {
-	    Q_INT32 l, t, w, h;
-	    s >> l >> t >> w >> h;
-	    brect = QRect( l, t, w, h );
-	}
-    } else {
-	qWarning( "QPicture::checkFormat: Format error" );
-	pictb.close();
-	return FALSE;
-    }
-    pictb.close();
-
-    formatOk = TRUE;			// picture seems to be ok
-    formatMajor = major;
-    formatMinor = minor;
-    return TRUE;
-}
-
 QPaintEngine *QPicture::engine() const
 {
     if (!d->paintEngine)
@@ -1195,8 +1119,8 @@ QDataStream &operator>>( QDataStream &s, QPicture &r )
     }
 
     r.d->pictb.setBuffer( data );
-    r.d->resetFormat();
-
+    // r.d->resetFormat();
+    static_cast<QPicturePaintEngine *>(r.engine())->resetFormat();
     return s;
 }
 

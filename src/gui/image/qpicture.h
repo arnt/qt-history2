@@ -75,8 +75,6 @@ private:
 #if 0 // ### port
 	bool	cmd( int, QPainter *, QPDevCmdParam * );
 #endif
-	bool	checkFormat();
-	void	resetFormat();
 
 	QBuffer	pictb;
 	int	trecs;
