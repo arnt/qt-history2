@@ -1,6 +1,6 @@
 #include "../../../qactioninterface.h"
 #include "../../../qcleanuphandler.h"
-#include "../../../qdualinterface.h"
+#include "../../../qapplicationinterface.h"
 #include "sounddialog.h"
 
 #include <qaction.h>
@@ -38,7 +38,7 @@ public:
     QString description() { return "Test implementation of the QActionInterface"; }
     QString author() { return "vohi"; }
 
-    bool connectNotify( QApplication* theApp );
+    bool connectNotify( QApplication* a );
 
     QStringList featureList();
     QAction* create( const QString &actionname, QObject* parent = 0 );
@@ -57,12 +57,12 @@ public slots:
 
 protected:
     QAction* actionTurnOnText;
-    void connectNotify( const QCString& iface );
 
     bool eventFilter( QObject*, QEvent* );
 
 private:
     QGuardedPtr<SoundDialog> dialog;
+    QApplication* theApp;
 };
 
 TestInterface::TestInterface()
@@ -75,9 +75,17 @@ TestInterface::~TestInterface()
 {
 }
 
-bool TestInterface::connectNotify( QApplication* theApp )
+bool TestInterface::connectNotify( QApplication* a )
 {
-    return theApp->requestApplicationInterface( "PlugMainWindowInterface" );
+    ASSERT( theApp = a );
+    QApplicationInterface* ifc = theApp->requestApplicationInterface( "PlugMainWindowInterface" );
+    if ( ifc ) {
+	ifc->requestConnect( SIGNAL(startMovingToolBar(QToolBar*)), this, SLOT(toolBarMoves(QToolBar*)) );
+	ifc->requestConnect( SIGNAL(endMovingToolBar(QToolBar*)), this, SLOT(toolBarMoves(QToolBar*)) );
+	return TRUE;
+    } else {
+	return FALSE;
+    }
 }
 
 QStringList TestInterface::featureList()
@@ -99,15 +107,6 @@ QStrList TestInterface::queryInterfaceList() const
     list.append( "PlugMainWindowInterface" );
 
     return list;
-}
-
-void TestInterface::connectNotify( const QCString& iface )
-{
-    if ( iface == "PlugMainWindowInterface" ) {
-	clientInterface( iface )->requestSignal( SIGNAL(startMovingToolBar(QToolBar*)), this, SLOT(toolBarMoves(QToolBar*)));
-	clientInterface( iface )->requestSignal( SIGNAL(endMovingToolBar(QToolBar*)), this, SLOT(toolBarDropped(QToolBar*)));
-	clientInterface( iface )->requestEvents( this );
-    }
 }
 
 QAction* TestInterface::create( const QString& actionname, QObject* parent )
@@ -156,10 +155,9 @@ void TestInterface::openDialog()
 
 void TestInterface::toggleText()
 {
-    QClientInterface* ifc; 
-    if ( ( ifc = clientInterface( "PlugMainWindowInterface" ) ) ) {
-	QVariant onOff;
-	ifc->requestProperty( "usesTextLabel", onOff );
+    QApplicationInterface* ifc;
+    if ( ( ifc = theApp->requestApplicationInterface( "PlugMainWindowInterface" ) ) ) {
+	QVariant onOff = ifc->requestProperty( "usesTextLabel" );
 	bool on = onOff.toBool();
 	if ( !on ) {
 	    actionTurnOnText->setText( "Hide Text" );
@@ -174,8 +172,8 @@ void TestInterface::toggleText()
 
 void TestInterface::selectWidget()
 {
-    QClientInterface* ifc;
-    if ( ( ifc = clientInterface( "PlugMainWindowInterface" ) ) ) {
+    QApplicationInterface* ifc;
+    if ( ( ifc = theApp->requestApplicationInterface( "PlugMainWindowInterface" ) ) ) {
 	bool ok = FALSE;
 	QString wc = QInputDialog::getText( "Set central widget", "Enter widget class", QLineEdit::Normal, "QWidget", &ok );
 	if ( ok ) {
@@ -186,13 +184,11 @@ void TestInterface::selectWidget()
 
 void TestInterface::toggleMenu()
 {
-    QClientInterface* ifc;
-    if ( ( ifc = clientInterface( "PlugMainWindowInterface" ) ) ) {
-	QVariant up;
-	QClientInterface menuIfc;
-	ifc->requestConnection( "PlugMenuInterface", &menuIfc );
-	menuIfc.requestProperty( "defaultUp", up );
-	menuIfc.requestSetProperty( "defaultUp", !up.toBool() );
+    QApplicationInterface* ifc;
+    if ( ( ifc = theApp->requestApplicationInterface( "PlugMainWindowInterface" ) ) ) {
+	QApplicationInterface* menuIfc;
+	if ( ( menuIfc = ifc->requestInterface( "PlugMenuInterface" ) ) )
+	    menuIfc->requestSetProperty( "defaultUp", !menuIfc->requestProperty( "defaultUp").toBool() );
     }
 }
 
