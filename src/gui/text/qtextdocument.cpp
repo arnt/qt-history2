@@ -489,10 +489,8 @@ static bool findInBlock(const QTextBlock &block, const QString &text, const QStr
             return false;
     }
 
-    // ### FIXME
-    cursor = QTextCursor(block.docHandle()->document());
-    cursor.movePosition(QTextCursor::NextCharacter, QTextCursor::MoveAnchor, block.position() + idx);
-    cursor.movePosition(QTextCursor::NextCharacter, QTextCursor::KeepAnchor, expression.length());
+    cursor = QTextCursor(block.docHandle(), block.position() + idx);
+    cursor.setPosition(cursor.position() + expression.length(), QTextCursor::KeepAnchor);
     return true;
 }
 
