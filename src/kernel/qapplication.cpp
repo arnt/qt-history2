@@ -273,7 +273,6 @@ QAsciiDict<QFont>    *QApplication::app_fonts = 0;
 QWidgetList *QApplication::popupWidgets = 0;	// has keyboard input focus
 
 static bool	   makeqdevel	 = FALSE;	// developer tool needed?
-//static QDeveloper* qdevel = 0;		// developer tool
 static QWidget	  *desktopWidget = 0;		// root window widget
 static QTextCodec *default_codec = 0;		// root window widget
 
@@ -636,12 +635,6 @@ void QApplication::initialize( int argc, char **argv )
     app_style->polish( qApp ); //##### wrong place, still inside the qapplication constructor...grmbl....
 #endif
 
-#if 0
-    if ( makeqdevel ) {
-	qdevel = new QDeveloper;
-	qdevel->show();
-    }
-#endif
     // connect to the session manager
     session_manager = new QSessionManager( qApp, session_id );
 }
@@ -1776,16 +1769,35 @@ QTextCodec* QApplication::defaultCodec() const
     return default_codec;
 }
 
-/*!
-  Returns the best available translation for \a key in \a scope, by
-  querying the installed messages files.  The message file that was
-  installed last is asked first.
+/*! 
+  \overload
+  \obsolete
 
+  This version of the function uses "" as comment.
+*/
+
+QString QApplication::translate( const char * context, const char * key ) const
+{
+    return translate( context, key, "" );
+}
+
+
+/*!
+  Returns the translation text for \a key, by querying the installed
+  messages files.  The message file that was installed last is asked
+  first.
+  
   QObject::tr() offers a more convenient way to use this functionality.
 
-  \a scope is typically a class name (e.g. \c MyDialog) and \a is
+  \a context is typically a class name (e.g. \c MyDialog) and \a key is
   either English text or a short marker text, if the output text will
   be very long (as for help texts).
+
+  \a comment is a disambiguating comment, for when the same text is
+  used in different roles within one context.
+
+  See the QTranslator documentation for more information about keys,
+  contexts and comments.
 
   If none of the message files contain a translation for \a key in \a
   scope, this function returns \a key.
@@ -1796,7 +1808,8 @@ QTextCodec* QApplication::defaultCodec() const
   \sa QObject::tr() installTranslator() removeTranslator() QTranslator
 */
 
-QString QApplication::translate( const char * scope, const char * key ) const
+QString QApplication::translate( const char * scope, const char * key,
+				 const char * comment ) const
 {
     if ( !key )
 	return QString::null;
@@ -1808,16 +1821,15 @@ QString QApplication::translate( const char * scope, const char * key ) const
 	QString result;
 	while( (mf=it.current()) != 0 ) {
 	    ++it;
-	    result = mf->find( scope, key );
+	    result = mf->find( scope, key, comment );
 	    if ( !result.isNull() )
 		return result;
 	}
     }
-    if ( default_codec ) {
+    if ( default_codec != 0 )
 	return default_codec->toUnicode(key);
-    } else {
+    else
 	return QString::fromLatin1(key);
-    }
 }
 
 
@@ -1901,14 +1913,14 @@ void QApplication::postEvent( QObject *receiver, QEvent *event )
 	    }
 	}
     }
-    
+
     // if no compression could be done, just append something
     receiver->pendEvent = TRUE;
     event->posted = TRUE;
     QPostEvent * pe = new QPostEvent( receiver, event );
     if ( l != &postedEvents )
 	(*l)->append( pe );
-    
+
     postedEvents->append( pe );
 }
 
@@ -1964,11 +1976,11 @@ void QApplication::sendPostedEvents( QObject *receiver, int event_type )
     // this, it looks the way it does for good reasons.
     while ( (pe=it.current()) != 0 ) {
 	++it;
-	if ( !pe->event )
-	    continue;   // already sent or deleted
-	if ( ( receiver == 0 || receiver == pe->receiver ) 	    // it's for the right receiver
-	     && ( event_type == 0 || event_type == pe->event->type() ) ) {  // and it's even the right type!
-	    
+	if ( pe->event // hasn't been sent yet
+	     && ( receiver == 0 // we send to all receivers
+		  || receiver == pe->receiver ) // we send to THAT receiver
+	     && ( event_type == 0 // we send all types
+		  || event_type == pe->event->type() ) ) { // we send THAT type
 	    // first, we diddle the event so that we can deliver
 	    // it, and that noone will try to touch it later.
 	    pe->event->posted = FALSE;
@@ -2028,7 +2040,7 @@ void QApplication::sendPostedEvents( QObject *receiver, int event_type )
 	    }
 	    delete e;
 	    // careful when adding anything below this point - the
-	    // sendEvent() call might invalidates any invariants this
+	    // sendEvent() call might invalidate any invariants this
 	    // function depends on.
 	}
     }
@@ -2038,10 +2050,10 @@ void QApplication::sendPostedEvents( QObject *receiver, int event_type )
     if ( usingGlobalList ) {
 	postedEvents->first();
 	while( (pe=postedEvents->current()) != 0 ) {
-	    if ( !pe->event )
-		postedEvents->remove();
+	    if ( pe->event )
+		postedEvents->next();
 	    else
-		postedEvents->next(); // might be a new one
+		postedEvents->remove();
 	}
     }
 }
@@ -2245,11 +2257,11 @@ void QApplication::setActiveWindow( QWidget* act )
 	    && w->palette().active() != w->palette().inactive() ) {
 	    if ( w->palette().active() != w->palette().inactive() &&
 		( w->inherits( "QPopupMenu" ) || w->inherits( "QMenuBar" ) ||
-		  w->parentWidget() && 
-		( qstrcmp( w->name(), "qt_clipped_viewport" ) == 0 || 
+		  w->parentWidget() &&
+		( qstrcmp( w->name(), "qt_clipped_viewport" ) == 0 ||
 		  qstrcmp( w->name(), "qt_viewport" ) == 0 ) &&
-		( w->parentWidget()->inherits( "QListView" ) || 
-		  w->parentWidget()->inherits( "QIconView" ) || 
+		( w->parentWidget()->inherits( "QListView" ) ||
+		  w->parentWidget()->inherits( "QIconView" ) ||
 		  w->parentWidget()->inherits( "QListBox" ) ) ) )
 		    w->update();
 	}

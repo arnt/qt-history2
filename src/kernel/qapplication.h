@@ -143,7 +143,9 @@ public:
     QTextCodec*	     defaultCodec() const;
     void	     installTranslator( QTranslator * );
     void	     removeTranslator( QTranslator * );
-    QString	     translate( const char * scope, const char * key ) const;
+    QString	     translate( const char *, const char * ) const;
+    QString	     translate( const char *, const char *,
+				const char * ) const;
 
     static void      setWinStyleHighlightColor( const QColor & );
     static const QColor &winStyleHighlightColor();
