@@ -951,18 +951,15 @@ QSize QComboBox::sizeHint() const
 	if ( h > maxH )
 	    maxH = h;
     }
-    if ( maxH <= 16 && parentWidget() &&
-	 (parentWidget()->inherits( "QToolBar" ) ||
-	  parentWidget()->inherits( "QDialog" ) && style() == WindowsStyle) )
+    if ( maxH <= 17 && style() == WindowsStyle || parentWidget() &&
+	 ( parentWidget()->inherits( "QToolBar" ) ||
+	   parentWidget()->inherits( "QDialog" ) && d->ed ) )
 	maxH = 12;
 
     int sw, sh;
     if ( d->usingListBox() ) {
 	sw = 4 + 4 + maxW;
-	if ( style() == WindowsStyle )
-	    sh = 3 + 3 + maxH;
-	else 
-	    sh = 5 + 5 + maxH;
+	sh = 5 + 5 + maxH;
 	QRect cr = style().comboButtonRect( 0, 0, sw, sh );
 	sw += sw - cr.width();
     } else {
