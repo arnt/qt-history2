@@ -34,13 +34,16 @@ class  QM_EXPORT_NETWORK QSocketDevice: public QIODevice
 {
 public:
     enum Type { Stream, Datagram };
+    enum Family { Auto, Ipv4, Ipv6 };
 
     QSocketDevice( Type type = Stream );
+    QSocketDevice( Type type, Family family, int dummy );
     QSocketDevice( int socket, Type type );
     virtual ~QSocketDevice();
 
     bool	 isValid() const;
     Type	 type() const;
+    Family       family() const;
 
     int		 socket() const;
     virtual void setSocket( int socket, Type type );
@@ -105,6 +108,7 @@ public:
 
 protected:
     void setError( Error err );
+    void setFamily( Family family );
 
 private:
     int fd;
@@ -128,6 +132,7 @@ private:
 
     static void  init();
     int		 createNewSocket();
+    virtual void initFd(Family *family);
 
 private:	// Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)

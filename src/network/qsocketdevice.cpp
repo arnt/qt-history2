@@ -24,8 +24,15 @@
 class QSocketDevicePrivate
 {
 public:
+    QSocketDevicePrivate();
+
+    QSocketDevice::Family family;
 };
 
+QSocketDevicePrivate::QSocketDevicePrivate()
+    : family(QSocketDevice::Auto)
+{
+}
 
 
 /*!
@@ -105,15 +112,15 @@ public:
     connectionless UDP socket.
 */
 QSocketDevice::QSocketDevice( int socket, Type type )
-    : fd( -1 ), t( type ), p( 0 ), pp( 0 ), e( NoError ),
-      d( 0 )
+    : fd( socket ), t( type ), p( 0 ), pp( 0 ), e( NoError ),
+      d(new QSocketDevicePrivate())
 {
 #if defined(QSOCKETDEVICE_DEBUG)
     qDebug( "QSocketDevice: Created QSocketDevice %p (socket %x, type %d)",
 	   this, socket, type );
 #endif
     init();
-    setSocket( socket, type );
+    initFd(&d->family);
 }
 
 /*!
@@ -126,14 +133,38 @@ QSocketDevice::QSocketDevice( int socket, Type type )
     \sa blocking()
 */
 QSocketDevice::QSocketDevice( Type type )
-    : fd( -1 ), t( type ), p( 0 ), pp( 0 ), e( NoError ), d( 0 )
+    : fd( -1 ), t( type ), p( 0 ), pp( 0 ), e( NoError ),
+      d(new QSocketDevicePrivate())
 {
 #if defined(QSOCKETDEVICE_DEBUG)
     qDebug( "QSocketDevice: Created QSocketDevice object %p, type %d",
 	    this, type );
 #endif
     init();
-    setSocket( createNewSocket(), type );
+}
+
+/*!
+    Creates a QSocketDevice object for a stream or datagram socket.
+
+    The \a type argument must be either \c QSocketDevice::Stream for a
+    reliable, connection-oriented TCP socket, or \c
+    QSocketDevice::Datagram for an unreliable UDP socket.
+
+    \a family decides wether the socket should be of type Ipv4 or
+    Ipv6.
+
+    \sa blocking()
+*/
+QSocketDevice::QSocketDevice( Type type, Family family, int )
+    : fd( -1 ), t( type ), p( 0 ), pp( 0 ), e( NoError ),
+      d(new QSocketDevicePrivate())
+{
+#if defined(QSOCKETDEVICE_DEBUG)
+    qDebug( "QSocketDevice: Created QSocketDevice object %p, type %d",
+	    this, type );
+#endif
+    init();
+    d->family = family;
 }
 
 /*!
@@ -157,7 +188,7 @@ QSocketDevice::~QSocketDevice()
 */
 bool QSocketDevice::isValid() const
 {
-    return socket() != -1;
+    return fd != -1;
 }
 
 
@@ -167,6 +198,8 @@ bool QSocketDevice::isValid() const
     Returns the socket type which is either \c QSocketDevice::Stream
     or \c QSocketDevice::Datagram.
 
+
+
     \sa socket()
 */
 QSocketDevice::Type QSocketDevice::type() const
@@ -174,6 +207,15 @@ QSocketDevice::Type QSocketDevice::type() const
     return t;
 }
 
+QSocketDevice::Family QSocketDevice::family() const
+{
+    return d->family;
+}
+
+void QSocketDevice::setFamily( Family family )
+{
+    d->family = family;
+}
 
 /*!
     Returns the socket number, or -1 if it is an invalid socket.
@@ -182,6 +224,11 @@ QSocketDevice::Type QSocketDevice::type() const
 */
 int QSocketDevice::socket() const
 {
+    if (fd == -1) {
+	QSocketDevice *that = (QSocketDevice *)this;
+	that->setSocket(that->createNewSocket(), t);
+    }
+
     return fd;
 }
 
