@@ -6,19 +6,16 @@
 #include <qvector.h>
 #include <qapplication.h>
 #include <qpainter.h>
+#include <qwidgetlist.h>
 
 class QDockAreaHandle : public QWidget
 {
 public:
-    QDockAreaHandle( Qt::Orientation o,
-		       QDockArea *parent, const char* name=0 );
+    QDockAreaHandle( Qt::Orientation o, QDockArea *parent, const QWidgetList &wl, const char* name=0 );
     void setOrientation( Qt::Orientation o );
     Qt::Orientation orientation() const { return orient; }
 
     QSize sizeHint() const;
-
-    int id() const { return myId; }
-    void setId( int i ) { myId = i; }
 
 protected:
     void paintEvent( QPaintEvent * );
@@ -28,15 +25,13 @@ protected:
 
 private:
     Qt::Orientation orient;
-    bool opaq;
-    int myId;
-
     QDockArea *s;
+    QWidgetList widgetList;
+
 };
 
-QDockAreaHandle::QDockAreaHandle( Qt::Orientation o,
-				  QDockArea *parent, const char * name )
-    : QWidget( parent, name )
+QDockAreaHandle::QDockAreaHandle( Qt::Orientation o, QDockArea *parent, const QWidgetList &wl, const char * name )
+    : QWidget( parent, name ), widgetList( wl )
 {
     s = parent;
     setOrientation(o);
@@ -60,11 +55,11 @@ void QDockAreaHandle::setOrientation( Qt::Orientation o )
     }
 }
 
-void QDockAreaHandle::mouseMoveEvent( QMouseEvent *e )
+void QDockAreaHandle::mousePressEvent( QMouseEvent *e )
 {
 }
 
-void QDockAreaHandle::mousePressEvent( QMouseEvent *e )
+void QDockAreaHandle::mouseMoveEvent( QMouseEvent *e )
 {
 }
 
@@ -158,27 +153,34 @@ void QDockArea::setupHorizontalLayout()
     QVector<QBoxLayout> splitters;
     splitters.resize( sections );
     QArray<bool> resizeable( sections );
+    QVector<QWidgetList> wlv;
+    wlv.setAutoDelete( TRUE );
+    wlv.resize( sections );
     int i = 0;
     for ( i = 0; i < sections; ++i ) {
 	layouts.insert( i, new QHBoxLayout( layout ) );
 	splitters.insert( i, new QHBoxLayout( layout ) );
 	resizeable[ i ] = FALSE;
+	wlv.insert( i, new QWidgetList );
     }
 
     for ( QDockWidgetData *d = dockWidgets.first(); d; d = dockWidgets.next() ) {
 	layouts[ d->section ]->addWidget( d->dockWidget );
 	resizeable[ d->section ] = d->dockWidget->isResizeEnabled();
 	if ( d->dockWidget->isResizeEnabled() ) {
-	    QWidget *w = new QDockAreaHandle( Vertical, this );
+	    QWidgetList wl;
+	    wl.append( d->dockWidget );
+	    QWidget *w = new QDockAreaHandle( Vertical, this, wl );
 	    w->show();
 	    insertedSplitters.append( w );
 	    layouts[ d->section ]->addWidget( w );
+	    wlv[ d->section ]->append( d->dockWidget );
 	}
     }
 
     for ( i = 0; i < sections; ++i ) {
 	if ( resizeable[ i ] ) {
-	    QWidget *w = new QDockAreaHandle( orientation(), this );
+	    QWidget *w = new QDockAreaHandle( orientation(), this, *wlv[ i ] );
 	    splitters[ i ]->addWidget( w );
 	    w->show();
 	    insertedSplitters.append( w );
@@ -202,27 +204,34 @@ void QDockArea::setupVerticalLayout()
     QVector<QBoxLayout> splitters;
     splitters.resize( sections );
     QArray<bool> resizeable( sections );
+    QVector<QWidgetList> wlv;
+    wlv.setAutoDelete( TRUE );
+    wlv.resize( sections );
     int i = 0;
     for ( i = 0; i < sections; ++i ) {
 	layouts.insert( i, new QVBoxLayout( layout ) );
 	splitters.insert( i, new QVBoxLayout( layout ) );
 	resizeable[ i ] = FALSE;
+	wlv.insert( i, new QWidgetList );
     }
 
     for ( QDockWidgetData *d = dockWidgets.first(); d; d = dockWidgets.next() ) {
 	layouts[ d->section ]->addWidget( d->dockWidget );
 	resizeable[ d->section ] = d->dockWidget->isResizeEnabled();
 	if ( d->dockWidget->isResizeEnabled() ) {
-	    QWidget *w = new QDockAreaHandle( Horizontal, this );
+	    QWidgetList wl;
+	    wl.append( d->dockWidget );
+	    QWidget *w = new QDockAreaHandle( Horizontal, this, wl );
 	    w->show();
 	    insertedSplitters.append( w );
 	    layouts[ d->section ]->addWidget( w );
+	    wlv[ d->section ]->append( d->dockWidget );
 	}
     }
 
     for ( i = 0; i < sections; ++i ) {
 	if ( resizeable[ i ] ) {
-	    QWidget *w = new QDockAreaHandle( orientation(), this );
+	    QWidget *w = new QDockAreaHandle( orientation(), this, *wlv[ i ] );
 	    splitters[ i ]->addWidget( w );
 	    w->show();
 	    insertedSplitters.append( w );
