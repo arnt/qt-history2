@@ -25,6 +25,7 @@
 #include <qmutex.h>
 #include <qsignal.h>
 #include <qsocketnotifier.h>
+#include <qdebug.h>
 
 #include <errno.h>
 #include <stdlib.h>
@@ -440,20 +441,23 @@ bool QProcessPrivate::waitForReadyRead(int msecs)
 {
     Q_Q(QProcess);
     if (QProcessManager::instance().has(pid)) {
+        QTime stopWatch;
+        stopWatch.start();
+        int timeout = msecs;
         forever {
             int ret = qt_native_select(QList<int>() << qt_qprocess_deadChild_pipe[0]
                                        << standardReadPipe[0] << errorReadPipe[0],
-                                       msecs, true);
-            int channel = (processChannel == QProcess::StandardOutput? 2 : 3);
+                                       timeout, true);
+            int channel = (processChannel == QProcess::StandardOutput? 2 : 4);
 
             if (ret == 0) {
                 processError = QProcess::Timedout;
-                q->setErrorString(QT_TRANSLATE_NOOP(QProcess, "Process opeation timed out"));
+                q->setErrorString(QT_TRANSLATE_NOOP(QProcess, "Process operation timed out"));
                 return false;
             }
             if (ret & 2)
                 canReadStandardOutput();
-            if (ret & 3)
+            if (ret & 4)
                 canReadStandardError();
             if (ret & 1) {
                 QProcessManager::instance().deadChildNotification(0);
@@ -461,6 +465,7 @@ bool QProcessPrivate::waitForReadyRead(int msecs)
             }
             if (ret & channel)
                 return true;
+            timeout = msecs - stopWatch.elapsed();
         }
     }
     return false;
@@ -498,7 +503,7 @@ bool QProcessPrivate::waitForFinished(int msecs)
             }
             if (ret & 2)
                 canReadStandardOutput();
-            if (ret & 3)
+            if (ret & 4)
                 canReadStandardError();
             if (ret & 1) {
                 QProcessManager::instance().deadChildNotification(0);

@@ -589,8 +589,6 @@ bool QProcess::waitForReadyRead(int msecs)
         msecs -= stopWatch.elapsed();
     } else if (d->processState != Running)
         return (bytesAvailable() > 0);
-    else if (bytesAvailable() > 0)
-        return true;
 
     if (d->waitForReadyRead(msecs))
         return true;
