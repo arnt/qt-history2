@@ -167,16 +167,12 @@ bool QDesignerTabWidget::eventFilter( QObject *o, QEvent *e )
         {
             QMouseEvent *me = (QMouseEvent*)e;
             if ( mousePressed && ( pressPoint - me->pos()).manhattanLength() > QApplication::startDragDistance() ) {
-                QTextDrag *drg = new QTextDrag( "tab move" , this );
+                QTextDrag *drg = new QTextDrag( QString::number( (long) this ) , this );
                 mousePressed = false;
                 dragPage = QTabWidget::currentPage();
                 dragLabel = QTabWidget::tabLabel( dragPage );
 
-                int index = 0;
-                for ( ; index < tabBar()->count(); index++ ) {
-                    if ( tabBar()->tabAt( index )->r.contains( me->pos() ) )
-                        break;
-                }
+                int index = indexOf( dragPage );
 
                 removePage( dragPage );
                 if ( !drg->dragMove() ) {
@@ -197,8 +193,14 @@ bool QDesignerTabWidget::eventFilter( QObject *o, QEvent *e )
         case QEvent::DragMove:
         {
             QDragEnterEvent *de = (QDragEnterEvent*) e;
-            if ( QTextDrag::canDecode( de ) )
-                de->accept();
+            if ( QTextDrag::canDecode( de ) ) {
+                QString text;
+                QTextDrag::decode( de, text );
+                if ( text == QString::number( (long)this ) )
+                    de->accept();
+                else
+                    return FALSE;
+            }
 
             int index = 0;
             QRect rect;
@@ -216,8 +218,10 @@ bool QDesignerTabWidget::eventFilter( QObject *o, QEvent *e )
                     index++;
             }
 
-            if ( ! dropIndicator )
+            if ( ! dropIndicator ) {
                 dropIndicator = new QWidget( this );
+                dropIndicator->setBackgroundColor( colorGroup().highlight() );
+            }
 
             QPoint pos;
             if ( index == tabBar()->count() )
@@ -225,7 +229,6 @@ bool QDesignerTabWidget::eventFilter( QObject *o, QEvent *e )
             else
                 pos = tabBar()->mapToParent( QPoint( rect.x(), rect.y() ) );
 
-            dropIndicator->setBackgroundColor( colorGroup().highlight() );
             dropIndicator->setGeometry( pos.x(), pos.y() , 3, rect.height() );
             dropIndicator->show();
         }
@@ -236,7 +239,7 @@ bool QDesignerTabWidget::eventFilter( QObject *o, QEvent *e )
             if ( QTextDrag::canDecode( de ) ) {
                 QString text;
                 QTextDrag::decode( de, text );
-                if ( text == "tab move" ) {
+                if ( text == QString::number( (long)this ) ) {
 
                     int newIndex = 0;
                     for ( ; newIndex < tabBar()->count(); newIndex++ ) {
