@@ -213,35 +213,6 @@ QSqlError QSqlDriver::lastError() const
     return error;
 }
 
-/*! Returns a list of field information about the SQL statement \a sql.  This must be a SELECT
-    statement.  The default implementation creates a query() and returns field information from it.
-
-*/
-
-QSqlFieldInfoList QSqlDriver::view( const QString& sql ) const
-{
-    QSqlFieldInfoList fieldList;
-    QSql r = query( sql );
-#ifdef CHECK_RANGE
-    if ( !r.isActive() )
-	qWarning("QSqlDriver::view Error:" + r.lastError().driverText() + " - " + r.lastError().databaseText() );
-#endif
-    const QSqlResultInfo* i = r.info();
-    if ( i )
-	fieldList = i->fields();
-    return fieldList;
-}
-
-/*! Returns a list of field information about the table \a name.  The table must exist in the database.
-    The default implementation queries the table for all of its fields.
-
-*/
-
-QSqlFieldInfoList QSqlDriver::table( const QString& name ) const
-{
-    return view( "select * from " + name + " where 0=1;" );
-}
-
 /*!
   Returns a list of tables in the database.  The default
   implementation returns an empty list.

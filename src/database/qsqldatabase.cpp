@@ -341,24 +341,6 @@ QSqlError QSqlDatabase::lastError() const
 }
 
 
-/*!  Creates a view from the SQL statement \a sql.  See QSqlView for more information.
-
-*/
-QSqlView QSqlDatabase::view( const QString & sql ) const
-{
-    return QSqlView( sql, d->driver );
-}
-
-
-/*! Creates a table with name \a name.  See QSqlTable for more information.
-
-*/
-
-QSqlTable QSqlDatabase::table( const QString & name ) const
-{
-    return QSqlTable( name, d->driver );
-}
-
 /*!
   Returns a list of tables in the database.
 
@@ -391,65 +373,6 @@ QSqlIndex QSqlDatabase::primaryIndex( const QString& tablename ) const
 QSqlFieldInfoList QSqlDatabase::fields( const QString& tablename ) const
 {
     return d->driver->fields( tablename );
-}
-
-
-////////////////////////////////////////////////////////////////
-
-/*!
-
-*/
-
-QSqlViewBase::QSqlViewBase()
-{
-}
-
-/*!
-
-*/
-
-QSqlViewBase::~QSqlViewBase()
-{
-}
-
-////////////////////////////////////////////////////////////////
-
-/*!  Constructs a SQL view on the database driver \a db using the SQL select statement \a sql.
-
-*/
-
-QSqlView::QSqlView( const QString& sql, const QSqlDriver* db )
-: QSqlViewBase()
-{
-    setFields( db->view( sql ) );
-}
-
-/*! Destroys the object and frees any allocated resources.
-
-*/
-
-QSqlView::~QSqlView()
-{
-}
-
-////////////////////////////////////////////////////////////////
-
-/*!  Constructs a SQL table on the database driver \a db using the table name \a name.
-
-*/
-
-QSqlTable::QSqlTable( const QString& name, const QSqlDriver* db )
-: QSqlViewBase()
-{
-    setFields( db->table( name ) );
-}
-
-/*! Destroys the object and frees any allocated resources.
-
-*/
-
-QSqlTable::~QSqlTable()
-{
 }
 
 #endif // QT_NO_SQL

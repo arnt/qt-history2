@@ -13,32 +13,6 @@
 
 #ifndef QT_NO_SQL
 
-class QSqlViewBase // ### possibly useless?
-{
-public:
-    QSqlViewBase();
-    virtual ~QSqlViewBase();
-    QSqlFieldInfoList     fields() const {return fieldList;}
-protected:
-    void	setFields( const QSqlFieldInfoList& fields ) {fieldList = fields;}
-private:
-    QSqlFieldInfoList fieldList;
-};
-
-class QSqlView : public QSqlViewBase // ### possibly useless?
-{
-public:
-    QSqlView( const QString& sql, const QSqlDriver* db );
-    ~QSqlView();
-};
-
-class QSqlTable : public QSqlViewBase // ### possibly useless?
-{
-public:
-    QSqlTable( const QString& name, const QSqlDriver* db );
-    ~QSqlTable();
-};
-
 class QSqlDriver;
 class QSqlDatabasePrivate;
 class QSqlDatabase : public QObject
@@ -64,8 +38,6 @@ public:
     bool 	isOpenError() const;
     bool    	hasTransactionSupport() const;
     QSql	query( const QString & sqlquery ) const;
-    QSqlView    view( const QString & sql ) const;
-    QSqlTable   table( const QString & name ) const;
     QStringList tables() const;
     QSqlIndex   primaryIndex( const QString& tablename ) const;
     QSqlFieldInfoList fields( const QString& tablename ) const;

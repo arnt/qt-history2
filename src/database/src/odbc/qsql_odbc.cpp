@@ -247,7 +247,7 @@ bool QODBCDriver::open( const QString & db,
 			const QString & password,
 			const QString & host)
 {
-    if ( isOpen() ) 
+    if ( isOpen() )
 	close();
     SQLRETURN r;
     r = SQLAllocHandle( SQL_HANDLE_ENV,
@@ -391,11 +391,6 @@ bool QODBCDriver::endTrans()
 	return FALSE;
     }
     return TRUE;
-}
-
-QSqlFieldInfoList QODBCDriver::table( const QString& name ) const
-{
-    return view( "select * from " + name + " where (0=1);");
 }
 
 QStringList QODBCDriver::tables( const QString& user ) const

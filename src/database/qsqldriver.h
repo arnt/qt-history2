@@ -26,8 +26,6 @@ public:
     virtual bool    beginTransaction();
     virtual bool    commitTransaction();
     virtual bool    rollbackTransaction();
-    virtual QSqlFieldInfoList view( const QString& sql ) const;
-    virtual QSqlFieldInfoList table( const QString& name ) const;
     virtual QStringList tables( const QString& user ) const;
     virtual QSqlIndex   primaryIndex( const QString& tablename ) const;
     virtual QSqlFieldInfoList fields( const QString& tablename ) const;
@@ -38,7 +36,6 @@ public:
 			const QString & host = QString::null ) = 0;
     virtual void    close() = 0;
     virtual QSql    createResult() const = 0;
-//    virtual void    destroyResult( QSqlResult* r ) const;
 protected:
     void 	    setOpen( bool o );
     void 	    setOpenError( bool e );

@@ -14,20 +14,19 @@ class QODBCDriver : public QSqlDriver
 public:
     QODBCDriver( QObject * parent=0, const char * name=0 );
     ~QODBCDriver();
-    bool        open( const QString & db,
-    			const QString & user = QString::null,
-			const QString & password = QString::null,
-			const QString & host = QString::null );
-    void 	close();
-    QSql 	createResult() const;
-    QSqlFieldInfoList   table( const QString& name) const;
-    QStringList         tables( const QString& user ) const;    
-    QSqlFieldInfoList   fields( const QString& tablename ) const;        
+    bool                open( const QString & db,
+			      const QString & user = QString::null,
+			      const QString & password = QString::null,
+			      const QString & host = QString::null );
+    void 	        close();
+    QSql 	        createResult() const;
+    QStringList         tables( const QString& user ) const;
+    QSqlFieldInfoList   fields( const QString& tablename ) const;
     QSqlIndex           primaryIndex( const QString& tablename ) const;
 protected:
-    bool    beginTransaction();
-    bool    commitTransaction();
-    bool    rollbackTransaction();
+    bool                beginTransaction();
+    bool                commitTransaction();
+    bool                rollbackTransaction();
 private:
     void init();
     bool endTrans();
