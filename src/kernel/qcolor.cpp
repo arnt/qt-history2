@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcolor.cpp#58 $
+** $Id: //depot/qt/main/src/kernel/qcolor.cpp#59 $
 **
 ** Implementation of QColor class
 **
@@ -12,7 +12,7 @@
 #include "qcolor.h"
 #include "qdstream.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qcolor.cpp#58 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qcolor.cpp#59 $");
 
 
 /*!
@@ -156,7 +156,7 @@ void QColor::initglobals()
 
   Constructs a color with the RGB value (r,g,b).
 
-  \e r, \e g and \e b must be in the rangle 0..255.
+  \e r, \e g and \e b must be in the range 0..255.
 
   \sa setRgb()
 */
