@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmainwindow.cpp#7 $
+** $Id: //depot/qt/main/src/widgets/qmainwindow.cpp#8 $
 **
 ** Implementation of something useful.
 **
@@ -25,7 +25,7 @@
 
 #include "qtooltip.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qmainwindow.cpp#7 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qmainwindow.cpp#8 $");
 
 
 class QMainWindowPrivate {
@@ -544,21 +544,25 @@ bool QMainWindow::event( QEvent * e )
 {
     if ( e->type() == Event_ChildRemoved ) {
 	QChildEvent * c = (QChildEvent *) e;
-	if ( c->child() == 0 )
-	    debug( "null child in ChildRemovedEvent" );
-	else if ( c->child() == d->sb )
+	if ( c->child() == 0 ||
+	     c->child()->testWFlags( WType_TopLevel ) ) {
+	    // nothing
+	} else if ( c->child() == d->sb ) {
 	    d->sb = 0;
-	else if ( c->child() == d->mb )
+	    d->timer->start( 0, TRUE );
+	} else if ( c->child() == d->mb ) {
 	    d->mb = 0;
-	else if ( c->child() == d->mc )
+	    d->timer->start( 0, TRUE );
+	} else if ( c->child() == d->mc ) {
 	    d->mc = 0;
-	else if ( c->child()->inherits( "QToolBar" ) )
+	    d->timer->start( 0, TRUE );
+	} else if ( c->child()->inherits( "QToolBar" ) ) {
 	    removeToolBar( (QToolBar *)(c->child()) );
-	else
-	    debug( "unknown child went away - %p (%s/%s)",
-		   c->child(),
-		   c->child()->name() ? c->child()->name() : "unnamed",
-		   c->child()->className() );
+	    d->timer->start( 0, TRUE );
+	} else {
+	    debug( "unknown child went away - %p (%s)",
+		   c->child(), c->child()->name( "unnamed" ) );
+	}
     }
     return QWidget::event( e );
 }
