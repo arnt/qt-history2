@@ -132,7 +132,7 @@ private:
 };
 
 #include "qlibrary.moc"
-#else
+#else // QT_LITE_COMPONENT
 class QLibraryPrivate
 {
 public:
@@ -162,7 +162,7 @@ public:
 private:
     QLibrary *library;
 };
-#endif
+#endif // QT_LITE_COMPONENT
 
 /*
   The platform dependent implementations of
