@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#245 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#246 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -485,13 +485,11 @@ static void msgHandler( QtMsgType t, const char* str )
 {
     if ( !str )
 	str = "(null)";
-    int len = strlen(str);
-    char *s = new char[len+2];
-    strcpy(s+len,"\n");
-    OutputDebugStringA( s );
-    delete [] s;
+    QCString s = str;
+    s += "\n";
+    OutputDebugStringA( s.data() );
     if ( t == QtFatalMsg )
-	ExitProcess( 1 );
+        ExitProcess( 1 );
 }
 
 
