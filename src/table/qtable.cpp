@@ -62,6 +62,8 @@
 
 #include <stdlib.h>
 
+static bool qt_update_cell_widget = TRUE;
+
 class Q_EXPORT QTableHeader : public QHeader
 {
     friend class QTable;
@@ -810,13 +812,18 @@ void QTableItem::setSpan( int rs, int cs )
 	for ( int c = 0; c < colspan; ++c ) {
 	    if ( r == 0 && c == 0 )
 		continue;
+	    qt_update_cell_widget = FALSE;
 	    table()->setItem( r + rw, c + cl, this );
+	    qt_update_cell_widget = TRUE;
 	    rw = rrow;
 	    cl = rcol;
 	}
     }
 
     table()->updateCell( rw, cl );
+    QWidget *w = table()->cellWidget( rw, cl );
+    if ( w )
+	w->resize( table()->cellGeometry( rw, cl ).size() );
 }
 
 /*! Returns the row span of the table item, usually 1.
@@ -2403,10 +2410,10 @@ void QTable::drawContents( QPainter *p, int cx, int cy, int cw, int ch )
 	    rowh = oldrh;
 
 	    QWidget *w = cellWidget( r, c );
-	    if ( w && w->geometry() !=
-		 QRect( contentsToViewport( QPoint( colp, rowp ) ), QSize( colw - 1, rowh - 1 ) ) ) {
+	    QRect cg( cellGeometry( r, c ) );
+	    if ( w && w->geometry() != QRect( contentsToViewport( cg.topLeft() ), cg.size() ) ) {
 		moveChild( w, colp, rowp );
-		w->resize( colw - 1, rowh - 1 );
+		w->resize( cg.size() );
 	    }
 	}
     }
@@ -2635,7 +2642,8 @@ void QTable::setItem( int row, int col, QTableItem *item )
     item->setRow( row );
     item->setCol( col );
     updateCell( row, col );
-    item->updateEditor( orow, ocol );
+    if ( qt_update_cell_widget )
+	item->updateEditor( orow, ocol );
 }
 
 /*! Removes the QTableItem at \a row, \a col.
@@ -3999,6 +4007,7 @@ int QTable::rowAt( int y ) const
 QRect QTable::cellGeometry( int row, int col ) const
 {
     QTableItem *itm = item( row, col );
+
     if ( !itm || itm->rowSpan() == 1 && itm->colSpan() == 1 )
 	return QRect( columnPos( col ), rowPos( row ),
 		      columnWidth( col ), rowHeight( row ) );
@@ -4012,7 +4021,8 @@ QRect QTable::cellGeometry( int row, int col ) const
 		columnWidth( col ), rowHeight( row ) );
 
     for ( int r = 1; r < itm->rowSpan(); ++r )
-	    rect.setHeight( rect.height() + rowHeight( r + row ) );
+	rect.setHeight( rect.height() + rowHeight( r + row ) );
+
     for ( int c = 1; c < itm->colSpan(); ++c )
 	rect.setWidth( rect.width() + columnWidth( c + col ) );
 
