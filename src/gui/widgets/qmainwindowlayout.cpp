@@ -601,10 +601,12 @@ void QMainWindowLayout::setGeometry(const QRect &_r)
     // layout dockwindows and center widget
     const int ext = QApplication::style().pixelMetric(QStyle::PM_DockWindowSeparatorExtent);
 
-    // hide separators for empty layouts
-    for (int i = 0; i < 4; ++i) {
-        if (!layout_info[i].item) continue;
-        layout_info[i].sep->widget()->setHidden(layout_info[i].item->isEmpty());
+    if (relayout_type == QInternal::RelayoutNormal) {
+        // hide separators for empty layouts
+        for (int i = 0; i < 4; ++i) {
+            if (!layout_info[i].item) continue;
+            layout_info[i].sep->widget()->setHidden(layout_info[i].item->isEmpty());
+        }
     }
 
     {
