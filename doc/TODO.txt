@@ -211,6 +211,10 @@ QIconViewItem::calcTmpTxt()
   A KDE developer asked if we could make the return value (tmpTxt) protected instead of private.
   (qt-bugs/arc-08/17228)
 
+QSound:
+  QSound could support QUrlOperator, so that you can fetch the sound file from
+  a HTTP server, e.g.
+
 
 New functionality
 -----------------
