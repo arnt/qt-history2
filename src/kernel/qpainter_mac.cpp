@@ -715,7 +715,7 @@ void QPainter::drawPolyInternal(const QPointArray &a, bool close, bool inset)
 	} else {
 	    QPixmap *pm = 0;
 	    if(cbrush.style() == QBrush::CustomPattern)
-		pm = cbrush.data->pixmap;
+		pm = cbrush.pixmap();
 	    else {
 		pm = d->brush_style_pix;
 		if(bg_mode == OpaqueMode) {
@@ -949,7 +949,7 @@ void QPainter::drawRect(int x, int y, int w, int h)
 	} else {
 	    QPixmap *pm = 0;
 	    if(cbrush.style() == QBrush::CustomPattern)
-		pm = cbrush.data->pixmap;
+		pm = cbrush.pixmap();
 	    else {
 		pm = d->brush_style_pix;
 		if(bg_mode == OpaqueMode) {
@@ -1169,7 +1169,7 @@ void QPainter::drawEllipse(int x, int y, int w, int h)
 	} else {
 	    QPixmap *pm = 0;
 	    if(cbrush.style() == QBrush::CustomPattern) {
-		pm = cbrush.data->pixmap;
+		pm = cbrush.pixmap();
 	    } else {
 		pm = d->brush_style_pix;
 		if(bg_mode == OpaqueMode) {
