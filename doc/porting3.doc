@@ -144,6 +144,7 @@ All <a href="removed30.html">these functions</a> have been removed in Qt 3.x.
     <li>QWidget::setFontPropagation, QWidget::setPalettePropagation
     <li>QMenuBar::setActItem, QMenuBar::setWindowsAltMode
     <li>QCheckListItem::paintBranches
+    <li>QString::visual, QString::basicDirection
 </ul>
 */
 
