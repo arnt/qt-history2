@@ -16,8 +16,8 @@
 #define QVARIANT_H
 
 #ifndef QT_H
+#include "qatomic.h"
 #include "qbytearray.h"
-#include "qshared.h"
 #endif // QT_H
 
 #ifndef QT_NO_VARIANT
@@ -100,64 +100,63 @@ public:
 
     QVariant();
     ~QVariant();
-    QVariant( Type type, void *v = 0 );
-    QVariant( const QVariant& );
+    QVariant(Type type, void *v = 0);
+    QVariant(const QVariant &other);
 #ifndef QT_NO_DATASTREAM
-    QVariant( QDataStream& s );
+    QVariant(QDataStream &s);
 #endif
-    QVariant( const QString& );
-    QVariant( const char* );
+    QVariant(const QString &string);
+    QVariant(const char *str);
 #ifndef QT_NO_STRINGLIST
-    QVariant( const QStringList& );
+    QVariant(const QStringList &stringlist);
 #endif
 #ifndef QT_NO_COMPAT
-    QVariant( const QColorGroup& );
+    QVariant(const QColorGroup &cg);
 #endif
-    QVariant( const QFont& );
-    QVariant( const QPixmap& );
-    QVariant( const QImage& );
-    QVariant( const QBrush& );
-    QVariant( const QPoint& );
-    QVariant( const QRect& );
-    QVariant( const QSize& );
-    QVariant( const QColor& );
-    QVariant( const QPalette& );
-    QVariant( const QIconSet& );
-    QVariant( const QPointArray& );
-    QVariant( const QRegion& );
-    QVariant( const QBitmap& );
-    QVariant( const QCursor& );
-    QVariant( const QDate& );
-    QVariant( const QTime& );
-    QVariant( const QDateTime& );
-    QVariant( const QByteArray& );
-    QVariant( const QBitArray& );
+    QVariant(const QFont &font);
+    QVariant(const QPixmap &pixmap);
+    QVariant(const QImage &image);
+    QVariant(const QBrush &brush);
+    QVariant(const QPoint &pt);
+    QVariant(const QRect &rect);
+    QVariant(const QSize &size);
+    QVariant(const QColor &color);
+    QVariant(const QPalette &palette);
+    QVariant(const QIconSet &iconset);
+    QVariant(const QPointArray &pointarray);
+    QVariant(const QRegion &region);
+    QVariant(const QBitmap &bitmap);
+    QVariant(const QCursor &cursor);
+    QVariant(const QDate &date);
+    QVariant(const QTime &time);
+    QVariant(const QDateTime &datetime);
+    QVariant(const QByteArray &bytearray);
+    QVariant(const QBitArray &bitarray);
 #ifndef QT_NO_ACCEL
-    QVariant( const QKeySequence& );
+    QVariant(const QKeySequence &keysequence);
 #endif
-    QVariant( const QPen& );
+    QVariant(const QPen &pen);
 #ifndef QT_NO_TEMPLATE_VARIANT
-    QVariant( const QList<QVariant>& );
-    QVariant( const QMap<QString,QVariant>& );
+    QVariant(const QList<QVariant> &list);
+    QVariant(const QMap<QString,QVariant> &map);
 #endif
-    QVariant( int );
-    QVariant( uint );
-    QVariant( Q_LLONG );
-    QVariant( Q_ULLONG );
-    // ### Problems on some compilers ?
-    QVariant( bool, int );
-    QVariant( double );
-    QVariant( QSizePolicy );
+    QVariant(int i);
+    QVariant(uint ui);
+    QVariant(Q_LLONG ll);
+    QVariant(Q_ULLONG ull);
+    QVariant(bool b, int i);
+    QVariant(double d);
+    QVariant(QSizePolicy sp);
 
-    QVariant& operator= ( const QVariant& );
-    bool operator==( const QVariant& ) const;
-    bool operator!=( const QVariant& ) const;
+    QVariant& operator=(const QVariant &other);
+    bool operator==(const QVariant &other) const;
+    inline bool operator!=(const QVariant &other) const { return !(other == *this); }
 
     Type type() const;
-    const char* typeName() const;
+    const char *typeName() const;
 
-    bool canCast( Type ) const;
-    bool cast( Type );
+    bool canCast(Type t) const;
+    bool cast(Type t);
 
     bool isValid() const;
     bool isNull() const;
@@ -194,86 +193,84 @@ public:
     QKeySequence toKeySequence() const;
 #endif
     QPen toPen() const;
-    int toInt( bool * ok=0 ) const;
-    uint toUInt( bool * ok=0 ) const;
-    Q_LLONG toLongLong( bool * ok=0 ) const;
-    Q_ULLONG toULongLong( bool * ok=0 ) const;
+    int toInt(bool *ok = 0) const;
+    uint toUInt(bool *ok = 0) const;
+    Q_LLONG toLongLong(bool *ok = 0) const;
+    Q_ULLONG toULongLong(bool *ok = 0) const;
     bool toBool() const;
-    double toDouble( bool * ok=0 ) const;
+    double toDouble(bool *ok = 0) const;
 #ifndef QT_NO_TEMPLATE_VARIANT
     QList<QVariant> toList() const;
     QMap<QString,QVariant> toMap() const;
 #endif
     QSizePolicy toSizePolicy() const;
 
-    QString& asString();
+    QString &asString();
 #ifndef QT_NO_STRINGLIST
-    QStringList& asStringList();
+    QStringList &asStringList();
 #endif
-    QFont& asFont();
-    QPixmap& asPixmap();
-    QImage& asImage();
-    QBrush& asBrush();
-    QPoint& asPoint();
-    QRect& asRect();
-    QSize& asSize();
-    QColor& asColor();
-    QPalette& asPalette();
+    QFont &asFont();
+    QPixmap &asPixmap();
+    QImage &asImage();
+    QBrush &asBrush();
+    QPoint &asPoint();
+    QRect &asRect();
+    QSize &asSize();
+    QColor &asColor();
+    QPalette &asPalette();
 #ifndef QT_NO_COMPAT
-    QColorGroup& asColorGroup();
+    QColorGroup &asColorGroup();
 #endif
-    QIconSet& asIconSet();
-    QPointArray& asPointArray();
-    QBitmap& asBitmap();
-    QRegion& asRegion();
-    QCursor& asCursor();
-    QDate& asDate();
-    QTime& asTime();
-    QDateTime& asDateTime();
-    QByteArray& asByteArray();
-    QBitArray& asBitArray();
+    QIconSet &asIconSet();
+    QPointArray &asPointArray();
+    QBitmap &asBitmap();
+    QRegion &asRegion();
+    QCursor &asCursor();
+    QDate &asDate();
+    QTime &asTime();
+    QDateTime &asDateTime();
+    QByteArray &asByteArray();
+    QBitArray &asBitArray();
 #ifndef QT_NO_ACCEL
-    QKeySequence& asKeySequence();
+    QKeySequence &asKeySequence();
 #endif
-    QPen& asPen();
-    int& asInt();
-    uint& asUInt();
-    Q_LLONG& asLongLong();
-    Q_ULLONG& asULongLong();
-    bool& asBool();
-    double& asDouble();
+    QPen &asPen();
+    int &asInt();
+    uint &asUInt();
+    Q_LLONG &asLongLong();
+    Q_ULLONG &asULongLong();
+    bool &asBool();
+    double &asDouble();
 #ifndef QT_NO_TEMPLATE_VARIANT
-    QList<QVariant>& asList();
-    QMap<QString,QVariant>& asMap();
+    QList<QVariant> &asList();
+    QMap<QString,QVariant> &asMap();
 #endif
-    QSizePolicy& asSizePolicy();
+    QSizePolicy &asSizePolicy();
 
 #ifndef QT_NO_DATASTREAM
-    void load( QDataStream& );
-    void save( QDataStream& ) const;
+    void load(QDataStream &ds);
+    void save(QDataStream &ds) const;
 #endif
-    static const char* typeToName( Type type );
-    static Type nameToType( const char* name );
+    static const char *typeToName(Type type);
+    static Type nameToType(const char *name);
 
 #ifndef QT_NO_COMPAT
-    const QByteArray toCString() const { return toByteArray(); }
-    QByteArray& asCString() { return asByteArray(); }
+    inline const QByteArray toCString() const { return toByteArray(); }
+    inline QByteArray &asCString() { return asByteArray(); }
 #endif
+    void *rawAccess(void *ptr = 0, Type typ = Invalid, bool deepCopy = FALSE);
+    void *data();
 private:
-    void detach();
+    void detach() { if (d->ref != 1) detach_helper(); }
+    void detach_helper();
 
-    class Private : public QShared
+    struct Private
     {
-    public:
-	Private();
-	Private( uint );
-	Private( uint, void * );
-	~Private();
-
 	void clear();
 
-	uint type : 30;
-	uint is_null : 1;
+	QAtomic ref;
+	Type type;
+	bool is_null;
 	union
 	{
 	    uint u;
@@ -285,22 +282,30 @@ private:
 	    void *ptr;
 	} value;
     };
-
-    Private* d;
-
-public:
-    void* rawAccess( void* ptr = 0, Type typ = Invalid, bool deepCopy = FALSE );
-    void* data();
+    Private *d;
+    static Private shared_invalid;
+    Private *constructPrivate(Type type);
+    Private *constructPrivate(Type type, void *v);
+    Private *startConstruction();
+    inline void cleanUp(Private *p) { p->clear(); delete p; }
 };
 
 inline QVariant::Type QVariant::type() const
 {
-    return (Type)d->type;
+    return d->type;
 }
 
 inline bool QVariant::isValid() const
 {
-    return (d->type != Invalid);
+    return d->type != Invalid;
+}
+
+inline QVariant::Private *QVariant::startConstruction()
+{
+    Private *p = new Private;
+    p->ref = 1;
+    p->is_null = true;
+    return p;
 }
 
 #ifndef QT_NO_DATASTREAM

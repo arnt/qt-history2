@@ -17,11 +17,12 @@
 
 #ifndef QT_H
 #include "qobject.h"
-#include "qstring.h"
-#include "qvariant.h"
+#include "qshared.h"
+#include "qsql.h"
 #include "qsqlerror.h"
 #include "qsqlfield.h"
-#include "qsql.h"
+#include "qstring.h"
+#include "qvariant.h"
 #endif // QT_H
 
 #ifndef QT_NO_SQL

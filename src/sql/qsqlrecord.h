@@ -16,10 +16,10 @@
 #define QSQLRECORD_H
 
 #ifndef QT_H
-#include "qstring.h"
+#include "qshared.h"
+#include "qsqlfield.h"
 #include "qstringlist.h"
 #include "qvariant.h"
-#include "qsqlfield.h"
 #endif // QT_H
 
 #ifndef QT_NO_SQL
