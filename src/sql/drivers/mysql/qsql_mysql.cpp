@@ -160,7 +160,10 @@ bool QMYSQLResult::fetchNext()
 
 bool QMYSQLResult::fetchLast()
 {
-    return fetch( mysql_num_rows( d->result ) - 1 );
+    my_ulonglong numRows = mysql_num_rows( d->result );
+    if ( !numRows )
+	return FALSE;
+    return fetch( numRows - 1 );
 }
 
 bool QMYSQLResult::fetchFirst()
