@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#599 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#600 $
 **
 ** Implementation of QFileDialog class
 **
@@ -2841,10 +2841,7 @@ QString QFileDialog::dirPath() const
     return d->url.dirPath();
 }
 
-// A more liberal filter regex which accepts anything that has a star in
-// it.
-extern const char qt_file_dialog_filter_reg_exp[] =
-    "\\((?:[^ ;]*\\*[^ ;]*[ ;])*[^ ;]*\\*[^ ;]*\\)$";
+extern const char qt_file_dialog_filter_reg_exp[] = "\\([a-zA-Z0-9.*? +;#\\[\\]]*\\)$";
 
 /*!
 
