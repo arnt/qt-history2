@@ -2250,7 +2250,7 @@ void QTable::paintCell( QPainter* p, int row, int col,
 {
     if ( selected &&
 	 row == curRow &&
-	 col == curCol )
+	 col == curCol && ( hasFocus() || viewport()->hasFocus() ) )
 	selected = FALSE;
 
     int w = cr.width();
