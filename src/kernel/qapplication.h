@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.h#23 $
+** $Id: //depot/qt/main/src/kernel/qapplication.h#24 $
 **
 ** Definition of QApplication class
 **
@@ -34,22 +34,23 @@ public:
     static void	    restoreCursor();
 
     static QPalette *palette();			// get/set application palette
-    static void	    setPalette( const QPalette &, bool forceAllWidgets=FALSE );
+    static void	    setPalette( const QPalette &, bool updateAllWidgets=FALSE);
 
     static QFont   *font();			// get/set application font
-    static void	    setFont( const QFont &, bool forceAllWidgets=FALSE );
+    static void	    setFont( const QFont &, bool updateAllWidgets=FALSE );
+
+    static QWidget *desktop();			// get desktop widget
 
     int		    exec( QWidget *mainWidget );// start event handing
     int		    enter_loop();
     void	    exit_loop();
     static void	    quit( int retcode = 0 );	// quit application
 
+    QWidget	   *mainWidget() const { return main_widget; }
+
     static bool	    sendEvent( QObject *receiver, QEvent *event )
 	{ return qApp->notify( receiver, event ); }
     static void	    postEvent( QObject *receiver, QEvent *event );
-
-    static QWidget *desktop();			// get desktop widget
-    QWidget	   *mainWidget() const { return main_widget; }
 
     virtual bool    notify( QObject *, QEvent * ); // send event to object
 
