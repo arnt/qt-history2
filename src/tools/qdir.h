@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdir.h#22 $
+** $Id: //depot/qt/main/src/tools/qdir.h#23 $
 **
 ** Definition of QDir class
 **
@@ -58,15 +58,17 @@ public:
     QDir       &operator=( const char *path );
 
     void	setPath( const char *path );
-    const char *path()	       const;
-    QString	absPath() const;
-    QString	canonicalPath()	    const;
+    const char *path()		const;
+    QString	absPath()	const;
+    QString	canonicalPath()	const;
 
     QString	dirName() const;
     QString	filePath( const char *fileName,
 			  bool acceptAbsPath = TRUE ) const;
     QString	absFilePath( const char *fileName,
 			     bool acceptAbsPath = TRUE ) const;
+
+    static QString convertSeparators( const char *pathName );
 
     bool	cd( const char *dirName, bool acceptAbsPath = TRUE );
     bool	cdUp();

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdir.cpp#39 $
+** $Id: //depot/qt/main/src/tools/qdir.cpp#40 $
 **
 ** Implementation of QDir class
 **
@@ -25,7 +25,7 @@
 #endif
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qdir.cpp#39 $");
+RCSTAG("$Id: //depot/qt/main/src/tools/qdir.cpp#40 $");
 
 
 #if defined(_OS_FATFS_) || defined(_OS_OS2EMX_)
@@ -262,7 +262,8 @@ void QDir::setPath( const char *path )
 
   The returned path can be either absolute or relative (see setPath()).
 
-  \sa setPath(), absPath(), exists(), cleanDirPath(), dirName(), absFilePath()
+  \sa setPath(), absPath(), exists(), cleanDirPath(), dirName(),
+  absFilePath(), convertSeparators()
 */
 
 /*!
@@ -386,6 +387,32 @@ QString QDir::absFilePath( const char *fileName,
     tmp += fileName;
     return tmp;
 }
+
+
+/*!
+  Converts the '/' separators in \a pathName to system native
+  separators.  Returns the translated string.
+
+  On Windows, convertSeparators("c:/winnt/system32") returns
+  "c:\winnt\system32".
+
+  No conversion is done on UNIX.
+*/
+
+QString QDir::convertSeparators( const char *pathName )
+{
+    QString n( pathName );
+#if defined(_OS_FATFS_) || defined(_OS_OS2EMX_)
+    char *p = n.data();
+    while ( p && *p ) {
+	if ( *p == '/' )
+	    *p = '\\';
+	p++;
+    }
+#endif
+    return n;
+}
+
 
 /*!
   Changes directory by descending into the given directory. Returns
@@ -805,7 +832,7 @@ bool QDir::exists() const
 
   Example:
   \code
-    QDir d( "/yo/root_link" );
+    QDir d( "/tmp/root_link" );
     d = d.canonicalPath();
     if ( d.isRoot() )
 	warning( "It IS a root link!" );
@@ -816,7 +843,12 @@ bool QDir::exists() const
 
 bool QDir::isRoot() const
 {
+#if defined(_OS_FATFS_) || defined(_OS_OS2EMX_)
+    return dPath == "/" || dPath == "//" ||
+	(isalpha(dPath[0]) && dPath.mid(1,dPath.length()) == ":/");
+#else
     return dPath == "/";
+#endif
 }
 
 /*!
