@@ -24,6 +24,10 @@
 #include "qwhatsthis.h"
 #include "qstatusbar.h"
 #include "qdockwindow.h"
+#include "qapplication_p.h"
+#define d d_func()
+#define q q_func()
+
 /*!
     \class QAccel qaccel.h
     \brief The QAccel class handles keyboard accelerator and shortcut keys.
@@ -128,7 +132,7 @@ struct QAccelItem {				// internal accelerator item
 
 typedef QList<QAccelItem *> QAccelList; // internal accelerator list
 
-class QAccelPrivate : public Qt {
+class QAccelPrivate : public QObjectPrivate {
 public:
     QAccelPrivate(QAccel* p);
     ~QAccelPrivate();
@@ -136,6 +140,7 @@ public:
     QPointer<QWidget> watch;
     bool ignorewhatsthis;
     bool enabled;
+    // ### should not be needed anymore
     QAccel* parent;
 
     void activate(QAccelItem* item);
@@ -155,7 +160,7 @@ private:
     QAccelManager():currentState(Qt::NoMatch), clash(-1) { self_ptr = this; }
     ~QAccelManager() { self_ptr = 0; }
 
-    bool correctSubWindow(QWidget *w, QAccelPrivate* d);
+    bool correctSubWindow(QWidget *w, QAccelPrivate* priv);
     SequenceMatch match(QKeyEvent* e, QAccelItem* item, QKeySequence& temp);
     int translateModifiers(ButtonState state);
 
@@ -190,15 +195,17 @@ void Q_EXPORT qt_setAccelAutoShortcuts(bool b) { qt_accel_no_shortcuts = b; }
     \internal
     Returns true if the accel is in the current subwindow, else false.
 */
-bool QAccelManager::correctSubWindow(QWidget* w, QAccelPrivate* d) {
+bool QAccelManager::correctSubWindow(QWidget* w, QAccelPrivate* priv) {
 #if !defined (Q_OS_MACX)
-    if (!d->watch || !d->watch->isVisible() || !d->watch->isEnabled())
+    if (!priv->watch || !priv->watch->isVisible() || !priv->watch->isEnabled())
 #else
-    if (!d->watch || (!d->watch->isVisible() && !d->watch->inherits("QMenuBar")) || !d->watch->isEnabled())
+    if (!priv->watch
+	|| (!priv->watch->isVisible() && !priv->watch->inherits("QMenuBar"))
+	|| !priv->watch->isEnabled())
 #endif
 	return false;
     QWidget* tlw = w->topLevelWidget();
-    QWidget* wtlw = d->watch->topLevelWidget();
+    QWidget* wtlw = priv->watch->topLevelWidget();
 
     /* if we live in a floating dock window, keep our parent's
      * accelerators working */
@@ -210,7 +217,7 @@ bool QAccelManager::correctSubWindow(QWidget* w, QAccelPrivate* d) {
 
     /* if we live in a MDI subwindow, ignore the event if we are
        not the active document window */
-    QWidget* sw = d->watch;
+    QWidget* sw = priv->watch;
     while (sw && !sw->testWFlags(WSubWindow))
 	sw = sw->parentWidget(true);
     if (sw)  { // we are in a subwindow indeed
@@ -309,7 +316,7 @@ bool QAccelManager::tryAccelEvent(QWidget* w, QKeyEvent* e)
 
 bool QAccelManager::tryComposeUnicode(QWidget* w, QKeyEvent* e)
 {
-    if (QApplication::metaComposeUnicode) {
+    if (qApp->metaComposeUnicode) {
 	int value = e->key() - Key_0;
 	// Ignore acceloverrides so we don't trigger
 	// accels on keypad when Meta compose is on
@@ -320,36 +327,36 @@ bool QAccelManager::tryComposeUnicode(QWidget* w, QKeyEvent* e)
 	} else if ((e->type() == QEvent::KeyPress) &&
 	     (e->state() == Qt::Keypad + Qt::MetaButton)) {
 	    if (value >= 0 && value <= 9) {
-		QApplication::composedUnicode *= 10;
-		QApplication::composedUnicode += value;
+		qApp->composedUnicode *= 10;
+		qApp->composedUnicode += value;
 		return true;
 	    } else {
 		// Composing interrupted, dispatch!
-		if (QApplication::composedUnicode) {
-		    QChar ch(QApplication::composedUnicode);
+		if (qApp->composedUnicode) {
+		    QChar ch(qApp->composedUnicode);
 		    QString s(ch);
 		    QKeyEvent kep(QEvent::KeyPress, 0, 0, s);
 		    QKeyEvent ker(QEvent::KeyRelease, 0, 0, s);
 		    QApplication::sendEvent(w, &kep);
 		    QApplication::sendEvent(w, &ker);
 		}
-		QApplication::composedUnicode = 0;
+		qApp->composedUnicode = 0;
 		return true;
 	    }
 	// Meta compose end, dispatch
 	} else if ((e->type() == QEvent::KeyRelease) &&
 		    (e->key() == Key_Meta) &&
-		    (QApplication::composedUnicode != 0)) {
-	    if ((QApplication::composedUnicode > 0) &&
-		 (QApplication::composedUnicode < 0xFFFE)) {
-		QChar ch(QApplication::composedUnicode);
+		    (qApp->composedUnicode != 0)) {
+	    if ((qApp->composedUnicode > 0) &&
+		 (qApp->composedUnicode < 0xFFFE)) {
+		QChar ch(qApp->composedUnicode);
 		QString s(ch);
 		QKeyEvent kep(QEvent::KeyPress, 0, 0, s);
 		QKeyEvent ker(QEvent::KeyRelease, 0, 0, s);
 		QApplication::sendEvent(w, &kep);
 		QApplication::sendEvent(w, &ker);
 	    }
-	    QApplication::composedUnicode = 0;
+	    qApp->composedUnicode = 0;
 	    return true;
 	}
     }
@@ -518,7 +525,7 @@ QAccelPrivate::~QAccelPrivate()
     QAccelManager::self()->unregisterAccel(this);
 }
 
-static QAccelItem *find_id(QAccelList &list, int id)
+static QAccelItem *find_id(const QAccelList &list, int id)
 {
     for (int i = 0; i < list.size(); ++i) {
 	register QAccelItem *item = list.at(i);
@@ -528,7 +535,7 @@ static QAccelItem *find_id(QAccelList &list, int id)
     return 0;
 }
 
-static QAccelItem *find_key(QAccelList &list, const QKeySequence &key)
+static QAccelItem *find_key(const QAccelList &list, const QKeySequence &key)
 {
     for (int i = 0; i < list.size(); ++i) {
 	register QAccelItem *item = list.at(i);
@@ -544,9 +551,8 @@ static QAccelItem *find_key(QAccelList &list, const QKeySequence &key)
 */
 
 QAccel::QAccel(QWidget *parent, const char *name)
-    : QObject(parent, name)
+    : QObject(new QAccelPrivate(this), parent, name)
 {
-    d = new QAccelPrivate(this);
     d->enabled = true;
     d->watch = parent;
     if (!d->watch)
@@ -560,9 +566,8 @@ QAccel::QAccel(QWidget *parent, const char *name)
     This constructor is not needed for normal application programming.
 */
 QAccel::QAccel(QWidget* watch, QObject *parent, const char *name)
-    : QObject(parent, name)
+    : QObject(new QAccelPrivate(this), parent, name)
 {
-    d = new QAccelPrivate(this);
     d->enabled = true;
     d->watch = watch;
     if (!d->watch)
@@ -575,7 +580,6 @@ QAccel::QAccel(QWidget* watch, QObject *parent, const char *name)
 
 QAccel::~QAccel()
 {
-    delete d;
 }
 
 

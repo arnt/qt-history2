@@ -6,6 +6,8 @@ kernel {
 		  $$KERNEL_H/qaccel.h \
 		  $$KERNEL_H/qapplication.h \
 		  $$KERNEL_P/qapplication_p.h \
+		  $$KERNEL_H/qkernelapplication.h \
+		  $$KERNEL_P/qkernelapplication_p.h \
 		  $$KERNEL_H/qasyncimageio.h \
 #		  $$KERNEL_H/qasyncio.h \
 		  $$KERNEL_H/qbitmap.h \
@@ -172,6 +174,7 @@ kernel {
 	SOURCES += $$KERNEL_CPP/qabstractlayout.cpp \
 		  $$KERNEL_CPP/qaccel.cpp \
 		  $$KERNEL_CPP/qapplication.cpp \
+		  $$KERNEL_CPP/qkernelapplication.cpp \
 		  $$KERNEL_CPP/qasyncimageio.cpp \
 #		  $$KERNEL_CPP/qasyncio.cpp \
 		  $$KERNEL_CPP/qbitmap.cpp \

@@ -44,6 +44,8 @@
 #include "qpainter.h"
 
 #include "qwidget_p.h"
+#define d d_func()
+#define q q_func()
 
 
 QWidgetPrivate::~QWidgetPrivate()
@@ -2445,8 +2447,11 @@ void QWidget::setFont( const QFont &font )
 
 void QWidget::setFont_helper( const QFont &font )
 {
+#undef d
     if ( fnt == font && fnt.d->mask == font.d->mask )
 	return;
+#define d d_func()
+
     QFont old = fnt;
     fnt = font.resolve( qt_naturalWidgetFont( this ) );
 #if defined(Q_WS_X11)

@@ -58,6 +58,10 @@ static inline int qt_open(const char *pathname, int flags, mode_t mode)
 
 #include <stdlib.h>
 
+#include "qapplication_p.h"
+#define d d_func()
+#define q q_func()
+
 /*
 $ mcookie
 3cb86418caef9c95cd211cbf60a1bddd
@@ -143,7 +147,8 @@ static uint elfHash( const char * name )
 
 extern bool qt_detectRTLLanguage();
 
-class QTranslatorPrivate {
+class QTranslatorPrivate : public QObjectPrivate
+{
 public:
     struct Offset {
 	Offset()
@@ -315,9 +320,8 @@ public:
 */
 
 QTranslator::QTranslator( QObject * parent, const char * name )
-    : QObject( parent, name )
+    : QObject(new QTranslatorPrivate, parent, name )
 {
-    d = new QTranslatorPrivate;
 }
 
 

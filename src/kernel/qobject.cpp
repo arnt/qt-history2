@@ -32,6 +32,8 @@
 #endif
 
 #include "qobject_p.h"
+#define d d_func()
+#define q q_func()
 
 #define GUARDED_SIGNAL INT_MIN
 

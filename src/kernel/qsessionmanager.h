@@ -65,6 +65,7 @@ public:
 
 private:
     friend class QApplication;
+    friend class QApplicationPrivate;
     friend class QBaseApplication;
     Q_DECL_PRIVATE( QSessionManager );
 };

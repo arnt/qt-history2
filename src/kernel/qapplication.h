@@ -20,7 +20,7 @@
 #include "qpalette.h"
 #include "qstrlist.h"
 #include "qstringlist.h"
-#include "qobject.h"
+#include "qkernelapplication.h"
 #include "qpoint.h"
 #include "qsize.h"
 #endif // QT_H
@@ -40,16 +40,13 @@ template <typename T> class QList;
 class QWSDecoration;
 #endif
 
-#ifdef QT_THREAD_SUPPORT
-class QMutex;
-#endif // QT_THREAD_SUPPORT
-
 
 class QApplication;
-extern Q_EXPORT QApplication *qApp;		// global application object
+class QApplicationPrivate;
+#define qApp (static_cast<QApplication *>(QKernelApplication::instance()))
 
 
-class Q_EXPORT QApplication : public QObject
+class Q_EXPORT QApplication : public QKernelApplication
 {
     Q_OBJECT
 public:
@@ -117,30 +114,6 @@ public:
 
     static QWidget  *widgetAt( int x, int y, bool child=FALSE );
     static QWidget  *widgetAt( const QPoint &, bool child=FALSE );
-
-    static QEventLoop *eventLoop();
-
-    int		     exec();
-    void	     processEvents();
-    void	     processEvents( int maxtime );
-    void	     processOneEvent();
-    bool	     hasPendingEvents();
-    int		     enter_loop();
-    void	     exit_loop();
-    int		     loopLevel() const;
-    static void	     exit( int retcode=0 );
-
-    static bool	     sendEvent( QObject *receiver, QEvent *event );
-    static void	     postEvent( QObject *receiver, QEvent *event );
-    static void	     sendPostedEvents( QObject *receiver, int event_type );
-    static void	     sendPostedEvents();
-
-    static void      removePostedEvents( QObject *receiver );
-
-    virtual bool     notify( QObject *, QEvent * );
-
-    static bool	     startingUp();
-    static bool	     closingDown();
 
     static void	     flushX();
     static void flush();
@@ -268,7 +241,6 @@ signals:
     void	     guiThreadAwake();
 
 public slots:
-    void	     quit();
     void	     closeAllWindows();
     void	     aboutQt();
 
@@ -288,10 +260,9 @@ public:
 #endif // QT_NO_COMPAT
 private:
     void construct( int &argc, char **argv, Type );
-    void initialize( int, char ** );
+    void initialize();
     void init_precmdline();
     void process_cmdline( int* argcptr, char ** argv );
-    bool notify_helper( QObject *, QEvent * );
 #if defined(Q_WS_QWS)
     static QWidget *findChildWidget( const QWidget *p, const QPoint &pos );
     static QWidget *findWidget( const QObjectList&, const QPoint &, bool rec );
@@ -311,12 +282,6 @@ private:
     friend void qt_init(int *, char **, QApplication::Type);
 #endif
 
-#ifdef QT_THREAD_SUPPORT
-    static QMutex   *qt_mutex;
-#endif // QT_THREAD_SUPPORT
-
-    int		     app_argc;
-    char	   **app_argv;
     bool	     quit_now;
     int		     quit_code;
     static QStyle   *app_style;
@@ -328,9 +293,6 @@ private:
 #ifndef QT_NO_CURSOR
     static QCursor  *app_cursor;
 #endif
-    static QEventLoop* eventloop;
-    static bool	     is_app_running;
-    static bool	     is_app_closing;
     static bool	     app_exit_loop;
     static int	     loop_level;
     static QWidget  *main_widget;
@@ -376,16 +338,14 @@ private:
     void	     openPopup( QWidget *popup );
     void	     setActiveWindow( QWidget* act );
 
-    static bool      sendSpontaneousEvent( QObject *receiver, QEvent *event );
-    static void      removePostedEvent( QEvent * );
-
+    // ### the next 2 friends should go away
+    friend class QEventLoop;
+    friend class QEvent;
     friend class QWidget;
     friend class QETWidget;
     friend class QDialog;
     friend class QAccelManager;
-    friend class QEvent;
     friend class QTranslator;
-    friend class QEventLoop;
     friend Q_EXPORT void qt_ucm_initialize( QApplication * );
 #if defined(Q_WS_WIN)
     friend bool qt_sendSpontaneousEvent( QObject*, QEvent* );
@@ -398,17 +358,9 @@ private: // Disabled copy constructor and operator=
     QApplication( const QApplication & );
     QApplication &operator=( const QApplication & );
 #endif
+
+    Q_DECL_PRIVATE(QApplication);
 };
-
-inline int QApplication::argc() const
-{
-    return app_argc;
-}
-
-inline char **QApplication::argv() const
-{
-    return app_argv;
-}
 
 #if defined(Q_WS_QWS)
 inline void QApplication::setArgs(int c, char **v)
@@ -468,12 +420,6 @@ inline QSize QApplication::globalStrut()
 {
     return app_strut;
 }
-
-inline bool QApplication::sendEvent( QObject *receiver, QEvent *event )
-{  if ( event ) event->spont = FALSE; return qApp ? qApp->notify( receiver, event ) : FALSE; }
-
-inline bool QApplication::sendSpontaneousEvent( QObject *receiver, QEvent *event )
-{ if ( event ) event->spont = TRUE; return qApp ? qApp->notify( receiver, event ) : FALSE; }
 
 #ifdef QT_NO_TRANSLATION
 // Simple versions

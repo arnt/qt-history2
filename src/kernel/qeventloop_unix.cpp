@@ -18,6 +18,8 @@
 #include "qbitarray.h"
 #include "qevent.h"
 #include <stdlib.h>
+#define d d_func()
+#define q q_func()
 
 
 /*****************************************************************************

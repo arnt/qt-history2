@@ -12,10 +12,14 @@
 **
 ****************************************************************************/
 
-#include "qeventloop_p.h" // includes qplatformdefs.h
+#include "qplatformdefs.h"
 #include "qeventloop.h"
 #include "qapplication.h"
 #include "qdatetime.h"
+#include "qeventloop_p.h"
+#include "qapplication_p.h"
+#define d d_func()
+#define q q_func()
 
 /*!
     \class QEventLoop
@@ -73,13 +77,11 @@
     The \a parent and \a name arguments are passed on to the QObject constructor.
 */
 QEventLoop::QEventLoop( QObject *parent, const char *name )
-    : QObject( parent, name )
+    : QObject( new QEventLoopPrivate(), parent, name )
 {
-    if ( QApplication::eventloop )
+    if (QApplication::eventloop)
 	qFatal( "QEventLoop: there must be only one event loop object. \nConstruct it before QApplication." );
     // for now ;)
-
-    d = new QEventLoopPrivate;
 
     init();
     QApplication::eventloop = this;
@@ -91,7 +93,6 @@ QEventLoop::QEventLoop( QObject *parent, const char *name )
 QEventLoop::~QEventLoop()
 {
     cleanup();
-    delete d;
     QApplication::eventloop = 0;
 }
 

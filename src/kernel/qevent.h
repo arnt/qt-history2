@@ -217,7 +217,7 @@ public:
 #endif
 protected:
     friend class QApplication;
-    friend class QBaseApplication;
+    friend class QKernelApplication;
     QRect rec;
     QRegion reg;
 };
@@ -233,7 +233,7 @@ public:
 protected:
     QPoint p, oldp;
     friend class QApplication;
-    friend class QBaseApplication;
+    friend class QKernelApplication;
 };
 
 
@@ -247,7 +247,7 @@ public:
 protected:
     QSize s, olds;
     friend class QApplication;
-    friend class QBaseApplication;
+    friend class QKernelApplication;
 };
 
 

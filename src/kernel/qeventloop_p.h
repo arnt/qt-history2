@@ -44,6 +44,8 @@ class QSocketNotifier;
 #include "qptrlist.h"
 #endif // Q_OS_UNIX || Q_WS_WIN
 
+#include "qobject_p.h"
+
 #if defined(Q_OS_UNIX)
 struct QSockNot
 {
@@ -73,15 +75,16 @@ struct QSockNot {
 };
 #endif // Q_WS_WIN
 
-class QEventLoopPrivate
+class QEventLoopPrivate : public QObjectPrivate
 {
 public:
     QEventLoopPrivate()
+	: QObjectPrivate()
     {
 	reset();
     }
 
-    void reset() {
+    inline void reset() {
 	looplevel = 0;
 	quitcode = 0;
 	quitnow = FALSE;

@@ -93,6 +93,8 @@
 #endif
 
 #include "private/qwidget_p.h"
+#define d d_func()
+#define q q_func()
 
 const int qwsSharedRamSize = 100 * 1024;
                           //Small amount to fit on small devices.

@@ -112,7 +112,4 @@ public:
     mutable const QMetaObject *polished;
 };
 
-#define d d_func()
-#define q q_func()
-
 #endif

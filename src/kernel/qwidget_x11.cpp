@@ -49,6 +49,8 @@ extern XIMStyle qt_xim_style;
 #endif
 
 #include "qwidget_p.h"
+#define d d_func()
+#define q q_func()
 
 // Paint event clipping magic
 extern void qt_set_paintevent_clipping( QPaintDevice* dev, const QRegion& region);
@@ -158,7 +160,7 @@ void qt_XDestroyWindow( const QWidget *destroyer,
 Q_EXPORT void qt_x11_enforce_cursor( QWidget * w )
 {
     if ( w->testAttribute( QWidget::WA_SetCursor ) ) {
-	QCursor * oc = QApplication::overrideCursor();
+	QCursor *oc = QApplication::overrideCursor();
 	if ( oc ) {
 	    XDefineCursor( w->x11Display(), w->winId(), oc->handle() );
 	} else if ( w->isEnabled() ) {

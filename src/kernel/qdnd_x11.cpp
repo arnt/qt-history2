@@ -29,6 +29,8 @@
 #include "qt_x11_p.h"
 
 #include "qwidget_p.h"
+#define d d_func()
+#define q q_func()
 
 // conflict resolution
 

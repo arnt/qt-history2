@@ -94,6 +94,8 @@ extern "C" Bool XftInitFtLibrary(void);
 #include <locale.h>
 
 #include "qwidget_p.h"
+#define d d_func()
+#define q q_func()
 
 //#define X_NOT_BROKEN
 #ifdef X_NOT_BROKEN
@@ -2587,7 +2589,7 @@ void QApplication::setMainWidget( QWidget *mainWidget )
     main_widget = mainWidget;
     if ( main_widget ) {			// give WM command line
 	XSetWMProperties( main_widget->x11Display(), main_widget->winId(),
-			  0, 0, app_argv, app_argc, 0, 0, 0 );
+			  0, 0, d->argv, d->argc, 0, 0, 0 );
 	if ( mwTitle )
 	    XStoreName( main_widget->x11Display(), main_widget->winId(), (char*)mwTitle );
 	if ( mwGeometry ) {			// parse geometry

@@ -12,7 +12,7 @@
 **
 ****************************************************************************/
 
-#include "qeventloop_p.h" // includes qplatformdefs.h
+#include "qplatformdefs.h"
 #include "qeventloop.h"
 #include "qapplication.h"
 #include "qpaintdevice.h"
@@ -23,6 +23,10 @@
 #if defined(QT_THREAD_SUPPORT)
 #  include "qmutex.h"
 #endif // QT_THREAD_SUPPORT
+#include "qeventloop_p.h"
+#include "qapplication_p.h"
+#define d d_func()
+#define q q_func()
 
 #include <errno.h>
 

@@ -86,9 +86,7 @@ private:
     virtual void appStartingUp();
     virtual void appClosingDown();
 
-    // data for the default implementation - other implementations should not
-    // use/need this data
-    QEventLoopPrivate *d;
+    Q_DECL_PRIVATE(QEventLoop);
 
     friend class QApplication;
 };

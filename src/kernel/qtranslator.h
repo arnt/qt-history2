@@ -80,6 +80,7 @@ private:
 class Q_EXPORT QTranslator : public QObject
 {
     Q_OBJECT
+    Q_DECL_PRIVATE(QTranslator);
 public:
     QTranslator( QObject * parent = 0, const char * name = 0 );
     ~QTranslator();
@@ -133,8 +134,6 @@ private:
 #endif
 
     bool do_load( const uchar *data, int len );
-
-    QTranslatorPrivate * d;
 };
 
 #endif // QT_NO_TRANSLATION

@@ -191,7 +191,7 @@ protected:
 
     friend struct QMetaObject;
     friend class QApplication;
-    friend class QBaseApplication;
+    friend class QKernelApplication;
     friend class QWidget;
     friend class QSignal;
 
@@ -356,7 +356,7 @@ private:
     ushort posted : 1;
     ushort spont : 1;
 
-    friend class QApplication;
+    friend class QKernelApplication;
     friend class QAccelManager;
     friend class QBaseApplication;
     friend class QETWidget;

@@ -17,8 +17,10 @@
 #include "string.h"
 #include "qpaintdevice.h"
 #include "qapplication.h"
-#include "qapplication_p.h"
 #include "qt_x11_p.h"
+#include "qintdict.h"
+#define QT_NO_DEFINE_DQ
+#include "qapplication_p.h"
 
 // NOT REVISED
 
@@ -31,8 +33,6 @@
   application might free its colors, thereby making them available for
   this Qt application.
  *****************************************************************************/
-
-#include "qintdict.h"
 
 struct QColorData {
     uint pix;					// allocated pixel value

@@ -66,14 +66,13 @@ signals:
     void activatedAmbiguously( int id );
 
 private:
-    QAccelPrivate * d;
+    Q_DECL_PRIVATE(QAccel);
 
 private:
 #if defined(Q_DISABLE_COPY)
     QAccel( const QAccel & );
     QAccel &operator=( const QAccel & );
 #endif
-    friend class QAccelPrivate;
     friend class QAccelManager;
 };
 

@@ -71,6 +71,8 @@ typedef int timeval;
 
 #include <string.h>
 #include "private/qwidget_p.h"
+#define d d_func()
+#define q q_func()
 
 
 /*****************************************************************************
@@ -134,7 +136,6 @@ static QWidget     *popupButtonFocus = 0;
 static QWidget     *popupOfPopupButtonFocus = 0;
 static bool	    popupCloseDownMode = FALSE;
 
-#include "qwidget_p.h"
 class QExtraWidget : public QWidget
 {
 public:

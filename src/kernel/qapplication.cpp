@@ -46,8 +46,18 @@
 
 #include <stdlib.h>
 
-#include "qobject_p.h"
+#include "qapplication_p.h"
 #include "qwidget_p.h"
+#define d d_func()
+#define q q_func()
+
+
+QApplicationPrivate::QApplicationPrivate(int &argc, char **argv)
+    : QKernelApplicationPrivate(argc, argv)
+{
+
+}
+
 
 /*!
   \class QApplication qapplication.h
@@ -293,8 +303,6 @@ void qt_cleanup();
 void qt_init( Display* dpy, Qt::HANDLE, Qt::HANDLE );
 #endif
 
-QApplication *qApp = 0;			// global application object
-
 QStyle   *QApplication::app_style      = 0;	// default application style
 bool      qt_explicit_app_style	       = FALSE; // style explicitly set by programmer
 
@@ -307,8 +315,6 @@ bool	  qt_app_has_font	       = FALSE;
 #ifndef QT_NO_CURSOR
 QCursor	 *QApplication::app_cursor     = 0;	// default application cursor
 #endif
-bool	  QApplication::is_app_running = FALSE;	// app starting up if FALSE
-bool	  QApplication::is_app_closing = FALSE;	// app closing down if TRUE
 int	  QApplication::loop_level     = 0;	// event loop level
 QWidget	 *QApplication::main_widget    = 0;	// main application widget
 QWidget	 *QApplication::focus_widget   = 0;	// has keyboard input focus
@@ -342,17 +348,6 @@ QStringList *QApplication::app_libpaths = 0;
 bool	  QApplication::metaComposeUnicode = FALSE;
 int	  QApplication::composedUnicode   = 0;
 
-#ifdef QT_THREAD_SUPPORT
-QMutex *QApplication::qt_mutex		= 0;
-static QMutex *postevent_mutex		= 0;
-#endif // QT_THREAD_SUPPORT
-
-QEventLoop *QApplication::eventloop = 0;	// application event loop
-
-#ifndef QT_NO_ACCEL
-extern bool qt_dispatchAccelEvent( QWidget*, QKeyEvent* ); // def in qaccel.cpp
-extern bool qt_tryComposeUnicode( QWidget*, QKeyEvent* ); // def in qaccel.cpp
-#endif
 
 #if defined(QT_TABLET_SUPPORT)
 bool chokeMouse = FALSE;
@@ -473,23 +468,6 @@ QDesktopWidget *qt_desktopWidget = 0;		// root window widgets
 QClipboard	      *qt_clipboard = 0;	// global clipboard object
 #endif
 QWidgetList * qt_modal_stack=0;		// stack of modal widgets
-
-// Definitions for posted events
-struct QPostEvent {
-    QPostEvent():receiver(0),event(0){}
-    QPostEvent( QObject *r, QEvent *e ): receiver( r ), event( e ) {}
-    QObject  *receiver;
-    QEvent   *event;
-};
-typedef QVector<QPostEvent> QPostEventList;
-static uint postEventCounter = 0;
-
-static QPostEventList postedEvents;	// list of posted events
-
-uint qGlobalPostedEventsCount()
-{
-    return postedEvents.size();
-}
 
 #ifndef QT_NO_PALETTE
 QPalette *qt_std_pal = 0;
@@ -658,6 +636,7 @@ void QApplication::process_cmdline( int* argcptr, char ** argv )
 
 //######### BINARY COMPATIBILITY constructor
 QApplication::QApplication( int &argc, char **argv )
+    : QKernelApplication(new QApplicationPrivate(argc, argv))
 {
     construct( argc, argv, GuiClient );
 }
@@ -703,6 +682,7 @@ QApplication::QApplication( int &argc, char **argv )
 */
 
 QApplication::QApplication( int &argc, char **argv, bool GUIenabled  )
+    : QKernelApplication(new QApplicationPrivate(argc, argv))
 {
     construct( argc, argv, GUIenabled ? GuiClient : Tty );
 }
@@ -716,6 +696,7 @@ QApplication::QApplication( int &argc, char **argv, bool GUIenabled  )
   -qws option).
 */
 QApplication::QApplication( int &argc, char **argv, Type type )
+    : QKernelApplication(new QApplicationPrivate(argc, argv))
 {
     construct( argc, argv, type );
 }
@@ -743,7 +724,7 @@ void QApplication::construct( int &argc, char **argv, Type type )
     }
     qt_init( &argc, argv, type );   // Must be called before initialize()
     process_cmdline( &argc, argv );
-    initialize( argc, argv );
+    initialize();
     if ( qt_is_gui_used )
 	qt_maxWindowRect = desktop()->rect();
     if ( eventloop )
@@ -760,6 +741,13 @@ QApplication::Type QApplication::type() const
 }
 
 #if defined(Q_WS_X11)
+// ### a string literal is a cont char*
+// ### using it as a char* is wrong and could lead to segfaults
+// ### if aargv is modified someday
+// ########## make it work with argc == argv == 0
+static int aargc = 1;
+static char *aargv[] = { (char*)"unknown", 0 };
+
 /*!
   Create an application, given an already open display \a dpy. If \a
   visual and \a colormap are non-zero, the application will use those as
@@ -770,15 +758,9 @@ QApplication::Type QApplication::type() const
 
   This is available only on X11.
 */
-
 QApplication::QApplication( Display* dpy, HANDLE visual, HANDLE colormap )
+    : QKernelApplication(new QApplicationPrivate(aargc, aargv))
 {
-    static int aargc = 1;
-    // ### a string literal is a cont char*
-    // ### using it as a char* is wrong and could lead to segfaults
-    // ### if aargv is modified someday
-    static char *aargv[] = { (char*)"unknown", 0 };
-
     qt_appType = GuiClient;
     qt_is_gui_used = TRUE;
     qt_appType = GuiClient;
@@ -792,7 +774,7 @@ QApplication::QApplication( Display* dpy, HANDLE visual, HANDLE colormap )
 	qt_init( dpy, visual, colormap );
     }
 
-    initialize( aargc, aargv );
+    initialize();
 
     if ( qt_is_gui_used )
 	qt_maxWindowRect = desktop()->rect();
@@ -814,6 +796,7 @@ QApplication::QApplication( Display* dpy, HANDLE visual, HANDLE colormap )
 */
 QApplication::QApplication(Display *dpy, int argc, char **argv,
 			   HANDLE visual, HANDLE colormap)
+    : QKernelApplication(new QApplicationPrivate(argc, argv))
 {
     qt_appType = GuiClient;
     qt_is_gui_used = TRUE;
@@ -828,7 +811,7 @@ QApplication::QApplication(Display *dpy, int argc, char **argv,
     }
 
     process_cmdline( &argc, argv );
-    initialize(argc, argv);
+    initialize();
 
     if ( qt_is_gui_used )
 	qt_maxWindowRect = desktop()->rect();
@@ -847,24 +830,15 @@ void QApplication::init_precmdline()
 #ifndef QT_NO_SESSIONMANAGER
     is_session_restored = FALSE;
 #endif
-    if ( qApp )
-	qWarning( "QApplication: There should be max one application object" );
-    qApp = (QApplication*)this;
 }
 
 /*!
   Initializes the QApplication object, called from the constructors.
 */
 
-void QApplication::initialize( int argc, char **argv )
+void QApplication::initialize()
 {
-#ifdef QT_THREAD_SUPPORT
-    qt_mutex = new QMutex( TRUE );
-    postevent_mutex = new QMutex( TRUE );
-#endif // QT_THREAD_SUPPORT
 
-    app_argc = argc;
-    app_argv = argv;
     quit_now = FALSE;
     quit_code = 0;
     QWidget::mapper = new QWidgetMapper;
@@ -1016,19 +990,6 @@ QApplication::~QApplication()
     app_libpaths = 0;
 #endif
 
-#ifdef QT_THREAD_SUPPORT
-    delete qt_mutex;
-    qt_mutex = 0;
-    delete postevent_mutex;
-    postevent_mutex = 0;
-#endif // QT_THREAD_SUPPORT
-
-    if( qApp == this ) {
-	removePostedEvents( this );
-	qApp = 0;
-    }
-    is_app_running = FALSE;
-
     if ( widgetCount ) {
 	qDebug( "Widgets left: %i    Max widgets: %i \n", QWidget::instanceCounter, QWidget::maxInstances );
     }
@@ -1061,6 +1022,10 @@ QApplication::~QApplication()
 }
 
 
+int QApplication::argc() const
+{
+    return d->argc;
+}
 /*!
     \fn int QApplication::argc() const
 
@@ -1072,6 +1037,11 @@ QApplication::~QApplication()
     \sa argv(), QApplication::QApplication()
 */
 
+
+char **QApplication::argv() const
+{
+    return d->argv;
+}
 /*!
     \fn char **QApplication::argv() const
 
@@ -1849,7 +1819,9 @@ void QApplication::setFont( const QFont &font, bool informWidgets,
 
 	// make sure the application font is complete
 	app_font->detach();
+#undef d
 	app_font->d->mask = QFontPrivate::Complete;
+#define d d_func()
 
 	all = app_fonts != 0;
 	delete app_fonts;
@@ -2014,30 +1986,6 @@ QFontMetrics QApplication::fontMetrics()
 }
 
 
-
-/*!
-  Tells the application to exit with return code 0 (success).
-  Equivalent to calling QApplication::exit( 0 ).
-
-  It's common to connect the lastWindowClosed() signal to quit(), and
-  you also often connect e.g. QButton::clicked() or signals in
-  QAction, QPopupMenu or QMenuBar to it.
-
-  Example:
-  \code
-    QPushButton *quitButton = new QPushButton( "Quit" );
-    connect( quitButton, SIGNAL(clicked()), qApp, SLOT(quit()) );
-  \endcode
-
-  \sa exit() aboutToQuit() lastWindowClosed() QAction
-*/
-
-void QApplication::quit()
-{
-    QApplication::exit( 0 );
-}
-
-
 /*!
   Closes all top-level windows.
 
@@ -2158,259 +2106,6 @@ void QApplication::aboutQt()
   \sa postEvent(), notify()
 */
 
-/*!
-  Sends event \a e to \a receiver: \a {receiver}->event(\a e).
-  Returns the value that is returned from the receiver's event handler.
-
-  For certain types of events (e.g. mouse and key events),
-  the event will be propagated to the receiver's parent and so on up to
-  the top-level object if the receiver is not interested in the event
-  (i.e., it returns FALSE).
-
-  There are five different ways that events can be processed;
-  reimplementing this virtual function is just one of them. All five
-  approaches are listed below:
-  \list 1
-  \i Reimplementing this function. This is very powerful, providing
-  complete control; but only one subclass can be qApp.
-
-  \i Installing an event filter on qApp. Such an event filter is able
-  to process all events for all widgets, so it's just as powerful as
-  reimplementing notify(); furthermore, it's possible to have more
-  than one application-global event filter. Global event filters even
-  see mouse events for \link QWidget::isEnabled() disabled widgets.
-
-  \i Reimplementing QObject::event() (as QWidget does). If you do
-  this you get Tab key presses, and you get to see the events before
-  any widget-specific event filters.
-
-  \i Installing an event filter on the object. Such an event filter
-  gets all the events except Tab and Shift-Tab key presses.
-
-  \i Reimplementing paintEvent(), mousePressEvent() and so
-  on. This is the commonest, easiest and least powerful way.
-  \endlist
-
-  \sa QObject::event(), installEventFilter()
-*/
-
-bool QApplication::notify( QObject *receiver, QEvent *e )
-{
-    // no events are delivered after ~QApplication() has started
-    if ( is_app_closing )
-	return FALSE;
-
-    if ( receiver == 0 ) {			// serious error
-	qWarning( "QApplication::notify: Unexpected null receiver" );
-	return FALSE;
-    }
-
-#ifndef QT_NO_COMPAT
-    if (e->type() == QEvent::ChildRemoved && receiver->hasPostedChildInsertedEvents) {
-
-#ifdef QT_THREAD_SUPPORT
-	QMutexLocker locker( postevent_mutex );
-#endif // QT_THREAD_SUPPORT
-
-	// the QObject destructor calls QObject::removeChild, which calls
-	// QApplication::sendEvent() directly.  this can happen while the event
-	// loop is in the middle of posting events, and when we get here, we may
-	// not have any more posted events for this object.
-	bool postedChildInsertEventsRemaining = false;
-	// if this is a child remove event and the child insert
-	// hasn't been dispatched yet, kill that insert
-	QObject * c = ((QChildEvent*)e)->child();
-	for (int i = 0; i < postedEvents.size(); ++i) {
-	    const QPostEvent &pe = postedEvents.at(i);
-	    if (pe.event && pe.receiver == receiver) {
-		if (pe.event->type() == QEvent::ChildInserted
-		    && ((QChildEvent*)pe.event)->child() == c ) {
-		    pe.event->posted = false;
-		    delete pe.event;
-		    const_cast<QPostEvent &>(pe).event = 0;
-		    const_cast<QPostEvent &>(pe).receiver = 0;
-		} else {
-		    postedChildInsertEventsRemaining = true;
-		}
-	    }
-	    receiver->hasPostedChildInsertedEvents = postedChildInsertEventsRemaining;
-	}
-    }
-#endif // QT_NO_COMPAT
-
-    bool res = FALSE;
-    if ( !receiver->isWidgetType() )
-	res = notify_helper( receiver, e );
-    else switch ( e->type() ) {
-#ifndef QT_NO_ACCEL
-    case QEvent::Accel:
-	{
-	    QKeyEvent* key = (QKeyEvent*) e;
-	    res = notify_helper( receiver, e );
-
-	    if ( !res && !key->isAccepted() )
-		res = qt_dispatchAccelEvent( (QWidget*)receiver, key );
-
-	    // next lines are for compatibility with Qt <= 3.0.x: old
-	    // QAccel was listening on toplevel widgets
-	    if ( !res && !key->isAccepted() && !((QWidget*)receiver)->isTopLevel() )
-		res = notify_helper( ((QWidget*)receiver)->topLevelWidget(), e );
-	}
-    break;
-#endif //QT_NO_ACCEL
-    case QEvent::KeyPress:
-    case QEvent::KeyRelease:
-    case QEvent::AccelOverride:
-	{
-	    QWidget* w = (QWidget*)receiver;
-	    QKeyEvent* key = (QKeyEvent*) e;
-#ifndef QT_NO_ACCEL
-	    if ( qt_tryComposeUnicode( w, key ) )
-		break;
-#endif
-	    bool def = key->isAccepted();
-	    while ( w ) {
-		if ( def )
-		    key->accept();
-		else
-		    key->ignore();
-		res = notify_helper( w, e );
-		if ( res || key->isAccepted() )
-		    break;
-		w = w->parentWidget( TRUE );
-	    }
-	}
-    break;
-    case QEvent::MouseButtonPress:
-	    if ( e->spontaneous() ) {
-		QWidget* fw = (QWidget*)receiver;
-		while ( fw->focusProxy() )
-		    fw = fw->focusProxy();
-		if ( fw->isEnabled() && fw->focusPolicy() & QWidget::ClickFocus ) {
-		    QFocusEvent::setReason( QFocusEvent::Mouse);
-		    fw->setFocus();
-		    QFocusEvent::resetReason();
-		}
-	    }
-	    // fall through intended
-    case QEvent::MouseButtonRelease:
-    case QEvent::MouseButtonDblClick:
-    case QEvent::MouseMove:
-	{
-	    QWidget* w = (QWidget*)receiver;
-	    QMouseEvent* mouse = (QMouseEvent*) e;
-	    QPoint relpos = mouse->pos();
-	    while ( w ) {
-		QMouseEvent me(mouse->type(), relpos, mouse->globalPos(), mouse->button(), mouse->state());
-		me.spont = mouse->spontaneous();
-		res = notify_helper( w, w == receiver ? mouse : &me );
-		e->spont = FALSE;
-		if (res || w->isTopLevel() || w->testWFlags(WNoMousePropagation))
-		    break;
-
-		relpos += w->pos();
-		w = w->parentWidget();
-	    }
-	    if ( res )
-		mouse->accept();
-	    else
-		mouse->ignore();
-	}
-    break;
-#ifndef QT_NO_WHEELEVENT
-    case QEvent::Wheel:
-	{
-	    if ( e->spontaneous() ) {
-		QWidget* fw = (QWidget*)receiver;
-		while ( fw->focusProxy() )
-		    fw = fw->focusProxy();
-		if ( fw->isEnabled() && (fw->focusPolicy() & QWidget::WheelFocus) == QWidget::WheelFocus ) {
-		    QFocusEvent::setReason( QFocusEvent::Mouse);
-		    fw->setFocus();
-		    QFocusEvent::resetReason();
-		}
-	    }
-
-	    QWidget* w = (QWidget*)receiver;
-	    QWheelEvent* wheel = (QWheelEvent*) e;
-	    QPoint relpos = wheel->pos();
-	    while ( w ) {
-		QWheelEvent we(relpos, wheel->globalPos(), wheel->delta(), wheel->state(), wheel->orientation());
-		we.spont = wheel->spontaneous();
-		res = notify_helper( w,  w == receiver ? wheel : &we );
-		e->spont = FALSE;
-		if (res || w->isTopLevel() || w->testWFlags(WNoMousePropagation))
-		    break;
-
-		relpos += w->pos();
-		w = w->parentWidget();
-	    }
-	    if ( res )
-		wheel->accept();
-	    else
-		wheel->ignore();
-	}
-    break;
-#endif
-    case QEvent::ContextMenu:
-	{
-	    QWidget* w = (QWidget*)receiver;
-	    QContextMenuEvent *context = (QContextMenuEvent*) e;
-	    QPoint relpos = context->pos();
-	    while ( w ) {
-		QContextMenuEvent ce(context->reason(), relpos, context->globalPos(), context->state());
-		ce.spont = e->spontaneous();
-		res = notify_helper( w,  w == receiver ? context : &ce );
-		e->spont = FALSE;
-
-		if (res || w->isTopLevel() || w->testWFlags(WNoMousePropagation))
-		    break;
-
-		relpos += w->pos();
-		w = w->parentWidget();
-	    }
-	    if ( res )
-		context->accept();
-	    else
-		context->ignore();
-	}
-    break;
-#if defined (QT_TABLET_SUPPORT)
-    case QEvent::TabletMove:
-    case QEvent::TabletPress:
-    case QEvent::TabletRelease:
-	{
-	    QWidget *w = (QWidget*)receiver;
-	    QTabletEvent *tablet = (QTabletEvent*)e;
-	    QPoint relpos = tablet->pos();
-	    while ( w ) {
-		QTabletEvent te(tablet->pos(), tablet->globalPos(), tablet->device(),
-				tablet->pressure(), tablet->xTilt(), tablet->yTilt(),
-				tablet->uniqueId());
-		te.spont = e->spontaneous();
-		res = notify_helper( w, w == receiver ? tablet : &te );
-		e->spont = FALSE;
-		if (res || w->isTopLevel() || w->testWFlags(WNoMousePropagation))
-		    break;
-
-		relpos += w->pos();
-		w = w->parentWidget();
-	    }
-	    if ( res )
-		tablet->accept();
-	    else
-		tablet->ignore();
-	    chokeMouse = tablet->isAccepted();
-	}
-    break;
-#endif
-    default:
-	res = notify_helper( receiver, e );
-	break;
-    }
-
-    return res;
-}
 
 /*!\reimp
 
@@ -2433,9 +2128,6 @@ bool QApplication::event( QEvent *e )
 	}
 	if(ce->isAccepted())
 	    return TRUE;
-    } else if (e->type() == QEvent::Quit) {
-	quit();
-	return TRUE;
     } else if (e->type() == QEvent::Timer) {
 	QTimerEvent *te = static_cast<QTimerEvent*>(e);
 	Q_ASSERT(te != 0);
@@ -2452,273 +2144,9 @@ bool QApplication::event( QEvent *e )
 	}
 	return TRUE;
     }
-    return QObject::event(e);
+    return QKernelApplication::event(e);
 }
 
-/*!\internal
-
-  Helper function called by notify()
- */
-bool QApplication::notify_helper( QObject *receiver, QEvent * e)
-{
-    bool consumed = false;
-
-    // send to all application event filters
-    for (int i = 0; i < d->eventFilters.size(); ++i) {
-	register QObject *obj = d->eventFilters.at(i);
-	if ( obj && obj->eventFilter(receiver,e) ) {
-	    consumed = true;
-	    goto handled;
-	}
-    }
-
-    if (receiver->isWidgetType()) {
-	QWidget *widget = (QWidget*)receiver;
-
-	// toggle HasMouse widget state on enter and leave
-	if ( e->type() == QEvent::Enter || e->type() == QEvent::DragEnter )
-	    widget->setAttribute(QWidget::WA_UnderMouse, true);
-	else if ( e->type() == QEvent::Leave || e->type() == QEvent::DragLeave )
-	    widget->setAttribute(QWidget::WA_UnderMouse, false);
-
-	// throw away any mouse-tracking-only mouse events
-	if ( e->type() == QEvent::MouseMove &&
-	     (((QMouseEvent*)e)->state()&QMouseEvent::MouseButtonMask) == 0 &&
-	     !widget->hasMouseTracking() ) {
-	    consumed = true;
-	    goto handled;
-	} else if ( !widget->isEnabled() ) { // throw away mouse events to disabled widgets
-	    switch(e->type()) {
-	    case QEvent::MouseButtonPress:
-	    case QEvent::MouseButtonRelease:
-	    case QEvent::MouseButtonDblClick:
-	    case QEvent::MouseMove:
-		( (QMouseEvent*) e)->ignore();
-		consumed = true;
-		goto handled;
-#ifndef QT_NO_DRAGANDDROP
-	    case QEvent::DragEnter:
-	    case QEvent::DragMove:
-		( (QDragMoveEvent*) e)->ignore();
-		goto handled;
-
-	    case QEvent::DragLeave:
-	    case QEvent::DragResponse:
-		goto handled;
-
-	    case QEvent::Drop:
-		( (QDropEvent*) e)->ignore();
-		goto handled;
-#endif
-#ifndef QT_NO_WHEELEVENT
-	    case QEvent::Wheel:
-		( (QWheelEvent*) e)->ignore();
-		goto handled;
-#endif
-	    case QEvent::ContextMenu:
-		( (QContextMenuEvent*) e)->ignore();
-		goto handled;
-	    default:
-		break;
-	    }
-	}
-
-    }
-
-    // send to all receiver event filters
-    if (receiver != this) {
-	for (int i = 0; i < receiver->d->eventFilters.size(); ++i) {
-	    register QObject *obj = receiver->d->eventFilters.at(i);
-	    if ( obj && obj->eventFilter(receiver,e) ) {
-		consumed = true;
-		goto handled;
-	    }
-	}
-    }
-
-    consumed = receiver->event( e );
-
- handled:
-    e->spont = false;
-    return consumed;
-}
-
-/*!
-  Returns TRUE if an application object has not been created yet;
-  otherwise returns FALSE.
-
-  \sa closingDown()
-*/
-
-bool QApplication::startingUp()
-{
-    return !is_app_running;
-}
-
-/*!
-  Returns TRUE if the application objects are being destroyed;
-  otherwise returns FALSE.
-
-  \sa startingUp()
-*/
-
-bool QApplication::closingDown()
-{
-    return is_app_closing;
-}
-
-
-/*!
-    Processes pending events, for 3 seconds or until there are no more
-    events to process, whichever is shorter.
-
-    You can call this function occasionally when your program is busy
-    performing a long operation (e.g. copying a file).
-
-    \sa exec(), QTimer, QEventLoop::processEvents()
-*/
-
-void QApplication::processEvents()
-{
-    processEvents( 3000 );
-}
-
-/*!
-    \overload
-
-    Processes pending events for \a maxtime milliseconds or until
-    there are no more events to process, whichever is shorter.
-
-    You can call this function occasionally when you program is busy
-    doing a long operation (e.g. copying a file).
-
-    \sa exec(), QTimer, QEventLoop::processEvents()
-*/
-void QApplication::processEvents( int maxtime )
-{
-    eventLoop()->processEvents( QEventLoop::AllEvents, maxtime );
-}
-
-/*! \obsolete
-  Waits for an event to occur, processes it, then returns.
-
-  This function is useful for adapting Qt to situations where the
-  event processing must be grafted onto existing program loops.
-
-  Using this function in new applications may be an indication of design
-  problems.
-
-  \sa processEvents(), exec(), QTimer
-*/
-
-void QApplication::processOneEvent()
-{
-    eventLoop()->processEvents( QEventLoop::AllEvents |
-				QEventLoop::WaitForMore );
-}
-
-/*****************************************************************************
-  Main event loop wrappers
- *****************************************************************************/
-
-/*!
-    Returns the application event loop. This function will return
-    zero if called during and after destroying QApplication.
-
-    To create your own instance of QEventLoop or QEventLoop subclass create
-    it before you create the QApplication object.
-
-    \sa QEventLoop
-*/
-QEventLoop *QApplication::eventLoop()
-{
-    if ( !eventloop && !is_app_closing )
-	(void) new QEventLoop( qApp, "default event loop" );
-    return eventloop;
-}
-
-
-/*!
-    Enters the main event loop and waits until exit() is called or the
-    main widget is destroyed, and returns the value that was set to
-    exit() (which is 0 if exit() is called via quit()).
-
-    It is necessary to call this function to start event handling. The
-    main event loop receives events from the window system and
-    dispatches these to the application widgets.
-
-    Generally speaking, no user interaction can take place before
-    calling exec(). As a special case, modal widgets like QMessageBox
-    can be used before calling exec(), because modal widgets call
-    exec() to start a local event loop.
-
-    To make your application perform idle processing, i.e. executing a
-    special function whenever there are no pending events, use a
-    QTimer with 0 timeout. More advanced idle processing schemes can
-    be achieved using processEvents().
-
-    \sa quit(), exit(), processEvents(), setMainWidget()
-*/
-int QApplication::exec()
-{
-#if defined(QT_ACCESSIBILITY_SUPPORT)
-    QAccessible::setRootObject(this);
-#endif
-    return eventLoop()->exec();
-}
-
-/*!
-  Tells the application to exit with a return code.
-
-  After this function has been called, the application leaves the main
-  event loop and returns from the call to exec(). The exec() function
-  returns \a retcode.
-
-  By convention, a \a retcode of 0 means success, and any non-zero
-  value indicates an error.
-
-  Note that unlike the C library function of the same name, this
-  function \e does return to the caller -- it is event processing that
-  stops.
-
-  \sa quit(), exec()
-*/
-void QApplication::exit( int retcode )
-{
-    qApp->eventLoop()->exit( retcode );
-}
-
-/*!
-    \obsolete
-
-    This function enters the main event loop (recursively). Do not call
-    it unless you really know what you are doing.
-*/
-int QApplication::enter_loop()
-{
-    return eventLoop()->enterLoop();
-}
-
-/*!
-    \obsolete
-
-    This function exits from a recursive call to the main event loop.
-    Do not call it unless you are an expert.
-*/
-void QApplication::exit_loop()
-{
-    eventLoop()->exitLoop();
-}
-
-/*!
-    \obsolete
-
-    Returns the current loop level.
-*/
-int QApplication::loopLevel() const
-{
-    return eventLoop()->loopLevel();
-}
 
 /*!
 
@@ -2729,16 +2157,6 @@ int QApplication::loopLevel() const
 void QApplication::wakeUpGuiThread()
 {
     eventLoop()->wakeUp();
-}
-
-/*!
-    This function returns TRUE if there are pending events; otherwise
-    returns FALSE. Pending events can be either from the window system
-    or posted events using QApplication::postEvent().
-*/
-bool QApplication::hasPendingEvents()
-{
-    return eventLoop()->hasPendingEvents();
 }
 
 #if !defined(Q_WS_X11)
@@ -2962,380 +2380,6 @@ QString QApplication::translate( const char * context, const char * sourceText,
 
 #endif
 
-/*****************************************************************************
-  QApplication management of posted events
- *****************************************************************************/
-
-/*!
-  Adds the event \a event with the object \a receiver as the receiver of the
-  event, to an event queue and returns immediately.
-
-  The event must be allocated on the heap since the post event queue
-  will take ownership of the event and delete it once it has been posted.
-
-  When control returns to the main event loop, all events that are
-  stored in the queue will be sent using the notify() function.
-
-  \threadsafe
-
-  \sa sendEvent(), notify()
-*/
-
-void QApplication::postEvent( QObject *receiver, QEvent *event )
-{
-    if ( receiver == 0 ) {
-	qWarning( "QApplication::postEvent: Unexpected null receiver" );
-	delete event;
-	return;
-    }
-
-#ifdef QT_THREAD_SUPPORT
-    QMutexLocker locker( postevent_mutex );
-#endif // QT_THREAD_SUPPORT
-
-    postedEvents.ensure_constructed();
-
-    // if this is one of the compressible events, do compression
-    if (receiver->hasPostedEvents
-	&& (event->type() == QEvent::Paint
-#ifndef QT_NO_COMPAT
-	    || event->type() == QEvent::LayoutHint
-#endif
-	    || event->type() == QEvent::LayoutRequest
-	    || event->type() == QEvent::Resize
-	    || event->type() == QEvent::Move
-	    || event->type() == QEvent::LanguageChange) ) {
-	for (int i = 0; i < postedEvents.size(); ++i) {
-	    const QPostEvent &cur = postedEvents.at(i);
-	    if (cur.receiver != receiver || cur.event == 0 || cur.event->type() != event->type() )
-		continue;
-	    if ( cur.event->type() == QEvent::Paint ) {
-		QPaintEvent * p = (QPaintEvent*)(cur.event);
-		p->reg = p->reg.unite( ((QPaintEvent *)event)->reg );
-		p->rec = p->rec.unite( ((QPaintEvent *)event)->rec );
-	    } else if ( cur.event->type() == QEvent::LayoutRequest
-#ifndef QT_NO_COMPAT
-			|| cur.event->type() == QEvent::LayoutHint
-#endif
-		) {
-		;
-	    } else if ( cur.event->type() == QEvent::Resize ) {
-		((QResizeEvent *)(cur.event))->s = ((QResizeEvent *)event)->s;
-	    } else if ( cur.event->type() == QEvent::Move ) {
-		((QMoveEvent *)(cur.event))->p = ((QMoveEvent *)event)->p;
-	    } else if ( cur.event->type() == QEvent::LanguageChange ) {
-		;
-	    } else {
-		continue;
-	    }
-	    delete event;
-	    return;
-	};
-    }
-
-    event->posted = TRUE;
-    receiver->hasPostedEvents = true;
-#ifndef QT_NO_COMPAT
-    if (event->type() == QEvent::ChildInserted)
-	receiver->hasPostedChildInsertedEvents = true;
-#endif
-    postedEvents.append( QPostEvent( receiver, event ) );
-    ++postEventCounter;
-
-    if (eventloop)
-	eventloop->wakeUp();
-}
-
-
-/*! \overload
-
-    Dispatches all posted events, i.e. empties the event queue.
-*/
-void QApplication::sendPostedEvents()
-{
-    sendPostedEvents( 0, 0 );
-}
-
-
-
-/*!
-  Immediately dispatches all events which have been previously queued
-  with QApplication::postEvent() and which are for the object \a receiver
-  and have the event type \a event_type.
-
-  Note that events from the window system are \e not dispatched by this
-  function, but by processEvents().
-
-  If \a receiver is null, the events of \a event_type are sent for all
-  objects. If \a event_type is 0, all the events are sent for \a receiver.
-*/
-
-void QApplication::sendPostedEvents( QObject *receiver, int event_type )
-{
-    static int skipSafely = 0;
-
-    if ( !postedEvents || ( receiver && !receiver->hasPostedEvents ) )
-	return;
-
-#ifndef QT_NO_COMPAT
-    // optimize sendPostedEvents(w, QEvent::ChildInserted) calls away
-    if (receiver && event_type == QEvent::ChildInserted && !receiver->hasPostedChildInsertedEvents)
-	return;
-    // Make sure the object hierarchy is stable before processing events
-    // to avoid endless loops
-    if ( receiver == 0 && event_type == 0 )
-	sendPostedEvents( 0, QEvent::ChildInserted );
-#endif
-
-#ifdef QT_THREAD_SUPPORT
-    QMutexLocker locker( postevent_mutex );
-#endif
-
-    // okay. here is the tricky loop. be careful about optimizing
-    // this, it looks the way it does for good reasons.
-    int i = skipSafely;
-    while (i < postedEvents.size()) {
-	const QPostEvent &pe = postedEvents.at(i);
-	++i;
-
-	// optimize for recursive calls. In the no-receiver
-	// no-event-type case we know that we process all events.
-	if (!receiver && !event_type)
-	    skipSafely = i;
-
-	if ( pe.event // hasn't been sent yet
-	     && ( receiver == 0 // we send to all receivers
-		  || receiver == pe.receiver ) // we send to THAT receiver
-	     && ( event_type == 0 // we send all types
-		  || event_type == pe.event->type() ) ) { // we send THAT type
-	    // first, we diddle the event so that we can deliver
-	    // it, and that noone will try to touch it later.
-	    pe.event->posted = FALSE;
-	    QEvent * e = pe.event;
-	    QObject * r = pe.receiver;
-
-	    // next, update the data structure so that we're ready
-	    // for the next event.
-	    const_cast<QPostEvent &>(pe).event = 0;
-
-	    // remember postEventCounter, so we know when events get
-	    // posted or removed.
-	    uint backup = postEventCounter;
-#ifdef QT_THREAD_SUPPORT
-	    if ( locker.mutex() ) locker.mutex()->unlock();
-#endif // QT_THREAD_SUPPORT
-	    // after all that work, it's time to deliver the event.
-	    if ( e->type() == QEvent::Paint && r->isWidgetType() ) {
-		QWidget * w = (QWidget*)r;
-		QPaintEvent * p = (QPaintEvent*)e;
-		if ( w->isVisible() )
-		    w->repaint( p->reg);
-	    } else if ( e->type() == QEvent::PolishRequest) {
-		r->ensurePolished();
-	    } else {
-		QApplication::sendEvent( r, e );
-	    }
-#ifdef QT_THREAD_SUPPORT
-	    if ( locker.mutex() ) locker.mutex()->lock();
-#endif // QT_THREAD_SUPPORT
-	    if (backup != postEventCounter) // events got posted or removed ...
-		i = skipSafely; // ... so start all over again.
-
-	    delete e;
-	    // careful when adding anything below this point - the
-	    // sendEvent() call might invalidate any invariants this
-	    // function depends on.
-	}
-    }
-
-    // clear the global list, i.e. remove everything that was
-    // delivered and update the hasPostedEvents cache.
-    if (!event_type) {
-	if (!receiver) {
-	    for (i = 0; i < postedEvents.size(); ++i)
-		if ((receiver = postedEvents.at(i).receiver)) {
-		    receiver->hasPostedEvents = false;
-#ifndef QT_NO_COMPAT
-		    receiver->hasPostedChildInsertedEvents = false;
-#endif
-		}
-	    postedEvents.clear();
-	    postEventCounter = 0;
-	    skipSafely = 0;
-	} else {
-	    receiver->hasPostedEvents = false;
-#ifndef QT_NO_COMPAT
-	    receiver->hasPostedChildInsertedEvents = false;
-#endif
-	}
-    }
-#ifndef QT_NO_COMPAT
-    else if (event_type == QEvent::ChildInserted) {
-	if (!receiver) {
-	    for (i = 0; i < postedEvents.size(); ++i)
-		if ((receiver = postedEvents.at(i).receiver))
-		    receiver->hasPostedChildInsertedEvents = false;
-	} else {
-	    receiver->hasPostedChildInsertedEvents = false;
-	}
-    }
-#endif
-}
-
-/*!
-  Removes all events posted using postEvent() for \a receiver.
-
-  The events are \e not dispatched, instead they are removed from the
-  queue. You should never need to call this function. If you do call it,
-  be aware that killing events may cause \a receiver to break one or
-  more invariants.
-
-  \threadsafe
-*/
-
-void QApplication::removePostedEvents( QObject *receiver )
-{
-    if ( !receiver )
-	return;
-
-#ifdef QT_THREAD_SUPPORT
-    QMutexLocker locker( postevent_mutex );
-#endif // QT_THREAD_SUPPORT
-
-    // the QObject destructor calls this function directly.  this can
-    // happen while the event loop is in the middle of posting events,
-    // and when we get here, we may not have any more posted events
-    // for this object.
-    if ( !receiver->hasPostedEvents )
- 	return;
-
-    // iterate over the object-specific list and delete the events.
-    // leave the QPostEvent objects; they'll be deleted by
-    // sendPostedEvents().
-    receiver->hasPostedEvents = false;
-    for (int i = 0; i < postedEvents.size(); ++i) {
-	const QPostEvent &pe = postedEvents.at(i);
-	if (pe.receiver == receiver) {
-	    if (pe.event) {
-		pe.event->posted = false;
-		delete pe.event;
-		const_cast<QPostEvent &>(pe).event = 0;
-	    }
-	    const_cast<QPostEvent &>(pe).receiver = 0;
-	}
-    }
-}
-
-
-/*!
-  Removes \a event from the queue of posted events, and emits a
-  warning message if appropriate.
-
-  \warning This function can be \e really slow. Avoid using it, if
-  possible.
-
-  \threadsafe
-*/
-
-void QApplication::removePostedEvent( QEvent * event )
-{
-    if ( !event || !event->posted )
-	return;
-
-    if ( !postedEvents ) {
-#if defined(QT_DEBUG)
-	qDebug( "QApplication::removePostedEvent: %p %d is posted: impossible",
-		(void*)event, event->type() );
-	return;
-#endif
-    }
-
-#ifdef QT_THREAD_SUPPORT
-    QMutexLocker locker( postevent_mutex );
-#endif // QT_THREAD_SUPPORT
-
-    for (int i = 0; i < postedEvents.size(); ++i) {
-	const QPostEvent & pe = postedEvents.at(i);
-	if ( pe.event == event ) {
-#if defined(QT_DEBUG)
-	    const char *n;
-	    switch ( event->type() ) {
-	    case QEvent::Timer:
-		n = "Timer";
-		break;
-	    case QEvent::MouseButtonPress:
-		n = "MouseButtonPress";
-		break;
-	    case QEvent::MouseButtonRelease:
-		n = "MouseButtonRelease";
-		break;
-	    case QEvent::MouseButtonDblClick:
-		n = "MouseButtonDblClick";
-		break;
-	    case QEvent::MouseMove:
-		n = "MouseMove";
-		break;
-#ifndef QT_NO_WHEELEVENT
-	    case QEvent::Wheel:
-		n = "Wheel";
-		break;
-#endif
-	    case QEvent::KeyPress:
-		n = "KeyPress";
-		break;
-	    case QEvent::KeyRelease:
-		n = "KeyRelease";
-		break;
-	    case QEvent::FocusIn:
-		n = "FocusIn";
-		break;
-	    case QEvent::FocusOut:
-		n = "FocusOut";
-		break;
-	    case QEvent::Enter:
-		n = "Enter";
-		break;
-	    case QEvent::Leave:
-		n = "Leave";
-		break;
-	    case QEvent::Paint:
-		n = "Paint";
-		break;
-	    case QEvent::Move:
-		n = "Move";
-		break;
-	    case QEvent::Resize:
-		n = "Resize";
-		break;
-	    case QEvent::Create:
-		n = "Create";
-		break;
-	    case QEvent::Destroy:
-		n = "Destroy";
-		break;
-	    case QEvent::Close:
-		n = "Close";
-		break;
-	    case QEvent::Quit:
-		n = "Quit";
-		break;
-	    default:
-		n = "<other>";
-		break;
-	    }
-	    qWarning("QEvent: Warning: %s event deleted while posted to %s %s",
-		     n,
-		     pe.receiver ? pe.receiver->className() : "null",
-		     pe.receiver ? pe.receiver->name() : "object" );
-	    // note the beautiful uglehack if !pe->receiver :)
-#endif
-	    pe.event->posted = false;
-	    delete pe.event;
-	    const_cast<QPostEvent &>(pe).event = 0;
-	    return;
-	}
-    }
-}
 
 /*!\internal
 

@@ -40,6 +40,9 @@
 #endif // QT_THREAD_SUPPORT
 
 #include "private/qapplication_p.h"
+#define d d_func()
+#define q q_func()
+
 #include "private/qinternal_p.h"
 #include "private/qinputcontext_p.h"
 
