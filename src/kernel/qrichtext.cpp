@@ -1338,8 +1338,8 @@ bool QTextDocument::setMinimumWidth( int needed, int used, QTextParagraph *p )
 
 void QTextDocument::setPlainText( const QString &text )
 {
-    clear();
     preferRichText = FALSE;
+    clear();
     oTextValid = TRUE;
     oText = text;
 
@@ -1443,6 +1443,7 @@ struct Q_EXPORT QTextDocumentTag {
 
 void QTextDocument::setRichText( const QString &text, const QString &context )
 {
+    preferRichText = TRUE;
     if ( !context.isEmpty() )
 	setContext( context );
     clear();
