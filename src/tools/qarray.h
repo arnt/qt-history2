@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qarray.h#3 $
+** $Id: //depot/qt/main/src/tools/qarray.h#4 $
 **
 ** Definition of QArray template/macro class
 **
@@ -53,7 +53,7 @@ public:									      \
 	{ QArrayM(type) tmp; return tmp.duplicate(*this); }		      \
     QArrayM(type)& assign( const QArrayM(type)& a )			      \
 	{ return (QArrayM(type)&)QGArray::assign(a); }			      \
-    QArrayM(type)& assign( type *a, uint n )				      \
+    QArrayM(type)& assign( const type *a, uint n )			      \
 	{ return (QArrayM(type)&)QGArray::assign((char*)a,n*sizeof(type));}   \
     QArrayM(type)& duplicate( const QArrayM(type)& a )			      \
 	{ return (QArrayM(type)&)QGArray::duplicate(a); }		      \
@@ -103,7 +103,7 @@ public:
 	{ QArrayT<type> tmp; return tmp.duplicate(*this); }
     QArrayT<type>& assign( const QArrayT<type>& a )
 	{ return (QArrayT<type>&)QGArray::assign(a); }
-    QArrayT<type>& assign( type *a, uint n )
+    QArrayT<type>& assign( const type *a, uint n )
 	{ return (QArrayT<type>&)QGArray::assign((char*)a,n*sizeof(type)); }
     QArrayT<type>& duplicate( const QArrayT<type>& a )
 	{ return (QArrayT<type>&)QGArray::duplicate(a); }
