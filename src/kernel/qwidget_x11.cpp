@@ -1823,23 +1823,12 @@ void QWidget::erase( const QRegion& reg )
 }
 
 
-/*!
-  Scrolls the contents of the widget \e dx pixels rightwards and \e dy
-  pixels downwards.  If \e dx/dy is negative, the scroll direction is
-  leftwards/upwards.  Child widgets are moved accordingly.
+/*! \overload
 
-  \warning You might find that QScrollView offers a higher-level of
-	functionality than using this function.
+  This version of the function scrolls the entire widget and moves the
+  widget's children along with the scroll.
 
-  The areas of the widget that are exposed will be erased and
-  \link paintEvent() paint events\endlink may be generated immediately,
-  or after some further event processing.
-
-  \warning If you call scroll() in a function which may itself be
-  called from the moveEvent() or paintEvent() of a direct child of the
-  widget being scrolled, you may see infinite recursion.
-
-  \sa erase(), bitBlt()
+  \sa bitBlt() QScrollView
 */
 
 void QWidget::scroll( int dx, int dy )
@@ -1847,23 +1836,19 @@ void QWidget::scroll( int dx, int dy )
     scroll( dx, dy, QRect() );
 }
 
-/*!
-  Scrolls the area \a r of this widget \a dx pixels rightwards and \a dy
-  pixels downwards.  If \e dx/dy is negative, the scroll direction is
-  leftwards/upwards.  Child widgets are not moved.
+/*! Scrolls \a r \a dx pixels to the right and \a dy downwards.  Both
+  \a dx and \a dy may be negative.
 
-  \warning You might find that QScrollView offers a higher-level of
-	functionality than using this function.
+  If \a r is empty or invalid, the result is undefined.
 
-  The areas of the widget that are exposed will be erased and
-  \link paintEvent() paint events\endlink may be generated immediately,
-  or after some further event processing.
+  After scrolling, scroll() sends a paint event for the the part of \a r
+  that is read but not written.  For example, when scrolling 10 pixels
+  rightwards, the leftmost ten pixels of \a r need repainting. The paint
+  event may be delivered immediately or later, depending on some heuristics.
 
-  \warning If you call scroll() in a function which may itself be
-  called from the moveEvent() or paintEvent() of a direct child of the
-  widget being scrolled, you may see infinite recursion.
+  This version of scroll() does not move the children of this widget.
 
-  \sa erase(), bitBlt()
+  \sa QScrollView erase() bitBlt()
 */
 void QWidget::scroll( int dx, int dy, const QRect& r )
 {
