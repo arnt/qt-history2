@@ -261,44 +261,35 @@ bool QTrayWidget::winEvent( MSG *m )
 		    e = new QMouseEvent( QEvent::MouseMove, mapFromGlobal( gpos ), gpos, 0, 0 );
 		break;
 	    case WM_LBUTTONDOWN:
-		qDebug( "WM_LBUTTONDOWN" );
 		e = new QMouseEvent( QEvent::MouseButtonPress, mapFromGlobal( gpos ), gpos, LeftButton, LeftButton );
 		break;
 	    case WM_LBUTTONUP:
-		qDebug( "WM_LBUTTONUP" );
 		e = new QMouseEvent( QEvent::MouseButtonRelease, mapFromGlobal( gpos ), gpos, LeftButton, LeftButton );
 		break;
 	    case WM_LBUTTONDBLCLK:
-		qDebug( "WM_LBUTTONDBLCLK" );
 		e = new QMouseEvent( QEvent::MouseButtonDblClick, mapFromGlobal( gpos ), gpos, LeftButton, LeftButton );
 		break;
 	    case WM_RBUTTONDOWN:
-		qDebug( "WM_RBUTTONDOWN" );
 		e = new QMouseEvent( QEvent::MouseButtonPress, mapFromGlobal( gpos ), gpos, RightButton, RightButton );
 		break;
 	    case WM_RBUTTONUP:
-		qDebug( "WM_RBUTTONUP" );
 		e = new QMouseEvent( QEvent::MouseButtonRelease, mapFromGlobal( gpos ), gpos, RightButton, RightButton );
 		break;
 	    case WM_RBUTTONDBLCLK:
-		qDebug( "WM_RBUTTONDBLCLK" );
 		e = new QMouseEvent( QEvent::MouseButtonDblClick, mapFromGlobal( gpos ), gpos, RightButton, RightButton );
 		break;
 	    case WM_MBUTTONDOWN:
-		qDebug( "WM_MBUTTONDOWN" );
 		e = new QMouseEvent( QEvent::MouseButtonPress, mapFromGlobal( gpos ), gpos, MidButton, MidButton );
 		break;
 	    case WM_MBUTTONUP:
-		qDebug( "WM_MBUTTONUP" );
 		e = new QMouseEvent( QEvent::MouseButtonRelease, mapFromGlobal( gpos ), gpos, MidButton, MidButton );
 		break;
 	    case WM_MBUTTONDBLCLK:
-		qDebug( "WM_MBUTTONDBLCLK" );
 		e = new QMouseEvent( QEvent::MouseButtonDblClick, mapFromGlobal( gpos ), gpos, MidButton, MidButton );
 		break;
 	    case WM_CONTEXTMENU:
 		if ( d->current_popup ) {
-    		d->current_popup->grabMouse();
+    		    d->current_popup->grabMouse();
 		    if ( qApp->mainWidget() )
 			qApp->mainWidget()->setActiveWindow();
 		    d->current_popup->exec( QCursor::pos() );
