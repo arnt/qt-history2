@@ -69,7 +69,7 @@ void QCategoryButton::drawButton( QPainter *p )
     if ( selected )
 	p->setBrush( colorGroup().light() );
     else
-	p->setBrush( colorGroup().background() );
+	p->setBrush( colorGroup().brush( QColorGroup::Background ) );
 
     p->setPen( colorGroup().mid().dark( 150 ) );
     p->drawPolygon( a );
