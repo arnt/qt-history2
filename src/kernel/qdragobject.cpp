@@ -1486,7 +1486,7 @@ QString QUriDrag::uriToLocalFile(const char* uri)
 	uri += 6;
     else if (QString(uri).find(":/") != -1) // It is a different scheme uri
 	return file;
-    
+
     bool local = uri[0] != '/' || ( uri[0] != '\0' && uri[1] == '/' );
 #ifdef Q_WS_X11
     // do we have a hostname?
@@ -1517,7 +1517,7 @@ QString QUriDrag::uriToLocalFile(const char* uri)
 	    file[2] = ':';
 	    file.remove(0,1);
 	} else if (file.length() > 2 && file[0] == '/' && file[1].isLetter() && file[2] == ':') {
-	    file.remove(0, 1); 
+	    file.remove(0, 1);
 	}
 	// Leave slash as slashes.
 #endif
@@ -1635,15 +1635,22 @@ QColorDrag::QColorDrag( QWidget *dragsource, const char *name )
 
 void QColorDrag::setColor( const QColor &col )
 {
-    QByteArray data;
-    ushort rgba[ 4 ];
-    data.resize( sizeof( rgba ) );
-    rgba[ 0 ] = col.red()  * 0xFF;
-    rgba[ 1 ] = col.green() * 0xFF;
-    rgba[ 2 ] = col.blue()  * 0xFF;
-    rgba[ 3 ] = 0xFFFF; // Alpha not supported yet.
-    memcpy( data.data(), rgba, sizeof( rgba) );
-    setEncodedData( data );
+    short r = (col.red()   << 8 | col.red());
+    short g = (col.green() << 8 | col.green());
+    short b = (col.blue()  << 8 | col.blue());
+
+    // make sure we transmit data in network order
+    r = htons(r);
+    g = htons(g);
+    b = htons(b);
+
+    ushort rgba[4] = {
+	r, g, b,
+	0xffff // Alpha not supported yet.
+    };
+    QByteArray data(sizeof(rgba));
+    memcpy(data.data(), rgba, sizeof(rgba));
+    setEncodedData(data);
 }
 
 /*!
@@ -1663,12 +1670,27 @@ bool QColorDrag::canDecode( QMimeSource *e )
 
 bool QColorDrag::decode( QMimeSource *e, QColor &col )
 {
-    QByteArray data = e->encodedData( "application/x-color" );
-    ushort rgba[ 4 ];
-    if( data.size() != sizeof( rgba ) )
+    QByteArray data = e->encodedData("application/x-color");
+    ushort rgba[4];
+    if (data.size() != sizeof(rgba))
 	return FALSE;
-    memcpy( rgba, data.constData(), sizeof( rgba ) );
-    col.setRgb( rgba[ 0 ] / 0xFF, rgba[ 1 ] / 0xFF, rgba[ 2 ] / 0xFF );
+
+    memcpy(rgba, data.constData(), sizeof(rgba));
+
+    short r = rgba[0];
+    short g = rgba[1];
+    short b = rgba[2];
+
+    // data is in network order
+    r = ntohs(r);
+    g = ntohs(g);
+    b = ntohs(b);
+
+    r = (r >> 8) & 0xff;
+    g = (g >> 8) & 0xff;
+    b = (b >> 8) & 0xff;
+
+    col.setRgb(r, g, b);
     return TRUE;
 }
 
