@@ -777,7 +777,7 @@ QString QHttpRequestHeader::toString() const
     This class provides the functionality required to send HTTP
     requests to an HTTP server and to receive replies from the server.
     It provides full control over the request header and full access
-    to the reply header.
+    to the response header.
 
     Note that the QHttp class provides a much easier API for fetching
     single URIs (it provides the QUrlOperator interface for HTTP) and
@@ -794,14 +794,14 @@ QString QHttpRequestHeader::toString() const
     \endcode
     \omit WE SHOULD SHOW A CONNECTION\endomit
 
-    This only makes the request. If a part of the reply arrived, the
-    signal replyChunk() is emitted. After the last chunk is reported,
+    This only makes the request. If a part of the response arrived, the
+    signal responseChunk() is emitted. After the last chunk is reported,
     the finishedSuccess() signal is emitted. This allows you to process the
     document as chunks are received, without having to wait for the
     complete transmission to be finished.
 
     If you need to receive the complete document before continuing,
-    you might prefer to connect to the reply() signal which is emitted
+    you might prefer to connect to the response() signal which is emitted
     when the entire document is received.
 
     \sa \link network.html Qt Network Documentation \endlink QNetworkProtocol, QUrlOperator
