@@ -3912,6 +3912,7 @@ void QTable::repaintSelections( QTableSelection *oldSelection,
 
     bool optimize1 = FALSE;
     bool optimize2 = FALSE;
+
     QRect old;
     if ( oldSelection )
 	old = rangeGeometry( oldSelection->topRow(),
@@ -3954,8 +3955,14 @@ void QTable::repaintSelections( QTableSelection *oldSelection,
 	}
     }
 
+    int top, left, bottom, right;
+    top = QMIN( oldSelection ? oldSelection->topRow() : newSelection->topRow(), newSelection->topRow() );
+    left = QMIN( oldSelection ? oldSelection->leftCol() : newSelection->leftCol(), newSelection->leftCol() );
+    bottom = QMAX( oldSelection ? oldSelection->bottomRow() : newSelection->bottomRow(), newSelection->bottomRow() );
+    right = QMAX( oldSelection ? oldSelection->rightCol() : newSelection->rightCol(), newSelection->rightCol() );
+
     if ( updateHorizontal ) {
-	for ( i = 0; i <= numCols(); ++i ) {
+	for ( i = left; i <= right; ++i ) {
 	    if ( !isColumnSelected( i ) )
 		topHeader->setSectionState( i, QTableHeader::Normal );
 	    else if ( isColumnSelected( i, TRUE ) )
@@ -3966,7 +3973,7 @@ void QTable::repaintSelections( QTableSelection *oldSelection,
     }
 
     if ( updateVertical ) {
-	for ( i = 0; i <= numRows(); ++i ) {
+	for ( i = top; i <= bottom; ++i ) {
 	    if ( !isRowSelected( i ) )
 		leftHeader->setSectionState( i, QTableHeader::Normal );
 	    else if ( isRowSelected( i, TRUE ) )
