@@ -4638,7 +4638,7 @@ bool QETWidget::translateMouseEvent( const XEvent *event )
 		popupEvent = popupButtonFocus;
 	    else if(popupChild)
 		popupEvent = popupChild;
-	    QContextMenuEvent e( QContextMenuEvent::Mouse, pos, globalPos );
+	    QContextMenuEvent e( QContextMenuEvent::Mouse, pos, globalPos, state );
 	    QApplication::sendEvent( popupEvent, &e );
 	    was_context = e.isAccepted();
 	}
@@ -4705,7 +4705,7 @@ bool QETWidget::translateMouseEvent( const XEvent *event )
 
 	bool was_context = FALSE;
 	if ( type == QEvent::MouseButtonPress && button == RightButton ) {
-	    QContextMenuEvent e( QContextMenuEvent::Mouse, pos, globalPos );
+	    QContextMenuEvent e( QContextMenuEvent::Mouse, pos, globalPos, state );
 	    QApplication::sendEvent( widget, &e );
 	    was_context = e.isAccepted();
 	}
@@ -5237,7 +5237,7 @@ bool QETWidget::translateKeyEvent( const XEvent *event, bool grab )
 
     // try the menukey first
     if ( type == QEvent::KeyPress && code == Qt::Key_Menu ) {
-	QContextMenuEvent e( QContextMenuEvent::Keyboard, QPoint( 5, 5 ), mapToGlobal( QPoint( 5, 5 ) ) );
+	QContextMenuEvent e( QContextMenuEvent::Keyboard, QPoint( 5, 5 ), mapToGlobal( QPoint( 5, 5 ) ), 0 );
 	QApplication::sendEvent( this, &e );
 	if( e.isAccepted() )
 	    return TRUE;
