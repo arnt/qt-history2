@@ -216,7 +216,7 @@
   The \e item must not be a null pointer.
 
   Please note that inSort is slow. If you want to insert lots of items
-  in a list and sort after inserting then you should use \link sort().
+  in a list and sort after inserting then you should use sort().
   inSort() takes up to O(n) compares. That means inserting n items in
   your list will need O(n^2) compares while sort() only needs O(n*logn)
   for the same task. So you inSort() only if you already have a presorted
