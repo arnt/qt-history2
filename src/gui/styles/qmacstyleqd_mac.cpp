@@ -2183,13 +2183,15 @@ QSize QMacStyleQD::sizeFromContents(ContentsType ct, const QStyleOption *opt, co
                 tabh += overlap;
                 break;
             }
-#endif
         case QAquaSizeSmall: {
             GetThemeMetric(kThemeSmallTabHeight, &tabh);
             SInt32 overlap;
             GetThemeMetric(kThemeMetricSmallTabFrameOverlap, &overlap);
             tabh += overlap;
-            break; }
+            }
+#endif
+	default:
+            break; 
         }
         if(sz.height() > tabh)
             sz.setHeight(tabh);

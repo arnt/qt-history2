@@ -1065,6 +1065,7 @@ void QAbstractItemModel::setPersistentIndex(int position, const QModelIndex &ind
 #ifndef QT_NO_DEBUG
 QDebug operator<<(QDebug dbg, const QModelIndex &idx)
 {
+#ifndef Q_NO_STREAMING_DEBUG
     dbg.nospace() << "QModelIndex(" << idx.row() << "," << idx.column() << ",";
     switch (idx.type()) {
     case QModelIndex::View:
@@ -1079,6 +1080,11 @@ QDebug operator<<(QDebug dbg, const QModelIndex &idx)
     }
     dbg.nospace() << ")";
     return dbg.space();
+#else
+    qWarning("This compiler doesn't support the streaming of QDebug");
+    return dbg;
+    Q_UNUSED(idx);
+#endif
 }
 #endif
 

@@ -274,6 +274,10 @@
 #    if defined(Q_OS_HPUX) && __GNUC__ == 3 && __GNUC_MINOR__ >= 1
 #      define Q_WRONG_SB_CTYPE_MACROS
 #    endif
+/* Apple's GCC 3.1 chocks on our streaming qDebug() :( */
+#    if defined(Q_OS_DARWIN) && __GNUC__ == 3 && (__GNUC_MINOR__ >= 1 && __GNUC_MINOR__ < 3)
+#      define Q_NO_STREAMING_DEBUG
+#    endif
 #    if (defined(__arm__) || defined(__ARMEL__)) && !defined(QT_MOC_CPP)
 #      define Q_PACKED __attribute__ ((__packed__))
 #    endif
@@ -854,6 +858,9 @@ class QDataStream;
 #  endif
 #  define MAC_OS_X_VERSION_MIN_REQUIRED MAC_OS_X_VERSION_10_2
 #  include <AvailabilityMacros.h>
+#  if !defined(MAC_OS_X_VERSION_10_3)
+#     define MAC_OS_X_VERSION_10_3 MAC_OS_X_VERSION_10_2 + 1
+#  endif
 #  if (MAC_OS_X_VERSION_MAX_ALLOWED > MAC_OS_X_VERSION_10_3)
 #    error "This version is unsupported."
 #  endif

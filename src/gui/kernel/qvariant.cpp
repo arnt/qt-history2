@@ -1097,6 +1097,7 @@ QPixmap QVariant::toPixmap() const
 #ifndef QT_NO_DEBUG
 QDebug operator<<(QDebug dbg, const QVariant &v)
 {
+#ifndef Q_NO_STREAMING_DEBUG
     switch(v.type()) {
     case QVariant::Cursor:
 #ifndef QT_NO_CURSOR
@@ -1162,5 +1163,10 @@ QDebug operator<<(QDebug dbg, const QVariant &v)
         break;
     }
     return dbg.space();
+#else
+    qWarning("This compiler doesn't support the streaming of QDebug");
+    return dbg;
+    Q_UNUSED(v);
+#endif
 }
 #endif

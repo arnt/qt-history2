@@ -1975,7 +1975,7 @@ QTabletEvent::QTabletEvent(Type t, const QPoint &pos, const QPoint &globalPos, i
 
 #ifndef QT_NO_DEBUG
 QDebug operator<<(QDebug dbg, const QEvent *e) {
-
+#ifndef Q_NO_STREAMING_DEBUG
     // More useful event output could be added here
 
     if (!e)
@@ -2071,5 +2071,10 @@ QDebug operator<<(QDebug dbg, const QEvent *e) {
 
     dbg.nospace() << 'Q' << n << "Event(" << (const void *)e << ')';
     return dbg.space();
+#else
+    qWarning("This compiler doesn't support the streaming of QDebug");
+    return dbg;
+    Q_UNUSED(e);
+#endif
 }
 #endif

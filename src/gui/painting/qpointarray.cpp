@@ -969,11 +969,17 @@ void QPointArray::cleanBuffers()
 #ifndef QT_NO_DEBUG
 QDebug operator<<(QDebug dbg, const QPointArray &a)
 {
+#ifndef Q_NO_STREAMING_DEBUG
     dbg.nospace() << "QPointArray(";
     for (int i = 0; i < a.count(); ++i)
         dbg.nospace() << a.at(i);
     dbg.nospace() << ')';
     return dbg.space();
+#else
+    qWarning("This compiler doesn't support the streaming of QDebug");
+    return dbg;
+    Q_UNUSED(a);
+#endif
 }
 #endif
 

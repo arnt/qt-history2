@@ -544,8 +544,14 @@ bool QBrush::operator==(const QBrush &b) const
 #ifndef QT_NO_DEBUG
 QDebug operator<<(QDebug dbg, const QBrush &b)
 {
+#ifndef Q_NO_STREAMING_DEBUG
     dbg.nospace() << "QBrush(" << b.color() << ',' << b.style() << ')';
     return dbg.space();
+#else
+    qWarning("This compiler doesn't support the streaming of QDebug");
+    return dbg;
+    Q_UNUSED(b);
+#endif
 }
 #endif
 

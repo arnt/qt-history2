@@ -2010,6 +2010,7 @@ bool QCoreVariant::isNull() const
 #ifndef QT_NO_DEBUG
 QDebug operator<<(QDebug dbg, const QCoreVariant &v)
 {
+#ifndef Q_NO_STREAMING_DEBUG
     dbg.nospace() << "QCoreVariant(" << v.typeName() << ", ";
     switch(v.type()) {
     case QCoreVariant::Int:
@@ -2065,6 +2066,11 @@ QDebug operator<<(QDebug dbg, const QCoreVariant &v)
 
     dbg.nospace() << ')';
     return dbg.space();
+#else
+    qWarning("This compiler does not support streaming QDebug");
+    return dbg;
+    Q_UNUSED(v);
+#endif
 }
 #endif
 #endif
