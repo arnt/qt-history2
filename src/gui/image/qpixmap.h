@@ -44,28 +44,28 @@ public:
 
     QPixmap();
     QPixmap(const QImage& image);
-    QPixmap(int w, int h,  int depth = -1, Optimization = DefaultOptim);
+    QPixmap(int w, int h, int depth = -1, Optimization = DefaultOptim);
     QPixmap(const QSize &, int depth = -1, Optimization = DefaultOptim);
 #ifndef QT_NO_IMAGEIO
     QPixmap(const QString& fileName, const char *format=0,
-             ColorMode mode=Auto);
+            ColorMode mode=Auto);
     QPixmap(const QString& fileName, const char *format,
-             int conversion_flags);
+            int conversion_flags);
     explicit QPixmap(const char * const xpm[]);
 #endif
     QPixmap(const QPixmap &);
-   ~QPixmap();
+    ~QPixmap();
 
     QPixmap &operator=(const QPixmap &);
-    QPixmap &operator=(const QImage         &);
+    QPixmap &operator=(const QImage &);
 
     inline bool isNull() const;
 
-    int width()                const { return data->w; }
-    int height()        const { return data->h; }
-    QSize size()                const { return QSize(data->w,data->h); }
-    QRect rect()                const { return QRect(0,0,data->w,data->h); }
-    int depth()                const { return data->d; }
+    int width() const { return data->w; }
+    int height() const { return data->h; }
+    QSize size() const { return QSize(data->w,data->h); }
+    QRect rect() const { return QRect(0,0,data->w,data->h); }
+    int depth() const { return data->d; }
     static int defaultDepth();
 
     void fill(const QColor &fillColor = Qt::white);
@@ -99,7 +99,7 @@ public:
     bool load(const QString& fileName, const char *format=0,
               ColorMode mode=Auto);
     bool load(const QString& fileName, const char *format,
-                      int conversion_flags);
+              int conversion_flags);
     bool loadFromData(const uchar *buf, uint len,
                       const char* format=0, ColorMode mode=Auto);
     bool loadFromData(const uchar *buf, uint len,
@@ -111,10 +111,10 @@ public:
 #endif
 
 #if defined(Q_WS_WIN)
-    HBITMAP hbm()                const;
+    HBITMAP hbm() const;
 #endif
 
-    int serialNumber()        const;
+    int serialNumber() const;
 
     Optimization optimization() const;
     void setOptimization(Optimization);
@@ -128,7 +128,7 @@ public:
 #if defined(Q_WS_WIN)
     // These functions are internal and used by Windows 9x only
     bool isMultiCellPixmap() const;
-    HDC  multiCellHandle() const;
+    HDC multiCellHandle() const;
     HBITMAP multiCellBitmap() const;
     int multiCellOffset() const;
     int allocCell();
@@ -170,16 +170,16 @@ protected:
     int metric(int) const;
 
 #if defined(Q_WS_WIN)
-    struct QMCPI {                                // mem optim for win9x
+    struct QMCPI { // mem optim for win9x
         QMultiCellPixmap *mcp;
         int offset;
     };
 #endif
 
-    struct QPixmapData {        // internal pixmap data
+    struct QPixmapData { // internal pixmap data
         QPixmapData() : count(1) { }
-        void ref()                { ++count; }
-        bool deref()        { return !--count; }
+        void ref() { ++count; }
+        bool deref() { return !--count; }
         uint count;
 
         QCOORD w, h;
@@ -195,8 +195,8 @@ protected:
 #if defined(Q_WS_WIN)
         QPixmap *maskpm;
         union {
-            HBITMAP hbm;    // if mcp == false
-            QMCPI *mcpi;   // if mcp == true
+            HBITMAP hbm; // if mcp == false
+            QMCPI *mcpi; // if mcp == true
         } hbm_or_mcpi;
         uchar *realAlphaBits;
 #ifdef Q_OS_TEMP
@@ -320,7 +320,7 @@ inline Qt::HANDLE QPixmap::handle() const
 #endif
 
 /*****************************************************************************
-  QPixmap stream functions
+ QPixmap stream functions
  *****************************************************************************/
 
 #if !defined(QT_NO_DATASTREAM) && !defined(QT_NO_IMAGEIO)
@@ -329,7 +329,7 @@ Q_GUI_EXPORT QDataStream &operator>>(QDataStream &, QPixmap &);
 #endif
 
 /*****************************************************************************
-  QPixmap (and QImage) helper functions
+ QPixmap (and QImage) helper functions
  *****************************************************************************/
 #ifdef QT_COMPAT
 QT_COMPAT Q_GUI_EXPORT void copyBlt(QPixmap *dst, int dx, int dy,
