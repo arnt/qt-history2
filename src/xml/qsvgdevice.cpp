@@ -116,24 +116,24 @@ static QSvgTypeMap *qSvgTypeMap=0; // element types
 static QMap<QString,QString> *qSvgColMap=0; // recognized color keyword names
 
 /*!
-  \class QSvgDevice qsvgdevice.h
-  \brief The QSvgDevice class provides a paint device for SVG vector graphics.
+    \class QSvgDevice qsvgdevice.h
+    \brief The QSvgDevice class provides a paint device for SVG vector graphics.
 
-  \ingroup xml-tools
-  \module XML
-  \internal
+    \ingroup xml-tools
+    \module XML
+    \internal
 
-  SVG is an XML vector graphics format. This class supports the
-  loading and saving of SVG files with load() and save(), and the
-  rendering of an SVG onto a QPainter using play(). Use
-  toString() to put the SVG into a string.
+    SVG is an XML vector graphics format. This class supports the
+    loading and saving of SVG files with load() and save(), and the
+    rendering of an SVG onto a QPainter using play(). Use toString()
+    to put the SVG into a string.
 
-  \sa QPaintDevice QPainter
+    \sa QPaintDevice QPainter
 */
 
 /*!
-  Creates a QSvgDevice object.
- */
+    Creates a QSvgDevice object.
+*/
 
 QSvgDevice::QSvgDevice()
     : QPaintDevice( QInternal::ExternalDevice ),
@@ -143,7 +143,7 @@ QSvgDevice::QSvgDevice()
 }
 
 /*!
-  Destroys the QSvgDevice object and frees the resources it used.
+    Destroys the QSvgDevice object and frees the resources it used.
 */
 
 QSvgDevice::~QSvgDevice()
@@ -154,8 +154,9 @@ QSvgDevice::~QSvgDevice()
 }
 
 /*!
-  Loads and parses a graphic from \a dev into the device. Returns TRUE on
-  success, or FALSE if errors were encountered.
+    Loads and parses a SVG from \a dev into the device. Returns TRUE
+    on success (i.e. loaded and parsed without error); otherwise
+    returns FALSE.
 */
 
 bool QSvgDevice::load( QIODevice *dev )
@@ -164,8 +165,8 @@ bool QSvgDevice::load( QIODevice *dev )
 }
 
 /*!
-  Renders (replays) the graphic on the \a painter and returns TRUE if
-  successful, or FALSE if the document format is not valid.
+    Renders (replays) the SVG on the \a painter and returns TRUE if
+    successful (i.e. it is a valid SVG); otherwise returns FALSE.
 */
 
 bool QSvgDevice::play( QPainter *painter )
@@ -284,8 +285,8 @@ QString QSvgDevice::toString() const
 }
 
 /*!
-  Saves the SVG vector graphics to \a fileName.
- */
+    Saves the SVG to \a fileName.
+*/
 
 bool QSvgDevice::save( const QString &fileName )
 {
@@ -329,9 +330,9 @@ bool QSvgDevice::save( const QString &fileName )
 }
 
 /*!
-  \overload
+    \overload
 
-  \a dev is the device to use for saving.
+    \a dev is the device to use for saving.
 */
 
 bool QSvgDevice::save( QIODevice *dev )
@@ -349,14 +350,14 @@ bool QSvgDevice::save( QIODevice *dev )
 }
 
 /*!
-  \fn QRect QSvgDevice::boundingRect() const
+    \fn QRect QSvgDevice::boundingRect() const
 
-  Returns the bounding rectangle of the vector graphic.
- */
+    Returns the bounding rectangle of the SVG.
+*/
 
 /*!
-  Sets the bounding rectangle of the vector graphic to rectangle \a r.
- */
+    Sets the bounding rectangle of the SVG to rectangle \a r.
+*/
 
 void QSvgDevice::setBoundingRect( const QRect &r )
 {
@@ -364,13 +365,13 @@ void QSvgDevice::setBoundingRect( const QRect &r )
 }
 
 /*!
-  Internal implementation of the virtual QPaintDevice::metric() function.
+    Internal implementation of the virtual QPaintDevice::metric()
+    function.
 
-  Use the QPaintDeviceMetrics class instead.
+    \warning Use the QPaintDeviceMetrics class instead.
 
-  A QSvgDevice has the following hard coded values:
-  dpi = 72, numcolors=16777216 and depth=24.
-  \a m is the metric to get.
+    A QSvgDevice has the following hard coded values: dpi=72,
+    numcolors=16777216 and depth=24. \a m is the metric to get.
 */
 
 int QSvgDevice::metric( int m ) const
@@ -411,9 +412,10 @@ int QSvgDevice::metric( int m ) const
 }
 
 /*!
-  \internal
-  Records painter commands and stores them in the QDomDocument doc.
- */
+    \internal
+
+    Records painter commands and stores them in the QDomDocument doc.
+*/
 
 bool QSvgDevice::cmd ( int c, QPainter *painter, QPDevCmdParam *p )
 {
@@ -652,9 +654,11 @@ bool QSvgDevice::cmd ( int c, QPainter *painter, QPDevCmdParam *p )
 }
 
 /*!
-  \internal
-  Push the current drawing attributes on a stack.
-  \sa restoreAttributes()
+    \internal
+
+    Push the current drawing attributes on a stack.
+
+    \sa restoreAttributes()
 */
 
 void QSvgDevice::saveAttributes()
@@ -667,9 +671,11 @@ void QSvgDevice::saveAttributes()
 }
 
 /*!
-  \internal
-  Pop the current drawing attributes off the stack.
-  \sa saveAttributes()
+    \internal
+
+    Pop the current drawing attributes off the stack.
+
+    \sa saveAttributes()
 */
 
 void QSvgDevice::restoreAttributes()
@@ -681,8 +687,9 @@ void QSvgDevice::restoreAttributes()
 }
 
 /*!
-  \internal
-  Evaluate \a node, drawing on \a p. Allows recursive calls.
+    \internal
+
+    Evaluate \a node, drawing on \a p. Allows recursive calls.
 */
 
 bool QSvgDevice::play( const QDomNode &node )
@@ -882,10 +889,11 @@ bool QSvgDevice::play( const QDomNode &node )
 }
 
 /*!
-  \internal
-  Parses a CSS2-compatible color specification. Either a keyword or a numerical
-  RGB specification like #ff00ff or rgb(255,0,50%).
- */
+    \internal
+
+    Parses a CSS2-compatible color specification. Either a keyword or
+    a numerical RGB specification like #ff00ff or rgb(255,0,50%).
+*/
 
 QColor QSvgDevice::parseColor( const QString &col )
 {
@@ -945,11 +953,12 @@ QColor QSvgDevice::parseColor( const QString &col )
 }
 
 /*!
-  \internal
-  Parse a <length> datatype consisting of a number followed by an optional
-  unit specifier. Can be used for type <coordinate> as well. For relative
-  units the value of \a horiz will determine whether the horizontal or
-  vertical dimension will be used.
+    \internal
+
+    Parse a <length> datatype consisting of a number followed by an
+    optional unit specifier. Can be used for type <coordinate> as
+    well. For relative units the value of \a horiz will determine
+    whether the horizontal or vertical dimension will be used.
 */
 
 double QSvgDevice::parseLen( const QString &str, bool *ok, bool horiz ) const
@@ -993,9 +1002,11 @@ double QSvgDevice::parseLen( const QString &str, bool *ok, bool horiz ) const
 }
 
 /*!
-  \internal
-  Returns the length specified in attribute \a attr in \a map. If the
-  specified attribute doesn't exist or can't be parsed \a def is returned.
+    \internal
+
+    Returns the length specified in attribute \a attr in \a map. If
+    the specified attribute doesn't exist or can't be parsed \a def is
+    returned.
 */
 
 int QSvgDevice::lenToInt( const QDomNamedNodeMap &map, const QString &attr,

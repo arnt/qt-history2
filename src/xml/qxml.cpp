@@ -223,57 +223,59 @@ bool operator==( const QMap<QString, QString>, const QMap<QString, QString> )
 #endif
 
 /*!
-  \class QXmlParseException qxml.h
-  \ingroup xml-tools
-  \brief The QXmlParseException class is used to report errors with the
-  QXmlErrorHandler interface.
+    \class QXmlParseException qxml.h
+    \brief The QXmlParseException class is used to report errors with
+    the QXmlErrorHandler interface.
 
-  \module XML
+    \module XML
+    \ingroup xml-tools
 
-  The XML subsystem constructs an instance of this class when it
-  detects an error. You can retrieve the place where the error
-  occurred using systemId(), publicId(), lineNumber() and
-  columnNumber(), along with the error message().
+    The XML subsystem constructs an instance of this class when it
+    detects an error. You can retrieve the place where the error
+    occurred using systemId(), publicId(), lineNumber() and
+    columnNumber(), along with the error message().
 
-  \sa QXmlErrorHandler QXmlReader
+    \sa QXmlErrorHandler QXmlReader
 */
-/*!
-  \fn QXmlParseException::QXmlParseException( const QString& name, int c, int l, const QString& p, const QString& s )
 
-  Constructs a parse exception with the error string \a name in the column
-  \a c and line \a l for the public identifier \a p and the system identifier
-  \a s.
-*/
 /*!
-  Returns the error message.
+    \fn QXmlParseException::QXmlParseException( const QString& name, int c, int l, const QString& p, const QString& s )
+
+    Constructs a parse exception with the error string \a name for
+    column \a c and line \a l for the public identifier \a p and the
+    system identifier \a s.
+*/
+
+/*!
+    Returns the error message.
 */
 QString QXmlParseException::message() const
 {
     return msg;
 }
 /*!
-  Returns the column number where the error occurred.
+    Returns the column number where the error occurred.
 */
 int QXmlParseException::columnNumber() const
 {
     return column;
 }
 /*!
-  Returns the line number where the error occurred.
+    Returns the line number where the error occurred.
 */
 int QXmlParseException::lineNumber() const
 {
     return line;
 }
 /*!
-  Returns the public identifier where the error occurred.
+    Returns the public identifier where the error occurred.
 */
 QString QXmlParseException::publicId() const
 {
     return pub;
 }
 /*!
-  Returns the system identifier where the error occurred.
+    Returns the system identifier where the error occurred.
 */
 QString QXmlParseException::systemId() const
 {
@@ -282,44 +284,47 @@ QString QXmlParseException::systemId() const
 
 
 /*!
-  \class QXmlLocator qxml.h
-  \ingroup xml-tools
-  \brief The QXmlLocator class provides the XML handler classes with
-  information about the parsing position within a file.
+    \class QXmlLocator qxml.h
+    \brief The QXmlLocator class provides the XML handler classes with
+    information about the parsing position within a file.
 
-  \module XML
+    \module XML
+    \ingroup xml-tools
 
-  The reader reports a QXmlLocator to the content handler before it starts to
-  parse the document. This is done with the
-  QXmlContentHandler::setDocumentLocator() function. The handler classes can
-  now use this locator to get the position (lineNumber() and
-  columnNumber()) that the reader has reached.
+    The reader reports a QXmlLocator to the content handler before it
+    starts to parse the document. This is done with the
+    QXmlContentHandler::setDocumentLocator() function. The handler
+    classes can now use this locator to get the position (lineNumber()
+    and columnNumber()) that the reader has reached.
 */
+
 /*!
     Constructor.
 */
 QXmlLocator::QXmlLocator()
 {
 }
+
 /*!
     Destructor.
 */
 QXmlLocator::~QXmlLocator()
 {
 }
+
 /*!
     \fn int QXmlLocator::columnNumber()
 
     Returns the column number (starting at 1) or -1 if there is no
     column number available.
 */
+
 /*!
     \fn int QXmlLocator::lineNumber()
 
-    Returns the line number (starting at 1) or -1 if there is no line number
-    available.
+    Returns the line number (starting at 1) or -1 if there is no line
+    number available.
 */
-
 
 class QXmlSimpleReaderLocator : public QXmlLocator
 {
@@ -374,26 +379,25 @@ public:
 };
 
 /*!
-  \class QXmlNamespaceSupport qxml.h
-  \ingroup xml-tools
-  \brief The QXmlNamespaceSupport class is a helper class for XML readers which
-  want to include namespace support.
+    \class QXmlNamespaceSupport qxml.h
+    \brief The QXmlNamespaceSupport class is a helper class for XML
+    readers which want to include namespace support.
 
-  \module XML
+    \module XML
+    \ingroup xml-tools
 
     You can set the prefix for the current namespace with setPrefix(),
     and get the list of current prefixes (or those for a given URI)
     with prefixes(). The namespace URI is available from uri(). Use
     pushContext() to start a new namespace context, and popContext()
-    to return to the previous namespace context. Use
-    splitName() or processName() to split a name into its prefix and
-    local name.
+    to return to the previous namespace context. Use splitName() or
+    processName() to split a name into its prefix and local name.
 
-  See also the \link xml.html#sax2Namespaces namespace description\endlink.
+    See also the \link xml.html#sax2Namespaces namespace description\endlink.
 */
 
 /*!
-  Constructs a QXmlNamespaceSupport.
+    Constructs a QXmlNamespaceSupport.
 */
 QXmlNamespaceSupport::QXmlNamespaceSupport()
 {
@@ -401,7 +405,7 @@ QXmlNamespaceSupport::QXmlNamespaceSupport()
 }
 
 /*!
-  Destroys a QXmlNamespaceSupport.
+    Destroys a QXmlNamespaceSupport.
 */
 QXmlNamespaceSupport::~QXmlNamespaceSupport()
 {
@@ -409,15 +413,16 @@ QXmlNamespaceSupport::~QXmlNamespaceSupport()
 }
 
 /*!
-  This function declares a prefix \a pre in the current namespace context to be
-  the namespace URI \a uri. The prefix remains in force until this context
-  is popped, unless it is shadowed in a descendant context.
+    This function declares a prefix \a pre in the current namespace
+    context to be the namespace URI \a uri. The prefix remains in
+    force until this context is popped, unless it is shadowed in a
+    descendant context.
 
-  Note that there is an asymmetry in this library. prefix() does not
-  return the default "" prefix, even if you have declared one; to check for a
-  default prefix, you must look it up explicitly using uri(). This
-  asymmetry exists to make it easier to look up prefixes for attribute names,
-  where the default prefix is not allowed.
+    Note that there is an asymmetry in this library. prefix() does not
+    return the default "" prefix, even if you have declared one; to
+    check for a default prefix, you must look it up explicitly using
+    uri(). This asymmetry exists to make it easier to look up prefixes
+    for attribute names, where the default prefix is not allowed.
 */
 void QXmlNamespaceSupport::setPrefix( const QString& pre, const QString& uri )
 {
@@ -429,14 +434,14 @@ void QXmlNamespaceSupport::setPrefix( const QString& pre, const QString& uri )
 }
 
 /*!
-  Returns one of the prefixes mapped to the namespace URI \a uri.
+    Returns one of the prefixes mapped to the namespace URI \a uri.
 
-  If more than one prefix is currently mapped to the same URI, this function
-  makes an arbitrary selection; if you want all of the prefixes, use
-  prefixes() instead.
+    If more than one prefix is currently mapped to the same URI, this
+    function makes an arbitrary selection; if you want all of the
+    prefixes, use prefixes() instead.
 
-  Note: to check for a default prefix, use the uri() function with an
-  argument of "".
+    Note: to check for a default prefix, use the uri() function with
+    an argument of "".
 */
 QString QXmlNamespaceSupport::prefix( const QString& uri ) const
 {
@@ -450,9 +455,9 @@ QString QXmlNamespaceSupport::prefix( const QString& uri ) const
 }
 
 /*!
-  Looks up the prefix \a prefix in the current context and returns the
-  currently-mapped namespace URI. Use the empty string ("") for the default
-  namespace.
+    Looks up the prefix \a prefix in the current context and returns
+    the currently-mapped namespace URI. Use the empty string ("") for
+    the default namespace.
 */
 QString QXmlNamespaceSupport::uri( const QString& prefix ) const
 {
@@ -461,10 +466,10 @@ QString QXmlNamespaceSupport::uri( const QString& prefix ) const
 }
 
 /*!
-  Splits the name \a qname at the ':' and returns the prefix in \a prefix and
-  the local name in \a localname.
+    Splits the name \a qname at the ':' and returns the prefix in \a
+    prefix and the local name in \a localname.
 
-  \sa processName()
+    \sa processName()
 */
 void QXmlNamespaceSupport::splitName( const QString& qname,
 	QString& prefix, QString& localname ) const
@@ -481,20 +486,21 @@ void QXmlNamespaceSupport::splitName( const QString& qname,
 }
 
 /*!
-  Processes a raw XML 1.0 name in the current context by removing the prefix
-  and looking it up among the prefixes currently declared.
+    Processes a raw XML 1.0 name in the current context by removing
+    the prefix and looking it up among the prefixes currently
+    declared.
 
-  \a qname is the raw XML 1.0 name to be processed. \a isAttribute is
-  TRUE if the name is an attribute name.
+    \a qname is the raw XML 1.0 name to be processed. \a isAttribute
+    is TRUE if the name is an attribute name.
 
-  This function stores the namespace URI in \a nsuri (which will get a
-  null string if the raw name has an undeclared prefix), and stores
-  the local name (without prefix) in \a localname (which will get a
-  null string if no namespace is in use).
+    This function stores the namespace URI in \a nsuri (which will be
+    set to QString::null if the raw name has an undeclared prefix),
+    and stores the local name (without prefix) in \a localname (which
+    will be set to QString::null if no namespace is in use).
 
-  Note that attribute names are processed differently than element names: an
-  unprefixed element name gets the default namespace (if any), while
-  an unprefixed element name does not.
+    Note that attribute names are processed differently than element
+    names: an unprefixed element name gets the default namespace (if
+    any), while an unprefixed element name does not.
 */
 void QXmlNamespaceSupport::processName( const QString& qname,
 	bool isAttribute,
@@ -517,14 +523,14 @@ void QXmlNamespaceSupport::processName( const QString& qname,
 }
 
 /*!
-  Returns a list of all prefixes currently declared.
+    Returns a list of all prefixes currently declared.
 
-  If there is a default prefix, this function does not return it in the
-  list; check for the default prefix using uri() with an argument
-  of "".
+    If there is a default prefix, this function does not return it in
+    the list; check for the default prefix using uri() with an
+    argument of "".
 
-  Note that if you want to iterate over the list, you should
-  iterate over a copy, e.g.
+    Note that if you want to iterate over the list, you should iterate
+    over a copy, e.g.
     \code
     QStringList list = myXmlNamespaceSupport.prefixes();
     QStringList::Iterator it = list.begin();
@@ -548,20 +554,21 @@ QStringList QXmlNamespaceSupport::prefixes() const
 }
 
 /*!
-  \overload
-  Returns a list of all prefixes currently declared for the namespace URI \a
-  uri.
+    \overload
 
-  The "xml:" prefix is included. If you only want one prefix that is
-  mapped to the namespace URI, and you don't care which one you get, use the
-  prefix() function instead.
+    Returns a list of all prefixes currently declared for the
+    namespace URI \a uri.
 
-  Note: the empty (default) prefix is never included in this list; to
-  check for the presence of a default namespace, use uri() with an
-  argument of "".
+    The "xml:" prefix is included. If you only want one prefix that is
+    mapped to the namespace URI, and you don't care which one you get,
+    use the prefix() function instead.
 
-  Note that if you want to iterate over the list, you should
-  iterate over a copy, e.g.
+    Note: the empty (default) prefix is never included in this list;
+    to check for the presence of a default namespace, use uri() with
+    an argument of "".
+
+    Note that if you want to iterate over the list, you should iterate
+    over a copy, e.g.
     \code
     QStringList list = myXmlNamespaceSupport.prefixes( "" );
     QStringList::Iterator it = list.begin();
@@ -585,14 +592,14 @@ QStringList QXmlNamespaceSupport::prefixes( const QString& uri ) const
 }
 
 /*!
-  Starts a new namespace context.
+    Starts a new namespace context.
 
-  Normally, you should push a new context at the beginning of each XML element:
-  the new context automatically inherits the declarations of its parent
-  context, and it also keeps track of which declarations were made within
-  this context.
+    Normally, you should push a new context at the beginning of each
+    XML element: the new context automatically inherits the
+    declarations of its parent context, and it also keeps track of
+    which declarations were made within this context.
 
-  \sa popContext()
+    \sa popContext()
 */
 void QXmlNamespaceSupport::pushContext()
 {
@@ -600,13 +607,13 @@ void QXmlNamespaceSupport::pushContext()
 }
 
 /*!
-  Reverts to the previous namespace context.
+    Reverts to the previous namespace context.
 
-  Normally, you should pop the context at the end of each XML element.  After
-  popping the context, all namespace prefix mappings that were previously in
-  force are restored.
+    Normally, you should pop the context at the end of each XML
+    element. After popping the context, all namespace prefix mappings
+    that were previously in force are restored.
 
-  \sa pushContext()
+    \sa pushContext()
 */
 void QXmlNamespaceSupport::popContext()
 {
@@ -616,7 +623,7 @@ void QXmlNamespaceSupport::popContext()
 }
 
 /*!
-  Resets this namespace support object for reuse.
+    Resets this namespace support object for reuse.
 */
 void QXmlNamespaceSupport::reset()
 {
@@ -633,14 +640,14 @@ void QXmlNamespaceSupport::reset()
  *********************************************/
 
 /*!
-  \class QXmlAttributes qxml.h
-  \ingroup xml-tools
-  \brief The QXmlAttributes class provides XML attributes.
+    \class QXmlAttributes qxml.h
+    \brief The QXmlAttributes class provides XML attributes.
 
-  \module XML
+    \module XML
+    \ingroup xml-tools
 
-  If attributes are reported by QXmlContentHandler::startElement() this
-  class is used to pass the attribute values.
+    If attributes are reported by QXmlContentHandler::startElement()
+    this class is used to pass the attribute values.
 
     Use index() to locate the position of an attribute in the list,
     count() to retrieve the number of attributes, and clear() to
@@ -651,22 +658,22 @@ void QXmlNamespaceSupport::reset()
 
 */
 /*!
-  \fn QXmlAttributes::QXmlAttributes()
+    \fn QXmlAttributes::QXmlAttributes()
 
-  Constructs an empty attribute list.
+    Constructs an empty attribute list.
 */
 /*!
-  \fn QXmlAttributes::~QXmlAttributes()
+    \fn QXmlAttributes::~QXmlAttributes()
 
-  Destroys the attributes object.
+    Destroys the attributes object.
 */
 
 /*!
-  Looks up the index of an attribute by the qualified name \a qName.
+    Looks up the index of an attribute by the qualified name \a qName.
 
-  Returns the index of the attribute or -1 if it wasn't found.
+    Returns the index of the attribute or -1 if it wasn't found.
 
-  See also the \link xml.html#sax2Namespaces namespace description\endlink.
+    See also the \link xml.html#sax2Namespaces namespace description\endlink.
 */
 int QXmlAttributes::index( const QString& qName ) const
 {
@@ -674,15 +681,17 @@ int QXmlAttributes::index( const QString& qName ) const
 }
 
 /*!
-  \overload
-  Looks up the index of an attribute by a namespace name.
+    \overload
 
-  \a uri specifies the namespace URI, or an empty string if the name has no
-  namespace URI. \a localPart specifies the attribute's local name.
+    Looks up the index of an attribute by a namespace name.
 
-  Returns the index of the attribute -1 if it wasn't found.
+    \a uri specifies the namespace URI, or an empty string if the name
+    has no namespace URI. \a localPart specifies the attribute's local
+    name.
 
-  See also the \link xml.html#sax2Namespaces namespace description\endlink.
+    Returns the index of the attribute -1 if it wasn't found.
+
+    See also the \link xml.html#sax2Namespaces namespace description\endlink.
 */
 int QXmlAttributes::index( const QString& uri, const QString& localPart ) const
 {
@@ -700,7 +709,7 @@ int QXmlAttributes::index( const QString& uri, const QString& localPart ) const
 }
 
 /*!
-  Returns the number of attributes in the list.
+    Returns the number of attributes in the list.
 */
 int QXmlAttributes::length() const
 {
@@ -708,18 +717,18 @@ int QXmlAttributes::length() const
 }
 
 /*!
-  \fn int QXmlAttributes::count() const
+    \fn int QXmlAttributes::count() const
 
-  Returns the number of attributes in the list. This function is equivalent to
-  length().
+    Returns the number of attributes in the list. This function is
+    equivalent to length().
 */
 
 /*!
-  Looks up an attribute's local name for the attribute at position \a
-  index. If no namespace processing is done, the local name is a null
-  string.
+    Looks up an attribute's local name for the attribute at position
+    \a index. If no namespace processing is done, the local name is
+    QString::null.
 
-  See also the \link xml.html#sax2Namespaces namespace description\endlink.
+    See also the \link xml.html#sax2Namespaces namespace description\endlink.
 */
 QString QXmlAttributes::localName( int index ) const
 {
@@ -727,10 +736,10 @@ QString QXmlAttributes::localName( int index ) const
 }
 
 /*!
-  Looks up an attribute's XML 1.0 qualified name for the attribute at
-  position \a index.
+    Looks up an attribute's XML 1.0 qualified name for the attribute
+    at position \a index.
 
-  See also the \link xml.html#sax2Namespaces namespace description\endlink.
+    See also the \link xml.html#sax2Namespaces namespace description\endlink.
 */
 QString QXmlAttributes::qName( int index ) const
 {
@@ -738,11 +747,11 @@ QString QXmlAttributes::qName( int index ) const
 }
 
 /*!
-  Looks up an attribute's namespace URI for the attribute at position \a index.
-  If no namespace processing is done or if the attribute has no namespace,
-  the namespace URI is a null string.
+    Looks up an attribute's namespace URI for the attribute at
+    position \a index. If no namespace processing is done or if the
+    attribute has no namespace, the namespace URI is QString::null.
 
-  See also the \link xml.html#sax2Namespaces namespace description\endlink.
+    See also the \link xml.html#sax2Namespaces namespace description\endlink.
 */
 QString QXmlAttributes::uri( int index ) const
 {
@@ -750,9 +759,10 @@ QString QXmlAttributes::uri( int index ) const
 }
 
 /*!
-  Looks up an attribute's type for the attribute at position \a index.
+    Looks up an attribute's type for the attribute at position \a
+    index.
 
-  Currently only "CDATA" is returned.
+    Currently only "CDATA" is returned.
 */
 QString QXmlAttributes::type( int ) const
 {
@@ -760,10 +770,11 @@ QString QXmlAttributes::type( int ) const
 }
 
 /*!
-  \overload
-  Looks up an attribute's type for the qualified name \a qName.
+    \overload
 
-  Currently only "CDATA" is returned.
+    Looks up an attribute's type for the qualified name \a qName.
+
+    Currently only "CDATA" is returned.
 */
 QString QXmlAttributes::type( const QString& ) const
 {
@@ -771,13 +782,15 @@ QString QXmlAttributes::type( const QString& ) const
 }
 
 /*!
-  \overload
-  Looks up an attribute's type by namespace name.
+    \overload
 
-  \a uri specifies the namespace URI and \a localName specifies the local name.
-  If the name has no namespace URI, use an empty string for \a uri.
+    Looks up an attribute's type by namespace name.
 
-  Currently only "CDATA" is returned.
+    \a uri specifies the namespace URI and \a localName specifies the
+    local name. If the name has no namespace URI, use an empty string
+    for \a uri.
+
+    Currently only "CDATA" is returned.
 */
 QString QXmlAttributes::type( const QString&, const QString& ) const
 {
@@ -785,17 +798,20 @@ QString QXmlAttributes::type( const QString&, const QString& ) const
 }
 
 /*!
-  Looks up an attribute's value for the attribute at position \a index.
+    Looks up an attribute's value for the attribute at position \a
+    index.
 */
 QString QXmlAttributes::value( int index ) const
 {
     return valueList[index];
 }
 
-/*!  \overload
-  Looks up an attribute's value for the qualified name \a qName.
+/*!
+    \overload
 
-  See also the \link xml.html#sax2Namespaces namespace description\endlink.
+    Looks up an attribute's value for the qualified name \a qName.
+
+    See also the \link xml.html#sax2Namespaces namespace description\endlink.
 */
 QString QXmlAttributes::value( const QString& qName ) const
 {
@@ -805,13 +821,16 @@ QString QXmlAttributes::value( const QString& qName ) const
     return valueList[ i ];
 }
 
-/*!  \overload
-  Looks up an attribute's value by namespace name.
+/*!
+    \overload
 
-  \a uri specifies the namespace URI, or an empty string if the name has no
-  namespace URI. \a localName specifies the attribute's local name.
+    Looks up an attribute's value by namespace name.
 
-  See also the \link xml.html#sax2Namespaces namespace description\endlink.
+    \a uri specifies the namespace URI, or an empty string if the name
+    has no namespace URI. \a localName specifies the attribute's local
+    name.
+
+    See also the \link xml.html#sax2Namespaces namespace description\endlink.
 */
 QString QXmlAttributes::value( const QString& uri, const QString& localName ) const
 {
@@ -822,9 +841,9 @@ QString QXmlAttributes::value( const QString& uri, const QString& localName ) co
 }
 
 /*!
-  Clears the list of attributes.
+    Clears the list of attributes.
 
-  \sa append()
+    \sa append()
 */
 void QXmlAttributes::clear()
 {
@@ -835,11 +854,12 @@ void QXmlAttributes::clear()
 }
 
 /*!
-  Appends a new attribute entry to the list of attributes. The qualified name
-  of the attribute is \a qName, the namespae URI is \a uri and the local name
-  is \a localPart. The value of the attribute is \a value.
+    Appends a new attribute entry to the list of attributes. The
+    qualified name of the attribute is \a qName, the namespace URI is
+    \a uri and the local name is \a localPart. The value of the
+    attribute is \a value.
 
-  \sa qName() uri() localName() value()
+    \sa qName() uri() localName() value()
 */
 void QXmlAttributes::append( const QString &qName, const QString &uri, const QString &localPart, const QString &value )
 {
@@ -857,49 +877,51 @@ void QXmlAttributes::append( const QString &qName, const QString &uri, const QSt
  *********************************************/
 
 /*!
-  \class QXmlInputSource qxml.h
-  \ingroup xml-tools
-  \brief The QXmlInputSource class provides the input data for the QXmlReader
-  subclasses.
+    \class QXmlInputSource qxml.h
+    \brief The QXmlInputSource class provides the input data for the
+    QXmlReader subclasses.
 
-  \module XML
+    \module XML
+    \ingroup xml-tools
 
-  All subclasses of QXmlReader read the input XML document from this class.
+    All subclasses of QXmlReader read the input XML document from this
+    class.
 
-  This class recognizes the encoding of the data by reading the encoding
-  declaration in the XML file and if it finds one, reading the data using the
-  corresponding encoding. If it does not find an encoding declaration, then it
-  assumes that the data is either in UTF-8 or UTF-16, depending on
-  whether it can find a byte-order mark.
+    This class recognizes the encoding of the data by reading the
+    encoding declaration in the XML file if it finds one, and reading
+    the data using the corresponding encoding. If it does not find an
+    encoding declaration, then it assumes that the data is either in
+    UTF-8 or UTF-16, depending on whether it can find a byte-order
+    mark.
 
-  There are two ways to populate the input source with data: you can construct
-  it with a QIODevice* so that the input source reads the data from
-  that device. Or you can set the data explicitly with one of the
-  setData() functions.
+    There are two ways to populate the input source with data: you can
+    construct it with a QIODevice* so that the input source reads the
+    data from that device. Or you can set the data explicitly with one
+    of the setData() functions.
 
-  Usually you either construct a QXmlInputSource that works on a QIODevice* or
-  you construct an empty QXmlInputSource and set the data with setData(). There
-  are only rare occasions where you want to mix both methods.
+    Usually you either construct a QXmlInputSource that works on a
+    QIODevice* or you construct an empty QXmlInputSource and set the
+    data with setData(). There are only rare occasions where you want
+    to mix both methods.
 
-  The subclasses of QXmlReader use the next() function to read the input
-  character by character. If you want to start from the beginning
-  again, you have to call reset() to change the position in the input
-  source to the beginning.
+    The subclasses of QXmlReader use the next() function to read the
+    input character by character. If you want to start from the
+    beginning again, use reset().
 
-  The functions data() and fetchData() are useful if you want to do
-  something with the data other than parsing, e.g. displaying the raw XML file.
-  The benefit of using the QXmlInputClass in such cases is that it tries to
-  use the correct encoding.
+    The functions data() and fetchData() are useful if you want to do
+    something with the data other than parsing, e.g. displaying the
+    raw XML file. The benefit of using the QXmlInputClass in such
+    cases is that it tries to use the correct encoding.
 
-  \sa QXmlReader QXmlSimpleReader
+    \sa QXmlReader QXmlSimpleReader
 */
 
 // the following two are guaranteed not to be a character
 const QChar QXmlInputSource::EndOfData = QChar((ushort)0xfffe);
 const QChar QXmlInputSource::EndOfDocument = QChar((ushort)0xffff);
 
-/*!
-  Common part of the constructors.
+/*
+    Common part of the constructors.
 */
 void QXmlInputSource::init()
 {
@@ -911,9 +933,9 @@ void QXmlInputSource::init()
 }
 
 /*!
-  Constructs an input source which contains no data.
+    Constructs an input source which contains no data.
 
-  \sa setData()
+    \sa setData()
 */
 QXmlInputSource::QXmlInputSource()
 {
@@ -921,12 +943,12 @@ QXmlInputSource::QXmlInputSource()
 }
 
 /*!
-  Constructs an input source and gets the data from device \a dev. If \a
-  dev is not open, it is opened in read-only mode. If \a dev is a null
-  pointer or it is not possible to read from the device, the input
-  source will contain no data.
+    Constructs an input source and gets the data from device \a dev.
+    If \a dev is not open, it is opened in read-only mode. If \a dev
+    is 0 or it is not possible to read from the device, the input
+    source will contain no data.
 
-  \sa setData() fetchData() QIODevice
+    \sa setData() fetchData() QIODevice
 */
 QXmlInputSource::QXmlInputSource( QIODevice *dev )
 {
@@ -957,7 +979,7 @@ QXmlInputSource::QXmlInputSource( QFile& file )
 }
 
 /*!
-  Destructor.
+    Destructor.
 */
 QXmlInputSource::~QXmlInputSource()
 {
@@ -965,14 +987,15 @@ QXmlInputSource::~QXmlInputSource()
 }
 
 /*!
-  Returns the next character of the input source. If this funciton
-  reaches the end of available data, it returns
-  QXmlInputSource::EndOfData. If you call next() after that, it tries
-  to fetch more data by calling fetchData(). If the fetchData() call
-  results in new data, this function returns the first character of
-  that data; otherwise it returns QXmlInputSource::EndOfDocument.
+    Returns the next character of the input source. If this funciton
+    reaches the end of available data, it returns
+    QXmlInputSource::EndOfData. If you call next() after that, it
+    tries to fetch more data by calling fetchData(). If the
+    fetchData() call results in new data, this function returns the
+    first character of that data; otherwise it returns
+    QXmlInputSource::EndOfDocument.
 
-  \sa reset() fetchData() QXmlSimpleReader::parse() QXmlSimpleReader::parseContinue()
+    \sa reset() fetchData() QXmlSimpleReader::parse() QXmlSimpleReader::parseContinue()
 */
 QChar QXmlInputSource::next()
 {
@@ -992,11 +1015,11 @@ QChar QXmlInputSource::next()
 }
 
 /*!
-  This function sets the position used by next() to the beginning of the data
-  returned by data(). This is useful if you want to use the input source for
-  more than one parse.
+    This function sets the position used by next() to the beginning of
+    the data returned by data(). This is useful if you want to use the
+    input source for more than one parse.
 
-  \sa next()
+    \sa next()
 */
 void QXmlInputSource::reset()
 {
@@ -1005,10 +1028,10 @@ void QXmlInputSource::reset()
 }
 
 /*!
-  Returns the data the input source contains or QString::null if the input
-  source does not contain any data.
+    Returns the data the input source contains or QString::null if the
+    input source does not contain any data.
 
-  \sa setData() QXmlInputSource() fetchData()
+    \sa setData() QXmlInputSource() fetchData()
 */
 QString QXmlInputSource::data()
 {
@@ -1016,12 +1039,12 @@ QString QXmlInputSource::data()
 }
 
 /*!
-  Sets the data of the input source to \a dat.
+    Sets the data of the input source to \a dat.
 
-  If the input source already contains data, this function deletes that data
-  first.
+    If the input source already contains data, this function deletes
+    that data first.
 
-  \sa data()
+    \sa data()
 */
 void QXmlInputSource::setData( const QString& dat )
 {
@@ -1032,9 +1055,11 @@ void QXmlInputSource::setData( const QString& dat )
     nextReturnedEndOfData = FALSE;
 }
 
-/*! \overload
-  The data \a dat is passed through the correct text-codec,
-  before it is set.
+/*!
+    \overload
+
+    The data \a dat is passed through the correct text-codec, before
+    it is set.
 */
 void QXmlInputSource::setData( const QByteArray& dat )
 {
@@ -1042,22 +1067,22 @@ void QXmlInputSource::setData( const QByteArray& dat )
 }
 
 /*!
-  This function reads more data from the device that was set during
-  construction. If the input source already contained data, this
-  function deletes that data first.
+    This function reads more data from the device that was set during
+    construction. If the input source already contained data, this
+    function deletes that data first.
 
-  This object contains no data after a call to this function if the
-  object was constructed without a device to read data from or if this
-  function was not able to get more data from the device.
+    This object contains no data after a call to this function if the
+    object was constructed without a device to read data from or if
+    this function was not able to get more data from the device.
 
-  There are two occasions where a fetch is done implicitly by another
-  function call: during construction (so the object starts out with
-  some initial data where available), and during a call to next() (if
-  the data had run out).
+    There are two occasions where a fetch is done implicitly by
+    another function call: during construction (so the object starts
+    out with some initial data where available), and during a call to
+    next() (if the data had run out).
 
-  You normally don't need to use this function if you use next().
+    You don't normally need to use this function if you use next().
 
-  \sa data() next() QXmlInputSource()
+    \sa data() next() QXmlInputSource()
 */
 void QXmlInputSource::fetchData()
 {
@@ -1083,14 +1108,15 @@ void QXmlInputSource::fetchData()
 }
 
 /*!
-  This function reads the XML file from \a data and tries to recoginize the
-  encoding. It converts the raw data \a data into a QString and returns it. It
-  tries its best to get the correct encoding for the XML file.
+    This function reads the XML file from \a data and tries to
+    recognize the encoding. It converts the raw data \a data into a
+    QString and returns it. It tries its best to get the correct
+    encoding for the XML file.
 
-  If \a beginning is TRUE, this function assumes that the data starts
-  at the beginning of a new XML document and looks for an encoding
-  declaration. If \a beginning is FALSE, it converts the raw data
-  using the encoding determined from prior calls.
+    If \a beginning is TRUE, this function assumes that the data
+    starts at the beginning of a new XML document and looks for an
+    encoding declaration. If \a beginning is FALSE, it converts the
+    raw data using the encoding determined from prior calls.
 */
 QString QXmlInputSource::fromRawData( const QByteArray &data, bool beginning )
 {
@@ -1160,669 +1186,743 @@ QString QXmlInputSource::fromRawData( const QByteArray &data, bool beginning )
  *********************************************/
 
 /*!
-  \class QXmlContentHandler qxml.h
-  \ingroup xml-tools
-  \brief The QXmlContentHandler class provides an interface to report
-  the logical content of XML data.
+    \class QXmlContentHandler qxml.h
+    \brief The QXmlContentHandler class provides an interface to
+    report the logical content of XML data.
 
-  \module XML
+    \module XML
+    \ingroup xml-tools
 
-  If the application needs to be informed of basic parsing events, it
-  implements this interface and sets it with QXmlReader::setContentHandler().
-  The reader reports basic document-related events like the start and end of
-  elements and character data through this interface.
+    If the application needs to be informed of basic parsing events,
+    it implements this interface and sets it with
+    QXmlReader::setContentHandler(). The reader reports basic
+    document-related events like the start and end of elements and
+    character data through this interface.
 
-  The order of events in this interface is very important, and mirrors the
-  order of information in the document itself. For example, all of an element's
-  content (character data, processing instructions, and/or sub-elements)
-  appears, in order, between the startElement() event and the corresponding
-  endElement() event.
+    The order of events in this interface is very important, and
+    mirrors the order of information in the document itself. For
+    example, all of an element's content (character data, processing
+    instructions, and sub-elements) appears, in order, between the
+    startElement() event and the corresponding endElement() event.
 
-  The class QXmlDefaultHandler provides a default implementation for
-  this interface; subclassing from the QXmlDefaultHandler class is
-  very convenient if you only want to be informed of some parsing events.
+    The class QXmlDefaultHandler provides a default implementation for
+    this interface; subclassing from the QXmlDefaultHandler class is
+    very convenient if you only want to be informed of some parsing
+    events.
 
-  The startDocument() function is called at the start of the document,
-  and endDocument() is called at the end. Before parsing begins
-  setDocumentLocator() is called. For each element
-  startElement() is called, with endElement() being called at the end
-  of each element. The characters() function is called with chunks of
-  character data; ignorableWhitespace() is called
-  with chunks of whitespace and processingInstruction() is called with
-  processing instructions. If an entity is skipped skippedEntity() is
-  called. At the beginning of prefix-URI scopes startPrefixMapping()
-  is called.
+    The startDocument() function is called at the start of the
+    document, and endDocument() is called at the end. Before parsing
+    begins setDocumentLocator() is called. For each element
+    startElement() is called, with endElement() being called at the
+    end of each element. The characters() function is called with
+    chunks of character data; ignorableWhitespace() is called with
+    chunks of whitespace and processingInstruction() is called with
+    processing instructions. If an entity is skipped skippedEntity()
+    is called. At the beginning of prefix-URI scopes
+    startPrefixMapping() is called.
 
-  See also the \link xml.html#sax2Intro Introduction to SAX2\endlink.
+    See also the \link xml.html#sax2Intro Introduction to SAX2\endlink.
 
-  \sa QXmlDTDHandler QXmlDeclHandler QXmlEntityResolver QXmlErrorHandler
-  QXmlLexicalHandler
-*/
-/*!
-  \fn void QXmlContentHandler::setDocumentLocator( QXmlLocator* locator )
-
-  The reader calls this function before it starts parsing the document. The
-  argument \a locator is a pointer to a QXmlLocator which allows the
-  application to get the parsing position within the document.
-
-  Do not destroy the \a locator; it is destroyed when the reader is destroyed
-  (do not use the \a locator after the reader is destroyed).
-*/
-/*!
-  \fn bool QXmlContentHandler::startDocument()
-
-  The reader calls this function when it starts parsing the document.
-  The reader calls this function just once, after the call to
-  setDocumentLocator(), and before any other functions in
-  this class or in the QXmlDTDHandler class are called.
-
-  If this function returns FALSE the reader stops parsing and reports
-  an error. The reader uses the function errorString() to get the error
-  message.
-
-  \sa endDocument()
-*/
-/*!
-  \fn bool QXmlContentHandler::endDocument()
-
-  The reader calls this function after it has finished parsing. It
-  is called just once, and is the last handler function called. It is
-  called after the reader has read all input or has abandoned parsing
-  because of a fatal error.
-
-  If this function returns FALSE the reader stops parsing and reports
-  an error. The reader uses the function errorString() to get the error
-  message.
-
-  \sa startDocument()
-*/
-/*!
-  \fn bool QXmlContentHandler::startPrefixMapping( const QString& prefix, const QString& uri )
-
-  The reader calls this function to signal the begin of a prefix-URI
-  namespace mapping scope. This information is not necessary for normal
-  namespace processing since the reader automatically replaces prefixes for
-  element and attribute names.
-
-  Note that startPrefixMapping() and endPrefixMapping() calls are not
-  guaranteed to be properly nested relative to each other: all
-  startPrefixMapping() events occur before the corresponding
-  startElement() event, and all endPrefixMapping() events occur after
-  the corresponding endElement() event, but their order is not
-  otherwise guaranteed.
-
-  The argument \a prefix is the namespace prefix being declared and the
-  argument \a uri is the namespace URI the prefix is mapped to.
-
-  If this function returns FALSE the reader stops parsing and reports
-  an error. The reader uses the function errorString() to get the error
-  message.
-
-  See also the \link xml.html#sax2Namespaces namespace description\endlink.
-
-  \sa endPrefixMapping()
-*/
-/*!
-  \fn bool QXmlContentHandler::endPrefixMapping( const QString& prefix )
-
-  The reader calls this function to signal the end of a prefix mapping for the
-  prefix \a prefix.
-
-  If this function returns FALSE the reader stops parsing and reports
-  an error. The reader uses the function errorString() to get the error
-  message.
-
-  See also the \link xml.html#sax2Namespaces namespace description\endlink.
-
-  \sa startPrefixMapping()
-*/
-/*!
-  \fn bool QXmlContentHandler::startElement( const QString& namespaceURI, const QString& localName, const QString& qName, const QXmlAttributes& atts )
-
-  The reader calls this function when it has parsed a start element tag.
-
-  There is a corresponding endElement() call when the corresponding end
-  element tag is read. The startElement() and endElement() calls are always
-  nested correctly. Empty element tags (e.g. \c{<x/>}) cause a
-  startElement() call immediately followed by an endElement() call.
-
-  The attribute list provided contains only attributes with explicit
-  values. The attribute list contains attributes used for namespace
-  declaration (i.e. attributes starting with xmlns) only if the
-  namespace-prefix property of the reader is TRUE.
-
-  The argument \a namespaceURI is the namespace URI, or a null string if the
-  element has no namespace URI or if no namespace processing is done. \a
-  localName is the local name (without prefix), or a null string if no
-  namespace processing is done, \a qName is the qualified name (with prefix)
-  and \a atts are the attributes attached to the element. If there are no
-  attributes, \a atts is an empty attributes object.
-
-  If this function returns FALSE the reader stops parsing and reports
-  an error. The reader uses the function errorString() to get the error
-  message.
-
-  See also the \link xml.html#sax2Namespaces namespace description\endlink.
-
-  \sa endElement()
-*/
-/*!
-  \fn bool QXmlContentHandler::endElement( const QString& namespaceURI, const QString& localName, const QString& qName )
-
-  The reader calls this function when it has parsed an end element tag
-  with the qualified name \a qName, the local name \a localName and
-  the namespace URI \a namespaceURI.
-
-  If this function returns FALSE the reader stops parsing and reports
-  an error. The reader uses the function errorString() to get the error
-  message.
-
-  See also the \link xml.html#sax2Namespaces namespace description\endlink.
-
-  \sa startElement()
-*/
-/*!
-  \fn bool QXmlContentHandler::characters( const QString& ch )
-
-  The reader calls this function when it has parsed a chunk of character
-  data (either normal character data or character data inside a CDATA section;
-  if you have to distinguish between those two types you must use
-  QXmlLexicalHandler::startCDATA() and QXmlLexicalHandler::endCDATA()).
-  The character data is reported in \a ch.
-
-  Some readers report whitespace in element content using the
-  ignorableWhitespace() function rather than using this one.
-
-  A reader may report the character data of an element in more than
-  one chunk; e.g. a reader might want to report "a\<b" in three
-  characters() events ("a ", "\<" and " b").
-
-  If this function returns FALSE the reader stops parsing and reports
-  an error. The reader uses the function errorString() to get the error
-  message.
-*/
-/*!
-  \fn bool QXmlContentHandler::ignorableWhitespace( const QString& ch )
-
-  Some readers may use this function to report each chunk of whitespace in
-  element content. The whitespace reported in \a ch.
-
-  If this function returns FALSE the reader stops parsing and reports
-  an error. The reader uses the function errorString() to get the error
-  message.
-*/
-/*!
-  \fn bool QXmlContentHandler::processingInstruction( const QString& target, const QString& data )
-
-  The reader calls this function when it has parsed a processing
-  instruction.
-
-  \a target is the target name of the processing instruction and \a data is the
-  data in the processing instruction.
-
-  If this function returns FALSE the reader stops parsing and reports
-  an error. The reader uses the function errorString() to get the error
-  message.
-*/
-/*!
-  \fn bool QXmlContentHandler::skippedEntity( const QString& name )
-
-  Some readers may skip entities if they have not seen the declarations (e.g.
-  because they are in an external DTD). If they do so they report that they
-  skipped the entity called \a name by calling this function.
-
-  If this function returns FALSE the reader stops parsing and reports
-  an error. The reader uses the function errorString() to get the error
-  message.
-*/
-/*!
-  \fn QString QXmlContentHandler::errorString()
-
-  The reader calls this function to get an error string, e.g. if any
-  of the handler functions returns FALSE.
+    \sa QXmlDTDHandler QXmlDeclHandler QXmlEntityResolver QXmlErrorHandler
+    QXmlLexicalHandler
 */
 
+/*!
+    \fn void QXmlContentHandler::setDocumentLocator( QXmlLocator* locator )
+
+    The reader calls this function before it starts parsing the
+    document. The argument \a locator is a pointer to a QXmlLocator
+    which allows the application to get the parsing position within
+    the document.
+
+    Do not destroy the \a locator; it is destroyed when the reader is
+    destroyed. (Do not use the \a locator after the reader is
+    destroyed).
+*/
 
 /*!
-  \class QXmlErrorHandler qxml.h
-  \ingroup xml-tools
-  \brief The QXmlErrorHandler class provides an interface to report errors in
-  XML data.
+    \fn bool QXmlContentHandler::startDocument()
 
-  \module XML
+    The reader calls this function when it starts parsing the
+    document. The reader calls this function just once, after the call
+    to setDocumentLocator(), and before any other functions in this
+    class or in the QXmlDTDHandler class are called.
 
-  If the application is interested in reporting errors to the user or any other
-  customized error handling, you should subclass this class.
+    If this function returns FALSE the reader stops parsing and
+    reports an error. The reader uses the function errorString() to
+    get the error message.
 
-  You can set the error handler with QXmlReader::setErrorHandler().
+    \sa endDocument()
+*/
 
-    Errors can be reported using warning(), error() and fataError(),
+/*!
+    \fn bool QXmlContentHandler::endDocument()
+
+    The reader calls this function after it has finished parsing. It
+    is called just once, and is the last handler function called. It
+    is called after the reader has read all input or has abandoned
+    parsing because of a fatal error.
+
+    If this function returns FALSE the reader stops parsing and
+    reports an error. The reader uses the function errorString() to
+    get the error message.
+
+    \sa startDocument()
+*/
+
+/*!
+    \fn bool QXmlContentHandler::startPrefixMapping( const QString& prefix, const QString& uri )
+
+    The reader calls this function to signal the begin of a prefix-URI
+    namespace mapping scope. This information is not necessary for
+    normal namespace processing since the reader automatically
+    replaces prefixes for element and attribute names.
+
+    Note that startPrefixMapping() and endPrefixMapping() calls are
+    not guaranteed to be properly nested relative to each other: all
+    startPrefixMapping() events occur before the corresponding
+    startElement() event, and all endPrefixMapping() events occur
+    after the corresponding endElement() event, but their order is not
+    otherwise guaranteed.
+
+    The argument \a prefix is the namespace prefix being declared and
+    the argument \a uri is the namespace URI the prefix is mapped to.
+
+    If this function returns FALSE the reader stops parsing and
+    reports an error. The reader uses the function errorString() to
+    get the error message.
+
+    See also the \link xml.html#sax2Namespaces namespace description\endlink.
+
+    \sa endPrefixMapping()
+*/
+
+/*!
+    \fn bool QXmlContentHandler::endPrefixMapping( const QString& prefix )
+
+    The reader calls this function to signal the end of a prefix
+    mapping for the prefix \a prefix.
+
+    If this function returns FALSE the reader stops parsing and
+    reports an error. The reader uses the function errorString() to
+    get the error message.
+
+    See also the \link xml.html#sax2Namespaces namespace description\endlink.
+
+    \sa startPrefixMapping()
+*/
+
+/*!
+    \fn bool QXmlContentHandler::startElement( const QString& namespaceURI, const QString& localName, const QString& qName, const QXmlAttributes& atts )
+
+    The reader calls this function when it has parsed a start element
+    tag.
+
+    There is a corresponding endElement() call when the corresponding
+    end element tag is read. The startElement() and endElement() calls
+    are always nested correctly. Empty element tags (e.g. \c{<x/>})
+    cause a startElement() call immediately followed by an
+    endElement() call.
+
+    The attribute list provided only contains attributes with explicit
+    values. The attribute list contains attributes used for namespace
+    declaration (i.e. attributes starting with xmlns) only if the
+    namespace-prefix property of the reader is TRUE.
+
+    The argument \a namespaceURI is the namespace URI, or
+    QString::null if the element has no namespace URI or if no
+    namespace processing is done. \a localName is the local name
+    (without prefix), or QString::null if no namespace processing is
+    done, \a qName is the qualified name (with prefix) and \a atts are
+    the attributes attached to the element. If there are no
+    attributes, \a atts is an empty attributes object.
+
+    If this function returns FALSE the reader stops parsing and
+    reports an error. The reader uses the function errorString() to
+    get the error message.
+
+    See also the \link xml.html#sax2Namespaces namespace description\endlink.
+
+    \sa endElement()
+*/
+
+/*!
+    \fn bool QXmlContentHandler::endElement( const QString& namespaceURI, const QString& localName, const QString& qName )
+
+    The reader calls this function when it has parsed an end element
+    tag with the qualified name \a qName, the local name \a localName
+    and the namespace URI \a namespaceURI.
+
+    If this function returns FALSE the reader stops parsing and
+    reports an error. The reader uses the function errorString() to
+    get the error message.
+
+    See also the \link xml.html#sax2Namespaces namespace description\endlink.
+
+    \sa startElement()
+*/
+
+/*!
+    \fn bool QXmlContentHandler::characters( const QString& ch )
+
+    The reader calls this function when it has parsed a chunk of
+    character data (either normal character data or character data
+    inside a CDATA section; if you need to distinguish between those
+    two types you must use QXmlLexicalHandler::startCDATA() and
+    QXmlLexicalHandler::endCDATA()). The character data is reported in
+    \a ch.
+
+    Some readers report whitespace in element content using the
+    ignorableWhitespace() function rather than using this one.
+
+    A reader may report the character data of an element in more than
+    one chunk; e.g. a reader might want to report "a\<b" in three
+    characters() events ("a ", "\<" and " b").
+
+    If this function returns FALSE the reader stops parsing and
+    reports an error. The reader uses the function errorString() to
+    get the error message.
+*/
+
+/*!
+    \fn bool QXmlContentHandler::ignorableWhitespace( const QString& ch )
+
+    Some readers may use this function to report each chunk of
+    whitespace in element content. The whitespace is reported in \a ch.
+
+    If this function returns FALSE the reader stops parsing and
+    reports an error. The reader uses the function errorString() to
+    get the error message.
+*/
+
+/*!
+    \fn bool QXmlContentHandler::processingInstruction( const QString& target, const QString& data )
+
+    The reader calls this function when it has parsed a processing
+    instruction.
+
+    \a target is the target name of the processing instruction and \a
+    data is the data in the processing instruction.
+
+    If this function returns FALSE the reader stops parsing and
+    reports an error. The reader uses the function errorString() to
+    get the error message.
+*/
+
+/*!
+    \fn bool QXmlContentHandler::skippedEntity( const QString& name )
+
+    Some readers may skip entities if they have not seen the
+    declarations (e.g. because they are in an external DTD). If they
+    do so they report that they skipped the entity called \a name by
+    calling this function.
+
+    If this function returns FALSE the reader stops parsing and
+    reports an error. The reader uses the function errorString() to
+    get the error message.
+*/
+
+/*!
+    \fn QString QXmlContentHandler::errorString()
+
+    The reader calls this function to get an error string, e.g. if any
+    of the handler functions returns FALSE.
+*/
+
+
+/*!
+    \class QXmlErrorHandler qxml.h
+    \brief The QXmlErrorHandler class provides an interface to report
+    errors in XML data.
+
+    \module XML
+    \ingroup xml-tools
+
+    If the application is interested in reporting errors to the user
+    or any other customized error handling, you should subclass this
+    class.
+
+    You can set the error handler with QXmlReader::setErrorHandler().
+
+    Errors can be reported using warning(), error() and fatalError(),
     with the error text being reported with errorString().
 
-  See also the \link xml.html#sax2Intro Introduction to SAX2\endlink.
+    See also the \link xml.html#sax2Intro Introduction to SAX2\endlink.
 
-  \sa QXmlDTDHandler QXmlDeclHandler QXmlContentHandler QXmlEntityResolver
-  QXmlLexicalHandler
-*/
-/*!
-  \fn bool QXmlErrorHandler::warning( const QXmlParseException& exception )
-
-  A reader might use this function to report a warning. Warnings are conditions
-  that are not errors or fatal errors as defined by the XML 1.0 specification.
-  Details of the warning are stored in \a exception.
-
-  If this function returns FALSE the reader stops parsing and reports
-  an error. The reader uses the function errorString() to get the error
-  message.
-*/
-/*!
-  \fn bool QXmlErrorHandler::error( const QXmlParseException& exception )
-
-  A reader might use this function to report a recoverable error. A recoverable
-  error corresponds to the definiton of "error" in section 1.2 of the XML 1.0
-  specification. Details of the error are stored in \a exception.
-
-  The reader must continue to provide normal parsing events after invoking this
-  function.
-
-  If this function returns FALSE the reader stops parsing and reports
-  an error. The reader uses the function errorString() to get the error
-  message.
-*/
-/*!
-  \fn bool QXmlErrorHandler::fatalError( const QXmlParseException& exception )
-
-  A reader must use this function to report a non-recoverable error. Details
-  of the error are stored in \a exception.
-
-  If this function returns TRUE the reader might try to go on parsing and
-  reporting further errors; but no regular parsing events are reported.
-*/
-/*!
-  \fn QString QXmlErrorHandler::errorString()
-
-  The reader calls this function to get an error string if any of the handler
-  functions returns FALSE.
+    \sa QXmlDTDHandler QXmlDeclHandler QXmlContentHandler QXmlEntityResolver
+    QXmlLexicalHandler
 */
 
-
 /*!
-  \class QXmlDTDHandler qxml.h
-  \ingroup xml-tools
-  \brief The QXmlDTDHandler class provides an interface to report DTD content
-  of XML data.
+    \fn bool QXmlErrorHandler::warning( const QXmlParseException& exception )
 
-  \module XML
+    A reader might use this function to report a warning. Warnings are
+    conditions that are not errors or fatal errors as defined by the
+    XML 1.0 specification. Details of the warning are stored in \a
+    exception.
 
-  If an application needs information about notations and unparsed entities,
-  it can implement this interface and register an instance with
-  QXmlReader::setDTDHandler().
-
-  Note that this interface includes only those DTD events that the XML
-  recommendation requires processors to report, i.e. notation and
-  unparsed entity declarations using notationDecl() and
-  unparsedEntityDecl() respectively.
-
-  See also the \link xml.html#sax2Intro Introduction to SAX2\endlink.
-
-  \sa QXmlDeclHandler QXmlContentHandler QXmlEntityResolver QXmlErrorHandler
-  QXmlLexicalHandler
+    If this function returns FALSE the reader stops parsing and
+    reports an error. The reader uses the function errorString() to
+    get the error message.
 */
+
 /*!
-  \fn bool QXmlDTDHandler::notationDecl( const QString& name, const QString& publicId, const QString& systemId )
+    \fn bool QXmlErrorHandler::error( const QXmlParseException& exception )
 
-  The reader calls this function when it has parsed a notation declaration.
+    A reader might use this function to report a recoverable error. A
+    recoverable error corresponds to the definiton of "error" in
+    section 1.2 of the XML 1.0 specification. Details of the error are
+    stored in \a exception.
 
-  The argument \a name is the notation name, \a publicId is the notations's
-  public identifier and \a systemId is the notations's system identifier.
+    The reader must continue to provide normal parsing events after
+    invoking this function.
 
-  If this function returns FALSE the reader stops parsing and reports
-  an error. The reader uses the function errorString() to get the error
-  message.
+    If this function returns FALSE the reader stops parsing and
+    reports an error. The reader uses the function errorString() to
+    get the error message.
 */
+
 /*!
-  \fn bool QXmlDTDHandler::unparsedEntityDecl( const QString& name, const QString& publicId, const QString& systemId, const QString& notationName )
+    \fn bool QXmlErrorHandler::fatalError( const QXmlParseException& exception )
 
-  The reader calls this function when it finds an unparsed entity declaration.
+    A reader must use this function to report a non-recoverable error.
+    Details of the error are stored in \a exception.
 
-  The argument \a name is the unparsed entity's name, \a publicId is the
-  entity's public identifier, \a systemId is the entity's system identifier and
-  \a notationName is the name of the associated notation.
-
-  If this function returns FALSE the reader stops parsing and reports
-  an error. The reader uses the function errorString() to get the error
-  message.
+    If this function returns TRUE the reader might try to go on
+    parsing and reporting further errors; but no regular parsing
+    events are reported.
 */
-/*!
-  \fn QString QXmlDTDHandler::errorString()
 
-  The reader calls this function to get an error string if any of the handler
-  functions returns FALSE.
+/*!
+    \fn QString QXmlErrorHandler::errorString()
+
+    The reader calls this function to get an error string if any of
+    the handler functions returns FALSE.
 */
 
 
 /*!
-  \class QXmlEntityResolver qxml.h
-  \ingroup xml-tools
-  \brief The QXmlEntityResolver class provides an interface to resolve external
-  entities contained in XML data.
+    \class QXmlDTDHandler qxml.h
+    \brief The QXmlDTDHandler class provides an interface to report
+    DTD content of XML data.
 
-  \module XML
+    \module XML
+    \ingroup xml-tools
 
-  If an application needs to implement customized handling for external
-  entities, it must implement this interface, i.e. resolveEntity(),
-  and register it with QXmlReader::setEntityResolver().
+    If an application needs information about notations and unparsed
+    entities, it can implement this interface and register an instance
+    with QXmlReader::setDTDHandler().
 
-  See also the \link xml.html#sax2Intro Introduction to SAX2\endlink.
+    Note that this interface includes only those DTD events that the
+    XML recommendation requires processors to report, i.e. notation
+    and unparsed entity declarations using notationDecl() and
+    unparsedEntityDecl() respectively.
 
-  \sa QXmlDTDHandler QXmlDeclHandler QXmlContentHandler QXmlErrorHandler
-  QXmlLexicalHandler
-*/
-/*!
-  \fn bool QXmlEntityResolver::resolveEntity( const QString& publicId, const QString& systemId, QXmlInputSource*& ret )
+    See also the \link xml.html#sax2Intro Introduction to SAX2\endlink.
 
-  The reader calls this function before it opens any external entity,
-  except the top-level document entity. The application may request the reader
-  to resolve the entity itself (\a ret is 0) or to use an entirely different
-  input source (\a ret points to the input source).
-
-  The reader deletes the input source \a ret when it no longer needs it, so
-  you should allocate it on the heap with \c new.
-
-  The argument \a publicId is the public identifier of the external entity, \a
-  systemId is the system identifier of the external entity and \a ret is the
-  return value of this function. If \a ret is 0 the reader should resolve the
-  entity itself, if it is non-zero it must point to an input source which the
-  reader uses instead.
-
-  If this function returns FALSE the reader stops parsing and reports
-  an error. The reader uses the function errorString() to get the error
-  message.
-*/
-/*!
-  \fn QString QXmlEntityResolver::errorString()
-
-  The reader calls this function to get an error string if any of the handler
-  functions returns FALSE.
+    \sa QXmlDeclHandler QXmlContentHandler QXmlEntityResolver QXmlErrorHandler
+    QXmlLexicalHandler
 */
 
-
 /*!
-  \class QXmlLexicalHandler qxml.h
-  \ingroup xml-tools
-  \brief The QXmlLexicalHandler class provides an interface to report
-  the lexical content of XML data.
+    \fn bool QXmlDTDHandler::notationDecl( const QString& name, const QString& publicId, const QString& systemId )
 
-  \module XML
+    The reader calls this function when it has parsed a notation
+    declaration.
 
-  The events in the lexical handler apply to the entire document, not just to
-  the document element, and all lexical handler events appear between the
-  content handler's startDocument and endDocument events.
+    The argument \a name is the notation name, \a publicId is the
+    notations's public identifier and \a systemId is the notations's
+    system identifier.
 
-  You can set the lexical handler with QXmlReader::setLexicalHandler().
-
-  This interface's design is based on the the SAX2 extension
-  LexicalHandler.
-
-  The interface provides startDTD(), endDTD(), startEntity(),
-  endEntity(), startCDATA(), endCDATA() and comment() functions.
-
-  See also the \link xml.html#sax2Intro Introduction to SAX2\endlink.
-
-  \sa QXmlDTDHandler QXmlDeclHandler QXmlContentHandler QXmlEntityResolver
-  QXmlErrorHandler
+    If this function returns FALSE the reader stops parsing and
+    reports an error. The reader uses the function errorString() to
+    get the error message.
 */
+
 /*!
-  \fn bool QXmlLexicalHandler::startDTD( const QString& name, const QString& publicId, const QString& systemId )
+    \fn bool QXmlDTDHandler::unparsedEntityDecl( const QString& name, const QString& publicId, const QString& systemId, const QString& notationName )
 
-  The reader calls this function to report the start of a DTD declaration, if
-  any. It reports the name of the document type in \a name, the public
-  identifier in \a publicId and the system identifier in \a systemId.
+    The reader calls this function when it finds an unparsed entity
+    declaration.
 
-  If the public identifier and the system identifier is missing, the reader
-  sets the \a publicId and \a systemId to QString::null.
+    The argument \a name is the unparsed entity's name, \a publicId is
+    the entity's public identifier, \a systemId is the entity's system
+    identifier and \a notationName is the name of the associated
+    notation.
 
-  All declarations reported through QXmlDTDHandler or QXmlDeclHandler appear
-  between the startDTD() and endDTD() calls.
-
-  If this function returns FALSE the reader stops parsing and reports
-  an error. The reader uses the function errorString() to get the error
-  message.
-
-  \sa endDTD()
+    If this function returns FALSE the reader stops parsing and
+    reports an error. The reader uses the function errorString() to
+    get the error message.
 */
+
 /*!
-  \fn bool QXmlLexicalHandler::endDTD()
+    \fn QString QXmlDTDHandler::errorString()
 
-  The reader calls this function to report the end of a DTD declaration, if
-  any.
-
-  If this function returns FALSE the reader stops parsing and reports
-  an error. The reader uses the function errorString() to get the error
-  message.
-
-  \sa startDTD()
-*/
-/*!
-  \fn bool QXmlLexicalHandler::startEntity( const QString& name )
-
-  The reader calls this function to report the start of an entity with the name
-  \a name.
-
-  Note that if the entity is unknown, the reader reports it through
-  QXmlContentHandler::skippedEntity() and not throught this function.
-
-  If this function returns FALSE the reader stops parsing and reports
-  an error. The reader uses the function errorString() to get the error
-  message.
-
-  \sa endEntity() QXmlSimpleReader::setFeature()
-*/
-/*!
-  \fn bool QXmlLexicalHandler::endEntity( const QString& name )
-
-  The reader calls this function to report the end of an entity with the name
-  \a name.
-
-  For every call of startEntity(), there is a corresponding call of
-  endEntity(). The calls of startEntity() and endEntity() are properly
-  nested.
-
-  If this function returns FALSE the reader stops parsing and reports
-  an error. The reader uses the function errorString() to get the error
-  message.
-
-  \sa startEntity() QXmlSimpleReader::setFeature()
-*/
-/*!
-  \fn bool QXmlLexicalHandler::startCDATA()
-
-  The reader calls this function to report the start of a CDATA section. The
-  content of the CDATA section is reported through the
-  QXmlContentHandler::characters() function. This function is intended
-  only to report the boundary.
-
-  If this function returns FALSE the reader stops parsing and reports
-  an error. The reader uses the function errorString() to get the error
-  message.
-
-  \sa endCDATA()
-*/
-/*!
-  \fn bool QXmlLexicalHandler::endCDATA()
-
-  The reader calls this function to report the end of a CDATA section.
-
-  If this function returns FALSE the reader stops parsing and reports
-  an error. The reader uses the function errorString() to get the error
-  message.
-
-  \sa startCDATA()
-*/
-/*!
-  \fn bool QXmlLexicalHandler::comment( const QString& ch )
-
-  The reader calls this function to report an XML comment anywhere in the
-  document. It reports the text of the comment in \a ch.
-
-  If this function returns FALSE the reader stops parsing and reports
-  an error. The reader uses the function errorString() to get the error
-  message.
-*/
-/*!
-  \fn QString QXmlLexicalHandler::errorString()
-
-  The reader calls this function to get an error string if any of the handler
-  functions returns FALSE.
+    The reader calls this function to get an error string if any of
+    the handler functions returns FALSE.
 */
 
 
 /*!
-  \class QXmlDeclHandler qxml.h
-  \ingroup xml-tools
-  \brief The QXmlDeclHandler class provides an interface to report declaration
-  content of XML data.
+    \class QXmlEntityResolver qxml.h
+    \brief The QXmlEntityResolver class provides an interface to
+    resolve external entities contained in XML data.
 
-  \module XML
+    \module XML
+    \ingroup xml-tools
 
-  You can set the declaration handler with QXmlReader::setDeclHandler().
+    If an application needs to implement customized handling for
+    external entities, it must implement this interface, i.e.
+    resolveEntity(), and register it with
+    QXmlReader::setEntityResolver().
 
-  This interface based upon the SAX2 extension DeclHandler.
+    See also the \link xml.html#sax2Intro Introduction to SAX2\endlink.
 
-  The interface provides attributeDecl(), internalEntityDecl() and
-  externalEntityDecl() functions.
-
-  See also the \link xml.html#sax2Intro Introduction to SAX2\endlink.
-
-  \sa QXmlDTDHandler QXmlContentHandler QXmlEntityResolver QXmlErrorHandler
-  QXmlLexicalHandler
+    \sa QXmlDTDHandler QXmlDeclHandler QXmlContentHandler QXmlErrorHandler
+    QXmlLexicalHandler
 */
+
 /*!
-  \fn bool QXmlDeclHandler::attributeDecl( const QString& eName, const QString& aName, const QString& type, const QString& valueDefault, const QString& value )
+    \fn bool QXmlEntityResolver::resolveEntity( const QString& publicId, const QString& systemId, QXmlInputSource*& ret )
 
-  The reader calls this function to report an attribute type declaration. Only
-  the effective (first) declaration for an attribute is reported.
+    The reader calls this function before it opens any external
+    entity, except the top-level document entity. The application may
+    request the reader to resolve the entity itself (\a ret is 0) or
+    to use an entirely different input source (\a ret points to the
+    input source).
 
-  The reader passes the name of the associated element in \a eName and
-  the name of the attribute in \a aName. It passes a string that
-  represents the attribute type in \a type and a string that
-  represents the attribute default in \a valueDefault. This string is
-  one of "#IMPLIED", "#REQUIRED", "#FIXED" or null (if none of the
-  others applies). The reader passes the attribute's default
-  value in \a value. If no default value is specified in the XML file,
-  \a value is QString::null.
+    The reader deletes the input source \a ret when it no longer needs
+    it, so you should allocate it on the heap with \c new.
 
-  If this function returns FALSE the reader stops parsing and reports
-  an error. The reader uses the function errorString() to get the error
-  message.
+    The argument \a publicId is the public identifier of the external
+    entity, \a systemId is the system identifier of the external
+    entity and \a ret is the return value of this function. If \a ret
+    is 0 the reader should resolve the entity itself, if it is
+    non-zero it must point to an input source which the reader uses
+    instead.
+
+    If this function returns FALSE the reader stops parsing and
+    reports an error. The reader uses the function errorString() to
+    get the error message.
 */
+
 /*!
-  \fn bool QXmlDeclHandler::internalEntityDecl( const QString& name, const QString& value )
+    \fn QString QXmlEntityResolver::errorString()
 
-  The reader calls this function to report an internal entity declaration. Only
-  the effective (first) declaration is reported.
-
-  The reader passes the name of the entity in \a name and the value of the
-  entity in \a value.
-
-  If this function returns FALSE the reader stops parsing and reports
-  an error. The reader uses the function errorString() to get the error
-  message.
-*/
-/*!
-  \fn bool QXmlDeclHandler::externalEntityDecl( const QString& name, const QString& publicId, const QString& systemId )
-
-  The reader calls this function to report a parsed external entity
-  declaration. Only the effective (first) declaration for each entity is
-  reported.
-
-  The reader passes the name of the entity in \a name, the public identifier in
-  \a publicId and the system identifier in \a systemId. If there is no public
-  identifier specified, it passes QString::null in \a publicId.
-
-  If this function returns FALSE the reader stops parsing and reports
-  an error. The reader uses the function errorString() to get the error
-  message.
-*/
-/*!
-  \fn QString QXmlDeclHandler::errorString()
-
-  The reader calls this function to get an error string if any of the handler
-  functions returns FALSE.
+    The reader calls this function to get an error string if any of
+    the handler functions returns FALSE.
 */
 
 
 /*!
-  \class QXmlDefaultHandler qxml.h
-  \ingroup xml-tools
-  \brief The QXmlDefaultHandler class provides a default implementation of all
-  XML handler classes.
+    \class QXmlLexicalHandler qxml.h
+    \brief The QXmlLexicalHandler class provides an interface to
+    report the lexical content of XML data.
 
-  \module XML
+    \module XML
+    \ingroup xml-tools
 
-  Very often you are only interested in parts of the things that that the
-  reader reports to you. This class implements a default behaviour for
-  the handler classes (i.e. most of the time do nothing). Usually
-  this is the class you subclass for implementing your customized
-  handler.
+    The events in the lexical handler apply to the entire document,
+    not just to the document element, and all lexical handler events
+    appear between the content handler's startDocument and endDocument
+    events.
 
-  See also the \link xml.html#sax2Intro Introduction to SAX2\endlink.
+    You can set the lexical handler with
+    QXmlReader::setLexicalHandler().
 
-  \sa QXmlDTDHandler QXmlDeclHandler QXmlContentHandler QXmlEntityResolver
-  QXmlErrorHandler QXmlLexicalHandler
+    This interface's design is based on the the SAX2 extension
+    LexicalHandler.
+
+    The interface provides startDTD(), endDTD(), startEntity(),
+    endEntity(), startCDATA(), endCDATA() and comment() functions.
+
+    See also the \link xml.html#sax2Intro Introduction to SAX2\endlink.
+
+    \sa QXmlDTDHandler QXmlDeclHandler QXmlContentHandler QXmlEntityResolver
+    QXmlErrorHandler
+*/
+
+/*!
+    \fn bool QXmlLexicalHandler::startDTD( const QString& name, const QString& publicId, const QString& systemId )
+
+    The reader calls this function to report the start of a DTD
+    declaration, if any. It reports the name of the document type in
+    \a name, the public identifier in \a publicId and the system
+    identifier in \a systemId.
+
+    If the public identifier and the system identifier is missing, the
+    reader sets the \a publicId and \a systemId to QString::null.
+
+    All declarations reported through QXmlDTDHandler or
+    QXmlDeclHandler appear between the startDTD() and endDTD() calls.
+
+    If this function returns FALSE the reader stops parsing and
+    reports an error. The reader uses the function errorString() to
+    get the error message.
+
+    \sa endDTD()
+*/
+
+/*!
+    \fn bool QXmlLexicalHandler::endDTD()
+
+    The reader calls this function to report the end of a DTD
+    declaration, if any.
+
+    If this function returns FALSE the reader stops parsing and
+    reports an error. The reader uses the function errorString() to
+    get the error message.
+
+    \sa startDTD()
+*/
+
+/*!
+    \fn bool QXmlLexicalHandler::startEntity( const QString& name )
+
+    The reader calls this function to report the start of an entity
+    called \a name.
+
+    Note that if the entity is unknown, the reader reports it through
+    QXmlContentHandler::skippedEntity() and not through this
+    function.
+
+    If this function returns FALSE the reader stops parsing and
+    reports an error. The reader uses the function errorString() to
+    get the error message.
+
+    \sa endEntity() QXmlSimpleReader::setFeature()
+*/
+
+/*!
+    \fn bool QXmlLexicalHandler::endEntity( const QString& name )
+
+    The reader calls this function to report the end of an entity
+    called \a name.
+
+    For every startEntity() call, there is a corresponding endEntity()
+    call. The calls to startEntity() and endEntity() are properly
+    nested.
+
+    If this function returns FALSE the reader stops parsing and
+    reports an error. The reader uses the function errorString() to
+    get the error message.
+
+    \sa startEntity() QXmlSimpleReader::setFeature()
+*/
+
+/*!
+    \fn bool QXmlLexicalHandler::startCDATA()
+
+    The reader calls this function to report the start of a CDATA
+    section. The content of the CDATA section is reported through the
+    QXmlContentHandler::characters() function. This function is
+    intended only to report the boundary.
+
+    If this function returns FALSE the reader stops parsing and
+    reports an error. The reader uses the function errorString() to
+    get the error message.
+
+    \sa endCDATA()
+*/
+
+/*!
+    \fn bool QXmlLexicalHandler::endCDATA()
+
+    The reader calls this function to report the end of a CDATA
+    section.
+
+    If this function returns FALSE the reader stops parsing and reports
+    an error. The reader uses the function errorString() to get the error
+    message.
+
+    \sa startCDATA()
+*/
+
+/*!
+    \fn bool QXmlLexicalHandler::comment( const QString& ch )
+
+    The reader calls this function to report an XML comment anywhere
+    in the document. It reports the text of the comment in \a ch.
+
+    If this function returns FALSE the reader stops parsing and
+    reports an error. The reader uses the function errorString() to
+    get the error message.
+*/
+
+/*!
+    \fn QString QXmlLexicalHandler::errorString()
+
+    The reader calls this function to get an error string if any of
+    the handler functions returns FALSE.
+*/
+
+
+/*!
+    \class QXmlDeclHandler qxml.h
+    \brief The QXmlDeclHandler class provides an interface to report declaration
+    content of XML data.
+
+    \module XML
+    \ingroup xml-tools
+
+    You can set the declaration handler with
+    QXmlReader::setDeclHandler().
+
+    This interface is based on the SAX2 extension DeclHandler.
+
+    The interface provides attributeDecl(), internalEntityDecl() and
+    externalEntityDecl() functions.
+
+    See also the \link xml.html#sax2Intro Introduction to SAX2\endlink.
+
+    \sa QXmlDTDHandler QXmlContentHandler QXmlEntityResolver QXmlErrorHandler
+    QXmlLexicalHandler
+*/
+
+/*!
+    \fn bool QXmlDeclHandler::attributeDecl( const QString& eName, const QString& aName, const QString& type, const QString& valueDefault, const QString& value )
+
+    The reader calls this function to report an attribute type
+    declaration. Only the effective (first) declaration for an
+    attribute is reported.
+
+    The reader passes the name of the associated element in \a eName
+    and the name of the attribute in \a aName. It passes a string that
+    represents the attribute type in \a type and a string that
+    represents the attribute default in \a valueDefault. This string
+    is one of "#IMPLIED", "#REQUIRED", "#FIXED" or QString::null (if
+    none of the others applies). The reader passes the attribute's
+    default value in \a value. If no default value is specified in the
+    XML file, \a value is QString::null.
+
+    If this function returns FALSE the reader stops parsing and
+    reports an error. The reader uses the function errorString() to
+    get the error message.
+*/
+
+/*!
+    \fn bool QXmlDeclHandler::internalEntityDecl( const QString& name, const QString& value )
+
+    The reader calls this function to report an internal entity
+    declaration. Only the effective (first) declaration is reported.
+
+    The reader passes the name of the entity in \a name and the value
+    of the entity in \a value.
+
+    If this function returns FALSE the reader stops parsing and
+    reports an error. The reader uses the function errorString() to
+    get the error message.
+*/
+
+/*!
+    \fn bool QXmlDeclHandler::externalEntityDecl( const QString& name, const QString& publicId, const QString& systemId )
+
+    The reader calls this function to report a parsed external entity
+    declaration. Only the effective (first) declaration for each
+    entity is reported.
+
+    The reader passes the name of the entity in \a name, the public
+    identifier in \a publicId and the system identifier in \a
+    systemId. If there is no public identifier specified, it passes
+    QString::null in \a publicId.
+
+    If this function returns FALSE the reader stops parsing and
+    reports an error. The reader uses the function errorString() to
+    get the error message.
+*/
+
+/*!
+    \fn QString QXmlDeclHandler::errorString()
+
+    The reader calls this function to get an error string if any of
+    the handler functions returns FALSE.
+*/
+
+
+/*!
+    \class QXmlDefaultHandler qxml.h
+    \brief The QXmlDefaultHandler class provides a default implementation of all
+    XML handler classes.
+
+    \module XML
+    \ingroup xml-tools
+
+    Very often you are only interested in parts of the things that the
+    reader reports. This class implements a default behaviour for the
+    handler classes (i.e. most of the time do nothing). Usually this
+    is the class you subclass for implementing your own customized
+    handler.
+
+    See also the \link xml.html#sax2Intro Introduction to SAX2\endlink.
+
+    \sa QXmlDTDHandler QXmlDeclHandler QXmlContentHandler QXmlEntityResolver
+    QXmlErrorHandler QXmlLexicalHandler
+*/
+
+/*!
+    \fn QXmlDefaultHandler::QXmlDefaultHandler()
+
+    Constructor.
 */
 /*!
-  \fn QXmlDefaultHandler::QXmlDefaultHandler()
+    \fn QXmlDefaultHandler::~QXmlDefaultHandler()
 
-  Constructor.
+    Destructor.
 */
+
 /*!
-  \fn QXmlDefaultHandler::~QXmlDefaultHandler()
+    \reimp
 
-  Destructor.
-*/
-
-/*!  \reimp
-  Does nothing.
+    Does nothing.
 */
 void QXmlDefaultHandler::setDocumentLocator( QXmlLocator* )
 {
 }
 
-/*!  \reimp
-  Does nothing.
+/*!
+    \reimp
+
+    Does nothing.
 */
 bool QXmlDefaultHandler::startDocument()
 {
     return TRUE;
 }
 
-/*!  \reimp
-  Does nothing.
+/*!
+    \reimp
+
+    Does nothing.
 */
 bool QXmlDefaultHandler::endDocument()
 {
     return TRUE;
 }
 
-/*!  \reimp
-  Does nothing.
+/*!
+    \reimp
+
+    Does nothing.
 */
 bool QXmlDefaultHandler::startPrefixMapping( const QString&, const QString& )
 {
     return TRUE;
 }
 
-/*!  \reimp
-  Does nothing.
+/*!
+    \reimp
+
+    Does nothing.
 */
 bool QXmlDefaultHandler::endPrefixMapping( const QString& )
 {
     return TRUE;
 }
 
-/*!  \reimp
-  Does nothing.
+/*!
+    \reimp
+
+    Does nothing.
 */
 bool QXmlDefaultHandler::startElement( const QString&, const QString&,
 	const QString&, const QXmlAttributes& )
@@ -1830,8 +1930,10 @@ bool QXmlDefaultHandler::startElement( const QString&, const QString&,
     return TRUE;
 }
 
-/*!  \reimp
-  Does nothing.
+/*!
+    \reimp
+
+    Does nothing.
 */
 bool QXmlDefaultHandler::endElement( const QString&, const QString&,
 	const QString& )
@@ -1839,24 +1941,30 @@ bool QXmlDefaultHandler::endElement( const QString&, const QString&,
     return TRUE;
 }
 
-/*!  \reimp
-  Does nothing.
+/*!
+    \reimp
+
+    Does nothing.
 */
 bool QXmlDefaultHandler::characters( const QString& )
 {
     return TRUE;
 }
 
-/*!  \reimp
-  Does nothing.
+/*!
+    \reimp
+
+    Does nothing.
 */
 bool QXmlDefaultHandler::ignorableWhitespace( const QString& )
 {
     return TRUE;
 }
 
-/*!  \reimp
-  Does nothing.
+/*!
+    \reimp
+
+    Does nothing.
 */
 bool QXmlDefaultHandler::processingInstruction( const QString&,
 	const QString& )
@@ -1864,40 +1972,50 @@ bool QXmlDefaultHandler::processingInstruction( const QString&,
     return TRUE;
 }
 
-/*!  \reimp
-  Does nothing.
+/*!
+    \reimp
+
+    Does nothing.
 */
 bool QXmlDefaultHandler::skippedEntity( const QString& )
 {
     return TRUE;
 }
 
-/*!  \reimp
-  Does nothing.
+/*!
+    \reimp
+
+    Does nothing.
 */
 bool QXmlDefaultHandler::warning( const QXmlParseException& )
 {
     return TRUE;
 }
 
-/*!  \reimp
-  Does nothing.
+/*!
+    \reimp
+
+    Does nothing.
 */
 bool QXmlDefaultHandler::error( const QXmlParseException& )
 {
     return TRUE;
 }
 
-/*!  \reimp
-  Does nothing.
+/*!
+    \reimp
+
+    Does nothing.
 */
 bool QXmlDefaultHandler::fatalError( const QXmlParseException& )
 {
     return TRUE;
 }
 
-/*!  \reimp
-  Does nothing.
+/*!
+    \reimp
+
+    Does nothing.
 */
 bool QXmlDefaultHandler::notationDecl( const QString&, const QString&,
 	const QString& )
@@ -1905,8 +2023,10 @@ bool QXmlDefaultHandler::notationDecl( const QString&, const QString&,
     return TRUE;
 }
 
-/*!  \reimp
-  Does nothing.
+/*!
+    \reimp
+
+    Does nothing.
 */
 bool QXmlDefaultHandler::unparsedEntityDecl( const QString&, const QString&,
 	const QString&, const QString& )
@@ -1914,9 +2034,11 @@ bool QXmlDefaultHandler::unparsedEntityDecl( const QString&, const QString&,
     return TRUE;
 }
 
-/*!  \reimp
-  Sets \a ret to 0, so that the reader uses the system identifier
-  provided in the XML document.
+/*!
+    \reimp
+
+    Sets \a ret to 0, so that the reader uses the system identifier
+    provided in the XML document.
 */
 bool QXmlDefaultHandler::resolveEntity( const QString&, const QString&,
 	QXmlInputSource*& ret )
@@ -1925,88 +2047,110 @@ bool QXmlDefaultHandler::resolveEntity( const QString&, const QString&,
     return TRUE;
 }
 
-/*!  \reimp
-  Returns the default error string.
+/*!
+    \reimp
+
+    Returns the default error string.
 */
 QString QXmlDefaultHandler::errorString()
 {
     return QString( XMLERR_ERRORBYCONSUMER );
 }
 
-/*!  \reimp
-  Does nothing.
+/*!
+    \reimp
+
+    Does nothing.
 */
 bool QXmlDefaultHandler::startDTD( const QString&, const QString&, const QString& )
 {
     return TRUE;
 }
 
-/*!  \reimp
-  Does nothing.
+/*!
+    \reimp
+
+    Does nothing.
 */
 bool QXmlDefaultHandler::endDTD()
 {
     return TRUE;
 }
 
-/*!  \reimp
-  Does nothing.
+/*!
+    \reimp
+
+    Does nothing.
 */
 bool QXmlDefaultHandler::startEntity( const QString& )
 {
     return TRUE;
 }
 
-/*!  \reimp
-  Does nothing.
+/*!
+    \reimp
+
+    Does nothing.
 */
 bool QXmlDefaultHandler::endEntity( const QString& )
 {
     return TRUE;
 }
 
-/*!  \reimp
-  Does nothing.
+/*!
+    \reimp
+
+    Does nothing.
 */
 bool QXmlDefaultHandler::startCDATA()
 {
     return TRUE;
 }
 
-/*!  \reimp
-  Does nothing.
+/*!
+    \reimp
+
+    Does nothing.
 */
 bool QXmlDefaultHandler::endCDATA()
 {
     return TRUE;
 }
 
-/*!  \reimp
-  Does nothing.
+/*!
+    \reimp
+
+    Does nothing.
 */
 bool QXmlDefaultHandler::comment( const QString& )
 {
     return TRUE;
 }
 
-/*!  \reimp
-  Does nothing.
+/*!
+    \reimp
+
+    Does nothing.
 */
 bool QXmlDefaultHandler::attributeDecl( const QString&, const QString&, const QString&, const QString&, const QString& )
 {
     return TRUE;
 }
 
-/*!  \reimp
-  Does nothing.
+/*!
+    \reimp
+
+    Does nothing.
 */
 bool QXmlDefaultHandler::internalEntityDecl( const QString&, const QString& )
 {
     return TRUE;
 }
 
-/*!  \reimp
-  Does nothing.
+/*!
+    \reimp
+
+    Does nothing.
 */
 bool QXmlDefaultHandler::externalEntityDecl( const QString&, const QString&, const QString& )
 {
@@ -2134,234 +2278,262 @@ private:
  *********************************************/
 
 /*!
-  \class QXmlReader qxml.h
-  \ingroup xml-tools
-  \brief The QXmlReader class provides an interface for XML readers (i.e.
-  parsers).
+    \class QXmlReader qxml.h
+    \brief The QXmlReader class provides an interface for XML readers (i.e.
+    parsers).
 
-  \module XML
+    \module XML
+    \ingroup xml-tools
 
-  This abstract class provides an interface for all XML readers in Qt. At the
-  moment there is only one implementation of a reader included in the XML
-  module of Qt (QXmlSimpleReader). In future releases there might be more
-  readers with different properties available (e.g. a validating parser).
+    This abstract class provides an interface for all Qt's XML
+    readers. Currently there is only one implementation of a reader
+    included in Qt's XML module: QXmlSimpleReader. In future releases
+    there might be more readers with different properties available
+    (e.g. a validating parser).
 
-  The design of the XML classes follows the
-  \link http://www.megginson.com/SAX/ SAX2 java interface\endlink.
-  It was adapted to fit the Qt naming conventions; so it should be very
-  easy for anybody who has worked with SAX2 to get started with the Qt XML
-  classes.
+    The design of the XML classes follows the \link
+    http://www.megginson.com/SAX/ SAX2 Java interface\endlink, with
+    the names adapted to fit Qt naming conventions. It should be very
+    easy for anybody who has worked with SAX2 to get started with the
+    Qt XML classes.
 
-  All readers use the class QXmlInputSource to read the input document.
-  Since you are normally interested in particular content in the XML document,
-  the reader reports the content through special handler classes
-  (QXmlDTDHandler, QXmlDeclHandler, QXmlContentHandler, QXmlEntityResolver,
-  QXmlErrorHandler and QXmlLexicalHandler), which you must subclass,
-  if you want to process the contents..
+    All readers use the class QXmlInputSource to read the input
+    document. Since you are normally interested in particular content
+    in the XML document, the reader reports the content through
+    special handler classes (QXmlDTDHandler, QXmlDeclHandler,
+    QXmlContentHandler, QXmlEntityResolver, QXmlErrorHandler and
+    QXmlLexicalHandler), which you must subclass, if you want to
+    process the contents.
 
-  Since the handler classes describe only interfaces you must
-  implement all functions; there is a class (QXmlDefaultHandler) to
-  make this easier; it implements a default behaviour (do nothing) for
-  all functions.
+    Since the handler classes only describe interfaces you must
+    implement all functions. We provide the QXmlDefaultHandler class
+    to make this easier: it implements a default behaviour (do
+    nothing) for all functions, so you can subclass it and just
+    implement the functions you are interested in.
 
-  Features and properties of the reader can be set with setFeature()
-  and setProperty respectively. You can set the reader to use your own
-  subclasses with setEntityResolver(), setDTDHandler(),
-  setContentHandler(), setErrorHandler(), setLexicalHandler() and
-  setDeclHandler(). The parse itself is started with a call to
-  parse().
+    Features and properties of the reader can be set with setFeature()
+    and setProperty() respectively. You can set the reader to use your
+    own subclasses with setEntityResolver(), setDTDHandler(),
+    setContentHandler(), setErrorHandler(), setLexicalHandler() and
+    setDeclHandler(). The parse itself is started with a call to
+    parse().
 
-  For getting started see also the
-  \link xml-sax-walkthrough.html tiny SAX2 parser walkthrough. \endlink
+    For getting started see also the
+    \link xml-sax-walkthrough.html tiny SAX2 parser walkthrough. \endlink
 
-  \sa QXmlSimpleReader
+    \sa QXmlSimpleReader
 */
+
 /*!
-  \fn bool QXmlReader::feature( const QString& name, bool *ok ) const
+    \fn bool QXmlReader::feature( const QString& name, bool *ok ) const
 
     If the reader has the feature called \a name, the feature's value
     is returned. If no such feature exists the return value is
     undefined.
 
-  If \a ok is not 0, then \a *ok  is set to TRUE if the reader has the feature
-  called \a name; otherwise \a *ok is set to FALSE.
+    If \a ok is not 0: \a *ok  is set to TRUE if the reader has the
+    feature called \a name; otherwise \a *ok is set to FALSE.
 
-  \sa setFeature() hasFeature()
+    \sa setFeature() hasFeature()
 */
+
 /*!
-  \fn void QXmlReader::setFeature( const QString& name, bool value )
+    \fn void QXmlReader::setFeature( const QString& name, bool value )
 
-  Sets the feature called \a name to the given \a value.
-  If the reader doesn't have the feature nothing happens.
+    Sets the feature called \a name to the given \a value. If the
+    reader doesn't have the feature nothing happens.
 
-  \sa feature() hasFeature()
+    \sa feature() hasFeature()
 */
+
 /*!
-  \fn bool QXmlReader::hasFeature( const QString& name ) const
+    \fn bool QXmlReader::hasFeature( const QString& name ) const
 
-  Returns \c TRUE if the reader has the feature \a name; otherwise
-  returns FALSE.
+    Returns \c TRUE if the reader has the feature called \a name;
+    otherwise returns FALSE.
 
-  \sa feature() setFeature()
+    \sa feature() setFeature()
 */
+
 /*!
-  \fn void* QXmlReader::property( const QString& name, bool *ok ) const
+    \fn void* QXmlReader::property( const QString& name, bool *ok ) const
 
-  If the reader has the property \a name, this function returns the value of
-  the property and sets \a *ok to TRUE; otherwise \a *ok is set to
-  FALSE.
+    If the reader has the property \a name, this function returns the
+    value of the property; otherwise the return value is undefined.
 
-  \sa setProperty() hasProperty()
+    If \a ok is not 0: if the reader has the \a name property \a *ok
+    is set to TRUE; otherwise \a *ok is set to FALSE.
+
+    \sa setProperty() hasProperty()
 */
+
 /*!
-  \fn void QXmlReader::setProperty( const QString& name, void* value )
+    \fn void QXmlReader::setProperty( const QString& name, void* value )
 
-  Sets the property \a name to \a value. If the reader doesn't have
-  the property nothing happens.
+    Sets the property \a name to \a value. If the reader doesn't have
+    the property nothing happens.
 
-  \sa property() hasProperty()
+    \sa property() hasProperty()
 */
+
 /*!
-  \fn bool QXmlReader::hasProperty( const QString& name ) const
+    \fn bool QXmlReader::hasProperty( const QString& name ) const
 
-  Returns TRUE if the reader has the property \a name; otherwise returns FALSE.
+    Returns TRUE if the reader has the property \a name; otherwise
+    returns FALSE.
 
-  \sa property() setProperty()
+    \sa property() setProperty()
 */
+
 /*!
-  \fn void QXmlReader::setEntityResolver( QXmlEntityResolver* handler )
+    \fn void QXmlReader::setEntityResolver( QXmlEntityResolver* handler )
 
-  Sets the entity resolver to \a handler.
+    Sets the entity resolver to \a handler.
 
-  \sa entityResolver()
+    \sa entityResolver()
 */
+
 /*!
-  \fn QXmlEntityResolver* QXmlReader::entityResolver() const
+    \fn QXmlEntityResolver* QXmlReader::entityResolver() const
 
-  Returns the entity resolver or 0 if none was set.
+    Returns the entity resolver or 0 if none was set.
 
-  \sa setEntityResolver()
+    \sa setEntityResolver()
 */
+
 /*!
-  \fn void QXmlReader::setDTDHandler( QXmlDTDHandler* handler )
+    \fn void QXmlReader::setDTDHandler( QXmlDTDHandler* handler )
 
-  Sets the DTD handler to \a handler.
+    Sets the DTD handler to \a handler.
 
-  \sa DTDHandler()
+    \sa DTDHandler()
 */
+
 /*!
-  \fn QXmlDTDHandler* QXmlReader::DTDHandler() const
+    \fn QXmlDTDHandler* QXmlReader::DTDHandler() const
 
-  Returns the DTD handler or 0 if none was set.
+    Returns the DTD handler or 0 if none was set.
 
-  \sa setDTDHandler()
+    \sa setDTDHandler()
 */
+
 /*!
-  \fn void QXmlReader::setContentHandler( QXmlContentHandler* handler )
+    \fn void QXmlReader::setContentHandler( QXmlContentHandler* handler )
 
-  Sets the content handler to \a handler.
+    Sets the content handler to \a handler.
 
-  \sa contentHandler()
+    \sa contentHandler()
 */
+
 /*!
-  \fn QXmlContentHandler* QXmlReader::contentHandler() const
+    \fn QXmlContentHandler* QXmlReader::contentHandler() const
 
-  Returns the content handler or 0 if none was set.
+    Returns the content handler or 0 if none was set.
 
-  \sa setContentHandler()
+    \sa setContentHandler()
 */
+
 /*!
-  \fn void QXmlReader::setErrorHandler( QXmlErrorHandler* handler )
+    \fn void QXmlReader::setErrorHandler( QXmlErrorHandler* handler )
 
-  Sets the error handler to \a handler. Clears the error handler if \a
-  handler is 0.
+    Sets the error handler to \a handler. Clears the error handler if
+    \a handler is 0.
 
-  \sa errorHandler()
+    \sa errorHandler()
 */
+
 /*!
-  \fn QXmlErrorHandler* QXmlReader::errorHandler() const
+    \fn QXmlErrorHandler* QXmlReader::errorHandler() const
 
-  Returns the error handler or 0 if none was set.
+    Returns the error handler or 0 if none was set.
 
-  \sa setErrorHandler()
+    \sa setErrorHandler()
 */
+
 /*!
-  \fn void QXmlReader::setLexicalHandler( QXmlLexicalHandler* handler )
+    \fn void QXmlReader::setLexicalHandler( QXmlLexicalHandler* handler )
 
-  Sets the lexical handler to \a handler.
+    Sets the lexical handler to \a handler.
 
-  \sa lexicalHandler()
+    \sa lexicalHandler()
 */
+
 /*!
-  \fn QXmlLexicalHandler* QXmlReader::lexicalHandler() const
+    \fn QXmlLexicalHandler* QXmlReader::lexicalHandler() const
 
-  Returns the lexical handler or 0 if none was set.
+    Returns the lexical handler or 0 if none was set.
 
-  \sa setLexicalHandler()
+    \sa setLexicalHandler()
 */
+
 /*!
-  \fn void QXmlReader::setDeclHandler( QXmlDeclHandler* handler )
+    \fn void QXmlReader::setDeclHandler( QXmlDeclHandler* handler )
 
-  Sets the declaration handler to \a handler.
+    Sets the declaration handler to \a handler.
 
-  \sa declHandler()
+    \sa declHandler()
 */
+
 /*!
-  \fn QXmlDeclHandler* QXmlReader::declHandler() const
+    \fn QXmlDeclHandler* QXmlReader::declHandler() const
 
-  Returns the declaration handler or 0 if none was set.
+    Returns the declaration handler or 0 if none was set.
 
-  \sa setDeclHandler()
+    \sa setDeclHandler()
 */
+
 /*!
   \fn bool QXmlReader::parse( const QXmlInputSource& input )
 
   \obsolete
 */
-/*!
-  \fn bool QXmlReader::parse( const QXmlInputSource* input )
 
-  Reads an XML document from \a input and parses it. Returns TRUE if the
-  parsing was successful; otherwise returns FALSE.
+/*!
+    \fn bool QXmlReader::parse( const QXmlInputSource* input )
+
+    Reads an XML document from \a input and parses it. Returns TRUE if
+    the parsing was successful; otherwise returns FALSE.
 */
 
 
 /*!
-  \class QXmlSimpleReader qxml.h
-  \ingroup xml-tools
-  \mainclass
-  \brief The QXmlSimpleReader class provides an implementation of a simple XML
-  reader (parser).
+    \class QXmlSimpleReader qxml.h
+    \brief The QXmlSimpleReader class provides an implementation of a
+    simple XML reader (parser).
 
-  \module XML
+    \module XML
+    \ingroup xml-tools
+    \mainclass
 
-  This XML reader is sufficient for simple parsing tasks. The reader:
-  \list
-  \i provides a well-formed parser;
-  \i does not parse any external entities;
-  \i can do namespace processing.
-  \endlist
+    This XML reader is sufficient for simple parsing tasks. The reader:
+    \list
+    \i provides a well-formed parser;
+    \i does not parse any external entities;
+    \i can do namespace processing.
+    \endlist
 
-  Documents are parsed with a call to parse().
+    Documents are parsed with a call to parse().
 
-  See the
-  \link xml-sax-walkthrough.html tiny SAX2 parser walkthrough. \endlink
+    See the
+    \link xml-sax-walkthrough.html tiny SAX2 parser walkthrough. \endlink
 */
 
 
 /*!
-  Constructs a simple XML reader with the following feature settings:
-  \list
-  \i \e http://xml.org/sax/features/namespaces TRUE
-  \i \e http://xml.org/sax/features/namespace-prefixes FALSE
-  \i \e http://trolltech.com/xml/features/report-whitespace-only-CharData TRUE
-  \i \e http://trolltech.com/xml/features/report-start-end-entity FALSE
-  \endlist
+    Constructs a simple XML reader with the following feature settings:
+    \table
+    \header \i Feature \i Setting
+    \row \i \l http://xml.org/sax/features/namespaces \i TRUE
+    \row \i \l http://xml.org/sax/features/namespace-prefixes \i FALSE
+    \row \i \l http://trolltech.com/xml/features/report-whitespace-only-CharData
+	 \i TRUE
+    \row \i \l http://trolltech.com/xml/features/report-start-end-entity \i FALSE
+    \endtable
 
-  More information about features can be found in the \link xml.html#sax2Features
-  Qt SAX2 overview. \endlink
+    More information about features can be found in the \link
+    xml.html#sax2Features Qt SAX2 overview. \endlink
 
-  \sa setFeature()
+    \sa setFeature()
 */
 QXmlSimpleReader::QXmlSimpleReader()
 {
@@ -2383,7 +2555,7 @@ QXmlSimpleReader::QXmlSimpleReader()
 }
 
 /*!
-  Destroys the simple XML reader.
+    Destroys the simple XML reader.
 */
 QXmlSimpleReader::~QXmlSimpleReader()
 {
@@ -2391,7 +2563,8 @@ QXmlSimpleReader::~QXmlSimpleReader()
     delete d;
 }
 
-/*!  \reimp
+/*!
+    \reimp
 */
 bool QXmlSimpleReader::feature( const QString& name, bool *ok ) const
 {
@@ -2413,39 +2586,46 @@ bool QXmlSimpleReader::feature( const QString& name, bool *ok ) const
     return FALSE;
 }
 
-/*!  \reimp
-  Sets the state of the feature \a name to \a value:
+/*!
+    \reimp
 
-  \quotefile xml/tagreader-with-features/tagreader.cpp
-  \skipto reader
-  \printline reader
-  \skipto setFeature
-  \printline setFeature
+    Sets the state of the feature \a name to \a value:
 
-  (Code taken from xml/tagreader-with-features/tagreader.cpp)
+    If the feature is not recognized, it is ignored.
 
-  If the feature is not recognized, it is ignored.
+    The following features are supported:
+    \table
+    \header \i Feature \i Notes
+    \row \i \l http://xml.org/sax/features/namespaces
+	 \i If this feature is TRUE, namespace processing is
+	    performed.
+    \row \i \l http://xml.org/sax/features/namespace-prefixes
+	 \i If this feature is TRUE, the the original prefixed names
+	    and attributes used for namespace declarations are
+	    reported.
+    \row \i \l http://trolltech.com/xml/features/report-whitespace-only-CharData
+	 \i If this feature is TRUE, CharData that consist of
+	    whitespace only (and no other characters) are not reported
+	    via QXmlContentHandler::characters().
+    \row \i \l http://trolltech.com/xml/features/report-start-end-entity
+	 \i If this feature is TRUE, the parser reports
+	    QXmlContentHandler::startEntity() and
+	    QXmlContentHandler::endEntity() events. So character data
+	    might be reported in chunks. If this feature is FALSE, the
+	    parser does not report those events, but rather silently
+	    substitutes the entities and reports the character data in
+	    one chunk.
+    \endtable
 
-  The following features are supported:
-  \list
-  \i \e http://xml.org/sax/features/namespaces:
-       if this feature is TRUE, namespace processing is performed
-  \i \e http://xml.org/sax/features/namespace-prefixes:
-       if this feature is TRUE, the the original prefixed names and attributes
-       used for namespace declarations are reported
-  \i \e http://trolltech.com/xml/features/report-whitespace-only-CharData:
-       if this feature is TRUE, CharData that consist of whitespace only (and
-       no other characters) are not reported via
-       QXmlContentHandler::characters()
-  \i \e http://trolltech.com/xml/features/report-start-end-entity:
-       if this feature is TRUE, the parser reports
-       QXmlContentHandler::startEntity() and QXmlContentHandler::endEntity()
-       events. So character data might be reported in chunks. If this feature
-       is FALSE, the parser does not report those events, but rather silently
-       substitutes the entities and reports the character data in one chunk.
-  \endlist
+    \quotefile xml/tagreader-with-features/tagreader.cpp
+    \skipto reader
+    \printline reader
+    \skipto setFeature
+    \printline setFeature
 
-  \sa feature() hasFeature()
+    (Code taken from xml/tagreader-with-features/tagreader.cpp)
+
+    \sa feature() hasFeature()
 */
 void QXmlSimpleReader::setFeature( const QString& name, bool value )
 {
@@ -2462,10 +2642,13 @@ void QXmlSimpleReader::setFeature( const QString& name, bool value )
     }
 }
 
-/*!  \reimp
-  Returns TRUE if the class has a feature named \a name; otherwise returns FALSE.
+/*!
+    \reimp
 
-  \sa setFeature() feature()
+    Returns TRUE if the class has a feature called \a name; otherwise
+    returns FALSE.
+
+    \sa setFeature() feature()
 */
 bool QXmlSimpleReader::hasFeature( const QString& name ) const
 {
@@ -2478,8 +2661,10 @@ bool QXmlSimpleReader::hasFeature( const QString& name ) const
     }
 }
 
-/*!  \reimp
-  Returns 0 since this class does not support any properties.
+/*!
+    \reimp
+
+    Returns 0 since this class does not support any properties.
 */
 void* QXmlSimpleReader::property( const QString&, bool *ok ) const
 {
@@ -2488,104 +2673,138 @@ void* QXmlSimpleReader::property( const QString&, bool *ok ) const
     return 0;
 }
 
-/*!  \reimp
-  Does nothing since this class does not support any properties.
+/*!
+    \reimp
+
+    Does nothing since this class does not support any properties.
 */
 void QXmlSimpleReader::setProperty( const QString&, void* )
 {
 }
 
-/*!  \reimp
-  Returns FALSE since this class does not support any properties.
+/*!
+    \reimp
+
+    Returns FALSE since this class does not support any properties.
 */
 bool QXmlSimpleReader::hasProperty( const QString& ) const
 {
     return FALSE;
 }
 
-/*! \reimp */
+/*!
+    \reimp
+*/
 void QXmlSimpleReader::setEntityResolver( QXmlEntityResolver* handler )
 { entityRes = handler; }
 
-/*! \reimp */
+/*!
+    \reimp
+*/
 QXmlEntityResolver* QXmlSimpleReader::entityResolver() const
 { return entityRes; }
 
-/*! \reimp */
+/*!
+    \reimp
+*/
 void QXmlSimpleReader::setDTDHandler( QXmlDTDHandler* handler )
 { dtdHnd = handler; }
 
-/*! \reimp */
+/*!
+    \reimp
+*/
 QXmlDTDHandler* QXmlSimpleReader::DTDHandler() const
 { return dtdHnd; }
 
-/*! \reimp */
+/*!
+    \reimp
+*/
 void QXmlSimpleReader::setContentHandler( QXmlContentHandler* handler )
 { contentHnd = handler; }
 
-/*! \reimp */
+/*!
+    \reimp
+*/
 QXmlContentHandler* QXmlSimpleReader::contentHandler() const
 { return contentHnd; }
 
-/*! \reimp */
+/*!
+    \reimp
+*/
 void QXmlSimpleReader::setErrorHandler( QXmlErrorHandler* handler )
 { errorHnd = handler; }
 
-/*! \reimp */
+/*!
+    \reimp
+*/
 QXmlErrorHandler* QXmlSimpleReader::errorHandler() const
 { return errorHnd; }
 
-/*! \reimp */
+/*!
+    \reimp
+*/
 void QXmlSimpleReader::setLexicalHandler( QXmlLexicalHandler* handler )
 { lexicalHnd = handler; }
 
-/*! \reimp */
+/*!
+    \reimp
+*/
 QXmlLexicalHandler* QXmlSimpleReader::lexicalHandler() const
 { return lexicalHnd; }
 
-/*! \reimp */
+/*!
+    \reimp
+*/
 void QXmlSimpleReader::setDeclHandler( QXmlDeclHandler* handler )
 { declHnd = handler; }
 
-/*! \reimp */
+/*!
+    \reimp
+*/
 QXmlDeclHandler* QXmlSimpleReader::declHandler() const
 { return declHnd; }
 
 
 
-/*! \reimp */
+/*!
+    \reimp
+*/
 bool QXmlSimpleReader::parse( const QXmlInputSource& input )
 {
     return parse( &input, FALSE );
 }
 
-/*! \reimp */
+/*!
+    \reimp
+*/
 bool QXmlSimpleReader::parse( const QXmlInputSource* input )
 {
     return parse( input, FALSE );
 }
 
 /*!
-  Reads an XML document from \a input and parses it. Returns FALSE if the
-  parsing detects an error; otherwise returns TRUE.
+    Reads an XML document from \a input and parses it. Returns FALSE
+    if the parsing detects an error; otherwise returns TRUE.
 
-  If \a incremental is TRUE, the parser does not return FALSE when it
-  reaches the end of the \a input without reaching the end of the XML
-  file. Instead it stores the state of the parser so that parsing can
-  be continued at a later stage when more data is available. You can
-  use the function parseContinue() to continue with parsing. This
-  class stores a pointer to the input source \a input and the
-  parseContinue() tries to read from that input souce. This means you
-  should not delete the input source \a input until you've finished
-  your calls to parseContinue(). If you call this function with \a
-  incremental TRUE whilst an incremental parse is in progress a new
-  parsing session will be started and the previous session lost.
+    If \a incremental is TRUE, the parser does not return FALSE when
+    it reaches the end of the \a input without reaching the end of the
+    XML file. Instead it stores the state of the parser so that
+    parsing can be continued at a later stage when more data is
+    available. You can use the function parseContinue() to continue
+    with parsing. This class stores a pointer to the input source \a
+    input and the parseContinue() tries to read from that input souce.
+    This means you should not delete the input source \a input until
+    you've finished your calls to parseContinue(). If you call this
+    function with \a incremental TRUE whilst an incremental parse is
+    in progress a new parsing session will be started and the previous
+    session lost.
 
-  If \a incremental is FALSE, this function behaves like the normal parse
-  function, i.e. it returns FALSE when the end of input is reached without
-  reaching the end of the XML file and the parsing can't be continued.
+    If \a incremental is FALSE, this function behaves like the normal
+    parse function, i.e. it returns FALSE when the end of input is
+    reached without reaching the end of the XML file and the parsing
+    cannot be continued.
 
-  \sa parseContinue() QSocket
+    \sa parseContinue() QSocket
 */
 bool QXmlSimpleReader::parse( const QXmlInputSource *input, bool incremental )
 {
@@ -2609,29 +2828,30 @@ bool QXmlSimpleReader::parse( const QXmlInputSource *input, bool incremental )
 }
 
 /*!
-  Continues incremental parsing; this function reads the input from the
-  QXmlInputSource that was specified with the last parse() command.  To use
-  this function, you \e must have called parse() with the incremental
-  argument set to TRUE.
+    Continues incremental parsing; this function reads the input from
+    the QXmlInputSource that was specified with the last parse()
+    command. To use this function, you \e must have called parse()
+    with the incremental argument set to TRUE.
 
-  Returns FALSE if a parsing error occurs; otherwise returns TRUE.
+    Returns FALSE if a parsing error occurs; otherwise returns TRUE.
 
-  If the input source returns an empty string for the function
-  QXmlInputSource::data(), then this means that the end of the XML file is
-  reached; this is quite important, especially if you want to use the reader to
-  parse more than one XML file.
+    If the input source returns an empty string for the function
+    QXmlInputSource::data(), then this means that the end of the XML
+    file has been reached; this is quite important, especially if you
+    want to use the reader to parse more than one XML file.
 
-  The case that the end of the XML file is reached without having finished the
-  parsing is not considered as an error -- you can continue parsing at a later
-  stage by calling this function again when there is more data available to
-  parse.
+    The case of the end of the XML file being reached without having
+    finished parsing is not considered to be an error: you can
+    continue parsing at a later stage by calling this function again
+    when there is more data available to parse.
 
-  This function assumes that the end of the XML document is reached if the
-  QXmlInputSource::next() function returns QXmlInputSource::EndOfDocument. If
-  the parser has not finished parsing when it encounters this symbol,
-  it is an error and FALSE is returned.
+    This function assumes that the end of the XML document is reached
+    if the QXmlInputSource::next() function returns
+    QXmlInputSource::EndOfDocument. If the parser has not finished
+    parsing when it encounters this symbol, it is an error and FALSE
+    is returned.
 
-  \sa parse() QXmlInputSource::next()
+    \sa parse() QXmlInputSource::next()
 */
 bool QXmlSimpleReader::parseContinue()
 {
@@ -6277,15 +6497,15 @@ bool QXmlSimpleReader::parseComment()
     }
 }
 
-/*!
-  Parse an Attribute [41].
+/*
+    Parse an Attribute [41].
 
-  Precondition: the head stands on the first character of the name of the
-  attribute (i.e. all whitespaces are already parsed).
+    Precondition: the head stands on the first character of the name
+    of the attribute (i.e. all whitespaces are already parsed).
 
-  The head stand on the next character after the end quotes. The variable name
-  contains the name of the attribute and the variable string contains the value
-  of the attribute.
+    The head stand on the next character after the end quotes. The
+    variable name contains the name of the attribute and the variable
+    string contains the value of the attribute.
 */
 bool QXmlSimpleReader::parseAttribute()
 {
@@ -6976,7 +7196,7 @@ bool QXmlSimpleReader::parseString()
     }
 }
 
-/*!
+/*
   This private function inserts and reports an entity substitution. The
   substituted string is \a data and the name of the entity reference is \a
   name. If \a inLiteral is TRUE, the entity is IncludedInLiteral (i.e., " and '
