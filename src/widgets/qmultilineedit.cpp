@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmultilineedit.cpp#98 $
+** $Id: //depot/qt/main/src/widgets/qmultilineedit.cpp#99 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -1825,10 +1825,10 @@ void QMultiLineEdit::mousePressEvent( QMouseEvent *m )
     stopAutoScroll();
 
     if ( m->button() == RightButton ) {
-	d->popup->setItemEnabled( d->id[ 0 ], hasMarkedText() );
+	d->popup->setItemEnabled( d->id[ 0 ], !isReadOnly() && hasMarkedText() );
 	d->popup->setItemEnabled( d->id[ 1 ], hasMarkedText() );
-	d->popup->setItemEnabled( d->id[ 2 ], (bool)QApplication::clipboard()->text().length() );
-	d->popup->setItemEnabled( d->id[ 3 ], (bool)text().length() );
+	d->popup->setItemEnabled( d->id[ 2 ], !isReadOnly() && (bool)QApplication::clipboard()->text().length() );
+	d->popup->setItemEnabled( d->id[ 3 ], !isReadOnly() && (bool)text().length() );
 	int id = d->popup->exec( m->globalPos() );
 	if ( id == d->id[ 0 ] )
 	    cut();
