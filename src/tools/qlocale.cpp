@@ -1215,6 +1215,8 @@ static const QLocalePrivate *findLocale(QLocale::Language language,
        defaults to "C".
     \endlist
 
+    The "C" locale is identical to English/UnitedStates.
+
     Use language() and country() to determine the actual language and
     country values used.
 
@@ -1228,7 +1230,7 @@ static const QLocalePrivate *findLocale(QLocale::Language language,
     This enumerated type is used to specify a language.
 
     \value DefaultLanguage The language set by setDefaultLocale()
-    \value C
+    \value C Identical to English/UnitedStates
     \value Abkhazian
     \value Afan
     \value Afar
@@ -1694,7 +1696,7 @@ QLocale::Country QLocale::country() const
 QString QLocale::languageToString(Language language)
 {
     if ((uint)language > (uint)QLocale::LastLanguage)
-    	return "Unknown";
+    	return tr("Unknown");
     return language_name_list + language_name_index[(uint)language];
 }
 
@@ -1705,7 +1707,7 @@ QString QLocale::languageToString(Language language)
 QString QLocale::countryToString(Country country)
 {
     if ((uint)country > (uint)QLocale::LastCountry)
-    	return "Unknown";
+    	return tr("Unknown");
     return country_name_list + country_name_index[(uint)country];
 }
 
