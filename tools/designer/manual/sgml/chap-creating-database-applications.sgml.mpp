@@ -447,7 +447,7 @@ bool createConnections()
 		<para>
 		Click <guimenuitem>Edit|Slots</> to invoke the Edit
 		Slots dialog. Click <guimenuitem>New Slot</>, then enter
-		the slot name <literal>primeInsertAuthor(QSqlRecord*)</>
+		the slot name \fn[primeInsertAuthor(QSqlRecord*)]
 		into the Slot Properties' Slot line edit box. Click
 		\ok.
 		</para>
@@ -762,7 +762,7 @@ bool createConnections()
 		    <para>
 		    Click <guimenuitem>Edit|Slots</>. In the Edit Slots
 		    dialog click <guimenuitem>New Slot</> and enter a slot
-		    name of 'newCurrentAuthor(QSqlRecord*)'.
+		    name of \fn[newCurrentAuthor(QSqlRecord*)].
 		    Click \ok.
 		    </para>
 		</listitem> 
@@ -1119,7 +1119,7 @@ bool createConnections()
 		We need to make a new slot to connect the Edit Books'
 		button's <function>clicked()</> signal to. Click on the Book
 		form to make it \qd's active form. Invoke the Edit Slots
-		dialog and create a new slot called 'editClicked()'. Now
+		dialog and create a new slot called \fn[editClicked()]. Now
 		click the <guibutton>Connect Signal/Slots</> toolbar button.
 		Click the Edit Books button and drag to the form; release
 		the mouse on the form. In the Edit Connections dialog
@@ -1194,7 +1194,7 @@ bool createConnections()
 	    <listitem>
 		<para> 
 		Click on the Edit Books form, then
-		create a new Slot called 'primeInsertBook(QSqlRecord*)'.
+		create a new Slot called \fn[primeInsertBook(QSqlRecord*)].
 		</para>
 		<para>
 		Click <guimenuitem>Edit|Slots</>, then click the
@@ -1296,11 +1296,11 @@ bool createConnections()
 
 	\list[1]
 	\item\p
-	Create two new slots called 'beforeUpdateBook(QSqlRecord *buffer)' and
-	'primeUpdateBook(QSqlRecord *buffer)'. (Click \menu[Edit|Slots],
-	then in the Edit Slots dialog click New Slot and enter the first
-	new slot. Click New Slot again and enter the second slot then
-	click \ok.)
+	Create two new slots called \fn[beforeUpdateBook(QSqlRecord
+	*buffer)] and \fn[primeUpdateBook(QSqlRecord *buffer)]. (Click
+	\menu[Edit|Slots], then in the Edit Slots dialog click New Slot
+	and enter the first new slot. Click New Slot again and enter the
+	second slot then click \ok.)
 	\P\Item
 
 	\item\p
