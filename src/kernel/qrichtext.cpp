@@ -3980,6 +3980,10 @@ QTextParagraph::~QTextParagraph()
 	if ( this == doc->curParag )
 	    doc->curParag = 0;
     } else {
+	if ( qFormatCollectionDict ) {
+	    QTextFormatCollection *delCol = qFormatCollectionDict->take( (void*)paintdevice );
+	    delete delCol;
+	}
 	delete pseudoDocument();
     }
     delete [] tArray;
