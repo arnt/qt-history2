@@ -4,7 +4,7 @@
 CXX	    =	g++
 CFLAGS	    =	-c -o$@ -O \
 		-I. -Igenerators -Igenerators\unix -Igenerators\win32 -Igenerators\mac -I..\include -I..\src\tools \
-		-I..\mkspecs\win32-g++ \
+		-I..\mkspecs\win32-g++ -I..\arch\i386 \
 		-DUNICODE -DQT_NO_TEXTCODEC -DQT_LITE_COMPONENT -DQT_NODLL -DQT_NO_STL -DQT_NO_COMPRESS
 CXXFLAGS    =   $(CFLAGS)
 LFLAGS	    =	
@@ -22,8 +22,8 @@ OBJS=project.o main.o makefile.o unixmake.o unixmake2.o borland_bmake.o mingw_ma
 QTOBJS=qstring.o quuid.o qtextstream.o qiodevice.o qglobal.o qgdict.o qcstring.o qdatastream.o \
  	qgarray.o qbuffer.o qglist.o qptrcollection.o qfile.o qfile_win.o qregexp.o qgvector.o \
  	qgcache.o qbitarray.o qdir.o qfileinfo_win.o qdir_win.o qfileinfo.o qdatetime.o qhash.o \
- 	qstringlist.o qmap.o qlibrary.o qlibrary_win.o qconfig.o qsettings.o qsettings_win.o qunicodetables.o qlinkedlist.o
-
+ 	qstringlist.o qmap.o qlibrary.o qlibrary_win.o qconfig.o qsettings.o qsettings_win.o qunicodetables.o qlinkedlist.o \
+	qlist.o qvector.o qbytearray.o qchar.o
 
 
 qmake.exe: $(OBJS) $(QTOBJS)
@@ -60,11 +60,11 @@ qiodevice.o: ..\src\tools\qiodevice.cpp
 qglobal.o: ..\src\tools\qglobal.cpp
 	$(CXX) $(CXXFLAGS) ..\src\tools\qglobal.cpp
 
-qgdict.o: ..\src\tools\qgdict.cpp
-	$(CXX) $(CXXFLAGS) ..\src\tools\qgdict.cpp
+qgdict.o: ..\src\compat\qgdict.cpp
+	$(CXX) $(CXXFLAGS) ..\src\compat\qgdict.cpp
 
-qcstring.o: ..\src\tools\qcstring.cpp
-	$(CXX) $(CXXFLAGS) ..\src\tools\qcstring.cpp
+qcstring.o: ..\src\compat\qcstring.cpp
+	$(CXX) $(CXXFLAGS) ..\src\compat\qcstring.cpp
 
 qstring.o: ..\src\tools\qstring.cpp
 	$(CXX) $(CXXFLAGS) ..\src\tools\qstring.cpp
@@ -75,20 +75,20 @@ quuid.o: ..\src\tools\quuid.cpp
 qdatastream.o: ..\src\tools\qdatastream.cpp
 	$(CXX) $(CXXFLAGS) ..\src\tools\qdatastream.cpp
 
-qgarray.o: ..\src\tools\qgarray.cpp
-	$(CXX) $(CXXFLAGS) ..\src\tools\qgarray.cpp
+qgarray.o: ..\src\compat\qgarray.cpp
+	$(CXX) $(CXXFLAGS) ..\src\compat\qgarray.cpp
 
 qbuffer.o: ..\src\tools\qbuffer.cpp
 	$(CXX) $(CXXFLAGS) ..\src\tools\qbuffer.cpp
 
-qglist.o: ..\src\tools\qglist.cpp
-	$(CXX) $(CXXFLAGS) ..\src\tools\qglist.cpp
+qglist.o: ..\src\compat\qglist.cpp
+	$(CXX) $(CXXFLAGS) ..\src\compat\qglist.cpp
 
 qlinkedlist.o: ..\src\tools\qlinkedlist.cpp
 	$(CXX) $(CXXFLAGS) ..\src\tools\qlinkedlist.cpp
 
-qptrcollection.o: ..\src\tools\qptrcollection.cpp
-	$(CXX) $(CXXFLAGS) ..\src\tools\qptrcollection.cpp
+qptrcollection.o: ..\src\compat\qptrcollection.cpp
+	$(CXX) $(CXXFLAGS) ..\src\compat\qptrcollection.cpp
 
 qfile.o: ..\src\tools\qfile.cpp
 	$(CXX) $(CXXFLAGS) ..\src\tools\qfile.cpp
@@ -102,11 +102,11 @@ qtextcodec.o: ..\src\codecs\qtextcodec.cpp
 qregexp.o: ..\src\tools\qregexp.cpp
 	$(CXX) $(CXXFLAGS) ..\src\tools\qregexp.cpp
 
-qgvector.o: ..\src\tools\qgvector.cpp
-	$(CXX) $(CXXFLAGS) ..\src\tools\qgvector.cpp
+qgvector.o: ..\src\compat\qgvector.cpp
+	$(CXX) $(CXXFLAGS) ..\src\compat\qgvector.cpp
 
-qgcache.o: ..\src\tools\qgcache.cpp
-	$(CXX) $(CXXFLAGS) ..\src\tools\qgcache.cpp
+qgcache.o: ..\src\compat\qgcache.cpp
+	$(CXX) $(CXXFLAGS) ..\src\compat\qgcache.cpp
 
 qbitarray.o: ..\src\tools\qbitarray.cpp
 	$(CXX) $(CXXFLAGS) ..\src\tools\qbitarray.cpp
@@ -197,3 +197,15 @@ metrowerks_xml.o: generators/mac/metrowerks_xml.cpp
 
 pbuilder_pbx.o: generators/mac/pbuilder_pbx.cpp
 	$(CXX) $(CXXFLAGS) generators/mac/pbuilder_pbx.cpp
+
+qlist.o: ..\src\tools\qlist.cpp
+	$(CXX) $(CXXFLAGS) ..\src\tools\qlist.cpp
+
+qvector.o: ..\src\tools\qvector.cpp
+	$(CXX) $(CXXFLAGS) ..\src\tools\qvector.cpp
+
+qbytearray.o: ..\src\tools\qbytearray.cpp
+	$(CXX) $(CXXFLAGS) ..\src\tools\qbytearray.cpp
+
+qchar.o: ..\src\tools\qchar.cpp
+	$(CXX) $(CXXFLAGS) ..\src\tools\qchar.cpp
