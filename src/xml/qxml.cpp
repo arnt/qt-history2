@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/xml/qxml.cpp#72 $
+** $Id: //depot/qt/main/src/xml/qxml.cpp#73 $
 **
 ** Implementation of QXmlSimpleReader and related classes.
 **
@@ -880,7 +880,7 @@ QString QXmlInputSource::data()
     QString str;
     if ( rawData!=0  && encMapper==0 ) {
 	// first call of data()
-	str = inputToString( rawData );
+	str = fromRawData( rawData );
 	return str;
     } else {
 	if ( userStringData != 0 ) {
@@ -889,14 +889,14 @@ QString QXmlInputSource::data()
 	    userStringData = 0;
 	    return str;
 	} else if ( userRawData != 0 ) {
-	    str = inputToString( userRawData );
+	    str = fromRawData( userRawData );
 	    delete userRawData;
 	    userRawData = 0;
 	    return str;
 	} else {
 	    fetchData();
 	    if ( rawData->size() > 0 ) {
-		str = inputToString( rawData );
+		str = fromRawData( rawData );
 		return str;
 	    }
 	}
@@ -940,7 +940,7 @@ void QXmlInputSource::setData( const QByteArray& dat )
     delete userRawData;
     userRawData = new QByteArray( dat );
 #else
-    str = inputToString( (QByteArray*)&dat ); // ### change the cast
+    str = fromRawData( (QByteArray*)&dat ); // ### change the cast
     pos = 0;
     length = str.length();
     nextReturnedEof = FALSE;
@@ -980,7 +980,7 @@ void QXmlInputSource::fetchData()
     }
 #if defined(XML_INPUT_SOURCE_CLASSIC)
 #else
-    str = inputToString( rawData );
+    str = fromRawData( rawData );
     pos = 0;
     length = str.length();
     nextReturnedEof = FALSE;
@@ -988,11 +988,22 @@ void QXmlInputSource::fetchData()
 }
 
 /*!
-  This private function reads the XML file from \a data and tries to
-  recoginize the encoding.
+  This function reads the XML file from \a data and tries to recoginize the
+  encoding. It converts the raw data \a data to a QString and returns it. It
+  tries the best to get the right encoding for the XML file.
+
+  If \a beginning is TRUE, this function assumes the beginning of a new XML
+  document and looks for a new encoding declaration. If \a beginning is FALSE,
+  it converts the raw data with the guess from prior calls. Specifying FALSE is
+  useful if you do incremental parsing, i.e., when one XML document is parsed
+  in chunks.
 */
-QString QXmlInputSource::inputToString( QByteArray *data )
+QString QXmlInputSource::fromRawData( QByteArray *data, bool beginning )
 {
+    if ( beginning ) {
+	delete encMapper;
+	encMapper = 0;
+    }
     if ( encMapper == 0 ) {
 	QTextCodec *codec = 0;
 	// look for byte order mark and read the first 5 characters

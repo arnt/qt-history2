@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/xml/qxml.h#34 $
+** $Id: //depot/qt/main/src/xml/qxml.h#35 $
 **
 ** Definition of QXmlSimpleReader and related classes.
 **
@@ -166,12 +166,13 @@ public:
     virtual QString data();
     virtual void setData( const QString& dat );
     virtual void setData( const QByteArray& dat );
+    virtual void fetchData();
 
-    void fetchData(); // ### is this guy really public?
+protected:
+    virtual QString fromRawData( QByteArray *data, bool beginning = FALSE );
 
 private:
     void init();
-    QString inputToString( QByteArray *data );
 
     QIODevice *inputDevice;
     QTextStream *inputStream;
