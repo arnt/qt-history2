@@ -2304,7 +2304,8 @@ QSqlRecord QOCIDriver::record( const QSqlQuery& query ) const
 	}
 #endif
 	QOCIResult* result = (QOCIResult*)query.result();
-	fil = result->fs;
+	if ( result )
+	    fil = result->fs;
     }
     return fil;
 }
@@ -2378,7 +2379,8 @@ QSqlRecordInfo QOCIDriver::recordInfo( const QSqlQuery& query ) const
 	}
 #endif
 	QOCIResult* result = (QOCIResult*)query.result();
-	result->cols->getOraFields( inf );
+	if ( result && result->cols )
+	    result->cols->getOraFields( inf );
     }
     return inf;
 }
