@@ -1,6 +1,6 @@
 <!DOCTYPE UI><UI version="3.2" stdsetdef="1">
 <class>MainWindowBase</class>
-<comment>********************************************************************* 
+<comment>*********************************************************************
 ** Copyright (C) 2000-$THISYEAR$ Trolltech AS.  All rights reserved.
 **
 ** This file is part of Qt Configuration.
@@ -134,7 +134,7 @@
                             <string>Build Palette</string>
                         </property>
                         <property name="alignment">
-                            <set>AlignAuto</set>
+                            <set>Qt::AlignAuto</set>
                         </property>
                         <hbox>
                             <property name="name">
