@@ -3541,6 +3541,7 @@ bool QPen::operator==( const QPen &p ) const
 
 QDataStream &operator<<( QDataStream &s, const QPen &p )
 {
+    // ### width() should not be restricted to 8-bit values
     if ( s.version() < 3 )
 	return s << (Q_UINT8)p.style() << (Q_UINT8)p.width() << p.color();
     else
