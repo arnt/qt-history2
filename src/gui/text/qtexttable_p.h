@@ -51,7 +51,6 @@ public:
     QList<int> rowHeight;
     inline void setDirty() { dirty = true; }
 
-    QTextPieceTable *pieceTable() const { return static_cast<QTextPieceTable *>(parent); }
 private:
     inline void setCell(int r, int c, const QTextBlockIterator &block) const
         { grid[r*nCols + c] = block.n; }

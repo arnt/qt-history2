@@ -2,12 +2,12 @@
 #include "qtextformat_p.h"
 #include "qtextblockiterator.h"
 
-class QTextFloatPrivate : public QTextGroupPrivate
+class QTextFloatPrivate : public QTextFramePrivate
 {
 };
 
 QTextFloat::QTextFloat(QObject *parent)
-    : QTextGroup(*new QTextFloatPrivate, parent)
+    : QTextFrame(*new QTextFloatPrivate, parent)
 {
 }
 

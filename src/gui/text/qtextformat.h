@@ -50,6 +50,22 @@ private:
     friend class QTextPieceTable;
 };
 
+class QTextFramePrivate;
+
+class QTextFrame : public QTextGroup
+{
+    Q_DECLARE_PRIVATE(QTextFrame);
+    Q_OBJECT
+protected:
+    QTextFrame(QObject *parent);
+    ~QTextFrame();
+    QTextFrame(QTextFramePrivate &p, QObject *parent);
+public:
+
+    QList<QTextFrame *> children();
+    QTextFrame *parent();
+};
+
 class Q_GUI_EXPORT QTextFormat
 {
     friend class QTextFormatCollection;

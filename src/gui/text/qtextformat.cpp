@@ -672,3 +672,18 @@ QList<QTextBlockIterator> QTextGroup::blockList() const
     return d->blocks;
 }
 
+
+
+QTextFrame::QTextFrame(QObject *parent)
+    : QTextGroup(*new QTextFramePrivate, parent)
+{
+}
+
+QTextFrame::~QTextFrame()
+{
+}
+
+QTextFrame::QTextFrame(QTextFramePrivate &p, QObject *parent)
+    : QTextGroup(p, parent)
+{
+}

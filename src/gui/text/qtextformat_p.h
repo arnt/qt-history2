@@ -118,6 +118,7 @@ class QTextGroupPrivate : public QObjectPrivate
 {
     Q_DECLARE_PUBLIC(QTextGroup);
 public:
+    QTextPieceTable *pieceTable() const { return collection->pieceTable; }
     QTextFormatCollection *collection;
     int index;
 
@@ -125,6 +126,13 @@ public:
     BlockList blocks;
 };
 
+class QTextFramePrivate : public QTextGroupPrivate
+{
+    Q_DECLARE_PUBLIC(QTextFrame);
+public:
+    int fragment_start;
+    int fragment_end;
+};
 
 
 #endif // QTEXTFORMAT_P_H
