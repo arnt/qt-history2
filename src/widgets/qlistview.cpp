@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#124 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#125 $
 **
 ** Implementation of QListView widget class
 **
@@ -448,6 +448,10 @@ void QListViewItem::sortChildItems( int column, bool ascending )
     if ( column == (int)lsc && ascending == (bool)lso )
 	return;
 
+    if ( column < 0 )
+	return;
+
+    debug( "s %p %d/%d %d/%d", this, column, (int)lsc, ascending, lso );
     // more dubiously - only sort if the child items "exist"
     if ( !isOpen() )
 	return;
@@ -3063,7 +3067,7 @@ void QCheckListItem::init()
 	defaultIcon = new QPixmap( def_item_xpm );
     if ( myType == Controller ) {
 	if ( !pixmap(0) )
-	    setPixmap( 0, *defaultIcon ); 
+	    setPixmap( 0, *defaultIcon );
     }
     exclusive = 0;
 }
