@@ -167,8 +167,8 @@ public:
     inline void removeFirst() { Q_ASSERT(!isEmpty()); erase( begin() ); }
     inline void removeLast() { Q_ASSERT(!isEmpty()); erase( --end() ); }
 
-    const T value(int i) const;
-    const T value(int i, const T &defaultValue) const;
+    T value(int i) const;
+    T value(int i, const T &defaultValue) const;
 
     // stl compatibility
     typedef Iterator iterator;

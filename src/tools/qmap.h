@@ -295,8 +295,8 @@ public:
     bool contains (const Key& k) const { return findNode(k) != &d->header; }
     Iterator find (const Key& k) { detach(); return findNode(k); }
     ConstIterator find (const Key& k) const { return findNode(k); }
-    const T value(const Key &key) const;
-    const T value(const Key &key, const T &defaultValue) const;
+    T value(const Key &key) const;
+    T value(const Key &key, const T &defaultValue) const;
     T& operator[] (const Key& k);
     inline const T operator[] (const Key& k) const { return value(k);}
 

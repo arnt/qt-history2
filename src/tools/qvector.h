@@ -96,8 +96,8 @@ public:
     inline T& last() { Q_ASSERT(!isEmpty()); return *(end()-1); }
     inline const T& last() const { Q_ASSERT(!isEmpty()); return *(end()-1); }
 
-    const T value(int i) const;
-    const T value(int i, const T &defaultValue) const;
+    T value(int i) const;
+    T value(int i, const T &defaultValue) const;
 
     // stl compatibility
     typedef T value_type;

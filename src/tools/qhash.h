@@ -149,8 +149,8 @@ public:
 
     void clear();
 
-    const T value(const Key &key) const;
-    const T value(const Key &key, const T &defaultValue) const;
+    T value(const Key &key) const;
+    T value(const Key &key, const T &defaultValue) const;
     QList<T> values(const Key &key) const;
     T &operator[](const Key &key);
     const T operator[](const Key &key) const;
