@@ -1038,6 +1038,8 @@ QStringList QVariant::toStringList() const
 }
 
 /*!
+  \fn QMap<QString, QVariant> QVariant::toMap () const
+    
   Returns the variant as a QMap<QString,QVariant> if the variant has type()
   Map, or an empty map otherwise.
 */
