@@ -821,7 +821,9 @@ bool WidgetFactory::isPassiveInteractor( QObject* o )
 	return TRUE;
     else if ( o->parent() && o->parent()->inherits( "QMainWindow" ) && o->inherits( "QMenuBar" ) )
 	return TRUE;
-
+    else if ( o->inherits( "QDockWindowHandle" ) )
+	return TRUE;
+    
     return FALSE;
 }
 

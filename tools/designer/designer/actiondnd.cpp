@@ -78,7 +78,7 @@ void QDesignerToolBar::reInsert()
 
 void QDesignerToolBar::childEvent( QChildEvent *e )
 {
-    if ( e->type() != QEvent::ChildInserted || !insertingAction || !e->child()->isWidgetType() ) 
+    if ( e->type() != QEvent::ChildInserted || !insertingAction || !e->child()->isWidgetType() )
 	return;
     actionMap.insert( (QWidget*)e->child(), insertingAction );
 
@@ -125,8 +125,29 @@ QPoint QDesignerToolBar::calcIndicatorPos( const QPoint &pos )
 	}
 	return pnt;
     } else {
+	QPoint pnt( 0, height() - 2 );
+	insertAnchor = 0;
+	afterAnchor = TRUE;
+	if ( !children() )
+	    return pnt;
+	pnt = QPoint( 0, 13 );
+	QObjectListIt it( *children() );
+	QObject * obj;
+	while( (obj=it.current()) != 0 ) {
+	    ++it;
+	    if ( obj->isWidgetType() &&
+		 qstrcmp( "qt_dockwidget_internal", obj->name() ) != 0 ) {
+		QWidget *w = (QWidget*)obj;
+		if ( w->y() < pos.y() ) {
+		    pnt.setY( w->y() + w->height() + 1 );
+		    insertAnchor = w;
+		    afterAnchor = TRUE;
+		}
+	    }
+	}
+	return pnt;
     }
-    
+
     return QPoint( -1, -1 );
 }
 
@@ -146,6 +167,16 @@ void QDesignerToolBar::drawIndicator( const QPoint &pos )
 	if ( lastIndicatorPos != QPoint( -1, -1 ) )
 	    p.drawLine( lastIndicatorPos.x(), 1, lastIndicatorPos.x(), height() - 1 );
     } else {
+	setWFlags( WPaintUnclipped );
+	QPainter p( this );
+	clearWFlags( WPaintUnclipped );
+	p.setPen( QPen( gray, 2 ) );
+	p.setRasterOp( XorROP );
+	if ( lastIndicatorPos != QPoint( -1, -1 ) )
+	    p.drawLine( 1, lastIndicatorPos.y(), width() - 1, lastIndicatorPos.y() );
+	lastIndicatorPos = pos;
+	if ( lastIndicatorPos != QPoint( -1, -1 ) )
+	    p.drawLine( 1, lastIndicatorPos.y(), width() - 1, lastIndicatorPos.y() );
     }
 }
 
