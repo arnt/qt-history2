@@ -160,10 +160,14 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
 	t << "OBJECTS = " << varList("OBJECTS") << endl;
     }
     t << "INTERFACES = " << varList("INTERFACES") << endl;
-    t << "UICDECLS = " << varList("UICDECLS") << endl;
-    t << "UICIMPLS = " << varList("UICIMPLS") << endl;
-    t << "SRCMOC   = " << varList("SRCMOC") << endl;
-    t << "OBJMOC = " << varList("OBJMOC") << endl;
+    QString uicDecls = varList("UICDECLS");
+    QString uicImpls = varList("UICIMPLS");
+    QString srcMoc = varList("SRCMOC");
+    QString objMoc = varList("OBJMOC");
+    t << "UICDECLS = " << uicDecls << endl;
+    t << "UICIMPLS = " << uicImpls << endl;
+    t << "SRCMOC   = " << srcMoc << endl;
+    t << "OBJMOC = " << objMoc << endl;
     t << "DIST	   = " << varList("DISTFILES") << endl;
     t << "TARGET   = " << var("TARGET") << endl;
     if(project->isActiveConfig("plugin") ) {
@@ -374,16 +378,22 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
 
     QString clean_targets;
     if(mocAware()) {
-	t << "mocclean:" << "\n\t"
-	  << "-rm -f $(OBJMOC)" << "\n\t"
-	  << "-rm -f $(SRCMOC)"
-	  << endl << endl;
-	clean_targets += " mocclean";
+	t << "mocclean:" << "\n";
+	if(!objMoc.isEmpty() || !srcMoc.isEmpty()) {
+	    if(!objMoc.isEmpty())
+		t << "\t-rm -f $(OBJMOC)" << '\n';
+	    if(!srcMoc.isEmpty())
+		t << "\t-rm -f $(SRCMOC)" << '\n';
+	    clean_targets += " mocclean";
+	}
+	    t << endl;
     }
-    t << "uiclean:" << "\n\t"
-      << "-rm -f $(UICIMPLS) $(UICDECLS)" << "\n"
-      << endl << endl;
-    clean_targets += " uiclean";
+    t << "uiclean:" << "\n";
+    if (!var("UICIMPLS").isEmpty() || !var("UICDECLS").isEmpty()) {
+	t << "\t-rm -f $(UICIMPLS) $(UICDECLS)" << "\n";
+	clean_targets += " uiclean";
+    }
+    t << endl;
 
     t << "clean:" << clean_targets << "\n\t"
       << "-rm -f $(OBJECTS) $(TARGET)" << "\n\t";
