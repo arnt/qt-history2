@@ -966,40 +966,34 @@ void QWidget::repaint( const QRegion& reg, bool erase )
 
 void QWidget::showWindow()
 {
-    if ( testWFlags(WStyle_Tool) || isPopup() ) {
-	QRect fRect = frameGeometry();
-	SetWindowPos( winId(), 0,
-		      fRect.x(), fRect.y(), fRect.width(), fRect.height(),
-		      SWP_NOACTIVATE | SWP_SHOWWINDOW );
-    }
-    else {
 #if defined(QT_NON_COMMERCIAL)
-	QT_NC_SHOW_WINDOW
+    QT_NC_SHOW_WINDOW
 #endif
-	int sm = SW_SHOW;
-	if ( isTopLevel() ) {
+    int sm = SW_SHOW;
+    if ( isTopLevel() ) {
 #ifdef Q_OS_TEMP
-//	    sm = SW_SHOWMAXIMIZED;
+	//	    sm = SW_SHOWMAXIMIZED;
 #else
-	    switch ( topData()->showMode ) {
-	    case 1:
-		sm = SW_SHOWMINIMIZED;
-		break;
-	    case 2:
-		sm = SW_SHOWMAXIMIZED;
-		break;
-	    default:
-		sm = SW_SHOW;
-		break;
-	    }
-#endif
-	    topData()->showMode = 0; // reset
+	switch ( topData()->showMode ) {
+	case 1:
+	    sm = SW_SHOWMINIMIZED;
+	    break;
+	case 2:
+	    sm = SW_SHOWMAXIMIZED;
+	    break;
+	default:
+	    sm = SW_SHOW;
+	    break;
 	}
-	ShowWindow( winId(), sm );
+#endif
+	topData()->showMode = 0; // reset
     }
+    if ( testWFlags(WStyle_Tool) || isPopup() )
+	sm |= SW_SHOWNOACTIVATE;
+    ShowWindow( winId(), sm );
+
     UpdateWindow( winId() );
 }
-
 
 /*
   \internal
