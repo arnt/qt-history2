@@ -299,7 +299,6 @@ QString Ui3Reader::fixActionProperties(QList<DomProperty*> &properties,
                                        bool isActionGroup)
 {
     QString objectName;
-    QString text;
 
     QListMutableIterator<DomProperty*> it(properties);
     while (it.hasNext()) {
@@ -312,15 +311,12 @@ QString Ui3Reader::fixActionProperties(QList<DomProperty*> &properties,
             DomString *str = new DomString();
             str->setText(objectName);
             prop->setElementString(str);
-        } else if (name == QLatin1String("menuText")) {
-            text = toString(prop->elementString());
-            it.remove();
-            delete prop;
-        } else if (name == QLatin1String("text")) {
-            if (text.isEmpty())
-                text = toString(prop->elementString());
-            it.remove();
-            delete prop;
+        } else if (name == QLatin1String("menuText")
+                || name == QLatin1String("text")) {
+            if (isActionGroup) {
+                delete prop;
+                it.remove();
+            }
         } else if (name == QLatin1String("iconSet")) {
             prop->setAttributeName("icon");
         } else if (name == QLatin1String("accel")) {
@@ -334,15 +330,6 @@ QString Ui3Reader::fixActionProperties(QList<DomProperty*> &properties,
             delete prop;
             it.remove();
         }
-    }
-
-    if (!isActionGroup && text.size()) {
-        DomProperty *ptext = new DomProperty();
-        ptext->setAttributeName("text");
-        DomString *str = new DomString();
-        str->setText(text);
-        ptext->setElementString(str);
-        properties.append(ptext);
     }
 
     return objectName;
