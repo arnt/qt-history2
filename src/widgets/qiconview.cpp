@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qiconview.cpp#31 $
+** $Id: //depot/qt/main/src/widgets/qiconview.cpp#32 $
 **
 ** Definition of QIconView widget class
 **
@@ -155,8 +155,7 @@ void QIconViewItemLineEdit::keyPressEvent( QKeyEvent *e )
     if ( e->key()  == Key_Escape ) {
 	item->QIconViewItem::setText( startText );
 	emit escapePressed();
-    }
-    else if ( e->key() == Key_Enter ||
+    } else if ( e->key() == Key_Enter ||
 	      e->key() == Key_Return )
 	emit returnPressed();
     else
@@ -2651,10 +2650,10 @@ void QIconView::drawDragShape( const QPoint &pos )
 }
 
 /*!
-  Returns the number of the items, which the drag of \a e contains. This should
-  be reimplemented in subclasses, so that it works for all accepted drags.
-
-  \sa QFileIconView::dragItems()
+  This methode is called before a drag is started to initialize everything. Subclasses
+  may reimplement this methode to gain big flexibility.
+  
+  \sa QFileIconView::initDrag()
 */
 
 void QIconView::initDrag( QDropEvent *e )

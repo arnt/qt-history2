@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qiconview.h#16 $
+** $Id: //depot/qt/main/src/widgets/qiconview.h#17 $
 **
 ** Definition of QIconView widget class
 **
@@ -59,7 +59,7 @@ class QIconViewItemLineEdit;
  *
  *****************************************************************************/
 
-class QIconDragItem
+class Q_EXPORT QIconDragItem
 {
 public:
     QIconDragItem();
@@ -88,7 +88,7 @@ protected:
  *
  *****************************************************************************/
 
-class QIconDrag : public QDragObject
+class Q_EXPORT QIconDrag : public QDragObject
 {
     Q_OBJECT
 
@@ -120,7 +120,7 @@ protected:
  *
  *****************************************************************************/
 
-class QIconViewItem : public QObject
+class Q_EXPORT QIconViewItem : public QObject
 {
     friend class QIconView;
 
@@ -227,7 +227,7 @@ protected:
  *
  *****************************************************************************/
 
-class QIconView : public QScrollView
+class Q_EXPORT QIconView : public QScrollView
 {
     friend class QIconViewItem;
     friend struct QIconViewPrivate;
