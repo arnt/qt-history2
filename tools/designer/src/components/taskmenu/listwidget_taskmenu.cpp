@@ -60,7 +60,7 @@ void ListWidgetTaskMenu::editItems()
 
     Q_ASSERT(m_listWidget != 0);
 
-    ListWidgetEditor dlg(m_listWidget->window());
+    ListWidgetEditor dlg(m_formWindow, m_listWidget->window());
     dlg.fillContentsFromListWidget(m_listWidget);
     if (dlg.exec() == QDialog::Accepted) {
         m_listWidget->clear();

@@ -12,12 +12,21 @@
 ****************************************************************************/
 
 #include "listwidgeteditor.h"
+#include <findicondialog.h>
+#include <iconloader.h>
+#include <abstracticoncache.h>
+#include <abstractformeditor.h>
+#include <abstractformwindow.h>
+#include <QtCore/QDir>
 #include <QtCore/qdebug.h>
 
-ListWidgetEditor::ListWidgetEditor(QWidget *parent)
+ListWidgetEditor::ListWidgetEditor(AbstractFormWindow *form, QWidget *parent)
     : QDialog(parent)
 {
     ui.setupUi(this);
+    m_form = form;
+    ui.deleteButton->setIcon(createIconSet("editdelete.png"));
+    ui.deleteButton->setEnabled(false);
 }
 
 ListWidgetEditor::~ListWidgetEditor()
@@ -77,7 +86,7 @@ void ListWidgetEditor::on_listWidget_currentRowChanged(int currentRow)
 
     ui.itemTextLineEdit->setText(text);
     ui.previewButton->setIcon(icon);
-
+    ui.deleteButton->setEnabled(!icon.isNull());
     ui.itemTextLineEdit->selectAll();
     ui.itemTextLineEdit->setFocus();
 }
@@ -88,6 +97,50 @@ void ListWidgetEditor::on_itemTextLineEdit_textChanged(const QString &text)
     if (currentRow != -1) {
         QListWidgetItem *item = ui.listWidget->item(currentRow);
         item->setText(text);
+    }
+}
+
+void ListWidgetEditor::on_deleteButton_clicked()
+{
+    int currentRow = ui.listWidget->currentRow();
+    if (currentRow == -1)
+        return;
+    QListWidgetItem *item = ui.listWidget->item(currentRow);
+
+    item->setIcon(QIcon());
+    ui.previewButton->setIcon(QIcon());
+    ui.deleteButton->setEnabled(false);
+}
+
+void ListWidgetEditor::on_previewButton_clicked()
+{
+    int currentRow = ui.listWidget->currentRow();
+    if (currentRow == -1)
+        return;
+    QListWidgetItem *item = ui.listWidget->item(currentRow);
+    
+    FindIconDialog dialog(m_form, 0);
+    QString file_path;
+    QString qrc_path;
+    
+    QIcon icon = item->icon();
+    if (icon.isNull()) {
+        file_path = m_form->absolutePath(QString()) + QDir::separator();
+    } else {
+        file_path = m_form->core()->iconCache()->iconToFilePath(icon);
+        qrc_path = m_form->core()->iconCache()->iconToQrcPath(icon);
+    }
+
+    dialog.setPaths(qrc_path, file_path);
+    if (dialog.exec()) {
+        file_path = dialog.filePath();
+        qrc_path = dialog.qrcPath();
+        if (!file_path.isEmpty()) {
+            icon = m_form->core()->iconCache()->nameToIcon(file_path, qrc_path);
+            item->setIcon(icon);
+            ui.previewButton->setIcon(icon);
+            ui.deleteButton->setEnabled(!icon.isNull());
+        }
     }
 }
 

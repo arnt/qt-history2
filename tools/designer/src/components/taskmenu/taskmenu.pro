@@ -7,6 +7,7 @@ INCLUDEPATH += \
     ../../lib/sdk \
     ../../lib/extension \
     ../../lib/shared \
+    ../../lib
 
 TARGET = taskmenu
 

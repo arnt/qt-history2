@@ -18,12 +18,13 @@
 
 class QListWidget;
 class QComboBox;
+class AbstractFormWindow;
 
 class ListWidgetEditor: public QDialog
 {
     Q_OBJECT
 public:
-    ListWidgetEditor(QWidget *parent);
+    ListWidgetEditor(AbstractFormWindow *form, QWidget *parent);
     virtual ~ListWidgetEditor();
 
     void fillContentsFromListWidget(QListWidget *listWidget);
@@ -38,9 +39,12 @@ private slots:
     void on_deleteItemButton_clicked();
     void on_listWidget_currentRowChanged(int currentRow);
     void on_itemTextLineEdit_textChanged(const QString &text);
+    void on_previewButton_clicked();
+    void on_deleteButton_clicked();
 
 private:
     Ui::ListWidgetEditor ui;
+    AbstractFormWindow *m_form;
 };
 
 #endif // LISTWIDGETEDITOR_H
