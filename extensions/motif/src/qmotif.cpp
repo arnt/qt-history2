@@ -332,7 +332,7 @@ Boolean qmotif_event_dispatcher( XEvent *event )
 	    xw = XtParent(xw);
 	}
 
-	if (qw && !qw->hasFocus() && (qw->focusPolicy() & QWidget::ClickFocus))
+	if (qw && !qw->hasFocus() && (qw->focusPolicy() & Qt::ClickFocus))
 	    qw->setFocus();
     }
 
@@ -460,8 +460,6 @@ void QMotif::appStartingUp()
     int argc;
     if ( ! display_found ) {
 	argc = qApp->argc();
-	qDebug("XtDisplayInitialize: %p %p %s",
-	       d->appContext, QX11Info::appDisplay(), qApp->objectName());
 	XtDisplayInitialize( d->appContext,
 			     QX11Info::appDisplay(),
 			     qApp->objectName(),

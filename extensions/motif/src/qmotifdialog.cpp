@@ -239,7 +239,7 @@ public:
 */
 QMotifDialog::QMotifDialog( DialogType dialogtype, Widget parent,
 			    ArgList args, Cardinal argcount,
-			    const char *name, bool modal, WFlags flags )
+			    const char *name, bool modal, Qt::WFlags flags )
     : QDialog( 0, name, modal, flags )
 {
     init( parent, args, argcount );
@@ -345,7 +345,7 @@ QMotifDialog::QMotifDialog( DialogType dialogtype, Widget parent,
     \sa shell() dialog()
 */
 QMotifDialog::QMotifDialog( Widget parent, ArgList args, Cardinal argcount,
-			    const char *name, bool modal, WFlags flags )
+			    const char *name, bool modal, Qt::WFlags flags )
     : QDialog( 0, name, modal, flags )
 {
     init( parent, args, argcount );
@@ -363,7 +363,7 @@ QMotifDialog::QMotifDialog( Widget parent, ArgList args, Cardinal argcount,
 
     \sa shell()
 */
-QMotifDialog::QMotifDialog( Widget parent, const char *name, bool modal, WFlags flags )
+QMotifDialog::QMotifDialog( Widget parent, const char *name, bool modal, Qt::WFlags flags )
     : QDialog( 0, name, modal, flags )
 {
     init( parent );
@@ -391,7 +391,7 @@ QMotifDialog::QMotifDialog( Widget parent, const char *name, bool modal, WFlags 
     \sa shell() dialog()
 */
 QMotifDialog::QMotifDialog( QWidget *parent, const char *name,
-			    bool modal, WFlags flags )
+			    bool modal, Qt::WFlags flags )
     : QDialog( parent, name, modal, flags )
 {
     init();
@@ -490,7 +490,7 @@ void QMotifDialog::show()
     // tell motif about modality
     Arg args[1];
     XtSetArg( args[0], XmNdialogStyle,
-	      ( testWFlags(WShowModal) ? XmDIALOG_FULL_APPLICATION_MODAL :
+	      ( testWFlags(Qt::WShowModal) ? XmDIALOG_FULL_APPLICATION_MODAL :
 		XmDIALOG_MODELESS ) );
     XtSetValues( d->shell, args, 1 );
 

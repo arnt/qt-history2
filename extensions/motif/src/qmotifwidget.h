@@ -31,7 +31,7 @@ class QMotifWidget : public QWidget
 
 public:
     QMotifWidget( QWidget *, WidgetClass, ArgList = NULL, Cardinal = 0,
-                  const char * = 0, WFlags = 0 );
+                  const char * = 0, Qt::WFlags = 0 );
     virtual ~QMotifWidget();
 
     Widget motifWidget() const;

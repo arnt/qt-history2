@@ -47,15 +47,15 @@ public:
     // obsolete
     QMotifDialog( DialogType dialogtype,
 		  Widget parent, ArgList args = NULL, Cardinal argcount = 0,
-		  const char *name = 0, bool modal = FALSE, WFlags flags = 0 );
+		  const char *name = 0, bool modal = FALSE, Qt::WFlags flags = 0 );
     // obsolete
     QMotifDialog( Widget parent, ArgList args = NULL, Cardinal argcount = 0,
-		  const char *name = 0, bool modal = FALSE, WFlags flags = 0 );
+		  const char *name = 0, bool modal = FALSE, Qt::WFlags flags = 0 );
 
     QMotifDialog( Widget parent, const char *name = 0,
-		  bool modal = FALSE, WFlags flags = 0 );
+		  bool modal = FALSE, Qt::WFlags flags = 0 );
     QMotifDialog( QWidget *parent, const char *name = 0,
-		  bool modal = FALSE, WFlags flags = 0 );
+		  bool modal = FALSE, Qt::WFlags flags = 0 );
 
     virtual ~QMotifDialog();
 

@@ -313,10 +313,10 @@ public:
 */
 QMotifWidget::QMotifWidget( QWidget *parent, WidgetClass widgetclass,
 			    ArgList args, Cardinal argcount,
-			    const char *name, WFlags flags )
+			    const char *name, Qt::WFlags flags )
     : QWidget( *(new QMotifWidgetPrivate), parent, flags )
 {
-    setFocusPolicy( StrongFocus );
+    setFocusPolicy( Qt::StrongFocus );
 
     Widget motifparent = NULL;
     if ( parent ) {
@@ -591,7 +591,7 @@ void qmotif_widget_shell_change_managed( Widget w )
 	// ### the motif widget, otherwise use the size from the
 	// ### parent widget (i.e. we are in a layout)"
 	if ((! widget->isTopLevel() && widget->parentWidget() && widget->parentWidget()->layout())
-	    || widget->testAttribute(QWidget::WA_Resized)) {
+	    || widget->testAttribute(Qt::WA_Resized)) {
 	    // the widget is most likely resized a) by a layout or b) explicitly
 	    XtMoveWidget( w, x.x(), x.y() );
 	    XtResizeWidget( w, x.width(), x.height(), 0 );
