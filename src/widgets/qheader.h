@@ -83,6 +83,7 @@ public:
     bool isResizeEnabled( int section = -1 ) const;
     bool isMovingEnabled() const;
 
+    void 	resize( int w, int h);
     void 	resizeSection( int section, int s );
     int		sectionSize( int section ) const;
     int		sectionPos( int section ) const;
@@ -144,7 +145,8 @@ private:
     int		pHeight( int i ) const;
     void	setPHeight( int i, int h );
     int 	findLine( int );
-
+    bool reverse() const;
+    
     void	handleColumnResize(int, int, bool);
 
     int		offs;

@@ -42,6 +42,7 @@
 #include "qpixmap.h"
 #include "qbitarray.h"
 #include "qvector.h"
+#include "qapplication.h"
 
 static const int GRIPMARGIN  = 4;		//half the size of the resize area
 static const int MARKSIZE = 32;
@@ -82,6 +83,7 @@ struct QHeaderData
 	sortColumn = -1;
 	sortDirection = TRUE;
 	positionsDirty = TRUE;
+	lastPos = 0;
     }
 
 
@@ -99,17 +101,18 @@ struct QHeaderData
     uint clicks_default : 1; // default value for new clicks bits
     uint resize_default : 1; // default value for new resize bits
     bool sortDirection;
+    bool positionsDirty;
     int sortColumn;
     int count;
-    bool positionsDirty;
-
+    int lastPos;
+    
     void calculatePositions(){
 	// positions is sorted by index, not by section
 	positionsDirty = FALSE;
-	int p = 0;
+	lastPos = 0;
 	for ( int i = 0; i < count; i++ ) {
-	    positions[i] = p;
-	    p +=sizes[i2s[i]];
+	    positions[i] = lastPos;
+	    lastPos +=sizes[i2s[i]];
 	}
     }
     int sectionAt( int pos ) {
@@ -302,7 +305,7 @@ int QHeader::cellSize( int i ) const
 int QHeader::cellPos( int i ) const
 {
     if ( i == count() && i > 0 )
-	return d->positions[i-1] + d->sizes[d->i2s[i-1]]; // compatibility
+	return  d->positions[i-1] + d->sizes[d->i2s[i-1]]; // compatibility
     return sectionPos( mapToSection(i) );
 }
 
@@ -517,6 +520,8 @@ void QHeader::mousePressEvent( QMouseEvent *e )
     handleIdx = 0;
     int c = orient == Horizontal ? e->pos().x() : e->pos().y();
     c += offset();
+    if( reverse() ) 
+	c = width() - c;
 
     int section = sectionAt( c );
     if ( section < 0 )
@@ -563,6 +568,8 @@ void QHeader::mouseReleaseEvent( QMouseEvent *e )
     case Sliding: {
 	int c = orient == Horizontal ? e->pos().x() : e->pos().y();
 	c += offset();
+	if( reverse() ) 
+	    c = width() - c;
 	handleColumnResize( handleIdx, c, TRUE );
 	} break;
     case Moving: {
@@ -606,6 +613,9 @@ void QHeader::mouseMoveEvent( QMouseEvent *e )
     int c = orient == Horizontal ? e->pos().x() : e->pos().y();
     c += offset();
 
+    if( reverse() ) 
+	c = width() - c;
+    
     switch( state ) {
     case Idle:
 	hit = FALSE;
@@ -687,7 +697,9 @@ void QHeader::handleColumnResize( int index, int c, bool final )
     d->calculatePositions();
 
     int pos = d->positions[index]-offset();
-    if ( orient == Horizontal )
+    if( reverse() ) // repaint the whole thing. Could be optimized (lars)
+	repaint( 0, 0, width(), height() );
+    else if ( orient == Horizontal )
 	repaint( pos, 0, width() - pos, height() );
     else
 	repaint( 0, pos, width(), height() - pos );
@@ -709,7 +721,9 @@ QRect QHeader::sRect( int index )
     if ( section < 0 )
 	return rect(); // ### eeeeevil
 
-    if ( orient == Horizontal )
+    if ( reverse() )
+	return QRect(  width() - d->positions[index] - d->sizes[index] -offset(), 0, d->sizes[section], height() );
+    else if ( orient == Horizontal )
 	return QRect(  d->positions[index]-offset(), 0, d->sizes[section], height() );
     else
 	return QRect( 0, d->positions[index]-offset(), width(), d->sizes[section] );
@@ -957,14 +971,19 @@ void QHeader::setOffset( int x )
  */
 int QHeader::pPos( int i ) const
 {
+    int pos;
     if ( i == count() )
-	return d->positions[i-1] + d->sizes[ d->i2s[i-1] ] - offset();
-    return d->positions[i] - offset();
+	pos = d->positions[i-1] + d->sizes[ d->i2s[i-1] ];
+    else
+	pos = d->positions[i];
+    if ( reverse() )
+	pos = d->lastPos - pos;
+    return pos - offset();
 }
 
 
 /*!
-  Returns the size of actual section \a i.
+  Returns the size of actual section at index \a i.
  */
 int QHeader::pSize( int i ) const
 {
@@ -1231,6 +1250,8 @@ void QHeader::paintSectionLabel( QPainter *p, int index, const QRect& fr )
     int arrowHeight = fr.height() - 6;
     int tw = p->fontMetrics().width( s ) + 16;
     if ( d->sortColumn == section && pw + tw + arrowWidth + 2 < fr.width() ) {
+	if( reverse() )
+	    tw = fr.width() - tw - arrowWidth;
 	p->save();
 	if ( d->sortDirection ) {
 	    QPointArray pa( 3 );
@@ -1273,14 +1294,25 @@ void QHeader::paintEvent( QPaintEvent *e )
 	    return;
 	else
 	    id = 0;
-    for ( int i = id; i < count(); i++ ) {
-	QRect r = sRect( i );
-	paintSection( &p, i, r );
-	if ( orient == Horizontal && r. right() >= e->rect().right() ||
-	     orient == Vertical && r. bottom() >= e->rect().bottom() )
-	    return;
+    int start = id;
+    int last = count();
+    if ( reverse() ) {
+	for ( int i = count()-1; i >= id; i-- ) {
+	    QRect r = sRect( i );
+	    paintSection( &p, i, r );
+	    if ( orient == Horizontal && r. right() >= e->rect().right() ||
+		 orient == Vertical && r. bottom() >= e->rect().bottom() )
+		return;
+	}
+    } else {
+	for ( int i = id; i < count(); i++ ) {
+	    QRect r = sRect( i );
+	    paintSection( &p, i, r );
+	    if ( orient == Horizontal && r. right() >= e->rect().right() ||
+		 orient == Vertical && r. bottom() >= e->rect().bottom() )
+		return;
+	}
     }
-
 }
 
 /*!
@@ -1308,11 +1340,7 @@ void QHeader::setSortIndicator( int section, bool increasing )
 
 void QHeader::resizeSection( int section, int s )
 {
-    if ( section < 0 || section >= count() )
-	return;
-    d->sizes[ section ] = s;
-    if ( isUpdatesEnabled() )
-	d->calculatePositions();
+    setCellSize( section, s );
     update();
 }
 
@@ -1468,6 +1496,19 @@ void QHeader::setUpdatesEnabled( bool enable )
 	d->calculatePositions();
     QWidget::setUpdatesEnabled( enable );
 }
+
+
+bool QHeader::reverse () const {
+    return ( orient == Qt::Horizontal && QApplication::reverseLayout() );
+}
+
+void QHeader::resize( int w, int h)
+{
+    QWidget::resize( w, h );
+    if( reverse() )
+	d->calculatePositions();
+}
+
 
 //#### what about lastSectionCoversAll?
 #endif // QT_NO_HEADER
