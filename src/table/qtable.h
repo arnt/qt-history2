@@ -97,6 +97,7 @@ public:
     int numCols() const;
 
     bool isActive() const { return active; }
+    bool isEmpty() const { return numRows() == 0; }
 
 private:
     uint active : 1;
