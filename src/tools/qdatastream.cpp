@@ -88,7 +88,7 @@
     char   *str;
     Q_INT32 a;
     s >> str >> a;				// "the answer is" and 42
-    delete str;					// delete string
+    delete[] str;				// delete string
   \endcode
 
   In the last example, if you read into a QString instead of a \c char*
