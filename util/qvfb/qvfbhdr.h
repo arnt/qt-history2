@@ -1,7 +1,8 @@
 
 #include <qcolor.h>
 
-#define QT_VFB_MOUSE_PIPE "/tmp/.qtvfb_mouse"
+#define QT_VFB_MOUSE_PIPE	"/tmp/.qtvfb_mouse"
+#define QT_VFB_KEYBOARD_PIPE	"/tmp/.qtvfb_keyboard"
 
 struct QVFbHeader
 {
@@ -16,4 +17,10 @@ struct QVFbHeader
     bool dirty;
 };
 
+struct QVFbKeyData
+{
+    unsigned int unicode;
+    bool press;
+    bool repeat;
+};
 

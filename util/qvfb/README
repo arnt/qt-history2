@@ -17,9 +17,6 @@ To use the virtual framebuffer:
 3. Start a Qt/Embedded server (i.e. construct QApplication with
    QApplication::GuiServer flag).
 
-Note: since keyboard support is not available yet you should run the server
-      with -nokeyboard to prevent your keyboard from being rendered unuseable.
-
 Remember to kill the Qt/Embedded applications before exiting qvfb.
 
 qvfb supports the following command line options:

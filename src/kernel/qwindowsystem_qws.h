@@ -86,9 +86,16 @@ class MouseHandler : public QObject {
     Q_OBJECT
 public:
     MouseHandler();
-    ~MouseHandler();
+    virtual ~MouseHandler();
 signals:
     void mouseChanged(const QPoint& pos, int bstate);
+};
+
+class QWSKeyboardHandler : public QObject {
+    Q_OBJECT
+public:
+    QWSKeyboardHandler();
+    virtual ~QWSKeyboardHandler();
 };
 
 /*********************************************************************
@@ -151,6 +158,9 @@ public:
 
     void openMouse();
     void closeMouse();
+    
+    void openKeyboard();
+    void closeKeyboard();
 
     void refresh();
     void enablePainting(bool);
@@ -167,9 +177,6 @@ public:
     static void closedown();
 
     static void emergency_cleanup();
-    
-    void openKeyboard();
-    void closeKeyboard();
     
 
 private:
@@ -196,7 +203,7 @@ private:
     void invokeGrabMouse( QWSGrabMouseCommand *cmd, QWSClient *client );
 
     MouseHandler* newMouseHandler(const QString& spec);
-
+    QWSKeyboardHandler* newKeyboardHandler(const QString& spec);
 
     void openDisplay();
     void closeDisplay();
@@ -210,8 +217,6 @@ private slots:
     void clientClosed();
     void doClient();
     void setMouse(const QPoint& pos,int bstate);
-
-    void readKeyboardData();
 
 private:
     void doClient( QWSClient * );
@@ -249,6 +254,7 @@ private:
     QRegion dirtyBackground;
     bool disablePainting;
     QList<MouseHandler> mousehandlers;
+    QList<QWSKeyboardHandler> keyboardhandlers;
     QImage bgImage;
 
     QList<QWSCommandStruct> commandQueue;

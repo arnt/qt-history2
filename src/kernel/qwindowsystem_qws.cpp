@@ -1296,7 +1296,7 @@ void QWSServer::openMouse()
 #else
 	mice = "MouseMan:/dev/mouse";
 #endif
-	qDebug("Assuming %s", mice.latin1() );
+	qDebug("Assuming mouse %s", mice.latin1() );
     }
     closeMouse();
     QStringList mouse = QStringList::split(" ",mice);
@@ -1305,6 +1305,41 @@ void QWSServer::openMouse()
 	connect(mh, SIGNAL(mouseChanged(const QPoint&,int)),
 	    this, SLOT(setMouse(const QPoint&,int)));
 	mousehandlers.append(mh);
+    }
+}
+
+QWSKeyboardHandler::QWSKeyboardHandler()
+{
+}
+
+QWSKeyboardHandler::~QWSKeyboardHandler()
+{
+}
+
+void QWSServer::closeKeyboard()
+{
+    keyboardhandlers.setAutoDelete(TRUE);
+    keyboardhandlers.clear();
+}
+
+void QWSServer::openKeyboard()
+{
+    QString keyboards = getenv("QWS_KEYBOARD");
+    if ( keyboards.isEmpty() ) {
+#ifdef __MIPSEL__
+	keyboards = "Buttons";
+#elif defined(QWS_VFB)
+	keyboards = "QVFbKeyboard";
+#else
+	keyboards = "TTY";
+#endif
+	qDebug("Assuming keyboard %s", keyboards.latin1() );
+    }
+    closeKeyboard();
+    QStringList keyboard = QStringList::split(" ",keyboards);
+    for (QStringList::Iterator k=keyboard.begin(); k!=keyboard.end(); ++k) {
+	QWSKeyboardHandler* kh = newKeyboardHandler(*k);
+	keyboardhandlers.append(kh);
     }
 }
 
@@ -1430,6 +1465,11 @@ void QWSServer::closedown()
 }
 
 
+void QWSServer::emergency_cleanup()
+{
+    if ( qwsServer )
+	qwsServer->closeKeyboard();
+}
 
 
 static QWSServer::KeyboardFilter *keyFilter;

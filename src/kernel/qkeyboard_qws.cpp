@@ -1,6 +1,24 @@
+/****************************************************************************
+** $Id: //depot/qt/qws/util/qws/qws.cpp#4 $
+**
+** Implementation of Qt/Embedded keyboard drivers
+**
+** Created : 991025
+**
+** Copyright (C) 1992-2000 Troll Tech AS.  All rights reserved.
+**
+** This file is part of the Qt GUI Toolkit Professional Edition.
+**
+** Licensees holding valid Qt Professional Edition licenses may use this
+** file in accordance with the Qt Professional Edition License Agreement
+** provided with the Qt Professional Edition.
+**
+** See http://www.troll.no/pricing.html or email sales@troll.no for
+** information about the Professional Edition licensing.
+**
+*****************************************************************************/
+
 #include "qwindowsystem_qws.h"
-#include "qwsevent.h"
-#include "qwscommand.h"
 #include "qwsutils.h"
 #include "qgfx.h"
 
@@ -9,7 +27,6 @@
 
 #include <stdlib.h>
 #include <stdio.h>
-
 
 #include <sys/ioctl.h>
 #include <sys/types.h>
@@ -25,23 +42,96 @@
 
 #define VTSWITCHSIG SIGUSR2
 
-#ifdef __MIPSEL__
-static const char *terminalName = "/dev/buttons";
-#else
-static const char *terminalName = "/dev/tty";
-#endif
-
 static QWSServer *server;
 
-
-static int kbdFD = -1;
-static struct termios origTermData;
-static QSocketNotifier *kbNotifier = 0;
 static bool vtActive = true;
 static int  vtQws = 0;
+static int  kbdFD = -1;
+
+class QWSTtyKeyboardHandler : public QWSKeyboardHandler
+{
+    Q_OBJECT
+public:
+    QWSTtyKeyboardHandler();
+    virtual ~QWSTtyKeyboardHandler();
+
+private slots:
+    void readKeyboardData();
+
+private:
+    QString terminalName;
+    QSocketNotifier *notifier;
+    struct termios origTermData;
+};
+
+class QWSVr41xxButtonsHandler : public QWSKeyboardHandler
+{
+    Q_OBJECT
+public:
+    QWSVr41xxButtonsHandler();
+    virtual ~QWSVr41xxButtonsHandler();
+
+    bool isOpen() { return buttonFD > 0; }
+
+private slots:
+    void readKeyboardData();
+
+private:
+    QString terminalName;
+    int buttonFD;
+    QSocketNotifier *notifier;
+};
+
+class QWSVFbKeyboardHandler : public QWSKeyboardHandler
+{
+    Q_OBJECT
+public:
+    QWSVFbKeyboardHandler();
+    virtual ~QWSVFbKeyboardHandler();
+
+    bool isOpen() { return kbdFD > 0; }
+
+private slots:
+    void readKeyboardData();
+
+private:
+    QString terminalName;
+    int kbdFD;
+    int kbdIdx;
+    int kbdBufferLen;
+    unsigned char *kbdBuffer;
+    QSocketNotifier *notifier;
+};
 
 
-// ###### This is a gross hack to get some keyboard stuff working before Monday
+void vtSwitchHandler(int /*sig*/)
+{
+    if (vtActive) {
+	server->enablePainting(false);
+	qt_screen->save();
+	if (ioctl(kbdFD, VT_RELDISP, 1) == 0) {
+	    vtActive = false;
+	    server->closeMouse();
+	}
+	else {
+	    server->enablePainting(true);
+	}
+	usleep(200000);
+    }
+    else {
+	if (ioctl(kbdFD, VT_RELDISP, VT_ACKACQ) == 0) {
+	    server->enablePainting(true);
+	    vtActive = true;
+	    qt_screen->restore();
+	    server->openMouse();
+	    server->refresh();
+	}
+    }
+
+    signal(VTSWITCHSIG, vtSwitchHandler);
+}
+
+
 static const QWSServer::KeyMap keyM[] = {
     {	Qt::Key_unknown,	0xffff  , 0xffff  , 0xffff  },
     {	Qt::Key_Escape,		27      , 27      , 0xffff  },
@@ -142,58 +232,29 @@ const QWSServer::KeyMap *QWSServer::keyMap()
     return keyM;
 }
 
-void vtSwitchHandler(int /*sig*/)
+
+/*
+ * Standard keyboard
+ */
+
+QWSTtyKeyboardHandler::QWSTtyKeyboardHandler() : QWSKeyboardHandler()
 {
-    if (vtActive) {
-	server->enablePainting(false);
-	qt_screen->save();
-	if (ioctl(kbdFD, VT_RELDISP, 1) == 0) {
-	    vtActive = false;
-	    server->closeMouse();
-	}
-	else {
-	    server->enablePainting(true);
-	}
-	usleep(200000);
-    }
-    else {
-	if (ioctl(kbdFD, VT_RELDISP, VT_ACKACQ) == 0) {
-	    server->enablePainting(true);
-	    vtActive = true;
-	    qt_screen->restore();
-	    server->openMouse();
-	    server->refresh();
-	}
-    }
-
-    signal(VTSWITCHSIG, vtSwitchHandler);
-}
-
-
-void QWSServer::openKeyboard()
-{
-    if (kbdFD > 0)
-	closeKeyboard();
+    terminalName = "/dev/tty";
+    kbdFD = -1;
+    notifier = 0;
 
     if ((kbdFD = open(terminalName, O_RDWR | O_NDELAY, 0)) < 0)
     {
-	printf("Cannot open %s\n", terminalName);
+	printf("Cannot open %s\n", terminalName.latin1() );
     }
 
-#ifndef __MIPSEL__
     // save for restore.
     tcgetattr( kbdFD, &origTermData );
 
     struct termios termdata;
     tcgetattr( kbdFD, &termdata );
 
-    // the X way -- mess up the keyboard
-
- #if USE_MEDIUMRAW_KBD
-    ioctl(kbdFD, KDSKBMODE, K_MEDIUMRAW);
- #else
     ioctl(kbdFD, KDSKBMODE, K_RAW);
- #endif
 
     termdata.c_iflag = (IGNPAR | IGNBRK) & (~PARMRK) & (~ISTRIP);
     termdata.c_oflag = 0;
@@ -220,27 +281,15 @@ void QWSServer::openKeyboard()
     ioctl(kbdFD, VT_GETSTATE, &vtStat);
     vtQws = vtStat.v_active;
 
-#endif
-
     if ( kbdFD >= 0 ) {
-	kbNotifier = new QSocketNotifier( kbdFD, QSocketNotifier::Read, this );
-	connect( kbNotifier, SIGNAL(activated(int)),this, 
+	notifier = new QSocketNotifier( kbdFD, QSocketNotifier::Read, this );
+	connect( notifier, SIGNAL(activated(int)),this, 
 		 SLOT(readKeyboardData()) );
     }
-
-    server = this;
 }
 
-void QWSServer::closeKeyboard()
+QWSTtyKeyboardHandler::~QWSTtyKeyboardHandler()
 {
-    emergency_cleanup();
-    delete kbNotifier;
-}
-
-
-void QWSServer::emergency_cleanup()
-{
-#ifndef __MIPSEL__
     if (kbdFD >= 0)
     {
 	ioctl(kbdFD, KDSKBMODE, K_XLATE);
@@ -248,48 +297,13 @@ void QWSServer::emergency_cleanup()
 	::close(kbdFD);
 	kbdFD = -1;
     }
-#endif
+    delete notifier;
+    notifier = 0;
 }
 
 
-void QWSServer::readKeyboardData()
+void QWSTtyKeyboardHandler::readKeyboardData()
 {
-#ifdef __MIPSEL__
-    char buf[2];
-    int n=read(kbdFD,buf,2);
-    if(n<0) {
-	qDebug("Keyboard read error %s",strerror(errno));
-    } else {
-	int keycode;
-	unsigned int x=buf[2];
-	if(buf[0]==7) {
-	    keycode=Qt::Key_Up;
-	} else if(buf[0]==0x9) {
-	    keycode=Qt::Key_Right;
-	} else if(buf[0]==0x8) {
-	    keycode=Qt::Key_Down;
-	} else if(buf[0]==0xa) {
-	    keycode=Qt::Key_Left;
-	} else if(buf[0]==0x3) {
-	    keycode=Qt::Key_Up;
-	} else if(buf[0]==0x4) {
-	    keycode=Qt::Key_Down;
-	} else if(buf[0]==0x1) {
-	    keycode=Qt::Key_Backspace;
-	} else if(buf[0]==0x2) {
-	    keycode=Qt::Key_Escape;
-	} else if(x==0xffffff80) {
-	    keycode=0;
-	    qApp->quit();
-	} else {
-	    qDebug("Unrecognised key sequence %d %d",buf[0],buf[1]);
-	    keycode=Qt::Key_unknown;
-	}
-	int unicode=keycode << 16;
-	server->processKeyEvent( unicode, 0, true, false );
-	server->processKeyEvent( unicode, 0, false, false );
-    }
-#else
     static int shift = 0;
     static int alt   = 0;
     static int ctrl  = 0;
@@ -317,14 +331,14 @@ void QWSServer::readKeyboardData()
 	    ch &= 0x7f;
 	}
 
-#if 0 //debug
+/*
 	printf( "%d ", ch );
 	if (extended)
 	    printf(" (Extended) ");
 	if (release)
 	    printf(" (Release) ");
 	printf("\r\n");
-#endif
+*/
 
 	if (extended)
 	{
@@ -366,7 +380,7 @@ void QWSServer::readKeyboardData()
 	{
 	    if (ch < 90)
 	    {
-		keyCode = keyM[ch].key_code;
+		keyCode = QWSServer::keyMap()[ch].key_code;
 	    }
 	}
 
@@ -402,11 +416,11 @@ void QWSServer::readKeyboardData()
 	    if (!extended)
 	    {
 		if (shift)
-		    unicode =  keyM[ch].shift_unicode ?  keyM[ch].shift_unicode : 0xffff;
+		    unicode =  QWSServer::keyMap()[ch].shift_unicode ?  QWSServer::keyMap()[ch].shift_unicode : 0xffff;
 		else if (ctrl)
-		    unicode =  keyM[ch].ctrl_unicode ?  keyM[ch].ctrl_unicode : 0xffff;
+		    unicode =  QWSServer::keyMap()[ch].ctrl_unicode ?  QWSServer::keyMap()[ch].ctrl_unicode : 0xffff;
 		else
-		    unicode =  keyM[ch].unicode ?  keyM[ch].unicode : 0xffff;
+		    unicode =  QWSServer::keyMap()[ch].unicode ?  QWSServer::keyMap()[ch].unicode : 0xffff;
 		//printf("unicode: %c\r\n", unicode);
 	    }
 	    unicode |= keyCode << 16;
@@ -422,6 +436,173 @@ void QWSServer::readKeyboardData()
 	}
 	extended = false;
     }
+}
+
+/*
+ * vr41xx buttons driver
+ */
+
+QWSVr41xxButtonsHandler::QWSVr41xxButtonsHandler() : QWSKeyboardHandler()
+{
+    terminalName = "/dev/buttons";
+    buttonFD = -1;
+    notifier = 0;
+
+    if ((buttonFD = open(terminalName, O_RDWR | O_NDELAY, 0)) < 0)
+    {
+	printf("Cannot open %s\n", terminalName.latin1());
+    }
+
+    if ( buttonFD >= 0 ) {
+	notifier = new QSocketNotifier( buttonFD, QSocketNotifier::Read, this );
+	connect( notifier, SIGNAL(activated(int)),this, 
+		 SLOT(readKeyboardData()) );
+    }
+}
+
+QWSVr41xxButtonsHandler::~QWSVr41xxButtonsHandler()
+{
+    if ( buttonFD > 0 ) {
+	::close( buttonFD );
+	buttonFD = -1;
+    }
+    delete notifier;
+    notifier = 0;
+}
+
+void QWSVr41xxButtonsHandler::readKeyboardData()
+{
+    char buf[2];
+    int n=read(buttonFD,buf,2);
+    if(n<0) {
+	qDebug("Keyboard read error %s",strerror(errno));
+    } else {
+	int keycode;
+	unsigned int x=buf[2];
+	if(buf[0]==7) {
+	    keycode=Qt::Key_Up;
+	} else if(buf[0]==0x9) {
+	    keycode=Qt::Key_Right;
+	} else if(buf[0]==0x8) {
+	    keycode=Qt::Key_Down;
+	} else if(buf[0]==0xa) {
+	    keycode=Qt::Key_Left;
+	} else if(buf[0]==0x3) {
+	    keycode=Qt::Key_Up;
+	} else if(buf[0]==0x4) {
+	    keycode=Qt::Key_Down;
+	} else if(buf[0]==0x1) {
+	    keycode=Qt::Key_Backspace;
+	} else if(buf[0]==0x2) {
+	    keycode=Qt::Key_Escape;
+	} else if(x==0xffffff80) {
+	    keycode=0;
+	    qApp->quit();
+	} else {
+	    qDebug("Unrecognised key sequence %d %d",buf[0],buf[1]);
+	    keycode=Qt::Key_unknown;
+	}
+	int unicode=keycode << 16;
+	server->processKeyEvent( unicode, 0, true, false );
+	server->processKeyEvent( unicode, 0, false, false );
+    }
+}
+
+
+/*
+ * Virtual framebuffer keyboard driver
+ */
+
+#ifdef QWS_VFB
+#include "../../util/qvfb/qvfbhdr.h"
+#endif
+
+QWSVFbKeyboardHandler::QWSVFbKeyboardHandler()
+{
+    kbdFD = -1;
+#ifdef QWS_VFB
+    kbdIdx = 0;
+    kbdBufferLen = sizeof( QVFbKeyData ) * 5;
+    kbdBuffer = new unsigned char [kbdBufferLen];
+
+    terminalName = QT_VFB_KEYBOARD_PIPE;
+
+    if ((kbdFD = open( terminalName.local8Bit(), O_RDWR | O_NDELAY)) < 0) {
+	qDebug( "Cannot open %s (%s)", terminalName.latin1(),
+	strerror(errno));
+    } else {
+	// Clear pending input
+	char buf[2];
+	while (read(kbdFD, buf, 1) > 0);
+
+	notifier = new QSocketNotifier( kbdFD, QSocketNotifier::Read, this );
+	connect(notifier, SIGNAL(activated(int)),this, SLOT(readKeyboardData()));
+    }
 #endif
 }
+
+QWSVFbKeyboardHandler::~QWSVFbKeyboardHandler()
+{
+#ifdef QWS_VFB
+    if ( kbdFD >= 0 )
+	close( kbdFD );
+    delete [] kbdBuffer;
+#endif
+}
+
+
+void QWSVFbKeyboardHandler::readKeyboardData()
+{
+#ifdef QWS_VFB
+    int n;
+    do {
+	n  = read(kbdFD, kbdBuffer+kbdIdx, kbdBufferLen - kbdIdx );
+	if ( n > 0 )
+	    kbdIdx += n;
+    } while ( n > 0 );
+
+    int idx = 0;
+    while ( kbdIdx - idx >= sizeof( QVFbKeyData ) ) {
+	QVFbKeyData *kd = (QVFbKeyData *)(kbdBuffer + idx);
+	server->processKeyEvent( kd->unicode, 0, kd->press, kd->repeat );
+	idx += sizeof( QVFbKeyData );
+    }
+
+    int surplus = kbdIdx - idx;
+    for ( int i = 0; i < surplus; i++ )
+	kbdBuffer[i] = kbdBuffer[idx+i];
+    kbdIdx = surplus;
+#endif
+}
+
+
+/*
+ * keyboard driver instantiation
+ */
+
+QWSKeyboardHandler *QWSServer::newKeyboardHandler( const QString &spec )
+{
+    server = this;
+
+    QWSKeyboardHandler *handler = 0;
+
+    if ( spec == "Buttons" ) {
+	handler = new QWSVr41xxButtonsHandler();
+    } else if ( spec == "QVFbKeyboard" ) {
+	handler = new QWSVFbKeyboardHandler();
+	if ( !((QWSVFbKeyboardHandler *)handler)->isOpen() ) {
+	    qWarning( "Cannot open virtual keyboard - using tty" );
+	    delete handler;
+	    handler = new QWSTtyKeyboardHandler();
+	}
+    } else if ( spec == "TTY" ) {
+	handler = new QWSTtyKeyboardHandler();
+    } else {
+	qWarning( "Keyboard type %s unsupported", spec.latin1() );
+    }
+
+    return handler;
+}
+
+#include "qkeyboard_qws.moc"
 
