@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdatetm.cpp#9 $
+** $Id: //depot/qt/main/src/tools/qdatetm.cpp#10 $
 **
 ** Implementation of date and time classes
 **
@@ -24,7 +24,7 @@
 #endif
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qdatetm.cpp#9 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qdatetm.cpp#10 $";
 #endif
 
 
@@ -396,6 +396,7 @@ long QTime::restart()				// restart clock
 {
     QTime t = currentTime();
     long  n = msecsTo( t );
+    *this = t;
     return n;
 }
 
