@@ -126,9 +126,9 @@ static void unifyFormName( FormWindow *fw, QWorkspace *qworkspace )
 	return;
     QString origName = fw->name();
     QString n = origName;
-    int i = 1;
+    int j = 1;
     while ( lst.findIndex( n ) != -1 ) {
-	n = origName + QString::number( i++ );
+	n = origName + QString::number( j++ );
     }
     fw->setName( n );
     fw->setCaption( n );
