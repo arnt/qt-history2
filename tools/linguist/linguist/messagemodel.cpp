@@ -113,7 +113,7 @@ QVariant MessageModel::headerData(int section, Qt::Orientation orientation, int 
         return "Error";
     }
     else {
-        return QString::null;
+        return QVariant();
     }
 }
 
@@ -123,17 +123,17 @@ QVariant MessageModel::data(const QModelIndex &index, int role) const
     int column = index.column();
 
     if (cntxtItem == 0)
-        return QString::null;
+        return QVariant();
 
     if (row >= cntxtItem->messageItemsInList() || !index.isValid())
-        return QString::null;
+        return QVariant();
 
     MessageItem *msgItem = cntxtItem->messageItem(row);
 
     if (role == QAbstractItemModel::DisplayRole) {
         switch(column) {
         case 0: // done
-            return QString::null;
+            return QVariant();
         case 1: // source text
             return msgItem->sourceText();
         case 2: // translation
@@ -155,7 +155,7 @@ QVariant MessageModel::data(const QModelIndex &index, int role) const
             return QVariant(*TrWindow::pxObsolete);
     }
 
-    return QString::null;
+    return QVariant();
 }
 
 void MessageModel::sort(int column, const QModelIndex &parent, Qt::SortOrder order)

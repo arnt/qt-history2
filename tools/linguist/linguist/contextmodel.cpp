@@ -157,7 +157,7 @@ QVariant ContextModel::headerData(int section, Qt::Orientation orientation, int 
         return "Error";
     }
 
-    return QString::null;
+    return QVariant();
 }
 
 QVariant ContextModel::data(const QModelIndex &index, int role) const
@@ -166,14 +166,14 @@ QVariant ContextModel::data(const QModelIndex &index, int role) const
     int column = index.column();
 
     if (row >= cntxtList.count() || !index.isValid())
-        return QString::null;
+        return QVariant();
 
     ContextItem *cntxtItem = cntxtList.at(row);
 
     if (role == QAbstractItemModel::DisplayRole) {
         switch(column) {
         case 0: // done
-            return QString::null;
+            return QVariant();
         case 1: // context
             return cntxtItem->context();
         case 2: // items
@@ -195,7 +195,7 @@ QVariant ContextModel::data(const QModelIndex &index, int role) const
             return QVariant(*TrWindow::pxOff);
     }
 
-    return QString::null;
+    return QVariant();
 }
 
 void ContextModel::sort(int column, const QModelIndex &parent, Qt::SortOrder order)

@@ -111,7 +111,7 @@ QVariant PhraseModel::headerData(int section, Qt::Orientation orientation, int r
         }
     }
 
-    return QString::null;
+    return QVariant();
 }
 
 QVariant PhraseModel::data(const QModelIndex &index, int role) const
@@ -120,7 +120,7 @@ QVariant PhraseModel::data(const QModelIndex &index, int role) const
     int column = index.column();
 
     if (row >= plist.count() || !index.isValid())
-        return QString::null;
+        return QVariant();
 
     Phrase phrase = plist.at(row);
 
@@ -135,7 +135,7 @@ QVariant PhraseModel::data(const QModelIndex &index, int role) const
         }
     }
 
-    return QString::null;
+    return QVariant();
 }
 
 void PhraseModel::sort(int column, const QModelIndex &parent, Qt::SortOrder order)
