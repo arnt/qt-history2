@@ -42,6 +42,7 @@
 #include <qslider.h>
 #include <qlabel.h>
 #include <qradiobutton.h>
+#include <qcombobox.h>
 #ifdef Q_WS_MAC
 #  include <qt_mac.h>
 #endif
@@ -61,6 +62,7 @@ QAquaFocusWidget::QAquaFocusWidget(bool noerase)
     if(noerase)
 	setBackgroundMode(NoBackground);
 }
+#define FOCUS_WIDGET_PARENT(x) x->topLevelWidget()
 void QAquaFocusWidget::setFocusWidget(QWidget * widget)
 {
     hide();
@@ -72,14 +74,14 @@ void QAquaFocusWidget::setFocusWidget(QWidget * widget)
     d = NULL;
     if(widget && widget->parentWidget()) {
 	d = widget;
-	reparent(d->parentWidget(), pos());
-	raise();
+	reparent(FOCUS_WIDGET_PARENT(d), pos());
 	d->installEventFilter(this);
 	d->parentWidget()->installEventFilter(this); //we do this so we can trap the ChildAdded event
-	setGeometry(widget->x() - focusOutset(), widget->y() - focusOutset(), 
-		     widget->width() + (focusOutset() * 2), 
-		     widget->height() + (focusOutset() * 2));
+	QPoint p(widget->mapTo(parentWidget(), QPoint(0, 0)));
+	setGeometry(p.x() - focusOutset(), p.y() - focusOutset(), 
+		    widget->width() + (focusOutset() * 2), widget->height() + (focusOutset() * 2));
 	setMask(QRegion(rect()) - focusRegion());
+	raise();
 	show();
     }
 }
@@ -99,8 +101,8 @@ bool QAquaFocusWidget::eventFilter(QObject * o, QEvent * e)
 	    show();
 	    break;
 	case QEvent::Move: {
-	    QMoveEvent *me = (QMoveEvent*)e;
-	    move(me->pos().x() - focusOutset(), me->pos().y() - focusOutset());
+	    QPoint p(d->mapTo(parentWidget(), QPoint(0, 0)));
+	    move(p.x() - focusOutset(), p.y() - focusOutset());
 	    break;
 	}
 	case QEvent::Resize: {
@@ -110,11 +112,13 @@ bool QAquaFocusWidget::eventFilter(QObject * o, QEvent * e)
 	    setMask(QRegion(rect()) - focusRegion());
 	    break;
 	}
-	case QEvent::Reparent:
-	    reparent(d->parentWidget(), pos());
-	    d->parentWidget()->installEventFilter(this);
+	case QEvent::Reparent: {
+	    QWidget *newp = FOCUS_WIDGET_PARENT(d);
+	    QPoint p(d->mapTo(newp, QPoint(0, 0)));
+	    newp->installEventFilter(this);
+	    reparent(newp, p);
 	    raise();
-	    break;
+	    break; }
 	default:
 	    break;
 	}
@@ -319,12 +323,12 @@ QWidget *QAquaAnimate::focusWidget() const
 void QAquaAnimate::setFocusWidget(QWidget *w) 
 {
     if(w) {
-	QWidget *top = w->parentWidget(), *p = top;
+	QWidget *top = w->parentWidget();
 	while(!top->isTopLevel() && !top->testWFlags(WSubWindow))
 	    top = top->parentWidget();
 	if(top && (w->width() < top->width() - 30 || w->height() < top->height() - 40)) {
-	    if(w->inherits("QLineEdit") && p->inherits("QComboBox"))
-		w = p;
+	    if(w->inherits("QComboBox") && ((QComboBox*)w)->editable())
+		w = (QWidget*)((QComboBox*)w)->lineEdit();
 	    else if(w->inherits("QSpinWidget")) //transfer to the editor
 		w = ((QSpinWidget*)w)->editWidget();
 	} else {
@@ -341,14 +345,13 @@ void QAquaAnimate::setFocusWidget(QWidget *w)
 }
 bool QAquaAnimate::focusable(QWidget *w)
 {
-    return (w && w->parentWidget() && 
-	    (w->inherits("QSpinWidget") || w->inherits("QDateTimeEditor") ||
+    return (w && w->parentWidget(TRUE) && 
+	    (w->inherits("QSpinWidget") || w->inherits("QDateTimeEditor") || w->inherits("QComboBox") || 
 	     (w->inherits("QLineEdit") && w->parentWidget()->inherits("QSpinWidget")) ||
-	     (w->inherits("QFrame") && ((QFrame*)w)->frameStyle() != QFrame::NoFrame && 
-	      ((w->inherits("QLineEdit") /* &&
-	      (w->parentWidget()->inherits("QComboBox") || (((QLineEdit*)w)->frame())) */) ||
+	     (w->inherits("QFrame") && w->inherits("QLineEdit") &&
+	      (((QFrame*)w)->frameStyle() != QFrame::NoFrame || w->parentWidget()->inherits("QComboBox"))) || 
 	      (w->inherits("QTextEdit") && !((QTextEdit*)w)->isReadOnly()) ||
-	      w->inherits("QListBox") || w->inherits("QListView")))));
+	      w->inherits("QListBox") || w->inherits("QListView")));
 }
 
 #if defined(QMAC_QAQUASTYLE_SIZE_CONSTRAIN) || defined(DEBUG_SIZE_CONSTRAINT)

@@ -541,6 +541,8 @@ void QMacStyle::drawPrimitive(PrimitiveElement pe,
 	break;
     case PE_HeaderSection: {
 	ThemeButtonDrawInfo info = { kThemeStateActive, kThemeButtonOff, kThemeAdornmentNone };
+	if(flags & Style_HasFocus)
+	    info.adornment |= kThemeAdornmentFocus;
 	if(qAquaActive(cg)) {
 	    if(!(flags & Style_Enabled)) 
 		info.state = kThemeStateUnavailable;
@@ -559,7 +561,7 @@ void QMacStyle::drawPrimitive(PrimitiveElement pe,
 	if((flags & Style_Off)) 
 	    ir.setRight(ir.right() + 50);
 	else if((flags & Style_Up)) 
-	    info.adornment = kThemeAdornmentHeaderButtonSortUp;
+	    info.adornment |= kThemeAdornmentHeaderButtonSortUp;
 	((QMacPainter *)p)->setport();
 	DrawThemeButton(qt_glb_mac_rect(ir, p, FALSE), kThemeListHeaderButton, 
 			&info, NULL, NULL, NULL, 0);
@@ -567,6 +569,8 @@ void QMacStyle::drawPrimitive(PrimitiveElement pe,
     case PE_ExclusiveIndicatorMask:
     case PE_ExclusiveIndicator: {
 	ThemeButtonDrawInfo info = { tds, kThemeButtonOff, kThemeAdornmentDrawIndicatorOnly };
+	if(flags & Style_HasFocus)
+	    info.adornment |= kThemeAdornmentFocus;
 	if(flags & Style_On)
 	    info.value = kThemeButtonOn;
 	ThemeButtonKind bkind = kThemeRadioButton;
@@ -588,6 +592,8 @@ void QMacStyle::drawPrimitive(PrimitiveElement pe,
     case PE_IndicatorMask:
     case PE_Indicator: {
 	ThemeButtonDrawInfo info = { tds, kThemeButtonOff, kThemeAdornmentDrawIndicatorOnly };
+	if(flags & Style_HasFocus)
+	    info.adornment |= kThemeAdornmentFocus;
 	if(flags & Style_NoChange)
 	    info.value = kThemeButtonMixed;
 	else if(flags & Style_On)
@@ -935,6 +941,8 @@ void QMacStyle::drawControl(ControlElement element,
 
 	ThemeButtonKind bkind = kThemePushButton;
 	ThemeButtonDrawInfo info = { tds, kThemeButtonOff, kThemeAdornmentNone };
+	if(how & Style_HasFocus)
+	    info.adornment |= kThemeAdornmentFocus;
 
 	QRect off_rct(0, 0, 0, 0);
         { //The AppManager draws outside my rectangle, so account for that difference..
@@ -1037,6 +1045,8 @@ void QMacStyle::drawComplexControl(ComplexControl ctrl, QPainter *p,
 	if(sub & SC_ToolButton) {
 	    if(bflags & (Style_Down | Style_On | Style_Raised)) {
 		ThemeButtonDrawInfo info = { tds, kThemeButtonOff, kThemeAdornmentNone };
+		if(flags & Style_HasFocus)
+		    info.adornment |= kThemeAdornmentFocus;
 		if(toolbutton->isOn() || toolbutton->isDown())
 		    info.value |= kThemeStatePressed;
 
@@ -1063,6 +1073,8 @@ void QMacStyle::drawComplexControl(ComplexControl ctrl, QPainter *p,
 
 	if(sub & SC_ToolButtonMenu) {
 	    ThemeButtonDrawInfo info = { tds, kThemeButtonOff, kThemeAdornmentNone };
+	    if(flags & Style_HasFocus)
+		info.adornment |= kThemeAdornmentFocus;
 	    if(toolbutton->isOn() || toolbutton->isDown() || (subActive & SC_ToolButtonMenu))
 		info.value |= kThemeStatePressed;
 	    ((QMacPainter *)p)->setport();
@@ -1087,6 +1099,8 @@ void QMacStyle::drawComplexControl(ComplexControl ctrl, QPainter *p,
 		if(y + child->height() > 0) {
 		    if(child->isExpandable() || child->childCount()) {
 			ThemeButtonDrawInfo info = { tds, kThemeDisclosureRight, kThemeAdornmentDrawIndicatorOnly };
+			if(flags & Style_HasFocus)
+			    info.adornment |= kThemeAdornmentFocus;
 			if(child->isOpen())
 			    info.value = kThemeDisclosureDown;
 			DrawThemeButton(qt_glb_mac_rect(
@@ -1109,6 +1123,8 @@ void QMacStyle::drawComplexControl(ComplexControl ctrl, QPainter *p,
 	    else if(subActive == SC_SpinWidgetUp)
 		tds = kThemeStatePressedUp;
 	    ThemeButtonDrawInfo info = { tds, kThemeButtonOff, kThemeAdornmentNone };
+	    if(flags & Style_HasFocus)
+		info.adornment |= kThemeAdornmentFocus;
 	    QRect updown = sw->upRect() | sw->downRect();
 	    if(sw->backgroundPixmap())
 		p->drawPixmap(updown, *sw->backgroundPixmap());
@@ -1267,6 +1283,8 @@ void QMacStyle::drawComplexControl(ComplexControl ctrl, QPainter *p,
 	ttdi.max = sldr->maxValue();
 	ttdi.value = sldr->valueFromPosition(sldr->sliderStart());
 	ttdi.attributes |= kThemeTrackShowThumb;
+	if(flags & Style_HasFocus)
+	    ttdi.attributes |= kThemeTrackHasFocus;
 	if(sldr->orientation() == Qt::Horizontal)
 	    ttdi.attributes |= kThemeTrackHorizontal;
 	if(widget->isEnabled())
@@ -1312,7 +1330,7 @@ void QMacStyle::drawComplexControl(ComplexControl ctrl, QPainter *p,
 	    DrawThemeButton(qt_glb_mac_rect(buttonR, p, TRUE, QRect(1, 0, 0, 0)), 
 			    kThemeArrowButton, &info, NULL, NULL, NULL, 0);
 	} else {
-	    info.adornment = kThemeAdornmentArrowLeftArrow;
+	    info.adornment |= kThemeAdornmentArrowLeftArrow;
 	    ((QMacPainter *)p)->setport();
 	    DrawThemeButton(qt_glb_mac_rect(r, p, TRUE, QRect(1, 0, 0, 0)), kThemePopupButton,
 			    &info, NULL, NULL, NULL, 0);
