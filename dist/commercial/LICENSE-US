@@ -1,6 +1,6 @@
 Qt COMMERCIAL LICENSE AGREEMENT
 FOR PROFESSIONAL AND ENTERPRISE EDITIONS
-16 October, 2000
+25 July, 2001
 
 
 IMPORTANT-READ CAREFULLY: This Trolltech End-User License Agreement
@@ -22,7 +22,7 @@ Licensed Product.  The terms of the License Certificate are considered
 part of the EULA.  In the event of inconsistency or conflict between
 the language of this EULA and the License Certificate, the provisions
 of this EULA shall govern.
- 
+
 By installing, copying, or otherwise using the Licensed Product, you
 agree to be bound by the terms of this EULA. If you do not agree to
 the terms of this EULA, do not install, copy, or otherwise use the
@@ -54,8 +54,8 @@ notifying TTI, so long as there is no more than one designated user at
 any given time.
 
 
-GENERAL TERMS THAT APPLY TO APPLICATIONS AND REDISTRIBUTABLES
-TTI grants you a nonexclusive, royalty-free right to reproduce and
+GENERAL TERMS THAT APPLY TO APPLICATIONS AND REDISTRIBUTABLES TTI
+grants you a nonexclusive, royalty-free right to reproduce and
 distribute the object code form of any portion of the Licensed Product
 ("Redistributables") for execution on any operating system of a type
 listed in the License Certificate ("Platforms"). Copies of
@@ -84,14 +84,17 @@ and its suppliers, harmless from and against any claims or liabilities
 arising out of the use, reproduction or distribution of your
 Applications; (v) your Applications must be written using a licensed,
 registered copy of the Licensed Product; (vi) your Applications must
-add primary and substantial functionality, and may not compete with
-the Licensed Product; (vii) you may not use TTI's or any of its
-suppliers' names, logos, or trademarks to market your programs, except
-to state that your program was written using the Licensed Product.
+add primary and substantial functionality to the Licensed Product;
+(vii) your Applications may not pass on functionality which in any way
+makes it possible for others to create Applications with the Software;
+(viii) your Applications may not compete with the Licensed Product;
+(ix)) you may not use TTI's or any of its suppliers' names, logos, or
+trademarks to market your programs, except to state that your program
+was written using the Licensed Product.
 
 
 WARRANTY DISCLAIMER
-THE LICENSED PRODUCT IS LICENSED TO YOU "AS IS".  TO THE MAXIMUN
+THE LICENSED PRODUCT IS LICENSED TO YOU "AS IS".  TO THE MAXIMUM
 EXTENT PERMITTED BY APPLICABLE LAW, TTI ON BEHALF OF ITSELF AND ITS
 SUPPLIERS, DISCLAIMS ALL WARRANTIES AND CONDITIONS, EITHER EXPRESS OR
 IMPLIED, INCLUDING, BUT NOT LIMITED TO, IMPLIED WARRANTIES OF
@@ -140,3 +143,4 @@ the State of California, U.S.A.  The EULA gives you specific legal
 rights; you may have others, which vary from state to state and from
 country to country.  TTI reserves all rights not specifically granted
 in this EULA.
+
