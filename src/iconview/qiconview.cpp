@@ -1770,7 +1770,7 @@ void QIconViewItem::calcRect( const QString &text_ )
     if ( view->d->wordWrapIconText ) {
 	r = QRect( view->d->fm->boundingRect( 0, 0, iconView()->maxItemWidth() -
 					      ( iconView()->itemTextPos() == QIconView::Bottom ? 0 :
-						pixmapRect().width() ) - 4,
+						pixmapRect().width() ),
 					      0xFFFFFFFF, AlignHCenter | WordBreak | BreakAnywhere, t ) );
 	r.setWidth( r.width() + 4 );
     } else {
@@ -2089,7 +2089,7 @@ void QIconViewItem::calcTmpText()
     wordWrapDirty = FALSE;
 
     int w = iconView()->maxItemWidth() - ( iconView()->itemTextPos() == QIconView::Bottom ? 0 :
-					   pixmapRect().width() ) - 4;
+					   pixmapRect().width() );
     if ( view->d->fm->width( itemText ) < w ) {
 	tmpText = itemText;
 	return;
@@ -3431,7 +3431,7 @@ void QIconView::setContentsPos( int x, int y )
 void QIconView::showEvent( QShowEvent * )
 {
     if ( d->dirty ) {
-	resizeContents( QMAX( contentsWidth(), viewport()->width() ), 
+	resizeContents( QMAX( contentsWidth(), viewport()->width() ),
 			QMAX( contentsHeight(), viewport()->height() ) );
 	if ( autoArrange() )
 	    arrangeItemsInGrid( FALSE );
