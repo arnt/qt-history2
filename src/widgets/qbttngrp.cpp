@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbttngrp.cpp#29 $
+** $Id: //depot/qt/main/src/widgets/qbttngrp.cpp#30 $
 **
 ** Implementation of QButtonGroup class
 **
@@ -14,7 +14,7 @@
 #include "qbutton.h"
 #include "qlist.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qbttngrp.cpp#29 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qbttngrp.cpp#30 $");
 
 
 /*!
@@ -161,6 +161,8 @@ void QButtonGroup::setExclusive( bool enable )
 
 int QButtonGroup::insert( QButton *button, int id )
 {
+    remove( button );
+
     static int seq_no = -2;
     register QButtonItem *bi = new QButtonItem;
     CHECK_PTR( bi );

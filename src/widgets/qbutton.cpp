@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbutton.cpp#55 $
+** $Id: //depot/qt/main/src/widgets/qbutton.cpp#56 $
 **
 ** Implementation of QButton widget class
 **
@@ -16,7 +16,7 @@
 #include "qkeycode.h"
 #include "qtimer.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qbutton.cpp#55 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qbutton.cpp#56 $");
 
 
 /*!
@@ -57,6 +57,9 @@ RCSTAG("$Id: //depot/qt/main/src/widgets/qbutton.cpp#55 $");
 
 /*!
   Constructs a standard button with a parent widget and a name.
+
+  If \a parent is a QButtonGroup, this constructor calls
+  QButtonGroup::insert().
 */
 
 QButton::QButton( QWidget *parent, const char *name )
