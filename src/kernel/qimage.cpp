@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.cpp#90 $
+** $Id: //depot/qt/main/src/kernel/qimage.cpp#91 $
 **
 ** Implementation of QImage and QImageIO classes
 **
@@ -22,7 +22,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#90 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#91 $");
 
 
 /*!
@@ -2577,7 +2577,7 @@ static void read_xpm_image( QImageIO * iio ) // read XPM image data
 
     QImage image( w, h, 8, ncols, QImage::IgnoreEndian );
 
-    QDict<int> colourMap( 301, FALSE );
+    QDict<int> colourMap( 301, TRUE );
     colourMap.setAutoDelete( FALSE );
 
     int currentColour;
@@ -2641,6 +2641,9 @@ static void read_xpm_image( QImageIO * iio ) // read XPM image data
 	    image.setColor( currentColour, tmp.rgb() );
 	    colourMap.insert( index, (int*)(currentColour+1) );
 	}
+	//	debug( "colour %d is %06x - %s",
+	//	       currentColour, image.color( currentColour ),
+	//	       (const char *)buf );
     }
 
     // next, we read pixels
@@ -2667,6 +2670,10 @@ static char* xpm_colour_name( int cpp, int index )
 {
     static char returnable[3];
     if ( cpp > 1 ) {
+	if ( index == 1 )
+	    index = 64*44+21+1;
+	else if ( index == 64*44+21+1 )
+	    index = 1;
 	returnable[0] = ".#abcdefghijklmnopqrstuvwxyz"
 			"ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"[(index-1)/64];
 	returnable[1] = ".#abcdefghijklmnopqrstuvwxyz"
@@ -2721,10 +2728,9 @@ static void write_xpm_image( QImageIO * iio )
     // write header
     QTextStream s( iio->ioDevice() );
     s << "/* XPM */" << endl
-      << "static char *" << fbname(iio->fileName()) << "[] = {" << endl
-      << "/* width, height, number of colours, and characters per pixel */"
-      << endl << "\"" << w << " " << h << " " << colours << " "
-      << cpp << "\"," << endl << "/* colors */" << endl;
+      << "static char *" << fbname(iio->fileName()) << "[]={" << endl
+      << "\"" << w << " " << h << " " << colours << " "
+      << cpp << "\"," << endl;
 
     // write palette
     QIntDictIterator<int> c( colourMap );
@@ -2743,8 +2749,6 @@ static void write_xpm_image( QImageIO * iio )
     }
 
     // write pixels
-    s << "/* pixels */" << endl;
-
     for( y=0; y<h; y++ ) {
 	QRgb * yp = (QRgb *)image.scanLine( y );
 	line.resize( cpp*w + 1 );
@@ -2758,7 +2762,7 @@ static void write_xpm_image( QImageIO * iio )
 	line[ cpp*w ] = '\0';
 	s << "\"" << line << "\"," << endl;
     }
-    s << "NULL };" << endl << endl; // two newlines, just for clarity
+    s << "NULL};" << endl;
 
     iio->setStatus( 0 );
 }
