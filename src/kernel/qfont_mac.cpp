@@ -936,6 +936,11 @@ void QFont::initialize()
     }
 }
 
+bool QFont::dirty() const
+{
+    return d->request.dirty;
+}
+
 QString QFontPrivate::defaultFamily() const
 {
     switch(request.styleHint) {
