@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qkeycode.h#12 $
+** $Id: //depot/qt/main/src/kernel/qkeycode.h#13 $
 **
 ** Definition of keyboard codes
 **
@@ -50,7 +50,7 @@ const uint ASCII_ACCEL	= 0x10000000;
 #define Key_Alt			0x1023
 #define Key_CapsLock		0x1024
 #define Key_NumLock		0x1025
-#define Key_ScrollLock		0x1026
+#define Key_ScrollLock		0x1026	// see translateKeyEvent()
 
 #define Key_F1			0x1030		// function keys
 #define Key_F2			0x1031

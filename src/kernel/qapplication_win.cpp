@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#112 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#113 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -30,7 +30,7 @@
 #include <mywinsock.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_win.cpp#112 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_win.cpp#113 $");
 
 
 /*****************************************************************************
@@ -1770,7 +1770,7 @@ static int translateKeyCode( int key )		// get Key_... code
 {
     int code;
     if ( (key >= 'A' && key <= 'Z') || (key >= '0' && key <= '9') ) {
-	code = key;
+	code = 0;
     } else if ( key >= VK_F1 && key <= VK_F24 ) {
 	code = Key_F1 + (key - VK_F1);		// function keys
     } else {
@@ -1832,6 +1832,18 @@ static void store_key_rec( int code, int ascii )
     key_rec[nrecs++] = KeyRec(code,ascii);
 }
 
+static
+int asciiToKeycode(char a, int state)
+{
+    if ( a >= 'a' && a <= 'z' )
+	a = toupper( a );
+    if ( (state & ControlButton) != 0 ) {
+	if ( a >= 1 && a <= 26 )	// Ctrl+'A'..'Z'
+	    a += 'A' - 1;
+    }
+    return a;
+}
+
 void QETWidget::translateKeyEvent( const MSG &msg, bool grab )
 {
     int ascii = 0;
@@ -1853,12 +1865,23 @@ void QETWidget::translateKeyEvent( const MSG &msg, bool grab )
         if ( msg.message == WM_KEYDOWN || msg.message == WM_SYSKEYDOWN ) {
 	    KeyRec* rec = find_key_rec( msg.wParam, FALSE );
 	    MSG wm_char;
-	    if ( !PeekMessage(&wm_char, 0, WM_CHAR, WM_CHAR, PM_REMOVE) )
-		wm_char.wParam = 0;
+
+	    if ( !PeekMessage(&wm_char, 0, WM_CHAR, WM_CHAR, PM_REMOVE) ) {
+		if ( msg.wParam == VK_DELETE )
+		    wm_char.wParam = 0x7f; // Windows doesn't know this one.
+		else
+    		    wm_char.wParam = 0;
+	    }
+	    if ( !code )
+		code = asciiToKeycode(wm_char.wParam, state);
+
 	    if ( rec ) {
 		// it is already down (so it is auto-repeating)
-		sendKeyEvent( Event_KeyRelease, code, rec->ascii, state, grab);
-		sendKeyEvent( Event_KeyPress, code, rec->ascii, state, grab );
+		if ( code < Key_Shift || code > Key_ScrollLock )
+		{
+		    sendKeyEvent( Event_KeyRelease, code, rec->ascii, state, grab);
+		    sendKeyEvent( Event_KeyPress, code, rec->ascii, state, grab );
+		}
 	    } else {
 		store_key_rec( msg.wParam, wm_char.wParam );
 		sendKeyEvent( Event_KeyPress, code,
@@ -1872,6 +1895,8 @@ void QETWidget::translateKeyEvent( const MSG &msg, bool grab )
 		warning( "Qt: Got KEYUP without KEYDOWN" );
 #endif
 	    } else {
+		if ( !code )
+		    code = asciiToKeycode(rec->ascii, state);
 		sendKeyEvent( Event_KeyRelease, code, rec->ascii, state, grab);
 	    }
         }
