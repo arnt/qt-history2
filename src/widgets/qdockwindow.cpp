@@ -994,14 +994,13 @@ void QDockWindow::setOrientation( Orientation o )
 QDockWindow::~QDockWindow()
 {
     qApp->removeEventFilter( this );
-    QDockArea *area = 0;
-    if ( dockWindowData )
-	area = ((QDockArea::DockWindowData*)dockWindowData)->area;
-    if ( area )
-	area->removeDockWindow( this, FALSE, FALSE );
-    if ( area  && area->parentWidget() &&
-	 area->parentWidget()->inherits( "QMainWindow" ) )
-	( (QMainWindow*)area->parentWidget() )->removeDockWindow( this );
+    if ( area() )
+	area()->removeDockWindow( this, FALSE, FALSE );
+    QDockArea *a = area();
+    if ( !a && dockWindowData )
+	a = ( (QDockArea::DockWindowData*)dockWindowData )->area;
+    if ( a && a->parentWidget() && a->parentWidget()->inherits( "QMainWindow" ) )
+	( (QMainWindow*)a->parentWidget() )->removeDockWindow( this );
 
     delete (QDockArea::DockWindowData*)dockWindowData;
 }
