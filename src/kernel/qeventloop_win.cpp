@@ -650,8 +650,7 @@ bool QEventLoop::processEvents( ProcessEventsFlags flags )
 
     bool handled = FALSE;
     if ( msg.message == WM_TIMER ) {		// timer message received
-	const bool handled = dispatchTimer( msg.wParam, &msg );
-	if ( handled )
+	if ( dispatchTimer( msg.wParam, &msg ) )
 	    return TRUE;
     } else if ( msg.message && (!msg.hwnd || !QWidget::find(msg.hwnd)) ) {
 	long res = 0;
