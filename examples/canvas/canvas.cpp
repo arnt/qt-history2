@@ -317,7 +317,7 @@ Main::Main(QCanvas& c, QWidget* parent, const char* name, WFlags f) :
     file->insertItem("&Erase canvas", this, SLOT(clear()), CTRL+Key_E);
     file->insertItem("&New view", this, SLOT(newView()), CTRL+Key_N);
     file->insertSeparator();
-    file->insertItem("&Print", this, SLOT(print()), CTRL+Key_P);
+    file->insertItem("&Print...", this, SLOT(print()), CTRL+Key_P);
     file->insertSeparator();
     file->insertItem("E&xit", qApp, SLOT(quit()), CTRL+Key_Q);
     menu->insertItem("&File", file);

@@ -179,7 +179,7 @@ WidgetView::WidgetView( QWidget *parent, const char *name )
     int id;
     id = popup->insertItem( "&New" );
     popup->setItemEnabled( id, FALSE );
-    id = popup->insertItem( openIcon, "&Open", this, SLOT( open() ) );
+    id = popup->insertItem( openIcon, "&Open...", this, SLOT( open() ) );
 
     popup->insertSeparator();
     popup->insertItem( "&Quit", qApp, SLOT(quit()), CTRL+Key_Q );
