@@ -400,6 +400,9 @@ void QDialog::show()
 	qApp->enter_loop();
 }
 
+/*!
+  Reimplemented to exit a modal when the dialog is hidden.
+*/
 void QDialog::hide()
 {
     bool ex = testWState(WState_Visible) && testWFlags(WType_Modal);
