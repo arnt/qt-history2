@@ -13962,7 +13962,8 @@ int QString::find( QChar c, int index, bool cs ) const
     return (int)(uc - unicode());
 }
 
-/* an implementation of the Boyer-Moore search algorithm */
+/* an implementation of the Boyer-Moore search algorithm 
+*/
 
 /* initializes the skiptable to know haw far ahead we can skip on a wrong match
 */
@@ -14095,7 +14096,7 @@ int QString::find( const QString& str, int index, bool cs ) const
     }
 
     /*
-      We use some weird hashing for efficiency's sake. Instead of
+      We use some hashing for efficiency's sake. Instead of
       comparing strings, we compare the hash value of str with that of
       a part of this QString. Only if that matches, we call ucstrncmp
       or ucstrnicmp.
@@ -14973,24 +14974,25 @@ QString QString::stripWhiteSpace() const
 {
     if ( isEmpty() )                            // nothing to do
 	return *this;
-    if ( !at(0).isSpace() && !at(length()-1).isSpace() )
-	return *this;
-
     register const QChar *s = unicode();
-    QString result = fromLatin1( "" );
+    if ( !s->isSpace() && !s[length()-1].isSpace() )
+	return *this;
 
     int start = 0;
     int end = length() - 1;
     while ( start<=end && s[start].isSpace() )  // skip white space from start
 	start++;
-    if ( start > end )                          // only white space
-	return result;
-    while ( end && s[end].isSpace() )           // skip white space from end
-	end--;
+    if ( start <= end ) {                          // only white space
+	while ( end && s[end].isSpace() )           // skip white space from end
+	    end--;
+    }
     int l = end - start + 1;
-    result.setLength( l );
-    if ( l )
-	memcpy( result.d->unicode, &s[start], sizeof(QChar)*l );
+    if ( l <= 0 )
+    	return QString::fromLatin1("");
+
+    QString result( l, TRUE );
+    memcpy( result.d->unicode, &s[start], sizeof(QChar)*l );
+    result.d->len = l;
     return result;
 }
 
