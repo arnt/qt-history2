@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#368 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#369 $
 **
 ** Implementation of QWidget class
 **
@@ -4028,4 +4028,26 @@ int QWidget::heightForWidth( int w ) const
 {
     (void)w;
     return -1;
+}
+    
+
+/*!
+  Returns whether the widget wants to handle Whats This help
+  manually. The default implementation returns FALSE, which means the
+  widget will not receive any events in Whats This mode.
+  
+  The widget may leave Whats This mode by calling
+  QWhatsThis::leaveWhatsThisMode(), with or without actually
+  displaying any help text.
+  
+  You may also reimplement customWhatsThis() if your widget is a
+  so-called "passive interactor" that is supposed to work under all
+  circumstances. Simply never call QWhatsThis::leaveWhatsThisMode() in
+  that case.
+  
+  \sa QWhatsThis::inWhatsThisMode(), QWhatsThis::leaveWhatsThisMode()
+ */
+bool QWidget::customWhatsThis() const
+{
+    return FALSE;
 }

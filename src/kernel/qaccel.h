@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qaccel.h#38 $
+** $Id: //depot/qt/main/src/kernel/qaccel.h#39 $
 **
 ** Definition of QAccel class
 **
@@ -46,7 +46,7 @@ public:
 
     uint	count() const;
 
-    int		insertItem( int key, int id=-1 );
+    int		insertItem( int key, int id=-1);
     void	removeItem( int id );
     void	clear();
 
@@ -62,6 +62,11 @@ public:
 				const QObject *receiver, const char* member );
 
     void	repairEventFilter();
+    
+    void setWhatsThis( int id, const QString& );
+    QString whatsThis( int id ) const;
+    void setIgnoreWhatsThis( bool );
+    bool ignoreWhatsThis() const;
 
     static int shortcutKey( const QString & );
 

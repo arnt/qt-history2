@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopupmenu.h#56 $
+** $Id: //depot/qt/main/src/widgets/qpopupmenu.h#57 $
 **
 ** Definition of QPopupMenu class
 **
@@ -53,10 +53,11 @@ public:
     int 	exec( const QPoint & pos, int indexAtPoint = 0 );// modal popup
 
     virtual void	setActiveItem( int );
-    
+
     int idAt( int index ) const { return QMenuData::idAt( index ); }
     int idAt( const QPoint& pos ) const;
 
+    bool customWhatsThis() const;
 
 signals:
     void	activated( int itemId );
@@ -96,7 +97,7 @@ private:
     void	frameChanged();
 
     void	paintAll();
-    void	actSig( int );
+    void	actSig( int, bool = FALSE );
     void	hilitSig( int );
     virtual void	setFirstItemActive();
     void	hideAllPopups();

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenudata.h#62 $
+** $Id: //depot/qt/main/src/widgets/qmenudata.h#63 $
 **
 ** Definition of QMenuData class
 **
@@ -52,6 +52,7 @@ public:
     int		id()		const	{ return ident; }
     QIconSet* iconSet()		const	{ return iconset_data; }
     QString text()		const	{ return text_data; }
+    QString whatsThis()		const	{ return whatsthis_data; }
     QPixmap    *pixmap()	const	{ return pixmap_data; }
     QPopupMenu *popup()		const	{ return popup_menu; }
     int		key()		const	{ return accel_key; }
@@ -63,11 +64,13 @@ public:
 
     void	setText( const QString &text ) { text_data = text; }
     void	setDirty( bool d )	    { is_dirty = d; }
+    void	setWhatsThis( const QString &text ) { whatsthis_data = text; }
 
 private:
     QIconSet* 	iconset_data;
     int		ident;				// item identifier
     QString	text_data;			// item text
+    QString	whatsthis_data;			// item Whats This help text
     QPixmap    *pixmap_data;			// item pixmap
     QPopupMenu *popup_menu;			// item popup menu
     int		accel_key;			// accelerator key
@@ -161,7 +164,10 @@ public:
     QString text( int id )		const;
     QPixmap    *pixmap( int id )	const;
 
-    
+    void setWhatsThis( int id, const QString& );
+    QString whatsThis( int id ) const;
+
+
     void	changeItem( int id, const QString &text );
     void	changeItem( int id, const QPixmap &pixmap );
     void	changeItem( int id, const QIconSet &icon, const QString &text );

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.h#212 $
+** $Id: //depot/qt/main/src/kernel/qwidget.h#213 $
 **
 ** Definition of QWidget class
 **
@@ -285,6 +285,10 @@ public:
 
     virtual void	setAutoMask(bool);
     bool		autoMask() const;
+    
+    // whats this help
+    
+    virtual bool customWhatsThis() const;
 				
 public:
     QWidget *		parentWidget() const;

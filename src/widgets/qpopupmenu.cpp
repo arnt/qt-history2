@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#206 $
+** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#207 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -33,6 +33,7 @@
 #include "qbitmap.h"
 #include "qpixmapcache.h"
 #include "qtimer.h"
+#include "qwhatsthis.h"
 #include <ctype.h>
 
 // Motif style parameters
@@ -599,7 +600,7 @@ void QPopupMenu::accelActivated( int id )
 {
     QMenuItem *mi = findItem( id );
     if ( mi && mi->isEnabled() ) {
-	if ( mi->signal() )			// activate signal
+	if ( mi->signal() ) // activate signal
 	    mi->signal()->activate();
 	actSig( mi->id() );
     }
@@ -611,7 +612,7 @@ void QPopupMenu::accelDestroyed()		// accel about to be deleted
 }
 
 
-void QPopupMenu::actSig( int id )
+void QPopupMenu::actSig( int id, bool inwhatsthis )
 {
     bool sync = FALSE;
     QPopupMenu * p = this;
@@ -628,7 +629,13 @@ void QPopupMenu::actSig( int id )
 	syncMenu = 0;
     }
 
-    emit activated( id );
+    if ( !inwhatsthis )
+	emit activated( id );
+    else {
+	int y = itemPos( indexOf( id ) ) + cellHeight( indexOf( id ) );
+	QWhatsThis::leaveWhatsThisMode( findItem( id )->whatsThis(), mapToGlobal( QPoint(0,y) ) );
+    }
+
     emit activatedRedirect( id );
 }
 
@@ -875,7 +882,8 @@ void QPopupMenu::updateAccel( QWidget *parent )
 		    autoaccel->setEnabled( FALSE );
 	    }
 	    int k = mi->key();
-	    autoaccel->insertItem( k, mi->id() );
+	    int id = autoaccel->insertItem( k, mi->id() );
+	    autoaccel->setWhatsThis( id, mi->whatsThis() );
 	    if ( !mi->text().isNull() ) {
 		QString s = mi->text();
 		int i = s.find('\t');
@@ -1336,9 +1344,10 @@ void QPopupMenu::mouseReleaseEvent( QMouseEvent *e )
 	} else {				// normal menu item
 	    byeMenuBar();			// deactivate menu bar
 	    if ( mi->isEnabled() ) {
-		if ( mi->signal() )		// activate signal
+		bool b = QWhatsThis::inWhatsThisMode();
+		if ( mi->signal() && !b ) // activate signal
 		    mi->signal()->activate();
-		actSig( mi->id() );
+		actSig( mi->id(), b );
 	    }
 	}
     } else {
@@ -1483,9 +1492,10 @@ void QPopupMenu::keyPressEvent( QKeyEvent *e )
 	} else {
 	    byeMenuBar();
 	    if ( mi->isEnabled() ) {
-		if ( mi->signal() )
+		bool b = QWhatsThis::inWhatsThisMode();
+		if ( mi->signal() && !b ) // activate signal
 		    mi->signal()->activate();
-		actSig( mi->id() );
+		actSig( mi->id(), b );
 	    }
 	}
 	break;
@@ -1527,9 +1537,10 @@ void QPopupMenu::keyPressEvent( QKeyEvent *e )
 	    } else {
 		byeMenuBar();
 		if ( mi->isEnabled() ) {
-		    if ( mi->signal() )
+		    bool b = QWhatsThis::inWhatsThisMode();
+		    if ( mi->signal() && !b  ) // activate signal
 			mi->signal()->activate();
-		    actSig( mi->id() );
+		    actSig( mi->id(), b );
 		}
 	    }
 	}
@@ -1802,3 +1813,10 @@ int QPopupMenu::idAt( const QPoint& pos ) const
   \sa QMenuData::setId(), QMenuData::indexOf()
 */
 
+
+/*!\reimp
+ */
+bool QPopupMenu::customWhatsThis() const
+{
+    return TRUE;
+}

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qaccel.cpp#62 $
+** $Id: //depot/qt/main/src/kernel/qaccel.cpp#63 $
 **
 ** Implementation of QAccel class
 **
@@ -29,6 +29,7 @@
 #include "qwidget.h"
 #include "qlist.h"
 #include "qsignal.h"
+#include "qwhatsthis.h"
 
 /*!
   \class QAccel qaccel.h
@@ -75,6 +76,7 @@ struct QAccelItem {				// internal accelerator item
     int		key;
     bool	enabled;
     QSignal    *signal;
+    QString whatsthis;
 };
 
 
@@ -83,11 +85,12 @@ typedef QList<QAccelItem> QAccelList; // internal accelerator list
 
 class QAccelPrivate {
 public:
-    QAccelPrivate() { aitems.setAutoDelete( TRUE ); }
+    QAccelPrivate() { aitems.setAutoDelete( TRUE ); ignorewhatsthis = FALSE;}
     ~QAccelPrivate() {}
     QAccelList aitems;
     bool enabled;
     QWidget *tlw;
+    bool ignorewhatsthis;
 };
 
 
@@ -390,10 +393,15 @@ bool QAccel::eventFilter( QObject *, QEvent *e )
 	QAccelItem *item = find_key( d->aitems, key, k->ascii() );
 	if ( item && item->enabled ) {
 	    if (e->type() == QEvent::Accel) {
-		if ( item->signal )
-		    item->signal->activate();
-		else
-		    emit activated( item->id );
+		if ( QWhatsThis::inWhatsThisMode() && !d->ignorewhatsthis ) {
+		    QWhatsThis::leaveWhatsThisMode( item->whatsthis );
+		}
+		else {
+		    if ( item->signal )
+			item->signal->activate();
+		    else
+			emit activated( item->id );
+		}
 	    }
 	    k->accept();
 	    return TRUE;
@@ -443,6 +451,47 @@ int QAccel::shortcutKey( const QString &str )
     }
     return 0;
 }
+
+
+/*!
+  Sets a Whats This help for a certain accelerator.
+
+  \arg \e id is the accelerator item id.
+  \arg \e text is the Whats This help text in QML format
+  
+  \sa whatsThis()
+ */
+void QAccel::setWhatsThis( int id, const QString& text )
+{
+
+    QAccelItem *item = find_id( d->aitems, id);
+    if ( item )
+	item->whatsthis = text;
+}
+
+/*!
+  Returns the Whats This help text for the specified item \e id or
+  QString::null if no text has been defined yet.
+  
+  \sa setWhatsThis()
+ */
+QString QAccel::whatsThis( int id ) const
+{
+
+    QAccelItem *item = find_id( d->aitems, id);
+    return item? item->whatsthis : QString::null;
+}
+
+void QAccel::setIgnoreWhatsThis( bool b)
+{
+    d->ignorewhatsthis = b;
+}
+
+bool QAccel::ignoreWhatsThis() const
+{
+    return d->ignorewhatsthis;
+}
+
 
 
 /* \page shortcuts.html

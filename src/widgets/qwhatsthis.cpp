@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qwhatsthis.cpp#41 $
+** $Id: //depot/qt/main/src/widgets/qwhatsthis.cpp#42 $
 **
 ** Implementation of QWhatsThis class
 **
@@ -107,11 +107,13 @@ public:
     bool eventFilter( QObject *, QEvent * );
 
     // say it.
-    void say( QWidget *, const QString&, QPoint* = 0 );
+    void say( QWidget *, const QString&, const QPoint&  );
 
     // setup and teardown
     static void tearDownWhatsThis();
     static void setUpWhatsThis();
+    
+    void leaveWhatsThisMode();
 
     // variables
     QWidget * whatsThat;
@@ -277,7 +279,7 @@ bool QWhatsThisPrivate::eventFilter( QObject * o, QEvent * e )
 	return FALSE;
 
     if ( o == whatsThat ) {
-	if (e->type() == QEvent::MouseButtonPress ) {
+	if (e->type() == QEvent::MouseButtonPress  || e->type() == QEvent::KeyPress ) {
 	    whatsThat->hide();
 	    return TRUE;
 	}
@@ -294,38 +296,30 @@ bool QWhatsThisPrivate::eventFilter( QObject * o, QEvent * e )
 		if ( !i )
 		    w = w->parentWidget();
 	    }
-	    QPtrDictIterator<Button> it( *(wt->buttons) );
-	    Button * b;
-	    while( (b=it.current()) != 0 ) {
-		++it;
-		b->setOn( FALSE );
-	    }
-	    state = Inactive;
-	    qApp->removeEventFilter( this );
-	    if ( i ) {
-		QPoint pos =  ((QMouseEvent*)e)->pos();
-		if ( i->whatsthis )
-		    say( w, i->whatsthis->text( pos ), &pos );
-		else
-		    say( w, i->s, &pos );
-	    }
-	    QApplication::restoreOverrideCursor();
+	    
+	    if (!i )
+		return FALSE;
+	    leaveWhatsThisMode();
+	    QPoint pos =  ((QMouseEvent*)e)->pos();
+	    if ( i->whatsthis )
+		say( w, i->whatsthis->text( pos ), w->mapToGlobal(pos) );
+	    else
+		say( w, i->s, w->mapToGlobal(pos) );
 	    return TRUE;
 	} else if ( e->type() == QEvent::MouseButtonPress ||
 		    e->type() == QEvent::MouseMove ) {
-	    return TRUE;
-	} else if (
-		    e->type() == QEvent::Accel ||
-		    e->type() == QEvent::KeyPress ) {
-	    QPtrDictIterator<Button> it( *(wt->buttons) );
-	    Button * b;
-	    while( (b=it.current()) != 0 ) {
-		++it;
-		b->setOn( FALSE );
+	    return !o->isWidgetType() || !((QWidget*)o)->customWhatsThis();
+	} else if ( e->type() == QEvent::KeyPress ) {
+	    QKeyEvent* kev = (QKeyEvent*)e;
+
+	    if ( o->isWidgetType() && ((QWidget*)o)->customWhatsThis() ) {
+		if (kev->key() == Qt::Key_Escape) {
+		    leaveWhatsThisMode();
+		    return TRUE;
+		}
 	    }
-	    QApplication::restoreOverrideCursor();
-	    state = Inactive;
-	    qApp->removeEventFilter( this );
+	    else if ( kev->state() == kev->stateAfter() && kev->key() != Key_Meta ) // not a modifier key 
+		leaveWhatsThisMode();
 	}
 	break;
     case Inactive:
@@ -338,9 +332,9 @@ bool QWhatsThisPrivate::eventFilter( QObject * o, QEvent * e )
  	    QWhatsThisPrivate::WhatsThisItem * i = 0;
  	    if ( w && (i=dict->find( w )) != 0 && !i->s.isNull() ) {
 		if ( i->whatsthis )
-		    say( w, i->whatsthis->text( QPoint(0,0) ) );
+		    say( w, i->whatsthis->text( QPoint(0,0) ), w->mapToGlobal( w->rect().center() ));
 		else
-		    say( w, i->s );
+		    say( w, i->s, w->mapToGlobal( w->rect().center() ));
 		((QKeyEvent *)e)->accept();
 		return TRUE;
  	    }
@@ -366,7 +360,23 @@ void QWhatsThisPrivate::tearDownWhatsThis()
 }
 
 
-void QWhatsThisPrivate::say( QWidget * widget, const QString &text, QPoint* ppos)
+
+void QWhatsThisPrivate::leaveWhatsThisMode()
+{
+    if ( state == Waiting ) {
+	QPtrDictIterator<Button> it( *(wt->buttons) );
+	Button * b;
+	while( (b=it.current()) != 0 ) {
+	    ++it;
+	    b->setOn( FALSE );
+	}
+	QApplication::restoreOverrideCursor();
+	state = Inactive;
+	qApp->removeEventFilter( this );
+    }
+}
+
+void QWhatsThisPrivate::say( QWidget * widget, const QString &text, const QPoint& ppos)
 {
     const int shadowWidth = 6;   // also used as '5' and '6' and even '8' below
     const int normalMargin = 12; // *2
@@ -410,69 +420,49 @@ void QWhatsThisPrivate::say( QWidget * widget, const QString &text, QPoint* ppos
 
     // okay, now to find a suitable location
 
-    QPoint pos = widget->mapToGlobal( QPoint( 0,0 ) );
     int x;
 
     // first try locating the widget immediately above/below,
     // with nice alignment if possible.
-    if ( w > widget->width() + 16 )
-	x = pos.x() + widget->width()/2 - w/2;
-    else if ( ppos )
-	x = widget->mapToGlobal(*ppos).x() - w/2;
-    else
-	x = pos.x();
-    
+    QPoint pos;
+    if ( widget )
+	pos = widget->mapToGlobal( QPoint( 0,0 ) );
+
+    if ( widget && w > widget->width() + 16 )
+	    x = pos.x() + widget->width()/2 - w/2;
+    else 
+	x = ppos.x() - w/2;
+
     // squeeze it in if that would result in part of what's this
     // being only partially visible
     if ( x + w > QApplication::desktop()->width() )
-	x = QMIN(QApplication::desktop()->width(),
-		 pos.x() + widget->width())
+	x = (widget? (QMIN(QApplication::desktop()->width(),
+			  pos.x() + widget->width())
+		     ) : QApplication::desktop()->width() )
 	    - w;
 
     if ( x < 0 )
 	x = 0;
 
     int y;
-    if ( h > widget->height() + 16 ) {
+    if ( widget && h > widget->height() + 16 ) {
 	y = pos.y() + widget->height() + 2; // below, two pixels spacing
 	// what's this is above or below, wherever there's most space
 	if ( y + h + 10 > QApplication::desktop()->height() )
 	    y = pos.y() + 2 - shadowWidth - h; // above, overlap
     }
-    else if ( ppos )
-	y = widget->mapToGlobal(*ppos).y() + 2;
-    else
-	y = pos.y();
+    y = ppos.y() + 2;
 
     // squeeze it in if that would result in part of what's this
     // being only partially visible
     if ( y + h > QApplication::desktop()->height() )
-	y = QMIN(QApplication::desktop()->height(),
-		 pos.y() + widget->height())
+	y = ( widget ? (QMIN(QApplication::desktop()->height(),
+			     pos.y() + widget->height())
+			) : QApplication:: desktop()->height() )
 	    - h;
     if ( y < 0 )
 	y = 0;
 
-#if 0
-    // should try to fit the whats this widget onto the same
-    // top-level widget here, if possible.
-
-    // if there wasn't enough space either above or below, try the sides
-    if ( y + height() > m.height() || y < 0 ) {
-	//
-	if ( pos.x() > width() + 2 )
-	    x = pos.x() + widget->width() + 8;
-	else
-	    x = pos.x() - width() - 2;
-
-	if ( pos.y() + height() < m.height() )
-	    y = pos.y();
-	else if ( pos.y() + widget->height() > height() )
-	    y = pos.y() + widget->height() - height();
-	else
-	    y = m.height() - height();
-    }
-#endif
 
     whatsThat->setGeometry( x, y, w + shadowWidth, h + shadowWidth );
     whatsThat->show();
@@ -756,6 +746,7 @@ QString QWhatsThis::text( const QPoint & )
   cursor and help window and restores ordinary event processing.  At
   this point the left mouse button is not pressed.
 
+\sa inWhatsThisMode(), leaveWhatsThisMode()
 */
 
 void QWhatsThis::enterWhatsThisMode()
@@ -768,6 +759,42 @@ void QWhatsThis::enterWhatsThisMode()
     }
 }
 
+
+/*!
+  Returns whether the application is in What's This mode.
+  
+\sa enterWhatsThisMode(), leaveWhatsThisMode()
+ */
+bool QWhatsThis::inWhatsThisMode()
+{
+    if (!wt)
+	return FALSE;
+    return wt->state == QWhatsThisPrivate::Waiting;
+}
+
+
+/*!  Leaves What's This? question mode
+
+  This function is used internally by widgets that support
+  QWidget::customWhatsThis(), applications usually never have to call
+  it.  An example for such a kind of widget is QPopupMenu: Menus still
+  work normally in What's This mode, but provide help texts for single
+  menu items instead.
+  
+  If \e text is not a null string, then a What's This help window is
+  displayed at the global position \e pos of the screen.
+
+\sa inWhatsThisMode(), enterWhatsThisMode()
+*/
+void QWhatsThis::leaveWhatsThisMode( const QString& text, const QPoint& pos )
+{
+    if ( !inWhatsThisMode() )
+	return;
+    
+    wt->leaveWhatsThisMode();
+    if ( !text.isNull() )
+	wt->say( 0, text, pos );
+}
 
 static QMLStyleSheet* whatsThisStyleSheet = 0;
 static bool whatsThisStyleSheetSet = FALSE;
@@ -783,8 +810,8 @@ QMLStyleSheet* QWhatsThis::styleSheet()
 }
 
 /*!
-  Sets a style sheet for all What's This help windows. 
-  
+  Sets a style sheet for all What's This help windows.
+
   Usually What's This uses the QMLStyleSheet::defaultSheet() to render
   the help texts.  You can, however, set a different stylesheet with
   this function. If \a styleSheet is 0, no QML rendering is done at

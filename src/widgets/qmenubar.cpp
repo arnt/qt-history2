@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#134 $
+** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#135 $
 **
 ** Implementation of QMenuBar class
 **
@@ -1093,6 +1093,7 @@ void QMenuBar::setupAccelerators()
 		if ( !autoaccel ) {
 		    autoaccel = new QAccel( this );
 		    CHECK_PTR( autoaccel );
+		    autoaccel->setIgnoreWhatsThis( TRUE );
 		    connect( autoaccel, SIGNAL(activated(int)),
 			     SLOT(accelActivated(int)) );
 		    connect( autoaccel, SIGNAL(destroyed()),
@@ -1113,4 +1114,11 @@ void QMenuBar::setupAccelerators()
 		popup->enableAccel( FALSE );
 	}
     }
+}
+
+/*!\reimp
+ */
+bool QMenuBar::customWhatsThis() const
+{
+    return TRUE;
 }

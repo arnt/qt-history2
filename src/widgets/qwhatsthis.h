@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qwhatsthis.h#17 $
+** $Id: //depot/qt/main/src/widgets/qwhatsthis.h#18 $
 **
 ** Definition of QWhatsThis class
 **
@@ -28,6 +28,8 @@
 #include "qobject.h"
 #endif // QT_H
 
+#include "qcursor.h"
+
 class QToolButton;
 class QPopupMenu;
 class QMLStyleSheet;
@@ -46,11 +48,13 @@ public:
     static QString textFor( QWidget *, const QPoint & pos = QPoint(0,0) );
 
     static QToolButton * whatsThisButton( QWidget * parent );
-    
+
     static QMLStyleSheet* styleSheet();
     static void setStyleSheet( QMLStyleSheet* styleSheet );
 
     static void enterWhatsThisMode();
+    static bool inWhatsThisMode();
+    static void leaveWhatsThisMode( const QString& = QString::null, const QPoint& pos = QCursor::pos() );
 
 };
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenudata.cpp#76 $
+** $Id: //depot/qt/main/src/widgets/qmenudata.cpp#77 $
 **
 ** Implementation of QMenuData class
 **
@@ -1111,4 +1111,36 @@ bool QMenuData::disconnectItem( int id, const QObject *receiver,
     if ( !mi || !mi->signal_data )		// no identifier or no signal
 	return FALSE;
     return mi->signal_data->disconnect( receiver, member );
+}
+
+/*!
+  Sets a Whats This help for a certain menu item.
+
+  \arg \e id is the menu item id.
+  \arg \e text is the Whats This help text in QML format
+  
+  \sa whatsThis()
+ */
+void QMenuData::setWhatsThis( int id, const QString& text )
+{
+
+    QMenuData *parent;
+    QMenuItem *mi = findItem( id, &parent );
+    if ( mi ) {
+	mi->setWhatsThis( text );
+	parent->menuContentsChanged();
+    }
+}
+
+/*!
+  Returns the Whats This help text for the specified item \e id or
+  QString::null if no text has been defined yet.
+  
+  \sa setWhatsThis()
+ */
+QString QMenuData::whatsThis( int id ) const
+{
+
+    QMenuItem *mi = findItem( id );
+    return mi? mi->whatsThis() : QString::null;
 }
