@@ -24,7 +24,7 @@ public:
     StringListModel(const QStringList &strings, QObject *parent = 0)
         : QAbstractListModel(parent), stringList(strings) {}
 
-    int rowCount() const;
+    int rows() const;
     QVariant data(const QModelIndex &index, int role) const;
     QVariant headerData(int section, Qt::Orientation orientation,
                         int role = DisplayRole) const;

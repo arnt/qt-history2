@@ -23,7 +23,7 @@
     in the model.
 */
 
-int StringListModel::rowCount() const
+int StringListModel::rows() const
 {
     return stringList.count();
 }
