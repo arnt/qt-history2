@@ -1069,6 +1069,10 @@ struct Tag {
     const QStyleSheetItem* style;
     QStyleSheetItem::WhiteSpaceMode wsm;
     QTextFormat format;
+
+#if defined(Q_FULL_TEMPLATE_INSTANTIATION)
+    bool operator==( const Tag& ) const { return FALSE; }
+#endif
 };
 
 #define NEWPAR       do{ if ( !hasNewPar ) curpar = new QTextParag( this, curpar ); \
