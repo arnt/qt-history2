@@ -50,7 +50,8 @@ SOURCES	+= ../../corelib/global/qglobal.cpp \
            ../../corelib/codecs/qlatincodec.cpp \
            ../../corelib/codecs/qsimplecodec.cpp \
 	   ../../corelib/codecs/qfontlaocodec.cpp \
-           ../../xml/qdom.cpp ../../xml/qxml.cpp 
+           ../../xml/qdom.cpp \
+	   ../../xml/qxml.cpp 
 
 unix:SOURCES += ../../corelib/io/qfsfileengine_unix.cpp
 
