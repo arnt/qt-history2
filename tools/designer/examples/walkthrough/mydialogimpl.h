@@ -6,6 +6,7 @@
 **
 *****************************************************************************/
 
+#include <qvariant.h>	// for older HP-UX compilers
 #include "mydialog.h"
 
 class MyDialogImpl : public MyDialog
