@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qprintdialog.cpp#37 $
+** $Id: //depot/qt/main/src/dialogs/qprintdialog.cpp#38 $
 **
 ** Implementation of internal print dialog (X11) used by QPrinter::select().
 **
@@ -96,8 +96,10 @@ static void parsePrintcap( QListView * printers )
 
     while( !printcap.atEnd() &&
 	   (lineLength=printcap.readLine( line, 1024 )) > 0 ) {
-	if ( *line == '#' )
+	if ( *line == '#' ) {
 	    *line = '\0';
+	    lineLength = 0;
+	}
 	if ( lineLength >= 2 && line[lineLength-2] == '\\' ) {
 	    line[lineLength-2] = '\0';
 	    printerDesc += line;
@@ -152,8 +154,8 @@ static void parsePrintcap( QListView * printers )
     delete[] line;
 }
 
-
-static void parseEtcLp( QListView * printers )
+// solaris, not 2.6
+static void parseEtcLpPrinters( QListView * printers )
 {
     QDir lp( "/etc/lp/printers" );
     const QFileInfoList * dirs = lp.entryInfoList();
@@ -223,6 +225,139 @@ static void parseEtcLp( QListView * printers )
     }
 }
 
+
+// solaris 2.6
+static char * parsePrintersConf( QListView * printers )
+{
+    QFile pc( "/etc/printers.conf" );
+    if ( !pc.open( IO_ReadOnly ) )
+	return 0;
+
+    char * line = new char[1025];
+    line[1024] = '\0';
+
+    QString printerDesc;
+    int lineLength = 0;
+    
+    char * defaultPrinter = 0;
+
+    while( !pc.atEnd() &&
+	   (lineLength=pc.readLine( line, 1024 )) > 0 ) {
+	if ( *line == '#' ) {
+	    *line = '\0';
+	    lineLength = 0;
+	}
+	if ( lineLength >= 2 && line[lineLength-2] == '\\' ) {
+	    line[lineLength-2] = '\0';
+	    printerDesc += line;
+	} else {
+	    printerDesc += line;
+	    printerDesc = printerDesc.simplifyWhiteSpace();
+	    int i = printerDesc.find( ':' );
+	    QString printerName, printerHost, printerComment;
+	    if ( i >= 0 ) {
+		// have : want |
+		int j = printerDesc.find( '|', 0 );
+		if ( j >= i )
+		    j = -1;
+		printerName = printerDesc.mid( 0, j < 0 ? i : j );
+		if ( printerName == "_default" ) {
+		    i = printerDesc.find( QRegExp( ": *use *=" ) );
+		    while( printerDesc[i] != '=' )
+			i++;
+		    while( printerDesc[i] == '=' || isspace( printerDesc[i] ) )
+			i++;
+		    j = i;
+		    while( printerDesc[j] != ':' && 
+			   printerDesc[j] != ',' && 
+			   printerDesc[j] )
+			j++;
+		    // that's our default printer
+		    defaultPrinter = qstrdup( printerDesc.mid( i, j-i ) );
+		    printerName = 0;
+		    printerDesc = 0;
+		} else if ( printerName == "_all" ) {
+		    // skip it.. any other cases we want to skip?
+		    printerName = 0;
+		    printerDesc = 0;
+		}
+
+		if ( j > 0 ) {
+		    // try extracting a comment from the aliases...
+		    printerComment = "Aliases: ";
+		    printerComment += printerDesc.mid( j+1, i-j-1 );
+		    for( j=printerComment.length(); j>-1; j-- )
+			if ( printerComment[j] == '|' )
+			    printerComment[j] = ',';
+		}
+		// look for signs of this being a remote printer
+		i = printerDesc.find( QRegExp( ": *bsdaddr *=" ) );
+		if ( i >= 0 ) {
+		    // point k at the end of remote host name
+		    while( printerDesc[i] != '=' )
+			i++;
+		    while( printerDesc[i] == '=' || isspace( printerDesc[i] ) )
+			i++;
+		    j = i;
+		    while( printerDesc[j] != ':' && 
+			   printerDesc[j] != ',' && 
+			   printerDesc[j] )
+			j++;
+		    // and stuff that into the string
+		    printerHost = printerDesc.mid( i, j-i );
+		    // maybe stick the remote printer name into the comment
+		    if ( printerDesc[j] == ',' ) {
+			i = ++j;
+			while( isspace( printerDesc[i] ) )
+			    i++;
+			j = i;
+			while( printerDesc[j] != ':' && 
+			       printerDesc[j] != ',' && 
+			       printerDesc[j] )
+			    j++;
+			if ( printerName != printerDesc.mid( i, j-i ) ) {
+			    printerComment = "Remote name: ";
+			    printerComment += printerDesc.mid( i, j-i );
+			}
+		    }
+		}
+	    }
+	    if ( printerName.length() )
+		perhapsAddPrinter( printers, printerName, printerHost,
+				   printerComment );
+	    // chop away the line, for processing the next one
+	    printerDesc = 0;
+	}
+    }
+    delete[] line;
+    return defaultPrinter;
+}
+
+
+
+// HP-UX
+static void parseEtcLpMember( QListView * printers )
+{
+    QDir lp( "/etc/lp/member" );
+    const QFileInfoList * dirs = lp.entryInfoList();
+    if ( !dirs )
+	return;
+
+    QFileInfoListIterator it( *dirs );
+    QFileInfo *printer;
+    QString tmp;
+    while ( (printer = it.current()) != 0 ) {
+	++it;
+	// uglehack.
+	// I haven't found any real documenation, so I'm guessing that
+	// since lpstat uses /etc/lp/member rather than one of the
+	// other directories, it's the one to use.  I did not find a
+	// decent way to locate aliases and remote printers.
+	if ( printer->isFile() )
+	    perhapsAddPrinter( printers, printer->fileName().data(), 
+			       "unknown", 0 );
+    }
+}
 
 static QPrintDialog * globalPrintDialog = 0;
 
@@ -366,12 +501,15 @@ QGroupBox * QPrintDialog::setupDestination()
     char * etcLpDefault = 0;
 
     QFileInfo f;
+
+    // now do the tiresome unix printer lookup
     f.setFile( "/etc/printcap" );
     if ( f.isFile() && f.isReadable() )
 	parsePrintcap( d->printers );
-    f.setFile( "/etc/lp/printers/" );
-   if ( f.isDir() ) {
-	parseEtcLp( d->printers );
+
+    f.setFile( "/etc/lp/printers" );
+    if ( f.isDir() ) {
+	parseEtcLpPrinters( d->printers );
 	QFile def( "/etc/lp/default" );
 	if ( def.open( IO_ReadOnly ) ) {
 	    etcLpDefault = new char[1025];
@@ -386,10 +524,28 @@ QGroupBox * QPrintDialog::setupDestination()
 	}
     }
 
+    f.setFile( "/etc/printers.conf" );
+    if ( f.isFile() ) {
+	char * def = parsePrintersConf( d->printers );
+	if ( def ) {
+	    if ( etcLpDefault )
+		delete[] etcLpDefault;
+	    etcLpDefault = def;
+	}
+    }
+
+    f.setFile( "/etc/lp/member" );
+    if ( f.isDir() )
+	parseEtcLpMember( d->printers );
+
+    // all printers hopefully known.  try to find a good default
     char * dollarPrinter;
     dollarPrinter = getenv( "PRINTER" );
+    if ( !dollarPrinter )
+	dollarPrinter = getenv( "LPDEST" );
     int quality = 0;
 
+    // bang the best default into the listview
     const QListViewItem * lvi = d->printers->firstChild();
     d->printers->setCurrentItem( (QListViewItem *)lvi );
     while( lvi ) {
