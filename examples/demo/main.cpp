@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/demo/main.cpp#31 $
+** $Id: //depot/qt/main/examples/demo/main.cpp#32 $
 **
 ** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
 **
@@ -118,7 +118,7 @@ int main( int argc, char **argv )
 
     tab = new QTabWidget();
     w = new KAstTopLevel(tab);
-    tab->addTab(w, "Asteroids");
+    tab->addTab(w, "Games");
     frame.addCategory( tab, textpix, textpix_sel, "Asteroids");
 
     a.setMainWidget( &frame );
