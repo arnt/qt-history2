@@ -10700,6 +10700,10 @@ QString QString::visual(int index, int len)
 
 QChar* QString::asciiToUnicode( const QByteArray& ba, uint* len )
 {
+    if ( ba.isNull() ) {
+	*len = 0;
+	return 0;
+    }
     int l = 0;
     while ( l < (int)ba.size() && ba[l] )
 	l++;
