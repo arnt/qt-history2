@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmultilinedit.cpp#84 $
+** $Id: //depot/qt/main/src/widgets/qmultilinedit.cpp#85 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -1066,9 +1066,9 @@ void QMultiLineEdit::insertAt( const char *txt, int line, int col )
 
 
 /*!
-  Inserts \a s at line number \a line. If \a line is less than zero, or
-  larger than the number of rows, the new text is put at the end.
-  If \a s contains newline characters, several lines are inserted.
+  Inserts \a txt at line number \a line. If \a line is less than zero,
+  or larger than the number of rows, the new text is put at the end.
+  If \a txt contains newline characters, several lines are inserted.
 
   The cursor position is not changed.
 */
