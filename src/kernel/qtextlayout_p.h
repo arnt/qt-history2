@@ -81,7 +81,8 @@ class Q_GUI_EXPORT QTextLayout
 public:
     // does itemization
     QTextLayout();
-    QTextLayout( const QString& string, QPainter * = 0 );
+    QTextLayout(const QString& string);
+    QTextLayout( const QString& string, QPainter *);
     QTextLayout( const QString& string, const QFont& fnt );
     ~QTextLayout();
 
@@ -94,6 +95,8 @@ public:
 
     /* add an additional item boundary eg. for style change */
     void setBoundary( int strPos );
+
+    void setFont(int from, int length, const QFont &f);
 
     int numItems() const;
     QTextItem itemAt( int i ) const;

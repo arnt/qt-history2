@@ -188,7 +188,13 @@ bool QTextItem::isTab() const
 
 
 QTextLayout::QTextLayout()
-    :d(0) {}
+    :d(0)
+{}
+
+QTextLayout::QTextLayout(const QString& string)
+{
+    d = new QTextEngine(string, 0);
+}
 
 QTextLayout::QTextLayout( const QString& string, QPainter *p )
 {
@@ -262,6 +268,10 @@ QTextItem QTextLayout::findItem( int strPos ) const
     return QTextItem();
 }
 
+void QTextLayout::setFont(int from, int length, const QFont &f)
+{
+    d->setFont(from, length, f.d);
+}
 
 void QTextLayout::beginLayout( QTextLayout::LayoutMode m )
 {
