@@ -44,11 +44,11 @@ static const char* default_pm[] = {
 
 // Shift/Ctrl handling, and final drop status
 static QDrag::DropAction drag_mode;
-static QDropEvent::Action global_requested_action = QDropEvent::Copy;
-static QDropEvent::Action global_accepted_action = QDropEvent::Copy;
+static QDrag::DropAction global_requested_action = QDrag::CopyAction;
+static QDrag::DropAction global_accepted_action = QDrag::CopyAction;
 static QDrag *drag_object;
 
-static Qt::ButtonState oldstate;
+static Qt::KeyboardModifiers oldstate;
 
 class QShapedPixmapWidget : public QWidget {
     QPixmap pixmap;
@@ -112,10 +112,10 @@ void QDragManager::updateCursor()
 #ifndef QT_NO_CURSOR
     if (willDrop) {
         int cursorIndex = 0; // default is copy_cursor
-        if (global_accepted_action == QDropEvent::Copy) {
-            if (global_requested_action != QDropEvent::Move)
+        if (global_accepted_action == QDrag::CopyAction) {
+            if (global_requested_action != QDrag::MoveAction)
                 cursorIndex = 1; // move_cursor
-        } else if (global_accepted_action == QDropEvent::Link)
+        } else if (global_accepted_action == QDrag::LinkAction)
             cursorIndex = 2; // link_cursor
         if (qt_qws_dnd_deco)
             qt_qws_dnd_deco->show();
@@ -223,9 +223,9 @@ QDrag::DropAction QDragManager::drag(QDrag *o)
          return QDrag::IgnoreAction;
     object = drag_object = o;
     qt_qws_dnd_deco = new QShapedPixmapWidget();
-    oldstate = Qt::ButtonState(-1); // #### Should use state that caused the drag
+    oldstate = Qt::NoModifier; // #### Should use state that caused the drag
 //    drag_mode = mode;
-    global_accepted_action = QDropEvent::Copy; // #####
+    global_accepted_action = QDrag::CopyAction; // #####
     willDrop = false;
     updateMode(0);
     updatePixmap();
@@ -240,24 +240,24 @@ void QDragManager::updateMode(Qt::KeyboardModifiers newstate)
 {
     if (newstate == oldstate)
         return;
-    const int both = Qt::ShiftButton|Qt::ControlButton;
+    const Qt::KeyboardModifiers both = Qt::ShiftModifier|Qt::ControlModifier;
     if ((newstate & both) == both) {
-        global_requested_action = QDropEvent::Link;
+        global_requested_action = QDrag::LinkAction;
     } else {
         bool local = drag_object != 0;
         if (drag_mode == QDrag::MoveAction)
-            global_requested_action = QDropEvent::Move;
+            global_requested_action = QDrag::MoveAction;
         else if (drag_mode == QDrag::CopyAction)
-            global_requested_action = QDropEvent::Copy;
+            global_requested_action = QDrag::CopyAction;
         else {                  //
             if (drag_mode == QDrag::MoveAction && local) //
-                global_requested_action = QDropEvent::Move;
+                global_requested_action = QDrag::MoveAction;
             else
-                global_requested_action = QDropEvent::Copy;
-            if (newstate & Qt::ShiftButton)
-                global_requested_action = QDropEvent::Move;
-            else if (newstate & Qt::ControlButton)
-                global_requested_action = QDropEvent::Copy;
+                global_requested_action = QDrag::CopyAction;
+            if (newstate & Qt::ShiftModifier)
+                global_requested_action = QDrag::MoveAction;
+            else if (newstate & Qt::ControlModifier)
+                global_requested_action = QDrag::CopyAction;
         }
     }
     oldstate = newstate;
