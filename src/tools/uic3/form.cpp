@@ -278,6 +278,8 @@ void Ui3Reader::createFormDecl(const QDomElement &e)
     if (uiHeaderFile.isEmpty()) {
         Driver d;
         d.option().headerProtection = false;
+        if (trmacro.size())
+            d.option().translateFunction = trmacro;
         DomUI *ui = generateUi4(e);
         d.uic(fileName, ui, &out);
         delete ui;
