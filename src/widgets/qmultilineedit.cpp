@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmultilineedit.cpp#87 $
+** $Id: //depot/qt/main/src/widgets/qmultilineedit.cpp#88 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -31,6 +31,8 @@
 #include "qregexp.h"
 #include "qapplication.h"
 #include "qdragobject.h"
+#include "qpopupmenu.h"
+
 #include <ctype.h>
 
 
@@ -82,7 +84,7 @@ struct QMultiLineData
 	dnd_primed(FALSE),
 	dnd_forcecursor(FALSE),
 	dnd_timer(0)
-		{}
+    {}
     bool isHandlingEvent;
     bool edited;
     int  maxLineWidth;
@@ -102,6 +104,8 @@ struct QMultiLineData
     bool dnd_forcecursor; // If TRUE show cursor for DND feedback,
 			    // even if !hasFocus()
     int	 dnd_timer;  // If it expires before release, start drag
+    QPopupMenu *popup;
+    int id[ 5 ];
 };
 
 
@@ -246,6 +250,13 @@ QMultiLineEdit::QMultiLineEdit( QWidget *parent , const char *name )
     setNumRows( 1 );
     setWidth( w );
     setAcceptDrops(TRUE);
+    d->popup = new QPopupMenu( this );
+    d->id[ 0 ] = d->popup->insertItem( tr( "Cut" ) );
+    d->id[ 1 ] = d->popup->insertItem( tr( "Copy" ) );
+    d->id[ 2 ] = d->popup->insertItem( tr( "Paste" ) );
+    d->id[ 3 ] = d->popup->insertItem( tr( "Clear" ) );
+    d->popup->insertSeparator();
+    d->id[ 4 ] = d->popup->insertItem( tr( "Select All" ) );
 }
 
 /*! \fn int QMultiLineEdit::numLines() const
@@ -1708,6 +1719,26 @@ void QMultiLineEdit::mousePressEvent( QMouseEvent *m )
 {
     stopAutoScroll();
 
+    if ( m->button() == RightButton ) {
+	d->popup->setItemEnabled( d->id[ 0 ], hasMarkedText() );
+	d->popup->setItemEnabled( d->id[ 1 ], hasMarkedText() );
+	d->popup->setItemEnabled( d->id[ 2 ], (bool)QApplication::clipboard()->text().length() );
+	d->popup->setItemEnabled( d->id[ 3 ], (bool)text().length() );
+	int id = d->popup->exec( QCursor::pos() );
+	if ( id == d->id[ 0 ] )
+	    cut();
+	else if ( id == d->id[ 1 ] )
+	    copy();
+	else if ( id == d->id[ 2 ] )
+	    paste();
+	else if ( id == d->id[ 3 ] )
+	    clear();
+	else if ( id == d->id[ 4 ] )
+	    selectAll();
+    
+	return;
+    }
+    
     if ( m->button() != MidButton && m->button() != LeftButton)
 	return;
 
