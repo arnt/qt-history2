@@ -581,6 +581,12 @@ QMakeProject::read(uchar cmd)
 	    return FALSE;
     }
 
+    if(cmd & ReadPostFiles) { /* parse post files */
+	const QStringList l = vars["QMAKE_POST_INCLUDE_FILES"];
+	for(QStringList::ConstIterator it = l.begin(); it != l.end(); ++it)
+	    read((*it), vars);
+    }
+
     if(cmd & ReadCmdLine) {
 	parser.line_no = 1; //really arg count now.. duh
 	parser.file = "(internal)";
@@ -607,9 +613,8 @@ QMakeProject::read(uchar cmd)
 	templ.append(QString("app"));
     else if(vars["TEMPLATE"].first().endsWith(".t"))
 	templ = QStringList(templ.first().left(templ.first().length() - 2));
-    if ( !Option::user_template_prefix.isEmpty() ) {
+    if ( !Option::user_template_prefix.isEmpty() )
 	templ.first().prepend(Option::user_template_prefix);
-    }
 
     if(vars["TARGET"].isEmpty()) {
 	// ### why not simply use:

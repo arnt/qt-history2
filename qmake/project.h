@@ -61,7 +61,7 @@ public:
     QMakeProject();
     QMakeProject(QMakeProperty *);
 
-    enum { ReadCache=0x01, ReadConf=0x02, ReadCmdLine=0x04, ReadProFile=0x08, ReadAll=0xFF };
+    enum { ReadCache=0x01, ReadConf=0x02, ReadCmdLine=0x04, ReadProFile=0x08, ReadPostFiles=0x10, ReadAll=0xFF };
     bool read(const QString &project, const QString &pwd, uchar cmd=ReadAll);
     bool read(uchar cmd=ReadAll);
 
