@@ -121,6 +121,10 @@ QLineEdit
 Feature Requests
 ----------------
 
+QDesktopWidget
+  report the "work area" as well as the screen coordinates.  I don't know if this
+  can be done on windows, and on X11, this is almost impossible.
+
 QFileDialog
   Make the combobox like on MS-Windows and add additional
   functionality for bookmarks and history
