@@ -65,7 +65,7 @@ bool CppEditorCompletion::doObjectCompletion( const QString &objName )
 	}
     }
 
-    QPtrStrList props = obj->metaObject()->propertyNames( TRUE );
+    QStrList props = obj->metaObject()->propertyNames( TRUE );
     for ( QPtrListIterator<char> pit( props ); pit.current(); ++pit ) {
 	QString f( pit.current() );
 	QChar c = f[ 0 ];
@@ -82,7 +82,7 @@ bool CppEditorCompletion::doObjectCompletion( const QString &objName )
 	    lst << ce;
     }
 
-    QPtrStrList slts = obj->metaObject()->slotNames( TRUE );
+    QStrList slts = obj->metaObject()->slotNames( TRUE );
     for ( QPtrListIterator<char> sit( slts ); sit.current(); ++sit ) {
 	QString f( sit.current() );
 	f = f.left( f.find( "(" ) );
@@ -171,7 +171,7 @@ QValueList<QStringList> CppEditorCompletion::functionParameters( const QString &
     if ( !obj )
 	return QValueList<QStringList>();
 
-    QPtrStrList slts = obj->metaObject()->slotNames( TRUE );
+    QStrList slts = obj->metaObject()->slotNames( TRUE );
     for ( QPtrListIterator<char> sit( slts ); sit.current(); ++sit ) {
 	QString f( sit.current() );
 	f = f.left( f.find( "(" ) );
