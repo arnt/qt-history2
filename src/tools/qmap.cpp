@@ -19,6 +19,13 @@ QMapData QMapData::shared_null =
   { &QMapData::shared_null.header, &QMapData::shared_null.header, 0, QMapData::Red, 1 }
 };
 
+/*
+     x              y
+      \            / \
+       y    -->   x   b
+      / \          \
+     a   b          a
+*/
 static void rotateLeft( QMapData::Node * x, QMapData::Node *& root)
 {
     register QMapData::Node * y = x->right;
@@ -37,6 +44,13 @@ static void rotateLeft( QMapData::Node * x, QMapData::Node *& root)
 }
 
 
+/*
+         x          y
+        /          / \
+       y    -->   a   x
+      / \            /
+     a   b          b
+*/
 static void rotateRight( QMapData::Node * x, QMapData::Node *& root )
 {
     register QMapData::Node * y = x->left;
@@ -98,7 +112,7 @@ void QMapData::rebalance(Node * x)
 }
 
 
-QMapData::Node * QMapData::removeAndRebalance(Node * z)
+void QMapData::removeAndRebalance(Node * z)
 {
     Node *& root = header.parent;
     Node *& leftmost = header.left;
@@ -124,6 +138,17 @@ QMapData::Node * QMapData::removeAndRebalance(Node * z)
 	z->left->parent = y;
 	y->left = z->left;
 	if (y != z->right) {
+	    /*
+	             z                y
+		    / \              / \
+		   a   b            a   b
+		      /                /
+		    ...     -->      ...
+		    /                /
+		   y                x
+		  / \
+		 0   x
+	     */
 	    x_parent = y->parent;
 	    if (x)
 		x->parent = y->parent;
@@ -131,6 +156,13 @@ QMapData::Node * QMapData::removeAndRebalance(Node * z)
 	    y->right = z->right;
 	    z->right->parent = y;
 	} else {
+	    /*
+	             z                y
+		    / \              / \
+		   a   y            a   x
+		      / \
+		     0   x
+	     */
 	    x_parent = y;
 	}
 	if (root == z)
@@ -231,5 +263,4 @@ QMapData::Node * QMapData::removeAndRebalance(Node * z)
 	if (x)
 	    x->color = Black;
     }
-    return y;
 }

@@ -93,7 +93,7 @@ struct Q_EXPORT QMapData
     }
 
     void rebalance(Node* x);
-    Node* removeAndRebalance(Node* z);
+    void removeAndRebalance(Node* z);
 
     static inline QMapData *init(QMapData *d)
     {
@@ -254,8 +254,10 @@ public:
     }
     ~QMap()
     {
-	if (!--d->ref)
-	    free(d);
+	if (!--d->ref) {
+	    free(d->header.parent);
+	    delete d;
+	}
     }
     QMap<Key,T>& operator= (const QMap<Key,T>& m);
 
@@ -350,7 +352,7 @@ private:
     static inline const T& value(const QMapData::Node* b)
 	{ return static_cast<const Node *>(b)->data; }
     Node *insertSingle(const Key& k);
-    static void free(QMapData *d);
+    static void free(QMapData::Node *p);
 };
 
 template<class Key, class T>
@@ -405,8 +407,10 @@ Q_INLINE_TEMPLATES void QMap<Key,T>::detachInternal()
     }
 
     x = qAtomicSetPtr(&d, x);
-    if (!--x->ref)
-        free(x);
+    if (!--x->ref) {
+        free(x->header.parent);
+	delete x;
+    }
 }
 
 template <class Key, class T>
@@ -477,27 +481,14 @@ Q_INLINE_TEMPLATES Q_TYPENAME QMap<Key, T>::Node *QMap<Key, T>::findNode(const K
 }
 
 template <class Key, class T>
-Q_INLINE_TEMPLATES void QMap<Key,T>::free(QMapData *d)
+Q_INLINE_TEMPLATES void QMap<Key,T>::free(QMapData::Node *p)
 {
-    register QMapData::Node *p = d->header.right;
-    if (p == d->header.parent)
-	p = d->header.left;
-    d->header.left = d->header.right = 0;
-    while (p != &d->header) {
-	register QMapData::Node *n = p->parent;
-	if (n->left == p)
-	    n->left = 0;
-	if (n->left) {
-	    n = n->left;
-	    while (!n->right && n->left)
-		n = n->left;
-	    while (n->right)
-		n = n->right;
-	}
+    while ( p != 0 ) {
+	free(p->right);
+	QMapData::Node *y = p->left;
 	delete static_cast<Node *>(p);
-	p = n;
+	p = y;
     }
-    delete d;
 }
 
 template<class K, class T>
@@ -506,7 +497,8 @@ Q_INLINE_TEMPLATES Q_TYPENAME QMap<K, T>::Iterator QMap<K, T>::erase(Iterator it
     detach();
     Iterator n = it;
     ++n;
-    delete static_cast<Node *>(d->removeAndRebalance(it.n));
+    d->removeAndRebalance(it.n);
+    delete it.n;
     --d->node_count;
     return n;
 }
@@ -517,7 +509,8 @@ Q_INLINE_TEMPLATES void QMap<Key,T>::erase(const Key& k)
     detach();
     Node *n = findNode(k);
     if (n != &d->header) {
-        delete static_cast<Node *>(d->removeAndRebalance(n));
+	d->removeAndRebalance(n);
+        delete n;
 	--d->node_count;
     }
 }
@@ -528,8 +521,10 @@ Q_INLINE_TEMPLATES QMap<Key,T>& QMap<Key,T>::operator= (const QMap<Key,T>& m)
     QMapData *x = m.d;
     ++x->ref;
     x = qAtomicSetPtr(&d, x);
-    if (!--x->ref)
-	free(x);
+    if (!--x->ref) {
+	free(x->header.parent);
+	delete x;
+    }
     return *this;
 }
 
@@ -569,13 +564,14 @@ Q_INLINE_TEMPLATES Q_TYPENAME QMap<Key,T>::Iterator QMap<Key,T>::insert(const Ke
 
 
 template<class Key, class T>
-Q_INLINE_TEMPLATES T & QMap<Key,T>::operator[] (const Key& k) {
-	detach();
-	Node* p = findNode(k);
-	if (p != &d->header)
-	    return p->data;
-	return insert(k, T()).data();
-    }
+Q_INLINE_TEMPLATES T & QMap<Key,T>::operator[] (const Key& k)
+{
+    detach();
+    Node* p = findNode(k);
+    if (p != &d->header)
+	return p->data;
+    return insert(k, T()).data();
+}
 
 template<class Key, class T>
 Q_INLINE_TEMPLATES const T QMap<Key,T>::value(const Key& k) const
