@@ -74,3 +74,6 @@ mac {
     QMAKE_INFO_PLIST = Info_mac.plist
     TARGET = Designer
 }
+
+target.path=$$bins.path
+INSTALLS += target

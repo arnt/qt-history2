@@ -15,7 +15,7 @@ unix {
   confclean.commands += $(DEL_FILE) .qmake.cache
   QMAKE_EXTRA_UNIX_TARGETS += confclean
 }
-CONFIG -= qt 
+CONFIG -= qt
 
 ### installations ####
 
@@ -37,7 +37,7 @@ INSTALLS += qmake
 #mkspecs
 mkspecs.path=$$data.path
 mkspecs.files=$$QT_SOURCE_TREE/mkspecs
-mkspecs.commands = $(SYMLINK) $$QMAKESPEC $$mkspecs.path/mkspecs/default
+mkspecs.commands = $(MKDIR) $$mkspecs.path/mkspecs && $(SYMLINK) $$QMAKESPEC $$mkspecs.path/mkspecs/default
 INSTALLS += mkspecs
 
 macx { #mac install location
