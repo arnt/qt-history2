@@ -819,7 +819,7 @@ void QTextDocumentLayoutPrivate::layoutTable(QTextTable *table, int /*layoutFrom
     }
 
     for (int r = 0; r < rows; ++r) {
-        const int y = td->rowPositions.at(r);
+        const int y = td->rowPositions.at(r) + td->padding;
         for (int c = 0; c < columns; ++c) {
             QTextTableCell cell = table->cellAt(r, c);
             const int rspan = cell.rowSpan();
@@ -1312,8 +1312,10 @@ void QTextDocumentLayout::drawObject(QPainter *p, const QRect &rect, QTextInline
     QRect r = rect;
     if (frame) {
         QTextFrameData *fd = data(frame);
-        r = fd->boundingRect;
-        r.moveBy(item.engine()->position);
+        if (fd->position != QTextFrameFormat::InFlow) {
+            r = fd->boundingRect;
+            r.moveBy(item.engine()->position);
+        }
 #if 0
         pos = frame->format().position();
         if (frame != QTextFrameFormat::None) {
