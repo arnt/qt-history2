@@ -1228,6 +1228,11 @@ void QTextEdit::timerEvent(QTimerEvent *e)
         d->startDrag();
     } else if (e->timerId() == d->trippleClickTimer.timerId()) {
         d->trippleClickTimer.stop();
+    } else if (e->timerId() == d->autoScrollTimer.timerId()) {
+        const QPoint globalPos = QCursor::pos();
+        const QPoint pos = d->viewport->mapFromGlobal(globalPos);
+        QMouseEvent ev(QEvent::MouseMove, pos, globalPos, Qt::LeftButton, Qt::LeftButton, Qt::NoModifier);
+        mouseMoveEvent(&ev);
     }
 }
 
@@ -1654,6 +1659,14 @@ void QTextEdit::mouseMoveEvent(QMouseEvent *e)
     const QPoint mousePos = d->translateCoordinates(e->pos());
     const qreal mouseX = qreal(mousePos.x());
 
+    if (d->autoScrollTimer.isActive()) {
+        if (d->viewport->rect().contains(e->pos()))
+            d->autoScrollTimer.stop();
+    } else {
+        if (!d->viewport->rect().contains(e->pos()))
+            d->autoScrollTimer.start(100, this);
+    }
+
     int newCursorPos = d->doc->documentLayout()->hitTest(mousePos, Qt::FuzzyHit);
     if (newCursorPos == -1)
         return;
@@ -1728,6 +1741,8 @@ void QTextEdit::mouseReleaseEvent(QMouseEvent *e)
     Q_D(QTextEdit);
 
     d->cursorOnDoubleClick = QTextCursor();
+
+    d->autoScrollTimer.stop();
 
     if (d->mightStartDrag) {
         d->mousePressed = false;
@@ -1982,6 +1997,9 @@ void QTextEdit::changeEvent(QEvent *e)
     }  else if(e->type() == QEvent::ActivationChange) {
         if (!palette().isEqual(QPalette::Active, QPalette::Inactive))
             update();
+
+        if (!isActiveWindow())
+            d->autoScrollTimer.stop();
     }
 }
 

@@ -110,7 +110,7 @@ public:
     bool tabChangesFocus;
 
     QBasicTimer cursorBlinkTimer;
-
+    QBasicTimer autoScrollTimer;
     QBasicTimer trippleClickTimer;
     QPoint trippleClickPoint;
 
