@@ -704,8 +704,6 @@ void QMacStyle::drawControl(ControlElement element,
     } else if(qAquaActive(cg)) {
 	if(!(how & Style_Enabled))
 	    tds = kThemeStateUnavailable;
-    case CE_PopupMenuHorizontalExtra:
-    case CE_PopupMenuVerticalExtra:
     } else {
 	if(how & Style_Enabled)
 	    tds = kThemeStateInactive;
@@ -717,6 +715,8 @@ void QMacStyle::drawControl(ControlElement element,
     case CE_ToolBoxTab: 
 	QCommonStyle::drawControl(element, p, widget, r, cg, how, opt);
 	break;
+    case CE_PopupMenuHorizontalExtra:
+    case CE_PopupMenuVerticalExtra:
     case CE_PopupMenuScroller: {
 	Rect mrect = *qt_glb_mac_rect(widget->rect(), p),
 	     irect = *qt_glb_mac_rect(r, p, FALSE);
