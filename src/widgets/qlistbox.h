@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.h#77 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.h#78 $
 **
 ** Definition of QListBox widget class
 **
@@ -73,8 +73,8 @@ public:
     int numItemsVisible() const;
 
     int currentItem() const;
-    void setCurrentItem( int index );
-    void ensureCurrentVisible();
+    virtual void setCurrentItem( int index );
+    virtual void ensureCurrentVisible();
     virtual void setCurrentItem( QListBoxItem * );
     void centerCurrentItem() { ensureCurrentVisible(); }
     int topItem() const;
@@ -107,7 +107,7 @@ public:
     bool itemVisible( QListBoxItem * );
 
     enum LayoutMode { FixedNumber,
-		      FitWidth, FitToHeight = FitWidth,
+		      FitToWidth, FitToHeight = FitToWidth,
 		      Variable };
     virtual void setColumnMode( LayoutMode );
     virtual void setColumnMode( int );
@@ -117,9 +117,9 @@ public:
     LayoutMode columnMode() const;
     LayoutMode rowMode() const;
 
-    int numColumns() const; // ### uint/int
+    int numColumns() const;
     int	numCols() const { return numColumns(); } // for QTableView users
-    int numRows() const; // ### uint/int
+    int numRows() const;
 
     bool variableWidth() const;
     virtual void setVariableWidth( bool );
@@ -176,6 +176,7 @@ protected:
     void keyPressEvent( QKeyEvent *e );
     void focusInEvent( QFocusEvent *e );
     void focusOutEvent( QFocusEvent *e );
+    void resizeEvent( QResizeEvent * );
 
     void updateItem( int index );
     void updateItem( QListBoxItem * );
@@ -185,6 +186,8 @@ protected:
     int totalWidth() const { return contentsWidth(); }
     int totalHeight() const { return contentsHeight(); }
 #endif
+
+    virtual void paintCell( QPainter *, int row, int col );
 
     void toggleCurrentItem();
 
@@ -209,8 +212,6 @@ private:
     QListBoxPrivate * d;
 
     static QListBox * changedListBox;
-
-    friend class QListBoxItem; // ### for access to d.  regrettable.
 
 private:	// Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)

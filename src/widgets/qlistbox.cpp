@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#212 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#213 $
 **
 ** Implementation of QListBox widget class
 **
@@ -1441,7 +1441,7 @@ void QListBox::setSelected( QListBoxItem * item, bool select )
 	d->current->s = FALSE;
     }
 
-    item->s = select;
+    item->s = (uint)select;
     updateItem( item );
     emitChangedSignal( TRUE );
 }
@@ -1690,30 +1690,6 @@ int QListBox::numRows() const
 
 void QListBox::doLayout() const
 {
-
-
-
-
-
-
-
-
-
-
-
-                                      return;
-
-
-
-
-
-
-
-
-
-
-
-
     if ( !d->layoutDirty )
 	return;
 
@@ -1735,7 +1711,7 @@ void QListBox::doLayout() const
 		    maxh = h;
 		i = i->n;
 	    }
-	    int vh = viewportSize( QSize( 1, 1 ) ).height();
+	    int vh = viewportSize( 1, 1 ).height();
 	    do {
 		int rows = vh / maxh;
 		if ( rows > c )
@@ -1751,12 +1727,12 @@ void QListBox::doLayout() const
 		    --rows;
 		}
 		tryGeometry( rows, (c+rows-1)/rows );
-		int nvh = viewportSize(
-			QSize( d->columnPos[(int)d->columnPos.size()-1],
-			       d->rowPos[(int)d->rowPos.size()-1] ) ).height();
+		int nvh = viewportSize( d->columnPos[(int)d->columnPos.size()-1],
+					d->rowPos[(int)d->rowPos.size()-1] ).height();
 		if ( nvh < vh )
 		    vh = nvh;
-	    } while ( vh < d->rowPos[(int)d->rowPos.size()-1] );
+	    } while ( d->rowPos.size() > 2 &&
+		      vh < d->rowPos[(int)d->rowPos.size()-1] );
 	} else {
 	    tryGeometry( 1, 1 );
 	}
@@ -1774,7 +1750,7 @@ void QListBox::doLayout() const
 		    maxw = w;
 		i = i->n;
 	    }
-	    int vw = viewportSize( QSize( 1,1 ) ).width();
+	    int vw = viewportSize( 1,1 ).width();
 	    do {
 		int columns = vw / maxw;
 		if ( columns > c )
@@ -1793,19 +1769,20 @@ void QListBox::doLayout() const
 		    --columns;
 		}
 		tryGeometry( (c+columns-1)/columns, columns );
-		int nvw = viewportSize( QSize( d->columnPos[(int)d->columnPos.size()-1],
-					       d->rowPos[(int)d->rowPos.size()-1] ) ).width();
+		int nvw = viewportSize( d->columnPos[(int)d->columnPos.size()-1],
+					d->rowPos[(int)d->rowPos.size()-1] ).width();
 		if ( nvw < vw )
 		    vw = nvw;
-	    } while ( vw < d->columnPos[(int)d->columnPos.size()-1] );
+	    } while ( d->columnPos.size() > 2 &&
+		      vw < d->columnPos[(int)d->columnPos.size()-1] );
 	} else {
 	    tryGeometry( 1, 1 );
 	}
 	break;
     }
     d->layoutDirty = FALSE;
-    QSize s( viewportSize( QSize( d->columnPos[numColumns()],
-				  d->rowPos[numRows()] ) ) );
+    QSize s( viewportSize( d->columnPos[numColumns()],
+			   d->rowPos[numRows()] ) );
     int x, y;
     x = QMAX( d->columnPos[numColumns()], s.width() );
     y = QMAX( d->rowPos[numRows()], s.height() );
@@ -2189,36 +2166,15 @@ void QListBox::refreshSlot()
 
 void QListBox::viewportPaintEvent( QPaintEvent * e )
 {
-
-
-
-
-
-
-
-				    return;
-
-
-
-
-
-
-
+    if ( d->layoutDirty )
+	// in this case, we know we'll do the wrong thing now, and the
+	// right thing as soon as refreshSlot() is called.  so skip this
+	// event.
+	return;
 
     QWidget* vp = viewport();
     QPainter p( vp );
     QRegion r = e->region();
-
-/*
-    Arnt!  REMEMBER: On Window there is no event queue protecting you
-    from re-entrancy.  This causes resizes, causes layouts...
-    You know that a "const" function with "do" in its name (doLayout())
-    is just asking for trouble.  
-
-*/ d->layoutDirty = FALSE; // Foil the hacks.
-
-    if ( d->layoutDirty )
-	doLayout();
 
     int x = contentsX();
     int y = contentsY();
@@ -2251,20 +2207,7 @@ void QListBox::viewportPaintEvent( QPaintEvent * e )
 		p.save();
 		p.setClipRegion( itemPaintRegion );
 		p.translate( d->columnPos[col]-x, d->rowPos[row]-y );
-		if ( i->s ) {
-		    p.fillRect( 0, 0, cw, ch,
-				 g.brush( QColorGroup::Highlight ) );
-		    p.setPen( g.highlightedText() );
-		    p.setBackgroundColor( g.highlight() );
-		} else {
-		    p.fillRect( 0, 0, cw, ch, g.base() );
-		}
-		i->paint( &p );
-		if ( d->current == i && hasFocus() )
-		    style().drawFocusRect( &p, QRect( d->columnPos[col]-x,
-						      d->rowPos[row]-y,
-						      cw, ch ),
-					   g, &g.highlight(), TRUE );
+		paintCell( &p, row, col );
 		p.restore();
 		r = r.subtract( itemPaintRegion );
 	    }
@@ -2358,4 +2301,41 @@ void QListBox::inSort( const QListBoxItem * lbi )
 void QListBox::inSort( const char *text )
 {
     inSort( new QListBoxText(text) );
+}
+
+
+/*! \reimp */
+
+void QListBox::resizeEvent( QResizeEvent * e )
+{
+    if ( d->layoutDirty ||
+	 rowMode() == FitToHeight || columnMode() == FitToWidth ) {
+	d->layoutDirty = TRUE;
+	d->updateTimer->stop();
+	doLayout();
+    }
+    QScrollView::resizeEvent( e );
+}
+
+
+/*!  Provided for compatibility with the old QListBox.  We recommend
+using QListBoxItem::paint() */
+
+void QListBox::paintCell( QPainter * p, int row, int col )
+{
+    const QColorGroup & g = colorGroup();
+    int cw = d->columnPos[col+1] - d->columnPos[col];
+    int ch = d->rowPos[row+1] - d->rowPos[row];
+    QListBoxItem * i = item( col*numRows()+row );
+    if ( i->s ) {
+	p->fillRect( 0, 0, cw, ch, g.brush( QColorGroup::Highlight ) );
+	p->setPen( g.highlightedText() );
+	p->setBackgroundColor( g.highlight() );
+    } else {
+	p->fillRect( 0, 0, cw, ch, g.base() );
+    }
+    i->paint( p );
+    if ( d->current == i && hasFocus() )
+	style().drawFocusRect( p, QRect( 1, 1, cw-2, ch-2 ),
+			       g, &g.highlight(), TRUE );
 }
