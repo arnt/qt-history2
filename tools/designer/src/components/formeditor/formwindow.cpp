@@ -943,6 +943,7 @@ bool FormWindow::handleKeyPressEvent(QWidget *, QWidget *, QKeyEvent *e)
     switch (e->key()) {
         default: break; // we don't care about the other keys
 
+        case Qt::Key_Delete:
         case Qt::Key_Backspace:
             deleteWidgets();
             break;

@@ -263,7 +263,6 @@ void FormWindowManager::setupActions()
     m_actionPaste->setEnabled(false);
 
     m_actionDelete = new QAction(tr("&Delete"));
-    m_actionDelete->setShortcut(Qt::Key_Delete);
     m_actionDelete->setStatusTip(tr("Deletes the selected widgets"));
     m_actionDelete->setWhatsThis(whatsThisFrom("Edit|Delete"));
     connect(m_actionDelete, SIGNAL(triggered()), this, SLOT(slotActionDeleteActivated()));
