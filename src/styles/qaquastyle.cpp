@@ -141,7 +141,8 @@ bool QAquaFocusWidget::handles(QWidget *widget)
 {
     return (widget && widget->parentWidget() &&
 	    (widget->inherits("QDateTimeEditor") || widget->inherits("QLineEdit") ||
-	     (widget->inherits("QTextEdit") && !widget->inherits("QTextView"))));
+	     (widget->inherits("QTextEdit") && !widget->inherits("QTextView")) ||
+	     widget->inherits("QListBox") || widget->inherits("QListView")));
 }
 
 void QAquaFocusWidget::objDestroyed(QObject * o)
