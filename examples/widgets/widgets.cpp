@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/widgets/widgets.cpp#8 $
+** $Id: //depot/qt/main/examples/widgets/widgets.cpp#9 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -111,25 +111,25 @@ WidgetView::WidgetView( QWidget *parent, const char *name )
     QToolButton * toolb = new QToolButton( QPixmap(fileopen), "toolbutton 1",
 					   QString::null, this, SLOT(open()),
 					   tools, "open file" );
-    QWhatsThis::add( toolb, "This is a QToolButton. It lives in a QToolBar.\n"
-		     "This particular button doesn't do\n" "anything useful." );
+    QWhatsThis::add( toolb, "This is a <b>QToolButton</b>. It lives in a QToolBar. "
+		     "This particular button doesn't do anything useful." );
 
     QPixmap saveIcon( filesave );
     toolb = new QToolButton( saveIcon, "toolbutton 2", QString::null,
 			     this, SLOT(dummy()),
 			     tools, "save file" );
-    QWhatsThis::add( toolb, "This is also a QToolButton." );
+    QWhatsThis::add( toolb, "This is also a <b>QToolButton</b>." );
 
     QPixmap  printIcon( fileprint );
     toolb = new QToolButton( printIcon, "toolbutton 3", QString::null,
 			     this, SLOT(dummy()),
 			     tools, "print file" );
-    QWhatsThis::add( toolb, "This is the third QToolButton.");
+    QWhatsThis::add( toolb, "This is the third <b>QToolButton</b>.");
 
 
     toolb = QWhatsThis::whatsThisButton( tools );
-    QWhatsThis::add( toolb, "This is a What's This button\n"
-		     "It enables the user to ask for help\n"
+    QWhatsThis::add( toolb, "This is a <b>What's This</b> button "
+		     "It enables the user to ask for help "
 		     "about widgets on the screen.");
 
     tools->show();//#####
@@ -164,22 +164,6 @@ WidgetView::WidgetView( QWidget *parent, const char *name )
     int id;
     id = popup->insertItem( "&New" );
     popup->setItemEnabled( id, FALSE );
-#if 0
-    QPopupMenu *testM = new QPopupMenu;
-    testM->insertItem( "kjhlsgfhksgfkjhdsgfdkjhfdsgkjhlgfskdjhlsfkjdhlg" );
-    testM->insertItem( "hlsfkjdhlg" );
-    testM->insertItem( "hlsfkjdhlg" );
-    testM->insertItem( "hlsfkjdhlg" );
-    popup->insertItem( "Menu", testM );
-    id = popup->insertItem( "Test" );
-    popup->setItemEnabled( id, FALSE );
-    id = popup->insertItem( "Test" );
-    id = popup->insertItem( "Test" );
-    popup->setItemEnabled( id, FALSE );
-    id = menuBar()->insertItem( "Two" );
-    id = menuBar()->insertItem( "Three" );
-    id = menuBar()->insertItem( "Four" );
-#endif
     id = popup->insertItem( "&Open", this, SLOT( open() ) );
     //popup->setItemEnabled( id, FALSE );
     popup->insertSeparator();
@@ -214,8 +198,9 @@ WidgetView::WidgetView( QWidget *parent, const char *name )
     grid->addWidget( pb, 0, 0, AlignVCenter );
     connect( pb, SIGNAL(clicked()), SLOT(button1Clicked()) );
     QToolTip::add( pb, "push button 1" );
-    QWhatsThis::add( pb, "This is a QPushButton.\n" "Click it and watch the status area.\n"
-		     "The wonders of modern technology...");
+    QWhatsThis::add( pb, "This is a <b>QPushButton</b>.<br>"
+		     "Click it and watch...<br>"
+		     "The wonders of modern technology.");
 
     QPixmap pm;
     bool pix = pm.load("qt.bmp");		// load pixmap for button 2
@@ -240,7 +225,7 @@ WidgetView::WidgetView( QWidget *parent, const char *name )
 			      64+movielabel->frameWidth()*2 );
     grid->addWidget( movielabel, 0, 1, AlignCenter );
     QToolTip::add( movielabel, "movie" );
-    QWhatsThis::add( movielabel, "This is a QLabel  that contains a QMovie." );
+    QWhatsThis::add( movielabel, "This is a <b>QLabel</b>  that contains a QMovie." );
 
     // Create a group of check boxes
 
@@ -337,8 +322,8 @@ WidgetView::WidgetView( QWidget *parent, const char *name )
 
     connect( sb, SIGNAL(valueChanged(int)), SLOT(sliderValueChanged(int)) );
     QToolTip::add( sb, "slider" );
-    QWhatsThis::add( sb, "This is a QSlider. \n"
-		     "The tick marks are optional.\n"
+    QWhatsThis::add( sb, "This is a <b>QSlider</b>. "
+		     "The tick marks are optional."
 		     " This slider controls the speed of the movie." );
     // Create a combo box
 
@@ -383,8 +368,10 @@ WidgetView::WidgetView( QWidget *parent, const char *name )
     connect( spin, SIGNAL( valueChanged(const QString&) ),
 	     SLOT( spinBoxValueChanged(const QString&) ) );
     QToolTip::add( spin, "spin box" );
-    QWhatsThis::add( spin, "This is a QSpinBox.\n" "You can chose values in a given range\n"
-		     "either by using the arrow buttons\n" "or by typing them in." );
+    QWhatsThis::add( spin, "This is a <b>QSpinBox</b>. "
+		     "You can chose values in a given range "
+		     "either by using the arrow buttons "
+		     "or by typing them in." );
     vbox->addWidget( spin );
 
     vbox->addStretch( 1 );
@@ -404,9 +391,23 @@ WidgetView::WidgetView( QWidget *parent, const char *name )
     tabs->addTab( mle, QPixmap(fileopen), "F&irst");
 
     mle = new QMultiLineEdit( tabs, "multiLineEdit" );
-    mle->setText("This is another QMultiLineEdit widget,\n"
-	         "we will put in some fancy characters here"
-		 );
+    QString mleText = "This is another QMultiLineEdit widget.";
+#if 1
+    mleText += "\n";
+    mleText += "Japanese: ";
+    mleText += QChar((ushort)0x6a38); // Kanji
+    mleText += "\n";
+    mleText += "Russian:";
+    mleText += QChar((ushort)0x042e); // Cyrillic
+    mleText += "\n";
+    mleText += "Norwegian:";
+    mleText += QChar((ushort)0x00d8); // Norwegian
+    mleText += "\n";
+    mleText += "Unicode (black square):";
+    mleText += QChar((ushort)0x25A0); // BLACK SQUARE
+    mleText += "\n";
+#endif
+    mle->setText( mleText );
     QToolTip::add( mle, "second multi line editor" );
     tabs->addTab( mle, QPixmap(fileopen), "Se&cond");
 
@@ -415,26 +416,14 @@ WidgetView::WidgetView( QWidget *parent, const char *name )
 
     QLineEdit *le = new QLineEdit( central, "lineEdit" );
 
-#if 0
-    QString uni;
-    uni += "JP:";
-    uni += QChar((ushort)0x6a38); // Kanji
-    uni += "RU:";
-    uni += QChar((ushort)0x042e); // Cyrillic
-    uni += "NO:";
-    uni += QChar((ushort)0x00d8); // Norwegian
-    uni += "U:";
-    uni += QChar((ushort)0x25A0); // BLACK SQUARE
-    le->setText(uni);
-#endif
 
     grid->addMultiCellWidget( le, 4, 4, 1, 2 );
     ///    le->setFixedHeight(le->sizeHint().height());
     connect( le, SIGNAL(textChanged(const QString&)),
 	     SLOT(lineEditTextChanged(const QString&)) );
     QToolTip::add( le, "single line editor" );
-    QWhatsThis::add( le, "This is a QLineEdit, you can enter a single line of text in it.\n"
-		     "It also it accepts text drops." );
+    QWhatsThis::add( le, "This is a <b>QLineEdit</b>, you can enter a single line of text in it. "
+		      "It also it accepts text drops." );
     // Create a horizontal line (sort of QFrame) above the message line
 
     //    QFrame *separator = new QFrame( central, "separatorLine" );
@@ -516,8 +505,9 @@ WidgetView::WidgetView( QWidget *parent, const char *name )
     progress = 64;
     prog->setProgress( progress );
     statusBar()->addWidget( prog , 1 );
-    QWhatsThis::add( prog, "This is a QProgressBar\n" "You can use it to show that a lengthy\n"
-		     " process is progressing.\n"
+    QWhatsThis::add( prog, "This is a <b>QProgressBar</b> "
+		     "You can use it to show that a lengthy "
+		     " process is progressing. "
 		     "In this program, nothing much seems to happen." );
     topLayout->activate();
 
@@ -577,7 +567,7 @@ void WidgetView::checkBoxClicked( int id )
 
 void WidgetView::edComboBoxItemActivated( const QString& text)
 {
-    QString str = "Editable Combo Box set to ";
+    QString str = tr("Editable Combo Box set to ");
     str += text;
     msg->setText( str );
 }
