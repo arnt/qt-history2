@@ -2161,21 +2161,22 @@ void QWidget::setName(const char *name)
 void QWidget::propagateUpdates(bool update_rgn)
 {
     QRegion rgn;
+    QWidget *widg = this;
     if(update_rgn) {
+	widg = topLevelWidget();
 	QMacSavedPortInfo savedInfo(this);
 	GetWindowRegion((WindowPtr)hd, kWindowUpdateRgn, rgn.handle(TRUE));
 	if(rgn.isEmpty())
 	    return;
-	rgn.translate(-topLevelWidget()->geometry().x(),
-		      -topLevelWidget()->geometry().y());
+	rgn.translate(-widg->geometry().x(), -widg->geometry().y());
 	BeginUpdate((WindowPtr)hd);
     } else {
 	rgn = QRegion(rect());
     }
 #ifdef DEBUG_WINDOW_RGNS
-    debug_wndw_rgn("*****propagatUpdates", topLevelWidget(), rgn, TRUE);
+    debug_wndw_rgn("*****propagatUpdates", widg, rgn, TRUE);
 #endif
-    qt_paint_children(this, rgn);
+    qt_paint_children(widg, rgn, PC_ForceErase);
     if(update_rgn)
 	EndUpdate((WindowPtr)hd);
 }

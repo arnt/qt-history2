@@ -1473,7 +1473,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 		    }
 		    r &= cr;
 		    if(!r.isEmpty())
-			widget->repaint(r, TRUE);
+			widget->repaint(r, !widget->testWFlags(WRepaintNoErase));
 		}
 	    }
 	    request_updates_pending_list.clear();
