@@ -1046,7 +1046,7 @@ QDir QDir::root()
 /*!
   \fn QString QDir::homeDirPath()
 
-  Returns the absolute path of the user's home directory,
+  Returns the absolute path of the user's home directory.
   \sa home()
 */
 

@@ -495,7 +495,7 @@ static int get_combo_extra_width( int h, int *return_awh=0 )
     }
     if ( return_awh )
         *return_awh = awh;
-    return awh*3/2;
+    return awh*2;
 }
 
 static void get_combo_parameters( const QRect &r,
@@ -1204,14 +1204,17 @@ void QSGIStyle::drawComplexControl( ComplexControl control,
 	    }
 
 	    if ( sub & SC_ComboBoxArrow ) {
+		QRect er = 
+		    QStyle::visualRect( querySubControlMetrics( CC_ComboBox, cb, SC_ComboBoxArrow ), cb );
+
+		er.addCoords( 0, 3, 0, 0 );
+		drawPrimitive( PE_ArrowDown, p, er, cg, flags, opt );
+
 		int awh, ax, ay, sh, sy, dh, ew;
 		get_combo_parameters( widget->rect(), ew, awh, ax, ay, sh, dh, sy );
 
 		QBrush arrow = cg.brush( QColorGroup::Dark );
-		drawPrimitive( PE_ArrowDown, p, QRect( ax, ay, awh, awh ), cg,
-			       flags, opt );
-
-		p->fillRect( ax, sy, awh, sh, arrow );
+		p->fillRect( ax, sy-1, awh, sh, arrow );
 	    }
 	    if ( sub & SC_ComboBoxEditField ) {
 		if ( cb->editable() ) {
@@ -1424,62 +1427,5 @@ QRect QSGIStyle::querySubControlMetrics( ComplexControl control,
 
     return rect;
 }
-
-/*
-    Draws a raised shape used as a combobox.
- *
-void
-QSGIStyle::drawComboButton( QPainter *p, int x, int y, int w, int h,
-                            const QColorGroup &g,
-                            bool sunken,
-                            bool editable,
-                            bool enabled,
-                            const QBrush *fb )
-{
-    QBrush fill = fb ? *fb : g.brush( QColorGroup::Button );
-
-    int awh, ax, ay, sh, sy, dh, ew;
-    get_combo_parameters( buttonRect(x,y,w,h), ew, awh, ax, ay, sh, dh, sy );
-
-    drawBevelButton( p, x, y, w, h, g, FALSE, &fill );
-
-    QBrush arrow = g.brush( QColorGroup::Dark );
-    drawArrow( p, DownArrow, FALSE, ax, ay, awh, awh, g, TRUE );
-
-    p->fillRect( ax, sy, awh, sh, arrow );
-
-    if ( editable ) {
-        QRect r( comboButtonRect( x, y, w, h ) );
-        qDrawShadePanel( p, QRect( r.x()-1, r.y()-1, r.width()+2, r.height()+2 ),
-                         g, TRUE, 1, &fill );
-    }
-}
-
-*! \reimp
-*
-int QSGIStyle::popupMenuItemHeight( bool checkable, QMenuItem* mi,
-                                    const QFontMetrics& fm ) const
-{
-    int h = 0;
-    if ( mi->isSeparator() ) {
-        h = sgiSepHeight;
-    } else {
-        if ( mi->pixmap() ) {
-            h = mi->pixmap()->height() + 2*sgiItemFrame;
-        } else {
-            h = fm.height() + 2*sgiItemVMargin + 2*sgiItemFrame;
-        }
-    }
-
-    if ( !mi->isSeparator() && mi->iconSet() != 0 ) {
-        h = QMAX( h, mi->iconSet()->pixmap( QIconSet::Small, QIconSet::Normal ).height() + 2*sgiItemFrame );
-        h += 2;
-    }
-    if ( mi->custom() )
-        h = QMAX( h, mi->custom()->sizeHint().height() + 2*sgiItemVMargin + 2*sgiItemFrame );
-
-    return h;
-}
-*/
 
 #endif // QT_NO_STYLE_SGI
