@@ -50,7 +50,7 @@ int QPrintDialog::exec()
 #elif defined (Q_WS_MAC)
         d->platformDialog = new QPrintDialogMac(d->printer, parentWidget());
 #else
-        d->platformDialog = new QPrintDialogUnix(d->printer, parentWidget());
+//        d->platformDialog = new QPrintDialogUnix(d->printer, parentWidget());
 #endif
     }
 
