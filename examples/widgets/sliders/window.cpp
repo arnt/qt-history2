@@ -8,11 +8,12 @@ Window::Window()
         tr("Horizontal sliders"), 0);
     verticalSliders = new SlidersGroup(Qt::Vertical,
         tr("Vertical sliders"), 0);
-    createControls(tr("Controls"));
 
     pages = new QStackedWidget(this);
     pages->addWidget(horizontalSliders);
     pages->addWidget(verticalSliders);
+
+    createControls(tr("Controls"));
 
     connect(horizontalSliders, SIGNAL(valueChanged(int)),
             verticalSliders, SLOT(setValue(int)));
@@ -78,7 +79,7 @@ void Window::createControls(const QString &title)
     orientationCombo->insertItem(tr("Vertical sliders"));
 
     connect(orientationCombo, SIGNAL(activated(int)),
-            this, SLOT(changePage(int)));
+            pages, SLOT(setCurrentIndex(int)));
     connect(valueSpinBox, SIGNAL(valueChanged(int)),
             this, SIGNAL(valueChanged(int)));
     connect(minimumSpinBox, SIGNAL(valueChanged(int)),
@@ -105,11 +106,6 @@ void Window::createControls(const QString &title)
 void Window::setValue(int value)
 {
     valueSpinBox->setValue(value);
-}
-
-void Window::changePage(int page)
-{
-    pages->setCurrentIndex(page);
 }
 
 

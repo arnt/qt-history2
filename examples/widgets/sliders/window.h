@@ -53,7 +53,6 @@ signals:
 
 public slots:
     void setValue(int);
-    void changePage(int);
 
 private:
     void createControls(const QString &title);
