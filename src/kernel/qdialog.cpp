@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdialog.cpp#30 $
+** $Id: //depot/qt/main/src/kernel/qdialog.cpp#31 $
 **
 ** Implementation of QDialog class
 **
@@ -15,14 +15,14 @@
 #include "qkeycode.h"
 #include "qobjcoll.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qdialog.cpp#30 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qdialog.cpp#31 $");
 
 
 /*!
   \class QDialog qdialog.h
   \brief The QDialog class is the base class of dialog windows.
 
-  A dialog window is a window used to communicate with the user. It offers
+  A dialog window is a widget used to communicate with the user. It offers
   mechanisms such as default buttons.
 
   The dialog window can either be modeless or modal. A modeless dialog is
@@ -86,7 +86,7 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qdialog.cpp#30 $");
 */
 
 QDialog::QDialog( QWidget *parent, const char *name, bool modal, WFlags f )
-    : QWindow( parent, name, modal ? (f | WType_Modal) : f )
+    : QWidget( parent, name, modal ? (f | WType_Modal) : f )
 {
     rescode = 0;
     did_move = did_resize = FALSE;
