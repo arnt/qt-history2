@@ -8,7 +8,6 @@ SUBDIRS     =	aclock \
 		cursor \
 		customlayout \
 		dclock \
-		demo \
 		dirview \
 		dragdrop \
 		drawdemo \
@@ -51,6 +50,7 @@ SUBDIRS     =	aclock \
 		widgets \
 		wizard \
 		xform
+!contains(QT_PRODUCT,qt-professional): SUBDIRS += demo
 
 canvas:SUBDIRS +=   canvas
 opengl:SUBDIRS +=   box \
