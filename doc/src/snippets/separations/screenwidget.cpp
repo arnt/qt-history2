@@ -20,8 +20,9 @@ label widget.
 */
 
 #include <QColorDialog>
-#include <QLabel>
 #include <QGridLayout>
+#include <QImage>
+#include <QLabel>
 #include <QMenu>
 #include <QPixmap>
 #include <QPushButton>
@@ -161,7 +162,7 @@ void ScreenWidget::createImage()
                 255 - qMin(int(amount * magentaInk), 255),
                 255 - qMin(int(amount * yellowInk), 255));
 
-            newImage.setPixel(x, y, newColor.pixel());
+            newImage.setPixel(x, y, newColor.rgb());
         }
     }
 

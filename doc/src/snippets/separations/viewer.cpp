@@ -211,7 +211,7 @@ void Viewer::openImageFile(QString &imageFile)
 
         /* Note: the ScaleMin value may be different for Qt 4. */
         scaledImage = originalImage.convertDepth(32).scale(256, 256,
-            Qt::ScaleFree);
+            Qt::KeepAspectRatio);
 
         cyanWidget->setImage(scaledImage);
         magentaWidget->setImage(scaledImage);
@@ -269,7 +269,7 @@ void Viewer::createImage()
                 qMax(255 - int(magenta1+magenta2+magenta3) - darkness, 0),
                 qMax(255 - int(yellow1+yellow2+yellow3) - darkness, 0));
 
-            newImage.setPixel(x, y, newColor.pixel());
+            newImage.setPixel(x, y, newColor.rgb());
         }
     }
 
