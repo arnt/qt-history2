@@ -150,7 +150,7 @@ QPrinter::prepare(PMPrintSettings *s)
 	if( PMSessionValidatePrintSettings(psession, *s, kPMDontWantBoolean) != noErr )
 	    return FALSE;
     }
-    PMSetPageRange(*s, minPage(), maxPage());
+    PMSetPageRange(*s, minPage()+1, maxPage()+1);
     PMSetFirstPage(*s, fromPage(), TRUE);
     PMSetLastPage(*s, toPage(), TRUE);
     PMSetColorMode(*s, colorMode() == GrayScale ? kPMGray : kPMColor);
@@ -187,7 +187,7 @@ bool QPrinter::setup( QWidget *  )
 	//page format
 	if(!prepare(&pformat))
 	    return FALSE;
-	if(PMSessionPageSetupDialog(psession, pformat, &ret) != noErr || !ret)
+	if(PMSessionPageSetupDialog(psession, pformat, &ret) != noErr || !ret) 
 	    return FALSE;
 
 	//get values
@@ -196,9 +196,9 @@ bool QPrinter::setup( QWidget *  )
 	    setOrientation(o == kPMPortrait ? Portrait : Landscape);
 	
 	//setup
-	if(!prepare(&psettings))
+	if(!prepare(&psettings)) 
 	    return FALSE;
-	if(PMSessionPrintDialog(psession, psettings, pformat, &ret) != noErr || !ret )
+	if(PMSessionPrintDialog(psession, psettings, pformat, &ret) != noErr || !ret ) 
 	    return FALSE;
 
 	//get values
@@ -212,7 +212,7 @@ bool QPrinter::setup( QWidget *  )
 	
 	UInt32 max, min;
 	if(PMGetPageRange(psettings, &max, &min) == noErr)
-	    setMinMax(min, max);
+	    setMinMax(min-1, max-1);
 
 	PMColorMode cm;
 	if(PMGetColorMode(psettings, &cm) == noErr)
