@@ -996,6 +996,16 @@ typically handled by \e qmake or \link #QMAKESPEC qmake.conf \endlink and rarely
 needs to be modified.
 
 
+\target TARGETDEPS
+\section3 TARGETDEPS
+
+All libraries that the \link #TARGET target \endlink depends on can be
+listed in this variable. Some backends do not support this, these include
+MSVC Dsp, and ProjectBuilder .pbproj files. Generally this is support
+internally by these build tools, this is usefull for explicitly listing
+dependant static libraries.
+
+
 
 \target QMAKE_INCDIR_OPENGL
 \section3 QMAKE_INCDIR_OPENGL
@@ -1161,9 +1171,6 @@ The value of this variable is typically handled by \e qmake or
 This variable contains link flags when building windows dll projects.
 The value of this variable is typically handled by \e qmake or
  \link #QMAKESPEC qmake.conf \endlink and rarely needs to be modified.
-
-
-
 
 
 \section3 QMAKE_LIBDIR
