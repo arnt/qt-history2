@@ -77,6 +77,24 @@ struct QTimerInfo {
 };
 
 
+
+
+/*****************************************************************************
+ UNIX signal handling
+ *****************************************************************************/
+
+static sig_atomic_t signal_received;
+static sig_atomic_t signals_fired[NSIG];
+
+static void signalHandler(int sig)
+{
+    signals_fired[sig] = 1;
+    signal_received = 1;
+}
+
+
+
+
 QEventDispatcherUNIXPrivate::QEventDispatcherUNIXPrivate()
 {
     extern Qt::HANDLE qt_application_thread_id;
@@ -109,6 +127,122 @@ QEventDispatcherUNIXPrivate::~QEventDispatcherUNIXPrivate()
     }
     delete timerBitVec;
     timerBitVec = 0;
+}
+
+int QEventDispatcherUNIXPrivate::doSelect(QEventLoop::ProcessEventsFlags flags, timeval *timeout)
+{
+    Q_Q(QEventDispatcherUNIX);
+
+    // Process timers and socket notifiers - the common UNIX stuff
+    int highest = 0;
+    FD_ZERO(&sn_vec[0].select_fds);
+    FD_ZERO(&sn_vec[1].select_fds);
+    FD_ZERO(&sn_vec[2].select_fds);
+    if (! (flags & QEventLoop::ExcludeSocketNotifiers) && (sn_highest >= 0)) {
+        // return the highest fd we can wait for input on
+        if (!sn_vec[0].list.isEmpty())
+            sn_vec[0].select_fds = sn_vec[0].enabled_fds;
+        if (!sn_vec[1].list.isEmpty())
+            sn_vec[1].select_fds = sn_vec[1].enabled_fds;
+        if (!sn_vec[2].list.isEmpty())
+            sn_vec[2].select_fds = sn_vec[2].enabled_fds;
+        highest = sn_highest;
+    }
+
+    FD_SET(thread_pipe[0], &sn_vec[0].select_fds);
+    highest = qMax(highest, thread_pipe[0]);
+
+    int nsel;
+    do {
+        if (mainThread) {
+            while (signal_received) {
+                signal_received = 0;
+                for (int i = 0; i < NSIG; ++i) {
+                    if (signals_fired[i]) {
+                        signals_fired[i] = 0;
+                        emit QCoreApplication::instance()->unixSignal(i);
+                    }
+                }
+            }
+        }
+        nsel = q->select(highest + 1,
+                         &sn_vec[0].select_fds,
+                         &sn_vec[1].select_fds,
+                         &sn_vec[2].select_fds,
+                         timeout);
+    } while (nsel == -1 && (errno == EINTR || errno == EAGAIN));
+
+    if (nsel == -1) {
+        if (errno == EBADF) {
+            // it seems a socket notifier has a bad fd... find out
+            // which one it is and disable it
+            fd_set fdset;
+            timeval tm;
+            tm.tv_sec = tm.tv_usec = 0l;
+
+            for (int type = 0; type < 3; ++type) {
+                QList<QSockNot *> &list = sn_vec[type].list;
+                if (list.size() == 0)
+                    continue;
+
+                for (int i = 0; i < list.size(); ++i) {
+                    QSockNot *sn = list.at(i);
+
+                    FD_ZERO(&fdset);
+                    FD_SET(sn->fd, &fdset);
+
+                    int ret = -1;
+                    do {
+                        switch (type) {
+                        case 0: // read
+                            ret = select(sn->fd + 1, &fdset, 0, 0, &tm);
+                            break;
+                        case 1: // write
+                            ret = select(sn->fd + 1, 0, &fdset, 0, &tm);
+                            break;
+                        case 2: // except
+                            ret = select(sn->fd + 1, 0, 0, &fdset, &tm);
+                            break;
+                        }
+                    } while (ret == -1 && (errno == EINTR || errno == EAGAIN));
+
+                    if (ret == -1 && errno == EBADF) {
+                        // disable the invalid socket notifier
+                        static const char *t[] = { "Read", "Write", "Exception" };
+                        qWarning("QSocketNotifier: invalid socket %d and type '%s', disabling...",
+                                 sn->fd, t[type]);
+                        sn->obj->setEnabled(false);
+                    }
+                }
+            }
+        } else {
+            // EINVAL... shouldn't happen, so let's complain to stderr
+            // and hope someone sends us a bug report
+            perror("select");
+        }
+    }
+
+    // some other thread woke us up... consume the data on the thread pipe so that
+    // select doesn't immediately return next time
+    if (nsel > 0 && FD_ISSET(thread_pipe[0], &sn_vec[0].select_fds)) {
+        char c;
+        ::read(thread_pipe[0], &c, 1);
+    }
+
+    // activate socket notifiers
+    if (! (flags & QEventLoop::ExcludeSocketNotifiers) && nsel > 0 && sn_highest >= 0) {
+        // if select says data is ready on any socket, then set the socket notifier
+        // to pending
+        for (int i=0; i<3; i++) {
+            QList<QSockNot *> &list = sn_vec[i].list;
+            for (int j = 0; j < list.size(); ++j) {
+                QSockNot *sn = list.at(j);
+                if (FD_ISSET(sn->fd, &sn_vec[i].select_fds))
+                    q->setSocketNotifierPending(sn->obj);
+            }
+        }
+    }
+    return q->activateSocketNotifiers();
 }
 
 /*
@@ -299,19 +433,6 @@ bool QEventDispatcherUNIX::unregisterTimers(QObject *obj)
     }
 
     return true;
-}
-
-/*****************************************************************************
- UNIX signal handling
- *****************************************************************************/
-
-static sig_atomic_t signal_received;
-static sig_atomic_t signals_fired[NSIG];
-
-static void signalHandler(int sig)
-{
-    signals_fired[sig] = 1;
-    signal_received = 1;
 }
 
 /*****************************************************************************
@@ -572,116 +693,7 @@ bool QEventDispatcherUNIX::processEvents(QEventLoop::ProcessEventsFlags flags)
         }
     }
 
-    // Process timers and socket notifiers - the common UNIX stuff
-    int highest = 0;
-    FD_ZERO(&d->sn_vec[0].select_fds);
-    FD_ZERO(&d->sn_vec[1].select_fds);
-    FD_ZERO(&d->sn_vec[2].select_fds);
-    if (! (flags & QEventLoop::ExcludeSocketNotifiers) && (d->sn_highest >= 0)) {
-        // return the highest fd we can wait for input on
-        if (!d->sn_vec[0].list.isEmpty())
-            d->sn_vec[0].select_fds = d->sn_vec[0].enabled_fds;
-        if (!d->sn_vec[1].list.isEmpty())
-            d->sn_vec[1].select_fds = d->sn_vec[1].enabled_fds;
-        if (!d->sn_vec[2].list.isEmpty())
-            d->sn_vec[2].select_fds = d->sn_vec[2].enabled_fds;
-        highest = d->sn_highest;
-    }
-
-    FD_SET(d->thread_pipe[0], &d->sn_vec[0].select_fds);
-    highest = qMax(highest, d->thread_pipe[0]);
-
-    int nsel;
-    do {
-        if (d->mainThread) {
-            while (signal_received) {
-                signal_received = 0;
-                for (int i = 0; i < NSIG; ++i) {
-                    if (signals_fired[i]) {
-                        signals_fired[i] = 0;
-                        emit QCoreApplication::instance()->unixSignal(i);
-                    }
-                }
-            }
-        }
-        nsel = select(highest + 1,
-                      &d->sn_vec[0].select_fds,
-                      &d->sn_vec[1].select_fds,
-                      &d->sn_vec[2].select_fds,
-                      tm);
-    } while (nsel == -1 && (errno == EINTR || errno == EAGAIN));
-
-    if (nsel == -1) {
-        if (errno == EBADF) {
-            // it seems a socket notifier has a bad fd... find out
-            // which one it is and disable it
-            fd_set fdset;
-            timeval tm;
-            tm.tv_sec = tm.tv_usec = 0l;
-
-            for (int type = 0; type < 3; ++type) {
-                QList<QSockNot *> &list = d->sn_vec[type].list;
-                if (list.size() == 0)
-                    continue;
-
-                for (int i = 0; i < list.size(); ++i) {
-                    QSockNot *sn = list.at(i);
-
-                    FD_ZERO(&fdset);
-                    FD_SET(sn->fd, &fdset);
-
-                    int ret = -1;
-                    do {
-                        switch (type) {
-                        case 0: // read
-                            ret = select(sn->fd + 1, &fdset, 0, 0, &tm);
-                            break;
-                        case 1: // write
-                            ret = select(sn->fd + 1, 0, &fdset, 0, &tm);
-                            break;
-                        case 2: // except
-                            ret = select(sn->fd + 1, 0, 0, &fdset, &tm);
-                            break;
-                        }
-                    } while (ret == -1 && (errno == EINTR || errno == EAGAIN));
-
-                    if (ret == -1 && errno == EBADF) {
-                        // disable the invalid socket notifier
-                        static const char *t[] = { "Read", "Write", "Exception" };
-                        qWarning("QSocketNotifier: invalid socket %d and type '%s', disabling...",
-                                 sn->fd, t[type]);
-                        sn->obj->setEnabled(false);
-                    }
-                }
-            }
-        } else {
-            // EINVAL... shouldn't happen, so let's complain to stderr
-            // and hope someone sends us a bug report
-            perror("select");
-        }
-    }
-
-    // some other thread woke us up... consume the data on the thread pipe so that
-    // select doesn't immediately return next time
-    if (nsel > 0 && FD_ISSET(d->thread_pipe[0], &d->sn_vec[0].select_fds)) {
-        char c;
-        ::read(d->thread_pipe[0], &c, 1);
-    }
-
-    // activate socket notifiers
-    if (! (flags & QEventLoop::ExcludeSocketNotifiers) && nsel > 0 && d->sn_highest >= 0) {
-        // if select says data is ready on any socket, then set the socket notifier
-        // to pending
-        for (int i=0; i<3; i++) {
-            QList<QSockNot *> &list = d->sn_vec[i].list;
-            for (int j = 0; j < list.size(); ++j) {
-                QSockNot *sn = list.at(j);
-                if (FD_ISSET(sn->fd, &d->sn_vec[i].select_fds))
-                    setSocketNotifierPending(sn->obj);
-            }
-        }
-    }
-    nevents += activateSocketNotifiers();
+    nevents += d->doSelect(flags, tm);
 
     if (d->interrupt) {
         d->interrupt = false;

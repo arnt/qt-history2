@@ -39,6 +39,8 @@ public:
     QEventDispatcherUNIXPrivate();
     ~QEventDispatcherUNIXPrivate();
 
+    int doSelect(QEventLoop::ProcessEventsFlags flags, timeval *timeout);
+
     bool mainThread;
     int thread_pipe[2];
 

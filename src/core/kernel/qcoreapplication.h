@@ -145,7 +145,7 @@ private:
     static QCoreApplication *self;
 
     friend class QEvent;
-    friend class QEventDispatcherUNIX;
+    friend class QEventDispatcherUNIXPrivate;
     friend class QApplication;
     friend class QApplicationPrivate;
     friend class QETWidget;
