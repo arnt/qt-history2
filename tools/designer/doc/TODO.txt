@@ -44,6 +44,10 @@ Provide application interfaces for plugins (Reggie, Volker)
     - interfaces for propertyeditor, objecthierarchy and formlist
     - interface for formwindow
 
+QApplication-method to retrieve key-modifier state without event
+    This is possible on Windows with GetKeyState, or cache values in an application
+    event filter.
+
 Extending existing functionality
 --------------------------------
 
@@ -98,3 +102,7 @@ QMsDev
       suboptimal (exposes implementation detail, which changes if I revise
       a class to use UIC), so I just changed to use [MyFormBase,MyForm]
       in all my .UI forms." (support/arc-07/15878)
+
+QSlider
+    Make slider-rect available in a protected function qt-bugs/arc-07/15674
+
