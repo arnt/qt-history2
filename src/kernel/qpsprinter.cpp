@@ -4971,7 +4971,7 @@ QPSPrinterFont::QPSPrinterFont(const QFont &f, int script, QPSPrinterPrivate *pr
 			    int index = mapping.find(' ',0);
 			    QString ffn = mapping.mid(0,index);
 				// remove the most common bitmap formats
-			    if( !ffn.contains( ".pcf" ) && !ffn.contains( " .bdf" ) &&
+			    if( !ffn.contains( ".pcf" ) && !ffn.contains( ".bdf" ) &&
 				!ffn.contains( ".spd" ) && !ffn.contains( ".phont" ) ) {
 				fontfilename = (*it) + QString("/") + ffn;
 				if ( QFile::exists(fontfilename) ) {
