@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#286 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#287 $
 **
 ** Implementation of QFileDialog class
 **
@@ -1523,7 +1523,7 @@ void QFileDialog::init()
 
     d->waitFor.setAutoDelete( TRUE );
 
-    d->url = QUrl( "file:/" );
+    d->url = QUrl( QDir::currentDirPath() );
     connect( &d->url, SIGNAL( start( int ) ),
              this, SLOT( urlStart( int ) ) );
     connect( &d->url, SIGNAL( finished( int ) ),
