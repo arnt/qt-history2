@@ -1,9 +1,5 @@
 #include <qfile.h>
-#include <qmessagebox.h>
 #include <qsplitter.h>
-#include <qpushbutton.h>
-#include <qcombobox.h>
-#include <qhbox.h>
 #include <qmenubar.h>
 #include <qpopupmenu.h>
 #include <qsizepolicy.h>
@@ -19,25 +15,29 @@ DomTree::DomTree( const QString &fileName, QWidget *parent, const char *name )
 {
     filename = fileName;
 
-    QPushButton *pb;
-    QHBox *hb;
-
     // create menu bar
     QMenuBar *mb = new QMenuBar( this );
     QPopupMenu *pm;
 
     pm = new QPopupMenu( mb );
+    mb->insertItem( "File", pm );
+    pm->insertItem( "Reread with Namespace Processing", this, SLOT(withNSProc()) );
+    pm->insertItem( "Reread without Namespace Processing", this, SLOT(withoutNSProc()) );
+    pm->insertSeparator();
+    pm->insertItem( "Close", this, SLOT(hide()) );
+
+    pm = new QPopupMenu( mb );
+    mb->insertItem( "Create node", pm );
     pm->insertItem( "Element", this, SLOT(createElement()) );
+    pm->insertItem( "ElementNS", this, SLOT(createElementNS()) );
     pm->insertItem( "DocumentFragment", this, SLOT(createDocumentFragment()) );
     pm->insertItem( "TextNode", this, SLOT(createTextNode()) );
     pm->insertItem( "Comment", this, SLOT(createComment()) );
     pm->insertItem( "CDATASection", this, SLOT(createCDATASection()) );
     pm->insertItem( "ProcessingInstruction", this, SLOT(createProcessingInstruction()) );
     pm->insertItem( "Attribute", this, SLOT(createAttribute()) );
-    pm->insertItem( "EntityReference", this, SLOT(createEntityReference()) );
-    pm->insertItem( "ElementNS", this, SLOT(createElementNS()) );
     pm->insertItem( "AttributeNS", this, SLOT(createAttributeNS()) );
-    mb->insertItem( "Create node", pm );
+    pm->insertItem( "EntityReference", this, SLOT(createEntityReference()) );
 
     // splitter with treeview
     QSplitter *split = new QSplitter( this );
@@ -59,15 +59,6 @@ DomTree::DomTree( const QString &fileName, QWidget *parent, const char *name )
 
     split->setResizeMode( tree, QSplitter::KeepSize );
     split->setResizeMode( text, QSplitter::Stretch );
-
-    // buttons to reread file with/without ns processing
-    hb = new QHBox( this );
-    pb = new QPushButton( "Reread with Namespace Processing", hb );
-    connect( pb, SIGNAL(clicked()),
-	    this, SLOT(withNSProc()) );
-    pb = new QPushButton( "Reread without Namespace Processing", hb );
-    connect( pb, SIGNAL(clicked()),
-	    this, SLOT(withoutNSProc()) );
 
     resize( 700, 600 );
 }
@@ -154,7 +145,7 @@ void DomTree::withoutNSProc()
 
 void DomTree::createElement()
 {
-    new DomTreeItem( TRUE, domTree->createElement( "" ), tree, 0 );
+    new DomTreeItem( TRUE, domTree->createElement( "element" ), tree, 0 );
 }
 
 void DomTree::createDocumentFragment()
@@ -164,42 +155,42 @@ void DomTree::createDocumentFragment()
 
 void DomTree::createTextNode()
 {
-    new DomTreeItem( TRUE, domTree->createTextNode( "" ), tree, 0 );
+    new DomTreeItem( TRUE, domTree->createTextNode( "text" ), tree, 0 );
 }
 
 void DomTree::createComment()
 {
-    new DomTreeItem( TRUE, domTree->createComment( "" ), tree, 0 );
+    new DomTreeItem( TRUE, domTree->createComment( "comment" ), tree, 0 );
 }
 
 void DomTree::createCDATASection()
 {
-    new DomTreeItem( TRUE, domTree->createCDATASection( "" ), tree, 0 );
+    new DomTreeItem( TRUE, domTree->createCDATASection( "CDATA-Section" ), tree, 0 );
 }
 
 void DomTree::createProcessingInstruction()
 {
-    new DomTreeItem( TRUE, domTree->createProcessingInstruction( "", "" ), tree, 0 );
+    new DomTreeItem( TRUE, domTree->createProcessingInstruction( "target", "data" ), tree, 0 );
 }
 
 void DomTree::createAttribute()
 {
-    new DomTreeItem( TRUE, domTree->createAttribute( "" ), tree, 0 );
+    new DomTreeItem( TRUE, domTree->createAttribute( "attribute" ), tree, 0 );
 }
 
 void DomTree::createEntityReference()
 {
-    new DomTreeItem( TRUE, domTree->createEntityReference( "" ), tree, 0 );
+    new DomTreeItem( TRUE, domTree->createEntityReference( "entity reference" ), tree, 0 );
 }
 
 void DomTree::createElementNS()
 {
-    new DomTreeItem( TRUE, domTree->createElementNS( "", "" ), tree, 0 );
+    new DomTreeItem( TRUE, domTree->createElementNS( "http://foo-bar", "pre:element" ), tree, 0 );
 }
 
 void DomTree::createAttributeNS()
 {
-    new DomTreeItem( TRUE, domTree->createAttributeNS( "", "" ), tree, 0 );
+    new DomTreeItem( TRUE, domTree->createAttributeNS( "http://foo-bar", "pre:attribute" ), tree, 0 );
 }
 
 
