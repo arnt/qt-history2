@@ -368,7 +368,7 @@ public:
     QAxBasePrivate()
         : useEventSink(true), useMetaObject(true), useClassInfo(true),
         cachedMetaObject(false), initialized(false), tryCache(false),
-        ptr(0), disp(0), metaobj(0)
+        ptr(0), disp(0), metaobj(0), staticMetaObject(0)
     {
         // protect initialization
         QMutexLocker locker(&cache_mutex);
@@ -2445,7 +2445,6 @@ static const char qt_meta_stringdata_QAxBase[] = {
     "exception(int,QString,QString,QString)\0name\0propertyChanged(QString)\0"
     "name,argc,argv\0signal(QString,int,void*)\0QString\0control\0"
 };
-
 
 /*!
     \reimp
