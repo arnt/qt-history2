@@ -217,7 +217,7 @@ QString QFileInfo::readLink() const
 
 		    if (SUCCEEDED(hres)) {
 			memcpy( szGotPath, (TCHAR*)fn.ucs2(), (fn.length()+1)*sizeof(QChar) );
-			hres = psl->GetPath( (char*)szGotPath, MAX_PATH, &wfd, SLGP_SHORTPATH );
+			hres = psl->GetPath( szGotPath, MAX_PATH, &wfd, SLGP_SHORTPATH );
 			fileLinked = QString::fromUcs2( (ushort*)szGotPath );
 		    }
 		}
