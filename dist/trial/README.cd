@@ -33,30 +33,19 @@ Installation instructions for Qt/Windows
 
 To use the evaluation, you need to have Microsoft Visual C++ v.6 or
 Borland C++ v. 5.5 installed. In the Windows directory on this CD, you
-will find four versions of the Qt/Windows evaluation package:
+will find two versions of the Qt/Windows evaluation package:
 
-QtWin230eval-msvc6.exe
-QtWin230eval-bcc55.exe
-QtWin230eval-MT-msvc6.exe
-QtWin230eval-MT-bcc55.exe
+qt-win-eval-msvc-3.0.2.exe
+qt-win-eval-borland-3.0.2.exe
 
-If you want to use Qt with Microsoft Visual C++, select the "msvc6"
-package. Otherwise, select the "bcc55" package to use Qt with Borland C++.
-
-If you wish to test the threading capabilities of Qt, select the
-corresponding "MT" package. The evaluation library in the "MT" packages
-has been built in multi-threaded mode, and hence allows linking towards
-other libraries built in multi-threaded mode.
+If you want to use Qt with Microsoft Visual C++, select the "msvc"
+package. Otherwise, select the "borland" package to use Qt with
+Borland C++.
 
 Start the installation by double-clicking on the package you have
-selected. When asked for registration information, please enter the name,
-company, and serial number given on the cover of this CD. Further
+selected and follow the instructions in the installation wizard. Further
 installation help will be available in the release notes which will be
 shown at the end of the installation process.
-
-The tmake makefile generation utility is provided in the file
-tmake-1.7.zip. Please refer to the README and README.tmake files in the
-installation directory for further information about tmake.
 
 
 Installation instructions for Qt/Mac
