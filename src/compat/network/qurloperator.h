@@ -15,6 +15,6 @@
 #define QURLOPERATOR_H
 
 #include <q3urloperator.h>
-typedef Q3UrlOperatort QUrlOperator;
+typedef Q3UrlOperator QUrlOperator;
 
 #endif
