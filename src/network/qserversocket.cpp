@@ -37,6 +37,8 @@
 
 #include "qserversocket.h"
 
+#include "qsocketnotifier.h"
+
 
 class QServerSocketPrivate {
 public:

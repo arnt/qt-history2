@@ -5,7 +5,7 @@
 **
 ** Created : 970521
 **
-** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 1997-2000 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the network module of the Qt GUI Toolkit.
 **
@@ -39,12 +39,13 @@
 
 #ifndef QT_NO_NETWORKPROTOCOL_FTP
 
+#include "qsocket.h"
 #include "qurlinfo.h"
-#include <stdlib.h>
 #include "qurloperator.h"
 #include <qstringlist.h>
 #include <qregexp.h>
 #include <qtimer.h>
+#include <stdlib.h>
 
 #define QFTP_MAX_BYTES 1024
 

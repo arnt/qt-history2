@@ -39,7 +39,6 @@
 
 #ifndef QT_NO_ICONVIEW
 
-#include "qpixmap.h"
 #include "qfontmetrics.h"
 #include "qpainter.h"
 #include "qevent.h"
@@ -53,7 +52,6 @@
 #include "qkeycode.h"
 #include "qapplication.h"
 #include "qmultilineedit.h"
-#include "qmap.h"
 #include "qarray.h"
 #include "qlist.h"
 #include "qvbox.h"

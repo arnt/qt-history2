@@ -37,7 +37,6 @@
 
 #include "qsocket.h"
 #include "qlist.h"
-#include "qtimer.h"
 #include "qsocketdevice.h"
 #include "qdns.h"
 

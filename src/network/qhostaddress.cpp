@@ -36,7 +36,6 @@
 **********************************************************************/
 
 #include "qhostaddress.h"
-#include "qglobal.h"
 #include "qstringlist.h"
 
 class QHostAddressPrivate

@@ -39,12 +39,14 @@
 #define QSOCKET_H
 
 #ifndef QT_H
-#include "qsocketdevice.h"
-#include "qsocketnotifier.h"
+#include "qobject.h"
+#include "qiodevice.h"
+#include "qhostaddress.h" // int->QHostAddress conversion
 #endif // QT_H
 
 
 class QSocketPrivate;
+class QSocketDevice;
 
 
 class Q_EXPORT QSocket : public QObject, public QIODevice

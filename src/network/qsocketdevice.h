@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/network/qsocketdevice.h#4 $
+** $Id: //depot/qt/main/src/network/qsocketdevice.h#5 $
 **
 ** Definition of QSocketDevice class.
 **
@@ -40,8 +40,7 @@
 
 #ifndef QT_H
 #include "qiodevice.h"
-#include "qstring.h"
-#include "qhostaddress.h"
+#include "qhostaddress.h" // int->QHostAddress conversion
 #endif // QT_H
 
 

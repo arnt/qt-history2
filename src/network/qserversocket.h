@@ -40,7 +40,8 @@
 
 #ifndef QT_H
 #include "qobject.h"
-#include "qsocket.h"
+#include "qhostaddress.h"
+#include "qsocketdevice.h" // ### remove or keep for users' convenience?
 #endif // QT_H
 
 

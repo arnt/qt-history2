@@ -5,7 +5,7 @@
 **
 ** Created : 991122
 **
-** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 1999-2000 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the network module of the Qt GUI Toolkit.
 **
@@ -40,8 +40,8 @@
 
 #ifndef QT_H
 #include "qobject.h"
-#include "qvaluelist.h"
-#include "qsocket.h"
+#include "qhostaddress.h"
+#include "qsocketnotifier.h"
 #endif // QT_H
 
 #ifndef QT_NO_DNS

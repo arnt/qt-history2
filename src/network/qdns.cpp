@@ -5,7 +5,7 @@
 **
 ** Created : 991122
 **
-** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 1999-2000 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the network module of the Qt GUI Toolkit.
 **
@@ -50,6 +50,7 @@
 #include "qptrdict.h"
 #include "qfile.h"
 #include "qtextstream.h"
+#include "qsocketdevice.h"
 
 
 //#define DEBUG_QDNS

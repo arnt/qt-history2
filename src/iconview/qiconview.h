@@ -40,15 +40,12 @@
 
 #ifndef QT_H
 #include <qscrollview.h>
-#include <qiconset.h>
 #include <qstring.h>
 #include <qrect.h>
 #include <qpoint.h>
 #include <qsize.h>
-#include <qfont.h>
-#include <qlist.h>
+#include <qfont.h> // QString->QFont conversion
 #include <qdragobject.h>
-#include <qstringlist.h>
 #include <qbitmap.h>
 #endif // QT_H
 
@@ -63,10 +60,8 @@
 #ifndef QT_NO_ICONVIEW
 
 class QIconView;
-class QFontMetrics;
 class QPainter;
 class QMimeSource;
-class QDragObject;
 class QMouseEvent;
 class QDragEnterEvent;
 class QDragMoveEvent;
@@ -79,8 +74,6 @@ class QIconViewPrivate;
 struct QIconViewItemPrivate;
 class QIconViewItem;
 class QIconViewItemLineEdit;
-
-class QStringList;
 
 /*****************************************************************************
  *

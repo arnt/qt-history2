@@ -5,7 +5,7 @@
 **
 ** Created : 970521
 **
-** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 1997-2000 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the network module of the Qt GUI Toolkit.
 **
@@ -39,16 +39,16 @@
 #define QFTP_H
 
 #ifndef QT_H
-#include "qsocket.h"
-#include "qapplication.h"
-#include "qstring.h"
-#include "qstringlist.h"
-
+#include "qstring.h" // char*->QString conversion
 #include "qurlinfo.h"
 #include "qnetworkprotocol.h"
 #endif // QT_H
 
 #ifndef QT_NO_NETWORKPROTOCOL_FTP
+
+
+class QSocket;
+
 
 class Q_EXPORT QFtp : public QNetworkProtocol
 {
