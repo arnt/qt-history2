@@ -8,6 +8,7 @@
 #include "separator.h"
 #include "tree.h"
 
+#define COMMAND_PROJECT                 Doc::alias("project")
 #define COMMAND_VERSION                 Doc::alias("version")
 
 HtmlGenerator::HtmlGenerator()
@@ -50,10 +51,18 @@ void HtmlGenerator::initializeGenerator(const Config &config)
     postHeader = config.getString(HtmlGenerator::format() + Config::dot + HTMLGENERATOR_POSTHEADER);
     footer = config.getString(HtmlGenerator::format() + Config::dot + HTMLGENERATOR_FOOTER);
     address = config.getString(HtmlGenerator::format() + Config::dot + HTMLGENERATOR_ADDRESS);
+
+    project = config.getString(COMMAND_PROJECT);
+    if (project.isEmpty())
+        project = "Project";
 }
 
 void HtmlGenerator::terminateGenerator()
 {
+    generateDcfSections(dcfRoot, outputDir() + "/" +
+			project.toLower().replace(QRegExp("[\\s/]"), ".") + ".dcf",
+                        project.toLower() + "/reference");
+
     Generator::terminateGenerator();
 }
 
@@ -461,6 +470,11 @@ void HtmlGenerator::generateClassLikeNode(const InnerNode *inner, CodeMarker *ma
         title = static_cast<const FakeNode *>(inner)->fullTitle();
     }
 
+    DcfSection classSection;
+    classSection.title = title;
+    classSection.ref = linkForNode(inner, 0);
+    classSection.keywords += qMakePair(inner->name(), classSection.ref);
+
     generateHeader(title, inner);
     generateTitle(title);
 
@@ -531,13 +545,23 @@ void HtmlGenerator::generateClassLikeNode(const InnerNode *inner, CodeMarker *ma
 
 	NodeList::ConstIterator m = (*s).members.begin();
 	while ( m != (*s).members.end() ) {
-	    if ( (*m)->access() != Node::Private ) // ### check necessary?
+	    if ( (*m)->access() != Node::Private ) { // ### check necessary?
 		generateDetailedMember(*m, inner, marker);
+                bool ok = true;
+                if ((*m)->type() == Node::Function) {
+                    const FunctionNode *func = reinterpret_cast<const FunctionNode *>(*m);
+                    ok = (func->metaness() != FunctionNode::Ctor) && func->overloadNumber() == 1;
+                }
+                if (ok)
+                    classSection.keywords += qMakePair((*m)->name(), linkForNode(*m, 0));
+            }
 	    ++m;
 	}
 	++s;
     }
     generateFooter( inner );
+
+    appendDcfSubSection(&dcfRoot, classSection);
 }
 
 void HtmlGenerator::generateFakeNode( const FakeNode *fake, CodeMarker *marker )

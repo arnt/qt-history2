@@ -8,7 +8,9 @@
 #include <qmap.h>
 #include <qregexp.h>
 
+#include "codemarker.h"
 #include "config.h"
+#include "dcfsection.h"
 #include "pagegenerator.h"
 
 #if 0
@@ -30,6 +32,8 @@ public:
     virtual void terminateGenerator();
     virtual QString format();
     virtual void generateTree(const Tree *tree, CodeMarker *marker);
+
+    static QString protect( const QString& string );
 
 protected:
     virtual void startText( const Node *relative, CodeMarker *marker );
@@ -69,7 +73,6 @@ private:
 
     QString cleanRef( const QString& ref );
     QString registerRef( const QString& ref );
-    QString protect( const QString& string );
     QString highlightedCode( const QString& markedCode, const Node *relative );
 #if 0
     QString fileBase( const Node *node, const SectionIterator& section );
@@ -85,6 +88,7 @@ private:
     NavigationBar currentNavigationBar;
 #endif
     QMap<QString, QString> refMap;
+    DcfSection dcfRoot;
     bool inLink;
     bool inTableHeader;
     int numTableRows;
@@ -95,7 +99,7 @@ private:
     QString postHeader;
     QString footer;
     QString address;
-    QString version;
+    QString project;
     const Tree *tre;
     QMap<QString, const Node *> allClasses;
     QMap<QString, const Node *> mainClasses;
