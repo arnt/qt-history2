@@ -50,19 +50,22 @@ public:
             menuRect.setRect(buttonRect.right() + 1, buttonRect.top(), 12, buttonRect.height());
         }
 
-	if (q->isDown()) {
+        QIconSet::Mode mode = q->isEnabled() ? QIconSet::Normal : QIconSet::Disabled;
+        if (q->isDown()) {
+            mode = QIconSet::Active;
 	    qDrawShadePanel(p, buttonRect, q->palette(), true);
             if (d->menu) {
                 qDrawShadePanel(p, menuRect, q->palette(), false);
             }
-        } else if (q->underMouse() || (d->menu && d->menu->isVisible())) {
+        } else if (q->isEnabled() && (q->underMouse() || (d->menu && d->menu->isVisible()))) {
+            mode = QIconSet::Active;
 	    qDrawShadePanel(p, buttonRect, q->palette(), false);
             if (d->menu) {
                 qDrawShadePanel(p, menuRect, q->palette(), d->menu->isVisible());
             }
         }
 
-	const QPixmap icon = q->icon().pixmap();
+	const QPixmap icon = q->icon().pixmap(QIconSet::Automatic, mode);
 	const QString text = q->text();
 	QRect iconRect, textRect;
 	d->subRects(iconRect, textRect);
@@ -70,6 +73,7 @@ public:
 	p->drawPixmap((iconRect.width() - icon.width()) / 2,
 		      (iconRect.height() - icon.height()) / 2,
 		      icon);
+        p->setPen(q->palette().foreground());
 	p->drawText(textRect, Qt::AlignLeft | Qt::AlignVCenter, text);
         if (d->menu) {
             q->style().drawPrimitive(QStyle::PE_ArrowDown, p, menuRect,
