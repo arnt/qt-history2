@@ -59,7 +59,7 @@ public:
     ~QListBoxPrivate();
 
     QListBoxItem * head;
-    QListBoxItem * current, *highlighted;
+    QListBoxItem * current, *highlighted, *tmpCurrent;
     bool layoutDirty;
     bool mustPaintAll;
     bool dragging;
@@ -102,6 +102,9 @@ public:
 
     QListBoxItem *pressedItem;
     bool select;
+    
+    QRect *rubber;
+    QPtrDict<bool> selectable;
 };
 
 
@@ -247,6 +250,28 @@ const QPixmap *QListBoxItem::pixmap() const
     return 0;
 }
 
+
+void QListBoxItem::setSelectable( bool b )
+{
+    if ( !listBox() )
+	return;
+    bool *sel = listBox()->d->selectable.find( this );
+    if ( !sel )
+	listBox()->d->selectable.insert( this, new bool( b ) );
+    else
+	listBox()->d->selectable.replace( this, new bool( b ) );
+}
+
+bool QListBoxItem::isSelectable() const
+{
+    if ( !listBox() )
+	return TRUE;
+    bool *sel = listBox()->d->selectable.find( ( (QListBoxItem*)this ) );
+    if ( !sel )
+	return TRUE;
+    else
+	return *sel;
+}
 
 /*!
   \fn void QListBoxItem::setText( const QString &text )
@@ -676,7 +701,9 @@ QListBox::QListBox( QWidget *parent, const char *name, WFlags f )
     d->clearing = FALSE;
     d->pressedItem = 0;
     d->select = FALSE;
-
+    d->rubber = 0;
+    d->selectable.setAutoDelete( TRUE );
+    
     setMouseTracking( TRUE );
     viewport()->setMouseTracking( TRUE );
 
@@ -1533,65 +1560,89 @@ void QListBox::mousePressEvent( QMouseEvent *e )
 	updateItem( d->head );
     }
 
-    if ( !i && ( e->button() == RightButton || isMultiSelection() ) )
+    if ( !i && ( d->selectionMode != Single || e->button() == RightButton )
+	 && !( e->state() & ControlButton ) )
 	clearSelection();
 
     d->select = isMultiSelection() ? ( i ? !i->selected() : FALSE ) : TRUE;
 
-    switch( selectionMode() ) {
-    default:
-    case Single:
-	// nothing
-	break;
-    case Extended:
-	if ( i ) {
-	    if ( !(e->state() & QMouseEvent::ShiftButton) &&
-		 !(e->state() & QMouseEvent::ControlButton) ) {
-		if ( !i->selected() )
-		    clearSelection();
-		setSelected( i, TRUE );
-	    } else if ( e->state() & ControlButton ) {
-		setSelected( i, !i->selected() );
-	    } else if ( e->state() & ShiftButton ) {
-		QListBoxItem *oldCurrent = item( currentItem() );
-		bool down = itemRect( oldCurrent ).y() < itemRect( i ).y();
-		QListBoxItem *lit = down ? oldCurrent : i;
-		bool select = !i->selected();
-		for ( ;; lit = lit->n ) {
-		    if ( !lit ) {
-			triggerUpdate( FALSE );
-			break;
-		    }
-		    if ( down && lit == i ) {
-			setSelected( i, select );
-			triggerUpdate( FALSE );
-			break;
-		    }
-		    if ( !down && lit == oldCurrent ) {
-			setSelected( oldCurrent, select );
-			triggerUpdate( FALSE );
-			break;
-		    }
-		    setSelected( lit, select );
-		}
-	    }
-	}
-	break;
-    case Multi:
-	if ( i ) {
-	    //d->current = i;
-	    setSelected( i, !i->s );
-	}
-	break;
-    case NoSelection:
-	break;
-    }
     if ( i ) {
-	setCurrentItem( i );
+	switch( selectionMode() ) {
+	default:
+	case Single:
+	    // nothing
+	    break;
+	case Extended:
+	    if ( i ) {
+		if ( !(e->state() & QMouseEvent::ShiftButton) &&
+		     !(e->state() & QMouseEvent::ControlButton) ) {
+		    if ( !i->selected() )
+			clearSelection();
+		    setSelected( i, TRUE );
+		} else if ( e->state() & ControlButton ) {
+		    setSelected( i, !i->selected() );
+		} else if ( e->state() & ShiftButton ) {
+		    QListBoxItem *oldCurrent = item( currentItem() );
+		    bool down = itemRect( oldCurrent ).y() < itemRect( i ).y();
+		    QListBoxItem *lit = down ? oldCurrent : i;
+		    bool select = !i->selected();
+		    for ( ;; lit = lit->n ) {
+			if ( !lit ) {
+			    triggerUpdate( FALSE );
+			    break;
+			}
+			if ( down && lit == i ) {
+			    setSelected( i, select );
+			    triggerUpdate( FALSE );
+			    break;
+			}
+			if ( !down && lit == oldCurrent ) {
+			    setSelected( oldCurrent, select );
+			    triggerUpdate( FALSE );
+			    break;
+			}
+			setSelected( lit, select );
+		    }
+		}
+		setCurrentItem( i );
+	    }
+	    break;
+	case Multi:
+	    if ( i ) {
+		//d->current = i;
+		setSelected( i, !i->s );
+		setCurrentItem( i );
+	    }
+	    break;
+	case NoSelection:
+	    break;
+	}
 	if ( selectionMode() == Single && !i->s ) {
 	    setSelected( i, TRUE );
 	}
+    } else {
+	bool unselect = TRUE;
+	if ( e->button() == LeftButton ) {
+	    if ( d->selectionMode == Multi ||
+		 d->selectionMode == Extended ) {
+		d->tmpCurrent = d->current;
+		d->current = 0;
+		updateItem( d->tmpCurrent );
+		if ( d->rubber )
+		    delete d->rubber;
+		d->rubber = 0;
+		d->rubber = new QRect( e->x(), e->y(), 0, 0 );
+
+		if ( d->selectionMode == Extended && !( e->state() & ControlButton ) )
+		    selectAll( FALSE );
+		unselect = FALSE;
+	    }
+	    if ( unselect && ( e->button() == RightButton || isMultiSelection() ) )
+		clearSelection();
+	}
     }
+    
+    
     // for sanity, in case people are event-filtering or whatnot
     delete d->scrollTimer;
     d->scrollTimer = 0;
@@ -1626,6 +1677,13 @@ void QListBox::viewportMouseReleaseEvent( QMouseEvent *e )
 
 void QListBox::mouseReleaseEvent( QMouseEvent *e )
 {
+    if ( d->rubber ) {
+	drawRubber();
+	delete d->rubber;
+	d->rubber = 0;
+	d->current = d->tmpCurrent;
+	updateItem( d->current );
+    }
     if ( d->scrollTimer )
 	mouseMoveEvent( e );
     delete d->scrollTimer;
@@ -1703,6 +1761,15 @@ void QListBox::mouseMoveEvent( QMouseEvent *e )
 	d->highlighted = i;
     }
 
+    if ( d->rubber ) {
+	QRect r = d->rubber->normalize();
+	drawRubber();
+	d->rubber->setCoords( d->rubber->x(), d->rubber->y(), e->x(), e->y() );
+	doRubberSelection( r, d->rubber->normalize() );
+	drawRubber();
+	return;
+    }
+    
     if ( ( (e->state() & ( RightButton | LeftButton | MidButton ) ) == 0 ) ||
 	 d->ignoreMoves )
 	return;
@@ -2236,6 +2303,8 @@ void QListBox::setSelected( QListBoxItem * item, bool select )
 	    updateItem( o );
     }
 
+    if ( select && !item->isSelectable() )
+	select = FALSE;
     item->s = (uint)select;
     updateItem( item );
     emitChangedSignal( TRUE );
@@ -3533,4 +3602,40 @@ QListBoxItem *QListBox::findItem( const QString &text ) const
 	    return item;
     }
     return 0;
+}
+
+void QListBox::drawRubber()
+{
+    if ( !d->rubber )
+	return;
+    if ( !d->rubber->width() && !d->rubber->height() )
+	return;
+    QPainter p( viewport() );
+    p.setRasterOp( NotROP );
+    style().drawFocusRect( &p, d->rubber->normalize(), colorGroup() );
+    p.end();
+}
+
+void QListBox::doRubberSelection( const QRect &old, const QRect &rubber )
+{
+    QListBoxItem *i = d->head;
+    QRect ir, pr;
+    bool changed = FALSE;
+    for ( ; i; i = i->n ) {
+	ir = itemRect( i );
+	if ( i->selected() && !ir.intersects( rubber ) && ir.intersects( old ) ) {
+	    i->s = FALSE;
+	    pr = pr.unite( ir );
+	    changed = TRUE;
+	} else if ( !i->selected() && ir.intersects( rubber ) ) {
+	    if ( i->isSelectable() ) {
+		i->s = TRUE;
+		pr = pr.unite( ir );
+		changed = TRUE;
+	    }
+	}
+    }
+    if ( changed )
+	emit selectionChanged();
+    viewport()->repaint( pr, TRUE );
 }

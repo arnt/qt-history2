@@ -507,8 +507,6 @@ private:
     void clear();
     void show();
     void startRename( bool check = TRUE );
-    void setSelected( QListBoxItem *i, bool s );
-    void setSelected( int i, bool s );
     void viewportMousePressEvent( QMouseEvent *e );
     void viewportMouseReleaseEvent( QMouseEvent *e );
     void viewportMouseDoubleClickEvent( QMouseEvent *e );
@@ -816,10 +814,6 @@ struct QFileDialogPrivate {
 	int width( const QListBox * ) const;
 	void paint( QPainter * );
 	QListViewItem * i;
-	void setSelectable( bool s );
-	bool isSelectable();
-    private:
-	bool selectable;
     };
 
     class UrlInfoList : public QList<QUrlInfo> {
@@ -976,19 +970,6 @@ void QFileListBox::keyPressEvent( QKeyEvent *e )
     QListBox::keyPressEvent( e );
 }
 
-void QFileListBox::setSelected( QListBoxItem *i, bool s )
-{
-    if ( i && s && !( (QFileDialogPrivate::MCItem *)i )->isSelectable() )
-	return;
-
-    QListBox::setSelected( i, s );
-}
-
-void QFileListBox::setSelected( int i, bool s )
-{
-    QListBox::setSelected( i, s );
-}
-
 void QFileListBox::viewportMousePressEvent( QMouseEvent *e )
 {
     pressPos = e->pos();
@@ -1067,6 +1048,8 @@ void QFileListBox::viewportMouseMoveEvent( QMouseEvent *e )
 
 	    mousePressed = FALSE;
 	}
+    } else {
+	QListBox::viewportMouseMoveEvent( e );
     }
 
 }
@@ -1729,7 +1712,7 @@ const QPixmap * QFileDialogPrivate::File::pixmap( int column ) const
 }
 
 QFileDialogPrivate::MCItem::MCItem( QListBox * lb, QListViewItem * item )
-    : QListBoxItem(), selectable( TRUE )
+    : QListBoxItem()
 {
     i = item;
     if ( lb )
@@ -1737,21 +1720,11 @@ QFileDialogPrivate::MCItem::MCItem( QListBox * lb, QListViewItem * item )
 }
 
 QFileDialogPrivate::MCItem::MCItem( QListBox * lb, QListViewItem * item, QListBoxItem *after )
-    : QListBoxItem(), selectable( TRUE )
+    : QListBoxItem()
 {
     i = item;
     if ( lb )
 	lb->insertItem( this, after );
-}
-
-void QFileDialogPrivate::MCItem::setSelectable( bool sel )
-{
-    selectable = sel;
-}
-
-bool QFileDialogPrivate::MCItem::isSelectable()
-{
-    return selectable;
 }
 
 QString QFileDialogPrivate::MCItem::text() const

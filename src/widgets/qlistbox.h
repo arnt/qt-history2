@@ -249,7 +249,9 @@ private:
     int currentRow() const;
     int currentColumn() const;
     void updateSelection();
-
+    void drawRubber();
+    void doRubberSelection( const QRect &old, const QRect &rubber );
+    
     void emitChangedSignal( bool );
 
     int columnAt( int ) const;
@@ -285,6 +287,9 @@ public:
 
     QListBox *listBox() const;
 
+    void setSelectable( bool b );
+    bool isSelectable() const;
+    
 protected:
     virtual void paint( QPainter * ) = 0;
     virtual void setText( const QString &text ) { txt = text; }
