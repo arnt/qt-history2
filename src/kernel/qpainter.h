@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.h#5 $
+** $Id: //depot/qt/main/src/kernel/qpainter.h#6 $
 **
 ** Definition of QPainter class
 **
@@ -24,7 +24,7 @@
 enum BGMode					// background mode
     { TransparentMode, OpaqueMode };
 
-enum PainterUnit				// painter unit
+enum PaintUnit					// paint unit
     { PixelUnit, LoMetricUnit, HiMetricUnit, LoEnglishUnit, HiEnglishUnit,
       TwipsUnit };
 
@@ -62,20 +62,20 @@ public:
 
   // Drawing attributes/modes
 
-    QColor	backgroundColor() const;	// get/set background color
+    QColor	backgroundColor() const;
     void	setBackgroundColor( const QColor & );
-    BGMode	backgroundMode() const;		// get/set background mode
+    BGMode	backgroundMode() const;
     void	setBackgroundMode( BGMode );
-    RasterOp	rasterOp() const { return rop; }// get/set raster operation
+    RasterOp	rasterOp() const;
     void	setRasterOp( RasterOp );
-    QPoint	brushOrigin() const { return bro;}// get/set brush origin
+    QPoint	brushOrigin() const;
     void	setBrushOrigin( int x, int y );
     void	setBrushOrigin( const QPoint & );
 
   // Scaling and transformations
 
-    PainterUnit	unit()	       const { return pu; }
-    void	setUnit( PainterUnit );
+    PaintUnit	unit()	       const;		// get set painter unit
+    void	setUnit( PaintUnit );
     void	setViewXForm( bool );		// set xform on/off
     bool	hasViewXForm() const { return testf(VxF); }
     QRect	sourceView()   const;		// get source view
@@ -180,25 +180,25 @@ private:
 
     enum { IsActive=0x01, DirtyFont=0x02, DirtyPen=0x04, DirtyBrush=0x08,
 	   VxF=0x10, WxF=0x20, ClipOn=0x40, ExtDev=0x80, SafePolygon=0x100 };
-    uint	flags;				// painter flags
-    bool	testf( uint b )	const	{ return (flags&b)!=0; }
-    void	setf( uint b )		{ flags |= b; }
-    void	setf( uint b, bool v );
-    void	clearf( uint b )	{ flags &= ~b; }
+    ushort	flags;				// painter flags
+    bool	testf( ushort b ) const	{ return (flags&b)!=0; }
+    void	setf( ushort b )	{ flags |= b; }
+    void	setf( ushort b, bool v );
+    void	clearf( ushort b )	{ flags &= ~b; }
 
     static QPaintDevice *pdev_ov;		// overriding paint device
     QPaintDevice *pdev;				// paint device
     QColor	bg_col;				// background color
-    BGMode	bg_mode;			// background mode
-    RasterOp	rop;				// raster op/transfer mode
+    uchar	bg_mode;			// background mode
+    uchar	rop;				// raster op/transfer mode
+    uchar	pu;				// coordinate unit
     QPoint	bro;				// brush origin
     QFont	cfont;				// current font
     QPen	cpen;				// current pen
     QBrush	cbrush;				// current brush
     QRegion	crgn;				// current region
-    PainterUnit pu;				// coordinate unit
-    int		sx, sy, sw, sh;			// source rect
-    int		tx, ty, tw, th;			// target rect
+    QCOOT	sx, sy, sw, sh;			// source rect
+    QCOOT	tx, ty, tw, th;			// target rect
     QWXFMatrix *wxfmat;				// world xform matrix
     QWXFMatrix *wxfimat;			// inverse xform matrix
 #if defined(_WS_MAC_) || defined(_WS_WIN16_) || defined(_WS_X11_)
@@ -227,8 +227,6 @@ protected:
 };
 
 
-#if !(defined(QPAINTER_C) || defined(DEBUG))
-
 // --------------------------------------------------------------------------
 // QPainter member functions
 //
@@ -240,7 +238,30 @@ inline QColor QPainter::backgroundColor() const
 
 inline BGMode QPainter::backgroundMode() const
 {
-    return bg_mode;
+    return (BGMode)bg_mode;
+}
+
+inline RasterOp QPainter::rasterOp() const
+{
+    return (RasterOp)rop;
+}
+
+inline QPoint QPainter::brushOrigin() const;
+{
+    return bro;
+}
+
+inline PaintUnit QPainter::unit() const
+{
+    return (PaintUnit)pu;
+}
+
+
+#if !(defined(QPAINTER_C) || defined(DEBUG))
+
+inline void QPainter::setBrushOrigin( const QPoint &p )
+{
+    setBrushOrigin( p.x(), p.y() );
 }
 
 inline void QPainter::drawPoint( const QPoint &p )
@@ -340,12 +361,6 @@ inline void QPainter::drawText( const QRect &r, TextAlignment ta,
 {
     drawText( r.x(), r.y(), r.width(), r.height(), ta, str, len );
 }
-
-inline void QPainter::setBrushOrigin( const QPoint &p )
-{
-    setBrushOrigin( p.x(), p.y() );
-}
-
 
 #endif // inline functions
 

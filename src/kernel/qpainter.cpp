@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.cpp#4 $
+** $Id: //depot/qt/main/src/kernel/qpainter.cpp#5 $
 **
 ** Implementation of QPainter class
 **
@@ -16,13 +16,14 @@
 
 #define QPAINTER_C
 #include "qpainter.h"
+#include "qpaintdc.h"
 #include "qpntarry.h"
 #include "qwxfmat.h"
 #include "qstack.h"
 #include "qdstream.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpainter.cpp#4 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpainter.cpp#5 $";
 #endif
 
 
@@ -37,7 +38,7 @@ bool QPainter::redirect( const QPaintDevice *pd )
 }
 
 
-void QPainter::setf( uint b, bool v )
+void QPainter::setf( ushort b, bool v )
 {
     if ( v )
 	setf( b );
@@ -51,10 +52,10 @@ struct QPState {				// painter state
     QPen	pen;
     QBrush	brush;
     QColor	bgc;
-    BGMode	bgm;
-    RasterOp	rop;
+    uchar	bgm;
+    uchar	pu;
+    uchar	rop;
     QPoint	bro;
-    PainterUnit	pu;
     QRect	sr, tr;
     QWXFMatrix	wm;
     bool	vxf;
@@ -123,9 +124,9 @@ void QPainter::restore()			// restore/pop painter state
     if ( ps->bgc != bg_col )
 	setBackgroundColor( ps->bgc );
     if ( ps->bgm != bg_mode )
-	setBackgroundMode( ps->bgm );
+	setBackgroundMode( (BGMode)ps->bgm );
     if ( ps->rop != rop )
-	setRasterOp( ps->rop );
+	setRasterOp( (RasterOp)ps->rop );
     if ( ps->pu != pu )
 	pu = ps->pu;
     QRect sr( sx, sy, sw, sh );
@@ -278,14 +279,9 @@ void QPainter::fillRect( int x, int y, int w, int h, const QColor &color )
 // QPainter member functions (inline if DEBUG not defined)
 //
 
-QColor QPainter::backgroundColor() const
+void QPainter::setBrushOrigin( const QPoint &p )
 {
-    return bg_col;
-}
-
-BGMode QPainter::backgroundMode() const
-{
-    return bg_mode;
+    setBrushOrigin( p.x(), p.y() );
 }
 
 void QPainter::drawPoint( const QPoint &p )
@@ -384,11 +380,6 @@ void QPainter::drawText( const QRect &r, TextAlignment ta, const char *str,
 			 int len )
 {
     drawText( r.x(), r.y(), r.width(), r.height(), ta, str, len );
-}
-
-void QPainter::setBrushOrigin( const QPoint &p )
-{
-    setBrushOrigin( p.x(), p.y() );
 }
 
 
