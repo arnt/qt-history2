@@ -218,6 +218,7 @@ Atom		qt_wm_delete_window	= 0;	// delete window protocol
 Atom		qt_wm_take_focus	= 0;	// take focus window protocol
 static Atom	qt_qt_scrolldone	= 0;	// scroll synchronization
 Atom		qt_net_wm_context_help	= 0;	// context help
+Atom		qt_net_wm_ping		= 0;	// _NET_WM_PING protocol
 
 static Atom	qt_xsetroot_id		= 0;
 Atom            qt_xa_clipboard         = 0;
@@ -1875,6 +1876,7 @@ void qt_init_internal( int *argcptr, char **argv,
 	qt_x11_intern_atom( "_QT_INPUT_ENCODING", &qt_input_encoding );
 	qt_x11_intern_atom( "_QT_SIZEGRIP", &qt_sizegrip );
 	qt_x11_intern_atom( "_NET_WM_CONTEXT_HELP", &qt_net_wm_context_help );
+	qt_x11_intern_atom( "_NET_WM_PING", &qt_net_wm_ping );
 	qt_x11_intern_atom( "_MOTIF_WM_HINTS", &qt_xa_motif_wm_hints );
 	qt_x11_intern_atom( "DTWM_IS_RUNNING", &qt_cde_running );
 	qt_x11_intern_atom( "KWIN_RUNNING", &qt_kwin_running );
@@ -3063,6 +3065,10 @@ int QApplication::x11ClientMessage(QWidget* w, XEvent* event, bool passive_only)
 	    } else if ( a == qt_net_wm_context_help ) {
 		QWhatsThis::enterWhatsThisMode();
 #endif // QT_NO_WHATSTHIS
+	    } else if ( a == qt_net_wm_ping ) {
+		event->xclient.window = QPaintDevice::x11AppRootWindow( w->x11Screen() );
+		XSendEvent( event->xclient.display, event->xclient.window,
+			    False, NoEventMask, event );
 	    }
 	} else if ( event->xclient.message_type == qt_qt_scrolldone ) {
 	    widget->translateScrollDoneEvent(event);

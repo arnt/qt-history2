@@ -102,6 +102,7 @@ extern Atom qt_wm_client_leader;
 extern Atom qt_window_role;
 extern Atom qt_sm_client_id;
 extern Atom qt_net_wm_context_help;
+extern Atom qt_net_wm_ping;
 extern Atom qt_xa_motif_wm_hints;
 extern Atom qt_net_wm_state;
 extern Atom qt_net_wm_state_modal;
@@ -499,10 +500,11 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 			  &class_hint );
 	XResizeWindow( dpy, id, crect.width(), crect.height() );
 	XStoreName( dpy, id, (char*) title );
-	Atom protocols[3];
+	Atom protocols[4];
 	int n = 0;
 	protocols[n++] = qt_wm_delete_window;	// support del window protocol
 	protocols[n++] = qt_wm_take_focus;	// support take focus window protocol
+	protocols[n++] = qt_net_wm_ping;	// support _NET_WM_PING protocol
 	if ( testWFlags( WStyle_ContextHelp ) )
 	    protocols[n++] = qt_net_wm_context_help;
 	XSetWMProtocols( dpy, id, protocols, n );
