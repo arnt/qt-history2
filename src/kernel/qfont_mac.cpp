@@ -31,8 +31,8 @@
 #include "qfont.h"
 #include "qfontdata_p.h"
 #include "qcomplextext_p.h"
+#include "qfontengine_p.h"
 #include "qpaintdevicemetrics.h"
-//#include "qfontdatabase.h"
 #include "qfontmetrics.h"
 #include "qfontinfo.h"
 #include "qt_mac.h"
@@ -241,12 +241,13 @@ inline bool QMacSetFontInfo::setMacFont(const QFontPrivate *d, QMacSetFontInfo *
 {
     ((QFontPrivate *)d)->load();
 
-    QMacFontInfo *fi = d->fin->internal_fi;
+    Q_ASSERT(d->fin->type() == QFontEngine::Mac); //SDM?
+    QMacFontInfo *fi = ((QFontEngineMac*)d->fin)->internal_fi;
     if(!fi) {
-	d->fin->internal_fi = fi = new QMacFontInfo();
+	((QFontEngineMac*)d->fin)->internal_fi = fi = new QMacFontInfo();
 
 	//face
-	fi->setFont(d->fin->fnum);
+	fi->setFont(((QFontEngineMac*)d->fin)->fnum);
 
 	//style
 	short face = normal;
@@ -272,7 +273,7 @@ inline bool QMacSetFontInfo::setMacFont(const QFontPrivate *d, QMacSetFontInfo *
 
 	//encoding
 	TextEncoding enc;
-	UpgradeScriptInfoToTextEncoding(FontToScript(d->fin->fnum), kTextLanguageDontCare, 
+	UpgradeScriptInfoToTextEncoding(FontToScript(((QFontEngineMac*)d->fin)->fnum), kTextLanguageDontCare, 
 					kTextRegionDontCare, NULL, &enc);
 	fi->setEncoding(enc);
 
@@ -290,7 +291,7 @@ inline bool QMacSetFontInfo::setMacFont(const QFontPrivate *d, QMacSetFontInfo *
 	arr++;
 	tags[arr] = kATSUFontTag;  //font
 	ATSUFontID fond;
-	ATSUFONDtoFontID(d->fin->fnum, NULL, &fond);
+	ATSUFONDtoFontID(((QFontEngineMac*)d->fin)->fnum, NULL, &fond);
 	valueSizes[arr] = sizeof(fond);
 	values[arr] = &fond;
 	arr++;
@@ -809,7 +810,7 @@ int QFontMetrics::width(const QString &s,int len) const
 
 int QFontMetrics::maxWidth() const
 {
-    return FI->fin->maxWidth();
+    return FI->fin->maxCharWidth();
 }
 
 int QFontMetrics::height() const
@@ -819,12 +820,12 @@ int QFontMetrics::height() const
 
 int QFontMetrics::minRightBearing() const
 {
-    return FI->fin->minRightBearing();
+    return 0;
 }
 
 int QFontMetrics::minLeftBearing() const
 {
-    return FI->fin->minLeftBearing();
+    return 0;
 }
 
 int QFontMetrics::leftBearing(QChar) const
@@ -972,7 +973,7 @@ void QFontPrivate::load()
 	QString k = key();
 	QFontStruct* qfs = fontCache->find(k);
 	if (!qfs) {
-	    qfs = new QFontStruct();
+	    qfs = new QFontEngineMac();
 	    fontCache->insert(k, qfs, 1);
 	}
 	qfs->ref();
@@ -980,7 +981,10 @@ void QFontPrivate::load()
 	if(fin) 
 	    fin->deref();
 	fin=qfs;
-	if(fin->fnum == -1) {
+	Q_ASSERT(fin->type() == QFontStruct::Mac); //SDM?
+	QFontEngineMac *mac_fin = (QFontEngineMac*)fin;
+
+	if(mac_fin->fnum == -1) {
 	    Str255 str;
 	    // encoding == 1, yes it is strange the names of fonts are encoded in MacJapanese
 	    TextEncoding encoding = CreateTextEncoding(kTextEncodingMacJapanese,
@@ -988,22 +992,22 @@ void QFontPrivate::load()
 							kTextEncodingDefaultFormat);
 	    qstring_to_pstring(request.family, request.family.length(), str, encoding);
 #if 0
-	    fin->fnum = FMGetFontFamilyFromName(str);
+	    mac_fin->fnum = FMGetFontFamilyFromName(str);
 #else
-	    GetFNum(str, &fin->fnum);
+	    GetFNum(str, &mac_fin->fnum);
 #endif
 	}
-	if(!fin->info) {
+	if(!mac_fin->info) {
 #if defined( QMAC_FONT_ATSUI ) && 0
-	    fin->info = (ATSFontMetrics*)malloc(sizeof(ATSFontMetrics));
+	    mac_fin->info = (ATSFontMetrics*)malloc(sizeof(ATSFontMetrics));
 	    const unsigned char *p = p_str(request.family);
 	    ATSFontGetVerticalMetrics(ATSFontFamilyFindFromQuickDrawName(p),
-				      kATSOptionFlagsDefault, fin->info);
+				      kATSOptionFlagsDefault, mac_fin->info);
 	    free(p);
 #else
-	    fin->info = (FontInfo *)malloc(sizeof(FontInfo));
+	    mac_fin->info = (FontInfo *)malloc(sizeof(FontInfo));
 	    QMacSetFontInfo fi(this, paintdevice);
-	    GetFontInfo(fin->info);
+	    GetFontInfo(mac_fin->info);
 #endif
 	}
 	actual.dirty = TRUE;
@@ -1026,7 +1030,8 @@ void QFontPrivate::load()
 	    actual.pixelSize = (actual.pointSize * 72 / (10 * logicalDpi));
 
 	Str255 font;
-	GetFontName(fin->fnum, font);
+	Q_ASSERT(fin->type() == QFontStruct::Mac); //SDM?
+	GetFontName(((QFontEngineMac*)fin)->fnum, font);
 	actual.family = p2qstring(font);
 
 	exactMatch = (actual.family == request.family && 
@@ -1089,13 +1094,18 @@ QString QFontPrivate::lastResortFont() const
     return QString::fromLatin1("arial");
 }
 
+
+
+#if 0 //SDM?
 QRect QFontPrivate::boundingRect(const QChar &ch)
 {
     return QRect(0,-(fin->ascent()), do_text_task(this, ch, GIMME_WIDTH),
-		  fin->ascent() + fin->descent());
+		 fin->ascent() + fin->descent());
 }
 
 int QFontPrivate::textWidth(const QString &s, int p, int l)
 {
     return do_text_task(this, s, p, l, GIMME_WIDTH);
 }
+#endif
+

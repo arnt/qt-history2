@@ -630,9 +630,10 @@ static void bidiReorder( int numItems, const Q_UINT8 *levels, int *visualOrder )
 #endif
 }
 
-#ifdef Q_WS_X11
-#include "qtextengine_x11.cpp"
-#endif
-#ifdef Q_WS_WIN
-#include "qtextengine_win.cpp"
+#if defined( Q_WS_X11 )
+# include "qtextengine_x11.cpp"
+#elif defined( Q_WS_WIN )
+# include "qtextengine_win.cpp"
+#elif defined( Q_WS_MAC )
+# include "qtextengine_mac.cpp"
 #endif

@@ -161,7 +161,8 @@ kernel {
 			  $$KERNEL_CPP/qregion_mac.cpp \
 			  $$KERNEL_CPP/qwidget_mac.cpp \
 			  $$KERNEL_CPP/qeventloop_mac.cpp \
-			  $$KERNEL_CPP/qfont_mac.cpp
+			  $$KERNEL_CPP/qfont_mac.cpp \
+			  $$KERNEL_CPP/qfontengine_mac.cpp
              DEFINES += QMAC_ONE_PIXEL_LOCK
         } else:unix {
 	   SOURCES += $$KERNEL_CPP/qprinter_unix.cpp \

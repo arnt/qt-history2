@@ -47,7 +47,7 @@ struct QGlyphMetrics
     int yoff;
 };
 
-#ifdef Q_WS_X11
+#if defined( Q_WS_X11 )
 typedef unsigned short glyph_t;
 
 struct offset_t {
@@ -73,9 +73,34 @@ struct QScriptAnalysis
 
 };
 
+#elif defined( Q_WS_MAC )
 
-#endif
-#ifdef Q_WS_WIN
+typedef unsigned short glyph_t;
+
+struct offset_t {
+    short x;
+    short y;
+};
+
+typedef int advance_t;
+
+struct QScriptAnalysis
+{
+    unsigned int script    : 7;
+    unsigned int bidiLevel : 6;  // Unicode Bidi algorithm embedding level (0-61)
+    unsigned int override  : 1;  // Set when in LRO/RLO embedding
+    unsigned int reserved  : 2;
+    bool operator == ( const QScriptAnalysis &other ) {
+	return
+	    script == other.script &&
+	    bidiLevel == other.bidiLevel;
+	// ###
+// 	    && override == other.override;
+    }
+
+};
+
+#elif defined( Q_WS_WIN )
 
 // do not change the definitions below unless you know what you are doing!
 // it is designed to be compatible with the types found in uniscribe.

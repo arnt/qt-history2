@@ -362,10 +362,12 @@ void QGLContext::generateFontDisplayLists(const QFont & fnt, int listBase)
 	fstyle |= underline;
 
     int fnum = 0;
+#if 0 //SDM?
     if(QFontPrivate *fp = (QFontPrivate*)fnt.handle()) {
 	if(fp->fin)
 	    fnum = fp->fin->fnum;
     }
+#endif
     aglUseFont((AGLContext) cx, fnum, fstyle, fnt.pointSize(), 0, 256, listBase);
 }
 

@@ -102,7 +102,7 @@ struct QFontDef {
 
 class QTextCodec;
 
-#if defined(Q_WS_X11) || defined (Q_WS_WIN)
+#if defined(Q_WS_X11) || defined (Q_WS_WIN) || defined (Q_WS_MAC)
 
 struct QGlyphMetrics;
 class QChar;
@@ -129,6 +129,10 @@ public:
     enum Type {
 	Win,
 	Uniscribe
+    };
+#elif defined( Q_WS_MAC )
+    enum Type {
+	Mac
     };
 #endif
 
@@ -183,8 +187,8 @@ public:
 };
 
 
-typedef QFontEngine QFontStruct;
-#endif // WIN || X11
+typedef QFontEngine QFontStruct; 
+#endif // WIN || X11 || MAC
 
 
 #ifdef Q_WS_X11
@@ -201,42 +205,8 @@ public:
     QFontX11Data();
     ~QFontX11Data();
 };
-#endif // Q_WS_X11
 
-
-#if defined( Q_WS_MAC )
-
-#if defined( Q_WS_MACX )
-# define QMAC_FONT_ATSUI
-#endif
-#include "qt_mac.h"
-class QMacFontInfo;
-
-class QFontStruct : public QShared
-{
-public:
-    inline QFontStruct() :   QShared(), info(NULL), fnum(-1), cache_cost(0), internal_fi(NULL) { }
-#if defined( QMAC_FONT_ATSUI ) && 0
-    ATSFontMetrics *info;
-    int maxWidth() const { return (int)info->maxAdvanceWidth; }
-#else
-    FontInfo *info;
-    int maxWidth() const { return info->widMax; }
-#endif
-    int ascent() const { return (int)info->ascent; }
-    int descent() const { return (int)info->descent; }
-    int leading() const { return (int)info->leading; }
-    int minLeftBearing() const { return 0; }
-    int minRightBearing() const { return 0; }
-
-    short fnum;
-    int psize, cache_cost;
-    QMacFontInfo *internal_fi;
-};
-
-#endif
-
-#ifdef Q_WS_QWS
+#elif defined( Q_WS_QWS )
 class QFontStruct;
 class QGfx;
 #endif
@@ -254,10 +224,6 @@ public:
 #endif
     void timerEvent(QTimerEvent *);
 
-
-protected:
-
-
 private:
     int timer_id;
     bool fast;
@@ -269,10 +235,7 @@ class QFontPrivate : public QShared
 {
 public:
     static QFontCache *fontCache;
-
-
 public:
-
     QFontPrivate();
     QFontPrivate(const QFontPrivate &fp);
     QFontPrivate( const QFontPrivate &fp, QPaintDevice *pd );
@@ -294,7 +257,7 @@ public:
 
     static int getFontWeight(const QCString &, bool = FALSE);
 
-#if !defined( Q_WS_X11 ) && !defined( Q_WS_WIN )
+#if !defined( Q_WS_X11 ) && !defined( Q_WS_WIN ) && !defined( Q_WS_MAC )
     QRect boundingRect( const QChar &ch );
 
     struct TextRun {
@@ -396,6 +359,7 @@ public:
 #endif
 
 #if defined( Q_WS_MAC )
+    QFontEngine *engineForScript(QFont::Script) const { return fin; }
     void macSetFont(QPaintDevice *);
     void drawText(int x, int y, const QString &s, int from, int len, QPaintDevice *dev, const QRegion *rgn, int dir);
     void computeLineWidth();

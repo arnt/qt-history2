@@ -1886,7 +1886,7 @@ QFontMetrics &QFontMetrics::operator=( const QFontMetrics &fm )
     return *this;
 }
 
-#if !defined( Q_WS_X11 ) && !defined( Q_WS_WIN )
+#if !defined( Q_WS_X11 ) && !defined( Q_WS_WIN ) && !defined( Q_WS_MAC )
 QRect QFontMetrics::boundingRect( QChar ch ) const
 {
     return d->boundingRect( ch );

@@ -927,8 +927,9 @@ static void arabic_shape( int /*script*/, const QString &string, int from, int l
 
 
 #ifdef Q_WS_X11
-#include "qscriptengine_x11.cpp"
-#endif
-#ifdef Q_WS_WIN
-#include "qscriptengine_win.cpp"
+# include "qscriptengine_x11.cpp"
+#elif defined( Q_WS_WIN )
+# include "qscriptengine_win.cpp"
+#elif defined( Q_WS_MAC )
+# include "qscriptengine_mac.cpp"
 #endif
