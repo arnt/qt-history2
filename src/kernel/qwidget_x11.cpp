@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#331 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#332 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -1662,6 +1662,8 @@ void QWidget::createTLSysExtra()
 			XNPreeditAttributes, preedit_att,
 			XNStatusAttributes, status_att,
 			0 );
+    } else {
+	extra->topextra->xic = 0;
     }
 }
 
