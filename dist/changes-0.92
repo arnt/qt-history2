@@ -2,3 +2,14 @@ toUpper, toLower, simplifyWhiteSpace etc. do NOT change the string.
 
 QFile::isDirectory => QFile::isDir
 QFile::isRegular   => QFile::isFile
+
+changed argument in QList::toVector() from reference to pointer
+changed argument in QVector::toList() from reference to pointer
+
+removed QVector::apply()
+removed QList::apply()
+
+Qpen, QBrush and QFont are no longer explicitely shared!!!
+QPainter::pen(), QPainter::brush() and QPainter::font() no longer return 
+references 
+
