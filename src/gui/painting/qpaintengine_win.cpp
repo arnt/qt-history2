@@ -1197,7 +1197,7 @@ void QWin32PaintEngine::updateBrush(QPainterState *state)
 	    DeleteObject(hbrushbm_old);	// delete last brush pixmap
     }
 
-    SetBkColor(d->hdc, COLOR_VALUE(state->bgColor));
+    SetBkColor(d->hdc, COLOR_VALUE(state->bgBrush.color()));
 }
 
 

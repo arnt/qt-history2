@@ -261,7 +261,7 @@ QQuickDrawPaintEngine::updateBackground(QPainterState *ps)
     Q_ASSERT(isActive());
     d->current.bg.origin = ps->bgOrigin;
     d->current.bg.mode = ps->bgMode;
-    d->current.bg.color = ps->bgColor;
+    d->current.bg.color = ps->bgBrush.color();
 }
 
 void

@@ -1459,7 +1459,7 @@ void QX11PaintEngine::updateBackground(QPainterState *ps)
 {
     Q_ASSERT(isActive());
     d->bg_mode = ps->bgMode;
-    d->bg_col = ps->bgColor;
+    d->bg_col = ps->bgBrush.color();
     if ( !d->penRef )
         updatePen(ps);                            // update pen setting
     if ( !d->brushRef )

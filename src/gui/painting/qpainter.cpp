@@ -128,7 +128,6 @@ bool QPainter::begin(const QPaintDevice *pd, bool unclipped)
 		offset += wp->pos();
 		wp = wp->parentWidget();
 	    }
-	    d->state->bgColor = widget->paletteBackgroundColor();
 	    d->state->bgOrigin = -offset;
 	    d->state->ww = d->state->vw = widget->width();
 	    d->state->wh = d->state->vh = widget->height();
@@ -652,14 +651,14 @@ const QBrush &QPainter::brush() const
 
 void QPainter::setBackgroundColor(const QColor &color)
 {
-    d->state->bgColor = color;
+    d->state->bgBrush.setColor(color);
     if (d->engine && d->engine->isActive())
 	d->engine->setDirty(QPaintEngine::DirtyBackground);
 }
 
 const QColor &QPainter::backgroundColor() const
 {
-    return d->state->bgColor;
+    return d->state->bgBrush.color();
 }
 
 void QPainter::setRasterOp(RasterOp op)

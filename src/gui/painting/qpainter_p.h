@@ -67,7 +67,6 @@ public:
     QBrush 	brush;
     QBrush 	bgBrush;		// background brush
     QRegion	clipRegion;
-    QColor      bgColor;
 #ifndef QT_NO_TRANSFORMATIONS
     QWMatrix    worldMatrix; 	    	// World transformation matrix, not window and viewport
     QWMatrix    matrix;			// Complete transformation matrix, including win and view.

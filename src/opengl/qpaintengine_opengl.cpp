@@ -59,7 +59,7 @@ bool QOpenGLPaintEngine::begin(const QPaintDevice *pdev, QPainterState *state, b
     setActive(true);
 
     dgl->makeCurrent();
-    dgl->qglClearColor(state->bgColor);
+    dgl->qglClearColor(state->bgBrush.color());
     glShadeModel(GL_FLAT);
 //     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glViewport(0, 0, dgl->width(), dgl->height());
@@ -109,7 +109,7 @@ void QOpenGLPaintEngine::updateRasterOp(QPainterState *ps)
 void QOpenGLPaintEngine::updateBackground(QPainterState *ps)
 {
     dgl->makeCurrent();
-    dgl->qglClearColor(ps->bgColor);
+    dgl->qglClearColor(ps->bgBrush.color());
 }
 
 void QOpenGLPaintEngine::updateXForm(QPainterState *ps)
