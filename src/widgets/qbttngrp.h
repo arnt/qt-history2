@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbttngrp.h#5 $
+** $Id: //depot/qt/main/src/widgets/qbttngrp.h#6 $
 **
 ** Definition of QButtonGroup class
 **
@@ -25,6 +25,7 @@ class QButtonGroup : public QGroupBox
     Q_OBJECT
 public:
     QButtonGroup( QWidget *parent=0, const char *name=0 );
+    QButtonGroup( const char *title, QWidget *parent=0, const char *name=0 );
    ~QButtonGroup();
 
     void insert( QButton *, int id=-1 );
@@ -37,6 +38,7 @@ protected slots:
     void buttonClicked();
 
 private:
+    void	init();
     QButtonList *buttons;
 };
 

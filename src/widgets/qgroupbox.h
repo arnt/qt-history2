@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qgroupbox.h#3 $
+** $Id: //depot/qt/main/src/widgets/qgroupbox.h#4 $
 **
 ** Definition of QGroupBox widget class
 **
@@ -21,6 +21,7 @@ class QGroupBox : public QFrame
     Q_OBJECT
 public:
     QGroupBox( QWidget *parent=0, const char *name=0 );
+    QGroupBox( const char *title, QWidget *parent=0, const char *name=0 );
 
     const char *title()		const	{ return str; }
 
@@ -33,6 +34,7 @@ protected:
     void	paintEvent( QPaintEvent * );
 
 private:
+    void	init();
     QString	str;
     int		align;
 };

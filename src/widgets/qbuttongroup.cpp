@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbuttongroup.cpp#5 $
+** $Id: //depot/qt/main/src/widgets/qbuttongroup.cpp#6 $
 **
 ** Implementation of QButtonGroup class
 **
@@ -16,35 +16,33 @@
 #include "qlist.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qbuttongroup.cpp#5 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qbuttongroup.cpp#6 $";
 #endif
 
 
 /*!
 \class QButtonGroup qbttngrp.h
-\brief The QButtonGroup organizes QButton widgets in a group for managing
-buttons that belong together.
+\brief The QButtonGroup widget organizes QButton widgets in a group.
 
-The QButtonGroup class contains an internal list of QButton widgets, and
-the contained buttons do not have to be child widgets of the button group.
+A button group widget makes it easier to deal with groups of buttons.  A
+button in a button group can be associated with a unique identifer. The
+button group emits a clicked() signal with this identifier when the button
+is clicked.
 
-There are two basic ways of using a button group:
+A button group which contains radio buttons (QRadioButton) will switch
+off all radio buttons except the one that was clicked.
+
+There are two standard ways of using a button group:
 <ol>
 <li> A button group can be a normal parent widget for a set of buttons.
 Because QButtonGroup inherits QGroupBox, it can display a frame and
-a title.
-<li> A button group can be an invisible widget that only maintains a
-list of buttons. The buttons will then have other parent widgets.
+a title. The buttons get identifiers 0, 1, 2 etc. in the order they are
+inserted.
+<li> A button group can be an invisible widget and the contained buttons
+have some other parent widget.
+A button must be manually inserted using the insert() function with an
+identifer.
 </ol>
-
-The QButtonGroup is especially useful for radio buttons (QRadioButton).
-When one radiobutton in the group is switched on, all other radio
-buttons will be automatically switched off.
-
-All buttons that are inserted into the button group have an (optional)
-identifier. The button group connects the QButton::clicked() signal to
-buttonClicked() slot.  When a button is clicked, the button group receives
-the signal and emits an clicked() signal, containing the button identifier.
 */
 
 
@@ -58,11 +56,31 @@ typedef declare(QListM,QButtonItem);
 
 
 /*!
-Constructs a button group with a parent widget and a widget name.
+Constructs a button group with no title.
+
+The \e parent and \e name arguments are passed to the QWidget constructor.
 */
 
 QButtonGroup::QButtonGroup( QWidget *parent, const char *name )
     : QGroupBox( parent, name )
+{
+    init();
+}
+
+/*!
+Constructs a button group with a title.
+
+The \e parent and \e name arguments are passed to the QWidget constructor.
+*/
+
+QButtonGroup::QButtonGroup( const char *title, QWidget *parent,
+			    const char *name )
+    : QGroupBox( title, parent, name )
+{
+    init();
+}
+
+void QButtonGroup::init()
 {
     initMetaObject();
     buttons = new QButtonList;
@@ -71,7 +89,7 @@ QButtonGroup::QButtonGroup( QWidget *parent, const char *name )
 }
 
 /*!
-Destroys the button group and all its child widgets.
+Destroys the button group and its child widgets.
 */
 
 QButtonGroup::~QButtonGroup()
@@ -117,6 +135,12 @@ void QButtonGroup::remove( QButton *button )
     }
 }
 
+
+/*!
+\internal
+This slot is activated when one of the buttons in the group emits the
+QButton::clicked() signal.
+*/
 
 void QButtonGroup::buttonClicked()
 {

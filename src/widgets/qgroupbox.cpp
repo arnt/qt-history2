@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qgroupbox.cpp#10 $
+** $Id: //depot/qt/main/src/widgets/qgroupbox.cpp#11 $
 **
 ** Implementation of QGroupBox widget class
 **
@@ -14,17 +14,21 @@
 #include "qpainter.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qgroupbox.cpp#10 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qgroupbox.cpp#11 $";
 #endif
 
 
-/*! \class QGroupBox qgrpbox.h
+/*!
+\class QGroupBox qgrpbox.h
+\brief The QGroupBox widget provides a group box frame with a title.
 
-  \brief The QGroupBox widget provides a group box frame with a title.
+A group box is a widget with a frame and a title.  The intended use of a
+group box is to show that a number of widgets (i.e. child widgets) are
+logically related.
 
-  This class is only partly documented.  Our <a
-  href=http://www.troll.no/>home page</a> contains a pointer to the
-  current version of Qt. */
+The button group widget, QButtonGroup, is an "intelligent" group box that is
+very useful for organizing button widgets in a group.
+*/
 
 
 /*!
@@ -36,10 +40,40 @@ The \e parent and \e name arguments are passed to the QWidget constructor.
 QGroupBox::QGroupBox( QWidget *parent, const char *name )
     : QFrame( parent, name )
 {
+    init();
+}
+
+/*!
+Constructs a group box with a title.
+
+The \e parent and \e name arguments are passed to the QWidget constructor.
+*/
+
+QGroupBox::QGroupBox( const char *title, QWidget *parent, const char *name )
+    : QFrame( parent, name )
+{
+    init();
+    setTitle( title );
+}
+
+void QGroupBox::init()
+{
     initMetaObject();
-    align = AlignHCenter;
-    setFrameStyle( QFrame::Box | QFrame::Plain );
-    setLineWidth( 1 );
+    int fs;
+    switch ( style() ) {
+	case WindowsStyle:
+	case PMStyle:
+	    align = AlignLeft;
+	    fs = QFrame::Box | QFrame::Sunken;
+	    break;
+	case Win3Style:
+	    align = AlignLeft;
+	    fs = QFrame::Box | QFrame::Plain;
+	default:
+	    align = AlignHCenter;
+	    fs = QFrame::Box | QFrame::Plain;
+    }
+    setFrameStyle( fs );
 }
 
 
