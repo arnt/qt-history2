@@ -502,7 +502,9 @@ template<class T>
 inline QDataStream& operator<<( QDataStream& s, const QValueVector<T>& v )
 {
     s << (Q_UINT32)v.size();
-    QValueVector<T>::const_iterator it = v.begin();
+    // ### use typename QValueVector<T>::const_iterator once all supported
+    // ### compilers know about the 'typename' keyword.
+    const T* it = v.begin();
     for( ; it != v.end(); ++it )
 	s << *it;
     return s;
