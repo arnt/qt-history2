@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgdict.cpp#36 $
+** $Id: //depot/qt/main/src/tools/qgdict.cpp#37 $
 **
 ** Implementation of QGDict and QGDictIterator classes
 **
@@ -16,7 +16,7 @@
 #include "qdstream.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qgdict.cpp#36 $")
+RCSTAG("$Id: //depot/qt/main/src/tools/qgdict.cpp#37 $")
 
 
 /*----------------------------------------------------------------------------
@@ -450,6 +450,10 @@ QDataStream &operator<<( QDataStream &s, const QGDict &dict )
     return dict.write( s );
 }
 
+#if defined(_CC_DEC_) && defined(__alpha) && (__DECCXX_VER >= 50190001)
+#pragma message disable narrowptr
+#endif
+
 /*----------------------------------------------------------------------------
   \internal
   Reads a dictionary from the stream \e s.
@@ -465,7 +469,7 @@ QDataStream &QGDict::read( QDataStream &s )
 	char *k;
 	if ( triv ) {
 	    UINT32 k_triv;
-	    s >> k_triv;			// key is long int
+	    s >> k_triv;			// key is 32-bit int
 	    k = (char *)k_triv;
 	}
 	else

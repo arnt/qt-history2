@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.cpp#64 $
+** $Id: //depot/qt/main/src/kernel/qimage.cpp#65 $
 **
 ** Implementation of QImage and QImageIO classes
 **
@@ -20,7 +20,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#64 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#65 $")
 
 
 /*----------------------------------------------------------------------------
@@ -95,6 +95,10 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#64 $")
 
 
 extern bool qt_image_native_bmp();
+
+#if defined(_CC_DEC_) && defined(__alpha) && (__DECCXX_VER >= 50190001)
+#pragma message disable narrowptr
+#endif
 
 
 /*****************************************************************************
