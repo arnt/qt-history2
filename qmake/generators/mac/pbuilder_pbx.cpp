@@ -88,7 +88,7 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
       << "{" << "\n"
       << "\t" << "archiveVersion = 1;" << "\n"
       << "\t" << "classes = {" << "\n" << "\t" << "};" << "\n"
-      << "\t" << "objectVersion = 34;" << "\n"
+      << "\t" << "objectVersion = " << pbuilderVersion() << ";" << "\n"
       << "\t" << "objects = {" << endl;
 
     //MAKE QMAKE equivlant
@@ -787,4 +787,62 @@ ProjectBuilderMakefileGenerator::defaultMakefile() const
     if(project->first("TEMPLATE") == "subdirs")
 	return UnixMakefileGenerator::defaultMakefile();
     return project->first("TARGET") + ".pbproj/project.pbxproj";
+}
+
+/* This function is such a hack it is almost pointless, but it
+   eliminates the warning message from ProjectBuilder that the project
+   file is for an older version. I guess this could be used someday if
+   the format of the output is dependant upon the version of
+   ProjectBuilder as well.
+*/
+int
+ProjectBuilderMakefileGenerator::pbuilderVersion() const
+{
+    QString ret;
+    if(project->isEmpty("QMAKE_PBUILDER_VERSION")) {
+	QString version, version_plist = project->first("QMAKE_PBUILDER_VERSION_PLIST");
+	if(version_plist.isEmpty())
+	    version_plist = "/Developer/Applications/Project Builder.app/Contents/version.plist";
+	else
+	    version_plist = version_plist.replace(QRegExp("\""), "");
+	QFile version_file(version_plist);
+	if(version_file.open(IO_ReadOnly)) {
+	    debug_msg(1, "version.plist: Reading file: %s", version_plist.latin1());
+	    QTextStream plist(&version_file);
+
+	    bool in_dict = FALSE;
+	    QString current_key;
+	    QRegExp keyreg("^<key>(.*)</key>$"), stringreg("^<string>(.*)</string>$");
+	    while(!plist.eof()) {
+		QString line = plist.readLine().stripWhiteSpace();
+		if(line == "<dict>")
+		    in_dict = TRUE;
+		else if(line == "</dict>")
+		    in_dict = FALSE;
+		else if(in_dict) {
+		    if(keyreg.exactMatch(line))
+			current_key = keyreg.cap(1);
+		    else if(current_key == "CFBundleShortVersionString" && stringreg.exactMatch(line))
+			version = stringreg.cap(1);
+		}
+	    }
+	    version_file.close();
+	} else debug_msg(1, "version.plist: Failure to open %s", version_plist.latin1());
+	if(version == "2.0")
+	    ret = "38";
+	else if(version == "1.1")
+	    ret = "34";
+    } else {
+	ret = project->first("QMAKE_PBUILDER_VERSION");
+    }
+    if(!ret.isEmpty()) {
+	bool ok;
+	int int_ret = ret.toInt(&ok);
+	if(ok) {
+	    debug_msg(1, "version.plist: Got version: %d", int_ret);
+	    return int_ret;
+	}
+    }
+    debug_msg(1, "version.plist: Fallback to default version");
+    return 34; //my fallback
 }

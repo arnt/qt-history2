@@ -41,6 +41,7 @@
 
 class ProjectBuilderMakefileGenerator : public UnixMakefileGenerator
 {
+    int pbuilderVersion() const;
     bool writeMakeParts(QTextStream &);
     bool writeMakefile(QTextStream &);
 
