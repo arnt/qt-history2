@@ -351,6 +351,27 @@ void Uic::createFormDecl( const QDomElement &e )
 
     out << endl;
 
+    // find signals
+    QStringList extraSignals;
+    nl = e.parentNode().toElement().elementsByTagName( "signal" );
+    for ( i = 0; i < (int) nl.length(); i++ ) {
+	n = nl.item(i).toElement();
+	if ( n.parentNode().toElement().tagName() != "signals"
+	     && n.parentNode().toElement().tagName() != "connections" )
+	    continue;
+	if ( n.attribute( "language", "C++" ) != "C++" )
+	    continue;
+	extraSignals += n.firstChild().toText().data();
+    }
+    
+    // create signals
+    if ( !extraSignals.isEmpty() ) {
+	out << "signals::" << endl;
+	for ( it = extraSignals.begin(); it != extraSignals.end(); ++it )
+	    out << "    void " << (*it) << ";" << endl;
+	out << endl;
+    }
+    
     // find additional slots
     QStringList publicSlots, protectedSlots, privateSlots;
     QStringList publicSlotTypes, protectedSlotTypes, privateSlotTypes;
