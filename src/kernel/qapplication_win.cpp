@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#286 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#287 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -1334,6 +1334,7 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 		      r.right-r.left, r.bottom-r.top,
 		      widget->backgroundColor(),
 		      widget->backgroundPixmap(), 0, 0 );
+return 0;
 	    }
 	    break;
 
@@ -2510,23 +2511,14 @@ bool QETWidget::sendKeyEvent( QEvent::Type type, int code, int ascii,
 bool QETWidget::translatePaintEvent( const MSG & )
 {
     PAINTSTRUCT ps;
-    RECT rect;
-    GetUpdateRect( winId(), &rect, FALSE );
-    QRect r( QPoint(rect.left,rect.top), QPoint(rect.right,rect.bottom) );
-    QPaintEvent e( r );
-
-#if 0
-    // Use real update region later
-    HRGN reg = CreateRectRgn(0,0,1,1); // empty would do
-    GetUpdateRgn( winId(), reg, FALSE );
-    QPaintEvent e( reg );
-#endif
-
     setWState( WState_InPaintEvent );
     hdc = BeginPaint( winId(), &ps );
+    QRect r(QPoint(ps.rcPaint.left,ps.rcPaint.top),
+	    QPoint(ps.rcPaint.right,ps.rcPaint.bottom));
+    QPaintEvent e(r);
     QApplication::sendEvent( this, (QEvent*) &e );
-    EndPaint( winId(), &ps );
     hdc = 0;
+    EndPaint( winId(), &ps );
     clearWState( WState_InPaintEvent );
     return TRUE;
 }
