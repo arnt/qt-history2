@@ -61,48 +61,94 @@
 #include "qpopupmenu.h"
 
 /*!
-  \fn void QTextView::undoAvailable (bool yes)
+  \class QTextView qtextview.h
+  \brief A sophisticated single-page rich text viewer.
+  \ingroup basic
+  \ingroup helpsystem
 
-  This signal is emitted when the availability of undo changes.
-  If \a yes is TRUE, then undo() will work until
-  undoAvailable( FALSE ) is next emitted.
+  Unlike QSimpleRichText, which merely draws small pieces of rich
+  text, a QTextView is a real widget, with scrollbars when necessary,
+  for showing large text documents.
+
+  The rendering style and available tags are defined by a
+  styleSheet(). Currently, a small XML/CSS1 subset including embedded
+  images and tables is supported. See QStyleSheet for
+  details. Possible images within the text document are resolved by
+  using a QMimeSourceFactory.  See setMimeSourceFactory() for details.
+
+  Using QTextView is quite similar to QLabel. It's mainly a call to
+  setText() to set the contents. Setting the background color is
+  slightly different from other widgets, since a text view is a
+  scrollable widget that naturally provides a scrolling
+  background. You can specify the paper background with
+  setPaper(). QTextView supports both plain color and complex pixmap
+  backgrounds.
+
+  Note that we do not intend to add a full-featured web browser widget
+  to Qt (since that would easily double Qt's size and only few
+  applications would benefit from it). In particular, the rich text
+  support in Qt is supposed to provide a fast, portable and sufficient
+  way to add reasonable online help facilities to applications. We
+  will, however, extend it to some degree in future versions of Qt.
+
+  For even more, like hypertext capabilities, see QTextBrowser.
+
+  The richtext engine, which is used by QTextView, privides also the
+  possibility to edit the document in WYSIWYG (what you see is what
+  you get). QTextView itself is read-only. If you need an editor
+  widget, which also supports richtext editing, use QTextEdit, which
+  is derived from QTextView.
 */
 
-/*!
-  \fn void QTextView::redoAvailable (bool yes)
-
-  This signal is emitted when the availability of redo changes.
-  If \a yes is TRUE, then redo() will work until
-  redoAvailable( FALSE ) is next emitted.
-*/
-
-/*!
-  \fn void QTextView::copyAvailable (bool yes)
+/*!  \fn void QTextView::copyAvailable (bool yes)
 
   This signal is emitted when the availability of cut/copy changes.
   If \a yes is TRUE, then cut() and copy() will work until
   copyAvailable( FALSE ) is next emitted.
 */
 
-/*! \fn bool QMultiLineEdit::isOverwriteMode() const
 
-  Returns TRUE if this multi line edit is in overwrite mode, i.e.
-  if characters typed replace characters in the editor.
+/*!  \fn void QTextView::textChanged()
 
-  \sa setOverwriteMode()
+  This signal is always emitted when the contents of the view changed.
+ */
+
+/*!  Constructs an empty QTextView with the standard \a parent and \a
+  name optional arguments.
 */
 
+/*!  \fn void QTextView::selectionChanged()
 
-/*! \fn void QMultiLineEdit::setOverwriteMode( bool on )
-
-  Sets overwrite mode if \a on is TRUE. Overwrite mode means
-  that characters typed replace characters in the editor.
-
-  \sa isOverwriteMode()
+  This signal is always emitted when the selection is changed.
 */
 
+/*!  \fn QTextDocument *QTextView::document() const
 
+  This function returns the QTextDocument which is used by the
+  view. QTextDocument is a class, which is not in the public API. If
+  you want to do more specialized stuff, you might use that
+  anyway. But be aware that the API of QTextDocument might change in a
+  incompatible manner in the future.
+*/
 
+/*!  \fn void QTextView::setDocument( QTextDocument *doc ) const
+
+  This function sets theQTextDocument which should be used by this
+  view. This can be used if you e.g. want to display one document in
+  multiple views. Just create a QTextDocument and set it to the views
+  which should display it. But you need then connect to textChanged()
+  and selectionChanged() of all the views and update the others
+  (preferable a bit delayed for efficiece reasons).
+  
+  Note that QTextDocument is a class, which is not in the public
+  API. If you want to do more specialized stuff (like described), you
+  might use that anyway. But be aware that the API of QTextDocument
+  might change in a incompatible manner in the future.
+*/
+
+/*!  Constructs an empty QTextView with the standard \a parent and \a
+  name optional arguments.
+*/
 
 QTextView::QTextView( QWidget *parent, const char *name )
     : QScrollView( parent, name, WNorthWestGravity | WRepaintNoErase ),
@@ -110,6 +156,11 @@ QTextView::QTextView( QWidget *parent, const char *name )
 {
     init();
 }
+
+/*!  Constructs a QTextView displaying the contents \a text with
+  context \a context, with the standard \a parent and \a name optional
+  arguments.
+*/
 
 QTextView::QTextView( const QString& text, const QString& context,
 		      QWidget *parent, const char *name)
@@ -119,6 +170,8 @@ QTextView::QTextView( const QString& text, const QString& context,
     init();
     setText( text, context );
 }
+
+/*! \reimp */
 
 QTextView::~QTextView()
 {
@@ -192,8 +245,6 @@ void QTextView::init()
 
     blinkCursorVisible = FALSE;
 
-    mLines = -1;
-
     connect( this, SIGNAL( textChanged() ),
 	     this, SLOT( setModified() ) );
     viewport()->setFocusProxy( this );
@@ -209,6 +260,8 @@ void QTextView::init()
     setPalette( pal );
 #endif
 }
+
+/*! \reimp */
 
 void QTextView::drawContents( QPainter *p, int cx, int cy, int cw, int ch )
 {
@@ -235,6 +288,8 @@ void QTextView::drawContents( QPainter *p, int cx, int cy, int cw, int ch )
 	p->fillRect( 0, contentsHeight(), visibleWidth(),
 		     visibleHeight() - contentsHeight(), g.brush( QColorGroup::Base ) );
 }
+
+/*! \reimp */
 
 bool QTextView::event( QEvent *e )
 {
@@ -275,65 +330,8 @@ bool QTextView::event( QEvent *e )
     return QWidget::event( e );
 }
 
-/*!
-  The key press event handler converts a key press to some line editor
-  action.
-
-  Here are the default key bindings when isReadOnly() is FALSE:
-  <ul>
-  <li><i> Left Arrow </i> Move the cursor one character leftwards
-  <li><i> Right Arrow </i> Move the cursor one character rightwards
-  <li><i> Up Arrow </i> Move the cursor one line upwards
-  <li><i> Down Arrow </i> Move the cursor one line downwards
-  <li><i> Page Up </i> Move the cursor one page upwards
-  <li><i> Page Down </i> Move the cursor one page downwards
-  <li><i> Backspace </i> Delete the character to the left of the cursor
-  <li><i> Home </i> Move the cursor to the beginning of the line
-  <li><i> End </i> Move the cursor to the end of the line
-  <li><i> Delete </i> Delete the character to the right of the cursor
-  <li><i> Shift - Left Arrow </i> Mark text one character leftwards
-  <li><i> Shift - Right Arrow </i> Mark text one character rightwards
-  <li><i> Control-A </i> Move the cursor to the beginning of the line
-  <li><i> Control-B </i> Move the cursor one character leftwards
-  <li><i> Control-C </i> Copy the marked text to the clipboard
-  <li><i> Control-D </i> Delete the character to the right of the cursor
-  <li><i> Control-E </i> Move the cursor to the end of the line
-  <li><i> Control-F </i> Move the cursor one character rightwards
-  <li><i> Control-H </i> Delete the character to the left of the cursor
-  <li><i> Control-K </i> Delete to end of line
-  <li><i> Control-N </i> Move the cursor one line downwards
-  <li><i> Control-P </i> Move the cursor one line upwards
-  <li><i> Control-V </i> Paste the clipboard text into line edit
-  <li><i> Control-X </i> Cut the marked text, copy to clipboard
-  <li><i> Control-Z </i> Undo the last operation
-  <li><i> Control-Y </i> Redo the last operation
-  <li><i> Control - Left Arrow </i> Move the cursor one word leftwards
-  <li><i> Control - Right Arrow </i> Move the cursor one word rightwards
-  <li><i> Control - Up Arrow </i> Move the cursor one word upwards
-  <li><i> Control - Down Arrow </i> Move the cursor one word downwards
-  <li><i> Control - Home Arrow </i> Move the cursor to the beginning of the text
-  <li><i> Control - End Arrow </i> Move the cursor to the end of the text
-  </ul>
-  In addition, the following key bindings are used on Windows:
-  <ul>
-  <li><i> Shift - Delete </i> Cut the marked text, copy to clipboard
-  <li><i> Shift - Insert </i> Paste the clipboard text into line edit
-  <li><i> Control - Insert </i> Copy the marked text to the clipboard
-  </ul>
-  All other keys with valid ASCII codes insert themselves into the line.
-
-  Here are the default key bindings when isReadOnly() is TRUE:
-  <ul>
-  <li><i> Left Arrow </i> Scrolls the table rightwards
-  <li><i> Right Arrow </i> Scrolls the table rightwards
-  <li><i> Up Arrow </i> Scrolls the table one line downwards
-  <li><i> Down Arrow </i> Scrolls the table one line upwards
-  <li><i> Page Up </i> Scrolls the table one page downwards
-  <li><i> Page Down </i> Scrolls the table one page upwards
-  <li><i> Control-C </i> Copy the marked text to the clipboard
-  </ul>
-
-*/
+/*! Provides scrolling and paging.
+ */
 
 void QTextView::keyPressEvent( QKeyEvent *e )
 {
@@ -384,12 +382,10 @@ void QTextView::keyPressEvent( QKeyEvent *e )
 	moveCursor( MovePgDown, e->state() & ShiftButton, e->state() & ControlButton );
 	break;
     case Key_Return: case Key_Enter:
-	if ( mLines == 1 )
-	    break;
 	doc->removeSelection( QTextDocument::Standard );
 	clearUndoRedoInfo = FALSE;
 	doKeyboardAction( ActionReturn );
-	emit returnPressed();
+	emitReturnPressed();
 	break;
     case Key_Delete:
 	if ( doc->hasSelection( QTextDocument::Standard ) ) {
@@ -526,8 +522,8 @@ void QTextView::keyPressEvent( QKeyEvent *e )
 
     if ( clearUndoRedoInfo ) {
 	undoRedoInfo.clear();
-	emit undoAvailable( doc->commands()->isUndoAvailable() );
-	emit redoAvailable( doc->commands()->isRedoAvailable() );
+	emitUndoAvailable( doc->commands()->isUndoAvailable() );
+	emitRedoAvailable( doc->commands()->isRedoAvailable() );
     }
     changeIntervalTimer->start( 100, TRUE );
 }
@@ -637,8 +633,8 @@ void QTextView::removeSelectedText()
     ensureCursorVisible();
     drawCursor( TRUE );
     undoRedoInfo.clear();
-    emit undoAvailable( doc->commands()->isUndoAvailable() );
-    emit redoAvailable( doc->commands()->isRedoAvailable() );
+    emitUndoAvailable( doc->commands()->isUndoAvailable() );
+    emitRedoAvailable( doc->commands()->isRedoAvailable() );
     emit textChanged();
 }
 
@@ -730,6 +726,8 @@ void QTextView::moveCursor( int direction, bool control )
     updateCurrentFormat();
 }
 
+/*! \reimp */
+
 void QTextView::resizeEvent( QResizeEvent *e )
 {
     if ( !firstResize
@@ -791,11 +789,13 @@ void QTextView::drawCursor( bool visible )
     cursorVisible = visible;
 }
 
+/*! \reimp */
+
 void QTextView::contentsMousePressEvent( QMouseEvent *e )
 {
     undoRedoInfo.clear();
-    emit undoAvailable( doc->commands()->isUndoAvailable() );
-    emit redoAvailable( doc->commands()->isRedoAvailable() );
+    emitUndoAvailable( doc->commands()->isUndoAvailable() );
+    emitRedoAvailable( doc->commands()->isRedoAvailable() );
     QTextCursor c = *cursor;
     mousePos = e->pos();
     mightStartDrag = FALSE;
@@ -849,6 +849,8 @@ void QTextView::contentsMousePressEvent( QMouseEvent *e )
     updateCurrentFormat();
 }
 
+/*! \reimp */
+
 void QTextView::contentsMouseMoveEvent( QMouseEvent *e )
 {
     if ( mousePressed ) {
@@ -876,17 +878,19 @@ void QTextView::contentsMouseMoveEvent( QMouseEvent *e )
 #endif
 	    onLink = c.parag()->at( c.index() )->format()->anchorHref();
 	    QUrl u( doc->context(), onLink, TRUE );
-	    emit highlighted( u.toString( FALSE, FALSE ) );
+	    emitHighlighted( u.toString( FALSE, FALSE ) );
 	} else {
 #ifndef QT_NO_CURSOR
 	    viewport()->setCursor( isReadOnly() ? arrowCursor : ibeamCursor );
 #endif
 	    onLink = QString::null;
-	    emit highlighted( QString::null );
+	    emitHighlighted( QString::null );
 	}
 #endif
     }
 }
+
+/*! \reimp */
 
 void QTextView::contentsMouseReleaseEvent( QMouseEvent * )
 {
@@ -907,18 +911,20 @@ void QTextView::contentsMouseReleaseEvent( QMouseEvent * )
 	emit copyAvailable( doc->hasSelection( QTextDocument::Standard ) );
 	emit selectionChanged();
     }
-    emit cursorPositionChanged( cursor );
+    emitCursorPositionChanged( cursor );
     updateCurrentFormat();
     inDoubleClick = FALSE;
 
 #ifndef QT_NO_NETWORKPROTOCOL
     if ( !onLink.isEmpty() && linksEnabled() ) {
 	QUrl u( doc->context(), onLink, TRUE );
-	emit linkClicked( u.toString( FALSE, FALSE ) );
+	emitLinkClicked( u.toString( FALSE, FALSE ) );
     }
 #endif
     drawCursor( TRUE );
 }
+
+/*! \reimp */
 
 void QTextView::contentsMouseDoubleClickEvent( QMouseEvent * )
 {
@@ -940,10 +946,14 @@ void QTextView::contentsMouseDoubleClickEvent( QMouseEvent * )
 
 #ifndef QT_NO_DRAGANDDROP
 
+/*! \reimp */
+
 void QTextView::contentsDragEnterEvent( QDragEnterEvent *e )
 {
     e->acceptAction();
 }
+
+/*! \reimp */
 
 void QTextView::contentsDragMoveEvent( QDragMoveEvent *e )
 {
@@ -953,9 +963,13 @@ void QTextView::contentsDragMoveEvent( QDragMoveEvent *e )
     e->acceptAction();
 }
 
+/*! \reimp */
+
 void QTextView::contentsDragLeaveEvent( QDragLeaveEvent * )
 {
 }
+
+/*! \reimp */
 
 void QTextView::contentsDropEvent( QDropEvent *e )
 {
@@ -1090,9 +1104,11 @@ void QTextView::doResize()
 
 void QTextView::doChangeInterval()
 {
-    emit cursorPositionChanged( cursor );
+    emitCursorPositionChanged( cursor );
     interval = 0;
 }
+
+/*! \reimp */
 
 bool QTextView::eventFilter( QObject *o, QEvent *e )
 {
@@ -1116,9 +1132,6 @@ bool QTextView::eventFilter( QObject *o, QEvent *e )
 void QTextView::insert( const QString &text, bool indent, bool checkNewLine )
 {
     QString txt( text );
-    if ( mLines == 1 )
-	txt = txt.replace( QRegExp( "\n" ), " " );
-
     drawCursor( FALSE );
     if ( doc->hasSelection( QTextDocument::Standard ) ) {
 	checkUndoRedoInfo( UndoRedoInfo::RemoveSelected );
@@ -1159,8 +1172,8 @@ void QTextView::undo()
 	return;
 
     undoRedoInfo.clear();
-    emit undoAvailable( doc->commands()->isUndoAvailable() );
-    emit redoAvailable( doc->commands()->isRedoAvailable() );
+    emitUndoAvailable( doc->commands()->isUndoAvailable() );
+    emitRedoAvailable( doc->commands()->isRedoAvailable() );
     drawCursor( FALSE );
     QTextCursor *c = doc->undo( cursor );
     if ( !c ) {
@@ -1179,8 +1192,8 @@ void QTextView::redo()
 	return;
 
     undoRedoInfo.clear();
-    emit undoAvailable( doc->commands()->isUndoAvailable() );
-    emit redoAvailable( doc->commands()->isRedoAvailable() );
+    emitUndoAvailable( doc->commands()->isUndoAvailable() );
+    emitRedoAvailable( doc->commands()->isRedoAvailable() );
     drawCursor( FALSE );
     QTextCursor *c = doc->redo( cursor );
     if ( !c ) {
@@ -1207,11 +1220,15 @@ void QTextView::checkUndoRedoInfo( UndoRedoInfo::Type t )
 {
     if ( undoRedoInfo.valid() && t != undoRedoInfo.type ) {
 	undoRedoInfo.clear();
-	emit undoAvailable( doc->commands()->isUndoAvailable() );
-	emit redoAvailable( doc->commands()->isRedoAvailable() );
+	emitUndoAvailable( doc->commands()->isUndoAvailable() );
+	emitRedoAvailable( doc->commands()->isRedoAvailable() );
     }
     undoRedoInfo.type = t;
 }
+
+/*! Repaints the changed paragraphs. This is needed for many
+  operations, but you normally never need to call that yourself.
+*/
 
 void QTextView::repaintChanged()
 {
@@ -1230,6 +1247,9 @@ void QTextView::cut()
 	removeSelectedText();
     }
 }
+
+/*! Copies the selected text (if there is any) to the clipboard.
+ */
 
 void QTextView::copy()
 {
@@ -1251,6 +1271,9 @@ void QTextView::indent()
     drawCursor( TRUE );
     emit textChanged();
 }
+
+/*! Reimplemented to allow tabbing through links
+ */
 
 bool QTextView::focusNextPrevChild( bool n )
 {
@@ -1284,8 +1307,8 @@ void QTextView::setFormat( QTextFormat *f, int flags )
 	    currentFormat->removeRef();
 	    currentFormat = doc->formatCollection()->format( currentFormat->font(), currentFormat->color() );
 	}
-	emit currentFontChanged( currentFormat->font() );
-	emit currentColorChanged( currentFormat->color() );
+	emitCurrentFontChanged( currentFormat->font() );
+	emitCurrentColorChanged( currentFormat->color() );
 	if ( cursor->index() == cursor->parag()->length() < 1 ) {
 	    currentFormat->addRef();
 	    cursor->parag()->string()->setFormat( cursor->index(), currentFormat, TRUE );
@@ -1344,7 +1367,7 @@ void QTextView::setAlignment( int a )
     drawCursor( TRUE );
     if ( currentAlignment != a ) {
 	currentAlignment = a;
-	emit currentAlignmentChanged( currentAlignment );
+	emitCurrentAlignmentChanged( currentAlignment );
     }
     emit textChanged();
 }
@@ -1362,13 +1385,13 @@ void QTextView::updateCurrentFormat()
 	    currentFormat->removeRef();
 	    currentFormat = doc->formatCollection()->format( currentFormat->font(), currentFormat->color() );
 	}
-	emit currentFontChanged( currentFormat->font() );
-	emit currentColorChanged( currentFormat->color() );
+	emitCurrentFontChanged( currentFormat->font() );
+	emitCurrentColorChanged( currentFormat->color() );
     }
 
     if ( currentAlignment != cursor->parag()->alignment() ) {
 	currentAlignment = cursor->parag()->alignment();
-	emit currentAlignmentChanged( currentAlignment );
+	emitCurrentAlignmentChanged( currentAlignment );
     }
 }
 
@@ -1414,22 +1437,45 @@ void QTextView::setColor( const QColor &c )
     setFormat( &f, QTextFormat::Color );
 }
 
-void QTextView::setFont( const QFont &f_ )
+void QTextView::setFontInternal( const QFont &f_ )
 {
     QTextFormat f( *currentFormat );
     f.setFont( f_ );
     setFormat( &f, QTextFormat::Font );
 }
 
+/*! Returns the contents of the view.
+ */
+
 QString QTextView::text() const
 {
     return doc->text();
 }
 
+/*! Returns the text of the paragraph \a parag. If \a formatted, the
+  returned string contains wordwrappes, else not. Depending on
+  textFormat(), the returned string contains formatting HTML tags or
+  not.
+*/
+
 QString QTextView::text( int parag, bool formatted ) const
 {
     return doc->text( parag, formatted );
 }
+
+/*!  Changes the contents of the view to the string \a text and the
+  context to \a context.
+
+  \a text may be interpreted either as plain text or as rich text,
+  depending on the textFormat(). The default setting is \c AutoText,
+  i.e. the text view autodetects the format from \a text.
+
+  The optional \a context is used to resolve references within the
+  text document, for example image sources. It is passed directly to
+  the mimeSourceFactory() when quering data.
+
+  \sa text(), setTextFormat()
+*/
 
 void QTextView::setText( const QString &txt, const QString &context )
 {
@@ -1443,10 +1489,19 @@ void QTextView::setText( const QString &txt, const QString &context )
     formatMore();
 }
 
+/*! If you used load() to load and set the contents, this function
+  returnes the filename you specified there. Else an empty string is
+  returned.
+*/
+
 QString QTextView::fileName() const
 {
     return doc->fileName();
 }
+
+/*! Loads the file \a fn and displayes its contents. The contents is
+  interprated depending to textFormat()
+*/
 
 void QTextView::load( const QString &fn )
 {
@@ -1463,6 +1518,16 @@ void QTextView::save( const QString &fn )
 {
     doc->save( fn );
 }
+
+/*!  Finds the next occurance of \a expr after \a parag and \a
+  index. If they are 0, the first occurance of \a expr os searched.
+  \a parag and index are set to the position where \a expr has been
+  found, if they are not 0. If \a expr couldn't be found, FALSE is
+  returned, else TRUE is returned and the found part in the text is
+  highlighted. \a cs specifies if the search should be case sensitive,
+  \a wo specifies of only whole words are searched, and \a forward
+  secifies the search direction.
+*/
 
 bool QTextView::find( const QString &expr, bool cs, bool wo, bool forward,
 		      int *parag, int *index )
@@ -1536,6 +1601,11 @@ void QTextView::setSelection( int parag_from, int index_from,
     drawCursor( TRUE );
 }
 
+/*!  Sets the specified parameters to the currently selection
+  (selection start and end). If there is currently now selection, all
+  parameters are set to -1
+*/
+
 void QTextView::getSelection( int &parag_from, int &index_from,
 			      int &parag_to, int &index_to ) const
 {
@@ -1551,20 +1621,49 @@ void QTextView::getSelection( int &parag_from, int &index_from,
     doc->selectionEnd( QTextDocument::Standard, parag_from, index_from );
 }
 
+/*!  Sets the text format to \a format. Possible choices are
+  
+  <ul>
+
+  <li> \c PlainText - all characters are displayed verbatim, including
+  all blanks and linebreaks.
+  
+  <li> \c RichText - rich text rendering. The available styles are
+  defined in the default stylesheet QStyleSheet::defaultSheet().
+  
+  <li> \c AutoText - this is also the default. The view autodetects
+  which rendering style suits best, \c PlainText or \c
+  RichText. Technically, this is done by using the
+  QStyleSheet::mightBeRichText() heuristic.
+  
+  </ul>
+*/
+
 void QTextView::setTextFormat( TextFormat f )
 {
     doc->setTextFormat( f );
 }
+
+/*!  Returns the current text format.
+
+  \sa setTextFormat()
+ */
 
 Qt::TextFormat QTextView::textFormat() const
 {
     return doc->textFormat();
 }
 
+/*! Returns the number of paragraphs of the contents
+ */
+
 int QTextView::paragraphs() const
 {
     return doc->lastParag()->paragId() + 1;
 }
+
+/*! Returns the number of lines of the paragraph \a parag.
+ */
 
 int QTextView::linesOfParagraph( int parag ) const
 {
@@ -1574,9 +1673,15 @@ int QTextView::linesOfParagraph( int parag ) const
     return p->lines();
 }
 
+/*! Returns the number of lines in the view. 
+  
+  WARNING: This function is slow. As lines change all the time during
+  word wrapping, this function has to iterate over all paragraphs and
+  ask for the number of lines of that.
+ */
+
 int QTextView::lines() const
 {
-    qWarning( "WARNING: QTextView::lines() is slow - will be improved later..." );
     QTextParag *p = doc->firstParag();
     int l = 0;
     while ( p ) {
@@ -1586,6 +1691,10 @@ int QTextView::lines() const
 
     return l;
 }
+
+/*! returns in which line of the paragraph \a parag the index \a chr
+  is
+*/
 
 int QTextView::lineOfChar( int parag, int chr )
 {
@@ -1680,6 +1789,10 @@ void QTextView::startDrag()
 #endif
 }
 
+/*! Selectes the whole text, if \a select is TRUE, else clears the
+  selection
+*/
+
 void QTextView::selectAll( bool select )
 {
     // ############## Implement that!!!
@@ -1704,16 +1817,6 @@ void QTextView::UndoRedoInfo::clear()
     index = -1;
 }
 
-void QTextView::setMaxLines( int l )
-{
-    mLines = l;
-}
-
-int QTextView::maxLines() const
-{
-    return mLines;
-}
-
 void QTextView::resetFormat()
 {
     setAlignment( Qt::AlignAuto );
@@ -1721,15 +1824,24 @@ void QTextView::resetFormat()
     setFormat( doc->formatCollection()->defaultFormat(), QTextFormat::Format );
 }
 
+/*! Returns the QStyleSheet which is currently used in this view.
+ */
+
 QStyleSheet* QTextView::styleSheet() const
 {
     return doc->styleSheet();
 }
 
+/*! Sets the styleheet which should be used by this view.
+ */
+
 void QTextView::setStyleSheet( QStyleSheet* styleSheet )
 {
     doc->setStyleSheet( styleSheet );
 }
+
+/*! Sets the paper which should be used for drawing the background.
+ */
 
 void QTextView::setPaper( const QBrush& pap )
 {
@@ -1738,6 +1850,10 @@ void QTextView::setPaper( const QBrush& pap )
     viewport()->update();
 }
 
+/*! Returns the brush which is used for the background, or an empty
+  one of there is none
+*/
+
 QBrush QTextView::paper() const
 {
     if ( doc->paper() )
@@ -1745,35 +1861,60 @@ QBrush QTextView::paper() const
     return QBrush();
 }
 
+/*! Specifies the color which should be used for displaying
+  links. This defaults to blue
+*/
+
 void QTextView::setLinkColor( const QColor &c )
 {
     doc->setLinkColor( c );
 }
+
+/*! Returnes the color used for links.
+ */
 
 QColor QTextView::linkColor() const
 {
     return doc->linkColor();
 }
 
+/*! Specifies whether links should be displayed underlined or
+  not. This defaults to TRUE.
+ */
+
 void QTextView::setLinkUnderline( bool b )
 {
     doc->setUnderlineLinks( b );
 }
+
+/*! Returns whether links are displayed underlined or not
+ */
 
 bool QTextView::linkUnderline() const
 {
     return doc->underlineLinks();
 }
 
+/*! Sets the mimesource factory which should be used by this view.
+ */
+
 void QTextView::setMimeSourceFactory( QMimeSourceFactory* factory )
 {
     doc->setMimeSourceFactory( factory );
 }
 
+/*! Returns the QMimeSourceFactory which is currently used by this
+  view.
+*/
+
 QMimeSourceFactory* QTextView::mimeSourceFactory() const
 {
     return doc->mimeSourceFactory();
 }
+
+/*! Returns how many pixles height are needed for this document of it
+  would be \a w pixels wide.
+*/
 
 int QTextView::heightForWidth( int w ) const
 {
@@ -1786,6 +1927,9 @@ int QTextView::heightForWidth( int w ) const
     return h;
 }
 
+/*! Appends \a text at the end of the view.
+ */
+
 void QTextView::append( const QString &text )
 {
     QTextCursor oldc( *cursor );
@@ -1794,10 +1938,16 @@ void QTextView::append( const QString &text )
     *cursor = oldc;
 }
 
+/*! Returns whether there is some text selected.
+ */
+
 bool QTextView::hasSelectedText() const
 {
     return doc->hasSelection( QTextDocument::Standard );
 }
+
+/*! Returns the selected text, if there is one, else an empty string
+ */
 
 QString QTextView::selectedText() const
 {
@@ -1837,7 +1987,7 @@ void QTextView::handleReadOnlyKeyEvent( QKeyEvent *e )
     case Key_Space: {
 	if ( !doc->focusIndicator.href.isEmpty() ) {
 	    QUrl u( doc->context(), doc->focusIndicator.href, TRUE );
-	    emit linkClicked( u.toString( FALSE, FALSE ) );
+	    emitLinkClicked( u.toString( FALSE, FALSE ) );
 	}
     } break;
 #endif
@@ -1846,14 +1996,22 @@ void QTextView::handleReadOnlyKeyEvent( QKeyEvent *e )
     }
 }
 
+/*!  Returns the context of the view.
+
+  \sa text(), setText()
+*/
+
 QString QTextView::context() const
 {
     return doc->context();
 }
 
+/*!  Returns the document title parsed from the content.
+*/
+
 QString QTextView::documentTitle() const
 {
-    return QString::null;
+    return doc->attributes()[ "title" ];
 }
 
 void QTextView::makeParagVisible( QTextParag *p )
@@ -1861,6 +2019,10 @@ void QTextView::makeParagVisible( QTextParag *p )
     int h = p->rect().height();
     ensureVisible( 0, p->rect().y() + h / 2, 0, h / 2 );
 }
+
+/*! Scrolls the view to make the anchor \a name visible, if it can be
+  found in the document.
+*/
 
 void QTextView::scrollToAnchor( const QString& name )
 {
@@ -1879,6 +2041,10 @@ void QTextView::scrollToAnchor( const QString& name )
     }
 }
 
+/*! If there is an anchor at the position \a pos (in contents
+  coordinates), this one is returned, else an empty string
+*/
+
 QString QTextView::anchorAt( const QPoint& pos )
 {
     QTextCursor c( doc );
@@ -1894,6 +2060,10 @@ void QTextView::setRealWidth( int w )
     }
 }
 
+/*! If you changed something in the styleSheet(), use this function to
+  tell the document to update all formats, etc.
+*/
+
 void QTextView::updateStyles()
 {
     doc->updateStyles();
@@ -1906,8 +2076,8 @@ void QTextView::setDocument( QTextDocument *dc )
     doc = dc;
     cursor->setDocument( doc );
     undoRedoInfo.clear();
-    emit undoAvailable( doc->commands()->isUndoAvailable() );
-    emit redoAvailable( doc->commands()->isRedoAvailable() );
+    emitUndoAvailable( doc->commands()->isUndoAvailable() );
+    emitRedoAvailable( doc->commands()->isRedoAvailable() );
     lastFormatted = 0;
 }
 
@@ -2003,16 +2173,16 @@ QCString QTextView::pickSpecial( QMimeSource* ms, bool always_ask, const QPoint&
  \sa setWordWrap()
 */
 
-/*!
-  Sets the word wrap mode.
+/*!  Sets the word wrap mode.
 
   Per default, wrapping keeps words intact. To allow breaking within
   words, set the wrap policy to \c Anywhere (see setWrapPolicy() ).
 
-  The default wrap mode is \c NoWrap.
+  The default wrap mode is \c WidgetWidth.
 
   \sa wordWrap(), setWrapColumnOrWidth(), setWrapPolicy()
- */
+*/
+
 void QTextView::setWordWrap( WordWrap mode )
 {
     wrapMode = mode;
@@ -2039,8 +2209,7 @@ void QTextView::setWordWrap( WordWrap mode )
     }
 }
 
-/*!
-  Returns the current word wrap mode.
+/*!  Returns the current word wrap mode.
 
   \sa setWordWrap()
  */
@@ -2049,11 +2218,12 @@ QTextView::WordWrap QTextView::wordWrap() const
     return wrapMode;
 }
 
-/*!
-  Sets the wrap column or wrap width, depending on the word wrap mode.
+/*!  Sets the wrap column or wrap width, depending on the word wrap
+  mode.
 
   \sa setWordWrap()
  */
+
 void QTextView::setWrapColumnOrWidth( int value )
 {
     wrapWidth = value;
@@ -2071,8 +2241,7 @@ void QTextView::setWrapColumnOrWidth( int value )
     }
 }
 
-/*!
-  Returns the wrap column or wrap width, depending on the word wrap
+/*!  Returns the wrap column or wrap width, depending on the word wrap
   mode.
 
   \sa setWordWrap(), setWrapColumnOrWidth()
@@ -2096,13 +2265,13 @@ int QTextView::wrapColumnOrWidth() const
    \sa setWrapPolicy()
 */
 
-/*!
-  Defines where text can be wrapped in word wrap mode.
+/*!  Defines where text can be wrapped in word wrap mode.
 
    The default is \c AtWhiteSpace.
 
   \sa setWordWrap(), wrapPolicy()
  */
+
 void QTextView::setWrapPolicy( WrapPolicy policy )
 {
     if ( wPolicy == policy )
@@ -2133,6 +2302,9 @@ QTextView::WrapPolicy QTextView::wrapPolicy() const
     return wPolicy;
 }
 
+/*! Clears the view.
+ */
+
 void QTextView::clear()
 {
     doc->clear( TRUE );
@@ -2145,10 +2317,16 @@ int QTextView::undoDepth() const
     return document()->undoDepth();
 }
 
+/*! Returns the number of characters of the text.
+ */
+
 int QTextView::length() const
 {
     return document()->length();
 }
+
+/*! Returns the width of a tab as used be the view.
+ */
 
 int QTextView::tabStopWidth() const
 {
@@ -2160,10 +2338,15 @@ void QTextView::setUndoDepth( int d )
     document()->setUndoDepth( d );
 }
 
+/*! Sets the tabstop width to \a ts.
+ */
+
 void QTextView::setTabStops( int ts )
 {
     document()->setTabStops( ts );
 }
+
+/*! \reimp */
 
 void  QTextView::setHScrollBarMode( ScrollBarMode sm )
 {

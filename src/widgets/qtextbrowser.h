@@ -73,7 +73,7 @@ signals:
     void backwardAvailable( bool );
     void forwardAvailable( bool );
     void highlighted( const QString& );
-    void textChanged();
+    void linkClicked( const QString& );
 
 protected:
     void keyPressEvent( QKeyEvent * e);
@@ -82,6 +82,8 @@ protected:
 private:
     void popupDetail( const QString& contents, const QPoint& pos );
     bool linksEnabled() const { return TRUE; }
+    void emitHighlighted( const QString &s ) { emit highlighted( s ); }
+    void emitLinkClicked( const QString &s ) { emit linkClicked( s ); }
     QTextBrowserData *d;
 
 private:	// Disabled copy constructor and operator=

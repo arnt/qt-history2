@@ -100,7 +100,7 @@ class QTextBrowserData
 {
 public:
     QTextBrowserData() {}
-    
+
     QString searchPath;
     QString buttonDown;
     QString highlight;
@@ -269,7 +269,7 @@ QString QTextBrowser::source() const
 void QTextBrowser::setText( const QString& text, const QString& context )
 {
     QTextView::setText( text, context );
-    emit textChanged();
+    emit QTextView::textChanged();
 }
 
 /*!

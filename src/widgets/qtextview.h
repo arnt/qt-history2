@@ -57,199 +57,111 @@ class QTextParag;
 class QTextFormat;
 class QFont;
 class QColor;
+class QTextEdit;
 
 class Q_EXPORT QTextView : public QScrollView
 {
+    friend class QTextEdit;
+
     Q_OBJECT
-    Q_PROPERTY( QString text READ text WRITE setText )
     Q_PROPERTY( TextFormat textFormat READ textFormat WRITE setTextFormat )
+    Q_PROPERTY( QString text READ text WRITE setText )
     Q_PROPERTY( QBrush paper READ paper WRITE setPaper )
     Q_PROPERTY( QColor linkColor READ linkColor WRITE setLinkColor )
     Q_PROPERTY( bool linkUnderline READ linkUnderline WRITE setLinkUnderline )
     Q_PROPERTY( QString documentTitle READ documentTitle )
-    Q_PROPERTY( int undoDepth READ undoDepth WRITE setUndoDepth )
-    Q_PROPERTY( bool overWriteMode READ isOverwriteMode WRITE setOverwriteMode )
     Q_PROPERTY( int length READ length )
 
 public:
-    QTextView( const QString& text, const QString& context = QString::null,
-	       QWidget *parent=0, const char *name=0);
-    QTextView( QWidget *parent = 0, const char *name = 0 );
-    virtual ~QTextView();
-
-#if defined(QRICHTEXT_OPEN_API)
-    QTextDocument *document() const;
-    void setDocument( QTextDocument *doc );
-    QTextCursor *textCursor() const;
-#endif
-
-    QString text() const;
-    QString text( int parag, bool formatted = FALSE ) const;
-    TextFormat textFormat() const;
-    QString fileName() const;
-
-    void getCursorPosition( int &parag, int &index ) const;
-    void getSelection( int &parag_from, int &index_from,
-		    int &parag_to, int &index_to ) const;
-    virtual bool find( const QString &expr, bool cs, bool wo, bool forward = TRUE,
-		       int *parag = 0, int *index = 0 );
-    void insert( const QString &text, bool indent = FALSE, bool checkNewLine = TRUE );
-
-    int paragraphs() const;
-    int lines() const;
-    int linesOfParagraph( int parag ) const;
-    int lineOfChar( int parag, int chr );
-
-    bool isModified() const;
-
-    bool italic() const;
-    bool bold() const;
-    bool underline() const;
-    QString family() const;
-    int pointSize() const;
-    QColor color() const;
-    QFont font() const;
-    int alignment() const;
-    int maxLines() const;
-
-    QStyleSheet* styleSheet() const;
-    void setStyleSheet( QStyleSheet* styleSheet );
-
-    void setPaper( const QBrush& pap);
-    QBrush paper() const;
-
-    void setLinkColor( const QColor& );
-    QColor linkColor() const;
-
-    void setLinkUnderline( bool );
-    bool linkUnderline() const;
-
-    void setMimeSourceFactory( QMimeSourceFactory* factory );
-    QMimeSourceFactory* mimeSourceFactory() const;
-
-    int heightForWidth( int w ) const;
-
-    void append( const QString& text );
-
-    bool hasSelectedText() const;
-    QString selectedText() const;
-
-    QString context() const;
-
-    QString documentTitle() const;
-
-    void scrollToAnchor( const QString& name );
-    QString anchorAt(const QPoint& pos);
-
-    void repaintChanged();
-    void updateStyles();
-
-    void setOverwriteMode( bool b ) { overWrite = b; }
-    bool isOverwriteMode() const { return overWrite; }
-
     enum WordWrap {
 	NoWrap,
 	WidgetWidth,
 	FixedPixelWidth,
 	FixedColumnWidth
     };
-    WordWrap wordWrap() const;
-    int wrapColumnOrWidth() const;
 
     enum WrapPolicy {
 	AtWhiteSpace,
 	Anywhere
     };
-    WrapPolicy wrapPolicy() const;
 
-    int undoDepth() const;
+    QTextView( const QString& text, const QString& context = QString::null,
+	       QWidget *parent=0, const char *name=0);
+    QTextView( QWidget *parent = 0, const char *name = 0 );
+    virtual ~QTextView();
+
+    QString text() const;
+    QString text( int parag, bool formatted = FALSE ) const;
+    TextFormat textFormat() const;
+    QString context() const;
+    QString documentTitle() const;
+    QString fileName() const;
+
+    void getSelection( int &parag_from, int &index_from,
+		    int &parag_to, int &index_to ) const;
+    virtual bool find( const QString &expr, bool cs, bool wo, bool forward = TRUE,
+		       int *parag = 0, int *index = 0 );
+
+    void append( const QString& text );
+
+    int paragraphs() const;
+    int lines() const;
+    int linesOfParagraph( int parag ) const;
+    int lineOfChar( int parag, int chr );
     int length() const;
 
+    QStyleSheet* styleSheet() const;
+    QMimeSourceFactory* mimeSourceFactory() const;
+
+    QBrush paper() const;
+    QColor linkColor() const;
+    bool linkUnderline() const;
+
+    int heightForWidth( int w ) const;
+
+    bool hasSelectedText() const;
+    QString selectedText() const;
+
+    WordWrap wordWrap() const;
+    int wrapColumnOrWidth() const;
+    WrapPolicy wrapPolicy() const;
+
     int tabStopWidth() const;
-    void  setHScrollBarMode( ScrollBarMode );
+    void setHScrollBarMode( ScrollBarMode );
+
+    QString anchorAt( const QPoint& pos );
 
 public slots:
+    virtual void setMimeSourceFactory( QMimeSourceFactory* factory );
+    virtual void setStyleSheet( QStyleSheet* styleSheet );
+    virtual void scrollToAnchor( const QString& name );
+    virtual void setPaper( const QBrush& pap );
+    virtual void setLinkUnderline( bool );
+    virtual void setLinkColor( const QColor & );
+
     virtual void setWordWrap( WordWrap mode );
     virtual void setWrapColumnOrWidth( int );
     virtual void setWrapPolicy( WrapPolicy policy );
 
-    virtual void undo();
-    virtual void redo();
-
-    virtual void cut();
     virtual void copy();
-    virtual void paste();
-    virtual void pasteSubType(const QCString& subtype);
 
-    virtual void indent();
-
-    virtual void setItalic( bool b );
-    virtual void setBold( bool b );
-    virtual void setUnderline( bool b );
-    virtual void setFamily( const QString &f );
-    virtual void setPointSize( int s );
-    virtual void setColor( const QColor &c );
-    virtual void setFont( const QFont &f );
-
-    virtual void setAlignment( int );
-
-    virtual void setParagType( QStyleSheetItem::DisplayMode, int listStyle );
-
-    virtual void setTextFormat( TextFormat f );
     void setText( const QString &txt ) { setText( txt, QString::null ); }
+    virtual void setTextFormat( TextFormat f );
     virtual void setText( const QString &txt, const QString &context );
-
     virtual void load( const QString &fn );
-    virtual void save( const QString &fn = QString::null );
 
-    virtual void setCursorPosition( int parag, int index );
-    virtual void setSelection( int parag_from, int index_from,
-			       int parag_to, int index_to );
-
-    virtual void setModified( bool m );
     virtual void selectAll( bool select = TRUE );
-
-    virtual void setMaxLines( int l );
-    virtual void resetFormat();
-
-    virtual void setUndoDepth( int d );
     virtual void setTabStops( int ts );
     virtual void clear();
 
 signals:
-    void currentFontChanged( const QFont &f );
-    void currentColorChanged( const QColor &c );
-    void currentAlignmentChanged( int );
     void textChanged();
-    void highlighted( const QString& );
-    void linkClicked( const QString& );
-    void cursorPositionChanged( QTextCursor *c );
     void selectionChanged();
-    void returnPressed();
-    void undoAvailable( bool );
-    void redoAvailable( bool );
     void copyAvailable( bool );
 
 protected:
-    enum KeyboardAction {
-	ActionBackspace,
-	ActionDelete,
-	ActionReturn,
-	ActionKill
-    };
-
-    enum MoveDirection {
-	MoveLeft,
-	MoveRight,
-	MoveUp,
-	MoveDown,
-	MoveHome,
-	MoveEnd,
-	MovePgUp,
-	MovePgDown
-    };
-
-    void setFormat( QTextFormat *f, int flags );
+    void repaintChanged();
+    void updateStyles();
     void drawContents( QPainter *p, int cx, int cy, int cw, int ch );
     bool event( QEvent *e );
     void keyPressEvent( QKeyEvent *e );
@@ -266,17 +178,8 @@ protected:
 #endif
     bool eventFilter( QObject *o, QEvent *e );
     bool focusNextPrevChild( bool next );
-#if !defined(QRICHTEXT_OPEN_API)
     QTextDocument *document() const;
-    QTextCursor *textCursor() const;
     void setDocument( QTextDocument *doc );
-#endif
-    void ensureCursorVisible();
-    void placeCursor( const QPoint &pos, QTextCursor *c = 0 );
-    void moveCursor( int direction, bool shift, bool control );
-    void moveCursor( int direction, bool control );
-    void removeSelectedText();
-    void doKeyboardAction( int action );
 
 private slots:
     void formatMore();
@@ -303,6 +206,24 @@ private:
 	QTextDocument *doc;
     };
 
+    enum KeyboardAction { // keep in sync with QTextEdit
+	ActionBackspace,
+	ActionDelete,
+	ActionReturn,
+	ActionKill
+    };
+
+    enum MoveDirectionPrivate { // keep in sync with QTextEdit
+	MoveLeft,
+	MoveRight,
+	MoveUp,
+	MoveDown,
+	MoveHome,
+	MoveEnd,
+	MovePgUp,
+	MovePgDown
+    };
+
 private:
     virtual bool isReadOnly() const { return TRUE; }
     virtual bool linksEnabled() const { return FALSE; }
@@ -318,6 +239,64 @@ private:
 #ifndef QT_NO_MIMECLIPBOARD
     void pasteSpecial(const QPoint&);
 #endif
+
+private: // these are functions which actually do editing stuff, but
+ // are implemented here as it is easier to implement viewing and
+ // editing in the same class. In QTextEdit these functions are made
+ // public
+    virtual void emitUndoAvailable( bool ) {}
+    virtual void emitRedoAvailable( bool ) {}
+    virtual void emitCurrentFontChanged( const QFont & ) {}
+    virtual void emitCurrentColorChanged( const QColor & ) {}
+    virtual void emitCurrentAlignmentChanged( int ) {}
+    virtual void emitCursorPositionChanged( QTextCursor * ) {}
+    virtual void emitReturnPressed() {}
+    virtual void emitHighlighted( const QString & ) {}
+    virtual void emitLinkClicked( const QString & ) {}
+
+    void getCursorPosition( int &parag, int &index ) const;
+    bool isModified() const;
+    bool italic() const;
+    bool bold() const;
+    bool underline() const;
+    QString family() const;
+    int pointSize() const;
+    QColor color() const;
+    QFont font() const;
+    int alignment() const;
+    void setOverwriteMode( bool b ) { overWrite = b; }
+    bool isOverwriteMode() const { return overWrite; }
+    int undoDepth() const;
+    void undo();
+    void redo();
+    void cut();
+    void paste();
+    void pasteSubType( const QCString &subtype );
+    void indent();
+    void setItalic( bool b );
+    void setBold( bool b );
+    void setUnderline( bool b );
+    void setFamily( const QString &f );
+    void setPointSize( int s );
+    void setColor( const QColor &c );
+    void setFontInternal( const QFont &f );
+    void setAlignment( int );
+    void setParagType( QStyleSheetItem::DisplayMode, int listStyle );
+    void setCursorPosition( int parag, int index );
+    void setSelection( int parag_from, int index_from,
+			       int parag_to, int index_to );
+    void setModified( bool m );
+    void resetFormat();
+    void setUndoDepth( int d );
+    void setFormat( QTextFormat *f, int flags );
+    void ensureCursorVisible();
+    void placeCursor( const QPoint &pos, QTextCursor *c = 0 );
+    void moveCursor( int direction, bool shift, bool control );
+    void moveCursor( int direction, bool control );
+    void removeSelectedText();
+    void doKeyboardAction( int action );
+    void insert( const QString &text, bool indent = FALSE, bool checkNewLine = TRUE );
+    void save( const QString &fn = QString::null );
 
 private:
     QTextDocument *doc;
@@ -336,7 +315,6 @@ private:
     bool cursorVisible, blinkCursorVisible;
     bool readOnly, modified, mightStartDrag;
     QPoint dragStartPos;
-    int mLines;
     bool firstResize;
     QString onLink;
     bool overWrite;
@@ -344,17 +322,12 @@ private:
     WrapPolicy wPolicy;
     int wrapWidth;
     QScrollView::ScrollBarMode setMode;
-    
+
 };
 
 inline QTextDocument *QTextView::document() const
 {
     return doc;
-}
-
-inline QTextCursor *QTextView::textCursor() const
-{
-    return cursor;
 }
 
 #endif

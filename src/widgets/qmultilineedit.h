@@ -93,6 +93,9 @@ public:
 
     int totalWidth() const { return contentsWidth(); }
     int totalHeight() const { return contentsHeight(); }
+
+    int maxLines() const { return QWIDGETSIZE_MAX; }
+    void setMaxLines( int ) {}
     
 public slots:
     virtual void setReadOnly( bool );
