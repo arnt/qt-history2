@@ -439,6 +439,8 @@ bool QPicture::exec(QPainter *painter, QDataStream &s, int nrecords)
     QWMatrix        matrix;
 #endif
 
+    QWMatrix worldMatrix = painter->worldMatrix();
+
     while (nrecords-- && !s.eof()) {
         s >> c;                                        // read cmd
         s >> tiny_len;                                // read param length
@@ -638,7 +640,8 @@ bool QPicture::exec(QPainter *painter, QDataStream &s, int nrecords)
             case PdcSetWMatrix:
 #ifndef QT_NO_TRANSFORMATIONS
                 s >> matrix >> i_8;
-                painter->setWorldMatrix(matrix, i_8);
+                // i_8 is always false due to updateXForm() in qpaintengine_pic.cpp
+                painter->setWorldMatrix(worldMatrix * matrix, false);
 #endif
                 break;
 #ifndef QT_NO_TRANSFORMATIONS
