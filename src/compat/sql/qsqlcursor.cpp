@@ -238,12 +238,16 @@ QString qWhereClause(QSqlRecord* rec, const QString& prefix, const QString& sep,
     \fn QCoreVariant QSqlCursor::value(const QString &name) const
 
     \overload
+
+    Returns the value of the field named \a name.
 */
 
 /*!
     \fn void QSqlCursor::setValue(const QString &name, const QCoreVariant &val)
 
     \overload
+
+    Sets the value for the field named \a name to \a val.
 */
 
 /*!
