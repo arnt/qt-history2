@@ -1024,7 +1024,7 @@ static QMainWindowPrivate::ToolBar *findCoveringToolbar( QMainWindowPrivate::Too
 		}
 		tmp = t;
 		t = dock->next();
-		if ( !t || t->nl || t->t->y() > tmp->t->x() ) {
+		if ( !t || t->nl || t->t->x() > tmp->t->x() ) {
 		    ipos = QMainWindowPrivate::TotalAfter;
 		    return tmp;
 		}
