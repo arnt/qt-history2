@@ -1949,6 +1949,9 @@ void Resource::setObjectProperty( QObject* obj, const QString &prop, const QDomE
 	sp.setHeightForWidth( ( (QWidget*)obj )->sizePolicy().hasHeightForWidth() );
     }
 
+    if ( prop == "cursor" )
+	MetaDataBase::setCursor( (QWidget*)obj, v.toCursor() );
+
     obj->setProperty( prop, v );
 }
 
