@@ -1286,6 +1286,7 @@ void QTextDocument::clear( bool createEmptyParag )
     if ( createEmptyParag )
 	fParag = lParag = createParag( this );
     selections.clear();
+    filename = "";
 }
 
 int QTextDocument::widthUsed() const
@@ -4868,6 +4869,15 @@ QTextFormat QTextFormat::makeTextFormat( const QStyleSheetItem *style, const QMa
     return format;
 }
 
+struct QPixmapInt
+{
+    QPixmapInt() : ref( 0 ) {}
+    QPixmap pm;
+    int	    ref;
+};
+
+static QMap<QString, QPixmapInt> *pixmap_map = 0;
+
 QTextImage::QTextImage( QTextDocument *p, const QMap<QString, QString> &attr, const QString& context,
 			QMimeSourceFactory &factory )
     : QTextCustomItem( p )
@@ -4875,6 +4885,7 @@ QTextImage::QTextImage( QTextDocument *p, const QMap<QString, QString> &attr, co
 #if defined(PARSER_DEBUG)
     qDebug( debug_indent + "new QTextImage (pappi: %p)", p );
 #endif
+
     width = height = 0;
     if ( attr.contains("width") )
 	width = attr["width"].toInt();
@@ -4882,7 +4893,6 @@ QTextImage::QTextImage( QTextDocument *p, const QMap<QString, QString> &attr, co
 	height = attr["height"].toInt();
 
     reg = 0;
-    QImage img;
     QString imageName = attr["src"];
 
     if (!imageName)
@@ -4893,37 +4903,53 @@ QTextImage::QTextImage( QTextDocument *p, const QMap<QString, QString> &attr, co
 #endif
 
     if ( !imageName.isEmpty() ) {
-	const QMimeSource* m = factory.data( imageName, context );
-	if ( !m ) {
-	    qWarning("QTextImage: no mimesource for %s", imageName.latin1() );
-	}
-	else {
-	    if ( !QImageDrag::decode( m, img ) ) {
-		qWarning("QTextImage: cannot decode %s", imageName.latin1() );
+	imgId = QString( "%1,%2,%3,%4" ).arg( imageName ).arg( width ).arg( height ).arg( (ulong)&factory );
+	if ( !pixmap_map )
+	    pixmap_map = new QMap<QString, QPixmapInt>;
+	if ( pixmap_map->contains( imgId ) ) {
+	    QPixmapInt& pmi = pixmap_map->operator[](imgId);
+	    pm = pmi.pm;
+	    pmi.ref++;
+	} else {
+	    QImage img;
+	    const QMimeSource* m =
+		factory.data( imageName, context );
+	    if ( !m ) {
+		qWarning("QTextImage: no mimesource for %s", imageName.latin1() );
+	    }
+	    else {
+		if ( !QImageDrag::decode( m, img ) ) {
+		    qWarning("QTextImage: cannot decode %s", imageName.latin1() );
+		}
+	    }
+	
+	    if ( !img.isNull() ) {
+		if ( width == 0 ) {
+		    width = img.width();
+		    if ( height != 0 ) {
+			width = img.width() * height / img.height();
+		    }
+		}
+		if ( height == 0 ) {
+		    height = img.height();
+		    if ( width != img.width() ) {
+			height = img.height() * width / img.width();
+		    }
+		}
+		
+		if ( img.width() != width || img.height() != height ){
+		    img = img.smoothScale(width, height);
+		    width = img.width();
+		    height = img.height();
+		}
+		pm.convertFromImage( img );
+	    }
+	    if ( !pm.isNull() ) {
+		QPixmapInt& pmi = pixmap_map->operator[](imgId);
+		pmi.pm = pm;
+		pmi.ref++;
 	    }
 	}
-    }
-
-    if ( !img.isNull() ) {
-	if ( width == 0 ) {
-	    width = img.width();
-	    if ( height != 0 ) {
-		width = img.width() * height / img.height();
-	    }
-	}
-	if ( height == 0 ) {
-	    height = img.height();
-	    if ( width != img.width() ) {
-		height = img.height() * width / img.width();
-	    }
-	}
-
-	if ( img.width() != width || img.height() != height ){
-	    img = img.smoothScale(width, height);
-	    width = img.width();
-	    height = img.height();
-	}
-	pm.convertFromImage( img );
 	if ( pm.mask() ) {
 	    QRegion mask( *pm.mask() );
 	    QRegion all( 0, 0, pm.width(), pm.height() );
@@ -4948,6 +4974,17 @@ QTextImage::QTextImage( QTextDocument *p, const QMap<QString, QString> &attr, co
 
 QTextImage::~QTextImage()
 {
+    if ( pixmap_map && pixmap_map->contains( imgId ) ) {
+	QPixmapInt& pmi = pixmap_map->operator[](imgId);
+	pmi.ref--;
+	if ( !pmi.ref ) {
+	    pixmap_map->remove( imgId );
+	    if ( pixmap_map->isEmpty() ) {
+		delete pixmap_map;
+		pixmap_map = 0;
+	    }
+	}
+    }
 }
 
 QString QTextImage::richText() const

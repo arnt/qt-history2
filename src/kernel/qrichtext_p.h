@@ -454,6 +454,7 @@ private:
     Placement place;
     int tmpwidth, tmpheight;
     QMap<QString, QString> attributes;
+    QString imgId;
 
 };
 
