@@ -1606,6 +1606,9 @@ void QPainter::resetXForm()
 }
 #endif // QT_NO_TRANSFORMATIONS
 
+
+extern bool qt_old_transformations;
+
 /*!
   \internal
   Maps a point from logical coordinates to device coordinates.
@@ -1614,27 +1617,48 @@ void QPainter::resetXForm()
 void QPainter::map( int x, int y, int *rx, int *ry ) const
 {
 #ifndef QT_NO_TRANSFORMATIONS
-     switch ( txop ) {
-	case TxNone:
-	    *rx = x;  *ry = y;
-	    break;
-	case TxTranslate:
-	    // #### "Why no rounding here?", Warwick asked of Haavard.
-	    *rx = int(x + dx());
-	    *ry = int(y + dy());
-	    break;
-	case TxScale: {
-	    double tx = m11()*x + dx();
-	    double ty = m22()*y + dy();
-	    *rx = tx >= 0 ? int(tx + 0.5) : int(tx - 0.5);
-	    *ry = ty >= 0 ? int(ty + 0.5) : int(ty - 0.5);
+    if ( qt_old_transformations ) {
+	switch ( txop ) {
+	    case TxNone:
+		*rx = x;  *ry = y;
+		break;
+	    case TxTranslate:
+		// #### "Why no rounding here?", Warwick asked of Haavard.
+		*rx = int(x + dx());
+		*ry = int(y + dy());
+		break;
+	    case TxScale: {
+		double tx = m11()*x + dx();
+		double ty = m22()*y + dy();
+		*rx = tx >= 0 ? int(tx + 0.5) : int(tx - 0.5);
+		*ry = ty >= 0 ? int(ty + 0.5) : int(ty - 0.5);
 	    } break;
-	default: {
-	    double tx = m11()*x + m21()*y+dx();
-	    double ty = m12()*x + m22()*y+dy();
-	    *rx = tx >= 0 ? int(tx + 0.5) : int(tx - 0.5);
-	    *ry = ty >= 0 ? int(ty + 0.5) : int(ty - 0.5);
+	    default: {
+		double tx = m11()*x + m21()*y+dx();
+		double ty = m12()*x + m22()*y+dy();
+		*rx = tx >= 0 ? int(tx + 0.5) : int(tx - 0.5);
+		*ry = ty >= 0 ? int(ty + 0.5) : int(ty - 0.5);
 	    } break;
+	}
+    } else {
+	switch ( txop ) {
+	    case TxNone:
+		*rx = x;  
+		*ry = y;
+		break;
+	    case TxTranslate:
+		*rx = qRound( x + dx() );
+		*ry = qRound( y + dy() );
+		break;
+	    case TxScale:
+		*rx = qRound( m11()*x + dx() );
+		*ry = qRound( m22()*y + dy() );
+		break;
+	    default:
+		*rx = qRound( m11()*x + m21()*y+dx() );
+		*ry = qRound( m12()*x + m22()*y+dy() );
+		break;
+	}
     }
 #else
     *rx = x + xlatex;
@@ -1652,32 +1676,57 @@ void QPainter::map( int x, int y, int w, int h,
 		    int *rx, int *ry, int *rw, int *rh ) const
 {
 #ifndef QT_NO_TRANSFORMATIONS
-     switch ( txop ) {
-	case TxNone:
-	    *rx = x;  *ry = y;
-	    *rw = w;  *rh = h;
-	    break;
-	case TxTranslate:
-	    // #### "Why no rounding here?", Warwick asked of Haavard.
-	    *rx = int(x + dx());
-	    *ry = int(y + dy());
-	    *rw = w;  *rh = h;
-	    break;
-	case TxScale: {
-	    double tx1 = m11()*x + dx();
-	    double ty1 = m22()*y + dy();
-	    double tx2 = m11()*(x + w - 1) + dx();
-	    double ty2 = m22()*(y + h - 1) + dy();
-	    *rx = qRound( tx1 );
-	    *ry = qRound( ty1 );
-	    *rw = qRound( tx2 ) - *rx + 1;
-	    *rh = qRound( ty2 ) - *ry + 1;
+    if ( qt_old_transformations ) {
+	switch ( txop ) {
+	    case TxNone:
+		*rx = x;  *ry = y;
+		*rw = w;  *rh = h;
+		break;
+	    case TxTranslate:
+		// #### "Why no rounding here?", Warwick asked of Haavard.
+		*rx = int(x + dx());
+		*ry = int(y + dy());
+		*rw = w;  *rh = h;
+		break;
+	    case TxScale: {
+		double tx1 = m11()*x + dx();
+		double ty1 = m22()*y + dy();
+		double tx2 = m11()*(x + w - 1) + dx();
+		double ty2 = m22()*(y + h - 1) + dy();
+		*rx = qRound( tx1 );
+		*ry = qRound( ty1 );
+		*rw = qRound( tx2 ) - *rx + 1;
+		*rh = qRound( ty2 ) - *ry + 1;
 	    } break;
-	default:
+	    default:
 #if defined(QT_CHECK_STATE)
-	    qWarning( "QPainter::map: Internal error" );
+		qWarning( "QPainter::map: Internal error" );
 #endif
-	    break;
+		break;
+	}
+    } else {
+	switch ( txop ) {
+	    case TxNone:
+		*rx = x;  *ry = y;
+		*rw = w;  *rh = h;
+		break;
+	    case TxTranslate:
+		*rx = qRound(x + dx() );
+		*ry = qRound(y + dy() );
+		*rw = w;  *rh = h;
+		break;
+	    case TxScale:
+		*rx = qRound( m11()*x + dx() );
+		*ry = qRound( m22()*y + dy() );
+		*rw = qRound( m11()*w );
+		*rh = qRound( m22()*y );
+		break;
+	    default:
+#if defined(QT_CHECK_STATE)
+		qWarning( "QPainter::map: Internal error" );
+#endif
+		break;
+	}
     }
 #else
     *rx = x + xlatex;
@@ -1698,10 +1747,15 @@ void QPainter::mapInv( int x, int y, int *rx, int *ry ) const
     if ( !txinv )
 	qWarning( "QPainter::mapInv: Internal error" );
 #endif
-    double tx = im11()*x + im21()*y+idx();
-    double ty = im12()*x + im22()*y+idy();
-    *rx = tx >= 0 ? int(tx + 0.5) : int(tx - 0.5);
-    *ry = ty >= 0 ? int(ty + 0.5) : int(ty - 0.5);
+    if ( qt_old_transformations ) {
+	double tx = im11()*x + im21()*y+idx();
+	double ty = im12()*x + im22()*y+idy();
+	*rx = tx >= 0 ? int(tx + 0.5) : int(tx - 0.5);
+	*ry = ty >= 0 ? int(ty + 0.5) : int(ty - 0.5);
+    } else {
+	*rx = qRound( im11()*x + im21()*y + idx() );
+	*ry = qRound( im12()*x + im22()*y + idy() );
+    }
 #else
     *rx = x - xlatex;
     *ry = y - xlatey;
@@ -1722,14 +1776,21 @@ void QPainter::mapInv( int x, int y, int w, int h,
     if ( !txinv || txop == TxRotShear )
 	qWarning( "QPainter::mapInv: Internal error" );
 #endif
-    double tx = im11()*x + idx();
-    double ty = im22()*y + idy();
-    double tw = im11()*w;
-    double th = im22()*h;
-    *rx = tx >= 0 ? int(tx + 0.5) : int(tx - 0.5);
-    *ry = ty >= 0 ? int(ty + 0.5) : int(ty - 0.5);
-    *rw = tw >= 0 ? int(tw + 0.5) : int(tw - 0.5);
-    *rh = th >= 0 ? int(th + 0.5) : int(th - 0.5);
+    if ( qt_old_transformations ) {
+	double tx = im11()*x + idx();
+	double ty = im22()*y + idy();
+	double tw = im11()*w;
+	double th = im22()*h;
+	*rx = tx >= 0 ? int(tx + 0.5) : int(tx - 0.5);
+	*ry = ty >= 0 ? int(ty + 0.5) : int(ty - 0.5);
+	*rw = tw >= 0 ? int(tw + 0.5) : int(tw - 0.5);
+	*rh = th >= 0 ? int(th + 0.5) : int(th - 0.5);
+    } else {
+	*rx = qRound( im11()*x + idx() );
+	*ry = qRound( im22()*y + idy() ); 
+	*rw = qRound( im11()*w );
+	*rh = qRound( im22()*h );
+    }
 #else
     *rx = x - xlatex;
     *ry = y - xlatey;

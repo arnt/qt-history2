@@ -150,6 +150,12 @@ double qsincos( double, bool calcCos );		// defined in qpainter_x11.cpp
   \sa QPainter::setWorldMatrix(), QPixmap::xForm()
 */
 
+bool qt_old_transformations = FALSE;
+Q_EXPORT void qt_set_old_transformations( bool b )
+{
+    qt_old_transformations = b;
+}
+
 
 /*****************************************************************************
   QWMatrix member functions
@@ -306,12 +312,60 @@ void QWMatrix::map( int x, int y, int *tx, int *ty ) const
 QRect QWMatrix::mapRect( const QRect &rect ) const
 {
     QRect result;
-    if ( _m12 == 0.0F && _m21 == 0.0F ) {
-	result = QRect( map(rect.topLeft()), map(rect.bottomRight()) ).normalize();
+    if( qt_old_transformations ) {
+	if ( _m12 == 0.0F && _m21 == 0.0F ) {
+	    result = QRect( map(rect.topLeft()), map(rect.bottomRight()) ).normalize();
+	} else {
+	    QPointArray a( rect );
+	    a = map( a );
+	    result = a.boundingRect();
+	}
     } else {
-	QPointArray a( rect );
-	a = map( a );
-	result = a.boundingRect();
+	if ( _m12 == 0.0F && _m21 == 0.0F ) {
+	    int x = qRound( _m11*rect.x() + _dx );
+	    int y = qRound( _m22*rect.y() + _dy );
+	    int w = qRound( _m11*rect.width() );
+	    int h = qRound( _m22*rect.height() );
+	    if ( w < 0 ) {
+		w = -w;
+		x -= w-1;
+	    }
+	    if ( h < 0 ) {
+		h = -h;
+		y -= h-1;
+	    }
+	    result = QRect( x, y, w, h );
+	} else {
+	    double x0, y0;
+	    double x, y;
+	    map( rect.left(), rect.top(), &x0, &y0 );
+	    double xmin = x0;
+	    double ymin = y0;
+	    double xmax = x0;
+	    double ymax = y0;
+	    map( rect.right() + 1, rect.top(), &x, &y );
+	    xmin = QMIN( xmin, x );
+	    ymin = QMIN( ymin, y );
+	    xmax = QMAX( xmax, x );
+	    ymax = QMAX( ymax, y );
+	    map( rect.right() + 1, rect.bottom() + 1, &x, &y );
+	    xmin = QMIN( xmin, x );
+	    ymin = QMIN( ymin, y );
+	    xmax = QMAX( xmax, x );
+	    ymax = QMAX( ymax, y );
+	    map( rect.left(), rect.bottom() + 1, &x, &y );
+	    xmin = QMIN( xmin, x );
+	    ymin = QMIN( ymin, y );
+	    xmax = QMAX( xmax, x );
+	    ymax = QMAX( ymax, y );
+	    double w = xmax - xmin;
+	    double h = ymax - ymin;
+	    if ( xmin < x0 )
+		xmin = xmin + ( x0 - xmin ) / w;
+	    if ( ymin < y0 )
+		ymin = ymin + ( y0 - ymin ) / h;
+	    result = QRect( qRound(xmin), qRound(ymin), qRound(w), qRound(h) );
+	}
     }
     return result;
 }
@@ -367,18 +421,83 @@ QPointArray QWMatrix::operator *( const QPointArray &a ) const
 
     \sa QWMatrix::mapRect()
 */
-QRegion QWMatrix::operator * (const QRect &r ) const
+QRegion QWMatrix::operator * (const QRect &rect ) const
 {
     QRegion result;
     if ( isIdentity() ) {
-	result = r;
+	result = rect;
     } else if ( _m12 == 0.0F && _m21 == 0.0F ) {
-	// simple case, no rotation
-	result = QRect( map(r.topLeft()), map(r.bottomRight()) );
+	if( qt_old_transformations ) {
+	    result = QRect( map(rect.topLeft()), map(rect.bottomRight()) ).normalize();
+	} else {
+	    int x = qRound( _m11*rect.x() + _dx );
+	    int y = qRound( _m22*rect.y() + _dy );
+	    int w = qRound( _m11*rect.width() );
+	    int h = qRound( _m22*rect.height() );
+	    if ( w < 0 ) {
+		w = -w;
+		x -= w - 1;
+	    }
+	    if ( h < 0 ) {
+		h = -h;
+		y -= h - 1;
+	    }
+	    result = QRect( x, y, w, h );
+	}
     } else {
-	QPointArray a( r );
-	a = map( a );
-	result = QRegion( a );
+	if( qt_old_transformations ) {
+	    QPointArray a( rect );
+	    a = map( a );
+	    result = QRegion( a );
+	} else {
+	    double x[4], y[4];
+	    map( rect.left(), rect.top(), &x[0], &y[0] );
+	    map( rect.left(), rect.bottom() + 1, &x[1], &y[1] );
+	    map( rect.right() + 1, rect.bottom() + 1, &x[2], &y[2] );
+	    map( rect.right() + 1, rect.top(), &x[3], &y[3] );
+	    
+	    // we now have the correct size of the transformed rectangle,
+	    // but we still need to do some magic to get the position correctly
+	    
+	    double xmin = x[0];
+	    double ymin = y[0];
+	    double xmax = x[0];
+	    double ymax = y[0];
+	    int i;
+	    for( i = 1; i< 4; i++ ) {
+		xmin = QMIN( xmin, x[i] );
+		ymin = QMIN( ymin, y[i] );
+		xmax = QMAX( xmax, x[i] );
+		ymax = QMAX( ymax, y[i] );
+	    }
+	    double w = xmax - xmin;
+	    double h = ymax - ymin;
+	    double xoff = 0;
+	    double yoff = 0;
+	    if ( xmin < x[0] )
+		xoff = ( x[0] - xmin ) / w;
+	    if ( ymin < y[0] )
+		yoff = ( y[0] - ymin ) / h;
+	    for( i = 0; i< 4; i++ ) {
+		x[i] += xoff;
+		y[i] += yoff;
+	    }
+#if 0	    
+	    qDebug("xoff=%f, yoff=%f", xoff, yoff );
+	    for( i = 0; i< 4; i++ )
+		qDebug("coords(%d) = (%f/%f) (%d/%d)", i, x[i], y[i], qRound(x[i]), qRound(y[i]) );
+#endif
+	    
+	    // all coordinates are correctly, tranform to a pointarray 
+	    // (rounding to the next integer)
+	    
+	    QPointArray a( 4 );
+	    a.setPoints( 4, qRound( x[0] ), qRound( y[0] ), 
+			 qRound( x[1] ), qRound( y[1] ), 
+			 qRound( x[2] ), qRound( y[2] ), 
+			 qRound( x[3] ), qRound( y[3] ) );
+	    result = QRegion( a );
+	}
     }
     return result;
 
@@ -400,22 +519,53 @@ QRegion QWMatrix::operator * (const QRegion &r ) const
     QRegion result;
     register QRect *rect = rects.data();
     register int i = rects.size();
-    if ( _m12 == 0.0F && _m21 == 0.0F ) {
-	// simple case, no rotation
-	while ( i ) {
-	    *rect = QRect( map(rect->topLeft()), map(rect->bottomRight()) );
-	    rect++;
-	    i--;
+    if ( qt_old_transformations ) {
+	if ( _m12 == 0.0F && _m21 == 0.0F ) {
+	    // simple case, no rotation
+	    while ( i ) {
+		*rect = QRect( map(rect->topLeft()), map(rect->bottomRight()) );
+		rect++;
+		i--;
+	    }
+	    result.setRects( rects.data(), rects.size() );
+	} else {
+	    while ( i ) {
+		QPointArray a( *rect );
+		a = map( a );
+		result |= QRegion( a );
+		rect++;
+		i--;
+	    }
 	}
-	result.setRects( rects.data(), rects.size() );
     } else {
-	while ( i ) {
-	    QPointArray a( *rect );
-	    a = map( a );
-	    result |= QRegion( a );
-	    rect++;
-	    i--;
+	if ( _m12 == 0.0F && _m21 == 0.0F ) {
+	    // simple case, no rotation
+	    while ( i ) {
+		int x = qRound( _m11*rect->x() + _dx );
+		int y = qRound( _m22*rect->y() + _dy );
+		int w = qRound( _m11*rect->width() );
+		int h = qRound( _m22*rect->height() );
+		if ( w < 0 ) {
+		    w = -w;
+		    x -= w-1;
+		}
+		if ( h < 0 ) {
+		    h = -h;
+		    y -= h-1;
+		}
+		*rect = QRect( x, y, w, h );
+		rect++;
+		i--;
+	    }
+	    result.setRects( rects.data(), rects.size() );
+	} else {
+	    while ( i ) {
+		result |= operator *( *rect );
+		rect++;
+		i--;
+	    }
 	}
+	
     }
     return result;
 }
