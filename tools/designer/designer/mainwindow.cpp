@@ -2442,6 +2442,16 @@ void MainWindow::activeWindowChanged( QWidget *w )
 	formlist()->activeFormChanged( (FormWindow*)w );
 	actionWindowActionEditor->setOn( lastActiveFormWindow->mainContainer()->inherits( "QMainWindow" ) );
 	actionEditor->setFormWindow( lastActiveFormWindow );
+	if ( formList && ( (FormWindow*)w )->project() && ( (FormWindow*)w )->project() != currentProject ) {
+	    formList->setProject( ( (FormWindow*)w )->project() );
+	    for ( QMap<QAction*, Project *>::Iterator it = projects.begin(); it != projects.end(); ++it ) {
+		if ( *it == ( (FormWindow*)w )->project() ) {
+		    it.key()->setOn( TRUE );
+		    break;
+		}
+	    }
+	}
+	
     } else if ( w == propertyEditor ) {
 	propertyEditor->resetFocus();
     } else if ( !lastActiveFormWindow ) {
@@ -3599,7 +3609,7 @@ void MainWindow::setupActionManager()
     dir += "/plugins";
     DesignerApplicationInterface *appInterface = new DesignerApplicationInterface;
     actionPluginManager = new QInterfaceManager<ActionInterface>( "ActionInterface", dir, "*.dll; *.so" );
-    
+
     QStringList lst = actionPluginManager->featureList();
     for ( QStringList::Iterator it = lst.begin(); it != lst.end(); ++it ) {
 	ActionInterface *iface = actionPluginManager->queryInterface( *it );
