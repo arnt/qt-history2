@@ -22,7 +22,6 @@
 #include "qpixmap.h"
 #include "qregexp.h"
 #include "qtextstream.h"
-#include "private/qbezier_p.h"
 
 #include <math.h>
 
@@ -1394,11 +1393,8 @@ void Q3SVGPaintEnginePrivate::drawPath(const QString &data, QPainter *pt)
 {
     double x0 = 0, y0 = 0;              // starting point
     double x = 0, y = 0;                // current point
-    double controlX = 0, controlY = 0;  // last control point for curves
-    QPolygonF path(500);                // resulting path
-    QList<int> subIndex;                // start indices for subpaths
-    QPolygonF quad(4), bezier;          // for curve calculations
-    int pcount = 0;                     // current point array index
+    QPointF ctrlPt;
+    QPainterPath path;                  // resulting path
     int idx = 0;                        // current data position
     int mode = 0, lastMode = 0;         // parser state
     bool relative = false;              // e.g. 'h' vs. 'H'
@@ -1406,7 +1402,6 @@ void Q3SVGPaintEnginePrivate::drawPath(const QString &data, QPainter *pt)
     int cmdArgs[] = { 2, 0, 2, 1, 1, 6, 4, 4, 2, 7 };                   // no of arguments
     QRegExp reg(QString::fromLatin1("\\s*,?\\s*([+-]?\\d*\\.?\\d*)"));  // floating point
 
-    subIndex.append(0);
     // detect next command
     while (idx < data.length()) {
         QChar ch = data[(int)idx++];
@@ -1447,114 +1442,86 @@ void Q3SVGPaintEnginePrivate::drawPath(const QString &data, QPainter *pt)
         double offsetY = relative ? y : 0;        // for relative commands
         switch (mode) {
         case 0:                                        // 'M' move to
-            if (x != x0 || y != y0)
-                path[pcount++] = QPointF(x0, y0);
             x = x0 = arg[0] + offsetX;
             y = y0 = arg[1] + offsetY;
-            subIndex.append(pcount);
-            path[pcount++] = QPointF(x0, y0);
-            mode = 2;                                // -> 'L'
+            path.moveTo(x0, y0);
+            mode = 2;                                  // -> 'L'
             break;
         case 1:                                        // 'Z' close path
-            path[pcount++] = QPointF(x0, y0);
             x = x0;
             y = y0;
+            path.closeSubpath();
             mode = 0;
             break;
         case 2:                                        // 'L' line to
             x = arg[0] + offsetX;
             y = arg[1] + offsetY;
-            path[pcount++] = QPointF(x, y);
+            path.lineTo(x, y);
             break;
         case 3:                                        // 'H' horizontal line
             x = arg[0] + offsetX;
-            path[pcount++] = QPointF(x, y);
+            path.lineTo(x, y);
             break;
         case 4:                                        // 'V' vertical line
             y = arg[0] + offsetY;
-            path[pcount++] = QPointF(x, y);
+            path.lineTo(x, y);
             break;
-#ifndef QT_NO_BEZIER
-        case 5:                                        // 'C' cubic bezier curveto
-        case 6:                                        // 'S' smooth shorthand
-        case 7:                                        // 'Q' quadratic bezier curves
-        case 8: {                                      // 'T' smooth shorthand
-            quad[0] = QPointF(x, y);
-            // if possible, reflect last control point if smooth shorthand
-            if (mode == 6 || mode == 8) {              // smooth 'S' and 'T'
-                bool cont = mode == lastMode ||
-                            mode == 6 && lastMode == 5 ||      // 'S' and 'C'
-                            mode == 8 && lastMode == 7;        // 'T' and 'Q'
-                x = cont ? 2*x-controlX : x;
-                y = cont ? 2*y-controlY : y;
-                quad[1] = QPointF(x, y);
-                quad[2] = QPointF(x, y);
-            }
-            for (int j = 0; j < numArgs/2; j++) {
-                x = arg[2*j  ] + offsetX;
-                y = arg[2*j+1] + offsetY;
-                quad[j+4-numArgs/2] = QPointF(x, y);
-            }
-            // remember last control point for next shorthand
-            controlX = quad[2].x();
-            controlY = quad[2].y();
-            // transform quadratic into cubic Bezier
-            if (mode == 7 || mode == 8) {        // cubic 'Q' and 'T'
-                double x31 = quad[0].x()+2.0*(quad[2].x()-quad[0].x())/3.0;
-                double y31 = quad[0].y()+2.0*(quad[2].y()-quad[0].y())/3.0;
-                double x32 = quad[2].x()+2.0*(quad[3].x()-quad[2].x())/3.0;
-                double y32 = quad[2].y()+2.0*(quad[3].y()-quad[2].y())/3.0;
-                quad[1] = QPointF(x31, y31);
-                quad[2] = QPointF(x32, y32);
-            }
-            // calculate points on curve
-            bezier = QBezier(quad.at(0), quad.at(1), quad.at(2), quad.at(3)).toPolygon();
-            // reserve more space if needed
-            if (bezier.size() > path.size() - pcount)
-                path.resize(path.size() - pcount + bezier.size());
-            // copy
-            for (int k = 0; k < (int)bezier.size(); k++)
-                path[pcount++] = bezier[k];
+        case 5: {                                        // 'C' cubic bezier curveto
+            QPointF c1(arg[0]+offsetX, arg[1]+offsetY);
+            QPointF c2(arg[2]+offsetX, arg[3]+offsetY);
+            QPointF e(arg[4]+offsetX, arg[5]+offsetY);
+            path.cubicTo(c1, c2, e);
+            ctrlPt = c2;
+            x = e.x();
+            y = e.y();
             break;
         }
-#endif // QT_NO_BEZIER
+        case 6: {                                        // 'S' smooth shorthand
+            QPointF c1;
+            if (lastMode == 5 || lastMode == 6)
+                c1 = QPointF(2*x-ctrlPt.x(), 2*y-ctrlPt.y());
+            else
+                c1 = QPointF(x, y);
+            QPointF c2(arg[0]+offsetX, arg[1]+offsetY);
+            QPointF e(arg[2]+offsetX, arg[3]+offsetY);
+            path.cubicTo(c1, c2, e);
+            ctrlPt = c2;
+            x = e.x();
+            y = e.y();
+            break;
+        }
+        case 7: {                                        // 'Q' quadratic bezier curves
+            QPointF c(arg[0]+offsetX, arg[1]+offsetY);
+            QPointF e(arg[2]+offsetX, arg[3]+offsetY);
+            path.quadTo(c, e);
+            ctrlPt = c;
+            x = e.x();
+            y = e.y();
+            break;
+        }
+        case 8: {                                      // 'T' smooth shorthand
+            QPointF e(arg[0]+offsetX, arg[1]+offsetY);
+            QPointF c;
+            if (lastMode == 7 || lastMode == 8)
+                c = QPointF(2*x-ctrlPt.x(), 2*y-ctrlPt.y());
+            else
+                c = QPointF(x, y);
+            path.quadTo(c, e);
+            ctrlPt = c;
+            x = e.x();
+            y = e.y();
+            break;
+        }
         case 9:                                        // 'A' elliptical arc curve
             // ### just a straight line
             x = arg[5] + offsetX;
             y = arg[6] + offsetY;
-            path[pcount++] = QPointF(x, y);
+            path.lineTo(x, y);
             break;
         };
         lastMode = mode;
-        // array almost full ? expand for next loop
-        if (pcount >= (int)path.size() - 4)
-            path.resize(2 * path.size());
     }
-
-    subIndex.append(pcount);                        // dummy marking the end
-    if (pt->brush().style() != Qt::NoBrush) {
-        // fill the area without stroke first
-        if (x != x0 || y != y0)
-            path[pcount++] = QPointF(x0, y0);
-        QPen pen = pt->pen();
-        pt->setPen(Qt::NoPen);
-        pt->drawPolygon(path.constData(), pcount, Qt::OddEvenFill);
-        pt->setPen(pen);
-    }
-
-    // draw each subpath stroke seperately
-    if (pt->pen().style() != Qt::NoPen) {
-        int i = 0;
-        int start = 0;
-        while (i < subIndex.size()-1) {
-            int next = subIndex.at(++i);
-            // ### always joins ends if first and last point coincide.
-            // ### 'Z' can't have the desired effect
-            if (next-start > 0)
-                pt->drawPolyline(path.constData()+start, next-start);
-            start = next;
-        }
-    }
+    pt->drawPath(path);
 }
 
 /*!
