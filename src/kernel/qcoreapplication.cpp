@@ -24,6 +24,10 @@
 #define d d_func()
 #define q q_func()
 
+// POSIX Large File Support redefines truncate -> truncate64
+#ifdef truncate
+#undef truncate
+#endif
 
 #ifdef Q_WS_WIN
 extern const char *qAppFileName(); // Declared in qapplication_win.cpp
