@@ -47,9 +47,10 @@ HEADERS += \
     qdesigner_objectinspector.h \
     qdesigner_actions.h \
     qdesigner_preferences.h \
+    qdesigner_settingsdialog.h \
+    abstractsettingsdialog.h \
     preferenceinterface.h \
     pluginpreferences.h \
-    preferencedialog.h \
     saveformastemplate.h \
     newform.h
 
@@ -67,8 +68,9 @@ SOURCES += main.cpp \
     qdesigner_preferences.cpp \
     qdesigner_actions.cpp \
     qdesigner_plugins.cpp \
+    qdesigner_settingsdialog.cpp \
+    abstractsettingsdialog.cpp \
     pluginpreferences.cpp \
-    preferencedialog.cpp \
     saveformastemplate.cpp \
     newform.cpp
 

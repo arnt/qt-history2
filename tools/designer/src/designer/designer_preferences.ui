@@ -11,8 +11,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>404</width>
-    <height>300</height>
+    <width>690</width>
+    <height>355</height>
    </rect>
   </property>
   <property name="windowTitle" >
@@ -37,8 +37,8 @@
       <rect>
        <x>9</x>
        <y>9</y>
-       <width>386</width>
-       <height>20</height>
+       <width>672</width>
+       <height>22</height>
       </rect>
      </property>
      <property name="text" >
@@ -54,9 +54,9 @@
      <property name="geometry" >
       <rect>
        <x>9</x>
-       <y>35</y>
-       <width>386</width>
-       <height>256</height>
+       <y>37</y>
+       <width>672</width>
+       <height>303</height>
       </rect>
      </property>
      <property name="title" >
@@ -92,9 +92,23 @@
            <rect>
             <x>1</x>
             <y>1</y>
-            <width>206</width>
-            <height>187</height>
+            <width>320</width>
+            <height>240</height>
            </rect>
+          </property>
+          <property name="sizePolicy" >
+           <sizepolicy>
+            <hsizetype>0</hsizetype>
+            <vsizetype>0</vsizetype>
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="minimumSize" >
+           <size>
+            <width>320</width>
+            <height>240</height>
+           </size>
           </property>
           <property name="frameShape" >
            <enum>QFrame::Box</enum>
@@ -115,9 +129,9 @@
           <property name="geometry" >
            <rect>
             <x>1</x>
-            <y>194</y>
-            <width>206</width>
-            <height>20</height>
+            <y>247</y>
+            <width>320</width>
+            <height>22</height>
            </rect>
           </property>
           <property name="text" >
@@ -150,9 +164,23 @@
            <rect>
             <x>1</x>
             <y>1</y>
-            <width>148</width>
-            <height>187</height>
+            <width>320</width>
+            <height>240</height>
            </rect>
+          </property>
+          <property name="sizePolicy" >
+           <sizepolicy>
+            <hsizetype>0</hsizetype>
+            <vsizetype>0</vsizetype>
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="minimumSize" >
+           <size>
+            <width>320</width>
+            <height>240</height>
+           </size>
           </property>
           <property name="frameShape" >
            <enum>QFrame::Box</enum>
@@ -173,9 +201,9 @@
           <property name="geometry" >
            <rect>
             <x>1</x>
-            <y>194</y>
-            <width>148</width>
-            <height>20</height>
+            <y>247</y>
+            <width>320</width>
+            <height>22</height>
            </rect>
           </property>
           <property name="text" >
@@ -187,6 +215,30 @@
       </item>
      </layout>
     </widget>
+   </item>
+   <item>
+    <spacer>
+     <property name="objectName" >
+      <string notr="true" >verticalSpacer</string>
+     </property>
+     <property name="geometry" >
+      <rect>
+       <x>9</x>
+       <y>346</y>
+       <width>672</width>
+       <height>0</height>
+      </rect>
+     </property>
+     <property name="orientation" >
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeHint" >
+      <size>
+       <width>0</width>
+       <height>0</height>
+      </size>
+     </property>
+    </spacer>
    </item>
   </layout>
  </widget>

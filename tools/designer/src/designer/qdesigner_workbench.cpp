@@ -51,7 +51,8 @@ QDesignerWorkbench::QDesignerWorkbench()
 {
     initialize();
 
-    setUIMode(UIMode(QDesignerSettings().uiMode()));
+    switchToTopLevelMode();
+    // ### setUIMode(UIMode(QDesignerSettings().uiMode()));
 }
 
 QDesignerWorkbench::~QDesignerWorkbench()
@@ -71,8 +72,12 @@ void QDesignerWorkbench::addToolWindow(QDesignerToolWindow *toolWindow)
     m_toolWindows.append(toolWindow);
 
     if (QAction *action = toolWindow->action()) {
+        Q_ASSERT(m_toolMenu->actions().isEmpty() == false);
+
+        QList<QAction*> lst = m_toolActions->actions();
+        QAction *before = lst.count() ? lst.last() : m_toolMenu->actions().first();
+        m_toolMenu->insertAction(before, action);
         m_toolActions->addAction(action);
-        m_toolMenu->addAction(action);
     }
 }
 
@@ -132,7 +137,9 @@ void QDesignerWorkbench::initialize()
         m_formMenu->addAction(action);
     }
 
-    m_toolMenu = m_globalMenuBar->addMenu(tr("&Tool"));
+    m_toolMenu = m_globalMenuBar->addMenu(tr("&Tools"));
+    m_toolMenu->addSeparator();
+    m_toolMenu->addAction(m_actionManager->preferences());
 
     m_windowMenu = m_globalMenuBar->addMenu(tr("&Window"));
     foreach (QAction *action, m_actionManager->windowActions()->actions()) {
@@ -173,7 +180,7 @@ void QDesignerWorkbench::initialize()
     }
 
     m_toolToolBar = new QToolBar;
-    m_toolToolBar->setWindowTitle(tr("Tool"));
+    m_toolToolBar->setWindowTitle(tr("Tools"));
     foreach (QAction *action, m_actionManager->toolActions()->actions()) {
         if (action->icon().isNull() == false)
             m_toolToolBar->addAction(action);

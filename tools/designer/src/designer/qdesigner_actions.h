@@ -24,7 +24,6 @@ class QAction;
 class QActionGroup;
 class AbstractFormEditor;
 class AbstractFormWindow;
-class PreferenceDialog;
 
 class QDesignerActions: public QObject
 {
@@ -71,7 +70,6 @@ public:
     QAction *sendToBackAction() const;
     QAction *bringToFrontAction() const;
 
-    QAction *preferencesSeparator() const;
     QAction *preferences() const;
 
 //
@@ -156,7 +154,6 @@ private:
     QAction *m_bringToFrontAction;
     QAction *m_selectAllAction;
 
-    QAction *m_preferencesSeparator;
     QAction *m_preferences;
 
     QAction *m_layoutHorizontallyAction;
@@ -169,8 +166,6 @@ private:
     QAction *m_previewFormAction;
 
     QAction *m_showWorkbenchAction;
-
-    QPointer<PreferenceDialog> m_preferenceDialog;
 };
 
 #endif // QDESIGNER_ACTIONS_H

@@ -148,6 +148,7 @@ private:
 
     class ToolWindowExtra {};
     class FormWindowExtra {};
+
     QHash<QDesignerToolWindow*, ToolWindowExtra> m_toolWindowExtras;
     QHash<QDesignerFormWindow*, FormWindowExtra> m_formWindowExtras;
 

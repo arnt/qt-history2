@@ -16,7 +16,7 @@
 #include "qdesigner_workbench.h"
 #include "qdesigner_formwindow.h"
 #include "qdesigner_settings.h"
-#include "preferencedialog.h"
+#include "qdesigner_settingsdialog.h"
 #include "newform.h"
 #include "saveformastemplate.h"
 
@@ -174,14 +174,6 @@ QDesignerActions::QDesignerActions(QDesignerWorkbench *workbench)
     m_bringToFrontAction = formWindowManager->actionRaise();
     m_editActions->addAction(m_bringToFrontAction);
 
-    m_preferencesSeparator = new QAction(this);
-    m_preferencesSeparator->setSeparator(true);
-    m_editActions->addAction(m_preferencesSeparator);
-
-    m_preferences = new QAction(tr("Preferences"), this);
-    connect(m_preferences, SIGNAL(triggered()), this, SLOT(editPreferences()));
-    m_editActions->addAction(m_preferences);
-
 //
 // edit mode actions
 //
@@ -236,6 +228,12 @@ QDesignerActions::QDesignerActions(QDesignerWorkbench *workbench)
     m_previewFormAction->setShortcut(tr("CTRL+R"));
     connect(m_previewFormAction, SIGNAL(triggered()), this, SLOT(previewForm()));
     m_formActions->addAction(m_previewFormAction);
+
+//
+// tools actions
+//
+    m_preferences = new QAction(tr("Options..."), this);
+    connect(m_preferences, SIGNAL(triggered()), this, SLOT(editPreferences()));
 
 //
 // window actions
@@ -326,9 +324,6 @@ QAction *QDesignerActions::bringToFrontAction() const
 
 QAction *QDesignerActions::preferences() const
 { return m_preferences; }
-
-QAction *QDesignerActions::preferencesSeparator() const
-{ return m_preferencesSeparator; }
 
 QAction *QDesignerActions::layoutHorizontallyAction() const
 { return m_layoutHorizontallyAction; }
@@ -444,13 +439,8 @@ void QDesignerActions::notImplementedYet()
 
 void QDesignerActions::editPreferences()
 {
-    if (!m_preferenceDialog) {
-        m_preferenceDialog = new PreferenceDialog(core(), core()->topLevel());
-        m_preferenceDialog->setAttribute(Qt::WA_DeleteOnClose, true);
-        connect(m_preferenceDialog, SIGNAL(preferencesChanged()), SLOT(handlePreferenceChange()));
-    }
-    m_preferenceDialog->show();
-    m_preferenceDialog->raise();
+    QDesignerSettingsDialog *dlg = new QDesignerSettingsDialog(workbench(), core()->topLevel());
+    dlg->show();
 }
 
 void QDesignerActions::handlePreferenceChange()

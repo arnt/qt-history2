@@ -6,5 +6,6 @@
 <file>templates/forms/mainwindow.ui</file>
 <file>images/sdi.png</file>
 <file>images/mdi.png</file>
+<file>images/workbench.png</file>
 </qresource>
 </RCC>
