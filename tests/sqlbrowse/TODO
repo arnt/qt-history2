@@ -1,31 +1,11 @@
 General SQL TODO stuff:
 ~~~~~~~~~~~~~~~~~~~~~~~
 
-QSqlTable:
-suggestion for renaming:
-currentFieldSelection => currentRecord
-
-QDateTimeEdit:
-bool leadingZeros()
-setLeadingZeros(bool)
-QDate earliestDate()
-setEarliestDate(QDate)
-QDate latestDate()
-setLatestDate(QDate)
-QTime earliestTime()
-setEarliestTime(QTime)
-QTime latestTime()
-setLatestTime(QTime)
-QDateTime earliestDateTime()
-setEarliestDateTime(QDateTime)
-QDateTime latestDateTime()
-setLatestDateTime(QDateTime)
-// Enum { Time24hr, TimeAMPM }
-int timeFormat()
-setTimeFormat(int)
-
-Wizards:
-A descriptive label for every listbox... so I can write "in the
-Displayed Fields list" rather than "in the right hand listbox".
-
+Allow QSqlIndex or QSqlCursor to maintain an additional property:
+something like isAutoNumbered() which would indicate whether the
+backend auto-numbers the primary index field for a table.  Data-aware
+controls can then determine if this is the case, and query the backend
+for the new-autonumbered field value on an insert.  This will allow
+accurate relocation to a newly inserted record in a QDataTable or
+QDataBrowse.
 
