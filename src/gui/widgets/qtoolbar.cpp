@@ -30,7 +30,6 @@
 #include <private/qmainwindowlayout_p.h>
 
 #include "qtoolbar_p.h"
-#include "qtoolbarbutton_p.h"
 #include "qtoolbarextension_p.h"
 #include "qtoolbarhandle_p.h"
 #include "qtoolbarseparator_p.h"
