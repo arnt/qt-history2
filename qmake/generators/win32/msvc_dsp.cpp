@@ -284,11 +284,11 @@ DspMakefileGenerator::init()
     init_flag = TRUE;
 
     /* this should probably not be here, but I'm using it to wrap the .t files */
-    if(project->variables()["TEMPLATE"].first() == "vcapp")
+    if(project->variables()["TEMPLATE"].first() == "vcapp" )
 	project->variables()["QMAKE_APP_FLAG"].append("1");
     else if(project->variables()["TEMPLATE"].first() == "vclib")
 	project->variables()["QMAKE_LIB_FLAG"].append("1");
-
+    
     QStringList &configs = project->variables()["CONFIG"];
     if (project->isActiveConfig("qt_dll"))
 	if(configs.findIndex("qt") == -1) configs.append("qt");
@@ -417,9 +417,6 @@ DspMakefileGenerator::init()
 	(*it).replace(QRegExp("\\.[a-zA-Z0-9_]*$"), "");
 
     if ( !project->variables()["QMAKE_APP_FLAG"].isEmpty() ) {
-	if ( project->isActiveConfig("dll") ) {
-	    project->variables()["MSVCDSP_TEMPLATE"].append("win32dll.dsp");
-	} else {
 	    project->variables()["MSVCDSP_TEMPLATE"].append("win32app.dsp");
 	    if ( project->isActiveConfig("console") ) {
 		project->variables()["MSVCDSP_CONSOLE"].append("Console");
@@ -432,9 +429,12 @@ DspMakefileGenerator::init()
 		project->variables()["MSVCDSP_DSPTYPE"].append("0x0101");
 		project->variables()["MSVCDSP_SUBSYSTEM"].append("windows");
 	    }
-	}
     } else {
-	project->variables()["MSVCDSP_TEMPLATE"].append("win32lib.dsp");
+        if ( project->isActiveConfig("dll") ) {
+            project->variables()["MSVCDSP_TEMPLATE"].append("win32dll.dsp");
+        } else {
+            project->variables()["MSVCDSP_TEMPLATE"].append("win32lib.dsp");
+        }
     }
     project->variables()["MSVCDSP_LIBS"] = project->variables()["QMAKE_LIBS"];
     project->variables()["MSVCDSP_DEFINES"].append(varGlue("DEFINES","/D ","" " /D ",""));
