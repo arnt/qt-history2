@@ -324,7 +324,7 @@ tagreader with features example. \endlink
 \row \i (TRUE, FALSE) \i Yes \i Yes* \i Yes \i No
 \row \i (TRUE, TRUE) \i Yes \i Yes \i Yes \i Yes
 \row \i (FALSE, TRUE) \i No* \i Yes \i No* \i Yes
-\row \i (FALSE, TRUE) \i41 Illegal
+\row \i (FALSE, FALSE) \i41 Illegal
 \endtable
 
 For the entries marked with a "*", SAX does not require a particuliar
