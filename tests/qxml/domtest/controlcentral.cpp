@@ -90,7 +90,7 @@ void ControlCentral::parse( const QString& filename )
     file.reset();
     QString errorStatus;
     if ( doc.setContent( &file, TRUE ) ) {
-	errorStatus = "Ok";
+	errorStatus = "OK";
     } else {
 	errorStatus = "Error";
     }

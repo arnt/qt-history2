@@ -1109,7 +1109,7 @@ void TrWindow::about()
 			     "Copyright (c) 2000-2001 Trolltech AS"), &about );
     copyright->setAlignment( QLabel::AlignCenter );
 
-    QPushButton * ok = new QPushButton( tr("Ok"), &about, "ok about" );
+    QPushButton * ok = new QPushButton( tr("OK"), &about, "ok about" );
     ok->setDefault( TRUE );
     about.setFocusProxy( ok );
     connect( ok, SIGNAL(clicked()), &about, SLOT(accept()) );

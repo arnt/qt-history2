@@ -53,7 +53,7 @@ NodeEdit::NodeEdit( QDomNode _node )
     }
 
     hb = new QHBox( this );
-    pb = new QPushButton( "Ok", hb );
+    pb = new QPushButton( "OK", hb );
     connect( pb, SIGNAL(clicked()),
 	    this, SLOT(ok()) );
     pb = new QPushButton( "Cancel", hb );

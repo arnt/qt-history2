@@ -308,7 +308,7 @@
   An accessible object's \e Description provides textual information about
   an object's visual appearance. The description is primarily used to provide
   greater context for low-vision or blind users, but is also used for context
-  searching or other applications. Not all objects have a description. An "Ok" 
+  searching or other applications. Not all objects have a description. An "OK" 
   button would not need a description, but a toolbutton that shows a picture of 
   a smiley would.
 

@@ -143,7 +143,7 @@ void ControlCentral::parse( const QString& filename, const QString& incrementalS
     if ( incrementalSteps.isNull() ) {
 	source.reset();
 	if ( parser.parse( source ) ) {
-	    errorStatus = "Ok";
+	    errorStatus = "OK";
 	} else {
 	    errorStatus = "Error";
 	}
@@ -174,7 +174,7 @@ void ControlCentral::parse( const QString& filename, const QString& incrementalS
 qDebug( "*** parse" );
 		first = FALSE;
 		if ( parser.parse( &source, TRUE ) ) {
-		    errorStatus = "Ok";
+		    errorStatus = "OK";
 		} else {
 		    errorStatus = "Error";
 		    break;
@@ -182,7 +182,7 @@ qDebug( "*** parse" );
 	    } else {
 qDebug( "*** parse continue" );
 		if ( parser.parseContinue() ) {
-		    errorStatus = "Ok";
+		    errorStatus = "OK";
 		} else {
 		    errorStatus = "Error";
 		    break;

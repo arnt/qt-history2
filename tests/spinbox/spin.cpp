@@ -142,7 +142,7 @@ Main::Main(QWidget* parent, const char* name, int f)
     symbolCheck->setMinimumSize( symbolCheck->sizeHint() );
     connect( symbolCheck, SIGNAL(clicked()), this, SLOT(updateSymbols()) );
 
-    QPushButton* ok = new QPushButton( QString::fromLatin1("Ok"), this );
+    QPushButton* ok = new QPushButton( QString::fromLatin1("OK"), this );
     ok->setMinimumSize( 75, ok->sizeHint().height() );
     ok->setDefault( TRUE );
     QObject::connect( ok, SIGNAL(clicked()), this, SLOT(accept()) );

@@ -42,7 +42,7 @@ GLObjectWindow::GLObjectWindow( QWidget* parent, const char* name )
     if ( !c->format().hasOverlay() ) {
 	QMessageBox::warning( 0, qApp->argv()[0], 
 			      "Failed to get an OpenGL overlay",
-			      "Ok" );
+			      "OK" );
     }
 
     // Now that we have all the widgets, put them into a nice layout
