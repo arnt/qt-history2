@@ -427,6 +427,8 @@ QMakeProject::read(const QString &project, const QString &, bool just_project)
 	// hack to get the Option stuff in there
 	base_vars["QMAKE_EXT_CPP"] = Option::cpp_ext;
 	base_vars["QMAKE_EXT_H"] = Option::h_ext;
+	if(!Option::user_template_prefix.isEmpty())
+	    base_vars["TEMPLATE_PREFIX"] = Option::user_template_prefix;
 
 	/* parse the cache */
 	if(Option::mkfile::do_cache) {
