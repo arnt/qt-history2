@@ -1982,7 +1982,6 @@ bool QTextEdit::eventFilter( QObject *o, QEvent *e )
 
     if ( o == this || o == viewport() ) {
 	if ( e->type() == QEvent::FocusIn ) {
-	    resetInputContext();
 	    blinkTimer->start( QApplication::cursorFlashTime() / 2 );
 	    drawCursor( TRUE );
 	    return TRUE;
