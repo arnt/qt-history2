@@ -1,6 +1,6 @@
 diff -ubr template/Makefile solaris-gcc-shared/Makefile
---- template/Makefile	Wed Oct 16 17:06:11 1996
-+++ solaris-gcc-shared/Makefile	Wed Oct 16 17:26:26 1996
+--- template/Makefile	Fri Oct 18 23:06:25 1996
++++ solaris-gcc-shared/Makefile	Sat Oct 19 01:55:41 1996
 @@ -5,7 +5,7 @@
  #
  
@@ -11,9 +11,18 @@ diff -ubr template/Makefile solaris-gcc-shared/Makefile
  SHELL	= /bin/sh
  
 diff -ubr template/library/Makefile solaris-gcc-shared/library/Makefile
---- template/library/Makefile	Wed Oct 16 17:06:37 1996
-+++ solaris-gcc-shared/library/Makefile	Wed Oct 16 17:32:36 1996
-@@ -88,7 +88,7 @@
+--- template/library/Makefile	Fri Oct 18 23:06:53 1996
++++ solaris-gcc-shared/library/Makefile	Sat Oct 19 01:57:58 1996
+@@ -80,7 +80,7 @@
+ .SUFFIXES: .cpp
+ 
+ .cpp.o:
+-	$(CC) -I$(INCDIR) -c $(CFLAGS) -fpic $<
++	$(CC) -I$(INCDIR) -c $(CFLAGS) -fPIC $<
+ 
+ # VERSION - the version number of the shared library, where applicable
+ 
+@@ -92,7 +92,7 @@
  	-rm -f ../lib/libqt.so.$(VERSION)
  	$(CC) -shared -Wl,-soname,libqt.so.1 \
  		-o ../lib/libqt.so.$(VERSION) \
