@@ -12,9 +12,9 @@ CONTINUEONERROR=-i
 
 all: symlinks src-qmake sub-src sub-tools sub-tutorial sub-examples
 	@echo .
-	@echo The Qt library is now built in .\lib
-	@echo The Qt examples are built in the directories in .\examples
-	@echo The Qt tutorials are built in the directories in .\tutorial
+	@echo The Qt library is now built in lib
+	@echo The Qt examples are built in the directories in examples
+	@echo The Qt tutorials are built in the directories in tutorial
 	@echo .
 	@echo Note: be sure to set the environment variable QTDIR to point
 	@echo       to here or to wherever you move these directories.
