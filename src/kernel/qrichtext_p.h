@@ -124,13 +124,24 @@ public:
     void setFormat( QTextFormat *f );
     void setCustomItem( QTextCustomItem *i );
     QTextStringChar *clone() const;
-	    struct CustomData
+    struct CustomData
     {
 	QTextFormat *format;
 	QTextCustomItem *custom;
     };
 
-    struct MarkData
+    void loseCustomItem()
+    {
+	if ( isCustom() ) {
+	    QTextFormat *f = d.custom->format;
+	    d.custom->custom = 0;
+	    delete d.custom;
+	    type = Regular;
+	    d.format = f;
+	}
+    }
+
+     struct MarkData
     {
 	QTextFormat *format;
 	short xoff; // x offset for painting the Mark
@@ -1321,6 +1332,7 @@ public:
     enum VerticalAlignment { AlignNormal, AlignSubScript, AlignSuperScript };
 
     QTextFormat();
+    virtual ~QTextFormat() {}
     QTextFormat( const QStyleSheetItem *s );
     QTextFormat( const QFont &f, const QColor &c );
     QTextFormat( const QTextFormat &fm );
@@ -1372,9 +1384,11 @@ public:
 
     int changed() const { return different; }
 
+protected:
+    virtual void generateKey();
+
 private:
     void update();
-    void generateKey();
 
 private:
     QFont fn;
@@ -1413,13 +1427,13 @@ class Q_EXPORT QTextFormatCollection
 
 public:
     QTextFormatCollection();
-    ~QTextFormatCollection();
+    virtual ~QTextFormatCollection();
 
     void setDefaultFormat( QTextFormat *f );
     QTextFormat *defaultFormat() const;
-    QTextFormat *format( QTextFormat *f );
-    QTextFormat *format( QTextFormat *of, QTextFormat *nf, int flags );
-    QTextFormat *format( const QFont &f, const QColor &c );
+    virtual QTextFormat *format( QTextFormat *f );
+    virtual QTextFormat *format( QTextFormat *of, QTextFormat *nf, int flags );
+    virtual QTextFormat *format( const QFont &f, const QColor &c );
     void remove( QTextFormat *f );
 
     void debug();

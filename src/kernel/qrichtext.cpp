@@ -1109,8 +1109,17 @@ void QTextCursor::splitAndInsertEmptyParag( bool ind, bool updateIds )
 	s->append( str, TRUE );
 	for ( uint i = 0; i < str.length(); ++i ) {
 	    s->setFormat( i, 1, string->at( idx + i )->format(), TRUE );
-	    if ( string->at( idx + i )->isCustom() )
-		s->at( i )->setCustomItem( string->at( idx + i )->customItem() );
+	    if ( string->at( idx + i )->isCustom() ) {
+		QTextCustomItem * item = string->at( idx + i )->customItem();
+		s->at( i )->setCustomItem( item );
+		string->at( idx + i )->loseCustomItem();
+#if 0
+		s->addCustomItem();
+		string->removeCustomItem();
+		doc->unregisterCustomItem( item, string );
+		doc->registerCustomItem( item, s );
+#endif
+	    }
 	}
 	string->truncate( idx );
 	if ( ind ) {
@@ -3066,12 +3075,19 @@ void QTextParag::join( QTextParag *s )
 	--start;
     }
     append( s->str->toString(), TRUE );
-    if ( !doc || doc->useFormatCollection() ) {
-	for ( int i = 0; i < s->length(); ++i ) {
+
+    for ( int i = 0; i < s->length(); ++i ) {
+	if ( !doc || doc->useFormatCollection() ) {
 	    s->str->at( i ).format()->addRef();
 	    str->setFormat( i + start, s->str->at( i ).format(), TRUE );
 	}
+	if ( s->str->at( i ).isCustom() ) {
+	    QTextCustomItem * item = s->str->at( i ).customItem();
+	    str->at( i + start ).setCustomItem( item );
+	    s->str->at( i ).loseCustomItem();
+	}
     }
+
     if ( !extraData() && s->extraData() ) {
 	setExtraData( s->extraData() );
 	s->setExtraData( 0 );
