@@ -89,6 +89,10 @@ public:
     int preeditLength;
     uint ensureCursorVisibleInShowEvent : 1;
     uint allowTabs : 1;
+#ifdef QT_TEXTEDIT_OPTIMIZATION    
+    QTextEditOptimPrivate * od;
+    bool optimMode : 1;
+#endif    
 };
 
 static bool block_set_alignment = FALSE;
@@ -613,16 +617,16 @@ QTextEdit::~QTextEdit()
     delete doc;
     delete d;
 #ifdef QT_TEXTEDIT_OPTIMIZATION
-    if ( optimMode )
-	delete od;
+    if ( d->optimMode )
+	delete d->od;
 #endif
 }
 
 void QTextEdit::init()
 {
 #ifdef QT_TEXTEDIT_OPTIMIZATION
-    od = 0;
-    optimMode = FALSE;
+    d->od = 0;
+    d->optimMode = FALSE;
 #endif
     doc->formatCollection()->setPaintDevice( this );
     undoEnabled = TRUE;
@@ -730,7 +734,7 @@ void QTextEdit::paintDocument( bool drawAll, QPainter *p, int cx, int cy, int cw
 void QTextEdit::drawContents( QPainter *p, int cx, int cy, int cw, int ch )
 {
 #ifdef QT_TEXTEDIT_OPTIMIZATION
-    if ( optimMode ) {
+    if ( d->optimMode ) {
 	optimDrawContents( p, cx, cy, cw, ch );
 	return;
     }
@@ -826,7 +830,7 @@ bool QTextEdit::event( QEvent *e )
 	}
     }
 #ifdef QT_TEXTEDIT_OPTIMIZATION
-    if ( !optimMode && e->type() == QEvent::Show && d->ensureCursorVisibleInShowEvent ) {
+    if ( !d->optimMode && e->type() == QEvent::Show && d->ensureCursorVisibleInShowEvent ) {
 #else
     if ( e->type() == QEvent::Show && d->ensureCursorVisibleInShowEvent ) {
 #endif
@@ -1682,7 +1686,7 @@ void QTextEdit::contentsWheelEvent( QWheelEvent *e )
 void QTextEdit::contentsMousePressEvent( QMouseEvent *e )
 {
 #ifdef QT_TEXTEDIT_OPTIMIZATION
-    if ( optimMode ) {
+    if ( d->optimMode ) {
 	optimMousePressEvent( e );
 	return;
     }
@@ -1768,7 +1772,7 @@ void QTextEdit::contentsMousePressEvent( QMouseEvent *e )
 void QTextEdit::contentsMouseMoveEvent( QMouseEvent *e )
 {
 #ifdef QT_TEXTEDIT_OPTIMIZATION
-    if ( optimMode ) {
+    if ( d->optimMode ) {
 	optimMouseMoveEvent( e );
 	return;
     }
@@ -1807,7 +1811,7 @@ void QTextEdit::contentsMouseMoveEvent( QMouseEvent *e )
 void QTextEdit::contentsMouseReleaseEvent( QMouseEvent * e )
 {
 #ifdef QT_TEXTEDIT_OPTIMIZATION
-    if ( optimMode ) {
+    if ( d->optimMode ) {
 	optimMouseReleaseEvent( e );
 	return;
     }
@@ -1902,7 +1906,7 @@ void QTextEdit::contentsMouseReleaseEvent( QMouseEvent * e )
 void QTextEdit::contentsMouseDoubleClickEvent( QMouseEvent * )
 {
 #ifdef QT_TEXTEDIT_OPTIMIZATION
-    if ( optimMode ) // XXX implement me!
+    if ( d->optimMode ) // XXX implement me!
 	return;
 #endif
     QTextCursor c1 = *cursor;
@@ -2195,7 +2199,7 @@ void QTextEdit::formatMore()
 void QTextEdit::doResize()
 {
 #ifdef QT_TEXTEDIT_OPTIMIZATION
-    if ( !optimMode ) {
+    if ( !d->optimMode ) {
 #endif
 	if ( wrapMode == FixedPixelWidth )
 	    return;
@@ -2224,7 +2228,7 @@ void QTextEdit::doChangeInterval()
 bool QTextEdit::eventFilter( QObject *o, QEvent *e )
 {
 #ifdef QT_TEXTEDIT_OPTIMIZATION
-    if ( !optimMode && (o == this || o == viewport()) ) {
+    if ( !d->optimMode && (o == this || o == viewport()) ) {
 #else
     if ( o == this || o == viewport() ) {
 #endif
@@ -2265,7 +2269,7 @@ bool QTextEdit::eventFilter( QObject *o, QEvent *e )
 void QTextEdit::insert( const QString &text, bool indent, bool checkNewLine, bool removeSelected )
 {
 #ifdef QT_TEXTEDIT_OPTIMIZATION
-    if ( optimMode )
+    if ( d->optimMode )
 	return;
 #endif
 
@@ -2341,7 +2345,7 @@ void QTextEdit::insert( const QString &text, bool indent, bool checkNewLine, boo
 void QTextEdit::insertAt( const QString &text, int para, int index )
 {
 #ifdef QT_TEXTEDIT_OPTIMIZATION
-    if ( optimMode )
+    if ( d->optimMode )
 	return;
 #endif
     QTextParag *p = doc->paragAt( para );
@@ -2362,7 +2366,7 @@ void QTextEdit::insertAt( const QString &text, int para, int index )
 void QTextEdit::insertParagraph( const QString &text, int para )
 {
 #ifdef QT_TEXTEDIT_OPTIMIZATION
-    if ( optimMode )
+    if ( d->optimMode )
 	return;
 #endif
     QTextParag *p = doc->paragAt( para );
@@ -2383,7 +2387,7 @@ void QTextEdit::insertParagraph( const QString &text, int para )
 void QTextEdit::removeParagraph( int para )
 {
 #ifdef QT_TEXTEDIT_OPTIMIZATION
-    if ( optimMode )
+    if ( d->optimMode )
 	return;
 #endif
     QTextParag *p = doc->paragAt( para );
@@ -2603,7 +2607,7 @@ void QTextEdit::cut()
 void QTextEdit::copy()
 {
 #ifdef QT_TEXTEDIT_OPTIMIZATION
-    if ( optimMode && optimHasSelection() )
+    if ( d->optimMode && optimHasSelection() )
 	QApplication::clipboard()->setText( optimSelectedText() );
     else if ( !doc->selectedText( QTextDocument::Standard ).isEmpty() )
 	doc->copySelectedText( QTextDocument::Standard );
@@ -2991,7 +2995,7 @@ void QTextEdit::setFontInternal( const QFont &f_ )
 QString QTextEdit::text() const
 {
 #ifdef QT_TEXTEDIT_OPTIMIZATION
-    if ( optimMode ) {
+    if ( d->optimMode ) {
 	return optimText();
     } else
 #endif
@@ -3011,8 +3015,8 @@ QString QTextEdit::text() const
 QString QTextEdit::text( int para ) const
 {
 #ifdef QT_TEXTEDIT_OPTIMIZATION
-    if ( optimMode && (od->numLines >= para) ) {
-	QString paraStr = od->lines[ para ];
+    if ( d->optimMode && (d->od->numLines >= para) ) {
+	QString paraStr = d->od->lines[ para ];
 	if ( paraStr.isEmpty() )
 	    paraStr = "\n";
 	return paraStr;
@@ -3044,7 +3048,7 @@ QString QTextEdit::text( int para ) const
 void QTextEdit::setText( const QString &text, const QString &context )
 {
 #ifdef QT_TEXTEDIT_OPTIMIZATION
-    if ( optimMode ) {
+    if ( d->optimMode ) {
 	optimSetText( text );
 	return;
     }
@@ -3144,7 +3148,7 @@ bool QTextEdit::find( const QString &expr, bool cs, bool wo, bool forward,
 		      int *para, int *index )
 {
 #ifdef QT_TEXTEDIT_OPTIMIZATION
-    if ( optimMode )
+    if ( d->optimMode )
 	return optimFind( expr, cs, wo, forward, para, index );
 #endif
     drawCursor( FALSE );
@@ -3320,7 +3324,7 @@ void QTextEdit::setTextFormat( TextFormat format )
 Qt::TextFormat QTextEdit::textFormat() const
 {
 #ifdef QT_TEXTEDIT_OPTIMIZATION
-    if ( optimMode ) {
+    if ( d->optimMode ) {
 	return Qt::PlainText;
     }
 #endif
@@ -3333,8 +3337,8 @@ Qt::TextFormat QTextEdit::textFormat() const
 int QTextEdit::paragraphs() const
 {
 #ifdef QT_TEXTEDIT_OPTIMIZATION
-    if ( optimMode ) {
-	return od->numLines;
+    if ( d->optimMode ) {
+	return d->od->numLines;
     }
 #endif
     return doc->lastParag()->paragId() + 1;
@@ -3346,8 +3350,8 @@ int QTextEdit::paragraphs() const
 int QTextEdit::linesOfParagraph( int para ) const
 {
 #ifdef QT_TEXTEDIT_OPTIMIZATION
-    if ( optimMode ) {
-	if ( od->numLines >= para )
+    if ( d->optimMode ) {
+	if ( d->od->numLines >= para )
 	    return 1;
 	else
 	    return 0;
@@ -3365,11 +3369,11 @@ int QTextEdit::linesOfParagraph( int para ) const
 int QTextEdit::paragraphLength( int para ) const
 {
 #ifdef QT_TEXTEDIT_OPTIMIZATION
-    if ( optimMode && (od->numLines >= para) ) {
-	if ( od->lines[ para ].isEmpty() )
+    if ( d->optimMode && (d->od->numLines >= para) ) {
+	if ( d->od->lines[ para ].isEmpty() )
 	    return 1;
 	else
-	    return od->lines[ para ].length();
+	    return d->od->lines[ para ].length();
     }
 #endif
     QTextParag *p = doc->paragAt( para );
@@ -3388,8 +3392,8 @@ int QTextEdit::paragraphLength( int para ) const
 int QTextEdit::lines() const
 {
 #ifdef QT_TEXTEDIT_OPTIMIZATION
-    if ( optimMode ) {
-	return od->numLines;
+    if ( d->optimMode ) {
+	return d->od->numLines;
     }
 #endif
     QTextParag *p = doc->firstParag();
@@ -3567,7 +3571,7 @@ void QTextEdit::startDrag()
 void QTextEdit::selectAll( bool select )
 {
 #ifdef QT_TEXTEDIT_OPTIMIZATION
-    if ( optimMode ) {
+    if ( d->optimMode ) {
 	optimSelectAll();
 	return;
     }
@@ -3769,7 +3773,7 @@ int QTextEdit::heightForWidth( int w ) const
 void QTextEdit::append( const QString &text )
 {
 #ifdef QT_TEXTEDIT_OPTIMIZATION
-    if ( optimMode ) {
+    if ( d->optimMode ) {
 	optimAppend( text );
 	return;
     }
@@ -3820,7 +3824,7 @@ void QTextEdit::append( const QString &text )
 bool QTextEdit::hasSelectedText() const
 {
 #ifdef QT_TEXTEDIT_OPTIMIZATION
-    if ( optimMode )
+    if ( d->optimMode )
 	return optimHasSelection();
     else
 #endif
@@ -3841,7 +3845,7 @@ bool QTextEdit::hasSelectedText() const
 QString QTextEdit::selectedText() const
 {
 #ifdef QT_TEXTEDIT_OPTIMIZATION
-    if ( optimMode )
+    if ( d->optimMode )
 	return optimSelectedText();
     else
 #endif
@@ -4288,7 +4292,7 @@ QTextEdit::WrapPolicy QTextEdit::wrapPolicy() const
 void QTextEdit::clear()
 {
 #ifdef QT_TEXTEDIT_OPTIMIZATION
-    if ( optimMode ) {
+    if ( d->optimMode ) {
 	optimSetText("");
     } else {
 #endif
@@ -4325,8 +4329,8 @@ int QTextEdit::undoDepth() const
 int QTextEdit::length() const
 {
 #ifdef QT_TEXTEDIT_OPTIMIZATION
-    if ( optimMode )
-	return od->len;
+    if ( d->optimMode )
+	return d->od->len;
     else
 #endif
 	return document()->length();
@@ -4472,7 +4476,7 @@ QPopupMenu *QTextEdit::createPopupMenu( const QPoint& pos )
 #ifndef QT_NO_CLIPBOARD
     popup->setItemEnabled( d->id[ IdCut ], !isReadOnly() && doc->hasSelection( QTextDocument::Standard, TRUE ) );
 #ifdef QT_TEXTEDIT_OPTIMIZATION
-    popup->setItemEnabled( d->id[ IdCopy ], optimMode ? optimHasSelection() : doc->hasSelection( QTextDocument::Standard, TRUE ) );
+    popup->setItemEnabled( d->id[ IdCopy ], d->optimMode ? optimHasSelection() : doc->hasSelection( QTextDocument::Standard, TRUE ) );
 #else
     popup->setItemEnabled( d->id[ IdCopy ], doc->hasSelection( QTextDocument::Standard, TRUE ) );
 #endif
@@ -4480,7 +4484,7 @@ QPopupMenu *QTextEdit::createPopupMenu( const QPoint& pos )
 #endif
     popup->setItemEnabled( d->id[ IdClear ], !isReadOnly() && !text().isEmpty() );
 #ifdef QT_TEXTEDIT_OPTIMIZATION
-    popup->setItemEnabled( d->id[ IdSelectAll ], optimMode ? od->len : (bool)text().length() );
+    popup->setItemEnabled( d->id[ IdSelectAll ], d->optimMode ? d->od->len : (bool)text().length() );
 #else
     popup->setItemEnabled( d->id[ IdSelectAll ], (bool)text().length() );
 #endif
@@ -4507,7 +4511,7 @@ QPopupMenu *QTextEdit::createPopupMenu()
 void QTextEdit::setFont( const QFont &f )
 {
 #ifdef QT_TEXTEDIT_OPTIMIZATION
-    if ( optimMode ) {
+    if ( d->optimMode ) {
 	QScrollView::setFont( f );
 	return;
     }
@@ -4894,16 +4898,16 @@ bool QTextEdit::allowTabs() const
 /*! \internal */
 bool QTextEdit::checkOptimMode()
 {
-    bool oldMode = optimMode;
+    bool oldMode = d->optimMode;
     if ( isReadOnly() && textFormat() == PlainText && wordWrap() == NoWrap )
-	optimMode = TRUE;
+	d->optimMode = TRUE;
     else
-	optimMode = FALSE;
+	d->optimMode = FALSE;
 	
     // when changing mode - try to keep selections and text
-    if ( oldMode != optimMode ) {
-	if ( optimMode ) {
-	    od = new QTextEditOptimPrivate;
+    if ( oldMode != d->optimMode ) {
+	if ( d->optimMode ) {
+	    d->od = new QTextEditOptimPrivate;
 	    connect( scrollTimer, SIGNAL( timeout() ),
 		     this, SLOT( optimDoAutoScroll() ) );
 	    disconnect( doc, SIGNAL( minimumWidthChanged( int ) ),
@@ -4925,11 +4929,11 @@ bool QTextEdit::checkOptimMode()
 	    connect( formatTimer, SIGNAL( timeout() ),
 		     this, SLOT( formatMore() ) );
  	    setText( optimText() );
- 	    delete od;
- 	    od = 0;
+ 	    delete d->od;
+ 	    d->od = 0;
 	}
     }
-    return optimMode;
+    return d->optimMode;
 }
 
 /*! \internal */
@@ -4937,16 +4941,16 @@ QString QTextEdit::optimText() const
 {
     QString str;
 
-    if ( od->len == 0 )
+    if ( d->od->len == 0 )
 	return str;
 
     // concatenate all strings
     int i;
-    for ( i = 0; i < od->numLines; i++ ) {
-	if ( od->lines[ i ].isEmpty() ) // CR lines are empty
+    for ( i = 0; i < d->od->numLines; i++ ) {
+	if ( d->od->lines[ i ].isEmpty() ) // CR lines are empty
 	    str += "\n";
 	else
-	    str += od->lines[ i ] + "\n";
+	    str += d->od->lines[ i ] + "\n";
     }
     return str;
 }
@@ -4957,22 +4961,22 @@ void QTextEdit::optimSetText( const QString &str )
     optimRemoveSelection();
     if ( str == optimText() )
 	return;
-    od->numLines = 0;
-    od->lines.clear();
-    od->len = str.length();
-    od->maxLineWidth = 0;
+    d->od->numLines = 0;
+    d->od->lines.clear();
+    d->od->len = str.length();
+    d->od->maxLineWidth = 0;
     QFontMetrics fm( QScrollView::font() );
     if ( !(str.isEmpty() || str.isNull()) ) {
 	QStringList strl = QStringList::split( '\n', str, TRUE );
 	int lWidth = 0;
 	for ( QStringList::Iterator it = strl.begin(); it != strl.end(); ++it ) {
-	    od->lines[ od->numLines++ ] = *it;
+	    d->od->lines[ d->od->numLines++ ] = *it;
 	    lWidth = fm.width( *it );
-	    if ( lWidth > od->maxLineWidth )
-		od->maxLineWidth = lWidth;
+	    if ( lWidth > d->od->maxLineWidth )
+		d->od->maxLineWidth = lWidth;
 	}
     }
-    resizeContents( od->maxLineWidth + 4, od->numLines * fm.lineSpacing() +
+    resizeContents( d->od->maxLineWidth + 4, d->od->numLines * fm.lineSpacing() +
 		    fm.descent() + 1 );
     repaintContents();
     emit textChanged();
@@ -4984,21 +4988,21 @@ QTextEditOptimPrivate::FormatTag * QTextEdit::optimAppendTag( int index,
 {
     QTextEditOptimPrivate::FormatTag * t = new QTextEditOptimPrivate::FormatTag, * tmp;
     
-    if ( od->tags == 0 )
-	od->tags = t;
-    t->line  = od->numLines;
+    if ( d->od->tags == 0 )
+	d->od->tags = t;
+    t->line  = d->od->numLines;
     t->index = index;
     t->tag   = tag;
     t->leftTag = 0;
     t->parent  = 0;
-    t->prev = od->lastTag;
-    if ( od->lastTag )
-	od->lastTag->next = t;
+    t->prev = d->od->lastTag;
+    if ( d->od->lastTag )
+	d->od->lastTag->next = t;
     t->next = 0;
-    od->lastTag = t;
-    tmp = od->tagIndex[ t->line ];
+    d->od->lastTag = t;
+    tmp = d->od->tagIndex[ t->line ];
     if ( !tmp || (tmp && tmp->index > t->index) )
-	od->tagIndex.replace( t->line, t );
+	d->od->tagIndex.replace( t->line, t );
     return t;
 }
 
@@ -5114,7 +5118,7 @@ void QTextEdit::optimAppend( const QString &str )
     if ( str.isEmpty() || str.isNull() )
 	return;
 
-    od->len += str.length();
+    d->od->len += str.length();
     QStringList strl = QStringList::split( '\n', str, TRUE );
     QStringList::Iterator it = strl.begin();
 
@@ -5122,12 +5126,12 @@ void QTextEdit::optimAppend( const QString &str )
     int lWidth = 0;
     for ( ; it != strl.end(); ++it ) {
 	optimParseTags( &*it );
-	od->lines[ od->numLines++ ] = *it;
+	d->od->lines[ d->od->numLines++ ] = *it;
 	lWidth = fm.width( *it );
-	if ( lWidth > od->maxLineWidth )
-	    od->maxLineWidth = lWidth;
+	if ( lWidth > d->od->maxLineWidth )
+	    d->od->maxLineWidth = lWidth;
     }
-    resizeContents( od->maxLineWidth + 4, od->numLines * fm.lineSpacing() +
+    resizeContents( d->od->maxLineWidth + 4, d->od->numLines * fm.lineSpacing() +
  		    fm.descent() + 1 );
     emit textChanged();
 }
@@ -5140,11 +5144,11 @@ QTextEditOptimPrivate::FormatTag * QTextEdit::optimPreviousLeftTag( int line )
 {
     QTextEditOptimPrivate::FormatTag * ftag = 0;
     QMapConstIterator<int,QTextEditOptimPrivate::FormatTag *> it;
-    if ( (it = od->tagIndex.find( line )) != od->tagIndex.end() )
+    if ( (it = d->od->tagIndex.find( line )) != d->od->tagIndex.end() )
 	ftag = it.data();
     if ( !ftag ) {
 	// start searching for an open tag
-	ftag = od->tags;
+	ftag = d->od->tags;
 	while ( ftag ) {
 	    if ( ftag->line > line || ftag->next == 0 ) {
 		if ( ftag->line > line )
@@ -5193,19 +5197,19 @@ void QTextEdit::optimDrawContents( QPainter * p, int clipx, int clipy,
     int nLines = (cliph / fm.lineSpacing()) + 2;
     int endLine = startLine + nLines;
 
-    if ( startLine >= od->numLines )
+    if ( startLine >= d->od->numLines )
 	return;
-    if ( (startLine + nLines) > od->numLines )
-	nLines = od->numLines - startLine;
+    if ( (startLine + nLines) > d->od->numLines )
+	nLines = d->od->numLines - startLine;
 
     int i = 0;
     QString str;
     for ( i = startLine; i < (startLine + nLines); i++ )
-	str.append( od->lines[ i ] + "\n" );
+	str.append( d->od->lines[ i ] + "\n" );
 
     QTextDocument * td = new QTextDocument( 0 );
     td->updateFontAttributes( QScrollView::font(), QApplication::font() );
-    td->updateFontSizes( QScrollView::font().pointSize() );	
+    td->updateFontSizes( QScrollView::font().pointSize(), FALSE );	
     td->setPlainText( str );
     td->setFormatter( new QTextFormatterBreakWords ); // deleted by QTextDoc
     td->formatter()->setWrapEnabled( FALSE );
@@ -5220,7 +5224,7 @@ void QTextEdit::optimDrawContents( QPainter * p, int clipx, int clipy,
     td->removeSelection( QTextDocument::Standard );
     
     // add tag formatting
-    if ( od->tags ) {
+    if ( d->od->tags ) {
 	int i = startLine;
 	QMapConstIterator<int,QTextEditOptimPrivate::FormatTag *> it;
 	QTextEditOptimPrivate::FormatTag * tag = 0, * tmp = 0;
@@ -5228,7 +5232,7 @@ void QTextEdit::optimDrawContents( QPainter * p, int clipx, int clipy,
 	// Step 1 - find previous lef-tag
   	tmp = optimPreviousLeftTag( i );
 	for ( ; i < startLine + nLines; i++ ) {
-	    if ( (it = od->tagIndex.find( i )) != od->tagIndex.end() )
+	    if ( (it = d->od->tagIndex.find( i )) != d->od->tagIndex.end() )
 		tag = it.data();
 	    // Step 2 - iterate over tags on the current line
 	    int lastIndex = 0;
@@ -5257,7 +5261,7 @@ void QTextEdit::optimDrawContents( QPainter * p, int clipx, int clipy,
 	}
 // debug
 //	
-// 	tag = od->tags;
+// 	tag = d->od->tags;
 // 	qWarning("###");
 // 	while ( tag ) {
 // 	    qWarning( "Tag: %p, parent: %09p, leftTag: %09p, Name: %-20s, ParentName: %s", tag,
@@ -5271,15 +5275,15 @@ void QTextEdit::optimDrawContents( QPainter * p, int clipx, int clipy,
     if ( optimHasSelection() ) {
 	QTextCursor c1( td );
 	QTextCursor c2( td );
-	int selStart = od->selectionStart.line;
-	int idxStart = od->selectionStart.index;
-	int selEnd = od->selectionEnd.line;
-	int idxEnd = od->selectionEnd.index;
+	int selStart = d->od->selStart.line;
+	int idxStart = d->od->selStart.index;
+	int selEnd = d->od->selEnd.line;
+	int idxEnd = d->od->selEnd.index;
 	if ( selEnd < selStart ) {
-	    selStart = od->selectionEnd.line;
-	    idxStart = od->selectionEnd.index;
-	    selEnd = od->selectionStart.line;
-	    idxEnd = od->selectionStart.index;
+	    selStart = d->od->selEnd.line;
+	    idxStart = d->od->selEnd.index;
+	    selEnd = d->od->selStart.line;
+	    idxEnd = d->od->selStart.index;
 	}
 	if ( startLine <= selStart && endLine >= selEnd ) {
 	    // case 1: area to paint covers entire selection
@@ -5356,12 +5360,12 @@ void QTextEdit::optimMousePressEvent( QMouseEvent * e )
 
     QFontMetrics fm( QScrollView::font() );
     mousePressed = TRUE;
-    od->selectionStart.line = e->y() / fm.lineSpacing();
-    QString str = od->lines[ od->selectionStart.line ];
+    d->od->selStart.line = e->y() / fm.lineSpacing();
+    QString str = d->od->lines[ d->od->selStart.line ];
     mousePos = e->pos();
-    od->selectionStart.index = optimCharIndex( str );
-    od->selectionEnd.line = od->selectionStart.line;
-    od->selectionEnd.index = od->selectionStart.index;
+    d->od->selStart.index = optimCharIndex( str );
+    d->od->selEnd.line = d->od->selStart.line;
+    d->od->selEnd.index = d->od->selStart.index;
     oldMousePos = e->pos();
     repaintContents( FALSE );
 }
@@ -5376,22 +5380,22 @@ void QTextEdit::optimMouseReleaseEvent( QMouseEvent * e )
     mousePressed = FALSE;
     if ( scrollTimer->isActive() )
 	scrollTimer->stop();
-    od->selectionEnd.line = e->y() / fm.lineSpacing();
-    QString str = od->lines[ od->selectionEnd.line ];
+    d->od->selEnd.line = e->y() / fm.lineSpacing();
+    QString str = d->od->lines[ d->od->selEnd.line ];
     mousePos = e->pos();
-    od->selectionEnd.index = optimCharIndex( str );
-    if ( od->selectionEnd.line < od->selectionStart.line ) {
-	int tmp = od->selectionStart.line;
-	od->selectionStart.line = od->selectionEnd.line;
-	od->selectionEnd.line = tmp;
-	tmp = od->selectionStart.index;
-	od->selectionStart.index = od->selectionEnd.index;
-	od->selectionEnd.index = tmp;
-    } else if ( od->selectionStart.line == od->selectionEnd.line &&
-		od->selectionStart.index > od->selectionEnd.index ) {
-	int tmp = od->selectionStart.index;
-	od->selectionStart.index = od->selectionEnd.index;
-	od->selectionEnd.index = tmp;
+    d->od->selEnd.index = optimCharIndex( str );
+    if ( d->od->selEnd.line < d->od->selStart.line ) {
+	int tmp = d->od->selStart.line;
+	d->od->selStart.line = d->od->selEnd.line;
+	d->od->selEnd.line = tmp;
+	tmp = d->od->selStart.index;
+	d->od->selStart.index = d->od->selEnd.index;
+	d->od->selEnd.index = tmp;
+    } else if ( d->od->selStart.line == d->od->selEnd.line &&
+		d->od->selStart.index > d->od->selEnd.index ) {
+	int tmp = d->od->selStart.index;
+	d->od->selStart.index = d->od->selEnd.index;
+	d->od->selEnd.index = tmp;
     }
     oldMousePos = e->pos();
     repaintContents( FALSE );
@@ -5435,19 +5439,19 @@ void QTextEdit::optimDoAutoScroll()
 	    my = contentsY() + viewport()->height() + 1;
 	    yy = (my / fm.lineSpacing() + 1) * fm.lineSpacing() - 1;
 	}	
-	od->selectionEnd.line = my / fm.lineSpacing();
+	d->od->selEnd.line = my / fm.lineSpacing();
   	mousePos.setX( xx );
  	mousePos.setY( my );
 	doScroll = TRUE;
     } else {
-	od->selectionEnd.line = mousePos.y() / fm.lineSpacing();
+	d->od->selEnd.line = mousePos.y() / fm.lineSpacing();
     }
 	
-    if ( od->selectionEnd.line < 0 )
-	od->selectionEnd.line = 0;
+    if ( d->od->selEnd.line < 0 )
+	d->od->selEnd.line = 0;
 
-    QString str = od->lines[ od->selectionEnd.line ];
-    od->selectionEnd.index = optimCharIndex( str );
+    QString str = d->od->lines[ d->od->selEnd.line ];
+    d->od->selEnd.index = optimCharIndex( str );
 
     // have to have a valid index before generating a paint event
     if ( doScroll )
@@ -5505,9 +5509,9 @@ int QTextEdit::optimCharIndex( const QString &str )
 /*! \internal */
 void QTextEdit::optimSelectAll()
 {
-    od->selectionStart.line = od->selectionStart.index = 0;
-    od->selectionEnd.line = od->numLines - 1;
-    od->selectionEnd.index = od->lines[ od->selectionEnd.line ].length();
+    d->od->selStart.line = d->od->selStart.index = 0;
+    d->od->selEnd.line = d->od->numLines - 1;
+    d->od->selEnd.index = d->od->lines[ d->od->selEnd.line ].length();
 
     repaintContents( FALSE );
     emit copyAvailable( optimHasSelection() );
@@ -5517,25 +5521,25 @@ void QTextEdit::optimSelectAll()
 /*! \internal */
 void QTextEdit::optimRemoveSelection()
 {
-    od->selectionStart.line = od->selectionEnd.line = -1;
-    od->selectionStart.index = od->selectionEnd.index = -1;
+    d->od->selStart.line = d->od->selEnd.line = -1;
+    d->od->selStart.index = d->od->selEnd.index = -1;
 }
 
 /*! \internal */
 void QTextEdit::optimSetSelection( int startLine, int startIdx,
 				       int endLine, int endIdx )
 {
-    od->selectionStart.line = startLine;
-    od->selectionEnd.line = endLine;
-    od->selectionStart.index = startIdx;
-    od->selectionEnd.index = endIdx;
+    d->od->selStart.line = startLine;
+    d->od->selEnd.line = endLine;
+    d->od->selStart.index = startIdx;
+    d->od->selEnd.index = endIdx;
 }
 
 /*! \internal */
 bool QTextEdit::optimHasSelection() const
 {
-    if ( od->selectionStart.line != od->selectionEnd.line ||
-	 od->selectionStart.index != od->selectionEnd.index )
+    if ( d->od->selStart.line != d->od->selEnd.line ||
+	 d->od->selStart.index != d->od->selEnd.index )
 	return TRUE;
     return FALSE;
 }
@@ -5549,39 +5553,39 @@ QString QTextEdit::optimSelectedText() const
 	return str;
 
     // concatenate all strings
-    if ( od->selectionStart.line == od->selectionEnd.line ) {
-	str = od->lines[ od->selectionEnd.line ].mid( od->selectionStart.index,
-			   od->selectionEnd.index - od->selectionStart.index );
+    if ( d->od->selStart.line == d->od->selEnd.line ) {
+	str = d->od->lines[ d->od->selEnd.line ].mid( d->od->selStart.index,
+			   d->od->selEnd.index - d->od->selStart.index );
     } else {
-	int i = od->selectionStart.line;
-	str = od->lines[ i ].right( od->lines[i].length() -
-				  od->selectionStart.index ) + "\n";
+	int i = d->od->selStart.line;
+	str = d->od->lines[ i ].right( d->od->lines[i].length() -
+				  d->od->selStart.index ) + "\n";
 	i++;
-	for ( ; i < od->selectionEnd.line; i++ ) {
-	    if ( od->lines[ i ].isEmpty() ) // CR lines are empty
+	for ( ; i < d->od->selEnd.line; i++ ) {
+	    if ( d->od->lines[ i ].isEmpty() ) // CR lines are empty
 		str += "\n";
 	    else
-		str += od->lines[ i ] + "\n";
+		str += d->od->lines[ i ] + "\n";
 	}
-	str += od->lines[ od->selectionEnd.line ].left( od->selectionEnd.index );
+	str += d->od->lines[ d->od->selEnd.line ].left( d->od->selEnd.index );
     }
     return str;
 }
 
 /*! \internal */
-bool QTextEdit::optimFind( const QString & expr, bool cs, bool wo,
+bool QTextEdit::optimFind( const QString & expr, bool cs, bool /*wo*/,
 			       bool fw, int * para, int * index )
 {
     bool found = FALSE;
-    int parag = para ? *para : od->search.line,
-	  idx = index ? *index : od->search.index, i;
+    int parag = para ? *para : d->od->search.line,
+	  idx = index ? *index : d->od->search.index, i;
 
-    if ( od->len == 0 )
+    if ( d->od->len == 0 )
 	return FALSE;
 
-    for ( i = parag; fw ? i < od->numLines : i >= 0; fw ? i++ : i-- ) {
-	idx = fw ? od->lines[ i ].find( expr, idx, cs ) :
-	      od->lines[ i ].findRev( expr, idx, cs );
+    for ( i = parag; fw ? i < d->od->numLines : i >= 0; fw ? i++ : i-- ) {
+	idx = fw ? d->od->lines[ i ].find( expr, idx, cs ) :
+	      d->od->lines[ i ].findRev( expr, idx, cs );
 	if ( idx != -1 ) {
 	    found = TRUE;
 	    break;
@@ -5594,12 +5598,12 @@ bool QTextEdit::optimFind( const QString & expr, bool cs, bool wo,
 	    *index = idx;
 	if ( para )
 	    *para = i;
-	od->search.index = idx;
-	od->search.line = i;	
+	d->od->search.index = idx;
+	d->od->search.line = i;	
 	optimSetSelection( i, idx, i, idx + expr.length() );	
 	QFontMetrics fm( QScrollView::font() );
 	int h = fm.lineSpacing();
-	int x = fm.width( od->lines[ i ].left( idx + expr.length()) ) + 4;
+	int x = fm.width( d->od->lines[ i ].left( idx + expr.length()) ) + 4;
 	ensureVisible( x, i * h + h / 2, 1, h / 2 + 2 );
     }
     return found;

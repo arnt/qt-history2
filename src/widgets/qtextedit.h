@@ -87,8 +87,8 @@ public:
     QTextEditOptimPrivate()
     {
 	len = numLines = maxLineWidth = 0;
-	selectionStart.line = selectionStart.index = -1;
-	selectionEnd.line = selectionEnd.index = -1;
+	selStart.line = selStart.index = -1;
+	selEnd.line = selEnd.index = -1;
 	search.line = search.index = 0;
 	tags = lastTag = 0;
     }
@@ -109,7 +109,7 @@ public:
 	int line;
 	int index;
     };
-    Selection selectionStart, selectionEnd, search;
+    Selection selStart, selEnd, search;
     QMap<int, QString> lines;
     FormatTag * tags, * lastTag;
     QMap<int, FormatTag *> tagIndex;
@@ -515,10 +515,6 @@ private:
     bool readonly : 1;
     bool undoEnabled : 1;
     bool overWrite : 1;
-#ifdef QT_TEXTEDIT_OPTIMIZATION    
-    QTextEditOptimPrivate *od;
-    bool optimMode : 1;
-#endif    
 };
 
 inline QTextDocument *QTextEdit::document() const
