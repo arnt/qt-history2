@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsize.cpp#29 $
+** $Id: //depot/qt/main/src/kernel/qsize.cpp#30 $
 **
 ** Implementation of QSize class
 **
@@ -33,9 +33,9 @@
 
   A size is specified by a width and a height.
 
-  The coordinate type is QCOORD (defined in qwindowdefs.h as \c short).
-  The minimum value of QCOORD is QCOORD_MIN (-32768) and the maximum
-  value is  QCOORD_MAX (32767).
+  The coordinate type is QCOORD (defined in qwindowdefs.h as \c int).
+  The minimum value of QCOORD is QCOORD_MIN (-2147483648) and the maximum
+  value is  QCOORD_MAX (2147483647).
 
   \sa QPoint, QRect
 */
@@ -287,12 +287,12 @@ void QSize::warningDivByZero()
   \relates QSize
   Writes the size to the stream and returns a reference to the stream.
 
-  Serialization format: [width (INT16), height (INT16)].
+  Serialization format: [width (Q_INT32), height (Q_INT32)].
 */
 
 QDataStream &operator<<( QDataStream &s, const QSize &sz )
 {
-    return s << (INT16)sz.width() << (INT16)sz.height();
+    return s << (Q_INT32)sz.width() << (Q_INT32)sz.height();
 }
 
 /*!
@@ -302,7 +302,7 @@ QDataStream &operator<<( QDataStream &s, const QSize &sz )
 
 QDataStream &operator>>( QDataStream &s, QSize &sz )
 {
-    INT16 w, h;
+    Q_INT32 w, h;
     s >> w;  sz.rwidth() = w;
     s >> h;  sz.rheight() = h;
     return s;

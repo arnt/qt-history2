@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qrect.cpp#46 $
+** $Id: //depot/qt/main/src/kernel/qrect.cpp#47 $
 **
 ** Implementation of QRect class
 **
@@ -35,9 +35,9 @@
   bottom right corner, but it is normally expressed as an upper left
   corner and a size.
 
-  The coordinate type is QCOORD (defined in qwindowdefs.h as \c short).
-  The minimum value of QCOORD is QCOORD_MIN (-32768) and the maximum
-  value is  QCOORD_MAX (32767).
+  The coordinate type is QCOORD (defined in qwindowdefs.h as \c int).
+  The minimum value of QCOORD is QCOORD_MIN (-2147483648) and the maximum
+  value is  QCOORD_MAX (2147483647).
 
   Note that the size (width and height) of a rectangle might be
   different from what you are used to. If the top left corner and the
@@ -680,14 +680,14 @@ bool operator!=( const QRect &r1, const QRect &r2 )
 
   Writes a QRect to the stream and returns a reference to the stream.
 
-  Serialization format: [left (INT16), top (INT16), right (INT16),
-  bottom (INT16)].
+  Serialization format: [left (Q_INT32), top (Q_INT32), right (Q_INT32),
+  bottom (Q_INT32)].
 */
 
 QDataStream &operator<<( QDataStream &s, const QRect &r )
 {
-    return s << (INT16)r.left() << (INT16)r.top()
-	     << (INT16)r.right() << (INT16)r.bottom();
+    return s << (Q_INT32)r.left() << (Q_INT32)r.top()
+	     << (Q_INT32)r.right() << (Q_INT32)r.bottom();
 }
 
 /*!
@@ -698,7 +698,7 @@ QDataStream &operator<<( QDataStream &s, const QRect &r )
 
 QDataStream &operator>>( QDataStream &s, QRect &r )
 {
-    INT16 x1, y1, x2, y2;
+    Q_INT32 x1, y1, x2, y2;
     s >> x1; s >> y1; s >> x2; s >> y2;
     r.setCoords( x1, y1, x2, y2 );
     return s;

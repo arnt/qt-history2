@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpoint.cpp#29 $
+** $Id: //depot/qt/main/src/kernel/qpoint.cpp#30 $
 **
 ** Implementation of QPoint class
 **
@@ -33,9 +33,9 @@
 
   A point is specified by an x coordinate and a y coordinate.
 
-  The coordinate type is QCOORD (defined in qwindowdefs.h as \c short).
-  The minimum value of QCOORD is QCOORD_MIN (-32768) and the maximum
-  value is  QCOORD_MAX (32767).
+  The coordinate type is QCOORD (defined in qwindowdefs.h as \c int).
+  The minimum value of QCOORD is QCOORD_MIN (-2147483648) and the maximum
+  value is  QCOORD_MAX (2147483647).
 
   We have defined many operator functions that make arithmetic on points
   simple and intuitive.
@@ -291,12 +291,12 @@ void QPoint::warningDivByZero()
   \relates QPoint
   Writes a QPoint to the stream and returns a reference to the stream.
 
-  Serialization format: [x (INT16), y (INT16)].
+  Serialization format: [x (Q_INT32), y (Q_INT32)].
 */
 
 QDataStream &operator<<( QDataStream &s, const QPoint &p )
 {
-    return s << (INT16)p.x() << (INT16)p.y();
+    return s << (Q_INT32)p.x() << (INT32)p.y();
 }
 
 /*!
@@ -306,7 +306,7 @@ QDataStream &operator<<( QDataStream &s, const QPoint &p )
 
 QDataStream &operator>>( QDataStream &s, QPoint &p )
 {
-    INT16 x, y;
+    Q_INT32 x, y;
     s >> x;  p.rx() = x;
     s >> y;  p.ry() = y;
     return s;
