@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#104 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#105 $
 **
 ** Implementation of QListBox widget class
 **
@@ -17,7 +17,7 @@
 #include "qpixmap.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlistbox.cpp#104 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlistbox.cpp#105 $");
 
 
 Q_DECLARE(QListM, QListBoxItem);
@@ -711,7 +711,6 @@ void QListBox::removeItem( int index )
 	current--;
     bool    updt = autoUpdate() && itemVisible( index );
     QListBoxItem *lbi = itemList->take( index );
-    QFontMetrics fm   = fontMetrics();
     int w             = lbi->width( this );
     updateNumRows( w == cellWidth() );
     delete lbi;
@@ -1218,11 +1217,11 @@ void QListBox::paintCell( QPainter *p, int row, int col )
     lbi->paint( p );
     if ( current == row && hasFocus() ) {
 	if ( style() == WindowsStyle ) {
-	    p->drawWinFocusRect( 1, 1, viewWidth()-2 , cellHeight(row)-2 );
+	    p->drawWinFocusRect( 1, 1, cellWidth(col)-2 , cellHeight(row)-2 );
 	} else {
 	    p->setPen( g.base() );
 	    p->setBrush( NoBrush );
-	    p->drawRect( 1, 1, viewWidth()-2 , cellHeight(row)-2 );
+	    p->drawRect( 1, 1, cellWidth(col)-2 , cellHeight(row)-2 );
 	}
     }
     p->setBackgroundColor( g.base() );
@@ -1385,8 +1384,8 @@ void QListBox::keyPressEvent( QKeyEvent *e )
 
 
 /*!
-  Handles focus events.	 Repaints, and sets the current item to first one
-  if there is no current item.
+  Handles focus events.  Repaints the current item (if not set,
+  topItem() is made current).  
   \sa keyPressEvent(), focusOutEvent()
 */
 
@@ -1395,6 +1394,18 @@ void QListBox::focusInEvent( QFocusEvent * )
     if ( currentItem() < 0 && numRows() > 0 )
 	setCurrentItem( topItem() );
     updateCell( currentItem(), 0); //show focus
+}
+
+
+/*! 
+  Handles focus out events. Repaints the current item, if set.
+  \sa keyPressEvent(), focusOutEvent()
+*/
+
+void QListBox::focusOutEvent( QFocusEvent * )
+{
+    if ( currentItem() >= 0 )
+	updateCell( currentItem(), 0); //show lack of focus
 }
 
 
@@ -1500,7 +1511,6 @@ void QListBox::clearList()
 void QListBox::updateCellWidth()
 {
     QListBoxItem *lbi = itemList->first();
-    QFontMetrics fm = fontMetrics();
     int maxW = 0;
     int w;
     while ( lbi ) {
@@ -1551,15 +1561,22 @@ void QListBox::change( const QListBoxItem *lbi, int index )
     ASSERT( lbi );
     ASSERT( (uint)index < itemList->count() );
 #endif
+
     QListBoxItem *old = itemList->take( index );
     int w = old->width( this );
     int h = old->height( this );
-    if ( w == cellWidth() )
-	updateCellWidth();
     delete old;
-    int oldpos = current;
-    insert( lbi, index, TRUE );
-    current = oldpos;
+    itemList->insert( index, lbi );
+    if ( w == cellWidth() ) {		     // I.e. index was the widest item
+	updateCellWidth();
+    }
+    else {
+	int ww = lbi->width( this );
+	if ( ww > maxItemWidth() )
+	    setMaxItemWidth( ww );
+	if ( ww > cellWidth() )
+	    setCellWidth( ww );
+    }
     int nh = cellHeight( index );
     int y;
     if ( autoUpdate() && rowYPos( index, &y ) ) {
