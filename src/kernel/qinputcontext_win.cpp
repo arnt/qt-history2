@@ -513,7 +513,11 @@ bool QInputContext::composition( LPARAM lParam )
 	str += "CURSORPOS ";
     if ( lParam & GCS_COMPCLAUSE )
 	str += "COMPCLAUSE ";
-    qDebug( "composition, lParam=%s imePosition=%d", str.latin1(), imePosition );
+    if ( lParam & CS_INSERTCHAR )
+       str += "INSERTCHAR ";
+    if ( lParam & CS_NOMOVECARET )
+       str += "NOMOVECARET ";
+    qDebug( "composition, lParam=(%x) %s imePosition=%d", lParam, str.latin1(), imePosition );
 #endif
 
     bool result = TRUE;
@@ -544,8 +548,13 @@ bool QInputContext::composition( LPARAM lParam )
 	    int selStart, selLength;
 	    *imeComposition = getString( imc, GCS_COMPSTR, &selStart, &selLength );
 	    imePosition = getCursorPosition( imc );
+            if ( lParam & CS_INSERTCHAR  && lParam & CS_NOMOVECARET ) {
+		// make korean work correctly. Hope this is correct for all IMEs
+                selStart = 0;
+                selLength = imeComposition->length();
+            }
 
-	    if ( selLength != 0 )
+	   if ( selLength != 0 )
 		imePosition = selStart;
 
 	    QIMEvent e( QEvent::IMCompose, *imeComposition, imePosition, selLength );
