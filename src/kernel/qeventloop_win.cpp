@@ -493,7 +493,8 @@ bool QEventLoop::processEvents( ProcessEventsFlags flags )
 	    if ( (msg.message >= WM_KEYFIRST &&
 		 msg.message <= WM_KEYLAST) ||
 		 (msg.message >= WM_MOUSEFIRST &&
-		 msg.message <= WM_MOUSELAST) ) {
+		 msg.message <= WM_MOUSELAST) ||
+		 msg.message == WM_MOUSEWHEEL ) {
 		winPeekMessage(&msg,0,0,0,PM_REMOVE);
 		continue;
 	    }

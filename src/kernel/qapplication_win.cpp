@@ -231,13 +231,6 @@ void qt_erase_background( HDC hdc, int x, int y, int w, int h,
     }
 }
 
-
-
-
-#ifndef WM_MOUSEWHEEL
-#define WM_MOUSEWHEEL	0x020A
-#endif
-
 QRgb qt_colorref2qrgb(COLORREF col)
 {
     return qRgb(GetRValue(col),GetGValue(col),GetBValue(col));
