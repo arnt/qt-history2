@@ -94,7 +94,8 @@ public:
 
     void setContextLVI( ContextLVI * c ) { ctxt = c; }
     ContextLVI * contextLVI() const { return ctxt; }
-
+    void updateTranslationText();
+    
     QString context() const;
     QString sourceText() const { return tx; }
     QString comment() const { return com; }

@@ -1246,9 +1246,13 @@ void TrWindow::showNewScope( QListViewItem *item )
 		oldContext->appendMessageItem( slv, tmp );
 	    slv->blockSignals( FALSE );
 	}
-	while ( c->messageItemsInList() )
-	    slv->insertItem( c->takeMessageItem( c->messageItemsInList() - 1) );
-
+	MessageLVI * tmp;
+	while ( c->messageItemsInList() ) {
+	    tmp = c->takeMessageItem( c->messageItemsInList() - 1);
+	    slv->insertItem( tmp );
+	    tmp->updateTranslationText();
+	}
+	    
 	slv->setUpdatesEnabled( upe );
 	if( upe )
 	    slv->triggerUpdate();
@@ -1305,6 +1309,7 @@ void TrWindow::updateTranslation( const QString& translation )
 		dirty = TRUE;
 		updateCaption();
 	    }
+	    m->updateTranslationText();
 	}
     }
 }

@@ -412,6 +412,7 @@ MessageEditor::MessageEditor( MetaTranslator * t, QWidget * parent,
     srcTextList->setSorting( 0 );
     srcTextList->addColumn( tr("Done"), 40 );
     srcTextList->addColumn( tr("Source text") );
+    srcTextList->addColumn( tr("Translation"), 200 );
     srcTextList->setColumnWidthMode( 1, QListView::Maximum );
     srcTextList->setColumnAlignment( 0, Qt::AlignCenter );
     srcTextList->header()->setStretchEnabled( TRUE, 1 );

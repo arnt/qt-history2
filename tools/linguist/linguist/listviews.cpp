@@ -18,7 +18,8 @@
 
 #include "listviews.h"
 
-static const int Text0MaxLen = 100;
+static const int Text0MaxLen = 75;
+static const int Text1MaxLen = 25;
 
 /*
    LVI implementation
@@ -96,6 +97,18 @@ QString LVI::key( int column, bool /*ascending*/ ) const
     return k;
 }
 
+
+static const QString qFixEllipsis( const QString & str, int len )
+{
+    QString shortened = str.simplifyWhiteSpace();
+    if ( (int) shortened.length() > len ) {
+	QString dots = TrWindow::tr( "..." );
+	shortened.truncate( len - dots.length() );
+	shortened.append( dots );
+    }
+    return shortened;
+}
+
 /*
    MessageLVI implementation
 */
@@ -109,18 +122,17 @@ MessageLVI::MessageLVI( QListView *parent,
 	QString t = "";
 	m.setTranslation( t );
     }
-    QString shortened = text.simplifyWhiteSpace();
-    if ( (int) shortened.length() > Text0MaxLen ) {
-	QString dots = TrWindow::tr( "..." );
-	shortened.truncate( Text0MaxLen - dots.length() );
-	shortened.append( dots );
-    }
-    setText( 1, shortened );
+    setText( 1, qFixEllipsis( text, Text0MaxLen ) );
     fini = TRUE;
     d = FALSE;
 
     if( m.type() ==  MetaTranslatorMessage::Unfinished )
  	setFinished( FALSE );
+}
+
+void MessageLVI::updateTranslationText()
+{
+    setText( 2, qFixEllipsis( m.translation(), Text1MaxLen ) );
 }
 
 void MessageLVI::paintCell( QPainter * p, const QColorGroup & cg, int column, 
