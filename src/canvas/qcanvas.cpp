@@ -40,12 +40,14 @@ public:
 
 class QCanvasViewData {
 public:
-    QCanvasViewData() : repaint_from_moving(false) {}
+    QCanvasViewData() : repaint_from_moving(false)
+			,update_outside_paintevent(false) {}
 #ifndef QT_NO_TRANSFORMATIONS
     QWMatrix xform;
     QWMatrix ixform;
 #endif
-    bool repaint_from_moving;
+    bool repaint_from_moving : 1;
+    bool update_outside_paintevent : 1;
 };
 
 // clusterizer
@@ -1115,9 +1117,9 @@ void QCanvas::drawViewArea(QCanvasView* view, QPainter* p, const QRect& vr, bool
         QRect r = vr; r.moveBy(tl.x(),tl.y()); // move to untransformed co-ords
         if (!all.contains(ivr)) {
             QRegion inside = p->clipRegion() & r;
-//             QRegion outside = p->clipRegion() - r;
-// 	    p->setClipRegion(outside);
-//             p->fillRect(outside.boundingRect(),Qt::red);
+	    //QRegion outside = p->clipRegion() - r;
+ 	    //p->setClipRegion(outside);
+	    //p->fillRect(outside.boundingRect(),Qt::red);
 	    qt_setclipregion(p, inside);
         } else {
 	    qt_setcliprect(p, r);
@@ -1156,8 +1158,11 @@ void QCanvas::update()
                 // r = Visible area of the canvas where there are changes
                 QRect r = changeBounds(view->inverseWorldMatrix().map(area));
                 if (!r.isEmpty()) {
-		    view->repaint(r);
-                    doneareas.append(r);
+ 		    QPoint tl = view->contentsToViewport(QPoint(0,0));
+ 		    QPainter::setRedirected(view->viewport(), view->viewport(), tl);
+ 		    view->viewport()->repaint(wm.map(r));
+ 		    QPainter::restoreRedirected(view->viewport());
+		    doneareas.append(r);
                 }
             } else
 #endif
@@ -1167,11 +1172,9 @@ void QCanvas::update()
         }
     }
 
-    for (int i = 0; i < d->viewList.size(); ++i) {  //### inefficient??? (was painting outside paintevent)
-        QCanvasView *view = d->viewList.at(i);
-        for (int i=0; i<clusterizer.clusters(); i++)
-	    drawChanges(clusterizer[i]);
-    }
+    for (int i=0; i<clusterizer.clusters(); i++)
+	drawChanges(clusterizer[i]);
+
 #ifndef QT_NO_TRANSFORMATIONS
     for (int i = 0; i < doneareas.size(); ++i)
         setUnchanged(doneareas.at(i));
@@ -1292,7 +1295,6 @@ QRect QCanvas::changeBounds(const QRect& inarea)
 Redraws the area \a inarea of the QCanvas.
 */
 
-static bool updateChanges = false;
 void QCanvas::drawChanges(const QRect& inarea)
 {
     QRect area=inarea.intersect(QRect(0,0,width(),height()));
@@ -1324,12 +1326,13 @@ void QCanvas::drawChanges(const QRect& inarea)
 		       elarea.top()*chunksize,
 		       elarea.width()*chunksize,
 		       elarea.height()*chunksize);
-//	drawCanvasArea(elarea);
 	for (int i = 0; i < d->viewList.size(); ++i) {
 	    QCanvasView* view = d->viewList.at(i);
-	    updateChanges = true; // ### hack for now
+	    // this is necessary to avoid reworking the entire canvas
+	    // update scheme
+	    view->d->update_outside_paintevent = true;
 	    view->viewport()->repaint(elarea);
-	    updateChanges = false;
+	    view->d->update_outside_paintevent = false;
 	}
     }
 }
@@ -1397,7 +1400,7 @@ void QCanvas::drawCanvasArea(const QRect& inarea, QPainter* p, bool double_buffe
             //
             // Disable this to help debugging.
             //
-	    if (!p || updateChanges) {
+	    if (!p) {
                 if (chunk(x,y).takeChange()) {
                     // ### should at least make bands
                     rgn |= QRegion(x*chunksize-area.x(),y*chunksize-area.y(),
@@ -1431,7 +1434,7 @@ void QCanvas::drawCanvasArea(const QRect& inarea, QPainter* p, bool double_buffe
             p->drawPixmap(area.x(), area.y(), offscr,
                 0, 0, area.width(), area.height());
             return;
-        }
+	}
     } else if (p) {
         drawBackground(*p,area);
         allvisible.drawUnique(*p);
@@ -3479,7 +3482,6 @@ QCanvasView::QCanvasView(QCanvas* canvas, QWidget* parent, const char* name, Qt:
 {
     d = new QCanvasViewData;
     viewing = 0;
-
     viewport()->setAttribute(Qt::WA_PaintOnScreen);
     viewport()->setAttribute(Qt::WA_NoSystemBackground);
     viewport()->setAttribute(Qt::WA_NoBackground);
@@ -3618,8 +3620,10 @@ void QCanvasView::drawContents(QPainter *p, int cx, int cy, int cw, int ch)
 {
     QRect r(cx,cy,cw,ch);
     if (viewing) {
-//         viewing->drawViewArea(this,p,r,true);
-        viewing->drawViewArea(this,p,r,!d->repaint_from_moving);
+	if (d->update_outside_paintevent)
+	    viewing->drawCanvasArea(r);
+	else
+	    viewing->drawViewArea(this,p,r,!d->repaint_from_moving);
         d->repaint_from_moving = false;
     } else {
         p->eraseRect(r);

@@ -340,6 +340,7 @@ private:
     QCanvas* viewing;
     QCanvasViewData* d;
     friend void qt_unview(QCanvas* c);
+    friend class QCanvas;
 
 private slots:
     void cMoving(int,int);
