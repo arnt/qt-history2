@@ -1239,10 +1239,8 @@ QFont QTextCharFormat::font() const
     if (hasProperty(FontFamily))
         font.setFamily(fontFamily());
 
-    // always set the font size property as our default is not guaranteed
-    // to be QFont's default, too
-//    if (hasProperty(FontPointSize))
-    font.setPointSizeFloat(fontPointSize());
+    if (hasProperty(FontPointSize))
+	font.setPointSizeFloat(fontPointSize());
 
     if (hasProperty(FontWeight))
         font.setWeight(fontWeight());

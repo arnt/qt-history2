@@ -214,9 +214,9 @@ public:
     { return stringProperty(FontFamily); }
 
     inline void setFontPointSize(float size)
-    { setProperty(FontPointSize, size, 12.0); }
+    { setProperty(FontPointSize, size); }
     inline float fontPointSize() const
-    { return floatProperty(FontPointSize, 12.0); }
+    { return floatProperty(FontPointSize); }
 
     inline void setFontWeight(int weight)
     { setProperty(FontWeight, weight, QFont::Normal); }
