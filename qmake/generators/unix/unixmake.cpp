@@ -190,8 +190,17 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
       << "$(TAR) " << var("PROJECT") << ".tar " << " $(SOURCES) $(HEADERS) $(INTERFACES) $(DIST)" << "\n\t"
       << "$(GZIP) " << var("PROJECT") << ".tar" << endl << endl;
 
+#if 0
+    t << "install: " << "\n\t"
+      << "$(TAR) " << var("PROJECT") << ".tar " << " $(SOURCES) $(HEADERS) $(INTERFACES) $(DIST)" << "\n\t"
+      << "$(GZIP) " << var("PROJECT") << ".tar" << endl << endl;
+#endif
+
+    t << "mocclean:" << "\n\t"
+    << "-rm -f $(OBJMOC) $(SRCMOC)" << endl << endl;
+
     t << "clean:" << "\n\t"
-    << "-rm -f $(OBJECTS) $(OBJMOC) $(SRCMOC) $(UICIMPLS) $(UICDECLS) $(TARGET)" << "\n\t";
+      << "-rm -f $(OBJECTS) $(OBJMOC) $(SRCMOC) $(UICIMPLS) $(UICDECLS) $(TARGET)" << "\n\t";
     if(!project->isActiveConfig("staticlib") && project->variables()["TMAKE_APP_FLAG"].isEmpty()) {
 	t << "-rm -f $(TARGET0) $(TARGET1) $(TARGET2) $(TARGETA)" << "\n\t";
     }
@@ -407,7 +416,7 @@ UnixMakefileGenerator::init()
 	    if(project->variables()["TMAKE_LFLAGS_SHAPP"].isEmpty())
 		project->variables()["TMAKE_LFLAGS_SHAPP"] += project->variables()["TMAKE_LFLAGS_SHLIB"];
 	    if(!project->variables()["TMAKE_LFLAGS_SONAME"].isEmpty())
-		project->variables()["TMAKE_LFLAGS_SONAME"] += project->variables()["TARGET"];
+		project->variables()["TMAKE_LFLAGS_SONAME"].first() += project->variables()["TARGET"].first();
 	}
 	project->variables()["TARGET"].first().prepend(project->variables()["DESTDIR"].first());
     } else if ( project->isActiveConfig("staticlib") ) {
@@ -459,7 +468,7 @@ UnixMakefileGenerator::init()
 							  project->variables()["TARGET"].first());
 	}
 	if(!project->variables()["TMAKE_LFLAGS_SONAME"].isEmpty())
-	    project->variables()["TMAKE_LFLAGS_SONAME"] = project->variables()["TARGET_x"];
+	    project->variables()["TMAKE_LFLAGS_SONAME"].first() += project->variables()["TARGET_x"].first();
 	if(project->variables()["TMAKE_LINK_SHLIB_CMD"].isEmpty())
 	    project->variables()["TMAKE_LINK_SHLIB_CMD"].append(
 		"$(LINK) $(LFLAGS) -o $(TARGETD) $(OBJECTS) $(OBJMOC) $(LIBS)");
@@ -471,6 +480,7 @@ UnixMakefileGenerator::init()
 	    project->variables()["TMAKE_LFLAGS"] += project->variables()["TMAKE_LFLAGS_SHAPP"];
 	} else {
 	    project->variables()["TMAKE_LFLAGS"] += project->variables()["TMAKE_LFLAGS_SHLIB"];
+	    project->variables()["TMAKE_LFLAGS"] += project->variables()["TMAKE_LFLAGS_SONAME"];
 	}
     }
 }
