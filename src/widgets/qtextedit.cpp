@@ -4296,7 +4296,10 @@ QBrush QTextEdit::paper() const
 
 void QTextEdit::setLinkUnderline( bool b )
 {
+    if ( doc->underlineLinks() == b )
+	return;
     doc->setUnderlineLinks( b );
+    repaintChanged();
 }
 
 bool QTextEdit::linkUnderline() const
