@@ -450,7 +450,7 @@ QSqlFieldInfo qMakeFieldInfo( const SQLHANDLE hStmt )
     return QSqlFieldInfo( fname, qDecodeDB2Type( type ), required, size, prec, QVariant(), type );
 }
 
-bool qMakeStatement( QDB2ResultPrivate* d, bool forwardOnly )
+bool qMakeStatement( QDB2ResultPrivate* d, bool forwardOnly, bool setForwardOnly = TRUE )
 {
     SQLRETURN r;
     if ( !d->hStmt ) {
@@ -469,6 +469,9 @@ bool qMakeStatement( QDB2ResultPrivate* d, bool forwardOnly )
 	}
     }
     
+    if ( !setForwardOnly )
+	return TRUE;
+    
     if ( forwardOnly ) {
 	r = SQLSetStmtAttr( d->hStmt,
 			    SQL_ATTR_CURSOR_TYPE,
@@ -480,7 +483,7 @@ bool qMakeStatement( QDB2ResultPrivate* d, bool forwardOnly )
 			    (SQLPOINTER) SQL_CURSOR_STATIC,
 			    SQL_IS_UINTEGER );
     }
-    if ( r != SQL_SUCCESS ) {
+    if ( r != SQL_SUCCESS && r != SQL_SUCCESS_WITH_INFO ) {
 	qSqlWarning( QString().sprintf("QDB2Result::reset: Unable to set %s attribute.", forwardOnly ? "SQL_CURSOR_FORWARD_ONLY" : "SQL_CURSOR_STATIC" ), d );
 	return FALSE;
     }
@@ -515,7 +518,8 @@ bool QDB2Result::reset ( const QString& query )
     d->recInf.clear();
     d->valueCache.clear();
 
-    qMakeStatement( d, isForwardOnly() );
+    if ( !qMakeStatement( d, isForwardOnly() ) )
+	return FALSE;
         
     r = SQLExecDirect( d->hStmt,
 		       qToTChar( query ),
@@ -548,7 +552,8 @@ bool QDB2Result::prepare( const QString& query )
     d->recInf.clear();
     d->valueCache.clear();
     
-    qMakeStatement( d, isForwardOnly() );
+    if ( !qMakeStatement( d, isForwardOnly() ) )
+	return FALSE;
     
     r = SQLPrepare( d->hStmt,
 		    qToTChar( query ),
@@ -570,13 +575,12 @@ bool QDB2Result::exec()
     d->recInf.clear();
     d->valueCache.clear();
     
-    qMakeStatement( d, isForwardOnly() );
+    if ( !qMakeStatement( d, isForwardOnly(), FALSE ) )
+	return FALSE;
         
     QPtrList<QVirtualDestructor> tmpStorage; // holds temporary ptrs. which will be deleted on fu exit
     tmpStorage.setAutoDelete( TRUE );
 
-    qMakeStatement( d, isForwardOnly() );
-      
     // bind parameters - only positional binding allowed
     if ( extension()->index.count() > 0 ) {
 	QMap<int, QString>::Iterator it;
