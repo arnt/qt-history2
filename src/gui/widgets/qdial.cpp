@@ -16,14 +16,15 @@
 
 #ifndef QT_NO_DIAL
 
-#include "qpainter.h"
-#include "qevent.h"
-#include "qpointarray.h"
-#include "qcolor.h"
 #include "qapplication.h"
-#include "qregion.h"
 #include "qbitmap.h"
+#include "qcolor.h"
+#include "qevent.h"
+#include "qpainter.h"
+#include "qpointarray.h"
+#include "qregion.h"
 #include "qstyle.h"
+#include "qstyleoption.h"
 #ifndef QT_NO_ACCESSIBILITY
 #include "qaccessible.h"
 #endif
@@ -343,7 +344,11 @@ void QDial::repaintScreen(const QRect *cr)
         p.setBrush(NoBrush);
         p.drawRect(br);
         p.restore();
-        style().drawPrimitive(QStyle::PE_FocusRect, &p, br, palette());
+        Q4StyleOptionFocusRect opt(0);
+        opt.rect = br;
+        opt.palette = palette();
+        opt.state = QStyle::Style_Default;
+        style().drawPrimitive(QStyle::PE_FocusRect, &opt, &p, this);
     }
     p.end();
 }

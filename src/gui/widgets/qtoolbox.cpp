@@ -39,17 +39,17 @@
 
 #ifndef QT_NO_TOOLBOX
 
-#include <qbutton.h>
-#include <qlayout.h>
-#include <qscrollview.h>
-#include <qpainter.h>
-#include <qstyle.h>
 #include <qapplication.h>
+#include <qbutton.h>
+#include <qeventloop.h>
+#include <qlayout.h>
 #include <qlayout.h>
 #include <qlist.h>
+#include <qpainter.h>
+#include <qscrollview.h>
+#include <qstyle.h>
+#include <qstyleoption.h>
 #include <qtooltip.h>
-#include <qeventloop.h>
-#include <qdatetime.h>
 
 class QToolBoxButton : public QAbstractButton
 {
@@ -239,8 +239,13 @@ void QToolBoxButton::paintEvent(QPaintEvent *)
     style().drawItem(p, tr, alignment, pal,
                       isEnabled(), QPixmap(), txt, -1, fill);
 
-    if (!txt.isEmpty() && hasFocus())
-        style().drawPrimitive(QStyle::PE_FocusRect, p, tr, pal);
+    if (!txt.isEmpty() && hasFocus()) {
+        Q4StyleOptionFocusRect opt(0);
+        opt.rect = tr;
+        opt.palette = pal;
+        opt.state = QStyle::Style_Default;
+        style().drawPrimitive(QStyle::PE_FocusRect, &opt, p, this);
+    }
 }
 
 /*!

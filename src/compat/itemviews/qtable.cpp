@@ -2911,13 +2911,17 @@ void QTable::paintFocus(QPainter *p, const QRect &cr)
         p->drawRect(focusRect.x(), focusRect.y(), focusRect.width() - 1, focusRect.height() - 1);
         p->drawRect(focusRect.x() - 1, focusRect.y() - 1, focusRect.width() + 1, focusRect.height() + 1);
     } else {
-        QColor c = isSelected(curRow, curCol, false) ?
-                             palette().highlight() : palette().base();
-        style().drawPrimitive(QStyle::PE_FocusRect, p, focusRect, palette(),
-                               (isSelected(curRow, curCol, false) ?
-                                 QStyle::Style_FocusAtBorder :
-                                 QStyle::Style_Default),
-                                 QStyleOption(c));
+        Q4StyleOptionFocusRect opt(0);
+        opt.rect = focusRect;
+        opt.palette = palette();
+        if (isSelected(curRow, curCol, false)) {
+            opt.state = QStyle::Style_FocusAtBorder;
+            opt.backgroundColor = palette().highlight();
+        } else {
+            opt.state = QStyle::Style_Default;
+            opt.backgroundColor = palette().base();
+        }
+        style().drawPrimitive(QStyle::PE_FocusRect, &opt, p, this);
     }
 }
 

@@ -16,24 +16,25 @@
 
 #ifndef QT_NO_RICHTEXT
 
-#include "qstringlist.h"
-#include "qfont.h"
-#include "qtextstream.h"
-#include "qdatastream.h"
-#include "qfile.h"
 #include "qapplication.h"
-#include "qmap.h"
-#include "qfileinfo.h"
-#include "qstylesheet.h"
-#include "qmime.h"
-#include "qimage.h"
+#include "qcleanuphandler.h"
+#include "qcursor.h"
+#include "qdatastream.h"
 #include "qdragobject.h"
+#include "qdrawutil.h"
+#include "qfile.h"
+#include "qfileinfo.h"
+#include "qfont.h"
+#include "qimage.h"
+#include "qmap.h"
+#include "qmime.h"
 #include "qpaintdevicemetrics.h"
 #include "qpainter.h"
-#include "qdrawutil.h"
-#include "qcursor.h"
+#include "qstringlist.h"
 #include "qstyle.h"
-#include "qcleanuphandler.h"
+#include "qstyleoption.h"
+#include "qstylesheet.h"
+#include "qtextstream.h"
 #include <private/qtextengine_p.h>
 #include <private/qunicodetables_p.h>
 
@@ -4922,9 +4923,13 @@ void Q3TextParagraph::drawString(QPainter &painter, const QString &str, int star
          (document()->focusIndicator.start >= start  &&
            document()->focusIndicator.start + document()->focusIndicator.len <= start + len ||
            document()->focusIndicator.start <= start &&
-           document()->focusIndicator.start + document()->focusIndicator.len >= start + len))
-        QApplication::style().drawPrimitive(QStyle::PE_FocusRect, &painter,
-                                            QRect(xstart, y, w, h), pal);
+           document()->focusIndicator.start + document()->focusIndicator.len >= start + len)) {
+        Q4StyleOptionFocusRect opt(0);
+        opt.rect.setRect(xstart, y, w, h);
+        opt.state = QStyle::Style_Default;
+        opt.palette = pal;
+        QApplication::style().drawPrimitive(QStyle::PE_FocusRect, &opt, &painter);
+    }
 }
 
 void Q3TextParagraph::drawLabel(QPainter* p, int x, int y, int w, int h, int base,

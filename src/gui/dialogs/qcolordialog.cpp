@@ -16,23 +16,24 @@
 
 #ifndef QT_NO_COLORDIALOG
 
-#include "qpainter.h"
-#include "qlayout.h"
-#include "qevent.h"
-#include "qdesktopwidget.h"
-#include "qlabel.h"
-#include "qpushbutton.h"
-#include "qlineedit.h"
-#include "qimage.h"
-#include "qpixmap.h"
-#include "qdrawutil.h"
-#include "qvalidator.h"
-#include "qdragobject.h"
-#include "qgridview.h"
 #include "qapplication.h"
-#include "qstyle.h"
-#include "qsettings.h"
+#include "qdesktopwidget.h"
+#include "qdragobject.h"
+#include "qdrawutil.h"
+#include "qevent.h"
+#include "qgridview.h"
+#include "qimage.h"
+#include "qlabel.h"
+#include "qlayout.h"
+#include "qlineedit.h"
+#include "qpainter.h"
+#include "qpixmap.h"
 #include "qpopupmenu.h"
+#include "qpushbutton.h"
+#include "qsettings.h"
+#include "qstyle.h"
+#include "qstyleoption.h"
+#include "qvalidator.h"
 
 #ifdef Q_WS_MAC
 QRgb macGetRgba(QRgb initial, bool *ok, QWidget *parent, const char* name);
@@ -192,7 +193,11 @@ void QWellArray::paintCell(QPainter* p, int row, int col)
             p->drawRect(2, 2, w-4, h-4);
             b = 3;
         } else if (hasFocus()) {
-            style().drawPrimitive(QStyle::PE_FocusRect, p, QRect(0, 0, w, h), g);
+            Q4StyleOptionFocusRect opt(0);
+            opt.palette = g;
+            opt.rect.setRect(0, 0, w, h);
+            opt.state = QStyle::Style_Default;
+            style().drawPrimitive(QStyle::PE_FocusRect, &opt, p, this);
         }
     }
     paintCellContents(p, row, col, QRect(b, b, w - 2*b, h - 2*b));

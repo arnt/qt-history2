@@ -2,11 +2,12 @@
 #include <qabstractitemview.h>
 #include <qapplication.h>
 #include <qlineedit.h>
-#include <qpalette.h>
 #include <qpainter.h>
-#include <qstyle.h>
+#include <qpalette.h>
 #include <qpoint.h>
 #include <qrect.h>
+#include <qstyle.h>
+#include <qstyleoption.h>
 
 static const int border = 0;
 
@@ -194,8 +195,13 @@ void QItemDelegate::drawDecoration(QPainter *painter, const QItemOptions &option
 
 void QItemDelegate::drawFocus(QPainter *painter, const QItemOptions &options, const QRect &rect) const
 {
-    if (options.focus)
-        QApplication::style().drawPrimitive(QStyle::PE_FocusRect, painter, rect, options.palette);
+    if (options.focus) {
+        Q4StyleOptionFocusRect opt(0);
+        opt.rect = rect;
+        opt.palette = options.palette;
+        opt.state = QStyle::Style_Default;
+        QApplication::style().drawPrimitive(QStyle::PE_FocusRect, &opt, painter);
+    }
 }
 
 void QItemDelegate::doLayout(const QItemOptions &options, QRect *pixmapRect,

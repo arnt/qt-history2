@@ -2039,23 +2039,23 @@ void QIconViewItem::paintFocus(QPainter *p, const QPalette &cg)
     if (!view)
         return;
 
-    view->style().drawPrimitive(QStyle::PE_FocusRect, p,
-                                QRect(textRect(false).x(), textRect(false).y(),
-                                       textRect(false).width(),
-                                       textRect(false).height()), cg,
-                                (isSelected() ?
-                                 QStyle::Style_FocusAtBorder :
-                                 QStyle::Style_Default),
-                                QStyleOption(isSelected() ? cg.highlight() : cg.base()));
+    Q4StyleOptionFocusRect opt(0);
+    opt.rect = textRect(false);
+    opt.palette = cg;
+    if (isSelected()) {
+        opt.state = QStyle::Style_FocusAtBorder;
+        opt.backgroundColor = cg.highlight();
+    } else {
+        opt.state = QStyle::Style_Default;
+        opt.backgroundColor = cg.base();
+    }
+    view->style().drawPrimitive(QStyle::PE_FocusRect, &opt, p);
 
     if (this != view->d->currentItem) {
-        view->style().drawPrimitive(QStyle::PE_FocusRect, p,
-                                    QRect(pixmapRect(false).x(),
-                                           pixmapRect(false).y(),
-                                           pixmapRect(false).width(),
-                                           pixmapRect(false).height()),
-                                    cg, QStyle::Style_Default,
-                                    QStyleOption(cg.base()));
+        opt.rect = pixmapRect(false);
+        opt.backgroundColor = cg.base();
+        opt.state = QStyle::Style_Default;
+        view->style().drawPrimitive(QStyle::PE_FocusRect, &opt, p);
     }
 }
 
@@ -5496,13 +5496,14 @@ void QIconView::drawDragShapes(const QPoint &pos)
         return;
     }
 
-    QStyleOption opt(palette().base());
-
     QPainter p;
     p.begin(viewport());
     p.translate(-contentsX(), -contentsY());
     p.setPen(QPen(color0));
-
+    Q4StyleOptionFocusRect opt(0);
+    opt.palette = palette();
+    opt.state = QStyle::Style_Default;
+    opt.backgroundColor = palette().base();
     if (d->isIconDrag) {
         QLinkedList<QIconDragDataItem>::Iterator it = d->iconDragData.begin();
         for (; it != d->iconDragData.end(); ++it) {
@@ -5513,16 +5514,15 @@ void QIconView::drawDragShapes(const QPoint &pos)
             if (!ir.intersects(QRect(contentsX(), contentsY(), visibleWidth(), visibleHeight())))
                 continue;
 
-            style().drawPrimitive(QStyle::PE_FocusRect, &p, ir, palette(),
-                                  QStyle::Style_Default, opt);
-            style().drawPrimitive(QStyle::PE_FocusRect, &p, tr, palette(),
-                                  QStyle::Style_Default, opt);
+            opt.rect = ir;
+            style().drawPrimitive(QStyle::PE_FocusRect, &opt, &p, this);
+            opt.rect = tr;
+            style().drawPrimitive(QStyle::PE_FocusRect, &opt, &p, this);
         }
     } else if (d->numDragItems > 0) {
         for (int i = 0; i < d->numDragItems; ++i) {
-            QRect r(pos.x() + i * 40, pos.y(), 35, 35);
-            style().drawPrimitive(QStyle::PE_FocusRect, &p, r, palette(),
-                                  QStyle::Style_Default, opt);
+            opt.rect.setRect(pos.x() + i * 40, pos.y(), 35, 35);
+            style().drawPrimitive(QStyle::PE_FocusRect, &opt, &p, this);
         }
 
     }

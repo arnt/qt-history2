@@ -1883,7 +1883,10 @@ void QWindowsXPStyle::drawComplexControl(ComplexControl control,
                 theme.drawBackground(partId, stateId);
             }
             if (flags & Style_HasFocus) {
-                QRect re = subRect(SR_SliderFocusRect, sl);
+                Q4StyleOptionFocusRect opt(0);
+                opt.rect = subRect(SR_SliderFocusRect, sl);
+                opt.palette = pal;
+                opt.state = Style_Default;
                 drawPrimitive(PE_FocusRect, p, re, pal);
             }
         }
@@ -1975,9 +1978,12 @@ void QWindowsXPStyle::drawComplexControl(ComplexControl control,
             }
 
             if (tb->hasFocus() && !tb->focusProxy()) {
-                QRect fr = tb->rect();
-                fr.addCoords(3, 3, -3, -3);
-                drawPrimitive(PE_FocusRect, p, fr, pal);
+                Q4StyleOptionFocusRect opt(0);
+                opt.rect = tb->rect();
+                opt.rect.addCoords(3, 3, -3, -3);
+                opt.palette = pal;
+                opt.state = Style_Default;
+                drawPrimitive(PE_FocusRect, &opt, p, tb);
             }
         }
         break;
