@@ -618,11 +618,11 @@ int QEventDispatcherUNIXPrivate::eventloopSelect(uint flags, timeval *t)
             d->handleSignals();
         }
 #endif
-        nsel = select(highest + 1,
-                      &sn_vec[0].select_fds,
-                      &sn_vec[1].select_fds,
-                      &sn_vec[2].select_fds,
-                      t);
+        nsel = q_func()->select(highest + 1,
+                                &sn_vec[0].select_fds,
+                                &sn_vec[1].select_fds,
+                                &sn_vec[2].select_fds,
+                                t);
     } while (nsel == -1 && (errno == EINTR || errno == EAGAIN));
 
     if (nsel == -1) {
