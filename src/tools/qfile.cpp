@@ -88,7 +88,7 @@ extern bool qt_file_access( const QString& fn, int t );
 	QTextStream stream( &file );
 	QString line;
 	int i = 1;
-	while ( !stream.eof() ) {
+	while ( !stream.atEnd() ) {
 	    line = stream.readLine(); // line of text excluding '\n'
 	    printf( "%3d: %s\n", i++, line.latin1() );
 	    lines += line;
@@ -290,6 +290,7 @@ void QFile::flush()
 
 /*!
     Returns TRUE if the end of file has been reached; otherwise returns FALSE.
+    If QFile has not been open()'d, then the behavior is undefined.
 
     \sa size()
 */

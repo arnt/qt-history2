@@ -901,7 +901,7 @@ inline QGridLayoutDataIterator::QGridLayoutDataIterator( QGridLayoutData *d )
     to distribute the size over the columns/rows (based on the stretch
     factors).
 
-    To remove a widget from a layout, call removeWidget(). Calling
+    To remove a widget from a layout, call remove(). Calling
     QWidget::hide() on a widget also effectively removes the widget
     from the layout until QWidget::show() is called.
 
@@ -1616,7 +1616,7 @@ private:
     margin width for a top-level layout, or to the same as the parent
     layout. Both are parameters to the constructor.
 
-    To remove a widget from a layout, call removeWidget(). Calling
+    To remove a widget from a layout, call remove(). Calling
     QWidget::hide() on a widget also effectively removes the widget
     from the layout until QWidget::show() is called.
 
@@ -2184,7 +2184,7 @@ void QBoxLayout::setDirection( Direction direction )
 			sp->changeSize( s.height(), s.width(),
 			    horz(direction) ? QSizePolicy::Fixed:QSizePolicy::Minimum,
 			    horz(direction) ? QSizePolicy::Minimum:QSizePolicy::Fixed );
-			
+
 		    } else {
 			//stretch
 			if ( horz(direction) )

@@ -1389,7 +1389,9 @@ extern uint qGlobalPostedEventsCount();
 /*!
     The message procedure calls this function for every message
     received. Reimplement this function if you want to process window
-    messages \e msg that are not processed by Qt.
+    messages \e msg that are not processed by Qt. If you don't want
+    the event to be processed by Qt, then return TRUE; otherwise
+    return FALSE.
 */
 bool QApplication::winEventFilter( MSG * /*msg*/ )	// Windows event filter
 {
@@ -1642,9 +1644,9 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 	    bool is_mouse_move = (message == WM_MOUSEMOVE);
 	    if ( is_mouse_move ) {
 		MSG msg1;
-		if ( winPeekMessage(&msg1, msg.hwnd, WM_MOUSEFIRST, 
+		if ( winPeekMessage(&msg1, msg.hwnd, WM_MOUSEFIRST,
 				    WM_MOUSELAST, PM_NOREMOVE) )
-		    next_is_button = ( msg1.message == WM_LBUTTONUP 
+		    next_is_button = ( msg1.message == WM_LBUTTONUP
 				       || msg1.message == WM_LBUTTONDOWN );
 	    }
 	    if ( !is_mouse_move || (is_mouse_move && !next_is_button) )
@@ -3282,7 +3284,7 @@ bool QETWidget::translateTabletEvent( const MSG &msg, PACKET *localPacketBuf,
     bool sendEvent;
     QEvent::Type t;
 
-    
+
     // the most typical event that we get...
     t = QEvent::TabletMove;
     for ( i = 0; i < numPackets; i++ ) {
@@ -3296,7 +3298,7 @@ bool QETWidget::translateTabletEvent( const MSG &msg, PACKET *localPacketBuf,
 	btnOld = btnNew;
 	btnNew = localPacketBuf[i].pkButtons;
 	btnChange = btnOld ^ btnNew;
-	
+
 	if (btnNew & btnChange) {
 	    button_pressed = TRUE;
 	    t = QEvent::TabletPress;

@@ -207,7 +207,7 @@ static bool block_set_alignment = FALSE;
     text formatting using HTML-style tags. It is optimized to handle
     large documents and to respond quickly to user input.
 
-    QTextEdit has three modes of operation:
+    QTextEdit has four modes of operation:
     \table
     \header \i Mode \i Command \i Notes
     \row \i Plain Text Editor \i setTextFormat(PlainText)
