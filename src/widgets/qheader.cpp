@@ -704,10 +704,10 @@ void QHeader::mouseReleaseEvent( QMouseEvent *e )
 	if ( handleIdx != moveToIdx && moveToIdx != -1 ) {
 	    moveSection( section, moveToIdx );
 	    handleIdx = oldHandleIdx;
-	    repaint(); // a bit overkill, but removes the handle as well
 	    emit moved( handleIdx, moveToIdx );
 	    emit indexChange( section, handleIdx, moveToIdx );
 	    emit released( section );
+	    repaint(); // a bit overkill, but removes the handle as well
 	} else {
 	    if ( sRect( handleIdx).contains( e->pos() ) ) {
 		oldHandleIdx = handleIdx;
