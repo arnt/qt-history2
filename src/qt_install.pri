@@ -1,17 +1,17 @@
 #always install the library
 target.path=$$libs.path
-isEmpty(target.path):target.path=$$QT_PREFIX/lib
+
 INSTALLS += target
 
 #headers
-isEmpty(headers.path):headers.path=$$QT_PREFIX/include
+
 headers.files = ../include/*.h
 isEmpty(headers_p.path):headers_p.path=$$headers.path/private
 headers_p.files = ../include/private/*.h
 INSTALLS += headers headers_p
 
 #docs
-isEmpty(docs.path):docs.path=$$QT_PREFIX/doc/html
+
 docs.files = ../doc/html/*
 INSTALLS += docs
 
