@@ -32,18 +32,17 @@
 #include "qapplication.h"
 #include "qlist.h"
 #include "qmap.h"
-
+#include "qcursor.h"
 #include "qpainter.h"
-
 #include "qmenubar.h"
 #include "qtoolbar.h"
 #include "qstatusbar.h"
 #include "qscrollview.h"
 #include "qtooltip.h"
 #include "qdatetime.h"
-
 #include "qtooltip.h"
 #include "qwhatsthis.h"
+#include "qbitmap.h"
 
 //#define QMAINWINDOW_DEBUG
 #define TOOLBAR_MENU
@@ -128,6 +127,19 @@ static QSize size_hint( QToolBar *tb )
 //************************************************************************************************
 class QHideDock;
 class QToolLayout;
+#define forbiddenCursorWidth 20
+#define forbiddenCursorHeight 20
+static unsigned char forbiddenCutBits[] = {
+ 0x00,0x00,0x00,0x80,0x1f,0x00,0xe0,0x7f,0x00,0xf0,0xf0,0x00,0x38,0xc0,0x01,
+ 0x7c,0x80,0x03,0xec,0x00,0x03,0xce,0x01,0x07,0x86,0x03,0x06,0x06,0x07,0x06,
+ 0x06,0x0e,0x06,0x06,0x1c,0x06,0x0e,0x38,0x07,0x0c,0x70,0x03,0x1c,0xe0,0x03,
+ 0x38,0xc0,0x01,0xf0,0xe0,0x00,0xe0,0x7f,0x00,0x80,0x1f,0x00,0x00,0x00,0x00};
+
+static unsigned char forbiddenCutMask[] = {
+ 0x80,0x1f,0x00,0xe0,0x7f,0x00,0xf0,0xff,0x00,0xf8,0xff,0x01,0xfc,0xf0,0x03,
+ 0xfe,0xc0,0x07,0xfe,0x81,0x07,0xff,0x83,0x0f,0xcf,0x07,0x0f,0x8f,0x0f,0x0f,
+ 0x0f,0x1f,0x0f,0x0f,0x3e,0x0f,0x1f,0xfc,0x0f,0x1e,0xf8,0x07,0x3e,0xf0,0x07,
+ 0xfc,0xe0,0x03,0xf8,0xff,0x01,0xf0,0xff,0x00,0xe0,0x7f,0x00,0x80,0x1f,0x00};
 class QMainWindowPrivate {
 public:
     struct ToolBar {
@@ -169,6 +181,9 @@ public:
 	movable = TRUE;
 	inMovement = FALSE;
 	dockMenu = TRUE;
+	QBitmap b( forbiddenCursorWidth, forbiddenCursorHeight, forbiddenCutBits, TRUE );
+	QBitmap m( forbiddenCursorWidth, forbiddenCursorHeight, forbiddenCutMask, TRUE );
+	forbiddenCursor = QCursor( b, m );
     }
 
     ToolBar *findToolbar( QToolBar *t, QMainWindowPrivate::ToolBarDock *&dock );
@@ -240,6 +255,9 @@ public:
     bool inMovement;
     bool dockMenu;
 
+    QCursor oldCursor;
+    QCursor forbiddenCursor;
+    
     QMap< int, bool > dockable;
 };
 
@@ -2669,13 +2687,14 @@ void QMainWindow::moveToolBar( QToolBar* t , QMouseEvent * e )
 	    d->rectPainter->drawRect( d->oldPosRect );
 	if ( dock == Unmanaged || !isDockEnabled( dock ) ||
 	     !isDockEnabled( t, dock ) ) {
-#if defined(_WS_WIN32_)
-	    d->rectPainter->setPen( QPen( color0, 1, DotLine ) );
-#else
-	    d->rectPainter->setPen( QPen( color0, 2, DashLine ) );
-#endif
+	    if ( t->cursor().shape() != d->forbiddenCursor.shape() ) {
+		d->oldCursor = t->cursor();
+		t->setCursor( d->forbiddenCursor );
+	    }
 	} else {
-	    d->rectPainter->setPen( QPen( color0, 2 ) );
+	    if ( t->cursor().shape() != d->oldCursor.shape() ) {
+		t->setCursor( d->oldCursor );
+	    }
 	}
 	if ( !d->oldPosRectValid || d->oldPosRect != r )
 	    d->rectPainter->drawRect( r );
