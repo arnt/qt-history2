@@ -254,13 +254,17 @@ void QMacStyle::polish( QApplication* app )
 {
     QPalette pal = app->palette();
     QPixmap px(200, 200, 32);
+    QColor pc(black);
     {
 	QPainter p(&px);
 	((QMacPainter *)&p)->noop();
 	SetThemeBackground(kThemeBrushDialogBackgroundActive, px.depth(), true);
 	EraseRect(qt_glb_mac_rect(QRect(0, 0, px.width(), px.height()), (QPaintDevice*)0, FALSE));
+	RGBColor c;
+	GetThemeBrushAsColor(kThemeBrushDialogBackgroundActive, 32, true, &c );
+	pc = QColor(c.red / 256, c.green / 256, c.blue / 256);
     }
-    QBrush background( Qt::black, px );
+    QBrush background( pc, px );
     pal.setBrush( QColorGroup::Background, background );
     pal.setBrush( QColorGroup::Button, background );
 
@@ -272,7 +276,7 @@ void QMacStyle::polish( QApplication* app )
     pal.setColor( QPalette::Active, QColorGroup::Highlight, qt_mac_highlight_active_color );
     pal.setColor( QPalette::Inactive, QColorGroup::Highlight, qt_mac_highlight_inactive_color );
     pal.setColor( QPalette::Disabled, QColorGroup::Highlight, QColor( 0xC2, 0xC2, 0xC2 ) );
-    pal.setColor( QColorGroup::HighlightedText, Qt::black);
+    pal.setColor( QColorGroup::HighlightedText, pc);
 
     app->setPalette( pal, TRUE );
 }
