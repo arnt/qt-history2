@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/moc/moc.l#11 $
+** $Id: //depot/qt/main/src/moc/moc.l#12 $
 **
 ** Lexical analyzer for meta object compiler
 **
@@ -238,7 +238,7 @@ extern void addExpressionString( char * );
 		       }
 
 <QT_DEF>'\\\"'	    { X;
-			 yylval.char_val = '\"';	// "
+			 yylval.char_val = '\"';	/* " */
 			 return CHAR_VAL;
 		       }
 
