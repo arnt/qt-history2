@@ -488,7 +488,7 @@ be performed within a single function:
 \skipto int main
 \printuntil QAbstractItemModel
 
-Note that the \c QStringListModel is declared as a \l QAbstractItemModel.
+Note that the \l QStringListModel is declared as a \l QAbstractItemModel.
 This allows us to use the abstract interface to the model, and will
 ensure that the code will still work even if we replace the string list
 model with a different model in the future.
@@ -628,9 +628,9 @@ to provide editing facilities. This default implementation of the
 delegate interface renders items in the usual style for each of the
 standard views: \l QListView, \l QTableView, and \l QTreeView.
 The delegate being used for a view is returned by the
-\l{QAbstractItemView::delegate()}{delegate()} function.
-The \l{QAbstractItemView::setDelegate()}{setDelegate()} function allows
-you to install a custom delegate for a standard view, and it is
+\l{QAbstractItemView::itemDelegate()}{itemDelegate()} function.
+The \l{QAbstractItemView::setItemDelegate()}{setItemDelegate()} function
+allows you to install a custom delegate for a standard view, and it is
 necessary to ues this function when setting the delegate for a custom
 view.
 
