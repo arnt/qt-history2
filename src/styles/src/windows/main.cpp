@@ -1,5 +1,6 @@
 #include <qstyleinterface.h>
 #include <qwindowsstyle.h>
+#include <qguardedptr.h>
 
 class WindowsStyle : public QStyleInterface, public QLibraryInterface
 {
@@ -16,11 +17,13 @@ public:
     bool canUnload() const;
 
 private:
+    QGuardedPtr<QStyle> style;
+
     unsigned long ref;
 };
 
 WindowsStyle::WindowsStyle()
-: ref( 0 )
+: ref( 0 ), style( 0 )
 {
 }
 
@@ -61,16 +64,16 @@ QStringList WindowsStyle::featureList() const
     return list;
 }
 
-QStyle* WindowsStyle::create( const QString& style )
+QStyle* WindowsStyle::create( const QString& s )
 {
-    if ( style.lower() == "windows" )
-	return new QWindowsStyle();
+    if ( s.lower() == "windows" )
+	return style = new QWindowsStyle();
     return 0;
 }
 
 bool WindowsStyle::canUnload() const
 {
-    return TRUE;
+    return style.isNull();
 }
 
 Q_EXPORT_INTERFACE()
