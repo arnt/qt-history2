@@ -158,7 +158,7 @@ private:
 	Failure
     };
 
-    void processReply();
+    bool processReply();
     bool startNextCmd();
 
     QSocket commandSocket;
@@ -169,10 +169,13 @@ private:
     State state;
     QStringList pendingCommands;
     QString currentCommand;
+
+    bool waitForDtpToClose;
 };
 
 QFtpPI::QFtpPI( QObject *parent ) : QObject( parent ),
-    state( Begin )
+    state(Begin), currentCommand(QString::null),
+    waitForDtpToClose(FALSE)
 {
     connect( &commandSocket, SIGNAL(hostFound()),
 	    SLOT(hostFound()) );
@@ -267,6 +270,9 @@ void QFtpPI::error( int e )
 
 void QFtpPI::readyRead()
 {
+    if ( waitForDtpToClose )
+	return;
+
     while ( commandSocket.canReadLine() ) {
 	// read line with respect to line continuation
 	QString line = commandSocket.readLine();
@@ -308,19 +314,19 @@ void QFtpPI::readyRead()
 	if ( replyText.endsWith("\r\n") )
 	    replyText.truncate( replyText.length()-2 );
 
-	processReply();
-
-	replyText = "";
+	if ( processReply() )
+	    replyText = "";
     }
 }
 
-void QFtpPI::processReply()
+/*
+  Process a reply from the FTP server.
+
+  Returns TRUE if the reply was processed or FALSE if the reply has to be
+  processed at a later point.
+*/
+bool QFtpPI::processReply()
 {
-    // get new state
-    static const State table[5] = {
-	/* 1yz   2yz      3yz   4yz      5yz */
-	Waiting, Success, Idle, Failure, Failure
-    };
 #if defined(QFTPPI_DEBUG)
 //    qDebug( "QFtpPI state: %d [processReply() begin]", state );
     if ( replyText.length() < 400 )
@@ -328,17 +334,32 @@ void QFtpPI::processReply()
     else
 	qDebug( "QFtpPI recv: %d (text skipped)", 100*replyCode[0]+10*replyCode[1]+replyCode[2] );
 #endif
+
+    // process 226 replies ("Closing Data Connection") only when the data
+    // connection is really closed to avoid short reads of the DTP
+    if ( 100*replyCode[0]+10*replyCode[1]+replyCode[2] == 227 ) {
+	if ( dtp.state() != QSocket::Idle ) {
+	    waitForDtpToClose = TRUE;
+	    return FALSE;
+	}
+    }
+
+    // get new state
+    static const State table[5] = {
+	/* 1yz   2yz      3yz   4yz      5yz */
+	Waiting, Success, Idle, Failure, Failure
+    };
     switch ( state ) {
 	case Begin:
 	    if ( replyCode[0] == 1 ) {
-		return;
+		return TRUE;
 	    } else if ( replyCode[0] == 2 ) {
 		state = Idle;
 		emit finished( Ok, tr( "Connected to host %1" ).arg( commandSocket.peerName() ) );
 		break;
 	    }
 	    // ### error handling
-	    return;
+	    return TRUE;
 	case Waiting:
 	    if ( replyCode[0]<0 || replyCode[0]>5 )
 		state = Failure;
@@ -347,9 +368,13 @@ void QFtpPI::processReply()
 	    break;
 	default:
 	    // ### spontaneous message
-	    return;
+	    return TRUE;
     }
+#if defined(QFTPPI_DEBUG)
+//    qDebug( "QFtpPI state: %d [processReply() intermediate]", state );
+#endif
 
+    // special actions on certain replies
     if ( 100*replyCode[0]+10*replyCode[1]+replyCode[2] == 227 ) {
 	// 227 Entering Passive Mode (h1,h2,h3,h4,p1,p2)
 	int l = replyText.find( "(" );
@@ -366,9 +391,6 @@ void QFtpPI::processReply()
 	}
     }
 
-#if defined(QFTPPI_DEBUG)
-//    qDebug( "QFtpPI state: %d [processReply() intermediate]", state );
-#endif
     // react on new state
     switch ( state ) {
 	case Begin:
@@ -395,6 +417,7 @@ void QFtpPI::processReply()
 #if defined(QFTPPI_DEBUG)
 //    qDebug( "QFtpPI state: %d [processReply() end]", state );
 #endif
+    return TRUE;
 }
 
 bool QFtpPI::startNextCmd()
@@ -423,6 +446,15 @@ void QFtpPI::dtpConnected()
 
 void QFtpPI::dtpConnectionClosed()
 {
+    if ( waitForDtpToClose ) {
+	// there is an unprocessed reply
+	if ( processReply() )
+	    replyText = "";
+	else
+	    return;
+    }
+    waitForDtpToClose = FALSE;
+    readyRead();
 }
 
 void QFtpPI::dtpReadyRead()
@@ -589,9 +621,7 @@ class QFtpPrivate
 {
 public:
     QFtpPrivate() : idCounter(0), redirectConnectState(FALSE)
-    {
-	pending.setAutoDelete( TRUE );
-    }
+    { pending.setAutoDelete( TRUE ); }
 
     QFtpPI pi;
     QPtrList<QFtpCommand> pending;
