@@ -466,7 +466,7 @@ bool QHttpHeader::parseLine( const QString& line, int )
     if ( i == -1 )
 	return FALSE;
 
-    m_values.insert( line.left( i ).stripWhiteSpace(), line.mid( i + 1 ).stripWhiteSpace() );
+    m_values.insert( line.left( i ).stripWhiteSpace().lower(), line.mid( i + 1 ).stripWhiteSpace() );
 
     return TRUE;
 }
