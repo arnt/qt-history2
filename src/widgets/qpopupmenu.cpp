@@ -537,7 +537,7 @@ void QPopupMenu::hideAllPopups()
     if ( !preventAnimation )
 	preventAnimation = new QTimer( qApp );
     preventAnimation->stop();
-    preventAnimation->singleShot( 250, this, SLOT(allowAnimation()) );
+    preventAnimation->singleShot( 10, this, SLOT(allowAnimation()) );
 
     if ( !isPopup() )
 	return; // nothing to do
@@ -558,7 +558,7 @@ void QPopupMenu::hidePopups()
     if ( !preventAnimation )
 	preventAnimation = new QTimer( qApp );
     preventAnimation->stop();
-    preventAnimation->singleShot( 250, this, SLOT(allowAnimation()) );
+    preventAnimation->singleShot( 10, this, SLOT(allowAnimation()) );
 
     QMenuItemListIt it(*mitems);
     register QMenuItem *mi;

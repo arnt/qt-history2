@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#388 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#389 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -497,6 +497,12 @@ static void qt_set_windows_resources()
 
 	QPalette pal(cg, dcg, cg);
 	QApplication::setPalette( pal, TRUE, "QTipLabel");
+    }
+
+    if ( qt_winver == Qt::WV_2000 || qt_winver == Qt::WV_98 ) {
+	QApplication::enableEffect( Qt::UI_AnimateMenu);
+	QApplication::enableEffect( Qt::UI_AnimateTooltip );
+	QApplication::enableEffect( Qt::UI_AnimateCombo );
     }
 }
 
@@ -2989,8 +2995,21 @@ int QApplication::wheelScrollLines()
 bool QApplication::effectEnabled( Qt::UIEffect effect )
 {
     BOOL result = FALSE;
-
     uint WINPARAM = 0;
+
+#if defined(SPI_GETUIEFFECTS)
+    WINPARAM = SPI_GETUIEFFECTS;
+#endif
+    result =  animate_ui;
+    if ( obey_desktop_settings && WINPARAM &&
+         (qt_winver == WV_2000 || qt_winver == WV_98) ) {
+	SystemParametersInfo( WINPARAM, 0, &result, 0 );
+    }
+
+    if ( !result )
+	return FALSE;
+
+    WINPARAM = 0;
 
     switch (effect) {
     case UI_AnimateMenu:
