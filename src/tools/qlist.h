@@ -39,7 +39,7 @@ struct QListData {
     inline void **end() const { return d->array + d->end; }
 };
 
-template <class T>
+template <typename T>
 class QList
 {
     struct Node { void *v; inline T &t()
@@ -219,7 +219,7 @@ private:
 
 };
 
-template <class T>
+template <typename T>
 inline QList<T> &QList<T>::operator=(const QList<T> &l)
 {
     if (d != l.d) {
@@ -231,53 +231,53 @@ inline QList<T> &QList<T>::operator=(const QList<T> &l)
     }
     return *this;
 }
-template <class T>
+template <typename T>
 inline typename QList<T>::Iterator QList<T>::insert(Iterator before, const T &t)
 { Node *n = (Node*) p.insert((Node*)before-(Node*)p.begin());
  node_construct(n,t); return n; }
-template <class T>
+template <typename T>
 inline typename QList<T>::Iterator QList<T>::erase(Iterator it)
 { node_destruct((Node*)it);
  return (Node*) p.erase((void**)(Node*)it); }
-template <class T>
+template <typename T>
 inline const T &QList<T>::at(int i) const
 { Q_ASSERT(i >= 0 && i < size());
  return ((Node*) p.at(i))->t(); }
-template <class T>
+template <typename T>
 inline const T &QList<T>::operator[](int i) const
 { Q_ASSERT(i >= 0 && i < size());
  return ((Node*) p.at(i))->t(); }
-template <class T>
+template <typename T>
 inline T &QList<T>::operator[](int i)
 { Q_ASSERT(i >= 0 && i < size()); detach();
  return ((Node*) p.at(i))->t(); }
-template <class T>
+template <typename T>
 inline void QList<T>::removeAt(int i)
 { if(i >= 0 && i < p.size()) { detach();
  node_destruct((Node*) p.at(i)); p.remove(i); } }
-template <class T>
+template <typename T>
 inline T QList<T>::takeAt(int i)
 { Q_ASSERT(i >= 0 && i < size()); detach();
  Node*n = (Node*)p.at(i); T t = n->t(); node_take(n);
 p.remove(i); return t; }
-template <class T>
+template <typename T>
 inline void QList<T>::append(const T &t)
 { detach();node_construct((Node*)p.append(), t); }
-template <class T>
+template <typename T>
 inline void QList<T>::prepend(const T &t)
 { detach(); node_construct(((Node*)p.prepend()), t); }
-template <class T>
+template <typename T>
 inline void QList<T>::insert(int i, const T &t)
 { detach(); node_construct((Node*)p.insert(i), t); }
-template <class T>
+template <typename T>
 inline void QList<T>::replace(int i, const T &t)
 { Q_ASSERT(i >= 0 && i < size()); detach();
  ((Node*)p.at(i))->t() = t; }
-template <class T>
+template <typename T>
 inline bool QList<T>::autoDelete() const
 { return d->autoDelete == (void*) this; }
 
-template <class T>
+template <typename T>
 inline void QList<T>::setAutoDelete(bool enable)
 {
     Q_ASSERT(canAutoDelete());
@@ -287,7 +287,7 @@ inline void QList<T>::setAutoDelete(bool enable)
     }
 }
 
-template <class T>
+template <typename T>
 void QList<T>::detach_helper()
 {
     Node *n = (Node*) p.begin();
@@ -297,14 +297,14 @@ void QList<T>::detach_helper()
     node_copy((Node*) p.begin(), (Node*) p.end(), n);
 }
 
-template <class T>
+template <typename T>
 inline QList<T>::~QList()
 {
     if (!--d->ref  || (Q_TYPEINFO_POINTER(T) && d->autoDelete == this))
 	free(d);
 }
 
-template <class T>
+template <typename T>
 bool QList<T>::operator== (const QList<T> &l) const
 {
     if (p.size() != l.p.size())
@@ -323,7 +323,7 @@ bool QList<T>::operator== (const QList<T> &l) const
 }
 
 
-template <class T>
+template <typename T>
 void QList<T>::free(QListData::Data *d)
 {
     node_destruct((Node*)(d->array + d->begin),
@@ -335,7 +335,7 @@ void QList<T>::free(QListData::Data *d)
 }
 
 
-template <class T>
+template <typename T>
 void QList<T>::clear()
 {
     bool wasAutoDelete = d->autoDelete == this;
@@ -344,7 +344,7 @@ void QList<T>::clear()
 	setAutoDelete(wasAutoDelete);
 }
 
-template <class T>
+template <typename T>
 int QList<T>::remove(const T &t)
 {
     detach();
@@ -361,7 +361,7 @@ int QList<T>::remove(const T &t)
     return count;
 }
 
-template <class T>
+template <typename T>
 int QList<T>::take(const T &t)
 {
     detach();
@@ -378,16 +378,16 @@ int QList<T>::take(const T &t)
     return count;
 }
 
-template <class T>
-Q_TYPENAME QList<T>::Iterator QList<T>::erase( Q_TYPENAME QList<T>::Iterator first,
-						Q_TYPENAME QList<T>::Iterator last )
+template <typename T>
+typename QList<T>::Iterator QList<T>::erase( typename QList<T>::Iterator first,
+					     typename QList<T>::Iterator last )
 {
     for ( Node *n = (Node*) first; n <= (Node*) last; ++n)
 	node_destruct(n);
     p.remove(i, last - first + 1);
 }
 
-template <class T>
+template <typename T>
 QList<T> &QList<T>::operator+=(const QList<T> &l)
 {
     detach();
@@ -396,7 +396,7 @@ QList<T> &QList<T>::operator+=(const QList<T> &l)
     return *this;
 }
 
-template <class T>
+template <typename T>
 int QList<T>::find(const T &t, int i) const
 {
     if (i < 0)
@@ -411,7 +411,7 @@ int QList<T>::find(const T &t, int i) const
     return -1;
 }
 
-template <class T>
+template <typename T>
 int QList<T>::findRev(const T &t, int i) const
 {
     if (i < 0)
@@ -429,7 +429,7 @@ int QList<T>::findRev(const T &t, int i) const
     return -1;
 }
 
-template <class T>
+template <typename T>
 QBool QList<T>::contains(const T &t) const
 {
     Node *b = (Node*) p.begin();
@@ -440,7 +440,7 @@ QBool QList<T>::contains(const T &t) const
     return false;
 }
 
-template <class T>
+template <typename T>
 int QList<T>::count(const T &t) const
 {
     int c = 0;
@@ -455,7 +455,7 @@ int QList<T>::count(const T &t) const
 Q_DECLARE_ITERATOR(QList)
 
 #ifndef QT_NO_DATASTREAM
-template <class T>
+template <typename T>
 QDataStream& operator>>( QDataStream& s, QList<T>& l )
 {
     l.clear();
@@ -472,11 +472,11 @@ QDataStream& operator>>( QDataStream& s, QList<T>& l )
     return s;
 }
 
-template <class T>
+template <typename T>
 QDataStream& operator<<( QDataStream& s, const QList<T>& l )
 {
     s << (Q_UINT32)l.size();
-    QList<T>::ConstIterator it = l.begin();
+    typename QList<T>::ConstIterator it = l.begin();
     for( ; it != l.end(); ++it )
 	s << *it;
     return s;
