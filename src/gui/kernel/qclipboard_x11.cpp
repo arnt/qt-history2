@@ -382,51 +382,72 @@ static bool qt_x11_clipboard_event_filter(void *message, long *)
 
 bool QX11Data::clipboardWaitForEvent(Window win, int type, XEvent *event, int timeout)
 {
-    if (waiting_for_data)
-        qFatal("QClipboard: internal error, qt_xclb_wait_for_event recursed");
-
-    waiting_for_data = true;
-
     QTime started = QTime::currentTime();
     QTime now = started;
 
-    has_captured_event = false;
-    capture_event_win = win;
-    capture_event_type = type;
+    if (QAbstractEventDispatcher::instance()->inherits("QMotif")) {
+        if (waiting_for_data)
+            qFatal("QClipboard: internal error, qt_xclb_wait_for_event recursed");
+        waiting_for_data = true;
 
-    QApplication::EventFilter old_event_filter =
-        qApp->setEventFilter(qt_x11_clipboard_event_filter);
 
-    do {
-        if (XCheckTypedWindowEvent(display, win, type, event)) {
-            waiting_for_data = false;
-            qApp->setEventFilter(old_event_filter);
-            return true;
-        }
+        has_captured_event = false;
+        capture_event_win = win;
+        capture_event_type = type;
 
-        now = QTime::currentTime();
-        if (started > now)                        // crossed midnight
-            started = now;
+        QApplication::EventFilter old_event_filter =
+            qApp->setEventFilter(qt_x11_clipboard_event_filter);
 
-        // 0x08 == ExcludeTimers for X11 only
-        QEventLoop::ProcessEventsFlags flags(QEventLoop::ExcludeUserInputEvents
-                                             | QEventLoop::ExcludeSocketNotifiers
-                                             | QEventLoop::WaitForMoreEvents
-                                             | 0x08);
-        QAbstractEventDispatcher *eventDispatcher = QAbstractEventDispatcher::instance();
-        eventDispatcher->processEvents(flags);
+        do {
+            if (XCheckTypedWindowEvent(display, win, type, event)) {
+                waiting_for_data = false;
+                qApp->setEventFilter(old_event_filter);
+                return true;
+            }
 
-        if (has_captured_event) {
-            waiting_for_data = false;
-            *event = captured_event;
-            qApp->setEventFilter(old_event_filter);
-            return true;
-        }
-    } while (started.msecsTo(now) < timeout);
+            XSync(X11->display, false);
+            usleep(50000);
 
-    waiting_for_data = false;
-    qApp->setEventFilter(old_event_filter);
+            now = QTime::currentTime();
+            if (started > now)                        // crossed midnight
+                started = now;
 
+            // 0x08 == ExcludeTimers for X11 only
+            QEventLoop::ProcessEventsFlags flags(QEventLoop::ExcludeUserInputEvents
+                                                 | QEventLoop::ExcludeSocketNotifiers
+                                                 | QEventLoop::WaitForMoreEvents
+                                                 | 0x08);
+            QAbstractEventDispatcher *eventDispatcher = QAbstractEventDispatcher::instance();
+            eventDispatcher->processEvents(flags);
+
+            if (has_captured_event) {
+                waiting_for_data = false;
+                *event = captured_event;
+                qApp->setEventFilter(old_event_filter);
+                return true;
+            }
+        } while (started.msecsTo(now) < timeout);
+
+        waiting_for_data = false;
+        qApp->setEventFilter(old_event_filter);
+    } else {
+        do {
+            if (XCheckTypedWindowEvent(X11->display,win,type,event))
+                return true;
+
+            now = QTime::currentTime();
+            if ( started > now )			// crossed midnight
+                started = now;
+
+            XFlush(X11->display);
+
+            // sleep 50ms, so we don't use up CPU cycles all the time.
+            struct timeval usleep_tv;
+            usleep_tv.tv_sec = 0;
+            usleep_tv.tv_usec = 50000;
+            select(0, 0, 0, 0, &usleep_tv);
+        } while (started.msecsTo(now) < timeout);
+    }
     return false;
 }
 
@@ -1182,6 +1203,7 @@ QVariant QClipboardWatcher::retrieveData(const QString &fmt, QVariant::Type type
     if (fmt.isEmpty() || empty())
         return QByteArray();
 
+    (void)formats(); // trigger update of format list
     DEBUG("QClipboardWatcher::data: fetching format '%s'", fmt.toLatin1().data());
 
     Atom fmtatom = 0;
@@ -1202,6 +1224,7 @@ QVariant QClipboardWatcher::retrieveData(const QString &fmt, QVariant::Type type
             } else if (targets[i] == ATOM(COMPOUND_TEXT)) {
                 if (fmtatom == 0 || fmtatom == XA_STRING || fmtatom == ATOM(TEXT))
                     fmtatom = targets[i];
+//             } else if (targets[i] == ATOM("text/plain;charset=ISO-10646-UCS-2"))) {
             } else if (targets[i] == ATOM(UTF8_STRING)) {
                 if (fmtatom == 0 || fmtatom == XA_STRING || fmtatom == ATOM(TEXT) || fmtatom == ATOM(COMPOUND_TEXT))
                     fmtatom = targets[i];
