@@ -371,6 +371,12 @@ void QMenuData::removePopup( QPopupMenu *popup )
     because some C++ compilers choose the wrong overloaded function.
     Cast the 0 to what you mean, e.g. \c{(QObject*)0}.
 
+    \warning On Mac OS X, items that connect to a slot that are inserted into a
+    menubar will not function as we use the native menubar that knows nothing
+    about signals or slots. Instead insert the items into a popup menu and
+    insert the popup menu into the menubar. This may be fixed in a future Qt
+    version.
+
     Returns the allocated menu identifier number (\a id if \a id >= 0).
 
     \sa removeItem(), changeItem(), setAccel(), connectItem(), QAccel,
