@@ -2494,7 +2494,7 @@ void QTextEdit::setTabChangesFocus(bool b)
 */
 
 /*!
-    \property QTextEdit::lineWrap
+    \property QTextEdit::lineWrapMode
     \brief the line wrap mode
 
     The default mode is \c WidgetWidth which causes words to be

@@ -94,6 +94,34 @@ QList<qreal> QTextOption::tabArray() const
     return QList<qreal>();
 }
 
+/*!
+    \class QTextOption
+    \brief The QTextOption class provides a description of general rich text
+    properties.
+
+    QTextOption is used to encapsulate common rich text properties in a single
+    object. It contains information about text alignment, layout direction,
+    word wrapping, and other standard properties associated with text rendering
+    and layout.
+
+    \sa QTextEdit, QTextDocument, QTextCursor
+*/
+
+/*!
+    \enum QTextOption::WrapMode
+
+    This enum describes how text is wrapped in a document.
+
+    \value NoWrap       Text is not wrapped at all.
+    \value WordWrap     Text is wrapped at word boundaries.
+    \value ManualWrap   Wrapping occurs at a manually specified length from
+                        the start of the line.
+    \value WrapAnywhere Text can be wrapped at any point on a line, even if
+                        it occurs in the middle of a word.
+    \value WrapAtWordBoundaryOrAnywhere If possible, wrapping occurs at a word
+                        boundary; otherwise it will occur at the appropriate
+                        point on the line, even in the middle of a word.
+*/
 
 /*!
   \fn void QTextOption::useDesignMetrics(bool b)
