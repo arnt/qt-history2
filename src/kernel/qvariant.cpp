@@ -754,8 +754,7 @@ QVariant::QVariant( uint val )
 
 /*!
   Constructs a new variant with a boolean value, \a val. The integer argument
-  is a dummy, necessary for compatibility with a certain compiler that
-  even its mother cannot love!
+  is a dummy, necessary for compatibility with some compilers.
 */
 QVariant::QVariant( bool val, int )
 { // this is the comment that does NOT name said compiler.
