@@ -1714,7 +1714,7 @@ void QTextDocument::setRichTextInternal( const QString &text )
 		
 		    curtag = tags.pop();
 		    curListStyle = listStyles.pop();
-		    
+		
 		    depth--;
 		}
 
@@ -2948,7 +2948,7 @@ int QTextDocument::length() const
     int l = 0;
     QTextParag *p = fParag;
     while ( p ) {
-	l += p->length();
+	l += p->length() - 1; // don't count trailing space
 	p = p->next();
     }
     return l;
