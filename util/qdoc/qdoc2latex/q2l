@@ -95,9 +95,11 @@ if ( ask("ps2pdf") ) {
 	perform("ps2pdf $ps $pdf");
     }
 }
-else ( ask("pdflatex") ) {
-    for my $tex ( @tex ) {
-	perform("pdflatex --interaction batchmode $tex");
+else {
+    if ( ask("pdflatex") ) {
+	for my $tex ( @tex ) {
+	    perform("pdflatex --interaction batchmode $tex");
+	}
     }
 }
 cleanup($JUSTCLEAN) if $RUNCLEAN;
