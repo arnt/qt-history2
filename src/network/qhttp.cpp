@@ -1230,6 +1230,7 @@ void QHttp::init()
 QHttp::~QHttp()
 {
     abort();
+    delete d;
 }
 
 /*!
