@@ -21,6 +21,7 @@
 #include <metatranslator.h>
 #include <proparser.h>
 
+#include <qdir.h>
 #include <qfile.h>
 #include <qfileinfo.h>
 #include <qstring.h>
@@ -136,6 +137,9 @@ int main( int argc, char **argv )
 	    f.close();
 	}
 
+	QString oldDir = QDir::currentDirPath();
+	QDir::setCurrent( QFileInfo(argv[i]).dirPath() );
+
 	if ( standardSyntax ) {
 	    fetchedTor = MetaTranslator();
 	    codec.truncate( 0 );
@@ -208,6 +212,7 @@ int main( int argc, char **argv )
 		}
 	    }
 	}
+	QDir::setCurrent( oldDir );
     }
 
     if ( !standardSyntax )

@@ -21,7 +21,9 @@
 #include <metatranslator.h>
 #include <proparser.h>
 
+#include <qdir.h>
 #include <qfile.h>
+#include <qfileinfo.h>
 #include <qregexp.h>
 #include <qstring.h>
 #include <qstringlist.h>
@@ -155,6 +157,9 @@ int main( int argc, char **argv )
 		loadTsFile( tor, argv[i], verbose );
 	    }
 	} else {
+	    QString oldDir = QDir::currentDirPath();
+	    QDir::setCurrent( QFileInfo(argv[i]).dirPath() );
+
 	    QMap<QString, QString> tagMap = proFileTagMap( fullText );
 	    QMap<QString, QString>::Iterator it;
 
@@ -174,6 +179,7 @@ int main( int argc, char **argv )
 			 "lrelease warning: Met no 'TRANSLATIONS' entry in"
 			 " project file '%s'\n",
 			 argv[i] );
+	    QDir::setCurrent( oldDir );
 	}
     }
 
