@@ -473,7 +473,7 @@ QLibrary::QLibrary( const QString& filename, Policy pol )
 {
     d = new QLibraryPrivate( this );
     if ( pol == Immediately )
-	d->loadLibrary();
+	load();
 }
 
 /*!
@@ -500,7 +500,7 @@ void QLibrary::createInstanceInternal()
 
     if ( !d->pHnd ) {
 	Q_ASSERT( entry == 0 );
-	d->loadLibrary();
+	load();
     }
 
     if ( d->pHnd && !entry ) {
@@ -562,7 +562,7 @@ void QLibrary::createInstanceInternal()
 void *QLibrary::resolve( const char* symb )
 {
     if ( !d->pHnd )
-	d->loadLibrary();
+	load();
     if ( !d->pHnd )
 	return 0;
 
@@ -585,6 +585,20 @@ void *QLibrary::resolve( const char* symb )
 bool QLibrary::isLoaded() const
 {
     return d->pHnd != 0;
+}
+
+/*!
+  Loads the library.
+*/
+bool QLibrary::load()
+{
+    if ( !QFile::exists( libfile ) ) {
+#if defined(QT_DEBUG) || defined(QT_DEBUG_COMPONENT)
+	qWarning( QString("Shared object \"%1\" does not exist!").arg( libfile ) );
+#endif
+	return FALSE;
+    }
+    return d->loadLibrary();
 }
 
 /*!
@@ -672,7 +686,7 @@ void QLibrary::setPolicy( Policy pol )
     libPol = pol;
 
     if ( libPol == Immediately && !d->pHnd )
-	d->loadLibrary();
+	load();
 }
 
 /*!

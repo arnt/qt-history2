@@ -526,7 +526,7 @@
                 <SETTING><NAME>MWWarning_C_warn_unusedarg</NAME><VALUE>$$CODEWARRIOR_WARNING</VALUE></SETTING>
                 <SETTING><NAME>MWWarning_C_warn_extracomma</NAME><VALUE>$$CODEWARRIOR_WARNING</VALUE></SETTING>
                 <SETTING><NAME>MWWarning_C_pedantic</NAME><VALUE>$$CODEWARRIOR_WARNING</VALUE></SETTING>
-                <SETTING><NAME>MWWarning_C_warningerrors</NAME><VALUE>$$CODEWARRIOR_WARNING</VALUE></SETTING>
+                <SETTING><NAME>MWWarning_C_warningerrors</NAME><VALUE>0</VALUE></SETTING>
                 <SETTING><NAME>MWWarning_C_warn_hidevirtual</NAME><VALUE>$$CODEWARRIOR_WARNING</VALUE></SETTING>
                 <SETTING><NAME>MWWarning_C_warn_implicitconv</NAME><VALUE>$$CODEWARRIOR_WARNING</VALUE></SETTING>
                 <SETTING><NAME>MWWarning_C_warn_notinlined</NAME><VALUE>$$CODEWARRIOR_WARNING</VALUE></SETTING>

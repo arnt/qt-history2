@@ -528,6 +528,10 @@ void QTableItem::setText( const QString &str )
 
   You don't usually need to use this function but if you want
   to draw custom content in a cell you will need to reimplement it.
+
+  Note that the painter is not clipped by default in order to get maximum
+  efficiency. If you want clipping, use
+
 */
 
 void QTableItem::paint( QPainter *p, const QColorGroup &cg,
@@ -2165,6 +2169,16 @@ void QTable::drawContents( QPainter *p, int cx, int cy, int cw, int ch )
     you will have to reimplement other functions: see the notes on <a
     href="#bigtables">large tables</a>.
 
+    Note that the painter is not clipped by default in order to get maximum
+    efficiency. If you want clipping, use
+
+    \code
+    p->setClipRect( QRect( QPoint(0,0), cr.size() ), QPainter::ClipPainter );
+    ... // your drawing code
+    p->setClipping( FALSE );
+    \endcode
+
+
 */
 
 void QTable::paintCell( QPainter* p, int row, int col,
@@ -3502,26 +3516,26 @@ int QTable::rowPos( int row ) const
     return leftHeader->sectionPos( row );
 }
 
-/*! Returns the number of the column at \a pos. \a pos must be given in
+/*! Returns the number of the column at position \a x. \a x must be given in
   content coordinates.
 
   \sa columnPos() rowAt()
 */
 
-int QTable::columnAt( int pos ) const
+int QTable::columnAt( int x ) const
 {
-    return topHeader->sectionAt( pos );
+    return topHeader->sectionAt( x );
 }
 
-/*! Returns the number of the row at \a pos. \a pos must be given in
+/*! Returns the number of the row at position \a y. \a y must be given in
   content coordinates.
 
   \sa rowPos() columnAt()
 */
 
-int QTable::rowAt( int pos ) const
+int QTable::rowAt( int y ) const
 {
-    return leftHeader->sectionAt( pos );
+    return leftHeader->sectionAt( y );
 }
 
 /*! Returns the bounding rectangle of the cell at \a row, \a col in content

@@ -1992,11 +1992,27 @@ void QScrollView::updateContents( const QRect& r )
 /*!
   \overload
 */
+void QScrollView::updateContents()
+{
+    updateContents( contentsX(), contentsY(), visibleWidth(), visibleHeight() );
+}
+
+/*!
+  \overload
+*/
 void QScrollView::repaintContents( const QRect& r, bool erase )
 {
     repaintContents(r.x(), r.y(), r.width(), r.height(), erase);
 }
 
+
+/*!
+  \overload
+*/
+void QScrollView::repaintContents( bool erase )
+{
+    repaintContents( contentsX(), contentsY(), visibleWidth(), visibleHeight(), erase );
+}
 
 
 /*!
@@ -2291,19 +2307,20 @@ bool QScrollView::focusNextPrevChild( bool next )
 void QScrollView::enableClipper(bool y)
 {
     if ( !d->clipped_viewport == !y )
-        return;
+	return;
     if ( d->children.count() )
-        qFatal("May only call QScrollView::enableClipper() before adding widgets");
+	qFatal("May only call QScrollView::enableClipper() before adding widgets");
     if ( y ) {
-        d->clipped_viewport = new QClipperWidget(clipper(), "qt_clipped_viewport", d->flags);
-        d->clipped_viewport->setGeometry(-coord_limit/2,-coord_limit/2,
-                                        coord_limit,coord_limit);
-        d->viewport->setBackgroundMode(NoBackground); // no exposures for this
-        d->viewport->removeEventFilter( this );
-        d->clipped_viewport->installEventFilter( this );
+	d->clipped_viewport = new QClipperWidget(clipper(), "qt_clipped_viewport", d->flags);
+	d->clipped_viewport->setGeometry(-coord_limit/2,-coord_limit/2,
+					 coord_limit,coord_limit);
+	d->clipped_viewport->setBackgroundMode( d->viewport->backgroundMode() );
+	d->viewport->setBackgroundMode(NoBackground); // no exposures for this
+	d->viewport->removeEventFilter( this );
+	d->clipped_viewport->installEventFilter( this );
     } else {
-        delete d->clipped_viewport;
-        d->clipped_viewport = 0;
+	delete d->clipped_viewport;
+	d->clipped_viewport = 0;
     }
 }
 

@@ -1621,6 +1621,7 @@ void QTextEdit::contentsMouseReleaseEvent( QMouseEvent * )
     if ( !onLink.isEmpty() && onLink == pressedLink && linksEnabled() ) {
 	QUrl u( doc->context(), onLink, TRUE );
 	emitLinkClicked( u.toString( FALSE, FALSE ) );
+	viewport()->setCursor( isReadOnly() ? arrowCursor : ibeamCursor );
     }
 #endif
     drawCursor( TRUE );
@@ -3337,6 +3338,7 @@ bool QTextEdit::handleReadOnlyKeyEvent( QKeyEvent *e )
 	if ( !doc->focusIndicator.href.isEmpty() ) {
 	    QUrl u( doc->context(), doc->focusIndicator.href, TRUE );
 	    emitLinkClicked( u.toString( FALSE, FALSE ) );
+	    viewport()->setCursor( isReadOnly() ? arrowCursor : ibeamCursor );
 	}
     } break;
 #endif

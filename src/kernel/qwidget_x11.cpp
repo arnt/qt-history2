@@ -784,14 +784,12 @@ void QWidget::setFontSys( QFont * )
 
 void QWidget::setBackgroundColorDirect( const QColor &color )
 {
-    QColor old = bg_col;
     bg_col = color;
     if ( extra && extra->bg_pix ) {		// kill the background pixmap
 	delete extra->bg_pix;
 	extra->bg_pix = 0;
     }
     XSetWindowBackground( x11Display(), winId(), bg_col.pixel() );
-    backgroundColorChange( old );
 }
 
 static int allow_null_pixmaps = 0;
@@ -824,9 +822,6 @@ void QWidget::setBackgroundPixmapDirect( const QPixmap &pixmap )
 	XSetWindowBackgroundPixmap( x11Display(), winId(), pm.handle() );
 	if ( testWFlags(WType_Desktop) )	// save rootinfo later
 	    qt_updated_rootinfo();
-    }
-    if ( !allow_null_pixmaps ) {
-	backgroundPixmapChange( old );
     }
 }
 

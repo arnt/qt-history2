@@ -463,7 +463,6 @@ void QWidget::setBackgroundColorDirect( const QColor &color )
 	extra->bg_pix = 0;
     }
     // XXX XSetWindowBackground( x11Display(), winId(), bg_col.pixel() );
-    backgroundColorChange( old );
 }
 
 static int allow_null_pixmaps = 0;
@@ -494,9 +493,6 @@ void QWidget::setBackgroundPixmapDirect( const QPixmap &pixmap )
 	    createExtra();
 	extra->bg_pix = new QPixmap( pm );
 	// XXX XSetWindowBackgroundPixmap( x11Display(), winId(), pm.handle() );
-    }
-    if ( !allow_null_pixmaps ) {
-	backgroundPixmapChange( old );
     }
 }
 
@@ -1544,7 +1540,7 @@ void QWidget::updateFrameStrut() const
     //FIXME: need to fill in frame strut info
 }
 
-// This one 
+// This one
 void QWidget::resetInputContext()
 {
 }

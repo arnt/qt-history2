@@ -83,6 +83,7 @@ QStringList AccessibleFactory::featureList() const
     list << "QDockWindowResizeHandle";
     list << "QTipLabel";
     list << "QFrame";
+    list << "QWidgetStack";
     list << "QWidget";
 
     return list;
@@ -103,9 +104,9 @@ QRESULT AccessibleFactory::createAccessibleInterface( const QString &classname, 
     } else if ( classname == "QDial" ) {
 	*iface = new QAccessibleRangeControl( object, Dial );
     } else if ( classname == "QScrollBar" ) {
-	*iface = new QAccessibleRangeControl( object, ScrollBar );
+	*iface = new QAccessibleScrollBar( object );
     } else if ( classname == "QSlider" ) {
-	*iface = new QAccessibleRangeControl( object, Slider );
+	*iface = new QAccessibleSlider( object );
     } else if ( classname == "QToolButton" ) {
 	QToolButton *tb = (QToolButton*)object;
 	if ( !tb->popup() )
@@ -185,6 +186,8 @@ QRESULT AccessibleFactory::createAccessibleInterface( const QString &classname, 
 	*iface = new QAccessibleWidget( object, ToolTip );
     } else if ( classname == "QFrame" ) {
 	*iface = new QAccessibleWidget( object, Border );
+    } else if ( classname == "QWidgetStack" ) {
+	*iface = new QAccessibleWidgetStack( object );
     } else if ( classname == "QWidget" ) {
 	*iface = new QAccessibleWidget( object );
     } else

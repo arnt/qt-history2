@@ -2579,7 +2579,7 @@ void QListView::drawContentsOffset( QPainter * p, int ox, int oy,
   painter p.  \a rect is is widget coordinates, ready to be fed to \a
   p.
 
-  The default function fills \a rect with colorGroup().brush( QColorGroup::Base ).
+  The default function fills \a rect with the colorGroup()'s base brush.
 */
 
 void QListView::paintEmptyArea( QPainter * p, const QRect & rect )
@@ -5409,6 +5409,10 @@ void QCheckListItem::paintCell( QPainter * p, const QColorGroup & cg,
     if ( !p )
 	return;
 
+    QListView *lv = listView();
+    if ( !lv )
+	return;
+
     p->fillRect( 0, 0, width, height(), cg.brush( QColorGroup::Base ) );
 
     if ( column != 0 ) {
@@ -5417,9 +5421,6 @@ void QCheckListItem::paintCell( QPainter * p, const QColorGroup & cg,
 	return;
     }
 
-    QListView *lv = listView();
-    if ( !lv )
-	return;
     int marg = lv->itemMargin();
     int r = marg;
 
@@ -6373,8 +6374,10 @@ void QListView::handleItemChange( QListViewItem *old, bool shift, bool control )
 
 void QListView::startRename()
 {
-    if ( currentItem() )
-	currentItem()->startRename( d->pressedColumn );
+    if ( !currentItem() )
+	return;
+    currentItem()->startRename( d->pressedColumn );
+    d->buttonDown = FALSE;
 }
 
 void QListView::selectRange( QListViewItem *from, QListViewItem *to, bool invert, bool includeFirst, bool clearSel )

@@ -300,10 +300,10 @@ bool EditorCompletion::eventFilter( QObject *o, QEvent *e )
 	curEditor = (Editor*)o;
 	QKeyEvent *ke = (QKeyEvent*)e;
 	if ( ke->key() == Key_Tab ) {
-	    curEditor->indent();
 	    QString s = curEditor->textCursor()->parag()->string()->toString().
 			left( curEditor->textCursor()->index() );
 	    if ( s.simplifyWhiteSpace().isEmpty() ) {
+		curEditor->indent();
 		int i = 0;
 		for ( ; i < curEditor->textCursor()->parag()->length() - 1; ++i ) {
 		    if ( curEditor->textCursor()->parag()->at( i )->c != ' ' &&

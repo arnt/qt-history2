@@ -981,6 +981,7 @@ New Functions:
     virtual void setEraseColor( const QColor & );
     const QPixmap *	erasePixmap() const;
     virtual void setErasePixmap( const QPixmap & );
+    const QBrush& backgroundBrush() const;
 
 
 
@@ -1097,6 +1098,7 @@ QDockArea
 QDockWindow
 QErrorMessage
 QFeatureListInterface
+QGridView
 QHttp [network]
 QInterfaceListInterface
 QInterfacePtr
@@ -1176,6 +1178,7 @@ Removed functions:
 	QRegExp::find( const QString& str, int index ) const; - has been renamed QRegExp::search()
 	QFont::charSet() const, not needed anymore
 	QFont::setCharSet( QFont::CharSet ), not needed anymore
+	QWidget::backgroundColorChange, QWidget::backgroundPixmapChange, not useful anymore, use paletteChange() instead
 
 
 Removed preprocessor directives

@@ -735,6 +735,7 @@ bool QOCIResult::fetch( int i )
     }
     if ( forwardOnly && at() > i )
 	return FALSE;
+    setAt( rowCache.size() - 1 );
     while ( at() < i ) {
 	if ( !cacheNext() )
 	    return FALSE;

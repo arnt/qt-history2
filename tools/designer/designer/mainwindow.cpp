@@ -931,6 +931,8 @@ bool MainWindow::eventFilter( QObject *o, QEvent *e )
 	lastPressWidget = 0;
 	if ( isAToolBarChild( o )  && currentTool() != CONNECT_TOOL )
 	    break;
+	if ( o && o->inherits( "QSizeGrip" ) )
+	    break;
 	if ( !( w = isAFormWindowChild( o ) ) || o->inherits( "SizeHandle" ) || o->inherits( "OrderIndicator" ) )
 	    break;
 	if ( !passiveInteractor )
@@ -946,8 +948,11 @@ bool MainWindow::eventFilter( QObject *o, QEvent *e )
 	w = isAFormWindowChild( o );
 	if ( lastPressWidget != (QWidget*)o && w &&
 	     !o->inherits( "SizeHandle" ) && !o->inherits( "OrderIndicator" ) &&
-	     !o->inherits( "QPopupMenu" ) && !o->inherits( "QMenuBar" ) )
+	     !o->inherits( "QPopupMenu" ) && !o->inherits( "QMenuBar" ) &&
+	     !o->inherits( "QSizeGrip" ) )
 	    return TRUE;
+	if ( o && o->inherits( "QSizeGrip" ) )
+	    break;
 	if ( lastPressWidget != (QWidget*)o ||
 	     ( !w || o->inherits( "SizeHandle" ) || o->inherits( "OrderIndicator" ) ) )
 	    break;

@@ -77,7 +77,7 @@ inline OutputIterator qCopy( InputIterator _begin, InputIterator _end,
 
 template <class BiIterator, class BiOutputIterator>
 inline BiOutputIterator qCopyBackward( BiIterator _begin, BiIterator _end,
-				     BiOutputIterator _dest )
+				       BiOutputIterator _dest )
 {
     while ( _begin != _end )
 	*--_dest = *--_end;
@@ -116,8 +116,8 @@ inline OutputIterator qReverseCopy( BiIterator _begin, BiIterator _end,
 
 
 template <class InputIterator, class T>
-inline InputIterator qFind(InputIterator first, InputIterator last,
-			   const T& val )
+inline InputIterator qFind( InputIterator first, InputIterator last,
+			    const T& val )
 {
     while ( first != last && *first != val )
 	++first;
@@ -126,7 +126,7 @@ inline InputIterator qFind(InputIterator first, InputIterator last,
 
 template <class InputIterator, class T, class Size>
 inline void qCount( InputIterator first, InputIterator last, const T& value,
-	    Size& n )
+		    Size& n )
 {
     for ( ; first != last; ++first )
 	if ( *first == value )
@@ -269,7 +269,7 @@ inline void qHeapSort( InputIterator b, InputIterator e )
 template <class Container>
 inline void qHeapSort( Container &c )
 {
-    if ( c.isEmpty() )
+    if ( c.begin() == c.end() )
 	return;
 
     // The second last parameter is a hack to retrieve the value type

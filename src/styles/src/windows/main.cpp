@@ -31,6 +31,8 @@ WindowsStyle::WindowsStyle()
 
 QRESULT WindowsStyle::queryInterface( const QUuid &uuid, QUnknownInterface **iface )
 {
+    *iface = 0;
+
     if ( uuid == IID_QUnknown )
 	*iface = (QUnknownInterface*)(QStyleFactoryInterface*)this;
     else if ( uuid == IID_QFeatureList )
@@ -40,11 +42,10 @@ QRESULT WindowsStyle::queryInterface( const QUuid &uuid, QUnknownInterface **ifa
     else if ( uuid == IID_QLibrary )
 	*iface = (QLibraryInterface*)this;
     else
-	*iface = 0;
+	return QE_NOINTERFACE;
 
-    if ( *iface )
-	(*iface)->addRef();
-    return;
+    (*iface)->addRef();
+    return QS_OK;
 }
 
 unsigned long WindowsStyle::addRef()

@@ -60,15 +60,19 @@ QODBCDriverPlugin::QODBCDriverPlugin()
 
 QRESULT QODBCDriverPlugin::queryInterface( const QUuid& uuid, QUnknownInterface** iface )
 {
+    *iface = 0;
+
     if ( uuid == IID_QUnknown )
 	*iface = (QUnknownInterface*)this;
     else if ( uuid == IID_QFeatureList )
 	*iface = (QFeatureListInterface*)this;
     else if ( uuid == IID_QSqlDriverFactory )
 	*iface = (QSqlDriverFactoryInterface*)this;
+    else
+	return QE_NOINTERFACE;
 
-    if ( *iface )
-	(*iface)->addRef();
+    (*iface)->addRef();
+    return QS_OK;
 }
 
 unsigned long QODBCDriverPlugin::addRef()

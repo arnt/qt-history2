@@ -29,6 +29,7 @@
 #include <qpainter.h>
 #include <qpaintdevicemetrics.h>
 #include <qwhatsthis.h>
+#include <qcolordialog.h>
 
 #include "filesave.xpm"
 #include "fileopen.xpm"
@@ -142,6 +143,8 @@ ApplicationWindow::~ApplicationWindow()
 
 void ApplicationWindow::newDoc()
 {
+    QColor col = QColorDialog::getColor( white, this );
+    return;
     ApplicationWindow *ed = new ApplicationWindow;
     ed->show();
 }

@@ -2152,11 +2152,33 @@ QString QTextDocument::selectedText( int id ) const
     QString s;
     s += c1.parag()->string()->toString().mid( c1.index() ) + "\n";
     QTextParag *p = c1.parag()->next();
-    while ( p && p != c2.parag() ) {
-	s += p->string()->toString() + "\n";
+    while ( p  ) {
+	int end = p == c2.parag() ? c2.index() : p->length() - 1;
+	if ( p == c2.parag() && p->at( QMAX( 0, end - 1 ) )->isCustom() )
+	    ++end;
+	if ( !p->customItems() ) {
+	    s += p->string()->toString().left( end ) + "\n";
+	} else {
+	    for ( int i = 0; i < end; ++i ) {
+		if ( p->at( i )->isCustom() ) {
+		    if ( p->at( i )->customItem()->isNested() ) {
+			s += "\n";
+			QTextTable *t = (QTextTable*)p->at( i )->customItem();
+			QPtrList<QTextTableCell> cells = t->tableCells();
+			for ( QTextTableCell *c = cells.first(); c; c = cells.next() )
+			    s += c->richText()->plainText() + "\n";
+			s += "\n";
+		    }
+		} else {
+		    s += p->at( i )->c;
+		}
+		s += "\n";
+	    }
+	}
+	if ( p == c2.parag() )
+	    break;
 	p = p->next();
     }
-    s += c2.parag()->string()->toString().left( c2.index() );
     return s;
 }
 

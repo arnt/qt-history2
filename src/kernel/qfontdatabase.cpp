@@ -51,18 +51,17 @@
 #include <stdlib.h>
 #include <ctype.h>
 
-#if defined( Q_WS_X11 )
-#  include <qfontdatabase_x11.cpp>
-#elif defined( Q_WS_MAC )
-#  include <qfontdatabase_mac.cpp>
-#elif defined( Q_WS_WIN )
-#  include <qfontdatabase_win.cpp>
-#elif defined( Q_WS_QWS )
-#  include <qfontdatabase_qws.cpp>
-#endif
-
 class QtFontFamily;
 class QtFontFoundry;
+
+#ifdef Q_WS_WIN
+static void newWinFont( void * p );
+static void add_style( QtFontFamily *family, const QString& styleName,
+		       bool italic, bool lesserItalic, int weight );
+#elif defined( Q_WS_MAC )
+static void add_style( QtFontFamily *family, const QString& styleName,
+		       bool italic, bool lesserItalic, int weight );
+#endif
 
 class QtFontStyle
 {
@@ -242,7 +241,6 @@ private:
 #endif
 };
 
-
 class QFontDatabasePrivate {
 public:
     QFontDatabasePrivate()
@@ -276,7 +274,17 @@ private:
     friend void newWinFont( void * p );
 #endif
 };
+static QFontDatabasePrivate *db=0;
 
+#if defined( Q_WS_X11 )
+#  include "qfontdatabase_x11.cpp"
+#elif defined( Q_WS_MAC )
+#  include "qfontdatabase_mac.cpp"
+#elif defined( Q_WS_WIN )
+#  include "qfontdatabase_win.cpp"
+#elif defined( Q_WS_QWS )
+#  include "qfontdatabase_qws.cpp"
+#endif
 
 QFont QtFontStyle::font( const QString & family, int pointSize ) const
 {
@@ -664,9 +672,6 @@ const QtFontFoundry *QFontDatabasePrivate::foundry( const QString foundryName ) 
 {
     return foundryDict.find( foundryName );
 }
-
-
-static QFontDatabasePrivate *db=0;
 
 
 /*!

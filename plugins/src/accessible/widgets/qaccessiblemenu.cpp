@@ -76,8 +76,12 @@ QString QAccessiblePopup::text( Text t, int control ) const
     if ( !!tx )
 	return tx;
 
-    int id = popupMenu()->idAt( control - 1 );
-    QMenuItem *item = popupMenu()->findItem( id );
+    int id;
+    QMenuItem *item = 0;
+    if ( control ) {
+	id = popupMenu()->idAt( control - 1 );
+	item = popupMenu()->findItem( id );
+    }
 
     switch ( t ) {
     case Name:
@@ -106,7 +110,7 @@ QAccessible::Role QAccessiblePopup::role( int control ) const
 	return PopupMenu;
     
     QMenuItem *item = popupMenu()->findItem( popupMenu()->idAt( control -1 ) );
-    if ( item->isSeparator() )
+    if ( item && item->isSeparator() )
 	return Separator;
     return MenuItem;
 }
@@ -119,6 +123,8 @@ QAccessible::State QAccessiblePopup::state( int control ) const
 
     int id = popupMenu()->idAt( control -1 );
     QMenuItem *item = popupMenu()->findItem( id );
+    if ( !item )
+	return (State)s;
 
     if ( popupMenu()->style() == WindowsStyle )
 	s |= HotTracked;
@@ -139,7 +145,7 @@ bool QAccessiblePopup::doDefaultAction( int control )
 
     int id = popupMenu()->idAt( control -1 );
     QMenuItem *item = popupMenu()->findItem( id );
-    if ( !item->isEnabled() )
+    if ( !item || !item->isEnabled() )
 	return FALSE;
 
     popupMenu()->activateItemAt( control - 1);
@@ -153,7 +159,7 @@ bool QAccessiblePopup::setFocus( int control )
 
     int id = popupMenu()->idAt( control -1 );
     QMenuItem *item = popupMenu()->findItem( id );
-    if ( !item->isEnabled() )
+    if ( !item || !item->isEnabled() )
 	return FALSE;
 
     popupMenu()->setActiveItem( control - 1 );
@@ -235,7 +241,24 @@ QString QAccessibleMenuBar::text( Text t, int control ) const
     QString tx = QAccessibleWidget::text( t, control );
     if ( !!tx )
 	return tx;
-    
+    if ( !control )
+	return tx;
+
+    int id = menuBar()->idAt( control - 1 );
+    switch ( t ) {
+    case Name:
+	return stripAmp( menuBar()->text( id ) );
+    case Accelerator:
+	tx = hotKey( menuBar()->text( id ) );
+	if ( !!tx )
+	    return "Alt + "+tx;
+	break;
+    case DefaultAction:
+	return menuBar()->tr("Open");
+    default:
+	break;
+    }
+
     return tx;
 }
 
@@ -245,7 +268,7 @@ QAccessible::Role QAccessibleMenuBar::role( int control ) const
 	return MenuBar;
 
     QMenuItem *item = menuBar()->findItem( menuBar()->idAt( control -1 ) );
-    if ( item->isSeparator() )
+    if ( item && item->isSeparator() )
 	return Separator;
     return MenuItem;
 }
@@ -258,6 +281,15 @@ QAccessible::State QAccessibleMenuBar::state( int control ) const
 
     int id = menuBar()->idAt( control -1 );
     QMenuItem *item = menuBar()->findItem( id );
+    if ( !item )
+	return (State)s;
+
+    if ( menuBar()->style() == WindowsStyle )
+	s |= HotTracked;
+    if ( item->isSeparator() || !item->isEnabled() )
+	s |= Unavailable;
+    if ( menuBar()->isItemActive( id ) )
+	s |= Focused;
 
     return (State)s;
 }
@@ -269,7 +301,7 @@ bool QAccessibleMenuBar::doDefaultAction( int control )
 
     int id = menuBar()->idAt( control -1 );
     QMenuItem *item = menuBar()->findItem( id );
-    if ( !item->isEnabled() )
+    if ( !item || !item->isEnabled() )
 	return FALSE;
 
     menuBar()->activateItemAt( control - 1);
@@ -283,7 +315,7 @@ bool QAccessibleMenuBar::setFocus( int control )
 
     int id = menuBar()->idAt( control -1 );
     QMenuItem *item = menuBar()->findItem( id );
-    if ( !item->isEnabled() )
+    if ( !item || !item->isEnabled() )
 	return FALSE;
 
     return TRUE;

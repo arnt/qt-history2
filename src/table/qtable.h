@@ -254,8 +254,8 @@ public:
     virtual int rowHeight( int row ) const;
     virtual int columnPos( int col ) const;
     virtual int rowPos( int row ) const;
-    virtual int columnAt( int pos ) const;
-    virtual int rowAt( int pos ) const;
+    virtual int columnAt( int x ) const;
+    virtual int rowAt( int y ) const;
 
     virtual int numRows() const;
     virtual int numCols() const;

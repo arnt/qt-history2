@@ -155,121 +155,116 @@ bool QDesignerTabWidget::eventFilter( QObject *o, QEvent *e )
     if ( o != tabBar() ) return FALSE;
 
     switch ( e->type() ) {
-    case QEvent::MouseButtonPress:
-	{
-	    mousePressed = TRUE;
-	    QMouseEvent *me = (QMouseEvent*)e;
-	    pressPoint = me->pos();
-	}
-	break;
-    case QEvent::MouseMove:
-	{
-	    QMouseEvent *me = (QMouseEvent*)e;
-	    if ( mousePressed && ( pressPoint - me->pos()).manhattanLength() > QApplication::startDragDistance() ) {
-		QTextDrag *drg = new QTextDrag( QString::number( (long) this ) , this );
-		mousePressed = FALSE;
-		dragPage = QTabWidget::currentPage();
-		dragLabel = QTabWidget::tabLabel( dragPage );
+    case QEvent::MouseButtonPress: {
+	mousePressed = TRUE;
+	QMouseEvent *me = (QMouseEvent*)e;
+	pressPoint = me->pos();
+    }
+    break;
+    case QEvent::MouseMove: {
+	QMouseEvent *me = (QMouseEvent*)e;
+	if ( mousePressed && ( pressPoint - me->pos()).manhattanLength() > QApplication::startDragDistance() ) {
+	    QTextDrag *drg = new QTextDrag( QString::number( (long) this ) , this );
+	    mousePressed = FALSE;
+	    dragPage = QTabWidget::currentPage();
+	    dragLabel = QTabWidget::tabLabel( dragPage );
 
-		int index = indexOf( dragPage );
+	    int index = indexOf( dragPage );
 
-		removePage( dragPage );
-		if ( !drg->dragMove() ) {
-		    insertTab( dragPage, dragLabel, index );
-		    showPage( dragPage );
-		}
-		if ( dropIndicator )
-		    dropIndicator->hide();
+	    removePage( dragPage );
+	    if ( !drg->dragMove() ) {
+		insertTab( dragPage, dragLabel, index );
+		showPage( dragPage );
 	    }
-	}
-	break;
-    case QEvent::DragLeave:
-	{
 	    if ( dropIndicator )
 		dropIndicator->hide();
 	}
-	break;
-    case QEvent::DragMove:
-	{
-	    QDragEnterEvent *de = (QDragEnterEvent*) e;
-	    if ( QTextDrag::canDecode( de ) ) {
-		QString text;
-		QTextDrag::decode( de, text );
-		if ( text == QString::number( (long)this ) )
-		    de->accept();
-		else
-		    return FALSE;
-	    }
-
-	    int index = 0;
-	    QRect rect;
-	    for ( ; index < tabBar()->count(); index++ ) {
-		if ( tabBar()->tabAt( index )->rect().contains( de->pos() ) ) {
-		    rect = tabBar()->tabAt( index )->rect();
-		    break;
-		}
-	    }
-
-	    if ( index == tabBar()->count() -1 ) {
-		QRect rect2 = rect;
-		rect2.setLeft( rect2.left() + rect2.width() / 2 );
-		if ( rect2.contains( de->pos() ) )
-		    index++;
-	    }
-
-	    if ( ! dropIndicator ) {
-		dropIndicator = new QWidget( this );
-		dropIndicator->setBackgroundColor( colorGroup().highlight() );
-	    }
-
-	    QPoint pos;
-	    if ( index == tabBar()->count() )
-		pos = tabBar()->mapToParent( QPoint( rect.x() + rect.width(), rect.y() ) );
+    }
+    break;
+    case QEvent::DragLeave:	{
+	if ( dropIndicator )
+	    dropIndicator->hide();
+    }
+    break;
+    case QEvent::DragMove: {
+	QDragEnterEvent *de = (QDragEnterEvent*) e;
+	if ( QTextDrag::canDecode( de ) ) {
+	    QString text;
+	    QTextDrag::decode( de, text );
+	    if ( text == QString::number( (long)this ) )
+		de->accept();
 	    else
-		pos = tabBar()->mapToParent( QPoint( rect.x(), rect.y() ) );
-
-	    dropIndicator->setGeometry( pos.x(), pos.y() , 3, rect.height() );
-	    dropIndicator->show();
+		return FALSE;
 	}
-	break;
-    case QEvent::Drop:
-	{
-	    QDragEnterEvent *de = (QDragEnterEvent*) e;
-	    if ( QTextDrag::canDecode( de ) ) {
-		QString text;
-		QTextDrag::decode( de, text );
-		if ( text == QString::number( (long)this ) ) {
 
-		    int newIndex = 0;
-		    for ( ; newIndex < tabBar()->count(); newIndex++ ) {
-			if ( tabBar()->tabAt( newIndex )->rect().contains( de->pos() ) )
-			    break;
-		    }
-
-		    if ( newIndex == tabBar()->count() -1 ) {
-			QRect rect2 = tabBar()->tabAt( newIndex )->rect();
-			rect2.setLeft( rect2.left() + rect2.width() / 2 );
-			if ( rect2.contains( de->pos() ) )
-			    newIndex++;
-		    }
-
-		    int oldIndex = 0;
-		    for ( ; oldIndex < tabBar()->count(); oldIndex++ ) {
-			if ( tabBar()->tabAt( oldIndex )->rect().contains( pressPoint ) )
-			    break;
-		    }
-
-		    FormWindow *fw = find_formwindow( this );
-		    MoveTabPageCommand *cmd =
-			new MoveTabPageCommand( tr( "Move Tab Page" ), fw, this,
-						dragPage, dragLabel, newIndex, oldIndex );
-		    fw->commandHistory()->addCommand( cmd );
-		    cmd->execute();
-		    de->accept();
-		}
+	int index = 0;
+	QRect rect;
+	for ( ; index < tabBar()->count(); index++ ) {
+	    if ( tabBar()->tabAt( index )->rect().contains( de->pos() ) ) {
+		rect = tabBar()->tabAt( index )->rect();
+		break;
 	    }
 	}
-	break;
+
+	if ( index == tabBar()->count() -1 ) {
+	    QRect rect2 = rect;
+	    rect2.setLeft( rect2.left() + rect2.width() / 2 );
+	    if ( rect2.contains( de->pos() ) )
+		index++;
+	}
+
+	if ( ! dropIndicator ) {
+	    dropIndicator = new QWidget( this );
+	    dropIndicator->setBackgroundColor( red );
+	}
+
+	QPoint pos;
+	if ( index == tabBar()->count() )
+	    pos = tabBar()->mapToParent( QPoint( rect.x() + rect.width(), rect.y() ) );
+	else
+	    pos = tabBar()->mapToParent( QPoint( rect.x(), rect.y() ) );
+
+	dropIndicator->setGeometry( pos.x(), pos.y() , 3, rect.height() );
+	dropIndicator->show();
+    }
+    break;
+    case QEvent::Drop: {
+	QDragEnterEvent *de = (QDragEnterEvent*) e;
+	if ( QTextDrag::canDecode( de ) ) {
+	    QString text;
+	    QTextDrag::decode( de, text );
+	    if ( text == QString::number( (long)this ) ) {
+
+		int newIndex = 0;
+		for ( ; newIndex < tabBar()->count(); newIndex++ ) {
+		    if ( tabBar()->tabAt( newIndex )->rect().contains( de->pos() ) )
+			break;
+		}
+
+		if ( newIndex == tabBar()->count() -1 ) {
+		    QRect rect2 = tabBar()->tabAt( newIndex )->rect();
+		    rect2.setLeft( rect2.left() + rect2.width() / 2 );
+		    if ( rect2.contains( de->pos() ) )
+			newIndex++;
+		}
+
+		int oldIndex = 0;
+		for ( ; oldIndex < tabBar()->count(); oldIndex++ ) {
+		    if ( tabBar()->tabAt( oldIndex )->rect().contains( pressPoint ) )
+			break;
+		}
+
+		FormWindow *fw = find_formwindow( this );
+		MoveTabPageCommand *cmd =
+		    new MoveTabPageCommand( tr( "Move Tab Page" ), fw, this,
+					    dragPage, dragLabel, newIndex, oldIndex );
+		fw->commandHistory()->addCommand( cmd );
+		cmd->execute();
+		de->accept();
+	    }
+	}
+    }
+    break;
     default:
 	break;
     }

@@ -353,7 +353,7 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
     if ( destroyw ) {
 	DestroyWindow( destroyw );
     }
-#ifdef UNICODE    
+#ifdef UNICODE
     if ( title )
 	delete [] title;
 #endif	
@@ -570,7 +570,6 @@ void QWidget::setBackgroundColorDirect( const QColor &color )
 	delete extra->bg_pix;
 	extra->bg_pix = 0;
     }
-    backgroundColorChange( old );
 }
 
 
@@ -593,9 +592,6 @@ void QWidget::setBackgroundPixmapDirect( const QPixmap &pixmap )
 	else
 	    createExtra();
 	extra->bg_pix = new QPixmap( pixmap );
-    }
-    if (!allow_null_pixmaps) {
-	backgroundPixmapChange( old );
     }
 }
 

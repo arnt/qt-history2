@@ -7,6 +7,7 @@
 #include <qdial.h>
 #include <qspinbox.h>
 #include <qscrollbar.h>
+#include <qslider.h>
 #include <qlineedit.h>
 #include <qlabel.h>
 #include <qlcdnumber.h>
@@ -23,6 +24,7 @@
 #include <qlistview.h>
 #include <qiconview.h>
 #include <qtextedit.h>
+#include <qwidgetstack.h>
 
 
 QString buddyString( QWidget *widget ) 
@@ -57,6 +59,9 @@ QString buddyString( QWidget *widget )
 
 QString stripAmp( const QString &text )
 {
+    if ( text.isEmpty() )
+	return text;
+
     QString n = text;
     for ( uint i = 0; i < n.length(); i++ ) {
 	if ( n[(int)i] == '&' )
@@ -67,6 +72,9 @@ QString stripAmp( const QString &text )
 
 QString hotKey( const QString &text )
 {
+    if ( text.isEmpty() )
+	return text;
+
     QString n = text;
     int fa = 0;
     bool ac = FALSE;
@@ -398,6 +406,48 @@ QMemArray<int> QAccessibleWidget::selection() const
 }
 
 /*!
+  \class QAccessibleWidgetStack qaccessible.h
+  \brief The QAccessibleWidgetStack class implements the QAccessibleInterface for widget stacks.
+  \preliminary
+*/
+
+/*!
+  Creates a QAccessibleWidgetStack object for \a o.
+*/
+QAccessibleWidgetStack::QAccessibleWidgetStack( QObject *o )
+: QAccessibleWidget( o )
+{
+    Q_ASSERT( o->inherits("QWidgetStack") );
+}
+
+/*! Returns the widget stack. */
+QWidgetStack *QAccessibleWidgetStack::widgetStack() const
+{
+    return (QWidgetStack*)object();
+}
+
+/*! \reimp */
+int QAccessibleWidgetStack::controlAt( int, int ) const
+{
+    return widgetStack()->id( widgetStack()->visibleWidget() ) + 1;
+}
+
+/*! \reimp */
+QRESULT QAccessibleWidgetStack::queryChild( int control, QAccessibleInterface **iface ) const
+{
+    if ( !control ) {
+	*iface = (QAccessibleInterface*)this;
+	QS_OK;
+    }
+
+    QWidget *widget = widgetStack()->widget( control - 1 );
+    if ( !widget )
+	return QAccessibleWidget::queryChild( control, iface );
+    return QAccessible::queryAccessibleInterface( widgetStack()->widget( control - 1 ), iface );
+}
+
+
+/*!
   \class QAccessibleButton qaccessible.h
   \brief The QAccessibleButton class implements the QAccessibleInterface for button type widgets.
   \preliminary
@@ -435,15 +485,20 @@ QString QAccessibleButton::text( Text t, int control ) const
     case DefaultAction:
 	    return QButton::tr("Press");
     case Accelerator:
-	tx = "ALT+"+hotKey( ((QButton*)widget())->text() );
-	if ( tx.isNull() )
-	    tx = "ALT+"+hotKey( buddyString( widget() ) );
+	tx = hotKey( ((QButton*)widget())->text() );
+	if ( !!tx ) {
+	    tx = "Alt + "+tx;
+	} else {
+	    tx = hotKey( buddyString( widget() ) );
+	    if ( !!tx )
+		tx = "Alt + "+tx;
+	}
 	return tx;
     case Name:
 	tx = ((QButton*)widget())->text();
-	if ( tx.isNull() && widget()->inherits("QToolButton") )
+	if ( tx.isEmpty() && widget()->inherits("QToolButton") )
 	    tx = ((QToolButton*)widget())->textLabel();
-	if ( tx.isNull() )
+	if ( tx.isEmpty() )
 	    tx = buddyString( widget() );
 
 	return stripAmp( tx );
@@ -502,7 +557,10 @@ QString QAccessibleRangeControl::text( Text t, int control ) const
     case Name:
 	return stripAmp( buddyString( widget() ) );
     case Accelerator:
-	return "ALT+"+hotKey( buddyString( widget() ) );
+	tx = hotKey( buddyString( widget() ) );
+	if ( !!tx )
+	    return "Alt + "+tx;
+	break;
     case Value:
 	if ( widget()->inherits( "QSlider" ) ) {
 	    QSlider *s = (QSlider*)widget();
@@ -582,7 +640,6 @@ int QAccessibleSpinWidget::navigate( NavDirection direction, int startControl ) 
 	return 1;
     case NavLastChild:
 	return 2;
-	break;
     case NavNext:
     case NavDown:
 	startControl += 1;
@@ -698,6 +755,377 @@ bool QAccessibleSpinWidget::doDefaultAction( int control )
 }
 
 /*!
+  \class QAccessibleScrollBar qaccessiblewidget.h
+  \brief The QAccessibleScrollBar class implements the QAccessibleInterface for scroll bars.
+  \preliminary
+*/
+
+/*! 
+  Constructs a QAccessibleScrollBar object for \a o. 
+  \a name, \a description, \a help, \a defAction and \a accelerator 
+  are propagated to the QAccessibleRangeControl constructor.
+*/
+QAccessibleScrollBar::QAccessibleScrollBar( QObject *o, QString name,
+    QString description, QString help, QString defAction, QString accelerator )
+: QAccessibleRangeControl( o, ScrollBar, name, description, help, defAction, accelerator )
+{
+    Q_ASSERT( o->inherits("QScrollBar" ) );
+}
+
+/*! Returns the scroll bar. */
+QScrollBar *QAccessibleScrollBar::scrollBar() const
+{
+    return (QScrollBar*)widget();
+}
+
+/*! \reimp */
+int QAccessibleScrollBar::controlAt( int x, int y ) const
+{
+    for ( int i = 1; i <= childCount(); i++ ) {
+	if ( rect(i).contains( x,y ) )
+	    return i;
+    }
+    return 0;
+}
+
+/*! \reimp */
+QRect QAccessibleScrollBar::rect( int control ) const
+{
+    QRect rect;
+    QRect srect = scrollBar()->sliderRect();
+    QSize sz = scrollBar()->style().scrollBarExtent();
+    switch ( control ) {
+    case 1:
+	if ( scrollBar()->orientation() == Vertical )
+	    rect = QRect( 0, 0, sz.width(), sz.height() );
+	else
+	    rect = QRect( 0, 0, sz.height(), sz.width() );
+	break;
+    case 2:
+	if ( scrollBar()->orientation() == Vertical )
+	    rect = QRect( 0, sz.height(), sz.width(), srect.y() - sz.height() );
+	else
+	    rect = QRect( sz.width(), 0, srect.x() - sz.width(), sz.height() );
+	break;
+    case 3:
+	rect = srect;
+	break;
+    case 4:
+	if ( scrollBar()->orientation() == Vertical )
+	    rect = QRect( 0, srect.bottom(), sz.width(), scrollBar()->rect().height() - srect.bottom() - sz.height() );
+	else
+	    rect = QRect( srect.right(), 0, scrollBar()->rect().width() - srect.right() - sz.width(), sz.height() );
+	break;
+    case 5:
+	if ( scrollBar()->orientation() == Vertical )
+	    rect = QRect( 0, scrollBar()->rect().height() - sz.height(), sz.width(), sz.height() );
+	else
+	    rect = QRect( scrollBar()->rect().width() - sz.width(), 0, sz.width(), sz.height() );
+	break;
+    default:
+	return QAccessibleRangeControl::rect( control );
+    }
+
+    QPoint tp = scrollBar()->mapToGlobal( QPoint( 0,0 ) );
+    return QRect( tp.x() + rect.x(), tp.y() + rect.y(), rect.width(), rect.height() );
+}
+
+/*! \reimp */
+int QAccessibleScrollBar::navigate( NavDirection direction, int startControl ) const
+{
+    if ( direction != NavFirstChild && direction != NavLastChild && direction != NavFocusChild && !startControl )
+	return QAccessibleRangeControl::navigate( direction, startControl );
+
+    switch ( direction ) {
+    case NavFirstChild:
+	return 1;
+    case NavLastChild:
+	return 5;
+    case NavNext:
+	return startControl == childCount() ? -1 : startControl + 1;
+    case NavDown:
+	if ( scrollBar()->orientation() == Horizontal )
+	    break;
+	return startControl == childCount() ? -1 : startControl + 1;
+    case NavRight:
+	if ( scrollBar()->orientation() == Vertical )
+	    break;
+	return startControl == childCount() ? -1 : startControl + 1;
+    case NavPrevious:
+	return startControl == 1 ? -1 : startControl - 1;
+    case NavUp:
+	if ( scrollBar()->orientation() == Horizontal )
+	    break;
+	return startControl == 1 ? -1 : startControl - 1;
+    case NavLeft:
+	if ( scrollBar()->orientation() == Vertical )
+	    break;
+	return startControl == 1 ? -1 : startControl - 1;
+    default:
+	break;
+    }
+
+    return -1;
+}
+
+/*! \reimp */
+int QAccessibleScrollBar::childCount() const
+{
+    return 5;
+}
+
+/*! \reimp */
+QRESULT	QAccessibleScrollBar::queryChild( int control, QAccessibleInterface **iface ) const
+{
+    *iface = 0;
+    return QS_FALSE;
+}
+
+/*! \reimp */
+QString	QAccessibleScrollBar::text( Text t, int control ) const
+{
+    switch ( t ) {
+    case Value:
+	if ( control && control != 3 )
+	    return QString::null;
+	break;
+    case Name:
+	switch ( control ) {
+	case 1:
+	    return scrollBar()->tr("Line up");
+	case 2:
+	    return scrollBar()->tr("Page up");
+	case 3:
+	    return scrollBar()->tr("Position");
+	case 4:
+	    return scrollBar()->tr("Page down");
+	case 5:
+	    return scrollBar()->tr("Line down");
+	}
+	break;
+    case DefaultAction:
+	if ( control != 3 )
+	    return scrollBar()->tr("Press");
+	break;
+    default:
+	break;
+
+    }
+    return QAccessibleRangeControl::text( t, control );
+}
+
+/*! \reimp */
+QAccessible::Role QAccessibleScrollBar::role( int control ) const
+{
+    switch ( control ) {
+    case 1:
+    case 2:
+	return PushButton;
+    case 3:
+	return Indicator;
+    case 4:
+    case 5:
+	return PushButton;
+    default:
+	return ScrollBar;
+    }
+}
+
+/*! \reimp */
+bool QAccessibleScrollBar::doDefaultAction( int control )
+{
+    switch ( control ) {
+    case 1:
+	scrollBar()->subtractLine();
+	return TRUE;
+    case 2:
+	scrollBar()->subtractPage();
+	return TRUE;
+    case 4:
+	scrollBar()->addPage();
+	return TRUE;
+    case 5:
+	scrollBar()->addLine();
+	return TRUE;
+    default:
+	return FALSE;
+    }
+}
+
+/*!
+  \class QAccessibleSlider qaccessiblewidget.h
+  \brief The QAccessibleScrollBar class implements the QAccessibleInterface for sliders.
+  \preliminary
+*/
+
+/*! 
+  Constructs a QAccessibleScrollBar object for \a o. 
+  \a name, \a description, \a help, \a defAction and \a accelerator 
+  are propagated to the QAccessibleRangeControl constructor.
+*/
+QAccessibleSlider::QAccessibleSlider( QObject *o, QString name,
+    QString description, QString help, QString defAction, QString accelerator )
+: QAccessibleRangeControl( o, ScrollBar, name, description, help, defAction, accelerator )
+{
+    Q_ASSERT( o->inherits("QSlider" ) );
+}
+
+/*! Returns the slider. */
+QSlider *QAccessibleSlider::slider() const
+{
+    return (QSlider*)widget();
+}
+
+/*! \reimp */
+int QAccessibleSlider::controlAt( int x, int y ) const
+{
+    for ( int i = 1; i <= childCount(); i++ ) {
+	if ( rect(i).contains( x,y ) )
+	    return i;
+    }
+    return 0;
+}
+
+/*! \reimp */
+QRect QAccessibleSlider::rect( int control ) const
+{
+    QRect rect;
+    QRect srect = slider()->sliderRect();
+    switch ( control ) {
+    case 1:
+	if ( slider()->orientation() == Vertical )
+	    rect = QRect( 0, 0, slider()->width(), srect.y() );
+	else
+	    rect = QRect( 0, 0, srect.x(), slider()->height() );
+	break;
+    case 2:
+	rect = srect;
+	break;
+    case 3:
+	if ( slider()->orientation() == Vertical )
+	    rect = QRect( 0, srect.y() + srect.height(), slider()->width(), slider()->height()- srect.y() - srect.height() );
+	else
+	    rect = QRect( srect.x() + srect.width(), 0, slider()->width() - srect.x() - srect.width(), slider()->height() );
+	break;
+    default:
+	return QAccessibleRangeControl::rect( control );
+    }
+
+    QPoint tp = slider()->mapToGlobal( QPoint( 0,0 ) );
+    return QRect( tp.x() + rect.x(), tp.y() + rect.y(), rect.width(), rect.height() );
+}
+
+/*! \reimp */
+int QAccessibleSlider::navigate( NavDirection direction, int startControl ) const
+{
+    if ( direction != NavFirstChild && direction != NavLastChild && direction != NavFocusChild && !startControl )
+	return QAccessibleRangeControl::navigate( direction, startControl );
+
+    switch ( direction ) {
+    case NavFirstChild:
+	return 1;
+    case NavLastChild:
+	return childCount();
+    case NavNext:
+	return startControl == childCount() ? -1 : startControl + 1;
+    case NavDown:
+	if ( slider()->orientation() == Horizontal )
+	    break;
+	return startControl == childCount() ? -1 : startControl + 1;
+    case NavRight:
+	if ( slider()->orientation() == Vertical )
+	    break;
+	return startControl == childCount() ? -1 : startControl + 1;
+    case NavPrevious:
+	return startControl == 1 ? -1 : startControl - 1;
+    case NavUp:
+	if ( slider()->orientation() == Horizontal )
+	    break;
+	return startControl == 1 ? -1 : startControl - 1;
+    case NavLeft:
+	if ( slider()->orientation() == Vertical )
+	    break;
+	return startControl == 1 ? -1 : startControl - 1;
+    default:
+	break;
+    }
+
+    return -1;
+}
+
+/*! \reimp */
+int QAccessibleSlider::childCount() const
+{
+    return 3;
+}
+
+/*! \reimp */
+QRESULT	QAccessibleSlider::queryChild( int control, QAccessibleInterface **iface ) const
+{
+    *iface = 0;
+    return QS_FALSE;    
+}
+
+/*! \reimp */
+QString	QAccessibleSlider::text( Text t, int control ) const
+{
+    switch ( t ) {
+    case Value:
+	if ( control && control != 2 )
+	    return QString::null;
+	break;
+    case Name:
+	switch ( control ) {
+	case 1:
+	    return slider()->tr("Page up");
+	case 2:
+	    return slider()->tr("Position");
+	case 3:
+	    return slider()->tr("Page down");
+	}
+	break;
+    case DefaultAction:
+	if ( control != 2 )
+	    return slider()->tr("Press");
+	break;
+    default:
+	break;
+    }
+    return QAccessibleRangeControl::text( t, control );
+}
+
+/*! \reimp */
+QAccessible::Role QAccessibleSlider::role( int control ) const
+{
+    switch ( control ) {
+    case 1:
+	return PushButton;
+    case 2:
+	return Indicator;
+    case 3:
+	return PushButton;
+    default:
+	return Slider;
+    }
+}
+
+/*! \reimp */
+bool QAccessibleSlider::doDefaultAction( int control )
+{
+    switch ( control ) {
+    case 1:
+	slider()->subtractLine();
+	return TRUE;
+    case 3:
+	slider()->addLine();
+	return TRUE;
+    default:
+	return FALSE;
+    }
+}
+
+
+/*!
   \class QAccessibleText qaccessiblewidget.h
   \brief The QAccessibleText class implements the QAccessibleInterface for widgets with editable text.
   \preliminary
@@ -723,7 +1151,10 @@ QString QAccessibleText::text( Text t, int control ) const
     case Name:
 	return stripAmp( buddyString( widget() ) );
     case Accelerator:
-	return "ALT+"+hotKey( buddyString( widget() ) );
+	str = hotKey( buddyString( widget() ) );
+	if ( !!str )
+	    return "Alt + "+str;
+	break;
     case Value:
 	if ( widget()->inherits( "QLineEdit" ) )
 	    return ((QLineEdit*)widget())->text();

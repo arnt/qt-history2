@@ -1820,7 +1820,6 @@ QApplication::globalEventProcessor(EventHandlerCallRef, EventRef event, void *da
     case kEventClassTextInput:
 	if(!(widget=focus_widget))
 	    return 1; //no use to me!
-	qDebug("Got %d", ekind);
 	if(ekind == kEventTextInputShowHideBottomWindow) {
 	    Boolean tmp = false;
 	    GetEventParameter(event, kEventParamTextInputSendShowHide, typeBoolean, NULL, sizeof(tmp), NULL, &tmp);
@@ -1854,11 +1853,15 @@ QApplication::globalEventProcessor(EventHandlerCallRef, EventRef event, void *da
 	UInt32 keyc;
 	GetEventParameter(event, kEventParamKeyCode, typeUInt32, NULL, sizeof(keyc), NULL, &keyc);
 	UInt32 state = 0L;
-	char chr = KeyTranslate((void *)GetScriptManagerVariable(smKCHRCache),
+	char chr = KeyTranslate((void *)GetScriptManagerVariable(smUnicodeScript),
 				(modif & shiftKey) | keyc, &state);
+	if(!chr)
+	    break;
+	static QTextCodec *c = NULL;
+	if(!c)
+	    c = QTextCodec::codecForName("Apple Roman");
+       	QString mystr = c->toUnicode(&chr, 1);
 	int mychar=get_key(chr);
-	QString mystr = QChar(chr);
-
 	QEvent::Type etype = (ekind == kEventRawKeyUp) ? QEvent::KeyRelease : QEvent::KeyPress;
 
 	if( mac_keyboard_grabber )
@@ -1909,10 +1912,10 @@ QApplication::globalEventProcessor(EventHandlerCallRef, EventRef event, void *da
 			    qt_app_im.startCompose(widget);
 		    }
 		} else {
-		    if((modifiers & (Qt::ControlButton | Qt::AltButton)) || (mychar > 127 || mychar < 0)) {
+		    if(modifiers & (Qt::ControlButton | Qt::AltButton)) {
 			mystr = QString();
 			chr = 0;
-		    }
+		    } 
 		    QKeyEvent ke(etype,mychar, chr, modifiers,
 				 mystr, ekind == kEventRawKeyRepeat, mystr.length());
 		    QApplication::sendSpontaneousEvent(widget,&ke);

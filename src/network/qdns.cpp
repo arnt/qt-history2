@@ -1759,6 +1759,11 @@ bool QDns::isWorking() const
     if ( t == None )
 	return FALSE;
 
+#if defined(Q_DNS_SYNCHRONOUS)
+    if ( d->noEventLoop )
+	return TRUE;
+#endif
+    
     QPtrList<QDnsRR> * ll = QDnsDomain::cached( this );
     int queries = n.count();
     while( ll->current() != 0 ) {

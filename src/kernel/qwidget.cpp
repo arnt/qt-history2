@@ -237,8 +237,6 @@
 	customEvent().
 
   <li> Change handlers:
-	backgroundColorChange(),
-	backgroundPixmapChange(),
 	enabledChange(),
 	fontChange(),
 	paletteChange(),
@@ -1990,10 +1988,9 @@ const QColor &QWidget::foregroundColor() const
 {
 #ifndef QT_NO_PALETTE
     BackgroundMode mode = extra ? (BackgroundMode) extra->bg_mode_visual : PaletteBackground;
-    QPalette pal = palette();
-    return pal.color( QPalette::Active, foregroundRoleFromMode(mode) );
+    return palette().color( QPalette::Active, foregroundRoleFromMode(mode) );
 #else
-    return Qt::black; //###
+    return Qt::black;
 #endif
 }
 
@@ -2030,68 +2027,6 @@ void QWidget::setEraseColor( const QColor & color )
 {
     setBackgroundModeDirect( FixedColor );
     setBackgroundColorDirect( color );
-}
-
-/*! \property QWidget::backgroundPixmap
-    \brief the widget's background pixmap
-
-  If the widget has backgroundMode() NoBackground, the
-  backgroundPixmap() returns a pixmap for which QPixmap:isNull() is
-  true.  If the widget has no pixmap is the background,
-  backgroundPixmap() returns a null pointer.
-
-  setBackgroundPixmap() is a convenience function that creates and
-  sets a modified QPalette with setPalette(). The palette is modified
-  according to the widget's background mode. For example, if the
-  background mode is PaletteButton the pixmap used for the palette's
-  QColorGroup::Button brush entry is set.
-
-  \sa backgroundPixmapChange(), backgroundColor,
-      erasePixmap, palette, QApplication::setPalette()
-*/
-const QPixmap *QWidget::backgroundPixmap() const
-{
-#ifndef QT_NO_PALETTE
-    BackgroundMode mode = extra ? (BackgroundMode) extra->bg_mode_visual : PaletteBackground;
-    switch( mode ) {
-    case FixedColor:
-    case FixedPixmap :
-    case NoBackground:
-    case X11ParentRelative:
-	return erasePixmap();
-    default:
-	QPalette pal = palette();
-	QColorGroup::ColorRole role = backgroundRoleFromMode( mode );
-	return pal.brush( QPalette::Active, role ).pixmap();
-    }
-#else
-    return erasePixmap();
-#endif
-}
-
-void QWidget::setBackgroundPixmap( const QPixmap &pixmap )
-{
-#ifndef QT_NO_PALETTE
-    BackgroundMode mode = extra ? (BackgroundMode) extra->bg_mode_visual : PaletteBackground;
-    switch( mode ) {
-    case FixedColor:
-    case FixedPixmap :
-    case NoBackground:
-    case X11ParentRelative:
-	setErasePixmap( pixmap );
-	break;
-    default:
-	QPalette pal = palette();
-	QColorGroup::ColorRole role = backgroundRoleFromMode( mode );
-	pal.setBrush( QPalette::Active, role, QBrush( pal.color( QPalette::Active, role ), pixmap ) );
-	pal.setBrush( QPalette::Inactive, role, QBrush( pal.color( QPalette::Inactive, role ), pixmap ) );
-	pal.setBrush( QPalette::Disabled, role, QBrush( pal.color( QPalette::Disabled, role ), pixmap ) );
-	setPalette( pal );
-	break;
-    }
-#else
-    setErasePixmap( pixmap );
-#endif
 }
 
 /*!
@@ -2267,12 +2202,12 @@ void QWidget::setBackgroundMode( BackgroundMode m )
 
 
 /*!\overload
-  
+
   Sets the widget's own background mode to \a m and the visual
   background mode to \a visual. The visual background mode is used
   with the designable properties backgroundColor, foregroundColor and
-  backgroundPixmap. 
-  
+  backgroundPixmap.
+
   For complex controls, the logical background mode sometimes differs
   from a widget's own background mode. A spinbox for example has
   PaletteBackground as background mode (typically dark grey), while
@@ -2295,7 +2230,7 @@ void QWidget::setBackgroundMode( BackgroundMode m, BackgroundMode visual )
 	return;
     }
     setBackgroundModeDirect(m);
-    if ( m != visual && !extra ) 
+    if ( m != visual && !extra )
 	createExtra();
     if ( extra )
 	extra->bg_mode_visual = visual;
@@ -2345,9 +2280,8 @@ const QColor & QWidget::backgroundColor() const
     case X11ParentRelative:
 	return eraseColor();
     default:
-	QPalette pal = palette();
 	QColorGroup::ColorRole role = backgroundRoleFromMode( mode );
-	return pal.color( QPalette::Active, role );
+	return colorGroup().color( role );
     }
 #else
     return eraseColor();
@@ -2380,43 +2314,90 @@ void QWidget::setBackgroundColor( const QColor &color )
 }
 
 
-/*!
-  \fn void QWidget::backgroundColorChange( const QColor &oldBackgroundColor )
+/*! \property QWidget::backgroundPixmap
+    \brief the widget's background pixmap
 
-  This virtual function is called from setBackgroundColor().
-  \e oldBackgroundColor is the previous background color; you can get the new
-  background color from backgroundColor().
+  If the widget has backgroundMode() NoBackground, the
+  backgroundPixmap() returns a pixmap for which QPixmap:isNull() is
+  true.  If the widget has no pixmap is the background,
+  backgroundPixmap() returns a null pointer.
 
-  Reimplement this function if your widget needs to know when its
-  background color changes.  You will almost certainly need to call
-  this implementation of the function.
+  setBackgroundPixmap() is a convenience function that creates and
+  sets a modified QPalette with setPalette(). The palette is modified
+  according to the widget's background mode. For example, if the
+  background mode is PaletteButton the pixmap used for the palette's
+  QColorGroup::Button brush entry is set.
 
-  \sa setBackgroundColor(), backgroundColor(), setPalette(), repaint(),
-  update()
+  \sa backgroundColor,  erasePixmap, palette, QApplication::setPalette()
 */
-
-void QWidget::backgroundColorChange( const QColor & )
+const QPixmap *QWidget::backgroundPixmap() const
 {
-    update();
+#ifndef QT_NO_PALETTE
+    BackgroundMode mode = extra ? (BackgroundMode) extra->bg_mode_visual : PaletteBackground;
+    switch( mode ) {
+    case FixedColor:
+    case FixedPixmap :
+    case NoBackground:
+    case X11ParentRelative:
+	return erasePixmap();
+    default:
+	QColorGroup::ColorRole role = backgroundRoleFromMode( mode );
+	return palette().brush( QPalette::Active, role ).pixmap();
+    }
+#else
+    return erasePixmap();
+#endif
 }
 
-/*!
-  \fn void QWidget::backgroundPixmapChange( const QPixmap & oldBackgroundPixmap )
-
-  This virtual function is called from setBackgroundPixmap().
-  \e oldBackgroundPixmap is the previous background pixmap; you can get the
-  new background pixmap from backgroundPixmap().
-
-  Reimplement this function if your widget needs to know when its
-  background pixmap changes.  You will almost certainly need to call
-  this implementation of the function.
-
-  \sa setBackgroundPixmap(), backgroundPixmap(), repaint(), update()
-*/
-
-void QWidget::backgroundPixmapChange( const QPixmap & )
+void QWidget::setBackgroundPixmap( const QPixmap &pixmap )
 {
-    update();
+#ifndef QT_NO_PALETTE
+    BackgroundMode mode = extra ? (BackgroundMode) extra->bg_mode_visual : PaletteBackground;
+    switch( mode ) {
+    case FixedColor:
+    case FixedPixmap :
+    case NoBackground:
+    case X11ParentRelative:
+	setErasePixmap( pixmap );
+	break;
+    default:
+	QPalette pal = palette();
+	QColorGroup::ColorRole role = backgroundRoleFromMode( mode );
+	pal.setBrush( QPalette::Active, role, QBrush( pal.color( QPalette::Active, role ), pixmap ) );
+	pal.setBrush( QPalette::Inactive, role, QBrush( pal.color( QPalette::Inactive, role ), pixmap ) );
+	pal.setBrush( QPalette::Disabled, role, QBrush( pal.color( QPalette::Disabled, role ), pixmap ) );
+	setPalette( pal );
+	break;
+    }
+#else
+    setErasePixmap( pixmap );
+#endif
+}
+
+
+/*! \property QWidget::backgroundBrush
+    \brief the widget's background brush
+
+  \sa backgroundColor,  backgroundPixmap, eraseColor,  palette, QApplication::setPalette()
+*/
+const QBrush& QWidget::backgroundBrush() const
+{
+    static QBrush noBrush;
+#ifndef QT_NO_PALETTE
+    BackgroundMode mode = extra ? (BackgroundMode) extra->bg_mode_visual : PaletteBackground;
+    switch( mode ) {
+    case FixedColor:
+    case FixedPixmap :
+    case NoBackground:
+    case X11ParentRelative:
+	return noBrush;
+    default:
+	QColorGroup::ColorRole role = backgroundRoleFromMode( mode );
+	return colorGroup().brush( role );
+    }
+#else
+    return noBrush;
+#endif
 }
 
 

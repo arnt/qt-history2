@@ -73,11 +73,13 @@ public:
     QRESULT queryInterface( const QUuid&, QUnknownInterface** );
 
 private:
+    bool load();
+    void createInstanceInternal();
+
     QLibraryPrivate *d;
 
     QString libfile;
     Policy libPol;
-    void createInstanceInternal();
     QUnknownInterface *entry;
 
 private:	// Disabled copy constructor and operator=

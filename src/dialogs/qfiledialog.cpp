@@ -2769,13 +2769,11 @@ void QFileDialog::setSelectedFilter( const QString& mask )
 
   If one or more files were selected selectedFiles contains the
   names of the selected files including their absolute paths. If no
-  files were selected selectedFiles is an empty list.
+  files were selected or the mode wasn't ExistingFiles selectedFiles 
+  is an empty list.
 
-  If the file dialog is set to select a single file or directory, and
-  the user selected a file or directory, selectedFiles is a list
-  containing this file's name. It is more convenient to use
-  selectedFile() if the mode is \c ExistingFile, \c Directory or \c
-  DirectoryOnly.
+  It is more convenient to use selectedFile() if the mode is 
+  \c ExistingFile, \c Directory or \c DirectoryOnly.
 
   \sa selectedFile, selectedFilter, QValueList::isEmpty()
 */
@@ -3367,17 +3365,20 @@ void QFileDialog::okClicked()
     // if we're in multi-selection mode and something is selected,
     // accept it and be done.
     if ( mode() == ExistingFiles ) {
-	emit filesSelected( selectedFiles() );
 	if ( ! nameEdit->text().isEmpty() ) {
-	    accept();
-	    return;
+	    QUrlOperator u( d->url, nameEdit->text() );
+	    if ( !u.isDir() ) {
+		emit filesSelected( selectedFiles() );
+		accept();
+		return;
+	    }
 	}
     }
 
     if ( mode() == AnyFile ) {
-	QUrlInfo f( d->url, nameEdit->text() );
-	if ( !f.isDir() ) {
-	    d->currentFileName = d->url + nameEdit->text();
+	QUrlOperator u( d->url, nameEdit->text() );
+	if ( !u.isDir() ) {
+	    d->currentFileName = u;
 	    emit fileSelected( selectedFile() );
 	    accept();
 	    return;

@@ -13,6 +13,7 @@ widgets {
 		  $$WIDGETS_H/qdockwindow.h \
 		  $$WIDGETS_H/qframe.h \
 		  $$WIDGETS_H/qgrid.h \
+		  $$WIDGETS_H/qgridview.h \
 		  $$WIDGETS_H/qgroupbox.h \
 		  $$WIDGETS_H/qhbuttongroup.h \
 		  $$WIDGETS_H/qheader.h \
@@ -65,6 +66,7 @@ widgets {
 		  $$WIDGETS_CPP/qdockwindow.cpp \
 		  $$WIDGETS_CPP/qframe.cpp \
 		  $$WIDGETS_CPP/qgrid.cpp \
+		  $$WIDGETS_CPP/qgridview.cpp \
 		  $$WIDGETS_CPP/qgroupbox.cpp \
 		  $$WIDGETS_CPP/qhbuttongroup.cpp \
 		  $$WIDGETS_CPP/qheader.cpp \

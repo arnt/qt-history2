@@ -49,6 +49,7 @@
 #include "qdrawutil.h"
 #include "qvalidator.h"
 #include "qdragobject.h"
+#include "qgridview.h"
 #include "qapplication.h"
 
 //////////// QWellArray BEGIN
@@ -67,11 +68,9 @@
 
 struct QWellArrayData;
 
-class QWellArray : public QFrame
+class QWellArray : public QGridView
 {
     Q_OBJECT
-    Q_PROPERTY( int numCols READ numCols )
-    Q_PROPERTY( int numRows READ numRows )
     Q_PROPERTY( int selectedColumn READ selectedColumn )
     Q_PROPERTY( int selectedRow READ selectedRow )
 
@@ -82,21 +81,13 @@ public:
     QString cellContent( int row, int col ) const;
     // ### Paul !!! virtual void setCellContent( int row, int col, const QString &);
 
-    int numCols() const { return nCols; }
-    int numRows() const { return nRows; }
-
     int selectedColumn() const { return selCol; }
     int selectedRow() const { return selRow; }
 
     virtual void setSelected( int row, int col );
 
-    int cellHeight() const { return cellH; }
-    int cellWidth() const { return cellW; }
-    void setCellSize( int w, int h ) { cellW = w; cellH = h; }
-
     QSize sizeHint() const;
 
-    virtual void setDimension( int rows, int cols );
     virtual void setCellBrush( int row, int col, const QBrush & );
     QBrush cellBrush( int row, int col );
 
@@ -104,16 +95,12 @@ signals:
     void selected( int row, int col );
 
 protected:
+    void dimensionChange( int oldRows, int oldCols );
     virtual void setCurrent( int row, int col );
 
-    int findRow( int yPos ) const;
-    int findCol( int xPos ) const;
+    virtual void paintCell( QPainter *, int row, int col );
+    virtual void paintCellContents( QPainter *, int row, int col, const QRect& );
 
-    virtual void drawContents( QPainter *, int row, int col, const QRect& );
-    void drawContents( QPainter * );
-
-    void updateCell( int row, int column, bool erase=TRUE );
-    void paintCell( QPainter*, int row, int col );
     void mousePressEvent( QMouseEvent* );
     void mouseReleaseEvent( QMouseEvent* );
     void mouseMoveEvent( QMouseEvent* );
@@ -126,11 +113,7 @@ private:
     int curCol;
     int selRow;
     int selCol;
-    int nCols;
-    int nRows;
     bool smallStyle;
-    int cellH;
-    int cellW;
     QWellArrayData *d;
 
 private:	// Disabled copy constructor and operator=
@@ -161,29 +144,30 @@ struct QWellArrayData {
 */
 
 QWellArray::QWellArray( QWidget *parent, const char * name, bool popup )
-    : QFrame( parent, name,
-	      popup ? (WStyle_Customize|WStyle_Tool|WStyle_NoBorder) : 0 )
+    : QGridView( parent, name,
+		 (popup ? (WStyle_Customize|WStyle_Tool|WStyle_NoBorder) : 0 ) )
 {
     d = 0;
     setFocusPolicy( StrongFocus );
-    setBackgroundMode( PaletteButton );
-    nCols = 7;
-    nRows = 7;
-    int w = 24;		// cell width
-    int h = 21;		// cell height
+    viewport()->setBackgroundMode( PaletteBackground );
+    setNumCols( 7 );
+    setNumRows( 7 );
+    setCellWidth( 24 );
+    setCellHeight( 21 );
     smallStyle = popup;
 
     if ( popup ) {
-	w = h = 18;
+	setCellWidth( 18 );
+	setCellHeight( 18 );
 	if ( style() == WindowsStyle )
 	    setFrameStyle( QFrame::WinPanel | QFrame::Raised );
 	else
 	    setFrameStyle( QFrame::Panel | QFrame::Raised );
 	setMargin( 1 );
 	setLineWidth( 2 );
+    } else {
+	setFrameStyle( QFrame::NoFrame );
     }
-    cellW = w;
-    cellH = h;
     curCol = 0;
     curRow = 0;
     selCol = -1;
@@ -191,19 +175,14 @@ QWellArray::QWellArray( QWidget *parent, const char * name, bool popup )
 
     if ( smallStyle )
 	setMouseTracking( TRUE );
-
-    resize( sizeHint() );
-
 }
 
 
 QSize QWellArray::sizeHint() const
 {
     constPolish();
-    int f = frameWidth() * 2;
-    int w = nCols * cellWidth() + f;
-    int h = nRows * cellHeight() + f;
-    return QSize( w, h );
+    QSize s = gridSize().boundedTo( QSize(640, 480 ) );
+    return QSize( s.width() + 2*frameWidth(), s.height() + 2*frameWidth() );
 }
 
 
@@ -256,35 +235,17 @@ void QWellArray::paintCell( QPainter* p, int row, int col )
 	    style().drawFocusRect(p, QRect(0,0,w,h), g );
 	}
     }
-    drawContents( p, row, col, QRect(b, b, w - 2*b, h - 2*b) );
-}
-
-/*!
-  Pass-through to QTableView::drawContents() to avoid hiding.
-*/
-void QWellArray::drawContents( QPainter *p )
-{
-    QRect cr = p->clipRegion().boundingRect();
-    QRect cell;
-    for ( int r = 0, y = 0; r < numRows(); r++, y += cellHeight() )
-	for ( int c = 0, x = 0; c < numCols(); c++, x += cellWidth() ) {
-	    cell.setRect( x, y, cellWidth(), cellHeight() );
-	    if ( cell.intersects( cr ) ) {
-		p->translate( x, y );
-		paintCell( p, r, c );
-		p->translate( -x, -y );
-	    }
-	}
+    paintCellContents( p, row, col, QRect(b, b, w - 2*b, h - 2*b) );
 }
 
 /*!
   Reimplement this function to change the contents of the well array.
  */
-void QWellArray::drawContents( QPainter *p, int row, int col, const QRect &r )
+void QWellArray::paintCellContents( QPainter *p, int row, int col, const QRect &r )
 {
 
     if ( d ) {
-	p->fillRect( r, d->brush[row*nCols+col] );
+	p->fillRect( r, d->brush[row*numCols()+col] );
     } else {
 	p->fillRect( r, white );
 	p->setPen( black );
@@ -301,7 +262,7 @@ void QWellArray::mousePressEvent( QMouseEvent* e )
     // The current cell marker is set to the cell the mouse is pressed
     // in.
     QPoint pos = e->pos();
-    setCurrent( findRow( pos.y() ), findCol( pos.x() ) );
+    setCurrent( rowAt( pos.y() ), columnAt( pos.x() ) );
 }
 
 /*\reimp
@@ -322,7 +283,7 @@ void QWellArray::mouseMoveEvent( QMouseEvent* e )
     //   clicked in.
     if ( smallStyle ) {
 	QPoint pos = e->pos();
-	setCurrent( findRow( pos.y() ), findCol( pos.x() ) );
+	setCurrent( rowAt( pos.y() ), columnAt( pos.x() ) );
     }
 }
 
@@ -395,13 +356,9 @@ void QWellArray::focusInEvent( QFocusEvent* )
 /*!
   Sets the size of the well array to be \a rows cells by \a cols.
   Resets any brush info set by setCellBrush().
-
-  Must be called by reimplementors.
  */
-void QWellArray::setDimension( int rows, int cols )
+void QWellArray::dimensionChange( int, int )
 {
-    nRows = rows;
-    nCols = cols;
     if ( d ) {
 	if ( d->brush )
 	    delete[] d->brush;
@@ -414,10 +371,10 @@ void QWellArray::setCellBrush( int row, int col, const QBrush &b )
 {
     if ( !d ) {
 	d = new QWellArrayData;
-	d->brush = new QBrush[nRows*nCols];
+	d->brush = new QBrush[numRows()*numCols()];
     }
-    if ( row >= 0 && row < nRows && col >= 0 && col < nCols )
-	d->brush[row*nCols+col] = b;
+    if ( row >= 0 && row < numRows() && col >= 0 && col < numCols() )
+	d->brush[row*numCols()+col] = b;
 #ifdef QT_CHECK_RANGE
     else
 	qWarning( "QWellArray::setCellBrush( %d, %d ) out of range", row, col );
@@ -433,8 +390,8 @@ void QWellArray::setCellBrush( int row, int col, const QBrush &b )
 
 QBrush QWellArray::cellBrush( int row, int col )
 {
-    if ( d && row >= 0 && row < nRows && col >= 0 && col < nCols )
-	return d->brush[row*nCols+col];
+    if ( d && row >= 0 && row < numRows() && col >= 0 && col < numCols() )
+	return d->brush[row*numCols()+col];
     return NoBrush;
 }
 
@@ -483,23 +440,6 @@ void QWellArray::keyPressEvent( QKeyEvent* e )
 	return;
     }
 
-}
-
-int QWellArray::findRow( int yPos ) const
-{
-    return yPos / cellHeight();
-}
-
-int QWellArray::findCol( int xPos ) const
-{
-    return xPos / cellWidth();
-}
-
-void QWellArray::updateCell( int row, int column, bool erase )
-{
-    QRect ur = QRect( column*cellWidth(), row*cellHeight(),
-		      cellWidth(), cellHeight() );
-    repaint( ur, erase );
 }
 
 //////////// QWellArray END
@@ -575,12 +515,10 @@ class QColorWell : public QWellArray
 public:
     QColorWell( QWidget *parent, int r, int c, QRgb *vals )
 	:QWellArray( parent, "" ), values( vals ), mousePressed( FALSE ), oldCurrent( -1, -1 )
-    { setDimension(r,c); setWFlags( WResizeNoErase ); }
-    QSizePolicy sizePolicy() const;
+    { setNumRows(r), setNumCols(c); setSizePolicy( QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Minimum) ); }
 
 protected:
-    void drawContents( QPainter *, int row, int col, const QRect& );
-    void drawContents( QPainter *p ) { QWellArray::drawContents(p); }
+    void paintCellContents( QPainter *, int row, int col, const QRect& );
     void mousePressEvent( QMouseEvent *e );
     void mouseMoveEvent( QMouseEvent *e );
     void mouseReleaseEvent( QMouseEvent *e );
@@ -599,12 +537,7 @@ private:
 
 };
 
-QSizePolicy QColorWell::sizePolicy() const
-{
-    return QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Minimum );
-}
-
-void QColorWell::drawContents( QPainter *p, int row, int col, const QRect &r )
+void QColorWell::paintCellContents( QPainter *p, int row, int col, const QRect &r )
 {
     int i = row + col*numRows();
     p->fillRect( r, QColor( values[i] ) );
@@ -626,7 +559,7 @@ void QColorWell::mouseMoveEvent( QMouseEvent *e )
 	return;
     if ( ( pressPos - e->pos() ).manhattanLength() > QApplication::startDragDistance() ) {
 	setCurrent( oldCurrent.x(), oldCurrent.y() );
-	int i = findRow( e->y() ) + findCol( e->x() ) * numRows();
+	int i = rowAt( e->y() ) + columnAt( e->x() ) * numRows();
 	QColor col( values[ i ] );
 	QColorDrag *drg = new QColorDrag( col, this );
 	QPixmap pix( cellWidth(), cellHeight() );
@@ -660,7 +593,7 @@ void QColorWell::dragLeaveEvent( QDragLeaveEvent * )
 void QColorWell::dragMoveEvent( QDragMoveEvent *e )
 {
     if ( QColorDrag::canDecode( e ) ) {
-	setCurrent( findRow( e->pos().y() ), findCol( e->pos().x() ) );
+	setCurrent( rowAt( e->pos().y() ), columnAt( e->pos().x() ) );
 	e->accept();
     } else
 	e->ignore();
@@ -669,7 +602,7 @@ void QColorWell::dragMoveEvent( QDragMoveEvent *e )
 void QColorWell::dropEvent( QDropEvent *e )
 {
     if ( QColorDrag::canDecode( e ) ) {
-	int i = findRow( e->pos().y() ) + findCol( e->pos().x() ) * numRows();
+	int i = rowAt( e->pos().y() ) + columnAt( e->pos().x() ) * numRows();
 	QColor col;
 	QColorDrag::decode( e, col );
 	values[ i ] = col.rgb();
@@ -705,7 +638,6 @@ signals:
 
 protected:
     QSize sizeHint() const;
-    QSizePolicy sizePolicy() const;
     void drawContents(QPainter* p);
     void mouseMoveEvent( QMouseEvent * );
     void mousePressEvent( QMouseEvent * );
@@ -740,8 +672,6 @@ signals:
     void newHsv( int h, int s, int v );
 
 protected:
-//    QSize sizeHint() const;
-//    QSizePolicy sizePolicy() const;
     void paintEvent( QPaintEvent*);
     void mouseMoveEvent( QMouseEvent * );
     void mousePressEvent( QMouseEvent * );
@@ -881,6 +811,7 @@ QColorPicker::QColorPicker(QWidget* parent, const char* name )
     pix = new QPixmap;
     pix->convertFromImage(img);
     setBackgroundMode( NoBackground );
+    setSizePolicy( QSizePolicy( QSizePolicy::Fixed, QSizePolicy::Fixed )  );
 }
 
 QColorPicker::~QColorPicker()
@@ -891,11 +822,6 @@ QColorPicker::~QColorPicker()
 QSize QColorPicker::sizeHint() const
 {
     return QSize( pWidth + 2*frameWidth(), pHeight + 2*frameWidth() );
-}
-
-QSizePolicy QColorPicker::sizePolicy() const
-{
-    return QSizePolicy( QSizePolicy::Fixed, QSizePolicy::Fixed );
 }
 
 void QColorPicker::setCol( int h, int s )
@@ -1381,7 +1307,8 @@ QColorDialogPrivate::QColorDialogPrivate( QColorDialog *dialog ) :
 
     if ( !compact ) {
 	standard = new QColorWell( dialog, 6, 8, stdrgb );
-	standard->setCellSize( 28, 24 );
+	standard->setCellWidth( 28 );
+	standard->setCellHeight( 24 );
 	QLabel * lab = new QLabel( standard,
 				QColorDialog::tr( "&Basic colors"), dialog );
 	connect( standard, SIGNAL(selected(int,int)), SLOT(newStandard(int,int)));
@@ -1392,7 +1319,8 @@ QColorDialogPrivate::QColorDialogPrivate( QColorDialog *dialog ) :
 	leftLay->addStretch();
 
 	custom = new QColorWell( dialog, 2, 8, cusrgb );
-	custom->setCellSize( 28, 24 );
+	custom->setCellWidth( 28 );
+	custom->setCellHeight( 24 );
 	custom->setAcceptDrops( TRUE );
 
 	connect( custom, SIGNAL(selected(int,int)), SLOT(newCustom(int,int)));

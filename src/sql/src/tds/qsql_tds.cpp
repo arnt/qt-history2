@@ -359,7 +359,18 @@ bool QTDSResult::fetchFirst()
 #ifdef DEBUG_TDS
     qDebug( "QTDSResult::fetchFirst()" );
 #endif
-    return fetch( 0 );
+    if ( forwardOnly && at() != QSql::BeforeFirst ) {
+	return FALSE;
+    }
+    if ( !forwardOnly && set->seek( 0 ) ) {
+	setAt( 0 );
+	return TRUE;
+    }
+    if ( cacheNext() ) {
+	setAt( 0 );
+	return TRUE;
+    }
+    return FALSE;
 }
 
 bool QTDSResult::fetchNext()
@@ -367,8 +378,15 @@ bool QTDSResult::fetchNext()
 #ifdef DEBUG_TDS
     qDebug( "QTDSResult::fetchNext()" );
 #endif
-    //## TODO Forward-Only
-    return fetch( at() + 1 );
+    if ( !forwardOnly && set->seek( at() + 1 ) ) {
+	setAt( at() + 1 );
+	return TRUE;
+    }
+    if ( cacheNext() ) {
+	setAt( at() + 1 );
+	return TRUE;
+    }
+    return FALSE;
 }
 
 
@@ -418,7 +436,7 @@ bool QTDSResult::cacheNext()
 #ifdef DEBUG_TDS
 	qDebug( "QTDSResult::cacheNext: FAIL or BUF_FULL" );
 #endif
-// ### TODO: Error handling
+	setLastError( d->lastError );
 	return FALSE;
     }
 #ifdef DEBUG_TDS
@@ -532,34 +550,6 @@ bool QTDSResult::reset ( const QString& query )
 #endif	
     }
 
-/* Hmmm... cursors unfortunately won't work... */
-//    DBCURSOR *dbc = NULL;
-//
-//    if ( true ) {
-//	qDebug("Opening cursor...");
-//	dbc = (DBCURSOR*)dbcursoropen( d->dbproc, (BYTE*)"SELECT * FROM TEST", CUR_DYNAMIC, CUR_READONLY, TDS_CURSOR_SIZE, d->curStat );
-//	if ( !dbc ) {
-//	    qDebug( "No cursor :(" );
-//	    return FALSE;
-//	}
-//
-//	DBINT lengths[TDS_CURSOR_SIZE];
-//	BYTE data[TDS_CURSOR_SIZE];
-//
-//	qDebug("Binding data...");
-//	if ( dbcursorbind( dbc, 1, NOBIND, 0, lengths, data, NULL ) != SUCCEED ) {
-//	    qDebug( "NoBind :(" );
-//	    return FALSE;
-//	}
-//
-//	qDebug("Fetching data...");
-//	dbcursorfetch( dbc, FETCH_RELATIVE, TDS_CURSOR_SIZE );
-//
-//	qDebug("Closing cursor...");
-//	dbcursorclose( dbc );
-//
-//    }
-
     setActive( TRUE );
     return TRUE;
 }
@@ -610,8 +600,7 @@ QTDSDriver::~QTDSDriver()
 
 bool QTDSDriver::hasTransactionSupport() const
 {
-    //## TODO
-    return FALSE;
+    return TRUE;
 }
 
 bool QTDSDriver::hasQuerySizeSupport() const
@@ -729,7 +718,7 @@ bool QTDSDriver::beginTransaction()
 #endif
 	return FALSE;
     }
-    if ( dbcmd( d->dbproc, "BEGIN TRANSACTION;") == FAIL ) {
+    if ( dbcmd( d->dbproc, "BEGIN TRANSACTION" ) == FAIL ) {
 	setLastError( d->lastError );
 	dbfreebuf( d->dbproc );
 	return FALSE;
@@ -752,7 +741,7 @@ bool QTDSDriver::commitTransaction()
 #endif
 	return FALSE;
     }
-    if ( dbcmd( d->dbproc, "COMMIT TRANSACTION;") == FAIL ) {
+    if ( dbcmd( d->dbproc, "COMMIT TRANSACTION" ) == FAIL ) {
 	setLastError( d->lastError );
 	dbfreebuf( d->dbproc );
 	return FALSE;
@@ -775,7 +764,7 @@ bool QTDSDriver::rollbackTransaction()
 #endif
 	return FALSE;
     }
-    if ( dbcmd( d->dbproc, "ROLLBACK TRANSACTION;") == FAIL ) {
+    if ( dbcmd( d->dbproc, "ROLLBACK TRANSACTION" ) == FAIL ) {
 	setLastError( d->lastError );
 	dbfreebuf( d->dbproc );
 	return FALSE;

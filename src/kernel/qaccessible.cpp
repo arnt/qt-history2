@@ -398,6 +398,14 @@
 static QPluginManager<QAccessibleFactoryInterface> *qAccessibleManager = 0;
 static QPtrDict<QAccessibleInterface> *qAccessibleInterface = 0;
 
+static void cleanup()
+{
+    delete qAccessibleInterface;
+    qAccessibleInterface = 0;
+    delete qAccessibleManager;
+    qAccessibleManager = 0;
+}
+
 QRESULT QAccessible::queryAccessibleInterface( QObject *object, QAccessibleInterface **iface )
 {
     *iface = 0;
@@ -409,6 +417,7 @@ QRESULT QAccessible::queryAccessibleInterface( QObject *object, QAccessibleInter
     if ( !*iface ) {
 	if ( !qAccessibleManager ) {
 	    qAccessibleManager = new QPluginManager<QAccessibleFactoryInterface>( IID_QAccessibleFactory );
+	    qAddPostRoutine( cleanup );
 
 	    QString defpath(getenv("QTDIR"));
 	    if (! defpath.isNull() && ! defpath.isEmpty())

@@ -2,11 +2,11 @@ TEMPLATE	= lib
 CONFIG		+= qt warn_on plugin
 REQUIRES	= dll !bigcodecs
 
-HEADERS		= $(QTDIR)/src/codecs/qgbkcodec.h \
-		  $(QTDIR)/src/codecs/qfontcodecs_p.h
+HEADERS		= ../../qgbkcodec.h \
+		  ../../qfontcodecs_p.h
 
-SOURCES		= $(QTDIR)/src/codecs/qgbkcodec.cpp \
-		  $(QTDIR)/src/codecs/qfontcncodec.cpp \
+SOURCES		= ../../qgbkcodec.cpp \
+		  ../../qfontcncodec.cpp \
 		  main.cpp
 
 TARGET		= qcncodecs

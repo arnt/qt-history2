@@ -1974,6 +1974,8 @@ void QMainWindow::menuAboutToShow()
 		menu->insertSeparator();
 	}
 
+	empty = TRUE;
+	
 	if ( dockWindows == AllDockWindows || dockWindows == OnlyToolBars ) {
 	    for ( o = l->first(); o; o = l->next() ) {
 		QDockWindow *dw = (QDockWindow*)o;

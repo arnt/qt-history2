@@ -48,7 +48,6 @@
 // #include "qplatinumstyle.h"
 // #include "qsgistyle.h"
 // #include "qcompactstyle.h"
-#include "qapplication.h"
 #ifndef QT_NO_STYLE_AQUA
 #include "qaquastyle.h"
 #endif

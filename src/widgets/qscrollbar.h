@@ -87,6 +87,9 @@ public:
     int  value() const;
     void setValue( int );
 
+    int		sliderStart() const;
+    QRect	sliderRect() const;
+
 signals:
     void	valueChanged( int value );
     void	sliderPressed();
@@ -111,10 +114,7 @@ protected:
     void	stepChange();
     void	rangeChange();
 
-    int		sliderStart() const;
-    QRect	sliderRect() const;
-
-    void styleChange( QStyle& );
+    void	styleChange( QStyle& );
 
 private slots:
     void doAutoRepeat();

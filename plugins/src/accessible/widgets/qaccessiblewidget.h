@@ -7,11 +7,14 @@ class QButton;
 class QScrollView;
 class QHeader;
 class QSpinWidget;
+class QScrollBar;
+class QSlider;
 class QListBox;
 class QListView;
 class QIconView;
 class QTextEdit;
 class QTabBar;
+class QWidgetStack;
 
 QString buddyString( QWidget * );
 QString stripAmp( const QString& );
@@ -56,15 +59,28 @@ private:
     QString accelerator_;
 };
 
+class QAccessibleWidgetStack : public QAccessibleWidget
+{
+public:
+    QAccessibleWidgetStack( QObject *o );
+
+    int		controlAt( int x, int y ) const;
+    QRESULT	queryChild( int control, QAccessibleInterface ** ) const;
+
+protected:
+    QWidgetStack *widgetStack() const;
+};
+
 class QAccessibleButton : public QAccessibleWidget
 {
 public:
     QAccessibleButton( QObject *o, Role r, QString description = QString::null,
 	QString help = QString::null );
 
-    bool	doDefaultAction( int control );
     QString	text( Text t, int control ) const;
     State	state( int control ) const;
+
+    bool	doDefaultAction( int control );
 
 protected:
     QButton *button() const;
@@ -91,10 +107,55 @@ public:
     int		childCount() const;
     QRESULT	queryChild( int control, QAccessibleInterface ** ) const;
 
-    bool	doDefaultAction( int control );
     QString	text( Text t, int control ) const;
     Role	role( int control ) const;
     State	state( int control ) const;
+
+    bool	doDefaultAction( int control );
+};
+
+class QAccessibleScrollBar : public QAccessibleRangeControl
+{
+public:
+    QAccessibleScrollBar( QObject *o, QString name = QString::null, 
+	QString description = QString::null, QString help = QString::null, 
+	QString defAction = QString::null, QString accelerator = QString::null );
+
+    int		controlAt( int x, int y ) const;
+    QRect	rect( int control ) const;
+    int		navigate( NavDirection direction, int startControl ) const;
+    int		childCount() const;
+    QRESULT	queryChild( int control, QAccessibleInterface ** ) const;
+
+    QString	text( Text t, int control ) const;
+    Role	role( int control ) const;
+
+    bool	doDefaultAction( int control );
+
+protected:
+    QScrollBar *scrollBar() const;
+};
+
+class QAccessibleSlider : public QAccessibleRangeControl
+{
+public:
+    QAccessibleSlider( QObject *o, QString name = QString::null, 
+	QString description = QString::null, QString help = QString::null, 
+	QString defAction = QString::null, QString accelerator = QString::null );
+
+    int		controlAt( int x, int y ) const;
+    QRect	rect( int control ) const;
+    int		navigate( NavDirection direction, int startControl ) const;
+    int		childCount() const;
+    QRESULT	queryChild( int control, QAccessibleInterface ** ) const;
+
+    QString	text( Text t, int control ) const;
+    Role	role( int control ) const;
+
+    bool	doDefaultAction( int control );
+
+protected:
+    QSlider *slider() const;
 };
 
 class QAccessibleText : public QAccessibleWidget
@@ -193,11 +254,11 @@ public:
     int		navigate( NavDirection direction, int startControl ) const;
     int		childCount() const;
 
-    bool	doDefaultAction( int control );
     QString	text( Text t, int control ) const;
     Role	role( int control ) const;
     State	state( int control ) const;
 
+    bool	doDefaultAction( int control );
     bool	setFocus( int control );
     bool	setSelected( int control, bool on, bool extend );
     void	clearSelection();

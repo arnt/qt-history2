@@ -115,8 +115,10 @@ public:
 
     void	updateContents( int x, int y, int w, int h );
     void	updateContents( const QRect& r );
+    void 	updateContents();
     void	repaintContents( int x, int y, int w, int h, bool erase=TRUE );
     void	repaintContents( const QRect& r, bool erase=TRUE );
+    void 	repaintContents( bool erase=TRUE );
     void	contentsToViewport( int x, int y, int& vx, int& vy ) const;
     void	viewportToContents( int vx, int vy, int& x, int& y ) const;
     QPoint	contentsToViewport( const QPoint& ) const;

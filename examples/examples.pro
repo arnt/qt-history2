@@ -16,6 +16,7 @@ SUBDIRS     =	aclock \
 		drawlines \
 		fonts \
 		forever \
+		gridview \
 		hello \
 		helpviewer \
 		i18n \

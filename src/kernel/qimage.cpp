@@ -3938,6 +3938,7 @@ const char *QImageIO::imageFormat( QIODevice *d )
 {
     const int buflen = 14;
     char buf[buflen];
+    char buf2[buflen];
     qt_init_image_handlers();
     int pos = d->at();			// save position
     int rdlen = d->readBlock( buf, buflen );	// read a few bytes
@@ -3945,13 +3946,9 @@ const char *QImageIO::imageFormat( QIODevice *d )
     if ( rdlen != buflen )
 	return 0;
 
-    const char* format = 0;
-#ifndef QT_NO_ASYNC_IMAGE_IO
-    // Try asynchronous loaders first (before we 0->1 the header),
-    // but overwrite if found in IOHandlers.
-    format = QImageDecoder::formatName( (uchar*)buf, rdlen );
-#endif
+    strcpy( buf2, buf );
 
+    const char* format = 0;
     for ( int n = 0; n < rdlen; n++ )
 	if ( buf[n] == '\0' )
 	    buf[n] = '\001';
@@ -3969,6 +3966,11 @@ const char *QImageIO::imageFormat( QIODevice *d )
 	}
     }
     d->at( pos );				// restore position
+#ifndef QT_NO_ASYNC_IMAGE_IO
+    if ( !format )
+	format = QImageDecoder::formatName( (uchar*)buf2, rdlen );
+#endif
+
     return format;
 }
 

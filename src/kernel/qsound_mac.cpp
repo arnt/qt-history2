@@ -71,7 +71,7 @@ QAuServerMac::QAuServerMac(QObject* parent) :
 {
     if(!servers++)
 	EnterMovies();
-    offscreen = new QPixmap( 1, 1 );
+    offscreen = new QPixmap( 1, 1 ); //what should the size be? FIXME
 }
 
 QAuServerMac::~QAuServerMac()
@@ -132,10 +132,6 @@ static Movie get_movie(const QString &filename, QPixmap *offscreen)
 	return NULL;
     }
 
-    // If a movie soundtrack is played then the movie will be played on
-    // the current graphics port. So create an offscreen graphics port.
-    QMacSavedPortInfo psi( offscreen );
-
     err = OpenMovieFile ( &fileSpec, &movieResFile, fsRdPerm );
     if ( err != noErr )
 	return NULL;
@@ -148,6 +144,10 @@ static Movie get_movie(const QString &filename, QPixmap *offscreen)
 			    movieName, 
 			    newMovieActive,         /* flags */
 			    &wasChanged);
+    // If a movie soundtrack is played then the movie will be played on
+    // the current graphics port. So create an offscreen graphics port.
+    SetMovieGWorld(aMovie, (GWorldPtr)offscreen->handle(), 0);
+
     if ( err != noErr ) 
 	return NULL;
 

@@ -138,6 +138,11 @@ if [ "$1" = -h -o "$1" = -help -o "$1" = --help ]
 then
     HELP=yes
 else
+    #back up and generate some qconfig/qmodules for configure
+    [ -e "$relpath/src/tools/qconfig.h" ] && mv -f $relpath/src/tools/qconfig.h qconfig.h-hold
+    echo "// All features enabled while configuring" >$relpath/src/tools/qconfig.h
+    [ -e "$relpath/src/tools/qmodules.h" ] && mv -f $relpath/src/tools/qmodules.h qmodules.h-hold
+    echo "// All modules enabled while configuring" >$relpath/src/tools/qmodules.h
 
 # Find a make command
 if ( gmake /dev/null ) >/dev/null 2>/dev/null
@@ -1357,10 +1362,7 @@ then
     D_FLAGS="$D_FLAGS QT_NO_QWS_VNC"
 fi
 
-if [ -f qconfig.h-hold ]
-then
-    mv qconfig.h-hold $outpath/include/qconfig.h
-fi
+[ -e qconfig.h-hold ] && mv -f qconfig.h-hold $outpath/include/qconfig.h
 
 case "$QCONFIG" in
   minimal|small|medium|large|full)
@@ -1529,6 +1531,7 @@ QMAKE_VARS="$QMAKE_VARS \"QT_PREFIX=${QT_INSTALL_PREFIX}\""
 [ '!' -z "$QT_INSTALL_BINS" ] && QMAKE_VARS="$QMAKE_VARS \"QT_INSTALL_BINPATH=${QT_INSTALL_BINS}\""
 
 #do modules.h
+[ -e qmodules.h-hold ] && mv -f qmodules.h-hold $relpath/src/tools/qmodules.h
 rm -f $relpath/src/tools/qmodules.h.new
 cat >$relpath/src/tools/qmodules.h.new << EOF
 // These modules are present in this configuration of Qt

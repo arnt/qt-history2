@@ -52,22 +52,44 @@ jpeg {
 		  3rdparty/libjpeg/jutils.c \
 		  3rdparty/libjpeg/jmemansi.c
 }
-system-jpeg:LIBS += -ljpeg
+system-jpeg:unix:LIBS += -ljpeg
+system-jpeg:mac:LIBS += -ljpeg
+system-jpeg:win32:LIBS += libjpeg.lib
 !jpeg:!system-jpeg:DEFINES += QT_NO_IMAGEIO_JPEG
 
 #mng support
+HEADERS += $$KERNEL_H/qmngio.h
+SOURCES += $$KERNEL_CPP/qmngio.cpp
 mng {
-	unix:LIBS	+= -lmng
 	INCLUDEPATH        += 3rdparty/libmng
-	HEADERS += $$KERNEL_H/qmngio.h
-	SOURCES += $$KERNEL_CPP/qmngio.cpp
+	SOURCES += 3rdparty/libmng/libmng_callback_xs.c \
+		  3rdparty/libmng/libmng_chunk_io.c \
+		  3rdparty/libmng/libmng_chunk_prc.c \
+		  3rdparty/libmng/libmng_chunk_xs.c \
+		  3rdparty/libmng/libmng_cms.c \
+		  3rdparty/libmng/libmng_display.c \
+		  3rdparty/libmng/libmng_dither.c \
+		  3rdparty/libmng/libmng_error.c \
+		  3rdparty/libmng/libmng_filter.c \
+		  3rdparty/libmng/libmng_hlapi.c \
+		  3rdparty/libmng/libmng_jpeg.c \
+		  3rdparty/libmng/libmng_object_prc.c \
+		  3rdparty/libmng/libmng_pixels.c \
+		  3rdparty/libmng/libmng_prop_xs.c \
+		  3rdparty/libmng/libmng_read.c \
+		  3rdparty/libmng/libmng_trace.c \
+		  3rdparty/libmng/libmng_write.c \
+		  3rdparty/libmng/libmng_zlib.c
 
 	contains(DEFINES, QT_NO_IMAGEIO_JPEG) {
 		message(Use of mng requires support for jpeg)
 		CONFIG += jpeg
 	}
 }
-!mng:DEFINES += QT_NO_IMAGEIO_MNG
+system-mng:unix:LIBS += -lmng
+system-mng:mac:LIBS += -lmng
+system-mng:win32:LIBS += libmng.lib
+!mng:!system-mng:DEFINES += QT_NO_IMAGEIO_MNG
 
 #png support
 HEADERS+=$$KERNEL_H/qpngio.h
@@ -90,7 +112,9 @@ png {
 		  3rdparty/libpng/pngwtran.c \
 		  3rdparty/libpng/pngwutil.c 
 }
-!no-png:!png:LIBS += -lpng
+!no-png:!png:unix:LIBS += -lpng
+!no-png:!png:mac:LIBS += -lpng
+!no-png:!png:win32:LIBS += libpng.lib
 no-png:DEFINES += QT_NO_IMAGEIO_PNG
 #zlib support
 zlib {
@@ -110,7 +134,9 @@ zlib {
 		  3rdparty/zlib/uncompr.c \
 		  3rdparty/zlib/zutil.c
 }
-!no-zlib:!zlib:LIBS += -lz
+!no-zlib:!zlib:unix:LIBS += -lz
+!no-zlib:!zlib:mac:LIBS += -lz
+!no-zlib:!zlib:win32:LIBS += libz.lib
 
 #use Qt gif
 gif:DEFINES += QT_BUILTIN_GIF_READER

@@ -513,61 +513,59 @@ void Resource::saveObject( QObject *obj, QDesignerGridLayout* grid, QTextStream 
     if ( obj->inherits( "QTabWidget" ) ) {
 	QTabWidget* tw = (QTabWidget*) obj;
 	QObjectList* tmpl = tw->queryList( "QWidgetStack" );
-	const QObjectList *l = tmpl->first()->children();
-	for ( QPtrListIterator<QObject> it ( *l ); it.current(); ++it ) {
-	    if ( !it.current()->isWidgetType() ||
-		 qstrcmp( it.current()->className(), "QWidgetStackPrivate::Invisible" ) == 0 ||
-		 !( ((QDesignerTabWidget*)tw)->tabBar()->tab(  ((QWidgetStack*)tmpl->first())->id( ((QWidget*)it.current()) ) ) ) )
+	QWidgetStack *ws = (QWidgetStack*)tmpl->first();
+	QTabBar *tb = ( (QDesignerTabWidget*)obj )->tabBar();
+	for ( int i = 0; i < tb->count(); ++i ) {
+	    QTab *t = tb->tabAt( i );
+	    if ( !t )
 		continue;
-	    if ( WidgetDatabase::idFromClassName( WidgetFactory::classNameOf( it.current() ) ) == -1 )
+	    QWidget *w = ws->widget( t->identitifer() );
+	    if ( !w )
+		continue;
+	    if ( WidgetDatabase::idFromClassName( WidgetFactory::classNameOf( w ) ) == -1 )
 		continue; // we don't know this widget
 	    ts << makeIndent( indent ) << "<widget class=\"QWidget\">" << endl;
 	    ++indent;
 	    ts << makeIndent( indent ) << "<property name=\"name\">" << endl;
 	    indent++;
-	    ts << makeIndent( indent ) << "<cstring>" << entitize( it.current()->name() ) << "</cstring>" << endl;
+	    ts << makeIndent( indent ) << "<cstring>" << entitize( w->name() ) << "</cstring>" << endl;
 	    indent--;
 	    ts << makeIndent( indent ) << "</property>" << endl;
 
 	    ts << makeIndent( indent ) << "<attribute name=\"title\">" << endl;
 	    indent++;
-	    ts << makeIndent( indent ) << "<string>" << entitize( tw->tabLabel( (QWidget*)it.current() ) ) << "</string>" << endl;
+	    ts << makeIndent( indent ) << "<string>" << entitize( t->text() ) << "</string>" << endl;
 	    indent--;
 	    ts << makeIndent( indent ) << "</attribute>" << endl;;
-	    saveChildrenOf( it.current(), ts, indent );
+	    saveChildrenOf( w, ts, indent );
 	    --indent;
 	    ts << makeIndent( indent ) << "</widget>" << endl;
 	}
 	delete tmpl;
     } else if ( obj->inherits( "QWizard" ) ) {
-	QWizard* wiz = (QWizard*)obj;
-	QObjectList* tmpl = wiz->queryList( "QWidgetStack" );
-	const QObjectList *l = tmpl->first()->children();
-	for ( QPtrListIterator<QObject> it ( *l ); it.current(); ++it ) {
-	    if ( !it.current()->isWidgetType() ||
-		 qstrcmp( it.current()->className(), "QWidgetStackPrivate::Invisible" ) == 0 ||
-		 ( (QDesignerWizard*)wiz )->isPageRemoved( (QWidget*)it.current() ) )
+	QWizard* wiz = (QWizard*)obj; for ( int i = 0; i < wiz->pageCount(); ++i ) {
+	    QWidget *w = wiz->page( i );
+	    if ( !w )
 		continue;
-	    if ( WidgetDatabase::idFromClassName( WidgetFactory::classNameOf( it.current() ) ) == -1 )
+	    if ( WidgetDatabase::idFromClassName( WidgetFactory::classNameOf( w ) ) == -1 )
 		continue; // we don't know this widget
 	    ts << makeIndent( indent ) << "<widget class=\"QWidget\">" << endl;
 	    ++indent;
 	    ts << makeIndent( indent ) << "<property name=\"name\">" << endl;
 	    indent++;
-	    ts << makeIndent( indent ) << "<cstring>" << entitize( it.current()->name() ) << "</cstring>" << endl;
+	    ts << makeIndent( indent ) << "<cstring>" << entitize( w->name() ) << "</cstring>" << endl;
 	    indent--;
 	    ts << makeIndent( indent ) << "</property>" << endl;
 
 	    ts << makeIndent( indent ) << "<attribute name=\"title\">" << endl;
 	    indent++;
-	    ts << makeIndent( indent ) << "<string>" << entitize( wiz->title( (QWidget*)it.current() ) ) << "</string>" << endl;
+	    ts << makeIndent( indent ) << "<string>" << entitize( wiz->title( w ) ) << "</string>" << endl;
 	    indent--;
 	    ts << makeIndent( indent ) << "</attribute>" << endl;;
-	    saveChildrenOf( it.current(), ts, indent );
+	    saveChildrenOf( w, ts, indent );
 	    --indent;
 	    ts << makeIndent( indent ) << "</widget>" << endl;
 	}
-	delete tmpl;
     } else if ( obj->inherits( "QMainWindow" ) ) {
 	saveChildrenOf( ( (QMainWindow*)obj )->centralWidget(), ts, indent );
     } else {
@@ -2495,7 +2493,7 @@ void Resource::loadExtraSource()
 	QObject *sender  = 0;
 	QString name = (*cit).sender;
 	if ( name == "this" || qstrcmp( toplevel->name(), name ) == 0 ) {
-	    sender = toplevel;
+	    sender = ( (FormWindow*)toplevel )->mainContainer();
 	} else {
 	    if ( name == "this" )
 		name = toplevel->name();

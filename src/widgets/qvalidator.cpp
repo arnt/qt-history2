@@ -43,7 +43,6 @@
 #include <limits.h>
 #include <math.h>
 
-// NOT REVISED
 /*!
   \class QValidator qvalidator.h
 
@@ -56,7 +55,7 @@
   and \l QRegExpValidator provides general checking using a custom
   regular expression (\l QRegExp).
   
-  If the built-in validators aren't enough, you have to subclass
+  If the built-in validators aren't sufficient, you can subclass
   QValidator. The class has two virtual functions: validate()
   and fixup().
 
@@ -82,9 +81,9 @@
   42 and 666 are \c Acceptable, the empty string and 1114 are \c
   Intermediate and asdf is \c Invalid.
 
-  \i For an editable combo box that accepts URLs, any well-formed URL
-  is \c Acceptable, "http://www.trolltech.com/," is \c Intermediate (it can
-  be a cut-and-paste job that accidentally took in a comma at the
+  \i For an editable combobox that accepts URLs, any well-formed URL
+  is \c Acceptable, "http://www.trolltech.com/," is \c Intermediate (it might
+  be a cut-and-paste that accidentally took in a comma at the
   end), the empty string is valid (the user might select and delete
   all of the text in preparation of entering a new URL) and
   "http:///./" is \c Invalid.
@@ -135,7 +134,7 @@ QValidator::QValidator( QWidget * parent, const char *name )
 
 
 /*!
-  Destucts the validator, freeing any storage and other resources
+  Destroys the validator, freeing any storage and other resources
   used.
 */
 
@@ -149,7 +148,7 @@ QValidator::~QValidator()
 
   This pure virtual function returns \c Invalid if \a input is invalid
   according to this validator's rules, \c Intermediate if it is likely that a
-  little more editing will make the input acceptable (e.g., the user
+  little more editing will make the input acceptable (e.g. the user
   types '4' into a widget which accepts integers between 10 and 99) and
   \c Acceptable if the input is completely acceptable.
 
@@ -201,7 +200,8 @@ void QValidator::fixup( QString & ) const
     //...
     QIntValidator v( 0, 100, this );
     QLineEdit* edit = new QLineEdit( this );
-    edit->setValidator( &v );	// the edit lineedit will only accept integers between 0 and 100
+    // the edit lineedit will only accept integers between 0 and 100
+    edit->setValidator( &v );	
   \endcode
 
   Below we present some examples of validators. In practice they would
@@ -209,7 +209,8 @@ void QValidator::fixup( QString & ) const
 
   \code 
     QString s;
-    QIntValidator v( 0, 100, this );	// a validator that will only accept integers between 0 and 100
+    // a validator that will only accept integers between 0 and 100
+    QIntValidator v( 0, 100, this );	
 
     s = "10"; 
     v.validate( a, 0 );	// Returns Acceptable
@@ -236,7 +237,7 @@ void QValidator::fixup( QString & ) const
 
 /*!
   Constructs a validator that accepts all integers and has parent
-  \a parent and the name \a name.
+  \a parent and name \a name.
 */
 
 QIntValidator::QIntValidator( QWidget * parent, const char *name )
@@ -248,9 +249,9 @@ QIntValidator::QIntValidator( QWidget * parent, const char *name )
 
 
 /*!
-  Constructs a validator that accepts all integers from \a
-  minimum up to and including \a maximum with the parent \a parent and
-  the name \a name.
+  Constructs a validator that accepts all integers from and including \a
+  minimum up to and including \a maximum with parent \a parent and
+  name \a name.
 */
 
 QIntValidator::QIntValidator( int minimum, int maximum,
@@ -273,6 +274,10 @@ QIntValidator::~QIntValidator()
 
 
 /*!  
+  Returns \c Acceptable if the input is an integer within the valid range, 
+  \c Intermediate if the input is an integer outside the valid
+  range and \c Invalid if the input is not an integer.
+
   \code
     s = "35";
     v.validate( a, 0 );	// Returns Acceptable
@@ -284,9 +289,6 @@ QIntValidator::~QIntValidator()
     v.validate( a, 0 );	// Returns Invalid;
   \endcode
 
-  Returns \c Acceptable if the input is an integer within the valid range, 
-  \c Intermediate if the input is an integer outside the valid
-  range and \c Invalid if the input is not an integer.
 */
 
 QValidator::State QIntValidator::validate( QString & input, int & ) const
@@ -306,8 +308,8 @@ QValidator::State QIntValidator::validate( QString & input, int & ) const
 
 
 /*!  
-  Sets the range of the validator to accept only integers from \a minimum to
-  \a maximum, both inclusive.
+  Sets the range of the validator to accept only integers between \a minimum and
+  \a maximum inclusive.
 */
 
 void QIntValidator::setRange( int minimum, int maximum )
@@ -318,7 +320,7 @@ void QIntValidator::setRange( int minimum, int maximum )
 
 
 /*! \property QIntValidator::bottom
-    \brief the validator's smallest acceptable value
+    \brief the validator's lowest acceptable value
 
   \sa setRange()
 */
@@ -328,7 +330,7 @@ void QIntValidator::setBottom( int bottom )
 }
 
 /*! \property QIntValidator::top
-    \brief the validator's largest acceptable value
+    \brief the validator's highest acceptable value
 
   \sa setRange()
 */
@@ -524,10 +526,12 @@ void QDoubleValidator::setDecimals( int decimals )
     #include <qregexp.h>
     #include <qvalidator.h>
     //...
-    QRegExp rx( "-?\\d{1,3}" ); // Regexp: optional '-' followed by between 1 and 3 digits
+    // Regexp: optional '-' followed by between 1 and 3 digits
+    QRegExp rx( "-?\\d{1,3}" ); 
     QRegExpValidator validator( rx, 0 );
     QLineEdit *edit   = new QLineEdit( split );
-    edit->setValidator( &validator ); // edit widget will only accept numbers -999 to 999
+    // edit widget will only accept numbers -999 to 999
+    edit->setValidator( &validator ); 
   \endcode
 
   Below we present some examples of validators. In practice they would
@@ -536,7 +540,8 @@ void QDoubleValidator::setDecimals( int decimals )
   \code
     // Integers 1 to 9999, i.e. a digit between 1 and 9 followed by up to 3 digits
     QRegExp rx( "[1-9]\\d{0,3}" );
-    QRegExpValidator v( rx, 0 ); // The validator treats the regexp as "^[1-9]\\d{0,3}$"
+    // The validator treats the regexp as "^[1-9]\\d{0,3}$"
+    QRegExpValidator v( rx, 0 ); 
     QString s;
 
     s = "0";     v.validate( s, 0 ); // Returns Invalid
@@ -570,7 +575,7 @@ void QDoubleValidator::setDecimals( int decimals )
 
 /*!
   Constructs a validator that accepts any string (including an
-  empty one) as valid. The object's parent is \a parent and name is \a
+  empty one) as valid. The object's parent is \a parent and its name is \a
   name.
 */
 
@@ -581,7 +586,7 @@ QRegExpValidator::QRegExpValidator( QWidget *parent, const char *name )
 
 /*!
   Constructs a validator which accepts all strings that match the
-  regular expression \a rx. The object's parent is \a parent and name is
+  regular expression \a rx. The object's parent is \a parent and its name is
   \a name.
 
   The match is made against the entire string, e.g. if the regexp is

@@ -620,6 +620,8 @@ public:
     int minimumWidth() const { return layout ? layout->minimumSize().width() : 0; }
     int widthHint() const { return ( layout ? layout->sizeHint().width() : 0 ) + 2 * outerborder; }
 
+    QPtrList<QTextTableCell> tableCells() const { return cells; }
+
 private:
     void format( int &w );
     void addCell( QTextTableCell* cell );

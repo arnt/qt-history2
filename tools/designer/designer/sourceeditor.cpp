@@ -229,6 +229,7 @@ void SourceEditor::setModified( bool b )
 
 void SourceEditor::refresh()
 {
+    save();
     iFace->setText( sourceOfObject( formWindow, lang, iFace, lIface ) );
 }
 

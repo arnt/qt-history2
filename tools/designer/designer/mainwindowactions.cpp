@@ -1269,17 +1269,37 @@ void MainWindow::fileSaveAll()
 	e->save();
 	e->setModified( FALSE );
 	if ( e->object() && e->object()->inherits( "SourceFile" ) &&
-	     e == workSpace()->activeWindow() )
+	     e == workSpace()->activeWindow() ) {
+	    statusBar()->message( tr( "Save source file %1").arg( ( (SourceFile*)e->object() )->fileName() ) );
 	    ( (SourceFile*)e->object() )->save();
+	}
     }
 
     QWidgetList windows = workSpace()->windowList();
     for ( QWidget *w = windows.first(); w; w = windows.next() ) {
 	if ( !w->inherits( "FormWindow" ) )
 	    continue;
-	w->setFocus();
+	FormWindow *fw = (FormWindow*)w;
+	if ( !fw->fileName().isEmpty() ) {
+	    statusBar()->message( tr( "Save form %1").arg( fw->fileName() ) );
+	    QApplication::setOverrideCursor( WaitCursor );
+	    bool mini = fw->parentWidget()->isMinimized() || fw->isMinimized();
+	    if ( mini )
+		fw->showNormal();
+	    formWindow()->save( formWindow()->fileName() );
+	    if ( mini )
+		fw->showMinimized();
+	    QApplication::restoreOverrideCursor();
+	} else {
+	    bool mini = fw->parentWidget()->isMinimized() || fw->isMinimized();
+	    if ( mini )
+		fw->showNormal();
+	    fw->setFocus();
+	    fileSaveAs();
+	    if ( mini )
+		fw->showMinimized();
+	}
 	qApp->processEvents();
-	fileSave();
     }
 }
 

@@ -31,6 +31,8 @@ CDEStyle::CDEStyle()
 
 QRESULT CDEStyle::queryInterface( const QUuid &uuid, QUnknownInterface **iface )
 {
+    *iface = 0;
+
     if ( uuid == IID_QUnknown )
 	*iface = (QUnknownInterface*)(QStyleFactoryInterface*)this;
     else if ( uuid == IID_QFeatureList )
@@ -40,10 +42,10 @@ QRESULT CDEStyle::queryInterface( const QUuid &uuid, QUnknownInterface **iface )
     else if ( uuid == IID_QLibrary )
 	*iface = (QLibraryInterface*)this;
     else
-	*iface = 0;
+	return QE_NOINTERFACE;
 
-    if ( *iface )
-	(*iface)->addRef();
+    (*iface)->addRef();
+    return QS_OK;
 }
 
 unsigned long CDEStyle::addRef()

@@ -5172,7 +5172,7 @@ void QIconView::initDragEnter( QDropEvent *e )
   This function is called to draw the rectangle \a r of the background using
   the painter \a p.
 
-  The default implementation fills \a r with colorGroup().base().
+  The default implementation fills \a r with the colorGroup()'s base brush.
   Subclasses may reimplement this to draw custom backgrounds.
 
   \sa contentsX() contentsY() drawContents()
@@ -5180,7 +5180,7 @@ void QIconView::initDragEnter( QDropEvent *e )
 
 void QIconView::drawBackground( QPainter *p, const QRect &r )
 {
-    p->fillRect( r, QBrush( colorGroup().base() ) );
+    p->fillRect( r, colorGroup().brush( QColorGroup::Base ) );
 }
 
 /*!

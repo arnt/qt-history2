@@ -76,7 +76,7 @@ bool QWidgetResizeHandler::eventFilter( QObject *o, QEvent *ee )
 	return FALSE;
 
     QWidget *w = childOf( widget, (QWidget*)o );
-    if ( !w )
+    if ( !w || o->inherits( "QSizeGrip" ) )
 	return FALSE;
 
 

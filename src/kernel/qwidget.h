@@ -91,7 +91,7 @@ class Q_EXPORT QWidget : public QObject, public QPaintDevice
     Q_PROPERTY( BackgroundMode backgroundMode READ backgroundMode WRITE setBackgroundMode DESIGNABLE false )
     Q_PROPERTY( QColor backgroundColor READ backgroundColor WRITE setBackgroundColor )
     Q_PROPERTY( QColor foregroundColor READ foregroundColor WRITE setForegroundColor )
-    Q_PROPERTY( QPixmap backgroundPixmap READ backgroundPixmap WRITE setBackgroundPixmap )
+    Q_PROPERTY( QBrush backgroundBrush READ backgroundBrush )
     Q_PROPERTY( QColorGroup colorGroup READ colorGroup )
     Q_PROPERTY( QPalette palette READ palette WRITE setPalette RESET unsetPalette )
     Q_PROPERTY( bool ownPalette READ ownPalette )
@@ -221,6 +221,8 @@ public:
 
     virtual const QPixmap *	backgroundPixmap() const;
     virtual void		setBackgroundPixmap( const QPixmap & );
+    
+    virtual const QBrush&	backgroundBrush() const;
 
     const QColor &	eraseColor() const;
     virtual void	setEraseColor( const QColor & );
@@ -484,8 +486,6 @@ protected:
     virtual void styleChange( QStyle& );
 #endif
     virtual void enabledChange( bool oldEnabled );
-    virtual void backgroundColorChange( const QColor & );
-    virtual void backgroundPixmapChange( const QPixmap & );
 #ifndef QT_NO_PALETTE
     virtual void paletteChange( const QPalette & );
 #endif

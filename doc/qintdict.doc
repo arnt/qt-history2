@@ -51,11 +51,59 @@
   template instance QIntDict\<X\> to create a dictionary that operates on
   pointers to X, or X*.
 
-  A dictionary is a collection that associates an item with a key.
-  The key is used for inserting and looking up an item.  QIntDict has
-  \c long keys.
+  A dictionary is a collection of key-value pairs. The key is an \c
+  long used for insertion, removal and lookup. The value is a pointer.
+  Dictionaries provide very fast insertion and lookup.
 
-  The dictionary has very fast insertion and lookup.
+  The size() of the dictionary is very important. In order to get good
+  performance, you should use a suitably large \link primes.html prime
+  number\endlink.  Suitable means equal to or larger than the maximum
+  expected number of dictionary items. Size is set in the constructor
+  but may be changed with resize().
+
+  Items are inserted with insert(), and removed with remove(). All the
+  items in a dictionary can be removed with clear(). The number of items
+  in the dictionary is returned by count(). If the dictionary
+  contains no items isEmpty() returns TRUE. You can change an
+  item's value with replace(). Items are looked up with operator[](),
+  or with find() which return a pointer to the value or 0 if the given
+  key does not exist. You can take an item out of the dictionary with
+  take().
+
+  Calling setAutoDelete(TRUE) for a dictionary tells it to delete items
+  that are removed.  The default behaviour is not to delete items when
+  they are removed.
+
+  QIntDict is implemented as a hash array with a fixed number of
+  entries. Each array entry points to a singly linked list of buckets,
+  in which the dictionary items are stored. When an item is inserted
+  with a key, the key is converted (hashed) to an integer index into the
+  hash array using the \c mod function. The item is inserted before
+  the first bucket in the list of buckets.
+
+  Looking up an item is normally very fast. The key is again hashed to an
+  array index. Then QIntDict scans the list of buckets and returns the item
+  found or null if the item was not found.  You cannot insert null pointers
+  into a dictionary.
+
+  Items with equal keys are allowed.  When inserting two items with the
+  same key, only the last inserted item will be visible (last in, first out)
+  until it is removed.
+
+  The QIntDictIterator class can traverse the dictionary, but only
+  in an arbitrary order.  Multiple iterators may independently traverse the
+  same dictionary.
+
+  When inserting an item into a dictionary, only the pointer is copied,
+  not the item itself, i.e. a shallow copy is made. It is possible to
+  make the dictionary copy all of the item's data (a deep copy)
+  when an item is inserted.  insert() calls the virtual function
+  QPtrCollection::newItem() for the item to be inserted. Inherit a
+  dictionary and reimplement it if you want deep copies.
+
+  When removing a dictionary item, the virtual function
+  QPtrCollection::deleteItem() is called.  QIntDict's default implementation
+  is to delete the item if auto-deletion is enabled.
 
   Example:
   \code
@@ -64,18 +112,24 @@
 
     int main()
     {
-	QIntDict<char> dict;		// maps long ==> char*
+	QIntDict<char> dict; // maps long ==> char*
 
 	dict.insert( 33, "France" );
 	dict.insert(  7, "Russia" );
 	dict.insert( 49, "Norway" );
+	dict.insert( 28, "Belgium" );
 
 	printf( "%s\n", dict[49] );
 	printf( "%s\n", dict[33] );
 	printf( "%s\n", dict[7] );
+	printf( "%s\n", dict[28] );
 
-	if ( !dict[39] )
-	    printf( "39 not defined\n" );
+	dict.remove( 28 );
+
+	if ( !dict[39] ) 
+	    printf( "39 not defined\n" ); // Never existed
+	if ( !dict[28] ) 
+	    printf( "28 not defined\n" ); // Removed
 
 	return 0;
     }
@@ -86,79 +140,14 @@
     Norway
     France
     Russia
+    Belgium
     39 not defined
+    28 not defined
   \endcode
 
   The dictionary in our example maps \c long keys to \c char* items.
   QIntDict implements the \link operator[]() [] operator\endlink to look up
   an item.
-
-  QIntDict is implemented by QGDict as a hash array with a fixed number of
-  entries. Each array entry points to a singly linked list of buckets, in
-  which the dictionary items are stored.
-
-  When an item is inserted with a key, the key is converted (hashed) to
-  an integer index into the hash array using the \c mod operation. The
-  item is inserted before the first bucket in the list of buckets.
-
-  Looking up an item is normally very fast. The key is again hashed to an
-  array index. Then QIntDict scans the list of buckets and returns the item
-  found, or null if the item was not found.  You cannot insert null pointers
-  into a dictionary.
-
-  The size of the hash array is very important. In order to get good
-  performance, you should use a suitably large prime
-  number.  Suitable means equal to or larger than the maximum
-  expected number of dictionary items.
-
-  Items with equal keys are allowed.  When inserting two items with the
-  same key, only the last inserted item will be visible (last in, first out)
-  until it is removed.
-
-  Example:
-  \code
-    #include <qintdict.h>
-    #include <stdio.h>
-
-    int main()
-    {
-	QIntDict<char> dict;		// maps long ==> char*
-
-	dict.insert( 7, "Russia" );
-	dict.insert( 7, "USSR" );
-
-	printf( "%s\n", dict[7] );
-	dict.remove( 7 );		// Gorbie was here
-	printf( "%s\n", dict[7] );
-
-	return 0;
-    }
-  \endcode
-
-  Program output:
-  \code
-	USSR
-	Russia
-  \endcode
-
-  The QIntDictIterator class can traverse the dictionary contents, but only
-  in an arbitrary order.  Multiple iterators may independently traverse the
-  same dictionary.
-
-  Calling setAutoDelete(TRUE) for a dictionary tells it to delete items
-  that are removed.  The default is to not delete items when they are
-  removed.
-
-  When inserting an item into a dictionary, only the pointer is copied, not
-  the item itself. This is called a shallow copy. It is possible to make the
-  dictionary copy all of the item's data (known as a deep copy) when an
-  item is inserted.  insert() calls the virtual function
-  QPtrCollection::newItem() for the item to be inserted.
-  Inherit a dictionary and reimplement it if you want deep copies.
-
-  When removing a dictionary item, the virtual function
-  QPtrCollection::deleteItem() is called.  QIntDict's default implementation
-  is to delete the item if auto-deletion is enabled.
 
   \sa QIntDictIterator, QDict, QAsciiDict, QPtrDict,
       \link collection.html Collection Classes\endlink
@@ -167,7 +156,7 @@
 
 /*!
   \fn QIntDict::QIntDict( int size )
-  Constructs a dictionary using an internal hash array with the size
+  Constructs a dictionary using an internal hash array of size
   \a size.
 
   Setting \a size to a suitably large prime number
@@ -179,7 +168,7 @@
   \fn QIntDict::QIntDict( const QIntDict<type> &dict )
   Constructs a copy of \a dict.
 
-  Each item in \a dict are inserted into this dictionary.
+  Each item in \a dict is inserted into this dictionary.
   Only the pointers are copied (shallow copy).
 */
 
@@ -218,23 +207,22 @@
 
 /*!
   \fn void QIntDict::resize( uint newsize )
-  Changes the size of the hashtable the \a newsize.
+  Changes the size of the hashtable to \a newsize.
   The contents of the dictionary are preserved,
   but all iterators on the dictionary become invalid.
 */
 
 /*!
   \fn bool QIntDict::isEmpty() const
-  Returns TRUE if the dictionary is empty, i.e. count() == 0. Returns FALSE
-  otherwise.
+  Returns TRUE if the dictionary is empty; otherwise returns FALSE.
   \sa count()
 */
 
 /*!
   \fn void QIntDict::insert( long key, const type *item )
-  Inserts the \a key with the \a item into the dictionary.
+  Insert item \a item into the dictionary using key \a key.
 
-  The key does not have to be a unique dictionary key.  If multiple items
+  The key does not have to be unique.  If multiple items
   are inserted with the same key, only the last item will be visible.
 
   Null items are not allowed.
@@ -244,16 +232,17 @@
 
 /*!
   \fn void QIntDict::replace( long key, const type *item )
-  Replaces an item that has a key equal to \a key with \a item.
 
-  If the item does not already exist, it will be inserted.
+  If the dictionary has key \a key, this key's item is replaced with
+  \a item. If the dictionary doesn't contain key \a key, \a item is
+  inserted into the dictionary using key \a key. 
 
   Null items are not allowed.
 
   Equivalent to:
   \code
     QIntDict<char> dict;
-	...
+    //	...
     if ( dict.find(key) )
 	dict.remove( key );
     dict.insert( key, item );
@@ -268,8 +257,8 @@
 /*!
   \fn bool QIntDict::remove( long key )
   Removes the item associated with \a key from the dictionary.
-  Returns TRUE if successful, or FALSE if the key does not exist in the
-  dictionary.
+  Returns TRUE if successful; otherwise returns FALSE, e.g. if the key
+  does not exist in the dictionary.
 
   If there are two or more items with equal keys, then the last inserted
   of these will be removed.
@@ -278,7 +267,7 @@
   auto-deletion\endlink is enabled.
 
   All dictionary iterators that refer to the removed item will be set to
-  point to the next item in the dictionary traversing order.
+  point to the next item in the dictionary's traversing order.
 
   \sa take(), clear(), setAutoDelete()
 */
@@ -296,7 +285,7 @@
   exist in the dictionary.
 
   All dictionary iterators that refer to the taken item will be set to
-  point to the next item in the dictionary traversing order.
+  point to the next item in the dictionary's traversing order.
 
   \sa remove(), clear(), setAutoDelete()
 */
@@ -389,16 +378,17 @@
 
     int main()
     {
-	QIntDict<char> dict;		// maps long ==> char*
+	QIntDict<char> dict; // maps long ==> char*
 
 	dict.insert( 33, "France" );
 	dict.insert(  7, "Russia" );
 	dict.insert( 49, "Norway" );
+	dict.insert( 28, "Belgium" );
 
-	QIntDictIterator<char> it( dict ); // iterator for dict
+	QIntDictIterator<char> it( dict ); // iterator 
 
         while ( it.current() ) {
-	    printf( "%d -> %s\n", it.currentKey(), it.current() );
+	    printf( "%2d: %s\n", it.currentKey(), it.current() );
 	    ++it;
 	}
 
@@ -408,16 +398,17 @@
 
   Program output:
   \code
-	7 -> Russia
-	49 -> Norway
-	33 -> France
+	28: Belgium
+	 7: Russia
+	49: Norway
+	33: France
   \endcode
 
   Note that the traversal order is arbitrary; you are not guaranteed the
   order above.
 
   Multiple iterators may independently traverse the same dictionary.
-  A QIntDict knows about all iterators that are operating on the dictionary.
+  A QIntDict knows about all the iterators that are operating on the dictionary.
   When an item is removed from the dictionary, QIntDict updates all
   iterators that refer the removed item to point to the next item
   in the traversing order.
@@ -428,7 +419,8 @@
 /*!
   \fn QIntDictIterator::QIntDictIterator( const QIntDict<type> &dict )
   Constructs an iterator for \a dict.  The current iterator item is
-  set to point on the first item in the \a dict.
+  set to point to the 'first' item in the \a dict. The first item
+  refers to the first item in the dictionary's arbitrary internal ordering.
 */
 
 /*!
@@ -438,22 +430,22 @@
 
 /*!
   \fn uint QIntDictIterator::count() const
-  Returns the number of items in the dictionary this iterator operates on.
+  Returns the number of items in the dictionary this iterator operates over.
   \sa isEmpty()
 */
 
 /*!
   \fn bool QIntDictIterator::isEmpty() const
-  Returns TRUE if the dictionary is empty, i.e., count() == 0. Returns FALSE
-  otherwise.
+  Returns TRUE if the dictionary is empty; otherwise eturns FALSE.
   \sa count()
 */
 
 /*!
   \fn type *QIntDictIterator::toFirst()
   Sets the current iterator item to point to the first item in the
-  dictionary and returns a pointer to the item.
-  If the dictionary is  empty it sets the current item to null and 
+  dictionary and returns a pointer to the item. The first item refers
+  to the first item in the dictionary's arbitrary internal ordering.
+  If the dictionary is  empty it sets the current item to null and
   returns null.
 */
 
