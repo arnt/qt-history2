@@ -39,7 +39,6 @@ public:
     QStack<QString> forwardStack;
     QString home;
     QString currentURL;
-    QString currentAnchor;
 
     QStringList searchPaths;
 
@@ -281,8 +280,6 @@ void QTextBrowser::setSource(const QString& name)
         doSetText = true;
     }
     d->forceLoadOnSourceChange = false;
-
-    d->currentAnchor = anchor;
 
     if (!anchor.isEmpty()) {
         source += '#';
