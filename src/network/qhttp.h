@@ -46,11 +46,7 @@ public:
 
     virtual QString toString() const;
 
-    /**
-     * A QHttpHeader is invalid if it was created by parsing
-     * a malformed string.
-     */
-    bool isValid() const { return m_bValid; }
+    bool isValid() const;
 
     QTextStream& read( QTextStream& );
     QTextStream& write( QTextStream& ) const;
@@ -167,10 +163,6 @@ public:
     void close();
 
     State state() const;
-    /**
-     * A convenience function.
-     */
-    bool isIdle() const { return m_state == Idle; }
 
     /**
      * If a device was set, then all data read by the QHttpClient - but not the
@@ -187,40 +179,14 @@ public:
     QIODevice* device();
 
 signals:
-    /**
-     * Emitted if the reply is available. Do not call @ref #request in
-     * response to this signal. Instead wait for @ref #idle.
-     *
-     * If this QHttpClient has a socket set, then this signal is not emitted.
-     */
     void reply( const QHttpReplyHeader& repl, const QByteArray& data );
-    /**
-     * This signal is emitted if the reply is available and the data
-     * was written to a device.
-     */
     void reply( const QHttpReplyHeader& repl, const QIODevice* device );
-    /**
-     * Emitted if the HTTP header of the reply is available.
-     *
-     * It is now possible to decide wether the reply data should be read
-     * in memory or rather in some device by calling @ref #setDevice.
-     */
     void replyHeader( const QHttpReplyHeader& repl );
-    /**
-     * Emitted if a request failed.
-     */
     void requestFailed();
-    /**
-     * Emitted when the QHttpClient is able to start a new request.
-     * The QHttpClient is either in the state Idle or Alive now.
-     */
     void idle();
     
 protected:
-    /**
-     * @reimp
-     */
-    void timerEvent( QTimerEvent *e );
+    void timerEvent( QTimerEvent * );
 
 private slots:
     void readyRead();
@@ -237,7 +203,6 @@ private:
     uint m_bytesRead;
     QHttpRequestHeader m_header;
     State m_state;
-    // QBuffer m_readBuffer;
     bool m_readHeader;
     QHttpReplyHeader m_reply;
 
@@ -282,28 +247,14 @@ public:
     int keepAliveTimeout() const;
 
 signals:
-    /**
-     * Emitted if the server has sent the entire reply.
-     */
     void replyFinished();
     void replyFailed();
 
 protected:
     virtual void request( const QHttpRequestHeader& header, const QByteArray& data ) = 0;
-    /**
-     * Called if an error occured. The default implementation does nothing.
-     * Overload this method to implement your own error handling.
-     */
     virtual void error( int );
-
-    void timerEvent( QTimerEvent *e );
-
-    /**
-     * Closes the socket and starts the kill timer.
-     * That means the socket will self destruct itself once
-     * the application comes back to its event loop.
-     */
     void close();
+    void timerEvent( QTimerEvent * );
 
 private slots:
     void readyRead();

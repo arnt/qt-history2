@@ -65,6 +65,16 @@ QHttpHeader::~QHttpHeader()
 }
 
 /*!
+  Returns TRUE if the HTTP header is valid, otherwise FALSE.
+
+  A QHttpHeader is invalid if it was created by parsing a malformed string.
+*/
+bool QHttpHeader::isValid() const
+{
+    return m_bValid;
+}
+
+/*!
   Parses the HTTP header string \a str and add the information.
 */
 void QHttpHeader::parse( const QString& str )
@@ -251,6 +261,14 @@ QString QHttpHeader::contentType() const
 }
 
 /*!
+  \enum QHttpHeader::Connection
+
+  <ul>
+  <li> Close
+  <li> KeepAlive
+  </ul>
+*/
+/*!
   Returns the value of the special HTTP header entry \c connection.
 */
 QHttpHeader::Connection QHttpHeader::connection() const
@@ -350,6 +368,7 @@ QHttpReplyHeader::QHttpReplyHeader( const QString& str )
 }
 
 /*!
+  Don't know about this one.
   ####???
 */
 void QHttpReplyHeader::setReply( int code, const QString& text, int version )
@@ -383,7 +402,7 @@ int QHttpReplyHeader::version() const
     return m_version;
 }
 
-/*! \reimpl
+/*! \reimp
 */
 bool QHttpReplyHeader::parseLine( const QString& line, int number )
 {
@@ -413,7 +432,7 @@ bool QHttpReplyHeader::parseLine( const QString& line, int number )
     return TRUE;
 }
 
-/*! \reimpl
+/*! \reimp
 */
 QString QHttpReplyHeader::toString() const
 {
@@ -534,7 +553,7 @@ int QHttpRequestHeader::version()
     return m_version;
 }
 
-/*! \reimpl
+/*! \reimp
 */
 bool QHttpRequestHeader::parseLine( const QString& line, int number )
 {
@@ -561,7 +580,7 @@ bool QHttpRequestHeader::parseLine( const QString& line, int number )
     return FALSE;
 }
 
-/*! \reimpl
+/*! \reimp
 */
 QString QHttpRequestHeader::toString() const
 {
@@ -600,6 +619,40 @@ QTextStream& operator<<( QTextStream& stream, const QHttpRequestHeader& header )
   \module network
 
   fnord
+*/
+
+/*!
+  \fn void QHttpClient::reply( const QHttpReplyHeader& repl, const QByteArray& data )
+
+  This signal is emitted when the reply is available. Do not call request()
+  in response to this signal. Instead wait for idle().
+ 
+  If this QHttpClient has a socket set, then this signal is not emitted.
+*/
+/*!
+  \fn void QHttpClient::reply( const QHttpReplyHeader& repl, const QIODevice* device )
+
+  This signal is emitted if the reply is available and the data was written to
+  a device.
+*/
+/*!
+  \fn void QHttpClient::replyHeader( const QHttpReplyHeader& repl )
+
+  This signal is emitted if the HTTP header of the reply is available.
+ 
+  It is now possible to decide wether the reply data should be read in memory
+  or rather in some device by calling setDevice().
+*/
+/*!
+  \fn void QHttpClient::requestFailed()
+
+  This signal is emitted if a request failed.
+*/
+/*!
+  \fn void QHttpClient::idle()
+
+  This signal is emitted when the QHttpClient is able to start a new request.
+  The QHttpClient is either in the state Idle or Alive now.
 */
 
 /*!
@@ -950,6 +1003,18 @@ void QHttpClient::readyRead()
 }
 
 /*!
+  \enum QHttpClient::State
+
+  <ul>
+  <li> Closed
+  <li> Connecting
+  <li> Sending
+  <li> Reading
+  <li> Alive
+  <li> Idle
+  </ul>
+*/
+/*!
   Returns the state of the HTTP client.
 */
 QHttpClient::State QHttpClient::state() const
@@ -957,6 +1022,8 @@ QHttpClient::State QHttpClient::state() const
     return m_state;
 }
 
+/*! \reimp
+*/
 void QHttpClient::timerEvent( QTimerEvent *e )
 {
     if ( e->timerId() == m_idleTimer ) {
@@ -1050,6 +1117,17 @@ QHttpServer::QHttpServer( int port, QObject* parent, const char* name )
 */
 
 /*!
+  \fn void QHttpConnection::replyFinished()
+
+  This signal is emitted when the server has sent the entire reply succesfully.
+*/
+/*!
+  \fn void QHttpConnection::replyFailed()
+
+  This signal is emitted when the server has failed to sent the entire reply.
+*/
+
+/*!
   Constructor. ### args?
 */
 QHttpConnection::QHttpConnection( int socket, QObject* parent, const char* name )
@@ -1074,6 +1152,18 @@ QHttpConnection::~QHttpConnection()
     // qDebug("QHttpConnection::~QHttpConnection()");
 }
 
+/*!
+  \enum QHttpConnection::State
+
+  <ul>
+  <li> Created
+  <li> Reading
+  <li> Waiting
+  <li> Writing
+  <li> Alive
+  <li> Closed
+  </ul>
+*/
 /*!
   Returns the state of the connection.
 */
@@ -1263,6 +1353,10 @@ void QHttpConnection::bytesWritten( int n )
     }
 }
 
+/*!
+  Closes the socket and starts the kill timer.  That means the socket will self
+  destruct itself once the application comes back to its event loop.
+*/
 void QHttpConnection::close()
 {
     if ( m_state == Closed )
@@ -1307,6 +1401,17 @@ void QHttpConnection::socketError( int e )
     close();
 }
 
+/*!
+  \fn void QHttpConnection::request( const QHttpRequestHeader& header, const QByteArray& data )
+
+  Grmpf
+### fnord
+*/
+
+/*!
+  This function is Called when an error occures. The default implementation
+  does nothing. Overload this method to implement your own error handling.
+*/
 void QHttpConnection::error( int )
 {
     qWarning("Error in QHttpConnection");
@@ -1314,17 +1419,16 @@ void QHttpConnection::error( int )
     // Do nothing
 }
 
-/*! \reimpl
+/*! \reimp
 */
 void QHttpConnection::timerEvent( QTimerEvent *e )
 {
-    if ( e->timerId() == m_killTimer )
-    {
+    if ( e->timerId() == m_killTimer ) {
 	ASSERT( m_state == Closed || m_state == Alive );
 	delete this;
-    }
-    else
+    } else {
 	QObject::timerEvent( e );
+    }
 }
 
 /*!
