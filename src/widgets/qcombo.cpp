@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombo.cpp#17 $
+** $Id: //depot/qt/main/src/widgets/qcombo.cpp#18 $
 **
 ** Implementation of QComboBox widget class
 **
@@ -18,7 +18,7 @@
 #include "qpixmap.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qcombo.cpp#17 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qcombo.cpp#18 $";
 #endif
 
 /*!
@@ -333,7 +333,6 @@ void QComboBox::setCurrentItem( int index )
     }
     d->current = index;
     currentChanged();
-    emit activated( index );
 }
 
 
