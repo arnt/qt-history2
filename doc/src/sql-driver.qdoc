@@ -322,22 +322,14 @@
     make in the line above.
 
     \target QPSQL
-    \section2 QPSQL for PostgreSQL Version 6 and 7
+    \section2 QPSQL for PostgreSQL Version 7 and 8
 
     \section3 General Information
 
-    The QPSQL driver supports both version 6 and version 7 of PostgreSQL.
+    The QPSQL driver supports both version 7 and version 8 of PostgreSQL.
     We recommend compiling the plugin with a recent version of the
     PostgreSQL client library (libpq) because it is more stable and still
     backwards compatible.
-
-    If you want to link the plugin against the libpq shipped with version
-    6 we recommend a recent version like PostgreSQL 6.5.3, otherwise a
-    connection to a version 7 server may not work.
-
-    The driver auto-detects the server version of PostgreSQL after a
-    connection was successful. If the server is too old or the version
-    information cannot be determined a warning is issued.
 
     For more information about PostgreSQL visit \l http://www.postgresql.org.
 
@@ -359,46 +351,32 @@
     \section3 BLOB Support
 
     Binary Large Objects are supported through the \c BYTEA field type in
-    PostgreSQL versions >= 7.1. Fields of type \c OID can be read, but not
-    written. Use the PostgreSQL command \c lo_import to insert binary data
-    into \c OID fields.
+    PostgreSQL versions >= 7.1.
 
     \section3 How to Build the Plugin on Unix and Mac OS X
 
-    Just installing the \c pq client library and the corresponding header
-    files is not sufficient. You must get the PostgreSQL source
-    distribution and run the \c configure script. If you've already installed
-    a binary distribution you don't need to build it. The source
-    distribution is needed because the QPSQL plugin relies on a couple of
-    header files that are usually not a part of the binary distribution.
+    You need the PostgreSQL client library and headers installed.
 
     To make \c qmake find the PostgreSQL header files and shared
     libraries, run \c qmake the following way (assuming that the
-    PostgreSQL sources can be found in \c{/usr/src/psql}):
+    PostgreSQL client is installed in \c{/usr}):
 
     \code
         cd $QTDIR/src/plugins/sqldrivers/psql
-        qmake -o Makefile "INCLUDEPATH+=/usr/src/psql/src/include /usr/src/psql/src/interfaces/libpq" "LIBS+=-L/usr/lib -lpq" psql.pro
+        qmake -o Makefile "INCLUDEPATH+=/usr/include/pgsql" "LIBS+=-L/usr/lib -lpq" psql.pro
         make
     \endcode
 
     \section3 How to Build the Plugin on Windows
 
-    Unpack and build the PostgreSQL source distribution as described in
-    the PostgreSQL documentation. Assuming the PostgreSQL sources resides
-    in \c{C:\psql}, build the plugin as follows:
+    Install the PostgreSQL developer libraries. Assuming that PostgreSQL
+    was installed in \c{C:\psql}, build the plugin as follows:
 
     \code
         cd %QTDIR%\src\plugins\sqldrivers\psql
-        qmake -o Makefile "INCLUDEPATH+=C:\psql\src\include C:\psql\src\interfaces\libpq" psql.pro
+        qmake -o Makefile "INCLUDEPATH+=C:\psql\include" "LIBS+=C:\psql\lib\ms\libpq.lib" psql.pro
         nmake
     \endcode
-
-    Remember to add the path to the \c{libpq.dll} library to your \c PATH
-    environment variable so that Windows can find it. In this case the
-    path would be \c{C:\psql\src\interfaces\libpq\Release}. If you are not
-    using a Microsoft compiler, replace \c nmake with \c make in the
-    line above.
 
     \target QTDS
     \section2 QTDS for Sybase Adaptive Server and Microsoft SQL Server
