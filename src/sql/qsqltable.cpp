@@ -1536,11 +1536,9 @@ void QSqlTable::paintField( QPainter * p, const QSqlField* field,
 /*! Returns the alignment for \a field.
 */
 
-int QSqlTable::fieldAlignment( const QSqlField* field )
+int QSqlTable::fieldAlignment( const QSqlField* /*field*/ )
 {
-    if ( !sqlCursor() )
-	return Qt::AlignLeft | Qt::AlignVCenter;
-    return sqlCursor()->alignment( field->name() ) | Qt::AlignVCenter;
+    return Qt::AlignLeft | Qt::AlignVCenter; //## Reggie: add alignment to QTable
 }
 
 
@@ -1595,7 +1593,7 @@ void QSqlTable::setCursor( QSqlCursor* cursor, bool autoPopulate, bool autoDelet
 	    d->fldLabel.clear();
 	    d->fldIcon.clear();
 	    for ( uint i = 0; i < sqlCursor()->count(); ++i )
-		addColumn( sqlCursor()->field( i )->name(), sqlCursor()->displayLabel( sqlCursor()->field( i )->name() ) );
+		addColumn( sqlCursor()->field( i )->name(), sqlCursor()->field( i )->name() ); //## algorithm for betten display label
 	}
 	if ( sqlCursor()->isReadOnly() )
 	    setReadOnly( TRUE );
@@ -1768,16 +1766,13 @@ void QSqlTable::refresh()
 	QSqlField* field = 0;
 	for ( uint i = 0; i < d->fld.count(); ++i ) {
 	    field = cur->field( d->fld[ i ] );
-	    if ( field && cur->isVisible( field->name() ) &&
-		 !cur->primaryIndex().contains( field->name() ) &&
-		 ( cur->position( field->name() ) != -1 ) ) {
+	    if ( field && ( cur->isGenerated( field->name() ) || cur->isCalculated( field->name() ) ) &&
+		 !cur->primaryIndex().contains( field->name() ) ) {
 		setNumCols( numCols() + 1 );
 		d->colIndex.append( cur->position( field->name() ) );
 		setColumnReadOnly( numCols()-1, field->isReadOnly() );
 		QHeader* h = horizontalHeader();
 		QString label = d->fldLabel[ i ];
-		if ( label == QString::null )
-		    label = cur->displayLabel( field->name() );
 		QIconSet icons = d->fldIcon[ i ];
 		h->setLabel( numCols()-1, icons, label );
 	    }

@@ -87,6 +87,9 @@ public:
     int                 mode() const;
     virtual void        setCalculated( const QString& name, bool calculated );
     bool                isCalculated( const QString& name ) const;
+    virtual void        setTrimmed( const QString& name, bool trim );
+    bool                isTrimmed( const QString& name ) const;
+
     bool                isReadOnly() const;
     bool                canInsert() const;
     bool                canUpdate() const;

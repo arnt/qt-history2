@@ -72,7 +72,7 @@ public:
     virtual QSqlRecord    record( const QString& tablename ) const;
     virtual QSqlRecord    record( const QSqlQuery& query ) const;
     virtual QString       nullText() const;
-    virtual QString       formatValue( const QSqlField* field ) const;
+    virtual QString       formatValue( const QSqlField* field, bool trimStrings = FALSE ) const;
     QSqlError	          lastError() const;
 
     virtual bool          hasTransactionSupport() const = 0;

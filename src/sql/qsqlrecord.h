@@ -100,12 +100,6 @@ public:
 
     virtual void         setGenerated( const QString& name, bool generated );
     bool                 isGenerated( const QString& name ) const;
-    virtual void         setAlignment( const QString& name, int align );
-    int                  alignment( const QString& name ) const;
-    virtual void         setDisplayLabel( const QString& name, const QString& label );
-    QString              displayLabel( const QString& name ) const;
-    virtual void         setVisible( const QString& name, bool visible );
-    bool                 isVisible( const QString& name ) const;
 
 private:
     QString              createField( int i, const QString& prefix ) const;

@@ -311,7 +311,8 @@ QString QSqlDriver::nullText() const
 
   <li> If \a field is character data, the value is returned enclosed
   by single quotation marks, which is appropriate for many SQL
-  databases.
+  databases.  If \a trimStrings is TRUE (the default is FALSE), all
+  trailing whitespace is trimmed from the field.
 
   <li> If \a field is date/time data, the value is formatted in ISO
   format and enclosed by single quotation marks.  If the date/time
@@ -328,7 +329,7 @@ QString QSqlDriver::nullText() const
   \sa QVariant::toString().
 
 */
-QString QSqlDriver::formatValue( const QSqlField* field ) const
+QString QSqlDriver::formatValue( const QSqlField* field, bool trimStrings ) const
 {
     QString r;
     if ( field->isNull() )
@@ -352,8 +353,8 @@ QString QSqlDriver::formatValue( const QSqlField* field ) const
 	    if ( field->value().toDateTime().isValid() ){
 		QDate dt = field->value().toDateTime().date();
 		QTime tm = field->value().toDateTime().time();
-		r = "'{ ts `" + 
-		    QString::number(dt.year()) + "-" + 
+		r = "'{ ts `" +
+		    QString::number(dt.year()) + "-" +
 		    QString::number(dt.month()) + "-" +
 		    QString::number(dt.day()) + " " +
 		    tm.toString() +
@@ -362,9 +363,18 @@ QString QSqlDriver::formatValue( const QSqlField* field ) const
 		r = nullText();
 	    break;
 	case QVariant::String:
-	case QVariant::CString:
-	    r = "'" + field->value().toString() + "'";
+	case QVariant::CString: {
+	    QString result = field->value().toString();
+	    if ( trimStrings ) {
+		int end = result.length() - 1;
+		while ( end && result[end].isSpace() ) // skip white space from end
+		    end--;
+		result.truncate( end );
+		r = "'" + result + "'";
+	    } else
+		r = "'" + field->value().toString() + "'";
 	    break;
+	}
 	case QVariant::ByteArray : {
 	    if ( canEditBinaryFields() ) {
 		QByteArray ba = field->value().toByteArray();

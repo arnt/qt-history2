@@ -48,27 +48,20 @@ class QSqlRecordPrivate
 public:
     class info {
     public:
-	info() : nogen(FALSE),align(Qt::AlignAuto),label(),visible(TRUE){}
+	info() : nogen(FALSE){}
 	~info() {}
 	info( const info& other )
-	    : field( other.field ), nogen( other.nogen ), align( other.align ), label( other.label ),
-	      visible( other.visible )
+	    : field( other.field ), nogen( other.nogen )
 	{
 	}
 	info& operator=(const info& other)
 	{
 	    field = other.field;
 	    nogen = other.nogen;
-	    align = other.align;
-	    label = other.label;
-	    visible = other.visible;
 	    return *this;
 	}
 	QSqlField field;
 	bool    nogen;
-	int     align;
-	QString label;
-	bool    visible;
     };
 
     QSqlRecordPrivate() { }
@@ -137,10 +130,7 @@ QSqlRecordShared::~QSqlRecordShared()
     The QSqlRecord class encapsulates the functionality and
     characteristics of a database record (usually a table or view within
     the database). QSqlRecords support adding and removing fields as
-    well as setting and retrieving field values. Several other
-    functions are also provided which alter other characteristics of the
-    record, for example, changing the display label associated with a
-    particular field when displaying that field on screen.
+    well as setting and retrieving field values.
 
     QSqlRecord is implicitly shared. This means you can make copies of
     the record in time O(1). If multiple QSqlRecord instances share
@@ -440,116 +430,6 @@ bool QSqlRecord::isGenerated( const QString& name ) const
     if ( !field( name ) )
 	return FALSE;
     return !sh->d->fieldInfo( position( name ) )->nogen;
-}
-
-/*! Sets the alignment of field \a name to \a align (which is of type
-  Qt::AlignmentFlags).  If the field does not exist, nothing happens.
-
-  \sa alignment()
-
-*/
-void QSqlRecord::setAlignment( const QString& name, int align )
-{
-    checkDetach();
-    if ( !field( name ) )
-	return;
-    sh->d->fieldInfo( position( name ) )->align = align;
-}
-
-/*! Returns the alignment associated with the field \a name.  If the
-   field does not exist, \c Qt::AlignLeft is returned.  If the field
-   \a name has not been assigned an alignment (using setAlignment()),
-   then the following rules are used:
-
-   <ul>
-   <li> If the field is a string data type, \c Qt::AlignLeft is returned.
-
-   <li> Otherwise, \c Qt::AlignRight is returned.
-
-   </ul>
-
-   \sa setAlignment()
-*/
-
-int QSqlRecord::alignment( const QString& name ) const
-{
-    if ( !field( name ) )
-	return Qt::AlignLeft;
-    if ( !sh->d->contains( position( name ) ) ||
-	 sh->d->fieldInfo( position( name ) )->align == Qt::AlignAuto ) {
-	 int af = 0;
-	 switch( field( name )->type() ) {
-	 case QVariant::String:
-	 case QVariant::CString:
-	     af = Qt::AlignLeft;
-	     break;
-	 default:
-	     af = Qt::AlignRight;
-	     break;
-	 }
-	 return af;
-    }
-    return sh->d->fieldInfo( position( name ) )->align;
-}
-
-/*! Sets the display label of field \a name to \a label.  If the field
-  does not exist, nothing happens.
-
-  \sa displayLabel()
-*/
-
-void QSqlRecord::setDisplayLabel( const QString& name, const QString& label )
-{
-    checkDetach();
-    if ( !field( name ) )
-	return;
-    sh->d->fieldInfo( position( name ) )->label = label;
-}
-
-/*! Returns the display label associated with the field \a name.  If
-   the field does not exist, \a name is returned.
-
-   \sa setDisplayLabel()
-*/
-
-QString QSqlRecord::displayLabel( const QString& name ) const
-{
-    if ( !field( name ) ||  !sh->d->fieldInfo( position( name ) ) )
-	return name;
-    QString ret = sh->d->fieldInfo( position( name ) )->label;
-    if ( ret.isNull() )
-	ret = name;
-    return ret;
-}
-
-/*! Sets the visible flag of field \a name to \a visible.  If the
-  field does not exist, nothing happens.
-
-  \sa isVisible()
-*/
-
-void QSqlRecord::setVisible( const QString& name, bool visible )
-{
-    checkDetach();
-    if ( !field( name ) )
-	return;
-    sh->d->fieldInfo( position( name ) )->visible = visible;
-}
-
-/*! Returns TRUE if the field \a name is visible (the default),
- otherwise returns FALSE.  If the field does not exist, FALSE is
- returned.
-
- \sa setVisible()
-*/
-
-bool QSqlRecord::isVisible( const QString& name ) const
-{
-    if ( !field( name ) )
-	return FALSE;
-    if ( !sh->d->fieldInfo( position( name ) ) )
-	return TRUE;
-    return sh->d->fieldInfo( position( name ) )->visible;
 }
 
 /*!  Returns a comma-separated list of all the record's field names as a

@@ -47,6 +47,25 @@
 class QSqlCursorPrivate
 {
 public:
+
+    class info {
+    public:
+	info() : calc(FALSE), trim(FALSE){}
+	~info() {}
+	info( const info& other )
+	    : calc( other.calc ), trim( other.trim )
+	{
+	}
+	info& operator=(const info& other)
+	{
+	    calc = other.calc;
+	    trim = other.trim;
+	    return *this;
+	}
+	bool calc;
+	bool trim;
+    };
+
     QSqlCursorPrivate( const QString& name )
 	: lastAt( QSqlResult::BeforeFirst ), nm( name ), srt( name ), md( 0 ){}
     ~QSqlCursorPrivate(){}
@@ -58,7 +77,7 @@ public:
     int               md;
     QSqlIndex         priIndx;
     QSqlRecord        editBuffer;
-    QMap< int, bool >  calcFields;
+    QMap< int, info > fieldInfo;
 };
 
 QString qOrderByClause( const QSqlIndex & i, const QString& prefix = QString::null )
@@ -554,19 +573,49 @@ void QSqlCursor::setCalculated( const QString& name, bool calculated )
 {
     if ( !field( name ) )
 	return;
-    d->calcFields[ position( name ) ] = calculated;
+    d->fieldInfo[ position( name ) ].calc = calculated;
     setGenerated( name, !calculated );
 }
 
 /*! Returns TRUE if the field \a name is calculated, otherwise FALSE is
   returned. If the field \a name does not exist, FALSE is returned.
+
+  \sa setCalculated()
 */
 
 bool QSqlCursor::isCalculated( const QString& name ) const
 {
     if ( !field( name ) )
 	return FALSE;
-    return d->calcFields[ position( name ) ];
+    return d->fieldInfo[ position( name ) ].calc;
+}
+
+/*! Sets field \a name to \a trim.  If the field \a name does not
+  exist, nothing happens.  The value of a trimmed field is
+  right-trimmed of all blank spaces if the field type is string or
+  cstring.
+
+  \sa isTrimmed() QVariant()
+*/
+
+void QSqlCursor::setTrimmed( const QString& name, bool trim )
+{
+    if ( !field( name ) )
+	return;
+    d->fieldInfo[ position( name ) ].trim = trim;
+}
+
+/*! Returns TRUE if the field \a name is trimmed, otherwise FALSE is
+  returned. If the field \a name does not exist, FALSE is returned.
+
+  \sa setTrimmed()
+*/
+
+bool QSqlCursor::isTrimmed( const QString& name ) const
+{
+    if ( !field( name ) )
+	return FALSE;
+    return d->fieldInfo[ position( name ) ].trim;
 }
 
 /*! Returns TRUE if the cursor is read-only, FALSE otherwise.  The
@@ -944,7 +993,17 @@ void QSqlCursor::sync()
 	for ( ; i < count(); ++i ){
 	    QSqlField* f = field( i );
 	    if ( !isCalculated( f->name() ) ){
-		QSqlRecord::setValue( i, QSqlQuery::value( j ) );
+		QVariant v = QSqlQuery::value( j );
+		if ( d->fieldInfo[ position( f->name() ) ].trim && /* ## optimize? */
+		     ( v.type() == QVariant::String || v.type() == QVariant::CString ) ) {
+		    QString result = v.toString();
+		    int end = result.length() - 1;
+		    while ( end && result[end].isSpace() ) // skip white space from end
+			end--;
+		    result.truncate( end );
+		    v = result;
+		}
+		QSqlRecord::setValue( i, v );
 		QSqlRecord::field( i )->setNull( QSqlQuery::isNull( j ) );
 		j++;
 	    }
