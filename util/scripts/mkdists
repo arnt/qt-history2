@@ -443,6 +443,14 @@ for $platform ( "x11", "qws" ) {
 
     &rmrf( "$qtdir/util" );
 
+    # delete some examples
+
+    &rmrf( "$qtdir/examples/kiosk" );
+    &rmrf( "$qtdir/examples/biff" ) unless $platform eq "x11";
+    &rmrf( "$qtdir/examples/desktop" ) unless $platform eq "x11";
+    &rmrf( "$qtdir/examples/sound" ) unless $platform eq "x11";
+    &rmrf( "$qtdir/examples/winmanager" ); # unless $platform eq "qws";
+
     # lose empty directories
 
     &prune( "qtdir" );
@@ -489,10 +497,6 @@ if (!$notplatform{win}) {
     # delete the xt estension
 
     &rmrf( "$qtdir/extensions/xt" );
-
-    # delete kiosk
-
-    &rmrf( "$qtdir/examples/kiosk" );
 
     # Generate makefiles
 

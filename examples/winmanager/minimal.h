@@ -1,5 +1,5 @@
 
-#include "qwsmanager.h"
+#include "qwsmanager_qws.h"
 
 class QPixmap;
 class QWidget;

@@ -3548,7 +3548,7 @@ bool QScreen::connect()
     }
     d=vinfo.bits_per_pixel;
     lstep=(vinfo.xres_virtual*d+7)/8;
-    qDebug("Using %dx%dx%d screen",w,h,d);
+    //qDebug("Using %dx%dx%d screen",w,h,d);
 
     /* Figure out the size of the screen in bytes */
     size = h * lstep;

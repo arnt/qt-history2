@@ -467,7 +467,6 @@ QMemoryManager::FontID QMemoryManager::findFont(const QFontDef& font)
 	    }
 	}
 	if ( QFile::exists(filename) ) {
-	    qWarning("Using prerendered font \"%s\"",filename.local8Bit().data());
 	    QFile f(filename);
 	    f.open(IO_ReadOnly);
 	    mmf->renderer = 0;
