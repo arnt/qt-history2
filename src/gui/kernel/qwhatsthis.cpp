@@ -68,7 +68,7 @@
     users to ask the question is to move the focus to the relevant
     widget and press Shift+F1. The help text appears immediately; it
     goes away as soon as the user does something else.
-    (Note that if there is an accelerator for Shift+F1, this mechanism
+    (Note that if there is a shortcut for Shift+F1, this mechanism
     will not work.) Some dialogs provide a "?" button that users can
     click to enter "What's this?" mode; they then click the relevant
     widget to pop up the "What's this?" window. It is also possible to

@@ -58,7 +58,7 @@
     QScrollBar has very few of its own functions; it mostly relies on
     QAbstractSlider. The most useful functions are setValue() to set
     the scroll bar directly to some value; triggerAction() to simulate
-    the effects of clicking (useful for accelerator keys);
+    the effects of clicking (useful for shortcut keys);
     setSingleStep(), setPageStep() to set the steps; and setMinimum()
     and setMaximum() to define the range of the scroll bar.
 

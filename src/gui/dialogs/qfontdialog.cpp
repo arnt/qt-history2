@@ -139,7 +139,8 @@ QFontDialog::QFontDialog(QWidget *parent, const char *name,
     d->familyEdit->setFocusProxy(d->familyList);
 
     d->familyAccel
-        = new QLabel(d->familyList, tr("&Font"), this, "family accelerator");
+        = new QLabel(d->familyList, tr("&Font"), this);
+    d->familyAccel->setObjectName("family shortcut");
     d->familyAccel->setIndent(2);
 
     d->styleEdit = new QLineEdit(this, "font style I");
@@ -148,7 +149,8 @@ QFontDialog::QFontDialog(QWidget *parent, const char *name,
     d->styleEdit->setFocusProxy(d->styleList);
 
     d->styleAccel
-        = new QLabel(d->styleList, tr("Font st&yle"), this, "style accelerator");
+        = new QLabel(d->styleList, tr("Font st&yle"), this);
+    d->styleAccel->setObjectName("style shortcut");
     d->styleAccel->setIndent(2);
 
     d->sizeEdit = new QLineEdit(this, "font size I");
@@ -158,7 +160,8 @@ QFontDialog::QFontDialog(QWidget *parent, const char *name,
     d->sizeList = new QListBox(this, "font size II");
 
     d->sizeAccel
-        = new QLabel (d->sizeEdit, tr("&Size"), this, "size accelerator");
+        = new QLabel (d->sizeEdit, tr("&Size"), this);
+    d->sizeAccel->setObjectName("size shortcut");
     d->sizeAccel->setIndent(2);
 
     // effects box

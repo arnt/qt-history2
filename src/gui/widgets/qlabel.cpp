@@ -322,7 +322,7 @@ void QLabel::setText(const QString &text)
     bool useRichText = true;
 #endif
 #ifndef QT_NO_ACCEL
-    // ### Setting accelerators for rich text labels will not work.
+    // ### Setting shortcuts for rich text labels will not work.
     // Eg. <b>&gt;Hello</b> will return ALT+G which is clearly
     // not intended.
     if (!useRichText) {
@@ -371,7 +371,7 @@ void QLabel::clear()
     If no pixmap has been set this will return an invalid pixmap.
 
     Setting the pixmap clears any previous content. The buddy
-    accelerator, if any, is disabled.
+    shortcut, if any, is disabled.
 */
 void QLabel::setPixmap(const QPixmap &pixmap)
 {
@@ -396,7 +396,7 @@ QPixmap *QLabel::pixmap() const
     Sets the label contents to \a picture. Any previous content is
     cleared.
 
-    The buddy accelerator, if any, is disabled.
+    The buddy shortcut, if any, is disabled.
 
     \sa picture(), setBuddy()
 */
@@ -416,7 +416,7 @@ void QLabel::setPicture(const QPicture &picture)
     Does nothing if the integer's string representation is the same as
     the current contents of the label.
 
-    The buddy accelerator, if any, is disabled.
+    The buddy shortcut, if any, is disabled.
 
     The label resizes itself if auto-resizing is enabled.
 
@@ -438,7 +438,7 @@ void QLabel::setNum(int num)
     Does nothing if the double's string representation is the same as
     the current contents of the label.
 
-    The buddy accelerator, if any, is disabled.
+    The buddy shortcut, if any, is disabled.
 
     The label resizes itself if auto-resizing is enabled.
 
@@ -875,7 +875,7 @@ void QLabelPrivate::updateLabel()
 /*!
   \internal
 
-  Internal slot, used to set focus for accelerator labels.
+  Internal slot, used to set focus for shortcut labels.
 */
 #ifndef QT_NO_ACCEL
 void QLabel::mnemonicSlot()
@@ -983,7 +983,7 @@ void QLabel::movieResized(const QSize& size)
     Sets the label contents to \a movie. Any previous content is
     cleared.
 
-    The buddy accelerator, if any, is disabled.
+    The buddy shortcut, if any, is disabled.
 
     The label resizes itself if auto-resizing is enabled.
 

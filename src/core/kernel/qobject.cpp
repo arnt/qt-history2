@@ -1282,7 +1282,7 @@ void QObject::setParent_helper(QObject *parent)
     \endcode
 
     The QShortcut class, for example, uses this technique to intercept
-    accelerator key presses.
+    shortcut key presses.
 
     \warning If you delete the receiver object in your eventFilter()
     function, be sure to return true. If you return false, Qt sends

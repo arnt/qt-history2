@@ -469,7 +469,7 @@ QString QAction::text() const
     \brief the action's menu text
 
     If the action is added to a menu the menu option will consist of
-    the icon (if there is one), the menu text and the accelerator (if
+    the icon (if there is one), the menu text and the shortcut (if
     there is one). If the menu text is not explicitly set in the
     constructor or by using setMenuText() the action's description
     text will be used as the menu text. There is no default menu text.

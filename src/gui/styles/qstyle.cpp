@@ -1006,7 +1006,7 @@ void QStyle::drawItem(QPainter *p, const QRect &r,
          \i \e mi is the menu item being drawn. Q3MenuItem is currently an
             internal class.
     \row \i \l Style_Active \i Set if the menuitem is the current item.
-         \i \e tabwidth is the width of the tab column where key accelerators
+         \i \e tabwidth is the width of the tab column where key shortcuts
             are drawn.
     \row \i \l Style_Down \i Set if the menuitem is down (i.e., the mouse button
                             or space bar is pressed).
@@ -1739,7 +1739,7 @@ void QStyle::drawItem(QPainter *p, const QRect &r,
 
     \value SH_Table_GridLineColor
 
-    \value SH_UnderlineAccelerator whether accelerators are underlined
+    \value SH_UnderlineAccelerator whether shortcuts are underlined
 
     \value SH_SpinBox_AnimateButton animate a click when up or down is pressed in a spin box
     \value SH_SpinBox_KeyPressAutoRepeatRate autorepeat interval for

@@ -118,7 +118,7 @@ Q4StyleOptionSlider QSliderPrivate::getStyleOption() const
     QSlider has very few of its own functions; most of the functionality is in
     QAbstractSlider. The most useful functions are setValue() to set
     the slider directly to some value; triggerAction() to simulate
-    the effects of clicking (useful for accelerator keys);
+    the effects of clicking (useful for shortcut keys);
     setSingleStep(), setPageStep() to set the steps; and setMinimum()
     and setMaximum() to define the range of the scroll bar.
 

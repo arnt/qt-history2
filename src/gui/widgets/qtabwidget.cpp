@@ -39,7 +39,7 @@
     with a different widget (called a `page'). Only the current tab's
     widget is shown in the page area; all the other tabs' widgets are
     hidden. The user can show a different page by clicking on its tab
-    or by pressing its Alt+\e{letter} accelerator if it has one.
+    or by pressing its Alt+\e{letter} shortcut if it has one.
 
     The normal way to use QTabWidget is to do the following in the
     constructor:
@@ -47,7 +47,7 @@
     \i Create a QTabWidget.
     \i Create a QWidget for each of the pages in the tab dialog,
     insert children into it, set up geometry management for it and use
-    addTab() (or insertTab()) to set up a tab and keyboard accelerator
+    addTab() (or insertTab()) to set up a tab and keyboard shortcut
     for it.
     \i Connect to the signals and slots.
     \endlist
@@ -220,8 +220,8 @@ QTabWidget::~QTabWidget()
     and other factors.
 
     If the tab's \a label contains an ampersand, the letter following
-    the ampersand is used as an accelerator for the tab, e.g. if the
-    label is "Bro\&wse" then Alt+W becomes an accelerator which will
+    the ampersand is used as a shortcut for the tab, e.g. if the
+    label is "Bro\&wse" then Alt+W becomes a shortcut which will
     move the focus to this tab.
 
     \sa insertTab()
@@ -257,8 +257,8 @@ int QTabWidget::addTab(QWidget *child, const QIconSet& iconset, const QString &l
     and other factors.
 
     If the tab's \a label contains an ampersand, the letter following
-    the ampersand is used as an accelerator for the tab, e.g. if the
-    label is "Bro\&wse" then Alt+W becomes an accelerator which will
+    the ampersand is used as a shortcut for the tab, e.g. if the
+    label is "Bro\&wse" then Alt+W becomes a shortcut which will
     move the focus to this tab.
 
     If \a index is out of range, the tab is simply appended.

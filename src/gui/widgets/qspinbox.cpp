@@ -112,7 +112,7 @@ QValidator::State QSpinBoxValidator::validate(QString& str, int& pos) const
 
     The spin box keeps the value within a numeric range, and to
     multiples of the lineStep() size (see QRangeControl for details).
-    Clicking the up/down buttons or using the keyboard accelerator's
+    Clicking the up/down buttons or using the keyboard shortcuts
     up and down arrows will increase or decrease the current value in
     steps of size lineStep(). The minimum and maximum value and the
     step size can be set using one of the constructors, and can be
@@ -530,7 +530,7 @@ int QSpinBox::value() const
 /*!
     Increases the spin box's value by one lineStep(), wrapping as
     necessary if wrapping() is true. This is the same as clicking on
-    the pointing-up button and can be used for keyboard accelerators,
+    the pointing-up button and can be used for keyboard shortcuts,
     for example.
 
     \sa stepDown(), addLine(), lineStep(), setSteps(), setValue(), value()
@@ -551,7 +551,7 @@ void QSpinBox::stepUp()
     Decreases the spin box's value one lineStep(), wrapping as
     necessary if wrapping() is true. This is the same as clicking on
     the pointing-down button and can be used for keyboard
-    accelerators, for example.
+    shortcuts, for example.
 
     \sa stepUp(), subtractLine(), lineStep(), setSteps(), setValue(), value()
 */
@@ -573,7 +573,7 @@ void QSpinBox::stepDown()
     This signal is emitted every time the value of the spin box
     changes; the new value is passed in \a value. This signal will be
     emitted as a result of a call to setValue(), or because the user
-    changed the value by using a keyboard accelerator or mouse click,
+    changed the value by using a keyboard shortcut or mouse click,
     etc.
 
     Note that the valueChanged() signal is emitted \e every time, not
@@ -592,7 +592,7 @@ void QSpinBox::stepDown()
     This signal is emitted whenever the valueChanged(int) signal is
     emitted, i.e. every time the value of the spin box changes
     (whatever the cause, e.g. by setValue(), by a keyboard
-    accelerator, by mouse clicks, etc.).
+    shortcut, by mouse clicks, etc.).
 
     The \a valueText parameter is the same string that is displayed in
     the edit field of the spin box.

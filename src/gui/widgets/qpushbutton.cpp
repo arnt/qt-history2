@@ -69,11 +69,11 @@ public:
     A command button is rectangular and typically displays a text
     label describing its action. An underlined character in the label
     (signified by preceding it with an ampersand in the text)
-    indicates an accelerator key, e.g.
+    indicates a shortcut key, e.g.
     \code
         QPushButton *pb = new QPushButton("&Download", this);
     \endcode
-    In this example the accelerator is \e{Alt+D}, and the label text
+    In this example the shortcut is \e{Alt+D}, and the label text
     will be displayed as <b><u>D</u>ownload</b>.
 
     Push buttons can display a textual label or a pixmap, and
@@ -84,7 +84,7 @@ public:
     the button look "disabled".
 
     A push button emits the signal clicked() when it is activated by
-    the mouse, the Spacebar or by a keyboard accelerator. Connect to
+    the mouse, the Spacebar or by a keyboard shortcut. Connect to
     this signal to perform the button's action. Push buttons also
     provide less commonly used signals, for example, pressed() and
     released().
@@ -187,7 +187,7 @@ public:
     there are one or more \l autoDefault buttons the first \l autoDefault
     button that is next in the tab order is pressed. If there are no
     default or \l autoDefault buttons only pressing Space on a button
-    with focus, mouse clicking, or using an accelerator will press a
+    with focus, mouse clicking, or using a shortcut will press a
     button.
 
     In a dialog, only one push button at a time can be the default

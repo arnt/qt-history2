@@ -428,7 +428,7 @@ QWheelEvent::QWheelEvent(const QPoint &pos, int delta, int state, Orientation or
     \value CTRL the Ctrl keys.
     \value ALT the normal Alt keys, but not e.g. AltGr.
     \value MODIFIER_MASK is a mask of Shift, Ctrl, Alt and Meta.
-    \value UNICODE_ACCEL the accelerator is specified as a Unicode code
+    \value UNICODE_ACCEL the shortcut is specified as a Unicode code
     point, not as a Qt Key.
 */
 

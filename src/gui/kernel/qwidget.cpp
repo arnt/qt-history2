@@ -6248,7 +6248,7 @@ QString QWidget::whatsThis() const
   all those widgets on a Round-Robin basis, with its ambiguous flag raised.
 
   In most cases, you will not need to use this function directly. Use the
-  QAction class to create actions with accelerators that can be used in
+  QAction class to create actions with shortcuts that can be used in
   both menus and toolbars; or use the QShortcut class which will handle the
   event filtering for you, and provide signals which are triggered when
   the user triggers the key sequence.

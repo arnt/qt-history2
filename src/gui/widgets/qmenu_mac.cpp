@@ -474,7 +474,7 @@ QMenuPrivate::QMacMenuPrivate::syncAction(QMacMenuAction *action)
             text = cmd_text;
     }
     if(accel.count() > 1)
-        text += " (****)"; //just to denote a multi stroke accelerator
+        text += " (****)"; //just to denote a multi stroke shortcut
 
     MenuItemDataRec data;
     memset(&data, '\0', sizeof(data));
@@ -503,7 +503,7 @@ QMenuPrivate::QMacMenuPrivate::syncAction(QMacMenuAction *action)
         GetMenuItemProperty(action->menu, 0, kMenuCreatorQt, kMenuPropertyQWidget, sizeof(caused), 0, &caused);
         SetMenuItemProperty(data.submenuHandle, 0, kMenuCreatorQt, kMenuPropertyCausedQWidget, sizeof(caused), &caused);
     } else { //respect some other items
-        //accelerators
+        //shortcuts
         if(accel.isEmpty()) {
             data.whichData |= kMenuItemDataCmdKeyModifiers;
             data.whichData |= kMenuItemDataCmdKeyGlyph;

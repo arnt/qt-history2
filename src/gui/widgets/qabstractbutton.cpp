@@ -89,7 +89,7 @@
   \i released() is emitted when the left mouse button is released.
 
   \i clicked() is emitted when the button is first pressed and then
-  released when the accelerator key is typed, or when animateClick()
+  released when the shortcut key is typed, or when animateClick()
   is called.
 
   \i toggled(bool) is emitted when the state of a toggle button
@@ -98,9 +98,10 @@
   \endlist
 
   If the button is a text button with an ampersand (\&) in its text,
-  QButton creates an automatic shortcut key. This code creates a push
+  QButton creates an automatic shortcut key, called a mnemonic, which
+  may change based on the button translation. This code creates a push
   button labelled "Ro<u>c</u>k \& Roll" (where the c is
-  underlined). The button gets an automatic accelerator key, Alt+C:
+  underlined). The button gets the shortcut, Alt+C:
 
   \code
         QPushButton *p = new QPushButton("Ro&ck && Roll", this);
@@ -111,7 +112,7 @@
 
   You can also set a custom shortcut key using the setShortcut()
   function. This is useful mostly for buttons that do not have any
-  text, because they have no automatic accelerator.
+  text, because they have no automatic shortcut.
 
   \code
         p->setPixmap(QPixmap("print.png"));
@@ -916,7 +917,7 @@ void QAbstractButton::changeEvent(QEvent *e)
 
     This signal is emitted when the button is activated (i.e. first
     pressed down and then released when the mouse cursor is inside the
-    button), when the accelerator key is typed or when animateClick()
+    button), when the shortcut key is typed or when animateClick()
     is called. This signal is \e not emitted if you call setDown().
 
     \sa pressed(), released(), toggled()

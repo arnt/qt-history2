@@ -194,7 +194,7 @@ QKeySequence::QKeySequence()
     with commas, e.g. "Alt+X,Ctrl+S,Q".
 
     This contructor is typically used with \link QObject::tr() tr
-    \endlink(), so that accelerator keys can be replaced in
+    \endlink(), so that shortcut keys can be replaced in
     translations:
 
     \code
@@ -444,7 +444,7 @@ int QKeySequence::decodeString(const QString &str)
 
 
 /*!
-    Creates an accelerator string for \a key. For example,
+    Creates a shortcut string for \a key. For example,
     CTRL+Key_O gives "Ctrl+O". The strings, "Ctrl", "Shift", etc. are
     translated (using QObject::tr()) in the "QShortcut" context.
  */
@@ -558,7 +558,7 @@ Qt::SequenceMatch QKeySequence::matches(const QKeySequence &seq) const
 
 
 /*!
-    Creates an accelerator string for the key sequence.
+    Creates a shortcut string for the key sequence.
     For instance CTRL+Key_O gives "Ctrl+O". If the key sequence has
     multiple key codes they are returned comma-separated, e.g.
     "Alt+X, Ctrl+Y, Z". The strings, "Ctrl", "Shift", etc. are

@@ -253,7 +253,7 @@ bool QShortcutMap::tryShortcutEvent(QWidget *w, QKeyEvent *e)
 */
 Qt::SequenceMatch QShortcutMap::nextState(QKeyEvent *e)
 {
-    // Modifiers can NOT be accelerators...
+    // Modifiers can NOT be shortcuts...
     if (e->key() >= Qt::Key_Shift &&
         e->key() <= Qt::Key_Alt)
         return d->currentState;
@@ -417,7 +417,7 @@ bool QShortcutMap::correctContext(const QShortcutEntry &item) {
     case Qt::OnActiveWindow:
         {
             /* if we live in a floating dock window, keep our parent's
-           * accelerators working */
+             * shortcuts working */
             if (tlw->isDialog() && tlw->parentWidget() && ::qt_cast<QDockWindow*>(tlw))
                 return tlw->parentWidget()->topLevelWidget() == wtlw;
 
@@ -426,7 +426,7 @@ bool QShortcutMap::correctContext(const QShortcutEntry &item) {
 
 #ifndef QT_NO_WORKSPACE
             /* if we live in a MDI subwindow, ignore the event if we are
-              not the active document window */
+               not the active document window */
             const QWidget* sw = w;
             while (sw && !sw->testWFlags(Qt::WSubWindow) && !sw->isTopLevel())
                 sw = sw->parentWidget();

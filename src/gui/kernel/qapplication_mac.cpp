@@ -2206,9 +2206,9 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 #if !defined QT_NO_COMPAT && !defined(QT_NO_ACCEL)
             if(etype == QEvent::KeyPress && !mac_keyboard_grabber
                && static_cast<QApplicationPrivate*>(qApp->d_ptr)->use_compat()) {
-                /* We offer the accelerator a text representation of chr, this is because the Mac
+                /* We offer the shortcut a text representation of chr, this is because the Mac
                    actually flips the keyboard when things like alt are pressed, but that doesn't
-                   really mean that accelerators should be mapped to the new key (or things could get
+                   really mean that shortcuts should be mapped to the new key (or things could get
                    quite broken). */
                 QString accel_str;
                 if(chr) {
