@@ -440,7 +440,7 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
     fileFixify(ddir_c);	
     t << "dist: " << "\n\t"
       << "@mkdir -p " << ddir_c << " && "
-      << "$(COPY_FILE) $(SOURCES) $(HEADERS) $(FORMS) $(DIST) " << ddir_c << Option::dir_sep << " && "
+      << "$(COPY_FILE) --parents $(SOURCES) $(HEADERS) $(FORMS) $(DIST) " << ddir_c << Option::dir_sep << " && "
       << "( cd `dirname " << ddir_c << "` && "
       << "$(TAR) " << var("QMAKE_ORIG_TARGET") << ".tar " << ddir << " && "
       << "$(GZIP) " << var("QMAKE_ORIG_TARGET") << ".tar ) && " 
