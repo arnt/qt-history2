@@ -1423,6 +1423,7 @@ public:
     QTextFormat& operator=( const QTextFormat &fm );
     QColor color() const;
     QFont font() const;
+    QFontMetrics fontMetrics() const { return fm; }
     bool isMisspelled() const;
     VerticalAlignment vAlign() const;
     int minLeftBearing() const;

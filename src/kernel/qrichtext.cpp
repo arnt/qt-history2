@@ -5401,6 +5401,7 @@ QTextLineStart *QTextFormatter::bidiReorderLine( QTextParagraph * /*parag*/, QTe
 
     int toAdd = 0;
     int xorig = x;
+    QTextStringChar *lastChar = startChar + visual[0];
     for ( int i = 0; i < length; i++ ) {
 	QTextStringChar *ch = startChar + visual[i];
 	if (numSpaces && ch->whiteSpace) {
@@ -5409,6 +5410,14 @@ QTextLineStart *QTextFormatter::bidiReorderLine( QTextParagraph * /*parag*/, QTe
 	    space -= s;
 	    numSpaces--;
 	}
+
+	if (lastChar->format() != ch->format() && !ch->c.isSpace()
+	    && lastChar->format()->font().italic() && !ch->format()->font().italic()) {
+	    int rb = lastChar->format()->fontMetrics().rightBearing(lastChr);
+	    if (rb < 0)
+		x -= rb;
+	}
+
  	ch->x = x + toAdd;
 	//qDebug("visual: %d (%p) placed at %d rightToLeft=%d", visual[i], ch, x +toAdd, ch->rightToLeft  );
 	int ww = 0;
@@ -5418,6 +5427,7 @@ QTextLineStart *QTextFormatter::bidiReorderLine( QTextParagraph * /*parag*/, QTe
 	    ww = ch->format()->width( ' ' );
 	}
 	x += ww;
+	lastChar = ch;
     }
     x += toAdd;
 
@@ -5708,9 +5718,12 @@ int QTextFormatterBreakWords::format( QTextDocument *doc, QTextParagraph *parag,
     int col = 0;
     int ww = 0;
     QChar lastChr;
+    QTextFormat *lastFormat = 0;
     for ( ; i < len; ++i, ++col ) {
-	if ( c )
+	if ( c ) {
 	    lastChr = c->c;
+	    lastFormat = c->format();
+	}
 	bool lastWasOwnLineCustomItem = lastBreak == -2;
 	bool hadBreakableChar = lastBreak != -1;
 	bool lastWasHardBreak = lastChr == QChar_linesep;
@@ -5719,6 +5732,13 @@ int QTextFormatterBreakWords::format( QTextDocument *doc, QTextParagraph *parag,
 	if ( painter )
 	    c->format()->setPainter( painter );
 	c = &string->at( i );
+
+	if (lastFormat != c->format() && !c->c.isSpace()
+	    && lastFormat->font().italic() && !c->format()->font().italic()) {
+	    int rb = lastFormat->fontMetrics().rightBearing(lastChr);
+	    if (rb < 0)
+		x -= rb;
+	}
 
 	if ( i > 0 && (x > curLeft || ww == 0) || lastWasNonInlineCustom ) {
 	    c->lineStart = 0;
