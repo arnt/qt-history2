@@ -244,7 +244,7 @@ public:
     bool connectNotify( QApplication* );
 
     QStringList featureList();
-    QAction* create( const QString &actionname, QObject* parent = 0 );
+    QAction *create( const QString &actionname, QObject* parent = 0 );
     QString group( const QString &actionname );
 
 private slots:
@@ -264,14 +264,13 @@ private slots:
 
 private:
     bool aware;
-    QDict<P4Info> p4Files;
-    QAction* actionSync;
-    QAction* actionEdit;
-    QAction* actionSubmit;
-    QAction* actionRevert;
-    QAction* actionAdd;
-    QAction* actionDelete;
-    QAction* actionDiff;
+    QAction *actionSync;
+    QAction *actionEdit;
+    QAction *actionSubmit;
+    QAction *actionRevert;
+    QAction *actionAdd;
+    QAction *actionDelete;
+    QAction *actionDiff;
 
     QGuardedCleanUpHandler<QAction> actions;
     QGuardedPtr<QApplicationInterface> appInterface;
@@ -280,7 +279,6 @@ private:
 P4Interface::P4Interface()
 {
     aware = FALSE;
-    p4Files.setAutoDelete( TRUE );
 }
 
 P4Interface::~P4Interface()
@@ -390,7 +388,8 @@ void P4Interface::p4Edit()
 	 !( fwIface = mwIface->queryInterface( "DesignerFormWindowInterface" ) ) )
 	return;
 
-    P4Edit *edit = new P4Edit( fwIface->requestProperty( "fileName" ).toString().latin1(), mwIface, FALSE );
+    P4Edit *edit = new P4Edit( fwIface->requestProperty( "fileName" ).toString().latin1(), mwIface, TRUE );
+    connect( edit, SIGNAL(finished(const QString&, P4Info*)), this, SLOT(p4Info(const QString&,P4Info*)) );
     edit->edit();
 }
 
@@ -424,27 +423,31 @@ void P4Interface::p4Diff()
 
 void P4Interface::p4Refresh()
 {
-    p4Files.clear();
+    P4Info::files.clear();
 
     QComponentInterface *flIface = 0;
     if ( flIface = appInterface->queryInterface( "DesignerFormListInterface" ) ) {
 	QStringList formfiles = flIface->requestProperty( "fileList" ).toStringList();
 	for ( QStringList::Iterator it = formfiles.begin(); it != formfiles.end(); ++it ) {
+	    if ( (*it).isEmpty() )
+		continue;
 	    P4FStat* fs = new P4FStat( *it );
-	    connect( fs, SIGNAL(receivedStatus(const QString&, P4Info*)), this, SLOT(p4Info(const QString&,P4Info*)) );
+	    connect( fs, SIGNAL(finished(const QString&, P4Info*)), this, SLOT(p4Info(const QString&,P4Info*)) );
 	    fs->fstat();
 	}
     }
+    formChanged();
 }
 
-void P4Interface::p4MightEdit( bool b, const QString &s )
+void P4Interface::p4MightEdit( bool b, const QString &filename )
 {
     if ( !aware || !b || !appInterface )
 	return;
     QComponentInterface *mwIface = 0;
     if ( !( mwIface = appInterface->queryInterface( "DesignerMainWindowInterface" ) ) )
 	return;
-    P4Edit *edit = new P4Edit( s, mwIface, FALSE );
+    P4Edit *edit = new P4Edit( filename, mwIface, FALSE );
+    connect( edit, SIGNAL(finished(const QString&, P4Info*)), this, SLOT(p4Info(const QString&,P4Info*)) );
     edit->edit();
 }
 
@@ -467,10 +470,10 @@ void P4Interface::formChanged()
 	return;
     }
 
-    P4Info* p4i = p4Files[filename];
+    P4Info* p4i = P4Info::files[filename];
     if ( !p4i ) {
 	P4FStat* fs = new P4FStat( filename );
-	connect( fs, SIGNAL(receivedStatus(const QString&, P4Info*)), this, SLOT(p4Info(const QString&,P4Info*)) );
+	connect( fs, SIGNAL(finished(const QString&, P4Info*)), this, SLOT(p4Info(const QString&,P4Info*)) );
 	fs->fstat();
 	return;
     }
@@ -479,8 +482,41 @@ void P4Interface::formChanged()
 
 void P4Interface::p4Info( const QString& filename, P4Info* p4i )
 {
-    if ( !p4Files[filename] )
-	p4Files.insert( filename, p4i );
+    if ( !p4i )
+	return;
+
+    P4Info* oldP4i =  P4Info::files[filename];
+    if ( !oldP4i || (*oldP4i) != (*p4i) ) {
+	if ( oldP4i )
+	     P4Info::files.remove( filename );
+
+	QComponentInterface *mwIface = 0;
+	QComponentInterface *sbIface = 0;
+	if ( ( mwIface = appInterface->queryInterface( "DesignerMainWindowInterface" ) ) &&
+	     ( sbIface = mwIface->queryInterface( "DesignerStatusBarInterface" ) ) ) {
+	    QString status;
+	    if ( p4i->controlled ) {
+		if ( p4i->opened )
+		    status = tr( "opened for edit" );
+		else if ( !p4i->uptodate )
+		    status = tr( "file needs update" );
+		else
+		    status = tr( "file up-to-date" );
+	    } else {
+		status = tr( "not in this client view" );
+	    }
+	    sbIface->requestSetProperty( "message", tr("P4: %1 -> %2 - %3").arg(p4i->depotFile).arg(filename).arg(status) );
+	}
+	 P4Info::files.insert( filename, p4i );
+    }
+
+    QComponentInterface *mwIface = 0;
+    QComponentInterface *fwIface = 0;
+    if ( !( mwIface = appInterface->queryInterface( "DesignerMainWindowInterface" ) ) ||
+	 !( fwIface = mwIface->queryInterface( "DesignerFormWindowInterface" ) ) )
+	return;
+    if ( filename != fwIface->requestProperty( "fileName" ).toString() )
+	return;
 
     if ( p4i->controlled ) {
 	actionAdd->setEnabled( FALSE );
