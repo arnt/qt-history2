@@ -577,7 +577,7 @@ QPaintEngine *QPrinter::engine() const
 {
     if (!paintEngine) {
         QPaintEngine *wr = 0;
-#if defined(USE_CORE_GRAPHICS)
+#if !defined(QMAC_NO_COREGRAPHICS)
         if(!getenv("QT_MAC_USE_QUICKDRAW"))
             wr = new QCoreGraphicsPaintEngine(const_cast<QPrinter *>(this));
 #endif

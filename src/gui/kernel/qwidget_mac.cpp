@@ -1905,7 +1905,7 @@ double QWidget::windowOpacity() const
 QPaintEngine *QWidget::engine() const
 {
     if(!d->paintEngine) {
-#ifdef USE_CORE_GRAPHICS
+#if !defined(QMAC_NO_COREGRAPHICS)
         if(!getenv("QT_MAC_USE_QUICKDRAW"))
             const_cast<QWidget *>(this)->d->paintEngine = new QCoreGraphicsPaintEngine(const_cast<QWidget *>(this));
         else

@@ -19,8 +19,8 @@
 #include "qglobal.h"
 #include <qconfig.h> //We need this to get QT_MACOSX_VERSION
 
-#if QT_MACOSX_VERSION >= 0x1030 //for now don't use CG on Jaguar..
-# define USE_CORE_GRAPHICS
+#if QT_MACOSX_VERSION < 0x1030 //for now don't use CG on Jaguar..
+# define QMAC_NO_COREGRAPHICS
 #endif
 
 #if QT_MACOSX_VERSION < 0x1020 || QT_MACOSX_VERSION >= 0x1030

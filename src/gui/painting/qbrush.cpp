@@ -22,10 +22,6 @@
 #include "qpixmapcache.h"
 #include "qbitmap.h"
 
-#ifdef Q_WS_MAC
-#include "qt_mac.h" // for the USE_CORE_GRAPHICS define.
-#endif
-
 const uchar *qt_patternForBrush(int brushStyle, bool invert)
 {
     Q_ASSERT(brushStyle > Qt::SolidPattern && brushStyle < Qt::LinearGradientPattern);
@@ -483,7 +479,7 @@ bool QBrush::operator==(const QBrush &b) const
         case CustomPattern: {
             QPixmap *us = static_cast<QTexturedBrushData *>(d)->pixmap;
             QPixmap *them = static_cast<QTexturedBrushData *>(b.d)->pixmap;
-            return (us == them) || (us && them && QImage(*us) == QImage(*them));
+            return (us == them) || (us && them && us->serialNumber() == them->serialNumber());
         }
         case LinearGradientPattern:
             return static_cast<QLinGradBrushData*>(d)->color2

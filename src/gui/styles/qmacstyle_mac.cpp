@@ -146,7 +146,7 @@ QMacStyle::~QMacStyle()
 /*! \reimp */
 void QMacStyle::polish(QApplication* app)
 {
-#if defined(USE_CORE_GRAPHICS) && QT_MACOSX_VERSION >= 0x1030
+#if !defined(QMAC_NO_COREGRAPHICS) && QT_MACOSX_VERSION >= 0x1030
     if(!getenv("QT_MAC_USE_APPMANAGER")) {
         if(!cg_style)
             cg_style = new QMacStyleCG();
@@ -350,9 +350,7 @@ QStyle *QMacStyle::correctStyle(const QPainter *p) const
 
 QStyle *QMacStyle::correctStyle(const QPaintDevice *pdev) const
 {
-#if !(defined(USE_CORE_GRAPHICS) && QT_MACOSX_VERSION >= 0x1030)
-    Q_UNUSED(pdev);
-#else
+#if !defined(QMAC_NO_COREGRAPHICS) && QT_MACOSX_VERSION >= 0x1030
     bool ret_cg_style = true; //default to true when using CORE_GRAPHICS if there is no pdev
     if(pdev && pdev->engine())
         ret_cg_style = (pdev->engine()->type() == QPaintEngine::CoreGraphics);
@@ -361,6 +359,8 @@ QStyle *QMacStyle::correctStyle(const QPaintDevice *pdev) const
             cg_style = new QMacStyleCG();
         return cg_style;
     } else
+#else
+    Q_UNUSED(pdev);
 #endif
     {
         if(!qd_style)

@@ -896,7 +896,7 @@ CGImageRef qt_mac_create_cgimage(const QPixmap &px, bool imask)
 QPaintEngine *QPixmap::engine() const
 {
     if (!data->paintEngine) {
-#ifdef USE_CORE_GRAPHICS
+#if !defined(QMAC_NO_COREGRAPHICS)
         if(!getenv("QT_MAC_USE_QUICKDRAW"))
             data->paintEngine = new QCoreGraphicsPaintEngine(const_cast<QPixmap *>(this));
         else

@@ -895,7 +895,7 @@ void qt_init(QApplicationPrivate *priv, QApplication::Type)
         QColor::initialize();
         QFont::initialize();
         QCursor::initialize();
-#ifdef USE_CORE_GRAPHICS
+#if !defined(QMAC_NO_COREGRAPHICS)
         QCoreGraphicsPaintEngine::initialize();
 #endif
         QQuickDrawPaintEngine::initialize();
