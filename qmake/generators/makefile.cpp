@@ -156,7 +156,7 @@ MakefileGenerator::initOutPaths()
                 continue;
 
             QString path = project->first(dirs[x]); //not to be changed any further
-            path = Option::fixPathToLocalOS(fileFixify(path, currentDir, Option::output_dir));
+            path = fileFixify(path, currentDir, Option::output_dir);
             debug_msg(3, "Fixed output_dir %s (%s) into %s", dirs[x].toLatin1().constData(), 
                       orig_path.toLatin1().constData(), path.toLatin1().constData());
             if(!createDir(path))
