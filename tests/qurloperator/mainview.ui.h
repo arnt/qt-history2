@@ -29,14 +29,14 @@ void MainView::quit()
 
 void MainView::start_copy()
 {
-    logMessage( "START: copy()", 0 );
+    logMessage( "START", "copy()", 0 );
     urlOp = urlEdit->displayText(); 
     urlOp.copy( copyFrom->displayText(), copyTo->displayText(), copyMove->isChecked() );  
 }
 
 void MainView::start_get()
 {
-    logMessage( "START: get()", 0 ); 
+    logMessage( "START", "get()", 0 ); 
     urlOp = urlEdit->displayText();
     QString location = getLocation->displayText();
     if ( location.isEmpty() )
@@ -47,21 +47,21 @@ void MainView::start_get()
 
 void MainView::start_listChildren()
 {
-    logMessage( "START: listChildren()", 0 );
+    logMessage( "START", "listChildren()", 0 );
     urlOp = urlEdit->displayText();
     urlOp.listChildren();
 }
 
 void MainView::start_mkdir()
 {
-    logMessage( "START: mkdir()", 0 );
+    logMessage( "START", "mkdir()", 0 );
     urlOp = urlEdit->displayText();
     urlOp.mkdir( mkdirDirName->displayText() );
 }
 
 void MainView::start_put()
 {
-    logMessage( "START: put()", 0 );
+    logMessage( "START", "put()", 0 );
     urlOp = urlEdit->displayText(); 
     QString location = getLocation->displayText(); 
     QByteArray ba( 50 );
@@ -75,14 +75,14 @@ void MainView::start_put()
 
 void MainView::start_remove()
 {
-    logMessage( "START: remove()", 0 );  
+    logMessage( "START", "remove()", 0 );  
     urlOp = urlEdit->displayText(); 
     urlOp.remove( removeFileName->displayText() ); 
 }
 
 void MainView::start_rename()
 {
-    logMessage( "START: rename()", 0 );  
+    logMessage( "START", "rename()", 0 );  
     urlOp = urlEdit->displayText(); 
     urlOp.rename( renameOldName->displayText(), renameNewName->displayText() ); 
 }
@@ -94,47 +94,47 @@ void MainView::stop()
 
 void MainView::url_createdDirectory( const QUrlInfo&, QNetworkOperation *no )
 {
-    logMessage( "SIGNAL: createdDirectory()", no ); 
+    logMessage( "SIGNAL", "createdDirectory()", no ); 
 }
 
 void MainView::url_data(const QByteArray&, QNetworkOperation *no )
 {
-    logMessage( "SIGNAL: data()", no ); 
+    logMessage( "SIGNAL", "data()", no ); 
 }
 
 void MainView::url_dataTransferProgress( int i, int j, QNetworkOperation *no)
 {
-    logMessage( QString("SIGNAL: dataTransferProgress( %1, %2 )").arg(i).arg(j), no ); 
+    logMessage( "SIGNAL", QString("dataTransferProgress( %1, %2 )").arg(i).arg(j), no ); 
 }
 
 void MainView::url_finished( QNetworkOperation *no )
 {
-    logMessage( "SIGNAL: finished()", no ); 
+    logMessage( "SIGNAL", "finished()", no ); 
 }
 
 void MainView::url_itemChanged( QNetworkOperation *no )
 {
-    logMessage( "SIGNAL: itemChanged()", no ); 
+    logMessage( "SIGNAL", "itemChanged()", no ); 
 }
 
 void MainView::url_newChildren( const QValueList<QUrlInfo>&, QNetworkOperation *no )
 {
-    logMessage( "SIGNAL: newChildren()", no ); 
+    logMessage( "SIGNAL", "newChildren()", no ); 
 }
 
 void MainView::url_removed( QNetworkOperation *no )
 {
-    logMessage( "SIGNAL: removed()", no ); 
+    logMessage( "SIGNAL", "removed()", no ); 
 }
 
 void MainView::url_start( QNetworkOperation *no )
 {
-    logMessage( "SIGNAL: start()", no ); 
+    logMessage( "SIGNAL", "start()", no ); 
 }
 
 void MainView::url_startedNextCopy( const QPtrList<QNetworkOperation>& )
 {
-    logMessage( "SIGNAL: startedNextCopy()", 0 );  
+    logMessage( "SIGNAL", "startedNextCopy()", 0 );  
 }
 
 void MainView::url_connectionStateChanged( int i, const QString &s )
@@ -154,13 +154,20 @@ void MainView::url_connectionStateChanged( int i, const QString &s )
 	    enumStr = "(Unknown)";
 	    break;
     }
-    logMessage( QString("SIGNAL: connectionStateChanged( %1, \"%2\" )").arg(enumStr).arg(s), 0 );
+    logMessage( "SIGNAL", QString("connectionStateChanged( %1, \"%2\" )").arg(enumStr).arg(s), 0 );
 }
 
 
-void MainView::logMessage( const QString &msg, QNetworkOperation *no )
+void MainView::logMessage( const QString &prefix,  const QString &msg, QNetworkOperation *no )
 {
-    logWindow->append( msg + "\n" );
+    QString message;
+    if ( prefix == "SIGNAL" ) {
+	message = "<font color=\"red\">";
+    } else {
+	message = "<font color=\"blue\">";
+    }
+    message += prefix + "</font><pre>\n\t" + msg + "\n</pre>";
+    logWindow->append( message );
     if ( no ) {
 	QString operation;
 	QString state;
@@ -249,6 +256,8 @@ void MainView::logMessage( const QString &msg, QNetworkOperation *no )
 		errorCode = "ErrPermissionDenied";
 		break;
 	}
-	logWindow->append( QString("  NO: %1 %2 %3(detail: %4)").arg( operation ).arg( state ).arg( errorCode ).arg( no->protocolDetail() ) );
+	logWindow->append(
+		QString("<pre>\tQNetworkOperation( %1, %2, %3(detail: %4) )\n</pre>").arg( operation ).arg( state ).arg( errorCode ).arg( no->protocolDetail() )
+		);
     }
 }

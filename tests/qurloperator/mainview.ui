@@ -853,7 +853,7 @@
         <slot>stop()</slot>
     </connection>
     <slot access="protected" language="C++" returnType="void">init()</slot>
-    <slot access="public" language="C++" returnType="void">logMessage(const QString &amp; msg, QNetworkOperation * no)</slot>
+    <slot access="public" language="C++" returnType="void">logMessage(const QString &amp; prefix, const QString &amp; msg, QNetworkOperation * no)</slot>
     <slot access="public" language="C++" returnType="void">quit()</slot>
     <slot access="public" language="C++" returnType="void">start_copy()</slot>
     <slot access="public" language="C++" returnType="void">start_get()</slot>
