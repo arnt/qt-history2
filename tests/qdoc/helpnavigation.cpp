@@ -195,8 +195,9 @@ HelpNavigation::HelpNavigation( QWidget *parent, const QString &dd )
 	     this, SIGNAL( moveFocusToBrowser() ) );
 
     searchCombo->setFocus();
-
+    searchCombo->setEnableMultipleInsertion( FALSE );
     
+
     connect( tabWidget, SIGNAL( selected( const QString & ) ),
 	     this, SIGNAL( tabChanged() ) );
 }
