@@ -49,4 +49,6 @@ int main( int, char** )
 	printf( "%s earns %d\n", (*it).name().latin1(), (*it).salary() );
 	++it;
     }
+
+    return 0;
 }
