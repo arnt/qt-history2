@@ -395,14 +395,19 @@ void MetaDataBase::addConnection( QObject *o, QObject *sender, const QCString &s
     conn.receiver = receiver;
     conn.slot = slot;
     r->connections.append( conn );
-    if ( addCode && o->inherits( "FormWindow" ) ) {
+    if ( addCode ) {
 	QString rec = receiver->name();
-	if ( receiver == ( (FormWindow*)o )->mainContainer() )
+	if ( o->inherits( "FormWindow" ) && receiver == ( (FormWindow*)o )->mainContainer() )
 	    rec = "this";
 	QString sen = sender->name();
-	if ( sender == ( (FormWindow*)o )->mainContainer() )
+	if ( o->inherits( "FormWindow" ) && sender == ( (FormWindow*)o )->mainContainer() )
 	    sen = "this";
-	( (FormWindow*)o )->formFile()->addConnection( sen, signal, rec, slot );
+	FormFile *ff = 0;
+	if ( o->inherits( "FormFile" ) )
+	    ff = (FormFile*)o;
+	else if ( o->inherits( "FormWindow" ) )
+	    ff = ( (FormWindow*)o )->formFile();
+	ff->addConnection( sen, signal, rec, slot );
     }
 }
 
@@ -446,10 +451,10 @@ void MetaDataBase::setupConnections( QObject *o, const QValueList<LanguageInterf
 	return;
     }
 
-    if ( !o->inherits( "FormWindow" ) )
+    if ( !o->inherits( "FormFile" ) )
 	return;
 
-    FormWindow *formWindow = (FormWindow*)o;
+    FormFile *formfile = (FormFile*)o;
 
     r->connections.clear();
 
@@ -459,14 +464,25 @@ void MetaDataBase::setupConnections( QObject *o, const QValueList<LanguageInterf
 	QString senderName = (*cit).sender;
 	if ( senderName.find( '.' ) != -1 )
 	    senderName = senderName.mid( senderName.findRev( '.' ) + 1 );
-	QObject *sender = formWindow->child( senderName );
-	if ( !sender && formWindow->isFake() )
-	    sender = formWindow->project()->objectForFakeForm( formWindow );
+	QObject *sender = 0;
+	if ( formfile->formWindow() )
+	    sender = formfile->formWindow()->child( senderName );
+	if ( !sender && formfile->isFake() )
+	    sender = formfile->project()->objectForFakeFormFile( formfile );
 	if ( !sender && senderName == "this" )
-	    sender = formWindow->mainContainer();
-	MetaDataBase::addConnection( formWindow, sender,
-				     (*cit).signal.latin1(), formWindow->mainContainer(),
-				     (*cit).slot.latin1(), FALSE );
+	    sender = formfile->formWindow() ?
+		     formfile->formWindow()->mainContainer() :
+		     formfile->project()->objectForFakeFormFile( formfile );
+	if ( !sender )
+	    continue;
+	MetaDataBase::addConnection( formfile->formWindow() ? formfile->formWindow() : formfile,
+				     sender,
+				     (*cit).signal.latin1(),
+				     formfile->formWindow() ?
+				     formfile->formWindow()->mainContainer() :
+				     formfile->project()->objectForFakeFormFile( formfile ),
+				     (*cit).slot.latin1(),
+				     FALSE );
     }
 }
 

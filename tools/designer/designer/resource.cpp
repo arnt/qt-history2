@@ -450,7 +450,7 @@ bool Resource::load( FormFile *ff, QIODevice* dev, Project *defProject )
 	MetaDataBase::setExportMacro( formwindow->mainContainer(), exportMacro );
     }
 
-    loadExtraSource( formwindow, currFileName, langIface, hasFunctions );
+    loadExtraSource( formwindow->formFile(), currFileName, langIface, hasFunctions );
 
     if ( mainwindow && formwindow )
 	mainwindow->insertFormWindow( formwindow );
@@ -482,7 +482,7 @@ bool Resource::save( const QString& filename, bool formCodeOnly )
 	    langIface->addRef();
     }
     if ( formCodeOnly && langIface ) {
-	saveFormCode();
+	saveFormCode( formwindow->formFile(), langIface );
 	return TRUE; // missing error checking in saveFormCode ?
     }
     currFileName = filename;
@@ -500,7 +500,7 @@ bool Resource::save( QIODevice* dev )
     if ( !formwindow )
 	return FALSE;
 
-    if (!langIface) {
+    if ( !langIface ) {
 	QString lang = "Qt Script";
 	if ( mainwindow )
 	    lang = mainwindow->currProject()->language();
@@ -525,13 +525,14 @@ bool Resource::save( QIODevice* dev )
 	saveActions( formwindow->actionList(), ts, 0 );
     if ( !images.isEmpty() )
 	saveImageCollection( ts, 0 );
-    if ( !MetaDataBase::connections( formwindow ).isEmpty() || !MetaDataBase::slotList( formwindow ).isEmpty() )
+    if ( !MetaDataBase::connections( formwindow ).isEmpty() ||
+	 !MetaDataBase::slotList( formwindow ).isEmpty() )
 	saveConnections( ts, 0 );
     saveTabOrder( ts, 0 );
     saveMetaInfoAfter( ts, 0 );
     saveIncludeHints( ts, 0 );
     ts << "</UI>" << endl;
-    saveFormCode();
+    saveFormCode( formwindow->formFile(), langIface );
     images.clear();
 
     return TRUE;
@@ -2838,24 +2839,24 @@ void Resource::loadMenuBar( const QDomElement &e )
     }
 }
 
-void Resource::saveFormCode()
+void Resource::saveFormCode( FormFile *formfile, LanguageInterface *langIface )
 {
-    QString lang = formwindow->project()->language();
+    QString lang = formfile->project()->language();
     LanguageInterface *iface = langIface;
     if ( !iface )
 	return;
-    if ( formwindow->formFile()->hasTempFileName() ||
-	 formwindow->formFile()->code().isEmpty() ||
-	 !formwindow->formFile()->hasFormCode() )
+    if ( formfile->hasTempFileName() ||
+	 formfile->code().isEmpty() ||
+	 !formfile->hasFormCode() )
 	return;
-    QFile f( formwindow->project()->makeAbsolute( formwindow->formFile()->codeFile() ) );
+    QFile f( formfile->project()->makeAbsolute( formfile->codeFile() ) );
     if ( f.open( IO_WriteOnly | IO_Translate ) ) {
 	QTextStream ts( &f );
-	ts << formwindow->formFile()->code();
+	ts << formfile->code();
     }
 }
 
-void Resource::loadExtraSource( FormWindow *formwindow, const QString &currFileName,
+void Resource::loadExtraSource( FormFile *formfile, const QString &currFileName,
 				LanguageInterface *langIface, bool hasFunctions )
 {
     QString lang = "Qt Script";
@@ -2871,27 +2872,34 @@ void Resource::loadExtraSource( FormWindow *formwindow, const QString &currFileN
     QStringList vars;
     QValueList<LanguageInterface::Connection> connections;
 
-    iface->loadFormCode( formwindow->name(), currFileName + iface->formCodeExtension(),
-			 functions, vars, connections );
+    iface->loadFormCode( formfile->formName(),
+			 currFileName + iface->formCodeExtension(),
+			 functions,
+			 vars,
+			 connections );
 
-    QFile f( formwindow->project()->makeAbsolute( formwindow->formFile()->codeFile() ) );
+    QFile f( formfile->project()->makeAbsolute( formfile->codeFile() ) );
     QString code;
     if ( f.open( IO_ReadOnly ) ) {
 	QTextStream ts( &f );
 	code = ts.read();
     }
-    formwindow->formFile()->setCode( code );
+    formfile->setCode( code );
 
     if ( !MainWindow::self || !MainWindow::self->currProject()->isCpp() )
-	MetaDataBase::setupConnections( formwindow, connections );
+	MetaDataBase::setupConnections( formfile, connections );
 
     for ( QValueList<LanguageInterface::Function>::Iterator fit = functions.begin();
 	  fit != functions.end(); ++fit ) {
 
-	if ( MetaDataBase::hasFunction( formwindow, (*fit).name.latin1() ) ) {
+	if ( MetaDataBase::hasFunction( formfile->formWindow() ? formfile->formWindow() : formfile,
+					(*fit).name.latin1() ) ) {
 	    QString access = (*fit).access;
 	    if ( !MainWindow::self || !MainWindow::self->currProject()->isCpp() )
-		MetaDataBase::changeFunction( formwindow, (*fit).name, (*fit).name,
+		MetaDataBase::changeFunction( formfile->formWindow() ?
+					      formfile->formWindow() : formfile,
+					      (*fit).name,
+					      (*fit).name,
 					      QString::null );
 	} else {
 	    QString access = (*fit).access;
@@ -2900,7 +2908,8 @@ void Resource::loadExtraSource( FormWindow *formwindow, const QString &currFileN
 	    QString type = "function";
 	    if ( (*fit).returnType == "void" )
 		type = "slot";
-	    MetaDataBase::addFunction( formwindow, (*fit).name.latin1(), "virtual", (*fit).access,
+	    MetaDataBase::addFunction( formfile->formWindow() ? formfile->formWindow() : formfile,
+				       (*fit).name.latin1(), "virtual", (*fit).access,
 				       type, lang, (*fit).returnType );
 	}
     }

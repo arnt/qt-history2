@@ -35,6 +35,7 @@
 #include <qworkspace.h>
 #include <stdlib.h>
 #include "designerappiface.h"
+#include <qapplication.h>
 
 static QString make_func_pretty( const QString &s )
 {
@@ -56,6 +57,7 @@ FormFile::FormFile( const QString &fn, bool temp, Project *p, const char *name )
       timeStamp( 0, fn + codeExtension() ), codeEdited( FALSE ), pkg( FALSE ),
       cm( FALSE )
 {
+    MetaDataBase::addEntry( this );
     fake = qstrcmp( name, "qt_fakewindow" ) == 0;
     codeFileStat = FormFile::None;
     pro->addFormFile( this );
@@ -142,8 +144,6 @@ QString FormFile::code()
 
 bool FormFile::save( bool withMsgBox, bool ignoreModified )
 {
-    if ( !formWindow() )
-	return TRUE;
     if ( fileNameTemp )
 	return saveAs();
     if ( !ignoreModified && !isModified() )
@@ -151,7 +151,7 @@ bool FormFile::save( bool withMsgBox, bool ignoreModified )
     if ( ed )
 	ed->save();
 
-    if ( isModified( WFormWindow ) ) {
+    if ( formWindow() && isModified( WFormWindow ) ) {
 	if ( withMsgBox ) {
 	    if ( !formWindow()->checkCustomWidgets() )
 		return FALSE;
@@ -172,7 +172,8 @@ bool FormFile::save( bool withMsgBox, bool ignoreModified )
 		    f.readBlock( data.data(), f.size() );
 		    f2.writeBlock( data );
 		} else {
-		    QMessageBox::warning( MainWindow::self, "Save", "The file " + codeFile() + " could not be saved" );
+		    QMessageBox::warning( MainWindow::self, "Save", "The file " +
+					  codeFile() + " could not be saved" );
 		}
 	    }
 	}
@@ -194,24 +195,31 @@ bool FormFile::save( bool withMsgBox, bool ignoreModified )
 		    QCString data( f.size() );
 		    f.readBlock( data.data(), f.size() );
 		    f2.writeBlock( data );
-		} else {
-		    QMessageBox::warning( MainWindow::self, "Save", "The file " + codeFile() + " could not be saved" );
+		} else if ( qApp->type() != QApplication::Tty ) {
+		    QMessageBox::warning( MainWindow::self, "Save", "The file " +
+					  codeFile() + " could not be saved" );
 		}
 	    }
 	}
     }
 
-    Resource resource( MainWindow::self );
-    resource.setWidget( formWindow() );
-    bool formCodeOnly = isModified( WFormCode ) && !isModified( WFormWindow );
-    if ( !resource.save( pro->makeAbsolute( filename ), formCodeOnly ) ) {
+    if ( formWindow() ) {
+	Resource resource( MainWindow::self );
+	resource.setWidget( formWindow() );
+	bool formCodeOnly = isModified( WFormCode ) && !isModified( WFormWindow );
+	if ( !resource.save( pro->makeAbsolute( filename ), formCodeOnly ) ) {
+	    if ( MainWindow::self )
+		MainWindow::self->statusBar()->message( tr( "Failed to save file '%1'.").arg( filename ),
+							5000 );
+	    return saveAs();
+	}
 	if ( MainWindow::self )
-	    MainWindow::self->statusBar()->message( tr( "Failed to save file '%1'.").arg( filename ), 5000 );
-	return saveAs();
+	    MainWindow::self->statusBar()->message( tr( "'%1' saved.").
+						    arg( formCodeOnly ? codeFile() : filename ),
+						    3000 );
+    } else {
+	Resource::saveFormCode( this, MetaDataBase::languageInterface( pro->language() ) );
     }
-    if ( MainWindow::self )
-	MainWindow::self->statusBar()->message( tr( "'%1' saved.").
-						arg( formCodeOnly ? codeFile() : filename ), 3000 );
     timeStamp.update();
     setModified( FALSE );
     return TRUE;

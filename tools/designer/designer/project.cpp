@@ -234,7 +234,7 @@ Project::Project( const QString &fn, const QString &pName,
     sourcefiles.setAutoDelete( TRUE );
     modified = FALSE;
     objs.setAutoDelete( FALSE );
-    fakeForms.setAutoDelete( FALSE );
+    fakeFormFiles.setAutoDelete( FALSE );
 }
 
 Project::~Project()
@@ -1274,25 +1274,33 @@ void Project::addObject( QObject *o )
     objs.append( o );
     FormFile *ff = new FormFile( "", FALSE, this, "qt_fakewindow" );
     ff->setFileName( "__APPOBJ" + QString( o->name() ) + ".ui" );
-    QWidget *parent = MainWindow::self ? MainWindow::self->qWorkspace() : 0;
-    FormWindow *fw = new FormWindow( ff, MainWindow::self, parent, "qt_fakewindow" );
-    fw->setProject( this );
-    fakeForms.insert( (void*)o, fw );
+    fakeFormFiles.insert( (void*)o, ff );
     MetaDataBase::addEntry( o );
-    if ( QFile::exists( ff->absFileName() ) )
-	Resource::loadExtraSource( fw, ff->absFileName(),
-				   MetaDataBase::languageInterface( language() ), FALSE );
-    if ( MainWindow::self )
-	fw->setMainWindow( MainWindow::self );
-    fw->setProject( this );
-    if ( MainWindow::self ) {
-	QApplication::sendPostedEvents( MainWindow::self->qWorkspace(), QEvent::ChildInserted );
-	connect( fw, SIGNAL( undoRedoChanged( bool, bool, const QString &, const QString & ) ),
-		 MainWindow::self, SLOT( updateUndoRedo( bool, bool, const QString &, const QString & ) ) );
-    }
-    if ( fw->parentWidget() ) {
-	fw->parentWidget()->setFixedSize( 1, 1 );
-	fw->show();
+    if ( hasGUI() ) {
+	QWidget *parent = MainWindow::self ? MainWindow::self->qWorkspace() : 0;
+	FormWindow *fw = new FormWindow( ff, MainWindow::self, parent, "qt_fakewindow" );
+	fw->setProject( this );
+	if ( QFile::exists( ff->absFileName() ) )
+	    Resource::loadExtraSource( ff, ff->absFileName(),
+				       MetaDataBase::languageInterface( language() ), FALSE );
+	if ( MainWindow::self )
+	    fw->setMainWindow( MainWindow::self );
+	if ( MainWindow::self ) {
+	    QApplication::sendPostedEvents( MainWindow::self->qWorkspace(), QEvent::ChildInserted );
+	    connect( fw,
+		     SIGNAL( undoRedoChanged( bool, bool, const QString &, const QString & ) ),
+		     MainWindow::self,
+		     SLOT( updateUndoRedo( bool, bool, const QString &, const QString & ) )
+		);
+	}
+	if ( fw->parentWidget() ) {
+	    fw->parentWidget()->setFixedSize( 1, 1 );
+	    fw->show();
+	}
+    } else {
+	if ( QFile::exists( ff->absFileName() ) )
+	    Resource::loadExtraSource( ff, ff->absFileName(),
+				       MetaDataBase::languageInterface( language() ), FALSE );
     }
     emit objectAdded( o );
     modified = wasModified;
@@ -1309,7 +1317,7 @@ void Project::removeObject( QObject *o )
     bool wasModified = modified;
     objs.removeRef( o );
     MetaDataBase::removeEntry( o );
-    fakeForms.remove( (void*)o );
+    fakeFormFiles.remove( (void*)o );
     emit objectRemoved( o );
     modified = wasModified;
 }
@@ -1319,15 +1327,16 @@ QObjectList Project::objects() const
     return objs;
 }
 
-FormWindow *Project::fakeFormFor( QObject *o ) const
+FormFile *Project::fakeFormFileFor( QObject *o ) const
 {
-    return fakeForms.find( (void*)o );
+    return fakeFormFiles.find( (void*)o );
 }
 
 QObject *Project::objectForFakeForm( FormWindow *fw ) const
 {
-    for ( QPtrDictIterator<FormWindow> it( fakeForms ); it.current(); ++it ) {
-	if ( it.current() == fw )
+    for ( QPtrDictIterator<FormFile> it( fakeFormFiles ); it.current(); ++it ) {
+	if ( it.current()->formWindow() == fw ||
+	    it.current() == fw->formFile() )
 	    return (QObject*)it.currentKey();
     }
     return 0;
@@ -1335,8 +1344,8 @@ QObject *Project::objectForFakeForm( FormWindow *fw ) const
 
 QObject *Project::objectForFakeFormFile( FormFile *ff ) const
 {
-    for ( QPtrDictIterator<FormWindow> it( fakeForms ); it.current(); ++it ) {
-	if ( it.current()->formFile() == ff )
+    for ( QPtrDictIterator<FormFile> it( fakeFormFiles ); it.current(); ++it ) {
+	if ( it.current() == ff )
 	    return (QObject*)it.currentKey();
     }
     return 0;
@@ -1665,8 +1674,9 @@ QWidget *Project::findRealForm( QWidget *wid )
 	    return (*it)->formWindow();
     }
 
-    if ( fakeFormFor( wid ) )
-	return fakeFormFor( wid );
+    FormFile *ff = fakeFormFileFor( wid );
+    if ( ff )
+	return ff->formWindow();
 
     return 0;
 }

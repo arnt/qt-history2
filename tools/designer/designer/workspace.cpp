@@ -69,7 +69,7 @@ WorkspaceItem::WorkspaceItem( QListViewItem *parent, QObject *o, Project *p )
     project = p;
     t = ObjectType;
     setPixmap( 0, QPixmap::fromMimeSource( "object.png" ) );
-    QObject::connect( p->fakeFormFor( o )->formFile(), SIGNAL( somethingChanged(FormFile*) ),
+    QObject::connect( p->fakeFormFileFor( o ), SIGNAL( somethingChanged(FormFile*) ),
 		      listView(), SLOT( update() ) );
 }
 
@@ -220,7 +220,7 @@ bool WorkspaceItem::isModified() const
     case SourceFileType:
 	return sourceFile->isModified();
     case ObjectType:
-	return project->fakeFormFor( object )->formFile()->isModified();
+	return project->fakeFormFileFor( object )->isModified();
 	break;
     }
     return FALSE; // shut up compiler
@@ -531,10 +531,12 @@ void Workspace::itemClicked( int button, QListViewItem *i, const QPoint& )
 	mainWindow->editSource( wi->sourceFile );
 	break;
     case WorkspaceItem::ObjectType:
-	project->fakeFormFor( wi->object )->setFocus();
-	mainWindow->propertyeditor()->setWidget( wi->object, project->fakeFormFor( wi->object ) );
-	mainWindow->objectHierarchy()->setFormWindow( project->fakeFormFor( wi->object ), wi->object );
-	project->fakeFormFor( wi->object )->formFile()->showEditor();
+	project->fakeFormFileFor( wi->object )->formWindow()->setFocus();
+	mainWindow->propertyeditor()->setWidget( wi->object,
+				 project->fakeFormFileFor( wi->object )->formWindow() );
+	mainWindow->objectHierarchy()->
+	    setFormWindow( project->fakeFormFileFor( wi->object )->formWindow(), wi->object );
+	project->fakeFormFileFor( wi->object )->showEditor();
 	break;
     }
 }

@@ -1241,7 +1241,7 @@ QString WidgetFactory::defaultSignal( QObject *w )
 void WidgetFactory::initChangedProperties( QObject *o )
 {
     if ( MainWindow::self && MainWindow::self->currProject() &&
-	 MainWindow::self->currProject()->fakeFormFor( o ) )
+	 MainWindow::self->currProject()->fakeFormFileFor( o ) )
 	return;
     MetaDataBase::setPropertyChanged( o, "name", TRUE );
     if ( !o->inherits( "QDesignerToolBar" ) && !o->inherits( "QDesignerMenuBar" ) )

@@ -100,6 +100,8 @@ public:
     int codeFileState() const;
     bool setupUihFile( bool askForUih = TRUE );
 
+    Project *project() const { return pro; }
+
 signals:
     void somethingChanged( FormFile* );
 

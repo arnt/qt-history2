@@ -278,7 +278,16 @@ QWidget *QWidgetFactory::create( const QString &uiFile, QObject *connector,
 {
     setupPluginDir();
     QFile f( uiFile );
+    bool failed = FALSE;
     if ( !f.open( IO_ReadOnly ) )
+	failed = TRUE;
+    if ( failed && qApp->type() == QApplication::Tty ) {
+	// for QSA: If we have no GUI, we have no form definition
+	// files, but just the code. So try if only the code exists.
+	f.setName( uiFile + ".qs" );
+	failed = !f.open( IO_ReadOnly );
+    }
+    if ( failed )
 	return 0;
 
     qwf_currFileName = uiFile;

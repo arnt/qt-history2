@@ -3234,7 +3234,7 @@ void MainWindow::showSourceLine( QObject *o, int line, LineMode lm )
 	}
     }
 
-    FormWindow *fw = currentProject->fakeFormFor( o );
+    FormWindow *fw = currentProject->fakeFormFileFor( o )->formWindow();
 
     if ( !fw && !qwf_forms ) {
 	qWarning( "MainWindow::showSourceLine: qwf_forms is NULL!" );

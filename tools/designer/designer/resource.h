@@ -74,8 +74,9 @@ public:
 
     static void saveImageData( const QImage &img, QTextStream &ts, int indent );
     static void loadCustomWidgets( const QDomElement &e, Resource *r );
-    static void loadExtraSource( FormWindow *formwindow, const QString &currFileName,
+    static void loadExtraSource( FormFile *formfile, const QString &currFileName,
 				 LanguageInterface *langIface, bool hasFunctions );
+    static void saveFormCode( FormFile *formfile, LanguageInterface *langIface );
 
 private:
     void saveObject( QObject *obj, QDesignerGridLayout* grid, QTextStream &ts, int indent );
@@ -101,7 +102,6 @@ private:
     void saveChildActions( QAction *a, QTextStream &ts, int indent );
     void saveToolBars( QMainWindow *mw, QTextStream &ts, int indent );
     void saveMenuBar( QMainWindow *mw, QTextStream &ts, int indent );
-    void saveFormCode();
 
     QObject *createObject( const QDomElement &e, QWidget *parent, QLayout* layout = 0 );
     QWidget *createSpacer( const QDomElement &e, QWidget *parent, QLayout *layout, Qt::Orientation o );
