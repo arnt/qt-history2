@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#6 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#7 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -15,6 +15,7 @@
 #include "qwidget.h"
 #include "qwininfo.h"
 #include "qstring.h"
+#include "qlist.h"
 #include <stdlib.h>
 #include <signal.h>
 #define	 GC GC_QQQ
@@ -23,7 +24,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#6 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#7 $";
 #endif
 
 
@@ -39,8 +40,10 @@ static Window	appRootWin;			// X11 root window
 Atom		q_wm_delete_window;		// delete window protocol
 
 typedef void  (*VFPTR)();
-static VFPTR   *cleanupRvec = 0;		// vector of cleanup routines
-static uint	cleanupRcount = 0;
+typedef void  (*VFPTR_ARG)( int, char ** );
+typedef declare(QListM,void) QVFuncList;
+static QVFuncList *preRList = 0;		// list of pre routines
+static QVFuncList *postRList = 0;		// list of post routines
 
 static void	trapSignals( int signo );	// default signal handler
 static int	trapIOErrors( Display * );	// default X11 IO error handler
@@ -80,6 +83,15 @@ int main( int argc, char **argv )
 #if defined(TRACE_FS)
     startFSTrace();
 #endif
+
+    if ( preRList ) {
+	VFPTR_ARG f = (VFPTR_ARG)preRList->first();
+	while ( f ) {				// call pre routines
+	    (*f)( argc, argv );
+	    preRList->remove();
+	    f = (VFPTR_ARG)preRList->first();
+	}
+    }
 
   // Install default traps
 
@@ -131,11 +143,16 @@ int main( int argc, char **argv )
 
   // Cleanup
 
-    if ( cleanupRvec ) {
-	while ( cleanupRcount )			// call cleanup routines
-	    (*(cleanupRvec[--cleanupRcount]))();
-	delete cleanupRvec;
+    if ( postRList ) {
+	VFPTR f = (VFPTR)postRList->first();
+	while ( f ) {				// call post routines
+	    (*f)();
+	    postRList->remove();
+	    f = (VFPTR)postRList->first();
+	}
+	delete postRList;
     }
+    delete preRList;
     if ( qApp )
 	delete qApp;
     QApplication::cleanup();
@@ -166,11 +183,22 @@ static int trapIOErrors( Display * )		// default X11 IO error handler
 }
 
 
-void qAddCleanupRoutine( void (*p)() )		// add cleanup routine
+void qAddPreRoutine( void (*p)() )		// add pre routine
 {
-    if ( !cleanupRvec )
-	cleanupRvec = new VFPTR[16];		// plenty of room
-    cleanupRvec[cleanupRcount++] = p;		// save pointer to routine
+    if ( !preRList ) {
+	preRList = new QVFuncList;
+	CHECK_PTR( preRList );
+    }
+    preRList->append( (void *)p );		// store at list tail
+}
+
+void qAddPostRoutine( void (*p)() )		// add post routine
+{
+    if ( !postRList ) {
+	postRList = new QVFuncList;
+	CHECK_PTR( postRList );
+    }
+    postRList->insert( (void *)p );		// store at list head
 }
 
 
@@ -710,14 +738,13 @@ bool QETWidget::translateMouseEvent( const XEvent *event )
     static int lastX, lastY;
     int	   type;				// event parameters
     QPoint pos;
-    int	   button;
+    int	   button = 0;
     int	   state;
 
     if ( event->type == MotionNotify ) {	// mouse move
 	type = Event_MouseMove;
 	pos.rx() = event->xmotion.x;
 	pos.ry() = event->xmotion.y;
-	button = 0;				// no button causes motion
 	state = translateButtonState( event->xmotion.state );
     }
     else {					// button press or release
