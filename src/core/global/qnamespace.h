@@ -197,7 +197,7 @@ public:
         WindowSystemMenuHint = 0x00001000,
         WindowMinimizeButtonHint = 0x00002000,
         WindowMaximizeButtonHint = 0x00004000,
-        WindowMinMaxButtonsHint = WindowMinimizeButtonHint | WindowMaximizeButtonHint ,
+        WindowMinMaxButtonsHint = WindowMinimizeButtonHint | WindowMaximizeButtonHint,
         WindowContextHelpButtonHint = 0x00008000,
         WindowStaysOnTopHint = 0x00010000
 
