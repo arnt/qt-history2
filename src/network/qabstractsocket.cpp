@@ -1382,8 +1382,8 @@ bool QAbstractSocket::canReadLine() const
 
 /*!
     Reads a '\\n'-terminated line of ASCII data from the socket and
-    returns it as a QString (including the '\\n'). If no line can be
-    read, it returns an empty QString.
+    returns it as a QByteArray (including the '\\n'). If no line can be
+    read, it returns an empty QByteArray.
 
     If the socket is in blocking mode, this function will block until
     a whole line can be read or until the timeout expires.
