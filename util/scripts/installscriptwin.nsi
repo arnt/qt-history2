@@ -27,13 +27,13 @@ var DISPLAY_US_LICENSE
 ; License check
 Page custom CheckQtLicense ValidateKey
 
-!define MUI_LICENSEPAGE_RADIOBUTTONS
-
 ; US License page
+!define MUI_LICENSEPAGE_RADIOBUTTONS
 !define MUI_PAGE_CUSTOMFUNCTION_PRE ShowUSLicense
 !insertmacro MUI_PAGE_LICENSE "%PACKAGEDIR%\.LICENSE-US"
 
 ; NON-US License page
+!define MUI_LICENSEPAGE_RADIOBUTTONS
 !define MUI_PAGE_CUSTOMFUNCTION_PRE ShowNonUSLicense
 !insertmacro MUI_PAGE_LICENSE "%PACKAGEDIR%\.LICENSE"
 
@@ -98,7 +98,11 @@ Function CheckQtLicense
 FunctionEnd
 
 Function PatchQt
-  qtnsisext::PatchBinary "$INSTDIR\bin\qmake.exe" $INSTDIR
+  qtnsisext::PatchFile "$INSTDIR\bin\qmake.exe" $INSTDIR
+  qtnsisext::PatchFile "$INSTDIR\bin\QtCore400.dll" $INSTDIR
+  qtnsisext::PatchFile "$INSTDIR\bin\QtCored400.dll" $INSTDIR
+  qtnsisext::PatchFile "$INSTDIR\lib\QtCore400.dll" $INSTDIR
+  qtnsisext::PatchFile "$INSTDIR\lib\QtCored400.dll" $INSTDIR
 FunctionEnd
 
 Function ValidateKey
