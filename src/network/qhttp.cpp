@@ -2118,6 +2118,8 @@ void QHttpPrivate::sendRequest()
     // existing one?
     if (socket->peerName() != hostName || socket->peerPort() != port
         || socket->socketState() != Qt::ConnectedState) {
+        socket->abort();
+
         setState(QHttp::Connecting);
         if (proxyHost.isEmpty())
             socket->connectToHost(hostName, port);
@@ -2559,7 +2561,7 @@ void QHttpPrivate::setSock(QTcpSocket *sock)
 
     // connect all signals
     QObject::connect(socket, SIGNAL(connected()), q, SLOT(slotConnected()));
-    QObject::connect(socket, SIGNAL(closed()), q, SLOT(slotClosed()));
+    QObject::connect(socket, SIGNAL(disconnected()), q, SLOT(slotClosed()));
     QObject::connect(socket, SIGNAL(readyRead()), q, SLOT(slotReadyRead()));
     QObject::connect(socket, SIGNAL(error(int)), q, SLOT(slotError(int)));
     QObject::connect(socket, SIGNAL(bytesWritten(Q_LONGLONG)),

@@ -86,7 +86,6 @@ private slots:
     void socketConnectionClosed();
     void socketBytesWritten(Q_LONGLONG);
     void setupSocket();
-    void readAllFromSocket();
 
 private:
     void clearData();
@@ -187,6 +186,8 @@ private:
 
     bool waitForDtpToConnect;
     bool waitForDtpToClose;
+
+    QByteArray bytesFromSocket;
 };
 
 /**********************************************************************
@@ -296,9 +297,8 @@ void QFtpDTP::connectToHost(const QString & host, Q_UINT16 port)
     connect(socket, SIGNAL(connected()), SLOT(socketConnected()));
     connect(socket, SIGNAL(readyRead()), SLOT(socketReadyRead()));
     connect(socket, SIGNAL(error(int)), SLOT(socketError(int)));
-    connect(socket, SIGNAL(closed()), SLOT(socketConnectionClosed()));
+    connect(socket, SIGNAL(disconnected()), SLOT(socketConnectionClosed()));
     connect(socket, SIGNAL(bytesWritten(Q_LONGLONG)), SLOT(socketBytesWritten(Q_LONGLONG)));
-    connect(socket, SIGNAL(closing()), SLOT(readAllFromSocket()));
 
     socket->connectToHost(host, port);
 }
@@ -637,6 +637,8 @@ void QFtpDTP::socketConnectionClosed()
     if (!is_ba && data.dev) {
         clearData();
     }
+
+    bytesFromSocket = socket->readAll();
 #if defined(QFTPDTP_DEBUG)
     qDebug("QFtpDTP::connectState(CsClosed)");
 #endif
@@ -661,16 +663,10 @@ void QFtpDTP::setupSocket()
     connect(socket, SIGNAL(connected()), SLOT(socketConnected()));
     connect(socket, SIGNAL(readyRead()), SLOT(socketReadyRead()));
     connect(socket, SIGNAL(error(int)), SLOT(socketError(int)));
-    connect(socket, SIGNAL(closed()), SLOT(socketConnectionClosed()));
+    connect(socket, SIGNAL(disconnected()), SLOT(socketConnectionClosed()));
     connect(socket, SIGNAL(bytesWritten(Q_LONGLONG)), SLOT(socketBytesWritten(Q_LONGLONG)));
 
     listener.close();
-}
-
-void QFtpDTP::readAllFromSocket()
-{
-    if (socket->bytesAvailable() > 0)
-        bytesFromSocket = socket->readAll();
 }
 
 void QFtpDTP::clearData()
@@ -700,7 +696,7 @@ QFtpPI::QFtpPI(QObject *parent) :
             SLOT(hostFound()));
     connect(&commandSocket, SIGNAL(connected()),
             SLOT(connected()));
-    connect(&commandSocket, SIGNAL(closed()),
+    connect(&commandSocket, SIGNAL(disconnected()),
             SLOT(connectionClosed()));
     connect(&commandSocket, SIGNAL(readyRead()),
             SLOT(readyRead()));

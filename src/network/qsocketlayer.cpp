@@ -721,6 +721,27 @@ bool QSocketLayer::waitForWrite(int msecs, bool *timedOut) const
     return ret > 0;
 }
 
+bool QSocketLayer::waitForReadOrWrite(bool *readyToRead, bool checkRead, bool checkWrite,
+                                      int msecs, bool *timedOut) const
+{
+    Q_CHECK_VALID_SOCKETLAYER(QSocketLayer::waitForWrite(), false);
+    Q_CHECK_NOT_STATE(QSocketLayer::waitForReadOrWrite(),
+                      Qt::UnconnectedState, false);
+
+    bool selectedForRead = false;
+    int ret = d->nativeSelect(msecs, checkRead, checkWrite, &selectedForRead);
+    if (ret == 0) {
+        if (timedOut)
+            *timedOut = true;
+        d->setError(Qt::SocketTimeoutError, "Network operation timed out");
+        return false;
+    }
+
+    *readyToRead = selectedForRead;
+
+    return ret > 0;
+}
+
 /*!
     Returns the size of the operating system's socket receive
     buffer. Depending on the operating system, this size may be

@@ -657,7 +657,7 @@ bool QSocketLayerPrivate::nativeHasPendingDatagrams() const
     storagePtrIPv4->sin_port = 0;
     QT_SOCKLEN_T storageSize = sizeof(storage);
 
-    
+
     bool result = false;
 
     // Peek 0 bytes into the next message. The size of the message may
@@ -911,6 +911,36 @@ int QSocketLayerPrivate::nativeSelect(int timeout, bool selectForRead) const
         return select(0, 0, &fds, 0, timeout < 0 ? 0 : &tv);
 }
 
+int QSocketLayerPrivate::nativeSelect(int timeout, bool checkRead, bool checkWrite, bool *selectForRead) const
+{
+    fd_set fdread;
+    memset(&fdread, 0, sizeof(fd_set));
+    if (checkRead) {
+        fdread.fd_count = 1;
+        fdread.fd_array[0] = socketDescriptor;
+    }
+
+    fd_set fdwrite;
+    memset(&fdwrite, 0, sizeof(fd_set));
+    if (checkWrite) {
+        fdwrite.fd_count = 1;
+        fdwrite.fd_array[0] = socketDescriptor;
+    }
+
+    struct timeval tv;
+    tv.tv_sec = timeout / 1000;
+    tv.tv_usec = (timeout % 1000) * 1000;
+
+    int ret = select(socketDescriptor + 1, &fdread, &fdwrite, 0, timeout < 0 ? 0 : &tv);
+    if (ret <= 0)
+        return ret;
+
+    if (FD_ISSET(socketDescriptor, &fdread))
+        *selectForRead = true;
+    if (FD_ISSET(socketDescriptor, &fdwrite))
+        *selectForRead = false;
+    return ret;
+}
 
 void QSocketLayerPrivate::nativeClose()
 {

@@ -20,6 +20,7 @@ private slots:
     void readFortune();
     void displayError(int socketError);
     void enableGetFortuneButton();
+    void booga() { qDebug("connected"); }
 
 private:
     QLabel *hostLabel;

@@ -36,6 +36,7 @@ Client::Client(QWidget *parent)
     connect(quitButton, SIGNAL(clicked()), this, SLOT(close()));
     connect(tcpSocket, SIGNAL(readyRead()), this, SLOT(readFortune()));
     connect(tcpSocket, SIGNAL(error(int)), this, SLOT(displayError(int)));
+    connect(tcpSocket, SIGNAL(connected()), this, SLOT(booga()));
 
     QHBoxLayout *buttonLayout = new QHBoxLayout;
     buttonLayout->addStretch(1);
@@ -56,13 +57,17 @@ Client::Client(QWidget *parent)
 
 void Client::requestNewFortune()
 {
+    qDebug("Client::requestNewFortune()");
+    getFortuneButton->setEnabled(false);
     blockSize = 0;
+    tcpSocket->abort();
     tcpSocket->connectToHost(hostLineEdit->text(),
                              portLineEdit->text().toInt());
 }
 
 void Client::readFortune()
 {
+    qDebug("Client::readFortune()");
     QDataStream in(tcpSocket);
     in.setVersion(QDataStream::Qt_4_0);
 
@@ -78,13 +83,18 @@ void Client::readFortune()
 
     QString nextFortune;
     in >> nextFortune;
+
     if (nextFortune == currentFortune) {
-        requestNewFortune();
+        QTimer::singleShot(0, this, SLOT(requestNewFortune()));
+        qDebug("Client::readFortune() restarting requestNewFortune");
         return;
     }
 
+    qDebug("Client::readFortune() got new fortune");
+
     currentFortune = nextFortune;
     statusLabel->setText(currentFortune);
+    getFortuneButton->setEnabled(true);
 }
 
 void Client::displayError(int socketError)
@@ -107,6 +117,8 @@ void Client::displayError(int socketError)
                                  tr("The following error occurred: %1.")
                                  .arg(tcpSocket->errorString()));
     }
+
+    getFortuneButton->setEnabled(true);
 }
 
 void Client::enableGetFortuneButton()

@@ -788,3 +788,30 @@ int QSocketLayerPrivate::nativeSelect(int timeout, bool selectForRead) const
     else
         return select(socketDescriptor + 1, 0, &fds, 0, timeout < 0 ? 0 : &tv);
 }
+
+int QSocketLayerPrivate::nativeSelect(int timeout, bool checkRead, bool checkWrite, bool *selectForRead) const
+{
+    fd_set fdread;
+    FD_ZERO(&fdread);
+    if (checkRead)
+        FD_SET(socketDescriptor, &fdread);
+
+    fd_set fdwrite;
+    FD_ZERO(&fdwrite);
+    if (checkWrite)
+        FD_SET(socketDescriptor, &fdwrite);
+
+    struct timeval tv;
+    tv.tv_sec = timeout / 1000;
+    tv.tv_usec = (timeout % 1000) * 1000;
+
+    int ret = select(socketDescriptor + 1, &fdread, &fdwrite, 0, timeout < 0 ? 0 : &tv);
+    if (ret <= 0)
+        return ret;
+
+    if (FD_ISSET(socketDescriptor, &fdread))
+        *selectForRead = true;
+    if (FD_ISSET(socketDescriptor, &fdwrite))
+        *selectForRead = false;
+    return ret;
+}

@@ -60,7 +60,7 @@ void Server::sendFortune()
     out << (Q_UINT16)(block.size() - sizeof(Q_UINT16));
 
     QTcpSocket *clientConnection = tcpServer->nextPendingConnection();
-    connect(clientConnection, SIGNAL(closed()),
+    connect(clientConnection, SIGNAL(disconnected()),
             clientConnection, SLOT(deleteLater()));
 
     clientConnection->write(block);

@@ -65,6 +65,7 @@ public:
 
     void connectToHost(const QString &hostName, Q_UINT16 port, OpenMode mode = ReadWrite);
     void connectToHost(const QHostAddress &address, Q_UINT16 port, OpenMode mode = ReadWrite);
+    void disconnectFromHost();
 
     bool isValid() const;
 
@@ -94,20 +95,18 @@ public:
 
     // from QIODevice
     void close();
-    bool flush();
     bool isSequential() const;
 
     // for synchronous access
     bool waitForConnected(int msecs = 30000);
     bool waitForReadyRead(int msecs = 30000);
     bool waitForBytesWritten(int msecs = 30000);
-    bool waitForClosed(int msecs = 30000);
+    bool waitForDisconnected(int msecs = 30000);
 
 signals:
     void hostFound();
     void connected();
-    void closing();
-    void closed();
+    void disconnected();
     void stateChanged(int);
     void error(int);
 
@@ -129,8 +128,8 @@ private:
     Q_PRIVATE_SLOT(d, void startConnecting(const QDnsHostInfo &))
     Q_PRIVATE_SLOT(d, void abortConnectionAttempt())
     Q_PRIVATE_SLOT(d, void testConnection())
-    Q_PRIVATE_SLOT(d, void canReadNotification(int))
-    Q_PRIVATE_SLOT(d, void canWriteNotification(int))
+    Q_PRIVATE_SLOT(d, bool canReadNotification(int))
+    Q_PRIVATE_SLOT(d, bool canWriteNotification(int))
 
 #ifdef QT_COMPAT
 public:
@@ -160,11 +159,11 @@ public:
         return 0;
     }
 signals:
-    QT_MOC_COMPAT void connectionClosed(); // same as closing()
-    QT_MOC_COMPAT void delayedCloseFinished(); // same as closed()
+    QT_MOC_COMPAT void connectionClosed(); // same as disconnected()
+    QT_MOC_COMPAT void delayedCloseFinished(); // same as disconnected()
+
+
 #endif
-
-
 };
 
 #endif

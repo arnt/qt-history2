@@ -343,9 +343,6 @@ void QAbstractSocketPrivate::resetSocketLayer()
     qDebug("QAbstractSocketPrivate::resetSocketLayer()");
 #endif
 
-    readBuffer.clear();
-    writeBuffer.clear();
-
     if (readSocketNotifier)
         readSocketNotifier->setEnabled(false);
     delete readSocketNotifier;
@@ -430,7 +427,7 @@ bool QAbstractSocketPrivate::initSocketLayer(Qt::SocketType type,
     when new data is available for reading, or when the socket has
     been closed. Handles recursive calls.
 */
-void QAbstractSocketPrivate::canReadNotification(int)
+bool QAbstractSocketPrivate::canReadNotification(int)
 {
 #if defined (QABSTRACTSOCKET_DEBUG)
     qDebug("QAbstractSocketPrivate::canReadNotification()");
@@ -444,7 +441,7 @@ void QAbstractSocketPrivate::canReadNotification(int)
 #if defined (QABSTRACTSOCKET_DEBUG)
         qDebug("QAbstractSocketPrivate::canReadNotification() recursive call detected.");
 #endif
-        return;
+        return false;
     }
     readSocketNotifierCalled = true;
 
@@ -456,7 +453,7 @@ void QAbstractSocketPrivate::canReadNotification(int)
             qDebug("QAbstractSocketPrivate::canReadNotification() buffer is full");
 #endif
             readSocketNotifierCalled = false;
-            return;
+            return false;
         }
 
         // If reading from the socket fails after getting a read
@@ -464,22 +461,22 @@ void QAbstractSocketPrivate::canReadNotification(int)
         int oldBufferSize = d->readBuffer.size();
         if (!d->readFromSocket()) {
 #if defined (QABSTRACTSOCKET_DEBUG)
-            qDebug("QAbstractSocketPrivate::canReadNotification() closing socket");
+            qDebug("QAbstractSocketPrivate::canReadNotification() disconnecting socket");
 #endif
-            q->close();
+            q->disconnectFromHost();
             readSocketNotifierCalled = false;
-            return;
+            return false;
         }
 
         // If the buffer size is unchanged after reading from the
         // socket, close the socket.
         if (oldBufferSize == d->readBuffer.size()) {
 #if defined (QABSTRACTSOCKET_DEBUG)
-            qDebug("QAbstractSocketPrivate::canReadNotification() unchanged buffer: closing socket");
+            qDebug("QAbstractSocketPrivate::canReadNotification() unchanged buffer: disconnecting socket");
 #endif
-            q->close();
+            q->disconnectFromHost();
             readSocketNotifierCalled = false;
-            return;
+            return false;
         }
     }
 
@@ -492,7 +489,7 @@ void QAbstractSocketPrivate::canReadNotification(int)
 #endif
     emit q->readyRead();
     if (!that)
-        return;
+        return true;
 
     // If we were closed as a result of the readyRead() signal,
     // return.
@@ -501,7 +498,7 @@ void QAbstractSocketPrivate::canReadNotification(int)
         qDebug("QAbstractSocketPrivate::canReadNotification() socket is closing - returning");
 #endif
         readSocketNotifierCalled = false;
-        return;
+        return true;
     }
 
     // If there is still space in the buffer, reenable the read socket
@@ -515,6 +512,7 @@ void QAbstractSocketPrivate::canReadNotification(int)
     }
 
     readSocketNotifierCalled = false;
+    return true;
 }
 
 /*! \internal
@@ -522,7 +520,7 @@ void QAbstractSocketPrivate::canReadNotification(int)
     Slot connected to the write socket notifier. It's called during a
     delayed connect or when the socket is ready for writing.
 */
-void QAbstractSocketPrivate::canWriteNotification(int)
+bool QAbstractSocketPrivate::canWriteNotification(int)
 {
    // Prevent the write socket notifier from being called more times
     writeSocketNotifier->setEnabled(false);
@@ -534,12 +532,15 @@ void QAbstractSocketPrivate::canWriteNotification(int)
     qDebug("QAbstractSocketPrivate::canWriteNotification() testing connection");
 #endif
         testConnection();
-    } else {
+        return false;
+    }
+
 #if defined (QABSTRACTSOCKET_DEBUG)
     qDebug("QAbstractSocketPrivate::canWriteNotification() flushing");
 #endif
-        flush();
-    }
+    int tmp = writeBuffer.size();
+    flush();
+    return (writeBuffer.size() < tmp);
 }
 
 /*! \internal
@@ -711,6 +712,8 @@ void QAbstractSocketPrivate::connectToNextAddress()
             emit q->stateChanged(state);
             if (d->readSocketNotifier)
                 readSocketNotifier->setEnabled(true);
+            if (d->writeSocketNotifier && !d->writeBuffer.isEmpty())
+                writeSocketNotifier->setEnabled(true);
             emit q->connected();
             return;
         }
@@ -754,6 +757,8 @@ void QAbstractSocketPrivate::testConnection()
 
         if (d->readSocketNotifier)
             readSocketNotifier->setEnabled(true);
+        if (d->writeSocketNotifier && !d->writeBuffer.isEmpty())
+            writeSocketNotifier->setEnabled(true);
 
         emit q->connected();
 #if defined(QABSTRACTSOCKET_DEBUG)
@@ -936,12 +941,17 @@ void QAbstractSocket::connectToHost(const QString &hostName, Q_UINT16 port,
            (int) openMode);
 #endif
 
-    if (d->state == Qt::ConnectingState || d->state == Qt::ConnectedState)
-        abort();
+    if (d->state == Qt::ConnectedState || d->state == Qt::ConnectingState) {
+        qWarning("QAbstractSocket::connectToHost() called when already connecting/connected");
+        return;
+    }
 
     d->hostName = hostName;
     d->port = port;
     d->state = Qt::HostLookupState;
+    d->readBuffer.clear();
+    d->writeBuffer.clear();
+    d->closeCalled = false;
 
     setOpenMode(openMode);
     emit stateChanged(d->state);
@@ -1138,70 +1148,6 @@ bool QAbstractSocket::setSocketDescriptor(int socketDescriptor, Qt::SocketState 
     return true;
 }
 
-/*! \reimp
-*/
-bool QAbstractSocket::waitForReadyRead(int msecs)
-{
-#if defined (QABSTRACTSOCKET_DEBUG)
-    qDebug("QAbstractSocket::waitForReadyRead(%i)", msecs);
-#endif
-
-    if (socketState() == Qt::UnconnectedState) {
-        qWarning("QAbstractSocket::waitForReadyRead() is not allowed in UnconnectedState");
-        return false;
-    }
-
-    bool timedOut = false;
-    if (!d->socketLayer.waitForRead(msecs, &timedOut) || (d->isBuffered && !d->readFromSocket())) {
-        d->socketError = d->socketLayer.socketError();
-        setErrorString(d->socketLayer.errorString());
-#if defined (QABSTRACTSOCKET_DEBUG)
-    qDebug("QAbstractSocket::waitForReadyRead(%i) failed (%i, %s)",
-           msecs, d->socketError, errorString().latin1());
-#endif
-        emit error(d->socketError);
-        close();
-        return false;
-    }
-
-#if defined (QABSTRACTSOCKET_DEBUG)
-    qDebug("QAbstractSocket::waitForReadyRead(%i) emitting readyRead()", msecs);
-#endif
-    if (!d->readSocketNotifierCalled)
-        emit readyRead();
-    return true;
-}
-
-/*! \reimp
- */
-bool QAbstractSocket::waitForBytesWritten(int msecs)
-{
-#if defined (QABSTRACTSOCKET_DEBUG)
-    qDebug("QAbstractSocket::waitForBytesWritten(%i)", msecs);
-#endif
-
-    if (socketState() == Qt::UnconnectedState) {
-        qWarning("QAbstractSocket::waitForReadyRead() is not allowed in UnconnectedState");
-        return false;
-    }
-
-    bool timedOut = false;
-    if (!d->socketLayer.waitForWrite(msecs, &timedOut)) {
-        d->socketError = d->socketLayer.socketError();
-        setErrorString(d->socketLayer.errorString());
-#if defined (QABSTRACTSOCKET_DEBUG)
-    qDebug("QAbstractSocket::waitForBytesWritten(%i) failed (%s)",
-           msecs, errorString().latin1());
-#endif
-        emit error(d->socketError);
-        close();
-        return false;
-    }
-
-    d->flush();
-    return true;
-}
-
 /*!
     Waits until the socket is connected, up to \a msecs
     milliseconds. If the connection has been established, this
@@ -1274,40 +1220,169 @@ bool QAbstractSocket::waitForConnected(int msecs)
     return socketState() == Qt::ConnectedState;
 }
 
+/*! \reimp
+*/
+bool QAbstractSocket::waitForReadyRead(int msecs)
+{
+#if defined (QABSTRACTSOCKET_DEBUG)
+    qDebug("QAbstractSocket::waitForReadyRead(%i)", msecs);
+#endif
+
+    // require calling connectToHost() before waitForReadyRead()
+    if (socketState() == Qt::UnconnectedState) {
+        qWarning("QAbstractSocket::waitForReadyRead() is not allowed in UnconnectedState");
+        return false;
+    }
+
+    QTime stopWatch;
+    stopWatch.start();
+
+    // handle a socket in connecting state
+    if (socketState() == Qt::HostLookupState || socketState() == Qt::ConnectingState) {
+        if (!waitForConnected(msecs))
+            return false;
+    }
+
+    forever {
+        bool readyToRead = false;
+        if (!d->socketLayer.waitForReadOrWrite(&readyToRead, true, !d->writeBuffer.isEmpty(),
+                                               msecs - stopWatch.elapsed())) {
+            d->socketError = d->socketLayer.socketError();
+            setErrorString(d->socketLayer.errorString());
+#if defined (QABSTRACTSOCKET_DEBUG)
+            qDebug("QAbstractSocket::waitForReadyRead(%i) failed (%i, %s)",
+                   msecs, d->socketError, errorString().latin1());
+#endif
+            emit error(d->socketError);
+            close();
+            return false;
+        }
+
+        if (readyToRead) {
+            if (d->canReadNotification(0))
+                return true;
+        } else {
+            d->canWriteNotification(0);
+        }
+
+        if (socketState() != Qt::ConnectedState)
+            return false;
+    }
+}
+
+/*! \reimp
+ */
+bool QAbstractSocket::waitForBytesWritten(int msecs)
+{
+#if defined (QABSTRACTSOCKET_DEBUG)
+    qDebug("QAbstractSocket::waitForBytesWritten(%i)", msecs);
+#endif
+
+    // require calling connectToHost() before waitForBytesWritten()
+    if (socketState() == Qt::UnconnectedState) {
+        qWarning("QAbstractSocket::waitForBytesWritten() is not allowed in UnconnectedState");
+        return false;
+    }
+
+    if (d->writeBuffer.isEmpty())
+        return false;
+
+    QTime stopWatch;
+    stopWatch.start();
+
+    // handle a socket in connecting state
+    if (socketState() == Qt::HostLookupState || socketState() == Qt::ConnectingState) {
+        if (!waitForConnected(msecs))
+            return false;
+    }
+
+    forever {
+        bool readyToRead = false;
+        if (!d->socketLayer.waitForReadOrWrite(&readyToRead, true, !d->writeBuffer.isEmpty(),
+                                               msecs - stopWatch.elapsed())) {
+            d->socketError = d->socketLayer.socketError();
+            setErrorString(d->socketLayer.errorString());
+#if defined (QABSTRACTSOCKET_DEBUG)
+            qDebug("QAbstractSocket::waitForBytesWritten(%i) failed (%i, %s)",
+                   msecs, d->socketError, errorString().latin1());
+#endif
+            emit error(d->socketError);
+            close();
+            return false;
+        }
+
+        if (readyToRead) {
+            d->canReadNotification(0);
+        } else {
+            if (d->canWriteNotification(0))
+                return true;
+        }
+
+        if (socketState() != Qt::ConnectedState)
+            return false;
+    }
+}
+
 /*!
-    Waits until the socket is closed, up to \a msecs milliseconds. If
-    the connection has been closed, this function returns true;
-    otherwise it returns false. In the case where it returns false,
-    you can call socketError() to determine the cause of the error.
+    Waits until the socket has disconnected, up to \a msecs
+    milliseconds. If the connection has been disconnected, this
+    function returns true; otherwise it returns false. In the case
+    where it returns false, you can call socketError() to determine
+    the cause of the error.
 
     The following example waits up to one second for a connection
     to be closed:
 
     \code
-        socket->close();
-        if (socket->waitForClosed(1000))
-            qDebug("Closed!");
+        socket->disconnect();
+        if (socket->waitForDisconnected(1000))
+            qDebug("Disconnected!");
     \endcode
 
-    \sa close(), closed()
+    \sa disconnect(), close()
 */
-bool QAbstractSocket::waitForClosed(int msecs)
+bool QAbstractSocket::waitForDisconnected(int msecs)
 {
-    if (d->state == Qt::UnconnectedState)
-        return true;
-    if (d->state != Qt::ClosingState) {
-        qWarning("QAbstractSocket::waitForClosed() called when not in Qt::ClosingState");
+    // require calling connectToHost() before waitForDisconnected()
+    if (socketState() == Qt::UnconnectedState) {
+        qWarning("QAbstractSocket::waitForDisconnected() is not allowed in UnconnectedState");
         return false;
     }
 
-    int tmp = d->blockingTimeout;
-    d->blockingTimeout = msecs;
-    bool flushed = flush();
-    d->blockingTimeout = tmp;
-    if (!flushed)
-        return false;
-    close();
-    return true;
+    QTime stopWatch;
+    stopWatch.start();
+
+    // handle a socket in connecting state
+    if (socketState() == Qt::HostLookupState || socketState() == Qt::ConnectingState) {
+        if (!waitForConnected(msecs))
+            return false;
+    }
+
+    forever {
+        bool readyToRead = false;
+        if (!d->socketLayer.waitForReadOrWrite(&readyToRead, socketState() == Qt::ConnectedState,
+                                               !d->writeBuffer.isEmpty(),
+                                               msecs - stopWatch.elapsed())) {
+            d->socketError = d->socketLayer.socketError();
+            setErrorString(d->socketLayer.errorString());
+#if defined (QABSTRACTSOCKET_DEBUG)
+            qDebug("QAbstractSocket::waitForReadyRead(%i) failed (%i, %s)",
+                   msecs, d->socketError, errorString().latin1());
+#endif
+            emit error(d->socketError);
+            close();
+            return false;
+        }
+
+        if (readyToRead) {
+            d->canReadNotification(0);
+        } else {
+            d->canWriteNotification(0);
+        }
+
+        if (socketState() == Qt::UnconnectedState)
+            return true;
+    }
 }
 
 /*!
@@ -1329,31 +1404,6 @@ void QAbstractSocket::abort()
     close();
 }
 
-/*!
-    Writes any pending outgoing data to the socket. Returns true if
-    all data was successfully written; otherwise returns false. If it
-    returns false, you can call socketError() to determine the cause
-    of the error.
-
-    This function blocks until all data has been written or until the
-    default timeout has expired.
-
-    \sa setDefaultTimeout()
-*/
-bool QAbstractSocket::flush()
-{
-#if defined (QABSTRACTSOCKET_DEBUG)
-    qDebug("QAbstractSocket::flush() writeBuffer.size() = %d",
-           d->writeBuffer.size());
-#endif
-    while (d->writeBuffer.size() > 0) {
-        if (!d->socketLayer.waitForWrite(QT_TRANSFER_TIMEOUT) || !d->flush())
-            return false;
-    }
-
-    return d->writeBuffer.isEmpty();
-}
-
 /*! \reimp
 */
 bool QAbstractSocket::isSequential() const
@@ -1365,19 +1415,14 @@ bool QAbstractSocket::isSequential() const
 */
 Q_LONGLONG QAbstractSocket::readData(char *data, Q_LONGLONG maxSize)
 {
-    if (!isValid()) {
-        qWarning("QAbstractSocket::readData: Invalid socket");
-#if defined (QABSTRACTSOCKET_DEBUG)
-        qDebug("QAbstractSocket::readData(%p, %lli) == -1 (%s)",
-               data, maxSize, errorString().latin1());
-#endif
-        return -1;
-    }
-
     if (!d->isBuffered) {
         Q_LONGLONG readBytes = d->socketLayer.read(data, maxSize);
-        if (d->readSocketNotifier)
+        if (readBytes < 0) {
+            d->socketError = d->socketLayer.socketError();
+            q->setErrorString(d->socketLayer.errorString());
+        } else if (d->readSocketNotifier) {
             d->readSocketNotifier->setEnabled(true);
+        }
 #if defined (QABSTRACTSOCKET_DEBUG)
         qDebug("QAbstractSocket::readData(%p \"%s\", %lli) == %lld",
                data, qt_prettyDebug(data, 32, readBytes).data(), maxSize,
@@ -1386,52 +1431,13 @@ Q_LONGLONG QAbstractSocket::readData(char *data, Q_LONGLONG maxSize)
         return readBytes;
     }
 
-    // If readFromSocket() read data, copy it to its destination.
-    if (d->readBuffer.size() > 0) {
-        // getch optimization
-        if (maxSize == 1) {
-            *data = d->readBuffer.getChar();
-#if defined (QABSTRACTSOCKET_DEBUG)
-            qDebug("QAbstractSocket::readData(%p '%c (0x%.2x)', 1) == 1",
-                   data, isprint(*data) ? *data : '?', *data);
-#endif
-            return 1;
-        }
-
-        if (d->readSocketNotifier)
-            d->readSocketNotifier->setEnabled(true);
-        Q_LONGLONG bytesToRead = qMin(Q_LONGLONG(d->readBuffer.size()), maxSize);
-        Q_LONGLONG readSoFar = 0;
-        while (readSoFar < bytesToRead) {
-            char *ptr = d->readBuffer.readPointer();
-            int bytesToReadFromThisBlock = qMin(int(bytesToRead - readSoFar),
-                                                d->readBuffer.nextDataBlockSize());
-            memcpy(data + readSoFar, ptr, bytesToReadFromThisBlock);
-            readSoFar += bytesToReadFromThisBlock;
-            d->readBuffer.free(bytesToReadFromThisBlock);
-        }
-
-#if defined (QABSTRACTSOCKET_DEBUG)
-        qDebug("QAbstractSocket::readData(%p \"%s\", %lli) == %lld",
-               data, qt_prettyDebug(data, qMin(32, readSoFar), readSoFar).data(),
-               maxSize, readSoFar);
-#endif
-        return readSoFar;
-    }
-
-    // Wait for more data to read.
-    if (!waitForReadyRead(d->blockingTimeout)) {
-#if defined (QABSTRACTSOCKET_DEBUG)
-        qDebug("QAbstractSocket::readData(%p, %lli) == -1 (%s)",
-               data, maxSize, errorString().latin1());
-#endif
-        return -1;
-    }
+    if (d->readBuffer.isEmpty())
+        return Q_LONGLONG(0);
 
     if (d->readSocketNotifier)
         d->readSocketNotifier->setEnabled(true);
 
-    // getch optimization
+    // If readFromSocket() read data, copy it to its destination.
     if (maxSize == 1) {
         *data = d->readBuffer.getChar();
 #if defined (QABSTRACTSOCKET_DEBUG)
@@ -1454,7 +1460,7 @@ Q_LONGLONG QAbstractSocket::readData(char *data, Q_LONGLONG maxSize)
 
 #if defined (QABSTRACTSOCKET_DEBUG)
     qDebug("QAbstractSocket::readData(%p \"%s\", %lli) == %lld",
-           data, qt_prettyDebug(data, qMin(readSoFar, 32), readSoFar).data(),
+           data, qt_prettyDebug(data, qMin(32, readSoFar), readSoFar).data(),
            maxSize, readSoFar);
 #endif
     return readSoFar;
@@ -1464,25 +1470,22 @@ Q_LONGLONG QAbstractSocket::readData(char *data, Q_LONGLONG maxSize)
 */
 Q_LONGLONG QAbstractSocket::writeData(const char *data, Q_LONGLONG size)
 {
-    if (!isValid()) {
-        qWarning("QAbstractSocket::writeData: Invalid socket");
-#if defined (QABSTRACTSOCKET_DEBUG)
-        qDebug("QAbstractSocket::writeData(%p \"%s\", %lli) == -1 (%s)", data,
-               qt_prettyDebug(data, qMin((int)size, 32), size).data(),
-               size, errorString().latin1());
-#endif
-        return -1;
-    }
-
     if (!d->isBuffered) {
         Q_LONGLONG written = d->socketLayer.write(data, size);
-        emit bytesWritten(written);
+        if (written < 0) {
+            d->socketError = d->socketLayer.socketError();
+            q->setErrorString(d->socketLayer.errorString());
+        } else if (!d->writeBuffer.isEmpty() && d->writeSocketNotifier) {
+            d->writeSocketNotifier->setEnabled(true);
+        }
 
 #if defined (QABSTRACTSOCKET_DEBUG)
     qDebug("QAbstractSocket::writeData(%p \"%s\", %lli) == %lli", data,
            qt_prettyDebug(data, qMin((int)size, 32), size).data(),
            size, written);
 #endif
+        if (written >= 0)
+            emit bytesWritten(written);
         return written;
     }
 
@@ -1494,7 +1497,7 @@ Q_LONGLONG QAbstractSocket::writeData(const char *data, Q_LONGLONG size)
 
     Q_LONGLONG written = size;
 
-    if (d->writeSocketNotifier)
+    if (!d->writeBuffer.isEmpty() && d->writeSocketNotifier)
         d->writeSocketNotifier->setEnabled(true);
 
 #if defined (QABSTRACTSOCKET_DEBUG)
@@ -1509,18 +1512,39 @@ Q_LONGLONG QAbstractSocket::writeData(const char *data, Q_LONGLONG size)
     Attempts to close the socket. If there is pending data waiting to
     be written, QAbstractSocket will enter Qt::ClosingState and wait
     until all data has been written. Eventually, it will enter
-    Qt::ClosedState and emit the closed() signal.
+    Qt::UnconnectedState and emit the disconnected() signal.
 
     \sa abort()
 */
 void QAbstractSocket::close()
 {
+#if defined(QABSTRACTSOCKET_DEBUG)
+    qDebug("QAbstractSocket::close()");
+#endif
+    if (d->state != Qt::UnconnectedState) {
+        d->closeCalled = true;
+        disconnectFromHost();
+    }
+}
+
+/*
+*/
+void QAbstractSocket::disconnectFromHost()
+{
+#if defined(QABSTRACTSOCKET_DEBUG)
+    qDebug("QAbstractSocket::disconnectFromHost()");
+#endif
+
     if (d->state == Qt::UnconnectedState) {
 #if defined(QABSTRACTSOCKET_DEBUG)
-        qDebug("QAbstractSocket::close() on an unconnected socket");
+        qDebug("QAbstractSocket::disconnectFromHost() was called on an unconnected socket");
 #endif
         return;
     }
+
+#ifdef QT_COMPAT
+    emit connectionClosed(); // compat signal
+#endif
 
     // Disable and delete read notification
     if (d->readSocketNotifier) {
@@ -1533,16 +1557,12 @@ void QAbstractSocket::close()
     if (d->state != Qt::ClosingState) {
         d->state = Qt::ClosingState;
 #if defined(QABSTRACTSOCKET_DEBUG)
-        qDebug("QAbstractSocket::close() emits stateChanged(), then closing()");
+        qDebug("QAbstractSocket::disconnectFromHost() emits stateChanged()(Qt::ClosingState)");
 #endif
         emit stateChanged(d->state);
-#ifdef QT_COMPAT
-        emit connectionClosed(); // compat signal
-#endif
-        emit closing();
     } else {
 #if defined(QABSTRACTSOCKET_DEBUG)
-        qDebug("QAbstractSocket::close() return from delayed close");
+        qDebug("QAbstractSocket::disconnectFromHost() return from delayed close");
 #endif
     }
 
@@ -1552,12 +1572,12 @@ void QAbstractSocket::close()
             d->writeSocketNotifier->setEnabled(true);
 
 #if defined(QABSTRACTSOCKET_DEBUG)
-        qDebug("QAbstractSocket::close() delaying close");
+        qDebug("QAbstractSocket::disconnectFromHost() delaying disconnect");
 #endif
         return;
     } else {
 #if defined(QABSTRACTSOCKET_DEBUG)
-        qDebug("QAbstractSocket::close() closing immediately");
+        qDebug("QAbstractSocket::disconnectFromHost() disconnecting immediately");
 #endif
     }
 
@@ -1570,16 +1590,25 @@ void QAbstractSocket::close()
 
     d->resetSocketLayer();
     d->state = Qt::UnconnectedState;
-    setOpenMode(NotOpen);
-
-#if defined(QABSTRACTSOCKET_DEBUG)
-    qDebug("QAbstractSocket::close() emits stateChanged(), then closed()");
-#endif
     emit stateChanged(d->state);
+
 #ifdef QT_COMPAT
     emit delayedCloseFinished(); // compat signal
 #endif
-    emit closed();
+    emit disconnected();
+
+#if defined(QABSTRACTSOCKET_DEBUG)
+        qDebug("QAbstractSocket::disconnectFromHost() disconnected!");
+#endif
+
+    if (d->closeCalled) {
+#if defined(QABSTRACTSOCKET_DEBUG)
+        qDebug("QAbstractSocket::disconnectFromHost() closed!");
+#endif
+        d->readBuffer.clear();
+        d->writeBuffer.clear();
+        QIODevice::close();
+    }
 }
 
 /*!

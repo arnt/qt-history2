@@ -35,11 +35,12 @@ public:
     void connectToNextAddress();
     void startConnecting(const QDnsHostInfo &hostInfo);
     void testConnection();
-    void canReadNotification(int);
-    void canWriteNotification(int);
+    bool canReadNotification(int);
+    bool canWriteNotification(int);
     void abortConnectionAttempt();
 
     bool readSocketNotifierCalled;
+    bool closeCalled;
 
     QString hostName;
     Q_UINT16 port;

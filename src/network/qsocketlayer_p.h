@@ -66,6 +66,7 @@ public:
 
     bool waitForRead(int msecs = 30000, bool *timedOut = 0) const;
     bool waitForWrite(int msecs = 30000, bool *timedOut = 0) const;
+    bool waitForReadOrWrite(bool *readyToRead, bool checkRead, bool checkWrite, int msecs = 30000, bool *timedOut = 0) const;
 
     Qt::SocketError socketError() const;
     QString errorString() const;
@@ -141,6 +142,7 @@ public:
     Q_LONGLONG nativeRead(char *data, Q_LONGLONG maxLength);
     Q_LONGLONG nativeWrite(const char *data, Q_LONGLONG length);
     int nativeSelect(int timeout, bool selectForRead) const;
+    int nativeSelect(int timeout, bool checkRead, bool checkWrite, bool *selectForRead) const;
 
     void nativeClose();
 
