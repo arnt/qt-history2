@@ -1,0 +1,154 @@
+<!DOCTYPE HTML PUBLIC>
+<HTML>
+<TITLE>Xbase DBMS Chapter 4</TITLE>
+<BODY BGCOLOR=#FFFFFF>
+<H1><p align="center">Date Processing</p></H1>
+<p align="center">Chapter Updated 2/12/99</p><hr>
+
+The objective of this chapter is to provide information regarding 
+the basic concepts of date arithmetic and supply generic
+C/C++ date methods.<br><br>
+
+Two common things of all programmers is that if they write
+enough code, they will eventually have to deal with dates.  They
+may be Julian dates, Gregorian dates, or a date with their best
+freind's girl, but they'll eventually be working with dates.  The
+other thing is that most programmers don't have the time or don't
+want to spend time writing mundane date routines.<br><br>
+    
+To explain how dates work, I'll give a brief overview and history of Julian
+dates, Gregorian dates, leap years and leap centuries.
+
+<h2>Leap Years</h2>
+ 
+Due to the fact that it actually takes about 365 1/4 days for 
+the earth to circle the sun,  every fourth year and every fourth 
+century have an extra day added to the end of February and the year 
+is called a leap year. Leap years have 366 days, non leap years 
+have 365 days.  The following code segment describes how to
+determine if a given year is a leap year.
+
+A leap year is a year having 366 days, which can be evenly
+divisible by 4 and not by 100 or divisible by 400.
+
+There are also leap centuries.  Leap centuries are years which 
+are evenly divisible by 400.
+
+To calculate a leap year, the following code segment can be used
+
+<xmp>    
+   int year;
+        
+   if(( year % 4 == 0 && year % 100 != 0 ) || year % 400 = 0 )
+      LEAP_YEAR = TRUE;
+   else
+      LEAP_YEAR = FALSE
+</xmp>    
+                    
+
+<h2>Julian Dates</h2>
+   
+Around the time of Jesus Christ, a fellow with the name of Julias Ceasar
+established the Julian calendar.  The Julian calendar established every 
+fourth year as a leap year with 366 days and all other years having 365 days. 
+The months were set up the same as they are with a Gregorian calendar, which
+is what we use today.  A Julian date is defined as as the number of days from the
+first day of the year; February 1 would have a Julian day of 32.<br><br>
+
+From a programmer's perspective, Julian dates are useful for doing date 
+arithmetic, determining the difference between two dates or calculating
+a future or past date.<br><br>
+        
+To determine the difference between two dates,  convert both dates to a 
+Julian date and subtract one from the other.<br><br>
+
+To calculate a future or past date, convert the base date to a Julian date,
+add (or subtract) the number of days necessary to (from) it and convert the
+julian date back to a Gregorian date.<br><br>
+
+The Julian date routines use a base date of 01/01/1900.<br><br>
+
+<h2>Gregorian Dates</h2>
+
+In 1582, Pope Gregor XIII introduced a corrected form of the Julian calendar.
+Every 4th year still has 366 days except for century years.  Century years
+were added as leap years if evenly divisible by 400.  The year 2000 is a leap century. 
+<br><br>
+
+The methods supplied with this software are based on gregorian dates with
+the format of CCYYMMDD for century, year, month and day.<br><br>
+
+
+<h2>CASTELLANO options</h2>
+
+There is an option in the <em>options.h</em> file for enabling the date routines
+to return Spanish values for days, weeks and months.<br><br>
+#define CASTELLANO<br><br>
+
+<h2>Date Formats</h2>
+
+All dates are stored in the .DBF files with format CCYYMMDD.<br><br>
+
+All date routines work with dates formated with the same CCYYMMDD format.<br><br>
+
+<h2>Sample Program</h2>
+
+<xmp>
+#include <iostream.h>
+#include <xbase/xbase.h>
+
+main()
+{
+   xbXBase x;
+   long l;
+
+   cout << "\nThis program tests the XDATE routines\n\n";
+
+
+   cout << "\nThis year is  " << x.YearOf ( x.Sysdate() );
+   cout << "\nThis Month is " << x.MonthOf( x.Sysdate() );
+   cout << "\nToday is day " << x.DayOf( WEEK, x.Sysdate()) << "  of the week"; 
+   cout << "\nToday is day " << x.DayOf( MONTH, x.Sysdate()) << " of the month";
+   cout << "\nToday is day " << x.DayOf( YEAR, x.Sysdate()) << " of the year";
+
+   if( x.IsLeapYear( x.Sysdate()))
+      cout << "\nThis is a leapyear";
+   else
+      cout << "\nThis is not a leap year."; 
+
+   cout << "\nToday is " << x.Sysdate();
+
+   if( x.DateIsValid( "19951301" ))
+      cout << "\n19951301 is a valid date";
+   else
+      cout << "\n19951301 is not a valid date";
+
+   l =  x.JulianDays( "19951101" ) - x.JulianDays( "19951001" );
+
+   cout << "\nThere are " << l
+        << " days between 10/1/95 and 11/1/95.";
+
+   cout << "\nIn 7 days it will be "  
+        << x.JulToDate8( x.JulianDays( x.Sysdate()) + 7L );
+
+   cout << "\nToday is " << x.CharDayOf( x.Sysdate());
+   cout << "\nThis month is " << x.CharMonthOf( x.Sysdate());
+
+   cout << "\nFormat (YYDDD)              ";
+   cout << x.FormatDate( "YYDDD", x.Sysdate());
+   cout << "\nFormat (MM/DD/YY)           ";
+   cout << x.FormatDate( "MM/DD/YY", x.Sysdate());
+   cout << "\nFormat (MMMM DD,YYYY)       ";
+   cout << x.FormatDate( "MMMM DD,YYYY", x.Sysdate());
+   cout << "\nFormat (DDDD, MMMM DD YYYY) ";
+   cout << x.FormatDate( "DDDD, MMMM DD YYYY", x.Sysdate());
+   cout << "\n";
+}
+</xmp>
+<hr>
+<A HREF="mailto:xbase@startech.keller.tx.us">
+Send me mail - xbase@startech.keller.tx.us</A><br>
+<p>(c)1997 StarTech
+<p><img src="xbase.jpg"><br><hr>
+</BODY>
+</HTML>

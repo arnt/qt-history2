@@ -1,0 +1,59 @@
+<!DOCTYPE HTML PUBLIC>
+<HTML>
+<TITLE>Xbase DBMS Chapter 9</TITLE>
+<BODY BGCOLOR=#FFFFFF>
+<H1><p align="center">HTML/CGI Web Server Interface<br></H1>
+<p align="center">Chapter Updated 2/1/99</p><hr>
+The main objective of this chapter is to provide information regarding the
+basic concepts of utlilizing the HTML/CGI interface with Xbase.<br><br>
+<h3>Overview</h3>
+The HTML/CGI interface is designed to work with web server technologies such
+as the Apache Web Server.  The HTML class is a user interface
+included with Xbase DBMS.<br><br>
+Utilizing this technolgy leverages on the ability to generate code which is
+useable on a wide variety of client platforms.  Any platform which runs a
+browser program can access Xbase DBMS applications running on a web
+server.<br><br>
+Before using this class, it would be helpful to have an 
+understanding of how HTML works, which is beyond the scope of this chapter.  
+<br><br>
+<h3>Internal Functioning</h3>
+The HTML class is relatively simple.  When the class initializes, the 
+class constructor creates an internal two dimensional array with field
+names and data.  The array
+is accessed by the GetData, GetArraryNo and GetDataForField methods.
+<h3>Samples</h3>
+There is one sample form <A HREF="/XbaseSamples/testhtml.html">testhtml.html</A>
+and one sample program <A HREF="/XbaseSamples/testhtml.cpp">testhtml.cpp</A>
+which demonstrate the use of the HTML class.<br><br>
+<A HREF="/XbaseSamples/testhtml.html">Run Samples</A><br>
+<br><br><hr>
+<h3>Apache Install Hints</h3>
+To run cgi scripts with apache,  the recommended approach is to compile
+programs with a .cgi extension.  If the executable programs are not kept
+int the cgi-bin directory,  then you will need to add a handler
+to your Apache configuration script.
+Addtionally,  in the Directory stanzas, add ExecCGI to the Options clause.
+
+<br><br>
+Examples:
+
+<br><br>
+Additional handler statement: <br>
+<em>AddHandler cgi-script .cgi</em><br><br>
+Directory Stanza:<br>
+
+< Directory /usr/local/myproject > <br>
+Options ExecCGI Indexes<br>
+AllowOverride None<br>
+Order allow,deny<br>
+allow from all<br>
+< /Directory ><br><br>
+
+<hr>
+<A HREF="mailto:xbase@startech.keller.tx.us">
+Send me mail - xbase@startech.keller.tx.us</A><br>
+<p>(c)1997 StarTech
+<p><img src="xbase.jpg"><br><hr>
+</BODY>
+</HTML>

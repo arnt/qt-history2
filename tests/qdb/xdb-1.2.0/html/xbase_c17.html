@@ -1,0 +1,355 @@
+<!DOCTYPE HTML PUBLIC>
+<HTML>
+<TITLE>Xbase DBMS Chapter 17</TITLE>
+<BODY BGCOLOR=#FFFFFF>
+<H1><p align="center">Index Methods</p></H1>
+<p align="center">Chapter Updated 2/12/99</p><hr>
+
+This chapter lists the xbNdx and xbNtx index methods and provides 
+examples of how to use them.<br><br>
+
+There are many methods in the xbNdx and xbNtx classes which are used for 
+maintaining and updating NDX and NTX files.  Fortunately for the 
+application programmer, most of the complexities of dealing with the 
+NDX and NTX indices are automatically cared for by the Xbase library.<br><br>
+
+xbNdx and xbNtx methods which are used by application programs are documented here.
+With some exceptions (OpenIndex,CloseIndex and KeyExists) using the index 
+routines automatically positions and returns the associated record in
+the DBF database.<br><br><br>
+
+<TABLE BORDER>
+<CAPTION ALIGN="TOP"><h3>Xbase xbNdx Index Method List</h3></CAPTION>
+<TR VALIGN="BASELINE">
+<TR><TH ALIGN="LEFT">Method<TD>Description
+<TR><TH ALIGN="LEFT">CheckIndxIntegrity<TD>Checks an index file for integrity
+<TR><TH ALIGN="LEFT">CloseIndex<TD>Optional, closes an index.  Closing
+ the DBF file will close any open indexes.
+<TR><TH ALIGN="LEFT">CreateIndex<TD>Create an index
+<TR><TH ALIGN="LEFT">FindKey<TD>Find a key in an index file
+<TR><TH ALIGN="LEFT">GetFirstKey<TD>Get the first key in an index
+<TR><TH ALIGN="LEFT">GetLastKey<TD>Get the last key in an index
+<TR><TH ALIGN="LEFT">GetNextKey<TD>Get the next key in an index
+<TR><TH ALIGN="LEFT">GetPrevKey<TD>Get the previous key in an index
+<TR><TH ALIGN="LEFT">KeyExists<TD>Determine if a key exists w/o positioning DBF file
+<TR><TH ALIGN="LEFT">OpenIndex<TD>Open an index
+<TR><TH ALIGN="LEFT">ReIndex<TD>Rebuilds an index
+</TABLE>in
+<BR><BR>
+<hr>
+<h2>Method Definitions</h2>
+<hr>
+
+<h3>Method xbShort xbNdx::CheckIndexIntegrity( xbShort option )</h3>
+<h3>Method xbShort xbNtx::CheckIndexIntegrity( xbShort option )</h3><br>
+
+This method checks an open index for accuracy or file corruption.
+If the option is non zero, the method will display informational messages.<br>
+<br>
+<TABLE BORDER>
+<CAPTION ALIGN="TOP"><h3>Method Return Codes</h3></CAPTION><br>
+<TR VALIGN="BASELINE">
+<TR><TH ALIGN="LEFT">Return Code<TD>Description
+<TR><TH ALIGN="LEFT">XB_NO_ERROR<TD>If there is no error
+<TR><TH ALIGN="LEFT">XB_LOCK_FAILED<TD>Read lock not successfull
+<TR><TH ALIGN="LEFT">XB_NOT_OPEN<TD>File not open
+<TR><TH ALIGN="LEFT">XB_INVALID_RECORD<TD>Invalid record number
+<TR><TH ALIGN="LEFT">XB_SEEK_ERROR<TD>Seek routine error
+<TR><TH ALIGN="LEFT">XB_WRITE_ERROR<TD>Write routine error
+</TABLE>
+
+<h4>Example Program:</h4>
+
+See program <A HREF="/XbaseSamples/checkndx.cpp">checkndx.cpp</A> for an example 
+of how to use this method.
+
+<hr>
+
+<h3>Method xbShort xbNdx::CloseIndex( VOID )</h3>
+<h3>Method xbShort xbNtx::CloseIndex( VOID )</h3><br>
+
+This method closes an open NDX index.  NDX indexes are closed automatically
+by the DBF::CloseDatabase routine, so this is an optional method.
+Closed indices are not updated by the Xbase routines.<br><br>
+
+<TABLE BORDER>
+<CAPTION ALIGN="TOP"><h3>Method Return Codes</h3></CAPTION><br>
+<TR VALIGN="BASELINE">
+<TR><TH ALIGN="LEFT">Return Code<TD>Description
+<TR><TH ALIGN="LEFT">XB_NO_ERROR<TD>If there is no error
+</TABLE>
+
+<h4>Example Program:</h4>
+
+See program <A HREF="/XbaseSamples/sample1.cpp">sample1.cpp</A> for an example 
+of how to use this method.
+
+<hr>
+
+<h3>Method xbShort xbNdx::CreateIndex( char * IndexName, char * KeyExpression,
+               xbShort Unique, xbShort OverLay )</h3>
+
+<h3>Method xbShort xbNtx::CreateIndex( char * IndexName, char * KeyExpression,
+               xbShort Unique, xbShort OverLay )</h3><br>
+
+This method creates an index.  Indices are created as either a 
+character based index or a numeric based index, depending on the KeyExpression
+value.<br><br>
+<li><em>Indexname</em> - is the name of the physical index file name.
+<li><em>KeyExpression</em> - is the key of the index.
+<li><em>Unique</em> - XB_UNIQUE or XB_NOT_UNIQUE
+<li><em>Overlay</em> - XB_OVERLAY or XB_DONTOVERLAY<br><br>
+<TABLE BORDER>
+<CAPTION ALIGN="TOP"><h3>Method Return Codes</h3></CAPTION><br>
+<TR VALIGN="BASELINE">
+<TR><TH ALIGN="LEFT">Return Code<TD>Description
+<TR><TH ALIGN="LEFT">XB_NO_ERROR<TD>If there is no error
+<TR><TH ALIGN="LEFT">XB_NO_MEMORY<TD>Memory error
+<TR><TH ALIGN="LEFT">XB_OPEN_ERROR<TD>Could not open index file
+<TR><TH ALIGN="LEFT">XB_INVALID_KEY_EXPRESSION<TD>Bad index key expression
+<TR><TH ALIGN="LEFT">XB_NOT_OPEN<TD>The database was not open
+<TR><TH ALIGN="LEFT">XB_SEEK_ERROR<TD>Seek error encountered
+<TR><TH ALIGN="LEFT">XB_READ_ERROR<TD>Read error encountered
+</TABLE>
+
+<br><br>
+Index expressions can be a single field or multiple fields. Assuming a
+database has fields LASTNAME and FIRSTNAME,  valid index expressions
+could be:<br><br>
+
+<TABLE BORDER>
+<CAPTION ALIGN="TOP"><h3>Sample Index Expressions</h3></CAPTION><br>
+<TR VALIGN="BASELINE">
+<TR><TH ALIGN="LEFT">Expression<TD>Description
+<TR><TH ALIGN="LEFT">"LASTNAME"<TD>Index on LASTNAME only.
+<TR><TH ALIGN="LEFT">"LASTNAME+FIRSTNAME"<TD>Index on LASTNAME and FIRSTNAME
+<TR><TH ALIGN="LEFT">"LASTNAME-FIRSTNAME"<TD>Index on LASTNAME and FIRSTNAME,
+all spaces between the two fields removed.
+<TR><TH ALIGN="LEFT">"LASTNAME-','FIRSTNAME"<TD>Index on LASTNAME and 
+FIRSTNAME, insert a comma between the two values, remove spaces between
+the two fields.
+</TABLE>
+<br><br>   
+<TABLE BORDER>
+<CAPTION ALIGN="TOP"><H3>Allowable Index Expression Operators</H3> 
+<TR VALIGN="BASELINE">
+<TR><TH ALIGN="LEFT">Operator<TD>Key Type<TD>Description
+<TR><TH ALIGN="LEFT">+<TD>Character<TD>Concatonate string fields
+<TR><TH ALIGN="LEFT">-<TD>Character<TD>
+Concatonate string fields, remove trailing spaces
+<TR><TH ALIGN="LEFT">'literal'<TD>Character<TD>include literal value
+<TR><TH ALIGN="LEFT">"literal"<TD>Character<TD>include literal value
+<TR><TH ALIGN="LEFT">+<TD>Numeric<TD>Add two numeric fields togethor
+<TR><TH ALIGN="LEFT">-<TD>Numeric<TD>Subtract one numeric field from another
+<TR><TH ALIGN="LEFT">*<TD>Numeric<TD>Mulitply two numeric fields togethor
+<TR><TH ALIGN="LEFT">/<TD>Numeric<TD>Divide one numeric field into another
+<TR><TH ALIGN="LEFT">**<TD>Numeric<TD>Exponential 
+</TABLE>
+<br><br>
+<h4>Example Program:</h4>
+
+See program <A HREF="/XbaseSamples/sample1.cpp">sample1.cpp</A> for an example 
+of how to use this method.
+
+<hr>
+
+<h3>Method xbShort xbNdx::FindKey( char * SearchValue )</h3>
+<h3>Method xbShort xbNdx::FindKey( xbDouble SearchValue )</h3>
+<h3>Method xbShort xbNtx::FindKey( char * SearchValue )</h3>
+<h3>Method xbShort xbNtx::FindKey( xbDouble SearchValue )</h3><br>
+
+This method searches the index for key <em>SearchValue</em>.  
+The routine positions in the index, then positions to the database record
+for the key.  If the key is not
+found, the key value that is the next higher value is returned.<br><br>
+
+For character keys, the SearchValue should be a null terminated string.
+To find an exact match, use a key value which is as long as the key is,
+padded on the right with spaces.<br><br>
+
+For numeric keys, use a xbDouble value for a search value.  This is because
+all numeric field indices are saved as double values.<br><br> 
+
+<TABLE BORDER>
+<CAPTION ALIGN="TOP"><h3>Method Return Codes</h3></CAPTION><br>
+<TR VALIGN="BASELINE">
+<TR><TH ALIGN="LEFT">Return Code<TD>Description
+<TR><TH ALIGN="LEFT">XB_FOUND<TD>The key was found
+<TR><TH ALIGN="LEFT">XB_NOT_FOUND<TD>The key was not found
+<TR><TH ALIGN="LEFT">XB_NO_MEMORY<TD>Memory error
+<TR><TH ALIGN="LEFT">XB_OPEN_ERROR<TD>Could not open index file
+<TR><TH ALIGN="LEFT">XB_SEEK_ERROR<TD>Seek error encountered
+<TR><TH ALIGN="LEFT">XB_READ_ERROR<TD>Read error encountered
+</TABLE>
+
+<h4>Example Program:</h4>
+
+See program <A HREF="/XbaseSamples/sample5.cpp">sample5.cpp</A> for an example 
+of how to use this method.
+
+<hr>
+
+<h3>Method xbShort xbNdx::GetFirstKey( VOID )</h3>
+<h3>Method xbShort xbNtx::GetFirstKey( VOID )</h3><br>
+
+
+This method retrieves the record for the first key in the index.<br><br>
+
+<TABLE BORDER>
+<CAPTION ALIGN="TOP"><h3>Method Return Codes</h3></CAPTION><br>
+<TR VALIGN="BASELINE">
+<TR><TH ALIGN="LEFT">Return Code<TD>Description
+<TR><TH ALIGN="LEFT">XB_NO_ERROR<TD>If there is no error
+<TR><TH ALIGN="LEFT">XB_NO_MEMORY<TD>Memory error
+<TR><TH ALIGN="LEFT">XB_OPEN_ERROR<TD>Could not open index file
+<TR><TH ALIGN="LEFT">XB_SEEK_ERROR<TD>Seek error encountered
+<TR><TH ALIGN="LEFT">XB_READ_ERROR<TD>Read error encountered
+</TABLE>
+
+<h4>Example Program:</h4>
+
+See program <A HREF="/XbaseSamples/sample5.cpp">sample5.cpp</A> for an example 
+of how to use this method.
+
+
+<hr>
+
+<h3>Method xbShort xbNdx::GetLastKey( VOID )</h3>
+<h3>Method xbShort xbNtx::GetLastKey( VOID )</h3><br>
+
+This method retrieves the record for the last key in the index.<br><br>
+
+<TABLE BORDER>
+<CAPTION ALIGN="TOP"><h3>Method Return Codes</h3></CAPTION><br>
+<TR VALIGN="BASELINE">
+<TR><TH ALIGN="LEFT">Return Code<TD>Description
+<TR><TH ALIGN="LEFT">XB_NO_ERROR<TD>If there is no error
+<TR><TH ALIGN="LEFT">XB_NO_MEMORY<TD>Memory error
+<TR><TH ALIGN="LEFT">XB_OPEN_ERROR<TD>Could not open index file
+<TR><TH ALIGN="LEFT">XB_SEEK_ERROR<TD>Seek error encountered
+<TR><TH ALIGN="LEFT">XB_READ_ERROR<TD>Read error encountered
+</TABLE>
+
+<h4>Example Program:</h4>
+
+See program <A HREF="/XbaseSamples/sample5.cpp">sample5.cpp</A> for an example 
+of how to use this method.
+<hr><h3>Method xbShort xbNdx::GetNextKey( VOID )</h3><br>
+This method retrieves the record for the next key in the index. If the 
+index is not positioned, a call to GetFirstKey is autoamtically executed.<br><br>
+
+<TABLE BORDER>
+<CAPTION ALIGN="TOP"><h3>Method Return Codes</h3></CAPTION><br>
+<TR VALIGN="BASELINE">
+<TR><TH ALIGN="LEFT">Return Code<TD>Description
+<TR><TH ALIGN="LEFT">XB_NO_ERROR<TD>If there is no error
+<TR><TH ALIGN="LEFT">XB_NO_MEMORY<TD>Memory error
+<TR><TH ALIGN="LEFT">XB_OPEN_ERROR<TD>Could not open index file
+<TR><TH ALIGN="LEFT">XB_SEEK_ERROR<TD>Seek error encountered
+<TR><TH ALIGN="LEFT">XB_READ_ERROR<TD>Read error encountered
+</TABLE>
+
+<h4>Example Program:</h4>
+
+See program <A HREF="/XbaseSamples/sample5.cpp">sample5.cpp</A> for an example 
+of how to use this method.
+
+
+<hr><h3>Method xbShort xbNdx::GetPrevKey( VOID )</h3>
+<hr><h3>Method xbShort xbNtx::GetPrevKey( VOID )</h3><br>
+
+This method retrieves the record for the previous key in the index. If the 
+index is not positioned, a call to GetLastKey is autoamtically executed.<br><br>
+
+<TABLE BORDER>
+<CAPTION ALIGN="TOP"><h3>Method Return Codes</h3></CAPTION><br>
+<TR VALIGN="BASELINE">
+<TR><TH ALIGN="LEFT">Return Code<TD>Description
+<TR><TH ALIGN="LEFT">XB_NO_ERROR<TD>If there is no error
+<TR><TH ALIGN="LEFT">XB_NO_MEMORY<TD>Memory error
+<TR><TH ALIGN="LEFT">XB_OPEN_ERROR<TD>Could not open index file
+<TR><TH ALIGN="LEFT">XB_SEEK_ERROR<TD>Seek error encountered
+<TR><TH ALIGN="LEFT">XB_READ_ERROR<TD>Read error encountered
+</TABLE>
+
+<h4>Example Program:</h4>
+
+See program <A HREF="/XbaseSamples/sample5.cpp">sample5.cpp</A> for an example 
+of how to use this method.
+
+<hr>
+
+<h3>Method xbShort xbNdx::KeyExists( char * SearchValue )</h3>
+<h3>Method xbShort xbNdx::KeyExists( xbDouble SearchValue )</h3>
+<h3>Method xbShort xbNtx::KeyExists( char * SearchValue )</h3>
+<h3>Method xbShort xbNtx::KeyExists( xbDouble SearchValue )</h3><br>
+
+This method searches the index for the key <em>SearchValue</em>.  The routine does not
+position the database record for the key.  See the reference on FindKey for more
+information regarding KeyValue.<br><br>
+
+<TABLE BORDER>
+<CAPTION ALIGN="TOP"><h3>Method Return Codes</h3></CAPTION><br>
+<TR VALIGN="BASELINE">
+<TR><TH ALIGN="LEFT">Return Code<TD>Description
+<TR><TH ALIGN="LEFT">XB_FOUND<TD>The key was found
+<TR><TH ALIGN="LEFT">XB_NOT_FOUND<TD>The key was not found
+<TR><TH ALIGN="LEFT">XB_NO_MEMORY<TD>Memory error
+<TR><TH ALIGN="LEFT">XB_OPEN_ERROR<TD>Could not open index file
+<TR><TH ALIGN="LEFT">XB_SEEK_ERROR<TD>Seek error encountered
+<TR><TH ALIGN="LEFT">XB_READ_ERROR<TD>Read error encountered
+</TABLE>
+<h4>Example Program:</h4>
+<xmp>
+if( xbNdx::KeyExists( "MyKeyValue" ))
+   cout << "\nKey was found";
+else
+   cout << "\nKey was not found";
+</xmp>
+<hr>
+<h3>Method xbShort xbNdx::OpenIndex( char * IndexName )</h3>
+<h3>Method xbShort xbNtx::OpenIndex( char * IndexName )</h3><br>
+This method opens index <em>IndexName</em> for a given DBF database.  An index must be
+opened before it will be automatically updated by the database update
+routines.<br><br>
+<TABLE BORDER>
+<CAPTION ALIGN="TOP"><h3>Method Return Codes</h3></CAPTION><br>
+<TR VALIGN="BASELINE">
+<TR><TH ALIGN="LEFT">Return Code<TD>Description
+<TR><TH ALIGN="LEFT">XB_NO_ERROR<TD>If there is no error
+<TR><TH ALIGN="LEFT">XB_NO_MEMORY<TD>Memory error
+<TR><TH ALIGN="LEFT">XB_OPEN_ERROR<TD>Could not open index file
+<TR><TH ALIGN="LEFT">XB_INVALID_KEY_EXPRESSION<TD>Bad key in index
+<TR><TH ALIGN="LEFT">XB_NOT_OPEN<TD>The database was not open
+<TR><TH ALIGN="LEFT">XB_SEEK_ERROR<TD>Seek error encountered
+<TR><TH ALIGN="LEFT">XB_READ_ERROR<TD>Read error encountered
+</TABLE>
+<h4>Example Program:</h4>
+See program <A HREF="/XbaseSamples/sample1.cpp">sample1.cpp</A> for an example 
+of how to use this method.
+<hr>
+<h3>Method xbShort xbNdx::ReIndex( VOID )</h3>
+<h3>Method xbShort xbNtx::ReIndex( VOID )</h3><br>
+This method rebuilds an index.  It is used for optimizing an index, or recreating
+a damaged index.  If the index is severly damaged (ie; the first 512 bytes are
+foobar) then the index must be recreated with the CreateIndex method before 
+using the ReIndex method.<br><br> 
+<TABLE BORDER>
+<CAPTION ALIGN="TOP"><h3>Method Return Codes</h3></CAPTION><br>
+<TR VALIGN="BASELINE">
+<TR><TH ALIGN="LEFT">Return Code<TD>Description
+<TR><TH ALIGN="LEFT">XB_NO_ERROR<TD>If there is no error
+<TR><TH ALIGN="LEFT">XB_OPEN_ERROR<TD>Could not open index file
+<TR><TH ALIGN="LEFT">XB_WRITE_ERROR<TD>Error writing data
+<TR><TH ALIGN="LEFT">XB_CLOSE_ERROR<TD>Error closing work file
+</TABLE>
+<h4>Example Program:</h4>
+See program <A HREF="/XbaseSamples/reindex.cpp">reindex.cpp</A> for an example 
+of how to use this method.<br><br>
+<hr>
+<A HREF="mailto:xbase@startech.keller.tx.us">
+Send me mail - xbase@startech.keller.tx.us</A><br>
+<p>(c)1997 StarTech
+<p><img src="xbase.jpg"><br><hr>
+</BODY>
+</HTML>    

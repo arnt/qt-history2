@@ -1,0 +1,264 @@
+<!DOCTYPE HTML PUBLIC>
+<HTML>
+<TITLE>Xbase DBMS Chapter 18</TITLE>
+<BODY BGCOLOR=#FFFFFF>
+<H1><p align="center">Locking Methods</p></H1>
+<p align="center">Chapter Updated 2/1/99</p><hr>
+
+The locking methods return either XB_LOCK_FAILED or XB_NO_ERROR.  If they return
+LOCK_FAILED the actual reason can be found in the global variable 
+<em>errno</em> or function <em>perror()</em> can be executed to view the
+results.
+<br><br>
+
+The errno field may contain one of the following values if the lock was not
+successful.<br><br>
+<TABLE BORDER>
+<TR VALIGN="BASELINE">
+<TR><TH ALIGN="LEFT">Error Code<TD>Description
+<TR><TH ALIGN="LEFT">EBADF<TD>Invalid file descriptor
+<TR><TH ALIGN="LEFT">EINVAL<TD>Invalid lock information or file does not support locks
+<TR><TH ALIGN="LEFT">EACCESS<BR>EAGAIN<TD>Lock can not be set because it is blocked by an existing lock on the file.
+<TR><TH ALIGN="LEFT">ENOLCK<TD>The system is out of lock resources, too many file locks in place.
+<TR><TH ALIGN="LEFT">EDEADLK<TD>Deadlock condition
+<TR><TH ALIGN="LEFT">EINTR<TD>Process was interrupted by a signal while it was waiting
+</TABLE>
+<br><br>
+<h3>Types of Locks</h3>
+
+<li><em>Write or Exclusive Locks</em> provide exclusive access to a 
+particular file location. No other process can lock the same location.<br><br>
+
+<li><em>Read or Shared Locks</em> prohibit any process from requesting a write 
+lock on a specified part of the file.  Other processes can request 
+simultaneous read locks.<br><br><br>
+
+<h3>DBF File Locking Techniques</h3>
+
+Xbase DBMS uses the following protocol for DBF file and record locking:
+<br><br>
+
+To lock a record - the first byte of the record is locked.<br>
+To lock the file - the header bytes of the file are locked.<br><br>
+
+When a record is being appended to the file, the header bytes are locked.<br>
+When a record is being updated, the header bytes and the specific record are
+locked.<br><br>
+This locking protocol is probably not compatable with other Xbase type products.
+However, Xbase can be safely used for multi-user access when it is not 
+simultaneously updating DBF or NDX files while other products/programs are.
+<br><br><br>
+
+<h3>NDX File Locking Techniques</h3>
+
+Xbase DBMS locks indexes by locking the first 512 bytes 
+of the index file.
+The entire index is locked because any updates to the index potentially
+can modify significant portions of the index tree.
+<br><br><br>
+
+<h3>DBT File Locking Techniques</h3>
+
+Xbase DBMS locks memo files by locking the first 4 bytes 
+of the memo file. This effectively locks the entire file.  The entire file
+is locked because any updates to the free block chain can significantly
+change the structure of the file.
+<br><br><br>
+
+
+<h3>AutoLocking Features</h3>
+
+If XB_LOCKING_ON is set in the <em>options.h</em> file, the locking methods 
+execute any appropriate locking logic.  If XB_LOCKING_ON is not set in the 
+<em>options.h</em> file, all locking methods return NO_ERROR without 
+performing any actual record or file locking.  This enables the application
+program to always call locking routines regardless of the XB_LOCKING_ON switch
+in the <em>options.h</em> file.
+<br><br>
+By leaving the autolocking features enabled, the application program does
+not need to address record, file or index locking.  All locking is handled
+automatically by the Xbase routines.  However, if access to the locking 
+routines is required, they are available to the applciation programmer.
+<br><br>
+When the files are automatically locked by the Xbase routines, the database 
+file is locked first, then it locks the indexes in alphabetical order.  To 
+avoid deadlock conditions, files and record locks should always be done in 
+the same order.  When the files are unlocked, then indexes are unlocked
+first, then the database is unlocked.
+<br><br>
+Auto-locking works well in an on-line transaction based environment.
+However, it does not function efficiently in batch mode. If you
+will be writing programs which process files in a batch mode, disabling 
+auto-lock and locking the entire file at the beginning of the process 
+and unlocking the file at the end of the process will significantly
+reduce process time.  On a 586-200 class machine, a file with 45000 records
+can be read thru in a few seconds with the file locked in batch mode. 
+In record-lock mode it takes about six minutes with the same processor. 
+
+<br><br>For processing large files, locking the file instead of locking each
+record is far more efficient.  This is how you do it.<br><br>
+
+For reading the file in batch mode:<br>
+xbDbf.AutoLockOff();<br>
+xbDbf.LockDatabase( F_SETLKW, F_RDLCK, 0L );<br><br>      
+For updating the file in batch mode:<br>
+xbDbf.AutoLockOff();<br>
+xbDbf.LockDatabase( F_SETLKW, F_WRLCK, 0L );<br><br>      
+<br> 
+<hr><br>
+
+<h3>Method Table</h3>
+
+<TABLE BORDER>
+<CAPTION ALIGN="TOP"><h3><Xbase Locking Method List</h3></CAPTION>
+<TR VALIGN="BASELINE">
+<TR><TH ALIGN="LEFT">Method<TD>Description
+<TR><TH ALIGN="LEFT">xbDbf::AutoLockOn<TD>Turns autolocking on
+<TR><TH ALIGN="LEFT">xbDbf::AutoLockOff<TD>Turns autolocking off
+<TR><TH ALIGN="LEFT">xbDbf::ExclusiveLock<TD>Lock file and indexes in exclusive mode
+<TR><TH ALIGN="LEFT">xbDbf::ExclusiveUnlock<TD>Unlock files and indexes 
+<TR><TH ALIGN="LEFT">xbDbf::LockDatabase<TD>Locks or unlocks a DBF database
+<TR><TH ALIGN="LEFT">xbNdx::LockIndex<TD>Locks or unlocks an xbNdx index
+<TR><TH ALIGN="LEFT">xbNdx::LockMemoFile<TD>Locks or unlocks a DBT memo field file
+</TABLE>
+<BR><HR>
+
+<h4>Method Descriptions</h4>
+
+<h4>Method VOID xbDbf::AutoLockOn( VOID )</h4><br>
+
+This method turns automatic record locking on.  Auto record locking is on
+by default if XB_LOCKING_ON is set in the options.h file.<br><br>
+
+<h4>Example Program:</h4>
+
+See program <A HREF="/zips/loadzips.cpp">loadzips.cpp</A> for an example of
+how to use this method.
+<hr>
+
+<h4>Method VOID xbDbf::AutoLockOff( VOID )</h4><br>
+
+This method turns automatic record locking off.  Auto record locking is on
+by default if XB_LOCKING_ON is set in the options.h file.
+<br><br>
+Turning auto locking off will result in slightly better execution speeds
+but should not be used in multi-user environments when multiple users can
+update files simultanteously.  If multiple users are accessing a file which
+is read only then it is safe to turn off auto-locking for a particular file.
+<br><br>
+Turning autolocking off will disable any index file locking which is 
+particularly dangerous in a multi-user environment if updates on the files
+are permitted. 
+
+
+<h4>Example Program:</h4>
+
+See program <A HREF="/zips/loadzips.cpp">loadzips.cpp</A> for an example of
+how to use this method.
+
+<hr>
+<h4>Method SHORT xbDbf::ExclusiveLock( SHORT WaitOption )</h4>
+<h4>Method SHORT xbDbf::ExclusiveUnlock( VOID )</h4><br>
+
+ExclusiveLock and ExclusiveUnclock will lock the data file, memo file (if applicable) 
+and any associated indexes in an exclusive mode. They also turn auto-lock 
+on and off as appropriate.<br><br>
+
+WaitOption is either:<br><br>
+<li>F_SETLK - returns immediately regardless if success or failure<br>
+<li>F_SETLKW - waits until lock function executes<br><br>
+
+<h4>Example Program:</h4>
+
+See program <A HREF="/XbaseSamples/sample4.cpp">sample4.cpp</A> for an example of
+how to use this method.
+
+<hr>
+<h3>Method SHORT xbDbf::LockDatabase( SHORT WaitOption, SHORT LockType, LONG LRecNo )
+</h3><br>
+
+This method locks or unlocks an Xbase (.DBF) file which was previously opened.<br>
+<br>
+WaitOption is either:<br><br>
+<li>F_SETLK - returns immediately regardless if success or failure<br>
+<li>F_SETLKW - waits until lock function executes<br><br>
+
+LockType is one of:<br><br>
+<li>F_RDLCK - Perform a Read or Shared Lock<br>
+<li>F_WRLCK - Perform a Write or Exclusive Lock<br>
+<li>F_UNLCK - Unlock it<br><br>
+
+LRecNo is:<br><br>
+0 - Lock the header section of the file (use this to lock the file)<br>
+1 through n - Lock a particular record<br><br>
+
+<TABLE BORDER>
+<CAPTION ALIGN="TOP"<h4>Method Return Codes</h4></CAPTION>
+<TR><TH ALIGN="LEFT">Return Code<TD>Description
+<TR><TH ALIGN="LEFT">XB_INVALID_RECORD<TD>An invalid record given
+<TR><TH ALIGN="LEFT">XB_LOCK_FAILED<TD>The lock action failed, see errno
+<TR><TH ALIGN="LEFT">XB_NO_ERROR<TD>The lock was successful
+</TABLE>
+
+
+<h4>Example Program:</h4>
+
+See program <A HREF="/zips/loadzips.cpp">loadzips.cpp</A> for an example of
+how to use this method.
+
+<hr>
+
+<h3>Method xbShort xbDbf::LockIndex( xbShort WaitOption, xbShort LockType )
+</h3><br>
+
+This method locks or unlocks an Index (.NDX) file which was previously opened.<br>
+<br>
+WaitOption is either:<br><br>
+<li>F_SETLK - returns immediately regardless if success or failure<br>
+<li>F_SETLKW - waits until lock function executes<br><br>
+
+LockType is one of:<br><br>
+<li>F_RDLCK - Perform a Read or Shared Lock<br>
+<li>F_WRLCK - Perform a Write or Exclusive Lock<br>
+<li>F_UNLCK - Unlock it<br><br>
+
+<TABLE BORDER>
+<CAPTION ALIGN="TOP"<h4>Method Return Codes</h4></CAPTION>
+<TR><TH ALIGN="LEFT">Return Code<TD>Description
+<TR><TH ALIGN="LEFT">XB_LOCK_FAILED<TD>The lock action failed, see errno
+<TR><TH ALIGN="LEFT">XB_NO_ERROR<TD>The lock was successful
+</TABLE>
+
+<h4>Example Program:</h4>
+See program <A HREF="/zips/loadzips.cpp">loadzips.cpp</A> for an example of
+how to use this method.
+<hr>
+
+<h3>Method xbShort xbDbf::LockMemoFile( xbShort WaitOption, xbShort LockType )
+</h3><br>
+
+This method locks or unlocks a memo (.DBT) file which was previously opened.
+It is not necessary for an application to call this method as locking is
+handled automatically by other routines.<br><br>
+
+WaitOption is either:<br><br>
+<li>F_SETLK - returns immediately regardless if success or failure<br>
+<li>F_SETLKW - waits until lock function executes<br><br>
+
+LockType is one of:<br><br>
+<li>F_RDLCK - Perform a Read or Shared Lock<br>
+<li>F_WRLCK - Perform a Write or Exclusive Lock<br>
+<li>F_UNLCK - Unlock it<br><br>
+<TABLE BORDER>
+<CAPTION ALIGN="TOP"<h4>Method Return Codes</h4></CAPTION>
+<TR><TH ALIGN="LEFT">Return Code<TD>Description
+<TR><TH ALIGN="LEFT">XB_LOCK_FAILED<TD>The lock action failed, see errno
+<TR><TH ALIGN="LEFT">XB_NO_ERROR<TD>The lock was successful
+</TABLE>
+<hr>
+<A HREF="mailto:xbase@startech.keller.tx.us">
+Send me mail - xbase@startech.keller.tx.us</A><br>
+<p>(c)1997 StarTech
+<p><img src="xbase.jpg"><br><hr>
+</BODY>
+</HTML>

@@ -1,0 +1,82 @@
+<HTML>
+<HEAD>
+<TITLE>Xbase to Xbase DBMS C++ Converter</TITLE>
+</HEAD>
+<BODY>
+
+<H1>Xbase to Xbase DBMS C++ Converter</H1>
+
+<H2>Program</H2>
+<P><A HREF="ftp://anonymous:xbase@www.startech.keller.tx.us/pub/xbase/Xb2cpp.pl">Xb2cpp.pl V0.1 26-11-98</A></P>
+<H2>Author</H2>
+<A HREF="mailto:kehl@informatik.tu-muenchen.de">Hubertus Kehl</A>, kehl@informatik.tu-muenchen.de, kehlh@hotmail.com
+<BR>Please send suggestions, bug reports, patches, etc. one of these email
+adresses.
+<H2>Language</H2>
+<P>Perl 5.0</P>
+<H2>Purpose</H2>
+<P>Convert Dbase, Clipper, FOXPRO Source Code to XBASE C++ Code for use with
+<A HREF="http://www.startech.keller.tx.us/xbase.html">Gary Kunkel's XBASE DBMS Library</A></P>
+<H2>Output</H2>
+<P>.cpp File and .h File</P>
+<H2>Arguments</H2>
+<P>1st arg = filename</P>
+<H2>Remarks</H2>
+<P>The script tries to keep track of the databases used in different workareas.
+But the flow through your program cannot be determined, so in some cases
+you have to help the script a bit by giving additional info.</P>
+<P>Three special comments have been designed to add this info:</P>
+<PRE>* XB2CPP(SelectedArea)
+or&nbsp; * XB2CPP(SelectedArea,Workarea1,Alias1,Wa2,Al2...)
+or&nbsp; * XB2CPP(SelA,WA1,Al1[Total1, Active1],Wa2, Al2[Tot2,Act2])</PRE>
+<P>e.g. * XB2CPP(3,3,ZP,2,PL) will inform the script for example at the beginning
+of a PROCEDURE that a database with Alias ZP is opened in workarea 3 and
+a database with alias PL is opened in workarea2 and when calling this procedure
+always workarea 3 is selected.</P>
+<P>The third alternative of this statement makes it possible to define
+the number of open indices and which one is the active index, as given
+by a previous SET INDEX TO or USE and SET ORDER TO statements. The script
+cannot know, which procedures, statements have been executed before and
+opened indices.... So * XB2CPP(2,2,ZP[2,1]) will inform the script about
+an open database alias ZP in workarea 2 which is currently selected and
+has two open indices where the first one is the active one.</P>
+<H2>Hints</H2>
+
+<OL>
+<LI>Always give an ALIAS in USE-Statements this is needed for generation
+of the Database Classnames</LI>
+<LI>Give the above described additional infos where necessary.</LI>
+<LI>Use ALIASes in Expressions with database fields, this helps the script
+in knowing where database references are.</LI>
+<LI>Replace the XXX in PutXXXField or GetXXXField manually the script is
+not able to determine variable or field types. The code for getting a Textfield
+(GetField) must also be corrected. Xbase DBMS Syntax requires the buffer
+as second parameter, the string will not be returned ! You may use a C++
+String wrapper for this job.</LI>
+<LI>PROCEDURES that will operate on two different databases where some statements
+are used for both cannot be converted The script needs to know everytime
+on which database the statements are operating. Either duplicate such procedures,
+(one for each database), or write a generic C++ routine with pointers to
+databases.</LI>
+<LI>Don't assume any compilable or even working C++ source code as output.
+The ambigous DBASE language, which lacks type and variable definitions
+is one reason for this. This script only will help you for about 10-30%
+of the conversion. The rest (which remained uppercase) has to be done manually
+:)</LI>
+</OL>
+
+<H2>Copyright</H2>
+<P>This program is free software; you can redistribute it and/or modify it
+under the terms of the GNU General Public License as published by the Free
+Software Foundation (version 2 of the License)</P>
+
+<P>This program is distributed in the hope that it will be useful, but
+WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+or FITNESS FOR A PARTICULAR PURPOSE.&nbsp; See the GNU General Public License
+for more details.</P>
+<HR>
+<ADDRESS>
+<A HREF="mailto:kehl@informatik.tu-muenchen.de">Hubertus Kehl</A>,29-11-1998
+</ADDRESS>
+</BODY>
+</HTML>

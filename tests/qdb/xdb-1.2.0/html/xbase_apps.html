@@ -1,0 +1,109 @@
+<!DOCTYPE HTML PUBLIC>
+<HTML>
+<TITLE>Xbase DBMS Sample Application</TITLE>
+<BODY BGCOLOR=#FFFFFF>
+<H1><p align="center">Sample Programs</p></H1>
+<p align="center">Page Updated 2/1/99</p><hr>
+Sample Xbase DBMS programs are located in the xbase/samples and xbase/bin
+directories.<br><br>
+
+<TABLE BORDER>
+<CAPTION ALIGN="TOP"><H3>X-Base Sample Programs</H3></CAPTION>
+<TR ALIGN="BASELINE">
+<TR><TH ALIGN="LEFT">Program<TD>Program Description
+<TR><TH ALIGN="LEFT"><A HREF="/XbaseSamples/checkndx.cpp">checkndx</A><TD>This program checks an NDX file
+<TR><TH ALIGN="LEFT"><A HREF="/XbaseSamples/copydbf.cpp">copydbf</A><TD>This program copies a DBF file structure
+<TR><TH ALIGN="LEFT"><A HREF="/XbaseSamples/deletall.cpp">deletall</A><TD>This program marks all records in a DBF file for deletion
+<TR><TH ALIGN="LEFT"><A HREF="/XbaseSamples/dumphdr.cpp">dumphdr</A><TD>This program opens an Xbase file and prints its header
+<TR><TH ALIGN="LEFT"><A HREF="/XbaseSamples/dumprecs.cpp">dumprecs</A><TD>This program dumps records for an X-Base file 
+<TR><TH ALIGN="LEFT"><A HREF="/XbaseSamples/packdbf.cpp">packdbf</A><TD>This program packs a database file
+<TR><TH ALIGN="LEFT"><A HREF="/XbaseSamples/reindex.cpp">reindex</A><TD>This program rebuilds an index
+<TR><TH ALIGN="LEFT"><A HREF="/XbaseSamples/sample1.cpp">sample1</A><TD>This program creates an Xbase file MYFILE.DBF
+<TR><TH ALIGN="LEFT"><A HREF="/XbaseSamples/sample2.cpp">sample2</A><TD>This program populates file MYFILE.DBF created by program sample1
+<TR><TH ALIGN="LEFT"><A HREF="/XbaseSamples/sample3.cpp">sample3</A><TD>This program lists MYFILE.DBF data populated by program sample2
+<TR><TH ALIGN="LEFT"><A HREF="/XbaseSamples/sample4.cpp">sample4</A><TD>This program deletes records, undeletes records, locks and packs datafile MYFILE.DBF  
+<TR><TH ALIGN="LEFT"><A HREF="/XbaseSamples/sample5.cpp">sample5</A><TD>This program demonstrates NDX class usage 
+<TR><TH ALIGN="LEFT"><A HREF="/XbaseSamples/testdate.cpp">testdate</A><TD>This program tests the Xbase date methods
+<TR><TH ALIGN="LEFT"><A HREF="/XbaseSamples/testhtml.cpp">testhtml</A><TD>This program tests the Xbase HTML methods
+<TR><TH ALIGN="LEFT"><A HREF="/XbaseSamples/testhtml.html">testhtml.html</A><TD>This form works with the testhtml program 
+<TR><TH ALIGN="LEFT"><A HREF="/XbaseSamples/undelall.cpp">undelall</A><TD>This program undeletes all deleted records in a dbf file
+<TR><TH ALIGN="LEFT"><A HREF="/XbaseSamples/zap.cpp">zap</A><TD>This program removes all records from a DBF file
+<TR><TH ALIGN="LEFT"><A HREF="/XbaseSamples/Makefile">Makefile</A><TD>Makefile for building sample programs
+</TABLE>
+<br><br>
+<hr>
+
+<H1>Sample Application</H1>
+
+
+A sample application has been developed to demonstrate the basic functions
+of the Xbase library.  The application is a basic utility for querying 
+zipcodes and determining a zip code for a given city, or a city for a given 
+zip code.  Although a simple application, it demonstrates the following 
+basic Xbase functions:<br><br>
+
+<li>A)  How to create databases and indices<br>
+
+<li>B)  How to populate the databases with data<br>
+
+<li>C)  How to query the databases and extract information<br>
+
+<li>D)  How to generate HTML code for displaying the data in a web browser<br>
+
+<br><br>
+
+The following data flow diagram shows the basic design of this application,
+what the programs are and do, and how the databases are accessed.<br><br>
+
+<img src="zipflow.gif">
+<br><br>
+<hr>
+<TABLE BORDER>
+<CAPTION ALIGN="TOP"><H3>Xbase Zipcode Sample Programs</H3></CAPTION>
+<TR ALIGN="BASELINE">
+<TR><TH ALIGN="LEFT">Program<TD>Program Description
+<TR><TH ALIGN="LEFT"><A HREF="/zips/creatzip.cpp">creatzip</A><TD>This program creates the zipcode files
+<TR><TH ALIGN="LEFT"><A HREF="/zips/loadzips.cpp">loadzips</A><TD>This program loads the zipcode files
+<TR><TH ALIGN="LEFT"><A HREF="/zips/dumpzips.cpp">dumpzips</A><TD>This program dumps zipcodes by city
+<TR><TH ALIGN="LEFT"><A HREF="/zips/zipinit.cpp">zipinit</A><TD>This program updates the stats and requests<br>
+                                                                query information via HTML (fow web browser)  
+<TR><TH ALIGN="LEFT"><A HREF="/zips/zipinq.cpp">zipinq</A><TD>This program queries the zip database and <br>
+                                                                generates a list of results via HTML (for web browser)
+<TR><TH ALIGN="LEFT"><A HREF="/zips/Makefile">Makefile</A><TD>Makefile for building sample programs
+</TABLE>
+<br><br>
+<hr>
+
+<TABLE BORDER>
+<CAPTION ALIGN="TOP"><H3>Xbase Zipcode Sample Databases and Indexes</H3></CAPTION>
+<TR ALIGN="BASELINE">
+<TR><TH ALIGN="LEFT">File<TD>Description
+<TR><TH ALIGN="LEFT">ZIPCODES.DBF<TD>Database of zipcodes, city and states
+<TR><TH ALIGN="LEFT">CITY.NDX<TD>Index of zipcode file by city
+<TR><TH ALIGN="LEFT">ZIPCODE.NDX<TD>Index of zipcode file by zipcode
+<TR><TH ALIGN="LEFT">ZIPSTATS.DBF<TD>Maintains number of visitors and inquiries
+</TABLE>
+<br><br>
+<h4>
+<A HREF="/zips/zipinit.cgi">Testdrive the zipcode application</A><br><br>
+<A HREF="ftp://anonymous:xbase@www.startech.keller.tx.us/pub/zipcodes/zipcodes.tar.gz">
+Download the zipcode application</A>
+</h4>
+To use the zipcode application, perform the following steps after you 
+download it.<br><br>
+
+<li>cd /usr/xbase
+<li>mkdir zipcodes
+<li>cp /home/of/zipcodes.tar.gz /usr/xbase/zipcodes
+<li>unzip zipcodes.tar.gz
+<li>tar -xvf zipcodes.tar
+<li>Enjoy!!
+
+<hr>
+
+<A HREF="mailto:xbase@startech.keller.tx.us">
+Send me mail - xbase@startech.keller.tx.us</A><br>
+<p>(c)1997 StarTech
+<p><img src="xbase.jpg"><br><hr>
+</BODY>
+</HTML>

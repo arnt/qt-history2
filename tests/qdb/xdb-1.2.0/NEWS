@@ -1,0 +1,76 @@
+XDB Version 1.2.0 (May 29, 2000)
+--------------------------------
+
+Fixed bugs introduced in 1.0.0 (with the exception of NTX index problems
+which haven't been fixed yet).
+
+Addition of support for variable node sizes to NDX indexes.  The default
+node size for dBase NDX files is 512 bytes.  Increasing the node size
+allows more keys to fit in a given node and can increase performance
+on larger tables.  Use the SetNodeSize() method of an index to set
+the node size before creation of the index, for example:
+
+    ndx->SetNodeSize(2048);
+    
+sets the node size to 2048.  Valid node sizes are from 512-4096 in
+512 byte increments.  Once the NDX index is created, the node size
+is determined automatically.
+
+Various bugfixes to the expression parsing/evaluation code including
+the addition (enabling?) of the logical operators .AND., .OR. and .NOT..
+
+Modified the GetFieldNo() method of xbDbf to do a non-case-sensitive
+comparsion to support NDX files created by the real dBase program.
+
+
+XDB Version 1.0.0 (Feb 4, 2000)
+-------------------------------
+
+Many bugfixes.  Most notable being fixes to the locking code to allow
+actual multi-user access and the use of a binary search instead of a
+linear search for key values within NDX nodes.
+
+Addition of code to support "real" deletes.  The normal behavior for
+dBase files is to mark records as deleted, but they remain in the
+database (and indexes) until the database is "packed" and reindexed.  
+XDB now supports actual delete and reuse of deleted records (i.e. deleted
+records no longer appear in the database and are removed from indexes
+when deleted).  The default behavior is still the dBase behavior; however
+you can use the RealDeleteOn() method of the xbDbf class to enable 
+real deletes.  Note that real deletes should be "turned on" before
+creation the database and each time the database is opened to work
+correctly.
+
+
+------------------------------------------------------------------------------
+The following is the NEWS file from the original xBase1.8.1 release
+------------------------------------------------------------------------------
+All includes moved to xbase/ directory.  From now on, use:
+
+	#include <xbase/xbase.h>
+
+Release 1.8.0b release 2/27/99
+
+Has some misc bug fixes from release 1.8.0a, mainly includes a missing
+configure script.  
+
+1.8.0b was released to address misc 1.8.0a distribution problems,
+because applying additional mods to the code base.
+
+The NTX index logic is still in alpha.  It does not appear to generate
+correct indices in all circumstances.  So for now, you may want to 
+continue using the NDX indices.
+
+
+Release 1.8.0a  Significant enhancements
+
+1)  Exception processing
+2)  GNU Autoconf support
+3)  Directory structure rename
+4)  Memo field processing fixes and enhancements
+5)  Additional string class support
+6)  Rename of major classes
+
+See also the Changelog file for specific information
+
+Gary..

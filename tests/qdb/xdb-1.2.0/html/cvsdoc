@@ -1,0 +1,81 @@
+These are the instructions for using CVS to access the current Xbase source 
+
+1.   CVS Signons
+
+  There are two types of signons for the xbase library.
+
+  a)  Guest access - has read only access to the library
+  b)  User access - has both read and write access to the library
+
+  For guest access, the userid is cvsguest and the password is download.
+
+  For user access, contact the server administrator at 
+  <gkunkel@startech.keller.tx.us> for the username and password.
+
+
+2. Login to CVS server:
+
+  cvs -d :pserver:username@stargazer.startech.keller.tx.us:/usr/local/cvsroot login
+
+  you will be asked:
+
+  CVS password:
+
+  Enter your password here.  If it is OK, you will see file .cvspass in
+  your home directory.  You should keep it from anyone's eyes.  You can
+  (must?) remove it later using 'cvs logout' or by hand.
+
+3. Check out source tree (xbase):
+
+  cvs -d :pserver:username@stargazer.startech.keller.tx.us:/usr/local/cvsroot checkout xbase
+
+  From now on, you work the same as if repository is local.
+
+4. Instead of specifying '-d :pserver:username@server.host/path/to/cvsroot'
+   each time, you can set CVSROOT variable to that value:
+
+------------------------------------------------------------------------
+
+For those of you who have never used a cvs server to access sources,
+here's a short run down of how to do it:
+
+1) Obtain sources from http://download.cyclic.com/pub/
+
+2) Compile and install the client. 
+
+   ./configure --disable-server   will disable the server
+
+3) Once installed, set your CVSROOT environment to:
+
+  :pserver:cvsguest@stargazer.startech.keller.tx.us:/usr/local/cvsroot
+
+  For sh, bash and ksh users, execute the following commands:
+
+    CVSROOT=:pserver:cvsguest@stargazer.startech.keller.tx.us:/usr/local/cvsroot
+    export CVSROOT
+  
+    You may want to stick these commands in your .profile or .bash_profile.
+
+  For C shell users (csh, tcsh), execute the following commands:
+
+    setenv CVSROOT=:pserver:cvsguest@stargazer.startech.keller.tx.us:/usr/local/cvsroot
+  
+    You may want to stick this command in your .cshrc or .login file.
+
+4) From here, login in to the server with 
+
+     cvs login
+
+5) Now get the source
+
+     cvs checkout xbase
+     
+6) Now you can log out
+
+     cvs logout
+       
+  
+-------------------------------------------------------------------------------
+
+These instructructions were started by Willy@snowyowl.csu.ac.ru
+and updated by Gary Kunkel gkunkel@startech.keller.tx.us

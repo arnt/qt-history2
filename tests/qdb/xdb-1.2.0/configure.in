@@ -1,0 +1,133 @@
+# Created by Denis Pershin <dyp@inetlab.com>
+
+dnl Process this file with autoconf to produce a configure script.
+AC_INIT(acinclude.m4) dnl a source file from your sub dir, but acinclude.m4 does the job
+AC_CANONICAL_SYSTEM
+AC_ARG_PROGRAM
+
+dnl You have to change this
+AM_INIT_AUTOMAKE(xdb, 1.2.0) dnl searches for some needed programs
+
+dnl generate the config header
+AM_CONFIG_HEADER(xdb/xbconfig.h) dnl at the distribution this done
+
+dnl Checks for programs.
+AC_CHECK_COMPILERS
+KDE_PROG_LIBTOOL
+
+dnl find out some variables 
+AC_AIX
+AC_MINIX
+#AC_C_BIGENDIAN
+
+dnl for NLS support. Call them in this order!
+AC_LANG_CPLUSPLUS dnl switch to C++
+
+dnl Checks for header files.
+AC_LANG_CPLUSPLUS dnl switch to C++
+AC_HEADER_DIRENT dnl check for dirent.h
+AC_HEADER_STDC dnl check for other stdc headers. More traditional ;)
+dnl check for some more header files. You can remove some of
+dnl them, if you want to. But it doesn't hurt
+
+AC_CHECK_HEADERS(string.h strings.h io.h exception g++/exception.h sys/types.h sys/locking.h fcntl.h stdarg.h ctype.h tvision/tv.h)
+
+dnl Checks for typedefs, structures, and compiler characteristics.
+AC_HEADER_TIME
+
+dnl check if the compiler has bool
+AC_CHECK_BOOL
+dnl check if the system needs some #defines
+AC_CHECK_GNU_EXTENSIONS
+
+dnl Checks for library functions. 
+AC_CHECK_FUNCS(flock) dnl
+AC_CHECK_FUNCS(fcntl)
+AC_CHECK_FUNCS(snprintf) dnl
+AC_CHECK_FUNCS(socket vsnprintf vsprintf)
+AC_CHECK_SETENV
+AC_LANG_CPLUSPLUS
+AC_CHECK_FUNCS(getdomainname)
+AC_CHECK_FUNCS(strcasecmp)
+
+AC_CHECK_LIB(socket, socket, [LIBSOCKET="-lsocket"]) dnl for Solaris
+AC_CHECK_LIB(nsl, gethostbyname, [LIBNSL="-lnsl"]) dnl for Solaris
+
+AC_SUBST(LIBSOCKET)
+AC_SUBST(LIBNSL)
+
+dnl Perform program name transformation
+AC_ARG_PROGRAM
+
+AC_ARG_WITH(index-ndx, [  --without-index-ndx     do not compile .ndx index support ], enable_index_ndx="$withval", enable_index_ndx="yes")
+if test "$enable_index_ndx" = "yes"; then
+  AC_DEFINE(XB_INDEX_NDX,1)
+fi
+
+AC_ARG_WITH(index-ntx, [  --without-index-ntx     do not compile .ntx index support ], enable_index_ntx="$withval", enable_index_ntx="yes")
+if test "$enable_index_ntx" = "yes"; then
+  AC_DEFINE(XB_INDEX_NTX,1)~
+fi
+
+AC_ARG_WITH(memo-fields, [  --without-memo-fields   do not compile memo fields support ], enable_memo_fields="$withval", enable_memo_fields="yes")
+if test "$enable_memo_fields" = "yes"; then
+  AC_DEFINE(XB_MEMO_FIELDS,1)
+fi
+
+AC_ARG_WITH(expressions, [  --without-expressions   do not compile expressions support ], enable_expressions="$withval", enable_expressions="yes")
+if test "$enable_expressions" = "yes"; then
+  AC_DEFINE(XB_EXPRESSIONS,1)
+fi
+
+AC_ARG_WITH(ui-html, [  --without-ui-html       do not compile HTML support ], enable_ui_html="$withval", enable_ui_html="yes")
+if test "$enable_ui_html" = "yes"; then
+  AC_DEFINE(XB_HTML,1)
+fi
+
+AC_ARG_WITH(xbase-locking, [  --without-xbase-locking turn off XBase file locking ], enable_xbase_locking="$withval", enable_xbase_locking="yes")
+if test "$enable_xbase_locking" = "yes"; then
+  AC_DEFINE(XB_LOCKING_ON,1)
+fi
+
+AC_ARG_WITH(realdelete, [  --without-realdelete     turn off XBase record deletion ], enable_realdelete="$withval", enable_realdelete="yes")
+if test "$enable_realdelete" = "yes"; then
+  AC_DEFINE(XB_REAL_DELETE,1)
+fi
+
+AC_ARG_WITH(xbase-debug, [  --without-xbase-debug   turn off XBase specific debug ], enable_xbase_debug="$withval", enable_xbase_debug="yes")
+if test "$enable_xbase_debug" = "yes"; then
+  AC_DEFINE(XBASE_DEBUG,1)
+fi
+
+AC_ARG_WITH(exceptions, [  --with-exceptions       turn on exceptions ], enable_exceptions="$withval", enable_exceptions="no")
+if test "$enable_exceptions" = "yes"; then
+  AC_DEFINE(HAVE_EXCEPTIONS,1)
+fi
+
+AC_ARG_WITH(castellano, [  --with-castellano       turn on spanish date logic ], enable_castellano="$withval", enable_castellano="no")
+if test "$enable_castellano" = "yes"; then
+  AC_DEFINE(XB_CASTELLANO,1)
+fi
+
+dnl output files
+topdir=`pwd`
+AC_SUBST(topdir)
+
+if test "$ac_cv_header_tvision_tv_h" = "yes"; then
+    TVPROGS="tvxbase"
+else
+    TVPROGS=
+fi
+
+AC_SUBST(TVPROGS)
+
+dnl add here all your Makefiles
+AC_OUTPUT(
+	Makefile
+	xdb/Makefile
+	examples/Makefile
+        bin/Makefile
+	html/Makefile
+	tv/Makefile
+)
+
