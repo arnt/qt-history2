@@ -823,7 +823,7 @@ bool QApplication::x11_apply_settings()
     }
 
     QSettings settings;
-    settingsstamp = settings.lastModficationTime("/qt/font");
+    settingsstamp = settings.lastModificationTime( "/qt/font" );
     if (! settingsstamp.isValid())
 	return FALSE;
 

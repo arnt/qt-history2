@@ -54,6 +54,7 @@
 #include "qstyle.h"
 #include "qstylefactory.h"
 #include "qfile.h"
+#include "qmessagebox.h"
 #ifdef Q_WS_WIN
 #include "qinputcontext_p.h"
 #endif
@@ -1955,19 +1956,34 @@ void QApplication::closeAllWindows()
 	did_close = w->close();
     }
     QWidgetList *list = QApplication::topLevelWidgets();
-    for (w = list->first();  did_close && w;  ) {
+    for ( w = list->first(); did_close && w; ) {
 	if ( !w->isHidden() ) {
 	    did_close = w->close();
 	    delete list;
 	    list = QApplication::topLevelWidgets();
 	    w = list->first();
-	}
-	else
+	} else {
 	    w = list->next();
+	}
     }
     delete list;
 }
 
+#ifndef QT_NO_MESSAGEBOX
+/*!
+    Displays a simple message box about Qt. The message includes the
+    version number of Qt being used by the application.
+
+    This is useful for inclusion in the Help menu of an application.
+    See the examples/menu/menu.cpp example.
+
+    This function is a convenience slot for QMessageBox::aboutQt().
+*/
+void QApplication::aboutQt()
+{
+    QMessageBox::aboutQt( mainWidget() );
+}
+#endif // QT_NO_MESSAGEBOX
 
 /*!
   \fn void QApplication::lastWindowClosed()
