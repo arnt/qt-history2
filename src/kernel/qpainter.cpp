@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.cpp#199 $
+** $Id: //depot/qt/main/src/kernel/qpainter.cpp#200 $
 **
 ** Implementation of QPainter, QPen and QBrush classes
 **
@@ -2297,15 +2297,11 @@ void qt_format_text( const QFontMetrics& fm, int x, int y, int w, int h,
 	yp = h - nlines*fheight;
     else					// top aligned
 	yp = 0;
-    int overflow = -fm.minLeftBearing()-fm.minRightBearing();
     if ( (tf & Qt::AlignRight) == Qt::AlignRight ) {
-	maxwidth += overflow;
 	xp = w - maxwidth;			// right aligned
     } else if ( (tf & Qt::AlignHCenter) == Qt::AlignHCenter ) {
-	maxwidth += overflow;
 	xp = w/2 - maxwidth/2;			// centered text
     } else {
-	maxwidth += overflow;
 	xp = 0;				// left aligned
     }
 
@@ -2330,7 +2326,7 @@ void qt_format_text( const QFontMetrics& fm, int x, int y, int w, int h,
     if ( (tf & Qt::AlignBottom ) == Qt::AlignBottom )
 	vAlignFlags++;
 
-    if ( hAlignFlags > 1 )
+    if ( vAlignFlags > 1 )
 	qWarning("QPainter::drawText: More than one of AlignTop, AlignBottom\n"
 		 "\t\t    and AlignVCenter set in the tf parameter.");
 #endif // CHECK_RANGE
@@ -2392,13 +2388,13 @@ void qt_format_text( const QFontMetrics& fm, int x, int y, int w, int h,
 	}
 
 	if ( (tf & Qt::AlignRight) == Qt::AlignRight ) {
-	    xc = w - tw + fm.minRightBearing();
+	    xc = w - tw;
 	} else if ( (tf & Qt::AlignHCenter) == Qt::AlignHCenter ) {
-	    xc = w/2 - (tw-fm.minLeftBearing()-fm.minRightBearing())/2
-		-fm.minLeftBearing();
+	    xc = w/2 - tw/2;
 	} else {
-	    xc = -fm.minLeftBearing();
+	    xc = 0;
 	}
+	// ### Should adjust xc with the actual bearings
 
 	if ( pp )				// erase pixmap if gray text
 	    pp->fillRect( 0, 0, w, fheight, Qt::color0 );
