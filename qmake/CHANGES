@@ -1,3 +1,10 @@
+1.05a -
+
+  caching of more information (speed ups)
+  $$list() added to be used as a lambda function in qmake
+  equal() test added to test for equality
+  MSVC.net generator added [partial solution files in vcsubdirs]
+
 1.04a -
 
   subdirs supports multiple project files in a single directory.
