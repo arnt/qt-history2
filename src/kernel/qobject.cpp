@@ -2092,7 +2092,8 @@ QMetaObject* QObject::staticQtMetaObject()
     static const QMetaEnum::Item enum_2[] = {
 	{ "PlainText", (int) Qt::PlainText },
 	{ "RichText", (int) Qt::RichText },
-	{ "AutoText", (int) Qt::AutoText }
+	{ "AutoText", (int) Qt::AutoText },
+	{ "LogText", (int) Qt::LogText }
     };
 
     static const QMetaEnum::Item enum_3[] = {
