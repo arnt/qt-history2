@@ -73,6 +73,7 @@ This module is part of the \link editions.html Qt Enterprise Edition
 \row
 \i \l QSqlResult
 \i \l QSqlSelectCursor
+\i31 See also: \link sql-driver.html Supported Drivers\endlink
 \endtable
 
 \tableofcontents
@@ -213,11 +214,10 @@ connection.
 First we activate the driver by calling \l QSqlDatabase::addDatabase(),
 passing the name of the driver we wish to use for this connection. At
 the time of writing the available drivers are: QODBC3 (Open Database
-Connectivity), QOCI8 (Oracle 8 and 9), QTDS7 (Sybase Adaptive Server and 
-Microsoft SQL Server), QPSQL7 (PostgreSQL 6 and 7), QMYSQL3 (MySQL) and 
-QDB2 (IBM DB2).
-Note that some of these drivers aren't included in the Qt Free Edition; 
-see the \c README files for details.
+Connectivity, includes Microsoft SQL Server support), QOCI8 (Oracle 8 and 9),
+QTDS7 (Sybase Adaptive Server), QPSQL7 (PostgreSQL 6 and 7),
+QMYSQL3 (MySQL) and QDB2 (IBM DB2). Note that some of these drivers
+aren't included in the Qt Free Edition; see the \c README files for details.
 
 The connection which is created becomes the application's default 
 database connection and will be used by the Qt SQL classes if no 
