@@ -444,7 +444,11 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow  
 	Rect r;
 	SetRect(&r, crect.left(), crect.top(), crect.right(), crect.bottom());
 	WindowClass wclass = kSheetWindowClass;
-	if(testWFlags(WType_Dialog) || testWFlags(WType_Popup) )
+	if(testWFlags(WType_Popup) )
+	    wclass = kToolbarWindowClass;
+	else if(dialog && parentWidget() && !parentWidget()->topLevelWidget()->isDesktop())
+	    wclass = kFloatingWindowClass;
+	else if(dialog)
 	    wclass = kToolbarWindowClass;
 	else
 	    wclass = kDocumentWindowClass;
@@ -456,11 +460,12 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow  
 	    if ( testWFlags(WStyle_NormalBorder) || testWFlags( WStyle_DialogBorder) ) {
 		if(wclass == kToolbarWindowClass)
 		    wclass = kDocumentWindowClass;
-		if(wclass == kDocumentWindowClass ) 
+		if(wclass == kDocumentWindowClass || wclass == kFloatingWindowClass ) 
 		    wattr |= kWindowStandardDocumentAttributes;
 	    } else {
-
-		if(wclass == kDocumentWindowClass )
+		if(wclass == kFloatingWindowClass && testWFlags(WStyle_NoBorder))
+		    wclass = kToolbarWindowClass;
+		else if(wclass == kDocumentWindowClass )
 #ifdef Q_WS_MACX
 		    wclass = kSheetWindowClass;
 #else
@@ -480,35 +485,25 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow  
 	    WindowDefSpec wds;
 	    wds.defType = kWindowDefProcPtr;
 	    wds.u.defProc = NewWindowDefUPP(qt_wdef);
-	    CreateCustomWindow(&wds, wclass, wattr, &r, (WindowRef *)&id);
+	    if(CreateCustomWindow(&wds, wclass, wattr, &r, (WindowRef *)&id))
+		qDebug("Shouldn't happen %s:%d", __FILE__, __LINE__);
 	} else {
-	    CreateNewWindow(wclass, wattr, &r, (WindowRef *)&id);
+	    if(CreateNewWindow(wclass, wattr, &r, (WindowRef *)&id))
+		qDebug("Shouldn't happen %s:%d", __FILE__, __LINE__);
 	}
-	{
+	if(wclass == kFloatingWindowClass)
+	    ChangeWindowAttributes((WindowRef)id, 0, kWindowHideOnSuspendAttribute);
+#ifdef Q_WS_MACX
+	if(testWFlags(WStyle_StaysOnTop)) {
 	    createTLExtra();
 	    if(extra->topextra->group)
 		ReleaseWindowGroup(extra->topextra->group);
 	    CreateWindowGroup(kWindowActivationScopeNone, &extra->topextra->group);
+	    SetWindowGroupLevel(extra->topextra->group, kCGMaximumWindowLevel);
+	    SetWindowGroupParent(extra->topextra->group, GetWindowGroupOfClass(kAllWindowClasses));
 	    SetWindowGroup((WindowPtr)id, extra->topextra->group);
-
-	    SInt32 lvl = kCGNormalWindowLevel;
-	    WindowGroupRef gr = GetWindowGroupOfClass(wclass);
-	    if(gr)
-		lvl = GetWindowGroupLevel(gr, &lvl);
-	    if(parentWidget() && parentWidget()->topData()->group) {
-		gr = parentWidget()->topData()->group;
-		lvl = kCGFloatingWindowLevel;
-	    } else {
-		gr = GetWindowGroupOfClass(kAllWindowClasses);
-	    }
-	    if(testWFlags(WStyle_StaysOnTop))
-		lvl = kCGMaximumWindowLevelKey;
-	    else if(testWFlags(WShowModal) || popup)
-		lvl = kCGModalPanelWindowLevelKey;
-	    SetWindowGroupLevel(extra->topextra->group, lvl);
-	    SetWindowGroupParent(extra->topextra->group, gr);
 	}
-
+#endif
 	InstallWindowContentPaintProc((WindowPtr)id, NewWindowPaintUPP(qt_erase), 0, this);
 	if(testWFlags( WType_Popup )) 
 	    SetWindowModality((WindowPtr)id, kWindowModalityNone, NULL);
