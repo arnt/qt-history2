@@ -22,34 +22,34 @@ HEADERS =	qbttngrp.h	qbutton.h	qchkbox.h	qcombo.h      \
 		qpopmenu.h	qpushbt.h	qradiobt.h	qrangect.h    \
 		qslider.h	qscrbar.h	qtablevw.h	qtooltip.h    \
 		qmlined.h       qheader.h	qtabbar.h	qspinbox.h    \
-		qprogbar.h	qviewp.h	qvalidator.h
+		qprogbar.h	qscrollview.h	qvalidator.h
 SOURCES =	qbttngrp.cpp	qbutton.cpp	qchkbox.cpp	qcombo.cpp    \
 		qframe.cpp	qgrpbox.cpp	qlabel.cpp	qlcdnum.cpp   \
 		qlined.cpp	qlistbox.cpp	qmenubar.cpp	qmenudta.cpp  \
 		qpopmenu.cpp	qpushbt.cpp	qradiobt.cpp	qrangect.cpp  \
 		qslider.cpp	qscrbar.cpp	qtablevw.cpp	qtooltip.cpp  \
 		qmlined.cpp     qheader.cpp	qtabbar.cpp	qspinbox.cpp  \
-		qprogbar.cpp	qviewp.cpp	qvalidator.cpp
+		qprogbar.cpp	qscrollview.cpp	qvalidator.cpp
 OBJECTS =	qbttngrp.o	qbutton.o	qchkbox.o	qcombo.o      \
 		qframe.o	qgrpbox.o	qlabel.o	qlcdnum.o     \
 		qlined.o	qlistbox.o	qmenubar.o	qmenudta.o    \
 		qpopmenu.o	qpushbt.o	qradiobt.o	qrangect.o    \
 		qslider.o	qscrbar.o	qtablevw.o	qtooltip.o    \
 		qmlined.o       qheader.o	qtabbar.o	qspinbox.o    \
-		qprogbar.o	qviewp.o	qvalidator.o
+		qprogbar.o	qscrollview.o	qvalidator.o
 SRCMETA =	mbttngrp.cpp	mbutton.cpp	mchkbox.cpp	mcombo.cpp    \
 		mframe.cpp	mgrpbox.cpp	mlabel.cpp	mlcdnum.cpp   \
 		mlined.cpp	mlistbox.cpp	mmenubar.cpp	mpopmenu.cpp  \
 		mpushbt.cpp	mradiobt.cpp	mscrbar.cpp	mtablevw.cpp  \
 		mmlined.cpp	mtooltip.cpp	mslider.cpp	mheader.cpp   \
-		mtabbar.cpp	mspinbox.cpp	mprogbar.cpp	mviewp.cpp \
+		mtabbar.cpp	mspinbox.cpp	mprogbar.cpp	mscrollview.cpp \
 		minputvalidator.cpp
 OBJMETA =	mbttngrp.o	mbutton.o	mchkbox.o	mcombo.o      \
 		mframe.o	mgrpbox.o	mlabel.o	mlcdnum.o     \
 		mlined.o	mlistbox.o	mmenubar.o	mpopmenu.o    \
 		mpushbt.o	mradiobt.o	mscrbar.o	mtablevw.o    \
 		mmlined.o	mtooltip.o	mslider.o	mheader.o     \
-		mtabbar.o	mspinbox.o	mprogbar.o	mviewp.o \
+		mtabbar.o	mspinbox.o	mprogbar.o	mscrollview.o \
 		minputvalidator.o
 
 TARGET = $(LIBDIR)/libqwidgets.a
@@ -167,8 +167,8 @@ mspinbox.cpp: qspinbox.h
 mprogbar.cpp: qprogbar.h
 	moc qprogbar.h -o mprogbar.cpp
 
-mviewp.cpp: qviewp.h
-	moc qviewp.h -o mviewp.cpp
+mscrollview.cpp: qscrollview.h
+	moc qscrollview.h -o mscrollview.cpp
 
 minputvalidator.cpp: qvalidator.h
 	moc qvalidator.h -o minputvalidator.cpp
