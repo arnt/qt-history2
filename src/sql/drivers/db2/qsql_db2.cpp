@@ -793,7 +793,7 @@ bool QDB2Result::exec()
 	}
     }
     r = SQLExecute( d->hStmt );
-    if ( r != SQL_SUCCESS ) {
+    if ( r != SQL_SUCCESS && r != SQL_SUCCESS_WITH_INFO ) {
 #ifdef QT_CHECK_RANGE
 	qWarning( "QDB2Result::exec: Unable to execute statement: " + qDB2Warn( d ) );
 #endif
