@@ -871,7 +871,7 @@ while [ "$#" -gt 0 ]; do
 	    if [ "$VAR" = "style" ]; then
 		ERROR=yes
 		for d in $CFG_STYLE_AVAILABLE; do
-		    if [ "$VAL" == "$d" ]; then
+		    if [ "$VAL" = "$d" ]; then
 			ERROR=no
 			break
 		    fi
