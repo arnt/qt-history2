@@ -56,13 +56,17 @@ private:
     static QHash<QString, DomProperty*> propertyMap(const QList<DomProperty*> &properties);
     static QString domColor2QString(DomColor *c);
 
+    QString pixCall(const QString &pix) const;
+    QString trCall(const QString &str, const QString &className) const;
+
     void writePropertiesImpl(const QString &objName, const QString &objClass,
                              const QList<DomProperty*> &lst);
     void writeColorGroup(DomColorGroup *colorGroup, const QString &group, const QString &paletteName);
 
-    QString translate(const QString &text, const QString &className=QString::null);
+    QString translate(const QString &text, const QString &className=QString::null) const;
 
     void initializeListBox(DomWidget *w);
+    void initializeListView(DomWidget *w);
 
 private:
     Driver *driver;

@@ -90,6 +90,10 @@ void WriteIncludes::add(const QString &className)
     } else if (!m_includes.contains(header)) {
         m_includes.insert(header, true);
     }
+
+    if (className.mid(1) == QLatin1String("ListView")) {
+        m_includes.insert("qheader.h", true);
+    }
 }
 
 void WriteIncludes::accept(DomCustomWidget *node)

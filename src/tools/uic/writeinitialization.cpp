@@ -41,7 +41,6 @@ static QString fixString(const QString &str, bool encode=false)
 WriteInitialization::WriteInitialization(Driver *drv)
     : driver(drv), output(drv->output()), option(drv->option()),
       m_defaultMargin(0), m_defaultSpacing(0)
-
 {
 }
 
@@ -131,6 +130,10 @@ void WriteInitialization::accept(DomWidget *node)
 
     if (className == QLatin1String("QListBox")) {
         initializeListBox(node);
+    } else if (className.mid(1) == QLatin1String("ComboBox")) {
+        initializeListBox(node);
+    } else if (className.mid(1) == QLatin1String("ListView")) {
+        initializeListView(node);
     }
 
     if (node->elementLayout().isEmpty())
@@ -412,15 +415,6 @@ void WriteInitialization::writePropertiesImpl(const QString &objName, const QStr
             break;
         }
         case DomProperty::IconSet: {
-            QString s = p->elementIconSet();
-            if (!m_pixmapFunction.isEmpty()) {
-                s.prepend(m_pixmapFunction + "(\"");
-                s.append("\")");
-            } else {
-                s = QString("icon(%1_ID)").arg(s);
-            }
-            propertyValue = QString("QIconSet(%1)")
-                            .arg(s);
             break;
         }
         case DomProperty::Palette: {
@@ -580,7 +574,7 @@ void WriteInitialization::accept(DomTabStops *tabStops)
     }
 }
 
-QString WriteInitialization::translate(const QString &text, const QString &className)
+QString WriteInitialization::translate(const QString &text, const QString &className) const
 {
     if (option.translateFunction.size())
         return option.translateFunction + "(" + text + ")";
@@ -607,6 +601,7 @@ void WriteInitialization::accept(DomLayoutDefault *node)
 void WriteInitialization::initializeListBox(DomWidget *w)
 {
     QString varName = driver->findOrInsertWidget(w);
+    QString className = w->attributeClass();
 
     QList<DomItem*> items = w->elementItem();
     for (int i=0; i<items.size(); ++i) {
@@ -617,7 +612,76 @@ void WriteInitialization::initializeListBox(DomWidget *w)
         if (!text)
             continue;
 
-        output << option.indent << varName << "->insertItem(" << fixString(text->elementString()) << ");\n";
+        output << option.indent << varName << "->insertItem("
+            << translate(fixString(text->elementString()), className) << ");\n";
     }
+}
+
+void WriteInitialization::initializeListView(DomWidget *w)
+{
+    QString varName = driver->findOrInsertWidget(w);
+    QString className = w->attributeClass();
+
+    // columns
+    QList<DomColumn*> columns = w->elementColumn();
+    for (int i=0; i<columns.size(); ++i) {
+        DomColumn *column = columns.at(i);
+
+        QHash<QString, DomProperty*> properties = propertyMap(column->elementProperty());
+        DomProperty *text = properties.value("text");
+        DomProperty *pixmap = properties.value("pixmap");
+        DomProperty *clickable = properties.value("clickable");
+        DomProperty *resizable = properties.value("resizable");
+
+        QString txt = translate(fixString(text->elementString()), className);
+        output << option.indent << varName << "->addColumn(" << txt << ");\n";
+
+        if (pixmap) {
+            output << option.indent << varName << "->header()->setLabel("
+                   << varName << "->header()->count() - 1, " << pixCall(pixmap->elementIconSet()) << ", " << txt << ");\n";
+        }
+
+        if (!clickable)
+            output << option.indent << varName << "->header()->setClickEnabled(false, " << varName << "->header()->count() - 1);\n";
+        if (!resizable)
+            output << option.indent << varName << "->header()->setResizeEnabled(false, " << varName << "->header()->count() - 1);\n";
+    }
+
+    // items
+    QList<DomItem*> items = w->elementItem();
+    for (int i=0; i<items.size(); ++i) {
+        DomItem *item = items.at(i);
+
+        QString itemName = driver->findOrInsertName("__item");
+        output << "\n";
+        output << option.indent << "QListViewItem *" << itemName << " = new QListViewItem(" << varName << ");\n";
+
+        QList<DomProperty*> properties = item->elementProperty();
+        for (int i=0; i<properties.size(); ++i) {
+            DomProperty *p = properties.at(i);
+            if (p->attributeName() == QLatin1String("text"))
+                output << option.indent << itemName << "->setText(" << i << ", "
+                       << trCall(p->elementString(), className) << ");\n";
+        }
+    }
+}
+
+QString WriteInitialization::pixCall(const QString &pix) const
+{
+    QString s = pix;
+
+    if (!m_pixmapFunction.isEmpty()) {
+        s.prepend(m_pixmapFunction + "(\"");
+        s.append("\")");
+    } else {
+        s = QString("icon(%1_ID)").arg(s);
+    }
+
+    return QString("QIconSet(%1)").arg(s);
+}
+
+QString WriteInitialization::trCall(const QString &str, const QString &className) const
+{
+    return translate(fixString(str), className);
 }
 
