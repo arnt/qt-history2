@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/network/src/qftp.cpp#17 $
+** $Id: //depot/qt/main/extensions/network/src/qftp.cpp#18 $
 **
 ** Implementation of Network Extension Library
 **
@@ -91,7 +91,7 @@ void QFtp::close()
     }
 }
 
-void QFtp::listEntries( const QString &/*nameFilter*/, int /*filterSpec*/, int /*sortSpec*/ )
+void QFtp::listEntries()
 {
     if ( !isOpen() ) {
 	if ( url )

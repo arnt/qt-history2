@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/network/src/qftp.h#9 $
+** $Id: //depot/qt/main/extensions/network/src/qftp.h#10 $
 **
 ** Implementation of Network Extension Library
 **
@@ -45,15 +45,14 @@ public:
     virtual void openConnection( QUrl *url );
     virtual bool isOpen();
     virtual void close();
-    virtual void listEntries( const QString &nameFilter, int filterSpec = QDir::DefaultFilter,
-			      int sortSpec = QDir::DefaultSort );
+    virtual void listEntries();
     virtual void mkdir( const QString &dirname );
     virtual void remove( const QString &filename );
     virtual void rename( const QString &oldname, const QString &newname );
     virtual void copy( const QStringList &files, const QString &dest, bool move );
 
     virtual bool isUrlDir();
-    
+
     virtual int supportedOperations() const;
 
 protected:
