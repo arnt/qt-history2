@@ -195,6 +195,8 @@ int QGbkCodec::heuristicNameMatch(const char* hint) const
       	    return score + 6;
 	else if (qstricmp(p, "GB2312") == 0)
 	    return score + 7;
+	else if (qstricmp(p, "eucCN") == 0)
+	    return score + 4;
 	// there exists ja_JP.EUC, ko_KR.EUC, zh_CN.EUC and zh_TW.EUC
 	else if (qstricmp(p, "euc") == 0 && zh)
 	    return score + 4;
