@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#185 $
+** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#186 $
 **
 ** Implementation of QWidget and QWindow classes for Win32
 **
@@ -392,6 +392,10 @@ void QWidget::setFontSys()
 
 void QWidget::setMicroFocusHint(int x, int y, int width, int height)
 {
+    // For Windows logo compliance, applications must set the
+    // caret are the location is moved.
+    CreateCaret( winId(), 0, width, height );
+    SetCaretPos( x, y );
 }
 
 void QWidget::setSizeGrip(bool /* sizegrip */)
