@@ -217,7 +217,7 @@ void QSplashScreen::setPixmap(const QPixmap &pixmap)
     Returns the pixmap that is used in the splash screen. The image
     does not have any of the text drawn by message() calls.
 */
-QPixmap QSplashScreen::pixmap() const
+const QPixmap QSplashScreen::pixmap() const
 {
     return d->pixmap;
 }

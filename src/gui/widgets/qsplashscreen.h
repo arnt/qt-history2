@@ -28,7 +28,7 @@ public:
     virtual ~QSplashScreen();
 
     void setPixmap(const QPixmap &pixmap);
-    QPixmap pixmap() const;
+    const QPixmap pixmap() const;
     void finish(QWidget *w);
     void repaint();
 
