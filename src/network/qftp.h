@@ -104,7 +104,7 @@ signals:
     void finishedSuccess( int );
     void finishedError( int, const QString& );
     void doneSuccess();
-    void doneError();
+    void doneError( const QString& );
 
 protected:
     void parseDir( const QString &buffer, QUrlInfo &info ); // ### private in Qt 4.0?

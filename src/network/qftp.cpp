@@ -503,13 +503,13 @@ void QFtp::init()
 /*!  \fn void QFtp::finishedSuccess( int id )
   This signal is emitted ###
 */
-/*!  \fn void QFtp::finishedError( int id, const QString &details )
+/*!  \fn void QFtp::finishedError( int id, const QString &detail )
   This signal is emitted ###
 */
 /*!  \fn void QFtp::doneSuccess()
   This signal is emitted ###
 */
-/*!  \fn void QFtp::doneError()
+/*!  \fn void QFtp::doneError( const QString &detail )
   This signal is emitted ###
 */
 
@@ -620,7 +620,7 @@ void QFtp::piFinished( int status, const QString &text )
 	emit finishedError( c->id, text );
 
 	d->pending.clear();
-	emit doneError();
+	emit doneError( text );
     }
 }
 
