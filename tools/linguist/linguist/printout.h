@@ -15,7 +15,6 @@
 #define PRINTOUT_H
 
 #include <qfont.h>
-#include <qpaintdevicemetrics.h>
 #include <qpainter.h>
 #include <qrect.h>
 #include <qlist.h>
@@ -88,7 +87,6 @@ private:
     QFont f8;
     QFont f10;
     QFontMetrics *fmetrics;
-    QPaintDeviceMetrics pdmetrics;
     Rule nextRule;
     Paragraph cp;
     int page;

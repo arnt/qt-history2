@@ -17,7 +17,7 @@
 #include <qfontmetrics.h>
 
 PrintOut::PrintOut( QPrinter *printer )
-    : pr( printer ), pdmetrics( printer ), nextRule( NoRule ), page( 0 )
+    : pr( printer ), nextRule( NoRule ), page( 0 )
 {
     p.begin( pr );
     QFont f( "Arial" );
@@ -27,10 +27,10 @@ PrintOut::PrintOut( QPrinter *printer )
     f10.setPointSize( 10 );
     p.setFont( f10 );
     fmetrics = new QFontMetrics( p.fontMetrics() );
-    hmargin = 5 * pdmetrics.width() / pdmetrics.widthMM(); // 5 mm
-    vmargin = 5 * pdmetrics.height() / pdmetrics.heightMM(); // 5 mm
-    hsize = pdmetrics.width() - 2 * hmargin;
-    vsize = pdmetrics.height() - vmargin;
+    hmargin = 5 * printer->width() / printer->widthMM(); // 5 mm
+    vmargin = 5 * printer->height() / printer->heightMM(); // 5 mm
+    hsize = printer->width() - 2 * hmargin;
+    vsize = printer->height() - vmargin;
     dateTime = QDateTime::currentDateTime();
     breakPage();
     vsize -= voffset;
