@@ -62,6 +62,7 @@ static inline int qt_open(const char *pathname, int flags, mode_t mode)
 #else
 #include <unistd.h>
 #include <stdlib.h>
+#include <limits.h>
 #endif
 
 #if defined (Q_WS_X11) || defined (Q_WS_QWS)

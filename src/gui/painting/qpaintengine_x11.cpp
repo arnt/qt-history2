@@ -51,6 +51,7 @@
 
 #include <private/qt_x11_p.h>
 #include <private/qnumeric_p.h>
+#include <limits.h>
 
 #define d d_func()
 #define q q_func()
