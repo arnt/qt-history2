@@ -41,6 +41,8 @@ struct QPixmapData { // internal pixmap data
     int count;
     bool bitmap;
     QImage image;
+
+    QImage createBitmapImage(int w, int h);
 };
 
 #else // non windows

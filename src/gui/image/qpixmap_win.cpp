@@ -199,9 +199,7 @@ void QPixmap::resize_helper(const QSize &size)
         image = QImage(size, 32);
         image.fill(0);
     } else {
-        image = QImage(size.width(), size.height(), 1, 2, QImage::LittleEndian);
-        image.setColor(0, QColor(Qt::color0).rgba());
-        image.setColor(1, QColor(Qt::color1).rgba());
+        image = data->createBitmapImage(size.width(), size.height());
     }
 
     // Copy the data over
@@ -213,55 +211,70 @@ void QPixmap::resize_helper(const QSize &size)
     data->image = image;
 }
 
+
+const uchar qt_pixmap_bit_mask[] = { 0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40, 0x80 };
+
+
 QBitmap QPixmap::mask() const
 {
-    QBitmap bm;
-    return bm;
+    if (!data->image.hasAlphaBuffer() || data->image.depth() != 32) {
+        return QBitmap();
+    }
+
+    // Create image and setup color table
+    int w = data->image.width();
+    int h = data->image.height();
+    QImage mask = data->createBitmapImage(w, h);
+
+    // copy over the data
+    for (int y=0; y<h; ++y) {
+        QRgb *src = (QRgb *) data->image.scanLine(y);
+        uchar *dest = mask.scanLine(y);
+        memset(dest, 0, w / 8);
+        for (int x=0; x<w; ++x) {
+            if (qAlpha(*src) > 127)
+                dest[x>>3] |= qt_pixmap_bit_mask[x&7];
+            ++src;
+        }
+    }
+
+    return QBitmap::fromImage(mask);
 }
 
 void QPixmap::setMask(const QBitmap &mask)
 {
-    if (mask.size() != size()) {
+    if (mask.size().isEmpty()) {
+        data->image.setAlphaBuffer(false);
+
+    } else if (mask.size() != size()) {
         qWarning("QPixmap::setMask() mask size differs from pixmap size");
-        return;
-    }
 
-    QImage imageMask = mask.toImage();
+    } else {
 
-    Q_ASSERT(imageMask.depth() == 1);
+        QImage imageMask = mask.toImage();
+        int w = width();
+        int h = height();
 
-    int w = width();
-    int h = height();
+        switch (depth()) {
 
-    const uchar bit_mask[] = {
-        0x01,
-        0x02,
-        0x04,
-        0x08,
-        0x10,
-        0x20,
-        0x40,
-        0x80
-    };
+        case 1:
+            // ### self mask, do nothing for now
+            break;
 
-    switch (depth()) {
-
-    case 1:
-        // ### self mask, do nothing for now
-        break;
-
-    case 32:
-        for (int y=0; y<h; ++y) {
-            uchar *mscan = imageMask.scanLine(y);
-            QRgb *tscan = (QRgb *) data->image.scanLine(y);
-            for (int x=0; x<w; ++x) {
-                if (mscan[x/8] & bit_mask[x%8])
-                    tscan[x] |= 0xff000000;
-                else
-                    tscan[x] &= 0x00ffffff;
+        case 32:
+            data->image.setAlphaBuffer(true);
+            for (int y=0; y<h; ++y) {
+                uchar *mscan = imageMask.scanLine(y);
+                QRgb *tscan = (QRgb *) data->image.scanLine(y);
+                for (int x=0; x<w; ++x) {
+                    if (mscan[x>>3] & qt_pixmap_bit_mask[x&7])
+                        tscan[x] |= 0xff000000;
+                    else
+                        tscan[x] &= 0x00ffffff;
+                }
             }
+            break;
         }
-        break;
     }
 }
 
@@ -538,10 +551,8 @@ void QPixmap::init(int w, int h, int d, bool bitmap)
 
     data = new QPixmapData;
     if (d == 1) {
-        data->image = QImage(w, h, 1, 2, QImage::LittleEndian);
+        data->image = data->createBitmapImage(w, h);
         data->bitmap = true;
-        data->image.setColor(0, QColor(Qt::color0).rgba());
-        data->image.setColor(1, QColor(Qt::color1).rgba());
     } else {
         data->image = QImage(w, h, d);
         data->bitmap = false;
@@ -669,4 +680,12 @@ QPixmap QPixmap::fromWinHBITMAP(HBITMAP hbitmap)
     }
     qFree(data);
     return fromImage(result);
+}
+
+QImage QPixmapData::createBitmapImage(int w, int h)
+{
+    QImage bitmap(w, h, 1, 2, QImage::LittleEndian);
+    bitmap.setColor(0, QColor(Qt::color0).rgba());
+    bitmap.setColor(1, QColor(Qt::color1).rgba());
+    return bitmap;
 }
