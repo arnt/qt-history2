@@ -1571,6 +1571,7 @@ void
 MakefileGenerator::writeMocSrc(QTextStream &t, const QString &src)
 {
     QStringList &l = project->variables()[src];
+    bool preprocess = project->values("PREPROCH").contains(src);
     for(QStringList::Iterator it = l.begin(); it != l.end(); ++it) {
 	QString m = Option::fixPathToTargetOS(findMocDestination(*it));
 	if ( !m.isEmpty()) {
@@ -1578,8 +1579,28 @@ MakefileGenerator::writeMocSrc(QTextStream &t, const QString &src)
 	    if(!project->isActiveConfig("no_mocdepend"))
 		deps += "$(MOC) ";
 	    deps += (*it);
+	    if ( preprocess ) {
+		QString outdir = project->first("MOC_DIR");
+		QString tmpfile = m + ".t";
+		QString tmpfile2 = m + ".t2";
+		t << m << ": " << deps << "\n\t"
+		  << "$(CXX) -E -dM -DQT_NO_STL $(CXXFLAGS) $(INCPATH) " << (*it)
+		  << " > " << tmpfile << "\n\t"
+
+		  << "$(CXX) -E -DQT_H -DQT_MOC_CPP -DQT_NO_STL  $(CXXFLAGS) $(INCPATH) -include"
+		  << tmpfile << " " << (*it) << " -o " << tmpfile2 << "\n\t"
+		    
+		  << "$(MOC) " <<  " -f" << (*it) << " " << tmpfile2 <<" -o " << m << endl << endl;
+
+		// << "$(DEL_FILE) " << tmpfile << "\n\t"
+		// << "$(DEL_FILE) " << tmpfile2 << endl << endl;
+
+
+		
+	    } else {
 	    t << m << ": " << deps << "\n\t"
 	      << "$(MOC) " << (*it) << " -o " << m << endl << endl;
+	    }
 	}
     }
 }

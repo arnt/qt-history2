@@ -5,6 +5,7 @@ embedded {
 	CONFIG -= x11
 	LIBS -= -dl
 	KERNEL_P        = kernel
+	PREPROCH += HEADERS
 
 	!mac:HEADERS += $$KERNEL_H/qsoundqss_qws.h 
 	HEADERS += $$STYLES_H/qcompactstyle.h \
@@ -110,9 +111,6 @@ embedded {
 	else:DEFINES += QT_NO_FREETYPE
 
 	ft:DEFINES += FT_CONFIG_OPTION_SYSTEM_ZLIB
-
-	PRECOMPH=$$QT_SOURCE_TREE/include/qt.h
-
 
 	qnx6 { 
 		HEADERS += $$KERNEL_H/qwsgfx_qnx6.h
