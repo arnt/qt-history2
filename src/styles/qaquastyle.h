@@ -54,7 +54,6 @@
 #define Q_EXPORT_STYLE_AQUA Q_EXPORT
 #endif
 
-class QAquaStylePrivate;
 
 class Q_EXPORT_STYLE_AQUA QAquaStyle : public QWindowsStyle
 {
@@ -74,8 +73,9 @@ public:
     void drawButton( QPainter *p, int x, int y, int w, int h,
                      const QColorGroup &g, bool sunken = FALSE,
                      const QBrush *fill = 0 );
-    void drawToolButton( QToolButton * btn, QPainter * p );
-
+    void drawToolButton( QPainter *p, int x, int y, int w, int h,
+			 const QColorGroup &g, bool on, bool down, bool enabled, 
+			 bool autoRaised = FALSE, const QBrush *fill = 0 );
     QRect buttonRect( int x, int y, int w, int h) const;
     void  drawBevelButton( QPainter *p, int x, int y, int w, int h,
                            const QColorGroup &g, bool sunken = FALSE,
@@ -169,6 +169,14 @@ public:
                          const QColorGroup &, const QColor* bg = 0,
                          bool = FALSE );
 
+    void drawItem( QPainter *p, int x, int y, int w, int h,
+		   int flags, const QColorGroup &g, bool enabled,
+		   const QPixmap *pixmap, const QString& text,
+		   int len=-1, const QColor* penColor = 0 );
+    // progressbar
+    int  progressChunkWidth() const;
+    void drawProgressChunk( QPainter *p, int x, int y, int w, int h,
+			    const QColorGroup &g );
 
 protected:
     bool eventFilter( QObject *, QEvent * );
@@ -181,7 +189,8 @@ private:        // Disabled copy constructor and operator=
 #endif
     QPalette oldPalette;
 
-    QAquaStylePrivate *d;
+    class Private;
+    Private *d;
 };
 
 #endif // QT_NO_STYLE_AQUA

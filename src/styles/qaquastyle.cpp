@@ -6679,7 +6679,7 @@ static const char * const aqua_vsbr_tip_dis_up_xpm[] = {
 "*-'&&&$'%&{{{]",
 "*-%{&&$'%&{{{]"};
 /* XPM */
-static const char * const aqua_toolbtn_nrm_left_xpm[] = {
+static const char * const aqua_toolbtn_off_left_xpm[] = {
 "23 21 18 1",
 "       c None",
 ".      c #F7F7F7",
@@ -6721,45 +6721,45 @@ static const char * const aqua_toolbtn_nrm_left_xpm[] = {
 "@)*;''''''''''''''''''-",
 "-&#!~%%%%%%%%%%%%%%%%%%"};
 /* XPM */
-static const char * const aqua_toolbtn_nrm_mid_xpm[] = {
+static const char * const aqua_toolbtn_off_mid_xpm[] = {
 "23 21 14 1",
 "       c None",
-".      c #A5A5A5",
-"+      c #737373",
-"@      c #DEDEDE",
-"#      c #BDBDBD",
-"$      c #E7E7E7",
-"%      c #EFEFEF",
-"&      c #CECECE",
+".      c #737373",
+"+      c #A5A5A5",
+"@      c #BDBDBD",
+"#      c #DEDEDE",
+"$      c #CECECE",
+"%      c #E7E7E7",
+"&      c #EFEFEF",
 "*      c #C6C6C6",
 "=      c #9C9C9C",
-"-      c #F7F7F7",
-";      c #ADADAD",
+"-      c #ADADAD",
+";      c #F7F7F7",
 ">      c #B5B5B5",
 ",      c #FFFFFF",
-"......................+",
-"@@@@@@@@@@@@@@@@@@@@@@#",
-"$$%%%%%$%$%%%%$%%%%%%%&",
-"%%%%%%%%%%%%%%%%%%%%%%*",
-"%%%%%$$$$$$$$$$$$%%%%%#",
-"$$$$$$$$$$$$$$$$$$$$$$.",
-"$$$$$$$$$$$$$$$$$$$$$$=",
-"$$$$$$$$$$$$$$$$$$$$$$=",
-"%%%%%%%%%%%%%%%%%%%%%%.",
-"%%%%%%%%%%%%%%%%%%%%--;",
-"----%%%%%%%%%%%%%----->",
-"----------------------#",
-"----------------------*",
-",,,,-------------,,,,,&",
-",,,,,,,,,,,,,,,,,,,,,,&",
-",,,,,-,,,,,,,,,,,,,,,,@",
-",,,,,,,,,,,,,,,,,,,,,,@",
-",,,,,,,,,,,,,,,,,,,,,,@",
-",,,,,,,,,,,,,,,,,,,,,,@",
-",,,,,,,,,,,,,,,,,,,,,,@",
-"+++++++++++++++++++++++"};
+".+++++++++++++++++++++.",
+"@#####################@",
+"$%&&&&&%&%&&&&%&&&&&&&$",
+"*&&&&&&&&&&&&&&&&&&&&&*",
+"@&&&&%%%%%%%%%%%%&&&&&@",
+"+%%%%%%%%%%%%%%%%%%%%%+",
+"=%%%%%%%%%%%%%%%%%%%%%=",
+"=%%%%%%%%%%%%%%%%%%%%%=",
+"+&&&&&&&&&&&&&&&&&&&&&+",
+"-&&&&&&&&&&&&&&&&&&&;;-",
+">;;;&&&&&&&&&&&&&;;;;;>",
+"@;;;;;;;;;;;;;;;;;;;;;@",
+"*;;;;;;;;;;;;;;;;;;;;;*",
+"$,,,;;;;;;;;;;;;;,,,,,$",
+"$,,,,,,,,,,,,,,,,,,,,,$",
+"#,,,,;,,,,,,,,,,,,,,,,#",
+"#,,,,,,,,,,,,,,,,,,,,,#",
+"#,,,,,,,,,,,,,,,,,,,,,#",
+"#,,,,,,,,,,,,,,,,,,,,,#",
+"#,,,,,,,,,,,,,,,,,,,,,#",
+"......................."};
 /* XPM */
-static const char * const aqua_toolbtn_nrm_right_xpm[] = {
+static const char * const aqua_toolbtn_off_right_xpm[] = {
 "23 21 18 1",
 "       c None",
 ".      c #A5A5A5",
@@ -6800,63 +6800,130 @@ static const char * const aqua_toolbtn_nrm_right_xpm[] = {
 ",,,,,,,,,,,,,,,,,,,,,#+",
 ",,,,,,,,,,,,,,,,,,,;*'@",
 "))))))))))))))))))!~+=%"};
+
 /* XPM */
-static const char * const aqua_toolbtn_act_mid_xpm[] = {
-"23 21 33 1",
+static const char * const aqua_toolbtn_on_left_xpm[] = {
+"23 21 18 1",
 "       c None",
-".      c #1052AD",
+".      c #DEDEDE",
+"+      c #9C9C9C",
+"@      c #737373",
+"#      c #636363",
+"$      c #A5A5A5",
+"%      c #7B7B7B",
+"&      c #ADADAD",
+"*      c #B5B5B5",
+"=      c #BDBDBD",
+"-      c #6B6B6B",
+";      c #C6C6C6",
+">      c #CECECE",
+",      c #848484",
+"'      c #949494",
+")      c #8C8C8C",
+"!      c #D6D6D6",
+"~      c #E7E7E7",
+".+@###################@",
+"$#%+&*==========*======",
+"-@$=;;>>>;>>>>>>>>>>>>>",
+"#,*;>>>>>>>>>>>>>>>>>>;",
+"%'=;>;;;;;;;;;;;;;;;>>=",
+")$=;;;;;;;;;;;;;;;;;;;$",
+"'&=;;;;;;;;;;;;;;;;;;;+",
+"'&=;;;;;;;;;;;;;;;;;;;+",
+"$*;;;>>>>>>>>>>>>>>>>>$",
+"$=>>>>!!!!!!!!!!!!!!!!&",
+"&;>!!!!!!!!!!!!!!!!!!!*",
+"&;!!!!!!!!!!!!!!!!!!!!=",
+"&>!!.!................;",
+"&>....................>",
+"*>.~~~~~~~~~~~~~~~~~~~>",
+"*!.~~~~~~~~~~~~~~~~~~~.",
+"+!~~~~~~~~~~~~~~~~~~~~.",
+"%!~~~~~~~~~~~~~~~~~~~~.",
+"@&~~~~~~~~~~~~~~~~~~~~.",
+"&#,;~~~~~~~~~~~~~~~~~~.",
+";&)@@@@@@@@@@@@@@@@@@--"};
+/* XPM */
+static const char * const aqua_toolbtn_on_mid_xpm[] = {
+"23 21 14 1",
+"       c None",
+".      c #737373",
+"+      c #636363",
+"@      c #BDBDBD",
+"#      c #B5B5B5",
+"$      c #CECECE",
+"%      c #C6C6C6",
+"&      c #A5A5A5",
+"*      c #9C9C9C",
+"=      c #ADADAD",
+"-      c #D6D6D6",
+";      c #DEDEDE",
+">      c #E7E7E7",
+",      c #6B6B6B",
+".+++++++++++++++++++++.",
+"@@@@@@#@@@@@@@@@#@@@@@@",
+"$%$$$$$$$$$$$%$$$$$$$$$",
+"%$$$$$$$$$$$$$$$$$$$$$%",
+"@$$%%%%%%%%%%%%%%%%%$$@",
+"&%%%%%%%%%%%%%%%%%%%%%&",
+"*%%%%%%%%%%%%%%%%%%%%%*",
+"*%%%%%%%%%%%%%%%%%%%%%*",
+"&$%%%%%%%%%%%%$$$$$$$$&",
+"=$$$$$$$$$$$$$--------=",
+"#$$$$$$$$$$$$$--------#",
+"@---------------------@",
+"%;------------;;;;;;;;%",
+"$;;;;;;;;;;;;;;;;;;;;;$",
+"$>;;;;;;;;;;;;>>>>>>>>$",
+";>>>>>>>>>>>>>>>>>>>>>;",
+";>>>>>>>>>>>>>>>>>>>>>;",
+";>>>>>>>>>>>>>>>>>>>>>;",
+";>>>>>>>>>>>>>>>>>>>>>;",
+";>>>>>>>>>>>>>>>>>>>>>;",
+",,,,,,,,,,,,,,.......,,"};
+/* XPM */
+static const char * const aqua_toolbtn_on_right_xpm[] = {
+"23 21 18 1",
+"       c None",
+".      c #636363",
 "+      c #737373",
-"@      c #9CBDE7",
-"#      c #9CC6E7",
+"@      c #9C9C9C",
+"#      c #DEDEDE",
 "$      c #BDBDBD",
-"%      c #BDD6EF",
-"&      c #CECECE",
-"*      c #B5CEEF",
-"=      c #C6C6C6",
-"-      c #A5C6E7",
-";      c #84B5E7",
-">      c #84B5DE",
-",      c #A5A5A5",
-"'      c #73ADE7",
-")      c #9C9C9C",
-"!      c #7BB5EF",
-"~      c #7BB5E7",
-"{      c #84BDF7",
-"]      c #ADADAD",
-"^      c #8CC6FF",
-"/      c #8CC6F7",
-"(      c #B5B5B5",
-"_      c #94CEFF",
-":      c #9CD6FF",
-"<      c #A5DEFF",
-"[      c #ADDEFF",
-"}      c #B5E7FF",
-"|      c #ADE7FF",
-"1      c #DEDEDE",
-"2      c #B5EFFF",
-"3      c #BDF7FF",
-"4      c #BDFFFF",
-"......................+",
-"@#####@#####@#####@###$",
-"%%%%%%%%%%%%%%%%%%%%%%&",
-"**********************=",
-"----------------------$",
-";;;>>>>>>>>>>>>>>>;;;;,",
-"'''''''''''''''''''''')",
-"'''''''''''''''''''''')",
-"!!!~~~~~~~~~~~~~~~!!!!,",
-"{{{{{{{{{{{{{{{{{{{{{{]",
-"^^^^^^^^^^^^^^^^^/^^^^(",
-"______________________$",
-"::::::::::::::::::::::=",
-"<<<<<<<<<<<<<<<<<<<<<<&",
-"[[[[[[[[[[[[[[[[[[[[[[&",
-"}}}|||||||||||||||}}}}1",
-"22222222222222222222221",
-"33333333333333333333331",
-"43333343333343333343331",
-"33333333333333333333331",
-"+++++++++++++++++++++++"};
+"%      c #B5B5B5",
+"&      c #ADADAD",
+"*      c #7B7B7B",
+"=      c #A5A5A5",
+"-      c #C6C6C6",
+";      c #CECECE",
+">      c #6B6B6B",
+",      c #848484",
+"'      c #949494",
+")      c #8C8C8C",
+"!      c #D6D6D6",
+"~      c #E7E7E7",
+"....................+@#",
+"$$$$$$%$$$$$$$$$$%&@*.=",
+"--;;;;;;;;;;;-;;;--$=+>",
+";;;;;;;;;;;;;;;;;;;-%,.",
+";;;-----------------$'*",
+"--------------------$=)",
+"--------------------$&'",
+"--------------------$&'",
+";;-------------------%=",
+";;;;;;;;;;;;;;;;;;;;;$=",
+"!;;;;;;;;;;;;;;;;;;;;-&",
+"!!!!!!!!!!!!!!!!!!;!!-&",
+"##!!!!!!!!!!!!!!!!!!!;&",
+"#####################;&",
+"~~#################~#;%",
+"~~~~~~~~~~~~~~~~~~~~#!%",
+"~~~~~~~~~~~~~~~~~~~~~!@",
+"~~~~~~~~~~~~~~~~~~~~~!*",
+"~~~~~~~~~~~~~~~~~~~~~&+",
+"~~~~~~~~~~~~~~~~~~~-,.&",
+">>>>>>>>>>>>>>>>>>++)&-"};
+
 /* XPM */
 static const char * const aqua_chk_psh_f_xpm[] = {
 "15 18 27 1",
@@ -7050,6 +7117,419 @@ static const char * const aqua_chk_psh_t_xpm[] = {
 "; - ] 2.2.2.2.2.2.2.2.] - * G ",
 "$ . G % % % % % % % % G G . $ "};
 /* XPM */
+static const char * const aqua_chk_mid_t_xpm[] = {
+"15 18 164 2",
+"       c None",
+".      c #EAEAEA",
+"+      c #EEEEEE",
+"@      c #D6D6D6",
+"#      c #C3C3C3",
+"$      c #C2C2C3",
+"%      c #D1D1D1",
+"&      c #ECECEC",
+"*      c #F1F1F1",
+"=      c #D0D0D2",
+"-      c #272857",
+";      c #1E1F5E",
+">      c #393D7A",
+",      c #3F417D",
+"'      c #3F407D",
+")      c #3B3D7A",
+"!      c #3C3E79",
+"~      c #3E427D",
+"{      c #3A3C7A",
+"]      c #383964",
+"^      c #BCBCBC",
+"/      c #FFFFFF",
+"(      c #95959D",
+"_      c #233280",
+":      c #8F99CF",
+"<      c #B4BDE6",
+"[      c #BAC3EA",
+"}      c #BAC1EA",
+"|      c #B4BCE7",
+"1      c #B5BFE7",
+"2      c #BCC3E9",
+"3      c #BDC6EC",
+"4      c #AEB6E0",
+"5      c #939DD1",
+"6      c #72747E",
+"7      c #7F848F",
+"8      c #3868B3",
+"9      c #97BAE8",
+"0      c #AAC6EF",
+"a      c #A7C5F0",
+"b      c #A7C8F1",
+"c      c #A4C4F0",
+"d      c #A5C6F0",
+"e      c #AACAF3",
+"f      c #AFD0FA",
+"g      c #99BCE9",
+"h      c #616E86",
+"i      c #E7E7E7",
+"j      c #7B848F",
+"k      c #2E6FBA",
+"l      c #4D90D9",
+"m      c #4B8FDA",
+"n      c #5F7185",
+"o      c #E6E6E6",
+"p      c #838B94",
+"q      c #387AC2",
+"r      c #4186D2",
+"s      c #4489D3",
+"t      c #478BD3",
+"u      c #3F83CE",
+"v      c #6A7989",
+"w      c #80878E",
+"x      c #5387C2",
+"y      c #639DDE",
+"z      c #609BDC",
+"A      c #5F9DE1",
+"B      c #619ADB",
+"C      c #5791CD",
+"D      c #6B7987",
+"E      c #E3E3E3",
+"F      c #80868D",
+"G      c #6C9CCE",
+"H      c #7CB1EB",
+"I      c #81B9F6",
+"J      c #000000",
+"K      c #7DB2ED",
+"L      c #70A1D8",
+"M      c #6F7A87",
+"N      c #DDDDDD",
+"O      c #858B91",
+"P      c #7FACD8",
+"Q      c #8FBDEE",
+"R      c #93C7FE",
+"S      c #94C6FB",
+"T      c #90C0F1",
+"U      c #84B1DE",
+"V      c #75808B",
+"W      c #8E9399",
+"X      c #8FB6DF",
+"Y      c #9FCCF8",
+"Z      c #A3D3FF",
+"`      c #6C8EAF",
+" .     c #6C8EB0",
+"..     c #6C8DB0",
+"+.     c #6B8DAF",
+"@.     c #6B8BAE",
+"#.     c #9FCBF8",
+"$.     c #91BAE5",
+"%.     c #7E8892",
+"&.     c #898D92",
+"*.     c #99C0E7",
+"=.     c #ADD8FC",
+"-.     c #B3E0FF",
+";.     c #B9E7FF",
+">.     c #B2DEFD",
+",.     c #AED8FD",
+"'.     c #9DC6F0",
+").     c #7B848C",
+"!.     c #85898E",
+"~.     c #A3C7EE",
+"{.     c #B9E6FD",
+"].     c #C6F3FE",
+"^.     c #C4F2FE",
+"/.     c #C5F2FD",
+"(.     c #BBE5FC",
+"_.     c #A7CEF8",
+":.     c #7B838B",
+"<.     c #8C9094",
+"[.     c #A1C6E4",
+"}.     c #D2FBFE",
+"|.     c #DAFEFD",
+"1.     c #DAFFFF",
+"2.     c #D7FBFC",
+"3.     c #DCFFFD",
+"4.     c #CEFBFE",
+"5.     c #AAD0F1",
+"6.     c #E1E1E1",
+"7.     c #A7A8A9",
+"8.     c #788591",
+"9.     c #9CB9C0",
+"0.     c #A4C5C8",
+"a.     c #A2C2C7",
+"b.     c #A1C1C8",
+"c.     c #A7C7CD",
+"d.     c #A5C3CA",
+"e.     c #A3C3C7",
+"f.     c #A2C1C8",
+"g.     c #A4C3C8",
+"h.     c #9DBAC5",
+"i.     c #7A8C98",
+"j.     c #999A9D",
+"k.     c #EBEBEB",
+"l.     c #B9B9B9",
+"m.     c #7F7F7F",
+"n.     c #5C5C5C",
+"o.     c #545454",
+"p.     c #525252",
+"q.     c #5A5A5A",
+"r.     c #787878",
+"s.     c #B0B0B0",
+"t.     c #DFDFDF",
+"u.     c #CECECE",
+"v.     c #ADADAE",
+"w.     c #99999A",
+"x.     c #919292",
+"y.     c #979798",
+"z.     c #A8A8A9",
+"A.     c #C9C9C9",
+"B.     c #E2E2E2",
+"C.     c #DBDBDB",
+"D.     c #D9D9D9",
+"E.     c #D8D8D8",
+"F.     c #E9E9E9",
+"G.     c #EFEFEF",
+". . . . . . . . . . . . . . . ",
+"+ @ # $ $ $ $ $ $ $ $ $ % & * ",
+"= - ; > , ' ) ! ' ~ { ; ] ^ / ",
+"( _ : < [ } | 1 2 3 4 5 _ 6 * ",
+"7 8 9 0 a b c d e f 0 g 8 h i ",
+"j k l m m m m m m m m l k n o ",
+"p q r s s s s s s s s t u v * ",
+"w x y z A A A A A A A B C D E ",
+"F G H I J J J J J J I K L M N ",
+"O P Q R J J J J J J S T U V E ",
+"W X Y Z `  ...+.+.@.Z #.$.%.* ",
+"&.*.=.-.;.;.;.;.;.;.>.,.'.).E ",
+"!.~.{.].^.]././.].].^.(._.:.N ",
+"<.[.}.|.|.|.|.|.1.2.3.4.5.w 6.",
+"7.8.9.0.a.b.c.d.e.f.g.h.i.j.k.",
+"l.m.n.o.p.p.p.p.p.p.o.q.r.s.t.",
+"u.v.w.x.x.x.x.x.x.x.x.y.z.A.6.",
+". B.C.D.E.E.E.E.E.E.D.C.6.F.G."};
+/* XPM */
+static const char * const aqua_chk_mid_psh_t_xpm[] = {
+"15 18 160 2",
+"       c None",
+".      c #EAEAEA",
+"+      c #EEEEEE",
+"@      c #D6D6D6",
+"#      c #C3C3C3",
+"$      c #C2C2C2",
+"%      c #D1D1D1",
+"&      c #ECECEC",
+"*      c #F1F1F1",
+"=      c #D0D0D0",
+"-      c #262635",
+";      c #000036",
+">      c #111552",
+",      c #171955",
+"'      c #171855",
+")      c #131552",
+"!      c #141651",
+"~      c #161A55",
+"{      c #121452",
+"]      c #363645",
+"^      c #BCBCBC",
+"/      c #FFFFFF",
+"(      c #959595",
+"_      c #000A58",
+":      c #6873A8",
+"<      c #8D96BF",
+"[      c #939BC3",
+"}      c #939AC3",
+"|      c #8D95C0",
+"1      c #8E98C0",
+"2      c #959BC2",
+"3      c #969EC5",
+"4      c #878FB9",
+"5      c #6670A3",
+"6      c #727272",
+"7      c #7F7F7F",
+"8      c #10408B",
+"9      c #7093C1",
+"0      c #829EC7",
+"a      c #7F9DC8",
+"b      c #7FA0C9",
+"c      c #7C9CC8",
+"d      c #7D9EC8",
+"e      c #82A2CB",
+"f      c #87A8D2",
+"g      c #7396C2",
+"h      c #60606E",
+"i      c #E7E7E7",
+"j      c #79797B",
+"k      c #064792",
+"l      c #2C68AD",
+"m      c #2C6FB9",
+"n      c #2F71BB",
+"o      c #2B6CB3",
+"p      c #2A69B1",
+"q      c #2E6AB2",
+"r      c #5B5B6C",
+"s      c #E6E6E6",
+"t      c #7E7E80",
+"u      c #10529A",
+"v      c #185DA8",
+"w      c #145AA7",
+"x      c #5F6070",
+"y      c #76767A",
+"z      c #2B5F9A",
+"A      c #3B76B7",
+"B      c #3C7BC1",
+"C      c #3972B4",
+"D      c #58606E",
+"E      c #E3E3E3",
+"F      c #727279",
+"G      c #4474A6",
+"H      c #558AC4",
+"I      c #5991CE",
+"J      c #000000",
+"K      c #568BC6",
+"L      c #4879B0",
+"M      c #56616D",
+"N      c #DDDDDD",
+"O      c #76777D",
+"P      c #5784B0",
+"Q      c #6896C7",
+"R      c #6B9FD6",
+"S      c #6C9ED3",
+"T      c #6899CA",
+"U      c #5C89B6",
+"V      c #5C6771",
+"W      c #7D7F84",
+"X      c #678EB7",
+"Y      c #78A4D0",
+"Z      c #82AFD7",
+"`      c #446687",
+" .     c #446688",
+"..     c #446588",
+"+.     c #436587",
+"@.     c #436386",
+"#.     c #78A3D0",
+"$.     c #6992BD",
+"%.     c #656F79",
+"&.     c #76797E",
+"*.     c #7198BF",
+"=.     c #92BFD6",
+"-.     c #91BFD7",
+";.     c #759EC8",
+">.     c #626A73",
+",.     c #72757A",
+"'.     c #7B9FC6",
+").     c #A0CCD7",
+"!.     c #9ECBD6",
+"~.     c #9DCAD5",
+"{.     c #9CCAD6",
+"].     c #7FA6D0",
+"^.     c #616A72",
+"/.     c #7D7D81",
+"(.     c #799EBC",
+"_.     c #AAD3D6",
+":.     c #B2D6D5",
+"<.     c #B2D7D7",
+"[.     c #B2D6D6",
+"}.     c #B4D7D5",
+"|.     c #A7D3D6",
+"1.     c #82A8C9",
+"2.     c #696F76",
+"3.     c #E1E1E1",
+"4.     c #A3A3A3",
+"5.     c #576570",
+"6.     c #76949B",
+"7.     c #7F9FA3",
+"8.     c #7D9DA1",
+"9.     c #7C9CA2",
+"0.     c #81A1A7",
+"a.     c #7F9EA4",
+"b.     c #7E9EA1",
+"c.     c #7D9CA2",
+"d.     c #7E9EA3",
+"e.     c #77959F",
+"f.     c #586A77",
+"g.     c #919191",
+"h.     c #EBEBEB",
+"i.     c #B9B9B9",
+"j.     c #5C5C5C",
+"k.     c #545454",
+"l.     c #525252",
+"m.     c #5A5A5A",
+"n.     c #787878",
+"o.     c #B0B0B0",
+"p.     c #DFDFDF",
+"q.     c #CECECE",
+"r.     c #ADADAD",
+"s.     c #989898",
+"t.     c #909090",
+"u.     c #969696",
+"v.     c #A8A8A8",
+"w.     c #C9C9C9",
+"x.     c #E2E2E2",
+"y.     c #DBDBDB",
+"z.     c #D9D9D9",
+"A.     c #D8D8D8",
+"B.     c #E9E9E9",
+"C.     c #EFEFEF",
+". . . . . . . . . . . . . . . ",
+"+ @ # $ $ $ $ $ $ $ $ $ % & * ",
+"= - ; > , ' ) ! ' ~ { ; ] ^ / ",
+"( _ : < [ } | 1 2 3 4 5 _ 6 * ",
+"7 8 9 0 a b c d e f f g 8 h i ",
+"j k l m n o p p p p p q k r s ",
+"t u v w w w w w w w w v u x * ",
+"y z A B B B B B B B B C z D E ",
+"F G H I J J J J J J I K L M N ",
+"O P Q R J J J J J J S T U V E ",
+"W X Y Z `  ...+.+.@.Z #.$.%.* ",
+"&.*.=.-.-.-.-.-.-.-.-.=.;.>.E ",
+",.'.).!.!.!.~.~.!.{.!.).].^.N ",
+"/.(._.:.<.<.<.<.<.[.}.|.1.2.3.",
+"4.5.6.7.8.9.0.a.b.c.d.e.f.g.h.",
+"i.7 j.k.l.l.l.l.l.l.k.m.n.o.p.",
+"q.r.s.t.t.t.t.t.t.t.t.u.v.w.3.",
+". x.y.z.A.A.A.A.A.A.z.y.3.B.C."};
+/* XPM */
+static const char * const aqua_chk_mid_dis_t_xpm[] = {
+"15 18 25 1",
+"       c None",
+".      c #E7E7E7",
+"+      c #EFEFEF",
+"@      c #D6D6D6",
+"#      c #BDBDBD",
+"$      c #CECECE",
+"%      c #4A4A4A",
+"&      c #525252",
+"*      c #6B6B6B",
+"=      c #424242",
+"-      c #FFFFFF",
+";      c #8C8C8C",
+">      c #ADADAD",
+",      c #737373",
+"'      c #7B7B7B",
+")      c #848484",
+"!      c #9C9C9C",
+"~      c #DEDEDE",
+"{      c #A5A5A5",
+"]      c #B5B5B5",
+"^      c #C6C6C6",
+"/      c #F7F7F7",
+"(      c #000000",
+"_      c #949494",
+":      c #5A5A5A",
+"...............",
+"+@##########$++",
+"@%&********&=#-",
+";*>$$$$$$$$>,'+",
+")!$~@~@@~~@${,.",
+"){]#^^^#^^#]>'.",
+";{]########]>'/",
+")>#^^$^^$^^^]'.",
+"'#^@((((((@$#,~",
+";^@~((((((~@^'.",
+"_$~.''''''.~$)/",
+";@.////////.@'.",
+")@+--------/~'~",
+")$----------~)~",
+"{)>#]]]]]]#];!+",
+"],:&%%%%%%&:,>~",
+"${_;;;;;;;;_{^~",
+"+.~@@@@@@@@~~.+"};
+
+/* XPM */
 static const char * const aqua_radio_psh_f_xpm[] = {
 "14 17 29 1",
 "       c None",
@@ -7239,454 +7719,60 @@ static const char * const aqua_radio_psh_t_xpm[] = {
 "/ / . + $ g > > g $ f . / / ",
 ". . . . # + + + + # . . . . "};
 /* XPM */
-static const char * const aqua_toolbtn_psh_mid_xpm[] = {
-"23 21 14 1",
-"       c None",
-".      c #636363",
-"+      c #737373",
-"@      c #BDBDBD",
-"#      c #B5B5B5",
-"$      c #C6C6C6",
-"%      c #CECECE",
-"&      c #A5A5A5",
-"*      c #9C9C9C",
-"=      c #D6D6D6",
-"-      c #ADADAD",
-";      c #DEDEDE",
-">      c #E7E7E7",
-",      c #6B6B6B",
-"......................+",
-"@@@@@@#@@@@@@@@@#@@@@@@",
-"$$%%%%%%%%%%%$%%%%%%%%%",
-"%%%%%%%%%%%%%%%%%%%%%%$",
-"%%%$$$$$$$$$$$$$$$$$%%@",
-"$$$$$$$$$$$$$$$$$$$$$$&",
-"$$$$$$$$$$$$$$$$$$$$$$*",
-"$$$$$$$$$$$$$$$$$$$$$$*",
-"%%$$$$$$$$$$$$%%%%%%%%&",
-"%%%%%%%%%%%%%%========-",
-"=%%%%%%%%%%%%%========#",
-"======================@",
-";;============;;;;;;;;$",
-";;;;;;;;;;;;;;;;;;;;;;%",
-">>;;;;;;;;;;;;>>>>>>>>%",
-">>>>>>>>>>>>>>>>>>>>>>;",
-">>>>>>>>>>>>>>>>>>>>>>;",
-">>>>>>>>>>>>>>>>>>>>>>;",
-">>>>>>>>>>>>>>>>>>>>>>;",
-">>>>>>>>>>>>>>>>>>>>>>;",
-",,,,,,,,,,,,,,+++++++,,"};
-/* XPM */
-static const char * const aqua_toolbtn_psh_right_xpm[] = {
-"23 21 18 1",
-"       c None",
-".      c #636363",
-"+      c #737373",
-"@      c #9C9C9C",
-"#      c #DEDEDE",
-"$      c #BDBDBD",
-"%      c #B5B5B5",
-"&      c #ADADAD",
-"*      c #7B7B7B",
-"=      c #A5A5A5",
-"-      c #C6C6C6",
-";      c #CECECE",
-">      c #6B6B6B",
-",      c #848484",
-"'      c #949494",
-")      c #8C8C8C",
-"!      c #D6D6D6",
-"~      c #E7E7E7",
-"....................+@#",
-"$$$$$$%$$$$$$$$$$%&@*.=",
-"--;;;;;;;;;;;-;;;--$=+>",
-";;;;;;;;;;;;;;;;;;;-%,.",
-";;;-----------------$'*",
-"--------------------$=)",
-"--------------------$&'",
-"--------------------$&'",
-";;-------------------%=",
-";;;;;;;;;;;;;;;;;;;;;$=",
-"!;;;;;;;;;;;;;;;;;;;;-&",
-"!!!!!!!!!!!!!!!!!!;!!-&",
-"##!!!!!!!!!!!!!!!!!!!;&",
-"#####################;&",
-"~~#################~#;%",
-"~~~~~~~~~~~~~~~~~~~~#!%",
-"~~~~~~~~~~~~~~~~~~~~~!@",
-"~~~~~~~~~~~~~~~~~~~~~!*",
-"~~~~~~~~~~~~~~~~~~~~~&+",
-"~~~~~~~~~~~~~~~~~~~-,.&",
-">>>>>>>>>>>>>>>>>>++)&-"};
-/* XPM */
-static const char * const aqua_toolbtn_psh_left_xpm[] = {
-"23 21 18 1",
-"       c None",
-".      c #DEDEDE",
-"+      c #9C9C9C",
-"@      c #737373",
-"#      c #636363",
-"$      c #A5A5A5",
-"%      c #7B7B7B",
-"&      c #ADADAD",
-"*      c #B5B5B5",
-"=      c #BDBDBD",
-"-      c #6B6B6B",
-";      c #C6C6C6",
-">      c #CECECE",
-",      c #848484",
-"'      c #949494",
-")      c #8C8C8C",
-"!      c #D6D6D6",
-"~      c #E7E7E7",
-".+@###################@",
-"$#%+&*==========*======",
-"-@$=;;>>>;>>>>>>>>>>>>>",
-"#,*;>>>>>>>>>>>>>>>>>>;",
-"%'=;>;;;;;;;;;;;;;;;>>=",
-")$=;;;;;;;;;;;;;;;;;;;$",
-"'&=;;;;;;;;;;;;;;;;;;;+",
-"'&=;;;;;;;;;;;;;;;;;;;+",
-"$*;;;>>>>>>>>>>>>>>>>>$",
-"$=>>>>!!!!!!!!!!!!!!!!&",
-"&;>!!!!!!!!!!!!!!!!!!!*",
-"&;!!!!!!!!!!!!!!!!!!!!=",
-"&>!!.!................;",
-"&>....................>",
-"*>.~~~~~~~~~~~~~~~~~~~>",
-"*!.~~~~~~~~~~~~~~~~~~~.",
-"+!~~~~~~~~~~~~~~~~~~~~.",
-"%!~~~~~~~~~~~~~~~~~~~~.",
-"@&~~~~~~~~~~~~~~~~~~~~.",
-"&#,;~~~~~~~~~~~~~~~~~~.",
-";&)@@@@@@@@@@@@@@@@@@--"};
-/* XPM */
-static const char * const aqua_toolbtn_act_left_xpm[] = {
-"23 21 109 2",
-"       c None",
-".      c #DEDEDE",
-"+      c #9C9CB5",
-"@      c #52639C",
-"#      c #184294",
-"$      c #08429C",
-"%      c #084AA5",
-"&      c #0852A5",
-"*      c #1052A5",
-"=      c #1052AD",
-"-      c #737373",
-";      c #9C9CBD",
-">      c #294294",
-",      c #215AAD",
-"'      c #528CC6",
-")      c #84ADD6",
-"!      c #94BDDE",
-"~      c #9CBDE7",
-"{      c #9CC6E7",
-"]      c #BDBDBD",
-"^      c #4A5A94",
-"/      c #00429C",
-"(      c #5A8CC6",
-"_      c #ADCEE7",
-":      c #B5CEE7",
-"<      c #BDCEEF",
-"[      c #BDD6EF",
-"}      c #CECECE",
-"|      c #103994",
-"1      c #0852AD",
-"2      c #7BA5DE",
-"3      c #A5C6E7",
-"4      c #B5CEEF",
-"5      c #C6C6C6",
-"6      c #00399C",
-"7      c #2163BD",
-"8      c #73A5DE",
-"9      c #0042A5",
-"0      c #216BBD",
-"a      c #5A94D6",
-"b      c #6BA5DE",
-"c      c #7BADDE",
-"d      c #84B5E7",
-"e      c #84B5DE",
-"f      c #A5A5A5",
-"g      c #3173C6",
-"h      c #4A8CD6",
-"i      c #5A9CDE",
-"j      c #73ADDE",
-"k      c #73ADE7",
-"l      c #9C9C9C",
-"m      c #105AB5",
-"n      c #397BCE",
-"o      c #5294DE",
-"p      c #639CDE",
-"q      c #6BA5E7",
-"r      c #7BB5EF",
-"s      c #428CD6",
-"t      c #639CE7",
-"u      c #73ADEF",
-"v      c #7BB5E7",
-"w      c #84BDF7",
-"x      c #ADADAD",
-"y      c #296BC6",
-"z      c #6BA5EF",
-"A      c #84BDEF",
-"B      c #8CBDF7",
-"C      c #8CC6FF",
-"D      c #B5B5B5",
-"E      c #317BCE",
-"F      c #5A9CE7",
-"G      c #73B5F7",
-"H      c #84BDFF",
-"I      c #94CEFF",
-"J      c #63A5EF",
-"K      c #7BBDFF",
-"L      c #9CCEFF",
-"M      c #9CD6FF",
-"N      c #3984D6",
-"O      c #6BADF7",
-"P      c #84C6FF",
-"Q      c #A5DEFF",
-"R      c #428CDE",
-"S      c #6BADFF",
-"T      c #A5D6FF",
-"U      c #ADDEFF",
-"V      c #73BDFF",
-"W      c #8CCEFF",
-"X      c #9CDEFF",
-"Y      c #A5E7FF",
-"Z      c #A5DEF7",
-"`      c #B5E7FF",
-" .     c #4A94D6",
-"..     c #94D6FF",
-"+.     c #ADE7FF",
-"@.     c #B5EFFF",
-"#.     c #5A84B5",
-"$.     c #ADEFFF",
-"%.     c #BDEFFF",
-"&.     c #BDF7FF",
-"*.     c #8494A5",
-"=.     c #94DEFF",
-"-.     c #B5F7FF",
-";.     c #BDFFFF",
-">.     c #7B8C9C",
-",.     c #7BA5BD",
-"'.     c #94CEEF",
-").     c #8C8C8C",
-"!.     c #6B6B6B",
-". + @ # $ % & * = = = = * = = = = = = = = = - ",
-"; > , ' ) ! ~ ~ ~ ~ ~ { { { { { { { { ~ { { ] ",
-"^ / ( ~ _ : < [ [ [ [ [ [ [ [ [ [ [ [ [ [ [ } ",
-"| 1 2 3 _ _ : 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 5 ",
-"6 7 8 ! ~ ~ { ~ ~ ~ ~ 3 3 3 ~ ~ ~ ~ 3 3 3 3 ] ",
-"9 0 a b 8 c c d d d d d d d d d d d d e d d f ",
-"1 g h i b b b b b b b b b b b b b b b j k k l ",
-"1 g h i b b b b b b b b b b b b b b b b k k l ",
-"m n o p q k r r r r r r r r r r r r r r r r f ",
-"0 s t u r r v v v v v v v v v v v v v w w w x ",
-"y o z r w w A B B B B B B B B B B B B B C C D ",
-"E F G H C C I I I I I I I I I I I I I I I I ] ",
-"E J K C I L M M M M M M M M M M M M M M M M 5 ",
-"N O P I M M Q Q Q Q Q Q Q Q Q Q Q Q Q Q Q Q } ",
-"R S C M M T Q Q Q Q Q Q Q Q Q Q Q Q Q Q U U } ",
-"R V W X Y Q Z ` ` ` ` ` ` ` ` ` ` ` ` ` ` ` . ",
-" .V ..Y +.` ` @.@.@.@.@.@.@.@.@.@.@.@.@.@.@.. ",
-"#.K ..+.$.@.@.@.@.@.@.%.&.%.@.@.@.@.%.&.&.&.. ",
-"*.b =.+.-.-.&.;.&.&.&.&.&.&.&.&.&.&.&.;.&.&.. ",
-"x >.,.'.$.&.&.&.&.&.&.&.&.&.&.&.&.&.&.&.&.&.. ",
-"5 x ).- - !.!.!.!.!.!.!.!.!.!.!.!.!.!.!.!.!.!."};
-/* XPM */
-static const char * const aqua_toolbtn_act_right_xpm[] = {
-"23 21 110 2",
-"       c None",
-".      c #1052AD",
-"+      c #1052A5",
-"@      c #0852A5",
-"#      c #084AA5",
-"$      c #08429C",
-"%      c #184294",
-"&      c #52639C",
-"*      c #9C9CB5",
-"=      c #DEDEDE",
-"-      c #9CC6E7",
-";      c #9CBDE7",
-">      c #94BDDE",
-",      c #84ADD6",
-"'      c #528CC6",
-")      c #215AAD",
-"!      c #294294",
-"~      c #9C9CBD",
-"{      c #BDD6EF",
-"]      c #BDCEEF",
-"^      c #B5CEE7",
-"/      c #ADCEE7",
-"(      c #5A8CC6",
-"_      c #00429C",
-":      c #4A5A94",
-"<      c #B5CEEF",
-"[      c #A5C6E7",
-"}      c #7BA5DE",
-"|      c #0852AD",
-"1      c #103994",
-"2      c #9CBDDE",
-"3      c #94BDE7",
-"4      c #73A5DE",
-"5      c #2163BD",
-"6      c #00399C",
-"7      c #84ADE7",
-"8      c #84B5E7",
-"9      c #84B5DE",
-"0      c #7BA5D6",
-"a      c #6BA5DE",
-"b      c #5A94D6",
-"c      c #216BBD",
-"d      c #0042A5",
-"e      c #73ADE7",
-"f      c #73ADDE",
-"g      c #6BA5D6",
-"h      c #639CD6",
-"i      c #5A9CDE",
-"j      c #4A8CD6",
-"k      c #3173C6",
-"l      c #6394C6",
-"m      c #639CCE",
-"n      c #7BB5EF",
-"o      c #6B9CD6",
-"p      c #639CDE",
-"q      c #5294DE",
-"r      c #397BCE",
-"s      c #105AB5",
-"t      c #84BDF7",
-"u      c #84B5EF",
-"v      c #73ADEF",
-"w      c #639CE7",
-"x      c #428CD6",
-"y      c #8CC6FF",
-"z      c #8CBDF7",
-"A      c #7BADE7",
-"B      c #6BA5EF",
-"C      c #296BC6",
-"D      c #94CEFF",
-"E      c #84BDFF",
-"F      c #73B5F7",
-"G      c #5A9CE7",
-"H      c #317BCE",
-"I      c #9CD6FF",
-"J      c #94C6FF",
-"K      c #7BBDFF",
-"L      c #63A5EF",
-"M      c #A5DEFF",
-"N      c #8CCEFF",
-"O      c #84C6FF",
-"P      c #6BADF7",
-"Q      c #3984D6",
-"R      c #ADDEFF",
-"S      c #94D6FF",
-"T      c #6BADFF",
-"U      c #428CDE",
-"V      c #B5E7FF",
-"W      c #ADE7FF",
-"X      c #9CDEFF",
-"Y      c #73BDFF",
-"Z      c #BDEFFF",
-"`      c #B5EFFF",
-" .     c #ADE7F7",
-"..     c #A5E7FF",
-"+.     c #4A94D6",
-"@.     c #BDF7FF",
-"#.     c #ADEFFF",
-"$.     c #5A84B5",
-"%.     c #BDFFFF",
-"&.     c #B5F7FF",
-"*.     c #94DEFF",
-"=.     c #8494A5",
-"-.     c #94CEEF",
-";.     c #7BA5BD",
-">.     c #7B8C9C",
-",.     c #ADADAD",
-"'.     c #6B6B6B",
-").     c #737373",
-"!.     c #8C8C8C",
-"~.     c #C6C6C6",
-". . . . . . . . . . + . . . . + @ # $ % & * = ",
-"- - - ; - - - - - - - - ; ; ; ; ; > , ' ) ! ~ ",
-"{ { { { { { { { { { { { { { { { ] ^ / ; ( _ : ",
-"< < < < < < < < < < < < < < < < ^ / / [ } | 1 ",
-"[ [ [ [ ; ; ; ; 2 ; ; ; 2 ; ; ; ; ; 3 > 4 5 6 ",
-"7 8 9 4 4 4 4 4 4 4 4 4 4 4 4 4 4 0 4 a b c d ",
-"e e f g h h h h h h h h h h h h h h h i j k | ",
-"e e 4 h h h h h h h h h h h h l h m h i j k | ",
-"n n 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 o a p q r s ",
-"t t u u u u u u u u u u u u u u u u e v w x c ",
-"y y z 8 A 8 u 8 A 8 u 8 A 8 u 8 A A n n B q C ",
-"D D D D D D D D D D D D D D D D E E E E F G H ",
-"I I I I I I I I I I I I I I I J J J J J K L H ",
-"M M M M M M M M M M M M M M M M N N D N O P Q ",
-"R R R R R R R R R R R R R R R R R S I S y T U ",
-"V V W W W W W W W W W W W W W W W W M X N Y U ",
-"Z `  . . . . . . . . . . . . . . . .W ..S Y +.",
-"@.@.@.Z ` ` ` ` ` ` ` ` ` ` ` ` ` ` #.W S K $.",
-"@.@.@.%.@.@.@.@.@.@.@.@.@.@.@.%.@.&.&.W *.a =.",
-"@.@.@.@.@.@.@.@.@.@.@.@.@.@.@.@.@.@.#.-.;.>.,.",
-"'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.).).!.,.~."};
-/* XPM */
-static const char * const aqua_tbar_hsep_xpm[] = {
-"8 22 32 1",
+static char * aqua_tbar_hsep_xpm[] = {
+"8 22 27 1",
 "       c None",
 ".      c #A5A5A5",
-"+      c #737373",
+"+      c #606460",
 "@      c #DBDBDB",
 "#      c #808080",
 "$      c #FFFFFF",
-"%      c #B9B9B9",
+"%      c #686468",
 "&      c #EDEDED",
-"*      c #CCCCCC",
+"*      c #606060",
 "=      c #EFEFEF",
-"-      c #C7C7C7",
-";      c #BEBEBE",
+"-      c #605C60",
+";      c #505050",
 ">      c #E8E8E8",
-",      c #AAAAAA",
-"'      c #E7E7E7",
-")      c #9E9E9E",
-"!      c #9C9C9C",
-"~      c #EBEBEB",
-"{      c #A1A1A1",
-"]      c #A9A9A9",
-"^      c #F3F3F3",
-"/      c #B1B1B1",
-"(      c #F7F7F7",
-"_      c #B8B8B8",
-":      c #C0C0C0",
-"<      c #FAFAFA",
-"[      c #C9C9C9",
-"}      c #CECECE",
-"|      c #D2D2D2",
-"1      c #DEDEDE",
-"2      c #F8F8F8",
-"3      c #D8D8D8",
+",      c #E7E7E7",
+"'      c #484C48",
+")      c #EBEBEB",
+"!      c #585858",
+"~      c #F3F3F3",
+"{      c #F7F7F7",
+"]      c #585C58",
+"^      c #FAFAFA",
+"/      c #686868",
+"(      c #707070",
+"_      c #706C70",
+":      c #F8F8F8",
+"<      c #686C68",
+"[      c #737373",
 ".......+",
 "@@@#$@@%",
 "&&&#$&&*",
 "===#$==-",
 "===#$==;",
-">>>#$>>,",
-"'''#$'')",
-"'''#$''!",
-"~~~#$~~{",
-"===#$==]",
-"^^^#$^^/",
-"(((#$((_",
-"(((#$((:",
-"<<<#$<<[",
-"$$$#$$$}",
-"$$$#$$$|",
-"$$$#$$$1",
-"$$$#$$$1",
-"$$$#$$$1",
-"$$$#$$$1",
-"222#$223",
-"++++++++"};
+">>>#$>>;",
+",,,#$,,'",
+",,,#$,,;",
+")))#$));",
+"===#$==!",
+"~~~#$~~!",
+"{{{#${{-",
+"{{{#${{]",
+"^^^#$^^%",
+"$$$#$$$+",
+"$$$#$$$/",
+"$$$#$$$+",
+"$$$#$$$(",
+"$$$#$$$_",
+"$$$#$$$(",
+":::#$::<",
+"[[[[[[[("};
 /* XPM */
 static const char * const aqua_tbar_vsep_xpm[] = {
-"22 8 32 1",
+"22 8 27 1",
 "       c None",
 ".      c #737373",
 "+      c #F8F8F8",
@@ -7702,23 +7788,18 @@ static const char * const aqua_tbar_vsep_xpm[] = {
 ">      c #DBDBDB",
 ",      c #A5A5A5",
 "'      c #808080",
-")      c #D8D8D8",
-"!      c #DEDEDE",
-"~      c #D2D2D2",
-"{      c #CECECE",
-"]      c #C9C9C9",
-"^      c #C0C0C0",
-"/      c #B8B8B8",
-"(      c #B1B1B1",
-"_      c #A9A9A9",
-":      c #A1A1A1",
-"<      c #9C9C9C",
-"[      c #9E9E9E",
-"}      c #AAAAAA",
-"|      c #BEBEBE",
-"1      c #C7C7C7",
-"2      c #CCCCCC",
-"3      c #B9B9B9",
+")      c #706C70",
+"!      c #707070",
+"~      c #686C68",
+"{      c #606460",
+"]      c #686868",
+"^      c #686468",
+"/      c #585C58",
+"(      c #605C60",
+"_      c #585858",
+":      c #505050",
+"<      c #484C48",
+"[      c #606060",
 ".+@@@@@@#$$%&*==-&&;>,",
 ".+@@@@@@#$$%&*==-&&;>,",
 ".+@@@@@@#$$%&*==-&&;>,",
@@ -7726,7 +7807,8 @@ static const char * const aqua_tbar_vsep_xpm[] = {
 ".@@@@@@@@@@@@@@@@@@@@,",
 ".+@@@@@@#$$%&*==-&&;>,",
 ".+@@@@@@#$$%&*==-&&;>,",
-".)!!!!~{]^/(_:<[}|123."};
+")!~!)!{]{^/(__::<::([^"};
+
 /* XPM */
 static const char * const aqua_tab_act_left_xpm[] = {
 "8 25 117 2",
@@ -8559,6 +8641,171 @@ static char * aqua_tab_usel_dis_right_xpm[] = {
 "^^^^^^&!",
 "''''''''",
 "========"};
+/* XPM */
+static const char * const aqua_progress_xpm[] = {
+"16 11 151 2",
+"       c None",
+".      c #80849B",
+"+      c #666FA3",
+"@      c #4B59AA",
+"#      c #3B4DAE",
+"$      c #3649AF",
+"%      c #3548B0",
+"&      c #4959A8",
+"*      c #646EA1",
+"=      c #7E839A",
+"-      c #8D8F96",
+";      c #939395",
+">      c #949494",
+",      c #929395",
+"'      c #8E9096",
+")      c #CBCDD2",
+"!      c #BBC2D3",
+"~      c #A4B1D4",
+"{      c #8FA2D5",
+"]      c #859BD5",
+"^      c #8098D6",
+"/      c #8299D6",
+"(      c #889ED6",
+"_      c #98A9D5",
+":      c #B0B9D5",
+"<      c #C4C8D4",
+"[      c #CED0D3",
+"}      c #D3D3D3",
+"|      c #D3D2D3",
+"1      c #D1D2D2",
+"2      c #DADBDC",
+"3      c #D3D6DC",
+"4      c #C2CDDD",
+"5      c #A9BFDE",
+"6      c #96B4DE",
+"7      c #8DADDF",
+"8      c #8BADDF",
+"9      c #8AADDF",
+"0      c #8DAEDF",
+"a      c #93B2DF",
+"b      c #A5BCDE",
+"c      c #BCC9DE",
+"d      c #D0D5DD",
+"e      c #D9DADC",
+"f      c #DCDCDC",
+"g      c #D0D0D0",
+"h      c #CCCED0",
+"i      c #C0C8D1",
+"j      c #A6BBD3",
+"k      c #86ACD7",
+"l      c #70A1D9",
+"m      c #679DDA",
+"n      c #659CDA",
+"o      c #669CDA",
+"p      c #6A9EDA",
+"q      c #76A4D9",
+"r      c #8EB0D7",
+"s      c #AEBFD4",
+"t      c #C5CBD1",
+"u      c #CECFD0",
+"v      c #CBCCCC",
+"w      c #C4C9CC",
+"x      c #AEBDCE",
+"y      c #85A8D0",
+"z      c #5790D2",
+"A      c #3A82D3",
+"B      c #2F7CD3",
+"C      c #2D7AD3",
+"D      c #2E7AD3",
+"E      c #357ED3",
+"F      c #4989D2",
+"G      c #709DD0",
+"H      c #A0B5CE",
+"I      c #BDC4CC",
+"J      c #C9CBCC",
+"K      c #D6D8D8",
+"L      c #D8D8D8",
+"M      c #D6D7D8",
+"N      c #CAD1D8",
+"O      c #ABC0D8",
+"P      c #74A1D8",
+"Q      c #4185D8",
+"R      c #2275D8",
+"S      c #176ED8",
+"T      c #166DD8",
+"U      c #186ED8",
+"V      c #2274D8",
+"W      c #4386D8",
+"X      c #78A4D9",
+"Y      c #ACC1D8",
+"Z      c #CBD1D8",
+"`      c #E1E6EC",
+" .     c #EBECEC",
+"..     c #E9EBEC",
+"+.     c #DAE3EC",
+"@.     c #B5CEED",
+"#.     c #7DAFED",
+"$.     c #4B95ED",
+"%.     c #3087ED",
+"&.     c #2781ED",
+"*.     c #2982ED",
+"=.     c #378AED",
+"-.     c #5C9EED",
+";.     c #94BDED",
+">.     c #C6D7EC",
+",.     c #E0EEFE",
+"'.     c #F8FBFE",
+").     c #FDFEFE",
+"!.     c #FEFEFE",
+"~.     c #FAFCFE",
+"{.     c #E7F2FE",
+"].     c #BCDBFE",
+"^.     c #83BCFD",
+"/.     c #55A5FD",
+"(.     c #3F98FD",
+"_.     c #3A95FD",
+":.     c #3995FD",
+"<.     c #3D97FD",
+"[.     c #4FA1FD",
+"}.     c #78B7FD",
+"|.     c #B1D6FE",
+"1.     c #C2E2FF",
+"2.     c #EBF6FF",
+"3.     c #FCFFFF",
+"4.     c #FFFFFF",
+"5.     c #FAFDFF",
+"6.     c #E4F3FF",
+"7.     c #B9DEFF",
+"8.     c #84C2FF",
+"9.     c #5CAFFF",
+"0.     c #4AA7FF",
+"a.     c #47A5FF",
+"b.     c #4DA8FF",
+"c.     c #62B2FF",
+"d.     c #8DC7FF",
+"e.     c #93C6FA",
+"f.     c #C4DDF7",
+"g.     c #E3ECF4",
+"h.     c #F1F2F3",
+"i.     c #F3F3F3",
+"j.     c #F2F3F3",
+"k.     c #EBEFF4",
+"l.     c #D3E4F5",
+"m.     c #A8D0F8",
+"n.     c #77B9FB",
+"o.     c #58ABFE",
+"p.     c #4BA5FF",
+"q.     c #4AA3FF",
+"r.     c #51A7FE",
+"s.     c #68B1FD",
+"t.     c #B5B5B5",
+". + @ # $ % $ # & * = - ; > , ' ",
+") ! ~ { ] ^ ^ / ( _ : < [ } | 1 ",
+"2 3 4 5 6 7 8 9 0 a b c d e f f ",
+"g h i j k l m n o p q r s t u g ",
+"v v w x y z A B C D E F G H I J ",
+"K L M N O P Q R S T U V W X Y Z ",
+"`  . ...+.@.#.$.%.&.&.*.=.-.;.>.",
+",.'.).!.~.{.].^./.(._.:.<.[.}.|.",
+"1.2.3.4.4.5.6.7.8.9.0.a.a.b.c.d.",
+"e.f.g.h.i.j.k.l.m.n.o.p.q.q.r.s.",
+"t.t.t.t.t.t.t.t.t.t.t.t.t.t.t.t."};
 
 #include "qapplication.h"
 #include "qpainter.h"
@@ -8579,11 +8826,13 @@ static char * aqua_tab_usel_dis_right_xpm[] = {
 #include "qlayout.h"
 #include "qbuttongroup.h"
 #include "qtabwidget.h"
+#include "qslider.h"
+#include "qwmatrix.h"
 #include <limits.h>
 #define INCLUDE_MENUITEM_DEF
 #include "qpopupmenu.h"
 
-class QAquaStylePrivate
+class QAquaStyle::Private
 {
 public:
     struct buttonState {
@@ -8679,8 +8928,7 @@ static void qAquaPixmap( const QString & s, QPixmap & p )
     QBitmap right_mask( aqua_btn_mask_right_xbm_width, aqua_btn_mask_right_xbm_height,
                         (const uchar *) aqua_btn_mask_right_xbm_bits, TRUE );
 
-    // Scale the button pixmaps to cover height of area to paint
-    // Pixmaps for default buttons
+    // Pixmaps for the pulsing default buttons
     if( s.contains("btn_def_" ) ){
         const char ** bytes = 0;
         size = qAquaGetNum( s );
@@ -8750,6 +8998,29 @@ static void qAquaPixmap( const QString & s, QPixmap & p )
                                    QString("")) + QString("_") +
                                    QString::number( size ), px );
         }
+
+	// Create pixmaps for toggle buttons - a mirrored version of the default btn. 
+        QPixmap mirl;
+	QPixmapCache::find( "$qt_aqua_btn_def_left_" + 
+			    QString::number(size), mirl );
+        QPixmap mirm;
+	QPixmapCache::find( "$qt_aqua_btn_def_mid_" + 
+			    QString::number(size), mirm );
+        QPixmap mirr;
+	QPixmapCache::find( "$qt_aqua_btn_def_right_" + 
+			    QString::number(size), mirr );
+	im = mirl;	
+        px = im.mirror( FALSE, TRUE );
+        QPixmapCache::insert( "$qt_aqua_btn_def_mir_left_" + QString::number( size ),
+			      px );
+	im = mirm;	
+        px = im.mirror( FALSE, TRUE );
+        QPixmapCache::insert( "$qt_aqua_btn_def_mir_mid_" + QString::number( size ),
+			      px );
+	im = mirr;	
+        px = im.mirror( FALSE, TRUE );
+        QPixmapCache::insert( "$qt_aqua_btn_def_mir_right_" + QString::number( size ),
+			      px );
     }
     // Pixmaps for normal buttons
     if( s.contains("btn_nrm_" ) ){
@@ -8848,6 +9119,12 @@ static void qAquaPixmap( const QString & s, QPixmap & p )
                               (const char **) aqua_chk_psh_t_xpm );
         QPixmapCache::insert( "$qt_aqua_chk_psh_f",
                               (const char **) aqua_chk_psh_f_xpm );
+        QPixmapCache::insert( "$qt_aqua_chk_mid_t",
+                              (const char **) aqua_chk_mid_t_xpm );
+        QPixmapCache::insert( "$qt_aqua_chk_mid_psh_t",
+                              (const char **) aqua_chk_mid_psh_t_xpm );
+        QPixmapCache::insert( "$qt_aqua_chk_mid_dis_t",
+                              (const char **) aqua_chk_mid_dis_t_xpm );
     }
 
     // Horizontal scrollbar
@@ -8969,24 +9246,83 @@ static void qAquaPixmap( const QString & s, QPixmap & p )
 
     // Sliders
     if( s.contains("_pty_") ) {
+        QPixmap act_down( (const char **) aqua_sldr_act_pty_xpm );
+        QPixmap dis_down( (const char **) aqua_sldr_dis_pty_xpm );
         size = qAquaGetNum( s );
         QString sizestr = QString::number( size );
 
-        im = QImage( (const char **) aqua_sldr_act_pty_xpm );
-        px = im.smoothScale( im.width(), size );
-        QPixmapCache::insert( "$qt_aqua_sldr_act_pty_" + sizestr, px );
-
-        im = QImage( (const char **) aqua_sldr_dis_pty_xpm );
-        px = im.smoothScale( im.width(), size );
-        QPixmapCache::insert( "$qt_aqua_sldr_dis_pty_" + sizestr, px );
+	// Down
+        QPixmapCache::insert( "$qt_aqua_sldr_act_pty_down", act_down );
+        QPixmapCache::insert( "$qt_aqua_sldr_dis_pty_down", dis_down );
+	
+	// Up
+	QWMatrix wm;
+	wm.rotate( 180.0 );
+	px = act_down.xForm( wm );
+        QPixmapCache::insert( "$qt_aqua_sldr_act_pty_up", px );
+	px = dis_down.xForm( wm );
+        QPixmapCache::insert( "$qt_aqua_sldr_dis_pty_up", px );
+	
+	// Left
+	wm.reset();
+	wm.rotate( 90.0 );
+	px = act_down.xForm( wm );
+        QPixmapCache::insert( "$qt_aqua_sldr_act_pty_left", px );
+	px = dis_down.xForm( wm );
+        QPixmapCache::insert( "$qt_aqua_sldr_dis_pty_left", px );
+	
+	// Right
+	wm.reset();
+	wm.rotate( -90.0 );
+	px = act_down.xForm( wm );
+        QPixmapCache::insert( "$qt_aqua_sldr_act_pty_right", px );
+	px = dis_down.xForm( wm );
+        QPixmapCache::insert( "$qt_aqua_sldr_dis_pty_right", px );
     }
+    
     if( s.contains("sldr_grv") ){
-        QPixmapCache::insert( "$qt_aqua_sldr_grv_tip_left",
-                              (const char **) aqua_sldr_grv_tip_left_xpm);
-        QPixmapCache::insert( "$qt_aqua_sldr_grv_tip_right",
-                              (const char **) aqua_sldr_grv_tip_right_xpm );
-        QPixmapCache::insert( "$qt_aqua_sldr_grv_mid",
-                              (const char **) aqua_sldr_grv_mid_xpm );
+	QPixmap lpart( (const char **) aqua_sldr_grv_tip_left_xpm );
+	QPixmap mpart( (const char **) aqua_sldr_grv_mid_xpm );
+	QPixmap rpart( (const char **) aqua_sldr_grv_tip_right_xpm );
+	
+        QPixmapCache::insert( "$qt_aqua_sldr_grv_tip_left_down", lpart );
+        QPixmapCache::insert( "$qt_aqua_sldr_grv_tip_right_down", rpart );
+        QPixmapCache::insert( "$qt_aqua_sldr_grv_mid_down", mpart );
+	
+	QWMatrix wm;
+	wm.rotate( 180.0 );
+	px = lpart.xForm( wm );
+	im = px;
+	px = im.mirror( TRUE, FALSE );
+        QPixmapCache::insert( "$qt_aqua_sldr_grv_tip_left_up", px );	
+	px = mpart.xForm( wm );
+        QPixmapCache::insert( "$qt_aqua_sldr_grv_mid_up", px );
+	px = rpart.xForm( wm );
+	im = px;
+	px = im.mirror( TRUE, FALSE );
+        QPixmapCache::insert( "$qt_aqua_sldr_grv_tip_right_up", px );
+
+	wm.reset();
+	wm.rotate( 90.0 );
+	px = lpart.xForm( wm );
+	im = px;
+	px = im.mirror( FALSE, TRUE );
+        QPixmapCache::insert( "$qt_aqua_sldr_grv_tip_left_left", px );	
+	px = mpart.xForm( wm );
+        QPixmapCache::insert( "$qt_aqua_sldr_grv_mid_left", px );
+	px = rpart.xForm( wm );
+	im = px;
+	px = im.mirror( FALSE, TRUE );
+        QPixmapCache::insert( "$qt_aqua_sldr_grv_tip_right_left", px );
+
+	wm.reset();
+	wm.rotate( -90.0 );
+	px = lpart.xForm( wm );
+        QPixmapCache::insert( "$qt_aqua_sldr_grv_tip_left_right", px );	
+	px = mpart.xForm( wm );
+        QPixmapCache::insert( "$qt_aqua_sldr_grv_mid_right", px );
+	px = rpart.xForm( wm );
+        QPixmapCache::insert( "$qt_aqua_sldr_grv_tip_right_right", px );
     }
 
     // Combobox buttons
@@ -9117,23 +9453,17 @@ static void qAquaPixmap( const QString & s, QPixmap & p )
         im = tab_top_dis;
         px = im.mirror( FALSE, TRUE );
         QPixmapCache::insert( "$qt_aqua_tab_b_top_dis", px );
-
     }
 
     // Tool buttons
     if( s.contains("toolbtn_") ){
         // Normal state buttons
-        QPixmap right( (const char **) aqua_toolbtn_nrm_right_xpm );
-        QPixmap left( (const char **) aqua_toolbtn_nrm_left_xpm );
-        QPixmap mid( (const char **) aqua_toolbtn_nrm_mid_xpm );
-        // Toggle buttons that are turned on
-        QPixmap act_left( (const char **) aqua_toolbtn_act_left_xpm );
-        QPixmap act_right( (const char **) aqua_toolbtn_act_right_xpm );
-        QPixmap act_mid( (const char **) aqua_toolbtn_act_mid_xpm );
-        // Any button that is pushed down
-        QPixmap psh_left( (const char **) aqua_toolbtn_psh_left_xpm );
-        QPixmap psh_right( (const char **) aqua_toolbtn_psh_right_xpm );
-        QPixmap psh_mid( (const char **) aqua_toolbtn_psh_mid_xpm );
+        QPixmap on_l( (const char **) aqua_toolbtn_on_left_xpm );
+        QPixmap on_m( (const char **) aqua_toolbtn_on_mid_xpm );
+        QPixmap on_r( (const char **) aqua_toolbtn_on_right_xpm );
+        QPixmap off_l( (const char **) aqua_toolbtn_off_left_xpm );
+        QPixmap off_m( (const char **) aqua_toolbtn_off_mid_xpm );
+        QPixmap off_r( (const char **) aqua_toolbtn_off_right_xpm );
 
         int width = 0, height = 0, j;
         i = s.findRev( '_' );
@@ -9147,33 +9477,25 @@ static void qAquaPixmap( const QString & s, QPixmap & p )
         QString wstr = QString::number( width );
         QString hstr = QString::number( height );
 
-        im = left;
+        im = on_l;
         px = im.smoothScale( width, height );
-        QPixmapCache::insert( "$qt_aqua_toolbtn_nrm_left_" + wstr + "_" + hstr, px );
-        im = right;
+        QPixmapCache::insert( "$qt_aqua_toolbtn_on_left_" + wstr + "_" + hstr, px );
+        im = on_m;
         px = im.smoothScale( width, height );
-        QPixmapCache::insert( "$qt_aqua_toolbtn_nrm_right_" + wstr + "_" + hstr, px );
-        im = mid;
+        QPixmapCache::insert( "$qt_aqua_toolbtn_on_mid_" + wstr + "_" + hstr, px );
+        im = on_r;
         px = im.smoothScale( width, height );
-        QPixmapCache::insert( "$qt_aqua_toolbtn_nrm_mid_" + wstr + "_" + hstr, px );
-        im = act_mid;
+        QPixmapCache::insert( "$qt_aqua_toolbtn_on_right_" + wstr + "_" + hstr, px );
+
+        im = off_l;
         px = im.smoothScale( width, height );
-        QPixmapCache::insert( "$qt_aqua_toolbtn_act_mid_" + wstr + "_" + hstr, px );
-        im = act_left;
+        QPixmapCache::insert( "$qt_aqua_toolbtn_off_left_" + wstr + "_" + hstr, px );
+        im = off_m;
         px = im.smoothScale( width, height );
-        QPixmapCache::insert( "$qt_aqua_toolbtn_act_left_" + wstr + "_" + hstr, px );
-        im = act_right;
+        QPixmapCache::insert( "$qt_aqua_toolbtn_off_mid_" + wstr + "_" + hstr, px );
+        im = off_r;
         px = im.smoothScale( width, height );
-        QPixmapCache::insert( "$qt_aqua_toolbtn_act_right_" + wstr + "_" +hstr, px );
-        im = psh_mid;
-        px = im.smoothScale( width, height );
-        QPixmapCache::insert( "$qt_aqua_toolbtn_psh_mid_" + wstr + "_" + hstr, px );
-        im = psh_left;
-        px = im.smoothScale( width, height );
-        QPixmapCache::insert( "$qt_aqua_toolbtn_psh_left_" + wstr + "_" + hstr, px );
-        im = psh_right;
-        px = im.smoothScale( width, height );
-        QPixmapCache::insert( "$qt_aqua_toolbtn_psh_right_" + wstr + "_" +hstr, px );
+        QPixmapCache::insert( "$qt_aqua_toolbtn_off_right_" + wstr + "_" + hstr, px );
     }
 
     // Tool bar separators
@@ -9181,18 +9503,38 @@ static void qAquaPixmap( const QString & s, QPixmap & p )
         QPixmap hsep( (const char **) aqua_tbar_hsep_xpm );
         QPixmap vsep( (const char **) aqua_tbar_vsep_xpm );
 
-        size = qAquaGetNum( s );
-        QString sizestr = QString::number( size );
+        int width = 0, height = 0, j;
+        i = s.findRev( '_' );
+        if( i != -1 ){
+            height = s.right( (s.length() - 1) - i ).toInt();
+        }
+        j = s.findRev( '_', i - 1 );
+        if( j != -1 ){
+            width = s.mid( j + 1, i - j - 1 ).toInt();
+        }
+        QString wstr = QString::number( width );
+        QString hstr = QString::number( height );
 
         im = hsep;
-        px = im.smoothScale( im.width(), size );
-        QPixmapCache::insert( "$qt_aqua_tbar_hsep_" + sizestr, px );
+        px = im.smoothScale( width, height );
+        QPixmapCache::insert( "$qt_aqua_tbar_hsep_" + wstr + "_" + hstr, px );
 
         im = vsep;
-        px = im.smoothScale( size, im.width() );
-        QPixmapCache::insert( "$qt_aqua_tbar_vsep_" + sizestr, px );
+        px = im.smoothScale( width, height );
+        QPixmapCache::insert( "$qt_aqua_tbar_vsep_" + wstr + "_" + hstr, px );
     }
 
+    // Progress bar
+    if( s.contains("progress_") ){
+	QPixmap prog( (const char **) aqua_progress_xpm );
+        size = qAquaGetNum( s );
+        QString sizestr = QString::number( size );
+	
+        im = prog;
+        px = im.smoothScale( prog.width(), size );
+        QPixmapCache::insert( "$qt_aqua_progress_" + sizestr, px );
+    }
+    
     QPixmapCache::find( str, p );
 }
 
@@ -9201,7 +9543,8 @@ static void qAquaPixmap( const QString & s, QPixmap & p )
 */
 QAquaStyle::QAquaStyle()
 {
-    d = new QAquaStylePrivate;
+    d = new Private;
+    d->defaultButton = 0;
     d->timerId = -1;
 }
 
@@ -9552,47 +9895,46 @@ QRect QAquaStyle::buttonRect( int x, int y, int w, int h) const
 }
 
 /*! \reimp */
-void QAquaStyle::drawToolButton ( QToolButton * btn, QPainter * p )
+void QAquaStyle::drawToolButton( QPainter *p, int x, int y, int width, int height, 
+				 const QColorGroup &, bool on, bool down, bool, bool, 
+				 const QBrush * )
 {
     QPixmap px;
-    QObject * obj = btn->parent();
-    int x = 0;
-    int y = 0;
-    QString w = QString::number( btn->width() );
-    QString h = QString::number( btn->height() );
+    QString w = QString::number( width );
+    QString h = QString::number( height );
 
-    if( obj && obj->inherits("QToolBar") ){
+    QObject * obj = (QObject *) QStyle::contextWidget();
+    QToolButton * btn = (QToolButton *) obj;
+    if ( !obj )
+	return;
+    
+    obj = obj->parent();
+    if ( obj && obj->inherits("QToolBar") ) {
         QToolBar * bar  = (QToolBar *) obj;
         QObjectList * l = bar->queryList( "QToolButton", 0, FALSE, FALSE );
         QObjectListIt it( *l );
-        if( it.toFirst() == btn ){
-            if( btn->isOn() )
-                qAquaPixmap( "toolbtn_nrm_left_"+ w + "_" + h, px );
-            else if( btn->isDown() )
-                qAquaPixmap( "toolbtn_psh_left_"+ w + "_" + h, px );
+        if ( it.toFirst() == btn ) {
+            if ( on || down )
+                qAquaPixmap( "toolbtn_on_left_" + w + "_" + h, px );
             else
-                qAquaPixmap( "toolbtn_nrm_left_"+ w + "_" + h, px );
+                qAquaPixmap( "toolbtn_off_left_" + w + "_" + h, px );
         } else if( it.toLast() == btn ){
-            if( btn->isOn() )
-                qAquaPixmap( "toolbtn_psh_right_" + w + "_" + h, px );
-            else if( btn->isDown() )
-                qAquaPixmap( "toolbtn_psh_right_" + w + "_" + h, px );
+            if ( on || down )
+                qAquaPixmap( "toolbtn_on_right_" + w + "_" + h, px );
             else
-                qAquaPixmap( "toolbtn_nrm_right_" + w + "_" + h, px );
+                qAquaPixmap( "toolbtn_off_right_" + w + "_" + h, px );
         } else {
-            if( btn->isOn() )
-                qAquaPixmap( "toolbtn_act_mid_" + w + "_" + h, px );
-            else if( btn->isDown() )
-                qAquaPixmap( "toolbtn_psh_mid_" + w + "_" + h, px );
+            if ( on || down )
+                qAquaPixmap( "toolbtn_on_mid_" + w + "_" + h, px );
             else
-                qAquaPixmap( "toolbtn_nrm_mid_"+ w + "_" + h, px );
+                qAquaPixmap( "toolbtn_off_mid_"+ w + "_" + h, px );
         }
         delete l;
     } else {
-        if( btn->isDown() || btn->isOn() )
-            qAquaPixmap( "bvlbtn_small_on_"+ w + "_" + h, px );
+        if ( down || on )
+            qAquaPixmap( "toolbtn_on_mid_" + w + "_" + h, px );
         else
-            qAquaPixmap( "bvlbtn_small_off_" + w + "_" + h, px );
+            qAquaPixmap( "toolbtn_off_mid_" + w + "_" + h, px );
     }
     p->drawPixmap( x, y, px );
 }
@@ -9793,14 +10135,18 @@ void QAquaStyle::drawPushButton( QPushButton* btn, QPainter *p)
 	    if( (dir == -1) && (alt == 0) ) dir = 1;
 	    alt += dir;
 	}
-    } else if( btn->isDown() ){
+    } else if ( btn->isDown() ) {
         qAquaPixmap( "btn_def_left_" + hstr, left );
         qAquaPixmap( "btn_def_mid_" + hstr, mid );
         qAquaPixmap( "btn_def_right_" + hstr, right );
-    } else if( !btn->isEnabled() ){
+    } else if ( !btn->isEnabled() ) {
         qAquaPixmap( "btn_dis_left_" + hstr, left );
         qAquaPixmap( "btn_dis_mid_" + hstr, mid );
         qAquaPixmap( "btn_dis_right_" + hstr, right );
+    } else if ( btn->isOn() ) {
+        qAquaPixmap( "btn_def_mir_left_" + hstr, left );
+        qAquaPixmap( "btn_def_mir_mid_" + hstr, mid );
+        qAquaPixmap( "btn_def_mir_right_" + hstr, right );
     } else {
         qAquaPixmap( "btn_nrm_left_" + hstr, left );
         qAquaPixmap( "btn_nrm_mid_" + hstr, mid );
@@ -10038,18 +10384,28 @@ void QAquaStyle::drawIndicator( QPainter* p, int x, int y, int /*w*/, int/*h*/,
                                 bool enabled )
 {
     QPixmap px;
-    bool on = (s == QButton::On);
+    bool on  = (s == QButton::On);
+    bool tri = (s == 1);
     if( enabled && qAquaActive( g ) ){
         if( down && on )
             qAquaPixmap("chk_psh_t", px);
-        else if( on )
+	else if( on )
             qAquaPixmap("chk_act_t", px);
+        else if ( down && tri )
+	    qAquaPixmap("chk_mid_psh_t", px );
+	else if ( tri )
+	    qAquaPixmap("chk_mid_t", px );
         else if( !on && down )
             qAquaPixmap("chk_psh_f", px);
         else
             qAquaPixmap("chk_act_f", px);
     } else {
-        on ? qAquaPixmap("chk_dis_t", px) : qAquaPixmap("chk_act_f", px);
+	if ( on )
+	    qAquaPixmap("chk_dis_t", px);
+	else if ( tri )
+	    qAquaPixmap("chk_mid_dis_t", px);
+	else
+	    qAquaPixmap("chk_act_f", px);
     }
     p->drawPixmap( x, y, px );
 }
@@ -10156,19 +10512,31 @@ int QAquaStyle::sliderLength() const
 /*! \reimp */
 void QAquaStyle::drawSlider( QPainter *p, int x, int y, int /*w*/, int h,
                              const QColorGroup & g,
-                             Orientation /*orient*/ , bool /* tickAbove */,
+                             Orientation orient, bool tickAbove,
                              bool /*tickBelow*/ )
 {
     // ### Orientation
     QPixmap px;
     QString hstr = QString::number( h );
+    QString dir;
 
-    if( qAquaActive( g ) )
-        qAquaPixmap( "sldr_act_pty_" + hstr, px );
-    else
-        qAquaPixmap( "sldr_dis_pty_" + hstr, px );
-
-    p->drawPixmap( x, y, px );
+    if ( orient == Horizontal ){
+	if ( tickAbove )
+	    dir = "up";
+	else
+	    dir = "down";
+    } else if ( orient == Vertical ) {
+	if ( tickAbove )
+	    dir = "left";
+	else
+	    dir = "right";
+    }
+    if( qAquaActive( g ) ) {
+	qAquaPixmap( "sldr_act_pty_" + dir, px );
+    } else {
+	qAquaPixmap( "sldr_dis_pty_" + dir, px );
+    }
+    p->drawPixmap( x, y, px );    
 }
 
 /*! \reimp */
@@ -10182,28 +10550,51 @@ void QAquaStyle::drawSliderMask( QPainter *p, int x, int y, int /*w*/,
                          aqua_sldr_pty_mask_height,
                          (const uchar *) aqua_sldr_pty_mask_bits, TRUE );
     p->drawPixmap( x, y, slider_mask );
-
 }
 
-
 /*! \reimp */
-void QAquaStyle::drawSliderGroove( QPainter *p, int x, int y, int w, int /*h*/,
+void QAquaStyle::drawSliderGroove( QPainter *p, int x, int y, int w, int h,
                                    const QColorGroup& /*g*/, QCOORD /*c*/,
-                                   Orientation /*orient*/ )
+                                   Orientation orient )
 {
-    // ### Orientation
-
     int offset = 3;
     QPixmap sldr_l, sldr_mid, sldr_r;
+    bool tickAbove = FALSE;
+    QString dir;
+    QSlider * s = (QSlider *) QStyle::contextWidget();
+    
+    if ( s != 0 ) {
+	tickAbove = (s->tickmarks() == QSlider::Above);
+    }
 
-    qAquaPixmap( "sldr_grv_tip_left", sldr_l );
-    qAquaPixmap( "sldr_grv_mid", sldr_mid );
-    qAquaPixmap( "sldr_grv_tip_right", sldr_r );
+    if ( orient == Horizontal ){
+	if ( tickAbove ) {
+	    dir = "up";
+	    offset = 10;
+	} else
+	    dir = "down";
+    } else if ( orient == Vertical ) {
+	if ( tickAbove ) {
+	    dir = "left";
+	    offset = 10;
+	} else
+	    dir = "right";
+    }
+    qAquaPixmap( "sldr_grv_tip_left_" + dir, sldr_l );
+    qAquaPixmap( "sldr_grv_mid_" + dir, sldr_mid );
+    qAquaPixmap( "sldr_grv_tip_right_" + dir, sldr_r );
 
-    p->drawPixmap( x, y + offset, sldr_l );
-    p->drawTiledPixmap( x + sldr_l.width(), y + offset, w - sldr_l.width()*2,
-                        sldr_l.height(), sldr_mid );
-    p->drawPixmap( x + w - sldr_r.width(), y + offset, sldr_r );
+    if ( orient == Horizontal ) {
+	p->drawPixmap( x, y + offset, sldr_l );
+	p->drawTiledPixmap( x + sldr_l.width(), y + offset, w - sldr_l.width()*2,
+			    sldr_l.height(), sldr_mid );
+	p->drawPixmap( x + w - sldr_r.width(), y + offset, sldr_r );
+    } else {
+	p->drawPixmap( x + offset, y, sldr_r );
+	p->drawTiledPixmap( x + offset, y + sldr_l.height(), sldr_mid.width(),
+			    h - sldr_l.height()*2, sldr_mid );
+	p->drawPixmap( x + offset, y + h - sldr_l.height(), sldr_l );
+    }
 }
 
 /*! \reimp
@@ -10427,7 +10818,7 @@ void QAquaStyle::drawPopupMenuItem( QPainter* p, bool checkable,
     if ( !s.isNull() ) {                        // draw text
         int t = s.find( '\t' );
         int m = aquaItemVMargin;
-        const int text_flags = AlignVCenter|ShowPrefix | DontClip | SingleLine;
+        const int text_flags = AlignVCenter|NoAccel | DontClip | SingleLine;
         if ( t >= 0 ) {                         // draw tab text
             int xp;
             if( reverse )
@@ -10595,11 +10986,11 @@ void QAquaStyle::drawToolBarSeparator( QPainter * p, int, int, int w, int h,
                                        Qt::Orientation orientation )
 {
     QPixmap px;
-    if( orientation == Vertical ){
-        qAquaPixmap( "tbar_vsep_" + QString::number(w), px );
-    } else {
-        qAquaPixmap( "tbar_hsep_" + QString::number(h), px );
-    }
+
+    if( orientation == Vertical )
+        qAquaPixmap( "tbar_vsep_" + QString::number(w)+ "_" + QString::number(h), px );
+    else
+        qAquaPixmap( "tbar_hsep_" + QString::number(w)+ "_" + QString::number(h), px );
     p->drawPixmap( 0, 0, px );
 }
 
@@ -10704,17 +11095,42 @@ void QAquaStyle::drawMenuBarItem( QPainter* p, int x, int y, int w, int h,
     } else {
         p->fillRect( x,y,w,h, g.brush( QColorGroup::Button ) );
     }
-    drawItem( p, x, y, w, h, AlignCenter|ShowPrefix|DontClip|SingleLine,
+    drawItem( p, x, y, w, h, AlignCenter|DontClip|SingleLine|ShowPrefix,
               g, mi->isEnabled(), mi->pixmap(), mi->text(), -1,
               (down && active) ? &white : &g.buttonText() );
 }
 
 /*! \reimp */
-void  QAquaStyle::drawFocusRect( QPainter * p, const QRect & r,
-                                 const QColorGroup & g, const QColor* bg,
-                                 bool atBorder)
+void  QAquaStyle::drawFocusRect( QPainter *, const QRect &, const QColorGroup &,
+				 const QColor *, bool )
 {
-    QWindowsStyle::drawFocusRect( p, r, g, bg, atBorder );
+    // The Mac Aqua style doesn't use focus rectangles
+}
+
+/*! \reimp */
+int QAquaStyle::progressChunkWidth() const
+{
+    return 1;
+}
+
+/*! \reimp */
+void QAquaStyle::drawProgressChunk( QPainter *p, int x, int y, int w, int h,
+				    const QColorGroup & )
+{
+    QPixmap px;
+    qAquaPixmap( "progress_" + QString::number(h), px );
+    
+    p->drawTiledPixmap( x, y, w, h, px, x % px.width(), 0 ); 
+}
+
+void QAquaStyle::drawItem( QPainter *p, int x, int y, int w, int h,
+			   int flags, const QColorGroup &g, bool enabled,
+			   const QPixmap *pixmap, const QString& text,
+			   int len=-1, const QColor* penColor = 0 )
+{
+    flags |= NoAccel;
+    QWindowsStyle::drawItem( p, x, y, w, h, flags, g, enabled, pixmap, text, len,
+			     penColor );
 }
 
 #endif
