@@ -516,8 +516,6 @@ void VcprojGenerator::initLibrarianTool()
     	vcProject.Configuration.librarian.OutputFile += '\\';
 
     vcProject.Configuration.librarian.OutputFile += project->first("MSVCPROJ_TARGET");
-    if( !vcProject.Configuration.librarian.OutputFile.endsWith( project->first("TARGET_EXT") ) )
-	vcProject.Configuration.librarian.OutputFile += project->first("TARGET_EXT");
 }
 
 void VcprojGenerator::initLinkerTool()
@@ -544,8 +542,6 @@ void VcprojGenerator::initLinkerTool()
     	vcProject.Configuration.linker.OutputFile += '\\';
 
     vcProject.Configuration.linker.OutputFile += project->first("MSVCPROJ_TARGET");
-    if( !vcProject.Configuration.linker.OutputFile.endsWith( project->first("TARGET_EXT") ) )
-	vcProject.Configuration.linker.OutputFile += project->first("TARGET_EXT");
     vcProject.Configuration.linker.ProgramDatabaseFile = project->first("OBJECTS_DIR") + project->first("QMAKE_ORIG_TARGET") + ".pdb";
 
     if ( project->isActiveConfig("debug") ){
@@ -1025,19 +1021,18 @@ void VcprojGenerator::initOld()
 
     QString dest;
     project->variables()["MSVCPROJ_TARGET"] = project->first("TARGET");
-    if ( !project->variables()["DESTDIR"].isEmpty() ) {
-	project->variables()["TARGET"].first().prepend(project->first("DESTDIR"));
-	Option::fixPathToTargetOS(project->first("TARGET"));
-	dest = project->first("TARGET");
-        if ( project->first("TARGET").startsWith("$(QTDIR)") )
-	    dest.replace( QRegExp("\\$\\(QTDIR\\)"), getenv("QTDIR") );
-	project->variables()["MSVCPROJ_TARGET"].append(
-	    QString("/OUT:") + dest );
-	if ( project->isActiveConfig("dll") ) {
-	    QString imp = dest;
-	    imp.replace(QRegExp("\\.dll"), ".lib");
-	    project->variables()["MSVCPROJ_LIBOPTIONS"] += (QString("/IMPLIB:") + imp );
-	}
+    Option::fixPathToTargetOS(project->first("TARGET"));
+    dest = project->first("TARGET") + project->first( "TARGET_EXT" );
+    if ( project->first("TARGET").startsWith("$(QTDIR)") )
+	dest.replace( QRegExp("\\$\\(QTDIR\\)"), getenv("QTDIR") );
+    project->variables()["MSVCPROJ_TARGET"] = dest;
+    if ( project->isActiveConfig("dll") ) {
+	QString imp = project->first( "DESTDIR" );
+	if( !imp.isNull() && !imp.endsWith( "\\" ) )
+	    imp += "\\";
+	imp += dest;
+	imp.replace(QRegExp("\\.dll"), ".lib");
+	project->variables()["MSVCPROJ_LIBOPTIONS"] += QString("/IMPLIB:") + imp;
     }
 
     // DLL COPY ------------------------------------------------------
