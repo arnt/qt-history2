@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qprn_win.cpp#23 $
+** $Id: //depot/qt/main/src/kernel/qprn_win.cpp#24 $
 **
 ** Implementation of QPrinter class for Win32
 **
@@ -23,7 +23,7 @@
 #include <windows.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qprn_win.cpp#23 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qprn_win.cpp#24 $");
 
 
 // QPrinter states
@@ -114,12 +114,9 @@ bool QPrinter::setup( QWidget *parent )
 }
 
 
-static BITMAPINFO *getWindowsBITMAPINFO( const QPixmap &pixmap,
+static BITMAPINFO *getWindowsBITMAPINFO( int w, int h, int d,
 					 bool bottomUp=FALSE )
 {
-    int	w = pixmap.width();
-    int	h = pixmap.height();
-    int	d = pixmap.depth();
     int	ncols = 2;
 
     if ( w == 0 )				// null pixmap
@@ -191,11 +188,27 @@ bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
 	if ( state != PST_ACTIVE )		// aborted or error
 	    return FALSE;
 	ASSERT( hdc != 0 );
-	if ( c == PDC_DRAWPIXMAP ) {		// can't bitblt pixmaps
+	if ( c == PDC_DRAWPIXMAP || c == PDC_DRAWIMAGE){// can't bitblt pixmaps
 	    QPoint  pos	   = *p[0].point;
-	    QPixmap pixmap = *p[1].pixmap;
-	    int w = pixmap.width();
-	    int h = pixmap.height();
+	    QPixmap pixmap;
+	    QImage  image;
+
+	    int w;
+	    int h;
+	    int d;
+
+	    if ( c == PDC_DRAWPIXMAP ) {
+		pixmap = *p[1].pixmap;
+		w = pixmap.width();
+		h = pixmap.height();
+		d = pixmap.depth();
+	    else 
+		image = *p[1].image;
+		w = image.width();
+		h = image.height();
+		d = image.depth();
+	    }
+
 	    int dw = w;
 	    int dh = h;
 	    if ( paint && paint->hasWorldXForm() ) {
@@ -203,11 +216,16 @@ bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
 		dw = qRound(dw*m.m11());
 		dh = qRound(dh*m.m22());
 	    }
-	    BITMAPINFO *bmi = getWindowsBITMAPINFO(pixmap,TRUE);
+	    BITMAPINFO *bmi = getWindowsBITMAPINFO( w, h, d,TRUE);
 	    BITMAPINFOHEADER *bmh = (BITMAPINFOHEADER*)bmi;
 	    uchar *bits = new uchar[bmh->biSizeImage];
-	    GetDIBits( pixmap.handle(), pixmap.hbm(), 0, h,
-		       bits, bmi, DIB_RGB_COLORS );
+
+	    if ( c == PDC_DRAWPIXMAP)
+		GetDIBits( pixmap.handle(), pixmap.hbm(), 0, h,
+			   bits, bmi, DIB_RGB_COLORS );
+	    else
+		bits = image.bits();
+
 	    HANDLE hdcPrn = CreateCompatibleDC( hdc );
 	    HANDLE hbm = CreateDIBitmap( hdc, bmh, CBM_INIT,
 					 bits, bmi, DIB_RGB_COLORS );

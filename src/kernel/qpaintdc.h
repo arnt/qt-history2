@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpaintdc.h#24 $
+** $Id: //depot/qt/main/src/kernel/qpaintdc.h#25 $
 **
 ** Definition of QPaintDevice constants and flags
 **
@@ -41,7 +41,8 @@
 #define PDC_DRAWTEXT		15		// point,str
 #define PDC_DRAWTEXTFRMT	16		// rect,ival,str
 #define PDC_DRAWPIXMAP		17		// point,pixmap
-#define PDC_DRAW_LAST		17
+#define PDC_DRAWIMAGE		18		// point,image
+#define PDC_DRAW_LAST		18
 #define PDC_BEGIN		30		//  <void>
 #define PDC_END			31		//  <void>
 #define PDC_SAVE		32		//  <void>
@@ -75,6 +76,7 @@ union QPDevCmdParam {
     const QRect		*rect;
     const QPointArray	*ptarr;
     const QPixmap	*pixmap;
+    const QImage	*image;
     const QColor	*color;
     const QFont		*font;
     const QPen		*pen;

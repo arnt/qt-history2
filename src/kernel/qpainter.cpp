@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.cpp#128 $
+** $Id: //depot/qt/main/src/kernel/qpainter.cpp#129 $
 **
 ** Implementation of QPainter, QPen and QBrush classes
 **
@@ -22,7 +22,7 @@
 #include "qimage.h"
 #include <stdlib.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter.cpp#128 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter.cpp#129 $");
 
 
 /*!
@@ -196,7 +196,7 @@ QPainter::~QPainter()
 	end();
     }
     if ( tabarray )				// delete tab array
-	delete tabarray;
+	delete [] tabarray;
     if ( ps_stack )
 	killPStack();
 }
@@ -666,7 +666,8 @@ void QPainter::setTabArray( int *ta )
 #endif
     if ( ta != tabarray ) {
 	tabarraylen = 0;
-	delete [] tabarray;			// delete old array
+	if ( tabarray )				// Avoid purify complaint
+	    delete [] tabarray;			// delete old array
 	if ( ta ) {				// tabarray = copy of 'ta'
 	    while ( ta[tabarraylen] )
 		tabarraylen++;
@@ -1617,18 +1618,44 @@ void QPainter::drawPixmap( const QPoint &p, const QPixmap &pm )
 void QPainter::drawImage( int x, int y, const QImage & image,
 			    int sx, int sy, int sw, int sh )
 {
-    if ( sw < 0 ) sw = image.width();
-    if ( sh < 0 ) sh = image.height();
+    if ( !isActive() || image.isNull() )
+	return;
+
+    // right/bottom
+    if ( sw < 0 )
+	sw = image.width()  - sx;
+    if ( sh < 0 )
+	sh = image.height() - sy;
+
+    // Sanity-check clipping
+    if ( sx < 0 ) {
+	x -= sx;
+	sw += sx;
+	sx = 0;
+    }
+    if ( sw + sx > image.width() )
+	sw = image.width() - sx;
+    if ( sy < 0 ) {
+	y -= sy;
+	sh += sy;
+	sy = 0;
+    }
+    if ( sh + sy > image.height() )
+	sh = image.height() - sy;
+    
+    if ( sw <= 0 || sh <= 0 )
+	return;
 
     bool all = image.rect().intersect(QRect(sx,sy,sw,sh)) == image.rect();
     QImage subimage = all ? image : image.copy(sx,sy,sw,wh);
 
     if ( testf(ExtDev) ) {
-	// ###
-	// ### add QPrinter shortcut here
-	// ###
-	// ### return;
-	// ###
+	QPDevCmdParam param[2];
+	QPoint p(x,y);
+	param[0].point = &p;
+	param[1].image = &image;
+	if ( !pdev->cmd(PDC_DRAWIMAGE,this,param) || !hd )
+	    return;
     }
 
     QPixmap pm;

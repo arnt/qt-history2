@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/kernel/qpsprn.cpp#44 $
+** $Id: //depot/qt/main/src/kernel/qpsprn.cpp#45 $
 **
 ** Implementation of QPSPrinter class
 **
@@ -26,7 +26,7 @@
 #include <unistd.h>
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpsprn.cpp#44 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpsprn.cpp#45 $");
 
 
 // Note: this is comment-stripped and word-wrapped later.
@@ -2071,7 +2071,8 @@ static void hexOut( QTextStream &stream, int i )
 }
 
 
-static void ps_dumpTransparentBitmapData( QTextStream &stream, QImage &img )
+static void ps_dumpTransparentBitmapData( QTextStream &stream,
+					  const QImage &img )
 {
     stream.setf( QTextStream::hex, QTextStream::basefield );
 
@@ -2097,7 +2098,7 @@ static void ps_dumpTransparentBitmapData( QTextStream &stream, QImage &img )
 
 
 static void ps_dumpPixmapData( QTextStream &stream, QImage img,
-			       QColor fgCol, QColor bgCol )
+			       const QColor fgCol, const QColor bgCol )
 {
     stream.setf( QTextStream::hex, QTextStream::basefield );
 
@@ -2317,37 +2318,22 @@ bool QPSPrinter::cmd( int c , QPainter *paint, QPDevCmdParam *p )
 	    }
 	    break;
 	case PDC_DRAWTEXTFRMT:;
-	    return FALSE;			// uses Qt instead
+	    return FALSE;			// uses QPainter instead
 	case PDC_DRAWPIXMAP: {
 	    if ( p[1].pixmap->isNull() )
 		break;
 	    QPoint pnt = *(p[0].point);
-	    stream << pnt.x() << " " << pnt.y() << " TR\n";
-	    QImage img;
+	    QImage img;	
 	    img = *(p[1].pixmap);
-	    bool mask  = FALSE;
-	    int width  = img.width();
-	    int height = img.height();
-
-	    QColor fgCol = paint->pen().color();
-	    QColor bgCol = paint->backgroundColor();
-	    if ( mask )
-		stream << COLOR(fgCol) << "CRGB SRGB\n";
-	    stream << "/sl " << (mask ? (width + 7)/8 : width*3)
-		   << " string def\n";
-	    stream << width << " " << height;
-	    if ( !mask )
-		stream << " 8 ";
-	    stream << "[1 0 0 1 0 0] { currentfile sl readhexstring pop }\n";
-	    if ( mask ) {
-		stream << "imagemask\n";
-//		QColor fgCol = paint->pen().color();
-		ps_dumpTransparentBitmapData( stream, img );
-	    } else {
-		stream << "false 3 colorimage\n";
-		ps_dumpPixmapData( stream, img, fgCol, bgCol );
-	    }
-	    stream << -pnt.x() << " " << -pnt.y() << " TR\n";
+	    drawImage( paint, pnt, img );
+	    break;
+	}
+	case PDC_DRAWIMAGE: {
+	    if ( p[1].image->isNull() )
+		break;
+	    QPoint pnt = *(p[0].point);
+	    QImage img = *(p[1].image);
+	    drawImage( paint, pnt, img );
 	    break;
 	}
 	case PDC_SAVE:
@@ -2431,6 +2417,36 @@ bool QPSPrinter::cmd( int c , QPainter *paint, QPDevCmdParam *p )
 	    break;
     }
     return TRUE;
+}
+
+
+void QPSPrinter::drawImage( QPainter *paint, const QPoint &pnt,
+			    const QImage &img )
+{
+    stream << pnt.x() << " " << pnt.y() << " TR\n";
+
+    bool mask  = FALSE;
+    int width  = img.width();
+    int height = img.height();
+    
+    QColor fgCol = paint->pen().color();
+    QColor bgCol = paint->backgroundColor();
+    if ( mask )
+	stream << COLOR(fgCol) << "CRGB SRGB\n";
+    stream << "/sl " << (mask ? (width + 7)/8 : width*3)
+	   << " string def\n";
+    stream << width << " " << height;
+    if ( !mask )
+	stream << " 8 ";
+    stream << "[1 0 0 1 0 0] { currentfile sl readhexstring pop }\n";
+    if ( mask ) {
+	stream << "imagemask\n";
+	ps_dumpTransparentBitmapData( stream, img );
+    } else {
+	stream << "false 3 colorimage\n";
+	ps_dumpPixmapData( stream, img, fgCol, bgCol );
+    }
+    stream << -pnt.x() << " " << -pnt.y() << " TR\n";
 }
 
 void QPSPrinter::matrixSetup( QPainter *paint )

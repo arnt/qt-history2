@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qregion.h#34 $
+** $Id: //depot/qt/main/src/kernel/qregion.h#35 $
 **
 ** Definition of QRegion class
 **
@@ -110,6 +110,7 @@ private:
 #if defined(_WS_PM_)
     static HPS hps;
 #endif
+    friend class QPSPrinter;
 };
 
 
