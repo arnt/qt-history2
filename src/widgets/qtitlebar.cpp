@@ -226,7 +226,7 @@ void QTitleBar::readColors()
 		pal.setColor( QPalette::Inactive, QColorGroup::Base, palette().inactive().highlight() );
 	    }
 	}
-    } else 
+    } else
 #endif // Q_WS_WIN
     {
 	pal.setColor( QPalette::Active, QColorGroup::Highlight, palette().active().highlight() );
@@ -247,7 +247,7 @@ void QTitleBar::mousePressEvent( QMouseEvent * e)
 	d->pressed = TRUE;
 	QStyle::SCFlags ctrl = style().querySubControl(QStyle::CC_TitleBar, this, e->pos());
 	switch (ctrl) {
-	case QStyle::SC_TitleBarSysMenu: 
+	case QStyle::SC_TitleBarSysMenu:
 	    if ( testWFlags( WStyle_SysMenu ) && !testWFlags( WStyle_Tool ) ) {
 		d->buttonDown = QStyle::SC_None;
 		static QTime* t = 0;
@@ -296,7 +296,7 @@ void QTitleBar::mousePressEvent( QMouseEvent * e)
 	    d->buttonDown = ctrl;
 	    d->moveOffset = mapToParent( e->pos() );
 	    break;
-	    
+	
 	default:
 	    break;
 	}
@@ -327,7 +327,7 @@ void QTitleBar::mouseReleaseEvent( QMouseEvent * e)
 		if( testWFlags( WStyle_MinMax ) && testWFlags( WStyle_Tool ) )
 		    emit doShade();
 		break;
-	    
+	
 	    case QStyle::SC_TitleBarNormalButton:
 		if( testWFlags( WStyle_MinMax ) && !testWFlags( WStyle_Tool ) )
 		    emit doNormal();
@@ -351,7 +351,7 @@ void QTitleBar::mouseReleaseEvent( QMouseEvent * e)
 		if( testWFlags( WStyle_SysMenu ) ) {
 		    d->buttonDown = QStyle::SC_None;
 		    repaint(FALSE);
-		    emit doClose();		    
+		    emit doClose();		
 		    return;
 		}
 		break;
@@ -389,7 +389,7 @@ void QTitleBar::mouseMoveEvent( QMouseEvent * e)
 	    repaint(FALSE);
 	    d->buttonDown = last_ctrl;
 	}
-	break; 
+	break;
 
     case QStyle::SC_TitleBarLabel:
 	if ( d->buttonDown == QStyle::SC_TitleBarLabel && d->movable && d->pressed ) {
@@ -471,10 +471,10 @@ void QTitleBar::paintEvent(QPaintEvent *)
 			       colorGroup(),
 			       isEnabled() ? QStyle::Style_Enabled :
 			       QStyle::Style_Default, ctrls, d->buttonDown);
-    if(under_mouse != QStyle::SC_None) 
+    if(under_mouse != QStyle::SC_None)
 	style().drawComplexControl(QStyle::CC_TitleBar, buffer.painter(), this, rect(),
 				   colorGroup(),
-				   QStyle::Style_MouseOver | 
+				   QStyle::Style_MouseOver |
 				   (isEnabled() ? QStyle::Style_Enabled : 0),
 				   under_mouse, d->buttonDown);
 }
@@ -595,7 +595,7 @@ bool QTitleBar::isActive() const
 }
 
 QString QTitleBar::visibleText() const
-{ 
+{
     return d->cuttext;
 }
 
@@ -610,11 +610,9 @@ bool QTitleBar::event( QEvent* e )
 	readColors();
 	return TRUE;
     } else if ( e->type() == QEvent::WindowActivate ) {
-	setActive( d->act );
+	setActive( TRUE );
     } else if ( e->type() == QEvent::WindowDeactivate ) {
-	bool wasActive = d->act;
 	setActive( FALSE );
-	d->act = wasActive;
     }
 
     return QWidget::event( e );

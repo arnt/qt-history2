@@ -4352,7 +4352,10 @@ bool QWidget::event( QEvent *e )
 		QObject *o;
 		while( ( o = it.current() ) != 0 ) {
 		    ++it;
-		    QApplication::sendEvent( o, e );
+		    if ( o->isWidgetType() && 
+			 ((QWidget*)o)->isVisible() &&
+			 !((QWidget*)o)->isTopLevel() )
+			QApplication::sendEvent( o, e );
 		}
 	    }
 	    break;

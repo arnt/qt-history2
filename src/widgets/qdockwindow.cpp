@@ -1632,6 +1632,8 @@ void QDockWindow::undock( QWidget *w )
     if ( inherits( "QToolBar" ) )
 	adjustSize();
     if ( !w ) {
+	if ( parentWidget() )
+	    parentWidget()->installEventFilter( this );
 	if ( !parentWidget() || parentWidget()->isVisible() )
 	    show();
     } else {
@@ -1677,6 +1679,8 @@ void QDockWindow::dock()
     if ( !(QDockArea::DockWindowData*)dockWindowData ||
 	 !( (QDockArea::DockWindowData*)dockWindowData )->area )
 	return;
+    if ( parentWidget() )
+	parentWidget()->removeEventFilter( this );
     curPlace = InDock;
     lastPos = pos();
     lastSize = size();
@@ -1770,7 +1774,13 @@ void QDockWindow::updateSplitterVisibility( bool visible )
 /*! \reimp */
 bool QDockWindow::eventFilter( QObject *o, QEvent *e )
 {
-    if ( e->type() == QEvent::KeyPress ) {
+    if ( parentWidget() == o ) {
+	if ( (e->type() == QEvent::WindowDeactivate ||
+	      e->type() == QEvent::WindowActivate )
+	     && place() == OutsideDock && isTopLevel()  
+	     && !isActiveWindow() )
+	    event( e );
+    } else if ( e->type() == QEvent::KeyPress ) {
 	QKeyEvent *ke = (QKeyEvent*)e;
 	if ( ke->key() == Key_Escape ) {
 	    horHandle->mousePressed = FALSE;
@@ -1781,23 +1791,38 @@ bool QDockWindow::eventFilter( QObject *o, QEvent *e )
 	    return TRUE;
 	}
     }
-
-    return QFrame::eventFilter( o, e );
+    
+    return FALSE;
 }
 
 /*! \reimp */
 bool QDockWindow::event( QEvent *e )
 {
-    if ( e->type() == QEvent::WindowDeactivate ) {
-	if ( place() == OutsideDock ) {
-	    titleBar->setActive( FALSE );
-	    update();
+    switch ( e->type() ) {
+    case QEvent::WindowDeactivate:
+	if ( place() == OutsideDock && isTopLevel() && parentWidget() 
+	     && parentWidget()->isActiveWindow() ) 
+	    return TRUE;
+	break;	
+    case QEvent::Accel:
+    case QEvent::AccelAvailable: { 
+	if ( place() == OutsideDock && isTopLevel() && parentWidget() ) {
+	    // if we are floating and active, we still want our
+	    // parent's accelerators to work
+	    if ( QFrame::event( e ) ) // check our own accelerators first
+		return TRUE;
+	    // then check our parent's accelerators ...
+	    if ( QApplication::sendEvent( parentWidget(), e ) ) {
+		// ... and if they worked, make the parent the active window if we safely can
+		if ( e->type() == QEvent::Accel && isActiveWindow() )
+		    parentWidget()->setActiveWindow();
+		return TRUE;
+	    }
 	}
-    } else if ( e->type() == QEvent::WindowActivate ) {
-	if ( place() == OutsideDock ) {
-	    titleBar->setActive( TRUE );
-	    update();
-	}
+    } 
+    break;
+    default:
+	break;
     }
     return QFrame::event( e );
 }
