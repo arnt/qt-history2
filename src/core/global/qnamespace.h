@@ -80,8 +80,8 @@ public:
     };
     Q_DECLARE_FLAGS(MouseButtons, MouseButton);
 
-#if defined( QT_COMPAT ) || 1
-    enum {   
+#if defined(QT_COMPAT)
+    enum {
         ShiftButton     = Qt::ShiftModifier,
         ControlButton   = Qt::ControlModifier,
         AltButton       = Qt::AltModifier,
