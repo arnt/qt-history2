@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/moc/moc.y#76 $
+** $Id: //depot/qt/main/src/moc/moc.y#77 $
 **
 ** Parser and code generator for meta object compiler
 **
@@ -37,7 +37,7 @@ void yyerror( char *msg );
 #include <stdio.h>
 #include <stdlib.h>
 
-RCSTAG("$Id: //depot/qt/main/src/moc/moc.y#76 $");
+RCSTAG("$Id: //depot/qt/main/src/moc/moc.y#77 $");
 
 static QString rmWS( const char * );
 
@@ -88,6 +88,11 @@ char	*strnew( const char * );		// returns a new string (copy)
 char	*stradd( const char *, const char * );	// add two strings
 char	*stradd( const char *, const char *,	// add three strings
 			       const char * );
+char	*straddSpc( const char *, const char * );
+char	*straddSpc( const char *, const char *,
+			       const char * );
+char	*straddSpc( const char *, const char *,
+		    const char *, const char * );
 
 extern int yydebug;
 bool	   lexDebug	   = FALSE;
@@ -261,16 +266,7 @@ decl_specifier:		  storage_class_specifier { $$ = ""; }
 			;
 
 decl_specifiers:	  decl_specs_opt type_name decl_specs_opt
-						  { char *tmp = new char[
-						    strlen($1) +
-						    strlen($2) +
-						    strlen($3) + 3 ];
-						    strcpy(tmp,$1);
-						    strcat(tmp," ");
-						    strcat(tmp,$2);
-						    strcat(tmp," ");
-						    strcat(tmp,$3);
-						    $$ = tmp; }
+						  { $$ = straddSpc($1,$2,$3); }
 			;
 
 decl_specs_opt:			/* empty */	  { $$ = ""; }
@@ -278,7 +274,7 @@ decl_specs_opt:			/* empty */	  { $$ = ""; }
 			;
 
 decl_specs:		  decl_specifier	    { $$ = $1; }
-			| decl_specs decl_specifier { $$ = stradd($1," ",$2); }
+			| decl_specs decl_specifier { $$ = straddSpc($1,$2); }
 			;
 
 storage_class_specifier:  AUTO
@@ -301,7 +297,7 @@ type_name:		  elaborated_type_specifier { $$ = $1; }
 			;
 
 simple_type_names:	  simple_type_names simple_type_name
-						    { $$ = stradd($1," ",$2); }
+						    { $$ = straddSpc($1,$2); }
 			| simple_type_name	    { $$ = $1; }
 
 simple_type_name:	  CHAR			    { $$ = "char"; }
@@ -341,7 +337,7 @@ qualified_class_name:	  qualified_class_name DBL_COLON class_name
 			;
 
 elaborated_type_specifier:
-			  class_key IDENTIFIER	{ $$ = stradd($1," ",$2); }
+			  class_key IDENTIFIER	{ $$ = straddSpc($1,$2); }
 			| ENUM IDENTIFIER	{ $$ = stradd("enum ",$2); }
 			| UNION IDENTIFIER	{ $$ = stradd("union ",$2); }
 			;
@@ -372,22 +368,22 @@ arg_declaration_list:	  arg_declaration_list
 			| argument_declaration	{ $$ = addArg($1); }
 
 argument_declaration:	  decl_specifiers abstract_decl_opt
-				{ $$ = new Argument(stradd($1,$2),"");
+				{ $$ = new Argument(straddSpc($1,$2),"");
 				  CHECK_PTR($$); }
 			| decl_specifiers abstract_decl_opt
 			  '=' { expLevel = 1; }
 			  const_expression
-				{ $$ = new Argument(stradd($1,$2),"");
+				{ $$ = new Argument(straddSpc($1,$2),"");
 				  CHECK_PTR($$); }
 			| decl_specifiers abstract_decl_opt dname
 				abstract_decl_opt
-				{ $$ = new Argument(stradd($1,$2),$4);
+				{ $$ = new Argument(straddSpc($1,$2),$4);
 				  CHECK_PTR($$); }
 			| decl_specifiers abstract_decl_opt dname
 				abstract_decl_opt
 			  '='	{ expLevel = 1; }
 			  const_expression
-				{ $$ = new Argument(stradd($1,$2),$4);
+				{ $$ = new Argument(straddSpc($1,$2),$4);
 				  CHECK_PTR($$); }
 			;
 
@@ -397,7 +393,7 @@ abstract_decl_opt:	  /* empty */		{ $$ = ""; }
 			;
 
 abstract_decl:		  abstract_decl ptr_operator
-						{ $$ = stradd($1,$2); }
+						{ $$ = straddSpc($1,$2); }
 			| '['			{ expLevel = 1; }
 			  const_expression ']'
 				   { $$ = stradd( "[",
@@ -414,7 +410,7 @@ abstract_decl:		  abstract_decl ptr_operator
 
 declarator:		  dname			{ $$ = ""; }
 			| declarator ptr_operator
-						{ $$ = stradd($1,$2);}
+						{ $$ = straddSpc($1,$2);}
 			| declarator '['	{ expLevel = 1; }
 			  const_expression ']'
 				   { $$ = stradd( $1,"[",
@@ -459,11 +455,11 @@ ptr_operators_opt:	   /* empty */		{ $$ = ""; }
 			;
 
 ptr_operators:		  ptr_operator		{ $$ = $1; }
-			| ptr_operators ptr_operator { $$ = stradd($1," ",$2);}
+			| ptr_operators ptr_operator { $$ = straddSpc($1,$2);}
 			;
 
-ptr_operator:		  '*' cv_qualifier_list_opt { $$ = stradd("*"," ",$2);}
-			| '&' cv_qualifier_list_opt { $$ = stradd("&"," ",$2);}
+ptr_operator:		  '*' cv_qualifier_list_opt { $$ = straddSpc("*",$2);}
+			| '&' cv_qualifier_list_opt { $$ = stradd("&",$2);}
 /*!			| complete_class_name
 			  DBL_COLON
 			  '*'
@@ -476,7 +472,7 @@ cv_qualifier_list_opt:		/* empty */	{ $$ = ""; }
 
 cv_qualifier_list:	  cv_qualifier		{ $$ = $1; }
 			| cv_qualifier_list cv_qualifier
-						{ $$ = stradd($1,$2); }
+						{ $$ = straddSpc($1,$2); }
 			;
 
 cv_qualifier:		  CONST			{ $$ = "const"; }
@@ -691,19 +687,22 @@ type_and_name:		  type_name fct_name
 						}
 			| decl_specs type_name decl_specs_opt
 			  ptr_operators_opt fct_name
-						{ tmpFunc->type =
-						      stradd($1,$2,$3,$4);
-						  tmpFunc->name = $5; }
+						{   
+						    char *tmp = 
+							straddSpc($1,$2,$3,$4);
+						    tmpFunc->type = rmWS(tmp);
+						    delete tmp;
+						    tmpFunc->name = $5; }
 			| decl_specs type_name /* probably friend decl */
 						{ skipFunc = TRUE; }
 			| type_name ptr_operators fct_name
 						{ tmpFunc->type =
-						      stradd($1,$2);
+						      straddSpc($1,$2);
 						  tmpFunc->name = $3; }
 			| type_name decl_specs ptr_operators_opt
 			  fct_name
 						{ tmpFunc->type =
-						      stradd($1,$2,$3);
+						      straddSpc($1,$2,$3);
 						  tmpFunc->name = $4; }
 			| type_name OPERATOR operator_name
 						{ operatorError();    }
@@ -1151,6 +1150,43 @@ char *stradd( const char *s1, const char *s2,
 }
 
 
+char *straddSpc( const char *s1, const char *s2 )
+{
+    char *n = new char[strlen(s1)+strlen(s2)+2];
+    CHECK_PTR( n );
+    strcpy( n, s1 );
+    strcat( n, " " );
+    strcat( n, s2 );
+    return n;
+}
+
+char *straddSpc( const char *s1, const char *s2, const char *s3 )
+{
+    char *n = new char[strlen(s1)+strlen(s2)+strlen(s3)+3];
+    CHECK_PTR( n );
+    strcpy( n, s1 );
+    strcat( n, " " );
+    strcat( n, s2 );
+    strcat( n, " " );
+    strcat( n, s3 );
+    return n;
+}
+
+char *straddSpc( const char *s1, const char *s2,
+	      const char *s3, const char *s4 )
+{
+    char *n = new char[strlen(s1)+strlen(s2)+strlen(s3)+strlen(s4)+4];
+    CHECK_PTR( n );
+    strcpy( n, s1 );
+    strcat( n, " " );
+    strcat( n, s2 );
+    strcat( n, " " );
+    strcat( n, s3 );
+    strcat( n, " " );
+    strcat( n, s4 );
+    return n;
+}
+
 // Generate C++ code for building member function table
 
 const int Slot_Num   = 1;
@@ -1198,7 +1234,7 @@ void generateClass()		      // generate C++ source code for a class
     char *hdr1 = "/****************************************************************************\n"
 		 "** %s meta object code from reading C++ file '%s'\n**\n";
     char *hdr2 = "** Created: %s\n"
-		 "**      by: The Qt Meta Object Compiler ($Revision: 2.10 $)\n**\n";
+		 "**      by: The Qt Meta Object Compiler ($Revision: 2.11 $)\n**\n";
     char *hdr3 = "** WARNING! All changes made in this file will be lost!\n";
     char *hdr4 = "*****************************************************************************/\n\n";
     int   i;
