@@ -225,7 +225,7 @@ int QWindowsMime::registerMimeType(const QString &mime)
 \fn QVariant QWindowsMime::convertToMime(const QString &mime, QVariant::Type preferredType, struct IDataObject *pDataObj) const
 
   Returns a QVariant containing the converted data for \a mime from \a pDataObject.
-  If possible the QVariant should be of the \a prefferedType to avoid needless conversions.
+  If possible the QVariant should be of the \a preferredType to avoid needless conversions.
   
   All subclasses must reimplement this pure virtual function.
 */
