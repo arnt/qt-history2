@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qstylesheet.cpp#15 $
+** $Id: //depot/qt/main/src/kernel/qstylesheet.cpp#16 $
 **
 ** Implementation of the QStyleSheet class
 **
@@ -1141,13 +1141,13 @@ void QStyleSheet::error( const QString& ) const
 
 
 /*!
-  Scales the font \a font to the appropriate phsycial point size
+  Scales the font \a font to the appropriate physical point size
   corresponding to the logical font size \a logicalSize.
   
   When calling this function, \a font has a point size corresponding to
   the logical font size 3.
   
-  Typical logical font sizes range from 1 to 7, with 1 beeing the smallest.
+  Typical logical font sizes range from 1 to 7, with 1 being the smallest.
 
   \sa logicalFontSize(), logicalFontSizeStep(), QFont::setPointSize()
  */
