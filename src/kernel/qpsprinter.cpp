@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/kernel/qpsprinter.cpp#54 $
+** $Id: //depot/qt/main/src/kernel/qpsprinter.cpp#55 $
 **
 ** Implementation of QPSPrinter class
 **
@@ -492,6 +492,41 @@ static const char *ps_header[] = {
 "    }",
 "    { [] } ifelse",				// out of range => solid line
 "} D",
+"",
+"",
+"/colorimage where {",
+"  pop",
+"  /QCI {", // as colorimage but without the last three arguments
+"    {currentfile sl readhexstring pop} false 3 colorimage",
+"  } D",
+"} {", // the hard way.  based on PD code by John Walker <kelvin@autodesk.com>
+"  /QCI {",
+"    50 dict begin",
+"      /Matrix exch def",
+"      /Bcomp exch def",
+"      /Height exch def",
+"      /Width exch def",
+"      /Bycomp Bcomp 7 add 8 idiv def",
+"      Width Height Bcomp Matrix",
+"      /Gstr Bycomp Width mul string def",
+"      { currentfile sl readhexstring pop",
+"	/Cstr exch def",
+"	0 1 Width 1 sub {",
+"	  /I exch def",
+"	  /X I 3 mul def",
+"	  Gstr I",
+"	  Cstr X       get 0.30 mul",
+"	  Cstr X 1 add get 0.59 mul",
+"	  Cstr X 2 add get 0.11 mul",
+"	  add add cvi",
+"	  put",
+"	} for",
+"	Gstr",
+"      }",
+"      image",
+"    end",
+"  } D",
+"} ifelse",
 0};
 
 
@@ -2053,7 +2088,16 @@ void QPSPrinter::setFont( const QFont & f )
     ps.replace( QRegExp( "/Utopia " ), "/Utopia-Regular " );
 
     QString key;
-    key.sprintf( "%s %d %d", ps.data(), f.pointSize(), (int)f.charSet() );
+    int cs = (int)f.charSet();
+    if ( cs == QFont::AnyCharSet ) {
+	QIntDictIterator<void> it( d->headerEncodings );
+	if ( it.current() )
+	    cs = it.currentKey();
+	else
+	    cs = QFont::Latin1;
+    }
+
+    key.sprintf( "%s %d %d", ps.data(), f.pointSize(), cs );
     QString * tmp;
     tmp = d->headerFontNames.find( key );
     if ( !tmp && !d->buffer )
@@ -2068,28 +2112,31 @@ void QPSPrinter::setFont( const QFont & f )
 	fontMatrix.sprintf( " [ %d 0 0 -%d 0 0 ] ",
 			    f.pointSize(), f.pointSize() );
 	QString fontEncoding;
-	fontEncoding.sprintf( " FE%d", (int)f.charSet() );
+	fontEncoding.sprintf( " FE%d", cs );
 	if ( d->buffer ) {
 	    fontName.sprintf( "/F%d", ++d->headerFontNumber );
-	    if ( !d->headerEncodings.find( (int)f.charSet() ) ) {
-		QString * vector = font_vectors->find( (int)f.charSet() );
-		if ( !vector )
-		    vector = font_vectors->find( QFont::Latin1 );
-		d->fontStream << *vector << "\n";
-		d->headerEncodings.insert( (int)f.charSet(), (void*)42 );
+	    if ( !d->headerEncodings.find( cs ) ) {
+		QString * vector = font_vectors->find( cs );
+		if ( vector ) {
+		    d->fontStream << *vector << "\n";
+		    d->headerEncodings.insert( cs, (void*)42 );
+		} else {
+		    d->fontStream << "% wanted font encoding "
+				  << cs << "\n";
+		}
 	    }
 	    d->fontStream << fontName << fontEncoding
 			  << fontMatrix << "[ " << ps << "] MF\n";
 	    d->headerFontNames.insert( key, new QString( fontName ) );
 	} else {
 	    fontName.sprintf( "/F%d", ++d->pageFontNumber );
-	    if ( !d->headerEncodings.find( (int)f.charSet() ) &&
-		 !d->pageEncodings.find( (int)f.charSet() ) ) {
-		QString * vector = font_vectors->find( (int)f.charSet() );
+	    if ( !d->headerEncodings.find( cs ) &&
+		 !d->pageEncodings.find( cs ) ) {
+		QString * vector = font_vectors->find( cs );
 		if ( !vector )
 		    vector = font_vectors->find( QFont::Latin1 );
 		stream << *vector << "\n";
-		d->pageEncodings.insert( (int)f.charSet(), (void*)42 );
+		d->pageEncodings.insert( cs, (void*)42 );
 	    }
 	    stream << fontName << fontEncoding
 		   << fontMatrix << "[ " << ps << "] MF\n";
@@ -2173,11 +2220,11 @@ static void ps_dumpPixmapData( QTextStream &stream, QImage img,
 	    hexOut( stream, qRed(cval) );
 	    hexOut( stream, qGreen(cval) );
 	    hexOut( stream, qBlue(cval) );
+	    if ( !(count++ % 13) )
+		stream << '\n';
 	}
-	if ( !(count++ % 11) )
-	    stream << '\n';
     }
-    if ( --count % 11 )
+    if ( --count % 13 )
 	stream << '\n';
 
     stream.setf( QTextStream::dec, QTextStream::basefield );
@@ -2486,12 +2533,13 @@ void QPSPrinter::drawImage( QPainter *paint, const QPoint &pnt,
     stream << width << " " << height;
     if ( !mask )
 	stream << " 8 ";
-    stream << "[1 0 0 1 0 0] { currentfile sl readhexstring pop }\n";
     if ( mask ) {
-	stream << "imagemask\n";
+	// ### looks wrong.  imagemask needs 1-bit, not 8-bit
+	stream << "[1 0 0 1 0 0] { currentfile sl readhexstring pop }\n"
+	       << "imagemask\n";
 	ps_dumpTransparentBitmapData( stream, img );
     } else {
-	stream << "false 3 colorimage\n";
+	stream << "[1 0 0 1 0 0] QCI\n";
 	ps_dumpPixmapData( stream, img, fgCol, bgCol );
     }
     stream << -pnt.x() << " " << -pnt.y() << " TR\n";
