@@ -22,15 +22,14 @@
 #include "qkernelapplication.h"
 #include "qpoint.h"
 #include "qsize.h"
+#ifdef QT_INCLUDE_COMPAT
+# include "qdesktopwidget.h"
+#endif
+#ifndef QT_NO_COMPAT
+# include "qwidget.h"
+#endif
 #endif // QT_H
 
-#ifdef QT_INCLUDE_COMPAT
-#include "qdesktopwidget.h"
-#endif
-
-#ifndef QT_NO_COMPAT
-#include "qwidget.h"
-#endif
 class QSessionManager;
 class QDesktopWidget;
 class QStyle;

@@ -49,7 +49,6 @@
 #include "qwsregionmanager_qws.h"
 #include "qwindowsystem_qws.h"
 #include "qwsdisplay_qws.h"
-#include "qnetwork.h"
 #include "qcursor.h"
 #include "qinputcontext_p.h"
 #include "qfile.h"
@@ -1585,7 +1584,7 @@ void qt_init(QApplicationPrivate *priv, int type )
 
 
 #ifndef QT_NO_NETWORK
-    qInitNetworkProtocols();
+//    qInitNetworkProtocols();
 #endif
 }
 
@@ -2564,11 +2563,10 @@ bool QETWidget::translateMouseEvent( const QWSMouseEvent *event, int oldstate )
 	    // in X11, this would be the window we are over.
 	    // in QWS this is the top level popup.  to allow mouse
 	    // events to other widgets, need to go through qApp->popupWidgets.
-	    QWidgetListIt it(*(qApp->popupWidgets));
 	    QSize s( qt_screen->width(), qt_screen->height() );
 	    QPoint dp = qt_screen->mapToDevice( globalPos, s );
-	    for (; it.current(); ++it) {
-		QWidget *w = it.current();
+	    for (int i = 0; i < qApp->popupWidgets->size(); ++i) {
+		QWidget *w = qApp->popupWidgets->at(i);
 		if ( w->testWFlags(WType_Popup) && w->alloc_region.contains(dp) ) {
 		    popup = w;
 		    break;
