@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/moc/moc.y#52 $
+** $Id: //depot/qt/main/src/moc/moc.y#53 $
 **
 ** Parser and code generator for meta object compiler
 **
@@ -37,7 +37,7 @@
 #include <stdlib.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/moc/moc.y#52 $";
+static char ident[] = "$Id: //depot/qt/main/src/moc/moc.y#53 $";
 #endif
 
 
@@ -1211,7 +1211,7 @@ void generateClass()		      // generate C++ source code for a class
 	    predef_call = TRUE;
 	}
 	if ( !predef_call && !included_list_stuff ) {
-	    fprintf( out, "\n#include <qlist.h>\n" );
+	    fprintf( out, "\n#include \"qlist.h\"\n" );
 	    fprintf( out, "declare(QListM,QConnection);\n" );
 	    fprintf( out, "declare(QListIteratorM,QConnection);\n" );
 	    included_list_stuff = TRUE;
