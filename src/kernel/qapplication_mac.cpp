@@ -604,9 +604,8 @@ QWidget *recursive_match(QWidget *widg, int x, int y)
 	    if(curwidg->isVisible() && !curwidg->isTopLevel()) {
 		int wx=curwidg->x(), wy=curwidg->y();
 		int wx2=wx+curwidg->width(), wy2=wy+curwidg->height();
-		if(x>=wx && y>=wy && x<=wx2 && y<=wy2) {
+		if(x>=wx && y>=wy && x<=wx2 && y<=wy2) 
 		    return recursive_match(curwidg,x-wx,y-wy);
-		}
 	    }
 	}
     }
@@ -1273,6 +1272,8 @@ bool QApplication::do_mouse_down( Point *pt )
     bool in_widget = FALSE;
 
     switch( windowPart ) {
+    case inDesk:
+	break;
     case inGoAway:
 	if( widget ) {
 	    widget->close();
