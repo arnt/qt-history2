@@ -12,6 +12,7 @@
 **
 ****************************************************************************/
 
+#include <qlist.h>
 #include "private/qaquastyle_p.h"
 #include <qapplication.h>
 #include <qcombobox.h>
@@ -335,8 +336,8 @@ bool QAquaAnimate::eventFilter(QObject * o, QEvent * e)
 	QPushButton *btn = (QPushButton *)o;
 	// Find the correct button to use as default button
 	QObjectList list = btn->topLevelWidget()->queryList("QPushButton");
-	for(int i = 0; i < list.count(); i++) {
-	    QPushButton *pb = (QPushButton*)list.at(i);
+	for(QObjectList::Iterator it = list.begin(); it != list.end(); ++it) {
+	    QPushButton *pb = (*it);
 	    if(((e->type() == QEvent::FocusOut) && (pb->isDefault() ||
 						    (pb->autoDefault() && pb->hasFocus())) && (pb != btn)) ||
 		((e->type() == QEvent::Show) && pb->isDefault()))  {
