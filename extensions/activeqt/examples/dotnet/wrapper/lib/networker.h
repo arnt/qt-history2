@@ -6,7 +6,6 @@
 using namespace System;
 
 class Worker;
-class Dispatcher;
 
 // .NET class
 public __gc class netWorker
