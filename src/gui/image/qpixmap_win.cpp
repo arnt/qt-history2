@@ -166,7 +166,25 @@ int QPixmap::defaultDepth()
 
 void QPixmap::fill(const QColor &fillColor)
 {
-    data->image.fill(fillColor.rgba());
+    uint pixel;
+
+    if (data->image.depth() == 1) {
+        int gray = qGray(fillColor.rgba());
+        // Pick the best approximate color in the image's colortable.
+        if (qAbs(qGray(data->image.color(0)) - gray) < qAbs(qGray(data->image.color(1)) - gray)) {
+            pixel = 0;
+        } else {
+            pixel = 1;
+        }
+    } else if (data->image.depth() == 32) {
+        // 32-bit
+        pixel = fillColor.rgba();
+    } else {
+        pixel = 0;
+        // ### what about 8/16-bits
+    }
+
+    data->image.fill(pixel);
 }
 
 void QPixmap::resize_helper(const QSize &size)
@@ -273,6 +291,8 @@ QPixmap QPixmap::grabWindow(WId, int x, int y, int w, int h )
 //###
     return QPixmap();
 }
+
+
 /*
   fills \a buf with \a r in \a widget. Then blits \a buf on \a res at
   position \a offset
@@ -301,6 +321,8 @@ static void grabWidget_helper(QWidget *widget, QPixmap &res, QPixmap &buf,
         grabWidget_helper(child, res, buf, cr, offset + child->pos());
     }
 }
+
+
 QPixmap QPixmap::grabWidget(QWidget *widget, const QRect &rect)
 {
     QPixmap res, buf;
@@ -325,6 +347,8 @@ QPixmap QPixmap::grabWidget(QWidget *widget, const QRect &rect)
     grabWidget_helper(widget, res, buf, r, QPoint());
     return res;
 }
+
+
 QPixmap QPixmap::scaled(const QSize &size, Qt::AspectRatioMode aspectMode,
                        Qt::TransformationMode mode ) const
 {
@@ -384,6 +408,7 @@ bool QPixmap::load(const QString& fileName, const char *format, Qt::ImageConvers
     }
     return false;
 }
+
 bool QPixmap::loadFromData(const uchar *buf, uint len, const char* format, Qt::ImageConversionFlags flags )
 {
     QByteArray a = QByteArray::fromRawData(reinterpret_cast<const char *>(buf), len);
@@ -395,10 +420,12 @@ bool QPixmap::loadFromData(const uchar *buf, uint len, const char* format, Qt::I
         *this = fromImage(image, flags);
     return !isNull();
 }
+
 bool QPixmap::loadFromData(const QByteArray &data, const char* format, Qt::ImageConversionFlags flags )
 {
     return loadFromData((const uchar *)data.constData(), data.size(), format, flags);
 }
+
 bool QPixmap::save(const QString& fileName, const char* format, int quality ) const
 {
     if (isNull())
@@ -406,6 +433,7 @@ bool QPixmap::save(const QString& fileName, const char* format, int quality ) co
     QImageWriter writer(fileName, format);
     return doImageIO(&writer, quality);
 }
+
 bool QPixmap::save(QIODevice* device, const char* format, int quality ) const
 {
     if (isNull())
