@@ -13635,15 +13635,6 @@ QString &QString::replace( uint index, uint len, const QChar* s, uint slen )
   \sa findRev() replace() contains()
 */
 
-int QString::find( QRegExp &rx, int index ) const
-{
-    return rx.search( *this, index );
-}
-
-/*!
-  \overload
-*/
-
 int QString::find( const QRegExp &rx, int index ) const
 {
     return rx.search( *this, index );
@@ -13659,15 +13650,6 @@ int QString::find( const QRegExp &rx, int index ) const
   found.
 
   \sa find()
-*/
-
-int QString::findRev( QRegExp &rx, int index ) const
-{
-    return rx.searchRev( *this, index );
-}
-
-/*!
-  \overload
 */
 
 int QString::findRev( const QRegExp &rx, int index ) const
