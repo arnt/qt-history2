@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: qcache.doc,v 2.9 1998/07/03 10:25:26 aavit Exp $
+** $Id: qcache.doc,v 2.10 1998/10/14 10:34:03 warwick Exp $
 **
 ** QCache and QCacheIterator class documentation
 **
@@ -539,7 +539,7 @@
 
 
 
-/*! \fn bool QIntCache::insert( long k, const type *d, long c, int p )
+/*! \fn bool QIntCache::insert( long k, const type *d, int c, int p )
 
   Inserts the item \a d into the cache with key \a k, cost \c (default
   1) and priority \a p (default 0).  Returns TRUE if it succeeds and
