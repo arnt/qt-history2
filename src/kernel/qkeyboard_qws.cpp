@@ -601,11 +601,6 @@ QWSKeyboardHandler *QWSServer::newKeyboardHandler( const QString &spec )
 	handler = new QWSVr41xxButtonsHandler();
     } else if ( spec == "QVFbKeyboard" ) {
 	handler = new QWSVFbKeyboardHandler();
-	if ( !((QWSVFbKeyboardHandler *)handler)->isOpen() ) {
-	    qWarning( "Cannot open virtual keyboard - using tty" );
-	    delete handler;
-	    handler = new QWSTtyKeyboardHandler();
-	}
     } else if ( spec == "TTY" ) {
 	handler = new QWSTtyKeyboardHandler();
     } else {

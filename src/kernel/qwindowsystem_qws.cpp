@@ -1279,10 +1279,13 @@ void QWSServer::openMouse()
 #ifdef __MIPSEL__
 	mice = "TPanel:/dev/tpanel";
 #elif QT_FEATURE_QWS_VFB
-	mice = "QVFbMouse";
-#else
-	mice = "MouseMan:/dev/mouse";
+	extern bool qvfbEnabled;
+	if ( qvfbEnabled )
+	    mice = "QVFbMouse";
 #endif
+	if ( mice.isEmpty() ) {
+	    mice = "MouseMan:/dev/mouse";   // last resort
+	}
 	qDebug("Assuming mouse %s", mice.latin1() );
     }
     closeMouse();
@@ -1316,11 +1319,13 @@ void QWSServer::openKeyboard()
 #ifdef __MIPSEL__
 	keyboards = "Buttons";
 #elif QT_FEATURE_QWS_VFB
-	keyboards = "QVFbKeyboard";
-#else
-	keyboards = "TTY";
+	extern bool qvfbEnabled;
+	if ( qvfbEnabled )
+	    keyboards = "QVFbKeyboard";
 #endif
-	qDebug("Assuming keyboard %s", keyboards.latin1() );
+	if ( keyboards.isEmpty() ) {
+	    keyboards = "TTY";	// last resort
+	}
     }
     closeKeyboard();
     QStringList keyboard = QStringList::split(" ",keyboards);

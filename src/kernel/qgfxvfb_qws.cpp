@@ -28,6 +28,8 @@
 
 #include "qvfbhdr_qws.h"
 
+bool qvfbEnabled = FALSE;
+
 // Unaccelerated screen/driver setup. Can be overridden by accelerated
 // drivers
 
@@ -54,7 +56,7 @@ public:
     QVFbHeader *hdr;
 };
 
-static QVFbScreen *qvfb_screen;
+static QVFbScreen *qvfb_screen = 0;
 
 class QVFbScreenCursor : public QScreenCursor
 {
@@ -375,6 +377,7 @@ extern "C" QScreen * qt_get_screen(char *,unsigned char *)
 	qvfb_screen = new QVFbScreen();
 	if ( qvfb_screen->connect() ) {
 	    qt_screen = qvfb_screen;
+	    qvfbEnabled = TRUE;
 	} else {
 	    delete qvfb_screen;
 	}

@@ -610,11 +610,6 @@ QMouseHandler* QWSServer::newMouseHandler(const QString& spec)
 	
 	case QVFBMouse:
 	    handler = new QVFbMouseHandlerPrivate( mouseProtocol, mouseDev );
-	    if ( !((QVFbMouseHandlerPrivate *)handler)->isOpen() ) {
-		qWarning( "Cannot open virtual mouse - using MouseMan" );
-		delete handler;
-		handler = new QMouseHandlerPrivate( MouseMan, "" );
-	    }
 	    break;
 	
 	case TPanel:
