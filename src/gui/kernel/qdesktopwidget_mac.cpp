@@ -34,7 +34,6 @@ public:
     int screenCount;
 
     QVector<GDHandle> devs;
-    QVector<QRect> avail_rects;
     QVector<QRect> rects;
 };
 
@@ -45,7 +44,6 @@ QDesktopWidgetPrivate::QDesktopWidgetPrivate()
         screenCount++;
     devs.resize(screenCount);
     rects.resize(screenCount);
-    avail_rects.resize(screenCount);
     int i = 0;
     for(GDHandle g = GetMainDevice(); i < screenCount && g; g = GetNextDevice(g), i++) {
         devs[i] = g;
@@ -94,9 +92,7 @@ const QRect QDesktopWidget::availableGeometry(int screen) const
         screen = d->appScreen;
     Rect r;
     GetAvailableWindowPositioningBounds(d->devs[screen], &r);
-    //we use avail_rects to avoid returning a reference to a temporary. This API is just WRONG!!! We
-    //it should not assume the platform returns a const reference.
-    return const_cast<QRect &>(d->avail_rects[screen]) = QRect(r.left, r.top, r.right - r.left, r.bottom - r.top);
+    return QRect(r.left, r.top, r.right - r.left, r.bottom - r.top);
 }
 
 const QRect QDesktopWidget::screenGeometry(int screen) const
