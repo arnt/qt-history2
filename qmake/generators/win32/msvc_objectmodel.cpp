@@ -1926,7 +1926,7 @@ bool VCFilter::addExtraCompiler(const VCFilterFile &info)
 	}
 
         // Fixify paths
-        cmd = Option::fixPathToTargetOS(cmd, false);
+        cmd = Option::fixPathToTargetOS(cmd, false, false);
         for (int i = 0; i < deps.count(); ++i)
             deps[i] = Option::fixPathToTargetOS(deps[i], false);
 
