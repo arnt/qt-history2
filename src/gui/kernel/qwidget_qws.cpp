@@ -116,30 +116,30 @@ static void paint_hierarchy(QWidget *w, bool update)
 
 void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool /*destroyOldWindow*/)
 {
-    data->alloc_region_index = -1;
-    data->alloc_region_revision = -1;
-    d->isSettingGeometry = false;
-    data->overlapping_children = -1;
+    data.alloc_region_index = -1;
+    data.alloc_region_revision = -1;
+    isSettingGeometry = false;
+    data.overlapping_children = -1;
 
-    bool topLevel = testWFlags(Qt::WType_TopLevel);
-    bool popup = testWFlags(Qt::WType_Popup);
-    bool dialog = testWFlags(Qt::WType_Dialog);
-    bool desktop = testWFlags(Qt::WType_Desktop);
+    bool topLevel = q->testWFlags(Qt::WType_TopLevel);
+    bool popup = q->testWFlags(Qt::WType_Popup);
+    bool dialog = q->testWFlags(Qt::WType_Dialog);
+    bool desktop = q->testWFlags(Qt::WType_Desktop);
     WId           id;
-    QWSDisplay* dpy = qwsDisplay();
+    QWSDisplay* dpy = q->qwsDisplay();
 
     if (!window)                                // always initialize
         initializeWindow = true;
 
     if (popup) {
-        setWFlags(Qt::WStyle_Tool); // a popup is a tool window
-        setWFlags(Qt::WStyle_StaysOnTop); // a popup stays on top
+        q->setWFlags(Qt::WStyle_Tool); // a popup is a tool window
+        q->setWFlags(Qt::WStyle_StaysOnTop); // a popup stays on top
     }
-    if (topLevel && parentWidget()) {
+    if (topLevel && q->parentWidget()) {
         // if our parent has Qt::WStyle_StaysOnTop, so must we
-        QWidget *ptl = parentWidget()->window();
+        QWidget *ptl = q->parentWidget()->window();
         if (ptl && ptl->testWFlags(Qt::WStyle_StaysOnTop))
-            setWFlags(Qt::WStyle_StaysOnTop);
+            q->setWFlags(Qt::WStyle_StaysOnTop);
     }
 
     int sw = dpy->width();
@@ -147,71 +147,71 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool /*destro
 
     if (dialog || popup || desktop) {                // these are top-level, too
         topLevel = true;
-        setWFlags(Qt::WType_TopLevel);
+        q->setWFlags(Qt::WType_TopLevel);
     }
 
     if (desktop) {                                // desktop widget
         dialog = popup = false;                        // force these flags off
-        data->crect.setRect(0, 0, sw, sh);
+        data.crect.setRect(0, 0, sw, sh);
     } else if (topLevel) {                        // calc pos/size from screen
-        data->crect.setRect(0, 0, sw/2, 4*sh/10);
+        data.crect.setRect(0, 0, sw/2, 4*sh/10);
     } else {                                        // child widget
-        data->crect.setRect(0, 0, 100, 30);
+        data.crect.setRect(0, 0, 100, 30);
     }
 
     if (window) {                                // override the old window
         id = window;
-        d->setWinId(window);
+        setWinId(window);
     } else if (desktop) {                        // desktop widget
         id = (WId)-2;                                // id = root window
-        QWidget *otherDesktop = find(id);        // is there another desktop?
+        QWidget *otherDesktop = q->find(id);        // is there another desktop?
         if (otherDesktop && otherDesktop->testWFlags(Qt::WPaintDesktop)) {
             otherDesktop->d->setWinId(0);        // remove id from widget mapper
-            d->setWinId(id);                        // make sure otherDesktop is
+            setWinId(id);                        // make sure otherDesktop is
             otherDesktop->d->setWinId(id);        //   found first
         } else {
-            d->setWinId(id);
+            setWinId(id);
         }
     } else {
         id = topLevel ? dpy->takeId() : takeLocalId();
-        d->setWinId(id);                                // set widget id/handle + hd
+        setWinId(id);                                // set widget id/handle + hd
     }
 
     if (!topLevel) {
-        if (!testWFlags(Qt::WStyle_Customize))
-            setWFlags(Qt::WStyle_NormalBorder | Qt::WStyle_Title | Qt::WStyle_MinMax | Qt::WStyle_SysMenu );
+        if (!q->testWFlags(Qt::WStyle_Customize))
+            q->setWFlags(Qt::WStyle_NormalBorder | Qt::WStyle_Title | Qt::WStyle_MinMax | Qt::WStyle_SysMenu );
     } else if (!(desktop || popup)) {
-        if (testWFlags(Qt::WStyle_Customize)) {        // customize top-level widget
-            if (testWFlags(Qt::WStyle_NormalBorder)) {
+        if (q->testWFlags(Qt::WStyle_Customize)) {        // customize top-level widget
+            if (q->testWFlags(Qt::WStyle_NormalBorder)) {
                 // XXX ...
             } else {
-                if (!testWFlags(Qt::WStyle_DialogBorder)) {
+                if (!q->testWFlags(Qt::WStyle_DialogBorder)) {
                     // XXX ...
                 }
             }
-            if (testWFlags(Qt::WStyle_Tool)) {
+            if (q->testWFlags(Qt::WStyle_Tool)) {
                 // XXX ...
             }
         } else {                                // normal top-level widget
-            setWFlags(Qt::WStyle_NormalBorder | Qt::WStyle_Title | Qt::WStyle_SysMenu |
+            q->setWFlags(Qt::WStyle_NormalBorder | Qt::WStyle_Title | Qt::WStyle_SysMenu |
                        Qt::WStyle_MinMax);
         }
     }
 
-    data->alloc_region_dirty=false;
-    data->paintable_region_dirty=false;
+    data.alloc_region_dirty=false;
+    data.paintable_region_dirty=false;
 
     if (!initializeWindow) {
         // do no initialization
     } else if (popup) {                        // popup widget
     } else if (topLevel && !desktop) {        // top-level widget
-        QWidget *p = parentWidget();        // real parent
+        QWidget *p = q->parentWidget();        // real parent
         if (p)
             p = p->window();
-        if (testWFlags(Qt::WStyle_DialogBorder)
-             || testWFlags(Qt::WStyle_StaysOnTop)
-             || testWFlags(Qt::WType_Dialog)
-             || testWFlags(Qt::WStyle_Tool)) {
+        if (q->testWFlags(Qt::WStyle_DialogBorder)
+             || q->testWFlags(Qt::WStyle_StaysOnTop)
+             || q->testWFlags(Qt::WType_Dialog)
+             || q->testWFlags(Qt::WStyle_Tool)) {
             // XXX ...
         }
 
@@ -226,70 +226,70 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool /*destro
     if (initializeWindow) {
     }
 
-    setAttribute(Qt::WA_MouseTracking, true);
-    setMouseTracking(false);                        // also sets event mask
+    q->setAttribute(Qt::WA_MouseTracking, true);
+    q->setMouseTracking(false);                        // also sets event mask
     if (desktop) {
-        setAttribute(Qt::WA_WState_Visible);
+        q->setAttribute(Qt::WA_WState_Visible);
     } else if (topLevel) {                        // set X cursor
         //QCursor *oc = QApplication::overrideCursor();
         if (initializeWindow) {
             //XXX XDefineCursor(dpy, winid, oc ? oc->handle() : cursor().handle());
         }
-        setAttribute(Qt::WA_SetCursor);
+        q->setAttribute(Qt::WA_SetCursor);
 #ifndef QT_NO_WIDGET_TOPEXTRA
-        qwsDisplay()->nameRegion(winId(), objectName(), windowTitle());
+        q->qwsDisplay()->nameRegion(q->winId(), q->objectName(), q->windowTitle());
 #else
-        qwsDisplay()->nameRegion(winId(), objectName(), QString::null);
+        q->qwsDisplay()->nameRegion(q->winId(), q->objectName(), QString::null);
 #endif
     }
 
     if (topLevel) {
 #ifndef QT_NO_WIDGET_TOPEXTRA
-        d->createTLExtra();
+        createTLExtra();
 #endif
 #ifndef QT_NO_QWS_MANAGER
-        if (testWFlags(Qt::WStyle_DialogBorder)
-             || testWFlags(Qt::WStyle_NormalBorder))
+        if (q->testWFlags(Qt::WStyle_DialogBorder)
+             || q->testWFlags(Qt::WStyle_NormalBorder))
         {
             // get size of wm decoration and make the old crect the new frect
-            QRect cr = data->crect;
-            QRegion r = QApplication::qwsDecoration().region(this, cr);
+            QRect cr = data.crect;
+            QRegion r = QApplication::qwsDecoration().region(q, cr);
             QRect br(r.boundingRect());
-            d->extra->topextra->fleft = cr.x() - br.x();
-            d->extra->topextra->ftop = cr.y() - br.y();
-            d->extra->topextra->fright = br.right() - cr.right();
-            d->extra->topextra->fbottom = br.bottom() - cr.bottom();
-            data->crect.addCoords(d->extra->topextra->fleft, d->extra->topextra->ftop,
-                                  -d->extra->topextra->fright, -d->extra->topextra->fbottom);
-            d->topData()->qwsManager = new QWSManager(this);
-        } else if (d->topData()->qwsManager) {
-            delete d->topData()->qwsManager;
-            d->topData()->qwsManager = 0;
-            data->crect.translate(-d->extra->topextra->fleft, -d->extra->topextra->ftop);
-            d->extra->topextra->fleft = d->extra->topextra->ftop =
-                d->extra->topextra->fright = d->extra->topextra->fbottom = 0;
+            extra->topextra->fleft = cr.x() - br.x();
+            extra->topextra->ftop = cr.y() - br.y();
+            extra->topextra->fright = br.right() - cr.right();
+            extra->topextra->fbottom = br.bottom() - cr.bottom();
+            data.crect.addCoords(extra->topextra->fleft, extra->topextra->ftop,
+                                  -extra->topextra->fright, -extra->topextra->fbottom);
+            topData()->qwsManager = new QWSManager(q);
+        } else if (topData()->qwsManager) {
+            delete topData()->qwsManager;
+            topData()->qwsManager = 0;
+            data.crect.translate(-extra->topextra->fleft, -extra->topextra->ftop);
+            extra->topextra->fleft = extra->topextra->ftop =
+                extra->topextra->fright = extra->topextra->fbottom = 0;
         }
 #endif
         // declare the widget's object name as window role
 
         qt_fbdpy->addProperty(id,QT_QWS_PROPERTY_WINDOWNAME);
-        qt_fbdpy->setProperty(id,QT_QWS_PROPERTY_WINDOWNAME,0,objectName().toLatin1());
+        qt_fbdpy->setProperty(id,QT_QWS_PROPERTY_WINDOWNAME,0,q->objectName().toLatin1());
 
         // If we are session managed, inform the window manager about it
-        if (d->extra && !d->extra->mask.isEmpty()) {
-            data->req_region = d->extra->mask;
-            data->req_region.translate(data->crect.x(),data->crect.y());
-            data->req_region &= data->crect; //??? this is optional
+        if (extra && !extra->mask.isEmpty()) {
+            data.req_region = extra->mask;
+            data.req_region.translate(data.crect.x(),data.crect.y());
+            data.req_region &= data.crect; //??? this is optional
         } else {
-            data->req_region = data->crect;
+            data.req_region = data.crect;
         }
-        data->req_region = qt_screen->mapToDevice(data->req_region, QSize(qt_screen->width(), qt_screen->height()));
+        data.req_region = qt_screen->mapToDevice(data.req_region, QSize(qt_screen->width(), qt_screen->height()));
     } else {
-        if (d->extra && d->extra->topextra)        { // already allocated due to reparent?
-            d->extra->topextra->fleft = 0;
-            d->extra->topextra->ftop = 0;
-            d->extra->topextra->fright = 0;
-            d->extra->topextra->fbottom = 0;
+        if (extra && extra->topextra)        { // already allocated due to reparent?
+            extra->topextra->fleft = 0;
+            extra->topextra->ftop = 0;
+            extra->topextra->fright = 0;
+            extra->topextra->fbottom = 0;
         }
         //updateRequestedRegion(mapToGlobal(QPoint(0,0)));
     }
