@@ -38,14 +38,18 @@
 
   \printuntil }
 
-  Finally, the value is written into the database. If the update fails, \c false
-  is returned immediately, otherwise the query is executed again to refresh
-  the table with the new values.
-
+  Finally, the value is written into the database and the query is executed again
+  to reflect the changes to the table. If it was not possible to insert the value,
+  false is returned.
+  
   \printuntil }
 
   This is just a convenience method that sets the \c lastname column in the 
   database table to a new value at the specified position.
+
+  Note that the first call to \c setQuery() is a workaround for sqlite since
+  sqlite is not capable to modify the table that is currently displayed.
+  It is not neccessary for all other database systems.
 
   \skipto main(
   \printuntil }

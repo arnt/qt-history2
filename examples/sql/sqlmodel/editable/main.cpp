@@ -51,15 +51,16 @@ bool EditableSqlModel::setData(const QModelIndex &idx, int role, const QVariant 
     QModelIndex primaryKeyIndex = index(idx.row(), 0);
     int id = data(primaryKeyIndex).toInt();
 
-    if (!editLastName(id, value.toString()))
-        return false;
+    bool isOk = editLastName(id, value.toString());
 
     setQuery("select * from persons");
-    return true;
+    return isOk;
 }
 
 bool EditableSqlModel::editLastName(int pkey, const QString &newValue)
 {
+    setQuery("");
+
     QSqlQuery q;
     q.prepare("update persons set lastname = ? where id = ?");
     q.addBindValue(newValue);
