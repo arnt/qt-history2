@@ -4,7 +4,7 @@
 #include <freetype/freetype.h>
 #include "opentype/ftxopen.h"
 
-class QShapedItem;
+class QScriptItem;
 
 class QOpenType
 {
@@ -13,13 +13,10 @@ public:
 
     bool supportsScript( unsigned int script );
 
-    void apply( unsigned int script, QShapedItem *shaped, unsigned short *featuresToApply );
+    void apply( unsigned int script, unsigned short *featuresToApply, QScriptItem *item, int stringLength );
 
 private:
     bool loadTables( FT_ULong script);
-    TTO_GSUB_String *substitute( QShapedItem *shaped, unsigned short *featuresToApply );
-    void position( QShapedItem *shaped, TTO_GSUB_String *in );
-
 
     FT_Face face;
     TTO_GDEF gdef;

@@ -8,7 +8,7 @@ class QTextCodec;
 
 #include <qt_x11.h>
 
-class QFontEngineXLFD : public QFontEngineIface
+class QFontEngineXLFD : public QFontEngine
 {
 public:
     QFontEngineXLFD( XFontStruct *fs, const char *name, const char *encoding, int cmap );

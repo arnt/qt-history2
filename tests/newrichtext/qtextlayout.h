@@ -1,26 +1,10 @@
-/*
-
-This needs to get an abstract interface that offers everything we need
-to do complex script procesing. Should be similar to, but simpler than
-Uniscribe.
-
-It is defined as an abstract interface, so that we can load an engine
-at runtime. If we find uniscribe, use it otherwise use our own engine
-(that in this case might not support indic).
-
-It should have a set of methods that are fine grained enough to do rich
-text processing and a set of simpler methods for plain text.
-
-Some of the ideas are stolen from the Uniscribe API or from Pango.
-
-*/
 #ifndef QTEXTLAYOUT_H
 #define QTEXTLAYOUT_H
 
 #include <qstring.h>
 #include <qnamespace.h>
 
-struct QTextLayoutPrivate;
+struct QTextEngine;
 
 class Q_EXPORT QTextItem
 {
@@ -48,9 +32,9 @@ public:
 
 private:
     friend class QTextLayout;
-    QTextItem( int i, QTextLayoutPrivate *l ) : item( i ), layout( l ) {}
+    QTextItem( int i, QTextEngine *e ) : item( i ), engine( e ) {}
     int item;
-    QTextLayoutPrivate *layout;
+    QTextEngine *engine;
 };
 
 
@@ -96,7 +80,7 @@ private:
     void operator = ( const QTextLayout & ) {}
 
     friend class QTextItem;
-    QTextLayoutPrivate *d;
+    QTextEngine *d;
 };
 
 

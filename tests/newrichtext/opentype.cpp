@@ -3,7 +3,7 @@
 #include <qglobal.h>
 #include "qtextengine.h"
 #include "qfont.h"
-#include "scriptenginebasic.h"
+#include "scriptengine.h"
 
 static inline void tag_to_string( char *string, FT_ULong tag )
 {
@@ -359,7 +359,7 @@ bool QOpenType::supportsScript( unsigned int script )
     return FALSE;
 }
 
-void QOpenType::apply( unsigned int script, QShapedItem *shaped, unsigned short *featuresToApply )
+void QOpenType::apply( unsigned int script, unsigned short *featuresToApply, QScriptItem *item, int stringLength )
 {
     if ( current_script != supported_scripts[script].tag ) {
 	TT_GSUB_Clear_Features( gsub );
@@ -368,27 +368,21 @@ void QOpenType::apply( unsigned int script, QShapedItem *shaped, unsigned short 
 	    return;
     }
 
-    TTO_GSUB_String *string = substitute( shaped, featuresToApply );
+    QShapedItem *shaped = item->shaped;
 
-    position( shaped, string );
+    // shaping code
 
-    if ( string )
-	TT_GSUB_String_Done( string );
-}
-
-TTO_GSUB_String *QOpenType::substitute( QShapedItem *shaped, unsigned short *featuresToApply )
-{
     TTO_GSUB_String *in = 0;
     TTO_GSUB_String *out = 0;
 
     TT_GSUB_String_New( face->memory, &in );
-    TT_GSUB_String_Set_Length( in, shaped->d->num_glyphs );
+    TT_GSUB_String_Set_Length( in, shaped->num_glyphs );
     TT_GSUB_String_New( face->memory, &out);
-    TT_GSUB_String_Set_Length( out, shaped->d->num_glyphs );
+    TT_GSUB_String_Set_Length( out, shaped->num_glyphs );
     out->length = 0;
 
-    for ( int i = 0; i < shaped->d->num_glyphs; i++) {
-      in->string[i] = shaped->d->glyphs[i];
+    for ( int i = 0; i < shaped->num_glyphs; i++) {
+      in->string[i] = shaped->glyphs[i];
       in->logClusters[i] = i;
       in->properties[i] = ~((featuresToApply ? featuresToApply[i] : 0)|always_apply);
     }
@@ -396,72 +390,68 @@ TTO_GSUB_String *QOpenType::substitute( QShapedItem *shaped, unsigned short *fea
 
     TT_GSUB_Apply_String (gsub, in, out);
 
-    if ( shaped->d->num_glyphs < (int)out->length ) {
-	shaped->d->glyphs = ( glyph_t *) realloc( shaped->d->glyphs, out->length*sizeof(glyph_t) );
+    if ( shaped->num_glyphs < (int)out->length ) {
+	shaped->glyphs = ( glyph_t *) realloc( shaped->glyphs, out->length*sizeof(glyph_t) );
     }
-    shaped->d->num_glyphs = out->length;
+    shaped->num_glyphs = out->length;
 
-//     qDebug("out: num_glyphs = %d", shaped->d->num_glyphs );
-    GlyphAttributes *oldAttrs = shaped->d->glyphAttributes;
-    shaped->d->glyphAttributes = ( GlyphAttributes *) malloc( out->length*sizeof(GlyphAttributes) );
+//     qDebug("out: num_glyphs = %d", shaped->num_glyphs );
+    GlyphAttributes *oldAttrs = shaped->glyphAttributes;
+    shaped->glyphAttributes = ( GlyphAttributes *) malloc( out->length*sizeof(GlyphAttributes) );
 
     int clusterStart = 0;
     int oldlc = 0;
-    for ( int i = 0; i < shaped->d->num_glyphs; i++ ) {
-	shaped->d->glyphs[i] = out->string[i];
+    for ( int i = 0; i < shaped->num_glyphs; i++ ) {
+	shaped->glyphs[i] = out->string[i];
 	int lc = out->logClusters[i];
-	shaped->d->glyphAttributes[i] = oldAttrs[lc];
-	if ( !shaped->d->glyphAttributes[i].mark && lc != oldlc ) {
+	shaped->glyphAttributes[i] = oldAttrs[lc];
+	if ( !shaped->glyphAttributes[i].mark && lc != oldlc ) {
 	    for ( int j = oldlc; j < lc; j++ )
-		shaped->d->logClusters[j] = clusterStart;
+		shaped->logClusters[j] = clusterStart;
 	    clusterStart = i;
 	    oldlc = lc;
 	}
-//   	qDebug("    glyph[%d]=%4x logcluster=%d mark=%d", i, out->string[i], out->logClusters[i], shaped->d->glyphAttributes[i].mark );
+//   	qDebug("    glyph[%d]=%4x logcluster=%d mark=%d", i, out->string[i], out->logClusters[i], shaped->glyphAttributes[i].mark );
 	// ### need to fix logclusters aswell!!!!
     }
-    for ( int j = oldlc; j < shaped->d->length; j++ )
-	shaped->d->logClusters[j] = shaped->d->num_glyphs-1;
+    for ( int j = oldlc; j < stringLength; j++ )
+	shaped->logClusters[j] = shaped->num_glyphs-1;
 
     free( oldAttrs );
 
     TT_GSUB_String_Done( in );
 
-    shaped->d->isShaped = TRUE;
-    return out;
-}
 
+    // positioning code:
 
-void QOpenType::position( QShapedItem *shaped, TTO_GSUB_String *in )
-{
-    QScriptEngineBasic::calculateAdvances( shaped );
+    QScriptEngine::calculateAdvances( item );
 
     if ( hasGPos ) {
-	TTO_GPOS_Data *out = 0;
+	TTO_GPOS_Data *positions = 0;
 
-	bool reverse = (shaped->d->analysis.bidiLevel % 2);
+	bool reverse = (item->analysis.bidiLevel % 2);
 	// ### is FT_LOAD_DEFAULT the right thing to do?
-	TT_GPOS_Apply_String( face, gpos, FT_LOAD_DEFAULT, in, &out, FALSE, reverse );
+	TT_GPOS_Apply_String( face, gpos, FT_LOAD_DEFAULT, out, &positions, FALSE, reverse );
 
-	offset_t *advances = shaped->d->advances;
-	offset_t *offsets = shaped->d->offsets;
+	offset_t *advances = shaped->advances;
+	offset_t *offsets = shaped->offsets;
 
 	//     qDebug("positioned glyphs:" );
-	for ( int i = 0; i < shaped->d->num_glyphs; i++) {
+	for ( int i = 0; i < shaped->num_glyphs; i++) {
 	    // 	qDebug("    %d:\tadv=(%d/%d)\tpos=(%d/%d)\tback=%d\tnew_advance=%d", i,
-	    // 	       (int)(out[i].x_advance >> 6), (int)(out[i].y_advance >> 6 ),
-	    // 	       (int)(out[i].x_pos >> 6 ), (int)(out[i].y_pos >> 6),
-	    // 	       out[i].back, out[i].new_advance );
-	    if ( out[i].new_advance ) {
-		advances[i].x = out[i].x_advance >> 6;
-		advances[i].y = -out[i].y_advance >> 6;
+	    // 	       (int)(positions[i].x_advance >> 6), (int)(positions[i].y_advance >> 6 ),
+	    // 	       (int)(positions[i].x_pos >> 6 ), (int)(positions[i].y_pos >> 6),
+	    // 	       positions[i].back, positions[i].new_advance );
+	    if ( positions[i].new_advance ) {
+		advances[i].x = positions[i].x_advance >> 6;
+		advances[i].y = -positions[i].y_advance >> 6;
 	    } else {
-		advances[i].x += out[i].x_advance >> 6;
-		advances[i].y -= out[i].y_advance >> 6;
+		advances[i].x += positions[i].x_advance >> 6;
+		advances[i].y -= positions[i].y_advance >> 6;
 	    }
-	    offsets[i].x = out[i].x_pos >> 6;
-	    offsets[i].y = -(out[i].y_pos >> 6);
-	    int back = out[i].back;
+	    offsets[i].x = positions[i].x_pos >> 6;
+	    offsets[i].y = -(positions[i].y_pos >> 6);
+	    int back = positions[i].back;
 	    while ( back ) {
 		offsets[i].x -= advances[i-back].x;
 		offsets[i].y -= advances[i-back].y;
@@ -470,7 +460,9 @@ void QOpenType::position( QShapedItem *shaped, TTO_GSUB_String *in )
 	    // 	qDebug("   ->\tadv=(%d/%d)\tpos=(%d/%d)",
 	    // 	       advances[i].x, advances[i].y, offsets[i].x, offsets[i].y );
 	}
-	free( out );
-	shaped->d->isPositioned = TRUE;
+	free( positions );
     }
+
+    if ( out )
+	TT_GSUB_String_Done( out );
 }

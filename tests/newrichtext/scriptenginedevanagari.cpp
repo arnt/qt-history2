@@ -1,7 +1,8 @@
-#include "scriptenginedevanagari.h"
+#include "scriptengine.h"
 #include "opentype.h"
 #include "qfont.h"
 #include "qtextdata.h"
+#include "qtextengine.h"
 
 enum Features {
     NuktaFeature = 0x0002,
@@ -455,19 +456,19 @@ static QString reorderSyllable( const QString &string, int start, int end, unsig
     return reordered;
 }
 
-static QString analyzeSyllables( const QShapedItem *shaped, unsigned short *featuresToApply,
+static QString analyzeSyllables( const QString &string, int from, int length, unsigned short *featuresToApply,
 				 GlyphAttributes *attributes ) {
     QString reordered;
-    QShapedItemPrivate *d = shaped->d;
-    int sstart = d->from;
-    int end = sstart + d->length;
+
+    int sstart = from;
+    int end = sstart + length;
     int fpos = 0;
     while ( sstart < end ) {
 	bool invalid;
-	int send = nextSyllableBoundary( d->string, sstart, end, &invalid );
+	int send = nextSyllableBoundary( string, sstart, end, &invalid );
 // 	qDebug("syllable from %d, length %d, invalid=%s", sstart, send-sstart,
 // 	       invalid ? "true" : "false" );
-	QString str = reorderSyllable( d->string, sstart, send, featuresToApply+fpos, attributes+fpos, invalid );
+	QString str = reorderSyllable( string, sstart, send, featuresToApply+fpos, attributes+fpos, invalid );
 	reordered += str;
 	fpos += str.length();
 
@@ -477,57 +478,46 @@ static QString analyzeSyllables( const QShapedItem *shaped, unsigned short *feat
 }
 
 
-void QScriptEngineDevanagari::shape( QShapedItem *result )
+void QScriptEngineDevanagari::shape( const QString &string, int from, int len, QScriptItem *item )
 {
 //     qDebug("QScriptEngineDevanagari::shape()");
-
-    QShapedItemPrivate *d = result->d;
+    QShapedItem *shaped = item->shaped;
 
     unsigned short fa[256];
     unsigned short *featuresToApply = fa;
-    if ( d->length > 127 )
-	featuresToApply = new unsigned short[ 2*d->length ];
+    if ( len > 127 )
+	featuresToApply = new unsigned short[ 2*len ];
 
 
-    d->glyphAttributes = (GlyphAttributes *)realloc( d->glyphAttributes, d->length * 2 * sizeof( GlyphAttributes ) );
+    shaped->glyphAttributes = (GlyphAttributes *)realloc( shaped->glyphAttributes, len * 2 * sizeof( GlyphAttributes ) );
 
-    QString reordered = analyzeSyllables( result, featuresToApply, d->glyphAttributes );
-    d->num_glyphs = reordered.length();
+    QString reordered = analyzeSyllables( string, from, len, featuresToApply, shaped->glyphAttributes );
+    shaped->num_glyphs = reordered.length();
 
-    d->logClusters = (unsigned short *) realloc( d->logClusters, d->num_glyphs * sizeof( unsigned short ) );
+    shaped->logClusters = (unsigned short *) realloc( shaped->logClusters, shaped->num_glyphs * sizeof( unsigned short ) );
     int pos = 0;
-    for ( int i = 0; i < d->num_glyphs; i++ ) {
-	if ( d->glyphAttributes[i].clusterStart )
+    for ( int i = 0; i < shaped->num_glyphs; i++ ) {
+	if ( shaped->glyphAttributes[i].clusterStart )
 	    pos = i;
-	d->logClusters[i] = pos;
+	shaped->logClusters[i] = pos;
     }
 
-    d->glyphs = (glyph_t *)realloc( d->glyphs, d->num_glyphs*sizeof( glyph_t ) );
-    int error = d->fontEngine->stringToCMap( reordered.unicode(), d->num_glyphs, d->glyphs, &d->num_glyphs );
-    if ( error == QFontEngineIface::OutOfMemory ) {
-	d->glyphs = (glyph_t *)realloc( d->glyphs, d->num_glyphs*sizeof( glyph_t ) );
-	d->fontEngine->stringToCMap( reordered.unicode(), d->num_glyphs, d->glyphs, &d->num_glyphs );
+    shaped->glyphs = (glyph_t *)realloc( shaped->glyphs, shaped->num_glyphs*sizeof( glyph_t ) );
+    int error = item->fontEngine->stringToCMap( reordered.unicode(), shaped->num_glyphs, shaped->glyphs, &shaped->num_glyphs );
+    if ( error == QFontEngine::OutOfMemory ) {
+	shaped->glyphs = (glyph_t *)realloc( shaped->glyphs, shaped->num_glyphs*sizeof( glyph_t ) );
+	item->fontEngine->stringToCMap( reordered.unicode(), shaped->num_glyphs, shaped->glyphs, &shaped->num_glyphs );
     }
 
-    QOpenType *openType = result->d->fontEngine->openTypeIface();
+    QOpenType *openType = item->fontEngine->openTypeIface();
 
     if ( openType && openType->supportsScript( QFont::Devanagari ) ) {
-	((QOpenType *) openType)->apply( QFont::Devanagari, result, featuresToApply );
-	d->isPositioned = TRUE;
+	((QOpenType *) openType)->apply( QFont::Devanagari, featuresToApply, item, len );
     } else {
-	heuristicSetGlyphAttributes( result );
+	heuristicSetGlyphAttributes( string, from, len, item );
+	calculateAdvances( item );
     }
 
-    if ( result->d->length > 127 )
+    if ( len > 127 )
 	delete featuresToApply;
-}
-
-
-void QScriptEngineDevanagari::position( QShapedItem *result )
-{
-    if ( result->d->isPositioned )
-	return;
-
-    calculateAdvances( result );
-    result->d->isPositioned = TRUE;
 }

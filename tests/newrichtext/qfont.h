@@ -47,7 +47,7 @@
 class QFontPrivate;                                     /* don't touch */
 class QStringList;
 class QTextFormatCollection;
-class QFontEngineIface;
+class QFontEngine;
 
 class Q_EXPORT QFont
 {
@@ -269,8 +269,6 @@ public:
     static void setDefaultFont( const QFont & );
 
 #endif // QT_NO_COMPAT
-
-    QFontEngineIface *engineForScript( QFont::Script script ) const;
 
 protected:
     // why protected?

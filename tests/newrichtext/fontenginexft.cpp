@@ -63,7 +63,7 @@ QFontEngineXft::~QFontEngineXft()
     delete _openType;
 }
 
-QFontEngineIface::Error QFontEngineXft::stringToCMap( const QChar *str,  int len, glyph_t *glyphs, int *nglyphs ) const
+QFontEngine::Error QFontEngineXft::stringToCMap( const QChar *str,  int len, glyph_t *glyphs, int *nglyphs ) const
 {
     if ( *nglyphs < len ) {
 	*nglyphs = len;
@@ -276,7 +276,7 @@ QOpenType *QFontEngineXft::openTypeIface() const
 }
 
 
-QFontEngineIface::Type QFontEngineXft::type() const
+QFontEngine::Type QFontEngineXft::type() const
 {
     return Xft;
 }

@@ -5,24 +5,14 @@
 TEMPLATE = app
 
 # Input
-HEADERS += fontengine.h \
-           qfont.h \
+HEADERS += qfont.h \
            qfontdata_p.h \
-	   qfontdatabase.h \
+	   qfontengine_p.h \
            qpainter.h \
            qtextdata.h \
            qtextengine.h \
            qtextlayout.h \
            scriptengine.h \
-           scriptenginearabic.h \
-           scriptenginesyriac.h \
-           scriptenginedevanagari.h \
-           scriptenginebengali.h \
-           scriptenginetamil.h \
-           scriptenginebasic.h \
-	   fontenginexlfd.h \
-	   fontenginexft.h \
-	   fontenginebox.h \
 	   opentype.h \
 	opentype/fterrcompat.h  opentype/ftxgpos.h  opentype/ftxopen.h \
 	opentype/ftxgdef.h      opentype/ftxgsub.h  opentype/ftxopenf.h \
@@ -30,23 +20,22 @@ HEADERS += fontengine.h \
 
 SOURCES += qfont.cpp \
 	   qfont_x11.cpp \
-	   qfontdatabase.cpp \
+	   ../../src/kernel/qfontdatabase.cpp \
+	   qfontengine.cpp \
            qpainter_x11.cpp \
            qtextdata.cpp \
            qtextengine.cpp \
            qtextlayout.cpp \
+	   scriptengine.cpp \
            scriptenginearabic.cpp \
-           scriptenginesyriac.cpp \
            scriptenginedevanagari.cpp \
            scriptenginebengali.cpp \
            scriptenginetamil.cpp \
-           scriptenginebasic.cpp \
-	   fontenginexlfd.cpp \
-	   fontenginexft.cpp \
-	   fontenginebox.cpp \
 	   opentype.cpp \
 	opentype/ftxgdef.c  opentype/ftxgpos.c  opentype/ftxgsub.c  opentype/ftxopen.c \
            test.cpp editwidget.cpp
 CONFIG += qt warn_on debug  thread create_prl link_prl
 OBJECTS_DIR=.obj/debug-shared-mt
 MOC_DIR=.moc/debug-shared-mt
+
+DEFINES += NEW_FONT

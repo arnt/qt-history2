@@ -48,8 +48,8 @@
 #include "qcleanuphandler.h"
 #include "qstringlist.h"
 
-#include "fontengine.h"
 #include "qtextdata.h"
+#include "qtextengine.h"
 
 // #define QFONTCACHE_DEBUG
 
@@ -1870,7 +1870,7 @@ QRect QFontMetrics::boundingRect( QChar ch ) const
     SCRIPT_FOR_CHAR( script, ch );
     d->load( script );
 
-    QFontEngineIface *fe = d->x11data.fontstruct[script];
+    QFontEngine *fe = d->x11data.fontstruct[script];
 
     glyph_t glyphs[10];
     int nglyphs = 9;
@@ -2381,7 +2381,7 @@ QFontCache *QFontPrivate::fontCache = 0;
 
 QFontCache::QFontCache() :
     QObject(0, "global font cache"),
-    QCache<QFontEngineIface>(qtFontCacheMin, qtFontCacheSize),
+    QCache<QFontEngine>(qtFontCacheMin, qtFontCacheSize),
     timer_id(0), fast(FALSE)
 {
     setAutoDelete(TRUE);
@@ -2393,24 +2393,24 @@ QFontCache::~QFontCache()
     // remove negative cache items
     QFontCacheIterator it(*this);
     QString key;
-    QFontEngineIface *qfs;
+    QFontEngine *qfs;
 
     while ((qfs = it.current())) {
 	key = it.currentKey();
 	++it;
 
-	if (qfs == (QFontEngineIface *) -1)
+	if (qfs == (QFontEngine *) -1)
 	    take(key);
     }
 }
 
 
-bool QFontCache::insert(const QString &key, const QFontEngineIface *qfs, int cost)
+bool QFontCache::insert(const QString &key, const QFontEngine *qfs, int cost)
 {
 
 #ifdef QFONTCACHE_DEBUG
     qDebug("QFC::insert: inserting %p w/ cost %d\n%s", qfs, cost,
-	   (qfs == (QFontEngineIface *) -1) ? "negative cache item" : qfs->name.data());
+	   (qfs == (QFontEngine *) -1) ? "negative cache item" : qfs->name.data());
 #endif // QFONTCACHE_DEBUG
 
     if (totalCost() + cost > maxCost()) {
@@ -2423,7 +2423,7 @@ bool QFontCache::insert(const QString &key, const QFontEngineIface *qfs, int cos
 	setMaxCost(totalCost() + cost);
     }
 
-    bool ret = QCache<QFontEngineIface>::insert(key, qfs, cost);
+    bool ret = QCache<QFontEngine>::insert(key, qfs, cost);
 
     if (ret && (! timer_id || ! fast)) {
 	if (timer_id) {
@@ -2448,21 +2448,21 @@ bool QFontCache::insert(const QString &key, const QFontEngineIface *qfs, int cos
 
 
 #ifdef Q_WS_MAC
-template<> inline void QCache<QFontEngineIface>::deleteItem( QPtrCollection::Item d )
+template<> inline void QCache<QFontEngine>::deleteItem( QPtrCollection::Item d )
 #else
 void QFontCache::deleteItem(Item d)
 #endif
 {
 
-    QFontEngineIface *qfs = (QFontEngineIface *) d;
+    QFontEngine *qfs = (QFontEngine *) d;
 
     // don't try to delete negative cache items
-    if (qfs == (QFontEngineIface *) -1)
+    if (qfs == (QFontEngine *) -1)
 	return;
 
 #ifdef Q_WS_MAC
     if (this != QFontPrivate::fontCache)
-	qWarning( "Multiple QCache<QFontEngineIface> exist." );
+	qWarning( "Multiple QCache<QFontEngine> exist." );
 
     qfs->deref();
 #endif
@@ -2470,7 +2470,7 @@ void QFontCache::deleteItem(Item d)
 
 #ifdef QFONTCACHE_DEBUG
 	qDebug("QFC::deleteItem: removing %p from cache\n%s", qfs,
-	       (qfs == (QFontEngineIface *) -1) ? "negative cache item" : qfs->name.data());
+	       (qfs == (QFontEngine *) -1) ? "negative cache item" : qfs->name.data());
 #endif // QFONTCACHE_DEBUG
 
 	delete qfs;
@@ -2497,7 +2497,7 @@ void QFontCache::timerEvent(QTimerEvent *)
 
     QFontCacheIterator it(*this);
     QString key;
-    QFontEngineIface *qfs;
+    QFontEngine *qfs;
     int tqcost = maxCost() * 3 / 4;
     int nmcost = 0;
 
@@ -2505,7 +2505,7 @@ void QFontCache::timerEvent(QTimerEvent *)
 	key = it.currentKey();
 	++it;
 
-	if (qfs != (QFontEngineIface *) -1) {
+	if (qfs != (QFontEngine *) -1) {
 	    if (qfs->count > 0)
 		nmcost += 1; // ###qfs->cache_cost;
 	} else

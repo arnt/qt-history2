@@ -1,9 +1,10 @@
-#include "scriptenginearabic.h"
+#include "scriptengine.h"
 
 #include "private/qunicodetables_p.h"
 #include <stdlib.h>
 #include "opentype.h"
 #include "qfont.h"
+#include "qtextengine.h"
 
 /*
    Arabic shaping obeys a number of rules according to the joining classes (see Unicode book, section on
@@ -535,6 +536,41 @@ static void shapedString(const QString& uc, int from, int len, QChar *shapeBuffe
 
 
 
+
+static void openTypeShape( int script, const QOpenType *openType, const QString &string, int from,
+			   int len, QScriptItem *item )
+{
+    QShapedItem *shaped = item->shaped;
+
+    shaped->num_glyphs = len;
+    shaped->glyphs = (glyph_t *)realloc( shaped->glyphs, shaped->num_glyphs*sizeof( glyph_t ) );
+    int error = item->fontEngine->stringToCMap( string.unicode()+from, len, shaped->glyphs, &shaped->num_glyphs );
+    if ( error == QFontEngine::OutOfMemory ) {
+	shaped->glyphs = (glyph_t *)realloc( shaped->glyphs, shaped->num_glyphs*sizeof( glyph_t ) );
+	item->fontEngine->stringToCMap( string.unicode()+from, len, shaped->glyphs, &shaped->num_glyphs );
+    }
+
+    QScriptEngine::heuristicSetGlyphAttributes( string, from, len, item );
+
+    unsigned short fa[256];
+    unsigned short *featuresToApply = fa;
+
+    bool allocated = FALSE;
+    if ( shaped->num_glyphs > 255 ) {
+	featuresToApply = (unsigned short *)malloc( shaped->num_glyphs );
+	allocated = TRUE;
+    }
+
+    for ( int i = 0; i < shaped->num_glyphs; i++ )
+	featuresToApply[i] = shapeToOpenTypeBit[glyphVariantLogical( string, from + i )];
+
+    ((QOpenType *) openType)->apply( script, featuresToApply, item, len );
+
+    if ( allocated )
+	free( featuresToApply );
+}
+
+
 void QScriptEngineArabic::charAttributes( const QString &text, int from, int len, QCharAttributes *attributes )
 {
     const QChar *uc = text.unicode() + from;
@@ -548,69 +584,44 @@ void QScriptEngineArabic::charAttributes( const QString &text, int from, int len
 }
 
 
-void QScriptEngineArabic::shape( QShapedItem *result )
+void QScriptEngineArabic::shape( const QString &string, int from, int len, QScriptItem *si )
 {
-    QOpenType *openType = result->d->fontEngine->openTypeIface();
+    QOpenType *openType = si->fontEngine->openTypeIface();
 
     if ( openType && openType->supportsScript( QFont::Arabic ) ) {
-	openTypeShape( QFont::Arabic, openType, result );
+	openTypeShape( QFont::Arabic, openType, string,  from,  len, si );
 	return;
     }
 
-    QShapedItemPrivate *d = result->d;
-    const QString &text = d->string;
-    int from = d->from;
-    int len = d->length;
+    const QString &text = string;
+    QShapedItem *shaped = si->shaped;
 
-    d->glyphAttributes = (GlyphAttributes *)realloc( d->glyphAttributes, d->length * sizeof( GlyphAttributes ) );
-    d->logClusters = (unsigned short *) realloc( d->logClusters, d->length * sizeof( unsigned short ) );
-    QChar *shaped = (QChar *)malloc( d->length * sizeof( QChar ) );
+    shaped->glyphAttributes = (GlyphAttributes *)realloc( shaped->glyphAttributes, len * sizeof( GlyphAttributes ) );
+    shaped->logClusters = (unsigned short *) realloc( shaped->logClusters, len * sizeof( unsigned short ) );
+    QChar *shapedChars = (QChar *)malloc( len * sizeof( QChar ) );
 
-    shapedString( text, from, len, shaped, &d->num_glyphs, (d->analysis.bidiLevel%2),
-		  d->glyphAttributes, d->logClusters );
+    shapedString( text, from, len, shapedChars, &shaped->num_glyphs, (si->analysis.bidiLevel%2),
+		  shaped->glyphAttributes, shaped->logClusters );
 
-    d->glyphs = (glyph_t *)realloc( d->glyphs, d->num_glyphs*sizeof( glyph_t ) );
-    int error = d->fontEngine->stringToCMap( shaped, d->num_glyphs, d->glyphs, &d->num_glyphs );
-    if ( error == QFontEngineIface::OutOfMemory ) {
-	d->glyphs = (glyph_t *)realloc( d->glyphs, d->num_glyphs*sizeof( glyph_t ) );
-	d->fontEngine->stringToCMap( shaped, d->num_glyphs, d->glyphs, &d->num_glyphs );
+    shaped->glyphs = (glyph_t *)realloc( shaped->glyphs, shaped->num_glyphs*sizeof( glyph_t ) );
+    int error = si->fontEngine->stringToCMap( shapedChars, shaped->num_glyphs, shaped->glyphs, &shaped->num_glyphs );
+    if ( error == QFontEngine::OutOfMemory ) {
+	shaped->glyphs = (glyph_t *)realloc( shaped->glyphs, shaped->num_glyphs*sizeof( glyph_t ) );
+	si->fontEngine->stringToCMap( shapedChars, shaped->num_glyphs, shaped->glyphs, &shaped->num_glyphs );
     }
 
-    free( shaped );
-    d->isShaped = TRUE;
+    heuristicSetGlyphAttributes( string, from, len, si );
+    heuristicPosition( si );
 }
 
-void QScriptEngineArabic::openTypeShape( int script, const QOpenType *openType, QShapedItem *result )
+
+void QScriptEngineSyriac::shape( const QString &string, int from, int len, QScriptItem *item )
 {
-    QShapedItemPrivate *d = result->d;
-    const QString &text = d->string;
-    int from = d->from;
-    int len = d->length;
+    QOpenType *openType = item->fontEngine->openTypeIface();
 
-    d->num_glyphs = len;
-    d->glyphs = (glyph_t *)realloc( d->glyphs, d->num_glyphs*sizeof( glyph_t ) );
-    int error = d->fontEngine->stringToCMap( text.unicode()+from, len, d->glyphs, &d->num_glyphs );
-    if ( error == QFontEngineIface::OutOfMemory ) {
-	d->glyphs = (glyph_t *)realloc( d->glyphs, d->num_glyphs*sizeof( glyph_t ) );
-	d->fontEngine->stringToCMap( text.unicode()+from, len, d->glyphs, &d->num_glyphs );
+    if ( openType && openType->supportsScript( QFont::Syriac ) ) {
+	openTypeShape( QFont::Syriac, openType, string, from, len, item );
+	return;
     }
-
-    heuristicSetGlyphAttributes( result );
-
-    unsigned short fa[256];
-    unsigned short *featuresToApply = fa;
-
-    bool allocated = FALSE;
-    if ( d->num_glyphs > 255 ) {
-	featuresToApply = (unsigned short *)malloc( d->num_glyphs );
-	allocated = TRUE;
-    }
-
-    for ( int i = 0; i < d->num_glyphs; i++ )
-	featuresToApply[i] = shapeToOpenTypeBit[glyphVariantLogical( text, from + i )];
-
-    ((QOpenType *) openType)->apply( script, result, featuresToApply );
-
-    if ( allocated )
-	free( featuresToApply );
+    QScriptEngine::shape( string, from, len, item );
 }

@@ -1,7 +1,7 @@
 #include "qfont.h"
 #include "qpainter.h"
 #include "editwidget.h"
-#include "fontengine.h"
+#include <private/qfontdata_p.h>
 
 #include "qtextengine.h"
 #include <qmemarray.h>
@@ -106,8 +106,8 @@ void EditWidget::resizeEvent( QResizeEvent * )
 
 void EditWidget::paintEvent( QPaintEvent * )
 {
+#if 0
     QPainter painter( this );
-    const QTextEngine *layout = QTextEngine::instance();
     int start = 0;
     int y = 5;
     for ( int j = 0; j < d->lineBreaks.size(); j++ ) {
@@ -124,7 +124,7 @@ void EditWidget::paintEvent( QPaintEvent * )
 		levels = (unsigned char *)malloc( (end-start)*sizeof(unsigned char) );
 	    for ( int i = 0; i < end-start; i++ )
 		levels[i] = d->items[start+i].analysis.bidiLevel;
-	    layout->bidiReorder( end-start, (unsigned char *)levels, (int *)visualOrder );
+	    QTextLayout::bidiReorder( end-start, (unsigned char *)levels, (int *)visualOrder );
 	    if ( end-start > 255 )
 		free( levels );
 	}
@@ -134,7 +134,7 @@ void EditWidget::paintEvent( QPaintEvent * )
 	    int current = visualOrder[i];
 	    const QScriptItem &it = d->items[ start+current ];
 	    QShapedItem shaped;
-	    layout->shape( shaped, d->font, d->text, d->items, current+start );
+	    layout.shape( shaped, d->font, d->text, d->items, current+start );
 	    if ( it.position <= d->cursorPos &&
 		 (current == d->items.size()-1 || d->items[ start+current+1 ].position > d->cursorPos) ) {
 		// draw cursor
@@ -146,9 +146,9 @@ void EditWidget::paintEvent( QPaintEvent * )
 	    int swidth = layout->width( shaped );
 
 	    QFont::Script script = (QFont::Script)it.analysis.script;
-	    QFontEngineIface *fe = d->font.engineForScript( script );
+	    QFontEngine *fe = d->font.engineForScript( script );
 // 	    qDebug("drawing item %d (pos=%d), script=%d, fe=%p", current, d->items[current].position, script, fe );
-	    if ( fe && fe != (QFontEngineIface *)-1 ) {
+	    if ( fe && fe != (QFontEngine *)-1 ) {
 		fe->draw( &painter, x,  y, shaped.glyphs(), shaped.advances(), shaped.offsets(), shaped.count(),
 			  (shaped.d->analysis.bidiLevel%2) );
 		x += swidth;
@@ -162,12 +162,13 @@ void EditWidget::paintEvent( QPaintEvent * )
 // 	painter.drawLine( 0,  y+1,  1000, y+1 );
 // 	y+=3;
     }
-
+#endif
 }
 
 
 void EditWidget::recalculate()
 {
+#if 0
     QTime t;
     t.start();
     const QTextEngine *layout = QTextEngine::instance();
@@ -230,4 +231,5 @@ void EditWidget::recalculate()
     d->lineBreaks[line].descent = descent;
     d->lineBreaks.resize( line+1 );
     qDebug("recalulate took %d ms (%dus/char)",  t.elapsed(), t.elapsed()*1000/d->text.length() );
+#endif
 }

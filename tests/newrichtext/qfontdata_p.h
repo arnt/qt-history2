@@ -44,7 +44,7 @@
 #include <qpaintdevice.h>
 #endif // QT_H
 #include <limits.h>
-
+#include "qfont.h"
 //
 //  W A R N I N G
 //  -------------
@@ -95,13 +95,13 @@ struct QFontDef {
 };
 
 
-class QFontEngineIface;
+class QFontEngine;
 
 class QFontX11Data  // used as a QFontPrivate member
 {
 public:
     // X fontstruct handles for each character set
-    QFontEngineIface *fontstruct[QFont::LastPrivateScript];
+    QFontEngine *fontstruct[QFont::LastPrivateScript];
 
     QFontX11Data();
     ~QFontX11Data();
@@ -110,14 +110,14 @@ public:
 
 
 
-typedef QCacheIterator<QFontEngineIface> QFontCacheIterator;
-class QFontCache : public QObject, public QCache<QFontEngineIface>
+typedef QCacheIterator<QFontEngine> QFontCacheIterator;
+class QFontCache : public QObject, public QCache<QFontEngine>
 {
 public:
     QFontCache();
     ~QFontCache();
 
-    bool insert(const QString &, const QFontEngineIface *, int c);
+    bool insert(const QString &, const QFontEngine *, int c);
     void deleteItem(Item d);
     void timerEvent(QTimerEvent *);
 
@@ -162,6 +162,8 @@ public:
     static int getFontWeight(const QCString &, bool = FALSE);
 
 #ifdef Q_WS_X11
+    QFontEngine *engineForScript( QFont::Script script ) const;
+
     static char **getXFontNames(const char *, int *);
     static bool fontExists(const QString &);
     static bool parseXFontName(char *, char **);

@@ -86,7 +86,7 @@ QFontEngineXLFD::~QFontEngineXLFD()
     _fs = 0;
 }
 
-QFontEngineIface::Error QFontEngineXLFD::stringToCMap( const QChar *str,  int len, glyph_t *glyphs, int *nglyphs ) const
+QFontEngine::Error QFontEngineXLFD::stringToCMap( const QChar *str,  int len, glyph_t *glyphs, int *nglyphs ) const
 {
     if ( *nglyphs < len ) {
 	*nglyphs = len;
@@ -306,7 +306,7 @@ void QFontEngineXLFD::setScale( double scale )
 }
 
 
-QFontEngineIface::Type QFontEngineXLFD::type() const
+QFontEngine::Type QFontEngineXLFD::type() const
 {
     return Xlfd;
 }

@@ -3,55 +3,47 @@
 
 #include <malloc.h>
 
-struct QTextLayoutPrivate {
-    QScriptItemArray items;
-    QString string;
-    const QTextEngine *engine;
-};
-
-
-
 
 int QTextItem::width() const
 {
-    return layout->items[item].width;
+    return engine->items[item].width;
 }
 
 int QTextItem::ascent() const
 {
-    return layout->items[item].ascent;
+    return engine->items[item].ascent;
 }
 
 int QTextItem::descent() const
 {
-    return layout->items[item].descent;
+    return engine->items[item].descent;
 }
 
 int QTextItem::baselineAdjustment() const
 {
-    return layout->items[item].baselineAdjustment;
+    return engine->items[item].baselineAdjustment;
 }
 
 
 void QTextItem::setWidth( int w )
 {
-    layout->items[item].width = w;
+    engine->items[item].width = w;
 }
 
 void QTextItem::setAscent( int a )
 {
-    layout->items[item].ascent = a;
+    engine->items[item].ascent = a;
 }
 
 void QTextItem::setDescent( int d )
 {
-    layout->items[item].descent = d;
+    engine->items[item].descent = d;
 }
 
 
 void QTextItem::setBaselineAdjustment( int adjust )
 {
-    layout->items[item].baselineAdjustment = adjust;
+    engine->items[item].baselineAdjustment = adjust;
 }
 
 
@@ -68,12 +60,12 @@ int QTextItem::xToCursor( int x )
 
 bool QTextItem::isRightToLeft() const
 {
-    return (layout->items[item].analysis.bidiLevel % 2);
+    return (engine->items[item].analysis.bidiLevel % 2);
 }
 
 bool QTextItem::isObject() const
 {
-    return (layout->string.at(layout->items[item].position).unicode() == 0xfffc);
+    return (engine->string.at(engine->items[item].position).unicode() == 0xfffc);
 }
 
 
@@ -81,10 +73,8 @@ bool QTextItem::isObject() const
 
 QTextLayout::QTextLayout( const QString &string, QPainter * = 0 )
 {
-    d = new QTextLayoutPrivate;
-    d->string = string;
-    d->engine = QTextEngine::instance();
-    d->engine->itemize( d->items, d->string );
+    // ### fix 0 font
+    d = new QTextEngine( string,  0 );
 }
 
 QTextLayout::~QTextLayout()

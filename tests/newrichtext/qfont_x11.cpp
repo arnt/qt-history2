@@ -41,6 +41,8 @@
 
 #include "qfont.h"
 #include "qfontdata_p.h"
+#include "qfontengine_p.h"
+#include "qtextengine.h"
 #include <private/qcomplextext_p.h>
 #include "qfontinfo.h"
 #include "qfontdatabase.h"
@@ -60,9 +62,6 @@
 # include "qsettings.h"
 #endif // QT_NO_XFTFREETYPE
 
-#include "fontenginexft.h"
-#include "fontenginexlfd.h"
-#include "fontenginebox.h"
 #include "qtextdata.h"
 #include "qt_x11.h"
 
@@ -133,7 +132,7 @@ QFontX11Data::QFontX11Data()
 
 QFontX11Data::~QFontX11Data()
 {
-    QFontEngineIface *fe;
+    QFontEngine *fe;
 
     for ( int i = 0; i < QFont::LastPrivateScript; i++ ) {
 	fe = fontstruct[i];
@@ -151,8 +150,6 @@ QFontX11Data::~QFontX11Data()
 void qX11ClearFontNameCache()
 {
 }
-
-
 
 
 // **********************************************************************
@@ -435,15 +432,15 @@ void QFontPrivate::computeLineWidth()
 // fill the actual fontdef with data from the loaded font
 void QFontPrivate::initFontInfo(QFont::Script script, double scale)
 {
-    QFontEngineIface *fe = x11data.fontstruct[script];
-    QFontEngineIface::Type type = fe->type();
+    QFontEngine *fe = x11data.fontstruct[script];
+    QFontEngine::Type type = fe->type();
 
     // set the scale value for each font correctly...
-    if ( scale > 0 &&  type == QFontEngineIface::Box )
+    if ( scale > 0 &&  type == QFontEngine::Box )
 	((QFontEngineBox *) fe)->_size = (int)(((QFontEngineBox *) fe)->_size*scale);
 
     if ((script != QFont::Unicode && script != defaultScript) || !actual.dirty ||
-	type == QFontEngineIface::Box ) {
+	type == QFontEngine::Box ) {
 	// make sure the pixel size is correct, so that we can draw the missing char
 	// boxes in the correct size...
 	if (request.pixelSize == -1) {
@@ -464,7 +461,7 @@ void QFontPrivate::initFontInfo(QFont::Script script, double scale)
 	else
 	    actual.pixelSize = (int) (_pixelSize + 0.5);
 
-	if ( type == QFontEngineIface::Xlfd ) {
+	if ( type == QFontEngine::Xlfd ) {
 	    QFontEngineXLFD *fexlfd = (QFontEngineXLFD *)fe;
 	    QFontDef font;
 	    if ( fillFontDef(fexlfd->name(), &font, x11Screen ) ) {
@@ -490,7 +487,7 @@ void QFontPrivate::initFontInfo(QFont::Script script, double scale)
 	    actual.pixelSize = (int)(pixelSize( actual, paintdevice, x11Screen ) +.5);
 
 #ifndef   QT_NO_XFTFREETYPE
-	if ( type == QFontEngineIface::Xft ) {
+	if ( type == QFontEngine::Xft ) {
 	    QFontEngineXft *fexft = (QFontEngineXft *)fe;
 	    // parse the pattern
 	    XftPattern *pattern =
@@ -622,7 +619,7 @@ void QFontPrivate::load( QFont::Script script, bool )
 
     if (request.dirty) {
 	// dirty font needs to have the fontstruct deref'ed
-	QFontEngineIface *qfs = x11data.fontstruct[script];
+	QFontEngine *qfs = x11data.fontstruct[script];
 	x11data.fontstruct[script] = 0;
 
 	if (qfs) {
@@ -645,7 +642,7 @@ void QFontPrivate::load( QFont::Script script, bool )
 	actual.dirty = TRUE;
     }
 
-    QFontEngineIface *fe = 0;
+    QFontEngine *fe = 0;
     // ### fix the scale calculations
     double scale = 1.0;
 
@@ -885,7 +882,7 @@ QString QFont::rawName() const
 {
     d->load(QFontPrivate::defaultScript);
 
-    QFontEngineIface *qfs = d->x11data.fontstruct[QFontPrivate::defaultScript];
+    QFontEngine *qfs = d->x11data.fontstruct[QFontPrivate::defaultScript];
     if (! qfs ) {
 	return QString::null;
     }
@@ -961,10 +958,10 @@ int QFont::x11Screen() const
 }
 
 
-QFontEngineIface *QFont::engineForScript( QFont::Script script ) const
+QFontEngine *QFontPrivate::engineForScript( QFont::Script script ) const
 {
-    d->load(script);
-    return d->x11data.fontstruct[script];
+    ((QFontPrivate *)this)->load(script);
+    return x11data.fontstruct[script];
 }
 
 // **********************************************************************
@@ -988,7 +985,7 @@ int QFontMetrics::ascent() const
 
     d->load(QFontPrivate::defaultScript);
 
-    QFontEngineIface *qfs = d->x11data.fontstruct[QFontPrivate::defaultScript];
+    QFontEngine *qfs = d->x11data.fontstruct[QFontPrivate::defaultScript];
     if (! qfs )
 	return 0;
     return qfs->ascent();
@@ -1010,7 +1007,7 @@ int QFontMetrics::descent() const
 {
     d->load(QFontPrivate::defaultScript);
 
-    QFontEngineIface *qfs = d->x11data.fontstruct[QFontPrivate::defaultScript];
+    QFontEngine *qfs = d->x11data.fontstruct[QFontPrivate::defaultScript];
     if (! qfs )
 	return 0;
     return qfs->descent();
@@ -1027,8 +1024,8 @@ bool QFontMetrics::inFont(QChar ch) const
     SCRIPT_FOR_CHAR( script, ch );
     d->load( script );
 
-    QFontEngineIface *fe = d->x11data.fontstruct[script];
-    if ( fe->type() == QFontEngineIface::Box )
+    QFontEngine *fe = d->x11data.fontstruct[script];
+    if ( fe->type() == QFontEngine::Box )
 	return FALSE;
 
     return fe->canRender( &ch, 1 );
@@ -1053,8 +1050,8 @@ int QFontMetrics::leftBearing(QChar ch) const
     SCRIPT_FOR_CHAR( script, ch );
     d->load( script );
 
-    QFontEngineIface *fe = d->x11data.fontstruct[script];
-    if ( fe->type() == QFontEngineIface::Box )
+    QFontEngine *fe = d->x11data.fontstruct[script];
+    if ( fe->type() == QFontEngine::Box )
 	return 0;
 
     glyph_t glyphs[10];
@@ -1084,8 +1081,8 @@ int QFontMetrics::rightBearing(QChar ch) const
     SCRIPT_FOR_CHAR( script, ch );
     d->load( script );
 
-    QFontEngineIface *fe = d->x11data.fontstruct[script];
-    if ( fe->type() == QFontEngineIface::Box )
+    QFontEngine *fe = d->x11data.fontstruct[script];
+    if ( fe->type() == QFontEngine::Box )
 	return 0;
 
     glyph_t glyphs[10];
@@ -1111,7 +1108,7 @@ int QFontMetrics::minLeftBearing() const
 {
     d->load(QFontPrivate::defaultScript);
 
-    QFontEngineIface *qfs = d->x11data.fontstruct[QFontPrivate::defaultScript];
+    QFontEngine *qfs = d->x11data.fontstruct[QFontPrivate::defaultScript];
     if (! qfs )
 	return 0;
     return 0;
@@ -1132,7 +1129,7 @@ int QFontMetrics::minRightBearing() const
 {
     d->load(QFontPrivate::defaultScript);
 
-    QFontEngineIface *qfs = d->x11data.fontstruct[QFontPrivate::defaultScript];
+    QFontEngine *qfs = d->x11data.fontstruct[QFontPrivate::defaultScript];
     if (! qfs )
 	return 0;
     return 0;
@@ -1151,7 +1148,7 @@ int QFontMetrics::height() const
 {
     d->load(QFontPrivate::defaultScript);
 
-    QFontEngineIface *qfs =  d->x11data.fontstruct[QFontPrivate::defaultScript];
+    QFontEngine *qfs =  d->x11data.fontstruct[QFontPrivate::defaultScript];
     if (! qfs )
 	return (d->actual.pixelSize * 3 / 4) + 1;
 
@@ -1170,7 +1167,7 @@ int QFontMetrics::leading() const
 {
     d->load(QFontPrivate::defaultScript);
 
-    QFontEngineIface *qfs =  d->x11data.fontstruct[QFontPrivate::defaultScript];
+    QFontEngine *qfs =  d->x11data.fontstruct[QFontPrivate::defaultScript];
     if (! qfs )
 	return 0;
 
@@ -1231,8 +1228,8 @@ int QFontMetrics::width(QChar ch) const
     SCRIPT_FOR_CHAR( script, ch );
     d->load( script );
 
-    QFontEngineIface *fe = d->x11data.fontstruct[script];
-    if ( fe->type() == QFontEngineIface::Box )
+    QFontEngine *fe = d->x11data.fontstruct[script];
+    if ( fe->type() == QFontEngine::Box )
 	return ((QFontEngineBox *)fe)->size();
 
     glyph_t glyphs[10];
@@ -1266,8 +1263,8 @@ int QFontMetrics::charWidth( const QString &str, int pos ) const
 
     // ### need to optimise this and not hardcode arabic.
     if ( script != QFont::Arabic ) {
-	QFontEngineIface *fe = d->x11data.fontstruct[script];
-	if ( fe->type() == QFontEngineIface::Box )
+	QFontEngine *fe = d->x11data.fontstruct[script];
+	if ( fe->type() == QFontEngine::Box )
 	    return ((QFontEngineBox *)fe)->size();
 
 	glyph_t glyphs[10];
@@ -1278,17 +1275,8 @@ int QFontMetrics::charWidth( const QString &str, int pos ) const
 	return gi.xoff;
     }
 
-    const QTextEngine *layout = QTextEngine::instance();
-    QScriptItemArray items;
-    layout->itemize( items,  str );
-    int i = 0;
-    while ( i < items.size() && pos >= items[i].position )
-	i++;
-    i--;
-    QShapedItem shaped;
-    layout->shape( shaped, QFont( d ), str, items, i );
-
-    return layout->width( shaped, pos-items[i].position, 1 );
+    QTextEngine layout( str,  d );
+    return layout.width( pos, 1 );
 }
 
 
@@ -1311,17 +1299,8 @@ int QFontMetrics::width( const QString &str, int len ) const
     if (len == 0)
 	return 0;
 
-    const QTextEngine *layout = QTextEngine::instance();
-    QScriptItemArray items;
-    layout->itemize( items,  str );
-    QShapedItem shaped;
-    int width = 0;
-    int nchars;
-    for ( int i = 0; i < items.size() && (nchars = len-items[i].position) > 0; i++ ) {
-	layout->shape( shaped, QFont( d ), str, items, i );
-	width += layout->width( shaped, 0, nchars );
-    }
-    return width;
+    QTextEngine layout( str, d );
+    return layout.width( 0, len );
 }
 
 
@@ -1352,20 +1331,21 @@ QRect QFontMetrics::boundingRect( const QString &str, int len ) const
 	return QRect();
 
 
-    const QTextEngine *layout = QTextEngine::instance();
-    QScriptItemArray items;
-    layout->itemize( items,  str );
+    QTextEngine layout( str, d );
+#if 0
+    // ########
+    layout.itemize();
     QShapedItem shaped;
     int nchars;
     QGlyphMetrics gm;
-    for ( int i = 0; i < items.size() && (nchars = len-items[i].position) > 0; i++ ) {
-	layout->shape( shaped, QFont( d ), str, items, i );
+    for ( int i = 0; i < layout.items.size() && (nchars = len-layout.items[i].position) > 0; i++ ) {
+	layout.shape( shaped, QFont( d ), i );
 	// ### not the best way to ensure positioning has happened.
-	(void)layout->width( shaped );
+	(void)layout.width( shaped );
 	QFont::Script script = (QFont::Script)shaped.d->analysis.script;
 	d->load( script );
 	// #### take care of length argument
-	QFontEngineIface *fe = d->x11data.fontstruct[script];
+	QFontEngine *fe = d->x11data.fontstruct[script];
 	QGlyphMetrics m = fe->boundingBox( shaped.d->glyphs, shaped.d->advances, shaped.d->offsets, shaped.d->num_glyphs );
 	gm.x = QMIN( gm.x, m.x + gm.xoff );
 	gm.y = QMIN( gm.y, m.x + gm.yoff );
@@ -1375,6 +1355,8 @@ QRect QFontMetrics::boundingRect( const QString &str, int len ) const
 	gm.yoff += m.yoff;
     }
     return QRect( gm.x, gm.y, gm.width, gm.height );
+#endif
+    return QRect();
 }
 
 
@@ -1383,7 +1365,7 @@ QRect QFontMetrics::boundingRect( const QString &str, int len ) const
 */
 int QFontMetrics::maxWidth() const
 {
-    QFontEngineIface *qfs;
+    QFontEngine *qfs;
     int w = 0;
 
     for (int i = 0; i < QFont::LastPrivateScript - 1; i++) {

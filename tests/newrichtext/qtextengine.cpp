@@ -1,20 +1,23 @@
 #include "qtextengine.h"
 
 #include "scriptengine.h"
-#include "scriptenginebasic.h"
-#include "scriptenginesyriac.h"
-#include "scriptenginearabic.h"
-#include "scriptenginedevanagari.h"
-#include "scriptenginebengali.h"
-#include "scriptenginetamil.h"
 
 #include <stdlib.h>
 
 #include "bidi.cpp"
-
+#include <qfont.h>
+#include "qfontdata_p.h"
+#include <qfontengine_p.h>
 
 QScriptItemArray::~QScriptItemArray()
 {
+    for ( unsigned int i = 0; i < d->size; i++ ) {
+	QScriptItem &si = d->items[i];
+	if ( si.fontEngine )
+	    si.fontEngine->deref();
+	if ( si.shaped )
+	    delete si.shaped;
+    }
     free( d );
 }
 
@@ -49,100 +52,46 @@ void QScriptItemArray::split( int pos )
 }
 
 
-QCharAttributesArray::~QCharAttributesArray()
+
+QScriptEngine **QTextEngine::scriptEngines = 0;
+
+void QTextEngine::initialize()
 {
-    free( d );
-}
-
-
-QShapedItem::QShapedItem()
-{
-    d = new QShapedItemPrivate();
-}
-
-QShapedItem::QShapedItem( const QShapedItem &other )
-{
-    other.d->ref();
-    d = other.d;
-}
-
-QShapedItem::~QShapedItem()
-{
-    if ( d->deref() )
-	delete d;
-}
-
-
-QShapedItem &QShapedItem::operator =( const QShapedItem &other )
-{
-    other.d->ref();
-    if ( d->deref() )
-	delete d;
-    d = other.d;
-    return *this;
-}
-
-const glyph_t *QShapedItem::glyphs() const
-{
-    return d->glyphs;
-
-}
-
-int QShapedItem::count() const
-{
-    return d->num_glyphs;
-}
-
-const offset_t *QShapedItem::offsets() const
-{
-    return d->offsets;
-}
-
-
-int QShapedItem::ascent() const
-{
-    return d->ascent;
-}
-
-int QShapedItem::descent() const
-{
-    return d->descent;
-}
-
-
-
-QScriptEngine **scriptEngines = 0;
-
-static QTextEngine *_instance = 0;
-
-const QTextEngine *QTextEngine::instance()
-{
-    if ( !_instance ) {
-	_instance = new QTextEngine();
-
-        if ( !scriptEngines ) {
-	    scriptEngines = (QScriptEngine **) malloc( QFont::NScripts * sizeof( QScriptEngine * ) );
-	    scriptEngines[0] = new QScriptEngineBasic;
-	    for ( int i = 1; i < QFont::NScripts; i++ )
-		scriptEngines[i] = scriptEngines[0];
-	    scriptEngines[QFont::Arabic] = new QScriptEngineArabic;
-	    scriptEngines[QFont::Syriac] = new QScriptEngineSyriac;
-	    scriptEngines[QFont::Devanagari] = new QScriptEngineDevanagari;
-	    scriptEngines[QFont::Bengali] = new QScriptEngineBengali;
-	    scriptEngines[QFont::Tamil] = new QScriptEngineTamil;
-	}
+    if ( !scriptEngines ) {
+	scriptEngines = (QScriptEngine **) malloc( QFont::NScripts * sizeof( QScriptEngine * ) );
+	scriptEngines[0] = new QScriptEngine;
+	for ( int i = 1; i < QFont::NScripts; i++ )
+	    scriptEngines[i] = scriptEngines[0];
+	scriptEngines[QFont::Arabic] = new QScriptEngineArabic;
+	scriptEngines[QFont::Syriac] = new QScriptEngineSyriac;
+	scriptEngines[QFont::Devanagari] = new QScriptEngineDevanagari;
+	scriptEngines[QFont::Bengali] = new QScriptEngineBengali;
+	scriptEngines[QFont::Tamil] = new QScriptEngineTamil;
     }
-    return _instance;
 }
 
 
-void QTextEngine::bidiReorder( int numRuns, const Q_UINT8 *levels, int *visualOrder ) const
+void QTextEngine::bidiReorder( int numRuns, const Q_UINT8 *levels, int *visualOrder )
 {
     ::bidiReorder(numRuns, levels, visualOrder );
 }
 
 
-void QTextEngine::itemize( QScriptItemArray &items, const QString &string ) const
+QTextEngine::QTextEngine( const QString &str, QFontPrivate *f )
+    : string( str ), fnt( f )
+{
+    if ( !scriptEngines ) initialize();
+    if ( fnt ) fnt->ref();
+    itemize();
+}
+
+QTextEngine::~QTextEngine()
+{
+    if ( fnt ) fnt->deref();
+}
+
+
+void QTextEngine::itemize()
 {
     if ( !items.d ) {
 	int size = 1;
@@ -156,111 +105,115 @@ void QTextEngine::itemize( QScriptItemArray &items, const QString &string ) cons
 }
 
 
-void QTextEngine::attributes( QCharAttributesArray &attrs, const QString &string,
-			       const QScriptItemArray &items, int item ) const
+void QTextEngine::setFont( int item, QFontPrivate *f )
 {
-    const QScriptItem &si = items[item];
+    QScriptItem &si = items[item];
+    if ( !f )
+	f = fnt;
+    QFontEngine *fe = f->engineForScript( (QFont::Script)si.analysis.script );
+    fe->ref();
+    if ( si.fontEngine )
+	si.fontEngine->deref();
+    si.fontEngine = fe;
+
+    if ( si.shaped ) {
+	delete si.shaped;
+	si.shaped = 0;
+    }
+}
+
+QFontEngine *QTextEngine::font( int item )
+{
+    return items[item].fontEngine;
+}
+
+const QCharAttributes *QTextEngine::attributes( int item )
+{
+    QScriptItem &si = items[item];
     int from = si.position;
     item++;
     int len = ( item < items.size() ? items[item].position : string.length() ) - from;
 
-
-    attrs.d = (QCharAttributesArrayPrivate *)realloc( attrs.d, sizeof( QCharAttributesArrayPrivate ) +
-						     sizeof(QCharAttributes)*len );
-
-    scriptEngines[si.analysis.script]->charAttributes( string, from, len, attrs.d->attributes );
+    si.charAttributes = (QCharAttributes *)realloc( si.charAttributes, sizeof(QCharAttributes)*len );
+    scriptEngines[si.analysis.script]->charAttributes( string, from, len, si.charAttributes );
+    return si.charAttributes;
 }
 
-void QTextEngine::shape( QShapedItem &shaped, const QFont &f, const QString &string,
-			 const QScriptItemArray &items, int item ) const
+const QShapedItem *QTextEngine::shape( int item ) const
 {
-    const QScriptItem &si = items[item];
+    QScriptItem &si = items[item];
+
+    if ( si.shaped )
+	return si.shaped;
+
     QFont::Script script = (QFont::Script)si.analysis.script;
     int from = si.position;
-    item++;
-    int len = ( item < items.size() ? items[item].position : string.length() ) - from;
+    int len = length( item );
 
-    shaped.d->string = string;
-    shaped.d->from = from;
-    shaped.d->length = len;
-    shaped.d->fontEngine = f.engineForScript( script );
-    shaped.d->analysis = si.analysis;
+    if ( !si.shaped )
+	si.shaped = new QShapedItem();
+    if ( !si.fontEngine )
+	si.fontEngine = fnt->engineForScript( script );
 
-    shaped.d->isShaped = FALSE;
-    shaped.d->isPositioned = FALSE;
+    if ( si.fontEngine && si.fontEngine != (QFontEngine*)-1 ) {
+	scriptEngines[script]->shape( string, from, len, &si );
+    }
+    return si.shaped;
 }
 
-void QTextEngine::shape( QShapedItem &shaped ) const
+int QTextEngine::cursorToX( int item, int cpos, Edge edge ) const
 {
-    if ( shaped.d->isShaped )
-	return;
-    QFont::Script script = (QFont::Script)shaped.d->analysis.script;
-    if ( shaped.d->fontEngine && shaped.d->fontEngine != (QFontEngineIface*)-1 )
-	scriptEngines[script]->shape( &shaped );
-    shaped.d->isShaped = TRUE;
-}
+    QShapedItem *shaped = items[item].shaped;
+    if ( !shaped ) {
+	shape( item );
+	shaped = items[item].shaped;
+    }
 
-void QTextEngine::position( QShapedItem &shaped ) const
-{
-    if ( !shaped.d->isShaped )
-	shape( shaped );
-    if ( shaped.d->isPositioned )
-	return;
-    QFont::Script script = (QFont::Script)shaped.d->analysis.script;
-    if ( shaped.d->fontEngine && shaped.d->fontEngine != (QFontEngineIface*)-1 )
-	scriptEngines[script]->position( &shaped );
-    shaped.d->isPositioned = TRUE;
-}
-
-int QTextEngine::cursorToX( QShapedItem &shaped, int cpos, Edge edge ) const
-{
-    if ( !shaped.d->isPositioned )
-	position( shaped );
-
-    QShapedItemPrivate *d = shaped.d;
-
-    if ( cpos > d->length )
-	cpos = d->length;
+    int l = length( item );
+    if ( cpos > l )
+	cpos = l;
     if ( cpos < 0 )
 	cpos = 0;
 
-    int glyph_pos = cpos == d->length ? d->num_glyphs : d->logClusters[cpos];
+    int glyph_pos = cpos == l ? shaped->num_glyphs : shaped->logClusters[cpos];
     if ( edge == Trailing ) {
 	// trailing edge is leading edge of next cluster
-	while ( glyph_pos < d->num_glyphs && !d->glyphAttributes[glyph_pos].clusterStart )
+	while ( glyph_pos < shaped->num_glyphs && !shaped->glyphAttributes[glyph_pos].clusterStart )
 	    glyph_pos++;
     }
 
     int x = 0;
-    bool reverse = d->analysis.bidiLevel % 2;
+    bool reverse = items[item].analysis.bidiLevel % 2;
 
     if ( reverse ) {
-	for ( int i = d->num_glyphs-1; i >= glyph_pos; i-- )
-	    x += d->advances[i].x;
+	for ( int i = shaped->num_glyphs-1; i >= glyph_pos; i-- )
+	    x += shaped->advances[i].x;
     } else {
 	for ( int i = 0; i < glyph_pos; i++ )
-	    x += d->advances[i].x;
+	    x += shaped->advances[i].x;
     }
 //     qDebug("cursorToX: cpos=%d, gpos=%d x=%d", cpos, glyph_pos, x );
     return x;
 }
 
-int QTextEngine::xToCursor( QShapedItem &shaped, int x ) const
+int QTextEngine::xToCursor( int item, int x ) const
 {
-    if ( !shaped.d->isPositioned )
-	position( shaped );
+    QShapedItem *shaped = items[item].shaped;
+    if ( !shaped ) {
+	shape( item );
+	shaped = items[item].shaped;
+    }
 
-    QShapedItemPrivate *d = shaped.d;
-
-    bool reverse = d->analysis.bidiLevel % 2;
+    int l = length( item );
+    bool reverse = items[item].analysis.bidiLevel % 2;
     if ( x < 0 )
-	return reverse ? d->length : 0;
+	return reverse ? l : 0;
 
 
     if ( reverse ) {
 	int width = 0;
-	for ( int i = 0; i < d->num_glyphs; i++ ) {
-	    width += d->advances[i].x;
+	for ( int i = 0; i < shaped->num_glyphs; i++ ) {
+	    width += shaped->advances[i].x;
 	}
 	x = -x + width;
     }
@@ -270,15 +223,15 @@ int QTextEngine::xToCursor( QShapedItem &shaped, int x ) const
     int x_after = 0;
 
     int lastCluster = 0;
-    for ( int i = 1; i <= d->length; i++ ) {
-	int newCluster = i < d->length ? d->logClusters[i] : d->num_glyphs;
+    for ( int i = 1; i <= l; i++ ) {
+	int newCluster = i < l ? shaped->logClusters[i] : shaped->num_glyphs;
 	if ( newCluster != lastCluster ) {
 	    // calculate cluster width
 	    cp_before = cp_after;
 	    x_before = x_after;
 	    cp_after = i;
 	    for ( int j = lastCluster; j < newCluster; j++ )
-		x_after += d->advances[j].x;
+		x_after += shaped->advances[j].x;
 	    // 		qDebug("cluster boundary: lastCluster=%d, newCluster=%d, x_before=%d, x_after=%d",
 	    // 		       lastCluster, newCluster, x_before, x_after );
 	    if ( x_after > x )
@@ -294,20 +247,21 @@ int QTextEngine::xToCursor( QShapedItem &shaped, int x ) const
     return before ? cp_before : cp_after;
 }
 
-
-int QTextEngine::width( QShapedItem &shaped ) const
+int QTextEngine::width( int item ) const
 {
-    if ( !shaped.d->isPositioned )
-	position( shaped );
-
+#if 0
+    const QShapedItem *shaped = shape( item );
     int width = 0;
-    for ( int i = 0; i < shaped.d->num_glyphs; i++ )
-	width += shaped.d->advances[i].x;
+    for ( int i = 0; i < shaped->num_glyphs; i++ )
+	width += shaped->advances[i].x;
     return width;
+#endif
+    return 0;
 }
 
-int QTextEngine::width( QShapedItem &shaped, int charFrom, int numChars ) const
+int QTextEngine::width( int charFrom, int numChars ) const
 {
+#if 0
     if ( !shaped.d->isPositioned )
 	position( shaped );
 
@@ -335,9 +289,13 @@ int QTextEngine::width( QShapedItem &shaped, int charFrom, int numChars ) const
     for ( int i = glyphStart; i <= glyphEnd; i++ )
 	width += shaped.d->advances[i].x;
     return width;
+#endif
+    return 0;
 }
 
-bool QTextEngine::split( QScriptItemArray &items, int item, QShapedItem &shaped, QCharAttributesArray &attrs, int width, QShapedItem *splitoff ) const
+#if 0
+bool QTextEngine::split( int item, QShapedItem &shaped, QCharAttributesArray &attrs,
+			 int width, QShapedItem *splitoff )
 {
     if ( !shaped.d->isPositioned )
 	position( shaped );
@@ -414,3 +372,4 @@ bool QTextEngine::split( QScriptItemArray &items, int item, QShapedItem &shaped,
 
     return TRUE;
 }
+#endif

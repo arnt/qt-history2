@@ -5,12 +5,15 @@
 #include <qstring.h>
 #include <stdlib.h>
 #include <qnamespace.h>
+#include <qtextmemory.h>
 
 #include <assert.h>
 
-class QFontEngineIface;
-class QFont;
+class QFontPrivate;
 class QString;
+
+class QOpenType;
+class QPainter;
 
 // this uses the same coordinate system as Qt, but a different one to freetype and Xft.
 // * y is usually negative, and is equal to the ascent.
@@ -43,6 +46,66 @@ struct QGlyphMetrics
     int yoff;
 };
 
+typedef unsigned short glyph_t;
+
+struct offset_t {
+    short x;
+    short y;
+};
+
+
+class QFontEngine : public QShared
+{
+public:
+    enum Error {
+	NoError,
+	OutOfMemory
+    };
+
+    enum Type {
+	Box,
+	Xlfd,
+	Xft
+    };
+
+    virtual ~QFontEngine() = 0;
+
+    /* returns 0 as glyph index for non existant glyphs */
+    virtual Error stringToCMap( const QChar *str,  int len, glyph_t *glyphs, int *nglyphs ) const = 0;
+
+    virtual QOpenType *openTypeIface() const { return 0; }
+    virtual int cmap() const = 0;
+
+    virtual void draw( QPainter *p, int x, int y, const glyph_t *glyphs,
+		       const offset_t *advances, const offset_t *offsets, int numGlyphs, bool reverse ) = 0;
+
+    virtual QGlyphMetrics boundingBox( const glyph_t *glyphs,
+				    const offset_t *advances, const offset_t *offsets, int numGlyphs ) = 0;
+    virtual QGlyphMetrics boundingBox( glyph_t glyph ) = 0;
+
+    virtual int ascent() const = 0;
+    virtual int descent() const = 0;
+    virtual int leading() const = 0;
+    virtual int maxCharWidth() const = 0;
+
+    virtual const char *name() const = 0;
+
+    virtual bool canRender( const QChar *string,  int len ) = 0;
+
+    virtual void setScale( double ) {}
+    virtual int scale() const { return 1; }
+
+    virtual Type type() const = 0;
+};
+
+
+inline QFontEngine::~QFontEngine()
+{
+}
+
+struct QShapedItem;
+struct QCharAttributes;
+
 struct QScriptAnalysis
 {
     int script    : 7;
@@ -64,12 +127,15 @@ struct QScriptItem
 {
     int position;
     QScriptAnalysis analysis;
+    short x;
     int y;
-    int x;
     short baselineAdjustment;
     short width;
     short ascent;
     short descent;
+    QFontEngine *fontEngine;
+    QShapedItem *shaped;
+    QCharAttributes *charAttributes;
 };
 
 struct QScriptItemArrayPrivate
@@ -110,11 +176,6 @@ public:
     QScriptItemArrayPrivate *d;
 };
 
-struct offset_t {
-    short x;
-    short y;
-};
-
 
 // enum and struct are  made to be compatible with Uniscribe
 struct GlyphAttributes {
@@ -144,58 +205,19 @@ struct GlyphAttributes {
     unsigned char combiningClass :8;
 };
 
-typedef unsigned short glyph_t;
-
-class QShapedItemPrivate : public QShared
+struct QShapedItem
 {
-public:
-    QShapedItemPrivate()
+    QShapedItem()
 	: num_glyphs( 0 ), glyphs( 0 ), advances( 0 ), offsets( 0 ), logClusters( 0 ),
-	  glyphAttributes( 0 ), fontEngine( 0 ),
-	  from( 0 ), length( 0 ), ascent( 0 ), descent( 0 ),
-	  isShaped( FALSE ), isPositioned( FALSE ) {}
-    ~QShapedItemPrivate() {
-	free( glyphs );
-	free( offsets );
-	free( advances );
-	free( logClusters );
-	free( glyphAttributes );
-    }
+	  glyphAttributes( 0 ), ascent( 0 ), descent( 0 ) {}
     int num_glyphs;
     glyph_t * glyphs;
     offset_t *advances;
     offset_t *offsets;
     unsigned short *logClusters;
     GlyphAttributes *glyphAttributes;
-    QFontEngineIface *fontEngine;
-    QScriptAnalysis analysis;
-    QString string;
-    int from;
-    int length;
     short ascent;
     short descent;
-    bool isShaped : 1;
-    bool isPositioned : 1;
-};
-
-class QShapedItem
-{
-public:
-    QShapedItem();
-    QShapedItem( const QShapedItem &other );
-
-    ~QShapedItem();
-
-    QShapedItem &operator =( const QShapedItem &other );
-
-    const glyph_t *glyphs() const;
-    int count() const;
-    const offset_t *offsets() const;
-    const offset_t *advances() const { return d->advances; }
-    int ascent() const;
-    int descent() const;
-
-    QShapedItemPrivate *d;
 };
 
 struct QCharAttributes {
@@ -206,42 +228,22 @@ struct QCharAttributes {
     int reserved       :4;
 };
 
-struct QCharAttributesArrayPrivate {
-    unsigned int alloc;
-    unsigned int size;
-    QCharAttributes attributes[1];
-};
+class QTextEngine;
+class QScriptEngine;
+class QFontEngine;
+class QFontPrivate;
 
-class QCharAttributesArray
-{
-public:
-    QCharAttributesArray() : d( 0 ) {}
-    ~QCharAttributesArray();
+struct QTextEngine {
+    QTextEngine( const QString &str, QFontPrivate *f );
+    ~QTextEngine();
 
-    QCharAttributesArray( const QCharAttributesArray & ) {}
-    QCharAttributesArray & operator=( const QCharAttributesArray & ) { return *this; }
+    static void bidiReorder( int numRuns, const Q_UINT8 *levels, int *visualOrder );
 
-    const QCharAttributes &operator [] (int i) const {
-	return d->attributes[i];
-    }
+    void setFont( int item, QFontPrivate *f );
+    QFontEngine *font( int item );
 
-    QCharAttributesArrayPrivate *d;
-};
-
-class QTextEngine
-{
-public:
-    static const QTextEngine *instance();
-
-    void itemize( QScriptItemArray &items, const QString & ) const;
-
-    void attributes( QCharAttributesArray &attrs, const QString &string,
-		     const QScriptItemArray &items, int item ) const;
-
-    void bidiReorder( int numRuns, const Q_UINT8 *levels, int *visualOrder ) const;
-
-    void shape( QShapedItem &shaped, const QFont &f, const QString &string,
-			const QScriptItemArray &items, int item ) const;
+    const QCharAttributes *attributes( int item );
+    const QShapedItem *shape( int item ) const;
 
     // ### we need something for justification
 
@@ -250,20 +252,35 @@ public:
 	Trailing
     };
 
-    int cursorToX( QShapedItem &shaped, int cpos, Edge edge = Leading ) const;
-    int xToCursor( QShapedItem &shaped, int x ) const;
+    int width( int item ) const;
+    int width( int charFrom, int numChars ) const;
 
-    int width( QShapedItem &shaped ) const;
-    int width( QShapedItem &shaped, int charFrom, int numChars ) const;
-    bool split( QScriptItemArray &items, int item, QShapedItem &, QCharAttributesArray &,
-		int width, QShapedItem *splitoff = 0 ) const;
+    int cursorToX( int item, int cpos, Edge edge = Leading ) const;
+    int xToCursor( int item, int x ) const;
+
+#if 0
+    bool split( int item, QShapedItem &, QCharAttributesArray &,
+		int width, QShapedItem *splitoff = 0 );
+#endif
 
 //    static QScriptProperties scriptProperties( int script );
 
+    QScriptItemArray items;
+    QString string;
+    QFontPrivate *fnt;
+    QTextMemory memory;
+
+    int length( int item ) const {
+	const QScriptItem &si = items[item];
+	int from = si.position;
+	item++;
+	return ( item < items.size() ? items[item].position : string.length() ) - from;
+    }
 private:
-    // not in the interface
-    void shape( QShapedItem &shaped ) const;
-    void position( QShapedItem &shaped ) const;
+    void itemize();
+    void initialize();
+
+    static QScriptEngine **scriptEngines;
 };
 
 #endif
