@@ -2391,12 +2391,14 @@ void qt_format_text( const QFontMetrics& fm, int x, int y, int w, int h,
 		cw += spacewidth;
 	    } else if ( *p == '\n' ) {		// newline
 		if ( singleline ) {
-		    cc = ' ';			// convert newline and carriage return to space
+		    cc = ' ';			// convert newline to space
 		    cw += spacewidth;
 		} else {
 		    cc = BEGLINE;
 		}
-	    } else if ( *p == '\r' ) {		// ignore carriage return for now
+	    } else if ( *p == '\r' ) {		// ignore carriage return for now (convert to space)
+		cc = ' ';
+		cw += spacewidth;
 	    } else if ( *p == '\t' ) {		// TAB character
 		if ( expandtabs ) {
 		    int ccw = 0;
