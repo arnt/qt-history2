@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#277 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#278 $
 **
 ** Implementation of the QString class and related Unicode functions
 **
@@ -9577,6 +9577,19 @@ int ucstrnicmp( const QChar *a, const QChar *b, int l )
     return al.row() == bl.row() ? al.cell() - bl.cell() : al.row() - bl.row();
 }
 
+/*! \class QCharRef qstring.h
+  \brief QCharRef is a helper class for QString.
+
+  It provides the ability to edit characters in a string in a natural
+  fashion.
+
+  When you get an object of type QCharRef, you can assign to it, which
+  will operate on the string from which you got it.  That is its whole
+  purpose in life.  It becomes invalid once further modifications are
+  made to the string: If you want to keep it, copy it into a QChar.
+
+  \sa QString::operator[] QString::at()
+*/
 
 /*! \class QChar qstring.h
 
@@ -9706,21 +9719,23 @@ make sense of anything.
 </ul>
 */
 
-//#warning "Warwick: Please fill in these enum things"
+#if defined(_CC_GNU_)
+#warning "Warwick: Please fill in these enum things"
+#endif
 
 /*! \enum QChar::Direction
 
   This enum type defines <ul>
-<li> \c DirL - 
-<li> \c DirR - 
-<li> \c DirEN - 
-<li> \c DirES - 
-<li> \c DirET - 
-<li> \c DirAN - 
-<li> \c DirCS - 
-<li> \c DirB - 
-<li> \c DirS - 
-<li> \c DirWS - 
+<li> \c DirL -
+<li> \c DirR -
+<li> \c DirEN -
+<li> \c DirES -
+<li> \c DirET -
+<li> \c DirAN -
+<li> \c DirCS -
+<li> \c DirB -
+<li> \c DirS -
+<li> \c DirWS -
 <li> \c DirON -
 </ul>
 */
@@ -9728,23 +9743,23 @@ make sense of anything.
 /*! \enum QChar::Decomposition
 
   This enum type defines <ul>
-<li> \c        Single - 
-<li> \c Canonical - 
-<li> \c Font - 
-<li> \c NoBreak - 
-<li> \c Initial - 
-<li> \c Medial - 
-<li> \c Final - 
-<li> \c Isolated - 
-<li> \c Circle - 
-<li> \c Super - 
-<li> \c Sub - 
-<li> \c Vertical - 
-<li> \c Wide - 
-<li> \c Narrow - 
-<li> \c Small - 
-<li> \c Square - 
-<li> \c Compat - 
+<li> \c        Single -
+<li> \c Canonical -
+<li> \c Font -
+<li> \c NoBreak -
+<li> \c Initial -
+<li> \c Medial -
+<li> \c Final -
+<li> \c Isolated -
+<li> \c Circle -
+<li> \c Super -
+<li> \c Sub -
+<li> \c Vertical -
+<li> \c Wide -
+<li> \c Narrow -
+<li> \c Small -
+<li> \c Square -
+<li> \c Compat -
 <li> \c Fraction -
 </ul>
 */
@@ -9752,10 +9767,10 @@ make sense of anything.
 /*! \enum QChar::Joining
 
   This enum type defines <ul>
-<li> \c OtherJoining - 
-<li> \c Dual - 
-<li> \c Right - 
-<li> \c Center - 
+<li> \c OtherJoining -
+<li> \c Dual -
+<li> \c Right -
+<li> \c Center -
 <li> \c Unknown -
 </ul>
 */
@@ -9770,13 +9785,13 @@ Constructs a null QChar (one that isNull()).
 
 /*! \fn QChar::QChar( char c )
 
-Constructs a QChar corresponding to ASCII/Latin1 character \a c. 
+Constructs a QChar corresponding to ASCII/Latin1 character \a c.
 */
 
 
 /*! \fn QChar::QChar( uchar c )
 
-Constructs a QChar corresponding to ASCII/Latin1 character \a c. 
+Constructs a QChar corresponding to ASCII/Latin1 character \a c.
 */
 
 
@@ -9814,6 +9829,14 @@ Constructs a QChar for the character with Unicode code point \a rc.
 /*! \fn QChar::QChar( int rc )
 
 Constructs a QChar for the character with Unicode code point \a rc.
+*/
+
+
+/*! \fn bool  QChar::networkOrdered ()
+
+  Returns TRUE if this character is in network byte order (MSB first),
+  and FALSE if it is not.  This is a platform-dependent property, so
+  we strongly advise against using this function in portable code.
 */
 
 
@@ -12768,6 +12791,22 @@ QString &QString::operator+=( char c )
     return *this;
 }
 
+
+
+/*! \fn char QChar::latin1() const
+
+  Returns a latin-1 copy of this character, if this character is in
+  the latin-1 character set.  If not, this function returns 0.
+*/
+
+
+/*! \fn ushort QChar::unicode() const
+
+  Returns the unicode position of this character, as an unsigned short
+  int.
+*/
+
+
 /*!
   Returns a Latin-1 representation of the string. Note that the returned
   value is undefined if the string contains non-Latin-1 characters.  If you
@@ -12778,7 +12817,7 @@ QString &QString::operator+=( char c )
   use Unicode.
 
   The result remains valid so long as one unmodified
-  copy of the string exists.
+  copy of the source string exists.
 
   \sa utf8(), local8Bit()
 */
