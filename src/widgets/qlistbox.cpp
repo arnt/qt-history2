@@ -2251,7 +2251,7 @@ void QListBox::updateSelection()
 /*! \reimp
 */
 
-void QListBox::contextMenuEvent( QContextMenuEvent *e )
+void QListBox::contentsContextMenuEvent( QContextMenuEvent *e )
 {
     e->accept();
     if ( e->reason() == QContextMenuEvent::Keyboard ) {
