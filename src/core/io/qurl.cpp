@@ -148,7 +148,6 @@ public:
     const QByteArray & normalized();
 };
 
-// inline for speed
 static bool QT_FASTCALL _char(char **ptr, char expected)
 {
     if (*((*ptr)) == expected) {
@@ -161,14 +160,13 @@ static bool QT_FASTCALL _char(char **ptr, char expected)
 
 static bool QT_FASTCALL _HEXDIG(char **ptr, char *dig)
 {
-    char *ptrBackup = *ptr;
-    char ch = *((*ptr)++);
+    char ch = **ptr;
     if ((ch >= '0' && ch <= '9') || (ch >= 'a' && ch <= 'f') || (ch >= 'A' && ch <= 'F')) {
         *dig = ch;
+        ++(*ptr);
         return true;
     }
 
-    *ptr = ptrBackup;
     return false;
 }
 
@@ -193,15 +191,14 @@ static bool QT_FASTCALL _pctEncoded(char **ptr, char pct[])
 // gen-delims  = ":" / "/" / "?" / "#" / "[" / "]" / "@"
 static bool QT_FASTCALL _genDelims(char **ptr, char *c)
 {
-    char *ptrBackup = *ptr;
-    char ch = *((*ptr)++);
+    char ch = **ptr;
     switch (ch) {
     case ':': case '/': case '?': case '#':
     case '[': case ']': case '@':
         *c = ch;
+        ++(*ptr);
         return true;
     default:
-        *ptr = ptrBackup;
         return false;
     }
 }
@@ -210,43 +207,40 @@ static bool QT_FASTCALL _genDelims(char **ptr, char *c)
 //             / "*" / "+" / "," / ";" / "="
 static bool QT_FASTCALL _subDelims(char **ptr, char *c)
 {
-    char *ptrBackup = *ptr;
-    char ch = *((*ptr)++);
+    char ch = **ptr;
     switch (ch) {
     case '!': case '$': case '&': case '\'':
     case '(': case ')': case '*': case '+':
     case ',': case ';': case '=':
         *c = ch;
+        ++(*ptr);
         return true;
     default:
-        *ptr = ptrBackup;
         return false;
     }
 }
 
 static bool QT_FASTCALL _ALPHA_(char **ptr, char *c)
 {
-    char *ptrBackup = *ptr;
-    char ch = *((*ptr)++);
+    char ch = **ptr;
     if ((ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z')) {
         *c = ch;
+        ++(*ptr);
         return true;
     }
 
-    *ptr = ptrBackup;
     return false;
 }
 
 static bool QT_FASTCALL _DIGIT_(char **ptr, char *c)
 {
-    char *ptrBackup = *ptr;
-    char ch = *((*ptr)++);
+    char ch = **ptr;
     if (ch >= '0' && ch <= '9') {
         *c = ch;
+        ++(*ptr);
         return true;
     }
 
-    *ptr = ptrBackup;
     return false;
 }
 
@@ -256,14 +250,13 @@ static bool QT_FASTCALL _unreserved(char **ptr, char *c)
     if (_ALPHA_(ptr, c) || _DIGIT_(ptr, c))
         return true;
 
-    char *ptrBackup = *ptr;
-    char ch = *((*ptr)++);
+    char ch = **ptr;
     switch (ch) {
     case '-': case '.': case '_': case '~':
         *c = ch;
+        ++(*ptr);
         return true;
     default:
-        *ptr = ptrBackup;
         return false;
     }
 }
@@ -274,7 +267,7 @@ static bool QT_FASTCALL _scheme(char **ptr, QByteArray *scheme)
     bool first = true;
 
     for (;;) {
-        char ch = *(*ptr);
+        char ch = **ptr;
         if ((ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z')) {
             *scheme += ch;
         } else if (!first && ((ch >= '0' && ch <= '9') || ch == '+' || ch == '-' || ch == '.')) {
@@ -283,7 +276,7 @@ static bool QT_FASTCALL _scheme(char **ptr, QByteArray *scheme)
             break;
         }
 
-        (*ptr)++;
+        ++(*ptr);
         first = false;
     }
 
@@ -1183,7 +1176,8 @@ QByteArray QUrlPrivate::toEncoded() const
         url += scheme.ascii();
         url += ":";
     }
-    if (!authority().isEmpty()) {
+    QString auth = authority();
+    if (!auth.isEmpty()) {
 
 	url += "//";
 
@@ -1213,7 +1207,7 @@ QByteArray QUrlPrivate::toEncoded() const
     }
 
     // check if we need to insert a slash
-    if (!authority().isEmpty() && !path.isEmpty() && path.at(0) != QLatin1Char('/'))
+    if (!path.isEmpty() && path.at(0) != QLatin1Char('/') && !auth.isEmpty())
 	url += '/';
     url += QUrl::toPercentEncoding(path, ":#? \t");
 
@@ -1225,6 +1219,7 @@ QByteArray QUrlPrivate::toEncoded() const
     return url;
 }
 
+#define qToLower(ch) ((ch|32 >= 'a' && ch|32 <= 'z') ? ch|32 : ch)
 
 const QByteArray & QUrlPrivate::normalized()
 {
@@ -1237,12 +1232,10 @@ const QByteArray & QUrlPrivate::normalized()
 	    tmp.path = QUrlPrivate::removeDotsFromPath(tmp.path);
 
 	int qLen = tmp.query.length();
-	for (int i=0; i<qLen; i++) {
-	    if (tmp.query.at(i) == '%' && qLen - i > 2) {
-		i++;
-		tmp.query[i] = QChar(tmp.query[i]).toLower().ascii();
-		i++;
-		tmp.query[i] = QChar(tmp.query[i]).toLower().ascii();
+	for (int i = 0; i < qLen; i++) {
+	    if (qLen - i > 2 && tmp.query.at(i) == '%') {
+		tmp.query[++i] = qToLower(tmp.query.at(i));
+		tmp.query[++i] = qToLower(tmp.query.at(i));
 	    }
 	}
 	encodedNormalized = tmp.toEncoded();
