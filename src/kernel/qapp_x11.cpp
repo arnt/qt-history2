@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#83 $
+** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#84 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -31,7 +31,7 @@
 #endif
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#83 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#84 $";
 #endif
 
 
@@ -461,10 +461,15 @@ GC qt_xget_temp_gc( bool monochrome )		// get use'n throw GC
 /*!
   Sets the main widget of the application.
 
+  On X11, this function also resizes and moves the main widget
+  according to the \e -geometry command-line option, so you should
+  \link QWidget::setGeometry() set default geometry \endlink before
+  calling setMainWidget().
+
   When the user destroys the main widget, the application leaves the
   main event loop and quits.
-  \sa mainWidget(), exec(), quit()
-*/
+
+  \sa mainWidget(), exec(), quit() */
 
 void QApplication::setMainWidget( QWidget *mainWidget )
 {

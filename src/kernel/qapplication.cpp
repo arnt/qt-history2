@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.cpp#51 $
+** $Id: //depot/qt/main/src/kernel/qapplication.cpp#52 $
 **
 ** Implementation of QApplication class
 **
@@ -17,7 +17,7 @@
 #include "qpalette.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qapplication.cpp#51 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qapplication.cpp#52 $";
 #endif
 
 
@@ -53,10 +53,12 @@ static char ident[] = "$Id: //depot/qt/main/src/kernel/qapplication.cpp#51 $";
   Notice that the QApplication object must be created before any widget can be
   defined!
 
+  Note also that on X11, setMainWidget() may change the main widget
+  according to the \e -geometry option.
+
   \header qkeycode.h
   \header qwindefs.h
-  \header qglobal.h
-*/
+  \header qglobal.h */
 
 
 void qt_init( int *, char ** );			// defined in qapp_???.cpp
