@@ -158,7 +158,6 @@ public:
 
 	size=pitch*height;
 
-	qDebug("%d bytes for U%04x",size,ch.unicode());
 	result.data = new uchar[size]; // XXX memory manage me
 
 	mybits.width=width;
