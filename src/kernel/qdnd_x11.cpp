@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdnd_x11.cpp#12 $
+** $Id: //depot/qt/main/src/kernel/qdnd_x11.cpp#13 $
 **
 ** XDND implementation for Qt.  See http://www.cco.caltech.edu/~jafl/xdnd2/
 **
@@ -362,8 +362,6 @@ void qt_handle_xdnd_drop( QWidget *, const XEvent * xe )
     }
     QDropEvent de( qt_xdnd_current_position );
     QApplication::sendEvent( qt_xdnd_current_widget, &de );
-
-		
 }
 
 
@@ -530,9 +528,19 @@ void qt_xdnd_handle_destroy_notify( const XDestroyWindowEvent * e )
   \sa data()
 */
 
-const char * QDragMoveEvent::format( int  )
+const char * QDragMoveEvent::format( int n )
 {
-    return 0;
+    int i = 0;
+    while( i<n && qt_xdnd_types[i] )
+	i++;
+    if ( i < n )
+	return 0;
+
+    QString * name = qt_xdnd_drag_types->find( (long)(qt_xdnd_types[i]) );
+    if ( !name )
+	return 0;
+    
+    return *name;
 }
 
 
