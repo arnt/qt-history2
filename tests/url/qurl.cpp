@@ -825,6 +825,8 @@ void QUrl::listEntries( const QString &nameFilter, int filterSpec = QDir::Defaul
 	emit start();
 	QDir dir( d->path );
 	const QFileInfoList *filist = dir.entryInfoList( nameFilter, filterSpec, sortSpec );
+	if ( !filist )
+	    return;
 	QFileInfoListIterator it( *filist );
 	QFileInfo *fi;
 	while ( ( fi = it.current()) != 0 ) {

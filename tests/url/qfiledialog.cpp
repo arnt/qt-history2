@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/url/qfiledialog.cpp#10 $
+** $Id: //depot/qt/main/tests/url/qfiledialog.cpp#11 $
 **
 ** Implementation of QFileDialog class
 **
@@ -493,8 +493,8 @@ QFileListBox::QFileListBox( QWidget *parent, QFileDialog *dlg )
 
 void QFileListBox::show()
 {
-    setBackgroundMode( NoBackground );
-    viewport()->setBackgroundMode( NoBackground );
+    setBackgroundMode( PaletteBase );
+    viewport()->setBackgroundMode( PaletteBase );
     QListBox::show();
 }
 
@@ -709,7 +709,7 @@ void QFileListBox::viewportDropEvent( QDropEvent *e )
     else
 	supportAction = FALSE;
 
-    
+
     QUrl dest;
     if ( currDropItem )
 	dest = QUrl( filedialog->d->url, currDropItem->text() );
