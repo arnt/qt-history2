@@ -55,9 +55,10 @@ public:
     \ingroup database
     \module sql
 
-    A QSqlSelectCursor is a convenience class that makes it possible
-    to display the result set of general SQL queries in a data-aware
-    Qt widget.
+    QSqlSelectCursor is a convenience class that makes it possible to
+    display the result set of general SQL queries in data-aware Qt
+    widgets. QSqlSelectCursor is read only and does not support
+    insert, update and delete operations.
 */
 
 /*! Constructs a read only cursor on database \a db using the query \a query.
