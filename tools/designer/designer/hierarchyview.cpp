@@ -234,14 +234,14 @@ void HierarchyList::changeNameOf( QWidget *w, const QString &name )
 
 void HierarchyList::changeDatabaseOf( QWidget *w, const QString &info )
 {
-#if defined(QT_MODULE_SQL)        
+#if defined(QT_MODULE_SQL)
     if ( !hierarchyView->formWindow()->isDatabaseAware() )
 	return;
     QListViewItem *item = findItem( w );
     if ( !item )
 	return;
     item->setText( 2, info );
-#endif    
+#endif
 }
 
 void HierarchyList::resizeEvent( QResizeEvent *e )
@@ -250,18 +250,21 @@ void HierarchyList::resizeEvent( QResizeEvent *e )
     int lastSection = 1; // normal view
     QSize vs = viewportSize( 0, contentsHeight() );
 
-#if defined(QT_MODULE_SQL)    
-    if ( hierarchyView->formWindow() && hierarchyView->formWindow()->isDatabaseAware() ) 
+#if defined(QT_MODULE_SQL)
+    if ( hierarchyView->formWindow() && hierarchyView->formWindow()->isDatabaseAware() )
 	lastSection = 2; // database view
     // make lastSection visible, if nec
-    if ( header()->sectionPos( lastSection ) > vs.width() ) {
-	// ### reggie: need better resizing/repainting strategy here
+    if ( header()->sectionPos( lastSection ) > vs.width() )
 	header()->resizeSection( lastSection-1, 80 );
-    }
-#endif    
+#endif
 
     int os = header()->sectionSize( 1 );
     int ns = vs.width() - header()->sectionSize( 0 );
+#if defined(QT_MODULE_SQL)
+    if ( hierarchyView->formWindow() && hierarchyView->formWindow()->isDatabaseAware() )
+	ns -= header()->sectionSize( 1 );
+#endif
+    
     if ( ns < 16 )
 	ns = 16;
 
@@ -288,7 +291,8 @@ void HierarchyList::setOpen( QListViewItem *i, bool b )
 
 void HierarchyList::updateHeader()
 {
-    QSize s( header()->sectionPos(1) + header()->sectionSize(1), height() );
+    int w = header()->sectionPos(1) + header()->sectionSize(1);
+    QSize s( w, height() );
     QResizeEvent e( s, size() );
     resizeEvent( &e );
     viewport()->repaint( s.width(), 0, width() - s.width(), height(), FALSE );
@@ -299,10 +303,14 @@ void HierarchyList::insertObject( QObject *o, QListViewItem *parent )
     QListViewItem *item = 0;
     QString className = WidgetFactory::classNameOf( o );
     QString dbInfo;
-#if defined(QT_MODULE_SQL)        
+#if defined(QT_MODULE_SQL)
     if ( hierarchyView->formWindow()->isDatabaseAware() ) {
-	if ( columns() == 2 )
+	if ( columns() == 2 ) {
 	    addColumn( tr( "Database" ) );
+	    header()->resizeSection( 0, 1 );
+	    header()->resizeSection( 1, 1 );
+	    header()->resizeSection( 2, 1 );
+	}
 	
 	dbInfo = MetaDataBase::fakeProperty( o, "database" ).toStringList().join(".");
     } else {
@@ -310,7 +318,7 @@ void HierarchyList::insertObject( QObject *o, QListViewItem *parent )
 	    removeColumn( 2 );
 	dbInfo = QString::null;
     }
-#endif    
+#endif
 
     if ( o->inherits( "QLayoutWidget" ) ) {
 	switch ( WidgetFactory::layoutType( (QWidget*)o ) ) {
@@ -550,10 +558,10 @@ void HierarchyView::namePropertyChanged( QWidget *w, const QVariant & )
 
 void HierarchyView::databasePropertyChanged( QWidget *w, const QStringList& info )
 {
-#if defined(QT_MODULE_SQL)        
+#if defined(QT_MODULE_SQL)
     QString i = info.join( "." );
-    listview->changeDatabaseOf( w, i );        
-#endif    
+    listview->changeDatabaseOf( w, i );
+#endif
 }
 
 
