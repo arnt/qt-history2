@@ -166,7 +166,7 @@ struct QScrollBarPrivate
 /*!
     \fn void QScrollBar::sliderMoved( int value )
 
-    This signal is emitted when the slider is moved by the user, with
+    This signal is emitted when the slider is dragged by the user, with
     the new scroll bar \a value as an argument.
 
     This signal is emitted even when tracking is turned off.
