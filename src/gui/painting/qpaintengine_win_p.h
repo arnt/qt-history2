@@ -208,7 +208,6 @@ public:
         usesWidgetDC(false),
         forceGdi(false),
         forceGdiplus(false),
-        noNativeXform(true),
         advancedMode(false),
         ellipseHack(false),
         penStyle(Qt::SolidLine),
@@ -255,6 +254,8 @@ public:
     QMatrix matrix;
     QMatrix invMatrix;
     QPainterPrivate::TransformationCodes txop;
+
+    QPaintEngine::PaintEngineFeatures oldFeatureSet;
 
     /*!
      Switches the paint engine into GDI+ mode

@@ -388,7 +388,8 @@ bool QWin32PaintEngine::begin(QPaintDevice *pdev)
         return true;
     }
 
-    gccaps = qt_decide_paintengine_features();
+    // Store old features set since we change it when switching to GDI+.
+    d->oldFeatureSet = gccaps;
 
     d->forceGdiplus = false;
     d->forceGdi = false;
@@ -515,6 +516,8 @@ bool QWin32PaintEngine::end()
     d->brushStyle = Qt::SolidPattern;
     d->txop = QPainterPrivate::TxNone;
 
+    // Restore features set in case GDI+ has been used.
+    d->gccaps = oldFeatureSet;
     setActive(false);
     return true;
 }
