@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qclipboard_x11.cpp#17 $
+** $Id: //depot/qt/main/src/kernel/qclipboard_x11.cpp#18 $
 **
 ** Implementation of QClipboard class for X11
 **
@@ -19,7 +19,7 @@
 #include <X11/Xos.h>
 #include <X11/Xatom.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qclipboard_x11.cpp#17 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qclipboard_x11.cpp#18 $");
 
 
 /*****************************************************************************
@@ -27,6 +27,8 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qclipboard_x11.cpp#17 $");
  *****************************************************************************/
 
 extern Time qt_x_clipboardtime;			// def. in qapp_x11.cpp
+extern Atom qt_selection_property;
+
 
 static QWidget *clipboardOwner()
 {
@@ -39,6 +41,7 @@ static QWidget *clipboardOwner()
 	fakeOwner = new QWidget( 0, "internalClipboardOwner" );
     return fakeOwner;
 }
+
 
 enum ClipboardFormat { CFNothing, CFText, CFPixmap };
 
@@ -183,6 +186,142 @@ void QClipboard::clear()
 }
 
 
+static bool waitForEvent( Display *dpy, Window win, int type, XEvent *event,
+			  int timeout )
+{
+    QTime started = QTime::currentTime();
+    QTime now = started;
+    do {
+	if ( XCheckTypedWindowEvent(dpy,win,type,event) )
+	    return TRUE;
+	now = QTime::currentTime();
+	if ( started > now )			// crossed midnight
+	    started = now;
+	XSync( dpy, FALSE );			// toss a ball while we wait
+    } while ( started.msecsTo(now) < timeout );
+    return FALSE;
+}
+
+static bool readProperty( Display *dpy, Window win, Atom property,
+			  bool deleteProperty,
+			  QByteArray *buffer, int *size, Atom *type,
+			  int *format )
+{
+    int maxsize = XMaxRequestSize(dpy)*4 - 64;
+    ulong  bytes_left;
+    ulong  length;
+    uchar *data;
+    Atom   dummy_type;
+    int    dummy_format;
+    int    r;
+
+    if ( !type )				// allow null args
+	type = &dummy_type;
+    if ( !format )
+	format = &dummy_format;
+
+    // Don't read anything, just get the size of the property data
+    r = XGetWindowProperty( dpy, win, property, 0, 0, FALSE,
+			    AnyPropertyType, type, format,
+			    &length, &bytes_left, &data );
+    if ( r != Success ) {
+	buffer->resize( 0 );
+	return FALSE;
+    }
+    XFree( (char*)data );
+
+    int  offset = 0;
+    bool ok = buffer->resize( bytes_left+1 );
+
+    if ( ok ) {					// could allocate buffer
+	buffer->at(bytes_left) = '\0';		// zero-terminate (for text)
+	while ( bytes_left ) {			// more to read...
+	    r = XGetWindowProperty( dpy, win, property, offset/4, maxsize/4,
+				    FALSE, AnyPropertyType,	type, format,
+				    &length, &bytes_left, &data );
+	    if ( r != Success )
+		break;
+	    length *= *format/8;		// length in bytes
+	    // Here we check if we get a buffer overflow and tries to
+	    // recover -- this shouldn't normally happen, but it doesn't
+	    // hurt to be defensive
+	    if ( offset+length > buffer->size() ) {
+		length = buffer->size() - offset;
+		bytes_left = 0;			// escape loop
+	    }
+	    memcpy( buffer->data()+offset, data, length );
+	    offset += length;
+	    XFree( (char*)data );
+	}
+    }
+    if ( size )
+	*size = offset;				// correct size, not 0-term.
+    XFlush( dpy );
+    if ( deleteProperty ) {
+	XDeleteProperty( dpy, win, property );
+	XFlush( dpy );
+    }
+    return ok;
+}
+
+
+static QByteArray readIncrementalProperty( Display *dpy, Window win,
+					   Atom property, int nbytes )
+{
+    XEvent event;
+
+    QByteArray buf;
+    QByteArray tmp_buf;
+    bool alloc_error = FALSE;
+    int  length;
+    int  offset = 0;
+
+    XWindowAttributes wa;
+    XGetWindowAttributes( dpy, win, &wa );
+    // Change the event mask for the window, it will be restored before
+    // this function ends
+    XSelectInput( dpy, win, PropertyChangeMask);
+
+    if ( nbytes > 0 ) {
+	// Reserve buffer + zero-terminator (for text data)
+	// We want to complete the INCR transfer even if we cannot
+	// allocate more memory
+	alloc_error = !buf.resize(nbytes+1);
+    }
+
+    while ( TRUE ) {
+	if ( !waitForEvent(dpy,win,PropertyNotify,(XEvent*)&event,5000) )
+	    break;
+	XFlush( dpy );
+	if ( event.xproperty.atom != property ||
+	     event.xproperty.state != PropertyNewValue )
+	    continue;
+	if ( readProperty(dpy, win, property, TRUE, &tmp_buf, &length,0, 0) ) {
+	    if ( length == 0 ) {		// no more data, we're done
+		buf.at( offset ) = '\0';
+		buf.resize( offset+1 );
+		break;
+	    } else if ( !alloc_error ) {
+		if ( offset+length > (int)buf.size() ) {
+		    if ( !buf.resize(offset+length+65535) ) {
+			alloc_error = TRUE;
+			length = buf.size() - offset;
+		    }
+		}
+		memcpy( buf.data()+offset, tmp_buf.data(), length );
+		tmp_buf.resize( 0 );
+		offset += length;
+	    }
+	} else {
+	    break;
+	}
+    }
+    // Restore the event mask
+    XSelectInput( dpy, win, wa.your_event_mask & ~PropertyChangeMask );
+    return buf;
+}
+
+
 /*!
   Returns a pointer to the clipboard data, where \e format is the clipboard
   format.
@@ -221,58 +360,28 @@ void *QClipboard::data( const char *format ) const
     if ( XGetSelectionOwner(dpy,XA_PRIMARY) == None )
 	return 0;
 
-    extern Atom qt_selection_id; // from qapp_x11.cpp
-    XConvertSelection( dpy, XA_PRIMARY, XA_STRING, qt_selection_id, win,
+    XConvertSelection( dpy, XA_PRIMARY, XA_STRING, qt_selection_property, win,
 		       CurrentTime );
-
     XFlush( dpy );
 
     XEvent xevent;
+    if ( !waitForEvent(dpy,win,SelectionNotify,&xevent,5000) )
+	return 0;
 
-    QTime started = QTime::currentTime();
-    while ( TRUE ) {
-	if ( XCheckTypedWindowEvent(dpy,win,SelectionNotify,&xevent) )
-	    break;
-	QTime now = QTime::currentTime();
-	if ( started > now )			// crossed midnight
-	    started = now;
-	if ( started.msecsTo(now) > 5000 ) {
-	    return 0;
-	}
-        XSync(dpy,FALSE); // Toss a ball while we wait.
-    }
+    static QByteArray buf;
+    Atom   type;
 
-    Atom prop = xevent.xselection.property;
-    win	 = xevent.xselection.requestor;
-
-    static QByteArray buf( 256 );
-    Atom	actual_type;
-    ulong	nitems, bytes_after;
-    int		actual_format;
-    int		nread = 0;
-    uchar      *back;
-
-    do {
-	int r = XGetWindowProperty( dpy, win, prop,
-				    nread/4, 1024, TRUE,
-				    AnyPropertyType, &actual_type,
-				    &actual_format, &nitems,
-				    &bytes_after, &back );
-	if ( r != Success  || actual_type != XA_STRING ) {
-	    char *n = XGetAtomName( dpy, actual_type );
+    if ( readProperty(dpy,win,qt_selection_property,TRUE,&buf,0,&type,0) ) {
+	if ( type == XInternAtom(dpy,"INCR",FALSE) ) {
+	    int nbytes = buf.size() >= 4 ? *((int*)buf.data()) : 0;
+	    buf = readIncrementalProperty( dpy, win, qt_selection_property,
+					   nbytes );
+	} else if ( type != XA_STRING ) {
+	    char *n = XGetAtomName( dpy, type );
+	    debug( "Qt clipboard: unknown atom = %s",n);
 	    XFree( n );
 	}
-	if ( r != Success || actual_type != XA_STRING )
-	    break;
-	while ( nread + nitems >= buf.size() )
-	    buf.resize( buf.size()*2 );
-	memcpy( buf.data()+nread, back, nitems );
-	nread += nitems;
-	XFree( (char *)back );
-    } while ( bytes_after > 0 );
-
-    buf[nread] = 0;
-
+    }
     return buf.data();
 }
 
