@@ -227,7 +227,7 @@ void I18nDemo::wrapperDead()
 }
 
 
-void I18nDemo::showEvent(QShowEvent *e)
+void I18nDemo::showEvent(QShowEvent *)
 {
     if (firstShow) {
 	newSlot(2);
@@ -242,7 +242,7 @@ void I18nDemo::showEvent(QShowEvent *e)
 }
 
 
-void I18nDemo::hideEvent(QHideEvent *e)
+void I18nDemo::hideEvent(QHideEvent *)
 {
     if (! lastwrapper)
 	return;
