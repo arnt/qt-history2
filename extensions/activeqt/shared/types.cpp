@@ -376,11 +376,11 @@ bool QVariantToVARIANT( const QVariant &var, VARIANT &res, const QUParameter *pa
     QVariant variant = var;
 
     const char *vartypename = 0;
-    if ( QUType::isEqual( param->type, &static_QUType_varptr ) ) {
+    if ( QUType::isEqual( param->type, &static_QUType_varptr ) && param->typeExtra ) {
 	vartypename = QVariant::typeToName( (QVariant::Type)*(char*)param->typeExtra );
     } else if ( QUType::isEqual( param->type, &static_QUType_ptr ) ) {
 	vartypename = (const char*)param->typeExtra;
-    } else if ( QUType::isEqual( param->type, &static_QUType_enum ) ) {
+    } else if ( QUType::isEqual( param->type, &static_QUType_enum ) && param->typeExtra ) {
 	if ( var.type() == QVariant::String || var.type() == QVariant::CString ) {
 	    int enumval;
 	    if ( enumValue( var.toString(), (const QUEnum*)param->typeExtra, enumval ) )
@@ -420,7 +420,7 @@ bool VARIANTToQUObject( const VARIANT &arg, QUObject *obj, const QUParameter *pa
 	    QString str = BSTRToQString( arg.bstrVal );
 	    if ( QUType::isEqual( param->type, &static_QUType_QString ) ) {
 		static_QUType_QString.set( obj, str );
-	    } else if ( QUType::isEqual( param->type, &static_QUType_varptr ) ) {
+	    } else if ( QUType::isEqual( param->type, &static_QUType_varptr ) && param->typeExtra ) {
 		QVariant::Type vartype = (QVariant::Type)*(char*)param->typeExtra;
 		switch( vartype ) {
 		case QVariant::CString:
@@ -438,8 +438,8 @@ bool VARIANTToQUObject( const VARIANT &arg, QUObject *obj, const QUParameter *pa
     case VT_BSTR|VT_BYREF:
 	{
 	    QString str = BSTRToQString( *arg.pbstrVal );
-	    if ( QUType::isEqual( param->type, &static_QUType_varptr ) &&
-		(QVariant::Type)*(char*)param->typeExtra == QVariant::CString ) {
+	    if ( QUType::isEqual( param->type, &static_QUType_varptr ) && param->typeExtra 
+		&& (QVariant::Type)*(char*)param->typeExtra == QVariant::CString ) {
 		QCString *reference = (QCString*)static_QUType_varptr.get( obj );
 		if ( reference )
 		    *reference = str.local8Bit();
@@ -452,7 +452,8 @@ bool VARIANTToQUObject( const VARIANT &arg, QUObject *obj, const QUParameter *pa
 	}
 	break;
     case VT_BOOL:
-	if ( QUType::isEqual( param->type, &static_QUType_varptr ) && *(char*)param->typeExtra == QVariant::Bool )
+	if ( QUType::isEqual( param->type, &static_QUType_varptr ) && param->typeExtra 
+	    && (QVariant::Type)*(char*)param->typeExtra == QVariant::Bool )
 	    static_QUType_varptr.set( obj, new bool(arg.boolVal) );
 	else
 	    static_QUType_bool.set( obj, arg.boolVal );
@@ -478,7 +479,7 @@ bool VARIANTToQUObject( const VARIANT &arg, QUObject *obj, const QUParameter *pa
 	    intvalue = arg.intVal;
 	    break;
 	}
-	if ( QUType::isEqual( param->type, &static_QUType_varptr ) ) {
+	if ( QUType::isEqual( param->type, &static_QUType_varptr ) && param->typeExtra ) {
 	    const QVariant::Type vartype = (QVariant::Type)*(char*)param->typeExtra;
 	    switch ( vartype ) {
 	    case QVariant::Color:
@@ -510,7 +511,8 @@ bool VARIANTToQUObject( const VARIANT &arg, QUObject *obj, const QUParameter *pa
 	    intvalue = *arg.pintVal;
 	    break;
 	}
-	if ( QUType::isEqual( param->type, &static_QUType_varptr ) && *(char*)param->typeExtra == QVariant::Color ) {
+	if ( QUType::isEqual( param->type, &static_QUType_varptr ) && param->typeExtra 
+	    && (QVariant::Type)*(char*)param->typeExtra == QVariant::Color ) {
 	    QColor *reference = (QColor*)static_QUType_varptr.get( obj );
 	    if ( reference )
 		*reference = OLEColorToQColor( intvalue );
@@ -539,7 +541,7 @@ bool VARIANTToQUObject( const VARIANT &arg, QUObject *obj, const QUParameter *pa
 	    uintvalue = arg.uintVal;
 	    break;
 	}
-	if ( QUType::isEqual( param->type, &static_QUType_varptr ) ) {
+	if ( QUType::isEqual( param->type, &static_QUType_varptr ) && param->typeExtra ) {
 	    const QVariant::Type vartype = (QVariant::Type)*(char*)param->typeExtra;
 	    switch( vartype ) {
 	    case QVariant::Color:
@@ -569,7 +571,7 @@ bool VARIANTToQUObject( const VARIANT &arg, QUObject *obj, const QUParameter *pa
 	    uintvalue = *arg.puintVal;
 	    break;
 	}
-	if ( QUType::isEqual( param->type, &static_QUType_varptr ) ) {
+	if ( QUType::isEqual( param->type, &static_QUType_varptr ) && param->typeExtra ) {
 	    const QVariant::Type vartype = (QVariant::Type)*(char*)param->typeExtra;
 	    switch ( vartype ) {
 	    case QVariant::Color:
@@ -596,13 +598,15 @@ bool VARIANTToQUObject( const VARIANT &arg, QUObject *obj, const QUParameter *pa
 	} 
 	break;
     case VT_R4:
-	if ( QUType::isEqual( param->type, &static_QUType_varptr ) && *(char*)param->typeExtra == QVariant::Double )
+	if ( QUType::isEqual( param->type, &static_QUType_varptr ) && param->typeExtra 
+	    && (QVariant::Type)*(char*)param->typeExtra == QVariant::Double )
 	    static_QUType_varptr.set( obj, new double(arg.fltVal) );
 	else
 	    static_QUType_double.set( obj, arg.fltVal );
 	break;
     case VT_R8:
-	if ( QUType::isEqual( param->type, &static_QUType_varptr ) && *(char*)param->typeExtra == QVariant::Double )
+	if ( QUType::isEqual( param->type, &static_QUType_varptr ) && param->typeExtra 
+	    && (QVariant::Type)*(char*)param->typeExtra == QVariant::Double )
 	    static_QUType_varptr.set( obj, new double(arg.dblVal) );
 	else
 	    static_QUType_double.set( obj, arg.dblVal );
@@ -635,7 +639,8 @@ bool VARIANTToQUObject( const VARIANT &arg, QUObject *obj, const QUParameter *pa
 	    else
 		disp = arg.pdispVal;
 
-	    if ( QUType::isEqual( param->type, &static_QUType_varptr ) && *(char*)param->typeExtra == QVariant::Font ) {
+	    if ( QUType::isEqual( param->type, &static_QUType_varptr ) && param->typeExtra 
+		&& (QVariant::Type)*(char*)param->typeExtra == QVariant::Font ) {
 		IFont *ifont = 0;
 		QFont qfont;
 		QFont *reference = (QFont*)static_QUType_varptr.get( obj );
@@ -652,7 +657,8 @@ bool VARIANTToQUObject( const VARIANT &arg, QUObject *obj, const QUParameter *pa
 		else
 		    reference = new QFont( qfont );
 		static_QUType_varptr.set( obj, reference );
-	    } else if ( QUType::isEqual( param->type, &static_QUType_varptr ) && *(char*)param->typeExtra == QVariant::Pixmap ) {
+	    } else if ( QUType::isEqual( param->type, &static_QUType_varptr ) && param->typeExtra 
+		       && (QVariant::Type)*(char*)param->typeExtra == QVariant::Pixmap ) {
 		IPicture *ipic = 0;
 		QPixmap qpixmap;
 		QPixmap *reference = (QPixmap*)static_QUType_varptr.get( obj );
@@ -677,7 +683,8 @@ bool VARIANTToQUObject( const VARIANT &arg, QUObject *obj, const QUParameter *pa
 
     case VT_ARRAY|VT_VARIANT:
     case VT_ARRAY|VT_VARIANT|VT_BYREF:
-	if ( QUType::isEqual( param->type, &static_QUType_varptr ) && *(char*)param->typeExtra == QVariant::List ) {
+	if ( QUType::isEqual( param->type, &static_QUType_varptr ) && param->typeExtra 
+	     && *(char*)param->typeExtra == QVariant::List ) {
 	    // parray and pparrayare a union
 	    SAFEARRAY *array = 0;
 	    if ( arg.vt & VT_BYREF )
@@ -1207,7 +1214,7 @@ void clearQUObject( QUObject *obj, const QUParameter *param )
 {
     if ( !param || !QUType::isEqual( param->type, &static_QUType_varptr ) || !QUType::isEqual( param->type, obj->type ) ) {
 	obj->type->clear( obj );
-    } else {
+    } else if ( param->typeExtra ) {
 	const QVariant::Type vartype = (QVariant::Type)*(char*)param->typeExtra;
 	void *ptrvalue = static_QUType_varptr.get( obj );
 	switch( vartype ) {
