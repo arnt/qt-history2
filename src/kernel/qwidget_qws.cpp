@@ -1277,7 +1277,7 @@ bool QWidget::acceptDrops() const
 
 void QWidget::setAcceptDrops( bool on )
 {
-    if ( testWState(WState_DND) != on ) {
+    if ( !!testWState(WState_DND) != on ) {
 	if ( 1/*XXX qt_xdnd_enable( this, on )*/ ) {
 	    if ( on )
 		setWState(WState_DND);

@@ -252,8 +252,8 @@ class QWSKeyEvent;
 class QETWidget : public QWidget		// event translator widget
 {
 public:
-    void setWState( WFlags f )		{ QWidget::setWState(f); }
-    void clearWState( WFlags f )	{ QWidget::clearWState(f); }
+    void setWState( WState f )		{ QWidget::setWState(f); }
+    void clearWState( WState f )	{ QWidget::clearWState(f); }
     void setWFlags( WFlags f )		{ QWidget::setWFlags(f); }
     void clearWFlags( WFlags f )	{ QWidget::clearWFlags(f); }
     bool translateMouseEvent( const QWSMouseEvent *, int oldstate );
@@ -1458,7 +1458,7 @@ static bool read_bool_env_var( const char *var, bool defaultvalue )
     return (x && *x) ? (strcmp(x,"0") != 0) : defaultvalue;
 }
 
-void qt_init(QApplicationPrivate *priv, QApplication::Type type )
+void qt_init(QApplicationPrivate *priv, int type )
 {
     if ( type == QApplication::GuiServer )
 	qt_is_gui_used = FALSE; //we'll turn it on in a second
@@ -1559,7 +1559,7 @@ void qt_init(QApplicationPrivate *priv, QApplication::Type type )
     }
 
     if ( type == QApplication::GuiServer ) {
-	qt_appType = type;
+	qt_appType = QApplication::Type(type);
 	qws_single_process = TRUE;
 	QWSServer::startup(flags);
 	setenv("QWS_DISPLAY", qws_display_spec, 0);

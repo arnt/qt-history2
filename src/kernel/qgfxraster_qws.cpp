@@ -25,7 +25,7 @@
 
 extern bool qws_sw_cursor;
 
-#if !defined(_OS_FREEBSD_) 
+#if !defined(_OS_FREEBSD_)
 # include <endian.h>
 # if __BYTE_ORDER == __BIG_ENDIAN
 #  define QT_QWS_REVERSE_BYTE_ENDIANNESS
@@ -2227,9 +2227,9 @@ QGfxRaster<depth,type>::QGfxRaster(unsigned char * b,int w,int h)
     : QGfxRasterBase(b,w,h)
 {
     setLineStep((depth*width+7)/8);
-    if ( depth == 1 ) {
-	setPen( color1 );
-	setBrush( color0 );
+    if (depth == 1) {
+	setPen(QColor(color1));
+	setBrush(QColor(color0));
     }
 }
 
@@ -2457,7 +2457,7 @@ void QGfxRaster<depth,type>::buildSourceClut(QRgb * cols,int numcols)
 	    srcclut[0]=qt_conv16ToRgb(pixel);
 	    transclut[0]=qt_conv16ToRgb(pixel);
 	} else
-#else	    
+#else
 	    {
 	    srcclut[0]=pixel;
 	    transclut[0]=pixel;
@@ -2468,7 +2468,7 @@ void QGfxRaster<depth,type>::buildSourceClut(QRgb * cols,int numcols)
 	if ( qt_screen->depth() == 16 && depth==32 ) {
 	    srcclut[1]=qt_conv16ToRgb(pixel);
 	    transclut[1]=qt_conv16ToRgb(pixel);
-	} else 
+	} else
 #else
 	    {
 	    srcclut[1]=pixel;
@@ -3985,7 +3985,7 @@ GFX_INLINE void QGfxRaster<depth,type>::hAlphaLineUnclipped( int x1,int x2,
 	        r = *(tmp+1);
 	        g = *(tmp+2);
 	        b = *(tmp+3);
-#else		
+#else
 	        r = *(tmp+2);
 	        g = *(tmp+1);
 	        b = *(tmp+0);
