@@ -27,8 +27,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>471</width>
-            <height>406</height>
+            <width>467</width>
+            <height>404</height>
         </rect>
     </property>
     <property name="caption">
@@ -79,6 +79,9 @@
                             <string>Backgro&amp;und</string>
                         </property>
                         <grid>
+                            <property name="name">
+                                <cstring>unnamed</cstring>
+                            </property>
                             <property name="margin">
                                 <number>11</number>
                             </property>
@@ -114,6 +117,9 @@
                             <widget class="QRadioButton" row="0" column="0">
                                 <property name="name">
                                     <cstring>radioColor</cstring>
+                                </property>
+                                <property name="focusPolicy">
+                                    <enum>TabFocus</enum>
                                 </property>
                                 <property name="text">
                                     <string>Co&amp;lor</string>
@@ -195,6 +201,9 @@
                             <string></string>
                         </property>
                         <vbox>
+                            <property name="name">
+                                <cstring>unnamed</cstring>
+                            </property>
                             <property name="margin">
                                 <number>11</number>
                             </property>
@@ -326,6 +335,9 @@
                             <string>Ge&amp;neral</string>
                         </property>
                         <vbox>
+                            <property name="name">
+                                <cstring>unnamed</cstring>
+                            </property>
                             <property name="margin">
                                 <number>11</number>
                             </property>
@@ -439,6 +451,9 @@
                             <string>&amp;Toolbars</string>
                         </property>
                         <vbox>
+                            <property name="name">
+                                <cstring>unnamed</cstring>
+                            </property>
                             <property name="margin">
                                 <number>11</number>
                             </property>
@@ -573,6 +588,7 @@
         </sizepolicy>
         <pixmap>image0</pixmap>
         <signal>clicked()</signal>
+        <signal>changed()</signal>
         <property type="Color">color</property>
         <property type="Pixmap">pixmap</property>
         <property type="Bool">scale</property>
@@ -630,10 +646,12 @@
     <slot access="protected" language="C++" returnType="void">destroy()</slot>
 </connections>
 <tabstops>
+    <tabstop>buttonOk</tabstop>
+    <tabstop>buttonCancel</tabstop>
     <tabstop>tabWidget</tabstop>
     <tabstop>radioColor</tabstop>
-    <tabstop>buttonColor</tabstop>
     <tabstop>radioPixmap</tabstop>
+    <tabstop>buttonColor</tabstop>
     <tabstop>buttonPixmap</tabstop>
     <tabstop>checkBoxShowGrid</tabstop>
     <tabstop>checkBoxGrid</tabstop>
@@ -647,7 +665,5 @@
     <tabstop>checkBoxBigIcons</tabstop>
     <tabstop>checkBoxTextLabels</tabstop>
     <tabstop>helpButton</tabstop>
-    <tabstop>buttonOk</tabstop>
-    <tabstop>buttonCancel</tabstop>
 </tabstops>
 </UI>

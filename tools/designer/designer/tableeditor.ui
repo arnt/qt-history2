@@ -8,8 +8,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>542</width>
-            <height>371</height>
+            <width>538</width>
+            <height>369</height>
         </rect>
     </property>
     <property name="caption">
@@ -78,7 +78,7 @@
                     </property>
                 </widget>
                 <spacer>
-                    <property name="name" stdset="0">
+                    <property name="name">
                         <cstring>Horizontal Spacing2</cstring>
                     </property>
                     <property name="orientation">
@@ -163,7 +163,7 @@
                         <number>6</number>
                     </property>
                     <spacer row="4" column="2">
-                        <property name="name" stdset="0">
+                        <property name="name">
                             <cstring>Spacer3</cstring>
                         </property>
                         <property name="orientation">
@@ -185,7 +185,7 @@
                         </property>
                     </widget>
                     <spacer row="3" column="1">
-                        <property name="name" stdset="0">
+                        <property name="name">
                             <cstring>Spacer2</cstring>
                         </property>
                         <property name="orientation">
@@ -299,14 +299,14 @@
                                         <property name="name">
                                             <cstring>buttonDeleteColPixmap</cstring>
                                         </property>
-                                        <property name="text">
-                                            <string></string>
-                                        </property>
                                         <property name="maximumSize">
                                             <size>
                                                 <width>30</width>
                                                 <height>22</height>
                                             </size>
+                                        </property>
+                                        <property name="text">
+                                            <string></string>
                                         </property>
                                         <property name="pixmap">
                                             <pixmap>image2</pixmap>
@@ -322,14 +322,14 @@
                                         <property name="name">
                                             <cstring>buttonChooseColPixmap</cstring>
                                         </property>
-                                        <property name="text">
-                                            <string>...</string>
-                                        </property>
                                         <property name="maximumSize">
                                             <size>
                                                 <width>30</width>
                                                 <height>22</height>
                                             </size>
+                                        </property>
+                                        <property name="text">
+                                            <string>...</string>
                                         </property>
                                         <property name="toolTip" stdset="0">
                                             <string>Select a Pixmap</string>
@@ -416,7 +416,7 @@
                         <number>6</number>
                     </property>
                     <spacer row="4" column="2">
-                        <property name="name" stdset="0">
+                        <property name="name">
                             <cstring>Spacer3_2</cstring>
                         </property>
                         <property name="orientation">
@@ -472,7 +472,7 @@
                         </property>
                     </widget>
                     <spacer row="3" column="1">
-                        <property name="name" stdset="0">
+                        <property name="name">
                             <cstring>Spacer2_2</cstring>
                         </property>
                         <property name="orientation">
@@ -566,14 +566,14 @@
                                         <property name="name">
                                             <cstring>buttonDeleteRowPixmap</cstring>
                                         </property>
-                                        <property name="text">
-                                            <string></string>
-                                        </property>
                                         <property name="maximumSize">
                                             <size>
                                                 <width>30</width>
                                                 <height>22</height>
                                             </size>
+                                        </property>
+                                        <property name="text">
+                                            <string></string>
                                         </property>
                                         <property name="pixmap">
                                             <pixmap>image2</pixmap>
@@ -589,14 +589,14 @@
                                         <property name="name">
                                             <cstring>buttonChooseRowPixmap</cstring>
                                         </property>
-                                        <property name="text">
-                                            <string>...</string>
-                                        </property>
                                         <property name="maximumSize">
                                             <size>
                                                 <width>30</width>
                                                 <height>22</height>
                                             </size>
+                                        </property>
+                                        <property name="text">
+                                            <string>...</string>
                                         </property>
                                         <property name="toolTip" stdset="0">
                                             <string>Select a Pixmap</string>
@@ -647,19 +647,19 @@
         <sender>listColumns</sender>
         <signal>currentChanged(QListBoxItem*)</signal>
         <receiver>TableEditorBase</receiver>
-        <slot>currentColumnChanged( QListBoxItem * )</slot>
+        <slot>currentColumnChanged(QListBoxItem*)</slot>
     </connection>
     <connection>
         <sender>listColumns</sender>
         <signal>selectionChanged(QListBoxItem*)</signal>
         <receiver>TableEditorBase</receiver>
-        <slot>currentColumnChanged( QListBoxItem * )</slot>
+        <slot>currentColumnChanged(QListBoxItem*)</slot>
     </connection>
     <connection>
         <sender>editColumnText</sender>
         <signal>textChanged(const QString&amp;)</signal>
         <receiver>TableEditorBase</receiver>
-        <slot>columnTextChanged( const QString &amp; )</slot>
+        <slot>columnTextChanged(const QString&amp;)</slot>
     </connection>
     <connection>
         <sender>buttonNewColumn</sender>
@@ -689,19 +689,19 @@
         <sender>comboFields</sender>
         <signal>activated(const QString&amp;)</signal>
         <receiver>TableEditorBase</receiver>
-        <slot>currentFieldChanged( const QString &amp; )</slot>
+        <slot>currentFieldChanged(const QString&amp;)</slot>
     </connection>
     <connection>
         <sender>listRows</sender>
         <signal>selectionChanged(QListBoxItem*)</signal>
         <receiver>TableEditorBase</receiver>
-        <slot>currentRowChanged( QListBoxItem * )</slot>
+        <slot>currentRowChanged(QListBoxItem*)</slot>
     </connection>
     <connection>
         <sender>listRows</sender>
         <signal>currentChanged(QListBoxItem*)</signal>
         <receiver>TableEditorBase</receiver>
-        <slot>currentRowChanged( QListBoxItem * )</slot>
+        <slot>currentRowChanged(QListBoxItem*)</slot>
     </connection>
     <connection>
         <sender>buttonNewRow</sender>
@@ -749,7 +749,7 @@
         <sender>editRowText</sender>
         <signal>textChanged(const QString&amp;)</signal>
         <receiver>TableEditorBase</receiver>
-        <slot>rowTextChanged( const QString &amp; )</slot>
+        <slot>rowTextChanged(const QString&amp;)</slot>
     </connection>
     <connection>
         <sender>buttonCancel</sender>
@@ -763,27 +763,34 @@
         <receiver>TableEditorBase</receiver>
         <slot>chooseColPixmapClicked()</slot>
     </connection>
-    <slot access="protected">applyClicked()</slot>
-    <slot access="protected">chooseRowPixmapClicked()</slot>
-    <slot access="protected">columnTextChanged( const QString &amp; )</slot>
-    <slot access="protected">columnUpClicked()</slot>
-    <slot access="protected">currentColumnChanged( QListBoxItem * )</slot>
-    <slot access="protected">currentFieldChanged( const QString &amp; )</slot>
-    <slot access="protected">currentRowChanged( QListBoxItem * )</slot>
-    <slot access="protected">deleteColPixmapClicked()</slot>
-    <slot access="protected">deleteColumnClicked()</slot>
-    <slot access="protected">deleteRowClicked()</slot>
-    <slot access="protected">deleteRowPixmapClicked()</slot>
-    <slot access="protected">newColumnClicked()</slot>
-    <slot access="protected">newRowClicked()</slot>
-    <slot access="protected">chooseColPixmapClicked()</slot>
-    <slot access="protected">okClicked()</slot>
-    <slot access="protected">rowDownClicked()</slot>
-    <slot access="protected">rowTextChanged( const QString &amp; )</slot>
-    <slot access="protected">rowUpClicked()</slot>
-    <slot access="protected">columnDownClicked()</slot>
+    <slot access="protected" language="C++" returnType="void">init()</slot>
+    <slot access="protected" language="C++" returnType="void">destroy()</slot>
+    <slot access="protected" language="C++" returnType="void">applyClicked()</slot>
+    <slot access="protected" language="C++" returnType="void">chooseRowPixmapClicked()</slot>
+    <slot access="protected" language="C++" returnType="void">columnTextChanged( const QString &amp; )</slot>
+    <slot access="protected" language="C++" returnType="void">columnUpClicked()</slot>
+    <slot access="protected" language="C++" returnType="void">currentColumnChanged( QListBoxItem * )</slot>
+    <slot access="protected" language="C++" returnType="void">currentFieldChanged( const QString &amp; )</slot>
+    <slot access="protected" language="C++" returnType="void">currentRowChanged( QListBoxItem * )</slot>
+    <slot access="protected" language="C++" returnType="void">deleteColPixmapClicked()</slot>
+    <slot access="protected" language="C++" returnType="void">deleteColumnClicked()</slot>
+    <slot access="protected" language="C++" returnType="void">deleteRowClicked()</slot>
+    <slot access="protected" language="C++" returnType="void">deleteRowPixmapClicked()</slot>
+    <slot access="protected" language="C++" returnType="void">newColumnClicked()</slot>
+    <slot access="protected" language="C++" returnType="void">newRowClicked()</slot>
+    <slot access="protected" language="C++" returnType="void">chooseColPixmapClicked()</slot>
+    <slot access="protected" language="C++" returnType="void">okClicked()</slot>
+    <slot access="protected" language="C++" returnType="void">rowDownClicked()</slot>
+    <slot access="protected" language="C++" returnType="void">rowTextChanged( const QString &amp; )</slot>
+    <slot access="protected" language="C++" returnType="void">rowUpClicked()</slot>
+    <slot access="protected" language="C++" returnType="void">columnDownClicked()</slot>
 </connections>
 <tabstops>
+    <tabstop>buttonOk</tabstop>
+    <tabstop>buttonCancel</tabstop>
+    <tabstop>table</tabstop>
+    <tabstop>TabWidget</tabstop>
+    <tabstop>listColumns</tabstop>
     <tabstop>buttonNewColumn</tabstop>
     <tabstop>buttonDeleteColumn</tabstop>
     <tabstop>comboFields</tabstop>
@@ -792,20 +799,15 @@
     <tabstop>buttonChooseColPixmap</tabstop>
     <tabstop>buttonColumnUp</tabstop>
     <tabstop>buttonColumnDown</tabstop>
-    <tabstop>table</tabstop>
-    <tabstop>TabWidget</tabstop>
-    <tabstop>listColumns</tabstop>
-    <tabstop>editRowText</tabstop>
-    <tabstop>buttonDeleteRowPixmap</tabstop>
-    <tabstop>buttonChooseRowPixmap</tabstop>
+    <tabstop>buttonApply</tabstop>
     <tabstop>listRows</tabstop>
     <tabstop>buttonNewRow</tabstop>
     <tabstop>buttonDeleteRow</tabstop>
+    <tabstop>editRowText</tabstop>
+    <tabstop>buttonDeleteRowPixmap</tabstop>
+    <tabstop>buttonChooseRowPixmap</tabstop>
     <tabstop>buttonRowUp</tabstop>
     <tabstop>buttonRowDown</tabstop>
     <tabstop>buttonHelp</tabstop>
-    <tabstop>buttonApply</tabstop>
-    <tabstop>buttonOk</tabstop>
-    <tabstop>buttonCancel</tabstop>
 </tabstops>
 </UI>
