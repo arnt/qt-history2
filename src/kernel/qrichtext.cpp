@@ -5827,6 +5827,18 @@ QTextFormat QTextFormat::makeTextFormat( const QStyleSheetItem *style, const QMa
 		changed = TRUE;
 	    }
 
+	    switch ( style->verticalAlignment() ) {
+	    case QStyleSheetItem::VAlignBaseline:
+		format.setVAlign( QTextFormat::AlignNormal );
+		break;
+	    case QStyleSheetItem::VAlignSuper:
+		format.setVAlign( QTextFormat::AlignSuperScript );
+		break;
+	    case QStyleSheetItem::VAlignSub:
+		format.setVAlign( QTextFormat::AlignSubScript );
+		break;
+	    }
+		
 	    if ( style->fontWeight() != QStyleSheetItem::Undefined )
 		format.fn.setWeight( style->fontWeight() );
 	    if ( style->fontSize() != QStyleSheetItem::Undefined ) {

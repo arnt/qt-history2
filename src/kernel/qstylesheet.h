@@ -79,6 +79,15 @@ public:
 
     int alignment() const;
     void setAlignment( int f);
+    
+    enum VerticalAlignment {
+	VAlignBaseline,
+	VAlignSub,
+	VAlignSuper
+    };
+    
+    VerticalAlignment verticalAlignment() const;
+    void setVerticalAlignment( VerticalAlignment valign );
 
     int fontWeight() const;
     void setFontWeight(int w);

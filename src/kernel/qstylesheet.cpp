@@ -64,6 +64,7 @@ public:
     QColor col;
     bool anchor;
     int align;
+    QStyleSheetItem::VerticalAlignment valign;
     int margin[5];
     QStyleSheetItem::ListStyle list;
     QStyleSheetItem::WhiteSpaceMode whitespacemode;
@@ -91,8 +92,8 @@ public:
   In the case of list items, the list style is set with
   setListStyle(). An item may be a hypertext link anchor; see
   setAnchor(). Other attributes are set with setAlignment(),
-  setFontFamily(), setFontSize(), setFontWeight(), setFontItalic(),
-  setFontUnderline() and setColor().
+  setVerticalAlignment(),  setFontFamily(), setFontSize(),
+  setFontWeight(), setFontItalic(), setFontUnderline() and setColor().
 */
 
 /*! \enum QStyleSheetItem::AdditionalStyleValues
@@ -201,6 +202,7 @@ void QStyleSheetItem::init()
     d->col = QColor(); // !isValid()
     d->anchor = FALSE;
     d->align = Undefined;
+    d->valign = VAlignBaseline;
     d->margin[0] = Undefined;
     d->margin[1] = Undefined;
     d->margin[2] = Undefined;
@@ -280,6 +282,47 @@ int QStyleSheetItem::alignment() const
 void QStyleSheetItem::setAlignment( int f )
 {
     d->align = f;
+}
+
+
+/*!  
+  Returns the vertical alignment of the style. Possible values are
+  VAlignBaseline, VAlignSub and VAlignSuper.
+  
+  psa setVerticalAlignment()
+ */
+QStyleSheetItem::VerticalAlignment QStyleSheetItem::verticalAlignment() const
+{
+    return d->valign;
+}
+
+/*! \enum QStyleSheetItem::VerticalAlignment
+
+  This enum type defines the way elements are aligned vertically. This
+  is supported for text elements only. The possible values are:
+
+  \value VAlignBaseline align the baseline of the element (or the
+  bottom, if the element doesn't have a baseline) with the baseline of
+  the parent
+
+  \value VAlignSub subscript the element
+
+  \value VAlignSuper superscript the element
+
+*/
+
+
+/*!  
+  Sets the vertical alignment to \a valign. Possible values are
+  VAlignBaseline, VAlignSub and VAlignSuper.
+  
+  The vertical alignment property is not inherited.
+  
+  \sa verticalAlignment()
+ */
+void QStyleSheetItem::setVerticalAlignment( VerticalAlignment valign )
+{
+    d->valign = valign;
 }
 
 
@@ -1072,6 +1115,10 @@ void QStyleSheet::init()
     new QStyleSheetItem(this, QString::fromLatin1("img"));
     new QStyleSheetItem(this, QString::fromLatin1("br"));
     new QStyleSheetItem(this, QString::fromLatin1("hr"));
+    style = new QStyleSheetItem(this, QString::fromLatin1("sub"));
+    style->setVerticalAlignment( QStyleSheetItem::VAlignSub );
+    style = new QStyleSheetItem(this, QString::fromLatin1("sup"));
+    style->setVerticalAlignment( QStyleSheetItem::VAlignSuper );
 
     style = new QStyleSheetItem( this, QString::fromLatin1("pre") );
     style->setFontFamily( QString::fromLatin1("courier") );
@@ -1232,7 +1279,7 @@ QTextCustomItem* QStyleSheet::tag(  const QString& name,
 /*!
   Auxiliary function. Converts the plain text string \a plain to a
   rich text formatted paragraph while preserving its look.
-  
+
   \a mode defines the whitespace mode. Possible values are \c
   QStyleSheetItem::WhiteSpacePre (no wrapping, all whitespaces
   preserved) and \c QStyleSheetItem::WhiteSpaceNormal (wrapping,
