@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#179 $
+** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#180 $
 **
 ** Implementation of QComboBox widget class
 **
@@ -567,8 +567,15 @@ void QComboBox::removeItem( int index )
 		s = text( d->current );
 	    d->ed->setText( s );
 	}
-	else
+	else {
+	    if ( d->usingListBox )
+		d-> current = d->listBox->currentItem();
+	    else {
+		if (d->current > count()-1 && d->current > 0)
+		    d->current--;
+	    }
 	    repaint();
+	}
 	currentChanged();
     }
 }
