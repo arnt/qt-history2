@@ -1914,6 +1914,9 @@ bool QWorkspaceChild::eventFilter(QObject * o, QEvent * e)
              (windowWidget()->maximumWidth() < parentWidget()->width() ||
                windowWidget()->maximumHeight() < parentWidget()->height())) {
             windowWidget()->resize(windowWidget()->maximumSize());
+            ((QWorkspace*)windowWidget())->clearWState(Qt::WState_Maximized);
+            if (titlebar)
+                titlebar->repaint(FALSE);
             break;
         }
         if (windowWidget()->testWFlags(Qt::WStyle_Maximize) && !windowWidget()->testWFlags(Qt::WStyle_Tool))
