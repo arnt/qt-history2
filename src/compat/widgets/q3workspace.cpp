@@ -539,7 +539,7 @@ void Q3WorkspacePrivate::activateWindow(QWidget* w, bool change_focus)
     if (d->maxWindow && d->maxWindow != d->active && d->active->windowWidget() &&
          d->active->windowWidget()->testWFlags(Qt::WStyle_MinMax) &&
          !d->active->windowWidget()->testWFlags(Qt::WStyle_Tool)) {
-        d->active->windowWidget()->showMaximized();
+        d->active->showMaximized();
         if (d->maxtools) {
             if (!!w->windowIcon()) {
                 QPixmap pm(w->windowIcon());
