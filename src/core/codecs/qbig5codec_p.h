@@ -16,8 +16,8 @@
 // is included in Qt with the author's permission, and the grateful
 // thanks of the Trolltech team.
 
-#ifndef QBIG5CODEC_H
-#define QBIG5CODEC_H
+#ifndef QBIG5CODEC_P_H
+#define QBIG5CODEC_P_H
 
 #ifndef QT_H
 #include "qtextcodec.h"

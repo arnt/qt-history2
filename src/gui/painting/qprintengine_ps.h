@@ -1,5 +1,5 @@
-#ifndef QPSPRINTENGINE_PS_H
-#define QPSPRINTENGINE_PS_H
+#ifndef QPRINTENGINE_PS_H
+#define QPRINTENGINE_PS_H
 
 //
 //  W A R N I N G

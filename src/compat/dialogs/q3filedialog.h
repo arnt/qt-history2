@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Definition of QFileDialog class.
+** Definition of Q3FileDialog class.
 **
 ** Copyright (C) 1992-$THISYEAR$ Trolltech AS. All rights reserved.
 **
@@ -12,8 +12,8 @@
 **
 ****************************************************************************/
 
-#ifndef QFILEDIALOG_H
-#define QFILEDIALOG_H
+#ifndef Q3FILEDIALOG_H
+#define Q3FILEDIALOG_H
 
 class QAbstractButton;
 class QPushButton;
@@ -314,5 +314,4 @@ private:        // Disabled copy constructor and operator=
 };
 
 #endif
-
-#endif // QFILEDIALOG_H
+#endif // Q3FILEDIALOG_H

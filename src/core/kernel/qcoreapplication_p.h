@@ -1,5 +1,5 @@
-#ifndef QKERNELAPPLICATION_P_H
-#define QKERNELAPPLICATION_P_H
+#ifndef QCOREAPPLICATION_P_H
+#define QCOREAPPLICATION_P_H
 
 #include "qobject_p.h"
 #include "qcoreapplication.h"
@@ -33,6 +33,5 @@ public:
     QStringList *app_libpaths;
 #endif
 };
-
 
 #endif

@@ -11,8 +11,9 @@
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ****************************************************************************/
-#ifndef __QRESOURCEENGINE_H__
-#define __QRESOURCEENGINE_H__
+
+#ifndef QRESOURCEENGINE_P_H
+#define QRESOURCEENGINE_P_H
 
 #include <qfileengine.h>
 
@@ -69,4 +70,4 @@ public:
     virtual Type type() const;
 };
 
-#endif /* __QRESOURCEENGINE_H__ */
+#endif // QRESOURCEENGINE_P_H

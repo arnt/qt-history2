@@ -41,8 +41,8 @@
  * SUCH DAMAGE.
  */
 
-#ifndef QSJISCODEC_H
-#define QSJISCODEC_H
+#ifndef QSJISCODEC_P_H
+#define QSJISCODEC_P_H
 
 #ifndef QT_H
 #include "qtextcodec.h"

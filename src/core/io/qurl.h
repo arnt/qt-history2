@@ -1,5 +1,5 @@
-#ifndef Q4URL_H
-#define Q4URL_H
+#ifndef QURL_H
+#define QURL_H
 
 #include <qobjectdefs.h>
 #include <qmap.h>

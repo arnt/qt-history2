@@ -12,8 +12,8 @@
 **
 ****************************************************************************/
 
-#ifndef QHEADER_H
-#define QHEADER_H
+#ifndef Q3HEADER_H
+#define Q3HEADER_H
 
 #ifndef QT_H
 #include "qwidget.h"
@@ -189,5 +189,4 @@ inline bool Q3Header::tracking() const { return trackingIsOn; }
 extern Q_COMPAT_EXPORT bool qt_qheader_label_return_null_strings; // needed for professional edition
 
 #endif // QT_NO_HEADER
-
-#endif // QHEADER_H
+#endif // Q3HEADER_H

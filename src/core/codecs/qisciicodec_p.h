@@ -1,5 +1,5 @@
-#ifndef QISCIICODEC_H
-#define QISCIICODEC_H
+#ifndef QISCIICODEC_P_H
+#define QISCIICODEC_P_H
 
 #ifndef QT_H
 #include "qtextcodec.h"
@@ -29,5 +29,5 @@ private:
     int idx;
 };
 
-#endif // QT_NO_CODECS
-#endif // QISCIIDEVCODEC_H
+#endif
+#endif

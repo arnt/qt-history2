@@ -1,5 +1,5 @@
-#ifndef QSTACKARRAY_H
-#define QSTACKARRAY_H
+#ifndef QVARLENGTHARRAY_H
+#define QVARLENGTHARRAY_H
 
 #ifndef QT_H
 #include <qglobal.h>

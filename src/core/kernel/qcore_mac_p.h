@@ -1,5 +1,3 @@
-#ifndef __QKERNEL_MAC_H__
-#define __QKERNEL_MAC_H__
 /****************************************************************************
 **
 ** Definition of various Qt/Mac specifics.
@@ -13,6 +11,9 @@
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ****************************************************************************/
+
+#ifndef QCORE_MAC_P_H
+#define QCORE_MAC_P_H
 
 #undef OLD_DEBUG
 #ifdef DEBUG
@@ -83,4 +84,4 @@ private:
     QString string;
 };
 
-#endif /* __QKERNEL_MAC_H__ */
+#endif // QCORE_MAC_P_H

@@ -12,8 +12,8 @@
 **
 ****************************************************************************/
 
-#ifndef QURL_H
-#define QURL_H
+#ifndef Q3URL_H
+#define Q3URL_H
 
 #ifndef QT_H
 #include "qstring.h"
@@ -105,5 +105,4 @@ private:
 };
 
 #endif //QT_NO_URL
-
 #endif

@@ -12,8 +12,8 @@
 **
 ****************************************************************************/
 
-#ifndef QCACHE_H
-#define QCACHE_H
+#ifndef Q3CACHE_H
+#define Q3CACHE_H
 
 #ifndef QT_H
 #include "qgcache.h"
@@ -92,4 +92,4 @@ public:
     type *operator-=(uint j)  { return (type *)QGCacheIterator::operator-=(j);}
 };
 
-#endif // QCACHE_H
+#endif // Q3CACHE_H

@@ -12,8 +12,8 @@
 **
 ****************************************************************************/
 
-#ifndef QUTFCODEC_H
-#define QUTFCODEC_H
+#ifndef QUTFCODEC_P_H
+#define QUTFCODEC_P_H
 
 #ifndef QT_H
 #include "qtextcodec.h"
@@ -48,5 +48,5 @@ public:
     int heuristicContentMatch(const char* chars, int len) const;
 };
 
-#endif //QT_NO_TEXTCODEC
-#endif // QUTFCODEC_H
+#endif
+#endif

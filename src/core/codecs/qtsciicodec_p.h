@@ -41,8 +41,8 @@
  * SUCH DAMAGE.
  */
 
-#ifndef QTSCIICODEC_H
-#define QTSCIICODEC_H
+#ifndef QTSCIICODEC_P_H
+#define QTSCIICODEC_P_H
 
 #ifndef QT_H
 #include "qtextcodec.h"
@@ -66,5 +66,4 @@ public:
 };
 
 #endif
-
 #endif

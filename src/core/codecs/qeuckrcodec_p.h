@@ -37,8 +37,8 @@
  * SUCH DAMAGE.
  */
 
-#ifndef QEUCKRCODEC_H
-#define QEUCKRCODEC_H
+#ifndef QEUCKRCODEC_P_H
+#define QEUCKRCODEC_P_H
 
 #ifndef QT_H
 #include "qtextcodec.h"

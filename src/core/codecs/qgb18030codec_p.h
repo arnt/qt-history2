@@ -14,8 +14,8 @@
 
 // Contributed by James Su <suzhe@gnuchina.org>
 
-#ifndef QGB18030CODEC_H
-#define QGB18030CODEC_H
+#ifndef QGB18030CODEC_P_H
+#define QGB18030CODEC_P_H
 
 #ifndef QT_H
 #include "qtextcodec.h"
