@@ -1724,6 +1724,31 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 	    else
 		widget = QApplication::widgetAt(where.h, where.v, true);
 	}
+#if defined(QT_TABLET_SUPPORT)
+	UInt32 tabletEventType;
+	GetEventParameter(event, kEventParamTabletEventType, typeUInt32, NULL,
+			  sizeof(tabletEventType), NULL, &tabletEventType);
+	if (tabletEventType == kEventTabletPoint && widget) {
+	    QEvent::Type t = QEvent::TabletMove; //default
+	    if (ekind == kEventMouseDown)
+		t = QEvent::TabletPress;
+	    else if (ekind == kEventMouseUp)
+		t = QEvent::TabletRelease;
+
+	    TabletPointRec tabletPointRec;
+	    GetEventParameter(event, kEventParamTabletPointRec, typeTabletPointRec, NULL,
+			      sizeof(tabletPointRec), NULL, &tabletPointRec);
+	    int dev = QTabletEvent::Stylus;
+	    int tiltX = ((int)tabletPointRec.tiltX)/(32767/60); // 32K -> 60
+	    int tiltY = ((int)tabletPointRec.tiltY)/(32767/60); // 32K -> 60
+	    int pressure = (int)tabletPointRec.pressure >> 8; // 32K -> 255
+	    QPair<int,int> uId( (int)tabletPointRec.deviceID, (int)tabletPointRec.vendor1 );
+	    QPoint p(where.h, where.v);
+	    QPoint plocal(widget->mapFromGlobal(p));
+	    QTabletEvent e( t, plocal, p, dev, pressure, tiltX, tiltY, uId );
+	    QApplication::sendSpontaneousEvent(widget, &e);
+	}
+#endif
 	if(!QMacBlockingFunction::blocking()) { //set the cursor up
 	    const QCursor *n = NULL;
 	    if(widget) { //only over the app, do we set a cursor..
