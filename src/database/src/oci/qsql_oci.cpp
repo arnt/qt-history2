@@ -98,7 +98,7 @@ bool qIsPrimaryIndex( const QSqlDriver* driver, const QString& tablename, const 
 		  "and b.table_name = a.table_name;" );
     qDebug( stmt.arg( tablename ).arg( fieldname ) );
     t.setQuery( stmt.arg( tablename ).arg( fieldname ) );
-    if ( t.next() && (t[0].toInt() == 1) )
+    if ( t.next() && (t.value(0).toInt() == 1) )
 	return TRUE;
     return FALSE;
 }
@@ -650,7 +650,7 @@ QStringList QOCIDriver::tables( const QString& user ) const
     t.setQuery( "select table_name from user_tables;" );
     QStringList tl;
     while ( t.next() )
-	tl.append( t[0].toString() );
+	tl.append( t.value(0).toString() );
     return tl;
     Q_CONST_UNUSED( user );
 }
@@ -664,7 +664,7 @@ QSqlFieldList QOCIDriver::fields( const QString& tablename ) const
     t.setQuery( stmt.arg( tablename ) );
     QSqlFieldList fil;
     while ( t.next() ) {
-	QSqlField f( t[0].toString(), t.at(), qDecodeOCIType(t[1].toInt()) );
+	QSqlField f( t.value(0).toString(), t.at(), qDecodeOCIType(t.value(1).toInt()) );
 	f.setPrimaryIndex( qIsPrimaryIndex( this, tablename, f.name() ));
 	fil.append( f );
     }
@@ -685,7 +685,7 @@ QSqlIndex QOCIDriver::primaryIndex( const QString& tablename ) const
     t.setQuery( stmt.arg( tablename ) );
     QSqlIndex idx( tablename );
     if ( t.next() ) {
-	idx.append( QSqlField( t[0].toString(), t.at(), qDecodeOCIType(t[1].toInt()) ));
+	idx.append( QSqlField( t.value(0).toString(), t.at(), qDecodeOCIType(t.value(1).toInt()) ));
     }
     return idx;
     return QSqlIndex();
