@@ -666,6 +666,12 @@ QFontEngineFT::Glyph *QFontEngineFT::loadGlyph(uint glyph, GlyphFormat format) c
 
     }
 
+    {
+        Glyph *g = glyph_data.value(glyph);
+        if (g && g->format == format)
+            return g;
+    }
+
     FT_Face face = freetype->face;
     FT_Load_Glyph(face, glyph, load_flags);
     FT_GlyphSlot slot = face->glyph;
