@@ -1634,6 +1634,48 @@ QPopupMenu* QSelectAction::popupMenu()
     return m_menu;
 }
 
+/*!
+  Changes the item at position \e index to value \e text.
+  This automatically updates all representatives of this action.
+  
+  If you want to inherit from QSelectAction to allow plugging it into
+  other container types then you have to overload this function.
+  
+  \sa setItems()
+*/
+void QSelectAction::changeItem( int index, const QString& text )
+{
+    if ( index < 0 || index >= m_list.count() )
+    {
+	qDebug("QSelectAction::changeItem Index out of scope");
+	return;
+    }
+    
+    int current = currentItem();
+
+    m_list[ index ] = text;
+    
+    if ( m_menu )
+	m_menu->changeItem( index, text );
+    
+    int len = containerCount();
+    for( int i = 0; i < len; ++i )
+    {
+	QWidget* w = container( i );
+	QWidget* r = representative( i );
+	if ( w->inherits( "QToolBar" ) && r->inherits( "QComboBox" ) )
+        {
+	    QComboBox* b = (QComboBox*)r;
+	    b->changeItem( text, index );
+	}
+	else if ( w->inherits( "QActionWidget" ) )
+	    ((QActionWidget*)w)->updateAction( this );	
+    }
+
+    if ( current >= 0 && current < m_list.count() )
+	setCurrentItem( current );
+}
+
 void QSelectAction::setItems( const QStringList& lst )
 {
     m_list = lst;

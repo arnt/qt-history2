@@ -83,7 +83,7 @@ q_properties:
 
     virtual void setToolTip( const QString& );
     virtual QString toolTip() const;
-    
+
 protected slots:
     virtual void slotDestroyed();
 
@@ -116,7 +116,7 @@ private:
     QString m_group;
     int m_accel;
     QString m_toolTip;
-    
+
     struct Container
     {
 	Container() { m_container = 0; m_representative = 0; m_id = 0; }
@@ -188,7 +188,7 @@ public:
 
     virtual void setExclusiveGroup( const QString& name );
     virtual QString exclusiveGroup() const;
-    
+
 protected slots:
     void slotActivated();
 
@@ -219,11 +219,12 @@ public:
 
     int plug( QWidget* );
 
-    virtual void setItems( const QStringList& );
+    virtual void setItems( const QStringList& items );
     QStringList items();
+    virtual void changeItem( int index, const QString& text );
     QString currentText();
     int currentItem();
-    virtual void setCurrentItem( int id );
+    virtual void setCurrentItem( int index );
     virtual void clear();
 
     QPopupMenu* popupMenu();
