@@ -381,6 +381,39 @@ bool QVariantToVARIANT(const QVariant &var, VARIANT &arg, const QByteArray &type
                 arg.ppdispVal = new IDispatch*(arg.pdispVal);
         }
         break;
+
+    case QVariant::Cursor:
+        {
+            int shape = var.toCursor().shape();
+            if (out && (arg.vt & VT_BYREF)) {
+                switch(arg.vt & ~VT_BYREF) {
+                case VT_I4:
+                    *arg.plVal = shape;
+                    break;
+                case VT_I2:
+                    *arg.piVal = shape;
+                    break;
+                case VT_UI4:
+                    *arg.pulVal = shape;
+                    break;
+                case VT_UI2:
+                    *arg.puiVal = shape;
+                    break;
+                case VT_INT:
+                    *arg.pintVal = shape;
+                    break;
+                case VT_UINT:
+                    *arg.puintVal = shape;
+                    break;
+                }
+            } else {
+                arg.vt = VT_I4;
+                arg.lVal = shape;
+                if (out)
+                    arg.plVal = new long(arg.lVal);
+            }
+        }
+        break;
         
     case QVariant::List:
         {
@@ -612,6 +645,9 @@ bool QVariantToVoidStar(const QVariant &var, void *data, const QByteArray &typeN
     case QVariant::Pixmap:
         *(QPixmap*)data = var.toPixmap();
         break;
+    case QVariant::Cursor:
+        *(QCursor*)data = var.toCursor();
+        break;
     case QVariant::List:
         *(QList<QCoreVariant>*)data = var.toList();
         break;
@@ -696,12 +732,16 @@ QVariant VARIANTToQVariant(const VARIANT &arg, const QByteArray &typeName, uint 
     case VT_I4:
         if (type == QVariant::Color || (!type && typeName == "QColor"))
             var = OLEColorToQColor(arg.lVal);
+        else if (type == QVariant::Cursor || (!type && typeName == "QCursor"))
+            var = QCursor(arg.lVal);
         else
             var = (int)arg.lVal;
         break;
     case VT_I4|VT_BYREF:
         if (type == QVariant::Color || (!type && typeName == "QColor"))
             var = OLEColorToQColor((int)*arg.plVal);
+        else if (type == QVariant::Cursor || (!type && typeName == "QCursor"))
+            var = QCursor((int)*arg.plVal);
         else
             var = (int)*arg.plVal;
         break;
@@ -726,12 +766,16 @@ QVariant VARIANTToQVariant(const VARIANT &arg, const QByteArray &typeName, uint 
     case VT_UI4:
         if (type == QVariant::Color || (!type && typeName == "QColor"))
             var = OLEColorToQColor(arg.ulVal);
+        else if (type == QVariant::Cursor || (!type && typeName == "QCursor"))
+            var = QCursor(arg.ulVal);
         else
             var = (int)arg.ulVal;
         break;
     case VT_UI4|VT_BYREF:
         if (type == QVariant::Color || (!type && typeName == "QColor"))
             var = OLEColorToQColor((uint)*arg.pulVal);
+        else if (type == QVariant::Cursor || (!type && typeName == "QCursor"))
+            var = QCursor((int)*arg.pulVal);
         else
             var = (int)*arg.pulVal;
         break;

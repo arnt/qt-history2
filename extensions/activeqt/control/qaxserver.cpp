@@ -359,7 +359,8 @@ static const char* const type_map[][2] =
     { "Q_LLONG",	"CY" },
     { "QByteArray",	"SAFEARRAY(BYTE)" },
     { "QStringList",	"SAFEARRAY(BSTR)" },
-    // Userdefined Qt datatypes - not on Borland though
+    // Userdefined Qt datatypes - some not on Borland though
+    { "QCursor",        "enum MousePointer" },
 #ifndef Q_CC_BOR
 # if __REQUIRED_RPCNDR_H_VERSION__ >= Q_REQUIRED_RPCNDR_H_VERSION
     { "QRect",		"struct QRect" },
@@ -689,6 +690,30 @@ static HRESULT classIDL(QObject *o, const QMetaObject *mo, const QString &classN
                 out << ", ";
             out << endl;
         }
+        out << "\t};" << endl << endl;
+    }
+
+    // mouse cursor enum for QCursor support
+    if (!enums->contains("MousePointer")) {
+        enums->append("MousePointer");
+        out << "\tenum MousePointer {" << endl;
+        out << "\t\tArrowCursor             = " << Qt::ArrowCursor << "," << endl;
+        out << "\t\tUpArrowCursor           = " << Qt::UpArrowCursor << "," << endl;
+        out << "\t\tCrossCursor             = " << Qt::CrossCursor << "," << endl;
+        out << "\t\tWaitCursor              = " << Qt::WaitCursor << "," << endl;
+        out << "\t\tIbeamCursor             = " << Qt::IbeamCursor << "," << endl;
+        out << "\t\tSizeVerCursor           = " << Qt::SizeVerCursor << "," << endl;
+        out << "\t\tSizeHorCursor           = " << Qt::SizeHorCursor << "," << endl;
+        out << "\t\tSizeBDiagCursor         = " << Qt::SizeBDiagCursor << "," << endl;
+        out << "\t\tSizeFDiagCursor         = " << Qt::SizeFDiagCursor << "," << endl;
+        out << "\t\tSizeAllCursor           = " << Qt::SizeAllCursor << "," << endl;
+        out << "\t\tBlankCursor             = " << Qt::BlankCursor << "," << endl;
+        out << "\t\tSplitVCursor            = " << Qt::SplitVCursor << "," << endl;
+        out << "\t\tSplitHCursor            = " << Qt::SplitHCursor << "," << endl;
+        out << "\t\tPointingHandCursor      = " << Qt::PointingHandCursor << "," << endl;
+        out << "\t\tForbiddenCursor         = " << Qt::ForbiddenCursor << "," << endl;
+        out << "\t\tWhatsThisCursor         = " << Qt::WhatsThisCursor << "," << endl;
+        out << "\t\tBusyCursor\t= " << Qt::BusyCursor << endl;
         out << "\t};" << endl << endl;
     }
     
