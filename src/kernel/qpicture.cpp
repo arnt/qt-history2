@@ -297,7 +297,7 @@ bool QPicture::save( const QString &fileName, const char *format )
 #ifndef QT_NO_SVG
     // identical to QIODevice* code below but the file name
     // makes a difference when it comes to saving pixmaps
-    if ( qstrcmp( format, "svg" ) == 0 ) {
+    if ( qstricmp( format, "svg" ) == 0 ) {
 	QSvgDevice svg;
 	QPainter p( &svg );
 	if ( !play( &p ) )
@@ -330,7 +330,7 @@ bool QPicture::save( QIODevice *dev, const char *format )
     }
 
 #ifndef QT_NO_SVG
-    if ( qstrcmp( format, "svg" ) == 0 ) {
+    if ( qstricmp( format, "svg" ) == 0 ) {
 	QSvgDevice svg;
 	QPainter p( &svg );
 	if ( !play( &p ) )
