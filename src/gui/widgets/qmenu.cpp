@@ -1310,7 +1310,7 @@ void QMenu::popup(const QPoint &p, QAction *atAction)
 /*!
     Executes this menu synchronously.
 
-    This is equivalent to \c{exec(mapToGlobal(QPoint(0,0)))}.
+    This is equivalent to \c{exec(pos())}.
 
     This returns the triggered QAction in either the popup menu or one
     of its submenus, or 0 if no item was triggered (normally because
@@ -1325,10 +1325,14 @@ void QMenu::popup(const QPoint &p, QAction *atAction)
     \code
       exec(somewidget.mapToGlobal(QPoint(0,0)));
     \endcode
+    or in reaction to a QMouseEvent *e:
+    \code
+      exec(e->globalPos());
+    \endcode
 */
 QAction *QMenu::exec()
 {
-    return exec(mapToGlobal(QPoint(0,0)));
+    return exec(pos());
 }
 
 
@@ -1358,6 +1362,10 @@ QAction *QMenu::exec()
     or aligned to a widget:
     \code
         exec(somewidget.mapToGlobal(QPoint(0, 0)));
+    \endcode
+    or in reaction to a QMouseEvent *e:
+    \code
+      exec(e->globalPos());
     \endcode
 
     When positioning a menu with exec() or popup(), bear in mind that
