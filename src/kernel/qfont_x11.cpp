@@ -2428,12 +2428,14 @@ void QFontPrivate::load(QFont::Script script, bool tryUnicode)
 	    }
 	}
 
+	bool fail = FALSE;
 	if (name.isNull()) {
 	    // no font name... this can only happen with Unicode
 	    // qDebug("QFontLoader: no font name - this must be unicode (%d %s)",
 	    // script, script_table[script].list[script_table[script].index]);
 
 	    name = k + "NU";
+	    fail = TRUE;
 	}
 
 #ifdef QFONTLOADER_DEBUG_VERBOSE
@@ -2445,6 +2447,16 @@ void QFontPrivate::load(QFont::Script script, bool tryUnicode)
 	qxfn = new QXFontName(name.latin1(), match, use_core);
 	Q_CHECK_PTR(qxfn);
 	fontNameDict->insert(k, qxfn);
+
+	if (fail) {
+	    // we don't have a font name, so we need to negative cache a font struct
+	    // the reason we do this here, is because Exceed substitutes the fixed
+	    // font for any name it can't find...
+	    x11data.fontstruct[script] = (QFontStruct *) -1;
+	    initFontInfo(script);
+	    fontCache->insert(k, x11data.fontstruct[script], 1);
+	    return;
+	}
     }
 
 #ifdef QFONTLOADER_DEBUG_VERBOSE
@@ -2529,7 +2541,6 @@ void QFontPrivate::load(QFont::Script script, bool tryUnicode)
 	       fontname.data());
 #endif
 
-
 	if (! (xfs = XLoadQueryFont(QPaintDevice::x11AppDisplay(),
 				    fontname.data()))) {
 	    if (script != QFont::Unicode && script == QFontPrivate::defaultScript) {
@@ -2553,7 +2564,6 @@ void QFontPrivate::load(QFont::Script script, bool tryUnicode)
 	    }
 	}
     }
-
     // calculate cost of this item in the fontCache
     int cost = 1;
     if (xfs) {
