@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#47 $
+** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#48 $
 **
 ** Implementation of QLineEdit widget class
 **
@@ -21,7 +21,7 @@
 
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlineedit.cpp#47 $")
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlineedit.cpp#48 $")
 
 
 /*----------------------------------------------------------------------------
@@ -288,6 +288,11 @@ void QLineEdit::keyPressEvent( QKeyEvent *e )
 	    case Key_B:
 		cursorLeft( e->state() & ShiftButton );
 		break;
+	    case Key_C:
+		if ( hasMarkedText() ) {
+		    copyText();
+		}
+		break;
 	    case Key_D:
 		del();
 		break;
@@ -331,6 +336,12 @@ void QLineEdit::keyPressEvent( QKeyEvent *e )
 		    emit textChanged( tbuf.data() );
 	        }
 	        }
+	    case Key_X:
+		if ( hasMarkedText() ) {
+		    copyText();
+		    del();
+		}
+		break;
 	    default:
 		unknown++;
 	}
