@@ -47,6 +47,8 @@
 #include <math.h>
 #include <limits.h>
 
+#define RECT_EXTENSION 300
+
 static const char *unknown[] = {
     "32 32 11 1",
     "c c #ffffff",
@@ -2403,15 +2405,10 @@ void QIconView::doAutoScroll()
 
     blockSignals( TRUE );
     viewport()->setUpdatesEnabled( FALSE );
-    QIconViewPrivate::ItemContainer *c = d->firstContainer;
-    if ( !c ) {
-	qWarning( "ItemContainers are not built - have to do this now!" );
-	( (QIconView*)this )->rebuildContainers();
-	c = d->firstContainer;
-    }
     bool alreadyIntersected = FALSE;
     QRect nr = d->rubber->normalize();
     QRect rubberUnion = nr.unite( oldRubber.normalize() );
+    QIconViewPrivate::ItemContainer *c = (QIconViewPrivate::ItemContainer*)firstItemContainer( rubberUnion.topLeft() );
     for ( ; c; c = c->n ) {
 	if ( c->rect.intersects( rubberUnion ) ) {
 	    alreadyIntersected = TRUE;
@@ -2509,19 +2506,11 @@ void QIconView::drawContents( QPainter *p, int cx, int cy, int cw, int ch )
 {
     QRect r = QRect( cx, cy, cw, ch );
 
-    QIconViewPrivate::ItemContainer *c = d->firstContainer;
-    if ( !c && d->firstItem ) {
-	qWarning( "ItemContainers are not built - have to do this now!" );
-	rebuildContainers();
-	c = d->firstContainer;
-    }
-
+    QIconViewPrivate::ItemContainer *c = (QIconViewPrivate::ItemContainer*)firstItemContainer( QPoint( cx, cy ) );
     QRegion remaining( QRect( cx, cy, cw, ch ) );
-
     bool alreadyIntersected = FALSE;
     while ( c ) {
 	if ( c->rect.intersects( r ) ) {
-	
 	    p->save();
 	    p->resetXForm();
 	    QRect r2 = c->rect;
@@ -2739,12 +2728,7 @@ QIconViewItem *QIconView::findItem( const QPoint &pos ) const
     if ( !d->firstItem )
 	return 0;
 
-    QIconViewPrivate::ItemContainer *c = d->firstContainer;
-    if ( !c ) {
-	qWarning( "ItemContainers are not built - have to do this now!" );
-	( (QIconView*)this )->rebuildContainers();
-	c = d->firstContainer;
-    }
+    QIconViewPrivate::ItemContainer *c = (QIconViewPrivate::ItemContainer*)firstItemContainer( pos );
     for ( ; c; c = c->n ) {
 	if ( c->rect.contains( pos ) ) {
 	    QIconViewItem *item = c->items.first();
@@ -2871,12 +2855,7 @@ void QIconView::ensureItemVisible( QIconViewItem *item )
 
 QIconViewItem* QIconView::findFirstVisibleItem( const QRect &r ) const
 {
-    QIconViewPrivate::ItemContainer *c = d->firstContainer;
-    if ( !c ) {
-	qWarning( "ItemContainers are not built - have to do this now!" );
-	( (QIconView*)this )->rebuildContainers();
-	c = d->firstContainer;
-    }
+    QIconViewPrivate::ItemContainer *c = (QIconViewPrivate::ItemContainer*)firstItemContainer( r.topLeft() );
     QIconViewItem *i = 0;
     bool alreadyIntersected = FALSE;
     for ( ; c; c = c->n ) {
@@ -2914,12 +2893,7 @@ QIconViewItem* QIconView::findFirstVisibleItem( const QRect &r ) const
 
 QIconViewItem* QIconView::findLastVisibleItem( const QRect &r ) const
 {
-    QIconViewPrivate::ItemContainer *c = d->firstContainer;
-    if ( !c ) {
-	qWarning( "ItemContainers are not built - have to do this now!" );
-	( (QIconView*)this )->rebuildContainers();
-	c = d->firstContainer;
-    }
+    QIconViewPrivate::ItemContainer *c = (QIconViewPrivate::ItemContainer*)firstItemContainer( r.topLeft() );
     QIconViewItem *i = 0;
     bool alreadyIntersected = FALSE;
     for ( ; c; c = c->n ) {
@@ -3399,12 +3373,8 @@ void QIconView::contentsMousePressEvent( QMouseEvent *e )
 		else
 		    r.setHeight( d->currentItem->y() - item->y() + d->currentItem->height() );
 		r = r.normalize();
-		QIconViewPrivate::ItemContainer *c = d->firstContainer;
-		if ( !c ) {
-		    qWarning( "ItemContainers are not built - have to do this now!" );
-		    ( (QIconView*)this )->rebuildContainers();
-		    c = d->firstContainer;
-		}
+		QIconViewPrivate::ItemContainer *c = 
+		    (QIconViewPrivate::ItemContainer*)firstItemContainer( r.topLeft() );
 		bool alreadyIntersected = FALSE;
 		QRect redraw;
 		for ( ; c; c = c->n ) {
@@ -4745,14 +4715,14 @@ void QIconView::sort( bool ascending )
 QSize QIconView::sizeHint() const
 {
     if ( d->dirty ) {
-	( (QIconView*)this )->resizeContents( QMAX( 400, contentsWidth() ), 
+	( (QIconView*)this )->resizeContents( QMAX( 400, contentsWidth() ),
 					      QMAX( 400, contentsHeight() ) );
 	( (QIconView*)this )->alignItemsInGrid( FALSE );
     }
-    
+
     d->dirty = TRUE;
 
-    return QSize( QMIN( 400, contentsWidth() + style().scrollBarExtent().width()), 
+    return QSize( QMIN( 400, contentsWidth() + style().scrollBarExtent().width()),
 		  QMIN( 400, contentsHeight() + style().scrollBarExtent().height() ) );
 }
 
@@ -4844,9 +4814,9 @@ void QIconView::appendItemContainer()
     QSize s;
     // #### We have to find out which value is best here
     if ( d->alignMode == East )
-	s = QSize( INT_MAX - 1, 300 );
+	s = QSize( INT_MAX - 1, RECT_EXTENSION );
     else
-	s = QSize( 300, INT_MAX - 1 );
+	s = QSize( RECT_EXTENSION, INT_MAX - 1 );
 
     if ( !d->firstContainer ) {
 	d->firstContainer = new QIconViewPrivate::ItemContainer( 0, 0, QRect( QPoint( 0, 0 ), s ) );
@@ -4931,6 +4901,39 @@ void QIconView::movedContents( int, int )
 	drawDragShapes( d->oldDragPos );
 	d->oldDragPos = QPoint( -1, -1 );
     }
+}
+
+/*!
+  \internal
+*/
+
+void *QIconView::firstItemContainer( const QPoint &pos ) const
+{
+    if ( !d->firstItem )
+	return 0;
+    QIconViewPrivate::ItemContainer *c = d->firstContainer;
+    if ( !c ) {
+	qWarning( "ItemContainers are not built - have to do this now!" );
+	( (QIconView*)this )->rebuildContainers();
+	c = d->firstContainer;
+    }
+    
+    int p = -1;
+    if ( d->alignMode == East ) {
+	p = pos.x() / RECT_EXTENSION;
+    } else {
+	p = pos.y() / RECT_EXTENSION;
+    }
+    
+    if ( p == -1 ) {
+	qWarning( "(%d/%d) not in any rect!", pos.x(), pos.y() );
+	return 0;
+    }
+    
+    while ( p-- > 0 && c )
+	c = c->n;
+    
+    return c;
 }
 
 #include "qiconview.moc"
