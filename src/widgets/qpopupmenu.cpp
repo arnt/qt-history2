@@ -244,7 +244,7 @@ public:
 
 class QPopupMenuPrivate {
 public:
-    struct {
+    struct Scroll {
 	uint scrollable : 1;
 	uint direction : 1;
 	int topScrollableIndex;
