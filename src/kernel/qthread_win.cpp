@@ -50,7 +50,7 @@ void QMutex::unlock()
 {
 }
 
-class QThreadEvent {
+class Q_EXPORT QThreadEvent {
 
 public:
 
@@ -59,7 +59,7 @@ public:
 
 };
 
-class QThreadPrivate : public QObject {
+class Q_EXPORT QThreadPrivate : public QObject {
 
     Q_OBJECT
 
