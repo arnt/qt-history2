@@ -460,7 +460,7 @@ void QIconSet::setPixmap( const QPixmap & pm, Size size, Mode mode, State state 
 
 /*!
   Sets this icon set to load \a fileName as a pixmap and provide it
-  for size \a s, mode \a m and \a state.
+  for \a size, \a mode and \a state.
   It may also use the pixmap for deriving some other varieties if those
   are not set.
 
@@ -468,20 +468,20 @@ void QIconSet::setPixmap( const QPixmap & pm, Size size, Mode mode, State state 
   QIconSet will determine if the pixmap is Small or Large from its pixel size.
   Pixmaps less than 23 pixels wide are considered to be Small.
 */
-void QIconSet::setPixmap( const QString &fileName, Size s, Mode m, State state )
+void QIconSet::setPixmap( const QString &fileName, Size size, Mode mode, State state )
 {
     QPixmap p;
     p.load( fileName );
     if ( !p.isNull() )
-	setPixmap( p, s, m, state );
+	setPixmap( p, size, mode, state );
 }
 
 
 /*!
-  Returns a pixmap with size \a s, mode \a m and \a state, generating one if
+  Returns a pixmap with \a size, \a mode and \a state, generating one if
   needed. Generated pixmaps are cached.
 */
-QPixmap QIconSet::pixmap( Size s, Mode m, State state ) const
+QPixmap QIconSet::pixmap( Size size, Mode mode, State state ) const
 {
     if ( !d ) {
 	QPixmap r;
@@ -492,8 +492,8 @@ QPixmap QIconSet::pixmap( Size s, Mode m, State state ) const
     QIconSetPrivate * p = ((QIconSet *)this)->d;
     QPixmap * pm = 0;
     if ( state == Off ) {
-	if ( s == Large ) {
-	    switch( m ) {
+	if ( size == Large ) {
+	    switch( mode ) {
 	    case Normal:
 		if ( !p->vlarge.pm ) {
 		    Q_ASSERT( p->vsmall.pm );
@@ -573,7 +573,7 @@ QPixmap QIconSet::pixmap( Size s, Mode m, State state ) const
 		break;
 	    }
 	} else {
-	    switch( m ) {
+	    switch( mode ) {
 	    case Normal:
 		if ( !p->vsmall.pm ) {
 		    Q_ASSERT( p->vlarge.pm );
@@ -655,8 +655,8 @@ QPixmap QIconSet::pixmap( Size s, Mode m, State state ) const
 	    }
 	}
     } else { // state == On
-	if ( s == Large ) {
-	    switch( m ) {
+	if ( size == Large ) {
+	    switch( mode ) {
 	    case Normal:
 		if ( !p->on_vlarge.pm ) {
 		    QPixmap *fallback = 0;
@@ -741,7 +741,7 @@ QPixmap QIconSet::pixmap( Size s, Mode m, State state ) const
 		break;
 	    }
 	} else {
-	    switch( m ) {
+	    switch( mode ) {
 	    case Normal:
 		if ( !p->on_vsmall.pm ) {
 		    QPixmap *fallback = 0;
@@ -844,43 +844,43 @@ QPixmap QIconSet::pixmap( Size size, bool enabled, State state ) const
 
 
 /*!
-  Returns TRUE if the variant with size \a s, mode \a m and \a state was
+  Returns TRUE if the variant with \a size, \a mode and \a state was
   automatically generated, and FALSE if it was not. This is mainly
   useful for development purposes.
 */
-bool QIconSet::isGenerated( Size s, Mode m, State state ) const
+bool QIconSet::isGenerated( Size size, Mode mode, State state ) const
 {
     if ( !d )
 	return FALSE;
 
     if ( state == Off ) {
-	if ( s == Large ) {
-	    if ( m == Disabled )
+	if ( size == Large ) {
+	    if ( mode == Disabled )
 		return d->largeDisabled.generated || !d->largeDisabled.pm;
-	    else if ( m == Active )
+	    else if ( mode == Active )
 		return d->largeActive.generated || !d->largeActive.pm;
 	    else
 		return d->vlarge.generated || !d->vlarge.pm;
-	} else if ( s == Small ) {
-	    if ( m == Disabled )
+	} else if ( size == Small ) {
+	    if ( mode == Disabled )
 		return d->smallDisabled.generated || !d->smallDisabled.pm;
-	    else if ( m == Active )
+	    else if ( mode == Active )
 		return d->smallActive.generated || !d->smallActive.pm;
 	    else
 		return d->vsmall.generated || !d->vsmall.pm;
 	}
     } else {
-	if ( s == Large ) {
-	    if ( m == Disabled )
+	if ( size == Large ) {
+	    if ( mode == Disabled )
 		return d->on_largeDisabled.generated || !d->on_largeDisabled.pm;
-	    else if ( m == Active )
+	    else if ( mode == Active )
 		return d->on_largeActive.generated || !d->on_largeActive.pm;
 	    else
 		return d->on_vlarge.generated || !d->on_vlarge.pm;
-	} else if ( s == Small ) {
-	    if ( m == Disabled )
+	} else if ( size == Small ) {
+	    if ( mode == Disabled )
 		return d->on_smallDisabled.generated || !d->on_smallDisabled.pm;
-	    else if ( m == Active )
+	    else if ( mode == Active )
 		return d->on_smallActive.generated || !d->on_smallActive.pm;
 	    else
 		return d->on_vsmall.generated || !d->on_vsmall.pm;
