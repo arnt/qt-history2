@@ -825,8 +825,8 @@ void QMotifStyle::drawControl( ControlElement element,
 	QProgressBar *progressbar = (QProgressBar *) widget;
 
 	qDrawShadePanel(p, r, cg, TRUE, 1);
-	p->fillRect( r.x() + 2, r.y() + 2, r.width() - 4, r.height() - 4, 
-		     cg.base() );
+// 	p->fillRect( r.x() + 2, r.y() + 2, r.width() - 4, r.height() - 4, 
+// 		     cg.base() );
 	
 
 	if ( !progressbar->totalSteps() ) {
