@@ -462,6 +462,7 @@ static QString matchMemberFunctionDeclaration()
     QString returnType;
     QString name;
     QString params;
+    QString qualifiers;
 
     if ( yyTok == Tok_public || yyTok == Tok_protected || yyTok == Tok_private )
 	yyTok = getToken();
@@ -498,9 +499,13 @@ static QString matchMemberFunctionDeclaration()
 	    return QString::null;
     }
     yyTok = getToken();
+    if ( yyTok == Tok_const ) {
+	qualifiers = QString( " const" );
+	yyTok = getToken();
+    }
 
     return returnType + QChar( '\t' ) + name + QChar( '(' ) + params +
-	   QChar( ')' );
+	   QChar( ')' ) + qualifiers;
 }
 
 static void matchClassDefinition( QValueList<Interface> *wannabeList )
@@ -583,23 +588,3 @@ void parseHeaderFile( const QString& name,
 	++i;
     }
 }
-/*
-int main()
-{
-    QMap<QString, Interface> interfaceMap;
-    parseHeaderFile( QString("/home/jasmin/qt/include/qcomponentinterface.h"),
-		     &interfaceMap );
-
-    QMap<QString, Interface>::ConstIterator i = interfaceMap.begin();
-    while ( i != interfaceMap.end() ) {
-	qDebug( "%s: %s", (*i).name().latin1(), (*i).uuid().latin1() );
-	QStringList::ConstIterator f = (*i).functionList().begin();
-	while ( f != (*i).functionList().end() ) {
-	    qDebug( "  %s", (*f).latin1() );
-	    ++f;
-	}
-	++i;
-    }
-    return EXIT_SUCCESS;
-}
-*/
