@@ -442,6 +442,26 @@ static void cleanup() {
     endCopyIcon = 0;
 }
 
+#if defined(_WS_WIN_)
+class QWindowsIconProvider : public QFileIconProvider
+{
+    Q_OBJECT
+public:
+    QWindowsIconProvider( QWidget *parent=0, const char *name=0 );
+    ~QWindowsIconProvider();
+
+    const QPixmap * pixmap( const QFileInfo &fi );
+    
+private:
+    QPixmap defaultFolder;
+    QPixmap defaultFile;
+    QPixmap defaultExe;
+    QPixmap pix;
+    int pixw, pixh;
+    QMap< QString, QPixmap > cache;
+    
+};
+#endif
 
 static void makeVariables() {
     if ( !openFolderIcon ) {
@@ -467,6 +487,9 @@ static void makeVariables() {
 	bShowHiddenFiles = FALSE;
 	sortFilesBy = (int)QDir::Name;
 	detailViewMode = FALSE;
+#if defined(_WS_WIN_)
+	fileIconProvider = new QWindowsIconProvider();
+#endif
     }
 }
 
@@ -3978,6 +4001,204 @@ QFileIconProvider * QFileDialog::iconProvider()
 
 /*! \reimp */
 
+
+
+
+#if defined(_WS_WIN_)
+#include <windows.h>
+
+static QString getWindowsRegString( HKEY key, const char *subKey )
+{
+    QString s;
+    char  buf[512];
+    DWORD bsz = sizeof(buf);
+    int r = RegQueryValueExA( key, subKey, 0, 0, (LPBYTE)buf, &bsz );
+    if ( r == ERROR_SUCCESS ) {
+	s = buf;
+    } else if ( r == ERROR_MORE_DATA ) {
+	char *ptr = new char[bsz+1];
+	r = RegQueryValueExA( key, subKey, 0, 0, (LPBYTE)ptr, &bsz );
+	if ( r == ERROR_SUCCESS )
+	    s = ptr;
+	delete [] ptr;
+    }
+    return s;
+}
+
+static void initPixmap( QPixmap &pm )
+{
+    pm.fill( Qt::white );
+}
+
+QWindowsIconProvider::QWindowsIconProvider( QWidget *parent, const char *name )
+    : QFileIconProvider( parent, name )
+{
+    pixw = GetSystemMetrics( SM_CXSMICON );
+    pixh = GetSystemMetrics( SM_CYSMICON );
+
+    HKEY k;
+    HICON si;
+    int r;
+    QString s;
+    UINT res;
+    
+    // ---------- get default folder pixmap
+    r = RegOpenKeyExA( HKEY_CLASSES_ROOT,
+		       "folder\\DefaultIcon",
+		       0, KEY_READ, &k );
+    if ( r == ERROR_SUCCESS ) {
+	s = getWindowsRegString( k, 0 );
+	RegCloseKey( k );
+
+	QStringList lst = QStringList::split( ",", s );
+
+	res = ExtractIconEx( (TCHAR*)qt_winTchar( lst[ 0 ].simplifyWhiteSpace(), TRUE ),
+			     lst[ 1 ].simplifyWhiteSpace().toInt(),
+			     0, &si, 1 );
+	if ( res != -1 ) {
+	    defaultFolder.resize( pixw, pixh );
+	    initPixmap( defaultFolder );
+	    QPainter p( &defaultFolder );
+	    DrawIconEx( p.handle(), 0, 0, si, pixw, pixh, 0, NULL,  DI_NORMAL );
+	    p.end();
+	    defaultFolder.setMask( defaultFolder.createHeuristicMask() );
+	    *closedFolderIcon = defaultFolder;
+	} else {
+	    defaultFolder = *closedFolderIcon;
+	}
+    } else {
+	RegCloseKey( k );
+    }
+    
+    //------------------------------- get default file pixmap
+    res = ExtractIconEx( (TCHAR*)qt_winTchar( "shell32.dll", TRUE ),
+			 0, 0, &si, 1 );
+
+    if ( res != -1 ) {
+	defaultFile.resize( pixw, pixh );
+	initPixmap( defaultFile );
+	QPainter p( &defaultFile );
+	DrawIconEx( p.handle(), 0, 0, si, pixw, pixh, 0, NULL,  DI_NORMAL );
+	p.end();
+	defaultFile.setMask( defaultFile.createHeuristicMask() );
+	*fileIcon = defaultFile;
+    } else {
+	defaultFile = *fileIcon;
+    }
+
+    //------------------------------- get default file pixmap
+    res = ExtractIconEx( (TCHAR*)qt_winTchar( "shell32.dll", TRUE ),
+			 2, 0, &si, 1 );
+
+    if ( res != -1 ) {
+	defaultExe.resize( pixw, pixh );
+	initPixmap( defaultExe );
+	QPainter p( &defaultExe );
+	DrawIconEx( p.handle(), 0, 0, si, pixw, pixh, 0, NULL,  DI_NORMAL );
+	p.end();
+	defaultExe.setMask( defaultExe.createHeuristicMask() );
+    } else {
+	defaultExe = *fileIcon;
+    }
+}
+
+QWindowsIconProvider::~QWindowsIconProvider()
+{
+}
+
+const QPixmap * QWindowsIconProvider::pixmap( const QFileInfo &fi )
+{
+    QString ext = fi.extension().upper();
+    QString key = ext;
+    ext.prepend( "." );
+    QMap< QString, QPixmap >::Iterator it;
+    
+    if ( fi.isDir() ) {
+	return &defaultFolder;
+    } else if ( ext.lower() != ".exe" ) {
+	it = cache.find( key );
+	if ( it != cache.end() )
+	    return &( *it );
+	
+	HKEY k, k2;
+	int r = RegOpenKeyExA( HKEY_CLASSES_ROOT,
+			       ext.latin1(),
+			       0, KEY_READ, &k );
+	QString s;
+	if ( r == ERROR_SUCCESS ) {
+	    s = getWindowsRegString( k, 0 );
+	} else {
+	    cache[ key ] = defaultFile;
+	    RegCloseKey( k );
+	    return &defaultFile;
+	}
+	RegCloseKey( k );
+
+	r = RegOpenKeyExA( HKEY_CLASSES_ROOT,
+			   QString( s + "\\DefaultIcon" ).latin1() ,
+			   0, KEY_READ, &k2 );
+	if ( r == ERROR_SUCCESS ) {
+	    s = getWindowsRegString( k2, 0 );
+	} else {
+	    cache[ key ] = defaultFile;
+	    RegCloseKey( k2 );
+	    return &defaultFile;
+	}
+	RegCloseKey( k2 );
+
+	QStringList lst = QStringList::split( ",", s );
+
+	HICON si;
+	UINT res = ExtractIconEx( (TCHAR*)qt_winTchar( lst[ 0 ].simplifyWhiteSpace(), TRUE ),
+				  lst[ 1 ].simplifyWhiteSpace().toInt(),
+				  0, &si, 1 );
+
+	if ( res != -1 ) {
+	    pix.resize( pixw, pixh );
+	    initPixmap( pix );
+	    QPainter p( &pix );
+	    DrawIconEx( p.handle(), 0, 0, si, pixw, pixh, 0, NULL,  DI_NORMAL );
+	    p.end();
+	    pix.setMask( pix.createHeuristicMask() );
+	} else {
+	    pix = defaultFile;
+	}
+	
+	cache[ key ] = pix;
+	return &pix;
+    } else {
+	HICON si;
+	UINT res = ExtractIconEx( (TCHAR*)qt_winTchar( fi.absFilePath(), TRUE ),
+				  -1,
+				  0, 0, 1 );
+
+	if ( res == 0 )
+	    return &defaultExe;
+	else
+	    res = ExtractIconEx( (TCHAR*)qt_winTchar( fi.absFilePath(), TRUE ),
+				 res - 1,
+				 0, &si, 1 );
+	if ( res != -1 ) {
+	    pix.resize( pixw, pixh );
+	    initPixmap( pix );
+	    QPainter p( &pix );
+	    DrawIconEx( p.handle(), 0, 0, si, pixw, pixh, 0, NULL,  DI_NORMAL );
+	    p.end();
+	    pix.setMask( pix.createHeuristicMask() );
+	} else {
+	    pix = defaultExe;
+	}
+	
+	return &pix;	
+    }
+    
+    // can't happen!
+    return 0;
+}
+#endif
+
+
+
 bool QFileDialog::eventFilter( QObject * o, QEvent * e )
 {
     if ( !o || !e )
@@ -4727,7 +4948,7 @@ void QFileDialog::doMimeTypeLookup()
     if ( item ) {
 	QFileInfo fi;
 	if ( d->url.isLocalFile() ) {
-	    fi.setFile( QUrl( d->url.path(), item->info.name() ).path() );
+	    fi.setFile( QUrl( d->url.path(), item->info.name() ).path( FALSE ) );
 	} else
 	    fi.setFile( item->info.name() ); // #####
 	const QPixmap *p = iconProvider()->pixmap( fi );
