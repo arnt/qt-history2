@@ -1051,6 +1051,24 @@ void SetupWizardImpl::makeDone()
 	QMessageBox::critical( this, "Error", "The build process failed!\nSee the log for details." );
 	buildPage->restartBuild->setText( "Restart compile" );
 	setAppropriate( progressPage, false );
+#if defined(QSA)
+    } else if ( make.workingDirectory() == QEnvironment::getEnv( "QTDIR" ) ) {
+	QStringList makeCmds = QStringList::split( ' ', "nmake make gmake make nmake" );
+	QStringList args;
+	args << makeCmds[ globalInformation.sysId() ];
+	args << "sub-examples";
+
+	make.setWorkingDirectory( optionsPageQsa->installPath->text() );
+	make.setArguments( args );
+
+	if( !make.start() ) {
+	    logOutput( "Could not start make process.\n"
+		       "Make sure that your compiler tools are installed\n"
+		       "and registered correctly in your PATH environment." );
+	    emit wizardPageFailed( indexOf(currentPage()) );
+	    backButton()->setEnabled( TRUE );
+	}
+#endif
     } else {
 	// We still have some more items to do in order to finish all the
 	// integration stuff.
