@@ -4,7 +4,6 @@
 #include <qtextblockiterator.h>
 #include <qtextlist.h>
 #include <qtexttable.h>
-#include <qtextfloat.h>
 #include <qdatastream.h>
 
 #include <qstring.h>
@@ -511,7 +510,7 @@ QTextGroup *QTextFormatCollection::createGroup(int index)
     else if (f.isTableFormat())
         group = new QTextTable(pieceTable);
     else if (f.isFrameFormat())
-        group = new QTextFloat(pieceTable);
+        group = new QTextFrame(pieceTable);
     else
         group = new QTextGroup(pieceTable);
     group->d_func()->collection = this;
