@@ -13,6 +13,8 @@
 #define _GNU_SOURCE
 #endif // QT_THREAD_SUPPORT
 
+// some systems need this to include the XOPEN stuff
+#define _GNU_SOURCE
 
 #include <unistd.h>
 #include <sys/types.h>
