@@ -623,7 +623,7 @@ void HelpDialog::insertContents()
 	if ( c == '<' ) {
 	    ++i;
 	    c = text[ i ];
-	    if ( c == 'a' ) {
+	    if ( c == 'a' || c == 'A' ) {
 		int j = text.find( "\"", i );
 		int k = text.find( "\"", j + 1 );
 		link = text.mid( j + 1, k - j - 1 );
@@ -643,19 +643,19 @@ void HelpDialog::insertContents()
 		    entries.append( e );
 		}
 	    }
-	    if ( c == 'd' ) {
+	    if ( c == 'd' || c == 'D' ) {
 		++i;
 		c = text[ i ];
-		if ( c == 'l' )
+		if ( c == 'l' || c == 'L' )
 		    depth++;
 	    }
 	    if ( c == '/' ) {
 		++i;
 		c = text[ i ];
-		if ( c == 'd' ) {
+		if ( c == 'd' || c == 'D' ) {
 		    ++i;
 		    c = text[ i ];
-		    if ( c == 'l' )
+		    if ( c == 'l' || c == 'L' )
 			depth--;
 		}
 	    }
