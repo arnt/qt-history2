@@ -29,6 +29,8 @@ QSqlPropertyMap::QSqlPropertyMap()
     propertyMap["QCheckButton"] = "checked";
     propertyMap["QSlider"]      = "value";
     propertyMap["QComboBox"]    = "currentItem";
+    propertyMap["QDateEdit"]    = "date";
+    propertyMap["QTimeEdit"]    = "time";
 }
 
 /*!
@@ -210,8 +212,38 @@ void QSqlFormMap::syncFields()
   
   \module sql
   
-  This class can be used to create SQL form widgets for accessing,
-  updating, inserting and deleting data from a database easily.  
+  This class is used to create SQL forms for accessing, updating,
+  inserting and deleting data from a database. Populate the form with
+  widgets created by the QSqlEditorFactory class, to get the proper
+  widget for a certain field. The form needs a valid QSqlView on which
+  to perform its operations.
+  Some sample code to initialize a form successfully:
+  <code>
+     QSqlForm form;
+     QSqlEditorFactory factory;
+     QWidget * w;
+
+     // Set the view the form should operate on
+     form.setView( &myView );
+     
+     // Create an appropriate widget for displaying/editing 
+     // field 0 in myView.
+     w = factory.createEditor( &form, myView.field( 0 ) );
+     
+     // Associate the newly created widget with field 0 in myView
+     form.associate( w, myView.field( 0 ) );
+     
+     // Now, update the contents of the form from the fields in the form.
+     form.syncWidgets();
+  <\code>
+  
+  If you want to use custom editors for displaying/editing data fields,
+  you will have to install a custom QSqlPropertyMap. The form uses this
+  object to get or set the value of a widget (ie. the text in a QLineEdit,
+  the index in a QComboBox).
+  You will also have use the Q_PROPERTY macro in the class definition,
+  and define a pair of functions that can get or set the value of the 
+  widget.
 */
 
 /*!
@@ -226,7 +258,7 @@ QSqlForm::QSqlForm( QWidget * parent, const char * name )
 }
 /*!
   
-  Destructor.
+  Destructs the form.
 */
 QSqlForm::~QSqlForm()
 {
@@ -263,15 +295,27 @@ QSqlView * QSqlForm::view() const
 }
 
 /*!
+
+ Installs a custom QSqlPropertyMap. Used together with custom
+ field editors. Please note that the QSqlForm class will
+ take ownership of the propery map, so don't delete it!
+*/
+void QSqlForm::installPropertyMap( QSqlPropertyMap * m )
+{
+    map->installPropertyMap( m );
+}
+
+/*!
   
   Refresh the widgets in the form with values from the associated SQL
-  fields.
+  fields. Also emits a signal to indicate that the form state has
+  changed.
 */
 void QSqlForm::syncWidgets()
 {
     if( v ){
 	map->syncWidgets();
-	emit recordChanged( v->at() );
+	emit stateChanged( v->at() );
     } else
 	qWarning( "QSqlForm: No view associated with this form." );
 }
@@ -288,6 +332,10 @@ void QSqlForm::syncFields()
 	qWarning( "QSqlForm: No view associated with this form." );
 }
 
+/*!
+ 
+  Move to the first record in the associated view.
+*/
 void QSqlForm::first()
 {
     if( v && v->first() ){
@@ -295,6 +343,10 @@ void QSqlForm::first()
     }
 }
 
+/*!
+ 
+  Move to the last set record in the associated view.
+*/
 void QSqlForm::last()
 {
     if( v && v->last() ){
@@ -302,6 +354,10 @@ void QSqlForm::last()
     }
 }
 
+/*!
+ 
+  Move to the next record in the associated view.
+*/
 void QSqlForm::next()
 {
     
@@ -314,6 +370,10 @@ void QSqlForm::next()
     }
 }
 
+/*!
+ 
+  Move to the previous record in the associated view.
+*/
 void QSqlForm::previous()
 {
     if( v ){
@@ -325,6 +385,10 @@ void QSqlForm::previous()
     }
 }
 
+/*!
+ 
+  Insert a new record in the associated view.
+*/
 bool QSqlForm::insert()
 {
     if( v ){
@@ -335,6 +399,10 @@ bool QSqlForm::insert()
     return FALSE;
 }
 
+/*!
+ 
+  Update the current record in the associated view.
+*/
 bool QSqlForm::update()
 {
     if( v ){
@@ -345,6 +413,10 @@ bool QSqlForm::update()
     return FALSE;
 }
 
+/*!
+ 
+  Delete the current record from the associated view.
+*/
 bool QSqlForm::del()
 {
     if( v && v->del( v->primaryIndex() ) ){
@@ -354,6 +426,10 @@ bool QSqlForm::del()
     return FALSE;
 }
 
+/*!
+ 
+  Seek to the i'th record in the associated view.
+*/
 void QSqlForm::seek( int i )
 {
     if( v && v->seek( i ) ){

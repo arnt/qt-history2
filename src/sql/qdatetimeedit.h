@@ -4,21 +4,6 @@
 #include <qdatetime.h>
 #include <qlineedit.h>
 
-/*class Valid : public QIntValidator
-{
-public:
-    Valid( QWidget * parent, const char * name = 0 )
-	: QIntValidator( parent, name ){}
-    
-    void fixup( QString & s ) const
-    {
-	qDebug("fixup");
-	s.remove( s.length()-1, 1 );
-    }
-    
-};
-*/
-
 class NumEdit : public QLineEdit
 {
     Q_OBJECT
@@ -33,13 +18,11 @@ public:
     void setRange( int min, int max )
     {
 	QIntValidator * v = new QIntValidator( this );
-//	Valid * v = new Valid( this );
 	v->setRange( min, max );
 	setValidator( v );
     }
 };
 
-class QFrame;
 class QLabel;
 class QToolButton;
 
@@ -52,7 +35,6 @@ public:
 protected:
     bool eventFilter( QObject *, QEvent * );
     
-    QFrame      * f;
     NumEdit     * e[3];
     QLabel      * sep[2];
     QToolButton * up, * down;
@@ -66,6 +48,8 @@ protected slots:
 
 class QDateEdit : public QDateTimeEditBase 
 {
+    Q_OBJECT
+    Q_PROPERTY( QDate date READ date WRITE setDate )
 public:
     QDateEdit( QWidget * parent = 0, const char * name = 0 );
     void  setDate( const QDate & d );
@@ -77,6 +61,7 @@ protected:
 
 class QTimeEdit : public QDateTimeEditBase 
 {
+    Q_PROPERTY( QTime time READ time WRITE setTime )
 public:
     QTimeEdit( QWidget * parent = 0, const char * name = 0 );
     void  setTime( const QTime & t );

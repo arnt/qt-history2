@@ -54,6 +54,7 @@ public:
     void       associate( QWidget * widget, QSqlField * field );
     void       setView( QSqlView * view );
     QSqlView * view() const;
+    void       installPropertyMap( QSqlPropertyMap * m );
    
 public slots:
     virtual void syncWidgets();
@@ -69,7 +70,7 @@ public slots:
     virtual void seek( int i );
         
 signals:
-    void recordChanged( int i );
+    void stateChanged( int i );
     
 private:
     QSqlView * v;

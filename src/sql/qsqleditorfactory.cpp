@@ -5,6 +5,7 @@
 #include <qcombobox.h>
 
 #include "qsqleditorfactory.h"
+#include "qdatetimeedit.h"
 
 #ifndef QT_NO_SQL
 
@@ -46,41 +47,39 @@ QWidget * QSqlEditorFactory::createEditor( QWidget * parent, const QVariant & v 
 	    ((QComboBox *) w)->insertItem( "False" );
 	    ((QComboBox *) w)->insertItem( "True" );
 	    break;
-	case QVariant::Date:
-/*	    w = new DateBookMonth( 0 );
-	    w->reparent( 0, QWidget::WStyle_Customize +
-			 QWidget::WStyle_NoBorder, QPoint( 0, 0 ) );
-	    w->resize( 100, 100 );
-*/
-	    break;
 	case QVariant::UInt:
 	case QVariant::Int:
-	    w = new QSpinBox( -99999, 99999, 1, parent );
+	    w = new QSpinBox( -999999, 999999, 1, parent );
 	    break;
 	case QVariant::String:
 	case QVariant::CString:
-	    w = new QLineEdit( parent);
+	    w = new QLineEdit( parent );
 	    break;
-	case QVariant::Map:
-	case QVariant::StringList:
+	case QVariant::Date:
+	    w = new QDateEdit( parent );
+	    break;
+	case QVariant::Time:
+	    w = new QTimeEdit( parent );
+	case QVariant::DateTime:	    
+	    break;
+	case QVariant::Palette:
+	case QVariant::ColorGroup:
+	case QVariant::Color:
 	case QVariant::Font:
 	case QVariant::Brush:
 	case QVariant::Pixmap:
+	case QVariant::Bitmap:
+	case QVariant::Cursor:
+	case QVariant::Map:
+	case QVariant::StringList:
 	case QVariant::Rect:
 	case QVariant::Size:
-	case QVariant::Color:
-	case QVariant::Palette:
-	case QVariant::ColorGroup:
 	case QVariant::IconSet:
 	case QVariant::Point:
 	case QVariant::Double:
 	case QVariant::PointArray:
 	case QVariant::Region:
-	case QVariant::Bitmap:
-	case QVariant::Cursor:
 	case QVariant::SizePolicy:
-	case QVariant::Time:
-	case QVariant::DateTime:
 	case QVariant::ByteArray:
 	default:
 	    w = new QLineEdit( parent );
