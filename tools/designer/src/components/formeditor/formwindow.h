@@ -25,6 +25,7 @@
 #include <QtCore/QHash>
 #include <QtCore/QList>
 #include <QtCore/QMap>
+#include <QtCore/QSet>
 
 #include <QtGui/QWidget>
 #include <QtGui/QPixmap>
@@ -286,7 +287,7 @@ private:
     bool oldRectValid;
 
     QList<QWidget*> m_widgets;
-    QHash<QWidget *, QWidget*> m_insertedWidgets;
+    QSet<QWidget*> m_insertedWidgets;
 
     bool checkedSelectionsForMove;
     QList<WidgetSelection *> selections;

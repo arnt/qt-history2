@@ -1177,7 +1177,7 @@ void FormWindow::manageWidget(QWidget *w)
 
     core()->metaDataBase()->add(w);
 
-    m_insertedWidgets.insert(w, w);
+    m_insertedWidgets.insert(w);
     m_widgets.append(w);
 
     setCursorToAll(Qt::ArrowCursor, w);
