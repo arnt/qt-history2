@@ -323,6 +323,7 @@ Q_INLINE_TEMPLATES int QMapConstIterator<K,T>::dec()
     return 0;
 }
 
+// ### 4.0: rename to something without Private in it. Not really internal.
 class Q_EXPORT QMapPrivateBase : public QShared
 {
 public:

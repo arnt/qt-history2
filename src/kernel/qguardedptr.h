@@ -42,6 +42,7 @@
 #include "qobject.h"
 #endif // QT_H
 
+// ### 4.0: rename to something without Private in it. Not really internal.
 class Q_EXPORT QGuardedPtrPrivate : public QObject, public QShared
 {
     Q_OBJECT
