@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont.cpp#240 $
+** $Id: //depot/qt/main/src/kernel/qfont.cpp#241 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes
 **
@@ -393,10 +393,12 @@ QFont::~QFont()
 */
 QFont &QFont::operator=( const QFont &font )
 {
-    if (d->deref()) delete d;
+    if ( font.d != d ) {
+	if (d->deref()) delete d;
 
-    d = font.d;
-    d->ref();
+	d = font.d;
+	d->ref();
+    }
 
     return *this;
 }
