@@ -275,6 +275,9 @@ void MainForm::parseDescribe( const QString& desc )
 	}
     }
 
+    if ( changes->currentItem() != 0 ) {
+	((ChangeItem*)(changes->currentItem()))->setVisitedEnable( TRUE );
+    }
     // ### that should go somewhre else
     if ( changes->currentItem() != 0 ) {
 	int i = desc.find( '\n' );
