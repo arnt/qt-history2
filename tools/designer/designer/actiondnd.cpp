@@ -16,6 +16,7 @@
 #include "widgetfactory.h"
 #include "formwindow.h"
 #include "command.h"
+#include <qmessagebox.h>
 
 bool QDesignerAction::addTo( QWidget *w )
 {
@@ -504,6 +505,14 @@ void QDesignerToolBar::dropEvent( QDropEvent *e )
 	    a = (QSeparatorAction*)s.toLong();
     } else {
 	a = (QDesignerActionGroup*)s.toLong();
+    }
+
+    if ( actionList.findRef( a ) != -1 ) {
+	QMessageBox::warning( MainWindow::self, tr( "Insert/Move Action" ),
+			      tr( "The Action '%1' has already been added to this toolbar.\n"
+				  "An Action can only be added once to the same toolbar." ).
+			      arg( a->name() ) );
+	return;
     }
 
     AddActionToToolBarCommand *cmd = new AddActionToToolBarCommand( tr( "Add Action '%1' to Toolbar '%2'" ).
@@ -1075,6 +1084,14 @@ void QDesignerPopupMenu::dropEvent( QDropEvent *e )
 	    s = QString( e->encodedData( "application/x-designer-actions" ) );
 	    a = (QDesignerAction*)s.toLong();
 	}
+    }
+
+    if ( actionList.findRef( a ) != -1 ) {
+	QMessageBox::warning( MainWindow::self, tr( "Insert/Move Action" ),
+			      tr( "The Action '%1' has already been added to this menu.\n"
+				  "An Action can only be added once to the same menu." ).
+			      arg( a->name() ) );
+	return;
     }
 
     AddActionToPopupCommand *cmd = new AddActionToPopupCommand( tr( "Add Action '%1'  to the Popup Menu '%2'" ).
