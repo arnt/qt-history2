@@ -257,6 +257,49 @@ QTextFrameLayoutData::~QTextFrameLayoutData()
 */
 
 /*!
+    \typedef QTextFrame::Iterator
+
+    Qt-style synonym for QTextFrame::iterator.
+*/
+
+/*!
+    \fn QTextFrame *QTextFrame::iterator::parentFrame() const
+
+    Returns the parent frame of the current frame.
+
+    \sa currentFrame() QTextFrame::parentFrame()
+*/
+
+/*!
+    \fn bool QTextFrame::iterator::operator==(const iterator &other) const
+
+    Retuns true if this iterator is the same as the \a other iterator;
+    otherwise returns false.
+*/
+
+/*!
+    \fn bool QTextFrame::iterator::operator!=(const iterator &other) const
+
+    Retuns true if this iterator is different from the \a other iterator;
+    otherwise returns false.
+*/
+
+/*!
+    \fn QTextFrame::iterator QTextFrame::iterator::operator++(int)
+
+    The postfix ++ operator (\c{i++}) advances the iterator to the
+    next item in the text frame and returns an iterator to the old text
+    frame.
+*/
+
+/*!
+    \fn QTextFrame::iterator QTextFrame::iterator::operator--(int)
+
+    The postfix -- operator (\c{i--}) makes the preceding text frame current
+    and returns an iterator to the old text frame.
+*/
+
+/*!
     \fn void QTextFrame::setFormat(const QTextFrameFormat &format)
 
     Sets the frame's \a format.
@@ -451,7 +494,25 @@ void QTextFramePrivate::remove_me()
 }
 
 /*!
-    Returns an iterator pointing to the first block inside the frame.
+    \class QTextFrame::iterator
+    \brief The QTextFrame::iterator class provides an iterator for reading
+    the contents of a QTextFrame.
+
+    A frame consists of an arbitrary sequence of \l{QTextBlock}s and
+    child \l{QTextFrame}s. This class provides a way to iterate over the
+    child objects of a frame, and read their contents. It does not provide
+    a way to modify the contents of the frame.
+
+*/
+
+/*!
+    \fn bool QTextFrame::iterator::atEnd() const
+
+    Returns true if the current item is the last item in the text frame.
+*/
+
+/*!
+    Returns an iterator pointing to the first child frame inside this frame.
 
     \sa end()
 */
@@ -464,7 +525,7 @@ QTextFrame::iterator QTextFrame::begin() const
 }
 
 /*!
-    Returns an iterator pointing to the last block inside the frame.
+    Returns an iterator pointing to the last child frame inside this frame.
 
     \sa begin()
 */
@@ -475,17 +536,6 @@ QTextFrame::iterator QTextFrame::end() const
     int e = priv->blockMap().findNode(lastPosition()+1);
     return iterator(const_cast<QTextFrame *>(this), e, b, e);
 }
-
-/*!
-    \class QTextFrame::iterator
-    \brief the QTextFrame::iterator class provides a means of reading
-    the contents of a QTextFrame.
-
-    A frame consists of an arbitrary sequence of \l{QTextBlock}s and
-    child \c{QTextFrame}s. This class provides a read-only means of
-    iterating over the contents of a frame.
-
-*/
 
 /*!
     Constructs an invalid iterator.
@@ -509,6 +559,10 @@ QTextFrame::iterator::iterator(QTextFrame *frame, int block, int begin, int end)
     cb = block;
 }
 
+/*!
+    \fn QTextFrame::iterator::iterator(const iterator &other)
+
+    Copy constructor. Constructs a copy of the \a other iterator.*/
 QTextFrame::iterator::iterator(const iterator &o)
 {
     f = o.f;
@@ -622,8 +676,8 @@ QTextFrame::iterator QTextFrame::iterator::operator--()
 
 /*!
     \class QTextBlock qtextblock.h
-    \brief The QTextBlock class provides an API for accessing the block
-    structure of QTextDocuments.
+    \brief The QTextBlock class provides a container for text fragments in a
+    QTextDocument.
 
     \ingroup text
 
@@ -631,13 +685,24 @@ QTextFrame::iterator QTextFrame::iterator::operator--()
     block/paragraph structure of QTextDocuments. It is mainly
     of use if you want to implement your own layouts for the
     visual representation of a QTextDocument, or if you want to
-    iterate over a document and output its contents in your own custom
+    iterate over a document and write the contents in your own custom
     format.
 
-    The text block has a position() in the document, a length(), a
-    text layout(), a charFormat(), a blockFormat(), and a text(). And
-    it belongs to a document(). Navigation between blocks can be done
-    using next() and previous().
+    Each text block is located at a specific position() in a document().
+    The contents of the block can be obtained by using the text() function.
+    The length() function determines the block's size within the document
+    (including formatting characters).
+    The visual properties of the block are determined by its text layout(),
+    its charFormat(), and its blockFormat().
+
+    The next() and previous() functions allow navigation between blocks
+    within the document. Note that blocks are returned by these functions in
+    the order in which they appear in the document regardless of their
+    positions within the document structure.
+
+    \img qtextblock-sequence.png
+
+    \sa QBlockFormat QCharFormat QTextFragment
  */
 
 /*!
@@ -692,6 +757,36 @@ QTextFrame::iterator QTextFrame::iterator::operator--()
 */
 
 /*!
+    \class QTextBlock::iterator
+    \brief The QTextBlock::iterator class provides an iterator for reading
+    the contents of a QTextBlock.
+
+    A block consists of a sequence of text fragments. This class provides
+    a way to iterate over these, and read their contents. It does not provide
+    a way to modify the internal structure or contents of the block.
+
+    An iterator is constructed and used in the following way:
+
+    \code
+        // QTextBlock block;
+        QTextBlock::iterator it;
+        for (it = block.begin(); !(it.atEnd()); ++it) {
+            QTextFragment fragment = it.fragment();
+
+            if (fragment.isValid()) ...
+        }
+    \endcode
+
+    \sa QTextFragment
+*/
+
+/*!
+    \typedef QTextBlock::Iterator
+
+    Qt-style synonym for QTextBlock::iterator.
+*/
+
+/*!
     \fn QTextBlock::iterator::iterator()
 
     Constructs an iterator for this text block.
@@ -710,17 +805,32 @@ QTextFrame::iterator QTextFrame::iterator::operator--()
 */
 
 /*!
-    \fn inline bool QTextBlock::iterator::operator==(const iterator &other)
+    \fn bool QTextBlock::iterator::operator==(const iterator &other) const
 
     Retuns true if this iterator is the same as the \a other iterator;
     otherwise returns false.
 */
 
 /*!
-    \fn bool QTextBlock::iterator::operator!=(const iterator &other)
+    \fn bool QTextBlock::iterator::operator!=(const iterator &other) const
 
     Retuns true if this iterator is different from the \a other iterator;
     otherwise returns false.
+*/
+
+/*!
+    \fn QTextBlock::iterator QTextBlock::iterator::operator++(int)
+
+    The postfix ++ operator (\c{i++}) advances the iterator to the
+    next item in the text block and returns an iterator to the old current
+    item.
+*/
+
+/*!
+    \fn QTextBlock::iterator QTextBlock::iterator::operator--(int)
+
+    The postfix -- operator (\c{i--}) makes the preceding item current and
+    returns an iterator to the old current item.
 */
 
 /*!
@@ -891,10 +1001,12 @@ QTextBlock::iterator QTextBlock::end() const
 
 
 /*!
-    Returns the text block after this one, or an empty text block if
-    this is the last one.
+    Returns the text block in the document after this block, or an empty
+    text block if this is the last one.
 
-    \sa previous() begin() end() next()
+    Note that the next block may be in a different frame or table to this block.
+
+    \sa previous() begin() end()
 */
 QTextBlock QTextBlock::next() const
 {
@@ -905,10 +1017,12 @@ QTextBlock QTextBlock::next() const
 }
 
 /*!
-    Returns the text block before this one, or an empty text block if
-    this is the first one.
+    Returns the text block in the document before this block, or an empty text
+    block if this is the first one.
 
-    \sa next() begin() end() previous()
+    Note that the next block may be in a different frame or table to this block.
+
+    \sa next() begin() end()
 */
 QTextBlock QTextBlock::previous() const
 {
