@@ -15,6 +15,7 @@
 #include "domtool.h"
 #include "ui4.h"
 #include "widgetinfo.h"
+#include "globaldefs.h"
 
 #include <qfile.h>
 #include <qdatetime.h>
@@ -22,10 +23,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <qdebug.h>
-
-/// ### share these constants with qt/designer
-enum { BOXLAYOUT_DEFAULT_MARGIN = 11 };
-enum { BOXLAYOUT_DEFAULT_SPACING = 6 };
 
 
 bool Ui3Reader::isMainWindow = false;
