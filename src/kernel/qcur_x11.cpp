@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcur_x11.cpp#21 $
+** $Id: //depot/qt/main/src/kernel/qcur_x11.cpp#22 $
 **
 ** Implementation of QCursor class for X11
 **
@@ -21,7 +21,7 @@
 #include <X11/cursorfont.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qcur_x11.cpp#21 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qcur_x11.cpp#22 $";
 #endif
 
 
@@ -316,6 +316,30 @@ QPoint QCursor::pos()				// get cursor position
     XQueryPointer( qt_xdisplay(), qt_xrootwin(), &root, &child,
 		   &root_x, &root_y, &win_x, &win_y, &buttons );
     return QPoint( root_x, root_y );
+}
+
+/*!  Returns a pointer to the widget the cursor is pointing at, or a
+  null pointer if the cursor is not over at one of this applications's
+  widgets.
+
+  Note that the returned widget may not have either the mouse or
+  keyboard focus.
+
+  \bug what if a widget has requested root window events?
+
+  \sa Pos(), QWidget::grabMouse(), QWidget::grabKeyboard() */
+
+QWidget * QCursor::widget()	// get widget at cursor position
+{
+    Window root;
+    Window child;
+    int root_x, root_y, win_x, win_y;
+    uint buttons;
+
+    XQueryPointer( qt_xdisplay(), qt_xrootwin(), &root, &child,
+		   &root_x, &root_y, &win_x, &win_y, &buttons );
+
+    return child ? QWidget::find( child ) : 0;
 }
 
 /*!
