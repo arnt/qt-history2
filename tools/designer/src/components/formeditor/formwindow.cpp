@@ -1863,11 +1863,12 @@ QWidget *FormWindow::findContainer(QWidget *w, bool excludeLayout) const
 
     AbstractWidgetFactory *widgetFactory = core()->widgetFactory();
     AbstractWidgetDataBase *widgetDataBase = core()->widgetDataBase();
+    AbstractMetaDataBase *metaDataBase = core()->metaDataBase();
 
     QWidget *container = widgetFactory->containerOfWidget(mainContainer()); // default parent for new widget is the formwindow
     if (!isMainContainer(w)) { // press was not on formwindow, check if we can find another parent
         while (w) {
-            if (qt_cast<InvisibleWidget*>(w) || !isManaged(w)) {
+            if (qt_cast<InvisibleWidget*>(w) || !metaDataBase->item(w)) {
                 w = w->parentWidget();
                 continue;
             }
