@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.cpp#186 $
+** $Id: //depot/qt/main/src/kernel/qpainter.cpp#187 $
 **
 ** Implementation of QPainter, QPen and QBrush classes
 **
@@ -1870,13 +1870,7 @@ void QPainter::fix_neg_rect( int *x, int *y, int *w, int *h )
   <li> \c DontClip never clips the text to the rectangle.
   <li> \c ExpandTabs expands tabulators.
   <li> \c ShowPrefix displays "&x" as "x" underlined.
-  <li> \c WordBreak breaks the text to fit the rectangle. Words are
-         kept intact, even if they are too long to fit into the
-         available width.  
- <li>\c BreakWithinWords in combination with \c WordBreak
-         causes overlong words to be broken at the end of a line. This
-         usually results in ugly word breaks, but at least all
-         characters are visible.
+  <li> \c WordBreak breaks the text to fit the rectangle. 
   </ul>
 
   Horizontal alignment defaults to AlignLeft and vertical alignment
@@ -2008,7 +2002,6 @@ void qt_format_text( const QFontMetrics& fm, int x, int y, int w, int h,
     // ##### should use (unicode) QChar::isPrint() -- WWA to AG
 
     bool wordbreak  = (tf & Qt::WordBreak)  == Qt::WordBreak;
-    bool breakwithinwords  = (tf & Qt::BreakWithinWords)  == Qt::BreakWithinWords;
     bool expandtabs = (tf & Qt::ExpandTabs) == Qt::ExpandTabs;
     bool singleline = (tf & Qt::SingleLine) == Qt::SingleLine;
     bool showprefix = (tf & Qt::ShowPrefix) == Qt::ShowPrefix;
@@ -2030,8 +2023,9 @@ void qt_format_text( const QFontMetrics& fm, int x, int y, int w, int h,
 	localTabStops = fm.width(QChar('x'))*8;       	// default to 8 times x
 
     QString word;
-    
+
     bool fakeBreak = FALSE;
+    bool breakwithinwords = FALSE;
     while ( k <= len ) {				// convert string to codes
 
 	if ( !fakeBreak && k < len && ISPRINT(*p) ) {			// printable character
@@ -2046,40 +2040,49 @@ void qt_format_text( const QFontMetrics& fm, int x, int y, int w, int h,
 	    } else {
 		cc = ENCCHAR(*p);
 	    }
-	    
-	    
-	    if ( breakwithinwords ) {
-		breakwidth += fm.width( cc );
-		if ( breakwidth > w ) {
-		    fakeBreak = TRUE;
-		    continue;
-		}
-	    }
-	    word += *p;
+	
 	    cw = 0;
+ 	    if ( breakwithinwords ) {
+ 		breakwidth += fm.width( cc );
+ 		if ( breakwidth > w ) {
+ 		    fakeBreak = TRUE;
+ 		    continue;
+ 		}
+ 	    }
+	    word += *p;
 	} else {				// not printable (except ' ')
 	    cw = fm.width(word);
-	    word = "";
-	    if ( wordbreak ) {
+	    if ( !fakeBreak && wordbreak ) {
 		if ( breakindex > 0 && tw+cw > w ) {
 		    codes[begline] = BEGLINE | QMIN(tw,MAXWIDTH);
 		    maxwidth = QMAX(maxwidth,tw);
 		    begline = breakindex;
-		    nlines++;
 		    tw = cw;
 		    breakindex = tabindex = 0;
 		    cw = 0;
 		    breakwidth = 0;
+		    if ( !breakwithinwords && tw > w ) {
+			breakwithinwords = TRUE;
+			p -= word.length();	
+			k -= word.length();
+			index = begline+1;
+			tw = 0;
+			word = "";
+			continue;
+		    }
+		    nlines++;
 		}
 	    }
+	    word = "";
 
-	    if ( fakeBreak ) {
-		cc = BEGLINE;
-		fakeBreak = FALSE;
-		--k;
-		--p;
-	    }
-	    else if ( k == len ) {
+ 	    if ( fakeBreak ) {
+ 		cc = BEGLINE;
+ 		fakeBreak = FALSE;
+  		--k;
+  		--p;
+ 	    }
+ 	    else 
+	    if ( k == len ) {
 		// end (*p not valid)
 		cc = 0;
 	    } else if ( *p == ' ' ) {			// the space character

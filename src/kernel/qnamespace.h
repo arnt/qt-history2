@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qnamespace.h#32 $
+** $Id: //depot/qt/main/src/kernel/qnamespace.h#33 $
 **
 ** Definition of Qt namespace (as class for compiler compatibility)
 **
@@ -90,7 +90,6 @@ public:
 	ExpandTabs	= 0x0100,
 	ShowPrefix	= 0x0200,
 	WordBreak	= 0x0400,
-	BreakWithinWords	= 0x0800,
 	DontPrint	= 0x1000		// internal
     };
 
