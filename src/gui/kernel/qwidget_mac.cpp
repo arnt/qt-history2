@@ -14,7 +14,6 @@
 
 #include "qt_mac.h"
 
-#include "qaccel.h"
 #include "qapplication.h"
 #include "qapplication_p.h"
 #include "qbitmap.h"

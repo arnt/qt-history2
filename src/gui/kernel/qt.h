@@ -117,7 +117,6 @@
 #include <qhash.h>
 #include <qjiscodec.h>
 #include <qeucjpcodec.h>
-#include <qaccel.h>
 #include "qlabel.h"
 #include "qlayout.h"
 #include <qlcdnumber.h>

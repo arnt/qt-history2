@@ -21,7 +21,6 @@
 #include "qimage.h"
 #include "qhash.h"
 #include "qstack.h"
-#include "qaccel.h"
 #include "qdragobject.h"
 #include "qlayout.h"
 #include "qtextcodec.h"

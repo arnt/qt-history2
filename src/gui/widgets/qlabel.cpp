@@ -896,16 +896,15 @@ void QLabel::mnemonicSlot()
 }
 #endif
 
-#ifndef QT_NO_ACCEL
 /*!
     Sets this label's buddy to \a buddy.
 
-    When the user presses the accelerator key indicated by this label,
+    When the user presses the shortcut key indicated by this label,
     the keyboard focus is transferred to the label's buddy widget.
 
     The buddy mechanism is only available for QLabels that contain
     plain text in which one letter is prefixed with an ampersand, \&.
-    This letter is set as the accelerator key. The letter is displayed
+    This letter is set as the shortcut key. The letter is displayed
     underlined, and the '\&' is not displayed (i.e. the \c ShowPrefix
     alignment flag is turned on; see setAlignment()).
 
@@ -929,7 +928,7 @@ void QLabel::mnemonicSlot()
     To unset a previously set buddy, call this function with \a buddy
     set to 0.
 
-    \sa buddy(), setText(), QAccel, setAlignment()
+    \sa buddy(), setText(), QShortcut, setAlignment()
 */
 
 void QLabel::setBuddy(QWidget *buddy)
@@ -956,7 +955,6 @@ QWidget * QLabel::buddy() const
 {
     return d->lbuddy;
 }
-#endif //QT_NO_ACCEL
 
 
 #ifndef QT_NO_MOVIE

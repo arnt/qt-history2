@@ -1281,7 +1281,7 @@ void QObject::setParent_helper(QObject *parent)
         listView->installEventFilter(keyPressEater);
     \endcode
 
-    The QAccel class, for example, uses this technique to intercept
+    The QShortcut class, for example, uses this technique to intercept
     accelerator key presses.
 
     \warning If you delete the receiver object in your eventFilter()
