@@ -112,8 +112,10 @@ public:
 	ActivateControl = 80,			// ActiveX activation
 	DeactivateControl = 81,			// ActiveX deactivation
 	User = 1000				// first user event id
+	MaxUser  = 65535                        		// last user event id	
     };
 
+    
     QEvent( Type type ) : t(type), posted(FALSE) {}
     virtual ~QEvent();
     Type  type() const	{ return t; }
