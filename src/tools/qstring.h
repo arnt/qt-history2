@@ -196,10 +196,10 @@ public:
     void setCell( uchar cell ) { ucs = (ucs & 0xff00) + cell; }
     void setRow( uchar row ) { ucs = (((ushort) row)<<8) + (ucs&0xff); }
 
-#ifndef QT_NO_COMPAT    
+#ifndef QT_NO_COMPAT
     static bool networkOrdered() { return FALSE; }
 #endif
-    
+
     friend inline bool operator==( char ch, QChar c );
     friend inline bool operator==( QChar c, char ch );
     friend inline bool operator==( QChar c1, QChar c2 );
@@ -454,7 +454,7 @@ public:
 #endif
 
     enum FieldFlags {
-	FieldNone                = 0x00,
+	FieldDefault             = 0x00,
 	FieldSkipEmpty           = 0x01,
 	FieldIncludeLeadingSeps  = 0x02,
 	FieldIncludeTrailingSeps = 0x04,
