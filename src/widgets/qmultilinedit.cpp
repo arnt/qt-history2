@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmultilinedit.cpp#63 $
+** $Id: //depot/qt/main/src/widgets/qmultilinedit.cpp#64 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -1586,7 +1586,7 @@ void QMultiLineEdit::mouseMoveEvent( QMouseEvent *e )
 				e->pos().x() - BORDER + xOffset(),
 				cellWidth() - 2 * BORDER );
 
-    if ( markWord ) {
+    if ( wordMark ) {
 	if ( markAnchorY < markDragY || markAnchorY == markDragY
 	     && markAnchorX < markDragX ) {
 	    // going right
