@@ -86,7 +86,7 @@ public:
 	Expanded	= 0x00000200,
 	Collapsed	= 0x00000400,
 	Busy		= 0x00000800,
-	Floating	= 0x00001000,
+	// Floating	= 0x00001000,
 	Marqueed	= 0x00002000,
 	Animated	= 0x00004000,
 	Invisible	= 0x00008000,
@@ -100,11 +100,12 @@ public:
 	Traversed	= 0x00800000,
 	MultiSelectable	= 0x01000000,
 	ExtSelectable	= 0x02000000,
-	AlertLow	= 0x04000000,
-	AlertMedium	= 0x08000000,
-	AlertHigh	= 0x10000000,
+	//AlertLow	= 0x04000000,
+	//AlertMedium	= 0x08000000,
+	//AlertHigh	= 0x10000000,
 	Protected	= 0x20000000,
-	Valid		= 0x3fffffff
+	HasPopup	= 0x40000000,
+	Modal		= 0x80000000
     };
 
     enum Role {

@@ -58,38 +58,48 @@
     This enum type defines bitflags that can be combined to indicate
     the state of an accessible object. The values are:
 
-    \value Normal
-    \value Unavailable
-    \value Selected
-    \value Focused
-    \value Pressed
-    \value Checked
-    \value Mixed
-    \value ReadOnly
-    \value HotTracked
-    \value DefaultButton
-    \value Expanded
-    \value Collapsed
-    \value Busy
+    \value Normal	    The normal state.
+    \value Unavailable	    The object is unavailable to the user, e.g. a disabled widget.
+    \value Selected	    The object is selected.
+    \value Focused	    The object has keyboard focus.
+    \value Pressed	    The object is pressed.
+    \value Checked	    The object's check box is checked.
+    \value Mixed	    The state of the object is not determined, e.g. a tri-state
+			    check box that is neither checked nor unchecked.
+    \value ReadOnly	    The object can usually be edited, but is explicitly set to
+			    read-only.
+    \value HotTracked	    The object's appearance is sensitive to the mouse cursor position.
+    \value DefaultButton    The object represents the default button in a dialog.
+    \value Expanded	    The object is expandable, and currently the children are visible.
+    \value Collapsed	    The object is collapsed, e.g. a closed listview item, or an
+			    iconified window.
+    \value Busy		    The object cannot accept input temporarily.
+    \omit
     \value Floating
-    \value Marqueed
-    \value Animated
-    \value Invisible
-    \value Offscreen
-    \value Sizeable
-    \value Moveable
-    \value SelfVoicing
-    \value Focusable
-    \value Selectable
-    \value Linked
-    \value Traversed
-    \value MultiSelectable
-    \value ExtSelectable
+    \endomit
+    \value Marqueed	    The object displays scrolling contents, e.g. a log view.
+    \value Animated	    The object's appearance changes frequently.
+    \value Invisible	    The object is not visible to the user.
+    \value Offscreen	    The object is clipped by the visible area. Objects that are
+			    offscreen are also invisible.
+    \value Sizeable	    The object can be resized, e.g. toplevel windows.
+    \value Moveable	    The object can be moved.
+    \value SelfVoicing	    The object describes itself through speach or sound.
+    \value Focusable	    The object can receive focus. Only objects on the active
+			    window can receive focus.
+    \value Selectable	    The object can be selectable.
+    \value Linked	    The object is linked to another object, e.g. a hyperlink.
+    \value Traversed	    The object is linked and has been visited.
+    \value MultiSelectable  The object can have multiple selected items.
+    \value ExtSelectable    The object supports extended selection.
+    \omit
     \value AlertLow
     \value AlertMedium
     \value AlertHigh
-    \value Protected
-    \value Valid
+    \endomit
+    \value Protected	    The object is password protected.
+    \value HasPopup	    The object opens a popup.
+    \value Modal	    The object blocks input from other objects.
 
     Implementations of QAccessibleInterface::state() return a combination
     of those flags.
