@@ -1363,13 +1363,6 @@ value of this variable is typically handled by \e qmake or
 
 
 
-<dt>\c QMAKE_MAX_FILES
-
-<dd>###
-
-
-
-
 
 <dt>\c QMAKE_MOC_SRC
 
@@ -1379,18 +1372,12 @@ typically handled by \e qmake or
  \link #QMAKESPEC qmake.conf \endlink and rarely needs to be modified.
 
 
-
-
-
-<dt>\c QMAKE_NOFORCE
-<dd>###
-
-
-
-
 <dt>\c QMAKE_QMAKE
 
-<dd>###
+<dd>This variable contains the location of qmake if it is not in the path.  
+The value of this variable is typically handled by \e qmake or
+ \link #QMAKESPEC qmake.conf \endlink and rarely needs to be modified.
+
 
 
 
@@ -1406,27 +1393,35 @@ value of this variable is typically handled by \e qmake or
 
 
 <dt>\c QMAKE_RUN_CC
-<dd>###
+<dd>This variable specifies the individual rule needed to build an object.
+The value of this variable is typically handled by \e qmake or
+ \link #QMAKESPEC qmake.conf \endlink and rarely needs to be modified.
+
 
 
 
 
 <dt>\c QMAKE_RUN_CC_IMP
-<dd>###
+<dd>This variable specifies the individual rule needed to build an object.
+The value of this variable is typically handled by \e qmake or
+ \link #QMAKESPEC qmake.conf \endlink and rarely needs to be modified.
 
 
 
 
 <dt>\c QMAKE_RUN_CXX
 
-<dd>###
+<dd>This variable specifies the individual rule needed to build an object.
+The value of this variable is typically handled by \e qmake or
+ \link #QMAKESPEC qmake.conf \endlink and rarely needs to be modified.
 
 
 
 
 <dt>\c QMAKE_RUN_CXX_IMP
-<dd>###
-
+<dd>This variable specifies the individual rule needed to build an object.
+The value of this variable is typically handled by \e qmake or
+ \link #QMAKESPEC qmake.conf \endlink and rarely needs to be modified.
 
 
 
@@ -1464,13 +1459,6 @@ name of all the generated moc files. The value of this variable
 is typically handled by \e qmake or \link #QMAKESPEC qmake.conf \endlink and rarely needs to be
 modified.
 
-
-<dt>\c SUBLIBS
-
-<dd>
-
-
-
 <dt>\c TARGET_EXT
 <dd>This variable specifies the target's extension.  The value of this variable
 is typically handled by \e qmake or \link #QMAKESPEC qmake.conf \endlink and rarely needs to be
@@ -1480,13 +1468,15 @@ modified.
 
 <dt>\c TARGET_x
 
-<dd>###
-
-
+<dd>This variable specifies the target's extension with a major version number.  The value of this variable
+is typically handled by \e qmake or \link #QMAKESPEC qmake.conf \endlink and rarely needs to be
+modified.
 
 
 <dt>\c TARGET_x.y.z
-<dd>###
+<dd>This variable specifies the target's extension with version number.  The value of this variable
+is typically handled by \e qmake or \link #QMAKESPEC qmake.conf \endlink and rarely needs to be
+modified.
 
 
 <dt>\c UICIMPLS
