@@ -4,11 +4,15 @@
 #include <qdict.h>
 #include <qfile.h>
 #include <qmetaobject.h>
+#include <qvaluelist.h>
 #include <qwidget.h>
 
 #include <qt_windows.h>
 #include <activscp.h>
 #include "..\shared\types.h"
+
+struct QAxEngineDescriptor { QString name, extension, code; };
+static QValueList<QAxEngineDescriptor> engines;
 
 /*
     \class QAxScriptEngine
@@ -373,14 +377,6 @@ inline QString QAxScriptEngine::scriptName() const
     engine for \a language. The function returns TRUE if \a code could
     be passed successfully into the script engine, otherwise returns
     FALSE.
-
-    If \a language is empty it will be determined heuristically based 
-    on \a code:
-    \list
-    \i If the code includes the substring "End Sub" \a code is interpreted
-    as VBScript
-    \i Otherwise the code is interpreted as JScript
-    \endlist
 */
 bool QAxScriptEngine::load(const QString &code, const QString &language)
 {
@@ -388,13 +384,6 @@ bool QAxScriptEngine::load(const QString &code, const QString &language)
 	return FALSE;
 
     script_language = language;
-    if (script_language.isEmpty()) {
-	if (code.contains("End Sub", FALSE))
-	    script_language = "VBScript";
-	else
-	    script_language = "JScript";
-    }
-
     script_code += code;
 
     metaObject();
@@ -684,6 +673,8 @@ void QAxScript::addObject(QAxBase *object)
     \i Otherwise the code is interpreted as JScript
     \endlist
 
+    Additional script engines can be registered using registerEngine().
+
     You need to add all objects necessary before loading any 
     scripts. If \a code declares a function that is already available
     (no matter in which language) the first function is overloaded and can 
@@ -693,8 +684,28 @@ void QAxScript::addObject(QAxBase *object)
 */
 QAxObject *QAxScript::load(const QString &code, const QString &language, const QString &name)
 {
+    QString script_language(language);
+    if (script_language.isEmpty()) {
+	if (code.contains("End Sub", FALSE))
+	    script_language = "VBScript";
+
+	QValueList<QAxEngineDescriptor>::ConstIterator it;
+	for (it = engines.begin(); it != engines.end(); ++it) {
+	    QAxEngineDescriptor engine = *it;
+	    if (engine.code.isEmpty())
+		continue;
+
+	    if (code.contains(engine.code)) {
+		script_language = engine.name;
+		break;
+	    }
+	}
+    }
+    if (script_language.isEmpty())
+	script_language = "JScript";
+
     QAxScriptEngine *script = new QAxScriptEngine(name, this);
-    if (script->load(code, language))
+    if (script->load(code, script_language))
 	return script;
 
     delete script;
@@ -717,6 +728,7 @@ QAxObject *QAxScript::load(const QString &code, const QString &language, const Q
     \i Otherwise the contents are interpreted as VBScript
     \endlist
 
+    Additional script engines can be registered using registerEngine().
 */
 QAxObject *QAxScript::load(const QString &file, const QString &name)
 {
@@ -730,14 +742,28 @@ QAxObject *QAxScript::load(const QString &file, const QString &name)
     if (contents.isEmpty())
 	return FALSE;
 
-    QString language;
-    if (file.endsWith(".js"))
-	language = "JScript";
-    else
-	language = "VBScript";
+    QString script_language;
+    if (file.endsWith(".js")) {
+	script_language = "JScript";
+    } else {
+	QValueList<QAxEngineDescriptor>::ConstIterator it;
+	for (it = engines.begin(); it != engines.end(); ++it) {
+	    QAxEngineDescriptor engine = *it;
+	    if (engine.extension.isEmpty())
+		continue;
+
+	    if (file.endsWith(engine.extension)) {
+		script_language = engine.name;
+		break;
+	    }
+	}
+    }
+
+    if (script_language.isEmpty())
+	script_language = "VBScript";
 
     QAxScriptEngine *script = new QAxScriptEngine(name, this);
-    if (script->load(contents, language))
+    if (script->load(contents, script_language))
 	return script;
 
     delete script;
@@ -801,6 +827,21 @@ QVariant QAxScript::call(const QString &function, QValueList<QVariant> &argument
     updateScripts();
     QValueList<QVariant> args(arguments);
     return s->dynamicCall(function.latin1(), args);
+}
+
+/*!
+    Registers the script engine \a name.
+    The script engine will be used when loading files with \a extension,
+    or when loading source code that contains the string \a code.
+*/
+void QAxScript::registerEngine(const QString &name, const QString &extension, const QString &code)
+{
+    QAxEngineDescriptor engine;
+    engine.name = name;
+    engine.extension = extension;
+    engine.code = code;
+
+    engines.prepend(engine);
 }
 
 /*!
