@@ -820,9 +820,9 @@ QApplication::QApplication( Display* dpy, HANDLE visual, HANDLE colormap )
 	qWarning( "QApplication: invalid Display* argument." );
 #endif // QT_CHECK_STATE
 
-	qt_init( dpy, visual, colormap );
-    } else {
 	qt_init( &aargc, aargv, GuiClient );
+    } else {
+	qt_init( dpy, visual, colormap );
     }
 
     initialize( aargc, aargv );
@@ -850,16 +850,18 @@ QApplication::QApplication(Display *dpy, int argc, char **argv,
 {
     qt_is_gui_used = TRUE;
     init_precmdline();
-	
+
     if ( ! dpy ) {
 #ifdef QT_CHECK_STATE
 	qWarning( "QApplication: invalid Display* argument." );
 #endif // QT_CHECK_STATE
 
-	qt_init(dpy, visual, colormap);
-    } else {
 	qt_init( &argc, argv, GuiClient );
+    } else {
+	qt_init(dpy, visual, colormap);
     }
+
+    process_cmdline( &argc, argv );
     initialize(argc, argv);
 
     if ( qt_is_gui_used )
