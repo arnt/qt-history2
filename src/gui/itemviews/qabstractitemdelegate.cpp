@@ -174,7 +174,8 @@ QWidget *QAbstractItemDelegate::editor(QWidget *,
 }
 
 /*!
-    Notifies the delegate that the given \a editor is no longer in use.
+    Notifies the delegate that the given \a editor used to edit \a index
+    is no longer in use.
     Typically the delegate should destroy the editor at this point.
 
     The base implementation does nothing. If you want custom editing
