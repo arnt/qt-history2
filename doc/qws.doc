@@ -115,8 +115,6 @@ You can create your own custom configuration by adding new files
 
   In some cases, if the server does not work, it will work when run as root.
 
-  Some example programs may not compile with GCC 2.95.
-
   Show processes using the framebuffer:
 
 \code
