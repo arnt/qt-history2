@@ -483,17 +483,20 @@ QMenuPrivate::QMacMenuPrivate::syncAction(QMacMenuAction *action)
         data.iconType = kMenuNoIcon;
     }
 
-    //font
-    if(action->action->font().bold())
-        data.style |= bold;
-    if(action->action->font().underline())
-        data.style |= underline;
-    if(action->action->font().italic())
-        data.style |= italic;
-    if(data.style)
-        data.whichData |= kMenuItemDataStyle;
-    data.whichData |= kMenuItemDataFontID;
-    ATSUFONDtoFontID((ATSFontRef)action->action->font().handle(), 0, (ATSUFontID*)&data.fontID);
+    if(action->action->font().resolve()) { //font
+        if(action->action->font().bold())
+            data.style |= bold;
+        if(action->action->font().underline())
+            data.style |= underline;
+        if(action->action->font().italic())
+            data.style |= italic;
+        if(data.style)
+            data.whichData |= kMenuItemDataStyle;
+        data.whichData |= kMenuItemDataFontID;
+        ATSUFONDtoFontID(FMGetFontFamilyFromATSFontFamilyRef(
+                             (ATSFontFamilyRef)action->action->font().handle()), 
+                         0, (ATSUFontID*)&data.fontID);
+    }
 
     data.whichData |= kMenuItemDataSubmenuHandle;
     if(action->action->menu()) { //submenu
