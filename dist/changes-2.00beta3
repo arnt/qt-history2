@@ -1,0 +1,8 @@
+Qt 2.0 Beta3 is not binary compatible with Beta2, this means that any
+programs linked with Beta2 must be recompiled.
+
+The most important fixes since Beta 2:
+
+QLayoutIterator/QGLayoutIterator
+	The custom layout API has been changed: void removeCurrent()
+	has been replaced by QLayoutItem* takeCurrent().
