@@ -142,8 +142,8 @@ public:
     void setDirty() { needRecalc = TRUE; hfw_width = -1; }
     bool isDirty() const { return needRecalc; }
     bool hasHeightForWidth( int space );
-    int heightForWidth( int, int defB );
-    int minimumHeightForWidth( int, int defB );
+    int heightForWidth( int, int, int );
+    int minimumHeightForWidth( int, int, int );
 
     bool findWidget( QWidget* w, int *row, int *col );
 
@@ -270,20 +270,22 @@ void QGridLayoutData::recalcHFW( int w, int spacing )
     hfw_minheight = QMIN( QLAYOUTSIZE_MAX, h );
 }
 
-int QGridLayoutData::heightForWidth( int w, int spacing )
+int QGridLayoutData::heightForWidth( int w, int margin, int spacing )
 {
     setupLayoutData( spacing );
-    if ( has_hfw && w != hfw_width ) {
-	qGeomCalc( colData, 0, cc, 0, w, spacing );
-	recalcHFW( w, spacing );
+    if ( !has_hfw )
+	return -1;
+    if ( w + 2*margin != hfw_width ) {
+	qGeomCalc( colData, 0, cc, 0, w+2*margin, spacing );
+	recalcHFW( w+2*margin, spacing );
     }
-    return hfw_height;
+    return hfw_height + 2*margin;
 }
 
-int QGridLayoutData::minimumHeightForWidth( int w, int spacing )
+int QGridLayoutData::minimumHeightForWidth( int w, int margin, int spacing )
 {
-    (void) heightForWidth( w, spacing );
-    return hfw_minheight;
+    (void) heightForWidth( w, margin, spacing );
+    return has_hfw ? (hfw_minheight + 2*margin) : -1;
 }
 
 bool QGridLayoutData::findWidget( QWidget* w, int *row, int *col )
@@ -1077,16 +1079,14 @@ bool QGridLayout::hasHeightForWidth() const
 int QGridLayout::heightForWidth( int w ) const
 {
     QGridLayout *that = (QGridLayout*)this;
-    return that->data->heightForWidth( w - 2 *margin(), spacing() )
-	   + 2 * margin();
+    return that->data->heightForWidth( w, margin(), spacing() );
 }
 
 /*! \internal */
 int QGridLayout::minimumHeightForWidth( int w ) const
 {
     QGridLayout *that = (QGridLayout*)this;
-    return that->data->minimumHeightForWidth( w - 2 * margin(), spacing() )
-	   + 2 * margin();
+    return that->data->minimumHeightForWidth( w, margin(), spacing() );
 }
 
 /*!
@@ -1769,11 +1769,11 @@ bool QBoxLayout::hasHeightForWidth() const
 */
 int QBoxLayout::heightForWidth( int w ) const
 {
+    if ( !hasHeightForWidth() )
+	return -1;
     w -= 2 * margin();
-    if ( data->dirty || w != data->hfwWidth ) {
+    if ( w != data->hfwWidth ) {
 	QBoxLayout *that = (QBoxLayout*)this;
-	if ( data->dirty )
-	    that->setupGeom();
 	that->calcHfw( w );
     }
     return data->hfwHeight + 2 * margin();
@@ -1783,7 +1783,7 @@ int QBoxLayout::heightForWidth( int w ) const
 int QBoxLayout::minimumHeightForWidth( int w ) const
 {
     (void) heightForWidth( w );
-    return data->hfwMinHeight + 2 * margin();
+    return data->hasHfw ? (data->hfwMinHeight + 2 * margin() ) : -1;
 }
 
 /*!
