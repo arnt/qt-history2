@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qregion_x11.cpp#5 $
+** $Id: //depot/qt/main/src/kernel/qregion_x11.cpp#6 $
 **
 ** Implementation of QRegion class for X11
 **
@@ -20,7 +20,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qregion_x11.cpp#5 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qregion_x11.cpp#6 $";
 #endif
 
 
@@ -52,7 +52,7 @@ QRegion::QRegion( const QRect &rr, RegionType t )
 	QPointArray a;
 	a.makeEllipse( r.x(), r.y(), r.width(), r.height() );
 	id = QRGN_SETELLIPSE;
-	data->rgn = XPolygonRegion( (XPoint*)a.data(), a.size(), WindingRule );
+	data->rgn = XPolygonRegion( (XPoint*)a.data(), a.size(), EvenOddRule );
     }
     else {
 #if defined(CHECK_RANGE)
@@ -67,7 +67,7 @@ QRegion::QRegion( const QPointArray &a )	// create region from pt array
 {
     data = new QRegionData;
     CHECK_PTR( data );
-    data->rgn = XPolygonRegion( (XPoint*)a.data(), a.size(), WindingRule );
+    data->rgn = XPolygonRegion( (XPoint*)a.data(), a.size(), EvenOddRule );
     cmd( QRGN_SETPTARRAY, (QPointArray *)&a );
 }
 
