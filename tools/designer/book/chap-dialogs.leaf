@@ -1133,12 +1133,11 @@ in \QD. To make the application compile and run we must create a
 \File main.cpp file from which we can call our form.
 
 \index Adding!Source Files to Project Files
-To add a new source file to the project click \Menu{File|New} to
-invoke the \Dialog{New File}
-The simplest way to add a new source file to a project is to use the
-Files window. Right click 'Source Files' in the Files window, then
-click \Menu{Add new source file to project}. In the \Dialog{Save As}
-dialog that appears enter 'main.cpp', then click \Button Save.
+The simplest way to create a new source file is by clicking
+\Menu{File|New} to invoke the 'New File' dialog, then click 'C++
+Source' or 'C++ Header' as appropriate, then click \OK. A new empty
+source window will appear. Click \Menu{File|Save} to invoke the
+\Dialog{Save As} dialog, enter 'main.cpp', then click \Button Save.
 
 Enter the following code in the \File{main.cpp} C++ editor window:
 \quotefile multiclip/main.cpp

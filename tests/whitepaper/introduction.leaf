@@ -61,7 +61,7 @@ Windows 95/98/NT4/ME/2000, Mac OS X, Linux, Solaris, HP-UX and many
 other versions of Unix with X11. Qt applications can even be compiled
 to run on Qt/Embedded. A single source tree can be used to build
 applications for multiple platforms. Qt's \c qmake build tool produces
-Makefiles (or .dsp files) appropriate to the target platform. Many
+Makefiles or .dsp files appropriate to the target platform. Many
 customers also use Qt for single-platform development on both Windows
 and Unix because they prefer the Qt approach.
 

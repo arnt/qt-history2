@@ -129,10 +129,11 @@ file. For example we would add the following lines for our subclassed
 HEADERS += settingsform.h
 SOURCES += settingsform.cpp
 \endcode
-If you create these files in \QD by right clicking the 'Source Files'
-list in the Files window and then clicking \Menu{Add new source file
-to project}, you don't need to manually edit the \File{.pro} file
-since \QD will add them for you automatically.
+The simplest way to create a new source file is by clicking
+\Menu{File|New} to invoke the 'New File' dialog, then click 'C++
+Source' or 'C++ Header' as appropriate, then click \OK. A new empty
+source window will appear. You don't need to manually edit the
+\File{.pro} file since \QD will add them for you automatically.
 
 \QD will have added
 \code
@@ -307,9 +308,21 @@ stand-alone. Right click the 'Source Files' entry in the Files window
 then click \Menu{Add new source file to project}. This will invoke the
 \Dialog{Save As} dialog; enter 'main.cpp' and click \Button Save. In
 the editor window that pops up, enter the following code:
-\quotefile credit/main.cpp
-\skipto #include
-\printuntil }
+\code
+#include <qapplication.h>
+#include "creditformbase.h"
+
+int main( int argc, char *argv[] ) 
+{
+    QApplication app( argc, argv );
+
+    CreditFormBase creditForm;
+    app.setMainWidget( &creditForm );
+    creditForm.show();
+
+    return app.exec();
+}
+\endcode
 
 Note that we're including \File creditformbase.h and
 instantiating a CreditFormBase object; once

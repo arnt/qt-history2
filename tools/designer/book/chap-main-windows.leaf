@@ -825,9 +825,11 @@ We referred to a member variable, \c {fileName},
 	the pop up menu, then enter 'QString fileName;'.
 
 \index Adding!Source Files to Project Files
-Right click 'Source Files' in the Files window, then
-click \Menu{Add new source file to project}. In the \Dialog{Save As}
-dialog that appears enter 'main.cpp', then click \Button Save.
+The simplest way to create a new source file is by clicking
+\Menu{File|New} to invoke the 'New File' dialog, then click 'C++
+Source' or 'C++ Header' as appropriate, then click \OK. A new empty
+source window will appear. Click \Menu{File|Save} to invoke the
+\Dialog{Save As} dialog, enter 'main.cpp', then click \Button Save.
 Enter the following code in the \File{main.cpp} C++ editor window:
 \quotefile richedit/main.cpp
 \skipto #include

@@ -2,10 +2,7 @@
 
 \section1 Introduction
 
-In the Chapter \l{Menu Options}, we stated that many
-menu items have additional options which are accessed through dialog
-boxes. This chapter covers each dialog and explains all of the
-options available through the dialog. 
+This chapter describes and explains every \QD dialog.
 
 \section1 The File Dialogs
 
@@ -13,12 +10,12 @@ options available through the dialog.
 \section2  New File Dialog
 
 Click \Menu File|New (or press \Key Ctrl+N) to invoke the \Dialog{New
-File} dialog. This dialog shows four file types to choose from: C++
+File} dialog. This dialog offers four kinds of file to choose from: C++
 Project, Forms, Source files, and Main files. 
 
 The 'Insert Into' drop-down combobox lists the open projects,
 defaulting to the current project. New files are added to the project
-displayed in the 'Insert Into' combobox. To add a new file to a
+displayed in this combobox. To add a new file to a
 different project, choose the project you want to use in the 'Insert
 Into' combobox.
 
@@ -26,31 +23,33 @@ The 'Dialog' file type is highlighted by default when the \Dialog{New
 File} dialog pops up. Click on the file type you want to use and click
 \OK to create it. Click \CANCEL to leave the dialog without creating a
 new file. Note that if you select C++ Project, the 'Insert Into'
-combobox will be greyed out, since it is not possible to insert a new
+combobox will be disabled, since it is not possible to insert a new
 C++ Project into an existing project.
 
 \section3 C++ Project Files
 
 Click C++ Project to start a new project. This option invokes the
-\l{Project Settings} dialog. C++ projects are saved as \File .pro
+\l{Project Settings Dialog}. C++ projects are saved as \File .pro
 files, which include the information \QD needs to manage projects.
 When you add a form to your project in \QD, it is automatically added
-to the FORMS section of the project. The \File .pro file contains the
-list of forms, \File .ui files, used in the project for \Cmd uic (user
-interface compiler). \QD reads and writes .ui files,e.g. form.ui. The
-uic creates both a header file, e.g.form.h, and an implementation
-file,e.g.form.cpp, from the \File .ui file. For further information
-about \Cmd uic see ###URL.
+to the FORMS section of the project file. The \File .pro file contains
+the list of forms (\File .ui files) used in the project. \QD reads and
+writes \File .ui files, e.g. form.ui. The uic (user interface
+compiler) creates both a header file, e.g. form.h, and an
+implementation file, e.g.form.cpp, from the \File .ui file. 
 
 \section3 Dialog Forms
 
-Click Dialog to create a plain form. Typically, this type of form is
-used to present the end user with configurational set up options,
-e.g. printer setting  dialogs, find and replace dialogs, etc. 
+Click Dialog to create a plain dialog form. Typically, this type of
+form is used to present the user with configuration 
+options, or to present related sets of choices, e.g. printer setting
+dialogs, find and replace dialogs, etc. 
 
 \section3 Wizard Forms 
 
-Click Wizard to invoke a form designed to help you create wizards.
+Click Wizard to create a wizard form. Initially the wizard form
+consists of a single dialog page. Use the right click context menu to
+add additional pages and to change page titles.
 
 \section3 Widget Forms 
 
