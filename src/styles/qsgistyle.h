@@ -64,6 +64,8 @@ template class Q_EXPORT_STYLE_SGI QGuardedPtr<QWidget>;
 // MOC_SKIP_END
 #endif
 
+class QSGIStylePrivate;
+
 class Q_EXPORT_STYLE_SGI QSGIStyle: public QMotifStyle
 {
     Q_OBJECT
@@ -112,8 +114,9 @@ protected:
     bool eventFilter( QObject*, QEvent*);
 
 private:
+    QSGIStylePrivate *d;
+
     uint isApplicationStyle :1;
-    QGuardedPtr<QWidget> lastWidget;
 #if defined(Q_DISABLE_COPY)
     QSGIStyle( const QSGIStyle & );
     QSGIStyle& operator=( const QSGIStyle & );
