@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qptr_x11.cpp#138 $
+** $Id: //depot/qt/main/src/kernel/qptr_x11.cpp#139 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -24,7 +24,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qptr_x11.cpp#138 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qptr_x11.cpp#139 $")
 
 
 // --------------------------------------------------------------------------
@@ -109,7 +109,7 @@ inline double qcos( double a ) { return qsincos(a,TRUE); }
 // The GC allocator offers two functions; alloc_gc() and free_gc() that
 // reuse GC objects instead of calling XCreateGC() and XFreeGC(), which
 // are a whole lot slower.
-// 
+//
 
 struct QGC
 {
@@ -202,9 +202,9 @@ static void free_gc( Display *dpy, GC gc )
 // QPainter internal GC (Graphics Context) cache for solid pens and brushes.
 //
 // The GC cache makes a significant contribution to speeding up drawing.
-// Setting new pen and brush colors will make the painter try to find
-// another GC with the same color instead of changing the color-setting
-// of the GC currently in use.
+// Setting new pen and brush colors will make the painter look for another
+// GC with the same color instead of changing the color value of the GC
+// currently in use.
 //
 // The cache structure is not ideal, but lookup speed is essential here.
 // Experiments show that the GC cache is very effective under normal use.
@@ -218,41 +218,44 @@ struct QGCC					// cached GC
     int	    hits;
 };
 
-const  int   gc_cache_size = 32;		// actually 32*4
+const  int   gc_cache_size = 29;		// multiply by 4
+static QGCC *gc_cache_buf;
 static QGCC *gc_cache[4*gc_cache_size];
 static bool  gc_cache_init = FALSE;
-
-// #define GC_CACHE_STAT
-#if defined(GC_CACHE_STAT)
-static int g_numhits	= 0;
-static int g_numcreates = 0;
-static int g_numfaults  = 0;
-#endif
 
 
 static void init_gc_cache()
 {
     if ( !gc_cache_init ) {
 	gc_cache_init = TRUE;
-	QGCC *g = new QGCC[4*gc_cache_size];
+	QGCC *g = gc_cache_buf = new QGCC[4*gc_cache_size];
 	memset( g, 0, 4*gc_cache_size*sizeof(QGCC) );
 	for ( int i=0; i<4*gc_cache_size; i++ )
 	    gc_cache[i] = g++;
     }
 }
 
+
+// #define GC_CACHE_STAT
 #if defined(GC_CACHE_STAT)
 #include "qtstream.h"
 #include "qbuffer.h"
+
+static int g_numhits	= 0;
+static int g_numcreates = 0;
+static int g_numfaults	= 0;
 #endif
+
 
 static void cleanup_gc_cache()
 {
+    if ( !gc_cache_init )
+	return;
 #if defined(GC_CACHE_STAT)
     debug( "Number of cache hits = %d", g_numhits );
     debug( "Number of cache creates = %d", g_numcreates );
     debug( "Number of cache faults = %d", g_numfaults );
-    for ( int i=0; i<32; i++ ) {
+    for ( int i=0; i<gc_cache_size; i++ ) {
 	QString	    str;
 	QBuffer	    buf( str );
 	buf.open(IO_ReadWrite);
@@ -268,7 +271,8 @@ static void cleanup_gc_cache()
 	buf.close();
     }
 #endif
-    delete [] gc_cache[0];
+    delete [] gc_cache_buf;
+    gc_cache_init = FALSE;
 }
 
 
@@ -277,8 +281,7 @@ static bool obtain_gc( void **ref, GC *gc, ulong pix, Display *dpy, HANDLE hd )
     if ( !gc_cache_init )
 	init_gc_cache();
 
-    int k = ((pix >> 16) ^ (pix >> 8) ^ pix) % gc_cache_size;
-    k *= 4;
+    int k = (pix % gc_cache_size) * 4;
 
     QGCC *g = gc_cache[k++];
     QGCC *prev = 0;
@@ -296,9 +299,9 @@ static bool obtain_gc( void **ref, GC *gc, ulong pix, Display *dpy, HANDLE hd )
 		g = gc_cache[k++];
 		if ( NOMATCH ) {
 		    if ( g->count == 0 ) {	// steal this GC
-			g->pix   = pix;
+			g->pix	 = pix;
 			g->count = 1;
-			g->hits  = 1;
+			g->hits	 = 1;
 			XSetForeground( dpy, g->gc, pix );
 			gc_cache[k-1] = prev;
 			gc_cache[k-2] = g;
@@ -339,15 +342,15 @@ static bool obtain_gc( void **ref, GC *gc, ulong pix, Display *dpy, HANDLE hd )
 #if defined(GC_CACHE_STAT)
 	g_numcreates++;
 #endif
-	g->gc    = alloc_gc( dpy, hd, FALSE );
-	g->pix   = pix;
+	g->gc	 = alloc_gc( dpy, hd, FALSE );
+	g->pix	 = pix;
 	g->count = 1;
-	g->hits  = 1;
+	g->hits	 = 1;
 	*gc = g->gc;
 	return FALSE;
     }
 }
-		    
+
 static inline void release_gc( void *ref )
 {
 #if defined(DEBUG)
@@ -530,8 +533,7 @@ void QPainter::updatePen()
 	    return;
     }
 
-    int ps = cpen.style();
-
+    int	 ps = cpen.style();
     bool cacheIt = !testf(ClipOn|MonoDev|NoCache) &&
 		   (ps == NoPen || ps == SolidLine) &&
 		   cpen.width() == 0 && rop == CopyROP;
@@ -553,7 +555,7 @@ void QPainter::updatePen()
 	    if ( penRef ) {
 		release_gc( penRef );
 		penRef = 0;
-		gc = alloc_gc( dpy, hd, testf(MonoDev) );		
+		gc = alloc_gc( dpy, hd, testf(MonoDev) );
 	    }
 	}
 	else
@@ -652,8 +654,7 @@ static uchar *pat_tbl[] = {
 	    return;
     }
 
-    int bs = cbrush.style();
-
+    int	 bs	 = cbrush.style();
     bool cacheIt = !testf(ClipOn|MonoDev|NoCache) &&
 		   (bs == NoBrush || bs == SolidPattern) &&
 		   bro.x() == 0 && bro.y() == 0 && rop == CopyROP;
@@ -773,9 +774,9 @@ bool QPainter::begin( const QPaintDevice *pd )
 	setf(ExtDev);
     else if ( dt == PDT_PIXMAP )		// device is a pixmap
 	((QPixmap*)pdev)->detach();		// will modify pixmap
-    
+
     dpy = pdev->dpy;				// get display variable
-    hd  = pdev->hd;				// get handle to drawable
+    hd	= pdev->hd;				// get handle to drawable
 
     if ( testf(ExtDev) ) {			// external device
 	if ( !pdev->cmd(PDC_BEGIN,this,0) ) {	// could not begin painting
@@ -877,10 +878,8 @@ bool QPainter::end()				// end painting
     if ( testf(FontMet) )			// remove references to this
 	QFontMetrics::reset( this );
     if ( testf(FontInf) )			// remove references to this
-	QFontInfo::reset( this );	    
+	QFontInfo::reset( this );
 
-    if ( testf(ExtDev) )
-	pdev->cmd( PDC_END, this, 0 );
     if ( gc_brush ) {				// restore brush gc
 	if ( brushRef ) {
 	    release_gc( brushRef );
@@ -900,6 +899,10 @@ bool QPainter::end()				// end painting
 	    free_gc( dpy, gc );
 	gc = 0;
     }
+
+    if ( testf(ExtDev) )
+	pdev->cmd( PDC_END, this, 0 );
+
     flags = 0;
     pdev->devFlags &= ~PDF_PAINTACTIVE;
     pdev = 0;
@@ -2371,7 +2374,7 @@ void QPainter::drawText( int x, int y, const char *str, int len )
 	    int tx=-bbox.x(),  ty=-bbox.y();	// text position
 	    QWMatrix mat1( wm11/65536.0, wm12/65536.0,
 			   wm21/65536.0, wm22/65536.0,
-			   wdx/65536.0,  wdy/65536.0 );
+			   wdx/65536.0,	 wdy/65536.0 );
 	    QWMatrix mat = QPixmap::trueMatrix( mat1, w, h );
 	    QPixmap *wx_bm = get_text_bitmap( mat, fi, str, len );
 	    bool create_new_bm = wx_bm == 0;
@@ -2909,7 +2912,7 @@ void QPainter::drawText( int x, int y, int w, int h, int tf,
 
     if ( (tf & DontClip) == 0 ) {		// restore clipping
 	if ( clip_on )				// set original region
-	    setClipRegion( crgn );
+	    setClipRegion( save_rgn );
 	else {					// clipping was off
 	    crgn = save_rgn;
 	    if ( gc )
