@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#29 $
+** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#30 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -27,7 +27,7 @@
 #endif
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#29 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#30 $";
 #endif
 
 
@@ -480,6 +480,7 @@ int QApplication::exec( QWidget *mainWidget )	// main event loop
 		continue;
 
 	    QETWidget *widget = (QETWidget*)QWidget::find( event.xany.window );
+
 	    if ( wPRmapper ) {			// just did a widget recreate?
 		if ( widget == 0 ) {		// not in std widget mapper
 		    switch ( event.type ) {	// only for mouse/key events
@@ -665,6 +666,9 @@ void qXOpenPopup( QWidget *popup )		// add popup widget
     }
     popupWidgets->append( popup );		// add to end of list
     if ( popupWidgets->count() == 1 ) {		// grab mouse
+	XGrabKeyboard( popup->display(), popup->id(), TRUE,
+		       GrabModeSync, GrabModeSync, CurrentTime );
+	XAllowEvents( popup->display(), SyncKeyboard, CurrentTime );
 	XGrabPointer( popup->display(), popup->id(), TRUE,
 		      ButtonPressMask | ButtonReleaseMask | ButtonMotionMask |
 		      EnterWindowMask | LeaveWindowMask,
@@ -684,6 +688,7 @@ void qXClosePopup( QWidget *popup )		// remove popup widget
 	popupCloseDownMode = TRUE;		// control mouse events
 	delete popupWidgets;
 	popupWidgets = 0;
+	XUngrabKeyboard( popup->display(), CurrentTime );
 	XAllowEvents( popup->display(), ReplayPointer, CurrentTime );
     }
 }
@@ -1095,7 +1100,7 @@ bool QETWidget::translateMouseEvent( const XEvent *event )
 	QMouseEvent e( type, pos, button, state );
 	QApplication::sendEvent( popup, &e );
 	if ( popupWidgets )			// still in popup mode
-	    XAllowEvents( appDpy, SyncPointer, CurrentTime );
+	    XAllowEvents( display(), SyncPointer, CurrentTime );
 	else {					// left popup mode
 	    if ( type != Event_MouseButtonRelease && state != 0 ) {
 		manualGrab = TRUE;		// need to manually grab
@@ -1222,6 +1227,13 @@ bool QETWidget::translateKeyEvent( const XEvent *event )
     }
 #endif
     QKeyEvent e( type, code, count > 0 ? ascii[0] : 0, state );
+    if ( popupWidgets ) {			// oops, in popup mode
+	QWidget *popup = popupWidgets->last();
+	QApplication::sendEvent( popup, &e );	// send event to popup instead
+	if ( popupWidgets )			// still in popup mode
+	    XAllowEvents( display(), SyncKeyboard, CurrentTime );
+	return TRUE;
+    }
     return QApplication::sendEvent( this, &e );
 }
 
