@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbutton.h#30 $
+** $Id: //depot/qt/main/src/widgets/qbutton.h#31 $
 **
 ** Definition of QButton widget class
 **
@@ -41,7 +41,7 @@ public:
     void	setAutoResize( bool );
 
 #if defined(OBSOLETE)
-    bool	toggleButton()	const	{ return isToggleButton(); }
+    bool	toggleButton()	const;
 #endif
 
 signals:
@@ -77,6 +77,15 @@ private:
 
     friend class QButtonGroup;
 };
+
+
+#if defined(OBSOLETE)
+inline bool QButton::toggleButton() const 
+{
+    qObsolete("QButton","toggleButton","isToggleButton");
+    return isToggleButton(); 
+}
+#endif
 
 
 #endif // QBUTTON_H

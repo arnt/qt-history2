@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qbitmap.h#19 $
+** $Id: //depot/qt/main/src/kernel/qbitmap.h#20 $
 **
 ** Definition of QBitmap class
 **
@@ -25,12 +25,8 @@ public:
     QBitmap( int w, int h,  const uchar *bits, bool isXbitmap=FALSE );
     QBitmap( const QSize &, const uchar *bits, bool isXbitmap=FALSE );
 #if defined(OBSOLETE)
-    QBitmap( int w, int h,  const char *bits, bool isXbitmap=FALSE )
-	: QPixmap( w, h, (const uchar *)bits, isXBitmap )
-	{ data->bitmap = TRUE; }
-    QBitmap( const QSize &s, const char *bits, bool isXbitmap=FALSE )
-	: QPixmap( s.width(), s.height(), (const uchar *)bits, isXBitmap )
-	{ data->bitmap = TRUE; }
+    QBitmap( int w, int h,  const char *bits, bool isXbitmap=FALSE );
+    QBitmap( const QSize &s, const char *bits, bool isXbitmap=FALSE );
 #endif
     QBitmap( const QBitmap & );
 
@@ -41,5 +37,22 @@ public:
     QBitmap  xForm( const QWMatrix & ) const;
 };
 
+
+#if defined(OBSOLETE)
+inline QBitmap::QBitmap( int w, int h,  const char *bits, bool isXBitmap=FALSE )
+    : QPixmap( w, h, (const uchar *)bits, isXBitmap )
+{ 
+    qObsolete( "QBitmap", "QBitmap(int, int, const char *, bool )",
+	       "QBitmap(int, int, const uchar *, bool )" );
+    data->bitmap = TRUE; 
+}
+inline QBitmap::QBitmap( const QSize &s, const char *bits, bool isXBitmap=FALSE )
+    : QPixmap( s.width(), s.height(), (const uchar *)bits, isXBitmap )
+{ 
+    qObsolete( "QBitmap", "QBitmap( const QSize &s, const char *, bool )",
+	       "QBitmap( const QSize &s, const uchar *, bool )" );
+    data->bitmap = TRUE; 
+}
+#endif
 
 #endif // QBITMAP_H

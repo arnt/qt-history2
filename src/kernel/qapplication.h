@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.h#43 $
+** $Id: //depot/qt/main/src/kernel/qapplication.h#44 $
 **
 ** Definition of QApplication class
 **
@@ -135,16 +135,19 @@ inline QCursor *QApplication::overrideCursor()
 #if defined(OBSOLETE)
 inline QCursor *QApplication::cursor()
 {
+    qObsolete( "QApplication", "cursor", "overrideCursor" );
     return overrideCursor();
 }
 
 inline void QApplication::setCursor( const QCursor &c, bool replace )
 {
+    qObsolete( "QApplication", "setCursor", "setOverrideCursor" );
     setOverrideCursor( c, replace );
 }
 
 inline void QApplication::restoreCursor()
 {
+    qObsolete( "QApplication", "restoreCursor", "restoreOverrideCursor" );
     restoreOverrideCursor();
 }
 #endif

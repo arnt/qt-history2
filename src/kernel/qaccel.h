@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qaccel.h#14 $
+** $Id: //depot/qt/main/src/kernel/qaccel.h#15 $
 **
 ** Definition of QAccel class
 **
@@ -47,9 +47,9 @@ public:
     bool	isItemEnabled( int id )	 const;
     void	setItemEnabled( int id, bool enable );
 #if defined(OBSOLETE)
-    bool	isItemDisabled( int id ) const	{ return !isItemEnabled(id); }
-    void	enableItem( int id )		{ setItemEnabled( id, TRUE ); }
-    void	disableItem( int id )		{ setItemEnabled( id, FALSE );}
+    bool	isItemDisabled( int id ) const;
+    void	enableItem( int id );
+    void	disableItem( int id );
 #endif
 
     bool	connectItem( int id,

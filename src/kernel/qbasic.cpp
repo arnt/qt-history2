@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qbasic.cpp#2 $
+** $Id: //depot/qt/main/src/kernel/qbasic.cpp#3 $
 **
 **  Studies in Geometry Management
 **
@@ -18,7 +18,7 @@
 #include "qbasic.h"
 
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qbasic.cpp#2 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qbasic.cpp#3 $")
 
 
 
@@ -220,7 +220,8 @@ private:
 
 void ParChain::distribute( wDict & wd, int pos, int space )
 {
-    for ( uint i = 0; i < chain.size(); i++ ) {
+    uint i;
+    for ( i = 0; i < chain.size(); i++ ) {
 	chain[i]->distribute(  wd, pos, space );
     }
 }
@@ -243,14 +244,14 @@ void SerChain::distribute( wDict & wd, int pos, int space )
     int sf = sumStretch();
 
     QArray<int> size( chain.size() );
-
-    for ( uint i = 0; i < chain.size(); i++ ) 
+    uint i;
+    for ( i = 0; i < chain.size(); i++ ) 
 	size[i] = 0;
     bool doAgain = TRUE;
     int numChains = chain.size();
     while ( doAgain && numChains ) {
 	doAgain = FALSE;
-	for ( uint i = 0; i < chain.size(); i++ ) {
+	for ( i = 0; i < chain.size(); i++ ) {
 	    if ( size[i] == chain[i]->maxSize() )
 		continue;
 	    int siz = chain[i]->minSize();
@@ -271,7 +272,7 @@ void SerChain::distribute( wDict & wd, int pos, int space )
     }
     if ( backwards )
 	pos += space;
-    for ( uint i = 0; i < chain.size(); i++ ) {
+    for ( i = 0; i < chain.size(); i++ ) {
 	if ( backwards ) {
 	    pos -= size[i];
 	    chain[i]->distribute( wd, pos, size[i] );
@@ -286,7 +287,8 @@ void SerChain::distribute( wDict & wd, int pos, int space )
 
 void ParChain::recalc() 
 { 
-    for ( uint i = 0; i < chain.size(); i ++ ) 
+    uint i;
+    for ( i = 0; i < chain.size(); i ++ ) 
 	chain[i]->recalc();
     maxsize = minMax(); 
     minsize = maxMin(); 
@@ -296,7 +298,8 @@ void ParChain::recalc()
 int ParChain::maxMin()
 {
     int max = 0;
-    for ( uint i = 0; i < chain.size(); i ++ ) {
+    uint i;
+    for ( i = 0; i < chain.size(); i ++ ) {
 	int m = chain[i]->minSize();
 	if ( m  > max )
 	    max = m;
@@ -307,7 +310,8 @@ int ParChain::maxMin()
 int ParChain::minMax()
 {
     int min = QBasicManager::unlimited;
-    for ( uint i = 0; i < chain.size(); i ++ ) {
+    uint i;
+    for ( i = 0; i < chain.size(); i ++ ) {
 	int m = chain[i]->maxSize();
 	if ( m < min )
 	    min = m;
@@ -317,7 +321,8 @@ int ParChain::minMax()
 
 void SerChain::recalc() 
 { 
-    for ( uint i = 0; i < chain.size(); i ++ ) 
+    uint i;
+    for ( i = 0; i < chain.size(); i ++ ) 
 	chain[i]->recalc();
     minsize = sumMin(); 
     maxsize = sumMax(); 
@@ -327,7 +332,8 @@ void SerChain::recalc()
 int SerChain::sumStretch()
 {
     int s = 0;
-    for ( uint i = 0; i < chain.size(); i ++ )
+    uint i;
+    for ( i = 0; i < chain.size(); i ++ )
 	 s += chain[i]->stretch();
     return s;
 }
@@ -335,7 +341,8 @@ int SerChain::sumStretch()
 int SerChain::sumMin()
 {
     int s = 0;
-    for ( uint i = 0; i < chain.size(); i ++ )
+    uint i;
+    for ( i = 0; i < chain.size(); i ++ )
 	s += chain[i]->minSize();
     return s;
 }
@@ -343,7 +350,8 @@ int SerChain::sumMin()
 int SerChain::sumMax()
 {
     int s = 0;
-    for ( uint i = 0; i < chain.size(); i ++ )
+    uint i;
+    for ( i = 0; i < chain.size(); i ++ )
 	s += chain[i]->maxSize();
     if ( s > QBasicManager::unlimited )
 	s = QBasicManager::unlimited;
@@ -406,7 +414,7 @@ bool QBasicManager::add( QChain *destination, QChain *source, int stretch )
     return destination->add(source, stretch);
 }
 
-bool QBasicManager::addWidget( QChain *d, QWidget *w, int stretch = 0 )
+bool QBasicManager::addWidget( QChain *d, QWidget *w, int stretch )
 {
     // int i, j;
     // if ( !w->minimumSize( &i, &j ) )

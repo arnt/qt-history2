@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombobox.h#14 $
+** $Id: //depot/qt/main/src/widgets/qcombobox.h#15 $
 **
 ** Definition of QComboBox class
 **
@@ -33,11 +33,9 @@ public:
     void	insertStrList( const char **, int numStrings=-1, int index=-1);
 
 #if defined(OBSOLETE)
-    void	setStrList( const QStrList *list )
-			{ clear(); insertStrList(list,0); }
-    void	setStrList( const char **strings, int numStrings=-1 )
-			{ clear(); insertStrList(strings,numStrings,0); }
-    const char *string( int index ) const  { return text(index); }
+    void	setStrList( const QStrList *list );
+    void	setStrList( const char **strings, int numStrings=-1 );
+    const char *string( int index ) const;
 #endif
 
     void	insertItem( const char *text, int index=-1 );
@@ -87,6 +85,26 @@ private:
 
     QComboData	*d;
 };
+
+#if defined(OBSOLETE)
+inline void QComboBox::setStrList( const QStrList *list )
+{
+    qObsolete("QComboBox","setStrList","insertStrList (probably)");
+    clear(); 
+    insertStrList(list,0); 
+}
+inline void QComboBox::setStrList( const char **strings, int numStrings=-1 )
+{ 
+    qObsolete("QComboBox","setStrList","insertStrList (probably)");
+    clear(); 	
+    insertStrList(strings,numStrings,0); 
+}
+inline const char *QComboBox::string( int index ) const  
+{ 
+    qObsolete("QComboBox","string","text");
+    return text(index); 
+}
+#endif
 
 
 #endif // QCOMBOBOX_H

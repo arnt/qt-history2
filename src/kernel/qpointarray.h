@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpointarray.h#16 $
+** $Id: //depot/qt/main/src/kernel/qpointarray.h#17 $
 **
 ** Definition of QPointArray class
 **
@@ -85,7 +85,7 @@ public:
 
     void    translate( int dx, int dy );
 #if defined(OBSOLETE)
-    void    move( int dx, int dy ) { translate( dx, dy ); }
+    void    move( int dx, int dy );
 #endif
 
     void    point( uint i, int *x, int *y ) const;
@@ -134,6 +134,14 @@ inline QPointVal &QPointVal::operator=( const QPoint &point )
     p->y = (Qpnta_t)point.y();
     return *this;
 }
+
+#if defined(OBSOLETE)
+inline void QPointArray::move( int dx, int dy ) 
+{ 
+    qObsolete("QPointArray","move","translate");
+    translate( dx, dy ); 
+}
+#endif
 
 
 #endif // QPNTARRY_H

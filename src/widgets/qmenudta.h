@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenudta.h#31 $
+** $Id: //depot/qt/main/src/widgets/qmenudta.h#32 $
 **
 ** Definition of QMenuData class
 **
@@ -105,7 +105,7 @@ public:
 
     const char *text( int id )		const;
 #if defined(OBSOLETE)
-    const char *string( int id )	const { return text(id); }
+    const char *string( int id )	const;
 #endif
     QPixmap    *pixmap( int id )	const;
     void	changeItem( const char *text, int id );
@@ -161,6 +161,12 @@ private:
 
 
 #if defined(OBSOLETE)
+inline const char *QMenuData::string( int id ) const
+{
+    qObsolete("QMenuData","string","text" );
+    return text(id); 
+}
+
 inline bool QMenuData::isItemDisabled( int id ) const
 {
     qObsolete("QMenuData","isItemDisabled","!isItemEnabled()" );
