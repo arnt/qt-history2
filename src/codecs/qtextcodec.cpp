@@ -756,8 +756,9 @@ QTextCodec* QTextCodec::codecForLocale()
 	// 2. CODESET from lang if it contains a .CODESET part
 	// 3. ctype (maybe the locale is named "ISO-8859-1" or something)
 	// 4. locale (ditto)
-	// 5. guess locale from ctype unless ctype is "C"
-	// 6. guess locale from lang
+	// 5. check for "@euro"
+	// 6. guess locale from ctype unless ctype is "C"
+	// 7. guess locale from lang
 
 	// 1. CODESET from ctype if it contains a .CODESET part (e.g. en_US.ISO8859-15)
 	char * codeset = ctype ? strchr( ctype, '.' ) : 0;
@@ -777,8 +778,12 @@ QTextCodec* QTextCodec::codecForLocale()
 	if ( !localeMapper && lang && *lang != 0 )
 	    localeMapper = codecForName( lang );
 
-	// 5. guess locale from ctype unless ctype is "C"
-	// 6. guess locale from lang
+	// 5. "@euro"
+	if ( strstr( ctype, "@euro" ) || strstr( lang, "@euro" ) )
+	    localeMapper = codecForName( "ISO 8859-15" );
+	
+	// 6. guess locale from ctype unless ctype is "C"
+	// 7. guess locale from lang
 	char * try_by_name = ctype;
 	if ( ctype && *ctype != 0 && qstrcmp (ctype, "C") != 0 )
 	    try_by_name = lang;
@@ -1706,7 +1711,7 @@ static QMemArray<unsigned char> * reverseMap = 0;
 
 #define LAST_MIB 2259
 
-static struct {
+static const struct {
     const char *mime;
     const char * cs;
     int mib;
