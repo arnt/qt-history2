@@ -159,12 +159,10 @@ Win32MakefileGenerator::writeSubDirs(QTextStream &t)
 int
 Win32MakefileGenerator::findHighestVersion(const QString &d, const QString &stem)
 {
-    if(!QFile::exists(d)) 
+    if(!QFile::exists(Option::fixPathToLocalOS(d))) 
 	return -1;
-
     if(!project->variables()["QMAKE_" + stem.upper() + "_VERSION_OVERRIDE"].isEmpty()) 
 	return project->variables()["QMAKE_" + stem.upper() + "_VERSION_OVERRIDE"].first().toInt();
-
     QString bd = d;
     fixEnvVariables(bd);
     QDir dir(bd, stem + "*.lib");
@@ -182,7 +180,6 @@ Win32MakefileGenerator::findHighestVersion(const QString &d, const QString &stem
     }
     return biggest;
 }
-
 bool 
 Win32MakefileGenerator::findLibraries(const QString &where)
 {
@@ -217,25 +214,27 @@ Win32MakefileGenerator::findLibraries(const QString &where)
             else
                 (*it) = out;
         } else if(!QFile::exists(Option::fixPathToLocalOS(opt))) {
-            QString dir, file = opt;
+	    QString dir, file = opt;
             int slsh = file.findRev(Option::dir_sep);
             if(slsh != -1) {
                 dir = file.left(slsh+1);
                 file = file.right(file.length() - slsh - 1);
             }
-            if(file.right(4) == ".lib") {
-                file = file.left(file.length() - 4);
-                if(!file.at(file.length()-1).isNumber()) {
-                    int ver = findHighestVersion(dir, file);
-                    if(ver != -1) {
-                        file = QString(dir + file + "%1" + ".lib");
-			if(ver)
-			    (*it) = file.arg(ver);
-			else
-			    (*it) = file.arg("");
+	    if ( !(project->variables()["QMAKE_QT_DLL"].isEmpty() && (file == "qt.lib" || file == "qt-mt.lib")) ) {
+		if(file.right(4) == ".lib") {
+		    file = file.left(file.length() - 4);
+		    if(!file.at(file.length()-1).isNumber()) {
+			int ver = findHighestVersion(dir, file);
+			if(ver != -1) {
+			    file = QString(dir + file + "%1" + ".lib");
+			    if(ver)
+				(*it) = file.arg(ver);
+			    else
+				(*it) = file.arg("");
+			}
 		    }
-                }
-            }
+		}
+	    }
         }
         if(remove)
             it = l.remove(it);
