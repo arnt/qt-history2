@@ -39,6 +39,9 @@
 #include <qtimer.h>
 #include <qapplication.h>
 #include <qintdict.h>
+#if !defined(QMAC_OPENGL_DOUBLEBUFFER)
+#include <qobjectlist.h>
+#endif
 
 /*****************************************************************************
   QGLFormat UNIX/AGL-specific code
@@ -230,7 +233,7 @@ void QGLContext::fixBufferRect()
 
 	QWidget *w = (QWidget *)d->paintDevice;
 	QRegion clp = w->clippedRegion();
-	if(clp.isEmpty() || clp.isNull()) {
+	if(clp.isNull() || clp.isEmpty()) {
 	    GLint offs[4] = { 0, 0, 0, 0 };
 	    aglSetInteger((AGLContext)cx, AGL_BUFFER_RECT, offs);
 	} else {
@@ -240,6 +243,7 @@ void QGLContext::fixBufferRect()
 		w->width(), w->height() };
 	    aglSetInteger((AGLContext)cx, AGL_BUFFER_RECT, offs);
 	}
+	aglUpdateContext((AGLContext)cx);
     } 
 }
 
@@ -473,14 +477,20 @@ bool QGLWidget::macInternalDoubleBuffer(bool fix)
 {
 #if !defined(QMAC_OPENGL_DOUBLEBUFFER)
     bool need_fix = FALSE;
-    if(isTopLevel()) {
+    if(isTopLevel() && (!children() || children()->isEmpty())) {
 	dblbuf = 0;
 	clp_serial = 0;
     } else if(clippedSerial() != clp_serial) {
 	QRegion rgn = clippedRegion();
 	clp_serial = clippedSerial();
-	QPoint p = posInWindow(this);
-	dblbuf = (!rgn.isNull() && rgn != QRegion(QRect(p, size())));
+	if(rgn.isNull()) { //don't double buffer, we'll just make the area empty
+	    dblbuf = 0;
+	} else {
+	    QRect rct(posInWindow(this), size());
+	    if(!isTopLevel())
+		rct &= topLevelWidget()->rect();
+	    dblbuf = (rgn != QRegion(rct));
+	}
 	if(glcx_dblbuf != dblbuf) 
 	    need_fix = TRUE;
     }
@@ -511,7 +521,6 @@ void QGLWidget::macInternalRecreateContext(const QGLFormat& format, const QGLCon
 		PixMapHandle mac_pm = GetGWorldPixMap((GWorldPtr)gl_pix->handle());
 		aglSetOffScreen((AGLContext)glcx->cx, gl_pix->width(), gl_pix->height(), 
 				GetPixRowBytes(mac_pm), GetPixBaseAddr(mac_pm));
-		oldcx = NULL; //don't bother deleting it
 	    }
 	} else {
 	    if(gl_pix && glcx && glcx->cx) {
@@ -528,7 +537,7 @@ void QGLWidget::macInternalRecreateContext(const QGLFormat& format, const QGLCon
     }
     if(update)
 	repaint();
-    if(oldcx)
+    if(oldcx && oldcx != glcx)
 	delete oldcx;
 }
 
