@@ -55,7 +55,6 @@ QTOBJS= \
 	qdir.obj \
 	qfile.obj \
 	qtemporaryfile.obj \
-	qioengine.obj \
 	qfileengine.obj \
 	qfileengine_win.obj \
 	qfileinfo.obj \
@@ -155,9 +154,6 @@ qfileengine_win.obj: ..\src\core\io\qfileengine_win.cpp
 
 qfileengine.obj: ..\src\core\io\qfileengine.cpp
 	$(CXX) $(CXXFLAGS) ..\src\core\io\qfileengine.cpp
-
-qioengine.obj: ..\src\core\io\qioengine.cpp
-	$(CXX) $(CXXFLAGS) ..\src\core\io\qioengine.cpp
 
 qtextcodec.obj: ..\src\codecs\qtextcodec.cpp
 	$(CXX) $(CXXFLAGS) ..\src\codecs\qtextcodec.cpp
