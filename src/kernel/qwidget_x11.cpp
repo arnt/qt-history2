@@ -292,7 +292,7 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 	size_hints.win_gravity = 1;		// NorthWest
 	char *title = qAppName();
 	XWMHints wm_hints;			// window manager hints
-	wm_hints.input = False;
+	wm_hints.input = True; // this should really be False, but too many window managers are broken
 	wm_hints.initial_state = NormalState;
 	wm_hints.flags = InputHint | StateHint;
 	
@@ -312,7 +312,7 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 	int n = 0;
 	protocols[n++] = qt_wm_delete_window;	// support del window protocol
 	protocols[n++] = qt_wm_take_focus;	// support take focus window protocol
-	if ( testWFlags( WStyle_ContextHelp ) ) 
+	if ( testWFlags( WStyle_ContextHelp ) )
 	    protocols[n++] = qt_net_wm_context_help;
 	XSetWMProtocols( dpy, id, protocols, n );
     }
