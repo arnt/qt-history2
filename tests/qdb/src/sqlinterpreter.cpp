@@ -269,6 +269,7 @@ ResultSet::ResultSet( localsql::Environment* environment )
 {
     head = new Header();
     datait = data.end();
+    keyit = sortKey.end();
 }
 
 ResultSet::ResultSet( const ResultSet& other )
@@ -456,6 +457,8 @@ bool ResultSet::next()
     if ( !data.count() )
 	return FALSE;
     if ( sortKey.count() ) {
+	if ( keyit == sortKey.end() )
+	    return first();
 	if ( j+1 > (int)keyit.data().count()-1 ) { /* go to next map element */
 	    if ( keyit == --sortKey.end() )
 		return FALSE;
@@ -559,7 +562,7 @@ bool ResultSet::sort( const localsql::List& index )
     QMap<int,bool> desc; /* indicates fields with a descending sort */
     Header sortIndex;
     for ( uint i = 0; i < index.count(); ++i ) {
-    	localsql::List indexData = index[i].toList();
+	localsql::List indexData = index[i].toList();
 	localsql::List fieldDescription = indexData[0].toList();
 	if ( fieldDescription.count() != 4 ) {
 	    env->setLastError("Internal error: Bad field description");
@@ -666,5 +669,6 @@ bool ResultSet::sort( const localsql::List& index )
 		reverse( sortKey, data.count() );
 	}
     }
+
     return TRUE;
 }

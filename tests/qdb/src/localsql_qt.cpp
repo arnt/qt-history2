@@ -57,23 +57,28 @@ LocalSQLResult::~LocalSQLResult()
 void LocalSQLResult::cleanup()
 {
     d->env.reset();
-    setAt( -1 );
+    setAt( QSql::BeforeFirst );
     setActive( FALSE );
 }
 
 bool LocalSQLResult::fetch( int i )
 {
-    if ( !isActive() )
+    if ( !isActive() ) {
 	return FALSE;
-    if ( at() == i )
+    }
+    if ( at() == i ) {
 	return TRUE;
-    if ( i >= (int)d->env.resultSet(0)->size() )
+    }
+    if ( i >= (int)d->env.resultSet(0)->size() ) {
 	return FALSE;
-    if ( i < 0 )
+    }
+    if ( i < 0 ) {
 	return FALSE;
+    }
     if ( at() == QSql::AfterLast ) {
-	if ( !d->env.resultSet(0)->last() )
+	if ( !d->env.resultSet(0)->last() ) {
 	    return FALSE;
+	}
 	setAt( (int)d->env.resultSet(0)->size()-1 );
     }
     int it = 0;
@@ -112,8 +117,9 @@ bool LocalSQLResult::fetchLast()
 
 QVariant LocalSQLResult::data( int i )
 {
-    if ( !isValid() )
+    if ( !isValid() ) {
 	return QVariant();
+    }
     return d->env.resultSet(0)->currentRecord()[i];
 }
 
