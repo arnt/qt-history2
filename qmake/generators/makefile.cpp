@@ -1452,9 +1452,13 @@ MakefileGenerator::writeYaccSrc(QTextStream &t, const QString &src)
     QString stringBase("$base");
     for(QStringList::Iterator it = l.begin(); it != l.end(); ++it) {
 	QFileInfo fi((*it));
-	QString dir = fileFixify(Option::output_dir);
+	QString dir;
+	if(fi.dirPath() != ".")
+	    dir = fi.dirPath() + Option::dir_sep;
+	dir = fileFixify(dir, QDir::currentDirPath(), Option::output_dir);
 	if(!dir.isEmpty() && dir.right(Option::dir_sep.length()) != Option::dir_sep)
 	    dir += Option::dir_sep;
+
 	QString impl = dir + fi.baseName(TRUE) + Option::yacc_mod + Option::cpp_ext.first();
 	QString decl = dir + fi.baseName(TRUE) + Option::yacc_mod + Option::h_ext.first();
 
@@ -1491,7 +1495,10 @@ MakefileGenerator::writeLexSrc(QTextStream &t, const QString &src)
     QString stringBase("$base");
     for(QStringList::Iterator it = l.begin(); it != l.end(); ++it) {
 	QFileInfo fi((*it));
-	QString dir = fileFixify(Option::output_dir);
+	QString dir;
+	if(fi.dirPath() != ".")
+	    dir = fi.dirPath() + Option::dir_sep;
+	dir = fileFixify(dir, QDir::currentDirPath(), Option::output_dir);
 	if(!dir.isEmpty() && dir.right(Option::dir_sep.length()) != Option::dir_sep)
 	    dir += Option::dir_sep;
 	QString impl = dir + fi.baseName(TRUE) + Option::lex_mod + Option::cpp_ext.first();
