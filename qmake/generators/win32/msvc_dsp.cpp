@@ -690,6 +690,10 @@ DspMakefileGenerator::init()
 	    project->variables()[is_qt ? "PRL_EXPORT_DEFINES" : "DEFINES"].append("QT_TABLET_SUPPORT");
     }
     if ( project->isActiveConfig("dll") ) {
+	project->variables()["QMAKE_CFLAGS_CONSOLE_ANY"] = project->variables()["QMAKE_CFLAGS_CONSOLE_DLL"];
+	project->variables()["QMAKE_CXXFLAGS_CONSOLE_ANY"] = project->variables()["QMAKE_CXXFLAGS_CONSOLE_DLL"];
+	project->variables()["QMAKE_LFLAGS_CONSOLE_ANY"] = project->variables()["QMAKE_LFLAGS_CONSOLE_DLL"];
+	project->variables()["QMAKE_LFLAGS_WINDOWS_ANY"] = project->variables()["QMAKE_LFLAGS_WINDOWS_DLL"];
 	if ( !project->variables()["QMAKE_LIB_FLAG"].isEmpty() ) {
 	    QString ver_xyz(project->first("VERSION"));
 	    ver_xyz.replace(".", "");
@@ -698,10 +702,31 @@ DspMakefileGenerator::init()
 	    project->variables()["TARGET_EXT"].append(".dll");
 	}
     } else {
+	project->variables()["QMAKE_CFLAGS_CONSOLE_ANY"] = project->variables()["QMAKE_CFLAGS_CONSOLE"];
+	project->variables()["QMAKE_CXXFLAGS_CONSOLE_ANY"] = project->variables()["QMAKE_CXXFLAGS_CONSOLE"];
+	project->variables()["QMAKE_LFLAGS_CONSOLE_ANY"] = project->variables()["QMAKE_LFLAGS_CONSOLE"];
+	project->variables()["QMAKE_LFLAGS_WINDOWS_ANY"] = project->variables()["QMAKE_LFLAGS_WINDOWS"];
 	if ( !project->variables()["QMAKE_APP_FLAG"].isEmpty() )
 	    project->variables()["TARGET_EXT"].append(".exe");
 	else
 	    project->variables()["TARGET_EXT"].append(".lib");
+    }
+
+    if ( project->isActiveConfig("windows") ) {
+	if ( project->isActiveConfig("console") ) {
+	    project->variables()["QMAKE_CFLAGS"] += project->variables()["QMAKE_CFLAGS_CONSOLE_ANY"];
+	    project->variables()["QMAKE_CXXFLAGS"] += project->variables()["QMAKE_CXXFLAGS_CONSOLE_ANY"];
+	    project->variables()["QMAKE_LFLAGS"] += project->variables()["QMAKE_LFLAGS_CONSOLE_ANY"];
+	    project->variables()["QMAKE_LIBS"] += project->variables()["QMAKE_LIBS_CONSOLE"];
+	} else {
+	    project->variables()["QMAKE_LFLAGS"] += project->variables()["QMAKE_LFLAGS_WINDOWS_ANY"];
+	}
+	project->variables()["QMAKE_LIBS"] += project->variables()["QMAKE_LIBS_WINDOWS"];
+    } else {
+	project->variables()["QMAKE_CFLAGS"] += project->variables()["QMAKE_CFLAGS_CONSOLE_ANY"];
+	project->variables()["QMAKE_CXXFLAGS"] += project->variables()["QMAKE_CXXFLAGS_CONSOLE_ANY"];
+	project->variables()["QMAKE_LFLAGS"] += project->variables()["QMAKE_LFLAGS_CONSOLE_ANY"];
+	project->variables()["QMAKE_LIBS"] += project->variables()["QMAKE_LIBS_CONSOLE"];
     }
 
     project->variables()["MSVCDSP_VER"] = "6.00";
@@ -752,12 +777,10 @@ DspMakefileGenerator::init()
 	    project->variables()["MSVCDSP_CONSOLE"].append("Console");
 	    project->variables()["MSVCDSP_WINCONDEF"].append("_CONSOLE");
 	    project->variables()["MSVCDSP_DSPTYPE"].append("0x0103");
-	    project->variables()["MSVCDSP_SUBSYSTEM"].append("console");
 	} else {
 	    project->variables()["MSVCDSP_CONSOLE"].clear();
 	    project->variables()["MSVCDSP_WINCONDEF"].append("_WINDOWS");
 	    project->variables()["MSVCDSP_DSPTYPE"].append("0x0101");
-	    project->variables()["MSVCDSP_SUBSYSTEM"].append("windows");
 	}
     } else {
         if ( project->isActiveConfig("dll") ) {
