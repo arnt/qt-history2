@@ -26,12 +26,10 @@ class QT_UILIB_EXPORT FormBuilder: public Resource
 public:
     FormBuilder();
 
-    virtual QWidget *createWidget(DomWidget *ui_widget)
-        { return Resource::create(ui_widget, 0); }
-    virtual DomWidget *createDom(QWidget *widget)
-        { return Resource::createDom(widget, 0); }
+    using Resource::create;
+    using Resource::createDom;
+    using Resource::addItem;
 
-protected:
     virtual QWidget *create(DomWidget *ui_widget, QWidget *parentWidget);
     virtual QWidget *createWidget(const QString &widgetName, QWidget *parentWidget, const QString &name);
     virtual QLayout *createLayout(const QString &layoutName, QObject *parent, const QString &name);

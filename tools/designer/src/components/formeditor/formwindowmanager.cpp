@@ -684,18 +684,16 @@ void FormWindowManager::dragItems(const QList<AbstractDnDItem*> &item_list, Abst
 
     m_source_form = qobject_cast<FormWindow*>(source_form);
 
-    beginDrag(item_list);
+    beginDrag(item_list, QCursor::pos());
 }
 
-void FormWindowManager::beginDrag(const QList<AbstractDnDItem*> &item_list)
+void FormWindowManager::beginDrag(const QList<AbstractDnDItem*> &item_list, const QPoint &globalPos)
 {
     Q_ASSERT(m_drag_item_list.isEmpty());
 
     m_drag_item_list = item_list;
 
-    QPoint pos = QCursor::pos();
-
-    setItemsPos(pos);
+    setItemsPos(globalPos);
 
     foreach(AbstractDnDItem *item, m_drag_item_list) {
         QWidget *deco = item->decoration();
@@ -703,7 +701,7 @@ void FormWindowManager::beginDrag(const QList<AbstractDnDItem*> &item_list)
         QPainter p(&bitmap);
         p.fillRect(bitmap.rect(), Qt::color1);
         p.setPen(Qt::color0);
-        p.drawPoint(deco->mapFromGlobal(pos));
+        p.drawPoint(deco->mapFromGlobal(globalPos));
         p.end();
         deco->setMask(bitmap);
         deco->show();

@@ -42,7 +42,7 @@ QDesignerServer::~QDesignerServer()
 {
 }
 
-Q_UINT16 QDesignerServer::serverPort() const
+quint16 QDesignerServer::serverPort() const
 {
     return m_server ? m_server->serverPort() : 0;
 }

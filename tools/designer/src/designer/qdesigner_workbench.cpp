@@ -250,9 +250,10 @@ void QDesignerWorkbench::switchToNeutralMode()
     m_toolToolBar->setParent(0);
     m_formToolBar->setParent(0);
     m_core->setTopLevel(0);
-    qDesigner->setMainWidget(0);
+
     if (m_workspace)
         delete m_workspace->parentWidget();
+
     m_workspace = 0;
 }
 
@@ -285,7 +286,6 @@ void QDesignerWorkbench::switchToWorkspaceMode()
     mw->addToolBar(m_editToolBar);
     mw->addToolBar(m_toolToolBar);
     mw->addToolBar(m_formToolBar);
-    qDesigner->setMainWidget(mw);
 
     foreach (QDesignerToolWindow *tw, m_toolWindows) {
         tw->setParent(magicalParent(), Qt::Tool | Qt::WindowShadeButtonHint | Qt::WindowSystemMenuHint | Qt::WindowTitleHint);
@@ -323,7 +323,6 @@ void QDesignerWorkbench::switchToTopLevelMode()
 #ifndef Q_WS_MAC
         widgetBoxWrapper->setMenuBar(m_globalMenuBar);
         widgetBoxWrapper->action()->setEnabled(false);
-        qDesigner->setMainWidget(widgetBoxWrapper);
         widgetBoxWrapper->setSaveSettingsOnClose(true);
 #endif
         widgetBoxWrapper->addToolBar(m_editToolBar);
@@ -444,8 +443,11 @@ void QDesignerWorkbench::updateWorkbench(AbstractFormWindow *fw, const QString &
 
 void QDesignerWorkbench::removeToolWindow(QDesignerToolWindow *toolWindow)
 {
-    m_toolWindows.remove(toolWindow);
-    m_toolWindowExtras.remove(toolWindow);
+    int index = m_toolWindows.indexOf(toolWindow);
+    if (index != -1) {
+        m_toolWindows.removeAt(index);
+        m_toolWindowExtras.remove(toolWindow);
+    }
 
     if (QAction *action = toolWindow->action()) {
         m_toolActions->removeAction(action);
@@ -455,8 +457,12 @@ void QDesignerWorkbench::removeToolWindow(QDesignerToolWindow *toolWindow)
 
 void QDesignerWorkbench::removeFormWindow(QDesignerFormWindow *formWindow)
 {
-    m_formWindows.remove(formWindow);
-    m_formWindowExtras.remove(formWindow);
+    int index = m_formWindows.indexOf(formWindow);
+    if (index != -1) {
+        m_formWindows.removeAt(index);
+        m_formWindowExtras.remove(formWindow);
+    }
+
     if (QAction *action = formWindow->action()) {
         m_windowActions->removeAction(action);
         m_windowMenu->removeAction(action);

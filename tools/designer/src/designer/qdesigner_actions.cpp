@@ -92,12 +92,15 @@ QDesignerActions::QDesignerActions(QDesignerWorkbench *workbench)
         m_recentFilesActions->addAction(act);
     }
     updateRecentFileActions();
-    m_recentFilesActions->addSeparator();
+
+
     act = new QAction(tr("Clear &Menu"), this);
     connect(act, SIGNAL(triggered()), this, SLOT(clearRecentFiles()));
     m_recentFilesActions->addAction(act);
 
-    m_fileActions->addSeparator();
+    QAction *sep = new QAction(this);
+    sep->setSeparator(true);
+    m_fileActions->addAction(sep);
 
     m_saveFormAction = new QAction(tr("&Save Form"), this);
     m_saveFormAction->setShortcut(tr("CTRL+S"));
@@ -112,14 +115,18 @@ QDesignerActions::QDesignerActions(QDesignerWorkbench *workbench)
     connect(m_saveFormAsTemplateAction, SIGNAL(triggered()), this, SLOT(saveFormAsTemplate()));
     m_fileActions->addAction(m_saveFormAsTemplateAction);
 
-    m_fileActions->addSeparator();
+    sep = new QAction(this);
+    sep->setSeparator(true);
+    m_fileActions->addAction(sep);
 
     m_closeFormAction = new QAction(tr("&Close Form"), this);
     m_closeFormAction->setShortcut(tr("CTRL+W"));
     connect(m_closeFormAction, SIGNAL(triggered()), this, SLOT(notImplementedYet()));
     m_fileActions->addAction(m_closeFormAction);
 
-    m_fileActions->addSeparator();
+    sep = new QAction(this);
+    sep->setSeparator(true);
+    m_fileActions->addAction(sep);
 
     m_quitAction = new QAction(tr("&Quit"), this);
     connect(m_quitAction, SIGNAL(triggered()),
@@ -137,7 +144,9 @@ QDesignerActions::QDesignerActions(QDesignerWorkbench *workbench)
     m_redoAction->setShortcut(tr("CTRL+SHIFT+Z"));
     m_editActions->addAction(m_redoAction);
 
-    m_editActions->addSeparator();
+    sep = new QAction(this);
+    sep->setSeparator(true);
+    m_editActions->addAction(sep);
 
     m_cutAction = formWindowManager->actionCut();
     m_editActions->addAction(m_cutAction);
@@ -154,7 +163,9 @@ QDesignerActions::QDesignerActions(QDesignerWorkbench *workbench)
     m_selectAllAction = formWindowManager->actionSelectAll();
     m_editActions->addAction(m_selectAllAction);
 
-    m_editActions->addSeparator();
+    sep = new QAction(this);
+    sep->setSeparator(true);
+    m_editActions->addAction(sep);
 
     m_sendToBackAction = formWindowManager->actionLower();
     m_editActions->addAction(m_sendToBackAction);
@@ -216,7 +227,9 @@ QDesignerActions::QDesignerActions(QDesignerWorkbench *workbench)
     m_adjustSizeAction = formWindowManager->actionAdjustSize();
     m_formActions->addAction(m_adjustSizeAction);
 
-    m_formActions->addSeparator();
+    sep = new QAction(this);
+    sep->setSeparator(true);
+    m_formActions->addAction(sep);
 
     m_previewFormAction = new QAction(tr("&Preview"), this);
     m_previewFormAction->setShortcut(tr("CTRL+R"));
@@ -398,7 +411,7 @@ bool QDesignerActions::saveFormAs(AbstractFormWindow *fw)
                                 .arg(fi.baseName()).arg(fi2.baseName()),
                         QMessageBox::Information,
                         QMessageBox::Yes, QMessageBox::No| QMessageBox::Default,
-                        QMessageBox::Cancel | QMessageBox::Escape, fw, Qt::WMacSheet);
+                        QMessageBox::Cancel | QMessageBox::Escape, fw, Qt::Sheet);
         box.setButtonText(QMessageBox::Yes, tr("Overwrite file"));
         box.setButtonText(QMessageBox::No, tr("Choose another name"));
         switch (box.exec()) {
@@ -555,7 +568,7 @@ bool QDesignerActions::writeOutForm(AbstractFormWindow *fw, const QString &saveF
                                 .arg(f.fileName()).arg(f.errorString()),
                         QMessageBox::Warning,
                         QMessageBox::Yes | QMessageBox::Default, QMessageBox::No,
-                        QMessageBox::Cancel | QMessageBox::Escape, fw, Qt::WMacSheet);
+                        QMessageBox::Cancel | QMessageBox::Escape, fw, Qt::Sheet);
         box.setButtonText(QMessageBox::Yes, tr("Retry"));
         box.setButtonText(QMessageBox::No, tr("Select New File"));
         switch(box.exec()) {
@@ -580,7 +593,7 @@ bool QDesignerActions::writeOutForm(AbstractFormWindow *fw, const QString &saveF
                                 .arg(f.fileName()).arg(f.errorString()),
                         QMessageBox::Warning,
                         QMessageBox::Yes | QMessageBox::Default, QMessageBox::No, 0,
-                        fw, Qt::WMacSheet);
+                        fw, Qt::Sheet);
         box.setButtonText(QMessageBox::Yes, tr("Retry"));
         box.setButtonText(QMessageBox::No, tr("Don't Retry"));
         switch(box.exec()) {

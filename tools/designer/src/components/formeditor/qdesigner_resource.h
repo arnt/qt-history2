@@ -49,6 +49,10 @@ public:
     { return m_core; }
 
 protected:
+    using Resource::create;
+    using Resource::createDom;
+    using Resource::layoutInfo;
+
     virtual QWidget *create(DomUI *ui, QWidget *parentWidget);
     virtual QWidget *create(DomWidget *ui_widget, QWidget *parentWidget);
     virtual QLayout *create(DomLayout *ui_layout, QLayout *layout, QWidget *parentWidget);

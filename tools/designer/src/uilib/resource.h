@@ -64,7 +64,7 @@ protected:
     virtual QWidget *create(DomWidget *ui_widget, QWidget *parentWidget);
     virtual QLayout *create(DomLayout *ui_layout, QLayout *layout, QWidget *parentWidget);
     virtual QLayoutItem *create(DomLayoutItem *ui_layoutItem, QLayout *layout, QWidget *parentWidget);
-    
+
     virtual QAction *create(DomAction *ui_action, QObject *parent);
     virtual QActionGroup *create(DomActionGroup *ui_action_group, QObject *parent);
 
@@ -75,7 +75,7 @@ protected:
     virtual QLayout *createLayout(const QString &layoutName, QObject *parent, const QString &name);
     virtual QAction *createAction(QObject *parent, const QString &name);
     virtual QActionGroup *createActionGroup(QObject *parent, const QString &name);
-    
+
     virtual void createCustomWidgets(DomCustomWidgets *) {}
     virtual void createConnections(DomConnections *, QWidget *) {}
     virtual void createAuthor(const QString &) {}
@@ -118,11 +118,11 @@ protected:
     QHash<QObject*, bool> m_laidout;
     QHash<QString, QAction*> m_actions;
     QHash<QString, QActionGroup*> m_actionGroups;
-    
+
 private:
     void setupColorGroup(QPalette &palette, DomColorGroup *group);
     DomColorGroup *saveColorGroup(const QPalette &palette);
-    
+
     QHash<QString, QSizePolicy::SizeType> m_idToSizeType;
     int m_defaultMargin;
     int m_defaultSpacing;

@@ -26,7 +26,7 @@ public:
     QDesignerServer(QObject *parent = 0);
     virtual ~QDesignerServer();
 
-    Q_UINT16 serverPort() const;
+    quint16 serverPort() const;
 
     static void sendOpenRequest(int port, const QStringList &files);
 

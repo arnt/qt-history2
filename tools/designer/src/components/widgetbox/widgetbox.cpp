@@ -162,9 +162,12 @@ public:
         : QDesignerFormBuilder(core) {}
 
     virtual QWidget *createWidget(DomWidget *ui_widget, QWidget *parentWidget)
-        { return QDesignerFormBuilder::createWidget(ui_widget, parentWidget); }
+    { return QDesignerFormBuilder::createWidget(ui_widget, parentWidget); }
 
 protected:
+    using QDesignerFormBuilder::create;
+    using QDesignerFormBuilder::createWidget;
+
     virtual QWidget *create(DomWidget *ui_widget, QWidget *parents);
     virtual QWidget *createWidget(const QString &widgetName, QWidget *parentWidget, const QString &name);
 };

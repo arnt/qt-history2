@@ -19,9 +19,9 @@
 
 #include <abstractformwindowmanager.h>
 
-#include <QObject>
-#include <QList>
-#include <QPointer>
+#include <QtCore/QObject>
+#include <QtCore/QList>
+#include <QtCore/QPointer>
 
 class QAction;
 class QActionGroup;
@@ -65,7 +65,7 @@ public:
     bool eventFilter(QObject *o, QEvent *e);
 
     void dragItems(const QList<AbstractDnDItem*> &item_list, AbstractFormWindow *source_form);
-    
+
 signals:
     void itemDragFinished();
 
@@ -100,7 +100,7 @@ private:
     void layoutContainerHorizontal();
     void layoutContainerVertical();
     void layoutContainerGrid();
-    
+
     void setCurrentUndoStack(QtUndoStack *stack);
 
     bool isPassiveInteractor(QWidget *w) const;
@@ -133,9 +133,9 @@ private:
 
     QAction *m_actionUndo;
     QAction *m_actionRedo;
-    
+
     // DnD stuff
-    void beginDrag(const QList<AbstractDnDItem*> &item_list);
+    void beginDrag(const QList<AbstractDnDItem*> &item_list, const QPoint &globalPos);
     void endDrag(const QPoint &pos);
     void setItemsPos(const QPoint &pos);
     bool isDecoration(QWidget *widget) const;
@@ -143,7 +143,7 @@ private:
     QWidget *m_last_widget_under_mouse;
     FormWindow *m_last_form_under_mouse;
     FormWindow *m_source_form;
-    
+
     mutable QPointer<QWidget> lastPassiveInteractor;
     mutable bool lastWasAPassiveInteractor;
 };

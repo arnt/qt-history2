@@ -394,6 +394,8 @@ public:
     MoveTabPageCommand(AbstractFormWindow *formWindow);
     virtual ~MoveTabPageCommand();
 
+    using TabWidgetCommand::init;
+
     virtual void init(QTabWidget *tabWidget, QWidget *page,
                       const QIcon &icon, const QString &label,
                       int index, int newIndex);
@@ -471,6 +473,8 @@ class SetDockWidgetWidgetCommand: public DockWidgetCommand
     Q_OBJECT
 public:
     SetDockWidgetWidgetCommand(AbstractFormWindow *formWindow);
+
+    using DockWidgetCommand::init;
 
     virtual void init(QDockWidget *dockWidget, QWidget *widget);
 

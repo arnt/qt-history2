@@ -28,10 +28,11 @@ class QT_SDK_EXPORT AbstractDnDItem : public QObject
 {
     Q_OBJECT
 public:
+    virtual ~AbstractDnDItem() {}
+
     virtual DomUI *domUi() const = 0;
     virtual QWidget *decoration() const = 0;
     virtual QPoint hotSpot() const = 0;
-    inline virtual ~AbstractDnDItem() {}
 };
 
 class QT_SDK_EXPORT AbstractFormWindowManager: public QObject
