@@ -2629,12 +2629,12 @@ void QListBox::setSelectionMode( SelectionMode mode )
 {
     if ( d->selectionMode == mode )
 	return;
-    
+
     if ( isMultiSelection() && ( mode == QListBox::Single || mode == QListBox::NoSelection ) ){
 	clearSelection();
 	if ( ( mode == QListBox::Single ) && currentItem() )
 	    setSelected( currentItem(), TRUE );
-    }   
+    }
 
     d->selectionMode = mode;
     triggerUpdate( TRUE );
@@ -2719,10 +2719,6 @@ void QListBox::setSelected( int index, bool select )
 
   If the list box is a Single selection list box, \a select is FALSE,
   setSelected() calls clearSelection().
-
-  Note that for this function NoSelection means Multi selection.  The user
-  cannot select items in a NoSelection list box, but the application
-  programmer can.
 
   \sa setMultiSelection(), setCurrentItem(), clearSelection(), currentItem()
 */
@@ -4543,7 +4539,7 @@ void QListBox::windowActivationChange( bool )
 {
     if ( !isVisible() )
 	return;
-    
+
     if ( palette().active() != palette().inactive() )
 	viewport()->update();
 }
