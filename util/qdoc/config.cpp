@@ -370,8 +370,6 @@ bool Config::isDef( const QString& symbol ) const
 
 bool Config::generateHtmlFile( const QString& fileName ) const
 {
-debug( "%s.match( %s ) == %d", onlyfn.pattern().latin1(), fileName.latin1(),
-onlyfn.match( fileName ) );
     return onlyfn.match( fileName );
 }
 
