@@ -41,11 +41,14 @@ Funksjonalitet:
 
     Akselleratortaster i dialog (f.eks. "&Ok" knapp)
 
+    Strengdatabase for flerspråklige applikasjoner
+
+    Støtte for å kunne sette andre fontfamilier enn ISO-8859-1
+
     Dialoger:
 
 	font select
 	color select
-	
 
     Enkeltoppgaver:
 
