@@ -85,7 +85,11 @@ protected:
     
     friend void qt_init( QApplicationPrivate *, int, Display *, Qt::HANDLE, Qt::HANDLE );
     friend void qt_cleanup();
-
+    friend class QWidget;
+    friend class QFontEngineBox;
+    friend class QFontEngineXft;
+    friend class QFontEngineXLFD;
+    
 private:
     static Display *x_appdisplay;
     static int x_appscreen;

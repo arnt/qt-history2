@@ -232,6 +232,11 @@ private:
     double idy() const;
 
     QPainterPrivate *d;
+#ifdef Q_WS_X11
+    friend class QFontEngineBox;
+    friend class QFontEngineXLFD;
+    friend class QFontEngineXft;
+#endif
 };
 
 //

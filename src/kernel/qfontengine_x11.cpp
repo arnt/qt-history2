@@ -115,13 +115,17 @@ QFontEngine::Error QFontEngineBox::stringToCMap( const QChar *, int len, glyph_t
     }
     return NoError;
 }
-
+#include "qx11gc_p.h"
+#include "q4painter_p.h"
 void QFontEngineBox::draw( QPainter *p, int x, int y, const QTextEngine *, const QScriptItem *si, int textFlags )
 {
-#ifndef Q_Q4PAINTER
     Display *dpy = QPaintDevice::x11AppDisplay();
     Qt::HANDLE hd = p->device()->handle();
+#ifdef Q_Q4PAINTER
+    GC gc = static_cast<QX11GC *>(p->device()->gc())->d->gc;
+#else
     GC gc = p->gc;
+#endif
 
 #ifdef FONTENGINE_DEBUG
     p->save();
@@ -136,7 +140,11 @@ void QFontEngineBox::draw( QPainter *p, int x, int y, const QTextEngine *, const
 #endif
 
 
+#ifdef Q_Q4PAINTER
+    if ( p->d->txop > QPainter::TxTranslate ) {
+#else    
     if ( p->txop > QPainter::TxTranslate ) {
+#endif	
 	int xp = x;
 	int yp = _size + 2;
 	int s = _size - 3;
@@ -145,7 +153,11 @@ void QFontEngineBox::draw( QPainter *p, int x, int y, const QTextEngine *, const
 	    xp += _size;
 	}
     } else {
+#ifdef Q_Q4PAINTER
+	if ( p->d->txop == QPainter::TxTranslate )
+#else    
 	if ( p->txop == QPainter::TxTranslate )
+#endif	    
 	    p->map( x, y, &x, &y );
 	XRectangle _rects[32];
 	XRectangle *rects = _rects;
@@ -181,7 +193,6 @@ void QFontEngineBox::draw( QPainter *p, int x, int y, const QTextEngine *, const
 	y += ci.yoff;
     }
     p->restore();
-#endif
 #endif
 }
 
@@ -408,7 +419,6 @@ static int x_font_errorhandler(Display *, XErrorEvent *)
 
 void QFontEngineXLFD::draw( QPainter *p, int x, int y, const QTextEngine *engine, const QScriptItem *si, int textFlags )
 {
-#ifndef Q_Q4PAINTER
     if ( !si->num_glyphs )
 	return;
 
@@ -416,14 +426,22 @@ void QFontEngineXLFD::draw( QPainter *p, int x, int y, const QTextEngine *engine
 
     Display *dpy = QPaintDevice::x11AppDisplay();
     Qt::HANDLE hd = p->device()->handle();
+#ifdef Q_Q4PAINTER
+    GC gc = static_cast<QX11GC *>(p->device()->gc())->d->gc;
+#else
     GC gc = p->gc;
+#endif
 
     bool transform = FALSE;
     int xorig = x;
     int yorig = y;
 
     Qt::HANDLE font_id = _fs->fid;
+#ifdef Q_Q4PAINTER
+    if ( p->d->txop > QPainter::TxTranslate ) {
+#else    
     if ( p->txop > QPainter::TxTranslate ) {
+#endif	
 	bool degenerate = QABS( p->m11()*p->m22() - p->m12()*p->m21() ) < 0.01;
 	if ( !degenerate && xlfd_transformations != XlfdTrUnsupported ) {
 	    // need a transformed font from the server
@@ -517,7 +535,11 @@ void QFontEngineXLFD::draw( QPainter *p, int x, int y, const QTextEngine *engine
             int w=bbox.width(), h=bbox.height();
             int aw = w, ah = h;
             int tx=-bbox.x(), ty=-bbox.y();    // text position
+#ifdef Q_Q4PAINTER
+            QWMatrix mat1 = p->d->matrix;
+#else    
             QWMatrix mat1 = p->xmat;
+#endif	    
 	    if ( aw == 0 || ah == 0 )
 		return;
 	    double rx = (double)w / (double)aw;
@@ -563,7 +585,11 @@ void QFontEngineXLFD::draw( QPainter *p, int x, int y, const QTextEngine *engine
             return;
         }
 	transform = TRUE;
+#ifdef Q_Q4PAINTER
+    } else if ( p->d->txop == QPainter::TxTranslate ) {
+#else    
     } else if ( p->txop == QPainter::TxTranslate ) {
+#endif	
 	p->map( x, y, &x, &y );
     }
 
@@ -652,7 +678,6 @@ void QFontEngineXLFD::draw( QPainter *p, int x, int y, const QTextEngine *engine
 	y += advances[i].y;
     }
     p->restore();
-#endif
 #endif
 }
 
@@ -1572,7 +1597,6 @@ void QFontEngineXft::recalcAdvances( int len, glyph_t *glyphs, advance_t *advanc
 //#define FONTENGINE_DEBUG
 void QFontEngineXft::draw( QPainter *p, int x, int y, const QTextEngine *engine, const QScriptItem *si, int textFlags )
 {
-#ifndef Q_Q4PAINTER
     if ( !si->num_glyphs )
 	return;
 
@@ -1583,17 +1607,29 @@ void QFontEngineXft::draw( QPainter *p, int x, int y, const QTextEngine *engine,
 
     XftFont *fnt = _font;
     bool transform = FALSE;
+#ifdef Q_Q4PAINTER
+    if ( p->d->txop >= QPainter::TxScale ) {
+#else    
     if ( p->txop >= QPainter::TxScale ) {
+#endif	
 	if (! (_face->face_flags & FT_FACE_FLAG_SCALABLE)) {
 	    Qt::HANDLE hd = p->device()->handle();
+#ifdef Q_Q4PAINTER
+	    GC gc = static_cast<QX11GC *>(p->device()->gc())->d->gc;
+#else
 	    GC gc = p->gc;
+#endif	    
 
 	    // font doesn't support transformations, need to do it by hand
             QRect bbox( 0, 0, si->width, si->ascent + si->descent + 1 );
             int w=bbox.width(), h=bbox.height();
             int aw = w, ah = h;
             int tx=-bbox.x(), ty=-bbox.y();    // text position
+#ifdef Q_Q4PAINTER
+            QWMatrix mat1 = p->d->matrix;
+#else	    
             QWMatrix mat1 = p->xmat;
+#endif	    
 	    if ( aw == 0 || ah == 0 )
 		return;
 	    double rx = (double)w / (double)aw;
@@ -1694,7 +1730,11 @@ void QFontEngineXft::draw( QPainter *p, int x, int y, const QTextEngine *engine,
 	    transformed_fonts = trf;
 	}
 	transform = TRUE;
+#ifdef Q_Q4PAINTER
+    } else if ( p->d->txop == QPainter::TxTranslate ) {
+#else    
     } else if ( p->txop == QPainter::TxTranslate ) {
+#endif
 	p->map( x, y, &x, &y );
     }
 
@@ -1702,8 +1742,17 @@ void QFontEngineXft::draw( QPainter *p, int x, int y, const QTextEngine *engine,
     advance_t *advances = engine->advances( si );
     qoffset_t *offsets = engine->offsets( si );
 
+#ifdef Q_Q4PAINTER
+    const QColor &pen = static_cast<QX11GC *>(p->device()->gc())->d->cpen.color();
+#else    
     const QColor &pen = p->cpen.color();
+#endif    
+
+#ifdef Q_Q4PAINTER
+    XftDraw *draw = ((Q_HackPaintDevice *)p->device())->xftDrawHandle();
+#else    
     XftDraw *draw = ((Q_HackPaintDevice *)p->pdev)->xftDrawHandle();
+#endif    
 
     XftColor col;
     col.color.red = pen.red () | pen.red() << 8;
@@ -1822,7 +1871,6 @@ void QFontEngineXft::draw( QPainter *p, int x, int y, const QTextEngine *engine,
 	}
 	p->restore();
     }
-#endif
 #endif
 }
 

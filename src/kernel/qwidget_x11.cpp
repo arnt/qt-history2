@@ -243,11 +243,24 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
     if ( !window )
 	initializeWindow = TRUE;
 
+#ifdef Q_Q4PAINTER
+    if (destroyOldWindow) {
+	delete deviceGC;
+	deviceGC = 0;
+    }
+    if (!deviceGC)
+	deviceGC = new QX11GC(this);
+#endif
+
     if ( desktop &&
 	 qt_x11_create_desktop_on_screen >= 0 &&
 	 qt_x11_create_desktop_on_screen != x11Screen() ) {
 	// desktop on a certain screen other than the default requested
+#ifdef Q_Q4PAINTER
+	QX11GCData* xd = static_cast<QX11GC *>(deviceGC)->getX11Data(true);
+#else
 	QPaintDeviceX11Data* xd = getX11Data( TRUE );
+#endif
 	xd->x_screen = qt_x11_create_desktop_on_screen;
 	xd->x_depth = QPaintDevice::x11AppDepth( xd->x_screen );
 	xd->x_cells = QPaintDevice::x11AppCells( xd->x_screen );
@@ -255,10 +268,18 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 	xd->x_defcolormap = QPaintDevice::x11AppDefaultColormap( xd->x_screen );
 	xd->x_visual = QPaintDevice::x11AppVisual( xd->x_screen );
 	xd->x_defvisual = QPaintDevice::x11AppDefaultVisual( xd->x_screen );
+#ifdef Q_Q4PAINTER
+	static_cast<QX11GC *>(deviceGC)->setX11Data(xd);
+#else
 	setX11Data( xd );
+#endif	
     } else if ( parentWidget() &&  parentWidget()->x11Screen() != x11Screen() ) {
 	// if we have a parent widget, move to its screen if necessary
+#ifdef Q_Q4PAINTER
+	QX11GCData* xd = static_cast<QX11GC *>(deviceGC)->getX11Data(true);
+#else
 	QPaintDeviceX11Data* xd = getX11Data( TRUE );
+#endif	
 	xd->x_screen = parentWidget()->x11Screen();
 	xd->x_depth = QPaintDevice::x11AppDepth( xd->x_screen );
 	xd->x_cells = QPaintDevice::x11AppCells( xd->x_screen );
@@ -266,7 +287,11 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 	xd->x_defcolormap = QPaintDevice::x11AppDefaultColormap( xd->x_screen );
 	xd->x_visual = QPaintDevice::x11AppVisual( xd->x_screen );
 	xd->x_defvisual = QPaintDevice::x11AppDefaultVisual( xd->x_screen );
+#ifdef Q_Q4PAINTER
+	static_cast<QX11GC *>(deviceGC)->setX11Data(xd);
+#else
 	setX11Data( xd );
+#endif	
     }
 
     //get display, screen number, root window and desktop geometry for
@@ -610,11 +635,6 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 
     if ( destroyw )
 	qt_XDestroyWindow( this, dpy, destroyw );
-
-#ifdef Q_Q4PAINTER
-    if (!deviceGC)
-	deviceGC = new QX11GC(this);
-#endif
 }
 
 

@@ -635,7 +635,7 @@ bool QX11GC::begin(const QPaintDevice *pdev, QPainterState *ps, bool unclipped)
 
     d->dpy = x11Display();                   // get display variable
     d->scrn = x11Screen();			// get screen variable
-    d->hd = handle();                       // get handle to drawable - NB! double buffering might change the handle
+    d->hd = d->pdev->handle();                       // get handle to drawable - NB! double buffering might change the handle
     d->rendhd = d->pdev->x11RenderHandle();
 
     if (x11Depth() != x11AppDepth( d->scrn)) { // non-standard depth
@@ -1723,7 +1723,6 @@ void QX11GC::updateFont(QPainterState *ps)
 
 void QX11GC::drawTextItem(int x, int y, const QTextItem &ti, int textflags)
 {
-    
 }
 
 Qt::HANDLE QX11GC::handle() const
@@ -1733,23 +1732,73 @@ Qt::HANDLE QX11GC::handle() const
     return d->hd;
 }
 
+static int *dpisX=0, *dpisY=0;
+static void create_dpis()
+{
+    if ( dpisX )
+	return;
+
+    Display *dpy = QX11GC::x11AppDisplay();
+    if ( ! dpy )
+	return;
+
+    int i, screens =  ScreenCount( dpy );
+    dpisX = new int[ screens ];
+    dpisY = new int[ screens ];
+    for ( i = 0; i < screens; i++ ) {
+	dpisX[ i ] = (DisplayWidth(dpy,i) * 254 + DisplayWidthMM(dpy,i)*5)
+
+		     / (DisplayWidthMM(dpy,i)*10);
+	dpisY[ i ] = (DisplayHeight(dpy,i) * 254 + DisplayHeightMM(dpy,i)*5)
+		     / (DisplayHeightMM(dpy,i)*10);
+    }
+}
+
 int QX11GC::x11AppDpiX(int screen )
 {
-    
+    create_dpis();
+    if ( ! dpisX )
+	return 0;
+    if ( screen < 0 )
+	screen = QX11GC::x11AppScreen();
+    if ( screen > ScreenCount( QX11GC::x11AppDisplay() ) )
+	return 0;
+    return dpisX[ screen ];
 }
 
 void QX11GC::x11SetAppDpiX(int screen, int xdpi)
 {
-    
+    create_dpis();
+    if ( ! dpisX )
+	return;
+    if ( screen < 0 )
+	screen = QX11GC::x11AppScreen();
+    if ( screen > ScreenCount( QX11GC::x11AppDisplay() ) )
+	return;
+    dpisX[ screen ] = xdpi;    
 }
 
 int QX11GC::x11AppDpiY(int screen )
 {
-    
+    create_dpis();
+    if ( ! dpisY )
+	return 0;
+    if ( screen < 0 )
+	screen = QX11GC::x11AppScreen();
+    if ( screen > ScreenCount( QX11GC::x11AppDisplay() ) )
+	return 0;
+    return dpisY[ screen ];    
 }
 
 void QX11GC::x11SetAppDpiY(int screen, int ydpi)
 {
-    
+    create_dpis();
+    if ( ! dpisY )
+	return;
+    if ( screen < 0 )
+	screen = QX11GC::x11AppScreen();
+    if ( screen > ScreenCount( QX11GC::x11AppDisplay() ) )
+	return;
+    dpisY[ screen ] = ydpi;    
 }
 
