@@ -1876,6 +1876,9 @@ int QAquaStyle::styleHint(StyleHint sh, const QWidget *w, const QStyleOption &op
 {
     int ret = 0;
     switch(sh) {
+    case SH_PopupMenu_SubMenuPopupDelay:
+	ret = 100;
+	break;
     case SH_TabBar_PreferNoArrows:
 	ret = TRUE;
 	break;

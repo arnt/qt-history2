@@ -82,9 +82,9 @@ static const int motifArrowVMargin	= 2;	// arrow vertical margin
 
 */
 
-
-
-//# define DEBUG_SLOPPY_SUBMENU
+#if 0
+# define DEBUG_SLOPPY_SUBMENU
+#endif
 
 // used for internal communication
 static QPopupMenu * syncMenu = 0;
@@ -1752,12 +1752,12 @@ void QPopupMenu::mouseMoveEvent( QMouseEvent *e )
 	if ( style().styleHint(QStyle::SH_PopupMenu_SloppySubMenus, this) &&
 	     d->mouseMoveBuffer.contains( e->pos() ) ) {
 	    actItem = item;
-	    popupSubMenuLater( style().styleHint(QStyle::SH_PopupMenu_SubMenuPopupDelay, this) * 2,
+	    popupSubMenuLater( style().styleHint(QStyle::SH_PopupMenu_SubMenuPopupDelay, this) * 6,
 			       this );
 	    return;
 	}
 
-	if ( mi->popup() || ( popupActive >= 0 && popupActive != item ))
+	if ( mi->popup() || ( popupActive >= 0 && popupActive != item )) 
 	    popupSubMenuLater( style().styleHint(QStyle::SH_PopupMenu_SubMenuPopupDelay, this),
 			       this );
 	else if ( singleSingleShot )
