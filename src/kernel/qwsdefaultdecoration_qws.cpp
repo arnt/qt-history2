@@ -32,6 +32,7 @@
 #include <qapplication.h>
 #include <qwidget.h>
 #include <qpainter.h>
+#include <qdrawutil.h>
 #include "qwsdefaultdecoration_qws.h"
 
 #ifndef QT_NO_QWS_MANAGER
@@ -446,10 +447,6 @@ QRegion QWSDefaultDecoration::region(const QWidget *widget, const QRect &rect, Q
 
 void QWSDefaultDecoration::paint(QPainter *painter, const QWidget *widget)
 {
-#ifndef QT_NO_STYLE
-    QStyle &style = QApplication::style();
-#endif
-
     int titleWidth = getTitleWidth(widget);
     int titleHeight = getTitleHeight(widget);
 
@@ -472,14 +469,10 @@ void QWSDefaultDecoration::paint(QPainter *painter, const QWidget *widget)
     painter->setClipRegion( oldClip - QRegion( tr ) );	// reduce flicker
 
 #ifndef QT_NO_PALETTE
-    // const QColorGroup &cg = QApplication::palette().active();
-    const QColorGroup &cg = widget->palette().active();
+    const QColorGroup &cg = QApplication::palette().active();
+//    const QColorGroup &cg = widget->palette().active();
 
-#if !defined(QT_NO_STYLE)
-    style.drawPanel(painter, br.x(), br.y(), br.width(),
-		    br.height() - 4, cg, FALSE, 2,
-		    &cg.brush(QColorGroup::Background));
-#elif !defined(QT_NO_DRAWUTIL)
+#if !defined(QT_NO_DRAWUTIL)
     qDrawWinPanel(painter, br.x(), br.y(), br.width(),
 		  br.height() - 4, cg, FALSE,
 		  &cg.brush(QColorGroup::Background));
@@ -504,12 +497,9 @@ void QWSDefaultDecoration::paint(QPainter *painter, const QWidget *widget)
 
 	{
 
-#if !defined(QT_NO_STYLE)
-	    style.drawPanel(painter, tr.x(), tr.y(), tr.width(), tr.height(),
+#if !defined(QT_NO_DRAWUTIL)
+	    qDrawShadePanel(painter, tr.x(), tr.y(), tr.width(), tr.height(),
 			    cg, TRUE, 1, &titleBrush);
-#elif !defined(QT_NO_DRAWUTIL)
-	    qDrawWinPanel(painter, tr.x(), tr.y(), tr.width(), tr.height(),
-			    cg, TRUE, &titleBrush);
 #endif
 
 	    painter->setPen(titlePen);
@@ -535,10 +525,8 @@ void QWSDefaultDecoration::paintButton(QPainter *painter, const QWidget *w,
 			QWSDecoration::Region type, int state)
 {
 #ifndef QT_NO_PALETTE
-#ifndef QT_NO_STYLE
-    QStyle &style = QApplication::style();
-#endif
-    const QColorGroup &cg = w->palette().active();
+    const QColorGroup &cg = QApplication::palette().active();
+//    const QColorGroup &cg = w->palette().active();
 
     QRect brect(region(w, w->rect(), type).boundingRect());
 
@@ -550,11 +538,7 @@ void QWSDefaultDecoration::paintButton(QPainter *painter, const QWidget *w,
     {
 
 	if ((state & QWSButton::MouseOver) && (state & QWSButton::Clicked)) {
-#if !defined(QT_NO_STYLE)
-	    style.drawToolButton(painter, brect.x(), brect.y(), brect.width()-1,
-		        brect.height()-1, cg, TRUE,
-			&cg.brush(QColorGroup::Background));
-#elif !defined(QT_NO_DRAWUTIL)
+#if !defined(QT_NO_DRAWUTIL)
 	    qDrawWinPanel(painter, brect.x(), brect.y(), brect.width()-1,
 			brect.height()-1, cg, TRUE,
 			&cg.brush(QColorGroup::Background));

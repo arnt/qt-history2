@@ -74,7 +74,9 @@
 #include "qwsdisplay_qws.h"
 #include "qnetwork.h"
 #include "qcursor.h"
-#include "qinterlacestyle.h"
+
+//### convert interlace style
+//#include "qinterlacestyle.h"
 
 #include <sys/stat.h>
 #include <fcntl.h>
@@ -1411,8 +1413,10 @@ void qt_init( int *argcptr, char **argv, QApplication::Type type )
 	init_display();
 
 #ifndef QT_NO_STYLE_INTERLACE
+/*### convert interlace style
     if ( qws_screen_is_interlaced )
 	QApplication::setStyle( new QInterlaceStyle );
+*/
 #endif
 
 

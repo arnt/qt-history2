@@ -182,9 +182,9 @@ void QWSBeOSDecoration::paint(QPainter *painter, const QWidget *widget)
     const QColorGroup &cg = widget->palette().active();
 
 #if !defined(QT_NO_STYLE)
-    style.drawPanel(painter, br.x(), br.y(), br.width(),
-		    br.height() - 4, cg, FALSE, 2,
-		    &cg.brush(QColorGroup::Background));
+    QRect pr( br.x(), br.y(), br.width(), br.height() - 4 );
+    style.drawPrimitive(QStyle::PO_Panel, painter, pr, cg,
+			QStyle::PStyle_Raised );
 #elif !defined(QT_NO_DRAWUTIL)
     qDrawWinPanel(painter, br.x(), br.y(), br.width(),
 		  br.height() - 4, cg, FALSE,

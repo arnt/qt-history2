@@ -32,6 +32,7 @@
 #include <qapplication.h>
 #include <qwidget.h>
 #include <qpainter.h>
+#include <qdrawutil.h>
 #include "qwshydrodecoration_qws.h"
 
 #ifndef QT_NO_QWS_HYDRO_WM_STYLE
@@ -796,10 +797,6 @@ QRegion QWSHydroDecoration::region(const QWidget *widget, const QRect &rect, QWS
 
 void QWSHydroDecoration::paint(QPainter *painter, const QWidget *widget)
 {
-#ifndef QT_NO_STYLE
-    QStyle &style = QApplication::style();
-#endif
-
     int titleWidth = getTitleWidth(widget);
     int titleHeight = getTitleHeight(widget);
 
@@ -818,14 +815,10 @@ void QWSHydroDecoration::paint(QPainter *painter, const QWidget *widget)
     painter->setClipRegion( oldClip - QRegion( tr ) );	// reduce flicker
 
 #ifndef QT_NO_PALETTE
-    // const QColorGroup &cg = QApplication::palette().active();
-    const QColorGroup &cg = widget->palette().active();
+    const QColorGroup &cg = QApplication::palette().active();
+//    const QColorGroup &cg = widget->palette().active();
 
-#if !defined(QT_NO_STYLE)
-    style.drawPanel(painter, br.x(), br.y(), br.width(),
-		    br.height() - 4, cg, FALSE, 2,
-		    &cg.brush(QColorGroup::Background));
-#elif !defined(QT_NO_DRAWUTIL)
+#if !defined(QT_NO_DRAWUTIL)
     qDrawWinPanel(painter, br.x(), br.y(), br.width(),
 		  br.height() - 4, cg, FALSE,
 		  &cg.brush(QColorGroup::Background));
