@@ -58,7 +58,7 @@ class Q_EXPORT QThread : public Qt
     friend class QThreadPrivate;
 public:
     static Qt::HANDLE currentThread();
-    static void postEvent( QObject *,QEvent * );
+    static void postEvent( QObject *,QEvent * ); // ### remove 4.0
 
     static void initialize();
     static void cleanup();

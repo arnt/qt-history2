@@ -45,82 +45,6 @@
 #endif
 
 /*
-  QThreadQtEvent
-*/
-
-class QThreadQtEvent
-{
-public:
-    QThreadQtEvent(QObject *o, QEvent *e)
-	: object(o), event(e)
-    {}
-    QObject *object;
-    QEvent *event;
-};
-
-/*
-  QThreadEventsPrivate
-*/
-
-class QThreadPostEventPrivate : public QObject
-{
-    Q_OBJECT
-public:
-    QThreadPostEventPrivate();
-    QPtrList<QThreadQtEvent> events;
-    QCriticalSection protect;
-    void add(QThreadQtEvent *);
-public slots:
-    void sendEvents();
-private:
-};
-
-static QThreadPostEventPrivate * qthreadposteventprivate = 0;
-
-void qthread_removePostedEvents( QObject *receiver )
-{
-    if ( ! qthreadposteventprivate )
-	return;
-
-    qthreadposteventprivate->protect.enter();
-
-    QThreadQtEvent *qte;
-    for ( qte = qthreadposteventprivate->events.first();
-	  qte != 0;
-	  qte = qthreadposteventprivate->events.next() ) {
-	if ( qte->object == receiver ) {
-	    qte->object = 0;
-	    delete qte->event;
-	    qte->event = 0;
-	}
-    }
-
-    qthreadposteventprivate->protect.leave();
-}
-
-QThreadPostEventPrivate::QThreadPostEventPrivate()
-{
-    events.setAutoDelete( TRUE );
-    connect( qApp, SIGNAL( guiThreadAwake() ), this, SLOT( sendEvents() ) );
-}
-
-void QThreadPostEventPrivate::sendEvents()
-{
-    protect.enter();
-    QThreadQtEvent * qte;
-    for( qte = events.first(); qte != 0; qte = events.next() )
-	if ( qte->object )
-	    qApp->postEvent( qte->object, qte->event );
-    events.clear();
-    protect.leave();
-}
-
-void QThreadPostEventPrivate::add(QThreadQtEvent * e)
-{
-    events.append( e );
-}
-
-/*
   QThreadPrivate
 */
 
@@ -221,22 +145,15 @@ Qt::HANDLE QThread::currentThread()
 
 void QThread::initialize()
 {
-    if( !qthreadposteventprivate )
-	qthreadposteventprivate = new QThreadPostEventPrivate();
 }
 
 void QThread::cleanup()
 {
-    delete qthreadposteventprivate;
-    qthreadposteventprivate = 0;
 }
 
 void QThread::postEvent( QObject *o,QEvent *e )
 {
-    qthreadposteventprivate->protect.enter();
-    qthreadposteventprivate->add( new QThreadQtEvent(o,e)  );
-    qthreadposteventprivate->protect.leave();
-    qApp->wakeUpGuiThread();
+    QApplication::postEvent( o, e );
 }
 
 void QThread::exit()

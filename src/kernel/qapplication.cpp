@@ -2672,7 +2672,9 @@ QString QApplication::translate( const char * context, const char * sourceText,
   When control returns to the main event loop, all events that are
   stored in the queue will be sent using the notify() function.
 
-  \sa sendEvent(), QThread::postEvent(), notify()
+  This function is threadsafe, and you may call it from any running thread.
+
+  \sa sendEvent(), notify()
 */
 
 void QApplication::postEvent( QObject *receiver, QEvent *event )
@@ -2755,8 +2757,11 @@ void QApplication::postEvent( QObject *receiver, QEvent *event )
 }
 
 
-/*! Dispatches all posted events, i.e. empties the event queue.
-\overload
+/*! \overload
+
+    Dispatches all posted events, i.e. empties the event queue.
+
+    This function is threadsafe, and you may call it from any running thread.
 */
 void QApplication::sendPostedEvents()
 {
@@ -2772,6 +2777,8 @@ void QApplication::sendPostedEvents()
 
   Note that events from the window system are \e not dispatched by this
   function, but by processEvents().
+
+  This function is threadsafe, and you may call it from any running thread.
 */
 
 void QApplication::sendPostedEvents( QObject *receiver, int event_type )
@@ -2883,6 +2890,8 @@ void QApplication::sendPostedEvents( QObject *receiver, int event_type )
   queue. You should never need to call this function. If you do call it,
   be aware that killing events may cause \a receiver to break one or
   more invariants.
+
+  This function is threadsafe, and you may call it from any running thread.
 */
 
 void QApplication::removePostedEvents( QObject *receiver )
@@ -2919,6 +2928,8 @@ void QApplication::removePostedEvents( QObject *receiver )
 
   \warning This function can be \e really slow. Avoid using it, if
   possible.
+
+  This function is threadsafe, and you may call it from any running thread.
 */
 
 void QApplication::removePostedEvent( QEvent *  event )

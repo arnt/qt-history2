@@ -140,74 +140,6 @@ extern "C" {
     }
 }
 
-/**************************************************************************
- ** QThreadQtEvent
- *************************************************************************/
-
-// this is for the magic QThread::postEvent()
-class QThreadQtEvent
-{
-public:
-    QThreadQtEvent( QObject *r, QEvent *e ) : receiver( r ), event( e ) { }
-    QObject *receiver;
-    QEvent *event;
-};
-
-
-class QThreadPostEventPrivate : public QObject
-{
-    Q_OBJECT
-public:
-    QThreadPostEventPrivate();
-
-    QPtrList<QThreadQtEvent> events;
-
-public slots:
-    void sendEvents();
-};
-
-
-QThreadPostEventPrivate::QThreadPostEventPrivate()
-{
-    events.setAutoDelete( TRUE );
-    connect( qApp, SIGNAL( guiThreadAwake() ), this, SLOT( sendEvents() ) );
-}
-
-
-// this is called from the QApplication::guiThreadAwake signal, and the
-// application mutex is already locked
-void QThreadPostEventPrivate::sendEvents()
-{
-    QMutexLocker locker( qt_global_mutexpool->get( this ) );
-    QThreadQtEvent *qte;
-    for ( qte = events.first(); qte != 0; qte = events.next() ) {
-	if ( qte->receiver )
-	    qApp->postEvent( qte->receiver, qte->event );
-    }
-    events.clear();
-}
-
-
-static QThreadPostEventPrivate * qthreadposteventprivate = 0;
-
-
-void qthread_removePostedEvents( QObject *receiver )
-{
-    if ( !qthreadposteventprivate )
-	return;
-    QMutexLocker locker( qt_global_mutexpool->get( qthreadposteventprivate ) );
-    QThreadQtEvent *qte;
-    for ( qte = qthreadposteventprivate->events.first(); qte != 0;
-	  qte = qthreadposteventprivate->events.next() ) {
-	if ( qte->receiver == receiver ) {
-	    qte->receiver = 0;
-	    delete qte->event;
-	    qte->event = 0;
-	}
-    }
-}
-
-
 
 /**************************************************************************
  ** QThread
@@ -285,8 +217,6 @@ Qt::HANDLE QThread::currentThread()
 */
 void QThread::initialize()
 {
-    if( ! qthreadposteventprivate && qApp )
-	qthreadposteventprivate = new QThreadPostEventPrivate();
 }
 
 
@@ -295,47 +225,16 @@ void QThread::initialize()
 */
 void QThread::cleanup()
 {
-    delete qthreadposteventprivate;
-    qthreadposteventprivate = 0;
 }
 
 
-/*!
-    Provides a way of posting an event from a thread which is not the
-    event thread to an object.
+/*! \obsolete
 
-    This is achieved as follows:
-    \list
-    \i The \a event is put into a queue;
-    \i the event thread is woken up;
-    \i the event thread sends the event to the \a receiver object.
-    \endlist
-    It is important to note that the event handler for the event, when
-    called, will be called from the event thread and not from the
-    thread calling QThread::postEvent().
-
-    Since QThread::postEvent() posts events into the event queue of
-    QApplication, you must create a QApplication object before calling
-    QThread::postEvent().
-
-    The event must be allocated on the heap since the post event queue
-    will take ownership of the event and delete it once it has been
-    posted.
-
-    \sa QApplication::postEvent()
+    Use QApplication::postEvent() instead.
 */
 void QThread::postEvent( QObject * receiver, QEvent * event )
 {
-#if defined(QT_CHECK_STATE)
-    if (! qthreadposteventprivate) {
-	qWarning("QThread::postEvent: cannot post event - threads not initialized.");
-	return;
-    }
-#endif // QT_CHECK_STATE
-
-    QMutexLocker locker( qt_global_mutexpool->get( qthreadposteventprivate ) );
-    qthreadposteventprivate->events.append( new QThreadQtEvent(receiver, event) );
-    qApp->wakeUpGuiThread();
+    QApplication::postEvent( receiver, event );
 }
 
 
@@ -592,4 +491,3 @@ bool QThread::running() const
 #include "qthread_unix.moc"
 
 #endif // QT_THREAD_SUPPORT
-
