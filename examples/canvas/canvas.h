@@ -25,7 +25,6 @@ public:
 
 protected:
     void contentsMousePressEvent(QMouseEvent*);
-    void contentsMouseReleaseEvent(QMouseEvent*);
     void contentsMouseMoveEvent(QMouseEvent*);
 
 signals:
@@ -86,7 +85,7 @@ private:
 
     QPopupMenu* options;
     QPrinter* printer;
-    int dbf_id;
+    bool dbf;
 };
 
 #endif

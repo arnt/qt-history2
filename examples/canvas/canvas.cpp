@@ -177,11 +177,6 @@ void FigureEditor::contentsMousePressEvent(QMouseEvent* e)
     }
 }
 
-void FigureEditor::contentsMouseReleaseEvent(QMouseEvent* e)
-{
-    moving = 0;
-}
-
 void FigureEditor::clear()
 {
     QCanvasItemList list = canvas()->allItems();
@@ -305,7 +300,7 @@ static uint mainCount = 0;
 static QImage *butterflyimg;
 static QImage *logoimg;
 
-Main::Main(QCanvas& c, QWidget* parent, const char* name, Qt::WFlags f) :
+Main::Main(QCanvas& c, QWidget* parent, const char*, Qt::WFlags f) :
     QMainWindow(parent, f),
     canvas(c)
 {
@@ -313,54 +308,54 @@ Main::Main(QCanvas& c, QWidget* parent, const char* name, Qt::WFlags f) :
     QMenuBar* menu = menuBar();
 
     QPopupMenu* file = new QPopupMenu( menu );
-    file->insertItem("&Fill canvas", this, SLOT(init()), Qt::CTRL+Qt::Key_F);
-    file->insertItem("&Erase canvas", this, SLOT(clear()), Qt::CTRL+Qt::Key_E);
-    file->insertItem("&New view", this, SLOT(newView()), Qt::CTRL+Qt::Key_N);
-    file->insertSeparator();
-    file->insertItem("&Print...", this, SLOT(print()), Qt::CTRL+Qt::Key_P);
-    file->insertSeparator();
-    file->insertItem("E&xit", qApp, SLOT(quit()), Qt::CTRL+Qt::Key_Q);
-    menu->insertItem("&File", file);
+    file->addAction("&Fill canvas", this, SLOT(init()), Qt::CTRL+Qt::Key_F);
+    file->addAction("&Erase canvas", this, SLOT(clear()), Qt::CTRL+Qt::Key_E);
+    file->addAction("&New view", this, SLOT(newView()), Qt::CTRL+Qt::Key_N);
+    file->addSeparator();
+    file->addAction("&Print...", this, SLOT(print()), Qt::CTRL+Qt::Key_P);
+    file->addSeparator();
+    file->addAction("E&xit", qApp, SLOT(quit()), Qt::CTRL+Qt::Key_Q);
+    menu->addMenu("&File", file);
 
     QPopupMenu* edit = new QPopupMenu( menu );
-    edit->insertItem("Add &Circle", this, SLOT(addCircle()), Qt::ALT+Qt::Key_C);
-    edit->insertItem("Add &Hexagon", this, SLOT(addHexagon()), Qt::ALT+Qt::Key_H);
-    edit->insertItem("Add &Polygon", this, SLOT(addPolygon()), Qt::ALT+Qt::Key_P);
-    edit->insertItem("Add Spl&ine", this, SLOT(addSpline()), Qt::ALT+Qt::Key_I);
-    edit->insertItem("Add &Text", this, SLOT(addText()), Qt::ALT+Qt::Key_T);
-    edit->insertItem("Add &Line", this, SLOT(addLine()), Qt::ALT+Qt::Key_L);
-    edit->insertItem("Add &Rectangle", this, SLOT(addRectangle()), Qt::ALT+Qt::Key_R);
-    edit->insertItem("Add &Sprite", this, SLOT(addSprite()), Qt::ALT+Qt::Key_S);
-    edit->insertItem("Create &Mesh", this, SLOT(addMesh()), Qt::ALT+Qt::Key_M );
-    edit->insertItem("Add &Alpha-blended image", this, SLOT(addButterfly()), Qt::ALT+Qt::Key_A);
-    menu->insertItem("&Edit", edit);
+    edit->addAction("Add &Circle", this, SLOT(addCircle()), Qt::ALT+Qt::Key_C);
+    edit->addAction("Add &Hexagon", this, SLOT(addHexagon()), Qt::ALT+Qt::Key_H);
+    edit->addAction("Add &Polygon", this, SLOT(addPolygon()), Qt::ALT+Qt::Key_P);
+    edit->addAction("Add Spl&ine", this, SLOT(addSpline()), Qt::ALT+Qt::Key_I);
+    edit->addAction("Add &Text", this, SLOT(addText()), Qt::ALT+Qt::Key_T);
+    edit->addAction("Add &Line", this, SLOT(addLine()), Qt::ALT+Qt::Key_L);
+    edit->addAction("Add &Rectangle", this, SLOT(addRectangle()), Qt::ALT+Qt::Key_R);
+    edit->addAction("Add &Sprite", this, SLOT(addSprite()), Qt::ALT+Qt::Key_S);
+    edit->addAction("Create &Mesh", this, SLOT(addMesh()), Qt::ALT+Qt::Key_M );
+    edit->addAction("Add &Alpha-blended image", this, SLOT(addButterfly()), Qt::ALT+Qt::Key_A);
+    menu->addMenu("&Edit", edit);
 
     QPopupMenu* view = new QPopupMenu( menu );
-    view->insertItem("&Enlarge", this, SLOT(enlarge()), Qt::SHIFT+Qt::CTRL+Qt::Key_Plus);
-    view->insertItem("Shr&ink", this, SLOT(shrink()), Qt::SHIFT+Qt::CTRL+Qt::Key_Minus);
-    view->insertSeparator();
-    view->insertItem("&Rotate clockwise", this, SLOT(rotateClockwise()), Qt::CTRL+Qt::Key_PageDown);
-    view->insertItem("Rotate &counterclockwise", this, SLOT(rotateCounterClockwise()), Qt::CTRL+Qt::Key_PageUp);
-    view->insertItem("&Zoom in", this, SLOT(zoomIn()), Qt::CTRL+Qt::Key_Plus);
-    view->insertItem("Zoom &out", this, SLOT(zoomOut()), Qt::CTRL+Qt::Key_Minus);
-    view->insertItem("Translate left", this, SLOT(moveL()), Qt::CTRL+Qt::Key_Left);
-    view->insertItem("Translate right", this, SLOT(moveR()), Qt::CTRL+Qt::Key_Right);
-    view->insertItem("Translate up", this, SLOT(moveU()), Qt::CTRL+Qt::Key_Up);
-    view->insertItem("Translate down", this, SLOT(moveD()), Qt::CTRL+Qt::Key_Down);
-    view->insertItem("&Mirror", this, SLOT(mirror()), Qt::CTRL+Qt::Key_Home);
-    menu->insertItem("&View", view);
+    view->addAction("&Enlarge", this, SLOT(enlarge()), Qt::SHIFT+Qt::CTRL+Qt::Key_Plus);
+    view->addAction("Shr&ink", this, SLOT(shrink()), Qt::SHIFT+Qt::CTRL+Qt::Key_Minus);
+    view->addSeparator();
+    view->addAction("&Rotate clockwise", this, SLOT(rotateClockwise()), Qt::CTRL+Qt::Key_PageDown);
+    view->addAction("Rotate &counterclockwise", this, SLOT(rotateCounterClockwise()), Qt::CTRL+Qt::Key_PageUp);
+    view->addAction("&Zoom in", this, SLOT(zoomIn()), Qt::CTRL+Qt::Key_Plus);
+    view->addAction("Zoom &out", this, SLOT(zoomOut()), Qt::CTRL+Qt::Key_Minus);
+    view->addAction("Translate left", this, SLOT(moveL()), Qt::CTRL+Qt::Key_Left);
+    view->addAction("Translate right", this, SLOT(moveR()), Qt::CTRL+Qt::Key_Right);
+    view->addAction("Translate up", this, SLOT(moveU()), Qt::CTRL+Qt::Key_Up);
+    view->addAction("Translate down", this, SLOT(moveD()), Qt::CTRL+Qt::Key_Down);
+    view->addAction("&Mirror", this, SLOT(mirror()), Qt::CTRL+Qt::Key_Home);
+    menu->addMenu("&View", view);
 
     options = new QPopupMenu( menu );
-    dbf_id = options->insertItem("Double buffer", this, SLOT(toggleDoubleBuffer()));
-    options->setItemChecked(dbf_id, TRUE);
-    menu->insertItem("&Options",options);
+    QAction *ac = options->addAction("Double buffer", this, SLOT(toggleDoubleBuffer()));
+    ac->setCheckable(true);
+    ac->setChecked(true);
+    menu->addMenu("&Options",options);
 
-    menu->insertSeparator();
+    menu->addSeparator();
 
     QPopupMenu* help = new QPopupMenu( menu );
-    help->insertItem("&About", this, SLOT(help()), Qt::Key_F1);
-    help->setItemChecked(dbf_id, TRUE);
-    menu->insertItem("&Help",help);
+    help->addAction("&About", this, SLOT(help()), Qt::Key_F1);
+    menu->addMenu("&Help",help);
 
     statusBar();
 
@@ -392,6 +387,7 @@ void Main::init()
     for ( i=0; i<canvas.width() / 128; i++) {
 	addLogo();
     }
+    dbf = true;
 }
 
 Main::~Main()
@@ -441,9 +437,8 @@ void Main::aboutQt()
 
 void Main::toggleDoubleBuffer()
 {
-    bool s = !options->isItemChecked(dbf_id);
-    options->setItemChecked(dbf_id,s);
-    canvas.setDoubleBuffering(s);
+    dbf = !dbf;
+    canvas.setDoubleBuffering(dbf);
 }
 
 void Main::enlarge()
