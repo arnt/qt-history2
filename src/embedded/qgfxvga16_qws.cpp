@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Implementation of QGfxVga16 (graphics context) class for VGA cards
 **
 ** Created :
 **
-** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the kernel module of the Qt GUI Toolkit.
 **
@@ -364,7 +364,7 @@ QGfxVga16::~QGfxVga16()
 }
 
 
-void QGfxVga16::setPixel( int x, int y, unsigned char col)
+void QGfxVga16::setPixel( int x, int y, unsigned char col )
 {
     BEGIN_PROFILING
 
@@ -830,7 +830,7 @@ void QGfxVga16::drawrect_4(unsigned int x1, unsigned int y1,
 }
 
 
-void QGfxVga16::himageline_4(unsigned int y, unsigned int x1, unsigned int x2, unsigned char *srcdata, bool reverse = false)
+void QGfxVga16::himageline_4(unsigned int y, unsigned int x1, unsigned int x2, unsigned char *srcdata, bool reverse)
 {
     BEGIN_PROFILING
     
@@ -935,7 +935,7 @@ void QGfxVga16::himageline_4(unsigned int y, unsigned int x1, unsigned int x2, u
 // Convert between pixel values for different depths
 // reverse can only be true if sdepth == depth
 GFX_INLINE unsigned int QGfxVga16::get_value_32(
-		       int sdepth, unsigned char **srcdata, bool reverse = false)
+		       int sdepth, unsigned char **srcdata, bool reverse)
 {
     BEGIN_PROFILING
     

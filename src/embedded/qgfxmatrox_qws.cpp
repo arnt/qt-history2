@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Implementation of QGfxMatrox (graphics context) class for Matrox MGA cards
 **
 ** Created : 000503
 **
-** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the kernel module of the Qt GUI Toolkit.
 **
@@ -783,7 +783,7 @@ int matrox_ngval(QRgb r)
 
 void QMatroxCursor::set(const QImage& image,int hx,int hy)
 {
-    cursor=&image;
+    cursor=(QImage*)&image;
     hotx=hx;
     hoty=hy;
 

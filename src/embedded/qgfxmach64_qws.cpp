@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Implementation of QGfxMach64 (graphics context) class for Mach64 cards
 *
 ** Created : 940721
 **
-** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the kernel module of the Qt GUI Toolkit.
 **
@@ -1785,7 +1785,7 @@ void QMachCursor::init(SWCursorData *,bool)
 // Set a new cursor image, with hotspot
 void QMachCursor::set(const QImage& image,int hx,int hy)
 {
-    cursor=&image;
+    cursor=(QImage*)&image;
     hotx=hx;
     hoty=hy;
 

@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Implementation of QGfxVoodoo (graphics context) class for Voodoo 3 cards
 **
 ** Created : 000503
 **
-** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the kernel module of the Qt GUI Toolkit.
 **
@@ -978,7 +978,7 @@ int voodoo_ngval(QRgb r)
 
 void QVoodooCursor::set(const QImage& image,int hx,int hy)
 {
-    cursor=&image;
+    cursor=(QImage*)&image;
     hotx=hx;
     hoty=hy;
 
