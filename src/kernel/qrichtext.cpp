@@ -299,6 +299,7 @@ QTextCursor *QTextFormatCommand::unexecute( QTextCursor *c )
 	    if ( sp == ep )
 		break;
 	    sp = sp->next();
+	    idx = 0;
 	}
     }
 
