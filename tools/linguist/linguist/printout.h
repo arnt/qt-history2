@@ -70,8 +70,6 @@ public:
 	    align = b.align;
 	    return *this;
 	}
-
-	bool operator== ( const Box& ) const;
     };
 
 
