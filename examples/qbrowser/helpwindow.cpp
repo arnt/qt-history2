@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/qbrowser/helpwindow.cpp#3 $
+** $Id: //depot/qt/main/examples/qbrowser/helpwindow.cpp#4 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -33,7 +33,7 @@ HelpWindow::HelpWindow( const QString& home_, const QString& path, QWidget* pare
     setCentralWidget( browser );
 
     if ( !home_.isEmpty() )
-	browser->setSource( home_, home_ );
+	browser->setSource( home_ );
 
     connect( browser, SIGNAL( highlighted( const QString&) ),
 	     statusBar(), SLOT( message( const QString&)) );
