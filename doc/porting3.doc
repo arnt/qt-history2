@@ -86,6 +86,9 @@ that is the Qt Developer Community!
 <ul>
  <li><b><a href="#Namespace">Namespace</a></b>
  <li><b><a href="#Removed">Removed functions</a></b>
+ <ul>
+  <li>setFontPropagation, setPalettePropagation
+ </ul>
 </ul>
 
 <hr>
