@@ -1286,7 +1286,7 @@ static QWidget *findChildWidget( const QWidget *p, const QPoint &pos )
 {
     if ( p->children() ) {
 	QWidget *w;
-	QObjectListIt it( *p->children() );
+	QObjectListIterator it( *p->children() );
 	it.toLast();
 	while ( it.current() ) {
 	    if ( it.current()->isWidgetType() ) {
