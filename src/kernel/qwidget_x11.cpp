@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#13 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#14 $
 **
 ** Implementation of QWidget and QView classes for X11
 **
@@ -11,16 +11,17 @@
 *****************************************************************************/
 
 #include "qview.h"
-#include "qobjcoll.h"
 #include "qapp.h"
+#include "qpaintdc.h"
 #include "qpixmap.h"
+#include "qobjcoll.h"
 #define	 GC GC_QQQ
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#13 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#14 $";
 #endif
 
 
@@ -112,6 +113,13 @@ bool QWidget::create()				// create widget
 				 &v );
     }
     else if ( overlap ) {			// top level widget
+#if 0
+	XSetWindowAttributes v;
+	v.bit_gravity = NorthWestGravity;	// don't erase when resizing
+	XChangeWindowAttributes( dpy, id,
+				 CWBitGravity,
+				 &v );
+#endif
 	XSizeHints size_hints;
 	size_hints.flags = PPosition | PSize | PWinGravity;
 	size_hints.x = rect.left();
@@ -136,7 +144,10 @@ bool QWidget::create()				// create widget
     }
     setMouseMoveEvents( FALSE );		// events only when button down
     gc = qXAllocGC( fnt.fontId(), bg_col.pixel(),
-		    fg_col.pixel() );
+		    fg_col.pixel(), !testFlag(WPaintUnclipped) );
+    if ( testFlag(WPaintUnclipped) )		// paint direct on device
+	XSetSubwindowMode( dpy, gc, IncludeInferiors );
+
     if ( !desktop )
 	setCursor( arrowCursor );		// default cursor
     return TRUE;
@@ -202,7 +213,8 @@ QColor QWidget::foregroundColor() const		// get foreground color
 void QWidget::setBackgroundColor( const QColor &c )
 {						// set background color
     bg_col = c;
-    gc = qXChangeGC( gc, fnt.fontId(), bg_col.pixel(), fg_col.pixel() );
+    gc = qXChangeGC( gc, fnt.fontId(), bg_col.pixel(), fg_col.pixel(),
+		     !testFlag(WPaintUnclipped) );
     XSetWindowBackground( dpy, ident, bg_col.pixel() );
     update();
 }
@@ -210,7 +222,8 @@ void QWidget::setBackgroundColor( const QColor &c )
 void QWidget::setForegroundColor( const QColor &c )
 {						// set foreground color
     fg_col = c;
-    gc = qXChangeGC( gc, fnt.fontId(), bg_col.pixel(), fg_col.pixel() );
+    gc = qXChangeGC( gc, fnt.fontId(), bg_col.pixel(), fg_col.pixel(),
+		     !testFlag(WPaintUnclipped) );
     update();
 }
 
@@ -224,7 +237,8 @@ void QWidget::setFont( const QFont &f )		// set font
 {
 
     Font fid = f.fontId();
-    gc = qXChangeGC( gc, fid, bg_col.pixel(), fg_col.pixel() );
+    gc = qXChangeGC( gc, fid, bg_col.pixel(), fg_col.pixel(),
+		     !testFlag(WPaintUnclipped) );
     fnt = f;
 }
 
@@ -566,6 +580,43 @@ void QWidget::drawText( int x, int y, const char *str )
 {						// draw text in widget
     if ( testFlag( WState_Visible ) )
 	XDrawString( dpy, ident, gc, x, y, str, strlen(str));
+}
+
+
+long QWidget::metric( int m ) const		// get metric information
+{
+    long val;
+    if ( m == PDM_WIDTH || m == PDM_HEIGHT ) {
+	if ( m == PDM_WIDTH )
+	    val = rect.width();
+	else
+	    val = rect.height();
+    }
+    else {
+	int scr = qXScreen();
+	switch ( m ) {
+	    case PDM_WIDTHMM:
+	        val = ((long)DisplayWidthMM(dpy,scr)*rect.width())/
+		      DisplayWidth(dpy,scr);
+		break;
+	    case PDM_HEIGHTMM:
+	        val = ((long)DisplayHeightMM(dpy,scr)*rect.height())/
+		      DisplayHeight(dpy,scr);
+		break;
+	    case PDM_NUMCOLORS:
+		val = DisplayCells(dpy,scr);
+		break;
+	    case PDM_NUMPLANES:
+		val = DisplayPlanes(dpy,scr);
+		break;
+	    default:
+		val = 0;
+#if defined(CHECK_RANGE)
+		warning( "QWidget::metric: Invalid metric command" );
+#endif
+	}
+    }
+    return val;
 }
 
 
