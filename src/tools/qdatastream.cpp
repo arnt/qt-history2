@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdatastream.cpp#1 $
+** $Id: //depot/qt/main/src/tools/qdatastream.cpp#2 $
 **
 ** Implementation of QStream class
 **
@@ -22,7 +22,7 @@
 #endif
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qdatastream.cpp#1 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qdatastream.cpp#2 $";
 #endif
 
 
@@ -37,59 +37,21 @@ QStream::QStream()
 {
     if ( wordSize == 0 )			// get system features
 	qSysInfo( &wordSize, &bigEndian );
-    smode = Stream_Null;			// initial mode
-    ptr = 0;
+    dev = 0;					// no device set
+    frmt = Stream_Data;				// set default format    
+}
+
+QStream::QStream( QIODevice *d )
+{
+    if ( wordSize == 0 )			// get system features
+	qSysInfo( &wordSize, &bigEndian );
+    dev = d;					// no device set
+    frmt = Stream_Data;				// set default format    
 }
 
 QStream::~QStream()
 {
 }
-
-
-bool QStream::setMode( int m )			// set stream mode
-{
-    bool res = TRUE;
-    smode = m;
-    if ( !format() )				// no format defined
-	smode |= Stream_Data;			// set default format
-#if defined(CHECK_RANGE)
-    else
-    if ( format() > Stream_Data7bit ) {		// invalid format
-	warning( "QStream::setMode: Invalid stream format specifier %d", m );
-	res = FALSE;
-    }
-    if ( !access() || (access()|Stream_ReadWrite) != Stream_ReadWrite ) {
-	warning( "QStream::setMode: Invalid stream access specifier %d", m );
-	res = FALSE;
-    }
-    if ( !res )
-	smode = 0;
-#endif
-    return res;
-}
-
-long QStream::at()				// get stream pointer
-{
-    return ptr;
-}
-
-bool QStream::at( long n )			// set stream pointer
-{
-#if defined(CHECK_RANGE)
-    if ( n > size() ) {
-	warning( "QStream::at: Pointer %lu out of range", n );
-	return FALSE;
-    }
-#endif
-    ptr = n;
-    return TRUE;
-}
-
-bool QStream::atEnd()				// at end of stream
-{
-    return at() == size();
-}
-
 
 // --------------------------------------------------------------------------
 // QStream read functions
@@ -100,7 +62,7 @@ static INT32 read_int_d7( QStream *s )		// read data7 int constant
     register int n = 0;
     char buf[40];
     while ( TRUE ) {
-	buf[n] = s->getch();
+	buf[n] = s->device()->getch();
 	if ( buf[n] == '$' || n > 38 )		// $-terminator
 	    break;
 	n++;
@@ -112,15 +74,15 @@ static INT32 read_int_d7( QStream *s )		// read data7 int constant
 QStream &QStream::read( INT8 &i )		// read 8-bit signed int (char)
 {
     if ( format() == Stream_Data7bit ) {	// data7
-	i = (INT8)getch();
+	i = (INT8)dev->getch();
 	if ( i == '\\' ) {			// read octal code
 	    char buf[4];
-	    _read( buf, 3 );
+	    dev->readBlock( buf, 3 );
 	    i = (buf[2] & 0x07)+((buf[1] & 0x07) << 3)+((buf[0] & 0x07) << 6);
 	}
     }
     else					// data or text
-	i = (INT8)getch();
+	i = (INT8)dev->getch();
     return *this;
 }
 
@@ -130,15 +92,15 @@ QStream &QStream::read( INT16 &i )		// read 16-bit signed int
 	i = (INT16)read_int_d7( this );
     else
     if ( bigEndian )				// no conversion needed
-	_read( (char *)&i, sizeof(INT16) );
+	dev->readBlock( (char *)&i, sizeof(INT16) );
     else {					// convert to little endian
 #if defined(UNIX)
-	_read( (char *)&i, sizeof(INT16) );
+	dev->readBlock( (char *)&i, sizeof(INT16) );
 	i = (INT16)ntohs( i );
 #else
 	register unsigned char *p = (unsigned char *)(&i);
 	char x[2];
-	_read( x, 2 );
+	dev->readBlock( x, 2 );
 	*p++ = x[1];
 	*p = x[0];
 #endif
@@ -152,15 +114,15 @@ QStream &QStream::read( INT32 &i )		// read 32-bit signed int
 	i = read_int_d7( this );
     else
     if ( bigEndian )				// no conversion needed
-	_read( (char *)&i, sizeof(INT32) );
+	dev->readBlock( (char *)&i, sizeof(INT32) );
     else {					// convert to little endian
 #if defined(UNIX)
-	_read( (char *)&i, sizeof(INT32) );
+	dev->readBlock( (char *)&i, sizeof(INT32) );
 	i = (INT32)ntohl( i );
 #else
 	register unsigned char *p = (unsigned char*)(&i);
 	char x[4];
-	_read( x, 4 );
+	dev->readBlock( x, 4 );
 	*p++ = x[3];
 	*p++ = x[2];
 	*p++ = x[1];
@@ -192,7 +154,7 @@ static double read_double_d7( QStream *s )	// read data7 double constant
     register int n = 0;
     char buf[80];
     while ( TRUE ) {
-	buf[n] = s->getch();
+	buf[n] = s->device()->getch();
 	if ( buf[n] == '$' || n > 78 )		// $-terminator
 	    break;
 	n++;
@@ -207,11 +169,11 @@ QStream &QStream::read( float &f )		// read 32-bit floating point
 	f = (float)read_double_d7( this );
     else
     if ( bigEndian )				// no conversion needed
-	_read( (char *)&f, sizeof(float) );
+	dev->readBlock( (char *)&f, sizeof(float) );
     else {					// convert to little endian
 	register unsigned char *p = (unsigned char *)(&f);
 	char x[4];
-	_read( x, 4 );
+	dev->readBlock( x, 4 );
 	*p++ = x[3];
 	*p++ = x[2];
 	*p++ = x[1];
@@ -226,11 +188,11 @@ QStream &QStream::read( double &f )		// read 64-bit floating point
 	f = read_double_d7( this );
     else
     if ( bigEndian )				// no conversion needed
-	_read( (char *)&f, sizeof(double) );
+	dev->readBlock( (char *)&f, sizeof(double) );
     else {					// convert to little endian
 	register unsigned char *p = (unsigned char *)(&f);
 	char x[8];
-	_read( x, 8 );
+	dev->readBlock( x, 8 );
 	*p++ = x[7];
 	*p++ = x[6];
 	*p++ = x[5];
@@ -270,7 +232,7 @@ QStream &QStream::readBytes( char *s, uint len )// read bytes
 	    read( *p++ );
     }
     else					// read data char array
-	_read( s, len );
+	dev->readBlock( s, len );
     return *this;
 }
 
@@ -288,10 +250,10 @@ QStream &QStream::write( INT8 i )		// write 8-bit signed int
 	buf[2] = '0' + ((i >> 3) & 0x07);
 	buf[3] = '0' + (i & 0x07);
 	buf[4] = '\0';
-	_write( buf, 4 );
+	dev->writeBlock( buf, 4 );
     }
     else
-	putch( i );
+	dev->putch( i );
     return *this;
 }
 
@@ -300,21 +262,21 @@ QStream &QStream::write( INT16 i )		// write 16-bit signed int
     if ( format() == Stream_Data7bit ) {	// data7
 	char buf[16];
 	sprintf( buf, "%d$", i );
-	_write( buf, strlen(buf) );
+	dev->writeBlock( buf, strlen(buf) );
     }
     else
     if ( bigEndian )				// no conversion needed
-	_write( (char *)&i, sizeof(INT16) );
+	dev->writeBlock( (char *)&i, sizeof(INT16) );
     else {					// convert to big endian
 #if defined(UNIX)
 	i = (INT16)htons( i );
-	_write( (char *)&i, sizeof(INT16) );
+	dev->writeBlock( (char *)&i, sizeof(INT16) );
 #else
 	register puchar p = (puchar)(&i);
 	char x[2];
 	x[1] = *p++;
 	x[0] = *p;
-	_write( x, 2 );
+	dev->writeBlock( x, 2 );
 #endif
     }
     return *this;
@@ -325,15 +287,15 @@ QStream &QStream::write( INT32 i )		// write 32-bit signed int
     if ( format() == Stream_Data7bit ) {	// data7
 	char buf[16];
 	sprintf( buf, "%ld$", i );
-	_write( buf, strlen(buf) );
+	dev->writeBlock( buf, strlen(buf) );
     }
     else
     if ( bigEndian )				// no conversion needed
-	_write( (char *)&i, sizeof(INT32) );
+	dev->writeBlock( (char *)&i, sizeof(INT32) );
     else {					// convert to big endian
 #if defined(UNIX)
 	i = (INT32)htonl( i );
-	_write( (char *)&i, sizeof(INT32) );
+	dev->writeBlock( (char *)&i, sizeof(INT32) );
 #else
 	register unsigned char *p = (unsigned char *)(&i);
 	char x[4];
@@ -341,7 +303,7 @@ QStream &QStream::write( INT32 i )		// write 32-bit signed int
 	x[2] = *p++;
 	x[1] = *p++;
 	x[0] = *p;
-	_write( x, 4 );
+	dev->writeBlock( x, 4 );
 #endif
     }
     return *this;
@@ -353,12 +315,12 @@ QStream &QStream::write( float f )		// write 32-bit floating point
     if ( format() == Stream_Data7bit ) {	// data7
 	char buf[32];
 	sprintf( buf, "%g$", f );
-	_write( buf, strlen(buf) );
+	dev->writeBlock( buf, strlen(buf) );
     }
     else {
 	float g = f;				// fixes float-on-stack problem
 	if ( bigEndian )			// no conversion needed
-	    _write( (char *)&g, sizeof(float) );
+	    dev->writeBlock( (char *)&g, sizeof(float) );
 	else {					// convert to big endian
 	    register unsigned char *p = (unsigned char *)(&g);
 	    char x[4];
@@ -366,7 +328,7 @@ QStream &QStream::write( float f )		// write 32-bit floating point
 	    x[2] = *p++;
 	    x[1] = *p++;
 	    x[0] = *p;
-	    _write( x, 4 );
+	    dev->writeBlock( x, 4 );
 	}
     }
     return *this;
@@ -377,11 +339,11 @@ QStream &QStream::write( double f )		// write 64-bit floating point
     if ( format() == Stream_Data7bit ) {	// data7
 	char buf[32];
 	sprintf( buf, "%g$", f );
-	_write( buf, strlen(buf) );
+	dev->writeBlock( buf, strlen(buf) );
     }
     else
     if ( bigEndian )				// no conversion needed
-	_write( (char *)&f, sizeof(double) );
+	dev->writeBlock( (char *)&f, sizeof(double) );
     else {					// convert to big endian
 	register puchar p = (puchar)(&f);
 	char x[8];
@@ -393,7 +355,7 @@ QStream &QStream::write( double f )		// write 64-bit floating point
 	x[2] = *p++;
 	x[1] = *p++;
 	x[0] = *p;
-	_write( x, 8 );
+	dev->writeBlock( x, 8 );
     }
     return *this;
 }
@@ -420,6 +382,6 @@ QStream &QStream::writeBytes( const char *s, uint len )
 	    write( *p++ );
     }
     else					// write data char array
-	_write( s, len );
+	dev->writeBlock( s, len );
     return *this;
 }

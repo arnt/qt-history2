@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdstream.h#1 $
+** $Id: //depot/qt/main/src/tools/qdstream.h#2 $
 **
 ** Definition of QStream class
 **
@@ -13,49 +13,33 @@
 #ifndef QSTREAM_H
 #define QSTREAM_H
 
-#include "qglobal.h"
+#include "qiodev.h"
 
 
-// Stream mode encoding
+// Stream format
 
-#define Stream_Data		1		// stream format
-#define Stream_Data7bit		2
-#define Stream_TypeMask		0x0f
-
-#define Stream_ReadOnly		0x10		// stream access
-#define Stream_WriteOnly	0x20
-#define Stream_ReadWrite	0x30
-#define Stream_AccessMask	0xf0
-
-#define Stream_Null		0
+#define Stream_Data		1		// 8 bit data (default)
+#define Stream_Data7bit		2		// 7 bit printable
 
 
 class QStream					// stream class
 {
 public:
     QStream();
+    QStream( QIODevice * );
     virtual ~QStream();
 
-    int		 mode()	  const { return smode; }
-    int		 format() const { return smode & Stream_TypeMask; }
-    int		 access() const { return smode & Stream_AccessMask; }
+    QIODevice 	*device() const;		// get current stream device
+    void	 setDevice( QIODevice * );	// set stream device
 
-    virtual bool open( int mode ) = 0;		// open stream in Stream_Mode
-    virtual bool close() = 0;			// close stream
-    virtual bool flush() = 0;			// flush stream
+    int	  	 format() const;		// get stream format
+    void  	 setFormat( int );		// set stream format
 
-    virtual long size() = 0;			// get stream size
-    virtual long at();				// get stream pointer
-    virtual bool at( long );			// set stream pointer
-    virtual bool atEnd();			// test if at end of stream
-    bool	 reset() { return at(0); }	// reset data pointer
-
-    virtual QStream& _read( char *p, uint len ) = 0;
-    virtual QStream& _write( const char *p, uint len ) = 0;
-
-    virtual int	 getch() = 0;			// get next char
-    virtual int	 putch( int ) = 0;		// put char
-    virtual int	 ungetch( int ) = 0;		// put back char
+    long	 size()  const;			// get stream device size
+    long	 at()    const;			// get stream device index
+    bool	 at( long );			// set stream device index
+    bool	 atEnd() const;			// test if at end of device
+    bool	 reset();			// reset stream device index
 
     QStream	&read( INT8 & );		// read integer
     QStream	&read( UINT8 &i )  { return read((INT8&)i); }
@@ -89,11 +73,27 @@ public:
     QStream	&write( const char *, uint len );
     QStream	&writeBytes( const char *, uint len );
 
-protected:
-    int		 smode;				// stream mode
-    long	 ptr;				// stream pointer
-    bool	 setMode( int );		// set stream mode
+private:
+    QIODevice   *dev;				// I/O device
+    int	  	 frmt;				// stream format
 };
+
+
+// --------------------------------------------------------------------------
+// QStream inline functions
+//
+
+inline QIODevice *QStream::device() const	{ return dev; }
+inline void QStream::setDevice( QIODevice *d )	{ dev = d; }
+
+inline int QStream::format() const		{ return frmt; }
+inline void QStream::setFormat( int f )		{ frmt = f; }
+
+inline long QStream::size()  const		{ return dev->size(); }
+inline long QStream::at()    const		{ return dev->at(); }
+inline bool QStream::at( long index )		{ return dev->at(index); }
+inline bool QStream::atEnd() const		{ return dev->atEnd(); }
+inline bool QStream::reset()			{ return dev->reset(); }
 
 
 // --------------------------------------------------------------------------
