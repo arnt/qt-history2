@@ -20,6 +20,10 @@
 #include "qpixmapcache.h"
 #include "qstyleoption.h"
 
+#ifdef Q_WS_X11
+#include <qx11info_x11.h>
+#endif
+
 #include <limits.h>
 
 /*!
@@ -1729,7 +1733,15 @@ int QStyle::sliderValueFromPosition(int min, int max, int pos, int span, bool up
  */
 QPalette QStyle::standardPalette()
 {
+#ifdef Q_WS_X11
+    QColor background;
+    if (QX11Info::appDepth() > 8)
+        background = QColor(0xd4, 0xd0, 0xc8); // win 2000 grey
+    else
+        background = QColor(192, 192, 192);
+#else
     QColor background(0xd4, 0xd0, 0xc8); // win 2000 grey
+#endif        
     QColor light(background.light());
     QColor dark(background.dark());
     QColor mid(Qt::gray);
