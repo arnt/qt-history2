@@ -28,7 +28,7 @@ class MenuBarEditorItem : public QObject
     friend class MenuBarEditor;
 
     MenuBarEditorItem( MenuBarEditor * bar = 0, QObject * parent = 0, const char * name = 0 );
-    
+
 public:
     MenuBarEditorItem( PopupMenuEditor * menu, MenuBarEditor * bar,
 		       QObject * parent = 0, const char * name = 0);
@@ -52,7 +52,7 @@ public:
     bool isSeparator() { return separator; }
 protected:
     void setSeparator( bool enable ) { separator = enable; }
-    
+
 private:
     MenuBarEditor * menuBar;
     PopupMenuEditor * popupMenu;
@@ -68,7 +68,7 @@ class FormWindow;
 class MenuBarEditor : public QMenuBar
 {
     Q_OBJECT
-    
+
 public:
     MenuBarEditor( FormWindow * fw, QWidget * parent = 0, const char * name = 0 );
     ~MenuBarEditor();
@@ -81,14 +81,14 @@ public:
     void insertItem( const QString &text, QActionGroup * group, int index = -1 );
 
     void insertSeparator( int index = -1 );
-    
+
     void removeItemAt( int index );
     void removeItem( MenuBarEditorItem * item );
-    
+
     int findItem( MenuBarEditorItem * item );
     int findItem( PopupMenuEditor * menu );
     int findItem( const QPoint &pos );
-    
+
     MenuBarEditorItem * item( int index = -1 );
 
     int count() const;
@@ -118,7 +118,7 @@ public slots:
     void cut();
     void copy();
     void paste();
-    
+
 protected:
     bool eventFilter( QObject * o, QEvent * e );
     void paintEvent( QPaintEvent * e );
@@ -134,11 +134,11 @@ protected:
     void resizeEvent( QResizeEvent * e ) { QFrame::resizeEvent( e ); }
 
     void resizeInternals();
-    
+
     void drawItems( QPainter & p );
-    void drawItem( QPainter & p, MenuBarEditorItem * i, int idx, const QPoint &pos );
+    void drawItem( QPainter & p, MenuBarEditorItem * i, int idx, QPoint &pos );
     void drawSeparator( QPainter & p, const QPoint &pos );
-    
+
     QSize itemSize( MenuBarEditorItem * i );
     void addItemSizeToCoords( MenuBarEditorItem * i, int & x, int & y, int w );
 
@@ -155,7 +155,7 @@ protected:
     void leaveEditMode();
 
     QPixmap createTextPixmap( const QString &text );
-    
+
 private:
     FormWindow * formWnd;
     QLineEdit * lineEdit;
@@ -172,7 +172,7 @@ private:
     bool hideWhenEmpty;
     bool hasSeparator;
     bool dropConfirmed;
-    
+
     enum ClipboardOperation {
 	None = 0,
 	Cut = 1,

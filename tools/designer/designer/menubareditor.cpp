@@ -823,7 +823,7 @@ void MenuBarEditor::drawItems( QPainter & p )
 void MenuBarEditor::drawItem( QPainter & p,
 			      MenuBarEditorItem * i,
 			      int idx,
-			      const QPoint &pos )
+			      QPoint &pos )
 {
     int w = itemSize( i ).width();
 
