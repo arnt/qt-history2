@@ -5,9 +5,68 @@
 #include <qpointarray.h>
 #include <qfont.h>
 #include <qpainter.h>
+#include <qlist.h>
 
-class QTextString;
-class QFontPrivate;
+// bidi helper classes. Internal to Qt
+struct Q_EXPORT QBidiStatus {
+    QBidiStatus() {
+	eor = QChar::DirON;
+	lastStrong = QChar::DirON;
+	last = QChar:: DirON;
+    }
+    QChar::Direction eor 		: 5;
+    QChar::Direction lastStrong 	: 5;
+    QChar::Direction last		: 5;
+};
+
+struct Q_EXPORT QBidiContext {
+    QBidiContext( uchar level, QChar::Direction embedding, QBidiContext *parent = 0, bool override = FALSE );
+    ~QBidiContext();
+
+    void ref() const;
+    void deref() const;
+
+    unsigned char level;
+    bool override : 1;
+    QChar::Direction dir : 5;
+
+    QBidiContext *parent;
+
+    // refcounting....
+    int count;
+};
+
+struct Q_EXPORT QBidiControl {
+    QBidiContext *context;
+    QBidiStatus *status;
+};
+
+struct Q_EXPORT QTextRun {
+    QTextRun(int _start, int _stop, QBidiContext *context, QChar::Direction dir) {
+	start = _start;
+	stop = _stop;
+	if(dir == QChar::DirON) dir = context->dir;
+
+	level = context->level;
+
+	// add level of run (cases I1 & I2)
+	if( level % 2 ) {
+	    if(dir == QChar::DirL || dir == QChar::DirAN)
+		level++;
+	} else {
+	    if( dir == QChar::DirR )
+		level++;
+	    else if( dir == QChar::DirAN )
+		level += 2;
+	}
+	//printf("new run: level = %d\n", level);
+    }
+
+    int start;
+    int stop;
+    // explicit + implicit levels here
+    uchar level;
+};
 
 class Q_EXPORT QComplexText {
 public:
@@ -25,6 +84,8 @@ public:
 
     // positions non spacing marks relative to the base character at position pos.
     static QPointArray positionMarks( QFontPrivate *f, const QString &str, int pos, QRect *boundingRect = 0 );
+
+    QList<QTextRun> *bidiReorderLine( QBidiControl *control, const QString &str, int start, int len );
 };
 
 

@@ -14919,6 +14919,12 @@ QString &QString::setLatin1( const char *str, int len )
     return *this;
 }
 
+/*!\fn bool simpleText() const 
+  \internal
+*/
+
+/*! \internal
+ */
 void QString::checkSimpleText() const
 {
     QChar *p = d->unicode;
@@ -14933,6 +14939,32 @@ void QString::checkSimpleText() const
 	}
 	p++;
     }
+}
+
+/*! \internal
+ */
+bool QString::isRightToLeft() const
+{
+    int len = length();
+    QChar *p = d->unicode;
+    while( len-- ) {
+	switch( p->direction() )
+	{
+	case QChar::DirL:
+	case QChar::DirLRO:
+	case QChar::DirLRE:
+	    return FALSE;
+	case QChar::DirR:
+	case QChar::DirAL:
+	case QChar::DirRLO:
+	case QChar::DirRLE:
+	    return TRUE;
+	default:
+	    break;
+	}
+	++p;
+    }
+    return FALSE;
 }
 
 

@@ -567,7 +567,8 @@ public:
     void setLength( uint newLength );
 
     bool simpleText() const { if ( d->dirty ) checkSimpleText(); return (bool)d->simpletext; }
-    
+    bool isRightToLeft() const;
+
 private:
     QString( int size, bool dummy );            // allocate size incl. \0
 
