@@ -69,6 +69,14 @@ public:
 
     bool write(QIODevice *in);
     bool write(DomUI *ui);
+    
+    bool isMainWindow(const QString &className) const;
+    bool isToolBar(const QString &className) const;
+    bool isStatusBar(const QString &className) const;
+    bool isButton(const QString &className) const;
+    bool isContainer(const QString &className) const;
+    bool isMenuBar(const QString &className) const;
+    bool isMenu(const QString &className) const;
 
 private:
     // copyright header

@@ -126,12 +126,16 @@ void WriteInitialization::accept(DomWidget *node)
 
     QString savedParentWidget = parentWidget;
 
-    if (uic->customWidgetsInfo()->extends(parentClass, "QStackedBox") ||
-            uic->customWidgetsInfo()->extends(parentClass, "QToolBox") ||
-            uic->customWidgetsInfo()->extends(parentClass, "QTabWidget") ||
-            uic->customWidgetsInfo()->extends(parentClass, "QWidgetStack") ||
-            uic->customWidgetsInfo()->extends(parentClass, "QWizard"))
+    if (uic->isContainer(parentClass))
         parentWidget.clear();
+
+    if (uic->isMainWindow(parentClass) && !uic->isStatusBar(className)
+            && !uic->isToolBar(className) && !uic->isMenuBar(className)) {
+        if (uic->customWidgetsInfo()->extends(parentClass, "QMainWindow"))
+            parentWidget += QLatin1String("->centerWidget()");
+        else if (uic->customWidgetsInfo()->extends(parentClass, "Q3MainWindow"))
+            parentWidget += QLatin1String("->centralWidget()");
+    }
 
     if (m_widgetChain.size() != 1)
         output << option.indent << varName << " = new " << className << "(" << parentWidget << ");\n";
@@ -154,9 +158,7 @@ void WriteInitialization::accept(DomWidget *node)
         initializeSqlDataBrowser(node);
     }
 
-    if (uic->customWidgetsInfo()->extends(className, "QRadioButton")
-        || uic->customWidgetsInfo()->extends(className, "QCheckBox")
-        || uic->customWidgetsInfo()->extends(className, "QPushButton")) {
+    if (uic->isButton(className)) {
         QHash<QString, DomProperty*> attributes = propertyMap(node->elementAttribute());
         if (attributes.contains("buttonGroup")) {
             DomProperty *prop = attributes.value("buttonGroup");

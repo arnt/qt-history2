@@ -147,3 +147,48 @@ void Uic::writeHeaderProtectionEnd()
     QString h = drv->headerFileName();
     out << "#endif // " << h << "\n\n";
 }
+
+bool Uic::isMainWindow(const QString &className) const
+{
+    return customWidgetsInfo()->extends(className, "Q3MainWindow")
+        || customWidgetsInfo()->extends(className, "QMainWindow");
+}
+
+bool Uic::isToolBar(const QString &className) const
+{
+    return customWidgetsInfo()->extends(className, "Q3ToolBar")
+        || customWidgetsInfo()->extends(className, "QToolBar");
+}
+
+bool Uic::isButton(const QString &className) const
+{
+    return customWidgetsInfo()->extends(className, "QRadioButton")
+        || customWidgetsInfo()->extends(className, "QToolButton")
+        || customWidgetsInfo()->extends(className, "QCheckBox")
+        || customWidgetsInfo()->extends(className, "QPushButton");
+}
+
+bool Uic::isContainer(const QString &className) const
+{
+    return customWidgetsInfo()->extends(className, "QStackedBox")
+        || customWidgetsInfo()->extends(className, "QToolBox")
+        || customWidgetsInfo()->extends(className, "QTabWidget")
+        || customWidgetsInfo()->extends(className, "QWidgetStack")
+        || customWidgetsInfo()->extends(className, "QWizard");
+}
+
+bool Uic::isStatusBar(const QString &className) const
+{
+    return customWidgetsInfo()->extends(className, "QStatusBar");
+}
+
+bool Uic::isMenuBar(const QString &className) const
+{
+    return customWidgetsInfo()->extends(className, "QMenuBar");
+}
+
+bool Uic::isMenu(const QString &className) const
+{
+    return customWidgetsInfo()->extends(className, "QMenu")
+        || customWidgetsInfo()->extends(className, "QPopupMenu");
+}
