@@ -514,6 +514,10 @@ static QMAC_PASCAL OSErr qt_mac_tracking_handler(DragTrackingMessage theMessage,
     if (widget && theMessage == kDragTrackingInWindow && widget == current_drag_widget ) {
         QDragMoveEvent de(widget->mapFromGlobal(globalMouse));
 	de.setAction(current_drag_action);
+	if(macDndExtra->acceptact)
+	    de.acceptAction();
+	if(macDndExtra->acceptfmt)
+	    de.accept();
 	QApplication::sendEvent(widget, &de);
 	macDndExtra->acceptfmt = de.isAccepted();
 	macDndExtra->acceptact = de.isActionAccepted();
