@@ -66,6 +66,7 @@
     $project{"VER_MIN"} =~ s/^\d+\.//;
     if ( Config("dll") ) {
 	Project('TMAKE_CFLAGS *= $(SYSCONF_CFLAGS_SHOBJ)' );
+	Project('TMAKE_LFLAGS *= $(SYSCONF_LFLAGS_SHOBJ)');
     }
     if ( Config("yacc") ) {
 	Project('TMAKE_CFLAGS *= $(SYSCONF_CFLAGS_YACC)' );
@@ -151,6 +152,8 @@ OBJMOC	=	#$ ExpandList("OBJMOC");
 		    $targ = '$(TARGET)' . ".dll";
 		    $targ = "np" . $targ if Config('np');
 		}
+	    } else {
+		$targ = '$(TARGET)'
 	    }
 	}
 
@@ -170,10 +173,7 @@ OBJMOC	=	#$ ExpandList("OBJMOC");
 	    }
 	} else {
 	    $text .= '$(SYSCONF_LINK) $(LFLAGS) ';
-	    if ( Config('dll') ) {
-		$text .= '$(SYSCONF_LFLAGS_SHLIB) ';
-	    }
-	    $text .= '-o $(TARGET) $(OBJECTS) $(OBJMOC) $(LIBS)';
+	    $text .= '-o '.$targ.' $(OBJECTS) $(OBJMOC) $(LIBS)';
 	}
 #$}
 
