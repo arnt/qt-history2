@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont.h#39 $
+** $Id: //depot/qt/main/src/kernel/qfont.h#40 $
 **
 ** Definition of QFont class
 **
@@ -32,11 +32,16 @@ public:
 		     Decorative = OldEnglish};
     enum Weight	   { Light = 25, Normal = 50, DemiBold = 63,
 		     Bold  = 75, Black	= 87 };
-    enum CharSet   { Latin1, ISO_8859_1 = Latin1, AnyCharSet };
+    enum CharSet   { Latin1, ISO_8859_1 = Latin1, AnyCharSet,
+		     Latin2, ISO_8859_2 = Latin2,
+		     Latin3, ISO_8859_3 = Latin3,
+		     Latin4, ISO_8859_4 = Latin4 };
 
     QFont();					// default font
     QFont( const char *family, int pointSize = 12,
 	   int weight = Normal, bool italic = FALSE );
+    QFont( const char *family, int pointSize,
+	   int weight, bool italic, CharSet charSet );
     QFont( const QFont & );
     virtual ~QFont();
     QFont      &operator=( const QFont & );

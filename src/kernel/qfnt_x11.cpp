@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfnt_x11.cpp#81 $
+** $Id: //depot/qt/main/src/kernel/qfnt_x11.cpp#82 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for X11
 **
@@ -23,7 +23,7 @@
 #include <X11/Xos.h>
 #include <X11/Xatom.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qfnt_x11.cpp#81 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qfnt_x11.cpp#82 $");
 
 
 static const int fontFields = 14;
@@ -435,11 +435,18 @@ void QFont::initFontInfo() const
     f->s.pointSize = atoi(tokens[PointSize]);
     f->s.styleHint = QFont::AnyStyle;	// ### any until we match families
 
-    if ( strcmp( tokens[CharsetRegistry], "iso8859" ) == 0 &&
-	 strcmp( tokens[CharsetEncoding], "1"	    ) == 0 )
-	f->s.charSet = QFont::Latin1;
-    else
+    if ( strcmp( tokens[CharsetRegistry], "iso8859" ) == 0 ) {
+	if ( strcmp( tokens[CharsetEncoding], "1" ) == 0 )
+	    f->s.charSet = QFont::Latin1;
+	else if ( strcmp( tokens[CharsetEncoding], "2" ) == 0 )
+	    f->s.charSet = QFont::Latin2;
+	else if ( strcmp( tokens[CharsetEncoding], "3" ) == 0 )
+	    f->s.charSet = QFont::Latin3;
+	else if ( strcmp( tokens[CharsetEncoding], "4" ) == 0 )
+	    f->s.charSet = QFont::Latin4;
+    } else {
 	f->s.charSet = QFont::AnyCharSet;
+    }
 
     char slant	= tolower( tokens[Slant][0] );
     f->s.italic = (slant == 'o' || slant == 'i');
@@ -584,17 +591,39 @@ int QFont_Private::fontMatchScore( char	 *fontName,	 QString &buffer,
 	 IS_ZERO(tokens[AverageWidth]) )
 	*scalable = TRUE;			// scalable font
 
-    switch( charSet() ) {
-	case Latin1 :
-	    if ( strcmp( tokens[CharsetRegistry], "iso8859" ) == 0 &&
-		 strcmp( tokens[CharsetEncoding], "1"	 ) == 0 )
+    if ( charSet() == AnyCharSet ) {
+	score |= CharSetScore;
+    } else if ( strcmp( tokens[CharsetRegistry], "iso8859" ) == 0 ) {
+	// need to mask away non-8859 charsets here
+	switch( charSet() ) {
+	case Latin1:
+	    if ( strcmp( tokens[CharsetEncoding], "1" ) == 0 )
 		score |= CharSetScore;
 	    else
 		exactMatch = FALSE;
 	    break;
-	case AnyCharSet :
-	    score |= CharSetScore;
+	case Latin2:
+	    if ( strcmp( tokens[CharsetEncoding], "2" ) == 0 )
+		score |= CharSetScore;
+	    else
+		exactMatch = FALSE;
 	    break;
+	case Latin3:
+	    if ( strcmp( tokens[CharsetEncoding], "3" ) == 0 )
+		score |= CharSetScore;
+	    else
+		exactMatch = FALSE;
+	    break;
+	case Latin4:
+	    if ( strcmp( tokens[CharsetEncoding], "4" ) == 0 )
+		score |= CharSetScore;
+	    else
+		exactMatch = FALSE;
+	    break;
+	default:
+	    // ### should not get here
+	    break;
+	}
     }
 
     char pitch = tolower( tokens[Spacing][0] );

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont.cpp#67 $
+** $Id: //depot/qt/main/src/kernel/qfont.cpp#68 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes
 **
@@ -20,7 +20,7 @@
 #include "qdstream.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qfont.cpp#67 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qfont.cpp#68 $");
 
 
 /*!
@@ -146,10 +146,12 @@ QFont::QFont()
     d->ref();
 }
 
+
 /*!
   Constructs a font object with the specified \e family, \e pointSize,
-  \e weight and \e italic settings.
-  If \e pointSize is less than or equal to 0 it is set to 1.
+  \e weight and \e italic settings. If \e pointSize is less than or
+  equal to 0 it is set to 1.
+
   \sa setFamily(), setPointSize(), setWeight(), setItalic()
 */
 
@@ -163,6 +165,31 @@ QFont::QFont( const char *family, int pointSize, int weight, bool italic )
     d->req.weight    = weight;
     d->req.italic    = italic;
 }
+
+
+
+/*!
+  Constructs a font object with the specified \e family, \e pointSize,
+  \e weight, \e italic and \a charSet settings.  If \e pointSize is
+  less than or equal to 0 it is set to 1.
+
+  \sa setFamily(), setPointSize(), setWeight(), setItalic()
+*/
+
+QFont::QFont( const char *family, int pointSize, int weight, bool italic,
+	      QFont::CharSet charSet)
+{
+    init();
+    d->req.family    = family;
+    if ( pointSize <= 0 )
+	pointSize = 1;
+    d->req.pointSize = pointSize * 10;
+    d->req.weight    = weight;
+    d->req.italic    = italic;
+    d->req.charSet   = charSet;
+}
+
+
 
 /*!
   Constructs a font that is a copy of \e font.
