@@ -600,16 +600,24 @@ class QRenameEdit : public QLineEdit
 
 public:
     QRenameEdit( QWidget *parent )
-	: QLineEdit( parent, "qt_rename_edit" )
-    {}
+	: QLineEdit( parent, "qt_rename_edit" ), doRenameAlreadyEmitted(FALSE)
+    {
+	connect( this, SIGNAL(returnPressed()), SLOT(slotReturnPressed()) );
+    }
 
 protected:
     void keyPressEvent( QKeyEvent *e );
     void focusOutEvent( QFocusEvent *e );
 
 signals:
-    void escapePressed();
+    void cancelRename();
+    void doRename();
 
+private slots:
+    void slotReturnPressed();
+
+private:
+    bool doRenameAlreadyEmitted;
 };
 
 class QFileListBox : public QListBox
@@ -1078,7 +1086,7 @@ QFileDialogPrivate::~QFileDialogPrivate()
 void QRenameEdit::keyPressEvent( QKeyEvent *e )
 {
     if ( e->key() == Key_Escape )
-	emit escapePressed();
+	emit cancelRename();
     else
 	QLineEdit::keyPressEvent( e );
     e->accept();
@@ -1086,7 +1094,16 @@ void QRenameEdit::keyPressEvent( QKeyEvent *e )
 
 void QRenameEdit::focusOutEvent( QFocusEvent * )
 {
-    emit returnPressed();
+    if ( !doRenameAlreadyEmitted )
+	emit doRename();
+    else
+	doRenameAlreadyEmitted = FALSE;
+}
+
+void QRenameEdit::slotReturnPressed()
+{
+    doRenameAlreadyEmitted = TRUE;
+    emit doRename();
 }
 
 /************************************************************************
@@ -1108,9 +1125,9 @@ QFileListBox::QFileListBox( QWidget *parent, QFileDialog *dlg )
     box->hide();
     box->setBackgroundMode( PaletteBase );
     renameTimer = new QTimer( this );
-    connect( lined, SIGNAL( returnPressed() ),
+    connect( lined, SIGNAL( doRename() ),
 	     this, SLOT (rename() ) );
-    connect( lined, SIGNAL( escapePressed() ),
+    connect( lined, SIGNAL( cancelRename() ),
 	     this, SLOT( cancelRename() ) );
     connect( renameTimer, SIGNAL( timeout() ),
 	     this, SLOT( doubleClickTimeout() ) );
@@ -1488,9 +1505,9 @@ QFileDialogQFileListView::QFileDialogQFileListView( QWidget *parent, QFileDialog
     box->hide();
     box->setBackgroundMode( PaletteBase );
     renameTimer = new QTimer( this );
-    connect( lined, SIGNAL( returnPressed() ),
+    connect( lined, SIGNAL( doRename() ),
 	     this, SLOT (rename() ) );
-    connect( lined, SIGNAL( escapePressed() ),
+    connect( lined, SIGNAL( cancelRename() ),
 	     this, SLOT( cancelRename() ) );
     header()->setMovingEnabled( FALSE );
     connect( renameTimer, SIGNAL( timeout() ),
