@@ -7,7 +7,7 @@ DESTDIR		= $$QMAKE_LIBDIR_QT
 DLLDESTDIR	= ../bin
 
 CONFIG		+= qt warn_on 
-#CONFIG          += qmake_cache
+CONFIG          += qmake_cache
 
 win32-borland {
 	mng:QMAKE_CFLAGS_WARN_ON	+= -w-par

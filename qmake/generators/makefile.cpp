@@ -676,14 +676,14 @@ MakefileGenerator::init()
 			}
 		    }
 
+		    QString val_file = (*val_it);
+		    fileFixify(val_file);
 		    bool found_cache_moc = FALSE, found_cache_dep = FALSE;
 		    if(read_cache && Option::output.name() != "-" && 
 		       project->isActiveConfig("qmake_cache")) {
-			QString fn = (*val_it);
-			fileFixify(fn);
-			if(!findDependencies(fn).isEmpty()) 
+			if(!findDependencies(val_file).isEmpty()) 
 			    found_cache_dep = TRUE;
-			if(cache_found_files[(*val_it)] == (void *)2)
+			if(cache_found_files[(*val_it)] == (void *)2) 
 			    found_cache_moc = TRUE;
 			if(!found_cache_moc || !found_cache_dep) 
 			    write_cache = TRUE;
@@ -692,11 +692,24 @@ MakefileGenerator::init()
 			debug_msg(5, "Looking for dependancies for %s", (*val_it).latin1());
 			generateDependencies(deplist, (*val_it), doDepends());
 		    }
-		    if(!found_cache_moc && mocAware() && 
-		       (sources[x] == "SOURCES" || sources[x] == "HEADERS") && 
-		       (Option::qmake_mode == Option::QMAKE_GENERATE_PROJECT ||
-			Option::mkfile::do_mocs)) 
+		    if(found_cache_moc) {
+			QString moc = findMocDestination(val_file);
+			if(!moc.isEmpty()) {
+			    for(QStringList::Iterator cppit = Option::cpp_ext.begin(); 
+				cppit != Option::cpp_ext.end(); ++cppit) {
+				if(val_file.right((*cppit).length()) == (*cppit)) {
+				    QStringList &deps = findDependencies(val_file);
+				    if(!deps.contains(moc)) 
+					deps.append(moc);
+				    break;
+				}
+			    }
+			}
+		    } else if(mocAware() && (sources[x] == "SOURCES" || sources[x] == "HEADERS") && 
+			      (Option::qmake_mode == Option::QMAKE_GENERATE_PROJECT || 
+			       Option::mkfile::do_mocs)) {
 			generateMocList((*val_it));
+		    }
 		}
 	    }
 	}
