@@ -617,7 +617,7 @@ void QFileListBox::setSelected( int i, bool s )
 void QFileListBox::viewportMousePressEvent( QMouseEvent *e )
 {
     pressPos = e->pos();
-    mousePressed = TRUE;
+    mousePressed = FALSE;
 
     bool didRename = renaming;
 
@@ -636,6 +636,10 @@ void QFileListBox::viewportMousePressEvent( QMouseEvent *e )
     if ( i != -1 )
 	wasSelected = item( i )->selected();
     QListBox::viewportMousePressEvent( e );
+
+    QFileDialogPrivate::MCItem *i1 = (QFileDialogPrivate::MCItem*)item( currentItem() );
+    if ( i1 )
+	mousePressed = !( (QFileDialogPrivate::File*)i1->i )->info.isDir();
 
     if ( itemAt( e->pos() ) != item( i ) ) {
 	firstMousePressEvent = FALSE;
@@ -1044,7 +1048,7 @@ void QFileListView::keyPressEvent( QKeyEvent *e )
 void QFileListView::viewportMousePressEvent( QMouseEvent *e )
 {
     pressPos = e->pos();
-    mousePressed = TRUE;
+    mousePressed = FALSE;
 
     bool didRename = renaming;
     cancelRename();
@@ -1059,6 +1063,10 @@ void QFileListView::viewportMousePressEvent( QMouseEvent *e )
 
     QListViewItem *i = currentItem();
     QListView::viewportMousePressEvent( e );
+
+    QFileDialogPrivate::File *i1 = (QFileDialogPrivate::File*)currentItem();
+    if ( i1 )
+	mousePressed = !i1->info.isDir();
 
     if ( itemAt( e->pos() ) != i ||
 	 e->x() + contentsX() > columnWidth( 0 ) ) {
