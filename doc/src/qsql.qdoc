@@ -11,23 +11,19 @@
 **
 ****************************************************************************/
 
-
 /*!
-    \class QSql qsql.h
-    \brief The QSql class is a namespace for Qt SQL identifiers that
-    need to be global-like.
+    \namespace QSql
+    \brief The QSql namespace contains miscellaneous identifiers used throughout
+    the Qt SQL library.
 
     \ingroup database
     \mainclass
     \module sql
-
-    Normally, you can ignore this class. Several Qt SQL classes
-    inherit it, so all the identifiers in the Qt SQL namespace are
-    visible without qualification.
 */
 
 /*!
     \enum QSql::Confirm
+    \compat
 
     This enum type describes edit confirmations.
 
@@ -38,6 +34,7 @@
 
 /*!
     \enum QSql::Op
+    \compat
 
     This enum type describes edit operations.
 
@@ -51,41 +48,36 @@
 /*!
     \enum QSql::Location
 
-    This enum type describes SQL navigation locations.
+    This enum type describes special SQL navigation locations:
 
-    \value BeforeFirst
-    \value AfterLast
+    \value BeforeFirst Before the first record.
+    \value AfterLast After the last record.
+
+    \sa QSqlQuery::at()
 */
 
 /*!
     \enum QSql::ParamTypeFlag
 
-    This enum is used to set the type of a bind parameter
+    This enum is used to specify the type of a bind parameter.
 
-    \value In  the bind parameter is used to put data into the database
-    \value Out  the bind parameter is used to receive data from the database
-    \value InOut  the bind parameter is used to put data into the
+    \value In  The bind parameter is used to put data into the database.
+    \value Out  The bind parameter is used to receive data from the database.
+    \value InOut  The bind parameter is used to put data into the
         database; it will be overwritten with output data on executing
         a query.
-    \value Binary this must be OR'd with one of the other flags if you
-    want to indicate that the data being transferred is raw binary data
+    \value Binary This must be OR'd with one of the other flags if
+           you want to indicate that the data being transferred is
+           raw binary data.
 */
 
 /*!
     \enum QSql::TableType
 
-    This enum type describes types of tables
+    This enum type describes types of SQL tables.
 
-    \value Tables  All the tables visible to the user
-    \value SystemTables  Internal tables used by the database
-    \value Views  All the views visible to the user
-    \value AllTables  All of the above
-*/
-
-/*!
-    \fn QSql::QSql()
-
-    \internal
-
-    Constructs a Qt SQL namespace class
+    \value Tables  All the tables visible to the user.
+    \value SystemTables  Internal tables used by the database.
+    \value Views  All the views visible to the user.
+    \value AllTables  All of the above.
 */
