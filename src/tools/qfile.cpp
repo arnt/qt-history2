@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qfile.cpp#6 $
+** $Id: //depot/qt/main/src/tools/qfile.cpp#7 $
 **
 ** Implementation of QFile class
 **
@@ -27,7 +27,7 @@
 #include <limits.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qfile.cpp#6 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qfile.cpp#7 $";
 #endif
 
 
@@ -265,7 +265,10 @@ bool QFile::open( int m )			// open file
 	if ( isReadable() )
 	    oflags |= OPEN_RDONLY;
 	if ( flags() & IO_Append ) {		// append to end of file?
-	    oflags |= (OPEN_APPEND | OPEN_CREAT);		
+	    if ( flags() & IO_Truncate )
+		oflags |= (OPEN_CREAT | OPEN_TRUNC);
+	    else
+		oflags |= (OPEN_APPEND | OPEN_CREAT);		
 	    setFlags( flags() | IO_WriteOnly );	// append implies write
 	}
 	else if ( isWritable() )		// create/trunc if writable
@@ -299,8 +302,12 @@ bool QFile::open( int m )			// open file
 	}
 	else {
 	    if ( isReadWrite() ) {
-		perm = "r+";
-		try_create = TRUE;		// try to create if not exists
+		if ( flags() & IO_Truncate )
+		    perm = "w+";
+		else {
+		    perm = "r+";
+		    try_create = TRUE;		// try to create if not exists
+		}
 	    }
 	    else if ( isReadable() )
 		perm = "r";
