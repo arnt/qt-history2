@@ -11,8 +11,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>434</width>
-            <height>381</height>
+            <width>430</width>
+            <height>379</height>
         </rect>
     </property>
     <property stdset="1">
@@ -225,6 +225,10 @@
                             <name>text</name>
                             <string>&amp;Add...</string>
                         </property>
+                        <property stdset="1">
+                            <name>enabled</name>
+                            <bool>false</bool>
+                        </property>
                     </widget>
                     <widget row="3"  column="0" >
                         <class>QPushButton</class>
@@ -235,6 +239,10 @@
                         <property stdset="1">
                             <name>text</name>
                             <string>&amp;Remove</string>
+                        </property>
+                        <property stdset="1">
+                            <name>enabled</name>
+                            <bool>false</bool>
                         </property>
                     </widget>
                     <widget row="0"  column="1"  rowspan="4"  colspan="1" >
