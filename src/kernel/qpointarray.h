@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpointarray.h#14 $
+** $Id: //depot/qt/main/src/kernel/qpointarray.h#15 $
 **
 ** Definition of QPointArray class
 **
@@ -49,14 +49,14 @@ class QPointArray;
 
 class QPointVal
 {
-private:
-    QPointArray *array;
-    uint    index;
 public:
-    QPointVal( QPointArray *a, uint i ) : array(a), index(i) {}
-	    operator QPoint();
-    QPointVal &operator=( const QPointVal &v );
-    QPointVal &operator=( const QPoint &p );
+    QPointVal( QPointData *ptr ) : p(ptr) {}
+    QPointVal &operator=( const QPoint &point );
+	       operator QPoint()	{ return QPoint(p->x,p->y); }
+    int	       x() const		{ return (int)p->x; }
+    int	       y() const		{ return (int)p->y; }
+private:
+    QPointData *p;
 };
 
 
@@ -96,7 +96,9 @@ public:
 
     QPoint  at( uint i ) const;			// access point
     QPointVal operator[]( int i )		// get/set point
-		{ return QPointVal( (QPointArray*)this, i ); }
+		{ return QPointVal( data()+i ); }
+    QPointVal operator[]( uint i )		// get/set point
+		{ return QPointVal( data()+i ); }
 
     QRect   boundingRect() const;
 
@@ -123,20 +125,10 @@ inline void QPointArray::setPoint( uint i, const QPoint &p )
     setPoint( i, p.x(), p.y() );
 }
 
-inline QPointVal::operator QPoint()
+inline QPointVal &QPointVal::operator=( const QPoint &point )
 {
-    return array->point( index );
-}
-
-inline QPointVal &QPointVal::operator=( const QPointVal &v )
-{
-    array->setPoint( index, v.array->point(v.index) );
-    return *this;
-}
-
-inline QPointVal &QPointVal::operator=( const QPoint &p )
-{
-    array->setPoint( index, p );
+    p->x = (Qpnta_t)point.x();
+    p->y = (Qpnta_t)point.y();
     return *this;
 }
 
