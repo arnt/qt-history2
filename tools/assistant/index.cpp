@@ -303,7 +303,7 @@ QString Index::getDocumentTitle( const QString &fileName )
 {
     QFile file( fileName );
     if ( !file.open( IO_ReadOnly ) ) {
-	qWarning( "can not open file " + fileName );
+	qWarning( "cannot open file " + fileName );
 	return fileName;
     }
     QChar c( file.getch() );
@@ -452,7 +452,7 @@ bool Index::searchForPattern( const QStringList &patterns, const QStringList &wo
 {
     QFile file( fileName );
     if ( !file.open( IO_ReadOnly ) ) {
-	qWarning( "can not open file " + fileName );
+	qWarning( "cannot open file " + fileName );
 	return FALSE;
     }
 
