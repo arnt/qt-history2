@@ -68,6 +68,7 @@ void TextEdit::setupFileActions()
 {
     QToolBar *tb = new QToolBar(this);
     tb->setWindowTitle(tr("File Actions"));
+    addToolBar(tb);
 
     QMenu *menu = new QMenu(tr("&File"), this);
     menuBar()->addMenu(menu);
@@ -119,6 +120,7 @@ void TextEdit::setupEditActions()
 {
     QToolBar *tb = new QToolBar(this);
     tb->setWindowTitle(tr("Edit Actions"));
+    addToolBar(tb);
 
     QMenu *menu = new QMenu(tr("&Edit"), this);
     menuBar()->addMenu(menu);
@@ -152,6 +154,7 @@ void TextEdit::setupTextActions()
 {
     QToolBar *tb = new QToolBar(this);
     tb->setWindowTitle(tr("Format Actions"));
+    addToolBarBlock(tb);
 
     QMenu *menu = new QMenu(tr("F&ormat"), this);
     menuBar()->addMenu(menu);
