@@ -65,12 +65,15 @@ void OutputWindow::setupError()
 void debugMessageOutput( QtMsgType type, const char *msg )
 {
     QString s( msg );
+    s += "\n";
 
     if ( type != QtFatalMsg ) {
-	if ( debugoutput )
-	    debugoutput->append( s + "\n" );
+	if ( debugoutput && debugoutput->isVisibleTo( 0 ) )
+	    debugoutput->append( s );
+	else
+	    fprintf( stderr, s );
     } else {
-	fprintf( stderr, msg );
+	fprintf( stderr, s );
 	abort();
     }
 
