@@ -475,7 +475,7 @@ qtr_elips(QPointArray& a, int& offset, double dxP, double dyP, double dxQ, doubl
     uy += vy >> (m + 1);          /* cancel 1st-order error */
 
     int n = offset;
-    for (i = (PIV2 << m) >> 16; i >= 0; --i) {
+    for (i = (PIV2 >> (16 - m)); i >= 0; --i) {
         a[n++] = QPoint((xJ + vx) >> 16, (yJ + vy) >> 16);
         ux -= vx >> m;
         vx += ux >> m;
@@ -537,7 +537,7 @@ void QPointArray::makeArc( int x, int y, int w, int h,
 	q *= arcexpand;
     do {
 	m++;
-	max = 4*(1 + ((PIV2 << m) >> 16) );
+	max = 4*(1 + (PIV2 >> (16 - m)) );
     } while (max < q && m < 16); // 16 limits memory usage on HUGE arcs
     resize(max);
 
