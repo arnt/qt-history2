@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/url/qfiledialog.h#2 $
+** $Id: //depot/qt/main/tests/url/qfiledialog.h#3 $
 **
 ** Definition of QFileDialog class
 **
@@ -262,7 +262,7 @@ public:
     QFilePreview *filePreview() const;
 
     QUrl url() const;
-    
+
 public slots:
     void setDir( const QString& );
     void setFilter( const QString& );
@@ -315,7 +315,8 @@ private slots:
     void modeButtonsDestroyed();
     void clearView();
     void insertEntry( const QUrlInfo &fi );
-
+    void createdDirectory( const QUrlInfo &info );
+    
 private:
     enum PopupAction {
         PA_Open = 0,

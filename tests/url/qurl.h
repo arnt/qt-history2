@@ -80,7 +80,8 @@ public:
 		      int sortSpec   = QDir::DefaultSort );
     void listEntries( const QString &nameFilter, int filterSpec = QDir::DefaultFilter,
 		      int sortSpec   = QDir::DefaultSort );
-
+    void mkdir( const QString &dirname );
+    
     void setNameFilter( const QString &nameFilter );
     QString nameFilter() const;
 
@@ -88,13 +89,14 @@ public:
     operator QString() const;
 
     bool cdUp();
-    
+
 signals:
     void entry( const QUrlInfo & );
     void error( int, const QString & );
     void finished();
     void start();
-    
+    void createdDirectory( const QUrlInfo & );
+
 protected:
     void reset();
     void parse( const QString& url );

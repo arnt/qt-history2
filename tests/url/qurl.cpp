@@ -57,7 +57,7 @@ QUrl::QUrl( const QString& url )
     d->protocol = "file";
     d->port = -1;
     d->nameFilter = "*";
-    
+
     QString tmp = url.stripWhiteSpace();
     parse( tmp );
 }
@@ -297,7 +297,7 @@ void QUrl::parse( const QString& url )
 	d->host = QString( buf + start, pos - start );
 	goto NodeOk;
     }
-    
+
     x = buf[pos];
     if ( x == '@' ) {
 	d->user = QString( buf + start, pos - start );
@@ -348,7 +348,7 @@ Node7:
 	d->host = QString( buf + start, pos - start );
 	goto NodeOk;
     }
-    
+
     x = buf[pos];
     d->host = QString( buf + start, pos - start );
     if ( x == '/' ) {
@@ -416,11 +416,11 @@ NodeErr:
 QUrl& QUrl::operator=( const QString& url )
 {
     reset();
- 
+
 //     d->protocol = "file";
 //     d->port = -1;
 //     d->nameFilter = "*";
-    
+
 //     QString tmp = url.stripWhiteSpace();
 //     parse( tmp );
 //     d->url = tmp;
@@ -832,6 +832,19 @@ void QUrl::listEntries( const QString &nameFilter, int filterSpec = QDir::Defaul
 	    emit entry( inf );
 	}
 	emit finished();
+    }
+}
+
+void QUrl::mkdir( const QString &dirname )
+{
+    QDir dir( d->path );
+    if ( dir.mkdir( dirname ) ) {
+	QFileInfo fi( dir, dirname );
+	QUrlInfo inf( fi.fileName(), 0/*permissions*/, fi.owner(), fi.group(),
+		      fi.size(), fi.lastModified(), fi.lastRead(), fi.isDir(), fi.isFile(),
+		      fi.isSymLink(), fi.isWritable(), fi.isReadable(), fi.isExecutable() );
+	emit entry( inf );
+	emit createdDirectory( inf );
     }
 }
 

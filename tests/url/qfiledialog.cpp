@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/url/qfiledialog.cpp#3 $
+** $Id: //depot/qt/main/tests/url/qfiledialog.cpp#4 $
 **
 ** Implementation of QFileDialog class
 **
@@ -1686,28 +1686,6 @@ static QStringList makeFiltersList( const QString &filter )
     return QStringList::split( sep, filter );
 }
 
-static QString findNewFolderName( const QDir &dir )
-{
-
-    QStringList entries = dir.entryList( QFileDialog::tr( "New" ) );
-
-    int i = 1;
-    while ( TRUE ) {
-	QString fname = QFileDialog::tr( "New Folder %1" ).arg( i );
-	QStringList::Iterator it = entries.begin();
-	bool exist = FALSE;
-	for ( ; it != entries.end(); ++it ) {
-	    if ( *it == fname ) {
-		exist = TRUE;
-		break;
-	    }
-	}
-	if ( !exist )
-	    return fname;
-	++i;
-    }
-}
-
 /*!
   \class QFileDialog qfiledialog.h
   \brief The QFileDialog provides a dialog widget for inputting file names.
@@ -1815,6 +1793,8 @@ void QFileDialog::init()
              this, SLOT( clearView() ) );
     connect( &d->url, SIGNAL( entry( const QUrlInfo & ) ),
              this, SLOT( insertEntry( const QUrlInfo & ) ) );
+    connect( &d->url, SIGNAL( createdDirectory( const QUrlInfo & ) ),
+             this, SLOT( createdDirectory( const QUrlInfo & ) ) );
 
     nameEdit = new QLineEdit( this, "name/filter editor" );
     connect( nameEdit, SIGNAL(textChanged(const QString&)),
@@ -3185,31 +3165,43 @@ void QFileDialog::cdUpClicked()
 
 void QFileDialog::newFolderClicked()
 {
-// todo
-//     QString fname = findNewFolderName( d->url );
-//     d->url.mkdir( fname );
-//     rereadDir();
+    QString dirname( tr( "New Folder 1" ) );
+    int i = 0;
+    QStringList lst;
+    QListViewItemIterator it( files );
+    for ( ; it.current(); ++it )
+	if ( it.current()->text( 0 ).contains( tr( "New Folder" ) ) )
+	    lst.append( it.current()->text( 0 ) );
+    
+    if ( !lst.count() == 0 )
+	while ( lst.contains( dirname ) )
+	    dirname = tr( "New Folder %1" ).arg( ++i );
+       
+    d->url.mkdir( dirname );
+}
 
-//     if ( d->moreFiles->isVisible() ) {
-// 	for ( uint i = 0; i < d->moreFiles->count(); ++i ) {
-// 	    if ( d->moreFiles->text( i ) == fname ) {
-// 		d->moreFiles->setCurrentItem( i );
-// 		d->moreFiles->startRename( FALSE );
-// 		break;
-// 	    }
-// 	}
-//     } else {
-// 	QListViewItem *item = files->firstChild();
-// 	while ( item ) {
-// 	    if ( item->text( 0 ) == fname ) {
-// 		files->setSelected( item, TRUE );
-// 		files->setCurrentItem( item );
-// 		files->startRename( FALSE );
-// 		break;
-// 	    }
-// 	    item = item->nextSibling();
-// 	}
-//     }
+void QFileDialog::createdDirectory( const QUrlInfo &info ) 
+{
+    if ( d->moreFiles->isVisible() ) {
+	for ( uint i = 0; i < d->moreFiles->count(); ++i ) {
+	    if ( d->moreFiles->text( i ) == info.name() ) {
+		d->moreFiles->setCurrentItem( i );
+		d->moreFiles->startRename( FALSE );
+		break;
+	    }
+	}
+    } else {
+	QListViewItem *item = files->firstChild();
+	while ( item ) {
+	    if ( item->text( 0 ) == info.name() ) {
+		files->setSelected( item, TRUE );
+		files->setCurrentItem( item );
+		files->startRename( FALSE );
+		break;
+	    }
+	    item = item->nextSibling();
+	}
+    }
 }
 
 
