@@ -796,6 +796,8 @@ QFontEngineLatinXLFD::QFontEngineLatinXLFD( XFontStruct *xfs, const char *name,
     _engines[0] = new QFontEngineXLFD( xfs, name, mib );
     _count = 1;
 
+    cache_cost = _engines[0]->cache_cost;
+
     memset( glyphIndices, 0, sizeof( glyphIndices ) );
     memset( glyphAdvances, 0, sizeof( glyphAdvances ) );
 
