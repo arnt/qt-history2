@@ -28,7 +28,7 @@
 
 void qt_format_text(const QFont &font, const QRect &_r, int tf, const QString& str,
 		    int len, QRect *brect, int tabstops, int* tabarray, int tabarraylen,
-		    QTextParag **, QPainter* painter);
+		    QPainter* painter);
 
 static inline void qt_fix_rect(QPainterState *ps, int *x, int *y, int *w, int *h)
 {
@@ -614,6 +614,8 @@ void QPainter::setPen(const QPen &pen)
 
 void QPainter::setPen(PenStyle style)
 {
+    if (ds->pen.style() == style)
+	return;
     ds->pen.setStyle(style);
     if (dgc && dgc->isActive())
 	dgc->updatePen(ds);
@@ -1170,7 +1172,7 @@ void QPainter::drawText(const QRect &r, int flags, const QString &str, int len,
 	return;
 
     qt_format_text(font(), r, flags, str, len, br,
-		   0, 0, 0, intern, this);
+		   0, 0, 0, this);
 }
 
 void QPainter::drawTextItem(int x, int y, const QTextItem &ti, int textFlags)
@@ -1667,7 +1669,7 @@ const QPaintDevice *QPainter::redirected(const QPaintDevice *device, QPoint *off
 void qt_format_text( const QFont& font, const QRect &_r,
 		     int tf, const QString& str, int len, QRect *brect,
 		     int tabstops, int* tabarray, int tabarraylen,
-		     QTextParag **, QPainter* painter )
+		     QPainter* painter )
 {
     // we need to copy r here to protect against the case (&r == brect).
     QRect r( _r );

@@ -25,7 +25,7 @@ public:
 	PatternTransform        = 0x0004,		// Brush patterns
 	PixmapTransform         = 0x0008                // Pixmap transforms
     };
-    typedef QFlags<QAbstractGC::Capability> GCCaps;
+    Q_DECLARE_FLAGS(GCCaps, Capability);
 
     QAbstractGC(GCCaps devcaps=0);
     virtual ~QAbstractGC() { delete d_ptr; }
@@ -121,5 +121,5 @@ inline void QAbstractGC::setState(QPainterState *newState, bool updateGC)
     updateInternal(newState, updateGC);
 }
 
-
+Q_DECLARE_OPERATORS_FOR_FLAGS(QAbstractGC::Capability);
 #endif // QABSTRACTGC_H
