@@ -170,7 +170,6 @@ void QWindowsStyle::drawPrimitive( PrimitiveElement pe,
 
 	    if (! (flags & (Style_Down | Style_MouseOver)) &&
 		(flags & Style_On) &&
-		(flags & Style_Enabled) &&
 		use2000style) {
 		fill = QBrush(cg.light(), Dense4Pattern);
 		stippled = TRUE;

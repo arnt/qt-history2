@@ -994,13 +994,15 @@ void QMotifStyle::drawControl( ControlElement element,
 	    if ( !mi )
 		return;
 
+	    QRect vrect = visualRect( QRect( x+motifItemFrame, y+motifItemFrame, checkcol, h-2*motifItemFrame ), r );
+	    int xvis = vrect.x();
 	    if ( mi->isChecked() ) {
 		if ( mi->iconSet() ) {
-		    qDrawShadePanel( p, x+motifItemFrame, y+motifItemFrame, checkcol, h-2*motifItemFrame,
+		    qDrawShadePanel( p, xvis, y+motifItemFrame, checkcol, h-2*motifItemFrame,
 				     cg, TRUE, 1, &cg.brush( QColorGroup::Midlight ) );
 		}
 	    } else if ( !act ) {
-		p->fillRect(x+motifItemFrame, y+motifItemFrame, checkcol, h-2*motifItemFrame,
+		p->fillRect(xvis, y+motifItemFrame, checkcol, h-2*motifItemFrame,
 			    cg.brush( QColorGroup::Button ));
 	    }
 
@@ -1016,9 +1018,8 @@ void QMotifStyle::drawControl( ControlElement element,
 
 		int pixw = pixmap.width();
 		int pixh = pixmap.height();
-		QRect cr( x + motifItemFrame, y+motifItemFrame, checkcol, h-2*motifItemFrame );
 		QRect pmr( 0, 0, pixw, pixh );
-		pmr.moveCenter( cr.center() );
+		pmr.moveCenter( vrect.center() );
 		p->setPen( cg.text() );
 		p->drawPixmap( pmr.topLeft(), pixmap );
 
@@ -1033,7 +1034,7 @@ void QMotifStyle::drawControl( ControlElement element,
 			cflags |= Style_On;
 
 		    drawPrimitive(PE_CheckMark, p,
-				  QRect(x+motifItemFrame, y+motifItemFrame, mw, mh),
+				  QRect(xvis, y+motifItemFrame, mw, mh),
 				  cg, cflags);
 		}
 	    }
@@ -1049,44 +1050,48 @@ void QMotifStyle::drawControl( ControlElement element,
 
 	    int xm = motifItemFrame + checkcol + motifItemHMargin;
 
+	    vrect = visualRect( QRect( x+xm, y+motifItemVMargin, w-xm-tab, h-2*motifItemVMargin ), r );
+	    xvis = vrect.x();
 	    if ( mi->custom() ) {
 		int m = motifItemVMargin;
 		p->save();
 		mi->custom()->paint( p, cg, act, !dis,
-				     x+xm, y+m, w-xm-tab+1, h-2*m );
+				     xvis, y+m, w-xm-tab+1, h-2*m );
 		p->restore();
 	    }
 	    QString s = mi->text();
 	    if ( !s.isNull() ) {                        // draw text
 		int t = s.find( '\t' );
 		int m = motifItemVMargin;
-		const int text_flags = AlignVCenter|ShowPrefix | DontClip | SingleLine;
+		int text_flags = AlignVCenter|ShowPrefix | DontClip | SingleLine;
+		text_flags |= (QApplication::reverseLayout() ? AlignRight : AlignLeft );
 		if ( t >= 0 ) {                         // draw tab text
-		    p->drawText( x+w-tab-motifItemHMargin-motifItemFrame,
-				 y+m, tab, h-2*m, text_flags, s.mid( t+1 ) );
+		    QRect vr = visualRect( QRect( x+w-tab-motifItemHMargin-motifItemFrame, 
+						  y+motifItemVMargin, tab, h-2*motifItemVMargin ), r );
+		    int xv = vr.x();
+		    p->drawText( xv, y+m, tab, h-2*m, text_flags, s.mid( t+1 ) );
 		    s = s.left( t );
 		}
-		p->drawText( x+xm, y+m, w-xm-tab+1, h-2*m, text_flags, s, t );
+		p->drawText( xvis, y+m, w-xm-tab+1, h-2*m, text_flags, s, t );
 	    } else if ( mi->pixmap() ) {                        // draw pixmap
 		QPixmap *pixmap = mi->pixmap();
 		if ( pixmap->depth() == 1 )
 		    p->setBackgroundMode( OpaqueMode );
-		p->drawPixmap( x+xm, y+motifItemFrame, *pixmap );
+		p->drawPixmap( xvis, y+motifItemFrame, *pixmap );
 		if ( pixmap->depth() == 1 )
 		    p->setBackgroundMode( TransparentMode );
 	    }
 	    if ( mi->popup() ) {                        // draw sub menu arrow
 		int dim = (h-2*motifItemFrame) / 2;
+		QStyle::PrimitiveElement arrow = (QApplication::reverseLayout() ? PE_ArrowLeft : PE_ArrowRight);
+		QRect vr = visualRect( QRect(x+w - motifArrowHMargin - motifItemFrame - dim,
+					y+h/2-dim/2, dim, dim), r );
 		if ( act )
-		    drawPrimitive(PE_ArrowRight, p,
-				  QRect(x+w - motifArrowHMargin - motifItemFrame - dim,
-					y+h/2-dim/2, dim, dim), cg,
+		    drawPrimitive(arrow, p, vr, cg,
 				  (Style_Down |
 				   (mi->isEnabled() ? Style_Enabled : Style_Default)));
 		else
-		    drawPrimitive(PE_ArrowRight, p,
-				  QRect(x+w - motifArrowHMargin - motifItemFrame - dim,
-					y+h/2-dim/2, dim, dim), cg,
+		    drawPrimitive(arrow, p, vr, cg,
 				  (mi->isEnabled() ? Style_Enabled : Style_Default));
 	    }
 

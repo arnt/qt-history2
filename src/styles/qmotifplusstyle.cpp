@@ -783,13 +783,14 @@ void QMotifPlusStyle::drawControl( ControlElement element,
 	    if ( !mi )
 		return;
 
+	    QRect vrect = visualRect( QRect( x+2, y+2, checkcol, h-2 ), r );
 	    if ( mi->isChecked() ) {
 		if ( mi->iconSet() ) {
-		    qDrawShadePanel( p, x+2, y+2, checkcol, h-2*2,
+		    qDrawShadePanel( p, vrect.x(), y+2, checkcol, h-2*2,
 				     cg, TRUE, 1, &cg.brush( QColorGroup::Midlight ) );
 		}
 	    } else if ( !act ) {
-		p->fillRect(x+2, y+2, checkcol, h-2*2,
+		p->fillRect(vrect,
 			    cg.brush( QColorGroup::Button ));
 	    }
 
@@ -809,18 +810,14 @@ void QMotifPlusStyle::drawControl( ControlElement element,
 		int pixw = pixmap.width();
 		int pixh = pixmap.height();
 
-		QRect cr( x + 2, y+2, checkcol, h-2*2 );
 		QRect pmr( 0, 0, pixw, pixh );
 
-		pmr.moveCenter(cr.center());
+		pmr.moveCenter(vrect.center());
 
 		p->setPen( cg.text() );
 		p->drawPixmap( pmr.topLeft(), pixmap );
 
 	    } else if (checkable) {
-		int mw = checkcol;
-		int mh = h - 4;
-
 		if (mi->isChecked()) {
 		    SFlags cflags = Style_Default;
 		    if (! dis)
@@ -828,7 +825,7 @@ void QMotifPlusStyle::drawControl( ControlElement element,
 		    if (act)
 			cflags |= Style_On;
 
-		    drawPrimitive(PE_CheckMark, p, QRect(x+2, y+2, mw, mh), cg, cflags);
+		    drawPrimitive(PE_CheckMark, p, vrect, cg, cflags);
 		}
 	    }
 
@@ -840,9 +837,11 @@ void QMotifPlusStyle::drawControl( ControlElement element,
 		p->setPen( discol );
 	    }
 
+	    vrect = visualRect( QRect(x + checkcol + 4, y + 2,
+				      w - checkcol - tab - 3, h - 4), r );
 	    if (mi->custom()) {
 		p->save();
-		mi->custom()->paint(p, cg, act, !dis, x + checkcol + 4, y + 2,
+		mi->custom()->paint(p, cg, act, !dis, vrect.x(), y + 2,
 				    w - checkcol - tab - 3, h - 4);
 		p->restore();
 	    }
@@ -851,25 +850,31 @@ void QMotifPlusStyle::drawControl( ControlElement element,
 	    if ( !s.isNull() ) {                        // draw text
 		int t = s.find( '\t' );
 		int m = 2;
-		const int text_flags = AlignVCenter|ShowPrefix | DontClip | SingleLine;
+		int text_flags = AlignVCenter|ShowPrefix | DontClip | SingleLine;
+		text_flags |= (QApplication::reverseLayout() ? AlignRight : AlignLeft );
 		if ( t >= 0 ) {                         // draw tab text
-		    p->drawText( x+w-tab-2-2,
+		    QRect vr = visualRect( QRect(x+w-tab-2-2,
+						 y+m, tab, h-2*m), r );
+		    p->drawText( vr.x(),
 				 y+m, tab, h-2*m, text_flags, s.mid( t+1 ) );
 		}
-		p->drawText(x + checkcol + 4, y + 2, w - checkcol -tab - 3, h - 4,
+		p->drawText(vrect.x(), y + 2, w - checkcol -tab - 3, h - 4,
 			    text_flags, s, t);
 	    } else if (mi->pixmap()) {
 		QPixmap *pixmap = mi->pixmap();
 
 		if (pixmap->depth() == 1) p->setBackgroundMode(OpaqueMode);
-		p->drawPixmap(x + checkcol + 2, y + 2, *pixmap);
+		QRect vr = visualRect( QRect( x + checkcol + 2, y + 2, w - checkcol - 1, h - 4 ), r );
+		p->drawPixmap(vr.x(), y + 2, *pixmap);
 		if (pixmap->depth() == 1) p->setBackgroundMode(TransparentMode);
 	    }
 
 	    if (mi->popup()) {
 		int hh = h / 2;
-		drawPrimitive(PE_ArrowRight, p,
-			      QRect(x + w - hh - 6, y + (hh / 2), hh, hh), cg,
+		QStyle::PrimitiveElement arrow = (QApplication::reverseLayout() ? PE_ArrowLeft : PE_ArrowRight);
+		vrect = visualRect( QRect(x + w - hh - 6, y + (hh / 2), hh, hh), r );
+		drawPrimitive(arrow, p,
+			      vrect, cg,
 			      ((act && mi->isEnabled()) ?
 			       Style_Down : Style_Default) |
 			      ((mi->isEnabled()) ? Style_Enabled : Style_Default));
