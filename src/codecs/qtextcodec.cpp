@@ -78,7 +78,7 @@
 #if defined(_XOPEN_UNIX) && !defined(Q_OS_QNX6)
 #include <langinfo.h>
 #endif
-#ifdef Q_OS_MAC
+#if !defined( QWS ) && defined( Q_OS_MAC ) 
 #include <Carbon/Carbon.h>
 #endif
 
@@ -1679,7 +1679,7 @@ const char* QTextCodec::locale()
     static QCString lang;
     lang = getenv( "LANG" );
 
-#if defined(Q_OS_MAC)
+#if !defined( QWS ) && defined( Q_OS_MAC ) 
     if ( !lang.isEmpty() )
 	return lang;
 
