@@ -94,6 +94,7 @@ private:
     QRegion* reg;
 };
 
+
 // internal class for qmlbox, also used in qmlcursor.
 class QTextRow
 {
@@ -143,12 +144,15 @@ public:
     QTextContainer( const QStyleSheetItem *stl, const QMap<QString, QString> &attr );
     virtual ~QTextContainer();
     inline QFont font() const;
+    void setFont( const QFont& );
     inline QColor color(const QColor&) const;
+    void setColor( const QColor& );
     inline int margin(QStyleSheetItem::Margin) const;
     inline QStyleSheetItem::WhiteSpaceMode  whiteSpaceMode() const;
     virtual int numberOfColumns() const;
     inline int alignment() const;
 
+    virtual void setParent( QTextContainer* );
     QTextContainer* parent;
     const QStyleSheetItem* style;
     QTextNode* child;
@@ -186,6 +190,7 @@ private:
     void createFont();
 
     QFont* fnt;
+    QColor col;
     QMap<QString, QString> * attributes_;
 };
 
@@ -265,6 +270,8 @@ inline QFont QTextContainer::font() const
 
 inline QColor QTextContainer::color(const QColor& c) const
 {
+    if ( col.isValid() )
+	return col;
     QColor sc = style->color();
     if ( sc.isValid() ) {
 	if (!style->isAnchor() || ( attributes() && attributes()->contains("href") ) )
@@ -479,6 +486,17 @@ public:
 	}
 };
 
+class QTextFont : public QTextContainer
+{
+public:
+    QTextFont( const QStyleSheetItem *stl);
+    QTextFont( const QStyleSheetItem *stl, const QMap<QString, QString> &attr );
+    ~QTextFont();
+    
+    void setParent( QTextContainer* );
+};
+
+
 
 class QTextBox : public QTextContainer
 {
@@ -517,8 +535,8 @@ public:
 class QRichText : public QTextBox
 {
 public:
-    QRichText( const QString &doc, const QFont& fnt = QApplication::font(), 
-	       const QString& context = QString::null, 
+    QRichText( const QString &doc, const QFont& fnt = QApplication::font(),
+	       const QString& context = QString::null,
 	       int margin = 8, const QMimeSourceFactory* factory = 0, const QStyleSheet* sheet = 0 );
     ~QRichText();
 

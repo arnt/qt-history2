@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qstylesheet.cpp#11 $
+** $Id: //depot/qt/main/src/kernel/qstylesheet.cpp#12 $
 **
 ** Implementation of the QStyleSheet class
 **
@@ -302,8 +302,8 @@ void QStyleSheetItem::setFontSizeRelative(int s)
 }
 
 /*!
-  Returns the font size setting of the style. This is either a valid
-  pointsize or QStyleSheetItem::Undefined.
+  Returns the relative font size setting of the style. The default
+  value is 100 percent.
 
  \sa setFontSizeRelative(), fontSize(), QFont::pointSize(), QFont::setPointSize()
  */
@@ -653,6 +653,17 @@ void QStyleSheetItem::setSelfNesting( bool nesting )
 	\c a is meant to be an anchor, the reference source is given in
 	the \c name attribute.
 
+    <li>\c &lt;font&gt;...&lt;/font&gt;
+	- Customizes the font size and text color. The tag understands two attributes:
+	<ul>
+	<li> \c color
+	- the text color, for example \c color="red" or \c color="#FF0000".
+	<li> \c size
+	- the pointsize of the font. The value may either be absolute, for example 
+	\c size=24, or relative. In the latter case, the pointsizes are simply added. As 
+	an example, \c size=+2 will generate a two point larger font.
+	</ul>
+	
     <li>\c &lt;em&gt;...&lt;/em&gt;
 	- Emphasized. As default, this is the same as \c &lt;i&gt;...&lt;/i&gt; (Italic)
 
@@ -823,8 +834,8 @@ void QStyleSheet::init()
     style = new QStyleSheetItem( this, QString::fromLatin1("twocolumn") );
     style->setNumberOfColumns( 2 );
 
-    /*style =*/ new QStyleSheetItem( this, QString::fromLatin1("multicol") );
-    // ##### NOT USED?
+    (void) new QStyleSheetItem( this, QString::fromLatin1("multicol") );
+    (void) new QStyleSheetItem( this, QString::fromLatin1("font") );
 
     style = new QStyleSheetItem( this, QString::fromLatin1("ul") );
     style->setDisplayMode(QStyleSheetItem::DisplayBlock);
@@ -950,19 +961,22 @@ QTextNode* QStyleSheet::tag( const QString& name,
     static QString s_hr = QString::fromLatin1("hr");
     static QString s_br = QString::fromLatin1("br");
     static QString s_multicol = QString::fromLatin1("multicol");
+    static QString s_font = QString::fromLatin1("font");
 
     // first some known  tags
-    if (style->name() == s_img)
+    if ( style->name() == s_img )
 	return new QTextImage(attr, context, factory);
-    else if (style->name() == s_hr)
+    else if ( style->name() == s_hr )
 	return new QTextHorizontalLine(attr, factory);
-    else if (style->name() == s_br ) {
+    else if ( style->name() == s_br ) {
 	QTextNode* result = new QTextNode;
 	result->text = '\n';
 	return result;
     }
-    else if (style->name() == s_multicol)
+    else if ( style->name() == s_multicol )
 	return new QTextMulticol( style, attr );
+    else if ( style->name() == s_font )
+	return new QTextFont( style, attr );
 
     // empty tags
     if ( emptyTag ) { // w know nothing about that, make a null node

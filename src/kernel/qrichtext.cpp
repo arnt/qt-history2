@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qrichtext.cpp#21 $
+** $Id: //depot/qt/main/src/kernel/qrichtext.cpp#22 $
 **
 ** Implementation of the Qt classes dealing with rich text
 **
@@ -259,7 +259,7 @@ QTextRow::QTextRow( QPainter* p, QFontMetrics &fm,
     while ( it != end  && !it->isBox && it->isContainer) {
 	++it;
     }	
-    
+
     if ( it == end ) {
 	fill = 0;
 	first = last = 0;
@@ -699,6 +699,30 @@ QTextContainer::QTextContainer( const QStyleSheetItem *stl, const QMap<QString, 
 	setAttributes( attr );
 }
 
+void QTextContainer::setParent( QTextContainer* p)
+{
+    // invalidate any cached values
+    delete  fnt;
+    fnt = 0;
+    if ( col.isValid() )
+	col = QColor();
+    
+    // set the parent
+    parent = p;
+}
+
+void QTextContainer::setColor( const QColor& c)
+{
+    col = c; 
+}
+
+
+void QTextContainer::setFont( const QFont& f)
+{
+    fnt = new QFont( f );
+}
+
+
 void QTextContainer::setAttributes(const QMap<QString, QString> &attr )
 {
     delete attributes_;
@@ -797,7 +821,7 @@ const QTextContainer* QTextContainer::anchor() const
 QTextContainer* QTextContainer::findAnchor(const QString& name ) const
 {
     if (style->isAnchor() && attributes() &&
-	attributes()->contains("name") && attributes()->operator[]("name") == name)
+	attributes()->contains("name") && (*attributes())["name"] == name)
 	return (QTextContainer*)this;
 
     QTextNode* n = child;
@@ -861,9 +885,7 @@ void QTextContainer::reparentSubtree()
     QTextNode* n = child;
     while (n) {
 	if (n->isContainer) {
-	    delete  ((QTextContainer*)n)->fnt;
-	    ((QTextContainer*)n)->fnt = 0;
-	    ((QTextContainer*)n)->parent = this;
+	    ((QTextContainer*)n)->setParent( this );
 	    ((QTextContainer*)n)->reparentSubtree();
 	}
 	if (n->isLastSibling) {
@@ -942,6 +964,42 @@ QString QTextContainer::fontFamily() const
     if ( f.isNull() && parent )
 	f = parent->fontFamily();
     return f;
+}
+
+
+QTextFont::QTextFont( const QStyleSheetItem *stl)
+    : QTextContainer( stl )
+{
+}
+
+QTextFont::QTextFont( const QStyleSheetItem *stl, const QMap<QString, QString> &attr )
+    : QTextContainer( stl, attr )
+{
+}
+
+QTextFont::~QTextFont()
+{
+}
+    
+void QTextFont::setParent( QTextContainer* p)
+{
+    QTextContainer::setParent( p );
+    
+    if ( attributes() && attributes()->contains("color") )
+	setColor( QColor( (*attributes())["color"] ) );
+    
+    if ( attributes() && attributes()->contains("size") ) {
+	QString a = (*attributes())["size"];
+	int n = a.toInt();
+	QFont f = font();
+	if ( a[0] == '+' || a[0] == '-' )
+	    f.setPointSize( f.pointSize() + n );
+	else
+	    f.setPointSize( n );
+	setFont( f );
+    }
+    
+    //### TODO some more font attributes
 }
 
 //************************************************************************
@@ -1292,7 +1350,7 @@ int QTextBox::numberOfSubBox( QTextBox* subbox, bool onlyListItems)
 QStyleSheetItem::ListStyle QTextBox::listStyle()
 {
     if ( attributes() ) {
-	QString s =  attributes()->operator[]("type");
+	QString s =  (*attributes())["type"];
 	
 	if ( !s )
 	    return style->listStyle();
@@ -1989,7 +2047,7 @@ bool QRichText::parse (QTextContainer* current, QTextNode* lastChild, const QStr
 			l->isLastSibling = 0;
 		    }
 			
-		    ctag->parent = current; //TODO
+		    ctag->setParent( current );
 		    ctag ->next = current;
 		    ctag->isLastSibling = 1;
 		    lastChild = ctag;

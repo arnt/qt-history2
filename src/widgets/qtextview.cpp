@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtextview.cpp#17 $
+** $Id: //depot/qt/main/src/widgets/qtextview.cpp#18 $
 **
 ** Implementation of the QTextView class
 **
@@ -241,17 +241,17 @@ void QTextView::createRichText()
     if ( !d->doc_->attributes() )
 	return;
     if (d->doc_->attributes()->contains("bgcolor")){
-	QColor  col ( d->doc_->attributes()->operator[]("bgcolor").latin1() );
+	QColor  col ( (*d->doc_->attributes())["bgcolor"].latin1() );
 	if ( col.isValid() )
 	    d->papcolgrp.setColor( QColorGroup::Base, col );
     }
     if (d->doc_->attributes()->contains("text")){
-	QColor  col ( d->doc_->attributes()->operator[]("text").latin1() );
+	QColor  col ( (*d->doc_->attributes())["text"].latin1() );
 	if ( col.isValid() )
 	    d->papcolgrp.setColor( QColorGroup::Text,  col );
     }
     if (d->doc_->attributes()->contains("bgpixmap")){
-	QString imageName = d->doc_->attributes()->operator[]("bgpixmap");
+	QString imageName = (*d->doc_->attributes())["bgpixmap"];
 	QPixmap pm;
 	const QMimeSource* m =
 	    context().isNull()
@@ -375,7 +375,7 @@ const QColorGroup& QTextView::paperColorGroup() const
 */
 QString QTextView::documentTitle() const
 {
-    return richText().attributes()?richText().attributes()->operator[]("title"):QString::null;
+    return richText().attributes()?(*richText().attributes())["title"]:QString::null;
 }
 
 /*!
