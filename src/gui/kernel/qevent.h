@@ -348,17 +348,24 @@ public:
         int length;
         QVariant value;
     };
-    QInputMethodEvent(const QString &preeditText, const QString &commitText, const QList<Attribute> &attributes);
+    QInputMethodEvent();
+    QInputMethodEvent(const QString &preeditText, const QList<Attribute> &attributes);
+    void setCommitString(const QString &commitString, int replaceFrom = 0, int replaceLength = 0);
 
     const QList<Attribute> &attributes() const { return attrs; }
-    const QString &preeditText() const { return preedit; }
-    const QString &commitText() const { return commit; }
+    const QString &preeditString() const { return preedit; }
+
+    const QString &commitString() const { return commit; }
+    int replacementFrom() const { return replace_from; }
+    int replacementLength() const { return replace_length; }
 
     QInputMethodEvent(const QInputMethodEvent &other);
 private:
     QString preedit;
-    QString commit;
     QList<Attribute> attrs;
+    QString commit;
+    int replace_from;
+    int replace_length;
 };
 
 #ifndef QT_NO_DRAGANDDROP

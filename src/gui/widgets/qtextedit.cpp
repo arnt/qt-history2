@@ -1544,28 +1544,34 @@ void QTextEdit::resizeEvent(QResizeEvent *)
     d->adjustScrollbars();
 }
 
+
+void QTextEditPrivate::paint(QPainter *p, QPaintEvent *e)
+{
+    Q_Q(QTextEdit);
+    const int xOffset = hbar->value();
+    const int yOffset = vbar->value();
+
+    QRect r = e->rect();
+    p->translate(-xOffset, -yOffset);
+    r.translate(xOffset, yOffset);
+    p->setClipRect(r);
+
+    QAbstractTextDocumentLayout::PaintContext ctx;
+    ctx.showCursor = (cursorOn && q->isEnabled());
+    ctx.cursor = cursor;
+    ctx.palette = q->palette();
+    ctx.rect = r;
+
+    doc->documentLayout()->draw(p, ctx);
+}
+
 /*! \reimp
 */
 void QTextEdit::paintEvent(QPaintEvent *e)
 {
     Q_D(QTextEdit);
     QPainter p(d->viewport);
-
-    const int xOffset = d->hbar->value();
-    const int yOffset = d->vbar->value();
-
-    QRect r = e->rect();
-    p.translate(-xOffset, -yOffset);
-    r.translate(xOffset, yOffset);
-    p.setClipRect(r);
-
-    QAbstractTextDocumentLayout::PaintContext ctx;
-    ctx.showCursor = (d->cursorOn && isEnabled());
-    ctx.cursor = d->cursor;
-    ctx.palette = palette();
-    ctx.rect = r;
-
-    d->doc->documentLayout()->draw(&p, ctx);
+    d->paint(&p, e);
 }
 
 /*! \reimp
@@ -1867,16 +1873,21 @@ void QTextEdit::inputMethodEvent(QInputMethodEvent *e)
         e->ignore();
         return;
     }
+    d->cursor.beginEditBlock();
+
     d->cursor.removeSelectedText();
 
     // insert commit string
-    d->cursor.beginEditBlock();
-    if (!e->commitText().isEmpty())
-        d->cursor.insertText(e->commitText());
+    if (!e->commitString().isEmpty() || e->replacementLength()) {
+        QTextCursor c = d->cursor;
+        c.setPosition(c.position() + e->replacementFrom());
+        c.setPosition(c.position() + e->replacementLength(), QTextCursor::KeepAnchor);
+        c.insertText(e->commitString());
+    }
 
     QTextBlock block = d->cursor.block();
     QTextLayout *layout = block.layout();
-    layout->setPreeditArea(d->cursor.position() - block.position(), e->preeditText());
+    layout->setPreeditArea(d->cursor.position() - block.position(), e->preeditString());
     QList<QTextLayout::FormatOverride> overrides;
     for (int i = 0; i < e->attributes().size(); ++i) {
         const QInputMethodEvent::Attribute &a = e->attributes().at(i);

@@ -137,7 +137,7 @@ extern "C" {
 		XIM_DEBUG("compose emptied");
 		// if the composition string has been emptied, we need
 		// to send an InputMethodEnd event
-                QInputMethodEvent e(QString::null, QString(), QList<QInputMethodEvent::Attribute>());
+                QInputMethodEvent e;
 		qic->sendEvent(e);
 		data->clear();
 
@@ -209,7 +209,7 @@ extern "C" {
 		XIM_DEBUG("compose emptied 2 text=%s", data->text.toUtf8().constData());
 		// if the composition string has been emptied, we need
 		// to send an InputMethodEnd event
-                QInputMethodEvent e(QString::null, QString(), QList<QInputMethodEvent::Attribute>());
+                QInputMethodEvent e;
 		qic->sendEvent(e);
 		data->clear();
 		// if the commit string has coming after here, InputMethodStart
@@ -233,7 +233,7 @@ extern "C" {
             attrs << QInputMethodEvent::Attribute(QInputMethodEvent::TextFormat,
                                                   cursor + sellen, data->text.length() - cursor - sellen,
                                                   qic->standardFormat(QInputContext::PreeditFormat));
-        QInputMethodEvent e(data->text, QString(), attrs);
+        QInputMethodEvent e(data->text, attrs);
 	qic->sendEvent(e);
 
 	return 0;
@@ -489,7 +489,8 @@ void QXIMInputContext::reset()
     if (data->ic) {
         char *mb = XmbResetIC(data->ic);
         if (mb) {
-            QInputMethodEvent e(QString::null, QString::fromLocal8Bit(mb), QList<QInputMethodEvent::Attribute>());
+            QInputMethodEvent e;
+            e.setCommitString(QString::fromLocal8Bit(mb));
             sendEvent(e);
             XFree(mb);
         }
@@ -606,7 +607,8 @@ bool QXIMInputContext::x11FilterEvent(QWidget *keywidget, XEvent *event)
     }
 #endif
 
-    QInputMethodEvent e(QString::null, text, QList<QInputMethodEvent::Attribute>());
+    QInputMethodEvent e;
+    e.setCommitString(text);
     sendEvent(e);
     data->clear();
     return true;

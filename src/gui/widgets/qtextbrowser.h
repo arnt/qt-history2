@@ -61,6 +61,7 @@ protected:
     virtual void mouseReleaseEvent(QMouseEvent *ev);
     virtual void focusOutEvent(QFocusEvent *ev);
     virtual bool focusNextPrevChild(bool next);
+    virtual void paintEvent(QPaintEvent *e);
 
 #if defined(QT_COMPAT)
 public:

@@ -1541,13 +1541,23 @@ void Q3TextEdit::inputMethodEvent(QInputMethodEvent *e)
         d->preeditStart = d->preeditLength = -1;
     }
 
-    if (!e->commitText().isEmpty())
-        insert(e->commitText());
+    if (!e->commitString().isEmpty() || e->replacementLength()) {
+        int c = cursor->index(); // cursor position after insertion of commit string
+        if (e->replacementFrom() <= 0)
+            c += e->commitString().length() + qMin(-e->replacementFrom(), e->replacementLength());
+        cursor->setIndex(cursor->index() + e->replacementFrom());
+        doc->setSelectionStart(Q3TextDocument::Standard, *cursor);
+        cursor->setIndex(cursor->index() + e->replacementLength());
+        doc->setSelectionEnd(Q3TextDocument::Standard, *cursor);
+        removeSelectedText();
+        insert(e->commitString());
+        cursor->setIndex(c);
+    }
 
-    if (!e->preeditText().isEmpty()) {
+    if (!e->preeditString().isEmpty()) {
         d->preeditStart = cursor->index();
-        d->preeditLength = e->preeditText().length();
-        insert(e->preeditText());
+        d->preeditLength = e->preeditString().length();
+        insert(e->preeditString());
         cursor->setIndex(d->preeditStart);
 
         Q3TextCursor c = *cursor;

@@ -1144,12 +1144,19 @@ Qt::ButtonState QContextMenuEvent::state() const
 
     QInputMethodEvent models these three stages, and transfers the
     information needed to correctly render the intermediate result. A
-    QInputMethodEvent has two main parameters: preeditText() and
-    commitText(). The preeditText() parameter gives the currently
-    active preedit string. The commitText() parameter gives a text
-    that should get added to the text of the editor widget. It usually
-    is a result of the input operations and has to be inserted to the
-    widgets text directly before the preedit string.
+    QInputMethodEvent has two main parameters: preeditString() and
+    commitString(). The preeditString() parameter gives the currently
+    active preedit string. The commitString() parameter gives a text
+    that should get added to (or replace parts of) the text of the
+    editor widget. It usually is a result of the input operations and
+    has to be inserted to the widgets text directly before the preedit
+    string.
+
+    If the commitString() should replace parts of the of the text in
+    the editor, replacementLength() will contain the number of
+    characters to be replaced. replacementFrom() contains the position
+    at which characters are to be replaced relative from the start of
+    the preedit string.
 
     A number of attributes control the visual appearance of the
     preedit string (the visual appearance of text outside the preedit
@@ -1157,12 +1164,43 @@ Qt::ButtonState QContextMenuEvent::state() const
     describes the different attributes that can be set.
 
     A class implementing the inputMethodEvent() should at least
-    understand and honor the following attributes: UnderLineColor,
-    BackgroundColor and CursorPosition.
+    understand and honor the TextFormat and Cursor attributes.
 
     Since input methods need to be able to query certain properties
     from the widget, the widget must also implement the
     inputMethodQuery() method of QWidget.
+
+    When receiving an input method event, the text widget has to performs the
+    following steps:
+
+    1. If the widget has selected text, the selected text should get
+    removed.
+
+    2. remove the text starting at replacementFrom() with length
+    replacementLength() and replace it by the commitString(). If
+    replacementLength() is 0, replacementFrom() gives the insertion
+    position for the commitString().
+
+    When doing replacement the area of the preedit
+    string is ignored, thus a replacement starting at -1 with a length
+    of 2 will remove the last character before the preedit string and
+    the first character afterwards, and insert the commit string
+    directly before the preedit string.
+
+    If the widget implements undo/redo, this operation gets added to
+    the undo stack.
+
+    3. If there is no current preedit string, insert the
+    preeditString() at the current cursor position; otherwise replace
+    the previous preeditString with the one received from this event.
+
+    If the widget implements undo/redo, the preeditString() should not
+    influence the undo/redo stack in any way.
+
+    The widget should examine the list of attributes to apply to the
+    preedit string. It has to understand at least the TextFormat and
+    Cursor attributes and render them as specified.
+
 */
 
 /*!
@@ -1174,7 +1212,9 @@ Qt::ButtonState QContextMenuEvent::state() const
   specifying rendering of this part of the preedit string. There
   should be at most one format for every part of the preedit
   string. If several are specified for any character in the string the
-  behaviour is undefined.
+  behaviour is undefined. A conforming implementation has to at least
+  honour the backgroundColor, textColor and fontUnderline properties
+  of the format.
 
   \value Cursor
   If set, a cursor should be shown inside the preedit string at
@@ -1196,15 +1236,28 @@ Qt::ButtonState QContextMenuEvent::state() const
   is undefined.
 */
 
-QInputMethodEvent::QInputMethodEvent(const QString &preeditText, const QString &commitText,
-                                     const QList<QInputMethodEvent::Attribute> &attributes)
-    : QEvent(QEvent::InputMethod), preedit(preeditText), commit(commitText), attrs(attributes)
+QInputMethodEvent::QInputMethodEvent()
+    : QEvent(QEvent::InputMethod), replace_from(0), replace_length(0)
+{
+}
+
+QInputMethodEvent::QInputMethodEvent(const QString &preeditText, const QList<QInputMethodEvent::Attribute> &attributes)
+    : QEvent(QEvent::InputMethod), preedit(preeditText), attrs(attributes),
+      replace_from(0), replace_length(0)
 {
 }
 
 QInputMethodEvent::QInputMethodEvent(const QInputMethodEvent &other)
-    : QEvent(QEvent::InputMethod), preedit(other.preedit), commit(other.commit), attrs(other.attrs)
+    : QEvent(QEvent::InputMethod), preedit(other.preedit), attrs(other.attrs),
+      commit(other.commit), replace_from(other.replace_from), replace_length(other.replace_length)
 {
+}
+
+void QInputMethodEvent::setCommitString(const QString &commitString, int replaceFrom, int replaceLength)
+{
+    commit = commitString;
+    replace_from = replaceFrom;
+    replace_length = replaceLength;
 }
 
 /*!

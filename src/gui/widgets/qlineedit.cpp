@@ -1661,11 +1661,24 @@ void QLineEdit::inputMethodEvent(QInputMethodEvent *e)
 
     d->removeSelectedText();
 
-    // insert commit string
-    if (!e->commitText().isEmpty())
-        d->insert(e->commitText());
+    int c = d->cursor; // cursor position after insertion of commit string
+    if (e->replacementFrom() <= 0)
+        c += e->commitString().length() + qMin(-e->replacementFrom(), e->replacementLength());
 
-    d->textLayout.setPreeditArea(d->cursor, e->preeditText());
+    d->cursor += e->replacementFrom();
+
+    // insert commit string
+    if (e->replacementLength()) {
+        d->selstart = d->cursor;
+        d->selend = d->selstart + e->replacementLength();
+        d->removeSelectedText();
+    }
+    if (!e->commitString().isEmpty())
+        d->insert(e->commitString());
+
+    d->cursor = c;
+
+    d->textLayout.setPreeditArea(d->cursor, e->preeditString());
     d->formatOverrides.clear();
     for (int i = 0; i < e->attributes().size(); ++i) {
         const QInputMethodEvent::Attribute &a = e->attributes().at(i);
@@ -1682,7 +1695,7 @@ void QLineEdit::inputMethodEvent(QInputMethodEvent *e)
     }
     d->updateTextLayout();
     update();
-    if (!e->commitText().isEmpty())
+    if (!e->commitString().isEmpty())
         d->emitCursorPositionChanged();
 }
 

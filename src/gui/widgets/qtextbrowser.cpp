@@ -49,6 +49,8 @@ public:
 
     bool forceLoadOnSourceChange;
 
+    QTextCursor focusIndicator;
+
     QString findFile(const QString &name) const;
 
     inline void documentModified()
@@ -510,7 +512,7 @@ void QTextBrowser::mouseReleaseEvent(QMouseEvent *ev)
 */
 void QTextBrowser::focusOutEvent(QFocusEvent *ev)
 {
-    Q_D(QTextEdit);
+    Q_D(QTextBrowser);
     if (ev->reason() != Qt::ActiveWindowFocusReason
         && ev->reason() != Qt::PopupFocusReason) {
         d->focusIndicator.clearSelection();
@@ -681,6 +683,22 @@ bool QTextBrowser::focusNextPrevChild(bool next)
         d->viewport->update();
         return false;
     }
+}
+
+/*!
+  \reimp
+*/
+void QTextBrowser::paintEvent(QPaintEvent *e)
+{
+    Q_D(QTextBrowser);
+    QPainter p(d->viewport);
+    d->paint(&p, e);
+
+    if (!d->focusIndicator.hasSelection())
+        return;
+
+    // draw focus rect in addition
+    // ###########
 }
 
 /*!

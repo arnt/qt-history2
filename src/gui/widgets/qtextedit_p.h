@@ -65,6 +65,7 @@ public:
     void startDrag();
 
     void paste(const QMimeData *source);
+    void paint(QPainter *p, QPaintEvent *e);
 
     void setCursorPosition(const QPoint &pos);
     void setCursorPosition(int pos, QTextCursor::MoveMode mode = QTextCursor::MoveAnchor);
@@ -133,7 +134,6 @@ public:
 
     QString anchorToScrollToWhenVisible;
 
-    QTextCursor focusIndicator;
     QTextCursor cursorOnDoubleClick;
 };
 
