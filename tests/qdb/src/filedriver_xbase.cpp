@@ -180,6 +180,15 @@ public:
 	    rc = file.PutField( i, val.latin1() );
 	    break;
 	}
+	case QVariant::Bool: {
+	    QString val;
+	    if ( nullify )
+		val = "?";
+	    else
+		val = QString::number(v.toBool());
+	    rc = file.PutField( i, val.latin1() );
+	    break;
+	}
 	default: {
 	    QCString data;
 	    if ( nullify )
