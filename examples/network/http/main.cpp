@@ -1,12 +1,12 @@
-#include <QtGui>
+#include <QApplication>
 
-#include "http.h"
+#include "httpwindow.h"
 
-int main(int argc, char **argv)
+int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
-    Http http;
-    app.setMainWidget(&http);
-    http.show();
+    HttpWindow httpWin;
+    app.setMainWidget(&httpWin);
+    httpWin.show();
     return app.exec();
 }

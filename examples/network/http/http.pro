@@ -1,4 +1,4 @@
-HEADERS += http.h
-SOURCES += http.cpp \
+HEADERS += httpwindow.h
+SOURCES += httpwindow.cpp \
            main.cpp
 QT += network

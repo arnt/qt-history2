@@ -2,19 +2,18 @@
 #include <QtGui>
 #include <QtNetwork>
 
-#include "http.h"
+#include "httpwindow.h"
 
-Http::Http(QWidget *parent)
+HttpWindow::HttpWindow(QWidget *parent)
     : QDialog(parent)
 {
     urlLineEdit = new QLineEdit("http://www.trolltech.com/video/overview.rm",
                                 this);
 
-    urlLabel = new QLabel(tr("&Url:"), this);
+    urlLabel = new QLabel(tr("&URL:"), this);
     urlLabel->setBuddy(urlLineEdit);
-    statusLabel = new QLabel(tr("Please enter the URL of "
-                                "a file you want to download."),
-                             this);
+    statusLabel = new QLabel(tr("Please enter the URL of a file you want to"
+                                " download."), this);
 
     quitButton = new QPushButton(tr("Quit"), this);
     downloadButton = new QPushButton(tr("Download"), this);
@@ -33,12 +32,12 @@ Http::Http(QWidget *parent)
     connect(http, SIGNAL(responseHeaderReceived(const QHttpResponseHeader &)),
             this, SLOT(readResponseHeader(const QHttpResponseHeader &)));
     connect(progressDialog, SIGNAL(canceled()), this, SLOT(cancelDownload()));
-    connect(downloadButton, SIGNAL(clicked()), this, SLOT(download()));
+    connect(downloadButton, SIGNAL(clicked()), this, SLOT(downloadFile()));
     connect(quitButton, SIGNAL(clicked()), this, SLOT(close()));
 
-    QHBoxLayout *urlLayout = new QHBoxLayout;
-    urlLayout->addWidget(urlLabel);
-    urlLayout->addWidget(urlLineEdit);
+    QHBoxLayout *topLayout = new QHBoxLayout;
+    topLayout->addWidget(urlLabel);
+    topLayout->addWidget(urlLineEdit);
 
     QHBoxLayout *buttonLayout = new QHBoxLayout;
     buttonLayout->addStretch(1);
@@ -46,22 +45,22 @@ Http::Http(QWidget *parent)
     buttonLayout->addWidget(quitButton);
 
     QVBoxLayout *mainLayout = new QVBoxLayout(this);
-    mainLayout->addLayout(urlLayout);
+    mainLayout->addLayout(topLayout);
     mainLayout->addWidget(statusLabel);
     mainLayout->addLayout(buttonLayout);
 
-    setWindowTitle(tr("Http"));
+    setWindowTitle(tr("HTTP"));
     urlLineEdit->setFocus();
 }
 
-void Http::download()
+void HttpWindow::downloadFile()
 {
     QUrl url(urlLineEdit->text());
     QFileInfo fileInfo(url.path());
     QString fileName = fileInfo.fileName();
 
     if (QFile::exists(fileName)) {
-        QMessageBox::information(this, tr("Http"),
+        QMessageBox::information(this, tr("HTTP"),
                                  tr("You already have a file called %1.")
                                  .arg(fileName));
         return;
@@ -69,7 +68,7 @@ void Http::download()
 
     file = new QFile(fileName);
     if (!file->open(QIODevice::WriteOnly)) {
-        QMessageBox::information(this, tr("Http"),
+        QMessageBox::information(this, tr("HTTP"),
                                  tr("Unable to save the file %1: %2.")
                                  .arg(fileName).arg(file->errorString()));
         delete file;
@@ -84,20 +83,18 @@ void Http::download()
     httpRequestAborted = false;
     httpGetId = http->get(url.path(), file);
 
-    progressDialog->setLabel(new QLabel(tr("Downloading %1.").arg(fileName),
-                                        this));
-
+    progressDialog->setLabelText(tr("Downloading %1.").arg(fileName));
     downloadButton->setEnabled(false);
 }
 
-void Http::cancelDownload()
+void HttpWindow::cancelDownload()
 {
     statusLabel->setText(tr("Download canceled."));
     httpRequestAborted = true;
     http->abort();
 }
 
-void Http::httpRequestFinished(int id, bool error)
+void HttpWindow::httpRequestFinished(int requestId, bool error)
 {
     if (httpRequestAborted) {
         if (file) {
@@ -109,15 +106,15 @@ void Http::httpRequestFinished(int id, bool error)
         return;
     }
 
-    if (id != httpGetId)
+    if (requestId != httpGetId)
         return;
 
     file->close();
 
     if (error) {
         file->remove();
-        QMessageBox::information(this, tr("QHttp"),
-                                 tr("Download failed: %1")
+        QMessageBox::information(this, tr("HTTP"),
+                                 tr("Download failed: %1.")
                                  .arg(http->errorString()));
     } else {
         statusLabel->setText(tr("Download complete."));
@@ -128,11 +125,11 @@ void Http::httpRequestFinished(int id, bool error)
     file = 0;
 }
 
-void Http::readResponseHeader(const QHttpResponseHeader &responseHeader)
+void HttpWindow::readResponseHeader(const QHttpResponseHeader &responseHeader)
 {
     if (responseHeader.statusCode() != 200) {
-        QMessageBox::information(this, tr("QHttp"),
-                                 tr("Download failed: %1")
+        QMessageBox::information(this, tr("HTTP"),
+                                 tr("Download failed: %1.")
                                  .arg(responseHeader.reasonPhrase()));
         httpRequestAborted = true;
         progressDialog->hide();
@@ -141,7 +138,7 @@ void Http::readResponseHeader(const QHttpResponseHeader &responseHeader)
     }
 }
 
-void Http::updateDataReadProgress(int bytesRead, int totalBytes)
+void HttpWindow::updateDataReadProgress(int bytesRead, int totalBytes)
 {
     if (httpRequestAborted)
         return;
@@ -150,7 +147,7 @@ void Http::updateDataReadProgress(int bytesRead, int totalBytes)
     progressDialog->setProgress(bytesRead);
 }
 
-void Http::enableDownloadButton()
+void HttpWindow::enableDownloadButton()
 {
     downloadButton->setEnabled(!urlLineEdit->text().isEmpty());
 }
