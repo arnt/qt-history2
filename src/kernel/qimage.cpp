@@ -2643,7 +2643,7 @@ QImage QImage::xForm( const QWMatrix &matrix ) const
 	    memset( dImage.bits(), 0xff, dImage.numBytes() );
 	    break;
 	case 32:
-	    memset( dImage.bits(), 0xff, dImage.numBytes() );
+	    memset( dImage.bits(), 0x00, dImage.numBytes() );
 	    break;
     }
 
