@@ -2878,11 +2878,13 @@ void QTextDocument::drawParag( QPainter *p, QTextParag *parag, int cx, int cy, i
 	painter->translate( -ir.x(), -ir.y() );
     }
 
-    if ( parag->rect().x() + parag->rect().width() < parag->document()->x() + parag->document()->width() ) {
-	p->fillRect( parag->rect().x() + parag->rect().width(), parag->rect().y(),
-		     ( parag->document()->x() + parag->document()->width() ) -
-		     ( parag->rect().x() + parag->rect().width() ),
-		     parag->rect().height(), cg.brush( QColorGroup::Base ) );
+    if ( useDoubleBuffer ) {
+	if ( parag->rect().x() + parag->rect().width() < parag->document()->x() + parag->document()->width() ) {
+	    p->fillRect( parag->rect().x() + parag->rect().width(), parag->rect().y(),
+			 ( parag->document()->x() + parag->document()->width() ) -
+			 ( parag->rect().x() + parag->rect().width() ),
+			 parag->rect().height(), cg.brush( QColorGroup::Base ) );
+	}
     }
 
     parag->document()->nextDoubleBuffered = FALSE;
@@ -2950,9 +2952,11 @@ QTextParag *QTextDocument::draw( QPainter *p, int cx, int cy, int cw, int ch, co
 
     parag = lastParag();
     if ( parag->rect().y() + parag->rect().height() < parag->document()->height() ) {
-	p->fillRect( 0, parag->rect().y() + parag->rect().height(), parag->document()->width(),
-		     parag->document()->height() - ( parag->rect().y() + parag->rect().height() ),
-		     cg.brush( QColorGroup::Base ) );
+	if ( !parag->document()->parent() ) { // !useDoubleBuffer
+	    p->fillRect( 0, parag->rect().y() + parag->rect().height(), parag->document()->width(),
+			 parag->document()->height() - ( parag->rect().y() + parag->rect().height() ),
+			 cg.brush( QColorGroup::Base ) );
+	}
 	if ( !flow()->isEmpty() ) {
 	    QRect cr( cx, cy, cw, ch );
 	    cr = cr.intersect( QRect( 0, parag->rect().y() + parag->rect().height(), parag->document()->width(),
