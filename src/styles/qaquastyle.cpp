@@ -8170,9 +8170,23 @@ static const char * const aqua_radio_psh_t_xpm[] = {
 #define INCLUDE_MENUITEM_DEF
 #include "qpopupmenu.h"
 
+class QAquaStylePrivate
+{
+public:
+    class buttonState {
+    public:
+        buttonState() : frame(0), dir(1) {}
+        int frame;
+        int dir;
+    };
+
+    QMap<QPushButton *, buttonState *> defaultButtons;
+    int timerId;
+};
+
 // NOT REVISED
 /*!
-  \class QAquaStyle qplatinumstyle.h
+  \class QAquaStyle qaquastyle.h
   \brief Aqua Look and Feel
   \ingroup appearance
 
@@ -8676,13 +8690,15 @@ static void qAquaPixmap( const QString & s, QPixmap & p )
 */
 QAquaStyle::QAquaStyle()
 {
-    timerId = -1;
+    d = new QAquaStylePrivate;
+    d->timerId = -1;
 }
 
 /*!\reimp
 */
 QAquaStyle::~QAquaStyle()
 {
+    delete d;
 }
 
 /*! \reimp
@@ -8735,8 +8751,8 @@ void QAquaStyle::polish( QWidget * w )
         QPushButton * btn = (QPushButton *) w;
         if( btn->isDefault() || btn->autoDefault() ){
             btn->installEventFilter( this );
-            if( timerId == -1 ){
-                timerId = startTimer( 50 );
+            if( d->timerId == -1 ){
+                d->timerId = startTimer( 50 );
             }
         }
     }
@@ -8772,14 +8788,14 @@ void QAquaStyle::unPolish( QWidget * w )
     if( w->inherits("QPushButton") ){
         QPushButton * btn = (QPushButton *) w;
         if( btn->isDefault() ){
-            if( defaultButtons.contains( btn ) ){
-                delete defaultButtons[btn];
-                defaultButtons.remove( btn );
+            if( d->defaultButtons.contains( btn ) ){
+                delete d->defaultButtons[btn];
+                d->defaultButtons.remove( btn );
             }
         }
-        if( timerId != -1 ){
-            killTimer( timerId );
-            timerId = -1;
+        if( d->timerId != -1 ){
+            killTimer( d->timerId );
+            d->timerId = -1;
         }
     }
 
@@ -8806,10 +8822,10 @@ void QAquaStyle::unPolish( QWidget * w )
 */
 void QAquaStyle::timerEvent( QTimerEvent * te )
 {
-    if( te->timerId() == timerId ){
-        if( defaultButtons.count() > 0 ){
-            QMapIterator<QPushButton *, buttonState *> it = defaultButtons.begin();
-            while( it != defaultButtons.end() ){
+    if( te->timerId() == d->timerId ){
+        if( d->defaultButtons.count() > 0 ){
+            QMapIterator<QPushButton *, QAquaStylePrivate::buttonState *> it = d->defaultButtons.begin();
+            while( it != d->defaultButtons.end() ){
                 it.key()->repaint( FALSE );
                 ++it;
             }
@@ -8825,11 +8841,11 @@ bool QAquaStyle::eventFilter( QObject * o, QEvent * e )
         QPushButton * btn = (QPushButton *) o;
 
         if( e->type() == QEvent::Show ){
-            defaultButtons.insert( btn, new buttonState );
+            d->defaultButtons.insert( btn, new QAquaStylePrivate::buttonState );
         } else if( e->type() == QEvent::Hide ){
-            if( defaultButtons.contains( btn ) ){
-                delete defaultButtons[btn];
-                defaultButtons.remove( btn );
+            if( d->defaultButtons.contains( btn ) ){
+                delete d->defaultButtons[btn];
+                d->defaultButtons.remove( btn );
             }
         }
     }
@@ -9226,9 +9242,9 @@ void QAquaStyle::drawPushButton( QPushButton* btn, QPainter *p)
     p->fillRect( x1, y1, x2+1, y2+1, g.brush( QColorGroup::Background ) );
 
     QString hstr = QString::number( y2 - y1 );
-    if( btn->isDefault() && defaultButtons.contains( btn ) ){
-        int & alt = defaultButtons[btn]->frame;
-        int & dir = defaultButtons[btn]->dir;
+    if( btn->isDefault() && d->defaultButtons.contains( btn ) ){
+        int & alt = d->defaultButtons[btn]->frame;
+        int & dir = d->defaultButtons[btn]->dir;
         if( alt > 0 ){
             QString num = QString::number( alt );
             qAquaPixmap( "btn_def_left" + num + "_" + hstr, left );

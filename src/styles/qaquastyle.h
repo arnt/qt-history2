@@ -52,6 +52,7 @@
 #define Q_EXPORT_STYLE_AQUA Q_EXPORT
 #endif
 
+class QAquaStylePrivate;
 
 class Q_EXPORT_STYLE_AQUA QAquaStyle : public QWindowsStyle
 {
@@ -159,15 +160,7 @@ private:        // Disabled copy constructor and operator=
 #endif
     QPalette oldPalette;
 
-    class buttonState {
-    public:
-        buttonState() : frame(0), dir(1) {}
-        int frame;
-        int dir;
-    };
-
-    QMap<QPushButton *, buttonState *> defaultButtons;
-    int timerId;
+    QAquaStylePrivate *d;
 };
 
 #endif // QT_NO_STYLE_AQUA
