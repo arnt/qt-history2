@@ -1640,6 +1640,7 @@ typedef int (__stdcall *PtrGdipDeleteBrush) (QtGpBrush *);
 
 typedef int (__stdcall *PtrGdipCreateSolidFill) (Q_UINT32 argb, QtGpBrush **);
 typedef int (__stdcall *PtrGdipSetSolidFillColor) (QtGpSolidFill *, Q_UINT32 argb);
+typedef int (__stdcall *PtrGdipCreateLineBrush) (QPointF *, QPointF *, Q_UINT32, Q_UINT32, uint, QtGpBrush **);
 
 typedef int (__stdcall *PtrGdipCreatePen1) (Q_UINT32 argb, float width, int unit, QtGpPen **);
 typedef int (__stdcall *PtrGdipDeletePen) (QtGpPen *);
@@ -1702,6 +1703,8 @@ static PtrGdipDeleteBrush GdipDeleteBrush = 0;               // Brush::~Brush()
 
 static PtrGdipCreateSolidFill GdipCreateSolidFill = 0;       // SolidBrush::SolidBrush(argb)
 static PtrGdipSetSolidFillColor GdipSetSolidFillColor = 0;   // SolidBrush::SetColor(argb)
+static PtrGdipCreateLineBrush GdipCreateLineBrush = 0;       // LinearGradientBrush...
+
 
 static PtrGdipCreatePen1 GdipCreatePen1 = 0;                 // Pen::Pen(color, width)
 static PtrGdipDeletePen GdipDeletePen = 0;                   // Pen::~Pen()
@@ -1778,6 +1781,7 @@ static void qt_resolve_gdiplus()
     GdipDeleteBrush              = (PtrGdipDeleteBrush)        lib.resolve("GdipDeleteBrush");
     GdipCreateSolidFill          = (PtrGdipCreateSolidFill)    lib.resolve("GdipCreateSolidFill");
     GdipSetSolidFillColor        = (PtrGdipSetSolidFillColor)  lib.resolve("GdipSetSolidFillColor");
+    GdipCreateLineBrush          = (PtrGdipCreateLineBrush)    lib.resolve("GdipCreateLineBrush");
 
     // Pen functions
     GdipCreatePen1               = (PtrGdipCreatePen1)         lib.resolve("GdipCreatePen1");
@@ -1834,6 +1838,7 @@ static void qt_resolve_gdiplus()
     Q_ASSERT(GdipDeleteBrush);
     Q_ASSERT(GdipCreateSolidFill);
     Q_ASSERT(GdipSetSolidFillColor);
+    Q_ASSERT(GdipCreateLineBrush);
     Q_ASSERT(GdipCreatePen1);
     Q_ASSERT(GdipDeletePen);
     Q_ASSERT(GdipSetPenWidth);
@@ -1996,10 +2001,12 @@ void QGdiplusPaintEngine::updateBrush(const QBrush &brush, const QPointF &)
         }
         break;
     case Qt::LinearGradientPattern: {
-//         QBrush &b = brush;
+        QPointF p1 = brush.gradientStart();
+        QPointF p2 = brush.gradientStop();
+        GdipCreateLineBrush(&p1, &p2, brush.color().rgb(), brush.gradientColor().rgb(), 0, &d->brush);
 //         d->brush = new LinearGradientBrush(conv(b.gradientStart()), conv(b.gradientStop()),
 //                                            conv(b.color()), conv(b.gradientColor()));
-//         d->temporaryBrush = true;
+        d->temporaryBrush = true;
         break;
     }
     case Qt::CustomPattern: {
