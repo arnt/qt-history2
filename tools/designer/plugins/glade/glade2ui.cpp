@@ -815,7 +815,7 @@ void Glade2Ui::emitPushButton( const QString& text, const QString& name )
     emitProperty( QString("name"), name.latin1() );
     emitProperty( QString("text"), text );
     if ( name.contains(QString("ok")) ) {
-	emitProperty( QString("default"), QVariant(TRUE, 0) );
+	emitProperty( QString("default"), QVariant(TRUE) );
     } else if ( name.contains(QString("help")) ) {
 	emitProperty( QString("accel"), (int) Qt::Key_F1 );
     }
@@ -1191,7 +1191,7 @@ void Glade2Ui::emitQListViewColumns( const QDomElement& qlistview )
 	} else if ( tagName == QString("class") ) {
 	    QString gtkClass = getTextValue( n );
 	    if ( gtkClass.endsWith(QString("Tree")) )
-		emitProperty( QString("rootIsDecorated"), QVariant(TRUE, 0) );
+		emitProperty( QString("rootIsDecorated"), QVariant(TRUE) );
 	} else if ( tagName == QString("selection_mode") ) {
 	    emitProperty( QString("selectionMode"),
 			  gtk2qtSelectionMode(getTextValue(n)) );
@@ -1791,16 +1791,16 @@ QString Glade2Ui::emitWidget( const QDomElement& widget, bool layouted,
 	    if ( !layouted && (x != 0 || y != 0 || width != 0 || height != 0) )
 		emitProperty( QString("geometry"), QRect(x, y, width, height) );
 	    if ( gtkClass == QString("GtkToggleButton") ) {
-		emitProperty( QString("toggleButton"), QVariant(TRUE, 0) );
+		emitProperty( QString("toggleButton"), QVariant(TRUE) );
 		if ( active )
-		    emitProperty( QString("on"), QVariant(TRUE, 0) );
+		    emitProperty( QString("on"), QVariant(TRUE) );
 	    } else {
 		if ( active )
-		    emitProperty( QString("checked"), QVariant(TRUE, 0) );
+		    emitProperty( QString("checked"), QVariant(TRUE) );
 	    }
 
 	    if ( !editable )
-		emitProperty( QString("readOnly"), QVariant(TRUE, 0) );
+		emitProperty( QString("readOnly"), QVariant(TRUE) );
 	    if ( !focusTarget.isEmpty() )
 		emitProperty( QString("buddy"),
 			      fixedName(focusTarget).latin1() );
@@ -1865,7 +1865,7 @@ QString Glade2Ui::emitWidget( const QDomElement& widget, bool layouted,
 	    }
 	    if ( !showText )
 		emitProperty( QString("percentageVisible"),
-			      QVariant(FALSE, 0) );
+			      QVariant(FALSE) );
 	    if ( step != 1 )
 		emitProperty( QString("lineStep"), step );
 	    if ( tabPos.endsWith(QString("_BOTTOM")) ||
@@ -1881,12 +1881,12 @@ QString Glade2Ui::emitWidget( const QDomElement& widget, bool layouted,
 	    if ( !tooltip.isEmpty() )
 		emitProperty( QString("toolTip"), tooltip );
 	    if ( !valueInList )
-		emitProperty( QString("editable"), QVariant(TRUE, 0) );
+		emitProperty( QString("editable"), QVariant(TRUE) );
 	    if ( wrap && gtkClass == QString("GtkSpinButton") )
-		emitProperty( QString("wrapping"), QVariant(TRUE, 0) );
+		emitProperty( QString("wrapping"), QVariant(TRUE) );
 
 	    if ( gtkClass.endsWith(QString("Tree")) ) {
-		emitProperty( QString("rootIsDecorated"), QVariant(TRUE, 0) );
+		emitProperty( QString("rootIsDecorated"), QVariant(TRUE) );
 	    } else if ( gtkOrientedWidget.exactMatch(gtkClass) ) {
 		QString s = ( gtkOrientedWidget.cap(1) == QString("H") ) ?
 			    QString( "Horizontal" ) : QString( "Vertical" );

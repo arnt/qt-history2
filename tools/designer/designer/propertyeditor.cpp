@@ -1073,7 +1073,7 @@ PropertyBoolItem::~PropertyBoolItem()
 void PropertyBoolItem::toggle()
 {
     bool b = value().toBool();
-    setValue( QVariant( !b, 0 ) );
+    setValue( QVariant(!b) );
     setValue();
 }
 
@@ -1128,7 +1128,7 @@ void PropertyBoolItem::setValue()
 	return;
     setText( 1, combo()->currentText() );
     bool b = combo()->currentItem() == 0 ? (bool)FALSE : (bool)TRUE;
-    PropertyItem::setValue( QVariant( b, 0 ) );
+    PropertyItem::setValue(QVariant(b));
     notifyValueChange();
 }
 
@@ -1868,13 +1868,13 @@ void PropertyFontItem::initChildren()
 	} else if ( item->name() == tr( "Point Size" ) )
 	    item->setValue( val.toFont().pointSize() );
 	else if ( item->name() == tr( "Bold" ) )
-	    item->setValue( QVariant( val.toFont().bold(), 0 ) );
+	    item->setValue( QVariant(val.toFont().bold()) );
 	else if ( item->name() == tr( "Italic" ) )
-	    item->setValue( QVariant( val.toFont().italic(), 0 ) );
+	    item->setValue( QVariant(val.toFont().italic()) );
 	else if ( item->name() == tr( "Underline" ) )
-	    item->setValue( QVariant( val.toFont().underline(), 0 ) );
+	    item->setValue( QVariant(val.toFont().underline()) );
 	else if ( item->name() == tr( "Strikeout" ) )
-	    item->setValue( QVariant( val.toFont().strikeOut(), 0 ) );
+	    item->setValue( QVariant(val.toFont().strikeOut()) );
     }
 }
 
@@ -3580,9 +3580,9 @@ void PropertyList::setPropertyValue( PropertyItem *i )
 	} else if ( i->name() == "wordwrap" ) {
 	    int align = editor->widget()->property( "alignment" ).toInt();
 	    if ( align & WordBreak )
-		i->setValue( QVariant( TRUE, 0 ) );
+		i->setValue( QVariant(TRUE) );
 	    else
-		i->setValue( QVariant( FALSE, 0 ) );
+		i->setValue( QVariant(FALSE) );
 	} else if ( i->name() == "layoutSpacing" ) {
 	    ( (PropertyLayoutItem*)i )->setValue( MetaDataBase::spacing( WidgetFactory::containerOfWidget( (QWidget*)editor->widget() ) ) );
 	} else if ( i->name() == "layoutMargin" ) {

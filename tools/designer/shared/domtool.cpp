@@ -179,7 +179,7 @@ QVariant DomTool::elementToVariant( const QDomElement& e, const QVariant& defVal
 	    v = QVariant( e.firstChild().toText().data().toDouble() );
     } else if ( e.tagName() == "bool" ) {
 	QString t = e.firstChild().toText().data();
-	v = QVariant( t == "true" || t == "1", 0 );
+	v = QVariant(t == "true" || t == "1");
     } else if ( e.tagName() == "pixmap" ) {
 	v = QVariant( e.firstChild().toText().data() );
     } else if ( e.tagName() == "iconset" ) {
@@ -362,7 +362,7 @@ void DomTool::fixDocument( QDomDocument& doc )
 	return;
 
     // in versions smaller than 3.0 we need to change more
-    
+
     e.setAttribute( "version", 3.0 );
     e.setAttribute("stdsetdef", 1 );
     nl = e.elementsByTagName( "property" );

@@ -1577,7 +1577,7 @@ void FormWindow::windowsRepaintWorkaroundTimerTimeout()
 {
 #if defined(Q_WS_WIN32)
     QObjectList l = queryList( "QWidget" );
-    for ( int i = 0; i < l.count(); ++i ) {
+    for ( int i = 0; i < l.size(); ++i ) {
 	flickerfree_update( (QWidget*)l.at(i) );
     }
     flickerfree_update( this );

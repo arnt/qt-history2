@@ -34,6 +34,7 @@
 #include <qvaluelist.h>
 #include <qcstring.h>
 #include <qobject.h>
+#include <qvariant.h>
 
 struct DesignerProject;
 struct DesignerDatabase;

@@ -1440,13 +1440,13 @@ QVariant WidgetFactory::defaultValue( QObject *w, const QString &propName )
 {
     if ( propName == "wordwrap" ) {
 	int v = defaultValue( w, "alignment" ).toInt();
-	return QVariant( ( v & WordBreak ) == WordBreak, 0 );
+	return QVariant(( v & WordBreak ) == WordBreak);
     } else if ( propName == "toolTip" || propName == "whatsThis" ) {
 	return QVariant( QString::fromLatin1( "" ) );
     } else if ( w->inherits( "CustomWidget" ) ) {
 	return QVariant();
     } else if ( propName == "frameworkCode" ) {
-	return QVariant( TRUE, 0 );
+	return QVariant(TRUE);
     } else if ( propName == "layoutMargin" || propName == "layoutSpacing" ) {
 	return QVariant( -1 );
     }

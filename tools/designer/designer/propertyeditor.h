@@ -14,7 +14,6 @@
 #define PROPERTYEDITOR_H
 
 #include <qfeatures.h>
-#include <qvariant.h>
 #include <qlistview.h>
 #include <qptrlist.h>
 #include <qguardedptr.h>
@@ -24,6 +23,7 @@
 #include <qlayout.h>
 #include <qcheckbox.h>
 #include <qcombobox.h>
+#include <qvariant.h>
 #include "hierarchyview.h"
 #include "metadatabase.h"
 

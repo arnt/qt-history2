@@ -607,9 +607,10 @@ void SetPropertyCommand::setProperty( const QVariant &v, const QString &currentI
 	if ( v.type() == QVariant::Pixmap )
 	    oldSerNum = v.toPixmap().serialNumber();
 	widget->setProperty( propName, v );
-	if ( oldSerNum != -1 && oldSerNum != widget->property( propName ).toPixmap().serialNumber() )
+	QVariant pmvar = widget->property(propName);
+	if ( oldSerNum != -1 && oldSerNum != pmvar.toPixmap().serialNumber() )
 	    MetaDataBase::setPixmapKey( formWindow(),
-					widget->property( propName ).toPixmap().serialNumber(),
+					pmvar.toPixmap().serialNumber(),
 					MetaDataBase::pixmapKey( formWindow(), oldSerNum ) );
 	if ( propName == "cursor" ) {
 	    MetaDataBase::setCursor( (QWidget*)((QObject *)widget), v.toCursor() );

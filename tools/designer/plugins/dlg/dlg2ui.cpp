@@ -16,7 +16,7 @@
 #include <qmessagebox.h>
 #include <qregexp.h>
 #include <qtextstream.h>
-
+#include <qdom.h>
 /*
   Possible improvements:
 
@@ -694,7 +694,7 @@ void Dlg2Ui::emitWidgetBody( const QDomElement& e, bool layouted )
 			if ( tagName == QString("Style") ) {
 			    if ( getTextValue(n) == QString("ReadWrite") )
 				emitProperty( QString("editable"),
-					      QVariant(TRUE, 0) );
+					      QVariant(TRUE) );
 			}
 		    } else if ( parentTagName == QString("DlgWidget") ) {
 			if ( tagName == QString("Name") ) {
@@ -860,14 +860,15 @@ QVariant Dlg2Ui::getValue( const QDomElement& e, const QString& tagName,
     if ( e.tagName() != tagName )
 	return val;
 
-    QString t = e.attributes().namedItem( "type" ).toAttr().value();
+    const QDomElement *node = &e;
+    QString t = node->attributes().namedItem( "type" ).toAttr().value();
     if ( normalizeType(t) != normalizeType(type) )
 	return val;
 
     if ( type == QString("integer") ) {
 	return getTextValue( e ).toInt();
     } else if ( type == QString("boolean") ) {
-	return QVariant( isTrue(getTextValue(e)), 0 );
+	return QVariant(isTrue(getTextValue(e)));
     } else if ( type == QString("double") ) {
 	return getTextValue( e ).toDouble();
     } else if ( type == QString("qcstring") ) {

@@ -4,6 +4,7 @@
 #include <qlist.h>
 #include <qwidget.h>
 #include <qcursor.h>
+#include <qvariant.h>
 
 class PropertyObject : public QObject
 {

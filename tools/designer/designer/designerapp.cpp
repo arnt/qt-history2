@@ -134,11 +134,11 @@ bool DesignerApplication::winEventFilter( MSG *msg )
 	    QString arg = (*it).stripWhiteSpace();
 	    if ( arg[0] != '-' ) {
 		QObjectList l = MainWindow::self->queryList( "FormWindow" );
-		
+
 		FormWindow* fw = 0;
 		FormWindow* totop = 0;
 		bool haveit = FALSE;
-		for ( int i = 0; i < l.count(); ++i ) {
+		for ( int i = 0; i < l.size(); ++i ) {
 		    fw = (FormWindow*)l.at(i);
 		    haveit = haveit || fw->fileName() == arg;
 		    if ( haveit )
