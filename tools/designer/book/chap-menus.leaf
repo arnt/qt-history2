@@ -1,187 +1,483 @@
-\chapter Qt Designer Menu Options \QD
+\chapter Qt Designer Menu Options
 
-\section1 Menu Items and Functions
+\section1 Menu Options and Functions
 
-\QD provides many Menu Items that perform the functions #or actions# necessary to
-create applications. Most menu items have additional options such as
-dialog boxes that provide more specific functionality. In
-addition,many Menu Items also have corresponding toolbar buttons. This
-section of the reference manual will define each menu item and it's
-use. For each menu item that invokes dialog boxes or corresponding
-toolbar buttons, click the link to go to the appropriate chapter within
-the reference manual which explains the dialogs boxes and buttons in detail.
+\QD provides menu options that perform the actions that are needed to
+create applications. Most menu options have additional options such as
+dialog boxes that provide more specific functionality. In addition,
+many menu options also have corresponding toolbar buttons. This
+section of the reference manual will define each menu option and it's
+use. For each menu option that invokes dialog boxes or corresponding
+toolbar buttons, click the link to go to the appropriate section
+within the reference manual which will explain the dialogs and buttons
+in detail.
 
 \img menufile.png
 \caption file
 
-\Menu File \Key Alt+F
+\section2 The File Menu
+
+This menu is invoked with \Key Alt+F, and provides the following
+options:
 \list
 
-\i \Menu File|New \Key Ctrl+N: This menu item is used to start a new
-project or to create new widgets or files. The \l{New Form dialog box}
-appears with the default set to 'Dialog'. Click \OK once an option has
-been selected, or click \Key Cancel to exit the dialog box. 
+\i \Menu File|New Click this menu option (or press \Key Ctrl+N) to
+create a new project, form or file. This option invokes the
+\l{The New Form Dialog}.
 
-\i \Menu File|Open \Key Ctrl+O: This menu item is used to open existing
-projects or files. A dialog box appears and the file name and type
+*\i \Menu File|Open Click this menu option (or press\Key Ctrl+O) to
+open existing projects, forms or files. The \l{Open Dialog} appears and
+the file name and type
 must be selected.
 
-\i \Menu File|Close: This menu item closes the project that is currently open. If
-changes were made to the project and it has not been saved, the
-\l{Save Form dialog box} appears.
+\i \Menu File|Close Click this menu option to close the project that
+is currently open. If changes are made to the project and it has not
+been saved previously or if the project name begins with the word
+'unnamed', the \l{Save Form Dialog} appears.
 
-\i \Menu File|Save \Key Ctrl+S: This menu item saves the project. The \l{Save As
-dialog box} appears for any forms or files that are listed as
-'unnamed'. If the project has already been given a name, then 'Save'
-will save it to that name. 
+\i \Menu File|Save  Click this menu option (or press \Key Ctrl+S) to
+save the project. The \l{Save As Dialog} appears for any forms or
+files that have file names that begin with the word 'unnamed'. ##If
+the project has already been given a name, then 'Save' will save it to
+that name without invoking a Dialog. 
 
-\i \Menu {File|Save As}: This menu item saves the project and the \l{Save As
-dialog box} appears with the option to give the file a new name.
+*\i \Menu {File|Save As} Click this menu option to save and name the project.
+This option invokes the \l{Save As Dialog}.
 
-\i \Menu {File|Save All}: This menu item saves ###
+\i \Menu {File|Save All} Click this menu option to save every open
+file in every open project.
 
-\i \Menu {File|Create Template} ###
+*\i \Menu {File|Create Template} Click this menu option to create a
+form template. This option invokes the \l{Create Template}
+dialog.
 
-\i \Menu {File|Recently Opened Files}: This menu item lists the most
-recently opened files. Select a file from the list.
+\i \Menu {File|Recently Opened Files} Click this menu option to list the most
+recently opened files. Click one of the files listed to open it. Note
+that we recommend that you open projects rather than files. You can
+open a file by clicking the file's name in the project's \l{File Overview Window}.
 
-\i \Menu {File|Recently Opened Projects}: This menu item lists the most
-recently opened projects. Select a project from the list.
+\i \Menu {File|Recently Opened Projects}  Click this menu option to list the most
+recently opened projects. Click one of the projects listed to open it. 
 
-\i \Menu File|Exit: This menu item exits Designer. If the project has not
-been saved, the \l{Save Project Settings dialog box} appears. If the
-form has not been saved, the \l {Save Form dialog box} appears.
+\i \Menu File|Exit Click this menu option to exit \QD. If any open
+files have unsaved changes, the \l{Save Form} message box will appear
+for each of them, before \QD exits. Note that if any open projects
+have any files that begin with the word 'unnamed', the \l{Save Form As
+dialog} will appear for each of these files. If any open project's
+name begins with the word 'unnamed' the \l{Save Project Settings}
+message box appears.  
 
-\list \Menu Edit \Key Alt+E
+\section3 The Edit Menu
 
-\i \Menu Edit|Undo \Key Ctrl+Z: This menu item will undo an action. It records the
-name of the last action performed and it will read 'Undo' followed by
-the name of the action.
+This menu is invoked with \Key Alt+E, and provides the following
+options:
+\list
 
-\i \Menu Edit|Redo \Key Ctrl+Y: This menu item will redo an action. It
-records the name of the last action performed and it will read 'Redo' followed by
-the name of the action.
+\i \Menu Edit|Undo Click this menu option (or press \Key Ctrl+Z) to
+undo an action. The name of the last action that was performed appears
+after the word 'Undo' in this menu option. 
 
-\i \Menu Edit|Cut \Key Ctrl+X: This menu item will cut a selected item 
-and place it on the clipboard.
+\i \Menu Edit|Redo Click this menu option (or press \Key Ctrl+Y) to
+redo an action.The name of the last action that was performed appears
+after the word 'Redo' in this menu option.
 
-\i \Menu Edit|Copy \Key Ctrl+C: This menu item will copy a selected item.
+\i \Menu Edit|Cut Click
+this menu option (or press \Key Ctrl+X) to delete the selected item
+from the current form or file and copy it to the clipboard.
 
-\i \Menu Edit|Paste \Key Ctrl+Y: This menu item will paste a selected item.
+\i \Menu Edit|Copy Click this menu option (or press \Key Ctrl+C) to copy the selected
+item from the current form or file to the clipboard.
 
-\i \Menu Edit|Delete \Key Del: This menu item will delete a selected
-item.
+\i \Menu Edit|Paste Click this menu option (or press \Key Ctrl+V) to paste the
+selected item from the clipboard into the current form or file.
 
-\i \Menu {Edit|Select All} \Key Ctrl+A: This menu item will highlight all
-the widgets on the form or text in a file. 
+\i \Menu Edit|Delete Click this menu option (or press \Key Del) to delete the selected
+item from the current form or file.
 
-\i \Menu {Edit|Check Accelerator} \Key Alt+R: ###
+\i \Menu {Edit|Select All} Click this menu option (or press \Key Ctrl+A) to highlight all
+the widgets on the current form or all the text in the current file. 
 
-\i \Menu Edit|Slots: This menu item is used to edit or create slots which
-are then used in conjunction with signals to provide communication between
-two objects. The \l{Edit Slots dialog box} appears with options for
-the slots. ###
+\i \Menu {Edit|Check Accelerator} Click this menu option (or press
+\Key Alt+R) to verify that all the accelerators are used only
+once.If an accelerator is used more than once, a message box
+appears with the statement 'The accelerator 'x' is used 'y' times',
+where 'X' is the accelerator and 'y' is the number of times it is
+used. Click 'Select' to highlightthe widgets with the same
+accelerator, or click 'Cancel' to exit the message box without any
+action. 
 
-\i \Menu Edit|Connections: This menu item will display the \l{View
-Connections dialog box}.
+*\i \Menu Edit|Slots Click this menu option to edit or create slots which
+are used in conjunction with signals to provide communication between
+two objects. This option invokes the \l{Edit Slots Dialog}.
 
-\i \Menu {Edit|Form Settings}: This menu item will display the \l{Form
-Settings dialog box}. Form Settings are used for #####
+*\i \Menu Edit|Connections Click this menu option to invoke the \l{View
+Connections Dialog}. 
 
-\i \Menu Edit|Preferences: This menu item will display the \l{Preferences
-dialog box}. This is used to change the properties of \QD and the C++
-Editor. ###
+\i \Menu {Edit|Form Settings}  Click this menu option to invoke the \l{Form
+Settings Dialog} ###which allows you to change the settings, pixmap,
+and layout properties of the form.
 
-\list \Menu Project \Key Alt+O:
+*\i \Menu Edit|Preferences Click this menu option to invoke the
+\l{Preferences Dialog}.
 
-\i \Menu {Project|Active Project|<project name>}: This menu item will
-allow you to switch between projects if there is more than one project open.
+\section4 The Project Menu
 
-\i \Menu {Project|Insert File \Key Ctrl+I}: This menu item will allow you
-to insert a file into the project.
+This menu is invoked with \Key Alt+O, and provides the following
+options:
+\list 
 
-\i \Menu {Project|Project Settings}: This menu item will enable you to
-change the project settings or properties through the \l {Project Settings dialog box}.
+\i \Menu {Project|Active Project|\<project name\>}  Click this menu
+option to toggle between projects if there is more than one project
+open.
 
-\i \Menu {Project|Image Collection}: This menu item will display the \l
-{Edit Image Collection dialog box}, which allows you to add or edit
-images imported from any file and used for the current project.
+*\i \Menu{Project|Add File} Click this menu option 
+ to invoke the \l{Add Dialog} which allows you to
+add files from any location and insert them into the project you are
+working on.
 
-\i \Menu {Project|Database Connections}: This menu item displays the \l
-{Edit Database Connections dialog box} ###
+*\i \Menu {Project|Project Settings}  Click this menu option to change
+the project settings by invoking the \l{Project Settings
+Dialog}.
 
-\list \Menu Search \Key Alt+S
+*\i \Menu {Project|Image Collection}  Click this menu option to invoke
+the \l{Edit Image Collection Dialog}, which allows you to add or
+edit images imported from any location and use them in the current
+project.
 
-\i \Menu Search|Find \Key Ctrl+F: This menu item is used to locate
-specific words or characters in the files. 
+*\i \Menu {Project|Database Connections}  Click this menu option to
+invoke the \l{Edit Database Connections Dialog} which allows you
+to connect your project to a database or to edit the current
+connection.
 
-\i \Menu {Search|Find Incremental} \Key Alt+L: This menu item ### 
+\section5 The Search Menu
 
-\i \Menu Search|Replace \Key Ctrl+R: This menu item is used to replace specific
-words or characters with different words or characters.
+This menu is invoked with \Key Alt+S, and provides the following
+options:
+\list
 
-\i \Menu Search|Goto line \Key Alt+G: This menu item allows the user
-to go to specific line numbers in files.
+*\i \Menu Search|Find Click this menu option (or press \Key Ctrl+F) to invoke the \l{Find
+Text} Dialog which is used to locate specific words or characters
+in the files. 
 
-\list \Menu Tools \Key Alt+T:
+\i \Menu {Search|Find Incremental} Click this menu option (or press
+\Key Alt+I) to place the cursor in the text box located next to the
+\Toolbutton Find toolbar button. Type characters into the text box; as
+you type \QD will highlight the first occurrence of the text that it
+finds in the file. Press the \Key Enter key to go to the next
+occurrence of the text.
 
-\i \Menu Tools|Pointer \Key F2: This menu item is set as the default
-to allow the user to use the cursor or pointer. When a widget is
-clicked, the pointer cannot be used. 
+*\i \Menu Search|Replace Click this menu option (or press \Key Ctrl+R)
+to invoke the \l{Replace Text} Dialog to replace specific
+words or characters.
 
-\i \Menu {Tools|Connect Signals and Slots} \Key F3: This menu item is
-used to connect signals and slots. When this is selected, you must
-click on a widget and drag the resulting pink line to the widget that
-it will be connected to. The \l {Edit Connections dialog box} will
-appear and the connections can be added, edited or deleted.
+*\i \Menu{Search|Goto line} Click this menu option (or press \Key
+Alt+G) to invoke the \l{Goto Line Dialog} to go to a specific line
+in the file.
 
-\i \Menu {Tools|Tab Order} \F4: This menu item is used to set the
-tab order for all the widgets on the form that can accept keyboard
-focus. When this item is clicked, blue circles with numbers in them
-appear next to the widgets. Click once on number 1. Then click
-once on the number next to each widget until all the widgets follow
-the tab order you want. If you make a mistake, double click the first
-widget and start again. If there are no widgets on the form, clicking
-this item will not invoke an action. 
+\section6 The Tools Menu
 
-\i \Menu {Tools|Buttons|PushButton}: This menu item is used by
-selecting it, and then clicking the form to place the widget on it.
+This menu is invoked with \Key Alt+T, and provides the following
+options:
+\list 
 
-\i \Menu {Tools|Buttons|ToolButton}: This menu item is used by
-selecting it and then clicking the form to place the widget on it.
+\i \Menu Tools|Pointer Click this menu option (or press \Key F2) to
+deselect any selected widget toolbar button. The pointer is also used
+to stop inserting new widgets if you double clicked a widget toolbar
+button.
 
-\i \Menu {Tools|Buttons|RadioButton}: When this item is selected,
-click the form to place the button on the form. See \l {Toolbars:RadioButton}.
+\i \Menu{Tools|Connect Signals and Slots} Click this menu option (or
+press \Key F3) to connect signals and slots. Choose this option and
+click on a widget and drag the pink rubber band to the widget (or form) that
+you want to connect to; then release the mouse button and the \l{Edit Connections Dialog}
+will appear.
 
-\i \Menu {Tools|Buttons|ToolButton}:When this item is selected,
-click the form to place the button on the form.
+\i \Menu {Tools|Tab Order} Click this menu option (or press \F4) to
+set the tab order for all the widgets on the form that can accept
+keyboard focus. Choose this option and blue circles with numbers on
+them appear next to the widgets. Click the widget that you want to be
+first in the tab order, then click the widget that should be next in
+the tab order, and continue until all the widgets have the tab order
+numbers you want. If you make a mistake, double click the first widget
+and start again.  
 
-\i \Menu {Tools|Buttons|CheckBox}: When this item is selected,
-click the form to place the button on the form.
+\i \Menu {Tools|Buttons|PushButton} Choose this option and click
+the form to place a Pushbutton on the form.
 
-\i \Menu {Tools|Containers|GroupBox}:When this item is selected,
+\i \Menu {Tools|Buttons|ToolButton} Choose this option and click
+the form to place the Toolbutton on the form.
+
+\i \Menu {Tools|Buttons|RadioButton} Choose this option and
+click the form to place the button on the form. 
+
+\i \Menu {Tools|Buttons|CheckBox} Choose CheckBox and
+click the form to place the CheckBox on the form.
+
+\i \Menu {Tools|Containers|GroupBox} Choose this option and 
 click the form to place it on the form.
 
-\i \Menu {Tools|Containers|ButtonGroup}:When this item is selected,
+\i \Menu {Tools|Containers|ButtonGroup} Choose ButtonGroup and
+click the form to place the ButtonGroup on the form.
+
+\i \Menu {Tools|Containers|Frame} Choose this option and
+click the form to place the Frame on the form.
+
+\i \Menu {Tools|Containers|TabWidget} Choose this option and
+click the form to place the TabWidget on the form.
+
+\i \Menu {Tools|Views|ListBox} Choose this option and
+click the form to place the ListBox on the form.
+
+\i \Menu {Tools|Views|ListView} Choose this option and
+click the form to place the ListView on the form.
+
+\i \Menu {Tools|Views|Icon View} Choose this option and
+click the form to place the Icon on the form.
+
+\i \Menu {Tools|Views|Table} Choose this option and click the form to
+place the Table on the form.
+
+\i \Menu {Tools|Database|DataTable} Choose this option and 
+click the form to place the DataTable on the form.
+
+\i \Menu {Tools|Database|DataBrowser} Choose this option and 
+click the form to place the DataBrowser on the form.
+
+\i \Menu {Tools|Database|DataView} Choose this option and click the
+form to place the DataView on the form.
+
+\i \Menu {Tools|Input|LineEdit} Choose this option and click the form
+to place the LineEdit on the form.
+
+\i \Menu {Tools|Input|SpinBox} Choose this option and 
+click the form to place the SpinBox on the form.
+
+\i \Menu {Tools|Input|DateEdit} Choose this option and 
+click the form to place the DateEdit on the form.
+
+\i \Menu {Tools|Input|TimeEdit} Choose this option and 
+click the form to place the TimeEdit on the form.
+
+\i \Menu {Tools|Input|DateTimeEdit} Choose this option and 
+click the form to place the DateTimeEdit on the form.
+
+\i \Menu {Tools|Input|TextEdit} Choose this option and 
+click the form to place the TextEdit on the form.
+
+\i \Menu {Tools|Input|ComboBox} Choose this option and 
+click the form to place the ComboBox on the form.
+
+\i \Menu {Tools|Input|Slider} Choose this option and 
+click the form to place the Slider on the form.
+
+\i \Menu {Tools|Input|ScrollBar} Choose this option and 
+click the form to place the Scrollbar on the form.
+
+\i \Menu {Tools|Input|Dial} Choose this option and 
+click the form to place the Dial on the form.
+
+\i \Menu {Tools|Display|TextLabel} Choose this option  and 
 click the form to place it on the form.
 
-\i \Menu {Tools|Containers|Frame}:When this item is selected,
-click the form to place it on the form.
+\i \Menu {Tools|Display|PixmapLabel} Choose this option and 
+click the form to place the PixmapLabel on the form.
 
-\i \Menu {Tools|Containers|TabWidget}:When this item is selected,
-click the form to place it on the form.
+\i \Menu {Tools|Display|LCDNumber} Choose this option and 
+click the form to place the LCDNumber on the form.
 
-\i \Menu {Tools|Views|ListBox}:When this item is selected,
-click the form to place it on the form.
+\i \Menu {Tools|Display|Line} Choose this option and 
+click the form to place the Line on the form.
 
-\i \Menu {Tools|Views|ListView}:When this item is selected,
-click the form to place it on the form.
+\i \Menu {Tools|Display|ProgressBar} Choose this option and 
+click the form to place the ProgressBar on the form.
 
-\i \Menu {Tools|Views|Icon View}:When this item is selected,
-click the form to place it on the form.
+\i \Menu {Tools|Display|TextBrowser} Choose this option and 
+click the form to place the TextBrowser on the form.
 
-\i \Menu {Tools|Views|Table}:When this item is selected,
-click the form to place it on the form.
+*\i \Menu {Tools|Custom|Edit Custom Widgets} Click this menu option
+to invoke the \l{Edit Custom Widget Dialog}. The \Menu{Tools|Custom}
+menu also lists the names of any custom widgets that have been added
+to \QD; to add one of these widgets click its name.
+
+\section7 The Layout Menu \Key Alt+L
+
+This menu is invoked with \Key Alt+L, and provides the following
+options:
+\list 
+
+\i \Menu {Layout|Adjust Size} Click this menu option (or press \Key
+Ctrl+J) to adjust the size of the form or widget.## 
+
+\i \Menu {Layout|Lay Out Horizontally} Click this menu option (or
+press \Key Ctrl+H) to lay out the selected widgets or layouts side by
+side. Use \Key Shift+Click to select each widget or layout, and then
+choose this menu option to group them horizontally.Note that for
+complex widgets it is sometimes easiest to select widgets and layouts
+by clicking them in the Widgets tab of the \l{Object Explorer}.
+
+\i \Menu {Layout|Lay Out Vertically} Click this menu option (or press
+\Key Ctrl+L) to lay out the selected widgets one above the other. Use
+\Key Shift+Click to select each widget or layout, and then choose this
+menu option to group them vertically. Note that for complex widgets it
+is sometimes easiest to select widgets and layouts by clicking them in
+the Widgets tab of the \l{Object Explorer}.
+
+\i \Menu {Layout|Lay out in a Grid} Click this menu option (or press \Key Ctrl+G)
+
+\i \Menu {Layout|Lay Out Horizontally (in Splitter)} Click this menu
+option to lay out the selected widgets or layouts side by
+side with a splitter between each widget. Use \Key Shift+Click to
+select each widget or layout, and then choose this menu option to group
+them horizontally. Note that for complex widgets it is sometimes
+easiest to select widgets and layouts by clicking them in the Widgets
+tab of the \l{Object Explorer}.
+
+
+\i \Menu {Layout|Lay Out Vertically (in Splitter)} Click this menu
+option to lay out the selected widgets or layouts one above the other
+with a splitter between each widget or layout. Use \KeyShift+Click to select
+each widget or layout, and then choose this menu option to group them
+vertically. Note that for complex widgets it is sometimes easiest to
+select widgets and layouts by clicking them in the Widgets tab of the
+\l{Object Explorer}.
+
+
+\i \Menu {Layout|Break Layout} Click this menu option (or press \Key Ctrl+B) to break apart layouts that have been created. Click on the layout and select this option; the layouts are then seperated. 
+
+\i \Menu {Layout|Add Spacer} Click this menu option to add a spacer
+to widgets that take up too much space on the form. The spacer consumes extra
+space in the layout.
+
+\section8 The Preview Menu \Key Alt+P
+
+This menu is invoked with \Key Alt+P, and provides the following
+options:
+\list 
+
+\i \Menu{Preview|Preview Form} Click this menu option (or press
+Ctrl+T) to preview the form within designer.
+
+\i \Menu{Preview|...in Windows Style} Click this menu option to
+preview the form in Windows style. 
+
+\i \Menu{Preview|...in Motif Style} Click this menu option 
+
+\i \Menu{Preview|...in CDE Style} Click this menu option 
+
+\i \Menu{Preview|...in MotifPlus Style} Click this menu option 
+
+\i \Menu{Preview|...in Platinum Style} Click this menu option 
+
+\i \Menu{Preview|...in SGI Style} Click this menu option 
+
+\section9 The Window Menu
+
+This menu is invoked with \Key Alt+W, and provides the following
+options:
+\list 
+
+\i \Menu{Window|Close} Click this menu option (or press \Key
+Ctrl+F4) to close the window that the cursor is currently pointing to.
+
+\i \Menu{Window|Close All} Click this menu option to close all of the
+windows. ##
+
+\i \Menu{Window|Next} Click this menu option (or press \Key Ctrl+F6) to
+view each window in order, continuing to the next window that was 
+opened. #####
+
+\i \Menu{Window|Previous} Click this menu option (or press \Key
+Ctrl+Shift+F6) to view each window in reverse order from last window that you opened. ####
+
+
+\i \Menu{Window|Tile} Click this menu option to arrange the windows side by
+side so that each window is fully visible, instead of hiding under
+another window as it does normally. ####
+
+\i \Menu{Window|Cascade} Click this menu option to arrange the windows in a
+way in which each window is displayed beneath the previous window. ####
+
+\i \Menu{Window|Views|Output Window} Click this menu option to invoke
+the Output Window, which provides debuggin information.
+
+\i \Menu{Window|Views|File Overview} Click this menu option to make
+the File Overview window visible or to hide the window if you do not
+want it to be visible. 
+
+\i \Menu{Window|Views|Property Editors/Signal Handlers} Click this menu option to make
+the Property Editors/Signal Handlers window visible or to hide the window if you do not
+want it to be visible. 
+
+\i \Menu{Window|Views|Object Explorer} Click this menu option to make
+the Object Explorer window visible or to hide the window if you do not
+want it to be visible. 
+
+\i \Menu{Window|Views|Line Up}####
+
+\i \Menu{Window|Toolbars|File} Click this menu option to make the File
+icons either visible or not visible on the toolbar.
+
+\i \Menu{Window|Toolbars|Edit} Click this menu option to make the Edit
+icons either visible or not visible on the toolbar.
+
+\i \Menu{Window|Toolbars|Search} Click this menu option to make the
+Search icons either visible or not visible on the toolbar.
+
+\i \Menu{Window|Toolbars|Layout} Click this menu option to make the
+Layout icons either visible or not visible on the toolbar.
+
+\i \Menu{Window|Toolbars|Tools} Click this menu option to make the
+Tool icons either visible or not visible on the toolbar.
+
+\i \Menu{Window|Toolbars|Buttons} Click this menu option to make the
+Button icons either visible or not visible on the toolbar.
+
+\i \Menu{Window|Toolbars|Containers} Click this menu option to make the
+Container icons either visible or not visible on the toolbar.
+
+\i \Menu{Window|Toolbars|Views} Click this menu option to make the View
+icons either visible or not visible on the toolbar.
+
+\i \Menu{Window|Toolbars|Database} Click this menu option to make the
+Database icons either visible or not visible on the toolbar.
+
+\i \Menu{Window|Toolbars|Input} Click this menu option to make the
+Input icons either visible or not visible on the toolbar.
+
+\i \Menu{Window|Toolbars|Display} Click this menu option to make the
+Display icons either visible or not visible on the toolbar.
+
+\i \Menu{Window|Toolbars|Custom} Click this menu option to make the
+Custom icons either visible or not visible on the toolbar.
+
+\i \Menu{Window|Toolbars|Help} Click this menu option to make the Help
+icons either visible or not visible on the toolbar.
+
+\i \Menu{Window|Toolbars|Line Up} Click this menu option to ###
+
+\i \Menu{Window|\<file name>\} Click this menu option to 
+
+\section10 The Help Menu
+
+This menu is invoked with \Key Alt+H, and provides the following
+options:
+\list 
+
+\i \Menu{Help|Contents} Click this menu option (or press F1) to invoke
+the \l{Qt Assistant by Trolltech Dialog}.  
+
+\i \Menu{Help|Manual} Click this menu option (or press Ctrl+M) to
+invoke the \l{Qt Assistant by Trolltech Dialog}. 
+
+\i \Menu{Help|About...} Click this menu option to invoke the Qt Designer
+dialog, with information about \QD.
+
+\i \Menu{Help|About Qt...} Click this menu option to invoke the Qt
+Designer dialog with information about Qt.
+
+\i \Menu{Help|What's This?} Click this menu option to invoke a small
+question mark that is linked to the pointer. Click the pointer on a
+feature which you would like more information about. A message box
+appears with information about the feature.
 
 
 
