@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qmovie.cpp#57 $
+** $Id: //depot/qt/main/src/kernel/qmovie.cpp#58 $
 **
 ** Implementation of movie classes
 **
@@ -265,10 +265,10 @@ QMovieFramePrivate::~QMovieFramePrivate()
 void QMovieFramePrivate::Init()
 {
     frametimer = 0;
-    is_paused = false;
+    is_paused = FALSE;
     step_nr = 0;
     speed = 100;
-    is_stepping = false;
+    is_stepping = FALSE;
 }
 
 bool QMovieFramePrivate::isNull() const
@@ -405,10 +405,10 @@ void QMovieFramePrivate::unpause()
 bool QMovieFramePrivate::finished()
 {
     if ( !frametimer )
-	return true;
+	return TRUE;
     if ( frametimer->isActive() )
-	return false;
-    return true;
+	return FALSE;
+    return TRUE;
 }
 
 bool QMovieFramePrivate::stepping()
@@ -494,7 +494,7 @@ bool QMovieFilePrivate::isNull() const
 void QMovieFilePrivate::init(bool fully)
 {
 #ifdef QT_SAVE_MOVIE_HACK
-    save_image = true;
+    save_image = TRUE;
     image_number = 0;
 #endif
 
@@ -745,7 +745,7 @@ void QMovieFilePrivate::eof()
 	emit dataStatus(QMovie::SourceEmpty);
 
 #ifdef QT_SAVE_MOVIE_HACK
-    save_image = false;
+    save_image = FALSE;
 #endif
 
     emit dataStatus(QMovie::EndOfLoop);
@@ -1247,12 +1247,12 @@ void QMovieFrame::set( const QPixmap& pix, int dx, int dy, int dtime )
 
 bool QMovieFrame::operator==( const QMovieFrame& )
 {
-    return false;
+    return FALSE;
 }
 
 bool QMovieFrame::operator<( const QMovieFrame& _frame )
 {
-    return ( ( y_offset < _frame.yOffset() ) ? true : false );
+    return ( ( y_offset < _frame.yOffset() ) ? TRUE : FALSE );
 }
 
 const QPixmap& QMovieFrame::pixmap() const
@@ -1283,7 +1283,7 @@ int QMovieFrame::timeOffset() const
 ** QMovieFilePrivate meta object code from reading C++ file 'standard input'
 **
 ** Created: Fri Aug 21 01:55:09 1998
-**      by: The Qt Meta Object Compiler ($Revision: 1.57 $)
+**      by: The Qt Meta Object Compiler ($Revision: 1.58 $)
 **
 ** WARNING! All changes made in this file will be lost!
 *****************************************************************************/
