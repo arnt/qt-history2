@@ -76,7 +76,13 @@ public:
         { return y / cellh; }
 
     inline int columnAt(int x) const
-        { return x / cellw; }
+        { if (isRightToLeft()) return ncols - (x / cellw) - 1; return x / cellw; }
+
+    inline int rowY(int row) const
+        { return cellh * row; }
+
+    inline int columnX(int column) const
+        { if (isRightToLeft()) return cellw * (ncols - column - 1); return cellw * column; }
 
     inline int numRows() const
         { return nrows; }
@@ -94,7 +100,7 @@ public:
         {
             QRect r;
             if (row >= 0 && row < nrows && column >= 0 && column < ncols)
-                r.setRect(cellw * column, cellh * row, cellw, cellh);
+                r.setRect(columnX(column), rowY(row), cellw, cellh);
             return r;
         }
 
@@ -142,6 +148,12 @@ void QWellArray::paintEvent(QPaintEvent *e)
     int rowfirst = rowAt(cy);
     int rowlast = rowAt(cy + ch);
 
+    if (isRightToLeft()) {
+        int t = colfirst;
+        colfirst = collast;
+        collast = t;
+    }
+
     QPainter painter(this);
     QPainter *p = &painter;
 
@@ -154,14 +166,14 @@ void QWellArray::paintEvent(QPaintEvent *e)
     // Go through the rows
     for (int r = rowfirst; r <= rowlast; ++r) {
         // get row position and height
-        int rowp = r * cellh;
+        int rowp = rowY(r);
 
         // Go through the columns in the row r
         // if we know from where to where, go through [colfirst, collast],
         // else go through all of them
         for (int c = colfirst; c <= collast; ++c) {
             // get position and width of column c
-            int colp = c * cellw;
+            int colp = columnX(c);
             // Translate painter and draw the cell
             p->translate(colp, rowp);
             paintCell(p, r, c);
