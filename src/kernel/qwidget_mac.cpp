@@ -758,11 +758,11 @@ void QWidget::setIcon( const QPixmap &pixmap )
 	if(pixmap.isNull()) {
 	    RestoreApplicationDockTileImage();
 	} else {
-	    QImage i = pixmap.convertToImage().convertDepth(32);
 	    CGColorSpaceRef cs = CGColorSpaceCreateDeviceRGB();
+	    QImage i = pixmap.convertToImage().convertDepth(32);
 	    CGDataProviderRef dp = CGDataProviderCreateWithData(NULL, i.bits(), i.numBytes(), NULL);
-	    CGImageRef ir = CGImageCreate(i.width(), i.height(), 8, 32,
-					  i.bytesPerLine(), cs, kCGImageAlphaFirst, dp,
+	    CGImageRef ir = CGImageCreate(i.width(), i.height(), 8, 32, i.bytesPerLine(), 
+					  cs, kCGImageAlphaNoneSkipFirst, dp,
 					  0, 0, kCGRenderingIntentDefault);
 	    SetApplicationDockTileImage(ir);
 	    CGImageRelease(ir);
