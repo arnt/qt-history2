@@ -1438,7 +1438,7 @@ void QPainter::drawPolyline(const QPointArray &a, int index, int npoints)
 		return;
 	}
 	if(txop != TxNone) {
-	    pa = xForm(a, index, npoints);
+	    pa = xForm(pa, index, npoints);
 	    if(pa.size() != a.size()) {
 		index   = 0;
 		npoints = pa.size();
