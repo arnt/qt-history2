@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: porting.doc,v 1.14 1998/12/09 09:15:03 warwick Exp $
+** $Id: porting.doc,v 1.15 1999/01/15 15:25:08 ettrich Exp $
 **
 ** Help with porting from Qt 1.x to Qt 2.0
 **
@@ -323,6 +323,17 @@ become color(0) in the resulting QImage.  If you worked around the lack of
 this, you many need to simplify your code.  The symptom will be inverted
 bitmaps (eg. inside-out masks).
 
+
+<h3>QMenuData / QPopupMenu</h3>
+
+In 1.4x, new menu items have been assigned either an application
+unique id or an id equal to the index of the item, depending on the
+insertItem(...) function you have been using. In 2.0 this confusing
+situation has been cleaned up: generated identifiers are always unique
+within the entire application. If your code depends on generated ids
+equal to the item's index, a quick fix is to use QMenuData::indexOf(
+int id) in the handling function instead. You may as well pass
+QMenuData::count() as identifier when you insert the items.
 
 <h3>QEvent</h3>
 
