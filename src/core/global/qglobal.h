@@ -1799,7 +1799,7 @@ inline int qIntCast(float f) { return int(f); }
 #include <QtCore/qfixedpoint.h>
 typedef QFixedPoint qreal;
 #else
-typedef float qreal;
+typedef double qreal;
 #endif
 
 //
