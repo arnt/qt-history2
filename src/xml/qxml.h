@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/xml/qxml.h#37 $
+** $Id: //depot/qt/main/src/xml/qxml.h#38 $
 **
 ** Definition of QXmlSimpleReader and related classes.
 **
@@ -133,6 +133,9 @@ public:
     QString value( const QString& qName ) const;
     QString value( const QString& uri, const QString& localName ) const;
 
+    void clear();
+    void append( const QString &qName, const QString &uri, const QString &localPart, const QString &value );
+
 private:
     QStringList qnameList;
     QStringList uriList;
@@ -140,8 +143,6 @@ private:
     QStringList valueList;
 
     QXmlAttributesPrivate *d;
-
-    friend class QXmlSimpleReader;
 };
 
 //
@@ -376,7 +377,7 @@ private:
     void pushParseState( ParseFunction function, int state );
 
     friend class QXmlSimpleReaderPrivate;
-    friend class QXmlLocator;
+    friend class QXmlSimpleReaderLocator;
 };
 
 //
@@ -386,18 +387,13 @@ private:
 class QM_EXPORT QXmlLocator
 {
 public:
-    QXmlLocator( QXmlSimpleReader* parent );
-    ~QXmlLocator();
+    QXmlLocator();
+    virtual ~QXmlLocator();
 
-    int columnNumber();
-    int lineNumber();
+    virtual int columnNumber() = 0;
+    virtual int lineNumber() = 0;
 //    QString getPublicId()
 //    QString getSystemId()
-
-private:
-    QXmlSimpleReader* reader;
-
-    QXmlLocatorPrivate *d;
 };
 
 //

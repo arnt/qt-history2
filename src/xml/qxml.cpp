@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/xml/qxml.cpp#78 $
+** $Id: //depot/qt/main/src/xml/qxml.cpp#79 $
 **
 ** Implementation of QXmlSimpleReader and related classes.
 **
@@ -253,42 +253,56 @@ QString QXmlParseException::systemId() const
   now use this locator to get the actual position the reader is at.
 */
 /*!
-    \fn QXmlLocator::QXmlLocator( QXmlSimpleReader* parent )
-
-    Constructs an XML locator for the reader \a parent.
+    Constructor.
 */
-QXmlLocator::QXmlLocator( QXmlSimpleReader* parent )
+QXmlLocator::QXmlLocator()
 {
-    reader = parent;
 }
-
 /*!
-    \fn QXmlLocator::~QXmlLocator()
-
     Destructor.
 */
 QXmlLocator::~QXmlLocator()
 {
 }
-
 /*!
+    \fn int QXmlLocator::columnNumber()
+
     Gets the column number (starting with 1) or -1 if there is no column number
     available.
 */
-int QXmlLocator::columnNumber()
-{
-    return ( reader->columnNr == -1 ? -1 : reader->columnNr + 1 );
-}
-
 /*!
+    \fn int QXmlLocator::lineNumber()
+
     Gets the line number (starting with 1) or -1 if there is no line number
     available.
 */
-int QXmlLocator::lineNumber()
-{
-    return ( reader->lineNr == -1 ? -1 : reader->lineNr + 1 );
-}
 
+
+class QXmlSimpleReaderLocator : public QXmlLocator
+{
+public:
+    QXmlSimpleReaderLocator( QXmlSimpleReader* parent )
+    {
+	reader = parent;
+    }
+    ~QXmlSimpleReaderLocator()
+    {
+    }
+
+    int columnNumber()
+    {
+	return ( reader->columnNr == -1 ? -1 : reader->columnNr + 1 );
+    }
+    int lineNumber()
+    {
+	return ( reader->lineNr == -1 ? -1 : reader->lineNr + 1 );
+    }
+//    QString getPublicId()
+//    QString getSystemId()
+
+private:
+    QXmlSimpleReader *reader;
+};
 
 /*********************************************
  *
@@ -718,6 +732,34 @@ QString QXmlAttributes::value( const QString& uri, const QString& localName ) co
     if ( i == -1 )
 	return QString::null;
     return valueList[ i ];
+}
+
+/*!
+  Clears the list of attributes. I.e., the length() of this object is 0.
+
+  \sa append()
+*/
+void QXmlAttributes::clear()
+{
+    qnameList.clear();
+    uriList.clear();
+    localnameList.clear();
+    valueList.clear();
+}
+
+/*!
+  Appends a new attribute entry to the list of attributes. The qualified name
+  of the attribute is \a qName, the namespae URI is \a uri and the local name
+  is \a localPart. The value of the attribute is \a value.
+
+  \sa qName() uri() localName() value()
+*/
+void QXmlAttributes::append( const QString &qName, const QString &uri, const QString &localPart, const QString &value )
+{
+    qnameList.append( qName );
+    uriList.append( uri );
+    localnameList.append( localPart);
+    valueList.append( value );
 }
 
 
@@ -2167,7 +2209,7 @@ private:
 QXmlSimpleReader::QXmlSimpleReader()
 {
     d = new QXmlSimpleReaderPrivate();
-    d->locator = new QXmlLocator( this );
+    d->locator = new QXmlSimpleReaderLocator( this );
 
     entityRes  = 0;
     dtdHnd     = 0;
@@ -2814,10 +2856,7 @@ bool QXmlSimpleReader::parseElement()
 		// store it on the stack
 		d->tags.push( name() );
 		// empty the attributes
-		d->attList.qnameList.clear();
-		d->attList.uriList.clear();
-		d->attList.localnameList.clear();
-		d->attList.valueList.clear();
+		d->attList.clear();
 		if ( d->useNamespaces ) {
 		    d->namespaceSupport.pushContext();
 		}
@@ -3046,10 +3085,7 @@ bool QXmlSimpleReader::processElementAttribute()
 	    // namespace declaration
 	    d->namespaceSupport.setPrefix( lname, string() );
 	    if ( d->useNamespacePrefixes ) {
-		d->attList.qnameList.append( name() );
-		d->attList.uriList.append( QString::null );
-		d->attList.localnameList.append( QString::null );
-		d->attList.valueList.append( string() );
+		d->attList.append( name(), QString::null, QString::null, string() );
 	    }
 	    // call the handler for prefix mapping
 	    if ( contentHnd ) {
@@ -3061,17 +3097,11 @@ bool QXmlSimpleReader::processElementAttribute()
 	} else {
 	    // no namespace delcaration
 	    d->namespaceSupport.processName( name(), TRUE, uri, lname );
-	    d->attList.qnameList.append( name() );
-	    d->attList.uriList.append( uri );
-	    d->attList.localnameList.append( lname );
-	    d->attList.valueList.append( string() );
+	    d->attList.append( name(), uri, lname, string() );
 	}
     } else {
 	// no namespace support
-	d->attList.qnameList.append( name() );
-	d->attList.uriList.append( QString::null );
-	d->attList.localnameList.append( QString::null );
-	d->attList.valueList.append( string() );
+	d->attList.append( name(), QString::null, QString::null, string() );
     }
     return TRUE;
 }
