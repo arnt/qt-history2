@@ -33,7 +33,7 @@ CLSID CLSID_QPoint = { 0x3be838a3, 0x3fac, 0xbfc4, {0x4c, 0x6c, 0x37, 0xc4, 0x4d
 
 GUID IID_IAxServerBase = { 0xbd2ec165, 0xdfc9, 0x4319, { 0x8b, 0x9b, 0x60, 0xa5, 0x74, 0x78, 0xe9, 0xe3} };
 #else
-extern void *qax_createObjectWrapper(IUnknown *iface, QObject *parent);
+extern void *qax_createObjectWrapper(int metaType, IUnknown *iface);
 #endif
 
 IFontDisp *QFontToIFont(const QFont &font)
@@ -881,10 +881,11 @@ QVariant VARIANTToQVariant(const VARIANT &arg, const QByteArray &typeName, uint 
                         if (arg.vt & VT_BYREF) {
                             qVariantSet(var, arg.ppdispVal, "IDispatch**");
                         } else {
+                            int metaType = QMetaType::type(typeName);
 #ifndef QAX_SERVER
-                            if (typeName != "IDispatch*" && QMetaType::type(typeName))
-                                qVariantSet(var, qax_createObjectWrapper(disp, 0), typeName);
-                            else
+                            if (typeName != "IDispatch*" && metaType) {
+                                qVariantSet(var, qax_createObjectWrapper(metaType, disp), typeName);
+                            } else
 #endif
                                 qVariantSet(var, disp, typeName);
                         }
