@@ -85,7 +85,7 @@ void FtpWindow::downloadFile()
     QString fileName = fileList->currentItem()->text();
 
     if (QFile::exists(fileName)) {
-        QMessageBox::information(this, tr("Ftp"),
+        QMessageBox::information(this, tr("FTP"),
                                  tr("You already have a file called %1.")
                                  .arg(fileName));
         return;
@@ -93,7 +93,7 @@ void FtpWindow::downloadFile()
 
     file = new QFile(fileName);
     if (!file->open(QIODevice::WriteOnly)) {
-        QMessageBox::information(this, tr("Ftp"),
+        QMessageBox::information(this, tr("FTP"),
                                  tr("Unable to save the file %1: %2.")
                                  .arg(fileName).arg(file->errorString()));
         delete file;
@@ -102,7 +102,7 @@ void FtpWindow::downloadFile()
 
     ftp->get(fileList->currentItem()->text(), file);
 
-    progressDialog->setLabel(new QLabel(tr("Downloading %1").arg(fileName), this));
+    progressDialog->setLabelText(tr("Downloading %1").arg(fileName));
     progressDialog->show();
     downloadButton->setEnabled(false);
 }
@@ -112,11 +112,11 @@ void FtpWindow::cancelDownload()
     ftp->abort();
 }
 
-void FtpWindow::ftpCommandFinished(int /* command */, bool error)
+void FtpWindow::ftpCommandFinished(int /* commandId */, bool error)
 {
     if (ftp->currentCommand() == QFtp::ConnectToHost) {
         if (error) {
-            QMessageBox::information(this, tr("Ftp"),
+            QMessageBox::information(this, tr("FTP"),
                                      tr("Unable to connect to the FTP server "
                                         "at %1. Please check that the host "
                                         "name is correct.")
@@ -124,7 +124,8 @@ void FtpWindow::ftpCommandFinished(int /* command */, bool error)
             return;
         }
 
-        statusLabel->setText(tr("Connected to %1.").arg(ftpServerLineEdit->text()));
+        statusLabel->setText(tr("Connected to %1.")
+                             .arg(ftpServerLineEdit->text()));
         fileList->setFocus();
         connectButton->setEnabled(false);
         downloadButton->setDefault(true);
@@ -133,7 +134,8 @@ void FtpWindow::ftpCommandFinished(int /* command */, bool error)
 
     if (ftp->currentCommand() == QFtp::Get) {
         if (error) {
-            statusLabel->setText(tr("Canceled download of %1.").arg(file->fileName()));
+            statusLabel->setText(tr("Canceled download of %1.")
+                                 .arg(file->fileName()));
             file->close();
             file->remove();
             delete file;
@@ -209,5 +211,6 @@ void FtpWindow::enableConnectButton()
 
 void FtpWindow::enableDownloadButton()
 {
-    downloadButton->setEnabled(!isDirectory.value(fileList->currentItem()->text()));
+    QString currentFile = fileList->currentItem()->text();
+    downloadButton->setEnabled(!isDirectory.value(currentFile));
 }

@@ -26,11 +26,12 @@ private slots:
     void downloadFile();
     void cancelDownload();
 
-    void ftpCommandFinished(int id, bool error);
+    void ftpCommandFinished(int commandId, bool error);
     void addToList(const QUrlInfo &urlInfo);
     void processItem(QListWidgetItem *item);
     void cdToParent();
-    void updateDataTransferProgress(Q_LONGLONG readBytes, Q_LONGLONG totalBytes);
+    void updateDataTransferProgress(Q_LONGLONG readBytes,
+                                    Q_LONGLONG totalBytes);
     void enableConnectButton();
     void enableDownloadButton();
 
