@@ -76,6 +76,88 @@ static QFileIconProvider * fileIconProvider = 0;
 
 
 /* XPM */
+static const char * start_xpm[]={
+    "16 15 8 1",
+    "a c #cec6bd",
+    "# c #000000",
+    "e c #ffff00",
+    "b c #999999",
+    "f c #cccccc",
+    "d c #dcdcdc",
+    "c c #ffffff",
+    ". c None",
+    ".....######aaaaa",
+    "...bb#cccc##aaaa",
+    "..bcc#cccc#d#aaa",
+    ".bcef#cccc#dd#aa",
+    ".bcfe#cccc#####a",
+    ".bcef#ccccccccc#",
+    "bbbbbbbbbbbbccc#",
+    "bccccccccccbbcc#",
+    "bcefefefefee#bc#",
+    ".bcefefefefef#c#",
+    ".bcfefefefefe#c#",
+    "..bcfefefefeeb##",
+    "..bbbbbbbbbbbbb#",
+    "...#############",
+    "................"};                                                            
+
+/* XPM */
+static const char *end_xpm[]={
+    "16 15 9 1",
+    "d c #a0a0a0",
+    "c c #c3c3c3",
+    "# c #cec6bd",
+    ". c #000000",
+    "f c #ffff00",
+    "e c #999999",
+    "g c #cccccc",
+    "b c #ffffff",
+    "a c None",
+    "......####aaaaaa",
+    ".bbbb..###aaaaaa",
+    ".bbbb.c.##aaaaaa",
+    ".bbbb....ddeeeea",
+    ".bbbbbbb.bbbbbe.",
+    ".bbbbbbb.bcfgfe.",
+    "eeeeeeeeeeeeefe.",
+    "ebbbbbbbbbbeege.",
+    "ebfgfgfgfgff.ee.",
+    "aebfgfgfgfgfg.e.",
+    "aebgfgfgfgfgf.e.",
+    "aaebgfgfgfgffe..",
+    "aaeeeeeeeeeeeee.",
+    "aaa.............",
+    "aaaaaaaaaaaaaaaa"};                                                            
+
+// /* XPM */
+// static const char *end_xpm[] = {
+//     "16 15 8 1",
+//     ". c #cec6bd",
+//     "# c #000000",
+//     "a c #ffff00",
+//     "b c #999999",
+//     "c c #cccccc",
+//     "d c #dcdcdc",
+//     "e c #ffffff",
+//     "f c #b2c0dc",
+//     ".....######fffff",
+//     "....##eeee#bbfff",
+//     "...#d#eeee#eebff",
+//     "..#dd#eeee#caebf",
+//     ".#####eeee#acebf",
+//     "#eeeeeeeee#caebf",
+//     "#eeebbbbbbbbbbbb",
+//     "#eebbeeeeeeeeeeb",
+//     "#eb#aacacacacaeb",
+//     "#e#cacacacacaebf",
+//     "#e#acacacacacebf",
+//     "##baacacacacebff",
+//     "#bbbbbbbbbbbbbff",
+//     "#############fff",
+//     "ffffffffffffffff"};                                                                              
+
+/* XPM */
 static const char* open_xpm[]={
     "16 15 6 1",
     ". c None",
@@ -335,6 +417,8 @@ static QPixmap * fifteenTransparentPixels = 0;
 static QPixmap * symLinkDirIcon = 0;
 static QPixmap * symLinkFileIcon = 0;
 static QPixmap * fileIcon = 0;
+static QPixmap * startCopyIcon = 0;
+static QPixmap * endCopyIcon = 0;
 static QString * workingDirectory = 0;
 static bool bShowHiddenFiles = FALSE;
 static int sortFilesBy = (int)QDir::Name;
@@ -371,6 +455,10 @@ static void cleanup() {
     symLinkFileIcon = 0;
     delete fileIcon;
     fileIcon = 0;
+    delete startCopyIcon;
+    startCopyIcon = 0;
+    delete endCopyIcon;
+    endCopyIcon = 0;
 }
 
 
@@ -389,6 +477,8 @@ static void makeVariables() {
 	newFolderIcon = new QPixmap(newfolder_xpm);
 	previewInfoViewIcon = new QPixmap( previewinfoview_xpm );
 	previewContentsViewIcon = new QPixmap( previewcontentsview_xpm );
+	startCopyIcon = new QPixmap( start_xpm );
+	endCopyIcon = new QPixmap( end_xpm );
 	fifteenTransparentPixels = new QPixmap( closedFolderIcon->width(), 1 );
 	QBitmap m( fifteenTransparentPixels->width(), 1 );
 	m.fill( Qt::color0 );
@@ -398,6 +488,80 @@ static void makeVariables() {
 	detailViewMode = FALSE;
     }
 }
+
+class ProgressAnimation : public QWidget
+{
+    Q_OBJECT
+    
+public:
+    ProgressAnimation( QWidget *parent );
+    void start();
+    
+private slots:
+    void next();
+
+protected:
+    void paintEvent( QPaintEvent *e );
+    
+private:
+    int step;
+    QTimer *timer;
+    
+};
+
+ProgressAnimation::ProgressAnimation( QWidget *parent )
+    : QWidget( parent )
+{
+    setFixedSize( 300, 50 );
+    step = -1;
+    next();
+    timer = new QTimer( this );
+    connect( timer, SIGNAL( timeout() ),
+	     this, SLOT( next() ) );
+}
+
+void ProgressAnimation::start()
+{
+    timer->start( 200, FALSE );
+}
+
+void ProgressAnimation::next()
+{
+    ++step;
+    if ( step > 5 )
+	step = 0;
+    repaint();
+}
+
+void ProgressAnimation::paintEvent( QPaintEvent * )
+{
+    erase();
+    
+    QPainter p;
+    p.begin( this );
+    if ( step == 0 ) {
+	p.drawPixmap( 5, ( height() - startCopyIcon->height() ) / 2,
+		      *startCopyIcon );
+	p.drawPixmap( width() - 5 - openFolderIcon->width(),
+		      ( height() - openFolderIcon->height() ) / 2 , *openFolderIcon );
+    } else if ( step == 5 ) {
+	p.drawPixmap( 5, ( height() - openFolderIcon->height() ) / 2,
+		      *openFolderIcon );
+	p.drawPixmap( width() - 5 - endCopyIcon->width(),
+		      ( height() - endCopyIcon->height() ) / 2 , *endCopyIcon );
+    } else {
+	p.drawPixmap( 5, ( height() - openFolderIcon->height() ) / 2,
+		      *openFolderIcon );
+	p.drawPixmap( width() - 5 - openFolderIcon->width(),
+		      ( height() - openFolderIcon->height() ) / 2 , *openFolderIcon );
+	int x = 10 + openFolderIcon->width();
+	int w = width() - 2 * x;
+	int s = w / 4;
+	p.drawPixmap( x + s * step, ( height() - fileIcon->height() ) / 2 - fileIcon->height(),
+		      *fileIcon );
+    }
+}
+    
 
 class ProgressDialog : public QSemiModal
 {
@@ -417,7 +581,8 @@ private:
     QProgressBar *readBar;
     QProgressBar *writeBar;
     QLabel *writeLabel;
-
+    ProgressAnimation *animation;
+    
 };
 
 ProgressDialog::ProgressDialog( QWidget *parent, const QString &fn, int steps )
@@ -428,6 +593,9 @@ ProgressDialog::ProgressDialog( QWidget *parent, const QString &fn, int steps )
     layout->setSpacing( 5 );
     layout->setMargin( 5 );
 
+    animation = new ProgressAnimation( this );
+    layout->addWidget( animation );
+    
     layout->addWidget( new QLabel( tr( "Read: %1" ).arg( fn ), this ) );
     readBar = new QProgressBar( steps, this );
     readBar->reset();
@@ -445,6 +613,8 @@ ProgressDialog::ProgressDialog( QWidget *parent, const QString &fn, int steps )
     layout->addWidget( b );
     connect( b, SIGNAL( clicked() ),
 	     this, SIGNAL( cancelled() ) );
+
+    animation->start();
 }
 
 void ProgressDialog::setReadProgress( int p )
