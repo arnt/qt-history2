@@ -1896,7 +1896,7 @@ void VCFilter::modifyPCHstage(QTextStream &, QString str)
 bool VCFilter::addIMGstage(QTextStream &strm, QString str)
 {
     bool isCorH = false;
-    if (str.endsWith(".c"))
+    if (str.endsWith(".c") || str.endsWith(".rc"))
         isCorH = true;
     QStringList::Iterator it;
     for(it = Option::cpp_ext.begin(); it != Option::cpp_ext.end(); ++it)
