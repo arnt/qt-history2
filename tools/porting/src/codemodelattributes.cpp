@@ -12,8 +12,10 @@
 ****************************************************************************/
 
 #include "codemodelattributes.h"
+#include <iostream>
 #include "tokenengine.h"
 
+using namespace std;
 using namespace CodeModel;
 using namespace TokenEngine;
 
@@ -45,6 +47,7 @@ void CodeModelAttributes::parseNameUse(CodeModel::NameUse *nameUse)
     if(CodeModel::Scope * skop = nameUse->declaration()->parent()->parent()) {
         attributes->addAttribute(containerIndex, "grandParentScope", skop->name() );
     }
+//    cout << "add name use" << nameUse->name().constData()  << endl;
 }
 /*
     Create attributes for members and assign to token.

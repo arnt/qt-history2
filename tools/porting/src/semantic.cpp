@@ -241,17 +241,7 @@ TypeMember *Semantic::typeLookup(CodeModel::Scope *baseScope, const NameAST* nam
     }
     return 0;
 }
-/*
-CodeModel::TypeMember *Semantic::scopeLookup(CodeModel::Scope *baseScope, const NameAST* name)
-{
-    QList<CodeModel::Member *> memberList = nameLookup(baseScope, name);
-    foreach(Member *member, memberList) {
-        if(TypeMember *typeMember = member->toScopeMember())
-            return typeMember;
-    }
-    return 0;
-}
-*/
+
 FunctionMember *Semantic::functionLookup(CodeModel::Scope *baseScope,
                                           const DeclaratorAST *functionDeclarator)
 {
@@ -1029,22 +1019,6 @@ void Semantic::parseEnumSpecifier(EnumSpecifierAST *ast)
 
 void Semantic::parseTypedef(TypedefAST *ast)
 {
-
-#if 0
-    DeclaratorAST *oldDeclarator = m_currentDeclarator;
-
-    if (ast && ast->initDeclaratorList() && ast->initDeclaratorList()->initDeclaratorList().count() > 0) {
-            QPtrList<InitDeclaratorAST> lst(ast->initDeclaratorList()->initDeclaratorList());
-            m_currentDeclarator = lst.at(0)->declarator();
-    }
-
-    m_inTypedef = true;
-
-    TreeWalker::parseTypedef(ast);
-
-    m_inTypedef = false;
-    m_currentDeclarator = oldDeclarator;
-#else
     TypeSpecifierAST *typeSpec = ast->typeSpec();
     InitDeclaratorListAST *declarators = ast->initDeclaratorList();
 
@@ -1088,7 +1062,6 @@ void Semantic::parseTypedef(TypedefAST *ast)
         }
 
     }
-#endif
 }
 
 void Semantic::parseTypeSpecifier(TypeSpecifierAST *ast)
@@ -1097,70 +1070,3 @@ void Semantic::parseTypeSpecifier(TypeSpecifierAST *ast)
     TreeWalker::parseTypeSpecifier(ast);
 }
 
-
-#if 0
-
-void Semantic::parseNamespaceAlias(NamespaceAliasAST *ast)
-{
-    TreeWalker::parseNamespaceAlias(ast);
-}
-
-
-void Semantic::parseTemplateDeclaration(TemplateDeclarationAST *ast)
-{
-#if 0 // ### implement me
-    if (ast->declaration())
-        parseDeclaration(ast->declaration());
-
-    TreeWalker::parseTemplateDeclaration(ast);
-#endif
-}
-
-
-void Semantic::parseLinkageBody(LinkageBodyAST *ast)
-{
-    TreeWalker::parseLinkageBody(ast);
-}
-
-
-#endif
-
-#if 0
-
-
-void Semantic::parseElaboratedTypeSpecifier(ElaboratedTypeSpecifierAST *ast)
-{
-    TreeWalker::parseElaboratedTypeSpecifier(ast);
-}
-
-void Semantic::parseTypeDeclaratation(TypeSpecifierAST *typeSpec)
-{
-    parseTypeSpecifier(typeSpec);
-}
-
-
-
-void Semantic::parseAccessDeclaration(AccessDeclarationAST * access)
-{
-    List<AST*> l = *access->accessList();
-
-    QByteArray accessStr = textOf(l.at(0));
-    if (accessStr == "public")
-        m_currentAccess = CodeModel::Member::Public;
-    else if (accessStr == "protected")
-        m_currentAccess = CodeModel::Member::Protected;
-    else if (accessStr == "private")
-        m_currentAccess = CodeModel::Member::Private;
-    else if (accessStr == "signals")
-        m_currentAccess = CodeModel::Member::Protected;
-    else
-        m_currentAccess = CodeModel::Member::Public;
-
-    m_inSlots = l.count() > 1 ? textOf(l.at(1)) == "slots" : false;
-    m_inSignals = l.count() >= 1 ? textOf(l.at(0)) == "signals" : false;
-}
-
-
-
-
-#endif

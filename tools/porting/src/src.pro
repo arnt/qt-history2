@@ -24,7 +24,18 @@ HEADERS +=  smallobject.h             \
             fileporter.h              \
             logger.h                  \
             tokens.h                  \
-            filewriter.h
+            filewriter.h              \
+            cpplexer.h                \
+            smallobject.h             \
+            ast.h                     \
+            errors.h                  \
+            parser.h                  \
+            translationunit.h         \
+            treewalker.h              \
+            semantic.h                \
+            codemodel.h               \
+            codemodelwalker.h         \
+            codemodelattributes.h
 
 SOURCES += port.cpp                  \
            smallobject.cpp           \
@@ -45,6 +56,17 @@ SOURCES += port.cpp                  \
            fileporter.cpp            \
            logger.cpp                \
            filewriter.cpp            \
+           cpplexer.cpp              \
+           ast.cpp                   \
+           errors.cpp                \
+           parser.cpp                \
+           translationunit.cpp       \
+           treewalker.cpp            \
+           semantic.cpp              \
+           codemodel.cpp             \
+           codemodelwalker.cpp       \
+           codemodelattributes.cpp
+
 
 OBJECTS_DIR=.obj/debug-shared
 MOC_DIR=.moc/debug-shared

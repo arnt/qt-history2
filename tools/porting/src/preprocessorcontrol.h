@@ -75,5 +75,7 @@ private:
     Rpp::DefineMap *m_activeDefinitions;
 };
 
+Rpp::DefineMap *defaultMacros(PreprocessorCache &preprocessorCache);
+
 #endif
 

@@ -12,25 +12,71 @@
 ****************************************************************************/
 
 #include "projectporter.h"
+#include <iostream>
+#include <QFile>
+#include <QDir>
+#include <QStringList>
+#include <QFileInfo>
 #include "qtsimplexml.h"
 #include "proparser.h"
 #include "textreplacement.h"
 #include "fileporter.h"
 #include "logger.h"
-#include <QFile>
-#include <QDir>
-#include <QStringList>
-#include <QFileInfo>
-#include <iostream>
+#include "translationunit.h"
+#include "codemodelwalker.h"
 
 using std::cout;
 using std::endl;
 
 
-ProjectPorter::ProjectPorter(QString rulesFileName)
-:rulesFileName(rulesFileName)
-,filePorter(rulesFileName, preprocessorCache)
-{}
+ProjectPorter::ProjectPorter(QString basePath, QStringList includeDirectories)
+:basePath(basePath)
+,analyze(false)
+,includeFiles(0)
+,preprocessorController(0)
+,filePorter(preprocessorCache)
+{
+    if(!includeDirectories.isEmpty()) {
+        analyze = true;
+        includeFiles = new IncludeFiles(basePath, includeDirectories);
+        Rpp::DefineMap *defaultDefinitions = defaultMacros(preprocessorCache);
+        cout << defaultDefinitions->count() << endl;
+        preprocessorController =
+            new PreprocessorController(*includeFiles, preprocessorCache, defaultDefinitions);
+
+        connect(preprocessorController, SIGNAL(error(QString, QString)),
+                SLOT(error(QString, QString)));
+    }
+}
+
+void ProjectPorter::portProject(QString fileName)
+{
+    cout <<"porting a project " << fileName.toLatin1().constData() << endl;
+    QFileInfo fileInfo(fileName);
+//    cout << fileInfo.path().toLatin1().constData() << endl;
+//    cout << fileInfo.fileName().toLatin1().constData() << endl;
+    portProject(fileInfo.path(), fileInfo.fileName());
+}
+
+void ProjectPorter::portFile(QString fileName)
+{
+    cout << "porting a file " << fileName.toLatin1().constData() << endl;
+    if(analyze) {
+        cout << "preprocessing" << endl;
+        TokenEngine::TokenSectionSequence translationUnit =
+            preprocessorController->evaluate(fileName);
+        TranslationUnit translationUnitData =
+            translationUnitAnalyzer.analyze(translationUnit);
+        codeModelAttributes.createAttributes(translationUnitData);
+    }
+    portFiles(QString(), QStringList() << fileName);
+}
+
+void ProjectPorter::error(QString type, QString text)
+{
+    if(type == "Error")
+        cout << type.toLocal8Bit().constData() << " " << text.toLocal8Bit().constData() << endl;
+}
 
 void ProjectPorter::portProject(QString basePath, QString proFileName)
 {
@@ -65,9 +111,8 @@ void ProjectPorter::portProject(QString basePath, QString proFileName)
             portProject(newBasePath, newProFileName);
         }
      }
-    /*
-        Get headers and sources file names from .pro file.
-    */
+
+    // Get headers and sources file names from .pro file.
     QStringList sources = proFileMap["SOURCES"].split(" ", QString::SkipEmptyParts);
     QStringList headers = proFileMap["HEADERS"].split(" ", QString::SkipEmptyParts);
     QStringList forms = proFileMap["FORMS"].split(" ", QString::SkipEmptyParts);
@@ -78,6 +123,19 @@ void ProjectPorter::portProject(QString basePath, QString proFileName)
             uidoth += ui_h;
     }
 
+    // Create translation units for each cpp file and analyze it
+    if(analyze) {
+        cout << "analyzing" << endl;
+        foreach(QString sourceFile, sources) {
+            TokenEngine::TokenSectionSequence translationUnit =
+                preprocessorController->evaluate(sourceFile);
+            TranslationUnit translationUnitData =
+                translationUnitAnalyzer.analyze(translationUnit);
+            codeModelAttributes.createAttributes(translationUnitData);
+        }
+    }
+
+    // Port files.
     portFiles(basePath, sources);
     portFiles(basePath, headers);
     if (!uidoth.isEmpty())

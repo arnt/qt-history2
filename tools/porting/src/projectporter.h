@@ -19,19 +19,31 @@
 #include "fileporter.h"
 #include "filewriter.h"
 #include "preprocessorcontrol.h"
+#include "translationunit.h"
+#include "codemodelattributes.h"
 
-class ProjectPorter
+class ProjectPorter : public QObject
 {
+Q_OBJECT
 public:
-    ProjectPorter(QString rulesFileName);
-    void portProject(QString inPath, QString proFileName);
+    ProjectPorter(QString basePath, QStringList includeDirectories);
+    void portProject(QString filePath);
+    void portFile(QString filePath);
+private slots:
+    void error(QString type, QString text);
 private:
+    void portProject(QString inPath, QString proFileName);
     QString portProFile(QString contents, QMap<QString, QString> tagMap);
     void portFiles(QString basePath, QStringList fileNames);
 
-    QString rulesFileName;
     QMap<QString, int> processedFilesSet;
+    QString basePath;
+    bool analyze;
+    IncludeFiles *includeFiles;
+    PreprocessorController *preprocessorController;
     PreprocessorCache preprocessorCache;
+    TranslationUnitAnalyzer translationUnitAnalyzer;
+    CodeModelAttributes codeModelAttributes;
     FilePorter filePorter;
 };
 

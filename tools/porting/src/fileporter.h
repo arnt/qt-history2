@@ -24,14 +24,12 @@
 class FilePorter
 {
 public:
-    enum FileType {Header, Source};
-    FilePorter(QString rulesFileName, PreprocessorCache &preprocessorCache);
+    FilePorter(PreprocessorCache &preprocessorCache);
     void port(QString fileName);
 private:
     QByteArray loadFile(const QString &fileName);
     QByteArray includeAnalyse(QByteArray fileContents);
 
-    PortingRules portingRules;
     PreprocessorCache &preprocessorCache;
     QList<TokenReplacement*> tokenReplacementRules;
     ReplaceToken replaceToken;

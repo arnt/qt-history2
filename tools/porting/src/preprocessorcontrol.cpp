@@ -14,6 +14,7 @@
 #include <QDir>
 #include <QFile>
 #include <QFileInfo>
+#include <QTemporaryFile>
 using namespace TokenEngine;
 using namespace Rpp;
 
@@ -212,7 +213,7 @@ void PreprocessorController::includeSlot(Source *&includee,
         newFilename = m_includeFiles.angleBracketLookup(filename);
 
     if (!QFile::exists(newFilename))
-        emit error("Error", "In includeSlot(): Could not find file " + filename);
+        emit error("Error", "Could not find file " + filename);
 
     includee = m_preprocessorCache.sourceTree(newFilename);
 }
@@ -230,4 +231,40 @@ TokenSectionSequence PreprocessorController::evaluate(const QString &filename)
     return m_rppTreeEvaluator.evaluate(source, m_activeDefinitions);
 }
 
+QByteArray defaultDefines =
+    "#define __attribute__(a...)  \n \
+         #define __extension \n \
+         #define __extension__ \n \
+         #define __restrict \n \
+         #define __restrict__      \n \
+         #define __volatile         volatile\n \
+         #define __volatile__       volatile\n \
+         #define __inline             inline\n \
+         #define __inline__           inline\n \
+         #define __const               const\n \
+         #define __const__             const\n \
+         #define __asm               asm\n \
+         #define __asm__             asm\n \
+         #define __GNUC__                 2\n \
+         #define __GNUC_MINOR__          95\n  ";
 
+
+/*
+    Returns a DefineMap containing the above macro definitions.
+    The DefineMap will contain pointers to data stored in the cache
+*/
+Rpp::DefineMap *defaultMacros(PreprocessorCache &cache)
+{
+    DefineMap *defineMap = new DefineMap();
+    //write out defualt macros to a temp file
+    QTemporaryFile tempfile;
+    tempfile.open();
+    tempfile.write(defaultDefines);
+
+    IncludeFiles *includeFiles = new IncludeFiles(QString(), QStringList());
+    PreprocessorController preprocessorController(*includeFiles, cache, defineMap);
+    //evaluate default macro file.
+    preprocessorController.evaluate(tempfile.fileName());
+    delete includeFiles;
+    return defineMap;
+}

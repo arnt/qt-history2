@@ -38,36 +38,48 @@ QString findRulesFile(const QString &fileName)
     //check QLibraryInfo::DataPath/filename
     QString filePath;
     filePath = QDir::cleanPath(QLibraryInfo::location(QLibraryInfo::DataPath) + "/" + fileName)  ;
-    cout << "checking" << filePath.toLatin1().constData() << endl;
+    //cout << "checking" << filePath.toLatin1().constData() << endl;
     if (QFile::exists(filePath))
         return QFileInfo(filePath).canonicalPath();
 
     //check QLibraryInfo::PrefixPath/tools/porting/src/filename
     filePath = QDir::cleanPath(QLibraryInfo::location(QLibraryInfo::PrefixPath) + "/tools/porting/src/" + fileName);
-    cout << "checking" << filePath.toLatin1().constData() << endl;
+    //cout << "checking" << filePath.toLatin1().constData() << endl;
     if (QFile::exists(filePath))
         return QFileInfo(filePath).canonicalPath();
 
     //no luck
     return QString();
 }
-
-int fileMode(QString inFile)
+/*
+int fileMode(QString inFile, QStringList includeDirectories)
 {
     if(!QFile::exists(inFile)) {
         cout << "Could not find file " << inFile.toLocal8Bit().constData() << endl;
         return 1;
     }
 
-    QString absInFile = QFileInfo(inFile).canonicalPath();
+    QFileInfo inFileInfo = QFileInfo(inFile).canonicalPath();
+    cout << inFileInfo.path().toLatin1().constData() << endl;
+    cout << inFileInfo.fileName().toLatin1().constData() << endl;
 
     PreprocessorCache cache;
+
+    if(!includeDirectories.isEmpty()) {
+        cout << "analyzing source" << endl;
+        IncludeFiles includeFiles(inFileInfo.path(), includeDirectories);
+        PreprocessorController preprocController(includeFiles, cache, defaultMacros());
+//        TokenEngine::TokenSectionSequence translationUnit = 
+//            preprocController.evaluate(absInFile); 
+    }
+
+
     FilePorter filePorter(rulesFilePath, cache);
-    filePorter.port(absInFile);
+    filePorter.port(inFileInfo.filePath());
     return 0;
 }
 
-int projectMode(QString inFile)
+int projectMode(QString inFile, QStringList includeDirectories)
 {
     QFileInfo inFileInfo(inFile);
     if(!inFileInfo.exists()) {
@@ -79,7 +91,7 @@ int projectMode(QString inFile)
     porter.portProject(inFileInfo.path(), inFileInfo.fileName());
     return 0;
 }
-
+*/
 void usage(char **argv)
 {
     using namespace std;
@@ -120,7 +132,7 @@ int main(int argc, char**argv)
     QStringList includeSearchDirectories;
     int currentArg = 1;
 
-    cout << QLibraryInfo::location(QLibraryInfo::DataPath).toLatin1().constData() << endl;
+  //  cout << QLibraryInfo::location(QLibraryInfo::DataPath).toLatin1().constData() << endl;
 
     // read arguments
     while(currentArg < argc) {
@@ -157,7 +169,6 @@ int main(int argc, char**argv)
                 cout << QDir::convertSeparators(directoryCandidate).toLocal8Bit().constData() << endl;
                 return 1;
             }
-
            includeSearchDirectories += directoryCandidate;
         } else if(argText[0]  == '-') {
             cout << "Unknown option " << argText.toLocal8Bit().constData() << endl;
@@ -177,26 +188,28 @@ int main(int argc, char**argv)
         cout << "Please try specifying the file with the -f option" << endl;
         return 1;
     }
-
     cout << "Using rules file: ";
     cout << QDir::convertSeparators(rulesFilePath).toLocal8Bit().constData() <<endl;
-
+    PortingRules::createInstance(rulesFilePath);
 
     //check if we have an infile
+    if(inFileName.isEmpty()) {
+        cout << "You must specify a file name" << endl; 
+        return 1;
+    }
     if (!QFile::exists(inFileName)) {
         cout << "Could not find infile: ";
         cout << QDir::convertSeparators(inFileName).toLocal8Bit().constData() <<endl;
-        return 0;
+        return 1;
     }
-
-    PortingRules::createInstance(rulesFilePath);
+    inFileName = QFileInfo(inFileName).canonicalPath();
 
     //determine mode and do the port
-    int retval;
+    ProjectPorter porter(QDir::currentPath(), includeSearchDirectories);
     if(inFileName.endsWith(".pro") || inFileName.endsWith(".pri"))
-        retval = projectMode(inFileName);
+        porter.portProject(inFileName);
     else
-        retval = fileMode(inFileName);
+        porter.portFile(inFileName);
 
     //write log
     QStringList report = Logger::instance()->fullReport();
@@ -214,5 +227,5 @@ int main(int argc, char**argv)
 
     Logger::deleteInstance();
     PortingRules::deleteInstance();
-    return retval;
+    return 0;
 }

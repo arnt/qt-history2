@@ -133,6 +133,7 @@ public:
     Token token(const int index) const;
     TypeInfo *typeInfo();
     TokenAttributes *tokenAttributes();
+    const TokenAttributes *tokenAttributes() const;
 private:
     QExplicitlySharedDataPointer<TokenContainerData> d;
 };

@@ -52,9 +52,6 @@ protected:
 
     virtual void parseBaseClause(BaseClauseAST *baseClause, CodeModel::ClassScope * klass);
 
-//    virtual void parseDeclaration(DeclarationAST *);
-//    virtual void parseNamespaceAlias(NamespaceAliasAST *);
-
     virtual void parseLinkageSpecification(LinkageSpecificationAST *);
     virtual void parseUsing(UsingAST *);
     virtual void parseUsingDirective(UsingDirectiveAST *);
@@ -69,28 +66,13 @@ protected:
     virtual void parseTypedef(TypedefAST *);
 
     virtual void parseTypeSpecifier(TypeSpecifierAST *);
-
-    /*
-
-    virtual void parseTemplateDeclaration(TemplateDeclarationAST *);
-    virtual void parseLinkageBody(LinkageBodyAST *);
-    virtual void parseAccessDeclaration(AccessDeclarationAST *);
-
-    // type-specifier
-
-    virtual void parseElaboratedTypeSpecifier(ElaboratedTypeSpecifierAST *);
-    virtual void parseTypeDeclaratation(TypeSpecifierAST *typeSpec);
-    */
-
     CodeModel::Scope *lookupScope(CodeModel::Scope *baseScope, const NameAST* name);
 
     QList<CodeModel::Member *> nameLookup(CodeModel::Scope *baseScope, const NameAST* name);
     QList<CodeModel::Member *> unqualifiedNameLookup(CodeModel::Scope *baseScope, const NameAST* name);
     QList<CodeModel::Member *> qualifiedNameLookup(CodeModel::Scope *baseScope, const NameAST* name);
-    //CodeModel::Scope *argumentDependentNameLookup(CodeModel::Scope *baseScope, const NameAST* name);
     QList<CodeModel::Member *> lookupNameInScope(CodeModel::Scope *scope, const NameAST* name);
     CodeModel::TypeMember *typeLookup(CodeModel::Scope *baseScope, const NameAST* name);
-//    CodeModel::TypeMember *scopeLookup(CodeModel::Scope *baseScope, const NameAST* name);
 
     CodeModel::FunctionMember *Semantic::functionLookup(CodeModel::Scope *baseScope,  const DeclaratorAST *functionDeclarator);
     CodeModel::FunctionMember *Semantic::selectFunction(QList<CodeModel::Member*> candidatateList, const DeclaratorAST *functionDeclarator);

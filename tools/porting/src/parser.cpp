@@ -127,6 +127,7 @@ TranslationUnitAST *Parser::parse(TokenStreamAdapter::TokenStream *p_tokenStream
 
 bool Parser::reportError(const Error& err)
 {
+Q_UNUSED(err);
 #ifndef RXX_NO_ERROR
     if (m_problems < m_maxProblems) {
         ++m_problems;
@@ -154,6 +155,7 @@ bool Parser::reportError(const Error& err)
 
 bool Parser::reportError(const QString& msg)
 {
+Q_UNUSED(msg);
 #ifndef RXX_NO_ERROR
     if (m_problems < m_maxProblems) {
         ++m_problems;

@@ -19,9 +19,9 @@ class CodeModelWalker
 public:
     virtual ~CodeModelWalker(){};
     virtual void parseScope(CodeModel::Scope *scope);
-    virtual void parseClassScope(CodeModel::ClassScope */*scope*/){};
-    virtual void parseNamespaceScope(CodeModel::NamespaceScope */*scope*/){};
-    virtual void parseBlockScope(CodeModel::BlockScope */*scope*/){};
+    virtual void parseClassScope(CodeModel::ClassScope *){};
+    virtual void parseNamespaceScope(CodeModel::NamespaceScope *){};
+    virtual void parseBlockScope(CodeModel::BlockScope *){};
 
     virtual void parseType(CodeModel::Type *type);
     virtual void parseEnumType(CodeModel::EnumType *){};

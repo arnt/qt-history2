@@ -97,6 +97,12 @@ TokenAttributes *TokenContainer::tokenAttributes()
     return d->tokenAttributes;
 }
 
+const TokenAttributes *TokenContainer::tokenAttributes() const
+{
+    return d->tokenAttributes;
+}
+
+
 QByteArray TokenSection::fullText() const
 {
     QByteArray text;

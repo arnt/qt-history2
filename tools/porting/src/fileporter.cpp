@@ -24,22 +24,21 @@ using namespace TokenEngine;
 using std::cout;
 using std::endl;
 
-
+/*
 QByteArray FilePorter::loadFile(const QString &filePath)
 {
     QFile f(filePath);
     f.open(QIODevice::ReadOnly);
     return f.readAll();
 }
-
-FilePorter::FilePorter(QString rulesfilename, PreprocessorCache &preprocessorCache)
-:portingRules(rulesfilename)
-,preprocessorCache(preprocessorCache)
-,tokenReplacementRules(portingRules.getTokenReplacementRules())
+*/
+FilePorter::FilePorter(PreprocessorCache &preprocessorCache)
+:preprocessorCache(preprocessorCache)
+,tokenReplacementRules(PortingRules::instance()->getTokenReplacementRules())
 ,replaceToken(tokenReplacementRules)
 {
     int dummy=0;
-    foreach(QString headerName, portingRules.getHeaderList(PortingRules::Qt4)) {
+    foreach(QString headerName, PortingRules::instance()->getHeaderList(PortingRules::Qt4)) {
         qt4HeaderNames.insert(headerName, dummy);
     }
 }
@@ -97,7 +96,7 @@ QByteArray FilePorter::includeAnalyse(QByteArray fileContents)
 
     //compare class and header names, find classes that lacks a
     //curresponding include directive
-    QStringList neededHeaders = portingRules.getNeededHeaderList();
+    QStringList neededHeaders = PortingRules::instance()->getNeededHeaderList();
     QStringList headersToInsert;
     QMapIterator<QByteArray, int> c(classes);
     //loop through classes

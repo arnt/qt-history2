@@ -85,6 +85,8 @@ void CodeModelWalker::parseMember(CodeModel::Member *member)
 
 void CodeModelWalker::parseFunctionMember(CodeModel::FunctionMember *member)
 {
+    if(!member)
+        return;
     if(member->functionBodyScope())
         parseScope(member->functionBodyScope());
 }

@@ -257,6 +257,22 @@ bool ScopedTokenReplacement::doReplace(const TokenContainer &tokenContainer, int
     if(tokenText != oldTokenName)
         return false;
 
+    const TokenAttributes *attributes = tokenContainer.tokenAttributes();
+    QByteArray atext;
+    atext = attributes->attribute(index, "declaration");
+    if(!atext.isEmpty())
+        return false; //if it is a declaration we don't change it
+    atext = attributes->attribute(index, "nameUse");
+
+    bool scopesMatch = false;
+    if(!atext.isEmpty()) {
+        QByteArray parentScope = attributes->attribute(index, "parentScope");
+        if(parentScope != oldTokenScope)
+            return false; // scopes don't match, don't change
+        else
+            scopesMatch = true; 
+    }
+
     QualifiedNameParser nameParser(tokenContainer, index);
 
     if(nameParser.isPartOfQualifiedName() == false)
@@ -266,7 +282,8 @@ bool ScopedTokenReplacement::doReplace(const TokenContainer &tokenContainer, int
         // e.g. Vertical with QSizePolicy::Vertically. Unqualified tokens
         // can't happen for classes one does not usually inherit from, so
         // we only let them pass for stuff that people usually inherited from.
-        if (newTokenScope != "Qt"
+        if (scopesMatch == false
+            && newTokenScope != "Qt"
             && newTokenScope != "QFrame"
             && newTokenScope != "QValidator")
             return false;
