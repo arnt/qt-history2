@@ -130,9 +130,6 @@ struct qt_token_info
 	results.fill( 0 );
 	lengths.fill( 0 );
     }
-    ~qt_token_info()
-    {
-    }
 
     const char *fields;
     const ulong field_count;
