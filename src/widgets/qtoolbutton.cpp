@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtoolbutton.cpp#66 $
+** $Id: //depot/qt/main/src/widgets/qtoolbutton.cpp#67 $
 **
 ** Implementation of QToolButton class
 **
@@ -536,7 +536,7 @@ QIconSet QToolButton::iconSet( bool on ) const
 
     if ( pixmap() && (!that->s || (that->s->pixmap().serialNumber() !=
 				   pixmap()->serialNumber())) )
-	that->setIconSet( *pixmap() );
+	that->s = new QIconSet( *pixmap() );
 
     if ( that->s )
 	return *that->s;
@@ -665,7 +665,7 @@ void QToolButton::setAutoRaise( bool enable )
 
 /*!
   Returns whether auto-raising is enabled or not.
-  
+
   \sa setAutoRaise
  */
 bool QToolButton::autoRaise() const
