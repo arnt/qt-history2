@@ -274,7 +274,7 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
 	      << "-rm -f $(TARGETD)" << "\n\t"
 	      << var("QMAKE_LINK_SHLIB_CMD");
 	    if(!project->isEmpty("QMAKE_POST_LINK"))
-		t << var("QMAKE_POST_LINK") << "\n\t";
+		t << "\n\t" << var("QMAKE_POST_LINK") << "\n\t";
 	    if(!destdir.isEmpty())
 		t << "\n\t"
 		  << "-mv $(TARGETD) " << var("DESTDIR");
