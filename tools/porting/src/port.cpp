@@ -113,7 +113,7 @@ int main(int argc, char**argv)
     rulesFileName="rules.xml";
     rulesFilePath=findRulesFile(rulesFileName, argv[0]);
     if (rulesFilePath.isEmpty()) {
-        cout <<"Error: Could not find " << rulesFileName.latin1() << " file" << endl);
+        cout <<"Error: Could not find " << rulesFileName.latin1() << " file" << endl;
         return 0;
     } else {
         cout << "Using rules file: " << QDir::convertSeparators(rulesFilePath).latin1() <<endl;
