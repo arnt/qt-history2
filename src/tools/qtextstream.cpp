@@ -244,7 +244,7 @@ void QTextStream::init()
     d = new QTextStreamPrivate;
     doUnicodeHeader = TRUE;	 //default to autodetect
     latin1 = TRUE;		 // ### should use local?
-    internalOrder = QChar::networkOrdered(); //default to network order
+    internalOrder = FALSE;	//default to network order
 }
 
 /*!
@@ -658,11 +658,11 @@ uint QTextStream::ts_getbuf( QChar* buf, uint len )
 	if ( c1 == 0xfe && c2 == 0xff ) {
 	    mapper = 0;
 	    latin1 = FALSE;
-	    internalOrder = QChar::networkOrdered();   //network order
+	    internalOrder = FALSE;   //network order
 	} else if ( c1 == 0xff && c2 == 0xfe ) {
 	    mapper = 0;
 	    latin1 = FALSE;
-	    internalOrder = !QChar::networkOrdered();   //reverse network order
+	    internalOrder = TRUE;   //reverse network order
 	} else {
 	    if ( c2 != EOF ) {
 	 	dev->ungetch( c2 );
@@ -786,7 +786,7 @@ uint QTextStream::ts_getbuf( QChar* buf, uint len )
 	    int c2 = dev->getch();
 	    if ( c2 == EOF )
 		return rnum;
-	    if ( isNetworkOrder() )
+	    if ( !internalOrder )
 		*buf = QChar( c2, c1 );
 	    else
 		*buf = QChar( c1, c2 );
@@ -811,7 +811,7 @@ uint QTextStream::ts_getbuf( QChar* buf, uint len )
 		    if ( !dev->atEnd() )
 			dev->ungetch( cbuf[--rlen] );
 		uint i = 0;
-		if ( isNetworkOrder() ) {
+		if ( !internalOrder ) {
 		    while( i < rlen ) {
 			*buf = QChar( cbuf[i+1], cbuf[i] );
 			buf++;
@@ -954,7 +954,7 @@ void QTextStream::ts_putc( QChar c )
 	}
 	if ( internalOrder ) {
 	    dev->writeBlock( (char*)&c, sizeof(QChar) );
-	} else if ( isNetworkOrder() ) {
+	} else if ( !internalOrder ) {
 	    dev->putch(c.row());
 	    dev->putch(c.cell());
 	} else {
@@ -2386,13 +2386,13 @@ void QTextStream::setEncoding( Encoding e )
 	mapper = 0;
 	latin1 = FALSE;
 	doUnicodeHeader = TRUE;
-	internalOrder = QChar::networkOrdered();
+	internalOrder = FALSE;
 	break;
     case UnicodeReverse:
 	mapper = 0;
 	latin1 = FALSE;
 	doUnicodeHeader = TRUE;
-	internalOrder = !QChar::networkOrdered();   //reverse network ordered
+	internalOrder = TRUE;   //reverse network ordered
 	break;
     case RawUnicode:
 	mapper = 0;
