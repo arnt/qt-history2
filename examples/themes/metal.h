@@ -33,7 +33,7 @@ public:
 			const QColorGroup &cg,
 			SFlags flags = Style_Default ) const;
 
-    void drawControl( ControlElement element,
+    void drawControl( ControlElement ce,
 		      QPainter *p,
 		      const QWidget *widget,
 		      const QRect &r,
@@ -53,10 +53,8 @@ public:
 				  const QWidget *widget,
 				  SubControl sc,
 				  void **data = 0 ) const;
-    
+
 private:
-    void drawMetalButton( QPainter *p, int x, int y, int w, int h,
-			  bool sunken, bool horz ) const;
     QPalette oldPalette;
 };
 
