@@ -1049,14 +1049,15 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
     bool isResize = (olds != size());
     if(isTopLevel() && winid && own_id) {
 	fstrut_dirty = TRUE;
-	if(isResize && isMove) {
+	if(isResize && isMove && isVisible()) {
 	    Rect r;
 	    SetRect(&r, x, y, x + w, y + h);
 	    SetWindowBounds((WindowPtr)hd, kWindowContentRgn, &r);
-	} else if(isResize) {
-	    SizeWindow((WindowPtr)hd, w, h, 1);
-	} else if(isMove) {
-	    MoveWindow((WindowPtr)hd, x, y, 1);
+	} else {
+	    if(isResize) 
+		SizeWindow((WindowPtr)hd, w, h, 1);
+	    if(isMove)
+		MoveWindow((WindowPtr)hd, x, y, 1);
 	}
     }
 

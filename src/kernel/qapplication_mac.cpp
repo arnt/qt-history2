@@ -1120,18 +1120,8 @@ bool QApplication::do_mouse_down( Point *pt )
 	    // nw/nh might not match the actual size if setSizeIncrement is used
 	    int nw = LoWord( growWindowSize );
 	    int nh = HiWord( growWindowSize );
-	    if( nw < desktop()->width() && nw > 0 && nh < desktop()->height() && nh > 0 ) {
-		if( widget ) {
-		    int ow = widget->crect.width(), oh = widget->crect.height();
-		    widget->dirtyClippedRegion(TRUE);
-		    widget->crect.setRect( widget->x(), widget->y(), nw, nh );
-		    widget->fstrut_dirty = TRUE;
-		    SizeWindow((WindowPtr)widget->handle(), nw, nh, TRUE);
-		    QResizeEvent qre( QSize( widget->crect.width(), widget->crect.height() ),
-				      QSize( ow, oh ));
-		    QApplication::sendEvent( widget, &qre );
-		}
-	    }
+	    if( nw < desktop()->width() && nw > 0 && nh < desktop()->height() && nh > 0 && widget) 
+		widget->resize(nw, nh);
 	}
 	break;
     case inCollapseBox:
