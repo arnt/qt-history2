@@ -131,8 +131,6 @@ void FormWindowCursor::setProperty(const QString &name, const QVariant &value)
     int N = selectedWidgetCount();
     Q_ASSERT(N);
 
-    qDebug() << "set property command:" << name;
-
     if (N > 1)
         m_formWindow->commandHistory()->push(new QtCommand(QtCommand::MacroBegin, tr("changed '%1'").arg(name)));
 

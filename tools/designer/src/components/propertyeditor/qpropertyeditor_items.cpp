@@ -26,6 +26,7 @@
 #include <QPainter>
 #include <QDateTimeEdit>
 #include <QBitmap>
+#include <QValidator>
 
 #include <qdebug.h>
 #include <limits.h>
@@ -223,6 +224,10 @@ QString StringProperty::toString() const
 QWidget *StringProperty::createEditor(QWidget *parent, QObject *target, const char *receiver)
 {
     QLineEdit *lineEdit = new QLineEdit(parent);
+    if (propertyName() == QLatin1String("objectName")) {
+        lineEdit->setValidator(new QRegExpValidator(QRegExp("[_a-zA-Z][_a-zA-Z0-9]*"), lineEdit));
+    }
+
     QObject::connect(lineEdit, SIGNAL(textChanged(const QString&)), target, receiver);
     return lineEdit;
 }

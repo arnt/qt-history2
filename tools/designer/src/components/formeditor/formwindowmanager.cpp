@@ -135,10 +135,6 @@ bool FormWindowManager::eventFilter(QObject *o, QEvent *e)
 
     if (!qt_cast<OrderIndicator*>(w)) {
         w = findManagedWidget(fw, w);
-    } else {
-        if (fw->editMode() != FormWindow::TabOrderEditMode) {
-            qWarning("unexpected event: %d for the order indicator", e->type());
-        }
     }
 
     if (!w)
