@@ -1127,7 +1127,7 @@ void FunctionDecl::borrowParameterNames( ParameterIterator p )
     ps.clear();
     oldp = pl.begin();
     while ( oldp != pl.end() ) {
-	if ( (*p).name() != (*oldp).name() )
+	if ( !(*p).name().isEmpty() && (*p).name() != (*oldp).name() )
 	    (*oldp).setName( (*p).name() );
 	if ( !(*oldp).name().isEmpty() )
 	    ps.insert( (*oldp).name() );
