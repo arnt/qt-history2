@@ -111,6 +111,8 @@ protected:
     void viewportMouseMoveEvent( QMouseEvent* );
     void keyPressEvent( QKeyEvent * );
     void showEvent( QShowEvent* );
+    void focusInEvent( QFocusEvent * );
+    void focusOutEvent( QFocusEvent * );
 
 protected:
 

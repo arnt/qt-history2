@@ -968,3 +968,16 @@ void QTextView::clipboardChanged()
     clearSelection();
 #endif
 }
+
+/*!\reimp
+ */
+void QTextView::focusInEvent( QFocusEvent * )
+{
+    setMicroFocusHint(width()/2, 0, 1, height(), FALSE);
+}
+
+/*!\reimp
+ */
+void QTextView::focusOutEvent( QFocusEvent * )
+{
+}

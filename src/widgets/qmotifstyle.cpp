@@ -112,9 +112,9 @@ void QMotifStyle::polish( QPalette& pal)
 {
     if ( pal.normal().light() == pal.normal().base() ) {
 	QColor nlight = pal.normal().light().dark(108 );
-	pal.setColor( QPalette::Normal, QColorGroup::Light, nlight ) ;
-	pal.setColor( QPalette::Disabled, QColorGroup::Light, nlight ) ;
 	pal.setColor( QPalette::Active, QColorGroup::Light, nlight ) ;
+	pal.setColor( QPalette::Disabled, QColorGroup::Light, nlight ) ;
+	pal.setColor( QPalette::Inactive, QColorGroup::Light, nlight ) ;
     }
 
     if ( highlightCols )
@@ -125,17 +125,17 @@ void QMotifStyle::polish( QPalette& pal)
     QColorGroup disabled = pal.disabled();
     QColorGroup active = pal.active();
 
-    pal.setColor( QPalette::Normal, QColorGroup::Highlight,
+    pal.setColor( QPalette::Active, QColorGroup::Highlight,
 		  normal.text() );
-    pal.setColor( QPalette::Normal, QColorGroup::HighlightedText,
+    pal.setColor( QPalette::Active, QColorGroup::HighlightedText,
 		  normal.base());
     pal.setColor( QPalette::Disabled, QColorGroup::Highlight,
 		  disabled.text() );
     pal.setColor( QPalette::Disabled, QColorGroup::HighlightedText,
 		  disabled.base() );
-    pal.setColor( QPalette::Active, QColorGroup::Highlight,
+    pal.setColor( QPalette::Inactive, QColorGroup::Highlight,
 		  active.text() );
-    pal.setColor( QPalette::Active, QColorGroup::HighlightedText,
+    pal.setColor( QPalette::Inactive, QColorGroup::HighlightedText,
 		  active.base() );
 }
 
