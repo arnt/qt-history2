@@ -16,8 +16,6 @@ SOURCES = \
 	rotatinggradient.cpp \
 	warpix.cpp \
 	textoutline.cpp \
-  	mandelbrotwidget.cpp \
-	renderthread.cpp \
 	items.cpp
 
 HEADERS = \
@@ -31,8 +29,6 @@ HEADERS = \
 	roads.h \
 	rotatinggradient.h \
 	warpix.h \
-	mandelbrotwidget.h \
-	renderthread.h \
 	items.h
 
 contains(QT_CONFIG, opengl) {
