@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: collect.doc,v 2.5 1998/03/31 09:05:35 aavit Exp $
+** $Id: collect.doc,v 2.6 1998/08/20 21:26:40 agulbra Exp $
 **
 ** Qt collection classes documentation
 **
@@ -48,7 +48,6 @@ template class, \link QArray QArray\endlink, which stores the items
 directly in the array.  QArray only works for classes that do not have a
 constructor, a destructor or any virtual functions.
 
-
 <h2>Architecture</h2>
 
 Basically, there are two different implementation strategies for
@@ -67,9 +66,12 @@ classes; \link QGCache QGCache\endlink, \link QGDict QGDict\endlink and
 template layer implements the actual collections by casting item pointers
 to and from \c void*.
 
-Some compilers do not support C++ templates. For these compilers,
-we have implemented macro expansions that emulate templates.
-
+This strategy allows Qt's templates to be very economical on space
+(instantiating one of these templates adds only inline-able calls to
+the base classes), while it does not hurt performance too much.  Qt's
+templates do not afford as much scope for optimization as the STL
+templates do, so for applications where speed is critical and code
+size is less important, the STL is preferable.
 
 <h2>A List Example</h2>
 
@@ -237,5 +239,36 @@ Qt has the following predefined collection classes:
 <li> String vectors; \link QStrVec QStrVec\endlink and
 	\link QStrIVec QStrIVec\endlink (\link qstrvec.h qstrvec.h\endlink)
 </ul>
+
+<h2>Comparison with the STL</h2>
+
+We often get questions about why Qt does not use the STL, and why Qt's
+container templatess are provided at all.  Here are the major factors
+why we use and provide these templates: <ul>
+
+<li>Qt's container templates add less space when instantiated than the
+STL ones do.  Size is important for a library, and Qt contains many
+instantiations of QDict, QList etc.
+
+<li>Qt's containers are often not as fast as the STL's, for several
+reasons.  This is however not very important for Qt, as they are used
+in code that doesn't need to be very fast.  (The speed-critical data
+structures in Qt are mostly caches - either QCache instantiations or
+custom-written, custom-optimized ones.)
+
+<li>Qt's containers are much more portable than the STL is.  When we
+started writing Qt, STL was far away in the future, and when we
+released Qt 1.0, no widely-used compilers could compile the STL.  For
+a library such as Qt, it is of course very important to compile on the
+widest possible variety of compilers.
+
+<li>Qt's containers are documented because we document our APIs, and
+the containers and their documentation are provided as parts of Qt's
+external API because we saw no reason to hide them.
+
+<ul>
+
+There are also other differences, but the ones above are the important
+reasons behind our decision to write, use and provide these classes.
 
 */
