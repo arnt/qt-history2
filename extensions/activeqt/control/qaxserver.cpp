@@ -676,7 +676,7 @@ static HRESULT classIDL(QObject *o, const QMetaObject *mo, const QString &classN
         
         for (int j = 0; j < enumerator.numKeys(); ++j) {
             QString key(enumerator.key(j));
-            int value = enumerator.value(j);
+            uint value = (uint)enumerator.value(j);
             key = key.leftJustified(20);
             out << "\t\t" << key << "\t= ";
             if (enumerator.isFlag())
