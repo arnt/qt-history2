@@ -43,7 +43,7 @@ public:
     QLabel *showSplash();
     static void closeSplash();
 
-    static QString settingsKey() { return "/Qt Designer/3.0/"; }
+    static QString settingsKey() { return "/Qt Designer/3.1/"; }
 
 protected:
     QDateTime lastMod;
