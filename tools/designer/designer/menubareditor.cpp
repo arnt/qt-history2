@@ -137,7 +137,7 @@ MenuBarEditor::MenuBarEditor( FormWindow * fw, QWidget * parent, const char * na
     lineEdit->installEventFilter( this );
 
     dropLine = new QWidget( this, "menubar dropline", Qt::WStyle_NoBorder | WStyle_StaysOnTop );
-    dropLine->setBackgroundColor( Qt::black );
+    dropLine->setBackgroundColor( Qt::red );
     dropLine->hide();
 
     setMinimumHeight( fontMetrics().height() + 2 * borderSize );

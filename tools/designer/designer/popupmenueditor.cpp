@@ -356,7 +356,7 @@ void PopupMenuEditor::init()
     lineEdit->installEventFilter( this );
 
     dropLine = new QWidget( this, 0, Qt::WStyle_NoBorder | WStyle_StaysOnTop );
-    dropLine->setBackgroundColor( Qt::black );
+    dropLine->setBackgroundColor( Qt::red );
     dropLine->hide();
 
     hide();
@@ -514,6 +514,8 @@ void PopupMenuEditor::show()
 void PopupMenuEditor::choosePixmap( const int index )
 {
     int idx = ( index == -1 ? currentIndex : index );
+
+    hide(); // FIXME: this is to hide the submenu that pops up.
 
     PopupMenuEditorItem * i = 0;
     QAction * a = 0;
