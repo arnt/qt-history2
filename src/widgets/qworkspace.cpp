@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qworkspace.cpp#7 $
+** $Id: //depot/qt/main/src/widgets/qworkspace.cpp#8 $
 **
 ** Implementation of the QWorkspace class
 **
@@ -49,6 +49,8 @@ QWorkspace::QWorkspace( QWidget *parent, const char *name )
 
     px = 0;
     py = 0;
+    
+    maxClient = 0;
 
 }
 
@@ -77,6 +79,10 @@ void QWorkspace::childEvent( QChildEvent * e)
 	  activateClient( w );
 	}
     } else if (e->removed() ) {
+	if ( maxClient == e->child() ) {
+	    maxClient = 0;
+	    hideMaxHandles();
+	}
 	if ( windows.contains( (QWorkspaceChild*)e->child() ) )
 	    windows.remove( (QWorkspaceChild*)e->child() );
 	if ( icons.contains( (QWidget*)e->child() ) ){
@@ -109,7 +115,7 @@ void QWorkspace::activateClient( QWidget* w)
 	active->clientWidget()->setFocus();
     }
     delete ol;
-    
+
     emit clientActivated( w );
 }
 
@@ -197,16 +203,18 @@ void QWorkspace::layoutIcons()
     }
 }
 
-void QWorkspace::maximizeClient( QWidget* )
-{
-}
-
 void QWorkspace::minimizeClient( QWidget* w)
 {
     QWorkspaceChild* c = findChild( w );
     if ( c ) {
 	c->hide();
 	insertIcon( c->iconWidget() );
+	if ( c == maxClient ) {
+	    c->setGeometry( maxRestore );
+	    maxClient = 0;
+	    hideMaxHandles();
+	}
+	    
     }
 }
 
@@ -214,7 +222,29 @@ void QWorkspace::normalizeClient( QWidget* w)
 {
     QWorkspaceChild* c = findChild( w );
     if ( c ) {
-	removeIcon( c->iconWidget() );
+	if ( c == maxClient ) {
+	    c->setGeometry( maxRestore );
+	}
+	else {
+	    removeIcon( c->iconWidget() );
+	    c->show();
+	}
+    }
+}
+
+void QWorkspace::maximizeClient( QWidget* w)
+{
+    QWorkspaceChild* c = findChild( w );
+    if (maxClient == c) {
+	normalizeClient( w ); // hack for now, should not toggle
+	return;
+    }
+    if ( c ) {
+	if (icons.contains(c->iconWidget()) )
+	    normalizeClient( w );
+	maxRestore = c->geometry();
+	c->setGeometry( rect() );
+	maxClient = c;
 	c->show();
     }
 }
@@ -227,4 +257,12 @@ QWorkspaceChild* QWorkspace::findChild( QWidget* w)
 	    return c;
     }
     return 0;
+}
+
+void QWorkspace::showMaxHandles()
+{
+}
+
+void QWorkspace::hideMaxHandles()
+{
 }

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qworkspacechild.cpp#10 $
+** $Id: //depot/qt/main/src/widgets/qworkspacechild.cpp#11 $
 **
 ** Implementation of the QWorkspace class
 **
@@ -341,6 +341,8 @@ QWorkspaceChild::QWorkspaceChild( QWidget* window, QWorkspace *parent,
 	     this, SLOT( close() ) );
     connect( titlebar, SIGNAL( doMinimize() ),
 	     this, SLOT( showMinimized() ) );
+    connect( titlebar, SIGNAL( doMaximize() ),
+	     this, SLOT( showMaximized() ) );
 
     setFrameStyle( QFrame::WinPanel | QFrame::Raised );
     setMinimumSize( 128, 96 );
@@ -604,6 +606,8 @@ QWidget* QWorkspaceChild::iconWidget() const
 		 this, SLOT( close() ) );
 	connect( iconw, SIGNAL( doNormal() ),
 		 this, SLOT( showNormal() ) );
+	connect( iconw, SIGNAL( doMaximize() ),
+		 this, SLOT( showMaximized() ) );
     }
     iconw->setCaption( clientWidget()->caption() );
     return iconw->parentWidget();
@@ -612,6 +616,11 @@ QWidget* QWorkspaceChild::iconWidget() const
 void QWorkspaceChild::showMinimized()
 {
     ((QWorkspace*)parentWidget())->minimizeClient( clientWidget() );
+}
+
+void QWorkspaceChild::showMaximized()
+{
+    ((QWorkspace*)parentWidget())->maximizeClient( clientWidget() );
 }
 
 void QWorkspaceChild::showNormal()

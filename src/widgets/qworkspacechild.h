@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qworkspacechild.h#4 $
+** $Id: //depot/qt/main/src/widgets/qworkspacechild.h#5 $
 **
 ** Definition of the QChildWindow class
 **
@@ -101,6 +101,7 @@ public:
  public slots:
     void activate();
     void showMinimized();
+    void showMaximized();
     void showNormal();
     bool close( bool forceKill );
 
@@ -113,7 +114,7 @@ protected:
 
     void resizeEvent( QResizeEvent * );
     bool eventFilter( QObject *, QEvent * );
-    
+
  private slots:
     void clientDestroyed();
 

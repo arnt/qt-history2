@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qworkspace.h#7 $
+** $Id: //depot/qt/main/src/widgets/qworkspace.h#8 $
 **
 ** Definition of the QWorkspace class
 **
@@ -73,6 +73,10 @@ private:
     void place( QWorkspaceChild* );
 
     QWorkspaceChild* findChild( QWidget* w);
+    void showMaxHandles();
+    void hideMaxHandles();
+    QWorkspaceChild* maxClient;
+    QRect maxRestore;
 
     int px;
     int py;
