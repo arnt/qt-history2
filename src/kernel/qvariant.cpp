@@ -2661,8 +2661,8 @@ QMap<QString, QVariant>& QVariant::asMap()
     \row \i Int \i String, Double, Bool, UInt
     \row \i List \i StringList (if the list contains strings or
     something that can be cast to a string)
-    \row \i String \i CString, Int, Uint, Double, Date, Time,
-    DateTime, KeySequence, Font, Color
+    \row \i String \i CString, Int, Uint, Bool, Double, Date, 
+    Time, DateTime, KeySequence, Font, Color
     \row \i CString \i String
     \row \i StringList \i List
     \row \i Time \i String
@@ -2687,7 +2687,7 @@ bool QVariant::canCast( Type t ) const
     case CString:
 	return d->typ == String;
     case String:
-	return d->typ == CString || d->typ == Int || d->typ == UInt || d->typ == Double || d->typ == Date || d->typ == Time || d->typ == DateTime || d->typ == KeySequence || d->typ == Font || d->typ == Color;
+	return d->typ == CString || d->typ == Int || d->typ == UInt || d->typ == Bool || d->typ == Double || d->typ == Date || d->typ == Time || d->typ == DateTime || d->typ == KeySequence || d->typ == Font || d->typ == Color;
     case ByteArray:
 	return d->typ == CString;
     case Date:
