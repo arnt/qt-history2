@@ -135,6 +135,7 @@ contains(sql-drivers, sqlite) {
                                 ../3rdparty/sqlite/copy.c \
                 		../3rdparty/sqlite/date.c \
                                 ../3rdparty/sqlite/delete.c \
+                                ../3rdparty/sqlite/encode.c \
                                 ../3rdparty/sqlite/expr.c \
                                 ../3rdparty/sqlite/func.c \
                                 ../3rdparty/sqlite/hash.c \
