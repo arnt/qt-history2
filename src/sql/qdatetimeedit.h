@@ -86,7 +86,16 @@ class Q_EXPORT QDateEdit : public QDateTimeEditBase
 {
     Q_OBJECT
     Q_PROPERTY( QDate date READ date WRITE setDate )
+    Q_PROPERTY( Order order READ order WRITE setOrder )
+
 public:
+    enum Order {
+	DMY,
+	MDY,
+	YMD,
+	YDM
+    };
+
     QDateEdit( QWidget * parent = 0, const char * name = 0 );
     QDateEdit( const QDate & d, QWidget * parent = 0, const char * name = 0 );
     void    setDate( const QDate & d );
@@ -96,6 +105,9 @@ public:
     QSize sizeHint() const;
     QSize minimumSizeHint() const;
 
+    void setOrder( Order order );
+    Order order() const;
+
 signals:
     void valueChanged( const QDate& );
 
@@ -104,15 +116,12 @@ protected slots:
 
 protected:
     void init();
-    void fixup();
     void resizeEvent( QResizeEvent * );
     bool event( QEvent * );
     int yearPos, monthPos, dayPos;
     QDate oldDate;
-    QString format;
+    Order format;
 private:
-    void    setOrder( const QString & order );
-    QString order() const;
 
 };
 

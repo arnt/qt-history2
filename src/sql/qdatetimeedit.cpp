@@ -418,8 +418,9 @@ QDateEdit::QDateEdit( const QDate & d, QWidget * parent, const char * name )
 void QDateEdit::init()
 {
     setDateSeparator( "-" );
-    setOrder( "YMD" ); // ## ISO default
-    //    connect( this, SIGNAL( valueChanged() ), this, SLOT( someValueChanged() ) ); ## why?
+    setOrder( YMD ); // ## ISO default
+    //    connect( this, SIGNAL( valueChanged() ),
+    //    this, SLOT( someValueChanged() ) ); ## why?
 }
 
 /*! \reimp
@@ -476,7 +477,7 @@ void QDateEdit::setDate( const QDate & d )
 	ed[0]->setText( "" );
 	ed[1]->setText( "" );
 	ed[2]->setText( "" );
-	oldDate = d;
+	oldDate = QDate();
 	return;
     }
 
@@ -519,8 +520,6 @@ QDate QDateEdit::date() const
     if ( !QDate::isValid( yy, mm, dd ) )
 	return QDate();
 
-    //    ((QDateEdit *) this)->fixup(); // Fix invalid dates
-
     return QDate( yy, mm, dd );
 }
 
@@ -533,27 +532,34 @@ QDate QDateEdit::date() const
 /*!
 
   Set the order in which each part of the date should appear in the edit
-  box according to the \a fmt format string.
-
-  The year is signified with 'Y', the month with 'M' and the day with
-  'D'. For the US the format would probably be 'MDY', for Japan, 'YMD'
-  (the default), for Europe, 'DMY'.
+  box according to the \a order enum.
 
   \sa order
 */
-void QDateEdit::setOrder( const QString & fmt )
+void QDateEdit::setOrder( QDateEdit::Order order )
 {
-    QString tmp;
-
-    if( fmt.length() > 3 ) return;
-    tmp = fmt.upper();
-
-    if( !tmp.contains( 'Y' ) || !tmp.contains( 'M' ) || !tmp.contains( 'D' ) )
-	return;
-
-    yearPos  = tmp.find( 'Y' );
-    monthPos = tmp.find( 'M' );
-    dayPos   = tmp.find( 'D' );
+    switch ( order ) {
+    case DMY:
+	yearPos  = 2;
+	monthPos = 1;
+	dayPos   = 0;
+	break;
+    case MDY:
+	yearPos  = 2;
+	monthPos = 0;
+	dayPos   = 1;
+	break;
+    case YMD:
+	yearPos  = 0;
+	monthPos = 1;
+	dayPos   = 2;
+	break;
+    case YDM:
+	yearPos  = 0;
+	monthPos = 2;
+	dayPos   = 1;
+	break;
+    };
 
     ed[yearPos]->setRange( 1753, 3000 );
     ed[monthPos]->setRange( 1, 12 );
@@ -563,24 +569,17 @@ void QDateEdit::setOrder( const QString & fmt )
     ed[monthPos]->setMaxLength( 2 );
     ed[dayPos]->setMaxLength( 2 );
 
-    format[yearPos]  = 'Y';
-    format[monthPos] = 'M';
-    format[dayPos]   = 'D';
-    format[3] = 0;
+    format = order;
 }
 
 /*!
 
-  Returns a string that indicates the order in which each part of the
-  date appears in the editor.
-
-  The year is signified with 'Y', the month with 'M' and the day with
-  'D'. If the string 'MDY' was returned this would signify a month, day,
-  year ordering.
+  Returns an enum indicating the order in which each part of the date
+  appears in the editor.
 
   \sa setOrder
 */
-QString QDateEdit::order() const
+QDateEdit::Order QDateEdit::order() const
 {
     return format;
 }
@@ -605,52 +604,6 @@ QString QDateEdit::dateSeparator() const
     return separator;
 }
 
-/*!  \internal
-
-  Post-process the edited date. This will guarantee that a date is
-  valid.  If not, it will be reverted to its last state.
-
-*/
-void QDateEdit::fixup()
-{
-    QIntValidator * v[3];
-    v[0] = (QIntValidator *) ed[0]->validator();
-    v[1] = (QIntValidator *) ed[1]->validator();
-    v[2] = (QIntValidator *) ed[2]->validator();
-
-    int yy = ed[yearPos]->text().toInt();
-    int mm = ed[monthPos]->text().toInt();
-    int dd = ed[dayPos]->text().toInt();
-
-    if( !QDate::isValid( yy, mm, dd) ){
-
-	if( !QDate::isValid( yy, 1, 1 ) ) {
-	    if( yy > v[yearPos]->top() )
-		yy = v[yearPos]->top();
-	    else if( yy < v[yearPos]->bottom() )
-		yy = v[yearPos]->bottom();
-	}
-	if( !QDate::isValid( yy, mm, 1 ) ) {
-	    if( mm > v[monthPos]->top() )
-		mm = v[monthPos]->top();
-	    else if( mm < v[monthPos]->bottom() )
-		mm = v[monthPos]->bottom();
-	}
-	if( dd > v[dayPos]->top() )
-	    dd = v[dayPos]->top();
-	else if( dd < v[dayPos]->bottom() )
-	    dd = v[dayPos]->bottom();
-
-	while( !QDate::isValid( yy, mm, dd ) )
-	    dd--;
-
-	ed[yearPos]->setText( QString::number( yy ) );
-	ed[monthPos]->setText( QString::number( mm ) );
-	ed[dayPos]->setText( QString::number( dd ) );
-
-    }
-}
-
 /*! \reimp
 */
 bool QDateEdit::event( QEvent* e )
@@ -661,11 +614,15 @@ bool QDateEdit::event( QEvent* e )
 	QDate newDate = date();
 	if ( newDate.isValid() ) {
 	    if ( ke->key() == Key_Tab || ke->key() == Key_BackTab ) {
-		if ( newDate != oldDate )
+		if ( newDate != oldDate ) {
+		    oldDate = newDate;
 		    emit valueChanged( newDate );
+		}
 	    } else if ( ke->key() == Key_Return || ke->key() == Key_Enter ) {
-		if ( newDate != oldDate )
+		if ( newDate != oldDate ) {
+		    oldDate = newDate;
 		    emit valueChanged( newDate );
+		}
 	    }
 	}
     }
@@ -813,15 +770,20 @@ QSize QTimeEdit::minimumSizeHint() const
  */
 void QTimeEdit::setTime( const QTime & t )
 {
-    QTime oldTime = time();
-    ed[0]->setText( QString::number( t.hour() ) );
-    ed[1]->setText( QString::number( t.minute() ) );
-    ed[2]->setText( QString::number( t.second() ) );
-    if ( oldTime != time() )
-	emit valueChanged( t );
+    if ( t.isValid() ) {
+	ed[0]->setText( QString::number( t.hour() ) );
+	ed[1]->setText( QString::number( t.minute() ) );
+	ed[2]->setText( QString::number( t.second() ) );
+	if ( oldTime != time() ) {
+	    oldTime = time();
+	    emit valueChanged( t );
+	}
+    } else {
+	ed[0]->setText( "" );
+	ed[1]->setText( "" );
+	ed[2]->setText( "" );
+    }
 
-//    ed[0]->setFocus();
-//    ed[0]->selectAll();
 }
 
 /*!
@@ -830,8 +792,14 @@ void QTimeEdit::setTime( const QTime & t )
  */
 QTime QTimeEdit::time() const
 {
-    return QTime( ed[0]->text().toInt(), ed[1]->text().toInt(),
-		  ed[2]->text().toInt() );
+    int h = ed[0]->text().toInt();
+    int m = ed[1]->text().toInt();
+    int s = ed[2]->text().toInt();
+
+    if ( !QTime::isValid( h, m, s ) )
+	return QTime();
+
+    return QTime( h, m, s );
 }
 
 /*! \fn void QTimeEdit::valueChanged( const QTime& )
@@ -869,11 +837,15 @@ bool QTimeEdit::event( QEvent* e )
 	QKeyEvent *ke = (QKeyEvent*)e;
 	QTime newTime = time();
 	if ( ke->key() == Key_Tab || ke->key() == Key_BackTab ) {
-	    if ( newTime != oldTime )
+	    if ( newTime != oldTime ) {
+		oldTime = newTime;
 		emit valueChanged( newTime );
+	    }
 	} else if ( ke->key() == Key_Return || ke->key() == Key_Enter ) {
-	    if ( newTime != oldTime )
+	    if ( newTime != oldTime ) {
+		oldTime = newTime;
 		emit valueChanged( newTime );
+	    }
 	}
     }
     break;
