@@ -253,7 +253,7 @@ void read_png_image(QImageIO* iio)
 	return;
     }
 
-    png_set_error_fn(png_ptr, 0, 0, &qt_png_warning);
+    png_set_error_fn(png_ptr, 0, 0, qt_png_warning);
 
     info_ptr = png_create_info_struct(png_ptr);
     if (!info_ptr) {
@@ -424,7 +424,7 @@ bool QPNGImageWriter::writeImage(const QImage& image, int quality_in, int off_x_
 	return FALSE;
     }
 
-    png_set_error_fn(png_ptr, 0, 0, &qt_png_warning);
+    png_set_error_fn(png_ptr, 0, 0, qt_png_warning);
 
     info_ptr = png_create_info_struct(png_ptr);
     if (!info_ptr) {
@@ -982,7 +982,7 @@ int QPNGFormat::decode(QImage& img, QImageConsumer* cons,
 		return -1;
 	}
 
-	png_set_error_fn(png_ptr, 0, 0, &qt_png_warning);
+	png_set_error_fn(png_ptr, 0, 0, qt_png_warning);
 	png_set_compression_level(png_ptr, 9);
 
 	info_ptr = png_create_info_struct(png_ptr);
@@ -1101,8 +1101,8 @@ static bool skip(png_uint_32& max, png_bytep& data)
 #endif
 */
 
-int QPNGFormat::user_chunk(png_structp png,
-	    png_bytep data, png_uint_32 length)
+int QPNGFormat::user_chunk(png_structp /*png*/,
+	    png_bytep /*data*/, png_uint_32 /*length*/)
 {
 #if 0 // NOT SUPPORTED: experimental PNG animation.
     // qDebug("Got %ld-byte %s chunk", length, png->chunk_name);

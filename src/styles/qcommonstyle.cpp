@@ -1711,7 +1711,7 @@ void QCommonStyle::drawComplexControlMask( ComplexControl control,
 QRect QCommonStyle::querySubControlMetrics( ComplexControl control,
 					    const QWidget *widget,
 					    SubControl sc,
-					    const QStyleOption &opt ) const
+					    const QStyleOption & ) const
 {
 #if defined(QT_CHECK_STATE)
     if (! widget) {

@@ -8778,7 +8778,7 @@ static inline uint gb4lin_to_gb(uint gb4lin) {
     b = 0x30 + (gb4lin / 1260) % 10;
     c = 0x81 + (gb4lin / 10) % 126;
     d = 0x30 + gb4lin % 10;
-    return (a << 24 | b << 16 | c << 8 | d);
+    return ( (a << 24) | (b << 16) | (c << 8) | d);
 }
 
 static uint qt_Gb18030ToUnicode(const uchar *gbstr, int& len) {
@@ -8917,7 +8917,7 @@ int qt_UnicodeToGb18030(uint uni, uchar *gbchar) {
 		}
 		gbchar[0] = a;
 		gbchar[1] = b;
-		gbchar[2] = 0x81 + (tblEntry >> 4 & 0x7F);
+		gbchar[2] = 0x81 + ( (tblEntry >> 4) & 0x7F );
 		gbchar[3] = 0x30 + (tblEntry & 0xF);
 		return 4;
 	    }
