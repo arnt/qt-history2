@@ -53,10 +53,10 @@ enum {
 /*****************************************************************************
   Externals
  *****************************************************************************/
-IconRef qt_mac_create_iconref(const QPixmap &px); //qpixmap_mac.cpp
+extern IconRef qt_mac_create_iconref(const QPixmap &px); //qpixmap_mac.cpp
 extern QString cfstring2qstring(CFStringRef); //qglobal.cpp
 extern CFStringRef qstring2cfstring(const QString &); //qglobal.cpp
-
+extern bool qt_modal_state(); //qapplication_mac.cpp
 
 /*****************************************************************************
   QMenu utility functions
@@ -101,7 +101,7 @@ void qt_mac_set_modal_state(MenuRef menu, bool b)
 
     UInt32 commands[] = { kHICommandQuit, kHICommandPreferences, kHICommandAbout, kHICommandAboutQt, 0 };
     for(int c = 0; commands[c]; c++)
-        qt_mac_command_set_enabled(menu, commands[c], b);
+        qt_mac_command_set_enabled(menu, commands[c], !b);
 }
 
 void qt_mac_clear_menubar()
@@ -214,6 +214,8 @@ bool qt_mac_activate_action(MenuRef menu, uint command, QAction::ActionEvent act
         else
             menu = 0;
     }
+    if(action_e == QAction::Trigger)
+        HiliteMenu(0);
     return true;
 }
 
@@ -765,7 +767,10 @@ bool Q4MenuBar::macUpdateMenuBar()
     //now set it
     static bool first = true;
     if(mb) {
-        SetRootMenu(mb->macMenu());
+        MenuRef menu = mb->macMenu();
+        SetRootMenu(menu);
+        if(mb != Q4MenuBarPrivate::QMacMenuBarPrivate::menubars.value(qApp->activeModalWidget()))
+            qt_mac_set_modal_state(menu, qt_modal_state());
 #ifdef QT_COMPAT
     } else if(Q3MenuBar::macUpdateMenuBar()) {
         qt_mac_create_menu_event_handler();
