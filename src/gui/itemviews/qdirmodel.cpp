@@ -235,8 +235,8 @@ public:
     Constructs a new directory model with the given \a parent. The
     model initially contains information about the directory specified
     by \a path. Only those files matching the \a nameFilters and the
-    \a filters are included in the model. The sort order is given by \a
-    sorting.
+    \a filters are included in the model. The sort order is given by the
+    \a sort flags.
 */
 
 QDirModel::QDirModel(const QString &path,
@@ -422,7 +422,8 @@ bool QDirModel::setData(const QModelIndex &index, const QVariant &value, int rol
 }
 
 /*!
-  Returns the data for the header section \a section, role \a role.
+  Returns the data stored under the given \a role for the specified \a section
+  of the header with the given \a orientation.
 */
 
 QVariant QDirModel::headerData(int section, Qt::Orientation orientation, int role) const
@@ -456,7 +457,9 @@ bool QDirModel::hasChildren(const QModelIndex &parent) const
 }
 
 /*!
-  ###
+  Returns the item flags for the given \a index in the model.
+
+  \sa QAbstractItemModel::flags() QAbstractItemModel::ItemFlags
 */
 QAbstractItemModel::ItemFlags QDirModel::flags(const QModelIndex &index) const
 {
@@ -479,7 +482,6 @@ QAbstractItemModel::ItemFlags QDirModel::flags(const QModelIndex &index) const
 /*!
   Sort the model items in the \a column using the \a order given.
   The order is a value defined in \l Qt::SortOrder.
-
 */
 
 void QDirModel::sort(int column, Qt::SortOrder order)
@@ -510,7 +512,8 @@ void QDirModel::sort(int column, Qt::SortOrder order)
 }
 
 /*!
-
+    Returns a list of MIME types that can be used to describe a list of items
+    in the model.
 */
 
 QStringList QDirModel::mimeTypes() const
@@ -521,7 +524,12 @@ QStringList QDirModel::mimeTypes() const
 }
 
 /*!
+    Returns an object that contains a serialized description of the specified
+    \a indexes. The format used to describe the items corresponding to the
+    indexes is obtained from the mimeTypes() function.
 
+    If the list of indexes is empty, 0 is returned rather than a serialized
+    empty list.
 */
 
 QMimeData *QDirModel::mimeData(const QModelIndexList &indexes) const
@@ -537,8 +545,11 @@ QMimeData *QDirModel::mimeData(const QModelIndexList &indexes) const
 }
 
 /*!
-    Returns true if this directory model (whose parent is \a parent),
-    can decode drop event \a e.
+    Handles the \a data supplied by a drag and drop operation that ended with
+    the given \a action over the row in the model specified by the \a row
+    and the \a parent index.
+
+    \sa supportedDropActions()
 */
 
 bool QDirModel::dropMimeData(const QMimeData *data, QDrag::DropAction action,
@@ -589,7 +600,9 @@ bool QDirModel::dropMimeData(const QMimeData *data, QDrag::DropAction action,
 }
 
 /*!
+  Returns the drop actions supported by this model.
 
+  \sa QDrag::DropActions
 */
 
 QDrag::DropActions QDirModel::supportedDropActions() const
@@ -618,7 +631,6 @@ QFileIconProvider *QDirModel::iconProvider() const
 
 /*!
   Sets the name \a filters for the directory model.
-
 */
 
 void QDirModel::setNameFilters(const QStringList &filters)
@@ -633,7 +645,6 @@ void QDirModel::setNameFilters(const QStringList &filters)
 
 /*!
   Returns a list of filters applied to the names in the model.
-
 */
 
 QStringList QDirModel::nameFilters() const
@@ -642,7 +653,7 @@ QStringList QDirModel::nameFilters() const
 }
 
 /*!
-  Sets the directory model's filter to that specified by \a spec.
+  Sets the directory model's filter to that specified by \a filters.
 
   \sa QDir::Filters
 */
@@ -661,7 +672,6 @@ void QDirModel::setFilter(QDir::Filters filters)
   Returns the filter specification for the directory model.
 
   \sa QDir::Filters
-
 */
 
 QDir::Filters QDirModel::filter() const
@@ -670,8 +680,7 @@ QDir::Filters QDirModel::filter() const
 }
 
 /*!
-  Sets the directory model's sorting order to that specified by \a
-  spec.
+  Sets the directory model's sorting order to that specified by \a sort.
 
   \sa QDir::SortFlags
 */
