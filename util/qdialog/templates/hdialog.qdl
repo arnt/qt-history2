@@ -1,0 +1,14 @@
+<QDialog>
+	<Layout>
+		<QVBoxLayout>
+			<Widget stretch="1"><QWidget/></Widget>
+			<Layout stretch="0">
+				<QHBoxLayout>
+					<Stretch factor="1"/>
+					<Widget><QPushButton name="ok"><text>Ok</text></QPushButton></Widget>
+					<Widget><QPushButton name="cancel"><text>Cancel</text></QPushButton></Widget>
+				</QHBoxLayout>
+			</Layout>
+		</QVBoxLayout>
+	</Layout>
+</QDialog>
