@@ -400,9 +400,10 @@ void QToolBar::addSeparator()
     \reimp
 */
 
-void QToolBar::styleChange( QStyle& )
+void QToolBar::styleChange( QStyle &oldStyle )
 {
     boxLayout()->setSpacing(style().pixelMetric(QStyle::PM_ToolBarItemSpacing));
+    QDockWindow::styleChange(oldStyle);
 }
 
 /*!
