@@ -458,8 +458,7 @@ void SetupWizardImpl::cleanDone()
 	    outStream << "cd %QTDIR%" << endl;
 	    outStream << args.join( " " ) << endl;
 	    if( !globalInformation.reconfig() ) {
-		QStringList makeCmds = QStringList::split( ' ', "nmake make gmake make nmake mingw32-make nmake make" );
-		outStream << makeCmds[ globalInformation.sysId() ].latin1() << endl;
+		outStream << globalInformation.text(GlobalInformation::MakeTool) << endl;
 	    }
 	    outFile.close();
 	}
@@ -767,9 +766,8 @@ void SetupWizardImpl::cleanDone()
 		outStream << installDir.absPath().left(2) << endl;
 	    outStream << "cd %QTDIR%" << endl;
 
-	    QString makeCmd = globalInformation.text(GlobalInformation::MakeTool);
 	    if ( globalInformation.reconfig() )
-		outStream << makeCmd.latin1() << " clean" << endl;
+		outStream << globalInformation.text(GlobalInformation::MakeTool) << " clean" << endl;
 	    
 	    // There is a limitation on Windows 9x regarding the length of the
 	    // command line. So rather use the configure.cache than specifying
@@ -789,7 +787,7 @@ void SetupWizardImpl::cleanDone()
 		outStream << args.join( " " ) << endl;
 	    }
 
-	    outStream << makeCmd.latin1() << endl;
+	    outStream << globalInformation.text(GlobalInformation::MakeTool) << endl;
 	    outFile.close();
 	}
 	logOutput( "Doing the final integration steps..." );
@@ -940,7 +938,7 @@ void SetupWizardImpl::showPageConfig()
 	    // I was not able to make Postgres work with Borland
 	    item = new CheckListItem( folder, "PostgreSQL", QCheckListItem::CheckBox );
 	    item->addRequiredFiles( "libpq.dll" );
-	    item->setOn( TRUE );
+	    item->setOn( item->verify() );
 	    psqlPluginInstall = item;
 	    psqlPluginInstall->setHelpText( tr(
 			"Installs the PostgreSQL 7.1 driver. This driver can "
@@ -953,7 +951,7 @@ void SetupWizardImpl::showPageConfig()
 
 	item = new CheckListItem( folder, "MySQL", QCheckListItem::CheckBox );
 	item->addRequiredFiles( "libmySQL.dll" );
-	item->setOn( TRUE );
+	item->setOn( item->verify() );
 	mysqlPluginInstall = item;
 	mysqlPluginInstall->setHelpText( tr(
 		    "Installs the MySQL 3.x database driver."
@@ -1074,21 +1072,21 @@ void SetupWizardImpl::showPageConfig()
 			   "static Qt library!</font>"), configPage->explainOption);
     entry = settings.readEntry( "/Trolltech/Qt/Library", "Shared", &settingsOK );
     staticItem = new CheckListItem( folder, "Static", QCheckListItem::RadioButton );
+    staticItem->setOn( entry == "Static" );
     staticItem->setWarningText("<p>It will not be possible to build components "
 			       "or plugins if you select the static build of the Qt library."
 			       "<p>New features, e.g souce code editing in Qt Designer, will not "
 			       "be available, and you or users of your software might not be able "
 			       "to use all or new features, e.g. new styles.");
 
-    staticItem->setOn( entry == "Static" );
     item = new CheckListItem( folder, "Shared", QCheckListItem::RadioButton );
+    item->setOn( entry == "Shared" );
     item->setWarningText("<p>Single-threaded, shared configurations "
 			 "may cause instabilities because of runtime "
 			 "library conflicts.", singleThreaded);
     singleThreaded->setWarningText("<p>Single-threaded, shared configurations "
 			 "may cause instabilities because of runtime "
 			 "library conflicts.", item);
-    item->setOn( entry == "Shared" );
 
     folder = new CheckListItem ( configPage->configList, "Build" );
     folder->setHelpText(tr("<p>Build a Qt library with or without debug symbols."
@@ -1214,11 +1212,6 @@ void SetupWizardImpl::showPageConfig()
 			   configPage->explainOption);
 
     folder = new CheckListItem( sqlfolder, "iBase" );
-    folder->addRequiredFiles("ibase.h");
-    if (globalInformation.sysId() == GlobalInformation::Borland)
-	folder->addRequiredFiles("gds32.lib");
-    else
-	folder->addRequiredFiles("gds32_ms.lib");
 
     entry = settings.readEntry( "/Trolltech/Qt/Sql Drivers/iBase", "Off", &settingsOK );
     ibaseOff = new CheckListItem( folder, "Off", QCheckListItem::RadioButton ); 
@@ -1230,9 +1223,13 @@ void SetupWizardImpl::showPageConfig()
     ibaseDirect = new CheckListItem( folder, "Direct", QCheckListItem::RadioButton );
     ibaseDirect->setOn( entry == "Direct" && folder->verify() && enterprise );
     ibaseDirect->setEnabled( enterprise );
+    folder->addRequiredFiles("ibase.h");
+    if (globalInformation.sysId() == GlobalInformation::Borland)
+	folder->addRequiredFiles("gds32.lib");
+    else
+	folder->addRequiredFiles("gds32_ms.lib");
 
     folder = new CheckListItem( sqlfolder, "DB2" );
-    folder->addRequiredFiles("db2cli.lib,sqlcli1.h");
     entry = settings.readEntry( "/Trolltech/Qt/Sql Drivers/DB2", "Off", &settingsOK );
     db2Off = new CheckListItem( folder, "Off", QCheckListItem::RadioButton ); 
     db2Off->setOn( true );
@@ -1243,9 +1240,9 @@ void SetupWizardImpl::showPageConfig()
     db2Direct = new CheckListItem( folder, "Direct", QCheckListItem::RadioButton );
     db2Direct->setOn( entry == "Direct" && folder->verify() && enterprise );
     db2Direct->setEnabled( enterprise );
+    folder->addRequiredFiles("db2cli.lib,sqlcli1.h");
 
     folder = new CheckListItem( sqlfolder, "TDS" );
-    folder->addRequiredFiles("ntwdblib.lib,sqldb.h");
     entry = settings.readEntry( "/Trolltech/Qt/Sql Drivers/TDS", "Off", &settingsOK );
     tdsOff = new CheckListItem( folder, "Off", QCheckListItem::RadioButton ); 
     tdsOff->setOn( true );
@@ -1256,9 +1253,9 @@ void SetupWizardImpl::showPageConfig()
     tdsDirect = new CheckListItem( folder, "Direct", QCheckListItem::RadioButton );
     tdsDirect->setOn( entry == "Direct" && folder->verify() && enterprise );
     tdsDirect->setEnabled( enterprise );
+    folder->addRequiredFiles("ntwdblib.lib,sqldb.h");
 
     folder = new CheckListItem( sqlfolder, "PostgreSQL" );
-    folder->addRequiredFiles("libpqdll.lib,libpq-fe.h");
     entry = settings.readEntry( "/Trolltech/Qt/Sql Drivers/PostgreSQL", "Off", &settingsOK );
     psqlOff = new CheckListItem( folder, "Off", QCheckListItem::RadioButton ); 
     psqlOff->setOn( true );
@@ -1269,9 +1266,9 @@ void SetupWizardImpl::showPageConfig()
     psqlDirect = new CheckListItem( folder, "Direct", QCheckListItem::RadioButton );
     psqlDirect->setOn( entry == "Direct" && folder->verify() && enterprise );
     psqlDirect->setEnabled( enterprise );
+    folder->addRequiredFiles("libpqdll.lib,libpq-fe.h");
 
     folder = new CheckListItem( sqlfolder, "OCI" );
-    folder->addRequiredFiles("oci.lib,oci.h");
     entry = settings.readEntry( "/Trolltech/Qt/Sql Drivers/OCI", "Off", &settingsOK );
     ociOff = new CheckListItem( folder, "Off", QCheckListItem::RadioButton ); 
     ociOff->setOn( true );
@@ -1282,9 +1279,9 @@ void SetupWizardImpl::showPageConfig()
     ociDirect = new CheckListItem( folder, "Direct", QCheckListItem::RadioButton );
     ociDirect->setOn( entry == "Direct" && folder->verify() && enterprise );
     ociDirect->setEnabled( enterprise );
+    folder->addRequiredFiles("oci.lib,oci.h");
 
     folder = new CheckListItem( sqlfolder, "MySQL" );
-    folder->addRequiredFiles("libmysql.lib,mysql.h");
     entry = settings.readEntry( "/Trolltech/Qt/Sql Drivers/MySQL", "Off", &settingsOK );
     mysqlOff = new CheckListItem( folder, "Off", QCheckListItem::RadioButton ); 
     mysqlOff->setOn( true );
@@ -1295,6 +1292,7 @@ void SetupWizardImpl::showPageConfig()
     mysqlDirect = new CheckListItem( folder, "Direct", QCheckListItem::RadioButton );
     mysqlDirect->setOn( entry == "Direct" && folder->verify() && enterprise );
     mysqlDirect->setEnabled( enterprise );
+    folder->addRequiredFiles("libmysql.lib,mysql.h");
 
     folder = new CheckListItem( sqlfolder, "SQLite" );
     entry = settings.readEntry( "/Trolltech/Qt/Sql Drivers/SQLite", "Off", &settingsOK );
@@ -1309,7 +1307,6 @@ void SetupWizardImpl::showPageConfig()
     sqliteDirect->setEnabled( enterprise );
 
     folder = new CheckListItem( sqlfolder, "ODBC" );
-    folder->addRequiredFiles("odbc32.lib,sql.h");
     entry = settings.readEntry( "/Trolltech/Qt/Sql Drivers/ODBC", "Off", &settingsOK );
     odbcOff = new CheckListItem( folder, "Off", QCheckListItem::RadioButton ); 
     odbcOff->setOn( true );
@@ -1320,6 +1317,7 @@ void SetupWizardImpl::showPageConfig()
     odbcDirect = new CheckListItem( folder, "Direct", QCheckListItem::RadioButton );
     odbcDirect->setOn( entry == "Direct" && folder->verify() && enterprise );
     odbcDirect->setEnabled( enterprise );
+    folder->addRequiredFiles("odbc32.lib,sql.h");
 
     CheckListItem *stfolder = new CheckListItem( configPage->advancedList, "Styles" );
     stfolder->setHelpText(tr("Select support for the various GUI styles that Qt supports." ),configPage->explainOption);
@@ -1370,10 +1368,6 @@ void SetupWizardImpl::showPageConfig()
     motifDirect->setOn( entry == "Direct" );
 
     folder = new CheckListItem( stfolder, "Windows XP" );
-    folder->addRequiredFiles("uxtheme.h");
-    folder->setRequiredFileLocation("part of the Microsoft Platform SDK, which is usually available for "
-				    "download from the following location:"
-				    "<p>http://www.microsoft.com/msdownload/platformsdk/sdkupdate/<p>");
     entry = settings.readEntry( "/Trolltech/Qt/Styles/Windows XP", "Direct", &settingsOK );
     xpOff = new CheckListItem( folder, "Off", QCheckListItem::RadioButton );
     xpOff->setOn( entry == "Off" );
@@ -1383,6 +1377,10 @@ void SetupWizardImpl::showPageConfig()
     xpDirect = new CheckListItem( folder, "Direct", QCheckListItem::RadioButton );
     xpDirect->setOn( entry == "Direct" && folder->verify() );
     xpDirect->setEnabled( true );
+    folder->addRequiredFiles("uxtheme.h");
+    folder->setRequiredFileLocation("part of the Microsoft Platform SDK, which is usually available for "
+				    "download from the following location:"
+				    "<p>http://www.microsoft.com/msdownload/platformsdk/sdkupdate/<p>");
 
     folder = new CheckListItem( stfolder, "Windows" );
     entry = settings.readEntry( "/Trolltech/Qt/Styles/Windows", "Direct", &settingsOK );
@@ -1410,13 +1408,13 @@ void SetupWizardImpl::showPageConfig()
 
     folder = new CheckListItem( configPage->advancedList, "Tablet Support" );
     folder->setHelpText(tr("Qt can support the Wacom brand tablet device."), configPage->explainOption);
-    folder->addRequiredFiles("wintab.h,wintab.lib");
-    folder->setRequiredFileLocation("available at http://www.pointing.com/FTP.HTM");
     entry = settings.readEntry( "/Trolltech/Qt/Tablet Support", "Off", &settingsOK );
     tabletOff = new CheckListItem( folder, "Off", QCheckListItem::RadioButton );
     tabletOff->setOn( entry == "Off" );
     tabletOn = new CheckListItem( folder, "On", QCheckListItem::RadioButton );
     tabletOn->setOn( entry == "On" && folder->verify() );
+    folder->addRequiredFiles("wintab.h,wintab.lib");
+    folder->setRequiredFileLocation("available at http://www.pointing.com/FTP.HTM");
 
     folder = new CheckListItem( configPage->advancedList, "Accessibility" );
     folder->setHelpText(tr("<p>Accessibility means making software usable and accessible to a wide "
@@ -1461,12 +1459,11 @@ void SetupWizardImpl::showPageBuild()
 #if defined(Q_OS_WIN32)
     if( globalInformation.reconfig() && configPage->rebuildInstallation->isChecked() && qWinVersion() & WV_NT_based ) {
 	QStringList args;
-	QStringList makeCmds = QStringList::split( ' ', "nmake make gmake make nmake mingw32-make nmake make" );
 
 	buildPage->compileProgress->hide();
 	buildPage->restartBuild->hide();
 
-    	args << makeCmds[ globalInformation.sysId() ] << "clean";
+    	args << globalInformation.text(GlobalInformation::MakeTool) << "clean";
 	logOutput( "Starting cleaning process" );
 	connect( &cleaner, SIGNAL( processExited() ), this, SLOT( cleanDone() ) );
 	connect( &cleaner, SIGNAL( readyReadStdout() ), this, SLOT( readCleanerOutput() ) );
