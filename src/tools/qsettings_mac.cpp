@@ -203,10 +203,13 @@ bool QSettingsSysPrivate::writeEntry(QString key, CFPropertyListRef plr, bool gl
 #if 1
     global = FALSE; //this doesn't work very well!
 #endif
+    QString realKey = key;
+    while(realKey.right(1) == "/")
+	realKey.truncate(realKey.length() -1);
 
     bool ret = FALSE;
     for(QStringList::Iterator it = searchPaths.fromLast(); it != searchPaths.end(); --it) {
-	search_keys k((*it), key, "writeEntry");
+	search_keys k((*it), realKey, "writeEntry");
 	CFStringRef scopes[] = { kCFPreferencesAnyUser, kCFPreferencesCurrentUser, NULL };
 	for(int scope = (global ? 0 : 1); scopes[scope]; scope++) {
 	    CFPreferencesSetValue(k.key(), plr, k.id(), scopes[scope], kCFPreferencesAnyHost);
