@@ -36,7 +36,7 @@ class QMenuPrivate : public QWidgetPrivate
 {
     Q_DECLARE_PUBLIC(QMenu)
 public:
-    QMenuPrivate() : itemsDirty(0), maxIconWidth(0), tabWidth(0), ncols(0), mouseDown(0),
+    QMenuPrivate() : itemsDirty(0), maxIconWidth(0), tabWidth(0), ncols(0), mouseDown(0), motions(0),
                       currentAction(0), scroll(0), sync(0), tearoff(0), tornoff(0), tearoffHighlighted(0),
                       checkable(0), sloppyAction(0)
 #ifdef Q_WS_MAC
@@ -61,7 +61,7 @@ public:
     uint ncols : 4; //4 bits is probably plenty
 
     //selection
-    uint mouseDown : 1;
+    uint mouseDown : 1, motions;
     QAction *currentAction;
     QAction *actionAt(QPoint p) const;
     void setFirstActionActive();
@@ -79,8 +79,8 @@ public:
         QMenuScroller() : scrollFlags(ScrollNone), scrollDirection(ScrollNone), scrollOffset(0), scrollTimer(0) { }
         ~QMenuScroller() { delete scrollTimer; }
     } *scroll;
-    void scrollMenu(QMenuScroller::ScrollDirection direction, bool page=false);
-    void scrollMenu(QAction *action, QMenuScroller::ScrollLocation location);
+    void scrollMenu(QMenuScroller::ScrollDirection direction, bool page=false, bool active=false);
+    void scrollMenu(QAction *action, QMenuScroller::ScrollLocation location, bool active=false);
 
     //syncronous operation (ie exec())
     uint sync : 1;
