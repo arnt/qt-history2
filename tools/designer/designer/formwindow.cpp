@@ -69,7 +69,7 @@ static void restoreCursors( QWidget *start, FormWindow *fw )
     if ( fw->widgets()->find( start ) )
 	start->setCursor( MetaDataBase::cursor( start ) );
     else
-	start->setCursor( ArrowCursor );
+	start->setCursor( Qt::ArrowCursor );
     QObjectList *l = (QObjectList*)start->children();
     if ( l ) {
 	for ( QObject *o = l->first(); o; o = l->next() ) {

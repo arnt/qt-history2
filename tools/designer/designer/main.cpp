@@ -165,12 +165,14 @@ static void exitHandler( int )
     exit( -1 );
 }
 
+#if defined(NO_DEBUG)
 static void crashHandler( int )
 {
     if ( MainWindow::self )
 	MainWindow::self->saveAllTemp();
     ::exit( -1 ); 
 }
+#endif
 
 #if defined(Q_C_CALLBACKS)
 }
@@ -192,7 +194,7 @@ int main( int argc, char *argv[] )
     QDesignerApplication a( argc, argv );
 #endif
 
-    QDesignerApplication::setOverrideCursor( WaitCursor );
+    QDesignerApplication::setOverrideCursor( Qt::WaitCursor );
     bool showSplash = TRUE;
 
     bool creatPid = FALSE;

@@ -22,6 +22,8 @@
 #define PIXMAPCHOOSER_H
 
 #include <qfiledialog.h>
+#include <qscrollview.h>
+#include <qpixmap.h>
 #include <qurl.h>
 
 class FormWindow;

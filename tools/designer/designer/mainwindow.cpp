@@ -87,6 +87,7 @@
 #include <qpushbutton.h>
 #include <qdir.h>
 #include <qtimer.h>
+#include <qlistbox.h>
 #include <stdlib.h>
 
 static int forms = 0;
