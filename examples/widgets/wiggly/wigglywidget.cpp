@@ -23,13 +23,13 @@ void WigglyWidget::paintEvent(QPaintEvent * /* event */)
 
     QFontMetrics metrics(font());
     int x = (width() - metrics.width(text)) / 2;
-    int y = (height() + metrics.height()) / 2 - metrics.descent();
+    int y = (height() + metrics.ascent() - metrics.descent()) / 2;
     QColor color;
 
     QPainter painter(this);
     for (int i = 0; i < text.size(); ++i) {
         int index = (step + i) % 16;
-        color.setHsv((15 - index) * 16, 255, 255);
+        color.setHsv((15 - index) * 16, 255, 191);
         painter.setPen(color);
         painter.drawText(x, y - ((sineTable[index] * metrics.height()) / 400),
                          QString(text[i]));
@@ -40,7 +40,7 @@ void WigglyWidget::paintEvent(QPaintEvent * /* event */)
 void WigglyWidget::timerEvent(QTimerEvent *event)
 {
     if (event->timerId() == timer.timerId()) {
-        step = (step + 1) % 16;
+        ++step;
         update();
     } else {
 	QWidget::timerEvent(event);
