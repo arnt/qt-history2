@@ -2052,7 +2052,6 @@ void QTable::init( int rows, int cols )
     enableClipper( qt_table_clipper_enabled );
 
     setResizePolicy( Manual );
-    selections.setAutoDelete( TRUE );
 
     // Create headers
     leftHeader = new QTableHeader( rows, this, this, "left table header" );
@@ -2134,6 +2133,7 @@ QTable::~QTable()
     }
     for (int i = 0; i < widgets.size(); ++i)
 	delete widgets.at(i);
+    selections.deleteAll();
 }
 
 void QTable::setReadOnly( bool b )
@@ -3342,8 +3342,7 @@ QTableSelection QTable::selection( int num ) const
     if ( num < 0 || num >= (int)selections.count() )
 	return QTableSelection();
 
-    QTableSelection *s = ( (QTable*)this )->selections.at( num );
-    return *s;
+    return *selections.at( num );
 }
 
 /*!
@@ -3369,16 +3368,13 @@ int QTable::addSelection( const QTableSelection &s )
 				    qMin(s.bottomRow(), maxr), qMin(s.rightCol(), maxc) );
 
     selections.append( sel );
-
     repaintSelections( 0, sel, TRUE, TRUE );
-
     emit selectionChanged();
-
     return selections.count() - 1;
 }
 
 /*!
-    If the table has a selection, \a s, this selection is removed from
+    If the table has a selection \a s, this selection is removed from
     the table.
 
     \sa addSelection() numSelections()
@@ -3386,7 +3382,6 @@ int QTable::addSelection( const QTableSelection &s )
 
 void QTable::removeSelection( const QTableSelection &s )
 {
-    selections.setAutoDelete( FALSE );
     for (int i = 0; i < selections.size(); ++i) {
 	QTableSelection *sel = selections.at(i);
 	if ( s == *sel ) {
@@ -3395,9 +3390,9 @@ void QTable::removeSelection( const QTableSelection &s )
 	    if ( sel == currentSel )
 		currentSel = 0;
 	    delete sel;
+            break;
 	}
     }
-    selections.setAutoDelete( TRUE );
     emit selectionChanged();
 }
 
@@ -3411,13 +3406,14 @@ void QTable::removeSelection( const QTableSelection &s )
 
 void QTable::removeSelection( int num )
 {
-    if ( num < 0 || num >= (int)selections.count() )
+    if ( num < 0 || num >= selections.count() )
 	return;
 
     QTableSelection *s = selections.at( num );
     if ( s == currentSel )
 	currentSel = 0;
     selections.remove( s );
+    delete s;
     repaintContents();
 }
 
@@ -3432,7 +3428,7 @@ int QTable::currentSelection() const
 {
     if ( !currentSel )
 	return -1;
-    return ( (QTable*)this )->selections.indexOf( currentSel );
+    return selections.indexOf( currentSel );
 }
 
 /*! Selects the range starting at \a start_row and \a start_col and
@@ -4134,6 +4130,7 @@ void QTable::keyPressEvent( QKeyEvent* e )
 			    oldSelection = *currentSel;
 			    hasOldSel = TRUE;
 			    selections.remove( currentSel );
+                            delete currentSel;
 			    leftHeader->setSectionState( oldSelection.topRow(), QTableHeader::Normal );
 			}
 		    }
@@ -5246,22 +5243,19 @@ void QTable::clearSelection( bool repaint )
 {
     if ( selections.isEmpty() )
 	return;
-    bool needRepaint = !selections.isEmpty();
 
     QRect r;
     for (int i = 0; i < selections.size(); ++i) {
 	QTableSelection *s = selections.at(i);
 	bool b;
-	r = r.unite( rangeGeometry( s->topRow(),
-				    s->leftCol(),
-				    s->bottomRow(),
-				    s->rightCol(), b ) );
+	r = r.unite(rangeGeometry(s->topRow(), s->leftCol(), s->bottomRow(), s->rightCol(), b));
     }
 
     currentSel = 0;
+    selections.deleteAll();
     selections.clear();
 
-    if ( needRepaint && repaint )
+    if ( repaint )
 	repaintContents( r );
 
     leftHeader->setSectionStateToAll( QTableHeader::Normal );
