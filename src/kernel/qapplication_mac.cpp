@@ -1485,6 +1485,15 @@ QApplication::globalEventProcessor(EventHandlerCallRef, EventRef event, void *da
 		       (tlw->isModal() || !tlw->isDialog())) 
 			app->setActiveWindow(tlw);
 		}
+	    } else if(ekind == kEventMouseWheelMoved) {
+		QWidget* w = widget;
+		while( w->focusProxy() )
+		    w = w->focusProxy();
+		if( w->focusPolicy() & QWidget::WheelFocus ) {
+		    QFocusEvent::setReason( QFocusEvent::Mouse );
+		    w->setFocus();
+		    QFocusEvent::resetReason();
+		}
 	    }
 
 	    QPoint p( where.h, where.v );
@@ -2112,3 +2121,11 @@ void QSessionManager::requestPhase2()
 
 
 #endif // QT_NO_SM_SUPPORT
+
+#include <stdlib.h>
+void* operator new[](size_t size) { return malloc(size); }
+void* operator new(size_t size) { return malloc(size); }
+void operator delete[](void *p) { free(p); }
+void operator delete[](void *p, size_t) { free(p); }
+void operator delete(void *p) { free(p); }
+void operator delete(void *p, size_t) { free(p); }
