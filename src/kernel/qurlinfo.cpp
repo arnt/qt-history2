@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Implementation of QUrlInfo class
 **
 ** Created : 950429
 **
-** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the kernel module of the Qt GUI Toolkit.
 **
@@ -360,7 +360,7 @@ void QUrlInfo::setGroup( const QString &s )
 }
 
 /*!
-    Specifies that the URL has size \a s.
+    Specifies the \a size of the URL.
 
     If you call this function for an invalid URL info, this function
     turns it into a valid one.
@@ -368,11 +368,11 @@ void QUrlInfo::setGroup( const QString &s )
     \sa isValid()
 */
 
-void QUrlInfo::setSize( uint s )
+void QUrlInfo::setSize( uint size )
 {
     if ( !d )
 	d = new QUrlInfoPrivate;
-    d->size = s;
+    d->size = size;
 }
 
 

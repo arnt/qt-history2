@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Definition of QUrlInfo class
 **
 ** Created : 950429
 **
-** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the kernel module of the Qt GUI Toolkit.
 **
@@ -70,7 +70,7 @@ public:
     virtual void setSymLink( bool b );
     virtual void setOwner( const QString &s );
     virtual void setGroup( const QString &s );
-    virtual void setSize( uint s );
+    virtual void setSize( uint size );
     virtual void setWritable( bool b );
     virtual void setReadable( bool b );
     virtual void setPermissions( int p );
