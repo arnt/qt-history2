@@ -10,7 +10,7 @@ class Some : public QObject
     Q_OBJECT
 
 public:
-    Some( QObject *p );
+    Some( QObject *, bool cStdout, bool cStderr, bool cExitp );
     ~Some() { };
 
 public slots:
@@ -50,9 +50,16 @@ public slots:
     void newProcess();
     void quit();
 
+    void connectStdout( bool enable );
+    void connectStderr( bool enable );
+    void connectExit( bool enable );
+
 signals:
     void quitted();
 
 private:
     QObject *parent;
+    bool cStdout;
+    bool cStderr;
+    bool cExit;
 };

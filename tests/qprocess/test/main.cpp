@@ -2,6 +2,7 @@
 #include <qapplication.h>
 #include <qvbox.h>
 #include <qpushbutton.h>
+#include <qcheckbox.h>
 
 #include "some.h"
 
@@ -32,6 +33,17 @@ int main( int argc, char **argv )
 		&factory, SLOT(quit()) );
 	QObject::connect( &factory, SIGNAL(quitted()),
 		&a, SLOT(quit()) );
+
+	QCheckBox *cb;
+	cb = new QCheckBox( "Stdout", &vb );
+	QObject::connect( cb, SIGNAL(toggled(bool)),
+		&factory, SLOT(connectStdout(bool)) );
+	cb = new QCheckBox( "Stderr", &vb );
+	QObject::connect( cb, SIGNAL(toggled(bool)),
+		&factory, SLOT(connectStderr(bool)) );
+	cb = new QCheckBox( "Exit Notify", &vb );
+	QObject::connect( cb, SIGNAL(toggled(bool)),
+		&factory, SLOT(connectExit(bool)) );
 
 	a.setMainWidget( &vb );
 	vb.show();

@@ -14,7 +14,7 @@
 static QLabel *out;
 static QLabel *err;
 
-Some::Some( QObject *p ) : QObject( p )
+Some::Some( QObject *p, bool cStdout, bool cStderr, bool cExit ) : QObject( p )
 {
     proc = new QProcess( this );
 #if defined(_OS_UNIX_)
@@ -68,14 +68,20 @@ Some::Some( QObject *p ) : QObject( p )
     cb = new QCheckBox( "Stdout", &main );
     QObject::connect( cb, SIGNAL(toggled(bool)),
 	    this, SLOT(connectStdout(bool)) );
+    if ( cStdout )
+	cb->toggle();
     // signal dataStderr( const QString& )
     cb = new QCheckBox( "Stderr", &main );
     QObject::connect( cb, SIGNAL(toggled(bool)),
 	    this, SLOT(connectStderr(bool)) );
+    if ( cStderr )
+	cb->toggle();
     // signal processExited()
     cb = new QCheckBox( "Exit Notify", &main );
     QObject::connect( cb, SIGNAL(toggled(bool)),
 	    this, SLOT(connectExit(bool)) );
+    if ( cExit )
+	cb->toggle();
 
     if ( !proc->start() ) {
 	qWarning( "Could not start process" );
@@ -169,7 +175,7 @@ void Some::connectExit( bool enable )
 
 void SomeFactory::newProcess()
 {
-    new Some( parent );
+    new Some( parent, cStdout, cStderr, cExit );
 }
 
 void SomeFactory::quit()
@@ -177,4 +183,19 @@ void SomeFactory::quit()
     delete parent;
     parent = 0;
     emit quitted();
+}
+
+void SomeFactory::connectStdout( bool enable )
+{
+    cExit = enable;
+}
+
+void SomeFactory::connectStderr( bool enable )
+{
+    cExit = enable;
+}
+
+void SomeFactory::connectExit( bool enable )
+{
+    cExit = enable;
 }
