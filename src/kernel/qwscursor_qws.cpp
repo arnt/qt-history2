@@ -296,7 +296,7 @@ void QWSServer::setCursor(QWSCursor *curs)
 #ifndef QT_NO_QWS_CURSOR
 static void cleanupSystemCursorTable()
 {
-    for ( int i = 0; i <= LastCursor; i++ )
+    for ( int i = 0; i <= Qt::LastCursor; i++ )
 	if ( systemCursorTable[i] ) {
 	    delete systemCursorTable[i];
 	    systemCursorTable[i] = 0;
