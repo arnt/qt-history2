@@ -904,8 +904,8 @@ MakefileGenerator::init()
 	if(!project->isEmpty("UI_DIR") || !project->isEmpty("UI_DIR_SOURCES")) {
 	    if(imgfile.find(Option::dir_sep) != -1)
 		imgfile = imgfile.right(imgfile.findRev(Option::dir_sep) + 1);
-	    imgfile.prepend(project->isEmpty("UI_DIR") ? project->first("UI_DIR_SOURCES") : 
-			    project->first("UI_DIR"));
+	    imgfile.prepend( (project->isEmpty("UI_DIR") ? project->first("UI_DIR_SOURCES") : 
+			    project->first("UI_DIR")) );
 	    v["QMAKE_IMAGE_COLLECTION"] = QStringList(imgfile);
 	}
 	logicWarn(imgfile, "SOURCES");
