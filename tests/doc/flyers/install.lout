@@ -71,8 +71,6 @@ problems with installing Qt"/"Embedded then refer to the @F INSTALL file in
 This creates the directory @F{"/Developer/qt-mac-commercial-3.3.2"}
 containing the files from the main archive.
 }
-@LI { Read the license. You cannot continue the installation
-unless you accept the license. }
 @LI{Rename @F{qt-mac-commercial-3.3.2} to @F{qt}.
 The rest of these instructions assume that Qt is unpacked in
 @F{"/Developer/qt"}.
