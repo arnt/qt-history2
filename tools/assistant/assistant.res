@@ -1,0 +1,23 @@
+<RCC>
+<qresource prefix="/trolltech/assistant/">
+  <file>images/editcopy.png</file>
+  <file>images/find.png</file>
+  <file>images/home.png</file>
+  <file>images/next.png</file>
+  <file>images/previous.png</file>
+  <file>images/print.png</file>
+  <file>images/whatsthis.xpm</file>
+  <file>images/book.png</file>
+  <file>images/designer.png</file>
+  <file>images/assistant.png</file>
+  <file>images/linguist.png</file>
+  <file>images/qt.png</file>
+  <file>images/zoomin.png</file>
+  <file>images/zoomout.png</file>
+  <file>images/splash.png</file>
+  <file>images/appicon.png</file>
+  <file>images/addtab.png</file>
+  <file>images/closetab.png</file>
+  <file>images/d_closetab.png</file>
+</qresource>
+</RCC>
