@@ -2884,7 +2884,6 @@ void QPainter::drawText( int x, int y, const QString &str, int pos, int len, QPa
 
         if ( txop >= TxScale ) {
             QFontMetrics fm = fontMetrics();
-            QFontInfo    fi = fontInfo();
             QRect bbox = fm.boundingRect( str, len );
             int w=bbox.width(), h=bbox.height();
             int aw, ah;
