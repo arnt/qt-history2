@@ -446,6 +446,8 @@ void QApplication::process_cmdline( int* argcptr, char ** argv )
 		is_session_restored = TRUE;
 	    }
 #endif
+	} else if ( qstrcmp(arg, "-reverse") == 0 ) {
+	    setReverseLayout(true);
 	} else {
 	    argv[j++] = argv[i];
 	}
