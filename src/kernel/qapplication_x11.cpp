@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#181 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#182 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -43,7 +43,7 @@ extern "C" int gettimeofday( struct timeval *, struct timezone * );
 #include <bstring.h> // bzero
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#181 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#182 $");
 
 
 #if !defined(XlibSpecificationRelease)
@@ -1227,7 +1227,7 @@ int QApplication::enter_loop()
 			w = w->parentWidget();
 		    while ( w->focusChild )	// go down focus chain
 			w = w->focusChild;
-		    if ( w != focus_widget && w->acceptFocus() ) {
+		    if ( w != focus_widget && w->isFocusEnabled() ) {
 			focus_widget = w;
 			QFocusEvent in( Event_FocusIn );
 			QApplication::sendEvent( w, &in );

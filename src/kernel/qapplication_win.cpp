@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#65 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#66 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -24,7 +24,7 @@
 #include <windows.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_win.cpp#65 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_win.cpp#66 $");
 
 
 /*****************************************************************************
@@ -788,7 +788,7 @@ void QApplication::winFocus( QWidget *w, bool gotFocus )
 	    w = w->parentWidget();
 	while ( w->focusChild )			// go down focus chain
 	    w = w->focusChild;
-	if ( w != focus_widget && w->acceptFocus() ) {
+	if ( w != focus_widget && w->isFocusEnabled() ) {
 	    focus_widget = w;
 	    QFocusEvent in( Event_FocusIn );
 	    QApplication::sendEvent( w, &in );

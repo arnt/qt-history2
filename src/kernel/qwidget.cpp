@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#143 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#144 $
 **
 ** Implementation of QWidget class
 **
@@ -19,7 +19,7 @@
 #include "qkeycode.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#143 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#144 $");
 
 
 /*!
@@ -1096,7 +1096,7 @@ bool QWidget::hasFocus() const
 
 void QWidget::setFocus()
 {
-    if ( testWFlags(WFocusSet) || !(acceptFocus() && isEnabled()) )
+    if ( testWFlags(WFocusSet) || !(isFocusEnabled() && isEnabled()) )
 	return;					// cannot set focus
     setWFlags( WFocusSet );
     QWidget *w;
@@ -1208,7 +1208,7 @@ bool QWidget::focusNextPrevChild( bool next )
 	    return FALSE;
 	if ( it.current()->isWidgetType() ) {
 	    QWidget *w = (QWidget*)it.current();
-	    if ( w->isEnabled() && w->acceptFocus() ) {
+	    if ( w->isFocusEnabled() && w->isEnabled() ) {
 		w->setFocus();
 		return TRUE;
 	    }
