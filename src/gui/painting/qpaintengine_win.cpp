@@ -745,14 +745,13 @@ void QWin32PaintEngine::drawPath(const QPainterPath &p)
         || (d->brushStyle == Qt::SolidPattern && d->brush.color().alpha() != 255)) {
         HRGN oldRegion = 0;
         int gotRegion = GetClipRgn(d->hdc, oldRegion);
-        Q_ASSERT(gotRegion >= 0);
         SelectClipPath(d->hdc, RGN_AND);
         if (d->brushStyle == Qt::LinearGradientPattern)
             d->fillGradient(p.boundingRect().toRect());
         else
             d->fillAlpha(p.boundingRect().toRect(), d->brush.color());
         brush = false;
-        if (gotRegion == 0) { // No path originally
+        if (gotRegion <= 0) { // No path originally
             SelectClipRgn(d->hdc, 0);
         } else if (gotRegion == 1){ // Reset and release original path
             Q_ASSERT(oldRegion);
