@@ -138,8 +138,8 @@ void QAquaFocusWidget::setFocusWidget( QWidget * widget )
 
 bool QAquaFocusWidget::handles(QWidget *widget)
 {
-    return (widget && widget->parentWidget() && 
-	    (widget->inherits("QDateTimeEditor") || widget->inherits("QLineEdit") || 
+    return (widget && widget->parentWidget() &&
+	    (widget->inherits("QDateTimeEditor") || widget->inherits("QLineEdit") ||
 	     (widget->inherits("QTextEdit") && !widget->inherits("QTextView"))));
 }
 
@@ -170,7 +170,7 @@ bool QAquaFocusWidget::eventFilter( QObject * o, QEvent * e )
     case QEvent::Resize: {
 	QResizeEvent *re = (QResizeEvent*)e;
 	resize( re->size().width() + 6, re->size().height() + 6 );
-	setMask( QRegion( rect() ) - QRegion( 5, 5, width() - 10, height() - 10 ) );  
+	setMask( QRegion( rect() ) - QRegion( 5, 5, width() - 10, height() - 10 ) );
 	break;
     }
     case QEvent::Reparent: {
@@ -331,7 +331,7 @@ void QAquaStyle::polish( QWidget * w )
             w->setBackgroundOrigin( QWidget::WindowOrigin );
     }
 
-    if( QAquaFocusWidget::handles(w) ) 
+    if( QAquaFocusWidget::handles(w) )
 	w->installEventFilter( this );
 }
 
@@ -398,7 +398,8 @@ bool QAquaStyle::eventFilter( QObject * o, QEvent * e )
        d->focusWidget && d->focusWidget->widget() && QAquaFocusWidget::handles((QWidget *)o) &&
        ((e->type() == QEvent::FocusOut && d->focusWidget->widget() == o) ||
 	(e->type() == QEvent::FocusIn && d->focusWidget->widget() != o)))  { //restore it
-	d->focusWidget->setFocusWidget( NULL );
+	if (((QFocusEvent *)e)->reason() != QFocusEvent::Popup)
+	    d->focusWidget->setFocusWidget( NULL );
     }
     if( o && o->isWidgetType() && e->type() == QEvent::FocusIn ) {
 	if( QAquaFocusWidget::handles((QWidget *)o) ) {
