@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#310 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#311 $
 **
 ** Implementation of QListView widget class
 **
@@ -1269,7 +1269,7 @@ void QListViewItem::paintBranches( QPainter * p, const QColorGroup & cg,
 	if ( (child->expandable || child->childCount()) &&
 	     (child->height() > 0) ) {
 	    // needs a box
-	    p->setPen( cg.dark() );
+	    p->setPen( cg.foreground() );
 	    p->drawRect( bx-4, linebot-4, 9, 9 );
 	    p->setPen( cg.foreground() ); // ### windows uses black
 	    if ( s == WindowsStyle ) {
@@ -1381,6 +1381,7 @@ void QListViewItem::paintBranches( QPainter * p, const QColorGroup & cg,
 	}
     } else {
 	int line; // index into dotlines
+	p->setPen( cg.foreground() );
 	for( line = 0; line < c; line += 2 ) {
 	    p->drawLine( dotlines[line].x(), dotlines[line].y(),
 			 dotlines[line+1].x(), dotlines[line+1].y() );
@@ -3120,7 +3121,7 @@ QListViewItem * QListView::itemAt( const QPoint & viewPos ) const
 {
     if ( viewPos.x() > contentsWidth() - contentsX() )
 	return 0;
-    
+
     if ( !d->drawables || d->drawables->isEmpty() )
 	buildDrawableList();
 
@@ -3481,7 +3482,7 @@ int QListView::itemMargin() const
 
   This signal is emitted when the right button is clicked (ie. when
   it's released).  The arguments are the relevant QListViewItem (may
-  be 0), the point in global coordinates and the relevant column (or -1 if the 
+  be 0), the point in global coordinates and the relevant column (or -1 if the
   click was outside the list).
 */
 
