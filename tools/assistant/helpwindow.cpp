@@ -122,8 +122,10 @@ void HelpWindow::setSource(const QUrl &name)
 
         return;
     }
-
-    if (name.toLocalFile().isEmpty()) {
+    
+    // check for local file
+    QFileInfo fi(name.toString());
+    if (!fi.exists()) {
         QMessageBox::information(mw, tr("Help"), tr("Can't load and display non-local file\n"
                     "%1").arg(name.toString()));
         return;
@@ -133,7 +135,7 @@ void HelpWindow::setSource(const QUrl &name)
         + palette().color(backgroundRole()).name()
         + QLatin1String("\">"));
 
-    QTextBrowser::setSource(name);
+    QTextBrowser::setSource(QUrl::fromLocalFile(fi.fileName()));
 }
 
 
