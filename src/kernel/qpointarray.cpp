@@ -609,7 +609,7 @@ void QPointArray::makeArc( int x, int y, int w, int h,
     xf.map(x+w/2.0, y, &xQ, &yQ);
     xf.map(x+w, y, &xK, &yK);
 
-    int m = 2;
+    int m = 3;
     int max;
     int q = int(QMAX(QABS(xP-xQ),QABS(yP-yQ)));
     if ( arc )
