@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/mdi/application.h#3 $
+** $Id: //depot/qt/main/tests/mdi/application.h#4 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -26,11 +26,18 @@ class MDIWindow: public QMainWindow
 public:
     MDIWindow( QWidget* parent, const char* name, int wflags );
     ~MDIWindow();
-protected:
-    void closeEvent( QCloseEvent* );
+    
+    void load( const QString& fn );
+    void save();
+    void saveAs();
+    void print( QPrinter* );
+    
+signals:
+    void message(const QString&, int );
 
 private:
     QMultiLineEdit* medit;
+    QString filename;
 };
 
 
@@ -41,16 +48,13 @@ public:
     ApplicationWindow();
     ~ApplicationWindow();
 
-protected:
-    void closeEvent( QCloseEvent* );
-
 private slots:
-    void newDoc();
+    MDIWindow* newDoc();
     void load();
-    void load( const char *fileName );
     void save();
     void saveAs();
     void print();
+    void closeClient();
 
     void about();
     void aboutQt();
@@ -58,15 +62,11 @@ private slots:
     void windowsMenuAboutToShow();
     void windowsMenuActivated( int id );
 
-    void childDestroyed();
-
 private:
     QPrinter *printer;
     QWorkspace* ws;
     QToolBar *fileTools;
-    QString filename;
     QPopupMenu* windowsMenu;
-    QList<QWidget> windows;
 };
 
 
