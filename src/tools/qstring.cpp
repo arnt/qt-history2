@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#71 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#72 $
 **
 ** Implementation of extended char array operations, and QByteArray and
 ** QString classes
@@ -19,7 +19,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qstring.cpp#71 $")
+RCSTAG("$Id: //depot/qt/main/src/tools/qstring.cpp#72 $")
 
 
 /*****************************************************************************
@@ -1210,15 +1210,38 @@ QString &QString::replace( uint index, uint len, const char *s )
 
 long QString::toLong( bool *ok ) const
 {
-    char *end;
-    long val = strtol( data(), &end, 0 );
-    if ( ok ) {
-	if ( end == 0 || *end == '\0' )
-	    *ok = TRUE;
-	else
-	    *ok = FALSE;
+    char *p = data();
+    long val=0;
+    const long max_mult = 214748364L;
+    bool is_ok = FALSE;
+    int neg = 0;
+    if ( !p )
+	goto bye;
+    while ( isspace(*p) )			// skip leading space
+	p++;
+    if ( *p == '-' ) {
+	p++;
+	neg = 1;
     }
-    return val;
+    else if ( *p == '+' )
+	p++;
+    if ( !isdigit(*p) )
+	goto bye;
+    while ( isdigit(*p) ) {
+	if ( val > max_mult || (val == max_mult && (*p-'0') > 7+neg) )
+	    goto bye;
+	val = 10*val + (*p++ - '0');
+    }
+    if ( neg )
+	val = -val;
+    while ( isspace(*p) )			// skip trailing space
+	p++;
+    if ( *p == '\0' )
+	is_ok = TRUE;
+bye:
+    if ( ok )
+	*ok = is_ok;
+    return is_ok ? val : 0;
 }
 
 /*----------------------------------------------------------------------------
@@ -1232,19 +1255,34 @@ long QString::toLong( bool *ok ) const
 
 ulong QString::toULong( bool *ok ) const
 {
-    char *end;
-    ulong val = strtoul( data(), &end, 0 );
-    if ( ok ) {
-	if ( end == 0 || *end == '\0' )
-	    *ok = TRUE;
-	else
-	    *ok = FALSE;
+    char *p = data();
+    ulong val=0;
+    const ulong max_mult = 429496729L;
+    bool is_ok = FALSE;
+    if ( !p )
+	goto bye;
+    while ( isspace(*p) )			// skip leading space
+	p++;
+    if ( *p == '+' )
+	p++;
+    if ( !isdigit(*p) )
+	goto bye;
+    while ( isdigit(*p) ) {
+	if ( val > max_mult || (val == max_mult && (*p-'0') > 5) )
+	    goto bye;
+	val = 10*val + (*p++ - '0');
     }
-    return val;
+    while ( isspace(*p) )			// skip trailing space
+	p++;
+    if ( *p == '\0' )
+	is_ok = TRUE;
+bye:
+    if ( ok )
+	*ok = is_ok;
+    return is_ok ? val : 0;
 }
 
 /*----------------------------------------------------------------------------
-  \fn short QString::toShort( bool *ok ) const
   Returns the string converted to a <code>short</code> value.
 
   If \e ok is non-null, \e *ok is set to TRUE if there are no
@@ -1252,18 +1290,32 @@ ulong QString::toULong( bool *ok ) const
   it has trailing garbage.
  ----------------------------------------------------------------------------*/
 
+short QString::toShort( bool *ok ) const
+{
+    long v = toLong( ok );
+    if ( ok && *ok && (v < -32768 || v > 32767) )
+	*ok = FALSE;
+    return (short)v;
+}
+
 /*----------------------------------------------------------------------------
-  \fn ushort QString::toUShort( bool *ok ) const
-  Returns the string converted to an <code>unsigned short</code>
-  value.
+  Returns the string converted to an <code>unsigned short</code> value.
 
   If \e ok is non-null, \e *ok is set to TRUE if there are no
   conceivable errors, and FALSE if the string is not a number at all, or if
   it has trailing garbage.
  ----------------------------------------------------------------------------*/
 
+ushort QString::toUShort( bool *ok ) const
+{
+    ulong v = toULong( ok );
+    if ( ok && *ok && (v > 65535) )
+	*ok = FALSE;
+    return (ushort)v;
+}
+
+
 /*----------------------------------------------------------------------------
-  \fn int QString::toInt( bool *ok ) const
   Returns the string converted to a <code>int</code> value.
 
   If \e ok is non-null, \e *ok is set to TRUE if there are no
@@ -1271,14 +1323,23 @@ ulong QString::toULong( bool *ok ) const
   or if it has trailing garbage.
  ----------------------------------------------------------------------------*/
 
+int QString::toInt( bool *ok ) const
+{
+    return (int)toLong( ok );
+}
+
 /*----------------------------------------------------------------------------
-  \fn uint QString::toUInt( bool *ok ) const
   Returns the string converted to an <code>unsigned int</code> value.
 
   If \e ok is non-null, \e *ok is set to TRUE if there are no
   conceivable errors, and FALSE if the string is not a number at all,
   or if it has trailing garbage.
  ----------------------------------------------------------------------------*/
+
+uint QString::toUInt( bool *ok ) const
+{
+    return (uint)toLong( ok );
+}
 
 /*----------------------------------------------------------------------------
   Returns the string converted to a <code>double</code> value.
@@ -1302,13 +1363,17 @@ double QString::toDouble( bool *ok ) const
 }
 
 /*----------------------------------------------------------------------------
-  \fn float QString::toFloat( bool *ok ) const
   Returns the string converted to a <code>float</code> value.
 
   If \e ok is non-null, \e *ok is set to TRUE if there are no
   conceivable errors, and FALSE if the string is not a number at all,
   or if it has trailing garbage.
  ----------------------------------------------------------------------------*/
+
+float QString::toFloat( bool *ok ) const
+{
+    return (float)toDouble( ok );
+}
 
 
 /*----------------------------------------------------------------------------
@@ -1331,7 +1396,7 @@ QString &QString::setStr( const char *str )
   reference to the string.
  ----------------------------------------------------------------------------*/
 
-QString &QString::setNum( long n )		// set string from long
+QString &QString::setNum( long n )
 {
     char buf[20];
     register char *p = &buf[19];
@@ -1462,10 +1527,6 @@ bool QString::setExpand( uint index, char c )
     return TRUE;
 }
 
-
-/* OBSOLETE - or at least not in qstring.h
-  \fn QString::operator char *() const
-  Returns the string data. */
 
 /*----------------------------------------------------------------------------
   \fn QString::operator const char *() const

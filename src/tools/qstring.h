@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.h#35 $
+** $Id: //depot/qt/main/src/tools/qstring.h#36 $
 **
 ** Definition of extended char array operations, and QByteArray and
 ** QString classes
@@ -18,33 +18,23 @@
 #include <string.h>
 
 
+// --------------------------------------------------------------------------
+// Fixes and workarounds for some platforms
+//
+
 #if defined(_OS_HPUX_)
-
-// Workarounds for HP-UX that fixes problems with strstr etc.
-
+// HP-UX has badly defined strstr() etc.
 inline char *hack_strstr( const char *s1, const char *s2 )
 { return (char *)strstr(s1, s2); }
-
 inline char *hack_strchr( const char *s, int c )
 { return (char *)strchr(s, c); }
-
 inline char *hack_strrchr( const char *s, int c )
 { return (char *)strrchr(s, c); }
-
 #define strstr  hack_strstr
 #define strchr  hack_strchr
 #define strrchr hack_strrchr
 #endif
 
-#if defined(_OS_SUN_)
-// sunos does not have strotoul: we hack it
-#include <stdlib.h>
-extern "C" inline unsigned long int strtoul ( const char *nptr, 
-					      char **endptr, int base) {
-    long int almost = strtol( nptr, endptr, base );
-    return (unsigned long int) almost & 0x7fffffff;
-}
-#endif;
 
 // --------------------------------------------------------------------------
 // Safe and portable C string functions; extensions to standard string.h
@@ -268,21 +258,6 @@ inline bool QString::truncate( uint pos )
 
 inline QString QString::copy() const
 { return QString( data() ); }
-
-inline short QString::toShort( bool *ok ) const
-{ return (short)toLong(ok); }
-
-inline ushort QString::toUShort( bool *ok ) const
-{ return (ushort)toULong(ok); }
-
-inline int QString::toInt( bool *ok ) const
-{ return (int)toLong(ok); }
-
-inline uint QString::toUInt( bool *ok ) const
-{ return (uint)toLong(ok); }
-
-inline float QString::toFloat( bool *ok ) const
-{ return (float)toDouble(ok); }
 
 inline QString &QString::setNum( short n )
 { return setNum((long)n); }
