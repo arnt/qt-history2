@@ -34,6 +34,27 @@ void qt_format_text(const QFont &font, const QRect &_r, int tf, const QString& s
                     QPainter* painter);
 void qt_fill_linear_gradient(const QRect &r, QPixmap *pixmap, const QBrush &brush);
 
+// Helper function for filling gradients...
+#define QT_FILL_GRADIENT(rect, fillCall, outlineCall) \
+        QPixmap buffer(rect.width(), rect.height());                    \
+        QBitmap mask(rect.width(), rect.height());                      \
+        mask.fill(color0);                                              \
+        QPainter p(&mask);                                              \
+        p.setPen(NoPen);                                                \
+        p.setBrush(color1);                                             \
+        p.fillCall;                                                     \
+        buffer.setMask(mask);                                           \
+        qt_fill_linear_gradient(rect, &buffer, d->state->brush);        \
+        drawPixmap(rect.x(), rect.y(), buffer);                         \
+        if (d->state->pen.style() != NoPen) {                           \
+            save();                                                     \
+            setBrush(NoBrush);                                          \
+            outlineCall;                                                \
+            restore();                                                  \
+        }                                                               \
+        return;                                                         \
+
+
 /*!
     \class QPainter qpainter.h
     \brief The QPainter class does low-level painting e.g. on widgets.
@@ -1166,9 +1187,12 @@ void QPainter::drawRects(const QList<QRect> &rects)
 
     d->engine->updateState(d->state);
 
-    if ((!d->engine->hasCapability(QPaintEngine::DrawRects) ||
-         (d->state->VxF || d->state->WxF)
-         && !d->engine->hasCapability(QPaintEngine::CoordTransform))) {
+    if ((!d->engine->hasCapability(QPaintEngine::DrawRects)
+         || !d->engine->hasCapability(QPaintEngine::LinearGradientSupport)
+         || ((d->state->VxF || d->state->WxF)
+             && !d->engine->hasCapability(QPaintEngine::CoordTransform)))
+
+        ) {
         for (int i=0; i<rects.size(); ++i)
             drawRect(rects.at(i));
         return;
@@ -1494,6 +1518,14 @@ void QPainter::drawRoundRect(const QRect &r, int xRnd, int yRnd)
 
     QRect rect = r.normalize();
 
+    if (d->state->brush.style() == LinearGradientPattern
+        && !d->engine->hasCapability(QPaintEngine::LinearGradientSupport)) {
+        QT_FILL_GRADIENT(rect,
+                         drawRoundRect(0, 0, r.width(), r.height(), xRnd, yRnd),
+                         drawRoundRect(r, xRnd, yRnd));
+
+    }
+
     if ((d->state->VxF || d->state->WxF) && !d->engine->hasCapability(QPaintEngine::CoordTransform)) {
         if (d->state->txop == TxRotShear) {
             int x = rect.x();
@@ -1554,6 +1586,14 @@ void QPainter::drawEllipse(const QRect &r)
     d->engine->updateState(d->state);
 
     QRect rect = r.normalize();
+
+    if (d->state->brush.style() == LinearGradientPattern
+        && !d->engine->hasCapability(QPaintEngine::LinearGradientSupport)) {
+        QT_FILL_GRADIENT(rect,
+                         drawEllipse(0, 0, rect.width(), rect.height()),
+                         drawEllipse(rect));
+
+    }
 
     if ((d->state->VxF || d->state->WxF) && !d->engine->hasCapability(QPaintEngine::CoordTransform)) {
         if (d->state->txop == TxRotShear) {
@@ -1651,6 +1691,14 @@ void QPainter::drawPie(const QRect &r, int a, int alen)
 
     QRect rect = r.normalize();
 
+    if (d->state->brush.style() == LinearGradientPattern
+        && !d->engine->hasCapability(QPaintEngine::LinearGradientSupport)) {
+        QT_FILL_GRADIENT(rect,
+                         drawPie(0, 0, rect.width(), rect.height(), a, alen),
+                         drawPie(rect, a, alen));
+
+    }
+
     if ((d->state->VxF || d->state->WxF) && !d->engine->hasCapability(QPaintEngine::CoordTransform)) {
         if (d->state->txop == TxRotShear) {                // rotate/shear
             // arc polyline
@@ -1700,6 +1748,14 @@ void QPainter::drawChord(const QRect &r, int a, int alen)
     d->engine->updateState(d->state);
 
     QRect rect = r.normalize();
+
+    if (d->state->brush.style() == LinearGradientPattern
+        && !d->engine->hasCapability(QPaintEngine::LinearGradientSupport)) {
+        QT_FILL_GRADIENT(rect,
+                         drawChord(0, 0, rect.width(), rect.height(), a, alen),
+                         drawChord(rect, a, alen));
+
+    }
 
     if ((d->state->VxF || d->state->WxF) && !d->engine->hasCapability(QPaintEngine::CoordTransform)) {
         if (d->state->txop == TxRotShear) {                // rotate/shear
@@ -1816,6 +1872,17 @@ void QPainter::drawPolygon(const QPointArray &a, bool winding, int index, int np
         npoints = a.size() - index;
     if (!isActive() || npoints < 2 || index < 0)
         return;
+
+    if (d->state->brush.style() == LinearGradientPattern
+        && !d->engine->hasCapability(QPaintEngine::LinearGradientSupport)) {
+        QRect bounds = a.boundingRect();
+        QPointArray copy(a);
+        copy.translate(-bounds.x(), -bounds.y());
+        QT_FILL_GRADIENT(bounds,
+                         drawPolygon(copy, winding, index, npoints),
+                         drawPolygon(a, winding, index, npoints));
+
+    }
 
     if ((d->state->VxF || d->state->WxF) && !d->engine->hasCapability(QPaintEngine::CoordTransform)) {
         QPointArray ar = xForm(a, index, npoints);
