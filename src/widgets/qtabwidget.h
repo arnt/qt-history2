@@ -84,8 +84,8 @@ public:
     bool isTabEnabled(  QWidget * ) const;
     void setTabEnabled( QWidget *, bool );
 
-    void setCornerWidget( QWidget * w, Qt::Corner corner );
-    QWidget * cornerWidget( Qt::Corner corner );
+    void setCornerWidget( QWidget * w, Qt::Corner corner = Qt::TopRight );
+    QWidget * cornerWidget( Qt::Corner corner = Qt::TopRight );
 
     QString tabLabel( QWidget * ) const;
     void setTabLabel( QWidget *p, const QString &l );
