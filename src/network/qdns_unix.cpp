@@ -16,7 +16,10 @@
 #include "qdns_p.h"
 #include "qiodevice.h"
 #include <qbytearray.h>
+
+extern "C" {
 #include <netdb.h>
+}
 
 //#define QDNS_DEBUG
 
