@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qevent.h#140 $
+** $Id: //depot/qt/main/src/kernel/qevent.h#141 $
 **
 ** Definition of event classes
 **
@@ -101,7 +101,6 @@ public:
 	Speech = 42,				// reserved for speech input
 	SockAct = 50,				// socket activation
 	AccelOverride = 51,			// accelerator override event
-	DeferredDelete = 52,			// deferred delete event
 	DragEnter = 60,				// drag moves into widget
 	DragMove = 61,				// drag moves in widget
 	DragLeave = 62,				// drag leaves or is cancelled

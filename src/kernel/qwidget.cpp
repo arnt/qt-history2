@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#719 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#720 $
 **
 ** Implementation of QWidget class
 **
@@ -4140,9 +4140,6 @@ bool QWidget::event( QEvent *e )
 	case QEvent::ChildInserted:
 	case QEvent::ChildRemoved:
 	    childEvent( (QChildEvent*) e);
-	    break;
-	case QEvent::DeferredDelete:
-	    delete this;
 	    break;
 	case QEvent::ParentFontChange:
 	    if ( isTopLevel() )

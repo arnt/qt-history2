@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.cpp#395 $
+** $Id: //depot/qt/main/src/kernel/qobject.cpp#396 $
 **
 ** Implementation of QObject class
 **
@@ -644,9 +644,6 @@ bool QObject::event( QEvent *e )
     case QEvent::ChildInserted:
     case QEvent::ChildRemoved:
 	childEvent( (QChildEvent*)e );
-	return TRUE;
-    case QEvent::DeferredDelete:
-	delete this;
 	return TRUE;
     default:
 	break;
@@ -1802,19 +1799,6 @@ bool QObject::disconnect( const QObject *sender,   const char *signal,
   All the objects's children are destroyed immediately after this signal
   is emitted.
 */
-
-
-
-/*!  Delete this object deferred.
-  
-  This function does not cause an immediate destruction - rather, it
-  schedules a deferred delete event for processing when Qt returns to
-  the main event loop.
- */
-void QObject::deferredDelete()
-{
-    QApplication::postEvent( this, new QEvent( QEvent::DeferredDelete) );
-}
 
 /*!
   This slot is connected to the destroyed() signal of other objects

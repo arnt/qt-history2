@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.h#140 $
+** $Id: //depot/qt/main/src/kernel/qobject.h#141 $
 **
 ** Definition of QObject class
 **
@@ -141,10 +141,6 @@ signals:
 
 public:
     QObject	*parent() const { return parentObj; }
-    
-    
-public slots:
-    void	deferredDelete();
 
 private slots:
     void	cleanupEventFilter();
