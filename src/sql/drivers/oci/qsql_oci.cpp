@@ -63,9 +63,11 @@ struct OraFieldInfo
 {
     QString	   name;
     QVariant::Type type;
+    ub1		   oraIsNull;
     ub4		   oraType;
     sb1		   oraScale;
-    ub4		   oraLength;
+    ub4		   oraLength; // size in bytes
+    ub4		   oraFieldLength; // amount of characters
     sb2		   oraPrecision;
 };
 
@@ -186,12 +188,14 @@ QVariant::Type qDecodeOCIType( int ocitype )
 OraFieldInfo qMakeOraField( const QOCIPrivate* p, OCIParam* param )
 {
     OraFieldInfo ofi;
-    ub4		colType(0);
+    ub2		colType(0);
     text        *colName = 0;
-    ub4         colNameLen(0);
+    ub4		colNameLen(0);
     sb1		colScale(0);
-    ub4         colLength(0);
+    ub2		colLength(0);
+    ub2		colFieldLength(0);
     sb2		colPrecision(0);
+    ub1		colIsNull(0);
     int		r(0);
     QVariant::Type type( QVariant::Invalid );
 
@@ -217,12 +221,28 @@ OraFieldInfo qMakeOraField( const QOCIPrivate* p, OCIParam* param )
 	qWarning( "qMakeOraField: " + qOraWarn( p ) );
 #endif
 
-    r = OCIAttrGet((dvoid*) param,
-		   OCI_DTYPE_PARAM,
-		   &colLength,
-		   0,
-		   OCI_ATTR_DATA_SIZE, /* in bytes */
-		   p->err );
+    r = OCIAttrGet( (dvoid*) param,
+		    OCI_DTYPE_PARAM,
+		    &colLength,
+		    0,
+		    OCI_ATTR_DATA_SIZE, /* in bytes */
+		    p->err );
+#ifdef QT_CHECK_RANGE
+    if ( r != 0 )
+	qWarning( "qMakeOraField: " + qOraWarn( p ) );
+#endif
+
+#ifdef OCI_ATTR_CHAR_SIZE
+    r = OCIAttrGet( (dvoid*) param,
+		    OCI_DTYPE_PARAM,
+		    &colFieldLength,
+		    0,
+		    OCI_ATTR_CHAR_SIZE,
+		    p->err );
+#else
+    // for Oracle8.
+    colFieldLength = colLength;
+#endif
 #ifdef QT_CHECK_RANGE
     if ( r != 0 )
 	qWarning( "qMakeOraField: " + qOraWarn( p ) );
@@ -251,9 +271,19 @@ OraFieldInfo qMakeOraField( const QOCIPrivate* p, OCIParam* param )
 #endif
     r = OCIAttrGet( (dvoid*)param,
 		    OCI_DTYPE_PARAM,
-		    &colType,
+		    (dvoid*)&colType,
 		    0,
 		    OCI_ATTR_DATA_TYPE,
+		    p->err);
+#ifdef QT_CHECK_RANGE
+    if ( r != 0 )
+	qWarning( "qMakeOraField: " + qOraWarn( p ) );
+#endif
+    r = OCIAttrGet( (dvoid*)param,
+		    OCI_DTYPE_PARAM,
+		    (dvoid*)&colIsNull,
+		    0,
+		    OCI_ATTR_IS_NULL,
 		    p->err);
 #ifdef QT_CHECK_RANGE
     if ( r != 0 )
@@ -274,16 +304,20 @@ OraFieldInfo qMakeOraField( const QOCIPrivate* p, OCIParam* param )
     ofi.name.truncate(colNameLen);
     ofi.type = type;
     ofi.oraType = colType;
+    ofi.oraFieldLength = colFieldLength;
     ofi.oraLength = colLength;
     ofi.oraScale = colScale;
     ofi.oraPrecision = colPrecision;
+    ofi.oraIsNull = colIsNull;
 
 //    qDebug("field name:" + ofi.name);
 //    qDebug("field type:" + QString::number(ofi.type));
 //    qDebug("field oratype:" + QString::number(ofi.oraType));
-//    qDebug("field length:" + QString::number(colLength));
+//    qDebug("field length (bytes):" + QString::number(colLength));
+//    qDebug("field length (chars):" + QString::number(colFieldLength));
 //    qDebug("field scale:" + QString::number(colScale));
 //    qDebug("field prec:" + QString::number(colPrecision));
+//    qDebug("field isNull:" + QString::number(colIsNull));
 //    qDebug("---------------");
 
     return ofi;
@@ -316,7 +350,7 @@ public:
 
 	while ( parmStatus == OCI_SUCCESS ) {
 	    OraFieldInfo ofi = qMakeOraField( d, param );
-	    dataSize = ofi.oraLength + 1;
+	    dataSize = ofi.oraLength+1;
 	    QVariant::Type type = ofi.type;
 	    createType( count-1, type );
 	    switch ( type ) {
@@ -506,6 +540,29 @@ public:
 	}
 	return r;
     }
+    void getOraFields( QSqlRecordInfo &rinf )
+    {
+	OCIParam* param = 0;
+	ub4 count = 1;
+	sb4 parmStatus = OCIParamGet( d->sql,
+				      OCI_HTYPE_STMT,
+				      d->err,
+				      (void**)&param,
+				      count );
+
+	while ( parmStatus == OCI_SUCCESS ) {
+	    OraFieldInfo ofi = qMakeOraField( d, param );
+	    QSqlFieldInfo inf( ofi.name, ofi.type, (int)ofi.oraIsNull == 0 ? 1 : 0, (int)ofi.oraFieldLength,
+			       (int)ofi.oraPrecision, QVariant(), (int)ofi.oraType );
+	    rinf.append( inf );
+	    count++;
+	    parmStatus = OCIParamGet( d->sql,
+				      OCI_HTYPE_STMT,
+				      d->err,
+				      (void**)&param,
+				      count );
+	}
+     }
     char* at( int i )
     {
 	return data.at( i );
@@ -1518,7 +1575,19 @@ QSqlRecordInfo QOCIDriver::recordInfo( const QString& tablename ) const
 
 QSqlRecordInfo QOCIDriver::recordInfo( const QSqlQuery& query ) const
 {
-    return QSqlRecordInfo( record( query ) );
+    QSqlRecordInfo inf;
+    if ( query.isActive() && query.driver() == this ) {
+#ifdef QOCI_USES_VERSION_9
+	if ( d->serverVersion >= 9 ) {
+	    QOCI9Result* result = (QOCI9Result*)query.result();
+	    result->cols->getOraFields( inf );
+	    return inf;
+	}
+#endif
+	QOCIResult* result = (QOCIResult*)query.result();
+	result->cols->getOraFields( inf );
+    }
+    return inf;
 }
 
 QSqlIndex QOCIDriver::primaryIndex( const QString& tablename ) const
