@@ -141,13 +141,5 @@ void QEventLoop::wakeUp()
         eventDispatcher->wakeUp();
 }
 
-QEventLoop *QEventLoop::current()
-{
-    QThreadData *data = QThreadData::current();
-    if (!data)
-        return 0;
-    return data->eventLoops.top();
-}
-
 void QEventLoop::quit()
 { exit(0); }

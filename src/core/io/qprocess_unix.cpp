@@ -17,7 +17,6 @@
 #include "qprocess_p.h"
 
 #include <qdatetime.h>
-#include <qeventloop.h>
 #include <qfile.h>
 #include <qfileinfo.h>
 #include <qlist.h>
@@ -65,48 +64,46 @@ public:
             if (oldAction.sa_handler != qt_sa_sigchld_handler)
                 old_sigchld_handler = qt_sa_old_sigchld_handler = oldAction.sa_handler;
 
-            if (QEventLoop::current()) {
-                shutdownNotifier = new QSocketNotifier(qt_qprocess_deadChild_pipe[0],
-                                                       QSocketNotifier::Read, this);
-                connect(shutdownNotifier, SIGNAL(activated(int)),
-                        this, SLOT(deadChildNotification(int)));
-            }
+            shutdownNotifier = new QSocketNotifier(qt_qprocess_deadChild_pipe[0],
+                                                   QSocketNotifier::Read, this);
+            connect(shutdownNotifier, SIGNAL(activated(int)),
+                    this, SLOT(deadChildNotification(int)));
         }
     }
 
     inline void add(pid_t pid, QProcess *process)
-    {
-        QMutexLocker lock(&mutex);
-        children[pid] = process;
-    }
+        {
+            QMutexLocker lock(&mutex);
+            children[pid] = process;
+        }
 
     inline bool has(pid_t pid)
-    {
-        return children.contains(pid);
-    }
+        {
+            return children.contains(pid);
+        }
 
 public slots:
     void deadChildNotification(int)
-    {
-        char c;
-        ::read(qt_qprocess_deadChild_pipe[0], &c, 1);
+        {
+            char c;
+            ::read(qt_qprocess_deadChild_pipe[0], &c, 1);
 
-        for (;;) {
-            int result;
-            pid_t childpid = waitpid(0, &result, WNOHANG);
-            if (childpid <= 0)
-                break;
+            for (;;) {
+                int result;
+                pid_t childpid = waitpid(0, &result, WNOHANG);
+                if (childpid <= 0)
+                    break;
 
-            QMutexLocker lock(&mutex);
-            QProcess *child = children.value(childpid, 0);
-            if (child) {
-                ((QProcessPrivate *)child->d_ptr)->exitCode = WEXITSTATUS(result);
-                ((QProcessPrivate *)child->d_ptr)->crashed = !WIFEXITED(result);
-                qInvokeMetaMember(child, "processDied");
-                children.remove(childpid);
+                QMutexLocker lock(&mutex);
+                QProcess *child = children.value(childpid, 0);
+                if (child) {
+                    ((QProcessPrivate *)child->d_ptr)->exitCode = WEXITSTATUS(result);
+                    ((QProcessPrivate *)child->d_ptr)->crashed = !WIFEXITED(result);
+                    qInvokeMetaMember(child, "processDied");
+                    children.remove(childpid);
+                }
             }
         }
-    }
 
 protected:
     inline QProcessManager() : old_sigchld_handler(0) { }
@@ -158,27 +155,22 @@ void QProcessPrivate::startProcess()
 
     // Initialize pipes
     qt_create_pipe(childStartedPipe);
-    if (QEventLoop::current()) {
         startupSocketNotifier = new QSocketNotifier(childStartedPipe[0],
                                                     QSocketNotifier::Read, q);
         QObject::connect(startupSocketNotifier, SIGNAL(activated(int)),
                          q, SLOT(startupNotification()));
-    }
 
     qt_create_pipe(writePipe);
 
-    if (QEventLoop::current()) {
         writeSocketNotifier = new QSocketNotifier(writePipe[1],
                                                   QSocketNotifier::Write, q);
         QObject::connect(writeSocketNotifier, SIGNAL(activated(int)),
                          q, SLOT(canWrite()));
         writeSocketNotifier->setEnabled(false);
-    }
 
     qt_create_pipe(standardReadPipe);
     qt_create_pipe(errorReadPipe);
 
-    if (QEventLoop::current()) {
         standardReadSocketNotifier = new QSocketNotifier(standardReadPipe[0],
                                                          QSocketNotifier::Read,
                                                          q);
@@ -190,7 +182,6 @@ void QProcessPrivate::startProcess()
                                                       q);
         QObject::connect(errorReadSocketNotifier, SIGNAL(activated(int)),
                          q, SLOT(canReadStandardError()));
-    }
 
     // Start the process (platform dependent)
     processState = QProcess::Starting;
