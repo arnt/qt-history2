@@ -540,7 +540,8 @@ public:
     QString    &remove( const QString &, bool cs );
 #endif
     QString    &remove( QChar c );
-    QString    &remove( char c );
+    QString    &remove( char c )
+    { remove( QChar(c) ); }
 #ifndef QT_NO_CAST_ASCII
     QString    &remove( const char * );
 #endif
