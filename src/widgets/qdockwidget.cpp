@@ -904,7 +904,8 @@ void QDockWidget::doDock()
 void QDockWidget::hideEvent( QHideEvent *e )
 {
     QFrame::hideEvent( e );
-    emit visibilityChanged( FALSE );
+    if ( !parentWidget() || parentWidget()->isVisible() )
+	emit visibilityChanged( FALSE );
 }
 
 void QDockWidget::showEvent( QShowEvent *e )
