@@ -31,6 +31,7 @@ public:
     int chartType() { return m_chartType; }
     void setChanged( bool changed = TRUE ) { m_changed = changed; }
     void drawElements();
+    void setProportional( int chartType, Element &elm, int x, int y );
 
     QPopupMenu *optionsMenu; // Why public? See canvasview.cpp
 

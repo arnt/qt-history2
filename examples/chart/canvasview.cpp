@@ -44,8 +44,7 @@ void CanvasView::contentsMouseMoveEvent( QMouseEvent *e )
 	int chartType = form->chartType();
 	CanvasText *item = (CanvasText*)m_movingItem;
 	int i = item->index();
-	(*m_elements)[i].setProX( chartType, item->x() / canvas()->width() );
-	(*m_elements)[i].setProY( chartType, item->y() / canvas()->height() );
+	form->setProportional( chartType, (*m_elements)[i], item->x(), item->y() );
 	canvas()->update();
     }
 }

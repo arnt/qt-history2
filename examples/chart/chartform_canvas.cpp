@@ -93,11 +93,9 @@ void ChartForm::drawPieChart( const double scales[], double total, int )
 		CanvasText *text = new CanvasText( i, label, m_font, m_canvas );
 		double proX = m_elements[i].proX( PIE );
 		double proY = m_elements[i].proY( PIE );
-		if ( proX < 0 || proY < 0 ) {
-		    proX = ( ( RScale * cos( textTheta ) + 1 ) / 2 ) -
-			   ( ( text->boundingRect().width() / 2.0 ) / size );
-		    proY = ( ( -RScale * sin( textTheta ) + 1 ) / 2 ) -
-			   ( ( text->boundingRect().height() / 2.0 ) / size );
+		if ( proX <= Element::NO_PROPORTION || proY <= Element::NO_PROPORTION ) {
+		    proX = ( ( RScale * cos( textTheta ) + 1 ) / 2 ) - ( ( text->boundingRect().width() / 2.0 ) / size );
+		    proY = ( ( -RScale * sin( textTheta ) + 1 ) / 2 ) - ( ( text->boundingRect().height() / 2.0 ) / size );
 		}
 		if ( width > height ) {
 		    text->setX( proX * size + ( width - size ) / 2 );
