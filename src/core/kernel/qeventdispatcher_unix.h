@@ -26,7 +26,7 @@ class Q_CORE_EXPORT QEventDispatcherUNIX : public QAbstractEventDispatcher
     Q_DECLARE_PRIVATE(QEventDispatcherUNIX)
 
 public:
-    QEventDispatcherUNIX(QObject *parent = 0);
+    explicit QEventDispatcherUNIX(QObject *parent = 0);
     ~QEventDispatcherUNIX();
 
     bool processEvents(QEventLoop::ProcessEventsFlags flags);

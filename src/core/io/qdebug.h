@@ -13,6 +13,7 @@
 
 #ifndef QDEBUG_H
 #define QDEBUG_H
+
 #include "QtCore/qlist.h"
 #include "QtCore/qtextstream.h"
 #include "QtCore/qstring.h"
@@ -29,7 +30,7 @@ class Q_CORE_EXPORT QDebug
         bool space;
     } *stream;
 public:
-    inline QDebug(QtMsgType t):stream(new Stream(t)){}
+    inline QDebug(QtMsgType t) : stream(new Stream(t)) {}
     inline QDebug(const QDebug &o):stream(o.stream) { ++stream->ref; }
     inline ~QDebug()
         { if (!--stream->ref) { qt_message_output(stream->type, stream->buffer.toLocal8Bit().data()); delete stream; } }
@@ -111,6 +112,5 @@ template<typename T>
 inline QNoDebug operator<<(QNoDebug dbg, const T &) { return dbg; }
 
 #endif
-
 
 #endif // QDEBUG_H

@@ -41,11 +41,11 @@ public:
 #endif
 
     QTextStream();
-    QTextStream(QIODevice *);
-    QTextStream(QString *, QIODevice::OpenMode flags);
-    QTextStream(QByteArray *, QIODevice::OpenMode flags);
-    QTextStream(const QByteArray &, QIODevice::OpenMode flags);
-    QTextStream(FILE *, QIODevice::OpenMode flags);
+    explicit QTextStream(QIODevice *);
+    explicit QTextStream(QString *, QIODevice::OpenMode flags);
+    explicit QTextStream(QByteArray *, QIODevice::OpenMode flags);
+    explicit QTextStream(const QByteArray &, QIODevice::OpenMode flags);
+    explicit QTextStream(FILE *, QIODevice::OpenMode flags);
     virtual ~QTextStream();
 
     QIODevice *device() const;
@@ -231,4 +231,5 @@ inline QTextStreamManipulator qSetPrecision(int p)
 }
 
 #endif // QT_NO_TEXTSTREAM
+
 #endif // QTEXTSTREAM_H

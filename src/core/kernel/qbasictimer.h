@@ -22,7 +22,7 @@ class Q_CORE_EXPORT QBasicTimer
 {
     int id;
 public:
-    inline QBasicTimer():id(0){}
+    inline QBasicTimer() : id(0) {}
     inline ~QBasicTimer() { if (id) stop(); }
 
     inline bool isActive() const { return id != 0; }

@@ -60,12 +60,12 @@ public:
     };
 
     QDataStream();
-    QDataStream(QIODevice *);
+    explicit QDataStream(QIODevice *);
 #ifdef QT_COMPAT
     QDataStream(QByteArray *, int mode);
 #endif
-    QDataStream(QByteArray *, QIODevice::OpenMode flags);
-    QDataStream(const QByteArray &);
+    explicit QDataStream(QByteArray *, QIODevice::OpenMode flags);
+    explicit QDataStream(const QByteArray &);
     virtual ~QDataStream();
 
     QIODevice *device() const;
@@ -354,4 +354,5 @@ Q_OUTOFLINE_TEMPLATE QDataStream &operator<<(QDataStream &out, const QMap<Key, T
 }
 
 #endif // QT_NO_DATASTREAM
+
 #endif // QDATASTREAM_H

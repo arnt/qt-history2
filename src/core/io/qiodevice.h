@@ -51,7 +51,7 @@ public:
 
     QIODevice();
 #ifndef QT_NO_QOBJECT
-    QIODevice(QObject *parent);
+    explicit QIODevice(QObject *parent);
 #endif
     virtual ~QIODevice();
 
@@ -195,5 +195,5 @@ inline QT_COMPAT int QIODevice::state() const
     return isOpen() ? 0x1000 : 0;
 }
 #endif
-#endif // QIODEVICE_H
 
+#endif // QIODEVICE_H

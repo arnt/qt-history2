@@ -48,7 +48,7 @@ public:
         StandardError
     };
 
-    QProcess(QObject *parent = 0);
+    explicit QProcess(QObject *parent = 0);
     virtual ~QProcess();
 
     void start(const QString &program, const QStringList &arguments = QStringList(), OpenMode mode = ReadWrite);
@@ -118,4 +118,4 @@ private:
     friend class QProcessManager;
 };
 
-#endif
+#endif // QPROCESS_H

@@ -32,9 +32,9 @@
 
 class QSharedMemory {
 public:
-        QSharedMemory(){};
+        QSharedMemory() {};
         QSharedMemory(int, const QString &, char c = 'Q');
-        ~QSharedMemory(){};
+        ~QSharedMemory() {};
 
         bool create();
         void destroy();
@@ -62,4 +62,4 @@ private:
 
 #endif
 
-#endif
+#endif // QSHAREDMEMORY_P_H

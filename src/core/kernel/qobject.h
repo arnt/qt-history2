@@ -73,7 +73,7 @@ class Q_CORE_EXPORT QObject
     Q_DECLARE_PRIVATE(QObject)
 
 public:
-    QObject(QObject *parent=0);
+    explicit QObject(QObject *parent=0);
     virtual ~QObject();
 
     virtual bool event(QEvent *);

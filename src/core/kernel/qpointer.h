@@ -53,5 +53,4 @@ public:
         { return static_cast<T*>(const_cast<QObject*>(o)); }
 };
 
-
 #endif // QPOINTER_H

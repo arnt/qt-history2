@@ -76,4 +76,4 @@ public:
     static bool is_app_closing;
 };
 
-#endif
+#endif // QCOREAPPLICATION_P_H

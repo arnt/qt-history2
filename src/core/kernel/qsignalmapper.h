@@ -24,7 +24,7 @@ class Q_CORE_EXPORT QSignalMapper : public QObject
     Q_OBJECT
     Q_DECLARE_PRIVATE(QSignalMapper)
 public:
-    QSignalMapper(QObject *parent = 0);
+    explicit QSignalMapper(QObject *parent = 0);
     ~QSignalMapper();
 
     void setMapping(const QObject *sender, int id);

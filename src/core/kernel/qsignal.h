@@ -23,7 +23,7 @@
 // internal helper class for QSignal
 class Q_CORE_EXPORT QSignalEmitter : public QObject{
 public:
-    QSignalEmitter(const char *type = 0);
+    explicit QSignalEmitter(const char *type = 0);
     ~QSignalEmitter();
     const QMetaObject *metaObject() const;
     void *qt_metacast(const char *);
@@ -42,8 +42,8 @@ class QSignal
 {
     QSignalEmitter *d;
 public:
-    inline QSignal():d(0){}
-    inline ~QSignal(){ delete d; }
+    inline QSignal() : d(0) {}
+    inline ~QSignal() { delete d; }
     inline void activate(const T& t)
     { if(d) d->activate(static_cast<const void*>(&t)); }
     bool connect(const QObject *receiver, const char *member,
@@ -63,8 +63,8 @@ class QSignal<void>
 {
     QSignalEmitter *d;
 public:
-    inline QSignal():d(0){}
-    inline ~QSignal(){ delete d; }
+    inline QSignal() : d(0) {}
+    inline ~QSignal() { delete d; }
     inline void activate() { if(d)d->activate(); }
     bool connect(const QObject *receiver, const char *member,
                   Qt::ConnectionType type = Qt::AutoConnection) {
@@ -82,12 +82,9 @@ class Q_CORE_EXPORT QGenericArgument
 {
 public:
     inline QGenericArgument(const char *aName = 0, const void *aData = 0):
-        _data(aData), _name(aName)
-    {}
-    inline void *data() const
-    { return const_cast<void *>(_data); }
-    inline const char *name() const
-    { return _name; }
+        _data(aData), _name(aName) {}
+    inline void *data() const { return const_cast<void *>(_data); }
+    inline const char *name() const { return _name; }
 
 private:
     const void *_data;

@@ -123,4 +123,4 @@ public:
 
 };
 
-#endif
+#endif // QPROCESS_P_H

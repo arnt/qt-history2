@@ -22,7 +22,7 @@ template <typename T> class QList;
 class Q_CORE_EXPORT QMetaMember
 {
 public:
-    inline QMetaMember():mobj(0),handle(0){}
+    inline QMetaMember() : mobj(0),handle(0) {}
 
     const char *signature() const;
     const char *typeName() const;
@@ -46,7 +46,7 @@ Q_DECLARE_TYPEINFO(QMetaMember, Q_MOVABLE_TYPE);
 class Q_CORE_EXPORT QMetaEnum
 {
 public:
-    inline QMetaEnum():mobj(0),handle(0){}
+    inline QMetaEnum() : mobj(0),handle(0) {}
 
     const char *name() const;
     bool isFlag() const;
@@ -108,7 +108,7 @@ private:
 class Q_CORE_EXPORT QMetaClassInfo
 {
 public:
-    inline QMetaClassInfo():mobj(0),handle(0){}
+    inline QMetaClassInfo() : mobj(0),handle(0) {}
     const char *name() const;
     const char *value() const;
 private:

@@ -183,5 +183,4 @@ Q_CORE_EXPORT QDataStream &operator<<(QDataStream &, const QUrl &);
 Q_CORE_EXPORT QDataStream &operator>>(QDataStream &, QUrl &);
 #endif
 
-
-#endif
+#endif // QURL_H

@@ -23,7 +23,7 @@ class Q_CORE_EXPORT QSocketNotifier : public QObject
 public:
     enum Type { Read, Write, Exception };
 
-    QSocketNotifier(int socket, Type, QObject *parent = 0);
+    explicit QSocketNotifier(int socket, Type, QObject *parent = 0);
 #ifdef QT_COMPAT
     QT_COMPAT_CONSTRUCTOR QSocketNotifier(int socket, Type, QObject *parent, const char *name);
 #endif

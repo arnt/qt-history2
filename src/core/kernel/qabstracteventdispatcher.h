@@ -26,7 +26,7 @@ class Q_CORE_EXPORT QAbstractEventDispatcher : public QObject
     Q_DECLARE_PRIVATE(QAbstractEventDispatcher)
 
 public:
-    QAbstractEventDispatcher(QObject *parent = 0);
+    explicit QAbstractEventDispatcher(QObject *parent = 0);
     ~QAbstractEventDispatcher();
 
     static QAbstractEventDispatcher *instance(QThread *thread = 0);

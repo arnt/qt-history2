@@ -26,7 +26,7 @@ class Q_CORE_EXPORT QEventDispatcherWin32 : public QAbstractEventDispatcher
     Q_DECLARE_PRIVATE(QEventDispatcherWin32)
 
 public:
-    QEventDispatcherWin32(QObject *parent = 0);
+    explicit QEventDispatcherWin32(QObject *parent = 0);
     ~QEventDispatcherWin32();
 
     bool processEvents(QEventLoop::ProcessEventsFlags flags);
@@ -52,4 +52,4 @@ private:
     friend void CALLBACK qt_timer_proc(HWND, UINT, UINT idEvent, DWORD);
 };
 
-#endif
+#endif // QEVENTDISPATCHER_WIN_H

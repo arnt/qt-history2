@@ -187,4 +187,4 @@ Q_CORE_EXPORT QString decodeMSG(const MSG &);
 Q_CORE_EXPORT QDebug operator<<(QDebug, const MSG &);
 #endif
 
-#endif
+#endif // QCOREAPPLICATION_H

@@ -415,4 +415,5 @@ Q_CORE_EXPORT QDebug operator<<(QDebug, const QCoreVariant &);
 #endif
 
 #endif //QT_NO_VARIANT
+
 #endif // QCOREVARIANT_H

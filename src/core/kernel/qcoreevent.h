@@ -50,7 +50,7 @@ public:
         Hide = 18,                              // widget is hidden
         Close = 19,                             // request to close widget
         Quit = 20,                              // request to quit application
-        ParentChange = 21,                          // widget has been reparented
+        ParentChange = 21,                      // widget has been reparented
 #ifdef QT_COMPAT
         Reparent = ParentChange,
 #endif
@@ -65,14 +65,14 @@ public:
         Wheel = 31,                             // wheel event
         WindowTitleChange = 33,                 // window title changed
         WindowIconChange = 34,                  // icon changed
-        ApplicationWindowIconChange = 35,             // application icon changed
+        ApplicationWindowIconChange = 35,       // application icon changed
         ApplicationFontChange = 36,             // application font changed
-        ApplicationLayoutDirectionChange = 37,          // application layout direction changed
+        ApplicationLayoutDirectionChange = 37,  // application layout direction changed
         ApplicationPaletteChange = 38,          // application palette changed
         PaletteChange = 39,                     // widget palette changed
         Clipboard = 40,                         // internal clipboard event
         Speech = 42,                            // reserved for speech input
-        MetaCall =  43,       // meta call event
+        MetaCall =  43,                         // meta call event
         SockAct = 50,                           // socket activation
         WinEventAct = 123,                      // win event activation
         DeferredDelete = 52,                    // deferred delete event
@@ -100,13 +100,13 @@ public:
         ActivateControl = 80,                   // ActiveX activation
         DeactivateControl = 81,                 // ActiveX deactivation
         ContextMenu = 82,                       // context popup menu
-        InputMethodStart = 83,                           // input method composition start
-        InputMethodCompose = 84,                         // input method composition
-        InputMethodEnd = 85,                             // input method composition end
+        InputMethodStart = 83,                  // input method composition start
+        InputMethodCompose = 84,                // input method composition
+        InputMethodEnd = 85,                    // input method composition end
 #if 0 //def QT_COMPAT
-        IMStart = InputMethodStart,                           // input method composition start
-        IMCompose = InputMethodCompose,                         // input method composition
-        IMEnd = InputMethodEnd,                             // input method composition end
+        IMStart = InputMethodStart,             // input method composition start
+        IMCompose = InputMethodCompose,         // input method composition
+        IMEnd = InputMethodEnd,                 // input method composition end
 #endif
         Accessibility = 86,                     // accessibility information is requested
         TabletMove = 87,                        // Wacom tablet event
@@ -164,7 +164,7 @@ public:
         ApplicationActivated = 121,             // application has been changed to active
         ApplicationDeactivated = 122,           // application has been changed to inactive
 
-        QueryWhatsThis = 123,           // query what's this widget help
+        QueryWhatsThis = 123,                   // query what's this widget help
         EnterWhatsThisMode = 124,
         LeaveWhatsThisMode = 125,
 
@@ -240,4 +240,5 @@ public:
     QT_COMPAT void setData(void* data) { d = reinterpret_cast<QEventPrivate *>(data); }
 };
 #endif
+
 #endif // QCOREEVENT_H

@@ -66,8 +66,8 @@ public:
     QFile();
     QFile(const QString &name);
 #ifndef QT_NO_QOBJECT
-    QFile(QObject *parent);
-    QFile(const QString &name, QObject *parent);
+    explicit QFile(QObject *parent);
+    explicit QFile(const QString &name, QObject *parent);
 #endif
     ~QFile();
 

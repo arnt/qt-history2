@@ -26,9 +26,10 @@ class Q_CORE_EXPORT QTranslatorMessage
 {
 public:
     QTranslatorMessage();
-    QTranslatorMessage(const char * context, const char * sourceText,
-                       const char * comment, const QString& translation = QString());
-    QTranslatorMessage(QDataStream &);
+    explicit QTranslatorMessage(const char * context, const char * sourceText,
+                                const char * comment,
+				const QString& translation = QString());
+    explicit QTranslatorMessage(QDataStream &);
     QTranslatorMessage(const QTranslatorMessage & m);
 
     QTranslatorMessage & operator=(const QTranslatorMessage & m);
@@ -76,7 +77,7 @@ class Q_CORE_EXPORT QTranslator : public QObject
 {
     Q_OBJECT
 public:
-    QTranslator(QObject *parent = 0);
+    explicit QTranslator(QObject *parent = 0);
 #ifdef QT_COMPAT
     QT_COMPAT_CONSTRUCTOR QTranslator(QObject * parent, const char * name);
 #endif
@@ -128,4 +129,4 @@ private:
 
 #endif // QT_NO_TRANSLATION
 
-#endif
+#endif // QTRANSLATOR_H
