@@ -1166,12 +1166,11 @@ void QAbstractItemView::keyPressEvent(QKeyEvent *e)
     case Qt::Key_Escape:
     case Qt::Key_Shift:
     case Qt::Key_Control:
-        QViewport::keyPressEvent(e);
+        e->ignore();
         break;
     case Qt::Key_Enter:
     case Qt::Key_Return:
         emit returnPressed(currentIndex());
-        e->accept();
         break;
     case Qt::Key_Space:
         selectionModel()->select(currentIndex(),
@@ -1180,24 +1179,22 @@ void QAbstractItemView::keyPressEvent(QKeyEvent *e)
                                                   e->type(),
                                                   (Qt::Key)e->key()));
     case Qt::Key_Delete:
-        e->accept();
         break;
     case Qt::Key_F2:
-        if (edit(currentIndex(), EditKeyPressed, e))
-            e->accept();
+        if (!edit(currentIndex(), EditKeyPressed, e))
+            e->ignore();
         break;
     case Qt::Key_A:
         if (e->state() & Qt::ControlButton) {
             selectAll();
-            e->accept();
             break;
         }
     default:
         if (!e->text().isEmpty()) {
             if (!edit(currentIndex(), AnyKeyPressed, e))
                 keyboardSearch(e->text());
-            e->accept();
         }
+        e->ignore();
         break;
     }
 
