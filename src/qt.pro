@@ -29,6 +29,7 @@ HEADERS		= $$DIALOGS_H/qdeveloper.h \
 		  $$DIALOGS_H/qmessagebox.h \
 		  $$DIALOGS_H/qprogressdialog.h \
 		  $$DIALOGS_H/qtabdialog.h \
+		  $$DIALOGS_H/qtranslatordialog.h \
 		  $$DIALOGS_H/qwizard.h \
 		  $$KERNEL_H/qabstractlayout.h \
 		  $$KERNEL_H/qaccel.h \
@@ -333,6 +334,7 @@ SOURCES	       += tools/qbitarray.cpp \
 		  dialogs/qmessagebox.cpp \
 		  dialogs/qprogressdialog.cpp \
 		  dialogs/qtabdialog.cpp \
+		  dialogs/qtranslatordialog.cpp \
 		  dialogs/qwizard.cpp
 
 unix:HEADERS   += $$DIALOGS_H/qprintdialog.h \
