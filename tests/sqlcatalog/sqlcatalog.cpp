@@ -3,6 +3,7 @@
 #include <qsqldatabase.h>
 #include <qsqlindex.h>
 #include <qsqlfield.h>
+#include <qsqlrowset.h>
 #include <qapplication.h>
 
 QSqlDatabase* database;
@@ -41,6 +42,13 @@ int main( int argc, char** argv )
 	for ( uint j = 0; j < fil.count(); ++j )
 	    qDebug("......" + fil.field(j).name() );
     }
+    
+    qDebug("Creating rowset...");
+    QSqlRowset rset(database, "test");
+    rset.select();
+
+    
+    
 
     qDebug("Closing database...");
     database->close();

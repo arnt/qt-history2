@@ -17,13 +17,13 @@ public:
     QSqlIndex&       operator=( const QSqlIndex& other );
     QString          tableName() const { return table; }
     QSqlFieldList    fields() const;
-
+    uint             count() const;
     void             clear();
     void             append( QSqlField field );
     void             setName( const QString& name );
     QString          name() const;
     QString          toString() const;
-    
+
 private:
     QString          flist;
     QString          table;

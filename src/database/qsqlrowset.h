@@ -21,42 +21,33 @@ class QSqlRowset : public QSqlFieldList
 public:
     QSqlRowset( QSqlDatabase * db, const QString & table );
     QSqlRowset( const QSqlRowset & s );
-    
-    bool insert();
-    bool update( const QSqlIndex & i );
-    bool del( const QSqlIndex & i );
 
-    bool select();
-    bool select( const QSqlIndex & i, const QString & filter );
-    bool select( const QSqlIndex & i );
-    bool select( const QSqlIndex & i, const QSqlIndex & j );
+    bool select( const QString & filter = QString::null, const QSqlIndex & sort = QSqlIndex() );
+    bool select( const QSqlIndex & filter, const QSqlIndex & sort = QSqlIndex() );
 
     bool seek( int i, bool relative = FALSE);
     bool next();
     bool previous();
     bool first();
     bool last();
-
+    QSqlError lastError() const { return r ? r->lastError() : QSqlError() ; }
     int  affectedRows();
-    int  numFields();
+    QString name() const { return tableName; }
+    
     void dumpRecords();
 
 protected:
     QSqlFieldList & operator=( const QSqlFieldList & list );
     bool query( const QString & str );
-    
     QString whereClause( const QSqlIndex & i );
-    QString orderByClause( const QSqlIndex & i );
-    QString fieldOrderClause( const QSqlIndex & i );
 
 private:
     void updateFieldValues();
-        
+
     QSqlDatabase * db;
+    QString   tableName;    
     QSql *    r;
     QSqlIndex pk;
-    QString   tableName;
-    QSqlError err;
 };
 
 #endif // QT_NO_SQL

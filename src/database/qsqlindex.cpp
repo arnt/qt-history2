@@ -89,15 +89,15 @@ void QSqlIndex::append( QSqlField field )
 {
     for( unsigned int i = 0; i < fieldList.count(); i++ )
     {
-	if( fieldList.field(i).name() == field.name() ) 
+	if( fieldList.field(i).name() == field.name() )
 	    return;
     }
-    
+
     if( !flist.isEmpty() )
 	flist += ", " + field.name();
     else
 	flist = field.name();
-    
+
     fieldList.append( field );
 }
 
@@ -133,4 +133,9 @@ QString QSqlIndex::toString() const
     return flist;
 }
 
+uint QSqlIndex::count() const
+{
+    return fieldList.count();
+}
+    
 #endif

@@ -141,7 +141,7 @@ QVariant& QSqlFieldList::operator[]( int i )
 {
 #ifdef CHECK_RANGE
     static QVariant dbg;
-    
+
     if( (unsigned int) i > fieldList.count() ){
 	qWarning( "QSqlFieldList warning: index out of range" );
 	return dbg;
@@ -160,7 +160,7 @@ QVariant& QSqlFieldList::operator[]( const QString& name )
 {
 #ifdef CHECK_RANGE
     static QVariant dbg;
-    
+
     if( (unsigned int) position( name ) > fieldList.count() ){
 	qWarning( "QSqlFieldList warning: index out of range" );
 	return dbg;
@@ -214,9 +214,9 @@ void QSqlFieldList::append( const QSqlField& field )
     if ( fieldListStr.isNull() )
 	fieldListStr = field.name();
     else
-	fieldListStr = ", " + field.name();
-    posMap[ field.name() ] = fieldList.count();    
-    fieldList.append( field );    
+	fieldListStr += ", " + field.name();
+    posMap[ field.name() ] = fieldList.count();
+    fieldList.append( field );
 }
 
 /*!
