@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qdeveloper.cpp#4 $
+** $Id: //depot/qt/main/src/dialogs/qdeveloper.cpp#5 $
 **
 ** Implementation of QDeveloper class
 **
@@ -37,6 +37,7 @@
 #include "qstatusbar.h"
 #include "qvbox.h"
 #include "qwidgetstack.h"
+
 
 class QDeveloperClassItem : public QListViewItem {
     QDeveloperPrivate* d;
@@ -94,7 +95,7 @@ public:
 	QListViewItem(parent, scope)
     {
     }
-
+   ~QDeveloperTranslationScope() {}
     QDict<QDeveloperTranslationKey> keys;
 };
 

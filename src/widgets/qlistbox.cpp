@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#175 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#176 $
 **
 ** Implementation of QListBox widget class
 **
@@ -34,6 +34,8 @@ class QLBItemList : public QList<QListBoxItem> // internal class
 {
     int compareItems( GCI i1, GCI i2);
 public:
+    QLBItemList() {}
+   ~QLBItemList() {}
     int timerId;				//### bincomp
 };
 

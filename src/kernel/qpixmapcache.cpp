@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmapcache.cpp#28 $
+** $Id: //depot/qt/main/src/kernel/qpixmapcache.cpp#29 $
 **
 ** Implementation of QPixmapCache class
 **
@@ -24,6 +24,7 @@
 #include "qpixmapcache.h"
 #include "qcache.h"
 #include "qobject.h"
+
 
 /*!
   \class QPixmapCache qpixmapcache.h
@@ -63,10 +64,12 @@
   See the QCache documentation for a more details about the cache mechanism.
 */
 
+
 const  int cache_size	  = 149;		// size of internal hash array
 static int cache_limit	  = 1024;		// 1024 KB cache limit
 
 void cleanup_pixmap_cache();
+
 
 class QPMCache: public QObject, public QCache<QPixmap>
 {
@@ -79,6 +82,7 @@ public:
 	    qAddPostRoutine( cleanup_pixmap_cache );
 	    setAutoDelete( TRUE );
 	}
+   ~QPMCache() {}
     void timerEvent( QTimerEvent * );
     bool insert( const char *k, const QPixmap *d, int c, int p = 0 );
 private:
@@ -88,14 +92,15 @@ private:
 };
 
 
-/* This is supposed to cut the cache size down by about 80-90% in a
-   minute once the application becomes idle, to let any inserted
-   pixmap remain in the cache for some time before it becomes a
-   candidate for cleaning-up, and to not cut down the size of the
-   cache while the cache is in active use.
+/*
+  This is supposed to cut the cache size down by about 80-90% in a
+  minute once the application becomes idle, to let any inserted pixmap
+  remain in the cache for some time before it becomes a candidate for
+  cleaning-up, and to not cut down the size of the cache while the
+  cache is in active use.
 
-   When the last pixmap has been deleted from the cache, kill the
-   timer so Qt won't keep the CPU from going into sleep mode.
+  When the last pixmap has been deleted from the cache, kill the
+  timer so Qt won't keep the CPU from going into sleep mode.
 */
 
 void QPMCache::timerEvent( QTimerEvent * )
@@ -145,7 +150,7 @@ void cleanup_pixmap_cache()
     since QPixmaps are \link shclass.html implicitly shared\endlink), because
     subsequent insertions into the cache could cause the pointer to become
     invalid.  For this reason, we recommend you use
-    find(QString , QPixmap&) instead.
+    find(const QString&, QPixmap&) instead.
   </strong>
 
   Example:
@@ -204,7 +209,7 @@ bool QPixmapCache::find( const QString &key, QPixmap& pm )
     discarded from the cache, and the pointer to become invalid.
 
     Due to these dangers, we strongly recommend that you use
-    insert(QString , const QPixmap&) instead.
+    insert(const QString&, const QPixmap&) instead.
   </strong>
 */
 
