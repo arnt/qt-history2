@@ -147,8 +147,8 @@ private:
     void writeFunctionsSubImpl(const QStringList &fuLst, const QStringList &typLst, const QStringList &specLst,
                                 const QString &subClass, const QString &descr);
     QStringList dbConnections;
-    QMap< QString, QStringList > dbCursors;
-    QMap< QString, QStringList > dbForms;
+    QMap<QString, QStringList> dbCursors;
+    QMap<QString, QStringList> dbForms;
 
     static bool isMainWindow;
     static QString mkBool(bool b);
@@ -165,6 +165,8 @@ private:
 
     QDomElement root;
     QDomElement widget;
+
+    QMap<QString, bool> candidateCustomWidgets;
 };
 
 #endif

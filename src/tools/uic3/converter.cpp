@@ -39,6 +39,7 @@
 DomUI *Ui3Reader::generateUi4(const QDomElement &widget)
 {
     QDomNodeList nl;
+    candidateCustomWidgets.clear();
 
     QString objClass = getClassName(widget);
     if (objClass.isEmpty())
@@ -209,6 +210,36 @@ DomUI *Ui3Reader::generateUi4(const QDomElement &widget)
     ui->setElementWidget(w);
     ui->setElementClass(w->attributeName()); // ### remove me!
 
+    for (int i=0; i<ui_customwidget_list.size(); ++i) {
+        QString name = ui_customwidget_list.at(i)->elementClass();
+        if (candidateCustomWidgets.contains(name))
+            candidateCustomWidgets.remove(name);
+    }
+
+    QMapIterator<QString, bool> it(candidateCustomWidgets);
+    while (it.hasNext()) {
+        it.next();
+
+        QString customClass = it.key();
+        QString baseClass;
+        if (customClass.endsWith("ListView"))
+            baseClass = QLatin1String("Q3ListView");
+        else if (customClass.endsWith("ListBox"))
+            baseClass = QLatin1String("QListBox"); // ### Q3ListBox??
+        else if (customClass.endsWith("IconView"))
+            baseClass = QLatin1String("QIconView"); // ### Q3IconView??
+        else if (customClass.endsWith("ComboBox"))
+            baseClass = QLatin1String("QComboBox"); // ### Q3ComboBox??
+
+        if (baseClass.isEmpty())
+            continue;
+
+        DomCustomWidget *customWidget = new DomCustomWidget();
+        customWidget->setElementClass(customClass);
+        customWidget->setElementExtends(baseClass);
+        ui_customwidget_list.append(customWidget);
+    }
+
     if (ui_customwidget_list.size()) {
         DomCustomWidgets *customWidgets = new DomCustomWidgets();
         customWidgets->setElementCustomWidget(ui_customwidget_list);
@@ -327,6 +358,12 @@ DomWidget *Ui3Reader::createWidget(const QDomElement &w, const QString &widgetCl
     if (className.isEmpty())
         className = w.attribute("class");
     className = fixClassName(className);
+
+    if ((className.endsWith("ListView") && className != QLatin1String("Q3ListView"))
+            || (className.endsWith("ListBox") && className != QLatin1String("QComboBox")) // ### Q3ComboBox??
+            || (className.endsWith("ComboBox") && className != QLatin1String("QComboBox")) // ### Q3ComboBox??
+            || (className.endsWith("IconView") && className != QLatin1String("QIconView"))) // ### Q3IconView??
+        candidateCustomWidgets.insert(className, true);
 
     bool isMenuBar = (className == QLatin1String("QMenuBar"));
 
