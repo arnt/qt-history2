@@ -307,7 +307,7 @@ public:
     virtual void setSelected( QIconViewItem *item, bool s, bool cb = FALSE );
 
     unsigned int count() const;
-qproperties:
+
     virtual void setViewMode( QIconSet::Size mode );
     QIconSet::Size viewMode() const;
 public:
@@ -359,9 +359,9 @@ qproperties:
     int maxItemTextLength() const;
     void setAligning( bool b );
     bool aligning() const;
+public:
     void setSorting( bool sort, bool ascending = TRUE );
     bool sorting() const;
-public:
     bool sortDirection() const;
 qproperties:
     virtual void setEnableMoveItems( bool b );
