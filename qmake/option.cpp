@@ -86,7 +86,7 @@ QStringList Option::mkfile::project_files;
 
 bool usage(const char *a0)
 {
-    fprintf(stderr, "Usage: %s [mode] [options] [project-files]\n"
+    fprintf(stderr, "Usage: %s [mode] [options] [files]\n"
 	    "\n"
 	    "   QMake has two modes, one mode for generating project files based on\n"
 	    "some heuristics, and the other for generating makefiles. Normally you\n"
@@ -95,7 +95,13 @@ bool usage(const char *a0)
 	    "\n"
 	    "Mode:\n"
 	    "\t-project       Put qmake into project file generation mode\n"
+	    "\t               In this mode qmake interprets files as files to\n"
+	    "\t               be built,\n"
+	    "\t               defaults to *.cpp; *.l; *.y; *.ui\n"
 	    "\t-makefile      Put qmake into makefile generation mode (assumed)\n"
+	    "\t               In this mode qmake interprets files project files to\n"
+	    "\t               be built, if skipped qmake will try to find a project\n"
+	    "\t               file in your current working directory\n"
 	    "\n"
 	    "Options:\n"
 	    "\t-o file        Write output to file\n"
