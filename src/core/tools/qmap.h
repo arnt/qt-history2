@@ -453,13 +453,13 @@ Q_INLINE_TEMPLATE QMap<Key, T> &QMap<Key, T>::operator+=(const QMap<Key, T> &oth
 }
 
 template <class Key, class T>
-Q_OUTOFLINE_TEMPLATE void QMap<Key, T>::freeData(QMapData *d)
+Q_OUTOFLINE_TEMPLATE void QMap<Key, T>::freeData(QMapData *x)
 {
     if (QTypeInfo<Key>::isComplex || QTypeInfo<T>::isComplex) {
-        QMapData::Node *e = reinterpret_cast<QMapData::Node *>(d);
-        QMapData::Node *cur = e;
+        QMapData::Node *y = reinterpret_cast<QMapData::Node *>(x);
+        QMapData::Node *cur = y;
         QMapData::Node *next = cur->forward[0];
-        while (next != e) {
+        while (next != y) {
 	    cur = next;
             next = cur->forward[0];
 	    Node *concreteNode = concrete(cur);
@@ -467,7 +467,7 @@ Q_OUTOFLINE_TEMPLATE void QMap<Key, T>::freeData(QMapData *d)
 	    concreteNode->value.~T();
         }
     }
-    d->continueFreeData(sizeof(Payload));
+    x->continueFreeData(sizeof(Payload));
 }
 
 template <class Key, class T>
