@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgvector.cpp#31 $
+** $Id: //depot/qt/main/src/tools/qgvector.cpp#32 $
 **
 ** Implementation of QGVector class
 **
@@ -324,7 +324,7 @@ int QGVector::findRef( Item d, uint index) const // find exact item in vector
 #if defined(CHECK_RANGE)
     if ( index >= len ) {			// range error
 	warning( "QGVector::findRef: Index %d out of range", index );
-	return 0;
+	return -1;
     }
 #endif
     for ( uint i=index; i<len; i++ ) {
@@ -339,7 +339,7 @@ int QGVector::find( Item d, uint index ) const	// find equal item in vector
 #if defined(CHECK_RANGE)
     if ( index >= len ) {			// range error
 	warning( "QGVector::find: Index %d out of range", index );
-	return 0;
+	return -1;
     }
 #endif
     for ( uint i=index; i<len; i++ ) {
