@@ -95,8 +95,8 @@ public slots:
             QMutexLocker lock(&mutex);
             QProcess *child = children.value(childpid, 0);
             if (child) {
-                ((QProcessPrivate *)child_ptr)->exitCode = WEXITSTATUS(result);
-                ((QProcessPrivate *)child_ptr)->crashed = !WIFEXITED(result);
+                ((QProcessPrivate *)child->d_ptr)->exitCode = WEXITSTATUS(result);
+                ((QProcessPrivate *)child->d_ptr)->crashed = !WIFEXITED(result);
                 qInvokeMetaMember(child, "processDied");
                 children.remove(childpid);
             }
@@ -147,31 +147,31 @@ void QProcessPrivate::startProcess()
     // Initialize pipes
     createPipe(childStartedPipe);
     startupSocketNotifier = new QSocketNotifier(childStartedPipe[0],
-                                                   QSocketNotifier::Read, this);
-    connect(startupSocketNotifier, SIGNAL(activated(int)),
-            this, SLOT(startupNotification(int)));
+                                                QSocketNotifier::Read, q);
+    QObject::connect(startupSocketNotifier, SIGNAL(activated(int)),
+                     q, SLOT(startupNotification(int)));
 
     createPipe(writePipe);
     writeSocketNotifier = new QSocketNotifier(writePipe[1],
-                                                 QSocketNotifier::Write, this);
-    connect(writeSocketNotifier, SIGNAL(activated(int)),
-            this, SLOT(readyWrite(int)));
+                                              QSocketNotifier::Write, q);
+    QObject::connect(writeSocketNotifier, SIGNAL(activated(int)),
+                     q, SLOT(readyWrite(int)));
     writeSocketNotifier->setEnabled(false);
 
     createPipe(standardReadPipe);
     createPipe(errorReadPipe);
 
     standardReadSocketNotifier = new QSocketNotifier(standardReadPipe[0],
-                                                        QSocketNotifier::Read,
-                                                        this);
-    connect(standardReadSocketNotifier, SIGNAL(activated(int)),
-            this, SLOT(readyReadStandardOutput(int)));
+                                                     QSocketNotifier::Read,
+                                                     q);
+    QObject::connect(standardReadSocketNotifier, SIGNAL(activated(int)),
+                     q, SLOT(readyReadStandardOutput(int)));
 
     errorReadSocketNotifier = new QSocketNotifier(errorReadPipe[0],
-                                                     QSocketNotifier::Read,
-                                                     this);
-    connect(errorReadSocketNotifier, SIGNAL(activated(int)),
-            this, SLOT(readyReadStandardError(int)));
+                                                  QSocketNotifier::Read,
+                                                  q);
+    QObject::connect(errorReadSocketNotifier, SIGNAL(activated(int)),
+                     q, SLOT(readyReadStandardError(int)));
 
     // Start the process (platform dependent)
     processState = QProcess::Starting;
