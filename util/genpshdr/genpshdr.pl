@@ -1,57 +1,23 @@
 #!/usr/bin/perl
 
-$n = "ark";
-$n[0] = 'u';
-print $n, "\n";
-exit;
-
 while ( <> ) {
-    s/[^%]%[^%].*//;		# strip comments
+    s/%%(.*)$/~~$1~~/;		# keep until later
+    s/%.*//;			# strip comments
     s/\s+/ /g;			# simplify white space
     s/^\s*//;			# strip leading white space
     s/\s*$//;			# strip trailing white space
-    s/(%%[^ ]+)/\n$1\n/g;	# new line for %% comments
-    next if !$_;
+    s/~~(.*)~~/%%$1/g;		# new line for %% comments
+    next if !$_;		# skip empty lines
     if ( !$longline ) {
 	$longline = $_;
     }
     else {
-	$longline .= ' ';
+	$longline .= " ";
 	$longline .= $_;
     }
 #    print $_, "\n";
 }
 
-$longline .= "\n";
-
-$maxlen = length $longline;
-$i = 76;
-while ( $i < $maxlen ) {
-    if ( $longline[$i] == 32 ) {
-	$longline[i] = "\n"; # eller kanskje: substr($longline,$i,1) = "\n"';
-	$i += 76;
-    }
-    $i--;
-}
-
-print $longline;
-exit;
-
-#print join( ' ', split($longline,'%') );
-
-#virker ikke
-exit;
-
-while ( 1 ) {
-    $longline =~ s/(^.{60,} )//;
-    if ( $1 ) {
-#    if ( $longline =~ s/(^.{60}\s)// ) {
-	print $1, "\n";
-    }
-    else {
-	print $longline;
-	last;
-    }
-}
-
+print '"', $1, '\n"', "\n" while ( $longline =~ s/(^.{1,74}) // );
+print '"', $longline, '\n"', "\n";
 exit;
