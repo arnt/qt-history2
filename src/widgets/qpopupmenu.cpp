@@ -1858,9 +1858,7 @@ void QPopupMenu::keyPressEvent( QKeyEvent *e )
 	    ((QMenuBar*)top)->tryKeyEvent( this, e );
     }
 #endif
-    if(d->scroll.scrollable && d->scroll.scrolltimer && d->scroll.scrolltimer->isActive()) { 
-        /*don't do keyboard if actively scrolling --Sam*/
-    } else if ( dy && actItem < 0 ) {
+    if ( dy && actItem < 0 ) {
 	setFirstItemActive();
     } else if ( dy ) {				// highlight next/prev
 	register int i = actItem;
@@ -1868,6 +1866,8 @@ void QPopupMenu::keyPressEvent( QKeyEvent *e )
 	for(int n = c; n; n--) {
 	    i = i + dy;
 	    if(d->scroll.scrollable) {
+		if(d->scroll.scrolltimer)
+		    d->scroll.scrolltimer->stop();
 		if(i < 0)
 		    i = 0;
 		else if(i >= c)
