@@ -16,6 +16,11 @@ EXPORT=$2
 OUTPWD=$PWD
 cd $DIR
 
+#AWK SCRIPT
+if [ ! -e "$OUTPWD/parse-private.awk" ]; then
+   true    
+fi
+
 #FIND
 echo -n "Finding code.."
 rm -f $OUTPWD/exports
@@ -24,15 +29,18 @@ for var in CFLAGS INCPATH; do
    CXXFLAGS="$CXXFLAGS $(grep "^$var *=" $DIR/Makefile | cut -d'=' -f2-)"
 done
 for export in $EXPORT; do
-   CXXFLAGS="$CXXFLAGS -D${EXPORT}=${EXPORT}"
+   EXTRA_CXXFLAGS="$CXXFLAGS -D${EXPORT}=${EXPORT}"
 done
 for suff in cpp c h; do
   FILES=`find . -name "*.${suff}"`
-  rm -f $OUTPWD/tmp.out
+  rm -f $OUTPWD/tmp.out $OUTPWD/tmp.local
   for file in $FILES; do
+    if [ "$suff" = "h" ] && [ -e "$OUTPWD/parse-private.awk" ] && which awk >/dev/null 2>&1; then
+	gcc -E $CXXFLAGS "$file" 2>/dev/null | awk -f "$OUTPWD/parse-private.awk" >>$OUTPWD/tmp.local
+    fi
     for export in $EXPORT; do
         echo -n .
-        gcc -E $CXXFLAGS $file 2>/dev/null | grep "$export " | sed "s,$export ,,g" | grep -v '^#' >>$OUTPWD/tmp.out
+        gcc -E $CXXFLAGS $EXTRA_CXXFLAGS $file 2>/dev/null | grep "$export " | sed "s,$export ,,g" | grep -v '^#' >>$OUTPWD/tmp.out
     done
     size=`wc -c $OUTPWD/tmp.out | awk '{print $1;}'`
     [ "$size" = "0" ] && continue;
@@ -149,9 +157,10 @@ echo "};" >>$OUTPWD/libqt.map
 echo
 
 #CLEANUP
-#rm -f $OUTPWD/class.exp $OUTPWD/other.exp
+rm -f $OUTPWD/class.exp $OUTPWD/other.exp
 rm -f $OUTPWD/tmp.out
 rm -f $OUTPWD/exports
+rm -f $OUTPWD/parse-private.awk
 
 echo "Done!"
 

@@ -26,6 +26,7 @@ LOCAL_TREE=
 LOG=/dev/null #by default we do not log
 QDOC_PATH=$QTDIR/util/qdoc/qdoc
 QPKG_PATH=$QTDIR/util/install/package/package
+EXPORTS_PATH=$QTDIR/util/scripts/exports.sh
 QMAKE_PATH=$QTDIR/bin/qmake
 MANIFEST_FILE=${TMP_FILE}-manifest
 #editions
@@ -94,6 +95,7 @@ showhelp()
     echo "  -qdoc <executable>   : Where qdoc lives (default $QDOC_PATH)"
     echo "  -qmake <executable>  : Where qmake lives (default $QMAKE_PATH)"
     echo "  -qpkg <executable>   : Where qpkg lives (default $QPKG_PATH)"
+    echo "  -exports <executable>: Where the exports.sh script lives (default $EXPORTS_PATH)"
     echo
 
     echo "Editions:"
@@ -170,6 +172,11 @@ while [ -n "$1" ]; do
 	VAR=qpkg_path
 	VAL=$1
 	;;
+   -exports)
+        shift
+	VAR=exports_path
+	VAL=$1
+	;;
    -qdoc)
 	shift
 	VAR=qdoc_path
@@ -212,6 +219,7 @@ while [ -n "$1" ]; do
    qnx6) DO_QNX6=$VAL ;;
    embedded) DO_EMBEDDED=$VAL ;;
    #paths
+   exports_path) EXPORTS_PATH=$VAL ;;
    log) LOG=$VAL; rm -f $LOG ;;
    qpkg_path)  QPKG_PATH=$VAL  ;;
    qmake_path) QMAKE_PATH=$VAL ;;
@@ -387,6 +395,14 @@ make moc_yacc.cpp >>$LOG
 
 rm -f Makefile
 popd >>$LOG 2>&1
+
+#generate libqt.map
+if [ -x "$EXPORTS_PATH" ]; then
+  status "Creating libqt.map.."
+  pushd $DISTDIR/qt/src >>$LOG 2>&1
+  $EXPORTS_PATH $DISTDIR/qt/src
+  popd >>$LOG 2>71
+fi
 
 #cleanup documentation directories
 mkdir -p "$DISTDIR/qt/doc"
