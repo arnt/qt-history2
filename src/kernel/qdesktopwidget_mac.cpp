@@ -66,7 +66,7 @@ QDesktopWidgetPrivate::QDesktopWidgetPrivate()
 	GetAvailableWindowPositioningBounds(g, &r);
 	avail_rects[i] = QRect(r.left, r.top, r.right - r.left, r.bottom - r.top);
 	r = (*g)->gdRect;
-	rects[i++] = QRect(r.left, r.top, r.right - r.left, r.bottom - r.top);
+	rects[i] = QRect(r.left, r.top, r.right - r.left, r.bottom - r.top);
     }
 }
 
