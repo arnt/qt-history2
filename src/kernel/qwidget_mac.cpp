@@ -444,7 +444,7 @@ QMAC_PASCAL OSStatus qt_erase(GDHandle, GrafPtr, WindowRef window, RgnHandle rgn
 	Q_UNUSED(rgn);
 	QRegion reg(0, 0, widget->width(), widget->height());
 #endif
-#if defined( Q_WS_MACX )
+#ifdef Q_WS_MACX
 	//Clear a nobackground widget to make it transparent
 	if(widget->backgroundMode() == Qt::NoBackground) {
 	    CGContextRef ctx;
@@ -1580,7 +1580,7 @@ void QWidget::erase( const QRegion& reg )
     p.setClipRegion(reg);
     if ( extra && extra->bg_pix ) {
 	if ( !extra->bg_pix->isNull() ) {
-	    int xoff = 0,  yoff = 0;
+	    int xoff = 0, yoff = 0;
 	    if ( !isTopLevel() ) {
 		if( backgroundOrigin() == QWidget::ParentOrigin ) {
 		    xoff = x();
