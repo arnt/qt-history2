@@ -58,16 +58,33 @@ class QByteArray;
 #define Q_OVERRIDE( text )
 #define Q_ENUMS( x )
 #define Q_SETS( x )
+
+#ifndef QT_NO_TRANSLATION
+# ifndef QT_NO_TEXTCODEC
+// full set of tr functions
+#  define QT_TR_FUNCTIONS \
+    static inline QString tr(const char *s, const char *c = 0) \
+	{ return staticMetaObject.tr(s, c); } \
+    static inline QString trUtf8(const char *s, const char *c = 0) \
+	{ return staticMetaObject.trUtf8(s, c); } 
+# else
+// no QTextCodec, no utf8
+#  define QT_TR_FUNCTIONS \
+    static inline QString tr(const char *s, const char *c = 0) \
+	{ return staticMetaObject.tr(s, c); } 
+# endif
+#else
+// inherit the ones from QObject
+# define QT_TR_FUNCTIONS
+#endif
+
 /* tmake ignore Q_OBJECT */
 #define Q_OBJECT \
 public: \
     virtual const QMetaObject *metaObject() const; \
     static const QMetaObject staticMetaObject; \
     virtual void *qt_metacast(const char *) const; \
-    static inline QString tr(const char *s, const char *c = 0) \
-	{ return staticMetaObject.tr(s, c); } \
-    static inline QString trUtf8(const char *s, const char *c = 0) \
-	{ return staticMetaObject.trUtf8(s, c); } \
+    QT_TR_FUNCTIONS \
     virtual int qt_metacall(QMetaObject::Call _c, int _id, void **_o); \
 private:
 /* tmake ignore Q_OBJECT */
