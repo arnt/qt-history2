@@ -5708,8 +5708,8 @@ void QPSPrinterPrivate::drawImage( QPainter *paint, float x, float y, float w, f
 {
     int width  = img.width();
     int height = img.height();
-    float scaleX = w/(float)width;
-    float scaleY = h/(float)height;
+    float scaleX = (float)width/w;
+    float scaleY = (float)height/h;
 
     if ( img.isNull() )
         return;
