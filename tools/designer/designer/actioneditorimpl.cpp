@@ -99,24 +99,24 @@ void ActionEditor::deleteAction()
     while ( it.current() ) {
 	if ( ( (ActionItem*)it.current() )->action() == currentAction ) {
 	    formWindow->actionList().removeRef( currentAction );
-	    delete currentAction;
 	    QValueList<MetaDataBase::Connection> conns =
 		MetaDataBase::connections( formWindow, currentAction );
 	    for ( QValueList<MetaDataBase::Connection>::Iterator it2 = conns.begin();
 		  it2 != conns.end(); ++it2 )
 		MetaDataBase::removeConnection( formWindow, (*it2).sender, (*it2).signal,
 						(*it2).receiver, (*it2).slot );
+	    delete currentAction;
 	    delete it.current();
 	    break;
 	} else if ( ( (ActionItem*)it.current() )->actionGroup() == currentAction ) {
 	    formWindow->actionList().removeRef( currentAction );
-	    delete currentAction;
 	    QValueList<MetaDataBase::Connection> conns =
 		MetaDataBase::connections( formWindow, currentAction );
 	    for ( QValueList<MetaDataBase::Connection>::Iterator it2 = conns.begin();
 		  it2 != conns.end(); ++it2 )
 		MetaDataBase::removeConnection( formWindow, (*it2).sender, (*it2).signal,
 						(*it2).receiver, (*it2).slot );
+	    delete currentAction;y
 	    delete it.current();
 	    break;
 	}
