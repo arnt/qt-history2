@@ -2067,6 +2067,9 @@ QPaintEngine *QWidget::paintEngine() const
     return qt_widget_paintengine;
 }
 
+/*!
+    \internal
+*/
 Qt::HANDLE QWidget::macCGHandle() const
 {
     return d->cg_hd;

@@ -517,8 +517,9 @@ QPalette::QPalette(const QBrush &foreground, const QBrush &button,
 
 /*!\obsolete
 
-  Constructs a palette with the specified colors. The button
-  color will be set to the background color.
+  Constructs a palette with the specified \a foreground, \a
+  background, \a light, \a dark, \a mid, \a text, and \a base colors.
+  The button color will be set to the background color.
 */
 QPalette::QPalette(const QColor &foreground, const QColor &background,
                    const QColor &light, const QColor &dark, const QColor &mid,

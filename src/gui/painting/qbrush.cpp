@@ -106,9 +106,9 @@ QPixmap qt_pixmapForBrush(int brushStyle, bool invert)
         QBrush   brush(yellow);           // yellow solid pattern
         painter.begin(&anyPaintDevice);   // paint something
         painter.setBrush(brush);          // set the yellow brush
-        painter.setPen(Qt::NoPen);            // do not draw outline
+        painter.setPen(Qt::NoPen);        // do not draw outline
         painter.drawRect(40,30, 200,100); // draw filled rectangle
-        painter.setBrush(Qt::NoBrush);        // do not fill
+        painter.setBrush(Qt::NoBrush);    // do not fill
         painter.setPen(black);            // set black pen, 0 pixel width
         painter.drawRect(10,10, 30,20);   // draw rectangle outline
         painter.end();                    // painting done

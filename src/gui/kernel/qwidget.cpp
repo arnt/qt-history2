@@ -591,6 +591,9 @@ static QPalette qt_naturalWidgetPalette(QWidget* w) {
     tool window can be decorated with a somewhat lighter frame. It can
     also be combined with \c WStyle_NoBorder.
 
+    \value WStyle_ToolTip makes the window a tooltip window (typically
+    borderless with black text on a yellow background).
+
     \value WStyle_StaysOnTop  informs the window system that the
     window should stay on top of all other windows. Note that on some
     window managers on X11 you also have to pass \c WX11BypassWM for
@@ -1884,7 +1887,9 @@ void QWidget::setEnabled_helper(bool enable)
 */
 
 /*!
-    \fn void QWidget::styleChange(QStyle&)
+    \fn void QWidget::styleChange(QStyle& style)
+
+    \internal
 */
 
 /*!
@@ -4252,15 +4257,6 @@ bool QWidget::isVisibleTo(QWidget* ancestor) const
 */
 
 
-/*!
-    \property QWidget::visibleRect
-    \brief the visible rectangle
-
-    \obsolete
-
-    No longer necessary, you can simply call repaint(). If you do not
-    need the rectangle for repaint(), use clipRegion() instead.
-*/
 #ifdef QT_COMPAT
 QRect QWidget::visibleRect() const
 {
@@ -5083,8 +5079,11 @@ void QWidget::keyReleaseEvent(QKeyEvent *e)
 }
 
 /*!
+    \fn void QWidget::focusInEvent(QFocusEvent *event)
+
     This event handler can be reimplemented in a subclass to receive
-    keyboard focus events (focus received) for the widget.
+    keyboard focus events (focus received) for the widget. The event
+    is passed in the \a event parameter
 
     A widget normally must setFocusPolicy() to something other than
     \c Qt::NoFocus in order to receive focus events. (Note that the
@@ -5111,8 +5110,11 @@ void QWidget::focusInEvent(QFocusEvent *)
 }
 
 /*!
+    \fn void QWidget::focusOutEvent(QFocusEvent *event)
+
     This event handler can be reimplemented in a subclass to receive
-    keyboard focus events (focus lost) for the widget.
+    keyboard focus events (focus lost) for the widget. The events is
+    passed in the \a event parameter.
 
     A widget normally must setFocusPolicy() to something other than
     \c Qt::NoFocus in order to receive focus events. (Note that the
@@ -5152,8 +5154,10 @@ QRect QWidget::microFocusHint() const
 }
 
 /*!
+    \fn void QWidget::enterEvent(QEvent *event)
+
     This event handler can be reimplemented in a subclass to receive
-    widget enter events.
+    widget enter events which are passed in the \a event parameter.
 
     An event is sent to the widget when the mouse cursor enters the
     widget.
@@ -5166,8 +5170,10 @@ void QWidget::enterEvent(QEvent *)
 }
 
 /*!
+    \fn void QWidget::leaveEvent(QEvent *event)
+
     This event handler can be reimplemented in a subclass to receive
-    widget leave events.
+    widget leave events which are passed in the \a event parameter.
 
     A leave event is sent to the widget when the mouse cursor leaves
     the widget.
@@ -5180,8 +5186,10 @@ void QWidget::leaveEvent(QEvent *)
 }
 
 /*!
+    \fn void QWidget::paintEvent(QPaintEvent *event)
+
     This event handler can be reimplemented in a subclass to receive
-    paint events.
+    paint events which are passed in the \a event parameter.
 
     A paint event is a request to repaint all or part of the widget.
     It can happen as a result of repaint() or update(), or because the
@@ -5223,9 +5231,12 @@ void QWidget::paintEvent(QPaintEvent *)
 
 
 /*!
+    \fn void QWidget::moveEvent(QMoveEvent *event)
+
     This event handler can be reimplemented in a subclass to receive
-    widget move events. When the widget receives this event, it is
-    already at the new position.
+    widget move events which are passed in the \a event parameter.
+    When the widget receives this event, it is already at the new
+    position.
 
     The old position is accessible through QMoveEvent::oldPos().
 
@@ -5238,9 +5249,12 @@ void QWidget::moveEvent(QMoveEvent *)
 
 
 /*!
+    \fn void QWidget::resizeEvent(QResizeEvent *event)
+
     This event handler can be reimplemented in a subclass to receive
-    widget resize events. When resizeEvent() is called, the widget
-    already has its new geometry. The old size is accessible through
+    widget resize events which are passed in the \a event parameter.
+    When resizeEvent() is called, the widget already has its new
+    geometry. The old size is accessible through
     QResizeEvent::oldSize().
 
     The widget will be erased and receive a paint event immediately
@@ -5366,8 +5380,10 @@ void QWidget::imEndEvent(QIMEvent *e)
 #ifndef QT_NO_DRAGANDDROP
 
 /*!
+    \fn void QWidget::dragEnterEvent(QDragEnterEvent *event)
+
     This event handler is called when a drag is in progress and the
-    mouse enters this widget.
+    mouse enters this widget. The event is passed in the \a event parameter.
 
     See the \link dnd.html Drag-and-drop documentation\endlink for an
     overview of how to provide drag-and-drop in your application.
@@ -5379,10 +5395,13 @@ void QWidget::dragEnterEvent(QDragEnterEvent *)
 }
 
 /*!
+    \fn void QWidget::dragMoveEvent(QDragMoveEvent *event)
+
     This event handler is called if a drag is in progress, and when
     any of the following conditions occurs: the cursor enters this widget,
     the cursor moves within this widget, or a modifier key is pressed on
-    the keyboard while this widget has the focus.
+    the keyboard while this widget has the focus. The event is passed
+    in the \a event parameter.
 
     See the \link dnd.html Drag-and-drop documentation\endlink for an
     overview of how to provide drag-and-drop in your application.
@@ -5394,8 +5413,11 @@ void QWidget::dragMoveEvent(QDragMoveEvent *)
 }
 
 /*!
+    \fn void QWidget::dragLeaveEvent(QDragLeaveEvent *event)
+
     This event handler is called when a drag is in progress and the
-    mouse leaves this widget.
+    mouse leaves this widget. The event is passed in the \a event
+    parameter.
 
     See the \link dnd.html Drag-and-drop documentation\endlink for an
     overview of how to provide drag-and-drop in your application.
@@ -5407,8 +5429,10 @@ void QWidget::dragLeaveEvent(QDragLeaveEvent *)
 }
 
 /*!
+    \fn void QWidget::dropEvent(QDropEvent *event)
+
     This event handler is called when the drag is dropped on this
-    widget.
+    widget which are passed in the \a event parameter.
 
     See the \link dnd.html Drag-and-drop documentation\endlink for an
     overview of how to provide drag-and-drop in your application.
@@ -5422,8 +5446,10 @@ void QWidget::dropEvent(QDropEvent *)
 #endif // QT_NO_DRAGANDDROP
 
 /*!
+    \fn void QWidget::showEvent(QShowEvent *event)
+
     This event handler can be reimplemented in a subclass to receive
-    widget show events.
+    widget show events which are passed in the \a event parameter.
 
     Non-spontaneous show events are sent to widgets immediately before
     they are shown. The spontaneous show events of top-level widgets
@@ -5436,8 +5462,10 @@ void QWidget::showEvent(QShowEvent *)
 }
 
 /*!
+    \fn void QWidget::hideEvent(QHideEvent *event)
+
     This event handler can be reimplemented in a subclass to receive
-    widget hide events.
+    widget hide events. The event is passed in the \a event parameter.
 
     Hide events are sent to widgets immediately after they have been
     hidden.
@@ -5468,8 +5496,11 @@ void QWidget::hideEvent(QHideEvent *)
 #if defined(Q_WS_MAC)
 
 /*!
+    \fn bool QWidget::macEvent(EventHandlerCallRef caller, EventRef event)
+
     This special event handler can be reimplemented in a subclass to
-    receive native Macintosh events.
+    receive native Macintosh events which are passed from the \a
+    caller with the event details in the \a event parameter.
 
     In your reimplementation of this function, if you want to stop the
     event being handled by Qt, return true. If you return false, this
@@ -5490,8 +5521,11 @@ bool QWidget::macEvent(EventHandlerCallRef, EventRef)
 #if defined(Q_WS_WIN)
 
 /*!
+    \fn bool QWidget::winEvent(MSG *event)
+
     This special event handler can be reimplemented in a subclass to
-    receive native Windows events.
+    receive native Windows events which are passed in the \a event
+    parameter.
 
     In your reimplementation of this function, if you want to stop the
     event being handled by Qt, return true. If you return false, this
@@ -5511,8 +5545,11 @@ bool QWidget::winEvent(MSG *)
 #if defined(Q_WS_X11)
 
 /*!
+    \fn bool QWidget::x11Event(XEvent *event)
+
     This special event handler can be reimplemented in a subclass to
-    receive native X11 events.
+    receive native X11 events which are passed in the \a event
+    parameter.
 
     In your reimplementation of this function, if you want to stop the
     event being handled by Qt, return true. If you return false, this
@@ -5532,8 +5569,11 @@ bool QWidget::x11Event(XEvent *)
 #if defined(Q_WS_QWS)
 
 /*!
+    \fn bool QWidget::qwsEvent(QWSEvent *event)
+
     This special event handler can be reimplemented in a subclass to
-    receive native Qt/Embedded events.
+    receive native Qt/Embedded events which are passed in the \a event
+    parameter.
 
     In your reimplementation of this function, if you want to stop the
     event being handled by Qt, return true. If you return false, this
@@ -5596,8 +5636,10 @@ void QWidget::ensurePolished() const
 }
 
 /*!
+    \fn void QWidget::polishEvent(QEvent *event)
+
     This event handler can be reimplemented in a subclass to receive
-    widget polish events.
+    widget polish events passed in the \a event parameter.
 
     \sa ensurePolished(), QApplication::polish()
 */
@@ -5766,9 +5808,9 @@ int QWidget::heightForWidth(int w) const
 }
 
 /*!
-    Returns the visible child widget at pixel position \a (x, y) in
-    the widget's own coordinate system. If there is no visible child
-    widget at the specified position, returns 0.
+    Returns the visible child widget at pixel position (\a{x}, \a{y})
+    in the widget's own coordinate system. If there is no visible
+    child widget at the specified position, returns 0.
 */
 QWidget *QWidget::childAt(int x, int y) const
 {
@@ -6039,6 +6081,7 @@ const QPixmap *QWidget::icon() const
 
 #endif // QT_COMPAT
 
+// ### DOC: change the omitvalues into values with appropriate docs.
 /*!
     \enum Qt::WidgetAttribute
 
@@ -6046,12 +6089,11 @@ const QPixmap *QWidget::icon() const
 
     This enum type is used to specify various widget
     attributes. Attributes are set and cleared with
-    QWidget::setAttribute(), and queried with QWidget::hasAttribute().
+    QWidget::setAttribute(), and queried with QWidget::hasAttribute(),
+    although some have special convenience functions which are
+    mentioned below.
 
-    \table
-    \header \i Attribute \i Meaning \i Set/cleared by
-
-    \row \i Qt::WA_KeyCompression \i Enables key event compression if set,
+    \value WA_KeyCompression Enables key event compression if set,
     and disables it if not set. By default key compression is off, so
     widgets receive one key press event for each key press (or more,
     since autorepeat is usually on). If you turn it on and your
@@ -6075,130 +6117,153 @@ const QPixmap *QWidget::icon() const
     Not all platforms support this compression, in which case turning
     it on will have no effect.
 
-    \i widget author
+    This is set/cleared by the widget's author.
 
-    \row \i Qt::WA_PendingMoveEvent \i Indicates that a move event is
-    pending, e.g. when a hidden widget was moved. \i Qt kernel
+    \value WA_PendingMoveEvent Indicates that a move event is
+    pending, e.g. when a hidden widget was moved. This is set/cleared
+    by the Qt kernel
 
-    \row \i Qt::WA_PendingResizeEvent \i Indicates that a resize event is
-    pending, e.g. when a hidden widget was resized. \i Qt kernel
+    \value WA_PendingResizeEvent Indicates that a resize event is
+    pending, e.g. when a hidden widget was resized. This is
+    set/cleared by the Qt kernel.
 
-    \row \i Qt::WA_UnderMouse \i Indicates that the widget is under the
+    \value WA_UnderMouse Indicates that the widget is under the
     mouse cursor. The value is not updated correctly during drag and
     drop operations. There is also a getter function
-    QWidget::underMouse(). \i Qt kernel
+    QWidget::underMouse(). This is set/cleared by the Qt kernel.
 
-    \row \i Qt::WA_Disabled \i Indicates that the widget is disabled, i.e.
+    \value WA_Disabled Indicates that the widget is disabled, i.e.
     it does not receive any mouse or keyboard events. There is also a
-    getter functions QWidget::isEnabled().  \i Qt kernel
+    getter functions QWidget::isEnabled().  This is set/cleared by the
+    Qt kernel.
 
-    \row \i Qt::WA_ContentsPropagated \i Allows the contents painted in a
+    \value WA_ContentsPropagated Allows the contents painted in a
     QWidget::paintEvent() to be used as the background for children
-    that inherit their background. \i widget author or style
+    that inherit their background. This is set/cleared by the widget
+    author or by the style.
 
-    \row \i Qt::WA_ForceDisabled \i Indicates that the widget is
+    \value WA_ForceDisabled Indicates that the widget is
     explicitely disabled, i.e. it will remain disabled even when all
     its ancestors are set to the enabled state. This implies
-    Qt::WA_Disabled. \i Function QWidget::setEnabled() and
-    QWidget::setDisabled()
+    WA_Disabled. This is set/cleared by QWidget::setEnabled() and
+    QWidget::setDisabled().
 
-    \row \i Qt::WA_SetPalette \i Indicates that the widgets has a palette
-    of its own.  \i Function QWidget::setPalette()
+    \value WA_SetPalette Indicates that the widgets has a palette
+    of its own. This is set/cleared by QWidget::setPalette().
 
-    \row \i Qt::WA_SetFont \i Indicates that the widgets has a font of its
-    own. \i Function QWidget::setFont()
+    \value WA_SetFont Indicates that the widgets has a font of its
+    own. This is set/cleared by QWidget::setFont().
 
-    \row \i Qt::WA_SetCursor \i Indicates that the widgets has a cursor of its
-    own. \i Functions QWidget::setCursor() and QWidget::unsetCursor()
+    \value WA_SetCursor Indicates that the widgets has a cursor of its
+    own. This is set/cleared by QWidget::setCursor() and
+    QWidget::unsetCursor().
 
-    \row \i Qt::WA_SetForegroundRole \i Indicates that the widgets has an
-    explicit foreground role \i Function QWidget::setForegroundRole()
+    \value WA_SetForegroundRole Indicates that the widgets has an
+    explicit foreground role. This is set/cleared by
+    QWidget::setForegroundRole().
 
-    \row \i Qt::WA_SetBackgroundRole \i Indicates that the widgets has an
-    explicit background role\i Function QWidget::setBackgroundRole()
+    \value WA_SetBackgroundRole Indicates that the widgets has an
+    explicit background role. This is set/cleared by
+    QWidget::setBackgroundRole().
 
-    \row \i Qt::WA_NoBackground \i Indicates that the widget paints all
+    \value WA_NoBackground Indicates that the widget paints all
     its pixels when it receives a paint event. It is thus not required
     for operations like updating, resizing, scrolling and focus
     changes to call erase the widget before generating paint
-    events. Using Qt::WA_NoBackground is a small optimization. It can help
+    events. Using WA_NoBackground is a small optimization. It can help
     to reduce flicker on systems that do not provide double buffer
     support, and it avoids the computational cycles necessary to erase
-    the background prior to paint. NOTE: Unlike Qt::WA_NoSystemBackground,
+    the background prior to paint. NOTE: Unlike WA_NoSystemBackground,
     newly exposed areas are automatically filled with the background
-    (e.g. when showing a window for the first time). \i Widget author
+    (e.g. when showing a window for the first time). This is
+    set/cleared by the widget's author.
 
-    \row \i Qt::WA_NoSystemBackground \i Indicates that the widget has no
+    \value WA_NoSystemBackground Indicates that the widget has no
     background, i.e. when the widget receives paint events, the
     background is not automatically repainted. NOTE: Unlike
-    Qt::WA_NoBackground, newly exposed areas are \e not automatically
+    WA_NoBackground, newly exposed areas are \e not automatically
     filled with the background (e.g after showing a window for the
     first time). Note that if you do \e not combine this attribute
-    with either Qt::WA_PaintOnScreen or Qt::WA_NoBackground, the result will
-    probably be slower than just setting the Qt::WA_NoBackground
+    with either WA_PaintOnScreen or WA_NoBackground, the result will
+    probably be slower than just setting the WA_NoBackground
     attribute. This is because the window contents have to be copied
     into the double buffer before each paint event, in order for
-    double buffering to work as expected. \i Widget author
+    double buffering to work as expected. This is set/cleared by the
+    widget's author.
 
-    \row \i Qt::WA_StaticContents \i Indicates that the widget contents
+    \value WA_StaticContents Indicates that the widget contents
     are north-west aligned and static. On resize, such a widget will
-    receive paint events only for the newly visible part of itself. \i
-    Widget author.
+    receive paint events only for the newly visible part of itself.
+    This is set/cleared by the widget's author.
 
-    \row \i Qt::WA_PaintOnScreen \i Indicates that the widget wants to
+    \value WA_PaintOnScreen Indicates that the widget wants to
     draw directly onto the screen (implies no double buffering). This
-    is not supported on all platforms. \i Widget author.
+    is not supported on all platforms. This is set/cleared by the
+    widget's author.
 
-    \row \i Qt::WA_PaintUnclipped \i Makes all painters operating on this
+    \value WA_PaintUnclipped Makes all painters operating on this
     widget unclipped. Children of this widget or other widgets in
     front of it do not clip the area the painter can paint on.
 
-    \row \i Qt::WA_WindowModified \i Indicates that the window is marked as
+    \value WA_WindowModified Indicates that the window is marked as
     modified. On some platforms this will mean nothing, on others
     (including Mac OS X and Windows) the window will take a modified
-    appearance. \i Function QWidget::setWindowModified()
+    appearance. This is set/cleared by QWidget::setWindowModified().
 
-    \row \i Qt::WA_Resized \i Indicates that the widget has an explicit
-    size.\i Functions QWidget::resize() and QWidget::setGeometry()
+    \value WA_Resized Indicates that the widget has an explicit
+    size. This is set/cleared by QWidget::resize() and
+    by QWidget::setGeometry().
 
-    \row \i Qt::WA_Moved \i Indicates that the widget has an explicit
-    position.\i Functions QWidget::move() and QWidget::setGeometry()
+    \value WA_Moved Indicates that the widget has an explicit
+    position. This is set/cleared by QWidget::move() and
+    by QWidget::setGeometry().
 
-    \row \i Qt::WA_InvalidSize \i Indicates that the widget has an invalid
+    \value WA_InvalidSize Indicates that the widget has an invalid
     size. Showing the widget or calling any geometry function
     (e.g. QWidget::height() or QWidget::size()) will call
     QWidget::adjustSize() first. The attribute is used by widgets like
     QMenu that automatically change their size depending on the
-    contents. \i Set by widget author, cleared by Qt kernel.
+    contents. This is set by widget's author and cleared by the Qt kernel.
 
-    \row \i Qt::WA_Mapped \i Indicates that the widget is mapped on screen.
-    \i Qt kernel.
+    \value WA_Mapped Indicates that the widget is mapped on screen.
+    This is set/cleared by the Qt kernel.
 
-    \row \i Qt::WA_OutsideWSRange \i Indicates that the widget is outside
+    \value WA_OutsideWSRange Indicates that the widget is outside
     the valid range of the window system's coordinate system. A widget
-    outside the valid range cannot be mapped on screen. \i Qt kernel.
+    outside the valid range cannot be mapped on screen. This is
+    set/cleared by the Qt kernel.
 
-    \row \i Qt::WA_MacMetalStyle \i Indicates the the widget should be drawn
-    in metal style as supported by the windowing system (only meaningfull on Mac OS X).
-    \i Set by widget author
+    \value WA_MacMetalStyle Indicates the the widget should be
+    drawn in metal style as supported by the windowing system (only
+    meaningfull on Mac OS X). This is set by widget's author.
 
-    \row \i Qt::WA_CompositeParent/Qt::WA_CompositeChild \i Makes a child
+    \value WA_CompositeParent (see WA_CompositeChild)
+    \value WA_CompositeChild Makes a child
     widget form a single 'composite' unit with its parent widget. User
     events such as mouse and keyboard events are always handled by the
     composite parent first and then forwarded to the composite child
     by the parent's QWidget::event() function. This makes it possible
     to intercept events meant for the child widget in a subclass of
-    the parent widget. \i Widget author.
+    the parent widget. This is set/cleared by the widget's author.
 
-    \row \i Qt::WA_CustomWhatsThis \i Indicates that the widget wants to
-    continue operating normally in What's This mode \i Set by widget
-    author
+    \value WA_CustomWhatsThis Indicates that the widget wants to
+    continue operating normally in What's This mode This is set by the
+    widget's author.
 
-    \row \i Qt::WA_LayoutOnEntireRect \i Indicates that the widget
+    \value WA_LayoutOnEntireRect Indicates that the widget
     wants QLayout to operate on the entire QWidget::rect(), not only
-    on QWidget::contentsRect(). \i Set by widget author
+    on QWidget::contentsRect(). This is set by the widget's author.
 
-    \endtable
+    \omitvalue WA_SetWindowIcon
+    \omitvalue WA_PendingUpdate
+    \omitvalue WA_MouseTracking
+    \omitvalue WA_LaidOut
+    \omitvalue WA_GrabbedShortcut
+    \omitvalue WA_ForegroundInherited
+    \omitvalue WA_BackgroundInherited
+    \omitvalue WA_TransparentForMouseEvents
+
+    \omitvalue WA_AttributeCount
 */
 
 /*!

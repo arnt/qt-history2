@@ -702,7 +702,7 @@ QPoint QPainter::brushOrigin() const
 */
 
 /*!
-    Sets the brush origin to \a (x, y).
+    Sets the brush origin to (\a{x}, \a{y}).
 
     The brush origin specifies the (0, 0) coordinate of the painter's
     brush. This setting only applies to pattern brushes and pixmap
@@ -1103,7 +1103,7 @@ void QPainter::setWorldXForm(bool enable)
 
 #ifndef QT_NO_TRANSFORMATIONS
 /*!
-    Scales the coordinate system by \a (sx, sy).
+    Scales the coordinate system by (\a{sx}, \a{sy}).
 
     \sa translate(), shear(), rotate(), resetXForm(), setWorldMatrix(),
     xForm()
@@ -1117,7 +1117,7 @@ void QPainter::scale(double sx, double sy)
 }
 
 /*!
-    Shears the coordinate system by \a (sh, sv).
+    Shears the coordinate system by (\a{sh}, \a{sv}).
 
     \sa translate(), scale(), rotate(), resetXForm(), setWorldMatrix(),
     xForm()
@@ -1187,8 +1187,8 @@ void QPainter::resetXForm()
 */
 
 /*!
-    Translates the coordinate system by \a (dx, dy). After this call,
-    \a (dx, dy) is added to points.
+    Translates the coordinate system by (\a{dx}, \a{dy}). After this call,
+    (\a{dx}, \a{dy}) is added to points.
 
     For example, the following code draws the same point twice:
     \code
@@ -1361,7 +1361,7 @@ void QPainter::drawLine(const QPoint &p1, const QPoint &p2)
 
     \overload
 
-    Draws a rectangle with upper left corner at \a (x, y) and with
+    Draws a rectangle with upper left corner at (\a{x}, \a{y}) and with
     width \a w and height \a h.
 */
 
@@ -1449,6 +1449,16 @@ void QPainter::drawRect(const QRect &r)
     d->engine->drawRect(rect);
 }
 
+
+/*!
+    \fn void QPainter::drawEdges(int x, int y, int width, int height,
+    Qt::RectangleEdges edges)
+
+    \overload
+
+    Draws the edges specified by the rectangle at position (\a{x},
+    \a{y}) and with the given \a width and \a height.
+*/
 
 /*!
   Draws the one or more edges of the rectangle \a r. Edges to draw are
@@ -1764,7 +1774,7 @@ const QFont &QPainter::font() const
 
     \overload
 
-    Draws a rectangle with rounded corners at \a (x, y), with width \a
+    Draws a rectangle with rounded corners at (\a{x}, \a{y}), with width \a
     w and height \a h.
 
     The \a xRnd and \a yRnd arguments specify how rounded the corners
@@ -1863,8 +1873,8 @@ void QPainter::drawRoundRect(const QRect &r, int xRnd, int yRnd)
 
     \overload
 
-    Draws an ellipse with center at \a (x + w/2, y + h/2) and size \a
-    (w, h).
+    Draws an ellipse with center at (\a{x} + \a{w}/2, \a{y} + \a{h}/2)
+    and size (\a{w}, \a{h}).
 */
 
 /*!
@@ -1910,12 +1920,14 @@ void QPainter::drawEllipse(const QRect &r)
     d->engine->drawEllipse(rect);
 }
 
-/*! \fn void QPainter::drawArc(int x, int y, int w, int h, int a, int alen)
+/*!
+    \fn void QPainter::drawArc(int x, int y, int w, int h, int
+    startAngle, int spanAngle)
 
     \overload
 
-    Draws the arc that fits inside the rectangle \a (x, y, w, h), with
-    start angle \a a and arc length \a alen.
+    Draws the arc that fits inside the rectangle (\a{x}, \a{y}, \a{w},
+    \a{h}), with the given \a startAngle and \a spanAngle.
 */
 
 /*!
@@ -1958,11 +1970,13 @@ void QPainter::drawArc(const QRect &r, int a, int alen)
 
 
 /*!
-    \fn void QPainter::drawPie(int x, int y, int w, int h, int a, int alen)
+    \fn void QPainter::drawPie(int x, int y, int w, int h, int
+    startAngle, int spanAngle)
+
     \overload
 
-    Draws a pie segment that fits inside the rectangle \a (x, y, w, h)
-    with start angle \a a and arc length \a alen.
+    Draws a pie segment that fits inside the rectangle (\a{x}, \a{y},
+    \a{w}, \a{h}) with the given \a startAngle and \a spanAngle.
 */
 
 /*!
@@ -2030,12 +2044,13 @@ void QPainter::drawPie(const QRect &r, int a, int alen)
 }
 
 /*!
-    \fn void QPainter::drawChord(int x, int y, int w, int h, int a, int alen)
+    \fn void QPainter::drawChord(int x, int y, int w, int h, int
+    startAngle, int spanAngle)
 
     \overload
 
-    Draws a chord that fits inside the rectangle \a (x, y, w, h) with
-    start angle \a a and arc length \a alen.
+    Draws a chord that fits inside the rectangle (\a{x}, \a{y}, \a{w},
+    \a{h}) with the given \a startAngle and \a spanAngle.
 */
 
 
@@ -2096,12 +2111,12 @@ void QPainter::drawChord(const QRect &r, int a, int alen)
 
 /*!
     Draws \a nlines separate lines from points defined in \a a,
-    starting at \a a[index] (\a index defaults to 0). If \a nlines is
+    starting at \a{a}\e{[index]} (\a index defaults to 0). If \a nlines is
     -1 (the default) all points until the end of the array are used
     (i.e. (a.size()-index)/2 lines are drawn).
 
-    Draws the 1st line from \a a[index] to \a a[index+1]. Draws the
-    2nd line from \a a[index+2] to \a a[index+3] etc.
+    Draws the 1st line from \a{a}\e{[index]} to \a{a}\e{[index + 1]}. Draws the
+    2nd line from \a{a}\e{[index + 2]} to \a{a}\e{[index + 3]} etc.
 
     \sa drawPolyline(), drawPolygon(), QPen
 */
@@ -2134,7 +2149,7 @@ void QPainter::drawLineSegments(const QPointArray &a, int index, int nlines)
 
 /*!
     Draws the polyline defined by the \a npoints points in \a a
-    starting at \a a[index]. (\a index defaults to 0.)
+    starting at \a{a}\e{[index]}. (\a index defaults to 0.)
 
     If \a npoints is -1 (the default) all points until the end of the
     array are used (i.e. a.size()-index-1 line segments are drawn).
@@ -2169,7 +2184,7 @@ void QPainter::drawPolyline(const QPointArray &a, int index, int npoints)
 
 /*!
     Draws the polygon defined by the \a npoints points in \a a
-    starting at \a a[index]. (\a index defaults to 0.)
+    starting at \a{a}\e{[index]}. (\a index defaults to 0.)
 
     If \a npoints is -1 (the default) all points until the end of the
     array are used (i.e. a.size()-index line segments define the
@@ -2234,7 +2249,7 @@ void QPainter::drawPolygon(const QPointArray &a, bool winding, int index, int np
 
 /*!
     Draws the convex polygon defined by the \a npoints points in \a a
-    starting at \a a[index] (\a index defaults to 0).
+    starting at \a{a}\e{[index]} (\a index defaults to 0).
 
     If the supplied polygon is not convex, the results are undefined.
 
@@ -2265,9 +2280,9 @@ void QPainter::drawConvexPolygon(const QPointArray &a, int index, int npoints)
 
 /*!
     Draws a cubic Bezier curve defined by the control points in \a a,
-    starting at \a a[index] (\a index defaults to 0).
+    starting at \a{a}\e{[index]} (\a index defaults to 0).
 
-    Control points after \a a[index + 3] are ignored. Nothing happens
+    Control points after \a{a}\e{[index + 3]} are ignored. Nothing happens
     if there aren't enough control points.
 */
 
@@ -2298,10 +2313,11 @@ void QPainter::drawCubicBezier(const QPointArray &a, int index)
 
     \overload
 
-    Draws the rectangular portion with the origin \a(sx, sy), width \a sw
-    and height \a sh, of the pixmap \a pm, at the point \a(x, y), with a
-    width of \a w and a height of \a h. If \a mode is QPainter::CopyPixmap \a pm will not
-    be masked to QPixmap::mask()
+    Draws the rectangular portion with the origin (\a{sx}, \a{sy}),
+    width \a sw and height \a sh, of the pixmap \a pm, at the point
+    (\a{x}, \a{y}), with a width of \a w and a height of \a h. If \a
+    mode is QPainter::CopyPixmap \a pm will not be masked to
+    QPixmap::mask()
 */
 
 /*!
@@ -2310,14 +2326,14 @@ void QPainter::drawCubicBezier(const QPointArray &a, int index)
 
     \overload
 
-    Draws a pixmap at \a (x, y) by copying a part of \a pixmap into
+    Draws a pixmap at (\a{x}, \a{y}) by copying a part of \a pixmap into
     the paint device.
 
-    \a (x, y) specifies the top-left point in the paint device that is
-    to be drawn onto. \a (sx, sy) specifies the top-left point in \a
+    (\a{x}, \a{y}) specifies the top-left point in the paint device that is
+    to be drawn onto. (\a{sx}, \a{sy}) specifies the top-left point in \a
     pixmap that is to be drawn. The default is (0, 0).
 
-    \a (sw, sh) specifies the size of the pixmap that is to be drawn.
+    (\a{sw}, \a{sh}) specifies the size of the pixmap that is to be drawn.
     The default, (-1, -1), means all the way to the bottom-right of
     the pixmap.
 
@@ -2443,56 +2459,15 @@ void QPainter::drawPixmap(const QRect &r, const QPixmap &pm, const QRect &sr, Qt
 }
 
 /*!
-    \fn void QPainter::drawImage(const QPoint &p, const QImage &i,
-                                 const QRect &sr, int conversionFlags)
-
-    \overload
-
-    Draws the rectangular portion specified by \a sr, of image \a i,
-    at point \a p. The \a conversionFlags signify how the drawing is
-    to be done.
-
-    \sa Qt::ImageConversionFlags
-*/
-
-/*!
-    \fn void QPainter::drawImage(const QPoint &p, const QImage &i,
-                                 int conversionFlags)
-
-    \overload
-
-    Draws the image \a i, at point \a p. The \a conversionFlags
-    signify how the drawing is to be done.
-
-    \sa Qt::ImageConversionFlags
-*/
-
-/*!
-  \fn void QPainter::drawImage(const QRect &r, const QImage &image)
-
-  \overload
-*/
-
-
-/*! \fn void QPainter::drawImage(int x, int y, const QImage &image,
-                                 int sx = 0, int sy = 0, int sw = -1, int sh = -1,
-                                 int conversionFlags = 0)
-
-    \overload
-*/
-
-
-
-/*!
     \fn void QPainter::drawText(int x, int y, int w, int h, int flags,
                                 const QString &str, int len, QRect *br)
 
     \overload
 
-    Draws the string \a str within the rectangle with origin \a(x, y),
-    width \a w and height \a h. If \a len is -1 (the default) all the
-    text is drawn, otherwise only the first \a len characters are
-    drawn. The flags that are given in the \a flags parameter are
+    Draws the string \a str within the rectangle with origin (\a{x},
+    \a{y}), width \a w and height \a h. If \a len is -1 (the default)
+    all the text is drawn, otherwise only the first \a len characters
+    are drawn. The flags that are given in the \a flags parameter are
     \l{Qt::AlignmentFlag}s and \l{Qt::TextFlag}s OR'd together. \a br
     (if not null) is set to the actual bounding rectangle of the
     output.
@@ -2615,8 +2590,8 @@ void QPainter::drawTextItem(const QPoint &p, const QTextItem &ti, int textFlags)
 
     \internal
 
-    Sets \a(rx, ry) to the point that results from applying the
-    painter's current transformation on the point \a(x, y).
+    Sets (\a{rx}, \a{ry}) to the point that results from applying the
+    painter's current transformation on the point (\a{x}, \a{y}).
 */
 
 /*!
@@ -2637,7 +2612,7 @@ void QPainter::drawTextItem(const QPoint &p, const QTextItem &ti, int textFlags)
     \a len characters of the string \a str, if \a len is > -1, or the
     whole of the string if \a len is -1. The drawing, and hence the
     bounding rectangle, is constrained to the rectangle that begins at
-    point \a (x, y) with width \a w and height \a h, or to the
+    point (\a{x}, \a{y}) with width \a w and height \a h, or to the
     rectangle required to draw the text, whichever is the larger.
 
     The \a flags argument is
@@ -2722,10 +2697,10 @@ void qt_draw_tile(QPaintEngine *gc, int x, int y, int w, int h,
 /*!
     Draws a tiled \a pixmap in the specified rectangle.
 
-    \a (x, y) specifies the top-left point in the paint device that is
-    to be drawn onto; with the width and height given by \a w and \a
-    h. \a (sx, sy) specifies the top-left point in \a pixmap that is
-    to be drawn. The default is (0, 0).
+    (\a{x}, \a{y}) specifies the top-left point in the paint device
+    that is to be drawn onto; with the width and height given by \a w
+    and \a h. (\a{sx}, \a{sy}) specifies the top-left point in \a
+    pixmap that is to be drawn. The default is (0, 0).
 
     Calling drawTiledPixmap() is similar to calling drawPixmap()
     several times to fill (tile) an area with a pixmap, but is
@@ -2833,7 +2808,7 @@ void QPainter::eraseRect(int x, int y, int w, int h)
 */
 
 /*!
-    Fills the rectangle \a (x, y, w, h) with the \a brush.
+    Fills the rectangle (\a{x}, \a{y}, \a{w}, \a{h}) with the \a brush.
 
     You can specify a QColor as \a brush, since there is a QBrush
     constructor that takes a QColor argument and creates a solid
@@ -3028,8 +3003,8 @@ QPointArray QPainter::xForm(const QPointArray &a) const
     Returns the point array \a av transformed from model coordinates
     to device coordinates. The \a index is the first point in the
     array and \a npoints denotes the number of points to be
-    transformed. If \a npoints is negative, all points from \a
-    av[index] until the last point in the array are transformed.
+    transformed. If \a npoints is negative, all points from
+    \a{av}\e{[index]} until the last point in the array are transformed.
 
     The returned point array consists of the number of points that
     were transformed.
@@ -3148,7 +3123,7 @@ QPointArray QPainter::xFormDev(const QPointArray &a) const
     Returns the point array \a ad transformed from device coordinates
     to model coordinates. The \a index is the first point in the array
     and \a npoints denotes the number of points to be transformed. If
-    \a npoints is negative, all points from \a ad[index] until the
+    \a npoints is negative, all points from \a{ad}\e{[index]} until the
     last point in the array are transformed.
 
     The returned point array consists of the number of points that

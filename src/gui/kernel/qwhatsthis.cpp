@@ -467,6 +467,8 @@ QWhatsThis::QWhatsThis()
 /*!
     \obsolete
 
+    Sets the What's This text \a s for the widget \a w.
+
     Use QWidget::setWhatsThis() or QAction::setWhatsThis() instead.
 */
 void QWhatsThis::add(QWidget *w, const QString &s)
@@ -476,6 +478,8 @@ void QWhatsThis::add(QWidget *w, const QString &s)
 
 /*!
     \obsolete
+
+    Remove's the What's This text for the widget \a w.
 
     Use QWidget::setWhatsThis() or QAction::setWhatsThis() instead.
 */

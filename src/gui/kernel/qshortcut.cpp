@@ -49,6 +49,33 @@
     \sa QKeySequence QAction
 */
 
+/*!
+    \fn QWidget *QShortcut::parentWidget() const
+
+    Returns the shortcut's parent widget.
+*/
+
+/*!
+    \fn void QShortcut::activated()
+
+    This signal is emitted when the user types the shortcut's key
+    sequence.
+
+    \sa activatedAmbiguously()
+*/
+
+/*!
+    \fn void QShortcut::activatedAmbiguously()
+
+    This signal is emitted when the user types a shortcut key
+    sequence that is ambiguous. For example, if one key sequence is a
+    "prefix" for another and the user types these keys it isn't clear
+    if they want the shorter key sequence, or if they're about to type
+    more to complete the longer key sequence.
+
+    \sa activated()
+*/
+
 /*
     \internal
     Private data accessed through d-pointer.

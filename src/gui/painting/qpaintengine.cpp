@@ -64,17 +64,19 @@
   \value PenWidthTransform The engine has support for transforming pen
   widths.
 
-  \value PatterTransform The engine has support for transforming brush
+  \value PatternTransform The engine has support for transforming brush
   patterns.
 
-  \value PixmapTransfor The engine can transform pixmaps, including
+  \value PixmapTransform The engine can transform pixmaps, including
   rotation and shearing.
 
   \value LinearGradients The engine can fill with linear gradients
 
+  \value DrawRects The engine can draw rectangles.
+
   \value PixmapScale The engine can scale pixmaps.
 
-  \value SolidAlphFill The engine can fill and outline with alpha colors
+  \value SolidAlphaFill The engine can fill and outline with alpha colors
 
   \value PainterPaths The engine has path support.
 
@@ -95,6 +97,269 @@
 
 #define d d_func()
 #define q q_func()
+
+/*!
+    \enum QPaintEngine::Type
+
+    \value X11
+    \value Windows
+    \value Gdiplus (same as Windows)
+    \value QuickDraw (same as CoreGraphics)
+    \value CoreGraphics Mac OS X
+    \value QWindowSystem Qt/Embedded
+    \value PostScript
+    \value OpenGL
+    \value Picture QPicture format
+    \value SVG Scalable Vector Graphics XML format
+    \value User First user type ID
+    \value MaxUser Last user type ID
+    \omitvalue Wrapper
+*/
+
+/*!
+    \fn bool QPaintEngine::isActive() const
+
+    Returns true if the paint engine is actively drawing; otherwise
+    returns false.
+
+    \sa setActive()
+*/
+
+/*!
+    \fn void QPaintEngine::setActive(bool state)
+
+    Sets the active state of the paint engine to \a state.
+
+    \sa isActive()
+*/
+
+/*!
+    \fn bool QPaintEngine::begin(QPaintDevice *pdev)
+
+    Reimplement this function to initialise your paint engine when
+    painting is to start on the paint device \a pdev. Return true if
+    the initialization was successful; otherwise return false.
+
+    \sa end() isActive()
+*/
+
+/*!
+    \fn bool QPaintEngine::end()
+
+    Reimplement this function to finish painting on the current paint
+    device. Return true if painting was finished successfully;
+    otherwise return false.
+
+    \sa begin() isActive()
+*/
+
+/*!
+    \fn void QPaintEngine::drawLine(const QPoint &p1, const QPoint &p2)
+
+    Reimplement this function to draw a line from point \a p1 to point \a p2.
+*/
+
+/*!
+    \fn void QPaintEngine::drawRect(const QRect &rectangle)
+
+    Reimplement this function to draw the given \a rectangle.
+*/
+
+/*!
+    \fn void QPaintEngine::drawPoint(const QPoint &point)
+
+    Reimplement this function to draw the given \a point.
+*/
+
+/*!
+    \fn void QPaintEngine::drawPoints(const QPointArray &pa, int
+    index, int npoints)
+
+    Reimplement this function to draw at most \a npoints from the
+    point array \a pa, starting at the \a{index}-th point in \a pa.
+*/
+
+// ### DOC: how are xRnd and yRnd to be used?
+/*!
+    \fn void QPaintEngine::drawRoundRect(const QRect &rectangle, int xRnd, int yRnd)
+
+    Reimplement this function to draw the given \a rectangle with
+    rounded corners. The point (\a{xRnd}, \a{yRnd}) is the offset from
+    which the rounded corner is notionally drawn.
+*/
+
+/*!
+    \fn void QPaintEngine::drawEllipse(const QRect &rectangle)
+
+    Reimplement this function to draw the largest ellipse that can be
+    contained within the given \a rectangle.
+*/
+
+// ### DOC: are the angles in degrees, 1/16 degrees, or radians?
+/*!
+    \fn void QPaintEngine::drawArc(const QRect &rectangle, int
+    startAngle, int spanAngle)
+
+    Reimplement this function to draw the largest arc that can be
+    contained within the given \a rectangle, starting at position \a
+    startAngle and moving anti-clockwise by \a spanAngle.
+*/
+
+/*!
+    \fn void QPaintEngine::drawPie(const QRect &rectangle, int startAngle, int
+    spanAngle)
+
+    Reimplement this function to draw the largest pie segment that can
+    be contained within the given \a rectangle, starting at position
+    \a startAngle and moving anti-clockwise by \a spanAngle.
+*/
+
+/*!
+    \fn void QPaintEngine::drawChord(const QRect &rectangle, int
+    startAngle, int spanAngle)
+
+    Reimplement this function to draw the largest chord that can be
+    contained within the given \a rectangle, starting at position \a
+    startAngle and moving anti-clockwise by \a spanAngle.
+*/
+
+/*!
+    \fn void QPaintEngine::drawLineSegments(const QPointArray &pa, int
+    index, int nlines)
+
+    Reimplement this function to draw at most \a nlines line segments
+    between pairs of points in the point array \a pa, starting with
+    the \a{index}-th point in \a pa.
+*/
+
+/*!
+    \fn void QPaintEngine::drawPolyline(const QPointArray &pa, int
+    index, int npoints)
+
+    Reimplement this function to draw a polyline consisting of at most
+    \a npoints points from the point array \a pa, starting with the
+    \a{index}-th point in \a pa.
+*/
+
+/*!
+    \fn void QPaintEngine::drawPolygon(const QPointArray &pa, bool
+    winding, int index, int npoints)
+
+    Reimplement this function to draw a polygon consisting of at most
+    \a npoints points from the point array \a pa, starting with the
+    \a{index}-th point in \a pa. If \a winding is true the polygon
+    should be filled using the Winding algorithm; otherwise it should
+    be filled using the Odd-Even algorithm.
+*/
+
+/*!
+    \fn void QPaintEngine::drawConvexPolygon(const QPointArray &pa, int
+    index, int npoints)
+
+    Reimplement this function to draw a convex polygon consisting of
+    at most \a npoints points from the point array \a pa, starting
+    with the \a{index}-th point in \a pa.
+*/
+
+/*!
+    \fn void QPaintEngine::drawCubicBezier(const QPointArray &pa, int index)
+
+    Reimplement this function to draw a cubic bezier whose control
+    points are given in the point array \a pa, starting with the
+    \a{index}-th point in \a pa.
+*/
+
+/*!
+    \fn void QPaintEngine::drawPixmap(const QRect &rectangle, const QPixmap
+    &pixmap, const QRect &sr, Qt::PixmapDrawingMode mode)
+
+    Reimplement this function to draw the part of the \a pixmap
+    specified by the \a sr rectangle in the given \a rectangle using
+    the given drawing \a mode.
+*/
+
+/*!
+    \fn void QPaintEngine::drawTiledPixmap(const QRect &rectangle, const
+    QPixmap &pixmap, const QPoint &point)
+
+    Reimplement this function to draw the \a pixmap in the given \a
+    rectangle, starting at the given \a point. The pixmap will be
+    drawn repeatedly until the \a rectangle is filled.
+*/
+
+/*!
+    \fn Type QPaintEngine::type() const
+
+    Reimplement this function to return the paint engine \l{Type}.
+*/
+
+/*!
+    \fn bool QPaintEngine::testf(uint b) const
+
+    \internal
+*/
+
+/*!
+    \fn void QPaintEngine::setf(uint b)
+
+    \internal
+*/
+
+/*!
+    \fn void QPaintEngine::clearf(uint b)
+
+    \internal
+*/
+
+/*!
+    \fn void QPaintEngine::assignf(uint b)
+
+    \internal
+*/
+
+/*!
+    \fn void QPaintEngine::fix_neg_rect(int *x, int *y, int *w, int *h);
+
+    \internal
+*/
+
+/*!
+    \fn bool QPaintEngine::hasClipping() const
+
+    \internal
+*/
+
+/*!
+    \fn bool QPaintEngine::testDirty(DirtyFlags df)
+
+    \internal
+*/
+
+/*!
+    \fn void QPaintEngine::setDirty(DirtyFlags df)
+
+    \internal
+*/
+
+/*!
+    \fn void QPaintEngine::clearDirty(DirtyFlags df)
+
+    \internal
+*/
+
+/*!
+    \fn bool QPaintEngine::hasFeature(PaintEngineFeatures feature) const
+
+    Returns true if the paint engine supports the specified \a
+    feature; otherwise returns false.
+*/
+
+/*!
+    \fn void QPaintEngine::updateState(QPainterState *state, bool updateGC)
+
+    \internal
+*/
+
 
 /*!
   Creates a paint engine with the featureset specified by \a caps.
@@ -126,11 +391,17 @@ QPaintEngine::QPaintEngine(QPaintEnginePrivate &dptr, PaintEngineFeatures caps)
     d_ptr->q_ptr = this;
 }
 
+/*!
+    Destroys the paint engine.
+*/
 QPaintEngine::~QPaintEngine()
 {
     delete d_ptr;
 }
 
+/*!
+    Returns the paint engine's painter.
+*/
 QPainter *QPaintEngine::painter() const
 {
     return state->painter;
@@ -205,9 +476,11 @@ void QPaintEngine::drawPath(const QPainterPath &)
 }
 
 /*!
-  This function draws a the text item at the position ti. The default implementation
-  of this function will render the text to a pixmap and draw the pixmap instead
- */
+    This function draws the text item \a ti at position \a p in
+    accordance with the given \a textFlags. The default implementation
+    of this function renders the text to a pixmap and draws the
+    resultant pixmap.
+*/
 
 void QPaintEngine::drawTextItem(const QPoint &p, const QTextItem &ti, int textFlags)
 {

@@ -305,9 +305,20 @@ void QColor::cleanup()
 
 /*!
   \internal
-  Allocates the color on screen \a screen.  Only used in X11.
 
-  \sa alloc(), pixel()
+  Allocates the RGB color and returns the pixel value.
+
+  The \a screen parameter is only used under X11 to specify the X11
+  screen.
+
+  Allocating a color means to obtain a pixel value from the RGB
+  specification.  The pixel value is an index into the global color
+  table, but should be considered an arbitrary platform-dependent value.
+
+  The pixel() function calls alloc() if necessary, so in general you
+  don't need to call this function.
+
+  \sa alloc(), pixel() enterAllocContext()
 */
 uint QColor::alloc(int screen)
 {
@@ -493,24 +504,6 @@ uint QColor::alloc(int screen)
     sd->colorHash.insert(d.argb, c);        // store color in dict
     return pix;
 }
-
-/*!
-  \fn uint alloc(int screen)
-
-  Allocates the RGB color and returns the pixel value.
-
-  The \a screen parameter is only used under X11 to specify the X11
-  screen.
-
-  Allocating a color means to obtain a pixel value from the RGB
-  specification.  The pixel value is an index into the global color
-  table, but should be considered an arbitrary platform-dependent value.
-
-  The pixel() function calls alloc() if necessary, so in general you
-  don't need to call this function.
-
-  \sa enterAllocContext()
-*/
 
 void QColor::setSystemNamedColor(const QString& name)
 {

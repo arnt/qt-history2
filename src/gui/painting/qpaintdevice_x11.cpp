@@ -44,12 +44,12 @@
     \code
     void MyWidget::paintEvent(QPaintEvent *)
     {
-        QPainter p;                       // our painter
+        QPainter p;                     // our painter
         p.begin(this);                  // start painting the widget
         p.setPen(red);                  // red outline
         p.setBrush(yellow);             // yellow fill
         p.drawEllipse(10, 20, 100,100); // 100x100 ellipse at position (10, 20)
-        p.end();                          // painting done
+        p.end();                        // painting done
     }
     \endcode
 
@@ -174,16 +174,6 @@ int QPaintDevice::metric(int) const
 }
 
 
-
-/*!
-    \relates QPaintDevice
-
-    \fn void bitBlt(QPaintDevice *dst, const QPoint &dp, const QPaintDevice *src, const QRect &sr, bool ignoreMask)
-    \overload
-
-    Overloaded bitBlt() with the destination point \a dp and source
-    rectangle \a sr.
-*/
 
 #ifdef QT_COMPAT
 

@@ -410,8 +410,8 @@ static void qDrawWinShades(QPainter *p,
 
     The line width is 2 pixels.
 
-    The button's interior is filled with the \a *fill brush unless \a
-    fill is 0.
+    The button's interior is filled with the \c{*}\a{fill} brush
+    unless \a fill is 0.
 
     \warning This function does not look at QWidget::style() or
     QApplication::style(). Use the drawing functions in QStyle to make

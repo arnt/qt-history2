@@ -774,7 +774,7 @@ QColor QColor::dark(int factor) const
 
 
 /*!
-    \fn bool QColor::operator==(const QColor &c) const
+    \fn bool QColor::operator==(const QColor &other) const
 
     Returns true if this color has the same RGB value as the \a other color;
     otherwise returns false.
@@ -925,7 +925,7 @@ QDataStream &operator>>(QDataStream &s, QColor &c)
     \fn QRgb qRgb(int r, int g, int b)
     \relates QColor
 
-    Returns the RGB triplet \a (r,g,b).
+    Returns the RGB triplet (\a{r}, \a{g}, \a{b}).
 
     The return type QRgb is equivalent to \c unsigned \c int.
 
@@ -936,7 +936,7 @@ QDataStream &operator>>(QDataStream &s, QColor &c)
     \fn QRgb qRgba(int r, int g, int b, int a)
     \relates QColor
 
-    Returns the RGBA quadruplet \a (r,g,b,a).
+    Returns the RGBA quadruplet (\a{r}, \a{g}, \a{b}, \a{a}).
 
     The return type QRgba is equivalent to \c unsigned \c int.
 

@@ -273,6 +273,7 @@ public:
         WindowActive = 0x00000008
     };
 
+    // documented in qwidget.cpp
     enum WidgetAttribute {
         WA_Disabled,
         WA_UnderMouse,

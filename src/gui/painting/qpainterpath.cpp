@@ -217,7 +217,7 @@ static inline void qt_painterpath_setbits(int from, int to, uchar *scanLine, uin
 
   The cliprectangle \a clip is used to clip the scan area down to the part that
   is currently visible. The clip is specified in painter coordinates. The
-  matrix \a xform defines the world matrix. \pathPos
+  matrix \a xform defines the world matrix.
 
   The algorithm for this works by first flattening the path to linear
   segments stored in point arrays (flatCurves). We then intersect the

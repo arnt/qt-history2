@@ -129,8 +129,8 @@ void QSound::play(const QString& filename)
 
     This may use more memory than the static \c play function.
 
-    The \a parent and \a name arguments (default 0) are passed on to
-    the QObject constructor.
+    The \a parent argument (default 0) is passed on to the QObject
+    constructor.
 */
 QSound::QSound(const QString& filename, QObject* parent) :
     QObject(parent),
