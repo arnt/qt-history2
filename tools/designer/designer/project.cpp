@@ -1476,7 +1476,8 @@ QObjectList *Project::run()
     if ( MainWindow::self )
 	MainWindow::self->runProjectPrecondition();
 
-    QApplication::setOverrideCursor( WaitCursor );
+    if ( hasGUI() )
+	QApplication::setOverrideCursor( WaitCursor );
 
     delete qwf_forms;
     qwf_forms = 0;
@@ -1511,7 +1512,8 @@ QObjectList *Project::run()
 		l2.append( w ? w : qwf_form_object );
 	    }
 	    emit runtimeError( error[0], l[0], line[0] );
-	    QApplication::restoreOverrideCursor();
+	    if ( hasGUI() )
+		QApplication::restoreOverrideCursor();
 	    if ( MainWindow::self ) {
 		MainWindow::self->showSourceLine( qwf_form_object ? qwf_form_object : w,
 						  line[ 0 ] - 1, MainWindow::Error );
@@ -1540,7 +1542,8 @@ QObjectList *Project::run()
 		MainWindow::self->showSourceLine( f, line[ 0 ] - 1, MainWindow::Error );
 		MainWindow::self->outputWindow()->setErrorMessages( error, line, FALSE, l, l2 );
 	    }
-	    QApplication::restoreOverrideCursor();
+	    if ( hasGUI() )
+		QApplication::restoreOverrideCursor();
 	    return 0;
 	}
     }
@@ -1634,7 +1637,8 @@ QObjectList *Project::run()
 
     iiface->release();
 
-    QApplication::restoreOverrideCursor();
+    if ( hasGUI() )
+	QApplication::restoreOverrideCursor();
     qwf_stays_on_top = FALSE;
 
     if ( MainWindow::self )
