@@ -296,6 +296,7 @@ class QDockWindowHandle : public QWidget
     Q_OBJECT
     Q_PROPERTY( QString caption READ caption )
     friend class QDockWindow;
+    friend class QDockWindowTitleBar;
 
 public:
     QDockWindowHandle( QDockWindow *dw );
@@ -337,6 +338,41 @@ private:
     QGuardedPtr<QWidget> oldFocus;
 };
 
+class QDockWindowTitleBar : public QTitleBar
+{
+    Q_OBJECT
+    friend class QDockWindow;
+    friend class QDockWindowHandle;
+
+public:
+    QDockWindowTitleBar( QDockWindow *dw );
+    void updateGui();
+    void setOpaqueMoving( bool b ) { opaque = b; }
+
+protected:
+    void resizeEvent( QResizeEvent *e );
+    void mousePressEvent( QMouseEvent *e );
+    void mouseMoveEvent( QMouseEvent *e );
+    void mouseReleaseEvent( QMouseEvent *e );
+    void mouseDoubleClickEvent( QMouseEvent *e );
+    void keyPressEvent( QKeyEvent *e );
+    void keyReleaseEvent( QKeyEvent *e );
+
+signals:
+    void doubleClicked();
+
+private:
+    QDockWindow *dockWindow;
+    QPoint offset;
+    QToolButton *closeButton;
+    uint mousePressed : 1;
+    uint hadDblClick : 1;
+    uint opaque : 1;
+    uint ctrlDown : 1;
+    QGuardedPtr<QWidget> oldFocus;
+
+};
+
 QDockWindowHandle::QDockWindowHandle( QDockWindow *dw )
     : QWidget( dw, "qt_dockwidget_internal", WRepaintNoErase ), dockWindow( dw ),
       closeButton( 0 ), opaque( FALSE ), mousePressed( FALSE )
@@ -354,7 +390,7 @@ void QDockWindowHandle::paintEvent( QPaintEvent *e )
     QPainter p( this );
     QStyle::SFlags flags = QStyle::Style_Default;
 
-    if ( dockWindow->area()->orientation() == Horizontal )
+    if ( !dockWindow->area() || dockWindow->area()->orientation() == Horizontal )
 	flags |= QStyle::Style_Horizontal;
     else
 	flags |= QStyle::Style_Vertical;
@@ -428,6 +464,8 @@ void QDockWindowHandle::mouseReleaseEvent( QMouseEvent *e )
     } else if ( !hadDblClick ) {
 	dockWindow->updatePosition( e->globalPos() );
     }
+    if ( opaque )
+	dockWindow->titleBar->mousePressed = FALSE;
 }
 
 void QDockWindowHandle::minimize()
@@ -495,41 +533,6 @@ void QDockWindowHandle::mouseDoubleClickEvent( QMouseEvent *e )
     emit doubleClicked();
     hadDblClick = TRUE;
 }
-
-
-class QDockWindowTitleBar : public QTitleBar
-{
-    Q_OBJECT
-    friend class QDockWindow;
-
-public:
-    QDockWindowTitleBar( QDockWindow *dw );
-    void updateGui();
-    void setOpaqueMoving( bool b ) { opaque = b; }
-
-protected:
-    void resizeEvent( QResizeEvent *e );
-    void mousePressEvent( QMouseEvent *e );
-    void mouseMoveEvent( QMouseEvent *e );
-    void mouseReleaseEvent( QMouseEvent *e );
-    void mouseDoubleClickEvent( QMouseEvent *e );
-    void keyPressEvent( QKeyEvent *e );
-    void keyReleaseEvent( QKeyEvent *e );
-
-signals:
-    void doubleClicked();
-
-private:
-    QDockWindow *dockWindow;
-    QPoint offset;
-    QToolButton *closeButton;
-    uint mousePressed : 1;
-    uint hadDblClick : 1;
-    uint opaque : 1;
-    uint ctrlDown : 1;
-    QGuardedPtr<QWidget> oldFocus;
-
-};
 
 QDockWindowTitleBar::QDockWindowTitleBar( QDockWindow *dw )
     : QTitleBar( 0, dw, "qt_dockwidget_internal" ), dockWindow( dw ),
@@ -604,6 +607,10 @@ void QDockWindowTitleBar::mouseReleaseEvent( QMouseEvent *e )
     mousePressed = FALSE;
     if ( !hadDblClick )
 	dockWindow->updatePosition( e->globalPos() );
+    if ( opaque ) {
+	dockWindow->horHandle->mousePressed = FALSE;
+	dockWindow->verHandle->mousePressed = FALSE;
+    }
 }
 
 void QDockWindowTitleBar::resizeEvent( QResizeEvent *e )
