@@ -248,11 +248,13 @@ QString QFileInfo::readLink() const
 #endif
 }
 
+bool qt_ntfs_permission_lookup = TRUE;
 
 QString QFileInfo::owner() const
 {
+
 #if !defined(Q_OS_TEMP) && defined(UNICODE)
-    if ( qt_winunicode ) {
+    if ( qt_ntfs_permission_lookup && qt_winunicode ) {
 	PSID pOwner = 0;
 	PSECURITY_DESCRIPTOR pSD;
 	QString name;
@@ -296,7 +298,7 @@ uint QFileInfo::ownerId() const
 QString QFileInfo::group() const
 {
 #if !defined(Q_OS_TEMP) && defined(UNICODE)
-    if ( qt_winunicode ) {
+    if ( qt_ntfs_permission_lookup &&qt_winunicode ) {
 	PSID pGroup = 0;
 	PSECURITY_DESCRIPTOR pSD;
 	QString name;
@@ -338,7 +340,7 @@ uint QFileInfo::groupId() const
 bool QFileInfo::permission( int p ) const
 {
 #if !defined(Q_OS_TEMP) && defined(UNICODE)
-    if ( qt_winunicode ) {
+    if ( qt_ntfs_permission_lookup && qt_winunicode ) {
 	PSID pOwner = 0, pGroup = 0;
 	PACL pDacl;
 	PSECURITY_DESCRIPTOR pSD;

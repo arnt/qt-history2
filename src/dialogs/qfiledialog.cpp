@@ -5608,11 +5608,18 @@ static bool isRoot( const QUrl &u )
     return FALSE;
 }
 
+#if defined(Q_WS_WIN)
+extern bool qt_ntfs_permission_lookup;
+#endif
+
 void QFileDialog::urlStart( QNetworkOperation *op )
 {
     if ( !op )
 	return;
 
+#if defined(Q_WS_WIN)
+    qt_ntfs_permission_lookup = FALSE;
+#endif
     if ( op->operation() == QNetworkProtocol::OpListChildren ) {
 	if ( isRoot( d->url ) )
 	    d->cdToParent->setEnabled( FALSE );
@@ -5722,6 +5729,10 @@ void QFileDialog::urlFinished( QNetworkOperation *op )
 	delete d->progressDia;
 	d->progressDia = 0;
     }
+
+#if defined(Q_WS_WIN)
+    qt_ntfs_permission_lookup = TRUE;
+#endif
 }
 
 void QFileDialog::dataTransferProgress( int bytesDone, int bytesTotal, QNetworkOperation *op )
