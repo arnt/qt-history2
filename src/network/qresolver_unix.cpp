@@ -3,11 +3,14 @@
 #include <sys/socket.h>
 #include <netdb.h>
 #include <qlibrary.h>
+#include <netinet/in.h>
+
+#define QRESOLVER_DEBUG
 
 void QResolverAgent::run()
 {
 #if defined(QRESOLVER_DEBUG)
-    qDebug("QResolverAgent::run(%p): start DNS lookup", this);
+    qDebug("QResolverAgent::run(%p): looking up \"%s\"", this, hostName.latin1());
 #endif
 
     QResolverHostInfo results;
@@ -20,15 +23,11 @@ void QResolverAgent::run()
         addrinfo *node = res;
         while (node) {
             if (node->ai_family == AF_INET) {
-                sockaddr_in *ip4 = (sockaddr_in *)node->ai_addr;
-                QHostAddress addr(ntohl(ip4->sin_addr.s_addr));
+                QHostAddress addr(ntohl(((sockaddr_in *) node->ai_addr)->sin_addr.s_addr));
                 if (!results.addresses.contains(addr))
                     results.addresses.prepend(addr);
             } else if (node->ai_family == AF_INET6) {
-                sockaddr_in6 *ip6 = (sockaddr_in6 *)node->ai_addr;
-                Q_IPV6ADDR tmp;
-                memcpy(&tmp, &ip6->sin6_addr.s6_addr, sizeof(tmp));
-                QHostAddress addr(tmp);
+                QHostAddress addr(((sockaddr_in6 *) node->ai_addr)->sin6_addr.s6_addr);
                 if (!results.addresses.contains(addr))
                     results.addresses.append(addr);
             } else {
@@ -40,21 +39,14 @@ void QResolverAgent::run()
         }
        
         freeaddrinfo(res);
+    } else if (result == EAI_NONAME) {
+        results.error = QResolver::HostNotFound;
+        results.errorString = tr("Host not found");
     } else {
-        switch (result) {
-        case EAI_NONAME:
-            results.errorString = tr("Host not found");
-            results.error = QResolver::HostNotFound;
-            break;          
-        case EAI_NODATA:
-            // no error
-            break;
-        default:
-            results.errorString = tr("Unknown error");
-            results.error = QResolver::UnknownError;
-            break;
-        };
+        results.error = QResolver::UnknownError;
+        results.errorString = QString::fromLocal8Bit(gai_strerror(result));
     }
+    
 #else
     char auxbuf[512];    
     hostent ent;
@@ -64,10 +56,8 @@ void QResolverAgent::run()
         char **p;
         switch (ent.h_addrtype) {
             case AF_INET:
-		for (p = ent.h_addr_list; *p != 0; p++) {
-		    long *ip4Addr = (long *) *p;
-		    results.addresses << QHostAddress(ntohl(*ip4Addr));
-		}
+		for (p = ent.h_addr_list; *p != 0; p++)
+		    results.addresses << QHostAddress(ntohl(*((long *)*p)));
 		break;
 	    case AF_INET6:
 		for (p = ent.h_addr_list; *p != 0; p++)
@@ -78,25 +68,29 @@ void QResolverAgent::run()
 		results.errorString = tr("Unknown address type");
 		break;
 	}
-    } else {
-       switch (h_errno) {
-	    case HOST_NOT_FOUND:
-		results.error = QResolver::HostNotFound;
-                results.errorString = tr("Host not found");
-		break;
-	    case NO_DATA:
-		// no error
-		break;
-	    default:
-		results.error = QResolver::UnknownError;
-                results.errorString = tr("Unknown error");
-		break;
-	}
-	results.errorString = QString::fromLocal8Bit(hstrerror(h_errno));
+    } else if (h_errno == HOST_NOT_FOUND) {
+        results.error = QResolver::HostNotFound;
+        results.errorString = tr("Host not found");
+    } else if (h_errno != NO_DATA) {
+        results.error = QResolver::UnknownError;
+        results.errorString = tr("Unknown error");
+    }
+
+    results.errorString = QString::fromLocal8Bit(hstrerror(h_errno));
+#endif //  !defined (QT_NO_GETADDRINFO)
+
 #if defined(QRESOLVER_DEBUG)
-	qDebug( "QResolverAgent::run( %p ): error #%d %s",
-		this, h_errno, results.errorString.latin1() );
-#endif
+    if (results.error != QResolver::NoError) {
+        qDebug("QResolverAgent::run(%p): error #%d %s",
+                this, h_errno, results.errorString.latin1() );
+    } else {
+        QString tmp;
+        for (int i = 0; i < results.addresses.count(); ++i) {
+            if (i != 0) tmp += ", ";
+            tmp += results.addresses.at(i).toString();
+        }
+        qDebug("QResolverAgent::run(%p): found %i entries for \"%s\": {%s}",
+               this, results.addresses.count(), hostName.latin1(), tmp.latin1());
     }
 #endif
 
