@@ -49,7 +49,7 @@ class QValueStack : public QValueList<T>
 public:
     QValueStack() {}
    ~QValueStack() {}
-    void  push( const T& d ) { append(d); }
+    void  push( const T& d ) { this->append(d); }
     T pop()
     {
 	T elem( this->last() );
