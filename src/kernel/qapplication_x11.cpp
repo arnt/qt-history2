@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#557 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#558 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -2223,27 +2223,18 @@ int QApplication::x11ProcessEvent( XEvent* event )
     }
 
     if ( !widget ) {				// don't know this window
-#if 0
-	if ( (widget=(QETWidget*)QApplication::activePopupWidget()) )
-	    {
-		// Danger - make sure we don't lock the server
-		switch ( event->type ) {
-		case ButtonPress:
-		case ButtonRelease:
-		case XKeyPress:
-		case XKeyRelease:
-		    widget->close();
-		    return 1;
-		}
-	    } else {
-		void qt_np_process_foreign_event(XEvent*); // in qnpsupport.cpp
-		qt_np_process_foreign_event( event );
-	    }
-#else
-	//DIMITRI FIX
-	
 	QWidget* popup = QApplication::activePopupWidget();
 	if ( popup ) {
+	    
+	    /*
+	      That is more than suboptimal. The real solution should
+	      do some keyevent and buttonevent translation, so that
+	      the popup still continues to work as the user expects.
+	      Unfortunately this translation is currently only
+	      possible with a known widget. I'll change that soon
+	      (Matthias).
+	     */
+	    
 	    // Danger - make sure we don't lock the server
 	    switch ( event->type ) {
 	    case ButtonPress:
@@ -2252,16 +2243,13 @@ int QApplication::x11ProcessEvent( XEvent* event )
 	    case XKeyRelease:
 		do {
 		    popup->close();
-		    if ( qApp->activePopupWidget() == popup )
-			popup->hide();
 		} while ( popup = qApp->activePopupWidget() );
 		return 1;
-            }
+	    }
 	} else {
 	    void qt_np_process_foreign_event(XEvent*); // in qnpsupport.cpp
 	    qt_np_process_foreign_event( event );
 	}
-#endif	
 	return -1;
     }
 
