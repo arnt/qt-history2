@@ -583,10 +583,8 @@ bool QMenuBar::activateCommand(uint cmd)
 */
 bool QMenuBar::activate(MenuRef menu, short idx, bool highlight, bool by_accel)
 {
-    if(!activeMenuBar) {
-	HiliteMenu(0);
+    if(!activeMenuBar) 
 	return FALSE;
-    }
 
     int mid = GetMenuID(menu);
     if(MacPrivate::PopupBinding *mpb = activeMenuBar->mac_d->popups->find(mid)) {
