@@ -1546,15 +1546,8 @@ void QTextView::insert( const QString &text, bool indent, bool checkNewLine, boo
 	return;
     QString txt( text );
     drawCursor( FALSE );
-    if ( !isReadOnly() && doc->hasSelection( QTextDocument::Standard ) && removeSelected ) {
-	checkUndoRedoInfo( UndoRedoInfo::RemoveSelected );
-	if ( !undoRedoInfo.valid() ) {
-	    doc->selectionStart( QTextDocument::Standard, undoRedoInfo.id, undoRedoInfo.index );
-	    undoRedoInfo.d->text = QString::null;
-	}
-	undoRedoInfo.d->text = doc->selectedText( QTextDocument::Standard );
-	doc->removeSelectedText( QTextDocument::Standard, cursor );
-    }
+    if ( !isReadOnly() && doc->hasSelection( QTextDocument::Standard ) && removeSelected )
+	removeSelectedText();
     QTextCursor c2 = *cursor;
     checkUndoRedoInfo( UndoRedoInfo::Insert );
     if ( !undoRedoInfo.valid() ) {
