@@ -11,20 +11,22 @@ The Qt Library
 Documentation
 -------------
 
-Overall enhancements including fixed typos and the addition of several
-images and code examples.
+Overall enhancements include fixed typos, corrected grammar and
+spelling, and the addition of several images and code examples. Most
+classes now have useful detailed descriptions. Documentation accuracy
+and usability has been generally improved.
 
 Styles
 ------
 
 In Qt 3.0.0 Beta2, only the Windows and Motif styles were implemented with
 the new style API. Now the missing styles (MotifPlus, Platinum, SGI and
-CDE) are ported, too.
+CDE) are included.
 
 MNG
 ---
 
-Update the libmng that is shipped with Qt to version 1.0.2.
+Updated the libmng that is shipped with Qt to version 1.0.2.
 
 Wacom Tablet Support
 --------------------
@@ -36,7 +38,7 @@ the tablet afterwards.
 Qt Designer
 ========================================
 
- - Added the possibility to sort in the property editor either categorized
+ - Added the ability to sort the property editor either by category
    (default and old behaviour) or alphabetically.
 
  - Added the option "-nofwd" to uic which supresses the generation of
@@ -48,21 +50,21 @@ Qt Functions
 QDataTable
 ----------
 
- - Uses the new row selection mode of QTable now.
+ - Now uses the new row selection mode of QTable.
 
 QDomDocument
 ------------
 
- - Fix the toString() function to work properly with namespaces.
+ - Fixed the toString() function to work properly with namespaces.
  - In Qt 3.0.0 Beta2, there was a workaround for Microsoft's XML parser,
-   that the toString() function does not output a doctype that consists
+   so that the toString() function did not output a doctype that consists
    only of the name. This workaround is semantically wrong; it was
    reverted.
 
 QDateEdit
 ---------
 
- - Fix wrong resp. missing default size policy and size hint.
+ - Fixed wrong default size policy and missing size hint.
  - Improved focus and tab handling.
 
 QTable
@@ -71,9 +73,9 @@ QTable
  - Fixed right mouse button handling.
  - Implemented row selection modes. This implied adding the new enum values
    SingleRow and MultiRow to the enum SelectionMode.
- - Doubleckick clears selections completely now.
+ - Doubleclick clears selections completely now.
  - Allow different focus styles, namely FollowStyle (draw it as the style
-   tell you) and SpreadSheet (draw it as it is done in common spreadsheet
+   tells you) and SpreadSheet (draw it as it is done in common spreadsheet
    programs).
 
 New functions:
@@ -84,15 +86,15 @@ New functions:
 QTimeEdit
 ---------
 
- - Fixed wrong resp. missing default size policy and size hint.
+ - Fixed wrong default size policy and missing size hint.
  - Improved focus and tab handling.
 
 QTextEdit
 ---------
 
  - QTextCursor is an internal class, so the signal
-   cursorPositionChanged(QTextCursor*) is only of limited. Add a more
-   useful signal in addition.
+   cursorPositionChanged(QTextCursor*) is only of limited use. Added a
+   more useful signal in addition.
 
 New signal:
 	void cursorPositionChanged( int para, int pos );
@@ -100,7 +102,7 @@ New signal:
 QLibrary
 --------
 
- - Static overload for resolve as a convenient function.
+ - Static overload for resolve as a convenience function.
 
 New function:
 	static void *resolve( const QString &filename, const char * );
@@ -108,15 +110,15 @@ New function:
 QListView
 ---------
 
- - A bug that was introduced in Qt 3.0.0 beta 2 made listviews with many
-   items very slow. This problem is fixed now.
+ - A bug that was introduced in Qt 3.0.0 beta 2 made listviews with
+   lots of items very slow. This problem has been fixed.
 
 QProcess
 --------
 
  - exitStatus() did not work for negative values on Unix. This is fixed
    now.
- - Fix problems on Unixware.
+ - Fixed problems on Unixware.
 
 QRichtext
 ---------
@@ -127,7 +129,7 @@ QRichtext
 QSound
 ------
 
- - Simplify the API to allow easier extension.
+ - Simplified the API to allow easier extension.
 
 New functions:
 	bool isAvailable();
@@ -149,7 +151,7 @@ QSpinBox
  - Spin box arrows were not updated correctly when the widget was
    disabled/enabled. This problem is fixed now.
  - Improved handling of the case when a spinbox accepts a value: now it
-   also accepts it if the spinbox looses focus or is hidden.
+   also accepts it if the spinbox loses focus or is hidden.
 
 QSqlCursor
 ----------

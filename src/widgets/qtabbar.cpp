@@ -330,7 +330,7 @@ int QTabBar::insertTab( QTab * newTab, int index )
 
 
 /*!
-  Removes tab \a t from the tab control.
+  Removes tab \a t from the tab control, and deletes the tab.
 */
 void QTabBar::removeTab( QTab * t )
 {

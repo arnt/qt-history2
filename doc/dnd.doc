@@ -172,7 +172,7 @@ with Other Applications</a></li>
     QFile out(current_file_name);
     out.open(IO_WriteOnly);
     MyCadDrag tmp(current_design);
-    out.writeBlock( tmp->encodedData( "image/x-dxf" );
+    out.writeBlock( tmp->encodedData( "image/x-dxf" ) );
   }
 
   void MyWidget::load()

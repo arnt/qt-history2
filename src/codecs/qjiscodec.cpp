@@ -40,11 +40,11 @@
 // and the grateful thanks of the Trolltech team.
 
 /*! \class QJisCodec
-  \internal
     \ingroup i18n
 
   \brief The QJisCodec class provides conversion to and from JIS character sets.
 
+  \internal
   More precisely, the QJisCodec class subclasses QTextCodec to
   provide support for JIS X 0201 Latin, JIS X 0201 Kana, JIS X 0208
   and JIS X 0212.

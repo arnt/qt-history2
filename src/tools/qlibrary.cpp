@@ -60,17 +60,17 @@
   \brief The QLibrary class provides a wrapper for handling shared libraries.
   \ingroup componentmodel
 
-  An instance of a QLibrary object can handle a single shared library and provide 
+  An instance of a QLibrary object can handle a single shared library and provide
   access to the functionality in the library in a platform independent way. If the
-  library is a component server, QLibrary provides access to the exported component 
-  and can directly query this component for interfaces. 
-  
-  QLibrary makes sure that the shared library is loaded and stays in memory for the 
-  time it is being used, and can also unload the library upon destruction and thus 
+  library is a component server, QLibrary provides access to the exported component
+  and can directly query this component for interfaces.
+
+  QLibrary makes sure that the shared library is loaded and stays in memory for the
+  time it is being used, and can also unload the library upon destruction and thus
   release unused resources.
 
-  A typical use of QLibrary is to resolve an exported symbol in a shared object, and 
-  to e.g. call the function that this symbol represents. This is called "explicit 
+  A typical use of QLibrary is to resolve an exported symbol in a shared object, and
+  to e.g. call the function that this symbol represents. This is called "explicit
   linking" in contrast to "implicit linking", which is done by the link step in the
   build process when linking an binary against a library.
 
@@ -92,13 +92,13 @@
   }
   \endcode
 
-  Using this mechanism is only safe when the correct type of the function in the 
+  Using this mechanism is only safe when the correct type of the function in the
   shared object is guaranteed - a wrong type might crash the application or leave
-  it in an unstable state. Keeping a reference to the function pointer is also 
+  it in an unstable state. Keeping a reference to the function pointer is also
   dangerous, as the library might be unloaded.
 
-  A safe and thus commonly used architecture for explicit linking of symbols is 
-  to use \link component.html interfaces and components \endlink. QLibrary supports 
+  A safe and thus commonly used architecture for explicit linking of symbols is
+  to use \link component.html interfaces and components \endlink. QLibrary supports
   the component model in Qt with the queryInterface function.
 
   \code
@@ -133,14 +133,14 @@
   Creates a QLibrary object for the shared library \a filename.
   The library get's loaded if \a pol is Immediately.
 
-  Note that \a filename does not need to include the (platform specific) 
-  file extension, so calling 
+  Note that \a filename does not need to include the (platform specific)
+  file extension, so calling
 
   \code
   QLibrary lib( "mylib" );
   \endcode
 
-  would be equivalent to 
+  would be equivalent to
 
   \code
   QLibrary lib( "mylib.dll" );
@@ -268,8 +268,10 @@ void *QLibrary::resolve( const char* symb )
 }
 
 /*!
+    \overload
+
   Loads the library \a filename and returns the address of the exported symbol \a symb.
-  Note that like for the constructor, \a filename does not need to include the (platform specific) 
+  Note that like for the constructor, \a filename does not need to include the (platform specific)
   file extension. The library staying loaded until the process exits.
 
   The function returns a null pointer if the symbol could not be resolved or if loading

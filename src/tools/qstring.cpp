@@ -118,7 +118,7 @@ sub readUnicodeDataLine {
     $decomposition_len{$code} = $len;
 
 #   we use canonical decompositions longer than 1 char
-#   we exlude arabic ligatures from the table
+#   we exlude Arabic ligatures from the table
     if($len > 1 and $tag == 1) {
 #      ligature to add...
 	$start = shift @_;
@@ -11729,7 +11729,7 @@ QChar::Direction QChar::direction() const
   character classes).
 
   Returns information about the joining properties of the
-  character (needed for arabic).
+  character (needed for Arabic).
 */
 QChar::Joining QChar::joining() const
 {
@@ -12212,7 +12212,7 @@ void QString::compose()
 		// other ligatures, which are undefined in most fonts
 		if(!(code > 0xfb50 && code < 0xfe80) &&
 		   !(code > 0xfb00 && code < 0xfb2a)) {
-				// joining info is only needed for arabic
+				// joining info is only needed for Arabic
 		    if (format(ligature.tag(), *this, index, len)) {
 			//printf("using ligature 0x%x, len=%d\n",code,len);
 			// replace letter

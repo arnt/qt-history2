@@ -1647,7 +1647,7 @@ QContextMenuEvent::QContextMenuEvent( Reason reason, const QPoint &pos, int stat
   The globalPos() is initialized to QCursor::pos(), i.e. \a pos, which is
   usually (but not always) correct.  Use the other constructor if you need
   to specify the global position explicitly.  \a device contains the
-  \link TabletDevice device type\endlink, \a pressure contains the
+  \link TabletDevices device type\endlink, \a pressure contains the
   pressure exerted on the \a device, \a xTilt and \a yTilt contain the
   \a device's degrees of tilt from the X and Y axis respectively.
 
@@ -1659,7 +1659,7 @@ QContextMenuEvent::QContextMenuEvent( Reason reason, const QPoint &pos, int stat
 
   Constructs a tablet event object.  The position when the event
   occurred is is given in \a pos and \a globalPos.  \a device contains
-  the \link TabletDevice device type\endlink, \a pressure contains the
+  the \link TabletDevices device type\endlink, \a pressure contains the
   pressure exerted on the \a device, \a xTilt and \a yTilt contain the
   \a device's degrees of tilt from the X and Y axis respectively.
 

@@ -132,6 +132,12 @@ public:
 */
 
 /*!
+    \fn static bool QSound::available()
+
+    Returns TRUE if sound support is available; otherwise returns FALSE.
+*/
+
+/*!
   Plays the sound in a file called \a filename.
 */
 void QSound::play(const QString& filename)
@@ -163,6 +169,9 @@ QSound::~QSound()
     delete d;
 }
 
+/*!
+    Returns TRUE if the sound has finished playing; otherwise returns FALSE.
+*/
 bool QSound::isFinished() const
 {
     return d->looprem == 0;

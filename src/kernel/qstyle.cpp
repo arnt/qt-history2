@@ -78,7 +78,7 @@ public:
   Derived classes may reimplement some or all of the drawing functions
   to modify the look of all widgets that use those functions.
 
-  Languages written from right to left (such as hebrew and arabic)
+  Languages written from right to left (such as Arabic and Hebrew)
   usually also mirror the whole layout of widgets. If you design a
   style, you should take special care when drawing asymmetric elements
   to make sure that they also look correct in a mirrored layout. You can
@@ -162,7 +162,7 @@ QStyle::~QStyle()
     d = 0;
 }
 
-/*!
+/*
   \fn GUIStyle QStyle::guiStyle() const
   \obsolete
 
@@ -1135,6 +1135,7 @@ the mouse is over the tool button, FALSE otherwise.</td>
 
   \value SC_ComboBoxEditField  combobox edit field; see also QComboBox.
   \value SC_ComboBoxArrow  combobox arrow
+  \value SC_ComboBoxFrame combobox frame
 
 
   \value SC_SliderGroove  special subcontrol which contains the area in which the
@@ -1642,9 +1643,59 @@ the mouse is over the tool button, FALSE otherwise.</td>
   Possible values are Qt::AlignLeft, Qt::AlignCenter and
   Qt::AlignRight.
 
-    \value SH_Header_Arrow_Alignment the placement of the sorting
+    \value SH_Header_ArrowAlignment the placement of the sorting
     indicator may appear in list or table headers.
     Possible values are Qt::Left or Qt::Right.
+
+    \value SH_Slider_SnapToValue  sliders snap to values while moving,
+    like Windows
+
+    \value SH_Slider_SloppyKeyEvents  key presses handled in a sloppy
+    manner, i.e. left on a vertical slider subtracts a line.
+
+    \value SH_ProgressDialog_CenterCancelButton  center button on
+    progress dialogs, like Motif, otherwise right aligned.
+
+    \value SH_ProgressDialog_TextLabelAlignment Qt::AlignmentFlags --
+    text label alignment in progress dialogs; Center on windows,
+    Auto|VCenter otherwise.
+
+    \value SH_PrintDialog_RightAlignButtons  right align buttons in
+    the print dialog, like Windows.
+
+    \value SH_MainWindow_SpaceBelowMenuBar 1 or 2 pixel space between
+    the menubar and the dockarea, like Windows.
+
+    \value SH_FontDialog_SelectAssociatedText select the text in the
+    line edit, or when selecting an item from the
+    listbox, or when the line edit receives focus, like Windows.
+
+    \value SH_PopupMenu_AllowActiveAndDisabled  allows disabled menu
+    items to be active.
+
+    \value SH_PopupMenu_SpaceActivatesItem  pressing Space activates
+    the item, like Motif.
+
+    \value SH_PopupMenu_SubMenuPopupDelay  the number of milliseconds
+    to wait before opening a submenu; 256 on windows, 96 on Motif.
+
+    \value SH_ScrollView_FrameOnlyAroundContents  whether scrollviews
+    draw their frame only around contents (like Motif), or around
+    contents, scrollbars and corner widgets (like Windows).
+
+    \value SH_MenuBar_AltKeyNavigation  menubars items are navigable
+    by pressing Alt, followed by using the arrow keys to select the
+    desired item.
+
+    \value SH_ComboBox_ListMouseTracking  mouse tracking in combobox
+    dropdown lists.
+
+    \value SH_PopupMenu_MouseTracking  mouse tracking in popup menus.
+
+    \value SH_MenuBar_MouseTracking  mouse tracking in menubars.
+
+    \value SH_ItemView_ChangeHighlightOnFocus  gray out selected items
+    when losing focus.
 
   \sa styleHint()
 */

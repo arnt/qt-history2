@@ -109,6 +109,11 @@
   careful about copying the collection - you might find yourself with
   two collections deleting the same items.
 
+  Note that the auto-delete setting may also affect other functions in
+  subclasses. For example, a subclass that has a remove() function
+  will remove the item from its data structure, and if auto-delete is
+  enabled, will also delete the item.
+
   \sa autoDelete()
 */
 

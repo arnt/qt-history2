@@ -1220,11 +1220,12 @@ void QWidget::styleChange( QStyle& /* oldStyle */ )
 /*! \property QWidget::isTopLevel
     \brief whether the widget is a top-level widget
 
-  A top-level widget is a widget which usually has a frame and a \l
-  caption (title). \link isPopup() Popup\endlink and \link
-  isDesktop() desktop\endlink widgets are also top-level widgets.
+  A top-level widget is a widget which usually has a frame and a \link
+  QWidget::caption caption (title)\endlink. \link QWidget::isPopup()
+  Popup\endlink and \link QWidget::isDesktop() desktop\endlink widgets
+  are also top-level widgets.
 
-  A top-level widget can have a \link parentWidget() parent
+  A top-level widget can have a \link QWidget::parentWidget() parent
   widget\endlink. It will then be grouped with its parent: deleted
   when the parent is deleted, minimized when the parent is minimized
   etc. If supported by the window manager, it will also have a common
@@ -2171,7 +2172,7 @@ void QWidget::setBackgroundFromMode()
     \brief the color role used for painting the background of the widget
 
   setBackgroundColor() reads this property to determine which entry of
-  the \l palette to set.
+  the \link QWidget::palette palette\endlink to set.
 
   For most widgets the default suffices (PaletteBackground, typically
   gray), but some need to use PaletteBase (the background color for
@@ -2439,9 +2440,11 @@ const QColorGroup &QWidget::colorGroup() const
   class, the parent's palette or (if this widget is a top level
   widget) the default application palette.
 
-  Instead of defining an entirely new palette, you can also use the \l
-  paletteBackgroundColor, \l paletteBackgroundPixmap and \l
-  paletteForegroundColor convenience properties to change a widget's
+  Instead of defining an entirely new palette, you can also use the
+  \link QWidget::paletteBackgroundColor paletteBackgroundColor\endlink,
+  \link QWidget::paletteBackgroundPixmap paletteBackgroundPixmap\endlink and
+  \link QWidget::paletteForegroundColor paletteForegroundColor\endlink
+  convenience properties to change a widget's
   background and foreground appearance only.
 
   \sa ownPalette, colorGroup(), QApplication::palette()

@@ -8,11 +8,11 @@
 *****************************************************************************/
 
 /*! \class QTsciiCodec qtsciicodec.h
-  \internal
     \ingroup i18n
 
   \brief The QTsciiCodec class provides conversion to and from the Tamil TSCII encoding.
 
+  \internal
   TSCII, formally the Tamil Standard Code Information Interchange
   specification, is a commonly used charset for Tamils. The
   official page for the standard is at

@@ -40,10 +40,11 @@
 // and the grateful thanks of the Trolltech team.
 
 /*! \class QEucJpCodec qeucjpcodec.h
-  \internal
     \ingroup i18n
 
   \brief The QEucJpCodec class provides conversion to and from EUC-JP character sets.
+
+  \internal
 
   More precisely, the QEucJpCodec class subclasses QTextCodec to
   provide support for EUC-JP, the main legacy encoding for Unix

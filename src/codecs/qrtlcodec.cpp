@@ -87,7 +87,7 @@ static bool to8bit(const QChar ch, QCString *rstr)
 	if ( ch.row() == 0x05 ) {
 	    if ( ch.cell() > 0x91 )
 		converted = TRUE;
-	    // 0x0591 - 0x05cf: hebrew punktuation... dropped
+	    // 0x0591 - 0x05cf: Hebrew punctuation... dropped
 	    if ( ch.cell() >= 0xD0 )
 		*rstr += unicode_to_heb_05[ch.cell()- 0xD0];
 	} else if ( ch.row() == 0x20 ) {
@@ -147,22 +147,22 @@ static QString run(const QString &input, unsigned int from, unsigned int to, QCh
 
 /*
   we might do better here, but I'm currently not sure if it's worth the effort. It will hopefully convert
-  90% of the visually ordered hebrew correctly.
+  90% of the visually ordered Hebrew correctly.
 */
 static QString reverseLine(const QString &str, unsigned int from, unsigned int to, QChar::Direction dir)
 {
     QString out;
 
-    // since we don't have embedding marks, we get around with bidi levels up to 2. 
-    
+    // since we don't have embedding marks, we get around with bidi levels up to 2.
+
     // simple case: dir = RTL:
-    // go through the line from right to left, and reverse all continuous hebrew strings.
+    // go through the line from right to left, and reverse all continuous Hebrew strings.
     if ( dir == QChar::DirR ) {
 	unsigned int pos = to;
 	to = from;
 	from = pos;
 	QChar::Direction runDir = QChar::DirON;
-    
+
 	while ( pos > to ) {
 	    QChar::Direction d = str.at(pos).direction();
 	    switch ( d ) {
@@ -258,7 +258,7 @@ static QString reverseLine(const QString &str, unsigned int from, unsigned int t
 	    }
 	    pos++;
 	}
-	
+
     }
     return out;
 }
@@ -285,7 +285,7 @@ static QChar::Direction findBasicDirection(QString str)
     while (pos < len) {
 	if ( str.at(pos) == '\n' )
 	    startLine = pos;
-	if (str.at(pos).direction() < 2) { // DirR or DirL 
+	if (str.at(pos).direction() < 2) { // DirR or DirL
 	    dir1 = str.at(pos).direction();
 	    break;
 	}
@@ -298,7 +298,7 @@ static QChar::Direction findBasicDirection(QString str)
     // move to end of line
     while( pos < len && str.at(pos) != '\n' )
 	pos++;
-    
+
     while (pos > startLine) {
 	if (str.at(pos).direction() < 2) { // DirR or DirL
 	    dir2 = str.at(pos).direction();
@@ -337,29 +337,29 @@ static QChar::Direction findBasicDirection(QString str)
 
 
 /*! \class QHebrewCodec qrtlcodec.h
-  \internal
     \ingroup i18n
 
   \brief The QHebrewCodec class provides conversion to and from visually ordered Hebrew.
 
+  \internal
   Hebrew as a semitic language is written from right to left. As older computer systems
   couldn't handle reordering a string so that the first letter appears on the right, many older documents
   were encoded in visual order, so that the first letter of a line is the rightmost one in the string.
-  
+
   Opposed to this, Unicode defines characters to be in logical order (the order you would read the string).
   This codec tries to convert visually ordered Hebrew (8859-8) to Unicode. This might not always be 100%,
   as reversing the bidi algorithm that transforms from logical to visual order is non trivial.
-  
+
   Transformation from Unicode to visual Hebrew (8859-8) is done using the BiDi algorithm in Qt, and will
   produce correct results, as long as you feed one paragraph of text to the codec at a time. Places where newlines
   are supposed to start can be indicated by a newline character ('\n'). Please be aware, that these newline characters
   change the reordering behaviour of the algorithm, as the BiDi reordering only takes place within one line of text, whereas
   linebreaks are determined in visual order.
-  
+
   Visually ordered Hebrew is still used quite often in some places, mainly in email communication (as most email programs still
-  don't understand logically ordered hebrew) and on web pages. The use on web pages is strongly decreasing however,
-  as there are nowadays a few browsers available that correctly support logically ordered hebrew.
-  
+  don't understand logically ordered Hebrew) and on web pages. The use on web pages is strongly decreasing however,
+  as there are nowadays a few browsers available that correctly support logically ordered Hebrew.
+
   This codec has the name "iso8859-8". If you don't want any bidi reordering to happen during conversion, use the
   "iso8859-8-i" codec, which assumes logical order for the 8bit string.
 */
@@ -378,7 +378,7 @@ const char* QHebrewCodec::name() const
 
 
 /*! \reimp
-  Since hebrew (aswell as arabic) are written from left to right,
+  Since Hebrew (as well as Arabic) are written from left to right,
   but iso8859-8 assumes visual ordering (as opposed to the
   logical ordering of Unicode, we have to reverse the order of the
   input string to get it into logical order.
@@ -507,10 +507,10 @@ int QHebrewCodec::heuristicContentMatch(const char* chars, int len) const
 
     int score = 0;
     for (int i=0; i<len; i++) {
-	if(c[i] > 0x80 ) { 
+	if(c[i] > 0x80 ) {
 	    if ( heb_to_unicode[c[i] - 0x80] != 0xFFFD)
 		score++;
-	    else 
+	    else
 		return -1;
 	}
     }

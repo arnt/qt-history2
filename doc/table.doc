@@ -47,18 +47,18 @@ million by one million cells.
 \link qtable.html <img src="qtable.png" alt="Screenshot of QTable"> \endlink
 
 The table module provides the following classes:
-<ul>
-<li> \l QTable itself is the abstract widget of choice whenever you need to
+\list
+\i \l QTable itself is the abstract widget of choice whenever you need to
     provide your users with the ability to display and edit
   tabular data such as spreadsheet or database data.
-<li> \l QTableItem objects are used to populate a QTable with data with
+\i \l QTableItem objects are used to populate a QTable with data with
 each table item holding the contents of a cell. 
-<li> The \l QComboTableItem class provides memory-efficient combobox items for QTables. 
-<li> The \l QCheckTableItem class provides memory-efficient checkbox items for QTables.
-<li> \l QTableSelection provides access to selections of cells in a QTable.  
-<li> QHeader provides access to the table's horizontal header (column
+\i The \l QComboTableItem class provides memory-efficient combobox items for QTables. 
+\i The \l QCheckTableItem class provides memory-efficient checkbox items for QTables.
+\i \l QTableSelection provides access to selections of cells in a QTable.  
+\i QHeader provides access to the table's horizontal header (column
 headers) and vertical header (row headers).
-</ul>
+\endlist
 
 
 Please see the appropriate class documentation for

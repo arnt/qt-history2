@@ -578,12 +578,10 @@ void QTextDrag::setSubtype( const QCString & st)
 
   \ingroup draganddrop
 
-  Plain text is single- or multi-line 8-bit text in the local encoding.
+  Plain text is passed in a QString which may contain multiple lines
+  (i.e. may contain newline characters).
 
   Qt provides no built-in mechanism for delivering only single-line.
-
-  Drag-and-Drop text does \e not have a NULL terminator when it
-  is dropped onto the target.
 
   For more information about drag and drop, see the QDragObject class
   and the \link dnd.html drag and drop documentation\endlink.
@@ -591,7 +589,8 @@ void QTextDrag::setSubtype( const QCString & st)
 
 
 /*!  Constructs a text drag object and sets it to \a text.  \a dragSource
-  must be the drag source; \a name is the object name. */
+  must be the drag source; \a name is the object name.
+*/
 
 QTextDrag::QTextDrag( const QString &text,
 		      QWidget * dragSource, const char * name )
@@ -622,8 +621,8 @@ QTextDrag::~QTextDrag()
 
 
 /*!
-  Sets the text to be dragged to \a text.  You will need to call this if you did
-  not pass the text during construction.
+  Sets the text to be dragged to \a text.  You will need to call this
+  if you did not pass the text during construction.
 */
 void QTextDrag::setText( const QString &text )
 {
@@ -693,7 +692,8 @@ QByteArray QTextDrag::encodedData(const char* mime) const
 }
 
 /*!
-  Returns TRUE if the information in \a e can be decoded into a QString.
+  Returns TRUE if the information in \a e can be decoded into a
+  QString; otherwise returns FALSE.
   \sa decode()
 */
 bool QTextDrag::canDecode( const QMimeSource* e )
@@ -710,10 +710,10 @@ bool QTextDrag::canDecode( const QMimeSource* e )
 /*!
   \overload
 
-  Attempts to decode the dropped information in \a e
-  into \a str, returning TRUE if successful.  If \a subtype is null,
-  any text subtype is accepted; otherwise only that specified is
-  accepted.  \a subtype is set to the accepted subtype.
+  Attempts to decode the dropped information in \a e into \a str.
+  Returns TRUE if successful; otherwise returns FALSE.  If \a subtype
+  is null, any text subtype is accepted; otherwise only the specified
+  \a subtype is accepted.
 
   \sa canDecode()
 */
@@ -776,7 +776,7 @@ bool QTextDrag::decode( const QMimeSource* e, QString& str, QCString& subtype )
 
 /*!
   Attempts to decode the dropped information in \a e
-  into \a str, returning TRUE if successful.
+  into \a str. Returns TRUE if successful; otherwise returns FALSE.
 
   \sa canDecode()
 */

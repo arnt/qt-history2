@@ -34,12 +34,12 @@
 **********************************************************************/
 
 /*! \class QGbkCodec qgbkcodec.h
-  \internal
     \ingroup i18n
 
   \brief The QGbkCodec class provides conversion to and from the Chinese
   GBK encoding.
 
+  \internal
   GBK, formally the Chinese Internal Code Specification, is a commonly
   used extension of GB 2312-80. Microsoft Windows uses it under the
   name code page 936.

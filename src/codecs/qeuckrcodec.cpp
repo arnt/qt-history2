@@ -36,11 +36,11 @@
 **********************************************************************/
 
 /*! \class QEucKrCodec qeuckrcodec.h
-  \internal
     \ingroup i18n
 
   \brief The QEucKrCodec class provides conversion to and from EUC-KR character sets.
 
+  \internal
   The QEucKrCodec class subclasses QTextCodec to provide support for
   EUC-KR, the main legacy encoding for UNIX machines in Korea.
 
