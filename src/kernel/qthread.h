@@ -53,6 +53,11 @@ public:
   static int currentThread();
   static void postEvent(QObject *,QEvent *);
 
+  QThread();
+  virtual ~QThread();
+  void start();
+  virtual void run();
+
 };
 
 #endif

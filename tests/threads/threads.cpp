@@ -2,7 +2,6 @@
 #include <qlabel.h>
 #include <qthread.h>
 
-
 class MyWidget : public QLabel {
 
 
@@ -22,7 +21,15 @@ protected:
 
 MyWidget * mywidget;
 
-void * test_thread(void *)
+class MyThread : public QThread {
+    
+public:
+    
+    virtual void run();
+    
+};
+
+void MyThread::run()
 {
     int n=0;
     while(1) {
@@ -40,8 +47,7 @@ int main(int argc,char ** argv)
   mywidget=new MyWidget();
   mywidget->show();
   qDebug("Main thread is %d",QThread::currentThread());
-  pthread_t foo;
-  pthread_create(&foo,0,test_thread,0);
-  qDebug("Made thread %d",foo);
+  MyThread foo;
+  foo.start();
   app.exec();
 }

@@ -155,3 +155,29 @@ void QThread::postEvent( QObject * o, QEvent * e )
     qApp->wakeUpGuiThread();
 }
 
+static void * start_thread(QThread * t)
+{
+  t->run();
+}
+
+QThread::QThread()
+{
+}
+
+QThread::~QThread()
+{
+}
+
+void QThread::start()
+{
+  // Error checking would be good
+  pthread_t foo;
+  pthread_create(&foo,0,start_thread,(void *)this);
+  pthread_detach(foo);
+}
+
+void QThread::run()
+{
+    // Default implementation does nothing
+}
+

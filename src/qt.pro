@@ -13,7 +13,7 @@ CONFIG		+= builder
 
 # for now, dunno how to make this configurable, also requires a #define in qapplication_x11.cpp
 unix:LIBS += $$TMAKE_LIBS_X11SM
-DEFINES += QT_SM_SUPPORT
+DEFINES += QT_SM_SUPPORT QT_THREAD_SUPPORT
 
 #DEFINES	+= QT_NO_ASCII_CAST
 #DEFINES	+= QT_NO_CAST_ASCII

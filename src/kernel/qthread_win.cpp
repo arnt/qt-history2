@@ -25,6 +25,7 @@
 
 
 #include "qthread.h"
+#include <process.h>
 
 class QMutexPrivate {
 };
@@ -55,3 +56,28 @@ int QThread::currentThread()
 void QThread::postEvent(QObject *,QEvent *)
 {
 }
+
+static void start_thread(QThread * t)
+{
+  t->run();
+}
+
+QThread::QThread()
+{
+}
+
+QThread::~QThread()
+{
+}
+
+void QThread::start()
+{
+  // Error checking would be good
+  _beginthread(start_thread,0,(void *)this);
+}
+
+void QThread::run()
+{
+    // Default implementation does nothing
+}
+
