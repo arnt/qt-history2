@@ -1959,6 +1959,10 @@ void QTextDocument::setRichTextInternal( const QString &text )
 	    }
 	}
     }
+    if ( !anchorName.isEmpty()  ) {
+	curpar->at(curpar->length() - 1)->setAnchor( anchorName, curpar->at( curpar->length() - 1 )->anchorHref() );
+	anchorName = QString::null;
+    }
 }
 
 void QTextDocument::setText( const QString &text, const QString &context )
@@ -5174,7 +5178,7 @@ QTextPreProcessor::QTextPreProcessor()
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 QTextFormatter::QTextFormatter()
-    : minw(0), wused(0), wrapEnabled( TRUE ), wrapColumn( -1 ), biw( FALSE )
+    : thisminw(0), thiswused(0), wrapEnabled( TRUE ), wrapColumn( -1 ), biw( FALSE )
 {
 }
 
@@ -5481,8 +5485,8 @@ int QTextFormatterBreakInWords::format( QTextDocument *doc,QTextParag *parag,
     int rm = parag->rightMargin();
     int w = dw - ( doc ? doc->flow()->adjustRMargin( y + parag->rect().y(), parag->rect().height(), rm, 4 ) : 0 );
     bool fullWidth = TRUE;
-    minw = 0;
-    wused = 0;
+    int minw = 0;
+    int wused = 0;
     bool wrapEnabled = isWrapEnabled( parag );
 
     start = 0;    //######### what is the point with start?! (Matthias)
@@ -5579,6 +5583,9 @@ int QTextFormatterBreakInWords::format( QTextDocument *doc,QTextParag *parag,
     y += h + m;
     if ( !wrapEnabled )
 	minw = QMAX(minw, wused);
+    
+    thisminw = minw;
+    thiswused = wused;
     return y;
 }
 
@@ -5616,8 +5623,8 @@ int QTextFormatterBreakWords::format( QTextDocument *doc, QTextParag *parag,
     int w = dw - rdiff;
     bool fullWidth = TRUE;
     int marg = left + rdiff;
-    minw = 0;
-    wused = 0;
+    int minw = 0;
+    int wused = 0;
     int tminw = marg;
     int linespace = doc ? parag->lineSpacing() : 0;
     bool wrapEnabled = isWrapEnabled( parag );
@@ -5719,7 +5726,7 @@ int QTextFormatterBreakWords::format( QTextDocument *doc, QTextParag *parag,
 		tminw = tw;
 	    else
 		tminw = marg;
-	    wused = QMAX( wused, ci->width );
+ 	    wused = QMAX( wused, ci->width );
 	    continue;
 	} else if ( c->isCustom() && ci->placement() != QTextCustomItem::PlaceInline ) {
 	    int tw = ci->minimumWidth();
@@ -5852,6 +5859,8 @@ int QTextFormatterBreakWords::format( QTextDocument *doc, QTextParag *parag,
     wused += rm;
     if ( !wrapEnabled || wrapAtColumn() != -1 )
 	minw = QMAX(minw, wused);
+    thisminw = minw;
+    thiswused = wused;
     return y;
 }
 

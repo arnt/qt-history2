@@ -1395,8 +1395,8 @@ public:
     virtual void setAllowBreakInWords( bool b ) { biw = b; }
     bool allowBreakInWords() const { return biw; }
 
-    int minimumWidth() const { return minw; }
-    int widthUsed() const { return wused; }
+    int minimumWidth() const { return thisminw; }
+    int widthUsed() const { return thiswused; }
 
 protected:
     virtual QTextParagLineStart *formatLine( QTextParag *parag, QTextString *string, QTextParagLineStart *line, QTextStringChar *start,
@@ -1408,8 +1408,8 @@ protected:
     virtual bool isBreakable( QTextString *string, int pos ) const;
     void insertLineStart( QTextParag *parag, int index, QTextParagLineStart *ls );
 
-    int minw;
-    int wused;
+    int thisminw;
+    int thiswused;
 
 private:
     bool wrapEnabled;
