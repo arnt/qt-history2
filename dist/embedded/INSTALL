@@ -7,25 +7,18 @@ modified for other platforms.
 Unpack the archive if you have not done so already:
 
 cd <anywhere>
-gunzip qt-embedded-%VERSION%-commercial.tar.gz    # uncompress the archive
-tar xf qt-embedded-%VERSION%-commercial.tar       # unpack it
+gunzip qt-embedded-commercial-%VERSION%.tar.gz    # uncompress the archive
+tar xf qt-embedded-commercial-%VERSION%.tar       # unpack it
 
-This document assumes that the archive is installed as ~/qt-%VERSION%
+This document assumes that the archive is installed as ~/qt-embedded-%VERSION%
 
 Compile the Qt/Embedded library and examples:
 
-cd ~/qt-%VERSION%
-export QTDIR=~/qt-%VERSION%
-export LD_LIBRARY_PATH=~/qt-%VERSION%/lib:$LD_LIBRARY_PATH
+cd ~/qt-embedded-%VERSION%
 ./configure
 make
 
 You will require a working Linux framebuffer to use Qt/Embedded.
-
-To run the demo:
-
-cd ~/qt-%VERSION%/examples/launcher
-./start_demo
 
 See the HTML documentation in doc/html for detailed installation
 instructions.
