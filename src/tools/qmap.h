@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qmap.h#12 $
+** $Id: //depot/qt/main/src/tools/qmap.h#13 $
 **
 ** Definition of QMap class
 **
@@ -264,14 +264,13 @@ public:
 
   void clear( NodePtr p )
   {
-    if ( p && p != header )
+    while ( p != 0 )
     {
-      if ( p->left && p->left != header )
-	clear( (NodePtr)p->left );
-      else if ( p->right && p->right != header )
-	clear( (NodePtr)p->right );
+      clear( (NodePtr)p->right );
+      NodePtr y = (NodePtr)p->left;
+      delete p;
+      p = y;
     }
-    delete p;
   }
 
   Iterator begin() { return Iterator( (NodePtr)(header->left ) ); }
