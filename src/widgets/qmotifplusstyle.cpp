@@ -103,8 +103,7 @@ QMotifPlusStyle::QMotifPlusStyle(bool hoveringHighlight) : QMotifStyle(TRUE)
     useHoveringHighlight = hoveringHighlight;
 }
 
-/*!
-  Destructs the style.
+/*!\reimp
  */
 QMotifPlusStyle::~QMotifPlusStyle()
 {
@@ -342,7 +341,7 @@ void QMotifPlusStyle::drawPushButton(QPushButton *button, QPainter *p)
   \reimp
 */
 void QMotifPlusStyle::drawButton(QPainter *p, int x, int y, int w, int h,
-				 const QColorGroup &g, 
+				 const QColorGroup &g,
 				 bool sunken, const QBrush *fill)
 {
     QPen oldpen = p->pen();
@@ -457,7 +456,7 @@ QRect QMotifPlusStyle::comboButtonRect( int x, int y, int w, int h ) const
 
     int indent = ((y + h) / 2) - defaultFrameWidth();
     r.setRight(r.right() - indent - 13);
-    if( QApplication::reverseLayout() ) 
+    if( QApplication::reverseLayout() )
 	r.moveBy( indent + 13, 0 );
     return r;
 }
@@ -1177,7 +1176,7 @@ void QMotifPlusStyle::drawTab(QPainter *p, const QTabBar *tabbar, QTab *tab,
     p->fillRect(fr, g.background());
 
     QPen oldpen = p->pen();
-    
+
 
     if (! selected) {
 	if (tabbar->shape() == QTabBar::RoundedAbove ||
@@ -1190,7 +1189,7 @@ void QMotifPlusStyle::drawTab(QPainter *p, const QTabBar *tabbar, QTab *tab,
     }
 
     p->fillRect(fr.left() + 1, fr.top() + 1, fr.width() - 2, fr.height() - 2,
-		(selected) ? g.brush(QColorGroup::Button) 
+		(selected) ? g.brush(QColorGroup::Button)
 		           : g.brush(QColorGroup::Mid));
 
     if (tabbar->shape() == QTabBar::RoundedAbove) {
@@ -1374,7 +1373,7 @@ bool QMotifPlusStyle::eventFilter(QObject *object, QEvent *event)
 		if (object->inherits("QScrollBar") ||
 		    object->inherits("QSlider")) {
 		    singleton->mousePos = ((QMouseEvent *) event)->pos();
-		    singleton->hovering 
+		    singleton->hovering
 			= (((QMouseEvent *) event)->button() == NoButton);
 		    singleton->hoverWidget->repaint(FALSE);
 		    singleton->hovering = FALSE;
@@ -1403,7 +1402,7 @@ void QMotifPlusStyle::drawToolBarHandle( QPainter *p, const QRect &r, Qt::Orient
     p->translate( r.x(), r.y() );
 
     unsigned int i;
-    
+
     if (orientation == Qt::Vertical) {
 	drawButton(p, r.x(), r.y(), r.width(), toolBarHandleExtent(),
 		   cg, FALSE, &cg.brush(((highlight) ?
@@ -1412,7 +1411,7 @@ void QMotifPlusStyle::drawToolBarHandle( QPainter *p, const QRect &r, Qt::Orient
 	
 	if (r.width() > 8) {
 	    QPointArray a( 2 * ((r.width()-8)/3) );
-	    
+	
 	    int x = 3 + (r.width()%3)/2;
 	    p->setPen( cg.dark() );
 	    for( i=0; 2*i < a.size(); i ++ ) {
@@ -1435,7 +1434,7 @@ void QMotifPlusStyle::drawToolBarHandle( QPainter *p, const QRect &r, Qt::Orient
 	
 	if ( r.height() > 8 ) {
 	    QPointArray a( 2 * ((r.height()-8)/3) );
-	    
+	
 	    int y = 3 + (r.height()%3)/2;
 	    p->setPen( cg.dark() );
 	    for( i=0; 2*i < a.size(); i ++ ) {

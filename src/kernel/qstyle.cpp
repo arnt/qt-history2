@@ -89,7 +89,7 @@ public:
   also mirror the whole layout of widgets. If you design a style, you should
   take special care when drawing asymmetric elements to make sure
   they also look correct for a mirrored layout. You can start your application
-  with -reverse to check the mirrored layout. Also notice, that for a reversed 
+  with -reverse to check the mirrored layout. Also notice, that for a reversed
   layout, the light usually comes from top right instead of top left.
 */
 
@@ -131,7 +131,7 @@ QStyle::QStyle() :
 }
 
 /*!
-  Destructs the style.
+  Destructs the style and frees all allocated resources.
 */
 QStyle::~QStyle()
 {
@@ -391,7 +391,7 @@ QRect QStyle::comboButtonRect( int x, int y, int w, int h) const
     return buttonRect(xpos, y, w-21, h);
 }
 
-/*! 
+/*!
   Returns the rectangle used to draw the focus rectangle in a combo box.
 */
 QRect QStyle::comboButtonFocusRect( int x, int y, int w, int h) const
@@ -400,7 +400,7 @@ QRect QStyle::comboButtonFocusRect( int x, int y, int w, int h) const
 }
 
 
-/*! 
+/*!
   Draw the mask of a combo box button. Useful if a rounded buttons
   needs to be transparent because the style uses a fancy background
   pixmap.
@@ -459,7 +459,7 @@ void QStyle::getButtonShift( int &x, int &y) const
 
 
 
-/*! 
+/*!
   The default frame width, usually 2.
  */
 int QStyle::defaultFrameWidth() const
@@ -666,7 +666,7 @@ TODO
 
 */
 
-/*! 
+/*!
   Draws the mask of a slider
 */
 void QStyle::drawSliderMask( QPainter *p,
@@ -700,7 +700,7 @@ QStyle::drawSliderGrooveMask( QPainter *p,
     drawSliderGroove( p, x, y, w, h, g, c, orient );
 }
 
-/*! 
+/*!
   Some feels require the scrollbar or other sliders to jump back to
   the original position when the mouse pointer is too far away while
   dragging.
@@ -868,7 +868,7 @@ void QStyle::drawToolBarHandle( QPainter *p, const QRect &r, Qt::Orientation ori
 */
 
 void QStyle::setScrollBarExtent( int width, int height )
-{ 
+{
 //### TODO: pick up desktop settings on Windows
     d->sbextent
 	= QSize( width, height ).expandedTo( QApplication::globalStrut() );
@@ -926,7 +926,7 @@ int QStyle::menuButtonIndicatorWidth( int h ) const
 /*! \fn void QStyle::drawMenuBarItem( QPainter* p, int x, int y, int w, int h,
 				    QMenuItem* mi, QColorGroup& g,
 				    bool enabled, bool )
-				    
+				
   Draws the menu item \a mi using the painter \a p and the ButtonText
   color of \g. The painter is preset to the right font. \a x, \a y,
   \a w and \a h determine the geometry of the entire item.

@@ -67,8 +67,7 @@ QPlatinumStyle::QPlatinumStyle()
     setButtonDefaultIndicatorWidth( 3 );
 }
 
-/*!
-  Destructs the style.
+/*!\reimp
 */
 QPlatinumStyle::~QPlatinumStyle()
 {
@@ -83,8 +82,7 @@ void QPlatinumStyle::drawPopupPanel( QPainter *p, int x, int y, int w, int h,
     QWindowsStyle::drawPopupPanel( p, x, y, w, h, g, lineWidth, fill );
 }
 
-/*!
-  Draws a press-sensitive shape.
+/*!\reimp
 */
 void QPlatinumStyle::drawButton( QPainter *p, int x, int y, int w, int h,
 				const QColorGroup &g, bool sunken, const QBrush* fill)
@@ -1444,11 +1442,7 @@ void QPlatinumStyle::drawSliderGroove( QPainter *p,
 
 }
 
-/*!
-  Reimplementation from QWindowsStyle to disable the Windows typical jump
-  back when dragging controls.
-
-  \sa QStyle
+/*! \reimp
   */
 int QPlatinumStyle::maximumSliderDragDistance() const
 {

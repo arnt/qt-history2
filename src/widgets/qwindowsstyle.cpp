@@ -74,8 +74,7 @@ QWindowsStyle::QWindowsStyle() : QCommonStyle(WindowsStyle)
     setButtonDefaultIndicatorWidth( 1 );
 }
 
-/*!
-  Destructs the style.
+/*!\reimp
 */
 QWindowsStyle::~QWindowsStyle()
 {
@@ -384,8 +383,7 @@ void QWindowsStyle::drawExclusiveIndicator( QPainter* p,
 }
 
 
-/*!
-  Draws the mask of a mark indicating the state of an exclusive choice
+/*!\reimp
 */
 void
 QWindowsStyle::drawExclusiveIndicatorMask( QPainter *p, int x, int y, int w, int h, bool /* on */)
@@ -407,8 +405,7 @@ QWindowsStyle::exclusiveIndicatorSize() const
 
 
 
-/*!
-  Draws a press-sensitive shape.
+/*!\reimp
 */
 void QWindowsStyle::drawButton( QPainter *p, int x, int y, int w, int h,
 				const QColorGroup &g, bool sunken, const QBrush* fill)
@@ -518,7 +515,7 @@ void QWindowsStyle::drawComboButton( QPainter *p, int x, int y, int w, int h,
     //qDrawWinPanel(p, w-2-16,2,16,h-4, g, sunken);
     // #### DO SUNKEN!
     int xpos = x;
-    if( !QApplication::reverseLayout() ) 
+    if( !QApplication::reverseLayout() )
 	xpos += w - 2 - 16;
 
     if ( sunken )
@@ -604,12 +601,12 @@ void QWindowsStyle::drawTab( QPainter* p,  const QTabBar* tb, QTab* t , bool sel
 	    x2 = r.right() - 2;
 	}
 	p->drawLine( x1, r.bottom()-1, x1, r.top() + 2 );
-	if ( reverse ) 
+	if ( reverse )
 	    x1--;
 	else
 	    x1++;
 	p->drawPoint( x1, r.top() + 1 );
-	if ( reverse ) 
+	if ( reverse )
 	    x1--;
 	else
 	    x1++;
@@ -624,12 +621,12 @@ void QWindowsStyle::drawTab( QPainter* p,  const QTabBar* tb, QTab* t , bool sel
 	p->drawPoint( x1, r.bottom());
 
 	p->setPen( tb->colorGroup().midlight() );
-	if ( reverse ) 
+	if ( reverse )
 	    x1--;
 	else
 	    x1++;
 	p->drawLine( x1, r.bottom(), x1, r.top() + 2 );
-	if ( reverse ) 
+	if ( reverse )
 	    x1--;
 	else
 	    x1++;
@@ -891,7 +888,7 @@ void QWindowsStyle::drawSlider( QPainter *p,
     int y2 = y+h-1;
 
     bool reverse = QApplication::reverseLayout();
-    
+
     p->fillRect( x, y, w, h, g.brush( QColorGroup::Background ) );
 
     if ( (tickAbove && tickBelow) || (!tickAbove && !tickBelow) ) {
@@ -1064,8 +1061,7 @@ void QWindowsStyle::drawSlider( QPainter *p,
 #endif
 }
 
-/*!
-  Draws the mask of a slider
+/*!\reimp
 */
 void
 QWindowsStyle::drawSliderMask( QPainter *p,
@@ -1312,7 +1308,7 @@ int QWindowsStyle::popupMenuItemHeight( bool /*checkable*/, QMenuItem* mi,
 /*! \reimp
 */
 void QWindowsStyle::drawPopupMenuItem( QPainter* p, bool checkable, int maxpmw,
-				       int tab, QMenuItem* mi, 
+				       int tab, QMenuItem* mi,
 				       const QPalette& pal, bool act,
 				       bool enabled,
 				       int x, int y, int w, int h)
@@ -1417,7 +1413,7 @@ void QWindowsStyle::drawPopupMenuItem( QPainter* p, bool checkable, int maxpmw,
 	xpos = windowsItemFrame + tab;
     else
 	xpos += xm;
-    
+
     if ( mi->custom() ) {
 	int m = windowsItemVMargin;
 	p->save();
@@ -1469,7 +1465,7 @@ void QWindowsStyle::drawPopupMenuItem( QPainter* p, bool checkable, int maxpmw,
 	if ( reverse ) {
 	    arrow = LeftArrow;
 	    xpos = x + windowsArrowHMargin + windowsItemFrame;
-	} else { 
+	} else {
 	    arrow = RightArrow;
 	    xpos = x+w - windowsArrowHMargin - windowsItemFrame - dim;
 	}

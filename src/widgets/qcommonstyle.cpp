@@ -69,8 +69,7 @@ QCommonStyle::QCommonStyle(GUIStyle s) : QStyle(s)
 {
 }
 
- /*!
-  Destructs the style.
+ /*!\reimp
 */
 QCommonStyle::~QCommonStyle()
 {
@@ -242,7 +241,7 @@ QRect QCommonStyle::pushButtonContentsRect( QPushButton* btn ) const
 
 void QCommonStyle::drawToolButton( QPainter *p, int x, int y, int w, int h,
 		     const QColorGroup &g, bool sunken,
-		     const QBrush *fill ) 
+		     const QBrush *fill )
 {
     QStyle::drawToolButton( p, x, y, w, h, g, sunken, fill );
 }

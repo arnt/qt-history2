@@ -86,8 +86,7 @@ QMotifStyle::QMotifStyle( bool useHighlightCols ) : QCommonStyle(MotifStyle)
 #endif
 }
 
-/*!
-  Destructs the style.
+/*!\reimp
 */
 QMotifStyle::~QMotifStyle()
 {
@@ -412,8 +411,7 @@ QMotifStyle::drawArrow( QPainter *p, ArrowType type, bool down,
 }
 
 
-/*!
-  Draws a press-sensitive shape.
+/*!\reimp
 */
 void QMotifStyle::drawButton( QPainter *p, int x, int y, int w, int h,
 				const QColorGroup &g, bool sunken, const QBrush* fill)
@@ -961,7 +959,7 @@ int QMotifStyle::popupMenuItemHeight( bool /* checkable*/, QMenuItem* mi,
 /*! \reimp
 */
 void QMotifStyle::drawPopupMenuItem( QPainter* p, bool checkable, int maxpmw,
-				     int tab, QMenuItem* mi, 
+				     int tab, QMenuItem* mi,
 				     const QPalette& pal,
 				     bool act, bool enabled,
 				     int x, int y, int w, int h )
@@ -1198,7 +1196,7 @@ void QMotifStyle::drawToolBarHandle( QPainter *p, const QRect &r, Qt::Orientatio
 	    if ( highlight )
 		p->fillRect( 1, 1, w - 2, 9, cg.highlight() );
 	    QPointArray a( 2 * ((w-6)/3) );
-	    
+	
 	    int x = 3 + (w%3)/2;
 	    p->setPen( dark );
 	    p->drawLine( 1, 8, w-2, 8 );
