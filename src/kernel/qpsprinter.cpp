@@ -3660,6 +3660,7 @@ void QPSPrinterFontTTF::subsetGlyph(int charindex,bool* glyphset)
       glyph += 2;
 
       glyphset[ glyphIndex ] = TRUE;
+      subsetGlyph( glyphIndex, glyphset );
       //printf("subset contains: %d %s ",glyphIndex, glyphName(glyphIndex).latin1());
 
       if(flags & ARG_1_AND_2_ARE_WORDS) {
