@@ -14,8 +14,8 @@ void Thread::run()
     const int Timeout = 5 * 1000;
 
     QTcpSocket socket;
-    socket.setBlocking(true, Timeout);
-    if (!socket.connectToHost(hostName, port)) {
+    socket.connectToHost(hostName, port);
+    if (!socket.waitForConnected(Timeout)) {
         emit error(socket.socketError(), socket.errorString());
         return;
     }
