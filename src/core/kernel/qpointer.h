@@ -29,9 +29,9 @@ public:
     inline ~QPointer()
         { QMetaObject::removeGuard(&o); }
     inline QPointer<T> &operator=(const QPointer<T> &p)
-        { QMetaObject::changeGuard(&o, p.o); return *this; }
+        { if (this != &p) QMetaObject::changeGuard(&o, p.o); return *this; }
     inline QPointer<T> &operator=(T* p)
-        { QMetaObject::changeGuard(&o, p); return *this; }
+        { if (o != p) QMetaObject::changeGuard(&o, p); return *this; }
 
     inline bool operator==(const QPointer<T> &p) const
         { return o == p.o; }
