@@ -2208,7 +2208,7 @@ QString QTextDocument::plainText() const
     while ( p ) {
 	if ( !p->mightHaveCustomItems ) {
 	    const QTextString *ts = p->string(); // workaround VC++ and Borland
-	    s = ts->toString( FALSE ); // with FALSE we don't fix spaces (nbsp)
+	    s = ts->toString(); // with FALSE we don't fix spaces (nbsp)
 	} else {
 	    for ( int i = 0; i < p->length() - 1; ++i ) {
 #ifndef QT_NO_TEXTCUSTOMITEM

@@ -141,7 +141,7 @@ struct QLineEditPrivate {
 	    case QLineEdit::Normal:
 		{
 		    const QTextString *ts = parag->string(); // workaround Borland
-		    res = ts->toString( FALSE ); // with FALSE we don't fix spaces (nbsp)
+		    res = ts->toString();
 		    res.remove( res.length() - 1, 1 );
 		}
 		break;
@@ -578,7 +578,7 @@ QString QLineEdit::text() const
     // only change the text if we need to, this ensure that multiple
     // calls to text() will get the same shared value.
     const QTextString *ts = d->parag->string(); // workaround VC++ and Borland
-    QString s = ts->toString( FALSE ); // with FALSE we don't fix spaces (nbsp)
+    QString s = ts->toString();
     s.remove( s.length() - 1, 1 ); // get rid of trailing space
 
     return stripString( s );
@@ -2701,7 +2701,7 @@ void QLineEdit::delOrBackspace( bool backspace )
 		}
 		if ( d->maskData ) {
 		    const QTextString *ts = d->parag->string(); // workaround Borland
-		    QString t1 = ts->toString( FALSE ); // with FALSE we don't fix spaces (nbsp)
+		    QString t1 = ts->toString();
 		    t1.remove( t1.length() - 1, 1 );
 		    int idx = d->cursor->index();
 		    t1.replace( idx, 1, clearString( idx, 1 ) );
@@ -2964,7 +2964,7 @@ QString QLineEdit::maskString( uint pos, const QString &str, bool clear) const
 	t1 = clearString( 0, d->maxLen );
     else {
 	const QTextString *ts = d->parag->string(); // workaround Borland
-	t1 = ts->toString( FALSE );  // with FALSE we don't fix spaces (nbsp)
+	t1 = ts->toString();
 	t1.remove( t1.length() - 1, 1 );
     }
     uint strIndex = 0;
@@ -3057,7 +3057,7 @@ QString QLineEdit::text( bool strip ) const
 	return text();
     } else {
 	const QTextString *ts = d->parag->string(); // workaround Borland
-	QString s = ts->toString( FALSE ); // with FALSE we don't fix spaces (nbsp)
+	QString s = ts->toString();
 	s.remove( s.length() - 1, 1 ); // get rid of trailing space
 	return s;
     }
@@ -3082,7 +3082,7 @@ void QLineEdit::insert( const QString &newText, bool paste )
 	    input[i] = ' ';
 
     const QTextString *ts = d->parag->string(); // workaround Borland
-    QString original = ts->toString( FALSE ); // with FALSE we don't fix spaces (nbsp)
+    QString original = ts->toString();
     original.remove( original.length() - 1, 1 );
     int cp1 = d->cursor->index();
 
@@ -3247,7 +3247,7 @@ QString QLineEdit::selectedText( bool ignore ) const
 {
     if ( hasSelectedText( ignore ) ) {
 	const QTextString *ts = d->parag->string(); // workaround Borland
-	return ts->toString( FALSE ).mid( d->parag->selectionStart( QTextDocument::Standard ), d->parag->selectionEnd( QTextDocument::Standard ) - d->parag->selectionStart( QTextDocument::Standard ) ); // with FALSE we don't fix spaces (nbsp)
+	return ts->toString().mid( d->parag->selectionStart( QTextDocument::Standard ), d->parag->selectionEnd( QTextDocument::Standard ) - d->parag->selectionStart( QTextDocument::Standard ) );
     } else {
 	return QString::null;
     }
