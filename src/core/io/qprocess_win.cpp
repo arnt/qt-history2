@@ -250,3 +250,14 @@ bool QProcessPrivate::waitForFinished(int msecs)
     Q_UNUSED(msecs);
     return false;
 }
+
+Q_LONGLONG QProcessPrivate::writeToStdin(const char *data, Q_LONGLONG maxlen)
+{
+    return 0;
+}
+
+bool QProcessPrivate::waitForWrite(int msecs)
+{
+    return false;
+}
+
