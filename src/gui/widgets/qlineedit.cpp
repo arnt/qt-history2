@@ -33,6 +33,7 @@
 #include "qwhatsthis.h"
 #include <private/qinternal_p.h>
 #include "qvector.h"
+#include "qaction.h"
 #if defined(QT_ACCESSIBILITY_SUPPORT)
 #include "qaccessible.h"
 #endif
@@ -1814,8 +1815,6 @@ void QLineEditPrivate::drag()
 
 #endif // QT_NO_DRAGANDDROP
 
-enum { IdUndo, IdRedo, IdSep1, IdCut, IdCopy, IdPaste, IdClear, IdSep2, IdSelectAll };
-
 /*!\reimp
 */
 void QLineEdit::contextMenuEvent(QContextMenuEvent * e)
@@ -1827,23 +1826,8 @@ void QLineEdit::contextMenuEvent(QContextMenuEvent * e)
     QPointer<QLineEdit> that = this;
     QPoint pos = e->reason() == QContextMenuEvent::Mouse ? e->globalPos() :
                  mapToGlobal(QPoint(e->pos().x(), 0)) + QPoint(width() / 2, height() / 2);
-    int r = popup->exec(pos);
+    popup->exec(pos);
     delete (QPopupMenu*)popup;
-    if (that && d->menuId) {
-        switch (d->menuId - r) {
-        case IdClear: clear(); break;
-        case IdSelectAll: selectAll(); break;
-        case IdUndo: undo(); break;
-        case IdRedo: redo(); break;
-#ifndef QT_NO_CLIPBOARD
-        case IdCut: cut(); break;
-        case IdCopy: copy(); break;
-        case IdPaste: paste(); break;
-#endif
-        default:
-            ; // nothing selected or lineedit destroyed. Be careful.
-        }
-    }
 #endif //QT_NO_POPUPMENU
 }
 
@@ -1858,33 +1842,30 @@ void QLineEdit::contextMenuEvent(QContextMenuEvent * e)
 QPopupMenu *QLineEdit::createPopupMenu()
 {
 #ifndef QT_NO_POPUPMENU
-    QPopupMenu *popup = new QPopupMenu(this, "qt_edit_menu");
-    int id = d->menuId = popup->insertItem(tr("&Undo") + ACCEL_KEY(Z));
-    popup->insertItem(tr("&Redo") + ACCEL_KEY(Y));
-    popup->insertSeparator();
-    popup->insertItem(tr("Cu&t") + ACCEL_KEY(X));
-    popup->insertItem(tr("&Copy") + ACCEL_KEY(C));
-    popup->insertItem(tr("&Paste") + ACCEL_KEY(V));
-    popup->insertItem(tr("Clear"));
-    popup->insertSeparator();
-    popup->insertItem(tr("Select All")
-#ifndef Q_WS_X11
-    + ACCEL_KEY(A)
-#endif
-       );
-    popup->setItemEnabled(id - IdUndo, d->isUndoAvailable());
-    popup->setItemEnabled(id - IdRedo, d->isRedoAvailable());
+    d->actions[QLineEditPrivate::UndoAct]->setEnabled(d->isUndoAvailable());
+    d->actions[QLineEditPrivate::RedoAct]->setEnabled(d->isRedoAvailable());
 #ifndef QT_NO_CLIPBOARD
-    popup->setItemEnabled(id - IdCut, !d->readOnly && d->hasSelectedText());
-    popup->setItemEnabled(id - IdCopy, d->hasSelectedText());
-    popup->setItemEnabled(id - IdPaste, !d->readOnly && !QApplication::clipboard()->text().isEmpty());
+    d->actions[QLineEditPrivate::CutAct]->setEnabled(!d->readOnly && d->hasSelectedText());
+    d->actions[QLineEditPrivate::CopyAct]->setEnabled(d->hasSelectedText());
+    d->actions[QLineEditPrivate::PasteAct]->setEnabled(!d->readOnly && !QApplication::clipboard()->text().isEmpty());
 #else
-    popup->setItemVisible(id - IdCut, false);
-    popup->setItemVisible(id - IdCopy, false);
-    popup->setItemVisible(id - IdPaste, false);
+    d->actions[QLineEditPrivate::CutAct]->setEnabled(false);
+    d->actions[QLineEditPrivate::CopyAct]->setEnabled(false);
+    d->actions[QLineEditPrivate::PasteAct]->setEnabled(false);
 #endif
-    popup->setItemEnabled(id - IdClear, !d->readOnly && !d->text.isEmpty());
-    popup->setItemEnabled(id - IdSelectAll, !d->text.isEmpty() && !d->allSelected());
+    d->actions[QLineEditPrivate::ClearAct]->setEnabled(!d->readOnly && !d->text.isEmpty());
+    d->actions[QLineEditPrivate::SelectAllAct]->setEnabled(!d->text.isEmpty() && !d->allSelected());
+
+    QPopupMenu *popup = new QPopupMenu(this, "qt_edit_menu");
+    popup->addAction(d->actions[QLineEditPrivate::UndoAct]);
+    popup->addAction(d->actions[QLineEditPrivate::RedoAct]);
+    popup->addSeparator();
+    popup->addAction(d->actions[QLineEditPrivate::CutAct]);
+    popup->addAction(d->actions[QLineEditPrivate::CopyAct]);
+    popup->addAction(d->actions[QLineEditPrivate::PasteAct]);
+    popup->addAction(d->actions[QLineEditPrivate::ClearAct]);
+    popup->addSeparator();
+    popup->addAction(d->actions[QLineEditPrivate::SelectAllAct]);
     return popup;
 #else
     return 0;
@@ -1951,6 +1932,27 @@ void QLineEditPrivate::init(const QString& txt)
     text = txt;
     updateTextLayout();
     cursor = text.length();
+
+    actions[UndoAct] = new QAction(q->tr("&Undo") + ACCEL_KEY(Z), q);
+    QObject::connect(actions[UndoAct], SIGNAL(triggered()), q, SLOT(slotUndo()));
+    actions[RedoAct] = new QAction(q->tr("&Redo") + ACCEL_KEY(Y), q);
+    QObject::connect(actions[RedoAct], SIGNAL(triggered()), q, SLOT(slotRedo()));
+    //popup->insertSeparator();
+    actions[CutAct] = new QAction(q->tr("Cu&t") + ACCEL_KEY(X), q);
+    QObject::connect(actions[CutAct], SIGNAL(triggered()), q, SLOT(slotCut()));
+    actions[CopyAct] = new QAction(q->tr("&Copy") + ACCEL_KEY(C), q);
+    QObject::connect(actions[CopyAct], SIGNAL(triggered()), q, SLOT(slotCopy()));
+    actions[PasteAct] = new QAction(q->tr("&Paste") + ACCEL_KEY(V), q);
+    QObject::connect(actions[PasteAct], SIGNAL(triggered()), q, SLOT(slotPaste()));
+    actions[ClearAct] = new QAction(q->tr("Clear"), q);
+    QObject::connect(actions[ClearAct], SIGNAL(triggered()), q, SLOT(slotClear()));
+    //popup->insertSeparator();
+    actions[SelectAllAct] = new QAction(q->tr("Select All")
+#ifndef Q_WS_X11
+                                        + ACCEL_KEY(A)
+#endif
+                                        , q);
+    QObject::connect(actions[SelectAllAct], SIGNAL(triggered()), q, SLOT(slotSelectAll()));
 }
 
 void QLineEditPrivate::updateTextLayout()

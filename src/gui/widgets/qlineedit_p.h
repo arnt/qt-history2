@@ -16,8 +16,7 @@ public:
           cursorVisible(0), separator(0), readOnly(0), modified(0),
           direction(QChar::DirON), dragEnabled(1), alignment(0),
           echoMode(0), textDirty(0), selDirty(0), validInput(1),
-          ascent(0), maxLength(32767), menuId(0),
-          hscroll(0), lastCursorPos(-1), maskData(0),
+          ascent(0), maxLength(32767), hscroll(0), lastCursorPos(-1), maskData(0),
           undoState(0), selstart(0), selend(0),
           imstart(0), imend(0), imselstart(0), imselend(0)
         {}
@@ -42,10 +41,12 @@ public:
     uint validInput : 1;
     int ascent;
     int maxLength;
-    int menuId;
     int hscroll;
     int lastCursorPos;
     QChar passwordChar; // obsolete
+
+    enum { UndoAct, RedoAct, CutAct, CopyAct, PasteAct, ClearAct, SelectAllAct, NCountActs };
+    QAction *actions[NCountActs];
 
     inline void emitCursorPositionChanged();
 
@@ -143,6 +144,15 @@ public:
 #endif
 
     void clipboardChanged();
+
+    //pending matthias' opinions..
+    inline void slotClear() { q_func()->clear(); }
+    inline void slotSelectAll() { q_func()->selectAll(); }
+    inline void slotUndo() { q_func()->undo(); }
+    inline void slotRedo() { q_func()->redo(); }
+    inline void slotCut() { q_func()->cut(); }
+    inline void slotCopy() { q_func()->copy(); }
+    inline void slotPaste() { q_func()->paste(); }
 };
 
 

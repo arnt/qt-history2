@@ -181,6 +181,15 @@ public:
 
 private:
     Q_PRIVATE_SLOT(void clipboardChanged())
+
+    Q_PRIVATE_SLOT(void slotClear())
+    Q_PRIVATE_SLOT(void slotSelectAll())
+    Q_PRIVATE_SLOT(void slotUndo())
+    Q_PRIVATE_SLOT(void slotRedo())
+    Q_PRIVATE_SLOT(void slotCut())
+    Q_PRIVATE_SLOT(void slotCopy())
+    Q_PRIVATE_SLOT(void slotPaste())
+
 #if defined(Q_DISABLE_COPY)
     QLineEdit(const QLineEdit &);
     QLineEdit &operator=(const QLineEdit &);
