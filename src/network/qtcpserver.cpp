@@ -272,6 +272,10 @@ void QTcpServer::close()
 
     if (d->socketLayer.isValid())
         d->socketLayer.close();
+
+    qDeleteAll(d->pendingConnections);
+    d->pendingConnections.clear();
+
     d->state = Qt::UnconnectedState;
 }
 
@@ -409,10 +413,9 @@ QTcpSocket *QTcpServer::nextPendingConnection()
     if (d->pendingConnections.isEmpty())
         return 0;
 
-    if (!d->readSocketNotifier->isEnabled())
+    if (d->readSocketNotifier && !d->readSocketNotifier->isEnabled())
         d->readSocketNotifier->setEnabled(true);
 
-    d->readSocketNotifier->setEnabled(true);
     return d->pendingConnections.takeFirst();
 }
 
