@@ -1493,7 +1493,7 @@ void QApplication::setMainWidget( QWidget *mainWidget )
 	XSetWMProperties( main_widget->x11Display(), main_widget->winId(),
 			  0, 0, app_argv, app_argc, 0, 0, 0 );
 	if ( mwTitle )
-	    XStoreName( appDpy, main_widget->winId(), mwTitle );
+	    XStoreName( main_widget->x11Display(), main_widget->winId(), mwTitle );
 	if ( mwGeometry ) {			// parse geometry
 	    int x, y;
 	    int w, h;
@@ -4699,8 +4699,10 @@ QSessionManager::QSessionManager( QApplication * app, QString &session )
     cb.shutdown_cancelled.callback = sm_shutdownCancelledCallback;
     cb.shutdown_cancelled.client_data = (SmPointer) this;
 
+    char* session_manager = getenv("SESSION_MANAGER");
+    
     // avoid showing a warning message below
-    if (!::getenv("SESSION_MANAGER") )
+    if ( !session_manager || !session_manager[0] )
 	return;
 
     smcConnection = SmcOpenConnection( 0, 0, 1, 0,

@@ -1378,12 +1378,12 @@ bool QWidget::isMinimized() const
 }
 
 // ### ### this really needs to wait for a maximum of 0.N seconds
-void qt_wait_for_window_manager( WId win )
+void qt_wait_for_window_manager( QWidget* w )
 {
     QApplication::flushX();
     XEvent ev;
-    while (!XCheckTypedWindowEvent( qt_xdisplay(), win, ReparentNotify, &ev )) {
-	if ( XCheckTypedWindowEvent( qt_xdisplay(), win, MapNotify, &ev ) )
+    while (!XCheckTypedWindowEvent( w->x11Display(), w->winId(), ReparentNotify, &ev )) {
+	if ( XCheckTypedWindowEvent( w->x11Display(), w->winId(), MapNotify, &ev ) )
 	    break;
     }
     qApp->x11ProcessEvent( &ev );
@@ -1414,7 +1414,7 @@ void QWidget::showMaximized()
 	if ( !topData()->parentWinId && !isVisible() ) {
 	    setGeometry(0, 0, sw, sh );
 	    show();
-	    qt_wait_for_window_manager( winId() );
+	    qt_wait_for_window_manager( this );
 	}
 	sw -= frameGeometry().width() - width();
 	sh -= frameGeometry().height() - height();

@@ -1399,9 +1399,9 @@ QRect QWidget::frameGeometry() const
 
 /*!
   Returns the bounding rectangle of the widget's children.
-  
+
   Explicitely hidden children are excluded.
-  
+
   \sa childrenRegion()
 */
 
@@ -1422,9 +1422,9 @@ QRect QWidget::childrenRect() const
 
 /*!
   Returns the combined region of the widget's children geometry().
-  
+
   Explicitely hidden children are excluded.
-  
+
   \sa childrenRect()
 */
 
@@ -4819,8 +4819,8 @@ void QWidget::showFullScreen()
     raise();
     show();
 #if defined(_WS_X11_)
-    extern void qt_wait_for_window_manager( WId win ); // defined in qwidget_x11.cpp
-    qt_wait_for_window_manager( winId() );
+    extern void qt_wait_for_window_manager( QWidget* w ); // defined in qwidget_x11.cpp
+    qt_wait_for_window_manager( this );
 #endif
 
     setActiveWindow();
