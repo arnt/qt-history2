@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.cpp#144 $
+** $Id: //depot/qt/main/src/kernel/qapplication.cpp#145 $
 **
 ** Implementation of QApplication class
 **
@@ -98,6 +98,8 @@ bool	  QApplication::is_app_closing = FALSE;	// app closing down if TRUE
 int	  QApplication::loop_level     = 0;	// event loop level
 QWidget	 *QApplication::main_widget    = 0;	// main application widget
 QWidget	 *QApplication::focus_widget   = 0;	// has keyboard input focus
+QWidget	 *QApplication::active_window   = 0;	// toplevel that has keyboard input focus
+QWidgetList *QApplication::popupWidgets   = 0;	// has keyboard input focus
 
 
 #if defined(_WS_WIN_)
@@ -625,14 +627,23 @@ QWidgetList *QApplication::allWidgets()
     return QWidget::wList();
 }
 
-
 /*!
   \fn QWidget *QApplication::focusWidget() const
   Returns the application widget that has the keyboard input focus, or null
   if no application widget has the focus.
-  \sa QWidget::setFocus(), QWidget::hasFocus()
+  \sa QWidget::setFocus(), QWidget::hasFocus(), activeWindow()
 */
 
+/*!
+  \fn QWidget *QApplication::activeWindow() const
+
+  Returns the application toplevel window that has the keyboard input
+  focus, or null if no application window has the focus. Note that
+  there might be an activeWindow even if there is no focusWidget, if
+  no widget in that window accepts key events.
+
+  \sa QWidget::setFocus(), QWidget::hasFocus(), focusWidget()
+*/
 
 /*!
   Returns display (screen) font metrics for the application font.

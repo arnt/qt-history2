@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.h#82 $
+** $Id: //depot/qt/main/src/kernel/qapplication.h#83 $
 **
 ** Definition of QApplication class
 **
@@ -86,7 +86,8 @@ public:
     static QWidget  *activePopupWidget();
     static QWidget  *activeModalWidget();
     static QClipboard *clipboard();
-    QWidget	    *focusWidget() const;
+    QWidget *focusWidget() const;
+    QWidget  *activeWindow() const;
 
     static QWidget  *widgetAt( int x, int y, bool child=FALSE );
     static QWidget  *widgetAt( const QPoint &, bool child=FALSE );
@@ -160,6 +161,13 @@ private:
     static int	     loop_level;
     static QWidget  *main_widget;
     static QWidget  *focus_widget;
+    static QWidget  *active_window;
+
+    static QWidgetList *popupWidgets;
+    bool inPopupMode() { return popupWidgets != 0; }
+    void closePopup( QWidget *popup );
+    void openPopup( QWidget *popup );
+
 
     friend class QWidget;
     friend class QETWidget;
@@ -208,6 +216,11 @@ inline QWidget *QApplication::mainWidget() const
 inline QWidget *QApplication::focusWidget() const
 {
     return focus_widget;
+}
+
+inline QWidget *QApplication::activeWindow() const
+{
+    return active_window;
 }
 
 inline QWidget *QApplication::widgetAt( const QPoint &p, bool child )

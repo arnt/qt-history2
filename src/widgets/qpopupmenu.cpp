@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#166 $
+** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#167 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -1211,6 +1211,17 @@ void QPopupMenu::paintEvent( QPaintEvent *e )
     setAllDirty( TRUE );
     QTableView::paintEvent( e );
     setAllDirty( FALSE );
+}
+
+/*!
+  Handles close events for the popup menu.
+*/
+
+void QPopupMenu::closeEvent( QCloseEvent * e) {
+    e->ignore();
+    hide();
+     if ( parentMenu && parentMenu->isMenuBar )
+ 	byeMenuBar();
 }
 
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#264 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#265 $
 **
 ** Implementation of QWidget class
 **
@@ -698,10 +698,6 @@ QWidget::~QWidget()
 	childObjects = 0;
     }
 
-    // if I had focus, clear focus entirely.  this is probably a bad idea -
-    // better to give focus to someone else
-    if ( qApp->focus_widget == this )
-	qApp->focus_widget = 0;
 
     if ( extra )
 	deleteExtra();
@@ -1993,8 +1989,15 @@ void QWidget::setFocus()
 	if ( qApp->focus_widget && qApp->focus_widget != this ) {
 	    QWidget * prev = qApp->focus_widget;
 	    qApp->focus_widget = this;
-	    QFocusEvent out( Event_FocusOut );
-	    QApplication::sendEvent( prev, &out );
+	    
+	    if (!prev->isPopup() && topLevelWidget()->isPopup()
+		&& topLevelWidget() != prev->topLevelWidget()) {
+		// imitate other toolkits by not sending a focus out event in that case
+	    }
+	    else {
+		QFocusEvent out( Event_FocusOut );
+		QApplication::sendEvent( prev, &out );
+	    }
 	}
 
 	qApp->focus_widget = this;
@@ -2439,8 +2442,6 @@ static bool noVisibleTLW()
 void qt_enter_modal( QWidget * );		// defined in qapp_xxx.cpp
 void qt_leave_modal( QWidget * );		// --- "" ---
 bool qt_modal_state();				// --- "" ---
-void qt_open_popup( QWidget * );		// --- "" ---
-void qt_close_popup( QWidget * );		// --- "" ---
 
 
 /*!
@@ -2493,7 +2494,7 @@ void QWidget::show()
     if ( testWFlags(WType_Modal) )
 	qt_enter_modal( this );
     else if ( testWFlags(WType_Popup) )
-	qt_open_popup( this );
+	qApp->openPopup( this );
 }
 
 
@@ -2515,7 +2516,7 @@ void QWidget::hide()
     if ( testWFlags(WType_Modal) )
 	qt_leave_modal( this );
     else if ( testWFlags(WType_Popup) )
-	qt_close_popup( this );
+	qApp->closePopup( this );
 
     hideWindow();
 
@@ -2901,8 +2902,10 @@ bool QWidget::event( QEvent *e )
 	    break;
 	case Event_Show:
 	    showEvent( (QShowEvent*) e);
+	    break;
 	case Event_Hide:
 	    hideEvent( (QHideEvent*) e);
+	    break;
 	default:
 	    return FALSE;
     }
@@ -2939,19 +2942,32 @@ void QWidget::mouseMoveEvent( QMouseEvent * )
   This event handler can be reimplemented in a subclass to receive
   mouse press events for the widget.
 
-  The default implementation does nothing.
-
   If you create new widgets in the mousePressEvent() the
   mouseReleaseEvent() may not end up where you expect, depending on the
   underlying window system (or X11 window manager), the widgets'
   location and maybe more.
 
+  The default implementation implements the closing of popup widgets
+  when you click outside the window. For other widget types it does
+  nothing.
+
   \sa mouseReleaseEvent(), mouseDoubleClickEvent(),
   mouseMoveEvent(), event(),  QMouseEvent
 */
 
-void QWidget::mousePressEvent( QMouseEvent * )
+void QWidget::mousePressEvent( QMouseEvent *e )
 {
+    if (isPopup) {
+	QWidget* w;
+	while ( (w = qApp->activePopupWidget() ) && w != this ){
+	    w->close();
+	    if (qApp->activePopupWidget() == w) // widget does not want to dissappear
+		w->close(TRUE); // no chance
+	}
+	if (!rect().contains(e->pos()) ){	
+	    close();
+	}
+    }
 }
 
 /*!

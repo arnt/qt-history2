@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopupmenu.h#46 $
+** $Id: //depot/qt/main/src/widgets/qpopupmenu.h#47 $
 **
 ** Definition of QPopupMenu class
 **
@@ -66,6 +66,7 @@ protected:
     int		cellWidth( int );
     void	paintCell( QPainter *, int, int );
 
+    void closeEvent( QCloseEvent *e );
     void	paintEvent( QPaintEvent * );
     void	mousePressEvent( QMouseEvent * );
     void	mouseReleaseEvent( QMouseEvent * );
