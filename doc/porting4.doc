@@ -116,6 +116,13 @@ COMPAT mode, but we recommend not using them in new code.
 \i QWidget::hasMouse() - use QWidget::underMouse() instead.
 \endlist
 
+\list
+\i QWidget::colorGroup() - use QWidget::palette() instead.
+\endlist
+
+\list
+\i QVariant::toColorGroup() - use QVariant::toPalette() instead.
+\endlist
 
 The following functions were slots, but are no more:
 \list
@@ -237,6 +244,11 @@ QPtrList in Qt3).
 Both allWidgets() and topLevelWidgets() return a QWidgetList (it was a
 pointer to a QWidgetList in Qt3). This resolves some memory management
 issues using these methods.
+
+\section1 QColorGroup
+
+QColorGroup has been removed, its API has been merged into QPalette. You should
+now use a QPalette to implement all things that were used by QColorGroup.
 
 \section1 QRegion
 
