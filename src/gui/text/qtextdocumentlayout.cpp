@@ -24,7 +24,7 @@ void QTextDocumentLayout::draw(QPainter *painter, const PaintContext &context)
         drawBlock(painter, context, it);
 }
 
-void QTextDocumentLayout::documentChange(int from, int oldLength, int length)
+void QTextDocumentLayout::documentChange(int /* from */, int /* oldLength */, int /* length */)
 {
     recreateAllBlocks();
 }

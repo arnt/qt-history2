@@ -422,7 +422,7 @@ QString QXmlNamespaceSupport::prefix(const QString& uri) const
     QMap<QString, QString>::ConstIterator itc, it = d->ns.begin();
     while ((itc=it) != d->ns.end()) {
         ++it;
-        if (itc.data() == uri && !itc.key().isEmpty())
+        if (*itc == uri && !itc.key().isEmpty())
             return itc.key();
     }
     return "";
@@ -559,7 +559,7 @@ QStringList QXmlNamespaceSupport::prefixes(const QString& uri) const
     QMap<QString, QString>::ConstIterator itc, it = d->ns.begin();
     while ((itc=it) != d->ns.end()) {
         ++it;
-        if (itc.data() == uri && !itc.key().isEmpty())
+        if (*itc == uri && !itc.key().isEmpty())
             list.append(itc.key());
     }
     return list;
@@ -4886,13 +4886,13 @@ bool QXmlSimpleReader::parsePEReference()
                     it = d->parameterEntities.find(ref());
                     if (it != d->parameterEntities.end()) {
                         skipIt = false;
-                        xmlRefString = it.data();
+                        xmlRefString = *it;
                     } else if (entityRes) {
                         QMap<QString,QXmlSimpleReaderPrivate::ExternParameterEntity>::Iterator it2;
                         it2 = d->externParameterEntities.find(ref());
                         QXmlInputSource *ret = 0;
                         if (it2 != d->externParameterEntities.end()) {
-                            if (!entityRes->resolveEntity(it2.data().publicId, it2.data().systemId, ret)) {
+                            if (!entityRes->resolveEntity((*it2).publicId, (*it2).systemId, ret)) {
                                 delete ret;
                                 reportParseError(entityRes->errorString());
                                 return false;
@@ -7105,13 +7105,13 @@ bool QXmlSimpleReader::processReference()
             switch (d->parseReference_context) {
                 case InContent:
                     // Included
-                    if (!insertXmlRef(it.data(), reference, false))
+                    if (!insertXmlRef(*it, reference, false))
                         return false;
                     d->parseReference_charDataRead = false;
                     break;
                 case InAttributeValue:
                     // Included in literal
-                    if (!insertXmlRef(it.data(), reference, true))
+                    if (!insertXmlRef(*it, reference, true))
                         return false;
                     d->parseReference_charDataRead = false;
                     break;
@@ -7163,7 +7163,7 @@ bool QXmlSimpleReader::processReference()
                             bool skipIt = true;
                             if (entityRes) {
                                 QXmlInputSource *ret = 0;
-                                if (!entityRes->resolveEntity(itExtern.data().publicId, itExtern.data().systemId, ret)) {
+                                if (!entityRes->resolveEntity((*itExtern).publicId, (*itExtern).systemId, ret)) {
                                     delete ret;
                                     reportParseError(entityRes->errorString());
                                     return false;

@@ -39,7 +39,7 @@ class Q_GUI_EXPORT QButton : public QWidget
     Q_PROPERTY(bool down READ isDown WRITE setDown DESIGNABLE false )
     Q_PROPERTY(bool on READ isOn)
     Q_PROPERTY(ToggleState toggleState READ state)
-    Q_PROPERTY(bool autoResize READ autoResize WRITE setAutoResize DESIGNABLE false)
+    // Q_PROPERTY(bool autoResize READ autoResize WRITE setAutoResize DESIGNABLE false)
     Q_PROPERTY(bool autoRepeat READ autoRepeat WRITE setAutoRepeat)
     Q_PROPERTY(bool exclusiveToggle READ isExclusiveToggle)
 

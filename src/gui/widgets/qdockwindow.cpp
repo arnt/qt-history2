@@ -281,7 +281,7 @@ static QPoint realWidgetPos(QDockWindow *w)
 class QDockWindowHandle : public QWidget
 {
     Q_OBJECT
-    Q_PROPERTY(QString caption READ caption)
+    Q_PROPERTY(QString windowTitle READ windowTitle)
     friend class QDockWindow;
     friend class QDockWindowTitleBar;
 

@@ -649,11 +649,11 @@ void QToolBar::createPopup()
                         if (c->currentText() == tmp)
                             cp->setItemChecked(i, true);
                         if (!maxItems) {
-                            if (cp->count() == 10) {
+                            if (cp->actions().count() == 10) {
                                 int h = cp->sizeHint().height();
                                 maxItems = QApplication::desktop()->height() * 10 / h;
                             }
-                        } else if (cp->count() >= maxItems - 1) {
+                        } else if (cp->actions().count() >= maxItems - 1) {
                             QPopupMenu* sp = new QPopupMenu(d->extensionPopup);
                             cp->insertItem(tr("More..."), sp);
                             cp = sp;
@@ -690,7 +690,7 @@ void QToolBar::checkForExtension(const QSize &sz)
 
     if (tooSmall) {
         createPopup();
-        if (d->extensionPopup->count()) {
+        if (d->extensionPopup->actions().count()) {
             if (orientation() == Horizontal)
                 d->extension->setGeometry(width() - 20, 1, 20, height() - 2);
             else

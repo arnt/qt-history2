@@ -1835,6 +1835,8 @@ void Q4MenuBar::actionEvent(QActionEvent *e)
         else if(e->type() == QEvent::ActionChanged)
             d->mac_menubar->syncAction(e->action());
     }
+#else
+    (void) e;
 #endif
     if(isVisible())
         update();

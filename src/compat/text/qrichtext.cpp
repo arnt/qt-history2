@@ -1479,7 +1479,7 @@ void Q3TextDocument::setPlainText(const QString &text)
                 if (text.unicode()[nl-1] == '\r')
                     l--;
                 QConstString cs(text.unicode()+lastNl, l);
-                lParag->append(cs.string());
+                lParag->append(cs);
             }
             if (nl == (int)text.length())
                 break;
@@ -6867,7 +6867,7 @@ Q3TextCustomItem* Q3TextDocument::parseTable(const QMap<QString, QString> &attr,
                         Q3TextTableCell* cell  = new Q3TextTableCell(table, row, col,
                                             attr2, s, fmt.makeTextFormat(s, attr2, scaleFontsFactor),
                                             contxt, *factory_, sheet_,
-                                            QConstString(doc + pos, end - pos).string());
+                                            QConstString(doc + pos, end - pos));
                         cell->richText()->parentPar = curpar;
                         if (cell->colspan() > 1 || cell->rowspan() > 1)
                             multicells.append(cell);

@@ -356,7 +356,7 @@ void QFontEngineWin::draw(QPaintEngine *p, int x, int y, const QTextItem &si, in
             for(int i = 0; i < si.num_glyphs; i++) {
                 QChar chr = glyphs->glyph;
                 QConstString str(&chr, 1);
-                QByteArray cstr = str.string().toLocal8Bit();
+                QByteArray cstr = str.toLocal8Bit();
                 TextOutA(hdc, x + glyphs->offset.x.toInt(), y + glyphs->offset.y.toInt(), cstr.data(), cstr.length());
                 x += glyphs->advance.x.toInt();
                 glyphs++;

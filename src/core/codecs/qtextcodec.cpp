@@ -2790,8 +2790,7 @@ static void realSetup()
 */
 void QTextCodec::fromUnicode(const QChar *in, unsigned short *out, int length)
 {
-    QConstString string(in, length);
-    QString str = string.string();
+    QString str(in, length);
     for (int i = 0; i < length; i++)
         out[i] = characterFromUnicode(str, i);
 }

@@ -831,7 +831,7 @@ void QGenericListView::doStaticLayout(const QRect &bounds, int first, int last)
     }
 
     resizeContents(rect.width(), rect.height());
-    if (visibleRect().intersects(rect))
+    if (clipRegion().boundingRect().intersects(rect))
         d->viewport->update();
 }
 
@@ -928,7 +928,7 @@ void QGenericListView::doDynamicLayout(const QRect &bounds, int first, int last)
     for (int i = insertFrom; i <= last; i++)
         d->tree.climbTree(d->tree.item(i).rect(), &BinTree<QGenericListViewItem>::insert, (void *)i);
 
-    if (visibleRect().intersects(rect))
+    if (clipRegion().boundingRect().intersects(rect))
         d->viewport->update();
 }
 

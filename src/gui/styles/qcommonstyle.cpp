@@ -886,8 +886,8 @@ void QCommonStyle::drawControl(ControlElement element,
 
             const QToolBox *tb = (const QToolBox*)widget;
 
-            if (flags & Style_Selected && tb->item(tb->currentIndex())) {
-                QWidget *tbW = tb->item(tb->currentIndex());
+            if (flags & Style_Selected && tb->widget(tb->currentIndex())) {
+                QWidget *tbW = tb->widget(tb->currentIndex());
                 p->setBrush(tbW->palette().brush(tbW->backgroundRole()));
             } else {
                 p->setBrush(pal.brush(tb->backgroundRole()));

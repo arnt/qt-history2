@@ -50,7 +50,8 @@ QPicturePaintEngine::~QPicturePaintEngine()
 {
 }
 
-bool QPicturePaintEngine::begin(QPaintDevice *pd, QPainterState *state, bool unclipped)
+// ### serialize unclipped?
+bool QPicturePaintEngine::begin(QPaintDevice *pd, QPainterState *state, bool /* unclipped */)
 {
     Q_ASSERT(pd);
     QPicture *pic = static_cast<QPicture *>(pd);
@@ -157,7 +158,8 @@ void QPicturePaintEngine::updateBackground(QPainterState *ps)
     writeCmdLength(pos, QRect(), false);
 }
 
-void QPicturePaintEngine::updateXForm(QPainterState *ps)
+// ### Missing implementation?
+void QPicturePaintEngine::updateXForm(QPainterState * /* ps */)
 {
 //     int pos;
 //     SERIALIZE_CMD(PdcSetWMatrix);
@@ -295,7 +297,8 @@ void QPicturePaintEngine::drawChord(const QRect &r, int _a, int alen)
     writeCmdLength(pos, r, true);
 }
 
-void QPicturePaintEngine::drawLineSegments(const QPointArray &a, int index, int nlines)
+// ### Stream out index and nlines
+void QPicturePaintEngine::drawLineSegments(const QPointArray &a, int /* index */, int /* nlines */)
 {
     int pos;
     SERIALIZE_CMD(PdcDrawLineSegments);
@@ -303,7 +306,8 @@ void QPicturePaintEngine::drawLineSegments(const QPointArray &a, int index, int 
     writeCmdLength(pos, a.boundingRect(), true);
 }
 
-void QPicturePaintEngine::drawPolyline(const QPointArray &a, int index, int npoints)
+// ### Stream out index and npoints
+void QPicturePaintEngine::drawPolyline(const QPointArray &a, int /* index */, int /* npoints */)
 {
     int pos;
     SERIALIZE_CMD(PdcDrawPolyline);
@@ -324,17 +328,21 @@ void QPicturePaintEngine::drawConvexPolygon(const QPointArray &a, int index, int
     drawPolygon(a, false, index, npoints);
 }
 
-void QPicturePaintEngine::drawCubicBezier(const QPointArray &a, int index)
+// ### Stream out: index:
+void QPicturePaintEngine::drawCubicBezier(const QPointArray &a, int /* index */)
 {
 #ifndef QT_NO_BEZIER
     int pos;
     SERIALIZE_CMD(PdcDrawCubicBezier);
     d->s << a;
     writeCmdLength(pos, a.cubicBezier().boundingRect(), true);
+#else
+    (void) a;
 #endif
 }
 
-void QPicturePaintEngine::drawPixmap(const QRect &r, const QPixmap &pm, const QRect &sr, bool imask)
+// ### Stream out sr
+void QPicturePaintEngine::drawPixmap(const QRect &r, const QPixmap &pm, const QRect & /* sr */, bool /* imask */)
 {
     int pos;
     SERIALIZE_CMD(PdcDrawPixmap);
@@ -350,7 +358,8 @@ void QPicturePaintEngine::drawTiledPixmap(const QRect &r, const QPixmap &pixmap,
     writeCmdLength(pos, r, false);
 }
 
-void QPicturePaintEngine::drawTextItem(const QPoint &p, const QTextItem &ti, int textflags)
+// ### Implementation missing?
+void QPicturePaintEngine::drawTextItem(const QPoint &/* p */, const QTextItem &/* ti */, int /* textflags */)
 {
 //     int pos;
 //     SERIALIZE_CMD(PdcDrawText2);

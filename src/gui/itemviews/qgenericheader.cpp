@@ -239,7 +239,8 @@ void QGenericHeader::paintSection(QPainter *painter, QItemOptions *options, cons
 
     int section = orientation() == Horizontal ? item.column() : item.row();
     if (sortIndicatorSection() == section) {
-        bool allignRight = style().styleHint(QStyle::SH_Header_ArrowAlignment, this) & AlignRight;
+        // ###: Unused variable
+        // bool allignRight = style().styleHint(QStyle::SH_Header_ArrowAlignment, this) & AlignRight;
         // FIXME: use allignRight and RTL
         QRect arrowRect;
         int height = options->itemRect.height();
@@ -549,9 +550,10 @@ void QGenericHeader::mouseMoveEvent(QMouseEvent *e)
     }
 }
 
-void QGenericHeader::mouseReleaseEvent(QMouseEvent *e)
+void QGenericHeader::mouseReleaseEvent(QMouseEvent * /* e */)
 {
-    int pos = orientation() == Horizontal ? e->x() : e->y();
+    // ### Unused variable:
+    // int pos = orientation() == Horizontal ? e->x() : e->y();
     switch (d->state) {
     case QGenericHeaderPrivate::MoveSection:
         moveSection(index(d->section), index(d->target));

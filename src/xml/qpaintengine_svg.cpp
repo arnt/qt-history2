@@ -160,7 +160,7 @@ QSVGPaintEngine::~QSVGPaintEngine()
     delete qSvgColMap; qSvgColMap = 0;
 }
 
-bool QSVGPaintEngine::begin(QPaintDevice *pdev, QPainterState *state, bool unclipped)
+bool QSVGPaintEngine::begin(QPaintDevice *pdev, QPainterState *, bool)
 {
 //     QDomImplementation domImpl;
 //     QDomDocumentType docType = domImpl.createDocumentType("svg", publicId, systemId);
@@ -199,12 +199,12 @@ void QSVGPaintEngine::updateFont(QPainterState *ps)
     d->dirtyStyle = true;
 }
 
-void QSVGPaintEngine::updateRasterOp(QPainterState *ps)
+void QSVGPaintEngine::updateRasterOp(QPainterState *)
 {
     d->dirtyStyle = true;
 }
 
-void QSVGPaintEngine::updateBackground(QPainterState *ps)
+void QSVGPaintEngine::updateBackground(QPainterState *)
 {
     d->dirtyStyle = true;
 }
@@ -412,7 +412,7 @@ void QSVGPaintEngine::drawChord(const QRect &r, int _a, int alen)
     d->appendChild(e, PdcDrawChord);
 }
 
-void QSVGPaintEngine::drawLineSegments(const QPointArray &pa, int index, int nlines)
+void QSVGPaintEngine::drawLineSegments(const QPointArray &pa, int /* index */, int /* nlines */)
 {
     QDomElement e;
     uint end = pa.size() / 2; // ### use index and nlines instead - they are verified by QPainter
@@ -458,7 +458,7 @@ void QSVGPaintEngine::drawConvexPolygon(const QPointArray &pa, int index, int np
     drawPolygon(pa, false, index, npoints);
 }
 
-void QSVGPaintEngine::drawCubicBezier(const QPointArray &a, int index)
+void QSVGPaintEngine::drawCubicBezier(const QPointArray &a, int /* index */)
 {
 #ifndef QT_NO_BEZIER
     QString str;
@@ -471,7 +471,8 @@ void QSVGPaintEngine::drawCubicBezier(const QPointArray &a, int index)
 #endif
 }
 
-void QSVGPaintEngine::drawPixmap(const QRect &r, const QPixmap &pm, const QRect &sr, bool imask)
+void QSVGPaintEngine::drawPixmap(const QRect &r, const QPixmap &pm, const QRect & /* sr */,
+                                 bool /* imask */)
 {
     QDomElement e = d->doc.createElement("image");
     e.setAttribute("x", r.x());
@@ -497,7 +498,8 @@ void QSVGPaintEngine::drawPixmap(const QRect &r, const QPixmap &pm, const QRect 
     d->appendChild(e, PdcDrawPixmap);
 }
 
-void QSVGPaintEngine::drawTiledPixmap(const QRect &r, const QPixmap &pixmap, const QPoint &s, bool optim)
+void QSVGPaintEngine::drawTiledPixmap(const QRect & /* r */, const QPixmap & /* pixmap */,
+                                      const QPoint & /* s */, bool /* optim */)
 {
 }
 

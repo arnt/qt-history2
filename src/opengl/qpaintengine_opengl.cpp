@@ -54,7 +54,7 @@ QOpenGLPaintEngine::~QOpenGLPaintEngine()
 {
 }
 
-bool QOpenGLPaintEngine::begin(QPaintDevice *pdev, QPainterState *state, bool begin)
+bool QOpenGLPaintEngine::begin(QPaintDevice *pdev, QPainterState *state, bool /* unclipped */)
 {
     Q_ASSERT(static_cast<const QGLWidget *>(pdev));
     dgl = (QGLWidget *)(pdev);
@@ -346,7 +346,7 @@ void QOpenGLPaintEngine::updateBrush(QPainterState *ps)
     }
 }
 
-void QOpenGLPaintEngine::updateFont(QPainterState *ps)
+void QOpenGLPaintEngine::updateFont(QPainterState *)
 {
 }
 
@@ -394,7 +394,7 @@ void QOpenGLPaintEngine::updateXForm(QPainterState *ps)
     glLoadMatrixf(&mat[0][0]);
 }
 
-void QOpenGLPaintEngine::updateClipRegion(QPainterState *ps)
+void QOpenGLPaintEngine::updateClipRegion(QPainterState *)
 {
 
 }
@@ -716,7 +716,7 @@ static void bind_texture_from_cache(const QPixmap &pm)
     }
 }
 
-void QOpenGLPaintEngine::drawPixmap(const QRect &r, const QPixmap &pm, const QRect &, bool imask)
+void QOpenGLPaintEngine::drawPixmap(const QRect &r, const QPixmap &pm, const QRect &, bool)
 {
     // see if we have this pixmap cached as a texture - if not cache it
     bind_texture_from_cache(pm);
@@ -745,7 +745,7 @@ void QOpenGLPaintEngine::drawPixmap(const QRect &r, const QPixmap &pm, const QRe
     glColor4f(c[0], c[1], c[2], c[3]);
 }
 
-void QOpenGLPaintEngine::drawTiledPixmap(const QRect &r, const QPixmap &pm, const QPoint &p, bool)
+void QOpenGLPaintEngine::drawTiledPixmap(const QRect &r, const QPixmap &pm, const QPoint &, bool)
 {
     // see if we have this pixmap cached as a texture - if not cache it
     bind_texture_from_cache(pm);
@@ -784,11 +784,6 @@ void QOpenGLPaintEngine::drawTiledPixmap(const QRect &r, const QPixmap &pm, cons
     glDisable(GL_BLEND);
     glDisable(GL_TEXTURE_2D);
     glColor4f(c[0], c[1], c[2], c[3]);
-}
-
-void QOpenGLPaintEngine::drawTextItem(const QPoint &p, const QTextItem &ti, int textflags)
-{
-
 }
 
 #ifdef Q_WS_WIN

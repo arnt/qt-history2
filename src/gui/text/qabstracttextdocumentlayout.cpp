@@ -77,11 +77,11 @@ void QAbstractTextDocumentLayout::handlerDestroyed(QObject *obj)
 }
 
 
-void QAbstractTextDocumentLayout::invalidate(const QRect &r)
+void QAbstractTextDocumentLayout::invalidate(const QRect & /* r */)
 {
 }
 
-void QAbstractTextDocumentLayout::invalidate(const QRegion &r)
+void QAbstractTextDocumentLayout::invalidate(const QRegion & /* r */)
 {
 }
 

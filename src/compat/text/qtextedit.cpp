@@ -5027,13 +5027,11 @@ QByteArray QTextEdit::pickSpecial(QMimeSource* ms, bool always_ask, const QPoint
             }
         }
         if (n) {
-            int i;
-            if(n ==1 && !always_ask)
-                i = popup.idAt(0);
-            else
-                i = popup.exec(pt, -1);
-            if (i >= 0)
-                return popup.text(i).toLatin1();
+            QAction *action = (n == 1 && !always_ask) 
+                ? popup.actions().at(0)
+                : popup.exec(pt);
+            if (action)
+                return action->text().toLatin1();
         }
 #else
         QString fmt;
@@ -5419,7 +5417,7 @@ QPopupMenu *QTextEdit::createPopupMenu(const QPoint& pos)
     if (!isReadOnly()) {
         d->id[IdUndo] = popup->insertItem(tr("&Undo") + ACCEL_KEY(Z));
         d->id[IdRedo] = popup->insertItem(tr("&Redo") + ACCEL_KEY(Y));
-        popup->insertSeparator();
+        popup->addSeparator();
     }
 #ifndef QT_NO_CLIPBOARD
     if (!isReadOnly())
@@ -5430,7 +5428,7 @@ QPopupMenu *QTextEdit::createPopupMenu(const QPoint& pos)
 #endif
     if (!isReadOnly()) {
         d->id[IdClear] = popup->insertItem(tr("Clear"));
-        popup->insertSeparator();
+        popup->addSeparator();
     }
 #if defined(Q_WS_X11)
     d->id[IdSelectAll] = popup->insertItem(tr("Select All"));

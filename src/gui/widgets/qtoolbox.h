@@ -82,7 +82,7 @@ private:
 
 #ifdef QT_COMPAT
 public:
-    inline QT_COMPAT QWidget *currentItem() const { return item(currentIndex()); }
+    inline QT_COMPAT QWidget *currentItem() const { return widget(currentIndex()); }
     inline QT_COMPAT void setCurrentItem(QWidget *item) { setCurrentIndex(indexOf(item)); }
     inline QT_COMPAT int removeItem(QWidget *item)
     { int i = indexOf(item); removeItem(i); return i; }

@@ -576,7 +576,10 @@ void QTextEngine::shapeText(int item) const
         return;
 
     QFont::Script script = (QFont::Script)si.analysis.script;
+#if 0 
+    // Just to get the warning away
     int from = si.position;
+#endif
     int len = length(item);
 
     Q_ASSERT(len > 0);

@@ -407,7 +407,7 @@ QWidget * QWidgetStack::visibleWidget() const
     \reimp
 */
 
-void QWidgetStack::resizeEvent(QResizeEvent * e)
+void QWidgetStack::resizeEvent(QResizeEvent * /* e */)
 {
     setChildGeometries();
 }

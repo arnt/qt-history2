@@ -56,7 +56,6 @@ public:
 #endif
 
     void drawPixmap(const QRect &r, const QPixmap &pm, const QRect &sr, bool imask);
-    void drawTextItem(const QPoint &p, const QTextItem &ti, int textflags);
     void drawTiledPixmap(const QRect &r, const QPixmap &pixmap, const QPoint &s, bool optim);
 
 #ifdef Q_WS_WIN

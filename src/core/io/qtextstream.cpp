@@ -1067,9 +1067,9 @@ QTextStream &QTextStream::writeBlock(const QChar* p, uint len)
     if (d->mapper) {
         if (!d->encoder)
             d->encoder = d->mapper->makeEncoder();
-        QConstString s(p, len);
+        QString s(p, len);
         int l = len;
-        QByteArray block = d->encoder->fromUnicode(s.string(), l);
+        QByteArray block = d->encoder->fromUnicode(s, l);
         dev->writeBlock(block, l);
     } else
 #endif

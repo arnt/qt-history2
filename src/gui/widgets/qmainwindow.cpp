@@ -1504,7 +1504,8 @@ void QMainWindow::paintEvent(QPaintEvent *)
 bool QMainWindow::dockMainWindow(QObject *dock) const
 {
     while (dock) {
-        if (dock->parent() && dock->parent() == this)
+        if (dock->parent() &&
+            dock->parent() == const_cast<QMainWindow*>(this))
             return true;
         if (qt_cast<QMainWindow*>(dock->parent()))
             return false;
