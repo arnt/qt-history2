@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpicture.cpp#64 $
+** $Id: //depot/qt/main/src/kernel/qpicture.cpp#65 $
 **
 ** Implementation of QPicture class
 **
@@ -539,7 +539,7 @@ bool QPicture::cmd( int c, QPainter *, QPDevCmdParam *p )
 	pictb.at( nrecs_start );
 	s << (UINT32)trecs;			// write number of records
 	pictb.at( cs_start );
-	UINT16 cs = (UINT16)qchecksum( buf.data()+data_start, pos-data_start );
+	UINT16 cs = (UINT16)qChecksum( buf.data()+data_start, pos-data_start );
 	s << cs;				// write checksum
 	pictb.close();
 	return TRUE;
