@@ -141,6 +141,8 @@ QAssistantClient::QAssistantClient( const QString &path, QObject *parent, const 
     proc = new QProcess( this );
     port = 0;
     pageBuffer = "";
+    connect( proc, SIGNAL( readyReadStderr() ),
+	     this, SLOT( readStdError() ) );
 }
 
 /*!
@@ -198,9 +200,6 @@ void QAssistantClient::openAssistant()
     }
     connect( proc, SIGNAL( readyReadStdout() ),
 	     this, SLOT( readPort() ) );
-    connect( proc, SIGNAL( readyReadStderr() ),
-	     this, SLOT( readStdError() ) );
-    connect( proc, SIGNAL( processExited() ), this, SLOT( socketConnectionClosed() ) );
 }
 
 void QAssistantClient::readPort()
