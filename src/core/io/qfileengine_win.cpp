@@ -17,6 +17,7 @@
 #include "qfileengine_p.h"
 #include <qfile.h>
 #include <qdir.h>
+#include <qtemporaryfile.h>
 #ifndef QT_NO_REGEXP
 # include <qregexp.h>
 #endif
@@ -1061,8 +1062,55 @@ bool QFSFileEngine::chmod(uint /* perms */)
     return false;
 }
 
-bool QFSFileEngine::setSize(QIODevice::Offset /* size */)
+bool QFSFileEngine::setSize(QIODevice::Offset size)
 {
+    if (d->fd != -1) {
+        // resize open file
+        if (size > this->size()) {
+            QIODevice::Offset currentPos = at();
+            seek(this->size());
+            QByteArray ba(size - this->size());
+            ba.fill(0);
+            if (write(ba.data(), ba.size()) != ba.size()) {
+                seek(currentPos);
+                return false;
+            }
+            seek(currentPos);
+        } else {
+            //### shrink
+            return false;
+        }
+    } else {
+        // resize file on disk
+        QFile file1(QFile::encodeName(d->file));
+        if (file1.open(QFile::ReadOnly)) {
+            QTemporaryFile file2;
+            if (file2.open()) {
+                Q_LONGLONG newSize = 0;
+                char block[1024];
+                while (!file1.atEnd() && newSize < size) {
+                    Q_LONGLONG in = file1.read(block, 1024);
+                    if (in == -1)
+                        break;
+                    in = qMin(size - newSize, in);
+                    if (in != file2.write(block, in)) {
+                        return false;
+                    }
+                    newSize += in;
+                }
+                if (newSize < size) {
+                    QByteArray ba(size - newSize);
+                    ba.fill(0);
+                    if (file2.write(ba) != ba.size())
+                        return false;
+                }
+                file1.close();
+                file2.close();
+                if (file2.rename(file1.fileName()))
+                    return true;
+            }
+        }
+    }
     return false;
 }
 
