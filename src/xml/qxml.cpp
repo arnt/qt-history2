@@ -3207,7 +3207,10 @@ bool QXmlSimpleReader::processElementAttribute()
 	    // namespace declaration
 	    d->namespaceSupport.setPrefix( lname, string() );
 	    if ( d->useNamespacePrefixes ) {
-		d->attList.append( name(), QString::null, QString::null, string() );
+		// according to http://www.w3.org/2000/xmlns/, the "prefix"
+		// xmlns maps to the namespace name
+		// http://www.w3.org/2000/xmlns/
+		d->attList.append( name(), "http://www.w3.org/2000/xmlns/", lname, string() );
 	    }
 	    // call the handler for prefix mapping
 	    if ( contentHnd ) {
