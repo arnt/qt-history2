@@ -249,6 +249,7 @@ void SemaphoreExample::customEvent(QCustomEvent *event) {
 	    QMessageBox::information(this, (*s) + " - Finished",
 				     "The thread creating the \"" + *s +
 				     "\" events has finished.");
+	    delete s;
 
 	    break;
 	}
