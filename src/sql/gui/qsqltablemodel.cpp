@@ -231,7 +231,7 @@ QSqlTableModel::QSqlTableModel(QObject *parent, QSqlDatabase db)
     d->db = db.isValid() ? db : QSqlDatabase::database();
 }
 
-/*!  \interal
+/*!  \internal
  */
 QSqlTableModel::QSqlTableModel(QSqlTableModelPrivate &dd, QObject *parent, QSqlDatabase db)
     : QSqlQueryModel(dd, parent)

@@ -19,14 +19,18 @@
 namespace QSql
 {
     enum Location {
-        BeforeFirst = -1,
-        AfterLast = -2
+        BeforeFirstRecord,
+        AfterLastRecord
+//#ifdef QT_COMPAT ### should uncomment the check at some point
+        , BeforeFirst = BeforeFirstRecord,
+        AfterLast = AfterLastRecord
+//#endif
     };
 
     enum ParamTypeFlag {
         In = 0x00000001,
         Out = 0x00000002,
-        InOut = 0x00000003, // In | Out
+        InOut = In | Out,
         Binary = 0x00000004
     };
     Q_DECLARE_FLAGS(ParamType, ParamTypeFlag)

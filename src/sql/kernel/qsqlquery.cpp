@@ -334,7 +334,7 @@ bool QSqlQuery::exec(const QString& query)
         d->sqlResult->clear();
         d->sqlResult->setActive(false);
         d->sqlResult->setLastError(QSqlError());
-        d->sqlResult->setAt(QSql::BeforeFirst);
+        d->sqlResult->setAt(QSql::BeforeFirstRecord);
     }
     d->sqlResult->setQuery(query.trimmed());
     if (!driver()->isOpen() || driver()->isOpenError()) {
@@ -369,7 +369,7 @@ bool QSqlQuery::exec(const QString& query)
 
 QCoreVariant QSqlQuery::value(int i) const
 {
-    if (isActive() && isValid() && (i > QSql::BeforeFirst))
+    if (isActive() && isValid() && (i > QSql::BeforeFirstRecord))
         return d->sqlResult->data(i);
     qWarning("QSqlQuery::value: not positioned on a valid record");
     return QCoreVariant();
@@ -466,14 +466,14 @@ bool QSqlQuery::seek(int i, bool relative)
     int actualIdx;
     if (!relative) { // arbitrary seek
         if (i < 0) {
-            d->sqlResult->setAt(QSql::BeforeFirst);
+            d->sqlResult->setAt(QSql::BeforeFirstRecord);
             afterSeek();
             return false;
         }
         actualIdx = i;
     } else {
         switch (at()) { // relative seek
-        case QSql::BeforeFirst:
+        case QSql::BeforeFirstRecord:
             if (i > 0)
                 actualIdx = i;
             else {
@@ -481,7 +481,7 @@ bool QSqlQuery::seek(int i, bool relative)
                 return false;
             }
             break;
-        case QSql::AfterLast:
+        case QSql::AfterLastRecord:
             if (i < 0) {
                 d->sqlResult->fetchLast();
                 actualIdx = at() + i;
@@ -492,7 +492,7 @@ bool QSqlQuery::seek(int i, bool relative)
             break;
         default:
             if ((at() + i) < 0) {
-                d->sqlResult->setAt(QSql::BeforeFirst);
+                d->sqlResult->setAt(QSql::BeforeFirstRecord);
                 afterSeek();
                 return false;
             }
@@ -506,9 +506,9 @@ bool QSqlQuery::seek(int i, bool relative)
         afterSeek();
         return false;
     }
-    if (actualIdx == (at() + 1) && at() != QSql::BeforeFirst) {
+    if (actualIdx == (at() + 1) && at() != QSql::BeforeFirstRecord) {
         if (!d->sqlResult->fetchNext()) {
-            d->sqlResult->setAt(QSql::AfterLast);
+            d->sqlResult->setAt(QSql::AfterLastRecord);
             afterSeek();
             return false;
         }
@@ -517,7 +517,7 @@ bool QSqlQuery::seek(int i, bool relative)
     }
     if (actualIdx == (at() - 1)) {
         if (!d->sqlResult->fetchPrevious()) {
-            d->sqlResult->setAt(QSql::BeforeFirst);
+            d->sqlResult->setAt(QSql::BeforeFirstRecord);
             afterSeek();
             return false;
         }
@@ -525,7 +525,7 @@ bool QSqlQuery::seek(int i, bool relative)
         return true;
     }
     if (!d->sqlResult->fetch(actualIdx)) {
-        d->sqlResult->setAt(QSql::AfterLast);
+        d->sqlResult->setAt(QSql::AfterLastRecord);
         afterSeek();
         return false;
     }
@@ -567,16 +567,16 @@ bool QSqlQuery::next()
     beforeSeek();
     bool b = false;
     switch (at()) {
-    case QSql::BeforeFirst:
+    case QSql::BeforeFirstRecord:
         b = d->sqlResult->fetchFirst();
         afterSeek();
         return b;
-    case QSql::AfterLast:
+    case QSql::AfterLastRecord:
         afterSeek();
         return false;
     default:
         if (!d->sqlResult->fetchNext()) {
-            d->sqlResult->setAt(QSql::AfterLast);
+            d->sqlResult->setAt(QSql::AfterLastRecord);
             afterSeek();
             return false;
         }
@@ -623,16 +623,16 @@ bool QSqlQuery::previous()
     beforeSeek();
     bool b = false;
     switch (at()) {
-    case QSql::BeforeFirst:
+    case QSql::BeforeFirstRecord:
         afterSeek();
         return false;
-    case QSql::AfterLast:
+    case QSql::AfterLastRecord:
         b = d->sqlResult->fetchLast();
         afterSeek();
         return b;
     default:
         if (!d->sqlResult->fetchPrevious()) {
-            d->sqlResult->setAt(QSql::BeforeFirst);
+            d->sqlResult->setAt(QSql::BeforeFirstRecord);
             afterSeek();
             return false;
         }
@@ -656,7 +656,7 @@ bool QSqlQuery::first()
 {
     if (!isSelect() || !isActive())
         return false;
-    if (isForwardOnly() && at() > QSql::BeforeFirst) {
+    if (isForwardOnly() && at() > QSql::BeforeFirstRecord) {
         qWarning("QSqlQuery::seek: cannot seek backwards in a forward only query");
         return false;
     }
@@ -860,7 +860,7 @@ bool QSqlQuery::prepare(const QString& query)
     } else {
         d->sqlResult->setActive(false);
         d->sqlResult->setLastError(QSqlError());
-        d->sqlResult->setAt(QSql::BeforeFirst);
+        d->sqlResult->setAt(QSql::BeforeFirstRecord);
     }
     if (!driver()) {
         qWarning("QSqlQuery::prepare: no driver");

@@ -45,22 +45,24 @@ QSqlDriverPrivate::~QSqlDriverPrivate()
 }
 
 /*!
-    \class QSqlDriver qsqldriver.h
+    \class QSqlDriver
     \brief The QSqlDriver class is an abstract base class for accessing
-    SQL databases.
+    specific SQL databases.
 
     \ingroup database
     \module sql
 
     This class should not be used directly. Use QSqlDatabase instead.
 
-    If you want to create your own driver you can subclass this class
-    and reimplement its pure virtual functions, and those virtual
-    functions that you need.
+    If you want to create your own SQL drivers, you can subclass this
+    class and reimplement its pure virtual functions and those
+    virtual functions that you need.
+
+    \sa QSqlDatabase, QSqlResult
 */
 
 /*!
-    Default constructor. Creates a new driver with the given \a parent.
+    Constructs a new driver with the given \a parent.
 */
 
 QSqlDriver::QSqlDriver(QObject * parent)

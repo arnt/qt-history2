@@ -30,14 +30,14 @@ class QSqlDatabasePrivate;
 class Q_SQL_EXPORT QSqlDriverCreatorBase
 {
 public:
-    virtual QSqlDriver* createObject() const = 0;
+    virtual QSqlDriver *createObject() const = 0;
 };
 
-template <class type>
-class QSqlDriverCreator: public QSqlDriverCreatorBase
+template <class T>
+class QSqlDriverCreator : public QSqlDriverCreatorBase
 {
 public:
-    QSqlDriver* createObject() const { return new type; }
+    QSqlDriver *createObject() const { return new T; }
 };
 
 class Q_SQL_EXPORT QSqlDatabase
@@ -100,8 +100,8 @@ public:
     static bool contains(const QString& connectionName = QLatin1String(defaultConnection));
     static QStringList drivers();
     static QStringList connectionNames();
-    static void registerSqlDriver(const QString& name, QSqlDriverCreatorBase* creator);
-    static bool isDriverAvailable(const QString& name);
+    static void registerSqlDriver(const QString &name, QSqlDriverCreatorBase *creator);
+    static bool isDriverAvailable(const QString &name);
 
 protected:
     QSqlDatabase(const QString& type);

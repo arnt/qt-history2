@@ -58,7 +58,6 @@
 #include "qhash.h"
 #include <stdlib.h>
 
-
 Q_GLOBAL_STATIC_WITH_ARGS(QFactoryLoader, loader,
     (QSqlDriverFactoryInterface_iid, QCoreApplication::libraryPaths(),
      QLatin1String("/sqldrivers")))
@@ -117,9 +116,8 @@ QSqlDatabasePrivate::QSqlDatabasePrivate(const QSqlDatabasePrivate &other)
 
 QSqlDatabasePrivate::~QSqlDatabasePrivate()
 {
-    if (driver != shared_null()->driver) {
+    if (driver != shared_null()->driver)
         delete driver;
-    }
 }
 
 void QSqlDatabasePrivate::cleanConnections()
@@ -227,7 +225,49 @@ void QSqlDatabasePrivate::disable()
 }
 
 /*!
-    \class QSqlDatabase qsqldatabase.h
+    \class QSqlDriverCreatorBase
+    \brief The QSqlDriverCreatorBase class is the base class for
+    SQL driver factories.
+
+    \ingroup database
+    \module sql
+
+    Reimplement createObject() to return an instance of the specific
+    QSqlDriver subclass that you want to provide.
+
+    See QSqlDatabase::registerSqlDriver() for details.
+
+    \sa QSqlDriverCreator
+*/
+
+/*!
+    \fn QSqlDriver *QSqlDriverCreatorBase::createObject() const
+
+    Reimplement this function to returns a new instance of a
+    QSqlDriver subclass.
+*/
+
+/*!
+    \class QSqlDriverCreator
+    \brief The QSqlDriverCreator class is a template class that
+    provides a SQL driver factory for a specific driver type.
+
+    \ingroup database
+    \module sql
+
+    QSqlDriverCreator<T> instantiates objects of type T, where T is a
+    QSqlDriver subclass.
+
+    See QSqlDatabase::registerSqlDriver() for details.
+*/
+
+/*!
+    \fn QSqlDriver *QSqlDriverCreator::createObject() const
+    \reimp
+*/
+
+/*!
+    \class QSqlDatabase
     \brief The QSqlDatabase class represents a connection to
     a database.
 
@@ -235,64 +275,59 @@ void QSqlDatabasePrivate::disable()
     \mainclass
     \module sql
 
-    Note that QSqlDatabase is implemented as a smart pointer to a
-    database connection. It is reference counted, but not implicitly
-    shared, which means that if one copy of a QSqlDatabase object is
-    modified, it will affect all other copies.
-
-    \code
-    QSqlDatabase db = addDatabase("QPSQL7"); // No connection name => default connection
-    db.setUserName("mark");
-    db.setDatabaseName("bunnies"); // Database-specific
-    if (db.open()) {
-        // ...
-    }
-    // ... later
-    QSqlDatabase db = database(); // No connection name => default connection
-    if (db.isOpen()) {
-        // ...
-    }
-    \endcode
-
-    You must use addDatabase() or database() to aquire QSqlDatabase
-    objects and removeDatabase() to remove connections. Since
-    QSqlDatabase is reference counted, it will output a warning if you
-    try to remove a connection when it is still in use.
-
-    Note that transaction handling is not supported by every SQL
-    database. You can find out whether transactions are supported
-    using QSqlDriver::hasFeature().
-
     The QSqlDatabase class provides an abstract interface for
-    accessing many types of database backends. Database-specific
-    drivers are used internally to actually access and manipulate
-    data, (see QSqlDriver). Result set objects provide the interface
-    for executing and manipulating SQL queries (see QSqlQuery).
+    accessing database backends. It relies on database-specific
+    \l{QSqlDriver}s to actually access and manipulate data.
 
-    Once a database object has been created you can set the connection
-    parameters with setDatabaseName(), setUserName(), setPassword(),
-    setHostName(), setPort(), and setConnectOptions(). Once the
-    parameters have been set up you can call open() to open the
-    connection.
+    The following code shows how to initialize a connection:
+
+    \quotefromfile snippets/sqldatabase/sqldatabase.cpp
+    \skipto QSqlDatabase_snippet
+    \skipto QSqlDatabase db =
+    \printuntil db.open()
+
+    Once a QSqlDatabase object has been created you can set the
+    connection parameters with setDatabaseName(), setUserName(),
+    setPassword(), setHostName(), setPort(), and setConnectOptions().
+    Once the parameters have been set up you can call open() to open
+    the connection.
+
+    The connection defined above is a nameless connection. If is the
+    default connection and can be accessed using database() later on:
+
+    \skipto QSqlDatabase db =
+    \printline QSqlDatabase db =
+
+    To make programming more convenient, QSqlDatabase is a value
+    class. Any changes done to a database connection through one
+    QSqlDatabase object will affect other QSqlDatabase objects
+    representing the same connection.
+
+    If you need multiple database connections simultaneously, specify
+    an arbitrary name to addDatabase() and database(). Call
+    removeDatabase() to remove connections. QSqlDatabase will output
+    a warning if you try to remove a connection referenced by other
+    QSqlDatabase objects. Use contains() to see if a given connection
+    name is in the list of connections.
 
     Once a connection is established you can see what tables the
     database offers with tables(), find the primary index for a table
     with primaryIndex(), get meta-information about a table's fields
-    (e.g. their names) with record(), and execute a query with exec().
-    If transactions are supported you can use transaction() to start a
-    transaction, and then commit() or rollback() to complete it. If an
-    error occurred it is given by lastError().
+    (e.g., their names) with record(), and execute a query with exec().
 
-    The normal way to get a QSqlDatabase object to open a connection
-    is to call addDatabase(). Use database() to get a reference to an
-    existing database connection (e.g. one created by addDatabase()).
-    Use contains() to see if a given connection name is in the list of
-    connections. Connections can be removed with removeDatabase().
+    If transactions are supported, you can use transaction() to start
+    a transaction, and then commit() or rollback() to complete it.
+    You can find out whether transactions are supported using
+    QSqlDriver::hasFeature().
+
+    If an error occurred, it is given by lastError().
 
     The names of the underlying SQL drivers are available from
     drivers(); you can check for a particular driver with
-    isDriverAvailable(). If you have created your own custom driver
+    isDriverAvailable(). If you have created your own custom driver,
     you can register it with registerSqlDriver().
+
+    \sa QSqlDriver, QSqlQuery
 */
 
 /*!

@@ -35,7 +35,14 @@ public:
     virtual ~QSqlResult();
 
 protected:
-    enum BindMethod { BindByPosition, BindByName };
+    enum BindingSyntax {
+        PositionalBinding,
+        NamedBinding
+// #ifdef QT_COMPAT ### uncomment later on
+        , BindByPosition = PositionalBinding,
+        BindByName = NamedBinding
+// #endif
+    };
 
     QSqlResult(const QSqlDriver * db);
     int at() const;
@@ -73,7 +80,7 @@ protected:
     void clear();
     bool hasOutValues() const;
 
-    BindMethod bindMethod() const;
+    BindingSyntax bindingSyntax() const;
 
     virtual QCoreVariant data(int i) = 0;
     virtual bool isNull(int i) = 0;
