@@ -127,13 +127,12 @@ fi
 cd ${DISTDIR}
 find qt -name .cvsignore -o -name doc.conf | xargs rm -f
 find qt -name doc -type d | xargs rm -rf
-find qt -name GNUmakefile -type d | xargs rm -f
-rm -rf qt/bugs qt/etc qt/gif qt/reqs qt/tests qt/tmake
+rm -f qt/src/qtinternal.pro
+rm -f qt/make.help qt/variables
+rm -rf qt/bugs qt/etc qt/gif qt/reqs qt/tests
 rm -rf qt/examples/sheet
-rm -rf qt/examples/scrollview
 rm -rf qt/examples/network
 rm -rf qt/examples/validator
-rm -f qt/src/qtinternal.pro
 
 echo "Removing kernel .cpp files for other platforms..." >&2
 cd ${DISTDIR}/qt/src/kernel
@@ -162,25 +161,46 @@ if [ "${platform}" = "win" ]; then
   mv extensions/imageio/src/q*.h include
   mv extensions/nsplugin/src/q*.h include
   rm -rf makefiles
-  find . -name 'GNUmakefile*' -o -name 'qtx11.*' | xargs rm -vf
+  find . -o -name 'qtx11.*' | xargs rm -vf
   echo "Converting Unix text files to DOS..." >&2
   cd ${DISTDIR}
   find qt -type f -print | fmt -1 | \
 	egrep -v '\.(gif|bmp|any|exe)$' | xargs ${curdir}/unix_to_dos
+  tmakearg=-win32
+  tmakeout=Makefile
 fi
 
 if [ "${platform}" = "x11" ]; then
   cd ${DISTDIR}/qt
   rm bin/*.bat
-  find . -name 'Makefile' -o -name 'qtwin.*' | xargs rm -vf
-  echo 'Building make files...' >&2
-  mv ${QTDIR}/src/moc/GNUmakefile ${QTDIR}/src/moc/Makefile
-  find ${QTDIR} -name 'GNUmakefile*' -print | xargs rm -vf
+  find . -name 'qtwin.*' | xargs rm -vf
+  echo 'Building top-level make files...' >&2
+  mv ${QTDIR}/src/moc/GNUmakefile ${QTDIR}/src/moc/Makefile.in
+  rm ${QTDIR}/src/moc/Makefile Makefile.inc
+  ${QTDIR}/util/scripts/mkconfigs
   ${QTDIR}/util/scripts/makemake
+  (cd ${QTDIR}/src; tmake -t ../tmake/propagate.t qt.pro >Makefile.in)
   mv ${QTDIR}/util/scripts/propagate ${QTDIR}
   rm -rf ${DISTDIR}/qt/lib ${DISTDIR}/qt/bin
   mkdir ${DISTDIR}/qt/lib ${DISTDIR}/qt/bin
+  tmakearg=-unix
+  tmakeout=Makefile.in
 fi
+
+echo "Build tutorial, example, and extensions Makefiles" >&2
+for pro_file in $(find ${DISTDIR}/qt/tutorial
+		       ${DISTDIR}/qt/examples
+		       ${DISTDIR}/qt/extensions -name '*.pro')
+do
+  (
+    cd $(dirname $pro_file)
+    rm Makefile
+    tmake -t ${QTDIR}/tmake/propagate.t $tmakearg $(basename $pro_file) >$tmakeout
+  )
+done
+
+echo "Removing GNUmakefiles" >&2
+find ${QTDIR} -name 'GNUmakefile*' -print | xargs rm -vf
 
 echo "Copying the README, LICENSE etc. files..." >&2
 cd ${DISTDIR}/qt/dist
@@ -191,7 +211,7 @@ tar cf - * | (cd ${DISTDIR}/qt ; tar xf -)
 cd ${DISTDIR}/qt/dist/${platform}
 tar cf - * | (cd ${DISTDIR}/qt ; tar xf -)
 cd ${DISTDIR}
-rm -rf qt/dist qt/util qt/makefiles
+rm -rf qt/dist qt/util qt/tmake qt/makefiles
 
 
 echo "Finally packing the distribution, see ${DISTDIR} ..." >&2

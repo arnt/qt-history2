@@ -28,20 +28,17 @@ ftp.troll.no.
 
 			 PORTING INSTRUCTIONS
 
-[This part is not completely updated yet, please contact
-qt-bugs@troll.no if you have problems porting.]
+Create a new file in the configs/ directory, describing the compilation
+requirements for your platform.  Edit qt/Makefile to support the new
+architecture (it just refers to the config file).  Run "make config"
+and thus configure for your platform.  You should not have to modify
+any other Makefiles (but let us know if you do).
 
-Edit qt/Makefile to support the new architecture.
-
-You may also have to modify other Makefiles and qt/src/tools/qglobal.h.
-
-The Makefiles will generally need CFLAGS, CC and so on.  You may need to
-add some more libraries. 
-
-For qt/src/tools/qglobal.h you need to ensure that _OS_whatever_ is
-defined.  We've done it for many platforms in the past, those should be
-okay.  If you are using a compiler we don't detect it's probably a good
-idea to add a _CC_whatever_ too (even though you don't need it at once).
+Modify qt/src/tools/qglobal.h as required: you need to ensure that
+_OS_whatever_ is defined.  We've done it for many platforms in the
+past, those should be okay.  If you are using a compiler we don't
+detect it's probably a good idea to add a _CC_whatever_ too (even
+though you don't need it at once).  
 
 If your compiler doesn't support templates, make sure DEFAULT_MACROCLASS
 is defined in qglobal.h.
@@ -53,8 +50,8 @@ Some compilers emit bad warnings when they compile Qt.  If yours does, and
 the code in Qt is sane, please use a #pragma or two to shut your compiler
 up.  (This is a good reason for wanting the _CC_whatever_ define above.)
 
-Make a unified diff (diff -u) and send the patch to  qt-bugs@troll.no
+Make a unified diff (diff -u) and send the patch to qt-bugs@troll.no
 
 For most Unix varieties, that's all.  Some may need some include file
-tweaks.  Good luck, and again, feel free to send mail to
-qt-bugs@troll.no.
+tweaks.  Good luck, and again, feel free to send mail to qt-bugs@troll.no.
+

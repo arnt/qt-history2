@@ -15,19 +15,6 @@ cat <<EOF
 # Main Makefile for building the Qt library, examples and tutorial.
 # Read PORTING for instructions how to port Qt to a new platform.
 
-# The next few lines (until the CVS source directive) are
-# automatically overwritten whenever you configure Qt for a platform
-
-INCDIR = \${QTDIR}/include
-CFLAGS = -O2 -fno-strength-reduce -Wall -W
-LIBCFLAGS = -fPIC
-YACCCFLAGS = -Wno-unused -Wno-parentheses
-LFLAGS = -L\${QTDIR}/lib -lqt
-CC = gcc
-MOC = \${QTDIR}/bin/moc
-SHELL = /bin/sh
-
-# \$Source\$
 
 all: moc src tutorial examples
 
@@ -53,18 +40,19 @@ depend:
 	cd tutorial; \$(MAKE) depend
 	cd examples; \$(MAKE) depend
 
+config: variables
+	-rm variables
+	\$(MAKE)
+
 variables: Makefile
+	@echo
 	@echo These targets are available:
-EOF
-
-for a in makefiles/*.cflags ; do
-	echo '	@echo " "' `echo $a | sed -e 's-.*/--' -e 's/\.cflags//'`
-done
-
-cat <<EOF
+	@echo
+	@ls configs
 	@echo
 	@echo Make any of them to configure Qt for building.  The make process
 	@echo will now abort with an error.
+	@echo
 	@exit 1
 
 
@@ -72,20 +60,10 @@ cat <<EOF
 
 EOF
 
-for a in makefiles/*.cflags ; do
-	A=`echo $a | sed -e 's-.*/--' -e 's/\.cflags//'`
+for a in configs/* ; do
+	A=`echo $a | sed -e 's-.*/--'`
 	echo ${A}: Makefile
-. $a
-	echo '	' CC='"'${CC}'" \
-	' CFLAGS='"'${CFLAGS}'" \
-	' LIBCFLAGS='"'${LIBCFLAGS}'" \
-	' YACCCFLAGS='"'${YACCCFLAGS}'" \
-	' LFLAGS='"'${LFLAGS}'" \
-	' SHELL='"'${SHELL}'"' PLATFORM=${A} ./propagate
-	echo '	@touch variables'
-	echo '	@echo'
-	echo '	@echo Qt is now configured for building.  Just run "make" to build it.'
-	echo '	@echo'
+	echo '	./propagate configs/'${A}
 	echo
 done
 
@@ -97,253 +75,3 @@ FORCE:
 
 
 EOF
-
-cd src
-
-exec > Makefile
-
-cat <<EOF
-
-####### This section will soon be automatically generated.  At the moment
-#######    it is for building with gcc.
-
-CC = gcc
-
-####### End of not-yet-automatically generated section
-
-#
-# \$Source: /tmp/cvs/qt/util/scripts/makemake,v $
-#
-
-# The "real" object files in the Qt library
-
-EOF
-echo tools/q*.cpp kernel/q*.cpp widgets/q*.cpp dialogs/q*.cpp | fmt -1 | \
-    fgrep -v _os2.cpp | fgrep -v _win.cpp | \
-    sort | sed 's/\.cpp$/.o/' | fmt -66 | sed \
-	-e 's/^/	  /' \
-	-e '1 s/	  /OBJECTS = /' \
-	-e 's/$/ \\/' \
-	-e '$ s/ \\//' \
-
-echo
-echo '# The compiled meta-object code'
-echo
-
-(grep -l Q_OBJECT kernel/q*.h widgets/*.h dialogs/*.h ; echo kernel/qobjdefs.h kernel/qsignal.h ) | fmt -1 | sort | uniq -u | \
-    sed -e 's-/q-/m-' -e 's/\.h$/.o/' | fmt -66 | \
-    sed -e 's/^/	  /' \
-	-e '1 s/	  /METAOBJ = /' \
-	-e 's/$/ \\/' \
-	-e '$ s/ \\//'
-
-cat <<EOF
-
-# Qt's version number
-
-VERSION=$QT_VERSION
-
-all: unconfigured # will be changed by ../Makefile
-
-tools kernel widgets dialogs: FORCE
-	cd \$@; \$(MAKE)
-
-depend:
-	cd tools; \$(MAKE) depend
-	cd kernel; \$(MAKE) depend
-	cd widgets; \$(MAKE) depend
-	cd dialogs; \$(MAKE) depend
-
-dep: depend
-
-clean:
-	cd tools; \$(MAKE) clean
-	cd kernel; \$(MAKE) clean
-	cd widgets; \$(MAKE) clean
-	cd dialogs; \$(MAKE) clean
-
-unconfigured:
-	@echo 'Qt is not configured for any platform'
-	@echo 'Please run "cd .. ; make" and then make a target from the list'
-	exit 1
-
-EOF
-
-for a in ../makefiles/*.ld ; do
-	A=`echo $a | sed -e 's-.*/--' -e 's/\.ld//'`
-	echo link-${A}: tools kernel widgets dialogs
-	grep . < $a
-	echo
-done
-
-cat <<EOF
-
-include:
-	-rm -f \$(INCDIR)/*.h
-	( cd \$(INCDIR) ; \\
-	  ln -s -f ../src/tools/*.h . ; \\
-	  ln -s -f ../src/kernel/*.h . ; \\
-	  ln -s -f ../src/widgets/*.h . ; \\
-	  ln -s -f ../src/dialogs/*.h . )
-
-FORCE:
-
-
-EOF
-
-
-for directory in tools kernel widgets dialogs ; do
-cd ${QTDIR}/src/${directory};
-
-exec > Makefile
-
-cat <<EOF
-####### This section will soon be automatically generated.  At the moment
-#######    it is semi-appropriate for building on linux-gcc-shared
-
-INCDIR = \$(QTDIR)/include
-CFLAGS = -O2 -fno-strength-reduce -Wall -W
-LIBCFLAGS = -fPIC
-YACCCFLAGS = -Wno-unused -Wno-parentheses
-LFLAGS = -L\$(QTDIR)/qt/lib -lqt
-CC = gcc
-MOC = \$(QTDIR)/bin/moc
-SHELL = /bin/sh
-
-####### End of not-yet-automatically generated section
-#
-# \$Source\$
-
-# The Qt meta object support files
-
-EOF
-
-# brute force rules
-
-METAHEADERS=`(grep -l Q_OBJECT *.h ; echo qobjdefs.h qsignal.h qobjdefs.h qsignal.h ) | fmt -1 | sort | uniq -u`
-
-[ $directory = tools ] || echo $METAHEADERS | fmt -1 | \
-    sed -e 's/^q/m/' -e 's/\.h$/.cpp/' | fmt -66 | \
-    sed -e 's/^/	  /' \
-	-e '1 s/	  /METASRC = /' \
-	-e 's/$/ \\/' \
-	-e '$ s/ \\//'
-
-[ $directory = tools ] || echo $METAHEADERS | fmt -1 | \
-    sed -e 's/^q/m/' -e 's/\.h$/.o/' | fmt -66 | \
-    sed -e 's/^/	  /' \
-	-e '1 s/	  /METAOBJ = /' \
-	-e 's/$/ \\/' \
-	-e '$ s/ \\//'
-
-echo
-echo '# The C++ header files'
-echo
-echo q*.h | fmt -66 | sed \
-	-e 's/^/	  /' \
-	-e '1 s/	  /HEADERS = /' \
-	-e 's/$/ \\/' \
-	-e '$ s/ \\//'
-
-echo
-echo '# The C++ source files that are edited by humans'
-echo
-echo q*.cpp | fmt -66 | fgrep -v _os2.cpp | fgrep -v _win.cpp | sed \
-	-e 's/^/	  /' \
-	-e '1 s/	  /SOURCES = /' \
-	-e 's/$/ \\/' \
-	-e '$ s/ \\//'
-
-echo
-echo '# The object code files from SOURCES above'
-echo
-echo q*.cpp | fmt -1 | fgrep -v _os2.cpp | fgrep -v _win.cpp | \
-    sed 's/\.cpp$/.o/' | fmt -66 | sed \
-	-e 's/^/	  /' \
-	-e '1 s/	  /OBJECTS = /' \
-	-e 's/$/ \\/' \
-	-e '$ s/ \\//' \
-
-cat  <<EOF
-
-.SUFFIXES: .cpp
-
-.cpp.o:
-	\$(CC) -I\$(INCDIR) -c \$(CFLAGS) \$(LIBCFLAGS) \$<
-
-EOF
-
-if [ $directory = "tools" ]; then
-   echo 'all: $(OBJECTS)'
-else
-   echo 'all: $(OBJECTS) $(METAOBJ)'
-fi
-cat <<EOF
-
-depend:
-	makedepend -I\$(INCDIR) \$(SOURCES) 2> /dev/null
-
-dep: depend
-
-clean:
-	-rm -f *.o *.bak *~ *% \$(METASRC) "#*#"
-
-EOF
-
-if [ $directory != "tools" ]; then
-    cat <<EOF
-
-# For maximum compatibility with old versions of make, we generate
-# a separate rule for each meta object source file.
-
-# Though you can see what is in these files, we urge you not to use this
-# knowledge in your programs.
-
-# METAHEADERS is the list of header files included by all the meta object
-# source files
-
-EOF
-
-    for b in `( cd ${QTDIR}/include ; gcc -E qmetaobj.h 2>/dev/null ) | \
-		awk '/^# [0-9]+ [^/]*$/{print $3}' | \
-		tr -d '"' | \
-		sort | uniq | fgrep -v qmetaobj.h` ; do \
-     [ -f $b ] && echo $b ; \
-     [ '!' -f $b -a -f ../*/$b ] && echo ../*/$b ; done | fmt -66 | \
-    sed -e 's/^/	/' \
-	-e '1 s/	/METAHEADERS = /' \
-	-e 's/$/ \\/' \
-	-e '$ s/ \\//'
-
-    echo 
-
-    for a in $METAHEADERS ; do
-        METASRC=`echo $a | sed -e 's/^q/m/' -e 's/h$/cpp/'`
-        echo `echo ${METASRC} | sed 's/cpp$/o/'`: ${METASRC} 
-        echo ${METASRC}: ${a} '$(METAHEADERS)'
-        echo '	$(MOC)' -o ${METASRC} ${a}
-        echo 
-    done
-fi
-
-cat  <<EOF
-
-# DO NOT DELETE THIS LINE -- make depend depends on it.
-
-# What is here now is accurate as far as it goes, but does not include
-# system header files.
-
-EOF
-
-
-for a in q*.cpp ; do
-    gcc -E -I../tools -I../kernel -I../widgets $a 2>/dev/null | \
-    awk '/^# [0-9]+ "(..\/[^/]*)*[^/]*" /{print $3}' | tr -d '"' | sort | \
-    uniq | sed -e '1 s/^/'${a}': /' -e '1 s/\.cpp:/.o:/' | fmt -66 | \
-    sed -e '2,$ s/^/	/' \
-	-e 's/$/ \\/' \
-	-e '$ s/ \\//'
-    echo
-done
-
-done
