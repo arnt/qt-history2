@@ -686,8 +686,8 @@ bool QWidgetPrivate::qt_create_root_win() {
     Rect r;
     int w = 0, h = 0;
     for(GDHandle g = GetMainDevice(); g; g = GetNextDevice(g)) {
-        w = qMax(w, (*g)->gdRect.right);
-        h = qMax(h, (*g)->gdRect.bottom);
+        w = qMax<int>(w, (*g)->gdRect.right);
+        h = qMax<int>(h, (*g)->gdRect.bottom);
     }
     SetRect(&r, 0, 0, w, h);
     qt_mac_create_window(kOverlayWindowClass, kWindowNoAttributes, &r, &qt_root_win);
@@ -803,8 +803,8 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool destroyO
     if(desktop) {
         int w = 0, h = 0;
         for(GDHandle g = GetMainDevice(); g; g = GetNextDevice(g)) {
-            w = qMax(w, (*g)->gdRect.right);
-            h = qMax(h, (*g)->gdRect.bottom);
+            w = qMax<int>(w, (*g)->gdRect.right);
+            h = qMax<int>(h, (*g)->gdRect.bottom);
         }
         dskr = QRect(0, 0, w, h);
         q->setAttribute(Qt::WA_WState_Visible);
@@ -1617,9 +1617,9 @@ void QWidget::setWindowState(Qt::WindowStates newstate)
                         d->updateFrameStrut();
                     bounds.left += tlextra->fleft;
                     if(bounds.right < avail.x()+avail.width())
-                        bounds.right = qMin((uint)avail.x()+avail.width(), bounds.right+tlextra->fleft);
+                        bounds.right = qMin<short>((uint)avail.x()+avail.width(), bounds.right+tlextra->fleft);
                     if(bounds.bottom < avail.y()+avail.height())
-                        bounds.bottom = qMin((uint)avail.y()+avail.height(), bounds.bottom+tlextra->ftop);
+                        bounds.bottom = qMin<short>((uint)avail.y()+avail.height(), bounds.bottom+tlextra->ftop);
                     bounds.top += tlextra->ftop;
                     bounds.right -= tlextra->fright;
                     bounds.bottom -= tlextra->fbottom;
@@ -2150,7 +2150,7 @@ void QWidget::setWindowOpacity(qreal level)
     if(!isWindow())
         return;
 
-    level = qMin(qMax(level, 0), 1.0);
+    level = qMin<qreal>(qMax(level, 0.0), 1.0);
     QMacSavedPortInfo::setWindowAlpha(this, level);
     d->topData()->opacity = (uchar)(level * 255);
 }

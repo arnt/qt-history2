@@ -63,7 +63,7 @@ inline void check() {}
 
 QFragmentMapData::QFragmentMapData(uint fs)
 {
-    fragmentSize = qMax(fs, sizeof(Header));
+    fragmentSize = qMax<int>(fs, sizeof(Header));
 
     fragments = (char *)malloc(64*fragmentSize);
     head->tag = TAG('p', 'm', 'a', 'p');

@@ -82,9 +82,9 @@ int QPrintDialog::exec()
     if (result) {
         UInt32 page;
         PMGetFirstPage(d->ep->settings, &page);
-        d->fromPage = qMin(uint(INT_MAX), page);
+        d->fromPage = qMax(UInt32(0), page);
         PMGetLastPage(d->ep->settings, &page);
-        d->toPage = qMin(uint(INT_MAX), page);
+        d->toPage = qMin(UInt32(INT_MAX), page);
         d->printRange = PageRange; // In a way a lie, but it shouldn't hurt.
         // Carbon hands us back a very large number here even for ALL, set it to max
         // in that case to follow the behavior of the other print dialogs.
