@@ -119,7 +119,7 @@ static double qstrtod(const char *s00, char const **se, bool *ok);
 static Q_LLONG qstrtoll(const char *nptr, const char **endptr, register int base, bool *ok);
 static Q_ULLONG qstrtoull(const char *nptr, const char **endptr, register int base, bool *ok);
 
-static uint locale_index[] = {
+static const uint locale_index[] = {
      0, // Default
      0, // C
      0, // Abkhazian
@@ -264,7 +264,7 @@ static uint locale_index[] = {
      0  // trailing 0
 };
 
-static QLocalePrivate locale_data[] = {
+static const QLocalePrivate locale_data[] = {
 //      lang   terr    dec  group   list  prcnt   zero  minus    exp
     {      1,     0,    46,    44,    59,    37,    48,    45,   101 }, // C/Default
     {      5,   195,    46,    44,    44,    37,    48,    45,   101 }, // Afrikaans/SouthAfrica
@@ -394,6 +394,780 @@ static QLocalePrivate locale_data[] = {
     {      0,     0,     0,     0,     0,     0,     0,     0,     0 }  // trailing 0s
 };
 
+static const char language_name_list[] =
+"Default\0"
+"C\0"
+"Abkhazian\0"
+"Afan\0"
+"Afar\0"
+"Afrikaans\0"
+"Albanian\0"
+"Amharic\0"
+"Arabic\0"
+"Armenian\0"
+"Assamese\0"
+"Aymara\0"
+"Azerbaijani\0"
+"Bashkir\0"
+"Basque\0"
+"Bengali\0"
+"Bhutani\0"
+"Bihari\0"
+"Bislama\0"
+"Breton\0"
+"Bulgarian\0"
+"Burmese\0"
+"Byelorussian\0"
+"Cambodian\0"
+"Catalan\0"
+"Chinese\0"
+"Corsican\0"
+"Croatian\0"
+"Czech\0"
+"Danish\0"
+"Dutch\0"
+"English\0"
+"Esperanto\0"
+"Estonian\0"
+"Faroese\0"
+"Fiji\0"
+"Finnish\0"
+"French\0"
+"Frisian\0"
+"Gaelic\0"
+"Galician\0"
+"Georgian\0"
+"German\0"
+"Greek\0"
+"Greenlandic\0"
+"Guarani\0"
+"Gujarati\0"
+"Hausa\0"
+"Hebrew\0"
+"Hindi\0"
+"Hungarian\0"
+"Icelandic\0"
+"Indonesian\0"
+"Interlingua\0"
+"Interlingue\0"
+"Inuktitut\0"
+"Inupiak\0"
+"Irish\0"
+"Italian\0"
+"Japanese\0"
+"Javanese\0"
+"Kannada\0"
+"Kashmiri\0"
+"Kazakh\0"
+"Kinyarwanda\0"
+"Kirghiz\0"
+"Korean\0"
+"Kurdish\0"
+"Kurundi\0"
+"Laothian\0"
+"Latin\0"
+"Latvian\0"
+"Lingala\0"
+"Lithuanian\0"
+"Macedonian\0"
+"Malagasy\0"
+"Malay\0"
+"Malayalam\0"
+"Maltese\0"
+"Maori\0"
+"Marathi\0"
+"Moldavian\0"
+"Mongolian\0"
+"Nauru\0"
+"Nepali\0"
+"Norwegian\0"
+"Occitan\0"
+"Oriya\0"
+"Pashto\0"
+"Persian\0"
+"Polish\0"
+"Portuguese\0"
+"Punjabi\0"
+"Quechua\0"
+"RhaetoRomance\0"
+"Romanian\0"
+"Russian\0"
+"Samoan\0"
+"Sangho\0"
+"Sanskrit\0"
+"Serbian\0"
+"SerboCroatian\0"
+"Sesotho\0"
+"Setswana\0"
+"Shona\0"
+"Sindhi\0"
+"Singhalese\0"
+"Siswati\0"
+"Slovak\0"
+"Slovenian\0"
+"Somali\0"
+"Spanish\0"
+"Sundanese\0"
+"Swahili\0"
+"Swedish\0"
+"Tagalog\0"
+"Tajik\0"
+"Tamil\0"
+"Tatar\0"
+"Telugu\0"
+"Thai\0"
+"Tibetan\0"
+"Tigrinya\0"
+"Tonga\0"
+"Tsonga\0"
+"Turkish\0"
+"Turkmen\0"
+"Twi\0"
+"Uigur\0"
+"Ukrainian\0"
+"Urdu\0"
+"Uzbek\0"
+"Vietnamese\0"
+"Volapuk\0"
+"Welsh\0"
+"Wolof\0"
+"Xhosa\0"
+"Yiddish\0"
+"Yoruba\0"
+"Zhuang\0"
+"Zulu\0";
+
+static const uint language_name_index[] = {
+     0, // Default
+     8, // C
+    10, // Abkhazian
+    20, // Afan
+    25, // Afar
+    30, // Afrikaans
+    40, // Albanian
+    49, // Amharic
+    57, // Arabic
+    64, // Armenian
+    73, // Assamese
+    82, // Aymara
+    89, // Azerbaijani
+   101, // Bashkir
+   109, // Basque
+   116, // Bengali
+   124, // Bhutani
+   132, // Bihari
+   139, // Bislama
+   147, // Breton
+   154, // Bulgarian
+   164, // Burmese
+   172, // Byelorussian
+   185, // Cambodian
+   195, // Catalan
+   203, // Chinese
+   211, // Corsican
+   220, // Croatian
+   229, // Czech
+   235, // Danish
+   242, // Dutch
+   248, // English
+   256, // Esperanto
+   266, // Estonian
+   275, // Faroese
+   283, // Fiji
+   288, // Finnish
+   296, // French
+   303, // Frisian
+   311, // Gaelic
+   318, // Galician
+   327, // Georgian
+   336, // German
+   343, // Greek
+   349, // Greenlandic
+   361, // Guarani
+   369, // Gujarati
+   378, // Hausa
+   384, // Hebrew
+   391, // Hindi
+   397, // Hungarian
+   407, // Icelandic
+   417, // Indonesian
+   428, // Interlingua
+   440, // Interlingue
+   452, // Inuktitut
+   462, // Inupiak
+   470, // Irish
+   476, // Italian
+   484, // Japanese
+   493, // Javanese
+   502, // Kannada
+   510, // Kashmiri
+   519, // Kazakh
+   526, // Kinyarwanda
+   538, // Kirghiz
+   546, // Korean
+   553, // Kurdish
+   561, // Kurundi
+   569, // Laothian
+   578, // Latin
+   584, // Latvian
+   592, // Lingala
+   600, // Lithuanian
+   611, // Macedonian
+   622, // Malagasy
+   631, // Malay
+   637, // Malayalam
+   647, // Maltese
+   655, // Maori
+   661, // Marathi
+   669, // Moldavian
+   679, // Mongolian
+   689, // Nauru
+   695, // Nepali
+   702, // Norwegian
+   712, // Occitan
+   720, // Oriya
+   726, // Pashto
+   733, // Persian
+   741, // Polish
+   748, // Portuguese
+   759, // Punjabi
+   767, // Quechua
+   775, // RhaetoRomance
+   789, // Romanian
+   798, // Russian
+   806, // Samoan
+   813, // Sangho
+   820, // Sanskrit
+   829, // Serbian
+   837, // SerboCroatian
+   851, // Sesotho
+   859, // Setswana
+   868, // Shona
+   874, // Sindhi
+   881, // Singhalese
+   892, // Siswati
+   900, // Slovak
+   907, // Slovenian
+   917, // Somali
+   924, // Spanish
+   932, // Sundanese
+   942, // Swahili
+   950, // Swedish
+   958, // Tagalog
+   966, // Tajik
+   972, // Tamil
+   978, // Tatar
+   984, // Telugu
+   991, // Thai
+   996, // Tibetan
+  1004, // Tigrinya
+  1013, // Tonga
+  1019, // Tsonga
+  1026, // Turkish
+  1034, // Turkmen
+  1042, // Twi
+  1046, // Uigur
+  1052, // Ukrainian
+  1062, // Urdu
+  1067, // Uzbek
+  1073, // Vietnamese
+  1084, // Volapuk
+  1092, // Welsh
+  1098, // Wolof
+  1104, // Xhosa
+  1110, // Yiddish
+  1118, // Yoruba
+  1125, // Zhuang
+  1132  // Zulu
+};
+
+static const char country_name_list[] =
+"Default\0"
+"Afghanistan\0"
+"Albania\0"
+"Algeria\0"
+"AmericanSamoa\0"
+"Andorra\0"
+"Angola\0"
+"Anguilla\0"
+"Antarctica\0"
+"AntiguaAndBarbuda\0"
+"Argentina\0"
+"Armenia\0"
+"Aruba\0"
+"Australia\0"
+"Austria\0"
+"Azerbaijan\0"
+"Bahamas\0"
+"Bahrain\0"
+"Bangladesh\0"
+"Barbados\0"
+"Belarus\0"
+"Belgium\0"
+"Belize\0"
+"Benin\0"
+"Bermuda\0"
+"Bhutan\0"
+"Bolivia\0"
+"BosniaAndHerzegowina\0"
+"Botswana\0"
+"BouvetIsland\0"
+"Brazil\0"
+"BritishIndianOceanTerritory\0"
+"BruneiDarussalam\0"
+"Bulgaria\0"
+"BurkinaFaso\0"
+"Burundi\0"
+"Cambodia\0"
+"Cameroon\0"
+"Canada\0"
+"CapeVerde\0"
+"CaymanIslands\0"
+"CentralAfricanRepublic\0"
+"Chad\0"
+"Chile\0"
+"China\0"
+"ChristmasIsland\0"
+"CocosIslands\0"
+"Colombia\0"
+"Comoros\0"
+"DemocraticRepublicOfCongo\0"
+"PeoplesRepublicOfCongo\0"
+"CookIslands\0"
+"CostaRica\0"
+"IvoryCoast\0"
+"Croatia\0"
+"Cuba\0"
+"Cyprus\0"
+"CzechRepublic\0"
+"Denmark\0"
+"Djibouti\0"
+"Dominica\0"
+"DominicanRepublic\0"
+"EastTimor\0"
+"Ecuador\0"
+"Egypt\0"
+"ElSalvador\0"
+"EquatorialGuinea\0"
+"Eritrea\0"
+"Estonia\0"
+"Ethiopia\0"
+"FalklandIslands\0"
+"FaroeIslands\0"
+"Fiji\0"
+"Finland\0"
+"France\0"
+"MetropolitanFrance\0"
+"FrenchGuiana\0"
+"FrenchPolynesia\0"
+"FrenchSouthernTerritories\0"
+"Gabon\0"
+"Gambia\0"
+"Georgia\0"
+"Germany\0"
+"Ghana\0"
+"Gibraltar\0"
+"Greece\0"
+"Greenland\0"
+"Grenada\0"
+"Guadeloupe\0"
+"Guam\0"
+"Guatemala\0"
+"Guinea\0"
+"GuineaBissau\0"
+"Guyana\0"
+"Haiti\0"
+"HeardAndMcDonaldIslands\0"
+"Honduras\0"
+"HongKong\0"
+"Hungary\0"
+"Iceland\0"
+"India\0"
+"Indonesia\0"
+"Iran\0"
+"Iraq\0"
+"Ireland\0"
+"Israel\0"
+"Italy\0"
+"Jamaica\0"
+"Japan\0"
+"Jordan\0"
+"Kazakhstan\0"
+"Kenya\0"
+"Kiribati\0"
+"DemocraticRepublicOfKorea\0"
+"RepublicOfKorea\0"
+"Kuwait\0"
+"Kyrgyzstan\0"
+"Lao\0"
+"Latvia\0"
+"Lebanon\0"
+"Lesotho\0"
+"Liberia\0"
+"LibyanArabJamahiriya\0"
+"Liechtenstein\0"
+"Lithuania\0"
+"Luxembourg\0"
+"Macau\0"
+"Macedonia\0"
+"Madagascar\0"
+"Malawi\0"
+"Malaysia\0"
+"Maldives\0"
+"Mali\0"
+"Malta\0"
+"MarshallIslands\0"
+"Martinique\0"
+"Mauritania\0"
+"Mauritius\0"
+"Mayotte\0"
+"Mexico\0"
+"Micronesia\0"
+"Moldova\0"
+"Monaco\0"
+"Mongolia\0"
+"Montserrat\0"
+"Morocco\0"
+"Mozambique\0"
+"Myanmar\0"
+"Namibia\0"
+"Nauru\0"
+"Nepal\0"
+"Netherlands\0"
+"NetherlandsAntilles\0"
+"NewCaledonia\0"
+"NewZealand\0"
+"Nicaragua\0"
+"Niger\0"
+"Nigeria\0"
+"Niue\0"
+"NorfolkIsland\0"
+"NorthernMarianaIslands\0"
+"Norway\0"
+"Oman\0"
+"Pakistan\0"
+"Palau\0"
+"PalestinianTerritory\0"
+"Panama\0"
+"PapuaNewGuinea\0"
+"Paraguay\0"
+"Peru\0"
+"Philippines\0"
+"Pitcairn\0"
+"Poland\0"
+"Portugal\0"
+"PuertoRico\0"
+"Qatar\0"
+"Reunion\0"
+"Romania\0"
+"RussianFederation\0"
+"Rwanda\0"
+"SaintKittsAndNevis\0"
+"StLucia\0"
+"StVincentAndTheGrenadines\0"
+"Samoa\0"
+"SanMarino\0"
+"SaoTomeAndPrincipe\0"
+"SaudiArabia\0"
+"Senegal\0"
+"Seychelles\0"
+"SierraLeone\0"
+"Singapore\0"
+"Slovakia\0"
+"Slovenia\0"
+"SolomonIslands\0"
+"Somalia\0"
+"SouthAfrica\0"
+"SouthGeorgiaAndTheSouthSandwichIslands\0"
+"Spain\0"
+"SriLanka\0"
+"StHelena\0"
+"StPierreAndMiquelon\0"
+"Sudan\0"
+"Suriname\0"
+"SvalbardAndJanMayenIslands\0"
+"Swaziland\0"
+"Sweden\0"
+"Switzerland\0"
+"SyrianArabRepublic\0"
+"Taiwan\0"
+"Tajikistan\0"
+"Tanzania\0"
+"Thailand\0"
+"Togo\0"
+"Tokelau\0"
+"Tonga\0"
+"TrinidadAndTobago\0"
+"Tunisia\0"
+"Turkey\0"
+"Turkmenistan\0"
+"TurksAndCaicosIslands\0"
+"Tuvalu\0"
+"Uganda\0"
+"Ukraine\0"
+"UnitedArabEmirates\0"
+"UnitedKingdom\0"
+"UnitedStates\0"
+"UnitedStatesMinorOutlyingIslands\0"
+"Uruguay\0"
+"Uzbekistan\0"
+"Vanuatu\0"
+"VaticanCityState\0"
+"Venezuela\0"
+"VietNam\0"
+"BritishVirginIslands\0"
+"USVirginIslands\0"
+"WallisAndFutunaIslands\0"
+"WesternSahara\0"
+"Yemen\0"
+"Yugoslavia\0"
+"Zambia\0"
+"Zimbabwe\0";
+
+static const uint country_name_index[] = {
+     0, // Default
+     8, // Afghanistan
+    20, // Albania
+    28, // Algeria
+    36, // AmericanSamoa
+    50, // Andorra
+    58, // Angola
+    65, // Anguilla
+    74, // Antarctica
+    85, // AntiguaAndBarbuda
+   103, // Argentina
+   113, // Armenia
+   121, // Aruba
+   127, // Australia
+   137, // Austria
+   145, // Azerbaijan
+   156, // Bahamas
+   164, // Bahrain
+   172, // Bangladesh
+   183, // Barbados
+   192, // Belarus
+   200, // Belgium
+   208, // Belize
+   215, // Benin
+   221, // Bermuda
+   229, // Bhutan
+   236, // Bolivia
+   244, // BosniaAndHerzegowina
+   265, // Botswana
+   274, // BouvetIsland
+   287, // Brazil
+   294, // BritishIndianOceanTerritory
+   322, // BruneiDarussalam
+   339, // Bulgaria
+   348, // BurkinaFaso
+   360, // Burundi
+   368, // Cambodia
+   377, // Cameroon
+   386, // Canada
+   393, // CapeVerde
+   403, // CaymanIslands
+   417, // CentralAfricanRepublic
+   440, // Chad
+   445, // Chile
+   451, // China
+   457, // ChristmasIsland
+   473, // CocosIslands
+   486, // Colombia
+   495, // Comoros
+   503, // DemocraticRepublicOfCongo
+   529, // PeoplesRepublicOfCongo
+   552, // CookIslands
+   564, // CostaRica
+   574, // IvoryCoast
+   585, // Croatia
+   593, // Cuba
+   598, // Cyprus
+   605, // CzechRepublic
+   619, // Denmark
+   627, // Djibouti
+   636, // Dominica
+   645, // DominicanRepublic
+   663, // EastTimor
+   673, // Ecuador
+   681, // Egypt
+   687, // ElSalvador
+   698, // EquatorialGuinea
+   715, // Eritrea
+   723, // Estonia
+   731, // Ethiopia
+   740, // FalklandIslands
+   756, // FaroeIslands
+   769, // Fiji
+   774, // Finland
+   782, // France
+   789, // MetropolitanFrance
+   808, // FrenchGuiana
+   821, // FrenchPolynesia
+   837, // FrenchSouthernTerritories
+   863, // Gabon
+   869, // Gambia
+   876, // Georgia
+   884, // Germany
+   892, // Ghana
+   898, // Gibraltar
+   908, // Greece
+   915, // Greenland
+   925, // Grenada
+   933, // Guadeloupe
+   944, // Guam
+   949, // Guatemala
+   959, // Guinea
+   966, // GuineaBissau
+   979, // Guyana
+   986, // Haiti
+   992, // HeardAndMcDonaldIslands
+  1016, // Honduras
+  1025, // HongKong
+  1034, // Hungary
+  1042, // Iceland
+  1050, // India
+  1056, // Indonesia
+  1066, // Iran
+  1071, // Iraq
+  1076, // Ireland
+  1084, // Israel
+  1091, // Italy
+  1097, // Jamaica
+  1105, // Japan
+  1111, // Jordan
+  1118, // Kazakhstan
+  1129, // Kenya
+  1135, // Kiribati
+  1144, // DemocraticRepublicOfKorea
+  1170, // RepublicOfKorea
+  1186, // Kuwait
+  1193, // Kyrgyzstan
+  1204, // Lao
+  1208, // Latvia
+  1215, // Lebanon
+  1223, // Lesotho
+  1231, // Liberia
+  1239, // LibyanArabJamahiriya
+  1260, // Liechtenstein
+  1274, // Lithuania
+  1284, // Luxembourg
+  1295, // Macau
+  1301, // Macedonia
+  1311, // Madagascar
+  1322, // Malawi
+  1329, // Malaysia
+  1338, // Maldives
+  1347, // Mali
+  1352, // Malta
+  1358, // MarshallIslands
+  1374, // Martinique
+  1385, // Mauritania
+  1396, // Mauritius
+  1406, // Mayotte
+  1414, // Mexico
+  1421, // Micronesia
+  1432, // Moldova
+  1440, // Monaco
+  1447, // Mongolia
+  1456, // Montserrat
+  1467, // Morocco
+  1475, // Mozambique
+  1486, // Myanmar
+  1494, // Namibia
+  1502, // Nauru
+  1508, // Nepal
+  1514, // Netherlands
+  1526, // NetherlandsAntilles
+  1546, // NewCaledonia
+  1559, // NewZealand
+  1570, // Nicaragua
+  1580, // Niger
+  1586, // Nigeria
+  1594, // Niue
+  1599, // NorfolkIsland
+  1613, // NorthernMarianaIslands
+  1636, // Norway
+  1643, // Oman
+  1648, // Pakistan
+  1657, // Palau
+  1663, // PalestinianTerritory
+  1684, // Panama
+  1691, // PapuaNewGuinea
+  1706, // Paraguay
+  1715, // Peru
+  1720, // Philippines
+  1732, // Pitcairn
+  1741, // Poland
+  1748, // Portugal
+  1757, // PuertoRico
+  1768, // Qatar
+  1774, // Reunion
+  1782, // Romania
+  1790, // RussianFederation
+  1808, // Rwanda
+  1815, // SaintKittsAndNevis
+  1834, // StLucia
+  1842, // StVincentAndTheGrenadines
+  1868, // Samoa
+  1874, // SanMarino
+  1884, // SaoTomeAndPrincipe
+  1903, // SaudiArabia
+  1915, // Senegal
+  1923, // Seychelles
+  1934, // SierraLeone
+  1946, // Singapore
+  1956, // Slovakia
+  1965, // Slovenia
+  1974, // SolomonIslands
+  1989, // Somalia
+  1997, // SouthAfrica
+  2009, // SouthGeorgiaAndTheSouthSandwichIslands
+  2048, // Spain
+  2054, // SriLanka
+  2063, // StHelena
+  2072, // StPierreAndMiquelon
+  2092, // Sudan
+  2098, // Suriname
+  2107, // SvalbardAndJanMayenIslands
+  2134, // Swaziland
+  2144, // Sweden
+  2151, // Switzerland
+  2163, // SyrianArabRepublic
+  2182, // Taiwan
+  2189, // Tajikistan
+  2200, // Tanzania
+  2209, // Thailand
+  2218, // Togo
+  2223, // Tokelau
+  2231, // Tonga
+  2237, // TrinidadAndTobago
+  2255, // Tunisia
+  2263, // Turkey
+  2270, // Turkmenistan
+  2283, // TurksAndCaicosIslands
+  2305, // Tuvalu
+  2312, // Uganda
+  2319, // Ukraine
+  2327, // UnitedArabEmirates
+  2346, // UnitedKingdom
+  2360, // UnitedStates
+  2373, // UnitedStatesMinorOutlyingIslands
+  2406, // Uruguay
+  2414, // Uzbekistan
+  2425, // Vanuatu
+  2433, // VaticanCityState
+  2450, // Venezuela
+  2460, // VietNam
+  2468, // BritishVirginIslands
+  2489, // USVirginIslands
+  2505, // WallisAndFutunaIslands
+  2528, // WesternSahara
+  2542, // Yemen
+  2548, // Yugoslavia
+  2559, // Zambia
+  2566  // Zimbabwe
+};
+
 const QLocalePrivate *QLocale::default_d = 0;
 
 const QString &QLocalePrivate::infinity() const
@@ -406,7 +1180,7 @@ const QString &QLocalePrivate::nan() const
     return QLocaleStaticData::nanStr();
 }
 
-static QLocalePrivate *findLocale(QLocale::Language language,
+static const QLocalePrivate *findLocale(QLocale::Language language,
     	    	    	    	    QLocale::Country country)
 {
     unsigned language_id = (unsigned)language;
@@ -414,7 +1188,7 @@ static QLocalePrivate *findLocale(QLocale::Language language,
 
     uint idx = locale_index[language_id];
 
-    QLocalePrivate *d = locale_data + idx;
+    const QLocalePrivate *d = locale_data + idx;
 
     if (idx == 0) // default language has no associated country
     	return d;
@@ -954,151 +1728,9 @@ QLocale::Country QLocale::country() const
 
 QString QLocale::languageToString(Language language)
 {
-    switch (language) {
-	case DefaultLanguage: return "DefaultLanguage";
-	case C: return "C";
-	case Abkhazian: return "Abkhazian";
-	case Afan: return "Afan";
-	case Afar: return "Afar";
-	case Afrikaans: return "Afrikaans";
-	case Albanian: return "Albanian";
-	case Amharic: return "Amharic";
-	case Arabic: return "Arabic";
-	case Armenian: return "Armenian";
-	case Assamese: return "Assamese";
-	case Aymara: return "Aymara";
-	case Azerbaijani: return "Azerbaijani";
-	case Bashkir: return "Bashkir";
-	case Basque: return "Basque";
-	case Bengali: return "Bengali";
-	case Bhutani: return "Bhutani";
-	case Bihari: return "Bihari";
-	case Bislama: return "Bislama";
-	case Breton: return "Breton";
-	case Bulgarian: return "Bulgarian";
-	case Burmese: return "Burmese";
-	case Byelorussian: return "Byelorussian";
-	case Cambodian: return "Cambodian";
-	case Catalan: return "Catalan";
-	case Chinese: return "Chinese";
-	case Corsican: return "Corsican";
-	case Croatian: return "Croatian";
-	case Czech: return "Czech";
-	case Danish: return "Danish";
-	case Dutch: return "Dutch";
-	case English: return "English";
-	case Esperanto: return "Esperanto";
-	case Estonian: return "Estonian";
-	case Faroese: return "Faroese";
-	case FijiLanguage: return "FijiLanguage";
-	case Finnish: return "Finnish";
-	case French: return "French";
-	case Frisian: return "Frisian";
-	case Gaelic: return "Gaelic";
-	case Galician: return "Galician";
-	case Georgian: return "Georgian";
-	case German: return "German";
-	case Greek: return "Greek";
-	case Greenlandic: return "Greenlandic";
-	case Guarani: return "Guarani";
-	case Gujarati: return "Gujarati";
-	case Hausa: return "Hausa";
-	case Hebrew: return "Hebrew";
-	case Hindi: return "Hindi";
-	case Hungarian: return "Hungarian";
-	case Icelandic: return "Icelandic";
-	case Indonesian: return "Indonesian";
-	case Interlingua: return "Interlingua";
-	case Interlingue: return "Interlingue";
-	case Inuktitut: return "Inuktitut";
-	case Inupiak: return "Inupiak";
-	case Irish: return "Irish";
-	case Italian: return "Italian";
-	case Japanese: return "Japanese";
-	case Javanese: return "Javanese";
-	case Kannada: return "Kannada";
-	case Kashmiri: return "Kashmiri";
-	case Kazakh: return "Kazakh";
-	case Kinyarwanda: return "Kinyarwanda";
-	case Kirghiz: return "Kirghiz";
-	case Korean: return "Korean";
-	case Kurdish: return "Kurdish";
-	case Kurundi: return "Kurundi";
-	case Laothian: return "Laothian";
-	case Latin: return "Latin";
-	case Latvian: return "Latvian";
-	case Lingala: return "Lingala";
-	case Lithuanian: return "Lithuanian";
-	case Macedonian: return "Macedonian";
-	case Malagasy: return "Malagasy";
-	case Malay: return "Malay";
-	case Malayalam: return "Malayalam";
-	case Maltese: return "Maltese";
-	case Maori: return "Maori";
-	case Marathi: return "Marathi";
-	case Moldavian: return "Moldavian";
-	case Mongolian: return "Mongolian";
-	case NauruLanguage: return "NauruLanguage";
-	case Nepali: return "Nepali";
-	case Norwegian: return "Norwegian";
-	case Occitan: return "Occitan";
-	case Oriya: return "Oriya";
-	case Pashto: return "Pashto";
-	case Persian: return "Persian";
-	case Polish: return "Polish";
-	case Portuguese: return "Portuguese";
-	case Punjabi: return "Punjabi";
-	case Quechua: return "Quechua";
-	case RhaetoRomance: return "RhaetoRomance";
-	case Romanian: return "Romanian";
-	case Russian: return "Russian";
-	case Samoan: return "Samoan";
-	case Sangho: return "Sangho";
-	case Sanskrit: return "Sanskrit";
-	case Serbian: return "Serbian";
-	case SerboCroatian: return "SerboCroatian";
-	case Sesotho: return "Sesotho";
-	case Setswana: return "Setswana";
-	case Shona: return "Shona";
-	case Sindhi: return "Sindhi";
-	case Singhalese: return "Singhalese";
-	case Siswati: return "Siswati";
-	case Slovak: return "Slovak";
-	case Slovenian: return "Slovenian";
-	case Somali: return "Somali";
-	case Spanish: return "Spanish";
-	case Sundanese: return "Sundanese";
-	case Swahili: return "Swahili";
-	case Swedish: return "Swedish";
-	case Tagalog: return "Tagalog";
-	case Tajik: return "Tajik";
-	case Tamil: return "Tamil";
-	case Tatar: return "Tatar";
-	case Telugu: return "Telugu";
-	case Thai: return "Thai";
-	case Tibetan: return "Tibetan";
-	case Tigrinya: return "Tigrinya";
-	case TongaLanguage: return "TongaLanguage";
-	case Tsonga: return "Tsonga";
-	case Turkish: return "Turkish";
-	case Turkmen: return "Turkmen";
-	case Twi: return "Twi";
-	case Uigur: return "Uigur";
-	case Ukrainian: return "Ukrainian";
-	case Urdu: return "Urdu";
-	case Uzbek: return "Uzbek";
-	case Vietnamese: return "Vietnamese";
-	case Volapuk: return "Volapuk";
-	case Welsh: return "Welsh";
-	case Wolof: return "Wolof";
-	case Xhosa: return "Xhosa";
-	case Yiddish: return "Yiddish";
-	case Yoruba: return "Yoruba";
-	case Zhuang: return "Zhuang";
-	case Zulu: return "Zulu";
-    }
-
-    return "Unknown";
+    if ((uint)language > (uint)QLocale::LastLanguage)
+    	return "Unknown";
+    return language_name_list + language_name_index[(uint)language];
 }
 
 /*!
@@ -1107,251 +1739,9 @@ QString QLocale::languageToString(Language language)
 
 QString QLocale::countryToString(Country country)
 {
-    switch (country) {
-    	case DefaultCountry: return "DefaultCountry";
-	case Afghanistan: return "Afghanistan";
-	case Albania: return "Albania";
-	case Algeria: return "Algeria";
-	case AmericanSamoa: return "AmericanSamoa";
-	case Andorra: return "Andorra";
-	case Angola: return "Angola";
-	case Anguilla: return "Anguilla";
-	case Antarctica: return "Antarctica";
-	case AntiguaAndBarbuda: return "AntiguaAndBarbuda";
-	case Argentina: return "Argentina";
-	case Armenia: return "Armenia";
-	case Aruba: return "Aruba";
-	case Australia: return "Australia";
-	case Austria: return "Austria";
-	case Azerbaijan: return "Azerbaijan";
-	case Bahamas: return "Bahamas";
-	case Bahrain: return "Bahrain";
-	case Bangladesh: return "Bangladesh";
-	case Barbados: return "Barbados";
-	case Belarus: return "Belarus";
-	case Belgium: return "Belgium";
-	case Belize: return "Belize";
-	case Benin: return "Benin";
-	case Bermuda: return "Bermuda";
-	case Bhutan: return "Bhutan";
-	case Bolivia: return "Bolivia";
-	case BosniaAndHerzegowina: return "BosniaAndHerzegowina";
-	case Botswana: return "Botswana";
-	case BouvetIsland: return "BouvetIsland";
-	case Brazil: return "Brazil";
-	case BritishIndianOceanTerritory: return "BritishIndianOceanTerritory";
-	case BruneiDarussalam: return "BruneiDarussalam";
-	case Bulgaria: return "Bulgaria";
-	case BurkinaFaso: return "BurkinaFaso";
-	case Burundi: return "Burundi";
-	case Cambodia: return "Cambodia";
-	case Cameroon: return "Cameroon";
-	case Canada: return "Canada";
-	case CapeVerde: return "CapeVerde";
-	case CaymanIslands: return "CaymanIslands";
-	case CentralAfricanRepublic: return "CentralAfricanRepublic";
-	case Chad: return "Chad";
-	case Chile: return "Chile";
-	case China: return "China";
-	case ChristmasIsland: return "ChristmasIsland";
-	case CocosIslands: return "CocosIslands";
-	case Colombia: return "Colombia";
-	case Comoros: return "Comoros";
-	case DemocraticRepublicOfCongo: return "DemocraticRepublicOfCongo";
-	case PeoplesRepublicOfCongo: return "PeoplesRepublicOfCongo";
-	case CookIslands: return "CookIslands";
-	case CostaRica: return "CostaRica";
-	case IvoryCoast: return "IvoryCoast";
-	case Croatia: return "Croatia";
-	case Cuba: return "Cuba";
-	case Cyprus: return "Cyprus";
-	case CzechRepublic: return "CzechRepublic";
-	case Denmark: return "Denmark";
-	case Djibouti: return "Djibouti";
-	case Dominica: return "Dominica";
-	case DominicanRepublic: return "DominicanRepublic";
-	case EastTimor: return "EastTimor";
-	case Ecuador: return "Ecuador";
-	case Egypt: return "Egypt";
-	case ElSalvador: return "ElSalvador";
-	case EquatorialGuinea: return "EquatorialGuinea";
-	case Eritrea: return "Eritrea";
-	case Estonia: return "Estonia";
-	case Ethiopia: return "Ethiopia";
-	case FalklandIslands: return "FalklandIslands";
-	case FaroeIslands: return "FaroeIslands";
-	case FijiCountry: return "FijiCountry";
-	case Finland: return "Finland";
-	case France: return "France";
-	case MetropolitanFrance: return "MetropolitanFrance";
-	case FrenchGuiana: return "FrenchGuiana";
-	case FrenchPolynesia: return "FrenchPolynesia";
-	case FrenchSouthernTerritories: return "FrenchSouthernTerritories";
-	case Gabon: return "Gabon";
-	case Gambia: return "Gambia";
-	case Georgia: return "Georgia";
-	case Germany: return "Germany";
-	case Ghana: return "Ghana";
-	case Gibraltar: return "Gibraltar";
-	case Greece: return "Greece";
-	case Greenland: return "Greenland";
-	case Grenada: return "Grenada";
-	case Guadeloupe: return "Guadeloupe";
-	case Guam: return "Guam";
-	case Guatemala: return "Guatemala";
-	case Guinea: return "Guinea";
-	case GuineaBissau: return "GuineaBissau";
-	case Guyana: return "Guyana";
-	case Haiti: return "Haiti";
-	case HeardAndMcDonaldIslands: return "HeardAndMcDonaldIslands";
-	case Honduras: return "Honduras";
-	case HongKong: return "HongKong";
-	case Hungary: return "Hungary";
-	case Iceland: return "Iceland";
-	case India: return "India";
-	case Indonesia: return "Indonesia";
-	case Iran: return "Iran";
-	case Iraq: return "Iraq";
-	case Ireland: return "Ireland";
-	case Israel: return "Israel";
-	case Italy: return "Italy";
-	case Jamaica: return "Jamaica";
-	case Japan: return "Japan";
-	case Jordan: return "Jordan";
-	case Kazakhstan: return "Kazakhstan";
-	case Kenya: return "Kenya";
-	case Kiribati: return "Kiribati";
-	case DemocraticRepublicOfKorea: return "DemocraticRepublicOfKorea";
-	case RepublicOfKorea: return "RepublicOfKorea";
-	case Kuwait: return "Kuwait";
-	case Kyrgyzstan: return "Kyrgyzstan";
-	case Lao: return "Lao";
-	case Latvia: return "Latvia";
-	case Lebanon: return "Lebanon";
-	case Lesotho: return "Lesotho";
-	case Liberia: return "Liberia";
-	case LibyanArabJamahiriya: return "LibyanArabJamahiriya";
-	case Liechtenstein: return "Liechtenstein";
-	case Lithuania: return "Lithuania";
-	case Luxembourg: return "Luxembourg";
-	case Macau: return "Macau";
-	case Macedonia: return "Macedonia";
-	case Madagascar: return "Madagascar";
-	case Malawi: return "Malawi";
-	case Malaysia: return "Malaysia";
-	case Maldives: return "Maldives";
-	case Mali: return "Mali";
-	case Malta: return "Malta";
-	case MarshallIslands: return "MarshallIslands";
-	case Martinique: return "Martinique";
-	case Mauritania: return "Mauritania";
-	case Mauritius: return "Mauritius";
-	case Mayotte: return "Mayotte";
-	case Mexico: return "Mexico";
-	case Micronesia: return "Micronesia";
-	case Moldova: return "Moldova";
-	case Monaco: return "Monaco";
-	case Mongolia: return "Mongolia";
-	case Montserrat: return "Montserrat";
-	case Morocco: return "Morocco";
-	case Mozambique: return "Mozambique";
-	case Myanmar: return "Myanmar";
-	case Namibia: return "Namibia";
-	case NauruCountry: return "NauruCountry";
-	case Nepal: return "Nepal";
-	case Netherlands: return "Netherlands";
-	case NetherlandsAntilles: return "NetherlandsAntilles";
-	case NewCaledonia: return "NewCaledonia";
-	case NewZealand: return "NewZealand";
-	case Nicaragua: return "Nicaragua";
-	case Niger: return "Niger";
-	case Nigeria: return "Nigeria";
-	case Niue: return "Niue";
-	case NorfolkIsland: return "NorfolkIsland";
-	case NorthernMarianaIslands: return "NorthernMarianaIslands";
-	case Norway: return "Norway";
-	case Oman: return "Oman";
-	case Pakistan: return "Pakistan";
-	case Palau: return "Palau";
-	case PalestinianTerritory: return "PalestinianTerritory";
-	case Panama: return "Panama";
-	case PapuaNewGuinea: return "PapuaNewGuinea";
-	case Paraguay: return "Paraguay";
-	case Peru: return "Peru";
-	case Philippines: return "Philippines";
-	case Pitcairn: return "Pitcairn";
-	case Poland: return "Poland";
-	case Portugal: return "Portugal";
-	case PuertoRico: return "PuertoRico";
-	case Qatar: return "Qatar";
-	case Reunion: return "Reunion";
-	case Romania: return "Romania";
-	case RussianFederation: return "RussianFederation";
-	case Rwanda: return "Rwanda";
-	case SaintKittsAndNevis: return "SaintKittsAndNevis";
-	case StLucia: return "StLucia";
-	case StVincentAndTheGrenadines: return "StVincentAndTheGrenadines";
-	case Samoa: return "Samoa";
-	case SanMarino: return "SanMarino";
-	case SaoTomeAndPrincipe: return "SaoTomeAndPrincipe";
-	case SaudiArabia: return "SaudiArabia";
-	case Senegal: return "Senegal";
-	case Seychelles: return "Seychelles";
-	case SierraLeone: return "SierraLeone";
-	case Singapore: return "Singapore";
-	case Slovakia: return "Slovakia";
-	case Slovenia: return "Slovenia";
-	case SolomonIslands: return "SolomonIslands";
-	case Somalia: return "Somalia";
-	case SouthAfrica: return "SouthAfrica";
-	case SouthGeorgiaAndTheSouthSandwichIslands: return "SouthGeorgiaAndTheSouthSandwichIslands";
-	case Spain: return "Spain";
-	case SriLanka: return "SriLanka";
-	case StHelena: return "StHelena";
-	case StPierreAndMiquelon: return "StPierreAndMiquelon";
-	case Sudan: return "Sudan";
-	case Suriname: return "Suriname";
-	case SvalbardAndJanMayenIslands: return "SvalbardAndJanMayenIslands";
-	case Swaziland: return "Swaziland";
-	case Sweden: return "Sweden";
-	case Switzerland: return "Switzerland";
-	case SyrianArabRepublic: return "SyrianArabRepublic";
-	case Taiwan: return "Taiwan";
-	case Tajikistan: return "Tajikistan";
-	case Tanzania: return "Tanzania";
-	case Thailand: return "Thailand";
-	case Togo: return "Togo";
-	case Tokelau: return "Tokelau";
-	case TongaCountry: return "TongaCountry";
-	case TrinidadAndTobago: return "TrinidadAndTobago";
-	case Tunisia: return "Tunisia";
-	case Turkey: return "Turkey";
-	case Turkmenistan: return "Turkmenistan";
-	case TurksAndCaicosIslands: return "TurksAndCaicosIslands";
-	case Tuvalu: return "Tuvalu";
-	case Uganda: return "Uganda";
-	case Ukraine: return "Ukraine";
-	case UnitedArabEmirates: return "UnitedArabEmirates";
-	case UnitedKingdom: return "UnitedKingdom";
-	case UnitedStates: return "UnitedStates";
-	case UnitedStatesMinorOutlyingIslands: return "UnitedStatesMinorOutlyingIslands";
-	case Uruguay: return "Uruguay";
-	case Uzbekistan: return "Uzbekistan";
-	case Vanuatu: return "Vanuatu";
-	case VaticanCityState: return "VaticanCityState";
-	case Venezuela: return "Venezuela";
-	case VietNam: return "VietNam";
-	case BritishVirginIslands: return "BritishVirginIslands";
-	case USVirginIslands: return "USVirginIslands";
-	case WallisAndFutunaIslands: return "WallisAndFutunaIslands";
-	case WesternSahara: return "WesternSahara";
-	case Yemen: return "Yemen";
-	case Yugoslavia: return "Yugoslavia";
-	case Zambia: return "Zambia";
-	case Zimbabwe: return "Zimbabwe";
-    }
-
-    return "Unknown";
+    if ((uint)country > (uint)QLocale::LastCountry)
+    	return "Unknown";
+    return country_name_list + country_name_index[(uint)country];
 }
 
 /*!
@@ -1652,14 +2042,6 @@ QString QLocale::toString(double i, char f, int prec) const
 \sa toDouble()
 */
 
-QChar QLocalePrivate::digitFromCLocale(char c) const
-{
-    if (c >= '0' && c <= '9')
-    	return QChar(zero().unicode() + (c - '0'));
-
-    qWarning("QLocalePrivate::digitFromCLocale(): bad digit: %c", c);
-    return 0;
-}
 
 bool QLocalePrivate::isDigit(QChar d) const
 {
@@ -1667,11 +2049,11 @@ bool QLocalePrivate::isDigit(QChar d) const
 	    && zero().unicode() + 10 > d.unicode();
 }
 
-char QLocalePrivate::digitToCLocale(QChar d) const
+static char digitToCLocale(QChar zero, QChar d)
 {
-    if (zero().unicode() <= d.unicode()
-	    && zero().unicode() + 10 > d.unicode())
-	return '0' + d.unicode() - zero().unicode();
+    if (zero.unicode() <= d.unicode()
+	    && zero.unicode() + 10 > d.unicode())
+	return '0' + d.unicode() - zero.unicode();
 
     qWarning("QLocalePrivate::digitToCLocale(): bad digit: row=%d, cell=%d", d.row(), d.cell());
     return 0;
@@ -2114,7 +2496,7 @@ QString &QLocalePrivate::numberToCLocale(QString &l_num) const
             QChar &c = l_num.ref(idx);
 
             if (isDigit(c))
-		c = digitToCLocale(c);
+		c = digitToCLocale(zero(), c);
 	    else if (c == plus())
 		c = '+';
             else if (c == minus())
@@ -2604,14 +2986,14 @@ __RCSID("$NetBSD: strtod.c,v 1.26 1998/02/03 18:44:21 perry Exp $");
 #endif
 */
 
-inline ULong &word0(double &x)
+static inline ULong &word0(double &x)
 {
     if (QLocaleStaticData::bigEndian())
     	return ((ULong *)&x)[0];
     return ((ULong *)&x)[1];
 }
 
-inline ULong &word1(double &x)
+static inline ULong &word1(double &x)
 {
     if (QLocaleStaticData::bigEndian())
     	return ((ULong *)&x)[1];
@@ -2633,7 +3015,7 @@ inline ULong &word1(double &x)
 #endif
 */
 
-inline void Storeinc(ULong *&a, const ULong &b, const ULong &c)
+static inline void Storeinc(ULong *&a, const ULong &b, const ULong &c)
 {
 
 #   if defined(VAX) + defined(__arm32__)

@@ -20,8 +20,6 @@ struct QLocalePrivate
 	Q_UINT32 languageId() const { return m_language_id; }
 	Q_UINT32 countryId() const { return m_country_id; }
 
-	QChar digitFromCLocale(char c) const;
-	char digitToCLocale(QChar d) const;
 	bool isDigit(QChar d) const;
 
 	enum DoubleForm {
