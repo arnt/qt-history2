@@ -156,6 +156,9 @@ public:
     static void setMargin( QObject *o, int margin );
     static int margin( QObject *o );
 
+    static void setResizeMode( QObject *o, const QString &mode );
+    static QString resizeMode( QObject *o );
+
     static void addConnection( QObject *o, QObject *sender, const QCString &signal,
 			       QObject *receiver, const QCString &slot, bool addCode = TRUE );
     static void removeConnection( QObject *o, QObject *sender, const QCString &signal,

@@ -3147,7 +3147,7 @@ void PropertyList::setupProperties()
 		item->setChanged( TRUE, FALSE );
 	}
     }
-    
+
     if ( !w->inherits( "QSplitter" ) && !w->inherits( "QDesignerMenuBar" ) && !w->inherits( "QDesignerToolBar" ) &&
 	 w->isWidgetType() && WidgetFactory::layoutType( (QWidget*)w ) != WidgetFactory::NoLayout ) {
 	item = new PropertyLayoutItem( this, item, 0, "layoutSpacing" );
@@ -3164,6 +3164,21 @@ void PropertyList::setupProperties()
 	    layoutInitValue( item, TRUE );
 	else
 	    layoutInitValue( item );
+	QWidget *widget = (QWidget*)w;
+	if ( ( !widget->inherits( "QLayoutWidget" ) &&
+	       widget->parentWidget() && widget->parentWidget()->inherits( "FormWindow" ) ) ) {
+	    item = new PropertyListItem( this, item, 0, "resizeMode", FALSE );
+	    QStringList lst;
+	    lst << "Auto" << "FreeResize" << "Minimum" << "Fixed";
+	    item->setValue( lst );
+	    setPropertyValue( item );
+	    QString resizeMod = MetaDataBase::resizeMode( editor->widget() );
+	    if ( !resizeMod.isEmpty() &&
+		 resizeMod != WidgetFactory::defaultCurrentItem( editor->widget(), "resizeMode" ) ) {
+		item->setChanged( TRUE, FALSE );
+		MetaDataBase::setPropertyChanged( editor->widget(), "resizeMode", TRUE );
+	    }
+	}
     }
 
     if ( !w->inherits( "Spacer" ) && !w->inherits( "QLayoutWidget" ) &&
@@ -3291,6 +3306,8 @@ bool PropertyList::addPropertyItem( PropertyItem *&item, const QCString &name, Q
 	    item = new PropertyTextItem( this, item, 0, name, FALSE, FALSE, FALSE, TRUE );
 	else if ( name == "layoutSpacing" || name == "layoutMargin" )
 	    item = new PropertyLayoutItem( this, item, 0, name );
+	else if ( name == "resizeMode" )
+	    item = new PropertyListItem( this, item, 0, name, TRUE );
 	else
 	    item = new PropertyIntItem( this, item, 0, name, TRUE );
 	break;
@@ -3609,6 +3626,8 @@ void PropertyList::setPropertyValue( PropertyItem *i )
 	    ( (PropertyLayoutItem*)i )->setValue( MetaDataBase::spacing( WidgetFactory::containerOfWidget( (QWidget*)editor->widget() ) ) );
 	} else if ( i->name() == "layoutMargin" ) {
 	    ( (PropertyLayoutItem*)i )->setValue( MetaDataBase::margin( WidgetFactory::containerOfWidget( (QWidget*)editor->widget() ) ) );
+	} else if ( i->name() == "resizeMode" ) {
+	    ( (PropertyListItem*)i )->setCurrentItem( MetaDataBase::resizeMode( WidgetFactory::containerOfWidget( (QWidget*)editor->widget() ) ) );
 	} else if ( i->name() == "toolTip" || i->name() == "whatsThis" || i->name() == "database" || i->name() == "frameworkCode" ) {
 	    i->setValue( MetaDataBase::fakeProperty( editor->widget(), i->name() ) );
 	} else if ( editor->widget()->inherits( "CustomWidget" ) ) {

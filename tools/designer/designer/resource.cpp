@@ -1236,6 +1236,9 @@ void Resource::saveObjectProperties( QObject *w, QTextStream &ts, int indent )
 	    changed << "spacing";
 	if ( MetaDataBase::margin( WidgetFactory::containerOfWidget( WidgetFactory::layoutParent( (QLayout*)w ) ) ) > -1 )
 	    changed << "margin";
+	if ( MetaDataBase::resizeMode( WidgetFactory::containerOfWidget( WidgetFactory::layoutParent( (QLayout*)w ) ) ) != "Auto"
+	     && !MetaDataBase::resizeMode( WidgetFactory::containerOfWidget( WidgetFactory::layoutParent( (QLayout*)w ) ) ).isEmpty() )
+	    changed << "resizeMode";
     }
 
     if ( w == formwindow->mainContainer() ) {
@@ -1279,7 +1282,9 @@ void Resource::saveObjectProperties( QObject *w, QTextStream &ts, int indent )
 	    ts << " stdset=\"0\"";
 	ts << ">" << endl;
 	indent++;
-	if ( p->isSetType() ) {
+	if ( strcmp( it.current(), "resizeMode" ) == 0 ) {
+	    saveProperty( w, it.current(), "", QVariant::String, ts, indent );
+	} else if ( p->isSetType() ) {
 	    saveSetProperty( w, it.current(), QVariant::nameToType( p->type() ), ts, indent );
 	} else if ( p->isEnumType() ) {
 	    saveEnumProperty( w, it.current(), QVariant::nameToType( p->type() ), ts, indent );
@@ -1332,7 +1337,8 @@ void Resource::saveEnumProperty( QObject *w, const QString &name, QVariant::Type
 
 void Resource::saveProperty( QObject *w, const QString &name, const QVariant &value, QVariant::Type t, QTextStream &ts, int indent )
 {
-    if ( name == "hAlign" || name =="vAlign" || name == "wordwrap" || name == "layoutMargin" || name =="layoutSpacing" )
+    if ( name == "hAlign" || name =="vAlign" || name == "wordwrap" ||
+	 name == "layoutMargin" || name =="layoutSpacing" )
 	return;
     int num;
     uint unum;
@@ -1342,9 +1348,19 @@ void Resource::saveProperty( QObject *w, const QString &name, const QVariant &va
 	comment = MetaDataBase::propertyComment( w, name );
     switch ( t ) {
     case QVariant::String:
-	ts << makeIndent( indent ) << "<string>" << entitize( value.toString() ) << "</string>" << endl;
-	if ( !comment.isEmpty() )
-	    ts << makeIndent( indent ) << "<comment>" << entitize( comment ) << "</comment>" << endl;
+	if ( name == "resizeMode" ) {
+	    QString resmod = MetaDataBase::resizeMode( WidgetFactory::containerOfWidget( WidgetFactory::layoutParent( (QLayout*)w ) ) );
+	    if ( !resmod.isNull() && resmod != "Auto" ) {
+		ts << makeIndent( indent ) << "<enum>";
+		ts << resmod;
+		ts << "</enum>" << endl;
+	    }
+
+	} else {
+	    ts << makeIndent( indent ) << "<string>" << entitize( value.toString() ) << "</string>" << endl;
+	    if ( !comment.isEmpty() )
+		ts << makeIndent( indent ) << "<comment>" << entitize( comment ) << "</comment>" << endl;
+	}
 	break;
     case QVariant::CString:
 	ts << makeIndent( indent ) << "<cstring>" << entitize( value.toCString() ).latin1() << "</cstring>" << endl;
@@ -1612,7 +1628,7 @@ QObject *Resource::createObject( const QDomElement &e, QWidget *parent, QLayout*
 	    case WidgetFactory::Grid:
 		( (QDesignerGridLayout*)layout )->addMultiCellWidget( w, row, row + rowspan - 1,
 								      col, col + colspan - 1 );
-	 	break;
+		break;
 	    default:
 		break;
 	    }
@@ -1995,7 +2011,6 @@ void Resource::setObjectProperty( QObject* obj, const QString &prop, const QDomE
 	}
     }
 
-
     if ( e.tagName() == "palette" ) {
 	QDomElement n = e.firstChild().toElement();
 	QPalette p;
@@ -2014,7 +2029,7 @@ void Resource::setObjectProperty( QObject* obj, const QString &prop, const QDomE
 	    n = n.nextSibling().toElement();
 	}
 	v = QPalette( p );
-    } else if ( e.tagName() == "enum" && p && p->isEnumType() ) {
+    } else if ( e.tagName() == "enum" && p && p->isEnumType() && prop != "resizeMode" ) {
 	QString key( v.toString() );
 	int vi = p->keyToValue( key );
 	if ( p->valueToKey( vi ) != key )
@@ -2060,9 +2075,11 @@ void Resource::setObjectProperty( QObject* obj, const QString &prop, const QDomE
 	if ( prop == "spacing" ) {
 	    MetaDataBase::setSpacing( WidgetFactory::containerOfWidget( WidgetFactory::layoutParent( (QLayout*)obj ) ), v.toInt() );
 	    return;
-	}
-	if ( prop == "margin" ) {
+	} else if ( prop == "margin" ) {
 	    MetaDataBase::setMargin( WidgetFactory::containerOfWidget( WidgetFactory::layoutParent( (QLayout*)obj ) ), v.toInt() );
+	    return;
+	} else if ( e.tagName() == "enum" &&  prop == "resizeMode" ) {
+	    MetaDataBase::setResizeMode( WidgetFactory::containerOfWidget( WidgetFactory::layoutParent( (QLayout*)obj ) ), v.toString() );
 	    return;
 	}
     }

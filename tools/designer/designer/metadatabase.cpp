@@ -54,6 +54,7 @@ public:
     QMap<QString,QVariant> fakeProperties;
     QMap<QString, QString> propertyComments;
     int spacing, margin;
+    QString resizeMode;
     QValueList<MetaDataBase::Connection> connections;
     QValueList<MetaDataBase::Function> functionList;
     QValueList<MetaDataBase::Include> includes;
@@ -375,6 +376,37 @@ int MetaDataBase::margin( QObject *o )
 	return -1;
     }
     return r->margin;
+}
+
+void MetaDataBase::setResizeMode( QObject *o, const QString &mode )
+{
+    if ( !o )
+	return;
+    setupDataBase();
+    MetaDataBaseRecord *r = db->find( (void*)o );
+    if ( !r || !o->isWidgetType() ) {
+	qWarning( "No entry for %p (%s, %s) found in MetaDataBase",
+		  o, o->name(), o->className() );
+	return;
+    }
+
+    r->resizeMode = mode;
+}
+
+QString MetaDataBase::resizeMode( QObject *o )
+{
+    if ( !o )
+	return QString::null;
+    setupDataBase();
+    if ( o->inherits( "QMainWindow" ) )
+	o = ( (QMainWindow*)o )->centralWidget();
+    MetaDataBaseRecord *r = db->find( (void*)o );
+    if ( !r || !o->isWidgetType() ) {
+	qWarning( "No entry for %p (%s, %s) found in MetaDataBase",
+		  o, o->name(), o->className() );
+	return QString::null;
+    }
+    return r->resizeMode;
 }
 
 void MetaDataBase::addConnection( QObject *o, QObject *sender, const QCString &signal,

@@ -572,6 +572,8 @@ void SetPropertyCommand::setProperty( const QVariant &v, const QString &currentI
 	    if ( val.toString() == "default" )
 		val = -1;
 	    MetaDataBase::setMargin( WidgetFactory::containerOfWidget( (QWidget*)editor->widget() ), val.toInt() );
+	} else if ( propName == "resizeMode" ) {
+	    MetaDataBase::setResizeMode( WidgetFactory::containerOfWidget( (QWidget*)editor->widget() ), currentItemText );
 	} else if ( propName == "toolTip" || propName == "whatsThis" || propName == "database" || propName == "frameworkCode" ) {
 	    MetaDataBase::setFakeProperty( editor->widget(), propName, v );
 	} else if ( editor->widget()->inherits( "CustomWidget" ) ) {

@@ -1470,6 +1470,8 @@ QString WidgetFactory::defaultCurrentItem( QObject *w, const QString &propName )
 		return "AlignVCenter";
 	    if ( ( v & AlignBottom ) == AlignBottom )
 		return "AlignBottom";
+	} else if ( propName == "resizeMode" ) {
+	    return "Auto";
 	}
 	return QString::null;
 
