@@ -42,19 +42,29 @@ NewForm::NewForm(QDesignerWorkbench *workbench, QWidget *parentWidget)
     ui.treeWidget->setItemDelegate(new SheetDelegate(ui.treeWidget, this));
     ui.treeWidget->header()->hide();
     ui.treeWidget->header()->setStretchLastSection(true);
+    ui.lblPreview->setBackgroundRole(QPalette::Base);
 
     loadFrom(":/trolltech/designer/templates/forms");
 
     QDesignerSettings settings;
     foreach(QString path, settings.formTemplatePaths())
         loadFrom(path);
-
-    ui.closeButton->setDefault(false);
-    ui.createButton->setDefault(true);
 }
 
 NewForm::~NewForm()
 {
+}
+
+void NewForm::on_treeWidget_currentItemChanged(QTreeWidgetItem *current, QTreeWidgetItem *)
+{
+    if (current && current->parent()) {
+        ui.createButton->setEnabled(true);
+        ui.createButton->setDefault(true);
+        ui.lblPreview->setPixmap(formPreviewIcon(current->data(0, TemplateNameRole).toString()).pixmap(QSize(256, 256)));
+    } else {
+        ui.createButton->setEnabled(false);
+        ui.lblPreview->setText(tr("Choose a template for a preview"));
+    }
 }
 
 void NewForm::on_treeWidget_itemActivated(QTreeWidgetItem *item)
@@ -132,7 +142,7 @@ QIcon NewForm::formPreviewIcon(const QString &fileName)
 
         QPixmap pix = QPixmap::grabWidget(widget);
         QImage image = pix.toImage();
-        image = image.scale(128, 128, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+        image = image.scale(256, 256, Qt::KeepAspectRatio, Qt::SmoothTransformation);
         pix = image;
 
         fake->deleteLater();
@@ -165,7 +175,6 @@ void NewForm::loadFrom(const QString &path)
         QTreeWidgetItem *item = new QTreeWidgetItem(root);
         item->setText(0, fi.baseName());
         item->setData(0, TemplateNameRole, fi.absoluteFilePath());
-        item->setIcon(0, formPreviewIcon(fi.absoluteFilePath()));
     }
     ui.treeWidget->setItemExpanded(root, true);
 }

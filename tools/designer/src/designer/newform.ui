@@ -11,8 +11,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>394</width>
-    <height>422</height>
+    <width>574</width>
+    <height>323</height>
    </rect>
   </property>
   <property name="windowTitle" >
@@ -36,9 +36,9 @@
      <property name="geometry" >
       <rect>
        <x>9</x>
-       <y>387</y>
-       <width>210</width>
-       <height>26</height>
+       <y>282</y>
+       <width>338</width>
+       <height>32</height>
       </rect>
      </property>
      <property name="orientation" >
@@ -57,16 +57,25 @@
      <property name="objectName" >
       <string notr="true" >createButton</string>
      </property>
+     <property name="enabled" >
+      <bool>false</bool>
+     </property>
      <property name="geometry" >
       <rect>
-       <x>225</x>
-       <y>387</y>
-       <width>77</width>
-       <height>26</height>
+       <x>353</x>
+       <y>282</y>
+       <width>103</width>
+       <height>32</height>
       </rect>
      </property>
      <property name="text" >
       <string>C&amp;reate</string>
+     </property>
+     <property name="autoDefault" >
+      <bool>false</bool>
+     </property>
+     <property name="default" >
+      <bool>true</bool>
      </property>
     </widget>
    </item>
@@ -77,17 +86,20 @@
      </property>
      <property name="geometry" >
       <rect>
-       <x>308</x>
-       <y>387</y>
-       <width>77</width>
-       <height>26</height>
+       <x>462</x>
+       <y>282</y>
+       <width>103</width>
+       <height>32</height>
       </rect>
      </property>
      <property name="text" >
       <string>&amp;Close</string>
      </property>
+     <property name="autoDefault" >
+      <bool>false</bool>
+     </property>
      <property name="default" >
-      <bool>true</bool>
+      <bool>false</bool>
      </property>
     </widget>
    </item>
@@ -99,8 +111,8 @@
      <property name="geometry" >
       <rect>
        <x>9</x>
-       <y>378</y>
-       <width>376</width>
+       <y>273</y>
+       <width>556</width>
        <height>3</height>
       </rect>
      </property>
@@ -113,34 +125,90 @@
     </widget>
    </item>
    <item row="0" column="0" colspan="3" >
-    <widget class="QTreeWidget" name="treeWidget" >
+    <layout class="QHBoxLayout" >
      <property name="objectName" >
-      <string notr="true" >treeWidget</string>
+      <string notr="true" />
      </property>
-     <property name="geometry" >
-      <rect>
-       <x>9</x>
-       <y>9</y>
-       <width>376</width>
-       <height>363</height>
-      </rect>
-     </property>
-     <property name="iconSize" >
-      <size>
-       <width>128</width>
-       <height>128</height>
-      </size>
-     </property>
-     <property name="rootIsDecorated" >
-      <bool>false</bool>
-     </property>
-     <property name="columnCount" >
+     <property name="margin" >
       <number>1</number>
      </property>
-    </widget>
+     <property name="spacing" >
+      <number>6</number>
+     </property>
+     <item>
+      <widget class="QTreeWidget" name="treeWidget" >
+       <property name="objectName" >
+        <string notr="true" >treeWidget</string>
+       </property>
+       <property name="geometry" >
+        <rect>
+         <x>1</x>
+         <y>1</y>
+         <width>274</width>
+         <height>256</height>
+        </rect>
+       </property>
+       <property name="sizePolicy" >
+        <sizepolicy>
+         <hsizetype>13</hsizetype>
+         <vsizetype>7</vsizetype>
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="iconSize" >
+        <size>
+         <width>128</width>
+         <height>128</height>
+        </size>
+       </property>
+       <property name="rootIsDecorated" >
+        <bool>false</bool>
+       </property>
+       <property name="columnCount" >
+        <number>1</number>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLabel" name="lblPreview" >
+       <property name="objectName" >
+        <string notr="true" >lblPreview</string>
+       </property>
+       <property name="geometry" >
+        <rect>
+         <x>281</x>
+         <y>1</y>
+         <width>274</width>
+         <height>256</height>
+        </rect>
+       </property>
+       <property name="alignment" >
+       <set>Qt::AlignCenter</set>
+       </property>
+       <property name="sizePolicy" >
+        <sizepolicy>
+         <hsizetype>13</hsizetype>
+         <vsizetype>5</vsizetype>
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="lineWidth" >
+        <number>1</number>
+       </property>
+       <property name="text" >
+        <string>Choose a template for a preivew</string>
+       </property>
+       <property name="margin" >
+        <number>5</number>
+       </property>
+      </widget>
+     </item>
+    </layout>
    </item>
   </layout>
  </widget>
  <pixmapfunction></pixmapfunction>
- <connections/>
+ <resources/>
 </ui>
