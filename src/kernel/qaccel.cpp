@@ -142,8 +142,6 @@ public:
     void activateAmbiguously(QAccelItem* item);
 };
 
-
-
 class QAccelManager : public Qt {
 public:
     static QAccelManager* self() { return self_ptr ? self_ptr : new QAccelManager; }
@@ -180,6 +178,13 @@ bool Q_EXPORT qt_dispatchAccelEvent(QWidget* w, QKeyEvent*  e){
 bool Q_EXPORT qt_tryComposeUnicode(QWidget* w, QKeyEvent*  e){
     return QAccelManager::self()->tryComposeUnicode(w, e);
 }
+
+#ifdef Q_WS_MAC
+static bool qt_accel_no_shortcuts = TRUE;
+#else
+static bool qt_accel_no_shortcuts = FALSE;
+#endif
+void Q_EXPORT qt_setAccelAutoShortcuts(bool b) { qt_accel_no_shortcuts = b; }
 
 /*
     \internal
@@ -230,7 +235,6 @@ inline int QAccelManager::translateModifiers(ButtonState state)
     if (state & AltButton)
 	result |= ALT;
     return result;
-
 }
 
 /*
@@ -837,6 +841,9 @@ void QAccelPrivate::activateAmbiguously(QAccelItem* item)
 
 QKeySequence QAccel::shortcutKey(const QString &str)
 {
+    if(qt_accel_no_shortcuts)
+	return QKeySequence();
+
     int p = 0;
     while (p >= 0) {
 	p = str.find('&', p) + 1;
