@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#291 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#292 $
 **
 ** Implementation of QFileDialog class
 **
@@ -3665,12 +3665,12 @@ void QFileDialog::insertEntry( const QUrlInfo &inf )
 			iterate = FALSE;
 		    }
 		} else {
-		    for ( ; it.current() && 
+		    for ( ; it.current() &&
 			      ( ( QFileDialogPrivate::File * )it.current() )->info.isDir() ; ++it)
 			after = it.current();
 		}
 	    }
-	    
+	
 	    if ( iterate ) { 	
 		for ( ; it.current(); ++it ) {
 		    after = it.current();
@@ -3682,16 +3682,16 @@ void QFileDialog::insertEntry( const QUrlInfo &inf )
 			    after = i.current();
 			break;
 		    }
-		    if ( QUrlInfo::greaterThan( inf, 
-						( ( QFileDialogPrivate::File * )it.current() )->info,
-						sortFilesBy ) )
+		    if ( QUrlInfo::greaterThan(	( ( QFileDialogPrivate::File * )it.current() )->info, inf,
+						sortFilesBy ) ) {
 			break;
+		    }
 		}
 	    }
-	    
+	
 	    i = new QFileDialogPrivate::File( d, &inf, files, after );
 	    if ( after )
-		i2 = new QFileDialogPrivate::MCItem( d->moreFiles, i, 
+		i2 = new QFileDialogPrivate::MCItem( d->moreFiles, i,
 						     ( ( QFileDialogPrivate::File * )after )->i );
 	    else
 		i2 = new QFileDialogPrivate::MCItem( d->moreFiles, i );
