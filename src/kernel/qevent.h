@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qevent.h#34 $
+** $Id: //depot/qt/main/src/kernel/qevent.h#35 $
 **
 ** Definition of event classes
 **
@@ -33,6 +33,8 @@
 #define Event_Resize		   14		// resize widget
 #define Event_Create		   15		// after object creation
 #define Event_Destroy		   16		// during object destruction
+#define Event_Show		   17		// widget is shown
+#define Event_Hide		   18		// widget is hidden
 #define Event_Close		   19		// request to close widget
 #define Event_Quit		   20		// request to quit application
 #define Event_Accel		   30		// accelerator event
@@ -70,13 +72,15 @@ protected:
 
 
 enum ButtonState {				// mouse/keyboard state values
-    NoButton	   = 0x00,
-    LeftButton	   = 0x01,
-    RightButton	   = 0x02,
-    MidButton	   = 0x04,
-    ShiftButton	   = 0x08,
-    ControlButton  = 0x10,
-    AltButton	   = 0x20
+    NoButton	    = 0x00,
+    LeftButton	    = 0x01,
+    RightButton	    = 0x02,
+    MidButton	    = 0x04,
+    MouseButtonMask = 0x07,
+    ShiftButton	    = 0x08,
+    ControlButton   = 0x10,
+    AltButton	    = 0x20,
+    KeyButtonMask   = 0x38
 };
 
 class QMouseEvent : public QEvent		// mouse event
