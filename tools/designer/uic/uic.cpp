@@ -20,7 +20,7 @@
 
 #include "uic.h"
 #include "../shared/parser.h"
-#include <qapplication.h>
+#include <qsizepolicy.h>
 #include <qfile.h>
 #include <stdio.h>
 #include <stdlib.h>
