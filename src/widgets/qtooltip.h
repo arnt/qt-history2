@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtooltip.h#29 $
+** $Id: //depot/qt/main/src/widgets/qtooltip.h#30 $
 **
 ** Definition of Tool Tips (or Balloon Help) for any widget or rectangle
 **
@@ -41,11 +41,18 @@ public:
     QToolTipGroup( QObject *parent, const char *name = 0 );
    ~QToolTipGroup();
 
+    bool delay() const;
+
+public slots:
+    void setDelay( bool );
+
 signals:
     void showTip( const QString &);
     void removeTip();
 
 private:
+    bool d;
+
     friend class QTipManager;
 };
 

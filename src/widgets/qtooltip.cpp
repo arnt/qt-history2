@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtooltip.cpp#73 $
+** $Id: //depot/qt/main/src/widgets/qtooltip.cpp#74 $
 **
 ** Tool Tips (or Balloon Help) for any widget or rectangle
 **
@@ -359,13 +359,17 @@ bool QTipManager::eventFilter( QObject *obj, QEvent *e )
 
 	    wakeUp.stop();
 	    if ( m->state() == 0 ) {
-		if ( (label && label->isVisible()) )
+		if ( (label && label->isVisible()) ) {
 		    return TRUE;
-		else if ( fallAsleep.isActive() )
-		    wakeUp.start( 100, TRUE );
-		else {
-		    previousTip = 0;
-		    wakeUp.start( 700, TRUE );
+		} else {
+		    if ( fallAsleep.isActive() ) {
+			wakeUp.start( 100, TRUE );
+		    } else {
+			previousTip = 0;
+			wakeUp.start( 700, TRUE );
+		    }
+		    if ( t->group && !t->group->d && !t->groupText.isEmpty() )
+			emit t->group->showTip( t->groupText );
 		}
 		widget = w;
 		pos = mousePos;
@@ -447,7 +451,7 @@ void QTipManager::showTip()
 	fallAsleep.start( 5000, TRUE );
     leaveWindow.stop();
 
-    if ( t->group && !t->groupText.isEmpty() )
+    if ( t->group && t->group->d && !t->groupText.isEmpty() )
 	emit t->group->showTip( t->groupText );
     currentTip = t;
     previousTip = 0;
@@ -934,7 +938,7 @@ QToolTipGroup::~QToolTipGroup()
 ** QTipLabel meta object code from reading C++ file 'qtooltip.cpp'
 **
 ** Created: Sun Aug 23 21:50:26 1998
-**      by: The Qt Meta Object Compiler ($Revision: 2.68 $)
+**      by: The Qt Meta Object Compiler ($Revision: 2.69 $)
 **
 ** WARNING! All changes made in this file will be lost!
 *****************************************************************************/
@@ -1004,4 +1008,32 @@ void QTipManager::initMetaObject()
     metaObj = new QMetaObject( "QTipManager", "QObject",
 	slot_tbl, 4,
 	0, 0 );
+}
+
+
+/*!  Returns TRUE if the group text is shown delayed (at the same time
+as the tip) and FALSE if it is shown immediately.
+
+\sa setDelay()
+*/
+
+bool QToolTipGroup::delay() const
+{
+    return d;
+}
+
+
+/*!  Sets the group to show its text immediately if \a enable is
+FALSE, and delayed (at the same time as the tip text) if \a enable is
+TRUE.  The default is TRUE.
+
+\sa delay()
+*/
+
+void QToolTipGroup::setDelay( bool enable )
+{
+    if ( enable && !d ) {
+	// ### maybe show here?
+    }
+    d = enable;
 }
