@@ -1147,6 +1147,7 @@ void QWindowsXPStyle::drawMenuBarPanel( QPainter *p, int x, int y, int w, int h,
 }
 
 // TitleBar
+/*
 void QWindowsXPStyle::drawTitleBar( QPainter *p, int x, int y, int w, int h,
 				   const QColor &left, const QColor &right,
 				   bool active )
@@ -1232,7 +1233,7 @@ void QWindowsXPStyle::drawTitleBarButtonLabel( QPainter *p, int x, int y, int w,
 
     CloseThemeData( htheme );
 }
-
+*/
 // Header
 void QWindowsXPStyle::drawHeaderSection( QPainter *p, int x, int y, int w, int h,
 					const QColorGroup &g, bool down )

@@ -139,13 +139,14 @@ public:
 			const QColorGroup &, const QBrush *fill = 0 );
 
     // TitleBar
+/*
     void drawTitleBar( QPainter *p, int x, int y, int w, int h, const QColor &left, const QColor &right,
 		       bool active );
     void drawTitleBarLabel( QPainter *p, int x, int y, int w, int h, const QString &text,
 		       const QColor &tc, bool active );
     void drawTitleBarButton( QPainter *p, int x, int y, int w, int h, const QColorGroup &g, bool down );
     void drawTitleBarButtonLabel( QPainter *p, int x, int y, int w, int h, const QPixmap *, int button, bool down );
-
+*/
     // Header
     void drawHeaderSection( QPainter *p, int x, int y, int w, int h, const QColorGroup &g, bool down );
 
