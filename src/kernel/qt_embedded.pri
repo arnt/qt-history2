@@ -10,6 +10,7 @@ embedded {
 	}
 	!contains(embedded-videodriver, ps2):DEFINES += QT_NO_QWS_PS2
 
+	DEFINES += QWS
 	CONFIG -= opengl
 	CONFIG	+= png zlib
 	CONFIG -= jpeg
