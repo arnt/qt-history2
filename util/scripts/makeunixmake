@@ -2,12 +2,13 @@
 
 VERBOSE=
 LIST=
+SUBARGS=
 while [ -n "$1" ]
 do
     case "$1" in
        -v) VERBOSE=1
     ;; -p) LIST=1
-	    $SUBARGS="$SUBARGS $1"
+	    SUBARGS="$SUBARGS $1"
     esac
     shift
 done
@@ -19,8 +20,9 @@ export TMAKEPATH=$QTDIR/tmake:$TMAKEPATH
 ( cd $QTDIR/src/moc; tmake moc.pro >Makefile.in)
 if [ -n "$LIST" ] ; then echo 'src/moc/Makefile.in' ; fi
 
-sh $QTDIR/util/scripts/mkconfigs $SUBARGS
-sh $QTDIR/util/scripts/makemake $SUBARGS
+$QTDIR/util/scripts/mkconfigs $SUBARGS
+$QTDIR/util/scripts/makemake $SUBARGS
+
 (cd $QTDIR/src; tmake -t ../tmake/propagate.t qt.pro |
     perl -p -e "s{$QTDIR}{\\\$(QTDIR)}" >Makefile.in )
 if [ -n "$LIST" ] ; then echo 'src/Makefile.in' ; fi

@@ -1,8 +1,9 @@
 #!/usr/bin/perl -w
 
-# $Id: //depot/qt/main/util/scripts/make-public-thing#10 $
+# $Id: //depot/qt/main/util/scripts/make-public-thing#11 $
 
 #$quiet=1;
+$skipdoc=1;
 
 use File::Find;
 
@@ -123,19 +124,25 @@ cp gif/*.gif doc/html
 
 export QTDIR=$base/head/qt
 export PATH=\$QTDIR/bin:\$QTDIR/util/scripts:\$PATH:/home/agulbra/bin
+";
 
 # Generate and check-in [changes to] the documentation
-perl util/qdoc/qdoc
-cd doc/html
-mkdir $base/cvs/qt/html
-cp /local/lib/cvs/qtpub/html/* $base/cvs/qt/html
-for B in *.html
-do
-  ci -mnone -t-'' -u \$B $base/cvs/qt/html/\${B},v
-done
-mv $base/cvs/qt/gif/*.gif,v $base/cvs/qt/html
+if ( !$skipdoc ) {
+    print SH "
+    perl util/qdoc/qdoc
+    cd doc/html
+    mkdir $base/cvs/qt/html
+    cp /local/lib/cvs/qtpub/html/* $base/cvs/qt/html
+    for B in *.html
+    do
+      ci -mnone -t-'' -u \$B $base/cvs/qt/html/\${B},v
+    done
+    mv $base/cvs/qt/gif/*.gif,v $base/cvs/qt/html
+    ";
+}
 
 # Generate and check-in [changes to] the X11 makefiles/build files
+print SH "
 cd $base/head/qt
 for B in `util/scripts/makeunixmake -p`
 do
@@ -144,8 +151,7 @@ done
 
 # Remove non-public files
 cd $base/cvs/qt
-rm -rf bin bugs dist doc.conf,v etc iconify listview \
-    mlined netscape nsplugin printpicture reqs tests util
+rm -rf bin bugs dist doc.conf,v etc iconify listview mlined netscape nsplugin printpicture reqs tests util
 ";
 
 close(SH) # We want to wait for the script to complete.

@@ -2,12 +2,13 @@
 
 VERBOSE=
 LIST=
+SUBARGS=
 while [ -n "$1" ]
 do
     case "$1" in
        -v) VERBOSE=1
     ;; -p) LIST=1
-	    $SUBARGS="$SUBARGS $1"
+	    SUBARGS="$SUBARGS $1"
     esac
     shift
 done
