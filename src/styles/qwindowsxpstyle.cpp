@@ -2059,7 +2059,7 @@ void QWindowsXPStyle::drawComplexControl( ComplexControl control,
 			child = child->nextSibling();
 		    }
 
-		    if ( child ) // there's a child, so move linebot to edge of rectangle
+		    if ( child && (child->height() > 0)) // there's a child, so move linebot to edge of rectangle
 			linebot = r.height();
 
 		    if ( linetop < linebot ) {
