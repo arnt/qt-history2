@@ -1643,9 +1643,11 @@ void QTextDocument::setRichTextInternal( const QString &text, QTextCursor* curso
 				QDictIterator<QTextFormat> it( formats );
 				QTextFormat *current;
 				while ( (current = it.current()) ) {
-				    current->setColor( c );
+				    if ( it.current() != formatCollection()->defaultFormat() )
+					current->setColor( c );
 				    ++it;
 				}
+				formatCollection()->defaultFormat()->setColor( c );
 				curtag.format.setColor( c );
 			    }
 			}
