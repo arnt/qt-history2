@@ -195,13 +195,9 @@ void QMacStyleCGFocusWidget::paintEvent(QPaintEvent *)
 }
 void QMacStyleCGFocusWidget::drawFocusRect(QPainter *p) const
 {
-#if 0
-    p->fillRect(0, 0, width(), height(), QColor(192, 191, 190));
-#else
     int fo = focusOutset();
     HIRect rect = CGRectMake(fo, fo, width() - 2 * fo, height() - 2 * fo);
     HIThemeDrawFocusRect(&rect, true, qt_macCGHandle(p->device()), kHIThemeOrientationNormal);
-#endif
 }
 
 class QMacStyleCGPrivate : public QAquaAnimate
@@ -515,7 +511,7 @@ int QMacStyleCG::styleHint(StyleHint sh, const QWidget *widget, const Q3StyleOpt
         ret = QEvent::MouseButtonRelease;
         break;
     case SH_ComboBox_Popup:
-        ret = (!widget || !static_cast<const QComboBox *>(widget)->editable());
+        ret = (!widget || !static_cast<const QComboBox *>(widget)->isEditable());
         break;
     case SH_Menu_Scrollable:
         ret = true;
