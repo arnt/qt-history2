@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.cpp#198 $
+** $Id: //depot/qt/main/src/kernel/qobject.cpp#199 $
 **
 ** Implementation of QObject class
 **
@@ -1889,10 +1889,12 @@ static void dumpRecursive( int level, QObject *object )
 {
 #if defined(DEBUG)
     if ( object ) {
-	QCString buf;
-	buf.fill( '\t', level );
-	const char *name = object->name( "unnamed" );
-	QString flags=QString::fromLatin1("");
+	QString buf;
+	buf.fill( '\t', level/2 );
+	if ( level % 2 )
+	    buf += "    ";
+	const char *name = object->name();
+	QString flags="";
 	if ( qApp->focusWidget() == object )
 	    flags += 'F';
 	if ( object->isWidgetType() ) {
@@ -1910,9 +1912,10 @@ static void dumpRecursive( int level, QObject *object )
 	    flags.latin1() );
 	if ( object->children() ) {
 	    QObjectListIt it(*object->children());
-	    while ( it ) {
-		dumpRecursive( level+1, it );
+	    QObject * c;
+	    while ( (c=it.current()) != 0 ) {
 		++it;
+		dumpRecursive( level+1, c );
 	    }
 	}
     }
