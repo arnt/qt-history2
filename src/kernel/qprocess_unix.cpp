@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qprocess_unix.cpp#36 $
+** $Id: //depot/qt/main/src/kernel/qprocess_unix.cpp#37 $
 **
 ** Implementation of QProcess class for Unix
 **
@@ -156,7 +156,7 @@ public:
     ~QProcessManager();
 
     void append( QProc *p );
-    bool remove( QProc *p );
+    void remove( QProc *p );
 
 public slots:
     void sigchldHnd( int );
@@ -248,15 +248,18 @@ void QProcessManager::append( QProc *p )
 #endif
 }
 
-bool QProcessManager::remove( QProc *p )
+void QProcessManager::remove( QProc *p )
 {
+    if ( p->process != 0 )
+	p->process->d->proc = 0;
     procList->remove( p );
+    delete p;
 #if defined(QT_QPROCESS_DEBUG)
     qDebug( "QProcessManager: remove process (procList.count(): %d)", procList->count() );
 #endif
-    if ( procList->count() == 0 )
-	return TRUE; // delete process manager
-    return FALSE;
+    if ( procList->count() == 0 ) {
+	// ### delete process manager
+    }
 }
 
 void QProcessManager::sigchldHnd( int fd )
@@ -268,12 +271,15 @@ void QProcessManager::sigchldHnd( int fd )
 #endif
     QProc *proc;
     QProcess *process;
-    for ( proc=procList->first(); proc!=0; proc=procList->next() ) {
+    bool removeProc;
+    proc = procList->first();
+    while ( proc != 0 ) {
+	removeProc = FALSE;
 	process = proc->process;
 	if ( process != 0 ) {
-	    if ( !process->d->exitValuesCalculated && !process->isRunning() ) {
+	    if ( !process->isRunning() ) {
 #if defined(QT_QPROCESS_DEBUG)
-		qDebug( "QProcessManager::sigchldHnd(): process exited" );
+		qDebug( "QProcessManager::sigchldHnd(): process exited (QProcess available)" );
 #endif
 		// read pending data
 		process->socketRead( process->d->socketStdout[0] );
@@ -281,6 +287,8 @@ void QProcessManager::sigchldHnd( int fd )
 
 		if ( process->notifyOnExit )
 		    emit process->processExited();
+
+		removeProc = TRUE;
 #if 0
 		// ### take a close look at this
 		// the slot might have deleted the last process...
@@ -289,7 +297,20 @@ void QProcessManager::sigchldHnd( int fd )
 #endif
 	    }
 	} else {
-	    // ### waitpid to avoid zombies
+	    int status;
+	    if ( ::waitpid( proc->pid, &status, WNOHANG ) == proc->pid ) {
+#if defined(QT_QPROCESS_DEBUG)
+		qDebug( "QProcessManager::sigchldHnd(): process exited (QProcess not available)" );
+#endif
+		removeProc = TRUE;
+	    }
+	}
+	if ( removeProc ) {
+	    QProc *oldproc = proc;
+	    proc = procList->next();
+	    remove( oldproc );
+	} else {
+	    proc = procList->next();
 	}
     }
 }
@@ -402,6 +423,7 @@ void QProcessPrivate::newProc( pid_t pid, QProcess *process )
     if ( procManager == 0 ) {
 	procManager = new QProcessManager;
     }
+    // the QProcessManager takes care of deleting the QProc instances
     procManager->append( proc );
 }
 
