@@ -2684,6 +2684,15 @@ struct qt_truple
 };
 
 
+void QPainter::drawText( int x, int y, const QString &str, int len )
+{
+    if (len < 0)
+	len = str.length();
+    if (len == 0)
+	return;
+    drawText( x, y, str, 0, len );
+}
+
 /*!
   Draws at most \a len characters starting at position \a pos fomr the string \a str to
   position \a (x,y).

@@ -631,16 +631,6 @@ inline void QPainter::eraseRect( const QRect &r )
     fillRect( r.x(), r.y(), r.width(), r.height(), backgroundColor() );
 }
 
-inline void QPainter::drawText( int x, int y, const QString &s, int len)
-{
-    if (len < 0)
-	len = s.length();
-    if (len == 0)
-	return;
-    
-    drawText(x, y, s, 0, len);
-}
-
 inline void QPainter::drawText( const QPoint &p, const QString &s, int len )
 {
     drawText( p.x(), p.y(), s, len );

@@ -2695,8 +2695,12 @@ static void ins_text_bitmap( const QString &key, QBitmap *bm )
   \a (x,y) is the base line position.  Note that the meaning of \a y
   is not the same for the two drawText() varieties.
 */
+void QPainter::drawText( int x, int y, const QString &s, int from, int len)
+{
+    drawText(x, y, str.mid(from, len) );
+}
 
-void QPainter::drawText( int x, int y, const QString &str, int /*pos*/, int len )
+void QPainter::drawText( int x, int y, const QString &str, int len )
 {
     if ( !isActive() )
 	return;
