@@ -252,11 +252,11 @@ static const char * const qtlogo_xpm[] = {
 // BEING REVISED: paul
 /*!
 \class QMessageBox qmessagebox.h
-\brief The QMessageBox class provides a simple convenience dialog with a brief message, an icon, and some buttons.
+\brief The QMessageBox class provides a modal dialog with a short message, an icon, and some buttons.
 \ingroup dialogs
 
-A message box is a modal dialog that displays an icon, a text and up to
-three push buttons.  It's used for simple messages and questions.
+A message box is a modal dialog that displays an icon, some text and up
+to three push buttons.  It's used for simple messages and questions.
 
 QMessageBox provides a range of different messages, arranged roughly
 along two axes: Severity and complexity.
@@ -271,11 +271,11 @@ Severity is
 The message box has a different icon for each of the severity levels.
 
 
-Complexity is one button (Ok) for a simple messages, or two or even
+Complexity is one button (OK) for a simple messages, or two or even
 three buttons for questions.
 
-There are static functions that let you do most of the common jobs,
-for example:
+There are static functions for common cases. 
+For example:
 
 If a program is unable to find a supporting file, but can do perfectly
 well without:
@@ -296,28 +296,26 @@ errors which can't be easily fixed:
                           "without the server.\n\n",
                           "Try again", "Quit", 0,
                           0, 1 );
-  case 0: // Try again or Enter
+  case 0: // The user clicked the Try again button or pressed Return 
       // try again
       break;
-  case 1: // Quit or Escape
+  case 1: // The user clicked the Quit or pressed Escape
       // exit
       break;
   }
 \endcode
-
-    Finally,
 
   The text part of all message box messages can be either rich text or
   plain text. If you specify a rich text formatted string, it will be
   rendered using the default stylesheet. See
   QStyleSheet::defaultSheet() for details. With certain strings that
   contain XML meta characters, the auto-rich text detection may fail,
-  interpreting plain text falsely as rich text. In these rare cases,
+  interpreting plain text incorrectly as rich text. In these rare cases,
   use QStyleSheet::convertFromPlainText() to convert your plain text
   string to a visually equivalent rich text string or set the text
   format explicitly with setTextFormat().
 
-  Following are some examples of how to use the static member functions.
+  Below are some examples of how to use the static member functions.
   After these examples you will find an overview of the non-static
   member functions.
 
@@ -337,31 +335,32 @@ errors which can't be easily fixed:
   or a critical error.
 
   Exiting a program is part of its normal operation. If there is
-  unsaved data the user probably should be asked what to do. For
-  example:
+  unsaved data the user probably should be asked if they want to save
+  the data. For example:
 
   \code
     switch( QMessageBox::information( this, "Application name here",
-                                      "The document contains unsaved work\n"
-                                      "Do you want to save it before exiting?",
-                                      "&Save", "&Don't Save", "&Cancel",
-                                      0,      // Enter == button 0
+                                      "The document contains unsaved changes\n"
+                                      "Do you want to save the changes before exiting?",
+                                      "&Save", "&Discard", "&Cancel",
+                                      0,      // Return == button 0
                                       2 ) ) { // Escape == button 2
-    case 0: // Save clicked, Alt-S or Enter pressed.
+    case 0: // Save clicked or Alt+S pressed or Return pressed.
         // save
         break;
-    case 1: // Don't Save clicked or Alt-D pressed
+    case 1: // Discard clicked or Alt+D pressed
         // don't save but exit
         break;
-    case 2: // Cancel clicked, Alt-C or Escape pressed
+    case 2: // Cancel clicked or Alt+C pressed or Escape pressed
         // don't exit
         break;
     }
   \endcode
 
-  Again, the application name is used as window caption, as Microsoft
-  recommends.  The Escape button cancels the entire Exit operation,
-  and Enter/Return saves the document and exits.
+  The application name is used as the window caption in accordance with
+  the Microsoft recommendation.  The Escape button cancels the entire
+  exit operation, and pressing Return causes the changes to be saved
+  before the exit occurs.
 
   Disk full errors are unusual (in a perfect world, they are) and they
   certainly can be hard to correct.  This example uses predefined buttons
@@ -375,10 +374,10 @@ errors which can't be easily fixed:
                                   "abort the Save Preferences operation.",
                                   QMessageBox::Retry | QMessageBox::Default,
                                   QMessageBox::Abort | QMessageBox::Escape )) {
-    case QMessageBox::Retry: // Retry or Enter
+    case QMessageBox::Retry: // Retry clicked or Return pressed
         // try again
         break;
-    case QMessageBox::Abort: // Abort or Cancel
+    case QMessageBox::Abort: // Abort clicked or Escape pressed
         // abort
         break;
     }
@@ -396,13 +395,15 @@ errors which can't be easily fixed:
                            "\n\n<Application> will now exit." );
   \endcode
 
+  In this example an OK button is displayed. 
+
   QMessageBox provides a very simple About box, which displays an
-  appropriate icon and the string you give it:
+  appropriate icon and the string you provide:
 
   \code
      QMessageBox::about( this, "About <Application>",
                          "<Application> is a <one-paragraph blurb>\n\n"
-                         "Copyright 1951-1997 Such-and-such.  "
+                         "Copyright 1951-2002 Such-and-such.  "
                          "<License words here.>\n\n"
                          "For technical support, call 123456789 or see\n"
                          "http://www.such-and-such.com/Application/\n" );
@@ -410,19 +411,19 @@ errors which can't be easily fixed:
 
   See about() for more information.
 
-  Finally, you can make a QMessageBox from scratch and set custom
+  Finally, you can create a QMessageBox from scratch and with custom
   button texts:
 
   \code
     QMessageBox mb( "Application name here",
-                    "Saving the file will overwrite the old file on disk.\n"
+                    "Saving the file will overwrite the original file on the disk.\n"
                     "Do you really want to save?",
                     QMessageBox::Information,
                     QMessageBox::Yes | QMessageBox::Default,
                     QMessageBox::No,
                     QMessageBox::Cancel | QMessageBox::Escape );
     mb.setButtonText( QMessageBox::Yes, "Save" );
-    mb.setButtonText( QMessageBox::No, "Don't Save" );
+    mb.setButtonText( QMessageBox::No, "Discard" );
     switch( mb.exec() ) {
         case QMessageBox::Yes:
             // save and exit
@@ -438,9 +439,9 @@ errors which can't be easily fixed:
 
   QMessageBox defines two enum types: Icon and an unnamed button type.
   Icon defines the \c Information, \c Warning, and \c Critical icons for
-  each GUI style.  It is used by the constructor and by the static member
-  functions information(), warning() and critical(). A function called standardIcon() gives you access to the various
-  icons.
+  each GUI style.  It is used by the constructor and by the static
+  member functions information(), warning() and critical(). A function
+  called standardIcon() gives you access to the various icons.
 
   The button types are:
   <ul>
@@ -453,16 +454,16 @@ errors which can't be easily fixed:
   <li> \c Ignore
   </ul>
 
-  Button types can be combined with two modifiers by using OR:
+  Button types can be combined with two modifiers by using OR, '|':
   <ul>
-  <li> \c Default - makes pressing Enter or Return be equivalent with
+  <li> \c Default - makes pressing Return equivalent to
   clicking this button.  Normally used with Ok, Yes or similar.
-  <li> \c Escape - makes pressing Escape be equivalent with this button.
+  <li> \c Escape - makes pressing Escape equivalent to clicking this button.
   Normally used with Abort, Cancel or similar.
   </ul>
 
   The text(), icon() and iconPixmap() functions provide access to the
-  current text and pixmap of a message box; setText(), setIcon()
+  current text and pixmap of the message box. The setText(), setIcon()
   and setIconPixmap() let you change it.  The difference between
   setIcon() and setIconPixmap() is that the former accepts a
   QMessageBox::Icon and can be used to set standard icons, whereas the
@@ -484,7 +485,7 @@ errors which can't be easily fixed:
 /*!
   \enum QMessageBox::Icon
 
-  This type includes the following values:
+  This enum includes provides the following values:
 
   \value NoIcon the message box does not have any icon.
 
@@ -538,11 +539,11 @@ static const char *mb_texts[] = {
 /*!
   Constructs a message box with no text and a button with the text "OK".
 
-  If \e parent is 0, the message box becomes an application-global
-  modal dialog box.  If \e parent is a widget, the message box becomes
-  modal relative to \e parent.
+  If \a parent is 0, the message box becomes an application-global
+  modal dialog box.  If \a parent is a widget, the message box becomes
+  modal relative to \a parent.
 
-  The \e parent and \e name arguments are passed to the QDialog constructor.
+  The \a parent and \a name arguments are passed to the QDialog constructor.
 */
 
 QMessageBox::QMessageBox( QWidget *parent, const char *name )
@@ -569,7 +570,8 @@ QMessageBox::QMessageBox( QWidget *parent, const char *name )
   <li> \c QMessageBox::Critical
   </ul>
 
-  Each button can have one of the following values:
+  Each button, \a button0, \a button1 and \a button2, can have one of
+  the following values:
   <ul>
   <li>\c QMessageBox::NoButton
   <li>\c QMessageBox::Ok
@@ -585,26 +587,25 @@ QMessageBox::QMessageBox( QWidget *parent, const char *name )
   three buttons in your message box.
 
   One of the buttons can be combined with the \c QMessageBox::Default flag
-  to make a default button.
+  to make it the default button (clicked when Return is pressed).
 
   One of the buttons can be combined with the \c QMessageBox::Escape flag
-  to make an escape option.  Hitting the Esc key on the keyboard has
-  the same effect as clicking this button with the mouse.
+  to make it the cancel or close button (clicked when Escape is pressed). 
 
   Example:
   \code
-    QMessageBox mb( "Hardware failure",
-                    "Disk error detected\nDo you want to stop?",
+    QMessageBox mb( "Application Name",
+                    "Hardware failure.\n\nDisk error detected\nDo you want to stop?",
                     QMessageBox::NoIcon,
                     QMessageBox::Yes | QMessageBox::Default,
-                    QMessageBox::No | QMessageBox::Escape );
+                    QMessageBox::No  | QMessageBox::Escape );
     if ( mb.exec() == QMessageBox::No )
         // try again
   \endcode
 
   If \a parent is 0, then the message box becomes an application-global
   modal dialog box.  If \a parent is a widget, the message box becomes
-  modal relative to \e parent.
+  modal relative to \a parent.
 
   If \a modal is TRUE the message becomes modal; otherwise it becomes
   modeless.
@@ -778,7 +779,7 @@ void QMessageBox::resizeButtons()
   \property QMessageBox::text
   \brief the message box text to be displayed.
 
-  The property value will be interpreted either as a plain text or as a rich
+  The text will be interpreted either as a plain text or as a rich
   text, depending on the text format setting (\l textFormat). The
   default setting is \c AutoText, i.e., the message box will try to
   auto-detect the format of the text.
@@ -833,6 +834,9 @@ void QMessageBox::setIcon( Icon icon )
 /*!
   Returns the pixmap used for a standard icon.  This
   allows the pixmaps to be used in more complex message boxes.
+  \a icon specifies the required icon, e.g. QMessageBox::Information,
+  QMessageBox::Warning or QMessageBox::Critical, and \a style specifies
+  the GUI style.
 */
 
 QPixmap QMessageBox::standardIcon( Icon icon, GUIStyle style )
@@ -885,7 +889,7 @@ QPixmap QMessageBox::standardIcon( Icon icon, GUIStyle style )
 
 /*!
   \property QMessageBox::iconPixmap
-  \brief the currently used icon
+  \brief the currently icon
 
   The icon currently used by the message box. Note that
   it's often hard to draw one pixmap that looks appropriate in both
@@ -908,7 +912,7 @@ void QMessageBox::setIconPixmap( const QPixmap &pixmap )
 
 
 /*!
-  Returns the text of the message box button \a button, or null if the
+  Returns the text of the messagebox button \a button, or null if the
   message box does not contain the button.
 
   \sa setButtonText()
@@ -925,8 +929,8 @@ QString QMessageBox::buttonText( int button ) const
 
 /*!
   Sets the text of the message box button \a button to \a text.
-  Setting the text of a button that is not in the message box is quietly
-  ignored.
+  Setting the text of a button that is not in the message box is
+  silently ignored.
 
   \sa buttonText()
 */
@@ -1075,7 +1079,7 @@ void QMessageBox::keyPressEvent( QKeyEvent *e )
 /*!
   Opens an information message box with the caption \a caption and the
   text \a text. The dialog may have up to three buttons. Each of the
-  button parameters, \a button0, \a button1 and \a button2 may be set to
+  buttons, \a button0, \a button1 and \a button2 may be set to
   one of the following values:
 
   <ul>
@@ -1180,9 +1184,9 @@ int QMessageBox::warning( QWidget *parent,
 
   Returns the index of the button that was clicked.
 
-  If \e parent is 0, then the message box becomes an application-global
-  modal dialog box.  If \e parent is a widget, the message box becomes
-  modal relative to \e parent.
+  If \a parent is 0, then the message box becomes an application-global
+  modal dialog box.  If \a parent is a widget, the message box becomes
+  modal relative to \a parent.
 
   \sa information(), warning()
 */
@@ -1203,7 +1207,7 @@ int QMessageBox::critical( QWidget *parent,
 
 /*!
   Displays a simple about box with caption \a caption and
-  text \a text.
+  text \a text. The about box's parent is \a parent.
 
   about() looks for a suitable icon in four locations:
   <ol> 
@@ -1320,9 +1324,9 @@ static int textBox( QWidget *parent, QMessageBox::Icon severity,
   supply 0, 1 or 2 to make pressing Escape equivalent to clicking
   the relevant button.
 
-  If \e parent is 0, the message box becomes an application-global
-  modal dialog box.  If \e parent is a widget, the message box becomes
-  modal relative to \e parent.
+  If \a parent is 0, the message box becomes an application-global
+  modal dialog box.  If \a parent is a widget, the message box becomes
+  modal relative to \a parent.
 
   \sa warning(), critical()
 */
@@ -1359,9 +1363,9 @@ int QMessageBox::information( QWidget *parent, const QString &caption,
   supply 0, 1, or 2 to make pressing Escape equivalent to clicking
   the relevant button.
 
-  If \e parent is 0, the message box becomes an application-global
-  modal dialog box.  If \e parent is a widget, the message box becomes
-  modal relative to \e parent.
+  If \a parent is 0, the message box becomes an application-global
+  modal dialog box.  If \a parent is a widget, the message box becomes
+  modal relative to \a parent.
 
   \sa information(), critical()
 */
@@ -1398,9 +1402,9 @@ int QMessageBox::warning( QWidget *parent, const QString &caption,
   supply 0, 1, or 2 to make pressing Escape equivalent to clicking
   the relevant button.
 
-  If \e parent is 0, the message box becomes an application-global
-  modal dialog box.  If \e parent is a widget, the message box becomes
-  modal relative to \e parent.
+  If \a parent is 0, the message box becomes an application-global
+  modal dialog box.  If \a parent is a widget, the message box becomes
+  modal relative to \a parent.
 
   \sa information() warning()
 */
@@ -1420,11 +1424,11 @@ int QMessageBox::critical( QWidget *parent, const QString &caption,
 
 
 /*!
-  Displays a simple message box about Qt, with window caption \a
+  Displays a simple message box about Qt, with caption \a
   caption and optionally centered over \a parent.  The message includes
   the version number of Qt being used by the application.
 
-  This is neat for inclusion into the Help menu.  See the menu.cpp
+  This is useful for inclusion in the Help menu.  See the menu.cpp
   example.
 */
 

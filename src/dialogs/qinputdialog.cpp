@@ -79,7 +79,10 @@ public:
 
   \code
   bool ok = FALSE;
-  QString text = QInputDialog::getText( tr( "Make an input" ), tr( "Please enter your name" ), QString::null, &ok, this );
+  QString text = QInputDialog::getText( 
+		    tr( "Application name" ), 
+		    tr( "Please enter your name" ), 
+		    QLineEdit::Normal, QString::null, &ok, this );
   if ( ok && !text.isEmpty() )
       ;// user entered something and pressed ok
   else
@@ -279,7 +282,10 @@ QInputDialog::~QInputDialog()
 
   \code
   bool ok = FALSE;
-  QString text = QInputDialog::getText( tr( "Please enter your name" ), QLineEdit::Normal, QString::null, &ok, this );
+  QString text = QInputDialog::getText( 
+		    tr( "Application name" ),
+		    tr( "Please enter your name" ), 
+		    QLineEdit::Normal, QString::null, &ok, this );
   if ( ok && !text.isEmpty() )
       ;// user entered something and pressed ok
   else
@@ -330,7 +336,9 @@ QString QInputDialog::getText( const QString &caption, const QString &label, QLi
 
   \code
   bool ok = FALSE;
-  int res = QInputDialog::getInteger( tr( "Please enter a number" ), 22, 0, 1000, 2, &ok, this );
+  int res = QInputDialog::getInteger( 
+		tr( "Application name" ),
+		tr( "Please enter a number" ), 22, 0, 1000, 2, &ok, this );
   if ( ok )
       ;// user entered something and pressed ok
   else
@@ -380,7 +388,10 @@ int QInputDialog::getInteger( const QString &caption, const QString &label, int 
 
   \code
   bool ok = FALSE;
-  double res = QInputDialog::getDouble( tr( "Please enter a decimal number" ), 33.7, 0, 1000, 2, &ok, this );
+  double res = QInputDialog::getDouble( 
+		tr( "Application name" ),
+		tr( "Please enter a decimal number" ), 
+		33.7, 0, 1000, 2, &ok, this );
   if ( ok )
       ;// user entered something and pressed ok
   else
@@ -446,7 +457,9 @@ double QInputDialog::getDouble( const QString &caption, const QString &label, do
   QStringList lst;
   lst << "First" << "Second" << "Third" << "Fourth" << "Fifth";
   bool ok = FALSE;
-  QString res = QInputDialog::getItem( tr( "Please select an item" ), lst, 1, TRUE, &ok, this );
+  QString res = QInputDialog::getItem( 
+		    tr( "Application name" ),
+		    tr( "Please select an item" ), lst, 1, TRUE, &ok, this );
   if ( ok )
       ;// user selected an item and pressed ok
   else
@@ -484,6 +497,9 @@ QString QInputDialog::getItem( const QString &caption, const QString &label, con
 
 /*!
   \internal
+
+  This slot is invoked when the text is changed; the new text is passed
+  in \a s.
 */
 
 void QInputDialog::textChanged( const QString &s )

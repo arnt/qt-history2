@@ -117,7 +117,7 @@
 */
 
 /*!
-  \fn void QTabDialog::selected( const QString &tabLabel );
+  \fn void QTabDialog::selected( const QString & );
   \obsolete
 
   This signal is emitted whenever a tab is selected (raised),
@@ -159,7 +159,9 @@ QTabDialog::Private::Private()
 { }
 
 /*!
-  Constructs a QTabDialog with only an Ok button.
+  Constructs a QTabDialog with only an OK button.
+  The \a parent, \a name, \a modal and \a f arguments are passed on to
+  the QDialog constructor.
 */
 
 QTabDialog::QTabDialog( QWidget *parent, const char *name, bool modal,
@@ -195,7 +197,7 @@ QTabDialog::~QTabDialog()
 
 
 /*!
-  Sets the font for the tabs to \e font.
+  Sets the font for the tabs to \a font.
 
   If the widget is visible, the display is updated with the new font
   immediately.  There may be some geometry changes, depending on the
@@ -358,7 +360,7 @@ void QTabDialog::show()
 
 
 /*!
-  Ensures that the selected tab's page is visible and appropriately sized.
+  Ensures that tab page \a i is visible and appropriately sized.
 */
 
 void QTabDialog::showTab( int i )
@@ -413,6 +415,11 @@ void QTabDialog::addTab( QWidget *child, const QIconSet& iconset, const QString 
   addTab() method.  It is useful if you are using setTabBar() to set a
   QTabBar subclass with an overridden QTabBar::paint() routine for a
   subclass of QTab.
+
+  The \a child is the widget to be placed on the new tab page. The \a
+  tab is the tab to display on the tab page -- normally this shows a
+  label or an icon that identifies the tab page.
+
 */
 void QTabDialog::addTab( QWidget * child, QTab* tab )
 {
@@ -463,10 +470,18 @@ void QTabDialog::insertTab( QWidget *child, const QIconSet& iconset, const QStri
 }
 
 /*!
+    \overload
+
   This is a lower-level method for inserting tabs, similar to the other
   insertTab() method.  It is useful if you are using setTabBar() to set a
   QTabBar subclass with an overridden QTabBar::paint() routine for a
   subclass of QTab.
+
+  The \a child is the widget to be placed on the new tab page. The \a
+  tab is the tab to display on the tab page -- normally this shows a
+  label or an icon that identifies the tab page. The \a index is the
+  position where this tab page should be inserted.
+
 */
 void QTabDialog::insertTab( QWidget * child, QTab* tab, int index )
 {
@@ -474,7 +489,7 @@ void QTabDialog::insertTab( QWidget * child, QTab* tab, int index )
 }
 
 /*!
-  Replaces the QTabBar heading the dialog by the given tab bar.
+  Replaces the QTabBar heading the dialog by the given tab bar, \a tb.
   Note that this must be called \e before any tabs have been added,
   or the behavior is undefined.
   \sa tabBar()
@@ -626,7 +641,7 @@ void QTabDialog::setTabEnabled( QWidget* w, bool enable)
 
 
 /*!
-  Adds an Apply button to the dialog.  The button's text is set to \e
+  Adds an Apply button to the dialog.  The button's text is set to \a
   text.
 
   The Apply button should apply the current settings in the dialog box
@@ -656,6 +671,8 @@ void QTabDialog::setApplyButton( const QString &text )
 }
 
 /*!
+    \overload
+
   Adds an Apply button to the dialog.  The button's text is set to
   a localizable "Apply".
  */
@@ -699,6 +716,8 @@ void QTabDialog::setHelpButton( const QString &text )
 
 
 /*!
+    \overload
+
   Adds a Help button to the dialog.  The button's text is set to
   a localizable "Help".
  */
@@ -744,6 +763,8 @@ void QTabDialog::setDefaultButton( const QString &text )
 
 
 /*!
+    \overload
+
   Adds a Defaults button to the dialog.  The button's text is set to
   a localizable "Defaults".
  */
@@ -793,6 +814,8 @@ void QTabDialog::setCancelButton( const QString &text )
 
 
 /*!
+    \overload
+
   Adds a Cancel button to the dialog.  The button's text is set to
   a localizable "Cancel".
  */
@@ -1010,7 +1033,7 @@ void QTabDialog::setOkButton( const QString &text )
     }
 }
 /*!
-  Adds an OK to the dialog.  The button's text is set to
+  Adds an OK button to the dialog.  The button's text is set to
   a localizable "OK".
  */
 
@@ -1021,11 +1044,12 @@ void QTabDialog::setOkButton()
 
 
 /*
+    \overload
   Old version of setOkButton(), provided for backward compatibility.
 */
 void QTabDialog::setOKButton( const QString &text )
 {
-    // Ugle workaround for original "OK" default argument
+    // Ugly workaround for original "OK" default argument
     QString newText( text );
     if ( text.isNull() )
 	newText = QString::fromLatin1( "OK" );
@@ -1062,6 +1086,7 @@ QWidget * QTabDialog::currentPage() const
 }
 
 /*!
+ \overload
   Defines a new \a label for the tab of page \a w
  */
 void QTabDialog::changeTab( QWidget *w, const QString &label)
@@ -1070,7 +1095,8 @@ void QTabDialog::changeTab( QWidget *w, const QString &label)
 }
 
 /*!
-  Defines a new \a iconset and a new \a label for the tab of page \a w
+    Changes tab page \a w's iconset to \a iconset and label to \a label.
+
  */
 void QTabDialog::changeTab( QWidget *w, const QIconSet& iconset, const QString &label)
 {

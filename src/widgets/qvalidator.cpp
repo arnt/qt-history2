@@ -177,14 +177,16 @@ void QValidator::fixup( QString & ) const
 /*!
   \class QIntValidator qvalidator.h
 
-  \brief The QIntValidator class provides a validator specifically for checking 
-  the range of an integer.
+  \brief The QIntValidator class provides a validator which ensures that
+  a string contains a valid integer within a specified range.
 
   \ingroup misc
 
-  QIntValidator contains a range which an integer is checked against to ensure it is 
-  within that range.  This is used to determine whether an integer is \c Acceptable, 
-  \c Intermediate or \c Invalid.
+  The validate() function returns \c Acceptable, \c Intermediate or \c
+  Invalid. \c Acceptable means that the string is a valid integer within
+  the specified range. \c Intermediate means that the string is a valid
+  integer but is not within the specified range. \c Invalid means that
+  the string is not a valid integer.
 
   Example of use:
 
@@ -195,15 +197,15 @@ void QValidator::fixup( QString & ) const
     //...
     QIntValidator v( 0, 100, this );
     QLineEdit* edit = new QLineEdit( this );
-    edit->setValidator( &v );	// the edit lineedit will only accept integers from 0 to 100
+    edit->setValidator( &v );	// the edit lineedit will only accept integers between 0 and 100
   \endcode
 
-  Below we present some examples of validators. In practice they would normally be associated 
-  with a widget as in the example above. 
+  Below we present some examples of validators. In practice they would
+  normally be associated with a widget as in the example above. 
 
   \code 
     QString s;
-    QIntValidator v( 0, 100, this );	// a validator that will only accept integers from 0 to 100
+    QIntValidator v( 0, 100, this );	// a validator that will only accept integers between 0 and 100
 
     s = "10"; 
     v.validate( a, 0 );	// Returns Acceptable
@@ -221,12 +223,15 @@ void QValidator::fixup( QString & ) const
     v.validate( a, 0 );	// Returns Invalid;
   \endcode
 
+  The minimum and maximum values are set in one call with setRange() or
+  individually with setBottom() and setTop().
+
   \sa QDoubleValidator QRegExpValidator
 */
 
 
 /*!
-  Constructs a validator that accepts all integers with the parent
+  Constructs a validator that accepts all integers and has parent
   \a parent and the name \a name.
 */
 
@@ -240,16 +245,16 @@ QIntValidator::QIntValidator( QWidget * parent, const char *name )
 
 /*!
   Constructs a validator that accepts all integers from \a
-  bottom up to and including \a top with the parent \a parent and
+  minimum up to and including \a maximum with the parent \a parent and
   the name \a name.
 */
 
-QIntValidator::QIntValidator( int bottom, int top,
+QIntValidator::QIntValidator( int minimum, int maximum,
 			      QWidget * parent, const char* name )
     : QValidator( parent, name )
 {
-    b = bottom;
-    t = top;
+    b = minimum;
+    t = maximum;
 }
 
 
@@ -276,7 +281,7 @@ QIntValidator::~QIntValidator()
   \endcode
 
   Returns \c Acceptable if the input is an integer within the valid range, 
-  \c Intermediate if the input is an integer not within the valid
+  \c Intermediate if the input is an integer outside the valid
   range and \c Invalid if the input is not an integer.
 */
 
@@ -297,15 +302,14 @@ QValidator::State QIntValidator::validate( QString & input, int & ) const
 
 
 /*!  
-
-  Sets the range of the validator to accept only integers from \a bottom to
-  \a top, both inclusive.
+  Sets the range of the validator to accept only integers from \a minimum to
+  \a maximum, both inclusive.
 */
 
-void QIntValidator::setRange( int bottom, int top )
+void QIntValidator::setRange( int minimum, int maximum )
 {
-    b = bottom;
-    t = top;
+    b = minimum;
+    t = maximum;
 }
 
 
@@ -385,10 +389,11 @@ QDoubleValidator::~QDoubleValidator()
 }
 
 
-/*!  Returns Acceptable if \a input contains a number in the legal
-  range and format, Intermediate if it contains another number, a
-  number with too many digits after the decimal point or is empty and
-  Invalid if \a input is not a number.
+/*!  Returns \c Acceptable if \a input contains a number that is within
+  the valid range and is in the correct format; \c Intermediate if it
+  contains a number that is outside the range or is in the wrong format,
+  e.g. with too many digits after the decimal point or is empty; and \c
+  Invalid if the \a input is not a number.
 */
 
 QValidator::State QDoubleValidator::validate( QString & input, int & ) const
@@ -435,20 +440,20 @@ QValidator::State QDoubleValidator::validate( QString & input, int & ) const
 
 
 /*!
-  Sets the validator to accept numbers from \a bottom up to and
-  including \a top with at most \a decimals digits after the decimal
+  Sets the validator to accept numbers from \a minimum up to and
+  including \a maximum with at most \a decimals digits after the decimal
   point.
 */
 
-void QDoubleValidator::setRange( double bottom, double top, int decimals )
+void QDoubleValidator::setRange( double minimum, double maximum, int decimals )
 {
-    b = bottom;
-    t = top;
+    b = minimum;
+    t = maximum;
     d = decimals;
 }
 
 /*! \property QDoubleValidator::bottom
-    \brief the validator's smallest acceptable value
+    \brief the validator's minimum acceptable value
     
     \sa setRange()
 */
@@ -460,7 +465,7 @@ void QDoubleValidator::setBottom( double bottom )
 
 
 /*! \property QDoubleValidator::top
-    \brief the validator's biggest acceptable value
+    \brief the validator's maximum acceptable value
     
     \sa setRange()
 */

@@ -61,17 +61,63 @@ public:
 
   \module sql
 
-  This class is used to manipulate and navigate data entry forms.  A
-  high-level API is provided to navigate through data records in a
-  cursor, insert, update and delete records, and refresh data in the
-  display.
+    This class is used to manipulate and navigate data entry forms.  A
+    high-level API is provided to navigate through data records in a
+    cursor, insert, update and delete records, and refresh data in the
+    display.
 
-  Convenient signals and slots are provided to navigate the cursor
-  (see firstRecord(), lastRecord(), prevRecord(), nextRecord()), to
-  edit records (see insert(), update(), delete()), and to update the
-  display according to the cursor's current position (see
-  firstRecordAvailable(), lastRecordAvailable(),
-  nextRecordAvailable(), prevRecordAvailable()).
+    A QDataBrowser is used to associate a dataset with a form in much
+    the same way as a QDataTable associates a dataset with a table. Once
+    the data browser has been constructed it can be associated with a
+    dataset with setCursor() (or setSqlCursor()), and with a form with
+    setForm(). Boundary checking, sorting and filtering can be set with
+    setBoundaryChecking(), setSort() and setFilter(), respectively. 
+
+    The insertCurrent() function reads the fields from the default form
+    into the default cursor and performs the insert. The updateCurrent()
+    and deleteCurrent() functions perform similarly to update and delete
+    the current record respectively. 
+    
+    The user can be asked to confirm all edits with setConfirmEdits().
+    For more precise control use setConfirmInsert(), setConfirmUpdate(),
+    setConfirmDelete() and setConfirmCancels(). Use setAutoEdit() to
+    control the behaviour of the form when the user edits a record and
+    then navigates. 
+
+    The record set is navigated using first(), next(), prev(), last()
+    and seek(). The form's display is updated with refresh(). When
+    navigation takes place the firstRecordAvailable(),
+    lastRecordAvailable(), nextRecordAvailable() and
+    prevRecordAvailable() signals are emitted. When the cursor record is
+    changed due to navigation the cursorChanged() signal is emitted. 
+
+    If you want finer control of the insert, update and delete processes
+    then you can use the low level functions to perform these
+    operations as described below.
+
+    The form is populated with data from the database with readFields().
+    If the user is allowed to edit, (see setReadOnly()), write the
+    form's data back to the cursor's edit buffer with writeFields(). You
+    can clear the values in the form with clearValues(). Editing is
+    performed as follows:
+    <ul>
+    <li>\e insert When the data browser enters insertion mode it emits the
+    primeInsert() signal which you can connect to, for example to
+    pre-populate fields. Call writeFields() to write the user's edits to
+    the cursor's edit buffer then call insert() to insert the record
+    into the database. The beforeInsert() signal is emitted just before
+    the cursor's edit buffer is inserted into the database; connect to
+    this for example, to populate fields such as an auto-generated
+    primary key. 
+    <li>\e update For updates the primeUpdate() signal is emitted when
+    the data browser enters update mode. After calling writeFields()
+    call update() to update the record and connect to the beforeUpdate()
+    signal to manipulate the user's data before the update takes place. 
+    <li>\e delete For deletion the primeDelete() signal is emitted when
+    the data browser enters deletion mode. After calling writeFields()
+    call del() to delete the record and connect to the beforeDelete()
+    signal, for example to record an audit of the deleted record. 
+    </ul>
 
 */
 

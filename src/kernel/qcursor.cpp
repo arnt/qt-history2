@@ -53,8 +53,8 @@
   \ingroup environment
   \ingroup shared
 
-  This class is used for mainly two things; to create mouse cursors to be
-  associated with widgets and to get and set the position of the mouse
+  This class is mainly used to create mouse cursors that are associated
+  with particular widgets and to get and set the position of the mouse
   cursor.
 
   Qt has a number of standard cursor shapes, but you can also make
@@ -85,15 +85,15 @@
   <li> \c forbiddenCursor - a slashed circle
   </ul>
 
-  If you want to create a cursor with an own bitmap, use either the QCursor
-  constructor which takes a a bitmap and a mask or the constructor which
-  takes a pixmap as arguments.
+  If you want to create a cursor with your own bitmap, either use the
+  QCursor constructor which takes a bitmap and a mask or the
+  constructor which takes a pixmap as arguments.
 
   To set or get the position of the mouse cursor use the static methods
   QCursor::pos() and QCursor::setPos().
 
   \sa QWidget
-  <a href="guibooks.html#fowler">GUI Design Handbook: Cursors.</a>
+  <a href="guibooks.html#fowler">GUI Design Handbook: Cursors</a>
 */
 
 
@@ -152,10 +152,10 @@ QDataStream &operator>>( QDataStream &s, QCursor &c )
   \a hotX and
   \a hotY define the hot spot of this cursor.
 
-  If \a hotX is negative, it is set to the pixmap().width()/2.
-  If \a hotY is negative, it is set to the pixmap().height()/2.
+  If \a hotX is negative, it is set to the \c{pixmap().width()/2}.
+  If \a hotY is negative, it is set to the \c{pixmap().height()/2}.
 
-  Allowed cursor sizes depend on the display hardware (or the underlying
+  Valid cursor sizes depend on the display hardware (or the underlying
   window system). We recommend using 32x32 cursors, because this size
   is supported on all platforms. Some platforms also support 16x16, 48x48
   and 64x64 cursors.
@@ -200,8 +200,8 @@ QCursor::QCursor( const QPixmap &pixmap, int hotX, int hotY )
   \a hotX and
   \a hotY define the hot spot of this cursor.
 
-  If \a hotX is negative, it is set to the bitmap().width()/2.
-  If \a hotY is negative, it is set to the bitmap().height()/2.
+  If \a hotX is negative, it is set to the \c{bitmap().width()/2}.
+  If \a hotY is negative, it is set to the \c{bitmap().height()/2}.
 
   The cursor \a bitmap (B) and \a mask (M) bits are combined this way:
   <ol>
@@ -214,7 +214,7 @@ QCursor::QCursor( const QPixmap &pixmap, int hotX, int hotY )
   Use the global color \c color0 to draw 0-pixels and \c color1 to draw
   1-pixels in the bitmaps.
 
-  Allowed cursor sizes depend on the display hardware (or the underlying
+  Valid cursor sizes depend on the display hardware (or the underlying
   window system). We recommend using 32x32 cursors, because this size
   is supported on all platforms. Some platforms also support 16x16, 48x48
   and 64x64 cursors.

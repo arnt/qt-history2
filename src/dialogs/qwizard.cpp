@@ -138,7 +138,11 @@ public:
 };
 
 
-/*!  Constructs an empty wizard dialog. */
+/*!  Constructs an empty wizard dialog. 
+    The \a parent, \a name, \a modal and \a f arguments are passed to
+    the QDialog constructor.
+
+*/
 
 QWizard::QWizard( QWidget *parent, const char *name, bool modal,
 		  WFlags f )
@@ -407,7 +411,8 @@ void QWizard::setHelpEnabled( bool enable )
 */
 
 /*!
-  Enables or disables the Back button for page \a page in the sequence.
+    If \a enable is TRUE, page \a page has a Back button; otherwise \a
+    page has no Back button.
   By default all pages have this button.
 */
 void QWizard::setBackEnabled( QWidget * page, bool enable )
@@ -422,7 +427,8 @@ void QWizard::setBackEnabled( QWidget * page, bool enable )
 
 
 /*!
-  Enables or disables the Next button for page \a page in the sequence.
+    If \a enable is TRUE, page \a page has a Next button; otherwise \a
+    page has no Next button.
   By default all pages have this button.
 */
 void QWizard::setNextEnabled( QWidget * page, bool enable )
@@ -437,7 +443,8 @@ void QWizard::setNextEnabled( QWidget * page, bool enable )
 
 
 /*!
-  Enables or disables the Finish button for page \a page in the sequence.
+    If \a enable is TRUE, page \a page has a Finish button; otherwise \a
+    page has no Finish button.
   By default \e no pages have this button.
 */
 void QWizard::setFinishEnabled( QWidget * page, bool enable )
@@ -452,7 +459,8 @@ void QWizard::setFinishEnabled( QWidget * page, bool enable )
 
 
 /*!
-  Enables or disables the Help button for page \a page in the sequence.
+    If \a enable is TRUE, page \a page has a Help button; otherwise \a
+    page has no Help button.
   By default all pages have this button.
 */
 void QWizard::setHelpEnabled( QWidget * page, bool enable )
@@ -483,8 +491,9 @@ bool QWizard::appropriate( QWidget * page ) const
 
 
 /*!
-  Sets whether page \a page is relevant and should be displayed in the
-  current context of the page sequence.
+    If \a appropriate is TRUE then page \a page is considered relevant
+    in the current context and should be displayed in the page sequence;
+    otherwise \a page should not be displayed in the page sequence.
 
   \sa appropriate()
 */

@@ -2596,7 +2596,7 @@ void QListBox::setColumnMode( LayoutMode mode )
 
 /*!
   Sets the column layout mode for this list box to \c FixedNumber and
-  sets the number of displayed columns accordingly.
+  sets the number of displayed columns to \a columns.
 
   \sa setRowMode() columnMode() numColumns()
 */
@@ -2622,7 +2622,7 @@ void QListBox::setRowMode( LayoutMode mode )
 
 /*!
   Sets the row layout mode for this list box to \c FixedNumber and sets the
-  number of displayed rows accordingly.
+  number of displayed rows to \a rows.
 
   \sa columnMode rowMode numRows()
 */

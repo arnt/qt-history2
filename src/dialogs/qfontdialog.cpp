@@ -431,7 +431,8 @@ QListBox * QFontDialog::sizeListBox() const
 }
 
 /*!
-  This slot is called if the user changes the font size.
+    This slot is called if the user changes the font size.
+    The size is passed in the \a s argument as a \e string.
 */
 
 void QFontDialog::sizeChanged( const QString &s )

@@ -271,6 +271,10 @@ QProgressDialog::QProgressDialog( QWidget *creator, const char *name,
     redrawing of the dialog to occur.  If it is TRUE, the dialog ensures
     that events are processed when needed.
 
+    The \a creator argument is the widget to use as the dialog's parent.
+    If \a creator is not a top level widget the argument passed on to
+    the QDialog constructor will be 0.
+
   \sa setLabelText(), setLabel(), setCancelButtonText(), setCancelButton(),
   setTotalSteps()
 */
@@ -325,10 +329,11 @@ void QProgressDialog::init( QWidget *creator,
 
 
 /*!
-  Sets the label. The progress dialog resizes to fit.
+  Sets the label to \a label. The progress dialog resizes to fit.
   The label becomes owned by the
   progress dialog and will be deleted when necessary,
   so do not pass the address of an object on the stack.
+
   \sa setLabelText()
 */
 
@@ -375,9 +380,11 @@ void QProgressDialog::setLabelText( const QString &text )
 
 
 /*!
-  Sets the cancellation button.  The button becomes owned by the
-  progress dialog and will be deleted when necessary,
-  so do not pass the address of an object on the stack.
+  Sets the cancel button to \a cancelButton. The progress dialog takes
+  ownership of this button which will be deleted when necessary, so do
+  not pass the address of an object that is on the stack, i.e. use new()
+  to create the button.
+
   \sa setCancelButtonText()
 */
 
@@ -404,7 +411,7 @@ void QProgressDialog::setCancelButton( QPushButton *cancelButton )
 }
 
 /*!
-  Sets the cancellation button text.
+  Sets the cancel button's text to \a cancelButtonText.
   \sa setCancelButton()
 */
 
@@ -425,9 +432,9 @@ void QProgressDialog::setCancelButtonText( const QString &cancelButtonText )
 
 
 /*!
-  Sets the progress bar widget. The progress dialog resizes to fit.  The
-  progress bar becomes owned by the progress dialog and will be deleted
-  when necessary.
+  Sets the progress bar widget to \a bar. The progress dialog resizes to
+  fit.  The progress dialog takes ownership of the progress \a bar which
+  will be deleted when necessary.
 */
 
 void QProgressDialog::setBar( QProgressBar *bar )

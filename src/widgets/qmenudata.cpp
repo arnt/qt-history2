@@ -1224,30 +1224,30 @@ QString QMenuData::whatsThis( int id ) const
 
   A custom menu item is a menu item that is defined by two purely virtual
   functions, paint() and sizeHint(). The size hint tells the menu how much
-  space it needs to reserve for this item, whereas paint is called
+  space it needs to reserve for this item, and paint is called
   whenever the item needs painting.
 
-  This simply mechanism gives applications the possibility to create all
-  kinds of application specific menu items. Examples are items showing
-  different fonts in a word processor or menus that allow the selection of
-  drawing utilities in a vector drawing program.
+  This simple mechanism allows you to create all kinds of application
+  specific menu items. Examples are items showing different fonts in a
+  word processor or menus that allow the selection of drawing utilities
+  in a vector drawing program.
 
   A custom item is inserted into a popup menu with
   QPopupMenu::insertItem().
 
-  Per default, a custom item can also have an icon set and/or an
-  accelerator key. You can, however, reimplement fullSpan() to return
+  By default, a custom item can also have an icon set and a keyboard
+  accelerator. You can reimplement fullSpan() to return
   TRUE if you want the item to span the entire popup menu width. This
-  is in particular useful for labels.
+  is particularly useful for labels.
 
-  If you want the custom item to be treated as a separator only,
+  If you want the custom item to be treated just as a separator,
   reimplement isSeparator() to return TRUE.
 
-  Note that you can also insert pixmaps or bitmaps as items into a
-  popup menu. A custom menu item, however, offers even more
-  flexibility and - which is especially important under windows style
-  - the possibility to draw the item with a different color when it is
-  highlighted.
+  Note that you can insert pixmaps or bitmaps as items into a popup menu
+  without needing to create a QCustomMenuItem. However, custom menu
+  items offer more flexibility, and -- especially important with windows
+  style -- provide the possibility of drawing the item with a different
+  color when it is highlighted.
 
   menu/menu.cpp shows a simply example how custom menu items can be used.
 
@@ -1288,8 +1288,8 @@ void QCustomMenuItem::setFont( const QFont&  )
 
 
 /*!
-  Returns whether this item wants to span the entire popup menu width.
-  The default is FALSE, meaning that the menu may show an icon and/or
+  Returns TRUE if this item wants to span the entire popup menu width.
+  The default is FALSE, meaning that the menu may show an icon and
   an accelerator key for this item as well.
  */
 bool QCustomMenuItem::fullSpan() const
@@ -1298,7 +1298,7 @@ bool QCustomMenuItem::fullSpan() const
 }
 
 /*!
-  Returns whether this item is just a separator.
+  Returns TRUE if this item is just a separator; otherwise returns FALSE.
  */
 bool QCustomMenuItem::isSeparator() const
 {
@@ -1310,27 +1310,27 @@ bool QCustomMenuItem::isSeparator() const
 
   Paints this item. When this function is invoked, the painter \a p is
   set to the right font and the right foreground color suitable for a
-  menu item text. The item is active according to \a act and
-  enabled/disabled according to \a enabled. The geometry values \a x,
-  \a y, \a w and h specify where to draw the item.
+  menu item text. The item is active if \a act is TRUE and
+  enabled if \a enabled is TRUE. The geometry values \a x,
+  \a y, \a w and \a h specify where to draw the item.
 
   Do not draw any background, this has already been done by the popup
-  menu according to the current gui style.
+  menu according to the current GUI style.
 
- */
+*/
 
 
 /*! \fn QSize QCustomMenuItem::sizeHint();
 
   Returns the size hint of this item.
- */
+*/
 
 
 
 /*!
-  Activates the menu item at index \a index.
+  Activates the menu item at position \a index.
 
-  If the index is invalid (for example -1), the object itself is
+  If the index is invalid (for example, -1), the object itself is
   deactivated.
  */
 void QMenuData::activateItemAt( int index )
