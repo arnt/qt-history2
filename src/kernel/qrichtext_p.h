@@ -720,7 +720,9 @@ class Q_EXPORT QTextDocument : public QObject
 {
     Q_OBJECT
 
+#ifndef QT_NO_TEXTCUSTOMITEM
     friend class QTextTableCell;
+#endif
     friend class QTextCursor;
     friend class QTextEdit;
     friend class QTextParagraph;
@@ -846,8 +848,10 @@ public:
 		      bool onlyChanged = FALSE, bool drawCursor = FALSE, QTextCursor *cursor = 0,
 		      bool resetChanged = TRUE );
 
+#ifndef QT_NO_TEXTCUSTOMITEM
     void registerCustomItem( QTextCustomItem *i, QTextParagraph *p );
     void unregisterCustomItem( QTextCustomItem *i, QTextParagraph *p );
+#endif
 
     void setFlow( QTextFlow *f );
     void takeFlow();
@@ -858,8 +862,10 @@ public:
     void setUseFormatCollection( bool b ) { useFC = b; }
     bool useFormatCollection() const { return useFC; }
 
+#ifndef QT_NO_TEXTCUSTOMITEM
     QTextTableCell *tableCell() const { return tc; }
     void setTableCell( QTextTableCell *c ) { tc = c; }
+#endif
 
     void setPlainText( const QString &text );
     void setRichText( const QString &text, const QString &context );
@@ -904,8 +910,10 @@ private:
     // HTML parser
     bool hasPrefix(const QChar* doc, int length, int pos, QChar c);
     bool hasPrefix(const QChar* doc, int length, int pos, const QString& s);
+#ifndef QT_NO_TEXTCUSTOMITEM
     QTextCustomItem* parseTable( const QMap<QString, QString> &attr, const QTextFormat &fmt,
 				 const QChar* doc, int length, int& pos, QTextParagraph *curpar );
+#endif
     bool eatSpace(const QChar* doc, int length, int& pos, bool includeNbsp = FALSE );
     bool eat(const QChar* doc, int length, int& pos, QChar c);
     QString parseOpenTag(const QChar* doc, int length, int& pos, QMap<QString, QString> &attr, bool& emptyTag);
@@ -948,7 +956,9 @@ private:
     QTextFlow *flow_;
     QTextDocument *par;
     QTextParagraph *parentPar;
+#ifndef QT_NO_TEXTCUSTOMITEM
     QTextTableCell *tc;
+#endif
     QBrush *backBrush;
     QPixmap *buf_pixmap;
     Focus focusIndicator;
@@ -1307,7 +1317,9 @@ protected:
 
 private:
     QMap<int, QTextParagraphSelection> &selections() const;
+#ifndef QT_NO_TEXTCUSTOMITEM
     QPtrList<QTextCustomItem> &floatingItems() const;
+#endif
     QBrush backgroundBrush( const QColorGroup&cg ) { if ( bgcol ) return *bgcol; return cg.brush( QColorGroup::Base ); }
     void invalidateStyleCache();
 
@@ -1333,7 +1345,9 @@ private:
     int state, id;
     QTextString *str;
     QMap<int, QTextParagraphSelection> *mSelections;
+#ifndef QT_NO_TEXTCUSTOMITEM
     QPtrList<QTextCustomItem> *mFloatingItems;
+#endif
     QStyleSheetItem::ListStyle lstyle;
     short utm, ubm, ulm, urm, uflm, ulinespacing;
     int *tArray;
@@ -1988,10 +2002,12 @@ inline QTextParagraphPseudoDocument *QTextParagraph::pseudoDocument() const
 }
 
 
+#ifndef QT_NO_TEXTCUSTOMITEM
 inline QTextTableCell *QTextParagraph::tableCell() const
 {
     return hasdoc ? document()->tableCell () : 0;
 }
+#endif
 
 inline QTextCommandHistory *QTextParagraph::commands() const
 {
@@ -2004,6 +2020,7 @@ inline int QTextParagraph::alignment() const
     return align;
 }
 
+#ifndef QT_NO_TEXTCUSTOMITEM
 inline void QTextParagraph::registerFloatingItem( QTextCustomItem *i )
 {
     floatingItems().append( i );
@@ -2013,6 +2030,7 @@ inline void QTextParagraph::unregisterFloatingItem( QTextCustomItem *i )
 {
     floatingItems().removeRef( i );
 }
+#endif
 
 inline QBrush *QTextParagraph::background() const
 {

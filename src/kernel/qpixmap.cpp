@@ -385,6 +385,7 @@ QPixmap::~QPixmap()
   \sa QMimeSourceFactory, QImage::fromMimeSource(), QImageDrag::decode()
 */
 
+#ifndef QT_NO_MIME
 QPixmap QPixmap::fromMimeSource( const QString &abs_name )
 {
     const QMimeSource *m = QMimeSourceFactory::defaultFactory()->data( abs_name );
@@ -398,6 +399,7 @@ QPixmap QPixmap::fromMimeSource( const QString &abs_name )
     QImageDrag::decode( m, pix );
     return pix;
 }
+#endif
 
 /*!
     Returns a \link shclass.html deep copy\endlink of the pixmap using

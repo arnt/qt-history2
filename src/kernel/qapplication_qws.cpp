@@ -2669,13 +2669,14 @@ bool QETWidget::translateKeyEvent( const QWSKeyEvent *event, bool grab )
     }
     code = event->simpleData.keycode;
 
+#ifndef QT_NO_ACCEL
     if ( type == QEvent::KeyPress && !grab ) {
 	// send accel events if the keyboard is not grabbed
 	QKeyEvent a( type, code, ascii, state, text, autor, int(text.length()) );
 	if ( qt_dispatchAccelEvent( this, &a ) )
 	    return TRUE;
     }
-
+#endif
     if ( !text.isEmpty() && testWState(WState_CompressKeys) ) {
 	// the widget wants key compression so it gets it
 

@@ -1693,7 +1693,6 @@ QDateTime QSettings::lastModficationTime(const QString &key)
     return d->modificationTime();
 }
 
-#endif
 
 /*!
     \overload
@@ -1936,3 +1935,5 @@ QString QSettings::group() const
     }
     return d->groupPrefix;
 }
+
+#endif

@@ -163,6 +163,7 @@ QStyle *QStyleFactory::create( const QString& key )
     if( style.left(9) == "macintosh" )
 	return new QMacStyle;
 #endif
+    { } // Keep these here - they make the #ifdefery above work
 
 #ifndef QT_NO_COMPONENT
     if(!ret) {

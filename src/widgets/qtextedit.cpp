@@ -114,6 +114,7 @@ public:
 #endif
 };
 
+#ifndef QT_NO_DRAGANDDROP
 class QRichTextDrag : public QTextDrag
 {
 public:
@@ -183,6 +184,8 @@ const char* QRichTextDrag::format( int i ) const
 	return "application/x-qrichtext";
     return 0;
 }
+
+#endif
 
 static bool block_set_alignment = FALSE;
 
@@ -1586,17 +1589,21 @@ void QTextEdit::doKeyboardAction( KeyboardAction action )
 
 void QTextEdit::readFormats( QTextCursor &c1, QTextCursor &c2, QTextString &text, bool fillStyles )
 {
+#ifndef QT_NO_DATASTREAM
     QDataStream styleStream( undoRedoInfo.styleInformation, IO_WriteOnly );
+#endif
     c2.restoreState();
     c1.restoreState();
     int lastIndex = text.length();
     if ( c1.paragraph() == c2.paragraph() ) {
 	for ( int i = c1.index(); i < c2.index(); ++i )
 	    text.insert( lastIndex + i - c1.index(), c1.paragraph()->at( i ), TRUE );
+#ifndef QT_NO_DATASTREAM
 	if ( fillStyles ) {
 	    styleStream << (int) 1;
 	    c1.paragraph()->writeStyleInformation( styleStream );
 	}
+#endif
     } else {
 	int i;
 	for ( i = c1.index(); i < c1.paragraph()->length()-1; ++i )
@@ -1612,11 +1619,13 @@ void QTextEdit::readFormats( QTextCursor &c1, QTextCursor &c2, QTextString &text
 	}
 	for ( i = 0; i < c2.index(); ++i )
 	    text.insert( i + lastIndex, c2.paragraph()->at( i ), TRUE );
+#ifndef QT_NO_DATASTREAM
 	if ( fillStyles ) {
 	    styleStream << num;
 	    for ( QTextParagraph *p = c1.paragraph(); --num >= 0; p = p->next() )
 		p->writeStyleInformation( styleStream );
 	}
+#endif
     }
 }
 
@@ -2944,7 +2953,7 @@ void QTextEdit::repaintChanged()
     paintDocument( FALSE, &p, contentsX(), contentsY(), visibleWidth(), visibleHeight() );
 }
 
-
+#ifndef QT_NO_DRAGANDDROP
 QTextDrag *QTextEdit::dragObject( QWidget *parent ) const
 {
     if ( !doc->hasSelection( QTextDocument::Standard ) ||
@@ -2957,6 +2966,7 @@ QTextDrag *QTextEdit::dragObject( QWidget *parent ) const
     drag->setRichText( doc->selectedText( QTextDocument::Standard, TRUE ) );
     return drag;
 }
+#endif
 
 /*!
     Copies the selected text (from selection 0) to the clipboard and
@@ -2971,10 +2981,11 @@ void QTextEdit::cut()
 {
     if ( isReadOnly() )
 	return;
-
+#ifndef QT_NO_DRAGANDDROP
     QTextDrag *drag = dragObject();
     if ( !drag )
 	return;
+#endif
 #ifndef QT_NO_CLIPBOARD
     QApplication::clipboard()->setData( drag, d->clipboard_mode );
 #endif
@@ -2984,9 +2995,11 @@ void QTextEdit::cut()
 
 void QTextEdit::normalCopy()
 {
+#ifndef QT_NO_DRAGANDDROP
     QTextDrag *drag = dragObject();
     if ( !drag )
 	return;
+#endif
 #ifndef QT_NO_CLIPBOARD
     QApplication::clipboard()->setData( drag, d->clipboard_mode );
 #endif

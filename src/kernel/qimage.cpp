@@ -567,7 +567,7 @@ QImage::~QImage()
 
   \sa QMimeSourceFactory, QImage::fromMimeSource(), QImageDrag::decode()
 */
-
+#ifndef QT_NO_MIME
 QImage QImage::fromMimeSource( const QString &abs_name )
 {
     const QMimeSource *m = QMimeSourceFactory::defaultFactory()->data( abs_name );
@@ -581,7 +581,7 @@ QImage QImage::fromMimeSource( const QString &abs_name )
     QImageDrag::decode( m, img );
     return img;
 }
-
+#endif
 
 
 /*!

@@ -248,6 +248,7 @@ QTextCursor *QTextDeleteCommand::unexecute( QTextCursor *c )
 	    c->gotoNextLetter();
     }
 
+#ifndef QT_NO_DATASTREAM
     if ( !styleInformation.isEmpty() ) {
 	QDataStream styleStream( styleInformation, IO_ReadOnly );
 	int num;
@@ -258,6 +259,7 @@ QTextCursor *QTextDeleteCommand::unexecute( QTextCursor *c )
 	    p = p->next();
 	}
     }
+#endif
     s = cursor.paragraph();
     while ( s ) {
 	s->format();
@@ -368,6 +370,7 @@ QTextStyleCommand::QTextStyleCommand( QTextDocument *d, int fParag, int lParag, 
 QByteArray QTextStyleCommand::readStyleInformation(  QTextDocument* doc, int fParag, int lParag )
 {
     QByteArray style;
+#ifndef QT_NO_DATASTREAM
     QTextParagraph *p = doc->paragAt( fParag );
     if ( !p )
 	return style;
@@ -378,11 +381,13 @@ QByteArray QTextStyleCommand::readStyleInformation(  QTextDocument* doc, int fPa
 	p->writeStyleInformation( styleStream );
 	p = p->next();
     }
+#endif
     return style;
 }
 
 void QTextStyleCommand::writeStyleInformation(  QTextDocument* doc, int fParag, const QByteArray& style )
 {
+#ifndef QT_NO_DATASTREAM
     QTextParagraph *p = doc->paragAt( fParag );
     if ( !p )
 	return;
@@ -393,6 +398,7 @@ void QTextStyleCommand::writeStyleInformation(  QTextDocument* doc, int fParag, 
 	p->readStyleInformation( styleStream );
 	p = p->next();
     }
+#endif
 }
 
 QTextCursor *QTextStyleCommand::execute( QTextCursor *c )
@@ -596,9 +602,11 @@ void QTextCursor::gotoPreviousLetter()
 
     if ( idx > 0 ) {
 	idx--;
+#ifndef QT_NO_TEXTCUSTOMITEM
 	const QTextStringChar *tsc = para->at( idx );
 	if ( tsc && tsc->isCustom() && tsc->customItem()->isNested() )
 	    processNesting( EnterEnd );
+#endif
     } else if ( para->prev() ) {
 	para = para->prev();
 	while ( !para->isVisible() && para->prev() )
@@ -724,6 +732,7 @@ bool QTextCursor::place( const QPoint &p, QTextParagraph *s, bool link )
     }
     setIndex( curpos );
 
+#ifndef QT_NO_TEXTCUSTOMITEM
     if ( inCustom && para->document() && para->at( curpos )->isCustom() && para->at( curpos )->customItem()->isNested() ) {
 	QTextDocument *oldDoc = para->document();
 	gotoIntoNested( pos );
@@ -733,6 +742,7 @@ bool QTextCursor::place( const QPoint &p, QTextParagraph *s, bool link )
 	if ( !place( p, document()->firstParagraph(), link ) )
 	    pop();
     }
+#endif
     return TRUE;
 }
 
@@ -786,11 +796,13 @@ void QTextCursor::gotoNextLetter()
 {
    tmpIndex = -1;
 
+#ifndef QT_NO_TEXTCUSTOMITEM
     const QTextStringChar *tsc = para->at( idx );
     if ( tsc && tsc->isCustom() && tsc->customItem()->isNested() ) {
 	processNesting( EnterBegin );
 	return;
     }
+#endif
 
     if ( idx < para->length() - 1 ) {
 	idx++;
@@ -1185,14 +1197,22 @@ void QTextCursor::indent()
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 QTextDocument::QTextDocument( QTextDocument *p )
-    : par( p ), parentPar( 0 ), tc( 0 ), tArray( 0 ), tStopWidth( 0 )
+    : par( p ), parentPar( 0 )
+#ifndef QT_NO_TEXTCUSTOMITEM
+    , tc( 0 )
+#endif
+    , tArray( 0 ), tStopWidth( 0 )
 {
     fCollection = new QTextFormatCollection;
     init();
 }
 
 QTextDocument::QTextDocument( QTextDocument *p, QTextFormatCollection *f )
-    : par( p ), parentPar( 0 ), tc( 0 ), tArray( 0 ), tStopWidth( 0 )
+    : par( p ), parentPar( 0 )
+#ifndef QT_NO_TEXTCUSTOMITEM
+    , tc( 0 )
+#endif
+    , tArray( 0 ), tStopWidth( 0 )
 {
     fCollection = f;
     init();
@@ -1551,7 +1571,11 @@ void QTextDocument::setRichTextInternal( const QString &text, QTextCursor* curso
 		    }
 		}
 
+#ifndef QT_NO_TEXTCUSTOMITEM
 		QTextCustomItem* custom =  0;
+#else
+		bool custom = FALSE;
+#endif
 
 		// some well-known tags, some have a nstyle, some not
 		if ( wellKnownTags.find( tagname ) != -1 ) {
@@ -1563,18 +1587,23 @@ void QTextDocument::setRichTextInternal( const QString &text, QTextCursor* curso
 			curpar->setFormat( index, 1, &format );
 		    }  else if ( tagname == "hr" ) {
 			emptyTag = space = TRUE;
+#ifndef QT_NO_TEXTCUSTOMITEM
 			custom = sheet_->tag( tagname, attr, contxt, *factory_ , emptyTag, this );
+#endif
 		    } else if ( tagname == "table" ) {
 			emptyTag = space = TRUE;
+#ifndef QT_NO_TEXTCUSTOMITEM
 			QTextFormat format = curtag.format.makeTextFormat(  nstyle, attr, scaleFontsFactor );
 			curpar->setAlignment( curtag.alignment );
 			custom = parseTable( attr, format, doc, length, pos, curpar );
+#endif
 		    } else if ( tagname == "qt" || tagname == "body" ) {
 			if ( attr.contains( "bgcolor" ) ) {
 			    QBrush *b = new QBrush( QColor( attr["bgcolor"] ) );
 			    setPaper( b );
 			}
 			if ( attr.contains( "background" ) ) {
+#ifndef QT_NO_MIME
 			    QImage img;
 			    QString bg = attr["background"];
 			    const QMimeSource* m = factory_->data( bg, contxt );
@@ -1589,6 +1618,7 @@ void QTextDocument::setRichTextInternal( const QString &text, QTextCursor* curso
 				QBrush *b = new QBrush( QColor(), QPixmap( img ) );
 				setPaper( b );
 			    }
+#endif
 			}
 			if ( attr.contains( "text" ) ) {
 			    QColor c( attr["text"] );
@@ -1642,13 +1672,15 @@ void QTextDocument::setRichTextInternal( const QString &text, QTextCursor* curso
 		    }
 		} // end of well-known tag handling
 
+#ifndef QT_NO_TEXTCUSTOMITEM
 		if ( !custom ) // try generic custom item
 		    custom = sheet_->tag( tagname, attr, contxt, *factory_ , emptyTag, this );
-
+#endif
 		if ( !nstyle && !custom ) // we have no clue what this tag could be, ignore it
 		    continue;
 
 		if ( custom ) {
+#ifndef QT_NO_TEXTCUSTOMITEM
 		    int index = QMAX( curpar->length(),1) - 1;
 		    QTextFormat format = curtag.format.makeTextFormat( nstyle, attr, scaleFontsFactor );
 		    curpar->append( QChar('*') );
@@ -1662,6 +1694,7 @@ void QTextDocument::setRichTextInternal( const QString &text, QTextCursor* curso
  		    }
 		    registerCustomItem( custom, curpar );
 		    hasNewPar = FALSE;
+#endif
 		} else if ( !emptyTag ) {
 		    /* if we do nesting, push curtag on the stack,
 		       otherwise reinint curag. */
@@ -2098,6 +2131,7 @@ QString QTextDocument::plainText() const
 	    s = p->string()->toString();
 	} else {
 	    for ( int i = 0; i < p->length() - 1; ++i ) {
+#ifndef QT_NO_TEXTCUSTOMITEM
 		if ( p->at( i )->isCustom() ) {
 		    if ( p->at( i )->customItem()->isNested() ) {
 			s += "\n";
@@ -2107,7 +2141,9 @@ QString QTextDocument::plainText() const
 			    s += c->richText()->plainText() + "\n";
 			s += "\n";
 		    }
-		} else {
+		} else
+#endif
+		{
 		    s += p->at( i )->c;
 		}
 	    }
@@ -2624,6 +2660,7 @@ QString QTextDocument::selectedText( int id, bool asRichText ) const
 	    s += p->string()->toString().mid( c1.index(), end - c1.index() );
 	} else {
 	    for ( int i = c1.index(); i < end; ++i ) {
+#ifndef QT_NO_TEXTCUSTOMITEM
 		if ( p->at( i )->isCustom() ) {
 		    if ( p->at( i )->customItem()->isNested() ) {
 			s += "\n";
@@ -2633,7 +2670,9 @@ QString QTextDocument::selectedText( int id, bool asRichText ) const
 			    s += c->richText()->plainText() + "\n";
 			s += "\n";
 		    }
-		} else {
+		} else
+#endif
+		{
 		    s += p->at( i )->c;
 		}
 	    }
@@ -2651,6 +2690,7 @@ QString QTextDocument::selectedText( int id, bool asRichText ) const
 		    s += "\n";
 	    } else {
 		for ( int i = start; i < end; ++i ) {
+#ifndef QT_NO_TEXTCUSTOMITEM
 		    if ( p->at( i )->isCustom() ) {
 			if ( p->at( i )->customItem()->isNested() ) {
 			    s += "\n";
@@ -2660,7 +2700,9 @@ QString QTextDocument::selectedText( int id, bool asRichText ) const
 				s += c->richText()->plainText() + "\n";
 			    s += "\n";
 			}
-		    } else {
+		    } else
+#endif
+		    {
 			s += p->at( i )->c;
 		    }
 		}
@@ -3160,13 +3202,16 @@ void QTextDocument::setDefaultFormat( const QFont &font, const QColor &color )
     QTextParagraph *p = fParag;
     while ( p ) {
 	p->invalidate( 0 );
+#ifndef QT_NO_TEXTCUSTOMITEM
 	for ( int i = 0; i < p->length() - 1; ++i )
 	    if ( p->at( i )->isCustom() )
 		p->at( i )->customItem()->invalidate();
+#endif
 	p = p->next();
     }
 }
 
+#ifndef QT_NO_TEXTCUSTOMITEM
 void QTextDocument::registerCustomItem( QTextCustomItem *i, QTextParagraph *p )
 {
     if ( i && i->placement() != QTextCustomItem::PlaceInline ) {
@@ -3183,6 +3228,7 @@ void QTextDocument::unregisterCustomItem( QTextCustomItem *i, QTextParagraph *p 
     p->unregisterFloatingItem( i );
     i->setParagraph( 0 );
 }
+#endif
 
 bool QTextDocument::hasFocusParagraph() const
 {
@@ -3682,11 +3728,13 @@ void QTextStringChar::setFormat( QTextFormat *f )
     if ( type == Regular ) {
  	d.format = f;
     } else {
+#ifndef QT_NO_TEXTCUSTOMITEM
  	if ( !d.custom ) {
  	    d.custom = new CustomData;
  	    d.custom->custom = 0;
  	}
  	d.custom->format = f;
+#endif
     }
 }
 
@@ -3741,7 +3789,9 @@ void QTextStringChar::setAnchor( const QString& name, const QString& href )
     if ( type == Regular ) {
 	QTextFormat *f = format();
 	d.custom = new CustomData;
+#ifndef QT_NO_TEXTCUSTOMITEM
 	d.custom->custom = 0;
+#endif
 	d.custom->format = f;
 	type = Anchor;
     } else if ( type == Custom ) {
@@ -3821,8 +3871,11 @@ QTextParagraph::QTextParagraph( QTextDocument *d, QTextParagraph *pr, QTextParag
       changed(FALSE), firstFormat(TRUE), firstPProcess(TRUE), needPreProcess(FALSE), fullWidth(TRUE),
       lastInFrame(FALSE), visible(TRUE), breakable(TRUE), movedDown(FALSE),
       mightHaveCustomItems(FALSE), hasdoc( d != 0 ), litem(FALSE), rtext(FALSE),
-      align( 0 ),mSelections( 0 ),
-      mFloatingItems( 0 ), lstyle( QStyleSheetItem::ListDisc ),
+      align( 0 ),mSelections( 0 )
+#ifndef QT_NO_TEXTCUSTOMITEM
+      , mFloatingItems( 0 )
+#endif
+      , lstyle( QStyleSheetItem::ListDisc ),
       utm( 0 ), ubm( 0 ), ulm( 0 ), urm( 0 ), uflm( 0 ), ulinespacing( 0 ),
       tArray(0), tabStopWidth(0), eData( 0 ), ldepth( 0 )
 {
@@ -3888,8 +3941,10 @@ QTextParagraph::~QTextParagraph()
 	delete *it;
     if ( mSelections )
 	delete mSelections;
+#ifndef QT_NO_TEXTCUSTOMITEM
     if ( mFloatingItems )
 	delete mFloatingItems;
+#endif
     if ( p )
 	p->setNext( n );
     if ( n )
@@ -3916,10 +3971,12 @@ void QTextParagraph::invalidate( int chr )
 	invalid = chr;
     else
 	invalid = QMIN( invalid, chr );
+#ifndef QT_NO_TEXTCUSTOMITEM
     if ( mFloatingItems ) {
 	for ( QTextCustomItem *i = mFloatingItems->first(); i; i = mFloatingItems->next() )
 	    i->ypos = -1;
     }
+#endif
     invalidateStyleCache();
 }
 
@@ -4093,8 +4150,8 @@ void QTextParagraph::format( int start, bool doMove )
 	    }
 	}
     }
-    QMap<int, QTextLineStart*> oldLineStarts = lineStarts;
 #endif
+    QMap<int, QTextLineStart*> oldLineStarts = lineStarts;
     lineStarts.clear();
     int y = formatter()->format( document(), this, start, oldLineStarts );
 
@@ -4465,11 +4522,13 @@ void QTextParagraph::paint( QPainter &painter, const QColorGroup &cg, QTextCurso
 		    drawString( painter, qstr, paintStart, i - paintStart + 1, xstart, y,
 				baseLine, xend-xstart, h, selection,
 				chr, cg, chr->rightToLeft );
+#ifndef QT_NO_TEXTCUSTOMITEM
 		else if ( chr->customItem()->placement() == QTextCustomItem::PlaceInline )
 		    chr->customItem()->draw( &painter, chr->x, y,
 					     clipx == -1 ? clipx : (clipx - r.x()),
 					     clipy == -1 ? clipy : (clipy - r.y()),
 					     clipw, cliph, cg, selection >= 0 );
+#endif
 	    }
 	    paintStart = i+1;
 	}
@@ -4706,6 +4765,7 @@ void QTextParagraph::drawLabel( QPainter* p, int x, int y, int w, int h, int bas
     p->restore();
 }
 
+#ifndef QT_NO_DATASTREAM
 void QTextParagraph::readStyleInformation( QDataStream& stream )
 {
     int int_align, int_lstyle;
@@ -4725,7 +4785,7 @@ void QTextParagraph::writeStyleInformation( QDataStream& stream ) const
 {
     stream << (int) align << (int) lstyle << utm << ubm << ulm << urm << uflm << ulinespacing << ldepth << (uchar)litem << (uchar)rtext << (uchar)str->direction();
 }
-
+#endif
 
 
 void QTextParagraph::setListDepth( int depth ) {
@@ -4836,8 +4896,10 @@ QString QTextParagraph::richText() const
 	    s += "&lt;";
 	else if ( c->c == '>' )
 	    s += "&gt;";
+#ifndef QT_NO_TEXTCUSTOMITEM
 	else if ( c->isCustom() )
 	    s += c->customItem()->richText();
+#endif
 	else if ( c->c == '\n' || c->c == QChar_linesep )
 	    s += "<br />"; // space on purpose for compatibility with Netscape, Lynx & Co.
 	else
@@ -5555,7 +5617,7 @@ int QTextFormatterBreakWords::format( QTextDocument *doc, QTextParagraph *parag,
 	    if ( tw < QWIDGETSIZE_MAX )
 		minw = QMAX( minw, tw );
 	}
-
+#endif
 	bool lastWasOwnLineCustomItem = lastBreak == -2;
 	bool hadBreakableChar = lastBreak != -1;
 	bool lastWasHardBreak = lastChr == QChar_linesep;
@@ -6207,6 +6269,8 @@ QTextFormat QTextFormat::makeTextFormat( const QStyleSheetItem *style, const QMa
     format.update();
     return format;
 }
+
+#ifndef QT_NO_TEXTCUSTOMITEM
 
 struct QPixmapInt
 {
@@ -7188,6 +7252,7 @@ void QTextCustomItem::pageBreak( int /*y*/ , QTextFlow* /*flow*/ )
 }
 #endif
 
+#ifndef QT_NO_TEXTCUSTOMITEM
 QTextTable::QTextTable( QTextDocument *p, const QMap<QString, QString> & attr  )
     : QTextCustomItem( p )
 {
@@ -7870,5 +7935,6 @@ void QTextTableCell::draw( QPainter* p, int x, int y, int cx, int cy, int cw, in
 
     p->restore();
 }
+#endif
 
 #endif //QT_NO_RICHTEXT
