@@ -526,18 +526,6 @@ QFontStruct *QFontMetrics::internal()
     }
 }
 
-#if 0
-const QFontDef *QFontMetrics::spec() const
-{
-    if ( painter ) {
-	painter->cfont.handle();
-	return painter->cfont.d->fin->spec();
-    } else {
-	return d->fin->spec();
-    }
-}
-#endif
-
 // How to calculate metrics from ink and logical rectangles.
 #define LBEARING(i,l) (i.x+l.x)
 #define RBEARING(i,l) (i.width-l.width)
@@ -650,32 +638,6 @@ int QFontMetrics::lineWidth() const
     return ((QFontMetrics*)this)->internal()->lineWidth();
 }
 
-
-/*****************************************************************************
-  QFontInfo member functions
- *****************************************************************************/
-
-#if 0
-const QFontDef *QFontInfo::spec() const
-{
-    if ( painter ) {
-	painter->cfont.handle();
-	return painter->cfont.d->fin->spec();
-    } else {
-	return d->fin->spec();
-    }
-}
-#endif
-
-int QFont::pixelSize() const
-{
-    return d->request.pointSize/10;
-}
-
-void QFont::setPixelSizeFloat( float pixelSize )
-{
-    setPointSizeFloat( pixelSize );
-}
 
 /*!
   Saves the glyphs in the font that have previously been accessed

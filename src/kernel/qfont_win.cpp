@@ -77,6 +77,8 @@ QFont qt_LOGFONTtoQFont(LOGFONT& lf, bool scale)
     return qf;
 }
 
+#if 0
+// ### FIXME
 int QFont::pixelSize() const
 {
     return (d->request.pointSize*GetDeviceCaps(shared_dc,LOGPIXELSY) + 360) / 720;
@@ -86,6 +88,7 @@ void QFont::setPixelSizeFloat( float pixelSize )
 {
     setPointSizeFloat( pixelSize * 72.0 / GetDeviceCaps(shared_dc,LOGPIXELSY) );
 }
+#endif
 
 /*****************************************************************************
   QFontStruct implementation

@@ -429,16 +429,6 @@ void QFont::initialize()
 	qApp->setFont(QFont("Helvetica", 14));
 }
 
-void QFont::setPixelSizeFloat( float pixelSize )
-{
-    setPointSizeFloat( pixelSize );
-}
-
-int QFont::pixelSize() const
-{
-    return d->request.pointSize/10;
-}
-
 QString QFontPrivate::defaultFamily() const
 {
     switch( request.styleHint ) {

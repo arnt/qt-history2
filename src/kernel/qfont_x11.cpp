@@ -500,9 +500,9 @@ bool QFontPrivate::fillFontDef( const QCString &xlfd, QFontDef *fd,
 	// calculate actual pointsize for display DPI
 	fd->pixelSize = px;
 	fd->pointSize = (int) ((px * 720) / QPaintDevice::x11AppDpiY());
-    } else {
+    } else if ( px == 0 ) {
 	// calculate pixel size from pointsize/dpi
-	fd->pixelSize = (px * fd->pointSize) / 720;
+	fd->pixelSize = ( fd->pointSize * QPaintDevice::x11AppDpiY() ) / 720;
     }
 
     fd->underline     = FALSE;
@@ -1420,8 +1420,11 @@ XftPattern *QFontPrivate::bestXftPattern(const QString &familyName,
     else
 	slant_value = XFT_SLANT_ROMAN;
 
-    size_value = request.pointSize / 10;
-    mono_value = request.fixedPitch;
+    if ( request.pointSize != -1 )
+	size_value = request.pointSize / 10;
+    else
+	size_value = ( (request.pixelSize * QPaintDevice::x11AppDpiY()) / 72. + 0.5 );
+    mono_value = request.fixedPitch ? XFT_MONO : XFT_PROPORTIONAL;
 
     switch (request.styleHint) {
     case QFont::SansSerif:
@@ -1433,7 +1436,7 @@ XftPattern *QFontPrivate::bestXftPattern(const QString &familyName,
 	break;
     case QFont::TypeWriter:
 	generic_value = "mono";
-	mono_value = 1;
+	mono_value = XFT_MONO;
 	break;
     }
 
@@ -1782,15 +1785,18 @@ QCString QFontPrivate::bestMatch( const char *pattern, int *score,
 	    int resy;
 	    int pSize;
 
+	    if ( request.pointSize != -1 )
+		pSize = request.pointSize / 10;
+	    else
+		pSize = ( (request.pixelSize * QPaintDevice::x11AppDpiY()) / 72. + 0.5 );
 	    if ( bestScalable.smooth ) {
 		// X will scale the font accordingly
 		resx  = QPaintDevice::x11AppDpiX();
 		resy  = QPaintDevice::x11AppDpiY();
-		pSize = request.pointSize;
 	    } else {
 		resx = atoi(tokens[ResolutionX]);
 		resy = atoi(tokens[ResolutionY]);
-		pSize = ( (2 * request.pointSize * QPaintDevice::x11AppDpiY()) + resy )
+		pSize = ( (2 * pSize * QPaintDevice::x11AppDpiY()) + resy )
 			/ (resy * 2);
 	    }
 
@@ -1886,9 +1892,15 @@ int QFontPrivate::fontMatchScore( const char *fontName, QCString &buffer,
 		  QPaintDevice::x11AppDpiY())
 		/ (QPaintDevice::x11AppDpiY() * 2); // adjust actual pointsize
 
-	if ( request.pointSize != 0 ) {
-	    diff = (float)QABS(pSize - request.pointSize);
-	    percentDiff = diff/request.pointSize*100.0F;
+	int reqPSize;
+	if ( request.pointSize != -1 )
+	    reqPSize = request.pointSize / 10;
+	else
+	    reqPSize = ( (request.pixelSize * QPaintDevice::x11AppDpiY()) / 72. + 0.5 );
+	
+	if ( reqPSize != 0 ) {
+	    diff = (float)QABS(pSize - reqPSize);
+	    percentDiff = diff/reqPSize*100.0F;
 	} else {
 	    diff = (float)pSize;
 	    percentDiff = 100;
@@ -1897,7 +1909,7 @@ int QFontPrivate::fontMatchScore( const char *fontName, QCString &buffer,
 	if ( percentDiff < 10 ) {
 	    score |= SizeScore;
 
-	    if ( pSize != request.pointSize ) {
+	    if ( pSize != reqPSize ) {
 		exactmatch = FALSE;
 	    }
 	} else {
@@ -2483,8 +2495,19 @@ void QFontPrivate::load(QFont::Script script, bool tryUnicode)
 
 
 
+// **********************************************************************
+// QFont methods
+// **********************************************************************
 
 
+/*!
+  Returns TRUE if the font attributes have been changed and the font has to
+  be (re)loaded, or FALSE if no changes have been made.
+*/
+bool QFont::dirty() const
+{
+    return d->request.dirty;
+}
 
 
 // **********************************************************************
@@ -2725,42 +2748,6 @@ void QFont::setRawName( const QString &name )
 	setRawMode( TRUE );
     }
 }
-
-
-/*!
-  Returns TRUE if the font attributes have been changed and the font has to
-  be (re)loaded, or FALSE if no changes have been made.
-*/
-bool QFont::dirty() const
-{
-    return d->request.dirty;
-}
-
-
-/*!
-  Returns the logical pixel height of characters in the font if shown on
-  the screen.
-*/
-int QFont::pixelSize() const
-{
-    // 360 == .5 for correct rounding
-    return (d->request.pointSize * QPaintDevice::x11AppDpiY()) / 720;
-}
-
-
-/*! Sets the logical pixel height of font characters when shown on
-  the screen to \a pixelSize().
-*/
-void QFont::setPixelSizeFloat( float pixelSize )
-{
-    setPointSizeFloat(pixelSize * 72.0 / QPaintDevice::x11AppDpiY());
-}
-
-
-
-
-
-
 
 
 // **********************************************************************

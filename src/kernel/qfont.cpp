@@ -189,6 +189,13 @@
   point size differs the closest point size to the one requested will
   be chosen.
 
+  You can also specify a font size in pixels (with the setPixelSize() method), but
+  usually this is not recommended, as the pixel size is device dependent. A 
+  font with a point size of 72 points will have a size of approximately one inch on all
+  devices (screen or printer), whereas a font with a size of 12 pixels will look the
+  same as the 12 point font on a 75dpi display, but will have a very small size on a 600dpi
+  printer.
+  
   For more general information on fonts, see the
   <a href="http://www.nwalsh.com/comp.fonts/FAQ/">comp.fonts FAQ</a>
   and for more general information on encodings, see
@@ -428,6 +435,8 @@ void QFont::setFamily( const QString &family )
 
 /*! Returns the point size in 1/10ths of a point.
 
+  The returned value will be -1 if the font size has been specified in pixels.
+
   \sa pointSize()
   */
 int QFont::deciPointSize() const
@@ -451,12 +460,14 @@ int QFont::deciPointSize() const
 
   (Code taken from \link simple-font-demo-example.html
   fonts/simple-qfont-demo/viewer.cpp \endlink)
+  
+  The returned value will be -1 if the font size has been specified in pixels.
 
   \sa setPointSize() deciPointSize()
 */
 int QFont::pointSize() const
 {
-    return d->request.pointSize / 10;
+    return d->request.pointSize == -1 ? -1 : d->request.pointSize/ 10;
 }
 
 
@@ -488,22 +499,21 @@ void QFont::setPointSize( int pointSize )
 
     detach();
     d->request.pointSize = (short) pointSize;
-    d->request.pixelSize = pixelSize();
+    d->request.pixelSize = -1;
     d->request.dirty = TRUE;
 }
 
 
-/*! Sets the point size to \a pointSize. The point size must be greater
+/*! 
+  Sets the point size to \a pointSize. The point size must be greater
   than zero. The requested precision may not be achieved on all platforms.
 */
 void QFont::setPointSizeFloat( float pointSize )
 {
     if ( pointSize <= 0 ) {
-
 #if defined(CHECK_RANGE)
 	qWarning( "QFont::setPointSize: Point size <= 0 (%f)", pointSize );
 #endif
-
 	return;
     }
 
@@ -512,29 +522,72 @@ void QFont::setPointSizeFloat( float pointSize )
 
     detach();
     d->request.pointSize = (short) ps;
-    d->request.pixelSize = pixelSize();
+    d->request.pixelSize = -1;
     d->request.dirty = TRUE;
 }
 
 
-/*! Returns the height of characters in the font in points (1/72 inch).
+/*! 
+  Returns the requested height of characters in the font in points (1/72 inch). Returns -1 if a font size in
+  pixels was requested.
 
-  \sa pointSize() pixelSize()
+  \sa pointSize() pixelSize() QFontInfo::pointSize() QFontInfo::pixelSize()
 */
 float QFont::pointSizeFloat() const
 {
-    return float(d->request.pointSize) / 10.0;
+    return float(d->request.pointSize == -1 ? -10 : d->request.pointSize) / 10.0;
 }
 
 
-/*! Sets the logical height of font characters shown on
-  the screen to \a pixelSize.
+/*! 
+  Sets the height in pixels of font characters shown on
+  the screen or printer to \a pixelSize.
 
+  This way of specifying a font size makes the font device dependent, and the
+  resulting font will vary in size on  devices with different  resolutions. setPointSize()
+  is the device independent approach.
+  
   \sa pixelSize() setPointSize()
 */
 void QFont::setPixelSize( int pixelSize )
 {
+    if ( pixelSize <= 0 ) {
+#if defined(CHECK_RANGE)
+	qWarning( "QFont::setPointSize: Point size <= 0 (%f)", pointSize );
+#endif
+	return;
+    }
+    if (d->request.pixelSize == pixelSize) return;
+    
+    detach();
+    d->request.pixelSize = (int) pixelSize;
+    d->request.pointSize = -1;
+    d->request.dirty = TRUE;
+	
     setPixelSizeFloat(float(pixelSize));
+}
+
+/*!
+  Returns the pixel height of characters in the font if shown on
+  the screen. Will return -1 if a font size in points was requested.
+  
+  Use the QFontInfo class to get the real height of the font.
+
+  \sa setPointSize() QFontInfo::pointSize() QFontInfo::pixelSize()
+*/
+int QFont::pixelSize() const
+{
+    return d->request.pixelSize;
+}
+
+
+/*! 
+  Sets the logical pixel height of font characters when shown on
+  the screen to \a pixelSize().
+*/
+void QFont::setPixelSizeFloat( float pixelSize )
+{
+    setPixelSize( (int)pixelSize );
 }
 
 
@@ -1148,7 +1201,6 @@ void QFont::removeSubstitution( const QString &familyName )
 
     fontSubst->remove(familyName);
 }
-
 
 #ifndef QT_NO_STRINGLIST
 
@@ -2721,3 +2773,5 @@ QFont::Script QFontPrivate::scriptForChar( const QChar &c )
     // return QFont::UnknownScript;
     return QFont::Unicode;
 }
+
+
