@@ -460,17 +460,14 @@ void show_children( QWidget * w, int show )
 {
     const QObjectList *children = w->children();
     if( children ) {
-	QObjectListIt it( *children );
-	for(QObject *child = it.toLast(); child; child = --it) {
-	    if(child->isWidgetType()) {
-		QWidget *childwidg = (QWidget *)child;
+	for(QObjectListIt it( *children ); it.current(); ++it) {
+	    if((*it)->isWidgetType()) {
+		QWidget *childwidg = (QWidget *)(*it);
 		if(!childwidg->isTopLevel()) {
-		    if( !child->inherits( "QMenuBar" ) ) {
-			if (show)
-			    childwidg->show();
-			else
-			    childwidg->hide();
-		    }
+		    if (show)
+			childwidg->show();
+		    else
+			childwidg->hide();
 		}
 	    }
 	} 
@@ -1542,28 +1539,28 @@ void QWidget::setName( const char * )
 //FIXME: this function still accepts an x and y, so we can do dirty children later.
 void QWidget::propagateUpdates(int , int , int w, int h)
 {
-  SetPortWindowPort((WindowPtr)handle());
-   QRect paintRect( 0, 0, w, h );
+    SetPortWindowPort((WindowPtr)handle());
+    QRect paintRect( 0, 0, w, h );
 
-  if(!testWFlags(WRepaintNoErase))
-    erase(0, 0, w, h);
+    if(!testWFlags(WRepaintNoErase))
+	erase(0, 0, w, h);
 
-  setWState( WState_InPaintEvent );
-  QPaintEvent e( paintRect );
-  QApplication::sendEvent( this, &e );
-  clearWState( WState_InPaintEvent );
+    setWState( WState_InPaintEvent );
+    QPaintEvent e( paintRect );
+    QApplication::sendEvent( this, &e );
+    clearWState( WState_InPaintEvent );
     
-  QWidget *childWidget;
-  const QObjectList *childList = children();
-  if ( childList ) {
-    QObjectListIt it(*childList);
-    for(QObject *child = it.toLast(); child; child = --it) {
-      if ( child->isWidgetType() ) {
-	childWidget = (QWidget *)child;
-	childWidget->propagateUpdates( 0, 0, childWidget->width(), childWidget->height() );
-      }
-    }	
-  }
+    QWidget *childWidget;
+    const QObjectList *childList = children();
+    if ( childList ) {
+	for(QObjectListIt it(*childList); it.current(); ++it) {
+	    if ( (*it)->isWidgetType() ) {
+		childWidget = (QWidget *)(*it);
+		if(childWidget->isVisible())
+		    childWidget->propagateUpdates( 0, 0, childWidget->width(), childWidget->height() );
+	    }
+	}	
+    }
 }
 
 
