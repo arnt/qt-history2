@@ -136,6 +136,12 @@ public:
     void setUsesDropDown( bool enable );
     bool usesDropDown() const;
 
+    void setIconSet( const QIconSet& );
+    void setText( const QString& );
+    void setMenuText( const QString& );
+    void setToolTip( const QString& );
+    void setWhatsThis( const QString& );
+
 signals:
     void selected( QAction* );
 

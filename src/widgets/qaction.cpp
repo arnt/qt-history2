@@ -818,8 +818,43 @@ public:
     QList<QComboBox> comboboxes;
     QList<QToolButton> menubuttons;
     QList<QPopupMenu> popups;
+
+    void update( const QActionGroup * );
 };
 
+void QActionGroupPrivate::update( const QActionGroup* that )
+{
+    for ( QListIterator<QAction> it( actions ); it.current(); ++it ) {
+	it.current()->setEnabled( that->isEnabled() );
+    }
+    for ( QListIterator<QComboBox> cb( comboboxes ); cb.current(); ++cb ) {
+	cb.current()->setEnabled( that->isEnabled() );
+
+	QToolTip::remove( cb.current() );
+	QWhatsThis::remove( cb.current() );
+	if ( !!that->toolTip() )
+	    QToolTip::add( cb.current(), that->toolTip() );
+	if ( !!that->whatsThis() )
+	    QWhatsThis::add( cb.current(), that->whatsThis() );
+    }
+    for ( QListIterator<QToolButton> mb( menubuttons ); mb.current(); ++mb ) {
+	mb.current()->setEnabled( that->isEnabled() );
+
+	mb.current()->setTextLabel( that->text() );
+	mb.current()->setIconSet( that->iconSet() );
+
+	QToolTip::remove( mb.current() );
+	QWhatsThis::remove( mb.current() );
+	if ( !!that->toolTip() )
+	    QToolTip::add( mb.current(), that->toolTip() );
+	if ( !!that->whatsThis() )
+	    QWhatsThis::add( mb.current(), that->whatsThis() );
+
+    }
+    for ( QListIterator<QPopupMenu> pu( popups ); pu.current(); ++pu ) {
+	pu.current()->setEnabled( that->isEnabled() );
+    }
+}
 
 /*!
   \class QActionGroup qaction.h
@@ -860,6 +895,9 @@ QActionGroup::QActionGroup( QObject* parent, const char* name, bool exclusive )
     d->dropdown = FALSE;
     d->selected = 0;
     d->separatorAction = 0;
+    d->comboboxes.setAutoDelete( TRUE );
+    d->menubuttons.setAutoDelete( TRUE );
+    d->popups.setAutoDelete( TRUE );
 
     connect( this, SIGNAL(selected(QAction*)), SLOT(internalToggle(QAction*)) );
 }
@@ -951,17 +989,23 @@ bool QActionGroup::addTo( QWidget* w )
 		if ( !it.current() )
 		    return TRUE;
 
+		QAction *defAction = it.current();
+
 		QToolButton* btn = new QToolButton( (QToolBar*) w );
 		d->menubuttons.append( btn );
 
-		if ( !!text() )
-		    btn->setText( it.current()->text() );
 		if ( !iconSet().isNull() )
-		    btn->setIconSet( it.current()->iconSet() );
+		    btn->setIconSet( iconSet() );
+		if ( !!text() )
+		    btn->setTextLabel( text() );
+		if ( !!toolTip() )
+		    QToolTip::add( btn, toolTip() );
+		if ( !!whatsThis() )
+		    QWhatsThis::add( btn, whatsThis() );
 
-		connect( btn, SIGNAL( clicked() ), it.current(), SIGNAL( activated() ) );
-		connect( btn, SIGNAL( toggled(bool) ), it.current(), SLOT( toolButtonToggled(bool) ) );
-		connect( btn, SIGNAL( destroyed() ), it.current(), SLOT( objectDestroyed() ) );
+		connect( btn, SIGNAL( clicked() ), defAction, SIGNAL( activated() ) );
+		connect( btn, SIGNAL( toggled(bool) ), defAction, SLOT( toolButtonToggled(bool) ) );
+		connect( btn, SIGNAL( destroyed() ), defAction, SLOT( objectDestroyed() ) );
 
 		QPopupMenu *menu = new QPopupMenu( btn );
 		btn->setPopupDelay( 0 );
@@ -975,6 +1019,10 @@ bool QActionGroup::addTo( QWidget* w )
 	    } else {
 		QComboBox *box = new QComboBox( w );
 		d->comboboxes.append( box );
+		if ( !!toolTip() )
+		    QToolTip::add( box, toolTip() );
+		if ( !!whatsThis() )
+		    QWhatsThis::add( box, whatsThis() );
 
 		for ( QListIterator<QAction> it( d->actions); it.current(); ++it ) {
 		    box->insertItem( it.current()->iconSet().pixmap(), it.current()->text() );
@@ -990,7 +1038,10 @@ bool QActionGroup::addTo( QWidget* w )
 	    popup = new QPopupMenu( w );
 	    d->popups.append( popup );
 
-	    menu->insertItem( menuText(), popup );
+	    if ( !iconSet().isNull() )
+		menu->insertItem( iconSet(), menuText().isEmpty() ? text() : menuText(), popup );
+	    else
+		menu->insertItem( menuText().isEmpty() ? text() : menuText(), popup );
 	} else {
 	    popup = (QPopupMenu*)w;
 	}
@@ -1056,17 +1107,65 @@ void QActionGroup::childDestroyed()
  */
 void QActionGroup::setEnabled( bool enable )
 {
-    for ( QListIterator<QAction> it( d->actions ); it.current(); ++it ) {
-	it.current()->setEnabled( enable );
-    }
-    for ( QListIterator<QComboBox> cb( d->comboboxes ); cb.current(); ++cb ) {
-	cb.current()->setEnabled( enable );
-    }
-    for ( QListIterator<QToolButton> mb( d->menubuttons ); mb.current(); ++mb ) {
-	mb.current()->setEnabled( enable );
-    }
+    if ( enable == isEnabled() )
+	return;
+
     QAction::setEnabled( enable );
+    d->update( this );
 }
+
+/*!\reimp
+*/
+void QActionGroup::setIconSet( const QIconSet& icon )
+{
+    QAction::setIconSet( icon );
+    d->update( this );
+}
+
+/*!\reimp
+*/
+void QActionGroup::setText( const QString& txt )
+{
+    if ( txt == text() )
+	return;
+
+    QAction::setText( txt );
+    d->update( this );
+}
+
+/*!\reimp
+*/
+void QActionGroup::setMenuText( const QString& text )
+{
+    if ( text == menuText() )
+	return;
+
+    QAction::setMenuText( text );
+    d->update( this );
+}
+
+/*!\reimp
+*/
+void QActionGroup::setToolTip( const QString& text )
+{
+    if ( text == toolTip() )
+	return;
+
+    QAction::setToolTip( text );
+    d->update( this );
+}
+
+/*!\reimp
+*/
+void QActionGroup::setWhatsThis( const QString& text )
+{
+    if ( text == whatsThis() )
+	return;
+
+    QAction::setWhatsThis( text );
+    d->update( this );
+}
+
 
 /*!
   \fn void QActionGroup::selected(QAction*)
