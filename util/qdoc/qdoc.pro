@@ -75,5 +75,5 @@ unix:SOURCES	+= ../../src/tools/qdir_unix.cpp \
 win32:SOURCES	+= ../../src/tools/qdir_win.cpp \
 		  ../../src/tools/qfile_win.cpp \
 		  ../../src/tools/qfileinfo_win.cpp
-
+win32:LIBS	+= ole32.lib
 TARGET		= qdoc
