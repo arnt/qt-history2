@@ -90,7 +90,6 @@ class QDragMime : public QMimeData
 {
 public:
     QDragMime(Q3DragObject *parent) : QMimeData() { dragObject = parent; }
-    ~QDragMime() { delete dragObject; }
 
     QByteArray data(const QString &mimetype) const;
     bool hasFormat(const QString &mimetype) const;
