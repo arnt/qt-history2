@@ -51,6 +51,7 @@ const int Q_MUTEX_RECURSIVE = 1;
 
 class Q_EXPORT QMutex
 {
+    friend class QThread;
     friend class QWaitCondition;
     friend class QWaitConditionPrivate;
 
