@@ -464,23 +464,31 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
     bool partialalpha=FALSE;
 
     QWSDisplay *dpy = qwsDisplay();
-    if(image.hasAlphaBuffer() && dpy->supportsDepth(32) && image.depth()==32 && dd>8 && manycolors) {
-	int loopc,loopc2;
-	for(loopc=0;loopc<image.height();loopc++) {
-	    QRgb * tmp=(QRgb *)image.scanLine(loopc);
-	    for(loopc2=0;loopc2<image.width();loopc2++) {
-		int t=qAlpha(*tmp);
-		if(t>0 && t<255) {
-		    partialalpha=TRUE;
-		    loopc2=image.width();
-		    loopc=image.height();
+    if(image.hasAlphaBuffer() && dpy->supportsDepth(32) && dd>8 && manycolors) {
+	if (image.depth()==8) {
+	    for (int i=0; i<image.numColors(); i++) {
+		int t = qAlpha(image.color(i));
+		if ( t>0 && t<255) {
+		    partialalpha = TRUE;
+		    break;
+		}
+	    }
+	} else if (image.depth()==32) {
+	    int loopc,loopc2;
+	    for (loopc=0;loopc<image.height();loopc++) {
+		QRgb * tmp=(QRgb *)image.scanLine(loopc);
+		for(loopc2=0;loopc2<image.width();loopc2++) {
+		    int t=qAlpha(*tmp++);
+		    if(t>0 && t<255) {
+			partialalpha=TRUE;
+			loopc2=image.width();
+			loopc=image.height();
+		    }
 		}
 	    }
 	}
-    }
-
-    if ( partialalpha ) {
-    	dd=32;
+	if ( partialalpha )
+	    dd=32;
     }
 
     QImage rimg = qt_screen->mapToDevice( image );
