@@ -77,6 +77,9 @@ void QDesigner::initialize()
 
     emit initialized();
 
+    for (int i = 1; i < argc(); ++i)
+        m_mainWindow->readInForm(QString::fromLocal8Bit(argv()[i]));
+
     m_mainWindow->show();
 }
 
