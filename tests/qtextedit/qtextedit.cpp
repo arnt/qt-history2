@@ -21,6 +21,7 @@
 #include <qdragobject.h>
 #include <qurl.h>
 #include <qcursor.h>
+#include <qregexp.h>
 
 QTextEdit::QTextEdit( QWidget *parent, const char *name )
     : QScrollView( parent, name, WNorthWestGravity | WRepaintNoErase ),
