@@ -360,6 +360,7 @@ private:
     QScrollView::ScrollBarMode setMode;
     QString pressedLink;
     QTextViewPrivate *d;
+    bool inDnD;
 
 };
 

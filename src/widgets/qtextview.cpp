@@ -218,6 +218,7 @@ void QTextView::init()
     wrapWidth = -1;
     wPolicy = AtWhiteSpace;
     setMode = Auto;
+    inDnD = FALSE;
 
     doc->setFormatter( new QTextFormatterBreakWords );
     currentFormat = doc->formatCollection()->defaultFormat();
@@ -878,7 +879,7 @@ void QTextView::drawCursor( bool visible )
 {
     if ( !cursor->parag() ||
 	 !cursor->parag()->isValid() ||
-	 ( !hasFocus() && !viewport()->hasFocus() ) ||
+	 ( !hasFocus() && !viewport()->hasFocus() && !inDnD ) ||
 	 isReadOnly() )
 	return;
 
@@ -895,7 +896,7 @@ void QTextView::drawCursor( bool visible )
     p.setBrushOrigin( -contentsX(), -contentsY() );
     cursor->parag()->document()->nextDoubleBuffered = TRUE;
     doc->drawParag( &p, cursor->parag(), r.x() - cursor->totalOffsetX(),
-		    r.y() - cursor->totalOffsetX(), r.width(), r.height(),
+		    r.y() - cursor->totalOffsetY(), r.width(), r.height(),
 		    pix, cg, visible, cursor );
     cursorVisible = visible;
 }
@@ -1133,6 +1134,7 @@ void QTextView::contentsMouseDoubleClickEvent( QMouseEvent * )
 void QTextView::contentsDragEnterEvent( QDragEnterEvent *e )
 {
     e->acceptAction();
+    inDnD = TRUE;
 }
 
 /*! \reimp */
@@ -1149,12 +1151,14 @@ void QTextView::contentsDragMoveEvent( QDragMoveEvent *e )
 
 void QTextView::contentsDragLeaveEvent( QDragLeaveEvent * )
 {
+    inDnD = FALSE;
 }
 
 /*! \reimp */
 
 void QTextView::contentsDropEvent( QDropEvent *e )
 {
+    inDnD = FALSE;
     e->acceptAction();
     QString text;
     int i = -1;
