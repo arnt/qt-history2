@@ -54,10 +54,10 @@ EditSlots::EditSlots( QWidget *parent, FormWindow *fw )
     comboLanguage->setEnabled( FALSE );
     slotName->setValidator( new AsciiValidator( TRUE, slotName ) );
 
+    comboLanguage->insertStringList( MetaDataBase::languages() );
+
     if ( slotListView->firstChild() )
 	slotListView->setCurrentItem( slotListView->firstChild() );
-
-    comboLanguage->insertStringList( MetaDataBase::languages() );
 }
 
 void EditSlots::okClicked()
