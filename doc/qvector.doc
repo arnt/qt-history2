@@ -209,7 +209,7 @@
 */
 
 /*!
-  \fn bool QVector::fill( const type *d, int size=-1 )
+  \fn bool QVector::fill( const type *d, int size )
 
   Inserts item \a d in all positions in the vector. Any existing items
   are removed. If \a d is 0, the vector becomes empty.
@@ -251,7 +251,7 @@
 
 
 /*!
-  \fn int QVector::findRef( const type *d, uint i=0 ) const
+  \fn int QVector::findRef( const type *d, uint i ) const
 
   Finds the first occurence of the item pointer \a d in the vector,
   using linear search. The search starts at position \a i, which must
@@ -266,7 +266,7 @@
 */
 
 /*!
-  \fn int QVector::find( const type *d, uint i=0 ) const
+  \fn int QVector::find( const type *d, uint i ) const
 
   Finds the first occurence of item \a d in the vector, using linear
   search. The search starts at position \a i, which must be less than

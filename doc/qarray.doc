@@ -238,7 +238,7 @@
 */
 
 /*!
-  \fn bool QArray::fill( const type &v, int size=-1 )
+  \fn bool QArray::fill( const type &v, int size )
   Fills the array with the value \e v. If \e size is specified as different
   from -1, then the array will be resized before filled.
 
