@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/xml/qxml.cpp#79 $
+** $Id: //depot/qt/main/src/xml/qxml.cpp#80 $
 **
 ** Implementation of QXmlSimpleReader and related classes.
 **
@@ -3793,7 +3793,7 @@ bool QXmlSimpleReader::parseDoctype()
     static signed char table[12][8] = {
      /*  InpWs,  InpD       InpS       InpOB  InpCB  InpPer InpGt  InpUnknown */
 	{ -1,     Doctype,   -1,        -1,    -1,    -1,    -1,    -1        }, // Init
-	{ Ws1,    Doctype2,  Doctype2,  -1,    -1,    -1,    -1,    Doctype2  }, // Doctype
+	{ Ws1,    -1,        -1,        -1,    -1,    -1,    -1,    -1        }, // Doctype
 	{ -1,     Doctype2,  Doctype2,  -1,    -1,    -1,    -1,    Doctype2  }, // Ws1
 	{ Ws2,    -1,        Sys,       MP,    -1,    -1,    Done,  -1        }, // Doctype2
 	{ -1,     -1,        Sys,       MP,    -1,    -1,    Done,  -1        }, // Ws2
@@ -3836,12 +3836,6 @@ bool QXmlSimpleReader::parseDoctype()
 
     while ( TRUE ) {
 	switch ( state ) {
-	    case Doctype:
-		if ( !is_S(c) ) {
-		    reportParseError( XMLERR_ERRORPARSINGDOCTYPE );
-		    return FALSE;
-		}
-		break;
 	    case Doctype2:
 		d->doctype = name();
 		break;
