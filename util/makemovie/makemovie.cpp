@@ -30,7 +30,7 @@
 
 #define FRAME_DELAY 30
 #define MAX_CLUSTERS 16
-bool demo_mode = FALSE;
+bool demo_mode = false;
 
 class QMovieFrame {
 public:
@@ -44,7 +44,7 @@ public:
     int operator< (const QMovieFrame& other) const {
 	return offy < other.offy; }
     int operator== (const QMovieFrame& other) const {
-	return FALSE; }
+	return false; }
 
 private:
     int offx,offy;
@@ -67,7 +67,7 @@ QDataStream& operator>>(QDataStream& str, QMovieFrame& frame)
 QDataStream& operator>>(QDataStream& str, QMovieFrames& frames)
 {
     frames.clear();
-    frames.setAutoDelete( TRUE );
+    frames.setAutoDelete( true );
 
     Q_INT32 count;
     str >> count;
@@ -178,7 +178,7 @@ QPtrList<QMovieFrame> optimize( QStrList& files, unsigned int count )
       }
 
       // Almost random walk thru the lines
-      bool eight_pixel_mode = TRUE;
+      bool eight_pixel_mode = true;
       int h = 0;
       int ww = eight_pixel_mode ? img1.width()/8 : img1.width();
       int hh = img1.height();
@@ -310,14 +310,14 @@ int main(int argc, char** argv)
     }
 
     if ( argc >= 2 && strcmp( argv[1], "-demo" ) == 0 )
-      demo_mode = TRUE;
+      demo_mode = true;
 
     QPtrList<QMovieFrame> frames;
 
-    bool load_mode = FALSE;
+    bool load_mode = false;
     if ( argc >= 2 && strcmp( argv[1], "-load" ) == 0 )
     {
-      load_mode = TRUE;
+      load_mode = true;
       if ( argc != 3 )
       {
 	printf("moviemaker: Syntax:\n");

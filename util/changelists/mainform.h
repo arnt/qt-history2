@@ -10,7 +10,7 @@ class MainForm : public MainFormBase
     Q_OBJECT
 
 public:
-    MainForm(bool group=FALSE);
+    MainForm(bool group=false);
     ~MainForm();
 
 private slots:

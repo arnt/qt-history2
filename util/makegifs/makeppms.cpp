@@ -1,11 +1,6 @@
-#include <stdlib.h>
-#include <unistd.h> // for sleep()
-
 #include <qapplication.h>
 #include <qmotifstyle.h>
 #include <qwindowsstyle.h>
-
-//#include <qdial.h>
 #include <qmainwindow.h>
 #include <qtoolbutton.h>
 #include <qtoolbar.h>
@@ -48,16 +43,18 @@
 #include <qfontdialog.h>
 #include <qcolordialog.h>
 #include <qtextbrowser.h>
-
-#include <life.h>
-#include "../../examples/dirview/dirview.h"
-
 #include <qtextstream.h>
 #include <qimage.h>
 #include <qpixmap.h>
 #include <qpainter.h>
 #include <qkeycode.h>
+
+#include <life.h>
+#include "../../examples/dirview/dirview.h"
+
+#include <unistd.h> // for sleep()
 #include <stdlib.h>
+
 
 /* XPM */
 static const char *image_xpm[] = {
@@ -135,7 +132,7 @@ public:
 	widget(0),
 	suffix(suf)
     {
-	done = TRUE;
+	done = true;
     }
     ~WidgetDepicter()
     {
@@ -157,11 +154,11 @@ public:
     void depict(QDialog* w, const char* savefile, const char* widgetname)
     // Special case QWidget:  want WM frame
     {
-	depict(w, savefile, widgetname, TRUE);
+	depict(w, savefile, widgetname, true);
     }
 
     void depict(QWidget* w, const char* savefile, const char* widgetname,
-		bool frame=FALSE)
+		bool frame=false)
     {
 	if (widget) widget->hide();
 	widget=w;
@@ -169,7 +166,7 @@ public:
 	filename=savefile + suffix;
 	widget->setCaption(widgetname);
 	widget->show();
-	done = FALSE;
+	done = false;
 	startTimer(800);
 	while ( !done ) {
 	    qApp->processEvents();
@@ -181,7 +178,7 @@ public:
     void timerEvent(QTimerEvent*)
     {
 	if ( !done ) {
-	    done = TRUE;
+	    done = true;
 	    takePicture();
 	}
     }
@@ -225,7 +222,7 @@ public:
 	cb1.setGeometry(0,0,80,25);
 	cb2.setGeometry(0,25,80,25);
 	cb3.setGeometry(0,50,80,25);
-	cb1.setChecked(TRUE);
+	cb1.setChecked(true);
 	resize(80,75);
     }
 };
@@ -253,7 +250,7 @@ public:
 	rb1.setGeometry(0,0,80,25);
 	rb2.setGeometry(0,25,80,25);
 	rb3.setGeometry(0,50,80,25);
-	rb1.setChecked(TRUE);
+	rb1.setChecked(true);
 	resize(80,75);
     }
 };
@@ -273,7 +270,7 @@ public:
 class EgQComboBox2 : public QComboBox {
 public:
     EgQComboBox2() :
-	QComboBox( TRUE )
+	QComboBox( true )
     {
 	insertItem("Choice 1");
 	resize(100,25);
@@ -284,7 +281,7 @@ public:
 class EgQComboBox3 : public QComboBox {
 public:
     EgQComboBox3() :
-	QComboBox( FALSE )
+	QComboBox( false )
     {
 	insertItem("Choice 1");
 	resize(100,25);
@@ -470,7 +467,7 @@ public:
 	rb1.setGeometry(15,20,80,25);
 	rb2.setGeometry(15,45,80,25);
 	rb3.setGeometry(15,70,80,25);
-	rb1.setChecked(TRUE);
+	rb1.setChecked(true);
 	resize(120,100);
     }
 };
@@ -656,7 +653,7 @@ public:
 	    "amounts of text. There are no arbitrary limitations, but if you try to handle megabytes of data,\n"
 	    "performance will suffer.\n"
 	    "\n"
-	    "This widget can be used to display text by calling setReadOnly(TRUE)"
+	    "This widget can be used to display text by calling setReadOnly(true)"
 	);
 	resize(210,120);
     }
@@ -696,7 +693,7 @@ public:
 	QDial()
     {
 	setValue(42);
-	setNotchesVisible(TRUE);
+	setNotchesVisible(true);
 	resize(60,60);
     }
 };
@@ -857,9 +854,9 @@ public:
     EgQTabBar()
     {
 	QTab* t;
-	addTab((t=new QTab,t->label="Base",t->enabled=TRUE,t));
-	addTab((t=new QTab,t->label="Innings",t->enabled=TRUE,t));
-	addTab((t=new QTab,t->label="Style",t->enabled=TRUE,t));
+	addTab((t=new QTab,t->label="Base",t->enabled=true,t));
+	addTab((t=new QTab,t->label="Innings",t->enabled=true,t));
+	addTab((t=new QTab,t->label="Style",t->enabled=true,t));
 	resize(160,26);
     }
 };
@@ -974,14 +971,14 @@ public:
 	lb->setCurrentItem( 2 );
 	
 	QListView *lv = new QListView( sp );
-	lv->setRootIsDecorated( TRUE );
+	lv->setRootIsDecorated( true );
 	lv->addColumn( "Action" );
 	lv->addColumn( "Description" );
 	QListViewItem *li;
 	lv->setSorting( -1 );
 	li = new QListViewItem( lv, "File", "File Operations" );
 	QListViewItem *r = li;
-	li->setOpen( TRUE );
+	li->setOpen( true );
 	li = new QListViewItem( r, "Open", "Open a local or remote file" );
 	li->setPixmap( 0, QPixmap( "fileopen.xpm" ) );
 	li = new QListViewItem( r, "Save", "Save the document to a file" );
@@ -989,7 +986,7 @@ public:
 	li = new QListViewItem( r, "Print", "Print out the contents of the document" );
 	li->setPixmap( 0, QPixmap( "filePrint.xpm" ) );
 	li = new QListViewItem( lv, "Edit", "Edit Operations" );
-	li->setOpen( TRUE );
+	li->setOpen( true );
 	r = li;
 	li = new QListViewItem( r, "Cut", "Cut the selection" );
 	li->setPixmap( 0, QPixmap( "editcut.xpm" ) );
@@ -1010,7 +1007,7 @@ public:
 	new QIconViewItem( iv, "Network", QPixmap( "qtlogo.xpm" ) );
 	new QIconViewItem( iv, "Update", QPixmap( "qtlogo.xpm" ) );
 	iv->setCurrentItem( iv->firstItem() );
-	iv->setSelected( iv->firstItem(), FALSE );
+	iv->setSelected( iv->firstItem(), false );
 	iv->setMinimumHeight( 150 );
 	iv->setFocus();
 	
@@ -1023,9 +1020,9 @@ class EgComplexGroupBox : public QGroupBox
 public:
     EgComplexGroupBox() : QGroupBox( 1, Horizontal, "Group Box" ) {
 	(void)new QLineEdit( "Some Text", this );
-	QComboBox *cb = new QComboBox( FALSE, this );
+	QComboBox *cb = new QComboBox( false, this );
 	cb->insertItem( "First Item" );
-	cb = new QComboBox( TRUE, this );
+	cb = new QComboBox( true, this );
 	cb->insertItem( "Third Item" );
     }
 };
@@ -1035,13 +1032,13 @@ class EgComplexButtonGroup : public QButtonGroup
 public:
     EgComplexButtonGroup() : QButtonGroup( 1, Horizontal, "Group Box" ) {
 	QRadioButton *rb = new QRadioButton( "Radiobutton &1", this );
-	rb->setChecked( TRUE );
+	rb->setChecked( true );
 	rb = new QRadioButton( "Radiobutton &2", this );
 	rb = new QRadioButton( "Radiobutton &3", this );
 	rb = new QRadioButton( "Radiobutton &4", this );
 	QCheckBox *cb = new QCheckBox( "&Checkbox 1", this );
 	cb = new QCheckBox( "&Checkbox 2", this );
-	cb->setChecked( TRUE );
+	cb->setChecked( true );
     }
 };
 
@@ -1079,8 +1076,8 @@ public:
 	addColumn( "Name" );
 	addColumn( "Type" );
 	(void)new Directory( this, "/" );
-	firstChild()->setOpen( TRUE );
-	firstChild()->firstChild()->nextSibling()->setOpen( TRUE );
+	firstChild()->setOpen( true );
+	firstChild()->firstChild()->nextSibling()->setOpen( true );
 	resize( 300, 300 );
     }
 };
@@ -1090,7 +1087,7 @@ int main( int argc, char **argv )
     QApplication a( argc, argv );
     QFileDialog::setIconProvider( new ImageIconProvider );
 
-    bool first = TRUE;
+    bool first = true;
     QString suffix = "-m.png";
     QApplication::setStyle( new QMotifStyle );
 
@@ -1100,7 +1097,7 @@ int main( int argc, char **argv )
 #define DEPICT(eg, ofile, wname) \
 wd.depict( new eg(), ofile, wname );
 #define DEPICTFRAMED(eg, ofile, wname) \
-wd.depict( new eg(), ofile, wname, TRUE );
+wd.depict( new eg(), ofile, wname, true );
 
 /*
 	DEPICT( EgQButtonGroup, "qbttngrp", "QButtonGroup" );
@@ -1111,8 +1108,8 @@ wd.depict( new eg(), ofile, wname, TRUE );
 	DEPICT( EgQPushButton, "qpushbt", "QPushButton" );
 	DEPICT( EgQRadioButton, "qradiobt", "QRadioButton" );
 	DEPICT( EgQComboBox1, "qcombo1", "QComboBox()" );
-	DEPICT( EgQComboBox2, "qcombo2", "QComboBox(TRUE)" );
-	DEPICT( EgQComboBox3, "qcombo3", "QComboBox(FALSE)" );
+	DEPICT( EgQComboBox2, "qcombo2", "QComboBox(true)" );
+	DEPICT( EgQComboBox3, "qcombo3", "QComboBox(false)" );
 	DEPICT( EgQLCDNumber, "qlcdnum", "QLCDNumber" );
 	DEPICT( EgQLabel, "qlabel", "QLabel" );
 	DEPICT( EgNestedQMenuBar, "qmenubar", "QMenuBar" );
@@ -1158,7 +1155,7 @@ wd.depict( new eg(), ofile, wname, TRUE );
 	
 	if ( !first ) break;
 
-	first = FALSE;
+	first = false;
 	QApplication::setStyle( new QWindowsStyle );
 	suffix = "-w.png";
     }

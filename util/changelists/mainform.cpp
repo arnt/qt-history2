@@ -22,7 +22,7 @@ public:
 
     int highlightParagraph( const QString &text, int ) {
 	QFont bold = textEdit()->font();
-	bold.setBold( TRUE );
+	bold.setBold( true );
 
 	if ( text[0] == '+' )
 	    setFormat( 0, text.length(), blue );
@@ -41,7 +41,7 @@ MainForm::MainForm(bool g) :
     grouped(g), changeListFrom(0), changeListTo(0), changeDateTo(0), changeWhoTo(0)
 {
     if(grouped)
-	changes->setRootIsDecorated(TRUE);
+	changes->setRootIsDecorated( true );
 
     connect( quit, SIGNAL(clicked()), SLOT(close()) );
     connect( pathSelect, SIGNAL(clicked()), SLOT(selectPath()) );
@@ -205,7 +205,7 @@ void MainForm::processExited()
 	    QString changesTmp = QString(process.readStdout());
 	    int sPos = 0;
 	    int ePos = 0;
-	    while ( TRUE ) {
+	    while ( true ) {
 		ePos = changesTmp.find( '\n', sPos );
 		if ( ePos == -1 )
 		    break;
@@ -245,16 +245,16 @@ void MainForm::processExited()
 		while ( !TO_AT_END ) {
 		    if ( FROM_AT_END ) {
 			while ( !TO_AT_END ) {
-			    bool added = FALSE;
+			    bool added = false;
 			    if(changeWhoTo && (*changeWhoTo).contains(*itTo)) {
 				QString who = (*changeWhoTo)[*itTo].section('@', 0, 0);
 				QListViewItem *root = roots[who];
 				if(!root) {
 				    roots.insert(who, root = new QListViewItem(changes, who));
-//				    root->setOpen(TRUE);
+//				    root->setOpen(true);
 				}
 				if(root) {
-				    added = TRUE;
+				    added = true;
 				    (void) new ChangeItem( root, *itTo, (*changeDateTo)[*itTo] );
 				}
 			    }
@@ -265,16 +265,16 @@ void MainForm::processExited()
 			break;
 		    }
 		    while ( *itFrom > *itTo ) {
-			bool added = FALSE;
+			bool added = false;
 			if(changeWhoTo && (*changeWhoTo).contains(*itTo)) {
 			    QString who = (*changeWhoTo)[*itTo].section('@', 0, 0);
 			    QListViewItem *root = roots[who];
 			    if(!root) {
 				roots.insert(who, root = new QListViewItem(changes, who));
-//				root->setOpen(TRUE);
+//				root->setOpen(true);
 			    }
 			    if(root) {
-				added = TRUE;
+				added = true;
 				(void)new ChangeItem( root, *itTo, (*changeDateTo)[*itTo] );
 			    }
 			}
@@ -359,7 +359,7 @@ void MainForm::parseDescribe( const QString& desc )
     }
 
     if ( changes->currentItem() != 0 ) {
-	((ChangeItem*)(changes->currentItem()))->setVisitedEnable( TRUE );
+	((ChangeItem*)(changes->currentItem()))->setVisitedEnable( true );
     }
 }
 

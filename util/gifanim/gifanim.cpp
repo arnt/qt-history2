@@ -167,7 +167,7 @@ bool write_gif_animation( QIODevice* iod, QImage *images, unsigned int count )
     // write the file header
     QDataStream * s = new QDataStream( iod );
     if ( s->device()->writeBlock( "GIF89a", 6 ) < 6 )
-	return FALSE;
+	return false;
 
     s->setByteOrder( QDataStream::LittleEndian );
     *s << (Q_UINT16)w
@@ -199,7 +199,7 @@ bool write_gif_animation( QIODevice* iod, QImage *images, unsigned int count )
 
     if ( s->device()->writeBlock( globalColorTable, 3*colorTableSize ) <
 	 3*colorTableSize )
-	return FALSE;
+	return false;
 
     delete[]globalColorTable;
     globalColorTable = 0;
@@ -243,11 +243,11 @@ bool write_gif_animation( QIODevice* iod, QImage *images, unsigned int count )
 	    bool done;
 
 	    // Find left edge of change
-	    done = FALSE;
+	    done = false;
 	    for (minx = 0; minx < w && !done; minx++) {
 		for (int ty = 0; ty < h; ty++) {
 		    if ( jt[ty][minx] != pjt[ty][minx] ) {
-			done = TRUE;
+			done = true;
 			break;
 		    }
 		}
@@ -255,11 +255,11 @@ bool write_gif_animation( QIODevice* iod, QImage *images, unsigned int count )
 	    minx--;
 
 	    // Find right edge of change
-	    done = FALSE;
+	    done = false;
 	    for (maxx = w-1; maxx >= 0 && !done; maxx--) {
 		for (int ty = 0; ty < h; ty++) {
 		    if ( jt[ty][maxx] != pjt[ty][maxx] ) {
-			done = TRUE;
+			done = true;
 			break;
 		    }
 		}
@@ -267,11 +267,11 @@ bool write_gif_animation( QIODevice* iod, QImage *images, unsigned int count )
 	    maxx++;
 
 	    // Find top edge of change
-	    done = FALSE;
+	    done = false;
 	    for (miny = 0; miny < h && !done; miny++) {
 		for (int tx = 0; tx < w; tx++) {
 		    if ( jt[miny][tx] != pjt[miny][tx] ) {
-			done = TRUE;
+			done = true;
 			break;
 		    }
 		}
@@ -279,11 +279,11 @@ bool write_gif_animation( QIODevice* iod, QImage *images, unsigned int count )
 	    miny--;
 
 	    // Find right edge of change
-	    done = FALSE;
+	    done = false;
 	    for (maxy = h-1; maxy >= 0 && !done; maxy--) {
 		for (int tx = 0; tx < w; tx++) {
 		    if ( jt[maxy][tx] != pjt[maxy][tx] ) {
-			done = TRUE;
+			done = true;
 			break;
 		    }
 		}
@@ -423,7 +423,7 @@ bool write_gif_animation( QIODevice* iod, QImage *images, unsigned int count )
 	if ( s->device()->writeBlock( (char *)packet, packetPointer )
 				< packetPointer )
 	{
-	    return FALSE; // assumption: if this succeeds, all earlier writes succeeded
+	    return false; // assumption: if this succeeds, all earlier writes succeeded
 	}
 	packetPointer = 0;
 
@@ -432,10 +432,10 @@ bool write_gif_animation( QIODevice* iod, QImage *images, unsigned int count )
     }
     Q_UINT8 byte = 0x3B; // gif trailer
     if ( s->device()->writeBlock( (char *)&byte, 1 ) < 1 )
-	return FALSE; // assumption: if this succeeds, all earlier writes succeeded
+	return false; // assumption: if this succeeds, all earlier writes succeeded
 
     // Done, and successful.
-    return TRUE;
+    return true;
 }
 
 
