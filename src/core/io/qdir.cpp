@@ -201,7 +201,7 @@ inline void QDirPrivate::sortFileList(int sortSpec, QStringList &l,
 inline void QDirPrivate::updateFileLists() const
 {
     if(data->listsDirty) {
-        QStringList l = data->dirEngine->entryInfoList(data->filterSpec, data->nameFilters);
+        QStringList l = data->dirEngine->entryList(data->filterSpec, data->nameFilters);
         sortFileList(data->sortSpec, l, &data->files, &data->fileInfos); 
         data->listsDirty = 0;
     }
@@ -1003,7 +1003,7 @@ QDir::entryList(const QStringList &nameFilters, int filterSpec, int sortSpec) co
         d->updateFileLists();
         return d->data->files;
     }
-    QStringList l = d->data->dirEngine->entryInfoList(d->data->filterSpec, nameFilters), ret;
+    QStringList l = d->data->dirEngine->entryList(d->data->filterSpec, nameFilters), ret;
     d->sortFileList(sortSpec, l, &ret, 0); 
     return ret;
 }
@@ -1036,7 +1036,7 @@ QDir::entryInfoList(const QStringList &nameFilters, int filterSpec, int sortSpec
         return d->data->fileInfos;
     }
     QFileInfoList ret;
-    QStringList l = d->data->dirEngine->entryInfoList(d->data->filterSpec, nameFilters);
+    QStringList l = d->data->dirEngine->entryList(d->data->filterSpec, nameFilters);
     d->sortFileList(sortSpec, l, 0, &ret); 
     return ret;
 }
@@ -1365,7 +1365,7 @@ QDir::drives()
     underlying operating system.
 */
 
-char
+QChar
 QDir::separator()
 {
 #if defined(Q_OS_UNIX)

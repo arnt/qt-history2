@@ -277,8 +277,8 @@ MakefileGenerator::init()
                                 }
                             } else {
                                 debug_msg(1, "%s:%d Cannot match %s%c%s, as %s does not exist.",
-                                          __FILE__, __LINE__,
-                                          real_dir.latin1(), QDir::separator(), regex.latin1(),
+                                          __FILE__, __LINE__, real_dir.latin1(), 
+                                          QDir::separator().latin1(), regex.latin1(),
                                           real_dir.latin1());
                                 warn_msg(WarnLogic, "Failure to find: %s", (*val_it).latin1());
                             }
@@ -793,7 +793,7 @@ MakefileGenerator::usePlatformDir()
     QString pltDir(project->first("QMAKE_PLATFORM_DIR"));
     if(pltDir.isEmpty())
         return;
-    char sep = QDir::separator();
+    QChar sep = QDir::separator();
     QString slashPltDir = sep + pltDir;
 
     QString filePath = project->first("DESTDIR");

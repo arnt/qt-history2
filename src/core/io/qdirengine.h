@@ -37,7 +37,7 @@ public:
     virtual bool mkdir(const QString &dirName) const = 0;
     virtual bool rmdir(const QString &dirName) const = 0;
     virtual bool rename(const QString &name, const QString &newName) const = 0;
-    virtual QStringList entryInfoList(int filterSpec, const QStringList &filters) const = 0;
+    virtual QStringList entryList(int filterSpec, const QStringList &filters) const = 0;
     virtual bool caseSensitive() const = 0;
     virtual bool isRoot() const = 0;
 };
@@ -55,7 +55,7 @@ public:
     virtual bool mkdir(const QString &dirName) const;
     virtual bool rmdir(const QString &dirName) const;
     virtual bool rename(const QString &name, const QString &newName) const;
-    virtual QStringList entryInfoList(int filterSpec, const QStringList &filters) const;
+    virtual QStringList entryList(int filterSpec, const QStringList &filters) const;
     virtual bool caseSensitive() const;
     virtual bool isRoot() const;
 

@@ -25,8 +25,8 @@ class QFilePrivate;
 
 class Q_CORE_EXPORT QFile : public QIODevice                        // file I/O device class
 {
-    QFilePrivate *d_ptr;
     Q_DECLARE_PRIVATE(QFile)
+
 public:
     QFile();
     QFile(const QString &name);

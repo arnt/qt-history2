@@ -146,7 +146,7 @@ public:
 
     static QFileInfoList drives();
 
-    static char separator();
+    static QChar separator();
 
     static bool setCurrent(const QString &path);
     static inline QDir current() { return QDir(currentDirPath()); }

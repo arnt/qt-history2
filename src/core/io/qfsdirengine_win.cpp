@@ -70,7 +70,7 @@ QFSDirEngine::rename(const QString &name, const QString &newName) const
 }
 
 QStringList 
-QFSDirEngine::entryInfoList(int filterSpec, const QStringList &filters) const
+QFSDirEngine::entryList(int filterSpec, const QStringList &filters) const
 {
     QStringList ret;
 

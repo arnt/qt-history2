@@ -28,11 +28,10 @@
 //************* QFilePrivate
 class QFilePrivate : public QIODevicePrivate
 {
-    QFile *q_ptr;
     Q_DECLARE_PUBLIC(QFile)
 
 protected:
-    QFilePrivate(QFile*);
+    QFilePrivate();
     ~QFilePrivate();
 
     void initFileEngine(const QString &);
@@ -58,7 +57,7 @@ private:
 QFile::EncoderFn QFilePrivate::encoder = QFilePrivate::locale_encode;
 QFile::DecoderFn QFilePrivate::decoder = QFilePrivate::locale_decode;
 
-QFilePrivate::QFilePrivate(QFile *qq) : q_ptr(qq), fileEngine(0), external_file(0)
+QFilePrivate::QFilePrivate() : fileEngine(0), external_file(0)
 { 
     reset();
 }
@@ -182,7 +181,7 @@ QFilePrivate::reset()
 /*!
     Constructs a QFile with no name.
 */
-QFile::QFile() : d_ptr(new QFilePrivate(this))
+QFile::QFile() : QIODevice(*new QFilePrivate)
 {
     
 }
@@ -192,7 +191,7 @@ QFile::QFile() : d_ptr(new QFilePrivate(this))
 
     \sa setName()
 */
-QFile::QFile(const QString &name): d_ptr(new QFilePrivate(this))
+QFile::QFile(const QString &name) : QIODevice(*new QFilePrivate)
 {
     d->initFileEngine(name);
 }
@@ -203,9 +202,6 @@ QFile::QFile(const QString &name): d_ptr(new QFilePrivate(this))
 QFile::~QFile()
 {
     close();
-
-    delete d_ptr;
-    d_ptr = 0;
 }
 
 /*!
