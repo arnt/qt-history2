@@ -858,7 +858,14 @@ void PopupMenuEditor::dropEvent( QDropEvent * e )
 	if ( e->provides( "application/x-designer-actiongroup" ) ) {
 	    QString s( e->encodedData( "application/x-designer-actiongroup" ) );
 	    QActionGroup * g = (QDesignerActionGroup*)s.toLong();
-	    i = new PopupMenuEditorItem( g, this );
+	    if ( g->usesDropDown() ) {
+		i = new PopupMenuEditorItem( g, this );
+	    } else {
+		QObjectList l = *g->children();
+		for ( QAction *a = (QAction *)l.last(); a; a = (QAction *)l.prev() )
+		    dropInPlace( new PopupMenuEditorItem( a, this ), e->pos().y() );
+		i = 0;
+	    }
 	} else if ( e->provides( "application/x-designer-actions" ) ) {
 	    QString s( e->encodedData( "application/x-designer-actions" ) );
 	    QAction * a = (QDesignerAction*)s.toLong();
