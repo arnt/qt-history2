@@ -2893,7 +2893,7 @@ void QFileDialog::selectDirectoryOrFile( QListViewItem * newItem )
 	    accept();
 	}
     } else if ( d->mode == Directory ) {
-	d->currentFileName = d->url.dirPath();
+	d->currentFileName = d->url;
 	accept();
     }	
 }
