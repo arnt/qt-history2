@@ -1742,9 +1742,6 @@ void QTextDocument::setRichTextInternal( const QString &text )
 			tags.push( curtag );
 			curtag.name = "p";
 			curtag.style = sheet_->item( curtag.name ); // a list item continues, use p for that
-// 			if ( curpar && curpar->style()->name() != "p" )
-// 		    } else {
-// 			hasNewPar = FALSE;
 		    }
 		    NEWPAR;
 		}
