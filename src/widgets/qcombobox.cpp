@@ -1348,9 +1348,12 @@ void QComboBox::popup()
 	d->listBox()->setVScrollBarMode(QScrollView::Auto);
 
 #ifndef QT_NO_EFFECTS
-	if ( QApplication::isEffectEnabled( UI_AnimateCombo ) )
-	    qScrollEffect( d->listBox() );
-	else
+	if ( QApplication::isEffectEnabled( UI_AnimateCombo ) ) {
+	    if ( d->listBox()->y() < mapToGlobal(QPoint(0,0)).y() )
+		qScrollEffect( d->listBox(), QEffects::UpScroll );
+	    else
+		qScrollEffect( d->listBox() );
+	} else
 #endif
 	    d->listBox()->show();
     } else {
