@@ -157,8 +157,8 @@ public:
     virtual void doneCurrent();
     virtual void swapBuffers() const;
 
-    GLuint bindTexture(const QPixmap &pm, GLint format = GL_RGBA8);
-    GLuint bindTexture(const QString &fname);
+    GLuint bindTexture(const QPixmap &pixmap, GLint format = GL_RGBA8);
+    GLuint bindTexture(const QString &fileName);
     void deleteTexture(GLuint tx_id);
 
     static void setTextureCacheLimit(int size);
@@ -267,8 +267,8 @@ public:
                      const QFont & fnt = QFont(), int listBase = 2000);
     QPaintEngine *paintEngine() const;
 
-    GLuint bindTexture(const QPixmap &pm, GLint format = GL_RGBA8);
-    GLuint bindTexture(const QString &fname);
+    GLuint bindTexture(const QPixmap &pixmap, GLint format = GL_RGBA8);
+    GLuint bindTexture(const QString &fileName);
     void deleteTexture(GLuint tx_id);
 
 public slots:
@@ -298,7 +298,7 @@ private:
     int displayListBase(const QFont & fnt, int listBase);
     void cleanupColormaps();
     void init(QGLContext *context, const QGLWidget* shareWidget);
-    bool renderCxPm(QPixmap* pm);
+    bool renderCxPm(QPixmap *pixmap);
 
 private:
     Q_DISABLE_COPY(QGLWidget);

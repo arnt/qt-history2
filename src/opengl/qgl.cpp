@@ -890,7 +890,7 @@ static int scramble(const QString &str)
 
 /*! \overload
 
-    Reads the DirectDrawSurface (DDS) compressed file \a fname and
+    Reads the DirectDrawSurface (DDS) compressed file \a fileName and
     generates a 2D GL texture from it.
 
     Only the DXT1, DXT3 and DXT5 DDS formats are supported.
@@ -901,7 +901,7 @@ static int scramble(const QString &str)
 
     \sa deleteTexture()
 */
-GLuint QGLContext::bindTexture(const QString &fname)
+GLuint QGLContext::bindTexture(const QString &fileName)
 {
     typedef void (APIENTRY *qt_glCompressedTexImage2DARB) (GLenum, GLint, GLenum, GLsizei,
 							   GLsizei, GLint, GLsizei, const GLvoid *);
@@ -930,7 +930,7 @@ GLuint QGLContext::bindTexture(const QString &fname)
     if (!qt_tex_cache)
 	qt_tex_cache = new QGLTextureCache(qt_tex_cache_limit);
 
-    int key = scramble(fname);
+    int key = scramble(fileName);
     QGLTexture *texture = qt_tex_cache->object(key);
 
     if (texture && texture->context == this) {
@@ -938,7 +938,7 @@ GLuint QGLContext::bindTexture(const QString &fname)
 	return texture->id;
     }
 
-    QFile f(fname);
+    QFile f(fileName);
     f.open(QIODevice::ReadOnly | QIODevice::Raw);
 
     char tag[4];
@@ -1022,7 +1022,7 @@ GLuint QGLContext::bindTexture(const QString &fname)
 
 /*!
     Generates and binds a 2D GL texture to the current context, based
-    on the pixmap \a pm that is passed in. The generated texture id is
+    on the pixmap \a pixmap that is passed in. The generated texture id is
     returned and can be used in later glBindTexture() calls.
 
     The \a format parameter sets the internal format for the
@@ -1038,7 +1038,7 @@ GLuint QGLContext::bindTexture(const QString &fname)
 
     \sa deleteTexture()
 */
-GLuint QGLContext::bindTexture(const QPixmap &pm, GLint format)
+GLuint QGLContext::bindTexture(const QPixmap &pixmap, GLint format)
 {
     static bool init_extensions = true;
     static bool generate_mipmaps = false;
@@ -1052,7 +1052,7 @@ GLuint QGLContext::bindTexture(const QPixmap &pm, GLint format)
     if (!qt_tex_cache)
 	qt_tex_cache = new QGLTextureCache(qt_tex_cache_limit);
 
-    QGLTexture *texture = qt_tex_cache->object(pm.serialNumber());
+    QGLTexture *texture = qt_tex_cache->object(pixmap.serialNumber());
     if (texture && texture->context == this) {
 	glBindTexture(GL_TEXTURE_2D, texture->id);
 	return texture->id;
@@ -1061,10 +1061,10 @@ GLuint QGLContext::bindTexture(const QPixmap &pm, GLint format)
     // Scale the pixmap if needed. GL textures needs to have the
     // dimensions 2^n+2(border) x 2^m+2(border).
     QImage tx;
-    int tx_w = nearest_gl_texture_size(pm.width());
-    int tx_h = nearest_gl_texture_size(pm.height());
-    QImage im = pm.toImage();
-    if (tx_w != pm.width() || tx_h !=  pm.height())
+    int tx_w = nearest_gl_texture_size(pixmap.width());
+    int tx_h = nearest_gl_texture_size(pixmap.height());
+    QImage im = pixmap.toImage();
+    if (tx_w != pixmap.width() || tx_h != pixmap.height())
 	tx = QGLWidget::convertToGLFormat(im.scale(tx_w, tx_h));
     else
 	tx = QGLWidget::convertToGLFormat(im);
@@ -1082,7 +1082,7 @@ GLuint QGLContext::bindTexture(const QPixmap &pm, GLint format)
 
     // this assumes the size of a texture is always smaller than the max cache size
     int cost = tx.width()*tx.height()*4/1024;
-    qt_tex_cache->insert(pm.serialNumber(), new QGLTexture(this, tx_id), cost);
+    qt_tex_cache->insert(pixmap.serialNumber(), new QGLTexture(this, tx_id), cost);
     return tx_id;
 }
 
@@ -2637,29 +2637,30 @@ bool QGLWidget::autoBufferSwap() const
 }
 
 /*!
-    Calls \l QGLContext:::bindTexture(const QPixmap &, GLint) on the
-    currently set context.
+    Calls QGLContext:::bindTexture(\a pixmap, \a format) on the currently
+    set context.
 
     \sa deleteTexture()
 */
-GLuint QGLWidget::bindTexture(const QPixmap &pm, GLint format)
+GLuint QGLWidget::bindTexture(const QPixmap &pixmap, GLint format)
 {
-    return d->glcx->bindTexture(pm, format);
+    return d->glcx->bindTexture(pixmap, format);
 }
 
 /*! \overload
 
-    Calls \l QGLContext::bindTexture(const QString &) on the currently set context.
+    Calls QGLContext::bindTexture(\a fileName) on the currently set context.
 
     \sa deleteTexture()
 */
-GLuint QGLWidget::bindTexture(const QString &fname)
+GLuint QGLWidget::bindTexture(const QString &fileName)
 {
-    return d->glcx->bindTexture(fname);
+    return d->glcx->bindTexture(fileName);
 }
 
 /*!
-    Calls \l QGLContext::deleteTexture() on the currently set context.
+    Calls QGLContext::deleteTexture(\a id) on the currently set
+    context.
 
     \sa bindTexture()
 */
