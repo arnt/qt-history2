@@ -94,10 +94,11 @@ bool QWSInputContext::isComposing() const
 
 bool QWSInputContext::translateIMEvent(QWidget *w, const QWSIMEvent *e)
 {
-    QString txt(e->text, e->simpleData.textLen);
     QInputContext *qic = w->inputContext();
-    Q_ASSERT(qic);
+    if (!qic)
+        return false;
 
+    QString txt(e->text, e->simpleData.textLen);
     if (e->simpleData.type == QWSServer::InputMethodCompose) {
         const int cpos = qMax(0, qMin(e->simpleData.cpos, int(txt.length())));
         const int selLen = qMin(e->simpleData.selLen, int(txt.length())-cpos);
