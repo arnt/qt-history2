@@ -952,7 +952,8 @@ bool MainWindow::eventFilter( QObject *o, QEvent *e )
     bool passiveInteractor = WidgetFactory::isPassiveInteractor( o );
     switch ( e->type() ) {
     case QEvent::AccelOverride:
-	if ( ( (QKeyEvent*)e )->key() == Key_F1 ) {
+	if ( ( (QKeyEvent*)e )->key() == Key_F1 &&
+	     ( ( (QKeyEvent*)e )->state() & ShiftButton ) != ShiftButton ) {
 	    w = (QWidget*)o;
 	    while ( w ) {
 		if ( w->inherits( "PropertyList" ) )
