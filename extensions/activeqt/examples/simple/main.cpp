@@ -31,7 +31,7 @@ public:
     {
 	QVBoxLayout *vbox = new QVBoxLayout( this );
 
-	slider = new QSlider( 0, 100, 1, 0, QSlider::Horizontal, this );
+	slider = new QSlider( QSlider::Horizontal, this );
 	LCD = new QLCDNumber( 3, this );
 	edit = new QLineEdit( this );
 
