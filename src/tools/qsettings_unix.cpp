@@ -498,59 +498,69 @@ bool QSettings::sync()
 
 /*!
   Reads the entry specified by \a key, and returns a bool.
+  If \a ok non-null, *ok is set to TRUE if there are no errors, and
+  FALSE if the entry could not be read.
 
   \sa writeEntry(), removeEntry()
 */
-bool QSettings::readBoolEntry(const QString &key)
+bool QSettings::readBoolEntry(const QString &key, bool *ok )
 {
-    QString value = readEntry(key);
-
+    QString value = readEntry( key, ok );
+ 
     if (value.lower() == "true")
 	return TRUE;
     else if (value.lower() == "false")
 	return FALSE;
 
     qWarning("QString::readBoolEntry: '%s' is not 'true' or 'false'", value.latin1());
+    if ( ok )
+	*ok = FALSE;
     return FALSE;
 }
 
 
 /*!
   Reads the entry specified by \a key, and returns a double.
+  If \a ok non-null, *ok is set to TRUE if there are no errors, and
+  FALSE if the entry could not be read.
 
   \sa writeEntry(), removeEntry()
 */
-double QSettings::readDoubleEntry(const QString &key)
+double QSettings::readDoubleEntry(const QString &key, bool *ok )
 {
-    QString value = readEntry(key);
+    QString value = readEntry( key, ok );
     return value.toDouble();
 }
 
 
 /*!
   Reads the entry specified by \a key, and returns a integer.
+  If \a ok non-null, *ok is set to TRUE if there are no errors, and
+  FALSE if the entry could not be read.
 
   \sa writeEntry(), removeEntry()
 */
-int QSettings::readNumEntry(const QString &key)
+int QSettings::readNumEntry(const QString &key, bool *ok )
 {
-    QString value = readEntry(key);
+    QString value = readEntry( key, ok );
     return value.toInt();
 }
 
 
 /*!
   Reads the entry specified by \a key, and returns a QString.
+  If \a ok non-null, *ok is set to TRUE if there are no errors, and
+  FALSE if the entry could not be read.
 
   \sa writeEntry(), removeEntry()
 */
-QString QSettings::readEntry(const QString &key)
+QString QSettings::readEntry(const QString &key, bool *ok )
 {
-
 #ifdef QT_CHECK_STATE
     if (key.isNull() || key.isEmpty()) {
 	qWarning("QSettings::readEntry: invalid null/empty key.");
-
+	if ( ok )
+	    *ok = FALSE;
 	return QString::null;
     }
 #endif // QT_CHECK_STATE
@@ -564,7 +574,8 @@ QString QSettings::readEntry(const QString &key)
 #ifdef QT_CHECK_STATE
 	if (list.count() < 2) {
 	    qWarning("QSettings::readEntry: invalid key '%s'", key.latin1());
-
+	    if ( ok )
+		*ok = FALSE;
 	    return QString::null;
 	}
 #endif // QT_CHECK_STATE
@@ -590,6 +601,8 @@ QString QSettings::readEntry(const QString &key)
     QSettingsGroup grp = d->readGroup();
     QString retval = grp[realkey];
 
+    if ( ok )
+	*ok = TRUE;
     return retval;
 }
 
@@ -597,12 +610,17 @@ QString QSettings::readEntry(const QString &key)
 /*!
   Reads the string entry specified by \a key.  The \a separator is used to
   create a QStringList by calling QStringList::split (\a separator, data).
+  If \a ok non-null, *ok is set to TRUE if there are no errors, and
+  FALSE if the entry could not be read.
 
   \sa writeEntry(), removeEntry(), QStringList::split()
 */
-QStringList QSettings::readListEntry(const QString &key, const QChar &separator)
+QStringList QSettings::readListEntry(const QString &key, const QChar &separator, bool *ok )
 {
-    QString value = readEntry(key);
+    QString value = readEntry( key, ok );
+    if ( ok && !*ok )
+	return QStringList();
+
     return QStringList::split(separator, value);
 }
 

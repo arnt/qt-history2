@@ -42,25 +42,25 @@ public:
 
     bool sync();
 
-    bool writeEntry(const QString &, bool);
-    bool writeEntry(const QString &, double);
-    bool writeEntry(const QString &, int);
-    bool writeEntry(const QString &, const char *);
-    bool writeEntry(const QString &, const QString &);
-    bool writeEntry(const QString &, const QStringList &, const QChar &);
+    bool	writeEntry( const QString &, bool );
+    bool	writeEntry( const QString &, double );
+    bool	writeEntry( const QString &, int );
+    bool	writeEntry( const QString &, const char * );
+    bool	writeEntry( const QString &, const QString & );
+    bool	writeEntry( const QString &, const QStringList &, const QChar & );
 
-    QStringList readListEntry(const QString &, const QChar &);
-    QString readEntry(const QString &);
-    int readNumEntry(const QString &);
-    double readDoubleEntry(const QString &);
-    bool readBoolEntry(const QString &);
+    QStringList readListEntry( const QString &, const QChar &, bool * = 0 );
+    QString	readEntry( const QString &, bool * = 0 );
+    int		readNumEntry( const QString &, bool * = 0 );
+    double	readDoubleEntry( const QString &, bool * = 0 );
+    bool	readBoolEntry( const QString &, bool * = 0 );
 
-    bool removeEntry(const QString &);
+    bool	removeEntry( const QString & );
 
-    QDateTime lastModficationTime(const QString &);
+    QDateTime	lastModficationTime( const QString & );
 
-    static void insertSearchPath(const QString &);
-    static void removeSearchPath(const QString &);
+    static void insertSearchPath( const QString & );
+    static void removeSearchPath( const QString & );
 
 
 private:
