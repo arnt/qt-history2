@@ -127,7 +127,7 @@ public slots:
     virtual void setDockWindowsMovable(bool);
     virtual void setOpaqueMoving(bool);
     virtual void setDockMenuEnabled(bool);
-    virtual void whatsThis();
+    virtual void enterWhatsThis();
     virtual void setAppropriate(QDockWindow *dw, bool a);
     virtual void customize();
 

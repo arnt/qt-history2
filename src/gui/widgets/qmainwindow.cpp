@@ -1740,12 +1740,12 @@ void QMainWindow::triggerLayout(bool deleteLayout)
 
     \code
     QPopupMenu * help = new QPopupMenu(this);
-    help->insertItem("What's &This", this , SLOT(whatsThis()), SHIFT+Key_F1);
+    help->insertItem("What's &This", this , SLOT(enterWhatsThis()), SHIFT+Key_F1);
     \endcode
 
     \sa QWhatsThis::enterWhatsThisMode()
 */
-void QMainWindow::whatsThis()
+void QMainWindow::enterWhatsThis()
 {
 #ifndef QT_NO_WHATSTHIS
     QWhatsThis::enterWhatsThisMode();
