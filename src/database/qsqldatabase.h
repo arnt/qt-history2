@@ -3,11 +3,13 @@
 
 //#if !defined(Q_NO_SQL)
 
+#ifndef QT_H
 #include <qobject.h>
 #include <qstring.h>
 #include <qsqlerror.h>
 #include <qsqlresultinfo.h>
 #include <qsql.h>
+#endif // QT_H
 
 class QSqlViewBase
 {

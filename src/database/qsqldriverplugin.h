@@ -1,9 +1,11 @@
 #ifndef QSQLDRIVERPLUGIN_H
 #define QSQLDRIVERPLUGIN_H
 
+#ifndef QT_H
 #include <qplugin.h>
 #include <qpluginmanager.h>
 #include "qsqldriverinterface.h"
+#endif // QT_H
 
 class QSqlDriverPlugIn : public QSqlDriverInterface, public QPlugIn
 {
