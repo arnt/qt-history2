@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbutton.h#19 $
+** $Id: //depot/qt/main/src/widgets/qbutton.h#20 $
 **
 ** Definition of QButton widget class
 **
@@ -39,18 +39,21 @@ signals:
     void	clicked();
 
 protected:
-    bool	isDown()	const { return buttonDown; }
-    bool	isUp()		const { return !buttonDown; }
+    bool	isDown()	const	{ return buttonDown; }
+    bool	isUp()		const	{ return !buttonDown; }
 
-    bool	isOn()		const { return buttonOn; }
+    bool	isOn()		const	{ return buttonOn; }
     void	switchOn();
     void	switchOff();
 
+    bool	toggleButton()	const	{ return toggleBt; }
     void	setToggleButton( bool );
-    bool	toggleButton()	const { return toggleBt; }
 
     virtual bool hitButton( const QPoint &pos ) const;
     virtual void drawButton( QPainter * );
+
+    bool	pixmapUpdate()	const	{ return pmupdate; }
+    void	setPixmapUpdate( bool enable );
 
     void	mousePressEvent( QMouseEvent * );
     void	mouseReleaseEvent( QMouseEvent * );
@@ -66,6 +69,7 @@ private:
     uint	buttonOn	: 1;
     uint	mlbDown		: 1;
     uint	autoResize	: 1;
+    uint	pmupdate	: 1;
     QButtonGroup *group;
 
     friend class QButtonGroup;

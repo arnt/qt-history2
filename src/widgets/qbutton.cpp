@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbutton.cpp#22 $
+** $Id: //depot/qt/main/src/widgets/qbutton.cpp#23 $
 **
 ** Implementation of QButton widget class
 **
@@ -16,7 +16,7 @@
 #include "qpainter.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qbutton.cpp#22 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qbutton.cpp#23 $";
 #endif
 
 
@@ -59,6 +59,7 @@ QButton::QButton( QWidget *parent, const char *name )
     buttonOn   = FALSE;			// button is off
     mlbDown    = FALSE;			// mouse left button up
     autoResize = FALSE;
+    pmupdate   = TRUE;			// use pixmap update
     if ( parent && parent->inherits("QButtonGroup") ) {
 	group = (QButtonGroup*)parent;
 	group->insert( this );			// insert into button group
@@ -266,6 +267,30 @@ This virtual function is reimplemented by subclasses to draw real buttons.
 void QButton::drawButton( QPainter * )
 {
     return;
+}
+
+
+/*!
+\fn bool QButton::pixmapUpdate() const
+Returns TRUE if the button is updated using a pixmap.
+\sa setPixmapUpdate().
+*/
+
+/*!
+Enables pixmap updates if \e enable is TRUE, or enables normal update if
+\e enable is FALSE.
+
+Using pixmap updates gives flicker-free and faster drawing of the button.
+
+The code that draws the button must read the pixmap update flag and
+draw accordingly.
+
+\sa pixmapUpdate().
+*/
+
+void QButton::setPixmapUpdate( bool enable )
+{
+    pmupdate = enable;
 }
 
 
