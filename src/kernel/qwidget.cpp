@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#470 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#471 $
 **
 ** Implementation of QWidget class
 **
@@ -1552,7 +1552,7 @@ void QWidget::setFixedHeight( int h )
 
 QPoint QWidget::mapToParent( const QPoint &pos ) const
 {
-    return p + crect.topLeft();
+    return pos + crect.topLeft();
 }
 
 /*!
@@ -1565,7 +1565,7 @@ QPoint QWidget::mapToParent( const QPoint &pos ) const
 
 QPoint QWidget::mapFromParent( const QPoint &pos ) const
 {
-    return p - crect.topLeft();
+    return pos - crect.topLeft();
 }
 
 
