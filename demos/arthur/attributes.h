@@ -16,7 +16,8 @@
 
 #include <qpixmap.h>
 #include <qcolor.h>
-
+#include <qapplication.h>
+#include <qpalette.h>
 class Attributes
 {
 public:
@@ -27,8 +28,8 @@ public:
           alpha(false),
           fillMode(Solid)
     {
-        color = Qt::white;
-        secondaryColor = Qt::black;
+        color = QApplication::palette().base().color();
+        secondaryColor = QApplication::palette().background().color();
         pattern.load(":/res/bg1.jpg");
         tile.load(":/res/qtlogo.png");
     }

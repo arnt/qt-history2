@@ -56,7 +56,7 @@ void ItemDelegate::paint(QPainter *painter,
                          const QStyleOptionViewItem &options,
                          const QModelIndex &index) const
 {
-    QColor base = qApp->palette().color(QPalette::Base);
+    QColor base = qApp->palette().color(QPalette::Button);
 
     QColor g1 = base.light();
     QColor g2 = base.dark();
@@ -137,8 +137,14 @@ DemoViewer::DemoViewer(QWidget *parent)
     sourceViewer = new QTextEdit(widgets);
     sourceViewer->setReadOnly(true);
     QPalette pal = sourceViewer->palette();
-    pal.setBrush(QPalette::All, QPalette::Base, QBrush(QPoint(0, 0), Qt::white,
-                                                       QPoint(0, 1000), QColor(200, 200, 200)));
+
+    QColor base = pal.base().color();
+    QColor background = pal.background().color();
+    QColor betweenBaseAndBackground((base.red() + background.red())/2,
+                                    (base.green() + background.green())/2,
+                                    (base.blue() + background.blue())/2);
+    pal.setBrush(QPalette::All, QPalette::Base, QBrush(QPoint(0, 0), pal.base().color(),
+                                                       QPoint(0, 1000), betweenBaseAndBackground));
     sourceViewer->setPalette(pal);
 
     QApplication::sendPostedEvents();
