@@ -27,7 +27,7 @@ struct QThreadInstance;
 class QObject;
 class QEvent;
 
-class Q_EXPORT QThread
+class Q_KERNEL_EXPORT QThread
 {
 public:
 #ifndef QT_NO_COMPAT

@@ -22,7 +22,7 @@
 #ifndef QT_NO_ASYNC_IMAGE_IO
 
 
-class Q_EXPORT QImageConsumer {
+class Q_GUI_EXPORT QImageConsumer {
 public:
     virtual void end()=0;
 
@@ -38,14 +38,14 @@ public:
     virtual void setSize( int, int ) = 0;
 };
 
-class Q_EXPORT QImageFormat {
+class Q_GUI_EXPORT QImageFormat {
 public:
     virtual ~QImageFormat();
     virtual int decode( QImage& img, QImageConsumer* consumer,
 			const uchar* buffer, int length ) = 0;
 };
 
-class Q_EXPORT QImageFormatType {
+class Q_GUI_EXPORT QImageFormatType {
 public:
     virtual ~QImageFormatType();
     virtual QImageFormat* decoderFor( const uchar* buffer, int length ) = 0;
@@ -55,7 +55,7 @@ protected:
 };
 
 class QImageDecoderPrivate;
-class Q_EXPORT QImageDecoder {
+class Q_GUI_EXPORT QImageDecoder {
 public:
     QImageDecoder( QImageConsumer* c );
     ~QImageDecoder();

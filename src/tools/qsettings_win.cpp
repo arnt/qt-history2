@@ -23,17 +23,17 @@ static bool settingsTryUser = TRUE;
 static bool settingsTryLocal = TRUE;
 static QString *settingsBasePath = 0;
 
-void Q_EXPORT qt_setSettingsTryUser( bool tryUser )
+void qt_setSettingsTryUser( bool tryUser )
 {
     settingsTryUser = tryUser;
 }
 
-void Q_EXPORT qt_setSettingsTryLocal( bool tryLocal )
+void qt_setSettingsTryLocal( bool tryLocal )
 {
     settingsTryLocal = tryLocal;
 }
 
-void Q_EXPORT qt_setSettingsBasePath( const QString &base )
+void qt_setSettingsBasePath( const QString &base )
 {
     if ( settingsBasePath ) {
 	qWarning( "qt_setSettingsBasePath has to be called without any settings object being instantiated!" );
@@ -246,7 +246,7 @@ bool QSettingsSysPrivate::writeKey( const QString &key, const QByteArray &value,
     LONG res = ERROR_ACCESS_DENIED;
 
     HKEY handle = 0;
-    
+
     for (int i = paths.count()-1; i >= 0; --i) {
 	QString k = paths.at(i) + "/" + key;
 	e = entry( k );

@@ -30,7 +30,7 @@ class QStrListIterator : public QPtrListIterator<char>
 typedef QPtrListIterator<char> QStrListIterator;
 #endif
 
-class Q_EXPORT QStrList : public QPtrList<char>
+class Q_COMPAT_EXPORT QStrList : public QPtrList<char>
 {
 public:
     QStrList( bool deepCopies=TRUE ) { dc = deepCopies; del_item = deepCopies; }
@@ -54,7 +54,7 @@ private:
 };
 
 
-class Q_EXPORT QStrIList : public QStrList	// case insensitive string list
+class Q_COMPAT_EXPORT QStrIList : public QStrList	// case insensitive string list
 {
 public:
     QStrIList( bool deepCopies=TRUE ) : QStrList( deepCopies ) {}

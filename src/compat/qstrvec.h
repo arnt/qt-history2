@@ -21,7 +21,7 @@
 #include "qdatastream.h"
 #endif // QT_H
 
-class Q_EXPORT QStrVec : public QPtrVector<char>
+class Q_COMPAT_EXPORT QStrVec : public QPtrVector<char>
 {
 public:
     QStrVec()  { dc = TRUE; }
@@ -43,7 +43,7 @@ private:
 };
 
 
-class Q_EXPORT QStrIVec : public QStrVec	// case insensitive string vec
+class Q_COMPAT_EXPORT QStrIVec : public QStrVec	// case insensitive string vec
 {
 public:
     QStrIVec() {}

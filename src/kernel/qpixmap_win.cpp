@@ -1414,7 +1414,7 @@ void QMultiCellPixmap::debugger()
 }
 
 
-Q_EXPORT void qt_mcp_debugger()
+void qt_mcp_debugger()
 {
     int i, s=16;
     const char *info = "pixmaps";
@@ -1584,7 +1584,7 @@ void QPixmap::bitBltAlphaPixmap( QPixmap *dst, int dx, int dy,
     }
 }
 
-Q_EXPORT void copyBlt( QPixmap *dst, int dx, int dy,
+Q_GUI_EXPORT void copyBlt( QPixmap *dst, int dx, int dy,
 		       const QPixmap *src, int sx, int sy, int sw, int sh )
 {
     if ( ! dst || ! src || sw == 0 || sh == 0 || dst->depth() != src->depth() ) {

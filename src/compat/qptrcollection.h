@@ -25,7 +25,7 @@ class QGList;
 class QGDict;
 
 
-class Q_EXPORT QPtrCollection			// inherited by all collections
+class Q_COMPAT_EXPORT QPtrCollection			// inherited by all collections
 {
 public:
     bool autoDelete()	const	       { return del_item; }

@@ -24,7 +24,7 @@
 
 class QAccelPrivate;
 
-class Q_EXPORT QAccel : public QObject			// accelerator class
+class Q_GUI_EXPORT QAccel : public QObject			// accelerator class
 {
     Q_OBJECT
 public:

@@ -52,7 +52,7 @@ struct QUObject;
 #define IID_QUnknown QUuid(0x1d8518cd, 0xe8f5, 0x4366, 0x99, 0xe8, 0x87, 0x9f, 0xd7, 0xe4, 0x82, 0xde)
 #endif
 
-struct Q_EXPORT QUnknownInterface
+struct Q_KERNEL_EXPORT QUnknownInterface
 {
     virtual QRESULT queryInterface( const QUuid&, QUnknownInterface** ) = 0;
     virtual ulong   addRef() = 0;
@@ -66,7 +66,7 @@ struct Q_EXPORT QUnknownInterface
 
 // the dispatch interface that inherits the unknown interface.. It is
 // used to explore interfaces during runtime and to do dynamic calls.
-struct Q_EXPORT QDispatchInterface : public QUnknownInterface
+struct Q_KERNEL_EXPORT QDispatchInterface : public QUnknownInterface
 {
     // returns the interface description of this dispatch interface.
     virtual const QUInterfaceDescription* interfaceDescription() const = 0;
@@ -159,7 +159,7 @@ private:
 #define IID_QObject QUuid( 0x10a1501b, 0x4c5f, 0x4914, 0x95, 0xdd, 0xc4, 0x00, 0x48, 0x6c, 0xf9, 0x00)
 #endif
 
-struct Q_EXPORT QObjectInterface
+struct Q_KERNEL_EXPORT QObjectInterface
 {
     virtual QObject*   qObject() = 0;
 };
@@ -169,7 +169,7 @@ struct Q_EXPORT QObjectInterface
 #define IID_QComponentInformation QUuid(0x5f3968a5, 0xf451, 0x45b1, 0x96, 0xfb, 0x6, 0x1a, 0xd9, 0x8f, 0x92, 0x6e)
 #endif
 
-struct Q_EXPORT QComponentInformationInterface : public QUnknownInterface
+struct Q_KERNEL_EXPORT QComponentInformationInterface : public QUnknownInterface
 {
     virtual QString name() const = 0;
     virtual QString description() const = 0;
@@ -182,7 +182,7 @@ struct Q_EXPORT QComponentInformationInterface : public QUnknownInterface
 #define IID_QComponentFactory QUuid( 0x6caa771b, 0x17bb, 0x4988, 0x9e, 0x78, 0xba, 0x5c, 0xdd, 0xaa, 0xc3, 0x1e)
 #endif
 
-struct Q_EXPORT QComponentFactoryInterface : public QUnknownInterface
+struct Q_KERNEL_EXPORT QComponentFactoryInterface : public QUnknownInterface
 {
     virtual QRESULT createInstance( const QUuid &cid, const QUuid &iid, QUnknownInterface** instance, QUnknownInterface *outer ) = 0;
 };
@@ -192,7 +192,7 @@ struct Q_EXPORT QComponentFactoryInterface : public QUnknownInterface
 #define IID_QLibrary QUuid( 0xd16111d4, 0xe1e7, 0x4c47, 0x85, 0x99, 0x24, 0x48, 0x3d, 0xae, 0x2e, 0x07)
 #endif
 
-struct Q_EXPORT QLibraryInterface : public QUnknownInterface
+struct Q_KERNEL_EXPORT QLibraryInterface : public QUnknownInterface
 {
     virtual bool    init() = 0;
     virtual void    cleanup() = 0;
@@ -204,7 +204,7 @@ struct Q_EXPORT QLibraryInterface : public QUnknownInterface
 #define IID_QFeatureList QUuid(0x3f8fdc44, 0x3015, 0x4f3e, 0xb6, 0xd6, 0xe4, 0xaa, 0xaa, 0xbd, 0xea, 0xad)
 #endif
 
-struct Q_EXPORT QFeatureListInterface : public QUnknownInterface
+struct Q_KERNEL_EXPORT QFeatureListInterface : public QUnknownInterface
 {
     virtual QStringList	featureList() const = 0;
 };
@@ -214,14 +214,14 @@ struct Q_EXPORT QFeatureListInterface : public QUnknownInterface
 #define IID_QComponentRegistration QUuid( 0xb5feb5de, 0xe0cd, 0x4e37, 0xb0, 0xeb, 0x8a, 0x81, 0x24, 0x99, 0xa0, 0xc1)
 #endif
 
-struct Q_EXPORT QComponentRegistrationInterface : public QUnknownInterface
+struct Q_KERNEL_EXPORT QComponentRegistrationInterface : public QUnknownInterface
 {
     virtual bool    registerComponents( const QString &filepath ) const = 0;
     virtual bool    unregisterComponents() const = 0;
 };
 
 // internal class that wraps an initialized ulong
-struct Q_EXPORT QtULong
+struct Q_KERNEL_EXPORT QtULong
 {
     QtULong() : ref( 0 ) { }
     operator unsigned long () const { return ref; }

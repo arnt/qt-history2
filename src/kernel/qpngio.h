@@ -27,7 +27,7 @@ class QIODevice;
 
 #ifndef Q_PNGEXPORT
 #if !defined(QT_PLUGIN)
-#define Q_PNGEXPORT Q_EXPORT
+#define Q_PNGEXPORT Q_GUI_EXPORT
 #else
 #define Q_PNGEXPORT
 #endif

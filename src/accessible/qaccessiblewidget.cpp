@@ -47,7 +47,7 @@ QString buddyString(const QWidget *widget)
     return QString();
 }
 
-QString Q_EXPORT qacc_stripAmp(const QString &text)
+QString qacc_stripAmp(const QString &text)
 {
     if (text.isEmpty())
 	return text;
@@ -69,7 +69,7 @@ QString Q_EXPORT qacc_stripAmp(const QString &text)
     return str;
 }
 
-QString Q_EXPORT qacc_hotKey(const QString &text)
+QString qacc_hotKey(const QString &text)
 {
     if (text.isEmpty())
 	return text;

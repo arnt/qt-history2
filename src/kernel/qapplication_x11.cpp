@@ -357,7 +357,7 @@ static uint appliedstamp = 0;
 typedef int (*QX11EventFilter) (XEvent*);
 
 static QX11EventFilter qt_x11_event_filter = 0;
-Q_EXPORT QX11EventFilter qt_set_x11_event_filter(QX11EventFilter filter)
+Q_GUI_EXPORT QX11EventFilter qt_set_x11_event_filter(QX11EventFilter filter)
 {
     QX11EventFilter old_filter = qt_x11_event_filter;
     qt_x11_event_filter = filter;
@@ -380,7 +380,7 @@ static XIMStyle	xim_preferred_style = 0;
 static int composingKeycode=0;
 static QTextCodec * input_mapper = 0;
 
-Q_EXPORT Time	qt_x_time = CurrentTime;
+Q_GUI_EXPORT Time	qt_x_time = CurrentTime;
 extern bool     qt_check_clipboard_sentinel(); //def in qclipboard_x11.cpp
 extern bool	qt_check_selection_sentinel(); //def in qclipboard_x11.cpp
 

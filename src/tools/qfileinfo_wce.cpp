@@ -192,7 +192,7 @@ QString QFileInfo::fileName() const
 }
 
 
-Q_EXPORT int qt_ntfs_permission_lookup = 1;
+Q_GUI_EXPORT int qt_ntfs_permission_lookup = 1;
 
 static void resolveLibs()
 {

@@ -20,7 +20,7 @@
 #endif // QT_H
 
 
-class Q_EXPORT QGArray					// generic array
+class Q_COMPAT_EXPORT QGArray					// generic array
 {
 friend class QBuffer;
 public:

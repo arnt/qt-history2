@@ -37,7 +37,7 @@
 
 #ifndef QT_NO_COMPONENT
 
-class Q_EXPORT QGPluginManager
+class Q_KERNEL_EXPORT QGPluginManager
 {
 public:
     QGPluginManager( const QUuid& id, const QStringList& paths = QString(), const QString &suffix = QString(), bool cs = TRUE );

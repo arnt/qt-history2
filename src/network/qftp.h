@@ -24,7 +24,7 @@
 #if !defined( QT_MODULE_NETWORK ) || defined( QT_LICENSE_PROFESSIONAL ) || defined( QT_INTERNAL_NETWORK )
 #define QM_EXPORT_FTP
 #else
-#define QM_EXPORT_FTP Q_EXPORT
+#define QM_EXPORT_FTP Q_NETWORK_EXPORT
 #endif
 
 #ifndef QT_NO_NETWORKPROTOCOL_FTP

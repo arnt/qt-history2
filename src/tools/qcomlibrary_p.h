@@ -34,7 +34,7 @@
 
 #ifndef QT_NO_COMPONENT
 
-class Q_EXPORT QComLibrary : public QLibrary
+class Q_KERNEL_EXPORT QComLibrary : public QLibrary
 {
 public:
     QComLibrary( const QString &filename );

@@ -176,15 +176,15 @@ private:
 };
 QAccelManager* QAccelManager::self_ptr = 0;
 
-bool Q_EXPORT qt_tryAccelEvent(QWidget* w, QKeyEvent*  e){
+bool Q_GUI_EXPORT qt_tryAccelEvent(QWidget* w, QKeyEvent*  e){
     return QAccelManager::self()->tryAccelEvent(w, e);
 }
 
-bool Q_EXPORT qt_dispatchAccelEvent(QWidget* w, QKeyEvent*  e){
+bool Q_GUI_EXPORT qt_dispatchAccelEvent(QWidget* w, QKeyEvent*  e){
     return QAccelManager::self()->dispatchAccelEvent(w, e);
 }
 
-bool Q_EXPORT qt_tryComposeUnicode(QWidget* w, QKeyEvent*  e){
+bool Q_GUI_EXPORT qt_tryComposeUnicode(QWidget* w, QKeyEvent*  e){
     return QAccelManager::self()->tryComposeUnicode(w, e);
 }
 
@@ -193,7 +193,7 @@ static bool qt_accel_no_shortcuts = TRUE;
 #else
 static bool qt_accel_no_shortcuts = FALSE;
 #endif
-void Q_EXPORT qt_setAccelAutoShortcuts(bool b) { qt_accel_no_shortcuts = b; }
+void Q_GUI_EXPORT qt_setAccelAutoShortcuts(bool b) { qt_accel_no_shortcuts = b; }
 
 /*
     \internal

@@ -329,10 +329,10 @@ inline QMap<QString, QKernelVariant>& QKernelVariant::asMap()
 #endif
 
 #ifndef QT_NO_DATASTREAM
-Q_EXPORT QDataStream& operator>> ( QDataStream& s, QKernelVariant& p );
-Q_EXPORT QDataStream& operator<< ( QDataStream& s, const QKernelVariant& p );
-Q_EXPORT QDataStream& operator>> ( QDataStream& s, QKernelVariant::Type& p );
-Q_EXPORT QDataStream& operator<< ( QDataStream& s, const QKernelVariant::Type p );
+Q_KERNEL_EXPORT QDataStream& operator>> ( QDataStream& s, QKernelVariant& p );
+Q_KERNEL_EXPORT QDataStream& operator<< ( QDataStream& s, const QKernelVariant& p );
+Q_KERNEL_EXPORT QDataStream& operator>> ( QDataStream& s, QKernelVariant::Type& p );
+Q_KERNEL_EXPORT QDataStream& operator<< ( QDataStream& s, const QKernelVariant::Type p );
 #endif
 
 #endif //QT_NO_VARIANT

@@ -38,7 +38,7 @@ class QDiskFont;
 
 class QFontDatabasePrivate;
 
-class Q_EXPORT QFontDatabase
+class Q_GUI_EXPORT QFontDatabase
 {
 public:
     static QList<int> standardSizes();

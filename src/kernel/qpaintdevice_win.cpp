@@ -72,7 +72,7 @@ int QPaintDevice::fontInf( QFont *, int ) const
 }
 
 
-Q_EXPORT bool qt_bitblt_bsm = FALSE;		// use black source method
+bool qt_bitblt_bsm = FALSE;		// use black source method
 uint qt_bitblt_foreground = 0;			// bitBlt foreground color
 
 

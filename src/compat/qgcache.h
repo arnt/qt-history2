@@ -27,7 +27,7 @@ class QCListIt;
 class QCDict;
 
 
-class Q_EXPORT QGCache : public QPtrCollection	// generic LRU cache
+class Q_COMPAT_EXPORT QGCache : public QPtrCollection	// generic LRU cache
 {
 friend class QGCacheIterator;
 protected:
@@ -72,7 +72,7 @@ private:
 };
 
 
-class Q_EXPORT QGCacheIterator			// generic cache iterator
+class Q_COMPAT_EXPORT QGCacheIterator			// generic cache iterator
 {
 protected:
     QGCacheIterator( const QGCache & );

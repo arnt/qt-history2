@@ -17,7 +17,7 @@
 #  include "qglobal.h"
 #endif // QT_H
 
-class Q_EXPORT QThreadStorageData
+class Q_KERNEL_EXPORT QThreadStorageData
 {
 public:
     QThreadStorageData(void (*func)(void *));

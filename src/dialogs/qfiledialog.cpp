@@ -3298,7 +3298,7 @@ void QFileDialog::rereadDir()
 */
 
 extern Q_KERNEL_EXPORT bool qt_resolve_symlinks; // defined in qapplication.cpp
-bool Q_EXPORT qt_use_native_dialogs = TRUE;
+bool qt_use_native_dialogs = TRUE;
 
 /*!
   This is a convenience static function that returns an existing file

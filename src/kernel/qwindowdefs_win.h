@@ -91,10 +91,10 @@ typedef long HRESULT;
 typedef struct tagMSG MSG;
 typedef HWND WId;
 
-Q_EXPORT HINSTANCE qWinAppInst();
-Q_EXPORT HINSTANCE qWinAppPrevInst();
-Q_EXPORT int	   qWinAppCmdShow();
-Q_EXPORT HDC	   qt_display_dc();
+Q_KERNEL_EXPORT HINSTANCE qWinAppInst();
+Q_KERNEL_EXPORT HINSTANCE qWinAppPrevInst();
+Q_KERNEL_EXPORT int	   qWinAppCmdShow();
+Q_GUI_EXPORT HDC	   qt_display_dc();
 
 #define QT_WIN_PAINTER_MEMBERS \
     HDC		hdc;		\

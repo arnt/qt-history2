@@ -78,7 +78,7 @@ private:
 };
 
 
-class Q_EXPORT QGDict : public QPtrCollection	// generic dictionary class
+class Q_COMPAT_EXPORT QGDict : public QPtrCollection	// generic dictionary class
 {
 public:
     uint	count() const	{ return numItems; }
@@ -141,7 +141,7 @@ private:
 };
 
 
-class Q_EXPORT QGDictIterator			// generic dictionary iterator
+class Q_COMPAT_EXPORT QGDictIterator			// generic dictionary iterator
 {
 friend class QGDict;
 public:

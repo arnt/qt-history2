@@ -33,7 +33,7 @@
 
 #define QDATETIMEEDIT_HIDDEN_CHAR '0'
 
-class Q_EXPORT QNumberSection
+class Q_GUI_EXPORT QNumberSection
 {
 public:
     QNumberSection( int selStart = 0, int selEnd = 0, bool separat = TRUE, int actual = -1 )

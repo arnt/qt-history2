@@ -23,7 +23,7 @@
 #ifndef QT_NO_PICTUREFORMATPLUGIN
 class QPictureFormatPluginPrivate;
 
-class Q_EXPORT QPictureFormatPlugin : public QGPlugin
+class Q_GUI_EXPORT QPictureFormatPlugin : public QGPlugin
 {
     Q_OBJECT
 public:

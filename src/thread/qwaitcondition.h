@@ -24,7 +24,7 @@
 class QWaitConditionPrivate;
 class QMutex;
 
-class Q_EXPORT QWaitCondition
+class Q_KERNEL_EXPORT QWaitCondition
 {
 public:
     QWaitCondition();

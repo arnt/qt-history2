@@ -28,7 +28,7 @@
 #include "qobject.h"
 #include "qshared.h"
 
-class Q_EXPORT QSqlResultShared : public QObject, public QShared
+class Q_SQL_EXPORT QSqlResultShared : public QObject, public QShared
 {
     Q_OBJECT
 public:

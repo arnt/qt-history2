@@ -21,7 +21,7 @@
 
 #ifndef QT_NO_TEXTVIEW
 
-class Q_EXPORT QTextView : public QTextEdit
+class Q_GUI_EXPORT QTextView : public QTextEdit
 {
     Q_OBJECT
     Q_OVERRIDE( int undoDepth DESIGNABLE false SCRIPTABLE false )

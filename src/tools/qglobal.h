@@ -874,7 +874,12 @@ class QDataStream;
 #    else
 #      define Q_XML_EXPORT __declspec(dllimport)
 #    endif
-#    define Q_EXPORT  __declspec(dllexport)
+//      Don't use QT_BUILD_COMPAT_LIB for now. Rely on Q_EXPORT sematic for compat lib.
+// #    if defined(QT_BUILD_COMPAT_LIB)
+#      define Q_COMPAT_EXPORT __declspec(dllexport)
+// #    else
+// #      define Q_COMPAT_EXPORT __declspec(dllimport)
+// #    endif
 #    define Q_TEMPLATEDLL
 #    undef  Q_DISABLE_COPY	/* avoid unresolved externals */
 #  elif defined(QT_DLL)		/* use a Qt DLL library */
@@ -884,13 +889,12 @@ class QDataStream;
 #    define Q_NETWORK_EXPORT __declspec(dllimport)
 #    define Q_OPENGL_EXPORT __declspec(dllimport)
 #    define Q_XML_EXPORT __declspec(dllimport)
-#    define Q_EXPORT  __declspec(dllimport)
+#    define Q_COMPAT_EXPORT __declspec(dllimport)
 #    define Q_TEMPLATEDLL
 #    undef  Q_DISABLE_COPY	/* avoid unresolved externals */
 #  endif
 #elif defined(Q_OS_LINUX) && defined(Q_CC_BOR)
 #  if defined(QT_SHARED)	/* create a Qt shared library */
-#    define Q_EXPORT  __declspec(dllexport)
 #    define Q_TEMPLATEDLL
 #    undef  Q_DISABLE_COPY	/* avoid unresolved externals */
 #  else
@@ -900,10 +904,6 @@ class QDataStream;
 #else
 #  undef QT_MAKEDLL		/* ignore these for other platforms */
 #  undef QT_DLL
-#endif
-
-#ifndef Q_EXPORT
-#  define Q_EXPORT
 #endif
 
 #ifndef Q_KERNEL_EXPORT
@@ -928,6 +928,10 @@ class QDataStream;
 
 #ifndef Q_XML_EXPORT
 #  define Q_XML_EXPORT
+#endif
+
+#ifndef Q_COMPAT_EXPORT
+#  define Q_COMPAT_EXPORT
 #endif
 
 //

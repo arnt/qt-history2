@@ -70,12 +70,12 @@ struct QLayoutStruct
 };
 
 
-Q_EXPORT void qGeomCalc( QVector<QLayoutStruct> &chain, int start, int count,
+void qGeomCalc( QVector<QLayoutStruct> &chain, int start, int count,
 			 int pos, int space, int spacer );
-Q_EXPORT QSize qSmartMinSize( const QWidgetItem *i );
-Q_EXPORT QSize qSmartMinSize( QWidget *w );
-Q_EXPORT QSize qSmartMaxSize( const QWidgetItem *i, Qt::Alignment align = 0 );
-Q_EXPORT QSize qSmartMaxSize( QWidget *w, Qt::Alignment align = 0 );
+QSize qSmartMinSize( const QWidgetItem *i );
+QSize qSmartMinSize( QWidget *w );
+QSize qSmartMaxSize( const QWidgetItem *i, Qt::Alignment align = 0 );
+QSize qSmartMaxSize( QWidget *w, Qt::Alignment align = 0 );
 
 
 /*

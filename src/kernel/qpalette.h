@@ -27,7 +27,7 @@
 class QColorGroup;
 class QPalettePrivate;
 
-class Q_EXPORT QPalette
+class Q_GUI_EXPORT QPalette
 {
 public:
     QPalette();
@@ -135,11 +135,11 @@ private:
     friend class QColorGroup;
     uint is_colorgroup : 1;
 #endif
-    friend Q_EXPORT QDataStream &operator<<(QDataStream &s, const QPalette &p);
+    friend Q_GUI_EXPORT QDataStream &operator<<(QDataStream &s, const QPalette &p);
 };
 
 #ifndef QT_NO_COMPAT
-class Q_EXPORT QColorGroup : public QPalette
+class Q_GUI_EXPORT QColorGroup : public QPalette
 {
 public:
     inline QColorGroup() : QPalette() { init(); }
@@ -176,8 +176,8 @@ private:
 };
 
 #ifndef QT_NO_DATASTREAM
-Q_EXPORT QDataStream &operator<<(QDataStream &ds, const QColorGroup &cg);
-Q_EXPORT QDataStream &operator>>(QDataStream &ds, QColorGroup &cg);
+Q_GUI_EXPORT QDataStream &operator<<(QDataStream &ds, const QColorGroup &cg);
+Q_GUI_EXPORT QDataStream &operator>>(QDataStream &ds, QColorGroup &cg);
 #endif
 
 inline QColorGroup QPalette::inactive() const { return createColorGroup(Inactive); }
@@ -191,8 +191,8 @@ inline QColorGroup QPalette::normal() const { return createColorGroup(Active); }
   QPalette stream functions
  *****************************************************************************/
 #ifndef QT_NO_DATASTREAM
-Q_EXPORT QDataStream &operator<<(QDataStream &ds, const QPalette &p);
-Q_EXPORT QDataStream &operator>>(QDataStream &ds, QPalette &p);
+Q_GUI_EXPORT QDataStream &operator<<(QDataStream &ds, const QPalette &p);
+Q_GUI_EXPORT QDataStream &operator>>(QDataStream &ds, QPalette &p);
 #endif // QT_NO_DATASTREAM
 
 #endif // QT_NO_PALETTE

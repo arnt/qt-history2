@@ -20,7 +20,7 @@
 #endif // QT_H
 
 
-class Q_EXPORT QGVector : public QPtrCollection	// generic vector
+class Q_COMPAT_EXPORT QGVector : public QPtrCollection	// generic vector
 {
 friend class QGList;				// needed by QGList::toVector
 public:
@@ -87,8 +87,8 @@ private:
  *****************************************************************************/
 
 #ifndef QT_NO_DATASTREAM
-Q_EXPORT QDataStream &operator>>( QDataStream &, QGVector & );
-Q_EXPORT QDataStream &operator<<( QDataStream &, const QGVector & );
+Q_COMPAT_EXPORT QDataStream &operator>>( QDataStream &, QGVector & );
+Q_COMPAT_EXPORT QDataStream &operator<<( QDataStream &, const QGVector & );
 #endif
 
 #endif // QGVECTOR_H

@@ -25,7 +25,7 @@
 class QStatusBarPrivate;
 
 
-class Q_EXPORT QStatusBar: public QWidget
+class Q_GUI_EXPORT QStatusBar: public QWidget
 {
     Q_OBJECT
     Q_PROPERTY( bool sizeGripEnabled READ isSizeGripEnabled WRITE setSizeGripEnabled )

@@ -21,7 +21,7 @@
 
 #ifndef QT_NO_HGROUPBOX
 
-class Q_EXPORT QHGroupBox : public QGroupBox
+class Q_GUI_EXPORT QHGroupBox : public QGroupBox
 {
     Q_OBJECT
 public:

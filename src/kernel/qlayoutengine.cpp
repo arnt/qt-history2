@@ -40,7 +40,7 @@ static inline int fRound(Fixed i) {
   count is the count of items in the chain; pos and space give the
   interval (relative to parentWidget topLeft).
 */
-Q_EXPORT void qGeomCalc( QVector<QLayoutStruct> &chain, int start, int count,
+void qGeomCalc( QVector<QLayoutStruct> &chain, int start, int count,
 			 int pos, int space, int spacer )
 {
     int cHint = 0;
@@ -218,7 +218,7 @@ Q_EXPORT void qGeomCalc( QVector<QLayoutStruct> &chain, int start, int count,
     }
 }
 
-Q_EXPORT QSize qSmartMinSize( const QWidgetItem *i )
+QSize qSmartMinSize( const QWidgetItem *i )
 {
     QWidget *w = ((QWidgetItem *)i)->widget();
 
@@ -260,13 +260,13 @@ Q_EXPORT QSize qSmartMinSize( const QWidgetItem *i )
     return s;
 }
 
-Q_EXPORT QSize qSmartMinSize( QWidget *w )
+QSize qSmartMinSize( QWidget *w )
 {
     QWidgetItem item( w );
     return qSmartMinSize( &item );
 }
 
-Q_EXPORT QSize qSmartMaxSize( const QWidgetItem *i, Qt::Alignment align )
+QSize qSmartMaxSize( const QWidgetItem *i, Qt::Alignment align )
 {
     QWidget *w = ( (QWidgetItem*)i )->widget();
     if ( align & Qt::AlignHorizontal_Mask && align & Qt::AlignVertical_Mask )
@@ -289,7 +289,7 @@ Q_EXPORT QSize qSmartMaxSize( const QWidgetItem *i, Qt::Alignment align )
     return s;
 }
 
-Q_EXPORT QSize qSmartMaxSize( QWidget *w, Qt::Alignment align )
+QSize qSmartMaxSize( QWidget *w, Qt::Alignment align )
 {
     QWidgetItem item( w );
     return qSmartMaxSize( &item, align );

@@ -39,7 +39,7 @@
 
 class QPSPrinterPrivate;
 
-class Q_EXPORT QPSPrinter : public QPaintDevice
+class Q_GUI_EXPORT QPSPrinter : public QPaintDevice
 {
 private:
     // QPrinter uses these

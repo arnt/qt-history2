@@ -357,7 +357,7 @@ void bitBlt(QPaintDevice *dst, int dx, int dy,
     scaledBitBlt(dst, dx, dy, sw, sh, src, sx, sy, sw, sh, rop, imask);
 }
 
-Q_EXPORT void copyBlt( QPixmap *dst, int dx, int dy,
+Q_GUI_EXPORT void copyBlt( QPixmap *dst, int dx, int dy,
 		       const QPixmap *src, int sx, int sy, int sw, int sh )
 {
     if ( ! dst || ! src || sw == 0 || sh == 0 || dst->depth() != src->depth() ) {
@@ -434,7 +434,7 @@ void qt_mac_clip_cg_handle(CGContextRef hd, const QRegion &rgn, const QPoint &of
 #endif
 	    Rect qdr; SetRect(&qdr, qrect.left(), qrect.top(), qrect.right(), qrect.bottom());
 	    ClipCGContextToRegion(hd, &qdr, QRegion(qrect).handle(true));
-	} 
+	}
 	QVector<QRect> rects = rgn.rects();
 	const int count = rects.size();
 	CGRect *cg_rects = (CGRect *)malloc(sizeof(CGRect)*count);

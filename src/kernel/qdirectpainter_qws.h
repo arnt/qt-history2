@@ -21,7 +21,7 @@
 
 #ifdef Q_WS_QWS
 #ifndef QT_NO_DIRECTPAINTER
-class Q_EXPORT QDirectPainter : public QPainter {
+class Q_GUI_EXPORT QDirectPainter : public QPainter {
 public:
     QDirectPainter( const QWidget* );
     ~QDirectPainter();

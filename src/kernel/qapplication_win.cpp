@@ -1889,13 +1889,13 @@ do_default:
 	    QWidget *widget	A modal widget
  *****************************************************************************/
 
-Q_EXPORT bool qt_modal_state()
+bool qt_modal_state()
 {
     return app_do_modal;
 }
 
 
-Q_EXPORT void qt_enter_modal( QWidget *widget )
+void qt_enter_modal( QWidget *widget )
 {
     if ( !qt_modal_stack ) {			// create modal stack
 	qt_modal_stack = new QWidgetList;
@@ -1910,7 +1910,7 @@ Q_EXPORT void qt_enter_modal( QWidget *widget )
 }
 
 
-Q_EXPORT void qt_leave_modal( QWidget *widget )
+void qt_leave_modal( QWidget *widget )
 {
     if ( qt_modal_stack && qt_modal_stack->remove(widget) ) {
 	if ( qt_modal_stack->isEmpty() ) {

@@ -25,7 +25,7 @@
 
 class QRegExp;
 
-class Q_EXPORT QCString : public QByteArray
+class Q_COMPAT_EXPORT QCString : public QByteArray
 {
 public:
     QCString() {}
@@ -100,10 +100,10 @@ public:
   QCString stream functions
  *****************************************************************************/
 #ifndef QT_NO_DATASTREAM
-inline Q_EXPORT QDataStream &operator<<(QDataStream &d, const QCString &s) {
+inline Q_COMPAT_EXPORT QDataStream &operator<<(QDataStream &d, const QCString &s) {
     return operator<<(d, static_cast<const QByteArray &>(s));
 }
-inline Q_EXPORT QDataStream &operator>>(QDataStream &d, QCString &s) {
+inline Q_COMPAT_EXPORT QDataStream &operator>>(QDataStream &d, QCString &s) {
     return operator>>(d, static_cast<QByteArray &>(s));
 }
 #endif
@@ -132,75 +132,75 @@ inline QCString &QCString::setNum(float n, char f, int prec)
   QCString non-member operators
  *****************************************************************************/
 
-Q_EXPORT inline bool operator==(const QCString &s1, const QCString &s2)
+Q_COMPAT_EXPORT inline bool operator==(const QCString &s1, const QCString &s2)
 { return qstrcmp(s1, s2) == 0; }
 
-Q_EXPORT inline bool operator==(const QCString &s1, const char *s2)
+Q_COMPAT_EXPORT inline bool operator==(const QCString &s1, const char *s2)
 { return qstrcmp(s1, s2) == 0; }
 
-Q_EXPORT inline bool operator==(const char *s1, const QCString &s2)
+Q_COMPAT_EXPORT inline bool operator==(const char *s1, const QCString &s2)
 { return qstrcmp(s1, s2) == 0; }
 
-Q_EXPORT inline bool operator!=(const QCString &s1, const QCString &s2)
+Q_COMPAT_EXPORT inline bool operator!=(const QCString &s1, const QCString &s2)
 { return qstrcmp(s1, s2) != 0; }
 
-Q_EXPORT inline bool operator!=(const QCString &s1, const char *s2)
+Q_COMPAT_EXPORT inline bool operator!=(const QCString &s1, const char *s2)
 { return qstrcmp(s1, s2) != 0; }
 
-Q_EXPORT inline bool operator!=(const char *s1, const QCString &s2)
+Q_COMPAT_EXPORT inline bool operator!=(const char *s1, const QCString &s2)
 { return qstrcmp(s1, s2) != 0; }
 
-Q_EXPORT inline bool operator<(const QCString &s1, const QCString& s2)
+Q_COMPAT_EXPORT inline bool operator<(const QCString &s1, const QCString& s2)
 { return qstrcmp(s1, s2) < 0; }
 
-Q_EXPORT inline bool operator<(const QCString &s1, const char *s2)
+Q_COMPAT_EXPORT inline bool operator<(const QCString &s1, const char *s2)
 { return qstrcmp(s1, s2) < 0; }
 
-Q_EXPORT inline bool operator<(const char *s1, const QCString &s2)
+Q_COMPAT_EXPORT inline bool operator<(const char *s1, const QCString &s2)
 { return qstrcmp(s1, s2) < 0; }
 
-Q_EXPORT inline bool operator<=(const QCString &s1, const QCString &s2)
+Q_COMPAT_EXPORT inline bool operator<=(const QCString &s1, const QCString &s2)
 { return qstrcmp(s1, s2) <= 0; }
 
-Q_EXPORT inline bool operator<=(const QCString &s1, const char *s2)
+Q_COMPAT_EXPORT inline bool operator<=(const QCString &s1, const char *s2)
 { return qstrcmp(s1, s2) <= 0; }
 
-Q_EXPORT inline bool operator<=(const char *s1, const QCString &s2)
+Q_COMPAT_EXPORT inline bool operator<=(const char *s1, const QCString &s2)
 { return qstrcmp(s1, s2) <= 0; }
 
-Q_EXPORT inline bool operator>(const QCString &s1, const QCString &s2)
+Q_COMPAT_EXPORT inline bool operator>(const QCString &s1, const QCString &s2)
 { return qstrcmp(s1, s2) > 0; }
 
-Q_EXPORT inline bool operator>(const QCString &s1, const char *s2)
+Q_COMPAT_EXPORT inline bool operator>(const QCString &s1, const char *s2)
 { return qstrcmp(s1, s2) > 0; }
 
-Q_EXPORT inline bool operator>(const char *s1, const QCString &s2)
+Q_COMPAT_EXPORT inline bool operator>(const char *s1, const QCString &s2)
 { return qstrcmp(s1, s2) > 0; }
 
-Q_EXPORT inline bool operator>=(const QCString &s1, const QCString& s2)
+Q_COMPAT_EXPORT inline bool operator>=(const QCString &s1, const QCString& s2)
 { return qstrcmp(s1, s2) >= 0; }
 
-Q_EXPORT inline bool operator>=(const QCString &s1, const char *s2)
+Q_COMPAT_EXPORT inline bool operator>=(const QCString &s1, const char *s2)
 { return qstrcmp(s1, s2) >= 0; }
 
-Q_EXPORT inline bool operator>=(const char *s1, const QCString &s2)
+Q_COMPAT_EXPORT inline bool operator>=(const char *s1, const QCString &s2)
 { return qstrcmp(s1, s2) >= 0; }
 
-Q_EXPORT inline const QCString operator+(const QCString &s1,
+Q_COMPAT_EXPORT inline const QCString operator+(const QCString &s1,
 					  const QCString &s2)
 {
     QCString tmp(s1);
     tmp += s2;
     return tmp;
 }
-Q_EXPORT inline const QCString operator+(const QCString &s1,
+Q_COMPAT_EXPORT inline const QCString operator+(const QCString &s1,
 					  const QByteArray &s2)
 {
     QByteArray tmp(s1);
     tmp += s2;
     return tmp;
 }
-Q_EXPORT inline const QCString operator+(const QByteArray &s1,
+Q_COMPAT_EXPORT inline const QCString operator+(const QByteArray &s1,
 					  const QCString &s2)
 {
     QByteArray tmp(s1);
@@ -208,28 +208,28 @@ Q_EXPORT inline const QCString operator+(const QByteArray &s1,
     return tmp;
 }
 
-Q_EXPORT inline const QCString operator+(const QCString &s1, const char *s2)
+Q_COMPAT_EXPORT inline const QCString operator+(const QCString &s1, const char *s2)
 {
     QCString tmp(s1);
     tmp += s2;
     return tmp;
 }
 
-Q_EXPORT inline const QCString operator+(const char *s1, const QCString &s2)
+Q_COMPAT_EXPORT inline const QCString operator+(const char *s1, const QCString &s2)
 {
     QCString tmp(s1);
     tmp += s2;
     return tmp;
 }
 
-Q_EXPORT inline const QCString operator+(const QCString &s1, char c2)
+Q_COMPAT_EXPORT inline const QCString operator+(const QCString &s1, char c2)
 {
     QCString tmp(s1);
     tmp += c2;
     return tmp;
 }
 
-Q_EXPORT inline const QCString operator+(char c1, const QCString &s2)
+Q_COMPAT_EXPORT inline const QCString operator+(char c1, const QCString &s2)
 {
     QCString tmp;
     tmp += c1;

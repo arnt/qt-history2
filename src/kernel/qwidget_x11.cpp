@@ -178,7 +178,7 @@ static void create_wm_client_leader()
 }
 
 
-Q_EXPORT void qt_x11_enforce_cursor( QWidget * w )
+Q_GUI_EXPORT void qt_x11_enforce_cursor( QWidget * w )
 {
     if ( w->testAttribute( QWidget::WA_SetCursor ) ) {
 	QCursor *oc = QApplication::overrideCursor();
@@ -196,7 +196,7 @@ Q_EXPORT void qt_x11_enforce_cursor( QWidget * w )
     }
 }
 
-Q_EXPORT void qt_wait_for_window_manager( QWidget* w )
+Q_GUI_EXPORT void qt_wait_for_window_manager( QWidget* w )
 {
     QApplication::flushX();
     XEvent ev;

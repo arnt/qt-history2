@@ -19,7 +19,7 @@
 #include "qptrcollection.h"
 #endif // QT_H
 
-class Q_EXPORT QLNode
+class Q_COMPAT_EXPORT QLNode
 {
 friend class QGList;
 friend class QGListIterator;
@@ -35,7 +35,7 @@ private:
 
 class QGListIteratorList; // internal helper class
 
-class Q_EXPORT QGList : public QPtrCollection	// doubly linked generic list
+class Q_COMPAT_EXPORT QGList : public QPtrCollection	// doubly linked generic list
 {
 friend class QGListIterator;
 friend class QGListIteratorList;
@@ -178,15 +178,15 @@ inline QPtrCollection::Item QGList::clast() const
  *****************************************************************************/
 
 #ifndef QT_NO_DATASTREAM
-Q_EXPORT QDataStream &operator>>( QDataStream &, QGList & );
-Q_EXPORT QDataStream &operator<<( QDataStream &, const QGList & );
+Q_COMPAT_EXPORT QDataStream &operator>>( QDataStream &, QGList & );
+Q_COMPAT_EXPORT QDataStream &operator<<( QDataStream &, const QGList & );
 #endif
 
 /*****************************************************************************
   QGListIterator class
  *****************************************************************************/
 
-class Q_EXPORT QGListIterator			// QGList iterator
+class Q_COMPAT_EXPORT QGListIterator			// QGList iterator
 {
 friend class QGList;
 friend class QGListIteratorList;
@@ -231,7 +231,7 @@ inline QPtrCollection::Item QGListIterator::get() const
     return curNode ? curNode->data : 0;
 }
 
-class Q_EXPORT QGListStdIterator
+class Q_COMPAT_EXPORT QGListStdIterator
 {
 public:
     inline QGListStdIterator( QLNode* n ) : node( n ){}

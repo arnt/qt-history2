@@ -81,7 +81,7 @@
 
 static bool qt_gen_epsf = FALSE;
 
-Q_EXPORT void qt_generate_epsf( bool b )
+void qt_generate_epsf( bool b )
 {
     qt_gen_epsf = b;
 }

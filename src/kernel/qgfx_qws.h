@@ -294,7 +294,7 @@ protected:
 
 extern QScreen * qt_screen;
 
-class Q_EXPORT QGfx : public Qt {
+class Q_GUI_EXPORT QGfx : public Qt {
 public:
     // With loadable drivers, do probe here
     static QGfx *createGfx( int depth, unsigned char *buffer,

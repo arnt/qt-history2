@@ -342,7 +342,7 @@ int	  QApplication::mouse_double_click_time = 400;	// mouse dbl click limit
 int	  QApplication::wheel_scroll_lines = 3;		// number of lines to scroll
 #endif
 bool	  qt_is_gui_used;
-bool      Q_EXPORT qt_tab_all_widgets  = TRUE;
+bool      Q_GUI_EXPORT qt_tab_all_widgets  = TRUE;
 QRect qt_maxWindowRect;
 static int drag_time = 500;
 static int drag_distance = 4;
