@@ -25,7 +25,7 @@ public:
 	cleanUpObjects.insert( 0, new QGuardedPtr<Type>(object) );
     }
 
-    bool clean()
+    bool isClean()
     {
 	QListIterator<QGuardedPtr<Type> > it( cleanUpObjects );
 	while ( it.current() ) {
@@ -61,7 +61,7 @@ public:
 	    cleanUpObjects.insert( 0, object );
     }
 
-    bool clean()
+    bool isClean()
     {
 	QListIterator<Type> it( cleanUpObjects );
 	while ( it.current() ) {

@@ -45,7 +45,7 @@ bool ExtraWidgetsInterface::connectNotify( QApplication* theApp )
 
 bool ExtraWidgetsInterface::disconnectNotify( QApplication* theApp )
 {
-    if ( !objects.clean() )
+    if ( !objects.isClean() )
 	return FALSE;
     return TRUE;
 }

@@ -46,7 +46,7 @@ bool OpenGLWidgetInterface::connectNotify( QApplication* theApp )
 
 bool OpenGLWidgetInterface::disconnectNotify( QApplication* theApp )
 {
-    if ( !objects.clean() )
+    if ( !objects.isClean() )
 	return FALSE;
     return TRUE;
 }
