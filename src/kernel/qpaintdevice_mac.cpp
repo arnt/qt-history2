@@ -1,6 +1,6 @@
 #include "qpaintdevice.h"
 #include "qpaintdevicemetrics.h"
-#include "macincludes.h"
+#include "qt_mac.h"
 
 QPaintDevice::QPaintDevice(uint devflags)
 {

@@ -5,7 +5,7 @@
 #include "qfontinfo.h"
 #include "qstrlist.h"
 #include "qutfcodec.h"
-#include "macincludes.h"
+#include "qt_mac.h"
 #include <stdio>
 
 class QFontInternal {

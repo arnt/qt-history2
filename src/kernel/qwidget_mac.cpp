@@ -9,7 +9,7 @@
 #include "qwidgetintdict.h"
 #include <stdio.h>
 
-#include "macincludes.h"
+#include "qt_mac.h"
 
 WId parentw,destroyw=0;
 

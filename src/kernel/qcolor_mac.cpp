@@ -1,5 +1,5 @@
 #include "qcolor.h"
-#include "macincludes.h"
+#include "qt_mac.h"
 #include <stdio.h>
 
 int QColor::enterAllocContext()

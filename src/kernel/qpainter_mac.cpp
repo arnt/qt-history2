@@ -8,7 +8,7 @@
 #include "qfontdata.h"
 #include "qtextcodec.h"
 #include <stdio.h>
-#include "macincludes.h"
+#include "qt_mac.h"
 
 const int TxNone=0;
 const int TxTranslate=1;
