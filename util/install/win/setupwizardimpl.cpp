@@ -380,7 +380,7 @@ void SetupWizardImpl::doFinalIntegration()
     ** Then record the installation in the registry, and set up the uninstallation
     */
     QStringList uninstaller;
-    uninstaller << shell.windowsFolderName + "\\quninstall.exe";
+    uninstaller << ( shell.windowsFolderName + "\\quninstall.exe" );
     uninstaller << installPath->text();
 
     if( common )
@@ -744,30 +744,48 @@ void SetupWizardImpl::showPage( QWidget* newPage )
 	folder = new QCheckListItem( imfolder, "MNG" );
 	folder->setOpen( true );
 	entry = settings.readEntry( "/Trolltech/Qt/Image Formats/MNG", "Plugin", &settingsOK );
+#if 0
+	// ### disable using system MNG for now -- please someone take a closer look
+	entryPresent = settings.readEntry( "/Trolltech/Qt/Image Formats/MNG Present", "No", &settingsOK );
+	mngPresent = new QCheckListItem( folder, "Present", QCheckListItem::CheckBox );
+	mngPresent->setOn( entry == "Yes" );
+#endif
+	mngOff = new QCheckListItem( folder, "Off", QCheckListItem::RadioButton );
+	mngOff->setOn( entry == "Off" );
 	mngPlugin = new QCheckListItem( folder, "Plugin", QCheckListItem::RadioButton );
 	mngPlugin->setOn( entry == "Plugin" );
-	mngPresent = new QCheckListItem( folder, "Present", QCheckListItem::RadioButton );
-	mngPresent->setOn( entry == "Present" );
 	mngDirect = new QCheckListItem( folder, "Direct", QCheckListItem::RadioButton );
 	mngDirect->setOn( entry == "Direct" );
 
 	folder = new QCheckListItem( imfolder, "JPEG" );
 	folder->setOpen( true );
 	entry = settings.readEntry( "/Trolltech/Qt/Image Formats/JPEG", "Plugin", &settingsOK );
+#if 0
+	// ### disable using system JPEG for now -- please someone take a closer look
+	entryPresent = settings.readEntry( "/Trolltech/Qt/Image Formats/JPEG Present", "No", &settingsOK );
+	jpegPresent = new QCheckListItem( folder, "Present", QCheckListItem::CheckBox );
+	jpegPresent->setOn( entry == "Yes" );
+#endif
+	jpegOff = new QCheckListItem( folder, "Off", QCheckListItem::RadioButton );
+	jpegOff->setOn( entry == "Off" );
 	jpegPlugin = new QCheckListItem( folder, "Plugin", QCheckListItem::RadioButton );
 	jpegPlugin->setOn( entry == "Plugin" );
-	jpegPresent = new QCheckListItem( folder, "Present", QCheckListItem::RadioButton );
-	jpegPresent->setOn( entry == "Present" );
 	jpegDirect = new QCheckListItem( folder, "Direct", QCheckListItem::RadioButton );	    
 	jpegDirect->setOn( entry == "Direct" );
 
 	folder = new QCheckListItem( imfolder, "PNG" );
 	folder->setOpen( true );
 	entry = settings.readEntry( "/Trolltech/Qt/Image Formats/PNG", "Direct", &settingsOK );
+#if 0
+	// ### disable using system PNG for now -- please someone take a closer look
+	entryPresent = settings.readEntry( "/Trolltech/Qt/Image Formats/PNG Present", "No", &settingsOK );
+	pngPresent = new QCheckListItem( folder, "Present", QCheckListItem::CheckBox );
+	pngPresent->setOn( entry == "Yes" );
+#endif
+	pngOff = new QCheckListItem( folder, "Off", QCheckListItem::RadioButton );
+	pngOff->setOn( entry == "Off" );
 	pngPlugin = new QCheckListItem( folder, "Plugin", QCheckListItem::RadioButton );
 	pngPlugin->setOn( entry == "Plugin" );
-	pngPresent = new QCheckListItem( folder, "Present", QCheckListItem::RadioButton );
-	pngPresent->setOn( entry == "Present" );
 	pngDirect = new QCheckListItem( folder, "Direct", QCheckListItem::RadioButton );	    
 	pngDirect->setOn( entry == "Direct" );
 
@@ -1077,7 +1095,7 @@ void SetupWizardImpl::showPage( QWidget* newPage )
 	nextButton()->setText( "Next >" );
 	saveSettings();
 
-	args << QEnvironment::getEnv( "QTDIR" ) + "\\bin\\configure.exe";
+	args << ( QEnvironment::getEnv( "QTDIR" ) + "\\bin\\configure.exe" );
 
 	entry = settings.readEntry( "/Trolltech/Qt/Build", "Debug", &settingsOK );
 	if ( entry == "Debug" )
@@ -1172,27 +1190,54 @@ void SetupWizardImpl::showPage( QWidget* newPage )
 
 	entry = settings.readEntry( "/Trolltech/Qt/Image Formats/PNG", "Direct", &settingsOK );
 	if ( entry == "Plugin" )
-	    args += "-no-png";
+	    args += "-plugin-imgfmt-png";
 	else if ( entry == "Direct" )
+	    args += "-qt-imgfmt-png";
+	else if ( entry == "Off" )
+	    args += "-no-imgfmt-png";
+#if 0
+	entry = settings.readEntry( "/Trolltech/Qt/Image Formats/PNG Present", "No", &settingsOK );
+	if ( entry == "No" )
 	    args += "-qt-png";
-	else if ( entry == "Present" )
+	else
 	    args += "-system-png";
+#else
+	args += "-qt-png";
+#endif
 
 	entry = settings.readEntry( "/Trolltech/Qt/Image Formats/JPEG", "Direct", &settingsOK );
 	if ( entry == "Plugin" )
-	    args += "-no-jpeg";
+	    args += "-plugin-imgfmt-jpeg";
 	else if ( entry == "Direct" )
+	    args += "-qt-imgfmt-jpeg";
+	else if ( entry == "Off" )
+	    args += "-no-imgfmt-jpeg";
+#if 0
+	entry = settings.readEntry( "/Trolltech/Qt/Image Formats/JPEG Present", "No", &settingsOK );
+	if ( entry == "No" )
 	    args += "-qt-jpeg";
-	else if ( entry == "Present" )
+	else
 	    args += "-system-jpeg";
+#else
+	args += "-qt-jpeg";
+#endif
 
 	entry = settings.readEntry( "/Trolltech/Qt/Image Formats/MNG", "Direct", &settingsOK );
 	if ( entry == "Plugin" )
-	    args += "-no-mng";
+	    args += "-plugin-imgfmt-mng";
 	else if ( entry == "Direct" )
+	    args += "-qt-imgfmt-mng";
+	else if ( entry == "Off" )
+	    args += "-no-imgfmt-mng";
+#if 0
+	entry = settings.readEntry( "/Trolltech/Qt/Image Formats/MNG Present", "No", &settingsOK );
+	if ( entry == "No" )
 	    args += "-qt-mng";
-	else if ( entry == "Present" )
+	else
 	    args += "-system-mng";
+#else
+	args += "-qt-mng";
+#endif
 
 	entry = settings.readEntry( "/Trolltech/Qt/Styles/Windows", "Direct", &settingsOK );
 	if ( entry == "Direct" )
@@ -1355,14 +1400,17 @@ void SetupWizardImpl::optionClicked( QListViewItem *i )
 	    if ( mngPlugin->isOn() ) {
 		mngDirect->setOn( true );
 		mngPlugin->setOn( false );
+		mngOff->setOn( false );
 	    }
 	    if ( pngPlugin->isOn() ) {
 		pngDirect->setOn( true );
 		pngPlugin->setOn( false );
+		pngOff->setOn( false );
 	    }
 	    if ( jpegPlugin->isOn() ) {
 		jpegDirect->setOn( true );
 		jpegPlugin->setOn( false );
+		jpegOff->setOn( false );
 	    }
 	    if ( sgiPlugin->isOn() ) {
 		sgiPlugin->setOn( false );
@@ -1600,30 +1648,42 @@ void SetupWizardImpl::optionSelected( QListViewItem *i )
 				"can be left out from the Qt library itself and provided by a plugin instead." );
     } else if ( i == mngPlugin ) {
 	explainOption->setText( "Support for MNG images is provided by a plugin that is loaded on demand." );
+    } else if ( i == mngOff ) {
+	explainOption->setText( "Turn off support for MNG images." );
     } else if ( i == mngDirect ) {
 	explainOption->setText( "Support for MNG images is compiled into Qt." );
+#if 0
     } else if ( i == mngPresent ) {
-	explainOption->setText( "Support for MNG images is provided by linking Qt against an existing libmng." );
+	explainOption->setText( "Support for MNG images is provided by linking against an existing libmng." );
+#endif
     } else if ( i->text(0) == "MNG" ) {
 	explainOption->setText( "Qt supports the \"Multiple-Image Network Graphics\" format either by "
 				"linking against an existing libmng, by compiling the mng sources "
 				"into Qt, or by loading a plugin on demand." );
     } else if ( i == jpegPlugin ) {
 	explainOption->setText( "Support for JPEG images is provided by a plugin that is loaded on demand." );
+    } else if ( i == jpegOff ) {
+	explainOption->setText( "Turn off support for JPEG images." );
     } else if ( i == jpegDirect ) {
 	explainOption->setText( "Support for JPEG images is compiled into Qt." );
+#if 0
     } else if ( i == jpegPresent ) {
-	explainOption->setText( "Support for JPEG images is provided by linking Qt against an existing libjpeg." );
+	explainOption->setText( "Support for JPEG images is provided by linking against an existing libjpeg." );
+#endif
     } else if ( i->text(0) == "JPEG" ) {
 	explainOption->setText( "Qt supports the \"Joint Photographic Experts Group\" format either "
 				"by linking against an existing libjpeg, by compiling the jpeg sources "
 				"into Qt, or by loading a plugin on demand." );
     } else if ( i == pngPlugin ) {
 	explainOption->setText( "Support for PNG images is provided by a plugin that is loaded on demand." );
+    } else if ( i == pngOff ) {
+	explainOption->setText( "Turn off support for PNG images." );
     } else if ( i == pngDirect ) {
 	explainOption->setText( "Support for PNG images is compiled into Qt." );
+#if 0
     } else if ( i == pngPresent ) {
-	explainOption->setText( "Support for PNG images is provided by linking Qt against an existing libpng." );
+	explainOption->setText( "Support for PNG images is provided by linking against an existing libpng." );
+#endif
     } else if ( i->text(0) == "PNG" ) {
 	explainOption->setText( "Qt supports the \"Portable Network Graphics\" format either by "
 				"linking against an existing libpng, by compiling the png support "
@@ -1666,7 +1726,7 @@ void SetupWizardImpl::logFiles( const QString& entry, bool close )
 
     filesDisplay->append( entry + "\n" );
 //    filesDisplay->setText( filesDisplay->text() + entry );
-    outstream << entry + "\n";
+    outstream << ( entry + "\n" );
 
     if( close )
 	fileLog.close();
@@ -1683,7 +1743,7 @@ void SetupWizardImpl::logOutput( const QString& entry, bool close )
     outstream.setDevice( &outputLog );
 
     outputDisplay->append( entry + "\n" );
-    outstream << entry + "\n";
+    outstream << ( entry + "\n" );
 
     if( close )
 	outputLog.close();
@@ -1698,6 +1758,8 @@ void SetupWizardImpl::archiveMsg( const QString& msg )
 	return;
     } 
     logFiles( msg );
+#else
+    Q_UNUSED(msg)
 #endif
 }
 

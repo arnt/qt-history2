@@ -112,9 +112,9 @@ private:
 
     QCheckListItem *advancedCppOn, *advancedCppOff;
 
-    QCheckListItem *mngPresent, *mngDirect, *mngPlugin, *mngOff;
-    QCheckListItem *jpegPresent, *jpegDirect, *jpegPlugin, *jpegOff;
-    QCheckListItem *pngPresent, *pngDirect, *pngPlugin, *pngOff;
+    QCheckListItem /* *mngPresent, */ *mngDirect, *mngPlugin, *mngOff;
+    QCheckListItem /* *jpegPresent, */ *jpegDirect, *jpegPlugin, *jpegOff;
+    QCheckListItem /* *pngPresent, */ *pngDirect, *pngPlugin, *pngOff;
 
     QCheckListItem *sgiDirect, *sgiPlugin, *sgiOff;
     QCheckListItem *cdeDirect, *cdePlugin, *cdeOff;
