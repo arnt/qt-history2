@@ -9,3 +9,4 @@ QTDIR_build:REQUIRES	= "contains(QT_CONFIG, large-config)"
 HEADERS		= listbox.h
 SOURCES		= listbox.cpp \
 		  main.cpp
+QT	+= compat

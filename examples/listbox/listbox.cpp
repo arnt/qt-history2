@@ -21,6 +21,7 @@
 #include <qlayout.h>
 #include <qpushbutton.h>
 
+using namespace Qt;
 
 ListBoxDemo::ListBoxDemo()
     : QWidget( 0 )
@@ -32,7 +33,7 @@ ListBoxDemo::ListBoxDemo()
 
     l = new QListBox( this );
     g->addWidget( l, 1, 1 );
-    l->setFocusPolicy( QWidget::StrongFocus );
+    l->setFocusPolicy( StrongFocus );
 
     QVBoxLayout * v = new QVBoxLayout;
     g->addLayout( v, 1, 0 );
