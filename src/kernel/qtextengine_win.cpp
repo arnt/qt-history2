@@ -543,7 +543,7 @@ void QTextEngine::itemize( int mode )
     }
 
     if ( !(mode & NoBidi) ) {
-	bidiItemize( string, items, direction == QChar::DirR );
+	bidiItemize( string, items, direction == QChar::DirR, mode );
     } else {
 	BidiControl control( false );
 	int start = 0;

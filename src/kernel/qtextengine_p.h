@@ -252,7 +252,8 @@ public:
     enum Mode {
 	Full = 0x00,
 	NoBidi = 0x01,
-	WidthOnly = 0x03
+	SingleLine = 0x02,
+	WidthOnly = 0x07
     };
 
     void itemize( int mode = Full );

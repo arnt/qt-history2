@@ -74,9 +74,11 @@ void QTextEngine::itemize( int mode )
     if ( !(mode & NoBidi) ) {
 	if ( direction == QChar::DirON )
 	    direction = basicDirection( string );
-	bidiItemize( string, items, direction == QChar::DirR );
+	bidiItemize( string, items, direction == QChar::DirR, mode );
     } else {
 	BidiControl control( false );
+	if ( mode & QTextEngine::SingleLine )
+	    control.singleLine = TRUE;
 	int start = 0;
 	int stop = string.length() - 1;
 	appendItems(items, start, stop, control, QChar::DirL, string.unicode() );

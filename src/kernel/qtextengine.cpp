@@ -47,12 +47,12 @@ struct BidiStatus {
 struct BidiControl {
     struct Context {
 	unsigned char level : 6;
-	int override : 1;
-	int unused : 1;
+	unsigned char override : 1;
+	unsigned char unused : 1;
     };
 
     inline BidiControl( bool rtl )
-	: cCtx( 0 ) {
+	: cCtx( 0 ), singleLine( FALSE ) {
 	ctx[0].level = (rtl ? 1 : 0);
 	ctx[0].override = FALSE;
     }
@@ -86,6 +86,7 @@ struct BidiControl {
 
     Context ctx[63];
     unsigned int cCtx : 8;
+    bool singleLine : 8;
 };
 
 static QChar::Direction basicDirection( const QString &str )
@@ -158,13 +159,13 @@ static void appendItems(QScriptItemArray &items, int &start, int &stop, BidiCont
 	QFont::Script s = (QFont::Script)scriptForChar( uc );
 
 	QChar::Category category = ::category( uc );
-	if ( uc == 0xfffcU || uc == 0x2028U ) {
+	if ( !control.singleLine && uc == 0xfffcU || uc == 0x2028U ) {
 	    item.analysis.bidiLevel = level;
 	    item.analysis.script = QFont::Latin;
 	    item.isObject = TRUE;
 	    s = QFont::NoScript;
-	} else if ( (uc >= 9 && uc <=13) ||
-		    (category >= QChar::Separator_Space && category <= QChar::Separator_Paragraph ) ) {
+	} else if ( !control.singleLine && ( (uc >= 9 && uc <=13) ||
+			  (category >= QChar::Separator_Space && category <= QChar::Separator_Paragraph ) ) ) {
 	    item.analysis.script = QFont::Latin;
 	    item.isSpace = TRUE;
 	    item.isTab = ( uc == '\t' );
@@ -190,9 +191,11 @@ static void appendItems(QScriptItemArray &items, int &start, int &stop, BidiCont
 
 
 // creates the next QScript items.
-static void bidiItemize( const QString &text, QScriptItemArray &items, bool rightToLeft )
+static void bidiItemize( const QString &text, QScriptItemArray &items, bool rightToLeft, int mode )
 {
     BidiControl control( rightToLeft );
+    if ( mode & QTextEngine::SingleLine )
+	control.singleLine = TRUE;
 
     QChar::Direction dir = rightToLeft ? QChar::DirR : QChar::DirL;
 
