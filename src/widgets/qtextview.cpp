@@ -187,9 +187,9 @@ QTextView::~QTextView()
   depending on the textFormat(). The default setting is \c AutoText,
   i.e. the text view autodetects the format from \a text.
 
-  The \a context is used to resolve references within the text
-  document, for example image sources. It is passed directly to the
-  mimeSourceFactory() when quering data.
+  The optional \a context is used to resolve references within the
+  text document, for example image sources. It is passed directly to
+  the mimeSourceFactory() when quering data.
 
   \sa text(), setTextFormat()
 */
@@ -220,6 +220,24 @@ void QTextView::setText( const QString& text, const QString& context)
     richText().flow()->initialize( visibleWidth() );
     updateLayout();
     viewport()->update();
+}
+
+/*!\overload
+  
+  Changes the contents of the view to the string \a text.
+
+  \a text may be interpreted either as plain text or as rich text,
+  depending on the textFormat(). The default setting is \c AutoText,
+  i.e. the text view autodetects the format from \a text.
+  
+  This function calls setText( text, QString::null ), i.e. it sets a
+  text without any context.
+  
+  \sa text(), setTextFormat()
+ */
+void QTextView::setText( const QString& text )
+{
+    setText( text, QString::null );
 }
 
 

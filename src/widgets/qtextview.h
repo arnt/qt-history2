@@ -42,8 +42,7 @@ class QMimeSourceFactory;
 class Q_EXPORT QTextView : public QScrollView
 {
     Q_OBJECT
-    // ######### setText should not have the default parameter
-    Q_PROPERTY( QString text READ text )
+    Q_PROPERTY( QString text READ text WRITE setText )
     Q_PROPERTY( TextFormat textFormat READ textFormat WRITE setTextFormat )
     Q_PROPERTY( QBrush paper READ paper WRITE setPaper )
     Q_PROPERTY( QColorGroup paperColorGroup READ paperColorGroup WRITE setPaperColorGroup )
@@ -57,7 +56,8 @@ public:
 	       QWidget *parent=0, const char *name=0);
     ~QTextView();
 
-    virtual void setText( const QString& text, const QString& context = QString::null );
+    virtual void setText( const QString& text, const QString& context  );
+    void setText( const QString& text ); // write function for 'text' property
     virtual QString text() const;
     virtual QString context() const;
 
