@@ -177,7 +177,14 @@ public:
     QString toString() const;
 
     QTextStringChar &at( int i ) const;
+#if defined(Q_CC_MIPS)
+    // This is for the IRIX MIPSpro o32 ABI - it fails, claiming the
+    // implementation to be a redefinition which is probably a
+    // compiler bug.
+    inline length() const;
+#else
     int length() const;
+#endif
 
     int width( int idx ) const;
 
@@ -253,7 +260,15 @@ public:
     bool operator==( const QTextCursor &c ) const;
     bool operator!=( const QTextCursor &c ) const { return !(*this == c); }
 
+#if defined(Q_CC_MIPS)
+    // This is for the IRIX MIPSpro o32 ABI - it fails, claiming the
+    // implementation to be a redefinition which is probably a
+    // compiler bug.
+    inline QTextParagraph *paragraph() const;
+#else
     QTextParagraph *paragraph() const;
+#endif
+    
     void setParagraph( QTextParagraph*p ) { gotoPosition(p, 0 ); }
     QTextDocument *document() const;
     int index() const;

@@ -406,6 +406,7 @@
 #  elif defined(sgi) || defined(__sgi)
 #    define Q_CC_MIPS
 #    if defined(_MIPS_SIM) && (_MIPS_SIM == _ABIO32) /* o32 ABI */
+#      define Q_TYPENAME
 #      define Q_BROKEN_TEMPLATE_SPECIALIZATION
 #    elif defined(_COMPILER_VERSION) && (_COMPILER_VERSION < 730) /* 7.2 */
 #      define Q_BROKEN_TEMPLATE_SPECIALIZATION
