@@ -121,7 +121,7 @@ struct QLineEditPrivate {
 	undoRedoInfo( parag ),
 	dragEnabled( TRUE ),
 	preeditStart(-1),
-	preeditLength(-1),
+	preeditLength(0),
 	passwordChar( l->style().styleHint( QStyle::SH_LineEdit_PasswordCharacter, l ) )
 #ifndef QT_NO_CLIPBOARD
 	,clipboard_mode( QClipboard::Clipboard )
@@ -1016,12 +1016,14 @@ void QLineEdit::imComposeEvent( QIMEvent *e )
     if (d->preeditLength > 0)
 	d->parag->remove(d->preeditStart, d->preeditLength);
     d->cursor->setIndex( d->preeditStart );
+    d->preeditLength = e->text().length();
     int insertLength = d->parag->length();
     insert( e->text() );
-    if (insertLength == d->parag->length() )
+    if (insertLength == d->parag->length() ) {
+	// shouldn't happen anymore, just to be sure
+	e->accept();
 	return;
-
-    d->preeditLength = e->text().length();
+    }
 
     d->parag->setSelection( QTextDocument::IMCompositionText,
 			    d->preeditStart, d->preeditStart + d->preeditLength );
@@ -1053,11 +1055,12 @@ void QLineEdit::imEndEvent( QIMEvent *e )
 
     if (d->preeditLength > 0)
 	d->parag->remove(d->preeditStart, d->preeditLength);
+    d->preeditLength = 0;
     if ( d->preeditStart >= 0 ) {
 	d->cursor->setIndex( d->preeditStart );
 	insert( e->text() );
     }
-    d->preeditStart = d->preeditLength = -1;
+    d->preeditStart = -1;
 
     e->accept();
 }
@@ -3138,7 +3141,7 @@ void QLineEdit::insert( const QString &newText, bool paste )
     else
 	newString.insert( cp1, input );
 
-    int cp2 = QMIN( cp1 + input.length(), (uint)maxLength() );
+    int cp2 = QMIN( cp1 + input.length(), (uint)maxLength() + d->preeditLength );
 
     d->ed = TRUE;
     if ( !validateAndSet( newString, cp2, cp2, cp2, TRUE) ) {
@@ -3173,7 +3176,7 @@ bool QLineEdit::validateAndSet( const QString &newText, int newPos,
 	    t[(int)i] = ' ';
     }
 
-    if ( (int)newText.length() > maxLength() )
+    if ( (int)newText.length() > maxLength() + d->preeditLength )
 	return FALSE;
 
     if ( hasMask() && !masked ) {
