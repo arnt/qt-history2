@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#228 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#229 $
 **
 ** Implementation of QListBox widget class
 **
@@ -1623,17 +1623,6 @@ void QListBox::emitChangedSignal( bool lazy ) {
 QSize QListBox::sizeHint() const
 {
     return QSize( 50, 150 ); // ### !!! ### !!!
-}
-
-
-/*!
-  Specifies that this widget can use additional space, and that it can
-  survive on less than sizeHint().
-*/
-
-QSizePolicy QListBox::sizePolicy() const
-{
-    return QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding );
 }
 
 

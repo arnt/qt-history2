@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#96 $
+** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#97 $
 **
 ** Implementation of QScrollView class
 **
@@ -1848,5 +1848,15 @@ void QScrollView::viewportToContent(int vx, int vy, int& x, int& y)
     const QPoint c = viewportToContent(QPoint(vx,vy));
     x = c.x();
     y = c.y();
+}
+
+
+/*!
+  Specifies that this widget can use additional space, and that it can
+  survive on less than sizeHint().
+*/
+QSizePolicy QScrollView::sizePolicy() const
+{
+    return QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding );
 }
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#232 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#233 $
 **
 ** Implementation of QListView widget class
 **
@@ -2090,6 +2090,7 @@ void QListView::updateContents()
 {
     viewport()->update();
     updateGeometries();
+    ensureItemVisible( d->focusItem );
 }
 
 void QListView::updateGeometries()
@@ -3201,7 +3202,8 @@ void QListView::setSorting( int column, bool ascending )
 
 void QListView::changeSortColumn( int column )
 {
-    setSorting( d->h->mapToLogical( column ), d->ascending );
+    int lcol = d->h->mapToLogical( column );
+    setSorting( lcol, d->sortcolumn == lcol ? !d->ascending : TRUE);
 }
 
 /*! Sets the advisory item margin which list items may use to \a m.
@@ -3823,18 +3825,6 @@ QSize QListView::sizeHint() const
 }
 
 
-/*!
-  Specifies that this widget can use additional space, and that it can
-  survive on less than sizeHint().
-*/
-
-QSizePolicy QListView::sizePolicy() const
-{
-    return QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding );
-}
-
-
-
 /*!  Sets \a item to be open if \a open is TRUE and \a item is
   expandable, and to be closed if \a open is FALSE.  Repaints
   accordingly.
@@ -4362,7 +4352,7 @@ QListViewItemIterator &QListViewItemIterator::operator++()
 
     QListViewItem *item = curr->firstChild();
     if ( item ) {
-        curr = item;    
+        curr = item;
         return *this;
     }
 
@@ -4428,9 +4418,9 @@ QListViewItemIterator &QListViewItemIterator::operator--()
                 QListViewItem *i = curr->listView()->firstChild();
                 while ( i && i->siblingItem != curr )
                     i = i->siblingItem;
-    
+
                 curr = i;
-    
+
                 if ( i && i->firstChild() ) {
                     // go to the last child of this item
                     QListViewItemIterator it( curr->firstChild() );
@@ -4454,7 +4444,7 @@ QListViewItemIterator &QListViewItemIterator::operator--()
             QListViewItem *i = parent->firstChild();
             while ( i && i->siblingItem != curr )
                 i = i->siblingItem;
-    
+
             curr = i;
 
             if ( i && i->firstChild() ) {
@@ -4463,7 +4453,7 @@ QListViewItemIterator &QListViewItemIterator::operator--()
                 for ( ; it.current() && it.current()->parent() != parent; ++it )
                     curr = it.current();
             }
-    
+
             return *this;
         } else {
             // make our parent the current item
