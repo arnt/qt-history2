@@ -783,15 +783,19 @@ QMakeProject::parse(const QString &t, QMap<QString, QStringList> &place)
                 s + "')").toLatin1());
             return false;
         }
-        bool global = false, case_sense = true;
+        bool global = false, case_sense = true, quote = false;
         if(func.count() == 4) {
             global = func[3].indexOf('g') != -1;
             case_sense = func[3].indexOf('i') == -1;
+            quote = func[3].indexOf('q') != -1;
         }
-        QRegExp regexp(func[1], case_sense ? Qt::CaseSensitive : Qt::CaseInsensitive);
+        QString from = func[1], to = func[2];
+        if(quote)
+            from = QRegExp::escape(from);
+        QRegExp regexp(from, case_sense ? Qt::CaseSensitive : Qt::CaseInsensitive);
         for(QStringList::Iterator varit = varlist.begin(); varit != varlist.end(); ++varit) {
             if((*varit).contains(regexp)) {
-                (*varit) = (*varit).replace(regexp, func[2]);
+                (*varit) = (*varit).replace(regexp, to);
                 if(!global)
                     break;
             }
@@ -1444,7 +1448,7 @@ QMakeProject::doProjectExpand(const QString &func, QStringList args,
     enum ExpandFunc { E_MEMBER, E_FIRST, E_LAST, E_CAT, E_FROMFILE, E_EVAL, E_LIST,
                       E_SPRINTF, E_JOIN, E_SPLIT, E_BASENAME, E_DIRNAME, E_SECTION, 
                       E_FIND, E_SYSTEM, E_UNIQUE, E_QUOTE, E_UPPER, E_LOWER, E_FILES,
-                      E_PROMPT };
+                      E_PROMPT, E_RE_ESCAPE };
     static QMap<QString, int> *expands = 0;
     if(!expands) {
         expands = new QMap<QString, int>;
@@ -1467,6 +1471,7 @@ QMakeProject::doProjectExpand(const QString &func, QStringList args,
         expands->insert("quote", E_QUOTE);
         expands->insert("upper", E_UPPER);
         expands->insert("lower", E_LOWER);
+        expands->insert("re_escape", E_RE_ESCAPE);
         expands->insert("files", E_FILES);
         expands->insert("prompt", E_PROMPT);
     }
@@ -1762,6 +1767,9 @@ QMakeProject::doProjectExpand(const QString &func, QStringList args,
         ret = ret.replace("\\n", "\n");
         ret = ret.replace("\\t", "\t");
         ret = ret.replace("\\r", "\r");
+        break; }
+    case E_RE_ESCAPE: {
+        ret = QRegExp::escape(args.join(QString(Option::field_sep)));
         break; }
     case E_UPPER:
     case E_LOWER: {
