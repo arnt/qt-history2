@@ -1,60 +1,61 @@
+#include <QtGui>
+#include <QtNetwork>
+
 #include "dialog.h"
 
-Dialog::Dialog(QWidget *parent)
-    : QDialog(parent), tcpServer(this), tcpClient(this)
-{
-    setWindowTitle(tr("Loopback example"));
+static const int TotalBytes = 50 * 1024 * 1024;
 
+Dialog::Dialog(QWidget *parent)
+    : QDialog(parent)
+{
     clientProgressBar = new QProgressBar(100, this);
-    clientStatusLabel = new QLabel(this);
+    clientStatusLabel = new QLabel(tr("Client ready"), this);
     serverProgressBar = new QProgressBar(100, this);
-    serverStatusLabel = new QLabel(this);
+    serverStatusLabel = new QLabel(tr("Server ready"), this);
 
     startButton = new QPushButton(tr("&Start"), this);
     quitButton = new QPushButton(tr("&Quit"), this);
-    connect(startButton, SIGNAL(clicked()), SLOT(start()));
-    connect(quitButton, SIGNAL(clicked()), SLOT(close()));
+
+    connect(startButton, SIGNAL(clicked()), this, SLOT(start()));
+    connect(quitButton, SIGNAL(clicked()), this, SLOT(close()));
+    connect(&tcpServer, SIGNAL(newConnection()),
+            this, SLOT(acceptConnection()));
+    connect(&tcpClient, SIGNAL(connected()), this, SLOT(startTransfer()));
+    connect(&tcpClient, SIGNAL(bytesWritten(Q_LLONG)),
+            this, SLOT(updateClientProgress(Q_LLONG)));
+    connect(&tcpClient, SIGNAL(error(int)), this, SLOT(displayError(int)));
+
+    QHBoxLayout *buttonLayout = new QHBoxLayout;
+    buttonLayout->addStretch(1);
+    buttonLayout->addWidget(startButton);
+    buttonLayout->addWidget(quitButton);
 
     QVBoxLayout *mainLayout = new QVBoxLayout(this);
-    QHBoxLayout *buttonLayout = new QHBoxLayout();
-
     mainLayout->addWidget(clientProgressBar);
     mainLayout->addWidget(clientStatusLabel);
     mainLayout->addWidget(serverProgressBar);
     mainLayout->addWidget(serverStatusLabel);
-
-    buttonLayout->addWidget(startButton);
-    buttonLayout->addWidget(quitButton);
     mainLayout->addLayout(buttonLayout);
 
-    connect(&tcpServer, SIGNAL(newConnection()), SLOT(acceptConnection()));
-    connect(&tcpClient, SIGNAL(connected()), SLOT(sendToServer()));
-    connect(&tcpClient, SIGNAL(bytesWritten(Q_LLONG)), SLOT(clientBytesWritten(Q_LLONG)));
-    connect(&tcpClient, SIGNAL(error(int)), SLOT(displayError(int)));
-
-    totalBytes = 50 * 1048576;
-    clientStatusLabel->setText(tr("Client ready"));
-    serverStatusLabel->setText(tr("Server ready"));
+    setWindowTitle(tr("Loopback"));
 }
 
 void Dialog::start()
 {
-    if (!startButton->isEnabled())
-        return;
     startButton->setEnabled(false);
 
-    QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
+    QApplication::setOverrideCursor(Qt::WaitCursor);
 
     bytesWritten = 0;
     bytesReceived = 0;
 
     while (!tcpServer.isListening() && !tcpServer.listen()) {
-        if (QMessageBox::critical(this, tr("Unable to start the test"),
-                                  tcpServer.errorString(),
-                                  QMessageBox::Cancel,
-                                  QMessageBox::Retry) == QMessageBox::Cancel) {
+        int ret = QMessageBox::critical(this, tr("Unable to start the test"),
+                                        tcpServer.errorString(),
+                                        QMessageBox::Cancel,
+                                        QMessageBox::Retry);
+        if (ret == QMessageBox::Cancel)
             return;
-        }
     }
 
     serverStatusLabel->setText(tr("Listening"));
@@ -62,52 +63,58 @@ void Dialog::start()
     tcpClient.connectToHost(QHostAddress::LocalHost, tcpServer.serverPort());
 }
 
-void Dialog::sendToServer()
-{
-    stopWatch.start();
-    tcpClient.write(QByteArray(totalBytes, '@'));
-    clientStatusLabel->setText(tr("Connected"));
-}
-
-void Dialog::displayError(int)
-{
-    QMessageBox::information(this, tr("Network error"),
-                             tcpClient.errorString(),
-                             QMessageBox::Ok);
-    tcpClient.close();
-    tcpServer.close();
-    clientProgressBar->reset();
-    serverProgressBar->reset();
-    clientStatusLabel->setText("Client ready");
-    serverStatusLabel->setText("Server ready");
-}
-
-void Dialog::clientBytesWritten(Q_LLONG bytes)
-{
-    bytesWritten += (int) bytes;
-    clientProgressBar->setProgress(bytesWritten, totalBytes);
-    clientStatusLabel->setText(QString(tr("Sent %1MB").arg(bytesWritten / 1048576)));
-}
-
 void Dialog::acceptConnection()
 {
     tcpServerConnection = tcpServer.nextPendingConnection();
-    connect(tcpServerConnection, SIGNAL(readyRead()), SLOT(receiveFromClient()));
-    connect(tcpServerConnection, SIGNAL(error(int)), SLOT(displayError(int)));
+    connect(tcpServerConnection, SIGNAL(readyRead()),
+            this, SLOT(updateServerProgress()));
+    connect(tcpServerConnection, SIGNAL(error(int)),
+            this, SLOT(displayError(int)));
 
     serverStatusLabel->setText(tr("Accepted connection"));
     tcpServer.close();
 }
 
-void Dialog::receiveFromClient()
+void Dialog::startTransfer()
 {
-    bytesReceived = (int) tcpServerConnection->bytesAvailable();
-    serverProgressBar->setProgress(bytesReceived, totalBytes);
-    serverStatusLabel->setText(QString(tr("Received %1MB").arg(bytesReceived / 1048576)));
+    tcpClient.write(QByteArray(TotalBytes, '@'));
+    clientStatusLabel->setText(tr("Connected"));
+}
 
-    if (bytesReceived == totalBytes) {
+void Dialog::updateServerProgress()
+{
+    bytesReceived = (int)tcpServerConnection->bytesAvailable();
+    serverProgressBar->setProgress(bytesReceived, TotalBytes);
+    serverStatusLabel->setText(tr("Received %1MB")
+                               .arg(bytesReceived / (1024 * 1024)));
+
+    if (bytesReceived == TotalBytes) {
         tcpServerConnection->close();
-        QApplication::restoreOverrideCursor();
         startButton->setEnabled(true);
+        QApplication::restoreOverrideCursor();
     }
+}
+
+void Dialog::updateClientProgress(Q_LLONG numBytes)
+{
+    bytesWritten += (int)numBytes;
+    clientProgressBar->setProgress(bytesWritten, TotalBytes);
+    clientStatusLabel->setText(tr("Sent %1MB")
+                               .arg(bytesWritten / (1024 * 1024)));
+}
+
+void Dialog::displayError(int /* socketError */)
+{
+    QMessageBox::information(this, tr("Network error"),
+                             tr("The following error occurred: %1.")
+                             .arg(tcpClient.errorString()));
+
+    tcpClient.close();
+    tcpServer.close();
+    clientProgressBar->reset();
+    serverProgressBar->reset();
+    clientStatusLabel->setText(tr("Client ready"));
+    serverStatusLabel->setText(tr("Server ready"));
+    startButton->setEnabled(true);
+    QApplication::restoreOverrideCursor();
 }

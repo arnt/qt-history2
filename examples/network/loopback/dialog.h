@@ -1,8 +1,15 @@
 #ifndef DIALOG_H
 #define DIALOG_H
 
-#include <QtGui>
-#include <QtNetwork>
+#include <QDialog>
+#include <QTcpServer>
+#include <QTcpSocket>
+
+class QLabel;
+class QProgressBar;
+class QPushButton;
+class QTcpServer;
+class QTcpSocket;
 
 class Dialog : public QDialog
 {
@@ -14,9 +21,9 @@ public:
 public slots:
     void start();
     void acceptConnection();
-    void sendToServer();
-    void receiveFromClient();
-    void clientBytesWritten(Q_LLONG bytesWritten);
+    void startTransfer();
+    void updateServerProgress();
+    void updateClientProgress(Q_LLONG numBytes);
     void displayError(int socketError);
 
 private:
@@ -30,12 +37,8 @@ private:
     QTcpServer tcpServer;
     QTcpSocket tcpClient;
     QTcpSocket *tcpServerConnection;
-
-    int totalBytes;
     int bytesWritten;
     int bytesReceived;
-
-    QTime stopWatch;
 };
 
 #endif
