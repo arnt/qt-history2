@@ -35,9 +35,8 @@ class Q_GUI_EXPORT QGroupBox : public QWidget
     Q_PROPERTY(bool checkable READ isCheckable WRITE setCheckable)
     Q_PROPERTY(bool checked READ isChecked WRITE setChecked)
 public:
-    QGroupBox(QWidget* parent=0, const char* name=0);
-    QGroupBox(const QString &title,
-               QWidget* parent=0, const char* name=0);
+    QGroupBox(QWidget* parent=0);
+    QGroupBox(const QString &title, QWidget* parent=0);
     ~QGroupBox();
 
     QString title() const;
@@ -74,6 +73,12 @@ private:
     Q_PRIVATE_SLOT(void setChildrenEnabled(bool b))
 
 private:
+
+#ifdef QT_COMPAT
+public:
+    QGroupBox(QWidget* parent, const char* name);
+    QGroupBox(const QString &title, QWidget* parent, const char* name);
+#endif
 
 #if defined(Q_DISABLE_COPY)
     QGroupBox(const QGroupBox &);

@@ -91,34 +91,23 @@ public:
 
 
 /*!
-    Constructs a group box widget with no title.
-
-    The \a parent and \a name arguments are passed to the QWidget
-    constructor.
-
-    This constructor does not do automatic layout.
+    Constructs a group box widget with no title and parent \a parent.
 */
 
-QGroupBox::QGroupBox(QWidget *parent, const char *name)
+QGroupBox::QGroupBox(QWidget *parent)
     : QWidget(*new QGroupBoxPrivate, parent, 0)
 {
-    setObjectName(name);
     d->init();
 }
 
 /*!
-    Constructs a group box with the title \a title.
-
-    The \a parent and \a name arguments are passed to the QWidget
-    constructor.
-
-    This constructor does not do automatic layout.
+    Constructs a group box with the title \a title and parent \a
+    parent.
 */
 
-QGroupBox::QGroupBox(const QString &title, QWidget *parent, const char *name)
+QGroupBox::QGroupBox(const QString &title, QWidget *parent)
     : QWidget(*new QGroupBoxPrivate, parent, 0)
 {
-    setObjectName(name);
     d->init();
     setTitle(title);
 }
@@ -601,6 +590,22 @@ void QGroupBoxPrivate::updateCheckBoxGeometry()
     }
 }
 
+#ifdef QT_COMPAT
+QGroupBox::QGroupBox(QWidget *parent, const char *name)
+    : QWidget(*new QGroupBoxPrivate, parent, 0)
+{
+    setObjectName(name);
+    d->init();
+}
+
+QGroupBox::QGroupBox(const QString &title, QWidget *parent, const char *name)
+    : QWidget(*new QGroupBoxPrivate, parent, 0)
+{
+    setObjectName(name);
+    d->init();
+    setTitle(title);
+}
+#endif QT_COMPAT
 
 #include "moc_qgroupbox.cpp"
 
