@@ -55,6 +55,7 @@
 #include <qtooltip.h>
 #include <qfeatures.h>
 #include <qaccel.h>
+#include <qpixmapcache.h>
 
 static void setCursorToAll( const QCursor &c, QWidget *start )
 {
@@ -205,20 +206,24 @@ void FormWindow::paintGrid( QWidget *w, QPaintEvent *e )
 {
     if ( !mainWindow()->showGrid() )
 	return;
-    int x = 0, y = 0, jmax = 0;
-    QPainter p( w );
-    p.setClipRegion( e->rect() );
-    p.setPen( colorGroup().foreground() );
-    jmax = w->height() / mainWindow()->grid().y() + 20;
-    int end = w->width() / mainWindow()->grid().x() + 20;
-    for ( int i = 0; i < end; ++i ) {
-	y = 0;
-	for ( int j = 0; j < jmax; ++j ) {
-	    p.drawPoint( x, y );
-	    y += mainWindow()->grid().y();
+    QPixmap grid;
+    QString grid_name;
+    grid_name.sprintf("FormWindowGrid_%d_%d", mainWindow()->grid().x(), mainWindow()->grid().y());
+    if( !QPixmapCache::find( grid_name, grid ) ) {
+	grid = QPixmap( 150 + (150 % mainWindow()->grid().x()), 150 + (150 % mainWindow()->grid().y()) );
+	QPainter p( &grid );
+	p.fillRect(0, 0, grid.width(), grid.height(), w->backgroundColor());
+	p.setPen( colorGroup().foreground() );
+	for ( int y = 0; y < grid.width(); y += mainWindow()->grid().y()) {
+	    for ( int x = 0; x < grid.height(); x += mainWindow()->grid().x() ) {
+		p.drawPoint( x, y );
+	    }
 	}
-	x += mainWindow()->grid().x();
+	QPixmapCache::insert( grid_name, grid );
     }
+    QPainter p(w);
+    p.setClipRegion( e->rect() );
+    p.drawTiledPixmap( QRect(0, 0, width(), height()), grid );
 }
 
 /*!  For operations like drawing a rubber band or drawing the rect
