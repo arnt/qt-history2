@@ -766,7 +766,7 @@ Q_GFX_INLINE unsigned int QGfxRasterBase::get_value_1(int sdepth, unsigned const
                 monobitval=monobitval & 0xff;
             }
         }
-    } else if(sdepth==32) {
+    } else if(sdepth==32 && is_screen_gfx) {
         unsigned int hold=*reinterpret_cast<unsigned const int *>(*srcdata);
         unsigned int r,g,b;
         r=(hold & 0xff0000) >> 16;
