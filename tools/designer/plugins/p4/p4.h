@@ -7,6 +7,37 @@
 class QProcess;
 class QComponentInterface;
 
+struct P4Info
+{
+    P4Info() : controlled(FALSE), opened(FALSE) {}
+
+    bool controlled : 1;
+    bool opened : 1;
+};
+
+class P4FStat : public QObject
+{
+    Q_OBJECT
+
+public:
+    P4FStat( const QString& filename );
+    ~P4FStat();
+
+    void fstat();
+
+signals:
+    void receivedStatus( const QString&, P4Info* );
+
+private slots:
+    void newData( const QString& );
+    void processExited();
+
+private:
+    QString fileName;
+    QString fstatData;
+    QProcess* process;
+};
+
 class P4Edit : public QObject
 {
     Q_OBJECT

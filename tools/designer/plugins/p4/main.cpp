@@ -4,6 +4,230 @@
 #include <qcleanuphandler.h>
 #include <qaction.h>
 #include <qapplication.h>
+#include <qdict.h>
+
+/* XPM */
+static const char * const sync_xpm[]={
+"16 16 5 1",
+"b c #000000",
+"c c #000080",
+"# c #808080",
+". c None",
+"a c #ffffff",
+".......####.....",
+".......#aa#b....",
+".......#aa#ab.cc",
+"..bb...#aa###cc.",
+".......#accacc..",
+"..bb...#aaccc#..",
+".......#aaacab..",
+".......bbbbbbb..",
+"####............",
+"#aa#b...........",
+"#aa#ab..........",
+"#aabbbb...bb....",
+"#aaaaab.........",
+"#aaaaab...bb....",
+"#aaaaab.........",
+"bbbbbbb........."};
+/* XPM */
+static const char * const edit_xpm[]={
+"16 16 5 1",
+"b c #000000",
+"# c #808080",
+". c None",
+"c c #ff0000",
+"a c #ffffff",
+"........####....",
+"........#aa#b...",
+"........#aa#ab..",
+"........#aabbbb.",
+"........#aaaccc.",
+"........#aacccb.",
+"........#acccab.",
+"...ccc..#cccbbb.",
+"....ccc.ccc.....",
+".....ccccc......",
+"......ccc.......",
+"..b....c...b....",
+".bb........bb...",
+"bbbbbb..bbbbbb..",
+".bb........bb...",
+"..b........b...."};
+/* XPM */
+static const char * const submit_xpm[]={
+"16 16 5 1",
+"b c #000000",
+"c c #000080",
+"# c #808080",
+". c None",
+"a c #ffffff",
+"........####....",
+"........#aa#b...",
+"........#aa#ab..",
+"........#aabbbb.",
+"........#aaaccc.",
+"........#aaccc#.",
+"........#acccab.",
+"...ccc..#cccbbb.",
+"....ccc.ccc.....",
+".....ccccc......",
+"......ccc.......",
+"...b...c..b.....",
+"...bb....bb.....",
+"bbbbbb..bbbbbb..",
+"...bb....bb.....",
+"...b......b....."};
+/* XPM */
+static const char * const revert_xpm[]={
+"16 16 6 1",
+"b c #000000",
+"d c #0000ff",
+"# c #808080",
+". c None",
+"c c #ff0000",
+"a c #ffffff",
+"......####......",
+"......#aa#b.....",
+"......#aa#ab.cc.",
+"......#aa###cc..",
+"......#accacc...",
+"......#aaccc#...",
+"......#aaacab...",
+"......bbbbbbb...",
+"................",
+"................",
+"....#dddd#......",
+"d..dd....d#.....",
+"ddd.......d.....",
+"ddd.......d.....",
+"dddd.....#d.....",
+".........d......"};
+/* XPM */
+static const char * const add_xpm[]={
+"16 16 6 1",
+"b c #000000",
+"c c #000080",
+"# c #808080",
+". c None",
+"d c #ffff00",
+"a c #ffffff",
+".......####.....",
+".......#aa#b....",
+".......#aa#ab.cc",
+".......#aa###cc.",
+".......#accacc..",
+".......#aaccc#..",
+".......#aaacab..",
+".......bbbbbbb..",
+"..bbbb..........",
+"..bddb..........",
+"bbbddbbb........",
+"bddddddb........",
+"bddddddb........",
+"bbbddbbb........",
+"..bddb..........",
+"..bbbb.........."};
+/* XPM */
+static const char * const delete_xpm[]={
+"16 16 6 1",
+"b c #000000",
+"c c #000080",
+"d c #800000",
+"# c #808080",
+". c None",
+"a c #ffffff",
+".......####.....",
+".......#aa#b....",
+".......#aa#ab.cc",
+".......#aa###cc.",
+".......#accacc..",
+".......#aaccc#..",
+".......#aaacab..",
+".......bbbbbbb..",
+"................",
+".....dd#........",
+"ddd#dd#.........",
+"..ddd#..........",
+"...ddd..........",
+"..dd.dd.........",
+".dd#.#dd........",
+".d#...#d........"};
+/* XPM */
+static const char * const report_xpm[]={
+"16 16 5 1",
+"c c #000000",
+"a c #000080",
+"# c #808080",
+". c None",
+"b c #ffffff",
+"......####....aa",
+"......#bb##..aa.",
+"......#bbaa#aa..",
+"......#b##aaa...",
+"...####bbbba#...",
+"...#bb#b###bc...",
+"...#bb#bbbbbc...",
+"...#bbccccccc...",
+"####bbbbbc......",
+"#bb#b###bc......",
+"#bb#bbbbbc......",
+"#bbccccccc......",
+"#bbbbbc.........",
+"#bbbbbc.........",
+"#bbbbbc.........",
+"ccccccc........."};
+/* XPM */
+static const char * const diff_xpm[]={
+"16 16 7 1",
+"b c #000000",
+"c c #000080",
+"e c #0000ff",
+"d c #00ffff",
+"# c #808080",
+". c None",
+"a c #ffffff",
+"......####......",
+"......#aa#b.....",
+"......#aa#ab.cc.",
+"......#aa###cc..",
+"......#accacc...",
+"....bbbaaccc#...",
+"...badabaacab...",
+"..badad.bbbbb...",
+"##bdad.db.......",
+"#abad.d.b.......",
+"#aab.d.b##......",
+"#aaabbb#.ee.....",
+"#aaaaab.cdee....",
+"#aaaaab..cdee...",
+"#aaaaab...cde...",
+"bbbbbbb....bb..."};
+/* XPM */
+static char *refresh_xpm[]={
+"16 16 5 1",
+"b c #000000",
+"c c #000080",
+"# c #808080",
+". c None",
+"a c #ffffff",
+"......####......",
+"......#aa#b.....",
+"......#aa#ab.cc.",
+"......#aa###cc..",
+"..b...#accacc...",
+".bbb..#aaccc#...",
+".bbb..#aaacab...",
+".bbb..bbbbbbb...",
+".bbb............",
+".#b#............",
+"..b.............",
+"................",
+".#b#............",
+".bbb............",
+".#b#............"
+"................"};
+
 
 class P4Interface : public QObject, public ActionInterface
 {
@@ -17,7 +241,7 @@ public:
     QString description() { return "Integrates P4 Source Control into the Qt Designer"; }
     QString author() { return "Trolltech"; }
 
-    bool connectNotify( QApplication* a );
+    bool connectNotify( QApplication* );
 
     QStringList featureList();
     QAction* create( const QString &actionname, QObject* parent = 0 );
@@ -32,19 +256,31 @@ private slots:
     void p4Add();
     void p4Delete();
     void p4Diff();
-    void p4MightEdit( bool b, const QString &fn );
+    void p4Refresh();
+
+    void p4MightEdit( bool b, const QString &filename );
+    void formChanged();
+    void p4Info( const QString& filename, P4Info* );
 
 private:
     bool aware;
+    QDict<P4Info> p4Files;
+    QAction* actionSync;
+    QAction* actionEdit;
+    QAction* actionSubmit;
+    QAction* actionRevert;
+    QAction* actionAdd;
+    QAction* actionDelete;
+    QAction* actionDiff;
 
     QGuardedCleanUpHandler<QAction> actions;
     QGuardedPtr<QApplicationInterface> appInterface;
-
 };
 
 P4Interface::P4Interface()
 {
     aware = FALSE;
+    p4Files.setAutoDelete( TRUE );
 }
 
 P4Interface::~P4Interface()
@@ -53,19 +289,20 @@ P4Interface::~P4Interface()
 
 bool P4Interface::connectNotify( QApplication* theApp )
 {
-    if ( !theApp )
-	return FALSE;
-
-    appInterface = theApp->queryInterface();
-    if ( !appInterface )
+    if ( !theApp || ! ( appInterface = theApp->queryInterface() ) )
 	return FALSE;
 
     QComponentInterface *mwIface = 0;
     QComponentInterface *fwIface = 0;
+    
     if ( ( mwIface = appInterface->queryInterface( "DesignerMainWindowInterface" ) ) &&
-	 ( fwIface = mwIface->queryInterface( "DesignerFormWindowInterface" ) ) )
+	( fwIface = mwIface->queryInterface( "DesignerFormWindowInterface" ) ) )
 	fwIface->requestConnect( SIGNAL( modificationChanged( bool, const QString & ) ), 
 				 this, SLOT( p4MightEdit( bool, const QString & ) ) );
+
+    QComponentInterface *flIface = 0;
+    if ( flIface = appInterface->queryInterface( "DesignerFormListInterface" ) )
+	flIface->requestConnect( SIGNAL( selectionChanged() ), this, SLOT(formChanged() ) );
 
     return TRUE;
 }
@@ -73,56 +310,60 @@ bool P4Interface::connectNotify( QApplication* theApp )
 QStringList P4Interface::featureList()
 {
     QStringList list;
-//    list << "P4 Aware" << "P4 Sync" << "P4 Edit" << "P4 Submit" << "P4 Revert" << "P4 Add" << "P4 Delete" << "P4 Diff";
     list << "P4";
     return list;
 }
 
 QAction* P4Interface::create( const QString& actionname, QObject* parent )
 {
-    QAction* a = 0;
-    if ( actionname == "P4 Aware" ) {
-	a = new QAction( actionname, QIconSet(), "A&ware", 0, parent, actionname, TRUE );
-	connect( a, SIGNAL( toggled(bool) ), this, SLOT( p4Aware(bool) ) );
-    } else if ( actionname == "P4 Sync" ) {
-	a = new QAction( actionname, QIconSet(), "&Sync", 0, parent, actionname );
-	connect( a, SIGNAL( activated() ), this, SLOT( p4Sync() ) );
-    } else if ( actionname == "P4 Edit" ) {
-	a = new QAction( actionname, QIconSet(), "&Edit", 0, parent, actionname );
-	connect( a, SIGNAL( activated() ), this, SLOT( p4Edit() ) );
-    } else if ( actionname == "P4 Submit" ) {
-	a = new QAction( actionname, QIconSet(), "&Submit", 0, parent, actionname );
-	connect( a, SIGNAL( activated() ), this, SLOT( p4Submit() ) );
-    } else if ( actionname == "P4 Revert" ) {
-	a = new QAction( actionname, QIconSet(), "&Revert", 0, parent, actionname );
-	connect( a, SIGNAL( activated() ), this, SLOT( p4Revert() ) );
-    } else if ( actionname == "P4 Add" ) {
-	a = new QAction( actionname, QIconSet(), "&Add", 0, parent, actionname );
-	connect( a, SIGNAL( activated() ), this, SLOT( p4Add() ) );
-    } else if ( actionname == "P4 Delete" ) {
-	a = new QAction( actionname, QIconSet(), "&Delete", 0, parent, actionname );
-	connect( a, SIGNAL( activated() ), this, SLOT( p4Delete() ) );
-    } else if ( actionname == "P4 Diff" ) {
-	a = new QAction( actionname, QIconSet(), "Di&ff", 0, parent, actionname );
-	connect( a, SIGNAL( activated() ), this, SLOT( p4Diff() ) );
-    } else if ( actionname == "P4" && parent->isWidgetType() ) {
-	QActionGroup* ag = new QActionGroup( (QWidget*)parent, 0, FALSE );
-	ag->insert( create( "P4 Aware", ag ) );
-	ag->insert( create( "P4 Sync", ag ) );
-	ag->insert( create( "P4 Edit", ag ) );
-	ag->insert( create( "P4 Submit", ag ) );
-	ag->insert( create( "P4 Revert", ag ) );
-	ag->insert( create( "P4 Add", ag ) );
-	ag->insert( create( "P4 Delete", ag ) );
-	ag->insert( create( "P4 Diff", ag ) );
-
-	a = ag;
-    } else {
+    if ( actionname != "P4" )
 	return 0;
-    }
 
-    actions.addCleanUp( a );
-    return a;
+    QActionGroup *ag = new QActionGroup( parent, 0, FALSE );
+
+    QAction *a = new QAction( "P4 Aware", QIconSet((const char**)report_xpm), "A&ware", 0, ag, "P4 Aware", TRUE );
+    connect( a, SIGNAL( toggled(bool) ), this, SLOT( p4Aware(bool) ) );
+
+    ag->insertSeparator();
+
+    actionSync = new QAction( "P4 Sync", QIconSet((const char**)sync_xpm), "&Sync", 0, ag, "P4 Sync" );
+    connect( actionSync, SIGNAL( activated() ), this, SLOT( p4Sync() ) );
+
+    actionEdit = new QAction( "P4 Edit", QIconSet((const char**)edit_xpm), "&Edit", 0, ag, "P4 Edit" );
+    connect( actionEdit, SIGNAL( activated() ), this, SLOT( p4Edit() ) );
+
+    actionSubmit = new QAction( "P4 Submit", QIconSet((const char**)submit_xpm), "&Submit", 0, ag, "P4 Submit" );
+    connect( actionSubmit, SIGNAL( activated() ), this, SLOT( p4Submit() ) );
+
+    actionRevert = new QAction( "P4 Revert", QIconSet((const char**)revert_xpm), "&Revert", 0, ag, "P4 Revert" );
+    connect( actionRevert, SIGNAL( activated() ), this, SLOT( p4Revert() ) );
+
+    ag->insertSeparator();
+
+    actionAdd = new QAction( "P4 Add", QIconSet((const char**)add_xpm), "&Add", 0, ag, "P4 Add" );
+    connect( actionAdd, SIGNAL( activated() ), this, SLOT( p4Add() ) );
+
+    actionDelete = new QAction( "P4 Delete", QIconSet((const char**)delete_xpm), "&Delete", 0, ag, "P4 Delete" );
+    connect( actionDelete, SIGNAL( activated() ), this, SLOT( p4Delete() ) );
+
+    ag->insertSeparator();
+
+    actionDiff = new QAction( "P4 Diff", QIconSet((const char**)diff_xpm), "Di&ff", 0, ag, "P4 Diff" );
+    connect( actionDiff, SIGNAL( activated() ), this, SLOT( p4Diff() ) );
+
+    a = new QAction( "P4 Refresh", QIconSet((const char**)refresh_xpm), "Refres&h", 0, ag, "P4 Refresh" );
+    connect( a, SIGNAL( activated() ), this, SLOT( p4Refresh() ) );
+
+    actions.addCleanUp( ag );
+    actionSync->setEnabled( FALSE );
+    actionEdit->setEnabled( FALSE );
+    actionSubmit->setEnabled( FALSE );
+    actionRevert->setEnabled( FALSE );
+    actionAdd->setEnabled( FALSE );
+    actionDelete->setEnabled( FALSE );
+    actionDiff->setEnabled( FALSE );
+
+    return ag;
 }
 
 QString P4Interface::group( const QString & )
@@ -162,7 +403,7 @@ void P4Interface::p4Submit()
     if ( !( mwIface = appInterface->queryInterface( "DesignerMainWindowInterface" ) ) ||
 	 !( fwIface = mwIface->queryInterface( "DesignerFormWindowInterface" ) ) )
 	return;
-    qDebug( "P4Interface::p4Submit %s", fwIface->requestProperty( "dileName" ).toString().latin1() );
+    qDebug( "P4Interface::p4Submit %s", fwIface->requestProperty( "fileName" ).toString().latin1() );
 }
 
 void P4Interface::p4Revert()
@@ -181,6 +422,21 @@ void P4Interface::p4Diff()
 {
 }
 
+void P4Interface::p4Refresh()
+{
+    p4Files.clear();
+
+    QComponentInterface *flIface = 0;
+    if ( flIface = appInterface->queryInterface( "DesignerFormListInterface" ) ) {
+	QStringList formfiles = flIface->requestProperty( "fileList" ).toStringList();
+	for ( QStringList::Iterator it = formfiles.begin(); it != formfiles.end(); ++it ) {
+	    P4FStat* fs = new P4FStat( *it );
+	    connect( fs, SIGNAL(receivedStatus(const QString&, P4Info*)), this, SLOT(p4Info(const QString&,P4Info*)) );
+	    fs->fstat();
+	}
+    }
+}
+
 void P4Interface::p4MightEdit( bool b, const QString &s )
 {
     if ( !aware || !b || !appInterface )
@@ -190,6 +446,66 @@ void P4Interface::p4MightEdit( bool b, const QString &s )
 	return;
     P4Edit *edit = new P4Edit( s, mwIface, FALSE );
     edit->edit();
+}
+
+void P4Interface::formChanged()
+{
+    QComponentInterface *mwIface = 0;
+    QComponentInterface *fwIface = 0;
+    if ( !( mwIface = appInterface->queryInterface( "DesignerMainWindowInterface" ) ) ||
+	 !( fwIface = mwIface->queryInterface( "DesignerFormWindowInterface" ) ) )
+	return;
+    QString filename = fwIface->requestProperty( "fileName" ).toString();
+    if ( filename.isEmpty() ) {
+	actionSync->setEnabled( FALSE );
+	actionEdit->setEnabled( FALSE );
+	actionSubmit->setEnabled( FALSE );
+	actionRevert->setEnabled( FALSE );
+	actionAdd->setEnabled( FALSE );
+	actionDelete->setEnabled( FALSE );
+	actionDiff->setEnabled( FALSE );
+	return;
+    }
+
+    P4Info* p4i = p4Files[filename];
+    if ( !p4i ) {
+	P4FStat* fs = new P4FStat( filename );
+	connect( fs, SIGNAL(receivedStatus(const QString&, P4Info*)), this, SLOT(p4Info(const QString&,P4Info*)) );
+	fs->fstat();
+	return;
+    }
+    p4Info( filename, p4i );
+}
+
+void P4Interface::p4Info( const QString& filename, P4Info* p4i )
+{
+    if ( !p4Files[filename] )
+	p4Files.insert( filename, p4i );
+
+    if ( p4i->controlled ) {
+	actionAdd->setEnabled( FALSE );
+	actionDelete->setEnabled( TRUE );
+	if ( p4i->opened ) {
+	    actionSync->setEnabled( FALSE );
+	    actionEdit->setEnabled( FALSE );
+	    actionSubmit->setEnabled( TRUE );
+	    actionRevert->setEnabled( TRUE );
+	    actionDiff->setEnabled( TRUE );
+	} else {
+	    actionSync->setEnabled( TRUE );
+	    actionEdit->setEnabled( TRUE );
+	    actionSubmit->setEnabled( FALSE );
+	    actionRevert->setEnabled( FALSE );
+	    actionDiff->setEnabled( FALSE );
+	}
+    } else {
+	actionAdd->setEnabled( TRUE );
+	actionDelete->setEnabled( FALSE );
+	actionSubmit->setEnabled( FALSE );
+	actionRevert->setEnabled( FALSE );
+	actionDiff->setEnabled( FALSE );
+	actionEdit->setEnabled( FALSE );
+    }
 }
 
 #include "main.moc"

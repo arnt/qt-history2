@@ -6,6 +6,55 @@
 
 #include "../designerinterface.h"
 
+P4FStat::P4FStat( const QString& filename )
+    : QObject(), fileName( filename ), process( 0 )
+{
+}
+
+P4FStat::~P4FStat()
+{
+    delete process;
+}
+
+void P4FStat::fstat()
+{
+    if ( !process )
+	process = new QProcess;
+
+    connect( process, SIGNAL( dataStdout( const QString & ) ),
+	     this, SLOT( newData( const QString & ) ) );
+    connect( process, SIGNAL( processExited() ),
+	     this, SLOT( processExited() ) );
+    QStringList args;
+    args << "p4" << "fstat" << fileName;
+    process->setArguments( args );
+    process->start();
+}
+
+void P4FStat::newData( const QString &s )
+{
+    fstatData += s;
+}
+
+void P4FStat::processExited()
+{
+    P4Info* p4i = new P4Info;
+
+    if ( fstatData.find( "clientFile" ) == -1 ) {
+	p4i->controlled = FALSE;
+	p4i->opened = FALSE;
+    } else {
+	p4i->controlled = TRUE;
+	if ( fstatData.find( "... action edit" ) == -1 )
+	    p4i->opened = FALSE;
+	else
+	    p4i->opened = TRUE;
+    }
+    emit receivedStatus( fileName, p4i );
+
+    delete this;
+}
+
 P4Edit::P4Edit( const QString &filename, QComponentInterface *iface, bool s )
     : QObject( iface ), fileName( filename ), process( 0 ), mwIface( iface ), silent( s )
 {
