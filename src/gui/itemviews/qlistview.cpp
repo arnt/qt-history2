@@ -23,8 +23,7 @@ public:
     void setItem(int row, const QListViewItem &item);
     void append(const QListViewItem &item);
 
-    int rowCount(const QModelIndex &parent = QModelIndex()) const;
-    int columnCount(const QModelIndex &parent = QModelIndex()) const;
+    int rowCount() const;
 
     QVariant data(const QModelIndex &index, int role = QAbstractItemModel::Role_Display) const;
     bool setData(const QModelIndex &index, int role, const QVariant &value);
@@ -58,14 +57,9 @@ void QListModel::setItem(int row, const QListViewItem &item)
         lst[row] = item;
 }
 
-int QListModel::rowCount(const QModelIndex &) const
+int QListModel::rowCount() const
 {
     return lst.count();
-}
-
-int QListModel::columnCount(const QModelIndex &) const
-{
-    return 1;
 }
 
 QVariant QListModel::data(const QModelIndex &index, int role) const
@@ -84,19 +78,19 @@ bool QListModel::setData(const QModelIndex &index, int role, const QVariant &val
     return true;
 }
 
-bool QListModel::insertRows(int row, const QModelIndex &parent, int)
+bool QListModel::insertRows(int row, const QModelIndex &, int)
 {
     QListViewItem item;
-    if (row < rowCount(parent))
+    if (row < rowCount())
         lst.insert(row, item);
     else
         lst.append(item);
     return true;
 }
 
-bool QListModel::removeRows(int row, const QModelIndex &parent, int)
+bool QListModel::removeRows(int row, const QModelIndex &, int)
 {
-    if (row < rowCount(parent)) {
+    if (row < rowCount()) {
         lst.removeAt(row);
         return true;
     }

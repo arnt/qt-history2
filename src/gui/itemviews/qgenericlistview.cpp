@@ -1065,7 +1065,7 @@ void QGenericListView::doItemsLayout()
     d->prepareItemsLayout();
 
     if (d->layoutMode == Instant)
-        doItemsLayout(model()->rowCount(root())); // layout everything
+        doItemsLayout(rowCount(root())); // layout everything
     else
         while (!doItemsLayout(100)) // do layout in batches
             qApp->processEvents();
@@ -1076,7 +1076,7 @@ void QGenericListView::doItemsLayout()
 */
 bool QGenericListView::doItemsLayout(int delta)
 {
-    int max = model()->rowCount(root()) - 1;
+    int max = rowCount(root()) - 1;
     int first = d->layoutStart;
     int last = qMin(first + delta - 1, max);
 
@@ -1215,7 +1215,7 @@ void QGenericListView::doDynamicLayout(const QRect &bounds, int first, int last)
     if (first == 0) {
         x = bounds.x() + spacing;
         y = bounds.y() + spacing;
-        d->tree.reserve(model()->rowCount(root()));
+        d->tree.reserve(rowCount(root()));
     } else {
         int p = first - 1;
         const QGenericListViewItem item = d->tree.item(p);
@@ -1230,7 +1230,7 @@ void QGenericListView::doDynamicLayout(const QRect &bounds, int first, int last)
     QPoint topLeft(x, y);
     bool wrap = d->wrap;
     QRect rect(QPoint(0, 0), d->contentsSize);
-    QModelIndex bottomRight = model()->bottomRight(root());
+    QModelIndex bottomRight = model()->index(0, 0, root());
     QGenericListViewItem *item = 0;
 
     if (d->flow == LeftToRight) {
@@ -1352,7 +1352,7 @@ void QGenericListViewPrivate::init()
 void QGenericListViewPrivate::prepareItemsLayout()
 {
     // initailization of data structs
-    int rowCount = q->model()->rowCount(q->root());
+    int rowCount = q->rowCount(q->root());
     if (movement == QGenericListView::Static) {
         tree.destroy();
         if (flow == QGenericListView::LeftToRight) {

@@ -405,7 +405,7 @@ void QAbstractItemView::setSelectionModel(QItemSelectionModel *selectionModel)
 
     if (selectionModel && selectionModel->model() != d->model) {
         qWarning("QAbstractItemView::setSelectionModel() failed: Trying to set a selection model,"
-                  " which works on a different model than the view.");
+                 " which works on a different model than the view.");
         return;
     }
 
@@ -1247,7 +1247,7 @@ void QAbstractItemView::keyboardSearch(const QString &search)
 
     // skip if we are searching for the same key or a new search started
     if (skipRow) {
-        int newRow = (start.row() < model()->rowCount(model()->parent(start)) - 1) ?
+        int newRow = (start.row() < rowCount(model()->parent(start)) - 1) ?
                      start.row() + 1 : 0;
         start = model()->index(newRow,
                                start.column(),
@@ -1280,7 +1280,7 @@ int QAbstractItemView::rowSizeHint(int row) const
     QStyleOptionViewItem option = viewOptions();
     QAbstractItemDelegate *delegate = itemDelegate();
     int height = 0;
-    int colCount = d->model->columnCount(root());
+    int colCount = columnCount(root());
     QModelIndex idx;
     for (int c = 0; c < colCount; ++c) {
         idx = d->model->index(row, c, root());
@@ -1297,13 +1297,23 @@ int QAbstractItemView::columnSizeHint(int column) const
     QStyleOptionViewItem option = viewOptions();
     QAbstractItemDelegate *delegate = itemDelegate();
     int width = 0;
-    int rowCount = d->model->rowCount(root());
+    int rows = rowCount(root());
     QModelIndex idx;
-    for (int r = 0; r < rowCount; ++r) {
+    for (int r = 0; r < rows; ++r) {
         idx = d->model->index(r, column, root());
         width = qMax(width, delegate->sizeHint(fontMetrics(), option, d->model, idx).width());
     }
     return width;
+}
+
+int QAbstractItemView::rowCount(const QModelIndex &parent) const
+{
+    return parent.isValid() ? d->model->childRowCount(parent) : d->model->rowCount();
+}
+
+int QAbstractItemView::columnCount(const QModelIndex &parent) const
+{
+    return parent.isValid() ? d->model->childColumnCount(parent) : d->model->columnCount();
 }
 
 /*!

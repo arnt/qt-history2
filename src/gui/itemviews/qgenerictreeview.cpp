@@ -566,7 +566,7 @@ void QGenericTreeView::drawBranches(QPainter *painter, const QRect &rect,
         primitive.moveLeft(reverse ? primitive.left() : primitive.left() - indent);
         opt.rect = primitive;
         opt.state = QStyle::Style_Item
-                               | (model()->rowCount(parent) - 1 > index.row()
+                               | (rowCount(parent) - 1 > index.row()
                                   ? QStyle::Style_Sibling : 0)
                                | (model()->hasChildren(index) ? QStyle::Style_Children : 0)
                                | (d->items.at(d->current).open ? QStyle::Style_Open : 0);
@@ -576,7 +576,7 @@ void QGenericTreeView::drawBranches(QPainter *painter, const QRect &rect,
     for (--level; level >= outer; --level) { // we have already drawn the innermost branch
         primitive.moveLeft(reverse ? primitive.left() + indent : primitive.left() - indent);
         opt.rect = primitive;
-        opt.state = (d->model->rowCount(ancestor) - 1 > current.row())
+        opt.state = (rowCount(ancestor) - 1 > current.row())
                     ? QStyle::Style_Sibling : QStyle::Style_Default;
         style().drawPrimitive(QStyle::PE_TreeBranch, &opt, painter, this);
         current = ancestor;
@@ -624,7 +624,7 @@ QModelIndex QGenericTreeView::itemAt(int x, int y) const
 {
     QModelIndex mi = d->modelIndex(d->item(y));
     if (mi.isValid())
-        return model()->sibling(mi.row(), d->header->sectionAt(x), mi);
+        return model()->sibling(mi.row(), d->columnAt(x), mi);
     return QModelIndex();
 }
 
@@ -793,7 +793,6 @@ QRect QGenericTreeView::selectionViewportRect(const QItemSelection &selection) c
     if (selection.count() <= 0 || d->items.count() <= 0)
         return QRect();
 
-    QModelIndex bottomRight = model()->bottomRight(root());
     int top = d->items.count();
     int bottom = 0;
     QItemSelectionRange r;
@@ -1003,7 +1002,7 @@ void QGenericTreeView::updateGeometries()
     verticalScrollBar()->setRange(0, max);
 
     int w = d->viewport->width();
-    int col = model->columnCount();
+    int col = columnCount();
     if (w <= 0 || col <= 0 || def.isEmpty()) // if we have no viewport or no columns, there is nothing to do
         return;
     horizontalScrollBar()->setPageStep(w / def.width() * horizontalFactor());
@@ -1082,7 +1081,7 @@ void QGenericTreeView::horizontalScrollbarAction(int action)
 
         // go down to the right of the page
         int w = d->viewport->width();
-        while (x < w && column < d->model->columnCount())
+        while (x < w && column < columnCount())
             x += d->header->sectionSize(column++);
         value = column * factor; // i is now the last item on the page
         if (x > w && column)
@@ -1208,7 +1207,7 @@ void QGenericTreeViewPrivate::layout(int i)
 {
     QModelIndex current;
     QModelIndex parent = modelIndex(i);
-    int count = model->rowCount(parent);
+    int count = q->rowCount(parent);
 
     if (i == -1)
         items.resize(count);
@@ -1368,6 +1367,14 @@ int QGenericTreeViewPrivate::coordinateAt(int value, int iheight) const
     int factor = q->verticalFactor();
     int above = (value % factor) * iheight; // what's left; in "item units"
     return -(above / factor); // above the page
+}
+
+int QGenericTreeViewPrivate::columnAt(int x) const
+{
+    int hx = x + header->offset() - header->x();
+    if (QApplication::reverseLayout() && q->verticalScrollBar()->isVisible())
+        hx += q->verticalScrollBar()->width();
+    return header->sectionAt(hx);
 }
 
 void QGenericTreeViewPrivate::relayout(const QModelIndex &parent)

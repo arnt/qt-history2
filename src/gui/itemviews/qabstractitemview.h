@@ -90,6 +90,9 @@ public:
     virtual int rowSizeHint(int row) const;
     virtual int columnSizeHint(int column) const;
 
+    int rowCount(const QModelIndex &parent = QModelIndex()) const;
+    int columnCount(const QModelIndex &parent = QModelIndex()) const;
+
     void setPersistentEditor(const QModelIndex &index, QWidget *editor = 0);
 
 public slots:

@@ -51,8 +51,8 @@ public:
                       QModelIndex::Type type = QModelIndex::View) const;
     QModelIndex parent(const QModelIndex &child) const;
 
-    int rowCount(const QModelIndex &parent) const;
-    int columnCount(const QModelIndex &parent) const;
+    int childRowCount(const QModelIndex &parent) const;
+    int childColumnCount(const QModelIndex &parent) const;
 
     QVariant data(const QModelIndex &index, int role = QAbstractItemModel::Role_Display) const;
     bool setData(const QModelIndex &index, int role, const QVariant &value);

@@ -1,16 +1,3 @@
-/****************************************************************************
-**
-** Copyright (C) 1992-$THISYEAR$ Trolltech AS. All rights reserved.
-**
-** This file is part of the $MODULE$ of the Qt Toolkit.
-**
-** $LICENSE$
-**
-** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
-** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
-**
-****************************************************************************/
-
 #include "qcombobox.h"
 #include <qpainter.h>
 #include <qlineedit.h>
@@ -41,7 +28,7 @@ ListViewContainer::ListViewContainer(QGenericListView *listView, QWidget *parent
     // setup the listview
     Q_ASSERT(list);
     list->setParent(this);
-    list->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored);
+    list->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Minimum);
     list->viewport()->installEventFilter(this);
     setFocusProxy(list);
     list->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
@@ -508,8 +495,7 @@ void QComboBoxPrivate::returnPressed()
     if (lineEdit && !lineEdit->text().isEmpty()) {
         QString text = lineEdit->text();
         // check for duplicates (if not enabled) and quit
-        if (!d->duplicatesEnabled && q->findItem(text, QAbstractItemModel::Match_Exactly |
-                                                 QAbstractItemModel::Match_Case) != -1)
+        if (!d->duplicatesEnabled && q->contains(text))
             return;
         int row = -1;
         switch (insertionPolicy) {
@@ -517,12 +503,12 @@ void QComboBoxPrivate::returnPressed()
             row = 0;
             break;
         case QComboBox::AtBottom:
-            row = model->rowCount(q->root());
+            row = d->rowCount(q->root());
             break;
         case QComboBox::AtCurrent:
         case QComboBox::AfterCurrent:
         case QComboBox::BeforeCurrent:
-            if (!model->rowCount(q->root()) || !currentItem.isValid())
+            if (!d->rowCount(q->root()) || !currentItem.isValid())
                 row = 0;
             else if (insertionPolicy == QComboBox::AtCurrent)
                 q->setItemText(text, q->currentItem());
@@ -603,6 +589,7 @@ void QComboBoxPrivate::emitHighlighted(const QModelIndex &index)
 
 QComboBox::~QComboBox()
 {
+    // ### check delegateparent and delete delegate if us?
 }
 
 /*!
@@ -628,7 +615,7 @@ void QComboBox::setSizeLimit(int limit)
 
 int QComboBox::count() const
 {
-    return model()->rowCount(root());
+    return d->rowCount(root());
 }
 
 /*!
@@ -683,16 +670,13 @@ void QComboBox::setDuplicatesEnabled(bool enable)
 
 /*!
   Returns true if any item in the combobox matches the given \a text.
-
-  This is a convenience function. It performs the same as calling
-  findItem(text, Match_Exactly | Match_Case) != -1.
-
-  \sa findItem()
 */
 bool QComboBox::contains(const QString &text) const
 {
-    return findItem(text, QAbstractItemModel::Match_Exactly
-                    |QAbstractItemModel::Match_Case) != -1;
+    return model()->match(model()->index(0, 0, root()),
+                          QAbstractItemModel::Role_Edit, text, 1,
+                          QAbstractItemModel::Match_Exactly
+                          |QAbstractItemModel::Match_Case).count() > 0;
 }
 
 /*!
@@ -846,6 +830,14 @@ QAbstractItemDelegate *QComboBox::itemDelegate() const
 void QComboBox::setItemDelegate(QAbstractItemDelegate *delegate)
 {
     Q_ASSERT(delegate);
+//     if (delegate->model() != model()) {
+//          qWarning("QComboBox::setItemDelegate() failed: Trying to set a delegate, "
+//                   "which works on a different model than the view.");
+//          return;
+//     }
+
+    if (d->delegate && d->delegate->parent() == this)
+        delete d->delegate;
 
     d->delegate = delegate;
     listView()->setItemDelegate(d->delegate);
@@ -971,7 +963,7 @@ void QComboBox::insertStringList(const QStringList &list, int row)
         return;
 
     if (row < 0)
-        row = model()->rowCount(root());
+        row = d->rowCount(root());
 
     if (model()->insertRows(row, root(), list.count())) {
         QModelIndex item;
@@ -993,7 +985,7 @@ void QComboBox::insertItem(const QString &text, int row)
     if (!(count() < d->maxCount))
         return;
     if (row < 0)
-        row = model()->rowCount(root());
+        row = d->rowCount(root());
     QModelIndex item;
     if (model()->insertRows(row, root())) {
         item = model()->index(row, 0, root());
@@ -1012,7 +1004,7 @@ void QComboBox::insertItem(const QIconSet &icon, int row)
     if (!(count() < d->maxCount))
         return;
     if (row < 0)
-        row = model()->rowCount(root());
+        row = d->rowCount(root());
     QModelIndex item;
     if (model()->insertRows(row, root())) {
         item = model()->index(row, 0, root());
@@ -1031,7 +1023,7 @@ void QComboBox::insertItem(const QIconSet &icon, const QString &text, int row)
     if (!(count() < d->maxCount))
         return;
     if (row < 0)
-        row = model()->rowCount(root());
+        row = d->rowCount(root());
     QModelIndex item;
     if (model()->insertRows(row, root())) {
         item = model()->index(row, 0, root());
@@ -1131,7 +1123,7 @@ QSize QComboBox::sizeHint() const
     option.state |= (hasFocus()
                      ? QStyle::Style_HasFocus|QStyle::Style_Selected : QStyle::Style_Default);
     QSize itemSize;
-    int count = qMin(100, model()->rowCount(root()));
+    int count = qMin(100, d->rowCount(root()));
     for (int i = 0; i < count; i++) {
         itemSize = d->delegate->sizeHint(fontMetrics(), option,
                                          model(), model()->index(i, 0, root()));
@@ -1154,7 +1146,7 @@ QSize QComboBox::sizeHint() const
 
 void QComboBox::popup()
 {
-    if (model()->rowCount(root()) <= 0)
+    if (d->rowCount(root()) <= 0)
         return;
 
     // set current item
@@ -1164,7 +1156,7 @@ void QComboBox::popup()
     int itemHeight = listView()->itemSizeHint(model()->index(0, 0, root())).height()
                      + listView()->spacing();
     QRect listRect(rect());
-    listRect.setHeight(itemHeight * qMin(d->sizeLimit, model()->rowCount(root()))
+    listRect.setHeight(itemHeight * qMin(d->sizeLimit, d->rowCount(root()))
                        + 2*listView()->spacing() + 2);
 
     // make sure the widget fits on screen
@@ -1200,7 +1192,7 @@ void QComboBox::popup()
 
 void QComboBox::clear()
 {
-    model()->removeRows(0, root(), model()->rowCount(root()));
+    model()->removeRows(0, root(), d->rowCount(root()));
 }
 
 /*!
@@ -1359,9 +1351,6 @@ void QComboBox::mousePressEvent(QMouseEvent *e)
     QWidget::mousePressEvent(e);
 }
 
-/*!
-    \reimp
-*/
 void QComboBox::mouseReleaseEvent(QMouseEvent *e)
 {
     d->arrowDown = false;
@@ -1398,7 +1387,7 @@ void QComboBox::keyPressEvent(QKeyEvent *e)
         break;
     case Qt::Key_End:
         if (!isEditable())
-            newRow = model()->rowCount(root()) - 1;
+            newRow = d->rowCount(root()) - 1;
         break;
     default:
         if (!e->text().isEmpty() && !isEditable()) {

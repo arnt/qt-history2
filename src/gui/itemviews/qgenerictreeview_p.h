@@ -56,6 +56,7 @@ public:
 
     int itemAt(int value) const;
     int coordinateAt(int value, int iheight) const;
+    int columnAt(int x) const;
 
     void relayout(const QModelIndex &parent);
 

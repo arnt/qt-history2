@@ -99,7 +99,7 @@ bool QAbstractItemModelDrag::decode(QMimeSource *src,
 
     QByteArray encoded = src->encodedData(format());
     QDataStream stream(&encoded, IO_ReadOnly);
-    int row = model->rowCount(parent);
+    int row = parent.isValid() ? model->childRowCount(parent) : model->rowCount();
     int count, role;
     QVariant data;
     QModelIndex index;
@@ -649,9 +649,7 @@ QAbstractItemModel::~QAbstractItemModel()
 QModelIndex QAbstractItemModel::index(int row, int column, const QModelIndex &parent,
                                      QModelIndex::Type type) const
 {
-    if (row >= 0 && row < rowCount(parent) && column >= 0 && column < columnCount(parent))
-        return QModelIndex(row, column, 0, type);
-    return QModelIndex();
+    return isValid(row, column, parent) ? QModelIndex(row, column, 0, type) : QModelIndex();
 }
 
 /*!
@@ -665,13 +663,55 @@ QModelIndex QAbstractItemModel::parent(const QModelIndex &) const
 }
 
 /*!
+  Return the number of rows in the top level table.
+
+  \sa columnCount() childRowCount() childColumnCount()
+*/
+int QAbstractItemModel::rowCount() const
+{
+    return childRowCount(QModelIndex());
+}
+
+/*!
+  Return the number of columns in the top level table.
+
+  \sa rowCount() childRowCount() childColumnCount()
+*/
+int QAbstractItemModel::columnCount() const
+{
+    return childColumnCount(QModelIndex());
+}
+
+/*!
+  Return the number of rows in the table of children of \a parent.
+
+  \sa rowCount() columnCount() childColumnCount()
+*/
+int QAbstractItemModel::childRowCount(const QModelIndex &) const
+{
+    return 0;
+}
+
+/*!
+  Return the number of column in the table of children of \a parent.
+
+  \sa rowCount() columnCount() childRowCount()
+*/
+int QAbstractItemModel::childColumnCount(const QModelIndex &) const
+{
+    return 1;
+}
+
+/*!
     Returns true if \a parent has any children; otherwise returns false.
 
     \sa parent() index()
 */
 bool QAbstractItemModel::hasChildren(const QModelIndex &parent) const
 {
-    return (rowCount(parent) > 0) && (columnCount(parent) > 0);
+    if (parent.isValid())
+        return (childRowCount(parent) > 0) && (childColumnCount(parent) > 0);
+    return (rowCount() > 0) && (columnCount() > 0);
 }
 
 /*!
@@ -983,13 +1023,14 @@ QModelIndexList QAbstractItemModel::match(const QModelIndex &start, int role,
     QString itemText;
     int col = start.column();
     int matchType = flags & Match_Exactly;
+    int rc = par.isValid() ? childRowCount(par) : rowCount();
 
     // iterates twice if wrapping
     for (int i = 0; i < 2 && result.count() < hits; ++i) {
         if (!(flags & Match_Wrap) && i == 1)
             break;
         int rowStart = (i == 0) ? start.row() : 0;
-        int rowEnd = (i == 0) ? rowCount(par) : start.row();
+        int rowEnd = (i == 0) ? rc : start.row();
 
         for (int row = rowStart; row < rowEnd && result.count() < hits; ++row) {
             idx = index(row, col, par);
@@ -1028,6 +1069,23 @@ QModelIndexList QAbstractItemModel::match(const QModelIndex &start, int role,
     Creates a model index for the given \a row and \c column that
     points to the given \a data and is of the given \a type.
 */
+
+
+/*!
+  \internal
+
+  Returns true if \a row and \a column is valid in the child table \a parent,
+  otherwise returns false.
+*/
+bool QAbstractItemModel::isValid(int row, int column, const QModelIndex &parent) const
+{
+    if (row < 0 || column < 0)
+        return false;
+    if (parent.isValid())
+        return row < childRowCount(parent) && column < childColumnCount(parent);
+    return row < rowCount() && column < columnCount();
+}
+    
 
 /*!
     \internal

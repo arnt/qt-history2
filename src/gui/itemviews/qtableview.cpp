@@ -52,8 +52,8 @@ public:
     QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex(),
                       QModelIndex::Type type = QModelIndex::View) const;
 
-    int rowCount(const QModelIndex &parent = QModelIndex()) const;
-    int columnCount(const QModelIndex &parent = QModelIndex()) const;
+    int rowCount() const;
+    int columnCount() const;
 
     QVariant data(const QModelIndex &index, int role = QAbstractItemModel::Role_Display) const;
     bool setData(const QModelIndex &index, int role, const QVariant &value);
@@ -255,12 +255,12 @@ QModelIndex QTableModel::index(int row, int column, const QModelIndex &, QModelI
     return QModelIndex();
 }
 
-int QTableModel::rowCount(const QModelIndex &) const
+int QTableModel::rowCount() const
 {
     return r;
 }
 
-int QTableModel::columnCount(const QModelIndex &) const
+int QTableModel::columnCount() const
 {
     return c;
 }
@@ -414,26 +414,6 @@ void QTableView::setRowCount(int rows)
 void QTableView::setColumnCount(int columns)
 {
     d->model()->setColumnCount(columns);
-}
-
-/*!
-    Returns the number of rows in this table's model.
-
-    \sa setRowCount() columnCount()
-*/
-int QTableView::rowCount() const
-{
-    return model()->rowCount();
-}
-
-/*!
-    Returns the number of columns in this table's model.
-
-    \sa setColumnCount() rowCount()
-*/
-int QTableView::columnCount() const
-{
-    return model()->columnCount();
 }
 
 /*!

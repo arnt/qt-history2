@@ -399,20 +399,26 @@ QItemSelection QItemSelectionModelPrivate::expandSelection(const QItemSelection 
 
     QItemSelection expanded;
     if (command & QItemSelectionModel::Rows) {
-        for (int i=0; i<selection.count(); ++i)
+        for (int i = 0; i < selection.count(); ++i) {
+            QModelIndex parent = selection.at(i).parent();
+            int colCount = parent.isValid() ? model->childColumnCount(parent) : model->columnCount();
             expanded.append(QItemSelectionRange(selection.at(i).parent(),
                                                 selection.at(i).top(),
                                                 0,
                                                 selection.at(i).bottom(),
-                                                model->columnCount(selection.at(i).parent())-1));
+                                                colCount - 1));
+        }
     }
     if (command & QItemSelectionModel::Columns) {
-        for (int i=0; i<selection.count(); ++i)
+        for (int i = 0; i < selection.count(); ++i) {
+            QModelIndex parent = selection.at(i).parent();
+            int rowCount = parent.isValid() ? model->childRowCount(parent) : model->rowCount();
             expanded.append(QItemSelectionRange(selection.at(i).parent(),
                                                 0,
                                                 selection.at(i).left(),
-                                                model->rowCount(selection.at(i).parent())-1,
+                                                rowCount - 1,
                                                 selection.at(i).right()));
+        }
     }
     return expanded;
 }
@@ -684,7 +690,8 @@ bool QItemSelectionModel::isRowSelected(int row, const QModelIndex &parent) cons
     QList<QItemSelectionRange> joined = d->ranges;
     if (d->currentSelection.count())
         joined += d->currentSelection;
-    for (int i = 0; i < model()->columnCount(parent); ++i) {
+    int colCount = parent.isValid() ? model()->childColumnCount(parent) : model()->columnCount();
+    for (int i = 0; i < colCount; ++i) {
         index = model()->index(row, i, parent);
         for (it = joined.begin(); it != joined.end(); ++it)
             if ((*it).contains(index, model())) {
@@ -736,7 +743,8 @@ bool QItemSelectionModel::isColumnSelected(int column, const QModelIndex &parent
     QList<QItemSelectionRange> joined = d->ranges;
     if (d->currentSelection.count())
         joined += d->currentSelection;
-    for (int i = 0; i < model()->rowCount(parent); ++i) {
+    int rowCount = parent.isValid() ? model()->childRowCount(parent) : model()->rowCount();
+    for (int i = 0; i < rowCount; ++i) {
          index = model()->index(i, column, parent);
          for (it = joined.begin(); it != joined.end(); ++it) {
              if ((*it).contains(index, model())) {

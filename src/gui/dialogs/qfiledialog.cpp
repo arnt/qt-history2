@@ -622,8 +622,13 @@ QStringList QFileDialog::selectedFiles() const
             r = items.at(i).row();
         }
     }
-    if (d->fileMode == AnyFile && files.count() <= 0) // a new filename
-        files.append(d->lookIn->currentText() + QDir::separator() + d->fileName->text());
+    if (d->fileMode == AnyFile && files.count() <= 0) { // a new filename
+        QString file = d->fileName->text();
+        if (QDir::isAbsolutePath(file))
+            files.append(file);
+        else
+            files.append(d->lookIn->currentText() + QDir::separator() + file);
+    }
     return files;
 }
 
@@ -885,7 +890,7 @@ void QFileDialog::mkdir()
     if (!index.isValid())
         return;
     if (!index.isValid()) {
-        d->setCurrent(d->model->topLeft(d->root()));
+        d->setCurrent(d->model->index(0, 0, d->root()));
         return;
     }
     d->setCurrent(index);
@@ -994,7 +999,7 @@ void QFileDialog::fileNameChanged(const QString &text)
     if (d->fileName->hasFocus() && !text.isEmpty()) {
         QModelIndex current = d->current();
         if (!current.isValid())
-            current = d->model->topLeft(d->root());
+            current = d->model->index(0, 0, d->root());
         QModelIndexList indices = d->model->match(current, QAbstractItemModel::Role_Display, text);
         int key = d->fileName->lastKeyPressed();
         if (indices.count() <= 0) { // no matches
@@ -1034,8 +1039,8 @@ void QFileDialog::lookInChanged(const QString &text)
             QString pth = (s == 0 ? QDir::rootPath() : text.left(s));
             QModelIndex dirIndex = d->model->index(pth);
             QString searchText = text.section(QDir::separator(), -1);
-            int rowCount = d->model->rowCount(dirIndex);
-            QModelIndexList indices = d->model->match(d->model->topLeft(dirIndex),
+            int rowCount = d->lview->rowCount(dirIndex);
+            QModelIndexList indices = d->model->match(d->model->index(0, 0, dirIndex),
                                                       QAbstractItemModel::Role_Display,
                                                       searchText, rowCount);
             for (int i = 0; i < indices.count(); ++i) {
@@ -1386,8 +1391,8 @@ void QFileDialogPrivate::setup()
     lookIn->setEditable(true);
     lookIn->setAutoCompletion(false);
     lookIn->insertItem(model->icons(QModelIndex()), model->path(QModelIndex()));
-    for (int r = 0; r < model->rowCount(QModelIndex()); ++r) {
-        QModelIndex index = model->index(r, 0, QModelIndex()); 
+    for (int r = 0; r < model->rowCount(); ++r) { // drives
+        QModelIndex index = model->index(r, 0, QModelIndex());
         QString path = model->path(index);
         QIconSet icons = model->icons(index);
         lookIn->insertItem(icons, path);
@@ -1492,7 +1497,7 @@ void QFileDialogPrivate::setRoot(const QModelIndex &index)
     QItemSelectionModel *selections = lview->selectionModel();
     bool block = selections->blockSignals(true);
     selections->clear();
-    setCurrent(d->model->topLeft(index));
+    setCurrent(d->model->index(0, 0, index));
     lview->setRoot(index);
     tview->setRoot(index);
     selections->blockSignals(block);

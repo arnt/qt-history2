@@ -168,8 +168,8 @@ public:
     QVariant data(const QModelIndex &index, int role = Role_Display) const {
         if ((role == Role_Display || role == Role_Edit || role == Role_Decoration)
             && index.type() == QModelIndex::View  && index.isValid()
-            && index.row() < rowCount(parent(index))
-            && index.column() < columnCount(parent(index))) {
+            && index.row() < rowCount()
+            && index.column() < columnCount()) {
             if (role == Role_Display || role == Role_Edit)
                 return list.at(index.row()).first;
             if (role == Role_Decoration)
@@ -177,13 +177,15 @@ public:
         }
         return QVariant::Invalid;
     }
-    int columnCount(const QModelIndex &) const {
+    int columnCount() const {
         return 1;
     }
-    int rowCount(const  QModelIndex &) const {
+    int rowCount() const {
         return list.count();
     }
     bool setData(const QModelIndex &index, int role, const QVariant &value) {
+        if (!index.isValid())
+            return false;
         if (role == Role_Display || role == Role_Edit) {
             list[index.row()].first = value.toString();
             emit dataChanged(index, index);
@@ -200,7 +202,7 @@ public:
     }
     bool insertRows(int row, const QModelIndex &parent, int count) {
         // this model only allows a 1D list
-        if (parent.isValid() || count < 1 || row < 0 || row > rowCount(QModelIndex()))
+        if (parent.isValid() || count < 1 || row < 0 || row > rowCount())
             return false;
 
         QPair<QString, QIconSet> emptyPair;
@@ -211,7 +213,7 @@ public:
     }
     bool removeRows(int row, const QModelIndex &parent, int count) {
         // this model only allows a 1D list
-        if (parent.isValid() || count < 1 || row < 0 || row+count > rowCount(QModelIndex()))
+        if (parent.isValid() || count < 1 || row < 0 || row+count > rowCount())
             return false;
 
         emit rowsRemoved(parent, row, row+count-1);
@@ -253,6 +255,11 @@ public:
     void emitActivated(const QModelIndex&);
     void emitHighlighted(const QModelIndex&);
     void resetButton();
+
+    inline int rowCount(const QModelIndex &parent) const
+        { return parent.isValid() ? model->childRowCount(parent) : model->rowCount(); }
+    inline int columnCount(const QModelIndex &parent) const
+        { return parent.isValid() ? model->childColumnCount(parent) : model->columnCount(); }
 
     QAbstractItemModel *model;
     QLineEdit *lineEdit;

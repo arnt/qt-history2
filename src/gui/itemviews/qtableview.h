@@ -74,8 +74,6 @@ public:
 
     void setRowCount(int rows);
     void setColumnCount(int columns);
-    int rowCount() const;
-    int columnCount() const;
 
     QTableViewItem item(int row, int column) const;
     void setItem(int row, int column, const QTableViewItem &item);

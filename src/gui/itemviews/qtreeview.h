@@ -94,8 +94,6 @@ public:
     QTreeView(QWidget *parent = 0);
 
     void setColumnCount(int columns);
-    int columnCount() const;
-
     void setColumnText(int column, const QString &text);
     void setColumnIconSet(int column, const QIconSet &iconSet);
     QString columnText(int column) const;

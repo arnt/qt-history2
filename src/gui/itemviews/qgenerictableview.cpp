@@ -280,7 +280,7 @@ void QGenericTableView::paintEvent(QPaintEvent *e)
     if (colfirst == -1)
         colfirst = 0;
     if (collast == -1)
-        collast = model()->columnCount(root()) - 1;
+        collast = columnCount(root()) - 1;
     if (collast < 0)
         return;
     if (colfirst > collast) {
@@ -295,7 +295,7 @@ void QGenericTableView::paintEvent(QPaintEvent *e)
     if (rowfirst == -1)
         rowfirst = 0;
     if (rowlast == -1)
-        rowlast = model()->rowCount(root()) - 1;
+        rowlast = rowCount(root()) - 1;
     if (rowlast < 0)
         return;
     if (rowfirst > rowlast) {
@@ -410,14 +410,15 @@ QModelIndex QGenericTableView::moveCursor(QAbstractItemView::CursorAction cursor
                                           Qt::ButtonState)
 {
     QModelIndex current = currentItem();
-    QModelIndex bottomRight = model()->bottomRight(root());
+    int bottom = rowCount(root()) - 1;
+    int right = columnCount(root()) - 1;
     switch (cursorAction) {
     case QAbstractItemView::MoveUp:
         if (current.row() > 0)
             return model()->index(current.row() - 1, current.column(), root());
         break;
     case QAbstractItemView::MoveDown:
-        if (current.row() < bottomRight.row())
+        if (current.row() < bottom)
             return model()->index(current.row() + 1, current.column(), root());
         break;
     case QAbstractItemView::MoveLeft:
@@ -425,20 +426,20 @@ QModelIndex QGenericTableView::moveCursor(QAbstractItemView::CursorAction cursor
             return model()->index(current.row(), current.column() - 1, root());
         break;
     case QAbstractItemView::MoveRight:
-        if (current.column() < bottomRight.column())
+        if (current.column() < right)
             return model()->index(current.row(), current.column() + 1, root());
         break;
     case QAbstractItemView::MoveHome:
         return model()->index(0, current.column(), root());
     case QAbstractItemView::MoveEnd:
-        return model()->index(bottomRight.row(), current.column(), root());
+        return model()->index(bottom, current.column(), root());
     case QAbstractItemView::MovePageUp: {
         int newRow = rowAt(itemViewportRect(current).top() - d->viewport->height());
-        return model()->index(newRow <= bottomRight.row() ? newRow : 0, current.column(), root());
+        return model()->index(newRow <= bottom ? newRow : 0, current.column(), root());
     }
     case QAbstractItemView::MovePageDown: {
         int newRow = rowAt(itemViewportRect(current).bottom() + d->viewport->height());
-        return model()->index(newRow >= 0 ? newRow : bottomRight.row(), current.column(), root());
+        return model()->index(newRow >= 0 ? newRow : bottom, current.column(), root());
     }}
     return QModelIndex();
 }
@@ -474,9 +475,8 @@ void QGenericTableView::setSelection(const QRect &rect, QItemSelectionModel::Sel
 */
 QRect QGenericTableView::selectionViewportRect(const QItemSelection &selection) const
 {
-    QModelIndex bottomRight = model()->bottomRight(root());
-    int top = bottomRight.row();
-    int left = bottomRight.column();
+    int top = rowCount(root()) - 1;
+    int left = columnCount(root()) - 1;
     int bottom = 0;
     int right = 0;
     int rangeTop, rangeLeft, rangeBottom, rangeRight;
@@ -563,7 +563,7 @@ void QGenericTableView::updateGeometries()
     QStyleOptionViewItem option = viewOptions();
 
     int h = d->viewport->height();
-    int row = d->model->rowCount();
+    int row = rowCount();
     if (h <= 0 || row <= 0) // if we have no viewport or no rows, there is nothing to do
         return;
     QSize def = itemDelegate()->sizeHint(fontMetrics(), option, d->model, d->model->index(0, 0));
@@ -576,7 +576,7 @@ void QGenericTableView::updateGeometries()
     verticalScrollBar()->setRange(0, max);
 
     int w = d->viewport->width();
-    int col = model()->columnCount();
+    int col = columnCount();
     int factor = horizontalFactor();
     if (def.width() && factor)
         horizontalScrollBar()->setPageStep(w / def.width() * factor);
@@ -884,9 +884,9 @@ void QGenericTableView::columnIndexChanged(int, int oldIndex, int newIndex)
 
 void QGenericTableView::selectRow(int row, Qt::ButtonState state)
 {
-    if (row >= 0 && row < model()->rowCount()) {
+    if (row >= 0 && row < rowCount()) {
         QModelIndex tl = model()->index(row, 0, root());
-        QModelIndex br = model()->index(row, model()->columnCount() - 1, root());
+        QModelIndex br = model()->index(row, columnCount() - 1, root());
         selectionModel()->setCurrentItem(tl, QItemSelectionModel::NoUpdate);
         if (d->selectionMode == SingleSelection)
             selectionModel()->select(tl, selectionCommand(state, tl));
@@ -904,9 +904,9 @@ void QGenericTableView::selectRow(int row, Qt::ButtonState state)
 
 void QGenericTableView::selectColumn(int column, Qt::ButtonState state)
 {
-    if (column >= 0 && column < model()->columnCount()) {
+    if (column >= 0 && column < columnCount()) {
         QModelIndex tl = model()->index(0, column, root());
-        QModelIndex br = model()->index(model()->rowCount() - 1, column, root());
+        QModelIndex br = model()->index(rowCount() - 1, column, root());
         selectionModel()->setCurrentItem(tl, QItemSelectionModel::NoUpdate);
         if (d->selectionMode == SingleSelection)
             selectionModel()->select(tl, selectionCommand(state, tl));
@@ -996,7 +996,7 @@ void QGenericTableView::verticalScrollbarAction(int action)
     if (action == QScrollBar::SliderPageStepAdd) {
         // go down to the bottom of the page
         int h = d->viewport->height();
-        while (y < h && row < d->model->rowCount())
+        while (y < h && row < rowCount())
             y += d->verticalHeader->sectionSize(row++);
         value = row * factor; // i is now the last item on the page
         if (y > h && row)
@@ -1029,7 +1029,7 @@ void QGenericTableView::horizontalScrollbarAction(int action)
     if (action == QScrollBar::SliderPageStepAdd) {
         // go down to the right of the page
         int w = d->viewport->width();
-        while (x < w && column < d->model->columnCount())
+        while (x < w && column < columnCount())
             x += d->horizontalHeader->sectionSize(column++);
         value = column * factor; // i is now the last item on the page
         if (x > w && column)

@@ -36,8 +36,8 @@ public:
     QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex(),
                       QModelIndex::Type type = QModelIndex::View) const;
     QModelIndex parent(const QModelIndex &child) const;
-    int rowCount(const QModelIndex &parent) const;
-    int columnCount(const QModelIndex &parent) const;
+    int childRowCount(const QModelIndex &parent) const;
+    int childColumnCount(const QModelIndex &parent) const;
 
     QVariant data(const QModelIndex &index, int role = QAbstractItemModel::Role_Display) const;
     bool setData(const QModelIndex &index, int role, const QVariant &value);
@@ -248,7 +248,7 @@ QModelIndex QTreeModel::parent(const QModelIndex &child) const
 
   Returns the number of rows in the \a parent model index.*/
 
-int QTreeModel::rowCount(const QModelIndex &parent) const
+int QTreeModel::childRowCount(const QModelIndex &parent) const
 {
     if (parent.isValid()) {
         QTreeViewItem *parentItem = item(parent);
@@ -264,7 +264,7 @@ int QTreeModel::rowCount(const QModelIndex &parent) const
   Returns the number of columns in the item referred to by the given
   \a index.*/
 
-int QTreeModel::columnCount(const QModelIndex &) const
+int QTreeModel::childColumnCount(const QModelIndex &) const
 {
     return c;
 }
@@ -568,14 +568,6 @@ QTreeView::QTreeView(QWidget *parent)
 void QTreeView::setColumnCount(int columns)
 {
     d->model()->setColumnCount(columns);
-}
-
-/*!
-  Returns the number of columns in the tree view.*/
-
-int QTreeView::columnCount() const
-{
-    return model()->columnCount();
 }
 
 /*!

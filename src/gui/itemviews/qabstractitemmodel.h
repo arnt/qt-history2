@@ -122,15 +122,14 @@ public:
                               QModelIndex::Type type = QModelIndex::View) const;
     virtual QModelIndex parent(const QModelIndex &child) const;
 
-    inline QModelIndex topLeft(const QModelIndex &parent = QModelIndex()) const
-        { return index(0, 0, parent); }
-    inline QModelIndex bottomRight(const QModelIndex &parent = QModelIndex()) const
-        { return index(rowCount(parent) - 1, columnCount(parent) - 1, parent); }
     inline QModelIndex sibling(int row, int column, const QModelIndex &idx) const
         { return index(row, column, parent(idx), idx.type()); }
 
-    virtual int rowCount(const QModelIndex &parent = QModelIndex()) const = 0;
-    virtual int columnCount(const QModelIndex &parent = QModelIndex()) const = 0;
+    virtual int rowCount() const;
+    virtual int columnCount() const;
+
+    virtual int childRowCount(const QModelIndex &parent) const;
+    virtual int childColumnCount(const QModelIndex &parent) const;
     virtual bool hasChildren(const QModelIndex &parent) const;
 
     virtual bool canDecode(QMimeSource *src) const;
@@ -181,6 +180,8 @@ protected:
     inline QModelIndex createIndex(int row = -1, int column = -1, void *data = 0,
                                    QModelIndex::Type type = QModelIndex::View) const
         { return QModelIndex(row, column, data, type); }
+
+    bool isValid(int row, int column, const QModelIndex &parent) const;
 
     void invalidatePersistentIndexes(const QModelIndex &parent = QModelIndex());
     int persistentIndexesCount() const;

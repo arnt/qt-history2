@@ -37,6 +37,11 @@ public:
     QWidget *persistentEditor(const QModelIndex &index) const;
     void setPersistentEditor(QWidget *editor, const QModelIndex &index);
 
+//     inline int rowCount(const QModelIndex &index) const
+//         { return index.isValid() ? model->childRowCount(index) ; model->rowCount(); }
+//     inline int columnCount(const QModelIndex &index) const
+//         { return index.isValid() ? model->childRowCount(index) ; model->rowCount(); }
+
     mutable QAbstractItemModel *model;
     mutable QAbstractItemDelegate *delegate;
     mutable QItemSelectionModel *selectionModel;

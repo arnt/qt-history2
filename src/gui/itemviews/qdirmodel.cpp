@@ -268,7 +268,7 @@ QDirModel::~QDirModel()
 
 QModelIndex QDirModel::index(int row, int column, const QModelIndex &parent, QModelIndex::Type type) const
 {
-    if (column < 0 || column >= 4 || row < 0 || row >= rowCount(parent)) { // rowCount does lazy population
+    if (column < 0 || column >= 4 || row < 0 || row >= childRowCount(parent)) { // does lazy population
         if (type == QModelIndex::View)
             qWarning("index: row %d column %d does not exist", row, column);
         return QModelIndex();
@@ -322,7 +322,7 @@ QModelIndex QDirModel::parent(const QModelIndex &child) const
 
 */
 
-int QDirModel::rowCount(const QModelIndex &parent) const
+int QDirModel::childRowCount(const QModelIndex &parent) const
 {
     if (parent.type() == QModelIndex::HorizontalHeader)
         return 1;
@@ -333,11 +333,11 @@ int QDirModel::rowCount(const QModelIndex &parent) const
     QVector<QDirModelPrivate::QDirNode> *nodes = p ? &(p->children) : &(d->root.children);
 
     if (isDir && nodes->isEmpty()) {
-//        qDebug("rowCount: refreshing children");
+//        qDebug("childRowCount: refreshing children");
 	*nodes = d->children(p); // lazy population
     }
 
-//    qDebug("rowCount: returning %d", nodes->count());
+//    qDebug("childRowCount: returning %d", nodes->count());
 
     return nodes->count();
 }
@@ -347,7 +347,7 @@ int QDirModel::rowCount(const QModelIndex &parent) const
 
 */
 
-int QDirModel::columnCount(const QModelIndex &parent) const
+int QDirModel::childColumnCount(const QModelIndex &parent) const
 {
     if (parent.type() == QModelIndex::VerticalHeader)
         return 1;
@@ -440,7 +440,11 @@ bool QDirModel::setData(const QModelIndex &index, int role, const QVariant &valu
         QModelIndex par = parent(index);
         QDirModelPrivate::QDirNode *p = static_cast<QDirModelPrivate::QDirNode*>(par.data());
         d->refresh(p);
-        emit dataChanged(topLeft(par), bottomRight(par));
+        QModelIndex topLeft = this->index(0, 0, par);
+        int rc = par.isValid() ? childRowCount(par) : rowCount();
+        int cc = par.isValid() ? childColumnCount(par) : columnCount();
+        QModelIndex bottomRight = this->index(rc, cc, par);
+        emit dataChanged(topLeft, bottomRight);
         return true;
     }
     qWarning("setData: file renaming failed");
@@ -627,7 +631,7 @@ bool QDirModel::decode(QDropEvent *e, const QModelIndex &parent)
     if (!QUriDrag::decodeLocalFiles(e, files))
         return false;
     d->savePersistentIndexes();
-    emit rowsRemoved(parent, 0, rowCount(parent) - 1);
+    emit rowsRemoved(parent, 0, childRowCount(parent) - 1);
     bool success = true;
     QString to = path(parent) + QDir::separator();
     QStringList::const_iterator it = files.begin();
@@ -649,7 +653,7 @@ bool QDirModel::decode(QDropEvent *e, const QModelIndex &parent)
     }
     p->children = d->children(p);
     d->restorePersistentIndexes();
-    emit rowsInserted(parent, 0, rowCount(parent) - 1);
+    emit rowsInserted(parent, 0, childRowCount(parent) - 1);
     return success;
 }
 
@@ -695,11 +699,11 @@ void QDirModel::setNameFilters(const QStringList &filters)
 {
 //    qDebug("setNameFilters:");
     d->savePersistentIndexes(); // FIXME: this will rebuild the entire structure of the qdirmodel
-    emit rowsRemoved(QModelIndex(), 0, rowCount(QModelIndex()) - 1);
+    emit rowsRemoved(QModelIndex(), 0, childRowCount(QModelIndex()) - 1);
     d->nameFilters = filters;
     d->root.children = d->children(0); // clear model
     d->restorePersistentIndexes();
-    emit rowsRemoved(QModelIndex(), 0, rowCount(QModelIndex()) - 1);
+    emit rowsRemoved(QModelIndex(), 0, childRowCount(QModelIndex()) - 1);
 }
 
 /*!
@@ -721,11 +725,11 @@ QStringList QDirModel::nameFilters() const
 void QDirModel::setFilter(int spec)
 {
     d->savePersistentIndexes();
-    emit rowsRemoved(QModelIndex(), 0, rowCount(QModelIndex()) - 1);
+    emit rowsRemoved(QModelIndex(), 0, childRowCount(QModelIndex()) - 1);
     d->filterSpec = spec;
     d->root.children = d->children(0);
     d->restorePersistentIndexes();
-    emit rowsInserted(QModelIndex(), 0, rowCount(QModelIndex()) - 1);
+    emit rowsInserted(QModelIndex(), 0, childRowCount(QModelIndex()) - 1);
 }
 
 /*!
@@ -751,11 +755,11 @@ void QDirModel::setSorting(int spec)
 {
     QModelIndex parent;
     d->savePersistentIndexes();
-    emit rowsRemoved(parent, 0, rowCount(parent) - 1);
+    emit rowsRemoved(parent, 0, childRowCount(parent) - 1);
     d->sortSpec = spec;
     d->root.children = d->children(0);
     d->restorePersistentIndexes();
-    emit rowsInserted(parent, 0, rowCount(parent) - 1);
+    emit rowsInserted(parent, 0, childRowCount(parent) - 1);
 }
 
 /*!
@@ -776,10 +780,10 @@ QDir::SortSpec QDirModel::sorting() const
 void QDirModel::refresh(const QModelIndex &parent)
 {
     d->savePersistentIndexes();
-    emit rowsRemoved(parent, 0, rowCount(parent) - 1);
+    emit rowsRemoved(parent, 0, childRowCount(parent) - 1);
     d->refresh(static_cast<QDirModelPrivate::QDirNode*>(parent.data()));
     d->restorePersistentIndexes();
-    emit rowsInserted(parent, 0, rowCount(parent) - 1);
+    emit rowsInserted(parent, 0, childRowCount(parent) - 1);
 }
 
 /*!
