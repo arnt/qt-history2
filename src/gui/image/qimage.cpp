@@ -1092,11 +1092,6 @@ void QImage::reset()
     is filled with 0s. If you say fill(1), fill(3), etc., the image is
     filled with 1s. If the depth is 8, the lowest 8 bits are used.
 
-    If the depth is 32 and the image has no alpha buffer, the \a pixel
-    value is written to each pixel in the image. If the image has an
-    alpha buffer, only the 24 RGB bits are set and the upper 8 bits
-    (alpha value) are left unchanged.
-
     Note: QImage::pixel() returns the color of the pixel at the given
     coordinates; QColor::pixel() returns the pixel value of the
     underlying window system (essentially an index value), so normally
@@ -1137,23 +1132,15 @@ void QImage::fill(uint pixel)
 #endif        // QT_NO_IMAGE_16_BIT
 #ifndef QT_NO_IMAGE_TRUECOLOR
     } else if (depth() == 32) {
-        if (hasAlphaBuffer()) {
-            pixel &= 0x00ffffff;
-            for (int i=0; i<height(); i++) {
-                uint *p = (uint *)scanLine(i);
-                uint *end = p + width();
-                while (p < end) {
-                    *p = (*p & 0xff000000) | pixel;
-                    p++;
-                }
-            }
-        } else {
-            for (int i=0; i<height(); i++) {
-                uint *p = (uint *)scanLine(i);
-                uint *end = p + width();
-                while (p < end)
-                    *p++ = pixel;
-            }
+        for (int i=0; i<height(); i++) {
+            uint *p = (uint *)scanLine(i);
+            uint *end = p + width();
+            while (p < end)
+                *p++ = pixel;
+        }
+        // Implicitly set the alpha buffer to true.
+        if ((0xff000000 & pixel) != 0xff000000) {
+            d->alpha = true;
         }
 #endif // QT_NO_IMAGE_TRUECOLOR
     }
