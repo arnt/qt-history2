@@ -542,7 +542,7 @@ bool QWidgetItem::isEmpty() const
 
     For users of QLayout subclasses or of QMainWindow there is seldom
     any need to use the basic functions provided by QLayout, such as
-    \l resizeMode or setMenuBar(). See the \link layout.html layout
+    \l setResizeMode() or setMenuBar(). See the \link layout.html layout
     overview page \endlink for more information.
 
     To make your own layout manager, subclass QGLayoutIterator and
@@ -1216,12 +1216,11 @@ bool QLayout::activate()
     vertical size policy. It also contains a flag to indicate whether the
     height and width of its preferred size are related.
 
-    The per-dimension SizeType objects are set in the usual constructor
-    and can be queried using a variety of functions, none of which are
-    really interesting to application programmers.
+    The horizontal and vertical \l{SizeType}s are set in the usual constructor
+    and can be queried using a variety of functions.
 
     The hasHeightForWidth() flag indicates whether the widget's sizeHint()
-    is width-dependent (such as a word-wrapping label).
+    is width-dependent (such as a word-wrapping label) or not.
 
     \sa QSizePolicy::SizeType
 */
@@ -1260,9 +1259,6 @@ bool QLayout::activate()
 
     \value Ignored the sizeHint() is ignored. The widget will get as
     much space as possible.
-
-    In any case, QLayout never shrinks a widget below the
-    QWidget::minimumSizeHint().
 */
 
 /*!

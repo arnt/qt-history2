@@ -239,18 +239,24 @@ Q_EXPORT QSize qSmartMinSize( const QWidgetItem *i )
 	s = w->layout()->totalMinimumSize();
     } else {
 	QSize sh;
+	QSizePolicy::SizeType data;
 
-	if ( w->sizePolicy().mayShrinkHorizontally() ) {
-	    s.setWidth( w->minimumSizeHint().width() );
-	} else {
-	    sh = w->sizeHint();
-	    s.setWidth( sh.width() );
+	if ( w->sizePolicy().horData() != QSizePolicy::Ignored ) {
+	    if ( w->sizePolicy().mayShrinkHorizontally() ) {
+		s.setWidth( w->minimumSizeHint().width() );
+	    } else {
+		sh = w->sizeHint();
+		s.setWidth( sh.width() );
+	    }
 	}
 
-	if ( w->sizePolicy().mayShrinkVertically() ) {
-	    s.setHeight( w->minimumSizeHint().height() );
-	} else {
-	    s.setHeight( sh.isValid() ? sh.height() : w->sizeHint().height() );
+	if ( w->sizePolicy().verData() != QSizePolicy::Ignored ) {
+	    if ( w->sizePolicy().mayShrinkVertically() ) {
+		s.setHeight( w->minimumSizeHint().height() );
+	    } else {
+		s.setHeight( sh.isValid() ? sh.height()
+			     : w->sizeHint().height() );
+	    }
 	}
     }
     s = s.boundedTo( w->maximumSize() );
@@ -261,7 +267,7 @@ Q_EXPORT QSize qSmartMinSize( const QWidgetItem *i )
 	s.setHeight( min.height() );
 
     if ( i->hasHeightForWidth() && min.height() == 0 && min.width() > 0 )
-	s.setHeight( i->heightForWidth( s.width()) );
+	s.setHeight( i->heightForWidth(s.width()) );
 
     s = s.expandedTo( QSize(1, 1) );
     return s;
