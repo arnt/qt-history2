@@ -380,7 +380,7 @@ void QSettingsHeading::parseLine(QTextStream &stream)
 
 	git = find(gname);
 	if (git == end())
-	    git = replace(gname, QSettingsGroup());
+	    git = insert(gname, QSettingsGroup());
     } else {
 	if (git == end()) {
 	    qWarning("QSettings: line '%s' out of group", line.latin1());
@@ -530,7 +530,7 @@ QSettingsGroup QSettingsPrivate::readGroup()
 	    }
 	}
 
-	headings.replace(heading, hd);
+	headings.insert(heading, hd);
 
 	grpit = hd.find(group);
 	if (grpit != hd.end())
@@ -566,7 +566,7 @@ void QSettingsPrivate::removeGroup(const QString &key)
 	    }
 	}
 
-	headings.replace(heading, hd);
+	headings.insert(heading, hd);
 
 	grpit = hd.find(group);
 	if (grpit != hd.end()) {
@@ -582,12 +582,12 @@ void QSettingsPrivate::removeGroup(const QString &key)
 	grp.remove(key);
 
 	if (grp.count() > 0)
-	    hd.replace(group, grp);
+	    hd.insert(group, grp);
 	else
 	    hd.remove(group);
 
 	if (hd.count() > 0)
-	    headings.replace(heading, hd);
+	    headings.insert(heading, hd);
 	else
 	    headings.remove(heading);
 
@@ -619,7 +619,7 @@ void QSettingsPrivate::writeGroup(const QString &key, const QString &value)
 	    }
 	}
 
-	headings.replace(heading, hd);
+	headings.insert(heading, hd);
 
 	grpit = hd.find(group);
 	if (grpit != hd.end())
@@ -628,9 +628,9 @@ void QSettingsPrivate::writeGroup(const QString &key, const QString &value)
 	grp = *grpit;
 
     grp.modified = true;
-    grp.replace(key, value);
-    hd.replace(group, grp);
-    headings.replace(heading, hd);
+    grp.insert(key, value);
+    hd.insert(group, grp);
+    headings.insert(heading, hd);
 
     modified = true;
 }
@@ -981,7 +981,7 @@ bool QSettings::sync()
 		QSettingsGroup::Iterator grpit = grp.begin();
 
 		while (grpit != grp.end()) {
-		    QString v = grpit.data();
+		    QString v = grpit.value();
 		    if ( v.isNull() ) {
 			v = "\\0"; // escape null string
 		    } else {
