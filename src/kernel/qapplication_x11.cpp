@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#569 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#570 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -1079,9 +1079,8 @@ void qt_cleanup()
     QColor::cleanup();
 
 #if !defined(NO_XIM)
-    if ( qt_xim ) {
+    if ( qt_xim )
 	close_xim();
-    }
 #endif
 
     if ( is_gui_used && !QPaintDevice::x11AppDefaultColormap() )
@@ -1093,11 +1092,10 @@ void qt_cleanup()
     CLEANUP_GC(app_gc_ro_m);
     CLEANUP_GC(app_gc_tmp);
     CLEANUP_GC(app_gc_tmp_m);
+#undef CLEANUP_GC
 
-    if ( sip_list ) {
-	delete sip_list;
-	sip_list = 0;
-    }
+    delete sip_list;
+    sip_list = 0;
 
     if ( is_gui_used && !appForeignDpy )
 	XCloseDisplay( appDpy );		// close X display
