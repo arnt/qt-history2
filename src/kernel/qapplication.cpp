@@ -2060,10 +2060,6 @@ bool QApplication::notify( QObject *receiver, QEvent *e )
 		res = internalNotify( receiver, e );
 	    if ( !res && !key->isAccepted() && !((QWidget*)receiver)->isTopLevel() )
 		res = internalNotify( ((QWidget*)receiver)->topLevelWidget(), e );
-	    if ( res )
-		key->accept();
-	    else
-		key->ignore();
 	}
     break;
     case QEvent::KeyPress:

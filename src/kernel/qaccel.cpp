@@ -385,6 +385,7 @@ bool QAccelManager::dispatchAccelEvent( QWidget* w, QKeyEvent* e )
 	currentState = Qt::NoMatch; // Free sequence keylock
 	intermediate = QKeySequence();
 	lastaccel->activate( lastitem );
+	e->accept();
 	return TRUE;
     }
 
@@ -411,6 +412,7 @@ bool QAccelManager::dispatchAccelEvent( QWidget* w, QKeyEvent* e )
 	    mainStatusBar->message( "Ambiguous \'" + (QString)tocheck + "\' not handled", 2000 );
 	firstaccel->activateAmbiguously( firstitem );
     }
+    e->accept();
     return TRUE;
 }
 
