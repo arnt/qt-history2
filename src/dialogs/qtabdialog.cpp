@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qtabdialog.cpp#20 $
+** $Id: //depot/qt/main/src/dialogs/qtabdialog.cpp#21 $
 **
 ** Implementation of tab dialog
 **
@@ -11,8 +11,9 @@
 #include "qpushbt.h"
 #include "qpainter.h"
 #include "qstring.h"
+#include "qpixmap.h"
 
-RCSTAG("$Id: //depot/qt/main/src/dialogs/qtabdialog.cpp#20 $");
+RCSTAG("$Id: //depot/qt/main/src/dialogs/qtabdialog.cpp#21 $");
 
 // a small private class to show the tabs on top
 
@@ -25,17 +26,19 @@ public:
 
     QTab * next;
     QWidget * w;
-    QString name;
+    //QPixmap icon;
+    QString label;
 };
 
 
-QTab::QTab( QWidget * child, const char * tabString,
+QTab::QTab( QWidget * child, const char * tabString, //const QPixmap pm,
 	    QTabDialog * parent, const char * objectName )
     : QWidget( parent, objectName )
 {
     w = child;
     next = 0;
-    name = tabString;
+    //pixmap = pm;
+    label = tabString;
 }
 
 
@@ -56,7 +59,7 @@ QTab::~QTab()
 
   QTabDialog does not provide more than one row of tabs, and does not
   provide tabs along the sides or bottom of the pages.  It also does
-  not offer any way to find out which page is currently visible, or to
+  not offer any way to find out which page is currently visible or to
   set the visible page.
 
   QTabDialog provides an OK button and optionally Apply, Cancel and
@@ -74,7 +77,7 @@ QTab::~QTab()
 
   If you don't call addTab(), the page you have created will not be
   visible.  Please don't confuse the object name you supply to the
-  QWidget constructor nad the tab string you supply to addTab().
+  QWidget constructor and the tab label you supply to addTab().
 
   Almost all applications have to connect the applyButtonPressed()
   signal to something.  applyButtonPressed() is emitted when either OK
@@ -82,15 +85,14 @@ QTab::~QTab()
   the application.
 
   There are also several other signals which may be useful. <ul> <li>
-  cancelButtonPressed() is emitted when the user clicks Cancel; the
-  slot it is connected to should reset the state of the dialog.  <li>
+  cancelButtonPressed() is emitted when the user clicks Cancel.  <li>
   defaultButtonPressed() is emitted when the user clicks Defaults; the
   slot it is connected to should reset the state of the dialog to the
   application defaults.  <li> aboutToShow() is emitted at the start of
-  show(); if the QTabDialog object and its children are not newly
-  created, you must connect this signal to a slot which resets the
-  state of the dialog.  (You can probably connect aboutToShow() and
-  cancelButtonPressed() to the same slot.) </ul>
+  show(); if there is any chance that the state of the application may
+  change between the creation of the tab dialog and the time it show()
+  is called, you must connect this signal to a slot which resets the
+  state of the dialog. </ul>
 
   Each tab is either enabled or disabled at any given time.  If a tab
   is enabled, the tab text is drawn in black and the user can select
@@ -101,7 +103,7 @@ QTab::~QTab()
 
   While tab dialogs can be a very good way to split up a complex
   dialog, it's also very easy to make a royal mess.  Here is some
-  advice (greatly inspired from a USENET posting by Jared M. Spool
+  advice (greatly inspired by a USENET posting by Jared M. Spool
   \<jared@uie.com\>):
 
   <ol><li> Make sure that each page forms a logical whole which is
@@ -244,9 +246,12 @@ void QTabDialog::setFont( const QFont & font )
 /*!
   \fn void QTabDialog::cancelButtonPressed();
 
-  This signal is emitted when the Cancel button is clicked.  It should
-  not change the application's state in any way, so generally you
-  should not need to connect it to any slot.
+  This signal is emitted when the Cancel button is clicked.  It is
+  automatically connected to QDialog::reject(), which will hide the
+  dialog.
+
+  The Cancel button should not change the application's state in any
+  way, so generally you should not need to connect it to any slot.
 
   \sa applyButtonPressed() defaultButtonPressed() setCancelButton()
 */
@@ -353,19 +358,23 @@ void QTabDialog::showTab()
 /*!
   Add another tab and page to the tab view.
 
-  The tab will be labelled \e name and \e child constitutes the new
-  page.
+  The tab will be labelled \a label and \a child constitutes the new
+  page.  Note the difference between the widget name (which you supply
+  to widget constructors and to e.g. setTabEnabled()) and the tab
+  label: The name is internal to the program and invariant, while the
+  label is shown on screen and may vary according to e.g. language.
 
-  If you do this after show(), you'll confuse the user terribly.
+  If you call addTab() after show(), the screen will flicker and the
+  user will be confused.
 */
 
-void QTabDialog::addTab( QWidget * child, const char * name )
+void QTabDialog::addTab( QWidget * child, const char * label )
 {
     QTab ** t = &tabs;
     while ( t && *t )
 	t = &((**t).next);
 
-    *t = new QTab ( child, name, this, name );
+    *t = new QTab ( child, label, this, label );
     CHECK_PTR( *t );
     (**t).installEventFilter( this );
 
@@ -387,7 +396,7 @@ void QTabDialog::addTab( QWidget * child, const char * name )
   visible already, QTabDialog will not hide it, and if all the pages
   are disabled, QTabDialog will show one of them.
 
-  The object name is used (rather than the tab text) because the tab
+  The object name is used (rather than the tab label) because the tab
   text may not be invariant in multi-language applications.
 
   \sa isTabEnabled() QWidget::setEnabled()
@@ -588,8 +597,8 @@ void QTabDialog::setSizes()
     int tw = 0;
     while ( t ) {
 	// tabs - move and update remembe the width
-	t->resize( fm.width( t->name )+20, th );
-	tw += t->width() + 1;
+	t->resize( fm.width( t->label )+20, th );
+	tw += t->width() ;
 	// maximum sizes
 	if ( t->w->maximumSize().height() < max.height() )
 	    max.setHeight( t->w->maximumSize().height() );
@@ -675,7 +684,7 @@ void QTabDialog::resizeEvent( QResizeEvent * )
 		 tab->w->rect() != childRect() )
 		tab->w->setGeometry( childRect() );
 	    tab->move( x, 5 );
-	    x += tab->width()+1;
+	    x += tab->width();
 	}
     }
 }
@@ -788,7 +797,7 @@ bool QTabDialog::eventFilter( QObject * o, QEvent * e )
 	else
 	    p.setPen( palette().disabled().foreground() );
 
-	p.drawText( 2, 0, t->width() - 6, t->height(), AlignCenter, t->name );
+	p.drawText( 2, 0, t->width() - 6, t->height(), AlignCenter, t->label );
 	p.end();
     }
 
