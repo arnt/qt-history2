@@ -2939,6 +2939,14 @@ void MainWindow::editFunction( const QString &func, bool rereadSource )
 	return;
     }
 
+    for ( SourceEditor *e = sourceEditors.first(); e; e = sourceEditors.next() ) {
+	if ( e->language() == lang && e->formWindow() == formWindow() ) {
+	    e->show();
+	    e->setFunction( func );
+	    return;
+	}
+    }
+
     createSourceEditor( formWindow(), formWindow()->project(), lang, func, rereadSource );
 }
 

@@ -1756,7 +1756,7 @@ SourceEditor *MainWindow::openSourceEditor()
     SourceEditor *editor = 0;
     for(QList<SourceEditor*>::Iterator it = sourceEditors.begin(); it != sourceEditors.end(); ++it) {
 	SourceEditor *e = (*it);
-	if ( e->language() == lang && e->object() == formWindow() ) {
+	if ( e->language() == lang && e->formWindow() == formWindow() ) {
 	    editor = e;
 	    break;
 	}
