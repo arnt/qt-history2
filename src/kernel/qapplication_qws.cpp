@@ -2908,10 +2908,11 @@ bool QETWidget::dispatchMouseEvent( const QWSMouseEvent *event )
 	    button >>= 1;
 	}
 	//XXX mouseActWindow = winId();			// save some event params
-	mouseButtonState = state;
 
-	if ( type == 0 )				// event consumed
+	if ( type == 0 ) {				// event consumed
+	    mouseButtonState = state;
 	    return FALSE; //EXIT in the normal case
+	}
 
 	if ( qApp->inPopupMode() ) {			// in popup mode
 	    QWidget *popup = qApp->activePopupWidget();
@@ -2930,8 +2931,10 @@ bool QETWidget::dispatchMouseEvent( const QWSMouseEvent *event )
 		popupOfPopupButtonFocus = 0;
 	    }
 
-	    if ( !popupTarget->isEnabled() )
+	    if ( !popupTarget->isEnabled() ) {
+		mouseButtonState = state;
 		return FALSE; //EXIT special case
+	    }
 
 	    switch ( type ) {
 		case QEvent::MouseButtonPress:
@@ -2948,7 +2951,7 @@ bool QETWidget::dispatchMouseEvent( const QWSMouseEvent *event )
 
 	    if ( popupButtonFocus ) {
 		QMouseEvent e( type, popupButtonFocus->mapFromGlobal(globalPos),
-			       globalPos, button, state );
+			       globalPos, button, mouseButtonState );
 		QApplication::sendEvent( popupButtonFocus, & e );
 		if ( releaseAfter ) {
 		    popupButtonFocus = 0;
@@ -2956,10 +2959,10 @@ bool QETWidget::dispatchMouseEvent( const QWSMouseEvent *event )
 		}
 	    } else if ( popupChild ) {
 		QMouseEvent e( type, popupChild->mapFromGlobal(globalPos),
-			       globalPos, button, state );
+			       globalPos, button, mouseButtonState );
 		QApplication::sendEvent( popupChild, & e );
 	    } else {
-		QMouseEvent e( type, pos, globalPos, button, state );
+		QMouseEvent e( type, pos, globalPos, button, mouseButtonState );
 		QApplication::sendEvent( popupChild ? popupChild : popup, & e );
 	    }
 
@@ -3013,7 +3016,7 @@ bool QETWidget::dispatchMouseEvent( const QWSMouseEvent *event )
 		qt_button_down = 0;
 	    }
 
-	    QMouseEvent e( type, pos, globalPos, button, state );
+	    QMouseEvent e( type, pos, globalPos, button, mouseButtonState );
 #ifndef QT_NO_QWS_MANAGER
 	    if (widget->isTopLevel() && widget->topData()->qwsManager
 		&& (widget->topData()->qwsManager->region().contains(globalPos)
@@ -3026,6 +3029,7 @@ bool QETWidget::dispatchMouseEvent( const QWSMouseEvent *event )
 		}
 	}
 	// }
+    mouseButtonState = state;
     return TRUE;
 }
 
