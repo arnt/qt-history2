@@ -97,7 +97,7 @@ void QFontPrivate::load(int)
 
     // 75 dpi on embedded
     if (req.pixelSize == -1)
-        req.pixelSize = req.pointSize
+        req.pixelSize = req.pointSize;
     if (req.pointSize < 0)
         req.pointSize = req.pixelSize;
 
