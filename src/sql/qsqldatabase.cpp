@@ -54,7 +54,7 @@
 #include "drivers/tds/qsql_tds.h"
 #endif
 #ifdef QT_SQL_DB2
-#include "drivers/tds/qsql_db2.h"
+#include "drivers/db2/qsql_db2.h"
 #endif
 
 #include "qapplication.h"
