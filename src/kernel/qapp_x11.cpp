@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#117 $
+** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#118 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -30,18 +30,13 @@
 #undef gettimeofday
 extern "C" int gettimeofday( struct timeval *, struct timezone * );
 
-#if defined(DEBUG) && !defined(CHECK_MEMORY)
-#define	 CHECK_MEMORY
-#include <qmemchk.h>
-#endif
-
 #if defined(_OS_LINUX_) && defined(DEBUG)
 #include <qfile.h>
 #include <qstring.h>
 #include <unistd.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#117 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#118 $")
 
 
 /*****************************************************************************
@@ -65,9 +60,6 @@ static bool	appDoGrab	= FALSE;	// X11 grabbing override (gdb)
 static int	appScreen;			// X11 screen number
 static Window	appRootWin;			// X11 root window
 static bool	app_save_rootinfo = FALSE;	// save root info
-#if defined(DEBUG)
-static bool	appMemChk	= FALSE;	// memory checking (debugging)
-#endif
 
 static bool	app_do_modal	= FALSE;	// modal mode
 static int	app_loop_level	= 1;		// event loop level
@@ -141,10 +133,6 @@ void qt_init( int *argcptr, char **argv )
 {
     int argc = *argcptr;
     int i, j;
-#if defined(DEBUG)
-    int mcBufSize = 100000;			// default memchk settings
-    const char *mcLogFile = "MEMCHK.LOG";
-#endif
 
   // Install default traps
 
@@ -213,14 +201,6 @@ void qt_init( int *argcptr, char **argv )
 	    appNoGrab = !appNoGrab;
 	else if ( arg == "-dograb" )
 	    appDoGrab = !appDoGrab;
-	else if ( arg == "-memchk" )
-	    appMemChk = !appMemChk;
-	else if ( arg == "-membuf" ) {
-	    if ( ++i < argc ) mcBufSize = atoi(argv[i]);
-	}
-	else if ( arg == "-memlog" ) {
-	    if ( ++i < argc ) mcLogFile = argv[i];
-	}
 #endif
 	else
 	    argv[j++] = argv[i];
@@ -249,14 +229,6 @@ void qt_init( int *argcptr, char **argv )
 	    }
 	    f.close();
 	}
-    }
-#endif
-
-#if defined(DEBUG)
-    if ( appMemChk ) {				// perform memory checking
-	memchkSetBufSize( mcBufSize );
-	memchkSetLogFile( mcLogFile );
-	memchkStart();
     }
 #endif
 
@@ -350,11 +322,6 @@ void qt_cleanup()
 
     XCloseDisplay( appDpy );			// close X display
     appDpy = 0;
-
-#if defined(DEBUG)
-    if ( appMemChk )
-	memchkStop();				// finish memory checking
-#endif
 }
 
 
@@ -395,10 +362,6 @@ void qt_updated_rootinfo()
 
 static void trapSignals( int signo )		// default signal handler
 {
-#if defined(DEBUG)
-    if ( appMemChk )
-	memchkSetReporting( FALSE );		// ignore error messages
-#endif
     warning( "%s: Signal %d received", appName, signo );
     exit( 0 );
 }
@@ -1109,7 +1072,7 @@ int QApplication::enter_loop()
 		break;
 	    XNextEvent( appDpy, &event );	// get next event
 
-	    if ( x11EventFilter( &event ) )	// send event through filter
+	    if ( x11EventFilter(&event) )	// send through app filter
 		continue;
 
 	    QETWidget *widget = (QETWidget*)QWidget::find( event.xany.window );
@@ -1130,6 +1093,9 @@ int QApplication::enter_loop()
 		    qPRCleanup( widget );	// remove from alt mapper
 	    }
 	    if ( !widget )			// don't know this window
+		continue;
+
+	    if ( widget->x11Event(&event) )     // send trough widget filter
 		continue;
 
 	    if ( app_do_modal )			// modal event handling

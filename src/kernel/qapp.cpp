@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp.cpp#66 $
+** $Id: //depot/qt/main/src/kernel/qapp.cpp#67 $
 **
 ** Implementation of QApplication class
 **
@@ -16,7 +16,7 @@
 #include "qwidcoll.h"
 #include "qpalette.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapp.cpp#66 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapp.cpp#67 $")
 
 
 /*----------------------------------------------------------------------------
@@ -129,9 +129,6 @@ static void destroy_palettes()
   Qt debugging options:
   <ul>
   <li> \c -nograb, tells Qt to never grab the mouse or the keyboard.
-  <li> \c -memchk, performs memory leak detection.
-  <li> \c -membuf n, sets the memory checking buffer size.
-  <li> \c -memlog file, sets the memory checking output file name.
   <li> \c -sync (only under X-Windows), switches to synchronous mode for
 	debugging.
   </ul>
@@ -198,13 +195,6 @@ QApplication::~QApplication()
     app_font = 0;
     delete app_cursor;
     app_cursor = 0;
-#if defined(CHECK_MEMORY)
-    bool prev_mc = memchkSetReporting( FALSE );
-    objectDict->remove( "QObject" );
-    memchkSetReporting( prev_mc );
-    setName( 0 );
-    objectDict->clear();
-#endif
     qt_cleanup();
     delete objectDict;
     qApp = 0;

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_win.cpp#20 $
+** $Id: //depot/qt/main/src/kernel/qapp_win.cpp#21 $
 **
 ** Implementation of Windows startup routines and event handling
 **
@@ -18,12 +18,7 @@
 #include <ctype.h>
 #include <windows.h>
 
-#if defined(DEBUG) && !defined(CHECK_MEMORY)
-#define	 CHECK_MEMORY
-#include <qmemchk.h>
-#endif
-
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_win.cpp#20 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_win.cpp#21 $")
 
 
 // --------------------------------------------------------------------------
@@ -43,7 +38,6 @@ static int	heartBeat = 0;			// heatbeat timer
 #endif
 #if defined(DEBUG)
 static bool	appNoGrab	= FALSE;	// mouse/keyboard grabbing
-static bool	appMemChk	= FALSE;	// memory checking (debugging)
 #endif
 
 static bool	app_do_modal	= FALSE;	// modal mode
@@ -81,6 +75,7 @@ public:
     void	setWFlags( WFlags f )	{ QWidget::setWFlags(f); }
     void	clearWFlags( WFlags f ) { QWidget::clearWFlags(f); }
     QWExtra    *xtra()			{ return QWidget::extraData(); }
+    bool	winEvent( MSG *m )	{ return QWidget::winEvent(m); }
     bool	translateMouseEvent( const MSG &msg );
     bool	translateKeyEvent( const MSG &msg );
     bool	translatePaintEvent( const MSG &msg );
@@ -194,8 +189,6 @@ void qt_init( int *argcptr, char **argv )
 #if defined(DEBUG)
     int argc = *argcptr;
     int i, j;
-    int mcBufSize = 100000;			// default memchk settings
-    const char *mcLogFile = "MEMCHK.LOG";
 
   // Get command line params
 
@@ -208,23 +201,10 @@ void qt_init( int *argcptr, char **argv )
 	QString arg = argv[i];
 	if ( arg == "-nograb" )
 	    appNoGrab = !appNoGrab;
-	else if ( arg == "-memchk" )
-	    appMemChk = !appMemChk;
-	else if ( arg == "-membuf" ) {
-	    if ( ++i < argc ) mcBufSize = atoi(argv[i]);
-	}
-	else if ( arg == "-memlog" ) {
-	    if ( ++i < argc ) mcLogFile = argv[i];
-	}
 	else
 	    argv[j++] = argv[i];
     }
     *argcptr = j;
-    if ( appMemChk ) {				// perform memory checking
-	memchkSetBufSize( mcBufSize );
-	memchkSetLogFile( mcLogFile );
-	memchkStart();
-    }
 #endif // DEBUG
 
   // Misc. initialization
@@ -263,13 +243,10 @@ void qt_cleanup()
     QColor::cleanup();
     cleanupTimers();
     QPainter::cleanup();
+    if ( displayDC )
+	ReleaseDC( 0, displayDC );
 #if defined(USE_HEARTBEAT)
     KillTimer( 0, heartBeat );
-#endif
-
-#if defined(DEBUG)
-    if ( appMemChk )
-	memchkStop();				// finish memory checking
 #endif
 }
 
@@ -318,7 +295,7 @@ int qWinAppCmdShow()				// get main window show command
 HANDLE qt_display_dc()				// get display DC
 {
     if ( !displayDC )
-	displayDC = CreateDC( "DISPLAY", 0, 0, 0 );
+	displayDC = GetDC( 0 );
     return displayDC;
 }
 
@@ -701,15 +678,21 @@ WndProc( HWND hwnd, UINT message, WORD wParam, LONG lParam )
     if ( !qApp )				// unstable app state
 	return DefWindowProc(hwnd,message,wParam,lParam);
 
-    QETWidget *widget = (QETWidget*)QWidget::find( hwnd );
-    if ( !widget )				// don't know this widget
-	return DefWindowProc(hwnd,message,wParam,lParam);
-
     MSG msg;
     msg.hwnd = hwnd;				// create MSG structure
     msg.message = message;			// time and pt fields ignored
     msg.wParam = wParam;
     msg.lParam = lParam;
+
+    if ( qApp->winEventFilter(&msg) )		// send through app filter
+	return 0;
+
+    QETWidget *widget = (QETWidget*)QWidget::find( hwnd );
+    if ( !widget )				// don't know this widget
+	return DefWindowProc(hwnd,message,wParam,lParam);
+
+    if ( widget->winEvent(&msg) )		// send through widget filter
+	return 0;
 
     int evt_type = Event_None;
     bool result = TRUE;
