@@ -1371,7 +1371,7 @@ QRect QMacStyle::querySubControlMetrics(ComplexControl control,
 	else if(sc & SC_TitleBarLabel)
 	    wrc = kWindowTitleTextRgn;
 	else if(sc & SC_TitleBarSysMenu)
-	    ret = QRect(-666, -666, 10, pixelMetric(PM_TitleBarHeight)); //ugh
+	    return QRect(-666, -666, 10, pixelMetric(PM_TitleBarHeight)); //ugh
 	if(wrc != kWindowGlobalPortRgn) {
 	    //AppMan paints outside the given rectangle, so I have to adjust for the height properly!
 	    QRegion treg;
