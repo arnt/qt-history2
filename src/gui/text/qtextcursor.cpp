@@ -668,9 +668,9 @@ void QTextCursor::clearSelection()
 }
 
 /*!
-  Removes the current selection. Does nothing if the cursor doesn't have a selection.
+  Removes the content of current selection. Does nothing if the cursor doesn't have a selection.
 */
-void QTextCursor::removeSelection()
+void QTextCursor::removeSelectedText()
 {
     if (!d || d->position == d->anchor)
         return;

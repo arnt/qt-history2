@@ -79,7 +79,7 @@ public:
     void deletePreviousChar();
 
     bool hasSelection() const;
-    void removeSelection();
+    void removeSelectedText();
     void clearSelection();
     int selectionStart() const;
     int selectionEnd() const;
