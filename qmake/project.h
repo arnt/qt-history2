@@ -61,17 +61,17 @@ class QMakeProject
         IncludeNoExist,
         IncludeParseFailure
     };
-    IncludeStatus doProjectInclude(QString file, bool feature, 
+    IncludeStatus doProjectInclude(QString file, bool feature,
                                    QMap<QString, QStringList> &place,
                                    const QString &seek_var=QString::null);
-    bool doProjectTest(const QString &str, QMap<QString, QStringList> &place);
-    bool doProjectTest(const QString &func, const QString &params, 
+    bool doProjectTest(QString str, QMap<QString, QStringList> &place);
+    bool doProjectTest(QString func, const QString &params,
                        QMap<QString, QStringList> &place);
-    bool doProjectTest(const QString &func, QStringList args, 
+    bool doProjectTest(QString func, QStringList args,
                        QMap<QString, QStringList> &place);
-    QString doProjectExpand(const QString &func, const QString &params, 
+    QString doProjectExpand(QString func, const QString &params,
                             QMap<QString, QStringList> &place);
-    QString doProjectExpand(const QString &func, QStringList args, 
+    QString doProjectExpand(QString func, QStringList args,
                             QMap<QString, QStringList> &place);
 
     bool doProjectCheckReqs(const QStringList &deps, QMap<QString, QStringList> &place);
@@ -97,7 +97,7 @@ public:
 
     QString expand(const QString &v);
     bool test(const QString &v);
-    bool isActiveConfig(const QString &x, bool regex=false, 
+    bool isActiveConfig(const QString &x, bool regex=false,
                         QMap<QString, QStringList> *place=NULL);
 
     bool isEmpty(const QString &v);
