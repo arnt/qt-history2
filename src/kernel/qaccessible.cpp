@@ -426,37 +426,42 @@ QRESULT QAccessible::queryAccessibleInterface( QObject *object, QAccessibleInter
     if ( !object )
 	return QE_INVALIDARG;
 
-    if ( qAccessibleInterface )
+    if ( qAccessibleInterface ) {
 	*iface = qAccessibleInterface->find( object );
-    if ( !*iface ) {
-	if ( !qAccessibleManager ) {
-	    qAccessibleManager = new QPluginManager<QAccessibleFactoryInterface>( IID_QAccessibleFactory );
-	    qAddPostRoutine( cleanup );
-
-	    QStringList paths(QApplication::libraryPaths());
-	    QStringList::Iterator it = paths.begin();
-	    while (it != paths.end()) {
-		qAccessibleManager->addLibraryPath(*it );
-		it++;
-	    }
-	}
-	QAccessibleFactoryInterface *factory = 0;
-	QMetaObject *mo = object->metaObject();
-	while ( mo ) {
-	    qAccessibleManager->queryInterface( mo->className(), &factory );
-	    if ( factory )
-		break;
-	    mo = mo->superClass();
-	}
-	if ( factory ) {
-	    factory->createAccessibleInterface( mo->className(), object, iface );
-	    factory->release();
+	if ( *iface ) {
+	    (*iface)->addRef();
+	    return QS_OK;
 	}
     }
+
+    if ( !qAccessibleManager ) {
+	qAccessibleManager = new QPluginManager<QAccessibleFactoryInterface>( IID_QAccessibleFactory );
+	qAddPostRoutine( cleanup );
+
+	QStringList paths(QApplication::libraryPaths());
+	QStringList::Iterator it = paths.begin();
+	while (it != paths.end()) {
+	    qAccessibleManager->addLibraryPath(*it );
+	    it++;
+	}
+    }
+
+    QAccessibleFactoryInterface *factory = 0;
+    QMetaObject *mo = object->metaObject();
+    while ( mo ) {
+	qAccessibleManager->queryInterface( mo->className(), &factory );
+	if ( factory )
+	    break;
+	mo = mo->superClass();
+    }
+    if ( factory ) {
+	factory->createAccessibleInterface( mo->className(), object, iface );
+	factory->release();
+    }
+
     if ( !*iface )
 	return QE_NOINTERFACE;
 
-    (*iface)->addRef();
     return QS_OK;
 }
 
@@ -476,8 +481,10 @@ QRESULT QAccessible::queryAccessibleInterface( QObject *object, QAccessibleInter
 QAccessibleObject::QAccessibleObject( QObject *object )
 : ref( 0 ), object_(object)
 {
-    if ( !qAccessibleInterface )
+    if ( !qAccessibleInterface ) {
 	qAccessibleInterface = new QPtrDict<QAccessibleInterface>( 73 );
+	qAddPostRoutine( cleanup );
+    }
     qAccessibleInterface->insert( object, this );
 }
 

@@ -570,6 +570,7 @@ HRESULT STDMETHODCALLTYPE QWindowsAccessible::accHitTest( long xLeft, long yTop,
     }
 
     QWindowsAccessible* wacc = new QWindowsAccessible( acc );
+    acc->release();
     IDispatch *iface = 0;
     wacc->QueryInterface( IID_IDispatch, (void**)&iface );
     if ( iface ) {
@@ -614,17 +615,21 @@ HRESULT STDMETHODCALLTYPE QWindowsAccessible::accNavigate( long navDir, VARIANT 
 	(*pvarEnd).vt = VT_EMPTY;
 	return S_FALSE;
     }
-    QAccessibleInterface *acc = accessible;
+    QAccessibleInterface *acc = 0;
     if ( control ) {
-	acc = 0;
 	if ( varStart.lVal || navDir == NavFirstChild || navDir == NavLastChild || navDir == NavFocusChild ) {
 	    accessible->queryChild( control, &acc );
 	} else {
 	    QAccessibleInterface *parent = 0;
 	    accessible->queryParent( &parent );
-	    if ( parent )
-		parent->queryChild( control, &acc );	    
+	    if ( parent ) {
+		parent->queryChild( control, &acc );
+		parent->release();
+	    }
 	}
+    } else {
+	acc = accessible;
+	acc->addRef();
     }
     if ( !acc ) {
 	(*pvarEnd).vt = VT_I4;
@@ -633,6 +638,7 @@ HRESULT STDMETHODCALLTYPE QWindowsAccessible::accNavigate( long navDir, VARIANT 
     }
     
     QWindowsAccessible* wacc = new QWindowsAccessible( acc );
+    acc->release();
     IDispatch *iface = 0;
     wacc->QueryInterface( IID_IDispatch, (void**)&iface );
     if ( iface ) {
@@ -656,13 +662,16 @@ HRESULT STDMETHODCALLTYPE QWindowsAccessible::get_accChild( VARIANT varChildID, 
 	return E_INVALIDARG;
 
     QAccessibleInterface *acc = 0;
-    if ( !varChildID.lVal )
+    if ( !varChildID.lVal ) {
 	acc = accessible;
-    else
+	acc->addRef();
+    } else {
 	accessible->queryChild( varChildID.lVal, &acc );
+    }
 
     if ( acc ) {
 	QWindowsAccessible* wacc = new QWindowsAccessible( acc );
+	acc->release();
 	wacc->QueryInterface( IID_IDispatch, (void**)ppdispChild );
 	return S_OK;
     }
@@ -689,6 +698,7 @@ HRESULT STDMETHODCALLTYPE QWindowsAccessible::get_accParent( IDispatch** ppdispP
     accessible->queryParent( &acc );
     if ( acc ) {
 	QWindowsAccessible* wacc = new QWindowsAccessible( acc );
+	acc->release();
 	wacc->QueryInterface( IID_IDispatch, (void**)ppdispParent );
 
 	if ( *ppdispParent )
@@ -885,6 +895,7 @@ HRESULT STDMETHODCALLTYPE QWindowsAccessible::get_accFocus( VARIANT *pvarID )
     }
     
     QWindowsAccessible* wacc = new QWindowsAccessible( acc );
+    acc->release();
     IDispatch *iface = 0;
     wacc->QueryInterface( IID_IDispatch, (void**)&iface );
     if ( iface ) {
