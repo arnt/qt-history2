@@ -493,18 +493,18 @@ void QToolButton::drawButtonLabel( QPainter * p )
 	QPixmap pm;
 	if ( usesBigPixmap() ) {
 	    if ( !isEnabled() )
-		pm = iconSet( isOn() ).pixmap( QIconSet::Large, QIconSet::Disabled );
+		pm = iconSet( isOn() ).pixmap( QIconSet::Large, QIconSet::Disabled, isOn() ? QIconSet::On : QIconSet::Off );
 	    else if ( uses3D() )
-		pm = iconSet( isOn() ).pixmap( QIconSet::Large, QIconSet::Active );
+		pm = iconSet( isOn() ).pixmap( QIconSet::Large, QIconSet::Active, isOn() ? QIconSet::On : QIconSet::Off );
 	    else
-		pm = iconSet( isOn() ).pixmap( QIconSet::Large, QIconSet::Normal );
+		pm = iconSet( isOn() ).pixmap( QIconSet::Large, QIconSet::Normal, isOn() ? QIconSet::On : QIconSet::Off );
 	} else {
 	    if ( !isEnabled() )
-		pm = iconSet( isOn() ).pixmap( QIconSet::Small, QIconSet::Disabled );
+		pm = iconSet( isOn() ).pixmap( QIconSet::Small, QIconSet::Disabled, isOn() ? QIconSet::On : QIconSet::Off );
 	    else if ( uses3D() )
-		pm = iconSet( isOn() ).pixmap( QIconSet::Small, QIconSet::Active );
+		pm = iconSet( isOn() ).pixmap( QIconSet::Small, QIconSet::Active, isOn() ? QIconSet::On : QIconSet::Off );
 	    else
-		pm = iconSet( isOn() ).pixmap( QIconSet::Small, QIconSet::Normal );
+		pm = iconSet( isOn() ).pixmap( QIconSet::Small, QIconSet::Normal, isOn() ? QIconSet::On : QIconSet::Off );
 	}
 
 	if ( usesTextLabel() ) {
