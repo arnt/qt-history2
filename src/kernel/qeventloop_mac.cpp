@@ -10,7 +10,7 @@
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ****************************************************************************/
-#include "qeventloop_p.h"
+#include "qplatformdefs.h"
 #include "qeventloop.h"
 #include "qapplication.h"
 #include "qevent.h"
@@ -25,6 +25,10 @@
 #else
 #  define QMAC_EVENT_NOWAIT kEventDurationNoWait
 #endif
+
+#include "qeventloop_p.h"
+#define d d_func()
+#define q q_func()
 
 //Externals
 void qt_event_request_timer(TimerInfo *); //qapplication_mac.cpp

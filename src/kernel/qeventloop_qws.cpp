@@ -12,7 +12,7 @@
 **
 ****************************************************************************/
 
-#include "qeventloop_p.h" // includes qplatformdefs.h
+#include "qplatformdefs.h"
 #include "qeventloop.h"
 #include "qapplication.h"
 #include "qbitarray.h"
@@ -28,6 +28,9 @@
 
 #include <errno.h>
 
+#include "qeventloop_p.h"
+#define d d_func()
+#define q q_func()
 
 // from qapplication.cpp
 extern bool qt_is_gui_used;
