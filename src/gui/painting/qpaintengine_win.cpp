@@ -499,16 +499,15 @@ void QWin32PaintEngine::drawRect(const QRect &r)
     }
     int w = r.width(), h = r.height();
 
+    // Due to inclusive rectangles when using GM_ADVANCED
+    if (d->advancedMode) {
+        --w;
+        --h;
+    } else
     if (d->penStyle == Qt::NoPen) {
         w++;
         h++;
     }
-
-    // Due to inclusive rectangles when using GM_ADVANCED
-#ifndef NO_NATIVE_XFORM
-    --w;
-    --h;
-#endif
 
     bool outlineOnly = false;
     if (d->brushStyle == Qt::LinearGradientPattern) {
@@ -625,19 +624,12 @@ void QWin32PaintEngine::drawEllipse(const QRect &r)
 //     }
     int w = r.width();
     int h = r.height();
-#ifdef NO_NATIVE_XFORM
-    if (d->penStyle == Qt::NoPen) {
-        ++w;
-        ++h;
-    }
-#else
     --w;
     --h;
-#endif
 
     if (d->nocolBrush)
         SetTextColor(d->hdc, d->bColor);
-    if (r.width() == 1 && r.height() == 1)
+    if (w == 1 && h == 1)
         drawPoint(r.topLeft());
     else
         Ellipse(d->hdc, r.x(), r.y(), r.x()+w, r.y()+h);
@@ -1484,7 +1476,7 @@ void QWin32PaintEngine::updateXForm(const QWMatrix &mtx)
     d->matrix = mtx;
 
     XFORM m;
-    if (d->txop >= QPainter::TxNone && !d->noNativeXform) {
+    if (d->txop > QPainter::TxNone && !d->noNativeXform) {
         m.eM11 = mtx.m11();
         m.eM12 = mtx.m12();
         m.eM21 = mtx.m21();
@@ -1495,20 +1487,20 @@ void QWin32PaintEngine::updateXForm(const QWMatrix &mtx)
         if (!SetWorldTransform(d->hdc, &m)) {
             qSystemWarning("QWin32PaintEngine::updateXForm(), SetWorldTransformation() failed..");
         }
+        d->advancedMode = true;
     } else {
         m.eM11 = m.eM22 = (float)1.0;
         m.eM12 = m.eM21 = m.eDx = m.eDy = (float)0.0;
         SetGraphicsMode(d->hdc, GM_ADVANCED);
         ModifyWorldTransform(d->hdc, &m, MWT_IDENTITY);
         SetGraphicsMode(d->hdc, GM_COMPATIBLE);
+        d->advancedMode = false;
     }
 }
 
 
 void QWin32PaintEngine::updateClipRegion(const QRegion &region, bool clipEnabled)
 {
-//     qDebug() << "QWin32PaintEngine::updateClipRegion()" << region.boundingRect();
-
     if (d->tryGdiplus()) {
         d->gdiplusEngine->updateClipRegion(region, clipEnabled);
         return;
@@ -2359,20 +2351,20 @@ void QGdiplusPaintEngine::drawLine(const QPoint &p1, const QPoint &p2)
     }
 }
 
+#define QT_GDIPLUS_SUBTRACT (d->usePen || ((d->renderhints & QPainter::LineAntialiasing) != 0) ? 1 : 0);
+
 void QGdiplusPaintEngine::drawRect(const QRect &r)
 {
-    int subtract = d->usePen ? 1 : 0;
+    int subtract = QT_GDIPLUS_SUBTRACT;
     if (d->brush) {
 //         d->graphics->FillRectangle(d->brush, r.x(), r.y(),
 //                                    r.width()-subtract, r.height()-subtract);
-        GdipFillRectangleI(d->graphics, d->brush, r.x(), r.y(),
-                           r.width()-subtract, r.height()-subtract);
+        GdipFillRectangleI(d->graphics, d->brush, r.x(), r.y(), r.width()-subtract, r.height()-subtract);
     }
     if (d->usePen) {
 //         d->graphics->DrawRectangle(d->pen, r.x(), r.y(),
 //                                    r.width()-subtract, r.height()-subtract);
-        GdipDrawRectangleI(d->graphics, d->pen, r.x(), r.y(),
-                           r.width()-subtract, r.height()-subtract);
+        GdipDrawRectangleI(d->graphics, d->pen, r.x(), r.y(), r.width()-subtract, r.height()-subtract);
     }
 }
 
@@ -2446,14 +2438,16 @@ void QGdiplusPaintEngine::drawRoundRect(const QRect &r, int xRnd, int yRnd)
 
 void QGdiplusPaintEngine::drawEllipse(const QRect &r)
 {
-    int subtract = d->usePen ? 1 : 0;
+    int subtract = QT_GDIPLUS_SUBTRACT;
     if (d->brush) {
 //         d->graphics->FillEllipse(d->brush, r.x(), r.y(), r.width()-subtract, r.height()-subtract);
-        GdipFillEllipseI(d->graphics, d->brush, r.x(), r.y(), r.width()-subtract, r.height()-subtract);
+        GdipFillEllipseI(d->graphics, d->brush, r.x(), r.y(),
+                         r.width()-subtract, r.height()-subtract);
     }
     if (d->usePen) {
 //         d->graphics->DrawEllipse(d->pen, r.x(), r.y(), r.width()-subtract, r.height()-subtract);
-        GdipDrawEllipseI(d->graphics, d->pen, r.x(), r.y(), r.width()-subtract, r.height()-subtract);
+        GdipDrawEllipseI(d->graphics, d->pen, r.x(), r.y(),
+                         r.width()-subtract, r.height()-subtract);
     }
 }
 
@@ -2686,6 +2680,10 @@ void QGdiplusPaintEngine::drawPath(const QPainterPath &p)
 void QGdiplusPaintEngine::updateRenderHints(QPainter::RenderHints hints)
 {
     GdipSetSmoothingMode(d->graphics, hints & QPainter::LineAntialiasing ? 2 : 1 );
+
+    // QPaintEngine::setRenderHints() gets called on QWin32PaintEngine so
+    // we make our own local copy..
+    d->renderhints = hints;
 }
 
 
