@@ -56,7 +56,7 @@ struct QATSUStyle {
 };
 
 //Mac (ATSUI) engine
-QFontEngineMac::QFontEngineMac() : QFontEngine(), mTextLayout(0), internal_fi(0), fontref(0)
+QFontEngineMac::QFontEngineMac() : QFontEngine(), mTextLayout(0), internal_fi(0), familyref(0)
 {
     memset(widthCache, '\0', widthCacheSize);
 }
@@ -224,9 +224,11 @@ QATSUStyle *QFontEngineMac::getFontStyle() const
     values[arr] = &fsize;
     arr++;
     tags[arr] = kATSUFontTag;  //font
-    ATSUFontID fond = fontref;
-    valueSizes[arr] = sizeof(fond);
-    values[arr] = &fond;
+    ATSUFontID fontID;
+    FMFontFamily qdfamily = FMGetFontFamilyFromATSFontFamilyRef(familyref);
+    ATSUFONDtoFontID(qdfamily, 0, &fontID);
+    valueSizes[arr] = sizeof(fontID);
+    values[arr] = &fontID;
     arr++;
     tags[arr] = kATSUQDBoldfaceTag;
     valueSizes[arr] = sizeof(Boolean);
@@ -464,9 +466,10 @@ int QFontEngineMac::doTextTask(const QChar *s, int pos, int use_len, int len, uc
         static_cast<QQuickDrawPaintEngine *>(p)->setupQDPort(false, &pt, &rgn);
         x += pt.x();
         y += pt.y();
-        ATSUFontID fond;
-        ATSUFONDtoFontID(fontref, 0, &fond);
-        TextFont(fond);
+        ATSUFontID fontID;
+        FMFontFamily qdfamily = FMGetFontFamilyFromATSFontFamilyRef(familyref);
+        ATSUFONDtoFontID(qdfamily, 0, &fontID);
+        TextFont(fontID);
 
         GetGWorld(&ctx_port, 0);
         if(OSStatus err = QDBeginCGContext(ctx_port, &ctx)) {
@@ -738,7 +741,6 @@ void QFontEngineMac::addOutlineToPath(float x, float y, const QGlyphLayout *glyp
 // box font engine
 QFontEngineBox::QFontEngineBox(int size) : _size(size)
 {
-    //qDebug("box font engine created!");
 }
 
 QFontEngineBox::~QFontEngineBox()

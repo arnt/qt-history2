@@ -464,7 +464,7 @@ class QFontEngineMac : public QFontEngine
     QATSUStyle *getFontStyle() const;
 
 public:
-    ATSFontRef fontref;
+    ATSFontFamilyRef familyref;
     QFontEngineMac();
     ~QFontEngineMac();
 

@@ -31,6 +31,12 @@ static void initializeDb()
         FMFontFamily fam;
         QString fam_name;
         while(!FMGetNextFontFamily(&it, &fam)) {
+            { //sanity check the font, and see if we can use it at all! --Sam
+                ATSUFontID fontID;
+                if(ATSUFONDtoFontID(fam, 0, &fontID) != noErr)
+                    continue;
+            }
+
             static Str255 fam_pstr;
             if(FMGetFontFamilyName(fam, fam_pstr) != noErr)
                 qDebug("Qt: internal: WH0A, %s %d", __FILE__, __LINE__);
@@ -63,10 +69,6 @@ static void initializeDb()
                 FMFontSize font_size;
 
                 while(!FMGetNextFontFamilyInstance(&fit, &font, &font_style, &font_size)) {
-                    //sanity check the font, and see if we can use it at all! --Sam
-                    if(!FMGetATSFontRefFromFont(font)) 
-                        continue;
-
                     bool italic = (bool)(font_style & ::italic);
                     int weight = ((font_style & ::bold) ? QFont::Bold : QFont::Normal);
                     QtFontStyle::Key styleKey;
@@ -128,23 +130,23 @@ QFontEngine *loadEngine(QFont::Script, const QFontPrivate *, const QFontDef &req
         }
         family_list << QApplication::font().defaultFamily();         // add defaultFamily (compatibility)
         for(QStringList::ConstIterator it = family_list.begin(); it !=  family_list.end(); ++it) {
-            if(ATSFontRef fontref = ATSFontFindFromName(QCFString(*it),
-                                                        kATSOptionFlagsDefault)) {
+            if(ATSFontFamilyRef familyref = ATSFontFamilyFindFromName(QCFString(*it),
+                                                                      kATSOptionFlagsDefault)) {
                 QCFString actualName;
-                if(ATSFontGetName(fontref, kATSOptionFlagsDefault, &actualName) == noErr) {
+                if(ATSFontFamilyGetName(familyref, kATSOptionFlagsDefault, &actualName) == noErr) {
                     if(static_cast<QString>(actualName) == *it) {
-                        engine->fontref = fontref;
+                        engine->familyref = familyref;
                         break;
                     }
                 }
-                if(!engine->fontref) //just take one if it isn't set yet
-                    engine->fontref = fontref;
+                if(!engine->familyref) //just take one if it isn't set yet
+                    engine->familyref = familyref;
             }
         }
     }
-    if(engine->fontref) { //fill in actual name
+    if(engine->familyref) { //fill in actual name
         QCFString actualName;
-        if(ATSFontGetName(engine->fontref, kATSOptionFlagsDefault, &actualName) == noErr)
+        if(ATSFontFamilyGetName(engine->familyref, kATSOptionFlagsDefault, &actualName) == noErr)
             engine->fontDef.family = actualName;
     }
     return engine;
