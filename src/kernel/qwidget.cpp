@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#369 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#370 $
 **
 ** Implementation of QWidget class
 **
@@ -1894,6 +1894,7 @@ void QWidget::setFont( const QFont &font )
 		 w->setFont( fnt );
 	}
     }
+    setFontSys();
 }
 
 /*!

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#334 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#335 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -294,7 +294,7 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
     }
 
     if ( initializeWindow ) {
-	//    if ( testWFlags(WResizeNoErase) && initializeWindow ) {
+	//    if ( testWFlags(WResizeNoErase) && initializeWindow ) { //}
 	wsa.bit_gravity = NorthWestGravity;	// don't erase when resizing
 	XChangeWindowAttributes( dpy, id, CWBitGravity, &wsa );
     }
@@ -330,6 +330,8 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 
     if ( destroyw )
 	qt_XDestroyWindow( this, dpy, destroyw );
+
+    setFontSys();
 }
 
 
@@ -527,6 +529,58 @@ void QWidget::setCaret(int x, int y, int width, int height)
 	XVaNestedList preedit_attr;
 	preedit_attr = XVaCreateNestedList(0, XNSpotLocation, &spot, 0);
 	XSetICValues(xic, XNPreeditAttributes, preedit_attr, 0);
+    }
+}
+
+static
+XFontSet xic_fontset(void* qfs, int pt)
+{
+    XFontSet fontset = (XFontSet)qfs;
+    if ( fontset )
+	return fontset;
+
+    // ##### TODO: this case cannot happen if we ensure that
+    //              the default font etc. are for this locale.
+    char** missing=0;
+    int nmissing;
+    static XFontSet fixed_fontset = 0;
+    if ( !fixed_fontset ) {
+	QCString n;
+	n.sprintf(
+	    "-*-Helvetica-*-*-normal-*-*-%d-*-*-*-*-*-*,"
+	    "-*-*-*-*-normal-*-*-%d-*-*-*-*-*-*,"
+	    "-*-*-*-*-*-*-*-%d-*-*-*-*-*-*",
+		pt*10,
+		pt*10,
+		pt*10
+	);
+debug("Default fontset: %s",n.data());
+	fixed_fontset =
+		    XCreateFontSet( QPaintDevice::x11AppDisplay(), n,
+			    &missing, &nmissing, 0 );
+    }
+    return fixed_fontset;
+}
+
+void QWidget::setFontSys()
+{
+    QWidget* tlw = topLevelWidget();
+    if ( tlw->extra && tlw->extra->topextra && tlw->extra->topextra->xic ) {
+	XIC xic = (XIC)tlw->extra->topextra->xic;
+
+	XFontSet fontset = xic_fontset(fontMetrics().fontSet(), font().pointSize());
+
+	XVaNestedList preedit_att = XVaCreateNestedList(0,
+			XNFontSet, fontset,
+			NULL);
+	XVaNestedList status_att = XVaCreateNestedList(0,
+			XNFontSet, fontset,
+			NULL);
+
+	XSetICValues(xic,
+			XNPreeditAttributes, preedit_att,
+			XNStatusAttributes, status_att,
+		    0);
     }
 }
 
@@ -1651,27 +1705,11 @@ void QWidget::createTLSysExtra()
     if ( qt_xim ) {
 	XPoint spot; spot.x = 1; spot.y = 1; // dummmy
 
-	// ##### TODO: use fontset of focus widget
-	QFontMetrics fm = fontMetrics();
-	XFontSet fontset = (XFontSet)fm.fontSet();
-	if ( !fontset ) {
-	    // ##### TODO: this case cannot happen if we ensure that
-	    //              the default font etc. are for this locale.
-	    char** missing=0;
-	    int nmissing;
-	    char* n =
-		"-*-*-*-*-normal-*-*-120-*-*-*-*-*-*,"
-		"-*-*-*-*-*-*-*-120-*-*-*-*-*-*";
-	    static XFontSet fixed_fontset =
-			XCreateFontSet( QPaintDevice::x11AppDisplay(), n,
-				&missing, &nmissing, 0 );
-	    fontset = fixed_fontset;
-	}
-
+	XFontSet fontset = xic_fontset(fontMetrics().fontSet(), font().pointSize());
 
 	XVaNestedList preedit_att = XVaCreateNestedList(0,
-			XNFontSet, fontset,
 			XNSpotLocation, &spot,
+			XNFontSet, fontset,
 			NULL);
 	XVaNestedList status_att = XVaCreateNestedList(0,
 			XNFontSet, fontset,
@@ -1684,6 +1722,8 @@ void QWidget::createTLSysExtra()
 			XNPreeditAttributes, preedit_att,
 			XNStatusAttributes, status_att,
 			0 );
+
+	setFontSys();
     } else {
 	extra->topextra->xic = 0;
     }

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.h#213 $
+** $Id: //depot/qt/main/src/kernel/qwidget.h#214 $
 **
 ** Definition of QWidget class
 **
@@ -375,8 +375,9 @@ private slots:
     void	 focusProxyDestroyed();
 
 private:
+    void	 setFontSys();
     void 	 setLayout( QLayout *l );
-    virtual void setWinId( WId );
+    void	 setWinId( WId );
     void	 showWindow();
     void	 hideWindow();
     void	 createTLExtra();
