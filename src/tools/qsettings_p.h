@@ -116,6 +116,13 @@ public:
     void	sysInsertSearchPath( QSettings::System, const QString & );
     void	sysRemoveSearchPath( QSettings::System, const QString & );
 #endif
+
+#if defined(QT_CHECK_STATE)
+    // Used to detect multiple instances of QSettings running in the text file
+    // mode, which can lead to data loss.
+    static uint iniFormatInstanceCount;
+#endif    
+
 };
 #endif //QT_NO_SETTINGS
 #endif // QSETTINGS_P_H

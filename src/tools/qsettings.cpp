@@ -146,6 +146,10 @@ static inline int qt_open( const char *pathname, int flags, mode_t mode )
     \endlist
 
     These limitations are not enforced on Unix or Mac OS X.
+    
+    \warning Creating multiple instances of QSettings writing to a text
+    file may lead to data loss! Changing one instance will not affect other
+    instances.
 
     \section1 Notes for Mac OS X Applications
 
@@ -445,6 +449,10 @@ void QSettingsHeading::parseLine(QTextStream &stream)
 
 #endif
 
+#if defined(QT_CHECK_STATE)
+uint QSettingsPrivate::iniFormatInstanceCount = 0;
+#endif    
+
 QSettingsPrivate::QSettingsPrivate( QSettings::Format format )
     : groupDirty( true ), modified(false), globalScope(true)
 {
@@ -454,6 +462,13 @@ QSettingsPrivate::QSettingsPrivate( QSettings::Format format )
 #else
     Q_UNUSED( format );
 #endif
+
+#if defined(QT_CHECK_STATE)
+    ++iniFormatInstanceCount;
+    if (iniFormatInstanceCount > 1)
+    	qWarning( "QSettings: you have created multiple instances of QSettings\n"
+    	    	  "writing to a text file. This can lead to data loss!" );
+#endif    
 
     QString appSettings(QDir::homeDirPath() + "/.qt/");
     QString defPath;
