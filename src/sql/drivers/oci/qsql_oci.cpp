@@ -175,6 +175,9 @@ QVariant::Type qDecodeOCIType( int ocitype )
 	break;
     default:
 	type = QVariant::Invalid;
+#ifdef QT_CHECK_RANGE
+	qWarning( "qDecodeOCIType: unknown OCI datatype: " + QString::number( ocitype ) );
+#endif
 	break;
     }
 	return type;
@@ -300,6 +303,7 @@ public:
 	ub4 dataSize(0);
 	OCIDefine* dfn = 0;
 	int r;
+	static ub2 csid_UTF8   = 871; // UTF8 not defined in Oracle 8 libraries
 
 	OCIParam* param = 0;
 	sb4 parmStatus = 0;
@@ -361,8 +365,26 @@ public:
 				    SQLT_STR,
 				    (dvoid *) createInd( count-1 ),
 				    0, 0, OCI_DEFAULT );
+		if ( r == 0 ) {
+		    r = OCIAttrSet( (void*)dfn,
+				    OCI_HTYPE_DEFINE,
+				    (void*)&csid_UTF8,
+				    (ub4)0,
+				    (ub4)OCI_ATTR_CHARSET_ID,
+				    d->err );
+		    if ( r != 0 ) {
+#ifdef QT_CHECK_RANGE
+			qWarning( "QOCIResultPrivate::bind: cannot switch to UTF8: " + qOraWarn( d ) );
+#endif
+			r = 0; /* non-fatal error */
+		    }
+		}
 		break;
 	    }
+#ifdef QT_CHECK_RANGE
+	    if ( r != 0 )
+		qWarning( "QOCIResultPrivate::bind field: " + QString::number(count-1) + " " + qOraWarn( d ) );
+#endif
 	    def[(int)(count-1)] = dfn;
 	    count++;
 	    parmStatus = OCIParamGet( d->sql,
@@ -371,11 +393,6 @@ public:
 				      (void**)&param,
 				      count );
 	}
-
-#ifdef QT_CHECK_RANGE
-	    if ( r != 0 )
-		qWarning( "QOCIResultPrivate::bind field: " + QString::number(count-1) + " " + qOraWarn( d ) );
-#endif
     }
     ~QOCIResultPrivate()
     {
@@ -542,7 +559,7 @@ public:
 	    break;
 	}
 	case QVariant::String:
-	    v = QVariant( QString( at(i) ) );
+	    v = QVariant( QString::fromUtf8( at(i) ) );
 	    break;
 	case QVariant::CString:
 	    v = QVariant( QCString( at(i), length(i)+1 ) );
@@ -1563,11 +1580,6 @@ QString QOCIDriver::formatValue( const QSqlField* field, bool ) const
 	}
 	return datestring;
 	break;
-    }
-    case QVariant::ByteArray: {
-	QString hex = QSqlDriver::formatValue( field );
-	return hex;
-	return QString( "HEXTORAW(" + hex + ")" );
     }
     default:
 	break;
