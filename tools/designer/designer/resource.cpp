@@ -176,6 +176,8 @@ bool Resource::load( QIODevice* dev, const QString& filename )
 	    metaInfo.comment = firstWidget.firstChild().toText().data();
 	} else if ( firstWidget.tagName() == "forward" ) {
 	    metaForwards << firstWidget.firstChild().toText().data();
+	} else if ( firstWidget.tagName() == "variable" ) {
+	    metaVariables << firstWidget.firstChild().toText().data();
 	} else if ( firstWidget.tagName() == "author" ) {
 	    metaInfo.author = firstWidget.firstChild().toText().data();
 	} else if ( firstWidget.tagName() == "class" ) {
@@ -248,6 +250,7 @@ bool Resource::load( QIODevice* dev, const QString& filename )
     if ( formwindow ) {
 	MetaDataBase::setIncludes( formwindow, metaIncludes );
 	MetaDataBase::setForwards( formwindow, metaForwards );
+	MetaDataBase::setVariables( formwindow, metaVariables );
 	metaInfo.classNameChanged = metaInfo.className != QString( formwindow->name() );
 	MetaDataBase::setMetaInfo( formwindow, metaInfo );
     }
@@ -1951,8 +1954,11 @@ void Resource::saveMetaInfo( QTextStream &ts, int indent )
 	ts << makeIndent( indent ) << "<include location=\"" << (*it).location
 	   << "\" impldecl=\"" << (*it).implDecl << "\">" << (*it).header << "</include>" << endl;
     QStringList forwards = MetaDataBase::forwards( formwindow );
+    QStringList vars = MetaDataBase::variables( formwindow );
     for ( QStringList::Iterator it2 = forwards.begin(); it2 != forwards.end(); ++it2 )
 	ts << makeIndent( indent ) << "<forward>" << *it2 << "</forward>" << endl;
+    for ( QStringList::Iterator it3 = vars.begin(); it3 != vars.end(); ++it3 )
+	ts << makeIndent( indent ) << "<variable>" << *it3 << "</variable>" << endl;
     if ( formwindow && !formwindow->savePixmapInline() )
 	ts << makeIndent( indent ) << "<pixmapfunction>" << formwindow->pixmapLoaderFunction() << "</pixmapfunction>" << endl;
 }

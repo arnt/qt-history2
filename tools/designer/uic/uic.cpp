@@ -589,6 +589,18 @@ void Uic::createFormDecl( const QDomElement &e )
     if ( dbAware )
 	out << indent << "void init" << nameOfClass << "();" << endl;
 
+    nl = e.parentNode().toElement().elementsByTagName( "variable" );
+    if ( nl.length() > 0 ) {
+	out << endl;
+	for ( i = 0; i < (int) nl.length(); i++ ) {
+	    QString v = nl.item( i ).firstChild().toText().data();
+	    v = v.stripWhiteSpace();
+	    if ( v[ (int)v.length() - 1 ] != ';' )
+		v += ";";
+	    out << indent << v << endl;
+	}
+    }
+
     out << "};" << endl;
     out << endl;
     out << "#endif // " << protector << endl;
