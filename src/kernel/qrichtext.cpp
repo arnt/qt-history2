@@ -6808,7 +6808,7 @@ bool QTextTable::enterAt( QTextCursor *c, QTextDocument *&doc, QTextParag *&para
 		 cell->geometry().width(),
 		 cell->geometry().height() );
 	
-	if ( r.left() <= pos.x() && r.right() >= pos.x() ) { 
+	if ( r.left() <= pos.x() && r.right() >= pos.x() ) {
 	    if ( cell->geometry().y() > lastY ) {
 		lastCell = i;
 		lastY = cell->geometry().y();
@@ -7217,7 +7217,7 @@ void QTextTableCell::draw( int x, int y, int cx, int cy, int cw, int ch, const Q
     if ( richtext->parent()->tmpCursor )
 	c = richtext->parent()->tmpCursor;
     if ( cx >= 0 && cy >= 0 )
-	richtext->draw( painter(), cx - ( x + geom.x() ), cy - ( y + geom.y() ), cw, ch, g, FALSE, (c != 0), c );
+	richtext->draw( painter(), cx - ( x + geom.x() ), cy - ( y + geom.y() + verticalAlignmentOffset() ), cw, ch, g, FALSE, (c != 0), c );
     else
 	richtext->draw( painter(), -1, -1, -1, -1, g, FALSE, (c != 0), c );
 
