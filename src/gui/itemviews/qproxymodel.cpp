@@ -12,34 +12,12 @@
 ****************************************************************************/
 
 #include "qproxymodel.h"
-#include <private/qabstractitemmodel_p.h>
+#include <private/qproxymodel_p.h>
 #include <qsize.h>
 #include <qstringlist.h>
 
 #define d d_func()
 #define q q_func()
-
-class QEmptyModel : public QAbstractItemModel
-{
-public:
-    QEmptyModel(QObject *parent = 0) : QAbstractItemModel(parent) {}
-    QModelIndex index(int, int, const QModelIndex &) const { return QModelIndex(); }
-    QModelIndex parent(const QModelIndex &) const { return QModelIndex(); }
-    int rowCount(const QModelIndex &) const { return 0; }
-    int columnCount(const QModelIndex &) const { return 0; }
-    bool hasChildren(const QModelIndex &) const { return false; }
-    QVariant data(const QModelIndex &, int) const { return QVariant(); }
-};
-
-class QProxyModelPrivate : private QAbstractItemModelPrivate
-{
-    Q_DECLARE_PUBLIC(QProxyModel)
-
-public:
-    QProxyModelPrivate() : QAbstractItemModelPrivate(), model(0) {}
-    QAbstractItemModel *model;
-    QEmptyModel empty;
-};
 
 /*!
     \class QProxyModel
@@ -54,7 +32,9 @@ public:
 
 /*!
     Constructs a proxy model with the given \a parent.
-*/QProxyModel::QProxyModel(QObject *parent)
+*/
+
+QProxyModel::QProxyModel(QObject *parent)
     : QAbstractItemModel(*new QProxyModelPrivate, parent)
 {
     setModel(&d->empty);

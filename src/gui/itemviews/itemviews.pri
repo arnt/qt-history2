@@ -20,6 +20,7 @@ HEADERS += \
 	itemviews/qtablewidget.h \
 	itemviews/qtreewidget.h \
 	itemviews/qproxymodel.h \
+	itemviews/qproxymodel_p.h \
 	itemviews/qitemeditorfactory.h \
 	itemviews/qstandarditemmodel.h \
 	itemviews/qstandarditemmodel_p.h
