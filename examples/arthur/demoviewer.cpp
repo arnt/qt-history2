@@ -27,7 +27,7 @@ public:
     virtual void paint(QPainter *painter, const QStyleOptionViewItem &options,
                        const QAbstractItemModel *model, const QModelIndex &index) const;
     virtual QSize sizeHint(const QFontMetrics &, const QStyleOptionViewItem &,
-                           const QAbstractItemModel *model, const QModelIndex &) const
+                           const QAbstractItemModel *, const QModelIndex &) const
     {
         return QSize(100, 30);
     }

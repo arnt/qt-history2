@@ -46,12 +46,8 @@ void Warpix::paintEvent(QPaintEvent *)
 static void copy_pixmap(const QPixmap *src, QPixmap *dest, int x, int y, int w, int h)
 {
     dest->resize(w, h);
-    bitBlt(dest, 0, 0, src, x, y, w, h);
-    if (src->mask()) {
-	QBitmap mask(w, h);
-	bitBlt(&mask, 0, 0, src->mask(), x, y, w, h);
-	dest->setMask(mask);
-    }
+    QPainter pt(dest);
+    pt.drawPixmap(0, 0, *src, x, y, w, h, Qt::SourceCopy);
 }
 
 void Warpix::setPixmap(const QPixmap &pm)
