@@ -290,9 +290,9 @@ void QSplitter::setOrientation( Orientation o )
     orient = o;
 
     if ( orient == Horizontal )
-	setSizePolicy( QSizePolicy( QSizePolicy::Fixed, QSizePolicy::Minimum ) );
+	setSizePolicy( QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Minimum ) );
     else
-    	setSizePolicy( QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Fixed ) );
+    	setSizePolicy( QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Expanding ) );
 
     QSplitterLayoutStruct *s = data->list.first();
     while ( s ) {
@@ -496,7 +496,7 @@ int QSplitter::idAfter( QWidget* w ) const
 
   For hebrew and arabic the layout is reversed, and using this function
   to set the position of the splitter might lead to unexpected results.
-  Especially, in hebrew and arabic, the position of splitter one is left of 
+  Especially, in hebrew and arabic, the position of splitter one is left of
   the position of splitter zero.
   \sa idAfter()
 */
@@ -740,7 +740,7 @@ void QSplitter::doResize()
     }
 
     qGeomCalc( a, 0, n, pick( r.topLeft() ), pick( r.size() ), 0 );
-    
+
     for ( i = 0; i< n; i++ ) {
 	QSplitterLayoutStruct *s = data->list.at(i);
 	setG( s->wid, a[i].pos, a[i].size );
