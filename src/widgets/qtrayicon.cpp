@@ -57,7 +57,8 @@ QPopupMenu* QTrayIcon::popup() const
 }
 
 /*!
-  Sets the system tray icon to \a icon and replaces any previous entry in the tray.
+  \property QTrayIcon::icon
+  \brief the system tray icon.
 */
 void QTrayIcon::setIcon( const QPixmap &icon )
 {
@@ -65,19 +66,16 @@ void QTrayIcon::setIcon( const QPixmap &icon )
     sysUpdateIcon();
 }
 
-/*!
-  Returns the current icon.
-
-  \sa setIcon
-*/
 QPixmap QTrayIcon::icon() const
 {
     return pm;
 }
 
 /*!
-  Sets the tooltip for the system tray entry to \a tooltip. On some systems,
-  the tooltip's length is limited and will be truncated as necessary.
+  \property QTrayIcon::toolTip
+  \brief the tooltip for the system tray entry
+  
+  On some systems, the tooltip's length is limited and will be truncated as necessary.
 */
 void QTrayIcon::setToolTip( const QString &tooltip )
 {
@@ -85,11 +83,6 @@ void QTrayIcon::setToolTip( const QString &tooltip )
     sysUpdateToolTip();
 }
 
-/*!
-  Returns the current tooltip.
-
-  \sa setToolTip
-*/
 QString QTrayIcon::toolTip() const
 {
     return tip;
