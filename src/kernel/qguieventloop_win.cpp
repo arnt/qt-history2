@@ -137,19 +137,10 @@ bool QGuiEventLoop::processEvents(ProcessEventsFlags flags)
 	    }
 	} else {
 	    emit aboutToBlock();
-#ifdef QT_THREAD_SUPPORT
-	    locker.mutex()->unlock();
-#endif // QT_THREAD_SUPPORT
 	    if ( !winGetMessage(&msg,0,0,0) ) {
-#ifdef QT_THREAD_SUPPORT
-		locker.mutex()->lock();
-#endif // QT_THREAD_SUPPORT
 		exit( 0 );				// WM_QUIT received
 		return FALSE;
 	    }
-#ifdef QT_THREAD_SUPPORT
-	    locker.mutex()->lock();
-#endif // QT_THREAD_SUPPORT
 	}
     } else {					// no-wait mode
 	if ( !winPeekMessage(&msg,0,0,0,PM_REMOVE) ) { // no pending events
