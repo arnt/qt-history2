@@ -27,8 +27,8 @@
 
     QRegion is used with QPainter::setClipRegion() to limit the paint
     area to what needs to be painted. There is also a
-    QWidget::repaint() that takes a QRegion parameter. QRegion is the
-    best tool for reducing flicker.
+    QWidget::repaint() function that takes a QRegion parameter.
+    QRegion is the best tool for reducing flicker.
 
     A region can be created from a rectangle, an ellipse, a polygon or
     a bitmap. Complex regions may be created by combining simple
@@ -46,15 +46,15 @@
     \code
         void MyWidget::paintEvent(QPaintEvent *)
         {
-            QPainter p;                         // our painter
-            QRegion r1(QRect(100,100,200,80),  // r1 = elliptic region
-                        QRegion::Ellipse);
+            QPainter p;                       // our painter
+            QRegion r1(QRect(100,100,200,80), // r1 = elliptic region
+                       QRegion::Ellipse);
             QRegion r2(QRect(100,120,90,30)); // r2 = rectangular region
             QRegion r3 = r1.intersect(r2);    // r3 = intersection
             p.begin(this);                    // start painting widget
             p.setClipRegion(r3);              // set clip region
-            ...                                 // paint clipped graphics
-            p.end();                            // painting done
+            ...                               // paint clipped graphics
+            p.end();                          // painting done
         }
     \endcode
 

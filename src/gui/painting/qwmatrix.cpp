@@ -30,8 +30,8 @@
     \ingroup images
 
     The standard coordinate system of a \link QPaintDevice paint
-    device\endlink has the origin located at the top-left position. X
-    values increase to the right; Y values increase downward.
+    device\endlink has the origin located at the top-left position. \e
+    x values increase to the right; \e y values increase downward.
 
     This coordinate system is the default for the QPainter, which
     renders graphics in a paint device. A user-defined coordinate
@@ -41,13 +41,13 @@
     \code
         MyWidget::paintEvent(QPaintEvent *)
         {
-            QPainter p;                      // our painter
-            QWMatrix m;                      // our transformation matrix
-            m.rotate(22.5);                // rotated coordinate system
-            p.begin(this);                 // start painting
-            p.setWorldMatrix(m);           // use rotated coordinate system
-            p.drawText(30,20, "detator");  // draw rotated text at 30,20
-            p.end();                         // painting done
+            QPainter p;                   // our painter
+            QWMatrix m;                   // our transformation matrix
+            m.rotate(22.5);               // rotated coordinate system
+            p.begin(this);                // start painting
+            p.setWorldMatrix(m);          // use rotated coordinate system
+            p.drawText(30,20, "detator"); // draw rotated text at 30,20
+            p.end();                      // painting done
         }
     \endcode
 
@@ -111,12 +111,16 @@
         double sina = sin(a);
         double cosa = cos(a);
         QWMatrix m1(1, 0, 0, 1, 10, -20);  // translation matrix
-        QWMatrix m2(cosa, sina,           // rotation matrix
+        QWMatrix m2(cosa, sina,            // rotation matrix
                     -sina, cosa, 0, 0);
         QWMatrix m3(1.2, 0, 0, 0.7, 0, 0); // scaling matrix
         QWMatrix m;
         m = m3 * m2 * m1;                  // combine all transformations
     \endcode
+
+    The matrix can also be transformed using the map() functions, and
+    transformed points, rectangles, etc., can be obtained using map(),
+    mapRect(), mapToRegion(), and mapToPolygon() functions.
 
     \l QPainter has functions to translate, scale, shear and rotate the
     coordinate system without using a QWMatrix. Although these
