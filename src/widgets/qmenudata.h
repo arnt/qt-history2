@@ -94,9 +94,9 @@ private:	// Disabled copy constructor and operator=
 #endif
 };
 
-#include "qptrlist.h"
-typedef QPtrList<QMenuItem>	 QMenuItemList;
-typedef QPtrListIterator<QMenuItem> QMenuItemListIt;
+
+typedef QList<QMenuItem*> QMenuItemList;
+typedef QList<QMenuItem*>::iterator QMenuItemListIt;
 
 
 class Q_GUI_EXPORT QCustomMenuItem : public Qt
