@@ -41,6 +41,30 @@ class QPaintEvent;
 class QTimer;
 class QResizeEvent;
 
+class QTableSelection
+{
+public:
+    QTableSelection();
+    void init( int row, int col );
+    void expandTo( int row, int col );
+    bool operator==( const QTableSelection &s ) const;
+
+    int topRow() const { return tRow; }
+    int bottomRow() const { return bRow; }
+    int leftCol() const { return lCol; }
+    int rightCol() const { return rCol; }
+    int anchorRow() const { return aRow; }
+    int anchorCol() const { return aCol; }
+
+    bool isActive() const { return active; }
+    
+private:
+    uint active : 1;
+    uint dirty : 1;
+    int tRow, lCol, bRow, rCol;
+    int aRow, aCol;
+};
+
 class QTableItem : public Qt
 {
     friend class QTable;
@@ -79,7 +103,7 @@ public:
     virtual void setCol( int c );
     int row() const;
     int col() const;
-    
+
 protected:
     virtual void paint( QPainter *p, const QColorGroup &cg, const QRect &cr, bool selected );
 
@@ -191,7 +215,7 @@ public:
     virtual void swapRows( int row1, int row2 );
     virtual void swapColumns( int col1, int col2 );
     virtual void swapCells( int row1, int col1, int row2, int col2 );
-    
+
 protected:
     void drawContents( QPainter *p, int cx, int cy, int cw, int ch );
     virtual void paintCell( QPainter *p, int row, int col, const QRect &cr, bool selected );
@@ -231,23 +255,10 @@ private slots:
     void doAutoScroll();
 
 private:
-    struct SelectionRange
-    {
-	SelectionRange()
-	    : active( FALSE ), topRow( -1 ), leftCol( -1 ), bottomRow( -1 ),
-	      rightCol( -1 ), anchorRow( -1 ), anchorCol( -1 ) {}
-	void init( int row, int col );
-	void expandTo( int row, int col );
-	bool operator==( const SelectionRange &s ) const;
-	
-	bool active;
-	int topRow, leftCol, bottomRow, rightCol;
-	int anchorRow, anchorCol;
-    };
     enum EditMode { NotEditing, Editing, Replacing };
 
     void updateGeometries();
-    void repaintSelections( SelectionRange *oldSelection, SelectionRange *newSelection,
+    void repaintSelections( QTableSelection *oldSelection, QTableSelection *newSelection,
 			    bool updateVertical = TRUE, bool updateHorizontal = TRUE );
     QRect rangeGeometry( int topRow, int leftCol, int bottomRow, int rightCol, bool &optimize );
     void fixRow( int &row, int y );
@@ -266,8 +277,8 @@ private:
     QTableHeader *leftHeader, *topHeader;
     EditMode edMode;
     int editCol, editRow;
-    QList<SelectionRange> selections;
-    SelectionRange *currentSelection;
+    QList<QTableSelection> selections;
+    QTableSelection *currentSelection;
     QTimer *autoScrollTimer;
     bool sGrid, mRows, mCols;
     int lastSortCol;
