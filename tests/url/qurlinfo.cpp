@@ -15,16 +15,16 @@ struct QUrlInfoPrivate
     bool isWritable;
     bool isReadable;
     bool isExecutable;
-};   
+};
 
 
-QUrlInfo::QUrlInfo( const QUrl &url, int permissions, const QString &owner,
+QUrlInfo::QUrlInfo( const QString &name, int permissions, const QString &owner,
 		    const QString &group, uint size, const QDateTime &lastModified,
 		    const QDateTime &lastRead, bool isDir, bool isFile, bool isSymLink,
 		    bool isWritable, bool isReadable, bool isExecutable )
 {
     d = new QUrlInfoPrivate;
-    d->name = QFileInfo( url.path() ).fileName(); //### is this ok?
+    d->name = name;
     d->permissions = permissions;
     d->owner = owner;
     d->group = group;
@@ -43,7 +43,7 @@ QUrlInfo::QUrlInfo( const QUrl &path, const QString &file )
 {
     // ### todo
 }
-    
+
 QUrlInfo::QUrlInfo( const QUrlInfo &ui )
 {
     d = new QUrlInfoPrivate;
@@ -109,7 +109,7 @@ bool QUrlInfo::isFile() const
 bool QUrlInfo::isSymLink() const
 {
     return d->isSymLink;
-}  
+}
 
 bool QUrlInfo::isWritable() const
 {
@@ -124,4 +124,18 @@ bool QUrlInfo::isReadable() const
 bool QUrlInfo::isExecutable() const
 {
     return d->isExecutable;
+}
+
+QString QUrlInfo::makeUrl( const QUrl &path, bool withProtocolWhenLocal )
+{
+    QString url = QString::null;
+    if ( path.isLocalFile() ) {
+	if ( withProtocolWhenLocal ) {
+	    url = path.protocol();
+	    url += "://";
+	}
+	url += path.path();
+    } else
+	;// ### todo
+
 }

@@ -1,4 +1,5 @@
 #include "qurl.h"
+#include "qurlinfo.h"
 
 #include <stdio.h>
 #include <assert.h>
@@ -17,6 +18,7 @@ struct QUrlPrivate
     QString queryEncoded;
     bool isMalformed;
     int port;
+    QString nameFilter;
 };
 
 /*!
@@ -45,6 +47,7 @@ QUrl::QUrl()
 {
     d = new QUrlPrivate;
     d->isMalformed = TRUE;
+    d->nameFilter = "*";
 }
 
 QUrl::QUrl( const QString& url )
@@ -53,6 +56,7 @@ QUrl::QUrl( const QString& url )
     // Assume the default protocol
     d->protocol = "file";
     d->port = -1;
+    d->nameFilter = "*";
 
     QString tmp = url.stripWhiteSpace();
     parse( tmp );
@@ -94,8 +98,7 @@ QUrl::QUrl( const QUrl& url, const QString& relUrl_ )
 	*this = url;
 	int pos = relUrl.find( '#' );
 	QString tmp;
-	if ( pos == -1 )
-	{
+	if ( pos == -1 ) {
 	    tmp = relUrl;
 	    setRef( "" );
 	} else {
@@ -105,6 +108,7 @@ QUrl::QUrl( const QUrl& url, const QString& relUrl_ )
 	decode( tmp );
 	setFileName( tmp );
     }
+    d->nameFilter = "*";
 }
 
 QUrl::~QUrl()
@@ -766,9 +770,32 @@ void QUrl::decode( QString& url )
 void QUrl::listEntries( int filterSpec = QDir::DefaultFilter,
 			int sortSpec   = QDir::DefaultSort )
 {
+    listEntries( d->nameFilter, filterSpec, sortSpec );
 }
- 
+
 void QUrl::listEntries( const QString &nameFilter, int filterSpec = QDir::DefaultFilter,
 			int sortSpec   = QDir::DefaultSort )
 {
+    if ( isLocalFile() ) {
+	QDir dir( d->path );
+	const QFileInfoList *filist = dir.entryInfoList( nameFilter, filterSpec, sortSpec );
+	QFileInfoListIterator it( *filist );
+	QFileInfo *fi;
+	while ( ( fi = it.current()) != 0 ) {
+	    QUrlInfo inf( fi->fileName(), 0/*permissions*/, fi->owner(), fi->group(),
+			  fi->size(), fi->lastModified(), fi->lastRead(), fi->isDir(), fi->isFile(),
+			  fi->isSymLink(), fi->isWritable(), fi->isReadable(), fi->isExecutable() );
+	    emit entry( inf );
+	}
+    }
+}
+
+void QUrl::setNameFilter( const QString &nameFilter )
+{
+    d->nameFilter = nameFilter;
+}
+
+QString QUrl::nameFilter() const
+{
+    return d->nameFilter;
 }

@@ -81,6 +81,9 @@ public:
     void listEntries( const QString &nameFilter, int filterSpec = QDir::DefaultFilter,
 		      int sortSpec   = QDir::DefaultSort );
     
+    void setNameFilter( const QString &nameFilter );
+    QString nameFilter() const;
+    
 signals:
     void entry( const QUrlInfo & );
     void error( int, const QString & );
