@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/richtextedit/qformatstuff.cpp#6 $
+** $Id: //depot/qt/main/tests/richtextedit/qformatstuff.cpp#7 $
 **
 ** Definition of the QtTextView class
 **
@@ -57,7 +57,7 @@ QtTextCharFormat &QtTextCharFormat::operator=( const QtTextCharFormat &fmt )
     key = fmt.key;
     ref = 1;
     customItem_ = fmt.customItem_;
-    
+
     return *this;
 }
 
@@ -71,9 +71,9 @@ QFont QtTextCharFormat::font() const
     return font_;
 }
 
-QtTextCustomItem *QtTextCharFormat::customItem() const 
-{ 
-    return customItem_; 
+QtTextCustomItem *QtTextCharFormat::customItem() const
+{
+    return customItem_;
 }
 
 int QtTextCharFormat::addRef()
@@ -106,23 +106,26 @@ QtTextCharFormat QtTextCharFormat::makeTextFormat( const QStyleSheetItem *item )
 }
 
 QtTextFormatCollection::QtTextFormatCollection()
-    : lastRegisterKey( QString::null ), lastRegisterIndex( 0 ),
+    : lastRegisterFormat( 0 ), lastRegisterIndex( 0 ),
       lastFormatIndex( 0 ), lastFormatFormat( 0 )
 {
 }
 
 ushort QtTextFormatCollection::registerFormat( const QtTextCharFormat &format )
 {
-    if ( !lastRegisterKey.isEmpty() ) {
-        if ( format.key == lastRegisterKey )
+    if ( lastRegisterFormat ) {
+        if ( format.key == lastRegisterFormat->key ) {
+            lastRegisterFormat->addRef();
             return lastRegisterIndex;
+        }
     }
-    
+
     if ( cKey.contains( format.key ) ) {
-        cKey[ format.key ]->addRef();
+        QtTextCharFormat *f = cKey[ format.key ];
+        f->addRef();
         qDebug( "registerFormat (%s): found at index %d", format.key.latin1(), cKeyIndex[ format.key ] );
         int i = cKeyIndex[ format.key ];
-        lastRegisterKey = format.key;
+        lastRegisterFormat = f;
         lastRegisterIndex = i;
         return i;
     } else {
@@ -132,7 +135,7 @@ ushort QtTextFormatCollection::registerFormat( const QtTextCharFormat &format )
         cIndex[ i ] = f;
         cKeyIndex[ f->key ] = i;
         qDebug( "registerFormat (%s): added at index %d", format.key.latin1(), i );
-        lastRegisterKey = format.key;
+        lastRegisterFormat = f;
         lastRegisterIndex = i;
         return i;
     }
@@ -162,7 +165,7 @@ QtTextCharFormat QtTextFormatCollection::format( ushort index )
 
     lastFormatFormat = cIndex[ index ];
     lastFormatIndex = index;
-    
+
     return *lastFormatFormat;
 }
 

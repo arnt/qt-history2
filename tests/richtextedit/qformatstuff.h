@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/richtextedit/qformatstuff.h#5 $
+** $Id: //depot/qt/main/tests/richtextedit/qformatstuff.h#6 $
 **
 ** Definition of the QtTextView class
 **
@@ -55,7 +55,7 @@ public:
     int removeRef();
 
     QtTextCustomItem *customItem() const;
-    
+
 protected:
     QFont font_;
     QColor color_;
@@ -87,11 +87,11 @@ protected:
     QMap< int, QtTextCharFormat* > cIndex;
     QMap< QString, int > cKeyIndex;
 
-    QString lastRegisterKey;
+    QtTextCharFormat *lastRegisterFormat;
     ushort lastRegisterIndex;
     ushort lastFormatIndex;
     QtTextCharFormat *lastFormatFormat;
-    
+
 };
 
 #endif
