@@ -12366,8 +12366,8 @@ char* QString::unicodeToAscii(const QChar *uc, uint l)
   \ingroup tools
   \ingroup shared
 
-  QString uses \link shclass.html implicit sharing\endlink, and so it
-  is very efficient and easy to use.
+  QString uses \link shclass.html implicit sharing\endlink, which makes it
+  very efficient and easy to use.
 
   In all of the QString methods that take <var>const char*</var> parameters,
   the <var>const char*</var> is interpreted as a classic C-style
@@ -12390,6 +12390,45 @@ char* QString::unicodeToAscii(const QChar *uc, uint l)
   uncertain.  If the data is NUL-terminated 8-bit data, use QCString;
   if it is unterminated (i.e., contains NULs) 8-bit data, use QByteArray;
   if it is text, use QString.
+
+  <b>Note for C programmers</b>
+
+    Due to C++'s type system and the fact that QString is implicitly
+    shared, QStrings may be treated like ints or other simple base types.
+    For example:
+
+    \code
+    QString boolToString( bool b )
+    {
+	QString result;
+	if ( b )
+	    result = "True"; 
+	else
+	    result = "False";
+	return result;
+    }
+    \endcode
+
+    The variable, result, is an auto variable allocated on the stack.
+    When return is called, because we're returning by value, The copy
+    constructor is called and a copy of the string is returned. (No
+    actual copying takes place because of the implicit sharing, see
+    below.)
+
+    Throughout Qt's source code you will encounter QString usages like this:
+    \code
+    QString func( const QString& input )
+    {
+	QString output = input;
+	// process output
+	return output;
+    }
+    \endcode
+
+    The 'copying' of input to output is almost as fast as copying a
+    pointer because behind the scenes copying is achieved by
+    incrementing a reference count. QString operates on a copy-on-write
+    basis, only copying if an instance is actually changed.
 
   \sa QChar
 */
