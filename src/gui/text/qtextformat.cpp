@@ -20,23 +20,6 @@
 #include <qmap.h>
 #include <qhash.h>
 
-// remove only when you are sure that the implicit registration via
-// qVariantGet/qVariantSet also registers the streaming operators
-// ... and that the types are registered when operator >> gets called
-static int registerTextLengthType()
-{
-    int id = qRegisterMetaType<QTextLength>("Qt/QTextLength");
-    qRegisterMetaTypeStreamOperators<QTextLength>("Qt/QTextLength");
-    return id;
-}
-
-static int registerTextLengthVectorType()
-{
-    int id = qRegisterMetaType<QVector<QTextLength> >("Qt/QVector<QTextLength>");
-    qRegisterMetaTypeStreamOperators<QVector<QTextLength> >("Qt/QVector<QTextLength>");
-    return id;
-}
-
 /*!
     \class QTextLength qtextformat.h
     \brief The QTextLength class encapsulates the different types of length
@@ -165,11 +148,6 @@ public:
 
     inline void load(QDataStream &stream)
     {
-        static int typeId1 = registerTextLengthType();
-        static int typeId2 = registerTextLengthVectorType();
-        Q_UNUSED(typeId1);
-        Q_UNUSED(typeId2);
-
         stream >> type >> props;
     }
 
@@ -655,11 +633,16 @@ QTextLength QTextFormat::lengthProperty(int propertyId) const
 */
 QVector<QTextLength> QTextFormat::lengthVectorProperty(int propertyId) const
 {
-    static int typeId = registerTextLengthVectorType();
-    Q_UNUSED(typeId);
     const QVariant prop = d->properties().value(propertyId);
+
     QVector<QTextLength> vector;
-    qVariantGet(prop, vector, "Qt/QVector<QTextLength>");
+    if (prop.type() != QVariant::List)
+        return vector;
+
+    foreach (QVariant var, prop.toList())
+        if (var.type() == QVariant::TextLength)
+            vector.append(var.toTextLength());
+
     return vector;
 }
 
@@ -750,11 +733,10 @@ void QTextFormat::setProperty(int propertyId, const QTextLength &value)
 */
 void QTextFormat::setProperty(int propertyId, const QVector<QTextLength> &value)
 {
-    static int typeId = registerTextLengthVectorType();
-    Q_UNUSED(typeId);
-    QVariant v;
-    qVariantSet(v, value, "Qt/QVector<QTextLength>");
-    d->insertProperty(propertyId, v);
+    QVariantList list;
+    foreach (QTextLength length, value)
+        list << QVariant(length);
+    d->insertProperty(propertyId, list);
 }
 
 /*!
