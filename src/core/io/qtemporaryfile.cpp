@@ -20,9 +20,6 @@
 #include <stdlib.h>
 #include <errno.h>
 
-#define d d_func()
-#define q q_func()
-
 #ifndef Q_OS_WIN
 # define HAS_MKSTEMP
 #endif
@@ -44,9 +41,10 @@ public:
     bool open(int flags);
 };
 
-bool
-QTemporaryFileEngine::open(int)
+bool QTemporaryFileEngine::open(int)
 {
+    Q_D(QFSFileEngine);
+
     QString qfilename = d->file;
     if(!qfilename.endsWith(QLatin1String("XXXXXX")))
         qfilename += QLatin1String(".XXXXXX");
@@ -130,6 +128,7 @@ QTemporaryFilePrivate::~QTemporaryFilePrivate()
 */
 QTemporaryFile::QTemporaryFile() : QFile(*new QTemporaryFilePrivate)
 {
+    Q_D(QTemporaryFile);
     d->templateName = QDir::tempPath() + QLatin1String("qt_temp.XXXXXX");
 }
 
@@ -144,6 +143,7 @@ QTemporaryFile::QTemporaryFile() : QFile(*new QTemporaryFilePrivate)
 */
 QTemporaryFile::QTemporaryFile(const QString &templateName) : QFile(*new QTemporaryFilePrivate)
 {
+    Q_D(QTemporaryFile);
     d->templateName = templateName;
 }
 
@@ -156,6 +156,7 @@ QTemporaryFile::QTemporaryFile(const QString &templateName) : QFile(*new QTempor
 */
 QTemporaryFile::~QTemporaryFile()
 {
+    Q_D(QTemporaryFile);
     close();
     if(d->autoRemove)
         remove();
@@ -182,9 +183,9 @@ QTemporaryFile::~QTemporaryFile()
 
    \sa QTemporaryFile::setAutoRemove(), QTemporaryFile::remove()
 */
-bool
-QTemporaryFile::autoRemove() const
+bool QTemporaryFile::autoRemove() const
 {
+    Q_D(const QTemporaryFile);
     return d->autoRemove;
 }
 
@@ -193,9 +194,9 @@ QTemporaryFile::autoRemove() const
 
     \sa QTemporarFile::autoRemove(), QTemporaryFile::remove()
 */
-void
-QTemporaryFile::setAutoRemove(bool b)
+void QTemporaryFile::setAutoRemove(bool b)
 {
+    Q_D(QTemporaryFile);
     d->autoRemove = b;
 }
 
@@ -208,8 +209,7 @@ QTemporaryFile::setAutoRemove(bool b)
    \sa QTemporary::fileTemplate()
 */
 
-QString
-QTemporaryFile::fileName() const
+QString QTemporaryFile::fileName() const
 {
     if(!isOpen())
         return QString::null;
@@ -222,9 +222,9 @@ QTemporaryFile::fileName() const
 
   \sa QTemporaryFile::setFileTemplate()
 */
-QString
-QTemporaryFile::fileTemplate() const
+QString QTemporaryFile::fileTemplate() const
 {
+    Q_D(const QTemporaryFile);
     return d->templateName;
 }
 
@@ -236,10 +236,10 @@ QTemporaryFile::fileTemplate() const
 
    \sa QTemporaryFile::fileTemplate()
 */
-void
-QTemporaryFile::setFileTemplate(const QString &name)
+void QTemporaryFile::setFileTemplate(const QString &name)
 {
     Q_ASSERT(!isOpen());
+    Q_D(QTemporaryFile);
     fileEngine()->setFileName(name);
     d->templateName = name;
 }
@@ -256,8 +256,7 @@ QTemporaryFile::setFileTemplate(const QString &name)
     Creates and returns a local temporary file whose contents are a
     copy of the contens of the given \a file.
 */
-QTemporaryFile
-*QTemporaryFile::createLocalFile(QFile &file)
+QTemporaryFile *QTemporaryFile::createLocalFile(QFile &file)
 {
     if(QFileEngine *engine = file.fileEngine()) {
         if(engine->fileFlags(QFileEngine::FlagsMask) & QFileEngine::LocalDiskFlag)
@@ -296,9 +295,9 @@ QTemporaryFile
    \reimp
 */
 
-QFileEngine
-*QTemporaryFile::fileEngine() const
+QFileEngine *QTemporaryFile::fileEngine() const
 {
+    Q_D(const QTemporaryFile);
     if(!d->fileEngine)
         d->fileEngine = new QTemporaryFileEngine(d->templateName);
     return d->fileEngine;
@@ -308,9 +307,9 @@ QFileEngine
    \reimp
 */
 
-bool
-QTemporaryFile::open(int mode)
+bool QTemporaryFile::open(int mode)
 {
+    Q_D(QTemporaryFile);
     if(QFile::open(mode)) {
         d->fileName = d->fileEngine->fileName(QFileEngine::DefaultName);
         return true;
