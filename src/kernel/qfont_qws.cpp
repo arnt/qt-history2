@@ -430,7 +430,7 @@ int QFontPrivate::textWidth( const QString &str, int pos, int len,
 {
     // 1. split up into runs
     const QChar *uc = str.unicode() + pos;
-    Script currs = QFontPrivate::NoScript, tmp;
+    QFont::Script currs = QFont::NoScript, tmp;
     int i;
 
     int currw = 0;

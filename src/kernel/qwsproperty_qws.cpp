@@ -53,9 +53,9 @@ public:
     };
     Property* find( int winId, int property )
     {
-	QIntDict<QWSPropertyManagerData::Property>* wp = properties.find(winId);
+	QIntDict<Property>* wp = properties.find(winId);
 	if ( !wp ) return 0;
-	QWSPropertyManagerData::Property* prop = wp->find(property);
+	Property* prop = wp->find(property);
 	return prop;
     }
 

@@ -1,9 +1,11 @@
 #ifndef QUCOM_H
 #define QUCOM_H
 
+#ifndef QT_H
 #include <qcom.h>
 #include <qstring.h>
 #include <qvariant.h>
+#endif // QT_H
 
 
 

@@ -78,7 +78,11 @@ QPrinter::QPrinter( PrinterMode m )
     to_edge	= FALSE;
     switch ( m ) {
 	case ScreenResolution:
+#ifdef Q_WS_QWS
+	    res = 72;
+#else
 	    res = QPaintDevice::x11AppDpiY();
+#endif
 	    break;
 	case Compatible:
 	case PrinterResolution:

@@ -2,6 +2,8 @@
 #include "qwsdisplay_qws.h"
 #include <unistd.h>
 
+#if 0 // needs stuff from Qt 2.3.0 to be integrated in
+
 static int nextid=0;
 
 class QTrayIcon::QTrayIconPrivate : public QCopChannel {
@@ -90,3 +92,23 @@ void QTrayIcon::sysUpdateToolTip()
 }
 
 #include "qtrayicon_qws.moc"
+
+#else
+
+void QTrayIcon::sysInstall()
+{
+}
+
+void QTrayIcon::sysRemove()
+{
+}
+
+void QTrayIcon::sysUpdateIcon()
+{
+}
+
+void QTrayIcon::sysUpdateToolTip()
+{
+}
+
+#endif

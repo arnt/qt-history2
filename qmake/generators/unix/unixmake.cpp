@@ -523,7 +523,7 @@ UnixMakefileGenerator::init()
     }
     project->variables()["QMAKE_FILETAGS"] += QStringList::split("HEADERS SOURCES TARGET DESTDIR", " ");
     if ( !project->variables()["PRECOMPH"].isEmpty() ) {
-	project->variables()["SOURCES"].append(project->variables()["MOC_DIR"].first() + "allmoc.cpp");
+	project->variables()["SOURCES"].append(project->variables()["MOC_DIR"].first() + "/allmoc.cpp");
 	project->variables()["HEADERS_ORIG"] = project->variables()["HEADERS"];
 	project->variables()["HEADERS"].clear();
     }

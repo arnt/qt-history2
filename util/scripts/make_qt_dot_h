@@ -3,6 +3,10 @@
 use File::Find;
 
 @IGNORE = qw {
+    qfiledefs_p.h
+    qinputcontext_p.h
+    ucom.h
+    mwerks_mac.h
     qthread_p.h
     qmodules.h
     moc_yacc.h
@@ -26,6 +30,7 @@ use File::Find;
     qfeatures.h
     q1xcompatibility.h
     qt_mac.h
+    qt_mac9.h
     qt_x11.h
     qt_windows.h
     qgfxmach64defs_qws.h

@@ -569,7 +569,7 @@ void QWidget::setIconText( const QString &iconText )
 
 void QWidget::setAccessibilityHint( const QString &hint )
 {
-    if ( topLevel() )
+    if ( isTopLevel() )
 	return;
 
     if ( !extra )
@@ -1541,3 +1541,7 @@ void QWidget::updateFrameStrut() const
     //FIXME: need to fill in frame strut info
 }
 
+// This one 
+void QWidget::resetInputContext()
+{
+}
