@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qlayout.h#11 $
+** $Id: //depot/qt/main/src/kernel/qlayout.h#12 $
 **
 ** Definition of layout classes
 **
@@ -22,6 +22,7 @@ struct QLayoutData;
 
 class QLayout : public QObject
 {
+    Q_OBJECT
 public:
     virtual ~QLayout();
     int defaultBorder() const { return defBorder; }
@@ -66,6 +67,7 @@ private:	// Disabled copy constructor and operator=
 
 class QBoxLayout : public QLayout
 {
+    Q_OBJECT
 public:
     enum Direction { LeftToRight, RightToLeft, TopToBottom, BottomToTop, 
 		     Down = TopToBottom, Up = BottomToTop };
@@ -107,6 +109,7 @@ private:	// Disabled copy constructor and operator=
 
 class QHBoxLayout : public QBoxLayout
 {
+    Q_OBJECT
 public:
     QHBoxLayout( QWidget *parent, int border=0,
 		int autoBorder = -1, const char *name=0 );
@@ -120,6 +123,7 @@ public:
 
 class QVBoxLayout : public QBoxLayout
 {
+    Q_OBJECT
 public:
     QVBoxLayout( QWidget *parent, int border=0,
 		int autoBorder = -1, const char *name=0 );
@@ -133,6 +137,7 @@ public:
 
 class QGridLayout : public QLayout
 {
+    Q_OBJECT
 public:
     QGridLayout( QWidget *parent, int nRows, int nCols, int border=0,
 		 int autoBorder = -1, const char *name=0 );

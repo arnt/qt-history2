@@ -60,10 +60,10 @@ OBJECTS =	qaccel.o	qapp.o		qapp_x11.o	qgmanagr.o    \
 		qnpsupport.o
 SRCMETA =	maccel.cpp	mapp.cpp	mclipbrd.cpp	mdialog.cpp   \
 		msocknot.cpp	mtimer.cpp	mwidget.cpp	mwindow.cpp   \
-		mgmanagr.cpp	masyncio.cpp	msemimodal.cpp
+		mgmanagr.cpp	masyncio.cpp	msemimodal.cpp	mlayout.cpp
 OBJMETA =	maccel.o	mapp.o		mclipbrd.o	mdialog.o     \
 		msocknot.o	mtimer.o	mwidget.o	mwindow.o     \
-		mgmanagr.o	masyncio.o	msemimodal.o
+		mgmanagr.o	masyncio.o	msemimodal.o	mlayout.o
 TARGET	=	$(LIBDIR)/libqkernel.a
 
 ####### Implicit rules
@@ -127,6 +127,9 @@ mclipbrd.cpp: qclipbrd.h
 
 mdialog.cpp: qdialog.h
 	moc qdialog.h -o mdialog.cpp
+
+mlayout.cpp: qlayout.h
+	moc qlayout.h -o mlayout.cpp
 
 msocknot.cpp: qsocknot.h
 	moc qsocknot.h -o msocknot.cpp

@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qtablevw.cpp#56 $
+** $Id: //depot/qt/main/src/widgets/qtablevw.cpp#57 $
 **
 ** Implementation of QTableView class
 **
@@ -20,7 +20,7 @@
 #include "qdrawutl.h"
 #include <limits.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qtablevw.cpp#56 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qtablevw.cpp#57 $");
 
 
 const int sbDim = 16;
@@ -920,6 +920,9 @@ void QTableView::clearTableFlags( uint f )
 
 void QTableView::setAutoUpdate( bool enable )
 {
+#if QT_VERSION == 200
+#error "Remove unused flag obsoleteUpd"
+#endif
     obsoleteUpd = enable; //### binary compatibility contortions
     if ( isUpdatesEnabled() == enable )
 	return;
