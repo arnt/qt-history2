@@ -190,6 +190,10 @@ public:
         PE_RubberBand,
         PE_RubberBandMask,
 
+        PE_ToolBarFrame,
+        PE_ToolBarHandle,
+        PE_ToolBarSeparator,
+
         // do not add any values below/greater this
         PE_CustomBase = 0xf000000
     };
@@ -432,7 +436,11 @@ public:
         PM_TabBarTabShiftVertical,
         PM_TabBarScrollButtonWidth,
 
+        PM_ToolBarFrameWidth,
+        PM_ToolBarHandleExtent,
         PM_ToolBarItemSpacing,
+        PM_ToolBarSeparatorExtent,
+
         PM_SpinBoxSliderHeight,
 
         PM_DefaultToplevelMargin,
