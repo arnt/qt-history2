@@ -472,6 +472,7 @@ private:
 #ifndef Q_OS_WIN32
     AssistProc *assistant;
 #endif
+    bool shStartDialog;
 
 public:
     QString lastSaveFilter;

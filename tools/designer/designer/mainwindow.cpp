@@ -139,6 +139,7 @@ MainWindow::MainWindow( bool asClient, bool single )
     customWidgetToolBar = customWidgetToolBar2 = 0;
     guiStuffVisible = TRUE;
     init_colors();
+    shStartDialog = TRUE;
 
     desInterface = new DesignerInterfaceImpl( this );
     desInterface->addRef();
@@ -253,7 +254,8 @@ MainWindow::MainWindow( bool asClient, bool single )
 
     statusBar()->setSizeGripEnabled( TRUE );
     set_splash_status( "Initialization Done." );
-    QTimer::singleShot( 0, this, SLOT( showStartDialog() ));
+    if ( shStartDialog )
+	QTimer::singleShot( 0, this, SLOT( showStartDialog() ));
 }
 
 MainWindow::~MainWindow()
@@ -2199,6 +2201,7 @@ void MainWindow::readConfig()
     fileFilter = config.readEntry( keybase + "FileFilter", fileFilter );
     templPath = config.readEntry( keybase + "TemplatePath", QString::null );
     databaseAutoEdit = config.readBoolEntry( keybase + "DatabaseAutoEdit", databaseAutoEdit );
+    shStartDialog = config.readBoolEntry( keybase + "ShowStartDialog", shStartDialog );
     int num;
 
     if ( restoreConfig ) {

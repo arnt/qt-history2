@@ -14,9 +14,12 @@
 #include <qmap.h>
 #include <qdatetime.h>
 #include <qapplication.h>
+#include <qsettings.h>
+#include <qcheckbox.h>
 
 #include "mainwindow.h"
 #include "startdialogimpl.h"
+#include "designerapp.h"
 
 FileDialog::FileDialog( QWidget *parent )
     : QFileDialog( parent )
@@ -52,7 +55,14 @@ StartDialog::StartDialog( QWidget *parent, const QStringList& projects,
 
 void StartDialog::accept()
 {
-    hide();
+    if ( checkShowInFuture->isChecked() ) { // means don't show it anymore
+	QSettings config;
+	// No search path for unix, only needs application name
+	config.insertSearchPath( QSettings::Windows, "/Trolltech" );
+	QString keybase = DesignerApplication::settingsKey();
+	config.writeEntry( keybase + "ShowStartDialog", FALSE );
+    }
+
     int tabindex = tabWidget->currentPageIndex();
     QString filename;
     if( !tabindex ) {
@@ -78,6 +88,7 @@ void StartDialog::accept()
 		MainWindow::self->fileOpen( "", "", filename );
 	}
     }
+
     done( Accepted );
 }
 
