@@ -875,13 +875,12 @@ QRect QGridLayoutPrivate::cellGeometry(int row, int col) const
     between cells. If \a space is -1, the value of \a margin is used.
 */
 QGridLayout::QGridLayout(QWidget *parent, int nRows, int nCols, int margin,
-                          int space, const char *name)
+                          int space)
     : QLayout(*new QGridLayoutPrivate, 0, parent)
 {
     d->expand(nRows, nCols);
     setMargin(margin);
     setSpacing(space);
-    setObjectName(name);
 }
 
 /*!
@@ -894,12 +893,11 @@ QGridLayout::QGridLayout(QWidget *parent, int nRows, int nCols, int margin,
     placement rules.
 */
 QGridLayout::QGridLayout(QLayout *parentLayout, int nRows, int nCols,
-                          int spacing, const char *name)
+                          int spacing)
     : QLayout(*new QGridLayoutPrivate, parentLayout, 0)
 {
     d->expand(nRows, nCols);
     setSpacing(spacing);
-    setObjectName(name);
 }
 
 /*!
@@ -913,6 +911,35 @@ QGridLayout::QGridLayout(QLayout *parentLayout, int nRows, int nCols,
     will not be performed before this is inserted into another layout.
 */
 QGridLayout::QGridLayout(int nRows, int nCols,
+                          int spacing)
+    : QLayout(*new QGridLayoutPrivate, 0, 0)
+{
+    d->expand(nRows, nCols);
+    setSpacing(spacing);
+}
+
+
+#ifdef QT_COMPAT
+QGridLayout::QGridLayout(QWidget *parent, int nRows, int nCols, int margin,
+                          int space, const char *name)
+    : QLayout(*new QGridLayoutPrivate, 0, parent)
+{
+    d->expand(nRows, nCols);
+    setMargin(margin);
+    setSpacing(space);
+    setObjectName(name);
+}
+
+QGridLayout::QGridLayout(QLayout *parentLayout, int nRows, int nCols,
+                          int spacing, const char *name)
+    : QLayout(*new QGridLayoutPrivate, parentLayout, 0)
+{
+    d->expand(nRows, nCols);
+    setSpacing(spacing);
+    setObjectName(name);
+}
+
+QGridLayout::QGridLayout(int nRows, int nCols,
                           int spacing, const char *name)
     : QLayout(*new QGridLayoutPrivate, 0, 0)
 {
@@ -920,6 +947,8 @@ QGridLayout::QGridLayout(int nRows, int nCols,
     setSpacing(spacing);
     setObjectName(name);
 }
+#endif
+
 
 /*!
     Destroys the grid layout. Geometry management is terminated if

@@ -260,11 +260,18 @@ class Q_GUI_EXPORT QGridLayout : public QLayout
     Q_DECLARE_PRIVATE(QGridLayout)
 public:
     QGridLayout(QWidget *parent, int nRows = 1, int nCols = 1, int border = 0,
-                 int spacing = -1, const char *name = 0);
-    QGridLayout(int nRows = 1, int nCols = 1, int spacing = -1,
-                 const char *name = 0);
+                int spacing = -1);
+    QGridLayout(int nRows = 1, int nCols = 1, int spacing = -1);
     QGridLayout(QLayout *parentLayout, int nRows = 1, int nCols = 1,
-                 int spacing = -1, const char *name = 0);
+                int spacing = -1);
+
+#ifdef QT_COMPAT
+    QT_COMPAT_CONSTRUCTOR QGridLayout(QWidget *parent, int nRows, int nCols, int border,
+                                      int spacing, const char *name);
+    QT_COMPAT_CONSTRUCTOR QGridLayout(int nRows, int nCols, int spacing, const char *name);
+    QT_COMPAT_CONSTRUCTOR QGridLayout(QLayout *parentLayout, int nRows, int nCols, int spacing,
+                                      const char *name);
+#endif
     ~QGridLayout();
 
     QSize sizeHint() const;
