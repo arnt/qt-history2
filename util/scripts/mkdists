@@ -303,6 +303,8 @@ rm -rf $DISTDIR/qt/tools/designer/plugins/designer_interface_roadmap
 rm -rf $DISTDIR/qt/tools/designer/plugins/extrawidgets
 rm -rf $DISTDIR/qt/tools/designer/plugins/p4
 rm -rf $DISTDIR/qt/tools/designer/plugins/qvim
+# clean tools
+rm -rf $DISTDIR/qt/tools/inspector
 
 # Replace Netscape-owned code with dummies (direct user to PluginSDK)
 for a in `find $DISTDIR/qt/extensions/nsplugin/src -name 'np*' -o -name 'jri*'`; do
