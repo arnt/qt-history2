@@ -226,7 +226,7 @@ QStyleOptionToolButton QToolButtonPrivate::getStyleOption() const
         opt.state |= QStyle::Style_On;
     if (autoRaise)
         opt.state |= QStyle::Style_AutoRaise;
-    if (q->underMouse())
+    if (q->underMouse() && (opt.state & QStyle::Style_Enabled))
         opt.state |= QStyle::Style_MouseOver;
     if (!checked && !down)
         opt.state |= QStyle::Style_Raised;
@@ -471,8 +471,8 @@ void QToolButtonPrivate::actionTriggered()
  */
 void QToolButton::enterEvent(QEvent * e)
 {
-    if (d->autoRaise && isEnabled())
-        repaint();
+    if (d->autoRaise)
+        update();
 
     QAbstractButton::enterEvent(e);
 }
@@ -483,8 +483,8 @@ void QToolButton::enterEvent(QEvent * e)
  */
 void QToolButton::leaveEvent(QEvent * e)
 {
-    if (d->autoRaise && isEnabled())
-        repaint();
+    if (d->autoRaise)
+        update();
 
     QAbstractButton::leaveEvent(e);
 }
