@@ -181,6 +181,7 @@ QFtp::QFtp( QObject *parent, const char *name )
     if ( parent )
 	parent->insertChild( this );
     setName( name );
+    init();
 }
 
 void QFtp::init()
