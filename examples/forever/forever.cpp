@@ -59,10 +59,14 @@ void Forever::paintEvent( QPaintEvent * )
     QPainter paint( this );			// painter object
     int w = width();
     int h = height();
+    if(w <= 0 || h <= 0) 
+	return;
     paint.setPen( NoPen );			// do not draw outline
     paint.setBrush( colors[rand() % numColors]);// set random brush color
+    
     QPoint p1( rand()%w, rand()%h );	// p1 = top left
     QPoint p2( rand()%w, rand()%h );	// p2 = bottom right
+    
     QRect r( p1, p2 );
     paint.drawRect( r );			// draw filled rectangle
 }
