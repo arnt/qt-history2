@@ -10,7 +10,7 @@ struct QUrlInfoPrivate;
 class QUrlInfo
 {
 public:
-    QUrlInfo() {}
+    QUrlInfo();
     QUrlInfo( const QString &name, int permissions, const QString &owner,
 	      const QString &group, uint size, const QDateTime &lastModified,
 	      const QDateTime &lastRead, bool isDir, bool isFile, bool isSymLink,
@@ -25,6 +25,11 @@ public:
     ~QUrlInfo();
 
     void setName( const QString &name );
+    void setDir( bool b );
+    void setFile( bool b );
+    void setOwner( const QString &s );
+    void setGroup( const QString &s );
+    void setSize( uint s );
     
     QString name() const;
     int permissions() const;

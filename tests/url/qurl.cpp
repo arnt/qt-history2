@@ -1,5 +1,6 @@
 #include "qurl.h"
 #include "qurlinfo.h"
+#include "ftp.h"
 
 #include <stdio.h>
 #include <assert.h>
@@ -8,6 +9,7 @@
 #include <stdlib.h>
 
 #include <qapplication.h>
+#include <qmap.h>
 
 struct QUrlPrivate
 {
@@ -21,6 +23,9 @@ struct QUrlPrivate
     bool isMalformed;
     int port;
     QString nameFilter;
+    FTP ftp;
+    QDir dir;
+    QMap<QString, QUrlInfo> entryMap;
 };
 
 /*!
@@ -50,6 +55,8 @@ QUrl::QUrl()
     d = new QUrlPrivate;
     d->isMalformed = TRUE;
     d->nameFilter = "*";
+    connect( &d->ftp, SIGNAL( newEntry( const QUrlInfo & ) ),
+	     this, SLOT( sendNewEntry( const QUrlInfo & ) ) );
 }
 
 QUrl::QUrl( const QString& url )
@@ -59,6 +66,8 @@ QUrl::QUrl( const QString& url )
     d->protocol = "file";
     d->port = -1;
     d->nameFilter = "*";
+    connect( &d->ftp, SIGNAL( newEntry( const QUrlInfo & ) ),
+	     this, SLOT( sendNewEntry( const QUrlInfo & ) ) );
 
     QString tmp = url.stripWhiteSpace();
     parse( tmp );
@@ -75,6 +84,8 @@ QUrl::QUrl( const QUrl& url, const QString& relUrl_ )
 {
     d = new QUrlPrivate;
     QString relUrl = relUrl_.stripWhiteSpace();
+    connect( &d->ftp, SIGNAL( newEntry( const QUrlInfo & ) ),
+	     this, SLOT( sendNewEntry( const QUrlInfo & ) ) );
 
     // relUrl starts in the root ?
     if ( relUrl[0] == '/' ) {
@@ -821,13 +832,14 @@ void QUrl::listEntries( int filterSpec = QDir::DefaultFilter,
 void QUrl::listEntries( const QString &nameFilter, int filterSpec = QDir::DefaultFilter,
 			int sortSpec   = QDir::DefaultSort )
 {
+    clearEntries();
     if ( isLocalFile() ) {
 	emit start();
-	QDir dir( d->path );
-	dir.setNameFilter( nameFilter );
-	dir.setMatchAllDirs( TRUE );
+	d->dir = QDir( d->path );
+	d->dir.setNameFilter( nameFilter );
+	d->dir.setMatchAllDirs( TRUE );
 	
-	const QFileInfoList *filist = dir.entryInfoList( filterSpec, sortSpec );
+	const QFileInfoList *filist = d->dir.entryInfoList( filterSpec, sortSpec );
 	if ( !filist )
 	    return;
 	QFileInfoListIterator it( *filist );
@@ -838,8 +850,13 @@ void QUrl::listEntries( const QString &nameFilter, int filterSpec = QDir::Defaul
 			  fi->size(), fi->lastModified(), fi->lastRead(), fi->isDir(), fi->isFile(),
 			  fi->isSymLink(), fi->isWritable(), fi->isReadable(), fi->isExecutable() );
 	    emit entry( inf );
+	    addEntry( inf );
 	}
 	emit finished();
+    } else if ( d->protocol == "ftp" ) {
+	d->ftp.close();
+	d->ftp.open( d->host, 21, d->path.isEmpty() ? QString( "/" ) : d->path );
+	emit start();
     }
 }
 
@@ -885,18 +902,6 @@ void QUrl::copy( const QString &from, const QString &to )
 	    qWarning( QString( "Couldn't write file\n%1" ).arg( to ) );
 	    return;
 	}
-// 	if ( !overwriteAll ) {
-// // 	    int r = QMessageBox::warning( dia, QFileDialog::tr( "Overwrite file?" ),
-// // 					  QFileDialog::tr( "The file\n%1\nalready exists. Do you want to overwrite it?" ).arg( to ),
-// // 					  QFileDialog::tr( "&Yes" ),
-// // 					  QFileDialog::tr( "&No" ),
-// // 					  QFileDialog::tr( "Overwrite &All" ) );
-// 	    if ( r == 1 ) {
-// 		f.close();
-// 		return FALSE;
-// 	    } else if ( r == 2 )
-// 		overwriteAll = TRUE;
-// 	}
     }
 
     QFile f2( to );
@@ -953,14 +958,9 @@ QString QUrl::nameFilter() const
 
 QUrlInfo QUrl::makeInfo() const
 {
-    if ( d->protocol == "file" ) {
-	QFileInfo fi( d->path );
-	QUrlInfo inf( fi.fileName(), 0/*permissions*/, fi.owner(), fi.group(),
-			  fi.size(), fi.lastModified(), fi.lastRead(), fi.isDir(), fi.isFile(),
-			  fi.isSymLink(), fi.isWritable(), fi.isReadable(), fi.isExecutable() );
-	return inf;
-    }
-
+    if ( d->entryMap.contains( "." ) ) 
+	return d->entryMap[ "." ];
+        
     return QUrlInfo();
 }
 
@@ -968,13 +968,36 @@ QUrl::operator QString() const
 {
     if ( isLocalFile() )
 	return d->protocol + ":" + QDir::cleanDirPath( d->path );
+    else if ( d->protocol = "ftp" )
+	return d->protocol + "://" + d->host + QDir::cleanDirPath( d->path ).stripWhiteSpace(); // #### todo
     else
 	return QString::null;
 }
 
 bool QUrl::cdUp()
 {
-    addPath( ".." );
+//    addPath( ".." );
+    d->path += "/..";
     return TRUE;
 }
 
+void QUrl::sendNewEntry( const QUrlInfo &i )
+{
+    emit entry( i );
+    addEntry( i );
+}
+
+void QUrl::clearEntries()
+{
+    d->entryMap.clear();
+}
+
+void QUrl::addEntry( const QUrlInfo &i )
+{
+    d->entryMap[ i.name().stripWhiteSpace() ] = i;
+}
+
+QUrlInfo QUrl::info( const QString &entry ) const
+{
+    return d->entryMap[ entry ];
+}

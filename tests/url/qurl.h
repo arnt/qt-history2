@@ -85,11 +85,12 @@ public:
     void rename( const QString &oldname, const QString &newname );
     void copy( const QString &from, const QString &to );
     void copy( const QStringList &files, const QString &dest, bool move );
-    
+
     void setNameFilter( const QString &nameFilter );
     QString nameFilter() const;
 
     QUrlInfo makeInfo() const;
+    QUrlInfo info( const QString &entry ) const;
     operator QString() const;
 
     bool cdUp();
@@ -103,13 +104,18 @@ signals:
     void removed( const QString & );
     void couldNotDelete( const QString & );
     void itemChanged( const QString &oldname, const QString &newname );
-    
+
 protected:
     void reset();
     void parse( const QString& url );
-
+    void addEntry( const QUrlInfo &i );
+    void clearEntries();
+    
     static char hex2int( char c );
 
+protected slots:
+    void sendNewEntry( const QUrlInfo &i );
+    
 private:
     QUrlPrivate *d;
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/url/qfiledialog.cpp#15 $
+** $Id: //depot/qt/main/tests/url/qfiledialog.cpp#16 $
 **
 ** Implementation of QFileDialog class
 **
@@ -1343,10 +1343,8 @@ QFileDialogPrivate::MCItem::MCItem( QListBox * lb, QListViewItem * item, QListBo
     : QListBoxItem(), selectable( TRUE )
 {
     i = item;
-    if ( lb ) {
-	int index = lb->index( after );
-	lb->insertItem( this, ++index );
-    }
+    if ( lb )
+	lb->insertItem( this, after );
 }
 
 void QFileDialogPrivate::MCItem::setSelectable( bool sel )
@@ -1830,6 +1828,9 @@ void QFileDialog::init()
     d->preview->hide();
 
     nameEdit->setFocus();
+
+    connect( nameEdit, SIGNAL( returnPressed() ),
+	     okB, SIGNAL( clicked() ) );
 }
 
 void QFileDialog::changeMode( int id )
@@ -2005,6 +2006,17 @@ void QFileDialog::setDir( const QDir &dir )
     trySetSelection( i, d->url, FALSE );
     rereadDir();
     emit dirEntered( d->url.path() ); // same as above
+}
+
+void QFileDialog::setUrl( const QUrl &url )
+{
+    QString nf( d->url.nameFilter() );
+    d->url = url;
+    d->url.setNameFilter( nf );
+//     QUrlInfo i( d->url, nameEdit->text() );
+//     trySetSelection( i, d->url, FALSE );
+    rereadDir();
+//     emit dirEntered( d->url.path() ); // same as above
 }
 
 /*!
@@ -2925,11 +2937,13 @@ void QFileDialog::pathSelected( int )
 
 void QFileDialog::cdUpClicked()
 {
-    if ( d->url.cdUp() ) {
-	//d->url.convertToAbs();
-	emit dirEntered( d->url.path() ); // ### same
-	rereadDir();
-    }
+    setDir( d->url + "/.." );
+
+//     if ( d->url.cdUp() ) {
+// 	//d->url.convertToAbs();
+// 	emit dirEntered( d->url.path() ); // ### same
+// 	rereadDir();
+//     }
 }
 
 void QFileDialog::newFolderClicked()
@@ -3537,15 +3551,30 @@ void QFileDialog::insertEntry( const QUrlInfo &inf )
 	
     }
 
+    QListBoxItem *lbi = 0;
+    if ( inf.isDir() ) {
+	for ( unsigned int i = 0; i < d->moreFiles->count(); ++i ) {
+	    if (  ( (QFileDialogPrivate::File*)( (QFileDialogPrivate::MCItem*)d->moreFiles->item( i ) )->i )->info.isFile() )
+		break;
+	}
+	for ( unsigned int i = 0; i < d->moreFiles->count(); ++i ) {
+	    lbi = d->moreFiles->item( i );
+	    if ( ( (QFileDialogPrivate::File*)( (QFileDialogPrivate::MCItem*)d->moreFiles->item( i ) )->i )->info.name() < inf.name() ) {
+		break;
+	    }
+	}
+    } else {
+    }
+
+
     QFileDialogPrivate::File * i = 0;
     QFileDialogPrivate::MCItem *i2 = 0;
     if ( item )
-	i = new QFileDialogPrivate::File(d, &inf ,files, item );
+	i = new QFileDialogPrivate::File(d, &inf, files, item );
     else
-	i = new QFileDialogPrivate::File(d, &inf ,files );
-    if ( item )
-	i2 = new QFileDialogPrivate::MCItem( d->moreFiles, i, 
-					     ( (QFileDialogPrivate::File*)item )->i );
+	i = new QFileDialogPrivate::File(d, &inf, files );
+    if ( lbi )
+	i2 = new QFileDialogPrivate::MCItem( d->moreFiles, i, lbi );
     else
 	i2 = new QFileDialogPrivate::MCItem( d->moreFiles, i );
 	

@@ -1,9 +1,11 @@
 TEMPLATE	= app
 CONFIG		= qt warn_on release
-HEADERS		= qfiledialog.h \
+HEADERS		= ftp.h \
+		  qfiledialog.h \
 		  qurl.h \
 		  qurlinfo.h
-SOURCES		= main.cpp \
+SOURCES		= ftp.cpp \
+		  main.cpp \
 		  qfiledialog.cpp \
 		  qurl.cpp \
 		  qurlinfo.cpp

@@ -60,11 +60,16 @@ QUrlInfo::QUrlInfo( const QUrl &url, int permissions, const QString &owner,
     d->isExecutable = isExecutable;
 }
 
+QUrlInfo::QUrlInfo()
+{
+    d = new QUrlInfoPrivate;
+}
+
 QUrlInfo::QUrlInfo( const QUrl &path, const QString &file )
 {
     d = new QUrlInfoPrivate;
     QUrl u( path, file );
-    QUrlInfo inf = u.makeInfo();
+    QUrlInfo inf = path.info( file );
     *d = *inf.d;
 }
 
@@ -77,6 +82,31 @@ QUrlInfo::QUrlInfo( const QUrlInfo &ui )
 void QUrlInfo::setName( const QString &name )
 {
     d->name = name;
+}
+
+void QUrlInfo::setDir( bool b )
+{
+    d->isDir = b;
+}
+
+void QUrlInfo::setFile( bool b )
+{
+    d->isFile = b;
+}
+
+void QUrlInfo::setOwner( const QString &s )
+{
+    d->owner = s;
+}
+
+void QUrlInfo::setGroup( const QString &s )
+{
+    d->group = s;
+}
+
+void QUrlInfo::setSize( uint s )
+{
+    d->size = s;
 }
 
 QUrlInfo::~QUrlInfo()
@@ -165,8 +195,9 @@ QString QUrlInfo::makeUrl( const QUrl &path, bool withProtocolWhenLocal ) const
 	}
 	url = path.path();
 	url += "/" + d->name;
-    } else
-	;// ### todo
+    } else if ( path.protocol() == "ftp" ) {
+	url = path.protocol() + "://" + path.host() + path.path() + "/" +d->name;
+    }
 
     return url;
 }

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/url/qfiledialog.h#6 $
+** $Id: //depot/qt/main/tests/url/qfiledialog.h#7 $
 **
 ** Definition of QFileDialog class
 **
@@ -235,9 +235,10 @@ public:
     void setPreviewMode( bool info, bool contents );
     void setInfoPreviewWidget( QWidget *w );
     void setContentsPreviewWidget( QWidget *w );
-    
-    QUrl url() const;
 
+    QUrl url() const;
+    void setUrl( const QUrl &url );
+    
 public slots:
     void setDir( const QString& );
     void setFilter( const QString& );
@@ -249,7 +250,7 @@ signals:
     void fileSelected( const QString& );
     void dirEntered( const QString& );
     void showPreview( const QUrl &, const QUrlInfo & );
-    
+
 protected slots:
     void detailViewSelectionChanged();
     void listBoxSelectionChanged();
