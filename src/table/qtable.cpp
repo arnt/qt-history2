@@ -3931,6 +3931,27 @@ bool QTable::isEditing() const
     return edMode != NotEditing;
 }
 
+/*! Returns the current edit mode */
+
+QTable::EditMode QTable::editMode() const
+{
+    return edMode;
+}
+
+/*! Returns the current edited row */
+
+int QTable::currEditRow() const
+{
+    return editRow;
+}
+
+/*! Returns the current edited column */
+
+int QTable::currEditCol() const
+{
+    return editCol;
+}
+
 /*!
     Returns a single integer which identifies a particular \a row and \a
     col by mapping the 2D table to a 1D array.

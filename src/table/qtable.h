@@ -389,6 +389,10 @@ protected:
     int indexOf( int row, int col ) const;
 
     void windowActivationChange( bool );
+    bool isEditing() const;
+    EditMode editMode() const;
+    int currEditRow() const;
+    int currEditCol() const;
 
 protected slots:
     virtual void columnWidthChanged( int col );
@@ -426,7 +430,6 @@ private:
 
     void init( int numRows, int numCols );
     QSize tableSize() const;
-    bool isEditing() const;
     void repaintCell( int row, int col );
     void contentsToViewport2( int x, int y, int& vx, int& vy );
     QPoint contentsToViewport2( const QPoint &p );
