@@ -578,8 +578,8 @@ QSize QLabelPrivate::sizeForWidth(int w) const
     int xw = fm.width('x');
     if (!mov && !pix && !pic) {
         int m = extraMargin;
-        if (m < 0 && hextra) // no indent, but we do have a frame
-            m = xw / 2 - d->margin;
+        if (m < 0 && frameWidth) // no indent, but we do have a frame
+            m = (xw / 2 - d->margin) * 2;
         if (m >= 0) {
             int horizAlign = QStyle::horizontalAlignment(q->layoutDirection(), QFlag(d->align));
             if ((horizAlign & Qt::AlignLeft) || (horizAlign & Qt::AlignRight))
