@@ -882,36 +882,36 @@ QMenuBar::eventFilter(QObject *object, QEvent *event)
 
     QWidget *widget = (QWidget *)object;
     QKeyEvent *ke = (QKeyEvent *)event;
-//#ifndef QT_NO_ACCEL
-//    // look for Alt press and Alt-anything press
-//    if(event->type() == QEvent::Accel || event->type() == QEvent::KeyPress) {
-//        QWidget *f = widget->focusWidget();
-//        // ### this thinks alt and meta are the same
-//        if(ke->key() == Key_Alt || ke->key() == Key_Meta) {
-//            if(d->altPressed) { //eat first alt
-//                d->altPressed = false;
-//                if(!widget->isTopLevel())
-//                    object->removeEventFilter(this);
-//                ke->accept();
-//                return true;
-//            } else if(hasFocus()) {             // Menu has focus, send focus back
-//                d->setKeyboardMode(false);
-//                ke->accept();
-//                return true;
-//            } else if(ke->stateAfter() == AltButton) {  // Start waiting for Alt release on focus widget
-//                d->altPressed = true;
-//                if(f && f != object)
-//                    f->installEventFilter(this);
-//            }
-//        } else if(ke->key() == Key_Control || ke->key() == Key_Shift) {        // Other modifiers kills focus on menubar
-//            d->setKeyboardMode(false);
-//        } else {         // Got other key, no need to wait for Alt release
-//            d->altPressed = false;
-//        }
-//        d->setCurrentAction(0);
-//        return false;
-//    }
-//#endif
+#ifndef QT_NO_SHORTCUT
+    // look for Alt press and Alt-anything press
+    if(event->type() == QEvent::Shortcut || event->type() == QEvent::KeyPress) {
+        QWidget *f = widget->focusWidget();
+        // ### this thinks alt and meta are the same
+        if(ke->key() == Key_Alt || ke->key() == Key_Meta) {
+            if(d->altPressed) { //eat first alt
+                d->altPressed = false;
+                if(!widget->isTopLevel())
+                    object->removeEventFilter(this);
+                ke->accept();
+                return true;
+            } else if(hasFocus()) {             // Menu has focus, send focus back
+                d->setKeyboardMode(false);
+                ke->accept();
+                return true;
+            } else if(ke->stateAfter() == AltButton) {  // Start waiting for Alt release on focus widget
+                d->altPressed = true;
+                if(f && f != object)
+                    f->installEventFilter(this);
+            }
+        } else if(ke->key() == Key_Control || ke->key() == Key_Shift) {        // Other modifiers kills focus on menubar
+            d->setKeyboardMode(false);
+        } else {         // Got other key, no need to wait for Alt release
+            d->altPressed = false;
+        }
+        d->setCurrentAction(0);
+        return false;
+    }
+#endif
     if(((QWidget*)object)->focusWidget() == object || (object->parent() == 0 && ((QWidget*)object)->focusWidget() == 0)) {
         if(d->altPressed && event->type() == QEvent::KeyRelease && (ke->key() == Key_Alt || ke->key() == Key_Meta)) {    //alt release
             d->setKeyboardMode(true);

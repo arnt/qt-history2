@@ -845,7 +845,6 @@ bool QMenuBar::macUpdateMenuBar()
     if(!mb)
         mb = QMenuBarPrivate::QMacMenuBarPrivate::fallback;
     //now set it
-    static bool first = true;
     bool ret = false;
     if(mb) {
         if(MenuRef menu = mb->macMenu()) {
@@ -859,9 +858,12 @@ bool QMenuBar::macUpdateMenuBar()
         qt_mac_create_menu_event_handler();
         ret = true;
 #endif
-    } else if(first || fall_back_to_empty) {
-        first = false;
-        qt_mac_clear_menubar();
+    } else if(fall_back_to_empty) {
+        static bool first = true;
+        if(first) {
+            first = false;
+            qt_mac_clear_menubar();
+        }
     }
     return ret;
 }
