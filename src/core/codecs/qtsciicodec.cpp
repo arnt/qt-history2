@@ -77,10 +77,19 @@ static unsigned int qt_TSCIIToUnicode(unsigned int code, uint *s);
 
 #define IsTSCIIChar(c)        (((c) >= 0x80) && ((c) <= 0xfd))
 
+/*!
+    Destroys the text codec object.
+*/
 QTsciiCodec::~QTsciiCodec()
 {
 }
 
+/*!
+    Converts the first \a len characters in \a uc from Unicode to this
+    encoding, and returns the result in a byte array. The \a state contains
+    some conversion flags, and is used by the codec to maintain state
+    information.
+*/
 QByteArray QTsciiCodec::convertFromUnicode(const QChar *uc, int len, ConverterState *state) const
 {
     char replacement = '?';
@@ -123,6 +132,12 @@ QByteArray QTsciiCodec::convertFromUnicode(const QChar *uc, int len, ConverterSt
     return rstr;
 }
 
+/*!
+    Converts the first \a len characters in \a chars from this encoding
+    to Unicode, and returns the result in a QString. The \a state contains
+    some conversion flags, and is used by the codec to maintain state
+    information.
+*/
 QString QTsciiCodec::convertToUnicode(const char* chars, int len, ConverterState *state) const
 {
     QChar replacement = QChar::ReplacementCharacter;
@@ -165,11 +180,21 @@ QString QTsciiCodec::convertToUnicode(const char* chars, int len, ConverterState
     return result;
 }
 
+/*!
+    Returns the official name for the encoding that is handled by the codec.
+
+    \sa QTextCodec::name()
+*/
 QByteArray QTsciiCodec::name() const
 {
     return "TSCII";
 }
 
+/*!
+    Returns the MIB enum for the encoding.
+
+    \sa QTextCodec::mibEnum()
+*/
 int QTsciiCodec::mibEnum() const
 {
   /* There is no MIBEnum for TSCII now */

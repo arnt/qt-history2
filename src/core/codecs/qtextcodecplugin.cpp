@@ -38,9 +38,15 @@
 /*!
     \fn QStringList QTextCodecPlugin::names() const
 
-    Returns the list of mime names and aliases supported by this plugin.
+    Returns the list of MIME names and aliases supported by this plugin.
 
     \sa createForName()
+*/
+
+/*!
+    \fn QList<QByteArray> QTextCodecPlugin::aliases() const
+
+    Returns the list of aliases supported by this plugin.
 */
 
 /*!
