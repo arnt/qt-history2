@@ -60,6 +60,8 @@ using namespace std;
 Program::Program()
 {
     ops.setAutoDelete( TRUE );
+    pendingLabel = 0;
+    dirty = FALSE;
 }
 
 
@@ -73,6 +75,11 @@ Program::~Program()
 }
 
 
+void Program::appendLabel( int lab )
+{
+    pendingLabel = lab;
+}
+
 /*!  Appends \a op to the program listing.  The program takes
 ownership of the pointer.
 
@@ -81,6 +88,11 @@ ownership of the pointer.
 void Program::append( qdb::Op* op )
 {
     ops.append( op );
+    dirty = TRUE;
+    if ( pendingLabel != 0 ) {
+	op->setLabel( pendingLabel );
+	pendingLabel = 0;
+    }
 }
 
 
@@ -93,29 +105,47 @@ void Program::append( qdb::Op* op )
 void Program::remove( uint i )
 {
     ops.remove( i );
+    dirty = TRUE;
 }
 
 
-/*!
+/*! Removes all operations.
 
 */
 
 void Program::clear()
 {
     ops.clear();
+    dirty = TRUE;
 }
 
 
 /*! sets the program counter so that \a i is the next instruction to
-be executed. If \a i is negative, it is interpreted as a label. See
-getLabel().
+be executed. If \a i is negative, it is interpreted as a label.
 
 */
 
 void Program::setCounter( int i )
 {
-    if ( i < 0 )
+    if ( i < 0 ) {
+	if ( dirty ) {
+	    int instrNo = 0;
+	    qdb::Op *op = ops.first();
+	    while ( op != 0 ) {
+		if ( op->label() < 0 ) {
+		    int n = -( op->label() + 1 );
+		    if ( (int) counters.size() < n + 1 )
+			counters.resize( n + 1 );
+		    counters[n] = instrNo;
+		}
+		instrNo++;
+		op = ops.next();
+	    }
+	    dirty = FALSE;
+	}
+
 	i = counters[-(i + 1)];
+    }
     pc = i - 1;
 }
 
@@ -140,29 +170,6 @@ int Program::counter()
     return pc;
 }
 
-
-/*! Allocates a label.  A label is an alias for an instruction
-counter.  Labels are negative integers, to distinguish them from
-instruction counters.
-
-*/
-
-int Program::getLabel()
-{
-    int n = counters.size();
-    counters.resize( n + 1 );
-    counters[n] = 0;
-    return -( n + 1 );
-}
-
-/*! Sets the instruction counter for which a label stands.
-
-*/
-
-void Program::setLabel( int lab, int counter )
-{
-    counters[-(lab + 1)] = counter;
-}
 
 /*! Returns the next program instruction, or 0 if there is none.
 
@@ -209,10 +216,15 @@ QStringList Program::listing() const
     int i = 0;
     qdb::Op* op = 0;
     while( (op = ((Program*)this)->next() ) ) {
-	QString s =  QString::number( i ).rightJustify(4) + op->name().rightJustify(15);
-	s += asListing( op->P(0) ).rightJustify(15);
-	s += asListing( op->P(1) ).rightJustify(15);
-	s += asListing( op->P(2) ).rightJustify(15);
+	QString s;
+	if ( op->label() != 0 )
+	    s = QString::number( op->label() );
+	s = s.rightJustify( 4 );
+	s += QString::number( i ).rightJustify( 4 );
+	s += op->name().rightJustify( 16 );
+	s += asListing( op->P(0) ).rightJustify( 16 );
+	s += asListing( op->P(1) ).rightJustify( 16 );
+	s += asListing( op->P(2) ).rightJustify( 16 );
 	l += s;
 	++i;
     }

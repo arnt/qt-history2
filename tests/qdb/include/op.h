@@ -48,15 +48,17 @@
 
 /* Base class for all ops.
 */
-class Op3 : public qdb::Op
+class Op : public qdb::Op
 {
 public:
-    Op3( const QVariant& P1 = QVariant(),
+    Op( const QVariant& P1 = QVariant(),
 	 const QVariant& P2 = QVariant(),
 	 const QVariant& P3 = QVariant() )
-	: p1( P1 ), p2( P2 ), p3( P3 ) {}
+	: p1( P1 ), p2( P2 ), p3( P3 ), lab( 0 ) {}
 
-    virtual ~Op3();
+    virtual ~Op();
+    void setLabel( int L ) { lab = L; }
+    int label() const { return lab; }
     QVariant& P( int i )
     {
 	switch( i ) {
@@ -84,12 +86,13 @@ protected:
     QVariant p1;
     QVariant p2;
     QVariant p3;
+    int lab;
 };
 
 /* No op.
 */
 
-class Noop : public Op3
+class Noop : public Op
 {
 public:
     Noop() {}
@@ -118,13 +121,13 @@ public:
   99
 */
 
-class Push : public Op3
+class Push : public Op
 {
 public:
     Push( const QVariant& P1,
 	  const QVariant& P2 = QVariant(),
 	  const QVariant& P3 = QVariant() )
-	: Op3( P1, P2, P3 )
+	: Op( P1, P2, P3 )
     {
     }
     ~Push() {}
@@ -145,7 +148,7 @@ public:
 /* Pop the top two elements from the stack, add them together, and
    push the result (which is of type double) back onto the stack.
 */
-class Add : public Op3
+class Add : public Op
 {
 public:
     Add() {}
@@ -154,8 +157,8 @@ public:
     {
 	if ( !checkStack(env, 2) )
 	    return 0;
-	QVariant v1 = env->stack()->pop();
 	QVariant v2 = env->stack()->pop();
+	QVariant v1 = env->stack()->pop();
 	env->stack()->push( v1.toDouble() + v2.toDouble() );
 	return 1;
     }
@@ -165,7 +168,7 @@ public:
    stack) from the second (the next on stack) and push the result
    (which is of type double) back onto the stack.
 */
-class Subtract : public Op3
+class Subtract : public Op
 {
 public:
     Subtract() {}
@@ -174,9 +177,9 @@ public:
     {
 	if ( !checkStack(env, 2) )
 	    return 0;
-	QVariant v1 = env->stack()->pop();
 	QVariant v2 = env->stack()->pop();
-	env->stack()->push( v2.toDouble() - v1.toDouble() );
+	QVariant v1 = env->stack()->pop();
+	env->stack()->push( v1.toDouble() - v2.toDouble() );
 	return 1;
     }
 };
@@ -184,7 +187,7 @@ public:
 /* Pop the top two elements from the stack, multiply them together,
  and push the result (which is of type double) back onto the stack.
 */
-class Multiply : public Op3
+class Multiply : public Op
 {
 public:
     Multiply() {}
@@ -193,9 +196,9 @@ public:
     {
 	if ( !checkStack(env, 2) )
 	    return 0;
-	QVariant v1 = env->stack()->pop();
 	QVariant v2 = env->stack()->pop();
-	env->stack()->push( v2.toDouble() * v1.toDouble() );
+	QVariant v1 = env->stack()->pop();
+	env->stack()->push( v1.toDouble() * v2.toDouble() );
 	return 1;
     }
 };
@@ -206,7 +209,7 @@ public:
  invalid variant back on the stack, will issue a warning, and most
  likely cause another error down the line.
 */
-class Divide : public Op3
+class Divide : public Op
 {
 public:
     Divide() {}
@@ -215,35 +218,48 @@ public:
     {
 	if ( !checkStack(env, 2) )
 	    return 0;
-	QVariant v1 = env->stack()->pop();
 	QVariant v2 = env->stack()->pop();
-	if ( v1.toDouble() == 0 ) {
-	    env->output() << "divide: division by zero" << endl;
+	QVariant v1 = env->stack()->pop();
+	if ( v2.toDouble() == 0 ) {
+	    error( env, "division by zero" );
 	    env->stack()->push( QVariant() );
 	} else
-	    env->stack()->push( v2.toDouble() / v1.toDouble() );
+	    env->stack()->push( v1.toDouble() / v2.toDouble() );
 	return 1;
     }
+};
+
+class CompOp : public Op
+{
+public:
+    CompOp( int trueLab, int falseLab )
+	: Op( trueLab, falseLab ) {}
+    int exec( qdb::Environment* env )
+    {
+	if ( !checkStack(env, 2) )
+	    return 0;
+	QVariant v2 = env->stack()->pop();
+	QVariant v1 = env->stack()->pop();
+	env->program()->setCounter( pred(v1, v2) ? p1.toInt() : p2.toInt() );
+	return 1;
+    }
+
+protected:
+    virtual bool pred( const QVariant& v1, const QVariant& v2 ) = 0; 
 };
 
 /* Pop the top two elements from the stack.  If they are equal, then
  jump to instruction P1.  Otherwise, continue to the next instruction.
 */
-class Eq : public Op3
+class Eq : public CompOp
 {
 public:
-    Eq( const QVariant& P1 )
-	: Op3( P1 ) {}
+    Eq( int trueLab, int falseLab )
+	: CompOp( trueLab, falseLab ) {}
     QString name() const { return "eq"; }
-    int exec( qdb::Environment* env )
+    bool pred( const QVariant& v1, const QVariant& v2 )
     {
-	if ( !checkStack(env, 2) )
-	    return 0;
-	QVariant v1 = env->stack()->pop();
-	QVariant v2 = env->stack()->pop();
-	if ( v1 == v2 )
-	    env->program()->setCounter( p1.toInt() );
-	return 1;
+	return v1 == v2;
     }
 };
 
@@ -251,21 +267,15 @@ public:
  then jump to instruction P1.  Otherwise, continue to the next
  instruction.
 */
-class Ne : public Op3
+class Ne : public CompOp
 {
 public:
-    Ne( const QVariant& P1 )
-	: Op3( P1 ) {}
+    Ne( int trueLab, int falseLab )
+	: CompOp( trueLab, falseLab ) {}
     QString name() const { return "ne"; }
-    int exec( qdb::Environment* env )
+    bool pred( const QVariant& v1, const QVariant& v2 )
     {
-	if ( !checkStack(env, 2) )
-	    return 0;
-	QVariant v1 = env->stack()->pop();
-	QVariant v2 = env->stack()->pop();
-	if ( v1 != v2 )
-	    env->program()->setCounter( p1.toInt() );
-	return 1;
+	return v1 != v2;
     }
 };
 
@@ -274,21 +284,15 @@ public:
  instruction P1.  Otherwise, continue to the next instruction.  In
  other words, jump if NOS<TOS.
 */
-class Lt : public Op3
+class Lt : public CompOp
 {
 public:
-    Lt( const QVariant& P1 )
-	: Op3( P1 ) {}
+    Lt( int trueLab, int falseLab )
+	: CompOp( trueLab, falseLab ) {}
     QString name() const { return "lt"; }
-    int exec( qdb::Environment* env )
+    bool pred( const QVariant& v1, const QVariant& v2 )
     {
-	if ( !checkStack(env, 2) )
-	    return 0;
-	QVariant v1 = env->stack()->pop();
-	QVariant v2 = env->stack()->pop();
-	if ( v2.toDouble() < v1.toDouble() )
-	    env->program()->setCounter( p1.toInt() );
-	return 1;
+	return v1.toDouble() < v2.toDouble();
     }
 };
 
@@ -296,66 +300,15 @@ public:
  on stack) is less than or equal to the first (top of stack), then
  jump to instruction P1. In other words, jump if NOS<=TOS.
 */
-class Le : public Op3
+class Le : public CompOp
 {
 public:
-    Le( const QVariant& P1  )
-	: Op3( P1 ) {}
+    Le( int trueLab, int falseLab )
+	: CompOp( trueLab, falseLab ) {}
     QString name() const { return "le"; }
-    int exec( qdb::Environment* env )
+    bool pred( const QVariant& v1, const QVariant& v2 )
     {
-	if ( !checkStack(env, 2) )
-	    return 0;
-	QVariant v1 = env->stack()->pop();
-	QVariant v2 = env->stack()->pop();
-	if ( v2.toDouble() <= v1.toDouble() )
-	    env->program()->setCounter( p1.toInt() );
-	return 1;
-    }
-};
-
-
-/* Pop the top two elements from the stack.  If second element (next
- on stack) is greater than the first (top of stack), then jump to
- instruction P1. In other words, jump if NOS>TOS.
-*/
-class Gt : public Op3
-{
-public:
-    Gt( const QVariant& P1 )
-	: Op3( P1 ) {}
-    QString name() const { return "gt"; }
-    int exec( qdb::Environment* env )
-    {
-	if ( !checkStack(env, 2) )
-	    return 0;
-	QVariant v1 = env->stack()->pop();
-	QVariant v2 = env->stack()->pop();
-	if ( v2.toDouble() > v1.toDouble() )
-	    env->program()->setCounter( p1.toInt() );
-	return 1;
-    }
-};
-
-/* Pop the top two elements from the stack.  If second element (next
- on stack) is greater than or equal to the first (top of stack),
- then jump to instruction P1. In other words, jump if NOS>=TOS.
-*/
-class Ge : public Op3
-{
-public:
-    Ge( const QVariant& P1 )
-	: Op3( P1 ) {}
-    QString name() const { return "ge"; }
-    int exec( qdb::Environment* env )
-    {
-	if ( !checkStack(env, 2) )
-	    return 0;
-	QVariant v1 = env->stack()->pop();
-	QVariant v2 = env->stack()->pop();
-	if ( v2.toDouble() >= v1.toDouble() )
-	    env->program()->setCounter( p1.toInt() );
-	return 1;
+	return v1.toDouble() <= v2.toDouble();
     }
 };
 
@@ -382,11 +335,11 @@ public:
 
 */
 
-class MakeList : public Op3
+class MakeList : public Op
 {
 public:
     MakeList( const QVariant& num )
-	: Op3( num ) {}
+	: Op( num ) {}
     QString name() const { return "makelist"; }
     int exec( qdb::Environment* env )
     {
@@ -406,7 +359,7 @@ public:
  field description
  field description
  field description
- etc.
+ ...
 
  where each 'field description' is a value list of variants in the
  following order:
@@ -418,11 +371,11 @@ public:
 
 */
 
-class Create : public Op3
+class Create : public Op
 {
 public:
     Create( const QVariant& name )
-	: Op3( name ) {}
+	: Op( name ) {}
     QString name() const { return "create"; }
     int exec( qdb::Environment* env )
     {
@@ -437,11 +390,11 @@ public:
 can be used later to refer to the file.
 */
 
-class Open : public Op3
+class Open : public Op
 {
 public:
     Open( const QVariant& id, const QVariant& name )
-	: Op3( id, name ) {}
+	: Op( id, name ) {}
     QString name() const { return "open"; }
     int exec( qdb::Environment* env )
     {
@@ -454,11 +407,11 @@ public:
 /* Closes the file specified by 'id'.
 */
 
-class Close : public Op3
+class Close : public Op
 {
 public:
     Close( const QVariant& id )
-	: Op3( id ) {}
+	: Op( id ) {}
     QString name() const { return "close"; }
     int exec( qdb::Environment* env )
     {
@@ -486,11 +439,11 @@ public:
   field within the file.  The file must be open (see Open).
 
 */
-class Insert : public Op3
+class Insert : public Op
 {
 public:
     Insert( const QVariant& id )
-	: Op3( id ) {}
+	: Op( id ) {}
     QString name() const { return "insert"; }
     int exec( qdb::Environment* env )
     {
@@ -503,11 +456,11 @@ public:
 must be open and positioned on a valid record.
 */
 
-class Mark : public Op3
+class Mark : public Op
 {
 public:
     Mark( const QVariant& id )
-	: Op3( id ) {}
+	: Op( id ) {}
     QString name() const { return "mark"; }
     int exec( qdb::Environment* env )
     {
@@ -520,11 +473,11 @@ public:
 have been previously marked by Mark. All marks are then cleared.
 */
 
-class DeleteMarked : public Op3
+class DeleteMarked : public Op
 {
 public:
     DeleteMarked( const QVariant& id )
-	: Op3( id ) {}
+	: Op( id ) {}
     QString name() const { return "deletemarked"; }
     int exec( qdb::Environment* env )
     {
@@ -552,11 +505,11 @@ public:
   All marks are then cleared.
 */
 
-class UpdateMarked : public Op3
+class UpdateMarked : public Op
 {
 public:
     UpdateMarked( const QVariant& id )
-	: Op3( id ) {}
+	: Op( id ) {}
     QString name() const { return "updatemarked"; }
     int exec( qdb::Environment* env )
     {
@@ -571,12 +524,12 @@ public:
  failure goto P2.  The file must be open (see Open).
 */
 
-class Next : public Op3
+class Next : public Op
 {
 public:
     Next( const QVariant& id,
 	  const QVariant& P2 )
-	: Op3( id, P2 ) {}
+	: Op( id, P2 ) {}
     QString name() const { return "next"; }
     int exec( qdb::Environment* env )
     {
@@ -590,11 +543,11 @@ public:
 /* Go to the instruction at P1.
 */
 
-class Goto : public Op3
+class Goto : public Op
 {
 public:
-    Goto( const QVariant& P1 )
-	: Op3( P1 ) {}
+    Goto( int lab )
+	: Op( lab ) {}
     QString name() const { return "goto"; }
     int exec( qdb::Environment* env )
     {
@@ -608,12 +561,11 @@ public:
  a valid record.
 */
 
-class PushFieldValue : public Op3
+class PushFieldValue : public Op
 {
 public:
-    PushFieldValue( const QVariant& id,
-	       const QVariant& P2 )
-	: Op3( id, P2 ) {}
+    PushFieldValue( const QVariant& id, const QVariant& P2 )
+	: Op( id, P2 ) {}
     QString name() const { return "pushfieldvalue"; }
     int exec( qdb::Environment* env )
     {
@@ -640,12 +592,12 @@ public:
 
 */
 
-class PushFieldDesc : public Op3
+class PushFieldDesc : public Op
 {
 public:
     PushFieldDesc( const QVariant& id,
 		   const QVariant& nameOrNumber )
-	: Op3( id, nameOrNumber ) {}
+	: Op( id, nameOrNumber ) {}
     QString name() const { return "pushfielddesc"; }
     int exec( qdb::Environment* env )
     {
@@ -678,11 +630,11 @@ public:
 
 */
 
-class SaveResult : public Op3
+class SaveResult : public Op
 {
 public:
     SaveResult( const QVariant& id )
-	: Op3( id ) {}
+	: Op( id ) {}
     QString name() const { return "saveresult"; }
     int exec( qdb::Environment* env )
     {
@@ -713,11 +665,11 @@ public:
 
 */
 
-class CreateResult : public Op3
+class CreateResult : public Op
 {
 public:
     CreateResult( const QVariant& id )
-	: Op3( id ) {}
+	: Op( id ) {}
     QString name() const { return "createresult"; }
     int exec( qdb::Environment* env )
     {
@@ -732,11 +684,11 @@ public:
   need to be open.
 */
 
-class RewindMarked : public Op3
+class RewindMarked : public Op
 {
 public:
     RewindMarked( const QVariant& id )
-	: Op3( id ) {}
+	: Op( id ) {}
     QString name() const { return "rewindmarked"; }
     int exec( qdb::Environment* env )
     {
@@ -750,12 +702,12 @@ public:
  failure goto P2.  The file must be open (see Open).
 */
 
-class NextMarked : public Op3
+class NextMarked : public Op
 {
 public:
     NextMarked( const QVariant& id,
 		const QVariant& P2 )
-	: Op3( id, P2 ) {}
+	: Op( id, P2 ) {}
     QString name() const { return "nextmarked"; }
     int exec( qdb::Environment* env )
     {
@@ -787,11 +739,11 @@ public:
 
 */
 
-class Update : public Op3
+class Update : public Op
 {
 public:
     Update( const QVariant& id )
-	: Op3( id ) {}
+	: Op( id ) {}
     QString name() const { return "update"; }
     int exec( qdb::Environment* env )
     {
@@ -833,11 +785,11 @@ public:
    data
 
 */
-class RangeMark : public Op3
+class RangeMark : public Op
 {
 public:
     RangeMark( const QVariant& id )
-	: Op3( id ) {}
+	: Op( id ) {}
     QString name() const { return "rangemark"; }
     int exec( qdb::Environment* env )
     {
@@ -865,12 +817,12 @@ public:
    open (see Open).  See also PushFieldDesc.
 */
 
-class CreateIndex : public Op3
+class CreateIndex : public Op
 {
 public:
     CreateIndex( const QVariant& id,
 		 const QVariant& unique )
-	: Op3( id, unique ) {}
+	: Op( id, unique ) {}
     QString name() const { return "createindex"; }
     int exec( qdb::Environment* env )
     {
@@ -884,11 +836,11 @@ public:
     open, it is first closed.
 */
 
-class Drop : public Op3
+class Drop : public Op
 {
 public:
     Drop( const QVariant& name )
-	: Op3( name ) {}
+	: Op( name ) {}
     QString name() const { return "drop"; }
     int exec( qdb::Environment* env )
     {
@@ -922,11 +874,11 @@ public:
 
 */
 
-class Sort : public Op3
+class Sort : public Op
 {
 public:
     Sort( const QVariant& id )
-	: Op3( id ) {}
+	: Op( id ) {}
     QString name() const { return "sort"; }
     int exec( qdb::Environment* env )
     {
@@ -939,11 +891,11 @@ public:
 'id'.
 */
 
-class ClearMarked : public Op3
+class ClearMarked : public Op
 {
 public:
     ClearMarked( const QVariant& id, const QVariant& name )
-	: Op3( id, name ) {}
+	: Op( id, name ) {}
     QString name() const { return "clearmarked"; }
     int exec( qdb::Environment* env )
     {

@@ -55,7 +55,7 @@ class QIODevice;
 
 /*! \namespace qdb
 
-  All qDb interfaces are in the 'qdb' namespace.
+  All QDb interfaces are in the 'qdb' namespace.
 */
 
 namespace qdb {
@@ -108,7 +108,7 @@ namespace qdb {
     /*! \struct ResultSet
 
       An interface which encapsulates a set of result data.
-     */
+    */
 
     struct ResultSet : public DataSet
     {
@@ -169,6 +169,10 @@ namespace qdb {
     {
 	/*! Returns the operand \a i */
 	virtual QVariant& P( int i ) = 0;
+	/*! Sets the label of this instruction */
+	virtual void setLabel( int L ) = 0;
+	/*! Returns the label of this instruction (a negative integer or 0) */
+	virtual int label() const = 0;
 	/*! Executes the instruction in the environment \a env */
 	virtual int exec( Environment* env ) = 0;
 	/*! Returns the name of the instruction */
@@ -182,23 +186,21 @@ namespace qdb {
 
     struct Program
     {
-	/*! Appends the operand \a op to the program.  The program takes ownership of the pointer */
+	/*! Sets the label of the next instruction appended. */
+	virtual void appendLabel( int lab ) = 0;
+	/*! Appends the operand \a op to the program.  The program takes ownership of the pointer. */
 	virtual void append( Op* op ) = 0;
-	/*! Removes the \a i-th operand from the program  */
+	/*! Removes the \a i-th operand from the program */
 	virtual void remove( uint i ) = 0;
 	/*! Clears the program  */
 	virtual void clear() = 0;
-	/*! Sets the internal program counter so that the \a i-th instruction executes next  */
+	/*! Sets the internal program counter so that the \a i-th instruction executes next */
 	virtual void setCounter( int i ) = 0;
 	/*! Resets the internal program counter to the beginning */
 	virtual void resetCounter() = 0;
 	/*! Returns the value of the internal program counter */
 	virtual int counter() = 0;
-	/*! ### */
-	virtual int getLabel() = 0;
-	/*! ### */
-	virtual void setLabel( int lab, int counter ) = 0;
-	/*! Returns the next instruction,or 0 if there are no more */
+	/*! Returns the next instruction, or 0 if there are no more */
 	virtual Op* next() = 0;
 	/*! Returns a human-readable program listing */
 	virtual QStringList listing() const = 0;

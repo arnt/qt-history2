@@ -171,23 +171,27 @@ private:
     int yyTok;
     qdb::Environment *yyEnv;
     qdb::Program *yyProg;
+    int yyNextLabel;
     bool yyOK;
+
+    void emitExpr( const QVariant& expr, int trueLab = 0, int falseLab = 0 );
+    int appendLabel();
 
     void matchOrInsert( int target, const QString& targetStr );
     void matchOrSkip( int target, const QString& targetStr );
     QString matchName();
     QString matchTable();
-    QStringList matchColumnRef();
-    void matchFunctionRefArguments();
-    void matchPrimaryExp();
-    void matchMultiplicativeExp();
-    void matchScalarExp();
-    void matchAtom();
-    void matchAtomList();
-    void matchPredicate();
-    void matchPrimarySearchCondition();
-    void matchAndSearchCondition();
-    void matchSearchCondition();
+    QVariant matchColumnRef();
+    QVariant matchFunctionRefArguments();
+    QVariant matchPrimaryExpr();
+    QVariant matchMultiplicativeExpr();
+    QVariant matchScalarExpr();
+    QVariant matchAtom();
+    QVariant matchAtomList();
+    QVariant matchPredicate();
+    QVariant matchPrimarySearchCondition();
+    QVariant matchAndSearchCondition();
+    QVariant matchSearchCondition();
     void matchOptWhereClause();
     void matchCommitStatement();
     void matchDataType();
@@ -197,12 +201,11 @@ private:
     void matchBaseTableElementList();
     void matchCreateStatement();
     void matchDeleteStatement();
-    void matchInsertExp();
-    void matchInsertExpList( const QStringList& columns );
+    void matchInsertExpr();
+    void matchInsertExprList( const QStringList& columns );
     void matchInsertStatement();
     void matchRollbackStatement();
     void matchFromClause();
-    void matchWhereClause();
     void matchOrderByClause();
     void matchSelectStatement();
     void matchUpdateStatement();
@@ -216,22 +219,23 @@ public:
     Program();
     virtual ~Program();
 
+    void appendLabel( int lab );
     void append( qdb::Op* op );
     void remove( uint i );
     void clear();
     void setCounter( int i );
     void resetCounter();
     int counter();
-    int getLabel();
-    void setLabel( int lab, int counter );
     qdb::Op* next();
     QStringList listing() const;
 
 private:
     QList< qdb::Op > ops;
     int pc;
-    QArray< int > counters;
     qdb::ColumnKey sortKey;
+    int pendingLabel;
+    QArray< int > counters;
+    bool dirty;
 
     Program( const Program& other );
     Program& operator=( const Program& other );

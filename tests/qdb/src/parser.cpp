@@ -86,6 +86,7 @@ bool Parser::parse( const QString& commands, qdb::Environment *env )
     yyTok = getToken();
     yyEnv = env;
     yyProg = env->program();
+    yyNextLabel = -1;
     yyOK = TRUE;
     matchSql();
     return yyOK;
@@ -522,6 +523,75 @@ int Parser::getToken()
     return Tok_Eoi;
 }
 
+void Parser::emitExpr( const QVariant& expr, int trueLab, int falseLab )
+{
+    /*
+      An expression is an atom or a list. A list has the operator as
+      first element and the operands afterwards. Cf. LISP.
+    */
+    if ( expr.type() == QVariant::List ) {
+	QValueList<QVariant>::ConstIterator v = expr.listBegin();
+
+	int tok = (*v).toInt();
+	qdb::Op *op = 0;
+	int driver;
+	QString field;
+
+
+	switch ( tok ) {
+	case Tok_Name:
+	    driver = (*++v).toInt();
+	    field = (*++v).toString();
+	    yyProg->append( new PushFieldValue(driver, field) );
+	    break;
+	case Tok_and:
+	    emitExpr( *++v, yyNextLabel, falseLab );
+	    yyProg->appendLabel( yyNextLabel-- );
+	    emitExpr( *++v, trueLab, falseLab );
+	    break;
+	case Tok_not:
+	    emitExpr( *++v, falseLab, trueLab );
+	    break;
+	case Tok_or:
+	    emitExpr( *++v, trueLab, yyNextLabel );
+	    yyProg->appendLabel( yyNextLabel-- );
+	    emitExpr( *++v, trueLab, falseLab );
+	    break;
+	default:
+	    emitExpr( *++v, 0, 0 );
+	    emitExpr( *++v, 0, 0 );
+
+	    switch ( tok ) {
+	    case Tok_Equal:
+		op = new Eq( trueLab, falseLab );
+		break;
+	    case Tok_NotEq:
+		op = new Ne( trueLab, falseLab );
+		break;
+	    case Tok_LessThan:
+		op = new Lt( trueLab, falseLab );
+		break;
+	    case Tok_LessEq:
+		op = new Le( trueLab, falseLab );
+		break;
+	    case Tok_Plus:
+		op = new Add;
+		break;
+	    case Tok_Minus:
+		op = new Subtract;
+		break;
+	    case Tok_Aster:
+		op = new Multiply;
+		break;
+	    case Tok_Div:
+		op = new Divide;
+	    }
+	    yyProg->append( op );
+	}
+    } else {
+	yyProg->append( new Push(expr) );
+    }
+}
 
 void Parser::matchOrInsert( int target, const QString& targetStr )
 {
@@ -557,7 +627,7 @@ QString Parser::matchTable()
     return name;
 }
 
-QStringList Parser::matchColumnRef()
+QVariant Parser::matchColumnRef()
 {
     QStringList ref;
 
@@ -570,22 +640,29 @@ QStringList Parser::matchColumnRef()
 	    ref.append( matchName() );
 	}
     }
-    return ref;
+
+    QValueList<QVariant> expr;
+    expr.append( (int) Tok_Name );
+    expr.append( 0 ); // ### driver
+    expr.append( ref.join(QChar('.')) );
+    return expr;
 }
 
-void Parser::matchFunctionRefArguments()
+QVariant Parser::matchFunctionRefArguments()
 {
     matchOrInsert( Tok_LeftParen, "'('" );
     if ( yyTok == Tok_Aster ) {
 	yyTok = getToken();
     } else {
-	matchScalarExp();
+	matchScalarExpr();
     }
     matchOrInsert( Tok_RightParen, "')'" );
+    return QVariant();
 }
 
-void Parser::matchPrimaryExp()
+QVariant Parser::matchPrimaryExpr()
 {
+    QVariant right;
     bool uminus = FALSE;
 
     while ( yyTok == Tok_Plus || yyTok == Tok_Minus ) {
@@ -594,29 +671,26 @@ void Parser::matchPrimaryExp()
 	yyTok = getToken();
     }
 
-    if ( uminus )
-	yyProg->append( new Push(0) );
-
     switch ( yyTok ) {
     case Tok_LeftParen:
 	yyTok = getToken();
-	matchScalarExp();
+	right = matchScalarExpr();
 	matchOrInsert( Tok_RightParen, "')'" );
+	emitExpr( right, 0, 0 );
 	break;
     case Tok_Name:
-	matchColumnRef();
-	// ###
+	right = matchColumnRef();
 	break;
     case Tok_IntNum:
-	yyProg->append( new Push(yyNum) );
+	right = yyNum;
 	yyTok = getToken();
 	break;
     case Tok_ApproxNum:
-	yyProg->append( new Push(yyNum) );
+	right = yyNum;
 	yyTok = getToken();
 	break;
     case Tok_String:
-	yyProg->append( new Push(yyStr) );
+	right = yyStr;
 	yyTok = getToken();
 	break;
     case Tok_avg:
@@ -648,100 +722,126 @@ void Parser::matchPrimaryExp()
 	error( "Met '%s' where primary expression was expected", yyLex );
     }
 
-    if ( uminus )
-	yyProg->append( new Subtract );
+    if ( uminus ) {
+	QValueList<QVariant> uminusExp;
+	uminusExp.append( (int) Tok_Minus );
+	uminusExp.append( 0 );
+	uminusExp.append( right );
+	return uminusExp;
+    } else {
+	return right;
+    }
 }
 
-void Parser::matchMultiplicativeExp()
+QVariant Parser::matchMultiplicativeExpr()
 {
-    matchPrimaryExp();
+    QVariant left;
+
+    left = matchPrimaryExpr();
     while ( yyTok == Tok_Aster || yyTok == Tok_Div ) {
-	int prevTok = yyTok;
+	QValueList<QVariant> multExp;
+	multExp.append( yyTok );
+	multExp.append( left );
 	yyTok = getToken();
-	matchPrimaryExp();
-
-	if ( prevTok == Tok_Aster )
-	    yyProg->append( new Multiply );
-	else
-	    yyProg->append( new Divide );
+	multExp.append( matchPrimaryExpr() );
+	left = multExp;
     }
+    return left;
 }
 
-void Parser::matchScalarExp()
+QVariant Parser::matchScalarExpr()
 {
-    matchMultiplicativeExp();
+    QVariant left;
+
+    left = matchMultiplicativeExpr();
     while ( yyTok == Tok_Plus || yyTok == Tok_Minus ) {
-	int prevTok = yyTok;
+	QValueList<QVariant> scalExp;
+	scalExp.append( yyTok );
+	scalExp.append( left );
 	yyTok = getToken();
-	matchMultiplicativeExp();
-
-	if ( prevTok == Tok_Plus )
-	    yyProg->append( new Add );
-	else
-	    yyProg->append( new Subtract );
+	scalExp.append( matchMultiplicativeExpr() );
+	left = scalExp;
     }
+    return left;
 }
 
-void Parser::matchAtom()
+QVariant Parser::matchAtom()
 {
+    QVariant atom;
+
     if ( yyTok == Tok_String ) {
-	yyProg->append( new Push(yyStr) );
+	atom = yyStr;
 	yyTok = getToken();
     } else if ( yyTok == Tok_IntNum || yyTok == Tok_ApproxNum ) {
-	yyProg->append( new Push(yyNum) );
+	atom = yyNum;
 	yyTok = getToken();
     } else {
 	error( "Expected string or numeral rather than '%s'", yyLex );
     }
+    return atom;
 }
 
-void Parser::matchAtomList()
+QVariant Parser::matchAtomList()
 {
+    QValueList<QVariant> atoms;
+
     while ( TRUE ) {
-	matchAtom();
+	atoms.append( matchAtom() );
 
 	if ( yyTok != Tok_Comma )
 	    break;
 	yyTok = getToken();
     }
+    return atoms;
 }
 
-void Parser::matchPredicate()
+QVariant Parser::matchPredicate()
 {
+    QValueList<QVariant> pred;
+    QValueList<QVariant> between;
+    QVariant left;
     bool maybeColumnRef = ( yyTok == Tok_Name );
 
-    matchScalarExp();
+    left = matchScalarExpr();
 
     switch ( yyTok ) {
     case Tok_Equal:
-	yyTok = getToken();
-	matchScalarExp();
-	break;
     case Tok_NotEq:
-	yyTok = getToken();
-	matchScalarExp();
-	break;
     case Tok_LessThan:
+    case Tok_LessEq:
+	pred.append( yyTok );
 	yyTok = getToken();
-	matchScalarExp();
+	pred.append( left );
+	pred.append( matchScalarExpr() );
 	break;
     case Tok_GreaterThan:
 	yyTok = getToken();
-	matchScalarExp();
-	break;
-    case Tok_LessEq:
-	yyTok = getToken();
-	matchScalarExp();
+	pred.append( (int) Tok_LessThan );
+	pred.append( matchScalarExpr() );
+	pred.append( left );
 	break;
     case Tok_GreaterEq:
 	yyTok = getToken();
-	matchScalarExp();
+	pred.append( (int) Tok_LessEq );
+	pred.append( matchScalarExpr() );
+	pred.append( left );
 	break;
     case Tok_between:
+	between.append( (int) Tok_and );
+
 	yyTok = getToken();
-	matchScalarExp();
+	pred.append( (int) Tok_GreaterEq );
+	pred.append( left );
+	pred.append( matchScalarExpr() );
+	between.append( pred );
 	matchOrInsert( Tok_and, "'and'" );
-	matchScalarExp();
+
+	pred.clear();
+	pred.append( (int) Tok_LessEq );
+	pred.append( left );
+	pred.append( matchScalarExpr() );
+	between.append( pred );
+	pred = between;
 	break;
     case Tok_in:
 	yyTok = getToken();
@@ -771,9 +871,9 @@ void Parser::matchPredicate()
 	switch ( yyTok ) {
 	case Tok_between:
 	    yyTok = getToken();
-	    matchScalarExp();
+	    matchScalarExpr();
 	    matchOrInsert( Tok_and, "'and'" );
-	    matchScalarExp();
+	    matchScalarExpr();
 	    break;
 	case Tok_in:
 	    yyTok = getToken();
@@ -791,46 +891,79 @@ void Parser::matchPredicate()
     default:
 	error( "Unexpected '%s' in predicate", yyLex );
     }
+    return pred;
 }
 
-void Parser::matchPrimarySearchCondition()
+QVariant Parser::matchPrimarySearchCondition()
 {
     if ( yyTok == Tok_LeftParen ) {
 	yyTok = getToken();
-	matchSearchCondition();
+	return matchSearchCondition();
 	matchOrInsert( Tok_RightParen, "')'" );
     } else if ( yyTok == Tok_not ) {
+	QValueList<QVariant> notExp;
+
+	notExp.append( yyTok );
 	yyTok = getToken();
-	matchSearchCondition();
+	notExp.append( matchSearchCondition() );
+	return notExp;
     } else {
-	matchPredicate();
+	return matchPredicate();
     }
 }
 
-void Parser::matchAndSearchCondition()
+QVariant Parser::matchAndSearchCondition()
 {
-    matchPrimarySearchCondition();
+    QVariant left;
+
+    left = matchPrimarySearchCondition();
     while ( yyTok == Tok_and ) {
+	QValueList<QVariant> andCond;
+	andCond.append( yyTok );
 	yyTok = getToken();
-	matchPrimarySearchCondition();
+	andCond.append( left );
+	andCond.append( matchPrimarySearchCondition() );
+	left = andCond;
     }
+    return left;
 }
 
-void Parser::matchSearchCondition()
+QVariant Parser::matchSearchCondition()
 {
-    matchAndSearchCondition();
+    QVariant left;
+
+    left = matchAndSearchCondition();
     while ( yyTok == Tok_or ) {
+	QValueList<QVariant> cond;
+	cond.append( yyTok );
 	yyTok = getToken();
-	matchAndSearchCondition();
+	cond.append( left );
+	cond.append( matchAndSearchCondition() );
+	left = cond;
     }
+    return left;
 }
 
 void Parser::matchOptWhereClause()
 {
-    if ( yyTok == Tok_where ) {
+    bool whereClausePresent = ( yyTok == Tok_where );
+
+    if ( whereClausePresent )
 	yyTok = getToken();
-	matchSearchCondition();
-    }
+
+    int nextRecord = yyNextLabel--;
+    int markRecord = yyNextLabel--;
+    int endRecords = yyNextLabel--;
+
+    yyProg->appendLabel( nextRecord );
+    yyProg->append( new Next(0, endRecords) );
+    if ( whereClausePresent )
+	emitExpr( matchSearchCondition(), markRecord, nextRecord );
+    yyProg->appendLabel( markRecord );
+    yyProg->append( new Mark(0) );
+    yyProg->append( new Goto(nextRecord) );
+    yyProg->appendLabel( endRecords );
+    // yyProg->append( new Noop );
 }
 
 void Parser::matchCommitStatement()
@@ -1025,17 +1158,17 @@ void Parser::matchDeleteStatement()
     matchOptWhereClause();
 }
 
-void Parser::matchInsertExp()
+void Parser::matchInsertExpr()
 {
     if ( yyTok == Tok_null ) {
 	yyTok = getToken();
 	error( "Null not supported yet" );
     } else {
-	matchScalarExp();
+	emitExpr( matchScalarExpr() );
     }
 }
 
-void Parser::matchInsertExpList( const QStringList& columns )
+void Parser::matchInsertExprList( const QStringList& columns )
 {
     QStringList::ConstIterator col = columns.begin();
     int n = 0;
@@ -1051,7 +1184,7 @@ void Parser::matchInsertExpList( const QStringList& columns )
 		++col;
 	    }
 	}
-	matchInsertExp();
+	matchInsertExpr();
 	yyProg->append( new MakeList(2) );
 	n++;
 
@@ -1080,7 +1213,7 @@ void Parser::matchInsertStatement()
     }
     matchOrInsert( Tok_values, "'values'" );
     matchOrInsert( Tok_LeftParen, "'('" );
-    matchInsertExpList( columns );
+    matchInsertExprList( columns );
     matchOrInsert( Tok_RightParen, "')'" );
 
     yyProg->append( new Insert(0) );
@@ -1098,12 +1231,6 @@ void Parser::matchFromClause()
 {
     matchOrSkip( Tok_from, "'from'" );
     matchTable();
-}
-
-void Parser::matchWhereClause()
-{
-    yyTok = getToken();
-    matchSearchCondition();
 }
 
 void Parser::matchOrderByClause()
@@ -1145,15 +1272,14 @@ void Parser::matchSelectStatement()
 	yyTok = getToken();
     } else {
 	while ( TRUE ) {
-	    matchScalarExp();
+	    matchScalarExpr();
 
 	    if ( yyTok != Tok_Comma )
 		break;
 	    yyTok = getToken();
 	}
 	matchFromClause();
-	if ( yyTok == Tok_where )
-	    matchWhereClause();
+	matchOptWhereClause();
 	if ( yyTok == Tok_order )
 	    matchOrderByClause();
     }
@@ -1162,26 +1288,48 @@ void Parser::matchSelectStatement()
 void Parser::matchUpdateStatement()
 {
     yyTok = getToken();
-    yyProg->append( new Open(0, matchName()) );
+    yyProg->append( new Open(0, matchTable()) );
     matchOrInsert( Tok_set, "'set'" );
 
+    QMap<QString, QVariant> assignments;
+    QString left;
+    QVariant right;
+
     while ( TRUE ) {
-	matchName();
+	left = matchName();
 	matchOrInsert( Tok_Equal, "'='" );
 	if ( yyTok == Tok_null ) {
 	    yyTok = getToken();
+	    // ###
 	} else {
-	    matchScalarExp();
+	    right = matchScalarExpr();
 	}
+	assignments.insert( left, right );
 
 	if ( yyTok != Tok_Comma )
 	    break;
 	yyTok = getToken();
     }
 
-    if ( yyTok == Tok_where )
-	matchWhereClause();
+    matchOptWhereClause();
 
+    int nextMarkedRecord = yyNextLabel--;
+    int endRecords = yyNextLabel--;
+
+    yyProg->append( new RewindMarked(0) );
+    yyProg->appendLabel( nextMarkedRecord );
+    yyProg->append( new NextMarked(0, endRecords) );
+
+    QMap<QString, QVariant>::ConstIterator as = assignments.begin();
+    while ( as != assignments.end() ) {
+	yyProg->append( new PushFieldDesc(0, as.key()) );
+	emitExpr( *as );
+	yyProg->append( new MakeList(2) );
+	yyProg->append( new Update(0) );
+	++as;
+    }
+    yyProg->append( new Goto(nextMarkedRecord) );
+    yyProg->appendLabel( endRecords );
     yyProg->append( new Close(0) );
 }
 
