@@ -387,11 +387,6 @@ extern bool        qt_check_selection_sentinel(); //def in qclipboard_x11.cpp
 static void        qt_save_rootinfo();
 bool        qt_try_modal(QWidget *, XEvent *);
 
-// ###
-int                qt_ncols_option  = 216;
-int                qt_visual_option = -1;
-bool                qt_cmap_option         = false;
-
 QWidget *qt_button_down = 0; // last widget to be pressed with the mouse
 static QWidget *qt_popup_down = 0;  // popup that contains the pressed widget
 
@@ -1321,6 +1316,12 @@ void qt_init(QApplicationPrivate *priv, int,
     X11->ignore_badwindow = false;
     X11->seen_badwindow = false;
 
+    // colormap control
+    X11->visual_class = -1;
+    X11->visual_id = -1;
+    X11->color_count = 0;
+    X11->custom_cmap = false;
+
     if (display) {
         // Qt part of other application
 
@@ -1401,15 +1402,24 @@ void qt_init(QApplicationPrivate *priv, int,
                 mwIconic = !mwIconic;
             } else if (arg == "-ncols") {   // xv and netscape use this name
                 if (++i < argc)
-                    qt_ncols_option = qMax(0,atoi(argv[i]));
+                    X11->color_count = qMax(0,atoi(argv[i]));
             } else if (arg == "-visual") {  // xv and netscape use this name
                 if (++i < argc) {
                     QString s = QString(argv[i]).toLower();
-                    if (s == "truecolor") {
-                        qt_visual_option = TrueColor;
-                    } else {
-                        // ### Should we honor any others?
-                    }
+                    if (s == "staticgray")
+                        X11->visual_class = StaticGray;
+                    else if (s == "grayscale")
+                        X11->visual_class = XGrayScale;
+                    else if (s == "staticcolor")
+                        X11->visual_class = StaticColor;
+                    else if (s == "pseudocolor")
+                        X11->visual_class = PseudoColor;
+                    else if (s == "truecolor")
+                        X11->visual_class = TrueColor;
+                    else if (s == "directcolor")
+                        X11->visual_class = DirectColor;
+                    else
+                        X11->visual_id = static_cast<int>(strtol(argv[i], 0, 0));
                 }
 #ifndef QT_NO_XIM
             } else if (arg == "-inputstyle") {
@@ -1430,7 +1440,7 @@ void qt_init(QApplicationPrivate *priv, int,
                 }
 #endif
             } else if (arg == "-cmap") {    // xv uses this name
-                qt_cmap_option = true;
+                X11->custom_cmap = true;
             }
 #if defined(QT_DEBUG)
             else if (arg == "-sync")

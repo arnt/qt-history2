@@ -64,10 +64,6 @@ enum { QT_TABLET_NPACKETQSIZE = 128 };
 extern QSysInfo::MacVersion qt_macver;
 #endif
 
-#if defined (Q_WS_X11)
-extern int qt_ncols_option;
-#endif
-
 extern void qt_dispatchEnterLeave(QWidget*, QWidget*);
 extern bool qt_tryModalHelper(QWidget *, QWidget ** = 0);
 

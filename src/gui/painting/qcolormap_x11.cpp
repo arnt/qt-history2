@@ -85,46 +85,45 @@ static int cube_root(int v)
     return i;
 }
 
-
-#if 0
-/*
-  Returns a truecolor visual (if there is one). 8-bit TrueColor visuals
-  are ignored, unless the user has explicitly requested -visual TrueColor.
-  The SGI X server usually has an 8 bit default visual, but the application
-  can also ask for a truecolor visual. This is what we do if
-  QApplication::colorSpec() is QApplication::ManyColor.
-*/
-static Visual *find_truecolor_visual(Display *dpy, int scr, int *depth, int *ncols)
+static Visual *find_visual(Display *display,
+                           int screen,
+                           int visual_class,
+                           int visual_id,
+                           int *depth)
 {
     XVisualInfo *vi, rvi;
-    int best=0, n, i;
-    rvi.c_class = TrueColor;
-    rvi.screen  = scr;
-    vi = XGetVisualInfo(dpy, VisualClassMask | VisualScreenMask,
-                         &rvi, &n);
-    if (vi) {
-        for (i=0; i<n; i++) {
-            if (vi[i].depth > vi[best].depth)
-                best = i;
-        }
+    int count;
+
+    uint mask = VisualScreenMask;
+    rvi.screen = screen;
+
+    if (visual_class != -1) {
+        rvi.c_class = X11->visual_class;
+        mask |= VisualClassMask;
+    } else if (visual_id != -1) {
+        rvi.visualid = visual_id;
+        mask |= VisualIDMask;
     }
-    Visual *v = DefaultVisual(dpy,scr);
-    if (!vi || (vi[best].visualid == XVisualIDFromVisual(v)) ||
-         (vi[best].depth <= 8 && qt_visual_option != TrueColor))
-        {
-        *depth = DefaultDepth(dpy,scr);
-        *ncols = DisplayCells(dpy,scr);
-    } else {
-        v = vi[best].visual;
-        *depth = vi[best].depth;
-        *ncols = vi[best].colormap_size;
+
+    Visual *visual = DefaultVisual(display, screen);
+    *depth = DefaultDepth(display, screen);
+
+    vi = XGetVisualInfo(display, mask, &rvi, &count);
+    if (vi) {
+        int best = -1;
+        for (int x = 0; x < count; ++x) {
+            if (vi[x].depth > vi[best].depth)
+                best = x;
+        }
+        if (best >= 0 && best <= count && vi[best].visualid != XVisualIDFromVisual(visual)) {
+            visual = vi[best].visual;
+            *depth = vi[best].depth;
+        }
     }
     if (vi)
         XFree((char *)vi);
-    return v;
+    return visual;
 }
-#endif
-
 
 static void query_colormap(QColormapPrivate *d, int screen)
 {
@@ -279,121 +278,133 @@ void QColormap::initialize()
         cmaps[i] = new QColormap;
         QColormapPrivate * const d = cmaps[i]->d;
 
+        bool use_stdcmap = false;
+
         // defaults
         d->depth = DefaultDepth(display, i);
         d->colormap = DefaultColormap(display, i);
         d->visual = DefaultVisual(display, i);
 
-        switch (d->visual->c_class) {
-        case StaticGray:
-            d->mode = Gray;
+        if ((X11->visual_class != -1 && X11->visual_class >= 0 && X11->visual_class < 6)
+            || (X11->visual_id != -1)) {
+            // look for a specific visual or type of visual
+            d->visual = find_visual(display, i, X11->visual_class, X11->visual_id, &d->depth);
+        } else {
+            XStandardColormap *stdcmap = 0;
+            int ncmaps = 0;
+            if (XGetRGBColormaps(display, RootWindow(display, i),
+                                 &stdcmap, &ncmaps, XA_RGB_DEFAULT_MAP)) {
+                if (stdcmap) {
+                    for (int c = 0; c < ncmaps; ++c) {
+                        if (!stdcmap[c].red_max ||
+                            !stdcmap[c].green_max ||
+                            !stdcmap[c].blue_max ||
+                            !stdcmap[c].red_mult ||
+                            !stdcmap[c].green_mult ||
+                            !stdcmap[c].blue_mult)
+                            continue; // invalid stdcmap
 
-            d->r_max = d->g_max = d->b_max = d->visual->map_entries;
-            break;
+                        XVisualInfo proto;
+                        proto.visualid = stdcmap[c].visualid;
+                        proto.screen = i;
 
-        case XGrayScale:
-            d->mode = Gray;
+                        int nvisuals = 0;
+                        XVisualInfo *vi = XGetVisualInfo(display, VisualIDMask | VisualScreenMask,
+                                                         &proto, &nvisuals);
+                        if (vi) {
+                            if (nvisuals > 0) {
+                                use_stdcmap = true;
 
-            // follow precedent set in libXmu...
-            if (d->visual->map_entries > 65000)
-                d->r_max = d->g_max = d->b_max = 4096;
-            else if (d->visual->map_entries > 4000)
-                d->r_max = d->g_max = d->b_max = 512;
-            else if (d->visual->map_entries > 250)
-                d->r_max = d->g_max = d->b_max = 12;
-            else
-                d->r_max = d->g_max = d->b_max = 4;
-            break;
+                                d->mode = ((vi[0].visual->c_class < StaticColor)
+                                           ? Gray
+                                           : ((vi[0].visual->c_class < TrueColor)
+                                              ? Indexed
+                                              : Direct));
 
-        case StaticColor:
-            d->mode = Indexed;
+                                d->depth = vi[0].depth;
+                                d->colormap = stdcmap[c].colormap;
+                                d->visual = vi[0].visual;
 
-            d->r_max = right_align(d->visual->red_mask)   + 1;
-            d->g_max = right_align(d->visual->green_mask) + 1;
-            d->b_max = right_align(d->visual->blue_mask)  + 1;
-            break;
+                                d->r_max = stdcmap[c].red_max   + 1;
+                                d->g_max = stdcmap[c].green_max + 1;
+                                d->b_max = stdcmap[c].blue_max  + 1;
 
-        case PseudoColor:
-            d->mode = Indexed;
-
-            // follow precedent set in libXmu...
-            if (d->visual->map_entries > 65000)
-                d->r_max = d->g_max = d->b_max = 27;
-            else if (d->visual->map_entries > 4000)
-                d->r_max = d->g_max = d->b_max = 12;
-            else if (d->visual->map_entries > 250)
-                d->r_max = d->g_max = d->b_max = cube_root(d->visual->map_entries - 125);
-            else
-                d->r_max = d->g_max = d->b_max = cube_root(d->visual->map_entries);
-            break;
-
-        case TrueColor:
-        case DirectColor:
-            d->mode = Direct;
-
-            d->r_max = right_align(d->visual->red_mask)   + 1;
-            d->g_max = right_align(d->visual->green_mask) + 1;
-            d->b_max = right_align(d->visual->blue_mask)  + 1;
-
-            d->r_shift = lowest_bit(d->visual->red_mask);
-            d->g_shift = lowest_bit(d->visual->green_mask);
-            d->b_shift = lowest_bit(d->visual->blue_mask);
-            break;
+                                if (d->mode == Direct) {
+                                    // calculate offsets
+                                    d->r_shift = lowest_bit(d->visual->red_mask);
+                                    d->g_shift = lowest_bit(d->visual->green_mask);
+                                    d->b_shift = lowest_bit(d->visual->blue_mask);
+                                } else {
+                                    d->r_shift = 0;
+                                    d->g_shift = 0;
+                                    d->b_shift = 0;
+                                }
+                            }
+                            XFree(vi);
+                        }
+                        break;
+                    }
+                    XFree(stdcmap);
+                }
+            }
         }
 
-        XStandardColormap *stdcmap = 0;
-        int ncmaps = 0;
-        if (XGetRGBColormaps(display, RootWindow(display, i),
-                             &stdcmap, &ncmaps, XA_RGB_DEFAULT_MAP)) {
-            if (stdcmap) {
-                for (int c = 0; c < ncmaps; ++c) {
-                    if (!stdcmap[c].red_max ||
-                        !stdcmap[c].green_max ||
-                        !stdcmap[c].blue_max ||
-                        !stdcmap[c].red_mult ||
-                        !stdcmap[c].green_mult ||
-                        !stdcmap[c].blue_mult)
-                        continue; // invalid stdcmap
+        if (!use_stdcmap) {
+            switch (d->visual->c_class) {
+            case StaticGray:
+                d->mode = Gray;
 
-                    XVisualInfo proto;
-                    proto.visualid = stdcmap[c].visualid;
-                    proto.screen = i;
+                d->r_max = d->g_max = d->b_max = d->visual->map_entries;
+                break;
 
-                    int nvisuals = 0;
-                    XVisualInfo *vi = XGetVisualInfo(display, VisualIDMask | VisualScreenMask,
-                                                     &proto, &nvisuals);
-                    if (vi) {
-                        if (nvisuals > 0) {
-                            d->mode = ((vi[0].visual->c_class < StaticColor)
-                                       ? Gray
-                                       : ((vi[0].visual->c_class < TrueColor)
-                                          ? Indexed
-                                          : Direct));
+            case XGrayScale:
+                d->mode = Gray;
 
-                            d->depth = vi[0].depth;
-                            d->colormap = stdcmap[c].colormap;
-                            d->visual = vi[0].visual;
+                // follow precedent set in libXmu...
+                if (d->visual->map_entries > 65000)
+                    d->r_max = d->g_max = d->b_max = 4096;
+                else if (d->visual->map_entries > 4000)
+                    d->r_max = d->g_max = d->b_max = 512;
+                else if (d->visual->map_entries > 250)
+                    d->r_max = d->g_max = d->b_max = 12;
+                else
+                    d->r_max = d->g_max = d->b_max = 4;
+                break;
 
-                            d->r_max = stdcmap[c].red_max   + 1;
-                            d->g_max = stdcmap[c].green_max + 1;
-                            d->b_max = stdcmap[c].blue_max  + 1;
+            case StaticColor:
+                d->mode = Indexed;
 
-                            if (d->mode == Direct) {
-                                // calculate offsets
-                                d->r_shift = lowest_bit(d->visual->red_mask);
-                                d->g_shift = lowest_bit(d->visual->green_mask);
-                                d->b_shift = lowest_bit(d->visual->blue_mask);
-                            } else {
-                                d->r_shift = 0;
-                                d->g_shift = 0;
-                                d->b_shift = 0;
-                            }
-                        }
-                        XFree(vi);
-                    }
-                    break;
-                }
-                XFree(stdcmap);
+                d->r_max = right_align(d->visual->red_mask)   + 1;
+                d->g_max = right_align(d->visual->green_mask) + 1;
+                d->b_max = right_align(d->visual->blue_mask)  + 1;
+                break;
+
+            case PseudoColor:
+                d->mode = Indexed;
+
+                // follow precedent set in libXmu...
+                if (d->visual->map_entries > 65000)
+                    d->r_max = d->g_max = d->b_max = 27;
+                else if (d->visual->map_entries > 4000)
+                    d->r_max = d->g_max = d->b_max = 12;
+                else if (d->visual->map_entries > 250)
+                    d->r_max = d->g_max = d->b_max = cube_root(d->visual->map_entries - 125);
+                else
+                    d->r_max = d->g_max = d->b_max = cube_root(d->visual->map_entries);
+                break;
+
+            case TrueColor:
+            case DirectColor:
+                d->mode = Direct;
+
+                d->r_max = right_align(d->visual->red_mask)   + 1;
+                d->g_max = right_align(d->visual->green_mask) + 1;
+                d->b_max = right_align(d->visual->blue_mask)  + 1;
+
+                d->r_shift = lowest_bit(d->visual->red_mask);
+                d->g_shift = lowest_bit(d->visual->green_mask);
+                d->b_shift = lowest_bit(d->visual->blue_mask);
+                break;
             }
         }
 

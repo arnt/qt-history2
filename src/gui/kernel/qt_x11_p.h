@@ -313,6 +313,12 @@ struct QX11Data
     bool ignore_badwindow;
     bool seen_badwindow;
 
+    // options
+    int visual_class;
+    int visual_id;
+    int color_count;
+    bool custom_cmap;
+
     /* Warning: if you modify this list, modify the names of atoms in qapplication_x11.cpp as well! */
     enum X11Atom {
         // window-manager <-> client protocols
