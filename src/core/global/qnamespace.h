@@ -1020,6 +1020,7 @@ public:
     };
 
     enum ClipOperation {
+        NoClip,
         ReplaceClip,
         IntersectClip,
         UniteClip

@@ -592,10 +592,16 @@ void QMacPrintEngine::updateMatrix(const QMatrix &matrix)
     d->paintEngine->updateMatrix(matrix);
 }
 
-void QMacPrintEngine::updateClipRegion(const QRegion &region, bool clipEnabled)
+void QMacPrintEngine::updateClipRegion(const QRegion &region, Qt::ClipOperation op)
 {
     Q_ASSERT(d->state == QPrinter::Active);
-    d->paintEngine->updateClipRegion(region, clipEnabled);
+    d->paintEngine->updateClipRegion(region, op);
+}
+
+void QMacPrintEngine::updateClipPath(const QPainterPath &path, Qt::ClipOperation op)
+{
+    Q_ASSERT(d->state == QPrinter::Active);
+    d->paintEngine->updateClipPath(path, op);
 }
 
 void QMacPrintEngine::updateRenderHints(QPainter::RenderHints hints)

@@ -101,7 +101,8 @@ public:
     virtual void updateFont(const QFont &font);
     virtual void updateBackground(Qt::BGMode bgmode, const QBrush &bgBrush);
     virtual void updateMatrix(const QMatrix &matrix);
-    virtual void updateClipRegion(const QRegion &region, bool clipEnabled);
+    virtual void updateClipRegion(const QRegion &region, Qt::ClipOperation op);
+    virtual void updateClipPath(const QPainterPath &path, Qt::ClipOperation op);
     virtual void updateRenderHints(QPainter::RenderHints hints);
     virtual void drawLine(const QLineF &line);
     virtual void drawLines(const QList<QLineF> &points);

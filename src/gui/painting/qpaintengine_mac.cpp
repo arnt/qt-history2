@@ -235,20 +235,30 @@ QQuickDrawPaintEngine::updateMatrix(const QMatrix &)
 void
 QQuickDrawPaintEngine::setClippedRegionInternal(QRegion *rgn)
 {
-    if(rgn)
-        setf(ClipOn);
-    else
-        clearf(ClipOn);
-    if(rgn)
+    if(rgn) {
         d->current.clip = *rgn;
+        setf(ClipOn);
+    } else {
+        d->current.clip = QRegion();
+        clearf(ClipOn);
+    }
     d->clip.dirty = 1;
 }
 
 void
-QQuickDrawPaintEngine::updateClipRegion(const QRegion &region, bool enable)
+QQuickDrawPaintEngine::updateClipRegion(const QRegion &region, Qt::ClipOperation op)
 {
     Q_ASSERT(isActive());
-    setClippedRegionInternal(enable ? const_cast<QRegion *>(&region) : 0);
+    if(op == Qt::NoClip) {
+        setClippedRegionInternal(0);
+    } else {
+        QRegion clip = region;
+        if(op == Qt::IntersectClip)
+            clip = clip.intersect(d->current.clip);
+        else if(op == Qt::UniteClip)
+            clip = clip.unite(d->current.clip);
+        setClippedRegionInternal(&clip);
+    }
 }
 
 void
@@ -1252,38 +1262,53 @@ QCoreGraphicsPaintEngine::updateMatrix(const QMatrix &matrix)
 }
 
 void
-QCoreGraphicsPaintEngine::updateClipPath(const QPainterPath &p, bool clipEnabled)
+QCoreGraphicsPaintEngine::updateClipPath(const QPainterPath &p, Qt::ClipOperation op)
 {
     Q_ASSERT(isActive());
-    if(clipEnabled) {
-        QPolygon poly = p.toFillPolygon();
-        d->current.clip = QRegion(poly.toPointArray(), p.fillRule() == Qt::WindingFill);
-        setf(ClipOn);
-    } else {
+    if(op == Qt::NoClip) {
         clearf(ClipOn);
-    }
-    d->setClip(0);
-    if(clipEnabled) {
-        CGMutablePathRef path = qt_mac_compose_path(p);
-        CGContextAddPath(d->hd, path);
-        CGContextClip(d->hd);
-        CGPathRelease(path);
+        d->current.clip = QRegion();
+        d->setClip(0);
+    } else {
+        setf(ClipOn);
+        QRegion clipRegion(p.toFillPolygon().toPointArray(), 
+                           p.fillRule() == Qt::WindingFill);
+        if(op == Qt::ReplaceClip) {
+            d->current.clip = clipRegion;
+            d->setClip(0);
+        } else if(op == Qt::IntersectClip) {
+            d->current.clip = d->current.clip.intersect(clipRegion);
+        }
+        if(op == Qt::UniteClip) {
+            d->current.clip = d->current.clip.unite(clipRegion);
+            d->setClip(&d->current.clip);
+        } else {
+            CGMutablePathRef path = qt_mac_compose_path(p);
+            CGContextAddPath(d->hd, path);
+            CGContextClip(d->hd);
+            CGPathRelease(path);
+        }
     }
 }
 
 void
-QCoreGraphicsPaintEngine::updateClipRegion(const QRegion &clipRegion, bool clipEnabled)
+QCoreGraphicsPaintEngine::updateClipRegion(const QRegion &clipRegion, Qt::ClipOperation op)
 {
     Q_ASSERT(isActive());
-    bool old_clipEnabled = testf(ClipOn);
-    if(clipEnabled) {
-        d->current.clip = clipRegion;
-        setf(ClipOn);
-    } else {
+    if(op == Qt::NoClip) {
         clearf(ClipOn);
+        d->current.clip = QRegion();
+        d->setClip(0);
+    } else {
+        setf(ClipOn);
+        if(op == Qt::IntersectClip)
+            d->current.clip = d->current.clip.intersect(clipRegion);
+        else if(op == Qt::ReplaceClip)
+            d->current.clip = clipRegion;
+        else if(op == Qt::UniteClip)
+            d->current.clip = d->current.clip.unite(clipRegion);
+        d->setClip(&d->current.clip);
     }
-    if(clipEnabled || old_clipEnabled)
-        d->setClip(clipEnabled ? &clipRegion : 0);
 }
 
 void
