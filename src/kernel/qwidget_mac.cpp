@@ -51,7 +51,6 @@
 #include "qfocusdata.h"
 #include "qabstractlayout.h"
 #include "qtextcodec.h"
-#include <qstack.h>
 #include <qcursor.h>
 
 const unsigned char * p_str(const char *); //qglobal.cpp
@@ -75,38 +74,42 @@ QPoint posInWindow(QWidget *w)
     return QPoint(x, y);
 }
 
-static void paint_children(QWidget * p,const QRegion& r, bool now=FALSE, bool force_erase=TRUE)
+static void paint_children(QWidget * p,QRegion r, bool now=FALSE, bool force_erase=TRUE)
 {
     if(!p || r.isEmpty())
 	return;
 
-    bool painted = FALSE, erase = force_erase || !p->testWFlags(QWidget::WRepaintNoErase);
-    if(now) {
-	/* this is stupid, probably should just post, I need to ask mathias! FIXME */
-	if(!p->testWState(QWidget::WState_BlockUpdates)) {
-	    painted = TRUE;
-	    p->repaint(r, erase);
-	} else if(erase) {
-	    erase = FALSE;
-	    p->erase(r);
-	}
-    }
-    if(!painted)
-	QApplication::postEvent(p, new QPaintEvent(r, erase));
-
     if(QObjectList * childObjects=(QObjectList*)p->children()) {
-	for(QObjectListIt it(*childObjects); it.current(); ++it) {
+	QObjectListIt it(*childObjects);
+	for(it.toLast(); it.current(); --it) {
 	    if( (*it)->isWidgetType() ) {
 		QWidget *w = (QWidget *)(*it);
-		if ( w->testWState(Qt::WState_Visible) ) {
+		if ( w->topLevelWidget() == p->topLevelWidget() && w->isVisible() ) {
 		    QRegion wr = QRegion(w->geometry()) & r;
 		    if ( !wr.isEmpty() ) {
+			r -= wr;
 			wr.translate( -w->x(), -w->y() );
 			paint_children(w, wr, now, force_erase);
 		    }
 		}
 	    }
 	}
+    }
+
+    if(!r.isEmpty() && p->isVisible()) {
+	bool painted = FALSE, erase = force_erase || !p->testWFlags(QWidget::WRepaintNoErase);
+	if(now) {
+	    /* this is stupid, probably should just post, I need to ask mathias! FIXME */
+	    if(!p->testWState(QWidget::WState_BlockUpdates)) {
+		painted = TRUE;
+		p->repaint(r, erase);
+	    } else if(erase) {
+		erase = FALSE;
+		p->erase(r);
+	    }
+	}
+	if(!painted)
+	    QApplication::postEvent(p, new QPaintEvent(r, erase));
     }
 }
 
@@ -1034,7 +1037,6 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
 		BitMap *scrn = (BitMap *)*GetPortPixMap(GetWindowPort((WindowPtr)handle()));
 		CopyBits(scrn, scrn, &oldr, &newr, srcCopy, 0);
 	    }
-
 	    //finally issue "expose" events if necesary
 	    QRegion upd = (oldregion + clippedRegion(FALSE)) - bltregion;
 	    upd.translate(-px, -py); //translate them from window to the parent
@@ -1378,13 +1380,10 @@ void QWidget::propagateUpdates()
 
 void QWidget::dirtyClippedRegion(bool dirty_myself)
 {
-    int dirtied = 0;
     if(dirty_myself) {
 	//dirty myself
-	if(extra) {
+	if(extra) 
 	    extra->child_dirty = extra->clip_dirty = TRUE;
-	    dirtied++;
-	}
 	//when I get dirty so do my children
 	if(QObjectList *chldn = queryList()) {
 	    QObjectListIt it(*chldn);
@@ -1392,10 +1391,8 @@ void QWidget::dirtyClippedRegion(bool dirty_myself)
 		if(obj->isWidgetType()) {
 		    QWidget *w = (QWidget *)(*it);
 		    if(w->topLevelWidget() == topLevelWidget() &&
-		       !w->isTopLevel() && w->isVisible() && w->extra) {
-			dirtied++;
+		       !w->isTopLevel() && w->isVisible() && w->extra) 
 			w->extra->clip_dirty = TRUE;
-		    }
 		}
 	    }
 	}
@@ -1418,20 +1415,16 @@ void QWidget::dirtyClippedRegion(bool dirty_myself)
 		    if(w->topLevelWidget() == topLevelWidget() && !w->isTopLevel() && w->isVisible()) {
 			QPoint wp(posInWindow(w));
 			if(myr.intersects(QRect(wp.x(), wp.y(), w->width(), w->height()))) {
-			    if(w->extra) {
-				dirtied++;
+			    if(w->extra) 
 				w->extra->clip_dirty = TRUE;
-			    }
 			    if(QObjectList *chldn = w->queryList()) {
 				QObjectListIt it(*chldn);
 				for(QObject *obj; (obj = it.current()); ++it ) {
 				    if(obj->isWidgetType()) {
 					QWidget *w = (QWidget *)(*it);
 					if(w->topLevelWidget() == topLevelWidget() &&
-					   !w->isTopLevel() && w->isVisible() && w->extra) {
-					    dirtied++;
+					   !w->isTopLevel() && w->isVisible() && w->extra) 
 					    w->extra->clip_dirty = TRUE;
-					}
 				    }
 				}
 				delete chldn;
@@ -1442,7 +1435,6 @@ void QWidget::dirtyClippedRegion(bool dirty_myself)
 	    }
 	}
     }
-//    qDebug("Dirtied %d", dirtied);
 }
 
 bool QWidget::isClippedRegionDirty()
