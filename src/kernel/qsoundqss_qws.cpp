@@ -311,9 +311,18 @@ void QWSSoundServerPrivate::playFile(const QString& filename)
 bool QWSSoundServerPrivate::openDevice()
 {
 	if ( fd < 0 ) {
-	    fd = ::open("/dev/dsp",O_WRONLY);
-	    if ( fd < 0 )
-		return FALSE;
+            //
+            // Don't block open right away.
+            //
+            if ((fd = ::open("/dev/dsp", O_WRONLY|O_NONBLOCK)) != -1) {
+                int flags = fcntl(fd, F_GETFL);
+                flags &= ~O_NONBLOCK;
+                if (fcntl(fd, F_SETFL, flags) != 0) {
+                    return FALSE;
+                }
+            } else {
+                return FALSE;
+            }
 
 	    // Setup soundcard at 16 bit mono
 	    int v;
