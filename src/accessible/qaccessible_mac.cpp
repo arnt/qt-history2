@@ -362,7 +362,7 @@ QAccessible::globalEventProcessor(EventHandlerCallRef next_ref, EventRef event, 
 			    role = kAXTextRole;
 			else if(qrole == PushButton)
 			    role = kAXPushButtonRole;
-			else if(qrole == Outline)
+			else if(qrole == Tree)
 			    role = kAXBoxRole;
 #else
 			else if(qrole == Column || qrole ==ColumnHeader)
@@ -373,7 +373,7 @@ QAccessible::globalEventProcessor(EventHandlerCallRef next_ref, EventRef event, 
 			    role = kAXUnknownRole;
 			else if(qrole == PushButton)
 			    role = kAXButtonRole;
-			else if(qrole == Outline)
+			else if(qrole == Tree)
 			    role = kAXOutlineRole;
 			else if(qrole == EditableText || qrole == Link)
 			    role = kAXTextFieldRole;
@@ -386,8 +386,8 @@ QAccessible::globalEventProcessor(EventHandlerCallRef next_ref, EventRef event, 
 			    role = kAXRadioButtonRole;
 			else if(qrole == ComboBox)
 			    role = kAXComboBoxRole;
-			else if(qrole == DropLest)
-			    role = kAXListRole;
+			// else if(qrole == DropList)
+			//    role = kAXListRole;
 			else if(qrole == ProgressBar)
 			    role = kAXProgressIndicatorRole;
 			else if(qrole == Slider)
