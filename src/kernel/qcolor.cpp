@@ -401,10 +401,7 @@ void QColor::setNamedColor( const QString& name )
 #undef max
 #undef min
 
-/*!\obsolete
-
-  \sa hsv()
-*/
+/*! \obsolete */
 
 void QColor::getHsv( int &h, int &s, int &v ) const
 {
