@@ -1147,17 +1147,19 @@ void QMessageBox::about( QWidget *parent, const QString &caption,
 				       WDestructiveClose);
     Q_CHECK_PTR( mb );
 #ifndef QT_NO_WIDGET_TOPEXTRA
-    QPixmap i;
-    if ( parent && parent->icon())
-	i = *(parent->icon());
-    if ( i.isNull() && parent &&
-	 parent->topLevelWidget()->icon() )
-	i = *(parent->topLevelWidget()->icon());
-    if ( i.isNull() && qApp && qApp->mainWidget() &&
-	 qApp->mainWidget()->icon() )
-	i = *(qApp->mainWidget()->icon());
-    if ( !i.isNull() )
-	mb->setIconPixmap( i );
+    const QPixmap *px = parent ? parent->icon() : 0;
+    if ( px && !px->isNull() )
+	mb->setIconPixmap( *px );
+    else {
+	px = parent ? parent->topLevelWidget()->icon() : 0;
+	if ( px && !px->isNull() )
+	    mb->setIconPixmap( *px );
+	else {
+	    px = qApp && qApp->mainWidget() ? qApp->mainWidget()->icon() : 0;
+	    if ( px && !px->isNull() )
+		mb->setIconPixmap( *px );
+	}
+    }
 #endif
     mb->exec();
 }

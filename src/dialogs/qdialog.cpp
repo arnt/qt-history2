@@ -418,13 +418,21 @@ void QDialog::polish()
 {
 #ifndef QT_NO_WIDGET_TOPEXTRA
     if ( !icon() || icon()->isNull() ) {
-	QWidget *mw = parent() ? (QWidget *)parent() : 0;
-    	if ( mw && mw->icon() && !mw->icon()->isNull() )
-	    setIcon( *mw->icon() );
+	QWidget *mw = (QWidget *)parent();
+	const QPixmap *px = mw ? mw->icon() : 0;
+    	if ( px && !px->isNull() )
+	    setIcon( *px );
 	else {
-	    mw = qApp && qApp->mainWidget() ? qApp->mainWidget() : 0;
-	    if ( mw && mw->icon() && !mw->icon()->isNull() )
-		setIcon( *mw->icon() );
+	    mw = mw ? mw->topLevelWidget() : 0;
+	    px = mw ? mw->icon() : 0;
+	    if ( px && !px->isNull() )
+		setIcon( *px );
+	    else {
+		mw = qApp ? qApp->mainWidget() : 0;
+		px = mw ? mw->icon() : 0;
+		if ( px && !px->isNull() )
+		    setIcon( *px );
+	    }
 	}
     }
 #endif
