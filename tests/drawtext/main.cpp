@@ -182,24 +182,20 @@ public:
 static const int nSamples = 4;
 
 struct {
-    QString lang;
-    QString text;
+    const char *lang;
+    const char *text;
 } samples[nSamples] = {
     { "Latin",
-      QString::fromUtf8(
-	  "KDE is a powerful Open Source graphical desktop environment for Unix workstations. It combines ease of use, contemporary functionality, and out")
+      "KDE is a powerful Open Source graphical desktop environment for Unix workstations. It combines ease of use, contemporary functionality, and out"
     },
     { "Hebrew",
-      QString::fromUtf8(
-	  "אירופה, תוכנה והאינטרנט: יוצא לשוק העולמי הירשמו כעת לכנס Unicode הבינלאומי העשירי, שייערך בין התאריכים 12־10 במרץ 1997, במיינץ שבגרמניה. בכנס ישתתפו מומחים מכל ענפי התעשייה בנושא האינטרנט העולמי וה־.")
+      "אירופה, תוכנה והאינטרנט: יוצא לשוק העולמי הירשמו כעת לכנס Unicode הבינלאומי העשירי, שייערך בין התאריכים 12־10 במרץ 1997, במיינץ שבגרמניה. בכנס ישתתפו מומחים מכל ענפי התעשייה בנושא האינטרנט העולמי וה־."
     },
     { "Arabic",
-      QString::fromUtf8(
-	  "أوروبا, برمجيات الحاسوب + انترنيت : تصبح عالميا مع يونيكود تسجّل الآن لحضور المؤتمر الدولي العاشر ليونيكود, الذي سيعقد في 10-12 آذار 1997 بمدينة ماينتس, ألمانيا. وسيجمع المؤتمر بين خبراء من ")
+      "أوروبا, برمجيات الحاسوب + انترنيت : تصبح عالميا مع يونيكود تسجّل الآن لحضور المؤتمر الدولي العاشر ليونيكود, الذي سيعقد في 10-12 آذار 1997 بمدينة ماينتس, ألمانيا. وسيجمع المؤتمر بين خبراء من "
     },
     { "Hindi",
-      QString::fromUtf8(
-	  "यूनिकोड प्रत्येक अक्षर के लिए एक विशेष नम्बर प्रदान करता है, चाहे कोई भी प्लैटफॉर्म हो.")
+      "यूनिकोड प्रत्येक अक्षर के लिए एक विशेष नम्बर प्रदान करता है, चाहे कोई भी प्लैटफॉर्म हो."
     }
 };
 
@@ -212,7 +208,7 @@ const int end = nSamples;
 #define TEST( desc, loops, testfunc ) { \
     QString res = "    "; res += desc; \
     for ( int test = start; test < end; test++ ) { \
-	QString str = samples[test].text; \
+        QString str = QString::fromUtf8( samples[test].text ); \
 	QString subres; \
 	fm.width( str ); \
 	t.start(); \
@@ -277,7 +273,7 @@ static void timeSpeed()
     TEST( "width, QString (one char)\t", loops, {
 	QString tmp;
 	tmp.setLength( 1 );
-	for ( int i = 0; i < str.length(); ++i ) {
+	for ( int i = 0; i < (int)str.length(); ++i ) {
 	    *((QChar *)(tmp.unicode())) = str.unicode()[i];
 	    fm.width( tmp, 1 );
 	}
