@@ -80,17 +80,21 @@ QLocaleStaticData::QLocaleStaticData()
     m_inf_str = "inf";
 }
 
-#ifdef Q_OS_WIN
-#   define isinf(d) (!_finite(d) && !_isnan(d))
+#if defined (Q_WS_WIN) && !defined(Q_CC_GNU)
 #   define isnan(d) _isnan(d)
-#ifndef Q_CC_GNU
+#   define isinf(d) (!_finite(d) && !_isnan(d))
 #   define ULLONG_MAX _UI64_MAX
 #   define LLONG_MAX _I64_MAX
 #   define LLONG_MIN _I64_MIN
 #endif
+
+// mingw defines NAN and INFINITY to 0/0 and x/0
+#if defined (Q_WS_WIN) && defined(Q_CC_GNU)
+#   undef NAN
+#   undef INFINITY
 #endif
 
-#if !defined(INFINITY)
+#if !defined(INFINITY) 
 #   define INFINITY (QLocaleStaticData::inf())
 #endif
 
