@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/etc/opengl/glwidget.cpp#4 $
+** $Id: //depot/qt/main/etc/opengl/glwidget.cpp#5 $
 **
 ** Implementation of GLWidget class for X11.
 **
@@ -16,10 +16,18 @@
 **
 *****************************************************************************/
 
+#include <qglobal.h>
 #include <GL/gl.h>
 #include <GL/glu.h>
+#if defined(_OS_IRIX_)
+#define INT8  dummy_INT8
+#define INT32 dummy_INT32
+#endif
 #include <GL/glx.h>
-
+#if defined(_OS_IRIX_)
+#undef INT8
+#undef INT32
+#endif
 #include "glwidget.h"
 
 
