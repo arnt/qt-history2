@@ -3305,9 +3305,9 @@ void QWidget::show()
 	    s.setWidth( QMAX( s.width(), 200 ) );
  	if ( exp & QSizePolicy::Vertical )
 	    s.setHeight( QMAX( s.height(), 150 ) );
-	QWidget * d = QApplication::desktop();
-	s.setWidth( QMIN( s.width(), d->width()*2/3 ) );
-	s.setHeight( QMIN( s.height(), d->height()*2/3 ) );
+	QRect screen = QApplication::desktop()->screenGeometry( QApplication::desktop()->screenNumber( pos() ) );
+	s.setWidth( QMIN( s.width(), screen.width()*2/3 ) );
+	s.setHeight( QMIN( s.height(), screen.height()*2/3 ) );
 	if ( !s.isEmpty() )
 	    resize( s );
     }

@@ -471,6 +471,7 @@ void QWhatsThisPrivate::say_helper(QWidget* widget,const QPoint& ppos,bool init)
 	return;
 
     QRect r;
+    QRect screen = QApplication::desktop()->screenGeometry( QApplication::desktop()->screenNumber( ppos ) );
 #ifndef QT_NO_RICHTEXT
     QSimpleRichText* doc = 0;
 
@@ -482,7 +483,7 @@ void QWhatsThisPrivate::say_helper(QWidget* widget,const QPoint& ppos,bool init)
     else
 #endif
     {
-	int sw = QApplication::desktop()->width() / 3;
+	int sw = screen.width() / 3;
 	if ( sw < 200 )
 	    sw = 200;
 	else if ( sw > 300 )
@@ -500,6 +501,8 @@ void QWhatsThisPrivate::say_helper(QWidget* widget,const QPoint& ppos,bool init)
 	// okay, now to find a suitable location
 
 	int x;
+	int sx = screen.x();
+	int sy = screen.y();
 
 	// first try locating the widget immediately above/below,
 	// with nice alignment if possible.
@@ -514,14 +517,12 @@ void QWhatsThisPrivate::say_helper(QWidget* widget,const QPoint& ppos,bool init)
 
 	// squeeze it in if that would result in part of what's this
 	// being only partially visible
-	if ( x + w > QApplication::desktop()->width() )
-	    x = (widget? (QMIN(QApplication::desktop()->width(),
+	if ( x + w > sx+screen.width() )
+	    x = (widget? (QMIN(screen.width(),
 			      pos.x() + widget->width())
-			 ) : QApplication::desktop()->width() )
+			 ) : screen.width() )
 		- w;
 
-	int sx = QApplication::desktop()->x();
-	int sy = QApplication::desktop()->y();
 	if ( x < sx )
 	    x = sx;
 
@@ -529,17 +530,17 @@ void QWhatsThisPrivate::say_helper(QWidget* widget,const QPoint& ppos,bool init)
 	if ( widget && h > widget->height() + 16 ) {
 	    y = pos.y() + widget->height() + 2; // below, two pixels spacing
 	    // what's this is above or below, wherever there's most space
-	    if ( y + h + 10 > QApplication::desktop()->height() )
+	    if ( y + h + 10 > screen.height() )
 		y = pos.y() + 2 - shadowWidth - h; // above, overlap
 	}
 	y = ppos.y() + 2;
 
 	// squeeze it in if that would result in part of what's this
 	// being only partially visible
-	if ( y + h > QApplication::desktop()->height() )
-	    y = ( widget ? (QMIN(QApplication::desktop()->height(),
+	if ( y + h > screen.height() )
+	    y = ( widget ? (QMIN(screen.height(),
 				 pos.y() + widget->height())
-			    ) : QApplication:: desktop()->height() )
+			    ) : screen.height() )
 		- h;
 	if ( y < sy )
 	    y = sy;

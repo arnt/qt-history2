@@ -416,7 +416,7 @@ void QPopupMenu::popup( const QPoint &pos, int indexAtPoint )
 	updateSize();
     }
 
-    QRect screen = QApplication::desktop()->geometry( QApplication::desktop()->screenNumber( pos ) );
+    QRect screen = QApplication::desktop()->screenGeometry( QApplication::desktop()->screenNumber( pos ) );
     int sw = screen.width();			// screen width
     int sh = screen.height();			// screen height
     int sx = screen.x();			// screen pos

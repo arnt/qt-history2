@@ -22,7 +22,7 @@ public:
 
     QWidget *screen( int screen = -1 );
     
-    QRect geometry( int screen = - 1 ) const;
+    const QRect& screenGeometry( int screen = -1 ) const;
 
 private:
     QDesktopWidgetPrivate *d;

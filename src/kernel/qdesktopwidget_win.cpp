@@ -114,7 +114,7 @@ QWidget *QDesktopWidget::screen( int /*screen*/ )
 */
 }
 
-QRect QDesktopWidget::geometry( int screen ) const
+const QRect& QDesktopWidget::screenGeometry( int screen ) const
 {
     if ( screen < 0 || screen >= d->screenCount )
 	screen = d->appScreen;

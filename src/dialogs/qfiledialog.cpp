@@ -2426,21 +2426,22 @@ void QFileDialog::init()
     d->special = tr( "Special" );
 
     if ( !lastSize ) {
-	if ( QApplication::desktop()->width() < 1024 ||
-	     QApplication::desktop()->height() < 768 ) {
-	    resize( QMIN(QApplication::desktop()->width(),420),
-		    QMIN(QApplication::desktop()->height(),236) );
+	QRect screen = QApplication::desktop()->screenGeometry( QApplication::desktop()->screenNumber( pos() ) );
+	if ( screen.width() < 1024 ||
+	     screen.height() < 768 ) {
+	    resize( QMIN(screen.width(),420),
+		    QMIN(screen.height(),236) );
 	} else {
 	    QSize s( files->sizeHint() );
 	    s = QSize( s.width() + 300, s.height() + 82 );
 
-	    if ( s.width() * 3 > QApplication::desktop()->width() * 2 )
-		s.setWidth( QApplication::desktop()->width() * 2 / 3 );
+	    if ( s.width() * 3 > screen.width() * 2 )
+		s.setWidth( screen.width() * 2 / 3 );
 
-	    if ( s.height() * 3 > QApplication::desktop()->height() * 2 )
-		s.setHeight( QApplication::desktop()->height() * 2 / 3 );
-	    else if ( s.height() * 3 < QApplication::desktop()->height() )
-		s.setHeight( QApplication::desktop()->height() / 3 );
+	    if ( s.height() * 3 > screen.height() * 2 )
+		s.setHeight( screen.height() * 2 / 3 );
+	    else if ( s.height() * 3 < screen.height() )
+		s.setHeight( screen.height() / 3 );
 
 	    resize( s );
 	}

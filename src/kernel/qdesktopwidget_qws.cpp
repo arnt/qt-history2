@@ -46,7 +46,7 @@ QWidget *QDesktopWidget::screen( int )
     return this;
 }
 
-QRect QDesktopWidget::geometry( int ) const
+const QRect& QDesktopWidget::screenGeometry( int ) const
 {
     return frameGeometry();
 }

@@ -492,7 +492,7 @@ void QTipManager::showTip()
 	int h = label->heightForWidth( t->geometry.width() - 4 );
 	label->resize( label->width(), h );
     }
-    QRect screen = QApplication::desktop()->geometry( QApplication::desktop()->screenNumber( p ) );
+    QRect screen = QApplication::desktop()->screenGeometry( QApplication::desktop()->screenNumber( p ) );
 
     if ( p.x() + label->width() > screen.x() + screen.width() )
 	p.setX( screen.x() + screen.width() - label->width() );

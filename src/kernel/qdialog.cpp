@@ -442,7 +442,7 @@ void QDialog::show()
 	int extraw = 0, extrah = 0;
 	if ( w )
 	    w = w->topLevelWidget();
-	QRect desk = QApplication::desktop()->geometry( QApplication::desktop()->screenNumber( w ? w : qApp->mainWidget() ) );
+	QRect desk = QApplication::desktop()->screenGeometry( QApplication::desktop()->screenNumber( w ? w : qApp->mainWidget() ) );
 
 	QWidgetList  *list = QApplication::topLevelWidgets();
 	QWidgetListIt it( *list );
