@@ -116,9 +116,6 @@ inline QBitArray &QBitArray::operator=( const QBitArray &a )
 inline uint QBitArray::size() const
 { return ((bitarr_data*)sharedBlock())->nbits; }
 
-inline uint QBitArray::count() const
-{ return size(); }
-
 inline void QBitArray::setBit( uint index, bool value )
 { if ( value ) setBit(index); else clearBit(index); }
 
