@@ -377,6 +377,9 @@ IMAGES		+= images/adjustsize.png \
 		images/s_left.png \
 		images/s_right.png \
 		images/d_image.png \
+		images/d_textfont.png \
+		images/textfont.png \
+		images/object.png \
 		images/appicon.png
 
 
