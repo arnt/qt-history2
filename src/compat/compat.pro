@@ -1,14 +1,9 @@
-# Qt compat library
-
-REQUIRES = !qt_one_lib
 TARGET		= Qt3Compat
-QT         = core gui network sql
-
-DEFINES += QT_BUILD_COMPAT_LIB 
-
+QPRO_PWD        = $$PWD
+QT              = core gui network sql
 include(../qbase.pri)
 
-PRECOMPILED_HEADER = ../gui/kernel/qt_gui_pch.h
+DEFINES += QT_BUILD_COMPAT_LIB 
 
 include(tools/tools.pri)
 include(sql/sql.pri)
