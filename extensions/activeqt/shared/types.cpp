@@ -17,6 +17,7 @@
 #include <olectl.h>
 
 #include "types.h"
+#include <qcolormap.h>
 #include <qcursor.h>
 #include <qpixmap.h>
 #include <qpaintdevicemetrics.h>
@@ -94,7 +95,7 @@ IPictureDisp *QPixmapToIPicture(const QPixmap &pixmap)
     desc.picType = PICTYPE_BITMAP;
     
     desc.bmp.hbitmap = 0;
-    desc.bmp.hpal = QColor::hPal();
+    desc.bmp.hpal = QColormap::hPal();
     
     if (!pixmap.isNull()) {
         HDC hdc = ::CreateCompatibleDC(pixmap.winHDC());
@@ -204,7 +205,7 @@ uint QColorToOLEColor(const QColor &col)
 QColor OLEColorToQColor(uint col)
 {
     COLORREF cref;
-    OleTranslateColor(col, QColor::hPal(), &cref);
+    OleTranslateColor(col, QColormap::hPal(), &cref);
     return QColor(GetRValue(cref),GetGValue(cref),GetBValue(cref));
 }
 
