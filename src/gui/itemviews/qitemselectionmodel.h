@@ -36,15 +36,14 @@ public:
     inline int width() const { return br.column() - tl.column() + 1; }
     inline int height() const { return br.row() - tl.row() + 1; }
 
-    inline QModelIndex topLeft() const { return QModelIndex(tl); }
-    inline QModelIndex bottomRight() const { return QModelIndex(br); }
-    inline QModelIndex parent() const
-        { return tl.model() ? tl.model()->parent(tl) : QModelIndex(); }
+    inline QModelIndex topLeft() const { return tl; }
+    inline QModelIndex bottomRight() const { return br; }
+    inline QModelIndex parent() const { return tl.parent(); }
     inline const QAbstractItemModel *model() const { return tl.model(); }
 
     inline bool contains(const QModelIndex &index) const
     {
-        return (index.model() && parent() == index.model()->parent(index)
+        return (parent() == index.parent()
                 && tl.row() <= index.row() && tl.column() <= index.column()
                 && br.row() >= index.row() && br.column() >= index.column());
     }

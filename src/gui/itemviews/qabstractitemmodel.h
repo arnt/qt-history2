@@ -226,6 +226,7 @@ protected:
     void encodeData(const QModelIndex &parent, QDataStream &stream) const;
     bool decodeData(int row, const QModelIndex &parent, QDataStream &stream);
 
+    void invalidatePersistentIndex(const QModelIndex &index);
     void invalidatePersistentIndexes(const QModelIndex &parent = QModelIndex());
     int persistentIndexesCount() const;
     QModelIndex persistentIndexAt(int position) const;

@@ -58,7 +58,8 @@ public:
     static bool itemGreaterThan(const QTreeWidgetItem *left, const QTreeWidgetItem *right);
 
     void emitDataChanged(QTreeWidgetItem *item, int column);
-
+    void invalidatePersistentIndex(QTreeWidgetItem *item);
+    
 protected:
     void append(QTreeWidgetItem *item);
     void remove(QTreeWidgetItem *item);
@@ -549,6 +550,15 @@ void QTreeModel::emitDataChanged(QTreeWidgetItem *item, int column)
 
 /*!
   \internal
+*/
+void QTreeModel::invalidatePersistentIndex(QTreeWidgetItem *item)
+{
+    for (int c = 0; c < columnCount(QModelIndex()); ++c)
+        QAbstractItemModel::invalidatePersistentIndex(index(item, c));
+}
+
+/*!
+  \internal
 
   Appends the tree view \a item to the tree model and a toplevel item.
 */
@@ -977,11 +987,12 @@ QTreeWidgetItem::~QTreeWidgetItem()
     }
     children.clear();
 
+    if (model)
+        model->invalidatePersistentIndex(this);
     if (par) {
         par->children.removeAll(this);
         return;
     }
-
     if (model)
         model->remove(this);
 }
@@ -1074,8 +1085,11 @@ void QTreeWidgetItem::insertChild(int index, QTreeWidgetItem *child)
 QTreeWidgetItem *QTreeWidgetItem::takeChild(int index)
 {
     if (index >= 0 && index < children.count()) {
-        if (model)
-            model->emitRowsAboutToBeRemoved(children.at(index));
+        if (model) {
+            QTreeWidgetItem *child = children.at(index);
+            model->invalidatePersistentIndex(child);
+            model->emitRowsAboutToBeRemoved(child);
+        }
         return children.takeAt(index);
     }
     return 0;

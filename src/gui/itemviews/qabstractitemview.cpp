@@ -1269,8 +1269,7 @@ void QAbstractItemView::keyPressEvent(QKeyEvent *e)
         }
 
         if (newCurrent != current && newCurrent.isValid()) {
-            QItemSelectionModel::SelectionFlags command =
-                selectionCommand(newCurrent, e);
+            QItemSelectionModel::SelectionFlags command = selectionCommand(newCurrent, e);
             if (command & QItemSelectionModel::Current) {
                 selectionModel()->setCurrentIndex(newCurrent, QItemSelectionModel::NoUpdate);
                 QPoint offset(horizontalOffset(), verticalOffset());

@@ -1232,6 +1232,23 @@ void QAbstractItemModel::resetPersistentIndexes()
 }
 
 /*!
+  \internal
+*/
+void QAbstractItemModel::invalidatePersistentIndex(const QModelIndex &index)
+{
+    // FIXME: make this a QMap<QModelIndex, QPresistentModelIndexData*> or something similar
+    QList<QPersistentModelIndexData*>::iterator it = d->persistentIndexes.begin();
+    for (; it != d->persistentIndexes.end(); ++it) {
+        if ((*it)->index == index) {
+            (*it)->index = QModelIndex();
+            if (hasChildren(index))
+                invalidatePersistentIndexes(index);
+            return;
+        }
+    }
+}
+
+/*!
     \internal
 
     Invalidates the persistent indexes by setting them to invalid
