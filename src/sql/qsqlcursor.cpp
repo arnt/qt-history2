@@ -445,8 +445,7 @@ void QSqlCursor::remove( int pos )
 
 /*! Sets the generated flag for the field \a name to \a generated.  If the
   field does not exist, nothing happens. Only fields that have \a
-  generated set to TRUE are included in the SQL that is generated, e.g.
-  by QSqlCursor.
+  generated set to TRUE are included in the SQL that is generated.
 
   \sa isGenerated()
 */
