@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: misc.doc,v 1.10 1996/01/10 11:53:24 hanord Exp $
+** $Id: misc.doc,v 1.11 1996/01/10 15:29:11 hanord Exp $
 **
 ** Miscellaneous documentation that doesn't fit anywhere else
 **
@@ -8,7 +8,7 @@
 *****************************************************************************/
 
 #if defined(DEBUG)
-static char ident[] = "$Id: misc.doc,v 1.10 1996/01/10 11:53:24 hanord Exp $";
+static char ident[] = "$Id: misc.doc,v 1.11 1996/01/10 15:29:11 hanord Exp $";
 #endif
 
 /*! \page license.html
@@ -79,7 +79,7 @@ Fax: +47 22 64 69 49.
 E-mail: <a href=mailto:info@troll.no>info@troll.no</a> for general
 enquiries, <a href=mailto:www@troll.no>www@troll.no</a> for comments
 about our WWW pages, or <a
-href=mailto:bugs@troll.no>bugs@troll.no</a> for Qt bug reports
+href=mailto:qt-bugs@troll.no>qt-bugs@troll.no</a> for Qt bug reports
 and other Qt-related mail. */
 
 /*! \page qt.html
@@ -87,186 +87,52 @@ and other Qt-related mail. */
 <title>Qt toolkit - overview</title>
 </head><body>
 
-This is the announcement of Qt 0.93, the third public beta version,
-with minor updates.
+This is the announcement of Qt 0.93, the fifth public beta version, with
+minor updates.
 
-<h1>Qt Announcement</h1>
+<h1>The Qt Application Framework</h1>
 
-Troll Tech is proud to relase a free beta-version of Qt (pronounced:
-"cute") for Linux/X-Windows.
-
-<p>
-
-Qt is an object-oriented framework for developing portable graphical user
-interface (GUI) applications.
+Qt is a high-performance object-oriented framework for developing graphical
+user interface (GUI) applications.
 
 <p>
 
-It is ftp'able from sunsite.unc.edu in /pub/Linux/Incoming, hopefully
+Qt can be downloaded from <a
+href=http://www.troll.no/>http://www.troll.no/</a>, where you find
+on-line documentation and other Qt-related pages, as well.
+
+<p>
+
+It is also ftp'able from sunsite.unc.edu in /pub/Linux/Incoming, hopefully
 soon /pub/Linux/X11/devel/, and from ftp.nvg.unit.no in /pub/linux/qt.
 
 <p>
 
-The documentation can be browsed on the web at <a href=http://www.troll.no/>
-http://www.troll.no/</a> where you will also find other Qt-related pages.
-
-<p>
-
-About Qt:
-
-<p>
-
-Qt consists of a rich C++ library (around 100 classes) and a meta-object
-system that extends C++ with new concepts called signals and slots.
-Signals and slots define clean and natural object interfaces for creating
-independent objects.  This makes Qt very suitable for true component
-programming.
-
-<p>
-
-A "hello world" application under Qt is only 8 lines of C++ code:
-
-<pre>
-    #include &lt;qmsgbox.h&gt;
-    #include &lt;qapp.h&gt;
-
-    int main( int argc, char **argv )
-    {
-        QApplication a( argc, argv );
-        return QMessageBox::message( "Attention", "Hello, world!" );
-    }
-</pre>
-
-Qt dramatically cuts down on development time and complexity in
-writing user interface software for X-Windows/Linux.
-It allows the programmer to focus directly on the programming task,
-and not mess around with low-level X11 code.
-
-<p>
-
-Qt is very fast and compact because it is based direcly on Xlib and not
-Motif or X Intrinsics.  Qt's widgets (user interface objects) emulate
-Motif look and feel.
-
-<p>
-
-Qt supports advanced features such as drawing transformed graphics,
-including drawing rotated text and pixmaps.  Pixmaps can be loaded and
-saved using several image formats.  An image class makes it easy to
-implement image processing algorithms.
-
-<p>
-
-Qt is definitely not a toy. It is a professional product that compares
-well to any commercial GUI class library.
-
-<p>
-
-If you find any bugs, send a report to qt-bugs@troll.no.
+If you find any bugs, send a report to
+<a href=mailto:bugs@troll.no>qt-bugs@troll.no</a>
 
 <p>
 
 If you create a nice Qt program and want us to distribute it as a contrib,
-send us a line at info@troll.no.
+send us a line at <a href=mailto:info@troll.no>info@troll.no</a>.
 
 <p>
 
+There is a mailing list for Qt users. Send a message containing the single
+word "subscribe" to <a href=mailto:qt-interest-request@nvg.unit.no>
+qt-interest-request@nvg.unit.no</a> to join the list.
+You will receive a receipt from the list server within a few minutes.
 
-Here are the main features of Qt:
+<p>
+
+Here is some more information about Qt:
 
 <ul>
-<li> Qt Widgets:
-<ul>
-<li>    Button
-<li>    Button group
-<li>    Check box
-<li>    Combo box
-<li>    Dialog
-<li>    Frame
-<li>    Group box
-<li>    Label
-<li>    LCD number
-<li>    Line editor
-<li>    List box
-<li>    Menu bar
-<li>    Message box
-<li>    Popup menu
-<li>    Push button
-<li>    Radio button
-<li>    Scroll bar
-<li>    Table
-<li>    View
-</ul>
-
-
-<li> User Interface Functionality:
-<ul>
-<li>   Accelerators
-<li>   Color support:
-<ul>
-<li>	RGB-based color
-<li>	HSV conversions
-<li>	Color group
-<li>	Palette
-</ul>
-<li>   Cursor
-<li>   Font
-<li>   Painter
-<li>   Paint devices:
-<ul>
-<li>	Widget
-<li>	Pixmap/Bitmap
-<li>	Picture (meta-file)
-<li>    Printer (postscript, and on Windows native printer)
-</ul>
-<li>   Painter tools:
-<ul>
-<li>	Pen
-<li>	Brush
-<li>	Region
-<li>	Transform Matrix
-</ul>
-<li>   Image (abstract pixmap)
-<li>   Data types:
-<ul>
-<li>	Point
-<li>	Size
-<li>	Rect
-<li>	Point array
-</ul>
-<li>   Events:
-<ul>
-<li>	Mouse events
-<li>	Keyboard events
-<li>	Timer events
-<li>	and more...
-</ul>
-</ul>
-<li> General Toolkit:
-<ul>
-<li>   Array
-<li>   Bit array
-<li>   Byte array
-<li>   String
-<li>   Date and time classes
-<li>   Template/macro-based collections and iterators:
-<ul>
-<li>	List and List iterator
-<li>	Dict and Dict iterator
-<li>	Queue
-<li>	Stack
-<li>	Vector
-<li>	Cache and Cache iterator
-</ul>
-<li>   IO devices:
-<ul>
-<li>	Buffer
-<li>	File
-</ul>
-<li>   Binary IO stream (for serialization)
-<li>   Text IO stream
-<li>   Regular expression parsing
-</ul>
+<li><a href=http://www.troll.no/intro.html>Introduction to Qt</a>
+<li><a href=index.html>Documentation Home Page</a>
+<li><a href=classes69.html>Annotated Class List</a>
+<li><a href=tutorial.html>Tutorial</a>
+<li><a href=examples.html>Example Programs</a>
 </ul>
 */
 
