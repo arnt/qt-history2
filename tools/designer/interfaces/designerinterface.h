@@ -55,6 +55,7 @@ class QAction;
 struct DesignerInterface : public QUnknownInterface
 {
     virtual DesignerProject *currentProject() const = 0;
+    virtual DesignerFormWindow *currentForm() const = 0;
     virtual QList<DesignerProject> projectList() const = 0;
     virtual void showStatusMessage( const QString & ) const = 0;
     virtual DesignerDock *createDock() const = 0;
@@ -145,6 +146,10 @@ struct DesignerFormWindow
     virtual void setPropertyChanged( QObject *o, const char *property, bool changed ) = 0;
     virtual bool isPropertyChanged( QObject *o, const char *property ) const = 0;
     virtual void setColumnFields( QObject *o, const QMap<QString, QString> & ) = 0;
+    virtual QStringList implementationIncludes() const = 0;
+    virtual QStringList declarationIncludes() const = 0;
+    virtual void setImplementationIncludes( const QStringList &lst ) = 0;
+    virtual void setDeclarationIncludes( const QStringList &lst ) = 0;
 };
 
 struct DesignerDock

@@ -26,6 +26,7 @@
 #include "widgetfactory.h"
 #include "widgetdatabase.h"
 #include "pixmapchooser.h"
+#include "project.h"
 
 #include <qpalette.h>
 #include <qobjectlist.h>
@@ -36,6 +37,36 @@
 #include <qwidgetstack.h>
 #include <qtabbar.h>
 #include <qfeatures.h>
+#include <qapplication.h>
+#include "../interfaces/languageinterface.h"
+
+static const char * folder_xpm[]={
+    "16 16 6 1",
+    ". c None",
+    "b c #ffff00",
+    "d c #000000",
+    "* c #999999",
+    "a c #cccccc",
+    "c c #ffffff",
+    "................",
+    "................",
+    "..*****.........",
+    ".*ababa*........",
+    "*abababa******..",
+    "*cccccccccccc*d.",
+    "*cbababababab*d.",
+    "*cabababababa*d.",
+    "*cbababababab*d.",
+    "*cabababababa*d.",
+    "*cbababababab*d.",
+    "*cabababababa*d.",
+    "*cbababababab*d.",
+    "**************d.",
+    ".dddddddddddddd.",
+    "................"};
+
+static QPixmap *folderPixmap = 0;
+static QListViewItem *newItem = 0;
 
 HierarchyItem::HierarchyItem( QListViewItem *parent, const QString &txt1, const QString &txt2, const QString &txt3 )
     : QListViewItem( parent, txt1, txt2, txt3 )
@@ -104,6 +135,23 @@ QWidget *HierarchyItem::widget() const
     return wid;
 }
 
+void HierarchyItem::okRename()
+{
+    if ( newItem == this )
+	newItem = 0;
+    QListViewItem::okRename();
+}
+
+void HierarchyItem::cancelRename()
+{
+    if ( newItem == this ) {
+	newItem = 0;
+	QListViewItem::cancelRename();
+	delete this;
+	return;
+    }
+    QListViewItem::cancelRename();
+}
 
 
 
@@ -460,16 +508,40 @@ FunctionList::FunctionList( QWidget *parent, HierarchyView *view )
 {
     header()->hide();
     removeColumn( 1 );
+    connect( this, SIGNAL( itemRenamed( QListViewItem *, const QString & ) ),
+	     this, SLOT( renamed( QListViewItem * ) ) );
 }
 
 void FunctionList::setup()
 {
+    if ( !folderPixmap ) {
+	folderPixmap = new QPixmap( folder_xpm );
+    }
+
     clear();
+
+    LanguageInterface *lIface = MetaDataBase::languageInterface( hierarchyView->formWindow()->project()->language() );
+    if ( lIface ) {
+	QStringList defs = lIface->definitions();
+	for ( QStringList::Iterator dit = defs.begin(); dit != defs.end(); ++dit ) {
+	    HierarchyItem *itemDef = new HierarchyItem( this, tr( *dit ), QString::null, QString::null );
+	    itemDef->setPixmap( 0, *folderPixmap );
+	    itemDef->setOpen( TRUE );
+	    QStringList entries = lIface->definitionEntries( *dit, hierarchyView->formWindow()->mainWindow()->designerInterface() );
+	    for ( QStringList::Iterator eit = entries.begin(); eit != entries.end(); ++eit ) {
+		HierarchyItem *item = new HierarchyItem( itemDef, *eit, QString::null, QString::null );
+		item->setRenameEnabled( TRUE );
+	    }
+	}
+    }
+
     QValueList<MetaDataBase::Slot> slotList = MetaDataBase::slotList( hierarchyView->formWindow() );
     if ( slotList.isEmpty() )
 	return;
-    HierarchyItem *itemProtected = new HierarchyItem( this, tr( "protected" ), QString::null, QString::null );
-    HierarchyItem *itemPublic = new HierarchyItem( this, tr( "public" ), QString::null, QString::null );
+    HierarchyItem *itemFunctions = new HierarchyItem( this, tr( "Functions" ), QString::null, QString::null );
+    itemFunctions->setPixmap( 0, *folderPixmap );
+    HierarchyItem *itemProtected = new HierarchyItem( itemFunctions, tr( "protected" ), QString::null, QString::null );
+    HierarchyItem *itemPublic = new HierarchyItem( itemFunctions, tr( "public" ), QString::null, QString::null );
     QValueList<MetaDataBase::Slot>::Iterator it = --( slotList.end() );
     while ( TRUE ) {
 	QListViewItem *item = 0;
@@ -484,6 +556,7 @@ void FunctionList::setup()
     }
     itemProtected->setOpen( TRUE );
     itemPublic->setOpen( TRUE );
+    itemFunctions->setOpen( TRUE );
 }
 
 void FunctionList::setCurrent( QWidget * )
@@ -492,13 +565,66 @@ void FunctionList::setCurrent( QWidget * )
 
 void FunctionList::objectClicked( QListViewItem *i )
 {
-    if ( !i )
+    if ( !i || !i->parent() )
 	return;
-    hierarchyView->formWindow()->mainWindow()->editFunction( i->text( 0 ) );
+    if ( i->parent()->text( 0 ) == tr( "protected" ) ||
+	 i->parent()->text( 0 ) == tr( "public" ) )
+	hierarchyView->formWindow()->mainWindow()->editFunction( i->text( 0 ) );
 }
 
-void FunctionList::showRMBMenu( QListViewItem *, const QPoint & )
+void FunctionList::showRMBMenu( QListViewItem *i, const QPoint &pos )
 {
+    if ( !i )
+	return;
+    if ( i->text( 0 ) == tr( "Functions" ) )
+	return;
+    if ( i->text( 0 ) == tr( "protected" ) || i->parent() && i->parent()->text( 0 ) == "protected" ) // ### should we be able to add functions here as well?
+	return;
+    if ( i->text( 0 ) == tr( "public" ) || i->parent() && i->parent()->text( 0 ) == "public"  ) // ### should we be able to add functions here as well?
+	return;
+    QPopupMenu menu;
+    const int NEW_ITEM = 1;
+    const int DEL_ITEM = 2;
+    menu.insertItem( tr( "New" ), NEW_ITEM );
+    if ( i->parent() )
+	menu.insertItem( tr( "Delete" ), DEL_ITEM );
+    int res = menu.exec( pos );
+    if ( res == NEW_ITEM ) {
+	HierarchyItem *item = new HierarchyItem( i->parent() ? i->parent() : i, QString::null, QString::null, QString::null );
+	item->setRenameEnabled( TRUE );
+	setCurrentItem( item );
+	qApp->processEvents();
+	newItem = item;
+	item->startRename();
+    } else if ( res == DEL_ITEM ) {
+	QListViewItem *p = i->parent();
+	delete i;
+	save( p );
+    }
+}
+
+void FunctionList::renamed( QListViewItem *i )
+{
+    if ( newItem == i )
+	newItem = 0;
+    if ( !i->parent() )
+	return;
+    save( i->parent() );
+}
+
+void FunctionList::save( QListViewItem *p )
+{
+    LanguageInterface *lIface = MetaDataBase::languageInterface( hierarchyView->formWindow()->project()->language() );
+    if ( !lIface )
+	return;
+    QStringList lst;
+    QListViewItem *i = p->firstChild();
+    while ( i ) {
+	lst << i->text( 0 );
+	i = i->nextSibling();
+    }
+    lIface->setDefinitionEntries( p->text( 0 ), lst, hierarchyView->formWindow()->mainWindow()->designerInterface() );
+    setup();
 }
 
 // ------------------------------------------------------------
@@ -511,7 +637,7 @@ HierarchyView::HierarchyView( QWidget *parent )
     listview = new HierarchyList( this, this );
     addTab( listview, tr( "Widgets" ) );
     fList = new FunctionList( this, this );
-    addTab( fList, tr( "Functions" ) );
+    addTab( fList, tr( "Definitions" ) );
 
     formwindow = 0;
 }

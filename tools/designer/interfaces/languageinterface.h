@@ -35,6 +35,9 @@ struct LanguageInterface : public QUnknownInterface
     virtual QStringList featureList() const = 0;
     virtual void functions( const QString &code, QMap<QString, QString> *funcs ) const = 0;
     virtual QString createFunctionStart( const QString &className, const QString &func ) = 0;
+    virtual QStringList definitions() const = 0;
+    virtual QStringList definitionEntries( const QString &definition, QUnknownInterface *designerIface ) const = 0;
+    virtual void setDefinitionEntries( const QString &definition, const QStringList &entries, QUnknownInterface *designerIface ) = 0;
 
 };
 

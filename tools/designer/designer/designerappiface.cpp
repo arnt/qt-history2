@@ -69,6 +69,13 @@ DesignerProject *DesignerInterfaceImpl::currentProject() const
     return mainWindow->currProject()->iFace();
 }
 
+DesignerFormWindow *DesignerInterfaceImpl::currentForm() const
+{
+    if ( mainWindow->formWindow() )
+	return mainWindow->formWindow()->iFace();
+    return 0;
+}
+
 QList<DesignerProject> DesignerInterfaceImpl::projectList() const
 {
     return QList<DesignerProject>();
@@ -457,6 +464,125 @@ void DesignerFormWindowImpl::setColumnFields( QObject *o, const QMap<QString, QS
 {
     MetaDataBase::setColumnFields( o, f );
 }
+
+QStringList DesignerFormWindowImpl::implementationIncludes() const
+{
+    QValueList<MetaDataBase::Include> includes = MetaDataBase::includes( formWindow );
+    QStringList lst;
+    for ( QValueList<MetaDataBase::Include>::Iterator it = includes.begin(); it != includes.end(); ++it ) {
+	MetaDataBase::Include inc = *it;
+	if ( inc.implDecl != "in implementation" )
+	    continue;
+	QString s = inc.header;
+	if ( inc.location == "global" ) {
+	    s.prepend( "<" );
+	    s.append( ">" );
+	} else {
+	    s.prepend( "\"" );
+	    s.append( "\"" );
+	}
+	lst << s;
+    }
+    return lst;
+}
+
+QStringList DesignerFormWindowImpl::declarationIncludes() const
+{
+    QValueList<MetaDataBase::Include> includes = MetaDataBase::includes( formWindow );
+    QStringList lst;
+    for ( QValueList<MetaDataBase::Include>::Iterator it = includes.begin(); it != includes.end(); ++it ) {
+	MetaDataBase::Include inc = *it;
+	if ( inc.implDecl == "in implementation" )
+	    continue;
+	QString s = inc.header;
+	if ( inc.location == "global" ) {
+	    s.prepend( "<" );
+	    s.append( ">" );
+	} else {
+	    s.prepend( "\"" );
+	    s.append( "\"" );
+	}
+	lst << s;
+    }
+    return lst;
+}
+
+void DesignerFormWindowImpl::setImplementationIncludes( const QStringList &lst )
+{
+    QValueList<MetaDataBase::Include> oldIncludes = MetaDataBase::includes( formWindow );;
+    QValueList<MetaDataBase::Include> includes;
+    for ( QValueList<MetaDataBase::Include>::Iterator it = oldIncludes.begin(); it != oldIncludes.end(); ++it ) {
+	MetaDataBase::Include inc = *it;
+	if ( inc.implDecl == "in implementation" )
+	    continue;
+	includes << inc;
+    }
+	
+    for ( QStringList::ConstIterator sit = lst.begin(); sit != lst.end(); ++sit ) {
+	QString s = *sit;
+	if ( s[ 0 ] != '<' && s[ 0 ] != '"' ) {
+	    s.prepend( "\"" );
+	    s.append( "\"" );
+	}
+	if ( s[ 0 ] == '<' ) {
+	    s.remove( 0, 1 );
+	    s.remove( s.length() - 1, 1 );
+	    MetaDataBase::Include inc;
+	    inc.header = s;
+	    inc.implDecl = "in implementation";
+	    inc.location = "global";
+	    includes << inc;
+	} else {
+	    s.remove( 0, 1 );
+	    s.remove( s.length() - 1, 1 );
+	    MetaDataBase::Include inc;
+	    inc.header = s;
+	    inc.implDecl = "in implementation";
+	    inc.location = "local";
+	    includes << inc;
+	}
+    }
+    MetaDataBase::setIncludes( formWindow, includes );
+}
+
+void DesignerFormWindowImpl::setDeclarationIncludes( const QStringList &lst )
+{
+    QValueList<MetaDataBase::Include> oldIncludes = MetaDataBase::includes( formWindow );;
+    QValueList<MetaDataBase::Include> includes;
+    for ( QValueList<MetaDataBase::Include>::Iterator it = oldIncludes.begin(); it != oldIncludes.end(); ++it ) {
+	MetaDataBase::Include inc = *it;
+	if ( inc.implDecl == "in declaration" )
+	    continue;
+	includes << inc;
+    }
+	
+    for ( QStringList::ConstIterator sit = lst.begin(); sit != lst.end(); ++sit ) {
+	QString s = *sit;
+	if ( s[ 0 ] != '<' && s[ 0 ] != '"' ) {
+	    s.prepend( "\"" );
+	    s.append( "\"" );
+	}
+	if ( s[ 0 ] == '<' ) {
+	    s.remove( 0, 1 );
+	    s.remove( s.length() - 1, 1 );
+	    MetaDataBase::Include inc;
+	    inc.header = s;
+	    inc.implDecl = "in declaration";
+	    inc.location = "global";
+	    includes << inc;
+	} else {
+	    s.remove( 0, 1 );
+	    s.remove( s.length() - 1, 1 );
+	    MetaDataBase::Include inc;
+	    inc.header = s;
+	    inc.implDecl = "in declaration";
+	    inc.location = "local";
+	    includes << inc;
+	}
+    }
+    MetaDataBase::setIncludes( formWindow, includes );
+}
+
 
 
 

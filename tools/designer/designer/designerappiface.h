@@ -35,6 +35,7 @@ public:
     DesignerInterfaceImpl( MainWindow *mw );
 
     DesignerProject *currentProject() const;
+    DesignerFormWindow *currentForm() const;
     QList<DesignerProject> projectList() const;
     void showStatusMessage( const QString & ) const;
     DesignerDock *createDock() const;
@@ -151,6 +152,10 @@ public:
     void setPropertyChanged( QObject *o, const char *property, bool changed );
     bool isPropertyChanged( QObject *o, const char *property ) const;
     void setColumnFields( QObject *o, const QMap<QString, QString> & );
+    QStringList implementationIncludes() const;
+    QStringList declarationIncludes() const;
+    void setImplementationIncludes( const QStringList &lst );
+    void setDeclarationIncludes( const QStringList &lst );
 
 private:
     FormWindow *formWindow;

@@ -103,3 +103,15 @@ QString LanguageInterfaceImpl::createFunctionStart( const QString &className, co
 {
     return "void " + className + "::" + func;
 }
+
+QStringList LanguageInterfaceImpl::definitions() const
+{
+}
+
+QStringList LanguageInterfaceImpl::definitionEntries( const QString &definition, QUnknownInterface *designerIface ) const
+{
+}
+
+void LanguageInterfaceImpl::setDefinitionEntries( const QString &definition, const QStringList &entries, QUnknownInterface *designerIface )
+{
+}

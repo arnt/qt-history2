@@ -48,6 +48,12 @@ public:
     void setWidget( QWidget *w );
     QWidget *widget() const;
 
+    void setText( int col, const QString &txt ) { if ( !txt.isEmpty() ) QListViewItem::setText( col, txt ); }
+
+private:
+    void okRename();
+    void cancelRename();
+
 private:
     QColor backgroundColor();
     QColor backColor;
@@ -105,9 +111,13 @@ public:
     void setup();
     void setCurrent( QWidget *w );
 
+private:
+    void save( QListViewItem *p );
+
 private slots:
     void objectClicked( QListViewItem *i );
     void showRMBMenu( QListViewItem *, const QPoint & );
+    void renamed( QListViewItem *i );
 
 };
 

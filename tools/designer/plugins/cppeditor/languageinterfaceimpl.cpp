@@ -20,6 +20,7 @@
 
 #include "languageinterfaceimpl.h"
 #include <qobject.h>
+#include <designerinterface.h>
 
 LanguageInterfaceImpl::LanguageInterfaceImpl()
     : ref( 0 )
@@ -120,4 +121,38 @@ void LanguageInterfaceImpl::functions( const QString &code, QMap<QString, QStrin
 QString LanguageInterfaceImpl::createFunctionStart( const QString &className, const QString &func )
 {
     return "void " + className + "::" + func;
+}
+
+QStringList LanguageInterfaceImpl::definitions() const
+{
+    QStringList lst;
+    lst << "Includes (in Implementation)" << "Includes (in Declaration)" << "Forward Declarations" << "Class Variables";
+    return lst;
+}
+
+QStringList LanguageInterfaceImpl::definitionEntries( const QString &definition, QUnknownInterface *designerIface ) const
+{
+    if ( definition == "Includes (in Implementation)" ) {
+	if ( ( (DesignerInterface*)designerIface )->currentForm() )
+	    return ( (DesignerInterface*)designerIface )->currentForm()->implementationIncludes();
+    } else if ( definition == "Includes (in Declaration)" ) {
+	if ( ( (DesignerInterface*)designerIface )->currentForm() )
+	    return ( (DesignerInterface*)designerIface )->currentForm()->declarationIncludes();
+    } else if ( definition == "Forward Declarations" ) {
+    } else if ( definition == "Class Variables" ) {
+    }
+    return QStringList();
+}
+
+void LanguageInterfaceImpl::setDefinitionEntries( const QString &definition, const QStringList &entries, QUnknownInterface *designerIface )
+{
+    if ( definition == "Includes (in Implementation)" ) {
+	if ( ( (DesignerInterface*)designerIface )->currentForm() )
+	    ( (DesignerInterface*)designerIface )->currentForm()->setImplementationIncludes( entries );
+    } else if ( definition == "Includes (in Declaration)" ) {
+	if ( ( (DesignerInterface*)designerIface )->currentForm() )
+	    ( (DesignerInterface*)designerIface )->currentForm()->setDeclarationIncludes( entries );
+    } else if ( definition == "Forward Declarations" ) {
+    } else if ( definition == "Class Variables" ) {
+    }
 }
