@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#394 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#395 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -3168,7 +3168,7 @@ bool QETWidget::translateMouseEvent( const XEvent *event )
 	}
 	if ( event->type == ButtonPress ) {	// mouse button pressed
 	    qt_button_down = findChildWidget( this, pos );	//magic for masked widgets
-	    if ( !qt_button_down )
+	    if ( !qt_button_down || !qt_button_down->testWFlags(WMouseNoMask) )
 		qt_button_down = this;
 	    qt_window_for_button_down = winId();
 	    if ( mouseActWindow == event->xbutton.window &&
@@ -3291,7 +3291,7 @@ bool QETWidget::translateMouseEvent( const XEvent *event )
 	QMouseEvent e( type, pos, globalPos, button, state );
 	QApplication::sendEvent( widget, &e );
 	
-	if ( type == QEvent::MouseButtonRelease && 
+	if ( type == QEvent::MouseButtonRelease &&
 	     (state & (~button) & ( LeftButton |
 				    MidButton |
 				    RightButton)) == 0 ) {

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qradiobutton.cpp#93 $
+** $Id: //depot/qt/main/src/widgets/qradiobutton.cpp#94 $
 **
 ** Implementation of QRadioButton class
 **
@@ -73,7 +73,7 @@ static const int margin = 2; // to right of text
 */
 
 QRadioButton::QRadioButton( QWidget *parent, const char *name )
-	: QButton( parent, name, WResizeNoErase )
+	: QButton( parent, name, WResizeNoErase | WMouseNoMask )
 {
     init();
 }
@@ -86,7 +86,7 @@ QRadioButton::QRadioButton( QWidget *parent, const char *name )
 
 QRadioButton::QRadioButton( const QString &text, QWidget *parent,
 			    const char *name )
-	: QButton( parent, name, WResizeNoErase )
+	: QButton( parent, name, WResizeNoErase | WMouseNoMask )
 {
     init();
     setText( text );

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#214 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#215 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -2124,7 +2124,7 @@ bool QETWidget::translateMouseEvent( const MSG &msg )
 	
 	if ( type == QEvent::MouseButtonPress ) {	// mouse button pressed
 	    qt_button_down = findChildWidget( this, pos );	//magic for masked widgets
-	    if ( !qt_button_down )
+	    if ( !qt_button_down || !qt_button_down->testWFlags(WMouseNoMask) )
 		qt_button_down = this;
 	}
     }
@@ -2196,7 +2196,7 @@ bool QETWidget::translateMouseEvent( const MSG &msg )
 	QApplication::sendEvent( widget, &e );	// send event
 	if ( type != QEvent::MouseMove )
 	    pos.rx() = pos.ry() = -9999;	// init for move compression
-	if ( type == QEvent::MouseButtonRelease && 
+	if ( type == QEvent::MouseButtonRelease &&
 	     (state & (~button) & ( LeftButton |
 				    MidButton |
 				    RightButton)) == 0 ) {

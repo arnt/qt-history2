@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qcheckbox.cpp#87 $
+** $Id: //depot/qt/main/src/widgets/qcheckbox.cpp#88 $
 **
 ** Implementation of QCheckBox class
 **
@@ -53,7 +53,7 @@
 */
 
 QCheckBox::QCheckBox( QWidget *parent, const char *name )
-	: QButton( parent, name, WResizeNoErase )
+	: QButton( parent, name, WResizeNoErase | WMouseNoMask )
 {
     setToggleButton( TRUE );
 }
@@ -65,7 +65,7 @@ QCheckBox::QCheckBox( QWidget *parent, const char *name )
 */
 
 QCheckBox::QCheckBox( const QString &text, QWidget *parent, const char *name )
-	: QButton( parent, name, WResizeNoErase )
+	: QButton( parent, name, WResizeNoErase | WMouseNoMask )
 {
     setText( text );
     setToggleButton( TRUE );

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwindowdefs.h#130 $
+** $Id: //depot/qt/main/src/kernel/qwindowdefs.h#131 $
 **
 ** Definition of general window system dependent functions, types and
 ** constants
@@ -201,7 +201,7 @@ const uint WPaintUnclipped	= 0x10000000;
 const uint WPaintClever		= 0x20000000;
 const uint WResizeNoErase	= 0x40000000;
 
-const uint WReserved3		= 0x80000000;
+const uint WMouseNoMask	= 0x80000000;
 
 
 // Raster operations
