@@ -951,7 +951,7 @@ void QUrl::addPath( const QString& pa )
 	else
 	    d->path = p;
     } else {
-	if ( p[ 0 ] != QChar( '/' ) && path()[ (int)path().length() - 1 ] != '/' )
+	if ( p[ 0 ] != QChar( '/' ) && d->path[ (int)path().length() - 1 ] != '/' )
 	    d->path += "/" + p;
 	else
 	    d->path += p;
