@@ -31,13 +31,6 @@
 #include <qtextstream.h>
 #include <qtl.h>
 
-#define DEBUG_SQLINTERP 1
-
-#ifdef DEBUG_SQLINTERP
-#include <iostream>
-using namespace std;
-#endif
-
 class Program::Private
 {
 public:
