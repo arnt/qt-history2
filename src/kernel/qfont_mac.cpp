@@ -437,6 +437,16 @@ QRect QFontMetrics::boundingRect( const QString &str, int len ) const
     return QRect( 0,-(ascent()),width(str,len),height());
 }
 
+QString QFont::rawName() const
+{
+    return family();
+}
+
+void QFont::setRawName( const QString &name )
+{
+    setFamily( name );
+}
+
 void QFont::cleanup()
 {
     delete QFontPrivate::fontCache;
