@@ -1787,16 +1787,10 @@ void QWidget::setGeometry_helper(int x, int y, int w, int h, bool isMove)
     if(isTopLevel() && winid && own_id) {
 	if(isResize && isMaximized())
 	    clearWState(WState_Maximized);
-	if (qMacVersion() > Qt::MV_10_DOT_2) {
-	    if (isResize)
-		SizeWindow((WindowPtr)hd, w, h, true);
-	    if (isMove)
-		MoveWindowStructure((WindowPtr)hd, x, y);
-	} else {
-	    Rect r;
-	    SetRect(&r, x, y, x + w, y + h);
-	    SetWindowBounds((WindowPtr)hd, kWindowContentRgn, &r);
-	}
+	if (isResize)
+	    SizeWindow((WindowPtr)hd, w, h, true);
+	if (isMove)
+	    MoveWindow((WindowPtr)hd, x, y, true);
 	dirtyClippedRegion(TRUE);
     }
 
