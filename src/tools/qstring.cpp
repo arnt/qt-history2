@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#249 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#250 $
 **
 ** Implementation of the QString class and related Unicode functions
 **
@@ -9810,9 +9810,9 @@ class QLigature
 public:
     QLigature( QChar c );
 
-    Q_UINT16 first() { cur = ligatures; if(!cur) return 0; return *cur; }
-    Q_UINT16 next() { if(!cur || *cur == 0) return 0; return *(cur++); }
-    Q_UINT16 current() { if(!cur) return 0; return *cur; }
+    Q_UINT16 first() { cur = ligatures; return cur ? *cur : 0; }
+    Q_UINT16 next() { return cur && *cur ? *(cur++) : 0; }
+    Q_UINT16 current() { return cur ? *cur : 0; }
 
     int match(QString & str, unsigned int index);
     QChar head();
