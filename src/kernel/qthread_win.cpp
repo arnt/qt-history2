@@ -567,6 +567,9 @@ public:
     bool deleted   : 1;
 };
 
+static QIntDict<QThreadPrivate> *threadDict = 0;
+static QCriticalSection *dictSection = 0;
+
 #if defined(Q_C_CALLBACKS)
 extern "C"
 #endif
@@ -579,7 +582,11 @@ static unsigned int __stdcall start_thread(void* that )
 
 QThreadPrivate::QThreadPrivate()
 {
+    if ( !dictSection )
+	dictSection = new QCriticalSection();
+
     handle = 0;
+    id = 0;
     running = FALSE;
     finished = FALSE;
     deleted = FALSE;
@@ -596,19 +603,42 @@ QThreadPrivate::~QThreadPrivate()
 	qSystemWarning("Thread destroy failure");
 #endif
     }
+    if ( dictSection && !threadDict ) {
+	delete dictSection;
+	dictSection = 0;
+    }
 }
 
 void QThreadPrivate::internalRun( QThread* that )
 {
     QThreadPrivate *d = that->d;
+    dictSection->enter();
+    if ( !threadDict )
+	threadDict = new QIntDict<QThreadPrivate>();
+    threadDict->insert( d->id, d );
+    dictSection->leave();
+
     d->running = TRUE;
     d->finished = FALSE;
     that->run();
     d->finished = TRUE;
     d->running = FALSE;
+
+    dictSection->enter();
+    threadDict->remove( d->id );
+    if ( !threadDict->count() ) {
+	delete threadDict;
+	threadDict = 0;
+    }
+    d->id = 0;
+    dictSection->leave();
+
     if ( d->deleted )
 	delete d;
 }
+/*
+  QThread implementation
+*/
 
 /*
   QThread static functions
@@ -641,6 +671,23 @@ void QThread::postEvent( QObject *o,QEvent *e )
 
 void QThread::exit()
 {
+    DWORD id = GetCurrentThreadId();
+    dictSection->enter();
+    QThreadPrivate *that = threadDict->take( id );
+    if ( !threadDict->count() ) {
+	delete threadDict;
+	threadDict = 0;
+    }
+    dictSection->leave();
+
+    if ( that ) {
+	that->running = FALSE;
+	that->finished = TRUE;
+	CloseHandle( that->handle );
+	that->handle = 0;
+	that->id = 0;
+    }
+
     _endthreadex(0);
 }
 
@@ -659,10 +706,6 @@ void QThread::usleep( unsigned long usecs )
     ::Sleep( ( usecs / 1000 ) + 1 );
 }
 
-/*
-  QThread implementation
-*/
-
 QThread::QThread()
 {
     d = new QThreadPrivate;
@@ -670,6 +713,13 @@ QThread::QThread()
 
 QThread::~QThread()
 {
+    if ( dictSection ) {
+	dictSection->enter();
+	if ( threadDict )
+	    threadDict->remove( d->id );
+	dictSection->leave();
+    }
+
     if( d->running && !d->finished ) {
 #if defined(QT_CHECK_RANGE)
 	qWarning("QThread object destroyed while thread is still running.");
