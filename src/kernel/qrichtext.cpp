@@ -1069,7 +1069,7 @@ bool QRichTextIterator::right( bool doFormat )
 
 QString QRichTextIterator::text() const
 {
-    QRichTextFormatter& f = stack.getLast()?stack.getLast()->fc: fc;
+    const QRichTextFormatter& f = stack.getLast()?stack.getLast()->fc:fc;
     if ( f.current < f.paragraph->text.length() )
 	return f.paragraph->text.charAt( f.current );
     return QString::null;
@@ -1077,7 +1077,7 @@ QString QRichTextIterator::text() const
 
 QTextCharFormat* QRichTextIterator::format() const
 {
-    QRichTextFormatter& f = stack.getLast()?stack.getLast()->fc: fc;
+    const QRichTextFormatter& f = stack.getLast()?stack.getLast()->fc:fc;
     return f.format();
 }
 
