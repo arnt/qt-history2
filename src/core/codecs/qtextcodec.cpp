@@ -87,16 +87,13 @@ static bool nameMatch(const QByteArray &name, const QByteArray &test)
 
 static QTextCodec *createForName(const QByteArray &name)
 {
-    qDebug("looking for codec '%s'", name.data());
     QFactoryLoader *l = loader();
     QStringList keys = l->keys();
     for (int i = 0; i < keys.size(); ++i) {
-        qDebug("  comparing to '%s'", keys.at(i).latin1());
         if (nameMatch(name, keys.at(i).toLatin1())) {
             QByteArray realName = keys.at(i).toLatin1();
             if (QTextCodecFactoryInterface *factory
                 = qt_cast<QTextCodecFactoryInterface*>(l->instance(realName))) {
-                qDebug("    match!");
                 return factory->create(realName);
             }
         }
