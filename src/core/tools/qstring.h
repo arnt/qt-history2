@@ -32,9 +32,11 @@
 # else
 #  include <string>
 # endif
-#endif // QT_NO_STL
 
 typedef std::basic_string<wchar_t> QStdWString;
+
+#endif // QT_NO_STL
+
 
 #include <stdarg.h>
 
