@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qfiledefs.h#11 $
+** $Id: //depot/qt/main/src/tools/qfiledefs.h#12 $
 **
 **		      ***   INTERNAL HEADER FILE   ***
 **
@@ -127,30 +127,6 @@
 # define W_OK	2
 # define R_OK	4
 #endif
-
-#if defined(_OS_SUN_)
-// we put in our own prototypes since SunOS doesn't supply prototypes
-// and we depend on them for casting
-
-extern "C" {
-    FILE *fopen( char *, char * );
-    int fclose( FILE * );
-
-    int fseek( FILE *, long, int );
-    int fflush( FILE * );
-
-    int fread(  void  *, size_t, size_t, FILE * );
-    int fwrite( void , size_t, size_t, FILE * );
-
-    int ungetc( int, FILE * );
-
-    int stat( const char *, struct stat * );
-    int fstat( int, struct stat * );
-    int lstat( const char *, struct stat * );
-
-    int rename( const char *, const char * );
-    int mkdir( const char *, mode_t );
-}
 
 #endif
 

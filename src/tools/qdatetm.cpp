@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdatetm.cpp#42 $
+** $Id: //depot/qt/main/src/tools/qdatetm.cpp#43 $
 **
 ** Implementation of date and time classes
 **
@@ -36,11 +36,7 @@
 extern "C" int gettimeofday( struct timeval *, struct timezone * );
 #endif
 
-#if defined(_OS_SUN_)
-extern "C" time_t time( time_t * );
-#endif
-
-RCSTAG("$Id: //depot/qt/main/src/tools/qdatetm.cpp#42 $")
+RCSTAG("$Id: //depot/qt/main/src/tools/qdatetm.cpp#43 $")
 
 
 static const uint FIRST_DAY	= 2361222;	// Julian day for 17520914
