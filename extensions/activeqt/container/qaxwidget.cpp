@@ -1123,9 +1123,9 @@ bool QAxHostWindow::invisibleAtRuntime() const
 	DWORD dwMiscStatus;
 	m_spOleObject->GetMiscStatus( DVASPECT_CONTENT, &dwMiscStatus );
 	if( dwMiscStatus & OLEMISC_INVISIBLEATRUNTIME )
-	    return FALSE;
+	    return TRUE;
     }
-    return TRUE;
+    return FALSE;
 }
 
 QSize QAxHostWindow::sizeHint() const
@@ -1176,7 +1176,7 @@ bool QAxHostWidget::qt_emit( int isignal, QUObject *obj )
 
 void QAxHostWidget::show()
 {
-    if ( axhost && axhost->invisibleAtRuntime() ) {
+    if ( axhost && !axhost->invisibleAtRuntime() ) {
 	QWidget::show();
 	QApplication::sendPostedEvents( 0, QEvent::LayoutHint );
 	int w = width();
