@@ -278,8 +278,9 @@ bool QAquaAnimate::eventFilter( QObject * o, QEvent * e )
     } else if( (e->type() == QEvent::MouseButtonPress || e->type() == QEvent::MouseButtonRelease) &&
 	       o->inherits("QPushButton") ) {
 	QMouseEvent *me = (QMouseEvent*)e;
-	d->noPulse = me->type() == QEvent::MouseButtonPress && me->button() == Qt::LeftButton ? 
-				    (QPushButton*)o : NULL;
+	d->noPulse = NULL;
+	if(me->type() == QEvent::MouseButtonPress && me->button() == Qt::LeftButton)
+	    d->noPulse = (QPushButton*)o;
     } else if( o && (e->type() == QEvent::FocusOut || e->type() == QEvent::Show) &&
 	       o->inherits("QPushButton") ) {
 	QPushButton *btn = (QPushButton *)o;

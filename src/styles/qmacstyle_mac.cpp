@@ -902,7 +902,7 @@ void QMacStyle::drawControl(ControlElement element,
 	QTextOStream os(&pmkey);
 	int frame = ((how & Style_Down) ? 0 : d->buttonState.frame);
 	os << "$qt_mac_pshbtn_" << r.width() << "x" << r.height() << "_" << how << "_" << frame;
-	if(d->animatable(QAquaAnimate::AquaPushButton, (QWidget *)widget)) {
+	if(d->animatable(QAquaAnimate::AquaPushButton, (QWidget *)widget) && qAquaActive(cg)) {
 	    tds = kThemeStatePressed;
 	    if(frame && !(buffer = QPixmapCache::find(pmkey))) {
 		do_draw = TRUE;
