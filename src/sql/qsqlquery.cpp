@@ -332,6 +332,7 @@ bool QSqlQuery::exec(const QString& query)
     if (d->ref != 1) {
         *this = driver()->createQuery();
     } else {
+        d->sqlResult->clear();
         d->sqlResult->setActive(false);
         d->sqlResult->setLastError(QSqlError());
         d->sqlResult->setAt(QSql::BeforeFirst);
