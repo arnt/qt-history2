@@ -655,6 +655,7 @@ QMap<QCString, QChar> *htmlMap()
   	html_map->insert("gt", '>');
   	html_map->insert("amp", '&');
   	html_map->insert("nbsp", 0x00a0U);
+  	html_map->insert("bull", 0x2022U);
   	html_map->insert("aring", 'å');
   	html_map->insert("oslash", 'ø');
   	html_map->insert("ouml", 'ö');
