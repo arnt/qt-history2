@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qiodevice.h#28 $
+** $Id: //depot/qt/main/src/tools/qiodevice.h#29 $
 **
 ** Definition of QIODevice class
 **
@@ -73,10 +73,6 @@
 #define IO_TimeOutError		7		// time out
 #define IO_UnspecifiedError		8		// unspecified error
 
-#undef	TB
-#define TB(x) ((ioMode & (x)) == (x))
-
-
 class Q_EXPORT QIODevice					// IO device class
 {
 public:
@@ -87,17 +83,17 @@ public:
     int		 mode()	  const { return ioMode & IO_ModeMask; }
     int		 state()  const { return ioMode & IO_StateMask; }
 
-    bool	 isDirectAccess()     const { return TB(IO_Direct); }
-    bool	 isSequentialAccess() const { return TB(IO_Sequential); }
-    bool	 isCombinedAccess()   const { return TB(IO_Combined); }
-    bool	 isBuffered()	      const { return !TB(IO_Raw); }
-    bool	 isRaw()	      const { return TB(IO_Raw); }
-    bool	 isSynchronous()      const { return !TB(IO_Async); }
-    bool	 isAsynchronous()     const { return TB(IO_Async); }
-    bool	 isTranslated()	      const { return TB(IO_Translate); }
-    bool	 isReadable()	      const { return TB(IO_ReadOnly); }
-    bool	 isWritable()	      const { return TB(IO_WriteOnly); }
-    bool	 isReadWrite()	      const { return TB(IO_ReadWrite); }
+    bool	 isDirectAccess()     const { return ((ioMode & IO_Direct)     == IO_Direct); }
+    bool	 isSequentialAccess() const { return ((ioMode & IO_Sequential) == IO_Sequential); }
+    bool	 isCombinedAccess()   const { return ((ioMode & IO_Combined)   == IO_Combined); }
+    bool	 isBuffered()	      const { return ((ioMode & IO_Raw)        != IO_Raw); }
+    bool	 isRaw()	      const { return ((ioMode & IO_Raw)        == IO_Raw); }
+    bool	 isSynchronous()      const { return ((ioMode & IO_Async)      != IO_Async); }
+    bool	 isAsynchronous()     const { return ((ioMode & IO_Async)      == IO_Async); }
+    bool	 isTranslated()	      const { return ((ioMode & IO_Translate)  == IO_Translate); }
+    bool	 isReadable()	      const { return ((ioMode & IO_ReadOnly)   == IO_ReadOnly); }
+    bool	 isWritable()	      const { return ((ioMode & IO_WriteOnly)  == IO_WriteOnly); }
+    bool	 isReadWrite()	      const { return ((ioMode & IO_ReadWrite)  == IO_ReadWrite); }
     bool	 isInactive()	      const { return state() == 0; }
     bool	 isOpen()	      const { return state() == IO_Open; }
 
@@ -142,9 +138,6 @@ private:	// Disabled copy constructor and operator=
     QIODevice &operator=( const QIODevice & );
 #endif
 };
-
-
-#undef	TB
 
 
 #endif // QIODEVICE_H
