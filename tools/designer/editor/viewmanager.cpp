@@ -200,7 +200,7 @@ void ViewManager::clearErrorMarker()
     markerWidget->doRepaint();
 }
 
-void ViewManager::setBreakPoints( const QValueList<int> &l )
+void ViewManager::setBreakPoints( const QValueList<uint> &l )
 {
     QTextParagraph *p = ( (Editor*)curView )->document()->firstParagraph();
     int i = 0;
@@ -222,9 +222,9 @@ void ViewManager::setBreakPoints( const QValueList<int> &l )
     markerWidget->doRepaint();
 }
 
-QValueList<int> ViewManager::breakPoints() const
+QValueList<uint> ViewManager::breakPoints() const
 {
-    QValueList<int> l;
+    QValueList<uint> l;
     int i = 0;
     QTextParagraph *p = ( (Editor*)curView )->document()->firstParagraph();
     while ( p ) {

@@ -85,8 +85,8 @@ struct EditorInterface : public QUnknownInterface
     virtual void setModified( bool m ) = 0;
     virtual bool isModified() const = 0;
     virtual int numLines() const = 0;
-    virtual void breakPoints( QValueList<int> &l ) const = 0;
-    virtual void setBreakPoints( const QValueList<int> &l ) = 0;
+    virtual void breakPoints( QValueList<uint> &l ) const = 0;
+    virtual void setBreakPoints( const QValueList<uint> &l ) = 0;
     virtual void setMode( Mode m ) = 0;
 
     virtual void onBreakPointChange( QObject *receiver, const char *slot ) = 0;

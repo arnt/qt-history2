@@ -65,7 +65,7 @@ public:
     QMap<int, QString> pixmapArguments;
     QMap<int, QString> pixmapKeys;
     QMap<QString, QString> columnFields;
-    QValueList<int> breakPoints;
+    QValueList<uint> breakPoints;
     QMap<int, QString> breakPointConditions;
     QString exportMacro;
 };
@@ -1509,7 +1509,7 @@ void MetaDataBase::clear( QObject *o )
 	db->remove( (void*)it.current() );
 }
 
-void MetaDataBase::setBreakPoints( QObject *o, const QValueList<int> &l )
+void MetaDataBase::setBreakPoints( QObject *o, const QValueList<uint> &l )
 {
     if ( !o )
 	return;
@@ -1532,16 +1532,16 @@ void MetaDataBase::setBreakPoints( QObject *o, const QValueList<int> &l )
     }
 }
 
-QValueList<int> MetaDataBase::breakPoints( QObject *o )
+QValueList<uint> MetaDataBase::breakPoints( QObject *o )
 {
     if ( !o )
-	return QValueList<int>();
+	return QValueList<uint>();
     setupDataBase();
     MetaDataBaseRecord *r = db->find( (void*)o );
     if ( !r ) {
 	qWarning( "No entry for %p (%s, %s) found in MetaDataBase",
 		  o, o->name(), o->className() );
-	return QValueList<int>();
+	return QValueList<uint>();
     }
 
     return r->breakPoints;

@@ -291,7 +291,7 @@ DesignerPixmapCollection *DesignerProjectImpl::pixmapCollection() const
     return project->pixmapCollection()->iFace();
 }
 
-void DesignerProjectImpl::breakPoints( QMap<QString, QValueList<int> > &bps ) const
+void DesignerProjectImpl::breakPoints( QMap<QString, QValueList<uint> > &bps ) const
 {
     MainWindow::self->saveAllBreakPoints();
     for ( QPtrListIterator<SourceFile> sources = project->sourceFiles();
@@ -318,7 +318,7 @@ void DesignerProjectImpl::setBreakPointCondition( QObject *o, int line, const QS
 
 void DesignerProjectImpl::clearAllBreakpoints() const
 {
-    QValueList<int> empty;
+    QValueList<uint> empty;
     for ( QPtrListIterator<SourceFile> sources = project->sourceFiles();
 	  sources.current(); ++sources ) {
 	SourceFile* f = sources.current();

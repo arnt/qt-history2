@@ -3312,7 +3312,7 @@ void MainWindow::breakPointsChanged()
 
     for ( e = sourceEditors.first(); e; e = sourceEditors.next() ) {
 	if ( e->project() == currentProject && e->sourceFile() ) {
-	    QValueList<int> bps = MetaDataBase::breakPoints( e->sourceFile() );
+	    QValueList<uint> bps = MetaDataBase::breakPoints( e->sourceFile() );
 	    iiface->setBreakPoints( e->object(), bps );
 	}
     }

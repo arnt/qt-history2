@@ -85,7 +85,7 @@ public:
     void setCustomSetting( const QString &key, const QString &value );
     QString customSetting( const QString &key ) const;
     DesignerPixmapCollection *pixmapCollection() const;
-    void breakPoints( QMap<QString, QValueList<int> > &bps ) const;
+    void breakPoints( QMap<QString, QValueList<uint> > &bps ) const;
     QString breakPointCondition( QObject *o, int line ) const;
     void setBreakPointCondition( QObject *o, int line, const QString &condition );
     void clearAllBreakpoints() const;

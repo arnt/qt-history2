@@ -47,7 +47,7 @@ struct InterpreterInterface : public QUnknownInterface
 {
     virtual void init() = 0;
     virtual bool exec( QObject *obj, const QString &code ) = 0;
-    virtual void setBreakPoints( QObject *obj, const QValueList<int> &lst ) = 0;
+    virtual void setBreakPoints( QObject *obj, const QValueList<uint> &lst ) = 0;
     virtual QString createVariableDeclaration( const QString &var ) = 0;
     virtual QString createFunctionDeclaration( const QString &signature, const QString &body ) = 0;
 

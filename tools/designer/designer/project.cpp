@@ -364,7 +364,7 @@ QStringList parse_multiline_part( const QString &contents, const QString &key, i
 	default:
 	    lastWord += c;
 	}
-	
+
 	// ### we should read the 'bla { SOURCES= ... }' stuff as well (braceCount > 0)
 	if ( lastWord == key && braceCount == 0 ) {
 	    if ( start )
@@ -658,7 +658,7 @@ void Project::save( bool onlyProjectFile )
 	       (++it != pixmaps.end() ? " \\\n\t" : "");
 	    --it;
 	}
-	
+
 	contents += "\n";
     }
 
@@ -699,7 +699,7 @@ void Project::save( bool onlyProjectFile )
 	    lst << makeRelative( f->fileName() );
 	    sourceToKey.replace( key, lst );
 	}
-	
+
 	for ( QMap<QString, QStringList>::Iterator skit = sourceToKey.begin();
 	      skit != sourceToKey.end(); ++skit ) {
 	    QString part = skit.key() + "\t+= ";
@@ -1365,7 +1365,7 @@ void Project::addAndEditFunction( const QString &function, const QString &functi
 	    int i = func.find( '(' );
 	    if ( i != -1 )
 		func = func.left( i );
-	
+
 	    bool found = FALSE;
 	    for ( QValueList<LanguageInterface::Function>::Iterator it = funcs.begin();
 		  it != funcs.end(); ++it ) {
@@ -1374,7 +1374,7 @@ void Project::addAndEditFunction( const QString &function, const QString &functi
 		    break;
 		}
 	    }
-	
+
 	    if ( !found ) {
 		QString code = f->text();
 		if ( functionBody.isEmpty() )
@@ -1386,13 +1386,13 @@ void Project::addAndEditFunction( const QString &function, const QString &functi
 		if ( f->editor() )
 		    f->editor()->refresh( FALSE );
 	    }
-	
+
 	    if ( openDeveloper ) {
 		if ( MainWindow::self )
 		    MainWindow::self->editSource( f );
 		f->editor()->setFunction( func, "" );
 	    }
-	
+
 	    break;
 	}
     }
@@ -1586,7 +1586,7 @@ QObjectList *Project::run()
 	    if ( !f->formWindow() )
 		continue;
 	    FormWindow* fw = f->formWindow();
-	    QValueList<int> bps = MetaDataBase::breakPoints( fw );
+	    QValueList<uint> bps = MetaDataBase::breakPoints( fw );
 	    if ( MainWindow::self && !bps.isEmpty() && MainWindow::self->isVisible() )
 		iiface->setBreakPoints( fw, bps );
 	}
@@ -1594,7 +1594,7 @@ QObjectList *Project::run()
 	for ( QPtrListIterator<SourceFile> sources = sourceFiles();
 	      sources.current(); ++sources ) {
 	    SourceFile* f = sources.current();
-	    QValueList<int> bps = MetaDataBase::breakPoints( f );
+	    QValueList<uint> bps = MetaDataBase::breakPoints( f );
 	    if ( MainWindow::self && !bps.isEmpty() && MainWindow::self->isVisible() )
 		iiface->setBreakPoints( f, bps );
 	}
@@ -1622,7 +1622,7 @@ QObjectList *Project::run()
 	    FormWindow *fw = (FormWindow*)findRealForm( (QWidget*)o );
 	    if ( !fw )
 		continue;
-	    QValueList<int> bps = MetaDataBase::breakPoints( fw );
+	    QValueList<uint> bps = MetaDataBase::breakPoints( fw );
 	    if ( MainWindow::self && !bps.isEmpty() && MainWindow::self->isVisible() )
 		iiface->setBreakPoints( o, bps );
 	}

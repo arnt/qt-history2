@@ -244,9 +244,9 @@ public:
 
     static void clear( QObject *o );
 
-    static void setBreakPoints( QObject *o, const QValueList<int> &l );
+    static void setBreakPoints( QObject *o, const QValueList<uint> &l );
     static void setBreakPointCondition( QObject *o, int line, const QString &condition );
-    static QValueList<int> breakPoints( QObject *o );
+    static QValueList<uint> breakPoints( QObject *o );
     static QString breakPointCondition( QObject *o, int line );
 
     static void setExportMacro( QObject *o, const QString &macro );

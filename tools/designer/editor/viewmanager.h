@@ -49,8 +49,8 @@ public:
     void setStackFrame( int line );
     void clearStep();
     void clearStackFrame();
-    void setBreakPoints( const QValueList<int> &l );
-    QValueList<int> breakPoints() const;
+    void setBreakPoints( const QValueList<uint> &l );
+    QValueList<uint> breakPoints() const;
 
     void emitMarkersChanged();
     MarkerWidget *marker_widget() const { return markerWidget; }
