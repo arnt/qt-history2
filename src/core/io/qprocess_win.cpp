@@ -433,6 +433,20 @@ bool QProcessPrivate::waitForReadyRead(int msecs)
             break;
         Sleep(nextSleep);
         nextSleep *= 2;
+
+        // try to empty the other buffer, if somthing is read rest the sleep time,
+        // there may be more data soon
+        if (processChannel != QProcess::StandardOutput) {
+            if (bytesAvailableFromStdout()) {
+                canReadStandardOutput();
+                nextSleep = qMin(SLEEPMIN, msecs);
+            }
+        } else {
+            if (bytesAvailableFromStderr()) {
+                canReadStandardError();
+                nextSleep = qMin(SLEEPMIN, msecs);
+            }
+        }
     }
 
     processError = QProcess::Timedout;
@@ -452,13 +466,40 @@ bool QProcessPrivate::waitForFinished(int msecs)
 #if defined QPROCESS_DEBUG
     qDebug("QProcessPrivate::waitForFinished(%d)", msecs);
 #endif
-    if (WaitForSingleObject(pid->hProcess, msecs) == WAIT_TIMEOUT) {
-        processError = QProcess::Timedout;
-        q->setErrorString(QT_TRANSLATE_NOOP(QProcess, "Process opeation timed out"));
-        return false;
+
+    QTime start;
+    start.start();
+
+    // the progressive time is so that we can check the buffers for avialable data
+    // so stopping a potential dead lock
+
+    int nextSleep = qMin(SLEEPMIN, msecs);
+    for (;;) {
+        if (WaitForSingleObject(pid->hProcess, nextSleep) == WAIT_OBJECT_0) {
+            processDied();
+            return true;
+        } else {
+            nextSleep *= 2;
+            nextSleep = qMin(qMin(nextSleep, SLEEPMAX), msecs - start.elapsed());      
+            if (nextSleep <= 0) {
+                processError = QProcess::Timedout;
+                q->setErrorString(QT_TRANSLATE_NOOP(QProcess, "Process opeation timed out"));
+                return false;
+            }
+        }
+
+        // try to empty the buffers, if somthing is read rest the slep time,
+        // there may be more data soon
+        if (bytesAvailableFromStdout()) {
+            canReadStandardOutput();
+            nextSleep = qMin(SLEEPMIN, msecs);
+        }
+        if (bytesAvailableFromStderr()) {
+            canReadStandardError();
+            nextSleep = qMin(SLEEPMIN, msecs);
+        }
     }
-    processDied();
-    return true;
+
 }
 
 
