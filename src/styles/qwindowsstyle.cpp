@@ -773,9 +773,11 @@ void QWindowsStyle::drawControl( ControlElement element,
 		int text_flags = AlignVCenter|ShowPrefix | DontClip | SingleLine;
 		text_flags |= (QApplication::reverseLayout() ? AlignRight : AlignLeft );
 		if ( t >= 0 ) {                         // draw tab text
-		    int xp;
-		    xp = x + w - tab - ((use2000style) ? 20 : windowsRightBorder) -
-			 windowsItemHMargin - windowsItemFrame + 1;
+		    int xp = x + w - tab - windowsItemHMargin - windowsItemFrame + 1;
+		    if ( use2000style )
+			xp -= 20;
+		    else
+			xp -= windowsRightBorder;
 		    int xoff = visualRect( QRect( xp, y+windowsItemVMargin, tab, h-2*windowsItemVMargin ), r ).x();
 		    if ( dis && !act ) {
 			p->setPen( cg.light() );
