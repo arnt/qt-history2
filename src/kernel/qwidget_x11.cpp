@@ -486,6 +486,8 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 			    XVisualIDFromVisual( (Visual*)x11AppVisual() ) );
 	xd->x_colormap = a.colormap;
 	setX11Data( xd );
+
+	delete xd;
     }
 
     if ( destroyw )
@@ -1082,6 +1084,16 @@ void QWidget::setIconText( const QString &iconText )
     extra->topextra->iconText = iconText;
     XSetIconName( x11Display(), winId(), iconText.utf8() );
     XSetWMIconName( x11Display(), winId(), qstring_to_xtp(iconText) );
+}
+
+void QWidget::setAccessibilityHint( const QString &hint )
+{
+    if ( topLevel() )
+	return;
+
+    if ( !extra )
+	createExtra();
+    extra->accessibility_hint = hint;
 }
 
 

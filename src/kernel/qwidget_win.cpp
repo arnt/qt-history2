@@ -589,6 +589,26 @@ void QWidget::setCaption( const QString &caption )
     QApplication::sendEvent( this, &e );
 }
 
+void QWidget::setAccessibilityHint( const QString &hint )
+{
+    if ( isTopLevel() )
+	return;
+
+    // set the window text to the new hint
+    if ( !extra )
+	createExtra();
+    extra->accessibility_hint = hint;
+    if ( qt_winver & WV_NT_based )
+	SetWindowText( winId(), (TCHAR*)qt_winTchar(hint, TRUE) );
+    else
+	SetWindowTextA( winId(), hint.local8Bit() );
+
+    // and force the system to re-read the string if this is the current widget
+    if ( GetFocus() == winId() ) {
+	SetFocus( 0 );
+	SetFocus( winId() );
+    }
+}
 
 /*
   Create an icon mask the way Windows wants it using CreateBitmap.

@@ -123,6 +123,7 @@ class Q_EXPORT QWidget : public QObject, public QPaintDevice
     Q_PROPERTY( bool autoMask READ autoMask WRITE setAutoMask )
     Q_PROPERTY( BackgroundOrigin backgroundOrigin READ backgroundOrigin WRITE setBackgroundOrigin )
     Q_PROPERTY( bool customWhatsThis READ customWhatsThis )
+    Q_PROPERTY( QString accessibilityHint READ accessibilityHint WRITE setAccessibilityHint )
 
     public:
     QWidget( QWidget *parent=0, const char *name=0, WFlags f=0 );
@@ -251,6 +252,7 @@ public:
     const QPixmap      *icon() const;
     QString		iconText() const;
     bool		hasMouseTracking() const;
+    QString		accessibilityHint() const;
 
     virtual void	setMask( const QBitmap & );
     virtual void	setMask( const QRegion & );
@@ -261,6 +263,7 @@ public slots:
     virtual void	setIcon( const QPixmap & );
     virtual void	setIconText( const QString &);
     virtual void	setMouseTracking( bool enable );
+    virtual void	setAccessibilityHint( const QString & );
 
     // Keyboard input focus functions
 
@@ -904,6 +907,7 @@ struct Q_EXPORT QWExtra {
     QStyle* style;
 #endif
     QRect micro_focus_hint;                     // micro focus hint
+    QString accessibility_hint;
     QSizePolicy size_policy;
     uint bg_origin : 2;
 };

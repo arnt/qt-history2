@@ -2817,9 +2817,6 @@ void QWidget::setFocus()
     if ( isActiveWindow() ) {
 	QWidget * prev = qApp->focus_widget;
 	qApp->focus_widget = this;
-#if defined(Q_WS_WIN)
-	SetFocus( winId() );
-#endif
 	if ( prev != this ) {
 	    if ( prev ) {
 		QFocusEvent out( QEvent::FocusOut );
@@ -2829,6 +2826,10 @@ void QWidget::setFocus()
 	    QFocusEvent in( QEvent::FocusIn );
 	    QApplication::sendEvent( this, &in );
 	}
+#if defined(Q_WS_WIN)
+	if ( !isPopup() )
+	    SetFocus( winId() );
+#endif
     }
 }
 
@@ -4459,7 +4460,46 @@ QRect QWidget::microFocusHint() const
 	return extra->micro_focus_hint;
 }
 
+/*!
+  \fn void QWidget::setAccessibilityHint( const QString &hint )
 
+  Sets the current accessibility hint to \a hint. The accessibility hint
+  is used by text-to-speech engines to provide better accessibility for
+  visually impaired users.
+
+  For top level widgets, the currently set caption will be used as the
+  accessibility hint.
+
+  Widgets with static contents should use this function when the contents
+  is set programmatically, e.g. like in QButton::setText:
+
+  \code
+  void QButton::setText( const QString &text )
+  {
+      // text change and updates
+
+      setAccessibilityHint( text );
+  }
+  \endcode
+
+  Widgets that can receive input focus, or that display multiple items must
+  update the accessibility hint whenever the contents change.
+
+  \sa accessibilityHint(), setMicroFocusHint()
+*/
+
+/*!
+  Returns the currently set accessibility hint.
+
+  \sa setAccessibilityHint(), setMicroFocusHint()
+*/
+QString QWidget::accessibilityHint() const
+{
+    if ( !caption().isNull() )
+	return caption();
+
+    return extra ? extra->accessibility_hint : QString::null;
+}
 
 /*!
   This event handler can be reimplemented in a subclass to receive
