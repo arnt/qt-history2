@@ -2480,6 +2480,9 @@ HRESULT WINAPI QAxServerBase::Load( IStream *pStm )
     QBuffer qtbuffer( qtarray );
     qtbuffer.open( IO_ReadOnly | IO_Translate );
     QDataStream qtstream( &qtbuffer );
+    int version;
+    qtstream >> version;
+    qtstream.setVersion(version);
 
     const QMetaObject *mo = qt.object->metaObject();
     while ( !qtbuffer.atEnd() ) {
@@ -2501,6 +2504,7 @@ HRESULT WINAPI QAxServerBase::Save( IStream *pStm, BOOL clearDirty )
     QBuffer qtbuffer;
     qtbuffer.open( IO_WriteOnly | IO_Translate );
     QDataStream qtstream( &qtbuffer );
+    qtstream << qtstream.version();
     
     readMetaData();
 
