@@ -1414,7 +1414,7 @@ void Q3TextEdit::keyPressEvent(QKeyEvent *e)
                 }
 		if (overWrite && !cursor->atParagEnd() && !doc->hasSelection(Q3TextDocument::Standard)) {
                     doKeyboardAction(ActionDelete);
-                    clearUndoRedoInfo = FALSE;
+                    clearUndoRedoInfo = false;
                 }
                 QString t = e->text();
                 insert(t, true, false);

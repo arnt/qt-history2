@@ -21,8 +21,8 @@
 class Q_COMPAT_EXPORT Q3StrVec : public Q3PtrVector<char>
 {
 public:
-    Q3StrVec()  { dc = TRUE; }
-    Q3StrVec( uint size, bool deepc = TRUE ) : Q3PtrVector<char>(size) {dc=deepc;}
+    Q3StrVec()  { dc = true; }
+    Q3StrVec( uint size, bool deepc = true ) : Q3PtrVector<char>(size) {dc=deepc;}
    ~Q3StrVec()  { clear(); }
 private:
     Item	 newItem( Item d )	{ return dc ? qstrdup( (const char*)d ) : d; }
@@ -44,7 +44,7 @@ class Q_COMPAT_EXPORT Q3StrIVec : public Q3StrVec	// case insensitive string vec
 {
 public:
     Q3StrIVec() {}
-    Q3StrIVec( uint size, bool dc = TRUE ) : Q3StrVec( size, dc ) {}
+    Q3StrIVec( uint size, bool dc = true ) : Q3StrVec( size, dc ) {}
    ~Q3StrIVec() { clear(); }
 private:
     int	 compareItems( Item s1, Item s2 )

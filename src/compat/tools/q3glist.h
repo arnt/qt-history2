@@ -72,8 +72,8 @@ protected:
     void sort();                        	// sort all items;
     void clear();				// remove all items
 
-    int	 findRef( Q3PtrCollection::Item, bool = TRUE ); // find exact item in list
-    int	 find( Q3PtrCollection::Item, bool = TRUE ); // find equal item in list
+    int	 findRef( Q3PtrCollection::Item, bool = true ); // find exact item in list
+    int	 find( Q3PtrCollection::Item, bool = true ); // find equal item in list
 
     uint containsRef( Q3PtrCollection::Item ) const;	// get number of exact matches
     uint contains( Q3PtrCollection::Item ) const;	// get number of equal matches

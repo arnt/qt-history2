@@ -75,7 +75,7 @@ public:
 	: list(0), iterator(0) {
     }
     ~Q3GListIteratorList() {
-	notifyClear( TRUE );
+	notifyClear( true );
 	delete list;
     }
 
@@ -257,29 +257,29 @@ Q3GList& Q3GList::operator=( const Q3GList &list )
 }
 
 /*!
-  Compares this list with \a list. Returns TRUE if the lists
-  contain the same data, otherwise FALSE.
+  Compares this list with \a list. Returns true if the lists
+  contain the same data, otherwise false.
 */
 
 bool Q3GList::operator==( const Q3GList &list ) const
 {
     if ( count() != list.count() )
-	return FALSE;
+	return false;
 
     if ( count() == 0 )
-	return TRUE;
+	return true;
 
     Q3LNode *n1 = firstNode;
     Q3LNode *n2 = list.firstNode;
     while ( n1 && n2 ) {
 	// should be mutable
 	if ( ( (Q3GList*)this )->compareItems( n1->data, n2->data ) != 0 )
-	    return FALSE;
+	    return false;
 	n1 = n1->next;
 	n2 = n2->next;
     }
 
-    return TRUE;
+    return true;
 }
 
 /*!
@@ -316,13 +316,13 @@ Q3LNode *Q3GList::locate( uint index )
     } else if ( index < numNodes - index ) {	// start from first node
 	node = firstNode;
 	distance = index;
-	forward = TRUE;
+	forward = true;
     } else {					// start from last node
 	node = lastNode;
 	distance = numNodes - index - 1;
 	if ( distance < 0 )
 	    distance = 0;
-	forward = FALSE;
+	forward = false;
     }
     if ( forward ) {				// now run through nodes
 	while ( distance-- )
@@ -398,14 +398,14 @@ bool Q3GList::insertAt( uint index, Q3PtrCollection::Item d )
 {
     if ( index == 0 ) {
 	prepend( d );
-	return TRUE;
+	return true;
     } else if ( index == numNodes ) {
 	append( d );
-	return TRUE;
+	return true;
     }
     Q3LNode *nextNode = locate( index );
     if ( !nextNode )
-	return FALSE;
+	return false;
     Q3LNode *prevNode = nextNode->prev;
     register Q3LNode *n = new Q3LNode( newItem(d) );
     Q_CHECK_PTR( n );
@@ -415,7 +415,7 @@ bool Q3GList::insertAt( uint index, Q3PtrCollection::Item d )
     n->next = nextNode;
     curNode = n;				// curIndex set by locate()
     numNodes++;
-    return TRUE;
+    return true;
 }
 
 
@@ -490,7 +490,7 @@ bool Q3GList::removeNode( Q3LNode *n )
     if ( n == 0 || (n->prev && n->prev->next != n) ||
 	 (n->next && n->next->prev != n) ) {
 	qWarning( "Q3GList::removeNode: Corrupted node" );
-	return FALSE;
+	return false;
     }
 #endif
     curNode = n;
@@ -499,7 +499,7 @@ bool Q3GList::removeNode( Q3LNode *n )
     delete n;
     curNode  = firstNode;
     curIndex = curNode ? 0 : -1;
-    return TRUE;
+    return true;
 }
 
 /*!
@@ -511,13 +511,13 @@ bool Q3GList::removeNode( Q3LNode *n )
 bool Q3GList::remove( Q3PtrCollection::Item d )
 {
     if ( d && find(d) == -1 )
-	return FALSE;
+	return false;
     Q3LNode *n = unlink();
     if ( !n )
-	return FALSE;
+	return false;
     deleteItem( n->data );
     delete n;
-    return TRUE;
+    return true;
 }
 
 /*!
@@ -527,13 +527,13 @@ bool Q3GList::remove( Q3PtrCollection::Item d )
 bool Q3GList::removeRef( Q3PtrCollection::Item d )
 {
     if ( findRef(d) == -1 )
-	return FALSE;
+	return false;
     Q3LNode *n = unlink();
     if ( !n )
-	return FALSE;
+	return false;
     deleteItem( n->data );
     delete n;
-    return TRUE;
+    return true;
 }
 
 /*!
@@ -555,13 +555,13 @@ bool Q3GList::removeRef( Q3PtrCollection::Item d )
 bool Q3GList::removeAt( uint index )
 {
     if ( !locate(index) )
-	return FALSE;
+	return false;
     Q3LNode *n = unlink();
     if ( !n )
-	return FALSE;
+	return false;
     deleteItem( n->data );
     delete n;
-    return TRUE;
+    return true;
 }
 
 
@@ -572,12 +572,12 @@ bool Q3GList::replaceAt( uint index, Q3PtrCollection::Item d )
 {
     Q3LNode *n = locate( index );
     if ( !n )
-	return FALSE;
+	return false;
     if ( n->data != d ) {
 	deleteItem( n->data );
 	n->data = newItem( d );
     }
-    return TRUE;
+    return true;
 }
 
 
@@ -670,7 +670,7 @@ void Q3GList::clear()
     curIndex = -1;
 
     if ( iterators )
-	iterators->notifyClear( FALSE );
+	iterators->notifyClear( false );
 
     Q3LNode *prevNode;
     while ( n ) {				// for all nodes ...
@@ -683,7 +683,7 @@ void Q3GList::clear()
 
 
 /*!
-  Finds item \a d in the list. If \a fromStart is TRUE the search
+  Finds item \a d in the list. If \a fromStart is true the search
   begins at the first node; otherwise it begins at the current node.
 */
 
@@ -709,7 +709,7 @@ int Q3GList::findRef( Q3PtrCollection::Item d, bool fromStart )
 
 /*!
   Finds item \a d in the list using compareItems(). If \a fromStart is
-  TRUE the search begins at the first node; otherwise it begins at the
+  true the search begins at the first node; otherwise it begins at the
   current node.
 */
 
@@ -1125,13 +1125,13 @@ Q3GListIterator::~Q3GListIterator()
 /*!
   \fn bool Q3GListIterator::atFirst() const
   \internal
-  Returns TRUE if the iterator points to the first item, otherwise FALSE.
+  Returns true if the iterator points to the first item, otherwise false.
 */
 
 /*!
   \fn bool Q3GListIterator::atLast() const
   \internal
-  Returns TRUE if the iterator points to the last item, otherwise FALSE.
+  Returns true if the iterator points to the last item, otherwise false.
 */
 
 

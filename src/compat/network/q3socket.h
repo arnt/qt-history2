@@ -5,7 +5,7 @@
 **
 ** Created : 970521
 **
-** Copyright (C) 1992-2002 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2004 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the network module of the Qt GUI Toolkit.
 **
@@ -116,7 +116,7 @@ signals:
     void	 error( int );
 
 protected slots:
-    virtual void sn_read( bool force=FALSE );
+    virtual void sn_read( bool force=false );
     virtual void sn_write();
 
 protected:

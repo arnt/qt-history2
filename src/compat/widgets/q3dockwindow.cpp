@@ -1633,7 +1633,7 @@ int Q3DockWindow::closeMode() const
     setHorizontallyStretchable(true) or setResizeEnabled(true).
 
     \warning Stretchability is broken. You must call
-    setResizeEnabled(TRUE) to get proper behavior and even then
+    setResizeEnabled(true) to get proper behavior and even then
     Q3DockWindow does not limit stretchablilty.
 
     \sa setResizeEnabled()
@@ -1654,7 +1654,7 @@ void Q3DockWindow::setHorizontallyStretchable(bool b)
     \sa setResizeEnabled()
 
     \warning Stretchability is broken. You must call
-    setResizeEnabled(TRUE) to get proper behavior and even then
+    setResizeEnabled(true) to get proper behavior and even then
     Q3DockWindow does not limit stretchablilty.
 */
 
@@ -1682,7 +1682,7 @@ bool Q3DockWindow::isVerticallyStretchable() const
     setVerticallyStretchable(), or with setResizeEnabled().
 
     \warning Stretchability is broken. You must call
-    setResizeEnabled(TRUE) to get proper behavior and even then
+    setResizeEnabled(true) to get proper behavior and even then
     Q3DockWindow does not limit stretchablilty.
 
     \sa setResizeEnabled()

@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Implementation of Q3LocalFs class
 **
 ** Created : 950429
 **
-** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2004 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the kernel module of the Qt GUI Toolkit.
 **
@@ -127,7 +127,7 @@ void Q3LocalFs::operationListChildren( Q3NetworkOperation *op )
 
     dir = QDir( url()->path() );
     dir.setNameFilter( url()->nameFilter() );
-    dir.setMatchAllDirs( TRUE );
+    dir.setMatchAllDirs( true );
     if ( !dir.isReadable() ) {
 	QString msg = tr( "Could not read directory\n%1" ).arg( url()->path() );
 	op->setState( StFailed );
@@ -203,14 +203,14 @@ void Q3LocalFs::operationRemove( Q3NetworkOperation *op )
 #endif
     op->setState( StInProgress );
     QString name = Q3Url( op->arg( 0 ) ).path();
-    bool deleted = FALSE;
+    bool deleted = false;
 
     dir = QDir( url()->path() );
 
     QFileInfo fi( dir, name );
     if ( fi.isDir() ) {
 	if ( dir.rmdir( name ) )
-	    deleted = TRUE;
+	    deleted = true;
     }
 
     if ( deleted || dir.remove( name ) ) {

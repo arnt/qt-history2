@@ -57,7 +57,7 @@ public:
 	pipeStdout[1] = 0;
 	pipeStderr[0] = 0;
 	pipeStderr[1] = 0;
-	exitValuesCalculated = FALSE;
+	exitValuesCalculated = false;
 
 	lookup = new QTimer( proc );
 	qApp->connect( lookup, SIGNAL(timeout()),
@@ -84,7 +84,7 @@ public:
 	pipeStdout[1] = 0;
 	pipeStderr[0] = 0;
 	pipeStderr[1] = 0;
-	exitValuesCalculated = FALSE;
+	exitValuesCalculated = false;
 
 	deletePid();
     }
@@ -148,14 +148,14 @@ void Q3Process::init()
 {
     d = new Q3ProcessPrivate( this );
     exitStat = 0;
-    exitNormal = FALSE;
+    exitNormal = false;
 }
 
 void Q3Process::reset()
 {
     d->reset();
     exitStat = 0;
-    exitNormal = FALSE;
+    exitNormal = false;
     d->bufStdout.clear();
     d->bufStderr.clear();
 }
@@ -187,7 +187,7 @@ bool Q3Process::start( QStringList *env )
     reset();
 
     if ( _arguments.isEmpty() )
-	return FALSE;
+	return false;
 
     // Open the pipes.  Make non-inheritable copies of input write and output
     // read handles to avoid non-closable handles (this is done by the
@@ -200,43 +200,43 @@ bool Q3Process::start( QStringList *env )
     if ( comms & Stdin ) {
 	if ( !CreatePipe( &d->pipeStdin[0], &tmpStdin, &secAtt, 0 ) ) {
 	    d->closeHandles();
-	    return FALSE;
+	    return false;
 	}
 	if ( !DuplicateHandle( GetCurrentProcess(), tmpStdin, GetCurrentProcess(), &d->pipeStdin[1], 0, FALSE, DUPLICATE_SAME_ACCESS ) ) {
 	    d->closeHandles();
-	    return FALSE;
+	    return false;
 	}
 	if ( !CloseHandle( tmpStdin ) ) {
 	    d->closeHandles();
-	    return FALSE;
+	    return false;
 	}
     }
     if ( comms & Stdout ) {
 	if ( !CreatePipe( &tmpStdout, &d->pipeStdout[1], &secAtt, 0 ) ) {
 	    d->closeHandles();
-	    return FALSE;
+	    return false;
 	}
 	if ( !DuplicateHandle( GetCurrentProcess(), tmpStdout, GetCurrentProcess(), &d->pipeStdout[0], 0, FALSE, DUPLICATE_SAME_ACCESS ) ) {
 	    d->closeHandles();
-	    return FALSE;
+	    return false;
 	}
 	if ( !CloseHandle( tmpStdout ) ) {
 	    d->closeHandles();
-	    return FALSE;
+	    return false;
 	}
     }
     if ( comms & Stderr ) {
 	if ( !CreatePipe( &tmpStderr, &d->pipeStderr[1], &secAtt, 0 ) ) {
 	    d->closeHandles();
-	    return FALSE;
+	    return false;
 	}
 	if ( !DuplicateHandle( GetCurrentProcess(), tmpStderr, GetCurrentProcess(), &d->pipeStderr[0], 0, FALSE, DUPLICATE_SAME_ACCESS ) ) {
 	    d->closeHandles();
-	    return FALSE;
+	    return false;
 	}
 	if ( !CloseHandle( tmpStderr ) ) {
 	    d->closeHandles();
-	    return FALSE;
+	    return false;
 	}
     }
     if ( comms & DupStderr ) {
@@ -392,7 +392,7 @@ bool Q3Process::start( QStringList *env )
     }
     if  ( !success ) {
 	d->deletePid();
-	return FALSE;
+	return false;
     }
 
 #ifndef Q_OS_TEMP
@@ -409,7 +409,7 @@ bool Q3Process::start( QStringList *env )
     }
 
     // cleanup and return
-    return TRUE;
+    return true;
 }
 
 static BOOL CALLBACK qt_terminateApp( HWND hwnd, LPARAM procId )
@@ -437,7 +437,7 @@ void Q3Process::kill() const
 bool Q3Process::isRunning() const
 {
     if ( !d->pid )
-	return FALSE;
+	return false;
 
     if ( WaitForSingleObject( d->pid->hProcess, 0) == WAIT_OBJECT_0 ) {
 	// there might be data to read
@@ -453,13 +453,13 @@ bool Q3Process::isRunning() const
 		    that->exitStat = exitCode;
 		}
 	    }
-	    d->exitValuesCalculated = TRUE;
+	    d->exitValuesCalculated = true;
 	}
 	d->deletePid();
 	d->closeHandles();
-	return FALSE;
+	return false;
     } else {
-        return TRUE;
+        return true;
     }
 }
 

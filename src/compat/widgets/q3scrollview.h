@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Definition of Q3ScrollView class
 **
 ** Created : 970523
 **
-** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2004 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the widgets module of the Qt GUI Toolkit.
 **
@@ -34,6 +34,7 @@
 ** not clear to you.
 **
 **********************************************************************/
+
 #ifndef Q3SCROLLVIEW_H
 #define Q3SCROLLVIEW_H
 
@@ -72,7 +73,7 @@ public:
     int childX(QWidget* child);
     int childY(QWidget* child);
     bool childIsVisible(QWidget* child) { return child->isVisible(); } // obsolete functions
-    void showChild(QWidget* child, bool yes=TRUE) {
+    void showChild(QWidget* child, bool yes=true) {
 	if ( yes )
 	    child->show();
 	else
@@ -112,9 +113,9 @@ public:
     void	updateContents( int x, int y, int w, int h );
     void	updateContents( const QRect& r );
     void 	updateContents();
-    void	repaintContents( int x, int y, int w, int h, bool erase=TRUE );
-    void	repaintContents( const QRect& r, bool erase=TRUE );
-    void 	repaintContents( bool erase=TRUE );
+    void	repaintContents( int x, int y, int w, int h, bool erase=true );
+    void	repaintContents( const QRect& r, bool erase=true );
+    void 	repaintContents( bool erase=true );
     void	contentsToViewport( int x, int y, int& vx, int& vy ) const;
     void	viewportToContents( int vx, int vy, int& x, int& y ) const;
     QPoint	contentsToViewport( const QPoint& ) const;

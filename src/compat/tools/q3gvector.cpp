@@ -210,7 +210,7 @@ bool Q3GVector::insert( uint index, Item d )	// insert item at index
 #if defined(QT_CHECK_RANGE)
     if ( index >= len ) {			// range error
 	qWarning( "Q3GVector::insert: Index %d out of range", index );
-	return FALSE;
+	return false;
     }
 #endif
     if ( vec[index] ) {				// remove old item
@@ -225,7 +225,7 @@ bool Q3GVector::insert( uint index, Item d )	// insert item at index
     } else {
 	vec[index] = 0;				// reset item
     }
-    return TRUE;
+    return true;
 }
 
 bool Q3GVector::remove( uint index )		// remove item at index
@@ -233,7 +233,7 @@ bool Q3GVector::remove( uint index )		// remove item at index
 #if defined(QT_CHECK_RANGE)
     if ( index >= len ) {			// range error
 	qWarning( "Q3GVector::remove: Index %d out of range", index );
-	return FALSE;
+	return false;
     }
 #endif
     if ( vec[index] ) {				// valid item
@@ -241,7 +241,7 @@ bool Q3GVector::remove( uint index )		// remove item at index
 	vec[index] = 0;				// reset pointer
 	numItems--;
     }
-    return TRUE;
+    return true;
 }
 
 Q3PtrCollection::Item Q3GVector::take( uint index )		// take out item
@@ -275,7 +275,7 @@ void Q3GVector::clear()				// clear vector
 bool Q3GVector::resize( uint newsize )		// resize array
 {
     if ( newsize == len )			// nothing to do
-	return TRUE;
+	return true;
     if ( vec ) {				// existing data
 	if ( newsize < len ) {			// shrink vector
 	    uint i = newsize;
@@ -291,13 +291,13 @@ bool Q3GVector::resize( uint newsize )		// resize array
 	    DELETE(vec);
 	    vec = 0;
 	    len = numItems = 0;
-	    return TRUE;
+	    return true;
 	}
 #if defined(DONT_USE_REALLOC)
 	if ( newsize == 0 ) {
 	    DELETE(vec);
 	    vec = 0;
-	    return FALSE;
+	    return false;
 	}
 	Item *newvec = NEW(Item,newsize);		// manual realloc
 	memcpy( newvec, vec, (len < newsize ? len : newsize)*sizeof(Item) );
@@ -312,11 +312,11 @@ bool Q3GVector::resize( uint newsize )		// resize array
     }
     Q_CHECK_PTR( vec );
     if ( !vec )					// no memory
-	return FALSE;
+	return false;
     if ( newsize > len )			// init extra space added
 	memset( (void*)&vec[len], 0, (newsize-len)*sizeof(Item) );
     len = newsize;
-    return TRUE;
+    return true;
 }
 
 
@@ -325,10 +325,10 @@ bool Q3GVector::fill( Item d, int flen )		// resize and fill vector
     if ( flen < 0 )
 	flen = len;				// default: use vector length
     else if ( !resize( flen ) )
-	return FALSE;
+	return false;
     for ( uint i=0; i<(uint)flen; i++ )		// insert d at every index
 	insert( i, d );
-    return TRUE;
+    return true;
 }
 
 
@@ -397,7 +397,7 @@ int Q3GVector::bsearch( Item d ) const		// binary search; when sorted
     int n1 = 0;
     int n2 = len - 1;
     int mid = 0;
-    bool found = FALSE;
+    bool found = false;
     while ( n1 <= n2 ) {
 	int  res;
 	mid = (n1 + n2)/2;
@@ -410,7 +410,7 @@ int Q3GVector::bsearch( Item d ) const		// binary search; when sorted
 	else if ( res > 0 )
 	    n1 = mid + 1;
 	else {					// found it
-	    found = TRUE;
+	    found = true;
 	    break;
 	}
     }
@@ -480,10 +480,10 @@ bool Q3GVector::insertExpand( uint index, Item d )// insert and grow if necessar
 {
     if ( index >= len ) {
 	if ( !resize( index+1 ) )		// no memory
-	    return FALSE;
+	    return false;
     }
     insert( index, d );
-    return TRUE;
+    return true;
 }
 
 void Q3GVector::toList( Q3GList *list ) const	// store items in list
@@ -554,14 +554,14 @@ QDataStream &Q3GVector::write( QDataStream &s ) const
 bool Q3GVector::operator==( const Q3GVector &v ) const
 {
     if ( size() != v.size() )
-	return FALSE;
+	return false;
     if ( count() != v.count() )
-	return FALSE;
+	return false;
     for ( int i = 0; i < (int)size(); ++i ) {
 	if ( ( (Q3GVector*)this )->compareItems( at( i ), v.at( i ) ) != 0 )
-	    return FALSE;
+	    return false;
     }
-    return TRUE;
+    return true;
 }
 
 #endif // QT_NO_DATASTREAM

@@ -109,8 +109,8 @@ bool Q3WhatsThis::clicked(const QString & /* href */)
 /*!
     \fn bool Q3WhatsThis::inWhatsThisMode()
 
-    Returns TRUE if the application is in "What's This?" mode;
-    otherwise returns FALSE.
+    Returns true if the application is in "What's This?" mode;
+    otherwise returns false.
 
     \sa enterWhatsThisMode(), leaveWhatsThisMode()
 */

@@ -6337,7 +6337,7 @@ QString Q3TextFormat::makeFormatChangeTags(Q3TextFormat* defaultFormat, Q3TextFo
         if (font().weight() != defaultFormat->font().weight())
             s += QString(s.size()?";":"") + "font-weight:" + QString::number(fn.weight() * 8);
         QString textDecoration;
-        bool none = FALSE;
+        bool none = false;
  	if ( font().underline() != defaultFormat->font().underline() ) {
             if (font().underline())
                 textDecoration = "underline";

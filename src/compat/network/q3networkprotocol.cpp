@@ -5,7 +5,7 @@
 **
 ** Created : 950429
 **
-** Copyright (C) 1992-2003 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2004 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the kernel module of the Qt GUI Toolkit.
 **
@@ -62,10 +62,10 @@ public:
 	opInProgress = 0;
 	opStartTimer = new QTimer( p );
 	removeTimer = new QTimer( p );
-	operationQueue.setAutoDelete( FALSE );
-	autoDelete = FALSE;
+	operationQueue.setAutoDelete( false );
+	autoDelete = false;
 	removeInterval = 10000;
-	oldOps.setAutoDelete( FALSE );
+	oldOps.setAutoDelete( false );
     }
 
     ~Q3NetworkProtocolPrivate()
@@ -465,7 +465,7 @@ void Q3NetworkProtocol::setUrl( Q3UrlOperator *u )
     }
 
 
-    // ### if autoDelete is TRUE, we should delete the Q3UrlOperator (something
+    // ### if autoDelete is true, we should delete the Q3UrlOperator (something
     // like below; but that is not possible since it would delete this, too).
     //if ( d->autoDelete && (d->url!=u) ) {
     //    delete d->url; // destructor deletes the network protocol
@@ -496,14 +496,14 @@ void Q3NetworkProtocol::setUrl( Q3UrlOperator *u )
     }
 
     if ( !d->opInProgress && !d->operationQueue.isEmpty() )
-	d->opStartTimer->start( 0, TRUE );
+	d->opStartTimer->start( 0, true );
 }
 
 /*!
     For processing operations the network protocol base class calls
     this method quite often. This should be reimplemented by new
-    network protocols. It should return TRUE if the connection is OK
-    (open); otherwise it should return FALSE. If the connection is not
+    network protocols. It should return true if the connection is OK
+    (open); otherwise it should return false. If the connection is not
     open the protocol should open it.
 
     If the connection can't be opened (e.g. because you already tried
@@ -516,7 +516,7 @@ void Q3NetworkProtocol::setUrl( Q3UrlOperator *u )
 
 bool Q3NetworkProtocol::checkConnection( Q3NetworkOperation * )
 {
-    return TRUE;
+    return true;
 }
 
 /*!
@@ -544,7 +544,7 @@ void Q3NetworkProtocol::addOperation( Q3NetworkOperation *op )
 #endif
     d->operationQueue.enqueue( op );
     if ( !d->opInProgress )
-	d->opStartTimer->start( 0, TRUE );
+	d->opStartTimer->start( 0, true );
 }
 
 /*!
@@ -610,21 +610,21 @@ Q3NetworkProtocol *Q3NetworkProtocol::getNetworkProtocol( const QString &protoco
 }
 
 /*!
-    Returns TRUE if the only protocol registered is for working on the
-    local filesystem; returns FALSE if other network protocols are
+    Returns true if the only protocol registered is for working on the
+    local filesystem; returns false if other network protocols are
     also registered.
 */
 
 bool Q3NetworkProtocol::hasOnlyLocalFileSystem()
 {
     if ( !q3networkProtocolRegister )
-	return FALSE;
+	return false;
 
     Q3DictIterator< Q3NetworkProtocolFactoryBase > it( *q3networkProtocolRegister );
     for ( ; it.current(); ++it )
 	if ( it.currentKey() != "file" )
-	    return FALSE;
-    return TRUE;
+	    return false;
+    return true;
 }
 
 /*!
@@ -836,7 +836,7 @@ void Q3NetworkProtocol::processNextOperation( Q3NetworkOperation *old )
     if ( d->operationQueue.isEmpty() ) {
 	d->opInProgress = 0;
 	if ( d->autoDelete )
-	    d->removeTimer->start( d->removeInterval, TRUE );
+	    d->removeTimer->start( d->removeInterval, true );
 	return;
     }
 
@@ -846,7 +846,7 @@ void Q3NetworkProtocol::processNextOperation( Q3NetworkOperation *old )
 
     if ( !checkConnection( op ) ) {
 	if ( op->state() != Q3NetworkProtocol::StFailed ) {
-	    d->opStartTimer->start( 0, TRUE );
+	    d->opStartTimer->start( 0, true );
 	} else {
 	    d->operationQueue.dequeue();
 	    clearOperationQueue();
@@ -887,7 +887,7 @@ Q3NetworkOperation *Q3NetworkProtocol::operationInProgress() const
 void Q3NetworkProtocol::clearOperationQueue()
 {
     d->operationQueue.dequeue();
-    d->operationQueue.setAutoDelete( TRUE );
+    d->operationQueue.setAutoDelete( true );
     d->operationQueue.clear();
 }
 
@@ -912,10 +912,10 @@ void Q3NetworkProtocol::stop()
 /*!
     Because it's sometimes hard to take care of removing network
     protocol instances, Q3NetworkProtocol provides an auto-delete
-    mechanism. If you set \a b to TRUE, the network protocol instance
+    mechanism. If you set \a b to true, the network protocol instance
     is removed after it has been inactive for \a i milliseconds (i.e.
     \a i milliseconds after the last operation has been processed).
-    If you set \a b to FALSE the auto-delete mechanism is switched
+    If you set \a b to false the auto-delete mechanism is switched
     off.
 
     If you switch on auto-delete, the Q3NetworkProtocol also deletes
@@ -929,7 +929,7 @@ void Q3NetworkProtocol::setAutoDelete( bool b, int i )
 }
 
 /*!
-    Returns TRUE if auto-deleting is enabled; otherwise returns FALSE.
+    Returns true if auto-deleting is enabled; otherwise returns false.
 
     \sa Q3NetworkProtocol::setAutoDelete()
 */

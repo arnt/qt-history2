@@ -5,7 +5,7 @@
 **
 ** Created : 991122
 **
-** Copyright (C) 1999-2003 Trolltech AS.  All rights reserved.
+** Copyright (C) 1999-2004 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the network module of the Qt GUI Toolkit.
 **
@@ -112,17 +112,17 @@ static Q_UINT32 now()
 
 static Q3PtrList<QHostAddress> * ns = 0;
 static Q3StrList * domains = 0;
-static bool ipv6support = FALSE;
+static bool ipv6support = false;
 
 class Q3DnsPrivate {
 public:
-    Q3DnsPrivate() : queryTimer( 0 ), noNames(FALSE)
+    Q3DnsPrivate() : queryTimer( 0 ), noNames(false)
     {
 #if defined(Q_DNS_SYNCHRONOUS)
 #if defined(Q_OS_UNIX)
 	noEventLoop = qApp==0 || qApp->loopLevel()==0;
 #else
-	noEventLoop = FALSE;
+	noEventLoop = false;
 #endif
 #endif
     }
@@ -262,7 +262,7 @@ private:
 
 Q3DnsRR::Q3DnsRR( const QString & label )
     : domain( 0 ), t( Q3Dns::None ),
-      nxdomain( FALSE ), current( FALSE ),
+      nxdomain( false ), current( false ),
       expireTime( 0 ), deleteTime( 0 ),
       priority( 0 ), weight( 0 ), port( 0 )
 {
@@ -280,14 +280,14 @@ Q3DnsRR::~Q3DnsRR()
 // this one just sticks in a NXDomain
 Q3DnsAnswer::Q3DnsAnswer( Q3DnsQuery * query_ )
 {
-    ok = TRUE;
+    ok = true;
 
     answer = 0;
     size = 0;
     query = query_;
     pp = 0;
     rrs = new Q3PtrList<Q3DnsRR>;
-    rrs->setAutoDelete( FALSE );
+    rrs->setAutoDelete( false );
     next = size;
     ttl = 0;
     label = QString::null;
@@ -297,8 +297,8 @@ Q3DnsAnswer::Q3DnsAnswer( Q3DnsQuery * query_ )
     newrr->t = query->t;
     newrr->deleteTime = query->started + 10;
     newrr->expireTime = query->started + 10;
-    newrr->nxdomain = TRUE;
-    newrr->current = TRUE;
+    newrr->nxdomain = true;
+    newrr->current = true;
     rrs->append( newrr );
 }
 
@@ -306,14 +306,14 @@ Q3DnsAnswer::Q3DnsAnswer( Q3DnsQuery * query_ )
 Q3DnsAnswer::Q3DnsAnswer( const QByteArray& answer_,
 			Q3DnsQuery * query_ )
 {
-    ok = TRUE;
+    ok = true;
 
     answer = (Q_UINT8 *)(answer_.data());
     size = (int)answer_.size();
     query = query_;
     pp = 0;
     rrs = new Q3PtrList<Q3DnsRR>;
-    rrs->setAutoDelete( FALSE );
+    rrs->setAutoDelete( false );
     next = size;
     ttl = 0;
     label = QString::null;
@@ -387,7 +387,7 @@ QString Q3DnsAnswer::readString(bool multipleLabels)
         }
     }
 not_ok:
-    ok = FALSE;
+    ok = false;
     return QString::null;
 }
 
@@ -581,7 +581,7 @@ void Q3DnsAnswer::parse()
 #if defined(Q3DNS_DEBUG)
 	qDebug( "DNS Manager: answer to wrong query type (%d)", answer[1] );
 #endif
-	ok = FALSE;
+	ok = false;
 	return;
     }
 
@@ -610,8 +610,8 @@ void Q3DnsAnswer::parse()
 	rr->t = query->t;
 	rr->deleteTime = query->started + 60;
 	rr->expireTime = query->started + 60;
-	rr->nxdomain = TRUE;
-	rr->current = TRUE;
+	rr->nxdomain = true;
+	rr->current = true;
 	rrs->append( rr );
 	return;
     }
@@ -620,7 +620,7 @@ void Q3DnsAnswer::parse()
 #if defined(Q3DNS_DEBUG)
 	qDebug( "DNS Manager: error code %d", answer[3] & 0x0f );
 #endif
-	ok = FALSE;
+	ok = false;
 	return;
     }
 
@@ -724,7 +724,7 @@ void Q3DnsAnswer::parse()
 		    answers++;
 		    rr->deleteTime = rr->expireTime;
 		}
-		rr->current = TRUE;
+		rr->current = true;
 		rrs->append( rr );
 	    }
         }
@@ -745,7 +745,7 @@ void Q3DnsAnswer::parse()
     // by something we care about.  we want to cache such As.
     rrs->first();
     Q3Dict<void> used( 17 );
-    used.setAutoDelete( FALSE );
+    used.setAutoDelete( false );
     while( (rr=rrs->current()) != 0 ) {
 	rrs->next();
 	if ( rr->target.length() && rr->deleteTime > 0 && rr->current )
@@ -801,7 +801,7 @@ void Q3DnsAnswer::parse()
 
 class Q3DnsUgleHack: public Q3Dns {
 public:
-    void ugle( bool emitAnyway=FALSE );
+    void ugle( bool emitAnyway=false );
 };
 
 
@@ -811,7 +811,7 @@ void Q3DnsAnswer::notify()
 	return;
 
     Q3PtrDict<void> notified;
-    notified.setAutoDelete( FALSE );
+    notified.setAutoDelete( false );
 
     Q3PtrDictIterator<void> it( *query->dns );
     Q3Dns * dns;
@@ -824,8 +824,8 @@ void Q3DnsAnswer::notify()
 #if defined(Q3DNS_DEBUG)
 		qDebug( "DNS Manager: found no answers!" );
 #endif
-		dns->d->noNames = TRUE;
-		((Q3DnsUgleHack*)dns)->ugle( TRUE );
+		dns->d->noNames = true;
+		((Q3DnsUgleHack*)dns)->ugle( true );
 	    } else {
 		QStringList n = dns->qualifiedNames();
 		if ( n.contains(query->l) )
@@ -910,13 +910,13 @@ void Q3DnsUgleHack::ugle( bool emitAnyway)
 Q3DnsManager::Q3DnsManager()
     : Q3DnsSocket( qApp, "Internal DNS manager" ),
       queries( Q3PtrVector<Q3DnsQuery>( 0 ) ),
-      cache( Q3Dict<Q3DnsDomain>( 83, FALSE ) ),
+      cache( Q3Dict<Q3DnsDomain>( 83, false ) ),
       ipv4Socket( new Q3SocketDevice( Q3SocketDevice::Datagram, Q3SocketDevice::IPv4, 0 ) )
 #if !defined (QT_NO_IPV6)
       , ipv6Socket( new Q3SocketDevice( Q3SocketDevice::Datagram, Q3SocketDevice::IPv6, 0 ) )
 #endif
 {
-    cache.setAutoDelete( TRUE );
+    cache.setAutoDelete( true );
     globalManager = this;
 
     QTimer * sweepTimer = new QTimer( this );
@@ -927,8 +927,8 @@ Q3DnsManager::Q3DnsManager()
     QSocketNotifier * rn4 = new QSocketNotifier( ipv4Socket->socket(),
 						 QSocketNotifier::Read,
 						 this, "dns IPv4 socket watcher" );
-    ipv4Socket->setAddressReusable( FALSE );
-    ipv4Socket->setBlocking( FALSE );
+    ipv4Socket->setAddressReusable( false );
+    ipv4Socket->setBlocking( false );
     connect( rn4, SIGNAL(activated(int)), SLOT(answer()) );
 
 #if !defined (QT_NO_IPV6)
@@ -939,9 +939,9 @@ Q3DnsManager::Q3DnsManager()
 						     QSocketNotifier::Read,
 						     this, "dns IPv6 socket watcher" );
 
-	ipv6support = TRUE;
-	ipv6Socket->setAddressReusable( FALSE );
-	ipv6Socket->setBlocking( FALSE );
+	ipv6support = true;
+	ipv6Socket->setAddressReusable( false );
+	ipv6Socket->setBlocking( false );
 	connect( rn6, SIGNAL(activated(int)), SLOT(answer()) );
     }
 #endif
@@ -973,9 +973,9 @@ Q3DnsManager::Q3DnsManager()
 
     delete ::ns;
     ::ns = ns;
-    ::ns->setAutoDelete( TRUE );
+    ::ns->setAutoDelete( true );
 
-    Q3StrList * domains = new Q3StrList( TRUE );
+    Q3StrList * domains = new Q3StrList( true );
 
     ::domains->first();
     const char * s;
@@ -996,7 +996,7 @@ Q3DnsManager::Q3DnsManager()
 
     delete ::domains;
     ::domains = domains;
-    ::domains->setAutoDelete( TRUE );
+    ::domains->setAutoDelete( true );
 }
 
 
@@ -1004,8 +1004,8 @@ Q3DnsManager::~Q3DnsManager()
 {
     if ( globalManager )
 	globalManager = 0;
-    queries.setAutoDelete( TRUE );
-    cache.setAutoDelete( TRUE );
+    queries.setAutoDelete( true );
+    cache.setAutoDelete( true );
     delete ipv4Socket;
 #if !defined (QT_NO_IPV6)
     delete ipv6Socket;
@@ -1016,7 +1016,7 @@ static Q_UINT32 lastSweep = 0;
 
 void Q3DnsManager::cleanCache()
 {
-    bool again = FALSE;
+    bool again = false;
     Q3DictIterator<Q3DnsDomain> it( cache );
     Q3DnsDomain * d;
     Q_UINT32 thisSweep = now();
@@ -1280,7 +1280,7 @@ void Q3DnsManager::transmitQuery( int i )
     // seconds.  the graph becomes steep around that point, and the
     // number of errors rises... so it seems good to retry at that
     // point.
-    q->start( q->step < ns->count() ? 800 : 1500, TRUE );
+    q->start( q->step < ns->count() ? 800 : 1500, true );
 }
 
 
@@ -1325,7 +1325,7 @@ void Q3DnsDomain::add( const QString & label, Q3DnsRR * rr )
     Q3DnsDomain * d = Q3DnsManager::manager()->domain( label );
     if ( !d->rrs ) {
 	d->rrs = new Q3PtrList<Q3DnsRR>;
-	d->rrs->setAutoDelete( TRUE );
+	d->rrs->setAutoDelete( true );
     }
     d->rrs->append( rr );
     rr->domain = d;
@@ -1345,7 +1345,7 @@ Q3PtrList<Q3DnsRR> * Q3DnsDomain::cached( const Q3Dns * r )
 	    Q3DnsRR *rrTmp = new Q3DnsRR( r->label() );
 	    rrTmp->t = Q3Dns::A;
 	    rrTmp->address = QHostAddress( 0x7f000001 );
-	    rrTmp->current = TRUE;
+	    rrTmp->current = true;
 	    l->append( rrTmp );
 	    return l;
 	}
@@ -1355,10 +1355,10 @@ Q3PtrList<Q3DnsRR> * Q3DnsDomain::cached( const Q3Dns * r )
 	    if ( tmp.isIPv4Address() ) {
 		rrTmp->t = Q3Dns::A;
                 rrTmp->address = tmp;
-                rrTmp->current = TRUE;
+                rrTmp->current = true;
                 l->append( rrTmp );
             } else {
-                rrTmp->nxdomain = TRUE;
+                rrTmp->nxdomain = true;
             }
 	    return l;
 	}
@@ -1370,10 +1370,10 @@ Q3PtrList<Q3DnsRR> * Q3DnsDomain::cached( const Q3Dns * r )
 	    if ( tmp.isIPv6Address() ) {
 		rrTmp->t = Q3Dns::Aaaa;
                 rrTmp->address = tmp;
-                rrTmp->current = TRUE;
+                rrTmp->current = true;
                 l->append( rrTmp );
             } else {
-                rrTmp->nxdomain = TRUE;
+                rrTmp->nxdomain = true;
             }
 	    return l;
 	}
@@ -1387,7 +1387,7 @@ Q3PtrList<Q3DnsRR> * Q3DnsDomain::cached( const Q3Dns * r )
     int it = 0;
     while( it < n.count() ) {
 	QString s = n.at(it++);
-	nxdomain = FALSE;
+	nxdomain = false;
 #if defined(Q3DNS_DEBUG)
 	qDebug( "looking at cache for %s (%s %d)",
 		s.ascii(), r->label().ascii(), r->recordType() );
@@ -1399,7 +1399,7 @@ Q3PtrList<Q3DnsRR> * Q3DnsDomain::cached( const Q3Dns * r )
 	if ( d->rrs )
 	    d->rrs->first();
 	Q3DnsRR * rr;
-	bool answer = FALSE;
+	bool answer = false;
 	while( d->rrs && (rr=d->rrs->current()) != 0 ) {
 	    if ( rr->t == Q3Dns::Cname && r->recordType() != Q3Dns::Cname &&
 		 !rr->nxdomain && cnamecount < 16 ) {
@@ -1422,9 +1422,9 @@ Q3PtrList<Q3DnsRR> * Q3DnsDomain::cached( const Q3Dns * r )
 	    } else {
 		if ( rr->t == r->recordType() ) {
 		    if ( rr->nxdomain )
-			nxdomain = TRUE;
+			nxdomain = true;
 		    else
-			answer = TRUE;
+			answer = true;
 		    l->append( rr );
 		    if ( rr->deleteTime <= lastSweep ) {
 			// we're returning something that'll be
@@ -1525,7 +1525,7 @@ void Q3DnsDomain::sweep( Q_UINT32 thisSweep )
 	       rr->expireTime, rr->deleteTime,
 	       rr->target.latin1(), rr->address.toString().latin1());
 #endif
-	if ( rr->current == FALSE ||
+	if ( rr->current == false ||
 	     rr->t == Q3Dns::None ||
 	     rr->deleteTime <= thisSweep ||
 	     rr->expireTime <= thisSweep )
@@ -1720,7 +1720,7 @@ Q3Dns::~Q3Dns()
 void Q3Dns::setLabel( const QString & label )
 {
     l = label;
-    d->noNames = FALSE;
+    d->noNames = false;
 
     // construct a list of qualified names
     n.clear();
@@ -1851,7 +1851,7 @@ void Q3Dns::setLabel( const QHostAddress & address )
 void Q3Dns::setRecordType( RecordType rr )
 {
     t = rr;
-    d->noNames = FALSE;
+    d->noNames = false;
     setStartQueryTimer(); // start query the next time we enter event loop
 }
 
@@ -1884,7 +1884,7 @@ void Q3Dns::setStartQueryTimer()
 	d->queryTimer = new QTimer( this );
 	connect( d->queryTimer, SIGNAL(timeout()),
 		 this, SLOT(startQuery()) );
-	d->queryTimer->start( 0, TRUE );
+	d->queryTimer->start( 0, true );
     }
 }
 
@@ -1936,11 +1936,11 @@ QString Q3Dns::toInAddrArpaDomain( const QHostAddress &address )
 */
 
 /*!
-    Returns TRUE if Q3Dns is doing a lookup for this object (i.e. if it
+    Returns true if Q3Dns is doing a lookup for this object (i.e. if it
     does not already have the necessary information); otherwise
-    returns FALSE.
+    returns false.
 
-    Q3Dns emits the resultsReady() signal when the status changes to FALSE.
+    Q3Dns emits the resultsReady() signal when the status changes to false.
 */
 
 bool Q3Dns::isWorking() const
@@ -1949,11 +1949,11 @@ bool Q3Dns::isWorking() const
     qDebug( "Q3Dns::isWorking (%s, %d)", l.ascii(), t );
 #endif
     if ( t == None )
-	return FALSE;
+	return false;
 
 #if defined(Q_DNS_SYNCHRONOUS)
     if ( d->noEventLoop )
-	return TRUE;
+	return true;
 #endif
 
     Q3PtrList<Q3DnsRR> * ll = Q3DnsDomain::cached( this );
@@ -1963,17 +1963,17 @@ bool Q3Dns::isWorking() const
 	    queries--;
 	} else {
 	    delete ll;
-	    return FALSE;
+	    return false;
 	}
 	ll->next();
     }
     delete ll;
 
     if ( queries <= 0 )
-	return FALSE;
+	return false;
     if ( d->noNames )
-	return FALSE;
-    return TRUE;
+	return false;
+    return true;
 }
 
 
@@ -2366,13 +2366,13 @@ void Q3Dns::doResInit()
     if ( ns )
         delete ns;
     ns = new Q3PtrList<QHostAddress>;
-    ns->setAutoDelete( TRUE );
-    domains = new Q3StrList( TRUE );
-    domains->setAutoDelete( TRUE );
+    ns->setAutoDelete( true );
+    domains = new Q3StrList( true );
+    domains->setAutoDelete( true );
 
     QString domainName, nameServer, searchList;
 
-    bool gotNetworkParams = FALSE;
+    bool gotNetworkParams = false;
     // try the API call GetNetworkParams() first and use registry lookup only
     // as a fallback
 #ifdef Q_OS_TEMP
@@ -2405,7 +2405,7 @@ void Q3Dns::doResInit()
 		    }
 		    searchList = "";
 		    separator = ' ';
-		    gotNetworkParams = TRUE;
+		    gotNetworkParams = true;
 		}
 		delete[] finfo;
 	    }
@@ -2547,9 +2547,9 @@ void Q3Dns::doResInit()
     if ( ns )
 	return;
     ns = new Q3PtrList<QHostAddress>;
-    ns->setAutoDelete( TRUE );
-    domains = new Q3StrList( TRUE );
-    domains->setAutoDelete( TRUE );
+    ns->setAutoDelete( true );
+    domains = new Q3StrList( true );
+    domains->setAutoDelete( true );
 
     // read resolv.conf manually.
     QFile resolvConf("/etc/resolv.conf");
@@ -2649,7 +2649,7 @@ void Q3Dns::doResInit()
 	    QHostAddress a;
 	    a.setAddress( ip );
 	    if ( ( a.isIPv4Address() || a.isIPv6Address() ) && !a.isNull() ) {
-		bool first = TRUE;
+		bool first = true;
 		line = line.mid( n+1 );
 		n = 0;
 		while( (int) n < line.length() && !line[(int)n].isSpace() )
@@ -2665,15 +2665,15 @@ void Q3Dns::doResInit()
 		    rr->address = a;
 		    rr->deleteTime = UINT_MAX;
 		    rr->expireTime = UINT_MAX;
-		    rr->current = TRUE;
+		    rr->current = true;
 		    if ( first ) {
-			first = FALSE;
+			first = false;
 			Q3DnsRR * ptr = new Q3DnsRR( Q3Dns::toInAddrArpaDomain( a ) );
 			ptr->t = Q3Dns::Ptr;
 			ptr->target = hostname;
 			ptr->deleteTime = UINT_MAX;
 			ptr->expireTime = UINT_MAX;
-			ptr->current = TRUE;
+			ptr->current = true;
 		    }
 		}
 	    }

@@ -51,7 +51,7 @@ class Q_COMPAT_EXPORT Q3DataTable : public Q3Table
 
 public:
     Q3DataTable ( QWidget* parent=0, const char* name=0 );
-    Q3DataTable ( Q3SqlCursor* cursor, bool autoPopulate = FALSE, QWidget* parent=0, const char* name=0 );
+    Q3DataTable ( Q3SqlCursor* cursor, bool autoPopulate = false, QWidget* parent=0, const char* name=0 );
     ~Q3DataTable();
 
     virtual void addColumn( const QString& fieldName,
@@ -79,7 +79,7 @@ public:
     QStringList  sort() const;
 
     virtual void setSqlCursor( Q3SqlCursor* cursor = 0,
-			    bool autoPopulate = FALSE, bool autoDelete = FALSE );
+			    bool autoPopulate = false, bool autoDelete = false );
     Q3SqlCursor* sqlCursor() const;
 
     virtual void setNullText( const QString& nullText );
@@ -103,8 +103,8 @@ public:
 	RefreshAll = 3
     };
     void         refresh( Refresh mode );
-    void         sortColumn ( int col, bool ascending = TRUE,
-			      bool wholeRows = FALSE );
+    void         sortColumn ( int col, bool ascending = true,
+			      bool wholeRows = false );
     QString      text ( int row, int col ) const;
     QVariant     value ( int row, int col ) const;
     QSqlRecord*  currentRecord() const;
@@ -139,7 +139,7 @@ public slots:
     void setColumnWidth( int col, int w );
     void adjustColumn( int col );
     void setColumnStretchable( int col, bool stretch );
-    void swapColumns( int col1, int col2, bool swapHeaders = FALSE );
+    void swapColumns( int col1, int col2, bool swapHeaders = false );
 
 protected:
     virtual bool insertCurrent();

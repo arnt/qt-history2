@@ -36,9 +36,9 @@ class Q3DataTablePrivate
 {
 public:
     Q3DataTablePrivate()
-	: nullTxtChanged( FALSE ),
-	  haveAllRows( FALSE ),
-	  continuousEdit( FALSE ),
+	: nullTxtChanged( false ),
+	  haveAllRows( false ),
+	  continuousEdit( false ),
 	  editorFactory( 0 ),
 	  propertyMap( 0 ),
 	  editRow( -1 ),
@@ -46,9 +46,9 @@ public:
 	  insertRowLast( -1 ),
 	  insertPreRows( -1 ),
 	  editBuffer( 0 ),
-	  cancelMode( FALSE ),
-	  cancelInsert( FALSE ),
-	  cancelUpdate( FALSE )
+	  cancelMode( false ),
+	  cancelInsert( false ),
+	  cancelUpdate( false )
     {}
     ~Q3DataTablePrivate() { if ( propertyMap ) delete propertyMap; }
 
@@ -144,7 +144,7 @@ void qt_debug_buffer( const QString& msg, QSqlRecord* cursor )
     appropriate popup menu item) and canceled by pressing Esc. If
     there is a problem updating or adding data, errors are handled
     automatically (see handleError() to change this behavior). Note
-    that if autoEdit() is FALSE navigating to another record will
+    that if autoEdit() is false navigating to another record will
     cancel the insert or update.
 
     The user can be asked to confirm all edits with setConfirmEdits().
@@ -191,7 +191,7 @@ void qt_debug_buffer( const QString& msg, QSqlRecord* cursor )
     options see setSort(), sortColumn(), sortAscending() and
     sortDescending().
 
-    The text used to represent NULL, TRUE and FALSE values can be
+    The text used to represent NULL, true and false values can be
     changed with setNullText(), setTrueText() and setFalseText()
     respectively. You can change the appearance of cells by
     reimplementing paintField().
@@ -220,7 +220,7 @@ Q3DataTable::Q3DataTable ( QWidget * parent, const char * name )
     Constructs a data table which is a child of \a parent, called name
     \a name using the cursor \a cursor.
 
-    If \a autoPopulate is TRUE (the default is FALSE), columns are
+    If \a autoPopulate is true (the default is false), columns are
     automatically created based upon the fields in the \a cursor
     record. Note that \a autoPopulate only governs the creation of
     columns; to load the cursor's data into the table use refresh().
@@ -244,7 +244,7 @@ Q3DataTable::Q3DataTable ( Q3SqlCursor* cursor, bool autoPopulate, QWidget * par
 void Q3DataTable::init()
 {
     d = new Q3DataTablePrivate();
-    setAutoEdit( TRUE );
+    setAutoEdit( true );
     setSelectionMode( SingleRow );
     setFocusStyle( FollowStyle );
     d->trueTxt = tr( "True" );
@@ -286,7 +286,7 @@ void Q3DataTable::addColumn( const QString& fieldName,
     d->fldLabel += label;
     d->fldIcon += iconset;
     d->fldWidth += width;
-    d->fldHidden += FALSE;
+    d->fldHidden += false;
 }
 
 /*!
@@ -310,7 +310,7 @@ void Q3DataTable::setColumn( uint col, const QString& fieldName,
     d->fldLabel[col] = label;
     d->fldIcon[col] = iconset;
     d->fldWidth[col] = width;
-    d->fldHidden[col] = FALSE;
+    d->fldHidden[col] = false;
 }
 
 /*!
@@ -496,7 +496,7 @@ void Q3DataTable::setConfirmDelete( bool confirm )
     \property Q3DataTable::confirmEdits
     \brief whether the data table confirms edit operations
 
-    If the confirmEdits property is TRUE, the data table confirms all
+    If the confirmEdits property is true, the data table confirms all
     edit operations (inserts, updates and deletes). Finer control of
     edit confirmation can be achieved using \l confirmCancels, \l
     confirmInsert, \l confirmUpdate and \l confirmDelete.
@@ -513,7 +513,7 @@ bool Q3DataTable::confirmEdits() const
     \property Q3DataTable::confirmInsert
     \brief whether the data table confirms insert operations
 
-    If the confirmInsert property is TRUE, all insertions must be
+    If the confirmInsert property is true, all insertions must be
     confirmed by the user through a message box (this behavior can be
     changed by overriding the confirmEdit() function), otherwise all
     insert operations occur immediately.
@@ -530,7 +530,7 @@ bool Q3DataTable::confirmInsert() const
     \property Q3DataTable::confirmUpdate
     \brief whether the data table confirms update operations
 
-    If the confirmUpdate property is TRUE, all updates must be
+    If the confirmUpdate property is true, all updates must be
     confirmed by the user through a message box (this behavior can be
     changed by overriding the confirmEdit() function), otherwise all
     update operations occur immediately.
@@ -547,7 +547,7 @@ bool Q3DataTable::confirmUpdate() const
     \property Q3DataTable::confirmDelete
     \brief whether the data table confirms delete operations
 
-    If the confirmDelete property is TRUE, all deletions must be
+    If the confirmDelete property is true, all deletions must be
     confirmed by the user through a message box (this behavior can be
     changed by overriding the confirmEdit() function), otherwise all
     delete operations occur immediately.
@@ -564,10 +564,10 @@ bool Q3DataTable::confirmDelete() const
     \property Q3DataTable::confirmCancels
     \brief whether the data table confirms cancel operations
 
-    If the confirmCancel property is TRUE, all cancels must be
+    If the confirmCancel property is true, all cancels must be
     confirmed by the user through a message box (this behavior can be
     changed by overriding the confirmCancel() function), otherwise all
-    cancels occur immediately. The default is FALSE.
+    cancels occur immediately. The default is false.
 
     \sa confirmEdits() confirmCancel()
 */
@@ -591,7 +591,7 @@ bool Q3DataTable::confirmCancels() const
     installEditorFactory(). The editor is primed with the value of the
     field in \a col using a property map. The property map used is the
     default property map, unless a new property map was installed with
-    installPropertMap(). If \a initFromCell is TRUE then the editor is
+    installPropertMap(). If \a initFromCell is true then the editor is
     primed with the value in the Q3DataTable cell.
 */
 
@@ -619,7 +619,7 @@ QWidget * Q3DataTable::createEditor( int , int col, bool initFromCell ) const
 bool Q3DataTable::eventFilter( QObject *o, QEvent *e )
 {
     if ( d->cancelMode )
-	return TRUE;
+	return true;
 
     int r = currentRow();
     int c = currentColumn();
@@ -629,65 +629,65 @@ bool Q3DataTable::eventFilter( QObject *o, QEvent *e )
 	c = d->editCol;
     }
 
-    d->cancelInsert = FALSE;
-    d->cancelUpdate = FALSE;
+    d->cancelInsert = false;
+    d->cancelUpdate = false;
     switch ( e->type() ) {
     case QEvent::KeyPress: {
 	int conf = QSql::Yes;
 	QKeyEvent *ke = (QKeyEvent*)e;
 	if ( ( ke->key() == Qt::Key_Tab || ke->key() == Qt::Key_BackTab )
 	    && ke->state() & Qt::ControlButton )
-	    return FALSE;
+	    return false;
 
 	if ( ke->key() == Qt::Key_Escape && d->dat.mode() == QSql::Insert ){
 	    if ( confirmCancels() && !d->cancelMode ) {
-		d->cancelMode = TRUE;
+		d->cancelMode = true;
 		conf = confirmCancel( QSql::Insert );
-		d->cancelMode = FALSE;
+		d->cancelMode = false;
 	    }
 	    if ( conf == QSql::Yes ) {
-		d->cancelInsert = TRUE;
+		d->cancelInsert = true;
 	    } else {
 		QWidget *editorWidget = cellWidget( r, c );
 		if ( editorWidget ) {
 		    editorWidget->setActiveWindow();
 		    editorWidget->setFocus();
 		}
-		return TRUE;
+		return true;
 	    }
 	}
 	if ( ke->key() == Qt::Key_Escape && d->dat.mode() == QSql::Update ) {
 	    if ( confirmCancels() && !d->cancelMode ) {
-		d->cancelMode = TRUE;
+		d->cancelMode = true;
 		conf = confirmCancel( QSql::Update );
-		d->cancelMode = FALSE;
+		d->cancelMode = false;
 	    }
 	    if ( conf == QSql::Yes ){
-		d->cancelUpdate = TRUE;
+		d->cancelUpdate = true;
 	    } else {
 		QWidget *editorWidget = cellWidget( r, c );
 		if ( editorWidget ) {
 		    editorWidget->setActiveWindow();
 		    editorWidget->setFocus();
 		}
-		return TRUE;
+		return true;
 	    }
 	}
 	if ( ke->key() == Qt::Key_Insert && d->dat.mode() == QSql::None ) {
 	    beginInsert();
-	    return TRUE;
+	    return true;
 	}
 	if ( ke->key() == Qt::Key_Delete && d->dat.mode() == QSql::None ) {
 	    deleteCurrent();
-	    return TRUE;
+	    return true;
 	}
 	if ( d->dat.mode() != QSql::None ) {
 	    if ( (ke->key() == Qt::Key_Tab) && (c < numCols() - 1) && (!isColumnReadOnly( c+1 ) || d->dat.mode() == QSql::Insert) )
-		d->continuousEdit = TRUE;
+		d->continuousEdit = true;
 	    else if ( (ke->key() == Qt::Key_BackTab) && (c > 0) && (!isColumnReadOnly( c-1 ) || d->dat.mode() == QSql::Insert) )
-		d->continuousEdit = TRUE;
+		d->continuousEdit = true;
 	    else
-		d->continuousEdit = FALSE;
+		d->continuousEdit = false;
 	}
 	Q3SqlCursor * sql = sqlCursor();
 	if ( sql && sql->driver() &&
@@ -708,7 +708,7 @@ bool Q3DataTable::eventFilter( QObject *o, QEvent *e )
 #ifndef QT_NO_CURSOR
 	    QApplication::restoreOverrideCursor();
 #endif
-	    return TRUE;
+	    return true;
 	}
 	break;
     }
@@ -718,9 +718,9 @@ bool Q3DataTable::eventFilter( QObject *o, QEvent *e )
 	if ( !d->cancelMode && editorWidget && o == editorWidget &&
 	     ( d->dat.mode() == QSql::Insert) && !d->continuousEdit) {
 	    setCurrentCell( r, c );
-	    d->cancelInsert = TRUE;
+	    d->cancelInsert = true;
 	}
-	d->continuousEdit = FALSE;
+	d->continuousEdit = false;
 	break;
     }
     case QEvent::FocusIn:
@@ -747,7 +747,7 @@ void Q3DataTable::contentsContextMenuEvent( QContextMenuEvent* e )
 {
     Q3Table::contentsContextMenuEvent( e );
     if ( isEditing() && d->dat.mode() != QSql::None )
-	endEdit( d->editRow, d->editCol, autoEdit(), FALSE );
+	endEdit( d->editRow, d->editCol, autoEdit(), false );
     if ( !sqlCursor() )
 	return;
     if ( d->dat.mode() == QSql::None ) {
@@ -774,7 +774,7 @@ void Q3DataTable::contentsContextMenuEvent( QContextMenuEvent* e )
 	if ( r == id[ IdInsert ] )
 	    beginInsert();
 	else if ( r == id[ IdUpdate ] ) {
-	    if ( beginEdit( currentRow(), currentColumn(), FALSE ) )
+	    if ( beginEdit( currentRow(), currentColumn(), false ) )
 		setEditMode( Editing, currentRow(), currentColumn() );
 	    else
 		endUpdate();
@@ -807,7 +807,7 @@ QWidget* Q3DataTable::beginEdit ( int row, int col, bool replace )
     if ( d->continuousEdit ) {
 	// see comment in beginInsert()
 	bool fakeReadOnly = isColumnReadOnly( col );
-	setColumnReadOnly( col, FALSE );
+	setColumnReadOnly( col, false );
 	QWidget* w = Q3Table::beginEdit( row, col, replace );
 	setColumnReadOnly( col, fakeReadOnly );
 	return w;
@@ -930,9 +930,9 @@ void Q3DataTable::endUpdate()
 bool Q3DataTable::beginInsert()
 {
     if ( !sqlCursor() || isReadOnly() || !numCols() )
-	return FALSE;
+	return false;
     if ( !sqlCursor()->canInsert() )
-	return FALSE;
+	return false;
     int i = 0;
     int row = currentRow();
 
@@ -963,11 +963,11 @@ bool Q3DataTable::beginInsert()
     // into a table that has read-only columns - temporarily
     // switch off read-only mode for such columns
     bool fakeReadOnly = isColumnReadOnly( 0 );
-    setColumnReadOnly( 0, FALSE );
-    if ( Q3Table::beginEdit( row, 0, FALSE ) )
+    setColumnReadOnly( 0, false );
+    if ( Q3Table::beginEdit( row, 0, false ) )
 	setEditMode( Editing, row, 0 );
     setColumnReadOnly( 0, fakeReadOnly );
-    return TRUE;
+    return true;
 }
 
 /*!
@@ -1003,9 +1003,9 @@ QWidget* Q3DataTable::beginUpdate ( int row, int col, bool replace )
     For an editable table, issues an insert on the current cursor
     using the values in the cursor's edit buffer. If there is no
     current cursor or there is no current "insert" row, nothing
-    happens. If confirmEdits() or confirmInsert() is TRUE,
-    confirmEdit() is called to confirm the insert. Returns TRUE if the
-    insert succeeded; otherwise returns FALSE.
+    happens. If confirmEdits() or confirmInsert() is true,
+    confirmEdit() is called to confirm the insert. Returns true if the
+    insert succeeded; otherwise returns false.
 
     The underlying cursor must have a valid primary index to ensure
     that a unique record is inserted within the database otherwise the
@@ -1015,14 +1015,14 @@ QWidget* Q3DataTable::beginUpdate ( int row, int col, bool replace )
 bool Q3DataTable::insertCurrent()
 {
     if ( d->dat.mode() != QSql::Insert || ! numCols() )
-	return FALSE;
+	return false;
     if ( !sqlCursor()->canInsert() ) {
 #ifdef QT_CHECK_RANGE
 	qWarning("Q3DataTable::insertCurrent: insert not allowed for %s",
 		 sqlCursor()->name().latin1() );
 #endif
 	endInsert();
-	return FALSE;
+	return false;
     }
     int b = 0;
     int conf = QSql::Yes;
@@ -1047,7 +1047,7 @@ bool Q3DataTable::insertCurrent()
 	    refresh();
 	    QSqlIndex idx = sqlCursor()->primaryIndex();
 	    findBuffer( idx, d->lastAt );
-	    repaintContents( contentsX(), contentsY(), visibleWidth(), visibleHeight(), FALSE );
+	    repaintContents( contentsX(), contentsY(), visibleWidth(), visibleHeight(), false );
 	    emit cursorChanged( QSql::Insert );
 	}
 	break;
@@ -1056,7 +1056,7 @@ bool Q3DataTable::insertCurrent()
 	endInsert();
 	break;
     case QSql::Cancel:
-	if ( Q3Table::beginEdit( currentRow(), currentColumn(), FALSE ) )
+	if ( Q3Table::beginEdit( currentRow(), currentColumn(), false ) )
 	    setEditMode( Editing, currentRow(), currentColumn() );
 	break;
     }
@@ -1078,8 +1078,8 @@ void Q3DataTable::updateRow( int row )
     For an editable table, issues an update using the cursor's edit
     buffer. If there is no current cursor or there is no current
     selection, nothing happens. If confirmEdits() or confirmUpdate()
-    is TRUE, confirmEdit() is called to confirm the update. Returns
-    TRUE if the update succeeded; otherwise returns FALSE.
+    is true, confirmEdit() is called to confirm the update. Returns
+    true if the update succeeded; otherwise returns false.
 
     The underlying cursor must have a valid primary index to ensure
     that a unique record is updated within the database otherwise the
@@ -1089,14 +1089,14 @@ void Q3DataTable::updateRow( int row )
 bool Q3DataTable::updateCurrent()
 {
     if ( d->dat.mode() != QSql::Update )
-	return FALSE;
+	return false;
     if ( sqlCursor()->primaryIndex().count() == 0 ) {
 #ifdef QT_CHECK_RANGE
 	qWarning("Q3DataTable::updateCurrent: no primary index for %s",
 		 sqlCursor()->name().latin1() );
 #endif
 	endUpdate();
-	return FALSE;
+	return false;
     }
     if ( !sqlCursor()->canUpdate() ) {
 #ifdef QT_CHECK_RANGE
@@ -1104,7 +1104,7 @@ bool Q3DataTable::updateCurrent()
 		 sqlCursor()->name().latin1() );
 #endif
 	endUpdate();
-	return FALSE;
+	return false;
     }
     int b = 0;
     int conf = QSql::Yes;
@@ -1125,7 +1125,7 @@ bool Q3DataTable::updateCurrent()
 	    endUpdate();
 	    refresh();
 	    setCurrentCell( d->editRow, d->editCol );
-	    if ( Q3Table::beginEdit( d->editRow, d->editCol, FALSE ) )
+	    if ( Q3Table::beginEdit( d->editRow, d->editCol, false ) )
 		setEditMode( Editing, d->editRow, d->editCol );
 	} else {
 	    emit cursorChanged( QSql::Update );
@@ -1140,7 +1140,7 @@ bool Q3DataTable::updateCurrent()
 	break;
     case QSql::Cancel:
 	setCurrentCell( d->editRow, d->editCol );
-	if ( Q3Table::beginEdit( d->editRow, d->editCol, FALSE ) )
+	if ( Q3Table::beginEdit( d->editRow, d->editCol, false ) )
 	    setEditMode( Editing, d->editRow, d->editCol );
 	break;
     }
@@ -1151,9 +1151,9 @@ bool Q3DataTable::updateCurrent()
     For an editable table, issues a delete on the current cursor's
     primary index using the values of the currently selected row. If
     there is no current cursor or there is no current selection,
-    nothing happens. If confirmEdits() or confirmDelete() is TRUE,
-    confirmEdit() is called to confirm the delete. Returns TRUE if the
-    delete succeeded; otherwise FALSE.
+    nothing happens. If confirmEdits() or confirmDelete() is true,
+    confirmEdit() is called to confirm the delete. Returns true if the
+    delete succeeded; otherwise false.
 
     The underlying cursor must have a valid primary index to ensure
     that a unique record is deleted within the database otherwise the
@@ -1163,16 +1163,16 @@ bool Q3DataTable::updateCurrent()
 bool Q3DataTable::deleteCurrent()
 {
     if ( !sqlCursor() || isReadOnly() )
-	return FALSE;
+	return false;
     if ( sqlCursor()->primaryIndex().count() == 0 ) {
 #ifdef QT_CHECK_RANGE
 	qWarning("Q3DataTable::deleteCurrent: no primary index %s",
 		 sqlCursor()->name().latin1() );
 #endif
-	return FALSE;
+	return false;
     }
     if ( !sqlCursor()->canDelete() )
-	return FALSE;
+	return false;
 
     int b = 0;
     int conf = QSql::Yes;
@@ -1183,7 +1183,7 @@ bool Q3DataTable::deleteCurrent()
     // dialog that causes a repaint which the cursor to the
     // record it has to repaint.
     if ( !sqlCursor()->seek( currentRow() ) )
-	return FALSE;
+	return false;
     switch ( conf ) {
 	case QSql::Yes:{
 #ifndef QT_NO_CURSOR
@@ -1201,7 +1201,7 @@ bool Q3DataTable::deleteCurrent()
 	    refresh();
 	    emit cursorChanged( QSql::Delete );
 	    setCurrentCell( currentRow(), currentColumn() );
-	    repaintContents( contentsX(), contentsY(), visibleWidth(), visibleHeight(), FALSE );
+	    repaintContents( contentsX(), contentsY(), visibleWidth(), visibleHeight(), false );
 	    verticalHeader()->repaint(); // get rid of trailing garbage
 	}
 	break;
@@ -1242,11 +1242,11 @@ QSql::Confirm  Q3DataTable::confirmCancel( QSql::Op m )
 /*!
     Searches the current cursor for a cell containing the string \a
     str starting at the current cell and working forwards (or
-    backwards if \a backwards is TRUE). If the string is found, the
+    backwards if \a backwards is true). If the string is found, the
     cell containing the string is set as the current cell. If \a
-    caseSensitive is FALSE the case of \a str will be ignored.
+    caseSensitive is false the case of \a str will be ignored.
 
-    The search will wrap, i.e. if the first (or if backwards is TRUE,
+    The search will wrap, i.e. if the first (or if backwards is true,
     last) cell is reached without finding \a str the search will
     continue until it reaches the starting cell. If \a str is not
     found the search will fail and the current cell will remain
@@ -1261,7 +1261,7 @@ void Q3DataTable::find( const QString & str, bool caseSensitive, bool backwards 
     QString tmp, text;
     uint  row = currentRow(), startRow = row,
 	  col = backwards ? currentColumn() - 1 : currentColumn() + 1;
-    bool  wrap = TRUE, found = FALSE;
+    bool  wrap = true, found = false;
 
     if( str.isEmpty() || str.isNull() )
 	return;
@@ -1286,7 +1286,7 @@ void Q3DataTable::find( const QString & str, bool caseSensitive, bool backwards 
 		if( text.contains( tmp ) ){
 		    setCurrentCell( row, i );
 		    col = i;
-		    found = TRUE;
+		    found = true;
 		}
 	    }
 	    if( !backwards ){
@@ -1301,7 +1301,7 @@ void Q3DataTable::find( const QString & str, bool caseSensitive, bool backwards 
 	    if( startRow != 0 ){
 		startRow = 0;
 	    } else {
-		wrap = FALSE;
+		wrap = false;
 	    }
 	    r->first();
 	    row = 0;
@@ -1309,7 +1309,7 @@ void Q3DataTable::find( const QString & str, bool caseSensitive, bool backwards 
 	    if( startRow != (uint) (numRows() - 1) ){
 		startRow = numRows() - 1;
 	    } else {
-		wrap = FALSE;
+		wrap = false;
 	    }
 	    r->last();
 	    row = numRows() - 1;
@@ -1344,14 +1344,14 @@ void Q3DataTable::reset()
     verticalScrollBar()->setValue(0);
     setNumRows(0);
 
-    d->haveAllRows = FALSE;
-    d->continuousEdit = FALSE;
+    d->haveAllRows = false;
+    d->continuousEdit = false;
     d->dat.setMode( QSql::None );
     d->editRow = -1;
     d->editCol = -1;
     d->insertRowLast = -1;
     d->insertHeaderLabelLast = QString::null;
-    d->cancelMode = FALSE;
+    d->cancelMode = false;
     d->lastAt = -1;
     d->fld.clear();
     d->fldLabel.clear();
@@ -1376,8 +1376,8 @@ int Q3DataTable::indexOf( uint i ) const
 }
 
 /*!
-    Returns TRUE if the table will automatically delete the cursor
-    specified by setSqlCursor(); otherwise returns FALSE.
+    Returns true if the table will automatically delete the cursor
+    specified by setSqlCursor(); otherwise returns false.
 */
 
 bool Q3DataTable::autoDelete() const
@@ -1387,8 +1387,8 @@ bool Q3DataTable::autoDelete() const
 
 /*!
     Sets the cursor auto-delete flag to \a enable. If \a enable is
-    TRUE, the table will automatically delete the cursor specified by
-    setSqlCursor(). If \a enable is FALSE (the default), the cursor
+    true, the table will automatically delete the cursor specified by
+    setSqlCursor(). If \a enable is false (the default), the cursor
     will not be deleted.
 */
 
@@ -1401,13 +1401,13 @@ void Q3DataTable::setAutoDelete( bool enable )
     \property Q3DataTable::autoEdit
     \brief whether the data table automatically applies edits
 
-    The default value for this property is TRUE. When the user begins
+    The default value for this property is true. When the user begins
     an insert or update in the table there are two possible outcomes
     when they navigate to another record:
 
     \list 1
-    \i the insert or update is is performed -- this occurs if autoEdit is TRUE
-    \i the insert or update is abandoned -- this occurs if autoEdit is FALSE
+    \i the insert or update is is performed -- this occurs if autoEdit is true
+    \i the insert or update is abandoned -- this occurs if autoEdit is false
     \endlist
 */
 
@@ -1432,7 +1432,7 @@ bool Q3DataTable::autoEdit() const
 void Q3DataTable::setNullText( const QString& nullText )
 {
     d->nullTxt = nullText;
-    d->nullTxtChanged = TRUE;
+    d->nullTxtChanged = true;
 }
 
 QString Q3DataTable::nullText() const
@@ -1602,14 +1602,14 @@ void Q3DataTable::loadNextPage()
 
     // check for empty result set
     if ( sqlCursor()->at() == QSql::BeforeFirst && !sqlCursor()->next() ) {
-	d->haveAllRows = TRUE;
+	d->haveAllRows = true;
 	return;
     }
 
     while ( endIdx > 0 && !sqlCursor()->seek( endIdx ) )
 	endIdx--;
     if ( endIdx != ( startIdx + pageSize + lookAhead ) )
-	d->haveAllRows = TRUE;
+	d->haveAllRows = true;
     // small hack to prevent Q3Table from moving the view when a row
     // is selected and the contents is resized
     SelectionMode m = selectionMode();
@@ -1636,7 +1636,7 @@ void Q3DataTable::sliderReleased()
 }
 
 /*!
-    Sorts column \a col in ascending order if \a ascending is TRUE
+    Sorts column \a col in ascending order if \a ascending is true
     (the default); otherwise sorts in descending order.
 
     The \a wholeRows parameter is ignored; Q3DataTable always sorts
@@ -1648,7 +1648,7 @@ void Q3DataTable::sortColumn ( int col, bool ascending,
 {
     if ( sorting() ) {
 	if ( isEditing() && d->dat.mode() != QSql::None )
-	    endEdit( d->editRow, d->editCol, autoEdit(), FALSE );
+	    endEdit( d->editRow, d->editCol, autoEdit(), false );
 	if ( !sqlCursor() )
 	    return;
 	QSqlIndex lastSort = sqlCursor()->sort();
@@ -1670,7 +1670,7 @@ void Q3DataTable::columnClicked ( int col )
 	if ( !sqlCursor() )
 	    return;
 	QSqlIndex lastSort = sqlCursor()->sort();
-	bool asc = TRUE;
+	bool asc = true;
 	if ( lastSort.count() && lastSort.fieldPtr( 0 )->name() == sqlCursor()->fieldPtr( indexOf( col ) )->name() )
 	    asc = lastSort.isDescending( 0 );
 	sortColumn( col, asc );
@@ -1686,7 +1686,7 @@ void Q3DataTable::repaintCell( int row, int col )
     QRect cg = cellGeometry( row, col );
     QRect re( QPoint( cg.x() - 2, cg.y() - 2 ),
 	      QSize( cg.width() + 4, cg.height() + 4 ) );
-    repaintContents( re, FALSE );
+    repaintContents( re, false );
 }
 
 /*!
@@ -1696,7 +1696,7 @@ void Q3DataTable::repaintCell( int row, int col )
     the corresponding cursor field on the painter \a p. Depending on
     the table's current edit mode, paintField() is called for the
     appropriate cursor field. \a cr describes the cell coordinates in
-    the content coordinate system. If \a selected is TRUE the cell has
+    the content coordinate system. If \a selected is true the cell has
     been selected and would normally be rendered differently than an
     unselected cell.
 
@@ -1802,9 +1802,9 @@ void Q3DataTable::setSize( Q3SqlCursor* sql )
 /*!
     Sets \a cursor as the data source for the table. To force the
     display of the data from \a cursor, use refresh(). If \a
-    autoPopulate is TRUE, columns are automatically created based upon
-    the fields in the \a cursor record. If \a autoDelete is TRUE (the
-    default is FALSE), the table will take ownership of the \a cursor
+    autoPopulate is true, columns are automatically created based upon
+    the fields in the \a cursor record. If \a autoDelete is true (the
+    default is false), the table will take ownership of the \a cursor
     and delete it when appropriate. If the \a cursor is read-only, the
     table becomes read-only. The table adopts the cursor's driver's
     definition for representing NULL values as strings.
@@ -1814,7 +1814,7 @@ void Q3DataTable::setSize( Q3SqlCursor* sql )
 
 void Q3DataTable::setSqlCursor( Q3SqlCursor* cursor, bool autoPopulate, bool autoDelete )
 {
-    setUpdatesEnabled( FALSE );
+    setUpdatesEnabled( false );
     d->cur.setCursor( 0 );
     if ( cursor ) {
 	d->cur.setCursor( cursor, autoDelete );
@@ -1837,7 +1837,7 @@ void Q3DataTable::setSqlCursor( Q3SqlCursor* cursor, bool autoPopulate, bool aut
 	setNumRows( 0 );
 	setNumCols( 0 );
     }
-    setUpdatesEnabled( TRUE );
+    setUpdatesEnabled( true );
 }
 
 
@@ -2002,7 +2002,7 @@ QSqlRecord* Q3DataTable::currentRecord() const
 
 void Q3DataTable::sortAscending( int col )
 {
-    sortColumn( col, TRUE );
+    sortColumn( col, true );
 }
 
 /*!
@@ -2013,7 +2013,7 @@ void Q3DataTable::sortAscending( int col )
 
 void Q3DataTable::sortDescending( int col )
 {
-    sortColumn( col, FALSE );
+    sortColumn( col, false );
 }
 
 /*!
@@ -2034,13 +2034,13 @@ void Q3DataTable::refresh( Q3DataTable::Refresh mode )
     bool refreshData = ( (mode & RefreshData) == RefreshData );
     bool refreshCol = ( (mode & RefreshColumns) == RefreshColumns );
     if ( ( (mode & RefreshAll) == RefreshAll ) ) {
-	refreshData = TRUE;
-	refreshCol = TRUE;
+	refreshData = true;
+	refreshCol = true;
     }
     if ( !refreshCol && d->fld.count() && numCols() == 0 )
-	refreshCol = TRUE;
-    viewport()->setUpdatesEnabled( FALSE );
-    d->haveAllRows = FALSE;
+	refreshCol = true;
+    viewport()->setUpdatesEnabled( false );
+    d->haveAllRows = false;
     if ( refreshData ) {
 	if ( !d->cur.refresh() && d->cur.cursor() ) {
 	    handleError( d->cur.cursor()->lastError() );
@@ -2082,8 +2082,8 @@ void Q3DataTable::refresh( Q3DataTable::Refresh mode )
 	    }
 	}
     }
-    viewport()->setUpdatesEnabled( TRUE );
-    viewport()->repaint( FALSE );
+    viewport()->setUpdatesEnabled( true );
+    viewport()->repaint( false );
     horizontalHeader()->repaint();
     verticalHeader()->repaint();
     setSize( cur );
@@ -2120,7 +2120,7 @@ bool Q3DataTable::findBuffer( const QSqlIndex& idx, int atHint )
 {
     Q3SqlCursor* cur = sqlCursor();
     if ( !cur )
-	return FALSE;
+	return false;
     bool found = d->cur.findBuffer( idx, atHint );
     if ( found )
 	setCurrentCell( cur->at(), currentColumn() );
@@ -2201,7 +2201,7 @@ void Q3DataTable::drawContents( QPainter * p, int cx, int cy, int cw, int ch )
 
 void Q3DataTable::hideColumn( int col )
 {
-    d->fldHidden[col] = TRUE;
+    d->fldHidden[col] = true;
     refresh( RefreshColumns );
 }
 
@@ -2211,7 +2211,7 @@ void Q3DataTable::hideColumn( int col )
 
 void Q3DataTable::showColumn( int col )
 {
-    d->fldHidden[col] = FALSE;
+    d->fldHidden[col] = false;
     refresh( RefreshColumns );
 }
 

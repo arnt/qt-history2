@@ -29,7 +29,7 @@ typedef Q3PtrListIterator<char> Q3StrListIterator;
 class Q_COMPAT_EXPORT Q3StrList : public Q3PtrList<char>
 {
 public:
-    Q3StrList( bool deepCopies=TRUE ) { dc = deepCopies; del_item = deepCopies; }
+    Q3StrList( bool deepCopies=true ) { dc = deepCopies; del_item = deepCopies; }
     Q3StrList( const Q3StrList & );
     ~Q3StrList()			{ clear(); }
     Q3StrList& operator=( const Q3StrList & );
@@ -52,7 +52,7 @@ private:
 class Q_COMPAT_EXPORT Q3StrIList : public Q3StrList	// case insensitive string list
 {
 public:
-    Q3StrIList( bool deepCopies=TRUE ) : Q3StrList( deepCopies ) {}
+    Q3StrIList( bool deepCopies=true ) : Q3StrList( deepCopies ) {}
     ~Q3StrIList()			{ clear(); }
 private:
     int	  compareItems( Q3PtrCollection::Item s1, Q3PtrCollection::Item s2 )
@@ -73,7 +73,7 @@ inline Q3StrList & Q3StrList::operator=( const Q3StrList &strList )
 inline Q3StrList::Q3StrList( const Q3StrList &strList )
     : Q3PtrList<char>( strList )
 {
-    dc = FALSE;
+    dc = false;
     operator=( strList );
 }
 

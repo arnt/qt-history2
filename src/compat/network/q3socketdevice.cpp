@@ -5,7 +5,7 @@
 **
 ** Created : 970521
 **
-** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2004 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the network module of the Qt GUI Toolkit.
 **
@@ -234,7 +234,7 @@ Q3SocketDevice::~Q3SocketDevice()
 
 
 /*!
-    Returns TRUE if this is a valid socket; otherwise returns FALSE.
+    Returns true if this is a valid socket; otherwise returns false.
 
     \sa socket()
 */
@@ -329,12 +329,12 @@ void Q3SocketDevice::setSocket( int socket, Type type )
 bool Q3SocketDevice::open( int mode )
 {
     if ( isOpen() || !isValid() )
-	return FALSE;
+	return false;
 #if defined(Q3SOCKETDEVICE_DEBUG)
     qDebug( "Q3SocketDevice::open: mode %x", mode );
 #endif
     setOpenMode( OpenMode(mode & IO_ReadWrite) );
-    return TRUE;
+    return true;
 }
 
 
@@ -377,19 +377,19 @@ QIODevice::Offset Q3SocketDevice::at() const
     \reimp
 
     The read/write index is meaningless for a socket, therefore this
-    function does nothing and returns TRUE.
+    function does nothing and returns true.
 */
 bool Q3SocketDevice::at( Offset )
 {
-    return TRUE;
+    return true;
 }
 
 
 /*!
     \reimp
 
-    Returns TRUE if no data is currently available at the socket;
-    otherwise returns FALSE.
+    Returns true if no data is currently available at the socket;
+    otherwise returns false.
 */
 bool Q3SocketDevice::atEnd() const
 {
@@ -397,8 +397,8 @@ bool Q3SocketDevice::atEnd() const
 }
 
 /*!
-    Returns TRUE if the address of this socket can be used by other
-    sockets at the same time, and FALSE if this socket claims
+    Returns true if the address of this socket can be used by other
+    sockets at the same time, and false if this socket claims
     exclusive ownership.
 
     \sa setAddressReusable()
@@ -411,8 +411,8 @@ bool Q3SocketDevice::addressReusable() const
 
 /*!
     Sets the address of this socket to be usable by other sockets too
-    if \a enable is TRUE, and to be used exclusively by this socket if
-    \a enable is FALSE.
+    if \a enable is true, and to be used exclusively by this socket if
+    \a enable is false.
 
     When a socket is reusable, other sockets can use the same port
     number (and IP address), which is generally useful. Of course

@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Implementation of Q3UrlOperator class
 **
 ** Created : 950429
 **
-** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2004 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the kernel module of the Qt GUI Toolkit.
 **
@@ -54,7 +54,7 @@ class Q3UrlOperatorPrivate
 public:
     Q3UrlOperatorPrivate()
     {
-	oldOps.setAutoDelete( FALSE );
+	oldOps.setAutoDelete( false );
 	networkProtocol = 0;
 	nameFilter = "*";
 	currPut = 0;
@@ -534,10 +534,10 @@ const Q3NetworkOperation *Q3UrlOperator::rename( const QString &oldname, const Q
 }
 
 /*!
-    Copies the file \a from to \a to. If \a move is TRUE, the file is
+    Copies the file \a from to \a to. If \a move is true, the file is
     moved (copied and removed). \a from must point to a file and \a to
     must point to a directory (into which \a from is copied) unless \a
-    toPath is set to FALSE. If \a toPath is set to FALSE then the \a
+    toPath is set to false. If \a toPath is set to false then the \a
     to variable is assumed to be the absolute file path (destination
     file path + file name). The copying is done using the get() and
     put() operations. If you want to be notified about the progress of
@@ -569,7 +569,7 @@ Q3PtrList<Q3NetworkOperation> Q3UrlOperator::copy( const QString &from, const QS
 #endif
 
     Q3PtrList<Q3NetworkOperation> ops;
-    ops.setAutoDelete( FALSE );
+    ops.setAutoDelete( false );
 
     Q3UrlOperator *uFrom = new Q3UrlOperator( *this, from );
     Q3UrlOperator *uTo = new Q3UrlOperator( to );
@@ -626,13 +626,13 @@ Q3PtrList<Q3NetworkOperation> Q3UrlOperator::copy( const QString &from, const QS
 	d->getOpPutOpMap.insert( (void*)opGet, opPut );
 
 	if ( move && (gProt->supportedOperations()&Q3NetworkProtocol::OpRemove) ) {
-	    gProt->setAutoDelete( FALSE );
+	    gProt->setAutoDelete( false );
 
 	    Q3NetworkOperation *opRm = new Q3NetworkOperation( Q3NetworkProtocol::OpRemove, frm, QString::null, QString::null );
 	    ops.append( opRm );
 	    d->getOpRemoveOpMap.insert( (void*)opGet, opRm );
 	} else {
-	    gProt->setAutoDelete( TRUE );
+	    gProt->setAutoDelete( true );
 	}
 #ifdef Q3URLOPERATOR_DEBUG
 	qDebug( "Q3UrlOperator: copy operation should start now..." );
@@ -665,7 +665,7 @@ Q3PtrList<Q3NetworkOperation> Q3UrlOperator::copy( const QString &from, const QS
 /*!
     \overload
 
-    Copies the \a files to the directory \a dest. If \a move is TRUE
+    Copies the \a files to the directory \a dest. If \a move is true
     the files are moved, not copied. \a dest must point to a
     directory.
 
@@ -686,22 +686,22 @@ void Q3UrlOperator::copy( const QStringList &files, const QString &dest,
 }
 
 /*!
-    Returns TRUE if the URL is a directory; otherwise returns FALSE.
+    Returns true if the URL is a directory; otherwise returns false.
     This may not always work correctly, if the protocol of the URL is
     something other than file (local filesystem). If you pass a bool
-    pointer as the \a ok argument, \a *ok is set to TRUE if the result
-    of this function is known to be correct, and to FALSE otherwise.
+    pointer as the \a ok argument, \a *ok is set to true if the result
+    of this function is known to be correct, and to false otherwise.
 */
 
 bool Q3UrlOperator::isDir( bool *ok )
 {
     if ( ok )
-	*ok = TRUE;
+	*ok = true;
     if ( isLocalFile() ) {
 	if ( QFileInfo( path() ).isDir() )
-	    return TRUE;
+	    return true;
 	else
-	    return FALSE;
+	    return false;
     }
 
     if ( d->entryMap.contains( "." ) ) {
@@ -709,8 +709,8 @@ bool Q3UrlOperator::isDir( bool *ok )
     }
     // #### can assume that we are a directory?
     if ( ok )
-	*ok = FALSE;
-    return TRUE;
+	*ok = false;
+    return true;
 }
 
 /*!
@@ -898,14 +898,14 @@ QUrlInfo Q3UrlOperator::info( const QString &entry ) const
 	 // return a faked QUrlInfo
 	 QUrlInfo inf;
 	 inf.setName( entry );
-	 inf.setDir( TRUE );
-	 inf.setFile( FALSE );
-	 inf.setSymLink( FALSE );
+	 inf.setDir( true );
+	 inf.setFile( false );
+	 inf.setSymLink( false );
 	 inf.setOwner( tr( "(unknown)" ) );
 	 inf.setGroup( tr( "(unknown)" ) );
 	 inf.setSize( 0 );
-	 inf.setWritable( FALSE );
-	 inf.setReadable( TRUE );
+	 inf.setWritable( false );
+	 inf.setReadable( true );
 	 return inf;
     }
     return QUrlInfo();
@@ -994,7 +994,7 @@ Q3UrlOperator& Q3UrlOperator::operator=( const Q3UrlOperator &url )
 
     *d = *url.d;
 
-    d->oldOps.setAutoDelete( FALSE );
+    d->oldOps.setAutoDelete( false );
     d->getOpPutOpMap = getOpPutOpMap;
     d->getOpPutProtMap = getOpPutProtMap;
     d->getOpGetProtMap = getOpGetProtMap;
@@ -1013,7 +1013,7 @@ Q3UrlOperator& Q3UrlOperator::operator=( const QString &url )
 {
     deleteNetworkProtocol();
     Q3Url::operator=( url );
-    d->oldOps.setAutoDelete( FALSE );
+    d->oldOps.setAutoDelete( false );
     getNetworkProtocol();
     return *this;
 }
@@ -1039,9 +1039,9 @@ bool Q3UrlOperator::checkValid()
     // ######
     if ( !isValid() ) {
 	//emit error( ErrValid, tr( "The entered URL is not valid!" ) );
-	return FALSE;
+	return false;
     } else
-	return TRUE;
+	return true;
 }
 
 
@@ -1091,7 +1091,7 @@ void Q3UrlOperator::continueCopy( Q3NetworkOperation *op )
     d->getOpPutProtMap.take( op );
     d->getOpRemoveOpMap.take( op );
     if ( pProt )
-	pProt->setAutoDelete( TRUE );
+	pProt->setAutoDelete( true );
     if ( put && pProt ) {
 	if ( op->state() != Q3NetworkProtocol::StFailed ) {
 	    pProt->addOperation( put );
@@ -1101,7 +1101,7 @@ void Q3UrlOperator::continueCopy( Q3NetworkOperation *op )
 	}
     }
     if ( gProt ) {
-	gProt->setAutoDelete( TRUE );
+	gProt->setAutoDelete( true );
     }
     if ( rm && gProt ) {
 	if ( op->state() != Q3NetworkProtocol::StFailed ) {
@@ -1144,8 +1144,8 @@ void Q3UrlOperator::stop()
 {
     d->getOpPutOpMap.clear();
     d->getOpRemoveOpMap.clear();
-    d->getOpGetProtMap.setAutoDelete( TRUE );
-    d->getOpPutProtMap.setAutoDelete( TRUE );
+    d->getOpGetProtMap.setAutoDelete( true );
+    d->getOpPutProtMap.setAutoDelete( true );
     Q3PtrDictIterator<Q3NetworkProtocol> it( d->getOpPutProtMap );
     for ( ; it.current(); ++it )
 	it.current()->stop();

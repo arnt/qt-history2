@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Implementation of Q3Process class
 **
 ** Created : 20000905
 **
-** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2004 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the kernel module of the Qt GUI Toolkit.
 **
@@ -222,9 +222,9 @@
     \sa setArguments() addArgument() start()
 */
 Q3Process::Q3Process( QObject *parent, const char *name )
-    : QObject( parent, name ), ioRedirection( FALSE ), notifyOnExit( FALSE ),
-    wroteToStdinConnected( FALSE ),
-    readStdoutCalled( FALSE ), readStderrCalled( FALSE ),
+    : QObject( parent, name ), ioRedirection( false ), notifyOnExit( false ),
+    wroteToStdinConnected( false ),
+    readStdoutCalled( false ), readStderrCalled( false ),
     comms( Stdin|Stdout|Stderr )
 {
     init();
@@ -241,9 +241,9 @@ Q3Process::Q3Process( QObject *parent, const char *name )
     \sa setArguments() addArgument() start()
 */
 Q3Process::Q3Process( const QString& arg0, QObject *parent, const char *name )
-    : QObject( parent, name ), ioRedirection( FALSE ), notifyOnExit( FALSE ),
-    wroteToStdinConnected( FALSE ),
-    readStdoutCalled( FALSE ), readStderrCalled( FALSE ),
+    : QObject( parent, name ), ioRedirection( false ), notifyOnExit( false ),
+    wroteToStdinConnected( false ),
+    readStdoutCalled( false ), readStderrCalled( false ),
     comms( Stdin|Stdout|Stderr )
 {
     init();
@@ -263,9 +263,9 @@ Q3Process::Q3Process( const QString& arg0, QObject *parent, const char *name )
     \sa setArguments() addArgument() start()
 */
 Q3Process::Q3Process( const QStringList& args, QObject *parent, const char *name )
-    : QObject( parent, name ), ioRedirection( FALSE ), notifyOnExit( FALSE ),
-    wroteToStdinConnected( FALSE ),
-    readStdoutCalled( FALSE ), readStderrCalled( FALSE ),
+    : QObject( parent, name ), ioRedirection( false ), notifyOnExit( false ),
+    wroteToStdinConnected( false ),
+    readStdoutCalled( false ), readStderrCalled( false ),
     comms( Stdin|Stdout|Stderr )
 {
     init();
@@ -405,8 +405,8 @@ void Q3Process::setCommunication( int commFlags )
 }
 
 /*!
-    Returns TRUE if the process has exited normally; otherwise returns
-    FALSE. This implies that this function returns FALSE if the
+    Returns true if the process has exited normally; otherwise returns
+    false. This implies that this function returns false if the
     process is still running.
 
     \sa isRunning() exitStatus() processExited()
@@ -415,7 +415,7 @@ bool Q3Process::normalExit() const
 {
     // isRunning() has the side effect that it determines the exit status!
     if ( isRunning() )
-	return FALSE;
+	return false;
     else
 	return exitNormal;
 }
@@ -425,7 +425,7 @@ bool Q3Process::normalExit() const
     still running. This function returns immediately and does not wait
     until the process is finished.
 
-    If normalExit() is FALSE (e.g. if the program was killed or
+    If normalExit() is false (e.g. if the program was killed or
     crashed), this function returns 0, so you should check the return
     value of normalExit() before relying on this value.
 
@@ -456,9 +456,9 @@ QByteArray Q3Process::readStdout()
     if ( readStdoutCalled ) {
 	return QByteArray();
     }
-    readStdoutCalled = TRUE;
+    readStdoutCalled = true;
     Q3Membuf *buf = membufStdout();
-    readStdoutCalled = FALSE;
+    readStdoutCalled = false;
 
     return buf->readAll();
 }
@@ -478,9 +478,9 @@ QByteArray Q3Process::readStderr()
     if ( readStderrCalled ) {
 	return QByteArray();
     }
-    readStderrCalled = TRUE;
+    readStderrCalled = true;
     Q3Membuf *buf = membufStderr();
-    readStderrCalled = FALSE;
+    readStderrCalled = false;
 
     return buf->readAll();
 }
@@ -488,7 +488,7 @@ QByteArray Q3Process::readStderr()
 /*!
     Reads a line of text from standard output, excluding any trailing
     newline or carriage return characters, and returns it. Returns
-    QString::null if canReadLineStdout() returns FALSE.
+    QString::null if canReadLineStdout() returns false.
 
     By default, the text is interpreted to be in Latin-1 encoding. If you need
     other codecs, you can set a different codec with
@@ -524,7 +524,7 @@ QString Q3Process::readLineStdout()
 /*!
     Reads a line of text from standard error, excluding any trailing
     newline or carriage return characters and returns it. Returns
-    QString::null if canReadLineStderr() returns FALSE.
+    QString::null if canReadLineStderr() returns false.
 
     By default, the text is interpreted to be in Latin-1 encoding. If you need
     other codecs, you can set a different codec with
@@ -588,8 +588,8 @@ QString Q3Process::readLineStderr()
     settings for the environment variable \c LD_LIBRARY_PATH, then
     this variable is inherited from the starting process.
 
-    Returns TRUE if the process could be started; otherwise returns
-    FALSE.
+    Returns true if the process could be started; otherwise returns
+    false.
 
     Note that you should not use the slots writeToStdin() and
     closeStdin() on processes started with launch(), since the result
@@ -625,10 +625,10 @@ bool Q3Process::launch( const QByteArray& buf, QStringList *env )
 	    closeStdin();
 	    emit launchFinished();
 	}
-	return TRUE;
+	return true;
     } else {
 	emit launchFinished();
-	return FALSE;
+	return false;
     }
 }
 
@@ -649,10 +649,10 @@ bool Q3Process::launch( const QString& buf, QStringList *env )
 	    closeStdin();
 	    emit launchFinished();
 	}
-	return TRUE;
+	return true;
     } else {
 	emit launchFinished();
-	return FALSE;
+	return false;
     }
 }
 
@@ -752,23 +752,23 @@ void Q3Process::connectNotify( const char * signal )
 		qstrcmp( signal, SIGNAL(readyReadStderr()) )==0
 	   ) {
 #if defined(QT_Q3PROCESS_DEBUG)
-	    qDebug( "Q3Process::connectNotify(): set ioRedirection to TRUE" );
+	    qDebug( "Q3Process::connectNotify(): set ioRedirection to true" );
 #endif
-	    setIoRedirection( TRUE );
+	    setIoRedirection( true );
 	    return;
 	}
     if ( !notifyOnExit && qstrcmp( signal, SIGNAL(processExited()) )==0 ) {
 #if defined(QT_Q3PROCESS_DEBUG)
-	qDebug( "Q3Process::connectNotify(): set notifyOnExit to TRUE" );
+	qDebug( "Q3Process::connectNotify(): set notifyOnExit to true" );
 #endif
-	setNotifyOnExit( TRUE );
+	setNotifyOnExit( true );
 	return;
     }
     if ( !wroteToStdinConnected && qstrcmp( signal, SIGNAL(wroteToStdin()) )==0 ) {
 #if defined(QT_Q3PROCESS_DEBUG)
-	qDebug( "Q3Process::connectNotify(): set wroteToStdinConnected to TRUE" );
+	qDebug( "Q3Process::connectNotify(): set wroteToStdinConnected to true" );
 #endif
-	setWroteStdinConnected( TRUE );
+	setWroteStdinConnected( true );
 	return;
     }
 }
@@ -782,21 +782,21 @@ void Q3Process::disconnectNotify( const char * )
 	    receivers( SIGNAL(readyReadStderr()) ) ==0
 	    ) {
 #if defined(QT_Q3PROCESS_DEBUG)
-	qDebug( "Q3Process::disconnectNotify(): set ioRedirection to FALSE" );
+	qDebug( "Q3Process::disconnectNotify(): set ioRedirection to false" );
 #endif
-	setIoRedirection( FALSE );
+	setIoRedirection( false );
     }
     if ( notifyOnExit && receivers( SIGNAL(processExited()) ) == 0 ) {
 #if defined(QT_Q3PROCESS_DEBUG)
-	qDebug( "Q3Process::disconnectNotify(): set notifyOnExit to FALSE" );
+	qDebug( "Q3Process::disconnectNotify(): set notifyOnExit to false" );
 #endif
-	setNotifyOnExit( FALSE );
+	setNotifyOnExit( false );
     }
     if ( wroteToStdinConnected && receivers( SIGNAL(wroteToStdin()) ) == 0 ) {
 #if defined(QT_Q3PROCESS_DEBUG)
-	qDebug( "Q3Process::disconnectNotify(): set wroteToStdinConnected to FALSE" );
+	qDebug( "Q3Process::disconnectNotify(): set wroteToStdinConnected to false" );
 #endif
-	setWroteStdinConnected( FALSE );
+	setWroteStdinConnected( false );
     }
 }
 

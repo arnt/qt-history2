@@ -69,9 +69,9 @@ public:
     void  clear()			{ Q3GList::clear(); }
     void  sort()			{ Q3GList::sort(); }
     int	  find( const type *d )		{ return Q3GList::find((Q3PtrCollection::Item)d); }
-    int	  findNext( const type *d )	{ return Q3GList::find((Q3PtrCollection::Item)d,FALSE); }
+    int	  findNext( const type *d )	{ return Q3GList::find((Q3PtrCollection::Item)d,false); }
     int	  findRef( const type *d )	{ return Q3GList::findRef((Q3PtrCollection::Item)d); }
-    int	  findNextRef( const type *d ){ return Q3GList::findRef((Q3PtrCollection::Item)d,FALSE);}
+    int	  findNextRef( const type *d ){ return Q3GList::findRef((Q3PtrCollection::Item)d,false);}
     uint  contains( const type *d ) const { return Q3GList::contains((Q3PtrCollection::Item)d); }
     uint  containsRef( const type *d ) const
 					{ return Q3GList::containsRef((Q3PtrCollection::Item)d); }

@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Definition of Q3Url class
 **
 ** Created : 950429
 **
-** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2004 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the kernel module of the Qt GUI Toolkit.
 **
@@ -52,7 +52,7 @@ public:
     Q3Url();
     Q3Url( const QString& url );
     Q3Url( const Q3Url& url );
-    Q3Url( const Q3Url& url, const QString& relUrl, bool checkSlash = FALSE );
+    Q3Url( const Q3Url& url, const QString& relUrl, bool checkSlash = false );
     virtual ~Q3Url();
 
     QString protocol() const;
@@ -74,7 +74,7 @@ public:
     virtual void setPort( int port );
     bool hasPort() const;
 
-    QString path( bool correct = TRUE ) const;
+    QString path( bool correct = true ) const;
     virtual void setPath( const QString& path );
     bool hasPath() const;
 
@@ -107,7 +107,7 @@ public:
     static void encode( QString& url );
 
     operator QString() const;
-    virtual QString toString( bool encodedPath = FALSE, bool forcePrependProtocol = TRUE ) const;
+    virtual QString toString( bool encodedPath = false, bool forcePrependProtocol = true ) const;
 
     virtual bool cdUp();
 

@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Definition of Q3UrlOperator class
 **
 ** Created : 950429
 **
-** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2004 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the kernel module of the Qt GUI Toolkit.
 **
@@ -61,7 +61,7 @@ public:
     Q3UrlOperator();
     Q3UrlOperator( const QString &urL );
     Q3UrlOperator( const Q3UrlOperator& url );
-    Q3UrlOperator( const Q3UrlOperator& url, const QString& relUrl, bool checkSlash = FALSE );
+    Q3UrlOperator( const Q3UrlOperator& url, const QString& relUrl, bool checkSlash = false );
     virtual ~Q3UrlOperator();
 
     virtual void setPath( const QString& path );
@@ -73,8 +73,8 @@ public:
     virtual const Q3NetworkOperation *rename( const QString &oldname, const QString &newname );
     virtual const Q3NetworkOperation *get( const QString &location = QString::null );
     virtual const Q3NetworkOperation *put( const QByteArray &data, const QString &location = QString::null  );
-    virtual Q3PtrList<Q3NetworkOperation> copy( const QString &from, const QString &to, bool move = FALSE, bool toPath = TRUE );
-    virtual void copy( const QStringList &files, const QString &dest, bool move = FALSE );
+    virtual Q3PtrList<Q3NetworkOperation> copy( const QString &from, const QString &to, bool move = false, bool toPath = true );
+    virtual void copy( const QStringList &files, const QString &dest, bool move = false );
     virtual bool isDir( bool *ok = 0 );
 
     virtual void setNameFilter( const QString &nameFilter );

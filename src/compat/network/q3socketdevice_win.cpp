@@ -5,7 +5,7 @@
 **
 ** Created : 970521
 **
-** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2004 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the network module of the Qt GUI Toolkit.
 **
@@ -248,8 +248,8 @@ void Q3SocketDevice::close()
 bool Q3SocketDevice::blocking() const
 {
     if ( !isValid() )
-	return TRUE;
-    return TRUE;
+	return true;
+    return true;
 }
 
 
@@ -378,7 +378,7 @@ void Q3SocketDevice::setOption( Option opt, int v )
 bool Q3SocketDevice::connect( const QHostAddress &addr, Q_UINT16 port )
 {
     if ( !isValid() )
-	return FALSE;
+	return false;
 
     pa = addr;
     pp = port;
@@ -411,7 +411,7 @@ bool Q3SocketDevice::connect( const QHostAddress &addr, Q_UINT16 port )
 	aa = (struct sockaddr *)&a4;
     } else {
 	e = Impossible;
-	return FALSE;
+	return false;
     }
 
     int r = ::connect( fd, aa, aalen );
@@ -470,18 +470,18 @@ bool Q3SocketDevice::connect( const QHostAddress &addr, Q_UINT16 port )
 		e = UnknownError;
 		break;
 	}
-	return FALSE;
+	return false;
     }
 successful:
     fetchConnectionParameters();
-    return TRUE;
+    return true;
 }
 
 
 bool Q3SocketDevice::bind( const QHostAddress &address, Q_UINT16 port )
 {
     if ( !isValid() )
-	return FALSE;
+	return false;
     int r;
     struct sockaddr_in a4;
 #if !defined(QT_NO_IPV6)
@@ -506,7 +506,7 @@ bool Q3SocketDevice::bind( const QHostAddress &address, Q_UINT16 port )
 	r = ::bind( fd, (struct sockaddr*)&a4, sizeof(struct sockaddr_in) );
     } else {
 	e = Impossible;
-	return FALSE;
+	return false;
     }
 
     if ( r == SOCKET_ERROR ) {
@@ -541,22 +541,22 @@ bool Q3SocketDevice::bind( const QHostAddress &address, Q_UINT16 port )
 		e = UnknownError;
 		break;
 	}
-	return FALSE;
+	return false;
     }
     fetchConnectionParameters();
-    return TRUE;
+    return true;
 }
 
 
 bool Q3SocketDevice::listen( int backlog )
 {
     if ( !isValid() )
-	return FALSE;
+	return false;
     if ( ::listen( fd, backlog ) >= 0 )
-	return TRUE;
+	return true;
     if ( !e )
 	e = Impossible;
-    return FALSE;
+    return false;
 }
 
 
@@ -575,11 +575,11 @@ int Q3SocketDevice::accept()
     do {
         s = ::accept( fd, (struct sockaddr*)&a, &l );
         // we'll blithely throw away the stuff accept() wrote to a
-        done = TRUE;
+        done = true;
         if ( s == INVALID_SOCKET && e == NoError ) {
 	    switch( WSAGetLastError() ) {
                 case WSAEINTR:
-                    done = FALSE;
+                    done = false;
                     break;
 		case WSANOTINITIALISED:
 		    e = Impossible;
@@ -658,9 +658,9 @@ Q_LONG Q3SocketDevice::waitForMore( int msecs, bool *timeout ) const
 
     if ( timeout ) {
 	if ( rv == 0 )
-	    *timeout = TRUE;
+	    *timeout = true;
 	else
-	    *timeout = FALSE;
+	    *timeout = false;
     }
 
     return bytesAvailable();
@@ -795,12 +795,12 @@ Q_LONGLONG Q3SocketDevice::writeData( const char *data, Q_LONGLONG len )
 #endif
 	return -1;
     }
-    bool done = FALSE;
+    bool done = false;
     Q_LONG r = 0;
     while ( !done ) {
 	// Don't write more than 64K (see Knowledge Base Q201213).
 	r = ::send( fd, data, ( len>64*1024 ? 64*1024 : len ), 0 );
-	done = TRUE;
+	done = true;
 	if ( r == SOCKET_ERROR && e == NoError ) {//&& errno != WSAEAGAIN ) {
 	    switch( WSAGetLastError() ) {
 		case WSANOTINITIALISED:
@@ -820,7 +820,7 @@ Q_LONGLONG Q3SocketDevice::writeData( const char *data, Q_LONGLONG len )
 		    r = 0;
 		    break;
 		case WSAEINTR:
-		    done = FALSE;
+		    done = false;
 		    break;
 		case WSAEINPROGRESS:
 		    e = NoResources;
@@ -919,11 +919,11 @@ Q_LONG Q3SocketDevice::writeBlock( const char * data, Q_ULONG len,
 
     // we'd use MSG_DONTWAIT + MSG_NOSIGNAL if Stevens were right.
     // but apparently Stevens and most implementors disagree
-    bool done = FALSE;
+    bool done = false;
     Q_LONG r = 0;
     while ( !done ) {
 	r = ::sendto( fd, data, len, 0, aa, slen );
-	done = TRUE;
+	done = true;
 	if ( r == SOCKET_ERROR && e == NoError ) {//&& e != EAGAIN ) {
 	    switch( WSAGetLastError() ) {
 		case WSANOTINITIALISED:
@@ -942,7 +942,7 @@ Q_LONG Q3SocketDevice::writeBlock( const char * data, Q_ULONG len,
 		    e = NetworkFailure;
 		    break;
 		case WSAEINTR:
-		    done = FALSE;
+		    done = false;
 		    break;
 		case WSAEINPROGRESS:
 		    e = NoResources;

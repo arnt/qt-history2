@@ -27,7 +27,7 @@
 class Q_COMPAT_EXPORT Q3ObjectDictionary : public Q3AsciiDict<QMetaObject>
 {
 public:
-    Q3ObjectDictionary(int size=17,bool cs=TRUE,bool ck=TRUE)
+    Q3ObjectDictionary(int size=17,bool cs=true,bool ck=true)
 	: Q3AsciiDict<QMetaObject>(size,cs,ck) {}
     Q3ObjectDictionary( const Q3ObjectDictionary &dict )
 	: Q3AsciiDict<QMetaObject>(dict) {}

@@ -5,7 +5,7 @@
 **
 ** Created : 970521
 **
-** Copyright (C) 1992-2002 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2004 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the network module of the Qt GUI Toolkit.
 **
@@ -212,12 +212,12 @@ void Q3SocketDevice::close()
 
 
 /*!
-    Returns TRUE if the socket is valid and in blocking mode;
-    otherwise returns FALSE.
+    Returns true if the socket is valid and in blocking mode;
+    otherwise returns false.
 
     Note that this function does not set error().
 
-    \warning On Windows, this function always returns TRUE since the
+    \warning On Windows, this function always returns true since the
     ioctlsocket() function is broken.
 
     \sa setBlocking(), isValid()
@@ -225,15 +225,15 @@ void Q3SocketDevice::close()
 bool Q3SocketDevice::blocking() const
 {
     if ( !isValid() )
-	return TRUE;
+	return true;
     int s = fcntl(fd, F_GETFL, 0);
     return !(s >= 0 && ((s & O_NDELAY) != 0));
 }
 
 
 /*!
-    Makes the socket blocking if \a enable is TRUE or nonblocking if
-    \a enable is FALSE.
+    Makes the socket blocking if \a enable is true or nonblocking if
+    \a enable is false.
 
     Sockets are blocking by default, but we recommend using
     nonblocking socket operations, especially for GUI programs that
@@ -375,8 +375,8 @@ void Q3SocketDevice::setOption( Option opt, int v )
 
 /*!
     Connects to the IP address and port specified by \a addr and \a
-    port. Returns TRUE if it establishes a connection; otherwise returns FALSE.
-    If it returns FALSE, error() explains why.
+    port. Returns true if it establishes a connection; otherwise returns false.
+    If it returns false, error() explains why.
 
     Note that error() commonly returns NoError for non-blocking
     sockets; this just means that you can call connect() again in a
@@ -385,7 +385,7 @@ void Q3SocketDevice::setOption( Option opt, int v )
 bool Q3SocketDevice::connect( const QHostAddress &addr, Q_UINT16 port )
 {
     if ( !isValid() )
-	return FALSE;
+	return false;
 
     pa = addr;
     pp = port;
@@ -418,20 +418,20 @@ bool Q3SocketDevice::connect( const QHostAddress &addr, Q_UINT16 port )
 	aa = (struct sockaddr *)&a4;
     } else {
 	e = Impossible;
-	return FALSE;
+	return false;
     }
 
     int r = QT_SOCKET_CONNECT( fd, aa, aalen );
     if ( r == 0 ) {
 	fetchConnectionParameters();
-	return TRUE;
+	return true;
     }
     if ( errno == EISCONN || errno == EALREADY || errno == EINPROGRESS ) {
 	fetchConnectionParameters();
-	return TRUE;
+	return true;
     }
     if ( e != NoError || errno == EAGAIN || errno == EWOULDBLOCK ) {
-	return FALSE;
+	return false;
     }
     switch( errno ) {
     case EBADF:
@@ -460,14 +460,14 @@ bool Q3SocketDevice::connect( const QHostAddress &addr, Q_UINT16 port )
 	e = UnknownError;
 	break;
     }
-    return FALSE;
+    return false;
 }
 
 
 /*!
     Assigns a name to an unnamed socket. The name is the host address
     \a address and the port number \a port. If the operation succeeds,
-    bind() returns TRUE; otherwise it returns FALSE without changing
+    bind() returns true; otherwise it returns false without changing
     what port() and address() return.
 
     bind() is used by servers for setting up incoming connections.
@@ -476,7 +476,7 @@ bool Q3SocketDevice::connect( const QHostAddress &addr, Q_UINT16 port )
 bool Q3SocketDevice::bind( const QHostAddress &address, Q_UINT16 port )
 {
     if ( !isValid() )
-	return FALSE;
+	return false;
     int r;
     struct sockaddr_in a4;
 #if !defined(QT_NO_IPV6)
@@ -501,7 +501,7 @@ bool Q3SocketDevice::bind( const QHostAddress &address, Q_UINT16 port )
 	r = QT_SOCKET_BIND( fd, (struct sockaddr*)&a4, sizeof(a4) );
     } else {
 	e = Impossible;
-	return FALSE;
+	return false;
     }
 
     if ( r < 0 ) {
@@ -531,17 +531,17 @@ bool Q3SocketDevice::bind( const QHostAddress &address, Q_UINT16 port )
 	    e = UnknownError;
 	    break;
 	}
-	return FALSE;
+	return false;
     }
     fetchConnectionParameters();
-    return TRUE;
+    return true;
 }
 
 
 /*!
     Specifies how many pending connections a server socket can have.
-    Returns TRUE if the operation was successful; otherwise returns
-    FALSE. A \a backlog value of 50 is quite common.
+    Returns true if the operation was successful; otherwise returns
+    false. A \a backlog value of 50 is quite common.
 
     The listen() call only applies to sockets where type() is \c
     Stream, i.e. not to \c Datagram sockets. listen() must not be
@@ -552,12 +552,12 @@ bool Q3SocketDevice::bind( const QHostAddress &address, Q_UINT16 port )
 bool Q3SocketDevice::listen( int backlog )
 {
     if ( !isValid() )
-	return FALSE;
+	return false;
     if ( qt_socket_listen( fd, backlog ) >= 0 )
-	return TRUE;
+	return true;
     if ( !e )
 	e = Impossible;
-    return FALSE;
+    return false;
 }
 
 
@@ -584,11 +584,11 @@ int Q3SocketDevice::accept()
     do {
         s = qt_socket_accept( fd, (struct sockaddr*)&aa, &l );
         // we'll blithely throw away the stuff accept() wrote to aa
-        done = TRUE;
+        done = true;
         if ( s < 0 && e == NoError ) {
             switch( errno ) {
             case EINTR:
-                done = FALSE;
+                done = false;
                 break;
 #if defined(EPROTO)
 	    case EPROTO:
@@ -684,9 +684,9 @@ Q_LONGLONG Q3SocketDevice::bytesAvailable() const
     error occurred.
 
     If \a timeout is non-null and no error occurred (i.e. it does not
-    return -1): this function sets \a *timeout to TRUE, if the reason
+    return -1): this function sets \a *timeout to true, if the reason
     for returning was that the timeout was reached; otherwise it sets
-    \a *timeout to FALSE. This is useful to find out if the peer
+    \a *timeout to false. This is useful to find out if the peer
     closed the connection.
 
     \warning This is a blocking call and should be avoided in event
@@ -717,9 +717,9 @@ Q_LONG Q3SocketDevice::waitForMore( int msecs, bool *timeout ) const
 
     if ( timeout ) {
 	if ( rv == 0 )
-	    *timeout = TRUE;
+	    *timeout = true;
 	else
-	    *timeout = FALSE;
+	    *timeout = false;
     }
 
     return bytesAvailable();
@@ -751,9 +751,9 @@ Q_LONGLONG Q3SocketDevice::readData( char *data, Q_LONGLONG maxlen )
 	return -1;
     }
 #endif
-    bool done = FALSE;
+    bool done = false;
     int r = 0;
-    while ( done == FALSE ) {
+    while ( done == false ) {
 	if ( t == Datagram ) {
 #if !defined(QT_NO_IPV6)
             struct sockaddr_storage aa;
@@ -771,11 +771,11 @@ Q_LONGLONG Q3SocketDevice::readData( char *data, Q_LONGLONG maxlen )
 	} else {
 	    r = ::read( fd, data, maxlen );
 	}
-	done = TRUE;
+	done = true;
 	if ( r >= 0 || errno == EAGAIN || errno == EWOULDBLOCK ) {
 	    // nothing
 	} else if ( errno == EINTR ) {
-	    done = FALSE;
+	    done = false;
 	} else if ( e == NoError ) {
 	    switch( errno ) {
 	    case EIO:
@@ -844,17 +844,17 @@ Q_LONGLONG Q3SocketDevice::writeData( const char *data, Q_LONGLONG len )
 #endif
 	return -1;
     }
-    bool done = FALSE;
+    bool done = false;
     int r = 0;
     bool timeout;
     while ( !done ) {
 	r = ::write( fd, data, len );
-	done = TRUE;
+	done = true;
 	if ( r < 0 && e == NoError &&
 	     errno != EAGAIN && errno != EWOULDBLOCK ) {
 	    switch( errno ) {
 	    case EINTR: // signal - call read() or whatever again
-		done = FALSE;
+		done = false;
 		break;
 	    case EPIPE:
 		// connection closed
@@ -968,16 +968,16 @@ Q_LONG Q3SocketDevice::writeBlock( const char * data, Q_ULONG len,
 
     // we'd use MSG_DONTWAIT + MSG_NOSIGNAL if Stevens were right.
     // but apparently Stevens and most implementors disagree
-    bool done = FALSE;
+    bool done = false;
     int r = 0;
     while ( !done ) {
 	r = ::sendto( fd, data, len, 0, aa, slen);
-	done = TRUE;
+	done = true;
 	if ( r < 0 && e == NoError &&
 	     errno != EAGAIN && errno != EWOULDBLOCK ) {
 	    switch( errno ) {
 	    case EINTR: // signal - call read() or whatever again
-		done = FALSE;
+		done = false;
 		break;
 	    case ENOSPC:
 	    case EPIPE:

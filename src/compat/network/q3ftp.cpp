@@ -5,7 +5,7 @@
 **
 ** Created : 970521
 **
-** Copyright (C) 1997-2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 1997-2004 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the network module of the Qt GUI Toolkit.
 **
@@ -135,7 +135,7 @@ private slots:
 private:
     void clearData()
     {
-	is_ba = FALSE;
+	is_ba = false;
 	data.dev = 0;
     }
 
@@ -146,7 +146,7 @@ private:
     int bytesTotal;
     bool callWriteData;
 
-    // If is_ba is TRUE, ba is used; ba is never 0.
+    // If is_ba is true, ba is used; ba is never 0.
     // Otherwise dev is used; dev can be 0 or not.
     union {
 	QByteArray *ba;
@@ -243,7 +243,7 @@ public:
     Q3Ftp::Command command;
     QStringList rawCmds;
 
-    // If is_ba is TRUE, ba is used; ba is never 0.
+    // If is_ba is true, ba is used; ba is never 0.
     // Otherwise dev is used; dev can be 0 or not.
     union {
 	QByteArray *ba;
@@ -257,21 +257,21 @@ public:
 int Q3FtpCommand::idCounter = 0;
 
 Q3FtpCommand::Q3FtpCommand( Q3Ftp::Command cmd, QStringList raw )
-    : command(cmd), rawCmds(raw), is_ba(FALSE)
+    : command(cmd), rawCmds(raw), is_ba(false)
 {
     id = ++idCounter;
     data.dev = 0;
 }
 
 Q3FtpCommand::Q3FtpCommand( Q3Ftp::Command cmd, QStringList raw, const QByteArray &ba )
-    : command(cmd), rawCmds(raw), is_ba(TRUE)
+    : command(cmd), rawCmds(raw), is_ba(true)
 {
     id = ++idCounter;
     data.ba = new QByteArray( ba );
 }
 
 Q3FtpCommand::Q3FtpCommand( Q3Ftp::Command cmd, QStringList raw, QIODevice *dev )
-    : command(cmd), rawCmds(raw), is_ba(FALSE)
+    : command(cmd), rawCmds(raw), is_ba(false)
 {
     id = ++idCounter;
     data.dev = dev;
@@ -292,7 +292,7 @@ Q3FtpDTP::Q3FtpDTP( Q3FtpPI *p, QObject *parent, const char *name ) :
     QObject( parent, name ),
     socket( 0, "Q3FtpDTP_socket" ),
     pi( p ),
-    callWriteData( FALSE )
+    callWriteData( false )
 {
     clearData();
 
@@ -310,13 +310,13 @@ Q3FtpDTP::Q3FtpDTP( Q3FtpPI *p, QObject *parent, const char *name ) :
 
 void Q3FtpDTP::setData( QByteArray *ba )
 {
-    is_ba = TRUE;
+    is_ba = true;
     data.ba = ba;
 }
 
 void Q3FtpDTP::setDevice( QIODevice *dev )
 {
-    is_ba = FALSE;
+    is_ba = false;
     data.dev = dev;
 }
 
@@ -333,7 +333,7 @@ void Q3FtpDTP::writeData()
 	socket.close();
 	clearData();
     } else if ( data.dev ) {
-	callWriteData = FALSE;
+	callWriteData = false;
 	const int blockSize = 16*1024;
 	char buf[blockSize];
 	while ( !data.dev->atEnd() && socket.bytesToWrite()==0 ) {
@@ -351,7 +351,7 @@ void Q3FtpDTP::writeData()
 	    socket.close();
 	    clearData();
 	} else {
-	    callWriteData = TRUE;
+	    callWriteData = true;
 	}
     }
 }
@@ -376,7 +376,7 @@ void Q3FtpDTP::abortConnection()
 #if defined(Q3FTPDTP_DEBUG)
     qDebug( "Q3FtpDTP::abortConnection" );
 #endif
-    callWriteData = FALSE;
+    callWriteData = false;
     clearData();
 
     socket.clearPendingData();
@@ -388,7 +388,7 @@ bool Q3FtpDTP::parseDir( const QString &buffer, const QString &userName, QUrlInf
     QStringList lst = QStringList::split( " ", buffer );
 
     if ( lst.count() < 9 )
-	return FALSE;
+	return false;
 
     QString tmp;
 
@@ -396,19 +396,19 @@ bool Q3FtpDTP::parseDir( const QString &buffer, const QString &userName, QUrlInf
     tmp = lst[ 0 ];
 
     if ( tmp[ 0 ] == QChar( 'd' ) ) {
-	info->setDir( TRUE );
-	info->setFile( FALSE );
-	info->setSymLink( FALSE );
+	info->setDir( true );
+	info->setFile( false );
+	info->setSymLink( false );
     } else if ( tmp[ 0 ] == QChar( '-' ) ) {
-	info->setDir( FALSE );
-	info->setFile( TRUE );
-	info->setSymLink( FALSE );
+	info->setDir( false );
+	info->setFile( true );
+	info->setSymLink( false );
     } else if ( tmp[ 0 ] == QChar( 'l' ) ) {
-	info->setDir( TRUE ); // #### todo
-	info->setFile( FALSE );
-	info->setSymLink( TRUE );
+	info->setDir( true ); // #### todo
+	info->setFile( false );
+	info->setSymLink( true );
     } else {
-	return FALSE;
+	return false;
     }
 
     static int user = 0;
@@ -509,7 +509,7 @@ bool Q3FtpDTP::parseDir( const QString &buffer, const QString &userName, QUrlInf
 	n = n.stripWhiteSpace();
 	info->setName( n );
     }
-    return TRUE;
+    return true;
 }
 
 void Q3FtpDTP::socketConnected()
@@ -627,13 +627,13 @@ void Q3FtpDTP::socketBytesWritten( int bytes )
  *********************************************************************/
 Q3FtpPI::Q3FtpPI( QObject *parent ) :
     QObject( parent ),
-    rawCommand(FALSE),
+    rawCommand(false),
     dtp( this ),
     commandSocket( 0, "Q3FtpPI_socket" ),
     state( Begin ), abortState( None ),
     currentCmd( QString::null ),
-    waitForDtpToConnect( FALSE ),
-    waitForDtpToClose( FALSE )
+    waitForDtpToConnect( false ),
+    waitForDtpToClose( false )
 {
     connect( &commandSocket, SIGNAL(hostFound()),
 	    SLOT(hostFound()) );
@@ -663,22 +663,22 @@ void Q3FtpPI::connectToHost( const QString &host, Q_UINT16 port )
   are all done the finished() signal is emitted. When an error occurs, the
   error() signal is emitted.
 
-  If there are pending commands in the queue this functions returns FALSE and
-  the \a cmds are not added to the queue; otherwise it returns TRUE.
+  If there are pending commands in the queue this functions returns false and
+  the \a cmds are not added to the queue; otherwise it returns true.
 */
 bool Q3FtpPI::sendCommands( const QStringList &cmds )
 {
     if ( !pendingCommands.isEmpty() )
-	return FALSE;
+	return false;
 
     if ( commandSocket.state()!=Q3Socket::Connected || state!=Idle ) {
 	emit error( Q3Ftp::NotConnected, Q3Ftp::tr( "Not connected" ) );
-	return TRUE; // there are no pending commands
+	return true; // there are no pending commands
     }
 
     pendingCommands = cmds;
     startNextCmd();
-    return TRUE;
+    return true;
 }
 
 void Q3FtpPI::clearPendingCommands()
@@ -799,7 +799,7 @@ void Q3FtpPI::readyRead()
 /*
   Process a reply from the FTP server.
 
-  Returns TRUE if the reply was processed or FALSE if the reply has to be
+  Returns true if the reply was processed or false if the reply has to be
   processed at a later point.
 */
 bool Q3FtpPI::processReply()
@@ -816,8 +816,8 @@ bool Q3FtpPI::processReply()
     // connection is really closed to avoid short reads of the DTP
     if ( 100*replyCode[0]+10*replyCode[1]+replyCode[2] == 226 ) {
 	if ( dtp.socketState() != Q3Socket::Idle ) {
-	    waitForDtpToClose = TRUE;
-	    return FALSE;
+	    waitForDtpToClose = true;
+	    return false;
 	}
     }
 
@@ -827,7 +827,7 @@ bool Q3FtpPI::processReply()
 	    break;
 	case WaitForAbortToFinish:
 	    abortState = None;
-	    return TRUE;
+	    return true;
 	default:
 	    break;
     }
@@ -840,14 +840,14 @@ bool Q3FtpPI::processReply()
     switch ( state ) {
 	case Begin:
 	    if ( replyCode[0] == 1 ) {
-		return TRUE;
+		return true;
 	    } else if ( replyCode[0] == 2 ) {
 		state = Idle;
 		emit finished( Q3Ftp::tr( "Connected to host %1" ).arg( commandSocket.peerName() ) );
 		break;
 	    }
 	    // ### error handling
-	    return TRUE;
+	    return true;
 	case Waiting:
 	    if ( replyCode[0]<0 || replyCode[0]>5 )
 		state = Failure;
@@ -856,7 +856,7 @@ bool Q3FtpPI::processReply()
 	    break;
 	default:
 	    // ### spontaneous message
-	    return TRUE;
+	    return true;
     }
 #if defined(Q3FTPPI_DEBUG)
 //    qDebug( "Q3FtpPI state: %d [processReply() intermediate]", state );
@@ -866,7 +866,7 @@ bool Q3FtpPI::processReply()
     int replyCodeInt = 100*replyCode[0] + 10*replyCode[1] + replyCode[2];
     emit rawFtpReply( replyCodeInt, replyText );
     if ( rawCommand ) {
-	rawCommand = FALSE;
+	rawCommand = false;
     } else if ( replyCodeInt == 227 ) {
 	// 227 Entering Passive Mode (h1,h2,h3,h4,p1,p2)
         // rfc959 does not define this response precisely, and gives
@@ -883,7 +883,7 @@ bool Q3FtpPI::processReply()
 	    QStringList lst = addrPortPattern.capturedTexts();
 	    QString host = lst[1] + "." + lst[2] + "." + lst[3] + "." + lst[4];
 	    Q_UINT16 port = ( lst[5].toUInt() << 8 ) + lst[6].toUInt();
-	    waitForDtpToConnect = TRUE;
+	    waitForDtpToConnect = true;
 	    dtp.connectToHost( host, port );
 	}
     } else if ( replyCodeInt == 230 ) {
@@ -930,7 +930,7 @@ bool Q3FtpPI::processReply()
 #if defined(Q3FTPPI_DEBUG)
 //    qDebug( "Q3FtpPI state: %d [processReply() end]", state );
 #endif
-    return TRUE;
+    return true;
 }
 
 #ifndef QT_NO_TEXTCODEC
@@ -938,14 +938,14 @@ Q_COMPAT_EXPORT QTextCodec *qt_ftp_filename_codec = 0;
 #endif
 
 /*
-  Starts next pending command. Returns FALSE if there are no pending commands,
-  otherwise it returns TRUE.
+  Starts next pending command. Returns false if there are no pending commands,
+  otherwise it returns true.
 */
 bool Q3FtpPI::startNextCmd()
 {
     if ( waitForDtpToConnect )
 	// don't process any new commands until we are connected
-	return TRUE;
+	return true;
 
 #if defined(Q3FTPPI_DEBUG)
     if ( state != Idle )
@@ -954,7 +954,7 @@ bool Q3FtpPI::startNextCmd()
     if ( pendingCommands.isEmpty() ) {
 	currentCmd = QString::null;
 	emit finished( replyText );
-	return FALSE;
+	return false;
     }
     currentCmd = pendingCommands.first();
     pendingCommands.pop_front();
@@ -972,7 +972,7 @@ bool Q3FtpPI::startNextCmd()
     {
 	commandSocket.writeBlock( currentCmd.latin1(), currentCmd.length() );
     }
-    return TRUE;
+    return true;
 }
 
 void Q3FtpPI::dtpConnectState( int s )
@@ -986,11 +986,11 @@ void Q3FtpPI::dtpConnectState( int s )
 		else
 		    return;
 	    }
-	    waitForDtpToClose = FALSE;
+	    waitForDtpToClose = false;
 	    readyRead();
 	    return;
 	case Q3FtpDTP::CsConnected:
-	    waitForDtpToConnect = FALSE;
+	    waitForDtpToConnect = false;
 	    startNextCmd();
 	    return;
 	case Q3FtpDTP::CsHostNotFound:
@@ -1013,11 +1013,11 @@ class Q3FtpPrivate
 {
 public:
     Q3FtpPrivate() :
-	close_waitForStateChange(FALSE),
+	close_waitForStateChange(false),
 	state( Q3Ftp::Unconnected ),
 	error( Q3Ftp::NoError ),
-	npWaitForLoginDone( FALSE )
-    { pending.setAutoDelete( TRUE ); }
+	npWaitForLoginDone( false )
+    { pending.setAutoDelete( true ); }
 
     Q3FtpPI pi;
     Q3PtrList<Q3FtpCommand> pending;
@@ -1039,7 +1039,7 @@ static Q3FtpPrivate* d( const Q3Ftp* foo )
 {
     if ( !d_ptr ) {
 	d_ptr = new Q3PtrDict<Q3FtpPrivate>;
-	d_ptr->setAutoDelete( TRUE );
+	d_ptr->setAutoDelete( true );
 	qAddPostRoutine( cleanup_d_ptr );
     }
     Q3FtpPrivate* ret = d_ptr->find( (void*)foo );
@@ -1158,14 +1158,14 @@ static void delete_d( const Q3Ftp* foo )
     stateChanged( HostLookup )
     stateChanged( Connecting )
     stateChanged( Connected )
-    finished( 1, FALSE )
+    finished( 1, false )
 
     start( 2 )
     stateChanged( LoggedIn )
-    finished( 2, FALSE )
+    finished( 2, false )
 
     start( 3 )
-    finished( 3, FALSE )
+    finished( 3, false )
 
     start( 4 )
     dataTransferProgress( 0, 3798 )
@@ -1173,14 +1173,14 @@ static void delete_d( const Q3Ftp* foo )
     readyRead()
     dataTransferProgress( 3798, 3798 )
     readyRead()
-    finished( 4, FALSE )
+    finished( 4, false )
 
     start( 5 )
     stateChanged( Closing )
     stateChanged( Unconnected )
-    finished( 5, FALSE )
+    finished( 5, false )
 
-    done( FALSE )
+    done( false )
     \endcode
 
     The dataTransferProgress() signal in the above example is useful
@@ -1199,12 +1199,12 @@ static void delete_d( const Q3Ftp* foo )
     stateChanged( HostLookup )
     stateChanged( Connecting )
     stateChanged( Connected )
-    finished( 1, FALSE )
+    finished( 1, false )
 
     start( 2 )
-    finished( 2, TRUE )
+    finished( 2, true )
 
-    done( TRUE )
+    done( true )
     \endcode
 
     You can then get details about the error with the error() and
@@ -1361,8 +1361,8 @@ void Q3Ftp::init()
     \fn void Q3Ftp::commandFinished( int id, bool error )
 
     This signal is emitted when processing the command identified by
-    \a id has finished. \a error is TRUE if an error occurred during
-    the processing; otherwise \a error is FALSE.
+    \a id has finished. \a error is true if an error occurred during
+    the processing; otherwise \a error is false.
 
     \sa commandStarted() done() error() errorString()
 */
@@ -1372,8 +1372,8 @@ void Q3Ftp::init()
 
     This signal is emitted when the last pending command has finished;
     (it is emitted after the last command's commandFinished() signal).
-    \a error is TRUE if an error occurred during the processing;
-    otherwise \a error is FALSE.
+    \a error is true if an error occurred during the processing;
+    otherwise \a error is false.
 
     \sa commandFinished() error() errorString()
 */
@@ -1797,11 +1797,11 @@ QByteArray Q3Ftp::readAll()
     commandFinished() signal has not been emitted), this function
     sends an \c ABORT command to the server. When the server replies
     that the command is aborted, the commandFinished() signal with the
-    \c error argument set to \c TRUE is emitted for the command. Due
+    \c error argument set to \c true is emitted for the command. Due
     to timing issues, it is possible that the command had already
     finished before the abort request reached the server, in which
     case, the commandFinished() signal is emitted with the \c error
-    argument set to \c FALSE.
+    argument set to \c false.
 
     For all other commands that are affected by the abort(), no
     signals are emitted.
@@ -1813,7 +1813,7 @@ QByteArray Q3Ftp::readAll()
     \warning Some FTP servers, for example the BSD FTP daemon (version
     0.3), wrongly return a positive reply even when an abort has
     occurred. For these servers the commandFinished() signal has its
-    error flag set to \c FALSE, even though the command did not
+    error flag set to \c false, even though the command did not
     complete successfully.
 
     \sa clearPendingCommands()
@@ -1880,8 +1880,8 @@ QIODevice* Q3Ftp::currentDevice() const
 }
 
 /*!
-    Returns TRUE if there are any commands scheduled that have not yet
-    been executed; otherwise returns FALSE.
+    Returns true if there are any commands scheduled that have not yet
+    been executed; otherwise returns false.
 
     The command that is being executed is \e not considered as a
     scheduled command.
@@ -1927,7 +1927,7 @@ Q3Ftp::State Q3Ftp::state() const
 /*!
     Returns the last error that occurred. This is useful to find out
     what when wrong when receiving a commandFinished() or a done()
-    signal with the \c error argument set to \c TRUE.
+    signal with the \c error argument set to \c true.
 
     If you start a new command, the error status is reset to \c NoError.
 */
@@ -1941,7 +1941,7 @@ Q3Ftp::Error Q3Ftp::error() const
     Returns a human-readable description of the last error that
     occurred. This is useful for presenting a error message to the
     user when receiving a commandFinished() or a done() signal with
-    the \c error argument set to \c TRUE.
+    the \c error argument set to \c true.
 
     The error string is often (but not always) the reply from the
     server, so it is not always possible to translate the string. If
@@ -2022,15 +2022,15 @@ void Q3Ftp::piFinished( const QString& )
 	// don't get the commandFinished() signal before the stateChanged()
 	// signal.
 	if ( d->state != Q3Ftp::Unconnected ) {
-	    d->close_waitForStateChange = TRUE;
+	    d->close_waitForStateChange = true;
 	    return;
 	}
     }
-    emit commandFinished( c->id, FALSE );
+    emit commandFinished( c->id, false );
 
     d->pending.removeFirst();
     if ( d->pending.isEmpty() ) {
-	emit done( FALSE );
+	emit done( false );
     } else {
 	startNextCommand();
     }
@@ -2085,11 +2085,11 @@ void Q3Ftp::piError( int errorCode, const QString &text )
 
     d->pi.clearPendingCommands();
     clearPendingCommands();
-    emit commandFinished( c->id, TRUE );
+    emit commandFinished( c->id, true );
 
     d->pending.removeFirst();
     if ( d->pending.isEmpty() )
-	emit done( TRUE );
+	emit done( true );
     else
 	startNextCommand();
 }
@@ -2100,7 +2100,7 @@ void Q3Ftp::piConnectState( int state )
     d->state = (State)state;
     emit stateChanged( d->state );
     if ( d->close_waitForStateChange ) {
-	d->close_waitForStateChange = FALSE;
+	d->close_waitForStateChange = false;
 	piFinished( tr( "Connection closed" ) );
     }
 }
@@ -2109,7 +2109,7 @@ void Q3Ftp::piFtpReply( int code, const QString &text )
 {
     if ( currentCommand() == RawCommand ) {
 	Q3FtpPrivate *d = ::d( this );
-	d->pi.rawCommand = TRUE;
+	d->pi.rawCommand = true;
 	emit rawCommandReply( code, text );
     }
 }
@@ -2206,7 +2206,7 @@ bool Q3Ftp::checkConnection( Q3NetworkOperation *op )
 	connect( this, SIGNAL(readyRead()),
 		this, SLOT(npReadyRead()) );
 
-	d->npWaitForLoginDone = TRUE;
+	d->npWaitForLoginDone = true;
 	switch ( op->operation() ) {
 	    case OpGet:
 	    case OpPut:
@@ -2225,8 +2225,8 @@ bool Q3Ftp::checkConnection( Q3NetworkOperation *op )
     }
 
     if ( state() == LoggedIn )
-	return TRUE;
-    return FALSE;
+	return true;
+    return false;
 }
 
 /*!  \reimp
@@ -2249,7 +2249,7 @@ void Q3Ftp::parseDir( const QString &buffer, QUrlInfo &info )
 void Q3Ftp::npListInfo( const QUrlInfo & i )
 {
     if ( url() ) {
-	QRegExp filt( url()->nameFilter(), FALSE, TRUE );
+	QRegExp filt( url()->nameFilter(), false, true );
 	if ( i.isDir() || filt.search( i.name() ) != -1 ) {
 	    emit newChild( i, operationInProgress() );
 	}
@@ -2262,7 +2262,7 @@ void Q3Ftp::npDone( bool err )
 {
     Q3FtpPrivate *d = ::d( this );
 
-    bool emitFinishedSignal = FALSE;
+    bool emitFinishedSignal = false;
     Q3NetworkOperation *op = operationInProgress();
     if ( op ) {
 	if ( err ) {
@@ -2292,7 +2292,7 @@ void Q3Ftp::npDone( bool err )
 			break;
 		}
 	    }
-	    emitFinishedSignal = TRUE;
+	    emitFinishedSignal = true;
 	} else if ( !d->npWaitForLoginDone ) {
 	    switch ( op->operation() ) {
 		case OpRemove:
@@ -2301,7 +2301,7 @@ void Q3Ftp::npDone( bool err )
 		case OpMkDir:
 		    {
 			QUrlInfo inf( op->arg( 0 ), 0, "", "", 0, QDateTime(),
-				QDateTime(), TRUE, FALSE, FALSE, TRUE, TRUE, TRUE );
+				QDateTime(), true, false, false, true, true, true );
 			emit newChild( inf, op );
 			emit createdDirectory( inf, op );
 		    }
@@ -2313,10 +2313,10 @@ void Q3Ftp::npDone( bool err )
 		    break;
 	    }
 	    op->setState( StDone );
-	    emitFinishedSignal = TRUE;
+	    emitFinishedSignal = true;
 	}
     }
-    d->npWaitForLoginDone = FALSE;
+    d->npWaitForLoginDone = false;
 
     if ( state() == Unconnected ) {
 	disconnect( this, SIGNAL(listInfo(const QUrlInfo&)),

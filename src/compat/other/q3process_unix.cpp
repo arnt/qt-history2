@@ -5,7 +5,7 @@
 **
 ** Created : 20000905
 **
-** Copyright (C) 1992-2003 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2004 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the kernel module of the Qt GUI Toolkit.
 **
@@ -145,11 +145,11 @@ public:
 #endif
 	if ( process ) {
 	    if ( process->d->notifierStdin )
-		process->d->notifierStdin->setEnabled( FALSE );
+		process->d->notifierStdin->setEnabled( false );
 	    if ( process->d->notifierStdout )
-		process->d->notifierStdout->setEnabled( FALSE );
+		process->d->notifierStdout->setEnabled( false );
 	    if ( process->d->notifierStderr )
-		process->d->notifierStderr->setEnabled( FALSE );
+		process->d->notifierStderr->setEnabled( false );
 	    process->d->proc = 0;
 	}
 	if( socketStdin )
@@ -223,11 +223,11 @@ int qnx6SocketPairReplacement (int socketFD[2]) {
     int socketOptions = 1;
     setsockopt(tmpSocket, SOL_SOCKET, SO_REUSEADDR, &socketOptions, sizeof(int));
 
-    bool found = FALSE;
+    bool found = false;
     for (int socketIP = 2000; (socketIP < 2500) && !(found); socketIP++) {
 	ipAddr.sin_port = htons(socketIP);
 	if (bind(tmpSocket, (struct sockaddr *)&ipAddr, sizeof(ipAddr)))
-	    found = TRUE;
+	    found = true;
     }
 
     if (listen(tmpSocket, 5)) { BAILOUT };
@@ -257,7 +257,7 @@ int qnx6SocketPairReplacement (int socketFD[2]) {
 Q3ProcessManager::Q3ProcessManager() : sn(0)
 {
     procList = new Q3PtrList<QProc>;
-    procList->setAutoDelete( TRUE );
+    procList->setAutoDelete( true );
 
     // The SIGCHLD handler writes to a socket to tell the manager that
     // something happened. This is done to get the processing in sync with the
@@ -277,7 +277,7 @@ Q3ProcessManager::Q3ProcessManager() : sn(0)
 		QSocketNotifier::Read, this );
 	connect( sn, SIGNAL(activated(int)),
 		this, SLOT(sigchldHnd(int)) );
-	sn->setEnabled( TRUE );
+	sn->setEnabled( true );
     }
 
     // install a SIGCHLD handler and ignore SIGPIPE
@@ -373,7 +373,7 @@ void Q3ProcessManager::sigchldHnd( int fd )
     if ( sn ) {
 	if ( !sn->isEnabled() )
 	    return;
-	sn->setEnabled( FALSE );
+	sn->setEnabled( false );
     }
 
     char tmp;
@@ -386,7 +386,7 @@ void Q3ProcessManager::sigchldHnd( int fd )
     bool removeProc;
     proc = procList->first();
     while ( proc != 0 ) {
-	removeProc = FALSE;
+	removeProc = false;
 	process = proc->process;
 	if ( process != 0 ) {
 	    if ( !process->isRunning() ) {
@@ -430,19 +430,19 @@ void Q3ProcessManager::sigchldHnd( int fd )
 		    ::close( proc->socketStdout );
 		    proc->socketStdout = 0;
 		    if (process->d->notifierStdout)
-			process->d->notifierStdout->setEnabled(FALSE);
+			process->d->notifierStdout->setEnabled(false);
 		}
 		if ( proc->socketStderr ) {
 		    ::close( proc->socketStderr );
 		    proc->socketStderr = 0;
 		    if (process->d->notifierStderr)
-			process->d->notifierStderr->setEnabled(FALSE);
+			process->d->notifierStderr->setEnabled(false);
 		}
 
 		if ( process->notifyOnExit )
 		    emit process->processExited();
 
-		removeProc = TRUE;
+		removeProc = true;
 	    }
 	} else {
 	    int status;
@@ -450,7 +450,7 @@ void Q3ProcessManager::sigchldHnd( int fd )
 #if defined(QT_Q3PROCESS_DEBUG)
 		qDebug( "Q3ProcessManager::sigchldHnd() (PID: %d): process exited (Q3Process not available)", proc->pid );
 #endif
-		removeProc = TRUE;
+		removeProc = true;
 	    }
 	}
 	if ( removeProc ) {
@@ -462,7 +462,7 @@ void Q3ProcessManager::sigchldHnd( int fd )
 	}
     }
     if ( sn )
-	sn->setEnabled( TRUE );
+	sn->setEnabled( true );
 }
 
 #include "q3process_unix.moc"
@@ -486,8 +486,8 @@ Q3ProcessPrivate::Q3ProcessPrivate()
     notifierStdout = 0;
     notifierStderr = 0;
 
-    exitValuesCalculated = FALSE;
-    socketReadCalled = FALSE;
+    exitValuesCalculated = false;
+    socketReadCalled = false;
 
     proc = 0;
 }
@@ -576,7 +576,7 @@ void Q3Process::init()
 {
     d = new Q3ProcessPrivate();
     exitStat = 0;
-    exitNormal = FALSE;
+    exitNormal = false;
 }
 
 /*
@@ -588,7 +588,7 @@ void Q3Process::reset()
     delete d;
     d = new Q3ProcessPrivate();
     exitStat = 0;
-    exitNormal = FALSE;
+    exitNormal = false;
     d->bufStdout.clear();
     d->bufStderr.clear();
 }
@@ -678,8 +678,8 @@ Q3Process::~Q3Process()
     this variable is inherited from the starting process; under
     Windows the same applies for the environment variable \c PATH.
 
-    Returns TRUE if the process could be started; otherwise returns
-    FALSE.
+    Returns true if the process could be started; otherwise returns
+    false.
 
     You can write data to the process's standard input with
     writeToStdin(). You can close standard input with closeStdin() and
@@ -712,7 +712,7 @@ bool Q3Process::start( QStringList *env )
 #else
     if ( (comms & Stdin) && qnx6SocketPairReplacement(sStdin) == -1 ) {
 #endif
-	return FALSE;
+	return false;
     }
 #ifndef Q_OS_QNX6
     if ( (comms & Stderr) && ::socketpair( AF_UNIX, SOCK_STREAM, 0, sStderr ) == -1 ) {
@@ -723,7 +723,7 @@ bool Q3Process::start( QStringList *env )
 	    ::close( sStdin[0] );
 	    ::close( sStdin[1] );
 	}
-	return FALSE;
+	return false;
     }
 #ifndef Q_OS_QNX6
     if ( (comms & Stdout) && ::socketpair( AF_UNIX, SOCK_STREAM, 0, sStdout ) == -1 ) {
@@ -738,7 +738,7 @@ bool Q3Process::start( QStringList *env )
 	    ::close( sStderr[0] );
 	    ::close( sStderr[1] );
 	}
-	return FALSE;
+	return false;
     }
 
     // the following pipe is only used to determine if the process could be
@@ -968,7 +968,7 @@ bool Q3Process::start( QStringList *env )
 		this, SLOT(socketWrite(int)) );
 	// setup notifiers for the sockets
 	if ( !d->stdinBuf.isEmpty() ) {
-	    d->notifierStdin->setEnabled( TRUE );
+	    d->notifierStdin->setEnabled( true );
 	}
     }
     if ( comms & Stdout ) {
@@ -978,7 +978,7 @@ bool Q3Process::start( QStringList *env )
 	connect( d->notifierStdout, SIGNAL(activated(int)),
 		this, SLOT(socketRead(int)) );
 	if ( ioRedirection )
-	    d->notifierStdout->setEnabled( TRUE );
+	    d->notifierStdout->setEnabled( true );
     }
     if ( comms & Stderr ) {
 	::close( sStderr[1] );
@@ -987,13 +987,13 @@ bool Q3Process::start( QStringList *env )
 	connect( d->notifierStderr, SIGNAL(activated(int)),
 		this, SLOT(socketRead(int)) );
 	if ( ioRedirection )
-	    d->notifierStderr->setEnabled( TRUE );
+	    d->notifierStderr->setEnabled( true );
     }
 
     // cleanup and return
     delete[] arglistQ;
     delete[] arglist;
-    return TRUE;
+    return true;
 
 error:
 #if defined(QT_Q3PROCESS_DEBUG)
@@ -1017,7 +1017,7 @@ error:
     ::close( fd[1] );
     delete[] arglistQ;
     delete[] arglist;
-    return FALSE;
+    return false;
 }
 
 
@@ -1070,7 +1070,7 @@ void Q3Process::kill() const
 }
 
 /*!
-    Returns TRUE if the process is running; otherwise returns FALSE.
+    Returns true if the process is running; otherwise returns false.
 
     \sa normalExit() exitStatus() processExited()
 */
@@ -1078,12 +1078,12 @@ bool Q3Process::isRunning() const
 {
     if ( d->exitValuesCalculated ) {
 #if defined(QT_Q3PROCESS_DEBUG)
-	qDebug( "Q3Process::isRunning(): FALSE (already computed)" );
+	qDebug( "Q3Process::isRunning(): false (already computed)" );
 #endif
-	return FALSE;
+	return false;
     }
     if ( d->proc == 0 )
-	return FALSE;
+	return false;
     int status;
     if ( ::waitpid( d->proc->pid, &status, WNOHANG ) == d->proc->pid ) {
 	// compute the exit values
@@ -1092,7 +1092,7 @@ bool Q3Process::isRunning() const
 	if ( exitNormal ) {
 	    that->exitStat = (char)WEXITSTATUS( status );
 	}
-	d->exitValuesCalculated = TRUE;
+	d->exitValuesCalculated = true;
 
 	// On heavy processing, the socket notifier for the sigchild might not
 	// have found time to fire yet.
@@ -1108,19 +1108,19 @@ bool Q3Process::isRunning() const
 	}
 
 #if defined(QT_Q3PROCESS_DEBUG)
-	qDebug( "Q3Process::isRunning() (PID: %d): FALSE", d->proc->pid );
+	qDebug( "Q3Process::isRunning() (PID: %d): false", d->proc->pid );
 #endif
-	return FALSE;
+	return false;
     }
 #if defined(QT_Q3PROCESS_DEBUG)
-    qDebug( "Q3Process::isRunning() (PID: %d): TRUE", d->proc->pid );
+    qDebug( "Q3Process::isRunning() (PID: %d): true", d->proc->pid );
 #endif
-    return TRUE;
+    return true;
 }
 
 /*!
-    Returns TRUE if it's possible to read an entire line of text from
-    standard output at this time; otherwise returns FALSE.
+    Returns true if it's possible to read an entire line of text from
+    standard output at this time; otherwise returns false.
 
     \sa readLineStdout() canReadLineStderr()
 */
@@ -1134,8 +1134,8 @@ bool Q3Process::canReadLineStdout() const
 }
 
 /*!
-    Returns TRUE if it's possible to read an entire line of text from
-    standard error at this time; otherwise returns FALSE.
+    Returns true if it's possible to read an entire line of text from
+    standard error at this time; otherwise returns false.
 
     \sa readLineStderr() canReadLineStdout()
 */
@@ -1168,7 +1168,7 @@ void Q3Process::writeToStdin( const QByteArray& buf )
 #endif
     d->stdinBuf.enqueue( new QByteArray(buf) );
     if ( d->notifierStdin != 0 )
-	d->notifierStdin->setEnabled( TRUE );
+	d->notifierStdin->setEnabled( true );
 }
 
 
@@ -1253,7 +1253,7 @@ void Q3Process::socketRead( int fd )
 #if defined(QT_Q3PROCESS_DEBUG)
 	    qDebug( "Q3Process::socketRead(): stdout (%d) closed", fd );
 #endif
-	    d->notifierStdout->setEnabled( FALSE );
+	    d->notifierStdout->setEnabled( false );
 	    delete d->notifierStdout;
 	    d->notifierStdout = 0;
 	    ::close( d->proc->socketStdout );
@@ -1263,7 +1263,7 @@ void Q3Process::socketRead( int fd )
 #if defined(QT_Q3PROCESS_DEBUG)
 	    qDebug( "Q3Process::socketRead(): stderr (%d) closed", fd );
 #endif
-	    d->notifierStderr->setEnabled( FALSE );
+	    d->notifierStderr->setEnabled( false );
 	    delete d->notifierStderr;
 	    d->notifierStderr = 0;
 	    ::close( d->proc->socketStderr );
@@ -1298,7 +1298,7 @@ void Q3Process::socketRead( int fd )
 	}
     }
 
-    d->socketReadCalled = TRUE;
+    d->socketReadCalled = true;
     if ( fd == d->proc->socketStdout ) {
 #if defined(QT_Q3PROCESS_DEBUG)
 	qDebug( "Q3Process::socketRead(): %d bytes read from stdout (%d)",
@@ -1312,7 +1312,7 @@ void Q3Process::socketRead( int fd )
 #endif
 	emit readyReadStderr();
     }
-    d->socketReadCalled = FALSE;
+    d->socketReadCalled = false;
 }
 
 
@@ -1324,7 +1324,7 @@ void Q3Process::socketWrite( int fd )
 {
     while ( fd == d->proc->socketStdin && d->proc->socketStdin != 0 ) {
 	if ( d->stdinBuf.isEmpty() ) {
-	    d->notifierStdin->setEnabled( FALSE );
+	    d->notifierStdin->setEnabled( false );
 	    return;
 	}
 	ssize_t ret = ::write( fd,
@@ -1376,14 +1376,14 @@ void Q3Process::setIoRedirection( bool value )
     ioRedirection = value;
     if ( ioRedirection ) {
 	if ( d->notifierStdout )
-	    d->notifierStdout->setEnabled( TRUE );
+	    d->notifierStdout->setEnabled( true );
 	if ( d->notifierStderr )
-	    d->notifierStderr->setEnabled( TRUE );
+	    d->notifierStderr->setEnabled( true );
     } else {
 	if ( d->notifierStdout )
-	    d->notifierStdout->setEnabled( FALSE );
+	    d->notifierStdout->setEnabled( false );
 	if ( d->notifierStderr )
-	    d->notifierStderr->setEnabled( FALSE );
+	    d->notifierStderr->setEnabled( false );
     }
 }
 

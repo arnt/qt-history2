@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Implementation of Q3ServerSocket class.
 **
 ** Created : 970521
 **
-** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2004 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the network module of the Qt GUI Toolkit.
 **
@@ -144,7 +144,7 @@ Q3ServerSocket::Q3ServerSocket( QObject *parent, const char *name )
 
 
 /*!
-    Returns TRUE if the construction succeeded; otherwise returns FALSE.
+    Returns true if the construction succeeded; otherwise returns false.
 */
 bool Q3ServerSocket::ok() const
 {
@@ -163,7 +163,7 @@ void Q3ServerSocket::init( const QHostAddress & address, Q_UINT16 port, int back
     // same address-port is in TIME_WAIT. Under Windows this is possible anyway
     // -- furthermore, the meaning of reusable is different: it means that you
     // can use the same address-port for multiple listening sockets.
-    d->s->setAddressReusable( TRUE );
+    d->s->setAddressReusable( true );
 #endif
     if ( d->s->bind( address, port )
       && d->s->listen( backlog ) )
@@ -216,7 +216,7 @@ void Q3ServerSocket::incomingConnection( int )
 /*!
     Returns the port number on which this server socket listens. This
     is always non-zero; if you specify 0 in the constructor,
-    Q3ServerSocket will pick a non-zero port itself. ok() must be TRUE
+    Q3ServerSocket will pick a non-zero port itself. ok() must be true
     before calling this function.
 
     \sa address() Q3SocketDevice::port()
@@ -242,7 +242,7 @@ int Q3ServerSocket::socket() const
 
 /*!
     Returns the address on which this object listens, or 0.0.0.0 if
-    this object listens on more than one address. ok() must be TRUE
+    this object listens on more than one address. ok() must be true
     before calling this function.
 
     \sa port() Q3SocketDevice::address()

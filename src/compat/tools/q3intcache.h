@@ -28,7 +28,7 @@ class Q3IntCache
 public:
     Q3IntCache( const Q3IntCache<type> &c ) : Q3GCache(c) {}
     Q3IntCache( int maxCost=100, int size=17 )
-	: Q3GCache( maxCost, size, IntKey, FALSE, FALSE ) {}
+	: Q3GCache( maxCost, size, IntKey, false, false ) {}
    ~Q3IntCache()		{ clear(); }
     Q3IntCache<type> &operator=( const Q3IntCache<type> &c )
 			{ return (Q3IntCache<type>&)Q3GCache::operator=(c); }
@@ -45,7 +45,7 @@ public:
     type *take( long k )
 		{ return (type *)Q3GCache::take_other((const char*)k);}
     void  clear()		{ Q3GCache::clear(); }
-    type *find( long k, bool ref=TRUE ) const
+    type *find( long k, bool ref=true ) const
 		{ return (type *)Q3GCache::find_other( (const char*)k,ref);}
     type *operator[]( long k ) const
 		{ return (type *)Q3GCache::find_other( (const char*)k); }

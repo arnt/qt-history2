@@ -5,7 +5,7 @@
 **
 ** Created : 950429
 **
-** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2004 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the kernel module of the Qt GUI Toolkit.
 **
@@ -61,12 +61,12 @@ public:
 
 /*!
     Replaces backslashes with slashes and removes multiple occurrences
-    of slashes or backslashes if \c allowMultiple is FALSE.
+    of slashes or backslashes if \c allowMultiple is false.
 */
 
-static void slashify( QString& s, bool allowMultiple = TRUE )
+static void slashify( QString& s, bool allowMultiple = true )
 {
-    bool justHadSlash = FALSE;
+    bool justHadSlash = false;
     for ( int i = 0; i < (int)s.length(); i++ ) {
 	if ( !allowMultiple && justHadSlash &&
 	     ( s[ i ] == '/' || s[ i ] == '\\' ) ) {
@@ -81,9 +81,9 @@ static void slashify( QString& s, bool allowMultiple = TRUE )
 		s[ i ] = '/';
 #endif
 	if ( s[ i ] == '/' )
-	    justHadSlash = TRUE;
+	    justHadSlash = true;
 	else
-	    justHadSlash = FALSE;
+	    justHadSlash = false;
     }
 }
 
@@ -168,7 +168,7 @@ static void slashify( QString& s, bool allowMultiple = TRUE )
 
     Use the static functions, encode() and decode() to encode or
     decode a URL in a string. (They operate on the string in-place.)
-    The isRelativeUrl() static function returns TRUE if the given
+    The isRelativeUrl() static function returns true if the given
     string is a relative URL.
 
     If you want to use a URL to work on a hierarchical structure (e.g.
@@ -186,9 +186,9 @@ static void slashify( QString& s, bool allowMultiple = TRUE )
 Q3Url::Q3Url()
 {
     d = new Q3UrlPrivate;
-    d->isValid = FALSE;
+    d->isValid = false;
     d->port = -1;
-    d->cleanPathDirty = TRUE;
+    d->cleanPathDirty = true;
 }
 
 /*!
@@ -217,7 +217,7 @@ Q3Url::Q3Url( const Q3Url& url )
 }
 
 /*!
-    Returns TRUE if \a url is relative; otherwise returns FALSE.
+    Returns true if \a url is relative; otherwise returns false.
 */
 
 bool Q3Url::isRelativeUrl( const QString &url )
@@ -258,7 +258,7 @@ bool Q3Url::isRelativeUrl( const QString &url )
     want the constructor to handle the last part of the path as a file
     name if there is no slash at the end, and to let it be replaced by
     the file name of \a relUrl (if it contains one), set \a checkSlash
-    to TRUE.
+    to true.
 */
 
 Q3Url::Q3Url( const Q3Url& url, const QString& relUrl, bool checkSlash )
@@ -301,7 +301,7 @@ Q3Url::Q3Url( const Q3Url& url, const QString& relUrl, bool checkSlash )
 		    p += "/";
 		p += rel;
 		d->path = p;
-		d->cleanPathDirty = TRUE;
+		d->cleanPathDirty = true;
 	    }
 	}
     } else {
@@ -347,7 +347,7 @@ void Q3Url::setProtocol( const QString& protocol )
 {
     d->protocol = protocol;
     if ( hasHost() )
-	d->isValid = TRUE;
+	d->isValid = true;
 }
 
 /*!
@@ -373,8 +373,8 @@ void Q3Url::setUser( const QString& user )
 }
 
 /*!
-    Returns TRUE if the URL contains a username; otherwise returns
-    FALSE.
+    Returns true if the URL contains a username; otherwise returns
+    false.
 
     \sa setUser() setPassword()
 */
@@ -413,8 +413,8 @@ void Q3Url::setPassword( const QString& pass )
 }
 
 /*!
-    Returns TRUE if the URL contains a password; otherwise returns
-    FALSE.
+    Returns true if the URL contains a password; otherwise returns
+    false.
 
     \warning Passwords passed in URLs are normally \e insecure; this
     is due to the mechanism, not because of Qt.
@@ -448,12 +448,12 @@ void Q3Url::setHost( const QString& host )
 {
     d->host = host;
     if ( !d->protocol.isNull() && d->protocol != "file" )
-	d->isValid = TRUE;
+	d->isValid = true;
 }
 
 /*!
-    Returns TRUE if the URL contains a hostname; otherwise returns
-    FALSE.
+    Returns true if the URL contains a hostname; otherwise returns
+    false.
 
     \sa setHost()
 */
@@ -486,7 +486,7 @@ void Q3Url::setPort( int port )
 }
 
 /*!
-    Returns TRUE if the URL contains a port; otherwise returns FALSE.
+    Returns true if the URL contains a port; otherwise returns false.
 
     \sa setPort()
 */
@@ -506,12 +506,12 @@ void Q3Url::setPath( const QString& path )
 {
     d->path = path;
     slashify( d->path );
-    d->cleanPathDirty = TRUE;
-    d->isValid = TRUE;
+    d->cleanPathDirty = true;
+    d->isValid = true;
 }
 
 /*!
-    Returns TRUE if the URL contains a path; otherwise returns FALSE.
+    Returns true if the URL contains a path; otherwise returns false.
 
     \sa path() setPath()
 */
@@ -566,7 +566,7 @@ void Q3Url::setRef( const QString& txt )
 }
 
 /*!
-    Returns TRUE if the URL has a reference; otherwise returns FALSE.
+    Returns true if the URL has a reference; otherwise returns false.
 
     \sa setRef()
 */
@@ -577,7 +577,7 @@ bool Q3Url::hasRef() const
 }
 
 /*!
-    Returns TRUE if the URL is valid; otherwise returns FALSE. A URL
+    Returns true if the URL is valid; otherwise returns false. A URL
     is invalid if it cannot be parsed, for example.
 */
 
@@ -600,9 +600,9 @@ void Q3Url::reset()
     d->path = "";
     d->queryEncoded = "";
     d->refEncoded = "";
-    d->isValid = TRUE;
+    d->isValid = true;
     d->port = -1;
-    d->cleanPathDirty = TRUE;
+    d->cleanPathDirty = true;
 }
 
 /*!
@@ -615,12 +615,12 @@ bool Q3Url::parse( const QString& url )
     slashify( url_ );
 
     if ( url_.isEmpty() ) {
-	d->isValid = FALSE;
-	return FALSE;
+	d->isValid = false;
+	return false;
     }
 
-    d->cleanPathDirty = TRUE;
-    d->isValid = TRUE;
+    d->cleanPathDirty = true;
+    d->isValid = true;
     QString oldProtocol = d->protocol;
     d->protocol = QString::null;
 
@@ -662,15 +662,15 @@ bool Q3Url::parse( const QString& url )
 	{ 0,       0,          Port,       Path,       0,          0,          0,          0,         }  // Port
     };
 
-    bool relPath = FALSE;
+    bool relPath = false;
 
-    relPath = FALSE;
-    bool forceRel = FALSE;
+    relPath = false;
+    bool forceRel = false;
 
     // If ':' is at pos 1, we have only one letter
     // before that separator => that's a drive letter!
     if ( url_.length() >= 2 && url_[1] == ':' )
-	relPath = forceRel = TRUE;
+	relPath = forceRel = true;
 
     int hasNoHost = -1;
     int cs = url_.find( ":/" );
@@ -686,7 +686,7 @@ bool Q3Url::parse( const QString& url )
 	} else {
 	    table[ 0 ][ 1 ] = Protocol;
 	}
-	relPath = TRUE;
+	relPath = true;
     } else { // some checking
 	table[ 0 ][ 1 ] = Protocol;
 
@@ -797,8 +797,8 @@ bool Q3Url::parse( const QString& url )
 
     // error
     if ( i < (int)url_.length() - 1 ) {
-	d->isValid = FALSE;
-	return FALSE;
+	d->isValid = false;
+	return false;
     }
 
 
@@ -844,7 +844,7 @@ bool Q3Url::parse( const QString& url )
 #endif
 
     decode( d->path );
-    d->cleanPathDirty = TRUE;
+    d->cleanPathDirty = true;
 
 #if 0
     qDebug( "URL: %s", url.latin1() );
@@ -858,7 +858,7 @@ bool Q3Url::parse( const QString& url )
     qDebug( "port: %d\n\n----------------------------\n\n", d->port );
 #endif
 
-    return TRUE;
+    return true;
 }
 
 /*!
@@ -889,14 +889,14 @@ Q3Url& Q3Url::operator=( const Q3Url& url )
 }
 
 /*!
-    Compares this URL with \a url and returns TRUE if they are equal;
-    otherwise returns FALSE.
+    Compares this URL with \a url and returns true if they are equal;
+    otherwise returns false.
 */
 
 bool Q3Url::operator==( const Q3Url& url ) const
 {
     if ( !isValid() || !url.isValid() )
-	return FALSE;
+	return false;
 
     if ( d->protocol == url.d->protocol &&
 	 d->user == url.d->user &&
@@ -907,16 +907,16 @@ bool Q3Url::operator==( const Q3Url& url ) const
 	 d->refEncoded == url.d->refEncoded &&
 	 d->isValid == url.d->isValid &&
 	 d->port == url.d->port )
-	return TRUE;
+	return true;
 
-    return FALSE;
+    return false;
 }
 
 /*!
     \overload
 
     Compares this URL with \a url. \a url is parsed first. Returns
-    TRUE if \a url is equal to this url; otherwise returns FALSE.
+    true if \a url is equal to this url; otherwise returns false.
 */
 
 bool Q3Url::operator==( const QString& url ) const
@@ -994,7 +994,7 @@ QString Q3Url::encodedPathAndQuery()
 
 void Q3Url::setEncodedPathAndQuery( const QString& pathAndQuery )
 {
-    d->cleanPathDirty = TRUE;
+    d->cleanPathDirty = true;
     int pos = pathAndQuery.find( '?' );
     if ( pos == -1 ) {
 	d->path = pathAndQuery;
@@ -1005,13 +1005,13 @@ void Q3Url::setEncodedPathAndQuery( const QString& pathAndQuery )
     }
 
     decode( d->path );
-    d->cleanPathDirty = TRUE;
+    d->cleanPathDirty = true;
 }
 
 extern Q_CORE_EXPORT bool qt_resolve_symlinks; // defined in qapplication.cpp
 
 /*!
-    Returns the path of the URL. If \a correct is TRUE, the path is
+    Returns the path of the URL. If \a correct is true, the path is
     cleaned (deals with too many or too few slashes, cleans things
     like "/../..", etc). Otherwise path() returns exactly the path
     that was parsed or set.
@@ -1024,7 +1024,7 @@ QString Q3Url::path( bool correct ) const
 	return d->path;
 
     if ( d->cleanPathDirty ) {
-	bool check = TRUE;
+	bool check = true;
 	if ( QDir::isRelativePath( d->path ) ) {
 	    d->cleanPath = d->path;
 	} else if ( isLocalFile() ) {
@@ -1035,10 +1035,10 @@ QString Q3Url::path( bool correct ) const
 		d->cleanPath = d->path;
 		bool share = (d->cleanPath[0] == '\\' && d->cleanPath[1] == '\\') ||
 		             (d->cleanPath[0] == '/' && d->cleanPath[1] == '/');
-		slashify( d->cleanPath, FALSE );
+		slashify( d->cleanPath, false );
 		d->cleanPath = QDir::cleanDirPath( d->cleanPath );
 		if ( share ) {
-		    check = FALSE;
+		    check = false;
 		    while (d->cleanPath.at(0) != '/' || d->cleanPath.at(1) != '/')
 			d->cleanPath.prepend("/");
 		}
@@ -1073,15 +1073,15 @@ QString Q3Url::path( bool correct ) const
 	}
 
 	if ( check )
-	    slashify( d->cleanPath, FALSE );
-	d->cleanPathDirty = FALSE;
+	    slashify( d->cleanPath, false );
+	d->cleanPathDirty = false;
     }
 
     return d->cleanPath;
 }
 
 /*!
-    Returns TRUE if the URL is a local file; otherwise returns FALSE.
+    Returns true if the URL is a local file; otherwise returns false.
 */
 
 bool Q3Url::isLocalFile() const
@@ -1135,7 +1135,7 @@ void Q3Url::addPath( const QString& pa )
 	else
 	    d->path += p;
     }
-    d->cleanPathDirty = TRUE;
+    d->cleanPathDirty = true;
 }
 
 /*!
@@ -1259,8 +1259,8 @@ void Q3Url::decode( QString& url )
 
 /*!
     Composes a string version of the URL and returns it. If \a
-    encodedPath is TRUE the path in the returned string is encoded. If
-    \a forcePrependProtocol is TRUE and \a encodedPath looks like a
+    encodedPath is true the path in the returned string is encoded. If
+    \a forcePrependProtocol is true and \a encodedPath looks like a
     local filename, the "file:/" protocol is also prepended.
 
     \sa encode() decode()
@@ -1333,8 +1333,8 @@ Q3Url::operator QString() const
 bool Q3Url::cdUp()
 {
     d->path += "/..";
-    d->cleanPathDirty = TRUE;
-    return TRUE;
+    d->cleanPathDirty = true;
+    return true;
 }
 
 #endif // QT_NO_URL

@@ -5,7 +5,7 @@
 **
 ** Created : 970521
 **
-** Copyright (C) 1997-2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 1997-2004 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the network module of the Qt GUI Toolkit.
 **
@@ -68,7 +68,7 @@ public:
 	chunkedSize( -1 ),
 	idleTimer( 0 )
     {
-	pending.setAutoDelete( TRUE );
+	pending.setAutoDelete( true );
     }
 
     Q3Socket socket;
@@ -127,7 +127,7 @@ int Q3HttpRequest::idCounter = 0;
 
 bool Q3HttpRequest::hasRequestHeader()
 {
-    return FALSE;
+    return false;
 }
 
 Q3HttpRequestHeader Q3HttpRequest::requestHeader()
@@ -147,14 +147,14 @@ public:
     Q3HttpNormalRequest( const Q3HttpRequestHeader &h, QIODevice *d, QIODevice *t ) :
 	header(h), to(t)
     {
-	is_ba = FALSE;
+	is_ba = false;
 	data.dev = d;
     }
 
     Q3HttpNormalRequest( const Q3HttpRequestHeader &h, QByteArray *d, QIODevice *t ) :
 	header(h), to(t)
     {
-	is_ba = TRUE;
+	is_ba = true;
 	data.ba = d;
     }
 
@@ -215,7 +215,7 @@ void Q3HttpNormalRequest::start( Q3Http *http )
 
 bool Q3HttpNormalRequest::hasRequestHeader()
 {
-    return TRUE;
+    return true;
 }
 
 Q3HttpRequestHeader Q3HttpNormalRequest::requestHeader()
@@ -388,7 +388,7 @@ void Q3HttpCloseRequest::start( Q3Http *http )
 	Constructs an empty HTTP header.
 */
 Q3HttpHeader::Q3HttpHeader()
-    : valid( TRUE )
+    : valid( true )
 {
 }
 
@@ -410,7 +410,7 @@ Q3HttpHeader::Q3HttpHeader( const Q3HttpHeader& header )
     key, colon, space, value.
 */
 Q3HttpHeader::Q3HttpHeader( const QString& str )
-    : valid( TRUE )
+    : valid( true )
 {
     parse( str );
 }
@@ -433,7 +433,7 @@ Q3HttpHeader& Q3HttpHeader::operator=( const Q3HttpHeader& h )
 }
 
 /*!
-    Returns TRUE if the HTTP header is valid; otherwise returns FALSE.
+    Returns true if the HTTP header is valid; otherwise returns false.
 
     A Q3HttpHeader is invalid if it was created by parsing a malformed string.
 */
@@ -447,7 +447,7 @@ bool Q3HttpHeader::isValid() const
     the keys/values it finds. If the string is not parsed successfully
     the Q3HttpHeader becomes \link isValid() invalid\endlink.
 
-    Returns TRUE if \a str was successfully parsed; otherwise returns FALSE.
+    Returns true if \a str was successfully parsed; otherwise returns false.
 
     \sa toString()
 */
@@ -456,12 +456,12 @@ bool Q3HttpHeader::parse( const QString& str )
     QStringList lst;
     int pos = str.find( '\n' );
     if ( pos > 0 && str.at( pos - 1 ) == '\r' )
-	lst = QStringList::split( "\r\n", str.stripWhiteSpace(), FALSE );
+	lst = QStringList::split( "\r\n", str.stripWhiteSpace(), false );
     else
-	lst = QStringList::split( "\n", str.stripWhiteSpace(), FALSE );
+	lst = QStringList::split( "\n", str.stripWhiteSpace(), false );
 
     if ( lst.isEmpty() )
-	return TRUE;
+	return true;
 
     QStringList lines;
     QStringList::Iterator it = lst.begin();
@@ -482,11 +482,11 @@ bool Q3HttpHeader::parse( const QString& str )
     it = lines.begin();
     for( ; it != lines.end(); ++it ) {
 	if ( !parseLine( *it, number++ ) ) {
-	    valid = FALSE;
-	    return FALSE;
+	    valid = false;
+	    return false;
 	}
     }
-    return TRUE;
+    return true;
 }
 
 /*! \internal
@@ -518,8 +518,8 @@ QStringList Q3HttpHeader::keys() const
 }
 
 /*!
-    Returns TRUE if the HTTP header has an entry with the given \a
-    key; otherwise returns FALSE.
+    Returns true if the HTTP header has an entry with the given \a
+    key; otherwise returns false.
 
     \sa value() setValue() keys()
 */
@@ -556,8 +556,8 @@ void Q3HttpHeader::removeValue( const QString& key )
 /*! \internal
     Parses the single HTTP header line \a line which has the format
     key, colon, space, value, and adds key/value to the headers. The
-    linenumber is \a number. Returns TRUE if the line was successfully
-    parsed and the key/value added; otherwise returns FALSE.
+    linenumber is \a number. Returns true if the line was successfully
+    parsed and the key/value added; otherwise returns false.
 
     \sa parse()
 */
@@ -565,11 +565,11 @@ bool Q3HttpHeader::parseLine( const QString& line, int )
 {
     int i = line.find( ":" );
     if ( i == -1 )
-	return FALSE;
+	return false;
 
     values.insert( line.left( i ).stripWhiteSpace().lower(), line.mid( i + 1 ).stripWhiteSpace() );
 
-    return TRUE;
+    return true;
 }
 
 /*!
@@ -594,8 +594,8 @@ QString Q3HttpHeader::toString() const
 }
 
 /*!
-    Returns TRUE if the header has an entry for the special HTTP
-    header field \c content-length; otherwise returns FALSE.
+    Returns true if the header has an entry for the special HTTP
+    header field \c content-length; otherwise returns false.
 
     \sa contentLength() setContentLength()
 */
@@ -627,8 +627,8 @@ void Q3HttpHeader::setContentLength( int len )
 }
 
 /*!
-    Returns TRUE if the header has an entry for the the special HTTP
-    header field \c content-type; otherwise returns FALSE.
+    Returns true if the header has an entry for the the special HTTP
+    header field \c content-type; otherwise returns false.
 
     \sa contentType() setContentType()
 */
@@ -700,7 +700,7 @@ void Q3HttpHeader::setContentType( const QString& type )
 */
 Q3HttpResponseHeader::Q3HttpResponseHeader()
 {
-    setValid( FALSE );
+    setValid( false );
 }
 
 /*!
@@ -743,7 +743,7 @@ Q3HttpResponseHeader::Q3HttpResponseHeader( const QString& str )
 */
 void Q3HttpResponseHeader::setStatusLine( int code, const QString& text, int majorVer, int minorVer )
 {
-    setValid( TRUE );
+    setValid( true );
     statCode = code;
     reasonPhr = text;
     majVer = majorVer;
@@ -799,7 +799,7 @@ bool Q3HttpResponseHeader::parseLine( const QString& line, int number )
 
     QString l = line.simplifyWhiteSpace();
     if ( l.length() < 10 )
-	return FALSE;
+	return false;
 
     if ( l.left( 5 ) == "HTTP/" && l[5].isDigit() && l[6] == '.' &&
 	    l[7].isDigit() && l[8] == ' ' && l[9].isDigit() ) {
@@ -815,10 +815,10 @@ bool Q3HttpResponseHeader::parseLine( const QString& line, int number )
 	    reasonPhr = QString::null;
 	}
     } else {
-	return FALSE;
+	return false;
     }
 
-    return TRUE;
+    return true;
 }
 
 /*! \reimp
@@ -877,7 +877,7 @@ QString Q3HttpResponseHeader::toString() const
 Q3HttpRequestHeader::Q3HttpRequestHeader()
     : Q3HttpHeader()
 {
-    setValid( FALSE );
+    setValid( false );
 }
 
 /*!
@@ -919,7 +919,7 @@ Q3HttpRequestHeader::Q3HttpRequestHeader( const QString& str )
 */
 void Q3HttpRequestHeader::setRequest( const QString& method, const QString& path, int majorVer, int minorVer )
 {
-    setValid( TRUE );
+    setValid( true );
     m = method;
     p = path;
     majVer = majorVer;
@@ -984,13 +984,13 @@ bool Q3HttpRequestHeader::parseLine( const QString& line, int number )
 			v[5].isDigit() && v[6] == '.' && v[7].isDigit() ) {
 		    majVer = v[5].latin1() - '0';
 		    minVer = v[7].latin1() - '0';
-		    return TRUE;
+		    return true;
 		}
 	    }
 	}
     }
 
-    return FALSE;
+    return false;
 }
 
 /*! \reimp
@@ -1095,7 +1095,7 @@ QString Q3HttpRequestHeader::toString() const
 
     \code
     requestStarted( 1 )
-    requestFinished( 1, FALSE )
+    requestFinished( 1, false )
 
     requestStarted( 2 )
     stateChanged( Connecting )
@@ -1108,9 +1108,9 @@ QString Q3HttpRequestHeader::toString() const
     dataReadProgress( 18300, 0 )
     readyRead( responseheader )
     stateChanged( Connected )
-    requestFinished( 2, FALSE )
+    requestFinished( 2, false )
 
-    done( FALSE )
+    done( false )
 
     stateChanged( Closing )
     stateChanged( Unconnected )
@@ -1151,13 +1151,13 @@ QString Q3HttpRequestHeader::toString() const
 
     \code
     requestStarted( 1 )
-    requestFinished( 1, FALSE )
+    requestFinished( 1, false )
 
     requestStarted( 2 )
     stateChanged( HostLookup )
-    requestFinished( 2, TRUE )
+    requestFinished( 2, true )
 
-    done( TRUE )
+    done( true )
 
     stateChanged( Unconnected )
     \endcode
@@ -1383,8 +1383,8 @@ Q3Http::~Q3Http()
     \fn void Q3Http::requestFinished( int id, bool error )
 
     This signal is emitted when processing the request identified by
-    \a id has finished. \a error is TRUE if an error occurred during
-    the processing; otherwise \a error is FALSE.
+    \a id has finished. \a error is true if an error occurred during
+    the processing; otherwise \a error is false.
 
     \sa requestStarted() done() error() errorString()
 */
@@ -1394,8 +1394,8 @@ Q3Http::~Q3Http()
 
     This signal is emitted when the last pending request has finished;
     (it is emitted after the last request's requestFinished() signal).
-    \a error is TRUE if an error occurred during the processing;
-    otherwise \a error is FALSE.
+    \a error is true if an error occurred during the processing;
+    otherwise \a error is false.
 
     \sa requestFinished() error() errorString()
 */
@@ -1404,12 +1404,12 @@ Q3Http::~Q3Http()
     Aborts the current request and deletes all scheduled requests.
 
     For the current request, the requestFinished() signal with the \c
-    error argument \c TRUE is emitted. For all other requests that are
+    error argument \c true is emitted. For all other requests that are
     affected by the abort(), no signals are emitted.
 
     Since this slot also deletes the scheduled requests, there are no
     requests left and the done() signal is emitted (with the \c error
-    argument \c TRUE).
+    argument \c true).
 
     \sa clearPendingRequests()
 */
@@ -1496,7 +1496,7 @@ int Q3Http::currentId() const
     Returns the request header of the HTTP request being executed. If
     the request is one issued by setHost() or closeConnection(), it
     returns an invalid request header, i.e.
-    Q3HttpRequestHeader::isValid() returns FALSE.
+    Q3HttpRequestHeader::isValid() returns false.
 
     \sa currentId()
 */
@@ -1545,8 +1545,8 @@ QIODevice* Q3Http::currentDestinationDevice() const
 }
 
 /*!
-    Returns TRUE if there are any requests scheduled that have not yet
-    been executed; otherwise returns FALSE.
+    Returns true if there are any requests scheduled that have not yet
+    been executed; otherwise returns false.
 
     The request that is being executed is \e not considered as a
     scheduled request.
@@ -1824,10 +1824,10 @@ void Q3Http::finishedWithSuccess()
     if ( r == 0 )
 	return;
 
-    emit requestFinished( r->id, FALSE );
+    emit requestFinished( r->id, false );
     d->pending.removeFirst();
     if ( d->pending.isEmpty() ) {
-	emit done( FALSE );
+	emit done( false );
     } else {
 	startNextRequest();
     }
@@ -1841,10 +1841,10 @@ void Q3Http::finishedWithError( const QString& detail, int errorCode )
 
     d->error = (Error)errorCode;
     d->errorString = detail;
-    emit requestFinished( r->id, TRUE );
+    emit requestFinished( r->id, true );
 
     d->pending.clear();
-    emit done( TRUE );
+    emit done( true );
 }
 
 void Q3Http::slotClosed()
@@ -1943,19 +1943,19 @@ void Q3Http::slotReadyRead()
     if ( d->state != Reading ) {
 	setState( Reading );
 	d->buffer = QByteArray();
-	d->readHeader = TRUE;
+	d->readHeader = true;
 	d->headerStr = "";
 	d->bytesDone = 0;
 	d->chunkedSize = -1;
     }
 
     while ( d->readHeader ) {
-	bool end = FALSE;
+	bool end = false;
 	QString tmp;
 	while ( !end && d->socket.canReadLine() ) {
 	    tmp = d->socket.readLine();
 	    if ( tmp == "\r\n" || tmp == "\n" )
-		end = TRUE;
+		end = true;
 	    else
 		d->headerStr += tmp;
 	}
@@ -1982,7 +1982,7 @@ void Q3Http::slotReadyRead()
 	// POST method, we send both the request header and data in
 	// one chunk.
 	if (d->response.statusCode() != 100) {
-	    d->readHeader = FALSE;
+	    d->readHeader = false;
 	    if ( d->response.hasKey( "transfer-encoding" ) &&
 		 d->response.value( "transfer-encoding" ).lower().contains( "chunked" ) )
 		d->chunkedSize = 0;
@@ -1992,10 +1992,10 @@ void Q3Http::slotReadyRead()
     }
 
     if ( !d->readHeader ) {
-	bool everythingRead = FALSE;
+	bool everythingRead = false;
 
 	if ( currentRequest().method() == "HEAD" ) {
-	    everythingRead = TRUE;
+	    everythingRead = true;
 	} else {
 	    Q_ULONG n = d->socket.bytesAvailable();
 	    QByteArray *arr = 0;
@@ -2028,7 +2028,7 @@ void Q3Http::slotReadyRead()
 			    d->chunkedSize = -1;
 		    }
 		    if ( d->chunkedSize == -1 ) {
-			everythingRead = TRUE;
+			everythingRead = true;
 			break;
 		    }
 
@@ -2073,7 +2073,7 @@ void Q3Http::slotReadyRead()
 		    arr->resize( read );
 		}
 		if ( d->bytesDone + bytesAvailable() + n == d->response.contentLength() )
-		    everythingRead = TRUE;
+		    everythingRead = true;
 	    } else if ( n > 0 ) {
 		// workaround for VC++ bug
 		QByteArray temp = d->socket.readAll();
@@ -2135,7 +2135,7 @@ Q3Http::State Q3Http::state() const
 /*!
     Returns the last error that occurred. This is useful to find out
     what happened when receiving a requestFinished() or a done()
-    signal with the \c error argument \c TRUE.
+    signal with the \c error argument \c true.
 
     If you start a new request, the error status is reset to \c NoError.
 */
@@ -2148,7 +2148,7 @@ Q3Http::Error Q3Http::error() const
     Returns a human-readable description of the last error that
     occurred. This is useful to present a error message to the user
     when receiving a requestFinished() or a done() signal with the \c
-    error argument \c TRUE.
+    error argument \c true.
 */
 QString Q3Http::errorString() const
 {
