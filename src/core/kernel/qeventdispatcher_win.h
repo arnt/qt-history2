@@ -41,6 +41,7 @@ public:
 
     bool registerEventNotifier(QWinEventNotifier *notifier);
     void unregisterEventNotifier(QWinEventNotifier *notifier);
+    void activateEventNotifiers();
 
     void wakeUp();
     void interrupt();

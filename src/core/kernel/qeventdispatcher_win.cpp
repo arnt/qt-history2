@@ -486,6 +486,16 @@ void QEventDispatcherWin32::unregisterEventNotifier(QWinEventNotifier *notifier)
         d->winEventNotifierList.takeAt(i);
 }
 
+void QEventDispatcherWin32::activateEventNotifiers()
+{
+    Q_D(QEventDispatcherWin32);
+    //### this could break if events are removed/added in the activation
+    for (int i=0; i<d->winEventNotifierList.count(); i++) {
+        if (WaitForSingleObjectEx(d->winEventNotifierList.at(i)->handle(), 0, true) == WAIT_OBJECT_0)
+            d->activateEventNotifier(d->winEventNotifierList.at(i));
+    }
+}
+
 void QEventDispatcherWin32::wakeUp()
 {
     Q_D(QEventDispatcherWin32);
