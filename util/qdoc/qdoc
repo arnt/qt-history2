@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: //depot/qt/main/util/qdoc/qdoc#206 $
+# $Id: //depot/qt/main/util/qdoc/qdoc#207 $
 #
 # this is a massive hack, written very quickly
 #
@@ -454,6 +454,7 @@ sub processdocs {
 	}
 
 	if ($doc =~ s/\s*\\important\s+(.*?)(?:(?:\n\s*\n\s*)|(?:$ ))/\n\n/s) {
+	    #print "$url has important stuff: $1\n";
 	    $important{$url} = $1;
 	}
 
@@ -1536,8 +1537,10 @@ sub weirdly {
 
     $aa = $name{$a};
     $aa =~ s/::~/::_/;
+    $aa =~ s/[a-zA-Z]*::/::/;
     $bb = $name{$b};
     $bb =~ s/::~/::_/;
+    $bb =~ s/[a-zA-Z]*::/::/;
     if ($aa eq $bb) {
 	if (defined($overload{$b})) {
 	    if (defined($overload{$a})) {
@@ -1570,6 +1573,7 @@ sub printclass {
     local ( $url ) = @_;
     local ( $class, $file, $tail, $fnheader );
     my %enumdocs;
+    my %fndocs;
 
     $class = $name{$url};
 
@@ -1695,31 +1699,10 @@ sub printclass {
 	}
     }
 
-    if ( $important{$url} =~ /\S/ ) {
-	my $i;
-	my $p;
-	foreach $i ( split( /\s+/s, $important{$url} ) ) {
-	    $i =~ s/[^\(\),]*$//;
-	    next unless ( $i =~ /\S/ );
-	    $p = $class . "::" . $i;
-	    if ( defined( $anchor{$p} ) && $type{$anchor{$p}} eq "fn" ) {
-		my $parent;
-		$parent = $anchor{$p};
-		$parent =~ s/\x23.*//;
-		$parent = $name{$parent} . "::" . $i;
-		print "imp: ", $name{$anchor{$p}}, " - ", $parent, "\n";
-#		$m{$fndocs{$anchor{$p}}} .= $c . ";";
-#VOLD
-	    } else {
-		print "sex: - ", $p, " -\n";
-	    }
-	}
-#	print "vold: $url - ", $important{$url}, "\n";
-    }
-
+    $m{'Important Inherited'} = $importants{$url};
 
     foreach $mode ('Public', 'Public Slots', 'Signals',
-		   'Static Public', 'Protected',
+		   'Static Public', 'Important Inherited', 'Protected',
 		   'Protected Slots', 'Static Protected',
 		   'Private', 'Private Slots', 'Static Private') {
 	my ($e1, $e2);
@@ -1777,7 +1760,12 @@ sub printclass {
 		$a =~ s/\s*([\*\&]+)\s*/ $1 /g;
 		$a =~ s/\s+,/,/sg;
 
-		$u = &manglefn($t, $name{$url}, $f, $a, $c);
+		if ( defined( $importantyuck{$name{$url} . "::" . $f} ) ) {
+		    my $yuck = $importantyuck{$name{$url} . "::" . $f};
+		    $u = &manglefn($t, $yuck, $f, $a, $c);
+		} else {
+		    $u = &manglefn($t, $name{$url}, $f, $a, $c);
+		}
 		$t =~ s/^(?:virtual\s*)?/virtual /
 		    if ( defined($virtual{$u}) );
 		&fixdefvalues($u, $a) if ($type{$u} eq "fn");
@@ -1870,7 +1858,7 @@ sub printclass {
 	}
     }
 
-    foreach $url ( sort weirdly grep( /$url/, keys %fndocs ) ) {
+    foreach $url ( sort weirdly grep( /^$url\#/, keys %fndocs ) ) {
 	next unless ($doc{$url} =~ /\S/s);
 
 	$documented{$url}++;
@@ -1951,6 +1939,44 @@ sub reimplementations {
     }
 }
 
+
+sub importants {
+    my $url;
+    my $i;
+    my $p;
+    my $class;
+    foreach $url ( keys %important ) {
+	$class = $name{$url};
+	foreach $i ( split( /\s+/s, $important{$url} ) ) {
+	    $p = $class . "::" . $i;
+	    if ( defined( $anchor{$p} ) && $type{$anchor{$p}} eq "fn" ) {
+		my $y;
+		next if ( $p eq $class );
+		$y = $anchor{$p};
+		$y =~ s/\#.*//;
+		$y = $name{$y};
+		$importantyuck{$p} = $y;
+		$p = $y . "::" . $i;
+		my $fn;
+		foreach $fn ( sort { $def{$a} cmp $def{$b} } keys %doc ) {
+		    next unless ( $type{$fn} eq "fn"  && 
+				  $def{$fn} =~ /\b$p\b/ );
+		    my $f;
+		    $f = $def{$fn};
+		    $f =~ s/<[^>]*>//g;
+		    $f =~ s/\&amp;/\&/g;
+		    $f =~ s/\&lt;/</g;
+		    $f =~ s/\&gt;/>/g;
+		    $f =~ s/[a-zA-Z]+:://;
+		    $f =~ s/\s+=[^,]+,/,/g;
+		    $importants{$url} .= $f . ";";
+		}
+	    } else {
+		print "did not find important function ", $p, "\n";
+	    }
+	}
+    }
+}
 
 
 sub classlist {
@@ -2396,6 +2422,7 @@ chdir( "/tmp" );
 &processdocs();
 &readfiles();
 &reimplementations();
+&importants();
 
 
 foreach $c ( sort keys %doc ) {
