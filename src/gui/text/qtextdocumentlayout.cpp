@@ -1428,6 +1428,8 @@ void QTextDocumentLayout::draw(QPainter *painter, const PaintContext &context)
 {
     Q_D(QTextDocumentLayout);
     QTextFrame *frame = document()->rootFrame();
+    if(data(frame)->sizeDirty)
+        return;
     d->drawFrame(QPoint(), painter, context, frame);
 }
 
