@@ -48,6 +48,8 @@ void QProcessPrivate::destroyPipe(Q_PIPE pipe[2])
 
 void QProcessPrivate::startProcess()
 {
+    Q_Q(QProcess);
+
     createPipe(standardReadPipe);
     createPipe(errorReadPipe);
     createPipe(writePipe);
@@ -81,6 +83,9 @@ void QProcessPrivate::startProcess()
     
     pid = new PROCESS_INFORMATION;
     memset(pid, 0, sizeof(PROCESS_INFORMATION));
+
+    processState = QProcess::Starting;
+    emit q->stateChanged(processState);
 
 #ifdef UNICODE
     if (!(QSysInfo::WindowsVersion & QSysInfo::WV_DOS_based)) {
@@ -126,7 +131,7 @@ void QProcessPrivate::startProcess()
 		0, 0, TRUE,  CREATE_UNICODE_ENVIRONMENT, 
         environment.isEmpty() ? 0 : envlist.data(),
 		(WCHAR*)workingDirectory.ucs2(),
-		&startupInfo, pid);
+		&startupInfo, (PROCESS_INFORMATION*)pid);
 	
         free(applicationName);
 	    free(commandLine);
@@ -168,7 +173,7 @@ void QProcessPrivate::startProcess()
 	    }
 	    success = CreateProcessA(program.constData(), args.toLocal8Bit().data(),
 		0, 0, TRUE, 0, environment.isEmpty() ? 0 : envlist.data(),
-		workingDirectory.local8Bit(), &startupInfo, pid);
+		workingDirectory.local8Bit(), &startupInfo, (PROCESS_INFORMATION*)pid);
 #endif // Q_OS_TEMP
     }
     if (!success) {
@@ -184,6 +189,9 @@ void QProcessPrivate::startProcess()
     CloseHandle(errorReadPipe[1]);
     errorReadPipe[1] = INVALID_Q_PIPE;
 #endif
+    processState = QProcess::Running;
+    emit q->stateChanged(processState);
+    emit q->started();
 }
 
 void QProcessPrivate::execChild()
