@@ -64,8 +64,8 @@ extern QFont IFontToQFont(IFont *f);
 extern uint QColorToOLEColor(const QColor &col);
 extern QColor OLEColorToQColor(uint col);
 
-extern bool QVariantToVARIANT(const QVariant &var, VARIANT &arg, const QString &type, bool out = false);
-extern QVariant VARIANTToQVariant(const VARIANT &arg, const QString &type);
+extern bool QVariantToVARIANT(const QVariant &var, VARIANT &arg, const char *type, bool out = false);
+extern QVariant VARIANTToQVariant(const VARIANT &arg, const char *type);
 extern bool QVariantToVoidStar(const QVariant &var, void *data);
 extern void clearVARIANT(VARIANT *var);
 

@@ -1682,7 +1682,7 @@ extern bool ignoreSlots(const char *test);
 extern bool ignoreProps(const char *test);
 
 /*!
-    Creates mappings between DISPIDs and Qt signal/slot/property data.
+    Makes sure the type info is loaded
 */
 void QAxServerBase::ensureMetaData()
 {
@@ -1690,84 +1690,6 @@ void QAxServerBase::ensureMetaData()
 	qAxTypeLibrary->GetTypeInfoOfGuid(qAxFactory()->interfaceID(class_name), &m_spTypeInfo);
 	m_spTypeInfo->AddRef();
     }
-/*
-    int qtProps = 0;
-    int qtSlots = 0;
-
-    if (theObject->isWidgetType()) {
-	qtProps = QWidget::staticMetaObject()->numProperties(true);
-	qtSlots = QWidget::staticMetaObject()->numProperties(true);
-    }
-
-    const QMetaObject *mo = qt.object->metaObject();
-    for (int islot = mo->numSlots(true)-1; islot >=0 ; --islot) {
-	const QMetaData *slot = mo->slot(islot, true);
-
-	if (islot <= qtSlots && ignoreSlots(slot->method->name) || slot->access != QMetaData::Public)
-	    continue;
-
-	BSTR bstrNames = QStringToBSTR(slot->method->name);
-	DISPID dispId;
-	GetIDsOfNames(IID_NULL, (BSTR*)&bstrNames, 1, LOCALE_USER_DEFAULT, &dispId);
-	if (dispId >= 0)
-	    slotcache->insert(dispId, slot);
-	SysFreeString(bstrNames);
-    }
-    IConnectionPointContainer *cpoints = 0;
-    QueryInterface(IID_IConnectionPointContainer, (void**)&cpoints);
-    if (cpoints) {
-	IProvideClassInfo *classinfo = 0;
-	cpoints->QueryInterface(IID_IProvideClassInfo, (void**)&classinfo);
-	if (classinfo) {
-	    ITypeInfo *info = 0;
-	    ITypeInfo *eventinfo = 0;
-	    classinfo->GetClassInfo(&info);
-	    if (info) {
-		TYPEATTR *typeattr = 0;
-		info->GetTypeAttr(&typeattr);
-		if (typeattr) {
-		    for (int impl = 0; impl < typeattr->cImplTypes && !eventinfo; ++impl) {
-			// get the ITypeInfo for the interface
-			HREFTYPE reftype;
-			info->GetRefTypeOfImplType(impl, &reftype);
-			ITypeInfo *eventtype = 0;
-			info->GetRefTypeInfo(reftype, &eventtype);
-			if (eventtype) {
-			    TYPEATTR *eventattr;
-			    eventtype->GetTypeAttr(&eventattr);
-			    // this is it
-			    if (eventattr && eventattr->guid == qAxFactory()->eventsID(class_name))
-				eventinfo = eventtype;
-
-			    eventtype->ReleaseTypeAttr(eventattr);
-			    if (eventtype != eventinfo)
-				eventtype->Release();
-			}
-		    }
-		    info->ReleaseTypeAttr(typeattr);
-		}
-		info->Release();
-	    }
-	    if (eventinfo) {
-		for (int isignal = mo->numSignals(true)-1; isignal >= 0; --isignal) {
-		    const QMetaData *signal = mo->signal(isignal, true);
-
-		    BSTR bstrNames = QStringToBSTR(signal->method->name);
-		    DISPID dispId;
-		    eventinfo->GetIDsOfNames((BSTR*)&bstrNames, 1, &dispId);
-		    if (dispId >= 0)
-			signallist->insert(isignal, dispId);
-		    else
-			signallist->insert(isignal, -1);
-		    SysFreeString(bstrNames);
-		}
-		eventinfo->Release();
-	    }
-	    classinfo->Release();
-	}
-	cpoints->Release();
-    }
-*/
 }
 
 /*!
@@ -1923,9 +1845,9 @@ static bool checkHRESULT(HRESULT hres)
     }
 }
 
-static inline QString paramType(const QString &ptype, bool *out)
+static inline QByteArray paramType(const char *ptype, bool *out)
 {
-    QString res = ptype;
+    QByteArray res(ptype);
     *out = false;
     if (res.endsWith("&")) {
 	*out = true;
@@ -1966,8 +1888,8 @@ int QAxServerBase::qt_metacall(QMetaObject::Call call, int index, void **argv)
     QMetaMember signal;
     DISPID eventId = index;
     int pcount = 0;
-    QString type;
-    QStringList ptypes;
+    QByteArray type;
+    QList<QByteArray> ptypes;
     const QMetaObject *mo = qt.object->metaObject();
 
     switch(index) {
@@ -1993,8 +1915,8 @@ int QAxServerBase::qt_metacall(QMetaObject::Call call, int index, void **argv)
 	{
 	    signal = mo->signal(index);
 	    type = signal.type();
-	    QString signature(signal.signature());
-	    QString name(signature);
+	    QByteArray signature(signal.signature());
+	    QByteArray name(signature);
 	    name.truncate(name.indexOf('('));
 
 	    eventId = signalCache.value(index, -1);
@@ -2002,7 +1924,8 @@ int QAxServerBase::qt_metacall(QMetaObject::Call call, int index, void **argv)
 		ITypeInfo *eventInfo = 0;
 		qAxTypeLibrary->GetTypeInfoOfGuid(qAxFactory()->eventsID(class_name), &eventInfo);
 		if (eventInfo) {
-		    const OLECHAR *olename = name.utf16();
+                    QString uni_name = QLatin1String(name);
+		    const OLECHAR *olename = uni_name.utf16();
 		    eventInfo->GetIDsOfNames((OLECHAR**)&olename, 1, &eventId);
 		    eventInfo->Release();
 		}
@@ -2054,12 +1977,12 @@ int QAxServerBase::qt_metacall(QMetaObject::Call call, int index, void **argv)
 		    VariantInit(arg);
 
 		    bool out;
-		    QString ptype = paramType(ptypes.at(p), &out);
+		    QByteArray ptype = paramType(ptypes.at(p), &out);
                     QVariant variant;
-                    if (mo->indexOfEnumerator(ptype.latin1()) != -1)
+                    if (mo->indexOfEnumerator(ptype) != -1)
                         variant = QVariant(QVariant::Int);
                     else
-		        variant = QVariant(QVariant::nameToType(ptype.latin1()), argv[p + 1]);
+		        variant = QVariant(QVariant::nameToType(ptype), argv[p + 1]);
 
 		    QVariantToVARIANT(variant, *arg, type, out);
 		}
@@ -2082,7 +2005,7 @@ int QAxServerBase::qt_metacall(QMetaObject::Call call, int index, void **argv)
 			    if (index > 0) {
 				for (p = 0; p < pcount; ++p) {
 				    bool out;
-				    QString ptype = paramType(ptypes.at(p), &out);
+				    QByteArray ptype = paramType(ptypes.at(p), &out);
 				    if (out)
 					QVariantToVoidStar(VARIANTToQVariant(dispParams.rgvarg[pcount - p - 1], ptype), argv[p+1]);
 				}
@@ -2298,7 +2221,7 @@ HRESULT WINAPI QAxServerBase::Invoke(DISPID dispidMember, REFIID riid,
     HRESULT res = DISP_E_MEMBERNOTFOUND;
 
     int index = indexCache.value(dispidMember, -1);
-    QString name;
+    QByteArray name;
     if (index == -1) {
 	ensureMetaData();
 
@@ -2309,7 +2232,7 @@ HRESULT WINAPI QAxServerBase::Invoke(DISPID dispidMember, REFIID riid,
 	if (!cname)
 	    return res;
 
-	name = BSTRToQString(bname);
+	name = BSTRToQString(bname).latin1();
 	SysFreeString(bname);
     }
 
@@ -2323,7 +2246,7 @@ HRESULT WINAPI QAxServerBase::Invoke(DISPID dispidMember, REFIID riid,
     case DISPATCH_PROPERTYGET:
 	{
 	    if (index == -1) {
-		index = mo->indexOfProperty(name.latin1());
+		index = mo->indexOfProperty(name);
 		if (index == -1)
 		    return res;
 	    }
@@ -2337,7 +2260,7 @@ HRESULT WINAPI QAxServerBase::Invoke(DISPID dispidMember, REFIID riid,
 		    return DISP_E_BADPARAMCOUNT;
 
 		QVariant var = qt.object->property(property.name());
-		QString ptype(property.type());
+		QByteArray ptype(property.type());
 		if (!var.isValid())
 		    res =  DISP_E_MEMBERNOTFOUND;
 		else if (!QVariantToVARIANT(var, *pvarResult, ptype))
@@ -2358,11 +2281,11 @@ HRESULT WINAPI QAxServerBase::Invoke(DISPID dispidMember, REFIID riid,
 	        name += "(";
 		// no parameter - shortcut
 		if (!pDispParams->cArgs)
-		    index = mo->indexOfSlot((name + ")").latin1());
+		    index = mo->indexOfSlot((name + ")"));
 		// search
 		if (index == -1) {
 		    for (int i = 0; i < mo->slotCount(); ++i) {
-			if (QString(mo->slot(i).signature()).startsWith(name)) {
+			if (QByteArray(mo->slot(i).signature()).startsWith(name)) {
 			    index = i;
 			    break;
 			}
@@ -2374,12 +2297,12 @@ HRESULT WINAPI QAxServerBase::Invoke(DISPID dispidMember, REFIID riid,
 
 	    // get slot info
 	    const QMetaMember slot = mo->slot(index);
-	    QString type = slot.type();
+	    QByteArray type = slot.type();
 	    name = slot.signature();
             nameLength = name.indexOf('(');
-	    QString prototype = name.mid(nameLength + 1);
+	    QByteArray prototype = name.mid(nameLength + 1);
 	    prototype.truncate(prototype.length() - 1);
-	    QStringList ptypes;
+	    QList<QByteArray> ptypes;
 	    if (!prototype.isEmpty())
 		ptypes = prototype.split(',');
 	    int pcount = ptypes.count();
@@ -2421,7 +2344,7 @@ HRESULT WINAPI QAxServerBase::Invoke(DISPID dispidMember, REFIID riid,
 	    for (int p = 0; p < pcount; ++p) {
 		// map the VARIANT to the void*
 		bool out;
-		QString ptype = paramType(ptypes.at(p), &out);
+		QByteArray ptype = paramType(ptypes.at(p), &out);
 		varp[p + 1] = VARIANTToQVariant(pDispParams->rgvarg[pcount - p - 1], ptype);
                 argv_pointer[p + 1] = 0;
 		if (varp[p + 1].isValid()) {
@@ -2465,7 +2388,7 @@ HRESULT WINAPI QAxServerBase::Invoke(DISPID dispidMember, REFIID riid,
 		// update reference parameters and return value
 		for (int p = 0; p < pcount; ++p) {
 		    bool out;
-		    QString ptype = paramType(ptypes.at(p), &out);
+		    QByteArray ptype = paramType(ptypes.at(p), &out);
 		    if (out) {
 			if (!QVariantToVARIANT(varp[p + 1], pDispParams->rgvarg[pcount - p - 1], ptype, out))
 			    ok = false;
@@ -2473,7 +2396,7 @@ HRESULT WINAPI QAxServerBase::Invoke(DISPID dispidMember, REFIID riid,
 		}
                 if (!type.isEmpty() && pvarResult) {
                     if (!varp[0].isValid())
-                        varp[0] = QVariant::UserData(argv_pointer[0], type.latin1());
+                        varp[0] = QVariant::UserData(argv_pointer[0], type);
 		    ok = QVariantToVARIANT(varp[0], *pvarResult, type);
                 }
 	    }
@@ -2490,7 +2413,7 @@ HRESULT WINAPI QAxServerBase::Invoke(DISPID dispidMember, REFIID riid,
     case DISPATCH_PROPERTYPUT|DISPATCH_PROPERTYPUTREF:
 	{
 	    if (index == -1) {
-		index = mo->indexOfProperty(name.latin1());
+		index = mo->indexOfProperty(name);
 		if (index == -1)
 		    return res;
 	    }
@@ -2505,7 +2428,7 @@ HRESULT WINAPI QAxServerBase::Invoke(DISPID dispidMember, REFIID riid,
 		 *pDispParams->rgdispidNamedArgs != DISPID_PROPERTYPUT)
 		return DISP_E_BADPARAMCOUNT;
 
-	    QString ptype(property.type());
+	    QByteArray ptype(property.type());
 	    QVariant var = VARIANTToQVariant(*pDispParams->rgvarg, ptype);
 	    if (!var.isValid()) {
 		if (puArgErr)

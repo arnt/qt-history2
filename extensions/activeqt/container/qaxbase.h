@@ -114,7 +114,7 @@ private:
     virtual const QMetaObject *parentMetaObject() const = 0;
     int internalProperty(QMetaObject::Call, int index, void **v);
     int internalInvoke(QMetaObject::Call, int index, void **v);
-    bool dynamicCallHelper(const QString &name, void *out, QList<QVariant> &var, QString &type);
+    bool dynamicCallHelper(const QByteArray &name, void *out, QList<QVariant> &var, QByteArray &type);
     
     QString ctrl;
 };

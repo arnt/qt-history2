@@ -14,6 +14,7 @@
 
 //#define QAX_NO_CLASSINFO
 #define QT_NO_CAST_TO_ASCII
+//#define QT_NO_CAST_FROM_ASCII
 #define QT_CHECK_STATE
 
 #include "qaxobject.h"
@@ -51,30 +52,28 @@ struct QAxMetaObject : public QMetaObject
     // save information about QAxEventSink connections, and connect when found in cache
     QList<QUuid> connectionInterfaces;
     // DISPID -> signal name
-    QMap< QUuid, QMap<DISPID, QString> > sigs;
+    QMap< QUuid, QMap<DISPID, QByteArray> > sigs;
     // DISPID -> property changed signal name
-    QMap< QUuid, QMap<DISPID, QString> > propsigs;
+    QMap< QUuid, QMap<DISPID, QByteArray> > propsigs;
     // DISPID -> property name
-    QMap< QUuid, QMap<DISPID, QString> > props;
+    QMap< QUuid, QMap<DISPID, QByteArray> > props;
     
     struct Member
     {
         int numParameter;
     };
     // Prototype -> member info
-    QHash<QString, Member> memberInfo;
+    QHash<QByteArray, Member> memberInfo;
     
-    int numParameter(const QString &prototype);
-    QString paramType(const QString &signature, int index, bool *out = 0);
+    int numParameter(const char *prototype);
+    QByteArray paramType(const char *signature, int index, bool *out = 0);
     
-    QMap<QString, QString> realPrototype;
+    QMap<QByteArray, QByteArray> realPrototype;
 };
 
-static QHash<QString, QAxMetaObject*> *mo_cache = 0;
+static QHash<QString, QAxMetaObject*> mo_cache;
 static int mo_cache_ref = 0;
-#ifdef QT_THREAD_SUPPORT
 static QMutex cache_mutex;
-#endif
 
 /*
     \internal
@@ -103,15 +102,15 @@ public:
     {
         return ciid;
     }
-    QMap<DISPID, QString> signalMap() const
+    QMap<DISPID, QByteArray> signalMap() const
     {
         return sigs;
     }
-    QMap<DISPID, QString> propertyMap() const
+    QMap<DISPID, QByteArray> propertyMap() const
     {
         return props;
     }
-    QMap<DISPID, QString> propSignalMap() const
+    QMap<DISPID, QByteArray> propSignalMap() const
     {
         return propsigs;
     }
@@ -136,12 +135,12 @@ public:
         }
     }
     
-    void addSignal(DISPID memid, const QString &name)
+    void addSignal(DISPID memid, const char *name)
     {
         sigs.insert(memid, name);
-        QMap<DISPID,QString>::Iterator it;
+        QMap<DISPID,QByteArray>::ConstIterator it;
         DISPID id = -1;
-        for (it = propsigs.begin(); it!= propsigs.end(); ++it) {
+        for (it = propsigs.constBegin(); it!= propsigs.constEnd(); ++it) {
             if (it.value() == name) {
                 id = it.key();
                 break;
@@ -150,7 +149,7 @@ public:
         if (id != -1)
             propsigs.remove(id);
     }
-    void addProperty(DISPID propid, const QString &name, const QString &signal)
+    void addProperty(DISPID propid, const char *name, const char *signal)
     {
         props.insert(propid, name);
         propsigs.insert(propid, signal);
@@ -210,7 +209,7 @@ public:
             return E_UNEXPECTED;
         
         QAxMetaObject *meta = const_cast<QAxMetaObject*>(static_cast<const QAxMetaObject*>(combase->metaObject()));
-        QString signame = sigs.value(dispIdMember);
+        QByteArray signame = sigs.value(dispIdMember);
         if (!meta || signame.isEmpty())
             return DISP_E_MEMBERNOTFOUND;
         
@@ -226,8 +225,8 @@ public:
         }
         
         // get the signal information from the metaobject
-        index = meta->indexOfSignal(signame.latin1());
-        if (index != -1 && ((QAxObject*)qobject)->receivers((QChar(char('0') + char(QSIGNAL_CODE)) + signame).latin1())) {
+        index = meta->indexOfSignal(signame);
+        if (index != -1 && ((QAxObject*)qobject)->receivers(QByteArray::number(QSIGNAL_CODE) + signame)) {
             const QMetaMember signal = meta->signal(index);
             Q_ASSERT(signame == signal.signature());
             // verify parameter count
@@ -259,7 +258,7 @@ public:
             int p;
             for (p = 0; p < pcount && ok; ++p) {
                 // map the VARIANT to the void*
-                QString ptype = meta->paramType(signame, p);
+                QByteArray ptype = meta->paramType(signame, p);
                 varp[p] = VARIANTToQVariant(pDispParams->rgvarg[pcount - p - 1], ptype);
                 if (ptype != "QVariant") {
                     ok = varp[p].isValid();
@@ -275,7 +274,7 @@ public:
             // update the VARIANT for references and free memory
             for (p = 0; p < pcount; ++p) {
                 bool out;
-                QString type = meta->paramType(signame, p, &out);
+                QByteArray type = meta->paramType(signame, p, &out);
                 if (out) {
                     VARIANT *arg = &(pDispParams->rgvarg[pcount-p-1]);
                     QVariantToVARIANT(varp[p], *arg, type, out);
@@ -298,7 +297,7 @@ public:
             return S_OK;
         
         const QMetaObject *meta = combase->metaObject();
-        QString propname = props.value(dispID);
+        QByteArray propname = props.value(dispID);
         if (!meta || propname.isEmpty())
             return S_OK;
         
@@ -313,15 +312,15 @@ public:
             combase->qt_metacall(QMetaObject::EmitSignal, index, argv);
         }
         
-        QString signame = propsigs.value(dispID);
+        QByteArray signame = propsigs.value(dispID);
         if (signame.isEmpty())
             return S_OK;
         
         // get the signal information from the metaobject
-        index = meta->indexOfSignal(signame.latin1());
-        if (index != -1 && ((QAxObject*)qobject)->receivers((QChar(char('0') + char(QSIGNAL_CODE)) + signame).latin1())) {
+        index = meta->indexOfSignal(signame);
+        if (index != -1 && ((QAxObject*)qobject)->receivers(QByteArray::number(QSIGNAL_CODE) + signame)) {
             // setup parameters
-            QVariant var = qobject->property(propname.latin1());
+            QVariant var = qobject->property(propname);
             if (!var.isValid())
                 return S_OK;
             
@@ -337,17 +336,17 @@ public:
         if (dispID == DISPID_UNKNOWN || !combase)
             return S_OK;
         
-        QString propname = props.value(dispID);
-        return combase->propertyWritable(propname.latin1()) ? S_OK : S_FALSE;
+        QByteArray propname = props.value(dispID);
+        return combase->propertyWritable(propname) ? S_OK : S_FALSE;
     }
     
     IConnectionPoint *cpoint;
     IID ciid;
     ULONG cookie;
     
-    QMap<DISPID, QString> sigs;
-    QMap<DISPID, QString> propsigs;
-    QMap<DISPID, QString> props;
+    QMap<DISPID, QByteArray> sigs;
+    QMap<DISPID, QByteArray> propsigs;
+    QMap<DISPID, QByteArray> props;
     
     QAxBase *combase;
     long ref;
@@ -364,14 +363,10 @@ public:
     QAxBasePrivate()
         : useEventSink(true), useMetaObject(true), useClassInfo(true),
         cachedMetaObject(false), initialized(false), tryCache(false),
-        ptr(0), disp(0), propWritable(0), metaobj(0)
+        ptr(0), disp(0), metaobj(0)
     {
-#ifdef QT_THREAD_SUPPORT
         // protect initialization
         QMutexLocker locker(&cache_mutex);
-#endif
-        if (!mo_cache)
-            mo_cache = new QHash<QString, QAxMetaObject*>;
         mo_cache_ref++;
     }
     
@@ -380,18 +375,11 @@ public:
         Q_ASSERT(!ptr);
         Q_ASSERT(!disp);
         
-        delete propWritable;
-        propWritable = 0;
-        
-#ifdef QT_THREAD_SUPPORT
         // protect cleanup
         QMutexLocker locker(&cache_mutex);
-#endif
-        if (!--mo_cache_ref && mo_cache) {
-            qDeleteAll(*mo_cache);
-            mo_cache->clear();
-            delete mo_cache;
-            mo_cache = 0;
+        if (!--mo_cache_ref) {
+            qDeleteAll(mo_cache);
+            mo_cache.clear();
         }
     }
     
@@ -416,21 +404,22 @@ public:
     IUnknown *ptr;
     IDispatch *disp;
     
-    QMap<QString, bool> *propWritable;
+    QMap<QByteArray, bool> propWritable;
     QAxMetaObject *metaobj;
     QMetaObject *staticMetaObject;
 };
 
 #ifndef QAXPRIVATE_DECL
 
-int QAxMetaObject::numParameter(const QString &prototype)
+int QAxMetaObject::numParameter(const char *proto)
 {
-    if (memberInfo.contains(prototype)) {
-        Member member = memberInfo.value(prototype);
+    if (memberInfo.contains(proto)) {
+        Member member = memberInfo.value(proto);
         return member.numParameter;
     }
     
-    QString parameters = prototype.mid(prototype.indexOf('(') + 1);
+    QByteArray prototype(proto);
+    QByteArray parameters = prototype.mid(prototype.indexOf('(') + 1);
     parameters.truncate(parameters.length() - 1);
     int numParameters = 0;
     if (!parameters.isEmpty())
@@ -441,20 +430,22 @@ int QAxMetaObject::numParameter(const QString &prototype)
     return numParameters;
 }
 
-QString QAxMetaObject::paramType(const QString &prototype, int index, bool *out)
+QByteArray QAxMetaObject::paramType(const char *proto, int index, bool *out)
 {
     if (out)
         *out = false;
+
+    QByteArray prototype(proto);
     
-    QString realProto = realPrototype.value(prototype, prototype);
-    QString parameters = realProto.mid(realProto.indexOf('(') + 1);
+    QByteArray realProto = realPrototype.value(prototype, prototype);
+    QByteArray parameters = realProto.mid(realProto.indexOf('(') + 1);
     parameters.truncate(parameters.length() - 1);
     
-    QStringList plist = parameters.split(',');
+    QList<QByteArray> plist = parameters.split(',');
     if (index > plist.count() - 1)
         return "QVariant";
     
-    QString param(plist.at(index));
+    QByteArray param(plist.at(index));
     if (param.isEmpty())
         return "QVariant";
     
@@ -1158,11 +1149,11 @@ static const char *const type_conversion[][2] =
     { 0, 0 }
 };
 
-inline QString replaceType(const QString &type)
+inline QByteArray replaceType(const char *type)
 {
     int i = 0;
     while (type_conversion[i][0]) {
-        if (type == type_conversion[i][0])
+        if (!qstrcmp(type, type_conversion[i][0]))
             return type_conversion[i][1];
         ++i;
     }
@@ -1187,11 +1178,11 @@ private:
     
     QMetaObject *tryCache();
     
-    QString createPrototype(FUNCDESC *funcdesc, ITypeInfo *typeinfo, const QStringList &names,
-        QString &type, QStringList &parameters);
+    QByteArray createPrototype(FUNCDESC *funcdesc, ITypeInfo *typeinfo, const QList<QByteArray> &names,
+        QByteArray &type, QList<QByteArray> &parameters);
     
-    QString usertypeToQString(const TYPEDESC &tdesc, ITypeInfo *info, const QString &function);
-    QString guessTypes(const TYPEDESC &tdesc, ITypeInfo *info, const QString &function);
+    QByteArray usertypeToString(const TYPEDESC &tdesc, ITypeInfo *info, const char *function);
+    QByteArray guessTypes(const TYPEDESC &tdesc, ITypeInfo *info, const char *function);
     
     // ### from qmetaobject.cpp
     enum ProperyFlags  {
@@ -1215,22 +1206,23 @@ private:
             Bindable		= 0x00200000
     };
     
-    QStringList paramList(const QString &prototype)
+    QList<QByteArray> paramList(const char *proto)
     {
-        QString parameters = prototype.mid(prototype.indexOf('(') + 1);
+        QByteArray prototype(proto);
+        QByteArray parameters = prototype.mid(prototype.indexOf('(') + 1);
         parameters.truncate(parameters.length() - 1);
         
-        QStringList plist = parameters.split(',');
+        QList<QByteArray> plist = parameters.split(',');
         return plist;
     }
     
-    QString replacePrototype(const QString &prototype)
+    QByteArray replacePrototype(const char *prototype)
     {
-        QString proto(prototype);
+        QByteArray proto(prototype);
         
-        QStringList plist = paramList(prototype);
+        QList<QByteArray> plist = paramList(prototype);
         for (int p = 0; p < plist.count(); ++p) {
-            QString param(plist.at(p));
+            QByteArray param(plist.at(p));
             if (param != replaceType(param)) {
                 int type = 0;
                 while (type_conversion[type][0]) {
@@ -1247,27 +1239,27 @@ private:
         return proto;
     }
     
-    QMap<QString, QString> classinfo_list;
-    inline void addClassInfo(const QString &key, const QString &value)
+    QMap<QByteArray, QByteArray> classinfo_list;
+    inline void addClassInfo(const char *key, const char *value)
     {
         classinfo_list.insert(key, value);
     }
     
-    inline bool hasClassInfo(const QString &key)
+    inline bool hasClassInfo(const char *key)
     {
         return classinfo_list.contains(key);
     }
     
     struct Method {
-        QString type;
-        QString parameters;
+        QByteArray type;
+        QByteArray parameters;
         int flags;
-        QString realPrototype;
+        QByteArray realPrototype;
     };
-    QMap<QString, Method> signal_list;
-    inline void addSignal(const QString &type, const QString &prototype, const QString &parameters)
+    QMap<QByteArray, Method> signal_list;
+    inline void addSignal(const char *type, const char *prototype, const char *parameters)
     {
-        QString proto = replacePrototype(prototype);
+        QByteArray proto = replacePrototype(prototype);
         
         Method &signal = signal_list[proto];
         signal.type = type;
@@ -1277,17 +1269,17 @@ private:
             signal.realPrototype = prototype;
     }
     
-    void addChangedSignal(const QString &function, const QString &type, int memid);
+    void addChangedSignal(const char *function, const char *type, int memid);
     
-    inline bool hasSignal(const QString &prototype)
+    inline bool hasSignal(const char *prototype)
     {
         return signal_list.contains(prototype);
     }
     
-    QMap<QString, Method> slot_list;
-    inline void addSlot(const QString &type, const QString &prototype, const QString &parameters)
+    QMap<QByteArray, Method> slot_list;
+    inline void addSlot(const char *type, const char *prototype, const char *parameters)
     {
-        QString proto = replacePrototype(prototype);
+        QByteArray proto = replacePrototype(prototype);
         
         Method &slot = slot_list[proto];
         slot.type = type;
@@ -1297,39 +1289,39 @@ private:
             slot.realPrototype = prototype;
     }
     
-    void addSetterSlot(const QString &property);
+    void addSetterSlot(const char *property);
     
-    inline bool hasSlot(const QString &prototype)
+    inline bool hasSlot(const char *prototype)
     {
         return slot_list.contains(prototype);
     }
     
-    QMap<QString, QPair<QString, int> > property_list;
-    void addProperty(const QString &type, const QString &name, int flags)
+    QMap<QByteArray, QPair<QByteArray, int> > property_list;
+    void addProperty(const char *type, const char *name, int flags)
     {
-        QPair<QString, int> &prop = property_list[name];
-        if (!type.isEmpty() && type != "HRESULT")
+        QPair<QByteArray, int> &prop = property_list[name];
+        if (type && qstrcmp(type, "HRESULT"))
             prop.first = replaceType(type);
         prop.second |= flags;
     }
     
-    inline bool hasProperty(const QString &name)
+    inline bool hasProperty(const char *name)
     {
         return property_list.contains(name);
     }
     
-    inline QString propertyType(const QString &name)
+    inline QByteArray propertyType(const char *name)
     {
         return property_list.value(name).first;
     }
     
-    QMap<QString, QList<QPair<QString, int> > > enum_list;
-    inline void addEnumValue(const QString &enumname, const QString &key, int value)
+    QMap<QByteArray, QList<QPair<QByteArray, int> > > enum_list;
+    inline void addEnumValue(const char *enumname, const char *key, int value)
     {
-        enum_list[enumname].append(QPair<QString, int>(key, value));
+        enum_list[enumname].append(QPair<QByteArray, int>(key, value));
     }
     
-    inline bool hasEnum(const QString &enumname)
+    inline bool hasEnum(const char *enumname)
     {
         return enum_list.contains(enumname);
     }
@@ -1343,7 +1335,7 @@ private:
     
     QSettings iidnames;
     QString cacheKey;
-    QString debugInfo;
+    QByteArray debugInfo;
     
     QUuid iid_propNotifySink;
 };
@@ -1359,9 +1351,9 @@ MetaObjectGenerator::MetaObjectGenerator(QAxBase *ax, QAxBasePrivate *dptr)
     
     iid_propNotifySink = IID_IPropertyNotifySink;
     
-    addSignal(QString(), "signal(QString,int,void*)", "name,argc,argv");
-    addSignal(QString(), "exception(int,QString,QString,QString)", "code,source,disc,help");
-    addSignal(QString(), "propertyChanged(QString)", "name");
+    addSignal(0, "signal(QString,int,void*)", "name,argc,argv");
+    addSignal(0, "exception(int,QString,QString,QString)", "code,source,disc,help");
+    addSignal(0, "propertyChanged(QString)", "name");
     addProperty("QString", "control", Readable|Writable|Designable|Scriptable|Stored|Editable|StdCppSet);
 }
 
@@ -1371,13 +1363,13 @@ MetaObjectGenerator::~MetaObjectGenerator()
     if (typelib) typelib->Release();
 }
 
-QString MetaObjectGenerator::usertypeToQString(const TYPEDESC &tdesc, ITypeInfo *info, const QString &function)
+QByteArray MetaObjectGenerator::usertypeToString(const TYPEDESC &tdesc, ITypeInfo *info, const char *function)
 {
     HREFTYPE usertype = tdesc.hreftype;
     if (tdesc.vt != VT_USERDEFINED)
-        return QString::null;
+        return 0;
     
-    QString typeName;
+    QByteArray typeName;
     ITypeInfo *usertypeinfo = 0;
     info->GetRefTypeInfo(usertype, &usertypeinfo);
     if (usertypeinfo) {
@@ -1388,7 +1380,7 @@ QString MetaObjectGenerator::usertypeToQString(const TYPEDESC &tdesc, ITypeInfo 
             // get type name
             BSTR usertypename = 0;
             usertypelib->GetDocumentation(index, &usertypename, 0, 0, 0);
-            QString userTypeName = BSTRToQString(usertypename);
+            QByteArray userTypeName = BSTRToQString(usertypename).latin1();
             SysFreeString(usertypename);
             
             if (hasEnum(userTypeName)) // known enum?
@@ -1420,12 +1412,11 @@ QString MetaObjectGenerator::usertypeToQString(const TYPEDESC &tdesc, ITypeInfo 
     return typeName;
 }
 
-QString MetaObjectGenerator::guessTypes(const TYPEDESC &tdesc, ITypeInfo *info, const QString &function)
+QByteArray MetaObjectGenerator::guessTypes(const TYPEDESC &tdesc, ITypeInfo *info, const char *function)
 {
-    QString str;
+    QByteArray str;
     switch (tdesc.vt) {
     case VT_VOID:
-        str = QString();
         break;
     case VT_BSTR:
         str = "QString";
@@ -1533,11 +1524,11 @@ QString MetaObjectGenerator::guessTypes(const TYPEDESC &tdesc, ITypeInfo *info, 
         str = guessTypes(tdesc.lpadesc->tdescElem, info, function);
         if (!str.isEmpty()) {
             for (int index = 0; index < tdesc.lpadesc->cDims; ++index)
-                str += "[" + QString::number(tdesc.lpadesc->rgbounds[index].cElements) + "]";
+                str += "[" + QByteArray::number(tdesc.lpadesc->rgbounds[index].cElements) + "]";
         }
         break;
     case VT_USERDEFINED:
-        str = usertypeToQString(tdesc, info, function);
+        str = usertypeToString(tdesc, info, function);
         break;
         
     default:
@@ -1570,8 +1561,8 @@ void MetaObjectGenerator::readClassInfo()
             // UUID
             if (d->useClassInfo && !hasClassInfo("CoClass")) {
                 QString coClassIDstr = iidnames.readEntry("/CLSID/" + coClassID + "/Default", coClassID);
-                addClassInfo("CoClass", coClassIDstr.isEmpty() ? coClassID : coClassIDstr);
-                QString version = QString("%1.%2").arg(typeattr->wMajorVerNum).arg(typeattr->wMinorVerNum);
+                addClassInfo("CoClass", coClassIDstr.isEmpty() ? coClassID.latin1() : coClassIDstr.latin1());
+                QByteArray version = QByteArray::number(typeattr->wMajorVerNum) + "." + QByteArray::number(typeattr->wMinorVerNum);
                 if (version != "0.0")
                     addClassInfo("Version", version);
             }
@@ -1659,12 +1650,12 @@ void MetaObjectGenerator::readEnumInfo()
             
             // Get the name of the enumeration
             BSTR enumname;
-            QString enumName;
+            QByteArray enumName;
             if (typelib->GetDocumentation(i, &enumname, 0, 0, 0) == S_OK) {
-                enumName = BSTRToQString(enumname);
+                enumName = BSTRToQString(enumname).latin1();
                 SysFreeString(enumname);
             } else {
-                enumName = QString("enum%1").arg(++enum_serial);
+                enumName = "enum" + QByteArray::number(++enum_serial);
             }
             
             // Get the attributes of the enum type
@@ -1680,14 +1671,14 @@ void MetaObjectGenerator::readEnumInfo()
                         int memid = vardesc->memid;
                         // Get the name of the value
                         BSTR valuename;
-                        QString valueName;
+                        QByteArray valueName;
                         UINT maxNamesOut;
                         enuminfo->GetNames(memid, &valuename, 1, &maxNamesOut);
                         if (maxNamesOut) {
-                            valueName = BSTRToQString(valuename);
+                            valueName = BSTRToQString(valuename).latin1();
                             SysFreeString(valuename);
                         } else {
-                            valueName = QString("value%1").arg(vd);
+                            valueName = "value" + QByteArray::number(vd);
                         }
                         // Store value
                         addEnumValue(enumName, valueName, value);
@@ -1701,7 +1692,7 @@ void MetaObjectGenerator::readEnumInfo()
     }
 }
 
-void MetaObjectGenerator::addChangedSignal(const QString &function, const QString &type, int memid)
+void MetaObjectGenerator::addChangedSignal(const char *function, const char *type, int memid)
 {
     QAxEventSink *eventSink = d->eventSink.value(iid_propNotifySink);
     if (!eventSink && d->useEventSink) {
@@ -1709,48 +1700,49 @@ void MetaObjectGenerator::addChangedSignal(const QString &function, const QStrin
         d->eventSink.insert(iid_propNotifySink, eventSink);
     }
     // generate changed signal
-    QString signalName = function + "Changed";
-    QString signalProto = signalName + "(" + replaceType(type) + ")";
+    QByteArray signalName(function);
+    signalName += "Changed";
+    QByteArray signalProto = signalName + "(" + replaceType(type) + ")";
     if (!hasSignal(signalProto))
-        addSignal(QString(), signalProto, function);
+        addSignal(0, signalProto, function);
     if (eventSink)
         eventSink->addProperty(memid, function, signalProto);
 }
 
-void MetaObjectGenerator::addSetterSlot(const QString &property)
+void MetaObjectGenerator::addSetterSlot(const char *property)
 {
-    QString set;
-    QString prototype = property;
-    if (prototype.at(0).category() & QChar::Letter_Uppercase) {
+    QByteArray set;
+    QByteArray prototype(property);
+    if (isupper(prototype.at(0))) {
         set = "Set";
     } else {
         set = "set";
-        prototype[0].toUpper();
+        prototype[0] = toupper(prototype[0]);
     }
     prototype = set + prototype + "(" + propertyType(property) + ")";
     if (!hasSlot(prototype))
-        addSlot(QString(), prototype, property);
+        addSlot(0, prototype, property);
 }
 
-QString MetaObjectGenerator::createPrototype(FUNCDESC *funcdesc, ITypeInfo *typeinfo, const QStringList &names,
-                                             QString &type, QStringList &parameters)
+QByteArray MetaObjectGenerator::createPrototype(FUNCDESC *funcdesc, ITypeInfo *typeinfo, const QList<QByteArray> &names,
+                                             QByteArray &type, QList<QByteArray> &parameters)
 {
-    QString prototype;
-    QString function(names.at(0));
+    QByteArray prototype;
+    QByteArray function(names.at(0));
     // get function prototype
     type = guessTypes(funcdesc->elemdescFunc.tdesc, typeinfo, function);
     prototype = function + "(";
     if (funcdesc->invkind == INVOKE_FUNC && type == "HRESULT")
-        type = QString();
+        type = 0;
     
     for (int p = 1; p < names.count(); ++p) {
         // parameter
-        QString paramName = names.at(p);
+        QByteArray paramName = names.at(p);
         bool optional = p > (funcdesc->cParams - funcdesc->cParamsOpt);
         TYPEDESC tdesc = funcdesc->lprgelemdescParam[p-1].tdesc;
         PARAMDESC pdesc = funcdesc->lprgelemdescParam[p-1].paramdesc;
         
-        QString ptype = guessTypes(tdesc, typeinfo, function);
+        QByteArray ptype = guessTypes(tdesc, typeinfo, function);
         if (pdesc.wParamFlags & PARAMFLAG_FRETVAL) {
             if (ptype.endsWith("&")) {
                 ptype.truncate(ptype.length() - 1);
@@ -1799,10 +1791,10 @@ void MetaObjectGenerator::readFuncsInfo(ITypeInfo *typeinfo, ushort nFuncs)
             continue;
         }
         
-        QString function;
-        QString type;
-        QString prototype;
-        QStringList parameters;
+        QByteArray function;
+        QByteArray type;
+        QByteArray prototype;
+        QList<QByteArray> parameters;
         int flags = 0;
         
         // parse function description
@@ -1810,9 +1802,10 @@ void MetaObjectGenerator::readFuncsInfo(ITypeInfo *typeinfo, ushort nFuncs)
         UINT maxNames = 255;
         UINT maxNamesOut;
         typeinfo->GetNames(funcdesc->memid, (BSTR*)&bstrNames, maxNames, &maxNamesOut);
-        QStringList names;
-        for (int p = 0; p < maxNamesOut; ++p) {
-            names << BSTRToQString(bstrNames[p]);
+        QList<QByteArray> names;
+        int p;
+        for (p = 0; p < maxNamesOut; ++p) {
+            names << BSTRToQString(bstrNames[p]).latin1();
             SysFreeString(bstrNames[p]);
         }
         
@@ -1874,9 +1867,14 @@ void MetaObjectGenerator::readFuncsInfo(ITypeInfo *typeinfo, ushort nFuncs)
             {
                 bool defargs;
                 do {
-                    QString pnames = parameters.join(",");
+                    QByteArray pnames;
+                    for (p = 0; p < parameters.count(); ++p) {
+                        pnames += parameters.at(p);
+                        if (p < parameters.count() - 1)
+                            pnames += ',';
+                    }
                     defargs = pnames.contains("=0");
-                    addSlot(type, prototype, pnames.remove("=0"));
+                    addSlot(type, prototype, pnames.replace("=0", ""));
                     
                     if (defargs) {
                         parameters.takeLast();
@@ -1932,11 +1930,11 @@ void MetaObjectGenerator::readVarsInfo(ITypeInfo *typeinfo, ushort nVars)
             typeinfo->ReleaseVarDesc(vardesc);
             continue;
         }
-        QString variableType;
-        QString variableName;
+        QByteArray variableType;
+        QByteArray variableName;
         int flags = 0;
         
-        variableName = BSTRToQString(bstrName);
+        variableName = BSTRToQString(bstrName).latin1();
         SysFreeString(bstrName);
         
         // get variable type
@@ -2007,7 +2005,7 @@ void MetaObjectGenerator::readInterfaceInfo()
                     QUuid uuid(typeattr->guid);
                     QString uuidstr = uuid.toString().toUpper();
                     uuidstr = iidnames.readEntry("/Interface/" + uuidstr + "/Default", uuidstr);
-                    addClassInfo(QString("Interface %1").arg(++interface_serial), uuidstr);
+                    addClassInfo("Interface " + QByteArray::number(++interface_serial), uuidstr.latin1());
                 }
 #endif
                 typeinfo->ReleaseTypeAttr(typeattr);
@@ -2075,7 +2073,7 @@ void MetaObjectGenerator::readEventInfo()
                 if (d->useClassInfo) {
                     QString uuidstr = connuuid.toString().toUpper();
                     uuidstr = iidnames.readEntry("/Interface/" + uuidstr + "/Default", uuidstr);
-                    addClassInfo(QString("Event Interface %1").arg(++event_serial), uuidstr);
+                    addClassInfo("Event Interface " + QByteArray::number(++event_serial), uuidstr.latin1());
                 }
 #endif
                 
@@ -2124,10 +2122,10 @@ void MetaObjectGenerator::readEventInfo()
                             continue;
                         }
                         
-                        QString function;
-                        QString type;
-                        QString prototype;
-                        QStringList parameters;
+                        QByteArray function;
+                        QByteArray type;
+                        QByteArray prototype;
+                        QList<QByteArray> parameters;
                         int flags = 0;
                         
                         // parse event function description
@@ -2135,18 +2133,25 @@ void MetaObjectGenerator::readEventInfo()
                         UINT maxNames = 255;
                         UINT maxNamesOut;
                         eventinfo->GetNames(funcdesc->memid, (BSTR*)&bstrNames, maxNames, &maxNamesOut);
-                        QStringList names;
+                        QList<QByteArray> names;
                         int p;
                         for (p = 0; p < (int)maxNamesOut; ++p) {
-                            names << BSTRToQString(bstrNames[p]);
+                            names << BSTRToQString(bstrNames[p]).latin1();
                             SysFreeString(bstrNames[p]);
                         }
                         
                         // get event function prototype
                         function = names.at(0);
                         prototype = createPrototype(/*in*/ funcdesc, eventinfo, names, /*out*/type, parameters);
-                        if (!hasSignal(prototype))
-                            addSignal(type, prototype, parameters.join(","));
+                        if (!hasSignal(prototype)) {
+                            QByteArray pnames;
+                            for (p = 0; p < parameters.count(); ++p) {
+                                pnames += parameters.at(p);
+                                if (p < parameters.count() - 1)
+                                    pnames += ',';
+                            }
+                            addSignal(type, prototype, pnames);
+                        }
                         if (eventSink)
                             eventSink->addSignal(funcdesc->memid, prototype);
                         
@@ -2175,8 +2180,8 @@ void MetaObjectGenerator::readEventInfo()
 
 QMetaObject *MetaObjectGenerator::tryCache()
 {
-    if (mo_cache && !cacheKey.isEmpty()) {
-        d->metaobj = mo_cache->value(cacheKey);
+    if (!cacheKey.isEmpty()) {
+        d->metaobj = mo_cache.value(cacheKey);
         if (d->metaobj) {
             d->cachedMetaObject = true;
             QList<QUuid>::ConstIterator it = d->metaobj->connectionInterfaces.begin();
@@ -2251,92 +2256,106 @@ QMetaObject *MetaObjectGenerator::metaObject(const QMetaObject *parentObject)
     int_data[11] = int_data[9] + int_data[8] * 3; // idx_enums
     int_data[int_data_size - 1] = 0; // eod;
     
-    QChar null('\0');
+    char null('\0');
     // data + zero-terminator
-    QString stringdata = QString::fromLatin1(that->className()) + null;
+    QByteArray stringdata = that->className();
+    stringdata += null;
     stringdata.reserve(8192);
     int string_data_size = stringdata.length();
     
     int offset = int_data[3]; //idx_classinfo
     
     // each class info in form key\0value\0
-    for (QMap<QString, QString>::ConstIterator it = classinfo_list.begin(); it != classinfo_list.end(); ++it) {
-        QString key(it.key());
-        QString value(it.value());
+    for (QMap<QByteArray, QByteArray>::ConstIterator it = classinfo_list.begin(); it != classinfo_list.end(); ++it) {
+        QByteArray key(it.key());
+        QByteArray value(it.value());
         int_data[offset++] = stringdata.length();
-        stringdata += key + null;
+        stringdata += key;
+        stringdata += null;
         int_data[offset++] = stringdata.length();
-        stringdata += value + null;
+        stringdata += value;
+        stringdata += null;
     }
     Q_ASSERT(offset == int_data[5]);
     
     // each signal in form prototype\0parameters\0type\0tag\0
-    for (QMap<QString, Method>::ConstIterator it = signal_list.begin(); it != signal_list.end(); ++it) {
-        QString prototype(it.key());
-        QString type(it.value().type);
-        QString parameters(it.value().parameters);
+    for (QMap<QByteArray, Method>::ConstIterator it = signal_list.begin(); it != signal_list.end(); ++it) {
+        QByteArray prototype(it.key());
+        QByteArray type(it.value().type);
+        QByteArray parameters(it.value().parameters);
         if (!it.value().realPrototype.isEmpty())
             d->metaobj->realPrototype[prototype] = it.value().realPrototype;
-        QString tag;
+        QByteArray tag;
         int flags = it.value().flags;
         
         int_data[offset++] = stringdata.length();
-        stringdata += prototype + null;
+        stringdata += prototype;
+        stringdata += null;
         int_data[offset++] = stringdata.length();
-        stringdata += parameters + null;
+        stringdata += parameters;
+        stringdata += null;
         int_data[offset++] = stringdata.length();
-        stringdata += type + null;
+        stringdata += type;
+        stringdata += null;
         int_data[offset++] = stringdata.length();
-        stringdata += tag + null;
+        stringdata += tag;
+        stringdata += null;
         int_data[offset++] = flags;
     }
     Q_ASSERT(offset == int_data[7]);
     
     // each slot in form prototype\0parameters\0type\0tag\0
-    for (QMap<QString, Method>::ConstIterator it = slot_list.begin(); it != slot_list.end(); ++it) {
-        QString prototype(it.key());
-        QString type(it.value().type);
-        QString parameters(it.value().parameters);
+    for (QMap<QByteArray, Method>::ConstIterator it = slot_list.begin(); it != slot_list.end(); ++it) {
+        QByteArray prototype(it.key());
+        QByteArray type(it.value().type);
+        QByteArray parameters(it.value().parameters);
         if (!it.value().realPrototype.isEmpty())
             d->metaobj->realPrototype[prototype] = it.value().realPrototype;
-        QString tag;
+        QByteArray tag;
         int flags = it.value().flags;
         
         int_data[offset++] = stringdata.length();
-        stringdata += prototype + null;
+        stringdata += prototype;
+        stringdata += null;
         int_data[offset++] = stringdata.length();
-        stringdata += parameters + null;
+        stringdata += parameters;
+        stringdata += null;
         int_data[offset++] = stringdata.length();
-        stringdata += type + null;
+        stringdata += type;
+        stringdata += null;
         int_data[offset++] = stringdata.length();
-        stringdata += tag + null;
+        stringdata += tag;
+        stringdata += null;
         int_data[offset++] = flags;
     }
     Q_ASSERT(offset == int_data[9]);
     
     // each property in form name\0type\0
-    for (QMap<QString, QPair<QString, int> >::ConstIterator it = property_list.begin(); it != property_list.end(); ++it) {
-        QString name(it.key());
-        QString type(it.value().first);
+    for (QMap<QByteArray, QPair<QByteArray, int> >::ConstIterator it = property_list.begin(); it != property_list.end(); ++it) {
+        QByteArray name(it.key());
+        QByteArray type(it.value().first);
         int flags = it.value().second;
         
         int_data[offset++] = stringdata.length();
-        stringdata += name + null;
+        stringdata += name;
+        stringdata += null;
         int_data[offset++] = stringdata.length();
-        stringdata += type + null;
+        stringdata += type;
+        stringdata += null;
         int_data[offset++] = flags;
     }
     Q_ASSERT(offset == int_data[11]);
     
     int value_offset = offset + enum_list.count() * 4;
     // each enum in form name\0
-    for (QMap<QString, QList<QPair<QString, int> > >::ConstIterator it = enum_list.begin(); it != enum_list.end(); ++it) {
-        QString name(it.key());
+    for (QMap<QByteArray, QList<QPair<QByteArray, int> > >::ConstIterator it = enum_list.begin(); it != enum_list.end(); ++it) {
+        QByteArray name(it.key());
         int flags = 0x0; // 0x1 for flag?
         int count = it.value().count();
         
         int_data[offset++] = stringdata.length();
-        stringdata += name + null;
+        stringdata += name;
+        stringdata += null;
         int_data[offset++] = flags;
         int_data[offset++] = count;
         int_data[offset++] = value_offset;
@@ -2345,12 +2364,13 @@ QMetaObject *MetaObjectGenerator::metaObject(const QMetaObject *parentObject)
     Q_ASSERT(offset == int_data[11] + enum_list.count() * 4);
     
     // each enum value in form key\0
-    for (QMap<QString, QList<QPair<QString, int> > >::ConstIterator it = enum_list.begin(); it != enum_list.end(); ++it) {
-        for (QList<QPair<QString,int> >::ConstIterator it2 = it.value().begin(); it2 != it.value().end(); ++it2) {
-            QString key((*it2).first);
+    for (QMap<QByteArray, QList<QPair<QByteArray, int> > >::ConstIterator it = enum_list.begin(); it != enum_list.end(); ++it) {
+        for (QList<QPair<QByteArray,int> >::ConstIterator it2 = it.value().begin(); it2 != it.value().end(); ++it2) {
+            QByteArray key((*it2).first);
             int value = (*it2).second;
             int_data[offset++] = stringdata.length();
-            stringdata += key + null;
+            stringdata += key;
+            stringdata += null;
             int_data[offset++] = value;
         }
     }
@@ -2358,7 +2378,7 @@ QMetaObject *MetaObjectGenerator::metaObject(const QMetaObject *parentObject)
     
     char *string_data = new char[stringdata.length()];
     memset(string_data, 0, sizeof(string_data));
-    memcpy(string_data, stringdata.latin1(), stringdata.length());
+    memcpy(string_data, stringdata, stringdata.length());
     
     // put the metaobject together
     d->metaobj->d.data = int_data;
@@ -2366,7 +2386,7 @@ QMetaObject *MetaObjectGenerator::metaObject(const QMetaObject *parentObject)
     d->metaobj->d.superdata = parentObject;
     
     if (!cacheKey.isEmpty()) {
-        mo_cache->insert(cacheKey, d->metaobj);
+        mo_cache.insert(cacheKey, d->metaobj);
         d->cachedMetaObject = true;
         for (QHash<QString, QAxEventSink*>::Iterator it = d->eventSink.begin(); it != d->eventSink.end(); ++it) {
             QAxEventSink *sink = it.value();
@@ -2656,21 +2676,22 @@ int QAxBase::internalInvoke(QMetaObject::Call call, int index, void **v)
     
     // get the slot information
     QMetaMember slot = d->metaobj->slot(index + d->metaobj->slotOffset());
-    QString signature(slot.signature());
-    QString slotname(signature);
+    QByteArray signature(slot.signature());
+    QByteArray slotname(signature);
     slotname.truncate(slotname.indexOf('('));
     
     // Get the Dispatch ID of the method to be called
     bool isProperty = false;
     DISPID dispid;
-    OLECHAR *names = (TCHAR*)slotname.utf16();
+    QString uni_slotname = QString::fromLatin1(slotname);
+    OLECHAR *names = (TCHAR*)uni_slotname.utf16();
     disp->GetIDsOfNames(IID_NULL, &names, 1, LOCALE_USER_DEFAULT, &dispid);
     if (dispid == DISPID_UNKNOWN) {
         // see if we are calling a property set function as a slot
-        if (!slotname.startsWith("set", QString::CaseInsensitive))
+        if (!uni_slotname.startsWith("set", QString::CaseInsensitive))
             return index;
-        slotname = slotname.right(slotname.length() - 3);
-        names = (TCHAR*)slotname.utf16();
+        uni_slotname = uni_slotname.right(uni_slotname.length() - 3);
+        names = (TCHAR*)uni_slotname.utf16();
         disp->GetIDsOfNames(IID_NULL, &names, 1, LOCALE_USER_DEFAULT, &dispid);
         isProperty = true;
     }
@@ -2698,14 +2719,14 @@ int QAxBase::internalInvoke(QMetaObject::Call call, int index, void **v)
     int p;
     for (p = 0; p < params.cArgs; ++p) {
         bool out;
-        QString type = d->metaobj->paramType(signature, p, &out);
+        QByteArray type = d->metaobj->paramType(signature, p, &out);
         QVariant qvar;
         if (type == "IDispatch*")
             qvar = QVariant::UserData(*(IDispatch**)v[p+1], "IDispatch*");
         else if (type == "IUnknown*")
             qvar = QVariant::UserData(*(IUnknown**)v[p+1], "IUnknown*");
         else
-            qvar = QVariant(QVariant::nameToType(type.latin1()), v[p + 1]);
+            qvar = QVariant(QVariant::nameToType(type), v[p + 1]);
         QVariantToVARIANT(qvar, params.rgvarg[params.cArgs - p - 1], type, out);
     }
     
@@ -2730,7 +2751,7 @@ int QAxBase::internalInvoke(QMetaObject::Call call, int index, void **v)
     // update out parameters
     for (p = 0; p < params.cArgs; ++p) {
         bool out;
-        QString ptype = d->metaobj->paramType(signature, p, &out);
+        QByteArray ptype = d->metaobj->paramType(signature, p, &out);
         if (out)
             QVariantToVoidStar(VARIANTToQVariant(params.rgvarg[params.cArgs - p - 1], ptype), v[p+1]);
     }
@@ -2779,7 +2800,7 @@ int QAxBase::qt_metacall(QMetaObject::Call call, int id, void **v)
 /*!
     \internal
 */
-bool QAxBase::dynamicCallHelper(const QString &name, void *inout, QList<QVariant> &vars, QString &type)
+bool QAxBase::dynamicCallHelper(const QByteArray &name, void *inout, QList<QVariant> &vars, QByteArray &type)
 {
     IDispatch *disp = d->dispatch();
     if (!disp)
@@ -2790,7 +2811,7 @@ bool QAxBase::dynamicCallHelper(const QString &name, void *inout, QList<QVariant
     
     int varc = vars.count();
     
-    QString function = name;
+    QByteArray function = name;
     VARIANT staticarg;
     VARIANT *arg = 0;
     VARIANTARG *res = (VARIANTARG*)inout;
@@ -2802,7 +2823,7 @@ bool QAxBase::dynamicCallHelper(const QString &name, void *inout, QList<QVariant
     
     if (function.contains('(')) {
         disptype = DISPATCH_METHOD;
-        id = metaObject()->indexOfSlot(QMetaObject::normalizedSignature(function.latin1()));
+        id = metaObject()->indexOfSlot(QMetaObject::normalizedSignature(function));
         if (id >= 0) {
             const QMetaMember slot = metaObject()->slot(id);
             function = slot.signature();
@@ -2871,7 +2892,7 @@ bool QAxBase::dynamicCallHelper(const QString &name, void *inout, QList<QVariant
             varc = vars.count();
         }
     } else {
-        id = metaObject()->indexOfProperty(name.latin1());
+        id = metaObject()->indexOfProperty(name);
         disptype = DISPATCH_PROPERTYGET;
         
         if (id >= 0) {
@@ -2890,7 +2911,7 @@ bool QAxBase::dynamicCallHelper(const QString &name, void *inout, QList<QVariant
         for (int i = 0; i < varc; ++i) {
             VariantInit(arg + (varc - i - 1));
             bool out = false;
-            QString paramType;
+            QByteArray paramType;
             if (disptype == DISPATCH_PROPERTYPUT)
                 paramType = type;
             else if (parse || disptype == DISPATCH_PROPERTYGET)
@@ -2903,11 +2924,12 @@ bool QAxBase::dynamicCallHelper(const QString &name, void *inout, QList<QVariant
     }
     
     DISPID dispid;
-    OLECHAR *names = (TCHAR*)function.utf16();
+    QString uni_function = QLatin1String(function);
+    OLECHAR *names = (TCHAR*)uni_function.utf16();
     disp->GetIDsOfNames(IID_NULL, &names, 1, LOCALE_USER_DEFAULT, &dispid);
-    if (dispid == DISPID_UNKNOWN && function.startsWith("set", QString::CaseInsensitive)) {
-        function = function.mid(3);
-        OLECHAR *names = (TCHAR*)function.utf16();
+    if (dispid == DISPID_UNKNOWN && uni_function.startsWith("set", QString::CaseInsensitive)) {
+        uni_function = uni_function.mid(3);
+        OLECHAR *names = (TCHAR*)uni_function.utf16();
         disptype = DISPATCH_PROPERTYPUT;
         disp->GetIDsOfNames(IID_NULL, &names, 1, LOCALE_USER_DEFAULT, &dispid);
     }
@@ -2915,14 +2937,14 @@ bool QAxBase::dynamicCallHelper(const QString &name, void *inout, QList<QVariant
     if (dispid == DISPID_UNKNOWN) {
 #ifdef QT_CHECK_STATE
         const char *coclass = metaObject()->classInfo(metaObject()->indexOfClassInfo("CoClass")).value();
-        qWarning("QAxBase::dynamicCallHelper: %s: No such method or property in %s [%s]", name.latin1(), control().latin1(),
+        qWarning("QAxBase::dynamicCallHelper: %s: No such method or property in %s [%s]", name.data(), control().latin1(),
             coclass ? coclass: "unknown");
         
         if (disptype == DISPATCH_METHOD) {
             for (int i = 0; i < metaObject()->slotCount(); ++i) {
-                const char *signature = metaObject()->slot(i).signature();
-                if (QString(signature).startsWith(function))
-                    qWarning("\tDid you mean %s?", signature);
+                QByteArray signature = metaObject()->slot(i).signature();
+                if (signature.startsWith(function))
+                    qWarning("\tDid you mean %s?", signature.data());
             }
         }
 #endif
@@ -3058,7 +3080,7 @@ QVariant QAxBase::dynamicCall(const QString &function, QList<QVariant> &vars)
     VARIANTARG res;
     res.vt = VT_EMPTY;
     
-    QString rettype;
+    QByteArray rettype;
     bool ok = dynamicCallHelper(QMetaObject::normalizedSignature(function.latin1()), &res, vars, rettype);
     
     QVariant qvar = VARIANTToQVariant(res, rettype);
@@ -3140,7 +3162,7 @@ QAxObject *QAxBase::querySubObject(const QString &name, QList<QVariant> &vars)
     QAxObject *object = 0;
     VARIANTARG res;
     
-    QString rettype;
+    QByteArray rettype;
     if (!dynamicCallHelper(QMetaObject::normalizedSignature(name.latin1()), &res, vars, rettype))
         return 0;
     
@@ -3333,10 +3355,7 @@ void QAxBase::setPropertyBag(const PropertyBag &bag)
 */
 bool QAxBase::propertyWritable(const char *prop) const
 {
-    if (!d->propWritable)
-        return true;
-    
-    return d->propWritable->value(prop, true);
+    return d->propWritable.value(prop, true);
 }
 
 /*!
@@ -3352,10 +3371,7 @@ bool QAxBase::propertyWritable(const char *prop) const
 */
 void QAxBase::setPropertyWritable(const char *prop, bool ok)
 {
-    if (!d->propWritable)
-        d->propWritable = new QMap<QString, bool>;
-    
-    (*d->propWritable)[prop] = ok;
+    d->propWritable[prop] = ok;
 }
 
 /*!
