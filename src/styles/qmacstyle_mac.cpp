@@ -1192,8 +1192,7 @@ void QMacStyle::drawComplexControl(ComplexControl ctrl, QPainter *p,
     case CC_ComboBox: {
 	ThemeButtonDrawInfo info = { tds, kThemeButtonOff, kThemeAdornmentNone };
 	((QMacPainter *)p)->setport();
-	const QRect off_rct(1, 1, 1, 2);
-	DrawThemeButton(qt_glb_mac_rect(r, p, TRUE, off_rct), kThemePopupButton,
+	DrawThemeButton(qt_glb_mac_rect(r, p, TRUE, QRect(1, 0, 0, 2)), kThemePopupButton,
 			&info, NULL, NULL, NULL, 0);
 	break; }
     default:
@@ -1328,13 +1327,13 @@ QRect QMacStyle::querySubControlMetrics(ComplexControl control,
 	    ret.setRect(x, y + (w->height() / 2), spinner_w, spinner_h);
 	    break;
 	case SC_SpinWidgetButtonField:
-	    ret.setRect(x, y, spinner_w, w->height() - 2*fw);
+	    ret.setRect(x, y, spinner_w, w->height() - (fw*2));
 	    break;
-	case SC_SpinWidgetEditField:
-	    ret.setRect(fw, fw, w->width() - spinner_w - (fw*3) - 5, w->height() - 2*fw);
+	case SC_SpinWidgetEditField: 
+	    ret.setRect(fw, fw, w->width() - spinner_w - (fw*3) - 3, w->height() - (fw*2));
 	    break;
 	case SC_SpinWidgetFrame:
-	    ret = QRect(0, 0, w->width() - spinner_w - fw - 5, w->height());
+	    ret = QRect(0, 0, w->width() - spinner_w - fw - 3, w->height());
 	default:
 	    break;
 	}

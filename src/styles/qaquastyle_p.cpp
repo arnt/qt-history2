@@ -142,10 +142,10 @@ QAquaAnimate::~QAquaAnimate()
 }
 bool QAquaAnimate::addWidget(QWidget *w) 
 {
-    if( focusable(w) ) {
+    if(focusable(w)) {
 	if(w->hasFocus()) 
 	    setFocusWidget(w);
-	w->installEventFilter( this );
+	w->installEventFilter(this);
     }
     if(w == d->defaultButton || d->progressBars.contains((QProgressBar*)w)) //already knew of it
 	return FALSE;
@@ -317,12 +317,14 @@ QWidget *QAquaAnimate::focusWidget() const
 void QAquaAnimate::setFocusWidget(QWidget *w) 
 {
     if(w) {
-	QWidget *p = w->parentWidget();
-	while(!p->isTopLevel() && !p->testWFlags(WSubWindow))
-	    p = p->parentWidget();
-	if(p && (w->width() < p->width() - 30 || w->height() < p->height() - 40)) {
-	    if(w->inherits("QLineEdit") && w->parentWidget()->inherits("QComboBox"))
-		w = w->parentWidget();
+	QWidget *top = w->parentWidget(), *p = top;
+	while(!top->isTopLevel() && !top->testWFlags(WSubWindow))
+	    top = top->parentWidget();
+	if(top && (w->width() < top->width() - 30 || w->height() < top->height() - 40)) {
+	    if(w->inherits("QLineEdit") && p->inherits("QComboBox"))
+		w = p;
+	    else if(w->inherits("QSpinWidget")) //transfer to the editor
+		w = ((QSpinWidget*)w)->editWidget();
 	} else {
 	    w = NULL;
 	}
@@ -337,7 +339,9 @@ void QAquaAnimate::setFocusWidget(QWidget *w)
 }
 bool QAquaAnimate::focusable(QWidget *w)
 {
-    return (w && w->parentWidget() && (w->inherits("QDateTimeEditor") ||
+    return (w && w->parentWidget() && 
+	    (w->inherits("QSpinWidget") || w->inherits("QDateTimeEditor") ||
+	     (w->inherits("QLineEdit") && w->parentWidget()->inherits("QSpinWidget")) ||
 	     (w->inherits("QFrame") && ((QFrame*)w)->frameStyle() != QFrame::NoFrame && 
 	      ((w->inherits("QLineEdit") /* &&
 	      (w->parentWidget()->inherits("QComboBox") || (((QLineEdit*)w)->frame())) */) ||
@@ -345,7 +349,7 @@ bool QAquaAnimate::focusable(QWidget *w)
 	      w->inherits("QListBox") || w->inherits("QListView")))));
 }
 
-void qt_mac_polish_font(QWidget *w, QAquaWidgetSize size=QAquaSizeLarge)
+void qt_mac_polish_font(QWidget *w, QAquaWidgetSize size)
 {
 #ifdef Q_WS_MAC
     if(!w->ownFont() && (w->font() == qApp->font() || 
@@ -493,16 +497,23 @@ bool qt_mac_update_palette(QPalette &pal, bool do_init)
 #if defined( QMAC_QAQUASTYLE_SIZE_CONSTRAIN ) || defined(DEBUG_SIZE_CONSTRAINT)
 static QAquaWidgetSize qt_aqua_guess_size(const QWidget *widg, QSize large, QSize small)
 {
-    if(large == QSize(-1, -1) && small != QSize(-1, -1))
+    if(large == QSize(-1, -1)) {
+	if(small == QSize(-1, -1))
+	    return QAquaSizeUnknown;
 	return QAquaSizeSmall;
-    else if(small == QSize(-1, -1) && large != QSize(-1, -1))
+    } else if(small == QSize(-1, -1)) {
 	return QAquaSizeLarge;
+    }
 
     if(widg->topLevelWidget()->inherits("QDockWindow") || getenv("QWIDGET_ALL_SMALL")) {
 	//if(small.width() != -1 || small.height() != -1)
 	    return QAquaSizeSmall;
     }
 
+#if 0
+    /* Figure out which size we're closer to, I just hacked this in, I haven't
+       tested it as it would probably look pretty strange to have some widgets
+       big and some widgets small in the same window?? -Sam */
     int large_delta=0;
     if(large.width() != -1) {
 	int delta = large.width() - widg->width();
@@ -512,7 +523,6 @@ static QAquaWidgetSize qt_aqua_guess_size(const QWidget *widg, QSize large, QSiz
 	int delta = large.height() - widg->height();
 	large_delta += delta * delta;
     }
-#if 0
     int small_delta=0;
     if(small.width() != -1) {
 	int delta = small.width() - widg->width();
@@ -524,8 +534,6 @@ static QAquaWidgetSize qt_aqua_guess_size(const QWidget *widg, QSize large, QSiz
     }
     if(small_delta < large_delta) 
 	return QAquaSizeSmall;
-#else
-    Q_UNUSED(small);
 #endif
     return QAquaSizeLarge;
 }
