@@ -143,14 +143,7 @@ void unclippedScaledBitBlt( QPaintDevice *dst, int dx, int dy, int dw, int dh,
 	    sw = pm->width();
 	if(sh < 0)
 	    sh = pm->height();
-    } else if(src->devType() == QInternal::Printer ) {
-	srcbitmap = (BitMap *)*GetGWorldPixMap((GWorldPtr)src->handle());
-
-	if(sw < 0)
-	    sw = src->metric(QPaintDeviceMetrics::PdmWidth);
-	if(sh < 0)
-	    sh = src->metric(QPaintDeviceMetrics::PdmHeight);
-    }
+    } 
 	
     switch ( dst->devType() ) {
     case QInternal::Printer: // OK, can blt to these
