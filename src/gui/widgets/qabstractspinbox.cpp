@@ -599,6 +599,7 @@ void QAbstractSpinBox::changeEvent(QEvent *e)
 {
     switch(e->type()) {
         case QEvent::StyleChange:
+            d->sizehintdirty = true;
             d->spinclicktimerinterval = style()->styleHint(QStyle::SH_SpinBox_ClickAutoRepeatRate, 0, this);
             d->resetState();
             break;
