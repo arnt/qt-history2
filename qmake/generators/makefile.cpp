@@ -1268,7 +1268,17 @@ MakefileGenerator::writeObj(QTextStream &t, const QString &obj, const QString &s
 	    comp = "QMAKE_RUN_CC";
 	    cimp = "QMAKE_RUN_CC_IMP";
 	}
-	if ( !project->isEmpty("OBJECTS_DIR") || project->variables()[cimp].isEmpty()) {
+	bool use_implicit_rule = !project->isEmpty(cimp);
+	if(use_implicit_rule) {
+	    if(!project->isEmpty("OBJECTS_DIR")) {
+		use_implicit_rule = FALSE;
+	    } else {
+		int dot = (*sit).findRev('.');
+		if(dot == -1 || ((*sit).left(dot) + Option::obj_ext != (*oit))) 
+		    use_implicit_rule = FALSE;
+	    }
+	}
+	if (!use_implicit_rule) {
 	    QString p = var(comp);
 	    p.replace(stringSrc, (*sit));
 	    p.replace(stringObj, (*oit));
@@ -1326,8 +1336,17 @@ MakefileGenerator::writeMocObj(QTextStream &t, const QString &obj, const QString
 	QString hdr = findMocSource((*sit));
 	t << (*oit) << ": " << (*sit) << " "
 	  << hdr << " " << findDependencies(hdr).join(" \\\n\t\t");
-	if ( !project->isEmpty("OBJECTS_DIR") || !project->isEmpty("MOC_DIR") ||
-	     project->isEmpty("QMAKE_RUN_CXX_IMP")) {
+	bool use_implicit_rule = !project->isEmpty("QMAKE_RUN_CXX_IMP");
+	if(use_implicit_rule) {
+	    if(!project->isEmpty("OBJECTS_DIR") || !project->isEmpty("MOC_DIR")) {
+		use_implicit_rule = FALSE;
+	    } else {
+		int dot = (*sit).findRev('.');
+		if(dot == -1 || ((*sit).left(dot) + Option::obj_ext != (*oit))) 
+		    use_implicit_rule = FALSE;
+	    }
+	}
+	if (!use_implicit_rule) {
 	    QString p = var("QMAKE_RUN_CXX");
 	    p.replace( regexpSrc, (*sit));
 	    p.replace( regexpObj, (*oit));
@@ -1419,8 +1438,17 @@ MakefileGenerator::writeImageObj(QTextStream &t, const QString &obj)
     for(QStringList::Iterator oit = objl.begin(); oit != objl.end(); oit++) {
         QString src(project->first("QMAKE_IMAGE_COLLECTION"));
 	t << (*oit) << ": " << src;
-	if ( !project->isEmpty("OBJECTS_DIR") || !project->isEmpty("UI_DIR") ||
-	     !project->isEmpty("UI_SOURCES_DIR") || project->isEmpty("QMAKE_RUN_CXX_IMP")) {
+	bool use_implicit_rule = !project->isEmpty("QMAKE_RUN_CXX_IMP");
+	if(use_implicit_rule) {
+	    if(!project->isEmpty("OBJECTS_DIR") || !project->isEmpty("UI_DIR") || !project->isEmpty("UI_SOURCES_DIR")) {
+		use_implicit_rule = FALSE;
+	    } else {
+		int dot = src.findRev('.');
+		if(dot == -1 || (src.left(dot) + Option::obj_ext != (*oit))) 
+		    use_implicit_rule = FALSE;
+	    }
+	}
+	if(!use_implicit_rule) {
 	    QString p = var("QMAKE_RUN_CXX");
 	    p.replace( stringSrc, src);
 	    p.replace( stringObj, (*oit));
@@ -1586,25 +1614,13 @@ MakefileGenerator::valList(const QStringList &varList)
 QStringList
 MakefileGenerator::createObjectList(const QString &var)
 {
-    QStringList ret;
-    QStringList &l = project->variables()[var];
-    QString dir, file;
+    QStringList &l = project->variables()[var], ret;
+    QString objdir;
     if(!project->variables()["OBJECTS_DIR"].isEmpty())
-	dir = project->first("OBJECTS_DIR");
+	objdir = project->first("OBJECTS_DIR");
     for(QStringList::Iterator it = l.begin(); it != l.end(); ++it) {
 	QFileInfo fi(Option::fixPathToLocalOS((*it)));
-	QString dirName;
-	if ( dir.isEmpty() ) {
-	    QString fName = Option::fixPathToTargetOS((*it), FALSE);
-	    int dl = fName.findRev(Option::dir_sep);
-	    if(dl != -1)
-		dirName = fName.left(dl + 1);
-	} else {
-	    dirName = dir;
-	}
-
-	file = dirName + fi.baseName(TRUE) + Option::obj_ext;
-	ret.append( file );
+	ret.append(objdir + fi.baseName(TRUE) + Option::obj_ext);
     }
     return ret;
 }
@@ -1915,6 +1931,30 @@ MakefileGenerator::specdir()
     return spec;
 }
 
+bool
+MakefileGenerator::openOutput(QFile &file) const
+{
+    {
+	QString outdir;
+	if(!file.name().isEmpty()) {
+	    QFileInfo fi(file);
+	    if(fi.isDir())
+		outdir = file.name() + QDir::separator();
+	}
+	if(!outdir.isEmpty() || file.name().isEmpty())
+	    file.setName(outdir + "Makefile");
+    }
+    if(QDir::isRelativePath(file.name())) 
+	file.setName(Option::output_dir + file.name()); //pwd when qmake was run
+    if(project->isEmpty("QMAKE_MAKEFILE"))
+	project->variables()["QMAKE_MAKEFILE"].append(file.name());
+    int slsh = file.name().findRev(Option::dir_sep);
+    if(slsh != -1)
+	createDir(file.name().left(slsh));
+    return file.open(IO_WriteOnly | IO_Translate);
+}
+
+
 
 //Factory thing
 #include "unixmake.h"
@@ -1961,27 +2001,4 @@ MakefileGenerator::create(QMakeProject *proj)
 	fprintf(stderr, "Unknown generator specified: %s\n", gen.latin1());
     }
     return mkfile;
-}
-
-bool
-MakefileGenerator::openOutput(QFile &file) const
-{
-    {
-	QString outdir;
-	if(!file.name().isEmpty()) {
-	    QFileInfo fi(file);
-	    if(fi.isDir())
-		outdir = file.name() + QDir::separator();
-	}
-	if(!outdir.isEmpty() || file.name().isEmpty())
-	    file.setName(outdir + "Makefile");
-    }
-    if(QDir::isRelativePath(file.name())) 
-	file.setName(Option::output_dir + file.name()); //pwd when qmake was run
-    if(project->isEmpty("QMAKE_MAKEFILE"))
-	project->variables()["QMAKE_MAKEFILE"].append(file.name());
-    int slsh = file.name().findRev(Option::dir_sep);
-    if(slsh != -1)
-	createDir(file.name().left(slsh));
-    return file.open(IO_WriteOnly | IO_Translate);
 }
