@@ -82,22 +82,29 @@ Q_CORE_EXPORT void qt_mac_to_pascal_string(QString s, Str255 str, TextEncoding e
 {
     if(len == -1)
         len = s.length();
-
+#if 0
     UnicodeMapping mapping;
-    UnicodeToTextInfo info;
-    mapping.unicodeEncoding = CreateTextEncoding(kTextEncodingUnicodeDefault, kTextEncodingDefaultVariant,
+    mapping.unicodeEncoding = CreateTextEncoding(kTextEncodingUnicodeDefault,
+                                                 kTextEncodingDefaultVariant,
                                                  kUnicode16BitFormat);
-    mapping.otherEncoding = (encoding ? encoding : mapping.unicodeEncoding);
+    mapping.otherEncoding = (encoding ? encoding : );
     mapping.mappingVersion = kUnicodeUseLatestMapping;
 
-    if(CreateUnicodeToTextInfo(&mapping, &info) != noErr) {
-        qDebug("Qt: internal: Unexpected condition reached %s:%d", __FILE__, __LINE__);
+    UnicodeToTextInfo info;
+    OSStatus err = CreateUnicodeToTextInfo(&mapping, &info);
+    if(err != noErr) {
+        qDebug("Qt: internal: Unable to create pascal string '%s'::%d [%ld]", 
+               s.left(len).latin1(), (int)encoding, err);
         return;
     }
     const int unilen = len * 2;
     const UniChar *unibuf = (UniChar *)s.unicode();
     ConvertFromUnicodeToPString(info, unilen, unibuf, str);
     DisposeUnicodeToTextInfo(&info);
+#else
+    Q_UNUSED(encoding);
+    CFStringGetPascalString(QCFString(s), str, 256, CFStringGetSystemEncoding());
+#endif
 }
 
 Q_CORE_EXPORT QString qt_mac_from_pascal_string(const Str255 pstr) {
