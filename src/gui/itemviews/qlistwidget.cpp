@@ -661,16 +661,17 @@ void QListWidgetPrivate::emitItemChanged(const QModelIndex &topLeft, const QMode
 /*!
     \fn void QListWidget::selectionChanged()
 
-    This signal is emitted whenever the selection changes. \sa selectedItems().
+    This signal is emitted whenever the selection changes.
 
+    \sa selectedItems() isSelected()
 */
 
 /*!
     \fn void QListWidget::itemEntered(QListWidgetItem *item, Qt::ButtonState state)
 
-    This signal is emitted the mouse cursor enters an item. The \a
-    item is the item entered and \a state specifies the mouse button
-    and any modifiers pressed as the item was entered (see
+    This signal is emitted when the mouse cursor enters an item. The
+    \a item is the item entered and \a state specifies the mouse
+    button and any modifiers pressed as the item was entered (see
     \l{Qt::ButtonState}). This signal is only emitted when
     mouseTracking is turned on, or when a mouse button is pressed
     while moving into an item.
@@ -681,7 +682,7 @@ void QListWidgetPrivate::emitItemChanged(const QModelIndex &topLeft, const QMode
 
     This signal is emitted when the widget is about to show a context
     menu. The \a menu is the menu about to be shown, and the \a item
-    is the clicked item as the context menu was called for.
+    is the clicked item the context menu was called for.
 
     \sa QMenu::addAction()
 */
@@ -867,7 +868,7 @@ QList<QListWidgetItem*> QListWidget::selectedItems() const
 }
 
 /*!
-  Finds items that matches the \a text, using the criteria given in the \a flags.
+  Finds items that matches the \a text, using the criteria given in the \a flags (see {QAbstractItemModel::MatchFlags}).
 */
 
 QList<QListWidgetItem*> QListWidget::findItems(const QString &text,

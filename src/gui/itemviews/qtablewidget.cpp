@@ -441,22 +441,18 @@ bool QTableWidgetItem::operator<(const QTableWidgetItem &other) const
 
 /*!
     \class QTableWidget qtablewidget.h
-    \brief The QTableWidget class provides a table view that uses the
-    predefined QTableModel model.
+    \brief The QTableWidget class provides an item-based table view with a default model.
 
     \ingroup model-view
     \mainclass
 
     If you want a table that uses your own data model you should
-    subclass QTableView rather than this class.
+    use QTableView rather than this class.
 
     Items are set with setItem(), or with setText() or setIcon();
     these last two are convenience functions that create a QTableItem
-    for you. The label and icon for a given row is set with
-    setRowText() and setRowIconSet(), and for a given column with
-    setColumnText() and setColumnIconSet(). The number of rows is set
-    with setRowCount(), and the number of columns with
-    setColumnCount().
+    for you. The number of rows is set with setRowCount(), and the
+    number of columns with setColumnCount().
 
     \sa \link model-view-programming.html Model/View Programming\endlink
 */
@@ -580,16 +576,17 @@ void QTableWidgetPrivate::emitItemChanged(const QModelIndex &topLeft, const QMod
 /*!
     \fn void QTableWidget::selectionChanged()
 
-    This signal is emitted whenever the selection changes. \sa selectedItems().
+    This signal is emitted whenever the selection changes.
 
+    \sa selectedItems() isSelected()
 */
 
 /*!
     \fn void QTableWidget::itemEntered(QTableWidgetItem *item, Qt::ButtonState state)
 
-    This signal is emitted the mouse cursor enters an item. The \a
-    item is the item entered and \a state specifies the mouse button
-    and any modifiers pressed as the item was entered (see
+    This signal is emitted when the mouse cursor enters an item. The
+    \a item is the item entered and \a state specifies the mouse
+    button and any modifiers pressed as the item was entered (see
     \l{Qt::ButtonState}). This signal is only emitted when
     mouseTracking is turned on, or when a mouse button is pressed
     while moving into an item.
@@ -600,7 +597,7 @@ void QTableWidgetPrivate::emitItemChanged(const QModelIndex &topLeft, const QMod
 
     This signal is emitted when the widget is about to show a context
     menu. The \a menu is the menu about to be shown, and the \a item is the
-    clicked item as the context menu was called for.
+    clicked item the context menu was called for.
 
     \sa QMenu::addAction()
 */
@@ -889,7 +886,7 @@ QList<QTableWidgetItem*> QTableWidget::selectedItems() const
 }
 
 /*!
-  Finds items that matches the \a text, using the criteria given in the \a flags.
+  Finds items that matches the \a text, using the criteria given in the \a flags (see {QAbstractItemModel::MatchFlags}).
 */
 
 QList<QTableWidgetItem*> QTableWidget::findItems(const QString &text,
