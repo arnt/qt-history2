@@ -54,6 +54,8 @@ export TMAKEPATH=$TMAKEDIR/lib/linux-qws-g++
    To run Qt/Embedded, you need write access to the framebuffer device
    /dev/fb0. 
 
+   You also need read access to the mouse device. (Note that /dev/mouse is
+   normally a symbolic link; the actual mouse device must be readable.)
 
 5. Enable framebuffer support
 
@@ -92,7 +94,16 @@ export TMAKEPATH=$TMAKEDIR/lib/linux-qws-g++
    	./start-demo
   
 
-7. Troubleshooting
+7. Miscellaneous troubleshooting and known bugs
+
+  To kill gpm, run the following command as root:
+  
+	gpm -k
+
+  In some cases, if the server does not work, it will work when run as root.
+
+  Some example programs may not compile with gcc 2.95.
+
 
   Show processes using the framebuffer:
 
@@ -122,4 +133,3 @@ export TMAKEPATH=$TMAKEDIR/lib/linux-qws-g++
    unneeded features. The file qt-embedded/src/tools/qfeatures.h
    defines macros of the form QT_FEATURE_XXXX. To remove a feature
    from Qt/Embedded, set the macro to 0.
-
