@@ -38,7 +38,7 @@ int QAccessibleMenu::childCount() const
 
 QRect QAccessibleMenu::rect(int child) const
 {
-    if (!child || child >= childCount())
+    if (!child || child > childCount())
         return QAccessibleWidget::rect(child);
 
     QRect r = menu()->actionGeometry(menu()->actions()[child - 1]);
