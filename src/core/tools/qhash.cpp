@@ -232,7 +232,13 @@ void QHashData::free()
 
 /*!
     \class QHash
-    \brief The QHash class is a generic container that provides a hash-table-based dictionary.
+    \brief The QHash class is a template class that provides a hash-table-based dictionary.
+
+    \ingroup qtl
+    \ingroup tools
+    \ingroup shared
+    \mainclass
+    \reentrant
 
     QHash\<Key, T\> is one of Qt's generic \l{container classes}. It
     stores (key, value) pairs and provides very fast lookup of the
@@ -318,8 +324,11 @@ void QHashData::free()
     in the code above.
 
     If you want to navigate through all the (key, value) pairs stored
-    in a QHash, you can use an iterator. Here's how to iterate over a
-    QHash<QString, int> using a \l{Java-style iterator}:
+    in a QHash, you can use an iterator. QHash provides both
+    \l{Java-style iterators} (QHashIterator and QHashMutableIterator)
+    and \l{STL-style iterators} (QHash::const_iterator and
+    QHash::iterator). Here's how to iterate over a QHash<QString,
+    int> using a Java-style iterator:
 
     \code
 	QHashIterator<QString, int> it(hash);
@@ -329,7 +338,7 @@ void QHashData::free()
         }
     \endcode
 
-    Here's the same code, but using an \l{STL-style iterator} this time:
+    Here's the same code, but using an STL-style iterator this time:
 
     \code
 	QHash<QString, int>::const_iterator it = hash.constBegin();
@@ -363,8 +372,21 @@ void QHashData::free()
 	    cout << values.at(i) << endl;
     \endcode
 
-    Alternatively, you can call find() to get the STL-style iterator
-    for the first item with a key and iterate from there:
+    The items that share the same key are available from most
+    recently to least recently inserted.
+
+    A more efficient approach is to use QHashIterator::findNextKey() or
+    QHashMutableIterator::findNextKey():
+
+    \code
+	QHashIterator<QString, int> it(hash);
+        while (it.findNextKey("plenty"))
+	    cout << it.value() << endl;
+    \endcode
+
+    If you prefer the STL-style iterators, you can call find() to get
+    the iterator for the first item with a key and iterate from
+    there:
 
     \code
 	QHash<QString, int>::iterator it = hash.find("plenty");
@@ -373,9 +395,6 @@ void QHashData::free()
 	    ++it;
         }
     \endcode
-
-    The items that share the same key are available from most
-    recently to least recently inserted.
 
     If you only need to extract the values from a hash (not the keys),
     you can also use \l{foreach}:
@@ -459,7 +478,7 @@ void QHashData::free()
     necessary to obtain good performance. You can also call capacity()
     to retrieve the hash table's size.
 
-    \sa QMap, QHashIterator, QHashMutableIterator
+    \sa QHashIterator, QHashMutableIterator, QMap
 */
 
 /*! \fn QHash::QHash()
@@ -490,9 +509,6 @@ void QHashData::free()
 /*! \fn QHash<Key, T> &QHash::operator=(const QHash<Key, T> &other)
 
     Assigns \a other to this hash and returns a reference to this hash.
-
-    This operation occurs in \l{constant time}, because QHash is
-    \l{implicitly shared}.
 */
 
 /*! \fn bool QHash::operator==(const QHash<Key, T> &other) const

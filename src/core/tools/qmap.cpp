@@ -141,7 +141,13 @@ void QMapData::dump()
 
 /*!
     \class QMap
-    \brief The QMap class is a generic container that provides a skip-list-based dictionary.
+    \brief The QMap class is a template class that provides a skip-list-based dictionary.
+
+    \ingroup qtl
+    \ingroup tools
+    \ingroup shared
+    \mainclass
+    \reentrant
 
     QMap\<Key, T\> is one of Qt's generic \l{container classes}. It
     stores (key, value) pairs and provides fast lookup of the
@@ -227,18 +233,21 @@ void QMapData::dump()
     in the code above.
 
     If you want to navigate through all the (key, value) pairs stored
-    in a QMap, you can use an iterator. Here's how to iterate over a
-    QMap<QString, int> using a \l{Java-style iterator}:
+    in a QMap, you can use an iterator. QMap provides both
+    \l{Java-style iterators} (QMapIterator and QMapMutableIterator)
+    and \l{STL-style iterators} (QMap::const_iterator and
+    QMap::iterator). Here's how to iterate over a QMap<QString, int>
+    using a Java-style iterator:
 
     \code
-	QMapIterator<QString, int> it(map);
+	QMapIterator<QString, int> it(hash);
         while (it.hasNext()) {
 	    it.next();
             cout << it.key() << ": " << it.value() << endl;
         }
     \endcode
 
-    Here's the same code, but using an \l{STL-style iterator} this time:
+    Here's the same code, but using an STL-style iterator this time:
 
     \code
 	QMap<QString, int>::const_iterator it = map.constBegin();
@@ -272,8 +281,21 @@ void QMapData::dump()
 	    cout << values.at(i) << endl;
     \endcode
 
-    Alternatively, you can call find() to get the STL-style iterator
-    for the first item with a key and iterate from there:
+    The items that share the same key are available from most
+    recently to least recently inserted.
+
+    A more efficient approach is to use QMapIterator::findNextKey() or
+    QMapMutableIterator::findNextKey():
+
+    \code
+	QMapIterator<QString, int> it(map);
+        while (it.findNextKey("plenty"))
+	    cout << it.value() << endl;
+    \endcode
+
+    If you prefer the STL-style iterators, you can call find() to get
+    the iterator for the first item with a key and iterate from
+    there:
 
     \code
 	QMap<QString, int>::iterator it = map.find("plenty");
@@ -282,9 +304,6 @@ void QMapData::dump()
 	    ++it;
         }
     \endcode
-
-    The items that share the same key are available from most
-    recently to least recently inserted.
 
     If you only need to extract the values from a map (not the keys),
     you can also use \l{foreach}:
@@ -302,11 +321,12 @@ void QMapData::dump()
     you can clear the entire map using clear().
 
     QMap's key and value data types must be \l{assignable data
-    types}. You cannot, for example, store a QWidget as a value;
-    instead, store a QWidget *. In addition, QMap's key type must
-    provide operator<(). QMap uses it to keep its items sorted, and
-    assumes that two keys \c x and \c y are equal if neither \c{x <
-    y} nor \c{y < x} is true.
+    types}. This covers most data types you are likely to encounter,
+    but the compiler won't let you, for example, store a QWidget as a
+    value; instead, store a QWidget *. In addition, QMap's key type
+    must provide operator<(). QMap uses it to keep its items sorted,
+    and assumes that two keys \c x and \c y are equal if neither \c{x
+    < y} nor \c{y < x} is true.
 
     Example:
     \code
@@ -338,7 +358,7 @@ void QMapData::dump()
     In the example, we start by comparing the employees' names. If
     they're equal, we compare their dates of birth to break the tie.
 
-    \sa QHash
+    \sa QMapIterator, QMapMutableIterator, QHash
 */
 
 /*! \fn QMap::QMap()
@@ -369,9 +389,6 @@ void QMapData::dump()
 /*! \fn QMap<Key, T> &QMap::operator=(const QMap<Key, T> &other)
 
     Assigns \a other to this map and returns a reference to this map.
-
-    This operation occurs in \l{constant time}, because QMap is
-    \l{implicitly shared}.
 */
 
 /*! \fn bool QMap::operator==(const QMap<Key, T> &other) const
