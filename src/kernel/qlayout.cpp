@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qlayout.cpp#65 $
+** $Id: //depot/qt/main/src/kernel/qlayout.cpp#66 $
 **
 ** Implementation of layout classes
 **
@@ -767,10 +767,10 @@ void QGridLayout::init( int nRows, int nCols )
 
 /*!
   Adds \a item to the end of this layout.
-  
+
   \warning This function is not yet finished.
 */
-  
+
 void QGridLayout::addItem( QLayoutItem *item )
 {
     int r =0;
@@ -1111,14 +1111,14 @@ void QBoxLayout::addSpacing( int size )
     if ( horz( dir ) ) {
 	int n = numCols();
 	expand( 1, n+1 );
-	QLayoutItem *b = new QSpacerItem( size, 0, QSizePolicy::Minimum,
+	QLayoutItem *b = new QSpacerItem( size, 0, QSizePolicy::Fixed,
 					  QSizePolicy::Minimum );
 	QGridLayout::add( b, 0, n ) ;
     } else {
 	int n = numRows();
 	expand( n+1, 1 );
 	QLayoutItem *b = new QSpacerItem( 0, size, QSizePolicy::Minimum,
-					  QSizePolicy::Minimum );
+					  QSizePolicy::Fixed );
 	QGridLayout::add( b, n, 0 ) ;
     }
 }
