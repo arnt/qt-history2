@@ -36,6 +36,8 @@
 
 #include "qsqlwidget.h"
 
+#ifndef QT_NO_SQL
+
 QSqlWidget::QSqlWidget( QWidget *parent, const char *name )
     : QWidget( parent, name )
 {
@@ -60,7 +62,7 @@ void QSqlWidget::firstRecord()
 {
     QSqlNavigator::firstRecord();
 }
- 
+
 void QSqlWidget::lastRecord()
 {
     QSqlNavigator::lastRecord();
@@ -80,3 +82,5 @@ void QSqlWidget::clearForm()
 {
     QSqlNavigator::clearForm();
 }
+
+#endif

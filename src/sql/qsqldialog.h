@@ -51,15 +51,14 @@ public:
     QSqlDialog( QWidget *parent = 0, const char *name = 0, bool modal = FALSE, WFlags f = 0 );
 
 public slots:
-    void insertRecord();
-    void updateRecord();
-    void deleteRecord();
-    void firstRecord();
-    void lastRecord();
-    void nextRecord();
-    void prevRecord();
-    void clearForm();
-
+    virtual void insertRecord();
+    virtual void updateRecord();
+    virtual void deleteRecord();
+    virtual void firstRecord();
+    virtual void lastRecord();
+    virtual void nextRecord();
+    virtual void prevRecord();
+    virtual void clearForm();
 };
 
 

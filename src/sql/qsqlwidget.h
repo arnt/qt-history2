@@ -34,9 +34,10 @@
 **
 **********************************************************************/
 
-
 #ifndef QSQLWIDGET_H
 #define QSQLWIDGET_H
+
+#ifndef QT_NO_SQL
 
 #ifndef QT_H
 #include "qwidget.h"
@@ -46,21 +47,22 @@
 class Q_EXPORT QSqlWidget : public QWidget, public QSqlNavigator
 {
     Q_OBJECT
-    
+
 public:
     QSqlWidget( QWidget *parent = 0, const char *name = 0 );
-    
+
 public slots:
-    void insertRecord();
-    void updateRecord();
-    void deleteRecord();
-    void firstRecord();
-    void lastRecord();
-    void nextRecord();
-    void prevRecord();
-    void clearForm();
+    virtual void insertRecord();
+    virtual void updateRecord();
+    virtual void deleteRecord();
+    virtual void firstRecord();
+    virtual void lastRecord();
+    virtual void nextRecord();
+    virtual void prevRecord();
+    virtual void clearForm();
     
 };
-    
 
+
+#endif
 #endif
