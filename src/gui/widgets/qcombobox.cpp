@@ -1250,7 +1250,7 @@ void QComboBox::popup()
     }
 
     d->container->setGeometry(listRect);
-    itemView()->ensureVisible(itemView()->currentIndex());
+    itemView()->scrollTo(itemView()->currentIndex());
     d->container->raise();
     d->container->show();
     itemView()->setFocus();

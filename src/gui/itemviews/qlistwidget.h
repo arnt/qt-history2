@@ -151,7 +151,7 @@ public:
     bool isItemVisible(const QListWidgetItem *item) const;
 
 public slots:
-    void ensureItemIsVisible(const QListWidgetItem *item);
+    void scrollToItem(const QListWidgetItem *item);
     void clear();
 
 signals:

@@ -858,7 +858,7 @@ QRect QTableView::viewportRectForIndex(const QModelIndex &index) const
     Makes sure that the given \a item is visible in the table view,
     scrolling if necessary.
 */
-void QTableView::ensureVisible(const QModelIndex &index)
+void QTableView::scrollTo(const QModelIndex &index)
 {
     // check if we really need to do anything
     if (index.parent() != rootIndex())

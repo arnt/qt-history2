@@ -1053,12 +1053,12 @@ bool QListWidget::isItemVisible(const QListWidgetItem *item) const
   Scrolls the view if necessary to ensure that the \a item is visible.
 */
 
-void QListWidget::ensureItemIsVisible(const QListWidgetItem *item)
+void QListWidget::scrollToItem(const QListWidgetItem *item)
 {
     Q_ASSERT(item);
     QModelIndex index = d->model()->index(const_cast<QListWidgetItem*>(item));
     Q_ASSERT(index.isValid());
-    QListView::ensureVisible(index);
+    QListView::scrollTo(index);
 }
 
 /*!

@@ -118,7 +118,7 @@ void QAbstractItemViewPrivate::init()
 
     The root item is returned by rootIndex(), and the current item by
     currentIndex(). To make sure that an item is visible use
-    ensureVisible().
+    scrollTo().
 
     Some of QAbstractItemView's functions are concerned with
     scrolling, for example setHorizontalFactor() and
@@ -237,7 +237,7 @@ void QAbstractItemViewPrivate::init()
 */
 
 /*!
-    \fn void QAbstractItemView::ensureVisible(const QModelIndex &index) = 0
+    \fn void QAbstractItemView::scrollTo(const QModelIndex &index) = 0
 
     Scrolls the view if necessary to ensure that the item at \a index
     is visible.
@@ -1792,7 +1792,7 @@ void QAbstractItemView::currentChanged(const QModelIndex &current, const QModelI
     }
 
     if (current.isValid()) {
-        ensureVisible(current);
+        scrollTo(current);
         edit(current, CurrentChanged, 0);
     }
 }

@@ -121,7 +121,7 @@ public:
     int keyboardInputInterval() const;
 
     virtual QRect viewportRectForIndex(const QModelIndex &index) const = 0;
-    virtual void ensureVisible(const QModelIndex &index) = 0;
+    virtual void scrollTo(const QModelIndex &index) = 0;
     virtual QModelIndex indexAt(int x, int y) const = 0;
     inline QModelIndex indexAt(const QPoint &p) const { return indexAt(p.x(), p.y()); }
 

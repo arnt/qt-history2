@@ -504,7 +504,7 @@ QRect QListView::viewportRectForIndex(const QModelIndex &index) const
 /*!
   \reimp
 */
-void QListView::ensureVisible(const QModelIndex &index)
+void QListView::scrollTo(const QModelIndex &index)
 {
     QRect area = d->viewport->rect();
     QRect rect = viewportRectForIndex(index);

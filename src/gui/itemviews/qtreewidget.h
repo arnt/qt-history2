@@ -178,7 +178,7 @@ public:
     void setItemExpanded(const QTreeWidgetItem *item, bool expand);
 
 public slots:
-    void ensureItemIsVisible(const QTreeWidgetItem *item);
+    void scrollToItem(const QTreeWidgetItem *item);
     void expandItem(const QTreeWidgetItem *item);
     void collapseItem(const QTreeWidgetItem *item);
     void clear();

@@ -1457,12 +1457,12 @@ bool QTableWidget::isItemVisible(const QTableWidgetItem *item) const
   Scrolls the view if necessary to ensure that the \a item is visible.
 */
 
-void QTableWidget::ensureItemIsVisible(const QTableWidgetItem *item)
+void QTableWidget::scrollToItem(const QTableWidgetItem *item)
 {
     Q_ASSERT(item);
     QModelIndex index = d->model()->index(const_cast<QTableWidgetItem*>(item));
     Q_ASSERT(index.isValid());
-    QTableView::ensureVisible(index);
+    QTableView::scrollTo(index);
 }
 
 QTableWidgetItemCreatorBase *QTableWidget::itemCreator() const

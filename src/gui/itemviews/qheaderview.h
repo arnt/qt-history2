@@ -144,7 +144,7 @@ protected:
     void rowsInserted(const QModelIndex &parent, int start, int end);
 
     QRect viewportRectForIndex(const QModelIndex &index) const;
-    void ensureVisible(const QModelIndex &index);
+    void scrollTo(const QModelIndex &index);
 
     QModelIndex indexAt(int x, int y) const;
     bool isIndexHidden(const QModelIndex &index) const;

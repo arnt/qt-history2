@@ -75,7 +75,7 @@ public:
     int column() const;
 
     QRect viewportRectForIndex(const QModelIndex &index) const;
-    void ensureVisible(const QModelIndex &index);
+    void scrollTo(const QModelIndex &index);
     QModelIndex indexAt(int x, int y) const;
 
     void doItemsLayout();

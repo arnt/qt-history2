@@ -204,7 +204,7 @@ public:
     bool isItemVisible(const QTableWidgetItem *item) const;
 
 public slots:
-    void ensureItemIsVisible(const QTableWidgetItem *item);
+    void scrollToItem(const QTableWidgetItem *item);
     void insertRow(int row);
     void insertColumn(int column);
     void removeRow(int row);
