@@ -65,8 +65,7 @@ public:
     QSlider(int minValue, int maxValue, int pageStep, int value, Orientation orientation,
                       QWidget *parent = 0, const char *name = 0);
     inline QT_COMPAT int sliderStart() const { return sliderPosition(); }
-    inline QT_COMPAT QRect sliderRect() const
-    { return style().querySubControlMetrics(QStyle::CC_Slider, this, QStyle::SC_SliderHandle); }
+    QT_COMPAT QRect sliderRect() const;
 public slots:
     inline QT_COMPAT void addStep() { triggerAction(SliderSingleStepAdd); };
     inline QT_COMPAT void subtractStep() { triggerAction(SliderSingleStepSub); };

@@ -414,4 +414,11 @@ int QSlider::tickInterval() const
     return d->tickInterval;
 }
 
+#ifdef QT_COMPAT
+QRect QSlider::sliderRect() const
+{ 
+    return style().querySubControlMetrics(QStyle::CC_Slider, this, QStyle::SC_SliderHandle);
+}
+#endif
+
 #endif
