@@ -84,7 +84,7 @@ foreach $file ( @ARGV ) {
 		    (?:$real_mark|$noop_mark)
 		    \s*
 		    # The parameter
-		    \(\s*((?:"(?:[^"]|[^\\]\\")+"\s*)+)\)
+		    \(\s*((?:"(?:[^"]|[^\\]\\")*"\s*)+)\)
 		)
 	      |
 		# $4,$5 - two-argument msgid
@@ -98,7 +98,7 @@ foreach $file ( @ARGV ) {
 			\s*("[^\"]*")
 			\s*,\s*
 			# The msgid parameter
-			\s*((?:\"(?:[^"]|[^\\]\\")+"\s*)+)
+			\s*((?:\"(?:[^"]|[^\\]\\")*"\s*)+)
 		    \)
 		)
 	      |
@@ -110,7 +110,7 @@ foreach $file ( @ARGV ) {
 		    (?:$real_mark)
 		    \s*
 		    # The parameter
-		    \(\s*((?:"(?:[^"]|[^\\]\\")+"\s*)+)\)
+		    \(\s*((?:"(?:[^"]|[^\\]\\")*"\s*)+)\)
 		)
 	    )/gsx )
     {
@@ -155,7 +155,7 @@ foreach $file ( @ARGV ) {
 }
 
 for $scoped_msgid ( sort keys %location ) {
-    ($scope,$msgid) = $scoped_msgid =~ m/([^:]*)::(.*)/;
-    ($file,$line) = $location{$scoped_msgid} =~ m/([^:]*):(.*)/;
+    ($scope,$msgid) = $scoped_msgid =~ m/([^:]*)::(.*)/s;
+    ($file,$line) = $location{$scoped_msgid} =~ m/([^:]*):(.*)/s;
     outmsg($file,$line,$scope,$msgid);
 }
