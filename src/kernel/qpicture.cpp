@@ -719,25 +719,25 @@ bool QPicture::cmd( int c, QPainter *, QPDevCmdParam *p )
   Use the QPaintDeviceMetrics class instead.
 
   A picture has the following hard coded values:
-  width=640, height=480, dpi = 72, numcolors=16777216 and depth=24.
+  dpi = 72, numcolors=16777216 and depth=24.
 */
 
 int QPicture::metric( int m ) const
 {
     int val;
     switch ( m ) {
-	// ### ### ### ### ### ### hard coded value!!!
+	// ### hard coded dpi and color depth values !
 	case QPaintDeviceMetrics::PdmWidth:
-	    val = 640;
+	    val = brect.width();
 	    break;
 	case QPaintDeviceMetrics::PdmHeight:
-	    val = 480;
+	    val = brect.height();
 	    break;
 	case QPaintDeviceMetrics::PdmWidthMM:
-	    val = 225;
+	    val = int(25.4/72.0*brect.width());
 	    break;
 	case QPaintDeviceMetrics::PdmHeightMM:
-	    val = 169;
+	    val = int(25.4/72.0*brect.height());
 	    break;
 	case QPaintDeviceMetrics::PdmDpiX:
 	    val = 72;
