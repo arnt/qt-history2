@@ -375,8 +375,8 @@ myprot. So if you want to use it, you would do something like
 \endcode
 
 Finally as example for a network implementation you could look at the implementation
-of QFtp (in qt/extenstions/network/src/qftp.cpp) or at the example in 
-qt/extenstions/network/examples/networkprotocol.
+of QFtp (in qt/extenstions/network/src/qftp.cpp) or at the example in
+qt/extenstions/network/examples/networkprotocol/nntp.cpp.
 
 <h2>Error Handling</h2>
 

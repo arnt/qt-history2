@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id$
+** $Id: //depot/qt/main/src/kernel/qnetworkprotocol.h#32 $
 **
 ** Implementation of QNetworkProtocol class
 **
@@ -129,7 +129,7 @@ public:
 
     QUrlOperator *url() const;
     QNetworkOperation *operationInProgress() const;
-    void clearOperationQueue();
+    virtual void clearOperationQueue();
 
 signals:
     void data( const QByteArray &, QNetworkOperation *res );
