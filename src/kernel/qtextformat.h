@@ -106,12 +106,14 @@ public:
     float floatProperty(int propertyId, float defaultValue = 0.0) const;
     QString stringProperty(int propertyId, const QString &defaultValue = QString::null) const;
     QByteArray binaryProperty(int propertyId, QByteArray defaultValue = QByteArray() ) const;
+    int formatReferenceProperty(int propertyId, int defaultValue = -1) const;
 
     void setProperty(int propertyId, bool value);
     void setProperty(int propertyId, int value);
     void setProperty(int propertyId, float value);
     void setProperty(int propertyId, const QString &value);
     void setProperty(int propertyId, const QByteArray &value);
+    void setFormatReferenceProperty(int propertyId, int value);
 
     bool hasProperty(int propertyId) const;
     PropertyType propertyType(int propertyId) const;
@@ -214,9 +216,9 @@ public:
     { return intProperty(BlockAlignment); }
 
     void setListFormatIndex(int idx)
-    { setProperty(BlockListFormatIndex, idx); }
+    { setFormatReferenceProperty(BlockListFormatIndex, idx); }
     int listFormatIndex() const
-    { return intProperty(BlockListFormatIndex, -1); }
+    { return formatReferenceProperty(BlockListFormatIndex); }
 
     void setTopMargin(int margin)
     { setProperty(BlockTopMargin, margin); }

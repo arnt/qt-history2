@@ -324,6 +324,16 @@ QByteArray QTextFormat::binaryProperty(int propertyId, QByteArray defaultValue) 
     return prop.binaryValue();
 }
 
+int QTextFormat::formatReferenceProperty(int propertyId, int defaultValue) const
+{
+    const QTextFormatProperty prop = d->property(propertyId, QTextFormat::FormatReference);
+
+    if (!prop.isValid())
+	return defaultValue;
+
+    return prop.data.intValue;
+}
+
 void QTextFormat::setProperty(int propertyId, bool value)
 {
     d->setProperty(propertyId, value);
@@ -347,6 +357,14 @@ void QTextFormat::setProperty(int propertyId, const QString &value)
 void QTextFormat::setProperty(int propertyId, const QByteArray &value)
 {
     d->setProperty(propertyId, value);
+}
+
+void QTextFormat::setFormatReferenceProperty(int propertyId, int value)
+{
+    QTextFormatProperty prop;
+    prop.type = FormatReference;
+    prop.data.intValue = value;
+    d->setProperty(propertyId, prop);
 }
 
 bool QTextFormat::hasProperty(int propertyId) const
