@@ -498,9 +498,9 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
 	    t << "\n\t"
 	      << "-$(DEL_FILE) $(TARGET) $(TARGET0) $(TARGET1) $(TARGET2)" << "\n\t"
 	      << var("QMAKE_LINK_SHLIB_CMD") << "\n\t";
-	    t << varGlue("QMAKE_LN_SHLIB",""," "," $(TARGET) $(TARGET0)")  << "\n\t"
-	      << varGlue("QMAKE_LN_SHLIB",""," "," $(TARGET) $(TARGET1)") << "\n\t"
-	      << varGlue("QMAKE_LN_SHLIB",""," "," $(TARGET) $(TARGET2)");
+	    t << varGlue("QMAKE_LN_SHLIB","-"," "," $(TARGET) $(TARGET0)")  << "\n\t"
+	      << varGlue("QMAKE_LN_SHLIB","-"," "," $(TARGET) $(TARGET1)") << "\n\t"
+	      << varGlue("QMAKE_LN_SHLIB","-"," "," $(TARGET) $(TARGET2)");
 	    if(!destdir.isEmpty())
 		t << "\n\t"
 		  << "-$(DEL_FILE) " << var("DESTDIR") << "$(TARGET)\n\t"
@@ -998,7 +998,8 @@ void UnixMakefileGenerator::init2()
 	    }
 	    project->variables()["TARGET"] = project->variables()["TARGET_x.y.z"];
 	}
-	project->variables()["QMAKE_LN_SHLIB"].append("-ln -s");
+	if(project->isEmpty("QMAKE_LN_SHLIB"))
+	    project->variables()["QMAKE_LN_SHLIB"].append("ln -s");
 	project->variables()["DESTDIR_TARGET"].append("$(TARGET)");
 	if ( !project->variables()["DESTDIR"].isEmpty() )
 	    project->variables()["DESTDIR_TARGET"].first().prepend(project->first("DESTDIR"));
