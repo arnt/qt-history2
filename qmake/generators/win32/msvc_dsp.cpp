@@ -362,6 +362,8 @@ DspMakefileGenerator::init()
 	project->variables()["QMAKE_APP_FLAG"].append("1");
     else if(project->first("TEMPLATE") == "vclib")
 	project->variables()["QMAKE_LIB_FLAG"].append("1");
+    if ( project->variables()["QMAKESPEC"].isEmpty() )
+	project->variables()["QMAKESPEC"].append( getenv("QMAKESPEC") );
 
     project->variables()["QMAKE_ORIG_TARGET"] = project->variables()["TARGET"];
     
