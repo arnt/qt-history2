@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_win.cpp#96 $
+** $Id: //depot/qt/main/src/kernel/qpainter_win.cpp#97 $
 **
 ** Implementation of QPainter class for Win32
 **
@@ -1698,7 +1698,7 @@ void QPainter::drawPixmap( int x, int y, const QPixmap &pixmap,
 {
     if ( !isActive() || pixmap.isNull() )
 	return;
-    bool nat_xf = qt_winver == WV_NT && txop == TxRotShear;
+    bool nat_xf = qt_winver == WV_NT && txop == TxRotShear && 0;
     if ( sw < 0 )
 	sw = pixmap.width() - sx;
     if ( sh < 0 )
@@ -1724,20 +1724,29 @@ void QPainter::drawPixmap( int x, int y, const QPixmap &pixmap,
 	return;
 
     if ( testf(ExtDev|VxF|WxF) ) {
-	if ( testf(ExtDev) ) {
-	    if ( !hdc && (sx != 0 || sy != 0 ||
-			  sw != pixmap.width() || sh != pixmap.height()) ) {
+	if ( testf(ExtDev) || (txop == TxScale && pixmap.mask()) ||
+	     txop == TxRotShear ) {
+	    if ( sx != 0 || sy != 0 ||
+		 sw != pixmap.width() || sh != pixmap.height() ) {
 		QPixmap tmp( sw, sh, pixmap.depth() );
-		bitBlt( &tmp, 0, 0, &pixmap, sx, sy, sw, sh );
+		bitBlt( &tmp, 0, 0, &pixmap, sx, sy, sw, sh, CopyROP, TRUE );
+		if ( pixmap.mask() ) {
+		    QBitmap mask( sw, sh );
+		    bitBlt( &mask, 0, 0, pixmap.mask(), sx, sy, sw, sh,
+			    CopyROP, TRUE );
+		    tmp.setMask( mask );
+		}
 		drawPixmap( x, y, tmp );
 		return;
 	    }
-	    QPDevCmdParam param[2];
-	    QPoint p(x,y);
-	    param[0].point  = &p;
-	    param[1].pixmap = &pixmap;
-	    if ( !pdev->cmd(PDC_DRAWPIXMAP,this,param) || !hdc )
-		return;
+	    if ( testf(ExtDev) ) {
+		QPDevCmdParam param[2];
+		QPoint p(x,y);
+		param[0].point  = &p;
+		param[1].pixmap = &pixmap;
+		if ( !pdev->cmd(PDC_DRAWPIXMAP,this,param) || !hdc )
+		    return;
+	    }
 	}
 	if ( nat_xf )
 	    nativeXForm( TRUE );
@@ -1776,35 +1785,36 @@ void QPainter::drawPixmap( int x, int y, const QPixmap &pixmap,
     if ( tmp_dc )
 	pm->allocMemDC();
 
-    if ( mask ) {
-	if ( qt_winver == WV_NT ) {
-	    MaskBlt( hdc, x, y, sw, sh, pm->handle(), sx, sy, mask->hbm(),
-		     sx, sy, MAKEROP4(0x00aa0029,SRCCOPY) );
-	} else {
-	    if ( pm->data->selfmask ) {
-		HBRUSH b = CreateSolidBrush( COLOR_VALUE(cpen.data->color) );
-		COLORREF tc, bc;
-		b = SelectObject( hdc, b );
-		tc = SetTextColor( hdc, COLOR_VALUE(black) );
-		bc = SetBkColor( hdc, COLOR_VALUE(white) );
-		BitBlt( hdc, x, y, sw, sh, pm->handle(), sx, sy, 0x00b8074a );
-		SetBkColor( hdc, bc );
-		SetTextColor( hdc, tc );
-		DeleteObject( SelectObject(hdc, b) );
-	    } else {
-		BitBlt( hdc, x, y, sw, sh, pm->handle(), sx, sy, SRCCOPY );
-	    }
-	}
+    /*
+     We now have either stretch or free xform
+     mask:
+	xform pixmap and mask and blt it again
+     no mask:
+        stretch: StretchBlt
+	xform: xform pixmap and mask and blt it (use native xform if NT)
+    */
+
+    if ( txop == TxScale && !mask ) {
+	int w, h;
+	map( x, y, sw, sh, &x, &y, &w, &h );
+	StretchBlt( hdc, x, y, w, h, pm->handle(), sx,sy, sw,sh, SRCCOPY );
     } else {
-	if ( txop == TxNone || txop == TxTranslate || nat_xf ) {
-	    BitBlt( hdc, x, y, sw, sh, pm->handle(), sx, sy, SRCCOPY );
-	} else if ( txop == TxScale ) {
-	    int w, h;
-	    map( x, y, sw, sh, &x, &y, &w, &h );
-	    StretchBlt( hdc, x, y, w, h, pm->handle(), sx,sy, sw,sh, SRCCOPY );
-	} else {				// rotate/shear, Win95
-	    BitBlt( hdc, x, y, sw, sh, pm->handle(), sx, sy, SRCCOPY );
+	QWMatrix mat( wm11/65536.0, wm12/65536.0,
+		      wm21/65536.0, wm22/65536.0,
+		      wdx/65536.0,  wdy/65536.0 );
+	mat = QPixmap::trueMatrix( mat, sw, sh );
+	mat.reset();	    // ##################test
+	mat.scale( 2,2);
+	QPixmap pmx = pixmap.xForm( mat );
+	if ( 0 && !pmx.mask() && txop == TxRotShear ) {
+	    QBitmap bm_clip( sw, sh, 1 );
+	    bm_clip.fill( color1 );
+	    pmx.setMask( bm_clip.xForm(mat) );
 	}
+	map( x, y, &x, &y );			// compute position of pixmap
+	int dx, dy;
+	mat.map( 0, 0, &dx, &dy );
+	bitBlt( pdev, x - dx, y - dy, &pixmap, sx, sy, sw, sh );
     }
 
     if ( tmp_dc )
