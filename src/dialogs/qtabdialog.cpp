@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qtabdialog.cpp#77 $
+** $Id: //depot/qt/main/src/dialogs/qtabdialog.cpp#78 $
 **
 ** Implementation of QTabDialog class
 **
@@ -28,10 +28,12 @@
 #include "qobjectlist.h"
 #include "qobjectdict.h"
 #include "qtabbar.h"
+#include "qtabwidget.h"
 #include "qpushbutton.h"
 #include "qpainter.h"
 #include "qpixmap.h"
 #include "qapplication.h"
+#include "qtabwidget.h"
 #include "qwidgetstack.h"
 #include "qlayout.h"
 
@@ -176,8 +178,7 @@ struct QTabPrivate
 {
     QTabPrivate();
 
-    QTabBar * tabs;
-    QWidgetStack * stack;
+    QTabWidget* tw;
 
     QPushButton * ok;
     QPushButton * cb;
@@ -188,7 +189,7 @@ struct QTabPrivate
 };
 
 QTabPrivate::QTabPrivate()
-	: tabs(0), stack(0),
+	: tw(0),
 	  ok(0), cb(0), db(0), ab(0),
 	  tll(0)
 {}
@@ -204,8 +205,8 @@ QTabDialog::QTabDialog( QWidget *parent, const char *name, bool modal,
     d = new QTabPrivate;
     CHECK_PTR( d );
 
-    d->stack = new QWidgetStack( this, "tab pages" );
-    setTabBar( new QTabBar( this, "tab control" ) );
+    d->tw = new QTabWidget( this, "tab widget" );
+    connect ( d->tw, SIGNAL ( selected( const QString& ) ), this, SIGNAL( selected( const QString& ) ) );
 
     d->ok = new QPushButton( this, "ok" );
     CHECK_PTR( d->ok );
@@ -363,7 +364,7 @@ bool QTabDialog::hasOkButton() const
 void QTabDialog::show()
 {
     if ( topLevelWidget() == this )
-	d->tabs->setFocus();
+	d->tw->setFocus();
     emit aboutToShow();
     setSizes();
     setUpLayout();
@@ -377,10 +378,7 @@ void QTabDialog::show()
 
 void QTabDialog::showTab( int i )
 {
-    if ( d->stack->widget( i ) ) {
-	d->stack->raiseWidget( i );
-	emit selected( d->tabs->tab( i )->label );
-    }
+    d->tw->showTab( i );
 }
 
 
@@ -410,27 +408,20 @@ void QTabDialog::showTab( int i )
 
 void QTabDialog::addTab( QWidget * child, const QString &label )
 {
-    QTab * t = new QTab();
-    CHECK_PTR( t );
-    t->label = label;
-    addTab( child, t );
+    d->tw->addTab( child, label );
 }
 
 
 
 /*!
   Adds another tab and page to the tab view.
-  
+
   This function is the same as addTab() but with an additional
   iconset.
  */
 void QTabDialog::addTab( QWidget *child, const QIconSet& iconset, const QString &label)
 {
-    QTab * t = new QTab();
-    CHECK_PTR( t );
-    t->label = label;
-    t->iconset = new QIconSet(iconset);
-    addTab( child, t );
+    d->tw->addTab( child, iconset, label );
 }
 
 /*!
@@ -441,10 +432,7 @@ void QTabDialog::addTab( QWidget *child, const QIconSet& iconset, const QString 
 */
 void QTabDialog::addTab( QWidget * child, QTab* tab )
 {
-    tab->enabled = TRUE;
-    int id = d->tabs->addTab( tab );
-    d->stack->addWidget( child, id );
-    d->tabs->setMinimumSize( d->tabs->sizeHint() );
+    d->tw->addTab( child, tab );
 }
 
 /*!
@@ -455,11 +443,7 @@ void QTabDialog::addTab( QWidget * child, QTab* tab )
 */
 void QTabDialog::setTabBar( QTabBar* tb )
 {
-    delete d->tabs;
-    d->tabs = tb;
-    connect( d->tabs, SIGNAL(selected(int)),
-	     this,    SLOT(showTab(int)) );
-    d->tabs->setMinimumSize( d->tabs->sizeHint() );
+    d->tw->setTabBar( tb );
     setUpLayout();
 }
 
@@ -469,7 +453,7 @@ void QTabDialog::setTabBar( QTabBar* tb )
 */
 QTabBar* QTabDialog::tabBar() const
 {
-    return d->tabs;
+    return d->tw->tabBar();
 }
 
 /*!  Ensures that \a w is shown.  This is useful mainly for accelerators.
@@ -482,11 +466,7 @@ QTabBar* QTabDialog::tabBar() const
 
 void QTabDialog::showPage( QWidget * w )
 {
-    int i = d->stack->id( w );
-    if ( i >= 0 ) {
-	d->stack->raiseWidget( w );
-	d->tabs->setCurrentTab( i );
-    }
+    d->tw->showPage( w );
 }
 
 
@@ -502,28 +482,7 @@ void QTabDialog::showPage( QWidget * w )
 
 bool QTabDialog::isTabEnabled( const QString &name ) const
 {
-    if ( name.isEmpty() )
-	return FALSE;
-
-    QObjectList * l
-	= ((QTabDialog *)this)->queryList( "QWidget", name, FALSE, TRUE );
-    bool r = FALSE;
-    if ( l && l->first() ) {
-	QWidget * w;
-	while( l->current() ) {
-	    while( l->current() && !l->current()->isWidgetType() )
-		l->next();
-	    w = (QWidget *)(l->current());
-	    if ( w && d->stack->id(w) ) {
-		r = w->isEnabled();
-		delete l;
-		return r;
-	    }
-	    l->next();
-	}
-    }
-    delete l;
-    return r;
+    return d->tw->isTabEnabled( name );
 }
 
 
@@ -547,29 +506,7 @@ bool QTabDialog::isTabEnabled( const QString &name ) const
 
 void QTabDialog::setTabEnabled( const QString &name, bool enable )
 {
-    if ( name.isEmpty() )
-	return;
-    QObjectList * l
-	= ((QTabDialog *)this)->queryList( "QWidget", name, FALSE, TRUE );
-    if ( l && l->first() ) {
-	QWidget * w;
-	while( l->current() ) {
-	    while( l->current() && !l->current()->isWidgetType() )
-		l->next();
-	    w = (QWidget *)(l->current());
-	    if ( w ) {
-		int id = d->stack->id( w );
-		if ( id ) {
-		    w->setEnabled( enable );
-		    d->tabs->setTabEnabled( id, enable );
-		}
-		delete l;
-		return;
-	    }
-	    l->next();
-	}
-    }
-    delete l;
+    d->tw->setTabEnabled( name, enable );
 }
 
 
@@ -706,20 +643,11 @@ void QTabDialog::setUpLayout()
     // top margin
     d->tll->addSpacing( topMargin );
 
-    // tab bar
     QBoxLayout * tmp = new QBoxLayout( QBoxLayout::LeftToRight );
-    d->tll->addLayout( tmp, 0 );
-    tmp->addSpacing( leftMargin );
-    tmp->addWidget( d->tabs, 0 );
-    tmp->addStretch( 1 );
-    tmp->addSpacing( rightMargin + 2 );
-
-    // widget stack.
-    tmp = new QBoxLayout( QBoxLayout::LeftToRight );
-    d->tll->addLayout( tmp, 1 );
-    tmp->addSpacing( leftMargin + 1 );
-    tmp->addWidget( d->stack, 1 );
-    tmp->addSpacing( rightMargin + 2 );
+     d->tll->addLayout( tmp, 1 );
+     tmp->addSpacing( leftMargin );
+     tmp->addWidget( d->tw, 1);
+     tmp->addSpacing( rightMargin + 2 );
 
     d->tll->addSpacing( aboveButtonsMargin + 2 );
     QBoxLayout * buttonRow = new QBoxLayout( QBoxLayout::RightToLeft );
@@ -830,7 +758,7 @@ void QTabDialog::setSizes()
 	    setTabOrder( w, d->cb );
 	w = d->cb;
     }
-    setTabOrder( w, d->tabs );
+    setTabOrder( w, d->tw );
 }
 
 
@@ -852,35 +780,8 @@ void QTabDialog::resizeEvent( QResizeEvent * e )
 
 void QTabDialog::paintEvent( QPaintEvent * )
 {
-    if ( !d->tabs )
-	return;
-
-    QPainter p( this );
-
-    QRect s( d->stack->geometry() );
-
-    QCOORD t = s.top() - 1;
-    QCOORD b = s.bottom() + 2;
-    QCOORD r = s.right() + 2;
-    QCOORD l = s.left() - 1;
-
-    p.setPen( colorGroup().light() );
-    // note - this line overlaps the bottom line drawn by QTabBar
-    p.drawLine( l, t, r - 1, t );
-    p.drawLine( l, t + 1, l, b );
-    p.setPen( black );
-    p.drawLine( r, b, l,b );
-    p.drawLine( r, b-1, r, t );
-    p.setPen( colorGroup().dark() );
-    p.drawLine( l+1, b-1, r-1, b-1 );
-    p.drawLine( r-1, b-2, r-1, t+1 );
 }
 
-
-QRect QTabDialog::childRect() const
-{
-    return d->stack->geometry();
-}
 
 
 /*!
@@ -930,8 +831,7 @@ void QTabDialog::setOKButton( const QString &text )
 
 QString QTabDialog::tabLabel( QWidget * w )
 {
-    QTab * t = d->tabs->tab( d->stack->id( w ) );
-    return t ? t->label : QString::null;
+    return d->tw->tabLabel( w );
 }	
 
 
@@ -952,5 +852,5 @@ is never 0, but if you try hard enough it can be.
 
 QWidget * QTabDialog::currentPage() const
 {
-    return d->stack->visibleWidget();
+    return d->tw->currentPage();
 }

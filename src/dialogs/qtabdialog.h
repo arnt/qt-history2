@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qtabdialog.h#37 $
+** $Id: //depot/qt/main/src/dialogs/qtabdialog.h#38 $
 **
 ** Definition of QTabDialog class
 **
@@ -96,7 +96,6 @@ private slots:
 private:
     void setSizes();
     void setUpLayout();
-    QRect childRect() const;
 
     QTabPrivate *d;
 };
