@@ -67,7 +67,7 @@
 /*!
   \class QWorkspace qworkspace.h
   \brief The QWorkspace widget provides a workspace window that can
-  contain decorated windows, e.g. for MDI.
+  contain decorated windows, e.g., for MDI.
 
   \module workspace
 
@@ -83,16 +83,16 @@
   constructor that takes a parent widget and an object name.  The
   parent window is usually a QMainWindow, but it need not be.
 
-  Document windows (alias MDI windows) are also ordinary Qt widgets,
-  that have the workspace as parent widget.  When you call show(),
-  hide(), showMaximized(), setCaption(), etc on a document window, it
-  is shown, hidden etc. with a frame, caption, icon and icon text,
-  just as you'd expect. You can provide widget flags which will be
-  used for the layout of the decoration or the behaviour of the widget
-  itself.
-  To change the geometry of the MDI windows it is necessary to make
-  the necessary function calls to the parentWidget() of the widget, as
-  this will move or resize the decorated window.
+  Document windows (alias MDI windows) are also ordinary Qt widgets which
+  have the workspace as parent widget.  When you call show(), hide(),
+  showMaximized(), setCaption(), etc. on a document window, it is shown,
+  hidden, etc. with a frame, caption, icon and icon text, just as you'd
+  expect. You can provide widget flags which will be used for the layout
+  of the decoration or the behaviour of the widget itself.
+
+  To change the geometry of the MDI windows it is necessary to make the
+  necessary function calls to the parentWidget() of the widget, as this
+  will move or resize the decorated window.
 
   A document window becomes active when it gets the keyboard focus.
   You can activate it using setFocus(), and the user can activate it
@@ -106,13 +106,12 @@
   fly, for example.
 
   QWorkspace provides two built-in layout strategies for child
-  windows, cascade() and tile().  Both are slots, so you can easily
+  windows: cascade() and tile().  Both are slots so you can easily
   connect menu entries to them.
 
-  In case the top level window contains a menu bar and a document
-  window is maximized, QWorkspace moves the document window's
+  In case the top-level window contains a menu bar and a document
   minimize, restore and close buttons from the document window's frame
-  to the workspace window's menu bar, and inserts a window operations
+  to the workspace window's menu bar. It then inserts a window operations
   menu on the extreme left of the menu bar.
 
   \warning User interface research indicates that most users have
@@ -223,7 +222,7 @@ public:
 };
 
 /*!
-  Constructs a workspace with a \a parent and a \a name
+  Constructs a workspace with a \a parent and a \a name.
  */
 QWorkspace::QWorkspace( QWidget *parent, const char *name )
     : QWidget( parent, name )
@@ -1108,7 +1107,7 @@ void QWorkspace::activatePreviousWindow()
 
 
 /*!
-  Arranges all child windows in a cascade pattern
+  Arranges all child windows in a cascade pattern.
 
   \sa tile()
  */
@@ -1157,7 +1156,7 @@ void QWorkspace::cascade()
 }
 
 /*!
-  Arranges all child windows in a tile pattern
+  Arranges all child windows in a tile pattern.
 
   \sa cascade()
  */
