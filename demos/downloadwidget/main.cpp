@@ -56,36 +56,36 @@ void DownloadDelegate::paint(QPainter *painter, const QStyleOptionViewItem &opti
 {
     if (index.column() < 2 || index.column() > 3) {
         QItemDelegate::paint(painter, option, model, index);
-        return;
-    }
-
-    QPalette::ColorGroup cg = option.state & QStyle::Style_Enabled
-                              ? QPalette::Normal : QPalette::Disabled;
-
-    if (option.state & QStyle::Style_Selected)
-        painter->fillRect(option.rect, option.palette.color(cg, QPalette::Highlight));
-
-    if (index.column() == 2) {
-        static const int b = 3;
-        static const int b2 = 6;
-        QRect rect(option.rect.x() + b, option.rect.y() + b,
-                   option.rect.width() - b2, option.rect.height() - b2);
-        double download = model->data(index, DownloadDelegate::ProgressRole).toDouble();
-        int width = static_cast<int>(rect.width() * download);
-        painter->fillRect(rect.x(), rect.y(), width, rect.height(), Qt::blue);
-        painter->fillRect(rect.x() + width, rect.y(), rect.width() - width, rect.height(),
-                          option.palette.base());
-        painter->drawRect(rect);
-    } else if (index.column() == 3) {
-        int rating = model->data(index, DownloadDelegate::RatingRole).toInt();
-        int width = star.width();
-        int x = option.rect.x();
-        int y = option.rect.y();
-        for (int i = 0; i < rating; ++i) {
-            painter->drawPixmap(x, y, star);
-            x += width;
+    } else {
+        QPalette::ColorGroup cg = option.state & QStyle::Style_Enabled
+                                  ? QPalette::Normal : QPalette::Disabled;
+        if (option.state & QStyle::Style_Selected)
+            painter->fillRect(option.rect, option.palette.color(cg, QPalette::Highlight));
+        if (index.column() == 2) {
+            QRect rect(option.rect.x() + 3, option.rect.y() + 3,
+                       option.rect.width() - 6, option.rect.height() - 6);
+            double download = model->data(index, DownloadDelegate::ProgressRole).toDouble();
+            int width = static_cast<int>(rect.width() * download);
+            painter->fillRect(rect.x(), rect.y(), width, rect.height(), Qt::blue);
+            painter->fillRect(rect.x() + width, rect.y(), rect.width() - width, rect.height(),
+                              option.palette.base());
+            painter->drawRect(rect);
+        } else if (index.column() == 3) {
+            int rating = model->data(index, DownloadDelegate::RatingRole).toInt();
+            int width = star.width();
+            int x = option.rect.x();
+            int y = option.rect.y();
+            for (int i = 0; i < rating; ++i) {
+                painter->drawPixmap(x, y, star);
+                x += width;
+            }
         }
     }
+
+    QPen pen = painter->pen();
+    painter->setPen(Qt::gray);
+    painter->drawLine(option.rect.topRight(), option.rect.bottomRight());
+    painter->setPen(pen);
 }
 
 bool DownloadDelegate::event(QEvent *e, QAbstractItemModel* model, const QModelIndex &index)
