@@ -88,6 +88,10 @@ Qt 3.3.x does no longer officially support IRIX MIPSpro o32 or Sun CC
   now "menuText" set explicitly encode the '&' to "&&" so that the ampersand
   is visible in the menu.
 
+- QHeader
+  The sizeChange() signal is emitted when the section sizes are adjusted by
+  double clicking.
+
 - QListView
   Improved alignment for text in QListViewItems. Right aligned text
   now have the ellipsis to the left.
