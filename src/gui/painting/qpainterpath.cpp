@@ -195,6 +195,13 @@ QBitmap QPainterPathPrivate::scanToBitmap(const QRect &clipRect,
 
     flatten();
 
+    for (int i=0; i<flatCurves.size(); ++i) {
+        printf(" -> Curve: \n");
+        QPointArray array = flatCurves.at(i);
+        for (int line=0; line<array.size(); ++line)
+            printf("   -> (%d, %d)\n", array.at(line).x(), array.at(line).y());
+    }
+
     QRect pathBounds;
     for (int fc=0; fc<flatCurves.size(); ++fc)
         pathBounds |= flatCurves.at(fc).boundingRect();
@@ -217,8 +224,8 @@ QBitmap QPainterPathPrivate::scanToBitmap(const QRect &clipRect,
         numISects = 0;
         for (int c=0; c<flatCurves.size(); ++c) {
             QPointArray curve = flatCurves.at(c);
-            if (!scanRect.intersect(curve.boundingRect()).isValid())
-                continue;
+//             if (!scanRect.intersects(curve.boundingRect()))
+//                 continue;
             Q_ASSERT(curve.size()>=2);
             for (int i=1; i<curve.size(); ++i) {
                 QPoint p1 = curve.at(i-1);
@@ -230,13 +237,14 @@ QBitmap QPainterPathPrivate::scanToBitmap(const QRect &clipRect,
                     Q_ASSERT(numISects<MAX_INTERSECTIONS);
 
                     // Find intersection and add to set of intersetions for this scanline
-                    if (p1.y() != p2.y()) {
-//                         isects[++numISects] = p1.x();
-//                         isects[++numISects] = p2.y();
-//                     } else {
+                    if (p1.y() == p2.y()) {
+                        isects[numISects++] = p1.x() - scanRect.x();
+                        isects[numISects++] = p2.y() - scanRect.x();
+                    } else {
                         double idelta = (p2.x()-p1.x()) / double(p2.y()-p1.y());
-                        isects[++numISects] =
-                            qRound((scanLineY - p1.y()) * idelta + p1.x());
+                        isects[numISects++] =
+                            qRound((scanLineY - p1.y()) * idelta + p1.x())
+                            - scanRect.x();
                     }
                 }
             }
@@ -244,20 +252,41 @@ QBitmap QPainterPathPrivate::scanToBitmap(const QRect &clipRect,
 
         // Sort the intersection entries...
         qHeapSort(&isects[0], &isects[numISects+1]);
-        if (numISects%2==1)
+
+        printf("Line: %d (%d) :: ", y, image.bytesPerLine());
+        if (numISects%2==1) {
+            printf("bailing out on line: %d...\n", y);
             continue;
+        }
+
         uchar *scanLine = image.scanLine(y);
         for (int i=0; i<numISects; i+=2) {
-            int from = isects[i];
-            int to = isects[i+1];
-            printf("setting: %d -> %d\n", from, to);
-            memset(scanLine + from/8,
-                   QColor(Qt::color0).rgb(),
-                   (to-from)/8);
+            int from = qMax(0, isects[i]);
+            int to = qMin(scanRect.width(), isects[i+1]);
+
+            printf("%d -> %d (%d), ", from, to, to/8);
+
+            // First byte in this scan segment...
+            if ((from%8) != 0)
+                *(scanLine + (from/8)) = ((0xff << (from%8))&0xff);
+
+            // The interior of the segment.
+            if ((to-from)/8 > 0)
+                memset(scanLine + (from+7)/8,  QColor(Qt::color0).rgb(), (to-from)/8);
+
+//             // Last byte in this scan segment...
+            if ((to%8) != 0) {
+                *(scanLine + (to/8)) = (0xff >> (8-(to%8)));
+            }
+
         }
+        printf("\n");
     }
     QBitmap bm;
     bm.convertFromImage(image);
+
+//     bm.save("scanlines.png", "PNG");
+
     return bm;
 }
 
@@ -336,8 +365,11 @@ void QPainterPath::addLine(const QPoint &p)
 void QPainterPath::addRect(const QRect &rect)
 {
     QPainterSubpath subpath;
-    subpath.addLine(rect.topLeft(), rect.topRight());
-    subpath.addLine(rect.bottomRight(), rect.bottomLeft());
+    int offset = QRect::rectangleMode();
+    printf("offset: %d\n", offset);
+    subpath.addLine(rect.topLeft(), rect.topRight() - QPoint(offset, 0));
+    subpath.addLine(rect.bottomRight() - QPoint(offset, offset),
+                    rect.bottomLeft() - QPoint(0, offset));
     subpath.close();
     d->subpaths.prepend(subpath);
 }

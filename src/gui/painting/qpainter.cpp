@@ -1261,16 +1261,26 @@ void QPainter::drawPath(const QPainterPath &path)
     if (d->state->brush.style() != Qt::NoBrush) {
 	save();
 	setPen(Qt::NoPen);
-        if (path.fillMode() == QPainterPath::Winding) {
-            for (int i=0; i<polygons.size(); ++i)
-                drawPolygon(polygons.at(i), true);
-        } else {
-	    QRegion buildUp;
-            for (int i=0; i<polygons.size(); ++i)
-                buildUp ^= polygons.at(i);
-	    setClipRegion(buildUp);
-	    drawRect(buildUp.boundingRect());
-        }
+#if 0
+        // This approach works for odd even but scanconverting is probably faster...
+        QRegion buildUp;
+        for (int i=0; i<polygons.size(); ++i)
+            buildUp ^= polygons.at(i);
+        setClipRegion(buildUp);
+        drawRect(buildUp.boundingRect());
+#else
+        QRect outBounds;
+        QRect pathBounds = d->state->clipRegion.boundingRect();
+        QBitmap scanlines = pd->scanToBitmap(pathBounds, d->state->matrix, &outBounds);
+        resetXForm();
+        qDebug() << "QPainter::drawPath(): outbounds is: " << outBounds;
+        qDebug() << " -> bitmap size" << scanlines.width() << scanlines.height();
+        translate(outBounds.left(), outBounds.top());
+        setClipRegion(scanlines);
+        drawRect(0, 0, outBounds.width(), outBounds.height());
+//         drawPixmap(outBounds.topLeft(), scanlines);
+#endif
+
 	restore();
     }
 
