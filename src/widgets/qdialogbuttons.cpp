@@ -135,10 +135,10 @@ QDialogButtons::setDefaultButton(Button button)
     }
     if(d->def != button) {
 	if(d->buttons.contains(d->def))
-	    d->buttons[d->def]->setProperty("default", QVariant(FALSE));
+	    d->buttons[d->def]->setProperty("default", QVariant(FALSE,0));
 	d->def = button;
 	if(d->buttons.contains(d->def))
-	    d->buttons[d->def]->setProperty("default", QVariant(FALSE));
+	    d->buttons[d->def]->setProperty("default", QVariant(FALSE,0));
     }
 }
 
@@ -357,7 +357,7 @@ QDialogButtons::layoutButtons()
 		if(w) {
 		    if(b == d->def) {
 			w->setFocus();
-			w->setProperty("default", QVariant(TRUE));
+			w->setProperty("default", QVariant(TRUE,0));
 		    }
 		    w->setEnabled(d->enabled & b);
 		}
