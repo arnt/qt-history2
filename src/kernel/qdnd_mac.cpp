@@ -425,10 +425,12 @@ bool QDragManager::drag(QDragObject *o, QDragObject::DragMode mode)
     dragRegion.translate(boundsPoint.h, boundsPoint.v);
 #endif
 
+    QWidget *widget = QApplication::widgetAt(fakeEvent.where.h, fakeEvent.where.v, TRUE);
+    if(!widget)
+	return FALSE;
     drag_received = FALSE;
     qt_mac_in_drag = TRUE;
     //kick off the drag by calling the callback ourselves first..
-    QWidget *widget = QApplication::widgetAt(fakeEvent.where.h, fakeEvent.where.v, TRUE);
     if(!widget->extraData()->macDndExtra) //never too late I suppose..
 	qt_macdnd_register(widget,  widget->extraData());
     set_drag_mode = mode;
