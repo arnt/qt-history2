@@ -1542,7 +1542,7 @@ void QAxHostWidget::focusOutEvent(QFocusEvent *e)
         killTimer(setFocusTimer);
         setFocusTimer = 0;
     }
-    if (QFocusEvent::reason() == QFocusEvent::Popup)
+    if (e->reason() == Qt::PopupFocusReason || e->reason() == Qt::MenuBarFocusReason)
         return;
     
     if (!axhost || !axhost->m_spInPlaceActiveObject || !axhost->m_spInPlaceObject)
