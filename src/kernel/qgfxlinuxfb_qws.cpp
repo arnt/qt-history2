@@ -157,22 +157,22 @@ bool QLinuxFbScreen::connect( const QString &displaySpec )
     }
 
     // Now read in palette
-    if(vinfo.bits_per_pixel==8) {
-	screencols=256;
-	unsigned int loopc;
+    if((vinfo.bits_per_pixel==8) || (vinfo.bits_per_pixel==4)) {
+	screencols= (vinfo.bits_per_pixel==8) ? 256 : 16;
+	int loopc;
 	startcmap = new fb_cmap;
 	startcmap->start=0;
-	startcmap->len=256;
+	startcmap->len=screencols;
 	startcmap->red=(unsigned short int *)
-		 malloc(sizeof(unsigned short int)*256);
+		 malloc(sizeof(unsigned short int)*screencols);
 	startcmap->green=(unsigned short int *)
-		   malloc(sizeof(unsigned short int)*256);
+		   malloc(sizeof(unsigned short int)*screencols);
 	startcmap->blue=(unsigned short int *)
-		  malloc(sizeof(unsigned short int)*256);
+		  malloc(sizeof(unsigned short int)*screencols);
 	startcmap->transp=(unsigned short int *)
-		    malloc(sizeof(unsigned short int)*256);
+		    malloc(sizeof(unsigned short int)*screencols);
 	ioctl(fd,FBIOGETCMAP,startcmap);
-	for(loopc=0;loopc<256;loopc++) {
+	for(loopc=0;loopc<screencols;loopc++) {
 	    screenclut[loopc]=qRgb(startcmap->red[loopc] >> 8,
 				   startcmap->green[loopc] >> 8,
 				   startcmap->blue[loopc] >> 8);
@@ -265,51 +265,72 @@ bool QLinuxFbScreen::initCard()
     }
 #endif
 
-    if(vinfo.bits_per_pixel==8) {
-	screencols=256;
+    if((vinfo.bits_per_pixel==8) || (vinfo.bits_per_pixel==4)) {
+	screencols= (vinfo.bits_per_pixel==8) ? 256 : 16;
 	fb_cmap cmap;
 	cmap.start=0;
-	cmap.len=256;
+	cmap.len=screencols;
 	cmap.red=(unsigned short int *)
-		 malloc(sizeof(unsigned short int)*256);
+		 malloc(sizeof(unsigned short int)*screencols);
 	cmap.green=(unsigned short int *)
-		   malloc(sizeof(unsigned short int)*256);
+		   malloc(sizeof(unsigned short int)*screencols);
 	cmap.blue=(unsigned short int *)
-		  malloc(sizeof(unsigned short int)*256);
+		  malloc(sizeof(unsigned short int)*screencols);
 	cmap.transp=(unsigned short int *)
-		    malloc(sizeof(unsigned short int)*256);
+		    malloc(sizeof(unsigned short int)*screencols);
+	
+	if (screencols==16) {
+
+// Default 16 colour palette
+// Green is now trolltech green so certain images look nicer 
+//			     black  d_grey l_grey white  red  green  blue cyan magenta yellow
+	    unsigned char reds[16]   = { 0x00, 0x7F, 0xBF, 0xFF, 0xFF, 0xA2, 0x00, 0xFF, 0xFF, 0x00, 0x7F, 0x7F, 0x00, 0x00, 0x00, 0x82 };
+	    unsigned char greens[16] = { 0x00, 0x7F, 0xBF, 0xFF, 0x00, 0xC5, 0x00, 0xFF, 0x00, 0xFF, 0x00, 0x00, 0x00, 0x7F, 0x7F, 0x7F };
+	    unsigned char blues[16]  = { 0x00, 0x7F, 0xBF, 0xFF, 0x00, 0x11, 0xFF, 0x00, 0xFF, 0xFF, 0x00, 0x7F, 0x7F, 0x7F, 0x00, 0x00 };
+
+	    for (int idx = 0; idx < 16; idx++) {
+		cmap.red[idx] = (reds[idx]) << 8;
+		cmap.green[idx] = (greens[idx]) << 8;
+		cmap.blue[idx] = (blues[idx]) << 8;
+		cmap.transp[idx] = 0;
+		screenclut[idx]=qRgb( reds[idx], greens[idx], blues[idx] );
+	    }
+
+	} else {
 #ifndef QT_NO_QWS_DEPTH_8GRAYSCALE
-	// Build greyscale palette
-	unsigned int loopc;
-	for(loopc=0;loopc<256;loopc++) {
-	    cmap.red[loopc]=loopc << 8;
-	    cmap.green[loopc]=loopc << 8;
-	    cmap.blue[loopc]=loopc << 8;
-	    cmap.transp[loopc]=0;
-	    screenclut[loopc]=qRgb(loopc,loopc,loopc);
-	}
+	    // Build greyscale palette
+	    unsigned int loopc;
+	    for(loopc=0;loopc<256;loopc++) {
+		cmap.red[loopc]=loopc << 8;
+		cmap.green[loopc]=loopc << 8;
+		cmap.blue[loopc]=loopc << 8;
+		cmap.transp[loopc]=0;
+		screenclut[loopc]=qRgb(loopc,loopc,loopc);
+	    }
 #else
-	// 6x6x6 216 color cube
-	int idx = 0;
-	for( int ir = 0x0; ir <= 0xff; ir+=0x33 ) {
-	    for( int ig = 0x0; ig <= 0xff; ig+=0x33 ) {
-		for( int ib = 0x0; ib <= 0xff; ib+=0x33 ) {
-		    cmap.red[idx] = ir << 8;
-		    cmap.green[idx] = ig << 8;
-		    cmap.blue[idx] = ib << 8;
-		    cmap.transp[idx] = 0;
-		    screenclut[idx]=qRgb( ir, ig, ib );
-		    idx++;
+	    // 6x6x6 216 color cube
+	    int idx = 0;
+	    for( int ir = 0x0; ir <= 0xff; ir+=0x33 ) {
+		for( int ig = 0x0; ig <= 0xff; ig+=0x33 ) {
+		    for( int ib = 0x0; ib <= 0xff; ib+=0x33 ) {
+			cmap.red[idx] = ir << 8;
+			cmap.green[idx] = ig << 8;
+			cmap.blue[idx] = ib << 8;
+			cmap.transp[idx] = 0;
+			screenclut[idx]=qRgb( ir, ig, ib );
+			idx++;
+		    }
 		}
 	    }
-	}
-	// Fill in rest with 0
-	for ( int loopc=0; loopc<40; loopc++ ) {
-	    screenclut[idx]=0;
-	    idx++;
-	}
-	screencols=idx;
+	    // Fill in rest with 0
+	    for ( int loopc=0; loopc<40; loopc++ ) {
+		screenclut[idx]=0;
+		idx++;
+	    }
+	    screencols=idx;
 #endif
+	}
+	
 	ioctl(fd,FBIOPUTCMAP,&cmap);
 	free(cmap.red);
 	free(cmap.green);
@@ -357,7 +378,7 @@ bool QLinuxFbScreen::initCard()
 		  malloc(sizeof(unsigned short int)*256);
 	cmap.transp=(unsigned short int *)
 		    malloc(sizeof(unsigned short int)*256);
-	for( int i = 0x0; i < (int)cmap.len; i++ ) {
+	for( unsigned int i = 0x0; i < cmap.len; i++ ) {
 	    cmap.red[i] = i*65535/((1<<rbits)-1);
 	    cmap.green[i] = i*65535/((1<<gbits)-1);
 	    cmap.blue[i] = i*65535/((1<<bbits)-1);
