@@ -96,7 +96,7 @@ public:
         }
         if(movie) {
             StopMovie(movie);
-//            DisposeMovie(movie);
+            DisposeMovie(movie);
         }
     }
     static void cleanup() {
