@@ -183,15 +183,7 @@ QActionPrivate::~QActionPrivate()
 
     while ( ( tb = ittb.current() ) ) {
 	++ittb;
-	QWidget* parent = tb->parentWidget();
 	delete tb;
-	if ( parent->inherits( "QToolBar" ) ) {
-	    QToolBar* toolbar = (QToolBar*) parent;
-        QObjectList* lst = toolbar->queryList( "QToolButton" );
-        if ( lst->isEmpty() )
-		    delete toolbar;
-        delete lst;
-	}
     }
 
     QListIterator<QActionPrivate::MenuItem> itmi( menuitems);
@@ -201,9 +193,6 @@ QActionPrivate::~QActionPrivate()
 	QPopupMenu* menu = mi->popup;
 	if ( menu->findItem( mi->id ) )
 	    menu->removeItem( mi->id );
-	if ( !menu->count() ) {
-	    delete menu;
-	}
     }
 
     delete accel;
