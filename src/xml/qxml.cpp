@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/xml/qxml.cpp#45 $
+** $Id: //depot/qt/main/src/xml/qxml.cpp#46 $
 **
 ** Implementation of QXmlSimpleReader and related classes.
 **
@@ -1894,7 +1894,7 @@ private:
 
     // for incremental parsing
     struct ParseState {
-	bool (QXmlSimpleReader::*function) ();
+	QXmlSimpleReader::parseFunction function;
 	int state;
     };
     QStack<ParseState> *parseStack;
@@ -2463,13 +2463,8 @@ bool QXmlSimpleReader::parseProlog()
 
 	// read input
 	if ( atEnd() ) {
-	    if ( d->parseStack == 0 ) {
-		reportParseError( XMLERR_UNEXPECTEDEOF );
-		return FALSE;
-	    } else {
-		// ### incremental store state stuff
-		goto incrementalEnd;
-	    }
+	    unexpectedEof( &parseProlog, state );
+	    return FALSE;
 	}
 	if        ( is_S(c) ) {
 	    input = InpWs;
@@ -2587,13 +2582,6 @@ bool QXmlSimpleReader::parseProlog()
 	}
 
     }
-
-incrementalEnd:
-    QXmlSimpleReaderPrivate::ParseState *ps = new QXmlSimpleReaderPrivate::ParseState;
-    ps->function = &QXmlSimpleReader::parseProlog;
-    ps->state = state;
-    d->parseStack->push( ps );
-    return FALSE;
 }
 
 /*
@@ -2651,13 +2639,8 @@ bool QXmlSimpleReader::parseElement()
 
 	// read input
 	if ( atEnd() ) {
-	    if ( d->parseStack == 0 ) {
-		reportParseError( XMLERR_UNEXPECTEDEOF );
-		return FALSE;
-	    } else {
-		// ### incremental store state stuff
-		goto incrementalEnd;
-	    }
+	    unexpectedEof( &parseElement, state );
+	    return FALSE;
 	}
 	if        ( is_S(c) ) {
 	    input = InpWs;
@@ -2780,13 +2763,6 @@ bool QXmlSimpleReader::parseElement()
 	}
 
     }
-
-incrementalEnd:
-    QXmlSimpleReaderPrivate::ParseState *ps = new QXmlSimpleReaderPrivate::ParseState;
-    ps->function = &QXmlSimpleReader::parseElement;
-    ps->state = state;
-    d->parseStack->push( ps );
-    return FALSE;
 }
 /*
   Helper to break down the size of the code in the case statement.
@@ -3025,13 +3001,8 @@ bool QXmlSimpleReader::parseContent()
 	// get input (use lookup-table instead of nested ifs for performance
 	// reasons)
 	if ( atEnd() ) {
-	    if ( d->parseStack == 0 ) {
-		reportParseError( XMLERR_UNEXPECTEDEOF );
-		return FALSE;
-	    } else {
-		// ### incremental store state stuff
-		goto incrementalEnd;
-	    }
+	    unexpectedEof( &parseContent, state );
+	    return FALSE;
 	}
 	if ( c.row() ) {
 	    input = InpUnknown;
@@ -3229,13 +3200,6 @@ bool QXmlSimpleReader::parseContent()
 	}
 
     }
-
-incrementalEnd:
-    QXmlSimpleReaderPrivate::ParseState *ps = new QXmlSimpleReaderPrivate::ParseState;
-    ps->function = &QXmlSimpleReader::parseContent;
-    ps->state = state;
-    d->parseStack->push( ps );
-    return FALSE;
 }
 
 /*
@@ -3277,13 +3241,8 @@ bool QXmlSimpleReader::parseMisc()
 
 	// get input
 	if ( atEnd() ) {
-	    if ( d->parseStack == 0 ) {
-		reportParseError( XMLERR_UNEXPECTEDEOF );
-		return FALSE;
-	    } else {
-		// ### incremental store state stuff
-		goto incrementalEnd;
-	    }
+	    unexpectedEof( &parseMisc, state );
+	    return FALSE;
 	}
 	if        ( is_S(c) ) {
 	    input = InpWs;
@@ -3354,13 +3313,6 @@ bool QXmlSimpleReader::parseMisc()
 	}
 
     }
-
-incrementalEnd:
-    QXmlSimpleReaderPrivate::ParseState *ps = new QXmlSimpleReaderPrivate::ParseState;
-    ps->function = &QXmlSimpleReader::parseMisc;
-    ps->state = state;
-    d->parseStack->push( ps );
-    return FALSE;
 }
 
 /*
@@ -3434,13 +3386,8 @@ bool QXmlSimpleReader::parsePI()
 
 	// get input
 	if ( atEnd() ) {
-	    if ( d->parseStack == 0 ) {
-		reportParseError( XMLERR_UNEXPECTEDEOF );
-		return FALSE;
-	    } else {
-		// ### incremental store state stuff
-		goto incrementalEnd;
-	    }
+	    unexpectedEof( &parsePI, state );
+	    return FALSE;
 	}
 	if        ( is_S(c) ) {
 	    input = InpWs;
@@ -3593,13 +3540,6 @@ bool QXmlSimpleReader::parsePI()
 	}
 
     }
-
-incrementalEnd:
-    QXmlSimpleReaderPrivate::ParseState *ps = new QXmlSimpleReaderPrivate::ParseState;
-    ps->function = &QXmlSimpleReader::parsePI;
-    ps->state = state;
-    d->parseStack->push( ps );
-    return FALSE;
 }
 
 /*
@@ -3671,13 +3611,8 @@ bool QXmlSimpleReader::parseDoctype()
 
 	// get input
 	if ( atEnd() ) {
-	    if ( d->parseStack == 0 ) {
-		reportParseError( XMLERR_UNEXPECTEDEOF );
-		return FALSE;
-	    } else {
-		// ### incremental store state stuff
-		goto incrementalEnd;
-	    }
+	    unexpectedEof( &parseDoctype, state );
+	    return FALSE;
 	}
 	if        ( is_S(c) ) {
 	    input = InpWs;
@@ -3803,13 +3738,6 @@ bool QXmlSimpleReader::parseDoctype()
 	}
 
     }
-
-incrementalEnd:
-    QXmlSimpleReaderPrivate::ParseState *ps = new QXmlSimpleReaderPrivate::ParseState;
-    ps->function = &QXmlSimpleReader::parseDoctype;
-    ps->state = state;
-    d->parseStack->push( ps );
-    return FALSE;
 }
 
 /*
@@ -3879,13 +3807,8 @@ bool QXmlSimpleReader::parseExternalID()
 
 	// get input
 	if ( atEnd() ) {
-	    if ( d->parseStack == 0 ) {
-		reportParseError( XMLERR_UNEXPECTEDEOF );
-		return FALSE;
-	    } else {
-		// ### incremental store state stuff
-		goto incrementalEnd;
-	    }
+	    unexpectedEof( &parseExternalID, state );
+	    return FALSE;
 	}
 	if        ( is_S(c) ) {
 	    input = InpWs;
@@ -3983,13 +3906,6 @@ bool QXmlSimpleReader::parseExternalID()
 	}
 
     }
-
-incrementalEnd:
-    QXmlSimpleReaderPrivate::ParseState *ps = new QXmlSimpleReaderPrivate::ParseState;
-    ps->function = &QXmlSimpleReader::parseExternalID;
-    ps->state = state;
-    d->parseStack->push( ps );
-    return FALSE;
 }
 
 /*
@@ -4041,13 +3957,8 @@ bool QXmlSimpleReader::parseMarkupdecl()
 
 	// get input
 	if ( atEnd() ) {
-	    if ( d->parseStack == 0 ) {
-		reportParseError( XMLERR_UNEXPECTEDEOF );
-		return FALSE;
-	    } else {
-		// ### incremental store state stuff
-		goto incrementalEnd;
-	    }
+	    unexpectedEof( &parseMarkupdecl, state );
+	    return FALSE;
 	}
 	if        ( c == '<' ) {
 	    input = InpLt;
@@ -4162,13 +4073,6 @@ bool QXmlSimpleReader::parseMarkupdecl()
 	}
 
     }
-
-incrementalEnd:
-    QXmlSimpleReaderPrivate::ParseState *ps = new QXmlSimpleReaderPrivate::ParseState;
-    ps->function = &QXmlSimpleReader::parseMarkupdecl;
-    ps->state = state;
-    d->parseStack->push( ps );
-    return FALSE;
 }
 
 /*
@@ -4206,13 +4110,8 @@ bool QXmlSimpleReader::parsePEReference()
 
 	// get input
 	if ( atEnd() ) {
-	    if ( d->parseStack == 0 ) {
-		reportParseError( XMLERR_UNEXPECTEDEOF );
-		return FALSE;
-	    } else {
-		// ### incremental store state stuff
-		goto incrementalEnd;
-	    }
+	    unexpectedEof( &parsePEReference, state );
+	    return FALSE;
 	}
 	if        ( c == ';' ) {
 	    input = InpSemi;
@@ -4276,13 +4175,6 @@ bool QXmlSimpleReader::parsePEReference()
 	}
 
     }
-
-incrementalEnd:
-    QXmlSimpleReaderPrivate::ParseState *ps = new QXmlSimpleReaderPrivate::ParseState;
-    ps->function = &QXmlSimpleReader::parsePEReference;
-    ps->state = state;
-    d->parseStack->push( ps );
-    return FALSE;
 }
 
 /*
@@ -4352,13 +4244,8 @@ bool QXmlSimpleReader::parseAttlistDecl()
 
 	// get input
 	if ( atEnd() ) {
-	    if ( d->parseStack == 0 ) {
-		reportParseError( XMLERR_UNEXPECTEDEOF );
-		return FALSE;
-	    } else {
-		// ### incremental store state stuff
-		goto incrementalEnd;
-	    }
+	    unexpectedEof( &parseAttlistDecl, state );
+	    return FALSE;
 	}
 	if        ( is_S(c) ) {
 	    input = InpWs;
@@ -4497,13 +4384,6 @@ bool QXmlSimpleReader::parseAttlistDecl()
 	}
 
     }
-
-incrementalEnd:
-    QXmlSimpleReaderPrivate::ParseState *ps = new QXmlSimpleReaderPrivate::ParseState;
-    ps->function = &QXmlSimpleReader::parseAttlistDecl;
-    ps->state = state;
-    d->parseStack->push( ps );
-    return FALSE;
 }
 
 /*
@@ -4585,13 +4465,8 @@ bool QXmlSimpleReader::parseAttType()
 
 	// get input
 	if ( atEnd() ) {
-	    if ( d->parseStack == 0 ) {
-		reportParseError( XMLERR_UNEXPECTEDEOF );
-		return FALSE;
-	    } else {
-		// ### incremental store state stuff
-		goto incrementalEnd;
-	    }
+	    unexpectedEof( &parseAttType, state );
+	    return FALSE;
 	}
 	if        ( is_S(c) ) {
 	    input = InpWs;
@@ -4761,13 +4636,6 @@ bool QXmlSimpleReader::parseAttType()
 	}
 
     }
-
-incrementalEnd:
-    QXmlSimpleReaderPrivate::ParseState *ps = new QXmlSimpleReaderPrivate::ParseState;
-    ps->function = &QXmlSimpleReader::parseAttType;
-    ps->state = state;
-    d->parseStack->push( ps );
-    return FALSE;
 }
 
 /*
@@ -4821,13 +4689,8 @@ bool QXmlSimpleReader::parseAttValue()
 
 	// get input
 	if ( atEnd() ) {
-	    if ( d->parseStack == 0 ) {
-		reportParseError( XMLERR_UNEXPECTEDEOF );
-		return FALSE;
-	    } else {
-		// ### incremental store state stuff
-		goto incrementalEnd;
-	    }
+	    unexpectedEof( &parseAttValue, state );
+	    return FALSE;
 	}
 	if        ( c == '"' ) {
 	    input = InpDq;
@@ -4883,13 +4746,6 @@ bool QXmlSimpleReader::parseAttValue()
 	}
 
     }
-
-incrementalEnd:
-    QXmlSimpleReaderPrivate::ParseState *ps = new QXmlSimpleReaderPrivate::ParseState;
-    ps->function = &QXmlSimpleReader::parseAttValue;
-    ps->state = state;
-    d->parseStack->push( ps );
-    return FALSE;
 }
 
 /*
@@ -4970,13 +4826,8 @@ bool QXmlSimpleReader::parseElementDecl()
 
 	// read input
 	if ( atEnd() ) {
-	    if ( d->parseStack == 0 ) {
-		reportParseError( XMLERR_UNEXPECTEDEOF );
-		return FALSE;
-	    } else {
-		// ### incremental store state stuff
-		goto incrementalEnd;
-	    }
+	    unexpectedEof( &parseElementDecl, state );
+	    return FALSE;
 	}
 	if        ( is_S(c) ) {
 	    input = InpWs;
@@ -5123,13 +4974,6 @@ bool QXmlSimpleReader::parseElementDecl()
 	}
 
     }
-
-incrementalEnd:
-    QXmlSimpleReaderPrivate::ParseState *ps = new QXmlSimpleReaderPrivate::ParseState;
-    ps->function = &QXmlSimpleReader::parseElementDecl;
-    ps->state = state;
-    d->parseStack->push( ps );
-    return FALSE;
 }
 
 /*
@@ -5179,13 +5023,8 @@ bool QXmlSimpleReader::parseNotationDecl()
 
 	// get input
 	if ( atEnd() ) {
-	    if ( d->parseStack == 0 ) {
-		reportParseError( XMLERR_UNEXPECTEDEOF );
-		return FALSE;
-	    } else {
-		// ### incremental store state stuff
-		goto incrementalEnd;
-	    }
+	    unexpectedEof( &parseNotationDecl, state );
+	    return FALSE;
 	}
 	if        ( is_S(c) ) {
 	    input = InpWs;
@@ -5263,13 +5102,6 @@ bool QXmlSimpleReader::parseNotationDecl()
 	}
 
     }
-
-incrementalEnd:
-    QXmlSimpleReaderPrivate::ParseState *ps = new QXmlSimpleReaderPrivate::ParseState;
-    ps->function = &QXmlSimpleReader::parseNotationDecl;
-    ps->state = state;
-    d->parseStack->push( ps );
-    return FALSE;
 }
 
 /*
@@ -5322,13 +5154,8 @@ bool QXmlSimpleReader::parseChoiceSeq()
 
 	// get input
 	if ( atEnd() ) {
-	    if ( d->parseStack == 0 ) {
-		reportParseError( XMLERR_UNEXPECTEDEOF );
-		return FALSE;
-	    } else {
-		// ### incremental store state stuff
-		goto incrementalEnd;
-	    }
+	    unexpectedEof( &parseChoiceSeq, state );
+	    return FALSE;
 	}
 	if        ( is_S(c) ) {
 	    input = InpWs;
@@ -5398,13 +5225,6 @@ bool QXmlSimpleReader::parseChoiceSeq()
 	}
 
     }
-
-incrementalEnd:
-    QXmlSimpleReaderPrivate::ParseState *ps = new QXmlSimpleReaderPrivate::ParseState;
-    ps->function = &QXmlSimpleReader::parseChoiceSeq;
-    ps->state = state;
-    d->parseStack->push( ps );
-    return FALSE;
 }
 
 /*
@@ -5479,13 +5299,8 @@ bool QXmlSimpleReader::parseEntityDecl()
 
 	// get input
 	if ( atEnd() ) {
-	    if ( d->parseStack == 0 ) {
-		reportParseError( XMLERR_UNEXPECTEDEOF );
-		return FALSE;
-	    } else {
-		// ### incremental store state stuff
-		goto incrementalEnd;
-	    }
+	    unexpectedEof( &parseEntityDecl, state );
+	    return FALSE;
 	}
 	if        ( is_S(c) ) {
 	    input = InpWs;
@@ -5683,13 +5498,6 @@ bool QXmlSimpleReader::parseEntityDecl()
 	}
 
     }
-
-incrementalEnd:
-    QXmlSimpleReaderPrivate::ParseState *ps = new QXmlSimpleReaderPrivate::ParseState;
-    ps->function = &QXmlSimpleReader::parseEntityDecl;
-    ps->state = state;
-    d->parseStack->push( ps );
-    return FALSE;
 }
 
 /*
@@ -5741,13 +5549,8 @@ bool QXmlSimpleReader::parseEntityValue()
 
 	// get input
 	if ( atEnd() ) {
-	    if ( d->parseStack == 0 ) {
-		reportParseError( XMLERR_UNEXPECTEDEOF );
-		return FALSE;
-	    } else {
-		// ### incremental store state stuff
-		goto incrementalEnd;
-	    }
+	    unexpectedEof( &parseEntityValue, state );
+	    return FALSE;
 	}
 	if        ( c == '"' ) {
 	    input = InpDq;
@@ -5815,13 +5618,6 @@ bool QXmlSimpleReader::parseEntityValue()
 	}
 
     }
-
-incrementalEnd:
-    QXmlSimpleReaderPrivate::ParseState *ps = new QXmlSimpleReaderPrivate::ParseState;
-    ps->function = &QXmlSimpleReader::parseEntityValue;
-    ps->state = state;
-    d->parseStack->push( ps );
-    return FALSE;
 }
 
 /*
@@ -5870,13 +5666,8 @@ bool QXmlSimpleReader::parseComment()
 
 	// get input
 	if ( atEnd() ) {
-	    if ( d->parseStack == 0 ) {
-		reportParseError( XMLERR_UNEXPECTEDEOF );
-		return FALSE;
-	    } else {
-		// ### incremental store state stuff
-		goto incrementalEnd;
-	    }
+	    unexpectedEof( &parseComment, state );
+	    return FALSE;
 	}
 	if        ( c == '-' ) {
 	    input = InpDash;
@@ -5931,13 +5722,6 @@ bool QXmlSimpleReader::parseComment()
 	}
 
     }
-
-incrementalEnd:
-    QXmlSimpleReaderPrivate::ParseState *ps = new QXmlSimpleReaderPrivate::ParseState;
-    ps->function = &QXmlSimpleReader::parseComment;
-    ps->state = state;
-    d->parseStack->push( ps );
-    return FALSE;
 }
 
 /*!
@@ -5986,13 +5770,8 @@ bool QXmlSimpleReader::parseAttribute()
 
 	// get input
 	if ( atEnd() ) {
-	    if ( d->parseStack == 0 ) {
-		reportParseError( XMLERR_UNEXPECTEDEOF );
-		return FALSE;
-	    } else {
-		// ### incremental store state stuff
-		goto incrementalEnd;
-	    }
+	    unexpectedEof( &parseAttribute, state );
+	    return FALSE;
 	}
 	if        ( is_NameBeginning(c) ) {
 	    input = InpNameBe;
@@ -6047,13 +5826,6 @@ bool QXmlSimpleReader::parseAttribute()
 	}
 
     }
-
-incrementalEnd:
-    QXmlSimpleReaderPrivate::ParseState *ps = new QXmlSimpleReaderPrivate::ParseState;
-    ps->function = &QXmlSimpleReader::parseAttribute;
-    ps->state = state;
-    d->parseStack->push( ps );
-    return FALSE;
 }
 
 /*
@@ -6090,13 +5862,8 @@ bool QXmlSimpleReader::parseName()
 
 	// get input
 	if ( atEnd() ) {
-	    if ( d->parseStack == 0 ) {
-		reportParseError( XMLERR_UNEXPECTEDEOF );
-		return FALSE;
-	    } else {
-		// ### incremental store state stuff
-		goto incrementalEnd;
-	    }
+	    unexpectedEof( &parseName, state );
+	    return FALSE;
 	}
 	if        ( is_NameBeginning(c) ) {
 	    input = InpNameBe;
@@ -6141,13 +5908,6 @@ bool QXmlSimpleReader::parseName()
 	}
 
     }
-
-incrementalEnd:
-    QXmlSimpleReaderPrivate::ParseState *ps = new QXmlSimpleReaderPrivate::ParseState;
-    ps->function = &QXmlSimpleReader::parseName;
-    ps->state = state;
-    d->parseStack->push( ps );
-    return FALSE;
 }
 
 /*
@@ -6183,13 +5943,8 @@ bool QXmlSimpleReader::parseNmtoken()
 
 	// get input
 	if ( atEnd() ) {
-	    if ( d->parseStack == 0 ) {
-		reportParseError( XMLERR_UNEXPECTEDEOF );
-		return FALSE;
-	    } else {
-		// ### incremental store state stuff
-		goto incrementalEnd;
-	    }
+	    unexpectedEof( &parseNmtoken, state );
+	    return FALSE;
 	}
 	if ( is_NameChar(c) ) {
 	    input = InpNameCh;
@@ -6223,13 +5978,6 @@ bool QXmlSimpleReader::parseNmtoken()
 	}
 
     }
-
-incrementalEnd:
-    QXmlSimpleReaderPrivate::ParseState *ps = new QXmlSimpleReaderPrivate::ParseState;
-    ps->function = &QXmlSimpleReader::parseNmtoken;
-    ps->state = state;
-    d->parseStack->push( ps );
-    return FALSE;
 }
 
 /*
@@ -6293,13 +6041,8 @@ bool QXmlSimpleReader::parseReference()
 
 	// get input
 	if ( atEnd() ) {
-	    if ( d->parseStack == 0 ) {
-		reportParseError( XMLERR_UNEXPECTEDEOF );
-		return FALSE;
-	    } else {
-		// ### incremental store state stuff
-		goto incrementalEnd;
-	    }
+	    unexpectedEof( &parseReference, state );
+	    return FALSE;
 	}
 	if        ( c.row() ) {
 	    input = InpUnknown;
@@ -6392,13 +6135,6 @@ bool QXmlSimpleReader::parseReference()
 	}
 
     }
-
-incrementalEnd:
-    QXmlSimpleReaderPrivate::ParseState *ps = new QXmlSimpleReaderPrivate::ParseState;
-    ps->function = &QXmlSimpleReader::parseReference;
-    ps->state = state;
-    d->parseStack->push( ps );
-    return FALSE;
 }
 
 /*
@@ -6584,13 +6320,8 @@ bool QXmlSimpleReader::parseString()
 
 	// get input
 	if ( atEnd() ) {
-	    if ( d->parseStack == 0 ) {
-		reportParseError( XMLERR_UNEXPECTEDEOF );
-		return FALSE;
-	    } else {
-		// ### incremental store state stuff
-		goto incrementalEnd;
-	    }
+	    unexpectedEof( &parseString, state );
+	    return FALSE;
 	}
 	if ( c == d->parseString_s[(int)state] ) {
 	    input = InpCharExpected;
@@ -6615,13 +6346,6 @@ bool QXmlSimpleReader::parseString()
 	}
 
     }
-
-incrementalEnd:
-    QXmlSimpleReaderPrivate::ParseState *ps = new QXmlSimpleReaderPrivate::ParseState;
-    ps->function = &QXmlSimpleReader::parseString;
-    ps->state = state;
-    d->parseStack->push( ps );
-    return FALSE;
 }
 
 
@@ -6678,6 +6402,34 @@ void QXmlSimpleReader::reportParseError( const QString& error )
 	    errorHnd->fatalError( QXmlParseException( d->error, columnNr+1, lineNr+1 ) );
 	}
     }
+}
+
+/*
+  This private function is called when a parsing function encounters an
+  unexpected EOF. It decides what to do (depending on incremental parsing or
+  not). \a where is a pointer to the function where the error occured and \a
+  state is the parsing state in this function.
+*/
+void QXmlSimpleReader::unexpectedEof( parseFunction where, int state )
+{
+    if ( d->parseStack == 0 ) {
+	reportParseError( XMLERR_UNEXPECTEDEOF );
+    } else {
+	pushParseState( where, state );
+    }
+}
+
+/*
+  This private function pushes the function pointer \a function and state \a
+  state to the parse stack. This is used when you are doing an incremental
+  parsing and reach the end of file too early.
+*/
+void QXmlSimpleReader::pushParseState( parseFunction function, int state )
+{
+    QXmlSimpleReaderPrivate::ParseState *ps = new QXmlSimpleReaderPrivate::ParseState;
+    ps->function = function;
+    ps->state = state;
+    d->parseStack->push( ps );
 }
 
 #endif //QT_NO_XML
