@@ -154,6 +154,18 @@ QMainWindowLayout::QMainWindowLayout(QMainWindow *mainwindow)
 
 QMainWindowLayout::~QMainWindowLayout()
 {
+    for (int line = 0; line < tb_layout_info.size(); ++line) {
+        const ToolBarLineInfo &lineInfo = tb_layout_info.at(line);
+        for (int i = 0; i < lineInfo.list.size(); ++i)
+            delete lineInfo.list.at(i).item;
+    }
+    for (int i = 0; i < NPOSITIONS; ++i) {
+        delete layout_info[i].item;
+        if (layout_info[i].sep)
+            delete layout_info[i].sep->widget();
+        delete layout_info[i].sep;
+    }
+    delete statusbar;
 }
 
 QStatusBar *QMainWindowLayout::statusBar() const
@@ -162,6 +174,7 @@ QStatusBar *QMainWindowLayout::statusBar() const
 void QMainWindowLayout::setStatusBar(QStatusBar *sb)
 {
     addChildWidget(sb);
+    delete statusbar;
     statusbar = new QWidgetItem(sb);
 }
 
