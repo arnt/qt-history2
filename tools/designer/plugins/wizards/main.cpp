@@ -58,7 +58,7 @@ QStringList StandardTemplateWizardInterface::featureList() const
 #ifndef QT_NO_SQL
     list << "QDataBrowser" << "QDesignerDataBrowser" << "QDataView" << \
 	"QDesignerDataView" << "QDataTable";
-#endif;
+#endif
     list << "QMainWindow";
 
     return list;
