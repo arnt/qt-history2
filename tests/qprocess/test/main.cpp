@@ -34,15 +34,26 @@ int main( int argc, char **argv )
 	QVBox vb;
 
 	QPushButton *newProcess;
-	newProcess = new QPushButton( "New Process (cat)", &vb );
+	// start process
+	newProcess = new QPushButton( "Start Process (cat)", &vb );
 	QObject::connect( newProcess, SIGNAL(clicked()),
-		&factory, SLOT(newProcess0()) );
-	newProcess = new QPushButton( "New Process (guicat)", &vb );
+		&factory, SLOT(startProcess0()) );
+	newProcess = new QPushButton( "Start Process (guicat)", &vb );
 	QObject::connect( newProcess, SIGNAL(clicked()),
-		&factory, SLOT(newProcess1()) );
-	newProcess = new QPushButton( "New Process (p4)", &vb );
+		&factory, SLOT(startProcess1()) );
+	newProcess = new QPushButton( "Start Process (p4)", &vb );
 	QObject::connect( newProcess, SIGNAL(clicked()),
-		&factory, SLOT(newProcess2()) );
+		&factory, SLOT(startProcess2()) );
+	// launch process
+	newProcess = new QPushButton( "Launch Process (cat)", &vb );
+	QObject::connect( newProcess, SIGNAL(clicked()),
+		&factory, SLOT(launchProcess0()) );
+	newProcess = new QPushButton( "Launch Process (guicat)", &vb );
+	QObject::connect( newProcess, SIGNAL(clicked()),
+		&factory, SLOT(launchProcess1()) );
+	newProcess = new QPushButton( "Launch Process (p4)", &vb );
+	QObject::connect( newProcess, SIGNAL(clicked()),
+		&factory, SLOT(launchProcess2()) );
 
 	QPushButton *quit = new QPushButton ( "Quit", &vb );
 	QObject::connect( quit, SIGNAL(clicked()),

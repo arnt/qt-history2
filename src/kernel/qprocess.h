@@ -65,6 +65,8 @@ public:
 
     // control the execution
     bool start();
+    bool launch( const QByteArray& buf );
+    bool launch( const QString& buf );
     bool hangUp();
     bool kill();
 

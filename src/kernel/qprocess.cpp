@@ -161,6 +161,47 @@ int QProcess::exitStatus()
 
 
 /*!
+  Starts a process and writes the data \a buf to stdin of the process. If all
+  data is written to stdin, it closes stdin.
+
+  Notice that you should not use the slots dataStdin() and closeStdin() on
+  processes started with launch(). If you need these slots, use start()
+  instead.
+
+  The string is handled as a text. So what is written to stdin is the
+  QString::latin1(). The process may or may not read this data. If the data was
+  read, the signal wroteStdin() is emitted.
+
+  \sa start()
+*/
+bool QProcess::launch( const QString& buf )
+{
+    if ( start() ) {
+	connect( this, SIGNAL(wroteStdin()),
+		this, SLOT(closeStdin()) );
+	dataStdout( buf );
+	return TRUE;
+    } else {
+	return FALSE;
+    }
+}
+
+/*! \overwrite
+*/
+bool QProcess::launch( const QByteArray& buf )
+{
+    if ( start() ) {
+	connect( this, SIGNAL(wroteStdin()),
+		this, SLOT(closeStdin()) );
+	dataStdout( buf );
+	return TRUE;
+    } else {
+	return FALSE;
+    }
+}
+
+
+/*!
   \fn void QProcess::dataStdout( const QByteArray& buf )
 
   When the process wrote data to stdout, this signal is emitted.

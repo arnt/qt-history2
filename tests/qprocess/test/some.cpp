@@ -14,7 +14,7 @@
 static QLabel *out;
 static QLabel *err;
 
-Some::Some( QObject *p, bool cStdout, bool cStderr, bool cExit, int com )
+Some::Some( QObject *p, bool start, bool cStdout, bool cStderr, bool cExit, int com )
 	: QObject( p )
 {
     proc = new QProcess( this );
@@ -107,9 +107,16 @@ Some::Some( QObject *p, bool cStdout, bool cStderr, bool cExit, int com )
     QObject::connect( proc, SIGNAL(wroteStdin()),
 		this, SLOT(wroteStdin()) );
 
-    if ( !proc->start() ) {
-	qWarning( "Could not start process" );
-	return;
+    if ( start ) {
+	if ( !proc->start() ) {
+	    qWarning( "Could not start process" );
+	    return;
+	}
+    } else {
+	if ( !proc->launch( "Foo Bla Fnord Test Hmpfl" ) ) {
+	    qWarning( "Could not start process" );
+	    return;
+	}
     }
     main.show();
 }
@@ -204,19 +211,34 @@ void Some::connectExit( bool enable )
  * SomeFactory
 */
 
-void SomeFactory::newProcess0()
+void SomeFactory::startProcess0()
 {
-    new Some( parent, cStdout, cStderr, cExit, 0 );
+    new Some( parent, TRUE, cStdout, cStderr, cExit, 0 );
 }
 
-void SomeFactory::newProcess1()
+void SomeFactory::startProcess1()
 {
-    new Some( parent, cStdout, cStderr, cExit, 1 );
+    new Some( parent, TRUE, cStdout, cStderr, cExit, 1 );
 }
 
-void SomeFactory::newProcess2()
+void SomeFactory::startProcess2()
 {
-    new Some( parent, cStdout, cStderr, cExit, 2 );
+    new Some( parent, TRUE, cStdout, cStderr, cExit, 2 );
+}
+
+void SomeFactory::launchProcess0()
+{
+    new Some( parent, FALSE, cStdout, cStderr, cExit, 0 );
+}
+
+void SomeFactory::launchProcess1()
+{
+    new Some( parent, FALSE, cStdout, cStderr, cExit, 1 );
+}
+
+void SomeFactory::launchProcess2()
+{
+    new Some( parent, FALSE, cStdout, cStderr, cExit, 2 );
 }
 
 void SomeFactory::quit()

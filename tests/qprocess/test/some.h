@@ -10,7 +10,7 @@ class Some : public QObject
     Q_OBJECT
 
 public:
-    Some( QObject *, bool cStdout, bool cStderr, bool cExitp, int com );
+    Some( QObject *, bool start, bool cStdout, bool cStderr, bool cExitp, int com );
     ~Some() { };
 
 public slots:
@@ -50,9 +50,12 @@ public:
     { delete parent; };
 
 public slots:
-    void newProcess0();
-    void newProcess1();
-    void newProcess2();
+    void startProcess0();
+    void startProcess1();
+    void startProcess2();
+    void launchProcess0();
+    void launchProcess1();
+    void launchProcess2();
     void quit();
 
     void connectStdout( bool enable );
