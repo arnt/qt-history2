@@ -522,34 +522,6 @@ QMessageBox::QMessageBox(const QString& caption,
     setIcon(icon);
 }
 
-#ifdef QT_COMPAT
-QMessageBox::QMessageBox(const QString& caption,
-                          const QString &text, Icon icon,
-                          int button0, int button1, int button2,
-                          QWidget *parent, const char *name,
-                          bool modal, Qt::WFlags f)
-    : QDialog(parent, f | Qt::WStyle_Customize | Qt::WStyle_DialogBorder | Qt::WStyle_Title
-                        | Qt::WStyle_SysMenu)
-{
-    setObjectName(name);
-    setModal(modal);
-    init(button0, button1, button2);
-#ifndef QT_NO_WIDGET_TOPEXTRA
-    setWindowTitle(caption);
-#endif
-    setText(text);
-    setIcon(icon);
-}
-
-QMessageBox::QMessageBox(QWidget *parent, const char *name)
-    : QDialog(parent, Qt::WStyle_Customize | Qt::WStyle_DialogBorder | Qt::WStyle_Title
-                      | Qt::WStyle_SysMenu)
-{
-    setObjectName(name);
-    setModal(true);
-    init(Ok, 0, 0);
-}
-#endif
 
 
 /*!
@@ -751,6 +723,34 @@ void QMessageBox::setIcon(Icon icon)
     mbd->icon = icon;
 }
 
+#ifdef QT_COMPAT
+QMessageBox::QMessageBox(const QString& caption,
+                          const QString &text, Icon icon,
+                          int button0, int button1, int button2,
+                          QWidget *parent, const char *name,
+                          bool modal, Qt::WFlags f)
+    : QDialog(parent, f | Qt::WStyle_Customize | Qt::WStyle_DialogBorder | Qt::WStyle_Title
+                        | Qt::WStyle_SysMenu)
+{
+    setObjectName(name);
+    setModal(modal);
+    init(button0, button1, button2);
+#ifndef QT_NO_WIDGET_TOPEXTRA
+    setWindowTitle(caption);
+#endif
+    setText(text);
+    setIcon(icon);
+}
+
+QMessageBox::QMessageBox(QWidget *parent, const char *name)
+    : QDialog(parent, Qt::WStyle_Customize | Qt::WStyle_DialogBorder | Qt::WStyle_Title
+                      | Qt::WStyle_SysMenu)
+{
+    setObjectName(name);
+    setModal(true);
+    init(Ok, 0, 0);
+}
+
 /*!
   \obsolete
 
@@ -762,7 +762,6 @@ void QMessageBox::setIcon(Icon icon)
   \a style is unused.
 */
 
-#ifdef QT_COMPAT
 QPixmap QMessageBox::standardIcon(Icon icon, Qt::GUIStyle style)
 {
     Q_UNUSED(style);

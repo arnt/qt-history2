@@ -38,13 +38,6 @@ public:
     QMessageBox(const QString &caption, const QString &text, Icon icon,
                 int button0, int button1, int button2,
                 QWidget *parent = 0, Qt::WFlags f = Qt::WStyle_DialogBorder);
-#ifdef QT_COMPAT
-    QT_COMPAT_CONSTRUCTOR QMessageBox(const QString &caption, const QString &text, Icon icon,
-                                      int button0, int button1, int button2,
-                                      QWidget *parent, const char *name, bool modal,
-                                      Qt::WFlags f = Qt::WStyle_DialogBorder);
-    QT_COMPAT_CONSTRUCTOR QMessageBox(QWidget *parent, const char *name);
-#endif
     ~QMessageBox();
 
     enum { NoButton = 0, Ok = 1, Cancel = 2, Yes = 3, No = 4, Abort = 5,
@@ -101,28 +94,6 @@ public:
     static void aboutQt(QWidget *parent,
                          const QString& caption=QString());
 
-/* OBSOLETE */
-    static int message(const QString &caption,
-                        const QString& text,
-                        const QString& buttonText=QString(),
-                        QWidget *parent=0, const char * =0) {
-        return QMessageBox::information(parent, caption, text,
-                                     buttonText.isEmpty()
-                                     ? tr("OK") : buttonText) == 0;
-    }
-
-/* OBSOLETE */
-    static bool query(const QString &caption,
-                       const QString& text,
-                       const QString& yesButtonText=QString(),
-                       const QString& noButtonText=QString(),
-                       QWidget *parent=0, const char * = 0) {
-        return QMessageBox::information(parent, caption, text,
-                                     yesButtonText.isEmpty()
-                                     ? tr("OK") : yesButtonText,
-                                     noButtonText) == 0;
-    }
-
     QString        text() const;
     void        setText(const QString &);
 
@@ -139,8 +110,31 @@ public:
     QSize sizeHint() const;
 
 #ifdef QT_COMPAT
-/* OBSOLETE */
+    QT_COMPAT_CONSTRUCTOR QMessageBox(const QString &caption, const QString &text, Icon icon,
+                                      int button0, int button1, int button2,
+                                      QWidget *parent, const char *name, bool modal,
+                                      Qt::WFlags f = Qt::WStyle_DialogBorder);
+    QT_COMPAT_CONSTRUCTOR QMessageBox(QWidget *parent, const char *name);
+/* Obsolete Functions */
     static QPixmap standardIcon(Icon icon, Qt::GUIStyle);
+    static int message(const QString &caption,
+                        const QString& text,
+                        const QString& buttonText=QString(),
+                        QWidget *parent=0, const char * =0) {
+        return QMessageBox::information(parent, caption, text,
+                                     buttonText.isEmpty()
+                                     ? tr("OK") : buttonText) == 0;
+    }
+    static bool query(const QString &caption,
+                       const QString& text,
+                       const QString& yesButtonText=QString(),
+                       const QString& noButtonText=QString(),
+                       QWidget *parent=0, const char * = 0) {
+        return QMessageBox::information(parent, caption, text,
+                                     yesButtonText.isEmpty()
+                                     ? tr("OK") : yesButtonText,
+                                     noButtonText) == 0;
+    }
 #endif
 
     static QPixmap standardIcon(Icon icon);
