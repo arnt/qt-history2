@@ -111,8 +111,7 @@ fi
 
 echo "Removing local files..." >&2
 cd ${DISTDIR}
-rm -f qt/doc.conf qt/opengl/doc.conf extensions/nsplugin/doc.conf
-find qt -name .cvsignore | xargs rm -f
+find qt -name .cvsignore -o -name doc.conf | xargs rm -f
 rm -rf qt/doc qt/etc qt/gif qt/tmake
 rm -rf qt/examples/sheet
 rm -rf qt/examples/scrollview
@@ -178,8 +177,9 @@ echo "Finally packing the distribution, see ${DISTDIR}..." >&2
 
 if [ "${platform}" = "win" ]; then
   cd ${DISTDIR}
+  mkdir qt/src/tmp
   v=`echo ${VERSION} | sed -e 's/\.//'`
-  zip -r qtwin${v}.zip qt
+  zip -r -9 qtwin${v}.zip qt
 fi
 
 if [ "${platform}" = "x11" ]; then

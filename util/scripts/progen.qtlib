@@ -97,6 +97,7 @@ $version  = "VERSION     =\t" . $qt_version;
 
 print "TEMPLATE    =\t" . "lib" . "\n";
 print "CONFIG      =\t" . "qt warn_on release" . "\n";
+print "MOC_DIR     =\t" . "tmp" . "\n" if ( $platform eq "win" );
 print $headers  . "\n";
 print $sources  . "\n";
 print "TARGET      =\t" . "qt" . "\n";
