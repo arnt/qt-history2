@@ -688,115 +688,176 @@ void QWorkspace::resizeEvent( QResizeEvent * )
 
 void QWorkspace::handleUndock(QDockWindow *w)
 {
-    int overlap, minOverlap = 0;
-    int possible;
-
-    QRect r1(0, 0, 0, 0);
-    QRect r2(0, 0, 0, 0);
-    QDesktopWidget *dw = qApp->desktop();
+    const QDesktopWidget *dw = qApp->desktop();
     QRect maxRect = dw->availableGeometry(dw->screenNumber(d->mainwindow));
-    int x = maxRect.left(), y = maxRect.top();
     QPoint wpos(maxRect.left(), maxRect.top());
-
-    bool firstPass = TRUE;
-
-    do {
-	if ( y + w->height() > maxRect.bottom() ) {
-	    overlap = -1;
-	} else if( x + w->width() > maxRect.right() ) {
-	    overlap = -2;
-	} else {
-	    overlap = 0;
-
-	    r1.setRect(x, y, w->width(), w->height());
-
-	    QWidget *l;
-	    QPtrListIterator<QDockWindow> it( d->dockwindows );
-	    while ( it.current () ) {
+    int possible = 0;
+    {
+	struct place_score { int o, x, y; } score;
+	int left = 1, x = wpos.x(), y = wpos.y();
+	QPtrListIterator<QDockWindow> it( d->dockwindows );
+	while(1) {
+	    if(y + w->height() > maxRect.bottom()) {
+		if(left) {
+		    x = maxRect.right() - w->width();
+		    y = maxRect.top();
+		    left = 0;
+		} else {
+		    break;
+		}
+	    }
+	    QWidget *l, *p = NULL;
+	    for ( it.toFirst(); it.current(); ++it ) {
 		l = it.current();
-		++it;
-		if (! d->icons.contains(l) && ! l->isHidden() && l != w ) {
-		    r2.setRect(l->x(), l->y(), l->width(), l->height());
-
-		    if (r2.intersects(r1)) {
-			r2.setCoords(QMAX(r1.left(), r2.left()),
-				     QMAX(r1.top(), r2.top()),
-				     QMIN(r1.right(), r2.right()),
-				     QMIN(r1.bottom(), r2.bottom())
-				     );
-
-			overlap += (r2.right() - r2.left()) *
-				   (r2.bottom() - r2.top());
+		if ( l != w && y >= l->y() && l->y() + l->height() > y) {
+		    if(l->rect().intersects(QRect(x, y, w->width(), w->height())) ||
+		       (left && l->x() < maxRect.width() / 2) || (!left && l->x() > maxRect.width() / 2)) 
+			p = (!p || (((left && l->x() < p->x()) || (!left && l->x() > p->x())) && 
+				    ((y - l->y()) < (y - p->y())))) ? l : p;
+		}
+	    }
+	    if(!p || !p->rect().intersects(QRect(x, y, w->width(), w->height()))) {
+		wpos = QPoint(x, y);
+		possible = 1;
+		break;
+	    }
+	    for ( it.toFirst(); it.current(); ++it ) {
+		l = it.current();
+		if ( l != w && l->y() == p->y() ) {
+		     if( (left  && (l->x() + l->width()) > (p->x() + p->width())) ||
+			 (!left && (l->x() < p->x()) ) ) {
+			 p = l;
+		     }
+		}
+	    }
+	    QPoint sc_pt;
+	    place_score sc;
+	    if(left) {
+		sc_pt = QPoint(p->x() + p->width(), p->y());
+		sc.x = (sc_pt.x() + w->width()) * 2;
+	    } else {
+		sc_pt = QPoint(p->x() - w->width(), p->y());
+		sc.x = ((maxRect.width() - sc_pt.x()) * 2) + 1;
+	    }
+	    sc.y = sc_pt.y();
+	    for ( it.toFirst(); it.current(); ++it ) {
+		l = it.current();
+		if ( l != w && !l->isHidden() && 
+		     l->geometry().intersects(QRect(sc_pt, w->size()))) {
+		    sc.o = 1;
+		    break;
+		}
+	    }
+	    if(maxRect.contains(sc_pt) && 
+	       (!possible || (score.o && !sc.o && score.x < sc.x))) {
+		wpos = sc_pt;
+		score = sc;
+		possible = 1;
+	    }
+	    y += p->height();
+	}
+    }
+    if(!possible) { //fallback to less knowledgeable algorhythm
+	wpos = QPoint(maxRect.left(), maxRect.top());
+	int overlap, minOverlap = 0;
+	QRect r1(0, 0, 0, 0);
+	QRect r2(0, 0, 0, 0);
+	int x = maxRect.left(), y = maxRect.top();
+	bool firstPass = TRUE;
+	do {
+	    if ( y + w->height() > maxRect.bottom() ) {
+		overlap = -1;
+	    } else if( x + w->width() > maxRect.right() ) {
+		overlap = -2;
+	    } else {
+		overlap = 0;
+		r1.setRect(x, y, w->width(), w->height());
+		QWidget *l;
+		QPtrListIterator<QDockWindow> it( d->dockwindows );
+		while ( it.current () ) {
+		    l = it.current();
+		    ++it;
+		    if (! d->icons.contains(l) && ! l->isHidden() && l != w ) {
+			r2.setRect(l->x(), l->y(), l->width(), l->height());
+			if (r2.intersects(r1)) {
+			    r2.setCoords(QMAX(r1.left(), r2.left()),
+					 QMAX(r1.top(), r2.top()),
+					 QMIN(r1.right(), r2.right()),
+					 QMIN(r1.bottom(), r2.bottom())
+				);
+			    overlap += (r2.right() - r2.left()) *
+				       (r2.bottom() - r2.top());
+			}
 		    }
 		}
 	    }
-	}
 
-	if (overlap == 0) {
-	    wpos = QPoint(x, y);
-	    break;
-	}
+	    if (overlap == 0) {
+		wpos = QPoint(x, y);
+		break;
+	    }
 
-	if (firstPass) {
-	    firstPass = FALSE;
-	    minOverlap = overlap;
-	} else if ( overlap >= 0 && overlap < minOverlap) {
-	    minOverlap = overlap;
-	    wpos = QPoint(x, y);
-	}
+	    if (firstPass) {
+		firstPass = FALSE;
+		minOverlap = overlap;
+	    } else if ( overlap >= 0 && overlap < minOverlap) {
+		minOverlap = overlap;
+		wpos = QPoint(x, y);
+	    }
 
-	if ( overlap > 0 ) {
-	    possible = maxRect.right();
-	    if ( possible - w->width() > x) possible -= w->width();
+	    if ( overlap > 0 ) {
+		possible = maxRect.right();
+		if ( possible - w->width() > x) possible -= w->width();
 
-	    QWidget *l;
-	    QPtrListIterator<QDockWindow> it( d->dockwindows );
-	    while ( it.current () ) {
-		l = it.current();
-		++it;
-		if (! d->icons.contains(l) && ! l->isHidden() && l != w ) {
-		    r2.setRect(l->x(), l->y(), l->width(), l->height());
+		QWidget *l;
+		QPtrListIterator<QDockWindow> it( d->dockwindows );
+		while ( it.current () ) {
+		    l = it.current();
+		    ++it;
+		    if (! d->icons.contains(l) && ! l->isHidden() && l != w ) {
+			r2.setRect(l->x(), l->y(), l->width(), l->height());
 
-		    if( ( y < r2.bottom() ) && ( r2.top() < w->height() + y ) ) {
-			if( r2.right() > x )
-			    possible = possible < r2.right() ?
-				       possible : r2.right();
+			if( ( y < r2.bottom() ) && ( r2.top() < w->height() + y ) ) {
+			    if( r2.right() > x )
+				possible = possible < r2.right() ?
+					   possible : r2.right();
 
-			if( r2.left() - w->width() > x )
-			    possible = possible < r2.left() - w->width() ?
-				       possible : r2.left() - w->width();
+			    if( r2.left() - w->width() > x )
+				possible = possible < r2.left() - w->width() ?
+					   possible : r2.left() - w->width();
+			}
 		    }
 		}
-	    }
 
-	    x = possible;
-	} else if ( overlap == -2 ) {
-	    x = maxRect.left();
-	    possible = maxRect.bottom();
+		x = possible;
+	    } else if ( overlap == -2 ) {
+		x = maxRect.left();
+		possible = maxRect.bottom();
 
-	    if ( possible - w->height() > y ) possible -= w->height();
+		if ( possible - w->height() > y ) possible -= w->height();
 
-	    QWidget *l;
-	    QPtrListIterator<QDockWindow> it( d->dockwindows );
-	    while ( it.current () ) {
-		l = it.current();
-		++it;
-		if (l != w && ! d->icons.contains(w)) {
-		    r2.setRect(l->x(), l->y(), l->width(), l->height());
+		QWidget *l;
+		QPtrListIterator<QDockWindow> it( d->dockwindows );
+		while ( it.current () ) {
+		    l = it.current();
+		    ++it;
+		    if (l != w && ! d->icons.contains(w)) {
+			r2.setRect(l->x(), l->y(), l->width(), l->height());
 
-		    if( r2.bottom() > y)
-			possible = possible < r2.bottom() ?
-				   possible : r2.bottom();
+			if( r2.bottom() > y)
+			    possible = possible < r2.bottom() ?
+				       possible : r2.bottom();
 
-		    if( r2.top() - w->height() > y )
-			possible = possible < r2.top() - w->height() ?
-				   possible : r2.top() - w->height();
+			if( r2.top() - w->height() > y )
+			    possible = possible < r2.top() - w->height() ?
+				       possible : r2.top() - w->height();
+		    }
 		}
-	    }
 
-	    y = possible;
-	}
-    } while( overlap != 0 && overlap != -1 );
+		y = possible;
+	    }
+	} while( overlap != 0 && overlap != -1 );
+    }
 
     bool ishidden = w->isHidden();
     QSize olds(w->size());
@@ -856,7 +917,7 @@ void QWorkspace::showEvent( QShowEvent *e )
 			    tb_list.append((QToolBar *)(*dock_it));
 			} else if ((*dock_it)->inherits("QDockWindow")) {
 			    QDockWindow *dw = (QDockWindow*)(*dock_it);
-			    dw->move(dw->mapTo(o, QPoint(0, 0)));
+			    dw->move(dw->mapToGlobal(QPoint(0, 0)));
 			    d->dockwindows.append(dw);
 			} else {
 			    qDebug("not sure what to do with %s %s", (*dock_it)->className(),
