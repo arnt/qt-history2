@@ -18,7 +18,7 @@ public:
 	HostInfo( const HostInfo &d ) : error( d.error ), errorString( d.errorString ), addresses( d.addresses )
 	{}
 
-	QResolver::Error error;
+	Error error;
 	QString errorString;
 	QList<QHostAddress> addresses;
     };
