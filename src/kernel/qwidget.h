@@ -287,6 +287,11 @@ public slots:
     virtual void	setFocus();
     void		clearFocus();
 
+#ifndef QT_NO_REMOTE
+    QString		alias() const;
+    void		setAlias( const QString & );
+#endif
+
 public:
     enum FocusPolicy {
 	NoFocus = 0,
@@ -958,6 +963,9 @@ struct Q_EXPORT QWExtra {
 #endif
     QRect micro_focus_hint;                     // micro focus hint
     QSizePolicy size_policy;
+#ifndef QT_NO_REMOTE
+    QString alias;				// alias name for the widget
+#endif
 };
 
 
