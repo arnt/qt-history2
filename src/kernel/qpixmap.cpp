@@ -1131,42 +1131,6 @@ QDataStream &operator>>( QDataStream &s, QPixmap &pixmap )
     return s;
 }
 
-/*! Convenience function. Gets the data associated with the absolute
-  name \a abs_name from the default mime source factory and decodes it
-  to an image.
-
-  \sa QMimeSourceFactory, QImage::fromMimeSource(), QImageDrag::decode()
-*/
-#ifndef QT_NO_MIME
-QImage QImage::fromMimeSource( const QString &abs_name )
-{
-    const QMimeSource *m = QMimeSourceFactory::defaultFactory()->data( abs_name );
-    if ( !m ) {
-	qWarning("QImage::fromMimeSource: Cannot find image \"%s\" in the mime source factory", abs_name.latin1() );
-	return QImage();
-    }
-    QImage img;
-    QImageDrag::decode( m, img );
-    return img;
-}
-#endif
-
-/*!
-    Sets the image bits to the \a pixmap contents and returns a
-    reference to the image.
-
-    If the image shares data with other images, it will first
-    dereference the shared data.
-
-    Makes a call to QPixmap::convertToImage().
-*/
-
-QImage &QImage::operator=( const QPixmap &pixmap )
-{
-    *this = pixmap.convertToImage();
-    return *this;
-}
-
 #endif //QT_NO_DATASTREAM
 
 
