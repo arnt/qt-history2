@@ -1033,6 +1033,11 @@ QRect QGenericListView::selectionViewportRect(const QItemSelection &selection) c
     return d->viewport->clipRegion().boundingRect();
 }
 
+QSize QGenericListView::sizeHint() const
+{
+    return d->contentsSize;
+}
+
 /*!
     \internal
 

@@ -362,6 +362,14 @@ QModelIndex QGenericTableView::itemAt(int x, int y) const
 }
 
 /*!
+  \reimpl
+*/
+QSize QGenericTableView::sizeHint() const
+{
+    return QSize(d->horizontalHeader->size(), d->verticalHeader->size());
+}
+
+/*!
     Returns the horizontal offset of the items in the table view.
 
     \sa verticalOffset()

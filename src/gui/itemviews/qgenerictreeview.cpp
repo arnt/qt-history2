@@ -616,6 +616,20 @@ QModelIndex QGenericTreeView::itemBelow(const QModelIndex &index) const
 }
 
 /*!
+  \reimpl
+*/
+
+QSize QGenericTreeView::sizeHint() const
+{
+    QStyleOptionViewItem option = q->viewOptions();
+    QFontMetrics fontMetrics(q->fontMetrics());
+    int s = d->items.isEmpty()
+            ? 0
+            : d->delegate->sizeHint(fontMetrics, option, d->model, d->items.at(0).index).height();
+    return QSize(d->header->size(), s * d->items.count());
+}
+
+/*!
   Layout the items in the tree view.
 */
 
@@ -788,7 +802,6 @@ QRect QGenericTreeView::selectionViewportRect(const QItemSelection &selection) c
 void QGenericTreeView::scrollContentsBy(int dx, int dy)
 {
     int items = qMin(d->items.count(), d->viewport->height() / fontMetrics().height());
-    int max_dx = horizontalFactor() * items;
     int max_dy = verticalFactor() * items;
 
     // no need to do a lot of work if we are going to redraw the whole thing anyway

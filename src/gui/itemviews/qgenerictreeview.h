@@ -56,6 +56,8 @@ public:
     QModelIndex itemAbove(const QModelIndex &index) const;
     QModelIndex itemBelow(const QModelIndex &index) const;
 
+    QSize sizeHint() const;
+    
     void doItemsLayout();
 
 signals:

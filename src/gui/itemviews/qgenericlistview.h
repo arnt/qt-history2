@@ -71,6 +71,8 @@ public:
     void ensureItemVisible(const QModelIndex &item);
     QModelIndex itemAt(int x, int y) const;
 
+    QSize sizeHint() const;
+
     void doItemsLayout();
 
 protected:
