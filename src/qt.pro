@@ -147,7 +147,6 @@ kernel:HEADERS += $$KERNEL_H/qabstractlayout.h \
 		  $$KERNEL_H/qaccel.h \
 		  $$KERNEL_H/qapplication.h \
 		  $$KERNEL_H/qapplication_p.h \
-		  $$KERNEL_H/qapplicationinterface.h \
 		  $$KERNEL_H/qasyncimageio.h \
 		  $$KERNEL_H/qasyncio.h \
 		  $$KERNEL_H/qbitmap.h \
@@ -156,6 +155,7 @@ kernel:HEADERS += $$KERNEL_H/qabstractlayout.h \
 		  $$KERNEL_H/qclipboard.h \
 		  $$KERNEL_H/qcolor.h \
 		  $$KERNEL_H/qcolor_p.h \
+		  $$KERNEL_H/qcomponentinterface.h \
 		  $$KERNEL_H/qconnection.h \
 		  $$KERNEL_H/qcursor.h \
 		  $$KERNEL_H/qdialog.h \
@@ -198,8 +198,7 @@ kernel:HEADERS += $$KERNEL_H/qabstractlayout.h \
 		  $$KERNEL_H/qpixmap.h \
 		  $$KERNEL_H/qpixmapcache.h \
 		  $$KERNEL_H/qplugin.h \
-		  $$KERNEL_H/qplugininterface.h \
-		  $$KERNEL_H/qpluginmanager.h \
+		  $$KERNEL_H/qinterfacemanager.h \
 		  $$KERNEL_H/qpngio.h \
 		  $$KERNEL_H/qpointarray.h \
 		  $$KERNEL_H/qpoint.h \
@@ -474,13 +473,13 @@ tools:SOURCES += tools/qbig5codec.cpp \
 kernel:SOURCES += kernel/qabstractlayout.cpp \
 		  kernel/qaccel.cpp \
 		  kernel/qapplication.cpp \
-		  kernel/qapplicationinterface.cpp \
 		  kernel/qasyncimageio.cpp \
 		  kernel/qasyncio.cpp \
 		  kernel/qbitmap.cpp \
 		  kernel/qclipboard.cpp \
 		  kernel/qcolor.cpp \
 		  kernel/qcolor_p.cpp \
+		  kernel/qcomponentinterface.cpp \
 		  kernel/qconnection.cpp \
 		  kernel/qcursor.cpp \
 		  kernel/qdialog.cpp \

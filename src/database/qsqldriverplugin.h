@@ -2,8 +2,7 @@
 #define QSQLDRIVERPLUGIN_H
 
 #ifndef QT_H
-#include "qplugin.h"
-#include "qpluginmanager.h"
+#include "qinterfacemanager.h"
 #include "qsqldriverinterface.h"
 #endif // QT_H
 
