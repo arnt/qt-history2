@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#190 $
+** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#191 $
 **
 ** Implementation of QComboBox widget class
 **
@@ -316,7 +316,7 @@ QComboBox::QComboBox( bool rw, QWidget *parent, const char *name )
 
     d->current = 0;
     d->maxCount = INT_MAX;
-    d->sizeLimit = 10;
+    setSizeLimit(10);
     d->p = AtBottom;
     d->autoresize = FALSE;
     d->poppedUp = FALSE;
@@ -1239,6 +1239,9 @@ void QComboBox::focusInEvent( QFocusEvent * )
 */
 static int listHeight( QListBox *l, int sl )
 {
+    l->setFixedVisibleLines(QMIN(l->count(), (uint)sl));
+    return l->sizeHint().height();
+/*
     int i;
     int sumH = 0;
     i = l->count();
@@ -1246,6 +1249,7 @@ static int listHeight( QListBox *l, int sl )
     while( --i >= 0 )
 	sumH += l->itemHeight( i );
     return sumH;
+*/
 }
 
 
@@ -1266,9 +1270,6 @@ void QComboBox::popup()
 	d->mouseWasInsidePopup = FALSE;
 	d->listBox->resize( width(),
 			    listHeight( d->listBox, d->sizeLimit ) + 2 );
-	if (d->listBox->bottomScrollBar() )
-	    d->listBox->resize( width(),
-				listHeight( d->listBox, d->sizeLimit ) + 2 + 16 ); //### hardcoded scrollbar height 16
 	QWidget *desktop = QApplication::desktop();
 	int sw = desktop->width();			// screen width
 	int sh = desktop->height();			// screen height

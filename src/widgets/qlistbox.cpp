@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#199 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#200 $
 **
 ** Implementation of QListBox widget class
 **
@@ -1930,15 +1930,16 @@ void QListBox::ensureCurrentVisible( int newCurrent )
 /*!
   Sets a \link QWidget::setFixedHeight() fixed height\endlink for the
   widget, so that it shows the given number of lines of text for the
-  current font size.
+  current font size.  Note that if the lines that are eventually
+  inserted are long enough and the listbox narrow enough so as to
+  require a horizontal scrollbar, less than this number will be visible.
+
+  \sa sizeHint()
 */
 void QListBox::setFixedVisibleLines( int lines )
 {
     int ls = fontMetrics().lineSpacing() + 1; // #### explain +1
-    // #### What about auto-scrollbars?
-    int sb = testTableFlags(Tbl_hScrollBar)
-		? horizontalScrollBar()->height() : 0;
-    setFixedHeight( frameWidth()*2 + ls*lines + sb );
+    setFixedHeight( frameWidth()*2 + ls*lines );
     return;
 }
 
@@ -1948,18 +1949,13 @@ void QListBox::setFixedVisibleLines( int lines )
 */
 QSize QListBox::sizeHint() const
 {
-    QSize sz = QTableView::sizeHint();
-
     int w = (int)maxItemWidth() + 2*frameWidth();
-    if ( testTableFlags(Tbl_vScrollBar) )
+    int h = QMIN(1000,maximumSize().height()); // For when setFixedVisibleLines is used
+    int th = totalHeight() + 2*frameWidth();
+    if ( th > h )
 	w += verticalScrollBar()->width();
-    sz.setWidth(w);
 
-    // For when setFixedVisibleLines is used
-    int h = maximumSize().height();
-    if ( h<1000 ) sz.setHeight(h);
-
-    return sz;
+    return QSize(w,h);
 }
 
 
