@@ -1009,7 +1009,8 @@ int QCString::findRev( char c, int index, bool cs ) const
     register const char *d;
     if ( index < 0 ) {				// neg index ==> start from end
 	index = length();
-    } else if ( (uint)index >= size() ) {	// bad index
+    }
+    if ( (uint)index >= size() ) {		// index out of bounds
 	return -1;
     }
     d = b+index;
@@ -1147,13 +1148,17 @@ int QCString::contains( const char *str, bool cs ) const
 	return 0;
     int len = qstrlen( str );
     if ( cs ) {
-	while ( *d )				// counts overlapping strings
-	    if ( *d == *str && qstrncmp( d++, str, len ) == 0 )
+	while ( *d ) {				// counts overlapping strings
+	    if ( *d == *str && qstrncmp( d, str, len ) == 0 )
 		count++;
+	    ++d;
+	}
     } else {
-	while ( *d )				// counts overlapping strings
-	    if ( qstrnicmp( d++, str, len ) == 0 )
+	while ( *d ) {				// counts overlapping strings
+	    if ( qstrnicmp( d, str, len ) == 0 )
 		count++;
+	    ++d;
+	}
     }
     return count;
 }
