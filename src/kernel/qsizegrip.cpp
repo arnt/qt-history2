@@ -23,7 +23,6 @@
 
 #if defined(Q_WS_X11)
 #include "qt_x11_p.h"
-extern Atom qt_sizegrip;			// defined in qapplication_x11.cpp
 #elif defined (Q_WS_WIN )
 #include "qt_windows.h"
 #elif defined(Q_WS_MAC)
@@ -98,7 +97,7 @@ QSizeGrip::QSizeGrip( QWidget * parent, const char* name )
     if ( !qt_sizegrip_workspace( this ) ) {
 	WId id = winId();
 	XChangeProperty(qt_xdisplay(), topLevelWidget()->winId(),
-			qt_sizegrip, XA_WINDOW, 32, PropModeReplace,
+			ATOM(Qt_Sizegrip), XA_WINDOW, 32, PropModeReplace,
 			(unsigned char *)&id, 1);
     }
 #endif
@@ -118,7 +117,7 @@ QSizeGrip::~QSizeGrip()
     if ( !QApplication::closingDown() && parentWidget() ) {
 	WId id = None;
  	XChangeProperty(qt_xdisplay(), topLevelWidget()->winId(),
- 			qt_sizegrip, XA_WINDOW, 32, PropModeReplace,
+ 			ATOM(Qt_Sizegrip), XA_WINDOW, 32, PropModeReplace,
  			(unsigned char *)&id, 1);
     }
 #endif

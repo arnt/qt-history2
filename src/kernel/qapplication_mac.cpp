@@ -57,7 +57,7 @@
 #endif
 
 #if defined(QT_THREAD_SUPPORT)
-#  include "qthread.h"
+#  include "qmutex.h"
 #endif
 
 #ifdef Q_WS_MACX
@@ -781,9 +781,6 @@ void qt_init(int* argcptr, char **argv, QApplication::Type)
     }
 #endif
 
-#if defined(QT_THREAD_SUPPORT)
-    QThread::initialize();
-#endif
     QMacMime::initialize();
 
     if(appName)

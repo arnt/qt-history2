@@ -138,16 +138,18 @@ public:
     QString   applicationDirPath();
     QString   applicationFilePath();
 #endif
+#ifndef QT_NO_COMPAT
 #ifndef QT_NO_PALETTE
     // obsolete functions
-    static void      setWinStyleHighlightColor( const QColor &c ) {
+    static inline void setWinStyleHighlightColor( const QColor &c ) {
 	QPalette p( palette() );
 	p.setColor( QPalette::Highlight, c );
 	setPalette( p, TRUE);
     }
-    static const QColor &winStyleHighlightColor() {
+    static inline const QColor &winStyleHighlightColor() {
 	return palette().color(QPalette::Active, QPalette::Highlight);
     }
+#endif
 #endif
     static void      setDesktopSettingsAware( bool );
     static bool      desktopSettingsAware();

@@ -150,21 +150,16 @@ bool QEventLoop::processEvents( ProcessEventsFlags flags )
 
 		    case ClientMessage:
 			{
-			    // from qapplication_x11.cpp
-			    extern Atom qt_wm_protocols;
-			    extern Atom qt_wm_take_focus;
-			    extern Atom qt_qt_scrolldone;
-
 			    // only keep the wm_take_focus and
 			    // qt_qt_scrolldone protocols, discard all
 			    // other client messages
 			    if ( event.xclient.format != 32 )
 				continue;
 
-			    if ( event.xclient.message_type == qt_wm_protocols ||
-				 (Atom) event.xclient.data.l[0] == qt_wm_take_focus )
+			    if ( event.xclient.message_type == ATOM(Wm_Protocols) ||
+				 (Atom) event.xclient.data.l[0] == ATOM(Wm_Take_Focus) )
 				break;
-			    if ( event.xclient.message_type == qt_qt_scrolldone )
+			    if ( event.xclient.message_type == ATOM(Qt_Scroll_Done) )
 				break;
 			}
 

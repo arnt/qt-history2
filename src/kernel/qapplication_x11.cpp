@@ -67,11 +67,6 @@
 
 // Input method stuff - UNFINISHED
 #include "qinputcontext_p.h"
-#include "qinternal_p.h" // shared double buffer cleanup
-
-#if defined(QT_THREAD_SUPPORT)
-# include "qthread.h"
-#endif
 
 #if defined(QT_DEBUG) && defined(Q_OS_LINUX)
 # include "qfile.h"
@@ -118,13 +113,17 @@ char *_Xsetlocale(int category, const char *locale)
 
 
 // resolve the conflict between X11's FocusIn and QEvent::FocusIn
-const int XFocusOut = FocusOut;
-const int XFocusIn = FocusIn;
+enum {
+    XFocusOut = FocusOut,
+    XFocusIn = FocusIn
+};
 #undef FocusOut
 #undef FocusIn
 
-const int XKeyPress = KeyPress;
-const int XKeyRelease = KeyRelease;
+enum {
+    XKeyPress = KeyPress,
+    XKeyRelease = KeyRelease
+};
 #undef KeyPress
 #undef KeyRelease
 
@@ -161,6 +160,92 @@ const int XKeyRelease = KeyRelease;
 #define XK_KP_Delete            0xFF9F
 #endif
 
+/* Warning: if you modify this string, modify the list of atoms in qt_x11_p.h as well! */
+static const char * x11_atomnames = {
+    "WM_PROTOCOLS\0"
+    "WM_DELETE_WINDOW\0"
+    "WM_STATE\0"
+    "WM_TAKE_FOCUS\0"
+    "WM_CLIENT_LEADER\0"
+    "WM_WINDOW_ROLE\0"
+    "SM_CLIENT_ID\0"
+    "CLIPBOARD\0"
+    "RESOURCE_MANAGER\0"
+    "INCR\0"
+    "_XSETROOT_ID\0"
+    "_QT_SELECTION\0"
+    "_QT_CLIPBOARD_SENTINEL\0"
+    "_QT_SELECTION_SENTINEL\0"
+    "_QT_SCROLL_DONE\0"
+    "_QT_INPUT_ENCODING\0"
+    "_QT_SIZEGRIP\0"
+    "_NET_WM_CONTEXT_HELP\0"
+    "_NET_WM_PING\0"
+    "_MOTIF_WM_HINTS\0"
+    "DTWM_IS_RUNNING\0"
+    "KWIN_RUNNING\0"
+    "KWM_RUNNING\0"
+    "GNOME_BACKGROUND_PROPERTIES\0"
+    "_NET_SUPPORTED\0"
+    "_NET_VIRTUAL_ROOTS\0"
+    "_NET_WORKAREA\0"
+    "_NET_WM_STATE\0"
+    "_NET_WM_STATE_MODAL\0"
+    "_NET_WM_STATE_MAXIMIZED_VERT\0"
+    "_NET_WM_STATE_MAXIMIZED_HORZ\0"
+    "_NET_WM_WINDOW_TYPE\0"
+    "_NET_WM_WINDOW_TYPE_NORMAL\0"
+    "_NET_WM_WINDOW_TYPE_DIALOG\0"
+    "_NET_WM_WINDOW_TYPE_TOOLBAR\0"
+    "_NET_WM_WINDOW_TYPE_SPLASH\0"
+    "_KDE_NET_WM_WINDOW_TYPE_OVERRIDE\0"
+    "_KDE_NET_WM_FRAME_STRUT\0"
+    "_NET_WM_STATE_STAYS_ON_TOP\0"
+    "_NET_WM_PID\0"
+    "ENLIGHTENMENT_DESKTOP\0"
+    "_NET_WM_NAME\0"
+    "UTF8_STRING\0"
+    "TEXT\0"
+    "COMPOUND_TEXT\0"
+    "TARGETS\0"
+    "MULTIPLE\0"
+    "TIMESTAMP\0"
+    "CLIP_TEMPORARY\0"
+
+    // xdnd
+    "XdndEnter\0"
+    "XdndPosition\0"
+    "XdndStatus\0"
+    "XdndLeave\0"
+    "XdndDrop\0"
+    "XdndFinished\0"
+    "XdndTypeList\0"
+
+    "XdndSelection\0"
+
+    "XdndAware\0"
+    "XdndProxy\0"
+
+
+    "XdndActionCopy\0"
+    "XdndActionLink\0"
+    "XdndActionMove\0"
+    "XdndActionPrivate\0"
+
+    // motif dnd
+    "_MOTIF_DRAG_AND_DROP_MESSAGE\0"
+    "_MOTIF_DRAG_INITIATOR_INFO\0"
+    "_MOTIF_DRAG_RECEIVER_INFO\0"
+    "_MOTIF_DRAG_WINDOW\0"
+    "_MOTIF_DRAG_TARGETS\0"
+
+    "XmTRANSFER_SUCCESS\0"
+    "XmTRANSFER_FAILURE\0"
+};
+
+QX11Data *qt_x11Data = 0;
+
+
 
 /*****************************************************************************
   Internal variables and functions
@@ -172,10 +257,8 @@ static const char *appFGCol	= 0;		// application fg color
 static const char *appBTNCol	= 0;		// application btn color
 static const char *mwGeometry	= 0;		// main widget geometry
 static const char *mwTitle	= 0;		// main widget title
-//Ming-Che 10/10
 static char    *ximServer	= 0;		// XIM Server will connect to
 static bool	mwIconic	= FALSE;	// main widget iconified
-//Ming-Che 10/10
 static bool	noxim		= FALSE;	// connect to xim or not
 static Display *appDpy		= 0;		// X11 application display
 static char    *appDpyName	= 0;		// X11 display name
@@ -195,57 +278,9 @@ static GC*	app_gc_ro	= 0;		// read-only GC
 static GC*	app_gc_tmp	= 0;		// temporary GC
 static GC*	app_gc_ro_m	= 0;		// read-only GC (monochrome)
 static GC*	app_gc_tmp_m	= 0;		// temporary GC (monochrome)
-// symbols needed by extern QXEmbed class
-Q_EXPORT Atom	qt_wm_protocols		= 0;	// window manager protocols
-Q_EXPORT Atom	qt_wm_delete_window	= 0;	// delete window protocol
-Q_EXPORT Atom	qt_wm_take_focus	= 0;	// take focus window protocol
 
-Atom		qt_qt_scrolldone	= 0;	// scroll synchronization
-Atom		qt_net_wm_context_help	= 0;	// context help
-Atom		qt_net_wm_ping		= 0;	// _NET_WM_PING protocol
-
-static Atom	qt_xsetroot_id		= 0;
-Atom            qt_xa_clipboard         = 0;
-Atom		qt_selection_property	= 0;
-Atom            qt_clipboard_sentinel   = 0;
-Atom		qt_selection_sentinel	= 0;
-Q_EXPORT Atom	qt_wm_state		= 0;
-static Atom     qt_settings_timestamp	= 0;    // Qt >=3 settings timestamp
-static Atom	qt_input_encoding	= 0;	// Qt desktop properties
-static Atom	qt_resource_manager	= 0;	// X11 Resource manager
-Atom		qt_sizegrip		= 0;	// sizegrip
-Atom		qt_wm_client_leader	= 0;
-Q_EXPORT Atom	qt_window_role		= 0;
-Q_EXPORT Atom	qt_sm_client_id		= 0;
-Atom		qt_xa_motif_wm_hints	= 0;
-Atom		qt_cde_running		= 0;
-Atom		qt_kwin_running	= 0;
-Atom		qt_kwm_running	= 0;
-Atom		qt_gbackground_properties	= 0;
-Atom		qt_x_incr		= 0;
-Atom		qt_utf8_string = 0;
 bool		qt_broken_wm		= FALSE;
 
-// NET WM support
-Atom		qt_net_supported	= 0;
-Atom		qt_net_wm_name = 0;
-Atom		qt_net_virtual_roots	= 0;
-Atom		qt_net_workarea		= 0;
-Atom		qt_net_wm_state		= 0;
-Atom		qt_net_wm_state_modal	= 0;
-Atom		qt_net_wm_state_max_v	= 0;
-Atom		qt_net_wm_state_max_h	= 0;
-Atom            qt_net_wm_window_type   = 0;
-Atom            qt_net_wm_window_type_normal	= 0;
-Atom            qt_net_wm_window_type_dialog	= 0;
-Atom            qt_net_wm_window_type_toolbar	= 0;
-Atom            qt_net_wm_window_type_splash    = 0;
-Atom            qt_net_wm_window_type_override	= 0;	// KDE extension
-Atom		qt_net_wm_frame_strut		= 0;	// KDE extension
-Atom		qt_net_wm_state_stays_on_top	= 0;	// KDE extension
-Atom		qt_net_wm_pid		= 0;
-// Enlightenment support
-Atom		qt_enlightenment_desktop	= 0;
 
 // window managers list of supported "stuff"
 Atom		*qt_net_supported_list	= 0;
@@ -261,9 +296,11 @@ Window qt_x11_wm_client_leader = 0;
 extern void qt_desktopwidget_update_workarea();
 
 // current focus model
-static const int FocusModel_Unknown = -1;
-static const int FocusModel_Other = 0;
-static const int FocusModel_PointerRoot = 1;
+enum {
+    FocusModel_Unknown = -1,
+    FocusModel_Other = 0,
+    FocusModel_PointerRoot = 1
+};
 static int qt_focus_model = -1;
 
 #ifndef QT_NO_XRANDR
@@ -413,17 +450,7 @@ extern void qt_xdnd_handle_selection_request( const XSelectionRequestEvent * );
 extern bool qt_xdnd_handle_badwindow();
 
 extern void qt_motifdnd_handle_msg( QWidget *, const XEvent *, bool );
-extern void qt_x11_motifdnd_init();
 
-// client message atoms
-extern Atom qt_xdnd_enter;
-extern Atom qt_xdnd_position;
-extern Atom qt_xdnd_status;
-extern Atom qt_xdnd_leave;
-extern Atom qt_xdnd_drop;
-extern Atom qt_xdnd_finished;
-// xdnd selection atom
-extern Atom qt_xdnd_selection;
 extern bool qt_xdnd_dragging;
 
 // gui or non-gui from qapplication.cpp
@@ -439,8 +466,6 @@ extern void qt_clear_paintevent_clipping();
 // Palette handling
 extern QPalette *qt_std_pal;
 extern void qt_create_std_palette();
-
-void qt_x11_intern_atom( const char *, Atom * );
 
 static QPtrList<QWidget>* deferred_map_list = 0;
 static void qt_deferred_map_cleanup()
@@ -698,81 +723,32 @@ static int qt_xio_errhandler( Display * )
 #endif
 
 
-// Memory leak: if the app exits before qt_init_internal(), this dict
-// isn't released correctly.
-static QAsciiDict<Atom> *atoms_to_be_created = 0;
-static bool create_atoms_now = 0;
-
-/*****************************************************************************
-  qt_x11_intern_atom() - efficiently interns an atom, now or later.
-
-  If the application is being initialized, this function stores the
-  address of the atom and qt_init_internal will do the actual work
-  quickly. If the application is running, the atom is created here.
-
-  Neither argument may point to temporary variables.
- *****************************************************************************/
-
-void qt_x11_intern_atom( const char *name, Atom *result)
+static void qt_x11_create_intern_atoms()
 {
-    if ( !name || !result || *result )
-	return;
+    const char *names[QX11Data::NAtoms];
+    const char *ptr = x11_atomnames;
 
-    if ( create_atoms_now ) {
-	*result = XInternAtom( appDpy, name, False );
-    } else {
-	if ( !atoms_to_be_created ) {
-	    atoms_to_be_created = new QAsciiDict<Atom>;
-	    atoms_to_be_created->setAutoDelete( FALSE );
-	}
-	atoms_to_be_created->insert( name, result );
-	*result = 0;
+    int i = 0;
+    while (*ptr) {
+	names[i++] = ptr;
+	while (*ptr)
+	    ++ptr;
+	++ptr;
     }
-}
 
+    Q_ASSERT(i == QX11Data::NPredefinedAtoms);
 
-static void qt_x11_process_intern_atoms()
-{
-    if ( atoms_to_be_created ) {
+    QByteArray settings_atom_name("_QT_SETTINGS_TIMESTAMP_");
+    settings_atom_name += XDisplayName(appDpyName);
+    names[i++] = settings_atom_name;
+
+    Q_ASSERT(i == QX11Data::NAtoms);
 #if defined(XlibSpecificationRelease) && (XlibSpecificationRelease >= 6)
-	int i = atoms_to_be_created->count();
-	Atom * res = (Atom *)malloc( i * sizeof( Atom ) );
-	Atom ** resp = (Atom **)malloc( i * sizeof( Atom* ) );
-	char ** names = (char **)malloc( i * sizeof(const char*));
-
-	i = 0;
-	QAsciiDictIterator<Atom> it( *atoms_to_be_created );
-	while( it.current() ) {
-	    res[i] = 0;
-	    resp[i] = it.current();
-	    names[i] = qstrdup(it.currentKey());
-	    i++;
-	    ++it;
-	}
-	XInternAtoms( appDpy, names, i, False, res );
-	while( i ) {
-	    i--;
-	    delete [] names[i];
-	    if ( res[i] && resp[i] )
-		*(resp[i]) = res[i];
-	}
-	free( res );
-	free( resp );
-	free( names );
+    XInternAtoms( appDpy, (char **)names, i, False, qt_x11Data->atoms );
 #else
-	QAsciiDictIterator<Atom> it( *atoms_to_be_created );
-	Atom * result;
-	const char * name;
-	while( (result = it.current()) != 0 ) {
-	    name = it.currentKey();
-	    ++it;
-	    *result = XInternAtom( appDpy, name, False );
-	}
+    for (i = 0; i < QX11Data::NAtoms; ++i)
+	qt_x11Data->atoms[i] = XInternAtom( appDpy, (char *)names[i], False );
 #endif
-	delete atoms_to_be_created;
-	atoms_to_be_created = 0;
-	create_atoms_now = TRUE;
-    }
 }
 
 
@@ -793,7 +769,7 @@ bool QApplication::x11_apply_settings()
     bool update_timestamp = FALSE;
 
     if (XGetWindowProperty(appDpy, QPaintDevice::x11AppRootWindow( 0 ),
-			   qt_settings_timestamp, 0, 0,
+			   ATOM(Qt_Settings_Timestamp), 0, 0,
 			   False, AnyPropertyType, &type, &format, &nitems,
 			   &after, &data) == Success && format == 8) {
 	if (data)
@@ -804,7 +780,7 @@ bool QApplication::x11_apply_settings()
 
 	while (after > 0) {
 	    XGetWindowProperty(appDpy, QPaintDevice::x11AppRootWindow( 0 ),
-			       qt_settings_timestamp,
+			       ATOM(Qt_Settings_Timestamp),
 			       offset, 1024, False, AnyPropertyType,
 			       &type, &format, &nitems, &after, &data);
 	    if (format == 8) {
@@ -1028,7 +1004,7 @@ bool QApplication::x11_apply_settings()
 	s << settingsstamp;
 
 	XChangeProperty(appDpy, QPaintDevice::x11AppRootWindow( 0 ),
-			qt_settings_timestamp, qt_settings_timestamp, 8,
+			ATOM(Qt_Settings_Timestamp), ATOM(Qt_Settings_Timestamp), 8,
 			PropModeReplace, (unsigned char *) stamp.buffer().data(),
 			stamp.buffer().size());
     }
@@ -1047,7 +1023,7 @@ static void qt_set_input_encoding()
     const char *data;
 
     int e = XGetWindowProperty( appDpy, QPaintDevice::x11AppRootWindow(),
-				qt_input_encoding, 0, 1024,
+				ATOM(Qt_Input_Encoding), 0, 1024,
 				False, XA_STRING, &type, &format, &nitems,
 				&after,  (unsigned char**)&data );
     if ( e != Success || !nitems || type == None ) {
@@ -1099,7 +1075,7 @@ static void qt_set_x11_resources( const char* font = 0, const char* fg = 0,
 	while (after > 0) {
 	    uchar *data;
 	    XGetWindowProperty( appDpy, QPaintDevice::x11AppRootWindow( 0 ),
-				qt_resource_manager,
+				ATOM(Resource_Manager),
 				offset, 8192, False, AnyPropertyType,
 				&type, &format, &nitems, &after,
 				&data );
@@ -1279,7 +1255,7 @@ void qt_get_net_supported()
     unsigned char *data;
 
     int e = XGetWindowProperty(appDpy, QPaintDevice::x11AppRootWindow(),
-			       qt_net_supported, 0, 0,
+			       ATOM(Net_Supported), 0, 0,
 			       False, XA_ATOM, &type, &format, &nitems, &after, &data);
     if (data)
 	XFree(data);
@@ -1294,7 +1270,7 @@ void qt_get_net_supported()
 
 	while (after > 0) {
 	    XGetWindowProperty(appDpy, QPaintDevice::x11AppRootWindow(),
-			       qt_net_supported, offset, 1024,
+			       ATOM(Net_Supported), offset, 1024,
 			       False, XA_ATOM, &type, &format, &nitems, &after, &data);
 
 	    if (type == XA_ATOM && format == 32) {
@@ -1344,7 +1320,7 @@ void qt_get_net_virtual_roots()
 	delete [] qt_net_virtual_root_list;
     qt_net_virtual_root_list = 0;
 
-    if (! qt_net_supports(qt_net_virtual_roots))
+    if (!qt_net_supports(ATOM(Net_Virtual_Roots)))
 	return;
 
     Atom type;
@@ -1354,7 +1330,7 @@ void qt_get_net_virtual_roots()
     unsigned char *data;
 
     int e = XGetWindowProperty(appDpy, QPaintDevice::x11AppRootWindow(),
-			       qt_net_virtual_roots, 0, 0,
+			       ATOM(Net_Virtual_Roots), 0, 0,
 			       False, XA_ATOM, &type, &format, &nitems, &after, &data);
     if (data)
 	XFree(data);
@@ -1365,7 +1341,7 @@ void qt_get_net_virtual_roots()
 
 	while (after > 0) {
 	    XGetWindowProperty(appDpy, QPaintDevice::x11AppRootWindow(),
-			       qt_net_virtual_roots, offset, 1024,
+			       ATOM(Net_Virtual_Roots), offset, 1024,
 			       False, XA_ATOM, &type, &format, &nitems, &after, &data);
 
 	    if (type == XA_ATOM && format == 32) {
@@ -1400,7 +1376,7 @@ void qt_x11_create_wm_client_leader()
 
     // set client leader property to itself
     XChangeProperty( QPaintDevice::x11AppDisplay(),
-		     qt_x11_wm_client_leader, qt_wm_client_leader,
+		     qt_x11_wm_client_leader, ATOM(Wm_Client_Leader),
 		     XA_WINDOW, 32, PropModeReplace,
 		     (unsigned char *)&qt_x11_wm_client_leader, 1 );
 
@@ -1408,7 +1384,7 @@ void qt_x11_create_wm_client_leader()
     QByteArray session = qApp->sessionId().toLatin1();
     if ( !session.isEmpty() ) {
 	XChangeProperty( QPaintDevice::x11AppDisplay(),
-			 qt_x11_wm_client_leader, qt_sm_client_id,
+			 qt_x11_wm_client_leader, ATOM(Sm_Client_Id),
 			 XA_STRING, 8, PropModeReplace,
 			 (unsigned char *)session.data(), session.size() );
     }
@@ -1543,13 +1519,11 @@ void qt_init_internal( int *argcptr, char **argv,
 	    } else if ( arg == "-geometry" ) {
 		if ( ++i < argc )
 		    mwGeometry = argv[i];
-		//Ming-Che 10/10
 	    } else if ( arg == "-im" ) {
 		if ( ++i < argc )
 		    ximServer = argv[i];
 	    } else if ( arg == "-noxim" ) {
 		noxim=TRUE;
-		//
 	    } else if ( arg == "-iconic" ) {
 		mwIconic = !mwIconic;
 	    } else if ( arg == "-ncols" ) {   // xv and netscape use this name
@@ -1640,6 +1614,8 @@ void qt_init_internal( int *argcptr, char **argv,
     // Get X parameters
 
     if( qt_is_gui_used ) {
+	qt_x11Data = new QX11Data;
+
 	appScreen = DefaultScreen(appDpy);
 	appScreenCount = ScreenCount(appDpy);
 
@@ -1837,67 +1813,10 @@ void qt_init_internal( int *argcptr, char **argv,
 	QPaintDevice::x_appdefvisual = QPaintDevice::x_appdefvisual_arr[ appScreen ];
 
 	// Support protocols
-
-	qt_x11_intern_atom( "WM_PROTOCOLS", &qt_wm_protocols );
-	qt_x11_intern_atom( "WM_DELETE_WINDOW", &qt_wm_delete_window );
-	qt_x11_intern_atom( "WM_STATE", &qt_wm_state );
-	qt_x11_intern_atom( "WM_TAKE_FOCUS", &qt_wm_take_focus );
-	qt_x11_intern_atom( "WM_CLIENT_LEADER", &qt_wm_client_leader);
-	qt_x11_intern_atom( "WM_WINDOW_ROLE", &qt_window_role);
-	qt_x11_intern_atom( "SM_CLIENT_ID", &qt_sm_client_id);
-	qt_x11_intern_atom( "CLIPBOARD", &qt_xa_clipboard );
-	qt_x11_intern_atom( "RESOURCE_MANAGER", &qt_resource_manager );
-	qt_x11_intern_atom( "INCR", &qt_x_incr );
-	qt_x11_intern_atom( "_XSETROOT_ID", &qt_xsetroot_id );
-	qt_x11_intern_atom( "_QT_SELECTION", &qt_selection_property );
-	qt_x11_intern_atom( "_QT_CLIPBOARD_SENTINEL", &qt_clipboard_sentinel );
-	qt_x11_intern_atom( "_QT_SELECTION_SENTINEL", &qt_selection_sentinel );
-	qt_x11_intern_atom( "_QT_SCROLL_DONE", &qt_qt_scrolldone );
-	qt_x11_intern_atom( "_QT_INPUT_ENCODING", &qt_input_encoding );
-	qt_x11_intern_atom( "_QT_SIZEGRIP", &qt_sizegrip );
-	qt_x11_intern_atom( "_NET_WM_CONTEXT_HELP", &qt_net_wm_context_help );
-	qt_x11_intern_atom( "_NET_WM_PING", &qt_net_wm_ping );
-	qt_x11_intern_atom( "_MOTIF_WM_HINTS", &qt_xa_motif_wm_hints );
-	qt_x11_intern_atom( "DTWM_IS_RUNNING", &qt_cde_running );
-	qt_x11_intern_atom( "KWIN_RUNNING", &qt_kwin_running );
-	qt_x11_intern_atom( "KWM_RUNNING", &qt_kwm_running );
-	qt_x11_intern_atom( "GNOME_BACKGROUND_PROPERTIES", &qt_gbackground_properties );
-
-	QString atomname("_QT_SETTINGS_TIMESTAMP_");
-	atomname += XDisplayName(appDpyName);
-	qt_x11_intern_atom( atomname.latin1(), &qt_settings_timestamp );
-
-	qt_x11_intern_atom( "_NET_SUPPORTED", &qt_net_supported );
-	qt_x11_intern_atom( "_NET_VIRTUAL_ROOTS", &qt_net_virtual_roots );
-	qt_x11_intern_atom( "_NET_WORKAREA", &qt_net_workarea );
-	qt_x11_intern_atom( "_NET_WM_STATE", &qt_net_wm_state );
-	qt_x11_intern_atom( "_NET_WM_STATE_MODAL", &qt_net_wm_state_modal );
-	qt_x11_intern_atom( "_NET_WM_STATE_MAXIMIZED_VERT", &qt_net_wm_state_max_v );
-	qt_x11_intern_atom( "_NET_WM_STATE_MAXIMIZED_HORZ", &qt_net_wm_state_max_h );
-	qt_x11_intern_atom( "_NET_WM_WINDOW_TYPE", &qt_net_wm_window_type );
-	qt_x11_intern_atom( "_NET_WM_WINDOW_TYPE_NORMAL",
-			    &qt_net_wm_window_type_normal );
-	qt_x11_intern_atom( "_NET_WM_WINDOW_TYPE_DIALOG",
-			    &qt_net_wm_window_type_dialog );
-	qt_x11_intern_atom( "_NET_WM_WINDOW_TYPE_TOOLBAR",
-			    &qt_net_wm_window_type_toolbar );
-	qt_x11_intern_atom( "_NET_WM_WINDOW_TYPE_SPLASH",
-			    &qt_net_wm_window_type_splash );
-	qt_x11_intern_atom( "_KDE_NET_WM_WINDOW_TYPE_OVERRIDE",
-			    &qt_net_wm_window_type_override );
-	qt_x11_intern_atom( "_KDE_NET_WM_FRAME_STRUT", &qt_net_wm_frame_strut );
-	qt_x11_intern_atom( "_NET_WM_STATE_STAYS_ON_TOP",
-			    &qt_net_wm_state_stays_on_top );
-	qt_x11_intern_atom( "_NET_WM_PID", &qt_net_wm_pid );
-	qt_x11_intern_atom( "ENLIGHTENMENT_DESKTOP", &qt_enlightenment_desktop );
-	qt_x11_intern_atom( "_NET_WM_NAME", &qt_net_wm_name );
-	qt_x11_intern_atom( "UTF8_STRING", &qt_utf8_string );
-
 	qt_xdnd_setup();
-	qt_x11_motifdnd_init();
 
 	// Finally create all atoms
-	qt_x11_process_intern_atoms();
+	qt_x11_create_intern_atoms();
 
 	// initialize NET lists
 	qt_get_net_supported();
@@ -1996,10 +1915,6 @@ void qt_init_internal( int *argcptr, char **argv,
 	QCursor::initialize();
 	QPainter::initialize();
     }
-
-#if defined(QT_THREAD_SUPPORT)
-    QThread::initialize();
-#endif
 
     if( qt_is_gui_used ) {
 	qApp->setName( appName );
@@ -2237,7 +2152,7 @@ void QApplication::x11_initialize_style()
     unsigned long length, after;
     uchar *data;
     if ( !app_style &&
-	 XGetWindowProperty( appDpy, QPaintDevice::x11AppRootWindow(), qt_kwin_running,
+	 XGetWindowProperty( appDpy, QPaintDevice::x11AppRootWindow(), ATOM(Kwin_Running),
 			     0, 1, False, AnyPropertyType, &type, &format, &length,
 			     &after, &data ) == Success && length ) {
 	if ( data ) XFree( (char *)data );
@@ -2247,14 +2162,14 @@ void QApplication::x11_initialize_style()
 	    app_style = QStyleFactory::create("windows");
     }
     if ( !app_style &&
-	 XGetWindowProperty( appDpy, QPaintDevice::x11AppRootWindow(), qt_kwm_running,
+	 XGetWindowProperty( appDpy, QPaintDevice::x11AppRootWindow(), ATOM(Kwm_Running),
 			     0, 1, False, AnyPropertyType, &type, &format, &length,
 			     &after, &data ) == Success && length ) {
 	if ( data ) XFree( (char *)data );
 	app_style = QStyleFactory::create("windows");
     }
     if ( !app_style &&
-	 XGetWindowProperty( appDpy, QPaintDevice::x11AppRootWindow(), qt_cde_running,
+	 XGetWindowProperty( appDpy, QPaintDevice::x11AppRootWindow(), ATOM(Dtwm_Is_Running),
 			     0, 1, False, AnyPropertyType, &type, &format, &length,
 			     &after, &data ) == Success && length ) {
 	// DTWM is running, meaning most likely CDE is running...
@@ -2264,7 +2179,7 @@ void QApplication::x11_initialize_style()
     // maybe another desktop?
     if ( !app_style &&
 	 XGetWindowProperty( appDpy, QPaintDevice::x11AppRootWindow(),
-			     qt_gbackground_properties, 0, 1, False, AnyPropertyType,
+			     ATOM(Gnome_Background_Properties), 0, 1, False, AnyPropertyType,
 			     &type, &format, &length, &after, &data ) == Success &&
 	 length ) {
 	if ( data ) XFree( (char *)data );
@@ -2303,9 +2218,6 @@ void qt_cleanup()
 	QFont::cleanup();
 	QColor::cleanup();
     }
-#if defined(QT_THREAD_SUPPORT)
-    QThread::cleanup();
-#endif
 
 #if defined (QT_TABLET_SUPPORT)
     if ( devStylus != NULL )
@@ -2387,9 +2299,9 @@ void qt_save_rootinfo()				// save new root info
     unsigned long length, after;
     uchar *data;
 
-    if ( qt_xsetroot_id ) {			// kill old pixmap
+    if (ATOM(Xsetroot_Id)) {			// kill old pixmap
 	if ( XGetWindowProperty( appDpy, QPaintDevice::x11AppRootWindow(),
-				 qt_xsetroot_id, 0, 1,
+				 ATOM(Xsetroot_Id), 0, 1,
 				 True, AnyPropertyType, &type, &format,
 				 &length, &after, &data ) == Success ) {
 	    if ( type == XA_PIXMAP && format == 32 && length == 1 &&
@@ -2399,7 +2311,7 @@ void qt_save_rootinfo()				// save new root info
 	    Pixmap dummy = XCreatePixmap( appDpy, QPaintDevice::x11AppRootWindow(),
 					  1, 1, 1 );
 	    XChangeProperty( appDpy, QPaintDevice::x11AppRootWindow(),
-			     qt_xsetroot_id, XA_PIXMAP, 32,
+			     ATOM(Xsetroot_Id), XA_PIXMAP, 32,
 			     PropModeReplace, (uchar *)&dummy, 1 );
 	    XSetCloseDownMode( appDpy, RetainPermanent );
 	}
@@ -2419,7 +2331,7 @@ bool qt_wstate_iconified( WId winid )
     int format;
     unsigned long length, after;
     uchar *data;
-    int r = XGetWindowProperty( appDpy, winid, qt_wm_state, 0, 2,
+    int r = XGetWindowProperty( appDpy, winid, ATOM(Wm_State), 0, 2,
 				 False, AnyPropertyType, &type, &format,
 				 &length, &after, &data );
     bool iconic = FALSE;
@@ -2795,7 +2707,7 @@ QWidget *QApplication::widgetAt( int x, int y, bool child )
 
     if ( !w ) {
 	qt_ignore_badwindow();
-	target = qt_x11_findClientWindow( target, qt_wm_state, TRUE );
+	target = qt_x11_findClientWindow( target, ATOM(Wm_State), TRUE );
 	if (qt_badwindow() )
 	    return 0;
 	w = QWidget::find( (WId)target );
@@ -2951,13 +2863,13 @@ int QApplication::x11ClientMessage(QWidget* w, XEvent* event, bool passive_only)
 {
     QETWidget *widget = (QETWidget*)w;
     if ( event->xclient.format == 32 && event->xclient.message_type ) {
-	if ( event->xclient.message_type == qt_wm_protocols ) {
+	if ( event->xclient.message_type == ATOM(Wm_Protocols) ) {
 	    Atom a = event->xclient.data.l[0];
-	    if ( a == qt_wm_delete_window ) {
+	    if ( a == ATOM(Wm_Delete_Window) ) {
 		if ( passive_only ) return 0;
 		widget->translateCloseEvent(event);
 	    }
-	    else if ( a == qt_wm_take_focus ) {
+	    else if ( a == ATOM(Wm_Take_Focus) ) {
 		QWidget * amw = activeModalWidget();
 		if ( (ulong) event->xclient.data.l[1] > qt_x_time )
 		    qt_x_time = event->xclient.data.l[1];
@@ -2972,27 +2884,27 @@ int QApplication::x11ClientMessage(QWidget* w, XEvent* event, bool passive_only)
 		    }
 		}
 #ifndef QT_NO_WHATSTHIS
-	    } else if ( a == qt_net_wm_context_help ) {
+	    } else if ( a == ATOM(Net_Wm_Context_Help) ) {
 		QWhatsThis::enterWhatsThisMode();
 #endif // QT_NO_WHATSTHIS
-	    } else if ( a == qt_net_wm_ping ) {
+	    } else if ( a == ATOM(Net_Wm_Ping) ) {
 		event->xclient.window = QPaintDevice::x11AppRootWindow( w->x11Screen() );
 		XSendEvent( event->xclient.display, event->xclient.window,
 			    False, SubstructureNotifyMask|SubstructureRedirectMask, event );
 	    }
-	} else if ( event->xclient.message_type == qt_qt_scrolldone ) {
+	} else if ( event->xclient.message_type == ATOM(Qt_Scroll_Done) ) {
 	    widget->translateScrollDoneEvent(event);
-	} else if ( event->xclient.message_type == qt_xdnd_position ) {
+	} else if ( event->xclient.message_type == ATOM(Xdnd_Position) ) {
 	    qt_handle_xdnd_position( widget, event, passive_only );
-	} else if ( event->xclient.message_type == qt_xdnd_enter ) {
+	} else if ( event->xclient.message_type == ATOM(Xdnd_Enter) ) {
 	    qt_handle_xdnd_enter( widget, event, passive_only );
-	} else if ( event->xclient.message_type == qt_xdnd_status ) {
+	} else if ( event->xclient.message_type == ATOM(Xdnd_Status) ) {
 	    qt_handle_xdnd_status( widget, event, passive_only );
-	} else if ( event->xclient.message_type == qt_xdnd_leave ) {
+	} else if ( event->xclient.message_type == ATOM(Xdnd_Leave) ) {
 	    qt_handle_xdnd_leave( widget, event, passive_only );
-	} else if ( event->xclient.message_type == qt_xdnd_drop ) {
+	} else if ( event->xclient.message_type == ATOM(Xdnd_Drop) ) {
 	    qt_handle_xdnd_drop( widget, event, passive_only );
-	} else if ( event->xclient.message_type == qt_xdnd_finished ) {
+	} else if ( event->xclient.message_type == ATOM(Xdnd_Finished) ) {
 	    qt_handle_xdnd_finished( widget, event, passive_only );
 	} else {
 	    if ( passive_only ) return 0;
@@ -3166,28 +3078,28 @@ int QApplication::x11ProcessEvent( XEvent* event )
     if ( event->type == PropertyNotify ) {	// some properties changed
 	if ( event->xproperty.window == QPaintDevice::x11AppRootWindow( 0 ) ) {
 	    // root properties for the first screen
-	    if ( event->xproperty.atom == qt_clipboard_sentinel ) {
+	    if ( event->xproperty.atom == ATOM(Qt_Clipboard_Sentinel) ) {
 		if (qt_check_clipboard_sentinel() )
 		    emit clipboard()->dataChanged();
-	    } else if ( event->xproperty.atom == qt_selection_sentinel ) {
+	    } else if ( event->xproperty.atom == ATOM(Qt_Selection_Sentinel) ) {
 		if (qt_check_selection_sentinel() )
 		    emit clipboard()->selectionChanged();
 	    } else if ( obey_desktop_settings ) {
-		if ( event->xproperty.atom == qt_resource_manager )
+		if ( event->xproperty.atom == ATOM(Resource_Manager) )
 		    qt_set_x11_resources();
-		else if ( event->xproperty.atom == qt_settings_timestamp )
+		else if ( event->xproperty.atom == ATOM(Qt_Settings_Timestamp) )
 		    QApplication::x11_apply_settings();
 	    }
 	}
 	if ( event->xproperty.window == QPaintDevice::x11AppRootWindow() ) {
 	    // root properties
-	    if ( event->xproperty.atom == qt_input_encoding ) {
+	    if ( event->xproperty.atom == ATOM(Qt_Input_Encoding) ) {
 		qt_set_input_encoding();
-	    } else if ( event->xproperty.atom == qt_net_supported ) {
+	    } else if ( event->xproperty.atom == ATOM(Net_Supported) ) {
 		qt_get_net_supported();
-	    } else if ( event->xproperty.atom == qt_net_virtual_roots ) {
+	    } else if ( event->xproperty.atom == ATOM(Net_Virtual_Roots) ) {
 		qt_get_net_virtual_roots();
-	    } else if ( event->xproperty.atom == qt_net_workarea ) {
+	    } else if ( event->xproperty.atom == ATOM(Net_Workarea) ) {
 		qt_desktopwidget_update_workarea();
 	    }
 	} else if ( widget ) {
@@ -3198,9 +3110,9 @@ int QApplication::x11ProcessEvent( XEvent* event )
 		    unsigned char *data = 0;
 		    unsigned long nitems, after;
 
-		    if (event->xproperty.atom == qt_net_wm_frame_strut) {
+		    if (event->xproperty.atom == ATOM(Kde_Net_Wm_Frame_Strut)) {
 			e = XGetWindowProperty(appDpy, event->xproperty.window,
-					       qt_net_wm_frame_strut,
+					       ATOM(Kde_Net_Wm_Frame_Strut),
 					       0, 4, // struts are 4 longs
 					       False, XA_CARDINAL, &ret, &format,
 					       &nitems, &after, &data);
@@ -3222,11 +3134,11 @@ int QApplication::x11ProcessEvent( XEvent* event )
 
 			if (data)
 			    XFree(data);
-		    } else if (event->xproperty.atom == qt_net_wm_state) {
+		    } else if (event->xproperty.atom == ATOM(Net_Wm_State)) {
 			// using length of 1024 should be safe for all current
 			// and possible NET states...
 			e = XGetWindowProperty(appDpy, event->xproperty.window,
-					       qt_net_wm_state, 0, 1024, False,
+					       ATOM(Net_Wm_State), 0, 1024, False,
 					       XA_ATOM, &ret, &format, &nitems,
 					       &after, &data);
 
@@ -3237,8 +3149,8 @@ int QApplication::x11ProcessEvent( XEvent* event )
 
 			    unsigned long i;
 			    for (i = 0; i < nitems; i++) {
-				if (states[i] == qt_net_wm_state_max_v ||
-				    states[i] == qt_net_wm_state_max_h) {
+				if (states[i] == ATOM(Net_Wm_State_Maximized_Vert) ||
+				    states[i] == ATOM(Net_Wm_State_Maximized_Horz)) {
 				    isMaximized = TRUE;
 				    break;
 				}
@@ -3252,7 +3164,7 @@ int QApplication::x11ProcessEvent( XEvent* event )
 
 			if (data)
 			    XFree(data);
-		    } else if (event->xproperty.atom == qt_wm_state) {
+		    } else if (event->xproperty.atom == ATOM(Net_Wm_State)) {
 			// the widget frame strut should also be invalidated
 			widget->d->topData()->fleft = widget->d->topData()->fright =
 			 widget->d->topData()->ftop = widget->d->topData()->fbottom = 0;
@@ -3277,11 +3189,11 @@ int QApplication::x11ProcessEvent( XEvent* event )
 			    // haven't been reparented to root -
 			    // (the parentWinId != QPaintDevice::x11AppRootWindow()) check above
 
-			    e = XGetWindowProperty(appDpy, widget->winId(), qt_wm_state,
-						   0, 2, False, qt_wm_state, &ret,
+			    e = XGetWindowProperty(appDpy, widget->winId(), ATOM(Wm_State),
+						   0, 2, False, ATOM(Wm_State), &ret,
 						   &format, &nitems, &after, &data );
 
-			    if (e == Success && ret == qt_wm_state &&
+			    if (e == Success && ret == ATOM(Wm_State) &&
 				format == 32 && nitems > 0) {
 				long *state = (long *) data;
 				switch (state[0]) {
@@ -3290,7 +3202,7 @@ int QApplication::x11ProcessEvent( XEvent* event )
 				    // reuse this window provided we remove the
 				    // WM_STATE property (ICCCM 4.1.3.1)
 				    XDeleteProperty(appDpy, widget->winId(),
-						    qt_wm_state);
+						    ATOM(Wm_State));
 
 				    // set the parent id to zero, so that show() will
 				    // work again
@@ -3641,7 +3553,7 @@ int QApplication::x11ProcessEvent( XEvent* event )
 	if (! req)
 	    break;
 
-	if ( qt_xdnd_selection && req->selection == qt_xdnd_selection ) {
+	if ( ATOM(Xdnd_Selection) && req->selection == ATOM(Xdnd_Selection) ) {
 	    qt_xdnd_handle_selection_request( req );
 
 	} else if (qt_clipboard) {
@@ -3653,7 +3565,7 @@ int QApplication::x11ProcessEvent( XEvent* event )
     case SelectionClear: {
 	XSelectionClearEvent *req = &event->xselectionclear;
 	// don't deliver dnd events to the clipboard, it gets confused
-	if (! req || qt_xdnd_selection && req->selection == qt_xdnd_selection)
+	if (! req || ATOM(Xdnd_Selection) && req->selection == ATOM(Xdnd_Selection))
 	    break;
 
 	if (qt_clipboard) {
@@ -3666,7 +3578,7 @@ int QApplication::x11ProcessEvent( XEvent* event )
     case SelectionNotify: {
 	XSelectionEvent *req = &event->xselection;
 	// don't deliver dnd events to the clipboard, it gets confused
-	if (! req || qt_xdnd_selection && req->selection == qt_xdnd_selection)
+	if (! req || ATOM(Xdnd_Selection) && req->selection == ATOM(Xdnd_Selection))
 	    break;
 
 	if (qt_clipboard) {
@@ -5267,7 +5179,7 @@ static Bool isPaintOrScrollDoneEvent( Display *, XEvent *ev, XPointer a )
     PaintEventInfo *info = (PaintEventInfo *)a;
     if ( ev->type == Expose || ev->type == GraphicsExpose
       ||    ev->type == ClientMessage
-	 && ev->xclient.message_type == qt_qt_scrolldone )
+	 && ev->xclient.message_type == ATOM(Qt_Scroll_Done) )
     {
 	if ( ev->xexpose.window == info->window )
 	    return True;
@@ -5296,7 +5208,7 @@ void qt_insert_sip( QWidget* scrolled_widget, int dx, int dy )
     client_message.type = ClientMessage;
     client_message.window = scrolled_widget->winId();
     client_message.format = 32;
-    client_message.message_type = qt_qt_scrolldone;
+    client_message.message_type = ATOM(Qt_Scroll_Done);
     client_message.data.l[0] = sip->id;
 
     XSendEvent( appDpy, scrolled_widget->winId(), False, NoEventMask,

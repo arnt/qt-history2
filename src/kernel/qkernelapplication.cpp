@@ -1,15 +1,16 @@
 #include <qkernelapplication.h>
 #include <qeventloop.h>
-#include <qmutex.h>
 #include <qevent.h>
 #include <qvector.h>
+
+#ifdef QT_THREAD_SUPPORT
+# include <qmutex.h>
+# include <qthread.h>
+#endif
 
 #if defined(QT_ACCESSIBILITY_SUPPORT)
 # include <qaccessible.h>
 #endif
-
-// ########### get rid of the following includes
-#include <qwidget.h>
 
 #include "qkernelapplication_p.h"
 #define d d_func()
@@ -77,7 +78,8 @@ void QKernelApplication::init()
 	qFatal("cannot construct to application objects");
     self = this;
 
-#ifdef QT_THREAD_SUPPORT
+#if defined(QT_THREAD_SUPPORT)
+    QThread::initialize();
     qt_mutex = new QMutex( TRUE );
     postevent_mutex = new QMutex( TRUE );
 #endif // QT_THREAD_SUPPORT
@@ -90,11 +92,13 @@ QKernelApplication::~QKernelApplication()
     qt_mutex = 0;
     delete postevent_mutex;
     postevent_mutex = 0;
-#endif // QT_THREAD_SUPPORT
+    QThread::cleanup();
+#endif
 
-    removePostedEvents(this);
+removePostedEvents(this);
     self = 0;
     is_app_running = FALSE;
+
 }
 
 /*!

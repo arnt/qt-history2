@@ -64,15 +64,9 @@ typedef int (*QX11EventFilter) (XEvent*);
 extern QX11EventFilter qt_set_x11_event_filter (QX11EventFilter filter);
 
 extern Time qt_x_time;			// def. in qapplication_x11.cpp
-extern Time qt_x_incr;			// def. in qapplication_x11.cpp
-extern Atom qt_xa_clipboard;
-extern Atom qt_selection_property;
-extern Atom qt_clipboard_sentinel;
-extern Atom qt_selection_sentinel;
-extern Atom qt_utf8_string;
 
 // from qdnd_x11.cpp
-extern Atom* qt_xdnd_str_to_atom( const char *mimeType );
+extern Atom qt_xdnd_str_to_atom( const char *mimeType );
 extern const char* qt_xdnd_atom_to_str( Atom );
 
 
@@ -533,8 +527,7 @@ bool qt_xclb_read_property( Display *dpy, Window win, Atom property,
 	    XFree( (char*)data );
 	}
 
- 	static Atom xa_compound_text = *qt_xdnd_str_to_atom( "COMPOUND_TEXT" );
- 	if ( *format == 8 && *type == xa_compound_text ) {
+ 	if ( *format == 8 && *type == ATOM(Compound_Text) ) {
 	    // convert COMPOUND_TEXT to a multibyte string
  	    XTextProperty textprop;
  	    textprop.encoding = *type;
@@ -658,28 +651,22 @@ static Atom send_targets_selection(QClipboardData *d, Window window, Atom proper
     const char *fmt;
     int n = 0;
     while ((fmt=d->source()->format(n)) && n < atoms)
-	atarget[n++] = *qt_xdnd_str_to_atom(fmt);
-
-    static Atom xa_text = *qt_xdnd_str_to_atom("TEXT");
-    static Atom xa_compound_text = *qt_xdnd_str_to_atom("COMPOUND_TEXT");
-    static Atom xa_targets = *qt_xdnd_str_to_atom("TARGETS");
-    static Atom xa_multiple = *qt_xdnd_str_to_atom("MULTIPLE");
-    static Atom xa_timestamp = *qt_xdnd_str_to_atom("TIMESTAMP");
+	atarget[n++] = qt_xdnd_str_to_atom(fmt);
 
     if (d->source()->provides("image/ppm"))
 	atarget[n++] = XA_PIXMAP;
     if (d->source()->provides("image/pbm"))
 	atarget[n++] = XA_BITMAP;
     if (d->source()->provides("text/plain")) {
-	atarget[n++] = qt_utf8_string;
-	atarget[n++] = xa_text;
-	atarget[n++] = xa_compound_text;
+	atarget[n++] = ATOM(Utf8_String);
+	atarget[n++] = ATOM(Text);
+	atarget[n++] = ATOM(Compound_Text);
 	atarget[n++] = XA_STRING;
     }
 
-    atarget[n++] = xa_targets;
-    atarget[n++] = xa_multiple;
-    atarget[n++] = xa_timestamp;
+    atarget[n++] = ATOM(Targets);
+    atarget[n++] = ATOM(Multiple);
+    atarget[n++] = ATOM(Timestamp);
 
 #if defined(QCLIPBOARD_DEBUG_VERBOSE)
     for (int index = 0; index < n; index++) {
@@ -695,15 +682,13 @@ static Atom send_targets_selection(QClipboardData *d, Window window, Atom proper
 
 static Atom send_string_selection(QClipboardData *d, Atom target, Window window, Atom property)
 {
-    static Atom xa_text = *qt_xdnd_str_to_atom("TEXT");
-    static Atom xa_compound_text = *qt_xdnd_str_to_atom("COMPOUND_TEXT");
 
     DEBUG("QClipboard: send_string_selection():\n"
 	  "    property type %lx\n"
 	  "    property name '%s'",
 	  target, qt_xdnd_atom_to_str(target));
 
-    if (target == xa_text || target == xa_compound_text) {
+    if (target == ATOM(Text) || target == ATOM(Compound_Text)) {
 	// the ICCCM states that TEXT and COMPOUND_TEXT are in the
 	// encoding of choice, so we choose the encoding of the locale
 	QByteArray data = d->source()->encodedData("text/plain");
@@ -712,7 +697,7 @@ static Atom send_string_selection(QClipboardData *d, Atom target, Window window,
 	char *list[] = { data.data(), NULL };
 
 	XICCEncodingStyle style =
-	    (target == xa_compound_text) ? XCompoundTextStyle : XStdICCTextStyle;
+	    (target == ATOM(Compound_Text)) ? XCompoundTextStyle : XStdICCTextStyle;
 	XTextProperty textprop;
 	if (list[0] != NULL
 	    && XmbTextListToTextProperty(QPaintDevice::x11AppDisplay(),
@@ -737,15 +722,15 @@ static Atom send_string_selection(QClipboardData *d, Atom target, Window window,
     Atom xtarget = None;
     const char *fmt = 0;
     if (target == XA_STRING
-	|| (target == xa_text && QTextCodec::codecForLocale()->mibEnum() == 4)) {
+	|| (target == ATOM(Text) && QTextCodec::codecForLocale()->mibEnum() == 4)) {
 	// the ICCCM states that STRING is latin1 plus newline and tab
 	// see section 2.6.2
 	fmt = "text/plain;charset=ISO-8859-1";
 	xtarget = XA_STRING;
-    } else if (target == qt_utf8_string) {
+    } else if (target == ATOM(Utf8_String)) {
 	// proposed UTF8_STRING conversion type
 	fmt = "text/plain;charset=UTF-8";
-	xtarget = qt_utf8_string;
+	xtarget = ATOM(Utf8_String);
     }
 
     if (xtarget == None) // should not happen
@@ -808,7 +793,7 @@ static Atom send_selection(QClipboardData *d, Atom target, Window window, Atom p
 
     // don't allow INCR transfers when using MULTIPLE or to
     // Motif clients (since Motif doesn't support INCR)
-    static Atom motif_clip_temporary = *qt_xdnd_str_to_atom("CLIP_TEMPORARY");
+    static Atom motif_clip_temporary = ATOM(Clip_Temporary);
     bool allow_incr = property != motif_clip_temporary;
 
     const int increment =
@@ -817,10 +802,10 @@ static Atom send_selection(QClipboardData *d, Atom target, Window window, Atom p
     if (data.size() > increment && allow_incr) {
 	long bytes = data.size();
 	XChangeProperty(QPaintDevice::x11AppDisplay(), window, property,
-			qt_x_incr, 32, PropModeReplace, (uchar *) &bytes, 1);
+			ATOM(Incr), 32, PropModeReplace, (uchar *) &bytes, 1);
 
 	(void)new QClipboardINCRTransaction(window, property, target, format, data, increment);
-	return qt_x_incr;
+	return ATOM(Incr);
     }
 
     // make sure we can perform the XChangeProperty in a single request
@@ -930,7 +915,7 @@ bool QClipboard::event( QEvent *e )
 		if ( ! pending_timer_id )
 		    pending_timer_id = QApplication::clipboard()->startTimer( 0 );
 	    }
-	} else if (xevent->xselectionclear.selection == qt_xa_clipboard) {
+	} else if (xevent->xselectionclear.selection == ATOM(Clipboard)) {
 	    QClipboardData *d = clipboardData();
 
 	    // ignore the event if it was generated before we gained selection ownership
@@ -938,7 +923,7 @@ bool QClipboard::event( QEvent *e )
 		break;
 
 	    DEBUG("QClipboard: new clipboard owner 0x%lx at time %lx (%lx)",
-		  XGetSelectionOwner(dpy, qt_xa_clipboard),
+		  XGetSelectionOwner(dpy, ATOM(Clipboard)),
 		  xevent->xselectionclear.time, d->timestamp);
 
 	    if ( ! waiting_for_data ) {
@@ -995,7 +980,7 @@ bool QClipboard::event( QEvent *e )
 	    if ( req->selection == XA_PRIMARY ) {
 		m = Selection;
 		d = selectionData();
-	    } else if ( req->selection == qt_xa_clipboard ) {
+	    } else if ( req->selection == ATOM(Clipboard) ) {
 		m = Clipboard;
 		d = clipboardData();
 	    } else {
@@ -1021,11 +1006,9 @@ bool QClipboard::event( QEvent *e )
 		break;
 	    }
 
-	    static Atom xa_text = *qt_xdnd_str_to_atom("TEXT");
-	    static Atom xa_compound_text = *qt_xdnd_str_to_atom("COMPOUND_TEXT");
-	    static Atom xa_targets = *qt_xdnd_str_to_atom("TARGETS");
-	    static Atom xa_multiple = *qt_xdnd_str_to_atom("MULTIPLE");
-	    static Atom xa_timestamp = *qt_xdnd_str_to_atom("TIMESTAMP");
+	    Atom xa_targets = ATOM(Targets);
+	    Atom xa_multiple = ATOM(Multiple);
+	    Atom xa_timestamp = ATOM(Timestamp);
 
 	    struct AtomPair { Atom target; Atom property; } *multi = 0;
 	    Atom multi_type = None;
@@ -1078,9 +1061,9 @@ bool QClipboard::event( QEvent *e )
 		} else if (target == xa_targets) {
 		    ret = send_targets_selection(d, req->requestor, property);
 		} else if (target == XA_STRING
-			   || target == xa_text
-			   || target == xa_compound_text
-			   || target == qt_utf8_string) {
+			   || target == ATOM(Text)
+			   || target == ATOM(Compound_Text)
+			   || target == ATOM(Utf8_String)) {
 		    ret = send_string_selection(d, target, req->requestor, property);
 		} else if (target == XA_PIXMAP
 			   || target == XA_BITMAP) {
@@ -1139,7 +1122,7 @@ QClipboardWatcher::QClipboardWatcher( QClipboard::Mode mode )
 	break;
 
     case QClipboard::Clipboard:
-	atom = qt_xa_clipboard;
+	atom = ATOM(Clipboard);
 	break;
 
     default:
@@ -1180,7 +1163,7 @@ const char* QClipboardWatcher::format( int n ) const
 	// get the list of targets from the current clipboard owner - we do this
 	// once so that multiple calls to this function don't require multiple
 	// server round trips...
-	static Atom xa_targets = *qt_xdnd_str_to_atom( "TARGETS" );
+	Atom xa_targets = ATOM(Targets);
 
 	QClipboardWatcher *that = (QClipboardWatcher *) this;
 	QByteArray ba = getDataInFormat(xa_targets);
@@ -1188,8 +1171,6 @@ const char* QClipboardWatcher::format( int n ) const
 	    return 0;
 
 	Atom *unsorted_target = (Atom *) ba.data();
-	static Atom xa_text = *qt_xdnd_str_to_atom( "TEXT" );
-	static Atom xa_compound_text = *qt_xdnd_str_to_atom( "COMPOUND_TEXT" );
 	int i, size = ba.size() / sizeof(Atom);
 
 	// sort TARGETS to prefer some types over others.  some apps
@@ -1199,11 +1180,11 @@ const char* QClipboardWatcher::format( int n ) const
 	memset( target, 0, (size+4) * sizeof(Atom) );
 
 	for ( i = 0; i < size; ++i ) {
-	    if ( unsorted_target[i] == qt_utf8_string )
+	    if ( unsorted_target[i] == ATOM(Utf8_String) )
 		target[0] = unsorted_target[i];
-	    else if ( unsorted_target[i] == xa_compound_text )
+	    else if ( unsorted_target[i] == ATOM(Compound_Text) )
 		target[1] = unsorted_target[i];
-	    else if ( unsorted_target[i] == xa_text )
+	    else if ( unsorted_target[i] == ATOM(Text) )
 		target[2] = unsorted_target[i];
 	    else if ( unsorted_target[i] == XA_STRING )
 		target[3] = unsorted_target[i];
@@ -1218,10 +1199,10 @@ const char* QClipboardWatcher::format( int n ) const
 		that->formatList.append("image/ppm");
 	    else if ( target[i] == XA_STRING )
 		that->formatList.append( "text/plain;charset=ISO-8859-1" );
-	    else if ( target[i] == qt_utf8_string )
+	    else if ( target[i] == ATOM(Utf8_String) )
 		that->formatList.append( "text/plain;charset=UTF-8" );
-	    else if ( target[i] == xa_text ||
-		      target[i] == xa_compound_text )
+	    else if ( target[i] == ATOM(Text) ||
+		      target[i] == ATOM(Compound_Text) )
 		that->formatList.append( "text/plain" );
 	    else
 		that->formatList.append(qt_xdnd_atom_to_str(target[i]));
@@ -1253,9 +1234,9 @@ QByteArray QClipboardWatcher::encodedData( const char* fmt ) const
 	fmtatom = XA_STRING;
     } else if ( 0==qstricmp(fmt,"text/plain;charset=utf-8") ) {
 	// proprosed UTF8_STRING conversion type
-	fmtatom = *qt_xdnd_str_to_atom( "UTF8_STRING" );
+	fmtatom = ATOM(Utf8_String);
     } else if ( 0==qstrcmp(fmt,"text/plain") ) {
-   	fmtatom = *qt_xdnd_str_to_atom( "COMPOUND_TEXT" );
+   	fmtatom = ATOM(Compound_Text);
     } else if ( 0==qstrcmp(fmt,"image/ppm") ) {
 	fmtatom = XA_PIXMAP;
 	QByteArray pmd = getDataInFormat(fmtatom);
@@ -1288,10 +1269,10 @@ QByteArray QClipboardWatcher::encodedData( const char* fmt ) const
 	    iio.write();
 	    return buf.buffer();
 	} else {
-	    fmtatom = *qt_xdnd_str_to_atom(fmt);
+	    fmtatom = qt_xdnd_str_to_atom(fmt);
 	}
     } else {
-	fmtatom = *qt_xdnd_str_to_atom(fmt);
+	fmtatom = qt_xdnd_str_to_atom(fmt);
     }
     return getDataInFormat(fmtatom);
 }
@@ -1308,8 +1289,8 @@ QByteArray QClipboardWatcher::getDataInFormat(Atom fmtatom) const
 
     XSelectInput(dpy, win, NoEventMask); // don't listen for any events
 
-    XDeleteProperty(dpy, win, qt_selection_property);
-    XConvertSelection(dpy, atom, fmtatom, qt_selection_property, win, qt_x_time);
+    XDeleteProperty(dpy, win, ATOM(Qt_Selection));
+    XConvertSelection(dpy, atom, fmtatom, ATOM(Qt_Selection), win, qt_x_time);
     XFlush(dpy);
 
     VDEBUG("QClipboardWatcher::getDataInFormat: waiting for SelectionNotify event");
@@ -1326,12 +1307,12 @@ QByteArray QClipboardWatcher::getDataInFormat(Atom fmtatom) const
     Atom   type;
     XSelectInput(dpy, win, PropertyChangeMask);
 
-    if ( qt_xclb_read_property(dpy,win,qt_selection_property,TRUE,
+    if ( qt_xclb_read_property(dpy,win,ATOM(Qt_Selection),TRUE,
 			       &buf,0,&type,0,FALSE) ) {
-	if ( type == qt_x_incr ) {
+	if ( type == ATOM(Incr) ) {
 	    int nbytes = buf.size() >= 4 ? *((int*)buf.data()) : 0;
 	    buf = qt_xclb_read_incremental_property( dpy, win,
-						     qt_selection_property,
+						     ATOM(Qt_Selection),
 						     nbytes, FALSE );
 	}
     }
@@ -1389,13 +1370,13 @@ void QClipboard::setData( QMimeSource* src, Mode mode )
     switch ( mode ) {
     case Selection:
 	atom = XA_PRIMARY;
-	sentinel_atom = qt_selection_sentinel;
+	sentinel_atom = ATOM(Qt_Selection_Sentinel);
 	d = selectionData();
 	break;
 
     case Clipboard:
-	atom = qt_xa_clipboard;
-	sentinel_atom = qt_clipboard_sentinel;
+	atom = ATOM(Clipboard);
+	sentinel_atom = ATOM(Qt_Clipboard_Sentinel);
 	d = clipboardData();
 	break;
 
@@ -1474,7 +1455,7 @@ bool qt_check_selection_sentinel()
 
 	if (XGetWindowProperty(QPaintDevice::x11AppDisplay(),
 			       QApplication::desktop()->screen(0)->winId(),
-			       qt_selection_sentinel, 0, 2, False, XA_WINDOW,
+			       ATOM(Qt_Selection_Sentinel), 0, 2, False, XA_WINDOW,
 			       &actualType, &actualFormat, &nitems,
 			       &bytesLeft, (unsigned char**)&owners) == Success) {
 	    if ( actualType == XA_WINDOW && actualFormat == 32 && nitems == 2 ) {
@@ -1513,7 +1494,7 @@ bool qt_check_clipboard_sentinel()
 
 	if (XGetWindowProperty(QPaintDevice::x11AppDisplay(),
 			       QApplication::desktop()->screen(0)->winId(),
-			       qt_clipboard_sentinel, 0, 2, False, XA_WINDOW,
+			       ATOM(Qt_Clipboard_Sentinel), 0, 2, False, XA_WINDOW,
 			       &actualType, &actualFormat, &nitems, &bytesLeft,
 			       (unsigned char **) &owners) == Success) {
 	    if (actualType == XA_WINDOW && actualFormat == 32 && nitems == 2) {

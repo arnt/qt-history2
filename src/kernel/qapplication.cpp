@@ -40,10 +40,6 @@
 #endif
 #include "qfontdata_p.h"
 
-#if defined(QT_THREAD_SUPPORT)
-#  include "qmutex.h"
-#endif // QT_THREAD_SUPPORT
-
 #include <stdlib.h>
 
 #include "qapplication_p.h"
@@ -248,7 +244,6 @@ QApplicationPrivate::QApplicationPrivate(int &argc, char **argv)
     \i Threading
     \i
 	lock(), unlock(), locked(), tryLock(),
-	wakeUpGuiThread()
 
     \row
      \i Miscellaneous
@@ -627,7 +622,6 @@ void QApplication::process_cmdline( int* argcptr, char ** argv )
   \sa argc(), argv()
 */
 
-//######### BINARY COMPATIBILITY constructor
 QApplication::QApplication( int &argc, char **argv )
     : QKernelApplication(new QApplicationPrivate(argc, argv))
 {
@@ -2037,15 +2031,6 @@ void QApplication::aboutQt()
 */
 
 
-/*!
-  \fn void QApplication::guiThreadAwake()
-
-  This signal is emitted after the event loop returns from a function
-  that could block.
-
-  \sa wakeUpGuiThread()
-*/
-
 
 /*!
   \fn bool QApplication::sendEvent( QObject *receiver, QEvent *event )
@@ -2106,15 +2091,6 @@ bool QApplication::event( QEvent *e )
     return QKernelApplication::event(e);
 }
 
-
-/*!
-  \fn void QApplication::wakeUpGuiThread()
-\obsolete
-
-Use QKernelApplication::wakeUpMainThread() instead
-
-  \sa QKernelApplication::wakeUpMainThread() \link threads.html Thread Support in Qt\endlink
-*/
 
 #if !defined(Q_WS_X11)
 

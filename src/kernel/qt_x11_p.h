@@ -234,5 +234,99 @@ extern "C" char *XSetIMValues( XIM /* im */, ... );
 #  include <X11/extensions/XShm.h>
 #endif // QT_MITSHM
 
+struct QX11Data
+{
+    /* Warning: if you modify this list, modify the names of atoms in qapplication_x11.cpp as well! */
+    enum X11Atoms {
+	Wm_Protocols,
+	Wm_Delete_Window,
+	Wm_State,
+	Wm_Take_Focus,
+	Wm_Client_Leader,
+	Wm_Window_Role,
+	Sm_Client_Id,
+	Clipboard,
+	Resource_Manager,
+	Incr,
+	Xsetroot_Id,
+	Qt_Selection,
+	Qt_Clipboard_Sentinel,
+	Qt_Selection_Sentinel,
+	Qt_Scroll_Done,
+	Qt_Input_Encoding,
+	Qt_Sizegrip,
+	Net_Wm_Context_Help,
+	Net_Wm_Ping,
+	Motif_Wm_Hints,
+	Dtwm_Is_Running,
+	Kwin_Running,
+	Kwm_Running,
+	Gnome_Background_Properties,
+	Net_Supported,
+	Net_Virtual_Roots,
+	Net_Workarea,
+	Net_Wm_State,
+	Net_Wm_State_Modal,
+	Net_Wm_State_Maximized_Vert,
+	Net_Wm_State_Maximized_Horz,
+	Net_Wm_Window_Type,
+	Net_Wm_Window_Type_Normal,
+	Net_Wm_Window_Type_Dialog,
+	Net_Wm_Window_Type_Toolbar,
+	Net_Wm_Window_Type_Splash,
+	Kde_Net_Wm_Window_Type_Override,
+	Kde_Net_Wm_Frame_Strut,
+	Net_Wm_State_Stays_On_Top,
+	Net_Wm_Pid,
+	Enlightenment_Desktop,
+	Net_Wm_Name,
+	Utf8_String,
+	Text,
+	Compound_Text,
+	Targets,
+	Multiple,
+	Timestamp,
+	Clip_Temporary,
+
+	// Xdnd
+	Xdnd_Enter,
+	Xdnd_Position,
+	Xdnd_Status,
+	Xdnd_Leave,
+	Xdnd_Drop,
+	Xdnd_Finished,
+	Xdnd_Typelist,
+
+	Xdnd_Selection,
+
+	Xdnd_Aware,
+	Xdnd_Proxy,
+
+
+	Xdnd_Action_Copy,
+	Xdnd_Action_Link,
+	Xdnd_Action_Move,
+	Xdnd_Action_Private,
+
+	// Motif Dnd
+	Motif_Drag_And_Drop_Message,
+	Motif_Drag_Initiator_Info,
+	Motif_Drag_Receiver_Info,
+	Motif_Drag_Window,
+	Motif_Drag_Targets,
+
+	Xm_Transfer_Success,
+	Xm_Transfer_Failure,
+
+	NPredefinedAtoms,
+
+	Qt_Settings_Timestamp = NPredefinedAtoms,
+	NAtoms
+    };
+    Atom atoms[NAtoms];
+};
+
+extern QX11Data *qt_x11Data;
+#define ATOM(x) qt_x11Data->atoms[QX11Data::x]
 
 #endif // QT_X11_H
