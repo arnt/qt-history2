@@ -661,7 +661,8 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
 	    QString dir = destdir + "../Resources/";
 	    t << dir << "application.icns: " << var("RC_FILE") << "\n\t"
 	      << "@test -d " << dir << " || mkdir -p " << dir << "\n\t"
-	      << "@cp " << var("RC_FILE") << " " << dir << "application.icns" << endl;
+	      << "@$(DEL_FILE) " << dir << "application.icns" << "\n\t"
+	      << "@$(COPY_FILE) " << var("RC_FILE") << " " << dir << "application.icns" << endl;
 	}
     }
 
