@@ -18,7 +18,7 @@ unix:LIBS       += -lpq
 win32:LIBS	+= libpqdll.lib 
 
 TARGET		= qsqlpsql
-DESTDIR		= $(QTDIR)/plugins
+DESTDIR		= ../../../../plugins
 
 target.path=$$plugins.path
 isEmpty(target.path):target.path=$$QT_PREFIX/plugins

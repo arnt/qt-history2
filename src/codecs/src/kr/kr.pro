@@ -9,7 +9,7 @@ SOURCES		= $(QTDIR)/src/codecs/qeuckrcodec.cpp \
 		  main.cpp
 
 TARGET		= qkrcodecs
-DESTDIR		= $(QTDIR)/plugins/codecs
+DESTDIR		= ../../../../plugins/codecs
 
 target.path=$$plugins.path
 isEmpty(target.path):target.path=$$QT_PREFIX/plugins/codecs

@@ -20,7 +20,7 @@ INCLUDEPATH	= ../shared ../util ../../../src/3rdparty/zlib/
 unix:LIBS	+= -lqutil -L../lib
 win32:LIBS	+= $(QTDIR)/lib/qutil.lib
 DEFINES 	+= UIC
-DESTDIR		= $(QTDIR)/bin
+DESTDIR		= ../../../bin
 
 target.path=$$QT_INSTALL_BINPATH
 isEmpty(target.path):target.path=$$QT_PREFIX/bin

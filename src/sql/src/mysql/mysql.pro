@@ -15,7 +15,7 @@ unix:LIBS       += -L/usr/local/lib/mysql -lmysqlclient
 win32:LIBS	+= libmySQL.lib
 
 TARGET		= qsqlmysql
-DESTDIR		= $(QTDIR)/plugins
+DESTDIR		= ../../../../plugins
 
 target.path=$$plugins.path
 isEmpty(target.path):target.path=$$QT_PREFIX/plugins

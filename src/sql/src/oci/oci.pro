@@ -12,7 +12,7 @@ win32:INCLUDEPATH += c:\oracle\Ora81\OCI\include
 win32:LIBS      += oci.lib
 unix:LIBS	+= -lclntsh
 
-DESTDIR		= $(QTDIR)/plugins
+DESTDIR		= ../../../../plugins
 TARGET		= qsqloci
 
 target.path=$$plugins.path
