@@ -120,7 +120,7 @@ Click \Button Open to open the selected file. Click \CANCEL
 to leave the dialog without opening a new file. 
 
 \target dialog-file-save-as
-\section2 File Save As Dialog
+\section2 Form Save As Dialog
 
 Click \Menu{File|Save As} to invoke the \Dialog{Save As} dialog. Use this
 dialog to save files to a directory.
@@ -369,7 +369,7 @@ click the \Button {Delete Connection} button.
 Click \Button Close to leave the \Edit {Database Connections} dialog.
 
 \target dialog-project-settings
-\section2 Project Setting Dialog
+\section2 Project Settings Dialog
 
 Click \Menu {Project|Project Settings} to invoke the \Dialog{Project
 Settings Dialog}. Use this dialog to make changes to the project settings.
@@ -590,7 +590,7 @@ Click \OK to accept the directory. Click \CANCEL to leave the dialog
 without choosing a directory.
 
 \target dialog-edit-custom-widgets
-\section1 Edit Custom Widgets Dialog
+\section2 Edit Custom Widgets Dialog
 
 Invoke this dialog by clicking Tools|Custom|Edit Custom Widgets. Use
 this dialog to create custom widgets.
@@ -616,7 +616,7 @@ and then click the \Button {Delete Widget} button.
 
 Click \Button Close to leave the Edit Custom Widgets dialog.
 
-\section2 The Definition Tab
+\section3 The Definition Tab
 
 To create a custom widget, click \Button {New Widget}. Click the
 Definition tab if you are not already there. You should change the
@@ -638,7 +638,7 @@ size properties of the widget. Click the 'Container Widget' checkbox
 if the custom widget you are creating should be able to contain other
 widgets (children).
 
-\section2 The Signals Tab
+\section3 The Signals Tab
 
 Click the Signals tab to view a list of all the signals the selected
 widget can emit. To add a new signal, click the \Button {New Signal}
@@ -647,7 +647,7 @@ signal and give the signal a unique name. To delete a signal from the
 listbox, click the signal to choose it and then click the \Button
 {Delete Signal} button.
 
-\section2 The Slots Tab
+\section3 The Slots Tab
 
 Click the Slots tab to view a list of all the slots of the selected
 custom widget. Click the 'Slot' or 'Access' cloumn headers to sort
@@ -658,7 +658,7 @@ to choose between public or protected access for your widget. To
 delete a slot from the listbox, click the slot and then click the
 \Button {Delete Slot}.
 
-\section2 The Properties Tab
+\section3 The Properties Tab
 
 Click the Properties tab to view the list of properties for the
 selected widget. Click the 'Property' or 'Type' column headers to sort
@@ -673,7 +673,7 @@ Property} button.
 Click \Button Close to leave the \Dialog {Edit Custom Widgets} dialog.
 
 \target dialog-choose-images
-\section1 Choose Images Dialog
+\section2 Choose Images Dialog
 
 Invoke the \Dialog {Choose Images} dialog to choose images to use in a
 project.
@@ -694,7 +694,7 @@ Click \Button Open to open the selected file. Click \CANCEL to leave the dialog
 without opening a file.
 
 \target dialog-choose-an-image
-\section1 Choose an Image Dialog
+\section2 Choose an Image Dialog
 
 Invoke the \Dialog{Choose an Image} choose an image to use for a widget. 
 
@@ -706,7 +706,7 @@ image in the listbox and then click the \Button Delete button.
 Click \CANCEL to leave the dialog without making any changes to images.
 
 \target dialog-select-color
-\section1 Select Color Dialog
+\section2 Select Color Dialog
 
 Invoke the \Dialog {Select Color} dialog to select color preferences
 or to create color palettes. 
@@ -730,7 +730,7 @@ Click \CANCEL to exit the dialog without selecting a color or adding
 custom colors.
 
 \target dialog-edit-palette
-\section1 Edit Palette Dialog
+\section2 Edit Palette Dialog
 
 Invoke the \Dialog {Edit Palette} dialog to change the palette of the
 current widget or form. You can use a generated palette, or select
@@ -749,7 +749,7 @@ Click \OK to accept the changes to the palette. Click \CANCEL to leave
 the dialog without making changes to the palette.
 
 \target dialog-tune-palette
-\section1 Tune Palette Dialog
+\section2 Tune Palette Dialog
 
 Invoke the \Dialog {Tune Palette} dialog to choose options for a
 widget's palette.
@@ -776,7 +776,7 @@ Click \OK to accept changes to the palette. Click \CANCEL to leave the
 dialog without making changes to the palette.
 
 \target dialog-select-font
-\section1 Select Font Dialog
+\section2 Select Font Dialog
 
 Invoke the \Dialog {Select Font} dialog to make changes to the font size
 and style. 
@@ -798,7 +798,7 @@ Click \OK to accept changes to the font. Click \CANCEL to leave the
 dialog without making any changes to the font.
 
 \target dialog-text
-\section1 Text Dialog
+\section2 Text Dialog
 
 Invoke the \Dialog Text dialog to type text. Type text in
 the line edit. 
@@ -807,7 +807,7 @@ Click \OK to accept the text. Click \CANCEL to leave the dialog
 without saving any text.
 
 \target dialog-title
-\section1 Title Dialog
+\section2 Title Dialog
 
 Use this dialog to change the title of a selected widget by typing
 the new title in the line edit. 
@@ -817,7 +817,7 @@ to leave the dialog without making changes to the title.
 
 
 \target dialog-dialog-page-title
-\section1 Page Title Dialog
+\section2 Page Title Dialog
 
 Right click a tab widget on the form to invoke the \Dialog {Page
 Title} dialog. Use this dialog to change the name of each tab in the
@@ -827,7 +827,7 @@ Click \OK to accept new page titles. Click \CANCEL to
 leave the dialog without making any changes.  
 
 \target dialog-edit-listbox
-\section1 Edit Listbox Dialog
+\section2 Edit Listbox Dialog
 
 Right click a Listbox on the form and select 'Edit' to invoke the
 \Dialog {Edit Listbox} dialog. Use this dialog to add items to the
@@ -849,14 +849,14 @@ to leave the dialog once the changes have been accepted. Click \CANCEL
 to leave the dialog without saving any changes.  
 
 \target dialog-edit-listview
-\section1 Edit Listview
+\section2 Edit Listview
 
 Right click a listview widget on the form and select 'Edit' to invoke
 the \Dialog {Edit Listview} dialog. Use this dialog to add items to
 the listview. The \Dialog Edit Listview dialog has two tabs, one for
 items and one for columns.
 
-\section2 The Items Tab 
+\section3 The Items Tab 
 
 The dialog defaults to the Items tab. Use this tab to
 add, change, or remove items in the listview. To add a new item, click
@@ -873,7 +873,7 @@ level, click the \Button {Move Up} or \Button {Move Down} buttons. To
 move the an item up or down one level, click the \Button{Move Left} or
 \Button {Move Right} buttons. 
 
-\section2 The Columns Tab
+\section3 The Columns Tab
 
 Click this tab to change the column configuration of the listview. To
 add a column, click the \Button {New Column} button. The new column is
@@ -894,7 +894,7 @@ to leave the dialog once the changes have been accepted. Click \CANCEL
 to leave the dialog without saving any changes.  
 
 \target dialog-edit-iconview
-\section1 Edit Iconview
+\section2 Edit Iconview
 
 Right click an iconview widget on the form and select 'Edit' to invoke this
 dialog. Use the dialog to add, change, or remove items from the
@@ -911,13 +911,13 @@ leave the dialog once the changes have been accepted. Click \CANCEL to
 leave the dialog without saving any changes. 
 
 \target dialog-edit-table
-\section1 Edit Table
+\section2 Edit Table
 
 Right click a table widget on the form and select 'Edit' to invoke
 this dialog. Use the dialog to add, change, or remove columns or rows
 from the table. 
 
-\section2 The Column Tab
+\section3 The Column Tab
 
 To add a column to the table, click the \Button {New Column} button.
 To delete a column from the table, click the column in the listbox, or
@@ -929,7 +929,7 @@ Image Dialog}. To remove a pixmap, click the \Button {Delete Pixmap}
 button.To move a column in the listbox, click the \Button {Move Up} or
 \Button {Move Down} buttons.
 
-\section2 The Rows Tab
+\section3 The Rows Tab
 
 To add a row to the table, click the \Button {New Row} button.
 To delete a row from the table, click the row in the listbox, or

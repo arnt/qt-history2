@@ -9,7 +9,7 @@ forms instead of having to go through a menu each time.
 \img menufile.png
 \caption file
 
-\section1 The File Toolbar buttons
+\section1 The File Toolbar Buttons
 
 \list
 \i \Toolbutton New Click this toolbar button (or press
@@ -73,6 +73,12 @@ occurrence of the text.
 
 \section1 The Tools Toolbar Buttons
 
+If you want to add the same kind of widget several times to a form,
+for example, several push buttons, \e double click the widget's
+toolbar button. After this, every time you click the form a new widget
+will be added. Click the \Toolbutton Pointer toolbar button to leave
+this mode.
+
 \section2 Tools
 
 \list
@@ -128,7 +134,10 @@ click the form to place a ButtonGroup on the form.
 click the form to place a Frame on the form.
 
 \i \Toolbutton TabWidget Click this option and
-click the form to place a TabWidget on the form.
+click the form to place a TabWidget on the form. To add or remove
+tabs, right click the tab widget and choose 'Add Page' or 'Remove
+Page' as required. 
+
 
 \endlist
 
