@@ -155,6 +155,9 @@ QPopupMenu *HelpWindow::createPopupMenu( const QPoint& pos )
     QPopupMenu *m = new QPopupMenu( this );
     lastAnchor = anchorAt( pos );
     if ( !lastAnchor.isEmpty() ) {
+	QFileInfo fi( source() );
+	if ( !fi.dirPath( TRUE ).isEmpty() )
+	    lastAnchor = QFileInfo( fi.dirPath( TRUE ) + "/" + lastAnchor ).absFilePath();
 	m->insertItem( tr("Open Link in New Window\tShift+LMB"), this, SLOT( openLinkInNewWindow() ) );
     }
     mw->actionNewWindow->addTo( m );

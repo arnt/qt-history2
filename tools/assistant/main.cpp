@@ -127,6 +127,7 @@ public:
     EditDocs();
     bool addDocFile( const QString &file );
     void removeDocFile( const QString &file );
+    void initDocFiles();
 private:
     void addItemToList( const QString &rcEntry, const QString &item );
 };
@@ -143,8 +144,8 @@ bool EditDocs::addDocFile( const QString &file )
 	return FALSE;
     }
 
+    initDocFiles();
     DocuParser handler;
-
     QFile f( file );
     QXmlInputSource source( f );
     QXmlSimpleReader reader;
@@ -194,6 +195,35 @@ void EditDocs::removeDocFile( const QString &file )
     HelpDialog::removeDocFile( fi.absFilePath() );
 }
 
+void EditDocs::initDocFiles()
+{
+    QSettings settings;
+    settings.insertSearchPath( QSettings::Windows, "/Trolltech" );
+    QString keybase = "/Qt Assistant/3.1/";
+    bool firstRun = settings.readBoolEntry( keybase + "FirstRun", TRUE );
+    if ( !firstRun )
+	return;
+    QString path = QString( qInstallPathDocs() ) + "/html/";
+    QStringList lst;
+    lst.append( path + "qt.xml" );
+    lst.append( path + "designer.xml" );
+    lst.append( path + "assistant.xml" );
+    lst.append( path + "linguist.xml" );
+    lst.append( path + "qmake.xml" );
+    settings.writeEntry( keybase + "AdditionalDocFiles", lst );
+    lst.clear();
+    lst << "Qt Reference Documentation" << "Qt Designer Manual";
+    lst << "Qt Assistant Manual" << "Qt Linguist Manual" << "qmake User Guide";
+    settings.writeEntry( keybase + "AdditionalDocTitles", lst );
+    lst.clear();
+    lst << "qt" << "qt/reference" << "qt/designer" << "qt/assistant" << "qt/linguist" << "qt/qmake";
+    settings.writeEntry( keybase + "CategoriesAvailable", lst );
+    lst.prepend( "all" );
+    settings.writeEntry( keybase + "CategoriesSelected", lst );
+    settings.writeEntry( keybase + "FirstRun", FALSE );
+    settings.writeEntry( keybase + "NewDoc", TRUE );
+}
+
 #if defined(Q_OS_MACX)
 #include <stdlib.h>
 #include <qdir.h>
@@ -201,7 +231,17 @@ void EditDocs::removeDocFile( const QString &file )
 
 int main( int argc, char ** argv )
 {
-    QApplication a( argc, argv );
+    bool withGUI = TRUE;
+    if ( argc > 1 ) {
+	QString arg( argv[1] );
+	arg = arg.lower();
+	if ( arg != "-file" &&
+	     arg != "-server" &&
+	     arg != "-category" &&
+	     arg[0] == '-'  )
+	    withGUI = FALSE;
+    }
+    QApplication a( argc, argv, withGUI );
 
     AssistantServer *as = 0;
     QStringList catlist;
@@ -213,10 +253,10 @@ int main( int argc, char ** argv )
     }
     if ( file.isEmpty() ) {
 	for ( int i = 1; i < a.argc(); i++ ) {
-	    if ( QString( a.argv()[i] ) == "-file" ) {
+	    if ( QString( a.argv()[i] ).lower() == "-file" ) {
 		i++;
 		file = a.argv()[i];
-	    } else if ( QString( a.argv()[i] ) == "-server" ) {
+	    } else if ( QString( a.argv()[i] ).lower() == "-server" ) {
 	        server = TRUE;
 	    } else if ( QString( a.argv()[i] ).lower() == "-category" ) {
 		i++;
@@ -232,7 +272,7 @@ int main( int argc, char ** argv )
 		EditDocs ed;
 		ed.removeDocFile( a.argv()[i] );
 		exit( 0 );
-	    } else if ( QString( a.argv()[i] ) == "-help" ) {
+	    } else if ( QString( a.argv()[i] ).lower() == "-help" ) {
 		printf( "Usage: assistant [option]\n" );
 		printf( "Options:\n" );
 		printf( " -file Filename          assistant opens the specified file\n" );
@@ -287,26 +327,10 @@ int main( int argc, char ** argv )
 
     bool firstRun = config->readBoolEntry( keybase + "FirstRun", TRUE );
     if ( firstRun ) {
-	QString path = QString( qInstallPathDocs() ) + "/html/";
-	QStringList lst;
-	lst.append( path + "qt.xml" );
-	lst.append( path + "designer.xml" );
-	lst.append( path + "assistant.xml" );
-	lst.append( path + "linguist.xml" );
-	lst.append( path + "qmake.xml" );
-	config->writeEntry( keybase + "AdditionalDocFiles", lst );
-	lst.clear();
-	lst << "Qt Reference Documentation" << "Qt Designer Manual";
-	lst << "Qt Assistant Manual" << "Qt Linguist Manual" << "qmake User Guide";
-	config->writeEntry( keybase + "AdditionalDocTitles", lst );
-	lst.clear();
-	lst << "qt" << "qt/reference" << "qt/designer" << "qt/assistant" << "qt/linguist" << "qt/qmake";
-	config->writeEntry( keybase + "CategoriesAvailable", lst );
-	lst.prepend( "all" );
-	config->writeEntry( keybase + "CategoriesSelected", lst );
-	config->writeEntry( keybase + "FirstRun", FALSE );
-	config->writeEntry( keybase + "NewDoc", TRUE );
+	EditDocs ed;
+	ed.initDocFiles();
     }
+
     delete config;
     config = 0;
 
