@@ -525,7 +525,6 @@ bool QToolBar::event( QEvent * e )
 	     && child->parent() == this
 	     && qstrcmp("qt_dockwidget_internal", child->name()) != 0 ) {
 	    boxLayout()->addWidget( (QWidget*)child );
-	    layout()->activate();
 	    if ( isVisible() ) {
 		if ( ((QWidget*)child)->testWState( WState_CreatedHidden ) )
 		    ((QWidget*)child)->show();
