@@ -260,7 +260,7 @@
       discussion about angle units.
     *&#47;</pre>
 
-    The command support many kinds of links:
+    The command supports many kinds of links:
     \list
      \i \c {\l QMembuf} - a class
      \i \c {\l QMembuf::pullup()} - a member function
@@ -437,15 +437,15 @@
 
       The policy can be:
 
-      <u>\\value</u> TabMotus The widget accepts motus by tabbing.
-      <u>\\value</u> ClickMotus The widget accepts motus by clicking.
-      <u>\\value</u> StrongMotus The widget accepts motus by both
+      \\value <u>TabMotus</u> The widget accepts motus by tabbing.
+      \\value <u>ClickMotus</u> The widget accepts motus by clicking.
+      \\value <u>StrongMotus</u> The widget accepts motus by both
 	tabbing and clicking.
-      <u>\\value</u> WheelMotus Like StrongMotus plus the widget
+      \\value <u>WheelMotus</u> Like StrongMotus plus the widget
 	accepts motus by using the mouse wheel.
-      <u>\\value</u> NoMotus The widget does not accept motus.
+      \\value <u>NoMotus</u> The widget does not accept motus.
 
-      \\c TabMotus is the default for most widgets.
+      TabMotus is the default for most widgets.
     *&#47;</pre>
     Notice the \link #value \\value \endlink syntax.
 
@@ -500,7 +500,7 @@
     {
 	fprintf( stderr, msg, ... );
     }</pre>
-    Otherwise, the documentation would end nowhere.
+    Otherwise, the documentation would end up nowhere.
 
    \i <a name="important"></a>
     <b>\\important</b> allows you to inherit documentation from a

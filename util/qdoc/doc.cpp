@@ -250,7 +250,7 @@ static QString getArgument( const QString& in, int& pos )
 	  printf( "%d\n", x )
 
       is an argument too, although it contains spaces. Finally,
-      trailing punctuation is not included in an argument.
+      trailing punctuation is not included in an argument, nor is 's.
     */
     if ( pos < (int) in.length() && in[pos] == QChar('{') ) {
 	pos++;
@@ -285,6 +285,9 @@ static QString getArgument( const QString& in, int& pos )
 
 	if ( pos > begin + 1 && punctuation.find(in[pos - 1]) != -1 )
 	    pos--;
+	if ( pos > begin + 2 && in[pos - 2] == QChar('\'') &&
+	     in[pos - 1] == QChar('s') )
+	    pos -= 2;
 	return in.mid( begin, pos - begin );
     }
 }
