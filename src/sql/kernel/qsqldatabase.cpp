@@ -1346,7 +1346,7 @@ QSqlDatabase QSqlDatabase::cloneDatabase(const QSqlDatabase &other, const QStrin
     if (!other.isValid())
         return QSqlDatabase();
 
-    QSqlDatabase db(other.driver());
+    QSqlDatabase db(other.driverName());
     db.d->copy(other.d);
     QSqlDatabasePrivate::addDatabase(db, connectionName);
     return db;
