@@ -195,18 +195,32 @@ public:
 
   This class provides access to the local filesystem, providing functions
   for renaming and removing files and directories, and for creating new
-  directories.
+  directories. In the simplest case, it can be used with a suitable display
+  widget as part of a browser or filer.
 
-  In the simplest case, it can be used with a suitable display widget as
-  part of a browser or filer.
+  A directory model that displays the contents of a default directory
+  is constructed with a QDir to supply the file infomation, and a parent
+  object:
 
-  \omit
-  Decoding
-  Filters
-  Sorting
-  \endomit
+  \code
+  QDirModel *model = new QDirModel(QDir(), parent);
+  \endcode
 
-  \sa \link model-view-programming.html Model/View Programming\endlink
+  A tree view can be used to display the contents of the model:
+
+  \code
+  QTreeView *treeView = new QTreeView(window);
+  treeView->setModel(model);
+  \endcode
+
+  QDirModel can be accessed using the standard interface provided by
+  QAbstractItemModel, but it also provides some convenience functions that are
+  specific to a directory model.
+  fileInfo(), icons(), mkdir(), name(), path(), isDir(), rmdir(), 
+
+  nameFilters(), setFilter(), filter()
+
+  \sa \link model-view-programming.html Model/View Programming\endlink QListView QTreeView
 
 */
 
