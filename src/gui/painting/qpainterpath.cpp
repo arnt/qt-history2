@@ -28,6 +28,7 @@
 #include <qpolygon.h>
 #include <qtextlayout.h>
 #include <qvarlengtharray.h>
+#include <limits.h>
 
 #include <math.h>
 
@@ -1423,7 +1424,6 @@ QPainterPath QPainterPathStroker::createStroke(const QPainterPath &input) const
 
     QPainterPath stroke;
 
-    QList<QPolygon> flatCurves = input.toSubpathPolygons();
     QPainterPath reverse = input.toReversed();
 
 #ifdef QPP_STROKE_DEBUG
