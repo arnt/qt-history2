@@ -4010,7 +4010,7 @@ __RCSID("$NetBSD: strtod.c,v 1.26 1998/02/03 18:44:21 perry Exp $");
 #define ULong        quint32
 
 #define MALLOC malloc
-#define CONST const
+//#define const
 
 #ifdef BSD_QDTOA_DEBUG
 #include <stdio.h>
@@ -4271,7 +4271,7 @@ static Bigint *multadd(Bigint *b, int m, int a)
     return b;
 }
 
-static Bigint *s2b(CONST char *s, int nd0, int nd, ULong y9)
+static Bigint *s2b(const char *s, int nd0, int nd, ULong y9)
 {
     Bigint *b;
     int i, k;
@@ -4889,7 +4889,7 @@ static double ratio(Bigint *a, Bigint *b)
     return da / db;
 }
 
-static CONST double tens[] = {
+static const double tens[] __attribute__ ((aligned (8))) = {
     1e0, 1e1, 1e2, 1e3, 1e4, 1e5, 1e6, 1e7, 1e8, 1e9,
     1e10, 1e11, 1e12, 1e13, 1e14, 1e15, 1e16, 1e17, 1e18, 1e19,
     1e20, 1e21, 1e22
@@ -4899,17 +4899,17 @@ static CONST double tens[] = {
 };
 
 #ifdef IEEE_Arith
-static CONST double bigtens[] = { 1e16, 1e32, 1e64, 1e128, 1e256 };
-static CONST double tinytens[] = { 1e-16, 1e-32, 1e-64, 1e-128, 1e-256 };
+static const double bigtens[] = { 1e16, 1e32, 1e64, 1e128, 1e256 };
+static const double tinytens[] = { 1e-16, 1e-32, 1e-64, 1e-128, 1e-256 };
 #define n_bigtens 5
 #else
 #ifdef IBM
-static CONST double bigtens[] = { 1e16, 1e32, 1e64 };
-static CONST double tinytens[] = { 1e-16, 1e-32, 1e-64 };
+static const double bigtens[] = { 1e16, 1e32, 1e64 };
+static const double tinytens[] = { 1e-16, 1e-32, 1e-64 };
 #define n_bigtens 3
 #else
-static CONST double bigtens[] = { 1e16, 1e32 };
-static CONST double tinytens[] = { 1e-16, 1e-32 };
+static const double bigtens[] = { 1e16, 1e32 };
+static const double tinytens[] = { 1e-16, 1e-32 };
 #define n_bigtens 2
 #endif
 #endif
@@ -4925,11 +4925,11 @@ static CONST double tinytens[] = { 1e-16, 1e-32 };
 */
 static double g_double_zero = 0.0;
 
-static double qstrtod(CONST char *s00, CONST char **se, bool *ok)
+static double qstrtod(const char *s00, const char **se, bool *ok)
 {
     int bb2, bb5, bbe, bd2, bd5, bbbits, bs2, c, dsign,
         e, e1, esign, i, j, k, nd, nd0, nf, nz, nz0, sign;
-    CONST char *s, *s0, *s1;
+    const char *s, *s0, *s1;
     double aadj, aadj1, adj, rv, rv0;
     Long L;
     ULong y, z;
@@ -4938,14 +4938,14 @@ static double qstrtod(CONST char *s00, CONST char **se, bool *ok)
 
     /*
       #ifndef KR_headers
-      CONST char decimal_point = localeconv()->decimal_point[0];
+      const char decimal_point = localeconv()->decimal_point[0];
       #else
-      CONST char decimal_point = '.';
+      const char decimal_point = '.';
       #endif */
     if (ok != 0)
         *ok = true;
 
-    CONST char decimal_point = '.';
+    const char decimal_point = '.';
 
     sign = nz0 = nz = 0;
     rv = 0.;
@@ -5930,7 +5930,13 @@ static char *_qdtoa( double d, int mode, int ndigits, int *decpt, int *sign, cha
         else {
 #endif
             /* Generate ilim digits, then fix them up. */
+#if defined(Q_OS_IRIX) && defined(Q_CC_GNU)
+            // work around a bug on 64 bit IRIX gcc
+            double *t = (double *) tens;
+            eps *= t[ilim-1];
+#else
             eps *= tens[ilim-1];
+#endif            
             for(i = 1;; i++, d *= 10.) {
                 L = Long(d);
                 d -= L;
