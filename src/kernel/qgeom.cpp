@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qgeom.cpp#14 $
+** $Id: //depot/qt/main/src/kernel/qgeom.cpp#15 $
 **
 **  Studies in Geometry Management
 **
@@ -11,7 +11,7 @@
 #include "qgeom.h"
 
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qgeom.cpp#14 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qgeom.cpp#15 $");
 
 
 
@@ -19,7 +19,7 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qgeom.cpp#14 $");
   \class QBoxLayout qgeom.h
   \brief The QBoxLayout class specifies child widget geometry.
 
-  Contents arranged serially, either horizontal or vertical.
+  Contents are arranged serially, either horizontal or vertical.
   The contents fill the available space.
 
   A QBoxLayout (box for short) can contain widgets or other

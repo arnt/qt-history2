@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qbasic.cpp#18 $
+** $Id: //depot/qt/main/src/kernel/qbasic.cpp#19 $
 **
 **  Studies in Geometry Management
 **
@@ -13,7 +13,7 @@
 #include "qlist.h"
 
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qbasic.cpp#18 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qbasic.cpp#19 $");
 
 
 
@@ -192,7 +192,7 @@ private:
     int minsize;
     int sstretch;
 
-    QArray<QChain*> chain;
+    QList<QChain> chain;
 
     int minMax();
     int maxMin();
@@ -218,7 +218,7 @@ private:
     int maxsize;
     int minsize;
 
-    QArray<QChain*> chain;
+    QList<QChain> chain;
     int sumMax();
     int sumMin();
     int sumStretch();
@@ -228,16 +228,16 @@ private:
 QParChain::~QParChain()
 {
     int i;
-    for ( i = 0; i < (int)chain.size(); i++ ) {
-	delete chain[i];
+    for ( i = 0; i < (int)chain.count(); i++ ) {
+	delete chain.at(i);
     }
 }
 
 void QParChain::distribute( wDict & wd, int pos, int space )
 {
     int i;
-    for ( i = 0; i < (int)chain.size(); i++ ) {
-	chain[i]->distribute(  wd, pos, space );
+    for ( i = 0; i < (int)chain.count(); i++ ) {
+	chain.at(i)->distribute(  wd, pos, space );
     }
 }
 
@@ -245,15 +245,15 @@ void QParChain::distribute( wDict & wd, int pos, int space )
 QSerChain::~QSerChain()
 {
     int i;
-    for ( i = 0; i < (int)chain.size(); i++ ) {
-	delete chain[i];
+    for ( i = 0; i < (int)chain.count(); i++ ) {
+	delete chain.at(i);
     }
 }
 
 
 /*
   If all members have zero stretch, the space is divided equally;
-  this is slightly evil... Use setMaximumSize to be sure your
+  this is perhaps not what you want. Use setMaximumSize to be sure your
   widget is not stretched.
 */
 
@@ -267,26 +267,26 @@ void QSerChain::distribute( wDict & wd, int pos, int space )
 	available = 0;
     int sf = sumStretch();
 
-    QArray<int> size( chain.size() );
+    QArray<int> size( chain.count() );
     int i;
-    for ( i = 0; i < (int)chain.size(); i++ )
+    for ( i = 0; i < (int)chain.count(); i++ )
 	size[i] = 0;
     bool doAgain = TRUE;
-    int numChains = chain.size();
+    int numChains = chain.count();
     while ( doAgain && numChains ) {
 	doAgain = FALSE;
-	for ( i = 0; i < (int)chain.size(); i++ ) {
-	    if ( size[i] == chain[i]->maxSize() )
+	for ( i = 0; i < (int)chain.count(); i++ ) {
+	    if ( size[i] == chain.at(i)->maxSize() )
 		continue;
-	    int siz = chain[i]->minSize();
+	    int siz = chain.at(i)->minSize();
 	    if ( sf )
-		siz += ( available * chain[i]->stretch() ) / sf;
+		siz += ( available * chain.at(i)->stretch() ) / sf;
 	    else
 		siz += available  / numChains;
-	    if ( siz >= chain[i]->maxSize() ) {
-		size[i] = chain[i]->maxSize();
-		available -= ( size[i] - chain[i]->minSize() );
-		sf -= chain[i]->stretch();
+	    if ( siz >= chain.at(i)->maxSize() ) {
+		size[i] = chain.at(i)->maxSize();
+		available -= ( size[i] - chain.at(i)->minSize() );
+		sf -= chain.at(i)->stretch();
 		numChains--;
 		doAgain = TRUE;
 		break;
@@ -296,12 +296,12 @@ void QSerChain::distribute( wDict & wd, int pos, int space )
     }
     if ( backwards )
 	pos += space;
-    for ( i = 0; i < (int)chain.size(); i++ ) {
+    for ( i = 0; i < (int)chain.count(); i++ ) {
 	if ( backwards ) {
 	    pos -= size[i];
-	    chain[i]->distribute( wd, pos, size[i] );
+	    chain.at(i)->distribute( wd, pos, size[i] );
 	} else {
-	    chain[i]->distribute( wd, pos, size[i] );
+	    chain.at(i)->distribute( wd, pos, size[i] );
 	    pos += size[i];
 	}
 
@@ -311,8 +311,8 @@ void QSerChain::distribute( wDict & wd, int pos, int space )
 
 void QParChain::recalc()
 {
-    for ( int i = 0; i < (int)chain.size(); i ++ )
-	chain[i]->recalc();
+    for ( int i = 0; i < (int)chain.count(); i ++ )
+	chain.at(i)->recalc();
     maxsize = minMax();
     minsize = maxMin();
 }
@@ -321,8 +321,8 @@ void QParChain::recalc()
 int QParChain::maxMin()
 {
     int max = 0;
-    for ( int i = 0; i < (int)chain.size(); i ++ ) {
-	int m = chain[i]->minSize();
+    for ( int i = 0; i < (int)chain.count(); i ++ ) {
+	int m = chain.at(i)->minSize();
 	if ( m	> max )
 	    max = m;
     }
@@ -332,8 +332,8 @@ int QParChain::maxMin()
 int QParChain::minMax()
 {
     int min = QBasicManager::unlimited;
-    for ( int i = 0; i < (int)chain.size(); i ++ ) {
-	int m = chain[i]->maxSize();
+    for ( int i = 0; i < (int)chain.count(); i ++ ) {
+	int m = chain.at(i)->maxSize();
 	if ( m < min )
 	    min = m;
     }
@@ -342,8 +342,8 @@ int QParChain::minMax()
 
 void QSerChain::recalc()
 {
-    for ( int i = 0; i < (int)chain.size(); i ++ )
-	chain[i]->recalc();
+    for ( int i = 0; i < (int)chain.count(); i ++ )
+	chain.at(i)->recalc();
     minsize = sumMin();
     maxsize = sumMax();
 }
@@ -352,24 +352,24 @@ void QSerChain::recalc()
 int QSerChain::sumStretch()
 {
     int s = 0;
-    for ( int i = 0; i < (int)chain.size(); i ++ )
-	 s += chain[i]->stretch();
+    for ( int i = 0; i < (int)chain.count(); i ++ )
+	 s += chain.at(i)->stretch();
     return s;
 }
 
 int QSerChain::sumMin()
 {
     int s = 0;
-    for ( int i = 0; i < (int)chain.size(); i ++ )
-	s += chain[i]->minSize();
+    for ( int i = 0; i < (int)chain.count(); i ++ )
+	s += chain.at(i)->minSize();
     return s;
 }
 
 int QSerChain::sumMax()
 {
     int s = 0;
-    for ( int i = 0; i < (int)chain.size(); i ++ )
-	s += chain[i]->maxSize();
+    for ( int i = 0; i < (int)chain.count(); i ++ )
+	s += chain.at(i)->maxSize();
     if ( s > QBasicManager::unlimited )
 	s = QBasicManager::unlimited;
     return s;
@@ -381,9 +381,7 @@ bool QSerChain::addC( QChain *s )
 {
      if ( horz( s->direction() ) != horz( direction() ) )
 	return FALSE;
-    int n = chain.size();
-    chain.resize( n + 1 );
-    chain[n] = s;
+    chain.append( s );
     return TRUE;
 }
 
@@ -391,9 +389,7 @@ bool QParChain::addC( QChain *s )
 {
      if ( horz( s->direction() ) != horz( direction() ) )
 	return FALSE;
-    int n = chain.size();
-    chain.resize( n + 1 );
-    chain[n] = s;
+    chain.append( s );
     return TRUE;
 }
 
