@@ -193,10 +193,15 @@ void QGuiEventLoop::cleanup()
     if(d->macSockets) {
 	for(QHash<QSocketNotifier *, MacSocketInfo *>::Iterator it = d->macSockets->begin(); 
 	    it != d->macSockets->end(); ++it) {
-	    if(it.key()->type() == QSocketNotifier::Read)
+	    if(it.key()->type() == QSocketNotifier::Read) {
+		CFReadStreamUnscheduleFromRunLoop(it.value()->read_not, CFRunLoopGetCurrent(), kCFRunLoopCommonModes);
+		CFReadStreamClose(it.value()->read_not);
 		CFRelease(it.value()->read_not);
-	    else if(it.key()->type() == QSocketNotifier::Write)
+	    } else if(it.key()->type() == QSocketNotifier::Write) {
+		CFWriteStreamUnscheduleFromRunLoop(it.value()->write_not, CFRunLoopGetCurrent(), kCFRunLoopCommonModes);
+		CFWriteStreamClose(it.value()->write_not);
 		CFRelease(it.value()->write_not);
+	    }
 	    delete it.value();
 	}
 	delete d->macSockets;
@@ -233,6 +238,7 @@ static void qt_mac_select_read_callbk(CFReadStreamRef stream, CFStreamEventType 
     int in_sock;
     const CFDataRef data = (const CFDataRef)CFReadStreamCopyProperty(stream, kCFStreamPropertySocketNativeHandle);
     CFDataGetBytes(data, CFRangeMake(0, sizeof(in_sock)), (UInt8 *)&in_sock);
+    CFRelease(data);
     qt_mac_internal_select_callbk(in_sock, QSocketNotifier::Read, (QGuiEventLoop*)me);
 }
 static void qt_mac_select_write_callbk(CFWriteStreamRef stream, CFStreamEventType type, void *me)
@@ -246,6 +252,7 @@ static void qt_mac_select_write_callbk(CFWriteStreamRef stream, CFStreamEventTyp
     int in_sock;
     const CFDataRef data = (const CFDataRef)CFWriteStreamCopyProperty(stream, kCFStreamPropertySocketNativeHandle);
     CFDataGetBytes(data, CFRangeMake(0, sizeof(in_sock)), (UInt8 *)&in_sock);
+    CFRelease(data);
     qt_mac_internal_select_callbk(in_sock, QSocketNotifier::Write, (QGuiEventLoop*)me);
 }
 
@@ -292,10 +299,15 @@ void QGuiEventLoop::unregisterSocketNotifier(QSocketNotifier *notifier)
     if(d->macSockets) {
 	if(MacSocketInfo *mac_notifier = d->macSockets->value(notifier)) {
 	    d->macSockets->remove(notifier);
-	    if(notifier->type() == QSocketNotifier::Read) 
+	    if(notifier->type() == QSocketNotifier::Read) {
 		CFReadStreamUnscheduleFromRunLoop(mac_notifier->read_not, CFRunLoopGetCurrent(), kCFRunLoopCommonModes);
-	    else if(notifier->type() == QSocketNotifier::Write)
+		CFReadStreamClose(mac_notifier->read_not);
+		CFRelease(mac_notifier->read_not);
+	    } else if(notifier->type() == QSocketNotifier::Write) {
 		CFWriteStreamUnscheduleFromRunLoop(mac_notifier->write_not, CFRunLoopGetCurrent(), kCFRunLoopCommonModes);
+		CFWriteStreamClose(mac_notifier->write_not);
+		CFRelease(mac_notifier->write_not);
+	    }
 	    delete mac_notifier;
 	}
     }
