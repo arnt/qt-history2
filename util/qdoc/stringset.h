@@ -41,6 +41,8 @@ public:
     QStringList toIStringList() const;
     ConstIterator begin() const { return stringList().begin(); }
     ConstIterator end() const { return stringList().end(); }
+    const QString& first() const { return stringList().first(); }
+    const QString& last() const { return stringList().last(); }
 
 private:
     QMap<QString, void *> map;

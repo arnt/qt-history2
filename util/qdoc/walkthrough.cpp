@@ -7,7 +7,6 @@
 #include <qstring.h>
 #include <qtextstream.h>
 
-#include "codeprocessor.h"
 #include "config.h"
 #include "messages.h"
 #include "walkthrough.h"
@@ -20,64 +19,76 @@ static QString stripTrailingBlankLine( const QString& s )
 	return s;
 }
 
-static ScoreMap scoreMapForOccurrenceMap( const OccurrenceMap& occMap )
+HighScore& HighScore::operator=( const HighScore& hs )
 {
-    ScoreMap scores;
-    OccurrenceMap::ConstIterator occsOnLine = occMap.begin();
-    while ( occsOnLine != occMap.end() ) {
-	StringSet::ConstIterator occ = (*occsOnLine).begin();
-	while ( occ != (*occsOnLine).end() ) {
-	    ScoreMap::Iterator sc = scores.find( *occ );
-	    if ( sc == scores.end() )
-		scores.insert( *occ, LineScore(occsOnLine.key(), 1) );
-	    else
-		scores.replace( *occ,
-				LineScore((*sc).line(), (*sc).score() + 1) );
-	    ++occ;
-	}
-	++occsOnLine;
+    ininc = hs.ininc;
+    ln = hs.ln;
+    contri = hs.contri;
+    tota = hs.tota;
+    return *this;
+}
+
+void HighScore::addContribution( bool inInclude, int lineNo, int contribution )
+{
+    if ( contribution > contri ) {
+	ininc = inInclude;
+	ln = lineNo;
+	contri = contribution;
     }
-    return scores;
+    tota += contribution;
 }
 
 void Walkthrough::includePass1( const QString& fileName,
 				const Resolver *resolver )
 {
-    QString t = start( TRUE, TRUE, fileName, resolver );
+    QString t = start( TRUE, TRUE, fileName, resolver, LinkMap() );
 }
 
 QString Walkthrough::includePass2( const QString& fileName,
-				   const Resolver *resolver )
+				   const Resolver *resolver,
+				   const LinkMap& exampleLinkMap )
 {
-    QString t = start( TRUE, FALSE, fileName, resolver );
+    QString t = start( TRUE, FALSE, fileName, resolver, exampleLinkMap );
     return t;
 }
 
 void Walkthrough::startPass1( const QString& fileName,
 			      const Resolver *resolver )
 {
-    start( FALSE, TRUE, fileName, resolver );
+    start( FALSE, TRUE, fileName, resolver, LinkMap() );
 }
 
 void Walkthrough::startPass2( const QString& fileName,
-			      const Resolver *resolver )
+			      const Resolver *resolver,
+			      const LinkMap& exampleLinkMap )
 {
-    start( FALSE, FALSE, fileName, resolver );
+    start( FALSE, FALSE, fileName, resolver, exampleLinkMap );
 }
 
 QString Walkthrough::printline( const QString& substr, const Location& docLoc )
 {
-    return xline( substr, docLoc, QString("printline") );
+    int lineNo0 = walkloc.lineNum();
+    QString t = xline( substr, docLoc, QString("printline") );
+    incrementScores( FALSE, lineNo0, 20 );
+    return t;
 }
 
 QString Walkthrough::printto( const QString& substr, const Location& docLoc )
 {
-    return xto( substr, docLoc, QString("printto") );
+    int lineNo0 = walkloc.lineNum();
+    QString t = xto( substr, docLoc, QString("printto") );
+    for ( int i = lineNo0; i < walkloc.lineNum(); i++ )
+	incrementScores( FALSE, i, 9 + 20 / (walkloc.lineNum() - lineNo0 + 1) );
+    return t;
 }
 
 QString Walkthrough::printuntil( const QString& substr, const Location& docLoc )
 {
-    return xuntil( substr, docLoc, QString("printuntil") );
+    int lineNo0 = walkloc.lineNum();
+    QString t = xuntil( substr, docLoc, QString("printuntil") );
+    for ( int i = lineNo0; i < walkloc.lineNum(); i++ )
+	incrementScores( FALSE, i, 9 + 20 / (walkloc.lineNum() - lineNo0 + 1) );
+    return t;
 }
 
 void Walkthrough::skipline( const QString& substr, const Location& docLoc )
@@ -96,22 +107,23 @@ void Walkthrough::skipuntil( const QString& substr, const Location& docLoc )
 }
 
 QString Walkthrough::start( bool include, bool firstPass,
-			    const QString& fileName, const Resolver *resolver )
+			    const QString& fileName, const Resolver *resolver,
+			    const LinkMap& exampleLinkMap )
 {
     static QRegExp trailingSpacesPlusNL( QString("[ \t]+\n") );
     static QRegExp endOfLine( QString("\n(?!\n)") );
     static QRegExp manyNLs( QString("\n+") );
     static QRegExp aname( QString("<a name=[^>]*></a>") );
 
+    fname = fileName;
     QString filePath = config->findDepth( fileName, config->exampleDirList() );
     if ( justIncluded && filePath == fpath ) {
 	/*
-	  It's already started. This happens with \include followed
-	  by \walkthrough. If we restarted again, we would loose the
-	  local links.
+	  It's already started. This happens with '\include' followed
+	  by '\walkthrough'. Restarting would break local links.
 	*/
 	justIncluded = FALSE;
-	return fancyText;
+	return includeText;
     }
     fpath = filePath;
 
@@ -143,17 +155,21 @@ QString Walkthrough::start( bool include, bool firstPass,
 
     if ( firstPass ) {
 	occMap = occurrenceMap( code, resolver, QFileInfo(f).dirPath() );
-	scores = scoreMapForOccurrenceMap( occMap );
-	fancyText = code;
+	if ( include ) {
+	    int numLines = code.contains( QChar('\n') );
+	    for ( int i = 0; i < numLines; i++ )
+		incrementScores( TRUE, i, 9 );
+	}
+	includeText = code;
     } else {
-	fancyText = processCodeHtml( code, resolver, QFileInfo(f).dirPath(),
-				     include );
+	includeText = processCodeHtml( code, resolver, QFileInfo(f).dirPath(),
+				       include );
     }
     justIncluded = include;
 
     /*
       Split the source code into logical lines. Empty lines are
-      handled specially. If the source code is
+      treated specially. If the source code is
 
 	  p->alpha();
 	  p->beta();
@@ -174,31 +190,50 @@ QString Walkthrough::start( bool include, bool firstPass,
     */
     plainlines = QStringList::split( endOfLine, code, TRUE );
 
-    QString walkthroughText = fancyText;
+    QString walkthroughText = includeText;
 
     /*
-      Local links are nice, but not twice in the same HTML page (once in the
-      \include and once in the walkthrough).
+      Local links are nice, but not twice in the same HTML page (once
+      in the '\include' and once in the '\walkthrough').
     */
     if ( include && !firstPass )
 	walkthroughText.replace( aname, QString::null );
 
     fancylines = QStringList::split( endOfLine, walkthroughText, TRUE );
 
-    /*
-      Add a 4-space indent to walkthrough code, so that it stands out from the
-      explanations, and squeeze blanks (cat -s).
-    */
-    QStringList::Iterator p = fancylines.begin();
-    while ( p != fancylines.end() ) {
-	(*p).prepend( QString("    ") );
-	(*p).replace( manyNLs, QChar('\n') );
-	(*p).append( QChar('\n') );
-	++p;
+    if ( !firstPass ) {
+	// add '<a name="...">' as specified in the link map
+	int lineNo = 1;
+	int k = 0;
+	LinkMap::ConstIterator links = exampleLinkMap.begin();
+	while ( links != exampleLinkMap.end() ) {
+	    while ( links.key() > lineNo ) {
+		k = includeText.find( QChar('\n'), k ) + 1;
+		lineNo++;
+	    }
+	    StringSet::ConstIterator link = (*links).begin();
+	    while ( link != (*links).end() ) {
+		includeText.insert( k, QString("<a name=\"%1\">").arg(*link) );
+		++link;
+	    }
+	    ++links;
+	}
+
+	/*
+	  Add a four-space indent to walkthrough code, so that it
+	  stands out, and squeeze blanks (cat -s).
+	*/
+	QStringList::Iterator p = fancylines.begin();
+	while ( p != fancylines.end() ) {
+	    (*p).prepend( QString("    ") );
+	    (*p).replace( manyNLs, QChar('\n') );
+	    (*p).append( QChar('\n') );
+	    ++p;
+	}
     }
 
     walkloc = Location( filePath );
-    return fancyText;
+    return includeText;
 }
 
 QString Walkthrough::xline( const QString& substr, const Location& docLoc,
@@ -235,7 +270,6 @@ QString Walkthrough::xline( const QString& substr, const Location& docLoc,
 	}
     } else {
 	s = getNextLine( docLoc );
-	shutUp = FALSE;
     }
     return stripTrailingBlankLine( s );
 }
@@ -296,4 +330,14 @@ QString Walkthrough::getNextLine( const Location& docLoc )
 	fancylines.remove( fancylines.begin() );
     }
     return stripTrailingBlankLine( s );
+}
+
+void Walkthrough::incrementScores( bool include, int lineNo, int contribution )
+{
+    StringSet occsOnLine = occMap[lineNo];
+    StringSet::ConstIterator occ = occsOnLine.begin();
+    while ( occ != occsOnLine.end() ) {
+	scores[*occ].addContribution( include, lineNo, contribution );
+	++occ;
+    }
 }

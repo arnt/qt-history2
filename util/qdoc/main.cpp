@@ -18,7 +18,7 @@ extern void parseCppSourceFile( Emitter *emitter, const QString& fileName );
 // defined in htmlparser.cpp
 extern void parseHtmlFile( Emitter *emitter, const QString& fileName );
 
-static int compareByMtime( const void *n1, const void *n2 )
+static int compareMtime( const void *n1, const void *n2 )
 {
     if ( n1 == 0 || n2 == 0 )
 	return 0;
@@ -98,7 +98,7 @@ int main( int argc, char **argv )
     emitter.nailDownDecls();
 
     // then read the .cpp and .doc files, sorted strictly by
-    // modification time, most recent first.
+    // modification time, most recent first
     QStringList sourceFiles;
     s = config->sourceDirList().begin();
     while ( s != config->sourceDirList().end() ) {
@@ -120,7 +120,7 @@ int main( int argc, char **argv )
 	files[i++] = *s;
 	++s;
     }
-    qsort( files, n, sizeof(QString), compareByMtime );
+    qsort( files, n, sizeof(QString), compareMtime );
     i = n;
     while( i-- > 0 )
 	parseCppSourceFile( &emitter, files[i] );

@@ -8,7 +8,6 @@
 
 #include "binarywriter.h"
 #include "config.h"
-#include "declresolver.h"
 #include "doc.h"
 #include "emitter.h"
 #include "htmlwriter.h"
@@ -95,13 +94,17 @@ void Emitter::addLink( const QString& link, const QString& text )
 void Emitter::nailDownDecls()
 {
     root.buildMangledSymbolTables();
+    root.buildPlainSymbolTables( FALSE );
     root.fillInDecls();
+
+    resolver = new DeclResolver( &root );
+    Doc::setResolver( resolver );
 }
 
 void Emitter::nailDownDocs()
 {
-    root.destructMangledSymbolTables();
-    root.buildPlainSymbolTables();
+    root.destructSymbolTables();
+    root.buildPlainSymbolTables( TRUE );
     root.fillInDocs();
 
     /*
@@ -190,13 +193,11 @@ void Emitter::emitHtml() const
     HtmlWriter::setPostHeader( config->postHeader() );
     HtmlWriter::setAddress( config->address() );
 
-    DeclResolver resolver( &root );
-    resolver.setExampleFileList( eglist );
-    resolver.setHeaderFileList( hlist );
-    resolver.setHtmlFileList( htmllist );
-    resolver.setHtmlChunkMap( chkmap );
+    resolver->setExampleFileList( eglist );
+    resolver->setHeaderFileList( hlist );
+    resolver->setHtmlFileList( htmllist );
+    resolver->setHtmlChunkMap( chkmap );
 
-    Doc::setResolver( &resolver );
     Doc::setHeaderFileList( hlist );
     Doc::setClassList( clist );
     Doc::setFunctionIndex( findex );
@@ -250,14 +251,14 @@ void Emitter::emitHtml() const
 	    htmlFileName = config->classRefHref( classDecl->name() );
 
 	    if ( config->generateHtmlFile(htmlFileName) ) {
-		resolver.setCurrentClass( classDecl );
+		resolver->setCurrentClass( classDecl );
 		HtmlWriter out( htmlFileName );
 		classDecl->printHtmlLong( out );
 	    }
 	}
 	++child;
     }
-    resolver.setCurrentClass( (ClassDecl *) 0 );
+    resolver->setCurrentClass( (ClassDecl *) 0 );
 
     QMap<QString, DefgroupDoc *>::ConstIterator def = groupdefs.begin();
     QMap<QString, QMap<QString, Doc *> >::ConstIterator groupies =

@@ -10,6 +10,7 @@
 
 #include "decl.h"
 #include "htmlchunk.h"
+#include "declresolver.h"
 #include "stringset.h"
 
 class DefgroupDoc;
@@ -19,7 +20,7 @@ class PageDoc;
 class Emitter
 {
 public:
-    Emitter() { }
+    Emitter() : resolver( 0 ) { }
 
     RootDecl *rootDecl() { return &root; }
     // ### needed?
@@ -47,6 +48,7 @@ private:
     void addHtmlFile( const QString& fileName );
 
     RootDecl root;
+    DeclResolver *resolver;
     QMap<QString, DefgroupDoc *> groupdefs;
     QMap<QString, QMap<QString, Doc *> > groupiemap;
     QValueList<PageDoc *> pages;

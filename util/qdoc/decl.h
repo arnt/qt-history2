@@ -32,8 +32,8 @@ public:
     void setLocation( const Location& loc ) { lo = loc; }
 
     void buildMangledSymbolTables();
-    void destructMangledSymbolTables();
-    virtual void buildPlainSymbolTables();
+    virtual void buildPlainSymbolTables( bool omitUndocumented );
+    void destructSymbolTables();
 
     void fillInDecls();
     void fillInDocs();
@@ -130,7 +130,7 @@ class ClassDecl : public Decl
 public:
     ClassDecl( const Location& loc, const QString& name, Decl *context );
 
-    virtual void buildPlainSymbolTables();
+    virtual void buildPlainSymbolTables( bool omitUndocumented );
 
     void setHeaderFile( const QString& headerFile ) { hfile = headerFile; }
     void addSuperType( const CodeChunk& superType )

@@ -10,10 +10,37 @@
 
 #include "location.h"
 #include "stringset.h"
+#include "walkthrough.h"
 
 class BinaryWriter;
 class HtmlWriter;
 class Resolver;
+
+class ExampleLocation
+{
+public:
+    ExampleLocation() : ininc( TRUE ), ln( 0 ), uniq( 0 ) { }
+    ExampleLocation( const QString& exampleFile, bool inInclude,
+		     int lineNo, int unique )
+	    : exfile( exampleFile ), ininc( inInclude ), ln( lineNo ),
+	      uniq( unique ) { }
+    ExampleLocation( const ExampleLocation& el )
+	    : exfile( el.exfile ), ininc( el.ininc ), ln( el.ln ),
+	      uniq( el.uniq ) { }
+
+    ExampleLocation& operator=( const ExampleLocation& el );
+
+    const QString& exampleFile() const { return exfile; }
+    bool inInclude() const { return ininc; }
+    int lineNum() const { return ln; }
+    int uniqueNum() const { return uniq; }
+
+private:
+    QString exfile;
+    bool ininc;
+    int ln;
+    int uniq;
+};
 
 /*
   The Doc class represents a doc comment.
@@ -57,6 +84,7 @@ public:
     void setSeeAlso( const QStringList& seeAlso ) { sa = seeAlso; }
     void setKeywords( const StringSet& keywords ) { kwords = keywords; }
     void setGroups( const StringSet& groups ) { gr = groups; }
+    void setContainsExamples( const StringSet& examples ) { ex = examples; }
     void setDependsOn( const StringSet& dependsOn ) { deps = dependsOn; }
     void setHtmlMustQuote( const QString& quote ) { q = quote; }
     void setLink( const QString& link, const QString& title );
@@ -76,6 +104,9 @@ public:
 
 protected:
     const QString& htmlData() const { return html; }
+
+    static StringSet extlist;
+    static QMap<QString, QString> classext;
 
 private:
 #if defined(Q_DISABLE_COPY)
@@ -98,6 +129,7 @@ private:
     StringSet kwords;
     StringSet gr;
     StringSet deps;
+    StringSet ex;
     QString lnk;
 
     static const Resolver *res;
@@ -108,10 +140,6 @@ private:
     static QMap<QString, QString> clist;
     static QMap<QString, StringSet> findex;
     static QMap<QString, StringSet> chierarchy;
-
-protected: // ### evil
-    static StringSet extlist;
-    static QMap<QString, QString> classext;
 };
 
 class FnDoc : public Doc

@@ -75,7 +75,7 @@
   \link #ingroup \\ingroup \endlink,
   \link #internal \\internal \endlink,
   \link #keyword \\keyword \endlink,
-  \link #l \\l (ell) \endlink,
+  \link #l \\l&nbsp;(ell) \endlink,
   \link #link \\link ... \\end<!-- ignore me -->link \endlink,
   \link #module \\module \endlink,
   \link #mustquote \\mustquote \endlink,
@@ -138,7 +138,7 @@
     <b>\\e</b> emphasizes (italicizes) the next word. In the old days,
     \\e was used for parameters. Please change that as you see it.
 
-    You may also apply emphasis to arbitrary braced text:
+    You may also apply emphasis to arbitrarily braced text:
     <pre>
     /*!
       A \\e {<u>coordinate system</u>} is a mathematical being.
@@ -173,8 +173,8 @@
 
       This protected function is underused.
     *&#47;</pre>
-    When missing, a comment documents the function definition that
-    immediately follows it:
+    When \\fn is missing, a comment documents the function definition
+    that immediately follows it:
     <pre>
     /*!
       This protected function is underused.
@@ -231,7 +231,7 @@
 
       ...
 
-      See the documentation for <u>\\l</u> QPie::getAngle() for a
+      See the documentation of <u>\\l</u> QPie::getAngle() for a
       discussion about angle units.
     *&#47;</pre>
 
@@ -277,7 +277,7 @@
     \link #fnord QPixmap::mask \endlink()."
 
     This command supports the same kinds of links as the
-    \link #l \\l (ell) \endlink command.
+    \link #l \\l&nbsp;(ell) \endlink command.
   </ul>
 
   <h3>Fairly common commands</h3>
@@ -397,8 +397,7 @@
     first argument is the enum item. Its associated documentation
     follows and ends at the next blank line or \\value.
 
-    See the documentation of \link #enum \\enum \endlink for a
-    complete example.
+    See above for a complete example.
   </ul>
 
   <h3>Less common commands</h3>
@@ -428,14 +427,18 @@
     Theoreticians have shown that C-style comments cannot appear in
     example code.
 
+    The \link #walkthrough \\walkthrough \endlink commands may be used
+    to include code snippets directly from C++ example files. This is
+    much more maintainable than duplicating the code.
+
    <p><li><a name="internal"></a>
     <b>\\internal</b> indicates that the function is not part of the
-    public interface, although it is not private C++ sensu. It is
+    public interface, although it is not private C++ senso. It is
     rendered as "For internal use only."
 
     Internal functions need not be documented otherwise. If they are,
-    that will appear only when generating internal documentation, by
-    means of the \link #--internal --internal \endlink command-line
+    that will appear only when generating internal documentation,
+    when using the \link #--internal --internal \endlink command-line
     option for example, and preceded by "<b>Internal comment:</b>".
 
    <p><li><a name="reimp"></a>
@@ -470,9 +473,9 @@
     }</pre>
 
    <p><li><a name="important"></a>
-    <b>\\important</b> allows to inherit documentation from a parent
-    class. This helps reduce the number of bug reports concerning
-    missing documentation that is in fact elsewhere.
+    <b>\\important</b> allows you to inherit documentation from a
+    parent class. This helps reduce the number of bug reports
+    concerning missing documentation that is in fact elsewhere.
     <pre>
     /*!
       \\class QPushButton
@@ -524,7 +527,7 @@
 
    <p><li><a name="title"></a>
     <b>\\title</b> sets the title of a documentation page, or allows
-    to override it. It is used in conjunction with
+    you to override it. It is used in conjunction with
     \link #page \\page \endlink or similar commands. Use
     \link #heading \\heading \endlink if you need to distinguish
     between the title (\<title\>...\</title\>) and the heading
@@ -532,8 +535,8 @@
 
    <p><li><a name="heading"></a>
     <b>\\heading</b> sets the heading of a documentation page, or
-    allows to override it. See also the \link #title \\title \endlink
-    entry.
+    allows you to override it. See also the
+    \link #title \\title \endlink entry.
 
     Do not confuse this command with \link #header \\header \endlink.
 
@@ -887,8 +890,8 @@
   <ul>
    <p><li><a name="link"></a>
     <b>\\link ... \\endlink</b> makes an explicit link in the manner
-    of \link #l \\l (ell) \endlink, but allows arbitrary user-visible
-    text.
+    of \link #l \\l&nbsp;(ell) \endlink, but allows arbitrary
+    user-visible text.
     <pre>
     /*! \fn void QButton::stateChanged( int state )
 
@@ -907,8 +910,8 @@
     manpage and paper versions, they cannot see it at all. Instead,
     it is best to fit setTriState() into the sentence.
 
-    In the old days, there was no \link #l \\l (ell) \endlink command.
-    Change horrors like
+    In the old days, there was no \link #l \\l&nbsp;(ell) \endlink
+    command. Change horrors like
     <pre>
     /*!
       ... \\link QPie::setAngle() QPie::setAngle()\\endlink
@@ -1009,19 +1012,19 @@
    <p><li><a name="COMPANY"></a>
     <b>COMPANY</b> represents the name of the company. Example:
     <pre>
-    COMPANY = Trolltech</pre>
+    COMPANY = Ximian</pre>
 
    <p><li><a name="PRODUCT"></a>
     <b>PRODUCT</b> represents the name of the product. Example:
     <pre>
-    PRODUCT = Qt</pre>
+    PRODUCT = Gnomovision</pre>
 
    <p><li><a name="VERSIONSTR"></a>
     <b>VERSIONSTR</b> represents the version number of the product.
     Its value is then accessible with the
     \link #version \\version \endlink command. Example:
     <pre>
-    VERSION = 2.0.2</pre>
+    VERSION = 2.04</pre>
 
     If the product source code contains the version number, it might
     be possible to use \link #VERSIONSYM VERSIONSYM \endlink instead
@@ -1035,41 +1038,35 @@
 
     If the directive
     <pre>
-    #define TEX_VERSION "3.14159"</pre>
+    #define GNOMOVISION_VER "2.04"</pre>
     appears somewhere in a source or header file, and the line
     <pre>
-    VERSIONSYM = TEX_VERSION</pre>
+    VERSIONSYM = GNOMOVISION_VER</pre>
     appears in the configuration file,
-    \link #version \\version \endlink expand to 3.14159 everywhere it
+    \link #version \\version \endlink expands to 2.04 wherever it
     appears.
 
    <p><li><a name="STYLE"></a>
     <b>STYLE</b> is some CSS stuff that ends up between \<style\> and
-    \</style\> in all generated HTML files.
-
-    In Qt, this is used among other things to get clean links without
-    underlining.
+    \</style\> in all generated HTML files. In Qt, this is used to
+    get clean links without underlining, among other things.
 
    <p><li><a name="POSTHEADER"></a>
     <b>POSTHEADER</b> is some HTML stuff that ends up before the
-    document heading in all generated HTML files.
-
-    In Qt, this is used for the "Qt Reference Documentation" banner
-    with the Qt logo at the top of all pages.
+    document heading in all generated HTML files. In Qt, this is used
+    for the "Qt Reference Documentation" banner with the Qt logo at
+    the top of all pages.
 
    <p><li><a name="FOOTER"></a>
     <b>FOOTER</b> is some HTML stuff that ends up at the bottom of
-    any class's documentation.
-
-    In Qt, this is used for the "Search the documentation, FAQ,
-    qt-interest archive and more" part of class documentation pages.
+    any class's documentation. In Qt, this is used for the "Search
+    the documentation, FAQ, qt-interest archive and more" part of
+    class documentation pages.
 
    <p><li><a name="ADDRESS"></a>
     <b>ADDRESS</b> is some HTML stuff that ends up at the bottom of
-    all generated HTML files (below the footer, if any).
-    
-    In Qt, this is used for the copyright notice at the bottom of
-    every page.
+    all generated HTML files (below the footer, if any). In Qt, this
+    is used for the copyright notice at the bottom of every page.
   </ul>
 
   <h3>Exciting variables</h3>
@@ -1104,11 +1101,11 @@
 
     For example,
     <pre>
-    DEFINE = QDOC SUPPORT_.*</pre>
-    will consider QDOC and any symbol starting with SUPPORT_ as
+    DEFINE = GNOMOVISION SUPPORT_.*</pre>
+    will consider GNOMOVISION and any symbol starting with SUPPORT_ as
     defined.
 
-    qdoc is no C++ preprocessor. It uses simple, StriNg Oriented
+    qdoc is not a C++ preprocessor. It uses simple, StriNg Oriented
     PreProcessing techniques to break complex predicates into atomic
     predicates, and tests these. For example, whether the "then" or
     the "else" branch is taken in the following example depends on the
@@ -1131,13 +1128,13 @@
 
     For example,
     <pre>
-    FALSE = 0 "CH4_VERSION < .*"</pre>
+    FALSE = 0 "GNOMOVISION_VER < .*"</pre>
     will make qdoc behave as if "0" were false (indeed, it is in C++)
-    and "CH4_VERSION < 3" were false.
+    and "GNOMOVISION_VER < 3" were false.
 
    <p><li><a name="INTERNAL"></a>
     <b>INTERNAL</b> (cf. \link #--internal --internal \endlink)
-    controls whether to generate internal or public documentation.    
+    controls whether to generate internal or public documentation.
     By default, qdoc generates public documentation. To generate
     internal documentation, use
     <pre>
@@ -1161,9 +1158,9 @@
     so only the first 64 warnings are emitted.
 
    <p><li><a name="ONLY"></a>
-    <b>ONLY</b> (cf. \link #--only --only \endlink) allows to generate
-    only a subset of the HTML files. For example, to generate only
-    qpushbutton.html and tutorial.html, use
+    <b>ONLY</b> (cf. \link #--only --only \endlink) allows you to
+    generate only a subset of the HTML files. For example, to
+    generate only qpushbutton.html and tutorial.html, use
     <pre>
     ONLY = qpushbutton tutorial</pre>
 
@@ -1267,9 +1264,9 @@
 
    <p><li><a name="--only"></a>
     <b>--only</b> is equivalent to \link #ONLY ONLY \endlink. It
-    allows to generate only a subset of the HTML files. For example,
-    "--only=qpushbutton,tutorial" makes qdoc run much faster by
-    generating only qpushbutton.html and tutorial.html (and related
+    allows you to generate only a subset of the HTML files. For
+    example, "--only=qpushbutton,tutorial" makes qdoc run much faster
+    by generating only qpushbutton.html and tutorial.html (and related
     files).
 
     For convenience, you can specify only the prefix of the names to
@@ -1295,7 +1292,7 @@
     Try this option now. You should get the following message:
     <pre>
     qdoc version 1.94</pre>
-    If you get, say, version 2.53, get
+    If you have version 2.53, get
     \link mailto:jasmin@trolltech.com somebody \endlink to update this
     document.
 

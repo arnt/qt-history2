@@ -8,32 +8,40 @@
 #include <qstring.h>
 #include <qstringlist.h>
 
+#include "codeprocessor.h"
 #include "location.h"
 
 class Resolver;
 
-class LineScore
+class HighScore
 {
 public:
-    LineScore() : lin( 0 ), scor( 0 ) { }
-    LineScore( int line, int score ) : lin( line ), scor( score ) { }
-    LineScore( const LineScore& ls ) : lin( ls.lin ), scor( ls.scor ) { }
+    HighScore() : ininc( TRUE ), ln( 0 ), contri( 0 ), tota( 0 ) { }
+    HighScore( const HighScore& hs )
+	    : ininc( hs.ininc ), ln( hs.ln ), contri( hs.contri ),
+	      tota( hs.tota ) { }
 
-    LineScore& operator=( const LineScore& ls ) {
-	lin = ls.lin;
-	scor = ls.scor;
-	return *this;
-    }
+    HighScore& operator=( const HighScore& hs );
 
-    int line() const { return lin; }
-    int score() const { return scor; }
+    void addContribution( bool inInclude, int lineNo, int contribution );
+
+    bool inInclude() const { return ininc; }
+    int lineNum() const { return ln; }
+    int contribution() const { return contri; }
+    int total() const { return tota; }
 
 private:
-    int lin;
-    int scor;
+    bool ininc;
+    int ln;
+    int contri;
+    int tota;
 };
 
-typedef QMap<QString, LineScore> ScoreMap;
+// QMap<link, HighScore>
+typedef QMap<QString, HighScore> ScoreMap;
+
+// QMap<lineNumber, link set>
+typedef QMap<int, StringSet> LinkMap;
 
 /*
   The Walkthrough class implements the C++ example walkthrough engine.
@@ -57,9 +65,11 @@ public:
     Walkthrough() : shutUp( FALSE ), justIncluded( TRUE ) { }
 
     void includePass1( const QString& fileName, const Resolver *resolver );
-    QString includePass2( const QString& fileName, const Resolver *resolver );
+    QString includePass2( const QString& fileName, const Resolver *resolver,
+			  const LinkMap& exampleLinkMap );
     void startPass1( const QString& fileName, const Resolver *resolver );
-    void startPass2( const QString& fileName, const Resolver *resolver );
+    void startPass2( const QString& fileName, const Resolver *resolver,
+		     const LinkMap& exampleLinkMap );
 
     QString printline( const QString& substr, const Location& docLoc );
     QString printto( const QString& substr, const Location& docLoc );
@@ -68,6 +78,7 @@ public:
     void skipto( const QString& substr, const Location& docLoc );
     void skipuntil( const QString& substr, const Location& docLoc );
 
+    const QString& fileName() const { return fname; }
     const QString& filePath() const { return fpath; }
     const ScoreMap& scoreMap() const { return scores; }
 
@@ -78,7 +89,7 @@ private:
 #endif
 
     QString start( bool include, bool firstPass, const QString& fileName,
-		   const Resolver *resolver );
+		   const Resolver *resolver, const LinkMap& exampleLinkMap );
 
     QString xline( const QString& substr, const Location& docLoc,
 		   const QString& command );
@@ -87,11 +98,15 @@ private:
     QString xuntil( const QString& substr, const Location& docLoc,
 		    const QString& command );
     QString getNextLine( const Location& docLoc );
+    void incrementScores( bool include, int lineNo, int contribution );
+    ScoreMap scoreMapForOccurrenceMap( const OccurrenceMap& occMap );
 
+    QString fname;
     QString fpath;
     OccurrenceMap occMap;
     ScoreMap scores;
-    QString fancyText;
+    LinkMap exmap;
+    QString includeText;
     QStringList plainlines;
     QStringList fancylines;
     Location walkloc;

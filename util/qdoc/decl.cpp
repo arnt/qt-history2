@@ -301,19 +301,9 @@ void Decl::buildMangledSymbolTables()
     }
 }
 
-void Decl::destructMangledSymbolTables()
+void Decl::buildPlainSymbolTables( bool omitUndocumented )
 {
-    symTable[MangledSymTable].clear();
-    QValueList<Decl *>::ConstIterator child = children().begin();
-    while ( child != children().end() ) {
-	(*child)->destructMangledSymbolTables();
-	++child;
-    }
-}
-
-void Decl::buildPlainSymbolTables()
-{
-    if ( doc() == 0 && this != rootContext() ) // ### unify
+    if ( omitUndocumented && doc() == 0 && this != rootContext() )
 	return;
 
     QValueList<Decl *>::ConstIterator child;
@@ -334,7 +324,18 @@ void Decl::buildPlainSymbolTables()
 
     child = children().begin();
     while ( child != children().end() ) {
-	(*child)->buildPlainSymbolTables();
+	(*child)->buildPlainSymbolTables( omitUndocumented );
+	++child;
+    }
+}
+
+void Decl::destructSymbolTables()
+{
+    symTable[MangledSymTable].clear();
+    symTable[PlainSymTable].clear();
+    QValueList<Decl *>::ConstIterator child = children().begin();
+    while ( child != children().end() ) {
+	(*child)->destructSymbolTables();
 	++child;
     }
 }
@@ -538,7 +539,7 @@ ClassDecl::ClassDecl( const Location& loc, const QString& name, Decl *context )
 {
 }
 
-void ClassDecl::buildPlainSymbolTables()
+void ClassDecl::buildPlainSymbolTables( bool omitUndocumented )
 {
     QValueStack<ClassDecl *> stack;
     QValueList<Decl *>::ConstIterator ch;
@@ -557,7 +558,7 @@ void ClassDecl::buildPlainSymbolTables()
 
 	ch = c->children().begin();
 	while ( ch != c->children().end() ) {
-	    bool omit = FALSE;
+	    bool omit = ( omitUndocumented && (*ch)->doc() == 0 );
 	    if ( (*ch)->kind() == Decl::Function ) {
 		FunctionDecl *funcDecl = (FunctionDecl *) *ch;
 		if ( c != this && (funcDecl->isConstructor() ||

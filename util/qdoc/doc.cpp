@@ -19,18 +19,17 @@
 #include "messages.h"
 #include "resolver.h"
 #include "stringset.h"
-#include "walkthrough.h"
 
 /*
   These three macros are used so often that all-upper-case names are
   undesirable.
 
   hash() combines a character (the first character of a word) and a
-  lenght to form a hash value.
+  length to form a hash value.
 
   check() and consume() compare variable 'command' with a target
   string. If they are not equal, break. If they are equal,
-  consume(), but not check(), removes the '\command' from the text.
+  consume(), unlike check(), removes the '\command' from the text.
 */
 
 #define hash( ch, len ) ( (ch) | ((len) << 8) )
@@ -56,7 +55,7 @@ static QString what( Doc::Kind kind )
     case Doc::Fn:
 	return QString( "function" );
     case Doc::Enum:
-	return QString( "enum" );
+	return QString( "type" );
     case Doc::Class:
 	return QString( "class" );
     default:
@@ -128,9 +127,9 @@ static QString processBackslashes( const QString& str )
 }
 
 /*
-  This function is imperfect. If sophisticated '\keyword's are needed, it can
-  always be changed.
- */
+  This function is imperfect. If sophisticated '\keyword's are
+  needed, it can always be changed.
+*/
 static QString indexAnchor( const QString& str )
 {
     static QRegExp unfriendly( QString("[^a-zA-Z0-9_-]+") );
@@ -140,12 +139,13 @@ static QString indexAnchor( const QString& str )
 }
 
 /*
-  This function makes sure no two automatic links for the same identifier are
-  too close to each other. It returns TRUE if it's OK to have a new link to
-  name, otherwise FALSE. It also updates offsetMap.
+  This function makes sure no two automatic links for the same
+  identifier are too close to each other. It returns TRUE if it's OK
+  to have a new link to name, otherwise FALSE. It also updates
+  offsetMap.
 
-  The criterion is that two automatic links to the same place should be
-  separated by at least 1009 characters.
+  The criterion is that two automatic links to the same place should
+  be separated by at least 1009 characters.
 */
 static bool offsetOK( QMap<QString, int> *offsetMap, int off,
 		      const QString& name )
@@ -167,8 +167,8 @@ static void skipSpaces( const QString& in, int& pos )
 }
 
 /*
-  This function is highly magical. It tries to somehow reproduce the old qdoc's
-  behavior.
+  This function is highly magical. It tries to somehow reproduce the
+  old qdoc's behavior.
 */
 static void skipSpacesOrNL( const QString& in, int& pos )
 {
@@ -245,8 +245,8 @@ static QString getArgument( const QString& in, int& pos )
     int begin = pos;
 
     /*
-      Typically, an argument ends at the next white-space. However, braces can
-      be used to group words:
+      Typically, an argument ends at the next white-space. However,
+      braces can be used to group words:
 
 	  {a few words}
 
@@ -254,8 +254,8 @@ static QString getArgument( const QString& in, int& pos )
 
 	  printf( "%d\n", x )
 
-      is an argument too, although it contains spaces. Finally, trailing
-      punctuation is not included in an argument.
+      is an argument too, although it contains spaces. Finally,
+      trailing punctuation is not included in an argument.
     */
     if ( pos < (int) in.length() && in[pos] == QChar('{') ) {
 	pos++;
@@ -294,9 +294,21 @@ static QString getArgument( const QString& in, int& pos )
     }
 }
 
+// evil global variables
+
+// QMap<example file, LinkMap>
+static QMap<QString, LinkMap> includeLinkMaps;
+static QMap<QString, LinkMap> walkthroughLinkMaps;
+
+// QMap<link, QMap<score, ExampleLocation> >
+static QMap<QString, QMap<int, ExampleLocation> > megaExampleMap;
+
+// QMap<example file, links>
+static QMap<QString, StringSet> exampleLinks;
+
 /*
-  The DocParser class is an internal class that implements the first pass of
-  doc parsing. (See Doc::finalHtml() for the second pass.)
+  The DocParser class is an internal class that implements the first
+  pass of doc parsing. (See Doc::finalHtml() for the second pass.)
 */
 class DocParser
 {
@@ -312,7 +324,8 @@ private:
 #endif
 
     const Location& location();
-
+    void flushWalkthrough( const Walkthrough& walkthrough,
+			   StringSet *examples );
     void setKind( Doc::Kind kind, const QString& thanksToCommand );
     void setKindHasToBe( Doc::Kind kind, const QString& thanksToCommand );
 
@@ -360,7 +373,8 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
     QString arg, brief;
     QString className, enumName, extName, fileName, groupName, moduleName;
     QString enumPrefix, title, heading, prototype, relates, value, x;
-    StringSet groups, headers, keywords, documentedParams, documentedValues;
+    StringSet groups, headers, keywords, examples;
+    StringSet documentedParams, documentedValues;
     QStringList seeAlso, important;
     bool obsolete = FALSE;
     int briefBegin = -1;
@@ -395,20 +409,20 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 		command = QChar( '\0' );
 
 	    /*
-	      We use poor man's hashing to identify the qdoc commands (e.g.,
-	      '\a', '\class', '\enum'). These commands are not frequent enough
-	      to justify advanced techniques, and it turns out that we can let
-	      the C++ compiler do the job for us by means of a mega-switch and
-	      simple hashing.
+	      We use poor man's hashing to identify the qdoc commands
+	      (e.g., '\a', '\class', '\enum'). These commands are not
+	      frequent enough to justify advanced techniques, and it
+	      turns out that we can let the C++ compiler do the job
+	      for us by means of a mega-switch and simple hashing.
 
-	      If you have to insert a new command to qdoc, here's one of the
-	      two places to do it. In the unlikely event that you have a hash
-	      collision (that is, two commands start with the same letter and
-	      have the same length), handle it like '\endcode', '\endlink', and
-	      '\example' below.
+	      If you have to insert a new command to qdoc, here's one
+	      of the two places to do it. In the unlikely event that
+	      you have a hash collision (that is, two commands start
+	      with the same letter and have the same length), handle
+	      it like '\endcode' and '\endlink' below.
 
-	      A second pass of processing will take care of the last-minute
-	      details. See Doc::finalHtml().
+	      A second pass of processing will take care of the
+	      last-minute details. See Doc::finalHtml().
 	    */
 
 	    int h = hash( command[0].unicode(), command.length() );
@@ -560,16 +574,16 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 		    break;
 		if ( command[3] == QChar('c') ) {
 		    consume( "endcode" );
-		    warning( 2, location(), "Unexpected '\\endcode'" );
+		    warning( 2, location(), "Missing '\\code'" );
 		} else if ( command[3] == QChar('l') ) {
 		    consume( "endlink" );
 		    // we have found the missing link: Eirik Aavitsland
 		    warning( 2, location(), "Missing '\\link'" );
 		} else {
 		    consume( "example" );
+// ### not yet
 		    warning( 2, location(),
-			     "Command '\\example' is obsolete, use '\\page' and"
-			     " '\\include' instead" );
+			     "Command '\\example' has been renamed '\\file'" );
 		    fileName = getWord( yyIn, yyPos );
 		    skipRestOfLine( yyIn, yyPos );
 		    setKind( Doc::Example, command );
@@ -620,16 +634,17 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 		if ( command.length() != 7 )
 		    break;
 		if ( command[2] == QChar('c') ) {
-		    check( "include" );
+		    consume( "include" );
 		    fileName = getWord( yyIn, yyPos );
 		    skipRestOfLine( yyIn, yyPos );
+		    flushWalkthrough( walkthrough, &examples );
 
 		    if ( fileName.isEmpty() )
 			warning( 2, location(),
 				 "Expected file name after '\\include'" );
 		    else
 			walkthrough.includePass1( fileName, Doc::resolver() );
-		    yyOut += QChar( ' ' ) + fileName + QChar( '\n' );
+		    yyOut += QString( "\\include " ) + fileName + QChar( '\n' );
 		} else {
 		    consume( "ingroup" );
 		    groupName = getWord( yyIn, yyPos );
@@ -672,36 +687,25 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 		keywords.insert( x );
 
 		/*
-		  The <a name="..."> for '\page's is put right here, because a
-		  page can contain many topics. Otherwise, no new <a name="...">
-		  is created; the link given by setLink() is used.
+		  The <a name="..."> for '\page's is put right here,
+		  because a page can contain many topics. Otherwise,
+		  no new <a name="..."> is created; the link given by
+		  setLink() is used.
 		*/
 		if ( kindIs == Doc::Page )
 		    yyOut += QString( "<a name=\"%1\"></a>" ).arg( x );
 		break;
 	    case hash( 'l', 4 ):
-		if ( command.length() != 4 )
-		    break;
-		if ( command[3] == QChar('e') ) {
-		    consume( "line" );
-		    warning( 2, location(),
-			     "Command '%s' is obsolete, use '%s'",
-			     "\\line", "\\printline" );
-		    startPreOutput();
-		    yyOut += QString( "\\printline" );
+		consume( "link" );
+		begin = yyPos;
+		end = yyIn.find( QString("\\endlink"), yyPos );
+		if ( end == -1 ) {
+		    warning( 2, location(), "Missing '\\endlink'" );
 		} else {
-		    consume( "link" );
-		    begin = yyPos;
-		    end = yyIn.find( QString("\\endlink"), yyPos );
-		    if ( end == -1 ) {
-			warning( 2, location(), "Missing '\\endlink'" );
-		    } else {
-			yyOut += QString( "\\link" );
-			yyOut += processBackslashes(
-					 yyIn.mid(begin, end - begin) );
-			yyOut += QString( "\\endlink" );
-			yyPos = end + 8;
-		    }
+		    yyOut += QString( "\\link" );
+		    yyOut += processBackslashes( yyIn.mid(begin, end - begin) );
+		    yyOut += QString( "\\endlink" );
+		    yyPos = end + 8;
 		}
 		break;
 	    case hash( 'm', 6 ):
@@ -804,7 +808,6 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 		yyOut += QString( "\\printuntil " );
 		yyOut += substr;
 		yyOut += QChar( '\n' );
-		startPreOutput();
 		break;
 	    case hash( 'r', 5 ):
 		consume( "reimp" );
@@ -833,18 +836,10 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 		if ( !seeAlso.isEmpty() )
 		    yyOut += QString( "\\sa" );
 		break;
-	    case hash( 's', 4 ):
-		consume( "skip" );
-		warning( 2, location(), "Command '%s' is obsolete, use '%s'",
-			 "\\skip", "\\skipto" );
-		startPreOutput();
-		yyOut += QString( "\\skipto" );
-		break;
 	    case hash( 's', 6 ):
 		consume( "skipto" );
 		substr = getRestOfLine( yyIn, yyPos );
 		walkthrough.skipto( substr, location() );
-		startPreOutput();
 		yyOut += QString( "\\skipto " );
 		yyOut += substr;
 		yyOut += QChar( '\n' );
@@ -853,7 +848,6 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 		consume( "skipline" );
 		substr = getRestOfLine( yyIn, yyPos );
 		walkthrough.skipline( substr, location() );
-		startPreOutput();
 		yyOut += QString( "\\skipline " );
 		yyOut += substr;
 		yyOut += QChar( '\n' );
@@ -862,7 +856,6 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 		consume( "skipuntil" );
 		substr = getRestOfLine( yyIn, yyPos );
 		walkthrough.skipuntil( substr, location() );
-		startPreOutput();
 		yyOut += QString( "\\skipuntil " );
 		yyOut += substr;
 		yyOut += QChar( '\n' );
@@ -870,13 +863,6 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 	    case hash( 't', 5 ):
 		consume( "title" );
 		title = getRestOfLine( yyIn, yyPos ).simplifyWhiteSpace();
-		break;
-	    case hash( 'u', 5 ):
-		consume( "until" );
-		warning( 2, location(), "Command '%s' is obsolete, use '%s'",
-			 "\\until", "\\printuntil" );
-		startPreOutput();
-		yyOut += QString( "\\printuntil" );
 		break;
 	    case hash( 'v', 5 ):
 		// see also \bug
@@ -915,10 +901,20 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 		consume( "warning" );
 		yyOut += QString( "<b>Warning:</b>" );
 		break;
+#if 1 // ###
+	    case hash( 'd', 11 ):
+		consume( "dontinclude" );
+		warning( 2, location(),
+			 "Command '\\dontinclude' has been renamed"
+			 " '\\walkthrough'" );
+		command = QString( "walkthrough" );
+		/* fall through */
+#endif
 	    case hash( 'w', 11 ):
 		consume( "walkthrough" );
 		fileName = getWord( yyIn, yyPos );
 		skipRestOfLine( yyIn, yyPos );
+		flushWalkthrough( walkthrough, &examples );
 
 		if ( fileName.isEmpty() )
 		    warning( 2, location(),
@@ -971,6 +967,7 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
     }
     if ( numBugs > 0 || inValue )
 	yyOut += QString( "</ul>" );
+    flushWalkthrough( walkthrough, &examples );
 
     yyOut += QChar( '\n' );
 
@@ -1045,6 +1042,7 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
     doc->setSeeAlso( seeAlso );
     doc->setKeywords( keywords );
     doc->setGroups( groups );
+    doc->setContainsExamples( examples );
     if ( mustquoteBegin >= 0 )
 	doc->setHtmlMustQuote( yyOut.mid(mustquoteBegin,
 					 mustquoteEnd - mustquoteBegin)
@@ -1057,6 +1055,41 @@ const Location& DocParser::location()
     while ( yyLocPos < yyPos )
 	yyLoc.advance( yyIn[yyLocPos++].latin1() );
     return yyLoc;
+}
+
+static const int AbsoluteMaxExamples = 12;
+
+static int xunique = 1;
+
+void DocParser::flushWalkthrough( const Walkthrough& walkthrough,
+				  StringSet *examples )
+{
+    if ( walkthrough.fileName().isEmpty() )
+	return;
+
+    examples->insert( walkthrough.fileName() );
+
+    ScoreMap scoreMap = walkthrough.scoreMap();
+    ScoreMap::ConstIterator score = scoreMap.begin();
+    while ( score != scoreMap.end() ) {
+	ExampleLocation exloc( walkthrough.fileName(), (*score).inInclude(),
+			       (*score).lineNum(), xunique++ );
+	int total = (*score).total();
+
+	QMap<QString, QMap<int, ExampleLocation> >::Iterator entry =
+		megaExampleMap.find( score.key() );
+	if ( entry == megaExampleMap.end() ) {
+	    megaExampleMap[score.key()].insert( total, exloc );
+	} else {
+	    // avoid collisions by incrementing score slightly
+	    while ( (*entry).contains(total) )
+		total++;
+	    (*entry).insert( total, exloc );
+	    if ( (int) (*entry).count() > AbsoluteMaxExamples )
+		(*entry).remove( (*entry).begin() );
+	}
+	++score;
+    }
 }
 
 void DocParser::setKind( Doc::Kind kind, const QString& thanksToCommand )
@@ -1163,6 +1196,14 @@ void DocParser::stopPreOutput()
     }
 }
 
+ExampleLocation& ExampleLocation::operator=( const ExampleLocation& el )
+{
+    ininc = el.ininc;
+    exfile = el.exfile;
+    ln = el.ln;
+    return *this;
+}
+
 const Resolver *Doc::res = 0;
 QRegExp *Doc::megaRegExp = 0;
 QMap<QString, QMap<QString, QString> > Doc::quotes;
@@ -1212,6 +1253,26 @@ void Doc::setClassList( const QMap<QString, QString>& classList )
     delete megaRegExp;
     megaRegExp = new QRegExp( t );
     megaRegExp->setMinimal( TRUE );
+
+    /*
+      Fill in the maps used for putting '<a name="...">'s in
+      walkthroughs.
+    */
+    QMap<QString, QMap<int, ExampleLocation> >::ConstIterator f =
+	    megaExampleMap.begin();
+    while ( f != megaExampleMap.end() ) {
+	// f.key() is the link
+	QMap<int, ExampleLocation>::ConstIterator g = (*f).begin();
+	while ( g != (*f).end() ) {
+	    // g.key() is the score, *g is the ExampleLocation
+	    QMap<QString, LinkMap> *linkMaps =
+		    (*g).inInclude() ? &includeLinkMaps : &walkthroughLinkMaps;
+	    (*linkMaps)[(*g).exampleFile()][(*g).lineNum()]
+		    .insert( QChar('x') + QString::number((*g).uniqueNum()) );
+	    ++g;
+	}
+	++f;
+    }
 }
 
 void Doc::setFunctionIndex( const QMap<QString, StringSet>& index )
@@ -1304,12 +1365,12 @@ QString Doc::htmlHeaderFileList()
 QString Doc::htmlClassList()
 {
     /*
-      The problem here is to transform a list of classes into a five-column
-      table, with the constraint that all classes starting by the same letter
-      should appear in the same column.
+      The problem here is to transform a list of classes into a
+      five-column table, with the constraint that all classes starting
+      by the same letter should appear in the same column.
     */
 
-    const int NumParagraphs = 27; // 26 letters in Alphabits plus tax
+    const int NumParagraphs = 27; // 26 letters in Alphabits, plus tax
     const int NumColumns = 5; // number of columns in the result
     QString html( "" );
 
@@ -1317,9 +1378,9 @@ QString Doc::htmlClassList()
 	return html;
 
     /*
-      First, find out the common prefix of all classes. For Qt, the prefix is Q.
-      It can easily be derived from the first and last classes in alphabetical
-      order (QAccel and QXtWidget in Qt 2.1).
+      First, find out the common prefix of all classes. For Qt, the
+      prefix is Q. It can easily be derived from the first and last
+      classes in alphabetical order (QAccel and QXtWidget in Qt 2.1).
     */
     int commonPrefixLen = 0;
     QString first = clist.begin().key();
@@ -1332,12 +1393,13 @@ QString Doc::htmlClassList()
 	commonPrefixLen++;
 
     /*
-      Now, divide the data into 27 paragraphs: A, B, ..., Z, misc. QAccel will
-      fall in paragraph 0 (A) and QXtWidget in paragraph 23 (X). This is the
-      only place where we assume that NumParagraphs is 27.
+      Divide the data into 27 paragraphs: A, B, ..., Z, misc. QAccel
+      will fall in paragraph 0 (A) and QXtWidget in paragraph 23 (X).
+      This is the only place where we assume that NumParagraphs is 27.
 
-      Each paragraph is a QMap<QString, QString>. The entry for QAccel is the
-      pair (accel, QAccel). The entry for QNPlugin is (nplugin, QNPlugin*).
+      Each paragraph is a QMap<QString, QString>. The entry for
+      QAccel is the pair (accel, QAccel). The entry for QNPlugin is
+      (nplugin, QNPlugin*).
     */
     QMap<QString, QString> paragraph[NumParagraphs];
     QString paragraphName[NumParagraphs];
@@ -1359,12 +1421,12 @@ QString Doc::htmlClassList()
     }
 
     /*
-      Each paragraph j has a size: paragraph[j].count(). In the discussion, we
-      will assume paragraphs 0 to 5 will have sizes 3, 1, 4, 1, 5, 9,
-      respectively.
+      Each paragraph j has a size: paragraph[j].count(). In the
+      discussion, we will assume paragraphs 0 to 5 will have sizes
+      3, 1, 4, 1, 5, 9.
 
-      We now want to compute the paragraph offset. Paragraphs 0 to 6 start at
-      offsets 0, 3, 4, 8, 9, 14, 23, respectively.
+      We now want to compute the paragraph offset. Paragraphs 0 to 6
+      start at offsets 0, 3, 4, 8, 9, 14, 23.
     */
     int paragraphOffset[NumParagraphs + 1];
     int i, j, k;
@@ -1374,22 +1436,24 @@ QString Doc::htmlClassList()
 	paragraphOffset[j + 1] = paragraphOffset[j] + paragraph[j].count();
 
     /*
-      Here comes the dynamic programming algorithm that does the job. The
-      number of columns is fixed (NumColumns). We want to minimize the number
-      of rows of the biggest column (the cost). We will build two tables,
-      prevEnd and numRows, such that the following condition holds:  When
-      paragraphs 0, 1, ..., j in i columns, column (i - 1) should end with
-      paragraph prevEnd[i][j]. Furthermore, numRows[i][j] should give the
+      Here comes the dynamic programming algorithm that does the job.
+      The number of columns is fixed (NumColumns). We want to
+      minimize the number of rows of the biggest column (the cost).
+      We will build two tables, prevEnd and numRows, such that the
+      following condition holds:  When paragraphs 0, 1, ..., j in i
+      columns, column (i - 1) should end with paragraph
+      prevEnd[i][j]. Furthermore, numRows[i][j] should give the
       number of rows of the biggest column.
 
       For column 0, there is no previous column, so prevEnd[0][j] is
-      artificially set to -1. This value is highly magical, as it allows other
-      computations to work well; -2 wouldn't do.
+      artificially set to -1. This value is highly magical, as it
+      allows other computations to work well; -2 wouldn't do.
 
-      If only one paragraph (paragraph 0) is split among i columns, it is
-      artificially put completely in column 0.
+      If only one paragraph (paragraph 0) is split among i columns,
+      it is artificially put completely in column 0.
 
-      By doing this kind of work now, we unify the rest of the algorithm.
+      By doing this kind of work now, we unify the rest of the
+      algorithm.
     */
     int prevEnd[NumColumns][NumParagraphs];
     int numRows[NumColumns][NumParagraphs];
@@ -1404,33 +1468,34 @@ QString Doc::htmlClassList()
     }
 
     /*
-      Everything is, at last, set up properly for the real work. For any
-      (i columns, j paragraphs) pair, we never use information on the right or
-      below in the prevEnd and numRows matrices, as this information is not
-      filled in yet.
+      Everything is, at last, set up properly for the real work. For
+      any (i columns, j paragraphs) pair, we never use information on
+      the right or below in the prevEnd and numRows matrices, as this
+      information is not filled in yet.
     */
     for ( i = 1; i < NumColumns; i++ ) {
 	for ( j = 1; j < NumParagraphs; j++ ) {
 	    /*
-	      Let's concentrate on a single (i columns, j paragraphs) pair; that
-	      is, how to break j paragraphs into i columns and minimize the
-	      number of rows. We already know how to solve the related
-	      (i columns, j - 1 paragraphs) problem: end column i - 1 at
-	      prevEnd[i][j - 1]. If we add one paragraph, it might turn out that
-	      prevEnd[i][j - 1] is also the right place to end column i - 1.
-	      But maybe column prevEnd[i][j - 1] + 1 is a better place, or
-	      prevEnd[i][j - 1] + 2, or even column j - 1. We'll try them in
-	      order, but we'll stop as soon as the situation is not improving
-	      anymore.
+	      Let's concentrate on a single (i columns, j paragraphs)
+	      pair; that is, how to break j paragraphs into i columns
+	      and minimize the number of rows. We already know how to
+	      solve the related (i columns, j - 1 paragraphs)
+	      problem: end column i - 1 at prevEnd[i][j - 1]. If we
+	      add one paragraph, it might turn out that
+	      prevEnd[i][j - 1] is also the right place to end column
+	      i - 1. But maybe column prevEnd[i][j - 1] + 1 is a
+	      better place, or prevEnd[i][j - 1] + 2, or even column
+	      j - 1. We'll try them in order, but we'll stop as soon
+	      as the situation is not improving anymore.
 	    */
 	    numRows[i][j] = INT_MAX;
 
 	    for ( k = prevEnd[i][j - 1]; k < j; k++ ) {
 		/*
-		  What's the cost of breaking the column just after paragraph k?
-		  It's whichever is largest between the cost of breaking
-		  paragraphs 0, 1, ..., k in i - 1 columns and the cost of the
-		  last column.
+		  What's the cost of breaking the column just after
+		  paragraph k? It's whichever is largest between the
+		  cost of breaking paragraphs 0, 1, ..., k in i - 1
+		  columns and the cost of the last column.
 		*/
 		int m = paragraphOffset[j + 1] - paragraphOffset[k + 1];
 		if ( numRows[i - 1][k] > m )
@@ -1447,11 +1512,12 @@ QString Doc::htmlClassList()
     }
 
     /*
-      Finally, start at prevEnd[NumColumns - 1][NumParagraphs - 1] and find our
-      way back home. The information we derive is put into firstOffset, which
-      tells where each column should start. We also initialize currentOffset,
-      currentParagraphNo, and prevParagraphNo by the same occasion; they will be
-      useful later.
+      Finally, start at prevEnd[NumColumns - 1][NumParagraphs - 1]
+      and find our way back home. The information we derive is put
+      into firstOffset, which tells where each column should start.
+      We also initialize currentOffset, currentParagraphNo, and
+      prevParagraphNo by the same occasion; they will be useful
+      later.
     */
     int firstOffset[NumColumns + 1];
     int currentOffset[NumColumns];
@@ -1470,9 +1536,9 @@ QString Doc::htmlClassList()
     }
 
     /*
-      At this point, Professor Bellman leaves us and Finn Arild Aasheim comes
-      in. Seriously, we have to generate all columns in parallel. The offset
-      array guides us.
+      At this point, Professor Bellman leaves us and Finn Arild
+      Aasheim comes in. Seriously, we have to generate all columns in
+      parallel. The offset array guides us.
     */
     html += QString( "<table>\n" );
     for ( k = 0; k < numRows[NumColumns - 1][NumParagraphs - 1]; k++ ) {
@@ -1514,8 +1580,9 @@ QString Doc::htmlClassList()
 QString Doc::htmlAnnotatedClassList()
 {
     /*
-      We fight hard just to go through the QMap in case-insensitive order. In
-      Qt, this gets class Qt among the t's and Quebec among the u's.
+      We fight hard just to go through the QMap in case-insensitive
+      order. In Qt, this gets class Qt among the t's and Quebec among
+      the u's.
     */
     StringSet cset;
     QString html = QString( "<table>\n" );
@@ -1626,8 +1693,9 @@ void Doc::setLink( const QString& link, const QString& title )
     }
 
     /*
-      If there are '\keyword' commands here, find out their full addresses.
-     */
+      If there are '\keyword' commands here, find out their full
+      addresses.
+    */
     if ( !kwords.isEmpty() ) {
 	int k = link.find( QChar('#') );
 	if ( k == -1 )
@@ -1649,10 +1717,11 @@ void Doc::setLink( const QString& link, const QString& title )
     }
 
     /*
-      Rainer M. Schmid suggested that auto-referential links should be removed
-      automatically from '\sa'. This is to ease his typing if f1() refers to
-      f2() and f3(); f2() to f1() and f3(); and f3() to f1() and f2(). He then
-      copies and pastes '\sa f1() f2() f3()'.
+      Rainer M. Schmid suggested that auto-referential links are
+      removed automatically from '\sa'. This is to ease his typing if
+      f1() refers to f2() and f3(); f2() to f1() and f3(); and f3()
+      to f1() and f2(). He then copies and pastes
+      '\sa f1() f2() f3()'.
      */
     if ( !sa.isEmpty() ) {
 	QString who = title.mid( title.findRev(QChar(':')) + 1 );
@@ -1666,6 +1735,13 @@ void Doc::setLink( const QString& link, const QString& title )
 	    ++s;
 	}
     }
+
+    StringSet::ConstIterator exfile = ex.begin();
+    while ( exfile != ex.end() ) {
+	exampleLinks[*exfile].insert( link );
+	++exfile;
+    }
+
     lnk = link;
 }
 
@@ -1712,8 +1788,8 @@ void Doc::printHtml( HtmlWriter& out ) const
     out.putsMeta( t.latin1() );
     if ( config->supervisor() && !lnk.isEmpty() ) {
 	/*
-	  This belongs elsewhere. It's an easy solution to problems caused by
-	  '\important'.
+	  This belongs elsewhere. It's an easy solution to problems
+	  caused by '\important'.
 	*/
 	QString fileName = lnk;
 	int k = fileName.find( QChar('#') );
@@ -1771,8 +1847,8 @@ QString Doc::finalHtml() const
 		command = QChar( '\0' );
 
 	    /*
-	      If you have to insert a new command to qdoc, here's the other
-	      place to do it.
+	      If you have to teach qdoc a new command, here's the
+	      other place to do it.
 	    */
 
 	    int h = hash( command[0].unicode(), command.length() );
@@ -1823,7 +1899,8 @@ QString Doc::finalHtml() const
 
 		if ( !fileName.isEmpty() ) {
 		    yyOut += QString( "<pre>" );
-		    yyOut += walkthrough.includePass2( fileName, resolver() );
+		    yyOut += walkthrough.includePass2( fileName, resolver(),
+				     includeLinkMaps[fileName] );
 		    yyOut += QString( "</pre>" );
 		    dependsOn.insert( walkthrough.filePath() );
 		}
@@ -1897,22 +1974,14 @@ QString Doc::finalHtml() const
 		consume( "version" );
 		yyOut += config->version();
 		break;
-#if 1 // ### remove once Qt is clean
-	    case hash( 'd', 11 ):
-		consume( "dontinclude" );
-		warning( 2, location(),
-			 "Command '\\dontinclude' has been renamed"
-			 " '\\walkthrough'" );
-		command = QString( "walkthrough" );
-		/* fall through */
-#endif
 	    case hash( 'w', 11 ):
 		consume( "walkthrough" );
 		fileName = getWord( yyIn, yyPos );
 		skipRestOfLine( yyIn, yyPos );
 
 		if ( !fileName.isEmpty() ) {
-		    walkthrough.startPass2( fileName, resolver() );
+		    walkthrough.startPass2( fileName, resolver(),
+					    walkthroughLinkMaps[fileName] );
 		    dependsOn.insert( walkthrough.filePath() );
 		    /// ### put dependsOn in first pass
 		}
@@ -1971,24 +2040,25 @@ QString Doc::finalHtml() const
     }
 
     /*
-      Time to add some automatic hrefs. Add links to class names and to
-      '\keyword's.
+      Time to add some automatic hrefs. Add links to class names and
+      to '\keyword's.
     */
     if ( megaRegExp != 0 ) {
 	int k = 0;
 	while ( (k = megaRegExp->search(yyOut, k)) != -1 ) {
 	    /*
-	      Make sure we didn't match a '<pre>...</pre>' thingy, but rather
-	      skip over it. (See the construction of megaRegExp.)
+	      Make sure we didn't match a '<pre>...</pre>' thingy,
+	      but rather skip over it. (See the construction of
+	      megaRegExp.)
 	    */
 	    if ( yyOut[k + 1] != QChar('<') ) {
 		QString t = megaRegExp->cap( 0 ).mid( 1 ).simplifyWhiteSpace();
 
 		/*
-		  Insert a href, but rule out two cases: (1) The current link is
-		  foo.html and the '\keyword' entry is at foo.html#big-mice;
-		  (2) The current doc and the entry are both at
-		  foo.html#printBar.
+		  Insert a href, but rule out two cases: (1) The
+		  current link is foo.html and the '\keyword' entry
+		  is at foo.html#big-mice; (2) The current doc and
+		  the entry are both at foo.html#printBar.
 		*/
 		if ( lnk != keywordLinks[t].left(lnk.length()) &&
 		     offsetOK(&offsetMap, yyOut.length(), t) ) {
@@ -2002,6 +2072,46 @@ QString Doc::finalHtml() const
     }
 
     ((Doc *) this)->setDependsOn( dependsOn );
+
+    /*
+      Generate the "Examples:" section.
+    */
+    QValueList<ExampleLocation> examples;
+
+    QMap<int, ExampleLocation> exampleMap = megaExampleMap[lnk];
+    QMap<int, ExampleLocation>::ConstIterator exloc = exampleMap.begin();
+    while ( exloc != exampleMap.end() ) {
+	examples.prepend( *exloc );
+	++exloc;
+    }
+
+    if ( !examples.isEmpty() ) {
+	yyOut += QString( "<p>Example" );
+	if ( examples.count() > 1 )
+	    yyOut += QChar( 's' );
+	yyOut += QString( ": " );
+
+	QValueStack<QString> seps = separators( examples.count(),
+						QString(".\n") );
+	QValueList<ExampleLocation>::ConstIterator e = examples.begin();
+	while ( e != examples.end() ) {
+	    QString link = exampleLinks[(*e).exampleFile()].first();
+	    int k = link.find( QChar('#') );
+	    if ( k != -1 )
+		link.truncate( k );
+	    link += QString( "#x%1" ).arg( (*e).uniqueNum() );
+
+	    /*
+	      An example file is usually included only once. If it's
+	      more than that, we take the first link in alphabetical
+	      order.
+	    */
+	    yyOut += QString( "<a href=\"%1\">%2</a>" )
+		     .arg( link ).arg( (*e).exampleFile() );
+	    yyOut += seps.pop();
+	    ++e;
+	}
+    }
 
     /*
       Complain before it's too late.
@@ -2037,12 +2147,12 @@ ClassDoc::ClassDoc( const Location& loc, const QString& html,
     }
 
     /*
-      Derive the what's this from the '\brief' text (e.g., "The QFoo class is a
-      bar class." becomes "A bar class"). ###
+      Derive the what's this from the '\brief' text (e.g., "The QFoo
+      class is a bar class." becomes "A bar class"). ###
 
-      A Qt 3.0 regular expression could do all of that with five lines of code.
-      Unfortunately, when this code was written, Qt 3.0 QRegExp was not yet
-      available.
+      A Qt 3.0 regular expression could do all of that with five
+      lines of code. Unfortunately, when this code was written, Qt
+      3.0 QRegExp was not yet available.
     */
     QString whats;
     bool standardWording = TRUE;
