@@ -1005,6 +1005,38 @@ void QWindowsXPStyle::drawPrimitive( PrimitiveElement op,
 	    return;
 	}
 
+    case PE_TreeBranch: {
+	static const int decoration_size = 9;
+	int mid_h = r.width() / 2;
+	int mid_v = r.height() / 2;
+  	int bef_h = mid_h;
+  	int bef_v = mid_v;
+ 	int aft_h = mid_h;
+ 	int aft_v = mid_v;
+	if (flags & QStyle::Style_Children) {
+	    int delta = decoration_size / 2;
+	    bef_h -= delta;
+	    bef_v -= delta;
+	    aft_h += delta;
+	    aft_v += delta;
+	    XPThemeData theme(0, p, "TREEVIEW");
+	    theme.rec = QRect(bef_h, bef_v, decoration_size, decoration_size);
+	    theme.drawBackground(TVP_GLYPH, flags & QStyle::Style_Open ? GLPS_OPENED : GLPS_CLOSED);
+	}
+	// ### BUG: the dotted lines don't follow a the y coordinates (causes drawing errors)
+	// ### also see qwindowsstyle
+	QBrush brush(pal.dark(), Qt::Dense4Pattern);
+// 	QPoint org(p->xForm(QPoint(0, 0)));
+// 	p->setBrushOrigin(org);
+	if (flags & QStyle::Style_Item)
+	    p->fillRect(aft_h, mid_v, r.right() - aft_h + 1, 1, brush);
+	if (flags & QStyle::Style_Sibling)
+	    p->fillRect(mid_h, aft_v, 1, r.bottom() - aft_v + 1, brush);
+	if (flags & (QStyle::Style_Open|QStyle::Style_Children|QStyle::Style_Item|QStyle::Style_Sibling))
+	    p->fillRect(mid_h, r.y(), 1, bef_v - r.y(), brush);
+	break; }
+
+
     default:
 	break;
     }
