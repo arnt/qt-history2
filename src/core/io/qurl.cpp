@@ -1049,7 +1049,7 @@ QString QUrlPrivate::userInfo(QUrl::FormattingOptions options) const
 }
 
 /*
-    From draft-fielding-uri-rfc2396bis-05.txt, 5.2.3: Merge paths
+    From http://www.ietf.org/rfc/rfc3986.txt, 5.2.3: Merge paths
 
     Returns a merge of the current path with the relative path passed
     as argument.
@@ -1078,7 +1078,7 @@ QString QUrlPrivate::mergePaths(const QString &relativePath) const
 
 
 /*
-    From draft-fielding-uri-rfc2396bis-05.txt, 5.2.4: Remove dot segments
+    From http://www.ietf.org/rfc/rfc3986.txt, 5.2.4: Remove dot segments
 
     Removes unnecessary ../ and ./ from the path. Used for normalizing
     the URL.
