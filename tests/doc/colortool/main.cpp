@@ -135,7 +135,6 @@ public:
 	QAction *fileSaveAsAction;
 	QAction *fileQuitAction;
 	QAction *editAddAction;
-	QAction *editFindAction;
 	QAction *editOptionsAction;
 	QActionGroup *viewActionGroup;
 
@@ -314,9 +313,10 @@ private slots:
 
     void aboutToShow( int view )
     {
-	bool inTextView = view == VIEW_TEXT ? false : true;
-	editCopyAction->setEnabled( inTextView );
-	editDeleteAction->setEnabled( inTextView );
+	bool disableForText = view == VIEW_TEXT ? false : true;
+	editCopyAction->setEnabled( disableForText );
+	editFindAction->setEnabled( disableForText );
+	editDeleteAction->setEnabled( disableForText );
 	populate( view );
     }
 
@@ -513,38 +513,36 @@ private slots:
 
     void lookfor( const QString& text )
     {
-	if ( m_colors.contains( text ) ) {
-	    QString ltext = text.lower();
-	    int id = m_view->id( m_view->visibleWidget() );
-	    if ( id == VIEW_TABLE ) {
-		bool found = false;
-		for ( int i = m_table->currentRow() + 1;
-		      i < m_table->numRows(); ++i )
-		    if ( m_table->text( i, 0 ).lower().contains( ltext ) ) {
-			m_table->setCurrentCell( i, 0 );
-			found = true;
-			break;
-		    }
-		if ( !found ) {
-		    m_table->setCurrentCell( 0, 0 );
-		    statusBar()->message(
-			    QString( "Couldn't find '%1'" ).arg( text ),
-				     5000 );
+	QString ltext = text.lower();
+	bool found = false;
+	int id = m_view->id( m_view->visibleWidget() );
+	if ( id == VIEW_TABLE ) {
+	    int row = m_table->currentRow();
+	    for ( int i = row + 1; i < m_table->numRows(); ++i )
+		if ( m_table->text( i, 0 ).lower().contains( ltext ) ) {
+		    m_table->setCurrentCell( i, 0 );
+		    found = true;
+		    break;
 		}
+	    if ( !found )
+		m_table->setCurrentCell( row, 0 );
 
-	    }
-	    else if ( id == VIEW_ICONS ) {
-		QIconViewItem *item = m_iconview->findItem( text,
-							    Qt::ExactMatch );
-		if ( item )
+	}
+	else if ( id == VIEW_ICONS ) {
+	    QIconViewItem *start = m_iconview->currentItem();
+	    for ( QIconViewItem *item = start->nextItem();
+		  item; item = item->nextItem() )
+		if ( item->text().lower().contains( ltext ) ) {
 		    m_iconview->setCurrentItem( item );
-	    }
+		    m_iconview->ensureItemVisible( item );
+		    found = true;
+		    break;
+		}
+	    if ( !found && start )
+		m_iconview->setCurrentItem( start );
 	}
-	else {
+	if ( !found )
 	    findForm->notfound();
-	    statusBar()->message( QString( "Couldn't find '%1'" ).arg( text ),
-				  5000 );
-	}
     }
 
     void editDelete()
@@ -881,6 +879,7 @@ private:
     QAction *viewIconsAction;
     QAction *viewTextAction;
     QAction *editCopyAction;
+    QAction *editFindAction;
     QAction *editDeleteAction;
     QPopupMenu *contextMenu;
     QClipboard *clipboard;
@@ -894,7 +893,7 @@ private:
     QStringList m_comments;
     ColorMap m_colors;
     bool m_changed;
-    bool m_dirty[3];
+    bool m_dirty[3]; // One per VIEW
     QString m_currentcolorname;
     QColor m_currentcolor;
     QString m_test_text;
