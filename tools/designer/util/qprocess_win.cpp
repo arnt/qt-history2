@@ -26,7 +26,6 @@
 
 #include "qprocess.h"
 
-
 QProcessPrivate::QProcessPrivate( QProcess *proc )
 {
     stdinBufRead = 0;
@@ -111,27 +110,29 @@ bool QProcess::start()
     // CreateProcess()
     char *argsC = new char[args.length()+1];
     strcpy( argsC, args.latin1() );
+
+    //### this has to be CreateProcessA and CreateProcessW when moved to the core lib
     STARTUPINFO startupInfo = { sizeof( STARTUPINFO ), 0, 0, 0,
 	CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT,
 	0, 0, 0,
 	STARTF_USESTDHANDLES,
 	0, 0, 0,
 	d->pipeStdin[0], d->pipeStdout[1], d->pipeStderr[1] };
-
-	if  ( !CreateProcess( 0, argsC, 0, 0, TRUE, 0, 0, d->workingDir.absPath().latin1(), &startupInfo, &d->pid ) ) {
-	    delete[] argsC;
-	    return FALSE;
-	}
+    if  ( !CreateProcess( 0, (TCHAR*)argsC, 0, 0, TRUE, 0, 0, (TCHAR*)d->workingDir.absPath().latin1(), &startupInfo, &d->pid ) ) {
 	delete[] argsC;
-	CloseHandle( d->pipeStdin[0] );
-	CloseHandle( d->pipeStdout[1] );
-	CloseHandle( d->pipeStderr[1] );
+	return FALSE;
+    }
 
-	// start the timer
-	d->lookup->start( 100 );
+    delete[] argsC;
+    CloseHandle( d->pipeStdin[0] );
+    CloseHandle( d->pipeStdout[1] );
+    CloseHandle( d->pipeStderr[1] );
 
-	// cleanup and return
-	return TRUE;
+    // start the timer
+    d->lookup->start( 100 );
+
+    // cleanup and return
+    return TRUE;
 }
 
 bool QProcess::hangUp()
