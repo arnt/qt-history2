@@ -667,14 +667,53 @@ static QtFontStyle *bestStyle(QtFontFoundry *foundry, const QtFontStyle::Key &st
     return foundry->styles[best];
 }
 
+#if defined(Q_WS_X11)
+static QtFontEncoding *findEncoding(QFont::Script script, int styleStrategy,
+                                    QtFontSize *size, int force_encoding_id)
+{
+    QtFontEncoding *encoding = 0;
+
+    if (force_encoding_id >= 0) {
+        encoding = size->encodingID(force_encoding_id);
+        if (!encoding)
+            FM_DEBUG("            required encoding_id not available");
+        return encoding;
+    }
+
+    if (styleStrategy & (QFont::OpenGLCompatible | QFont::PreferBitmap)) {
+        FM_DEBUG("            PreferBitmap and/or OpenGL set, skipping Xft");
+    } else {
+        encoding = size->encodingID(-1); // -1 == prefer Xft
+        if (encoding) return encoding;
+    }
+
+    // Xft not available, find an XLFD font, trying the default encoding first
+    encoding = size->encodingID(QFontPrivate::defaultEncodingID);
+
+    if (!encoding || !scripts_for_xlfd_encoding[encoding->encoding][script]) {
+        // find the first encoding that supports the requested script
+        encoding = 0;
+        for (int x = 0; !encoding && x < size->count; ++x) {
+            const int enc = size->encodings[x].encoding;
+            if (scripts_for_xlfd_encoding[enc][script]) {
+                encoding = size->encodings + x;
+                break;
+            }
+        }
+    }
+
+    return encoding;
+}
+#endif // Q_WS_X11
+
 static
 unsigned int bestFoundry(QFont::Script script, unsigned int score, int styleStrategy,
-                          const QtFontFamily *family, const QString &foundry_name,
-                          QtFontStyle::Key styleKey, int pixelSize, char pitch,
-                          QtFontFoundry **best_foundry, QtFontStyle **best_style,
-                          QtFontSize **best_size
+                         const QtFontFamily *family, const QString &foundry_name,
+                         QtFontStyle::Key styleKey, int pixelSize, char pitch,
+                         QtFontFoundry **best_foundry, QtFontStyle **best_style,
+                         QtFontSize **best_size
 #ifdef Q_WS_X11
-                          , QtFontEncoding **best_encoding, int force_encoding_id
+                         , QtFontEncoding **best_encoding, int force_encoding_id
 #endif
                          )
 {
@@ -686,11 +725,11 @@ unsigned int bestFoundry(QFont::Script script, unsigned int score, int styleStra
     for (int x = 0; x < family->count; ++x) {
         QtFontFoundry *foundry = family->foundries[x];
         if (! foundry_name.isEmpty() &&
-             ucstricmp(foundry->name, foundry_name) != 0)
+            ucstricmp(foundry->name, foundry_name) != 0)
             continue;
 
         FM_DEBUG("          looking for matching style in foundry '%s' %d",
-                  foundry->name.isEmpty() ? "-- none --" : foundry->name.latin1(), foundry->count);
+                 foundry->name.isEmpty() ? "-- none --" : foundry->name.latin1(), foundry->count);
 
         QtFontStyle *style = bestStyle(foundry, styleKey);
 
@@ -705,30 +744,59 @@ unsigned int bestFoundry(QFont::Script script, unsigned int score, int styleStra
         // 1. see if we have an exact matching size
         if (! (styleStrategy & QFont::ForceOutline)) {
             size = style->pixelSize(pixelSize);
-            if (size) px = size->pixelSize;
+	    if (size) {
+                FM_DEBUG("          found exact size match (%d pixels)", size->pixelSize);
+                px = size->pixelSize;
+            }
         }
 
         // 2. see if we have a smoothly scalable font
         if (! size && style->smoothScalable && ! (styleStrategy & QFont::PreferBitmap)) {
             size = style->pixelSize(SMOOTH_SCALABLE);
-            if (size) px = pixelSize;
+	    if (size) {
+                FM_DEBUG("          found smoothly scalable font (%d pixels)", pixelSize);
+                px = pixelSize;
+            }
         }
 
         // 3. see if we have a bitmap scalable font
         if (! size && style->bitmapScalable && (styleStrategy & QFont::PreferMatch)) {
             size = style->pixelSize(0);
-            if (size) px = pixelSize;
+            if (size) {
+                FM_DEBUG("          found bitmap scalable font (%d pixels)", pixelSize);
+                px = pixelSize;
+            }
         }
+
+#ifdef Q_WS_X11
+        QtFontEncoding *encoding = 0;
+#endif
 
         // 4. find closest size match
         if (! size) {
             unsigned int distance = ~0u;
             for (int x = 0; x < style->count; ++x) {
+#ifdef Q_WS_X11
+                encoding =
+                    findEncoding(script, styleStrategy, style->pixelSizes + x, force_encoding_id);
+                if (!encoding) {
+                    FM_DEBUG("          size %3d does not support the script we want",
+                             style->pixelSizes[x].pixelSize);
+                    continue;
+                }
+#endif
+
                 unsigned int d = QABS(style->pixelSizes[x].pixelSize - pixelSize);
                 if (d < distance) {
                     distance = d;
                     size = style->pixelSizes + x;
+		    FM_DEBUG("          best size so far: %3d (%d)", size->pixelSize, pixelSize);
                 }
+            }
+
+            if (!size) {
+                FM_DEBUG("          no size supports the script we want");
+                continue;
             }
 
             if (style->bitmapScalable && ! (styleStrategy & QFont::PreferQuality) &&
@@ -743,40 +811,10 @@ unsigned int bestFoundry(QFont::Script script, unsigned int score, int styleStra
         }
 
 #ifdef Q_WS_X11
-        QtFontEncoding *encoding = 0;
-        if (force_encoding_id >= 0) {
-            encoding = size->encodingID(force_encoding_id);
-            if (! encoding) {
-                FM_DEBUG("            required encoding_id not available");
-                continue;
-            }
-        } else {
-            encoding = size->encodingID(-1); // -1 == prefer Xft
-
-            if (encoding && (styleStrategy & (QFont::OpenGLCompatible |
-                                                 QFont::PreferBitmap))) {
-                FM_DEBUG("            PreferBitmap and/or OpenGL set, skipping Xft");
-                continue;
-            }
-
-            if (! encoding) { // Xft not available, find an XLFD font
-                // try the default encoding first
-                encoding = size->encodingID(QFontPrivate::defaultEncodingID);
-
-                if (! encoding || ! scripts_for_xlfd_encoding[encoding->encoding][script]) {
-                    // find the first encoding that supports the requested script
-                    encoding = 0;
-                    for (int x = 0; !encoding && x < size->count; ++x) {
-                        const int enc = size->encodings[x].encoding;
-                        if (scripts_for_xlfd_encoding[enc][script]) {
-                            encoding = &size->encodings[x];
-                            break;
-                        }
-                    }
-                }
-            }
+        if (size) {
+            encoding = findEncoding(script, styleStrategy, size, force_encoding_id);
+            if (!encoding) size = 0;
         }
-
         if (! encoding) {
             FM_DEBUG("          foundry doesn't support the script we want");
             continue;
@@ -784,15 +822,22 @@ unsigned int bestFoundry(QFont::Script script, unsigned int score, int styleStra
 #endif // Q_WS_X11
 
         unsigned int this_score = 0x0000;
+        enum {
+            PitchMismatch       = 0x4000,
+            StyleMismatch       = 0x2000,
+            BitmapScaledPenalty = 0x1000,
+            EncodingMismatch    = 0x0002,
+            XLFDPenalty         = 0x0001
+        };
 #ifdef Q_WS_X11
         if (encoding->encoding != -1) {
-            this_score += 1;
+            this_score += XLFDPenalty;
             if (encoding->encoding != QFontPrivate::defaultEncodingID)
-                this_score += 10;
+                this_score += EncodingMismatch;
         }
         if (pitch != '*') {
             if (!(pitch == 'm' && encoding->pitch == 'c') && pitch != encoding->pitch)
-                this_score += 200;
+                this_score += PitchMismatch;
         }
 #else
         if (pitch != '*') {
@@ -801,19 +846,19 @@ unsigned int bestFoundry(QFont::Script script, unsigned int score, int styleStra
 #endif
             if ((pitch == 'm' && !family->fixedPitch)
                 || (pitch == 'p' && family->fixedPitch))
-                this_score += 200;
+                this_score += PitchMismatch;
         }
 #endif
         if (styleKey != style->key)
-            this_score += 100;
+            this_score += StyleMismatch;
         if (!style->smoothScalable && px != size->pixelSize) // bitmap scaled
-            this_score += 50;
+            this_score += BitmapScaledPenalty;
         if (px != pixelSize) // close, but not exact, size match
-            this_score += 20;
+            this_score += QABS(px - pixelSize);
 
         if (this_score < score) {
-            FM_DEBUG("          found a match: score %u best score so far %u",
-                      this_score, score);
+            FM_DEBUG("          found a match: score %x best score so far %x",
+                     this_score, score);
 
             score = this_score;
             *best_foundry = foundry;
@@ -823,7 +868,7 @@ unsigned int bestFoundry(QFont::Script script, unsigned int score, int styleStra
             *best_encoding = encoding;
 #endif // Q_WS_X11
         } else {
-            FM_DEBUG("          score %u no better than best %u", this_score, score);
+            FM_DEBUG("          score %x no better than best %x", this_score, score);
         }
     }
 
