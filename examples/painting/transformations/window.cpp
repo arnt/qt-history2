@@ -9,6 +9,7 @@ Window::Window()
     shapeComboBox = new QComboBox(this);
     shapeComboBox->addItem(tr("Clock"));
     shapeComboBox->addItem(tr("House"));
+    shapeComboBox->addItem(tr("Text"));
     shapeComboBox->addItem(tr("Truck"));
 
     QGridLayout *layout = new QGridLayout(this);
@@ -80,8 +81,15 @@ void Window::setupShapes()
     house.addRect(15.0, 5.0, 20.0, 35.0);
     house.addRect(-35.0, -15.0, 25.0, 25.0);
 
+    QPainterPath text;
+    QFont font;
+    font.setPixelSize(50);
+    QRect fontBoundingRect = QFontMetrics(font).boundingRect(tr("Qt"));
+    text.addText(-QPointF(fontBoundingRect.center()), font, tr("Qt"));
+
     shapes.append(clock);
     shapes.append(house);
+    shapes.append(text);
     shapes.append(truck);
 
     connect(shapeComboBox, SIGNAL(activated(int)),
