@@ -57,19 +57,8 @@ image_collection.variable_out = SOURCES
 image_collection.input = IMAGES
 image_collection.CONFIG += combine
 image_collection.name = UIC3 Image collection in ${QMAKE_FILE_OUT}
-q3mimesourcefactory {
-    image_collection.depends = $$QMAKE_UIC3
-    image_collection.commands = $$QMAKE_UIC3 -embed $$TARGET ${QMAKE_FILE_IN} -o ${QMAKE_FILE_OUT}
-} else {
-   isEmpty(QMAKE_RCC) {
-      win32:QMAKE_RCC = $(QTDIR)\bin\rcc.exe
-      else:QMAKE_RCC = $(QTDIR)/bin/rcc
-   }
-   image_collection.depends = $$QMAKE_RCC
-   !contains(QMAKE_IMAGES_RESOURCE_FLAGS, -prefix):QMAKE_IMAGES_RESOURCE_FLAGS += -prefix /qt/q3mimesourcefactory
-   !contains(QMAKE_IMAGES_RESOURCE_FLAGS, -name):!isEmpty(QMAKE_RESOURCE_NAME):QMAKE_IMAGES_RESOURCE_FLAGS += -name $${QMAKE_RESOURCE_NAME}_IMAGES
-   image_collection.commands = $$QMAKE_RCC -no-path $$QMAKE_IMAGES_RESOURCE_FLAGS ${QMAKE_FILE_IN} -o ${QMAKE_FILE_OUT}
-}
+image_collection.depends = $$QMAKE_UIC3
+image_collection.commands = $$QMAKE_UIC3 -embed $$TARGET ${QMAKE_FILE_IN} -o ${QMAKE_FILE_OUT}
 QMAKE_EXTRA_COMPILERS += image_collection
 
 
