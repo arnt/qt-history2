@@ -2303,15 +2303,15 @@ QByteArray compress( const QImage & image ) {
 	    start = end = None;
 	int attempts = 0;
 	/* scan for suitable quote candidates: not too far back, and
-           if we've found one that's as big as it can get, don't look
-           for more */
+	   if we've found one that's as big as it can get, don't look
+	   for more */
 	while( start != None && end != None &&
 	       bestLength < maxQuoteLength &&
 	       start >= index - tableSize &&
 	       end >= index - tableSize + bestLength ) {
 	    /* scan backwards, looking for something good enough to
-               try a (slow) string comparison. we maintain indexes to
-               the start and the end of the quote candidate here */
+	       try a (slow) string comparison. we maintain indexes to
+	       the start and the end of the quote candidate here */
 	    while( start != None && end != None &&
 		   ( pixel[start] != pixel[index] ||
 		     pixel[end] != pixel[index+bestLength] ) ) {
@@ -2330,28 +2330,28 @@ QByteArray compress( const QImage & image ) {
 		} else {
 #if 0
 		    /* this should never happen: both the start and
-                       the end pointers ran off their tracks. */
+		       the end pointers ran off their tracks. */
 		    qDebug( "oops! %06x %06x %06x %06x %5d %5d %5d %d",
 			    pixel[start], pixel[end],
 			    pixel[index], pixel[index+bestLength],
 			    start, end, index, bestLength );
 #endif
 		    /* but if it should happen, no problem. we'll just
-                       say we found nothing, and the compression will
-                       be a bit worse. */
+		       say we found nothing, and the compression will
+		       be a bit worse. */
 		    start = None;
 		}
 		/* if we've moved either index too far to use the
-                   quote candidate, let's just give up here. there's
-                   also a guard against "start" insanity. */
+		   quote candidate, let's just give up here. there's
+		   also a guard against "start" insanity. */
 		if ( start < index - tableSize || start < 0 || start >= index )
 		    start = None;
 		if ( end < index - tableSize + bestLength || end < bestLength )
 		    end = None;
 	    }
 	    /* ok, now start and end point to an area of suitable
-               length whose first and last points match, or one/both
-               is/are set to None. */
+	       length whose first and last points match, or one/both
+	       is/are set to None. */
 	    if ( start != None && end != None ) {
 		/* slow string compare... */
 		int length = 0;
@@ -2380,7 +2380,7 @@ QByteArray compress( const QImage & image ) {
 		    }
 		}
 		/* if what we have is longer than the best previous
-                   candidate, we'll use this one. */
+		   candidate, we'll use this one. */
 		if ( length > bestLength ) {
 		    attempts = 0;
 		    bestCandidate = start;
@@ -2389,8 +2389,8 @@ QByteArray compress( const QImage & image ) {
 			end = mostRecentPixel[pixel[index+length]%hashSize];
 		} else {
 		    /* and if it ins't, we'll try some more. but we'll
-                       count each string compare extra, since they're
-                       so expensive. */
+		       count each string compare extra, since they're
+		       so expensive. */
 		    attempts += 2;
 		    if ( attempts > 128 ) {
 			start = None;
@@ -2404,7 +2404,7 @@ QByteArray compress( const QImage & image ) {
 		    }
 		}
 		/* again, if we can't make use of the current quote
-                   candidate, we don't try any more */
+		   candidate, we don't try any more */
 		if ( start < index - tableSize )
 		    start = None;
 		if ( end < index - tableSize + bestLength )
@@ -2416,7 +2416,7 @@ QByteArray compress( const QImage & image ) {
 	 we're at the end, we have to emit all unquoted data. */
 	if ( index == size || bestCandidate != None ) {
 	    /* we need a double loop, because there's a maximum length
-               on the "unquoted data" section. */
+	       on the "unquoted data" section. */
 	    while( emittedUntil < index ) {
 		int l = QMIN( 8, index - emittedUntil );
 		emitBits( out, outOffset, outBit,
