@@ -1200,14 +1200,22 @@ static void qt_set_x11_resources( const char* font = 0, const char* fg = 0,
 	resFG = fg;
     if ( resBG.isEmpty() )
 	resBG = bg;
-
+#if defined(Q_OS_SOLARIS)
+    if ( resFont.isEmpty() ) {
+	QFont fnt( "Interface System", 12 );
+	if ( fnt != QApplication::font() )
+	    QApplication::setFont( fnt, TRUE );
+    } else
+#endif
     if ( !resFont.isEmpty() ) {				// set application font
 	QFont fnt;
 	fnt.setRawName( resFont );
-
+	
 	if ( fnt != QApplication::font() )
 	    QApplication::setFont( fnt, TRUE );
     }
+
+    
     if ( button || !resBG.isEmpty() || !resFG.isEmpty() ) {// set app colors
 	QColor btn;
 	QColor bg;
