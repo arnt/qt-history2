@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qtabdlg.cpp#8 $
+** $Id: //depot/qt/main/src/dialogs/qtabdlg.cpp#9 $
 **
 ** Implementation of tab dialog
 **
@@ -11,8 +11,7 @@
 #include "qpushbt.h"
 #include "qpainter.h"
 
-RCSTAG("$Id: //depot/qt/main/src/dialogs/qtabdlg.cpp#8 $")
-
+RCSTAG("$Id: //depot/qt/main/src/dialogs/qtabdlg.cpp#9 $");
 
 // a small private class to show the tabs on top
 
@@ -38,6 +37,7 @@ QTab::QTab( QWidget * child, const char * tabString,
     : QWidget( parent, objectName )
 {
     w = child;
+    next = 0;
     name = qstrdup( tabString );
     daddy = parent;
     setFont( QFont("helvetica" ) );
@@ -112,10 +112,8 @@ void QTab::paintEvent( QPaintEvent * )
   QTabDialog does not provide more than one row of tabs, and does not provide
   tabs along the sides or bottom of the dialog.
 
-
-  QTabDialog provides an OK button and optionally Cancel and Defaults
-  buttons.  In order to 
-  
+  QTabDialog provides an OK button and optionally Apply, Cancel and
+  Defaults buttons.
   */
 
 
@@ -126,14 +124,14 @@ QTabDialog::QTabDialog( QWidget *parent, const char *name, WFlags f )
     : QDialog( parent, name, f )
 {
     tabs = currentTab = 0;
-    cb = db = 0;
+    ab = cb = db = 0;
 
     ok = new QPushButton( this, "ok" );
     CHECK_PTR( ok );
     ok->setText( "OK" );
     ok->setDefault( TRUE );
     connect( ok, SIGNAL(clicked()),
-	     this, SIGNAL(okButtonPressed()) );
+	     this, SIGNAL(applyButtonPressed()) );
     connect( ok, SIGNAL(clicked()),
 	     this, SLOT(accept()) );
 }
@@ -143,9 +141,7 @@ QTabDialog::QTabDialog( QWidget *parent, const char *name, WFlags f )
 
 QTabDialog::~QTabDialog()
 {
-    delete ok;
-    delete db;
-    delete cb;
+    // no cleanup necessary
 }
 
 
@@ -230,6 +226,37 @@ void QTabDialog::addTab( QWidget * child, const char * name )
 }
 
 
+/*! If \e enable is TRUE, a Apply button is added to the dialog.  If \e
+  enable is FALSE, the button is removed.
+
+  The Apply button should apply the current settings in the dialog box
+  to the application, while keeping the dialog visible.
+
+  When Apply is clicked, the applyButtonPressed() signal is emitted.
+
+  \sa setCancelButton() setDefaultButton() applyButtonPressed() */
+
+void QTabDialog::setApplyButton( bool enable )
+{
+    if ( !!ab == enable )
+	return;
+
+    if ( enable ) {
+	ab = new QPushButton( this, "apply settings" );
+	ab->setText( "Apply" );
+	if ( isVisible() ) {
+	    setSizes();
+	    ab->show();
+	}
+	connect( ab, SIGNAL(clicked()),
+		 this, SIGNAL(applyButtonPressed()) );
+    } else {
+	delete ab;
+	ab = 0;
+    }
+}
+
+
 /*! If \e enable is TRUE, a Defaults button is added to the dialog.  If \e
   enable is FALSE, the button is removed.
 
@@ -238,7 +265,7 @@ void QTabDialog::addTab( QWidget * child, const char * name )
 
   When Defaults is clicked, the defaultButtonPressed() signal is emitted.
 
-  \sa setCancelButton() defaultButtonPressed() */
+  \sa setApplyButton() setCancelButton() defaultButtonPressed() */
 
 void QTabDialog::setDefaultButton( bool enable )
 {
@@ -247,7 +274,7 @@ void QTabDialog::setDefaultButton( bool enable )
 
     if ( enable ) {
 	db = new QPushButton( this, "back to default" );
-	cb->setText( "Defaults" );
+	db->setText( "Defaults" );
 	if ( isVisible() ) {
 	    setSizes();
 	    db->show();
@@ -269,7 +296,7 @@ void QTabDialog::setDefaultButton( bool enable )
 
   When Cancel is clicked, the cancelButtonPressed() signal is emitted.
 
-  \sa setDefaultButton() cancelButtonPressed() */
+  \sa setApplyButton setDefaultButton() cancelButtonPressed() */
 
 void QTabDialog::setCancelButton( bool enable )
 {
@@ -302,7 +329,7 @@ void QTabDialog::setCancelButton( bool enable )
   This function does not resize or move the panes - only resizeEvent()
   does that.
 
-  \sa setCancelButton() setDefaultButton() */
+  \sa setApplyButton() setCancelButton() setDefaultButton() */
 
 void QTabDialog::setSizes()
 {
@@ -310,6 +337,14 @@ void QTabDialog::setSizes()
     QSize s( ok->sizeHint() );
     bw = s.width();
     bh = s.height();
+
+    if ( ab ) {
+	s = ab->sizeHint();
+	if ( s.width() > bw )
+	    bw = s.width();
+	if ( s.height() > bh )
+	    bh = s.height();
+    }
 
     if ( db ) {
 	s = db->sizeHint();
@@ -338,7 +373,7 @@ void QTabDialog::setSizes()
     QSize min(0,0);
     QSize max(QCOORD_MAX,QCOORD_MAX);
     int th = fm.height() + 10;
-    int tw = 10;
+    int tw = 0;
     while ( t ) {
 	t->resize( fm.width( t->name )+20, th );
 	tw += t->width() + 1;
@@ -356,15 +391,20 @@ void QTabDialog::setSizes()
     if ( min.width() < tw )
 	min.setWidth( tw );
 
-    min.setWidth( QMIN( min.width() + 3, 32767 ) );
-    min.setHeight( QMIN( min.height() + bh + th + 18, 32767 ) );
-    max.setWidth( QMIN( max.width() + 3, 32767 ) );
-    max.setHeight( QMIN( max.height() + bh + th + 18, 32767 ) );
-
     if ( max.width() < min.width() )
 	max.setWidth( min.width() );
     if ( max.height() < min.height() )
 	max.setHeight( min.height() );
+
+    for( t = tabs; t; t=t->next ) {
+	t->w->setMinimumSize( min );
+	t->w->setMaximumSize( max );
+    }
+
+    min.setWidth( QMIN( min.width() + 13, 32767 ) );
+    min.setHeight( QMIN( min.height() + bh + th + 18, 32767 ) );
+    max.setWidth( QMIN( max.width() + 13, 32767 ) );
+    max.setHeight( QMIN( max.height() + bh + th + 18, 32767 ) );
 
     setMinimumSize( min );
     setMaximumSize( max );
@@ -376,6 +416,11 @@ void QTabDialog::setSizes()
 	if ( cb ) {
 	    cb->move( x - 5 - cb->width(), height() - 5 - bh );
 	    x = cb->geometry().x();
+	}
+
+	if ( ab ) {
+	    ab->move( x - 5 - cb->width(), height() - 5 - bh );
+	    x = ab->geometry().x();
 	}
 
 	if ( db ) {
@@ -415,6 +460,11 @@ void QTabDialog::resizeEvent( QResizeEvent * )
 	if ( cb ) {
 	    cb->move( x - 5 - cb->width(), height() - 5 - bh );
 	    x = cb->geometry().x();
+	}
+
+	if ( ab ) {
+	    ab->move( x - 5 - cb->width(), height() - 5 - bh );
+	    x = ab->geometry().x();
 	}
 
 	if ( db ) {

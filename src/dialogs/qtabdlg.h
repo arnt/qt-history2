@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qtabdlg.h#5 $
+** $Id: //depot/qt/main/src/dialogs/qtabdlg.h#6 $
 **
 ** Definition of tab dialog
 **
@@ -33,6 +33,9 @@ public:
     void setCancelButton( bool enable );
     bool hasCancelButton() { return cb != 0; }
 
+    void setApplyButton( bool enable );
+    bool hasApplyButton() { return ab != 0; }
+
     bool eventFilter( QObject *, QEvent * );
 
 
@@ -41,11 +44,11 @@ protected:
     void resizeEvent( QResizeEvent * );
 
 signals:
-    void apply();
     void collect();
-    void defaultButtonPressed();
+
+    void applyButtonPressed();
     void cancelButtonPressed();
-    void okButtonPressed();
+    void defaultButtonPressed();
 
 private:
     void showTab();
@@ -56,6 +59,7 @@ private:
     QPushButton * ok;
     QPushButton * cb;
     QPushButton * db;
+    QPushButton * ab;
     QRect childRect;
     int bh;
 
