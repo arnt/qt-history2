@@ -168,6 +168,9 @@ unicode strings, Oracle 9 supports fetching as well as inserting unicode strings
 (Binary) Large Objects can be fetched but they consume a lot of memory.
 We recommend using separate queries to fetch only one LOB at a time.
 
+Note that Oracle 9 doesn't support scrollable result sets with LOB columns,
+you have to use a forward only query to select LOB fields (see QSqlQuery::setForwardOnly()).
+
 Inserting (B)LOB fields is limited to Oracle's maximum SQL string size.
 
 \section3 How to build the plugin on Unix/Linux
