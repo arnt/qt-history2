@@ -717,6 +717,10 @@ QGLContext::QGLContext( const QGLFormat &format, QPaintDevice *device )
 #if defined(Q_GLX)
     gpm = 0;
 #endif
+#if defined(Q_WGL)
+    dc = 0;
+    win = 0;
+#endif
     crWin = FALSE;
     initDone = FALSE;
     sharing = FALSE;
@@ -1532,7 +1536,7 @@ QPixmap QGLWidget::renderPixmap( int w, int h, bool useContext )
 	return pm;
 
     QGLFormat fmt = format();
-    //    fmt.setDirectRendering( FALSE );		// No direct rendering
+    fmt.setDirectRendering( FALSE );		// No direct rendering
     QGLContext* pcx = new QGLContext( fmt, &pm );
     QGLContext* ocx = (QGLContext*)context();
     setContext( pcx, 0, FALSE );

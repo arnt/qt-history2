@@ -106,17 +106,24 @@ bool QGLContext::chooseContext( const QGLContext* shareContext )
 #if defined(CHECK_NULL)
 	qWarning( "QGLContext::chooseContext(): Paint device cannot be null" );
 #endif
+	if ( win )
+	    ReleaseDC( win, myDc );
 	return FALSE;
     }
 
     if ( glFormat.plane() ) {
 	pixelFormatId = ((QGLWidget*)paintDevice)->context()->pixelFormatId;
-	if ( !pixelFormatId )		// I.e. the glwidget is invalid
+	if ( !pixelFormatId ) {		// I.e. the glwidget is invalid
+	    if ( win )
+		ReleaseDC( win, myDc );
 	    return FALSE;
+	}
 
 	rc = wglCreateLayerContext( myDc, glFormat.plane() );
 	if ( !rc ) {
 	    qwglError( "QGLContext::chooseContext()", "CreateLayerContext" );
+	    if ( win )
+		ReleaseDC( win, myDc );
 	    return FALSE;
 	}
 
@@ -146,6 +153,9 @@ bool QGLContext::chooseContext( const QGLContext* shareContext )
 	    else
 		transpColor = QColor( qRgb( 1, 2, 3 ), 0 );
 	}
+
+	if ( win )
+	    ReleaseDC( win, myDc );
 	return TRUE;
     }
 
@@ -154,6 +164,8 @@ bool QGLContext::chooseContext( const QGLContext* shareContext )
     pixelFormatId = choosePixelFormat( &pfd, myDc );
     if ( pixelFormatId == 0 ) {
 	qwglError( "QGLContext::chooseContext()", "ChoosePixelFormat" );
+	if ( win )
+	    ReleaseDC( win, myDc );
 	return FALSE;
     }
     DescribePixelFormat( myDc, pixelFormatId, sizeof(PIXELFORMATDESCRIPTOR),
@@ -185,18 +197,23 @@ bool QGLContext::chooseContext( const QGLContext* shareContext )
 
     if ( !SetPixelFormat(myDc, pixelFormatId, &realPfd) ) {
 	qwglError( "QGLContext::chooseContext()", "SetPixelFormat" );
+	if ( win )
+	    ReleaseDC( win, myDc );
 	return FALSE;
     }
 
     if ( !(rc = wglCreateContext( myDc ) ) ) {
 	qwglError( "QGLContext::chooseContext()", "wglCreateContext" );
+	if ( win )
+	    ReleaseDC( win, myDc );
 	return FALSE;
     }
 
     if ( shareContext && shareContext->isValid() )
 	sharing = ( wglShareLists( shareContext->rc, rc ) != 0 );
-    
-    dc = myDc;
+
+    if ( win )
+	ReleaseDC( win, myDc );
 
     return TRUE;
 }
@@ -247,8 +264,8 @@ int QGLContext::choosePixelFormat( void *pfd, HDC pdc )
     if ( glFormat.stencil() )
 	p->cStencilBits = 4;
     p->iLayerType = PFD_MAIN_PLANE;
-    if ( glFormat.hasOverlay() )
-	p->bReserved = 1;
+    //if ( glFormat.hasOverlay() )  #### No point; must be done differently.
+    //p->bReserved = 1;
     return ChoosePixelFormat( pdc, p );
 }
 
@@ -262,7 +279,7 @@ void QGLContext::reset()
     if ( rc )
 	wglDeleteContext( rc );
     rc  = 0;
-    if ( win )
+    if ( win && dc )
 	ReleaseDC( win, dc );
     dc  = 0;
     win = 0;
@@ -288,8 +305,12 @@ void QGLContext::makeCurrent()
 	    return;
 	currentCtx->doneCurrent();
     }
-    if ( !valid || !dc )
+    if ( !valid )
 	return;
+    if ( win )
+	dc = GetDC( win );
+    else
+	dc = paintDevice->handle();
     //### Need to do something with wglRealizeLayerPalette
     if ( QColor::hPal() ) {
 	SelectPalette( dc, QColor::hPal(), FALSE );
@@ -306,7 +327,9 @@ void QGLContext::doneCurrent()
     if ( currentCtx != this )
 	return;
     currentCtx = 0;
-    wglMakeCurrent( dc, 0 );
+    wglMakeCurrent( dc, 0 );			// Also releases dc
+    if ( win )
+	dc = 0;
 }
 
 
