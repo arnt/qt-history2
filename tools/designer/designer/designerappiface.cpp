@@ -23,6 +23,7 @@
 #include "project.h"
 #include "formwindow.h"
 #include "widgetfactory.h"
+#include "command.h"
 #include "outputwindow.h"
 #include "../shared/widgetdatabase.h"
 #include <qvariant.h>
@@ -105,6 +106,15 @@ void DesignerInterfaceImpl::updateFunctionList()
     mainWindow->updateFunctionList();
 }
 
+void DesignerInterfaceImpl::onProjectChange( QObject *receiver, const char *slot )
+{
+    QObject::connect( mainWindow, SIGNAL( projectChanged() ), receiver, slot );
+}
+
+void DesignerInterfaceImpl::onFormChange( QObject *receiver, const char *slot )
+{
+    QObject::connect( mainWindow, SIGNAL( formWindowChanged() ), receiver, slot );
+}
 
 
 
@@ -179,6 +189,15 @@ void DesignerProjectImpl::save() const
 {
 }
 
+void DesignerProjectImpl::setLanguage( const QString &l )
+{
+    project->setLanguage( l );
+}
+
+QString DesignerProjectImpl::language() const
+{
+    return project->language();
+}
 
 
 
@@ -290,6 +309,11 @@ void DesignerFormWindowImpl::setFileName( const QString & )
 
 void DesignerFormWindowImpl::save() const
 {
+}
+
+bool DesignerFormWindowImpl::isModified() const
+{
+    return formWindow->commandHistory()->isModified();
 }
 
 void DesignerFormWindowImpl::insertWidget( QWidget * )
@@ -611,6 +635,10 @@ void DesignerFormWindowImpl::setVariables( const QStringList &lst )
     MetaDataBase::setVariables( formWindow, lst );
 }
 
+void DesignerFormWindowImpl::onModificationChange( QObject *receiver, const char *slot )
+{
+    QObject::connect( formWindow, SIGNAL( modificationChanged( bool m, FormWindow * ) ), receiver, slot );
+}
 
 
 

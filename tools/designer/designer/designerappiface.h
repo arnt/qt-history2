@@ -43,6 +43,9 @@ public:
     void setModified( bool b, QWidget *window );
     void updateFunctionList();
 
+    void onProjectChange( QObject *receiver, const char *slot );
+    void onFormChange( QObject *receiver, const char *slot );
+
     QUnknownInterface *queryInterface( const QUuid &uuid );
     ulong addRef();
     ulong release();
@@ -72,6 +75,8 @@ public:
     void addDatabase( DesignerDatabase * );
     void removeDatabase( DesignerDatabase * );
     void save() const;
+    void setLanguage( const QString & );
+    QString language() const;
 
 private:
     Project *project;
@@ -114,6 +119,7 @@ public:
     QString fileName() const;
     void setFileName( const QString & );
     void save() const;
+    bool isModified() const;
     void insertWidget( QWidget * );
     QWidget *create( const char *className, QWidget *parent, const char *name );
     void removeWidget( QWidget * );
@@ -160,6 +166,8 @@ public:
     void setForwardDeclarations( const QStringList &lst );
     QStringList variables() const;
     void setVariables( const QStringList &lst );
+
+    void onModificationChange( QObject *receiver, const char *slot );
 
 private:
     FormWindow *formWindow;

@@ -62,6 +62,9 @@ struct DesignerInterface : public QUnknownInterface
     virtual DesignerOutputDock *outputDock() const = 0;
     virtual void setModified( bool b, QWidget *window ) = 0;
     virtual void updateFunctionList() = 0;
+
+    virtual void onProjectChange( QObject *receiver, const char *slot ) = 0;
+    virtual void onFormChange( QObject *receiver, const char *slot ) = 0;
 };
 
 struct DesignerProject
@@ -80,6 +83,8 @@ struct DesignerProject
     virtual void addDatabase( DesignerDatabase * ) = 0;
     virtual void removeDatabase( DesignerDatabase * ) = 0;
     virtual void save() const = 0;
+    virtual void setLanguage( const QString & ) = 0;
+    virtual QString language() const = 0;
 };
 
 struct DesignerDatabase
@@ -109,6 +114,7 @@ struct DesignerFormWindow
     virtual QString fileName() const = 0;
     virtual void setFileName( const QString & ) = 0;
     virtual void save() const = 0;
+    virtual bool isModified() const = 0;
     virtual void insertWidget( QWidget * ) = 0;
     virtual void removeWidget( QWidget * ) = 0;
     virtual QWidget *create( const char *className, QWidget *parent, const char *name ) = 0;
@@ -155,6 +161,8 @@ struct DesignerFormWindow
     virtual void setForwardDeclarations( const QStringList &lst ) = 0;
     virtual QStringList variables() const = 0;
     virtual void setVariables( const QStringList &lst ) = 0;
+
+    virtual void onModificationChange( QObject *receiver, const char *slot ) = 0;
 };
 
 struct DesignerDock

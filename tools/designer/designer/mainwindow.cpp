@@ -857,6 +857,7 @@ void MainWindow::setupFileActions()
     ag->setExclusive( TRUE );
     ag->setUsesDropDown( TRUE );
     connect( ag, SIGNAL( selected( QAction * ) ), this, SLOT( projectSelected( QAction * ) ) );
+    connect( ag, SIGNAL( selected( QAction * ) ), this, SIGNAL( projectChanged() ) );
     a = new QAction( tr( "<No Project>" ), tr( "<No Project>" ), 0, ag, 0, TRUE );
     projects.insert( a, new Project( "", tr( "<No Project>" ) ) );
     a->setOn( TRUE );
@@ -2745,10 +2746,12 @@ void MainWindow::activeWindowChanged( QWidget *w )
 		}
 	    }
 	}
+	emit formWindowChanged();
 
     } else if ( w == propertyEditor ) {
 	propertyEditor->resetFocus();
     } else if ( !lastActiveFormWindow ) {
+	emit formWindowChanged();
 	emit hasActiveForm( FALSE );
 	actionEditUndo->setEnabled( FALSE );
 	actionEditRedo->setEnabled( FALSE );

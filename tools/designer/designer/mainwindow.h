@@ -145,6 +145,8 @@ signals:
     void hasActiveForm( bool );
     void formModified( bool );
     void formWindowsChanged();
+    void formWindowChanged();
+    void projectChanged();
 
 protected:
     bool eventFilter( QObject *o, QEvent *e );
