@@ -5,7 +5,7 @@
 void CustomStyle::drawPrimitive(PrimitiveElement element, const QStyleOption *option,
                                 QPainter *painter, const QWidget *widget) const
 {
-    if (element == PE_SpinBoxUp || element == PE_SpinBoxDown) {
+    if (element == PE_IndicatorSpinUp || element == PE_IndicatorSpinDown) {
 	QPointArray points(3);
 	int x = option->rect.x();
 	int y = option->rect.y();
@@ -14,7 +14,7 @@ void CustomStyle::drawPrimitive(PrimitiveElement element, const QStyleOption *op
 	x += (option->rect.width() - w) / 2;
 	y += (option->rect.height() - h) / 2;
 
-	if (element == PE_SpinBoxUp) {
+	if (element == PE_IndicatorSpinUp) {
 	    points[0] = QPoint(x, y + h);
 	    points[1] = QPoint(x + w, y + h);
 	    points[2] = QPoint(x + w / 2, y);
@@ -25,10 +25,10 @@ void CustomStyle::drawPrimitive(PrimitiveElement element, const QStyleOption *op
 	}
 
 	if (option->state & Style_Enabled) {
-	    painter->setPen(option->palette.mid());
+	    painter->setPen(option->palette.mid().color());
 	    painter->setBrush(option->palette.buttonText());
 	} else {
-	    painter->setPen(option->palette.buttonText());
+	    painter->setPen(option->palette.buttonText().color());
 	    painter->setBrush(option->palette.mid());
 	}
 	painter->drawPolygon(points);
