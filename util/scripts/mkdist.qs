@@ -72,6 +72,7 @@ var editionKeep = new Array();
 
 platformRemove["win"] = [ new RegExp("^gif"),
 			  new RegExp("^dist"),
+			  new RegExp("^doc/snippets"),
 			  new RegExp("^config.tests"),
 			  new RegExp("^extensions/motif"),
 			  new RegExp("^include/QtMotif"),
@@ -95,6 +96,7 @@ platformKeep["win"] = [ new RegExp(".") ];
 
 platformRemove["x11"] = [ new RegExp("^gif"),
 			  new RegExp("^dist"),
+			  new RegExp("^doc/snippets"),
 			  new RegExp("^extensions"),
 			  new RegExp("^include/ActiveQt"),
 			  new RegExp("^include/QtNsPlugin"),
@@ -113,6 +115,7 @@ platformKeep["x11"] = [ new RegExp(".") ];
 
 platformRemove["mac"] = [ new RegExp("^gif"),
 			  new RegExp("^dist"),
+			  new RegExp("^doc/snippets"),
 			  new RegExp("^extensions"),
 			  new RegExp("^include/ActiveQt"),
 			  new RegExp("^include/QtNsPlugin"),
