@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#300 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#301 $
 **
 ** Implementation of QListView widget class
 **
@@ -3746,11 +3746,9 @@ void QCheckListItem::activate()
 
     QRect r = listView()->itemRect( this );
     r.setWidth( BoxSize );
-    if ( listView()->rootIsDecorated() )
-	r.moveBy( listView()->itemMargin() + ( depth() + 1 ) * listView()->treeStepSize(), 0 );
-    else
-	r.moveBy( listView()->itemMargin(), 0 );
-    
+    r.moveBy( listView()->itemMargin() + ( depth() + ( listView()->rootIsDecorated() ? 1 : 0 ) ) * 
+	      listView()->treeStepSize(), 0 );
+
     if ( !r.contains( pos ) )
 	return;
 
