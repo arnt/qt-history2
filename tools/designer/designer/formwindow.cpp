@@ -191,8 +191,10 @@ void FormWindow::paintGrid( QWidget *w, QPaintEvent *e )
     p.setClipRegion( e->rect() );
     p.setPen( colorGroup().foreground() );
     for ( int i = 0; i < w->width() / mainWindow()->grid().x() + 20; ++i ) {
-	for ( int j = 0; j < w->height() / mainWindow()->grid().y() + 20; ++j )
-	    p.drawPoint( i * mainWindow()->grid().x(), j * mainWindow()->grid().y() );
+	for ( int j = 0; j < w->height() / mainWindow()->grid().y() + 20; ++j ) {
+	    if ( e->rect().contains( QPoint( i * mainWindow()->grid().x(), j * mainWindow()->grid().y() ) ) )
+		p.drawPoint( i * mainWindow()->grid().x(), j * mainWindow()->grid().y() );
+	}
     }
 }
 
