@@ -1188,7 +1188,7 @@ void QComboBox::paintEvent( QPaintEvent * )
 		p.translate( clip.x(), clip.y() + (clip.height() - itemh)/2  );
 		item->paint( &p );
 	    }
-	} else {
+	} else if ( d->listBox() && d->listBox()->item( d->current ) ) {
 	    QRect r( style().comboButtonRect( 0, 0, width(), height() ) );
 	    QListBoxItem * item = d->listBox()->item( d->current );
 	    const QPixmap *pix = item->pixmap();
@@ -1231,7 +1231,7 @@ void QComboBox::paintEvent( QPaintEvent * )
 		p.translate( textR.x(), textR.y() + (textR.height() - itemh)/2  );
 		item->paint( &p );
 	    }
-	} else {
+	} else if ( d->listBox() && d->listBox()->item( d->current ) ) {
 	    p.setClipping( FALSE );
 	    QRect r( style().comboButtonRect( 0, 0, width(), height() ) );
 	    QListBoxItem * item = d->listBox()->item( d->current );
