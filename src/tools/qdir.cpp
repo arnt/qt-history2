@@ -388,7 +388,7 @@ QString QDir::absFilePath( const QString &fileName,
 	    if ( qt_winunicode ) {
 		TCHAR buf[PATH_MAX];
 		::_tgetdcwd( fileName.upper()[0].latin1() - 'A' + 1, buf, PATH_MAX );
-		tmp = QString().setUnicodeCodes( buf, ::wcslen(buf) );
+		tmp = QString().setUnicodeCodes( (ushort*)buf, ::wcslen(buf) );
 	    } else {
 		char buf[PATH_MAX];
 		::_getdcwd( fileName.upper()[0].latin1() - 'A' + 1, buf, PATH_MAX );
