@@ -16,7 +16,7 @@ then
 fi
 rm .test.$$
 
-if [ "$1" eq "" '!' -f $1 ];
+if [ -z "$1" -o '!' -f "$1" ];
 then
     echo
     echo
