@@ -178,6 +178,12 @@ public:
     will take time to rewrite with Qt. Such applications can use
     these custom widgets as QMotifWidget with QWidget parents. This
     allows the application's interface to be replaced gradually.
+
+    \warning QMotifWidget uses the X11 window ID of the Motif widget
+    directly, instead of creating its own.  Because ot this,
+    QWidget::reparent() will not work.  This includes the functions
+    QWidget::showFullScreen() and QWidget::showNormal(), which use
+    QWidget::reparent().
 */
 
 /*!
