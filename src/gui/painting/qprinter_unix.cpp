@@ -32,6 +32,10 @@ static inline int qt_open(const char *pathname, int flags, mode_t mode)
 #include "qapplication.h"
 #include "qprinter_p.h"
 
+#ifdef Q_WS_X11
+#include "qx11info_x11.h"
+#endif
+
 #include <unistd.h> // For ::sleep()
 #include <stdlib.h>
 
@@ -101,10 +105,10 @@ QPrinter::QPrinter( PrinterMode m )
     paper_source = OnlyOne;
     switch ( m ) {
 	case ScreenResolution:
-#ifdef Q_WS_QWS
-	    res = 72;
+#ifdef Q_WS_X11
+	    res = QX11Info::appDpiY();
 #else
-	    res = QPaintDevice::x11AppDpiY();
+	    res = 72;
 #endif
 	    break;
 	case Compatible:
@@ -629,11 +633,11 @@ void QPrinter::setMargins( uint top, uint left, uint bottom, uint right )
 /*! \internal */
 QPaintEngine *QPrinter::engine() const
 {
-//     if (!paintEngine)
-// 	((QPrinter *) this)->paintEngine = new QPSPrinter(this);
-//     return 0;
-    Q_ASSERT(!"QPrinter::engine() not implemented!");
-    return 0;
+    if (!paintEngine) { // ### eek! fix me!
+	QPrinter *that = const_cast<QPrinter *>(this);
+	that->paintEngine = new QPSPrinter(that, 0);
+    }
+    return paintEngine;
 }
 
 #endif
