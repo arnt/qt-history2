@@ -11,7 +11,7 @@
 BinaryWriter::BinaryWriter( const QString& fileName )
 {
     QString filePath = config->outputDir() + QChar( '/' ) + fileName;
-    out = fopen( QFile::encodeName(filePath), "w" );
+    out = fopen( QFile::encodeName(filePath), "wb" );
     buf = 0;
     nbits = 0;
 
