@@ -436,8 +436,10 @@ Q4Menu::Q4Menu(QWidget *parent) : QWidget(*new Q4MenuPrivate, parent, WType_TopL
 {
     setFocusPolicy(StrongFocus);
     setMouseTracking(style().styleHint(QStyle::SH_Menu_MouseTracking));
-    if(style().styleHint(QStyle::SH_Menu_Scrollable, this))
+    if(style().styleHint(QStyle::SH_Menu_Scrollable, this)) {
 	d->scroll = new Q4MenuPrivate::Q4MenuScroller;
+	d->scroll->scrollFlags = Q4MenuPrivate::Q4MenuScroller::ScrollNone;
+    }
 }
 
 Q4Menu::~Q4Menu()
@@ -858,19 +860,22 @@ void Q4Menu::keyPressEvent(QKeyEvent *e)
 	if(!d->currentAction) {
 	    nextAction = d->actionItems.first();
 	} else {
-	    for(int i=0, y=0; i<(int)d->actionItems.count(); i++) {
+	    for(int i=0, y=0; !nextAction && i < (int)d->actionItems.count(); i++) {
 		Q4MenuAction *act = d->actionItems.at(i);
 		if(act == d->currentAction) {
 		    if(key == Key_Up) {
-			for(int next_i = i+1; true; next_i++) {
-			    if(next_i == d->actionItems.count())
-				next_i = 0;
+			for(int next_i = i-1; true; next_i--) {
+			    if(next_i == -1) {
+				if(d->scroll)
+				    break;
+				next_i = d->actionItems.count()-1;
+			    }
 			    Q4MenuAction *next = d->actionItems.at(next_i);
 			    if(next == d->currentAction)
 				break;
-			    if(next->action->isSeparator() ||
+			    if(next->action->isSeparator() || 
 			       (!next->action->isEnabled() && 
-				!style().styleHint(QStyle::SH_Menu_AllowActiveAndDisabled, this)))
+				!style().styleHint(QStyle::SH_Menu_AllowActiveAndDisabled, this))) 
 				continue;
 			    nextAction = next;
 			    if(d->scroll && (d->scroll->scrollFlags & Q4MenuPrivate::Q4MenuScroller::ScrollUp)) {
@@ -880,13 +885,17 @@ void Q4Menu::keyPressEvent(QKeyEvent *e)
 				if(((y + d->scroll->scrollOffset) - topVisible) < act->rect.height())
 				    scroll_direction = Q4MenuPrivate::Q4MenuScroller::ScrollUp;
 			    }
+			    break;
 			}
 			if(!nextAction && d->tearoff)
 			    d->tearoffHighlighted = 1;
 		    } else {
-			for(int next_i = i-1; true; next_i--) {
-			    if(next_i == -1)
-				next_i = d->actionItems.count()-1;
+			for(int next_i = i+1; true; next_i++) {
+			    if(next_i == d->actionItems.count()) {
+				if(d->scroll)
+				    break;
+				next_i = 0;
+			    }
 			    Q4MenuAction *next = d->actionItems.at(next_i);
 			    if(next == d->currentAction)
 				break;
@@ -905,6 +914,7 @@ void Q4Menu::keyPressEvent(QKeyEvent *e)
 				if((y + d->scroll->scrollOffset + act->rect.height()) > bottomVisible)
 				    scroll_direction = Q4MenuPrivate::Q4MenuScroller::ScrollDown;
 			    }
+			    break;
 			}
 		    }
 		    break;
