@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/kernel/qpsprinter.cpp#5 $
+** $Id: //depot/qt/main/src/kernel/qpsprinter.cpp#6 $
 **
 ** Implementation of QPSPrinter class
 **
@@ -20,7 +20,7 @@
 #include "qbuffer.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpsprinter.cpp#5 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpsprinter.cpp#6 $";
 #endif
 
 
@@ -258,7 +258,6 @@ bool QPSPrinter::cmd( int c , QPainter *paint, QPDevCmdParam *p )
 	if ( dirtyMatrix ) {
 	    QWMatrix tmp;
 	    if ( paint->hasViewXForm() ) {
-		debug( "has view xform" );
 		QRect viewport = paint->viewport();
 		QRect window   = paint->window();
 		tmp.translate( viewport.x(), viewport.y() );
@@ -268,7 +267,6 @@ bool QPSPrinter::cmd( int c , QPainter *paint, QPDevCmdParam *p )
 	    }
 	    if ( paint->hasWorldXForm() ) {
 		tmp = paint->worldMatrix() * tmp;
-		debug( "has world xform" );
 	    }
 	    stream << "[ "
 		   << tmp.m11() << ' ' << tmp.m12() << ' '
@@ -436,7 +434,7 @@ bool QPSPrinter::cmd( int c , QPainter *paint, QPDevCmdParam *p )
 	case PDC_SETROP:
 #if defined(DEBUG)
 	    if ( p[0].ival != CopyROP )
-		debug( "QPSPrinter: Raster operation setting not supported" );
+		debug( "QPrinter: Raster operation setting not supported" );
 #endif
 	    break;
 	case PDC_SETBRUSHORIGIN:
@@ -474,12 +472,12 @@ bool QPSPrinter::cmd( int c , QPainter *paint, QPDevCmdParam *p )
 	    break;
 	case PDC_SETCLIP:
 #if defined(DEBUG)
-	    debug( "QPSPrinter: Clipping not supported" );
+	    debug( "QPrinter: Clipping not supported" );
 #endif
 	    break;
 	case PDC_SETCLIPRGN:
 #if defined(DEBUG)
-	    debug( "QPSPrinter: Clipping not supported" );
+	    debug( "QPrinter: Clipping not supported" );
 #endif
 	    break;
 	case PDC_PRT_NEWPAGE:
