@@ -38,7 +38,7 @@ The Netscape Plugin Extension consists of the follow classes:
 
 \list 1
  \i Download the
-    \link http://home.netscape.com/comprod/development_partners/plugin_api/index.html 
+    \link http://home.netscape.com/comprod/development_partners/plugin_api/index.html
     Plugin SDK from Netscape \endlink, and copy the following files from there to
     \c{$QTDIR/extensions/nsplugin/src}
     \list
@@ -60,7 +60,7 @@ The Netscape Plugin Extension consists of the follow classes:
 	in your plugin to enable core-dumps if your browser disables them.
  \i Note the platform-specific build steps below.
  \i Read about the raw plugin interface
-	\link http://developer.netscape.com/docs/manuals/communicator/plugin/index.htm 
+	\link http://developer.netscape.com/docs/manuals/communicator/plugin/index.htm
 	in Netscape's handbook. \endlink
  \i If files viewed by a plugin are provided by an HTTP server
 	(using a \c{http://...} URL) then
@@ -107,7 +107,7 @@ limitations, but is sufficiently stable for many production
 applications.
 
 \list
- \i Keyboard input only works in seconday windows (e.g. dialogs created by the plugin).
+ \i Keyboard input only works in secondary windows (e.g. dialogs created by the plugin).
  \i You should not expect modality between the plugin and the browser to work.
  \i Netscape 4.78 on Unix/X11 tends to terminate with a bus error.
  \i Opaque resize behaviour is erratic due to browser behavior.

@@ -719,12 +719,12 @@ BOOL   WINAPI   DllMain (HANDLE hInst,
 
 /*!
     \class QNPWidget qnp.h
-    \brief The QNPWidget class provides a QWidget that is a Web-browser plugin window.
+    \brief The QNPWidget class provides a QWidget that is a web browser plugin window.
 
     \extension Netscape Plugin
 
     Derive from QNPWidget to create a widget that can be used as a
-    Browser plugin window, or create one and add child widgets.
+    web browser plugin window, or create one and add child widgets.
     Instances of QNPWidget may only be created when
     QNPInstance::newWindow() is called by the browser.
 
@@ -778,7 +778,7 @@ QNPWidget::QNPWidget() :
 
 /*!
     Destroys the window. This will be called by the plugin binding
-    code when the window is no longer required. The Web-browser will
+    code when the window is no longer required. The web browser will
     delete windows when they leave the page. The bindings will change
     the QWidget::winId() of the window when the window is resized, but
     this should not affect normal widget behavior.
@@ -821,7 +821,7 @@ void QNPWidget::leaveInstance()
 }
 
 /*!
-    Returns the instance for which this widget is the window.
+    Returns the instance for which this widget is the plugin window.
 */
 QNPInstance* QNPWidget::instance()
 {
@@ -834,7 +834,7 @@ QNPInstance* QNPWidget::instance()
 
 /*!
     \class QNPInstance qnp.h
-    \brief The QNPInstance class provides a QObject that is a Web-browser plugin.
+    \brief The QNPInstance class provides a QObject that is a web browser plugin.
 
     \extension Netscape Plugin
 
@@ -853,7 +853,7 @@ QNPInstance* QNPWidget::instance()
 
     \e{None of Qt's GUI functionality} may be used until after the
     first call to newWindow(). This includes any use of QPaintDevice
-    (ie. QPixmap, QWidget, and all subclasses), QApplication, anything
+    (i.e. QPixmap, QWidget, and all subclasses), QApplication, anything
     related to QPainter (QBrush, etc.), fonts, QMovie, QToolTip, etc.
     Useful classes which specifically \e can be used are QImage,
     QFile, and QBuffer.
@@ -861,7 +861,7 @@ QNPInstance* QNPWidget::instance()
     This restriction can easily be accommodated by structuring your
     plugin so that the task of the QNPInstance is to gather data,
     while the task of the QNPWidget is to provide a graphical
-    interface to that data,
+    interface to that data.
 */
 
 /*!
@@ -911,7 +911,7 @@ QNPInstance::QNPInstance() :
 }
 
 /*!
-    Called when the plugin instance is about to disappear.
+    Called when the plugin instance is about to be deleted.
 */
 QNPInstance::~QNPInstance()
 {
@@ -947,7 +947,7 @@ QNPWidget* QNPInstance::widget()
     set \a smode to \c AsFileOnly, in which case the data will be
     delivered some time later to the streamAsFile() function.
     Otherwise, the data will be delivered in chunks to the write()
-    function which must consume at least as much data as was returned
+    function, which must consume at least as much data as returned
     by the most recent call to writeReady().
 
     Note that the \c AsFileOnly method is not supported by Netscape
@@ -970,7 +970,7 @@ bool QNPInstance::newStreamCreated(QNPStream*, StreamMode&)
 
     \sa newStreamCreated(), newStream()
 */
-void QNPInstance::streamAsFile(QNPStream*, const char*)
+void QNPInstance::streamAsFile(QNPStream*, const char* fname)
 {
 }
 
@@ -978,7 +978,7 @@ void QNPInstance::streamAsFile(QNPStream*, const char*)
     Called when a stream is destroyed. At this point, the stream may
     be complete() and okay(). If it is not okay(), then an error has
     occurred. If it is okay(), but not complete(), then the user has
-    cancelled the transmission: do not give an error message in this
+    cancelled the transmission; do not give an error message in this
     case.
 */
 void QNPInstance::streamDestroyed(QNPStream*)
@@ -1044,9 +1044,7 @@ void QNPInstance::postURL(const char* url, const char* window,
 }
 
 /*!
-    Print the instance full-page. By default, this returns FALSE,
-    causing the browser to call the (embedded) print() function
-    instead. Requests that the given \a url be retrieved and sent to
+    Requests that the given \a url be retrieved and sent to
     the named \a window. See Netscape's JavaScript documentation for
     an explanation of window names. Passes the arguments including \a
     data to NPN_GetURLNotify.
@@ -1096,7 +1094,7 @@ void QNPInstance::print(QPainter*)
 
 /*!
     Returns the number of arguments to the instance. Note that you
-    should not normally rely on the ordering of arguments, and also
+    should not normally rely on the ordering of arguments, and
     note that the SGML specification does not permit multiple
     arguments with the same name.
 
@@ -1194,8 +1192,8 @@ const char* QNPInstance::userAgent() const
 
     This function is \e{not tested}.
 
-    Requests the creation of a new data stream \e from the plug-in.
-    The mime type and window are passed in \a mimetype and \a window.
+    Requests the creation of a new data stream \e from the plugin.
+    The MIME type and window are passed in \a mimetype and \a window.
     \a as_file holds the \c AsFileOnly flag. It is an interface to the
     NPN_NewStream function of the Netscape Plugin API.
 */
@@ -1219,8 +1217,8 @@ void QNPInstance::status(const char* msg)
 
 
 /*!
-    Returns the Java object associated with the plug-in instance, an
-    object of the \link QNPlugin::getJavaClass() plug-in's Java
+    Returns the Java object associated with the plugin instance, an
+    object of the \link QNPlugin::getJavaClass() plugin's Java
     class\endlink, or 0 if the plug-in does not have a Java class,
     Java is disabled, or an error occurred.
 
@@ -1247,10 +1245,10 @@ void* QNPInstance::getJavaPeer() const
 */
 
 /*!
-    Creates a stream. Plugins should not call this, but rather
-    QNPInstance::newStream() if a stream is required.
+    Creates a stream. Plugins should not call this, but instead
+    call QNPInstance::newStream() if a stream is required.
 
-    Takes a QNPInstance \a in, mime type \a mt, a pointer to an
+    Takes a QNPInstance \a in, MIME type \a mt, a pointer to an
     _NPStream \a st and a seekable flag \a se.
 */
 QNPStream::QNPStream(QNPInstance* in,const char* mt, _NPStream* st, bool se) :
@@ -1290,8 +1288,8 @@ const char* QNPStream::url() const
 }
 
 /*!
-    Returns the length of the stream in bytes. Can be 0 for streams of
-    unknown length.
+    Returns the length of the stream in bytes. The length returned may be
+    0 for streams of unknown length.
 */
 uint QNPStream::end() const
 {
@@ -1387,7 +1385,7 @@ int QNPStream::write( int len, void* buffer )
 
 /*!
     \class QNPlugin qnp.h
-    \brief The QNPlugin class provides the plugin central factory.
+    \brief The QNPlugin class provides the central factory for plugin objects.
 
     \extension Netscape Plugin
 
@@ -1395,13 +1393,13 @@ int QNPStream::write( int len, void* buffer )
     is created when the plugin is \e first needed, by calling
     QNPlugin::create(), which must be implemented in your plugin code
     to return some derived class of QNPlugin. The one QNPlugin object
-    creates all QNPInstance instances for a single running Web-browser
-    process.
+    creates all QNPInstance instances for a web browser running in a
+    single process.
 
     Additionally, if Qt is linked to the plugin as a dynamic library,
     only one instance of QApplication will exist \e{across all plugins
     that have been made with Qt}. So, your plugin should tread lightly
-    on global settings - do not, for example, use
+    on global settings. Do not, for example, use
     QApplication::setFont() - that will change the font in every
     widget of every Qt-based plugin currently loaded!
 */
@@ -1409,7 +1407,7 @@ int QNPStream::write( int len, void* buffer )
 /*!
     \fn QNPlugin* QNPlugin::create()
 
-    This must be implemented by your plugin code. It should return a
+    This function must be implemented by your plugin code. It should return a
     derived class of QNPlugin.
 */
 
@@ -1423,8 +1421,8 @@ QNPlugin* QNPlugin::actual()
 
 /*!
     Creates a QNPlugin. This may only be used by the constructor
-    derived class returned by the plugin's implementation of the
-    QNPlugin::create() function.
+    of the class, derived from QNPlugin, that is returned by your
+    plugin's implementation of the QNPlugin::create() function.
 */
 QNPlugin::QNPlugin()
 {
@@ -1438,8 +1436,8 @@ QNPlugin::QNPlugin()
     Destroys the QNPlugin. This is called by the plugin binding code
     just before the plugin is about to be unloaded from memory. If
     newWindow() has been called, a QApplication will still exist at
-    this time, but will be deleted shortly after before the plugin is
-    deleted.
+    this time, but will be deleted shortly after, just before the plugin
+    is deleted.
 */
 QNPlugin::~QNPlugin()
 {
@@ -1448,7 +1446,7 @@ QNPlugin::~QNPlugin()
 /*!
     Populates \e *\a plugin_major and \e *\a plugin_minor with the
     version of the plugin API and populates \e *\a browser_major and
-    \e *\a browser_minor with the version of the browser.
+    \e *\a browser_minor with the version of the web browser.
 */
 void QNPlugin::getVersionInfo(int& plugin_major, int& plugin_minor,
 	     int& browser_major, int& browser_minor)
@@ -1459,14 +1457,14 @@ void QNPlugin::getVersionInfo(int& plugin_major, int& plugin_minor,
 /*!
     \fn QNPInstance* QNPlugin::newInstance()
 
-    Override this to return an appropriate derived class of
+    Override this function to return an appropriate derived class of
     QNPInstance.
 */
 
 /*!
     \fn const char* QNPlugin::getMIMEDescription() const
 
-    Override this to return the MIME description of the data formats
+    Override this function to return the MIME description of the data formats
     supported by your plugin. The format of this string is shown by
     the following example:
 
@@ -1489,17 +1487,17 @@ void QNPlugin::getVersionInfo(int& plugin_major, int& plugin_minor,
 /*!
     \fn const char* QNPlugin::getPluginNameString() const
 
-    Returns the plain-text name of the plugin.
+    Returns a pointer to the plain-text name of the plugin.
 */
 
 /*!
     \fn const char* QNPlugin::getPluginDescriptionString() const
 
-    Returns the plain-text description of the plugin.
+    Returns a pointer to the plain-text description of the plugin.
 */
 
 /*!
-    Override to return a reference to the Java class that represents
+    Override this function to return a reference to the Java class that represents
     the plugin. The default returns 0, indicating no class.
 
     If you override this class, you must also override
@@ -1516,9 +1514,9 @@ void* QNPlugin::getJavaClass()
 }
 
 /*!
-    This function is called when the plugin is shutting down, with \e
-    jc set to the value returned earlier by getJavaClass(). The
-    function should \e unuse the Java class.
+    This function is called when the plugin is shutting down. The
+    function should \e unuse the Java class returned earlier by
+    getJavaClass().
 */
 void QNPlugin::unuseJavaClass()
 {
@@ -1526,8 +1524,8 @@ void QNPlugin::unuseJavaClass()
 }
 
 /*!
-    Returns a pointer to the Java execution environment, or 0 if Java
-    is disabled or an error occurred.
+    Returns a pointer to the Java execution environment, or 0 if
+    either Java is disabled or an error occurred.
 
     The return value is actually a \c{JRIEnv*}; we use \c{void*} so as
     to avoid burdening plugins which do not require Java.
