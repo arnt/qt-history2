@@ -31,6 +31,7 @@
 
 #if defined(QT_ACCESSIBILITY_SUPPORT)
 #include "qt_mac.h"
+#include "qptrdict.h"
 #include "qapplication.h"
 
 /*****************************************************************************
@@ -65,33 +66,35 @@ static EventTypeSpec events[] = {
 static CFStringRef qt_mac_class_str()
 {
     if(!qt_mac_static_class_str) {
-	QString qc("com.trolltech.widget");
+	QString qc("com.trolltech.object");
 	qt_mac_static_class_str = CFStringCreateWithCharacters(0, (UniChar *)qc.unicode(), qc.length());	    
     }
     return qt_mac_static_class_str;
 }
-struct QAccessibleWidgetWrapper
+struct QAccessibleObjectWrapper
 {
-    QWidget *widget;
+    QGuardedPtr<QObject> object;
+    AXUIElementRef access;
 };
+static QPtrDict<QAccessibleObjectWrapper> *qt_mac_object_map = 0;
 enum {
-    kEventParamQWidget = 'qwid',   /* typeQWidget */
-    typeQWidget = 1  /* QWidget *  */
+    kEventParamQObject = 'qobj',   /* typeQObject */
+    typeQObject = 1  /* QObject *  */
 };
-static QWidget *qt_mac_find_access_widget(HIObjectRef objref) 
+static QObject *qt_mac_find_access_object(HIObjectRef objref) 
 {
-    if(QAccessibleWidgetWrapper *wrap = (QAccessibleWidgetWrapper*)HIObjectDynamicCast(objref, qt_mac_class_str()))
-	return wrap->widget;
+    if(QAccessibleObjectWrapper *wrap = (QAccessibleObjectWrapper*)HIObjectDynamicCast(objref, qt_mac_class_str()))
+	return wrap->object;
     return NULL;
 }
-static QWidget *qt_mac_find_access_widget(AXUIElementRef element)
+static QObject *qt_mac_find_access_object(AXUIElementRef element)
 {
-    return qt_mac_find_access_widget(AXUIElementGetHIObject(element));
+    return qt_mac_find_access_object(AXUIElementGetHIObject(element));
 }
-AXUIElementRef qt_mac_find_uielement(QWidget *w)
+AXUIElementRef qt_mac_find_uielement(QObject *o)
 {
-    QWExtra *extra = w->extraData();
-    if(!extra->access) {
+    QAccessibleObjectWrapper *obj_wrap = (qt_mac_object_map ? qt_mac_object_map->find(o) : NULL);
+    if(obj_wrap) {
 	if(!widget_create_class) {
 	    OSStatus err = HIObjectRegisterSubclass(qt_mac_class_str(), NULL, 
 						    0, access_proc_handlerUPP, GetEventTypeCount(events), 
@@ -104,21 +107,18 @@ AXUIElementRef qt_mac_find_uielement(QWidget *w)
 	EventRef event;
         CreateEvent(NULL, kEventClassHIObject, kEventHIObjectInitialize, GetCurrentEventTime(),
 		    kEventAttributeUserEvent, &event);
-	SetEventParameter(event, kEventParamQWidget, typeQWidget, sizeof(w), &w);
-	HIObjectRef obj;
-	if(HIObjectCreate(qt_mac_class_str(), event, &obj) == noErr) {
-	    HIObjectSetAccessibilityIgnored(obj, false);
-	    extra->access = AXUIElementCreateWithHIObjectAndIdentifier(obj, w->winId());
+	SetEventParameter(event, kEventParamQObject, typeQObject, sizeof(o), &o);
+	HIObjectRef hiobj;
+	if(HIObjectCreate(qt_mac_class_str(), event, &hiobj) == noErr) {
+	    HIObjectSetAccessibilityIgnored(hiobj, false);
+	    AXUIElementRef ref = AXUIElementCreateWithHIObjectAndIdentifier(hiobj, (UInt64)o);
+	    obj_wrap = qt_mac_object_map->find(o);
+	    obj_wrap->access = ref;
 	}
 	ReleaseEvent(event);
     }
-    return extra->access;
+    return obj_wrap ? obj_wrap->access : 0;
 }
-static HIObjectRef qt_mac_find_hiobject(QWidget *w)
-{
-    return AXUIElementGetHIObject(qt_mac_find_uielement(w));
-}
-
 
 /*****************************************************************************
   Platform specific QAccessible members
@@ -151,12 +151,22 @@ void QAccessible::cleanup()
     }
 }
 
-void QAccessible::updateAccessibility(QObject *, int, Event)
+void QAccessible::updateAccessibility(QObject *object, int control, Event reason)
 {
     if(!AXAPIEnabled()) //no point in any of this code..
 	return;
+    if(control != 0) {
+	//need to look up the proper object.. FIXME
+    }
+    CFStringRef notification = 0;
+    //turn reason into notification! FIXME
 
-
+    if(notification) {
+	AXUIElementRef access = qt_mac_find_uielement(object); 
+	UInt64 id;
+	AXUIElementGetIdentifier(access, &id);
+	AXNotificationHIObjectNotify(notification, AXUIElementGetHIObject(access), id);
+    }
 }
 
 QMAC_PASCAL OSStatus
@@ -174,12 +184,12 @@ QAccessible::globalEventProcessor(EventHandlerCallRef next_ref, EventRef event, 
 	} else {
 	    AXUIElementRef element;
 	    GetEventParameter(event, kEventParamAccessibleObject, typeCFTypeRef, NULL, sizeof(element), NULL, &element);
-	    QWidget *widget = qt_mac_find_access_widget(element);
+	    QObject *object = qt_mac_find_access_object(element);
 	    if(ekind == kEventAccessibleGetChildAtPoint) {
 		Point where;
 		GetEventParameter(event, kEventParamMouseLocation, typeQDPoint, NULL,
 				  sizeof(where), NULL, &where);
-		if(widget) {
+		if(object) {
 #if 0
 		    QAccessibleInterface *iface;
 		    if(queryAccessibleInterface(widget, &iface) == QS_OK) {
@@ -197,16 +207,21 @@ QAccessible::globalEventProcessor(EventHandlerCallRef next_ref, EventRef event, 
 			iface->release();
 		    }
 #else
-		    widget = widget->childAt(widget->mapFromGlobal(QPoint(where.h, where.v)));
+		    if(object->isWidgetType()) {
+			QWidget *widget = (QWidget*)object;
+			object = widget->childAt(widget->mapFromGlobal(QPoint(where.h, where.v)));
+		    } else {
+			qDebug("cannot handle this..");
+		    }
 #endif
 		} else {
-		    widget = QApplication::widgetAt(where.h, where.v);
+		    object = QApplication::widgetAt(where.h, where.v);
 		}
-		if(widget) {
-		    AXUIElementRef element = qt_mac_find_uielement(widget);
+		if(object) {
+		    AXUIElementRef element = qt_mac_find_uielement(object);
 		    SetEventParameter(event, kEventParamAccessibleChild, typeCFTypeRef, sizeof(element), &element);
 		}
-	    } else if(!widget) { //the below are not mine then..
+	    } else if(!object) { //the below are not mine then..
 		handled_event = FALSE;
 	    } else if(ekind == kEventAccessibleGetAllAttributeNames) {
 		CFMutableArrayRef attrs;
@@ -225,7 +240,7 @@ QAccessible::globalEventProcessor(EventHandlerCallRef next_ref, EventRef event, 
 		CFArrayAppendValue(attrs, kAXSelectedAttribute);
 		CFArrayAppendValue(attrs, kAXFocusedAttribute);
 		CFArrayAppendValue(attrs, kAXSelectedChildrenAttribute);
-		if(widget->isTopLevel()) {
+		if(object->isWidgetType() && ((QWidget*)object)->isTopLevel()) {
 		    CFArrayAppendValue(attrs, kAXMainAttribute);
 		    CFArrayAppendValue(attrs, kAXFocusedAttribute);
 		    CFArrayAppendValue(attrs, kAXMinimizedAttribute);
@@ -332,21 +347,25 @@ QAccessible::globalEventProcessor(EventHandlerCallRef next_ref, EventRef event, 
 	}
 	break; }
     case kEventClassHIObject: {
-	QAccessibleWidgetWrapper *wrap = (QAccessibleWidgetWrapper*)data;
+	QAccessibleObjectWrapper *wrap = (QAccessibleObjectWrapper*)data;
 	if(ekind == kEventHIObjectConstruct) {
-	    QAccessibleWidgetWrapper *w = (QAccessibleWidgetWrapper*)malloc(sizeof(QAccessibleWidgetWrapper));
-	    memset(w, '\0', sizeof(QAccessibleWidgetWrapper));
+	    QAccessibleObjectWrapper *w = (QAccessibleObjectWrapper*)malloc(sizeof(QAccessibleObjectWrapper));
+	    memset(w, '\0', sizeof(QAccessibleObjectWrapper));
 	    SetEventParameter(event, kEventParamHIObjectInstance, typeVoidPtr, sizeof(w), &w);
 	} else if(ekind == kEventHIObjectInitialize) {
 	    OSStatus err = CallNextEventHandler(next_ref, event);
 	    if(err != noErr)
 		return err;
-	    GetEventParameter(event, kEventParamQWidget, typeQWidget, NULL,
-			      sizeof(wrap->widget), NULL, &wrap->widget);
+	    QAccessibleObjectWrapper *wrap = (QAccessibleObjectWrapper*)data;
+	    GetEventParameter(event, kEventParamQObject, typeQObject, NULL,
+			      sizeof(wrap->object), NULL, &wrap->object);
+	    if(!qt_mac_object_map)
+		qt_mac_object_map = new QPtrDict<QAccessibleObjectWrapper>;
+	    qt_mac_object_map->insert(wrap->object, wrap);
 	} else if(ekind == kEventHIObjectDestruct) {
-	    free(wrap);
+	    free(data);
 	} else if(ekind == kEventHIObjectPrintDebugInfo) {
-	    qDebug("%s::%s", wrap->widget->className(), wrap->widget->name());
+	    qDebug("%s::%s", wrap->object->className(), wrap->object->name());
 	} else {
 	    handled_event = FALSE;
 	}

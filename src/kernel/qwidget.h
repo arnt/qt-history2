@@ -559,9 +559,6 @@ private:
     friend QMAC_PASCAL OSStatus qt_window_event(EventHandlerCallRef er, EventRef event, void *);
     friend void qt_event_request_updates(QWidget *, const QRegion &, bool subtract=FALSE);
     friend bool qt_window_rgn(WId, short, RgnHandle, bool);
-#if defined(QT_ACCESSIBILITY_SUPPORT)
-    friend AXUIElementRef qt_mac_find_uielement(QWidget *);
-#endif
     friend class QDragManager;
 #endif
 
@@ -963,9 +960,6 @@ struct Q_EXPORT QWExtra {
     WId xDndProxy;				// XDND forwarding to embedded windows
 #endif
 #if defined(Q_WS_MAC)
-#if defined(QT_ACCESSIBILITY_SUPPORT)
-    AXUIElementRef access;
-#endif
     QRegion clip_saved, clip_sibs, clip_children;
     QMacDndExtra *macDndExtra;
     QRegion dirty_area;
