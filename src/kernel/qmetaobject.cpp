@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qmetaobject.cpp#31 $
+** $Id: //depot/qt/main/src/kernel/qmetaobject.cpp#32 $
 **
 ** Implementation of QMetaObject class
 **
@@ -38,7 +38,7 @@
   \internal
 
   This class is not yet documented.  Our <a
-  href=http://www.troll.no/>home page</a> contains a pointer to the
+  href="http://www.troll.no">home page</a> contains a pointer to the
   current version of Qt.
 */
 
@@ -81,10 +81,10 @@ QMetaObject::QMetaObject( const char *class_name, const char *superclass_name,
 			  QMetaData *signal_data, int n_signals )
 {
     if ( !objectDict ) {			// first meta object created
-	objectDict = new
-		QObjectDictionary( 211,		// suitable prime number
-				   TRUE,	// case sensitive
-				   FALSE );	// no copying of keys
+	objectDict 
+	    = new QObjectDictionary( 211,
+				     TRUE,	// no copying of keys
+				     FALSE );	// case sensitive
 	CHECK_PTR( objectDict );
 	objectDict->setAutoDelete( TRUE );	// use as master dict
     }
@@ -102,9 +102,9 @@ QMetaObject::QMetaObject( const char *class_name, const char *superclass_name,
 
 QMetaObject::~QMetaObject()
 {
-    if ( slotData )				// Avoid purify complaint
+    if ( slotData )
 	delete [] slotData;			// delete arrays created in
-    if ( signalData )				// Avoid purify complaint
+    if ( signalData )
 	delete [] signalData;			//   initMetaObject()
     delete slotDict;				// delete dicts
     delete signalDict;

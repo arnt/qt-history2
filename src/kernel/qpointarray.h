@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpointarray.h#31 $
+** $Id: //depot/qt/main/src/kernel/qpointarray.h#32 $
 **
 ** Definition of QPointArray class
 **
@@ -79,14 +79,12 @@ private:
   QPointArray class
  *****************************************************************************/
 
-Q_DECLARE(QArrayM,QPointData);
-
-class QPointArray : public QArrayM(QPointData)
+class QPointArray : public QArray<QPointData>
 {
 public:
     QPointArray() {}
-    QPointArray( int size ) : QArrayM(QPointData)( size ) {}
-    QPointArray( const QPointArray &a ) : QArrayM(QPointData)( a ) {}
+    QPointArray( int size ) : QArray<QPointData>( size ) {}
+    QPointArray( const QPointArray &a ) : QArray<QPointData>( a ) {}
     QPointArray( const QRect &r, bool closed=FALSE );
     QPointArray( int nPoints, const QCOORD *points );
 

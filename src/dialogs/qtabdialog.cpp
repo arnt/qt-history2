@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qtabdialog.cpp#62 $
+** $Id: //depot/qt/main/src/dialogs/qtabdialog.cpp#63 $
 **
 ** Implementation of QTabDialog class
 **
@@ -180,7 +180,7 @@ struct QTabPrivate
     QTabBar * tabs;
     QWidgetStack * stack;
 
-    QArrayT<QWidget *> children;
+    QArray<QWidget *> children;
 
     QPushButton * ok;
     QPushButton * cb;

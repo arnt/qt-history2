@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpointarray.cpp#57 $
+** $Id: //depot/qt/main/src/kernel/qpointarray.cpp#58 $
 **
 ** Implementation of QPointArray class
 **
@@ -191,7 +191,7 @@ QPointArray::QPointArray( int nPoints, const QCOORD *points )
 bool QPointArray::fill( const QPoint &p, int size )
 {
     QPointData p2( p.x(), p.y() );
-    return QArrayM(QPointData)::fill( p2, size );
+    return QArray<QPointData>::fill( p2, size );
 }
 
 
@@ -217,7 +217,7 @@ void QPointArray::translate( int dx, int dy )
 
 void QPointArray::point( uint index, int *x, int *y ) const
 {
-    QPointData p = QArrayM(QPointData)::at( index );
+    QPointData p = QArray<QPointData>::at( index );
     *x = (int)p.x;
     *y = (int)p.y;
 }
@@ -228,7 +228,7 @@ void QPointArray::point( uint index, int *x, int *y ) const
 
 QPoint QPointArray::point( uint index ) const
 {
-    QPointData p = QArrayM(QPointData)::at( index );
+    QPointData p = QArray<QPointData>::at( index );
     return QPoint( (QCOORD)p.x, (QCOORD)p.y );
 }
 
@@ -241,7 +241,7 @@ void QPointArray::setPoint( uint index, int x, int y )
     QPointData p;
     p.x = (Qpnta_t)x;
     p.y = (Qpnta_t)y;
-    QArrayM(QPointData)::at( index ) = p;
+    QArray<QPointData>::at( index ) = p;
 }
 
 /*!
@@ -409,7 +409,7 @@ bool QPointArray::putPoints( int index, int nPoints, int firstx, int firsty,
 
 QPoint QPointArray::at( uint index ) const
 {
-    QPointData p = QArrayM(QPointData)::at( index );
+    QPointData p = QArray<QPointData>::at( index );
     return QPoint( (QCOORD)p.x, (QCOORD)p.y );
 }
 
@@ -502,13 +502,13 @@ void QPointArray::makeArc( int x, int y, int w, int h, int a1, int a2 )
 	while ( npts-- ) {
 	    if ( i >= (int)size() )			// wrap index
 		i = 0;
-	    a.QArrayM(QPointData)::at( j++ ) = QArrayM(QPointData)::at( i++ );
+	    a.QArray<QPointData>::at( j++ ) = QArray<QPointData>::at( i++ );
 	}
     } else {
 	while ( npts-- ) {
 	    if ( i < 0 )				// wrap index
 		i = (int)size()-1;
-	    a.QArrayM(QPointData)::at( j++ ) = QArrayM(QPointData)::at( i-- );
+	    a.QArray<QPointData>::at( j++ ) = QArray<QPointData>::at( i-- );
 	}
     }
     *this = a;
