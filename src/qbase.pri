@@ -19,13 +19,20 @@ dll:unix {
   }
 }
 
-0:linux-*:!isEmpty(QPRO_PWD) {
+#exported symbol table (for linux only now)
+0:linux-g++:!isEmpty(QPRO_PWD) {
    TARGET_MAP = lib$${TARGET}.map
-   QMAKE_LFLAGS += -Wl,--version-script=$${TARGET_MAP}
-   TARGETDEPS += $$TARGET_MAP
-   VERSION_MAP.commands = $(QTDIR)/util/scripts/exports.pl -o $$TARGET_MAP $$QPRO_PWD
-   VERSION_MAP.target = $$TARGET_MAP
-   QMAKE_EXTRA_TARGETS += VERSION_MAP
+   exists($$QPRO_PWD/$$TARGET_MAP)|contains(QT_PRODUCT, qt-internal) {
+       QMAKE_LFLAGS += -Wl,--version-script=$${TARGET_MAP}
+       TARGETDEPS += $$TARGET_MAP
+       contains(QT_PRODUCT, qt-internal) {
+           VERSION_MAP.commands = $(QTDIR)/util/scripts/exports.pl -o $$TARGET_MAP $$QPRO_PWD
+           VERSION_MAP.target = $$TARGET_MAP
+           QMAKE_EXTRA_TARGETS += VERSION_MAP
+           exports.commands = [ -w "$$TARGET_MAP" ] || p4 edit "$$TARGET_MAP"; $$VERSION_MAP.commands
+           QMAKE_EXTRA_TARGETS += exports
+       }
+   }
 }
 
 # Qt project file

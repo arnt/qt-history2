@@ -136,7 +136,7 @@ find_files("$EXPORT_DIRECTORY");
 if("$EXPORT_OUT" eq "-") {
     open(OUTPUT, ">&STDOUT");
 } else {
-    open(OUTPUT, ">$EXPORT_OUT");
+    open(OUTPUT, ">$EXPORT_OUT") || die "Cannot open $EXPORT_OUT!!";
 }
 print OUTPUT "VERSION\n";
 print OUTPUT "{\n";
