@@ -1099,24 +1099,23 @@ static void drawSGIPrefix( QPainter *p, int x, int y, QString* miText )
     if ( miText && (!!(*miText)) ) {
 	int amp = 0;
 	bool nextAmp = FALSE;
-	do {
-	    amp = miText->find( '&', amp );	 // remove ampersand from text
-	    if ( amp != -1 ) {
-		miText->remove( amp,1 );
-		nextAmp = (*miText)[amp] == '&';	// next time if &&
+	while ( ( amp = miText->find( '&', amp ) ) != -1 ) {
+	    if ( (uint)amp == miText->length()-1 )
+		return;
+	    miText->remove( amp,1 );
+	    nextAmp = (*miText)[amp] == '&';	// next time if &&
 
-		if ((*miText)[amp] != '&') {     // draw special underlining
-		    uint ulx = p->fontMetrics().width(*miText, amp);
+	    if ( !nextAmp ) {     // draw special underlining
+		uint ulx = p->fontMetrics().width(*miText, amp);
 
-		    uint ulw = p->fontMetrics().width(*miText, amp+1) - ulx;
+		uint ulw = p->fontMetrics().width(*miText, amp+1) - ulx;
 
-		    p->drawLine( x+ulx, y, x+ulx+ulw, y );
-		    p->drawLine( x+ulx, y+1, x+ulx+ulw/2, y+1 );
-		    p->drawLine( x+ulx, y+2, x+ulx+ulw/4, y+2 );
-		}
+		p->drawLine( x+ulx, y, x+ulx+ulw, y );
+		p->drawLine( x+ulx, y+1, x+ulx+ulw/2, y+1 );
+		p->drawLine( x+ulx, y+2, x+ulx+ulw/4, y+2 );
 	    }
 	    amp++;
-	} while ( nextAmp );
+	}
     }
 }
 
