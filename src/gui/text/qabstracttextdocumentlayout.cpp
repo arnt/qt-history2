@@ -1,6 +1,6 @@
 #include <qabstracttextdocumentlayout.h>
 #include <qtextformat.h>
-#include "qtextpiecetable_p.h"
+#include "qtextdocument_p.h"
 #include "qtextengine_p.h"
 
 #include "qabstracttextdocumentlayout_p.h"

@@ -4,7 +4,7 @@
 #ifndef QT_H
 #include "qtextformat_p.h"
 #include "qtextblockiterator.h"
-#include "qtextpiecetable_p.h"
+#include "qtextdocument_p.h"
 #endif
 
 class QTextTablePrivate : public QTextFramePrivate

@@ -1,7 +1,7 @@
 #include <private/qtools_p.h>
 #include <qdebug.h>
 
-#include "qtextpiecetable_p.h"
+#include "qtextdocument_p.h"
 #include "qtextdocument.h"
 #include <qtextformat.h>
 #include <private/qtextformat_p.h>

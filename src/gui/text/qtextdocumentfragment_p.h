@@ -10,7 +10,7 @@
 
 #include "qtextdocument.h"
 #include "qtexthtmlparser_p.h"
-#include "qtextpiecetable_p.h"
+#include "qtextdocument_p.h"
 #endif // QT_H
 
 class QTextDocumentFragmentPrivate

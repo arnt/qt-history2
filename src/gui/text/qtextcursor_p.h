@@ -4,7 +4,7 @@
 #ifndef QT_H
 #include "qtextcursor.h"
 #include "qtextdocument.h"
-#include "qtextpiecetable_p.h"
+#include "qtextdocument_p.h"
 #include <private/qtextformat_p.h>
 #endif // QT_H
 

@@ -3,7 +3,7 @@
 #include "qtextcursor.h"
 #include "qtextblockiterator.h"
 #include "qtextdocument.h"
-#include "qtextpiecetable_p.h"
+#include "qtextdocument_p.h"
 
 #include <qdatastream.h>
 #include <qstring.h>

@@ -1,5 +1,5 @@
 #include <qtextblockiterator.h>
-#include "qtextpiecetable_p.h"
+#include "qtextdocument_p.h"
 
 /*!
     \class QTextBlockIterator qtextblockiterator.h

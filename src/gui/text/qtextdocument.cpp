@@ -6,7 +6,7 @@
 #include "qtextlist.h"
 #include <qdebug.h>
 
-#include "qtextpiecetable_p.h"
+#include "qtextdocument_p.h"
 #define d d_func()
 #define q q_func()
 
