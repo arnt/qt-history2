@@ -2826,6 +2826,10 @@ void QWidget::setFocus()
 	    QFocusEvent in( QEvent::FocusIn );
 	    QApplication::sendEvent( this, &in );
 	}
+#ifndef QT_NO_ACCESSIBILITY
+	setAccessibilityHint( contentsDescription() + ", " + typeDescription() + ", " + stateDescription() + ". " + useDescription() );
+#endif
+
 #if defined(Q_WS_WIN)
 	if ( !isPopup() )
 	    SetFocus( winId() );
@@ -4460,6 +4464,7 @@ QRect QWidget::microFocusHint() const
 	return extra->micro_focus_hint;
 }
 
+#ifndef QT_NO_ACCESSIBILITY
 /*!
   \fn void QWidget::setAccessibilityHint( const QString &hint )
 
@@ -4485,13 +4490,13 @@ QRect QWidget::microFocusHint() const
   Widgets that can receive input focus, or that display multiple items must
   update the accessibility hint whenever the contents change.
 
-  \sa accessibilityHint(), setMicroFocusHint()
+  \sa stateDescription(), accessibilityHint(), setMicroFocusHint()
 */
 
 /*!
   Returns the currently set accessibility hint.
 
-  \sa setAccessibilityHint(), setMicroFocusHint()
+  \sa setAccessibilityHint(), setMicroFocusHint(), stateDescription()
 */
 QString QWidget::accessibilityHint() const
 {
@@ -4500,6 +4505,71 @@ QString QWidget::accessibilityHint() const
 
     return extra ? extra->accessibility_hint : QString::null;
 }
+
+/*!
+  Reimplement this function to return a textual description of the
+  current state of your widget, e.g. "checked" for a check box, or
+  the text of the current item in a item view.
+
+  Call 
+
+  \code
+  setAccessibilityHint( stateDescription() );
+  \endcode
+
+  when the current state of your widget changes.
+
+  When getting focus, the accessibility hint for the widget will be 
+  set to a text generated as
+
+  contentsDescription() + ", " + typeDescription() + ", " + stateDescription() + ". " + useDescription()
+
+  e.g. "Show Grid, check box, checked. To uncheck, use space bar."
+
+  \sa useDescription(), contentsDescription(), typeDescription();
+*/
+QString QWidget::stateDescription() const
+{
+    return QString::null;
+}
+
+/*!
+  Reimplement this function to return a textual description of how
+  to use the widget when it gets focus, e.g. for a button widget
+
+  \code
+  return tr("To press, use space bar.");
+  \endcode
+
+  \sa stateDescription(), contentsDescription(), typeDescription()
+*/
+QString QWidget::useDescription() const
+{
+    return QString::null;
+}
+
+/*!
+  Reimplement this function to return a textual description of the
+  contents of the widget, e.g. the text of a button.
+
+  \sa stateDescription(), useDescription(), typeDescription()
+*/
+QString QWidget::contentsDescription() const
+{
+    return QString::null;
+}
+
+/*!
+  Reimplement this function to return a textual description of the
+  type of the widget, e.g. "push button".
+
+  \sa stateDescription(), contentsDescription(), typeDescription();
+*/
+QString QWidget::typeDescription() const
+{
+    return QString::null;
+}
+#endif
 
 /*!
   This event handler can be reimplemented in a subclass to receive

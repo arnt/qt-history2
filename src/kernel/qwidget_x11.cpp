@@ -1084,6 +1084,7 @@ void QWidget::setIconText( const QString &iconText )
     XSetWMIconName( x11Display(), winId(), qstring_to_xtp(iconText) );
 }
 
+#ifndef QT_NO_ACCESSIBILITY
 
 void QWidget::setAccessibilityHint( const QString &hint )
 {
@@ -1095,6 +1096,7 @@ void QWidget::setAccessibilityHint( const QString &hint )
     extra->accessibility_hint = hint;
 }
 
+#endif
 
 void QWidget::setMouseTracking( bool enable )
 {

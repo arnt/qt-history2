@@ -123,7 +123,6 @@ class Q_EXPORT QWidget : public QObject, public QPaintDevice
     Q_PROPERTY( bool autoMask READ autoMask WRITE setAutoMask )
     Q_PROPERTY( BackgroundOrigin backgroundOrigin READ backgroundOrigin WRITE setBackgroundOrigin )
     Q_PROPERTY( bool customWhatsThis READ customWhatsThis )
-    Q_PROPERTY( QString accessibilityHint READ accessibilityHint WRITE setAccessibilityHint )
 
     public:
     QWidget( QWidget *parent=0, const char *name=0, WFlags f=0 );
@@ -252,7 +251,9 @@ public:
     const QPixmap      *icon() const;
     QString		iconText() const;
     bool		hasMouseTracking() const;
+#ifndef QT_NO_ACCESSIBILITY
     QString		accessibilityHint() const;
+#endif
 
     virtual void	setMask( const QBitmap & );
     virtual void	setMask( const QRegion & );
@@ -263,7 +264,9 @@ public slots:
     virtual void	setIcon( const QPixmap & );
     virtual void	setIconText( const QString &);
     virtual void	setMouseTracking( bool enable );
+#ifndef QT_NO_ACCESSIBILITY
     virtual void	setAccessibilityHint( const QString & );
+#endif
 
     // Keyboard input focus functions
 
@@ -372,8 +375,7 @@ public:
 				  bool showIt=FALSE );
 #ifndef QT_NO_COMPAT
     void		recreate( QWidget *parent, WFlags f, const QPoint & p,
-				  bool showIt=FALSE )
-{ reparent(parent,f,p,showIt); }
+				  bool showIt=FALSE ) { reparent(parent,f,p,showIt); }
 #endif
 
     void		erase();
@@ -526,6 +528,13 @@ protected:
 #if defined(Q_WS_MAC)
     void dirtyClippedRegion(bool);
     bool isClippedRegionDirty();
+#endif
+
+#ifndef QT_NO_ACCESSIBILITY
+    virtual QString stateDescription() const;
+    virtual QString contentsDescription() const;
+    virtual QString typeDescription() const;
+    virtual QString useDescription() const;
 #endif
 
 private slots:
@@ -907,7 +916,9 @@ struct Q_EXPORT QWExtra {
     QStyle* style;
 #endif
     QRect micro_focus_hint;                     // micro focus hint
+#ifndef QT_NO_ACCESSIBILITY
     QString accessibility_hint;
+#endif
     QSizePolicy size_policy;
     uint bg_origin : 2;
 };

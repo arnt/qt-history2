@@ -589,6 +589,8 @@ void QWidget::setCaption( const QString &caption )
     QApplication::sendEvent( this, &e );
 }
 
+#ifndef QT_NO_ACCESSIBILITY
+
 void QWidget::setAccessibilityHint( const QString &hint )
 {
     if ( isTopLevel() )
@@ -609,6 +611,8 @@ void QWidget::setAccessibilityHint( const QString &hint )
 	SetFocus( winId() );
     }
 }
+
+#endif
 
 /*
   Create an icon mask the way Windows wants it using CreateBitmap.
