@@ -202,6 +202,7 @@ protected:
 signals:
     void fileHighlighted( const QString& );
     void fileSelected( const QString& );
+    void filesSelected( const QStringList& );
     void dirEntered( const QString& );
 
 private slots:

@@ -2824,6 +2824,12 @@ void QFileDialog::rereadDir()
 */
 
 /*!
+  \fn void QFileDialog::filesSelected( const QStringList& )
+
+  This signal is emitted when the user selects a file(s) in multi selection mode.
+*/
+
+/*!
   \fn void QFileDialog::dirEntered( const QString& )
 
   This signal is emitted when the user has selected a new directory.
@@ -3083,7 +3089,8 @@ void QFileDialog::okClicked()
     // accept it and be done.
     if ( mode() == ExistingFiles ) {
 	QListViewItem * i = files->firstChild();
-	while( i ) {
+	emit filesSelected( selectedFiles() );
+    while( i ) {
 	    if ( i->isSelected() ) {
 		accept();
 		return;
