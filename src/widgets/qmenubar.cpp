@@ -1106,9 +1106,9 @@ void QMenuBar::setActiveItem( int i, bool show, bool activate_first_item )
     if ( i < 0 || actItem < 0 ) {
         // just one item needs repainting
         int n = QMAX( actItem, i );
-        actItem = i;
-        if ( irects )
-            repaint( irects[n], FALSE );
+	actItem = i;
+	if ( irects && n >= 0 )
+	    repaint( irects[n], FALSE );
     } else if ( QABS(i-actItem) == 1 ) {
         // two neighbouring items need repainting
         int o = actItem;
