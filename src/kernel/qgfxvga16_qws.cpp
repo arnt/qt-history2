@@ -31,6 +31,7 @@
 **********************************************************************/
 
 #include "qapplication.h"
+#include "qregexp.h"
 #include "qgfxraster_qws.h"
 #include "qgfxlinuxfb_qws.h"
 
