@@ -234,11 +234,8 @@ int QMetaObject::memberOffset() const
 int QMetaObject::enumeratorOffset() const
 {
     int offset = 0;
-    const QMetaObject *m = d.superdata;
-    while (m) {
-        offset += priv(m->d.data)->enumeratorCount;
-        m = m->d.superdata;
-    }
+    if (const QMetaObject *m = d.superdata)
+        offset = m->enumeratorCount();
     return offset;
 }
 
@@ -300,10 +297,17 @@ int QMetaObject::memberCount() const
 */
 int QMetaObject::enumeratorCount() const
 {
-    int n = priv(d.data)->enumeratorCount;
-    const QMetaObject *m = d.superdata;
+    int n = 0;
+    const QMetaObject *m = this;
     while (m) {
         n += priv(m->d.data)->enumeratorCount;
+        if (m->d.extradata) {
+            const QMetaObject **e = m->d.extradata;
+            while (*e) {
+                n += (*e)->enumeratorCount();
+                ++e;
+            }
+        }
         m = m->d.superdata;
     }
     return n;
@@ -414,6 +418,24 @@ int QMetaObject::indexOfSlot(const char *slot) const
 
 
 
+static const QMetaObject *QMetaObject_findMetaObject(const QMetaObject *self, const char *name)
+{
+    while (self) {
+        if (strcmp(self->d.stringdata, name) == 0)
+            return self;
+        if (self->d.extradata) {
+            const QMetaObject **e = self->d.extradata;
+            while (*e) {
+                if (const QMetaObject *m =QMetaObject_findMetaObject((*e), name))
+                    return m;
+                ++e;
+            }
+        }
+        self = self->d.superdata;
+    }
+    return self;
+}
+
 /*!
     Finds enumerator \a name and returns its index; otherwise returns
     -1.
@@ -423,26 +445,28 @@ int QMetaObject::indexOfSlot(const char *slot) const
 int QMetaObject::indexOfEnumerator(const char *name) const
 {
     int i = -1;
-    const QMetaObject *m = this;
-    int scope = 0;
-    const char *qualified_name = name;
-    const char *s = name;
-    while (*s  && *s != ':')
-        ++s;
-    if (*s && *(s+1)==':') {
-        scope = s - name;
-        name += scope + 2;
+    QByteArray enum_name = name;
+    QByteArray scope_name = d.stringdata;
+    int s = enum_name.indexOf("::");
+    if (s > 0) {
+        scope_name = enum_name.left(s);
+        enum_name = enum_name.mid(s + 2);
     }
-    while (m && i < 0) {
-        for (i = priv(m->d.data)->enumeratorCount-1; i >= 0; --i) {
-            if ((!scope || strncmp(qualified_name, m->d.stringdata, scope) == 0)
-                && strcmp(name, m->d.stringdata
-                          + m->d.data[priv(m->d.data)->enumeratorData + 4*i]) == 0) {
-                i += m->enumeratorOffset();
-                break;
-            }
+
+    const QMetaObject *scope = QMetaObject_findMetaObject(this, scope_name);
+    if (!scope)
+        return i;
+
+    for (i = enumeratorCount() - 1; i >=0; --i) {
+        QMetaEnum en = enumerator(i);
+        if (enum_name != en.name())
+            continue;
+        const QMetaObject *m = scope;
+        while (m) {
+            if (m == en.mobj)
+                return i;
+            m = m->d.superdata;
         }
-        m = m->d.superdata;
     }
     return i;
 }
@@ -522,9 +546,19 @@ QMetaEnum QMetaObject::enumerator(int index) const
         return d.superdata->enumerator(index);
 
     QMetaEnum result;
-    if (i >= 0 && i <= priv(d.data)->enumeratorCount) {
+    if (i >= 0 && i < priv(d.data)->enumeratorCount) {
         result.mobj = this;
         result.handle = priv(d.data)->enumeratorData + 4*i;
+    } else if (d.extradata) {
+        i -= priv(d.data)->enumeratorCount;
+        const QMetaObject **e = d.extradata;
+        while (i >= 0 && *e) {
+            int c = (*e)->enumeratorCount();
+            if (i < c)
+                return (*e)->enumerator(i);
+            i -= c;
+            ++e;
+        }
     }
     return result;
 }

@@ -284,6 +284,32 @@ void Generator::generateCode()
 
 
 //
+// Build extra array
+//
+    QList<QByteArray> extraList;
+    for (int i = 0; i < cdef->propertyList.count(); ++i) {
+        const PropertyDef &p = cdef->propertyList.at(i);
+        if (!isVariantType(p.type)) {
+            int s = p.type.indexOf("::");
+            if (s > 0) {
+                QByteArray scope = p.type.left(s);
+                if (scope != "Qt" && scope != cdef->classname && !extraList.contains(scope))
+                    extraList += scope;
+            }
+        }
+    }
+    if (!extraList.isEmpty()) {
+        fprintf(out, "static const QMetaObject *qt_meta_extradata_%s[] = {\n    ", qualifiedClassNameIdentifier.constData());
+        for (i = 0; i < extraList.count(); ++i) {
+            if (i)
+                fprintf(out, ",\n    ");
+            fprintf(out, "    &%s::staticMetaObject", extraList.at(i).constData());
+        }
+        fprintf(out, "\n};\n\n");
+    }
+
+
+//
 // Finally create and initialize the static meta object
 //
 
@@ -293,13 +319,17 @@ void Generator::generateCode()
         fprintf(out, "const QMetaObject %s::staticMetaObject = {\n", cdef->qualified.constData());
 
     if (isQObject)
-        fprintf(out, "    { &staticQtMetaObject,\n      ");
+        fprintf(out, "    { &staticQtMetaObject, ");
     else if (cdef->superclassList.size())
-        fprintf(out, "    { &%s::staticMetaObject,\n      ", purestSuperClass.constData());
+        fprintf(out, "    { &%s::staticMetaObject, ", purestSuperClass.constData());
     else
         fprintf(out, "    { 0, ");
-    fprintf(out, "qt_meta_stringdata_%s,\n      qt_meta_data_%s}\n",
+    fprintf(out, "qt_meta_stringdata_%s,\n      qt_meta_data_%s, ",
              qualifiedClassNameIdentifier.constData(), qualifiedClassNameIdentifier.constData());
+    if (extraList.isEmpty())
+        fprintf(out, "0 }\n");
+    else
+        fprintf(out, "qt_meta_extradata_%s }\n", qualifiedClassNameIdentifier.constData());
     fprintf(out, "};\n");
 
     if (isQt || !cdef->hasQObject)

@@ -21,7 +21,7 @@ class QString;
 class QByteArray;
 
 #ifndef Q_MOC_OUTPUT_REVISION
-#define Q_MOC_OUTPUT_REVISION 53
+#define Q_MOC_OUTPUT_REVISION 54
 #endif
 
 // The following macros are our "extensions" to C++
@@ -204,6 +204,7 @@ struct Q_CORE_EXPORT QMetaObject
         const QMetaObject *superdata;
         const char *stringdata;
         const uint *data;
+        const QMetaObject **extradata;
     } d;
 };
 
