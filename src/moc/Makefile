@@ -59,8 +59,8 @@ depend:
 	makedepend -I$(INCDIR) $(SOURCES) 2> /dev/null
 
 clean:
-	/bin/rm -f *.o *.bak *BAK *~ *% #*
-	/bin/rm -f $(TARGET) $(LEXOUT) $(YACCOUT) $(YACCHDR) $(TMPCPP)
+	rm -f *.o *.bak *BAK *~ *% #*
+	rm -f $(TARGET) $(LEXOUT) $(YACCOUT) $(YACCHDR) $(TMPCPP)
 
 # 'make checkout' updates files that MUST be old
 # 'make checkout CODATE=-d1994/12/24' recreates 1994/12/24
@@ -73,7 +73,7 @@ checkout:
 	    ( [ '!' -w $$file ] && [ $$rcs -nt $$file ] ) && \
 	    co ${CODATE} $$file ;\
 	done; \
-	/bin/true # tell make it worked
+	true # tell make it worked
 
 ####### Lex/yacc etc.
 

@@ -37,7 +37,7 @@ all: $(HEADERS) $(SOURCES) $(TARGET)
 obj: $(HEADERS) $(SOURCES) $(OBJECTS) $(OBJMETA)
 
 $(TARGET): $(OBJECTS) $(OBJMETA)
-	/bin/rm -f $(TARGET)
+	rm -f $(TARGET)
 	ar q $(TARGET) $(OBJECTS) $(OBJMETA)
 	ranlib $(TARGET)
 
@@ -59,8 +59,8 @@ depend: $(SRCMETA)
 	makedepend -I$(INCDIR) $(SOURCES) $(SRCMETA) 2> /dev/null
 
 clean:
-	/bin/rm -f *.o *.bak *BAK *~ *% #*
-	/bin/rm -f $(SRCMETA)
+	rm -f *.o *.bak *BAK *~ *% #*
+	rm -f $(SRCMETA)
 
 # 'make checkout' updates files that MUST be old
 # 'make checkout CODATE=-d1994/12/24' recreates 1994/12/24
@@ -73,7 +73,7 @@ checkout:
 	    ( [ '!' -w $$file ] && [ $$rcs -nt $$file ] ) && \
 	    co ${CODATE} $$file ;\
 	done; \
-	/bin/true	# tell make it worked
+	true	# tell make it worked
 
 #######	Meta classes
 

@@ -51,7 +51,7 @@ all: $(HEADERS) $(SOURCES) $(TARGET)
 obj: $(HEADERS) $(SOURCES) $(OBJECTS)
 
 $(TARGET): $(OBJECTS)
-	/bin/rm -f $(TARGET)
+	rm -f $(TARGET)
 	ar q $(TARGET) $(OBJECTS)
 	ranlib $(TARGET)
 
@@ -73,7 +73,7 @@ depend:
 	makedepend -I$(INCDIR) $(SOURCES) 2> /dev/null
 
 clean:
-	/bin/rm -f *.o *.bak *BAK *~ *% #*
+	rm -f *.o *.bak *BAK *~ *% #*
 
 # 'make checkout' updates files that MUST be old
 # 'make checkout CODATE=-d1994/12/24' recreates 1994/12/24

@@ -1,13 +1,13 @@
 #############################################################################
 # Qt Makefile - doc
 #############################################################################
-# $Id: //depot/qt/main/doc/Makefile#2 $
+# $Id: //depot/qt/main/doc/Makefile#3 $
 
 showfiles showsources:
 	@echo *.doc
 
 clean:
-	-/bin/rm -f *~ *% #*
+	-rm -f *~ *% #*
 
 # 'make checkout' updates files that MUST be old
 # 'make checkout CODATE=-d1994/12/24' recreates 1994/12/24
