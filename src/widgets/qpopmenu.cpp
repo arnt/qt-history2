@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopmenu.cpp#105 $
+** $Id: //depot/qt/main/src/widgets/qpopmenu.cpp#106 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -19,7 +19,7 @@
 #include "qapp.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qpopmenu.cpp#105 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qpopmenu.cpp#106 $");
 
 
 // Motif style parameters
@@ -1289,4 +1289,54 @@ void QPopupMenu::updateRow( int row )
     updateCell( row, 0, FALSE );
     if ( isCheckable() )
 	updateCell( row, 1, FALSE );
+}
+
+
+// used for internal communication - to be replaced with a class
+// members in 2.0
+static QPopupMenu * syncMenu;
+static int syncMenuId;
+
+/*!  Execute this popup synchronously.
+
+  The return code is the ID of the selected item, or -1 if no item is
+  selected (normally because the user presses Escape).
+
+  Note that all signals are emitted as usual.  If you connect a menu
+  item to a slot and call the menu's exec(), you get the result both
+  via the signal-slot connection and in the return value of exec().
+*/
+
+int QPopupMenu::exec()
+{
+    if ( !qApp )
+	return -1;
+
+    syncMenu = this;
+    syncMenuId = -1;
+    connect( this, SIGNAL(activated(int)),
+	     this, SLOT(modalActivation(int)) );
+    qApp->enter_loop();
+    disconnect( this, SIGNAL(activated(int)),
+		this, SLOT(modalActivation(int)) );
+
+    return syncMenuId;
+}
+
+
+/*!  Internal slot used for exec(). */
+
+void QPopupMenu::modalActivation( int id )
+{
+    syncMenuId = id;
+}
+
+
+/*!  Handles close events for the popup menu. */
+
+void QPopupMenu::closeEvent( QCloseEvent * e )
+{
+    QTableView::closeEvent( e );
+    if ( syncMenu == this && qApp )
+	qApp->exit_loop();
 }
