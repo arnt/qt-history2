@@ -375,7 +375,7 @@ bool QODBCResult::reset ( const QString& query )
     }
     if ( r != SQL_SUCCESS ) {
 #ifdef QT_CHECK_RANGE
-	qSqlWarning( "QODBCResult::reset: Unable to set statement attribute", d );
+			qSqlWarning( "QODBCResult::reset: Unable to set 'SQL_CURSOR_STATIC' as statement attribute. Please check your ODBC driver configuration", d );
 #endif
 	return FALSE;
     }
