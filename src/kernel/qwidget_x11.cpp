@@ -1230,11 +1230,16 @@ QWidget *QWidget::keyboardGrabber()
   focus.
 
   This function performs the same operation as clicking the mouse on
-  the title bar of a top-level window, at least on Windows. On X11,
-  the result depends on the Window Manager. If you want to ensure that
-  the window is stacked on top as well, call raise() in addition. Note
-  that the window has be to visible, otherwise setActiveWindow() has
-  no effect.
+  the title bar of a top-level window. On X11, the result depends on 
+  the Window Manager. If you want to ensure that the window is stacked 
+  on top as well, call raise() in addition. Note that the window has be 
+  to visible, otherwise setActiveWindow() has no effect.
+
+  On Windows, if you are calling this when the application is not 
+  currently the active one then it will not make it the active window.  It
+  will flash the task bar entry blue to indicate that the window has done 
+  something.  This is due to Microsoft not allowing an application to 
+  interrupt what the user is currently doing in another application.
 
   \sa isActiveWindow(), topLevelWidget(), show()
 */
