@@ -48,7 +48,7 @@
 #include "qapplication.h"
 #include "qapplication_p.h"
 #include <stdlib.h>
-
+#include "qt_mac.h"
 
 // NOT REVISED
 
@@ -100,8 +100,17 @@ bool QPrinter::aborted() const
 
 bool QPrinter::setup( QWidget * parent )
 {
+#if 0
+    PMPageFormat format;
+    PMNewPageFormat(&format);
+    PMDefaultPageFormat(format);
+    Boolean ret;
+    PMPageSetupDialog(format, &ret);
+    return ret;
+#else
     QPrintDialog prndlg( this, parent );
     return prndlg.exec() == QDialog::Accepted;
+#endif
 }
 
 
