@@ -912,13 +912,6 @@ Q_EXPORT int qWinVersion();
 
 #if !defined(QT_NO_DEBUG) && !defined(QT_DEBUG)
 #  define QT_DEBUG				// display debug messages
-#  if !defined(QT_NO_COMPAT)			// compatibility with Qt 2
-#    if !defined(NO_DEBUG) && !defined(DEBUG)
-#      if !defined(Q_OS_MACX)			// clash with MacOS X headers
-#        define DEBUG
-#      endif
-#    endif
-#  endif
 #endif
 
 
