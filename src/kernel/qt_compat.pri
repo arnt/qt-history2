@@ -3,7 +3,6 @@
 # scratch pad for internal development
 
 # hack these for your build
-# hacks += superfont
 
 # basic internal setup
 internal {
@@ -34,12 +33,4 @@ macx {
      
      CONFIG += shared debug
 } 
-
-#font fu
-unix:!macx:!embedded {
-        contains(hacks,superfont):DEFINES+=Q_SUPERFONT \
-	                                   QT_NO_PRINTER \
-					   QT_NO_FONTDATABASE \
-					   QT_NO_PRINTERDIALOG
-}
 
