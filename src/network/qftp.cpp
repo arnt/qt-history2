@@ -1065,7 +1065,8 @@ bool QFtpPI::startNextCmd()
     qDebug("QFtpPI send: %s", currentCmd.left(currentCmd.length()-2).latin1());
 #endif
     state = Waiting;
-    commandSocket.writeBlock(currentCmd.latin1(), currentCmd.length());
+    // RFC2640: use UTF-8
+    commandSocket.writeBlock(currentCmd.toUtf8());
     return true;
 }
 
