@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmultilinedit.cpp#71 $
+** $Id: //depot/qt/main/src/widgets/qmultilinedit.cpp#72 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -320,7 +320,7 @@ void QMultiLineEdit::paintCell( QPainter *painter, int row, int )
 
     p.setTabStops( tabStopDist(fm) );
 
-    int yPos = fm.leading()/2 - 1;
+    int yPos = 0;
     int markX1, markX2;				// in x-coordinate pixels
     markX1 = markX2 = 0;			// avoid gcc warning
     if ( markIsOn ) {
