@@ -127,7 +127,7 @@ protected:
     bool parseLine(const QString &line, int number);
 
 private:
-    Q_DECLARE_PRIVATE(QHttpRequestHeader);
+    Q_DECLARE_PRIVATE(QHttpRequestHeader)
 };
 
 class Q_NETWORK_EXPORT QHttp : public QObject
