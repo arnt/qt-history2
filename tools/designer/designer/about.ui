@@ -1,8 +1,5 @@
 <!DOCTYPE UI><UI version="3.0" stdsetdef="1">
 <class>AboutDialog</class>
-<include location="local" impldecl="in declaration">splashloader.h</include>
-<pixmapfunction>splashScreen</pixmapfunction>
-<layoutdefaults spacing="6" margin="11"/>
 <widget class="QDialog">
     <property name="name">
         <cstring>AboutDialog</cstring>
@@ -11,8 +8,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>480</width>
-            <height>640</height>
+            <width>582</width>
+            <height>312</height>
         </rect>
     </property>
     <property name="caption">
@@ -45,7 +42,7 @@
                 <bool>false</bool>
             </property>
             <property name="alignment">
-                <set>AlignAuto|AlignCenter</set>
+                <set>AlignCenter</set>
             </property>
             <property name="hAlign" stdset="0">
             </property>
@@ -58,7 +55,7 @@
                 <string>Version 2.0</string>
             </property>
             <property name="alignment">
-                <set>AlignAuto|AlignCenter</set>
+                <set>AlignCenter</set>
             </property>
             <property name="hAlign" stdset="0">
             </property>
@@ -71,7 +68,7 @@
                 <string>Copyright (C) 2000-2001 Trolltech AS</string>
             </property>
             <property name="alignment">
-                <set>AlignAuto|AlignCenter</set>
+                <set>AlignCenter</set>
             </property>
             <property name="hAlign" stdset="0">
             </property>
@@ -80,18 +77,26 @@
             <property name="name">
                 <cstring>TextLabel1_3</cstring>
             </property>
+            <property name="sizePolicy">
+                <sizepolicy>
+                    <hsizetype>1</hsizetype>
+                    <vsizetype>0</vsizetype>
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                </sizepolicy>
+            </property>
             <property name="text">
                 <string>&lt;p&gt;This program is licensed to you under the terms of the GNU General Public License Version 2 as published by the Free Software Foundation. This gives you legal permission to copy, distribute and/or modify this software under certain conditions. For details, see the file 'COPYING' that came with this software distribution. If you did not get the file, send email to info@trolltech.com.&lt;/p&gt;
 &lt;p&gt;The program is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.&lt;/p&gt;</string>
             </property>
             <property name="alignment">
-                <set>WordBreak|AlignAuto|AlignVCenter|AlignLeft</set>
+                <set>WordBreak|AlignVCenter|AlignLeft</set>
             </property>
             <property name="wordwrap" stdset="0">
             </property>
         </widget>
         <spacer>
-            <property name="name">
+            <property name="name" stdset="0">
                 <cstring>Spacer3</cstring>
             </property>
             <property name="orientation">
@@ -122,7 +127,7 @@
                     <number>6</number>
                 </property>
                 <spacer>
-                    <property name="name">
+                    <property name="name" stdset="0">
                         <cstring>Spacer2</cstring>
                     </property>
                     <property name="orientation">
@@ -153,7 +158,7 @@
                     </property>
                 </widget>
                 <spacer>
-                    <property name="name">
+                    <property name="name" stdset="0">
                         <cstring>Spacer1</cstring>
                     </property>
                     <property name="orientation">
@@ -174,11 +179,16 @@
     </vbox>
 </widget>
 <connections>
-    <connection language="C++">
+    <connection>
         <sender>PushButton1</sender>
         <signal>clicked()</signal>
         <receiver>AboutDialog</receiver>
         <slot>accept()</slot>
     </connection>
 </connections>
+<includes>
+    <include location="local" impldecl="in declaration">splashloader.h</include>
+</includes>
+<pixmapfunction>splashScreen</pixmapfunction>
+<layoutdefaults spacing="6" margin="11"/>
 </UI>
