@@ -219,7 +219,12 @@ public:
   QDirModel can be accessed using the standard interface provided by
   QAbstractItemModel, but it also provides some convenience functions that are
   specific to a directory model.
-  fileInfo(), icons(), mkdir(), name(), path(), isDir(), rmdir(), 
+  The fileInfo(), isDir(), name(), and path() functions provide information
+  about the underlying files and directories related to items in the model.
+  Directories can be created and removed using mkdir(), rmdir(), and the
+  model will be automatically updated to take the changes into account.
+  The icons() function returns the icons that are supplied to views.
+
 
   nameFilters(), setFilter(), filter()
 
@@ -960,8 +965,8 @@ QString QDirModel::name(const QModelIndex &index) const
 }
 
 /*!
-  Returns the iconset for the item stored in the model under the
-  \a index given.
+  Returns the icons for the item stored in the model under the given
+  \a index.
 */
 
 QIconSet QDirModel::icons(const QModelIndex &index) const
