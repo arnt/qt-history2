@@ -529,6 +529,15 @@ void QTableWidgetPrivate::emitItemChanged(const QModelIndex &topLeft, const QMod
 }
 
 /*!
+    \fn void QTableWidget::pressed(QTableWidgetItem *item, int button)
+
+    This signal is emitted when a item has been pressed (mouse click
+    and release). The \a item may be 0 if the mouse was not pressed on
+    an item. The button clicked is specified by \a button (see
+    \l{Qt::ButtonState}).
+*/
+
+/*!
     \fn void QTableWidget::clicked(QTableWidgetItem *item, int button)
 
     This signal is emitted when a mouse button is clicked. The \a item
@@ -545,6 +554,56 @@ void QTableWidgetPrivate::emitItemChanged(const QModelIndex &topLeft, const QMod
     \l{Qt::ButtonState}).
 */
 
+/*!
+    \fn void QTableWidget::keyPressed(QTableWidgetItem *item, Qt::Key key, Qt::ButtonState state)
+
+    This signal is emitted if keyTracking is turned on an a key was
+    pressed. The \a item is the current item as the key was pressed, the
+    \a key tells which key was pressed and \a state which modifier
+    keys (see \l{Qt::ButtonState}).
+*/
+
+/*!
+    \fn void QTableWidget::returnPressed(QTableWidgetItem *item)
+
+    This signal is emitted when return has been pressed on an \a item.
+*/
+
+/*!
+    \fn void QTableWidget::currentChanged(QTableWidgetItem *current, QTableWidgetItem *previous)
+
+    This signal is emitted whenever the current item changes. The \a
+    previous item is the item that previously had the focus, \a
+    current is the new current item.
+*/
+
+/*!
+    \fn void QTableWidget::selectionChanged()
+
+    This signal is emitted whenever the selection changes. \sa selectedItems().
+
+*/
+
+/*!
+    \fn void QTableWidget::itemEntered(QTableWidgetItem *item, Qt::ButtonState state)
+
+    This signal is emitted the mouse cursor enters an item. The \a
+    item is the item entered and \a state specifies the mouse button
+    and any modifiers pressed as the item was entered (see
+    \l{Qt::ButtonState}). This signal is only emitted when
+    mouseTracking is turned on, or when a mouse button is pressed
+    while moving into an item.
+*/
+
+/*!
+    \fn void QTableWidget::aboutToShowContextMenu(QMenu *menu, QTableWidgetItem *item)
+
+    This signal is emitted when the widget is about to show a context
+    menu. The \a menu is the menu about to be shown, and the \a item is the
+    clicked item as the context menu was called for.
+
+    \sa QMenu::addAction()
+*/
 
 /*!
     Creates a new table view with the given \a parent.
