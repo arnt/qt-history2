@@ -605,15 +605,16 @@ void QDialog::adjustPositionInternal( QWidget*w, bool useRelPos)
     QApplication::sendPostedEvents(this, QEvent::Resize);
 
     QPoint p( 0, 0 );
-    int extraw = 0, extrah = 0;
+    int extraw = 0, extrah = 0, scrn = 0;
     if ( w )
 	w = w->topLevelWidget();
     QWidget *relative = w ? w : qApp->mainWidget();
     QRect desk;
     if ( relative )
-	desk = QApplication::desktop()->screenGeometry( QApplication::desktop()->screenNumber( w ? w : qApp->mainWidget() ) );
+	scrn =  QApplication::desktop()->screenNumber( w ? w : qApp->mainWidget() );
     else
-	desk = QApplication::desktop()->screenGeometry( QApplication::desktop()->screenNumber( QCursor::pos() ) );
+	scrn = QApplication::desktop()->screenNumber( QCursor::pos() );
+    desk = QApplication::desktop()->availableGeometry( scrn );
 
     QWidgetList  *list = QApplication::topLevelWidgets();
     QWidgetListIt it( *list );
