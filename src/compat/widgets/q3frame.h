@@ -20,6 +20,7 @@ class Q_COMPAT_EXPORT Q3Frame : public QFrame
 {
     Q_OBJECT
     Q_PROPERTY(int margin READ margin WRITE setMargin)
+    Q_PROPERTY(QRect contentsRect READ contentsRect)
 
 public:
     Q3Frame(QWidget* parent, const char* name = 0, Qt::WFlags f = 0);

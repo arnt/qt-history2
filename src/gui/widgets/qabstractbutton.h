@@ -96,7 +96,7 @@ protected:
 public:
     QT_COMPAT_CONSTRUCTOR QAbstractButton(QWidget *parent, const char *name, Qt::WFlags f=0);
     inline QT_COMPAT bool isOn() const { return isChecked(); }
-    inline QT_COMPAT QPixmap *pixmap() const { return 0; } // help styles compile
+    inline QT_COMPAT const QPixmap *pixmap() const { return 0; } // help styles compile
     inline QT_COMPAT void setPixmap( const QPixmap &p ) { setIcon(QIcon(p)); }
     QT_COMPAT QIcon *iconSet() const;
     inline QT_COMPAT void setIconSet(const QIcon &icon) { setIcon(icon); }

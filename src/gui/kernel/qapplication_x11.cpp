@@ -3713,7 +3713,7 @@ bool QETWidget::translateXinputEvent(const XEvent *ev, const TabletDeviceData *t
         const TabletDeviceData &t = tablet_list->at(i);
         if (device_id == static_cast<XDevice *>(t.device)->device_id) {
             deviceType = t.deviceType;
-            qDebug() << ((XDevice*)t.device)->device_id;
+            // qDebug() << ((XDevice*)t.device)->device_id;
             break;
         }
     }
