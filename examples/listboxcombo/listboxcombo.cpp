@@ -24,35 +24,6 @@
 #include <qstyle.h>
 
 
-class MyListBoxItem : public QListBoxItem
-{
-public:
-    MyListBoxItem()
-	: QListBoxItem()
-    {
-	setCustomHighlighting( TRUE );
-    }
-
-protected:
-    virtual void paint( QPainter * );
-    virtual int width( const QListBox* ) const { return 100; }
-    virtual int height( const QListBox* ) const { return 16; }
-
-};
-
-void MyListBoxItem::paint( QPainter *painter )
-{
-    // evil trick: find out whether we are painted onto our listbox
-    bool in_list_box = listBox() && listBox()->viewport() == painter->device();
-
-    QRect r ( 0, 0, width( listBox() ), height( listBox() ) );
-    if ( in_list_box && isSelected() )
-	painter->eraseRect( r );
-    painter->fillRect( 5, 5, width( listBox() ) - 10, height( listBox() ) - 10, Qt::red );
-    if ( in_list_box && isCurrent() )
-	listBox()->style().drawPrimitive( QStyle::PE_FocusRect, painter, r, listBox()->palette() );
-}
-
 /*
  * Constructor
  *
@@ -101,7 +72,7 @@ ListBoxCombo::ListBoxCombo( QWidget *parent, const char *name )
     box1->setSpacing( 5 );
 
     // Create a non-editable Combobox and a label below...
-    QComboBox *cb1 = new QComboBox( FALSE, box1 );
+    QComboBox *cb1 = new QComboBox( box1 );
     label1 = new QLabel( "Current Item: Combobox Item 0", box1 );
     label1->setMaximumHeight( label1->sizeHint().height() * 2 );
     label1->setFrameStyle( QFrame::Panel | QFrame::Sunken );
@@ -109,17 +80,15 @@ ListBoxCombo::ListBoxCombo( QWidget *parent, const char *name )
     //...and insert 50 items into the Combobox
     for ( i = 0; i < 50; i++ ) {
 	str = QString( "Combobox Item %1" ).arg( i );
-	if ( i % 9 )
-	    cb1->insertItem( str );
-	else
-	    cb1->listBox()->insertItem( new MyListBoxItem );
+        cb1->insertItem( str );
     }
 
     QVBox *box2 = new QVBox( row2 );
     box2->setSpacing( 5 );
 
     // Create an editable Combobox and a label below...
-    QComboBox *cb2 = new QComboBox( TRUE, box2 );
+    QComboBox *cb2 = new QComboBox( box2 );
+    cb2->setEditable(true);
     label2 = new QLabel( "Current Item: Combobox Item 0", box2 );
     label2->setMaximumHeight( label2->sizeHint().height() * 2 );
     label2->setFrameStyle( QFrame::Panel | QFrame::Sunken );
