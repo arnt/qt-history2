@@ -153,22 +153,22 @@ bool QAbstractItemModel::setItemData(const QModelIndex &index, const QMap<int, Q
     return b;
 }
 
-bool QAbstractItemModel::insertRow(const QModelIndex &parent, int row)
+bool QAbstractItemModel::insertRow(int, const QModelIndex &)
 {
     return false;
 }
 
-bool QAbstractItemModel::insertColumn(const QModelIndex &parent, int column)
+bool QAbstractItemModel::insertColumn(int, const QModelIndex &)
 {
     return false;
 }
 
-bool QAbstractItemModel::removeRow(const QModelIndex &parent, int row)
+bool QAbstractItemModel::removeRow(int, const QModelIndex &)
 {
     return false;
 }
 
-bool QAbstractItemModel::removeColumn(const QModelIndex &parent, int column)
+bool QAbstractItemModel::removeColumn(int, const QModelIndex &)
 {
     return false;
 }

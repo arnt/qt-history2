@@ -29,8 +29,8 @@ public:
     QVariant data(const QModelIndex &index, int role = QAbstractItemModel::Display) const;
     bool setData(const QModelIndex &index, int role, const QVariant &value);
 
-    bool insertRow(const QModelIndex &parent, int row);
-    bool removeRow(const QModelIndex &parent, int row);
+    bool insertRow(int row, const QModelIndex &parent = 0);
+    bool removeRow(int row, const QModelIndex &parent = 0);
 
     bool isSelectable(const QModelIndex &index) const;
     bool isEditable(const QModelIndex &index) const;
@@ -191,7 +191,7 @@ bool QTreeModel::setData(const QModelIndex &index, int role, const QVariant &val
     return false;
 }
 
-bool QTreeModel::insertRow(const QModelIndex &parent, int row)
+bool QTreeModel::insertRow(int row, const QModelIndex &parent)
 {
     if (parent.isValid()) {
         QTreeViewItem *p =  item(parent);
@@ -205,7 +205,7 @@ bool QTreeModel::insertRow(const QModelIndex &parent, int row)
     return true;
 }
 
-bool QTreeModel::removeRow(const QModelIndex &parent, int row)
+bool QTreeModel::removeRow(int row, const QModelIndex &parent)
 {
     if (parent.isValid()) {
         QTreeViewItem *p = item(parent);
