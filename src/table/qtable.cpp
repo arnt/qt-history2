@@ -4171,7 +4171,7 @@ void QTable::setNumRows( int r )
     bool isUpdatesEnabled = leftHeader->isUpdatesEnabled();
     leftHeader->setUpdatesEnabled( FALSE );
     bool updateBefore = r < numRows();
-    int w = fontMetrics().width( QString::number( r ) + " " );
+    int w = fontMetrics().width( QString::number( r ) + "W" );
     if ( r > numRows() ) {
 	leftHeader->QHeader::resizeArrays( r + 1 );
 	leftHeader->QTableHeader::resizeArrays( r + 1 );
