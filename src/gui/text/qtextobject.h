@@ -106,6 +106,9 @@ public:
         inline iterator operator--(int) { iterator tmp = *this; operator--(); return tmp; }
     };
 
+    // more Qt
+    typedef iterator Iterator;
+
     iterator begin() const;
     iterator end() const;
 
@@ -156,6 +159,9 @@ public:
         iterator operator--();
         inline iterator operator--(int) { iterator tmp = *this; operator--(); return tmp; }
     };
+
+    // more Qt
+    typedef iterator Iterator;
 
     iterator begin() const;
     iterator end() const;
