@@ -32,12 +32,13 @@ public:
     inline const T *data() const { return d; }
     inline const T *constData() const { return d; }
 
-    QExplicitlySharedDataPointer() { d = 0; }
-    ~QExplicitlySharedDataPointer() { if (d && !--d->ref) delete d; }
+    inline QExplicitlySharedDataPointer() { d = 0; }
+    inline ~QExplicitlySharedDataPointer() { if (d && !--d->ref) delete d; }
 
-    explicit QExplicitlySharedDataPointer(T *data) : d(data) { if (d) ++d->ref; }
-    QExplicitlySharedDataPointer(const QExplicitlySharedDataPointer &o) : d(o.d) { if (d) ++d->ref; }
-    QExplicitlySharedDataPointer & operator=(const QExplicitlySharedDataPointer &o) {
+    explicit inline QExplicitlySharedDataPointer(T *data) : d(data) { if (d) ++d->ref; }
+    inline QExplicitlySharedDataPointer(const QExplicitlySharedDataPointer &o) : d(o.d)
+    { if (d) ++d->ref; }
+    inline QExplicitlySharedDataPointer &operator=(const QExplicitlySharedDataPointer &o) {
         if (o.d != d) {
             T *x = o.d;
             if (x) ++x->ref;
@@ -47,7 +48,7 @@ public:
         }
         return *this;
     }
-    QExplicitlySharedDataPointer &operator=(T *o) {
+    inline QExplicitlySharedDataPointer &operator=(T *o) {
         if (o != d) {
             T *x = o;
             if (x) ++x->ref;
@@ -58,7 +59,7 @@ public:
         return *this;
     }
 
-    bool operator!() const { return !d; }
+    inline bool operator!() const { return !d; }
 
 private:
     T *d;
@@ -68,20 +69,20 @@ template <class T> class QSharedDataPointer
 {
 public:
     inline void detach() { if (d && d->ref != 1) detach_helper(); }
-    T * operator->() { detach(); return d; }
-    const T * operator->() const { return d; }
-    operator T *() { detach(); return d; }
-    operator const T *() const { return d; }
-    T * data() { detach(); return d; }
-    const T * data() const { return d; }
-    const T * constData() const { return d; }
+    inline T *operator->() { detach(); return d; }
+    inline const T *operator->() const { return d; }
+    inline operator T *() { detach(); return 0; }
+    inline operator const T *() const { return d; }
+    inline T *data() { detach(); return d; }
+    inline const T *data() const { return d; }
+    inline const T *constData() const { return d; }
 
-    QSharedDataPointer() { d = 0; }
-    ~QSharedDataPointer() { if (d && !--d->ref) delete d; }
+    inline QSharedDataPointer() { d = 0; }
+    inline ~QSharedDataPointer() { if (d && !--d->ref) delete d; }
 
-    Q_EXPLICIT QSharedDataPointer(T *data) : d(data) { if (d) ++d->ref; }
-    QSharedDataPointer(const QSharedDataPointer &o) : d(o.d) { if (d) ++d->ref; }
-    QSharedDataPointer & operator=(const QSharedDataPointer &o) {
+    explicit QSharedDataPointer(T *data) : d(data) { if (d) ++d->ref; }
+    inline QSharedDataPointer(const QSharedDataPointer &o) : d(o.d) { if (d) ++d->ref; }
+    inline QSharedDataPointer & operator=(const QSharedDataPointer &o) {
         if (o.d != d) {
             T *x = o.d;
             if (x) ++x->ref;
@@ -91,7 +92,7 @@ public:
         }
         return *this;
     }
-    QSharedDataPointer &operator=(T *o) {
+    inline QSharedDataPointer &operator=(T *o) {
         if (o != d) {
             T *x = o;
             if (x) ++x->ref;
@@ -102,7 +103,7 @@ public:
         return *this;
     }
 
-    bool operator!() const { return !d; }
+    inline bool operator!() const { return !d; }
 
 private:
     void detach_helper();
