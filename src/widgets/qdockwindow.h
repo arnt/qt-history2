@@ -61,7 +61,7 @@ class Q_EXPORT QDockWindow : public QFrame
 {
     Q_OBJECT
     Q_ENUMS( CloseMode Place )
-    Q_PROPERTY( int closeMode READ closeMode  WRITE setCloseMode )
+    Q_PROPERTY( int closeMode READ closeMode  WRITE setCloseMode ) //### this shouldn't be of type int?!
     Q_PROPERTY( bool resizeEnabled READ isResizeEnabled  WRITE setResizeEnabled )
     Q_PROPERTY( bool movingEnabled READ isMovingEnabled  WRITE setMovingEnabled )
     Q_PROPERTY( bool horizontallyStretchable READ isHorizontallyStretchable  WRITE setHorizontallyStretchable )

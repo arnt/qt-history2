@@ -837,6 +837,9 @@ void QScrollBar::drawControls( uint controls, uint activeControl ) const
 void QScrollBar::drawControls( uint controls, uint activeControl,
 			       QPainter *p ) const
 {
+    if ( !isUpdatesEnabled() )
+	return;
+
     QStyle::SFlags flags = QStyle::Style_Default;
     if (isEnabled())
 	flags |= QStyle::Style_Enabled;
