@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.h#16 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.h#17 $
 **
 ** Definition of QFileDialog class
 **
@@ -44,11 +44,13 @@ public:
 
     const char *dirPath() const;
 
-    void setDir( const char * );
     void setDir( const QDir & );
     const QDir *dir() const;
 
     void rereadDir();
+
+public slots:    
+    void setDir( const char * );
 
 signals:
     void fileHighlighted( const char * );
@@ -71,9 +73,7 @@ private slots:
     void cancelClicked();
 
     void cdUpClicked();
-    void detailViewClicked();
-    void mcViewClicked();
-    
+
 protected:
     void resizeEvent( QResizeEvent * );
 
