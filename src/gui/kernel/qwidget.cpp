@@ -490,6 +490,28 @@ static QPalette qt_naturalWidgetPalette(QWidget* w) {
   QWidget member functions
  *****************************************************************************/
 
+ /*!
+    \enum Qt::FocusReason
+
+    This enum specifies why the focus changed.
+
+    \value MouseFocusReason        A mouse action occurred.
+    \value TabFocusREason          The Tab key was pressed.
+    \value BacktabFocusReason      A Backtab occurred. The input for this may
+                                      include the Shift or Control keys;
+                                      e.g. Shift+Tab.
+    \value ActiveWindowFocusReason The window system made this window either
+                                      active or inactive.
+    \value PopupFocusReason        The application opened/closed a popup that
+                                      grabbed/released the keyboard focus.
+    \value ShortcutFocusReason     The user typed a label's buddy shortcut
+    \value MenuBarFocusReason      The menu bar took focus.
+    \value OtherFocusReason        Another reason, usually application-specific.
+
+    See the \link focus.html keyboard focus overview \endlink for more
+    about the keyboard focus.
+*/
+
 /*
     Widget state flags:
   \list

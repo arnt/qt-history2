@@ -1137,6 +1137,7 @@ public:
         SmoothTransformation
     };
 
+    // Documented in qwidget.cpp
     enum FocusReason {
         MouseFocusReason,
         TabFocusReason,
