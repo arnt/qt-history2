@@ -2664,6 +2664,7 @@ QImage QImage::transformed(const QMatrix &matrix, Qt::TransformationMode mode) c
 
     // compute size of target image
     QMatrix mat = trueMatrix(matrix, ws, hs);
+    bool complex_xform = false;
     if (mat.m12() == 0.0F && mat.m21() == 0.0F) {
         if (mat.m11() == 1.0F && mat.m22() == 1.0F) // identity matrix
             return *this;
@@ -2677,6 +2678,7 @@ QImage QImage::transformed(const QMatrix &matrix, Qt::TransformationMode mode) c
         QRectF r = a.boundingRect().normalize();
         wd = int(r.width() + 0.9999);
         hd = int(r.height() + 0.9999);
+        complex_xform = true;
     }
 
     if (wd == 0 || hd == 0)
@@ -2689,7 +2691,7 @@ QImage QImage::transformed(const QMatrix &matrix, Qt::TransformationMode mode) c
 
     QImage dImage(wd, hd, depth(), numColors(), bitOrder());
     memcpy(dImage.colorTable(), colorTable(), numColors()*sizeof(QRgb));
-    dImage.setAlphaBuffer(hasAlphaBuffer());
+    dImage.setAlphaBuffer(hasAlphaBuffer() | complex_xform);
     dImage.d->dpmx = dotsPerMeterX();
     dImage.d->dpmy = dotsPerMeterY();
 
