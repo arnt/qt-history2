@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qrichtext.cpp#27 $
+** $Id: //depot/qt/main/src/kernel/qrichtext.cpp#28 $
 **
 ** Implementation of the Qt classes dealing with rich text
 **
@@ -292,6 +292,7 @@ QTextRow::QTextRow( QPainter* p, QFontMetrics &fm,
     QTextIterator lastSpace = it;
     int lastHeight = rh;
     int lastWidth = 0;
+    int lastBearing = 0;
     int lastAsc = rasc;
     int lastDesc = rdesc;
     bool noSpaceFound = TRUE; // TRUE;
@@ -350,6 +351,7 @@ QTextRow::QTextRow( QPainter* p, QFontMetrics &fm,
 	    lastAsc = rasc;
 	    lastDesc = rdesc;
 	    lastWidth = tx;
+	    lastBearing = fm.minRightBearing();
  	    if (noSpaceFound && prev->isSpace())
  		noSpaceFound = FALSE;
 	}
@@ -380,7 +382,7 @@ QTextRow::QTextRow( QPainter* p, QFontMetrics &fm,
 	fill = 0;
     }
 
-    min = lastWidth;
+    min = lastWidth + lastBearing;
 
     ++it;
 
