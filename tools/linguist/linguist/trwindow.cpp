@@ -412,7 +412,8 @@ public:
 
     virtual void setWhatsThis( const QString& whatsThis );
 
-    bool addToToolbar( QToolBar *tb, const QString& text, const char *xpmName );
+    bool addToToolbar( QToolBar *tb, const QString& text,
+		       const char *imageName );
 };
 
 Action::Action( QPopupMenu *pop, const QString& menuText, QObject *receiver,
@@ -441,16 +442,17 @@ void Action::setWhatsThis( const QString& whatsThis )
 }
 
 bool Action::addToToolbar( QToolBar *tb, const QString& text,
-			   const char *xpmName )
+			   const char *imageName )
 {
     setText( text );
-    Embed *en = imageDict->find( QString("enabled/") + QString(xpmName) );
+    Embed *en = imageDict->find( QString("enabled/") + QString(imageName) );
     if ( en != 0 ) {
 	QPixmap enabled;
 	enabled.loadFromData( en->data, en->size );
  	QIconSet s( enabled );
 
-	Embed *dis = imageDict->find( QString("disabled/") + QString(xpmName) );
+	Embed *dis = imageDict->find( QString("disabled/") +
+				      QString(imageName) );
 	if ( dis != 0 ) {
 	    QPixmap disabled;
 	    disabled.loadFromData( dis->data, dis->size );
@@ -1613,25 +1615,32 @@ void TrWindow::revalidate()
 
 void TrWindow::setupImageDict()
 {
+    (void) qembed_findData;
+
     if ( imageDict == 0 ) {
 	imageDict = new QDict<Embed>( 101 );
 	Embed *em;
-	for ( em = embed_vec; em->size > 0; em++ )
-	    imageDict->insert( em->name, em );
+	for ( em = embed_vec; em->size > 0; em++ ) {
+	    QString name = em->name;
+	    int k = name.findRev( QChar('.') );
+	    if ( k != -1 )
+		name.truncate( k );
+	    imageDict->insert( name, em );
+	}
 
 	// Create the application global listview symbols
 	pxOn  = new QPixmap;
 	pxOff = new QPixmap;
 	pxObsolete = new QPixmap;
-	pxDanger   = new QPixmap;
+	pxDanger = new QPixmap;
 
-	em = imageDict->find( QString("symbols/check_on.xpm") );
+	em = imageDict->find( QString("symbols/check_on") );
 	pxOn->loadFromData( em->data, em->size );
-	em = imageDict->find( QString("symbols/check_off.xpm") );
+	em = imageDict->find( QString("symbols/check_off") );
 	pxOff->loadFromData( em->data, em->size );
-	em = imageDict->find( QString("symbols/check_obs.xpm") );
+	em = imageDict->find( QString("symbols/check_obs") );
 	pxObsolete->loadFromData( em->data, em->size );
-	em = imageDict->find( QString("symbols/check_danger.xpm") );
+	em = imageDict->find( QString("symbols/check_danger") );
 	pxDanger->loadFromData( em->data, em->size );
 
 	QBitmap onMask( check_on_mask_width, check_on_mask_height,
@@ -1890,41 +1899,39 @@ void TrWindow::setupToolBars()
     QToolBar *validationt   = new QToolBar( tr("Validation"), this );
     QToolBar *helpt = new QToolBar( tr("Help"), this );
 
-    openAct->addToToolbar( filet, tr("Open"), "fileopen.xpm" );
-    saveAct->addToToolbar( filet, tr("Save"), "filesave.xpm" );
-    printAct->addToToolbar( filet, tr("Print"), "print.xpm" );
+    openAct->addToToolbar( filet, tr("Open"), "fileopen" );
+    saveAct->addToToolbar( filet, tr("Save"), "filesave" );
+    printAct->addToToolbar( filet, tr("Print"), "print" );
     filet->addSeparator();
-    openPhraseBookAct->addToToolbar( filet, tr("Open Phrase Book"),
-				     "book.xpm" );
+    openPhraseBookAct->addToToolbar( filet, tr("Open Phrase Book"), "book" );
 
-    undoAct->addToToolbar( editt, tr("Undo"), "undo.xpm" );
-    redoAct->addToToolbar( editt, tr("Redo"), "redo.xpm" );
+    undoAct->addToToolbar( editt, tr("Undo"), "undo" );
+    redoAct->addToToolbar( editt, tr("Redo"), "redo" );
     editt->addSeparator();
-    cutAct->addToToolbar( editt, tr("Cut"), "editcut.xpm" );
-    copyAct->addToToolbar( editt, tr("Copy"), "editcopy.xpm" );
-    pasteAct->addToToolbar( editt, tr("Paste"), "editpaste.xpm" );
-    deleteAct->addToToolbar( editt, tr("Delete"), "editdelete.xpm" );
+    cutAct->addToToolbar( editt, tr("Cut"), "editcut" );
+    copyAct->addToToolbar( editt, tr("Copy"), "editcopy" );
+    pasteAct->addToToolbar( editt, tr("Paste"), "editpaste" );
+    deleteAct->addToToolbar( editt, tr("Delete"), "editdelete" );
     editt->addSeparator();
-    findAct->addToToolbar( editt, tr("Find"), "search.xpm" );
+    findAct->addToToolbar( editt, tr("Find"), "searchfind" );
 
     startFromSourceAct->addToToolbar( translationst, tr("Start from Source"),
-				      "search.xpm" );
-    prevAct->addToToolbar( translationst, tr("Prev"), "search.xpm" );
-    nextAct->addToToolbar( translationst, tr("Next"), "search.xpm" );
+				      "searchfind" );
+    prevAct->addToToolbar( translationst, tr("Prev"), "searchfind" );
+    nextAct->addToToolbar( translationst, tr("Next"), "searchfind" );
     prevUnfinishedAct->addToToolbar( translationst, tr("Prev Unfinished"),
-				     "search.xpm" );
+				     "searchfind" );
     nextUnfinishedAct->addToToolbar( translationst, tr("Next Unfinished"),
-				     "search.xpm" );
+				     "searchfind" );
     doneAndNextAct->addToToolbar( translationst, tr("Done and Next"),
-				  "search.xpm" );
+				  "searchfind" );
 
-    acceleratorsAct->addToToolbar( validationt, tr("Accelerators"),
-				   "accel.xpm" );
+    acceleratorsAct->addToToolbar( validationt, tr("Accelerators"), "accel" );
     endingPunctuationAct->addToToolbar( validationt, tr("Punctuation"),
-					"endpunct.xpm" );
-    phraseMatchesAct->addToToolbar( validationt, tr("Phrases"), "phrase.xpm" );
+					"endpunct" );
+    phraseMatchesAct->addToToolbar( validationt, tr("Phrases"), "phrase" );
 
-    whatsThisAct->addToToolbar( helpt, tr("What's This?"), "whatsthis.xpm" );
+    whatsThisAct->addToToolbar( helpt, tr("What's This?"), "whatsthis" );
 }
 
 void TrWindow::setCurrentContextItem( QListViewItem *item )

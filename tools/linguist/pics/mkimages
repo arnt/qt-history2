@@ -1,2 +1,3 @@
 #!/bin/sh
-$QTDIR/tools/qembed/qembed *.png {disabled,enabled,symbols}/*.xpm >images.h
+p4 edit images.h
+$QTDIR/tools/qembed/qembed {,*/}*.{png,xpm} >images.h
