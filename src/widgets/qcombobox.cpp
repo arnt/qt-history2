@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#225 $
+** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#226 $
 **
 ** Implementation of QComboBox widget class
 **
@@ -836,7 +836,6 @@ QSize QComboBox::sizeHint() const
     QString tmp;
     QFontMetrics fm = fontMetrics();
 
-    int extraW = 20;
     int maxW = count() ? 18 : 7 * fm.width(QChar('x')) + 18;
     int maxH = QMAX( fm.height(), 12 );
 
@@ -864,7 +863,21 @@ QSize QComboBox::sizeHint() const
 	 (parentWidget()->inherits( "QToolBar" ) ||
 	  parentWidget()->inherits( "QDialog" ) && style() == WindowsStyle) )
 	maxH = 12;
-    return QSize( 4 + 4 + maxW + extraW, maxH + 5 + 5 );
+
+    int sw, sh;
+    if ( style() == MotifStyle && d->usingListBox() ) {
+	sw = 4 + 4 + maxW;
+	sh = 5 + 5 + maxH;
+	QRect cr = style().comboButtonRect( 0, 0, sw, sh );
+	sw += sw - cr.width();
+    } else {
+	//hardcoded values
+	int extraW = 20;
+	sw = 4 + 4 + maxW + extraW;
+	sh = 5 + 5 + maxH;
+    }
+    
+    return QSize( sw, sh );
 }
 
 
@@ -1035,59 +1048,10 @@ void QComboBox::paintEvent( QPaintEvent * )
 	    p.drawRect( xPos - 5, 4, width() - xPos + 1 , height() - 8 );
 
     } else if ( style() == MotifStyle ) {	// motif 2.0 style
-	int awh, ax, ay, sh, sy;
-	QBrush fill = g.brush( QColorGroup::Button );
-
-	if ( height() < 6 ) {
-	    awh = height();
-	    ay = 0;
-	} else if ( height() < 18 ) {
-	    awh = height() - 6;
-	    ay = 0;
-	} else {
-	    awh = height()*4/10;
-	    ay = awh/2;
-	}
-
-	sh = (awh+3)/4;
-	sy = height() - ay - sh;
-	if ( sh < 3 ) {
-	    sy = sy+sh-3;
-	    sh = 3;
-	}
-	if ( sy - ay - awh > 3 ) {
-	    sy -= ( sy-ay-awh-3 )/2;
-	    ay += ( sy-ay-awh-3 )/2;
-	}
-	awh = awh;
-
-	if ( d->ed )
-	    ax = d->ed->geometry().right() + 4;
-	else
-	    ax = width() - 3 - awh;
-
-	if ( ax + awh + 2 < width() )
-	    ax += ( width() - 2 - ax - awh ) / 2;
-
-	//qDrawShadePanel( &p, rect(), g, FALSE, d->ed ? 1 : 2, &fill );
-	style().drawButton( &p, 0, 0, width(), height(), g, FALSE, &fill );
-
-	qDrawArrow( &p, DownArrow, MotifStyle, FALSE,
-		    ax, ay, awh, awh, g, TRUE );
-
-	p.setPen( g.light() );
-	p.drawLine( ax, sy, ax+awh-1, sy );
-	p.drawLine( ax, sy, ax, sy+sh-1 );
-	p.setPen( g.dark() );
-	p.drawLine( ax+1, sy+sh-1, ax+awh-1, sy+sh-1 );
-	p.drawLine( ax+awh-1, sy+1, ax+awh-1, sy+sh-1 );
-
-	if ( d->ed ) {
-	    QRect r( d->ed->geometry() );
-	    r.setRect( r.left()-1, r.top()-1, r.width()+2, r.height()+2 );
-	    qDrawShadePanel( &p, r, g, TRUE, d->ed ? 1 : 2, &fill );
-	} else {
-	    QRect clip( 3, 3, width() - 3 - 3 - 21, height() - 3 - 3 );
+	style().drawComboButton( &p, 0, 0, width(), height(), 
+				 g, d->arrowDown, d->ed != 0 );
+	if ( !d->ed ) {
+	    QRect clip = style().comboButtonRect( 0, 0, width(), height() );
 	    QString str = d->listBox()->text( d->current );
 	    if ( !str.isNull() ) {
 		p.setPen( g.foreground() );
@@ -1101,10 +1065,11 @@ void QComboBox::paintEvent( QPaintEvent * )
 		}
 	    }
 	}
-
-	if ( hasFocus() )
-	    p.drawRect( ax - 2, ay - 2, awh+4, sy+sh+4-ay );
-
+       	if ( hasFocus() ) {
+	    style().drawFocusRect(&p, style().
+				  comboButtonFocusRect(0,0,width(),height()),
+				  g, &g.button());
+	}
     } else {					// windows 95 style
 	QString str = d->listBox()->text( d->current );
 

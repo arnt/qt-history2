@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmotifstyle.h#3 $
+** $Id: //depot/qt/main/src/widgets/qmotifstyle.h#4 $
 **
 ** Definition of Motif-like style class
 **
@@ -51,6 +51,16 @@ public:
     void drawFocusRect( QPainter*,
 			const QRect&, const QColorGroup &, const QColor* =0, bool = FALSE );
 
+    // "combo box"
+    void drawComboButton( QPainter *p, int x, int y, int w, int h,
+			  const QColorGroup &g, bool sunken = FALSE,
+			  bool editable = FALSE,
+			  bool enabled = TRUE,
+			  const QBrush *fill = 0 );
+    QRect comboButtonRect( int x, int y, int w, int h);
+    QRect comboButtonFocusRect( int x, int y, int w, int h);
+
+    
     void drawPushButton( QPushButton* btn, QPainter *p);
 
     void drawArrow( QPainter *p, ArrowType type, bool down,
@@ -96,7 +106,7 @@ public:
     int extraPopupMenuItemWidth( bool checkable, int maxpmw, QMenuItem* mi, const QFontMetrics& fm );
     int popupMenuItemHeight( bool checkable, QMenuItem* mi, const QFontMetrics& fm );
     void drawPopupMenuItem( QPainter* p, bool checkable, int maxpmw, int tab, QMenuItem* mi,
-			    const QPalette& pal, 
+			    const QPalette& pal,
 			    bool act, bool enabled, int x, int y, int w, int h);
 
 

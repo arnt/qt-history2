@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmotifstyle.cpp#19 $
+** $Id: //depot/qt/main/src/widgets/qmotifstyle.cpp#20 $
 **
 ** Implementation of Motif-like style class
 **
@@ -1012,4 +1012,97 @@ void QMotifStyle::drawPopupMenuItem( QPainter* p, bool checkable, int maxpmw, in
 		       dim, dim, g, mi->isEnabled() );
 	}
     }
+}
+
+
+static int get_combo_extra_width( int h, int *return_awh=0 )
+{
+    int awh;
+    if ( h < 12 ) {
+	awh = 6;
+    } else if ( h < 18 ) {
+	awh = h - 6;
+    } else {
+	awh = h*4/10;
+    }
+    if ( return_awh )
+	*return_awh = awh;
+    return awh*3/2+4;
+}
+
+
+static void get_combo_parameters( const QRect &r,
+				  int &ew, int &awh, int &ax,
+				  int &ay, int &sh, int &dh,
+				  int &sy )
+{
+    ew = get_combo_extra_width( r.height(), &awh );
+    
+    sh = (awh+3)/4;
+    if ( sh < 3 )
+	sh = 3;
+    dh = sh/2 + 1;
+
+    ay = r.y() + (r.height()-awh-sh-dh)/2;
+    if ( ay < 0 ) {
+	//panic mode
+	ay = 0;
+	sy = r.height();
+    } else {
+	sy = ay+awh+dh;
+    }
+    ax = r.x() + r.width() - ew +(ew-awh)/2 - 2; //###assume frameWidth 2
+}
+
+/*! \reimp
+ */
+void QMotifStyle::drawComboButton( QPainter *p, int x, int y, int w, int h,
+				    const QColorGroup &g, 
+				    bool /* sunken */,
+				    bool editable,
+				    bool /*enabled */,
+				    const QBrush *fb )
+{
+    QBrush fill = fb ? *fb : g.brush( QColorGroup::Button );
+
+    int awh, ax, ay, sh, sy, dh, ew;
+    get_combo_parameters( buttonRect(x,y,w,h), ew, awh, ax, ay, sh, dh, sy );
+    
+    drawButton( p, x, y, w, h, g, FALSE, &fill );
+
+    qDrawArrow( p, DownArrow, MotifStyle, FALSE,
+		ax, ay, awh, awh, g, TRUE );
+
+    p->setPen( g.light() );
+    p->drawLine( ax, sy, ax+awh-1, sy );
+    p->drawLine( ax, sy, ax, sy+sh-1 );
+    p->setPen( g.dark() );
+    p->drawLine( ax+1, sy+sh-1, ax+awh-1, sy+sh-1 );
+    p->drawLine( ax+awh-1, sy+1, ax+awh-1, sy+sh-1 );
+
+    if ( editable ) {
+	QRect r( comboButtonRect(x,y,w,h) );
+	r.setRect( r.left()-1, r.top()-1, r.width()+2, r.height()+2 );
+	qDrawShadePanel( p, r, g, TRUE, 1, &fill );
+    }  
+}
+
+
+/*! \reimp
+ */
+QRect QMotifStyle::comboButtonRect( int x, int y, int w, int h)
+{
+    QRect r = buttonRect( x, y, w, h );
+    int ew = get_combo_extra_width( r.height() );
+    return QRect(r.x()+3, r.y()+3, r.width()-6-ew, r.height()-6);
+}
+
+/*! \reimp
+ */
+QRect QMotifStyle::comboButtonFocusRect( int x, int y, int w, int h)
+{
+    int awh, ax, ay, sh, sy, dh, ew;
+    get_combo_parameters( buttonRect( x, y, w, h ), 
+			  ew, awh, ax, ay, sh, dh, sy );
+    return QRect(ax-2, ay-2, awh+4, awh+sh+dh+4);
 }
