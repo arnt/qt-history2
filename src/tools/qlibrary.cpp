@@ -359,7 +359,7 @@ void QLibrary::createInstanceInternal()
       return 5 + 8;
   \endcode
 
-  \sa queryInterface
+  \sa queryInterface()
 */
 void *QLibrary::resolve( const char* symb )
 {
@@ -398,7 +398,7 @@ void *QLibrary::resolve( const QString &filename, const char *symb )
 /*!
   Returns whether the library is loaded.
 
-  \sa unload
+  \sa unload()
 */
 bool QLibrary::isLoaded() const
 {
@@ -428,7 +428,7 @@ bool QLibrary::load()
   which is in most cases a segmentation fault, so you should know what
   you're doing!
 
-  \sa queryInterface, resolve
+  \sa queryInterface(), resolve()
 */
 bool QLibrary::unload( bool force )
 {
@@ -495,8 +495,6 @@ bool QLibrary::unload( bool force )
 /*!
   Sets the current policy to \a pol.
   The library is loaded if \a pol is set to Immediately.
-
-  \sa LibraryPolicy
 */
 void QLibrary::setPolicy( Policy pol )
 {
@@ -509,7 +507,7 @@ void QLibrary::setPolicy( Policy pol )
 /*!
   Returns the current policy.
 
-  \sa setPolicy
+  \sa setPolicy()
 */
 QLibrary::Policy QLibrary::policy() const
 {
@@ -553,7 +551,7 @@ QString QLibrary::library() const
 
   The library gets loaded if necessary.
 
-  \sa QUnknownInterface::queryInterface
+  \sa QUnknownInterface::queryInterface()
 */
 QRESULT QLibrary::queryInterface( const QUuid& request, QUnknownInterface** iface )
 {
