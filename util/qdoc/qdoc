@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: //depot/qt/main/util/qdoc/qdoc#40 $
+# $Id: //depot/qt/main/util/qdoc/qdoc#41 $
 #
 # this is a massive hack, written very quickly
 #
@@ -49,6 +49,9 @@
 #
 # "\header filename.h" adds filename.h to the list of header files that
 # are to be included in the documentation.
+#
+# "\relates classname" directs the documentation for the item to the
+# sensible file (one assumes that you choose a sensible class).
 
 sub urlencode {
     local($_) = @_;
@@ -112,29 +115,16 @@ sub findlink {
 
     if (defined($anchor{$_}) && $anchor{$_} ne $url && $_ ne $class) {
 	sprintf("<a href=%s>%s</a>", $anchor{$_}, $_);
-    } elsif ((($ismethod ne "") || (/^[A-Z]/)) && 
+    } elsif ((($ismethod eq "(") || (/^[A-Z]/)) && 
 	     defined($anchor{$class . $_}) && $anchor{$class . $_} ne $url) {
 	sprintf("<a href=%s>%s</a>", $anchor{$class . $_}, $_);
-    } elsif (($ismethod ne "") && (defined($inheritance{$class})) &&
-	     ($anchor{$class . $_} ne $url)){
-	my(@i, $i);
-	$i = $inheritance{$class};
-	$i =~ s/,\s*\S+\s+(?=\w)/,/s;
-	@i = split(/\s*\,\s*/, $i);
-	$i = $_;
-	while ( ($#i>-1) && ($i eq $_) ) {
-	    $i = &findlink( $_, $i[$#i], $url, $ismethod)
-		if defined($anchor{$i[$#i]});
-	    pop @i;
-	}
-	sprintf("%s", $i);
     } else {
 	sprintf("%s", $_);
     }
 }
 
 sub preprocessdocs {
-    local ($url);
+    local ($url, $_);
 
     foreach $url ( sort keys %type ) {
 	$doc{$url} =~ s@\\header\s+([a-z0-9\.]+)@
@@ -145,6 +135,23 @@ sub preprocessdocs {
 	    $headerfiles{$h1} = $h2;
 	    sprintf("");
 	@egsx;
+    }
+
+    foreach $url ( sort keys %type ) {
+	$doc{$url} =~ s@\\relate[ds]\s+(\w+)@
+	    $relations{$1} .= " " . $url;
+	    sprintf("");
+	@egsx;
+    }
+
+    # not actually url's... too tired to do it right :(
+    foreach $url ( sort keys %relations ) {
+	my (%tmp);
+	$relations{$url} =~ s/^\s*//;
+	foreach ( split(/\s+/, $relations{$url}) ) {
+	    $tmp{$_}++ if ($_ ne "");
+	}
+	$relations{url} = join(" ", sort keys %tmp);
     }
 }
 
@@ -614,7 +621,7 @@ sub readc {
 }
 
 sub makenames {
-    local($_);
+    local($_, $dum);
 
     foreach ( sort keys %name ) {
 	if (($type{$_} ne "enum") && !($doc{$_} =~ /\S/s)) {
@@ -627,6 +634,38 @@ sub makenames {
     foreach ( sort keys %name ) {
 	$anchor{$name{$_}} = $_ unless (defined($anchor{$name{$_}}));
     }
+
+    # next, we do a good imitation of c++ inheritance... subclasses:
+    foreach ( keys %inheritance ) {
+	my ($c, $i);
+	$i = $inheritance{$_};
+	$i =~ s/((?:(?:^)|(?:,)))\s*\w+\s+(?=\w)/$1/sg;
+	foreach $c ( split ( /\s*,\s*/, $i ) ) {
+	    if (defined($subclasses{$c})) {
+		$subclasses{$c} .= " " . $name{$_};
+	    } else {
+		$subclasses{$c} = $name{$_};
+	    }
+	}
+    } # and members
+    $dum = 1;
+    while ($dum) {
+	my ($url, $class, $member);
+	$dum = 0;
+	foreach $url ( keys %name ) {
+	    next unless ($type{$url} eq "fn");
+	    $class = $member = $name{$url};
+	    $class =~ s/::.*//;
+	    $member =~ s/.*:://;
+	    foreach ( split( /\s+/, $subclasses{$class} ) ) {
+		unless (defined($anchor{$_ . "::" . $member})) {
+		    $dum = 1;
+		    $anchor{$_ . "::" . $member} = $anchor{$name{$url}};
+		}
+	    }
+	}
+    }
+
     foreach ( keys %headerfiles ) {
 	$anchor{$_} = $headerfiles{$_} unless (defined($anchor{$_}));
     }
@@ -732,7 +771,7 @@ sub printout {
 	$file = $url;
 	$file =~ s/#.*//;
 	if ($file ne $cfile) {
-	    $fnheader = "<h2>Member Function Documentation</h2>\n";
+	    $fnheader = "<hr><h2>Member Function Documentation</h2>\n";
 	    print O $fntail, $tail;
 	    close(O);
 	    open(O, "> $outputdir/$file") 
@@ -778,6 +817,15 @@ sub printout {
 	            $headerfiles{$includefile{$url}}, 
  		    ">", $includefile{$url}, "</a>&gt;</code>\n"
 		if (defined($includefile{$url}));
+	    if ($relations{$name{$url}} =~ /\S/s) {
+		my($relatives);
+		$relatives = "<hr><p><h2>Related Functions</h2>\n";
+		foreach ( split( /\s+/, $relations{$name{$url}} ) ) {
+		    $relatives = join ("", $relatives, "<p><h3>", $def{$_},
+				       "</h3>\n<p>", $doc{$_}, "\n");
+		}
+		$tail = join("", $relatives, $tail);
+	    }
 	    $i = "";
 	    foreach ( sort split(/\s*\,\s*/, $inheritance{$url}) ) {
 		my ($im, $ic);
@@ -800,6 +848,21 @@ sub printout {
 		$i =~ s/^\,\s*//;
 		$i =~ s/\,([^,]+)$/ and$1/;
 		print O "<p>\nInherits ", $i, ".\n";
+	    }
+	    if ($subclasses{$name{$url}} =~ /\S/) {
+		my ($ic);
+		$i = "";
+		foreach $ic ( sort split(/\s+/, $subclasses{$name{$url}}) ) {
+		    if (defined($capt{$ic})) {
+			$i = join ("", $i, ", ", &al($ic), 
+				   " (", $capt{$ic}, ")");
+		    } else {
+			$i = join ("", $i, ", ", &al($ic));
+		    }
+		}
+		$i =~ s/^\,\s*//;
+		$i =~ s/\,([^,]+)$/ and$1/;
+		print O "<p>Inherited by ", $i, ".\n";
 	    }
 
 	    if (defined($members{$url})) {
@@ -892,9 +955,9 @@ sub printout {
 		    print O "</ul>\n";
 		}
 		if ($brief{$url} =~ /\S/s) {
-		    print O "<p><h2><a name=details>Detailed Description</a></h2>\n", $brief{$url}, "\n<p>\n", $doc{$url}, "\n";
+		    print O "<hr><p><h2><a name=details>Detailed Description</a></h2>\n", $brief{$url}, "\n<p>\n", $doc{$url}, "\n";
 		} else {
-		    print O "<p><h2>Detailed Description</h2>\n", $doc{$url}, "\n";
+		    print O "<hr><p><h2>Detailed Description</h2>\n", $doc{$url}, "\n";
 		}
 	    }
 	} elsif (($type{$url} eq "fn") && ($doc{$url} =~ /\S/s)) {
