@@ -190,7 +190,7 @@
 /*! \enum QFont::Script
   The QFont::Script enum represents a Unicode allocated script.
 
-  European Alphabetic Scripts:
+  Modern European alphabetic scripts:
 
   \value Latin
   \value Greek
@@ -202,14 +202,14 @@
   \value SpacingModifiers
   \value CombiningMarks
 
-  Middle Eastern Scripts:
+  Middle Eastern scripts:
 
   \value Hebrew
   \value Arabic
   \value Syriac
   \value Thaana
 
-  South and Southeast Asian Scripts:
+  South and Southeast Asian scripts:
 
   \value Devanagari
   \value Bengali
@@ -227,7 +227,7 @@
   \value Myanmar
   \value Khmer
 
-  East Asian Scripts:
+  East Asian scripts:
 
   \value Han
   \value Hiragana
@@ -236,7 +236,7 @@
   \value Bopomofo
   \value Yi
 
-  Additional Scripts:
+  Additional scripts that do not fit well into the script categories above:
 
   \value Ethiopic
   \value Cherokee
@@ -258,8 +258,8 @@
 
   \value Unicode includes all the above scripts.
 
-  \value HanX11 For internal use only.
 
+  \value HanX11 For internal use only.
   \value LatinBasic For internal use only.
   \value LatinExtendedA_2 For internal use only.
   \value LatinExtendedA_3 For internal use only.
