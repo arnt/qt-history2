@@ -1681,6 +1681,7 @@ QWidget::addAction(QAction *action)
         return;
     d->actions.append(action);
     QObject::connect(action, SIGNAL(dataChanged()), this, SLOT(actionChanged()));
+    QObject::connect(action, SIGNAL(deleted()), this, SLOT(actionDeleted()));
     QActionEvent e(QEvent::ActionAdded, action);
     QApplication::sendEvent(this, &e);
 }
@@ -1711,6 +1712,7 @@ QWidget::insertAction(QAction *before, QAction *action)
     int before_int = d->actions.indexOf(before);
     d->actions.insert(before_int, action);
     QObject::connect(action, SIGNAL(dataChanged()), this, SLOT(actionChanged()));
+    QObject::connect(action, SIGNAL(deleted()), this, SLOT(actionDeleted()));
     QActionEvent e(QEvent::ActionAdded, action, before);
     QApplication::sendEvent(this, &e);
 }
@@ -1739,6 +1741,7 @@ QWidget::removeAction(QAction *action)
 {
     if (d->actions.removeAll(action)) {
         QObject::disconnect(action, SIGNAL(dataChanged()), this, SLOT(actionChanged()));
+        QObject::disconnect(action, SIGNAL(deleted()), this, SLOT(actionDeleted()));
         QActionEvent e(QEvent::ActionRemoved, action);
         QApplication::sendEvent(this, &e);
     }
@@ -1754,12 +1757,20 @@ QWidget::actions() const
 }
 
 void
-QWidget::actionChanged()
+QWidgetPrivate::actionChanged()
 {
-    QAction *action = qt_cast<QAction*>(sender());
+    QAction *action = qt_cast<QAction*>(q->sender());
     Q_ASSERT_X(action != 0, "QWidget::actionChanged", "internal error");
     QActionEvent e(QEvent::ActionChanged, action);
-    QApplication::sendEvent(this, &e);
+    QApplication::sendEvent(q, &e);
+}
+
+void
+QWidgetPrivate::actionDeleted()
+{
+    QAction *action = qt_cast<QAction*>(q->sender());
+    Q_ASSERT_X(action != 0, "QWidget::actionDeleted", "internal error");
+    q->removeAction(action);
 }
 
 /*!
@@ -6294,3 +6305,5 @@ void QWidget::setShortcutEnabled(int id, bool enable)
     if (id)
         qApp->d->shortcutMap.setShortcutEnabled(this, id, enable);
 }
+
+#include "moc_qwidget.cpp"

@@ -140,6 +140,7 @@ public slots:
     void setVisible(bool);
 
 signals:
+    void deleted();
     void dataChanged();
     void triggered();
     void hovered();
@@ -205,10 +206,11 @@ signals:
     void selected(QAction *); // QT_COMPAT
     void hovered(QAction *);
 
-private slots:
-    void internalTriggered();
-    void internalDataChanged();
-    void internalHovered();
+private:
+    Q_PRIVATE_SLOT(void actionTriggered());
+    Q_PRIVATE_SLOT(void actionChanged());
+    Q_PRIVATE_SLOT(void actionHovered());
+    Q_PRIVATE_SLOT(void actionDeleted());
 
 private:
 #if defined(Q_DISABLE_COPY)  // Disabled copy constructor and operator=

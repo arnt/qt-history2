@@ -65,6 +65,12 @@ public:
     uint exclusive : 1;
     uint enabled : 1;
     uint visible : 1;
+
+private:
+    void actionTriggered();  //private slot
+    void actionChanged();    //private slot
+    void actionHovered();    //private slot
+    void actionDeleted();    //private slot
 };
 
 #endif /* QACTION_P_H */

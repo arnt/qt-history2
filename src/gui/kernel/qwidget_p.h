@@ -225,12 +225,15 @@ public:
     static QMAC_PASCAL OSStatus qt_widget_event(EventHandlerCallRef er, EventRef event, void *);
     static bool qt_widget_rgn(QWidget *, short, RgnHandle, bool);
 
-    //these are here just for code compat (HIViews), I'll remove before the release of 4.0 --Sam
+    //these are here just for code compat (HIViews)
     QRegion clp;
     uint clp_serial : 8;
     inline QRegion clippedRegion(bool = true) { return clp; }
     inline uint clippedSerial(bool =true) { return clp_serial; }
 #endif
+
+    void actionChanged();  //private slot
+    void actionDeleted();  //private slot
 
 #if defined(Q_WS_X11) || defined (Q_WS_WIN) || defined(Q_WS_MAC)
     void setWSGeometry();

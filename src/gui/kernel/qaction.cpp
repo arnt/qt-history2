@@ -341,6 +341,9 @@ QAction::QAction(const QIconSet &icon, const QString &text, const QKeySequence &
 */
 QAction::~QAction()
 {
+    /* We need to be able to tell when a QAction is about to be destroyed (ie before the QObject::~QObject) 
+       so that the QAction can properly be removed */
+    emit deleted();
 }
 
 /*!
@@ -770,6 +773,39 @@ void QAction::activate(ActionEvent event)
 */
 
 /* ************** QActionGroup code ***************** */
+void QActionGroupPrivate::actionChanged()
+{
+    QAction *action = qt_cast<QAction*>(q->sender());
+    Q_ASSERT_X(action != 0, "QWidgetGroup::actionChanged", "internal error");
+    if(exclusive && action->isChecked() && action != current) {
+        if(current)
+            current->setChecked(false);
+        current = action;
+    }
+}
+
+void QActionGroupPrivate::actionTriggered()
+{
+    QAction *action = qt_cast<QAction*>(q->sender());
+    Q_ASSERT_X(action != 0, "QWidgetGroup::actionTriggered", "internal error");
+    emit q->triggered(action);
+    emit q->selected(action);
+}
+
+void QActionGroupPrivate::actionHovered()
+{
+    QAction *action = qt_cast<QAction*>(q->sender());
+    Q_ASSERT_X(action != 0, "QWidgetGroup::actionHovered", "internal error");
+    emit q->hovered(action);
+}
+
+void QActionGroupPrivate::actionDeleted()
+{
+    QAction *action = qt_cast<QAction*>(q->sender());
+    Q_ASSERT_X(action != 0, "QWidgetGroup::actionDeleted", "internal error");
+    q->removeAction(action);
+}
+
 /*!
     \class QActionGroup qaction.h
     \brief The QActionGroup class groups actions together.
@@ -850,9 +886,10 @@ QAction *QActionGroup::addAction(QAction* a)
 {
     if(!d->actions.contains(a)) {
         d->actions.append(a);
-        QObject::connect(a, SIGNAL(triggered()), this, SLOT(internalTriggered()));
-        QObject::connect(a, SIGNAL(dataChanged()), this, SLOT(internalDataChanged()));
-        QObject::connect(a, SIGNAL(hovered()), this, SLOT(internalHovered()));
+        QObject::connect(a, SIGNAL(triggered()), this, SLOT(actionTriggered()));
+        QObject::connect(a, SIGNAL(dataChanged()), this, SLOT(actionChanged()));
+        QObject::connect(a, SIGNAL(hovered()), this, SLOT(actionHovered()));
+        QObject::connect(a, SIGNAL(deleted()), this, SLOT(actionDeleted()));
     }
     if(d->exclusive)
         a->setCheckable(true);
@@ -864,8 +901,8 @@ QAction *QActionGroup::addAction(QAction* a)
         a->setVisible(d->visible);
         a->d->forceInvisible = false;
     }
-    if(a->actionGroup() != this)
-        a->setActionGroup(this);
+    if(a->d->group != this)
+        a->d->group = this;
     return a;
 }
 
@@ -906,7 +943,13 @@ QAction *QActionGroup::addAction(const QIconSet &icon, const QString &text, cons
 */
 void QActionGroup::removeAction(QAction *action)
 {
-    action->setActionGroup(0);
+    if (d->actions.removeAll(action)) {
+        QObject::disconnect(action, SIGNAL(triggered()), this, SLOT(actionTriggered()));
+        QObject::disconnect(action, SIGNAL(dataChanged()), this, SLOT(actionChanged()));
+        QObject::disconnect(action, SIGNAL(hovered()), this, SLOT(actionHovered()));
+        QObject::disconnect(action, SIGNAL(deleted(QObject*)), this, SLOT(actionDeleted()));
+        action->d->group = 0;
+    }
 }
 
 /*!
@@ -1014,42 +1057,5 @@ void QActionGroup::childEvent(QChildEvent* e)
     QObject::childEvent(e);
 }
 
-/*!
-  \internal
-*/
-void QActionGroup::internalDataChanged()
-{
-    QAction *action = qt_cast<QAction*>(sender());
-    if(!action)
-        qWarning("not possible..");
-    if(d->exclusive && action->isChecked() && action != d->current) {
-        if(d->current)
-            d->current->setChecked(false);
-        d->current = action;
-    }
-}
-
-/*!
-  \internal
-*/
-void QActionGroup::internalTriggered()
-{
-    QAction *action = qt_cast<QAction*>(sender());
-    if(!action)
-        qWarning("not possible..");
-    emit triggered(action);
-    emit selected(action);
-}
-
-/*!
-  \internal
-*/
-void QActionGroup::internalHovered()
-{
-    QAction *action = qt_cast<QAction*>(sender());
-    if(!action)
-        qWarning("not possible..");
-    emit hovered(action);
-}
-
+#include "moc_qaction.cpp"
 

@@ -701,8 +701,9 @@ private:
     void erase_helper(int x, int y, int w, int h);
 #endif
 
-private slots:
-    void actionChanged();
+private:
+    Q_PRIVATE_SLOT(void actionChanged());
+    Q_PRIVATE_SLOT(void actionDeleted());
 
 protected:
 #ifndef QT_NO_STYLE
