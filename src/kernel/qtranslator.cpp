@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qtranslator.cpp#28 $
+** $Id: //depot/qt/main/src/kernel/qtranslator.cpp#29 $
 **
 ** Localization database support.
 **
@@ -548,7 +548,8 @@ void QTranslator::squeeze()
     QTranslatorPrivate::Message * m;
     while( (m = it.current()) != 0 ) {
 	++it;
-	offsets.replace( QTranslatorPrivate::Offset(m,ms.device()->at()), 0 );
+	offsets.replace( QTranslatorPrivate::Offset(m,ms.device()->at()), 
+			 (void*)0 );
 	m->write( Everything, ms );
     }
 
