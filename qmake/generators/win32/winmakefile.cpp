@@ -699,7 +699,7 @@ void Win32MakefileGenerator::writeCleanParts(QTextStream &t)
 void Win32MakefileGenerator::writeStandardParts(QTextStream &t)
 {
     // Needed for slight difference in lflags line
-    bool isBorland = Option::mkfile::qmakespec == "win32-borland";
+    bool isBorland = (project->first("MAKEFILE_GENERATOR") == "BMAKE");
 
     t << "####### Compiler, tools and options" << endl << endl;
     t << "CC		=	" << var("QMAKE_CC") << endl;
