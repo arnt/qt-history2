@@ -86,6 +86,7 @@ void Parser::startTokenizer( const QString& in )
     yyIn = in;
     yyPos = 0;
     yyCurPos = 0;
+    yyLexLen = 0;
     yyLineNo = 1;
     yyCurLineNo = 1;
     yyColumnNo = 0;
