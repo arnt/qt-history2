@@ -159,7 +159,6 @@ private:
 
     static const Resolver *res;
     static QRegExp *megaRegExp;
-    static QMap<QString, QMap<QString, QString> > legaleses;
     static QMap<QString, QString> keywordLinks;
     static StringSet hflist;
     static QMap<QString, QString> clist;

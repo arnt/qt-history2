@@ -19,6 +19,8 @@
 #include "resolver.h"
 #include "stringset.h"
 
+#include <stdlib.h>
+
 static QString parenParen( QString("()") );
 
 // see also parsehelpers.cpp
@@ -30,6 +32,8 @@ static QString closeCaption( "</em></p>\n</blockquote>" );
 static QString openSidebar( "<blockquote><p align=\"center\"><b>" );
 static QString closeSidebarHeading( "</b>\n<p>" );
 static QString closeSidebar( "</blockquote>\n<p>" );
+
+QMap<QString, QMap<QString, QString> > legaleses;
 
 static QString linkBase( const QString& link )
 {
@@ -233,6 +237,7 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
     QString groupName;
     QString moduleName;
     QString propName;
+    QString legaleseEnvVar;
 
     QString enumPrefix;
     QString title;
@@ -708,6 +713,17 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 		break;
 	    case HASH( 'l', 8 ):
 		CONSUME( "legalese" );
+		skipSpaces( yyIn, yyPos );
+		legaleseBegin = yyOut.length();
+		legaleseEnd = INT_MAX;
+		break;
+	    case HASH( 'l', 12 ):
+		CONSUME( "legalesefile" );
+		legaleseEnvVar = getRestOfLine( yyIn, yyPos );
+		if ( legaleseEnvVar.isEmpty() )
+		    warning( 1, location(),
+			     "Expected environment variable after"
+			     " '\\legalesefile'" );
 		skipSpaces( yyIn, yyPos );
 		legaleseBegin = yyOut.length();
 		legaleseEnd = INT_MAX;
@@ -1282,10 +1298,21 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
     doc->setGroups( groups );
     doc->setContainsExamples( included, thruwalked );
     doc->setTOC( toc );
-    if ( legaleseBegin >= 0 )
-	doc->setHtmlLegalese( yyOut.mid(legaleseBegin,
-					legaleseEnd - legaleseBegin)
-				   .stripWhiteSpace() );
+    if ( legaleseBegin >= 0 ) {
+	x = yyOut.mid( legaleseBegin, legaleseEnd - legaleseBegin )
+		 .stripWhiteSpace();
+	if ( legaleseEnvVar.isEmpty() ) {
+	    doc->setHtmlLegalese( x );
+	} else {
+	    QString fp = location().filePath();
+	    if ( legaleseEnvVar[0] == '$' )
+		legaleseEnvVar = legaleseEnvVar.mid( 1 );
+	    QString prefix = getenv( legaleseEnvVar );
+	    if ( fp.startsWith(prefix) )
+		fp = "$" + legaleseEnvVar + fp.mid( prefix.length() );
+	    legaleses[x].insert( fp, fp );
+	}
+    }
     return doc;
 }
 
@@ -1508,7 +1535,6 @@ ExampleLocation& ExampleLocation::operator=( const ExampleLocation& el )
 
 const Resolver *Doc::res = 0;
 QRegExp *Doc::megaRegExp = 0;
-QMap<QString, QMap<QString, QString> > Doc::legaleses;
 QMap<QString, QString> Doc::keywordLinks;
 StringSet Doc::hflist;
 QMap<QString, QString> Doc::clist;
@@ -1672,8 +1698,12 @@ QString Doc::htmlLegaleseList()
 
 	QMap<QString, QString>::ConstIterator p = (*q).begin();
 	while ( p != (*q).end() ) {
-	    html += QString( "<li><a href=\"%1\">%2</a>\n" ).arg( p.key() )
-		    .arg( *p );
+	    if ( p.key() == *p ) {
+		html += QString( "<li>%1\n" ).arg( *p );
+	    } else {
+		html += QString( "<li><a href=\"%1\">%2</a>\n" ).arg( p.key() )
+			.arg( *p );
+	    }
 	    ++p;
 	}
 	html += QString( "</ul>\n" );
