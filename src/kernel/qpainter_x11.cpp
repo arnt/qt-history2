@@ -86,20 +86,41 @@ void qt_erase_region( QWidget* w, const QRegion& region)
     QRegion reg = region;
 
     if ( !w->isTopLevel() && w->backgroundPixmap()
-         && w->backgroundOrigin() != QWidget::WidgetOrigin ) {
-        int ox = w->x();
-        int oy = w->y();
-        if ( w->backgroundOrigin() == QWidget::WindowOrigin ) {
+	    && w->backgroundOrigin() != QWidget::WidgetOrigin ) {
+	int ox = w->x();
+	int oy = w->y();
+	if ( w->backgroundOrigin() == QWidget::WindowOrigin ) {
 	    QWidget *topl = w;
 	    while(!topl->isTopLevel() && !topl->testWFlags(Qt::WSubWindow))
 		topl = topl->parentWidget(TRUE);
-            QPoint p = w->mapTo( topl, QPoint(0, 0) );
-            ox = p.x();
-            oy = p.y();
-        }
-        bool unclipped = w->testWFlags( Qt::WPaintUnclipped );
-        if ( unclipped )
-            ((QWFlagWidget*)w)->clearWFlags( Qt::WPaintUnclipped );
+	    QPoint p = w->mapTo( topl, QPoint(0, 0) );
+	    ox = p.x();
+	    oy = p.y();
+	} else if ( w->backgroundOrigin() == QWidget::AncestorOrigin ) {
+	    QWidget *topl = w;
+	    bool ancestorIsWindowOrigin = FALSE;
+	    while(!topl->isTopLevel() && !topl->testWFlags(Qt::WSubWindow)) {
+		if (!ancestorIsWindowOrigin) {
+		    if (topl->backgroundOrigin() == QWidget::WidgetOrigin)
+			break;
+		    if (topl->backgroundOrigin() == QWidget::ParentOrigin) {
+			topl = topl->parentWidget(TRUE);
+			break;
+		    }
+		    if (topl->backgroundOrigin() == QWidget::WindowOrigin)
+			ancestorIsWindowOrigin = TRUE;
+		}
+		topl = topl->parentWidget(TRUE);
+	    }
+
+	    QPoint p = w->mapTo( topl, QPoint(0,0) );
+	    ox = p.x();
+	    oy = p.y();
+	}
+
+	bool unclipped = w->testWFlags( Qt::WPaintUnclipped );
+	if ( unclipped )
+		((QWFlagWidget*)w)->clearWFlags( Qt::WPaintUnclipped );
         QPainter p( w );
         p.setClipRegion( region ); // automatically includes paintEventDevice if required
         p.drawTiledPixmap( 0, 0, w->width(), w->height(),
@@ -2785,6 +2806,7 @@ void QPainter::drawTiledPixmap( int x, int y, int w, int h,
         sy = sh - -sy % sh;
     else
         sy = sy % sh;
+
     /*
       Requirements for optimizing tiled pixmaps:
       - not an external device
@@ -2865,6 +2887,7 @@ void QPainter::drawTiledPixmap( int x, int y, int w, int h,
 #else
     // for now we'll just output the original and let the postscript
     // code make what it can of it.  qpicture will be unhappy.
+
     drawTile( this, x, y, w, h, pixmap, sx, sy );
 #endif
 }

@@ -415,7 +415,7 @@ public:
     virtual void	setAutoMask(bool);
     bool		autoMask() const;
 
-    enum BackgroundOrigin { WidgetOrigin, ParentOrigin, WindowOrigin };
+    enum BackgroundOrigin { WidgetOrigin, ParentOrigin, WindowOrigin, AncestorOrigin };
 
     virtual void setBackgroundOrigin( BackgroundOrigin );
     BackgroundOrigin backgroundOrigin() const;

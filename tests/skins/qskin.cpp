@@ -79,8 +79,7 @@ public:
 	if(specials.count() > 0) {
 	    specials.first();
 	    while(specials.current()) {
-		if (!specials.current()->name 
-			|| (specials.current()->name == w->name()))
+		if (specials.current()->name == w->name())
 		    return specials.current();
 		specials.next();
 	    }
@@ -578,6 +577,10 @@ bool QSkinStyleHandler::endElement(const QString &, const QString &,
 	    break;
 	 case S_Element:
 	    state.pop();
+	    qWarning(QString("%2(%3) %4 add %1, <%5, %6, %7, %8>")
+		    .arg(last_string)
+		    .arg(i->name).arg(i->type).arg(i->children.count())
+		    .arg(last_x).arg(last_y).arg(last_width).arg(last_height));
 	    i->children.insert(last_string, new QRect(last_x, last_y, 
 			last_width, last_height));
 	    last_x = last_y = 0;
@@ -1146,6 +1149,10 @@ QRect QSkinStyle::querySubControlMetrics( ComplexControl cc,
 			    //if (pos < 0)
 				//pos = 0;
 			    int pos = sl->sliderStart();
+			    bool ok;
+			    i->line.at(pos, &ok);
+			    if (!ok)
+				break;
 
 			    QPoint handlePos = i->line[pos];
 			    handlePos -= QPoint(clipHandle->width() / 2, clipHandle->height() / 2);
@@ -1174,18 +1181,23 @@ void QSkinStyle::polish( QWidget *widget )
 	return;
     QSkinStyleItem *i = d->getItem(widget);
 
-    if (d->backgroundPixmap)
-	    widget->setBackgroundOrigin(QWidget::WindowOrigin);
+    if (widget->isTopLevel())
+	widget->setBackgroundOrigin(QWidget::WindowOrigin);
+    else
+	widget->setBackgroundOrigin(QWidget::AncestorOrigin);
 
     if(i) {
 	if (i->hasMask) {
 	    widget->setMask(i->mask);
 	}
 
-	/* XXX this is surely not the best way. fix when the better way is 
-	   known */
-	if (d->backgroundPixmap) {
-	    widget->setErasePixmap(*(d->backgroundPixmap));
+	QPixmap *pix = i->images.find("Background");
+	if (pix) {
+	    QPalette palette = widget->palette();
+	    palette.setBrush( QColorGroup::Background, QBrush(d->tColor, *pix));
+	    widget->setPalette(palette);
+
+	    widget->setBackgroundOrigin(QWidget::WidgetOrigin);
 	}
 
 	if (i->geom.width() > 0 && i->geom.height() > 0)
@@ -1345,15 +1357,18 @@ void QSkinLayout::setGeometry(const QRect &rect )
 
     int i = 0;
 
+    // XXX
     while ( (o = it.current()) != 0) {
 	if(o->widget()) {
 	    if(ss->defined(this, o->widget())) {
 		QRect r = ss->getGeometry(this, o->widget());
-		r.setX(rect.x() + r.x());
-		r.setY(rect.y() + r.y());
+		r.moveTopLeft( QPoint(rect.x() + r.x(), rect.y() + r.y()));
 		o->widget()->setFixedSize(r.size());
 		o->setGeometry(r);
+	    } else {
+		o->widget()->hide();
 	    }
+
 	}
 	++it;
 	++i;
@@ -1373,6 +1388,7 @@ QSize QSkinLayout::sizeHint() const
 
     /* QLayout::mainWidget() isn't const.. (why), but its body method appears
        to satisfy */
+
 
     if(ss->defined(this)) {
 	return ss->getGeometry(this).size();

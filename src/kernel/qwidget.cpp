@@ -3245,7 +3245,7 @@ void QWidget::move( int x, int y )
 	    if ( object->isWidgetType() ) {
 		widget = (QWidget*)object;
 		if ( !widget->isHidden() && !widget->isTopLevel() && !widget->testWFlags(Qt::WSubWindow) &&
-		     widget->backgroundOrigin() == WindowOrigin && widget->backgroundPixmap() )
+		     widget->backgroundOrigin() != WidgetOrigin && widget->backgroundPixmap() )
 		    widget->update();
 	    }
 	}
@@ -3283,7 +3283,7 @@ void QWidget::setGeometry( int x, int y, int w, int h )
 	    if ( object->isWidgetType() ) {
 		widget = (QWidget*)object;
 		if ( !widget->isHidden() && !widget->isTopLevel() && !widget->testWFlags(Qt::WSubWindow) &&
-		     widget->backgroundOrigin() == WindowOrigin && widget->backgroundPixmap() )
+		     widget->backgroundOrigin() != WidgetOrigin && widget->backgroundPixmap() )
 		    widget->update();
 	    }
 	}
@@ -5020,18 +5020,21 @@ void QWidget::setAutoMask( bool enable )
   \value WidgetOrigin  widget's coordinate system.
   \value ParentOrigin  parent's coordinate system.
   \value WindowOrigin  toplevel window's coordinate system.
+  \value AncestorOrigin  same origin as parent uses.
 */
 
 /*! \property QWidget::backgroundOrigin
     \brief the origin of the widget's background
 
-  The origin is either WidgetOrigin (the default), ParentOrigin or
-  WindowOrigin.
+  The origin is either WidgetOrigin (the default), ParentOrigin,
+  WindowOrigin or AncestorOrigin.
 
   This makes a difference only if the widget has a background pixmap,
   in which case positioning matters. Using WindowOrigin for several
   neighboring widgets makes the background blend together seamlessly.
-
+  AncestorOrigin allows blending backgrounds seamlessly when an ancestor
+  of the widget has an origin other than QWindowOrigin.
+  
   \sa backgroundPixmap(), setBackgroundMode()
 */
 QWidget::BackgroundOrigin QWidget::backgroundOrigin() const

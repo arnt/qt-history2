@@ -7,7 +7,7 @@ HEADERS		= qskin.h \
 		  ../../examples/listboxcombo/listboxcombo.h \
 		  ../../examples/checklists/checklists.h \
 		  ../../examples/progressbar/progressbar.h \
-		  ../../examples/rangecontrols/rangecontrols.h \
+		  rangecontrols.h \
 		  ../../examples/richtext/richtext.h
 SOURCES		= qskin.cpp \
 		  main.cpp \
@@ -17,7 +17,7 @@ SOURCES		= qskin.cpp \
 		  ../../examples/listboxcombo/listboxcombo.cpp \
 		  ../../examples/checklists/checklists.cpp \
 		  ../../examples/progressbar/progressbar.cpp \
-		  ../../examples/rangecontrols/rangecontrols.cpp \
+		  rangecontrols.cpp \
 		  ../../examples/richtext/richtext.cpp
 TARGET		= skins
 REQUIRES=full-config
