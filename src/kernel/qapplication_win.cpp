@@ -1911,6 +1911,12 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
     case WM_XBUTTONUP:
 	if ( ignoreNextMouseReleaseEvent ) {
 	    ignoreNextMouseReleaseEvent = FALSE;
+	    if ( qt_button_down && qt_button_down->winId() == autoCaptureWnd ) {
+		releaseAutoCapture();
+		qt_button_down = 0;
+	    }
+
+		
 	    RETURN(0);
 	}
 	break;
