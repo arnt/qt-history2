@@ -90,8 +90,10 @@ QString QsCodeMarker::markedUpSynopsis( const Node *node,
 	if ( style == Summary )
 	    synopsis = "var ";
 	synopsis += name + " : " + property->dataType();
-	if ( property->setter().isEmpty() )
-	    extras << "(read only)";
+	if ( style == Detailed ) {
+	    if ( property->setter().isEmpty() )
+		extras << "[read only]";
+	}
         break;
     case Node::Namespace:
     case Node::Enum:
@@ -166,7 +168,8 @@ QValueList<ClassSection> QsCodeMarker::classSections( const ClassNode *classe,
 	suffix += "' Documentation";
     FastClassSection enums( "Enums" + suffix );
     FastClassSection functions( "Functions" + suffix );
-    FastClassSection properties( "Properties" + suffix );
+    FastClassSection readOnlyProperties( "Read-only Properties" + suffix );
+    FastClassSection readWriteProperties( "Read-write Properties" + suffix );
     FastClassSection signalz( "Signals" + suffix );
 
     NodeList::ConstIterator c = classe->childNodes().begin();
@@ -181,12 +184,18 @@ QValueList<ClassSection> QsCodeMarker::classSections( const ClassNode *classe,
 		insert( functions, *c );
 	    }
 	} else if ( (*c)->type() == Node::Property ) {
-	    insert( properties, *c );
+	    const PropertyNode *property = (const PropertyNode *) *c;
+	    if ( property->setter().isEmpty() ) {
+		insert( readOnlyProperties, *c );
+	    } else {
+		insert( readWriteProperties, *c );
+	    }
 	}
 	++c;
     }
     append( sections, enums );
-    append( sections, properties );
+    append( sections, readOnlyProperties );
+    append( sections, readWriteProperties );
     append( sections, functions );
     append( sections, signalz );
     return sections;
