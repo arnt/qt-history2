@@ -9,6 +9,29 @@
   \class QPlugInInterface qplugininterface.h
 
   \brief An abstract class to provide a common interface to functionality a plugin provides.
+
+  In order to be able to use dynamically loaded libraries it is necessary to
+  define an interface which the application can use to communicate with the plugin functionality. 
+  This class provides a number of basic functions the \link QPlugIn plugin loader needs to 
+  perform a successful loading of the library.
+  Reimplement this class to provide a more advanced interface, according to the needs of your
+  application. A simple interface for loading widgets may look like this:
+
+  \code
+  class MyWidgetInterface : public QPlugInInterface
+  {
+  public:
+      QCString queryPlugInInterface() const { return "MyWidgetInterface"; }
+      virtual QWidget* create( const QString&, QWidget* parent = 0, const char* name = 0 ) = 0;
+  };
+  \endcode
+
+  Note that the member function \code queryPlugInInterface \endcode has to be reimplemented so
+  that the corresponding plugin loader can recognize the library as compatible.
+  Use the derived plugin interface both as a baseclass for the corresponding plugin loader as
+  and as the base class for implementations of the interface in plugins.
+
+  \sa QPlugIn, QPlugInManager
 */
 
 /*!
@@ -20,11 +43,8 @@
 /*!
   \fn QPlugInInterface::~QPlugInInterface()
   
-  Destroys the QPlugInInterface and disconnects the plugin from the application.
-  Reimplement the destructor in the plugin to provide cleanup for object created 
-  in your plugin.
-
-  \sa QCleanUpHandler
+  Destroys the QPlugInInterface. Use a QCleanUpHandler rather than this destructor 
+  for the cleanup of dll-global data.
 */
 
 /*!
@@ -33,8 +53,8 @@
   This function gets called by the plugin loader as soon as the interface is validated.
   Reimplement this function to provide post constructor initialization.
 
-  If the function returns FALSE, the interface gets deleted immediately. The default
-  implementation returns TRUE.
+  If the function returns FALSE, the interface gets deleted immediately and the plugin
+  initialization fails. The default implementation returns TRUE.
 */
 
 /*!
@@ -45,8 +65,7 @@
   the unloading of the library.
 
   If the function returns FALSE, the interface remains undestroyed, and the corresponding
-  library is not unloaded.
-  The default implementation returns TRUE.
+  library is not unloaded. The default implementation returns TRUE.
 */
 
 /*!
@@ -123,6 +142,28 @@
   \class QPlugIn qplugin.h
 
   \brief This class provides a wrapper for library loading and unloading.
+
+  The QPlugIn class works as the connection between the application and the
+  plugin. Both the application's plugin loader and the plugin are based upon
+  the same QPlugInInterface, and calling a QPlugin-member calls the corresponding
+  function of the interface implementation in the library.
+  Use multiple inheritance to generate subclasses of the plugin handler for your
+  application's interfaces.
+
+  \code
+  class MyWidgetPlugIn : public QPlugIn, public MyWidgetInterface
+  {
+  public:
+      MyWidgetPlugIn( const QString& filename, LibraryPolicy = Default, const char* fn = 0 );
+
+      QCString queryPlugInInterface() const { return "MyWidgetPlugIn"; }
+
+      QWidget* create( const QString& classname, QWidget* parent = 0, const char* name = 0 );
+  };
+  \endcode
+
+  Note that you have to overwrite queryPlugInInterface in MyWidgetPlugIn although it's already
+  defined in MyWidgetInterface. Otherwise you will get linker errors on most platforms.
 */
 
 /*!
@@ -390,7 +431,33 @@ QStringList QPlugIn::featureList()
   \class QPlugInManager qpluginmanager.h
   \brief Template class for plugin management.
 
-  The QPlugInManager provides basic support for plugins.
+  The QPlugInManager provides feature-based access for plugins implementing the same interface. It uses
+  the featureList() method of QPlugIn to create a hash table to match each provided feature with the
+  correct library. You can subclass from this class to perform lookups for all relevant functions in the
+  corresponding plugin interface:
+
+  \code
+  class MyWidgetPlugInManager : public QPlugInManager<MyWidgetPlugIn>
+  {
+  public:
+      MyWidgetPlugInManager( const QString& path = QString::null, const QString& filter = "*.dll; *.so", 
+	    QPlugIn::LibraryPolicy = QPlugIn::Default, const char* fn = 0 );
+
+      QWidget* create( const QString& name, QWidget* parent = 0, const char* name = 0);
+  };  
+  \endcode
+
+  An implementation of \code create \endcode may then be similiar to this:
+
+  \code
+  QWidget* create( const QString& name, QWidget* parent, const char* name );
+  {
+      MyWidgetPlugIn* plugin = (MyWidgetPlugIn*)plugIn( name );
+      if ( plugin )
+	  return plugin->create( name, parent, name );
+      return 0;
+  }
+  \endcode
 */
 
 /*!
