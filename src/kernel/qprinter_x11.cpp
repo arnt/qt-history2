@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qprinter_x11.cpp#45 $
+** $Id: //depot/qt/main/src/kernel/qprinter_x11.cpp#46 $
 **
 ** Implementation of QPrinter class for X11
 **
@@ -30,6 +30,7 @@
 #include "qfile.h"
 #include "qapplication.h"
 #include <stdlib.h>
+
 #if !defined(_OS_WIN32_)
 #include <unistd.h>
 #include <sys/types.h>
@@ -37,9 +38,11 @@
 #include <fcntl.h>
 #include <errno.h>
 #endif
+
 #if defined(_WS_X11_)
 #include <X11/Xlib.h>
 #endif
+
 #if defined(_OS_OS2EMX_)
 #if 0
 #include <process.h>
@@ -48,6 +51,10 @@
 #define INCL_DOSERRORS
 #include <os2.h>
 #endif
+#endif
+
+#if defined(_OS_QNX_)
+#include <process.h>
 #endif
 
 /*****************************************************************************
