@@ -410,6 +410,9 @@ QDoubleValidator::~QDoubleValidator()
     digits after the decimal point or is empty.
 
     Returns \c Invalid if the \a input is not a double.
+
+    Note: If the valid range consists of just positive doubles (e.g. 0.0 - 100.0)
+    and \a input is a negative double then Invalid is returned.
 */
 
 QValidator::State QDoubleValidator::validate( QString & input, int & ) const
