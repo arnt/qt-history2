@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#259 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#260 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -321,8 +321,8 @@ static void qt_set_windows_resources()
 	ncm.cbSize = sizeof( ncm );
 	SystemParametersInfoA( SPI_GETNONCLIENTMETRICS,
 			      sizeof( ncm ), &ncm, NULL);
-	menuFont = LOGFONTA_to_QFont((LOGFONT&)ncm.lfMenuFont);
-	messageFont = LOGFONTA_to_QFont((LOGFONT&)ncm.lfMessageFont);
+	menuFont = LOGFONT_AorW_to_QFont((LOGFONT&)ncm.lfMenuFont);
+	messageFont = LOGFONT_AorW_to_QFont((LOGFONT&)ncm.lfMessageFont);
     }
 
     if (menuFont != QFont::defaultFont()) {
