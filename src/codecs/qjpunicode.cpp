@@ -58,7 +58,6 @@
 
 #include "qjpunicode.h"
 #ifndef QT_NO_BIG_CODECS
-#include "qcstring.h"
 #include "qstring.h"
 #ifdef Q_OS_TEMP
 #include "qwinfunctions_wce.h"

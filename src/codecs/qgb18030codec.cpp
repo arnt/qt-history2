@@ -93,7 +93,6 @@
 */
 
 #include "qgb18030codec.h"
-#include <qcstring.h>
 
 #if (QT_VERSION-0 >= 0x040000)
 #  ifdef Q_CC_GNU

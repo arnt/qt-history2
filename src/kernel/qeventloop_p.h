@@ -87,8 +87,7 @@ class QBitArray;
 #endif // Q_OS_UNIX
 
 #if defined(Q_WS_WIN)
-#include <qptrvector.h>
-#include <qintdict.h>
+#include <qhash.h>
 struct QSockNot {
     QSocketNotifier *obj;
     int fd;
@@ -100,8 +99,8 @@ struct TimerInfo {				// internal timer info
     bool     zero;				// - zero timing
     QObject *obj;				// - object to receive events
 };
-typedef QPtrVector<TimerInfo>  TimerVec;		// vector of TimerInfo structs
-typedef QIntDict<TimerInfo> TimerDict;		// fast dict of timers
+typedef QList<TimerInfo*>  TimerVec;		// vector of TimerInfo structs
+typedef QHash<int,TimerInfo*> TimerDict;		// fast dict of timers
 
 #endif // Q_WS_WIN
 

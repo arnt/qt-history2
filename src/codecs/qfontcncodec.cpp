@@ -11,7 +11,6 @@
 ****************************************************************************/
 
 #include "private/qfontcodecs_p.h"
-#include <qcstring.h>
 
 #ifndef QT_NO_CODECS
 #ifndef QT_NO_BIG_CODECS

@@ -40,7 +40,6 @@
 #include "qsjiscodec.h"
 #endif // QT_NO_BIG_CODECS
 #include "qfile.h"
-#include "qstrlist.h"
 #include "qstring.h"
 
 #if !defined(QT_NO_CODECS) && !defined(QT_NO_BIG_CODECS) && defined(Q_WS_X11)

@@ -264,8 +264,6 @@ static int similarity( const QString& s1, const QString& s2 )
 
 
 
-#include <qptrlist.h>
-
 QGPluginManager::QGPluginManager( const QUuid& id, const QStringList& paths, const QString &suffix, bool cs )
     : interfaceId( id ), casesens( cs ), autounload( TRUE )
 {

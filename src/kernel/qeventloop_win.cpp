@@ -106,7 +106,7 @@ bool activateTimer( uint id )		// activate timer
 {
     if ( !timerVec )				// should never happen
 	return FALSE;
-    register TimerInfo *t = timerDict->find( id );
+    register TimerInfo *t = timerDict->value(id);
     if ( !t )					// no such timer id
 	return FALSE;
     QTimerEvent e( t->ind + 1 );
@@ -144,15 +144,11 @@ int QEventLoop::registerTimer( int interval, QObject *obj )
 {
     register TimerInfo *t;
     if ( !timerVec ) {				// initialize timer data
-	timerVec = new TimerVec( 128 );
+	timerVec = new TimerVec;
 	timerVec->setAutoDelete( TRUE );
-	timerDict = new TimerDict( 29 );
+	timerDict = new TimerDict;
     }
-    int ind = timerVec->findRef( 0 );		// get free timer
-    if ( ind == -1 || !obj ) {
-	ind = timerVec->size();			// increase the size
-	timerVec->resize( ind * 4 );
-    }
+    int ind = timerVec->size();
     t = new TimerInfo;				// create timer entry
     t->ind  = ind;
     t->obj  = obj;
@@ -182,7 +178,7 @@ int QEventLoop::registerTimer( int interval, QObject *obj )
 
 bool QEventLoop::unregisterTimer( int ind )
 {
-    if ( !timerVec || ind <= 0 || (uint)ind > timerVec->size() )
+    if ( !timerVec || ind <= 0 || ind > timerVec->size() )
 	return FALSE;
     register TimerInfo *t = timerVec->at(ind-1);
     if ( !t )
@@ -192,7 +188,7 @@ bool QEventLoop::unregisterTimer( int ind )
     else
 	KillTimer( 0, t->id );
     timerDict->remove( t->id );
-    timerVec->remove( ind-1 );
+    timerVec->removeAt( ind-1 );
     return TRUE;
 }
 
@@ -201,7 +197,7 @@ bool QEventLoop::unregisterTimers( QObject *obj )
     if ( !timerVec )
 	return FALSE;
     register TimerInfo *t;
-    for ( uint i=0; i<timerVec->size(); i++ ) {
+    for ( int i=0; i<timerVec->size(); i++ ) {
 	t = timerVec->at( i );
 	if ( t && t->obj == obj ) {		// object found
 	    if ( t->zero )
@@ -209,7 +205,7 @@ bool QEventLoop::unregisterTimers( QObject *obj )
 	    else
 		KillTimer( 0, t->id );
 	    timerDict->remove( t->id );
-	    timerVec->remove( i );
+	    timerVec->removeAt( i );
 	}
     }
     return TRUE;
@@ -327,7 +323,7 @@ void QEventLoop::cleanup()
 {
     if(timerVec) { //cleanup timers
 	register TimerInfo *t;
-	for ( uint i=0; i<timerVec->size(); i++ ) {		// kill all pending timers
+	for ( int i=0; i<timerVec->size(); i++ ) {		// kill all pending timers
 	    t = timerVec->at( i );
 	    if ( t && !t->zero )
 		KillTimer( 0, t->id );

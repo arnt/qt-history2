@@ -107,7 +107,6 @@
 */
 
 #include "qjiscodec.h"
-#include <qcstring.h>
 
 #ifndef QT_NO_BIG_CODECS
 
