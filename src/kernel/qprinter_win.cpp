@@ -981,11 +981,7 @@ void QPrinter::writeDevmode( HANDLE hdm )
 	    WRITE_DM_VAR( dm->dmColor, DMCOLOR_COLOR )
 	else
 	    WRITE_DM_VAR( dm->dmColor, DMCOLOR_MONOCHROME )
-
-	if (page_size == QPrinter::Custom)
-	    WRITE_DM_VAR(dm->dmPaperSize, D->winPageSize)
-	else
-	    WRITE_DM_VAR(dm->dmPaperSize, mapPageSizeDevmode(page_size));
+	WRITE_DM_VAR( dm->dmPaperSize, winPageSize() )
 	WRITE_DM_VAR( dm->dmCopies, ncopies )
 
 	/* Use some extra gunpowder to avoid some problems on 98 and ME.
@@ -1030,10 +1026,7 @@ void QPrinter::writeDevmodeA( HANDLE hdm )
 	    WRITE_DM_VAR( dm->dmColor, DMCOLOR_COLOR )
 	else
 	    WRITE_DM_VAR( dm->dmColor, DMCOLOR_MONOCHROME )
-	if (page_size == QPrinter::Custom)
-	    WRITE_DM_VAR(dm->dmPaperSize, D->winPageSize)
-	else
-	    WRITE_DM_VAR(dm->dmPaperSize, mapPageSizeDevmode(page_size));
+	WRITE_DM_VAR( dm->dmPaperSize, winPageSize() )
 	WRITE_DM_VAR( dm->dmCopies, ncopies )
 
 	DWORD caps = DeviceCapabilitiesA( printer_name.latin1(), 0, DC_BINS, 0, 0 );
