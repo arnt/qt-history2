@@ -1,11 +1,9 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Implementation of QAction class
 **
-** Created : 000000
-**
-** Copyright (C) 2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 2000-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the widgets module of the Qt GUI Toolkit.
 **
@@ -1629,7 +1627,7 @@ void QActionGroup::childToggled( bool b )
 		    it.current()->setOn( FALSE );
 	    }
 	    emit activated();
-	    emit selected( s );	    
+	    emit selected( s );
 	} else if ( !s->isToggleAction() ) {
 	    emit activated();
 	}
