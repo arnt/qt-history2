@@ -29,41 +29,6 @@
 
 #include "qthread.h"
 #include "qt_windows.h"
-#include "qapplication_p.h"
-
-void qSystemWarning( const QString& message, int code = -1 )
-{
-    int error;
-    if ( code == -1 )
-	error = GetLastError();
-    else
-	error = code;
-
-    TCHAR* string;
-
-    if ( qt_winver & Qt::WV_NT_based ) {
-	FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER|FORMAT_MESSAGE_FROM_SYSTEM,
-			      NULL,
-			      error,
-			      MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
-			      (LPTSTR)&string,
-			      0,
-			      NULL );
-        qWarning( message + QString("\tError code %1 - %2").arg( error ).arg( qt_winQString(string) ) );
-    } else {
-	FormatMessageA(FORMAT_MESSAGE_ALLOCATE_BUFFER|FORMAT_MESSAGE_FROM_SYSTEM,
-			      NULL,
-			      error,
-			      MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
-			      (char*)&string,
-			      0,
-			      NULL );
-
-	qWarning( message + QString("\tError code %1 - %2").arg( error ).arg( QString((const char*)string) ) );
-    }
-
-    LocalFree( (HLOCAL)string );
-}
 
 #if defined(QT_THREAD_SUPPORT)
 
@@ -129,7 +94,7 @@ public:
 
 QMutexPrivate::QMutexPrivate()
 {
-    if ( qt_winver & Qt::WV_NT_based )
+    if ( qWinVersion() & Qt::WV_NT_based )
 	handle = CreateMutex( NULL, FALSE, NULL );
     else
 	handle = CreateMutexA( NULL, FALSE, NULL );
@@ -424,7 +389,7 @@ public:
 QWaitConditionPrivate::QWaitConditionPrivate()
 : waitersCount(0)
 {
-    if ( qt_winver & Qt::WV_NT_based ) {
+    if ( qWinVersion() & Qt::WV_NT_based ) {
 	handle = CreateEvent( NULL, TRUE, FALSE, NULL );
 	single = CreateEvent( NULL, FALSE, FALSE, NULL );
     } else {
@@ -734,7 +699,7 @@ QSemaphore::QSemaphore( int maxcount )
 {
     d = new QSemaphorePrivate;
     d->maxCount = maxcount;
-    if ( qt_winver & Qt::WV_NT_based ) {
+    if ( qWinVersion() & Qt::WV_NT_based ) {
 	d->handle = CreateSemaphore( NULL, maxcount, maxcount, NULL );
     } else {
 	d->handle = CreateSemaphoreA( NULL, maxcount, maxcount, NULL );

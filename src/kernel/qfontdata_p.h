@@ -310,6 +310,9 @@ public:
 
 #if defined(Q_WS_WIN) || defined(Q_WS_QWS) || defined(Q_WS_MAC)
 	fin = 0;
+#endif // Q_WS_WIN || Q_WS_QWS
+#if defined(Q_WS_WIN)
+	currHDC = 0;
 #endif // Q_WS_WIN
 
     }
@@ -324,6 +327,9 @@ public:
 #if defined(Q_WS_WIN) || defined(Q_WS_QWS) || defined(Q_WS_MAC)
 	fin = 0;
 #endif // Q_WS_WIN || Q_WS_QWS
+#if defined(Q_WS_WIN)
+	currHDC = 0;
+#endif // Q_WS_WIN
 
     }
 

@@ -113,6 +113,10 @@ void QClipboard::connectNotify( const char *signal )
 	QWidget *owner = clipboardOwner();
 	inClipboardChain = TRUE;
 	nextClipboardViewer = SetClipboardViewer( owner->winId() );
+#ifndef Q_NO_DEBUG
+	if ( !nextClipboardViewer )
+	    qSystemWarning( "QClipboard: Failed to set clipboard viewer" );
+#endif
 	connect( owner, SIGNAL(destroyed()), SLOT(ownerDestroyed()) );
     }
 }
@@ -132,8 +136,17 @@ public:
 		if ( QWindowsMime::convertor(mime,cf) )
 		    r = TRUE;
 	    }
+#ifndef Q_NO_DEBUG
+	    if ( !CloseClipboard() )
+		qSystemWarning( "QClipboard: Failed to close clipboard" );
+#else
 	    CloseClipboard();
+#endif
 	}
+#ifndef Q_NO_DEBUG
+	else
+	    qSystemWarning( "QClipboardWatcher: Failed to open clipboard" );
+#endif
 	return r;
     }
 
@@ -202,10 +215,18 @@ public:
 			r = tr;
 			break;
 		    }
+#ifndef Q_NO_DEBUG
+		    else
+			qSystemWarning( "QClipboard: Failed to read clipboard data" );
+#endif
 		}
 	    }
 	    CloseClipboard();
 	}
+#ifndef Q_NO_DEBUG
+	else
+	    qSystemWarning( "QClipboard: Failed to open Clipboard" );
+#endif
 	return r;
     }
 };
@@ -289,7 +310,11 @@ static void renderFormat(int cf)
 	    HANDLE h = GlobalAlloc( GHND, len );
 	    char *d = (char *)GlobalLock( h );
 	    memcpy( d, md.data(), len );
-	    SetClipboardData( cf, h );
+	    HANDLE res = SetClipboardData( cf, h );
+#ifndef Q_NO_DEBUG
+	    if ( !res )
+		qSystemWarning( "QClipboard: Failed to write data" );
+#endif
 	    GlobalUnlock( h );
 	    return;
 	}
@@ -369,13 +394,21 @@ QMimeSource* QClipboard::data() const
 
 void QClipboard::setData( QMimeSource* src )
 {
-    if ( !OpenClipboard(clipboardOwner()->winId()) )
+    if ( !OpenClipboard(clipboardOwner()->winId()) ) {
+#ifndef Q_NO_DEBUG
+	qSystemWarning( "QClipboard: Failed to open clipboard" );
+#endif
 	return;
+    }
 
     QClipboardData *d = clipboardData();
     d->setSource( src );
 
-    EmptyClipboard();
+    int res = EmptyClipboard();
+#ifndef Q_NO_DEBUG
+    if ( !res )
+	qSystemWarning( "QClipboard: Failed to empty clipboard" );
+#endif
 
     // Register all the formats of src that we can render.
     const char* mime;
@@ -386,7 +419,11 @@ void QClipboard::setData( QMimeSource* src )
 		for (int j = 0; j < c->countCf(); j++) {
 		    int cf = c->cf(j);
 		    if ( c->canConvert(mime,cf) ) {
-			SetClipboardData( cf, 0 ); // 0 == ask me later
+			HANDLE res = SetClipboardData( cf, 0 ); // 0 == ask me later
+#ifndef Q_NO_DEBUG
+			if ( !res )
+			    qSystemWarning( "QClipboard: Failed to register format" );
+#endif
 		    }
 		}
 	    }

@@ -139,6 +139,10 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 
     if ( window ) {
 	style = GetWindowLongA( window, GWL_STYLE );
+#ifndef Q_NO_DEBUG
+	if ( !style )
+	    qSystemWarning( "QWidget: GetWindowLong failed" );
+#endif
 	topLevel = FALSE; // #### needed for some IE plugins??
     } else if ( popup ) {
 	style = WS_POPUP;
@@ -197,8 +201,16 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 	    destroyw = winid;
 	id = window;
 	setWinId( window );
-	SetWindowLongA( window, GWL_STYLE, style );
-	SetWindowLongA( window, GWLP_WNDPROC, (LONG)QtWndProc );
+	LONG res = SetWindowLongA( window, GWL_STYLE, style );
+#ifndef Q_NO_DEBUG
+	if ( !res )
+	    qSystemWarning( "QWidget: Failed to set window style" );
+#endif
+	res = SetWindowLongA( window, GWLP_WNDPROC, (LONG)QtWndProc );
+#ifndef Q_NO_DEBUG
+	if ( !res )
+	    qSystemWarning( "QWidget: Failed to set window procedure" );
+#endif
     } else if ( desktop ) {			// desktop widget
 	id = GetDesktopWindow();
 	QWidget *otherDesktop = find( id );	// is there another desktop?
@@ -225,6 +237,10 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 				 CW_USEDEFAULT, CW_USEDEFAULT,
 				 CW_USEDEFAULT, CW_USEDEFAULT,
 				 parentw, 0, appinst, 0 );
+#ifndef Q_NO_DEBUG
+	if ( id == NULL )
+	    qSystemWarning( "QWidget: Failed to create window" );
+#endif
 	setWinId( id );
 	if ( testWFlags( WStyle_StaysOnTop) )
 	    SetWindowPos( id, HWND_TOPMOST, 0, 0, 100, 100, SWP_NOACTIVATE );
@@ -232,6 +248,10 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 	// WWA: I cannot get the Unicode versions to work.
 	id = CreateWindowA( windowClassName, title, style, 0, 0, 100, 30,
 			   parentw, NULL, appinst, NULL );
+#ifndef Q_NO_DEBUG
+	if ( id == NULL )
+	    qSystemWarning( "QWidget: Failed to create window" );
+#endif
 	SetWindowPos( id, HWND_TOP, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE );
 	setWinId( id );
     }
@@ -717,8 +737,16 @@ void QWidget::setActiveWindow()
 
 void QWidget::update()
 {
-    if ( (widget_state & (WState_Visible|WState_BlockUpdates)) == WState_Visible )
-	InvalidateRect( winId(), 0, !testWFlags( WRepaintNoErase) );
+    if ( (widget_state & (WState_Visible|WState_BlockUpdates)) ==
+	 WState_Visible )
+	QApplication::postEvent( this, new QPaintEvent( visibleRect(), !testWFlags(WRepaintNoErase) ) );
+
+    return;
+    if ( (widget_state & (WState_Visible|WState_BlockUpdates)) == WState_Visible ) {
+	if ( !InvalidateRect( winId(), 0, 0 ) )
+	    qSystemWarning( "QWidget::InvalidateRect failed" );
+	qDebug( "%s, %d", name(), !testWFlags( WRepaintNoErase) );
+    }
 }
 
 void QWidget::update( int x, int y, int w, int h )

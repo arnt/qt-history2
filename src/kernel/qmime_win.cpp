@@ -122,6 +122,10 @@ static QList<QWindowsRegisteredMimeType> mimetypes;
 int QWindowsMime::registerMimeType(const char *mime)
 {
     CLIPFORMAT f = RegisterClipboardFormatA(mime);
+#ifndef Q_NO_DEBUG
+    if ( !f )
+	qSystemWarning( "QWindowsMime: Failed to register clipboard format" );
+#endif
     QWindowsRegisteredMimeType *mt = mimetypes.current();
     if ( !mt || mt->cf != f ) {
 	for ( mt = mimetypes.first(); mt && mt->cf!=f; mt = mimetypes.next() )

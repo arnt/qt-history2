@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#439 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#440 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -2115,7 +2115,7 @@ int qStartTimer( int interval, QObject *obj )
     }
     if ( t->id == 0 ) {
 #if defined(QT_CHECK_STATE)
-	qWarning( "qStartTimer: No more Windows timers" );
+	qSystemWarning( "qStartTimer: Failed to create a timer." );
 #endif
 	delete t;				// could not set timer
 	return 0;

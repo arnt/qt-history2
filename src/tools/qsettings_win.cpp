@@ -2,8 +2,6 @@
 #include "qregexp.h"
 #include "qt_windows.h"
 
-extern void qSystemWarning( const QString&, int code = -1 );
-
 class QSettingsPrivate
 {
 public:

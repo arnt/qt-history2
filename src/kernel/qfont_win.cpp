@@ -212,21 +212,25 @@ static MAT2 *mat = 0;
 
 QRect QFontPrivate::boundingRect( const QChar &ch )
 {
-	GLYPHMETRICS gm;
-	if ( !mat ) {
-		mat = new MAT2;
-		mat->eM11.value = mat->eM22.value = 1;
-		mat->eM11.fract = mat->eM22.fract = 0;
-		mat->eM21.value = mat->eM12.value = 0;
-		mat->eM21.fract = mat->eM12.fract = 0;
-	}
+    GLYPHMETRICS gm;
+    memset( &gm, 0, sizeof(GLYPHMETRICS) );
+    if ( !mat ) {
+	    mat = new MAT2;
+	    mat->eM11.value = mat->eM22.value = 1;
+	    mat->eM11.fract = mat->eM22.fract = 0;
+	    mat->eM21.value = mat->eM12.value = 0;
+	    mat->eM21.fract = mat->eM12.fract = 0;
+    }
 #ifdef UNICODE
-	uint chr = ch.unicode();
+    uint chr = ch.unicode();
 #else
-	uint chr = ch.latin1();
+    uint chr = ch.latin1();
 #endif
-	if ( GetGlyphOutline( currHDC, chr, GGO_METRICS, &gm, 0, 0, mat ) == GDI_ERROR )
-		qDebug( "glyph metrics call failed" );
+    DWORD res = GetGlyphOutline( currHDC, chr, GGO_METRICS, &gm, 0, 0, mat );
+#ifndef Q_NO_DEBUG
+    if ( res == GDI_ERROR )
+	qSystemWarning( "QFontPrivate: GetGlyphOutline failed" );
+#endif
     return QRect(gm.gmptGlyphOrigin.x, -gm.gmptGlyphOrigin.y, gm.gmBlackBoxX, gm.gmBlackBoxY);
 }
 
@@ -259,6 +263,7 @@ QString QFontPrivate::lastResortFont() const
 
 void QFontPrivate::initFontInfo()
 {
+    currHDC = 0;
     if ( !fin->s.dirty )				// already initialized
 	return;
     lineWidth = 1;
@@ -283,29 +288,32 @@ void QFontPrivate::load()
 		return;
 
     QString k = key();
-	QFontStruct *qfs = fontCache->find( k );
-	
-	if ( !qfs ) {			// font was never loaded
-	    qfs = new QFontStruct( k );
-	    Q_CHECK_PTR( qfs );
-	}
-	qfs->ref();
-	if ( fin ) fin->deref();
-	fin = qfs;
+    QFontStruct *qfs = fontCache->find( k );
+    
+    if ( !qfs ) {			// font was never loaded
+	qfs = new QFontStruct( k );
+	Q_CHECK_PTR( qfs );
+    }
+    qfs->ref();
+    if ( fin ) fin->deref();
+    fin = qfs;
 
     if ( !fin->font() ) {			// font not loaded
 	if ( qt_winver & Qt::WV_NT_based )
 	    fin->hdc = GetDC(0);
 	fin->hfont = create( &fin->stockFont, fin->hdc );
 	SelectObject( fin->dc(), fin->hfont );
+	BOOL res;
 #ifdef UNICODE
-	if ( qt_winver & Qt::WV_NT_based ) {
-	    GetTextMetricsW( fin->dc(), &fin->tm.w );
-	} else
+	if ( qt_winver & Qt::WV_NT_based )
+	    res = GetTextMetricsW( fin->dc(), &fin->tm.w );
+	else
 #endif
-	{
-	    GetTextMetricsA( fin->dc(), &fin->tm.a );
-	}
+	    res = GetTextMetricsA( fin->dc(), &fin->tm.a );
+#ifndef Q_NO_DEBUG
+	if ( !res )
+	    qSystemWarning( "QFontPrivate: GetTextMetrics failed" );
+#endif
 	fontCache->insert( fin->key(), fin, 1 );
 	initFontInfo();
     }
@@ -325,6 +333,7 @@ HFONT QFont::create( bool *stockFont, HDC hdc, bool VxF )
 
 HFONT QFontPrivate::create( bool *stockFont, HDC hdc, bool VxF )
 {
+    currHDC = hdc;
     QString fam = QFont::substitute( request.family );
     if ( request.rawMode ) {			// will choose a stock font
 	int f, deffnt;
@@ -506,7 +515,11 @@ int QFontPrivate::textWidth( const QString &str, int pos, int len )
 	}
 	uc++;
     }
-    GetTextExtentPoint32( fin->dc(), tc + last, i - last, &s );
+    BOOL res = GetTextExtentPoint32( fin->dc(), tc + last, i - last, &s );
+#ifndef Q_NO_DEBUG
+    if ( !res )
+	qSystemWarning( "QFontPrivate: GetTextExtentPoint32 failed" );
+#endif
     width += s.cx;
 
     if ( (qt_winver & Qt::WV_NT_based) == 0 )
@@ -520,51 +533,59 @@ int QFontPrivate::textWidth( HDC hdc, const QString &str, int pos, int len, QFon
     // Japanese win95 fails without this
     if ( len == 0 )
 	return 0;
-	if ( hdc )
-		currHDC = hdc;
-	else
-		currHDC = fin->dc();
+    if ( hdc )
+	    currHDC = hdc;
+    else
+	    currHDC = fin->dc();
 
-	int width = 0;
+    int width = 0;
     SIZE s;
     const TCHAR* tc = (const TCHAR*)qt_winTchar(str.mid(pos, len),FALSE);
-	QPointArray pa;
-	int nmarks = 0;
-	int i;
-	int lasts = 0;
-	const QChar *uc = str.unicode() + pos;
-	for ( i = 0; i < len; i++ ) {
-		if ( uc->combiningClass() != 0 && !nmarks && pos + i > 0 ) {
-			cache->setParams( width, 0, str.unicode() + lasts, i - lasts );
-			GetTextExtentPoint32( currHDC, tc + lasts, i - lasts, &s );
-			width += s.cx;
-			cache->next = new QFontPrivate::TextRun();
-			cache = cache->next;
-			lasts = i;
-			pa = QComplexText::positionMarks( this, str, pos + i - 1 );
-			nmarks = pa.size();
-		} else if ( nmarks ) {
-			QPoint p = pa[(int)(pa.size() - nmarks)];
-			cache->setParams( width + p.x(), p.y(), str.unicode() + lasts, i - lasts );
-			cache->next = new QFontPrivate::TextRun();
-			cache = cache->next;
-			nmarks--;
-			lasts = i;
-		}
-		uc++;
+    QPointArray pa;
+    int nmarks = 0;
+    int i;
+    int lasts = 0;
+    const QChar *uc = str.unicode() + pos;
+    for ( i = 0; i < len; i++ ) {
+	if ( uc->combiningClass() != 0 && !nmarks && pos + i > 0 ) {
+	    cache->setParams( width, 0, str.unicode() + lasts, i - lasts );
+	    BOOL res = GetTextExtentPoint32( currHDC, tc + lasts, i - lasts, &s );
+#ifndef Q_NO_DEBUG
+	    if ( !res )
+		qSystemWarning( "QFontPrivate: GetTextExtentPoint32 failed" );
+#endif
+	    width += s.cx;
+	    cache->next = new QFontPrivate::TextRun();
+	    cache = cache->next;
+	    lasts = i;
+	    pa = QComplexText::positionMarks( this, str, pos + i - 1 );
+	    nmarks = pa.size();
+	} else if ( nmarks ) {
+	    QPoint p = pa[(int)(pa.size() - nmarks)];
+	    cache->setParams( width + p.x(), p.y(), str.unicode() + lasts, i - lasts );
+	    cache->next = new QFontPrivate::TextRun();
+	    cache = cache->next;
+	    nmarks--;
+	    lasts = i;
 	}
-	
-	if ( nmarks ) {
-		QPoint p = pa[(int)(pa.size() - nmarks)];
-		cache->setParams( width + p.x(), p.y(), str.unicode() + lasts, i - lasts );
-	} else {
-		cache->setParams( width, 0, str.unicode() + lasts, i - lasts );
-		GetTextExtentPoint32( currHDC, tc + lasts, i - lasts, &s );
-		width += s.cx;
-	}
-				
-	if ( (qt_winver & Qt::WV_NT_based) == 0 )
-		width -= TMX->tmOverhang;
+	uc++;
+    }
+    
+    if ( nmarks ) {
+	QPoint p = pa[(int)(pa.size() - nmarks)];
+	cache->setParams( width + p.x(), p.y(), str.unicode() + lasts, i - lasts );
+    } else {
+	cache->setParams( width, 0, str.unicode() + lasts, i - lasts );
+	BOOL res = GetTextExtentPoint32( currHDC, tc + lasts, i - lasts, &s );
+#ifndef Q_NO_DEBUG
+	if ( !res )
+	    qSystemWarning( "QFontPrivate: GetTextExtentPoint32 failed" );
+#endif
+	width += s.cx;
+    }
+			    
+    if ( (qt_winver & Qt::WV_NT_based) == 0 )
+	    width -= TMX->tmOverhang;
     return width;
 }
 
@@ -574,9 +595,10 @@ void QFontPrivate::drawText( HDC hdc, int x, int y, QFontPrivate::TextRun *cache
 //		qDebug( "drawing '%s' at (%d/%d)", 
 //			QConstString( (QChar *)cache->string, cache->length).string().latin1(),
 //			x + cache->xoff, y + cache->yoff);
-		const TCHAR *tc = (const TCHAR*)qt_winTchar(QConstString( (QChar *)cache->string, cache->length).string(),FALSE); 
-		TextOut( hdc, x + cache->xoff, y + cache->yoff, tc, cache->length );
-		cache = cache->next;
+	//### cache->length may not exceed 8192 on Win9x
+	const TCHAR *tc = (const TCHAR*)qt_winTchar(QConstString( (QChar *)cache->string, cache->length).string(),FALSE); 
+	TextOut( hdc, x + cache->xoff, y + cache->yoff, tc, cache->length );
+	cache = cache->next;
     }
 
 }
@@ -584,17 +606,17 @@ void QFontPrivate::drawText( HDC hdc, int x, int y, QFontPrivate::TextRun *cache
 void *QFont::textMetric() const
 {
     if ( DIRTY_FONT ) {
-		d->load();
+	d->load();
 #if defined(QT_DEBUG)
-		Q_ASSERT( d->fin && d->fin->font() );
+	Q_ASSERT( d->fin && d->fin->font() );
 #endif
     }
 #ifdef UNICODE
     if ( qt_winver & Qt::WV_NT_based )
-		return d->fin->textMetricW();
+	return d->fin->textMetricW();
     else
 #endif
-		return d->fin->textMetricA();
+	return d->fin->textMetricA();
 }
 
 
@@ -605,13 +627,13 @@ void *QFont::textMetric() const
 void *QFontMetrics::textMetric() const
 {
     if ( painter ) {
-		return painter->textMetric();
+	return painter->textMetric();
 #ifdef UNICODE
     } else if ( qt_winver & Qt::WV_NT_based ) {
-		return d->fin->textMetricW();
+	return d->fin->textMetricW();
 #endif
     } else {
-		return d->fin->textMetricA();
+	return d->fin->textMetricA();
     }
 }
 

@@ -142,7 +142,7 @@ void QPixmap::init( int w, int h, int d, bool bitmap, Optimization optim )
 	data->h = 0;
 	hdc = 0;
 #if defined(QT_CHECK_NULL)
-	qWarning( "QPixmap: Pixmap allocation failed" );
+	qSystemWarning( "QPixmap: Pixmap allocation failed" );
 #endif
 	return;
     }
