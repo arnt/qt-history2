@@ -19,7 +19,7 @@ die()
 }
 
 #parse commandline
-showhelp() 
+showhelp()
 {
     [ ! -z "$1" ] && echo "Unknown Option: $1"
     echo "$0 [options]"
@@ -52,24 +52,24 @@ while [ -n "$1" ]; do
 	VAL=$1
 	;;
    -local)
-   	shift
-   	VAR=local   
-        VAL=$1
+	shift
+	VAR=local
+	VAL=$1
 	;;
    -no*)
-   	VAR=`echo $1 | sed "s,^-no-*,,g"`
+	VAR=`echo $1 | sed "s,^-no-*,,g"`
 	VAL=no
 	;;
    -do*)
-   	VAR=`echo $1 | sed "s,^-do-*,,g"`
+	VAR=`echo $1 | sed "s,^-do-*,,g"`
 	VAL=yes
 	;;
    --*=*)
-        VAR=`echo $1 | sed "s,^--\(.*\)=.*$,\1,"`
-        VAL=`echo $1 | sed "s,^--.*=\(.*\)$,\1,"`
+	VAR=`echo $1 | sed "s,^--\(.*\)=.*$,\1,"`
+	VAL=`echo $1 | sed "s,^--.*=\(.*\)$,\1,"`
 	;;
    *)
-        showhelp $1
+	showhelp $1
 	;;
    esac
    shift
@@ -82,14 +82,14 @@ while [ -n "$1" ]; do
    qws) DO_QWS=$VAL ;;
    free)DO_FREE=$VAL;;
    gzip)DO_GZIP=$VAL;;
-   version) 
+   version)
        if ! expr "$VAL" : ".*\.\d*" >/dev/null 2>&1; then
 	  die "Can't figure out version from $VAL"
        fi
        REL_VERSION=$VAL
        BRANCH=`echo $VAL | sed "s,\([0-9]*\.[0-9]*\).*,\1,"`
        LABEL="qt/$VAL";;
-   local) 
+   local)
        if [ ! -d "$VAL" ]; then
 	  die "Unknown directory: $VAL"
        fi
@@ -111,14 +111,14 @@ DISTDIR="/tmp/qt-$BRANCH-$MYNAME-$$"
 #Checkout P4
 if [ -z $LOCAL_TREE ]; then
     if ! p4 fstat //depot/qt/$BRANCH/doc.conf 2>&1 | grep " depotFile " >/dev/null 2>&1 ; then
-	die "//depot/qt/$BRANCH/... is not in the depot, stopped" 
+	die "//depot/qt/$BRANCH/... is not in the depot, stopped"
     fi
     if ! p4 labels 2>&1 | grep "^Label $LABEL" >/dev/null 2>&1 ; then
-        die "Label $LABEL does not exist, stopped"
+	die "Label $LABEL does not exist, stopped"
     fi
     checkoutlabel=""
     if p4 label -o $LABEL | grep '^Options:.*locked' >/dev/null 2>&1; then
-        checkoutlabel="@${LABEL}"
+	checkoutlabel="@${LABEL}"
     fi
     echo "Exporting the entire Qt depot $checkoutlabel..";
 
@@ -131,7 +131,8 @@ if [ -z $LOCAL_TREE ]; then
     p4 -s -c $tmpclient sync -f $DISTDIR/qt/...${checkoutlabel} >/dev/null 2>&1
 else
     echo "Copying Qt depot.."
-    cp -ar $LOCAL_TREE $DISTDIR
+    mkdir -p $DISTDIR/qt
+    cp -ar $LOCAL_TREE $DISTDIR/qt
 fi
 
 myexpr () {
@@ -152,7 +153,7 @@ for file in $FILES; do
     KEEP=
 
     if
-    	 # no qdoc conf
+	 # no qdoc conf
 	 [ "$file_BASE" = "doc.conf" ] ||
 
 	 # no make.help
@@ -285,9 +286,9 @@ for file in $FILES; do
 	 myexpr "$file" : "bin\/qt20fix$" ||
 	 myexpr "$file" : "bin\/qtrename140$"
      then
-         KEEP=yes
+	 KEEP=yes
      else
-         echo -n "I've no idea what to do with $file, keep it? (yes or no): "
+	 echo -n "I've no idea what to do with $file, keep it? (yes or no): "
 	 read KEEP
      fi
 
@@ -436,31 +437,31 @@ for plat in mac win x11 qws; do
     case $plat in
     mac)
 	[ "x$DO_MAC" = "xyes" ] || continue
-        plat2=unix
+	plat2=unix
 	;;
-    qws) 
+    qws)
 	[ "x$DO_QWS" = "xyes" ] || continue
 	plat2=unix
 	free=$DO_FREE
-        ;;
+	;;
     x11)
 	[ "x$DO_X11" = "xyes" ] || continue
 	plat2=unix
 	free=$DO_FREE
-        ;;
+	;;
     win)
 	[ "x$DO_WIN" = "xyes" ] || continue
 	;;
     esac
     echo "****** Packing for platform: $plat ****"
     cp -ar $DISTDIR/qt $PLATDIR
-    
+
     #Remove the platform dependent files
     for file in `find $PLATDIR -name '*_[a-z][a-z1][a-z1].cpp' -o \
-                               -name '*_[a-z][a-z1][a-z1].h' -o \
-                               -name '*_[a-z][a-z1][a-z1].c'`
+			       -name '*_[a-z][a-z1][a-z1].h' -o \
+			       -name '*_[a-z][a-z1][a-z1].c'`
     do
-        [ -d $file ] && continue
+	[ -d $file ] && continue
 	match=`basename $file | sed "s,.*_,," | cut -d'.' -f1`
 	[ "$match" != "$plat" ] && [ "$match" != "$plat2" ] && rm -rf $file
     done
@@ -491,7 +492,7 @@ for plat in mac win x11 qws; do
     elif [ "$plat" = "win" ]; then
 	rm -rf "$PLATDIR/doc/man"
 	#since there is no man pages, move all docs to doc/
-        mv $PLATDIR/doc/html/* $PLATDIR/doc
+	mv $PLATDIR/doc/html/* $PLATDIR/doc
 	rm -rf $PLATDIR/doc/html
 	# delete the xt estension
 	rm -rf "$PLATDIR/extensions/xt"
@@ -530,7 +531,7 @@ for plat in mac win x11 qws; do
 	    [ -f $PLATDIR/$a_file ] && rm -f $PLATDIR/$a_file
 	    if [ -f $d/$a_file ] && [ ! -e $PLATDIR/$a_file ]; then
 		sed -e "s/%YEAR%/$year/g" -e "s/%VERSION%/${BRANCH}${type}/g" \
-                    -e "s/$VERSIONWIN%/${BRANCH_DIGITS}/g" $d/$a_file >/tmp/tmpf
+		    -e "s/$VERSIONWIN%/${BRANCH_DIGITS}/g" $d/$a_file >/tmp/tmpf
 		if [ "$type" = "-snapshot" ]; then
 		    sed -e "s/%SNAPSHOTONLY\([^%]*\)%/\1/g" -e "s/%STABLEONLY[^%]*%//g" /tmp/tmpf >$PLATDIR/$a_file
 		else
@@ -539,8 +540,8 @@ for plat in mac win x11 qws; do
 	    else
 		[ -f $PLATDIR/$a_file ] && rm -f $a_file
 		cp -ar $d/$a_file $PLATDIR/$a_file
-            fi
-        done
+	    fi
+	done
     done
 
     echo "Packing..."
@@ -562,16 +563,16 @@ for plat in mac win x11 qws; do
 	PLATNAME=`echo $PLATNAME | sed "s,commercial,free,"`
 	PLATDIR=$DISTDIR/$PLATNAME
 	mv "$OLDPLATDIR" "$PLATDIR"
-	
-        echo "Doing free.."
-        #remove commercial licenses
+
+	echo "Doing free.."
+	#remove commercial licenses
 	for a in `find $DISTDIR/qt/dist/commercial`; do
 	    FILE=`echo $a | sed "s,$DISTDIR/qt/dist/commercial,,"`
 	    [ -z $FILE ] && continue
 	    rm -f $PLATDIR/$FILE
-        done
+	done
 
-        #copy free licenses
+	#copy free licenses
 	for a in `find $DISTDIR/qt/dist/free`; do
 	    a_file=`echo $a | sed "s,$DISTDIR/qt/dist/free,,"`
 	    if [ "$plat" = "qws" ]; then
@@ -586,7 +587,7 @@ for plat in mac win x11 qws; do
 	    [ -f $PLATDIR/$a_file ] && rm -f $PLATDIR/$a_file
 	    if [ -f $d/$a_file ] && [ ! -e $PLATDIR/$a_file ]; then
 		sed -e "s/%YEAR%/2000/g" -e "s/%VERSION%/${BRANCH}$type/g" \
-                    -e "s/%VERSIONWIN%/${BRANCH_DIGITS}/g" $d/$a_file >/tmp/tmpf
+		    -e "s/%VERSIONWIN%/${BRANCH_DIGITS}/g" $d/$a_file >/tmp/tmpf
 		if [ "$type" = "-snapshot" ]; then
 		    sed -e "s/%SNAPSHOTONLY\([^%]*\)%/\1/g" -e "s/%STABLEONLY[^%]*%//g" /tmp/tmpf >$PLATDIR/$a_file
 		else
@@ -595,10 +596,10 @@ for plat in mac win x11 qws; do
 	    else
 		[ -f $PLATDIR/$a_file ] && rm -f $a_file
 		cp -ar $DISTDIR/qt/dist/free/$a_file $PLATDIR/$a_file
-            fi
-        done
-	
-        #zip free editions
+	    fi
+	done
+
+	#zip free editions
 	echo "Packing free..."
 	cd "$DISTDIR"
 	tar cf $OUT_TREE/${PLATNAME}.tar ${PLATNAME}
