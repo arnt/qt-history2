@@ -33,7 +33,7 @@ struct Q_CORE_EXPORT QVectorData
 template <typename T>
 struct QVectorTypedData
 {
-    QAtomic ref;
+    QBasicAtomic ref;
     int alloc;
     int size;
     uint sharable : 1;
