@@ -179,18 +179,18 @@ public:
     enum { Type = SO_ProgressBar };
     enum { Version = 1 };
 
-    enum ProgressBarFeature { None, CenterIndicator = 0x01, PercentageVisible = 0x02,
-                              IndicatorFollowsStyle = 0x03 };
-    Q_DECLARE_FLAGS(ProgressBarFeatures, ProgressBarFeature)
-
-    ProgressBarFeatures features;
-    QString progressString;
-    int totalSteps;
+    int minimum;
+    int maximum;
     int progress;
+
+    QString text;
+    Qt::Alignment textAlignment;
+    bool textVisible;
+
+    bool q3IndicatorFollowsStyle;
 
     QStyleOptionProgressBar();
 
-    QDOC_PROPERTY(ProgressBarFeatures features)
     QDOC_PROPERTY(QString progressString)
     QDOC_PROPERTY(int totalSteps)
     QDOC_PROPERTY(int progress)
@@ -198,8 +198,6 @@ public:
 protected:
     QStyleOptionProgressBar(int version);
 };
-
-Q_DECLARE_OPERATORS_FOR_FLAGS(QStyleOptionProgressBar::ProgressBarFeatures);
 
 class Q_GUI_EXPORT QStyleOptionMenuItem : public QStyleOption
 {

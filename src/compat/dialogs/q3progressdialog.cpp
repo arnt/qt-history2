@@ -11,22 +11,20 @@
 **
 ****************************************************************************/
 
-#include "qprogressdialog.h"
+#include "q3progressdialog.h"
 
 #ifndef QT_NO_PROGRESSDIALOG
 
-#include "qshortcut.h"
-#include "qpainter.h"
-#include "qdrawutil.h"
+#include "q3progressbar.h"
+#include "qapplication.h"
+#include "qcursor.h"
 #include "qdatetime.h"
 #include "qlabel.h"
-#include "qprogressbar.h"
-#include "qapplication.h"
-#include "qstyle.h"
+#include "qpainter.h"
 #include "qpushbutton.h"
-#include "qcursor.h"
+#include "qshortcut.h"
+#include "qstyle.h"
 #include "qtimer.h"
-#include <private/qdialog_p.h>
 #include <limits.h>
 
 // If the operation is expected to take this long (as predicted by
@@ -41,25 +39,28 @@ static const int margin_tb   = 10;
 static const int spacing     = 4;
 
 
-class QProgressDialogPrivate : public QDialogPrivate
+class Q3ProgressDialogData
 {
-    Q_DECLARE_PUBLIC(QProgressDialog)
 public:
-    QProgressDialogPrivate() : label(0), cancel(0), bar(0),
+    Q3ProgressDialogData(Q3ProgressDialog* that, QWidget* parent,
+                   const QString& labelText,
+                   int totalSteps) :
+        creator(parent),
+        label(new QLabel(labelText,that)),
+        cancel(0),
+        bar(new Q3ProgressBar(totalSteps, that)),
         shown_once(false),
         cancellation_flag(false),
         showTime(defaultShowTime)
     {
+        int align = that->style()->styleHint(QStyle::SH_ProgressDialog_TextLabelAlignment, 0, that);
+        label->setAlignment(Qt::Alignment(align));
     }
-
-    void init(const QString &labelText, const QString &cancelText, int min, int max);
-    void layout();
 
     QWidget         *creator;
     QLabel         *label;
     QPushButton         *cancel;
-    QProgressBar *bar;
-    QTimer *forceTimer;
+    Q3ProgressBar *bar;
     bool          shown_once;
     bool          cancellation_flag;
     QTime          starttime;
@@ -72,73 +73,10 @@ public:
     bool forceHide;
 };
 
-#define d d_func()
-#define q q_func()
-
-void QProgressDialogPrivate::init(const QString &labelText, const QString &cancelText,
-                               int min, int max)
-{
-    label = new QLabel(labelText);
-    int align = q->style()->styleHint(QStyle::SH_ProgressDialog_TextLabelAlignment, 0, q);
-    label->setAlignment(Qt::Alignment(align));
-    bar = new QProgressBar(min, max, q);
-    autoClose = true;
-    autoReset = true;
-    forceHide = false;
-    q->setCancelButtonText(cancelText);
-    QObject::connect(q, SIGNAL(canceled()), q, SLOT(cancel()));
-    forceTimer = new QTimer(q);
-    QObject::connect(forceTimer, SIGNAL(timeout()), q, SLOT(forceShow()));
-}
-
-void QProgressDialogPrivate::layout()
-{
-    int sp = spacing;
-    int mtb = margin_tb;
-    int mlr = qMin(q->width() / 10, margin_lr);
-    const bool centered =
-        bool(q->style()->styleHint(QStyle::SH_ProgressDialog_CenterCancelButton, 0, q));
-
-    QSize cs = cancel ? cancel->sizeHint() : QSize(0,0);
-    QSize bh = bar->sizeHint();
-    int cspc;
-    int lh = 0;
-
-    // Find spacing and sizes that fit.  It is important that a progress
-    // dialog can be made very small if the user demands it so.
-    for (int attempt=5; attempt--;) {
-        cspc = cancel ? cs.height() + sp : 0;
-        lh = qMax(0, q->height() - mtb - bh.height() - sp - cspc);
-
-        if (lh < q->height()/4) {
-            // Getting cramped
-            sp /= 2;
-            mtb /= 2;
-            if (cancel) {
-                cs.setHeight(qMax(4,cs.height()-sp-2));
-            }
-            bh.setHeight(qMax(4,bh.height()-sp-1));
-        } else {
-            break;
-        }
-    }
-
-    if (cancel) {
-        cancel->setGeometry(
-            centered ? q->width()/2 - cs.width()/2 : q->width() - mlr - cs.width(),
-            q->height() - mtb - cs.height() + sp,
-            cs.width(), cs.height());
-    }
-
-    label->setGeometry(mlr, 0, q->width()-mlr*2, lh);
-    bar->setGeometry(mlr, lh+sp, q->width()-mlr*2, bh.height());
-    layout();
-}
-
 
 /*!
-  \class QProgressDialog qprogressdialog.h
-  \brief The QProgressDialog class provides feedback on the progress of a slow operation.
+  \class Q3ProgressDialog qprogressdialog.h
+  \brief The Q3ProgressDialog class provides feedback on the progress of a slow operation.
   \ingroup dialogs
   \mainclass
 
@@ -149,7 +87,7 @@ void QProgressDialogPrivate::layout()
 
   A common problem with progress dialogs is that it is difficult to know
   when to use them; operations take different amounts of time on different
-  hardware.  QProgressDialog offers a solution to this problem:
+  hardware.  Q3ProgressDialog offers a solution to this problem:
   it estimates the time the operation will take (based on time for
   steps), and only shows itself if that estimate is beyond minimumDuration()
   (4 seconds by default).
@@ -167,16 +105,16 @@ void QProgressDialogPrivate::layout()
   operation. Use setAutoReset() and setAutoClose() to change this
   behavior.
 
-  There are two ways of using QProgressDialog: modal and modeless.
+  There are two ways of using Q3ProgressDialog: modal and modeless.
 
-  Using a modal QProgressDialog is simpler for the programmer, but you
+  Using a modal Q3ProgressDialog is simpler for the programmer, but you
   must call QApplication::processEvents() or
   QEventLoop::processEvents(ExcludeUserInput) to keep the event loop
   running to ensure that the application doesn't freeze. Do the
   operation in a loop, call \l setProgress() at intervals, and check
   for cancellation with wasCanceled(). For example:
 \code
-QProgressDialog progress("Copying files...", "Abort Copy", numFiles,
+Q3ProgressDialog progress("Copying files...", "Abort Copy", numFiles,
                           this, "progress", true);
 for (int i = 0; i < numFiles; i++) {
     progress.setProgress(i);
@@ -193,7 +131,7 @@ progress.setProgress(numFiles);
   place in the background, where the user is able to interact with the
   application. Such operations are typically based on QTimer (or
   QObject::timerEvent()), QSocketNotifier, or QUrlOperator; or performed
-  in a separate thread. A QProgressBar in the status bar of your main window
+  in a separate thread. A Q3ProgressBar in the status bar of your main window
   is often an alternative to a modeless progress dialog.
 
   You need to have an event loop to be running, connect the
@@ -203,7 +141,7 @@ progress.setProgress(numFiles);
 Operation::Operation(QObject *parent = 0)
     : QObject(parent), steps(0)
 {
-    pd = new QProgressDialog("Operation in progress.", "Cancel", 100);
+    pd = new Q3ProgressDialog("Operation in progress.", "Cancel", 100);
     connect(pd, SIGNAL(canceled()), this, SLOT(cancel()));
     t = new QTimer(this);
     connect(t, SIGNAL(timeout()), this, SLOT(perform()));
@@ -228,17 +166,40 @@ void Operation::cancel()
 
 
   In both modes the progress dialog may be customized by
-  replacing the child widgets with custom widgets by using setd->label,
-  setd->bar, and setCancelButton().
+  replacing the child widgets with custom widgets by using setLabel(),
+  setBar(), and setCancelButton().
   The functions setLabelText() and setCancelButtonText()
   set the texts shown.
 
   \inlineimage qprogdlg-m.png Screenshot in Motif style
   \inlineimage qprogdlg-w.png Screenshot in Windows style
 
-  \sa QDialog, QProgressBar,
+  \sa QDialog, Q3ProgressBar,
       \link guibooks.html#fowler GUI Design Handbook: Progress Indicator\endlink
 */
+
+
+/*!
+  Returns the QLabel currently being displayed above the progress bar.
+  This QLabel is owned by the Q3ProgressDialog.
+
+  \sa setLabel()
+*/
+QLabel *Q3ProgressDialog::label() const
+{
+    return d->label;
+}
+
+/*!
+  Returns the Q3ProgressBar currently being used to display progress.
+  This Q3ProgressBar is owned by the Q3ProgressDialog.
+
+  \sa setBar()
+*/
+Q3ProgressBar *Q3ProgressDialog::bar() const
+{
+    return d->bar;
+}
 
 
 /*!
@@ -258,14 +219,17 @@ void Operation::cancel()
   of the dialog to occur. If \a modal is true, the dialog ensures that
   events are processed when needed.
 
-  \sa setLabelText(), setd->label, setCancelButtonText(), setCancelButton(),
+  \sa setLabelText(), setLabel(), setCancelButtonText(), setCancelButton(),
   setTotalSteps()
 */
 
-QProgressDialog::QProgressDialog(QWidget *parent, Qt::WFlags f)
-    : QDialog(*(new QProgressDialogPrivate), parent, f)
+Q3ProgressDialog::Q3ProgressDialog(QWidget *creator, const char *name,
+                                  bool modal, Qt::WFlags f)
+    : QDialog(creator, f)
 {
-    d->init(QString::fromLatin1(""), tr("Cancel"), 0, 100);
+    setObjectName(name);
+    setModal(modal);
+    init(creator, QString::fromLatin1(""), tr("Cancel"), 100);
 }
 
 /*!
@@ -291,17 +255,20 @@ QProgressDialog::QProgressDialog(QWidget *parent, Qt::WFlags f)
    events are processed when needed.
 
 
-  \sa setLabelText(), setd->label, setCancelButtonText(), setCancelButton(),
+  \sa setLabelText(), setLabel(), setCancelButtonText(), setCancelButton(),
   setTotalSteps()
 */
 
-QProgressDialog::QProgressDialog(const QString &labelText,
+Q3ProgressDialog::Q3ProgressDialog(const QString &labelText,
                                   const QString &cancelButtonText,
-                                  int minimum, int maximum,
-                                  QWidget *parent, Qt::WFlags f)
-    : QDialog(*(new QProgressDialogPrivate), parent, f)
+                                  int totalSteps,
+                                  QWidget *creator, const char *name,
+                                  bool modal, Qt::WFlags f)
+    : QDialog(creator, f)
 {
-    d->init(labelText, cancelButtonText, minimum, maximum);
+    setObjectName(name);
+    setModal(modal);
+    init(creator, labelText, cancelButtonText, totalSteps);
 }
 
 
@@ -309,7 +276,7 @@ QProgressDialog::QProgressDialog(const QString &labelText,
   Destroys the progress dialog.
 */
 
-QProgressDialog::~QProgressDialog()
+Q3ProgressDialog::~Q3ProgressDialog()
 {
 #ifndef QT_NO_CURSOR
     if (d->creator)
@@ -318,8 +285,23 @@ QProgressDialog::~QProgressDialog()
     delete d;
 }
 
+void Q3ProgressDialog::init(QWidget *creator,
+                            const QString& lbl, const QString& canc,
+                            int totstps)
+{
+    d = new Q3ProgressDialogData(this, creator, lbl, totstps);
+    d->autoClose = true;
+    d->autoReset = true;
+    d->forceHide = false;
+    setCancelButtonText(canc);
+    connect(this, SIGNAL(canceled()), this, SLOT(cancel()));
+    forceTimer = new QTimer(this);
+    connect(forceTimer, SIGNAL(timeout()), this, SLOT(forceShow()));
+    layout();
+}
+
 /*!
-  \fn void QProgressDialog::canceled()
+  \fn void Q3ProgressDialog::canceled()
 
   This signal is emitted when the cancel button is clicked.
   It is connected to the cancel() slot by default.
@@ -336,7 +318,7 @@ QProgressDialog::~QProgressDialog()
   \sa setLabelText()
 */
 
-void QProgressDialog::setLabel(QLabel *label)
+void Q3ProgressDialog::setLabel(QLabel *label)
 {
     delete d->label;
     d->label = label;
@@ -356,23 +338,23 @@ void QProgressDialog::setLabel(QLabel *label)
 
 
 /*!
-  \property QProgressDialog::labelText
+  \property Q3ProgressDialog::labelText
   \brief the label's text
 
   The default text is an empty string.
 */
 
-QString QProgressDialog::labelText() const
+QString Q3ProgressDialog::labelText() const
 {
-    if (d->label)
-        return d->label->text();
+    if (label())
+        return label()->text();
     return QString::null;
 }
 
-void QProgressDialog::setLabelText(const QString &text)
+void Q3ProgressDialog::setLabelText(const QString &text)
 {
-    if (d->label) {
-        d->label->setText(text);
+    if (label()) {
+        label()->setText(text);
         int w = qMax(isVisible() ? width() : 0, sizeHint().width());
         int h = qMax(isVisible() ? height() : 0, sizeHint().height());
         resize(w, h);
@@ -389,7 +371,7 @@ void QProgressDialog::setLabelText(const QString &text)
   \sa setCancelButtonText()
 */
 
-void QProgressDialog::setCancelButton(QPushButton *cancelButton)
+void Q3ProgressDialog::setCancelButton(QPushButton *cancelButton)
 {
     delete d->cancel;
     d->cancel = cancelButton;
@@ -414,7 +396,7 @@ void QProgressDialog::setCancelButton(QPushButton *cancelButton)
   \sa setCancelButton()
 */
 
-void QProgressDialog::setCancelButtonText(const QString &cancelButtonText)
+void Q3ProgressDialog::setCancelButtonText(const QString &cancelButtonText)
 {
     if (!cancelButtonText.isNull()) {
         if (d->cancel)
@@ -437,11 +419,11 @@ void QProgressDialog::setCancelButtonText(const QString &cancelButtonText)
   allocated on the stack.
 */
 
-void QProgressDialog::setBar(QProgressBar *bar)
+void Q3ProgressDialog::setBar(Q3ProgressBar *bar)
 {
 #ifndef QT_NO_DEBUG
-    if (value() > 0)
-        qWarning("QProgressDialog::setBar: Cannot set a new progress bar "
+    if (progress() > 0)
+        qWarning("Q3ProgressDialog::setBar: Cannot set a new progress bar "
                   "while the old one is active");
 #endif
     delete d->bar;
@@ -453,50 +435,35 @@ void QProgressDialog::setBar(QProgressBar *bar)
 
 
 /*!
-  \property QProgressDialog::wasCanceled
+  \property Q3ProgressDialog::wasCanceled
   \brief whether the dialog was canceled
 
   \sa setProgress()
 */
 
-bool QProgressDialog::wasCanceled() const
+bool Q3ProgressDialog::wasCanceled() const
 {
     return d->cancellation_flag;
 }
 
 
 /*!
-  \property QProgressDialog::totalSteps
+  \property Q3ProgressDialog::totalSteps
   \brief the total number of steps
 
   The default is 0.
 */
 
-int QProgressDialog::maximum() const
+int Q3ProgressDialog::totalSteps() const
 {
-    return d->bar->maximum();
+    if (d && d->bar)
+        return bar()->totalSteps();
+    return 0;
 }
 
-void QProgressDialog::setMaximum(int maximum)
+void Q3ProgressDialog::setTotalSteps(int totalSteps)
 {
-    d->bar->setMaximum(maximum);
-}
-
-/*!
-  \property QProgressDialog::totalSteps
-  \brief the total number of steps
-
-  The default is 0.
-*/
-
-int QProgressDialog::minimum() const
-{
-    return d->bar->minimum();
-}
-
-void QProgressDialog::setMinimum(int minimum)
-{
-    d->bar->setMinimum(minimum);
+    bar()->setTotalSteps(totalSteps);
 }
 
 
@@ -507,20 +474,20 @@ void QProgressDialog::setMinimum(int minimum)
   \sa setAutoClose(), setAutoReset()
 */
 
-void QProgressDialog::reset()
+void Q3ProgressDialog::reset()
 {
 #ifndef QT_NO_CURSOR
-    if (value() >= 0) {
-        if (parentWidget())
-            parentWidget()->setCursor(d->parentCursor);
+    if (progress() >= 0) {
+        if (d->creator)
+            d->creator->setCursor(d->parentCursor);
     }
 #endif
     if (d->autoClose || d->forceHide)
         hide();
-    d->bar->reset();
+    bar()->reset();
     d->cancellation_flag = false;
     d->shown_once = false;
-    d->forceTimer->stop();
+    forceTimer->stop();
 }
 
 /*!
@@ -529,7 +496,7 @@ void QProgressDialog::reset()
   The progress dialog becomes hidden.
 */
 
-void QProgressDialog::cancel()
+void Q3ProgressDialog::cancel()
 {
     d->forceHide = true;
     reset();
@@ -538,35 +505,35 @@ void QProgressDialog::cancel()
 }
 
 /*!
-  \property QProgressDialog::progress
+  \property Q3ProgressDialog::progress
   \brief the current amount of progress made.
 
   For the progress dialog to work as expected, you should initially set
   this property to 0 and finally set it to
-  QProgressDialog::totalSteps(); you can call setProgress() any number of times
+  Q3ProgressDialog::totalSteps(); you can call setProgress() any number of times
   in-between.
 
   \warning If the progress dialog is modal
-    (see QProgressDialog::QProgressDialog()),
+    (see Q3ProgressDialog::Q3ProgressDialog()),
     this function calls QApplication::processEvents(), so take care that
     this does not cause undesirable re-entrancy in your code. For example,
-    don't use a QProgressDialog inside a paintEvent()!
+    don't use a Q3ProgressDialog inside a paintEvent()!
 
   \sa totalSteps
 */
 
-int QProgressDialog::value() const
+int Q3ProgressDialog::progress() const
 {
-    return d->bar->value();
+    return bar()->progress();
 }
 
-void QProgressDialog::setValue(int progress)
+void Q3ProgressDialog::setProgress(int progress)
 {
-    if (progress == d->bar->value() ||
-         d->bar->value() == -1 && progress == d->bar->maximum())
+    if (progress == bar()->progress() ||
+         bar()->progress() == -1 && progress == bar()->totalSteps())
         return;
 
-    d->bar->setValue(progress);
+    bar()->setProgress(progress);
 
     if (d->shown_once) {
         if (testWFlags(Qt::WShowModal))
@@ -580,7 +547,7 @@ void QProgressDialog::setValue(int progress)
             }
 #endif
             d->starttime.start();
-            d->forceTimer->start(d->showTime);
+            forceTimer->start(d->showTime);
             return;
         } else {
             bool need_show;
@@ -590,12 +557,10 @@ void QProgressDialog::setValue(int progress)
             } else {
                 if (elapsed > minWaitTime) {
                     int estimate;
-                    int totalSteps = maximum() - minimum();
-                    int myprogress = progress - minimum();
-                    if ((totalSteps - myprogress) >= INT_MAX / elapsed)
-                        estimate = (totalSteps - myprogress) / myprogress * elapsed;
+                    if ((totalSteps() - progress) >= INT_MAX / elapsed)
+                        estimate = (totalSteps() - progress) / progress * elapsed;
                     else
-                        estimate = elapsed * (totalSteps - myprogress) / myprogress;
+                        estimate = elapsed * (totalSteps() - progress) / progress;
                     need_show = estimate >= d->showTime;
                 } else {
                     need_show = false;
@@ -614,8 +579,23 @@ void QProgressDialog::setValue(int progress)
 #endif
     }
 
-    if (progress == d->bar->maximum() && d->autoReset)
+    if (progress == bar()->totalSteps() && d->autoReset)
         reset();
+}
+
+/*!
+  \overload
+
+  Sets the current amount of progress to \a progress and the total number of
+  steps to \a totalSteps.
+
+  \sa setTotalSteps()
+*/
+
+void Q3ProgressDialog::setProgress(int progress, int totalSteps)
+{
+    setTotalSteps(totalSteps);
+    setProgress(progress);
 }
 
 /*!
@@ -624,10 +604,10 @@ void QProgressDialog::setValue(int progress)
   need to call this yourself.
 */
 
-QSize QProgressDialog::sizeHint() const
+QSize Q3ProgressDialog::sizeHint() const
 {
-    QSize sh = d->label->sizeHint();
-    QSize bh = d->bar->sizeHint();
+    QSize sh = label()->sizeHint();
+    QSize bh = bar()->sizeHint();
     int h = margin_tb*2 + bh.height() + sh.height() + spacing;
     if (d->cancel)
         h += d->cancel->sizeHint().height() + spacing;
@@ -636,23 +616,66 @@ QSize QProgressDialog::sizeHint() const
 
 /*!\reimp
 */
-void QProgressDialog::resizeEvent(QResizeEvent *)
+void Q3ProgressDialog::resizeEvent(QResizeEvent *)
 {
-    d->layout();
+    layout();
 }
 
 /*!
   \reimp
 */
-void QProgressDialog::changeEvent(QEvent *ev)
+void Q3ProgressDialog::changeEvent(QEvent *ev)
 {
     if(ev->type() == QEvent::StyleChange)
-        d->layout();
+        layout();
     QDialog::changeEvent(ev);
 }
 
+void Q3ProgressDialog::layout()
+{
+    int sp = spacing;
+    int mtb = margin_tb;
+    int mlr = qMin(width()/10, margin_lr);
+    const bool centered =
+        bool(style()->styleHint(QStyle::SH_ProgressDialog_CenterCancelButton, 0, this));
+
+    QSize cs = d->cancel ? d->cancel->sizeHint() : QSize(0,0);
+    QSize bh = bar()->sizeHint();
+    int cspc;
+    int lh = 0;
+
+    // Find spacing and sizes that fit.  It is important that a progress
+    // dialog can be made very small if the user demands it so.
+    for (int attempt=5; attempt--;) {
+        cspc = d->cancel ? cs.height() + sp : 0;
+        lh = qMax(0, height() - mtb - bh.height() - sp - cspc);
+
+        if (lh < height()/4) {
+            // Getting cramped
+            sp /= 2;
+            mtb /= 2;
+            if (d->cancel) {
+                cs.setHeight(qMax(4,cs.height()-sp-2));
+            }
+            bh.setHeight(qMax(4,bh.height()-sp-1));
+        } else {
+            break;
+        }
+    }
+
+    if (d->cancel) {
+        d->cancel->setGeometry(
+            centered ? width()/2 - cs.width()/2 : width() - mlr - cs.width(),
+            height() - mtb - cs.height() + sp,
+            cs.width(), cs.height());
+    }
+
+    label()->setGeometry(mlr, 0, width()-mlr*2, lh);
+    bar()->setGeometry(mlr, lh+sp, width()-mlr*2, bh.height());
+}
+
 /*!
-    \property QProgressDialog::minimumDuration
+    \property Q3ProgressDialog::minimumDuration
     \brief the time that must pass before the dialog appears
 
     If the expected duration of the task is less than the
@@ -665,16 +688,16 @@ void QProgressDialog::changeEvent(QEvent *ev)
     If set to 0, the dialog is always shown as soon as any progress is
     set. The default is 4000 milliseconds.
 */
-void QProgressDialog::setMinimumDuration(int ms)
+void Q3ProgressDialog::setMinimumDuration(int ms)
 {
     d->showTime = ms;
-    if (d->bar->value() == 0) {
-        d->forceTimer->stop();
-        d->forceTimer->start(ms);
+    if (bar()->progress() == 0) {
+        forceTimer->stop();
+        forceTimer->start(ms);
     }
 }
 
-int QProgressDialog::minimumDuration() const
+int Q3ProgressDialog::minimumDuration() const
 {
     return d->showTime;
 }
@@ -684,14 +707,14 @@ int QProgressDialog::minimumDuration() const
   \reimp
 */
 
-void QProgressDialog::closeEvent(QCloseEvent *e)
+void Q3ProgressDialog::closeEvent(QCloseEvent *e)
 {
     emit canceled();
     QDialog::closeEvent(e);
 }
 
 /*!
-  \property QProgressDialog::autoReset
+  \property Q3ProgressDialog::autoReset
   \brief whether the progress dialog calls reset() as soon as progress() equals totalSteps()
 
   The default is true.
@@ -699,18 +722,18 @@ void QProgressDialog::closeEvent(QCloseEvent *e)
   \sa setAutoClose()
 */
 
-void QProgressDialog::setAutoReset(bool b)
+void Q3ProgressDialog::setAutoReset(bool b)
 {
     d->autoReset = b;
 }
 
-bool QProgressDialog::autoReset() const
+bool Q3ProgressDialog::autoReset() const
 {
     return d->autoReset;
 }
 
 /*!
-  \property QProgressDialog::autoClose
+  \property Q3ProgressDialog::autoClose
   \brief whether the dialog gets hidden by reset()
 
   The default is true.
@@ -718,12 +741,12 @@ bool QProgressDialog::autoReset() const
   \sa setAutoReset()
 */
 
-void QProgressDialog::setAutoClose(bool b)
+void Q3ProgressDialog::setAutoClose(bool b)
 {
     d->autoClose = b;
 }
 
-bool QProgressDialog::autoClose() const
+bool Q3ProgressDialog::autoClose() const
 {
     return d->autoClose;
 }
@@ -732,13 +755,13 @@ bool QProgressDialog::autoClose() const
   \reimp
 */
 
-void QProgressDialog::showEvent(QShowEvent *e)
+void Q3ProgressDialog::showEvent(QShowEvent *e)
 {
     QDialog::showEvent(e);
     int w = qMax(isVisible() ? width() : 0, sizeHint().width());
     int h = qMax(isVisible() ? height() : 0, sizeHint().height());
     resize(w, h);
-    d->forceTimer->stop();
+    forceTimer->stop();
 }
 
 /*!
@@ -748,7 +771,7 @@ void QProgressDialog::showEvent(QShowEvent *e)
   \sa setMinimumDuration()
 */
 
-void QProgressDialog::forceShow()
+void Q3ProgressDialog::forceShow()
 {
     if (d->shown_once || d->cancellation_flag)
         return;

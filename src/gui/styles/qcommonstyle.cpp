@@ -794,12 +794,10 @@ void QCommonStyle::drawControl(ControlElement ce, const QStyleOption *opt,
         if (const QStyleOptionProgressBar *pb = qt_cast<const QStyleOptionProgressBar *>(opt)) {
             QColor penColor = pb->palette.highlightedText().color();
             QColor *pColor = 0;
-            if (pb->features & QStyleOptionProgressBar::CenterIndicator
-                && !(pb->features & QStyleOptionProgressBar::IndicatorFollowsStyle)
-                && pb->progress * 2 >= pb->totalSteps)
+            if (pb->textVisible && pb->progress * 2 >= pb->maximum)
                 pColor = &penColor;
-            drawItem(p, pb->rect, Qt::AlignCenter | Qt::TextSingleLine, opt->palette,
-                     opt->state & Style_Enabled, pb->progressString, -1, pColor);
+            drawItem(p, pb->rect, pb->textAlignment | Qt::TextSingleLine, pb->palette,
+                     pb->state & Style_Enabled, pb->text, -1, pColor);
         }
         break;
     case CE_ProgressBarContents:
@@ -812,7 +810,7 @@ void QCommonStyle::drawControl(ControlElement ce, const QStyleOption *opt,
             bool reverse = QApplication::reverseLayout();
             int fw = 2;
             int w = pb->rect.width() - 2 * fw;
-            if (!pb->totalSteps) {
+            if (pb->minimum == 0 && pb->maximum == 0) {
                 // draw busy indicator
                 int x = pb->progress % (w * 2);
                 if (x > w)
@@ -828,7 +826,7 @@ void QCommonStyle::drawControl(ControlElement ce, const QStyleOption *opt,
                 else
                     u = w / unit_width;
                 int p_v = pb->progress;
-                int t_s = pb->totalSteps ? pb->totalSteps : 1;
+                int t_s = pb->maximum ? pb->maximum : 1;
 
                 if (u > 0 && p_v >= INT_MAX / u && t_s >= u) {
                     // scale down to something usable.
@@ -1296,11 +1294,10 @@ QRect QCommonStyle::subRect(SubRect sr, const QStyleOption *opt, const QFontMetr
     case SR_ProgressBarLabel:
         if (const QStyleOptionProgressBar *pb = qt_cast<const QStyleOptionProgressBar *>(opt)) {
             int textw = 0;
-            if (pb->features & QStyleOptionProgressBar::PercentageVisible)
+            if (pb->textVisible)
                 textw = fm.width("100%") + 6;
 
-            if (pb->features & QStyleOptionProgressBar::IndicatorFollowsStyle
-                || !(pb->features & QStyleOptionProgressBar::CenterIndicator)) {
+            if (pb->textAlignment & Qt::AlignCenter) {
                 if (sr != SR_ProgressBarLabel)
                     r.setCoords(pb->rect.left(), pb->rect.top(),
                                 pb->rect.right() - textw, pb->rect.bottom());

@@ -44,7 +44,7 @@
 #include "qpainter.h"
 #include "qpointer.h"
 #include "qpopupmenu.h"
-#include "qprogressbar.h"
+#include "q3progressbar.h"
 #include "qptrvector.h"
 #include "qpushbutton.h"
 #include "qregexp.h"
@@ -803,8 +803,8 @@ signals:
     void cancelled();
 
 private:
-    QProgressBar *readBar;
-    QProgressBar *writeBar;
+    Q3ProgressBar *readBar;
+    Q3ProgressBar *writeBar;
     QLabel *writeLabel;
     QFDProgressAnimation *animation;
 
@@ -823,14 +823,14 @@ QFDProgressDialog::QFDProgressDialog(QWidget *parent, const QString &fn, int ste
 
     layout->addWidget(new QLabel(Q3FileDialog::tr("Read: %1").arg(fn),
                        this, "qt_read_lbl"));
-    readBar = new QProgressBar(steps, this, "qt_readbar");
+    readBar = new Q3ProgressBar(steps, this, "qt_readbar");
     readBar->reset();
     readBar->setProgress(0);
     layout->addWidget(readBar);
     writeLabel = new QLabel(Q3FileDialog::tr("Write: %1").arg(QString::null),
                              this, "qt_write_lbl");
     layout->addWidget(writeLabel);
-    writeBar = new QProgressBar(steps, this, "qt_writebar");
+    writeBar = new Q3ProgressBar(steps, this, "qt_writebar");
     writeBar->reset();
     writeBar->setProgress(0);
     layout->addWidget(writeBar);

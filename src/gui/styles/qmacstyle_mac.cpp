@@ -1158,12 +1158,13 @@ void QMacStylePrivate::timerEvent(QTimerEvent *)
     if (!progressBars.isEmpty()) {
         int i = 0;
         while (i < progressBars.size()) {
+#warning "Need to handle Q3ProgressBar"
             QProgressBar *pb = progressBars.at(i);
             if (!pb) {
                 progressBars.removeAt(i);
             } else {
-                if (pb->totalSteps() == 0 || pb->progress() > 0
-                   && pb->progress() < pb->totalSteps()) {
+                if (pb->maximum() == 0 || pb->value() > 0
+                   && pb->value() < pb->maximum()) {
                     if (doAnimate(AquaProgressBar))
                         pb->update();
                 }
@@ -1900,28 +1901,29 @@ void QMacStylePrivate::HIThemeDrawControl(QStyle::ControlElement ce, const QStyl
             HIThemeTrackDrawInfo tdi;
             tdi.version = qt_mac_hitheme_version;
             tdi.reserved = 0;
+            bool isIndeterminate = (pb->minimum == 0 && pb->maximum == 0);
             // Boy, I love writing this...
             switch (qt_aqua_size_constrain(w)) {
             case QAquaSizeUnknown:
             case QAquaSizeLarge:
-                tdi.kind = pb->totalSteps ? kThemeLargeProgressBar
-                                          : kThemeLargeIndeterminateBar;
+                tdi.kind = !isIndeterminate ? kThemeLargeProgressBar
+                                            : kThemeLargeIndeterminateBar;
                 break;
             case QAquaSizeMini:
 #if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
                 if (QSysInfo::MacintoshVersion >= QSysInfo::MV_PANTHER) {
-                    tdi.kind = pb->totalSteps ? kThemeMiniProgressBar
-                                              : kThemeMiniIndeterminateBar;
+                    tdi.kind = !isIndeterminate ? kThemeMiniProgressBar
+                                                : kThemeMiniIndeterminateBar;
                     break;
                 }
 #endif
             case QAquaSizeSmall:
-                tdi.kind = pb->totalSteps ? kThemeProgressBar : kThemeIndeterminateBar;
+                tdi.kind = !isIndeterminate ? kThemeProgressBar : kThemeIndeterminateBar;
                 break;
             }
             tdi.bounds = qt_hirectForQRect(pb->rect);
-            tdi.max = pb->totalSteps;
-            tdi.min = 0;
+            tdi.max = pb->maximum;
+            tdi.min = pb->minimum;
             tdi.value = pb->progress;
             tdi.attributes = kThemeTrackHorizontal;
             tdi.trackInfo.progress.phase = progressFrame;
@@ -3520,25 +3522,26 @@ void QMacStylePrivate::AppManDrawControl(QStyle::ControlElement ce, const QStyle
         if (const QStyleOptionProgressBar *pb = qt_cast<const QStyleOptionProgressBar *>(opt)) {
             ThemeTrackDrawInfo tdi;
             tdi.filler1 = 0;
+            bool isIndeterminate = (pb->minimum == 0 && pb->maximum == 0);
             switch (qt_aqua_size_constrain(widget)) {
             case QAquaSizeUnknown:
             case QAquaSizeLarge:
-                tdi.kind = pb->totalSteps ? kThemeLargeProgressBar : kThemeLargeIndeterminateBar;
+                tdi.kind = !isIndeterminate ? kThemeLargeProgressBar : kThemeLargeIndeterminateBar;
                 break;
             case QAquaSizeMini:
 #if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
                 if (QSysInfo::MacintoshVersion >= QSysInfo::MV_PANTHER) {
-                    tdi.kind = pb->totalSteps ? kThemeMiniProgressBar : kThemeMiniIndeterminateBar;
+                    tdi.kind = !isIndeterminate ? kThemeMiniProgressBar : kThemeMiniIndeterminateBar;
                     break;
                 }
 #endif
             case QAquaSizeSmall:
-                tdi.kind = pb->totalSteps ? kThemeProgressBar : kThemeIndeterminateBar;
+                tdi.kind = !isIndeterminate ? kThemeProgressBar : kThemeIndeterminateBar;
                 break;
             }
             tdi.bounds = *qt_glb_mac_rect(opt->rect, p);
-            tdi.max = pb->totalSteps;
-            tdi.min = 0;
+            tdi.max = pb->maximum;
+            tdi.min = pb->minimum;
             tdi.value = pb->progress;
             tdi.attributes = kThemeTrackHorizontal;
             tdi.trackInfo.progress.phase = progressFrame;

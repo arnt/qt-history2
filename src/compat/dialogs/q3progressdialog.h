@@ -11,47 +11,46 @@
 **
 ****************************************************************************/
 
-#ifndef QPROGRESSDIALOG_H
-#define QPROGRESSDIALOG_H
+#ifndef Q3PROGRESSDIALOG_H
+#define Q3PROGRESSDIALOG_H
 
 #include "qdialog.h"
 
 #ifndef QT_NO_PROGRESSDIALOG
 
-class QPushButton;
+class Q3ProgressDialogData;
 class QLabel;
-class QProgressBar;
+class QPushButton;
 class QTimer;
-class QProgressDialogPrivate;
+class Q3ProgressBar;
 
-class Q_GUI_EXPORT QProgressDialog : public QDialog
+class Q_GUI_EXPORT Q3ProgressDialog : public QDialog
 {
     Q_OBJECT
-    Q_DECLARE_PRIVATE(QProgressDialog)
     Q_PROPERTY(bool wasCanceled READ wasCanceled)
-    Q_PROPERTY(int minimum READ minimum WRITE setMinimum)
-    Q_PROPERTY(int maximum READ maximum WRITE setMaximum)
-    Q_PROPERTY(int value READ value WRITE setValue)
+    Q_PROPERTY(int totalSteps READ totalSteps WRITE setTotalSteps)
+    Q_PROPERTY(int progress READ progress WRITE setProgress)
     Q_PROPERTY(bool autoReset READ autoReset WRITE setAutoReset)
     Q_PROPERTY(bool autoClose READ autoClose WRITE setAutoClose)
     Q_PROPERTY(int minimumDuration READ minimumDuration WRITE setMinimumDuration)
     Q_PROPERTY(QString labelText READ labelText WRITE setLabelText)
 
 public:
-    QProgressDialog(QWidget *parent = 0, Qt::WFlags f = 0);
-    QProgressDialog(const QString &labelText, const QString &cancelButtonText,
-                     int minimum, int maximum, QWidget *parent = 0, Qt::WFlags f = 0);
-    ~QProgressDialog();
+    Q3ProgressDialog(QWidget* parent=0, const char* name=0, bool modal=false,
+                     Qt::WFlags f=0);
+    Q3ProgressDialog(const QString& labelText, const QString &cancelButtonText,
+                     int totalSteps, QWidget* parent=0, const char* name=0,
+                     bool modal=false, Qt::WFlags f=0);
+    ~Q3ProgressDialog();
 
-    void setLabel(QLabel *label);
-    void setCancelButton(QPushButton *button);
-    void setBar(QProgressBar *bar);
+    void setLabel(QLabel *);
+    void setCancelButton(QPushButton *);
+    void setBar(Q3ProgressBar *);
 
     bool wasCanceled() const;
 
-    int minimum() const;
-    int maximum() const;
-    int value() const;
+    int totalSteps() const;
+    int progress()   const;
 
     QSize sizeHint() const;
 
@@ -65,9 +64,9 @@ public:
 public slots:
     void cancel();
     void reset();
-    void setMaximum(int maximum);
-    void setMinimum(int minimum);
-    void setValue(int progress);
+    void setTotalSteps(int totalSteps);
+    void setProgress(int progress);
+    void setProgress(int progress, int totalSteps);
     void setLabelText(const QString &);
     void setCancelButtonText(const QString &);
 
@@ -88,7 +87,16 @@ protected slots:
     void forceShow();
 
 private:
-    Q_DISABLE_COPY(QProgressDialog)
+    void init(QWidget *creator, const QString& lbl, const QString &canc,
+                         int totstps);
+    void layout();
+    QLabel *label()  const;
+    Q3ProgressBar *bar()    const;
+    Q3ProgressDialogData *d;
+    QTimer *forceTimer;
+
+private:
+    Q_DISABLE_COPY(Q3ProgressDialog)
 };
 
 #endif // QT_NO_PROGRESSDIALOG

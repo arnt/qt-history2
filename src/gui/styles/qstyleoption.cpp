@@ -483,8 +483,9 @@ QStyleOptionTab::QStyleOptionTab(int version)
 */
 
 QStyleOptionProgressBar::QStyleOptionProgressBar()
-    : QStyleOption(QStyleOptionProgressBar::Version, SO_ProgressBar), features(None),
-      totalSteps(0), progress(0)
+    : QStyleOption(QStyleOptionProgressBar::Version, SO_ProgressBar),
+      minimum(0), maximum(0), progress(0), textAlignment(0), textVisible(false),
+      q3IndicatorFollowsStyle(false)
 {
 }
 
@@ -492,7 +493,9 @@ QStyleOptionProgressBar::QStyleOptionProgressBar()
     \internal
 */
 QStyleOptionProgressBar::QStyleOptionProgressBar(int version)
-    : QStyleOption(version, SO_ProgressBar), features(None), totalSteps(0), progress(0)
+    : QStyleOption(version, SO_ProgressBar),
+      minimum(0), maximum(0), progress(0), textAlignment(0), textVisible(false),
+      q3IndicatorFollowsStyle(false)
 {
 }
 
