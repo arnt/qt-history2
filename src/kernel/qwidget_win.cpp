@@ -29,6 +29,10 @@
 #include "qwidget.h"
 #include "qwidget_p.h"
 
+#ifdef Q_Q4PAINTER
+#include "qwin32gc.h"
+#endif
+
 #if defined(QT_TABLET_SUPPORT)
 #define PACKETDATA  ( PK_X | PK_Y | PK_BUTTONS | PK_NORMAL_PRESSURE | \
 		      PK_ORIENTATION | PK_CURSOR )
@@ -390,6 +394,15 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 
     setFontSys();
     QInputContext::enable( this, im_enabled & isEnabled() );
+
+#ifdef Q_Q4PAINTER
+    if (!graphicsContext) {
+	graphicsContext = new QWin32GC(this);
+    } else {
+	printf("QWidget::creat(), skipped graphhics context.. for\n");
+    }
+#endif
+
 }
 
 
@@ -1610,5 +1623,12 @@ static void qt_tablet_cleanup()
         ptrWTClose( qt_tablet_context );
     delete qt_tablet_widget;
     qt_tablet_widget = 0;
+}
+#endif
+
+#ifdef Q_Q4PAINTER
+QAbstractGC *QWidget::gc() const
+{
+    return graphicsContext;
 }
 #endif

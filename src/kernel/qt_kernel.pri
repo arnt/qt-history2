@@ -258,3 +258,40 @@ kernel {
 	      		 $$KERNEL_CPP/qregion_wce.cpp
 	}
 }
+
+newpainter {
+        DEFINES += Q_Q4PAINTER
+
+  	HEADERS -= $$KERNEL_H/qpainter.h
+
+	SOURCES -= $$KERNEL_CPP/qpainter.cpp
+
+	SOURCES += $$KERNEL_CPP/qabstractgc.cpp \
+		   $$KERNEL_CPP/q4painter.cpp \
+		   $$KERNEL_CPP/qbrush.cpp \
+		   $$KERNEL_CPP/qpen.cpp
+
+	HEADERS += $$KERNEL_P/q4painter_p.h \ 
+		   $$KERNEL_H/q4painter.h \
+		   $$KERNEL_H/qabstractgc.h 
+
+    win32 { 
+	SOURCES -= $$KERNEL_CPP/qpainter_win.cpp
+
+	SOURCES += $$KERNEL_CPP/qwin32gc.cpp \
+		   $$KERNEL_CPP/qwin32pixmapgc.cpp
+
+	HEADERS += $$KERNEL_P/qwin32gc_p.h \
+		   $$KERNEL_H/qwin32gc.h \
+		   $$KERNEL_H/qwin32pixmapgc.h
+    }
+
+    unix { 
+
+	SOURCES -= $$KERNEL_CPP/qpainter_x11.cpp	
+
+	SOURCES += $$KERNEL_CPP/qx11gc.cpp
+
+	HEADERS += $$KERNEL_H/qx11gc.h
+    }
+}

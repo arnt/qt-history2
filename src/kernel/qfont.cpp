@@ -1907,10 +1907,14 @@ QFontMetrics::QFontMetrics( const QPainter *p )
 		  "and QPainter::end()" );
 #endif
 
+#ifndef Q_Q4PAINTER
     if ( painter->testf(QPainter::DirtyFont) )
 	painter->updateFont();
 
     d = painter->pfont ? painter->pfont->d : painter->cfont.d;
+#else
+    d = painter->font().d;
+#endif
 
 #if defined(Q_WS_X11)
     if ( d->screen != p->scrn ) {
@@ -2628,6 +2632,7 @@ QFontInfo::QFontInfo( const QPainter *p )
 		  "and QPainter::end()" );
 #endif
 
+#ifndef Q_Q4PAINTER
     painter->setf( QPainter::FontInf );
     if ( painter->testf(QPainter::DirtyFont) )
 	painter->updateFont();
@@ -2635,6 +2640,9 @@ QFontInfo::QFontInfo( const QPainter *p )
 	d = painter->pfont->d;
     else
 	d = painter->cfont.d;
+#else
+    d = painter->font().d;
+#endif
     d->ref();
 }
 

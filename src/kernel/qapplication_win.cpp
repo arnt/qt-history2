@@ -34,6 +34,10 @@
 #include "qnc_win.h"
 #endif
 
+#ifdef Q_Q4PAINTER
+#include "qwin32gc.h"
+#endif
+
 #ifdef QT_THREAD_SUPPORT
 #include "qmutex.h"
 #endif // QT_THREAD_SUPPORT
@@ -784,7 +788,11 @@ void qt_init( QApplicationPrivate *priv, int )
     QColor::initialize();
     QFont::initialize();
     QCursor::initialize();
+#ifdef Q_Q4PAINTER
+    QWin32GC::initialize();
+#else
     QPainter::initialize();
+#endif
     qApp->setName( appName );
 
     // default font
@@ -829,7 +837,9 @@ void qt_cleanup()
 {
     unregWinClasses();
     QPixmapCache::clear();
+#ifndef Q_Q4PAINTER
     QPainter::cleanup();
+#endif
     QCursor::cleanup();
     QFont::cleanup();
     QColor::cleanup();

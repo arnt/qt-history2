@@ -432,6 +432,7 @@ bool QPicture::exec( QPainter *painter, QDataStream &s, int nrecords )
 		s >> p;
 		painter->drawPoint( p );
 		break;
+#ifndef Q_Q4PAINTER
 	    case PdcMoveTo:
 		s >> p;
 		painter->moveTo( p );
@@ -440,6 +441,7 @@ bool QPicture::exec( QPainter *painter, QDataStream &s, int nrecords )
 		s >> p;
 		painter->lineTo( p );
 		break;
+#endif
 	    case PdcDrawLine:
 		s >> p1 >> p2;
 		painter->drawLine( p1, p2 );
@@ -567,7 +569,8 @@ bool QPicture::exec( QPainter *painter, QDataStream &s, int nrecords )
 		s >> brush;
 		painter->setBrush( brush );
 		break;
-	    case PdcSetTabStops:
+#ifndef Q_Q4PAINTER
+	case PdcSetTabStops:
 		s >> i_16;
 		painter->setTabStops( i_16 );
 		break;
@@ -585,6 +588,7 @@ bool QPicture::exec( QPainter *painter, QDataStream &s, int nrecords )
 		    delete [] ta;
 		}
 		break;
+#endif
 	    case PdcSetVXform:
 		s >> i_8;
 #ifndef QT_NO_TRANSFORMATIONS
@@ -616,12 +620,14 @@ bool QPicture::exec( QPainter *painter, QDataStream &s, int nrecords )
 #endif
 		break;
 #ifndef QT_NO_TRANSFORMATIONS
+#ifndef Q_Q4PAINTER
 	    case PdcSaveWMatrix:
 		painter->saveWorldMatrix();
 		break;
 	    case PdcRestoreWMatrix:
 		painter->restoreWorldMatrix();
 		break;
+#endif
 #endif
 	    case PdcSetClip:
 		s >> i_8;
@@ -988,6 +994,7 @@ QPicture QPicture::copy() const
     called with (\a x, \a y) = (0, 0).
 */
 
+#ifndef Q_Q4PAINTER
 void QPainter::drawPicture( int x, int y, const QPicture &pic )
 {
     save();
@@ -1018,7 +1025,7 @@ void QPainter::drawPicture( const QPicture &pic )
 {
     drawPicture( 0, 0, pic );
 }
-
+#endif
 /*!
     Assigns a \link shclass.html shallow copy\endlink of \a p to this
     picture and returns a reference to this picture.

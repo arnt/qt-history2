@@ -31,6 +31,9 @@ class QString;
 class QTextItem;
 class QApplicationPrivate;
 
+#ifdef Q_Q4PAINTER
+class QAbstractGC;
+#endif
 
 #if defined(Q_WS_X11)
 struct QPaintDeviceX11Data;
@@ -81,6 +84,10 @@ public:
     virtual Qt::HANDLE      macCGHandle() const;
 #elif defined(Q_WS_QWS)
     virtual Qt::HANDLE	handle() const;
+#endif
+
+#ifdef Q_Q4PAINTER
+    virtual QAbstractGC *gc() const { return 0; }
 #endif
 
 #if defined(Q_WS_X11)
@@ -228,6 +235,11 @@ protected:
 #if defined(Q_WS_X11)
     friend void qt_init( QApplicationPrivate *, int, Display *, Qt::HANDLE, Qt::HANDLE );
     friend void qt_cleanup();
+#endif
+
+#ifdef Q_Q4PAINTER
+protected:
+    QAbstractGC *graphicsContext;
 #endif
 
 private:

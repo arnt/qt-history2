@@ -25,6 +25,10 @@
 class QGfx;
 class QPixmapPrivate;
 
+#ifdef Q_Q4PAINTER
+class QAbstractGC;
+#endif
+
 #if defined(Q_WS_WIN)
 // Internal pixmap memory optimization class for Windows 9x
 class QMultiCellPixmap;
@@ -150,6 +154,10 @@ public:
 #elif defined(Q_WS_X11)
     static int x11SetDefaultScreen( int screen );
     void x11SetScreen( int screen );
+#endif
+
+#ifdef Q_Q4PAINTER
+    QAbstractGC *gc() const { return graphicsContext; }
 #endif
 
     inline bool operator!() const { return isNull(); }

@@ -25,8 +25,9 @@ class QFont;
 class Q_EXPORT QTextItem
 {
 public:
-    inline QTextItem() : item(0), engine(0) {}
-    inline bool isValid() const { return (bool)engine; }
+    QTextItem( int i, QTextEngine *e ) : itm( i ), eng( e ) {}
+    inline QTextItem() : itm(0), eng(0) {}
+    inline bool isValid() const { return (bool)eng; }
 
     QRect rect() const;
     int x() const;
@@ -61,13 +62,15 @@ public:
     int from() const;
     int length() const;
 
+    QTextEngine *engine() const { return eng; }
+    int item() const { return itm; }
+
 private:
     friend class QTextLayout;
     friend class QPainter;
     friend class QPSPrinter;
-    QTextItem( int i, QTextEngine *e ) : item( i ), engine( e ) {}
-    int item;
-    QTextEngine *engine;
+    int itm;
+    QTextEngine *eng;
 };
 
 
@@ -135,6 +138,8 @@ public:
     bool validCursorPosition( int pos ) const;
     int nextCursorPosition( int oldPos, CursorMode mode = SkipCharacters ) const;
     int previousCursorPosition( int oldPos, CursorMode mode = SkipCharacters ) const;
+
+    QTextEngine *engine() { return d; }
 
 private:
     QTextLayout( QTextEngine *e ) : d( e ) {}

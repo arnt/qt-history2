@@ -20,72 +20,72 @@
 
 QRect QTextItem::rect() const
 {
-    QScriptItem& si = engine->items[item];
+    QScriptItem& si = eng->items[itm];
     return QRect( si.x, si.y, si.width, si.ascent+si.descent );
 }
 
 int QTextItem::x() const
 {
-    return engine->items[item].x;
+    return eng->items[itm].x;
 }
 
 int QTextItem::y() const
 {
-    return engine->items[item].y;
+    return eng->items[itm].y;
 }
 
 int QTextItem::width() const
 {
-    return engine->items[item].width;
+    return eng->items[itm].width;
 }
 
 int QTextItem::ascent() const
 {
-    return engine->items[item].ascent;
+    return eng->items[itm].ascent;
 }
 
 int QTextItem::descent() const
 {
-    return engine->items[item].descent;
+    return eng->items[itm].descent;
 }
 
 void QTextItem::setWidth( int w )
 {
-    engine->items[item].width = w;
+    eng->items[itm].width = w;
 }
 
 void QTextItem::setAscent( int a )
 {
-    engine->items[item].ascent = a;
+    eng->items[itm].ascent = a;
 }
 
 void QTextItem::setDescent( int d )
 {
-    engine->items[item].descent = d;
+    eng->items[itm].descent = d;
 }
 
 int QTextItem::from() const
 {
-    return engine->items[item].position;
+    return eng->items[itm].position;
 }
 
 int QTextItem::length() const
 {
-    return engine->length(item);
+    return eng->length(itm);
 }
 
 
 int QTextItem::cursorToX( int *cPos, Edge edge ) const
 {
     int pos = *cPos;
-    QScriptItem *si = &engine->items[item];
+    QScriptItem *si = &eng->items[itm];
 
-    engine->shape( item );
-    advance_t *advances = engine->advances( si );
-    GlyphAttributes *glyphAttributes = engine->glyphAttributes( si );
-    unsigned short *logClusters = engine->logClusters( si );
+    eng->shape( itm );
+    advance_t *advances = eng->advances( si );
+    GlyphAttributes *glyphAttributes = eng->glyphAttributes( si );
+    unsigned short *logClusters = eng->logClusters( si );
 
-    int l = engine->length( item );
+    int l = eng->length( itm );
     if ( pos > l )
 	pos = l;
     if ( pos < 0 )
@@ -99,7 +99,7 @@ int QTextItem::cursorToX( int *cPos, Edge edge ) const
     }
 
     int x = 0;
-    bool reverse = engine->items[item].analysis.bidiLevel % 2;
+    bool reverse = eng->items[itm].analysis.bidiLevel % 2;
 
     if ( reverse ) {
 	for ( int i = si->num_glyphs-1; i >= glyph_pos; i-- )
@@ -115,12 +115,12 @@ int QTextItem::cursorToX( int *cPos, Edge edge ) const
 
 int QTextItem::xToCursor( int x, CursorPosition cpos ) const
 {
-    QScriptItem *si = &engine->items[item];
-    engine->shape( item );
-    advance_t *advances = engine->advances( si );
-    unsigned short *logClusters = engine->logClusters( si );
+    QScriptItem *si = &eng->items[itm];
+    eng->shape( itm );
+    advance_t *advances = eng->advances( si );
+    unsigned short *logClusters = eng->logClusters( si );
 
-    int l = engine->length( item );
+    int l = eng->length( itm );
     bool reverse = si->analysis.bidiLevel % 2;
     if ( x < 0 )
 	return reverse ? l : 0;
@@ -168,22 +168,22 @@ int QTextItem::xToCursor( int x, CursorPosition cpos ) const
 
 bool QTextItem::isRightToLeft() const
 {
-    return (engine->items[item].analysis.bidiLevel % 2);
+    return (eng->items[itm].analysis.bidiLevel % 2);
 }
 
 bool QTextItem::isObject() const
 {
-    return engine->items[item].isObject;
+    return eng->items[itm].isObject;
 }
 
 bool QTextItem::isSpace() const
 {
-    return engine->items[item].isSpace;
+    return eng->items[itm].isSpace;
 }
 
 bool QTextItem::isTab() const
 {
-    return engine->items[item].isTab;
+    return eng->items[itm].isTab;
 }
 
 
@@ -192,7 +192,13 @@ QTextLayout::QTextLayout()
 
 QTextLayout::QTextLayout( const QString& string, QPainter *p )
 {
-    QFontPrivate *f = p ? ( p->pfont ? p->pfont->d : p->cfont.d ) : QApplication::font().d;
+    QFontPrivate *f = p ? (
+#ifndef Q_Q4PAINTER
+			   p->pfont ? p->pfont->d : p->cfont.d
+#else
+			   p->font().d
+#endif
+			   ) : QApplication::font().d;
     d = new QTextEngine( (string.isNull() ? (const QString&)QString::fromLatin1("") : string), f );
 }
 

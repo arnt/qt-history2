@@ -21,6 +21,9 @@
 #include "qt_windows.h"
 #include <limits.h>
 
+#ifdef Q_Q4PAINTER
+#include "qwin32pixmapgc.h"
+#endif
 
 extern const uchar *qt_get_bitflip_array();		// defined in qimage.cpp
 
@@ -213,6 +216,9 @@ void QPixmap::init( int w, int h, int d, bool bitmap, Optimization optim )
 				     NULL,
 				     0 );
 	delete [] bmi_data;
+#endif
+#ifdef Q_Q4PAINTER
+	graphicsContext = new QWin32PixmapGC(this);
 #endif
 
     if ( !DATA_HBM ) {

@@ -55,6 +55,9 @@ class QDropEvent;
 class QShowEvent;
 class QHideEvent;
 
+#ifdef Q_Q4PAINTER
+class QAbstractGC;
+#endif
 
 class QWidgetPrivate;
 
@@ -245,6 +248,11 @@ public:
     void setMask( const QBitmap & );
     void setMask( const QRegion & );
     void clearMask();
+
+#ifdef Q_Q4PAINTER
+    QAbstractGC *gc() const;
+#endif
+
 
 public slots:
 #ifndef QT_NO_WIDGET_TOPEXTRA

@@ -814,9 +814,9 @@ void QLCDNumber::drawSegment( const QPoint &pos, char segmentNo, QPainter &p,
 #define LIGHT
 #define DARK
 
+#ifndef Q_Q4PAINTER
     if ( fill ) {
         QPointArray a(0);
-
         //The following is an exact copy of the switch below.
         //don't make any changes here
         switch ( segmentNo ) {
@@ -1069,6 +1069,7 @@ void QLCDNumber::drawSegment( const QPoint &pos, char segmentNo, QPainter &p,
                      "  Illegal segment id: %d\n",
                      name( "unnamed" ), segmentNo );
         }
+#endif
 
 #undef LINETO
 #undef LIGHT

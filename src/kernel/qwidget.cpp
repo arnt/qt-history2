@@ -1148,7 +1148,7 @@ void QPixmap::fill( const QWidget *widget, int xoff, int yoff )
 	offset -= w->pos();
     }
 }
-
+#ifndef Q_Q4PAINTER
 void QPainter::copyFrom(const QWidget* w)
 {
     if (!w)
@@ -1164,7 +1164,7 @@ void QPainter::copyFrom(const QWidget* w)
     bg_origin = -offset;
     bg_brush = w->palette().brush(p->d->bg_role);
 }
-
+#endif
 
 /*!
   \internal
