@@ -2013,10 +2013,14 @@ void QFtp::piError( int errorCode, const QString &text )
     }
 
     d->pi.clearPendingCommands();
+    clearPendingCommands();
     emit commandFinished( c->id, TRUE );
 
-    d->pending.clear();
-    emit done( TRUE );
+    d->pending.removeFirst();
+    if ( d->pending.isEmpty() )
+	emit done( TRUE );
+    else
+	startNextCommand();
 }
 
 void QFtp::piConnectState( int state )
