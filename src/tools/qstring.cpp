@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#253 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#254 $
 **
 ** Implementation of the QString class and related Unicode functions
 **
@@ -11061,10 +11061,10 @@ void QString::fill( QChar c, int len )
 {
     if ( len < 0 )
 	len = length();
-    deref();
     if ( len == 0 ) {
 	*this = "";
     } else {
+	deref();
 	QChar * nd = (QChar*)new char[ len*sizeof(QChar) ];
 	d = new QStringData(nd,len,len);
 	while (len--) *nd++ = c;
