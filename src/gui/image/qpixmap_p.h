@@ -58,7 +58,7 @@ struct QPixmapData { // internal pixmap data
     uint uninit:1;
     uint bitmap:1;
     int ser_no;
-#ifndef Q_WS_X11
+#if !defined(Q_WS_X11) && !defined(Q_WS_MAC)
     QBitmap *mask;
 #endif
 #if defined(Q_WS_X11)
@@ -69,8 +69,10 @@ struct QPixmapData { // internal pixmap data
     Qt::HANDLE hd2; // sorted in the default display depth
     Qt::HANDLE x11ConvertToDefaultDepth();
 #elif defined(Q_WS_MAC)
-    bool alpha;
-    void macSetAlpha(bool b);
+    uint has_alpha : 1, has_mask : 1;
+    void macSetHasAlpha(bool b);
+    void macGetAlphaChannel(QPixmap *) const;
+    void macSetAlphaChannel(const QPixmap *);
     void macQDDisposeAlpha();
     void macQDUpdateAlpha();
     uint *pixels;

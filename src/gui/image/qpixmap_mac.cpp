@@ -102,7 +102,7 @@ QPixmap QPixmap::fromImage(const QImage &img, Qt::ImageConversionFlags flags)
     QImage image = img;
     int    d     = image.depth();
     int    dd    = defaultDepth();
-    bool force_mono = (dd == 1 || 
+    bool force_mono = (dd == 1 ||
                        (flags & Qt::ColorMode_Mask)==Qt::MonoOnly);
     if(force_mono) {                         // must be monochrome
         if(d != 1) {
@@ -219,8 +219,7 @@ QPixmap QPixmap::fromImage(const QImage &img, Qt::ImageConversionFlags flags)
                 }
             }
         }
-        if(alphamap)
-            pixmap.data->macSetAlpha(true);
+        pixmap.data->macSetHasAlpha(alphamap);
     }
     pixmap.data->uninit = false;
     return pixmap;
@@ -254,7 +253,7 @@ QImage QPixmap::toImage() const
     }
 
     QImage image(w, h, d, ncols, QImage::BigEndian);
-    image.setAlphaBuffer(data->alpha);
+    image.setAlphaBuffer(data->has_alpha);
     if(d == 1) {
         image.setNumColors(2);
         image.setColor(0, qRgba(255, 255, 255, 0));
@@ -277,64 +276,6 @@ QImage QPixmap::toImage() const
                 image.setPixel(xx, yy, q);
         }
     }
-
-    if(data->mask && !data->alpha) {
-        QImage alpha = data->mask->toImage();
-        image.setAlphaBuffer(true);
-        switch(d) {
-        case 8: {
-            int used[256];
-            memset(used, 0, sizeof(int)*256);
-            uchar* p = image.bits();
-            int l = image.numBytes();
-            while(l--)
-                used[*p++]++;
-            int trans=0;
-            int bestn=INT_MAX;
-            for(int i=0; i<256; i++) {
-                if(used[i] < bestn) {
-                    bestn = used[i];
-                    trans = i;
-                    if(!bestn)
-                        break;
-                }
-            }
-            image.setColor(trans, image.color(trans)&0x00ffffff);
-            for(int y=0; y<image.height(); y++) {
-                uchar* mb = alpha.scanLine(y);
-                uchar* ib = image.scanLine(y);
-                uchar bit = 0x80;
-                int i=image.width();
-                while(i--) {
-                    if(!(*mb & bit))
-                        *ib = trans;
-                    bit /= 2;
-                    if(!bit)
-                        mb++,bit = 0x80; // ROL
-                    ib++;
-                }
-            }
-            break; }
-        case 32: {
-            for(int y=0; y<image.height(); y++) {
-                uchar* mb = alpha.scanLine(y);
-                QRgb* ib = (QRgb*)image.scanLine(y);
-                uchar bit = 0x80;
-                int i=image.width();
-                while(i--) {
-                    if(*mb & bit)
-                        *ib |= 0xff000000;
-                    else
-                        *ib &= 0x00ffffff;
-                    bit /= 2;
-                    if(!bit)
-                        mb++, bit = 0x80; // ROL
-                    ib++;
-                }
-            }
-            break; }
-        }
-    }
     return image;
 }
 
@@ -355,52 +296,71 @@ void QPixmap::fill(const QColor &fillColor)
                 *(dptr + i) = colr;
         }
     }
-    data->macSetAlpha(fillColor.alpha() != 255);
+    data->macSetHasAlpha(fillColor.alpha() != 255);
 }
 
 QPixmap QPixmap::alphaChannel() const
 {
-    if (!hasAlphaChannel())
+    if (!data->has_alpha)
         return QPixmap();
-    // ################### PIXMAP
-    return QPixmap();
+    QPixmap alpha(width(), height(), 32);
+    data->macGetAlphaChannel(&alpha);
+    return alpha;
 }
 
-void setAlphaChannel(const QPixmap &alpha)
+void QPixmap::setAlphaChannel(const QPixmap &alpha)
 {
-    // ############ PIXMAP
+    if (data == alpha.data) // trying to alpha
+        return;
+
+    if (alpha.width() != width() || alpha.height() != height()) {
+        qWarning("QPixmap::setAlphaChannel: The pixmap and the mask must have the same size");
+        return;
+    }
+    detach();
+
+    data->has_mask = false;
+    if(alpha.isNull()) {
+        data->has_mask = false;
+        QPixmap opaque(width(), height());
+        opaque.fill(QColor(255, 255, 255, 255));
+        data->macSetAlphaChannel(&opaque);
+    } else {
+        data->has_mask = true;
+        data->macSetAlphaChannel(&alpha);
+    }
 }
 
 QBitmap QPixmap::mask() const
 {
-    return data->mask ? *data->mask : QBitmap();
+    if (!data->has_mask)
+        return QBitmap();
+    QBitmap mask(width(), height());
+    data->macGetAlphaChannel(&mask);
+    return mask;
 }
 
 void QPixmap::setMask(const QBitmap &newmask)
 {
-    if (data == newmask.data)
-        // trying to selfmask
+    if (data == newmask.data) // trying to selfmask
         return;
 
     if (newmask.width() != width() || newmask.height() != height()) {
         qWarning("QPixmap::setMask: The pixmap and the mask must have the same size");
         return;
     }
-
     detach();
 
-    if (newmask.isNull()) {
-        delete data->mask;
-        data->mask = 0;
-        return;
+    data->has_alpha = false;
+    if(newmask.isNull()) {
+        data->has_mask = false;
+        QPixmap opaque(width(), height());
+        opaque.fill(QColor(255, 255, 255, 255));
+        data->macSetAlphaChannel(&opaque);
+    } else {
+        data->has_mask = true;
+        data->macSetAlphaChannel(&newmask);
     }
-    // when setting the mask, we get rid of the alpha channel completely
-    data->macQDDisposeAlpha();
-
-    if (!data->mask)
-        data->mask = new QBitmap();
-
-    *data->mask = newmask;
 }
 
 void QPixmap::detach()
@@ -450,7 +410,6 @@ int QPixmap::metric(PaintDeviceMetric m) const
 
 QPixmapData::~QPixmapData()
 {
-    delete mask;
     macQDDisposeAlpha();
     if(qd_data) {
         DisposeGWorld(qd_data);
@@ -464,9 +423,39 @@ QPixmapData::~QPixmapData()
 }
 
 void
-QPixmapData::macSetAlpha(bool b)
+QPixmapData::macSetAlphaChannel(const QPixmap *pix)
 {
-    alpha = b;
+    uchar *dptr = (uchar*)pixels, *drow;
+    const uint dbpr = nbytes / h;
+    const unsigned short sbpr = pix->data->nbytes / pix->data->h;
+    uchar *sptr = (uchar*)pix->data->pixels, *srow;
+    for(int yy=0; yy < h; yy++) {
+        drow = dptr + (yy * dbpr);
+        srow = sptr + (yy * sbpr);
+        for(int xx=0; xx < w*4; xx+=4)
+            *(drow+xx) = *(srow+xx);
+    }
+}
+
+void
+QPixmapData::macGetAlphaChannel(QPixmap *pix) const
+{
+    uchar *dptr = (uchar*)pix->data->pixels, *drow;
+    const uint dbpr = pix->data->nbytes / pix->data->h;
+    const unsigned short sbpr = nbytes / h;
+    uchar *sptr = (uchar*)pixels, *srow;
+    for(int yy=0; yy < h; yy++) {
+        drow = dptr + (yy * dbpr);
+        srow = sptr + (yy * sbpr);
+        for(int xx=0; xx < w*4; xx+=4)
+            *(drow+xx) = *(srow+xx);
+    }
+}
+
+void
+QPixmapData::macSetHasAlpha(bool b)
+{
+    has_alpha = b;
 #if 1
     macQDDisposeAlpha(); //let it get created lazily
 #else
@@ -487,7 +476,7 @@ void
 QPixmapData::macQDUpdateAlpha()
 {
     macQDDisposeAlpha(); // get rid of alpha pixmap
-    if(!alpha)
+    if(!has_alpha && !has_mask)
         return;
 
     //setup
@@ -564,12 +553,8 @@ QPixmap QPixmap::transformed(const QMatrix &matrix, Qt::TransformationMode mode)
         return pm;
     }
 
-    //update the mask
-    if(data->mask)
-        pm.setMask(data->mask->transformed(matrix));
-
     //update the alpha
-    pm.data->macSetAlpha(data->alpha);
+    pm.data->macSetHasAlpha(data->has_alpha);
     return pm;
 }
 
@@ -678,7 +663,7 @@ Qt::HANDLE QPixmap::macQDHandle() const
 
 Qt::HANDLE QPixmap::macQDAlphaHandle() const
 {
-    if(data->alpha) {
+    if(data->has_alpha || data->has_mask) {
         if(!data->qd_alpha) //lazily created
             data->macQDUpdateAlpha();
         return data->qd_alpha;
@@ -688,29 +673,17 @@ Qt::HANDLE QPixmap::macQDAlphaHandle() const
 
 Qt::HANDLE QPixmap::macCGHandle() const
 {
-    if(data->mask && !data->alpha) { //combine the mask into my image data (lazily)
-        uchar *dptr = (uchar*)data->pixels, *drow;
-        const uint dbpr = data->nbytes / data->h;
-        const unsigned short sbpr = data->mask->data->nbytes / data->mask->data->h;
-        uchar *sptr = (uchar*)data->mask->data->pixels, *srow;
-        for(int yy=0; yy < data->h; yy++) {
-            drow = dptr + (yy * dbpr);
-            srow = sptr + (yy * sbpr);
-            for(int xx=0; xx < data->w*4; xx+=4)
-                *(drow+xx) = ~*(srow+xx+1);
-        }
-    }
     return data->cg_data;
 }
 
 bool QPixmap::hasAlpha() const
 {
-    return data->alpha || data->mask;
+    return data->has_alpha || data->has_mask;
 }
 
 bool QPixmap::hasAlphaChannel() const
 {
-    return data->alpha;
+    return data->has_alpha;
 }
 
 IconRef qt_mac_create_iconref(const QPixmap &px)
@@ -736,12 +709,8 @@ IconRef qt_mac_create_iconref(const QPixmap &px)
 //            { kSmall1BitMask,      16, 16,  1, true },
             { 0, 0, 0, 0, false } };
         for(int i = 0; images[i].mac_type; i++) {
-#if 0
-	  // ####### PIXMAP
             const QPixmap *in_pix = 0;
-            if(images[i].mask)
-                in_pix = px.mask();
-            else if(!px.isNull())
+            if(!px.isNull())
                 in_pix = &px;
 
             const int x_rows = images[i].width * (images[i].depth/8), y_rows = images[i].height;
@@ -750,14 +719,16 @@ IconRef qt_mac_create_iconref(const QPixmap &px)
                 //make the image
                 QImage im;
                 im = in_pix->toImage();
-                im = im.scale(images[i].width, images[i].height,
-                              Qt::IgnoreAspectRatio, Qt::SmoothTransformation)
+                im = im.scaled(images[i].width, images[i].height,
+                               Qt::IgnoreAspectRatio, Qt::SmoothTransformation)
                      .convertDepth(images[i].depth);
                 //set handle bits
-                if(images[i].mac_type == kThumbnail8BitMask) {
-                    for(int y = 0, h = 0; y < im.height(); y++) {
-                        for(int x = 0; x < im.width(); x++)
-                            *((*hdl)+(h++)) = im.pixel(x, y) ? 0 : 255;
+                if(images[i].mask) {
+                    if(images[i].mac_type == kThumbnail8BitMask) {
+                        for(int y = 0, h = 0; y < im.height(); y++) {
+                            for(int x = 0; x < im.width(); x++)
+                                *((*hdl)+(h++)) = im.pixel(x, y) ? 0 : 255;
+                        }
                     }
                 } else {
                     for(int y = 0; y < y_rows; y++)
@@ -769,8 +740,6 @@ IconRef qt_mac_create_iconref(const QPixmap &px)
             OSStatus set = SetIconFamilyData(iconFamily, images[i].mac_type, hdl);
             if(set != noErr)
                 qWarning("%s: %d -- Something went very wrong!! %ld", __FILE__, __LINE__, set);
-            DisposeHandle(hdl);
-#endif
         }
     }
 

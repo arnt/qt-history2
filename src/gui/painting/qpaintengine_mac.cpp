@@ -561,13 +561,10 @@ QQuickDrawPaintEngine::drawPixmap(const QRectF &r, const QPixmap &pm, const QRec
     //get pixmap bits
     const BitMap *srcbitmap = GetPortBitMapForCopyBits(qt_mac_qd_context(&pm));
     const BitMap *maskbits = 0;
-    if(mode == Qt::ComposePixmap) {
-        if(pm.macQDAlphaHandle()) {
-            maskbits = GetPortBitMapForCopyBits((GWorldPtr)pm.macQDAlphaHandle());
+    if(mode == Qt::ComposePixmap && pm.macQDAlphaHandle()) {
+        maskbits = GetPortBitMapForCopyBits((GWorldPtr)pm.macQDAlphaHandle());
+        if(pm.hasAlphaChannel())
             copymode = ditherCopy;
-        } else if(!pm.mask().isNull()) {
-            maskbits = GetPortBitMapForCopyBits((GWorldPtr)pm.mask().macQDHandle());
-        }
     }
 
     //get pdev bits
@@ -612,19 +609,8 @@ QQuickDrawPaintEngine::drawPixmap(const QRectF &r, const QPixmap &pm, const QRec
     }
 
     //duplicate
-    if(mode == Qt::CopyPixmap && d->pdev->devType() == QInternal::Pixmap) {
-        QPixmap *dst = static_cast<QPixmap*>(d->pdev);
-        if(!pm.mask().isNull() && !pm.isQBitmap()) {
-            QBitmap bm(dst->size(), true);
-            QPainter p(&bm);
-            if(!dst->mask().isNull() && r != QRectF(0, 0, dst->width(), dst->height()))
-                p.drawPixmap(0, 0, dst->mask(), Qt::CopyPixmap);
-            p.drawPixmap(r, pm.mask(), sr, Qt::CopyPixmap);
-            dst->setMask(bm);
-        }
-        if(pm.data->alpha)
-            dst->data->macSetAlpha(pm.data->alpha);
-    }
+    if(mode == Qt::CopyPixmap && d->pdev->devType() == QInternal::Pixmap)
+        static_cast<QPixmap*>(d->pdev)->data->macSetHasAlpha(pm.data->has_alpha);
 }
 
 void
@@ -682,14 +668,14 @@ QQuickDrawPaintEngine::setupQDBrush()
     int bs = d->current.brush.style();
     if(bs >= Qt::Dense1Pattern && bs <= Qt::DiagCrossPattern) {
         d->brush_style_pix = new QPixmap(8, 8);
-        d->brush_style_pix->setMask(qt_pixmapForBrush(bs, true));
         d->brush_style_pix->fill(d->current.brush.color());
+        d->brush_style_pix->setMask(qt_pixmapForBrush(bs, true));
     } else if(bs == Qt::TexturePattern) {
         QPixmap texture = d->current.brush.texture();
         if(texture.isQBitmap()) {
             d->brush_style_pix = new QPixmap(texture.width(), texture.height());
-            d->brush_style_pix->setMask(*((QBitmap*)&texture));
             d->brush_style_pix->fill(d->current.brush.color());
+            d->brush_style_pix->setMask(*((QBitmap*)&texture));
         }
     }
 
@@ -1464,41 +1450,14 @@ QCoreGraphicsPaintEngine::drawPixmap(const QRectF &r, const QPixmap &pm, const Q
     const float sx = ((float)r.width())/sr.width(), sy = ((float)r.height())/sr.height();
     CGRect rect = CGRectMake(r.x()-(sr.x()*sx), r.y()-(sr.y()*sy), pm.width()*sx, pm.height()*sy);
     CGImageRef image = (CGImageRef)pm.macCGHandle();
-#if 0
-    if(d->pdev->devType() == QInternal::Pixmap) {
-        qDebug("PM: %d %d %d %d", qRed(*(pm.data->pixels)), qGreen(*(pm.data->pixels)),
-               qBlue(*(pm.data->pixels)), qAlpha(*(pm.data->pixels)));;
-        QPixmap *dp = static_cast<QPixmap*>(d->pdev);
-        qDebug("BEFORE: %d %d %d %d", qRed(*(dp->data->pixels)), qGreen(*(dp->data->pixels)),
-               qBlue(*(dp->data->pixels)), qAlpha(*(dp->data->pixels)));
-    }
-#endif
     HIViewDrawCGImage(d->hd, &rect, image); //top left
-#if 0
-    if(d->pdev->devType() == QInternal::Pixmap) {
-        QPixmap *dp = static_cast<QPixmap*>(d->pdev);
-        qDebug("AFTER: %d %d %d %d", qRed(*(dp->data->pixels)), qGreen(*(dp->data->pixels)),
-               qBlue(*(dp->data->pixels)), qAlpha(*(dp->data->pixels)));
-    }
-#endif
 
     //restore
     CGContextRestoreGState(d->hd);
 
     //duplicate
-    if(mode == Qt::CopyPixmap && d->pdev->devType() == QInternal::Pixmap) {
-        QPixmap *dst = static_cast<QPixmap*>(d->pdev);
-        if(!pm.mask().isNull() && !pm.isQBitmap()) {
-            QBitmap bm(dst->size(), true);
-            QPainter p(&bm);
-            if(!dst->mask().isNull() && r != QRectF(0, 0, dst->width(), dst->height()))
-                p.drawPixmap(0, 0, dst->mask(), Qt::CopyPixmap);
-            p.drawPixmap(r, pm.mask(), sr, Qt::CopyPixmap);
-            dst->setMask(bm);
-        }
-        if(pm.data->alpha)
-            dst->data->macSetAlpha(pm.data->alpha);
-    }
+    if(mode == Qt::CopyPixmap && d->pdev->devType() == QInternal::Pixmap)
+        static_cast<QPixmap*>(d->pdev)->data->macSetHasAlpha(pm.data->has_alpha);
 }
 
 void

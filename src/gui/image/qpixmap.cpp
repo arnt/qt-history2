@@ -499,7 +499,7 @@ void QPixmap::resize_helper(const QSize &s)
             XCopyArea(X11->display, data->x11_mask, pm.data->x11_mask, gc, 0, 0, qMin(width(), w), qMin(height(), h), 0, 0);
             XFreeGC(X11->display, gc);
         }
-#else
+#elif !defined(Q_WS_MAC)
     if (data->mask) {
         QBitmap m = *data->mask;
         m.resize(w, h);
