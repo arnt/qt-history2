@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#359 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#360 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -1779,7 +1779,7 @@ void QApplication::openPopup( QWidget *popup )
     // Popups are not focus-handled by the window system (the first
     // popup grabbed the keyboard), so we have to do that manually: A
     // new popup gets the focus
-    QFocusEvent::setReason( QFocusEvent::Popups );
+    QFocusEvent::setReason( QFocusEvent::Popup );
     if ( popup->focusWidget())
 	popup->focusWidget()->setFocus();
     else
