@@ -2395,6 +2395,7 @@ void QFileDialog::init()
     d->ignoreStop = FALSE;
     d->pendingItems.setAutoDelete( FALSE );
     d->mimeTypeTimer = new QTimer( this );
+    d->cursorOverride = FALSE;
     connect( d->mimeTypeTimer, SIGNAL( timeout() ),
 	     this, SLOT( doMimeTypeLookup() ) );
 
@@ -2843,12 +2844,12 @@ QFileDialog::~QFileDialog()
     d->moreFiles->clear();
     d->moreFiles->blockSignals( FALSE );
     files->blockSignals( FALSE );
-    
+
 #ifndef QT_NO_CURSOR
     if ( d->cursorOverride )
 	QApplication::restoreOverrideCursor();
 #endif
-    
+
     delete d;
     d = 0;
 }
@@ -4398,7 +4399,7 @@ void QFileDialog::createdDirectory( const QUrlInfo &info, QNetworkOperation * )
   If \a resolveSymlinks is FALSE, the file dialog will treat
   symlinks as regular directories.
 
-  Note that on Windows the dialog will spin a blocking modal event loop 
+  Note that on Windows the dialog will spin a blocking modal event loop
   that will not dispatch any QTimers.
 
   \sa getOpenFileName(), getOpenFileNames(), getSaveFileName()
