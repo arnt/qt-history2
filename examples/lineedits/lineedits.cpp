@@ -41,7 +41,8 @@ LineEdits::LineEdits( QWidget *parent )
     row1->addWidget( label );
 
     // Create a Combobox with three items...
-    combo1 = new QComboBox( FALSE, this );
+    combo1 = new QComboBox( this );
+    combo1->setEditable( false );
     row1->addWidget( combo1 );
     combo1->insertItem( "Normal" );
     combo1->insertItem( "Password" );
@@ -63,7 +64,8 @@ LineEdits::LineEdits( QWidget *parent )
     row2->addWidget( label );
 
     // A second Combobox with again three items...
-    combo2 = new QComboBox( FALSE, this );
+    combo2 = new QComboBox( this );
+    combo2->setEditable( false );
     row2->addWidget( combo2 );
     combo2->insertItem( "No Validator" );
     combo2->insertItem( "Integer Validator" );
@@ -84,7 +86,8 @@ LineEdits::LineEdits( QWidget *parent )
     row3->addWidget( label );
 
     // A combo box for setting alignment
-    combo3 = new QComboBox( FALSE, this );
+    combo3 = new QComboBox( this );
+    combo3->setEditable( false );
     row3->addWidget( combo3 );
     combo3->insertItem( "Left" );
     combo3->insertItem( "Centered" );
@@ -105,7 +108,8 @@ LineEdits::LineEdits( QWidget *parent )
     row4->addWidget( label );
 
     // A combo box for choosing an input mask
-    combo4 = new QComboBox( FALSE, this );
+    combo4 = new QComboBox( this );
+    combo4->setEditable( false );
     row4->addWidget( combo4 );
     combo4->insertItem( "No mask" );
     combo4->insertItem( "Phone number" );
@@ -129,7 +133,8 @@ LineEdits::LineEdits( QWidget *parent )
     (void)new QLabel( "Read-Only: ", row5 );
 
     // A combo box for setting alignment
-    combo5 = new QComboBox( FALSE, row5 );
+    combo5 = new QComboBox( row5 );
+    combo5->setEditable( false );
     combo5->insertItem( "False" );
     combo5->insertItem( "True" );
     // ...and again the activated() SIGNAL gets connected with a SLOT
@@ -141,6 +146,8 @@ LineEdits::LineEdits( QWidget *parent )
 
     // give the first LineEdit the focus at the beginning
     lined1->setFocus();
+    
+    resize(400, 400);
 }
 
 /*
