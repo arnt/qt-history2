@@ -17,6 +17,7 @@
 #include <qgfxraster_qws.h>
 #include <private/qunicodetables_p.h>
 #include <qbitmap.h>
+#include <qstackarray.h>
 #include "qpainter_p.h"
 #include "qpaintengine_qws.h"
 #define GFX(p) static_cast<QWSPaintEngine *>(p->device()->engine())->gfx()
@@ -65,6 +66,13 @@ QFontEngine::Error QFontEngine::stringToCMap( const QChar *str, int len, QGlyphL
 	    glyphs[i].advance = (memorymanager->lockGlyphMetrics(handle(), str[i].unicode() )->advance*scale)>>8;
     return NoError;
 }
+
+
+
+struct QtFontEnginePos {
+ 	int x;
+ 	int y;
+     };
 
 void QFontEngine::draw( QPainter *p, int x, int y, const QGlyphFragment &si, int textFlags )
 {
@@ -187,17 +195,11 @@ void QFontEngine::draw( QPainter *p, int x, int y, const QGlyphFragment &si, int
 	GFX(p)->setBrush( p->brush() );
     }
 
-    if ( si.isSpace )
-	return;
-
     QGlyphLayout *glyphs = si.glyphs;
 
-    struct Pos {
-	int x;
-	int y;
-    };
-    QStackArray<Pos>(si.num_glyphs);
+    QStackArray<QtFontEnginePos> positions(si.num_glyphs);
     QStackArray<unsigned short> g(si.num_glyphs);
+
     for (int i = 0; i < si.num_glyphs; ++i)
 	g[i] = glyphs[i].glyph;
 
@@ -218,8 +220,8 @@ void QFontEngine::draw( QPainter *p, int x, int y, const QGlyphFragment &si, int
 	    i++;
 	}
     }
-    QConstString cstr( (QChar *)g, si.num_glyphs );
-    GFX(p)->drawGlyphs(handle(), glyphs, (QPoint *)positions.data(), si.num_glyphs);
+//    QConstString cstr( (QChar *)g, si.num_glyphs );
+    GFX(p)->drawGlyphs(handle(), g, (QPoint *)positions.data(), si.num_glyphs);
 }
 
 glyph_metrics_t QFontEngine::boundingBox( const QGlyphLayout *glyphs, int numGlyphs )
