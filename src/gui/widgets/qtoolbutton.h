@@ -100,7 +100,7 @@ private:
 #ifdef QT_COMPAT
 public:
     QToolButton(QWidget * parent, const char* name);
-    inline QT_COMPAT void setPixmap(const QPixmap &pixmap) { setIcon(pixmap); }
+    inline QT_COMPAT void setPixmap(const QPixmap &pixmap) { setIcon(static_cast<QIconSet>(pixmap)); }
     QT_COMPAT void setOnIconSet(const QIconSet&);
     QT_COMPAT void setOffIconSet(const QIconSet&);
     QT_COMPAT void setIconSet(const QIconSet &, bool on = true);
