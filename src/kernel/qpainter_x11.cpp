@@ -530,6 +530,14 @@ void QPainter::cleanup()
     QPointArray::cleanBuffers();
 }
 
+/*!
+  Internal function that destroys up the painter.
+*/
+
+void QPainter::destroy()
+{
+
+}
 
 typedef QIntDict<QPaintDevice> QPaintDeviceDict;
 static QPaintDeviceDict *pdev_dict = 0;

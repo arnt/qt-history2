@@ -182,6 +182,11 @@ void QPainter::cleanup()
     QPointArray::cleanBuffers();
 }
 
+void QPainter::destroy()
+{
+
+}
+
 
 typedef QIntDict<QPaintDevice> QPaintDeviceDict;
 static QPaintDeviceDict *pdev_dict = 0;
