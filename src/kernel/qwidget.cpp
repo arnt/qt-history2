@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#468 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#469 $
 **
 ** Implementation of QWidget class
 **
@@ -2137,7 +2137,8 @@ void QWidget::setMouseTracking( bool enable )
 #endif // _WS_X11_
 
 
-/*!  Sets this widget's focus proxy to \a w.
+/*!  Sets this widget's focus proxy to \a w. If \a w is 0, this
+  function resets this widget to not have any focus proxy.
 
   Some widgets, such as QComboBox, can "have focus," but create a
   child widget to actually handle the focus.  QComboBox, for example,
@@ -2147,6 +2148,8 @@ void QWidget::setMouseTracking( bool enable )
   "this widget" gets it.  If there is a focus proxy, focusPolicy(),
   setFocusPolicy(), setFocus() and hasFocus() all operate on the focus
   proxy.
+
+  \sa focusProxy()
 */
 
 void QWidget::setFocusProxy( QWidget * w )
