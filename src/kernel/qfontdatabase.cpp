@@ -1038,8 +1038,10 @@ QFont QFontDatabase::font( const QString &family, const QString &style,
 	if (! s)
 	    s = "none";
 
+#ifndef QT_NO_DEBUG
         qWarning( "QFontDatabase::font: Style not found for %s, %s, %d",
 		  f, s, pointSize);
+#endif
         return QFont();
     }
 

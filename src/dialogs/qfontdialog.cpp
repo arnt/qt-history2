@@ -643,9 +643,11 @@ void QFontDialog::updateScripts()
     }
 
     if ( d->scriptNames.isEmpty() ) {
+#ifndef QT_NO_DEBUG
 	qWarning( "QFontDialog::updateFamilies: Internal error, "
 		  "no scripts for family \"%s\"",
 		  (const char *) d->family );
+#endif
 	return;
     }
 
@@ -665,9 +667,11 @@ void QFontDialog::updateStyles()
     QStringList styles = d->fdb.styles( d->family );
 
     if ( styles.isEmpty() ) {
+#ifndef QT_NO_DEBUG
 	qWarning( "QFontDialog::updateFamilies: Internal error, "
 		  "no styles for family \"%s\" with script \"%s\"",
 		  (const char *) d->family, (const char *) d->script );
+#endif
 	return;
     }
     d->styleList->insertStringList( styles );
@@ -685,11 +689,13 @@ void QFontDialog::updateSizes()
     QValueList<int> sizes = d->fdb.pointSizes( d->family,d->style );
 
     if ( sizes.isEmpty() ) {
+#ifndef QT_NO_DEBUG
 	qWarning( "QFontDialog::updateFamilies: Internal error, "
 		  "no pointsizes for family \"%s\" with script \"%s\"\n"
 		  "and style \"%s\"",
 		  (const char *) d->family, (const char *) d->script,
 		  (const char *) d->style );
+#endif
 	return;
     }
     int i;
@@ -807,6 +813,10 @@ enum match_t { MATCH_NONE=0, MATCH_LAST_RESORT=1, MATCH_DEFAULT=2, MATCH_FAMILY=
 
 void QFontDialog::setFont( const QFont &f )
 {
+    QListBoxText *dummy = new QListBoxText( d->familyList );
+    d->familyList->blockSignals( TRUE );
+    d->familyList->setCurrentItem( dummy );
+    d->familyList->blockSignals( FALSE );
     QString foundryName1, familyName1, foundryName2, familyName2;
     int bestFamilyMatch = -1;
     match_t bestFamilyType = MATCH_NONE;
@@ -823,6 +833,8 @@ void QFontDialog::setFont( const QFont &f )
 	//try to match..
 	if (foundryName1 == foundryName2 && familyName1 == familyName2) {
 	    d->familyList->setCurrentItem(i);
+	    delete dummy;
+	    dummy = 0;
 	    i = -1;
 	    break;
 	}
@@ -855,8 +867,13 @@ void QFontDialog::setFont( const QFont &f )
 	}
     }
 
-    if (i != -1 && bestFamilyType != MATCH_NONE)
+    if (i != -1 && bestFamilyType != MATCH_NONE) {
 	d->familyList->setCurrentItem(bestFamilyMatch);
+    } else if ( dummy ) {
+	d->familyList->setCurrentItem( 0 );
+    }
+    delete dummy;
+    dummy = 0;
 
     QString styleString = d->fdb.styleString( f );
     if ( !styleString.isEmpty() && d->styleList->count() != 0 ) {
