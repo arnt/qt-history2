@@ -65,7 +65,7 @@ main(int argc, char **argv)
                 fprintf(stderr, "*** %s does not exist!\n", argv[file]);
                 continue;
             }
-            printf("****************** %s ****************\n", argv[file]);
+            printf("****************** %s [%d] ****************\n", argv[file], resource->size());
             if(resource->isContainer()) {
                 QList<QResource *> children = resource->children();
                 for(int i = 0; i < children.size(); i++) 
