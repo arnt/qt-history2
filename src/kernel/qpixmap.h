@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap.h#28 $
+** $Id: //depot/qt/main/src/kernel/qpixmap.h#29 $
 **
 ** Definition of QPixmap class
 **
@@ -25,6 +25,7 @@ friend class QPainter;
 public:
     QPixmap();
     QPixmap( int w, int h,  int depth=-1 );
+    QPixmap( QSize sz,  int depth=-1 );
     QPixmap( const QPixmap & );
    ~QPixmap();
 
