@@ -180,8 +180,8 @@ static bool read_dib(QDataStream &s, int offset, int startpos, QImage &image)
         (nbits == 8 && comp == BMP_RLE8) || ((nbits == 16 || nbits == 32) && comp == BMP_BITFIELDS)))
          return false;                                // weird compression type
 
-    int ncols;
-    int depth;
+    int ncols = 0;
+    int depth = 0;
     QImage::Format format;
     switch (nbits) {
         case 32:

@@ -77,7 +77,7 @@ void qt_find_ellipse_coords(const QRectF &r, qreal angle, qreal length,
     }
 }
 
-#ifndef QT_NO_DEBUG
+#ifdef QPP_DEBUG
 static void qt_debug_path(const QPainterPath &path)
 {
     const char *names[] = {
