@@ -528,7 +528,7 @@ void QXmlNamespaceSupport::splitName( const QString& qname,
 
   The return values will be stored in the last two parameters as follows:
   <ul>
-  <li> The namespace URI, or an empty string if none is in use.
+  <li> The namespace URI, or a null string if no namespace is in use.
   <li> The local name (without prefix).
   </ul>
 
@@ -543,12 +543,7 @@ void QXmlNamespaceSupport::processName( const QString& qname,
 	bool isAttribute,
 	QString& nsuri, QString& localname ) const
 {
-    uint pos;
-    // search the ':'
-    for( pos=0; pos<qname.length(); pos++ ) {
-	if ( qname.at(pos) == ':' )
-	    break;
-    }
+    uint pos = qname.find( ':' );
     if ( pos < qname.length() ) {
 	// there was a ':'
 	nsuri = uri( qname.left( pos ) );
@@ -556,7 +551,7 @@ void QXmlNamespaceSupport::processName( const QString& qname,
     } else {
 	// there was no ':'
 	if ( isAttribute ) {
-	    nsuri = ""; // attributes don't take default namespace
+	    nsuri = QString::null; // attributes don't take default namespace
 	} else {
 	    nsuri = uri( "" ); // get default namespace
 	}
@@ -689,7 +684,7 @@ int QXmlAttributes::index( const QString& qName ) const
 /*!
   Looks up the index of an attribute by a namespace name.
 
-  \a uri specifies the namespace URI, or the empty string if the name has no
+  \a uri specifies the namespace URI, or an empty string if the name has no
   namespace URI. \a localPart specifies the attribute's local name.
 
   Returns the index of the attribute (starting with 0) or -1 if it wasn't
@@ -699,9 +694,14 @@ int QXmlAttributes::index( const QString& qName ) const
 */
 int QXmlAttributes::index( const QString& uri, const QString& localPart ) const
 {
+    QString uriTmp;
+    if ( uri.isEmpty() )
+	uriTmp = QString::null;
+    else
+	uriTmp = uri;
     uint count = uriList.count();
     for ( uint i=0; i<count; i++ ) {
-	if ( uriList[i] == uri && localnameList[i] == localPart )
+	if ( uriList[i] == uriTmp && localnameList[i] == localPart )
 	    return i;
     }
     return -1;
@@ -716,7 +716,8 @@ int QXmlAttributes::length() const
 }
 
 /*!
-  Looks up an attribute's local name by index (starting with 0).
+  Looks up an attribute's local name by index (starting with 0). If no
+  namespace processing is done, the local name is a null string.
 
   See also the <a href="xml-sax.html#namespaces">namespace description</a>.
 */
@@ -736,7 +737,9 @@ QString QXmlAttributes::qName( int index ) const
 }
 
 /*!
-  Looks up an attribute's namespace URI by index (starting with 0).
+  Looks up an attribute's namespace URI by index (starting with 0). If no
+  namespace processing is done or if the attribute has no namespace, the
+  namespace URI is a null string.
 
   See also the <a href="xml-sax.html#namespaces">namespace description</a>.
 */
@@ -803,7 +806,7 @@ QString QXmlAttributes::value( const QString& qName ) const
 /*!
   Looks up an attribute's value by namespace name.
 
-  \a uri specifies the namespace URI, or the empty string if the name has no
+  \a uri specifies the namespace URI, or an empty string if the name has no
   namespace URI. \a localName specifies the attribute's local name.
 
   See also the <a href="xml-sax.html#namespaces">namespace description</a>.
@@ -1077,13 +1080,12 @@ finished:
   declaration (i.e. attributes starting with xmlns) only if the
   namespace-prefix property of the reader is TRUE.
 
-  The argument \a uri is the namespace URI, or the empty string if the element
-  has no namespace URI or if namespace processing is not being performed, \a
-  localName is the local name (without prefix), or the empty string if
-  namespace processing is not being performed, \a qName is the qualified name
-  (with prefix), or the empty string if qualified names are not available and
-  \a atts are the attributes attached to the element. If there are no
-  attributes, \a atts is an empty attributes object
+  The argument \a uri is the namespace URI, or a null string if the element
+  has no namespace URI or if no namespace processing is done, \a localName is
+  the local name (without prefix), or a null string if no namespace processing
+  is done, \a qName is the qualified name (with prefix) and \a atts are the
+  attributes attached to the element. If there are no attributes, \a atts is an
+  empty attributes object
 
   If this function returns FALSE the reader will stop parsing and will report
   an error. The reader will use the function errorString() to get the error
@@ -2498,7 +2500,7 @@ bool QXmlSimpleReader::parseElement()
 			d->namespaceSupport.processName( d->tags.top(), FALSE, uri, lname );
 			t = contentHnd->startElement( uri, lname, d->tags.top(), d->attList );
 		    } else {
-			t = contentHnd->startElement( "", "", d->tags.top(), d->attList );
+			t = contentHnd->startElement( QString::null, QString::null, d->tags.top(), d->attList );
 		    }
 		    if ( !t ) {
 			d->error = contentHnd->errorString();
@@ -2696,8 +2698,8 @@ bool QXmlSimpleReader::parseElementAttribute( QString &prefix, QString &uri, QSt
 	    d->namespaceSupport.setPrefix( lname, string() );
 	    if ( d->useNamespacePrefixes ) {
 		d->attList.qnameList.append( name() );
-		d->attList.uriList.append( "" );
-		d->attList.localnameList.append( "" );
+		d->attList.uriList.append( QString::null );
+		d->attList.localnameList.append( QString::null );
 		d->attList.valueList.append( string() );
 	    }
 	    // call the handler for prefix mapping
@@ -2718,8 +2720,8 @@ bool QXmlSimpleReader::parseElementAttribute( QString &prefix, QString &uri, QSt
     } else {
 	// no namespace support
 	d->attList.qnameList.append( name() );
-	d->attList.uriList.append( "" );
-	d->attList.localnameList.append( "" );
+	d->attList.uriList.append( QString::null );
+	d->attList.localnameList.append( QString::null );
 	d->attList.valueList.append( string() );
     }
     return TRUE;
