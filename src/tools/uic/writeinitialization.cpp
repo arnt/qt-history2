@@ -544,7 +544,7 @@ void WriteInitialization::writeProperties(const QString &varName,
             }
             break;
         case DomProperty::Cursor:
-            propertyValue = QString::fromLatin1("QCursor(static_cast<Qt::CursorShape(%1))")
+            propertyValue = QString::fromLatin1("QCursor(static_cast<Qt::CursorShape>(%1))")
                             .arg(p->elementCursor());
             break;
         case DomProperty::Enum:
