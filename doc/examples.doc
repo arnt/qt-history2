@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: examples.doc,v 2.8 1997/09/03 21:39:20 paul Exp $
+** $Id: examples.doc,v 2.9 1997/09/29 15:16:28 agulbra Exp $
 **
 ** Documentation for the examples
 **
@@ -8,7 +8,7 @@
 *****************************************************************************/
 
 #if defined(DEBUG)
-static char ident[] = "$Id: examples.doc,v 2.8 1997/09/03 21:39:20 paul Exp $";
+static char ident[] = "$Id: examples.doc,v 2.9 1997/09/29 15:16:28 agulbra Exp $";
 #endif
 
 
@@ -23,6 +23,29 @@ static char ident[] = "$Id: examples.doc,v 2.8 1997/09/03 21:39:20 paul Exp $";
   \include aclock/aclock.h
 
 */
+
+
+/*! \example biff/biff.cpp
+
+  <h1 align=center>Biff (unix only)</a>
+
+  Biff is a simple graphical program to indicate whether there is new
+  mail; it looks exactly like xbiff but is much shorter.
+
+  The example is divided into two .cpp files and one .h file.
+  main.cpp looks like most simple Qt-based main() implementations:
+
+  \include biff/main.cpp
+
+  biff.h is the declaratin for the custom widget which does all the
+  work:
+
+  \include biff/biff.h
+
+  Finally, biff.cpp implements this custom widget.  Note in particular
+  how two images (hasmail_bmp_data and nomail_bmp_data, both from
+  bmp.cpp) are included into the executable.
+*/	
 
 
 /*! \example connect/connect.cpp
@@ -56,6 +79,17 @@ static char ident[] = "$Id: examples.doc,v 2.8 1997/09/03 21:39:20 paul Exp $";
   \include dclock/dclock.h
 
 */
+
+
+/*! \example desktop/desktop.cpp
+
+  <h1 align=center>Painting on the Desktop</a>
+
+  The desktop demo contains three routines, each of which draws
+  something on the desktop.  It does some nice stuff with QPainter,
+  and also demonstrates how one can treat the desktop as a widget like
+  any other.
+*/	
 
 
 /*! \example drawdemo/drawdemo.cpp
@@ -94,29 +128,80 @@ static char ident[] = "$Id: examples.doc,v 2.8 1997/09/03 21:39:20 paul Exp $";
 
   <h1 align=center>Geometry management</h1>
 
-  This example shows how to use Qt's layout classes. 
+  This example shows simple and intermediate use of Qt's layout
+  classes, QGridLaout, QBoxLayout etc.
 */
+
+
+/*! \example life/life.cpp
+
+  <h1 align=center>Conway's Game of Life</a>
+
+  We'll include just the main widget from Life; there are also a
+  rudimentary main() and a dialog which wraps this widget in a QSlider
+  to set the speed as well as Pause and Quit buttons.
+
+.  The class definition:
+
+  \include life/life.h
+
+  And the implementation of the member functions:
+*/	
 
 
 /*! \example menu/menu.cpp
 
   <h1 align=center>Using menus</h1>
 
-  This example demontrates simple use of menus.
+  This example demontrates simple use of menus (a menu bar and
+  pull-down menus).  Qt also supports popup menus, but this example
+  doesn't contain any.
+*/
+
+
+/*! \example movies/main.cpp  
+
+  <h1 align=center>Movies<br>Or the Story of the Animated GIF file</h1>
+
+  The Movies example displays animated GIF files using the QMovie and
+  QLabel classes.
 */
 
 
 /*! \example picture/makepic.cpp
   <h1 align=center>Make Picture</h1>
 
-  This example draws a car in a picture and writes it to a file.
+  This example draws a car in a picture and writes it to a file.  The
+  examples/showpic.cpp example can read and display this file.
+
 */
 
 
 /*! \example picture/showpic.cpp
   <h1 align=center>Show Picture</h1>
 
-  This example loads a picture file and displays it in a window.
+  This example loads a picture file (e.g written by the
+  picture/makepic.cpp example) and displays it in a window.
+*/
+
+
+/*! \example pref/pref.cpp
+
+  <h1 align=center>Preferences</h1>
+
+  This example displays a simple (and ugly) tab dialog and then
+  options the user chooses.  It illustrates hello-world usage of
+  QTabDialog, QGridLayout and QBoxLayout.
+*/
+
+
+/*! \example progress/progress.cpp
+
+  <h1 align=center>Progress Bar and Dialog Example</h1>
+
+  This example displays either a simple (text-only) or a
+  custom-labelled (user-supplied widget) progress dialog.  It also
+  demonstrates simple use of menus.
 */
 
 
@@ -127,20 +212,19 @@ static char ident[] = "$Id: examples.doc,v 2.8 1997/09/03 21:39:20 paul Exp $";
 This is a simple magnifier-type program.  It shows how one can do
 some quite low-level operations portably using Qt.
 
-<p>
-
 Run it, click in the magnifier window, then click where you want to
-magnify.  Two combo boxes let you select amplification and refresh
-frequency, and a text label tells you the color of the pixel the
-cursor is on.
-*/
+magnify or drag out a rectangle.  Two combo boxes let you select
+amplification and refresh frequency, a text label tells you the color
+of the pixel the cursor is on, and a button lets you save the
+magnified area as a .bmp file. */
 
 
 /*! \example showimg/showimg.cpp
 
   <h1 align=center>Show Image</h1>
 
-  This example reads and displays an image.
+  This example reads and displays an image in any supported image
+  format (GIF, BMP, PPM, XMP etc.)
 */
 
 
@@ -195,4 +279,13 @@ cursor is on.
   example widgets; aclock and dclock.
 
   It also shows how to connect widget signals to internal slots.
+*/
+
+
+/*! \example xform/xform.cpp
+
+  <h1 align=center>Transformed Graphics Demo</h1>
+
+  This example lets the user rotate, shear and scale text and graphics
+  arbitrarily.
 */
