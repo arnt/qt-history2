@@ -9,9 +9,9 @@ $Id$
 int main( int argc, char ** argv)
 {
     QApplication app( argc, argv );
-    Editor * editor = new Editor;
+    Editor editor;
 
-    app.setMainWidget( editor );
-    editor->show();
+    app.setMainWidget( &editor );
+    editor.show();
     return app.exec();
 }
