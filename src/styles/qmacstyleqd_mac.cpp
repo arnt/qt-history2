@@ -522,6 +522,7 @@ void QMacStyleQD::drawPrimitive(PrimitiveElement pe,
 	break;
     case PE_HeaderSection: {
         ThemeButtonKind bkind = kThemeListHeaderButton;
+#ifndef QT_NO_TABLE
         // Grab the widget behind this thing yet again and check if it's parent is a table.
         // We do this because the kThemeListHeader apparently doesn't extend vertically.
         // Also change the sunken flag to true for items that are selected. Because of
@@ -537,6 +538,7 @@ void QMacStyleQD::drawPrimitive(PrimitiveElement pe,
                     flags &= ~Style_Sunken;
             }
         }
+#endif
 	ThemeButtonDrawInfo info = { kThemeStateActive, kThemeButtonOff, kThemeAdornmentNone };
         QWidget *w = 0;
         if (p->device()->devType() == QInternal::Widget)
@@ -1045,9 +1047,10 @@ void QMacStyleQD::drawControl(ControlElement element,
 
 	// change the color to bright text if we are a table header and selected.
         const QColor *penColor = &pal.buttonText().color();
+#ifndef QT_NO_TABLE
         if (::qt_cast<QTable *>(header->parentWidget()) && p->font().bold())
             penColor = &pal.color(QColorGroup::BrightText);
-
+#endif
         drawItem(p, textr, AlignVCenter, pal, how & Style_Enabled,
                  header->label(section), -1, penColor);
         break;
