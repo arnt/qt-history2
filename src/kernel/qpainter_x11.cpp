@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#310 $
+** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#311 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -40,7 +40,9 @@
 /* paintevent magic to provide Windows semantics on X11
  */
 static QRegion* paintEventClipRegion = 0;
+static QRegion* paintEventSaveRegion = 0;
 static QPaintDevice* paintEventDevice = 0;
+
 void qt_set_paintevent_clipping( QPaintDevice* dev, const QRegion& region)
 {
     if ( !paintEventClipRegion )
@@ -49,10 +51,13 @@ void qt_set_paintevent_clipping( QPaintDevice* dev, const QRegion& region)
 	*paintEventClipRegion = region;
     paintEventDevice = dev;
 }
+
 void qt_clear_paintevent_clipping()
 {
     delete paintEventClipRegion;
+    delete paintEventSaveRegion;
     paintEventClipRegion = 0;
+    paintEventSaveRegion = 0;
     paintEventDevice = 0;
 }
 
@@ -1000,6 +1005,9 @@ bool QPainter::end()				// end painting
     if ( testf(ExtDev) )
 	pdev->cmd( QPaintDevice::PdcEnd, this, 0 );
 
+    if ( paintEventSaveRegion )
+	*paintEventSaveRegion = QRegion();
+
     flags = 0;
     pdev->painters--;
     pdev = 0;
@@ -1196,16 +1204,31 @@ void QPainter::setBrushOrigin( int x, int y )
 
 void QPainter::setClipping( bool enable )
 {
+    if ( !isActive() ) {
 #if defined(CHECK_STATE)
-    if ( !isActive() )
 	qWarning( "QPainter::setClipping: Will be reset by begin()" );
 #endif
-    if ( !isActive() || enable == testf(ClipOn) )
 	return;
+    }
 
-    if ( !enable && paintEventDevice == device() ) {
-	enable = TRUE;
-	crgn = *paintEventClipRegion;
+    if ( enable == testf(ClipOn)
+	 && ( paintEventDevice != device() || !enable
+	      || !paintEventSaveRegion || paintEventSaveRegion->isNull() ) )
+	 return;
+
+    if ( paintEventDevice == device() ) {
+	if ( !enable ) {
+	    enable = TRUE;
+	    if ( !paintEventSaveRegion )
+		paintEventSaveRegion = new QRegion( crgn );
+	    else
+		*paintEventSaveRegion = crgn;
+	    crgn = *paintEventClipRegion;
+	}
+	else {
+	    if ( paintEventSaveRegion && !paintEventSaveRegion->isNull() )
+		crgn = *paintEventSaveRegion;
+	}
     }
 
     setf( ClipOn, enable );
@@ -1256,8 +1279,11 @@ void QPainter::setClipRegion( const QRegion &rgn )
 	qWarning( "QPainter::setClipRegion: Will be reset by begin()" );
 #endif
     crgn = rgn;
-    if ( paintEventDevice == device() )
+    if ( paintEventDevice == device() ) {
 	crgn = crgn.intersect( *paintEventClipRegion );
+	if ( paintEventSaveRegion )
+	    *paintEventSaveRegion = QRegion();
+    }
 
     if ( testf(ExtDev) ) {
 	QPDevCmdParam param[1];
