@@ -666,7 +666,7 @@ void QTreeView::drawBranches(QPainter *painter, const QRect &rect,
         opt.state = QStyle::State_Item
                     | (d->model->rowCount(parent) - 1 > index.row()
                       ? QStyle::State_Sibling : QStyle::State_None)
-                    | (model()->hasChildren(index) ? QStyle::State_Children : QStyle::State_None)
+                    | (d->model->hasChildren(index) ? QStyle::State_Children : QStyle::State_None)
                     | (d->viewItems.at(d->current).open ? QStyle::State_Open : QStyle::State_None);
         style()->drawPrimitive(QStyle::PE_IndicatorBranch, &opt, painter, this);
     }
