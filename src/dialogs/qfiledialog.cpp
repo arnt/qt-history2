@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#129 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#130 $
 **
 ** Implementation of QFileDialog class
 **
@@ -155,7 +155,7 @@ static void makeVariables() {
 	closedFolderIcon->loadFromData( closed_gif_data, closed_gif_len );
 	detailViewIcon = new QPixmap();
 	detailViewIcon->loadFromData( detailedview_gif_data,
-				     detailedview_gif_len );
+				      detailedview_gif_len );
 	multiColumnListViewIcon = new QPixmap();
 	multiColumnListViewIcon->loadFromData( mclistview_gif_data,
 					       mclistview_gif_len );
@@ -192,16 +192,19 @@ struct QFileDialogPrivate {
     QString currentFileName;
 
     struct File: public QListViewItem {
-	File( const QFileInfo * fi, QListViewItem * parent, int h )
-	    : QListViewItem( parent ), info( *fi ) { setHeight( h ); }
-	File( const QFileInfo * fi, QListView * parent, int h  )
-	    : QListViewItem( parent ), info( *fi ) { setHeight( h ); }
+	File( QFileDialogPrivate * dlgp, 
+	      const QFileInfo * fi, QListViewItem * parent, int h )
+	    : QListViewItem( parent ), info( *fi ), d(dlgp) { setHeight( h ); }
+	File( QFileDialogPrivate * dlgp,
+	      const QFileInfo * fi, QListView * parent, int h  )
+	    : QListViewItem( parent ), info( *fi ), d(dlgp) { setHeight( h ); }
 
 	QString text( int column ) const;
 	QString key( int column, bool ) const;
 	const QPixmap * pixmap( int ) const;
 
 	QFileInfo info;
+	QFileDialogPrivate * d;
     };
 
     class MCList: public QTableView {
@@ -235,6 +238,18 @@ struct QFileDialogPrivate {
     MCList * moreFiles;
 
     QFileDialog::Mode mode;
+
+    QString rw;
+    QString ro;
+    QString wo;
+    QString inaccessible;
+       
+    QString symLinkToFile;
+    QString file;
+    QString symLinkToDir;
+    QString dir;
+    QString symLinkToSpecial;
+    QString special;
 };
 
 
@@ -250,14 +265,18 @@ QString QFileDialogPrivate::File::text( int column ) const
 	tmpString->sprintf( "%d", info.size() );
 	break;
     case 2:
-	if ( info.isFile() )
-	    *tmpString = "File";
+	if ( info.isFile() && info.isSymLink() )
+	    *tmpString = d->symLinkToFile;
+	else if ( info.isFile() )
+	    *tmpString = d->file;
+	else if ( info.isDir() && info.isSymLink() )
+	    *tmpString = d->symLinkToDir;
 	else if ( info.isDir() )
-	    *tmpString = "Directory";
+	    *tmpString = d->dir;
+	else if ( info.isSymLink() )
+	    *tmpString = d->symLinkToSpecial;
 	else
-	    *tmpString = "Special File";
-	if ( info.isSymLink() )
-	    tmpString->prepend( "Link to " );
+	    *tmpString = d->special;
 	break;
     case 3:
 	{
@@ -274,9 +293,9 @@ QString QFileDialogPrivate::File::text( int column ) const
 	break;
     case 4:
 	if ( info.isReadable() )
-	    *tmpString = info.isWritable() ? "Read-write" : "Read-only";
+	    *tmpString = info.isWritable() ? d->rw : d->ro;
 	else
-	    *tmpString = info.isWritable() ? "Write-only" : "Inaccessible";
+	    *tmpString = info.isWritable() ? d->wo : d->inaccessible;
 	break;
     default:
 	*tmpString = "<--->";
@@ -918,6 +937,18 @@ void QFileDialog::init()
 
     setFontPropagation( SameFont );
     setPalettePropagation( SamePalette );
+
+    d->rw = tr( "Read-write" );
+    d->ro = tr( "Read-only" );
+    d->wo = tr( "Write-only" );
+    d->inaccessible = tr( "Inaccessible" );
+
+    d->symLinkToFile = tr( "Symlink to File" );
+    d->symLinkToDir = tr( "symlink to Directory" );
+    d->symLinkToSpecial = tr( "Symlink to Special" );
+    d->file = tr( "File" );
+    d->dir = tr( "Dir" );
+    d->special = tr( "Special" );
 }
 
 /*!
@@ -1108,7 +1139,7 @@ void QFileDialog::rereadDir()
 	if ( fi->fileName() != "." &&
 	     ( !cwd.isRoot() || fi->fileName() != ".." ) ) {
 	    QListViewItem * i
-		= new QFileDialogPrivate::File( fi, files, itemHeight );
+		= new QFileDialogPrivate::File( d, fi, files, itemHeight );
 	    if ( mode() == ExistingFiles && fi->isDir() )
 		i->setSelectable( FALSE );
 	}
@@ -1423,7 +1454,8 @@ void QFileDialog::okClicked()
 	accept();
     } else {
 	QFileInfo f;
-	QFileDialogPrivate::File * c = (QFileDialogPrivate::File *)files->currentItem();
+	QFileDialogPrivate::File * c
+	    = (QFileDialogPrivate::File *)files->currentItem();
         if ( c && files->isSelected(c) )
 	    f = c->info;
 	else
