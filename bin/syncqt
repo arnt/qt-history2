@@ -587,7 +587,6 @@ foreach (@modules_to_sync) {
     my $master_contents = "";
     my $pri_install_classes = "";
     my $pri_install_files = "";
-    my $pri_public_headers = "";
 
     #get dependencies
     if(-e "$dir/" . basename($dir) . ".pro") {
@@ -703,8 +702,7 @@ foreach (@modules_to_sync) {
 				my $class = "$_";
 				my $header_base = basename($header);
 				$class_lib_map_contents .= "QT_CLASS_LIB($_, $lib, $header_base)\n";
-				$header_copies++ if(syncHeader("$out_basedir/include/$lib/$class", 
-							       $copy_headers ? $header : $iheader, 0));
+				$header_copies++ if(syncHeader("$out_basedir/include/$lib/$class", $header, 0));
 			    }
 			} else {
 			    @headers = ( "$out_basedir/include/Qt/private/$header", 
@@ -722,15 +720,11 @@ foreach (@modules_to_sync) {
 			    if($public_header) {
 				my $pri_install_iheader = fixPaths($iheader, "$out_basedir/include/src/$lib");
 				foreach(@classes) {
-				    $pri_install_classes .= " \\\n  \$\$quote(\"" .
-					(length($pri_install_classes) ? "\\n\\t" : "") .
-					"-\$(INSTALL_FILE) \"$pri_install_iheader\" \"PREFIXPATH/$_\"\")";
+				    $pri_install_classes .= "$out_basedir/include/$lib/$_ " 
+					unless($pri_install_classes =~ "$out_basedir/include/$lib/$_ ");
 				}
 				$pri_install_files .= "$pri_install_iheader ";;
 			    }
-
-			    #stick all files into list of files
-			    #...
 			}
                     }
 		    print "header created for $iheader ($header_copies)\n" if($header_copies > 0);
@@ -763,9 +757,8 @@ foreach (@modules_to_sync) {
 
         #handle the headers.pri for each module
 	my $headers_pri_contents = "";
-	$headers_pri_contents .= "HEADERS_PRI.INSTALL.HEADER_FILES = $pri_install_files\n";
-	$headers_pri_contents .= "HEADERS_PRI.INSTALL.CLASSES_COPY = $pri_install_classes\n";
-	$headers_pri_contents .= "HEADERS_PRI.PUBLIC_HEADER_FILES = $pri_public_headers\n";
+	$headers_pri_contents .= "SYNCQT.HEADER_FILES = $pri_install_files\n";
+	$headers_pri_contents .= "SYNCQT.HEADER_CLASSES = $pri_install_classes\n";
         my $headers_pri_file = "$out_basedir/include/$lib/headers.pri";
         if(-e "$headers_pri_file") {
             open HEADERS_PRI_FILE, "<$headers_pri_file";
