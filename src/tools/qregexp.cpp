@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qregexp.cpp#59 $
+** $Id: //depot/qt/main/src/tools/qregexp.cpp#60 $
 **
 ** Implementation of QRegExp class
 **
@@ -330,7 +330,7 @@ int QRegExp::match( const QString &str, int index, int *len,
 		    pl--;
 		}
 	    } else {				// case insensitive
-		while ( pl && tolower(*p) != (QChar)*d ) {
+		while ( pl && (QChar)tolower(*p) != (QChar)*d ) { //### uc...
 		    p++;
 		    pl--;
 		}
@@ -423,7 +423,7 @@ const QChar *QRegExp::matchstr( uint *rxd, const QChar *str, uint strlength,
 		p++;
 		pl--;
 	    } else {				// case insensitive
-		if ( tolower(*p) != (QChar)*d )
+		if ( (QChar)tolower(*p) != (QChar)*d ) //### uc...
 		    return 0;
 		p++;
 		pl--;
@@ -479,7 +479,7 @@ const QChar *QRegExp::matchstr( uint *rxd, const QChar *str, uint strlength,
 			}
 		    }
 		    else {			// case insensitive
-			while ( pl && tolower(*p) == (QChar)*d ) {
+			while ( pl && (QChar)tolower(*p) == (QChar)*d ) { //### uc...
 			    p++;
 			    pl--;
 			}
@@ -529,7 +529,7 @@ const QChar *QRegExp::matchstr( uint *rxd, const QChar *str, uint strlength,
 			}
 		    }
 		    else {			// case insensitive
-			if ( pl && tolower(*p) == (QChar)*d ) {
+			if ( pl && (QChar)tolower(*p) == (QChar)*d ) { // ### uc...
 			    p++;
 			    pl--;
 			}
