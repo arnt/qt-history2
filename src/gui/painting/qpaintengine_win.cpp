@@ -73,6 +73,9 @@
 #define SB_GRAD_TRI         0x00000020
 #endif
 
+Q_DECLARE_TYPEINFO(POINT, Q_PRIMITIVE_TYPE);
+Q_DECLARE_TYPEINFO(RECT, Q_PRIMITIVE_TYPE);
+
 // True if GDI+ and its function could be resolved...
 static bool qt_gdiplus_support = false;
 static bool qt_resolved_gdiplus = false;
@@ -554,17 +557,24 @@ void QWin32PaintEngine::drawPolygon(const QPolygon &p, PolygonDrawMode mode)
                 plot_pixel = false;
             }
         }
+
+        QVarLengthArray<POINT, 512> nativePoints(p.size());
+        for (int i=0; i<p.size(); ++i) {
+            nativePoints[i].x = qRound(p.at(i).x());
+            nativePoints[i].y = qRound(p.at(i).y());
+        }
+
         if (plot_pixel) {
-            Polyline(d->hdc, (POINT*)p.toPointArray().data(), npoints);
+            Polyline(d->hdc, nativePoints.data(), npoints);
 #ifndef Q_OS_TEMP
             SetPixelV(d->hdc, x2, y2, d->pColor);
 #else
             SetPixel(d->hdc, x2, y2, d->pColor);
 #endif
         } else {
-            QPointArray copy = p.toPointArray();
-            copy.setPoint(npoints-1, x2, y2);
-            Polyline(d->hdc, (POINT*)(copy.data()), npoints);
+            nativePoints[npoints-1].x = x2;
+            nativePoints[npoints-1].y = y2;
+            Polyline(d->hdc, nativePoints.data(), npoints);
         }
         return;
     }
@@ -586,7 +596,14 @@ void QWin32PaintEngine::drawPolygon(const QPolygon &p, PolygonDrawMode mode)
 #endif
     if (d->nocolBrush)
         SetTextColor(d->hdc, d->bColor);
-    Polygon(d->hdc, (POINT*)p.toPointArray().data(), p.size());
+
+    QVarLengthArray<POINT, 512> nativePoints(p.size());
+    for (int i=0; i<p.size(); ++i) {
+        nativePoints[i].x = qRound(p.at(i).x());
+        nativePoints[i].y = qRound(p.at(i).y());
+    }
+
+    Polygon(d->hdc, nativePoints.data(), p.size());
     if (d->nocolBrush)
         SetTextColor(d->hdc, d->pColor);
 #ifndef Q_OS_TEMP
