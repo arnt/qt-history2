@@ -1086,8 +1086,6 @@ void QTextCursor::splitAndInsertEmptyParag( bool ind, bool updateIds )
     QTextFormat *f = 0;
     if ( doc->useFormatCollection() ) {
 	f = string->at( idx )->format();
-	if ( idx == string->length() - 1 && idx > 0 )
-	    f = string->at( idx - 1 )->format();
 	if ( f->isMisspelled() ) {
 	    f->removeRef();
 	    f = doc->formatCollection()->format( f->font(), f->color() );
@@ -3371,7 +3369,7 @@ void QTextParag::setFormat( int index, int len, QTextFormat *f, bool useCollecti
     if ( index > str->length() - 1 )
 	index = str->length() - 1;
     if ( index + len >= str->length() )
-	len = str->length() - 1 - index;
+	len = str->length() - index;
 
     QTextFormatCollection *fc = 0;
     if ( useCollection )
