@@ -572,7 +572,7 @@ DspMakefileGenerator::init()
 	    project->variables()["QMAKE_LFLAGS"].append("/NODEFAULTLIB:\"libc\"");
     }
 
-    if ( !project->isActiveConfig("stl") )
+    if ( project->isActiveConfig("stl") )
 	project->variables()["QMAKE_CXXFLAGS"] += project->variables()["QMAKE_CXXFLAGS_STL"];
 
     if(project->isActiveConfig("qt")) {

@@ -275,7 +275,7 @@ NmakeMakefileGenerator::init()
 	&& !is_qt && project->first("TARGET") != "qtmain") {
 	project->variables()["QMAKE_LFLAGS"].append("/NODEFAULTLIB:\"libc\"");
     }
-    if ( !project->isActiveConfig("stl") ) {
+    if ( project->isActiveConfig("stl") ) {
 	project->variables()["QMAKE_CFLAGS"] += project->variables()["QMAKE_CFLAGS_STL"];
 	project->variables()["QMAKE_CXXFLAGS"] += project->variables()["QMAKE_CXXFLAGS_STL"];
     }
@@ -392,12 +392,12 @@ NmakeMakefileGenerator::init()
 	project->variables()["VER_MIN"].append(l[1]);
     }
     if(project->isActiveConfig("dll")) {
-	project->variables()["QMAKE_CLEAN"].append(project->first("TARGET") + ".lib");
-	project->variables()["QMAKE_CLEAN"].append(project->first("TARGET") + ".exp");
+	project->variables()["QMAKE_CLEAN"].append(project->first("DESTDIR") + project->first("TARGET") + ".lib");
+	project->variables()["QMAKE_CLEAN"].append(project->first("DESTDIR") + project->first("TARGET") + ".exp");
     }
     if(project->isActiveConfig("debug")) {
-	project->variables()["QMAKE_CLEAN"].append(project->first("TARGET") + ".pdb");
+	project->variables()["QMAKE_CLEAN"].append(project->first("DESTDIR") + project->first("TARGET") + ".pdb");
+	project->variables()["QMAKE_CLEAN"].append(project->first("DESTDIR") + project->first("TARGET") + ".ilk");
 	project->variables()["QMAKE_CLEAN"].append("vc*.pdb");
-	project->variables()["QMAKE_CLEAN"].append(project->first("TARGET") + ".ilk");
     }
 }
