@@ -14,6 +14,7 @@
 #include <qtextstream.h>
 #include <qregexp.h>
 
+#include <ctype.h>
 #include <limits.h>
 
 Q_GLOBAL_STATIC(Set<QString>, null_Set_QString)
