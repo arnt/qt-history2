@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.cpp#68 $
+** $Id: //depot/qt/main/src/kernel/qobject.cpp#69 $
 **
 ** Implementation of QObject class
 **
@@ -15,7 +15,7 @@
 #include "qregexp.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qobject.cpp#68 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qobject.cpp#69 $")
 
 
 /*----------------------------------------------------------------------------
@@ -127,21 +127,22 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qobject.cpp#68 $")
 
 static QString rmWS( const char *src )
 {
-    QString tmp( strlen( src ) + 1 );
-    register char *d = tmp.data();
-    register char *s = (char *)src;
+    QString result( strlen(src)+1 );
+    char *d = result.data();
+    char *s = (char *)src;
+    char last = 0;
     while( *s && isspace(*s) )
 	s++;
     while ( *s ) {
-	while( *s && !isspace(*s) )
-	    *d++ = *s++;
-	while( *s && isspace(*s) )
+	while ( *s && !isspace(*s) )
+	    last = *d++ = *s++;
+	while ( *s && isspace(*s) )
 	    s++;
-	if ( *s && (isalpha(*s) || *s == '_') )
-	    *d++ = ' ';
+	if ( *s && (isalnum(*s) || *s == '_') && (isalnum(last) || last =='_'))
+	    last = *d++ = ' ';
     }
-    tmp.truncate( d - tmp.data() );
-    return tmp;
+    result.truncate( (int)(d - result.data()) );
+    return result;
 }
 
 //
@@ -739,9 +740,9 @@ QObjectList *QObject::queryList( const char *inheritsClass,
  ----------------------------------------------------------------------------*/
 
 QConnectionList *QObject::receivers( const char *signal ) const
-{						// get receiver
+{
     if ( connections && signal ) {
-	if ( *signal == '2' ) {
+	if ( *signal == '2' ) {			// tag == 2, i.e. signal
 	    QString s = rmWS( signal+1 );
 	    return connections->find( s );
 	}
@@ -943,8 +944,9 @@ static void err_member_notfound( int code, QObject *object, const char *member,
 
 /*----------------------------------------------------------------------------
   Connects \e signal from object \e sender to \e member in object \e
-  receiver.  \sa disconnect()
-  ----------------------------------------------------------------------------*/
+  receiver.
+  \sa disconnect()
+ ----------------------------------------------------------------------------*/
 
 bool QObject::connect( QObject *sender,		const char *signal,
 		       const QObject *receiver, const char *member )
@@ -955,11 +957,9 @@ bool QObject::connect( QObject *sender,		const char *signal,
 	return FALSE;
     }
 #endif
-    QString signal_tmp( strlen(signal)+1 );
-    QString member_tmp( strlen(member)+1 );
-    signal_tmp = rmWS( signal );		// strip white space
+    QString signal_tmp = rmWS( signal );	// white space stripped
+    QString member_tmp = rmWS( member );
     signal = signal_tmp;
-    member_tmp = rmWS( member );
     member = member_tmp;
 
     QMetaObject *smeta = sender->queryMetaObject();
@@ -1037,7 +1037,7 @@ bool QObject::connect( QObject *sender,		const char *signal,
 
   A signal-slot connection is removed when either of the objects
   involved are destroyed.
-  ----------------------------------------------------------------------------*/
+ ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
   \overload bool QObject::disconnect( const QObject *receiver, const char *member )
@@ -1148,8 +1148,9 @@ bool QObject::disconnect( QObject *sender, const char *signal,
 		    removeObjFromList( c->object()->senderObjects, sender );
 		    c = clist->next();
 		}
-		else if ( r == c->object() && (member == 0 ||
-					       strcmp(member,c->memberName()) == 0) ) {
+		else if ( r == c->object() &&
+			  (member == 0 ||
+			   strcmp(member,c->memberName()) == 0) ) {
 		    removeObjFromList( c->object()->senderObjects, sender );
 		    clist->remove();
 		    c = clist->current();
