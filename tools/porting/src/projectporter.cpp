@@ -78,17 +78,21 @@ void ProjectPorter::portProject(QString basePath, QString proFileName)
             uidoth += ui_h;
     }
 
-    portFiles(basePath, sources, FilePorter::Source);
-    portFiles(basePath, headers, FilePorter::Header);
+    portFiles(basePath, sources);
+    portFiles(basePath, headers);
     if (!uidoth.isEmpty())
-        portFiles(basePath, uidoth, FilePorter::Source);
+        portFiles(basePath, uidoth);
 
     Logger::instance()->globalState["currentFileName"] = proFileName;
     QString portedProFile = portProFile(proFileContents, proFileMap);
     FileWriter::instance()->writeFileVerbously(fullInFileName , portedProFile.toLocal8Bit().constData());
 }
 
-void ProjectPorter::portFiles(QString basePath, QStringList fileNames, FilePorter::FileType fileType)
+/*
+    Port each file given in the fileNames list. If a file name is relative
+    it is assumed to be relative to basePath.
+*/
+void ProjectPorter::portFiles(QString basePath, QStringList fileNames)
 {
     foreach(QString fileName, fileNames) {
         QString fullFilePath;
@@ -107,7 +111,8 @@ void ProjectPorter::portFiles(QString basePath, QStringList fileNames, FilePorte
         }
 
         if(!processedFilesSet.contains(fullFilePath)){
-            filePorter.port(QString(), fullFilePath, QString() , fullFilePath, fileType);
+            Logger::instance()->globalState["currentFileName"] = fileName;
+            filePorter.port(fullFilePath);
             processedFilesSet.insert(fullFilePath, 0);
         }
     }

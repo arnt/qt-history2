@@ -26,11 +26,10 @@ class FilePorter
 public:
     enum FileType {Header, Source};
     FilePorter(QString rulesFileName, PreprocessorCache &preprocessorCache);
-    void port(QString inBasePath, QString inFilePath,
-             QString outBasePath, QString outFilePath, FileType fileType );
+    void port(QString fileName);
 private:
-    QByteArray noPreprocess(const QString &fileName);
-    QByteArray includeAnalyse(QByteArray fileContents, FileType fileType);
+    QByteArray loadFile(const QString &fileName);
+    QByteArray includeAnalyse(QByteArray fileContents);
 
     PortingRules portingRules;
     PreprocessorCache &preprocessorCache;

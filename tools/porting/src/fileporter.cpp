@@ -25,7 +25,7 @@ using std::cout;
 using std::endl;
 
 
-QByteArray FilePorter::noPreprocess(const QString &filePath)
+QByteArray FilePorter::loadFile(const QString &filePath)
 {
     QFile f(filePath);
     f.open(QIODevice::ReadOnly);
@@ -35,7 +35,7 @@ QByteArray FilePorter::noPreprocess(const QString &filePath)
 FilePorter::FilePorter(QString rulesfilename, PreprocessorCache &preprocessorCache)
 :portingRules(rulesfilename)
 ,preprocessorCache(preprocessorCache)
-,tokenReplacementRules(portingRules.getNoPreprocessPortingTokenRules())
+,tokenReplacementRules(portingRules.getTokenReplacementRules())
 ,replaceToken(tokenReplacementRules)
 {
     int dummy=0;
@@ -44,32 +44,32 @@ FilePorter::FilePorter(QString rulesfilename, PreprocessorCache &preprocessorCac
     }
 }
 
-void FilePorter::port(QString inBasePath, QString inFilePath, QString outBasePath, QString outFilePath, FileType fileType )
+/*
+    Ports a file given by fileName, which should be an aboslute file path.
+*/
+void FilePorter::port(QString fileName)
 {
-    QString fullInFileName = inBasePath + inFilePath;
-    QFileInfo infileInfo(fullInFileName);
-    if(!infileInfo.exists()) {
-        cout<< "Could not open file: " << fullInFileName.toLocal8Bit().constData() << endl;
+    //Get file tokens from cache.
+    TokenContainer sourceTokens = preprocessorCache.sourceTokens(fileName);
+    if(sourceTokens.count() == 0)
         return;
-    }
 
-    TokenContainer sourceTokens = preprocessorCache.sourceTokens(fullInFileName);
-    Logger::instance()->globalState["currentFileName"] = inFilePath;
+    //  Logger::instance()->globalState["currentFileName"] = inFilePath;
+    //Perform token replacements.
     QByteArray portedContents =
         replaceToken.getTokenTextReplacements(sourceTokens).apply(sourceTokens.fullText());
 
     //This step needs to be done after the token replacements, since
-    //we need to know which new class names that has been inserted in the source
-    portedContents = includeAnalyse(portedContents, fileType);
+    //we need to know which new class names that has been inserted in the source.
+    portedContents = includeAnalyse(portedContents);
 
-    if(!outFilePath.isEmpty()) {
-        QString fullOutfileName = outBasePath + outFilePath;
-        FileWriter::instance()->writeFileVerbously(fullOutfileName, portedContents);
-    }
+    //Write file.
+    FileWriter::instance()->writeFileVerbously(fileName, portedContents);
 }
 
-QByteArray FilePorter::includeAnalyse(QByteArray fileContents, FileType /*fileType*/)
+QByteArray FilePorter::includeAnalyse(QByteArray fileContents)
 {
+    //tokenize file contents agein, since it has changed.
     QList<TokenEngine::Token> tokens  = tokenizer.tokenize(fileContents);
     TokenEngine::TokenContainer tokenContainer(fileContents, tokens);
 

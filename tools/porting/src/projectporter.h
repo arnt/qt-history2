@@ -27,7 +27,7 @@ public:
     void portProject(QString inPath, QString proFileName);
 private:
     QString portProFile(QString contents, QMap<QString, QString> tagMap);
-    void portFiles(QString basePath, QStringList fileNames, FilePorter::FileType fileType);
+    void portFiles(QString basePath, QStringList fileNames);
 
     QString rulesFileName;
     QMap<QString, int> processedFilesSet;
