@@ -35,7 +35,7 @@ ProgressBar::ProgressBar( QWidget *parent, const char *name )
     // insert three radiobuttons which the user can use
     // to set the speed of the progress and two pushbuttons
     // to start/pause/continue and reset the progress
-    slow = new QRadioButton( "&Slow", this );
+    slow = new QRadioButton( "S&low", this );
     normal = new QRadioButton( "&Normal", this );
     fast = new QRadioButton( "&Fast", this );
     QVBoxLayout* vb1 = new QVBoxLayout;
