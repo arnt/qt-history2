@@ -92,7 +92,9 @@ public:
 	AddMenu,
 	RemoveMenu,
 	RenameMenu,
-	MoveMenu
+	MoveMenu,
+	AddToolBar,
+	RemoveToolBar
     };
 
     QString name() const;
@@ -788,6 +790,33 @@ private:
     QDesignerPopupMenu *popup;
     int fromIdx, toIdx;
     QString text;
+
+};
+
+class AddToolBarCommand : public Command
+{
+public:
+    AddToolBarCommand( const QString &n, FormWindow *fw, QMainWindow *mw );
+
+    void execute();
+    void unexecute();
+    Type type() const { return AddToolBar; }
+
+protected:
+    QDesignerToolBar *toolBar;
+    QMainWindow *mainWindow;
+
+};
+
+class RemoveToolBarCommand : public AddToolBarCommand
+{
+public:
+    RemoveToolBarCommand( const QString &n, FormWindow *fw, QMainWindow *mw, QDesignerToolBar *tb )
+	: AddToolBarCommand( n, fw, mw ) { toolBar = tb; }
+
+    void execute() { AddToolBarCommand::unexecute(); }
+    void unexecute() { AddToolBarCommand::execute(); }
+    Type type() const { return RemoveToolBar; }
 
 };
 

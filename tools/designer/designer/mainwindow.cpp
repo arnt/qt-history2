@@ -3322,13 +3322,11 @@ void MainWindow::handleRMBSpecialCommands( int id, QMap<QString, int> &commands,
     } else if ( fw->mainContainer()->inherits( "QMainWindow" ) ) {
 	QMainWindow *mw = (QMainWindow*)fw->mainContainer();
 	if ( id == commands[ "add_toolbar" ] ) {
-	    QToolBar *tb = new QDesignerToolBar( mw );
-	    QString n = "Toolbar";
-	    lastActiveFormWindow->unify( tb, n, TRUE );
-	    tb->setName( n );
-	    mw->addToolBar( tb, "Toolbar" );
+	    AddToolBarCommand *cmd = new AddToolBarCommand( tr( "Add Toolbar to '%1'" ).arg( formWindow()->name() ), formWindow(), mw );
+	    formWindow()->commandHistory()->addCommand( cmd );
+	    cmd->execute();
 	} else if ( id == commands[ "add_menu_item" ] ) {
-	    AddMenuCommand *cmd = new AddMenuCommand( tr( "Add Menu to '%s'" ).arg( formWindow()->name() ), formWindow(), mw );
+	    AddMenuCommand *cmd = new AddMenuCommand( tr( "Add Menu to '%1'" ).arg( formWindow()->name() ), formWindow(), mw );
 	    formWindow()->commandHistory()->addCommand( cmd );
 	    cmd->execute();
 	}

@@ -1572,3 +1572,29 @@ void MoveMenuCommand::unexecute()
     menuBar->removeItem( menuBar->idAt( toIdx ) );
     menuBar->insertItem( text, popup, -1, fromIdx );
 }
+
+// ------------------------------------------------------------
+
+AddToolBarCommand::AddToolBarCommand( const QString &n, FormWindow *fw, QMainWindow *mw )
+    : Command( n, fw ), toolBar( 0 ), mainWindow( mw )
+{
+}
+
+void AddToolBarCommand::execute()
+{
+    if ( !toolBar ) {
+	toolBar = new QDesignerToolBar( mainWindow );
+	QString n = "Toolbar";
+	formWindow()->unify( toolBar, n, TRUE );
+	toolBar->setName( n );
+	mainWindow->addToolBar( toolBar, n );
+    } else {
+	toolBar->show();
+    }
+}
+
+void AddToolBarCommand::unexecute()
+{
+    toolBar->hide();
+}
+

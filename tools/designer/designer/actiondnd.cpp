@@ -53,7 +53,7 @@ class QDesignerIndicatorWidget : public QWidget
 public:
     QDesignerIndicatorWidget( QWidget *p )
 	: QWidget( p, "qt_dockwidget_internal" ) {
-	    setBackgroundColor( black );
+	    setBackgroundColor( red );
     }
 
 };
@@ -261,8 +261,12 @@ void QDesignerToolBar::mousePressEvent( QMouseEvent *e )
 	QPopupMenu menu( 0 );
 	menu.insertItem( tr( "Delete Toolbar" ), 1 );
 	int res = menu.exec( e->globalPos() );
-	if ( res != -1 )
-	    delete this;
+	if ( res != -1 ) {
+	    RemoveToolBarCommand *cmd = new RemoveToolBarCommand( tr( "Remove Toolbar '%1'" ).arg( name() ),
+								  formWindow, 0, this );
+	    formWindow->commandHistory()->addCommand( cmd );
+	    cmd->execute();
+	}
     }
 
     if ( e->button() == LeftButton &&
@@ -332,13 +336,16 @@ void QDesignerToolBar::buttonMousePressEvent( QMouseEvent *e, QObject *o )
 	    if ( !insertAnchor )
 		index = 0;
 
-	    AddActionToToolBarCommand *cmd = new AddActionToToolBarCommand( tr( "Add Separator to Toolbar '%2'" ).
+	    AddActionToToolBarCommand *cmd = new AddActionToToolBarCommand( tr( "Add Separator to Toolbar '%1'" ).
 									    arg( a->name() ).arg( caption() ),
 									    formWindow, a, this, index );
 	    formWindow->commandHistory()->addCommand( cmd );
 	    cmd->execute();
 	} else if ( res == ID_DELTOOLBAR ) {
-	    delete this;	
+	    RemoveToolBarCommand *cmd = new RemoveToolBarCommand( tr( "Remove Toolbar '%1'" ).arg( name() ),
+								  formWindow, 0, this );
+	    formWindow->commandHistory()->addCommand( cmd );
+	    cmd->execute();
 	}
 	return;
     }
@@ -908,7 +915,7 @@ void QDesignerPopupMenu::mousePressEvent( QMouseEvent *e )
 	} else if ( res == ID_SEP ) {
 	    calcIndicatorPos( mapFromGlobal( e->globalPos() ) );
 	    QAction *a = new QSeparatorAction( 0 );
-	    AddActionToPopupCommand *cmd = new AddActionToPopupCommand( tr( "Add Separator to the Popup Menu '%2'" ).
+	    AddActionToPopupCommand *cmd = new AddActionToPopupCommand( tr( "Add Separator to the Popup Menu '%1'" ).
 								arg( name() ),
 								formWindow, a, this, insertAt );
 	    formWindow->commandHistory()->addCommand( cmd );

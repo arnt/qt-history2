@@ -2105,6 +2105,8 @@ void Resource::saveToolBars( QMainWindow *mw, QTextStream &ts, int indent )
 	if ( tbList.isEmpty() )
 	    continue;
 	for ( QToolBar *tb = tbList.first(); tb; tb = tbList.next() ) {
+	    if ( tb->isHidden() )
+		continue;
 	    ts << makeIndent( indent ) << "<toolbar dock=\"" << i << "\" label=\"" << entitize( tb->label() )
 	       << "\" name=\"" << entitize( tb->name() ) << "\">" << endl;
 	    indent++;
