@@ -675,6 +675,8 @@ void QMainWindow::moveDockWidget( QDockWidget * toolBar, Dock edge )
     case Unmanaged:
 	break;
     }
+    if ( toolBar->inherits( "QToolBar" ) )
+	( (QToolBar*)toolBar )->setOrientation( toolBar->orientation() );
 }
 
 /*!
@@ -711,6 +713,8 @@ void QMainWindow::moveDockWidget( QDockWidget * toolBar, Dock edge, bool nl, int
     case Unmanaged:
 	break;
     }
+    if ( toolBar->inherits( "QToolBar" ) )
+	( (QToolBar*)toolBar )->setOrientation( toolBar->orientation() );
 }
 
 /*!
