@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qevent.h#1 $
+** $Id: //depot/qt/main/src/kernel/qevent.h#2 $
 **
 ** Definition of QEvent classes
 **
@@ -76,7 +76,7 @@ class QMouseEvent : public QEvent		// mouse event class
 {
 public:
     QMouseEvent( int type, const QPoint &pos, int button, int state )
-	: QEvent(type)		{ p=pos; b=button; st=state; }
+	: QEvent(type)		{ p=pos; b=button; st=(ushort)state; }
     QPoint &pos()		{ return p; }	// mouse position
     int	   button()	const	{ return b; }	// button which caused event
     int	   state()	const	{ return st; }	// button state (OR'ed)
@@ -92,15 +92,14 @@ protected:
 class QKeyEvent : public QEvent			// keyboard event class
 {
 public:
-    QKeyEvent( int type, int keyCode, char asciiCode, int state )
-	: QEvent(type)		{ k=keyCode, a=asciiCode, st=state; }
+    QKeyEvent( int type, int kc, char ac, int state )
+	: QEvent(type)		{ k=(ushort)kc, a=ac, st=(ushort)state; }
     int	   key()	const	{ return k; }	// key code (Key_Code)
     char   ascii()	const	{ return a; }	// ascii value
     int	   state()	const	{ return st; }	// keyboard status
 protected:
-    ushort k;
+    ushort k, st;
     char   a;
-    ushort st;
 };
 
 #define Q_KEY_EVENT(x)		((QKeyEvent*)x)
