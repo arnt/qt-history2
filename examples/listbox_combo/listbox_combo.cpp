@@ -20,6 +20,35 @@
 #include <qimage.h>
 
 
+class MyListBoxItem : public QListBoxItem
+{
+public:
+    MyListBoxItem()
+	: QListBoxItem()
+    {
+	setCustomHighlighting( TRUE );
+    }
+
+protected:
+    virtual void paint( QPainter * );
+    virtual int width( const QListBox* ) const { return 100; }
+    virtual int height( const QListBox* ) const { return 16; }
+    
+};
+
+void MyListBoxItem::paint( QPainter *p )
+{
+    // evil trick: find out whether we are painted onto our listbox
+    bool in_list_box = listBox() && listBox()->viewport() == p->device();
+
+    QRect r ( 0, 0, width( listBox() ), height( listBox() ) );
+    if ( in_list_box && selected() )
+	p->eraseRect( r );
+    p->fillRect( 5, 5, width( listBox() ) - 10, height( listBox() ) - 10, Qt::red );
+    if ( in_list_box && current() )
+	listBox()->style().drawFocusRect( p, r, listBox()->colorGroup(), &p->backgroundColor(), TRUE );
+}
+
 /*
  * Constructor
  *
@@ -30,23 +59,27 @@ ListBoxCombo::ListBoxCombo( QWidget *parent, const char *name )
     : QVBox( parent, name )
 {
     setMargin( 5 );
-
+    setSpacing( 5 );
+    
     unsigned int i;
     QString str;
 
     QHBox *row1 = new QHBox( this );
-    row1->setMargin( 5 );
-
+    row1->setSpacing( 5 );
+    
     // Create a multi-selection ListBox...
     lb1 = new QListBox( row1 );
-    lb1->setMultiSelection( TRUE );
+    lb1->setSelectionMode( QListBox::Multi );
 
     // ...insert a pixmap item...
     lb1->insertItem( QPixmap( "qtlogo.png" ) );
     // ...and 100 text items
     for ( i = 0; i < 100; i++ ) {
 	str = QString( "Listbox Item %1" ).arg( i );
-	lb1->insertItem( str );
+	if ( !( i % 4 ) )
+	    lb1->insertItem( QPixmap( "fileopen.xpm" ), str );
+	else
+	    lb1->insertItem( str );
     }
 
     // Create a pushbutton...
@@ -58,9 +91,10 @@ ListBoxCombo::ListBoxCombo( QWidget *parent, const char *name )
     lb2 = new QListBox( row1 );
 
     QHBox *row2 = new QHBox( this );
-    row2->setMargin( 5 );
+    row2->setSpacing( 5 );
 
     QVBox *box1 = new QVBox( row2 );
+    box1->setSpacing( 5 );
 
     // Create a non-editable Combobox and a label below...
     QComboBox *cb1 = new QComboBox( FALSE, box1 );
@@ -71,11 +105,15 @@ ListBoxCombo::ListBoxCombo( QWidget *parent, const char *name )
     //...and insert 50 items into the Combobox
     for ( i = 0; i < 50; i++ ) {
 	str = QString( "Combobox Item %1" ).arg( i );
-	cb1->insertItem( str );
+	if ( i % 9 )
+	    cb1->insertItem( str );
+	else
+	    cb1->listBox()->insertItem( new MyListBoxItem );
     }
 
     QVBox *box2 = new QVBox( row2 );
-
+    box2->setSpacing( 5 );
+    
     // Create an editable Combobox and a label below...
     QComboBox *cb2 = new QComboBox( TRUE, box2 );
     label2 = new QLabel( "Current Item: Combobox Item 0", box2 );
@@ -85,7 +123,10 @@ ListBoxCombo::ListBoxCombo( QWidget *parent, const char *name )
     // ... and insert 50 items into the Combobox
     for ( i = 0; i < 50; i++ ) {
 	str = QString( "Combobox Item %1" ).arg( i );
-	cb2->insertItem( str );
+	if ( !( i % 4 ) )
+	    cb2->insertItem( QPixmap( "fileopen.xpm" ), str );
+	else
+	    cb2->insertItem( str );
     }
 
     // Connect the activated SIGNALs of the Comboboxes with SLOTs
@@ -108,13 +149,12 @@ void ListBoxCombo::slotLeft2Right()
 	// if the item is selected...
 	if ( item->selected() ) {
 	    // ...and it is a text item...
-	    if ( !item->text().isEmpty() )
-		// ...insert an item with the same text into the second ListBox
-		lb2->insertItem( new QListBoxText( item->text() ), -1 );
-	    // ...and if it is a pixmap item...
-	    else if ( item->pixmap() )
-		// ...insert an item with the same pixmap into the second ListBox
-		lb2->insertItem( new QListBoxPixmap( *item->pixmap() ), -1 );
+	    if ( item->pixmap() && !item->text().isEmpty() )
+		lb2->insertItem( *item->pixmap(), item->text() );
+	    else if ( !item->pixmap() )
+		lb2->insertItem( item->text() );
+	    else if ( item->text().isEmpty() )
+		lb2->insertItem( *item->pixmap() );
 	}
     }
 }

@@ -243,9 +243,11 @@ private:
 
 void QComboData::updateLinedGeometry()
 {
-    if ( !ed || !combo || current == 0 && combo->count() == 0 )
+    if ( !ed || !combo || current == 0 && combo->count() == 0 ) {
+	ed->setGeometry( combo->style().comboButtonRect( 0, 0, combo->width(), combo->height() ) );
 	return;
-
+    }
+    
     const QPixmap *pix = combo->pixmap( current );
     QRect r( combo->style().comboButtonRect( 0, 0, combo->width(), combo->height() ) );
     if ( pix && pix->width() < r.width() )
