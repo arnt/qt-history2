@@ -1679,7 +1679,7 @@ QString QXmlInputSource::fromRawData( const QByteArray &data, bool beginning )
     reports an error. The reader uses the function errorString() to
     get the error message.
 
-    \sa startEntity() skippedEntity() QXmlSimpleReader::setFeature()
+    \sa startEntity() QXmlContentHandler::skippedEntity() QXmlSimpleReader::setFeature()
 */
 
 /*!
