@@ -2225,8 +2225,18 @@ QByteArray QString::toUtf8() const
 			    }
 			}
 			if (u > 0xffff) {
-			    *cursor++ = 0xf0 | ((uchar) (u >> 18));
-			    *cursor++ = 0x80 | ( ((uchar) (u >> 12)) & 0x3f);
+			    // if people are working in utf8, but strings are encoded in eg. latin1, the resulting
+			    // name might be invalid utf8. This and the corresponding code in fromUtf8 takes care
+			    // we can handle this without loosing information. This can happen with latin filenames
+			    // and a utf8 locale under Unix.
+			    if (u > 0x10fe00 && u < 0x10ff00) {
+				*cursor++ = (u - 0x10fe00);
+				++ch;
+				continue;
+			    } else {
+				*cursor++ = 0xf0 | ((uchar) (u >> 18));
+				*cursor++ = 0x80 | ( ((uchar) (u >> 12)) & 0x3f);
+			    }
 			} else {
 			    *cursor++ = 0xe0 | ((uchar) (u >> 12));
 			}
@@ -2234,7 +2244,7 @@ QByteArray QString::toUtf8() const
 		    }
 		    *cursor++ = 0x80 | ((uchar) (u&0x3f));
 		}
-		ch++;
+		++ch;
 	    }
 	    ba->resize(cursor - (uchar*)ba->constData());
 	}
@@ -2455,13 +2465,14 @@ QString QString::fromUtf8( const char* utf8, int len )
     if ( len < 0 )
 	len = strlen( utf8 );
     QString result;
-    result.setLength( len ); // worst case
+    result.setLength( len*2 ); // worst case
     unsigned short *qch = result.d->data;
     uint uc = 0;
     int need = 0;
+    int error = -1;
     uchar ch;
     for (int i=0; i<len; i++) {
-	ch = *utf8++;
+	ch = utf8[i];
 	if (need) {
 	    if ( (ch&0xc0) == 0x80 ) {
 		uc = (uc << 6) | (ch & 0x3f);
@@ -2479,25 +2490,42 @@ QString QString::fromUtf8( const char* utf8, int len )
 		    }
 		}
 	    } else {
-		// error
-		*qch++ = QChar::replacement;
+		// See QString::utf8() for explanation.
+		//
+		// The surrogate below corresponds to a Unicode value of (0x10fe00+ch) which
+		// is in one of the private use areas of Unicode.
+		i = error;
+		*qch++ = 0xdbff;
+		*qch++ = 0xde00+((uchar)utf8[i]);
 		need = 0;
 	    }
+	    error = -1;
 	} else {
 	    if ( ch < 128 ) {
 		*qch++ = ch;
 	    } else if ((ch & 0xe0) == 0xc0) {
 		uc = ch & 0x1f;
 		need = 1;
+		error = i;
 	    } else if ((ch & 0xf0) == 0xe0) {
 		uc = ch & 0x0f;
 		need = 2;
+		error = i;
 	    } else if ((ch&0xf8) == 0xf0) {
 		uc = ch & 0x07;
 		need = 3;
+		error = i;
 	    }
 	}
     }
+    if (error != -1) {
+	// we have some invalid characters remaining we need to add to the string
+	for (int i = error; i < len; ++i) {
+	    *qch++ = 0xdbff;
+	    *qch++ = 0xde00+((uchar)utf8[i]);
+	}
+    }
+
     result.truncate( qch - result.d->data );
     return result;
 }
