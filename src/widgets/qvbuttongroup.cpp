@@ -38,12 +38,11 @@
 #include "qvbuttongroup.h"
 #ifndef QT_NO_VBUTTONGROUP
 
-// NOT REVISED
 /*!
   \class QVButtonGroup qvbuttongroup.h
 
-  \brief The QVButtonGroup widget organizes QButton widgets in a group
-  with one vertical column.
+  \brief The QVButtonGroup widget organizes QButton widgets in a
+  vertical column.
 
   \ingroup geomanagement
   \ingroup organizers

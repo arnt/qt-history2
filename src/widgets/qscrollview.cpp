@@ -443,6 +443,7 @@ one child: the viewport().  The viewport() has the same three labels as
 child widgets.  When the view is scrolled the viewport() is moved;
 its children move with it as child widgets normally do.
 
+\target allviews
 \section1 Details Relevant for All Views
 
 Normally you will use the first or third method if you want any child

@@ -38,12 +38,11 @@
 #include "qvgroupbox.h"
 #ifndef QT_NO_VGROUPBOX
 
-// NOT REVISED
 /*!
   \class QVGroupBox qvgroupbox.h
 
-  \brief The QVGroupBox widget organizes widgets in a group
-  with one vertical column.
+  \brief The QVGroupBox widget organizes a group of widgets in a
+  vertical column.
 
   \ingroup geomanagement
   \ingroup appearance

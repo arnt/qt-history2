@@ -929,9 +929,10 @@ static void objSearch( QObjectList *result,
 
   The QObjectList class is defined in the qobjectlist.h header file.
 
-  The last child added is the \link QPtrList::first() first\endlink object
-  in the list and the first child added is the \link QPtrList::last()
-  last\endlink object in the list.
+  The first child added is the \link QPtrList::first() first\endlink
+  object in the list and the last child added is the \link
+  QPtrList::last() last\endlink object in the list, i.e. new children
+  are appended at the end.
 
   Note that the list order changes when QWidget children are \link
   QWidget::raise() raised\endlink or \link QWidget::lower()

@@ -22,7 +22,7 @@ QDocListItem::~QDocListItem()
 QString QDocListItem::key( int column, bool ascending ) const
 {
     QString key = line;
-    return key.rightJustify( 7, '0' ); 
+    return key.rightJustify( 7, '0' );
 }
 
 QDocMainWindow::QDocMainWindow( QWidget* parent, const char* name ) : QMainWindow( parent, name )
@@ -84,13 +84,12 @@ void QDocMainWindow::activateEditor( QListViewItem * item )
     if ( item->text(0).startsWith( "Line" ) ) {
 	bool ok = FALSE;
 	QSettings settings;
-	settings.insertSearchPath( QSettings::Windows, "/Trolltech/qDocGUI" );
-	settings.insertSearchPath( QSettings::Unix, "/Trolltech/qDocGUI" );
-	QString editText = settings.readEntry( "editor" );
+	settings.insertSearchPath( QSettings::Windows, "/Trolltech" );
+	QString editText = settings.readEntry( "/qDocGUI/editor" );
 	while ( editText.isNull() ) {
 	    editText = QInputDialog::getText( "Please enter your editor", "Enter editor", QLineEdit::Normal, QString::null, &ok, this );
 	    if ( !editText.isNull() )
-		settings.writeEntry( "editor", editText );
+		settings.writeEntry( "/qDocGUI/editor", editText );
 	    else
 		QMessageBox::information( this, "No editor specified", "You didn't specify an editor", QMessageBox::Ok );
 	}
@@ -116,15 +115,15 @@ void QDocMainWindow::activateEditor( QListViewItem * item )
 		    }
 		    ++i;
 		}
-	    } 
+	    }
 	} else
 	    filename = qtdirenv + "/src/" + item->parent()->parent()->text(0) + '/' + item->parent()->text(0);
-	
+
 	QString itemtext = item->text(0);
 	QRegExp rxp( "(\\d+)" );
 	int foundpos = rxp.search( itemtext, 5 );
 	if ( foundpos != -1 ) {
-	    // yes! 
+	    // yes!
 	    if ( QDir::home().dirName() == QString("jasmin") ) {
 		QProcess *p4 = new QProcess( this );
 		p4->addArgument( QString("p4") );
@@ -132,7 +131,7 @@ void QDocMainWindow::activateEditor( QListViewItem * item )
 		p4->addArgument( filename );
 		p4->start();
 	    }
-	    
+
 	    QString linenumber = rxp.cap( 0 );
 	    procedit = new QProcess( this );
 	    procedit->addArgument( editText );
@@ -166,12 +165,12 @@ void QDocMainWindow::finished()
     QDict<QListViewItem> filename( 4001 );
     QListViewItem *dirItem   = 0;
     QListViewItem *classItem = 0;
-    while ( !outputText.isEmpty() ) {    
+    while ( !outputText.isEmpty() ) {
 	newLine = outputText.find( '\n' );
 	if ( newLine == -1 )
 	    outputText = "";
 	text = outputText.left( newLine );
-	
+
 	if ( !text.isEmpty() && !text.startsWith( "qdoc" ) ) {
 	    if ( text.startsWith( "src" ) )
 		text = text.right( text.length() - 4 );
@@ -200,7 +199,7 @@ void QDocMainWindow::finished()
 	    else {
 		classItem = filename[classText];
 	    }
-	    
+
 	    new QDocListItem( classItem, ( "Line " + linenumber + " - " + warningText ), linenumber );
 	    count++;
 	}
@@ -208,7 +207,7 @@ void QDocMainWindow::finished()
 	classList->sort();
     }
     waitText->hide();
-    
+
     qDebug( "%d warnings", count );
 }
 
@@ -220,7 +219,7 @@ QDocMainWindow::~QDocMainWindow()
 int main( int argc, char** argv )
 {
     QApplication a( argc, argv );
-    
+
     QDocMainWindow qdmw;
     qdmw.setGeometry( 50, 50, 350, 500 );
     a.setMainWidget( &qdmw );

@@ -1306,6 +1306,10 @@ int QCheckTableItem::rtti() const
     showing column numbers. (The numbers displayed start at 1, although
     row and column numbers within QTable begin at 0.)
 
+    If you want to use mouse tracking call setMouseTracking( TRUE ) on
+    the \e viewport; (see \link qscrollview.html#allviews
+    QScrollView\endlink).
+
     \target headers
     \section1 Headers
 

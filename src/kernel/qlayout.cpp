@@ -2356,8 +2356,7 @@ QHBoxLayout::~QHBoxLayout()
      l->addWidget( anotherWidget );
   \endcode
 
-  \sa QHBoxLayout QGridLayout
-      \link layout.html the Layout overview \endlink
+  \sa QHBoxLayout QGridLayout \link layout.html the Layout overview \endlink
 */
 
 /*!

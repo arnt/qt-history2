@@ -165,7 +165,7 @@ struct QWaitConditionPrivate {
 */
 
 /*!
-  Constructs a new event signalling object.
+  Constructs a new event signalling, i.e. wait condition, object.
 */
 QWaitCondition::QWaitCondition()
 {
@@ -181,7 +181,7 @@ QWaitCondition::QWaitCondition()
 
 
 /*!
-  Deletes the event signalling object.
+  Deletes the event signalling, i.e. wait condition, object.
 */
 QWaitCondition::~QWaitCondition()
 {
