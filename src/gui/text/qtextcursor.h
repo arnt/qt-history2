@@ -61,6 +61,7 @@ public:
 
         End,
         EndOfLine,
+        EndOfWord,
         NextBlock,
         NextCharacter,
         NextWord,

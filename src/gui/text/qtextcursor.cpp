@@ -6,6 +6,7 @@
 #include "qtextlist.h"
 #include "qtexttable.h"
 #include "qtexttable_p.h"
+#include "qtextengine_p.h"
 
 #include <qtextlayout.h>
 #include <qdebug.h>
@@ -291,6 +292,19 @@ bool QTextCursorPrivate::movePosition(QTextCursor::MoveOperation op, QTextCursor
         // reasonable position.
         setPosition(blockIt.position() + line.from() + line.length() - 1);
 
+        break;
+    }
+    case QTextCursor::EndOfWord: {
+        const QCharAttributes *attributes = layout->engine()->attributes();
+
+        const int len = layout->text().length();
+        if (relativePos >= len)
+            return relativePos;
+        relativePos++;
+        while (relativePos < len && !attributes[relativePos].wordStop && !attributes[relativePos].whiteSpace)
+            relativePos++;
+
+        setPosition(blockIt.position() + relativePos);
         break;
     }
     case QTextCursor::NextBlock: {
