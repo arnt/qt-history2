@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap.cpp#21 $
+** $Id: //depot/qt/main/src/kernel/qpixmap.cpp#22 $
 **
 ** Implementation of QPixmap class
 **
@@ -15,9 +15,13 @@
 #include "qdstream.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpixmap.cpp#21 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpixmap.cpp#22 $";
 #endif
 
+
+/*!
+  Detaches the pixmap from shared data.
+*/
 
 void QPixmap::detach()				// detach shared pixmap
 {
@@ -31,55 +35,117 @@ void QPixmap::detach()				// detach shared pixmap
 }
 
 /*!
-  Returns a deep copy of the pixmap.  All pixels are copied using bitBlt().
-  \sa operator=().
+  Returns a deep copy of the pixmap using the bitBlt() function to copy
+  the pixels.
+  \sa operator=()
 */
 
 QPixmap QPixmap::copy() const
 {
     QPixmap tmp( data->w, data->h, data->d );
     bitBlt( &tmp, 0,0, this, 0,0, data->w, data->h );
+    tmp.data->optim = data->optim;		// copy optim flag
+    pm.data->bitmap = data->bitmap;		// copy bitmap flag
     return tmp;
 }
 
 
 /*!
+  Converts the image \e image to a pixmap that is assigned to this pixmap.
+  Returns a reference to the pixmap.
+  \sa convertFromImage().
+*/
+
+QPixmap &QPixmap::operator=( const QImage &image )
+{
+    convertFromImage( im );
+    return *this;
+}
+
+
+/*!
+  \fn bool QPixmap::isNull() const
+  Returns TRUE if it is a null pixmap.
+
+  A null pixmap has zero width, zero height and no contents.
+  You cannot draw in a null pixmap or bitBlt() anything to it.
+  \sa isNull()
+*/
+
+/*!
+  \fn int QPixmap::width() const
+  Returns the width of the pixmap.
+  \sa height(), size(), rect()
+*/
+
+/*!
+  \fn int QPixmap::height() const
+  Returns the height of the pixmap.
+  \sa width(), size(), rect()
+*/
+
+/*!
+  \fn QSize QPixmap::size() const
+  Returns the size of the pixmap.
+  \sa width(), height(), rect()
+*/
+
+/*!
+  \fn QRect QPixmap::rect() const
+  Returns the enclosing rectangle of the pixmap.
+  \sa width(), height(), size()
+*/
+
+/*!
+  \fn int QPixmap::depth() const
+  Returns the depth of the image. <br>
+  The pixmap depth is also called bits per pixel (bpp) or bit planes
+  of a pixmap.
+  \sa numColors()
+*/
+
+/*!
+  \fn int QPixmap::numColors() const
+  Returns the maximum number of colors that can be used for the pixmap.<br>
+  Equivalent to 2^depth().
+*/
+
+
+/*!
   \fn void QPixmap::resize( const QSize &size )
-  Synonymous resize() which takes a QSize parameter.
+  Overloaded resize(); takes a QSize parameter instead of \e (w,h).
 */
 
 /*!
   Resizes the pixmap to \e w width and \e h height. <br>
   New pixels will be uninitialized (random) if the pixmap is expanded. <br>
-  A valid pixmap will be created if it is a null pixmap. <br>
+  A valid pixmap will be created if this is a null pixmap. <br>
 */
 
 void QPixmap::resize( int w, int h )
 {
-    if ( !data->uninit && !isNull() ) {		// has existing pixmap
-	QPixmap pm( w, h, depth() );
-	pm.data->bitmap = data->bitmap;
+    QPixmap pm( w, h, depth() );		// create new pixmap
+    if ( !data->uninit && !isNull() )		// has existing pixmap
 	bitBlt( &pm, 0, 0, this, 0, 0,		// copy old pixmap
 		QMIN(width(), w),
 		QMIN(height(),h) );
-	*this = pm;
-    }
-    else {					// create new pixmap
-	QPixmap pm( w, h, data->bitmap ? 1 : -1 );
-	pm.data->bitmap = data->bitmap;
-	*this = pm;
-    }
+    pm.data->optim  = data->optim;		// keep optim flag
+    pm.data->bitmap = data->bitmap;		// keep bitmap flag
+    *this = pm;
 }
 
 
 /*!
   Returns a string that specifies the image format of the file \e fileName,
   or null if the file cannot be read or if the format cannot be recognized.
+
+  The QImageIO documentation lists the supported image formats.
+
   \sa load(), save()
 */
 
 const char *QPixmap::imageFormat( const char *fileName )
-{						// determine image format
+{
     return QImageIO::imageFormat(fileName);
 }
 
