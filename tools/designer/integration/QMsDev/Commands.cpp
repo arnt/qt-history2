@@ -7,6 +7,7 @@
 #include "Commands.h"
 #include "newqtprojectdialog.h"
 #include "qmsdevtemplates.h"
+#include "createdspdlg.h"
 #include <direct.h>
 #include <process.h>
 #include <windows.h>
@@ -987,5 +988,33 @@ STDMETHODIMP CCommands::QMsDevNewQtDialog()
     m_pApplication->PrintToOutputWindow( CComBSTR("New Dialog \"" + classname + "\" finished!") );
 
     VERIFY_OK(m_pApplication->EnableModeless(VARIANT_TRUE));
+    return S_OK;
+}
+
+STDMETHODIMP CCommands::QMsDevCreateDSP()
+{
+    AFX_MANAGE_STATE(AfxGetStaticModuleState());
+
+    // Check for active Project
+    CComQIPtr<IBuildProject, &IID_IBuildProject> pProject;
+    if ( getActiveProject( pProject ) != S_OK ) {
+	VERIFY_OK(m_pApplication->EnableModeless(VARIANT_FALSE));
+	::MessageBox(NULL, "Can't find active project!", "QMsDev", MB_OK | MB_ICONINFORMATION );
+	VERIFY_OK(m_pApplication->EnableModeless(VARIANT_TRUE));
+	return S_FALSE;
+    }
+    CComBSTR projectName;
+    pProject->get_FullName( &projectName );
+    CString projectAnsi = projectName;
+    
+    
+    VERIFY_OK(m_pApplication->EnableModeless(VARIANT_TRUE));
+    CCreateDSPDlg dialog;
+    dialog.m_qtProject = projectAnsi.Left( projectAnsi.GetLength() - 4 ) + ".pro";
+    if ( dialog.DoModal() == IDCANCEL ) {
+	VERIFY_OK(m_pApplication->EnableModeless(VARIANT_TRUE));
+	return S_FALSE;
+    }
+    
     return S_OK;
 }

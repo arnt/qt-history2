@@ -10,6 +10,8 @@
 
 #include <afxwin.h>         // MFC-Kern- und -Standardkomponenten
 #include <afxdisp.h>
+#include <afxdlgs.h>
+#include <afx.h>
 
 #include <atlbase.h>
 //Sie können eine Klasse von CComModule ableiten und diese benutzen, um etwas zu überlagern,

@@ -13,7 +13,7 @@
 #undef APSTUDIO_READONLY_SYMBOLS
 
 /////////////////////////////////////////////////////////////////////////////
-// Deutsch (Deutschland) resources
+// German (Germany) resources
 
 #if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_DEU)
 #ifdef _WIN32
@@ -127,6 +127,7 @@ BEGIN
     BUTTON      ID_BUTTON32778
     BUTTON      ID_BUTTON32779
     BUTTON      ID_BUTTON32780
+    BUTTON      ID_BUTTON32793
 END
 
 IDR_TOOLBAR_LARGE TOOLBAR DISCARDABLE  32, 32
@@ -140,6 +141,7 @@ BEGIN
     BUTTON      ID_BUTTON32782
     BUTTON      ID_BUTTON32783
     BUTTON      ID_BUTTON32784
+    BUTTON      ID_BUTTON32794
 END
 
 
@@ -213,9 +215,61 @@ BEGIN
                             "\nGenerate Qt Project\nGenerate a Developer Studio Project out of a Qt Project file\nGenerate Qt Project"
     IDS_NEWQTPROJECT_STRING "\nNew Qt Project\nCreate a new Qt Project\nNew Qt Project"
     IDS_NEWQTDIALOG_STRING  "\nNew Qt Dialog\nAdd a new Qt Dialog\nNew Qt Dialog"
+    IDS_GENERATEDSP_STRING  "\nGenerate DSP\nGenerate DSP file from Qt project\nGenerate DSP"
 END
 
-#endif    // Deutsch (Deutschland) resources
+#endif    // German (Germany) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+/////////////////////////////////////////////////////////////////////////////
+// Norwegian (Nynorsk) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_NON)
+#ifdef _WIN32
+LANGUAGE LANG_NORWEGIAN, SUBLANG_NORWEGIAN_NYNORSK
+#pragma code_page(1252)
+#endif //_WIN32
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+IDD_CREATEDSPDLG DIALOG DISCARDABLE  0, 0, 345, 63
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Create Visual Studio Project from Qt Project file"
+FONT 8, "MS Sans Serif"
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,114,42,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,180,42,50,14
+    LTEXT           "Qt Project file",IDC_STATIC,7,10,43,8
+    EDITTEXT        IDC_QTPROJECT,86,7,221,14,ES_AUTOHSCROLL
+    PUSHBUTTON      "Select",IDC_QTPROJECTBUTTON,308,7,30,14
+    LTEXT           "Extra options to QMake",IDC_STATIC,7,26,75,8
+    EDITTEXT        IDC_QMAKEOPTS,86,23,252,14,ES_AUTOHSCROLL
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// DESIGNINFO
+//
+
+#ifdef APSTUDIO_INVOKED
+GUIDELINES DESIGNINFO DISCARDABLE 
+BEGIN
+    IDD_CREATEDSPDLG, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 338
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 56
+    END
+END
+#endif    // APSTUDIO_INVOKED
+
+#endif    // Norwegian (Nynorsk) resources
 /////////////////////////////////////////////////////////////////////////////
 
 

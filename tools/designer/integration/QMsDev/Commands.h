@@ -116,6 +116,7 @@ public:
 	STDMETHOD(QMsDevUseQt)();
 	STDMETHOD(QMsDevStartDesigner)(THIS);
 	STDMETHOD(QMsDevNewQtDialog)();
+	STDMETHOD(QMsDevCreateDSP)();
 };
 
 typedef CComObject<CCommands> CCommandsObj;

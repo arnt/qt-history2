@@ -76,6 +76,10 @@ STDMETHODIMP CDSAddIn::OnConnection(IApplication* pApp, VARIANT_BOOL bFirstTime,
 	strCmdString.LoadString(IDS_ADDUICSTEP_STRING);
 	VERIFY_OK(pApplication->AddCommand(CComBSTR(szAddUICStep + strCmdString), CComBSTR(_T("QMsDevAddUICStep")), 6, m_dwCookie, &bRet));
 
+	LPCTSTR szCreateDSP = _T( "Generate DSP file" );
+	strCmdString.LoadString( IDS_GENERATEDSP_STRING );
+	VERIFY_OK( pApplication->AddCommand( CComBSTR( szCreateDSP + strCmdString ), CComBSTR( _T( "QMsDevCreateDSP" ) ), 7, m_dwCookie, &bRet ) );
+
 	if (bRet == VARIANT_FALSE)
 	{
 		*OnConnection = VARIANT_FALSE;
@@ -100,6 +104,8 @@ STDMETHODIMP CDSAddIn::OnConnection(IApplication* pApp, VARIANT_BOOL bFirstTime,
 			AddCommandBarButton(dsGlyph, CComBSTR(szAddMOCStep), m_dwCookie));
 		VERIFY_OK(pApplication->
 			AddCommandBarButton(dsGlyph, CComBSTR(szAddUICStep), m_dwCookie));
+		VERIFY_OK( pApplication->
+			AddCommandBarButton( dsGlyph, CComBSTR( szCreateDSP ), m_dwCookie ) );
 	}
 
 	*OnConnection = VARIANT_TRUE;
