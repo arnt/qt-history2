@@ -659,7 +659,7 @@ void QDesignerPopupMenu::mousePressEvent( QMouseEvent *e )
 	return;
 
     if ( e->button() == RightButton ) {
-	int itm = itemAtPos( e->pos() );
+	int itm = itemAtPos( e->pos(), FALSE );
 	if ( itm == -1 )
 	    return;
 	QPopupMenu menu( 0 );
