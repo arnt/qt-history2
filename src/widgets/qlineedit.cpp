@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#50 $
+** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#51 $
 **
 ** Implementation of QLineEdit widget class
 **
@@ -21,7 +21,7 @@
 
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlineedit.cpp#50 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlineedit.cpp#51 $");
 
 
 /*!
@@ -107,6 +107,7 @@ QLineEdit::QLineEdit( QWidget *parent, const char *name )
     scrollingLeft = FALSE;
     tbuf	  = "";
     setAcceptFocus( TRUE );
+    setCursor( ibeamCursor );
 }
 
 /*!
@@ -197,6 +198,16 @@ QString QLineEdit::markedText() const
 }
 
 /*!
+  Returns the current maximum length of the text in the editor.
+  \sa setMaxLength()
+*/
+
+int QLineEdit::maxLength() const
+{
+    return maxLen;
+}
+
+/*!
   Set the maximum length of the text in the editor.  If the text is
   currently too long, it is chopped off at the limit. Any marked text will
   be unmarked.  The cursor position is set to 0 and the first part of the
@@ -215,15 +226,6 @@ void QLineEdit::setMaxLength( int m )
     paint();
 }
 
-/*!
-  Returns the current maximum length of the text in the editor.
-  \sa setMaxLength()
-*/
-
-int QLineEdit::maxLength() const
-{
-    return maxLen;
-}
 
 /*!
   The key press event handler converts a key press to some line editor
@@ -563,11 +565,6 @@ void QLineEdit::paint( bool frame )
     } else {
 	QPainter p;
 	p.begin( this );
-	if ( !frame )
-	    p.fillRect( LEFT_MARGIN, TOP_MARGIN,
-			width()  - LEFT_MARGIN - RIGHT_MARGIN  + 1,
-			height() - TOP_MARGIN  - BOTTOM_MARGIN + 1,
-			colorGroup().base() );
 	paintText( &p, size(), frame );
 	p.end();
     }
@@ -580,13 +577,12 @@ void QLineEdit::paint( bool frame )
 
 void QLineEdit::pixmapPaint()
 {
-    pm->fill( colorGroup().base() );
     QPainter p;
     p.begin( pm );
     p.setFont( font() );
     paintText( &p, pm->size() , TRUE );
     p.end();
-    bitBlt( this, 0, 0, pm, 0, 0, -1, -1 );
+    bitBlt( this, 0, 0, pm, 0, 0, width(), height() );
 }
 
 
@@ -598,15 +594,21 @@ void QLineEdit::pixmapPaint()
 void QLineEdit::paintText( QPainter *p, const QSize &s, bool frame )
 {
     QColorGroup	 g    = colorGroup();
+    QColor       bg   = isEnabled() ? g.base() : g.background();
     QFontMetrics fm   = fontMetrics();
     char *displayText = &tbuf[(int)offset];
     int markBegin     = minMark();
     int markEnd       = maxMark();
 
     if ( frame ) {
-	QBrush fill( g.base() );
+	QBrush fill( bg );
 	qDrawWinPanel( p, 0, 0, s.width(), s.height(), g, TRUE, &fill );
+    } else {
+        p->fillRect( LEFT_MARGIN, TOP_MARGIN,
+		     width()  - LEFT_MARGIN - RIGHT_MARGIN  + 1,
+		     height() - TOP_MARGIN  - BOTTOM_MARGIN + 1, bg );
     }
+
     p->setClipRect( LEFT_MARGIN, TOP_MARGIN,
 		    s.width()  - LEFT_MARGIN - RIGHT_MARGIN,
 		    s.height() - TOP_MARGIN - BOTTOM_MARGIN );
