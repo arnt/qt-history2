@@ -51,7 +51,7 @@
 //#define DEBUG_SIZE_CONSTRAINT
 
 QAquaFocusWidget::QAquaFocusWidget(bool noerase, QWidget *w)
-    : QWidget(w, "magicFocusWidget", (noerase ? (WResizeNoErase | WRepaintNoErase) : 0)), d(0)
+    : QWidget(w, "magicFocusWidget", (noerase ? (WResizeNoErase | WRepaintNoErase) : (Qt::WindowFlags)0)), d(0)
 {
     if (noerase)
 	setAttribute(WA_NoSystemBackground, true);
