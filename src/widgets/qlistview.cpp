@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#120 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#121 $
 **
 ** Implementation of QListView widget class
 **
@@ -70,9 +70,9 @@ struct QListViewPrivate
     };
 
     struct ItemColumnInfo {
-	ItemColumnInfo(): pm( 0 ), next( 0 ) {}
-	~ItemColumnInfo() { delete pm; delete next; }
-	QString text;
+	ItemColumnInfo(): text( 0 ), pm( 0 ), next( 0 ) {}
+	~ItemColumnInfo() { if (text) delete[] text; delete pm; delete next; }
+	const char * text;
 	QPixmap * pm;
 	ItemColumnInfo * next;
     };
@@ -588,7 +588,8 @@ void QListViewItem::setOpen( bool o )
 void QListViewItem::setup()
 {
     widthChanged();
-    setHeight( listView()->d->fontMetricsHeight );
+    QListView * v = listView();
+    setHeight( v->d->fontMetricsHeight + 2*v->itemMargin() );
 }
 
 /*!
@@ -772,7 +773,9 @@ void QListViewItem::setText( int column, const char * text )
 	l = l->next;
 	column--;
     }
-    l->text = text;
+    if ( l->text )
+	delete[] text;
+    l->text = qstrdup( text );
     repaint();
 }
 
@@ -860,12 +863,12 @@ void QListViewItem::paintCell( QPainter * p, const QColorGroup & cg,
 	return;
 
     QListView *lv = listView();
-    int r = lv ? lv->itemMargin() : 2;
+    int r = lv ? lv->itemMargin() : 1;
     const QPixmap * icon = pixmap( column );
 
     p->fillRect( 0, 0, width, height(), cg.base() );
 
-    int marg = lv ? lv->itemMargin() : 2;
+    int marg = lv ? lv->itemMargin() : 1;
 
     if ( isSelected() &&
 	 (column==0 || listView()->allColumnsShowFocus()) ) {
@@ -912,7 +915,7 @@ int QListViewItem::width(const QFontMetrics& fm,
 			 const QListView* lv, int c) const
 {
     int w = -(fm.minLeftBearing()+fm.minRightBearing()) +
-	    fm.width(text(c)) + lv->itemMargin() + 2;
+	    fm.width(text(c)) + lv->itemMargin() * 2;
     const QPixmap * pm = pixmap( c );
     if ( pm )
 	w += pm->width() + lv->itemMargin(); // ### correct margin stuff?
@@ -1218,7 +1221,7 @@ QListView::QListView( QWidget * parent, const char * name )
     d->drawables = 0;
     d->dirtyItems = 0;
     d->dirtyItemTimer = new QTimer( this );
-    d->margin = 2;
+    d->margin = 1;
     d->multi = 0;
     d->sortcolumn = 0;
     d->ascending = TRUE;
@@ -2747,18 +2750,29 @@ void QListView::changeSortColumn( int column )
     setSorting( d->h->mapToLogical( column ), d->ascending );
 }
 
-/*!
-  Sets an advisory spacing which list items may use.
-  \sa QListViewItem::paintCell().
+/*! Sets the advisory item margin which list items may use to \a m.
+  
+  The item margin defaults to one pixels and is the margin between the
+  item's edges and the area where it draws its contents.
+  QListViewItem::paintFocus() draws in the margin.
+  
+  \sa QListViewItem::paintCell()
 */
 void QListView::setItemMargin( int m )
 {
+    if ( d->margin == m )
+	return;
     d->margin = m;
+    if ( isVisibleToTLW() ) {
+	if ( d->drawables )
+	    d->drawables->clear();
+	triggerUpdate();
+    }
 }
 
-/*!
-  Returns an advisory spacing which list items may use.
-  \sa QListViewItem::paintCell().
+/*! Returns the advisory item margin which list items may use.
+
+  \sa QListViewItem::paintCell() setItemMargin()
 */
 int QListView::itemMargin() const
 {
@@ -2767,7 +2781,6 @@ int QListView::itemMargin() const
 
 
 /*! \fn void QListView::rightButtonClicked( QListViewItem *, const QPoint&, int )
-void QListView::rightButtonPressed (QListViewItem *, const QPoint &, int)
 
   This signal is emitted when the right button is clicked (ie. when
   it's released).  The arguments are the relevant QListViewItem (may
@@ -2907,6 +2920,11 @@ bool QListView::allColumnsShowFocus() const
 
 QListViewItem * QListView::firstChild() const
 {
+    if ( ( (int)d->r->lsc != d->sortcolumn ||
+	   (bool)d->r->lso != d->ascending ) &&
+	 d->sortcolumn != Unsorted )
+	d->r->sortChildItems( d->sortcolumn, d->ascending );
+
     return d->r->childItem;
 }
 
