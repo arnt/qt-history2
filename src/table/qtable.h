@@ -337,12 +337,14 @@ public slots:
     virtual void setDragEnabled( bool b );
     bool dragEnabled() const;
 
-    void insertRows( int row, int count = 1 );
-    void insertColumns( int col, int count = 1 );
-    void removeRow( int row );
-    void removeRows( const QArray<int> &rows );
-    void removeColumn( int col );
-    void removeColumns( const QArray<int> &cols );
+    virtual void insertRows( int row, int count = 1 );
+    virtual void insertColumns( int col, int count = 1 );
+    virtual void removeRow( int row );
+    virtual void removeRows( const QArray<int> &rows );
+    virtual void removeColumn( int col );
+    virtual void removeColumns( const QArray<int> &cols );
+
+    virtual void editCell( int row, int col, bool replace = FALSE );
 
 protected:
     enum EditMode { NotEditing, Editing, Replacing };

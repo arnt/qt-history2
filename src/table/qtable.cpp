@@ -4631,6 +4631,26 @@ void QTable::removeColumns( const QArray<int> &cols )
     setNumCols( numCols() - cols.count() );
 }
 
+/*!  Starts editing the cell. \a row, \a col.  If \a replace is TRUE
+  the content of this cell will be replaced by the content of the
+  editor later, otherwise the current content of the cell (if
+  existing) will be modified by the editor.
+*/
+
+void QTable::editCell( int row, int col, bool replace )
+{
+    if ( row < 0 || col < 0 || row > numRows() - 1 || col > numCols() - 1 )
+	return;
+
+    if ( beginEdit( row, col, FALSE ) ) {
+	edMode = Editing;
+	editRow = row;
+	editCol = col;
+    }
+}
+
+
+
 /*! This event handler is called whenever a QTable object receives a
   \l QDragEnterEvent \a e, i.e. when the user pressed the mouse
   button to drag something.
