@@ -27,6 +27,7 @@ static inline int qt_open(const char *pathname, int flags, mode_t mode)
 #endif
 
 #include "qfile.h"
+#include "qfiledefs_p.h"
 #include <errno.h>
 #include <limits.h>
 
@@ -36,7 +37,7 @@ static inline int qt_open(const char *pathname, int flags, mode_t mode)
 
 extern const char* qt_fileerr_read;
 
-bool qt_file_access( const QString& fn, int t )
+bool QFileInfoPrivate::access( const QString& fn, int t )
 {
     if ( fn.isEmpty() )
 	return FALSE;

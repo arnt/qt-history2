@@ -25,6 +25,7 @@
 #endif
 
 #include "qfile.h"
+#include "qfiledefs_p.h"
 #include "qdatastream.h"
 #ifndef NO_ERRNO_H
 #include <errno.h>
@@ -50,8 +51,6 @@ class QFilePrivate
 public:
     QString errorString;
 };
-
-extern bool qt_file_access( const QString& fn, int t );
 
 /*!
     \class QFile qfile.h
@@ -238,7 +237,7 @@ void QFile::setName( const QString &name )
 
 bool QFile::exists() const
 {
-    return qt_file_access( fn, F_OK );
+    return QFileInfoPrivate::access( fn, F_OK );
 }
 
 /*!
@@ -248,7 +247,7 @@ bool QFile::exists() const
 
 bool QFile::exists( const QString &fileName )
 {
-    return qt_file_access( fileName, F_OK );
+    return QFileInfoPrivate::access( fileName, F_OK );
 }
 
 

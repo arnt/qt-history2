@@ -20,20 +20,8 @@
 
 #include <limits.h>
 
-
-void QFileInfo::slashify( QString& )
-{
-    return;
-}
-
-
-void QFileInfo::makeAbs( QString & )
-{
-    return;
-}
-
 /*!
-    Returns TRUE if this object points to a file. Returns FALSE if the
+    Returns true if this object points to a file. Returns FALSE if the
     object points to something which isn't a file, e.g. a directory or
     a symlink.
 
@@ -41,36 +29,45 @@ void QFileInfo::makeAbs( QString & )
 */
 bool QFileInfo::isFile() const
 {
-    if ( !fic || !cache )
-	doStat();
-    return fic ? (fic->st.st_mode & S_IFMT) == S_IFREG : FALSE;
+    if (!d)
+	return false;
+
+    if ( !d->cache )
+	d->doStat();
+    return d->could_stat ? (d->st.st_mode & S_IFMT) == S_IFREG : false;
 }
 
 /*!
-    Returns TRUE if this object points to a directory or to a symbolic
-    link to a directory; otherwise returns FALSE.
+    Returns true if this object points to a directory or to a symbolic
+    link to a directory; otherwise returns false.
 
     \sa isFile(), isSymLink()
 */
 bool QFileInfo::isDir() const
 {
-    if ( !fic || !cache )
-	doStat();
-    return fic ? (fic->st.st_mode & S_IFMT) == S_IFDIR : FALSE;
+    if (!d)
+	return false;
+
+    if ( !d->cache )
+	d->doStat();
+    return d->could_stat ? (d->st.st_mode & S_IFMT) == S_IFDIR : false;
 }
 
 /*!
-    Returns TRUE if this object points to a symbolic link (or to a
-    shortcut on Windows); otherwise returns FALSE.
+    Returns true if this object points to a symbolic link (or to a
+    shortcut on Windows); otherwise returns false.
 
     \sa isFile(), isDir(), readLink()
 */
 
 bool QFileInfo::isSymLink() const
 {
-    if ( !fic || !cache )
-	doStat();
-    return symLink;
+    if (!d)
+	return false;
+
+    if ( !d->cache )
+	d->doStat();
+    return d->symLink;
 }
 
 /*!
@@ -78,7 +75,7 @@ bool QFileInfo::isSymLink() const
     a QString::null if the object isn't a symbolic link.
 
     This name may not represent an existing file; it is only a string.
-    QFileInfo::exists() returns TRUE if the symlink points to an
+    QFileInfo::exists() returns true if the symlink points to an
     existing file.
 
     \sa exists(), isSymLink(), isDir(), isFile()
@@ -86,20 +83,21 @@ bool QFileInfo::isSymLink() const
 
 QString QFileInfo::readLink() const
 {
-    QString r;
-
 #if defined(Q_OS_UNIX) && !defined(Q_OS_OS2EMX)
-    char s[PATH_MAX+1];
-    if ( !isSymLink() )
+    if ( !d || !d->symLink )
 	return QString();
-    int len = readlink( QFile::encodeName(fn), s, PATH_MAX );
+
+    QString r;
+    char s[PATH_MAX+1];
+    int len = readlink( QFile::encodeName(d->fileName()), s, PATH_MAX );
     if ( len >= 0 ) {
 	s[len] = '\0';
 	r = QFile::decodeName(QByteArray(s));
     }
-#endif
-
     return r;
+#else
+    return QString();
+#endif
 }
 
 static const uint nobodyID = (uint) -2;
@@ -134,10 +132,10 @@ QString QFileInfo::owner() const
 
 uint QFileInfo::ownerId() const
 {
-    if ( !fic || !cache )
-	doStat();
-    if ( fic )
-	return fic->st.st_uid;
+    if ( !d->cache )
+	d->doStat();
+    if ( d->could_stat )
+	return d->st.st_uid;
     return nobodyID;
 }
 
@@ -171,10 +169,10 @@ QString QFileInfo::group() const
 
 uint QFileInfo::groupId() const
 {
-    if ( !fic || !cache )
-	doStat();
-    if ( fic )
-	return fic->st.st_gid;
+    if ( !d->cache )
+	d->doStat();
+    if ( d->could_stat )
+	return d->st.st_gid;
     return nobodyID;
 }
 
@@ -185,7 +183,7 @@ uint QFileInfo::groupId() const
     for permission combinations.
 
     On systems where files do not have permissions this function
-    always returns TRUE.
+    always returns true.
 
     Example:
     \code
@@ -201,9 +199,9 @@ uint QFileInfo::groupId() const
 
 bool QFileInfo::permission( int permissionSpec ) const
 {
-    if ( !fic || !cache )
-	doStat();
-    if ( fic ) {
+    if ( !d->cache )
+	d->doStat();
+    if ( d->could_stat ) {
 	uint mask = 0;
 	if ( permissionSpec & ReadOwner )
 	    mask |= S_IRUSR;
@@ -230,43 +228,43 @@ bool QFileInfo::permission( int permissionSpec ) const
 	if ( permissionSpec & ExeOther )
 	    mask |= S_IXOTH;
 	if ( mask ) {
-	   return (fic->st.st_mode & mask) == mask;
+	   return (d->st.st_mode & mask) == mask;
 	} else {
 	   qWarning( "QFileInfo::permission: permissionSpec is 0" );
-	   return TRUE;
+	   return true;
 	}
     } else {
-	return FALSE;
+	return false;
     }
 }
 
-void QFileInfo::doStat() const
+void QFileInfoPrivate::doStat() const
 {
-    QFileInfo *that = ((QFileInfo*)this);	// mutable function
-    if ( !that->fic )
-	that->fic = new QFileInfoCache;
-    that->symLink = FALSE;
-    struct stat *b = &that->fic->st;
+    if (cache)
+	return;
+
+    symLink = false;
+    cache = true;
+    could_stat = true;
+
+    symLink = false;
 #if defined(Q_OS_UNIX) && defined(S_IFLNK)
-    if ( ::lstat( QFile::encodeName(fn), b ) == 0 ) {
-	if ( S_ISLNK( b->st_mode ) )
-	    that->symLink = TRUE;
+    if ( ::lstat( QFile::encodeName(fn), &st ) == 0 ) {
+	if ( S_ISLNK( st.st_mode ) )
+	    symLink = true;
 	else
 	    return;
     }
 #endif
 
-    int r = ::stat( QFile::encodeName(fn), b );
-    if ( r != 0 && !that->symLink ) {
-	delete that->fic;
-	that->fic = 0;
-    }
+    if ( ::stat(QFile::encodeName(fn), &st) != 0 && !symLink )
+	could_stat = false;
 }
 
 /*!
     Returns the file's path.
 
-    If \a absPath is TRUE an absolute path is returned.
+    If \a absPath is true an absolute path is returned.
 
     \sa dir(), filePath(), fileName(), isRelative()
 */
@@ -277,7 +275,7 @@ QString QFileInfo::dirPath( bool absPath ) const
     if ( absPath )
 	s = absFilePath();
     else
-	s = fn;
+	s = d->fileName();
     int pos = s.lastIndexOf( '/' );
     if ( pos == -1 ) {
 	return QString::fromLatin1( "." );
@@ -303,10 +301,13 @@ QString QFileInfo::dirPath( bool absPath ) const
 
 QString QFileInfo::fileName() const
 {
-    int p = fn.lastIndexOf( '/' );
+    if (!d)
+	return QString();
+
+    int p = d->fileName().lastIndexOf( '/' );
     if ( p == -1 ) {
-	return fn;
+	return d->fileName();
     } else {
-	return fn.mid( p + 1 );
+	return d->fileName().mid( p + 1 );
     }
 }

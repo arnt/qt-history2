@@ -22,9 +22,7 @@
 
 
 class QDir;
-struct QFileInfoCache;
-template <class T> class QDeepCopy;
-
+struct QFileInfoPrivate;
 
 class Q_CORE_EXPORT QFileInfo
 {
@@ -53,8 +51,10 @@ public:
 #endif
     bool	exists()	const;
     void	refresh()	const;
-    bool	caching()	const;
-    void	setCaching( bool );
+#ifdef QT_COMPAT
+    inline QT_COMPAT bool caching()	const { return true; }
+    inline QT_COMPAT void setCaching( bool ) {}
+#endif
 
     QString	filePath()	const;
     QString	fileName()	const;
@@ -99,27 +99,10 @@ public:
     QDateTime	lastModified()	const;
     QDateTime	lastRead()	const;
 
-private:
-    void	doStat() const;
-    static void slashify( QString & );
-    static void makeAbs( QString & );
-
-    QString	fn;
-    QFileInfoCache *fic;
-    bool	cache;
-#if defined(Q_OS_UNIX)
-    bool        symLink;
-#endif
-
     void detach();
-    friend class QDeepCopy< QFileInfo >;
+
+private:
+    QFileInfoPrivate *d;
 };
-
-
-inline bool QFileInfo::caching() const
-{
-    return cache;
-}
-
 
 #endif // QFILEINFO_H

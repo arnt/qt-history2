@@ -18,7 +18,6 @@
 #include "qdir_p.h"
 #include "qnamespace.h"
 #include "qfileinfo.h"
-#include "qfiledefs_p.h"
 #include "qregexp.h"
 #include "qstringlist.h"
 

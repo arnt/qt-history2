@@ -25,13 +25,53 @@
 //
 //
 
+#ifndef QT_H
+#include <qglobal.h>
+#include <qatomic.h>
+#endif
+
 // Be sure to include qplatformdefs.h first!
-struct QFileInfoCache
+class QFileInfoPrivate
 {
+public:
+    QFileInfoPrivate(const QString &file)
+	: fn(file), cache(false), could_stat(false), symLink(false) {
+	ref = 0;
+	slashify(fn);
+    }
+    QFileInfoPrivate()
+	: cache(false), could_stat(false), symLink(false) {
+	ref = 0;
+    }
+
+    QAtomic ref;
+
+    static bool access( const QString& fn, int t );
+
+    void setFileName(const QString &file) { fn = file; cache = false; }
+    QString fileName() const { return fn; }
+private:
+    QString	fn;
+
+public:
+    mutable bool	cache : 1;
+    mutable bool        could_stat : 1;
+#if defined(Q_OS_UNIX)
+    mutable bool        symLink : 1;
+#endif
 #if defined(Q_WS_WIN)
-    QT_STATBUF st;
+    mutable QT_STATBUF st;
 #else
-    struct stat st;
+    mutable struct stat st;
+#endif
+
+    void	doStat() const;
+#ifdef Q_WS_WIN
+    static void slashify( QString & );
+    static void makeAbs( QString & );
+#else
+    inline void slashify( QString & ) {}
+    inline void makeAbs( QString & ) {}
 #endif
 };
 

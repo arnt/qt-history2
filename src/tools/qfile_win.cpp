@@ -15,7 +15,6 @@
 #include "qplatformdefs.h"
 
 #include "qfile.h"
-#include "qfiledefs_p.h"
 #include <limits.h>
 
 #ifndef LLONG_MAX
@@ -48,7 +47,7 @@ QByteArray qt_win95Name(const QString s)
     }
 }
 
-bool qt_file_access( const QString& fn, int t )
+bool QFileInfoPrivate::access( const QString& fn, int t )
 {
     if ( fn.isEmpty() )
 	return FALSE;
