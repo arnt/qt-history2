@@ -2000,12 +2000,30 @@ QSize QWindowsStyle::sizeFromContents(ContentsType ct, const QStyleOption *opt, 
         break;
     case CT_MenuItem:
         if (const QStyleOptionMenuItem *mi = qt_cast<const QStyleOptionMenuItem *>(opt)) {
+            int w = sz.width();
             sz = QCommonStyle::sizeFromContents(ct, opt, csz, fm, widget);
             if ((mi->menuItemType != QStyleOptionMenuItem::Separator
                  && mi->menuItemType != QStyleOptionMenuItem::Q3Custom) && !mi->icon.isNull())
                  sz.setHeight(qMax(csz.height(),
                               mi->icon.pixmap(QIconSet::Small, QIconSet::Normal).height()
                               + 2 * windowsItemFrame));
+            bool checkable = mi->checkState != QStyleOptionMenuItem::NotCheckable;
+            int maxpmw = mi->maxIconWidth;
+            int tabSpacing = use2000style ? 20 :windowsTabSpacing;
+            if (mi->text.contains('\t'))
+                w += tabSpacing;
+            else if (mi->menuItemType == QStyleOptionMenuItem::SubMenu)
+                w += 2 * windowsArrowHMargin;
+            int checkMarkWidth = use2000style ? 20 : windowsCheckMarkWidth;
+            if (checkable && maxpmw < checkMarkWidth)
+                w += checkMarkWidth - maxpmw;
+            if (checkable || maxpmw > 0)
+                w += windowsCheckMarkWidth;
+            if (use2000style)
+                w += 10;
+            else
+                w += windowsRightBorder / 2;
+            sz.setWidth(w);
         }
         break;
     case CT_MenuBarItem:
