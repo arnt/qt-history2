@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.h#116 $
+** $Id: //depot/qt/main/src/kernel/qapplication.h#117 $
 **
 ** Definition of QApplication class
 **
@@ -133,7 +133,7 @@ public:
     static void 	setDesktopSettingsAware( bool );
     static bool 	desktopSettingsAware();
 
-    static void 	setCusorFlashTime( int );
+    static void 	setCursorFlashTime( int );
     static int 	cursorFlashTime();
 
     static void 	setDoubleClickInterval( int );
@@ -155,15 +155,15 @@ public:
 #if defined(_WS_WIN_)
     void	     winFocus( QWidget *, bool );
 #endif
-    
-    
+
+
     // session management
     bool isSessionRestored() const;
     QString sessionId() const;
     virtual void commitData( QSessionManager& sm );
     virtual void saveState( QSessionManager& sm );
 
-    
+
 signals:
     void	     lastWindowClosed();
     void	     aboutToQuit();
@@ -279,8 +279,8 @@ inline bool QApplication::isSessionRestored() const
 {
     return is_session_restored;
 }
-    
-inline QString QApplication::sessionId() const 
+
+inline QString QApplication::sessionId() const
 {
     return session_id;
 }
