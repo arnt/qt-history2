@@ -1861,7 +1861,7 @@ void QLineEdit::contextMenuEvent( QContextMenuEvent * e )
 #ifndef QT_NO_POPUPMENU
     d->separate();
 
-    QPopupMenu *popup = createPopupMenu();
+    QGuardedPtr<QPopupMenu> popup = createPopupMenu();
     QPoint pos = e->reason() == QContextMenuEvent::Mouse ? e->globalPos() :
 		 mapToGlobal( QPoint(e->pos().x(), 0) ) + QPoint( width() / 2, height() / 2 );
     int r = popup->exec( pos );
