@@ -2220,6 +2220,9 @@ void QApplication::sendPostedEvents()
 
 void QApplication::sendPostedEvents( QObject *receiver, int event_type )
 {
+    if ( receiver == 0 && event_type == 0 )
+	sendPostedEvents( 0, QEvent::ChildInserted );
+
     if ( !globalPostedEvents || ( receiver && !receiver->postedEvents ) )
 	return;
 
