@@ -572,7 +572,7 @@ static struct {
 };
 
 #ifdef Q_WS_MAC
-#define QMAC_PROPELLER ((char)0x11)
+#define QMAC_PROPELLER (QChar(0x2318))
 #endif
 
 /*!
@@ -679,8 +679,7 @@ done:
     if ( p > 0 ) {
 	QString sl = s.lower();
 #ifdef QMAC_PROPELLER
-	QString tmp; tmp.sprintf("%c+", QMAC_PROPELLER);
-	if ( sl.contains(tmp) )
+	if ( sl.contains(QMAC_PROPELLER) )
 	    k |= CTRL;
 #else
 	if ( sl.contains("ctrl+") || sl.contains(tr("ctrl")+"+") )
