@@ -80,7 +80,7 @@ public:
     bool isBuffered() const;
     void flush();
 
-    static bool isDoubleBuffered() { return dblbufr; }
+    static bool isDisabled() { return !dblbufr; }
     static QPixmap* getRawPixmap( int w, int h );
 
 private:
