@@ -208,9 +208,13 @@ void QTipManager::add( const QRect &gm, QWidget *w,
     t->group = g;
     t->geometry = gm;
 
-    if ( h )
+    if ( h ) {
 	tips->take( w );
-    else
+	if (h->autoDelete) {
+	    t->next = h->next;
+	    delete(h);
+	}
+    } else
 	connect( w, SIGNAL(destroyed()), this, SLOT(clientWidgetDestroyed()) );
 
     tips->insert( w, t );
