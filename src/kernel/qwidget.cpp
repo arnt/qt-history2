@@ -1633,9 +1633,19 @@ QWidget *QWidget::topLevelWidget() const
 // links to find the right answer.
 
 /*!
-  This function is deprecated.  Use setBackgroundMode() or setPalette(),
-  as they ensure the appropriate clearing color is used when the widget
-  is in the Active, Normal, or Disabled state.
+  Sets the widget to be cleared to the fixed color \a color before
+  paintEvent() is called.
+
+  Note that using this function is very often a mistake.
+
+  If you want to set the background color of a widget to one of the
+  "usual" colors, setBackgroundMode() is usually the best function.
+  For example, man widgets that usually use white backgrounds (and
+  black text on it) can use this:
+
+  \code
+    thatWidget->setBackgroundMode( QWidget::PaletteBase );
+  \endcode
 
   If you want to change the color scheme of a widget, the setPalette()
   function is better suited.  Here is how to set \e thatWidget to use a
@@ -1646,6 +1656,12 @@ QWidget *QWidget::topLevelWidget() const
     thatWidget->setPalette( QPalette( QColor(80, 255, 80) ) );
   \endcode
 
+  A fixed background color sometimes is just the right thing, but if
+  you use it, make sure that your application looks right when the
+  desktop color scheme has been changed.  (On X11, a quick way to test
+  is e.g. "./yourapp -bg paleblue".  On Windows, you have to use the
+  control panel.)
+  
   \sa setPalette(), QApplication::setPalette(), backgroundColor(),
       setBackgroundPixmap(), setBackgroundMode()
 */
@@ -1660,22 +1676,25 @@ void QWidget::setBackgroundColor( const QColor &color )
 /*!
   Sets the background pixmap of the widget to \e pixmap.
 
-  This function is deprecated.  Use setBackgroundMode() or
-  setPalette(), as they ensure the appropriate clearing pixmap or
-  color is used when the widget is in the Active, Normal, or Disabled
-  state.
+  The background pixmap is tiled to cover the entire widget.  Note
+  that some widgets do not work well with a background pixmap, for
+  example QLineEdit.
 
-  The background pixmap is tiled.  Some widgets (e.g. QLineEdit) do
-  not work well with a background pixmap.
+  If \a pixmap is part of the widget's palette(), we recommend calling
+  setBackgroundMode() instead.
 
-  \sa backgroundPixmap(), backgroundPixmapChange(), setBackgroundColor()
-
-  \internal
-  This function is call with a null pixmap by setBackgroundEmpty().
+  A fixed background pixmap sometimes is just the right thing, but if
+  you use it, make sure that your application looks right when the
+  desktop color scheme has been changed.  (On X11, a quick way to test
+  is e.g. "./yourapp -bg paleblue".  On Windows, you have to use the
+  control panel.)
+  
+  \sa setBackgroundMode(), backgroundPixmap(), backgroundPixmapChange(),
+  setBackgroundColor()
 */
 
 void QWidget::setBackgroundPixmap( const QPixmap &pixmap )
-{
+{ // This function is called with a null pixmap by setBackgroundEmpty().
     setBackgroundPixmapDirect( pixmap );
     setBackgroundModeDirect( FixedPixmap );
 
@@ -1741,69 +1760,69 @@ void QWidget::setBackgroundFromMode()
 }
 
 /*!
-  Returns the mode most recently set by setBackgroundMode().
-  The default is \link QWidget::BackgroundMode PaletteBackground\endlink.
+  Returns the mode most recently set by setBackgroundMode().  The
+  default is PaletteBackground.
+
+  \sa BackgroundMode setBackgroundMode()
 */
 QWidget::BackgroundMode QWidget::backgroundMode() const
 {
     return extra ? (BackgroundMode)extra->bg_mode : PaletteBackground;
 }
 
-//use palette() . \link QColorGroup::fillForeground() fillForeground()\endlink
 
 /*! \enum QWidget::BackgroundMode
 
   This enum describes how the background of a widget changes, as the
   widget's palette changes.
 
-  The background is what the widget contains when paintEvent() is called.
-  To minimize flicker, this should be the most common color in the
-  widget. For \c PaletteBackground, use colorGroup() . \link QColorGroup::brush()
-  brush\endlink ( \c QColorGroup::Background ), and so on.
-
-  The following values are valid:  <ul>
+  The background is what the widget contains when paintEvent() is
+  called.  To minimize flicker, this should be the most common color
+  or pixmap in the widget.  For \c PaletteBackground, use
+  colorGroup().brush( \c QColorGroup::Background ), and so on.  There
+  are also three special values, listed at the end: <ul>
 
   <li> \c PaletteForeground
-    <li> \c PaletteBackground
-    <li> \c PaletteButton
-    <li> \c PaletteLight
-    <li> \c PaletteMidlight
-    <li> \c PaletteDark
-    <li> \c PaletteMid
-    <li> \c PaletteText
-    <li> \c PaletteBrightText
-    <li> \c PaletteButtonText
-    <li> \c PaletteBase
-    <li> \c PaletteShadow
-    <li> \c PaletteHighlight
-    <li> \c PaletteHighlightedText
-    <li> \c NoBackground
-	- no color or pixmap is used - the paintEvent() must completely
-	    cover the drawing area.  This can help avoid flicker.
+  <li> \c PaletteBackground
+  <li> \c PaletteButton
+  <li> \c PaletteLight
+  <li> \c PaletteMidlight
+  <li> \c PaletteDark
+  <li> \c PaletteMid
+  <li> \c PaletteText
+  <li> \c PaletteBrightText
+  <li> \c PaletteButtonText
+  <li> \c PaletteBase
+  <li> \c PaletteShadow
+  <li> \c PaletteHighlight
+  <li> \c PaletteHighlightedText
+  <li> \c NoBackground - the widget is not cleared before paintEvent().
+  If the widget's paint event always draws on all the pixels, using
+  this mode can be both fast and flicker-free.
+  <li> \c FixedColor - the widget is cleared to a fixed color,
+  normally different from all the ones in the palette().  Set using
+  BackgroundColor().
+  <li> \c FixedPixmap - the widget is cleared to a fixed pixmap,
+  normally different from all the ones in the palette().  Set using
+  setBackgroundPixmap().
+
   </ul>
 
-  \sa setBackgroundMode() backgroundMode()
+  \c FixedColor and \c FixedPixmap sometimes are just the right
+  thing, but if you use them, make sure that your application looks
+  right when the desktop color scheme has been changed.  (On X11, a
+  quick way to test is e.g. "./yourapp -bg paleblue".  On Windows, you
+  have to use the control panel.)
+
+  \sa setBackgroundMode() backgroundMode() setBackgroundPixmap()
+  setBackgroundColor()
 */
 
 /*!
-  Tells the window system which color to clear this widget to when
-  sending a paint event.
+  Tells the window system how to clear this widget when sending a
+  paint event.  In other words, this decides how the widgets looks
+  when paintEvent() is called.
 
-  In other words, this color is the color of the widget when
-  paintEvent() is called.  To minimize flicker, this should be the
-  most common color in the widget.
-
-  The fill functions of the colorgroup returns \link QBrush
-  Brushes\endlink, which may be either a plain color or a pixmap.
-
-  If setBackgroundPixmap() or setBackgroundColor() is called, the
-  mode will be one of:
-  <ul>
-    <li> \c FixedPixmap - the pixmap set by setBackgroundPixmap()
-    <li> \c FixedColor - the color set by setBackgroundColor()
-  </ul>
-
-  These values may not be used as parameters to setBackgroundMode().
   For most widgets the default (PaletteBackground, normally
   gray) suffices, but some need to use PaletteBase (the
   background color for text output, normally white) and a few need
@@ -1816,17 +1835,9 @@ QWidget::BackgroundMode QWidget::backgroundMode() const
     setBackgroundMode( PaletteBase );
   \endcode
 
-  If you want to change the color scheme of a widget, the setPalette()
-  function is better suited.  Here is how to set \e thatWidget to use a
-  light green (RGB value 80, 255, 80) as background color, with shades
-  of green used for all the 3D effects:
-
-  \code
-    thatWidget->setPalette( QPalette( QColor(80, 255, 80) ) );
-  \endcode
-
-  You can also use QApplication::setPalette() if you want to change
-  the color scheme of your entire application, or of all new widgets.
+  Note that two of the BackgroundMode values cannot be used with this
+  function.  For \c FixedPixmap, call setBackgroundPixmap() instead,
+  and for \c FixedColor, call setBackgroundColor().
 */
 
 void QWidget::setBackgroundMode( BackgroundMode m )
@@ -1858,19 +1869,20 @@ void QWidget::setBackgroundModeDirect( BackgroundMode m )
 /*!
   \fn const QColor &QWidget::backgroundColor() const
 
-  Returns the background color of this widget.
+  Returns the background color of this widget, which is normally set
+  implicitly by setBackgroundMode(), but can also be set explicitly by
+  setBackgroundColor().
 
-  The background color is independent of the color group.
-
-  Setting a new palette overwrites the background color.
-
+  If there is a background pixmap (set using setBackgroundPixmap()),
+  then the return value of this function is indeterminate.
+  
   \sa setBackgroundColor(), foregroundColor(), colorGroup(), palette()
 */
 
 /*!
   Returns the foreground color of this widget.
 
-  The foreground color equals <code>colorGroup().foreground()</code>.
+  The foreground color is also accessible as colorGroup().foreground().
 
   \sa backgroundColor(), colorGroup()
 */
@@ -1889,10 +1901,8 @@ const QColor &QWidget::foregroundColor() const
   background color from backgroundColor().
 
   Reimplement this function if your widget needs to know when its
-  background color changes.  You will almost certainly need to update the
-  widget update().
-
-  The default implementation calls update()
+  background color changes.  You will almost certainly need to call
+  this implementation of the function.
 
   \sa setBackgroundColor(), backgroundColor(), setPalette(), repaint(),
   update()
@@ -1905,10 +1915,11 @@ void QWidget::backgroundColorChange( const QColor & )
 
 
 /*!
-  Returns the background pixmap, or null if no background pixmap has not
-  been set.  If the widget has been made empty, this function will return
-  a pixmap which isNull() rather than a null pointer.
-
+  Returns the background pixmap if one has been set.  If the widget
+  has backgroundMode() NoBackground, the return value is a pixmap for
+  which QPixmao:isNull() is true.  If the widget has no pixmap is the
+  background, the return value is a null pointer.
+  
   \sa setBackgroundPixmap(), setBackgroundMode()
 */
 
@@ -1926,10 +1937,8 @@ const QPixmap *QWidget::backgroundPixmap() const
   new background pixmap from backgroundPixmap().
 
   Reimplement this function if your widget needs to know when its
-  background pixmap changes.  You will almost certainly need to update the
-  widget using update().
-
-  The default implementation calls update()
+  background pixmap changes.  You will almost certainly need to call
+  this implementation of the function.
 
   \sa setBackgroundPixmap(), backgroundPixmap(), repaint(), update()
 */
@@ -1946,8 +1955,9 @@ void QWidget::backgroundPixmapChange( const QPixmap & )
   The color group is determined by the state of the widget.
 
   A disabled widget returns the QPalette::disabled() color group, a
-  widget in focus returns the QPalette::active() color group and a
-  normal widget returns the QPalette::normal() color group.
+  widget with keyboard focus returns the QPalette::active() color
+  group and all normal widgets return the QPalette::normal() color
+  group.
 
   \sa palette(), setPalette()
 */
@@ -1990,8 +2000,7 @@ const QColorGroup &QWidget::colorGroup() const
 */
 
 /*!
-  Sets the widget palette to \e p. The widget background color is set to
-  <code>colorGroup().background()</code>.
+  Sets the widget palette to \e p.
 
   If \a palettePropagation() is \c AllChildren or \c SamePalette,
   setPalette() calls setPalette() for children of the object, or those
@@ -2027,9 +2036,9 @@ void QWidget::setPalette( const QPalette &p )
 
 /*!
   Like setPalette(const QPalette&) but has an additional flag to
-  indicate whether the palette should be fix for the widget. Fixed
-  means that QApplication::setPalette() will not touch the current
-  setting. This Function calls setPalette(const QPalette&).
+  indicate whether the palette should be fixed for the widget,
+  ie. that QApplication::setPalette() should not touch this setting.
+  This Function calls setPalette(const QPalette&).
 */
 
 void QWidget::setPalette( const QPalette &p, bool fixed )
@@ -2047,11 +2056,9 @@ void QWidget::setPalette( const QPalette &p, bool fixed )
   This virtual function is called from setPalette().  \e oldPalette is the
   previous palette; you can get the new palette from palette().
 
-  Reimplement this function if your widget needs to know when its palette
-  changes.  You will almost certainly need to update the widget using
-  update().
-
-  The default implementation calls update().
+  Reimplement this function if your widget needs to know when its
+  palette changes.  You will almost certainly need to call this
+  implementation of the function.
 
   \sa setPalette(), palette()
 */
@@ -2119,10 +2126,10 @@ void QWidget::setFont( const QFont &font )
 }
 
 /*!
-  Like setFont(const QFont&) but has an additional flag to
-  indicate whether the font should be fix for the widget. Fixed
-  means that QApplication::setFont() will not touch the current
-  setting. This Function calls setFont(const QFont&).
+  Like setFont(const QFont&) but has an additional flag to indicate
+  whether the font should be fix for the widget, ie. that
+  QApplication::setFont() should not touch the setting.  This function
+  calls setFont(const QFont&).
 */
 
 void QWidget::setFont( const QFont &font, bool fixed )
@@ -2194,10 +2201,10 @@ const QCursor &QWidget::cursor() const
 
 
 /*!
-  Returns the widget caption, or a
-  \link QString::operator!() null string\endlink
-  if no caption has been set.
-  \sa setCaption(), icon(), iconText()
+  Returns the widget caption.  If no caption has been set (common for
+  child widgets), this functions returns a null string.
+  
+  \sa setCaption(), icon(), iconText(), QString::isNull()
 */
 
 QString QWidget::caption() const
@@ -2209,6 +2216,7 @@ QString QWidget::caption() const
 
 /*!
   Returns the widget icon pixmap, or null if no icon has been set.
+
   \sa setIcon(), iconText(), caption()
 */
 
@@ -2220,10 +2228,10 @@ const QPixmap *QWidget::icon() const
 }
 
 /*!
-  Returns the widget icon text, or a
-  \link QString::operator!() null string\endlink
-  if no icon text has been set.
-  \sa setIconText(), icon(), caption()
+  Returns the widget icon text.  If no icon text has been set (common for
+  child widgets), this functions returns a null string.
+
+  \sa setIconText(), icon(), caption(), QString::isNull()
 */
 
 QString QWidget::iconText() const
@@ -2236,13 +2244,16 @@ QString QWidget::iconText() const
 
 /*!
   \fn bool QWidget::hasMouseTracking() const
+
   Returns TRUE if mouse tracking is enabled for this widget, or FALSE
   if mouse tracking is disabled.
+
   \sa setMouseTracking()
 */
 
 /*!
   \fn void QWidget::setMouseTracking( bool enable )
+
   Enables mouse tracking if \e enable is TRUE, or disables it if \e enable
   is FALSE.
 
@@ -2298,9 +2309,6 @@ void QWidget::setFocusProxy( QWidget * w )
     }
 
     if ( w ) {
-	// ### the next line overwrites a "can take focus" with what's usually
-	// a "can't take focus" policy.  surely that's wrong?
-	// w->setFocusPolicy( focusPolicy() );
 	setFocusPolicy( NoFocus );
 	extra->focus_proxy = w;
 	connect( extra->focus_proxy, SIGNAL(destroyed()),
@@ -2316,6 +2324,7 @@ void QWidget::setFocusProxy( QWidget * w )
 
 /*!  Returns a pointer to the focus proxy, or 0 if there is no focus
   proxy.
+
   \sa setFocusProxy()
 */
 

@@ -70,12 +70,12 @@ public:
 	Reparent = 21,				// widget has been reparented
 	ShowMaximized = 21,		       	// widget is shown maximized
 	ShowMinimized = 22,		       	// widget is shown minimized
-	ShowNormal = 23,		       		// widget is shown normal
+	ShowNormal = 23,	       		// widget is shown normal
 	Accel = 30,				// accelerator event
 	Wheel = 31,				// wheel event
 	AccelAvailable = 32,			// accelerator available event
 	CaptionChange = 33,			// caption changed
-	IconChange = 34,				// icon changed
+	IconChange = 34,			// icon changed
 	Clipboard = 40,				// internal clipboard event
 	SockAct = 50,				// socket activation
 	DragEnter = 60,				// drag moves into widget
@@ -88,7 +88,7 @@ public:
 	LayoutHint = 72,			// child min/max size changed
 	ActivateControl = 80,			// ActiveX activation
 	DeactivateControl = 81,			// ActiveX deactivation
-	Configure = 82,				// configure an object 
+	Configure = 82,				// configure an object
 	ConfigureLayout = 83,			// configure a layout
 	User = 1000				// first user event id
     };
