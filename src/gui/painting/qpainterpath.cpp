@@ -18,6 +18,7 @@
 #include <private/qtextengine_p.h>
 #include <private/qfontengine_p.h>
 
+#include <qbezier.h>
 #include <qbitmap.h>
 #include <qdebug.h>
 #include <qlist.h>
@@ -63,48 +64,6 @@ void qt_find_ellipse_coords(const QRectF &r, float angle, float length,
         *endPoint = r.center()
                     + QPointF(a * cos(ANGLE(angle + length)), -b * sin(ANGLE(angle + length)));
     }
-}
-
-#define POW3(x) ( (x)*(x)*(x) )
-#define POW2(x) ( (x)*(x) )
-#define BEZIER_Q(t, tm, a, b, c, d) (a)*POW3(tm) + (b)*t*POW2(tm) + (c)*POW2(t)*tm + (d)*POW3(t)
-
-static QPolygon qBezierCurve(const QPointF &p1, const QPointF &p2,
-                             const QPointF &p3, const QPointF &p4)
-{
-
-    QLineF ab(p1, p2), bc(p2, p3), cd(p3, p4);
-
-    // This rather magic value is determined by testing when lines become visible
-    // and when they seem smooth. For values of 12 and above the lines are visible
-    // when antialiasing is turned on.d
-    const double stepFactor = 11;
-    double steps = ab.length()/stepFactor + bc.length() / (stepFactor*2) + cd.length() / stepFactor;
-
-    double a_x = p1.x();
-    double b_x = 3 * p2.x();
-    double c_x = 3 * p3.x();
-    double d_x = p4.x();
-
-    double a_y = p1.y();
-    double b_y = 3 * p2.y();
-    double c_y = 3 * p3.y();
-    double d_y = p4.y();
-
-    double step = 1. / steps;
-    double t, tm, x, y;
-    QPolygon polygon;
-    for (t = 0; t <= 1; t += step) {
-        tm = 1 - t;
-        x = BEZIER_Q(t, tm, a_x, b_x, c_x, d_x);
-        y = BEZIER_Q(t, tm, a_y, b_y, c_y, d_y);
-        polygon << QPointF(x, y);
-    }
-
-    if (t != 1.)
-        polygon << p4;
-
-    return polygon;
 }
 
 void QPainterSubpath::close()
@@ -194,7 +153,7 @@ QPolygon QPainterSubpath::toPolygon(const QMatrix &matrix) const
         return QPolygon();
     QPolygon p;
     fflush(stdout);
-    p << (startPoint * matrix);
+    p << startPoint * matrix;
     for (int i=0; i<elements.size(); ++i) {
         const QPainterPathElement &elm = elements.at(i);
         switch (elm.type) {
@@ -202,10 +161,10 @@ QPolygon QPainterSubpath::toPolygon(const QMatrix &matrix) const
             p << (QPointF(elm.lineData.x, elm.lineData.y) * matrix);
             break;
         case QPainterPathElement::Curve: {
-            p += qBezierCurve((p.isEmpty() ? (startPoint * matrix) : p.last()),
-                              QPointF(elm.curveData.c1x, elm.curveData.c1y) * matrix,
-                              QPointF(elm.curveData.c2x, elm.curveData.c2y) * matrix,
-                              QPointF(elm.curveData.ex, elm.curveData.ey) * matrix);
+            p += QBezier((p.isEmpty() ? (startPoint * matrix) : p.last()),
+                         QPointF(elm.curveData.c1x, elm.curveData.c1y) * matrix,
+                         QPointF(elm.curveData.c2x, elm.curveData.c2y) * matrix,
+                         QPointF(elm.curveData.ex, elm.curveData.ey) * matrix).toPolygon();
             break;
         }
         default:
@@ -610,19 +569,19 @@ static QPointF qt_path_stroke_to_element(const QPainterPathElement &elm,
     }
     case QPainterPathElement::Curve: {
 #ifdef QPP_DEBUG
-            printf(" ---> stroke to curve: cp1=(%.2f, %.2f), cp2=(%.2f, %.2f), end=(%.2f, %.2f)\n",
-                   elm.curveData.c1x, elm.curveData.c1y,
-                   elm.curveData.c2x, elm.curveData.c2y,
-                   elm.curveData.ex, elm.curveData.ey);
+        printf(" ---> stroke to curve: cp1=(%.2f, %.2f), cp2=(%.2f, %.2f), end=(%.2f, %.2f)\n",
+               elm.curveData.c1x, elm.curveData.c1y,
+               elm.curveData.c2x, elm.curveData.c2y,
+               elm.curveData.ex, elm.curveData.ey);
 #endif
-        QList<QPointF> curvePts = qBezierCurve(lastPoint,
-                                               QPointF(elm.curveData.c1x, elm.curveData.c1y),
-                                               QPointF(elm.curveData.c2x, elm.curveData.c2y),
-                                               QPointF(elm.curveData.ex, elm.curveData.ey));
+        QPolygon curve =  QBezier(lastPoint,
+                                  QPointF(elm.curveData.c1x, elm.curveData.c1y),
+                                  QPointF(elm.curveData.c2x, elm.curveData.c2y),
+                                  QPointF(elm.curveData.ex, elm.curveData.ey)).toPolygon();
 
-        qt_path_stroke_line(curvePts.at(1), subpath, lastPoint, penWidth, joinStyle);
-        for (int i=2; i<curvePts.size(); ++i)
-            qt_path_stroke_line(curvePts.at(i), subpath, curvePts.at(i-1), penWidth,
+        qt_path_stroke_line(curve.at(1), subpath, lastPoint, penWidth, joinStyle);
+        for (int i=2; i<curve.size(); ++i)
+            qt_path_stroke_line(curve.at(i), subpath, curve.at(i-1), penWidth,
                                 QT_PATH_NO_JOIN);
         return elm.end();
     }
