@@ -1,0 +1,153 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<!-- ./gui-applications.leaf:3 -->
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<title>GUI Applications</title>
+</head>
+<body>
+<p align="right">[<a href="whitepaper-2.html">Prev: Signals and Slots</a>] [<a href="whitepaper.html">Home</a>] [<a href="whitepaper-4.html">Next: Qt Designer</a>]</p>
+<h2 align="center">GUI Applications</h2>
+<blockquote>
+<p>Building modern GUI applications with Qt is fast and simple and can be achieved by hand coding or by using <a href="whitepaper-4.html">Qt Designer</a>, Qt's visual design tool.</p>
+</blockquote>
+<p>Qt provides all the classes and functions necessary to create modern GUI applications. Qt can be used to create both 'main window' style applications with a menu bar, tool bars and status bar surrounding a central area, and dialog style applications that use buttons and possibly tabs to present options and information. Qt can be used to create both SDI (single document interface) applications, and MDI (multiple document interface) applications.</p>
+<p>Tool bars can be moved around within the tool bar area (called the 'dock area'), dragged to other dock areas, or floated as tool palettes. This functionality is built-in and requires no additional code, although programmers can apply constraints to tool bar behavior if they wish.</p>
+<p>Qt simplifies programming, for example, if a menu option, a tool bar button and a keyboard accelerator all perform the same action, the action need only be coded once.</p>
+<p>Qt also provides message boxes and a full set of standard dialogs to make it easy for applications to ask the user questions, and to get the user to choose files, folders, fonts and colors. In practice, a one line statement using one of Qt's static convenience functions, is all that is necessary to present a message box or a standard dialog.</p>
+<p>Qt can platform-independently store application settings, e.g. user preferences, most recently used files, window and tool bar positions and sizes, etc.</p>
+<h3><a name="1"></a>Main Window Classes</h3>
+<h4><a name="1-1"></a>The Main Window</h4>
+<!-- index GUI applications --><!-- index main window --><p>The <font color=darkblue><b>QMainWindow</b></font> class pulls together a set of related widgets to provide a framework for typical application main windows.</p>
+<!-- index size grip --><p align="center"><img align="middle" src="main-window.png" alt="An application main window">
+</p>
+<!-- index SDI --><!-- index central area --><!-- index status bar --><!-- index toolbars --><p>Visually, the main window contains a handful of standard widgets. A menu bar appears at the top of the main window. Toolbars appear below the menu bar, but can also be moved around to the left, right or bottom of the main window, or floated. A status bar displays temporary and permanent information at the bottom. The central area is occupied by any widget for single document interface (SDI) applications, or by a <font color=darkblue><b>QWorkspace</b></font> for multiple document interface (MDI) applications. Tool tips and "What's this?" help provide balloon help for the user-interface elements.</p>
+<h4><a name="1-2"></a>Menus</h4>
+<!-- index context menus --><!-- index menus --><!-- index pop-up menus --><!-- index sub-menus --><!-- index tear-off handles --><p>The <font color=darkblue><b>QPopupMenu</b></font> widget presents menu items to the user in a vertical list. Pop-up menus can be standalone (e.g. a context menu), can appear in a menu bar or can be a sub-menu of another pop-up menu. Menus can also have tear-off handles.</p>
+<!-- index icons --><!-- index separator items --><p>Each menu item can have an icon, a checkbox and an accelerator. Menu items usually correspond to actions (e.g. Save). Separator items are displayed as a line and group related actions visually.</p>
+<p>Here's an example that creates a <font color=darkgreen>File</font> menu with <em><u>N</u>ew</em>, <em><u>O</u>pen</em> and <em>E<u>x</u>it</em> menu items:</p>
+<pre>
+    QPopupMenu *fileMenu = new QPopupMenu( this );
+    fileMenu-&gt;insertItem( "&amp;New", this, SLOT(newFile()),
+			  CTRL+Key_N );
+    fileMenu-&gt;insertItem( "&amp;Open...", this, SLOT(open()),
+			  CTRL+Key_O );
+    fileMenu-&gt;insertSeparator();
+    fileMenu-&gt;insertItem( "E&amp;xit", qApp, SLOT(quit()),
+			  CTRL+Key_Q );
+</pre>
+<p>When a menu item is chosen, the corresponding slot is executed.</p>
+<!-- index Macintosh --><!-- index menu bar --><p>The <font color=darkblue><b>QMenuBar</b></font> class implements a menu bar. It automatically sets its geometry to the top of its parent widget (typically a <font color=darkblue><b>QMainWindow</b></font>). It splits its contents across multiple lines if the parent window is not wide enough. Qt's built-in layout managers automatically take the menu bar into consideration. On the Macintosh, the menu bar appears at the top of the screen as expected.</p>
+<p>Here's how to create a menu bar with <em><u>F</u>ile</em>, <em><u>E</u>dit</em> and <em><u>H</u>elp</em> menus:</p>
+<pre>
+    QMenuBar *bar = new QMenuBar( this );
+    bar-&gt;insertItem( "&amp;File", fileMenu );
+    bar-&gt;insertItem( "&amp;Edit", editMenu );
+    bar-&gt;insertItem( "&amp;Help", helpMenu );
+</pre>
+<p>Qt's menu system is very flexible. Menu items can be enabled, disabled, added or removed dynamically. Menu items with customized appearance and behavior can be created by subclassing <font color=darkblue><b>QCustomMenuItem</b></font>.</p>
+<h4><a name="1-3"></a>Toolbars</h4>
+<!-- index icons --><!-- index toolbars --><!-- index toggle buttons --><p>The <font color=darkblue><b>QToolButton</b></font> class implements a tool button with an icon, a 3D frame and an optional label. Toggle tool buttons turn features on and off. Other tool buttons simply execute a command. Different icons can be provided for the active, disabled and enabled modes, and for the on and off states. If only one icon is provided, visual clues are automatically given by other means, for example by graying out disabled buttons. Pressing a tool button can also trigger a pop-up menu.</p>
+<p><font color=darkblue><b>QToolButton</b></font>s usually appear side by side within a <font color=darkblue><b>QToolBar</b></font>. An application can have any number of toolbars, and the user is free to move them around. Toolbars can contain widgets of almost any type, for example <font color=darkblue><b>QComboBox</b></font>es and <font color=darkblue><b>QSpinBox</b></font>es.</p>
+<h4><a name="1-4"></a>Balloon Help</h4>
+<!-- index balloon help --><!-- index hover help --><p>Modern applications provide balloon help that explain the role of user-interface elements.</p>
+<!-- index tooltips --><p>Tool tips are small, usually yellow, rectangles that appear automatically when the mouse pointer hovers over a widget. Tool tips are often used to explain a tool button, since tool buttons are rarely displayed with text labels. Here's how to set the tooltip of a 'Save' tool button:</p>
+<pre>
+    QToolTip::add( saveButton, "Save" );
+</pre>
+<p>It is also possible to set a longer text to be displayed in the status bar when the tooltip is shown.</p>
+<!-- index What's this? --><p>"What's this?" help is similar to tooltips, except that the user must request it, for example by pressing <font color=darkgreen><b>Shift+F1</b></font> and by clicking a widget or menu item. "What's this?" text is typically longer than tooltips. Here's how to set the "What's this?" text for a 'Save' tool button:</p>
+<pre>
+    QWhatsThis::add( saveButton, "Saves the current file." );
+</pre>
+<p>The <font color=darkblue><b>QToolTip</b></font> and <font color=darkblue><b>QWhatsThis</b></font> classes provide virtual functions that can be reimplemented for more specialized behavior, for example to display different text according to the position of the mouse within the widget.</p>
+<h4><a name="1-5"></a>The Status Bar</h4>
+<!-- index status bar --><p><font color=darkblue><b>QStatusBar</b></font> implements a status bar. The status bar displays three kinds of indicators:</p>
+<ul><li><p><em>Temporary messages.</em> These are displayed to the left. Temporary messages vanish after a certain amount of time, or when another message is shown.</p>
+<li><p><em>Standard indicators.</em> These can be almost any widget and appear to the right. Long messages may hide them temporarily.</p>
+<li><p><em>Permanent indicators.</em> These appear to the right of standard indicators and are never hidden.</p>
+</ul><h4><a name="1-6"></a>Actions</h4>
+<!-- index QAction --><!-- index accelerators --><!-- index actions --><!-- index commands --><!-- index connections --><p>Applications usually provide the user with several different ways of performing a particular action. For example, most applications provide a 'Save' action available from the menu (<font color=darkgreen>File|Save</font>), from the toolbar (the 'floppy disk' toolbar button) and as an accelerator (<font color=darkgreen><b>Ctrl+S</b></font>). Qt encapsulates this concept in the <font color=darkblue><b>QAction</b></font> class. It allows programmers to define an action in one place and then add that action to a menu or toolbar. Actions that only make sense as menu options can be added to menus directly.</p>
+<!-- index menu bar --><!-- index toolbars --><p>In previous subsections, we have seen how to create individual menu items and tool buttons, for example:</p>
+<pre>
+    id = menuBar()-&gt;insertItem( saveIcon, "&amp;Save",
+				this, SLOT(save()), CTRL+Key_S );
+    menuBar()-&gt;setWhatsThis( id, "Saves the current file." );
+
+    QToolButton *saveButton = new QToolButton(
+	    saveIcon, "Save", "Saves the current file.",
+	    this, SLOT(save()), toolbar );
+    QToolTip::add( saveButton, "Save" );
+    QWhatsThis::add( saveButton, "Saves the current file." );
+</pre>
+<p>For situations where the same action must be performed by both a tool button and a menu item, it is more convenient to use a <font color=darkblue><b>QAction</b></font>, for example:</p>
+<pre>
+    QAction *saveAct = new QAction( "Save", saveIcon, "&amp;Save",
+				    CTRL+Key_S, this );
+    connect( saveAct, SIGNAL(activated()), this, SLOT(save()) );
+    saveAct-&gt;setWhatsThis( "Saves the current file." );
+    saveAct-&gt;addTo( fileMenu );
+    saveAct-&gt;addTo( toolbar );
+</pre>
+<p>In addition to avoiding duplication, using a <font color=darkblue><b>QAction</b></font> automatically ensures that the state of menu items stays in sync with the state of tool buttons, and that status tips are displayed when necessary. Disabling an action will disable any corresponding menu items and tool buttons. Similarly, if the user clicks a toggle tool button, the corresponding menu item will be checked or unchecked accordingly and vice versa.</p>
+<h4><a name="1-7"></a>The Central Widget</h4>
+<!-- index central widget --><p>The central area of a <font color=darkblue><b>QMainWindow</b></font> can be occupied by any widget. A text-editor application might, for example, use a <font color=darkblue><b>QTextEdit</b></font> as its central widget:</p>
+<pre>
+    QTextEdit *editor = new QTextEdit( mainWindow );
+    mainWindow-&gt;setCentralWidget( editor );
+</pre>
+<h3><a name="2"></a>Multiple Document Interface</h3>
+<!-- index MDI --><!-- index workspace --><p>The <font color=darkblue><b>QWorkspace</b></font> class provides multiple document interface (MDI) in Qt. <font color=darkblue><b>QWorkspace</b></font> is typically used as the central widget of a <font color=darkblue><b>QMainWindow</b></font>, but it can be used like any other Qt widget.</p>
+<!-- index captions --><!-- index frames --><p>Child widgets of <font color=darkblue><b>QWorkspace</b></font> are also ordinary widgets and can be of any type. They are rendered with a frame similar to the frame around top-level widgets. Functions such as <font color=darkblue>show()</font>, <font color=darkblue>hide()</font>, <font color=darkblue>showMaximized()</font> and <font color=darkblue>setCaption()</font> work in the same way for child MDI widgets as for ordinary top-level widgets.</p>
+<!-- index cascade --><!-- index tile --><p><font color=darkblue><b>QWorkspace</b></font> provides positioning strategies such as cascade and tile. If the child widgets extend outside the MDI area, scroll bars can be set to appear automatically. If a child widget is maximized, the frame buttons (e.g. <font color=darkgreen><em>Minimize</em></font>) are shown in the menu bar.</p>
+<h3><a name="3"></a>Dialogs</h3>
+<!-- index Windows --><!-- index dialogs --><!-- index native dialogs --><p>Most GUI applications use dialog boxes to interact with the user for certain operations. Qt includes ready-made dialog classes with static convenience functions for the most common tasks. Many aspects of the dialogs can be configured, for example the buttons and texts in a <font color=darkblue><b>QMessageBox</b></font>. On Windows, the native dialogs can be used.</p>
+<p>Screenshots of some of Qt's standard dialogs are shown below.</p>
+<!-- index about boxes --><!-- index errors --><!-- index fatal errors --><!-- index information --><!-- index message box --><!-- index warnings --><p align="center"><img align="middle" src="qmessagebox.png" alt="QMessageBox">
+</p>
+<p><font color=darkblue><b>QMessageBox</b></font> is used to provide the user with information or to present the user with simple choices (e.g. 'Yes' or 'No').</p>
+<!-- index file dialog --><!-- index directories --><p align="center"><img align="middle" src="qfiledialog.png" alt="QFileDialog">
+</p>
+<p><font color=darkblue><b>QFileDialog</b></font> is a sophisticated file selection dialog. It can be used to select single or multiple files, and includes functionality such as directory and file renaming and directory creation. Like most Qt dialogs, <font color=darkblue><b>QFileDialog</b></font> is resizable, which makes it far easier to view long file names and large directories.</p>
+<!-- index progress bars --><p align="center"><img align="middle" src="qprogressdialog.png" alt="QProgressDialog">
+</p>
+<p><font color=darkblue><b>QProgressDialog</b></font> displays a progress bar and a 'Cancel' button.</p>
+<!-- index notebooks --><!-- index property boxes --><!-- index tab widgets --><p align="center"><img align="middle" src="qtabdialog.png" alt="QTabDialog">
+</p>
+<p><font color=darkblue><b>QTabDialog</b></font> provides a framework for settings dialogs.</p>
+<!-- index assistants --><!-- index druids --><!-- index wizards --><p align="center"><img align="middle" src="qwizard.png" alt="QWizard">
+</p>
+<p><font color=darkblue><b>QWizard</b></font> provides a framework for wizard dialogs.</p>
+<!-- index color dialog --><!-- index font dialog --><p align="center"><img align="middle" src="qfontdialog-etc.png" alt="QFontDialog and QColorDialog">
+</p>
+<p><font color=darkblue><b>QFontDialog</b></font> and <font color=darkblue><b>QColorDialog</b></font> are sophisticated dialogs to select a font and a color.</p>
+<!-- index print dialog --><p align="center"><img align="middle" src="qprintdialog.png" alt="QPrintDialog">
+</p>
+<p><font color=darkblue><b>QPrintDialog</b></font> allows the user to select printing options.</p>
+<!-- index modal dialogs --><!-- index semi-modal dialogs --><p>Dialogs operate in one of three ways:</p>
+<ul><li><p>A <em>modal</em> dialog blocks input to the other visible windows in the same application. Users must close the dialog before they can access any other window in the application.</p>
+<li><p>A <em>modeless</em> dialog operates independly of other windows. There is little difference between a modeless <font color=darkblue><b>QDialog</b></font> and a <font color=darkblue><b>QWidget</b></font>.</p>
+<li><p>A <em>semi-modal</em> dialog returns control to the caller immediately. These dialogs behave like modal dialogs from the user's point of view, but allow the application to continue processing. This is particularly useful for progress dialogs.</p>
+</ul><p>Modal dialogs are typically used like this:</p>
+<pre>
+    QFileDialog dialog( workingDirectory, "", 0, 0, TRUE );
+    dialog.setFilter( "Text files (*.txt)" );
+    if ( dialog.exec() == QDialog::Accepted ) {
+        do_something_with_file( dialog.selectedFile() );
+    }
+</pre>
+<p>Programmers can create their own dialogs by subclassing <font color=darkblue><b>QDialog</b></font>, which inherits <font color=darkblue><b>QWidget</b></font>.</p>
+<h3><a name="4"></a>Dock Windows</h3>
+<!-- index dock windows --><p>Dock windows are windows that the user can move inside a dock area or from one dock area to another. The user can undock a dock window and make it float on top of the application or minimize it. Dock windows and areas are provided by the <font color=darkblue><b>QDockWindow</b></font> and <font color=darkblue><b>QDockArea</b></font> classes.</p>
+<!-- index central widget --><!-- index toolbars --><p>Qt provides one <font color=darkblue><b>QDockWindow</b></font> subclass, <font color=darkblue><b>QToolBar</b></font>, and <font color=darkblue><b>QMainWindow</b></font> automatically provides four dock areas one on each side of the central widget.</p>
+<p>Developers can create custom dock windows by instantiating a <font color=darkblue><b>QDockWindow</b></font> object and by adding widgets to it. The widgets are laid out side by side if the dock area is horizontal (e.g. at the top of the main window) and above each other if the area is vertical (e.g. at the left of the main window).</p>
+<p>Dock areas are not bound to <font color=darkblue><b>QMainWindow</b></font>; developers can use <font color=darkblue><b>QDockArea</b></font> in any custom widget. Toolbars and other dock windows can be used with any dock area.</p>
+<!-- index Designer --><!-- index Linguist --><!-- index Qt Designer --><!-- index Qt Linguist --><p>Some applications, including <a href="whitepaper-4.html">Qt Designer</a> and <a href="whitepaper-8.html">Qt Linguist</a>, use dock windows extensively. This gives the user full control over what information they want to see and where they want it to appear. <font color=darkblue><b>QDockArea</b></font> provides operators to save and restore the position of dock windows in an application, so that applications can easily restore the user's preferences.</p>
+<h3><a name="5"></a>Settings</h3>
+<!-- index configuration --><!-- index defaults --><!-- index preferences --><!-- index registry --><!-- index settings --><!-- index system registry --><!-- index user settings --><p>User settings and other application settings can easily be stored on disk using the <font color=darkblue><b>QSettings</b></font> class. On Windows, <font color=darkblue><b>QSettings</b></font> makes use of the system registry; on other platforms, settings are stored in text files.</p>
+<!-- index Unicode --><!-- index Zooper --><p>A particular setting is stored using a key. For example, the key <tt>/SoftwareInc/Zooper/RecentFiles</tt> might contain the list of recently used files by the application Zooper<sup><font size=1>TM</font></sup> by Software Inc. Booleans, numbers, Unicode strings and list of Unicode strings can be stored.</p>
+<p><hr><ul> ### </ul></p>
+<!-- eof -->
+<p align="right">[<a href="whitepaper-2.html">Prev: Signals and Slots</a>] [<a href="whitepaper.html">Home</a>] [<a href="whitepaper-4.html">Next: Qt Designer</a>]</p>
+</body>
+</html>

@@ -1,0 +1,209 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<!-- ./2d-and-3d-graphics.leaf:3 -->
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<title>2D and 3D Graphics</title>
+</head>
+<body>
+<p align="right">[<a href="whitepaper-4.html">Prev: Qt Designer</a>] [<a href="whitepaper.html">Home</a>] [<a href="whitepaper-6.html">Next: Databases</a>]</p>
+<h2 align="center">2D and 3D Graphics</h2>
+<h3><a name="1"></a>2D Graphics</h3>
+<h4><a name="1-1"></a>Images</h4>
+<!-- index BMP --><!-- index GIF --><!-- index JPEG --><!-- index MNG --><!-- index PNG --><!-- index PNM --><!-- index Unisys --><!-- index XBM --><!-- index XPM --><!-- index graphics --><!-- index icons --><!-- index images --><!-- index pictures --><p>The <font color=darkblue><b>QImage</b></font> class supports the input, output and manipulation of images in several formats, including BMP, GIF If you are in a country that recognizes software patents and in which Unisys holds a patent on LZW decompression and you want to use GIF, Unisys may require you to license the technology.</p>
+<p>, JPEG, MNG, PNG, PNM, XBM and XPM.</p>
+<p>Many of Qt's built-in widgets can display images, for example buttons, labels, menu items, etc. Here's how to display an icon on a push button:</p>
+<pre>        QPushButton *button = new QPushButton( "&amp;Find Next", parent );
+        button-&gt;setIconSet( QIconSet(QImage("find.bmp")) );
+</pre>
+<p align="center"><img align="middle" src="icon-on-button.png" alt="An icon on a button">
+</p>
+<!-- index alpha channel --><!-- index transformations --><!-- index transparency --> <p><font color=darkblue><b>QImage</b></font> supports images with color depths of 1, 8 and 32 bits. Programmers can manipulate the pixel and palette data, apply transformations (e.g. rotations, shears, etc.) and reduce the color depth with dithering if desired. Applications can store an 'alpha channel' in a <font color=darkblue><b>QImage</b></font> along with the color data for their own purposes (e.g. transparency and alpha-blending).</p>
+<!-- index animations --><p>The <font color=darkblue><b>QMovie</b></font> class can be used to display animated images.</p>
+<h4><a name="1-2"></a>Painting</h4>
+<!-- index painting --><p>The <font color=darkblue><b>QPainter</b></font> provides a platform-independent API for painting on widgets. It provides primitives as well as advanced functionality such as transformations and clipping. All Qt's built-in widgets paint themselves using <font color=darkblue><b>QPainter</b></font>. Programmers invariably use <font color=darkblue><b>QPainter</b></font> when implementing their own custom widgets.</p>
+<!-- index Bezier curves --><p><font color=darkblue><b>QPainter</b></font> provides standard functions to draw points, lines, polygons, ellipses, arcs, Bezier curves, etc. The following command draws a 120 x 60 rectangle whose top-left point is at (25, 15), with a 2-pixel wide dashed red outline:</p>
+<pre>
+    painter.setPen( QPen(red, 2, DashLine) );
+    painter.drawRect( 25, 15, 120, 60 );
+</pre>
+<!-- index clipping --><!-- index coordinates --><!-- index model --><!-- index rotations --><!-- index scales --><!-- index shears --><!-- index transformations --><!-- index viewport --><!-- index window --><!-- index world matrix --><p>By default, the top-left corner of a widget is located at coordinates (0, 0), and the bottom-right corner is located at (<font color=darkblue>width()</font> - 1, <font color=darkblue>height()</font> - 1). The coordinate system of a <font color=darkblue><b>QPainter</b></font> object can be translated, scaled, rotated and sheared. The objects to be drawn can be clipped according to a 'window', and positioned on the widget using a 'viewport'.</p>
+<!-- index events --><p>The example below shows a bar-graph custom widget. It uses a <font color=darkblue><b>QPainter</b></font> in the reimplementation of <font color=darkblue>paintEvent()</font>, with the default coordinate system.</p>
+<p align="center"><img align="middle" src="bar-graph.png">
+</p>
+<pre>    void BarGraph::paintEvent( QPaintEvent * )
+    {
+        QPainter painter( this );
+
+        draw_bar( &amp;painter, 0, 39, Qt::DiagCrossPattern );
+        draw_bar( &amp;painter, 1, 31, Qt::BDiagPattern );
+        draw_bar( &amp;painter, 2, 44, Qt::FDiagPattern );
+        draw_bar( &amp;painter, 3, 68, Qt::SolidPattern );
+
+        painter.setPen( black );
+        painter.drawLine( 0, 0, 0, height() - 1 );
+        painter.drawLine( 0, height() - 1, width() - 1, height() - 1 );
+
+        painter.setFont( QFont("Helvetica", 18) );
+        painter.drawText( rect(), AlignHCenter | AlignTop, "Sales" );
+    }
+
+    void BarGraph::draw_bar( QPainter *painter, int month, int barHeight,
+                             BrushStyle pattern )
+    {
+        painter-&gt;setPen( blue );
+        painter-&gt;setBrush( QBrush(darkGreen, pattern) );
+        painter-&gt;drawRect( 10 + 30 * month, height() - barHeight, 20,
+                           barHeight );
+    }
+</pre>
+<!-- index clipping --><!-- index flicker --> <p><font color=darkblue><b>QPainter</b></font> supports clipping using a region composed of rectangles, polygons, ellipses and bitmaps. Complex regions may be created by uniting, intersecting, subtracting or XOR'ing simple regions. Clipping can be used to reduce flicker when repainting.</p>
+<!-- index HSV --><!-- index RGB --><!-- index colors --><p>The <font color=darkblue><b>QColor</b></font> class stores a color specified by a RGB or HSV triple, or by a name (e.g. 'skyblue'). Qt programmers can specify any 24-bit color; Qt automatically allocates the requested color in the system's palette, or uses a similar color on color-limited displays. Commonly used colors, e.g. <tt>red</tt>, <tt>green</tt>, <tt>blue</tt>, etc., are predefined in Qt.</p>
+<h4><a name="1-3"></a>Paint Devices</h4>
+<p><font color=darkblue><b>QPainter</b></font> can be associated with any 'paint device'. The code required to paint on any supported device is the same, regardless of the device. Qt supports the following paint devices:</p>
+<!-- index double buffering --><!-- index flicker --><!-- index images --><!-- index pixmaps --><ul><li><p>A <font color=darkblue><b>QPixmap</b></font> is essentially an 'off-screen widget'. Graphics can be painted on a <font color=darkblue><b>QPixmap</b></font> first, and then bit-blitted to a <font color=darkblue><b>QWidget</b></font> to reduce flicker. This technique is called 'double buffering'.</p>
+<!-- index SVG --><!-- index XML --><!-- index pictures --><!-- index scales --><!-- index shears --><!-- index rotations --><li><p>A <font color=darkblue><b>QPicture</b></font> is a vector image that can be scaled, rotated and sheared gracefully. The <font color=darkblue><b>QPicture</b></font> class stores an image as a list of paint commands rather than as pixel data. It supports the SVD (W3C Scalable Vector Graphics) XML format for input and output.</p>
+<!-- index printers --><li><p>A <font color=darkblue><b>QPrinter</b></font> represents a physical printer. On Windows, the paint commands are sent to the Windows print engine, which uses the installed printer drivers. On Unix, PostScript is output and sent to the appropriate print daemon.</p>
+<li><p>A <font color=darkblue><b>QWidget</b></font> is also a paint device, as shown in the earlier bar-graph example.</p>
+</ul><h4><a name="1-4"></a>Canvas</h4>
+<!-- index canvas --><!-- index animations --><!-- index sprites --><p>The <font color=darkblue><b>QCanvas</b></font> class provides a high-level interface to 2D graphics. It can handle a very large number of 'canvas items' that represent lines, rectangles, ellipses, texts, pixmaps, animated sprites, etc.</p>
+<!-- index collision testing --><p>Canvas items are instances of <font color=darkblue><b>QCanvasItem</b></font> subclasses. They are more lightweight than widgets, and they can be quickly moved, hidden, and shown. <font color=darkblue><b>QCanvas</b></font> has efficient support for collision detection, and can list all the canvas items in a given area. <font color=darkblue><b>QCanvasItem</b></font> can be subclassed to provide custom item types and to extend the functionality of existing types (e.g. <font color=darkblue><b>QCanvasText</b></font>).</p>
+<!-- index rotations --><!-- index scales --><!-- index shears --><!-- index transformations --><p><font color=darkblue><b>QCanvas</b></font> objects are rendered by the <font color=darkblue><b>QCanvasView</b></font> class. Many <font color=darkblue><b>QCanvasView</b></font> objects can show the same <font color=darkblue><b>QCanvas</b></font>, but with different translations, scales, rotations and shears.</p>
+<!-- index data visualisation --><!-- index games --><!-- index graphs --><!-- index visualisation --><p><font color=darkblue><b>QCanvas</b></font> is ideal for data visualisation. It has been used by customers for drawing road maps and for presenting graphs. It is also suitable for 2D games.</p>
+<h3><a name="2"></a>3D Graphics</h3>
+<!-- index GL --><!-- index OpenGL --><p>OpenGL is a standard API for rendering 3D graphics. Qt developers can use OpenGL to draw 3D graphics in their GUI applications. This is achieved by subclassing <font color=darkblue><b>QGLWidget</b></font>, a <font color=darkblue><b>QWidget</b></font> subclass, and drawing with standard OpenGL functions rather than with <font color=darkblue><b>QPainter</b></font>.</p>
+<!-- index GLUT --><p>Qt's OpenGL module is available on Windows, X11 and Macintosh, and uses the system's OpenGL library (including Mesa). Qt avantageously replaces GLUT as a cross-platform OpenGL-enabled toolkit.</p>
+<!-- index alpha channel --><!-- index colormap --><!-- index double buffering --><!-- index overlays --><p>Qt developers can set the display format of an OpenGL rendering context: single or double buffering, depth buffer, RGBA or color index mode, alpha channel, overlays, etc. They can also set the colormap manually in color index mode.</p>
+<p>When using Qt, developers write in pure OpenGL. Qt also provides two convenience functions, <font color=darkblue>qglClearColor()</font> and <font color=darkblue>qglColor()</font>, that accept a <font color=darkblue><b>QColor</b></font> argument and work in any mode.</p>
+<h3><a name="3"></a>A 3D Example</h3>
+<p align="center"><img align="middle" src="box3d.png">
+</p>
+<p>The following example draws a 3D box with sliders to rotate the box around the X, Y and Z axes.</p>
+<p>In <font color=red><i>box3d.h</i></font>, we define <font color=darkblue><b>Box3D</b></font> like this:</p>
+<pre>    #include &lt;qgl.h&gt;
+
+    class Box3D : public QGLWidget
+    {
+        Q_OBJECT
+    public:
+        Box3D( QWidget *parent = 0, const char *name = 0 );
+        ~Box3D();
+
+    public slots:
+        void setRotationX( int deg ) { rotX = deg; updateGL(); }
+        void setRotationY( int deg ) { rotY = deg; updateGL(); }
+        void setRotationZ( int deg ) { rotZ = deg; updateGL(); }
+
+    protected:
+        virtual void initializeGL();
+        virtual void paintGL();
+        virtual void resizeGL( int w, int h );
+        virtual GLuint makeObject();
+
+    private:
+        GLuint object;
+        GLfloat rotX, rotY, rotZ;
+    };
+</pre>
+ <p>In <font color=red><i>box3d.cpp</i></font>, we implement the functions declared in <font color=red><i>box3d.h</i></font>:</p>
+<pre>    #include "box3d.h"
+
+    Box3D::Box3D( QWidget *parent, const char *name )
+        : QGLWidget( parent, name )
+    {
+        object = 0;
+        rotX = rotY = rotZ = 0.0;
+    }
+
+    Box3D::~Box3D()
+    {
+        makeCurrent();
+        glDeleteLists( object, 1 );
+    }
+
+    void Box3D::initializeGL()
+    {
+        qglClearColor( darkBlue );
+        object = makeObject();
+        glShadeModel( GL_FLAT );
+    }
+
+    void Box3D::paintGL()
+    {
+        glClear( GL_COLOR_BUFFER_BIT );
+        glLoadIdentity();
+        glTranslatef( 0.0, 0.0, -10.0 );
+        glRotatef( rotX, 1.0, 0.0, 0.0 );
+        glRotatef( rotY, 0.0, 1.0, 0.0 );
+        glRotatef( rotZ, 0.0, 0.0, 1.0 );
+        glCallList( object );
+    }
+
+    void Box3D::resizeGL( int w, int h )
+    {
+        glViewport( 0, 0, w, h );
+        glMatrixMode( GL_PROJECTION );
+        glLoadIdentity();
+        glFrustum( -1.0, 1.0, -1.0, 1.0, 5.0, 15.0 );
+        glMatrixMode( GL_MODELVIEW );
+    }
+
+    GLuint Box3D::makeObject()
+    {
+        GLuint list = glGenLists( 1 );
+        glNewList( list, GL_COMPILE );
+        qglColor( yellow );
+        glLineWidth( 2.0 );
+
+        glBegin( GL_LINE_LOOP );
+        glVertex3f( +1.5, +1.0, +0.8 );
+        glVertex3f( +1.5, +1.0, -0.8 );
+        /* ... */
+        glEnd();
+
+        glEndList();
+        return list;
+    }
+</pre>
+ <p>In <font color=red><i>main.cpp</i></font>, we create a <font color=darkblue><b>Box3D</b></font> instance.</p>
+<pre>    #include &lt;qapplication.h&gt;
+    #include &lt;qslider.h&gt;
+    #include &lt;qvbox.h&gt;
+
+    #include "box3d.h"
+
+    void create_slider( QWidget *parent, Box3D *box3d, const char *slot )
+    {
+        QSlider *slider = new QSlider( 0, 360, 60, 0,
+                QSlider::Horizontal, parent );
+        slider-&gt;setTickmarks( QSlider::Below );
+        QObject::connect( slider, SIGNAL(valueChanged(int)), box3d, slot );
+    }
+
+    int main( int argc, char **argv )
+    {
+        QApplication::setColorSpec( QApplication::CustomColor );
+        QApplication app( argc, argv );
+        if ( !QGLFormat::hasOpenGL() )
+            qFatal( "This system has no OpenGL support" );
+
+        QVBox *parent = new QVBox;
+        parent-&gt;setCaption( "OpenGL Box" );
+        parent-&gt;setMargin( 11 );
+        parent-&gt;setSpacing( 6 );
+        Box3D *box3d = new Box3D( parent );
+        create_slider( parent, box3d, SLOT(setRotationX(int)) );
+        create_slider( parent, box3d, SLOT(setRotationY(int)) );
+        create_slider( parent, box3d, SLOT(setRotationZ(int)) );
+
+        app.setMainWidget( parent );
+        parent-&gt;resize( 250, 250 );
+        parent-&gt;show();
+        return app.exec();
+    }
+</pre>
+ <p><hr><ul> <li><a href=http://doc.trolltech.com/3.0/coordsys.html>http://doc.trolltech.com/3.0/coordsys.html</a> <li><a href=http://doc.trolltech.com/3.0/canvas.html>http://doc.trolltech.com/3.0/canvas.html</a> <li><a href=http://doc.trolltech.com/3.0/opengl.html>http://doc.trolltech.com/3.0/opengl.html</a> </ul></p>
+<!-- eof -->
+<p align="right">[<a href="whitepaper-4.html">Prev: Qt Designer</a>] [<a href="whitepaper.html">Home</a>] [<a href="whitepaper-6.html">Next: Databases</a>]</p>
+</body>
+</html>

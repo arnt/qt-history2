@@ -1,0 +1,79 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<!-- ./signals-and-slots.leaf:3 -->
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<title>Signals and Slots</title>
+</head>
+<body>
+<p align="right">[<a href="whitepaper-1.html">Prev: Widgets</a>] [<a href="whitepaper.html">Home</a>] [<a href="whitepaper-3.html">Next: GUI Applications</a>]</p>
+<h2 align="center">Signals and Slots</h2>
+<blockquote>
+<p>Signals and slots provide inter-object communication. They are easy to understand and use, simple to hand code, and are fully supported by <a href="whitepaper-4.html">Qt Designer</a>.</p>
+</blockquote>
+<p>GUI applications respond to user actions. For example, when a user clicks a menu item or toolbar button, the program executes some code. More generally, we want objects of any kind to be able to communicate with one another. For example, if we were parsing an XML file we might want to notify a list view that we're using to represent the XML file's structure whenever we encounter a new tag. The programmer must relate events to the relevant code. Older toolkits use mechanisms which are not type-safe (i.e. are crash-prone), are inflexible, and make it difficult to do component programming. Qt uses a mechanism, invented by Trolltech, called 'signals and slots'. Signals and slots is a powerful inter-object communication mechanism that can be used to completely replace the crude callbacks and message maps used by older toolkits. Signals and slots are type-safe, flexible, and well suited to component programming.</p>
+<p>If a programmer wants to associate some code with a button, using the old callback mechanism, they would have to pass a pointer to a function to the button. When the button is clicked, the function would then be called. There is no way of ensuring that arguments of the right type are given to the function when it is called, which makes crashes more likely. The other problem with the callback approach is that it tightly binds the GUI element to the functionality, making it difficult to develop classes independently.</p>
+<p>Qt's signals and slots mechanism is different. Qt widgets emit signals when events occur. For example, a button will emit a 'clicked' signal when it is clicked. The programmer can choose to connect to a signal by creating a function (called a slot) and calling the <font color=darkblue>connect()</font> function to relate the signal with the slot. Qt's signals and slots mechanism does not require classes to have knowledge of each other, which makes it much easier to develop highly reusable software components. Signals and slots are type-safe, with type errors being reported by the compiler rather than by crashes.</p>
+<!-- index MFC --><!-- index Motif --><!-- index QObject --><!-- index callbacks --><!-- index communication --><!-- index message maps --><!-- index objects --><!-- index signals --><!-- index slots --><!-- index events --><!-- index state of widgets --><p>Objects, typically widgets, emit signals to indicate state changes. Signals can be connected to member functions, slots, that implement the required behavior.</p>
+<!-- index connect() --><p>For example, if a <font color=darkgreen><em>Quit</em></font> button's <font color=darkblue>clicked()</font> signal is connected to the application's <font color=darkblue>quit()</font> slot, a user's click on <font color=darkgreen><em>Quit</em></font> makes the application quit. In code, this is written as</p>
+<pre>
+    connect( button, SIGNAL(clicked()), qApp, SLOT(quit()) );
+</pre>
+<p>Connections can be added or removed at any time during the execution of a Qt application.</p>
+<!-- index OOP --><!-- index object-oriented programming --><!-- index type safety --><p>The signals and slots implementation smoothly extends C++'s syntax and takes full advantage of C++'s object-orientated features. Signals and slots are type safe, can be overloaded or reimplemented and may appear in the public, protected or private sections of a class.</p>
+<!-- index components --><!-- index reusability --><h3><a name="1"></a>A Signals and Slots Example</h3>
+<!-- index QObject --><p>To benefit from signals and slots, a class needs to inherit from <font color=darkblue><b>QObject</b></font> or one of its subclasses and must include the <tt>Q_OBJECT</tt> macro in the class's definition. Signals are declared in the <tt>signals</tt> section of the class, while slots are declared in the <tt>public slots</tt>, <tt>protected slots</tt> or <tt>private slots</tt> sections.</p>
+<!-- index inheriting in Qt --><!-- index subclassing in Qt --><p>Here's an example <font color=darkblue><b>QObject</b></font> subclass:</p>
+<pre>
+    class BankAccount : public QObject
+    {
+	Q_OBJECT
+    public:
+	BankAccount() { curBalance = 0; }
+	int balance() const { return curBalance; }
+    public slots:
+	void setBalance( int newBalance );
+
+    signals:
+	void balanceChanged( int newBalance );
+
+    private:
+	int curBalance;
+    };
+</pre>
+<p>The class <font color=darkblue><b>BankAccount</b></font> has a constructor, a get function, <font color=darkblue>balance()</font>, and a set function, <font color=darkblue>setBalance()</font>, like almost any C++ class.</p>
+<p>The class also has a signal, <font color=darkblue>balanceChanged()</font>, that announces that the balance in the account has changed. Signals are not implemented; when a signal is emitted, the slots it is connected to are executed.</p>
+<p>The set function is declared in the <tt>public slots</tt> section, so it is a slot. Slots are standard member functions with an implementation that can be called like any other function, and which can also be connected to signals.</p>
+<!-- index emitting a signal --><!-- index preprocessor (C++) --><p>Here's the implementation of the slot <font color=darkblue>setBalance()</font>:</p>
+<pre>
+    void BankAccount::setBalance( int newBalance )
+    {
+	if ( newBalance != curBalance ) {
+	    curBalance = newBalance;
+	    emit balanceChanged( curBalance );
+	}
+    }
+</pre>
+<p>The statement</p>
+<pre>
+    emit balanceChanged( curBalance );
+</pre>
+<p>causes the <font color=darkblue>balanceChanged()</font> signal to be emitted with the new current balance as its argument. The keyword <tt>emit</tt>, like <tt>signals</tt> and <tt>slots</tt>, is provided by Qt and is transformed into standard C++ by the C++ preprocessor.</p>
+<p>Here's an example of how to use <font color=darkblue><b>BankAccount</b></font>:</p>
+<pre>
+    BankAccount x, y;
+    connect( &amp;x, SIGNAL(balanceChanged(int)),
+	     &amp;y, SLOT(setBalance(int)) );
+    x.setBalance( 2450 );
+</pre>
+<p>We create two <font color=darkblue><b>BankAccount</b></font> objects, <tt>x</tt> and <tt>y</tt>, and connect <tt>x</tt>'s <font color=darkblue>balanceChanged()</font> signal to <tt>y</tt>'s <font color=darkblue>setBalance()</font> slot. When we set the balance in <tt>x</tt> to 2450, the <font color=darkblue>balanceChanged()</font> signal is emitted and is received by <tt>y</tt>'s <font color=darkblue>setBalance()</font> slot, which sets <tt>y</tt>'s balance to 2450.</p>
+<p>One object's signal can be connected to many different slots and many signals can be connected to one slot in a particular object. Connections can be made between any signal and slot, provided that their arguments are compatible.</p>
+<h3><a name="2"></a>Meta Object Compiler</h3>
+<!-- index Meta Object Compiler --><!-- index compiler features --><!-- index header files --><!-- index moc --><!-- index qmake --><p>The signals and slots mechanism is implemented in pure standard C++. The implementation uses the C++ preprocessor and the Meta Object Compiler (<em>moc</em>) included with the Qt library.</p>
+<p>The <em>moc</em> reads the application's header files and generates the necessary code to support the signals and slots mechanism. Developers never have to edit or even look at the generated code, and the qmake build tool generates the correct makefiles for the target platform.</p>
+<!-- index introspection --><!-- index magic --><!-- index properties --><!-- index rtti --><!-- index run-time type information --><!-- index translations --><p>In addition to handling signals and slots, <em>moc</em> supports Qt's translation mechanism, its property system and extended run-time type information. The <em>moc</em> also makes the cross-platform introspection of C++ programs possible.</p>
+<p><hr><ul> <li><a href=http://doc.trolltech.com/3.0/object.html>http://doc.trolltech.com/3.0/object.html</a> <li><a href=http://doc.trolltech.com/3.0/signalsandslots.html>http://doc.trolltech.com/3.0/signalsandslots.html</a> <li><a href=http://doc.trolltech.com/3.0/moc.html>http://doc.trolltech.com/3.0/moc.html</a> </ul></p>
+<!-- eof -->
+<p align="right">[<a href="whitepaper-1.html">Prev: Widgets</a>] [<a href="whitepaper.html">Home</a>] [<a href="whitepaper-3.html">Next: GUI Applications</a>]</p>
+</body>
+</html>
