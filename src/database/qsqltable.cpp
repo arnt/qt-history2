@@ -361,7 +361,7 @@ void QSqlTable::loadLine( int )
 
 */
 
-void QSqlTable::sortColumn ( int col, bool ascending = TRUE,
+void QSqlTable::sortColumn ( int col, bool ascending,
 			      bool  )
 {
     if ( sorting() ) {
