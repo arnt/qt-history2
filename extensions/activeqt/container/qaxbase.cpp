@@ -978,6 +978,8 @@ static QString guessTypes( const TYPEDESC &tdesc, ITypeInfo *info, const QDict<Q
 		str += "&";
 	    else if ( str == "QDateTime" )
 		str += "&";
+	    else if ( str == "QValueList<QVariant>" )
+		str += "&";
 	    else if ( !str.isEmpty() && str != "QFont" && str != "QPixmap" )
 		str += "*";
 	}
@@ -1024,6 +1026,8 @@ static inline QString constRefify( const QString& type )
 	crtype = "const QFont&";
     else if ( type == "QPixmap" )
 	crtype = "const QPixmap&";
+    else if ( type == "QValueList<QVariant>" )
+	crtype = "const QValueList<QVariant>&";
     else
 	crtype = type;
 
@@ -1060,6 +1064,9 @@ static inline void QStringToQUType( const QString& type, QUParameter *param, con
     } else if ( type == "QPimap" || type == "const QPixmap&" || type == "QPixmap&" ) {
 	param->type = &static_QUType_varptr;
 	param->typeExtra = new int(QVariant::Pixmap);
+    } else if ( type == "QValueList<QVariant>" || type == "const QValueList<QVariant>&" || type == "QValueList<QVariant>&" ) {
+	param->type = &static_QUType_varptr;
+	param->typeExtra = new int(QVariant::List);
     } else if ( (enumData = enumDict.find( type )) != 0 ) {
 	param->type = &static_QUType_enum;
 	QUEnum *uEnum = new QUEnum;
@@ -2304,7 +2311,8 @@ bool QAxBase::qt_invoke( int _id, QUObject* _o )
     // Get the Dispatch ID of the method to be called
     bool fakedslot = FALSE;
     DISPID dispid;
-    OLECHAR *names = (TCHAR*)QString(slot->name).ucs2();
+    QString name( slot->name );
+    OLECHAR *names = (TCHAR*)name.ucs2();
     disp->GetIDsOfNames( IID_NULL, &names, 1, LOCALE_USER_DEFAULT, &dispid );
     if ( dispid == DISPID_UNKNOWN ) {
 	// see if we are calling a property set function as a slot
