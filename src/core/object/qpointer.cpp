@@ -26,7 +26,7 @@
     subclass of QObject.
 
     Guarded pointers are useful whenever you need to store a pointer
-    to a QObject that is owned by someone else and therefore might be
+    to a QObject that is owned by someone else, and therefore might be
     destroyed while you still hold a reference to it. You can safely
     test the pointer for validity.
 
@@ -57,7 +57,7 @@
     For creating guarded pointers, you can construct or assign to them
     from a T* or from another guarded pointer of the same type. You
     can compare them with each other using operator==() and
-    operator!=(), or test for 0 with isNull(). And you can dereference
+    operator!=(), or test for 0 with isNull(). You can dereference
     them using either the \c *x or the \c x->member notation.
 
     A guarded pointer will automatically cast to a T*, so you can
@@ -86,7 +86,7 @@
 /*!
     \fn QPointer::QPointer( T* p )
 
-    Constructs a guarded pointer that points to same object as \a p
+    Constructs a guarded pointer that points to same object that \a p
     points to.
 */
 
@@ -110,7 +110,7 @@
     \fn QPointer<T>& QPointer::operator=(const QPointer<T> &p)
 
     Assignment operator. This guarded pointer will now point to the
-    same object as \a p points to.
+    same object that \a p points to.
 */
 
 /*!
@@ -119,7 +119,7 @@
     \overload
 
     Assignment operator. This guarded pointer will now point to the
-    same object as \a p points to.
+    same object that \a p points to.
 */
 
 /*!
