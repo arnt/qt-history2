@@ -1028,6 +1028,9 @@ void QPainter::setBrush( BrushStyle style )
     set. This fixed tab stop value is used only if no tab array is set
     (which is the default case).
 
+    A value of 0 (the default) implies a tabstop setting of 8 times the width of the
+    character 'x' in the font currently set on the painter.
+
     \sa tabStops(), setTabArray(), drawText(), fontMetrics()
 */
 
@@ -2730,7 +2733,7 @@ void qt_format_text( const QFont& font, const QRect &_r,
     if ( ( tf & Qt::AlignHorizontal_Mask ) == Qt::AlignAuto )
 	tf |= isRightToLeft ? Qt::AlignRight : Qt::AlignLeft;
 
-    bool expandtabs = ( (tf & Qt::ExpandTabs) && (tabstops || tabarraylen) &&
+    bool expandtabs = ( (tf & Qt::ExpandTabs) &&
 			( ( (tf & Qt::AlignLeft) && !isRightToLeft ) ||
 			  ( (tf & Qt::AlignRight) && isRightToLeft ) ) );
 
@@ -2742,7 +2745,9 @@ void qt_format_text( const QFont& font, const QRect &_r,
     int underlinePositionStack[32];
     int *underlinePositions = underlinePositionStack;
 
-    // new implementation using QTextLayout
+    QFont fnt(painter ? (painter->pfont ? *painter->pfont : painter->cfont) : font);
+    QFontMetrics fm( fnt );
+
     QString text = str;
     // str.setLength() always does a deep copy, so the replacement
     // code below is safe.
@@ -2770,6 +2775,8 @@ void qt_format_text( const QFont& font, const QRect &_r,
 		*chr = ' ';
 	    ++chr;
 	}
+    } else if (!tabarraylen && !tabstops) {
+	tabstops = fm.width('x')*8;
     }
 
     if ( noaccel || showprefix ) {
@@ -2805,9 +2812,7 @@ void qt_format_text( const QFont& font, const QRect &_r,
     int left = r.width();
     int right = 0;
 
-    QFont fnt(painter ? (painter->pfont ? *painter->pfont : painter->cfont) : font);
     QTextLayout textLayout( text, fnt );
-    QFontMetrics fm( fnt );
     int rb = QMAX( 0, -fm.minRightBearing() );
     int lb = QMAX( 0, -fm.minLeftBearing() );
 
