@@ -633,7 +633,7 @@ void QToolBar::createPopup()
 	    if ( p.y() > ( doHide ? height()- d->extension->height() / j : height() ) )
 	        hide = TRUE;
 	}
-	if ( hide && !w->isHidden() ) {
+	if ( hide && w->isVisible() ) {
 	    doHide = TRUE;
 	    if ( qt_cast<QToolButton*>(w) ) {
 		QToolButton *b = (QToolButton*)w;
