@@ -63,7 +63,7 @@ public:
 
     inline int height(int item) const {
         if (uniformRowHeights) return itemHeight;
-        if (viewItems.at(item).height == 0)
+        if (viewItems.at(item).height == 0 && viewItems.at(item).index.isValid())
             viewItems[item].height = q_func()->indexRowSizeHint(viewItems.at(item).index);
         return viewItems.at(item).height;
     }

@@ -23,6 +23,7 @@ class Q_GUI_EXPORT QHeaderView : public QAbstractItemView
     Q_OBJECT
     Q_PROPERTY(bool showSortIndicator READ isSortIndicatorShown WRITE setSortIndicatorShown)
     Q_PROPERTY(bool highlightSections READ highlightSections WRITE setHighlightSections)
+    Q_PROPERTY(bool stretchLastSection READ stretchLastSection WRITE setStretchLastSection)
     Q_ENUMS(ResizeMode)
 
 public:
@@ -92,6 +93,9 @@ public:
     void setSortIndicator(int logicalIndex, Qt::SortOrder order);
     int sortIndicatorSection() const;
     Qt::SortOrder sortIndicatorOrder() const;
+
+    bool stretchLastSection() const;
+    void setStretchLastSection(bool stretch);
 
     void doItemsLayout();
 

@@ -96,7 +96,7 @@ void DownloadDelegate::paint(QPainter *painter, const QStyleOptionViewItem &opti
 QSize DownloadDelegate::sizeHint(const QStyleOptionViewItem &option,
                                  const QModelIndex &index) const
 {
-    if (index.column() == 2)
+    if (!index.isValid() || index.column() == 2)
         return QSize();
 
     if (index.column() == 3) {
@@ -121,7 +121,6 @@ int main(int argc, char *argv[])
   QStringList headerLabels;
   headerLabels << "Name" << "Released" << "Download" << "Rating";
   view->setHeaderLabels(headerLabels);
-  view->header()->setResizeMode(QHeaderView::Stretch, 3);
 
   for (int i = 0; i < 10; ++i) {
       QTreeWidgetItem *item = new QTreeWidgetItem(view);

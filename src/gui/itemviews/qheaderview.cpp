@@ -523,7 +523,7 @@ void QHeaderView::resizeSection(int logicalIndex, int size)
             r.setRect(pos, 0, w - pos, h);
     else
         r.setRect(0, pos, w, h - pos);
-    if (d->stretchSections) {
+    if (d->stretchSections || d->stretchLastSection) {
         resizeSections();
         r = d->viewport->rect();
     }
@@ -805,6 +805,21 @@ Qt::SortOrder QHeaderView::sortIndicatorOrder() const
     return d->sortIndicatorOrder;
 }
 
+/*
+  \property QHeaderView:: streatchLastSection
+
+  ###
+*/
+bool QHeaderView::stretchLastSection() const
+{
+    return d->stretchLastSection;
+}
+
+void QHeaderView::setStretchLastSection(bool stretch)
+{
+    d->stretchLastSection = stretch;
+}
+
 /*!
     \internal
 */
@@ -864,9 +879,12 @@ void QHeaderView::resizeSections()
                       ? d->viewport->width() : d->viewport->height();
     QList<int> section_sizes;
     int count = qMax(d->sections.count() - 1, 0);
+    int last = (d->stretchLastSection ? count - 1 : -1);
     const QVector<QHeaderViewPrivate::HeaderSection> secs = d->sections;
+    if (secs.isEmpty())
+        return;
     for (int i = 0; i < count; ++i) {
-        mode = secs.at(i).mode;
+        mode = (i == last ? Stretch : secs.at(i).mode);
         if (mode == Stretch) {
             ++stretchSecs;
             continue;
@@ -896,7 +914,7 @@ void QHeaderView::resizeSections()
     int stretchSectionSize = qMax(hint, minimum);
     for (int i = 0; i < count; ++i) {
         d->sections[i].position = position;
-        mode = secs.at(i).mode;
+        mode = (i == last ? Stretch : secs.at(i).mode);
         if (mode == Stretch) {
             position += stretchSectionSize;
         } else {
@@ -1373,7 +1391,7 @@ int QHeaderView::verticalOffset() const
 
 void QHeaderView::updateGeometries()
 {
-    if (d->stretchSections)
+    if (d->stretchSections || d->stretchLastSection)
         resizeSections();
 }
 

@@ -122,6 +122,7 @@ void QTreeView::initialize()
 
     QHeaderView *header = new QHeaderView(Qt::Horizontal, this);
     header->setMovable(true);
+    header->setStretchLastSection(true);
     setHeader(header);
 }
 
