@@ -1017,6 +1017,8 @@ extern "C" HRESULT __stdcall DumpIDL( const QString &outfile, const QString &ver
 	int lastdot = version.findRev( '.' );
 	version = version.left( lastdot ) + version.right( version.length() - lastdot - 1 );
     }
+    if (version.isEmpty())
+	version = "1.0";
 
     QString idQRect(QUuid(CLSID_QRect).toString());
     STRIPCB(idQRect);
