@@ -537,8 +537,7 @@ void QTextDocumentLayoutPrivate::drawListItem(const QPoint &offset, QPainter *pa
         painter->fillRect(r, context.palette.highlight());
     } else {
         QColor col = charFormat.color();
-        if (col.isValid())
-            painter->setPen(col);
+        painter->setPen(col);
     }
 
     QBrush brush = context.palette.brush(QPalette::Text);
