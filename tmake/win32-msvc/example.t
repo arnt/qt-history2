@@ -4,6 +4,7 @@
 #!
 #$ $moc_aware = 1;
 #$ StdInit();
+#$ $project{"INCPATH"} = '$(QTDIR)\include';
 #$ $project{"TARGET"} || ($project{"TARGET"} = "aout");
 #!
 # Makefile for building #$ Expand("TARGET")

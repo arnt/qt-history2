@@ -18,6 +18,7 @@ MOC	=	moc
 #############################################################################
 #$ $moc_aware = 1;
 #$ StdInit();
+#$ $project{"INCPATH"} = '$(QTDIR)\include';
 #$ $project{"TARGET"} || ($project{"TARGET"} = "a.out");
 #!
 # Makefile for building #$ Expand("TARGET")
