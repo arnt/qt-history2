@@ -147,7 +147,7 @@ QMutex::~QMutex()
   Attempt to lock the mutex. If another thread has locked the mutex
   then this call will block until that thread has unlocked it.
 
-  \sa unlock()
+  \sa unlock(), locked()
 */
 void QMutex::lock()
 {
@@ -161,7 +161,7 @@ void QMutex::lock()
   is not locked results in undefined behaviour (varies between
   different Operating Systems' thread implementations).
 
-  \sa lock()
+  \sa lock(), locked()
 */
 void QMutex::unlock()
 {
@@ -171,6 +171,12 @@ void QMutex::unlock()
 
 /*!
   Returns TRUE if the mutex is locked by another thread.
+
+  \e NOTE: Due to differing implementations of recursive mutexes on various
+  platforms, calling this function from the same thread that previous locked
+  the mutex will return undefined results.
+
+  \sa lock(), unlock()
 */
 bool QMutex::locked()
 {
@@ -741,7 +747,7 @@ QSemaphore::~QSemaphore()
 int QSemaphore::operator++(int)
 {
     int ret;
-    
+
     d->mutex.lock();
 
     while (d->value >= d->max)
@@ -775,7 +781,7 @@ int QSemaphore::operator--(int)
 
     d->cond.wakeAll();
     d->mutex.unlock();
-    
+
     return ret;
 }
 
@@ -794,7 +800,7 @@ int QSemaphore::operator+=(int n)
 
     while (d->value + n > d->max)
 	d->cond.wait(&(d->mutex));
-    
+
     d->value += n;
 
 #ifdef QT_CHECK_RANGE
@@ -807,7 +813,7 @@ int QSemaphore::operator+=(int n)
     ret = d->value;
 
     d->mutex.unlock();
-    
+
     return ret;
 }
 

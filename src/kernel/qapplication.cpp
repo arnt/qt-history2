@@ -691,7 +691,7 @@ void QApplication::initialize( int argc, char **argv )
 	app_style = QStyleFactory::create( style );
 	if ( !app_style &&		// platform default style not available, try alternatives
 	     !(app_style = QStyleFactory::create( "Windows" ) ) &&
-	     !(app_style = QStyleFactory::create( "Platinum" ) ) && 
+	     !(app_style = QStyleFactory::create( "Platinum" ) ) &&
 	     !(app_style = QStyleFactory::create( "MotifPlus" ) ) &&
 	     !(app_style = QStyleFactory::create( "Motif" ) ) &&
 	     !(app_style = QStyleFactory::create( "CDE" ) ) &&
@@ -2705,6 +2705,10 @@ int QApplication::loopLevel() const
 /*! \fn bool QApplication::locked()
   Returns TRUE if the Qt library mutex is locked by a different thread,
   otherwise returns FALSE.
+
+  \e NOTE: Due to differing implementations of recursive mutexes on various
+  platforms, calling this function from the same thread that previous locked
+  the mutex will return undefined results.
 
   \sa lock(), unlock()
 */
