@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.h#135 $
+** $Id: //depot/qt/main/src/tools/qstring.h#136 $
 **
 ** Definition of the QString class, and related Unicode
 ** functions.
@@ -166,15 +166,15 @@ public:
 
     static bool networkOrdered() { return (int)net_ordered == 1; }
 
-    friend int operator==( char ch, QChar c );
-    friend int operator==( QChar c, char ch );
-    friend int operator==( QChar c1, QChar c2 );
-    friend int operator!=( QChar c1, QChar c2 );
-    friend int operator!=( char ch, QChar c );
-    friend int operator!=( QChar c, char ch );
-    friend int operator<=( QChar c, char ch );
-    friend int operator<=( char ch, QChar c );
-    friend int operator<=( QChar c1, QChar c2 );
+    friend inline int operator==( char ch, QChar c );
+    friend inline int operator==( QChar c, char ch );
+    friend inline int operator==( QChar c1, QChar c2 );
+    friend inline int operator!=( QChar c1, QChar c2 );
+    friend inline int operator!=( char ch, QChar c );
+    friend inline int operator!=( QChar c, char ch );
+    friend inline int operator<=( QChar c, char ch );
+    friend inline int operator<=( char ch, QChar c );
+    friend inline int operator<=( QChar c1, QChar c2 );
 
 private:
 #if defined(_WS_X11_) || defined(_OS_WIN32_BYTESWAP_)
@@ -556,10 +556,10 @@ inline QString::~QString()
 	d->deleteSelf();
 }
 
-inline QString &QString::operator=( QChar c ) 
+inline QString &QString::operator=( QChar c )
 { return *this = QString(c); }
 
-inline QString &QString::operator=( char c ) 
+inline QString &QString::operator=( char c )
 { return *this = QString(QChar(c)); }
 
 //inline QString &QString::operator=( const QString &s )
