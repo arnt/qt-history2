@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcolor.cpp#23 $
+** $Id: //depot/qt/main/src/kernel/qcolor.cpp#24 $
 **
 ** Implementation of QColor class
 **
@@ -14,15 +14,13 @@
 #include "qdstream.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qcolor.cpp#23 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qcolor.cpp#24 $";
 #endif
 
 
 /*!
 \class QColor qcolor.h
-
 \brief The QColor class provides colors based on RGB.
-
 \ingroup colors
 
 A color is normally specified in terms of RGB (red,green and blue) components,

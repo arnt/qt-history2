@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qaccel.cpp#10 $
+** $Id: //depot/qt/main/src/kernel/qaccel.cpp#11 $
 **
 ** Implementation of QAccel class
 **
@@ -17,15 +17,12 @@
 #include "qsignal.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qaccel.cpp#10 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qaccel.cpp#11 $";
 #endif
 
 
 /*!
 \class QAccel qaccel.h
-
-\brief The QAccel class is used to define accelerator keys.
-
 \ingroup uiclasses
 
 The QAccel class contains a number of accelerator items. An accelerator item
