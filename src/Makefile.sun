@@ -10,7 +10,7 @@ SUNELFCFLAGS	= -fPIC
 sun:
 	make lib 'CFLAGS=$(CFLAGS) $(SUNELFCFLAGS)' 'OBJDIR=obj/elf'
 	/bin/rm -f $(ELFTARGET)
-	$(CC) -shared -o $(ELFTARGET) obj/elf/*/*.o -lX11 -lgcc -lc
+	$(CC) -shared -o $(ELFTARGET) obj/elf/*/*.o -lX11 -lc
 
 sunaout:
 	make lib 'CFLAGS=$(CFLAGS) $(SUNAOUTCFLAGS)' 'OBJDIR=obj/aout'
@@ -20,4 +20,4 @@ sunaout:
 sunelf:
 	make lib 'CFLAGS=$(CFLAGS) $(SUNELFCFLAGS)' 'OBJDIR=obj/elf'
 	/bin/rm -f $(ELFTARGET)
-	$(CC) -shared -o $(ELFTARGET) obj/elf/*/*.o -lX11 -lgcc -lc
+	$(CC) -shared -o $(ELFTARGET) obj/elf/*/*.o -lX11 -lc
