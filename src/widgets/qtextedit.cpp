@@ -1638,8 +1638,10 @@ void QTextEdit::contentsMouseDoubleClickEvent( QMouseEvent * )
 {
     QTextCursor c1 = *cursor;
     QTextCursor c2 = *cursor;
-    c1.gotoWordLeft();
-    c2.gotoWordRight();
+    if ( cursor->index() > 0 && !cursor->parag()->at( cursor->index()-1 )->c.isSpace() )
+	c1.gotoWordLeft();
+    if ( !cursor->parag()->at( cursor->index() )->c.isSpace() && !cursor->atParagEnd() )
+	c2.gotoWordRight();
 
     doc->setSelectionStart( QTextDocument::Standard, &c1 );
     doc->setSelectionEnd( QTextDocument::Standard, &c2 );
