@@ -4,29 +4,42 @@
 
 ####### Directories
 
-BASEDIR	=	$(QTDIR)
-INCDIR	=	$(BASEDIR)\include
-LIBDIR	=	$(BASEDIR)\lib
+BASEDIR		= $(QTDIR)
+INCDIR		= $(BASEDIR)\include
+LIBDIR		= $(BASEDIR)\lib
 
 ####### Compiler
 
-CFLAGS	=	-nologo -O2 -W3
-CC	=	cl
+CFLAGS		= -O2
+CC		= cl
 
-LEX	=	flex
-YACC	=	yacc -d
+LEX		= flex
+YACC		= yacc -d
 
 ####### Files
 
 SOURCES	=	moc.l		moc.y
 LEXOUT	=	lexyy.c
-YACCOUT	=	ytab.c
-YACCHDR =	ytab.h
+YACCOUT =	ytab.c
+YACCHDR	=	ytab.h
 TMPCPP	=	moc.cpp
+TOOLOBJ	=	qbuffer.obj	\
+		qcollect.obj	\
+		qdatetm.obj	\
+		qdstream.obj	\
+		qgarray.obj	\
+		qglist.obj	\
+		qglobal.obj	\
+		qgvector.obj	\
+		qiodev.obj	\
+		qstring.obj
 OBJECTS	=	moc.obj
-TARGET	=	moc.exe
+TARGET	=	moc
 
 ####### Implicit rules
+
+.SUFFIXES:
+.SUFFIXES: .cpp $(SUFFIXES)
 
 .cpp.obj:
 	$(CC) -c $(CFLAGS) -I$(INCDIR) $<
@@ -35,12 +48,12 @@ TARGET	=	moc.exe
 
 all: $(TARGET)
 
-$(TARGET): $(OBJECTS)
-	$(CC) $(CFLAGS) $(OBJECTS) $(LIBDIR)\qtools.lib
-	@copy moc.exe $(QTDIR)\bin
+$(TARGET): $(OBJECTS) $(TOOLOBJ)
+	$(CC) $(OBJECTS) $(TOOLOBJ) -o $(TARGET)
 
 clean:
 	del $(OBJECTS)
+	del $(TOOLOBJ)
 	del $(TARGET)
 	del $(LEXOUT)
 	del $(YACCOUT)
@@ -54,24 +67,36 @@ $(LEXOUT): moc.l
 
 $(TMPCPP): moc.y $(LEXOUT)
 	$(YACC) moc.y
-	copy $(YACCOUT) $(TMPCPP)
+	ren $(YACCOUT) $(TMPCPP)
 
+####### Tools needed for moc
 
-# DO NOT CHANGE THIS LINE -- makedep (not makedepend) depends on it.
+qbuffer.obj: ..\tools\qbuffer.cpp
+	$(CC) -c $(CFLAGS) -I$(INCDIR) ..\tools\qbuffer.cpp -o qbuffer.obj
 
-moc.obj: $(INCDIR)\qstring.h
-moc.obj: $(INCDIR)\qarray.h
-moc.obj: $(INCDIR)\qgarray.h
-moc.obj: $(INCDIR)\qshared.h
-moc.obj: $(INCDIR)\qglobal.h
-moc.obj: $(INCDIR)\qgeneric.h
-moc.obj: $(INCDIR)\qlist.h
-moc.obj: $(INCDIR)\qglist.h
-moc.obj: $(INCDIR)\qcollect.h
-moc.obj: $(INCDIR)\qglobal.h
-moc.obj: $(INCDIR)\qgeneric.h
-moc.obj: $(INCDIR)\qstring.h
-moc.obj: $(INCDIR)\qarray.h
-moc.obj: $(INCDIR)\qgarray.h
-moc.obj: $(INCDIR)\qshared.h
-moc.obj: $(INCDIR)\qdatetm.h
+qcollect.obj: ..\tools\qcollect.cpp
+	$(CC) -c $(CFLAGS) -I$(INCDIR) ..\tools\qcollect.cpp -o qcollect.obj
+
+qdatetm.obj: ..\tools\qdatetm.cpp
+	$(CC) -c $(CFLAGS) -I$(INCDIR) ..\tools\qdatetm.cpp -o qdatetm.obj
+
+qdstream.obj: ..\tools\qdstream.cpp
+	$(CC) -c $(CFLAGS) -I$(INCDIR) ..\tools\qdstream.cpp -o qdstream.obj
+
+qgarray.obj: ..\tools\qgarray.cpp
+	$(CC) -c $(CFLAGS) -I$(INCDIR) ..\tools\qgarray.cpp -o qgarray.obj
+
+qglist.obj: ..\tools\qglist.cpp
+	$(CC) -c $(CFLAGS) -I$(INCDIR) ..\tools\qglist.cpp -o qglist.obj
+
+qglobal.obj: ..\tools\qglobal.cpp
+	$(CC) -c $(CFLAGS) -I$(INCDIR) ..\tools\qglobal.cpp -o qglobal.obj
+
+qgvector.obj: ..\tools\qgvector.cpp
+	$(CC) -c $(CFLAGS) -I$(INCDIR) ..\tools\qgvector.cpp -o qgvector.obj
+
+qiodev.obj: ..\tools\qiodev.cpp
+	$(CC) -c $(CFLAGS) -I$(INCDIR) ..\tools\qiodev.cpp -o qiodev.obj
+
+qstring.obj: ..\tools\qstring.cpp
+	$(CC) -c $(CFLAGS) -I$(INCDIR) ..\tools\qstring.cpp -o qstring.obj
