@@ -3273,7 +3273,8 @@ QListBoxItem * QListBox::itemAt(const QPoint& p) const
         doLayout();
     QPoint np = p;
 
-    if ((np.x() < 0) || (np.y() < 0))
+    np -= viewport()->pos();
+    if (!viewport()->rect().contains(np))
         return 0;
 
     // take into account contents position
