@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.h#16 $
+** $Id: //depot/qt/main/src/kernel/qobject.h#17 $
 **
 ** Definition of QObject class
 **
@@ -69,6 +69,7 @@ public:
 
 protected:
     QObject	*parent() const { return parentObj; }
+    void	setToFirstChild( QObject * );
     bool	activate_filters( QEvent * );
     QConnectionList *receivers( const char *signal ) const;
     void	activate_signal( const char *signal );

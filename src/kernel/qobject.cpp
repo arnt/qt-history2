@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.cpp#20 $
+** $Id: //depot/qt/main/src/kernel/qobject.cpp#21 $
 **
 ** Implementation of QObject class
 **
@@ -15,8 +15,16 @@
 #include <ctype.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qobject.cpp#20 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qobject.cpp#21 $";
 #endif
+
+
+/*!
+\class QObject qobject.h
+
+The QObject class is the base class of all Qt objects that can deal with
+signals, slots and events.
+*/
 
 
 // Remove white space from SIGNAL and SLOT names
@@ -176,6 +184,19 @@ bool QObject::event( QEvent *e )		// receive event
 bool QObject::eventFilter( QObject *, QEvent * )// filter event
 {
     return FALSE;				// don't do anything with it
+}
+
+
+/*!
+Relink a child object to become the first object in the list of children.
+The purpose is to make searching fast.
+\internal This function was implemented to make accelerators efficient.
+*/
+
+void QObject::setToFirstChild( QObject *child )	// relink child object
+{
+    if ( childObjects && childObjects->findRef(child) >= 0 )
+	childObjects->insert( childObjects->take() );
 }
 
 
