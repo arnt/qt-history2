@@ -506,7 +506,7 @@ QFSFileEngine::currentPath(const QString &fileName)
     //if filename is a drive: then get the pwd of that drive
     if (fileName.length() >= 2 &&
         fileName.at(0).isLetter() && fileName.at(1) == ':') {
-        int drv = fileName.toUpper().at(0).latin1() - 'A' + 1;
+        int drv = fileName.toUpper().at(0).toLatin1() - 'A' + 1;
         if (_getdrive() != drv) {
             QT_WA({
                 TCHAR buf[PATH_MAX];
