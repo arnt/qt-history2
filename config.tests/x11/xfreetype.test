@@ -134,7 +134,7 @@ if [ "$XFT" = "yes" ]; then
     fi    
 fi
 
-#check for fontconfig headers when using Xft2
+# check for fontconfig headers when using Xft2
 if [ "$XFT" = "yes" ] && [ "$XFT2" = "yes" ]; then
     INC="fontconfig/fontconfig.h"
     XDIRS=`sed -n -e '/^QMAKE_INCDIR_X11[	]*=/ { s/[^=]*=[	 ]*//; s/-I/ /g; p; }' $XCONFIG`
