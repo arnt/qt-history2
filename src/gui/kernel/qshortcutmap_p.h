@@ -5,11 +5,11 @@
 #include <qvector.h>
 
 // To enable dump output uncomment below
-//#define Dump_QShortcutMap
+#define Dump_QShortcutMap
 
 class QKeyEvent;
-class QShortcutMapPrivate;
 struct QShortcutEntry;
+class QShortcutMapPrivate;
 class QWidget;
 
 class QShortcutMap
@@ -19,9 +19,11 @@ public:
     QShortcutMap();
     ~QShortcutMap();
 
-    int addShortcut(const QWidget *owner, const QKeySequence &key, Qt::ShortcutContext context);
-    int removeShortcut(const QWidget *owner, int id, const QKeySequence &key = QKeySequence());
-    int setShortcutEnabled(const QWidget *owner, int id, bool enable, const QKeySequence &key = QKeySequence());
+    int addShortcut(const QWidget *owner, const QObject *monitor, const QKeySequence &key, Qt::ShortcutContext context);
+    int removeShortcut(int id, const QWidget *owner, const QObject *monitor, const QKeySequence &key = QKeySequence());
+    int setShortcutEnabled(bool enable, int id, const QWidget *owner, const QObject *monitor, const QKeySequence &key = QKeySequence());
+    int changeMonitor(const QObject *monitor, const QKeySequence &key, bool enabled);
+
 
     void resetState();
     QKeySequence::SequenceMatch nextState(QKeyEvent *e);

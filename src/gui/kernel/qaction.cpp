@@ -24,7 +24,7 @@
 
 /* QAction code */
 
-QActionPrivate::QActionPrivate() : group(0), icons(0), shortcutId(-1), enabled(1), forceDisabled(0),
+QActionPrivate::QActionPrivate() : group(0), icons(0), enabled(1), forceDisabled(0),
                                    visible(1), forceInvisible(0), checkable(0), checked(0), separator(0)
 {
 #ifdef QT_COMPAT
@@ -39,10 +39,6 @@ QActionPrivate::~QActionPrivate()
     delete icons;
     if(menu)
         delete menu;
-    if(shortcutId != -1) {
-        if(QWidget *p = q_func()->parentWidget())
-            p->releaseShortcut(shortcutId);
-    }
 }
 
 void QActionPrivate::sendDataChanged()
@@ -199,22 +195,7 @@ void QAction::setShortcut(const QKeySequence &shortcut)
     if (d->shortcut == shortcut)
         return;
 
-    QWidget *parent = parentWidget();
-    while (qt_cast<QMenu*>(parent))
-        parent = parent->parentWidget();
-    if (!parent) {
-        qWarning("QAction::setShortcut: no widget parent defined");
-        return;
-    }
-
     d->shortcut = shortcut;
-    if(d->shortcutId != -1) {
-        parent->releaseShortcut(d->shortcutId);
-        d->shortcutId = -1;
-    } else {
-        parent->installEventFilter(this);
-    }
-    d->shortcutId = parent->grabShortcut(d->shortcut);
     d->sendDataChanged();
 }
 
@@ -222,7 +203,6 @@ QKeySequence QAction::shortcut() const
 {
     return d->shortcut;
 }
-
 
 /*!
     \property QAction::font
@@ -617,10 +597,6 @@ void QAction::setEnabled(bool b)
 {
     d->enabled = b;
     d->forceDisabled = !b;
-    if(d->shortcutId != -1) {
-        if(QWidget *p = parentWidget())
-            p->setShortcutEnabled(d->shortcutId, d->enabled && d->visible);
-    }
     d->sendDataChanged();
 }
 
@@ -644,10 +620,6 @@ void QAction::setVisible(bool b)
 {
     d->forceInvisible = !b;
     d->visible = b;
-    if(d->shortcutId != -1) {
-        if(QWidget *p = parentWidget())
-            p->setShortcutEnabled(d->shortcutId, d->enabled && d->visible);
-    }
     d->sendDataChanged();
 }
 
@@ -661,14 +633,15 @@ bool QAction::isVisible() const
   \reimp
 */
 bool
-QAction::eventFilter(QObject *, QEvent *e)
+QAction::event(QEvent *e)
 {
     if (e->type() == QEvent::Shortcut) {
         QShortcutEvent *se = static_cast<QShortcutEvent *>(e);
-        if (d->shortcutId != se->shortcutId())
-            return false;
+        Q_ASSERT_X(se->key() == d->shortcut,
+                   "QAction::event",
+                   "Received shortcut event from incorrect shortcut");
         if (se->isAmbiguous())
-            qWarning("QAction::eventFilter: smbigious shortcut overload");
+            qWarning("QAction::eventFilter: ambiguous shortcut overload");
         else
             activate(Trigger);
         return true;

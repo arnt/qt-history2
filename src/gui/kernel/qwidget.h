@@ -622,6 +622,7 @@ private:
     friend class QFontEngineXft;
     friend class QX11PaintEngine;
     friend class QWin32PaintEngine;
+    friend class QShortcutPrivate;
 
 #ifdef Q_WS_MAC
     friend class QMacSavedPortInfo;

@@ -128,7 +128,7 @@ public:
     QWidget *parentWidget() const;
 
 protected:
-    bool eventFilter(QObject *, QEvent *);
+    bool event(QEvent *);
 
 public slots:
     inline void toggle() { setChecked(!isChecked()); }

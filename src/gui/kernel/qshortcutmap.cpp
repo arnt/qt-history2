@@ -8,9 +8,10 @@
 #include "qworkspace.h"
 #include "qvector.h"
 #include "qdockwindow.h"
+#include "qmenu.h"
 
 // To enable verbose output uncomment below
-//#define Debug_QShortcutMap
+#define Debug_QShortcutMap
 
 #define d d_func()
 #define p p_func()
@@ -24,11 +25,12 @@
 struct QShortcutEntry
 {
     QShortcutEntry()
-        : keyseq(0), context(Qt::ShortcutOnActiveWindow), enabled(false), id(0), owner(0)
+        : keyseq(0), context(Qt::ShortcutOnActiveWindow), enabled(false), id(0), owner(0), monitor(0)
     {}
 
-    QShortcutEntry(const QWidget *w, const QKeySequence &k, Qt::ShortcutContext c, int i)
-        : keyseq(k), context(c), enabled(true), id(i), owner(w)
+    QShortcutEntry(const QWidget *w, const QObject *m,
+                   const QKeySequence &k, Qt::ShortcutContext c, int i)
+        : keyseq(k), context(c), enabled(true), id(i), owner(w), monitor(m)
     {}
 
     bool operator<(const QShortcutEntry &f) const
@@ -39,6 +41,7 @@ struct QShortcutEntry
     bool enabled : 1;
     int id : 31;
     const QWidget *owner;
+    const QObject *monitor;
 };
 
 /*! \internal
@@ -102,18 +105,22 @@ QShortcutMap::~QShortcutMap()
     Adds a shortcut to the global map.
     Returns the id of the newly added shortcut.
 */
-int QShortcutMap::addShortcut(const QWidget *owner, const QKeySequence &key, Qt::ShortcutContext context)
+int QShortcutMap::addShortcut(const QWidget *owner, const QObject *monitor,
+                              const QKeySequence &key, Qt::ShortcutContext context)
 {
     Q_ASSERT_X(owner, "QShortcutMap::addShortcut", "All shortcuts need an owner");
     Q_ASSERT_X(!key.isEmpty(), "QShortcutMap::addShortcut", "Cannot add keyless shortcuts to map");
+    while (qt_cast<QMenu*>(owner))
+        owner = owner->parentWidget();
 
-    QShortcutEntry newEntry(owner, key, context, --(d->currentId));
+    QShortcutEntry newEntry(owner, monitor, key, context, --(d->currentId));
     QList<QShortcutEntry>::iterator it
         = qUpperBound(d->sequences.begin(), d->sequences.end(), newEntry);
     d->sequences.insert(it, newEntry); // Insert sorted
 #if defined(Debug_QShortcutMap)
     qDebug().nospace()
-        << "QShortcutMap::addShortcut(" << owner << ", " << key << ") = " << d->currentId;
+        << "QShortcutMap::addShortcut(" << owner << ", " << monitor << ", "
+        << key << ", " << context << ") = " << d->currentId;
 #endif
     return d->currentId;
 }
@@ -126,36 +133,45 @@ int QShortcutMap::addShortcut(const QWidget *owner, const QKeySequence &key, Qt:
     are removed.
     Returns the number of sequences removed from the map.
 */
-int QShortcutMap::removeShortcut(const QWidget *owner, int id, const QKeySequence &key)
+
+int QShortcutMap::removeShortcut(int id, const QWidget *owner, const QObject *monitor,
+                                 const QKeySequence &key)
 {
     int itemsRemoved = 0;
     bool allOwners = (owner == 0);
+    bool allMonitors = (monitor == 0);
     bool allKeys = key.isEmpty();
+    bool allIds = id == 0;
 
     // Special case, remove everything
-    if (allOwners && allKeys && id == 0) {
+    if (allOwners && allMonitors && allKeys && id == 0) {
         itemsRemoved = d->sequences.size();
         d->sequences.clear();
         return itemsRemoved;
     }
 
+    while (qt_cast<QMenu*>(owner))
+        owner = owner->parentWidget();
+
     int i = d->sequences.size()-1;
     while (i>=0)
     {
         const QShortcutEntry &entry = d->sequences.at(i);
-        bool removeThis = allOwners ? true : entry.owner == owner;
-        removeThis &= allKeys ? true : entry.keyseq == key;
-        removeThis &= id == 0 ? true : entry.id == id;
-        if (removeThis) {
+        if ((allOwners || entry.owner == owner)
+            && (allMonitors || entry.monitor == monitor )
+            && (allIds || entry.id == id)
+            && (allKeys || entry.keyseq == key)) {
             d->sequences.removeAt(i);
             ++itemsRemoved;
         }
+        if (id == entry.id)
+            return itemsRemoved;
         --i;
     }
 #if defined(Debug_QShortcutMap)
     qDebug().nospace()
-        << "QShortcutMap::removeShortcut(" << owner << ", " << key << ", "
-        << id << ") = " << itemsRemoved;
+        << "QShortcutMap::removeShortcut(" << id << ", " << owner << ", " << monitor << ", "
+        << key << ") = " << itemsRemoved;
 #endif
     return itemsRemoved;
 }
@@ -168,32 +184,87 @@ int QShortcutMap::removeShortcut(const QWidget *owner, int id, const QKeySequenc
     are changed.
     Returns the number of sequences which are matched in the map.
 */
-int QShortcutMap::setShortcutEnabled(const QWidget *owner, int id, bool enable,
+int QShortcutMap::setShortcutEnabled(bool enable, int id,
+                                     const QWidget *owner, const QObject *monitor,
                                      const QKeySequence &key)
 {
     int itemsChanged = 0;
     bool allOwners = (owner == 0);
+    bool allMonitors = (monitor == 0);
     bool allKeys = key.isEmpty();
+    bool allIds = id == 0;
+
+    while (qt_cast<QMenu*>(owner))
+        owner = owner->parentWidget();
 
     int i = d->sequences.size()-1;
     while (i>=0)
     {
         QShortcutEntry entry = d->sequences.at(i);
-        bool enableThis = allOwners ? true : entry.owner == owner;
-        enableThis &= allKeys ? true : entry.keyseq == key;
-        enableThis &= id == 0 ? true : entry.id == id;
-        if (enableThis) {
+        if ((allOwners || entry.owner == owner)
+            && (allMonitors || entry.monitor == monitor )
+            && (allIds || entry.id == id)
+            && (allKeys || entry.keyseq == key)) {
             d->sequences[i].enabled = enable;
             ++itemsChanged;
         }
+        if (id == entry.id)
+            return itemsChanged;
         --i;
     }
 #if defined(Debug_QShortcutMap)
     qDebug().nospace()
-        << "QShortcutMap::setShortcutEnabled(" << enable << ", " << owner << ", "
-        << key << ", " << id << ") = " << itemsChanged;
+        << "QShortcutMap::setShortcutEnabled(" << enable << ", " << id << ", "
+        << owner << ", " << monitor << ", "
+        << key << ") = " << itemsChanged;
 #endif
     return itemsChanged;
+}
+
+
+/*! \internal
+    Returns the id of the first shortcutentry matching the \a owner, \a monitor and \a key.
+    Returns 0, if no matching shortcut entry.
+*/
+int QShortcutMap::changeMonitor(const QObject *monitor, const QKeySequence &key, bool enabled)
+{
+    Q_ASSERT_X(monitor != 0, "QShortcutMap::changeMonitorKey", "Must specify monitor");
+    QList<QShortcutEntry> newEntries;
+
+    int itemsModified = 0;
+    int i = d->sequences.size() - 1;
+    while (i>=0)
+    {
+        QShortcutEntry entry = d->sequences.at(i);
+        if (entry.monitor == monitor) {
+            if (entry.keyseq == key && entry.enabled == enabled) {
+                Q_ASSERT_X(itemsModified == 0,
+                           "QShortcutMap::changeMonitorKey",
+                           "Invalid function end! Shortcuts removed, but not readded!");
+                return 0;
+            }
+            entry.keyseq = key;
+            entry.enabled = enabled;
+            newEntries += entry;
+            d->sequences.removeAt(i);
+            ++itemsModified;
+        }
+        --i;
+    }
+
+    // Add back entries with new keysequence
+    if (!key.isEmpty())
+        for (int j = 0; j < newEntries.count(); ++j) {
+            QShortcutEntry &newEntry = newEntries[j];
+            QList<QShortcutEntry>::iterator it
+                = qUpperBound(d->sequences.begin(), d->sequences.end(), newEntry);
+            d->sequences.insert(it, newEntry); // Insert sorted
+        }
+#if defined(Debug_QShortcutMap)
+    qDebug().nospace()
+        << "QShortcutMap::changeMonitorKey(" << monitor << ", " << key << ") = " << itemsModified;
+#endif
+    return itemsModified;
 }
 
 /*! \internal
@@ -494,7 +565,8 @@ void QShortcutMap::dispatchEvent()
     int i = 0, enabledShortcuts = 0;
     while(i < d->identicals.size()) {
         current = d->identicals.at(i);
-        if (current->enabled){
+        if (current->enabled
+            && (!next || current->monitor != next->monitor)){
             ++enabledShortcuts;
             if (enabledShortcuts > d->ambigCount + 1)
                 break;
@@ -506,14 +578,17 @@ void QShortcutMap::dispatchEvent()
     if (!next)
         return;
     // Dispatch next enabled
+    const QObject *sendTo = static_cast<const QObject*>(next->owner);
+    if (next->monitor)
+        sendTo = next->monitor;
 #if defined(Debug_QShortcutMap)
     qDebug().nospace()
         << "QShortcutMap::dispatchEvent(): Sending QShortcutEvent(\""
         << (QString)d->currentSequence << "\", " << next->id << ", "
-        << (bool)(enabledShortcuts>1) << ") to widget(" << next->owner << ")";
+        << (bool)(enabledShortcuts>1) << ") to object(" << sendTo << ")";
 #endif
     QShortcutEvent se(d->currentSequence, next->id, enabledShortcuts>1);
-    QApplication::sendEvent(const_cast<QWidget*>(next->owner), &se);
+    QApplication::sendEvent(const_cast<QObject*>(sendTo), &se);
 }
 
 /* \internal

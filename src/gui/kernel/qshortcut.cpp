@@ -1,5 +1,5 @@
 #include "qshortcut.h"
-#include "private/qobject_p.h"
+#include "private/qwidget_p.h"
 
 #include <qevent.h>
 #include <qwhatsthis.h>
@@ -78,7 +78,7 @@ void QShortcutPrivate::redoGrab()
     }
     if (sc_id)
         parent->releaseShortcut(sc_id);
-    sc_id = parent->grabShortcut(sc_sequence, sc_context);
+    sc_id = parent->d->grabShortcut(q, sc_sequence, sc_context);
     if (!sc_enabled)
         parent->setShortcutEnabled(sc_id, false);
 }
@@ -94,7 +94,6 @@ QShortcut::QShortcut(QWidget *parent)
     : QObject(*new QShortcutPrivate, parent)
 {
     Q_ASSERT(parent != 0);
-    parent->installEventFilter(this);
 }
 
 /*!
@@ -111,7 +110,6 @@ QShortcut::QShortcut(const QKeySequence &key, QWidget *parent,
     : QObject(*new QShortcutPrivate, parent)
 {
     Q_ASSERT(parent != 0);
-    parent->installEventFilter(this);
     d->sc_context = context;
     d->sc_sequence = key;
     d->redoGrab();
@@ -270,10 +268,10 @@ int QShortcut::id() const
 /*!
     \internal
 */
-bool QShortcut::eventFilter(QObject *o, QEvent *e)
+bool QShortcut::event(QEvent *e)
 {
     bool handled = false;
-    if (o == parent() && d->sc_enabled && e->type() == QEvent::Shortcut) {
+    if (d->sc_enabled && e->type() == QEvent::Shortcut) {
         QShortcutEvent *se = static_cast<QShortcutEvent *>(e);
         if (se->shortcutId() == d->sc_id
             && se->key() == d->sc_sequence){

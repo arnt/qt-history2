@@ -43,7 +43,7 @@ signals:
     void activatedAmbiguously();
 
 protected:
-    bool eventFilter(QObject *o, QEvent *e);
+    bool event(QEvent *e);
 };
 
 #endif // QSHORTCUT_H

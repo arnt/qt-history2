@@ -856,7 +856,7 @@ QWidget::~QWidget()
     // widget, unless application is closing
     if (!qApp->is_app_closing
         && testAttribute(Qt::WA_GrabbedShortcut))
-        qApp->d->shortcutMap.removeShortcut(this, QKeySequence());
+        qApp->d->shortcutMap.removeShortcut(0, this, 0, QKeySequence());
 
     // delete layout while we still are a valid widget
 #ifndef QT_NO_LAYOUT
@@ -1630,6 +1630,8 @@ void QWidget::showNormal()
     Returns true if this widget would become enabled if \a ancestor is
     enabled; otherwise returns false.
 
+
+
     This is the case if neither the widget itself nor every parent up
     to but excluding \a ancestor has been explicitly disabled.
 
@@ -1671,6 +1673,11 @@ QWidget::addAction(QAction *action)
     d->actions.append(action);
     QObject::connect(action, SIGNAL(dataChanged()), this, SLOT(actionChanged()));
     QObject::connect(action, SIGNAL(deleted()), this, SLOT(actionDeleted()));
+    if (!action->shortcut().isEmpty()) {
+        setAttribute(Qt::WA_GrabbedShortcut);
+        Q_ASSERT(qApp);
+        qApp->d->shortcutMap.addShortcut(this,  action,  action->shortcut(),  Qt::ShortcutOnActiveWindow);
+    }
     QActionEvent e(QEvent::ActionAdded, action);
     QApplication::sendEvent(this, &e);
 }
@@ -1706,6 +1713,11 @@ QWidget::insertAction(QAction *before, QAction *action)
     d->actions.insert(before_int, action);
     QObject::connect(action, SIGNAL(dataChanged()), this, SLOT(actionChanged()));
     QObject::connect(action, SIGNAL(deleted()), this, SLOT(actionDeleted()));
+    if (!action->shortcut().isEmpty()) {
+        setAttribute(Qt::WA_GrabbedShortcut);
+        Q_ASSERT(qApp);
+        qApp->d->shortcutMap.addShortcut(this,  action,  action->shortcut(),  Qt::ShortcutOnActiveWindow);
+    }
     QActionEvent e(QEvent::ActionAdded, action, before);
     QApplication::sendEvent(this, &e);
 }
@@ -1735,6 +1747,8 @@ QWidget::removeAction(QAction *action)
     if (d->actions.removeAll(action)) {
         QObject::disconnect(action, SIGNAL(dataChanged()), this, SLOT(actionChanged()));
         QObject::disconnect(action, SIGNAL(deleted()), this, SLOT(actionDeleted()));
+        Q_ASSERT(qApp);
+        qApp->d->shortcutMap.removeShortcut(0, this,  action);
         QActionEvent e(QEvent::ActionRemoved, action);
         QApplication::sendEvent(this, &e);
     }
@@ -1754,6 +1768,8 @@ QWidgetPrivate::actionChanged()
 {
     QAction *action = qt_cast<QAction*>(q->sender());
     Q_ASSERT_X(action != 0, "QWidget::actionChanged", "internal error");
+    Q_ASSERT(qApp);
+    qApp->d->shortcutMap.changeMonitor(action, action->shortcut(), action->isVisible() && action->isEnabled());
     QActionEvent e(QEvent::ActionChanged, action);
     QApplication::sendEvent(q, &e);
 }
@@ -6349,7 +6365,18 @@ int QWidget::grabShortcut(const QKeySequence &key, Qt::ShortcutContext context)
     if (key.isEmpty())
         return 0;
     setAttribute(Qt::WA_GrabbedShortcut);
-    return qApp->d->shortcutMap.addShortcut(this, key, context);
+    return qApp->d->shortcutMap.addShortcut(this, 0, key, context);
+}
+
+int QWidgetPrivate::grabShortcut(const QObject *monitor, const QKeySequence &key,
+                                 Qt::ShortcutContext context)
+{
+    Q_ASSERT(qApp);
+    Q_ASSERT(monitor);
+    if (key.isEmpty())
+        return 0;
+    q->setAttribute(Qt::WA_GrabbedShortcut);
+    return qApp->d->shortcutMap.addShortcut(q, monitor, key, context);
 }
 
 /*!
@@ -6371,7 +6398,7 @@ void QWidget::releaseShortcut(int id)
 {
     Q_ASSERT(qApp);
     if (id)
-        qApp->d->shortcutMap.removeShortcut(this, id);
+        qApp->d->shortcutMap.removeShortcut(id, this, 0);
 }
 
 /*!
@@ -6390,7 +6417,7 @@ void QWidget::setShortcutEnabled(int id, bool enable)
 {
     Q_ASSERT(qApp);
     if (id)
-        qApp->d->shortcutMap.setShortcutEnabled(this, id, enable);
+        qApp->d->shortcutMap.setShortcutEnabled(enable, id, this, 0);
 }
 
 #if defined (Q_WS_WIN)

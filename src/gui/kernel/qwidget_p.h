@@ -249,6 +249,7 @@ public:
     CGContextRef cg_hd;
 #endif
 
+    int grabShortcut(const QObject *monitor, const QKeySequence &key, Qt::ShortcutContext context);
     void actionChanged();  //private slot
     void actionDeleted();  //private slot
 
