@@ -91,7 +91,6 @@ class Q_EXPORT QTabBar: public QWidget
     Q_PROPERTY( int currentTab READ currentTab WRITE setCurrentTab )
     Q_PROPERTY( int count READ count )
     Q_PROPERTY( int keyboardFocusTab READ keyboardFocusTab )
-    Q_PROPERTY( int alignment READ alignment WRITE setAlignment )
 
 public:
     QTabBar( QWidget *parent = 0, const char *name = 0 );
