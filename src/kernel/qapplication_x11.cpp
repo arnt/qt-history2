@@ -3399,6 +3399,9 @@ int QApplication::x11ProcessEvent( XEvent* event )
 	return 0;
     }
 
+    if ( event->type == XKeyPress || event->type == XKeyRelease )
+	widget = keywidget;
+
     if ( !widget ) {				// don't know this windows
 	QWidget* popup = QApplication::activePopupWidget();
 	if ( popup ) {
@@ -3881,7 +3884,7 @@ void QApplication::openPopup( QWidget *popup )
     popupWidgets->append( popup );		// add to end of list
 
     if ( popupWidgets->count() == 1 && !qt_nograb() ){ // grab mouse/keyboard
-	int r = XGrabKeyboard( popup->x11Display(), popup->winId(), TRUE,
+	int r = XGrabKeyboard( popup->x11Display(), popup->winId(), FALSE,
 			       GrabModeSync, GrabModeAsync, CurrentTime );
 	if ( (popupGrabOk = (r == GrabSuccess)) ) {
 	    r = XGrabPointer( popup->x11Display(), popup->winId(), TRUE,
@@ -3958,7 +3961,7 @@ void QApplication::closePopup( QWidget *popup )
 	     aw->setFocus();
 	 QFocusEvent::resetReason();
 	 if ( popupWidgets->count() == 1 && !qt_nograb() ){ // grab mouse/keyboard
-	     int r = XGrabKeyboard( aw->x11Display(), aw->winId(), TRUE,
+	     int r = XGrabKeyboard( aw->x11Display(), aw->winId(), FALSE,
 				    GrabModeSync, GrabModeAsync, CurrentTime );
 	     if ( (popupGrabOk = (r == GrabSuccess)) ) {
 		 r = XGrabPointer( aw->x11Display(), aw->winId(), TRUE,
