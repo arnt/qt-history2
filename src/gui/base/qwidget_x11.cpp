@@ -12,8 +12,8 @@
 **
 ****************************************************************************/
 
-#include "qwidget.h"
 #include "qevent.h"
+#include "qwidget.h"
 #include "qdesktopwidget.h"
 #include "qapplication.h"
 #include "qapplication_p.h"
@@ -2567,4 +2567,4 @@ QPaintEngine *QWidget::engine() const
 	((QWidget*) this)->d->paintEngine = new QX11PaintEngine(0, this);
     return d->paintEngine;
 }
-m
+
