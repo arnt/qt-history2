@@ -25,7 +25,7 @@
 #include "qcleanuphandler.h"
 
 /*!
-    \class QMimeSource qmime.h
+    \class QMimeSource
     \brief The QMimeSource class is an abstraction of objects which provide formatted data of a certain MIME type.
 
     \ingroup io
@@ -151,7 +151,7 @@ public:
 
 
 /*!
-    \class QMimeSourceFactory qmime.h
+    \class QMimeSourceFactory
     \brief The QMimeSourceFactory class is an extensible provider of mime-typed data.
 
     \ingroup io
@@ -386,7 +386,7 @@ const QMimeSource *QMimeSourceFactory::data(const QString& abs_name) const
 
 /*!
     Sets the list of directories that will be searched when named data
-    is requested to the those given in the string list \a path.
+    is requested to those given in the string list \a path.
 
     \sa filePath()
 */
