@@ -172,7 +172,7 @@ inline const QPoint operator/(const QPoint &p, double c)
     return QPoint(qRound(p.xp/c), qRound(p.yp/c));
 }
 
-#ifndef QT_NO_DEBUG
+#ifndef QT_NO_DEBUG_OUTPUT
 Q_CORE_EXPORT QDebug operator<<(QDebug, const QPoint &);
 #endif
 

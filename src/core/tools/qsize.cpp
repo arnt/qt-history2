@@ -463,7 +463,7 @@ QDataStream &operator>>(QDataStream &s, QSize &sz)
 }
 #endif // QT_NO_DATASTREAM
 
-#ifndef QT_NO_DEBUG
+#ifndef QT_NO_DEBUG_OUTPUT
 QDebug operator<<(QDebug dbg, const QSize &s) {
     dbg.nospace() << "QSize(" << s.width() << ',' << s.height() << ')';
     return dbg.space();
@@ -926,7 +926,7 @@ QDataStream &operator>>(QDataStream &s, QSizeF &sz)
 }
 #endif // QT_NO_DATASTREAM
 
-#ifndef QT_NO_DEBUG
+#ifndef QT_NO_DEBUG_OUTPUT
 QDebug operator<<(QDebug dbg, const QSizeF &s) {
     dbg.nospace() << "QSizeF(" << s.width() << ',' << s.height() << ')';
     return dbg.space();

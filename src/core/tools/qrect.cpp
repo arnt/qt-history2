@@ -894,7 +894,7 @@ QDataStream &operator>>(QDataStream &s, QRect &r)
 #endif // QT_NO_DATASTREAM
 
 
-#ifndef QT_NO_DEBUG
+#ifndef QT_NO_DEBUG_OUTPUT
 QDebug operator<<(QDebug dbg, const QRect &r) {
     dbg.nospace() << "QRect(" << r.x() << ',' << r.y() << ','
                   << r.width() << ',' << r.height() << ')';
@@ -1446,7 +1446,7 @@ QDataStream &operator>>(QDataStream &s, QRectF &r)
 #endif // QT_NO_DATASTREAM
 
 
-#ifndef QT_NO_DEBUG
+#ifndef QT_NO_DEBUG_OUTPUT
 QDebug operator<<(QDebug dbg, const QRectF &r) {
     dbg.nospace() << "QRectF(" << r.x() << ',' << r.y() << ','
                   << r.width() << ',' << r.height() << ')';

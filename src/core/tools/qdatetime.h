@@ -258,7 +258,7 @@ Q_CORE_EXPORT QDataStream &operator<<(QDataStream &, const QDateTime &);
 Q_CORE_EXPORT QDataStream &operator>>(QDataStream &, QDateTime &);
 #endif // QT_NO_DATASTREAM
 
-#ifndef QT_NO_DEBUG
+#ifndef QT_NO_DEBUG_OUTPUT
 Q_CORE_EXPORT QDebug operator<<(QDebug, const QDate &);
 Q_CORE_EXPORT QDebug operator<<(QDebug, const QTime &);
 Q_CORE_EXPORT QDebug operator<<(QDebug, const QDateTime &);
