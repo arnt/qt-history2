@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtoolbar.cpp#33 $
+** $Id: //depot/qt/main/src/widgets/qtoolbar.cpp#34 $
 **
 ** Implementation of QToolBar class
 **
@@ -69,7 +69,7 @@
 */
 
 
-/*!  Constructs an empty tool bar which is a child od \a parent and
+/*!  Constructs an empty tool bar which is a child of \a parent and
   managed by \a parent, initially in \a dock, labelled \a and starting
   a new line in the dock if \a newLine is TRUE.  \a name is the object
   name, as usual.
@@ -168,7 +168,6 @@ void QToolBar::setOrientation( Orientation newOrientation )
 /*! \fn Qt::Orientation QToolBar::orientation() const
 
   Returns the current orientation of the toolbar.
-
 */
 
 /*!  Reimplemented to set up geometry management. */

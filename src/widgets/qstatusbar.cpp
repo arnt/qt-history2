@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qstatusbar.cpp#24 $
+** $Id: //depot/qt/main/src/widgets/qstatusbar.cpp#25 $
 **
 ** Implementation of QStatusBar class
 **
@@ -48,9 +48,8 @@
   by temporary messages.  Used e.g. for displaying the page and line
   number in a word processor.
 
-  <li> \c Permanent - occupies the far right of the statusbar and is
-  never hidden.  Used for important mode indications.  Some
-  applications put a Caps Lock indicator here.
+  <li> \c Permanent - is never hidden.  Used for important mode
+  indications.  Some applications put a Caps Lock indicator here.
 
   </ul>
 
@@ -125,7 +124,7 @@ QStatusBarPrivate::ResizeLines::ResizeLines( QWidget * parent )
     setCursor( sizeFDiagCursor );
     setFixedSize( 13, 13 );
     setSizeGrip( TRUE );
-    
+
 }
 
 
