@@ -25,7 +25,7 @@
 // };
 
 
-ResultWindow::ResultWindow ( QWidget * parent=0, const char * name=0, WFlags f=0 )
+ResultWindow::ResultWindow ( QWidget * parent, const char * name, WFlags f )
     : SqlBrowseWindowBase(parent, name, f)
 {
     db = QSqlConnection::database();
