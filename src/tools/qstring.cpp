@@ -59,6 +59,10 @@
 #include "qcleanuphandler.h"
 #endif
 
+#ifdef QT_NO_UNICODETABLES
+# include <ctype.h>
+#endif
+
 
 /* -------------------------------------------------------------------------
  * unicode information
