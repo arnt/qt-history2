@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbutton.h#22 $
+** $Id: //depot/qt/main/src/widgets/qbutton.h#23 $
 **
 ** Definition of QButton widget class
 **
@@ -27,7 +27,9 @@ public:
    ~QButton();
 
     const char *text()		const	{ return btext; }
-    void	setText( const char *text );
+    void	setText( const char * );
+    QPixmap    *pixmap()	const	{ return bpixmap; }
+    void	setPixmap( const QPixmap & );
 
 public:
     bool	isDown()	const	{ return buttonDown; }
@@ -64,6 +66,7 @@ protected:
 
 private:
     QString	btext;
+    QPixmap    *bpixmap;
     uint	toggleBt	: 1;
     uint	buttonDown	: 1;
     uint	buttonOn	: 1;
