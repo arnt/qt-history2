@@ -27,9 +27,9 @@
 
 #if !defined(QT_NO_QWS_GFX_SPEED)
 # define QWS_EXPERIMENTAL_FASTPATH
-# define GFX_INLINE inline
+# define Q_GFX_INLINE inline
 #else
-# define GFX_INLINE
+# define Q_GFX_INLINE
 # define QWS_NO_WRITE_PACKING
 #endif
 
@@ -277,19 +277,19 @@ protected:
     unsigned const char *srcScanLine(int i) { return srcbits + (i*srclinestep); }
 
     // Convert to/from different bit depths (defined below)
-    GFX_INLINE unsigned int get_value_32(int sdepth,unsigned const char **srcdata,
+    Q_GFX_INLINE unsigned int get_value_32(int sdepth,unsigned const char **srcdata,
                                          bool reverse = false);
-    GFX_INLINE unsigned int get_value_24(int sdepth,unsigned const char **srcdata,
+    Q_GFX_INLINE unsigned int get_value_24(int sdepth,unsigned const char **srcdata,
                                          bool reverse = false);
-    GFX_INLINE unsigned int get_value_16(int sdepth,unsigned const char **srcdata,
+    Q_GFX_INLINE unsigned int get_value_16(int sdepth,unsigned const char **srcdata,
                                          bool reverse = false);
-    GFX_INLINE unsigned int get_value_15(int sdepth,unsigned const char **srcdata,
+    Q_GFX_INLINE unsigned int get_value_15(int sdepth,unsigned const char **srcdata,
                                          bool reverse = false);
-    GFX_INLINE unsigned int get_value_8(int sdepth,unsigned const char **srcdata,
+    Q_GFX_INLINE unsigned int get_value_8(int sdepth,unsigned const char **srcdata,
                                          bool reverse = false);
-    GFX_INLINE unsigned int get_value_4(int sdepth,unsigned const char **srcdata,
+    Q_GFX_INLINE unsigned int get_value_4(int sdepth,unsigned const char **srcdata,
                                          bool reverse = false);
-    GFX_INLINE unsigned int get_value_1(int sdepth,unsigned const char **srcdata,
+    Q_GFX_INLINE unsigned int get_value_1(int sdepth,unsigned const char **srcdata,
                                          bool reverse = false);
 
 #ifdef DEBUG_POINTERS
@@ -438,7 +438,7 @@ static bool simple_8bpp_alloc = false;
 
 //===========================================================================
 // Inline function definitions [start]
-GFX_INLINE unsigned int QGfxRasterBase::get_value_32(int sdepth, unsigned const char ** srcdata,
+Q_GFX_INLINE unsigned int QGfxRasterBase::get_value_32(int sdepth, unsigned const char ** srcdata,
                                                      bool reverse) //can't be true if sdepth!=depth
 {
 // Convert between pixel values for different depths
@@ -500,7 +500,7 @@ GFX_INLINE unsigned int QGfxRasterBase::get_value_32(int sdepth, unsigned const 
 }
 
 
-GFX_INLINE unsigned int QGfxRasterBase::get_value_24(int sdepth, unsigned const char **srcdata,
+Q_GFX_INLINE unsigned int QGfxRasterBase::get_value_24(int sdepth, unsigned const char **srcdata,
                                                      bool reverse) //can't be true if sdepth!=depth
 {
     unsigned int ret;
@@ -518,7 +518,7 @@ GFX_INLINE unsigned int QGfxRasterBase::get_value_24(int sdepth, unsigned const 
 }
 
 
-GFX_INLINE unsigned int QGfxRasterBase::get_value_16(int sdepth, unsigned const char **srcdata,
+Q_GFX_INLINE unsigned int QGfxRasterBase::get_value_16(int sdepth, unsigned const char **srcdata,
                                                      bool reverse) //can't be true if sdepth!=depth
 {
 #if !defined(QT_NO_IMAGE_16_BIT) || !defined(QT_NO_QWS_DEPTH_16)
@@ -573,7 +573,7 @@ GFX_INLINE unsigned int QGfxRasterBase::get_value_16(int sdepth, unsigned const 
 }
 
 
-GFX_INLINE unsigned int QGfxRasterBase::get_value_8(int sdepth, unsigned const char **srcdata,
+Q_GFX_INLINE unsigned int QGfxRasterBase::get_value_8(int sdepth, unsigned const char **srcdata,
                                                     bool reverse) //can't be true if sdepth!=depth
 {
     unsigned int ret;
@@ -651,7 +651,7 @@ GFX_INLINE unsigned int QGfxRasterBase::get_value_8(int sdepth, unsigned const c
 }
 
 
-GFX_INLINE unsigned int QGfxRasterBase::get_value_4(int sdepth, unsigned const char **srcdata,
+Q_GFX_INLINE unsigned int QGfxRasterBase::get_value_4(int sdepth, unsigned const char **srcdata,
                                                     bool reverse) //can't be true if sdepth!=depth
 {
     unsigned int ret;
@@ -727,7 +727,7 @@ GFX_INLINE unsigned int QGfxRasterBase::get_value_4(int sdepth, unsigned const c
 }
 
 
-GFX_INLINE unsigned int QGfxRasterBase::get_value_1(int sdepth, unsigned const char **srcdata,
+Q_GFX_INLINE unsigned int QGfxRasterBase::get_value_1(int sdepth, unsigned const char **srcdata,
                                                     bool reverse) //can't be true if sdepth!=depth
 {
     unsigned int ret;

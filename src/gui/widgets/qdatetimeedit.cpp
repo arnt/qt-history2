@@ -845,17 +845,17 @@ void QDateTimeEdit::stepBy(int steps)
 
 /*!
     This virtual function is used by the date time edit whenever it
-    needs to display the \a date.
+    needs to display \a dateTime.
 
     If you reimplement this, you may also need to reimplement
-    valueFromText() and validate()
+    valueFromText() and validate().
 
     \sa valueFromText(), validate()
 */
 
-QString QDateTimeEdit::textFromDateTime(const QDateTime &dt) const
+QString QDateTimeEdit::textFromDateTime(const QDateTime &dateTime) const
 {
-    QVariant var = dt;
+    QVariant var = dateTime;
     if (var == d->cached)
         return d->cachedText;
     QString ret = d->escapedFormat; // ### escapedFormat??

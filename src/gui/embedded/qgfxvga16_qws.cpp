@@ -307,10 +307,10 @@ class QGfxVga16 : public QGfxRasterBase , private QWSPolygonScanner
         unsigned int get_pixel_4_32(unsigned int x, unsigned int y);
         void himageline_4(unsigned int y, unsigned int x1, unsigned int x2, unsigned char *srcdata, bool reverse = false);
 
-        GFX_INLINE unsigned int get_value_32(int sdepth, unsigned char **srcdata, bool reverse = false);
-        GFX_INLINE void calcPacking(void * m,int x1,int x2, int & frontadd,int & backadd,int & count);
-        GFX_INLINE void hline(int x1,int x2,int y);
-        GFX_INLINE void hAlphaLineUnclipped(int x1,int x2,unsigned int y,unsigned char *srcdata,unsigned char *alphas);
+        Q_GFX_INLINE unsigned int get_value_32(int sdepth, unsigned char **srcdata, bool reverse = false);
+        Q_GFX_INLINE void calcPacking(void * m,int x1,int x2, int & frontadd,int & backadd,int & count);
+        Q_GFX_INLINE void hline(int x1,int x2,int y);
+        Q_GFX_INLINE void hAlphaLineUnclipped(int x1,int x2,unsigned int y,unsigned char *srcdata,unsigned char *alphas);
         void processSpans(int n, QPoint* point, int* width);
 //        void paintCursor(const QImage& image, int hotx, int hoty, QPoint cursorPos);
         void buildSourceClut(QRgb * cols,int numcols);
@@ -905,7 +905,7 @@ void QGfxVga16::himageline_4(unsigned int y, unsigned int x1, unsigned int x2, u
 
 // Convert between pixel values for different depths
 // reverse can only be true if sdepth == depth
-GFX_INLINE unsigned int QGfxVga16::get_value_32(
+Q_GFX_INLINE unsigned int QGfxVga16::get_value_32(
                        int sdepth, unsigned char **srcdata, bool reverse)
 {
     BEGIN_PROFILING
@@ -972,7 +972,7 @@ GFX_INLINE unsigned int QGfxVga16::get_value_32(
 }
 
 
-GFX_INLINE void QGfxVga16::calcPacking(
+Q_GFX_INLINE void QGfxVga16::calcPacking(
                           void * m,int x1,int x2,
                           int & frontadd,int & backadd,int & count)
 {
@@ -1310,7 +1310,7 @@ void QGfxVga16::drawThickLine(int x1, int y1, int x2, int y2)
 }
 
 //screen coordinates, clipped, x1<=x2
-GFX_INLINE void QGfxVga16::hline(int x1,int x2,int y)
+Q_GFX_INLINE void QGfxVga16::hline(int x1,int x2,int y)
 {
     BEGIN_PROFILING
 
@@ -1333,7 +1333,7 @@ GFX_INLINE void QGfxVga16::hline(int x1,int x2,int y)
 }
 
 
-GFX_INLINE void QGfxVga16::hAlphaLineUnclipped(int x1,int x2,
+Q_GFX_INLINE void QGfxVga16::hAlphaLineUnclipped(int x1,int x2,
                                                     unsigned int y,
                                                     unsigned char * srcdata,
                                                     unsigned char * alphas)

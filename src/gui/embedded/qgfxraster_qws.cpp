@@ -68,7 +68,7 @@ extern volatile int *lastop;
     static const bool gfx_storeLine = false;
 #endif
 
-static GFX_INLINE unsigned char *find_pointer_4(unsigned char * base,int x,int y, int w,
+static Q_GFX_INLINE unsigned char *find_pointer_4(unsigned char * base,int x,int y, int w,
                                                 int linestep, int &astat, unsigned char &ahold,
                                                 bool rev
 #ifdef QT_QWS_EXPERIMENTAL_REVERSE_BIT_ENDIANNESS
@@ -1069,7 +1069,7 @@ QGfxRaster<depth,type>::~QGfxRaster()
     (which effectively causes the CPU to do a similar optimisation in hardware)
 */
 template<const int depth,const int type> // Calculate packing values for 32-bit writes
-GFX_INLINE void QGfxRaster<depth,type>::calcPacking(void *m, int x1, int x2,
+Q_GFX_INLINE void QGfxRaster<depth,type>::calcPacking(void *m, int x1, int x2,
                                                     int &frontadd, int &backadd, int &count)
 {
     int w = x2-x1+1;
@@ -1298,7 +1298,7 @@ void QGfxRaster<depth,type>::buildSourceClut(const QRgb * cols,int numcols)
     by drawPoint(), and vLine().
 */
 template <const int depth, const int type> //screen coordinates
-GFX_INLINE void QGfxRaster<depth,type>::drawPointUnclipped(int x, unsigned char *l)
+Q_GFX_INLINE void QGfxRaster<depth,type>::drawPointUnclipped(int x, unsigned char *l)
 {
     if (depth == 32)
         ((QRgb*)l)[x] = pixel;
@@ -1341,7 +1341,7 @@ GFX_INLINE void QGfxRaster<depth,type>::drawPointUnclipped(int x, unsigned char 
     by drawPoint(), and vLine();
 */
 template <const int depth, const int type> //screen coordinates
-GFX_INLINE void QGfxRaster<depth,type>::drawAlphaPointUnclipped(int x, unsigned char *l)
+Q_GFX_INLINE void QGfxRaster<depth,type>::drawAlphaPointUnclipped(int x, unsigned char *l)
 {
     int alpha = qAlpha(penColor);
     if (depth == 32) {
@@ -1883,7 +1883,7 @@ void QGfxRaster<depth,type>::hline(int x1, int x2, int y) //screen coordinates, 
     fillRect, and drawPolygon.
 */
 template <const int depth, const int type> //screen coordinates, unclipped, x1<=x2, x1>=0
-GFX_INLINE void QGfxRaster<depth,type>::hlineUnclipped(int x1, int x2, unsigned char *l)
+Q_GFX_INLINE void QGfxRaster<depth,type>::hlineUnclipped(int x1, int x2, unsigned char *l)
 {
     int w = x2-x1+1;
     // Use hAlphaLineUnclipped if we are drawing with an alpha pen
@@ -2060,7 +2060,7 @@ GFX_INLINE void QGfxRaster<depth,type>::hlineUnclipped(int x1, int x2, unsigned 
     for performance reasons and arbitrary source and destination depths.
 */
 template <const int depth, const int type>
-GFX_INLINE void QGfxRaster<depth,type>::hImageLineUnclipped(int x1, int x2, unsigned char *l,
+Q_GFX_INLINE void QGfxRaster<depth,type>::hImageLineUnclipped(int x1, int x2, unsigned char *l,
                                                             unsigned const char *srcdata,
                                                             bool reverse)
 {
@@ -2405,7 +2405,7 @@ GFX_INLINE void QGfxRaster<depth,type>::hImageLineUnclipped(int x1, int x2, unsi
     pixel data and \a alphas is the alpha channel for the SeparateAlpha mode.
 */
 template <const int depth, const int type>
-GFX_INLINE void QGfxRaster<depth,type>::hAlphaLineUnclipped(int x1, int x2, unsigned char *l,
+Q_GFX_INLINE void QGfxRaster<depth,type>::hAlphaLineUnclipped(int x1, int x2, unsigned char *l,
                                                             unsigned const char *srcdata,
                                                             unsigned const char *alphas)
 {
