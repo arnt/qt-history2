@@ -432,6 +432,8 @@ Q_EXPORT void qRemovePostRoutine( QtCleanUpFunction p )
 	if ( *it == p ) {
 	    postRList->remove( it );
 	    it = postRList->begin();
+	} else {
+	    it++;
 	}
     }
 }
