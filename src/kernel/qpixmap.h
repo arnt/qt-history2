@@ -208,6 +208,7 @@ protected:
 	QPixmap *alphapm;
 #elif defined(Q_WS_MAC)
 	ColorTable *clut;
+	QPixmap *alphapm;
 #elif defined(Q_WS_QWS)
 	int id; // ### should use QPaintDevice::hd, since it is there
 	QRgb * clut;
@@ -236,6 +237,11 @@ private:
     friend void qt_x11_blit_alpha_pixmap(QPixmap *dst, int dx, int dy,
 					 const QPixmap *src, int sx = 0, int sy = 0,
 					 int sw = -1, int sh = -1);
+#elif defined(Q_WS_MAC)
+    friend void qt_mac_copy_alpha_pixmap(QPixmap *dst, const QPixmap *src);
+    friend void unclippedScaledBitBlt(QPaintDevice *, int, int, int, int,
+				      const QPaintDevice *, int, int, int, int, 
+				      Qt::RasterOp, bool, bool);
 #endif
 
     friend class QBitmap;

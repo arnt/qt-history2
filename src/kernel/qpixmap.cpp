@@ -425,17 +425,21 @@ QPixmap QPixmap::copy( bool ignoreMask ) const
     if ( !pm.isNull() ) {			// copy the bitmap
 #if defined(Q_WS_X11)
 	pm.cloneX11Data( this );
-#if !defined(QT_NO_XFTFREETYPE)
+#endif
+#if defined(Q_WS_MAC) || (defined(Q_WS_X11) && !defined(QT_NO_XFTFREETYPE))
 	QPixmap* save_alpha = data->alphapm;
 	data->alphapm = 0;
 #endif // !QT_NO_XFTFREETYPE
-#endif // Q_WS_X11
 	bitBlt( &pm, 0,0, this, 0,0, data->w, data->h, CopyROP, TRUE );
-#if defined(Q_WS_X11) && !defined(QT_NO_XFTFREETYPE)
+#if defined(Q_WS_MAC) || (defined(Q_WS_X11) && !defined(QT_NO_XFTFREETYPE))
 	data->alphapm = save_alpha;
 #endif // Q_WS_X11 && !QT_NO_XFTFREETYPE
 	if ( !ignoreMask ) {
-#if defined(Q_WS_X11) && !defined(QT_NO_XFTFREETYPE)
+#if defined(Q_WS_MAC)
+	    if(data->alphapm) 
+		qt_mac_copy_alpha_pixmap(&pm, this);
+	    else
+#elif defined(Q_WS_X11) && !defined(QT_NO_XFTFREETYPE)
 	    if ( data->alphapm )
 		qt_x11_copy_alpha_pixmap(&pm, this);
 	    else
@@ -470,7 +474,11 @@ QPixmap &QPixmap::operator=( const QPixmap &pixmap )
 	if ( !isNull() ) {
 	    bitBlt( this, 0, 0, &pixmap, 0, 0, pixmap.width(), pixmap.height(),
 		    CopyROP, TRUE );
-#if defined(Q_WS_X11) && !defined(QT_NO_XFTFREETYPE)
+#if defined(Q_WS_MAC)
+	    if ( pixmap.data->alphapm )
+		qt_mac_copy_alpha_pixmap(this, &pixmap);
+	    else
+#elif defined(Q_WS_X11) && !defined(QT_NO_XFTFREETYPE)
 	    if ( pixmap.data->alphapm )
 		qt_x11_copy_alpha_pixmap(this, &pixmap);
 	    else
@@ -672,7 +680,11 @@ void QPixmap::resize( int w, int h )
 	bitBlt( &pm, 0, 0, this, 0, 0,		// copy old pixmap
 		QMIN(width(), w),
 		QMIN(height(),h), CopyROP, TRUE );
-#if defined(Q_WS_X11) && !defined(QT_NO_XFTFREETYPE)
+#if defined(Q_WS_MAC)
+    if(data->alphapm) {
+	data->alphapm->resize(w, h);
+    } else
+#elif defined(Q_WS_X11) && !defined(QT_NO_XFTFREETYPE)
     if (data->alphapm)
 	qWarning("QPixmap::resize: TODO: resize alpha data");
     else
@@ -744,7 +756,7 @@ void QPixmap::setMask( const QBitmap &newmask )
 #endif
 	return;
     }
-#if defined(Q_WS_X11) && !defined(QT_NO_XFTFREETYPE)
+#if defined(Q_WS_MAC) || (defined(Q_WS_X11) && !defined(QT_NO_XFTFREETYPE))
     // when setting the mask, we get rid of the alpha channel completely
     delete data->alphapm;
     data->alphapm = 0;

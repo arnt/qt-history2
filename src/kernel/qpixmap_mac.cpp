@@ -155,6 +155,10 @@ bool QPixmap::convertFromImage(const QImage &img, int conversion_flags)
 	    delete data->mask;
 	    data->mask = 0;
 	}
+	if(data->alphapm) {                     // get rid of the alpha
+	    delete data->alphapm;
+	    data->alphapm = 0;
+	}
     } else {
 	// different size or depth, make a new pixmap
 	QPixmap pm(w, h, d == 1 ? 1 : -1);
@@ -229,10 +233,32 @@ bool QPixmap::convertFromImage(const QImage &img, int conversion_flags)
 
     data->uninit = FALSE;
 
+    // get rid of alpha pixmap
+    delete data->alphapm;
+    data->alphapm = 0;
     if(img.hasAlphaBuffer()) {
-	QBitmap m;
-	m = img.createAlphaMask(conversion_flags);
-	setMask(m);
+	data->alphapm = new QPixmap(w, h, 32);
+#ifndef QMAC_ONE_PIXEL_LOCK
+	Q_ASSERT(LockPixels(GetGWorldPixMap((GWorldPtr)data->alphapm->hd)));
+#endif
+	long *dptr = (long *)GetPixBaseAddr(GetGWorldPixMap((GWorldPtr)data->alphapm->hd)), *drow;
+	unsigned short dbpr = GetPixRowBytes(GetGWorldPixMap((GWorldPtr)hd));
+	unsigned short sbpr = image.bytesPerLine();
+	long *sptr = (long*)image.bits(), *srow;
+	char mode = true32b, clr;
+	SwapMMUMode(&mode);
+	for(int yy=0;yy<h;yy++) {
+	    drow = (long *)((char *)dptr + (yy * dbpr));
+	    srow = (long *)((char *)sptr + (yy * sbpr));
+	    for(int xx=0;xx<w;xx++) {
+		clr = 255 - (*(srow + xx) >> 24);
+		*(drow + xx) = qRgba(clr, clr, clr, clr);
+	    }
+	}
+	SwapMMUMode(&mode);
+#ifndef QMAC_ONE_PIXEL_LOCK
+	UnlockPixels(GetGWorldPixMap((GWorldPtr)data->alphapm->hd));
+#endif
     }
     return TRUE;
 }
@@ -294,14 +320,23 @@ QImage QPixmap::convertToImage() const
     QRgb q;
     long *sptr = (long *)GetPixBaseAddr(GetGWorldPixMap((GWorldPtr)hd)), *srow, r;
     unsigned short sbpr = GetPixRowBytes(GetGWorldPixMap((GWorldPtr)hd));
+    long *aptr = NULL, *arow = NULL;
+    unsigned short abpr = 0;
+    if(data->alphapm) {
+	image.setAlphaBuffer(TRUE);
+	aptr = (long *)GetPixBaseAddr(GetGWorldPixMap((GWorldPtr)data->alphapm->hd));
+	abpr = GetPixRowBytes(GetGWorldPixMap((GWorldPtr)data->alphapm->hd));
+    }
 
     char mode = true32b;
     SwapMMUMode(&mode);
     for(int yy=0;yy<h;yy++) {
 	srow = (long *)((char *)sptr + (yy * sbpr));
+	if(aptr)
+	    arow = (long *)((char *)aptr + (yy * abpr));
 	for(int xx=0;xx<w;xx++) {
 	    r = *(srow + xx);
-	    q=qRgba((r >> 16) & 0xFF, (r >> 8) & 0xFF, r & 0xFF, /*(r >> 24) & 0xFF*/0);
+	    q=qRgba((r >> 16) & 0xFF, (r >> 8) & 0xFF, r & 0xFF, (arow ? ((*arow + xx) & 0xFF) : 0));
 	    if(d == 1) {
 		image.setPixel(xx, yy, q ? 0 : 1);
 	    } else {
@@ -318,11 +353,8 @@ QImage QPixmap::convertToImage() const
 #ifndef QMAC_ONE_PIXEL_LOCK
     UnlockPixels(GetGWorldPixMap((GWorldPtr)hd));
 #endif
-
-    //how do I handle a mask?
-    const QBitmap* msk = data->mask;
-    if(msk) {
-	QImage alpha = msk->convertToImage();
+    if(data->mask && !data->alphapm) {
+	QImage alpha = data->mask->convertToImage();
 	image.setAlphaBuffer(TRUE);
 	switch(d) {
 	case 8: {
@@ -474,6 +506,10 @@ void QPixmap::deref()
             delete data->mask;
             data->mask = 0;
         }
+	if(data->alphapm) {
+	    delete data->alphapm;
+	    data->alphapm = 0;
+	}
 
         if(hd && qApp) {
 #ifdef QMAC_ONE_PIXEL_LOCK
@@ -549,6 +585,7 @@ QPixmap QPixmap::xForm(const QWMatrix &matrix) const
     if(h == 0 || w == 0 || !invertible) {	// error, return null pixmap
 	QPixmap pm;
 	pm.data->bitmap = data->bitmap;
+	pm.data->alphapm = data->alphapm;
 	return pm;
     }
 
@@ -602,6 +639,8 @@ QPixmap QPixmap::xForm(const QWMatrix &matrix) const
 	    else
 		pm.setMask(data->mask->xForm(matrix));
 	}
+    } else if(data->alphapm) {
+	pm.data->alphapm = new QPixmap(data->alphapm->xForm(matrix));
     } else if(data->mask) {
 	pm.setMask(data->mask->xForm(matrix));
     }
@@ -663,7 +702,7 @@ void QPixmap::init(int w, int h, int d, bool bitmap, Optimization optim)
     if(e != noErr) {
 	data->w = data->h = 0;
 	hd=0; //just to be sure
-	qDebug("QPixmap::init Something went wrong (%ld) (%d %d %d %d)", e, rect.left, rect.top, rect.right, rect.bottom);
+	qDebug("QPixmap::init Something went wrong (%d) (%d %d %d %d)", e, rect.left, rect.top, rect.right, rect.bottom);
 	Q_ASSERT(0);
     } else {
 #ifdef QMAC_ONE_PIXEL_LOCK
@@ -708,5 +747,21 @@ QPixmap QPixmap::grabWindow(WId window, int x, int y, int w, int h)
 
 bool QPixmap::hasAlpha() const
 {
-    return data->mask;
+    return data->alphapm || data->mask;
+}
+
+void qt_mac_copy_alpha_pixmap(QPixmap *dst, const QPixmap *src)
+{
+    if (! dst || ! src)
+	return;
+
+    // delete any alpha pixmap dst might have
+    delete dst->data->alphapm;
+    dst->data->alphapm = 0;
+
+    //do this!@
+    if(src->data->alphapm) {
+	dst->data->alphapm = new QPixmap(*src->data->alphapm);
+	dst->data->alphapm->detach();
+    }
 }

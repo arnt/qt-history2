@@ -124,7 +124,7 @@ void unclippedScaledBitBlt( QPaintDevice *dst, int dx, int dy, int dw, int dh,
     }
     int srcoffx = 0, srcoffy = 0, srcdepth = 0;
     const BitMap *srcbitmap=NULL;
-    const QBitmap *srcbitmask=NULL;
+    const QPixmap *srcmask=NULL;
     if(src->devType() == QInternal::Widget) {
 	QWidget *w = (QWidget *)src;
 	srcdepth = 32; //well, not 0 anyway :)
@@ -157,7 +157,10 @@ void unclippedScaledBitBlt( QPaintDevice *dst, int dx, int dy, int dw, int dh,
     } else if(src->devType() == QInternal::Pixmap) {
 	QPixmap *pm = (QPixmap *)src;
 	srcbitmap = GetPortBitMapForCopyBits((GWorldPtr)pm->handle());
-	srcbitmask = pm->mask();
+	if(pm->data->alphapm)
+	    srcmask = pm->data->alphapm;
+	else
+	    srcmask = pm->mask();
 	srcdepth = pm->depth();
 
 	if(sw < 0)
@@ -313,8 +316,10 @@ void unclippedScaledBitBlt( QPaintDevice *dst, int dx, int dy, int dw, int dh,
     Rect r2;
     SetRect(&r2,dx+dstoffx,dy+dstoffy,dx+dw+dstoffx,dy+dh+dstoffy);
 
-    if(srcbitmask && !imask) {
-	const BitMap *maskbits = GetPortBitMapForCopyBits((GWorldPtr)srcbitmask->handle());
+    if(srcmask && !imask) {
+	const BitMap *maskbits = GetPortBitMapForCopyBits((GWorldPtr)srcmask->handle());
+	if(copymode == srcCopy && srcmask->depth() > 1) 
+	    copymode = ditherCopy;
 	CopyDeepMask(srcbitmap, maskbits, dstbitmap, &r, &r, &r2, copymode, 0);
     } else {
 	CopyBits(srcbitmap, dstbitmap, &r,&r2,copymode, 0);
