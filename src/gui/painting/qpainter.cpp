@@ -3015,7 +3015,7 @@ void QPainter::drawPixmap(const QRectF &r, const QPixmap &pm, const QRectF &sr)
     if (h < 0)
         h = sh;
 
-    if (sw <= 0 || sh <= 0)
+    if (w == 0 || h == 0 || sw <= 0 || sh <= 0)
         return;
 
     if (d->state->txop > QPainterPrivate::TxTranslate
@@ -3023,6 +3023,7 @@ void QPainter::drawPixmap(const QRectF &r, const QPixmap &pm, const QRectF &sr)
         QPixmap source;
         if(sx != 0 || sy != 0 || sw != pm.width() || sh != pm.height()) {
             source = QPixmap(qRound(sw), qRound(sh), pm.depth());
+            source.fill(QColor(0, 0, 0, 0));
             QPainter p(&source);
             // ### CompositionMode to Source
             p.drawPixmap(QRectF(0, 0, sw, sh), pm, QRectF(sx, sy, sw, sh));

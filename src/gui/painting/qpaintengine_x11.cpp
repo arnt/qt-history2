@@ -576,7 +576,6 @@ bool QX11PaintEngine::begin(QPaintDevice *pdev)
     d->bg_mode = Qt::TransparentMode;
     d->bg_col = Qt::white;
     d->txop = QPainterPrivate::TxNone;
-    d->has_clipping = false;
 
     // Set up the polygon clipper. Note: This will only work in
     // polyline mode as long as we have a buffer zone, since a
@@ -1290,6 +1289,23 @@ void QX11PaintEngine::drawPixmap(const QRectF &r, const QPixmap &pm, const QRect
         XCopyArea(d->dpy, pixmap.handle(), d->hd, d->gc, sx, sy, sw, sh, x, y);
     }
 
+    if (d->pdev->devType() == QInternal::Pixmap) {
+        const QPixmap *px = static_cast<const QPixmap*>(d->pdev);
+        Pixmap src_mask = pixmap.data->x11_mask;
+        Pixmap dst_mask = static_cast<const QPixmap*>(d->pdev)->data->x11_mask;
+        if (dst_mask) {
+            GC cgc = XCreateGC(d->dpy, src_mask, 0, 0);
+            if (src_mask) { // copy src mask into dst mask
+                XCopyArea(d->dpy, pixmap.data->x11_mask, px->data->x11_mask, cgc, sx, sy, sw, sh, x, y);
+            } else { // no src mask, but make sure the area copied is opaque in dest
+                XSetBackground(d->dpy, cgc, 0);
+                XSetForeground(d->dpy, cgc, 1);
+                XFillRectangle(d->dpy, px->data->x11_mask, cgc, x, y, sw, sh);
+            }
+            XFreeGC(d->dpy, cgc);
+        }
+    }
+
     if (restore_clip) {
         XSetClipOrigin(d->dpy, d->gc, 0, 0);
         int num;
@@ -1397,7 +1413,7 @@ void QX11PaintEngine::drawTiledPixmap(const QRectF &r, const QPixmap &pixmap, co
         && pixmap.hasAlphaChannel() && !pixmap.data->x11_mask)
     {
 #if !defined(QT_NO_XRENDER)
-        if (d->picture && pixmap.x11PictureHandle()) {
+        if (X11->use_xrender && d->picture && pixmap.x11PictureHandle()) {
             // this is essentially drawTile() from above, inlined for
             // the XRenderComposite call
             int yPos, xPos, drawH, drawW, yOff, xOff;
