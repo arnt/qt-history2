@@ -1,6 +1,8 @@
 /*!
     \page qmake-manual.html
     \title qmake Manual
+    \startpage index.html Qt Reference Documentation
+    \nextpage qmake-using.html Using qmake
 
     \c qmake is an tool from Trolltech that helps simplify the build
     process for development project across different platforms.  \c qmake
@@ -21,23 +23,34 @@
     Table of contents:
 
     \list
-    \omit
-    \o \l{qmake-installing.html}{Installing qmake}
-    \endomit
     \o \l{qmake-using.html}{Using qmake}
-    \o \l{qmake-project-files.html}{Project Files}
+      \list
+      \o \l{qmake-project-files.html}{Project Files}
+      \o \l{qmake-running.html}{Running qmake}
+      \endlist
     \o \l{qmake-advanced-usage.html}{Advanced Usage}
     \o \l{qmake-command-reference.html}{Command Reference}
     \endlist
+
+    Getting Started:
+
     \list
     \o \l{qmake-tutorial.html}{qmake Tutorial}
     \o \l{qmake-common-projects.html}{Common Projects}
+      \list
+      \o \l{qmake-common-projects.html#Application}{Building an Application}
+      \o \l{qmake-common-projects.html#Library}{Building a Library}
+      \o \l{qmake-common-projects.html#Plugin}{Building a Plugin}
+      \endlist
     \endlist
 */
 
 /*!
     \page qmake-using.html
     \title Using qmake
+    \contentspage qmake-manual.html qmake Manual
+    \previouspage qmake-manual.html qmake Manual
+    \nextpage qmake-project-files.html Project Files
 
     \c qmake provides a project-oriented system for managing the build
     process for applications, libraries, and other components. This
@@ -78,17 +91,21 @@
 
     For simple projects, you only need to run \c qmake in the top
     level directory of your project. By default, \c qmake generates a
-    Makefile that you then use to build the project, but it can also
-    be used to generate project files. A full description of \c{qmake}'s
-    command line options can be found in the
-    \l{qmake-running-qmake.html}{Command Line Usage} chapter of this
+    Makefile that you then use to build the project, and you can then
+    run your platform's \c make tool to build the project.
+
+    \c qmake can also be used to generate project files. A full
+    description of \c{qmake}'s command line options can be found in the
+    \l{qmake-running-qmake.html}{Running qmake} chapter of this
     manual.
 */
 
 /*!
     \page qmake-project-files.html
-
     \title Project Files
+    \contentspage qmake-manual.html qmake Manual
+    \previouspage qmake-using.html Using qmake
+    \nextpage qmake-running.html Running qmake
 
     Project files contain all the information required by \c qmake to build
     your application, library, or plugin. The resources used by your project
@@ -104,16 +121,18 @@
     simple and fairly complex build systems. Simple project files will
     use a straightforward declarative style, defining standard variables
     to indicate the source and header files that are used in the project.
+    Complex projects may use the control flow structures to fine-tune the
+    build process.
 
-    The following sections describe the types of elements found in project
-    files.
+    The following sections describe the different types of elements used
+    in project files.
 
     \section2 Variables
 
-    In a project file, variables are used to hold lists of string values.
+    In a project file, variables are used to hold lists of strings.
     In the simplest projects, these variables inform \c qmake about the
-    configuration options to use, or paths to supply to the Makefile that
-    it creates.
+    configuration options to use, or supply filenames and paths to use
+    in the build process.
 
     \c qmake looks for certain variables in each project file, and it
     uses the contents of these to determine what it should write to a
@@ -149,7 +168,8 @@
     \table
     \header \i Variable \i Contents
     \row \i CONFIG    \i General project configuration options.
-    \row \i DESTDIR   \i The directory in which the executable will be placed.
+    \row \i DESTDIR   \i The directory in which the executable or binary file will
+                      be placed.
     \row \i FORMS     \i A list of .ui files to be processed by \c uic.
     \row \i HEADERS   \i A list of filenames of header (.h) files used when
                       building the project.
@@ -172,37 +192,46 @@
     \quotefromfile snippets/qmake/comments.pro
     \printuntil .
 
-    \section2 Built-in Functions
+    \section2 Built-in Functions and Control Flow
 
     \c qmake provides a number of built-in functions to allow the contents
     of variables to be processed. The most commonly used function in simple
     project files is the \c include function which takes a filename as an
     argument. The contents of the given file are included in the project
     file at the place where the \c include function is used.
+    The \c include function is most commonly used to include other project
+    files:
 
     \quotefromfile snippets/qmake/include.pro
     \printuntil include
 
-    Various other built-in functions are provided to manipulate strings
-    and paths, support user input, and call external tools. A list of
-    the functions available can be found in the
-    \l{qmake-advanced-usage.html}{Advanced Usage} chapter of this manual.
-
-    \section2 Control Structures
-
-    Support for conditional structures is made available via \e scopes that
-    behave like \c if statements in programming languages:
+    Support for conditional structures is made available via
+    \l{qmake-advanced-usage.html}{scopes} that behave like \c if
+    statements in programming languages:
 
     \quotefromfile snippets/qmake/scopes.pro
     \printuntil }
 
     The assignments inside the scope are only made if the condition is
-    true; in this case, the \c win32 variable must be set
+    true. In this case, the special \c win32 variable must be set; this
+    happens automatically on Windows, but this can also be specified on
+    other platforms by running \c qmake with the \c{-win32} command line
+    option (see \l{qmake-running-qmake.html}{Running qmake} for more
+    information).
 
     Simple loops are constructed by iterating over lists of values using
-    the built-in \c for function. More complex operations on variables that
-    would usually require loops are provided by built-in functions such as
-    \c find, \c unique, and \c count.
+    the built-in \c for function. The following code adds directories
+    to the \c SUBDIRS variable, but only if they exist:
+
+    \quotefromfile snippets/qmake/functions.pro
+    \printuntil /^\}/
+
+    More complex operations on variables that would usually require loops
+    are provided by built-in functions such as \c find, \c unique, and
+    \c count. These functions, and many others are provided to manipulate
+    strings and paths, support user input, and call external tools. A list
+    of the functions available can be found in the
+    \l{qmake-advanced-usage.html}{Advanced Usage} chapter of this manual.
 
     \section1 Project Templates
 
@@ -218,15 +247,28 @@
     \header \i Template      \i Description of \c qmake output
     \row    \i app (default) \i Creates a Makefile to build an application.
     \row    \i lib           \i Creates a Makefile to build a library.
+    \row    \i subdirs       \i Creates a Makefile that will go into the specified
+                             directories and run \c qmake on any project files found.
     \row    \i vcapp         \i Creates a Visual Studio Project file to build
                              an application.
     \row    \i vclib         \i Creates a Visual Studio Project file to build a library.
-    \row    \i subdirs       \i Creates a Makefile that will go into the specified
-                             directories and run \c qmake on any project files found.
     \endtable
 
     See the \l{qmake-tutorials.html}{qmake Tutorials} for advice on
-    writing project files for common types of project.
+    writing project files for projects that use the \c app and \c lib
+    templates.
+
+    When the \c subdirs template is used, \c qmake generates a Makefile
+    to examine each specified subdirectory, process any project file it finds
+    there, and run the platform's \c make tool on the newly-created Makefile.
+
+    The only system variable that is recognised for this template is the
+    \c SUBDIRS variable.  This variable contains a list of all the
+    subdirectories that contain project files to be processed.  It is
+    essential that the project file in each subdirectory has the same name
+    as the subdirectory, so that \c qmake can find it. For example, if the
+    subdirectory is called \c myapp then the project file in that directory
+    should be called \c myapp.pro.
 
     \section1 General Configuration
 
@@ -299,6 +341,15 @@
         QT = network xml # This will omit the core and GUI modules.
     \endcode
 
+    If you want to build a project \e without the GUI module, you need to
+    exclude it with the "-=" operator. By default, \c QT contains both
+    \c core and \c gui, so the following line will result in a minimal
+    Qt project being built:
+
+    \code
+        QT -= gui # Only the core module is used.
+    \endcode
+
     The table below shows the options that can be used with the \c QT variable
     and the features that are associated with each of them:
 
@@ -318,9 +369,11 @@
 */
 
 /*!
-    \page qmake-running-qmake.html
-
-    \title Command Line Usage
+    \page qmake-running.html
+    \title Running qmake
+    \contentspage qmake-manual.html qmake Manual
+    \previouspage qmake-project-files.html Project Files
+    \nextpage qmake-advanced-usage.html Advanced Usage
 
     The behavior of \c qmake can be customized when it is run by
     specifying various options on the command line. These allow the
@@ -332,6 +385,8 @@
     \section1 Command-Line Options
 
     \section2 Syntax
+
+    The syntax used to run \c qmake takes the following simple form:
 
     \code
         qmake [options] files
@@ -477,6 +532,9 @@
 /*!
     \page qmake-command-reference.html
     \title Command Reference
+    \contentspage qmake-manual.html qmake Manual
+    \previouspage qmake-advanced-usage.html Advanced Usage
+    \nextpage qmake-tutorial.html qmake Tutorial
 
     \tableofcontents section1
 
@@ -2486,6 +2544,9 @@
 /*!
     \page qmake-advanced-usage.html
     \title Advanced Usage
+    \contentspage qmake-manual.html qmake Manual
+    \previouspage qmake-running.html Running qmake
+    \nextpage qmake-command-reference.html Command Reference
 
     The \c qmake project files we've seen up to now have been very simple,
     just a list of \c{name = value} and \c{name += value} lines. \c qmake
@@ -3095,6 +3156,9 @@
 /*!
     \page qmake-tutorial.html
     \title qmake Tutorial
+    \contentspage qmake-manual.html qmake Manual
+    \previouspage qmake-command-reference.html Command Reference
+    \nextpage qmake-common-projects.html Common Projects
 
     This tutorial teaches you how to use \c qmake.  We recommend that
     you read the \c qmake user guide after completing this tutorial.
@@ -3469,9 +3533,18 @@
 
 /*!
     \page qmake-common-projects.html
-
     \title Common Projects
+    \contentspage qmake-manual.html qmake Manual
+    \previouspage qmake-tutorial.html qmake Tutorial
 
+    This chapter describes how to set up \c qmake project files for three
+    common types of project that are based on Qt. Although all kinds of
+    project use many of the same variables, each of them use special
+    variables to define 
+
+    \tableofcontents
+
+    \target Application
     \section1 Building an Application
 
 
@@ -3533,6 +3606,7 @@
     value with the new value, for example if we wrote \c{DEFINES=QT_DLL},
     all other definitions would be deleted.
 
+    \target Library
     \section1 Building a Library
 
     \section2 The \c lib Template
@@ -3558,17 +3632,4 @@
     \i VERSION - The version number of the target library, for example, 2.3.1.
     \endlist
 
-    \section2 The \c subdirs Template
-
-    The \c subdirs template tells qmake to generate a Makefile that will go
-    into the specified subdirectories and generate a Makefile for the
-    project file in the directory and call make on it.
-
-    The only system variable that is recognised for this template is the
-    \c SUBDIRS variable.  This variable contains a list of all the
-    subdirectories that contain project files to be processed.  It is
-    essential that the project file in the sub directory has the same name
-    as the subdirectory, so that \c qmake can find it.  For
-    example, if the subdirectory is called \c myapp then the project file
-    in that directory should be called \c myapp.pro in that directory.
 */
