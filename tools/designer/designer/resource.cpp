@@ -281,13 +281,13 @@ bool Resource::load( QIODevice* dev, const QString& filename, bool keepname )
 
     if ( formwindow ) {
 	formwindow->killAccels( formwindow );
-	if ( hadGeometry ) {
+	if ( formwindow->layout() )
+	    formwindow->layout()->activate();
+	if ( hadGeometry )
 	    formwindow->resize( formwindow->size().expandedTo( formwindow->minimumSize().
 							       expandedTo( formwindow->minimumSizeHint() ) ) );
-	} else {
-	    formwindow->layout()->activate();
+	else
 	    formwindow->resize( formwindow->size().expandedTo( formwindow->sizeHint() ) );
-	}
     }
 
     return TRUE;
