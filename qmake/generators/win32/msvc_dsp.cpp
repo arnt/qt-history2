@@ -71,7 +71,7 @@ DspMakefileGenerator::writeDspParts(QTextStream &t)
     QString mocargs;
     // defines
     mocargs = varGlue("PRL_EXPORT_DEFINES"," -D"," -D","") + varGlue("DEFINES"," -D"," -D","") +
-              + varGlue("QMAKE_COMPILER_DEFINES"," -D"," -D","");
+              varGlue("QMAKE_COMPILER_DEFINES"," -D"," -D","");
     // includes
     mocargs += " -I" + specdir();
     if(!project->isActiveConfig("no_include_pwd")) {
