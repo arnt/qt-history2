@@ -843,7 +843,7 @@ class QOleDropTarget;
 class QMacDndExtra;
 #endif
 
-struct QTLWExtra {
+struct Q_EXPORT QTLWExtra {
     QString  caption;				// widget caption
     QString  iconText;				// widget icon text
     QPixmap *icon;				// widget icon
@@ -878,7 +878,7 @@ struct QTLWExtra {
 
 // dear user: you can see this struct, but it is internal. do not touch.
 
-struct QWExtra {
+struct Q_EXPORT QWExtra {
     Q_INT16  minw, minh;			// minimum size
     Q_INT16  maxw, maxh;			// maximum size
     QPixmap *bg_pix;				// background pixmap
