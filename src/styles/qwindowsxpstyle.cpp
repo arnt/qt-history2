@@ -2231,6 +2231,10 @@ bool QWindowsXPStyle::eventFilter( QObject *o, QEvent *e )
 	}
         break;
 
+    case QEvent::WindowActivate:
+	if ( !widget->hasMouse() )
+	    break;
+	// FALL THROUGH
     case QEvent::Enter:
 	if ( !widget->isActiveWindow() )
 	    break;
@@ -2241,6 +2245,7 @@ bool QWindowsXPStyle::eventFilter( QObject *o, QEvent *e )
     case QEvent::Leave:
 	if ( !widget->isActiveWindow() )
 	    break;
+	// FALL THROUGH
     case QEvent::WindowDeactivate:
         if ( widget == d->hotWidget) {
             d->hotWidget = 0;
