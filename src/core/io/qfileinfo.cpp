@@ -270,11 +270,22 @@ QFileInfo::~QFileInfo()
 }
 
 /*!
-    Compares two QFileInfo's for equality based on the two file
-    locations pointing to the same place.
+    \fn bool QFileInfo::operator!=(const QFileInfo &fileinfo)
+
+    Returns true if the QFileInfo refers to a different file to the one
+    specified by \a fileinfo; otherwise returns false.
+
+    \sa operator==()
+*/
+
+/*!
+    Returns true if the QFileInfo refers to a file in the same location as
+    the other \a fileinfo; otherwise returns false.
 
     \warning This will not compare two different symbolic links
     pointing to the same file.
+
+    \sa operator!=()
 */
 
 bool

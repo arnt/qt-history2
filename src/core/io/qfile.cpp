@@ -730,6 +730,7 @@ bool QFile::isSequential() const
 }
 
 /*!
+    \fn bool QFile::open(OpenMode mode, FILE *fh)
     \overload
 
     Opens the existing file handle \a fh in the given \a mode.
@@ -795,6 +796,7 @@ QFile::open(OpenMode flags)
 }
 
 /*!
+    \fn bool QFile::open(OpenMode mode, int fd)
     \overload
 
     Opens the existing file descripter \a fd in the given \a mode.
@@ -957,7 +959,7 @@ QFile::permissions(const QString &fileName)
 */
 
 bool
-QFile::setPermissions(QFile::Permissions permissions)
+QFile::setPermissions(Permissions permissions)
 {
     if(fileEngine()->chmod(permissions)) {
         unsetError();
@@ -976,7 +978,7 @@ QFile::setPermissions(QFile::Permissions permissions)
 */
 
 bool
-QFile::setPermissions(const QString &fileName, QFile::Permissions permissions)
+QFile::setPermissions(const QString &fileName, Permissions permissions)
 {
     return QFile(fileName).setPermissions(permissions);
 }
