@@ -550,7 +550,7 @@ void QAbstractSpinBox::keyPressEvent(QKeyEvent *e)
 
     case Qt::Key_Z:
     case Qt::Key_Y:
-	if (e->state() & Qt::ControlButton) // don't allow undo/redo I guess I maybe should do somwthing in acceloverride
+	if (e->modifiers() & Qt::ControlModifier) // don't allow undo/redo I guess I maybe should do somwthing in acceloverride
 	    break;
     default: break;
     }
@@ -580,7 +580,7 @@ void QAbstractSpinBox::wheelEvent(QWheelEvent *e)
     setFocus();
     const int steps = (e->delta() > 0 ? 1 : -1);
     if (stepEnabled() & (steps > 0 ? StepUpEnabled : StepDownEnabled))
-	stepBy(e->state() & Qt::ControlButton ? steps * 10 : steps);
+	stepBy(e->modifiers() & Qt::ControlModifier ? steps * 10 : steps);
     e->accept();
 }
 

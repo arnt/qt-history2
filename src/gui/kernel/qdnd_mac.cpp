@@ -271,7 +271,7 @@ bool QDragManager::eventFilter(QObject *, QEvent *)
     return false;
 }
 
-void QDragManager::updateMode(Qt::ButtonState)
+void QDragManager::updateMode(Qt::KeyboardModifiers)
 {
 }
 

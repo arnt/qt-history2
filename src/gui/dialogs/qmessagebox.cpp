@@ -976,7 +976,7 @@ void QMessageBox::keyPressEvent(QKeyEvent *e)
         }
     }
 #ifndef QT_NO_ACCEL
-    if (!(e->state() & Qt::AltButton)) {
+    if (!(e->modifiers() & Qt::AltModifier)) {
         int key = e->key() & ~(Qt::MODIFIER_MASK|Qt::UNICODE_ACCEL);
         if (key) {
             QList<QPushButton *> list = qFindChildren<QPushButton *>(this);

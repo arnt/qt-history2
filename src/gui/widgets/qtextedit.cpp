@@ -136,7 +136,7 @@ static QTextLine currentTextLine(const QTextCursor &cursor)
 
 bool QTextEditPrivate::cursorMoveKeyEvent(QKeyEvent *e)
 {
-    QTextCursor::MoveMode mode = e->state() & Qt::ShiftButton
+    QTextCursor::MoveMode mode = e->modifiers() & Qt::ShiftModifier
                                    ? QTextCursor::KeepAnchor
                                    : QTextCursor::MoveAnchor;
 
@@ -145,11 +145,12 @@ bool QTextEditPrivate::cursorMoveKeyEvent(QKeyEvent *e)
     // There can be only one modifier (+ shift), but we also need to make sure
     // that we have a "move key" pressed before we reject it.
     bool twoModifiers
-        = ((e->state() & (Qt::ControlButton | Qt::AltButton))
-           == (Qt::ControlButton | Qt::AltButton))
-        || ((e->state() & (Qt::ControlButton | Qt::MetaButton))
-            == (Qt::ControlButton | Qt::MetaButton))
-        || ((e->state() & (Qt::AltButton | Qt::MetaButton)) == (Qt::AltButton | Qt::MetaButton));
+        = ((e->modifiers() & (Qt::ControlModifier | Qt::AltModifier))
+           == (Qt::ControlModifier | Qt::AltModifier))
+        || ((e->modifiers() & (Qt::ControlModifier | Qt::MetaModifier))
+            == (Qt::ControlModifier | Qt::MetaModifier))
+        || ((e->modifiers() & (Qt::AltModifier | Qt::MetaModifier)) 
+            == (Qt::AltModifier | Qt::MetaModifier));
 #endif
     switch (e->key()) {
 #ifndef Q_WS_MAC  // Use the default Windows bindings.
@@ -194,9 +195,9 @@ bool QTextEditPrivate::cursorMoveKeyEvent(QKeyEvent *e)
                 QApplication::beep();
                 return true;
             } else {
-                if (e->state() & (Qt::ControlButton | Qt::MetaButton))
+                if (e->modifiers() & (Qt::ControlModifier | Qt::MetaModifier))
                     op = QTextCursor::Start;
-                else if (e->state() & Qt::AltButton)
+                else if (e->modifiers() & Qt::AltModifier)
                     op = QTextCursor::StartOfBlock;
                 else
                     op = QTextCursor::Up;
@@ -207,9 +208,9 @@ bool QTextEditPrivate::cursorMoveKeyEvent(QKeyEvent *e)
                 QApplication::beep();
                 return true;
             } else {
-                if (e->state() & (Qt::ControlButton | Qt::MetaButton))
+                if (e->modifiers() & (Qt::ControlModifier | Qt::MetaModifier))
                     op = QTextCursor::End;
-                else if (e->state() & Qt::AltButton)
+                else if (e->modifiers() & Qt::AltModifier)
                     op = QTextCursor::EndOfBlock;
                 else
                     op = QTextCursor::Down;
@@ -220,9 +221,9 @@ bool QTextEditPrivate::cursorMoveKeyEvent(QKeyEvent *e)
                 QApplication::beep();
                 return true;
             } else {
-                if (e->state() & (Qt::ControlButton | Qt::MetaButton))
+                if (e->modifiers() & (Qt::ControlModifier | Qt::MetaModifier))
                     op = QTextCursor::StartOfLine;
-                else if (e->state() & Qt::AltButton)
+                else if (e->modifiers() & Qt::AltModifier)
                     op = QTextCursor::WordLeft;
                 else
                     op = QTextCursor::Left;
@@ -233,16 +234,16 @@ bool QTextEditPrivate::cursorMoveKeyEvent(QKeyEvent *e)
                 QApplication::beep();
                 return true;
             } else {
-                if (e->state() & (Qt::ControlButton | Qt::MetaButton))
+                if (e->modifiers() & (Qt::ControlModifier | Qt::MetaModifier))
                     op = QTextCursor::EndOfLine;
-                else if (e->state() & Qt::AltButton)
+                else if (e->modifiers() & Qt::AltModifier)
                     op = QTextCursor::WordRight;
                 else
                     op = QTextCursor::Right;
             }
             break;
         case Qt::Key_Home:
-            if (e->state() & (Qt::ControlButton | Qt::MetaButton | Qt::AltButton)) {
+            if (e->modifiers() & (Qt::ControlModifier | Qt::MetaModifier | Qt::AltModifier)) {
                 QApplication::beep();
                 return true;
             } else {
@@ -250,7 +251,7 @@ bool QTextEditPrivate::cursorMoveKeyEvent(QKeyEvent *e)
             }
             break;
         case Qt::Key_End:
-            if (e->state() & (Qt::ControlButton | Qt::MetaButton | Qt::AltButton)) {
+            if (e->modifiers() & (Qt::ControlModifier | Qt::MetaModifier | Qt::AltModifier)) {
                 QApplication::beep();
                 return true;
             } else {
@@ -1341,7 +1342,7 @@ void QTextEdit::keyPressEvent(QKeyEvent *e)
     if (d->cursorMoveKeyEvent(e))
         goto accept;
 
-    if (e->state() & Qt::ControlButton) {
+    if (e->modifiers() & Qt::ControlModifier) {
         switch( e->key() ) {
         case Qt::Key_Z:
             d->doc->undo();
@@ -1609,7 +1610,7 @@ void QTextEdit::mousePressEvent(QMouseEvent *ev)
 */
 void QTextEdit::mouseMoveEvent(QMouseEvent *ev)
 {
-    if (!(ev->state() & Qt::LeftButton)
+    if (!(ev->buttons() & Qt::LeftButton)
         || !d->mousePressed)
         return;
 
@@ -1818,7 +1819,7 @@ void QTextEdit::changeEvent(QEvent *ev)
 void QTextEdit::wheelEvent(QWheelEvent *ev)
 {
     if (d->readOnly) {
-        if (ev->state() & Qt::ControlButton) {
+        if (ev->modifiers() & Qt::ControlButton) {
             const int delta = ev->delta();
             if (delta > 0)
                 zoomOut();

@@ -241,7 +241,7 @@ private:
     Q_DISABLE_COPY(QDragManager)
 
     QDragObject * object;
-    void updateMode(Qt::ButtonState newstate);
+    void updateMode(Qt::KeyboardModifiers newstate);
     void updateCursor();
 
     QWidget * dragSource;

@@ -744,7 +744,7 @@ void QTabBar::mousePressEvent (QMouseEvent *e)
  */
 void QTabBar::mouseMoveEvent (QMouseEvent *e)
 {
-    if (e->state() != Qt::LeftButton) {
+    if (e->buttons() != Qt::LeftButton) {
         e->ignore();
         return;
     }

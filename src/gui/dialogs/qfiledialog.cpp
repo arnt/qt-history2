@@ -1046,12 +1046,12 @@ void QFileDialog::doubleClicked(const QModelIndex &index)
     \internal
 
     This is called when the user presses a \a key with the
-    button state \a state, when the current item is \a index.
+    \a modifiers down, when the current item is \a index.
 */
 
-void QFileDialog::keyPressed(const QModelIndex &index, Qt::Key key, Qt::ButtonState state)
+void QFileDialog::keyPressed(const QModelIndex &index, Qt::Key key, Qt::KeyboardModifiers modifiers)
 {
-    Q_UNUSED(state);
+    Q_UNUSED(modifiers);
 
     switch (key) {
     case Qt::Key_Delete:

@@ -466,12 +466,12 @@ void QDialog::keyPressEvent(QKeyEvent *e)
     //   Calls reject() if Escape is pressed. Simulates a button
     //   click for the default button if Enter is pressed. Move focus
     //   for the arrow keys. Ignore the rest.
-#ifdef Q_OS_MAC
-    if(e->state() == Qt::ControlButton && e->key() == Qt::Key_Period) {
+#ifdef Q_WS_MAC
+    if(e->modifiers() == Qt::ControlModifier && e->key() == Qt::Key_Period) {
         reject();
     } else
 #endif
-    if (e->state() == 0 || (e->state() & Qt::Keypad && e->key() == Qt::Key_Enter)) {
+    if (!e->modifiers() || (e->modifiers() & Qt::KeypadModifier && e->key() == Qt::Key_Enter)) {
         switch (e->key()) {
         case Qt::Key_Enter:
         case Qt::Key_Return: {

@@ -293,7 +293,8 @@ void QSlider::paintEvent(QPaintEvent *)
 */
 void QSlider::mousePressEvent(QMouseEvent *ev)
 {
-    if (d->maximum == d->minimum || (ev->state() & Qt::MouseButtonMask)
+    if (d->maximum == d->minimum 
+        || (ev->buttons() ^ ev->button())
         || (ev->button() != Qt::LeftButton)) {
         ev->ignore();
         return;
@@ -326,7 +327,7 @@ void QSlider::mousePressEvent(QMouseEvent *ev)
 */
 void QSlider::mouseMoveEvent(QMouseEvent *ev)
 {
-    if (d->pressedControl != QStyle::SC_SliderHandle || !(ev->state() & Qt::LeftButton)) {
+    if (d->pressedControl != QStyle::SC_SliderHandle || !(ev->buttons() & Qt::LeftButton)) {
         ev->ignore();
         return;
     }
@@ -349,7 +350,7 @@ void QSlider::mouseMoveEvent(QMouseEvent *ev)
 */
 void QSlider::mouseReleaseEvent(QMouseEvent *ev)
 {
-    if (d->pressedControl == QStyle::SC_None || ev->stateAfter() & Qt::MouseButtonMask) {
+    if (d->pressedControl == QStyle::SC_None || ev->buttons() ^ ev->button()) {
         ev->ignore();
         return;
     }

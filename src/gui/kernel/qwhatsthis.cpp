@@ -431,11 +431,11 @@ bool QWhatsThisPrivate::eventFilter(QObject *o, QEvent *e)
             return false;
         } else if (kev->key() == Qt::Key_Menu ||
                     (kev->key() == Qt::Key_F10 &&
-                      kev->state() == Qt::ShiftButton)) {
+                      kev->modifiers() == Qt::ShiftModifier)) {
             // we don't react to these keys, they are used for context menus
             return false;
-        } else if (kev->state() == kev->stateAfter() &&
-                    kev->key() != Qt::Key_Meta) {  // not a modifier key
+        } else if (kev->key() != Qt::Key_Shift && kev->key() != Qt::Key_Alt // not a modifier key
+                   && kev->key() != Qt::Key_Control && kev->key() != Qt::Key_Meta) {  
             QWhatsThis::leaveWhatsThisMode();
         }
     } break;

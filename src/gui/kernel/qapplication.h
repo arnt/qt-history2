@@ -18,6 +18,7 @@
 #include "qwindowdefs.h"
 #include "qpoint.h"
 #include "qsize.h"
+#include "qcursor.h"
 #ifdef QT_INCLUDE_COMPAT
 # include "qdesktopwidget.h"
 #endif
@@ -119,6 +120,9 @@ public:
 
     static void syncX();
     static void beep();
+
+    static Qt::KeyboardModifiers keyboardModifiers();
+    static Qt::MouseButtons mouseButtons();
 
     static void setDesktopSettingsAware(bool);
     static bool desktopSettingsAware();
@@ -258,50 +262,21 @@ private:
     friend void qt_init(QApplicationPrivate *priv, QApplication::Type);
 #endif
 
-    static QStyle   *app_style;
-    static int             app_cspec;
-#ifndef QT_NO_PALETTE
-    static QPalette *app_pal;
-#endif
-    static QFont *app_font;
-    static QWidget *main_widget;
-    static QWidget *focus_widget;
-    static QWidget *active_window;
-    static QPixmap *app_icon;
-    static bool obey_desktop_settings;
-    static int  cursor_flash_time;
-    static int  mouse_double_click_time;
-    static int  wheel_scroll_lines;
-
-    static bool animate_ui;
-    static bool animate_menu;
-    static bool animate_tooltip;
-    static bool animate_combo;
-    static bool fade_menu;
-    static bool fade_tooltip;
-    static bool animate_toolbox;
-    static bool widgetCount; // Coupled with -widgetcount switch
-
 #if defined(Q_WS_X11) && !defined (QT_NO_STYLE)
     static void x11_initialize_style();
 #endif
 
-    static QSize     app_strut;
-
-    static QWidgetList *popupWidgets;
     bool inPopupMode() const;
     void closePopup(QWidget *popup);
     void openPopup(QWidget *popup);
 
 public:
+    void setFocusWidget(QWidget *focus);
     void setActiveWindow(QWidget* act);
 
 private:
     Q_DISABLE_COPY(QApplication)
 
-    // ### the next 2 friends should go away
-    friend class QEventLoop;
-    friend class QEvent;
     friend class QWidget;
     friend class QWidgetPrivate;
     friend class QETWidget;
@@ -315,31 +290,6 @@ private:
     friend class QInputContext;
 #endif
 };
-
-inline QWidget *QApplication::mainWidget() const
-{
-    return main_widget;
-}
-
-inline QWidget *QApplication::focusWidget() const
-{
-    return focus_widget;
-}
-
-inline QWidget *QApplication::activeWindow() const
-{
-    return active_window;
-}
-
-inline bool QApplication::inPopupMode() const
-{
-    return popupWidgets != 0;
-}
-
-inline QSize QApplication::globalStrut()
-{
-    return app_strut;
-}
 
 inline Qt::Alignment QApplication::horizontalAlignment(Qt::Alignment align)
 {

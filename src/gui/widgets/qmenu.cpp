@@ -551,7 +551,7 @@ bool QMenuPrivate::mouseEventTaken(QMouseEvent *e)
             next_widget = m->d->causedPopup;
         }
         if(passOnEvent) {
-            QMouseEvent new_e(e->type(), cpos, e->button(), e->state());
+            QMouseEvent new_e(e->type(), cpos, e->button(), e->buttons(), e->modifiers());
             QApplication::sendEvent(caused, &new_e);
             return true;
         }
@@ -1814,7 +1814,8 @@ void QMenu::keyPressEvent(QKeyEvent *e)
     }
 
     if(!key_consumed) {                                // send to menu bar
-        if((!e->state() || e->state() == Qt::AltButton || e->state() == Qt::ShiftButton) && e->text().length()==1) {
+        if((!e->modifiers() || e->modifiers() == Qt::AltModifier || e->modifiers() == Qt::ShiftModifier) && 
+           e->text().length()==1) {
             int clashCount = 0;
             QAction *first = 0, *currentSelected = 0, *firstAfterCurrent = 0;
             {
@@ -1887,7 +1888,7 @@ void QMenu::mouseMoveEvent(QMouseEvent *e)
         d->setCurrentAction(0);
         return;
     } else {
-        d->mouseDown = e->state() & Qt::LeftButton;
+        d->mouseDown = e->buttons() & Qt::LeftButton;
     }
     if(d->sloppyRegion.contains(e->pos())) {
         static QTimer *sloppyDelayTimer = 0;

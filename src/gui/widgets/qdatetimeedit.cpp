@@ -703,7 +703,7 @@ void QDateTimeEdit::keyPressEvent(QKeyEvent *e)
 
     case Qt::Key_Left:
     case Qt::Key_Right:
-        if (!(e->state() & Qt::ControlButton)) {
+        if (!(e->modifiers() & Qt::ControlModifier)) {
             const int selsize = d->edit->selectedText().size();
             if (selsize == 0 || selsize != d->sectionSize(d->currentsection))
                 break;
@@ -713,7 +713,8 @@ void QDateTimeEdit::keyPressEvent(QKeyEvent *e)
     case Qt::Key_Tab: {
         const QDateTimeEditPrivate::SectionNode newSection =
             d->nextPrevSection(d->currentsection,
-                               (e->key() == Qt::Key_Right || (e->key() == Qt::Key_Tab && !(e->state() & Qt::ShiftButton))));
+                               (e->key() == Qt::Key_Right || 
+                                (e->key() == Qt::Key_Tab && !(e->modifiers() & Qt::ShiftModifier))));
         if (select) {
             d->setSelected(newSection.section);
         } else {

@@ -802,7 +802,7 @@ void QAbstractButton::mouseReleaseEvent(QMouseEvent *e)
 /*! \reimp */
 void QAbstractButton::mouseMoveEvent(QMouseEvent *e)
 {
-    if (!d->mlbDown || (e->state() & Qt::LeftButton) == 0) {
+    if (!d->mlbDown || !(e->buttons() & Qt::LeftButton)) {
         e->ignore();
         return;
     }

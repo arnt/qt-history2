@@ -760,7 +760,8 @@ void QMenuBar::keyPressEvent(QKeyEvent *e)
     }
 
     if(!key_consumed &&
-       (!e->state() || (e->state()&(Qt::MetaButton|Qt::AltButton))) && e->text().length()==1 && !d->popupState) {
+       (!e->modifiers() || 
+        (e->modifiers()&(Qt::MetaModifier|Qt::AltModifier))) && e->text().length()==1 && !d->popupState) {
         int clashCount = 0;
         QAction *first = 0, *currentSelected = 0, *firstAfterCurrent = 0;
         {
@@ -807,7 +808,7 @@ void QMenuBar::keyPressEvent(QKeyEvent *e)
 */
 void QMenuBar::mouseMoveEvent(QMouseEvent *e)
 {
-    d->mouseDown = e->state() & Qt::LeftButton;
+    d->mouseDown = e->buttons() & Qt::LeftButton;
     QAction *action = d->actionAt(e->pos());
     bool popupState = d->popupState || d->mouseDown;
     if(action || !popupState)
@@ -980,7 +981,7 @@ QMenuBar::eventFilter(QObject *object, QEvent *event)
                 d->setKeyboardMode(false);
                 ke->accept();
                 return true;
-            } else if(ke->stateAfter() == Qt::AltButton) {  // Start waiting for Alt release on focus widget
+            } else if(ke->modifiers() == Qt::AltModifier) {  // Start waiting for Alt release on focus widget
                 d->altPressed = true;
                 if(f && f != object)
                     f->installEventFilter(this);

@@ -1161,12 +1161,12 @@ bool QLineEdit::event(QEvent * e)
 {
     if (e->type() == QEvent::ShortcutOverride && !d->readOnly) {
         QKeyEvent* ke = (QKeyEvent*) e;
-        if (ke->state() == Qt::NoButton || ke->state() == Qt::ShiftButton
-             || ke->state() == Qt::Keypad) {
+        if (ke->modifiers() == Qt::NoModifier || ke->modifiers() == Qt::ShiftModifier
+             || ke->modifiers() == Qt::KeypadModifier) {
             if (ke->key() < Qt::Key_Escape) {
                 ke->accept();
-            } else if (ke->state() == Qt::NoButton
-                        || ke->state() == Qt::ShiftButton) {
+            } else if (ke->modifiers() == Qt::NoModifier
+                        || ke->modifiers() == Qt::ShiftModifier) {
                 switch (ke->key()) {
                 case Qt::Key_Delete:
                 case Qt::Key_Home:
@@ -1179,7 +1179,7 @@ bool QLineEdit::event(QEvent * e)
                     break;
                 }
             }
-        } else if (ke->state() & Qt::ControlButton) {
+        } else if (ke->modifiers() & Qt::ControlModifier) {
             switch (ke->key()) {
 // Those are too frequently used for application functionality
 /*            case Qt::Key_A:
@@ -1236,7 +1236,7 @@ void QLineEdit::mousePressEvent(QMouseEvent* e)
         selectAll();
         return;
     }
-    bool mark = e->state() & Qt::ShiftButton;
+    bool mark = e->modifiers() & Qt::ShiftModifier;
     int cursor = d->xToPos(e->pos().x());
 #ifndef QT_NO_DRAGANDDROP
     if (!mark && d->dragEnabled && d->echoMode == Normal &&
@@ -1259,9 +1259,8 @@ void QLineEdit::mousePressEvent(QMouseEvent* e)
 */
 void QLineEdit::mouseMoveEvent(QMouseEvent * e)
 {
-
 #ifndef QT_NO_CURSOR
-    if ((e->state() & Qt::MouseButtonMask) == 0) {
+    if (!e->buttons()) {
         if (!d->readOnly && d->dragEnabled
 #ifndef QT_NO_WHATSTHIS
              && !QWhatsThis::inWhatsThisMode()
@@ -1271,7 +1270,7 @@ void QLineEdit::mouseMoveEvent(QMouseEvent * e)
     }
 #endif
 
-    if (e->state() & Qt::LeftButton) {
+    if (e->buttons() & Qt::LeftButton) {
 #ifndef QT_NO_DRAGANDDROP
         if (d->dndTimer.isActive()) {
             if ((d->dndPos - e->pos()).manhattanLength() > QApplication::startDragDistance())
@@ -1373,17 +1372,17 @@ void QLineEdit::keyPressEvent(QKeyEvent * e)
         return;
     }
     bool unknown = false;
-    if (e->state() & Qt::ControlButton) {
+    if (e->modifiers() & Qt::ControlModifier) {
         switch (e->key()) {
         case Qt::Key_A:
 #if defined(Q_WS_X11)
-            home(e->state() & Qt::ShiftButton);
+            home(e->modifiers() & Qt::ShiftModifier);
 #else
             selectAll();
 #endif
             break;
         case Qt::Key_B:
-            cursorForward(e->state() & Qt::ShiftButton, -1);
+            cursorForward(e->modifiers() & Qt::ShiftModifier, -1);
             break;
 #ifndef QT_NO_CLIPBOARD
         case Qt::Key_C:
@@ -1391,20 +1390,18 @@ void QLineEdit::keyPressEvent(QKeyEvent * e)
             break;
 #endif
         case Qt::Key_D:
-            if (!d->readOnly) {
+            if (!d->readOnly) 
                 del();
-            }
             break;
         case Qt::Key_E:
-            end(e->state() & Qt::ShiftButton);
+            end(e->modifiers() & Qt::ShiftModifier);
             break;
         case Qt::Key_F:
-            cursorForward(e->state() & Qt::ShiftButton, 1);
+            cursorForward(e->modifiers() & Qt::ShiftModifier, 1);
             break;
         case Qt::Key_H:
-            if (!d->readOnly) {
+            if (!d->readOnly) 
                 backspace();
-            }
             break;
         case Qt::Key_K:
             if (!d->readOnly) {
@@ -1458,19 +1455,19 @@ void QLineEdit::keyPressEvent(QKeyEvent * e)
                     cursorWordBackward(e->state() & Qt::ShiftButton);
                 else
 #endif
-                    home(e->state() & Qt::ShiftButton);
+                    home(e->modifiers() & Qt::ShiftModifier);
             } else {
 #ifndef Q_WS_MAC
                 if (echoMode() == Normal)
                     cursorWordForward(e->state() & Qt::ShiftButton);
                 else
 #endif
-                    end(e->state() & Qt::ShiftButton);
+                    end(e->modifiers() & Qt::ShiftModifier);
             }
             break;
         case Qt::Key_Z:
             if (!d->readOnly) {
-                if(e->state() & Qt::ShiftButton)
+                if(e->modifiers() & Qt::ShiftModifier)
                     redo();
                 else
                     undo();
@@ -1492,46 +1489,45 @@ void QLineEdit::keyPressEvent(QKeyEvent * e)
         case Qt::Key_Right: {
             int step =  (d->isRightToLeft() == (e->key() == Qt::Key_Right)) ? -1 : 1;
 #ifdef Q_WS_MAC
-            if (e->state() & Qt::AltButton) {
+            if (e->modifiers() & Qt::AltModifier) {
                 if (step < 0)
-                    cursorWordBackward(e->state() & Qt::ShiftButton);
+                    cursorWordBackward(e->modifiers() & Qt::ShiftModifier);
                 else
-                    cursorWordForward(e->state() & Qt::ShiftButton);
-            } else if (e->state() & Qt::MetaButton) {
+                    cursorWordForward(e->modifiers() & Qt::ShiftModifier);
+            } else if (e->modifiers() & Qt::MetaModifier) {
                 if (step < 0)
-                    home(e->state() & Qt::ShiftButton);
+                    home(e->modifiers() & Qt::ShiftModifier);
                 else
-                    end(e->state() & Qt::ShiftButton);
+                    end(e->modifiers() & Qt::ShiftModifier);
             } else
 #endif
             {
-                cursorForward(e->state() & Qt::ShiftButton, step);
+                cursorForward(e->modifiers() & Qt::ShiftModifier, step);
             }
         }
         break;
         case Qt::Key_Backspace:
-            if (!d->readOnly) {
+            if (!d->readOnly) 
                 backspace();
-            }
             break;
         case Qt::Key_Home:
 #ifdef Q_WS_MAC
             break; // Home and End do nothing on the mac (but Up and Down do).
         case Qt::Key_Up:
 #endif
-            home(e->state() & Qt::ShiftButton);
+            home(e->modifiers() & Qt::ShiftModifier);
             break;
         case Qt::Key_End:
 #ifdef Q_WS_MAC
             break;
         case Qt::Key_Down:
 #endif
-            end(e->state() & Qt::ShiftButton);
+            end(e->modifiers() & Qt::ShiftModifier);
             break;
         case Qt::Key_Delete:
             if (!d->readOnly) {
 #if defined (Q_WS_WIN)
-                if (e->state() & Qt::ShiftButton) {
+                if (e->modifiers() & Qt::ShiftModifier) {
                     cut();
                     break;
                 }
@@ -1541,7 +1537,7 @@ void QLineEdit::keyPressEvent(QKeyEvent * e)
             break;
 #if defined (Q_WS_WIN)
         case Qt::Key_Insert:
-            if (!d->readOnly && e->state() & Qt::ShiftButton)
+            if (!d->readOnly && e->modifiers() & Qt::ShiftModifier)
                 paste();
             else
                 unknown = true;

@@ -116,6 +116,35 @@ public:
     }
 #endif
 
+    static Qt::MouseButtons mouse_buttons;
+    static Qt::KeyboardModifiers modifier_buttons;
+
+    static QSize     app_strut;
+    static QWidgetList *popupWidgets;
+    static QStyle *app_style;
+    static int app_cspec;
+#ifndef QT_NO_PALETTE
+    static QPalette *app_pal;
+#endif
+    static QFont *app_font;
+    static QWidget *main_widget;
+    static QWidget *focus_widget;
+    static QWidget *active_window;
+    static QPixmap *app_icon;
+    static bool obey_desktop_settings;
+    static int  cursor_flash_time;
+    static int  mouse_double_click_time;
+    static int  wheel_scroll_lines;
+
+    static bool animate_ui;
+    static bool animate_menu;
+    static bool animate_tooltip;
+    static bool animate_combo;
+    static bool fade_menu;
+    static bool fade_tooltip;
+    static bool animate_toolbox;
+    static bool widgetCount; // Coupled with -widgetcount switch
+
 #ifdef Q_WS_MAC
     bool do_mouse_down(Point *, bool *);
     static OSStatus globalEventProcessor(EventHandlerCallRef,  EventRef, void *);

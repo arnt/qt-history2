@@ -264,7 +264,7 @@ bool QDragManager::drag(QDragObject *o, QDragObject::DragMode mode)
     drag_mode = mode;
     global_accepted_action = QDropEvent::Copy; // #####
     willDrop = false;
-    updateMode(Qt::ButtonState(0));
+    updateMode(0);
     updatePixmap();
     updateCursor();
     restoreCursor = true;
@@ -273,7 +273,7 @@ bool QDragManager::drag(QDragObject *o, QDragObject::DragMode mode)
     return true;
 }
 
-void QDragManager::updateMode(Qt::ButtonState newstate)
+void QDragManager::updateMode(Qt::KeyboardModifiers newstate)
 {
     if (newstate == oldstate)
         return;

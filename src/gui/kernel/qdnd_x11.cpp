@@ -1520,7 +1520,7 @@ bool QDragManager::drag(QDragObject * o, QDragObject::DragMode mode)
     oldstate = Qt::ButtonState(-1); // #### Should use state that caused the drag
     drag_mode = mode;
     global_accepted_action = QDropEvent::Copy;
-    updateMode(Qt::ButtonState(0));
+    updateMode(0);
     qt_xdnd_source_sameanswer = QRect();
     move(QCursor::pos());
     heartbeat = startTimer(200);

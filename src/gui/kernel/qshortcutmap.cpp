@@ -356,16 +356,16 @@ QKeySequence::SequenceMatch QShortcutMap::nextState(QKeyEvent *e)
     d->identicals.resize(0);
 
     result = find(e);
-    if (result == QKeySequence::NoMatch
-        && e->state() & Qt::ShiftButton) {
+    if (result == QKeySequence::NoMatch && e->modifiers() & Qt::ShiftModifier) {
         // If Shift + Key_BackTab, also try Shift + Qt::Key_Tab
         if (e->key() == Qt::Key_BackTab) {
-            QKeyEvent pe = QKeyEvent(e->type(), Qt::Key_Tab, e->state(), e->text());
+            QKeyEvent pe = QKeyEvent(e->type(), Qt::Key_Tab, e->modifiers(), e->text());
             result = find(&pe);
         }
         // If still no result, try removing the Shift modifier
         if (result == QKeySequence::NoMatch) {
-            QKeyEvent pe = QKeyEvent(e->type(), e->key(), e->state()&~Qt::ShiftButton, e->text());
+            QKeyEvent pe = QKeyEvent(e->type(), e->key(), 
+                                     e->modifiers()&~Qt::ShiftModifier, e->text());
             result = find(&pe);
         }
     }
@@ -480,7 +480,7 @@ void QShortcutMap::createNewSequence(QKeyEvent *e, QKeySequence &seq)
     seq.setKey(d->currentSequence[2], 2);
     seq.setKey(d->currentSequence[3], 3);
     int index = d->currentSequence.count();
-    int modifier = translateModifiers(e->state());
+    int modifier = translateModifiers(e->modifiers());
 
     // Use the key code, if possible to prevent Ctrl+<Key> text problems,
     // else use unicode of text
@@ -592,16 +592,16 @@ bool QShortcutMap::correctContext(QAction *a, QWidget *active_window)
 /*! \internal
     Converts keyboard button states into modifier states
 */
-int QShortcutMap::translateModifiers(Qt::ButtonState state)
+int QShortcutMap::translateModifiers(Qt::KeyboardModifiers modifiers)
 {
     int result = 0;
-    if (state & Qt::ShiftButton)
+    if (modifiers & Qt::ShiftModifier)
         result |= Qt::SHIFT;
-    if (state & Qt::ControlButton)
+    if (modifiers & Qt::ControlModifier)
         result |= Qt::CTRL;
-    if (state & Qt::MetaButton)
+    if (modifiers & Qt::MetaModifier)
         result |= Qt::META;
-    if (state & Qt::AltButton)
+    if (modifiers & Qt::AltModifier)
         result |= Qt::ALT;
     return result;
 }

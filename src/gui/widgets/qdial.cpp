@@ -472,7 +472,9 @@ void QDial::paintEvent(QPaintEvent *e)
 
 void QDial::mousePressEvent(QMouseEvent *e)
 {
-    if (d->maximum == d->minimum || (e->state() & Qt::MouseButtonMask) || (e->button() != Qt::LeftButton)) {
+    if (d->maximum == d->minimum || 
+        (e->button() != Qt::LeftButton)  || 
+        (e->buttons() ^ e->button())) {
         e->ignore();
         return;
     }
@@ -488,7 +490,7 @@ void QDial::mousePressEvent(QMouseEvent *e)
 
 void QDial::mouseReleaseEvent(QMouseEvent * e)
 {
-    if (e->stateAfter() & Qt::MouseButtonMask) {
+    if (e->buttons() ^ e->button()) {
         e->ignore();
         return;
     }
@@ -504,7 +506,7 @@ void QDial::mouseReleaseEvent(QMouseEvent * e)
 
 void QDial::mouseMoveEvent(QMouseEvent * e)
 {
-    if (!d->tracking || !(e->state() & Qt::LeftButton)) {
+    if (!d->tracking || !(e->buttons() & Qt::LeftButton)) {
         e->ignore();
         return;
     }

@@ -333,24 +333,27 @@ void qt_init(QApplicationPrivate *priv, int type
 void qt_cleanup();
 bool qt_tryModalHelper(QWidget *widget, QWidget **rettop);
 
-QStyle *QApplication::app_style = 0;        // default application style
+Qt::MouseButtons QApplicationPrivate::mouse_buttons = Qt::NoButton;
+Qt::KeyboardModifiers QApplicationPrivate::modifier_buttons = Qt::NoModifier;
+
+QStyle *QApplicationPrivate::app_style = 0;        // default application style
 bool qt_explicit_app_style = false; // style explicitly set by programmer
 
-int QApplication::app_cspec = QApplication::NormalColor;
+int QApplicationPrivate::app_cspec = QApplication::NormalColor;
 #ifndef QT_NO_PALETTE
-QPalette *QApplication::app_pal = 0;        // default application palette
+QPalette *QApplicationPrivate::app_pal = 0;        // default application palette
 #endif
-QFont *QApplication::app_font = 0;        // default application font
+QFont *QApplicationPrivate::app_font = 0;        // default application font
 bool qt_app_has_font = false;
-QPixmap *QApplication::app_icon = 0;
-QWidget *QApplication::main_widget = 0;        // main application widget
-QWidget *QApplication::focus_widget = 0;        // has keyboard input focus
-QWidget *QApplication::active_window = 0;        // toplevel with keyboard focus
-bool QApplication::obey_desktop_settings = true;        // use winsys resources
-int QApplication::cursor_flash_time = 1000;        // text caret flash time
-int QApplication::mouse_double_click_time = 400;        // mouse dbl click limit
+QPixmap *QApplicationPrivate::app_icon = 0;
+QWidget *QApplicationPrivate::main_widget = 0;        // main application widget
+QWidget *QApplicationPrivate::focus_widget = 0;        // has keyboard input focus
+QWidget *QApplicationPrivate::active_window = 0;        // toplevel with keyboard focus
+bool QApplicationPrivate::obey_desktop_settings = true;        // use winsys resources
+int QApplicationPrivate::cursor_flash_time = 1000;        // text caret flash time
+int QApplicationPrivate::mouse_double_click_time = 400;        // mouse dbl click limit
 #ifndef QT_NO_WHEELEVENT
-int QApplication::wheel_scroll_lines = 3;                // number of lines to scroll
+int QApplicationPrivate::wheel_scroll_lines = 3;                // number of lines to scroll
 #endif
 bool qt_is_gui_used;
 bool Q_GUI_EXPORT qt_tab_all_widgets = true;
@@ -358,19 +361,20 @@ QRect qt_maxWindowRect;
 static int drag_time = 500;
 static int drag_distance = 4;
 static bool reverse_layout = false;
-QSize QApplication::app_strut = QSize(0,0); // no default application strut
-bool QApplication::animate_ui = true;
-bool QApplication::animate_menu = false;
-bool QApplication::fade_menu = false;
-bool QApplication::animate_combo = false;
-bool QApplication::animate_tooltip = false;
-bool QApplication::fade_tooltip = false;
-bool QApplication::animate_toolbox = false;
-bool QApplication::widgetCount = false;
+QSize QApplicationPrivate::app_strut = QSize(0,0); // no default application strut
+bool QApplicationPrivate::animate_ui = true;
+bool QApplicationPrivate::animate_menu = false;
+bool QApplicationPrivate::fade_menu = false;
+bool QApplicationPrivate::animate_combo = false;
+bool QApplicationPrivate::animate_tooltip = false;
+bool QApplicationPrivate::fade_tooltip = false;
+bool QApplicationPrivate::animate_toolbox = false;
+bool QApplicationPrivate::widgetCount = false;
 
 #if defined(QT_TABLET_SUPPORT)
 bool chokeMouse = false;
 #endif
+
 
 int qt_double_buffer_timer = 0;
 
@@ -471,7 +475,7 @@ FontHash *qt_app_fonts_hash()
     return app_fonts();
 }
 
-QWidgetList *QApplication::popupWidgets = 0;        // has keyboard input focus
+QWidgetList *QApplicationPrivate::popupWidgets = 0;        // has keyboard input focus
 
 QDesktopWidget *qt_desktopWidget = 0;                // root window widgets
 #ifndef QT_NO_CLIPBOARD
@@ -552,7 +556,7 @@ void QApplication::process_cmdline()
         } else if (qstrcmp(arg, "-reverse") == 0) {
             setReverseLayout(true);
         } else if (qstrcmp(arg, "-widgetcount") == 0) {
-            widgetCount = true;
+            QApplicationPrivate::widgetCount = true;
         } else {
             argv[j++] = argv[i];
         }
@@ -836,7 +840,8 @@ QApplication::Type QApplication::type() const
 
 QWidget *QApplication::activePopupWidget()
 {
-    return popupWidgets && !popupWidgets->isEmpty() ? popupWidgets->last() : 0;
+    return QApplicationPrivate::popupWidgets && !QApplicationPrivate::popupWidgets->isEmpty() ? 
+        QApplicationPrivate::popupWidgets->last() : 0;
 }
 
 
@@ -902,19 +907,19 @@ QApplication::~QApplication()
 #ifndef QT_NO_PALETTE
     delete qt_std_pal;
     qt_std_pal = 0;
-    delete app_pal;
-    app_pal = 0;
+    delete QApplicationPrivate::app_pal;
+    QApplicationPrivate::app_pal = 0;
     app_palettes()->clear();
 #endif
-    delete app_font;
-    app_font = 0;
+    delete QApplicationPrivate::app_font;
+    QApplicationPrivate::app_font = 0;
     app_fonts()->clear();
 #ifndef QT_NO_STYLE
-    delete app_style;
-    app_style = 0;
+    delete QApplicationPrivate::app_style;
+    QApplicationPrivate::app_style = 0;
 #endif
-    delete app_icon;
-    app_icon = 0;
+    delete QApplicationPrivate::app_icon;
+    QApplicationPrivate::app_icon = 0;
 #ifndef QT_NO_CURSOR
     d->cursor_list.clear();
 #endif
@@ -926,9 +931,8 @@ QApplication::~QApplication()
 
     qt_cleanup();
 
-    if (widgetCount) {
+    if (QApplicationPrivate::widgetCount) 
         qDebug("Widgets left: %i    Max widgets: %i \n", QWidget::instanceCounter, QWidget::maxInstances);
-    }
 #ifndef QT_NO_SESSIONMANAGER
     delete d->session_manager;
     d->session_manager = 0;
@@ -936,23 +940,23 @@ QApplication::~QApplication()
 
     qt_explicit_app_style = false;
     qt_app_has_font = false;
-    obey_desktop_settings = true;
-    cursor_flash_time = 1000;
-    mouse_double_click_time = 400;
+    QApplicationPrivate::obey_desktop_settings = true;
+    QApplicationPrivate::cursor_flash_time = 1000;
+    QApplicationPrivate::mouse_double_click_time = 400;
 #ifndef QT_NO_WHEELEVENT
-    wheel_scroll_lines = 3;
+    QApplicationPrivate::wheel_scroll_lines = 3;
 #endif
     drag_time = 500;
     drag_distance = 4;
     reverse_layout = false;
-    app_strut = QSize(0, 0);
-    animate_ui = true;
-    animate_menu = false;
-    fade_menu = false;
-    animate_combo = false;
-    animate_tooltip = false;
-    fade_tooltip = false;
-    widgetCount = false;
+    QApplicationPrivate::app_strut = QSize(0, 0);
+    QApplicationPrivate::animate_ui = true;
+    QApplicationPrivate::animate_menu = false;
+    QApplicationPrivate::fade_menu = false;
+    QApplicationPrivate::animate_combo = false;
+    QApplicationPrivate::animate_tooltip = false;
+    QApplicationPrivate::fade_tooltip = false;
+    QApplicationPrivate::widgetCount = false;
 }
 
 
@@ -1048,17 +1052,16 @@ static QString *qt_style_override = 0;
 QStyle& QApplication::style()
 {
 #ifndef QT_NO_STYLE
-    if (app_style)
-        return *app_style;
-    if (!qt_is_gui_used) {
+    if (QApplicationPrivate::app_style)
+        return *QApplicationPrivate::app_style;
+    if (!qt_is_gui_used) 
         qFatal("No style available in non-gui applications!");
-    }
 
 #if defined(Q_WS_X11)
     if(!qt_style_override)
         x11_initialize_style(); // run-time search for default style
 #endif
-    if (!app_style) {
+    if (!QApplicationPrivate::app_style) {
         // Compile-time search for default style
         //
         QString style;
@@ -1086,25 +1089,26 @@ QStyle& QApplication::style()
             style = "Compact";                // default style for small devices
 #endif
         }
-        app_style = QStyleFactory::create(style);
-        if (!app_style &&                // platform default style not available, try alternatives
-             !(app_style = QStyleFactory::create("Windows")) &&
-             !(app_style = QStyleFactory::create("Platinum")) &&
-             !(app_style = QStyleFactory::create("MotifPlus")) &&
-             !(app_style = QStyleFactory::create("Motif")) &&
-             !(app_style = QStyleFactory::create("CDE")) &&
-             !(app_style = QStyleFactory::create("Aqua")) &&
-             !(app_style = QStyleFactory::create("SGI")) &&
-             !(app_style = QStyleFactory::create("Compact"))
-            && (QStyleFactory::keys().isEmpty() || !(app_style = QStyleFactory::create(QStyleFactory::keys()[0])))
+        QApplicationPrivate::app_style = QStyleFactory::create(style);
+        if (!QApplicationPrivate::app_style &&  // platform default style not available, try alternatives
+            !(QApplicationPrivate::app_style = QStyleFactory::create("Windows")) &&
+            !(QApplicationPrivate::app_style = QStyleFactory::create("Platinum")) &&
+            !(QApplicationPrivate::app_style = QStyleFactory::create("MotifPlus")) &&
+            !(QApplicationPrivate::app_style = QStyleFactory::create("Motif")) &&
+            !(QApplicationPrivate::app_style = QStyleFactory::create("CDE")) &&
+            !(QApplicationPrivate::app_style = QStyleFactory::create("Mac")) &&
+            !(QApplicationPrivate::app_style = QStyleFactory::create("SGI")) &&
+            !(QApplicationPrivate::app_style = QStyleFactory::create("Compact"))
+            && (QStyleFactory::keys().isEmpty() || 
+                !(QApplicationPrivate::app_style = QStyleFactory::create(QStyleFactory::keys()[0])))
        )
             qFatal("No %s style available!", style.latin1());
     }
 
-    QPalette app_pal_copy (*app_pal);
-    app_style->polish(*app_pal);
+    QPalette app_pal_copy (*QApplicationPrivate::app_pal);
+    QApplicationPrivate::app_style->polish(*QApplicationPrivate::app_pal);
 
-    if (is_app_running && !is_app_closing && (*app_pal != app_pal_copy)) {
+    if (is_app_running && !is_app_closing && (*QApplicationPrivate::app_pal != app_pal_copy)) {
         QEvent e(QEvent::ApplicationPaletteChange);
         for (QWidgetMapper::ConstIterator it = QWidget::mapper->constBegin(); it != QWidget::mapper->constEnd(); ++it) {
             register QWidget *w = *it;
@@ -1112,9 +1116,9 @@ QStyle& QApplication::style()
         }
     }
 
-    app_style->polish(qApp);
+    QApplicationPrivate::app_style->polish(qApp);
 #endif
-    return *app_style;
+    return *QApplicationPrivate::app_style;
 }
 
 /*!
@@ -1139,8 +1143,8 @@ void QApplication::setStyle(QStyle *style)
     if (!style)
         return;
 
-    QStyle* old = app_style;
-    app_style = style;
+    QStyle* old = QApplicationPrivate::app_style;
+    QApplicationPrivate::app_style = style;
 #ifdef Q_WS_X11
     qt_explicit_app_style = true;
 #endif // Q_WS_X11
@@ -1173,7 +1177,7 @@ void QApplication::setStyle(QStyle *style)
     setPalette(tmpPal);
 
     // initialize the application with the new style
-    app_style->polish(qApp);
+    QApplicationPrivate::app_style->polish(qApp);
 
     // re-polish existing widgets if necessary
     if (old) {
@@ -1182,7 +1186,7 @@ void QApplication::setStyle(QStyle *style)
                 register QWidget *w = *it;
                 if (!w->testWFlags(Qt::WType_Desktop)) {        // except desktop
                     if (w->testWState(Qt::WState_Polished))
-                        app_style->polish(w);                // repolish
+                        QApplicationPrivate::app_style->polish(w);                // repolish
                     QEvent e(QEvent::StyleChange);
                     QApplication::sendEvent(w, &e);
 #ifdef QT_COMPAT
@@ -1245,7 +1249,7 @@ QStyle* QApplication::setStyle(const QString& style)
 
 int QApplication::colorSpec()
 {
-    return app_cspec;
+    return QApplicationPrivate::app_cspec;
 }
 
 /*!
@@ -1321,12 +1325,10 @@ void QApplication::setColorSpec(int spec)
     if (qApp)
         qWarning("QApplication::setColorSpec: This function must be "
                  "called before the QApplication object is created");
-    app_cspec = spec;
+    QApplicationPrivate::app_cspec = spec;
 }
 
 /*!
-  \fn QSize QApplication::globalStrut()
-
   Returns the application's global strut.
 
   The strut is a size object whose dimensions are the minimum that any
@@ -1335,6 +1337,11 @@ void QApplication::setColorSpec(int spec)
 
   \sa setGlobalStrut()
 */
+
+QSize QApplication::globalStrut()
+{
+    return QApplicationPrivate::app_strut;
+}
 
 /*!
   Sets the application's global strut to \a strut.
@@ -1359,7 +1366,7 @@ void QApplication::setColorSpec(int spec)
 
 void QApplication::setGlobalStrut(const QSize& strut)
 {
-    app_strut = strut;
+    QApplicationPrivate::app_strut = strut;
 }
 
 #ifndef QT_NO_PALETTE
@@ -1373,14 +1380,14 @@ QPalette QApplication::palette()
     if (!qApp)
         qWarning("QApplication::palette: This function can only be "
                   "called after the QApplication object has been created");
-    if (!app_pal) {
+    if (!QApplicationPrivate::app_pal) {
         if (!qt_std_pal)
             qt_create_std_palette();
-        app_pal = new QPalette(*qt_std_pal);
+        QApplicationPrivate::app_pal = new QPalette(*qt_std_pal);
         qt_fix_tooltips();
     }
 
-    return *app_pal;
+    return *QApplicationPrivate::app_pal;
 }
 
 /*!
@@ -1419,7 +1426,7 @@ QPalette QApplication::palette(const QWidget* w)
 */
 QPalette QApplication::palette(const char *className)
 {
-    if (!app_pal)
+    if (!QApplicationPrivate::app_pal)
         palette();
     PaletteHash *hash = app_palettes();
     if (className && hash && hash->size()) {
@@ -1427,7 +1434,7 @@ QPalette QApplication::palette(const char *className)
         if (it != hash->constEnd())
             return *it;
     }
-    return *app_pal;
+    return *QApplicationPrivate::app_pal;
 }
 
 /*!
@@ -1455,11 +1462,10 @@ void QApplication::setPalette(const QPalette &palette, const char* className)
     bool all = false;
     PaletteHash *hash = app_palettes();
     if (!className) {
-        if (!app_pal) {
-            app_pal = new QPalette(pal);
-        } else {
-            *app_pal = pal;
-        }
+        if (!QApplicationPrivate::app_pal)
+            QApplicationPrivate::app_pal = new QPalette(pal);
+        else 
+            *QApplicationPrivate::app_pal = pal;
         if (hash && hash->size()) {
             all = true;
             hash->clear();
@@ -1502,9 +1508,9 @@ QFont QApplication::font(const QWidget *w)
                 return it.value();
         }
     }
-    if (!app_font)
-        app_font = new QFont("Helvetica");
-    return *app_font;
+    if (!QApplicationPrivate::app_font)
+        QApplicationPrivate::app_font = new QFont("Helvetica");
+    return *QApplicationPrivate::app_font;
 }
 
 /*! Changes the default application font to \a font.  If \a className
@@ -1526,11 +1532,10 @@ void QApplication::setFont(const QFont &font, const char* className)
     FontHash *hash = app_fonts();
     if (!className) {
         qt_app_has_font = true;
-        if (!app_font) {
-            app_font = new QFont(font);
-        } else {
-            *app_font = font;
-        }
+        if (!QApplicationPrivate::app_font)
+            QApplicationPrivate::app_font = new QFont(font);
+        else
+            *QApplicationPrivate::app_font = font;
         if (hash && hash->size()) {
             all = true;
             hash->clear();
@@ -1557,9 +1562,9 @@ void QApplication::setFont(const QFont &font, const char* className)
  */
 const QPixmap &QApplication::windowIcon()
 {
-    if (!app_icon)
-        app_icon = new QPixmap();
-    return *app_icon;
+    if (!QApplicationPrivate::app_icon)
+        QApplicationPrivate::app_icon = new QPixmap();
+    return *QApplicationPrivate::app_icon;
 }
 
 /*!
@@ -1569,10 +1574,10 @@ const QPixmap &QApplication::windowIcon()
  */
 void QApplication::setWindowIcon(const QPixmap &pixmap)
 {
-    if (!app_icon)
-        app_icon = new QPixmap(pixmap);
+    if (!QApplicationPrivate::app_icon)
+        QApplicationPrivate::app_icon = new QPixmap(pixmap);
     else
-        *app_icon = pixmap;
+        *QApplicationPrivate::app_icon = pixmap;
     if (is_app_running && !is_app_closing) {
         QEvent e(QEvent::ApplicationWindowIconChange);
         for (QWidgetMapper::ConstIterator it = QWidget::mapper->constBegin();
@@ -1671,17 +1676,24 @@ QWidgetList QApplication::allWidgets()
 }
 
 /*!
-  \fn QWidget *QApplication::focusWidget() const
-
   Returns the application widget that has the keyboard input focus, or
   0 if no widget in this application has the focus.
 
   \sa QWidget::setFocus(), QWidget::hasFocus(), activeWindow()
 */
 
-/*!
-  \fn QWidget *QApplication::activeWindow() const
+QWidget *QApplication::focusWidget() const
+{
+    return QApplicationPrivate::focus_widget;
+}
 
+void QApplication::setFocusWidget(QWidget *focus) 
+{
+    QApplicationPrivate::focus_widget = focus;
+}
+
+
+/*!
   Returns the application top-level window that has the keyboard input
   focus, or 0 if no application window has the focus. Note that
   there might be an activeWindow() even if there is no focusWidget(),
@@ -1689,6 +1701,11 @@ QWidgetList QApplication::allWidgets()
 
   \sa QWidget::setFocus(), QWidget::hasFocus(), focusWidget()
 */
+
+QWidget *QApplication::activeWindow() const
+{
+    return QApplicationPrivate::active_window;
+}
 
 /*!
   Returns display (screen) font metrics for the application font.
@@ -1842,7 +1859,7 @@ bool QApplication::event(QEvent *e)
         QTimerEvent *te = static_cast<QTimerEvent*>(e);
         Q_ASSERT(te != 0);
         if (te->timerId() == qt_double_buffer_timer) {
-            if (! active_window) {
+            if (!QApplicationPrivate::active_window) {
 #if defined(Q_WS_X11) || defined(Q_WS_WIN)
                 extern void qt_discard_double_buffer();
                 qt_discard_double_buffer();
@@ -1917,14 +1934,14 @@ void QApplication::setActiveWindow(QWidget* act)
 {
     QWidget* window = act?act->topLevelWidget():0;
 
-    if (active_window == window)
+    if (QApplicationPrivate::active_window == window)
         return;
 
     // first the activation/deactivation events
-    if (active_window) {
+    if (QApplicationPrivate::active_window) {
         QWidgetList deacts;
 #ifndef QT_NO_STYLE
-        if (style().styleHint(QStyle::SH_Widget_ShareActivation, 0, active_window)) {
+        if (style().styleHint(QStyle::SH_Widget_ShareActivation, 0, QApplicationPrivate::active_window)) {
             QWidgetList list = topLevelWidgets();
             for (int i = 0; i < list.size(); ++i) {
                 QWidget *w = list.at(i);
@@ -1933,8 +1950,8 @@ void QApplication::setActiveWindow(QWidget* act)
             }
         } else
 #endif
-            deacts.append(active_window);
-        active_window = 0;
+            deacts.append(QApplicationPrivate::active_window);
+        QApplicationPrivate::active_window = 0;
         QEvent e(QEvent::WindowDeactivate);
         for(int i = 0; i < deacts.size(); ++i) {
             QWidget *w = deacts.at(i);
@@ -1942,12 +1959,12 @@ void QApplication::setActiveWindow(QWidget* act)
         }
     }
 
-    active_window = window;
-    if (active_window) {
+    QApplicationPrivate::active_window = window;
+    if (QApplicationPrivate::active_window) {
         QEvent e(QEvent::WindowActivate);
         QWidgetList acts;
 #ifndef QT_NO_STYLE
-        if (style().styleHint(QStyle::SH_Widget_ShareActivation, 0, active_window)) {
+        if (style().styleHint(QStyle::SH_Widget_ShareActivation, 0, QApplicationPrivate::active_window)) {
             QWidgetList list = topLevelWidgets();
             for (int i = 0; i < list.size(); ++i) {
                 QWidget *w = list.at(i);
@@ -1956,7 +1973,7 @@ void QApplication::setActiveWindow(QWidget* act)
             }
         } else
 #endif
-            acts.append(active_window);
+            acts.append(QApplicationPrivate::active_window);
         for (int i = 0; i < acts.size(); ++i) {
             QWidget *w = acts.at(i);
             sendSpontaneousEvent(w, &e);
@@ -1965,24 +1982,24 @@ void QApplication::setActiveWindow(QWidget* act)
 
     // then focus events
     QFocusEvent::setReason(QFocusEvent::ActiveWindow);
-    if (!active_window && focus_widget) {
+    if (!QApplicationPrivate::active_window && QApplicationPrivate::focus_widget) {
         QFocusEvent out(QEvent::FocusOut);
-        QWidget *tmp = focus_widget;
-        focus_widget = 0;
+        QWidget *tmp = QApplicationPrivate::focus_widget;
+        QApplicationPrivate::focus_widget = 0;
 #ifdef Q_WS_WIN
         QInputContext::accept(tmp);
 #endif
         sendSpontaneousEvent(tmp, &out);
-    } else if (active_window) {
-        QWidget *w = active_window->focusWidget();
+    } else if (QApplicationPrivate::active_window) {
+        QWidget *w = QApplicationPrivate::active_window->focusWidget();
         if (w /*&& w->focusPolicy() != QWidget::NoFocus*/)
             w->setFocus();
         else
-            active_window->focusNextPrevChild(true);
+            QApplicationPrivate::active_window->focusNextPrevChild(true);
     }
     QFocusEvent::resetReason();
 
-    if (!active_window) {
+    if (!QApplicationPrivate::active_window) {
         // (re)start the timer to discard the global double buffer
         // while the application doesn't have any active windows
         if (qt_double_buffer_timer)
@@ -2198,7 +2215,7 @@ QClipboard *QApplication::clipboard()
 
 void QApplication::setDesktopSettingsAware(bool on)
 {
-    obey_desktop_settings = on;
+    QApplicationPrivate::obey_desktop_settings = on;
 }
 
 /*!
@@ -2209,7 +2226,45 @@ void QApplication::setDesktopSettingsAware(bool on)
 
 bool QApplication::desktopSettingsAware()
 {
-    return obey_desktop_settings;
+    return QApplicationPrivate::obey_desktop_settings;
+}
+
+/*!
+  Returns the current state of the modifier keys on the keyboard. The
+  current state is updated sychronously as the event queue is emptied
+  of events that will spontaneously change the keyboard state
+  (QEvent::KeyPress and QEvent::KeyRelease events).
+
+  It should be noted this may not reflect the actual keys held on the
+  input device at the time of calling but rather the modifiers as
+  last reported in one of the above events. If no keys are being held
+  Qt::NoModifier is returned.
+
+  \sa QApplication::mouseButtons(), Qt::KeyboardModifiers
+*/
+
+Qt::KeyboardModifiers QApplication::keyboardModifiers()
+{
+    return QApplicationPrivate::modifier_buttons;
+}
+
+/*!  
+  Returns the current state of the buttons on the mouse. The current
+  state is updated syncronously as the event queue is emptied of
+  events that will spontaneously change the mouse state
+  (QEvent::MousePress and QEvent::MouseRelease events).
+
+  It should be noted this may not reflect the actual buttons held on
+  theinput device at the time of calling but rather the mouse buttons
+  as last reported in one of the above events. If no mouse buttons rae
+  being held Qt::NoButton is returned.
+
+  \sa QApplication::keyboardModifiers(), Qt::MouseButtons
+*/
+
+Qt::MouseButtons QApplication::mouseButtons()
+{
+    return QApplicationPrivate::mouse_buttons;
 }
 
 /*!
@@ -2544,8 +2599,46 @@ bool QApplication::notify(QObject *receiver, QEvent *e)
     }
 #endif // QT_COMPAT
 
+    // capture the current mouse/keyboard state
+    if(e->spontaneous()) {
+        if(e->type() == QEvent::KeyPress || e->type() == QEvent::KeyRelease) {
+            Qt::KeyboardModifier modif = Qt::NoModifier;
+            switch(static_cast<QKeyEvent*>(e)->key()) {
+            case Qt::Key_Shift:
+                modif = Qt::ShiftModifier;
+                break;
+            case Qt::Key_Control:
+                modif = Qt::ControlModifier;
+                break;
+            case Qt::Key_Meta:
+                modif = Qt::MetaModifier;
+                break;
+            case Qt::Key_Alt:
+                modif = Qt::AltModifier;
+                break;
+            case Qt::Key_NumLock:
+                modif = Qt::KeypadModifier;
+                break;
+            default:
+                break;
+            }
+            if(modif != Qt::NoModifier) {
+                if(e->type() == QEvent::KeyPress)
+                    QApplicationPrivate::modifier_buttons |= modif;
+                else
+                    QApplicationPrivate::modifier_buttons &= ~modif;
+            }
+        } else if(e->type() == QEvent::MouseButtonPress 
+                  || e->type() == QEvent::MouseButtonRelease) {
+            QMouseEvent *me = static_cast<QMouseEvent*>(e);
+            if(me->type() == QEvent::MouseButtonPress)
+                QApplicationPrivate::mouse_buttons |= me->button();
+            else
+                QApplicationPrivate::mouse_buttons &= ~me->button();
+        }
+    }
 
-    /* User input and window activation makes tooltips sleep */
+    // User input and window activation makes tooltips sleep 
     switch (e->type()) {
     case QEvent::WindowActivate:
     case QEvent::WindowDeactivate:
@@ -2656,12 +2749,12 @@ bool QApplication::notify(QObject *receiver, QEvent *e)
         }
 
         while (w) {
-            QMouseEvent me(mouse->type(), relpos, mouse->globalPos(), mouse->button(), mouse->state());
+            QMouseEvent me(mouse->type(), relpos, mouse->globalPos(), mouse->button(), mouse->buttons(), 
+                           mouse->modifiers());
             me.spont = mouse->spontaneous();
             // throw away any mouse-tracking-only mouse events
             if (!w->hasMouseTracking()
-                && mouse->type() == QEvent::MouseMove
-                && (mouse->state()&Qt::MouseButtonMask) == 0) {
+                && mouse->type() == QEvent::MouseMove && mouse->buttons() == 0) {
                 // but still send them through all application event filters (normally done by notify_helper)
                 for (int i = 0; i < d->eventFilters.size(); ++i) {
                     register QObject *obj = d->eventFilters.at(i);
@@ -2719,7 +2812,8 @@ bool QApplication::notify(QObject *receiver, QEvent *e)
         }
 
         while (w) {
-            QWheelEvent we(relpos, wheel->globalPos(), wheel->delta(), wheel->state(), wheel->orientation());
+            QWheelEvent we(relpos, wheel->globalPos(), wheel->delta(), wheel->buttons(),
+                           wheel->modifiers(), wheel->orientation());
             we.spont = wheel->spontaneous();
             res = notify_helper(w,  w == receiver ? wheel : &we);
             e->spont = false;
@@ -2753,7 +2847,7 @@ bool QApplication::notify(QObject *receiver, QEvent *e)
             }
 
         while (w) {
-            QContextMenuEvent ce(context->reason(), relpos, context->globalPos(), context->state());
+            QContextMenuEvent ce(context->reason(), relpos, context->globalPos());
             ce.spont = e->spontaneous();
             res = notify_helper(w,  w == receiver ? context : &ce);
             e->spont = false;
@@ -3535,4 +3629,14 @@ void QSessionManager::requestPhase2()
         widget = widget->topLevelWidget();
     \endcode
 */
+
+QWidget *QApplication::mainWidget() const
+{
+    return QApplicationPrivate::main_widget;
+}
+
+bool QApplication::inPopupMode() const
+{
+    return QApplicationPrivate::popupWidgets != 0;
+}
 

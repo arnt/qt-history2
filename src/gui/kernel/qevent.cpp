@@ -130,8 +130,30 @@
     position explicitly.
 */
 
-QMouseEvent::QMouseEvent(Type type, const QPoint &pos, int button, int state)
-    : QInputEvent(type), p(pos), b(button),s((ushort)state) {
+#ifdef QT_COMPAT
+QMouseEvent::QMouseEvent(Type type, const QPoint &pos, Qt::ButtonState button, int state)
+    : QInputEvent(type), p(pos), b((Qt::MouseButton)button)
+{
+    g = QCursor::pos();
+    mouseState = Qt::MouseButtons(state & Qt::MouseButtonMask);
+    keyState = Qt::KeyboardModifiers(state & Qt::KeyboardModifierMask);
+}
+
+QMouseEvent::QMouseEvent(Type type, const QPoint &pos, const QPoint &globalPos,
+                         Qt::ButtonState button, int state)
+    : QInputEvent(type), p(pos), g(globalPos), b((Qt::MouseButton)button)
+{
+    mouseState = Qt::MouseButtons(state & Qt::MouseButtonMask);
+    keyState = Qt::KeyboardModifiers(state & Qt::KeyboardModifierMask);
+}
+#endif
+
+
+
+QMouseEvent::QMouseEvent(Type type, const QPoint &pos, Qt::MouseButton button, 
+                         Qt::MouseButtons buttons, Qt::KeyboardModifiers modifiers)
+    : QInputEvent(type), p(pos), b(button), mouseState(buttons), keyState(modifiers)
+{
         g = QCursor::pos();
 }
 
@@ -220,7 +242,7 @@ QMouseEvent::QMouseEvent(Type type, const QPoint &pos, int button, int state)
 */
 
 /*!
-    \fn Qt::ButtonState QMouseEvent::button() const
+    \fn Qt::MouseButton QMouseEvent::button() const
 
     Returns the button that caused the event.
 
@@ -230,7 +252,7 @@ QMouseEvent::QMouseEvent(Type type, const QPoint &pos, int button, int state)
     Note that the returned value is always \c Qt::NoButton for mouse move
     events.
 
-    \sa state() Qt::ButtonState
+    \sa buttons() Qt::MouseButton
 */
 
 
@@ -258,19 +280,6 @@ QMouseEvent::QMouseEvent(Type type, const QPoint &pos, int button, int state)
 
     \sa button() stateAfter() Qt::ButtonState
 */
-
-/*!
-    \fn Qt::ButtonState QMouseEvent::stateAfter() const
-
-    Returns the button state immediately after the event.
-
-    \sa state() Qt::ButtonState
-*/
-Qt::ButtonState QMouseEvent::stateAfter() const
-{
-    return Qt::ButtonState(state()^button());
-}
-
 
 
 /*!
@@ -318,14 +327,36 @@ Qt::ButtonState QMouseEvent::stateAfter() const
     \sa pos() delta() state()
 */
 #ifndef QT_NO_WHEELEVENT
+
+#ifdef QT_COMPAT
 QWheelEvent::QWheelEvent(const QPoint &pos, int delta, int state, Qt::Orientation orient)
-    : QInputEvent(Wheel), p(pos), d(delta), s((ushort)state), o(orient)
+    : QInputEvent(Wheel), p(pos), d(delta), o(orient)
+{
+    g = QCursor::pos();
+    mouseState = Qt::MouseButtons(state & Qt::MouseButtonMask);
+    keyState = Qt::KeyboardModifiers(state & Qt::KeyboardModifierMask);
+}
+
+QWheelEvent::QWheelEvent(const QPoint &pos, const QPoint& globalPos, int delta, int state, 
+                         Qt::Orientation orient)
+    : QInputEvent(Wheel), p(pos), g(globalPos), d(delta), o(orient)
+{
+    mouseState = Qt::MouseButtons(state & Qt::MouseButtonMask);
+    keyState = Qt::KeyboardModifiers(state & Qt::KeyboardModifierMask);
+}
+#endif
+
+QWheelEvent::QWheelEvent(const QPoint &pos, int delta, 
+                         Qt::MouseButtons buttons, Qt::KeyboardModifiers modifiers, 
+                         Qt::Orientation orient)
+    : QInputEvent(Wheel), p(pos), d(delta), mouseState(buttons), 
+      keyState(modifiers), o(orient)
 {
     g = QCursor::pos();
 }
 #endif
 /*!
-    \fn QWheelEvent::QWheelEvent(const QPoint &position, const QPoint &globalPos, int delta, int state, Qt::Orientation orient = Qt::Vertical )
+    \fn QWheelEvent::QWheelEvent(const QPoint &position, const QPoint &globalPos, int delta, Qt::MouseButtons buttons, Qt::KeyboardModifiers modifiers, Qt::Orientation orient = Qt::Vertical )
 
     Constructs a wheel event object.
 
@@ -469,14 +500,14 @@ QWheelEvent::QWheelEvent(const QPoint &pos, int delta, int state, Qt::Orientatio
 */
 
 /*!
-    \fn QKeyEvent::QKeyEvent(Type type, int key, int state, const QString& text, bool autorep, ushort count)
+    \fn QKeyEvent::QKeyEvent(Type type, int key, Qt::KeyboardModifiers modifiers, const QString& text, bool autorep, ushort count)
 
     Constructs a key event object.
 
     The \a type parameter must be \c QEvent::KeyPress or \c
     QEvent::KeyRelease. If \a key is 0, the event is not a result of
     a known key; for example, it may be the result of a compose
-    sequence or keyboard macro. The \a state holds the keyboard
+    sequence or keyboard macro. The \a modifiers holds the keyboard
     modifiers, and the given \a text is the Unicode text that the
     key generated. If \a autorep is true, isAutoRepeat() will be
     true. \a count is the number of keys involved in the event.
@@ -511,41 +542,25 @@ QWheelEvent::QWheelEvent(const QPoint &pos, int delta, int state, Qt::Orientatio
 */
 
 /*!
-    \fn Qt::ButtonState QKeyEvent::state() const
-
-    Returns the keyboard modifier flags that existed immediately
-    before the event occurred.
-
-    The returned value is a selection of the following values,
-    combined using the OR operator:
-    \c Qt::ShiftButton, \c Qt::ControlButton, \c Qt::AltButton, and
-    \c Qt::MetaButton.
-
-    \sa stateAfter()
-*/
-
-/*!
-    \fn Qt::ButtonState QKeyEvent::stateAfter() const
-
     Returns the keyboard modifier flags that existed immediately
     after the event occurred.
 
     \warning This function cannot be trusted.
 
-    \sa state()
+    \sa QApplication::keyboardModifiers()
 */
 //###### We must check with XGetModifierMapping
-Qt::ButtonState QKeyEvent::stateAfter() const
+Qt::KeyboardModifiers QKeyEvent::modifiers() const
 {
     if (key() == Qt::Key_Shift)
-        return Qt::ButtonState(state()^Qt::ShiftButton);
+        return Qt::KeyboardModifiers(m^Qt::ShiftModifier);
     if (key() == Qt::Key_Control)
-        return Qt::ButtonState(state()^Qt::ControlButton);
+        return Qt::KeyboardModifiers(m^Qt::ControlModifier);
     if (key() == Qt::Key_Alt)
-        return Qt::ButtonState(state()^Qt::AltButton);
+        return Qt::KeyboardModifiers(m^Qt::AltModifier);
     if (key() == Qt::Key_Meta)
-        return Qt::ButtonState(state()^Qt::MetaButton);
-    return state();
+        return Qt::KeyboardModifiers(m^Qt::MetaModifier);
+    return m;
 }
 
 /*!
@@ -1237,6 +1252,19 @@ void QFocusEvent::resetReason()
     coordinates. \a state is the Qt::ButtonState at the time of the event.
 */
 
+#ifdef QT_COMPAT
+Qt::ButtonState QContextMenuEvent::state() const 
+{ 
+    return Qt::ButtonState(int(QApplication::keyboardModifiers())|QApplication::mouseButtons()); 
+}
+
+QContextMenuEvent::QContextMenuEvent(Reason reason, const QPoint &pos, int)
+    : QInputEvent(ContextMenu), p(pos), reas(reason)
+{
+    gp = QCursor::pos();
+}
+#endif
+
 
 /*!
     \fn QContextMenuEvent::QContextMenuEvent(Reason reason, const QPoint &pos, int state)
@@ -1256,8 +1284,8 @@ void QFocusEvent::resetReason()
     position explicitly.
 */
 
-QContextMenuEvent::QContextMenuEvent(Reason reason, const QPoint &pos, int state)
-    : QInputEvent(ContextMenu), p(pos), reas(reason), s((ushort)state)
+QContextMenuEvent::QContextMenuEvent(Reason reason, const QPoint &pos)
+    : QInputEvent(ContextMenu), p(pos), reas(reason)
 {
     gp = QCursor::pos();
 }
@@ -2049,7 +2077,7 @@ QDebug operator<<(QDebug dbg, const QEvent *e) {
             }
             dbg.nospace() << "QKeyEvent("  << n
                         << ", " << ke->key()
-                        << ", " << hex << ke->state()
+                        << ", " << hex << ke->modifiers()
                         << ", \"" << ke->text()
                         << "\", " << ke->isAutoRepeat()
                         << ", " << ke->count()

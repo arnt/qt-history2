@@ -934,9 +934,9 @@ void qt_init(QApplicationPrivate *priv, QApplication::Type)
             AEInstallEventHandler(typeWildCard, typeWildCard, app_proc_ae_handlerUPP, (long)qApp, true);
         }
 
-        if(QApplication::app_style) {
+        if(QApplicationPrivate::app_style) {
             QEvent ev(QEvent::Style);
-            qt_sendSpontaneousEvent(QApplication::app_style, &ev);
+            qt_sendSpontaneousEvent(QApplicationPrivate::app_style, &ev);
         }
     }
     QApplicationPrivate::qt_mac_apply_settings();
@@ -998,11 +998,12 @@ extern QWidget * mac_keyboard_grabber;
 
 void QApplication::setMainWidget(QWidget *mainWidget)
 {
-    if (main_widget && windowIcon().isNull() && main_widget->testAttribute(Qt::WA_SetWindowIcon))
-        setWindowIcon(main_widget->windowIcon());
-    main_widget = mainWidget;
+    if (QApplicationPrivate::main_widget && 
+        windowIcon().isNull() && 
+        QApplicationPrivate::main_widget->testAttribute(Qt::WA_SetWindowIcon))
+        setWindowIcon(QApplicationPrivate::main_widget->windowIcon());
+    QApplicationPrivate::main_widget = mainWidget;
 }
-
 
 #ifndef QT_NO_CURSOR
 
@@ -1724,7 +1725,7 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
                 if(qt_mac_dblclick.use_qt_time_limit) {
                     EventTime now = GetEventTime(event);
                     if(qt_mac_dblclick.last_time != -2 &&
-                       now - qt_mac_dblclick.last_time <= ((double)QApplication::mouse_double_click_time)/1000)
+                       now - qt_mac_dblclick.last_time <= ((double)QApplicationPrivate::mouse_double_click_time)/1000)
                         etype = QEvent::MouseButtonDblClick;
                 } else {
                     UInt32 count;
@@ -1938,10 +1939,10 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
             if(wheel_delta) {
                 QWheelEvent qwe(plocal, p, wheel_delta, state | keys);
                 QApplication::sendSpontaneousEvent(widget, &qwe);
-                if(!qwe.isAccepted() && QApplication::focus_widget && QApplication::focus_widget != widget) {
-                    QWheelEvent qwe2(QApplication::focus_widget->mapFromGlobal(p), p,
+                if(!qwe.isAccepted() && QApplicationPrivate::focus_widget && QApplicationPrivate::focus_widget != widget) {
+                    QWheelEvent qwe2(QApplicationPrivate::focus_widget->mapFromGlobal(p), p,
                                      wheel_delta, state | keys);
-                    QApplication::sendSpontaneousEvent(QApplication::focus_widget, &qwe2);
+                    QApplication::sendSpontaneousEvent(QApplicationPrivate::focus_widget, &qwe2);
                 }
             } else {
 #ifdef QMAC_SPEAK_TO_ME
@@ -1992,7 +1993,7 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
     }
     case kEventClassTextInput:
         handled_event = false;
-        if(!(widget = QApplication::focus_widget)) {
+        if(!(widget = QApplicationPrivate::focus_widget)) {
             handled_event = false;
         } else if(ekind == kEventTextInputOffsetToPos) {
             if(qt_mac_input_spot != QT_MAC_ONTHESPOT) {
@@ -2111,8 +2112,8 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
             keyboard_modifiers_state = modif;
             if(mac_keyboard_grabber)
                 widget = mac_keyboard_grabber;
-            else if(QApplication::focus_widget)
-                widget = QApplication::focus_widget;
+            else if(QApplicationPrivate::focus_widget)
+                widget = QApplicationPrivate::focus_widget;
             if(!widget || (app_do_modal && !qt_try_modal(widget, event)))
                 break;
             static key_sym key_modif_syms[] = {
@@ -2223,8 +2224,8 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
 
         if(mac_keyboard_grabber)
             widget = mac_keyboard_grabber;
-        else if(QApplication::focus_widget)
-            widget = QApplication::focus_widget;
+        else if(QApplicationPrivate::focus_widget)
+            widget = QApplicationPrivate::focus_widget;
         if(widget) {
             if(app_do_modal && !qt_try_modal(widget, event))
                 break;
@@ -2352,9 +2353,9 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
                 widget->setActiveWindow();
 #endif
         } else if(ekind == kEventWindowActivated) {
-            if(QApplication::app_style) {
+            if(QApplicationPrivate::app_style) {
                 QEvent ev(QEvent::Style);
-                QApplication::sendSpontaneousEvent(QApplication::app_style, &ev);
+                QApplication::sendSpontaneousEvent(QApplicationPrivate::app_style, &ev);
             }
 
             if(QTSMDocumentWrapper *doc = qt_mac_get_document_id(widget))
@@ -2395,7 +2396,7 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
         } else if(ekind == kEventWindowDeactivated) {
             if(QTSMDocumentWrapper *doc = qt_mac_get_document_id(widget))
                 DeactivateTSMDocument(doc->document());
-            if(widget && QApplication::active_window == widget)
+            if(widget && QApplicationPrivate::active_window == widget)
                 app->setActiveWindow(0);
         } else {
             handled_event = false;
@@ -2439,9 +2440,9 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
         if(ekind == kAEAppearanceChanged) {
             if(QApplication::desktopSettingsAware())
                 qt_mac_update_os_settings();
-            if(QApplication::app_style) {
+            if(QApplicationPrivate::app_style) {
                 QEvent ev(QEvent::Style);
-                QApplication::sendSpontaneousEvent(QApplication::app_style, &ev);
+                QApplication::sendSpontaneousEvent(QApplicationPrivate::app_style, &ev);
             }
         } else {
             handled_event = false;
@@ -2595,9 +2596,9 @@ bool QApplication::macEventFilter(EventHandlerCallRef, EventRef)
 */
 void QApplication::openPopup(QWidget *popup)
 {
-    if(!popupWidgets)                        // create list
-        popupWidgets = new QWidgetList;
-    popupWidgets->append(popup);                // add to end of list
+    if(!QApplicationPrivate::popupWidgets)                        // create list
+        QApplicationPrivate::popupWidgets = new QWidgetList;
+    QApplicationPrivate::popupWidgets->append(popup);                // add to end of list
 
     // popups are not focus-handled by the window system (the first
     // popup grabbed the keyboard), so we have to do that manually: A
@@ -2615,10 +2616,10 @@ void QApplication::openPopup(QWidget *popup)
 */
 void QApplication::closePopup(QWidget *popup)
 {
-    if(!popupWidgets)
+    if(!QApplicationPrivate::popupWidgets)
         return;
 
-    popupWidgets->removeAll(popup);
+    QApplicationPrivate::popupWidgets->removeAll(popup);
     if(popup == popupOfPopupButtonFocus) {
         popupButtonFocus = 0;
         popupOfPopupButtonFocus = 0;
@@ -2627,16 +2628,16 @@ void QApplication::closePopup(QWidget *popup)
         mouse_button_state = 0;
         qt_button_down = 0;
     }
-    if(popupWidgets->isEmpty()) {                // this was the last popup
-        popupCloseDownMode = true;                // control mouse events
-        delete popupWidgets;
-        popupWidgets = 0;
-        if (active_window) {
+    if(QApplicationPrivate::popupWidgets->isEmpty()) {  // this was the last popup
+        popupCloseDownMode = true;                      // control mouse events
+        delete QApplicationPrivate::popupWidgets;
+        QApplicationPrivate::popupWidgets = 0;
+        if (QApplicationPrivate::active_window) {
             QFocusEvent::setReason(QFocusEvent::Popup);
-            if (active_window->focusWidget())
-                active_window->focusWidget()->setFocus();
+            if (QApplicationPrivate::active_window->focusWidget())
+                QApplicationPrivate::active_window->focusWidget()->setFocus();
             else
-                active_window->setFocus();
+                QApplicationPrivate::active_window->setFocus();
             QFocusEvent::resetReason();
         }
     } else {
@@ -2644,30 +2645,30 @@ void QApplication::closePopup(QWidget *popup)
         // first popup grabbed the keyboard), so we have to do that
         // manually: A popup was closed, so the previous popup gets
         // the focus.
-        active_window = popupWidgets->last();
+        QApplicationPrivate::active_window = QApplicationPrivate::popupWidgets->last();
         QFocusEvent::setReason(QFocusEvent::Popup);
-        if(active_window->focusWidget())
-            active_window->focusWidget()->setFocus();
+        if(QApplicationPrivate::active_window->focusWidget())
+            QApplicationPrivate::active_window->focusWidget()->setFocus();
         else
-            active_window->setFocus();
+            QApplicationPrivate::active_window->setFocus();
         QFocusEvent::resetReason();
     }
 }
 
 void  QApplication::setCursorFlashTime(int msecs)
 {
-    cursor_flash_time = msecs;
+    QApplicationPrivate::cursor_flash_time = msecs;
 }
 
 int QApplication::cursorFlashTime()
 {
-    return cursor_flash_time;
+    return QApplicationPrivate::cursor_flash_time;
 }
 
 void QApplication::setDoubleClickInterval(int ms)
 {
     qt_mac_dblclick.use_qt_time_limit = true;
-    mouse_double_click_time = ms;
+    QApplicationPrivate::mouse_double_click_time = ms;
 }
 
 int QApplication::doubleClickInterval()
@@ -2678,13 +2679,13 @@ int QApplication::doubleClickInterval()
         double dci = appleSettings.value(QLatin1String("com.apple.mouse.doubleClickThreshold"), 0.5).toDouble();
         return int(dci * 1000);
     }
-    return mouse_double_click_time;
+    return QApplicationPrivate::mouse_double_click_time;
 }
 
 void QApplication::setWheelScrollLines(int n)
 {
     qt_mac_use_qt_scroller_lines = true;
-    wheel_scroll_lines = n;
+    QApplicationPrivate::wheel_scroll_lines = n;
 }
 
 int QApplication::wheelScrollLines()
@@ -2693,62 +2694,63 @@ int QApplication::wheelScrollLines()
         /* First worked as of 10.3.3 */
         QCoreSettings appleSettings(QLatin1String("apple.com"));
         double scroll = appleSettings.value(QLatin1String("com.apple.scrollwheel.scaling"),
-                                           (wheel_scroll_lines)).toDouble();
+                                           (QApplicationPrivate::wheel_scroll_lines)).toDouble();
         return scroll ? int(3 * scroll) : 1;
     }
-    return wheel_scroll_lines;
+    return QApplicationPrivate::wheel_scroll_lines;
 }
 
 void QApplication::setEffectEnabled(Qt::UIEffect effect, bool enable)
 {
     switch (effect) {
     case Qt::UI_FadeMenu:
-        fade_menu = enable;
+        QApplicationPrivate::fade_menu = enable;
         if(!enable)
             break;
     case Qt::UI_AnimateMenu:
-        animate_menu = enable;
+        QApplicationPrivate::animate_menu = enable;
         break;
     case Qt::UI_FadeTooltip:
-        fade_tooltip = enable;
+        QApplicationPrivate::fade_tooltip = enable;
         if(!enable)
             break;
     case Qt::UI_AnimateTooltip:
-        animate_tooltip = enable;
+        QApplicationPrivate::animate_tooltip = enable;
         break;
     case Qt::UI_AnimateCombo:
-        animate_combo = enable;
+        QApplicationPrivate::animate_combo = enable;
         break;
     case Qt::UI_AnimateToolBox:
-        animate_toolbox = enable;
+        QApplicationPrivate::animate_toolbox = enable;
         break;
     default:
-        animate_ui = enable;
+        QApplicationPrivate::animate_ui = enable;
         break;
     }
 }
 
 bool QApplication::isEffectEnabled(Qt::UIEffect effect)
 {
-    if (QColormap::instance().depth() < 16 || !animate_ui)
+    if (QColormap::instance().depth() < 16 || !QApplicationPrivate::animate_ui)
         return false;
 
     switch(effect) {
     case Qt::UI_AnimateMenu:
-        return animate_menu;
+        return QApplicationPrivate::animate_menu;
     case Qt::UI_FadeMenu:
-        return fade_menu;
+        return QApplicationPrivate::fade_menu;
     case Qt::UI_AnimateCombo:
-        return animate_combo;
+        return QApplicationPrivate::animate_combo;
     case Qt::UI_AnimateTooltip:
-        return animate_tooltip;
+        return QApplicationPrivate::animate_tooltip;
     case Qt::UI_FadeTooltip:
-        return fade_tooltip;
+        return QApplicationPrivate::fade_tooltip;
     case Qt::UI_AnimateToolBox:
-        return animate_toolbox;
+        return QApplicationPrivate::animate_toolbox;
     default:
-        return animate_ui;
+        break;
     }
+    return QApplicationPrivate::animate_ui;
 }
 
 /*!

@@ -494,7 +494,7 @@ void QWorkspace::wheelEvent(QWheelEvent *e)
 {
     if (!scrollBarsEnabled())
         return;
-    if (d->vbar && d->vbar->isVisible() && !(e->state() & Qt::AltButton))
+    if (d->vbar && d->vbar->isVisible() && !(e->modifiers() & Qt::AltModifier))
         QApplication::sendEvent(d->vbar, e);
     else if (d->hbar && d->hbar->isVisible())
         QApplication::sendEvent(d->hbar, e);

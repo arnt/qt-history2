@@ -188,7 +188,7 @@ void ListViewContainer::keyPressEvent(QKeyEvent *e)
         emit itemSelected(list->currentIndex());
         return;
     case Qt::Key_Down:
-        if (!(e->state() & Qt::AltButton))
+        if (!(e->modifiers() & Qt::AltModifier))
             break;
     case Qt::Key_F4:
     case Qt::Key_Escape:
@@ -1453,7 +1453,7 @@ void QComboBox::keyPressEvent(QKeyEvent *e)
         newRow = currentItem() - 1;
         break;
     case Qt::Key_Down:
-        if (e->state() & Qt::AltButton) {
+        if (e->modifiers() & Qt::AltModifier) {
             popup();
             return;
         }
@@ -1476,7 +1476,7 @@ void QComboBox::keyPressEvent(QKeyEvent *e)
         newRow = d->model->rowCount(root()) - 1;
         break;
     case Qt::Key_F4:
-        if (e->state() == 0)
+        if (!e->modifiers())
             popup();
         else
             e->ignore();

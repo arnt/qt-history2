@@ -604,7 +604,7 @@ void QAbstractSlider::wheelEvent(QWheelEvent * e)
     }
 
     int step = qMin(QApplication::wheelScrollLines() * d->singleStep, d->pageStep);
-    if ((e->state() & Qt::ControlButton) || (e->state() & Qt::ShiftButton))
+    if ((e->modifiers() & Qt::ControlModifier) || (e->modifiers() & Qt::ShiftModifier))
         step = d->pageStep;
     offset += e->delta() * step / 120;
     if (d->invertedControls)

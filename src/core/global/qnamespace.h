@@ -49,19 +49,48 @@ public:
     };
 
     // documented in qevent.cpp
-    enum ButtonState {                                // mouse/keyboard state values
-        NoButton        = 0x0000,
-        LeftButton      = 0x0001,
-        RightButton     = 0x0002,
-        MidButton       = 0x0004,
-        MouseButtonMask = 0x0007,
-        ShiftButton     = 0x0100,
-        ControlButton   = 0x0200,
-        AltButton       = 0x0400,
-        MetaButton      = 0x0800,
-        KeyButtonMask   = 0x0f00,
-        Keypad          = 0x4000
+    enum KeyboardModifier {
+        NoModifier           = 0x00000000,
+        ShiftModifier        = 0x01000000,
+        ControlModifier      = 0x02000000,
+        AltModifier          = 0x04000000,
+        MetaModifier         = 0x08000000,
+        KeypadModifier       = 0x10000000,
+        KeyboardModifierMask = 0xff000000
     };
+    Q_DECLARE_FLAGS(KeyboardModifiers, KeyboardModifier)
+
+    //shorter names for shortcuts
+    enum Modifier {
+        META          = Qt::MetaModifier,
+        SHIFT         = Qt::ShiftModifier,
+        CTRL          = Qt::ControlModifier,
+        ALT           = Qt::AltModifier,
+        MODIFIER_MASK = Qt::KeyboardModifierMask,
+        UNICODE_ACCEL = 0x00000000
+    };
+
+    // documented in qevent.cpp
+    enum MouseButton {
+        NoButton         = 0x00000000,
+        LeftButton       = 0x00000001,
+        RightButton      = 0x00000002,
+        MidButton        = 0x00000004,
+        MouseButtonMask  = 0x0000000f
+    };
+    Q_DECLARE_FLAGS(MouseButtons, MouseButton);
+
+#if defined( QT_COMPAT ) || 1
+    enum {   
+        ShiftButton     = Qt::ShiftModifier,
+        ControlButton   = Qt::ControlModifier,
+        AltButton       = Qt::AltModifier,
+        MetaButton      = Qt::MetaModifier,
+        Keypad          = Qt::KeypadModifier,
+        KeyButtonMask   = Qt::KeyboardModifierMask
+    };
+    typedef int ButtonState;
+#endif
 
     // documented in qobject.cpp
     // ideally would start at 1, as in QSizePolicy, but that breaks other things
@@ -361,18 +390,6 @@ public:
         Win3Style,
         PMStyle,
         MotifStyle
-    };
-
-    // documented in qevent.cpp
-    enum Modifier {                // shortcut modifiers
-        META          = 0x02000000,
-        SHIFT         = 0x04000000,
-        CTRL          = 0x08000000,
-        ALT           = 0x10000000,
-        MODIFIER_MASK = 0x1e000000,
-
-        UNICODE_ACCEL = 0x00000000, // Qt 3.x compat
-        ASCII_ACCEL = UNICODE_ACCEL // 1.x compat
     };
 
     // documented in qevent.cpp
@@ -1032,6 +1049,8 @@ public:
 #endif
 };
 
+Q_DECLARE_OPERATORS_FOR_FLAGS(Qt::MouseButtons)
+Q_DECLARE_OPERATORS_FOR_FLAGS(Qt::KeyboardModifiers)
 Q_DECLARE_OPERATORS_FOR_FLAGS(Qt::WState);
 Q_DECLARE_OPERATORS_FOR_FLAGS(Qt::WFlags);
 Q_DECLARE_OPERATORS_FOR_FLAGS(Qt::Alignment)

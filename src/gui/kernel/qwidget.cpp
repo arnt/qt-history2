@@ -889,10 +889,9 @@ QWidget::~QWidget()
     w->d->focus_next = d->focus_next;
     d->focus_next = 0;
 
-    if (QApplication::main_widget == this) {        // reset main widget
-        QApplication::main_widget = 0;
-        if (qApp)
-            qApp->quit();
+    if (qApp->mainWidget() == this) {        // reset main widget
+        qApp->setMainWidget(0);
+        qApp->quit();
     }
 
     clearFocus();
@@ -1223,7 +1222,7 @@ void QPixmap::fill( const QWidget *widget, const QPoint &offset )
 void QWidget::deactivateWidgetCleanup()
 {
     // If this was the active application window, reset it
-    if (this == QApplication::active_window)
+    if (qApp->activeWindow() == this)
         qApp->setActiveWindow(0);
     // If the is the active mouse press widget, reset it
 #ifdef Q_WS_MAC
@@ -2956,9 +2955,9 @@ bool QWidget::hasFocus() const
                && w->parentWidget()
                && w->parentWidget()->testAttribute(Qt::WA_CompositeParent))
             w = w->parentWidget();
-        return (qApp->focus_widget == w && w->focusProxy() == this);
+        return (qApp->focusWidget() == w && w->focusProxy() == this);
     }
-    return (qApp->focus_widget == w);
+    return (qApp->focusWidget() == w);
 }
 
 /*!
@@ -3000,7 +2999,7 @@ void QWidget::setFocus()
            && f->parentWidget()->testAttribute(Qt::WA_CompositeParent))
         f = f->parentWidget();
 
-    if (qApp->focus_widget == f
+    if (qApp->focusWidget() == f
 #if defined(Q_WS_WIN)
         && GetFocus() == f->winId()
 #endif
@@ -3022,7 +3021,7 @@ void QWidget::setFocus()
     }
 
     if (f->isActiveWindow()) {
-        QWidget *prev = qApp->focus_widget;
+        QWidget *prev = qApp->focusWidget();
         if (prev) {
             if (prev != f)
                 prev->resetInputContext();
@@ -3032,7 +3031,7 @@ void QWidget::setFocus()
             QInputContext::endComposition();
         }
 #endif
-        qApp->focus_widget = f;
+        qApp->setFocusWidget(f);
 #if defined(Q_WS_X11)
         f->d->focusInputContext();
 #endif
@@ -3055,7 +3054,7 @@ void QWidget::setFocus()
                 QApplication::sendEvent(prev, &out);
             }
 
-            if (qApp->focus_widget == f) {
+            if (qApp->focusWidget() == f) {
                 QFocusEvent in(QEvent::FocusIn);
                 QApplication::sendEvent(f, &in);
             }
@@ -3085,9 +3084,9 @@ void QWidget::clearFocus()
         w = w->isTopLevel() ? 0 : w->parentWidget();
     }
     if (hasFocus()) {
-        QWidget* w = qApp->focus_widget;
+        QWidget* w = qApp->focusWidget();
         // clear active focus
-        qApp->focus_widget = 0;
+        qApp->setFocusWidget(0);
         QFocusEvent out(QEvent::FocusOut);
         QApplication::sendEvent(w, &out);
 #if defined(Q_WS_WIN)
@@ -4013,14 +4012,15 @@ bool QWidgetPrivate::compositeEvent(QEvent *e)
     case QEvent::MouseMove:
     {
         QMouseEvent *c = (QMouseEvent*)e;
-        QMouseEvent s(c->type(), c->pos() - w->pos(), c->globalPos(), c->button(), c->state());
+        QMouseEvent s(c->type(), c->pos() - w->pos(), c->globalPos(), 
+                      c->button(), c->buttons(), c->modifiers());
         return QApplication::sendEvent(w, &s);
     }
 #ifndef QT_NO_WHEELEVENT
     case QEvent::Wheel:
     {
         QWheelEvent *c = (QWheelEvent*)e;
-        QWheelEvent s(c->pos() - w->pos(), c->globalPos(), c->delta(), c->state(), c->orientation());
+        QWheelEvent s(c->pos() - w->pos(), c->globalPos(), c->delta(), c->modifiers(), c->orientation());
         return QApplication::sendEvent(w, &s);
     }
 #endif
@@ -4036,7 +4036,7 @@ bool QWidgetPrivate::compositeEvent(QEvent *e)
     case QEvent::ContextMenu:
     {
         QContextMenuEvent *c = (QContextMenuEvent*)e;
-        QContextMenuEvent s(c->reason(), c->pos() - w->pos(), c->globalPos(), c->state());
+        QContextMenuEvent s(c->reason(), c->pos() - w->pos(), c->globalPos());
         return QApplication::sendEvent(w, &s);
     }
     default:
@@ -4485,10 +4485,10 @@ bool QWidget::event(QEvent *e)
     case QEvent::KeyPress: {
         QKeyEvent *k = (QKeyEvent *)e;
         bool res = false;
-        if (!(k->state() & Qt::ControlButton || k->state() & Qt::AltButton)) {
+        if (!(k->modifiers() & Qt::ControlModifier || k->modifiers() & Qt::AltModifier)) {
             if (k->key() == Qt::Key_Backtab ||
                  (k->key() == Qt::Key_Tab &&
-                  (k->state() & Qt::ShiftButton))) {
+                  (k->modifiers() & Qt::ShiftModifier))) {
                 QFocusEvent::setReason(QFocusEvent::Backtab);
                 res = focusNextPrevChild(false);
                 QFocusEvent::resetReason();

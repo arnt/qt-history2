@@ -153,7 +153,7 @@ bool QWidgetResizeHandler::eventFilter(QObject *o, QEvent *ee)
 void QWidgetResizeHandler::mouseMoveEvent(QMouseEvent *e)
 {
     QPoint pos = widget->mapFromGlobal(e->globalPos());
-    if (!moveResizeMode && (!buttonDown || (e->state() & Qt::LeftButton) == 0)) {
+    if (!moveResizeMode && (!buttonDown || (e->buttons() & Qt::LeftButton) == 0)) {
         if (pos.y() <= range && pos.x() <= range)
             mode = TopLeft;
         else if (pos.y() >= widget->height()-range && pos.x() >= widget->width()-range)
@@ -320,7 +320,7 @@ void QWidgetResizeHandler::keyPressEvent(QKeyEvent * e)
 {
     if (!isMove() && !isResize())
         return;
-    bool is_control = e->state() & Qt::ControlButton;
+    bool is_control = e->modifiers() & Qt::ControlModifier;
     int delta = is_control?1:8;
     QPoint pos = QCursor::pos();
     switch (e->key()) {

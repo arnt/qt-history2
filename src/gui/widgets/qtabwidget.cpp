@@ -781,10 +781,9 @@ void QTabWidget::updateMask()
 void QTabWidget::keyPressEvent(QKeyEvent *e)
 {
     if ((e->key() == Qt::Key_Tab || e->key() == Qt::Key_Backtab) &&
-        count() > 1 &&
-        e->state() & Qt::ControlButton) {
+        count() > 1 && e->modifiers() & Qt::ControlModifier) {
         int page = currentIndex();
-        if (e->key() == Qt::Key_Backtab || e->state() & Qt::ShiftButton) {
+        if (e->key() == Qt::Key_Backtab || e->modifiers() & Qt::ShiftModifier) {
             page--;
             if (page < 0)
                 page = count() - 1;

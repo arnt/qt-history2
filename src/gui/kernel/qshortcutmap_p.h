@@ -59,7 +59,7 @@ private:
     void createNewSequence(QKeyEvent *e, QKeySequence &seq);
     void clearSequence(QKeySequence &seq);
     bool correctContext(const QShortcutEntry &item);
-    int translateModifiers(Qt::ButtonState state);
+    int translateModifiers(Qt::KeyboardModifiers modifiers);
 };
 
 #endif // QSHORTCUTMAP_P_H

@@ -425,7 +425,7 @@ void QTextBrowser::home()
 */
 void QTextBrowser::keyPressEvent(QKeyEvent *ev)
 {
-    if (ev->state() & Qt::AltButton) {
+    if (ev->modifiers() & Qt::AltModifier) {
         switch (ev->key()) {
         case Qt::Key_Right:
             forward();

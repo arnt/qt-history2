@@ -106,7 +106,7 @@ void QSplitterHandle::setOrientation(Qt::Orientation o)
 
 void QSplitterHandle::mouseMoveEvent(QMouseEvent *e)
 {
-    if (!(e->state()&Qt::LeftButton))
+    if (!(e->buttons() & Qt::LeftButton))
         return;
     QCOORD pos = s->d->pick(parentWidget()->mapFromGlobal(e->globalPos()))
                  - mouseOffset;

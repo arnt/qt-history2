@@ -189,7 +189,7 @@ void QSizeGrip::mousePressEvent(QMouseEvent * e)
 */
 void QSizeGrip::mouseMoveEvent(QMouseEvent * e)
 {
-    if (e->state() != Qt::LeftButton)
+    if (e->buttons() != Qt::LeftButton)
         return;
 
     QWidget* tlw = qt_sizegrip_topLevelWidget(this);
