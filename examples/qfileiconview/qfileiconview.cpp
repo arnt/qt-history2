@@ -611,14 +611,6 @@ void QtFileIconViewItem::openFolder()
     ((QtFileIconView*)iconView())->setDirectory( itemFileName );
 }
 
-void QtFileIconViewItem::paintItem( QPainter *p, const QColorGroup &cg, const QFont &font )
-{
-    QFont f( font );
-    if ( itemFileInfo->isSymLink() )
-	f.setItalic( TRUE );
-    QIconViewItem::paintItem( p, cg, f );
-}
-
 /*****************************************************************************
  *
  * Class QtFileIconView

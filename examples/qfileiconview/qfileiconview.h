@@ -187,7 +187,6 @@ public:
 
 protected:
     virtual void dropped( QDropEvent *e );
-    virtual void paintItem( QPainter *p, const QColorGroup &cg, const QFont &font );
 
     QString itemFileName;
     QFileInfo *itemFileInfo;
