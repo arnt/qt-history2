@@ -5142,7 +5142,7 @@ void QListView::widthChanged( const QListViewItem* item, int c )
     while ( col == c || ( c < 0 && col < d->h->count() ) ) {
 	if ( d->column[col]->wmode == Maximum ) {
 	    int w = item->width( fm, this, col );
-	    if ( showSortIndicator() && d->sortcolumn == col ) {
+	    if ( showSortIndicator() ) {
 		QString title = header()->label( col );
 		int tw = fm.width( title );
 		tw += 40;
