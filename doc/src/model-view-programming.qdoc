@@ -116,7 +116,7 @@ by a section showing how you can create new components.
   \endlist
 \endlist
 
-See also the \l{model-view.html}{list of model/view classes}.
+See also the list of \l{Model/View Classes}.
 
 */
 
@@ -436,11 +436,11 @@ separately for each view, or shared between multiple views.
 Some views, such as \l QTableView and \l QTreeView, display headers
 as well as items. These are also implemented by a view class,
 \l QHeaderView. Headers usually access the same model as the view
-that displays them. They retrieve a different
-\l{QModelIndex::Type}{type} of data to that shown in the rest of
-the view, and usually display it in the form of a label. New headers
-can be subclassed from the \l QHeaderView class to provide more
-specialized labelling for views.
+that displays them. They retrieve data from the model using the
+\l{QAbstractItemModel::headerData()} function, and usually display
+header information in the form of a label. New headers can be
+subclassed from the \l QHeaderView class to provide more specialized
+labels for views.
 
 \section1 Using an Existing View
 
@@ -885,7 +885,7 @@ how to update a selection.
 \section2 Reading the Selection State
 
 The model indexes stored in the selection model can be read using
-the \l{QItemSelectionModel::selectedItems()}{selectedItems()}
+the \l{QItemSelectionModel::selectedIndexes()}{selectedIndexes()}
 function. This returns an unsorted list of model indexes that we can
 iterate over as long as we know which model they are for:
 
@@ -1441,8 +1441,8 @@ items.
     convenience classes that are available through the same interfaces
     in each class. We present these in the following sections with some
     examples for different widgets.
-    Look at the \l{model-view.html}{class documentation} for each of the
-    widgets for more details about the use of each function used.
+    Look at the list of \l{Model/View Classes} for each of the widgets
+    for more details about the use of each function used.
 
     \section2 Hidden Items
 
