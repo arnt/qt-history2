@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.h#56 $
+** $Id: //depot/qt/main/src/kernel/qwidget.h#57 $
 **
 ** Definition of QWidget class
 **
@@ -42,6 +42,8 @@ public:
 
     void	 enable();
     void	 disable();
+    void	 setEnabled( bool );
+    bool	 isEnabled()	const;
     bool	 isDisabled()	const;
 
   // Widget coordinates
@@ -236,6 +238,9 @@ inline bool QWidget::testWFlags( WFlags f ) const
 
 inline WId QWidget::id() const
 { return ident; }
+
+inline bool QWidget::isEnabled() const
+{ return !testWFlags(WState_Disabled); }
 
 inline bool QWidget::isDisabled() const
 { return testWFlags(WState_Disabled); }
