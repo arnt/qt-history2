@@ -14,7 +14,6 @@
 #include "private/qpaintengine_p.h"
 #include "qapplication.h"
 #include "qbrush.h"
-#include "qcache.h"
 #include "qgl.h"
 #include "qmap.h"
 #include "qpaintengine_opengl.h"
@@ -39,26 +38,12 @@
 
 //#define QT_GL_NO_CONCAVE_POLYGONS
 
-class QGLTexture {
-public:
-    QGLTexture(GLuint id) : tx_id(id) {}
-    ~QGLTexture() { glDeleteTextures(1, &tx_id); }
-    inline  GLuint id() { return tx_id; }
-
-private:
-    GLuint tx_id;
-};
-
-typedef QCache<int, QGLTexture> QGLTextureCache;
-#define QGL_TX_CACHE_MAX 64*1024 // cache ~64 MB worth of textures - this is not accurate though
-
 class QOpenGLPaintEnginePrivate : public QPaintEnginePrivate {
     Q_DECLARE_PUBLIC(QOpenGLPaintEngine)
 public:
     QOpenGLPaintEnginePrivate()
     {
         dev = 0;
-	txCache = 0;
     }
 
     QGLWidget *dev;
@@ -66,7 +51,6 @@ public:
     QBrush cbrush;
     QBrush bgbrush;
     Qt::BGMode bgmode;
-    QGLTextureCache *txCache;
 };
 
 static void qt_fill_linear_gradient(const QRect &rect, const QBrush &brush);
@@ -90,7 +74,6 @@ QOpenGLPaintEngine::QOpenGLPaintEngine()
 
 QOpenGLPaintEngine::~QOpenGLPaintEngine()
 {
-    delete d->txCache;
 }
 
 bool QOpenGLPaintEngine::begin(QPaintDevice *pdev)
@@ -676,53 +659,6 @@ void QOpenGLPaintEngine::drawPolygon(const QPointArray &pa, PolygonDrawMode mode
     }
 }
 
-// returns the highest number closest to v, which is a power of 2
-// NB! assumes 32 bit ints
-static int nearest_gl_texture_size(int v)
-{
-    int n = 0, last = 0;
-    for (int s = 0; s < 32; ++s) {
-        if (((v>>s) & 1) == 1) {
-            ++n;
-            last = s;
-        }
-    }
-    if (n > 1)
-        return 1 << (last+1);
-    return 1 << last;
-}
-
-void QOpenGLPaintEngine::bindTextureFromCache(const QPixmap &pm)
-{
-    if (!d->txCache)
-	d->txCache = new QGLTextureCache(QGL_TX_CACHE_MAX);
-
-    QGLTexture *texture = d->txCache->find(pm.serialNumber());
-    if (texture) {
-        glBindTexture(GL_TEXTURE_2D, texture->id());
-    } else {
-        // Scale the pixmap if needed. GL textures needs to have the
-        // dimensions 2^n+2(border) x 2^m+2(border).
-        QImage tx;
-        int tx_w = nearest_gl_texture_size(pm.width());
-        int tx_h = nearest_gl_texture_size(pm.height());
-        QImage im = pm.toImage();
-        if (tx_w != pm.width() || tx_h !=  pm.height())
-            tx = QGLWidget::convertToGLFormat(im.scale(tx_w, tx_h));
-        else
-            tx = QGLWidget::convertToGLFormat(im);
-
-        GLuint tx_id;
-        glGenTextures(1, &tx_id);
-        glBindTexture(GL_TEXTURE_2D, tx_id);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, tx.width(), tx.height(), 0, GL_RGBA,
-                     GL_UNSIGNED_BYTE, tx.bits());
-
-	// this assumes the size of a texture is always smaller than the max cache size
-	int cost = tx.width()*tx.height()*4/1024;
-	d->txCache->insert(pm.serialNumber(), new QGLTexture(tx_id), cost);
-    }
-}
 
 void QOpenGLPaintEngine::drawPixmap(const QRect &r, const QPixmap &pm, const QRect &sr,
                                     Qt::PixmapDrawingMode blend)
@@ -738,7 +674,7 @@ void QOpenGLPaintEngine::drawPixmap(const QRect &r, const QPixmap &pm, const QRe
 	return;
     }
     dgl->makeCurrent();
-    bindTextureFromCache(pm);
+    glBindTexture(GL_TEXTURE_2D, dgl->context()->texture(pm));
 
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -772,7 +708,7 @@ void QOpenGLPaintEngine::drawTiledPixmap(const QRect &r, const QPixmap &pm, cons
 					 Qt::PixmapDrawingMode)
 {
     dgl->makeCurrent();
-    bindTextureFromCache(pm);
+    glBindTexture(GL_TEXTURE_2D, dgl->context()->texture(pm));
 
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);

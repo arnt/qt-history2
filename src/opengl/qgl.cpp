@@ -20,6 +20,7 @@
 #include "qpaintengine_opengl.h"
 #include "qcleanuphandler.h"
 #include "qcolormap.h"
+#include "qcache.h"
 
 static QGLFormat* qgl_default_format = 0;
 static QGLFormat* qgl_default_overlay_format = 0;
@@ -709,6 +710,36 @@ bool operator!=(const QGLFormat& a, const QGLFormat& b)
 
 QGLContext* QGLContext::currentCtx = 0;
 
+// returns the highest number closest to v, which is a power of 2
+// NB! assumes 32 bit ints
+static int nearest_gl_texture_size(int v)
+{
+    int n = 0, last = 0;
+    for (int s = 0; s < 32; ++s) {
+        if (((v>>s) & 1) == 1) {
+            ++n;
+            last = s;
+        }
+    }
+    if (n > 1)
+        return 1 << (last+1);
+    return 1 << last;
+}
+
+class QGLTexture {
+public:
+    QGLTexture(const QGLContext *ctx, GLuint tx_id) : context(ctx), id(tx_id) {}
+    ~QGLTexture() { glDeleteTextures(1, &id); }
+
+    const QGLContext *context;
+    GLuint id;
+};
+
+typedef QCache<int, QGLTexture> QGLTextureCache;
+#define QGL_TX_CACHE_MAX 64*1024 // cache ~64 MB worth of textures - this is not accurate though
+
+static QGLTextureCache *qt_txCache = 0;
+
 /*!
     \class QGLContext qgl.h
     \brief The QGLContext class encapsulates an OpenGL rendering context.
@@ -792,8 +823,64 @@ QGLContext::~QGLContext()
     reset();
     if (d)
         delete d;
+
+    // remove any textures cached in this context
+    if (qt_txCache) {
+	QList<int> keys = qt_txCache->keys();
+	for (int i = 0; i < keys.size(); ++i) {
+	    int key = keys.at(i);
+	    if (qt_txCache->find(key)->context == this)
+		qt_txCache->remove(key);
+	}
+	// ### thread safety
+	if (qt_txCache->size() == 0) {
+	    delete qt_txCache;
+	    qt_txCache = 0;
+	}
+    }
 }
 
+/*!
+    Generates a GL texture based on the pixmap that is passed in. The
+    generated texture id is returned and can be bound using
+    glBindTexture().
+
+    The texture that is generated is cached, so multiple calls to
+    texture() with the same QPixmap will return the same texture id.
+*/
+GLuint QGLContext::texture(const QPixmap &pm) const
+{
+    if (!qt_txCache)
+	qt_txCache = new QGLTextureCache(QGL_TX_CACHE_MAX);
+
+    QGLTexture *texture = qt_txCache->find(pm.serialNumber());
+    if (texture && texture->context == this)
+	return texture->id;
+
+    // Scale the pixmap if needed. GL textures needs to have the
+    // dimensions 2^n+2(border) x 2^m+2(border).
+    QImage tx;
+    int tx_w = nearest_gl_texture_size(pm.width());
+    int tx_h = nearest_gl_texture_size(pm.height());
+    QImage im = pm.toImage();
+    if (tx_w != pm.width() || tx_h !=  pm.height())
+	tx = QGLWidget::convertToGLFormat(im.scale(tx_w, tx_h));
+    else
+	tx = QGLWidget::convertToGLFormat(im);
+
+    GLuint tx_id;
+    glGenTextures(1, &tx_id);
+    glBindTexture(GL_TEXTURE_2D, tx_id);
+    glTexImage2D(GL_TEXTURE_2D, 0,
+		 GL_RGBA8,
+		 tx.width(), tx.height(), 0, GL_RGBA,
+		 GL_UNSIGNED_BYTE, tx.bits());
+
+    // this assumes the size of a texture is always smaller than the max cache size
+    int cost = tx.width()*tx.height()*4/1024;
+    qt_txCache->insert(pm.serialNumber(), new QGLTexture(this, tx_id), cost);
+    return tx_id;
+}
 
 /*!
     \fn QGLFormat QGLContext::format() const
@@ -1361,10 +1448,6 @@ QGLWidget::~QGLWidget()
 #endif
     cleanupColormaps();
 }
-
-
-
-
 
 /*!
     \fn QGLFormat QGLWidget::format() const

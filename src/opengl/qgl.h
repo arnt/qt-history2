@@ -155,6 +155,8 @@ public:
     virtual void doneCurrent();
     virtual void swapBuffers() const;
 
+    GLuint texture(const QPixmap &pm) const;
+
     QPaintDevice* device() const;
 
     QColor overlayTransparentColor() const;

@@ -56,8 +56,6 @@ public:
 
 private:
     Q_DISABLE_COPY(QOpenGLPaintEngine)
-
-    void bindTextureFromCache(const QPixmap &pixmap);
 };
 
 #endif
