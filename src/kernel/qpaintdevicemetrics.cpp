@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpaintdevicemetrics.cpp#1 $
+** $Id: //depot/qt/main/src/kernel/qpaintdevicemetrics.cpp#2 $
 **
 ** Implementation of QPaintDeviceMetrics class
 **
@@ -13,11 +13,11 @@
 #include "qpdevmet.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpaintdevicemetrics.cpp#1 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpaintdevicemetrics.cpp#2 $";
 #endif
 
 
-QPaintDeviceMetrics::QPaintDeviceMetrics( QPaintDevice *pd )
+QPaintDeviceMetrics::QPaintDeviceMetrics( const QPaintDevice *pd )
 {
-    pdev = pd;
+    pdev = (QPaintDevice *)pd;
 }

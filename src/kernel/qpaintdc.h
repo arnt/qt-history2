@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpaintdc.h#2 $
+** $Id: //depot/qt/main/src/kernel/qpaintdc.h#3 $
 **
 ** Definition of QPaintDevice constants and flags
 **
@@ -61,26 +61,26 @@
 #define PDC_SETCLIPRGN		61		// rgn
 
 union QPDevCmdParam {
-    int		 ival;
-    char	*str;
-    QPoint	*point;
-    QRect	*rect;
-    QPointArray *ptarr;
-    QPixMap	*pixmap;
-    QColor	*color;
-    QFont	*font;
-    QPen	*pen;
-    QBrush	*brush;
-    QRegion	*rgn;
-    QWXFMatrix  *matrix;
+    int		 	 ival;
+    const char		*str;
+    const QPoint	*point;
+    const QRect		*rect;
+    const QPointArray 	*ptarr;
+    const QPixMap	*pixmap;
+    const QColor	*color;
+    const QFont		*font;
+    const QPen		*pen;
+    const QBrush	*brush;
+    const QRegion	*rgn;
+    const QWXFMatrix	*matrix;
 };
 
 // Painter device metric() identifiers (for all devices)
 
 #define PDM_WIDTH		1
 #define PDM_HEIGHT		2
-#define PDM_MMWIDTH		3
-#define PDM_MMHEIGHT		4
+#define PDM_WIDTHMM		3
+#define PDM_HEIGHTMM		4
 #define PDM_NUMCOLORS		5
 #define PDM_COLORPLANES		6
 
