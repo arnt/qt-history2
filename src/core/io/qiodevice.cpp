@@ -40,7 +40,7 @@ QIODevicePrivate::~QIODevicePrivate()
 
     An I/O device represents a medium that one can read bytes from
     and/or write bytes to. The QIODevice class is the abstract
-    superclass of all such devices; classes such as QFile, QBuffer and
+    super-class of all such devices; classes such as QFile, QBuffer and
     QSocket inherit QIODevice, and implement virtual functions such as
     write() appropriately.
 

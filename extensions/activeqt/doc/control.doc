@@ -14,7 +14,7 @@
     The QAxServer module provides a static library implementing the
     functions required to turn a standard Qt binary into an ActiveX
     control server. 
-    
+
     This module is part of the \link activeqt.html ActiveQt
     framework\endlink. (To incorporate ActiveX controls in a Qt
     application see the \link qaxcontainer.html QAxContainer
@@ -38,7 +38,7 @@
     makefile, and use the make tool (\c nmake for VC++, \c make for Borland)
     to build the library. The library \c qaxserver.lib will be linked into 
     \c QTDIR/lib.
-    
+
     \section1 Using the library
 
     To turn a standard Qt application into an ActiveX server using the
@@ -54,12 +54,12 @@
     RC_FILE  = qaxserver.rc
     ...
     \endcode
-    
+
     To build an in-process server, use a \c .pro file like this:
     \code
     TEMPLATE = lib
     CONFIG  += qt activeqt dll
-    
+
     DEF_FILE = qaxserver.def
     RC_FILE  = qaxserver.rc
     ...
@@ -96,7 +96,7 @@
     Whether your ActiveX server should run as a stand-alone executable
     or as a shared library in the client process depends mainly on the
     type of controls you want to provide in the server. 
-    
+
     An executable server has the advantage of being able to run as a
     stand-alone application, but adds considerable overhead to the
     communication between the ActiveX client and the control. If the
@@ -142,7 +142,7 @@
     \section3 Compiler errors
 
     \section4 "No overloaded function takes 2 parameters"
-    
+
     When the error occurs in code that uses the \c QAXFACTORY_DEFAULT
     macro, the widget class had no constructor that can be used by the
     default factory. Either add a standard widget constructor or
@@ -222,12 +222,12 @@
     else but a QApplication object exists. Your widget constructor must 
     not rely on any other objects to be created, e.g. it should check for
     null-pointers.
- 
+
     To debug your server run it with -dumpidl outputfile and check where
     it crashes.
 
     Note that no functions of the control are called.
- 
+
 
     \section4 The server executable is not a valid Win32 application
 
@@ -321,13 +321,13 @@
     public:
         MyActiveX( QWidget *parent = 0, const char *name = 0 )
         ...
-        
+
         int value() const;
 
     public slots:
         void setValue( int );
         ...
-       
+
     signals:
         void valueChange( int );
         ...
@@ -419,7 +419,7 @@
     \i QPoint
     \i User defined type
     \endtable
-    
+
     The Qt data types that are supported for parameters in signals and
     slots are:
     \table
@@ -563,7 +563,7 @@
         Q_OBJECT
     </pre>
     \endraw
-  
+
     When implementing the property write functions, use the
     QAxBindable class's requestPropertyChange() and propertyChanged()
     functions to allow ActiveX clients to bind to the control
@@ -784,7 +784,7 @@
 
     This can be controlled by reimplementing QAxFactory's
     exposeToSuperClass() function. Reimplement the function to return
-    the last (furthest up the inheritance hierarchy) super class that
+    the last (furthest up the inheritance hierarchy) super-class that
     should be exposed:
 
     \code
@@ -799,7 +799,7 @@
     The SmallActiveX control will only expose its own functions and
     properties to clients, while all other ActiveX controls provided
     by this factory will expose their own functions and properties and
-    also those of all their super classes including QWidget. The
+    also those of all their super-classes including QWidget. The
     SmallActiveX class can of course propagate some of the QWidget
     functions and properties into its own interface.
 
@@ -851,7 +851,7 @@
        See \l QAxFactory::hasStockEvents()
     \row
     \i ToSuperClass
-    \i Objects expose functionality of all super classes up to and
+    \i Objects expose functionality of all super-classes up to and
        including the class name in value.
        See \l QAxFactory::exposeToSuperClass()
     \row
@@ -1000,7 +1000,7 @@
 
     In your QAxBindable subclass, implement \c createAggregate() to return
     a new object of the QAxAggregated subclass.
-    
+
     \raw
     <pre>
     class MyActiveX : public QWidget,                       
