@@ -1226,13 +1226,14 @@ bool QAbstractSocket::waitForReadyRead(int msecs)
 
     forever {
         bool readyToRead = false;
-        if (!d->socketLayer.waitForReadOrWrite(&readyToRead, true, !d->writeBuffer.isEmpty(),
+        bool readyToWrite = false;
+        if (!d->socketLayer.waitForReadOrWrite(&readyToRead, &readyToWrite, true, !d->writeBuffer.isEmpty(),
                                                msecs == -1 ? msecs : msecs - stopWatch.elapsed())) {
             d->socketError = d->socketLayer.error();
             setErrorString(d->socketLayer.errorString());
 #if defined (QABSTRACTSOCKET_DEBUG)
             qDebug("QAbstractSocket::waitForReadyRead(%i) failed (%i, %s)",
-                   msecs, d->socketError, errorString().latin1());
+                   msecs, d->socketError, errorString().toLatin1().constData());
 #endif
             emit error(d->socketError);
             if (d->socketError != SocketTimeoutError)
@@ -1243,9 +1244,10 @@ bool QAbstractSocket::waitForReadyRead(int msecs)
         if (readyToRead) {
             if (d->canReadNotification(0))
                 return true;
-        } else {
-            d->canWriteNotification(0);
         }
+
+        if (readyToWrite)
+            d->canWriteNotification(0);
 
         if (state() != ConnectedState)
             return false;
@@ -1281,7 +1283,8 @@ bool QAbstractSocket::waitForBytesWritten(int msecs)
 
     forever {
         bool readyToRead = false;
-        if (!d->socketLayer.waitForReadOrWrite(&readyToRead, true, !d->writeBuffer.isEmpty(),
+        bool readyToWrite = false;
+        if (!d->socketLayer.waitForReadOrWrite(&readyToRead, &readyToWrite, true, !d->writeBuffer.isEmpty(),
                                                msecs == -1 ? msecs : msecs - stopWatch.elapsed())) {
             d->socketError = d->socketLayer.error();
             setErrorString(d->socketLayer.errorString());
@@ -1295,9 +1298,10 @@ bool QAbstractSocket::waitForBytesWritten(int msecs)
             return false;
         }
 
-        if (readyToRead) {
+        if (readyToRead)
             d->canReadNotification(0);
-        } else {
+
+        if (readyToWrite) {
             if (d->canWriteNotification(0))
                 return true;
         }
@@ -1347,7 +1351,8 @@ bool QAbstractSocket::waitForDisconnected(int msecs)
 
     forever {
         bool readyToRead = false;
-        if (!d->socketLayer.waitForReadOrWrite(&readyToRead, state() == ConnectedState,
+        bool readyToWrite = false;
+        if (!d->socketLayer.waitForReadOrWrite(&readyToRead, &readyToWrite, state() == ConnectedState,
                                                !d->writeBuffer.isEmpty(),
                                                msecs == -1 ? msecs : msecs - stopWatch.elapsed())) {
             d->socketError = d->socketLayer.error();
@@ -1362,11 +1367,10 @@ bool QAbstractSocket::waitForDisconnected(int msecs)
             return false;
         }
 
-        if (readyToRead) {
+        if (readyToRead)
             d->canReadNotification(0);
-        } else {
+        if (readyToWrite)
             d->canWriteNotification(0);
-        }
 
         if (state() == UnconnectedState)
             return true;

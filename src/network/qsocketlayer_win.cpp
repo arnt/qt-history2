@@ -911,7 +911,9 @@ int QSocketLayerPrivate::nativeSelect(int timeout, bool selectForRead) const
         return select(0, 0, &fds, 0, timeout < 0 ? 0 : &tv);
 }
 
-int QSocketLayerPrivate::nativeSelect(int timeout, bool checkRead, bool checkWrite, bool *selectForRead) const
+int QSocketLayerPrivate::nativeSelect(int timeout,
+                                      bool checkRead, bool checkWrite,
+                                      bool *selectForRead, bool *selectForWrite) const
 {
     fd_set fdread;
     memset(&fdread, 0, sizeof(fd_set));
@@ -935,10 +937,8 @@ int QSocketLayerPrivate::nativeSelect(int timeout, bool checkRead, bool checkWri
     if (ret <= 0)
         return ret;
 
-    if (FD_ISSET(socketDescriptor, &fdread))
-        *selectForRead = true;
-    if (FD_ISSET(socketDescriptor, &fdwrite))
-        *selectForRead = false;
+    *selectForRead = FD_ISSET(socketDescriptor, &fdread);
+    *selectForWrite = FD_ISSET(socketDescriptor, &fdwrite);
     return ret;
 }
 
