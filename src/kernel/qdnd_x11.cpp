@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdnd_x11.cpp#90 $
+** $Id: //depot/qt/main/src/kernel/qdnd_x11.cpp#91 $
 **
 ** XDND implementation for Qt.  See http://www.cco.caltech.edu/~jafl/xdnd/
 **
@@ -249,7 +249,7 @@ QShapedPixmapWidget * qt_xdnd_deco = 0;
 
 static QWidget* desktop_proxy = 0;
 
-bool qt_xdnd_rootwindow_enable( QWidget* w, bool on )
+bool qt_xdnd_enable( QWidget* w, bool on )
 {
     if ( on ) {
 	QWidget * xdnd_widget = 0;
@@ -937,9 +937,12 @@ void QDragManager::updateCursor()
 	QBitmap b( noDropCursorWidth, noDropCursorHeight, noDropCutBits, TRUE );
 	QBitmap m( noDropCursorWidth, noDropCursorHeight, noDropCutMask, TRUE );
 	noDropCursor = new QCursor( b, m );
-	moveCursor = new QCursor(pm_cursor[0], 0,0);
-	copyCursor = new QCursor(pm_cursor[1], 0,0);
-	linkCursor = new QCursor(pm_cursor[2], 0,0);
+	if ( !pm_cursor[0].isNull() )
+	    moveCursor = new QCursor(pm_cursor[0], 0,0);
+	if ( !pm_cursor[1].isNull() )
+	    copyCursor = new QCursor(pm_cursor[1], 0,0);
+	if ( !pm_cursor[2].isNull() )
+	    linkCursor = new QCursor(pm_cursor[2], 0,0);
     }
 
     QCursor *c;
@@ -961,7 +964,8 @@ void QDragManager::updateCursor()
 	if ( qt_xdnd_deco )
 	    qt_xdnd_deco->hide();
     }
-    qApp->setOverrideCursor( *c, TRUE );
+    if ( c )
+	qApp->setOverrideCursor( *c, TRUE );
 }
 
 
