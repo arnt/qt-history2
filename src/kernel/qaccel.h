@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qaccel.h#11 $
+** $Id: //depot/qt/main/src/kernel/qaccel.h#12 $
 **
 ** Definition of QAccel class
 **
@@ -27,9 +27,13 @@ public:
     QAccel( QWidget *parent, const char *name=0 );
    ~QAccel();
 
+    bool	isEnabled() const;
+    void	setEnabled( bool );
+#if defined(OBSOLETE)
     void	enable();			// enable accelerator
     void	disable();			// disable accelerator
-    bool	isDisabled()	const	{ return !enabled; }
+    bool	isDisabled()	const;
+#endif
 
     uint	count() const;
 
@@ -40,20 +44,21 @@ public:
     int		key( int id );
     int		findKey( int key ) const;
 
-    bool	isItemDisabled( int id ) const;
-    bool	isItemEnabled( int id )	 const	{ return !isItemDisabled(id); }
+    bool	isItemEnabled( int id )	 const;
     void	setItemEnabled( int id, bool enable );
+#if defined(OBSOLETE)
+    bool	isItemDisabled( int id ) const	{ return !isItemEnabled(id); }
     void	enableItem( int id )		{ setItemEnabled( id, TRUE ); }
     void	disableItem( int id )		{ setItemEnabled( id, FALSE );}
+#endif
 
-    bool	connectItem( int id,		// connect item to method
+    bool	connectItem( int id,
 			     const QObject *receiver, const char *member );
     bool	disconnectItem( int id,
 				const QObject *receiver, const char *member );
 
 signals:
-    void	activated( int id );		// key activated
-    void	destroyed();			// accelerator destroyed
+    void	activated( int id );
 
 protected:
     bool	eventFilter( QObject *, QEvent * );
@@ -66,6 +71,50 @@ private:
     bool	enabled;
     QWidget    *tlw;
 };
+
+
+bool QAccel::isEnabled() const
+{
+    return enabled;
+}
+
+#if defined(OBSOLETE)
+void QAccel::enable()
+{
+    qObsolete( "QAccel", "enable", "setEnabled(TRUE)" );
+    setEnabled( TRUE );
+}
+
+void QAccel::disable()
+{
+    qObsolete( "QAccel", "disable", "setEnabled(FALSE)" );
+    setEnabled( FALSE );
+}
+
+bool QAccel::isDisabled() const
+{
+    qObsolete( "QAccel", "isDisabled", "!isEnabled()" );
+    return !isEnabled();
+}
+
+bool QAccel::isItemDisabled( int id ) const
+{
+    qObsolete( "QAccel", "isItemDisabled", "!isItemEnabled(id)" );
+    return !isItemEnabled(id);
+}
+
+void QAccel::enableItem( int id )
+{
+    qObsolete( "QAccel", "enableItem", "setItemEnabled(id,TRUE)" );
+    setItemEnabled( id, TRUE );
+}
+
+void QAccel::disableItem( int id )
+{
+    qObsolete( "QAccel", "disableItem", "setItemEnabled(id,FALSE)" );
+    setItemEnabled( id, FALSE );
+}
+#endif
 
 
 #endif // QACCEL_H
