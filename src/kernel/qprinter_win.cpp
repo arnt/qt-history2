@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qprinter_win.cpp#7 $
+** $Id: //depot/qt/main/src/kernel/qprinter_win.cpp#8 $
 **
 ** Implementation of QPrinter class for Windows
 **
@@ -12,10 +12,12 @@
 
 #include "qprinter.h"
 #include "qpaintdc.h"
-#include "qapp.h"
+#include "qpainter.h"
+#include "qpixmap.h"
+#include "qwidget.h"
 #include <windows.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qprinter_win.cpp#7 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qprinter_win.cpp#8 $")
 
 
 // QPrinter states
@@ -31,8 +33,8 @@ QPrinter::QPrinter()
 {
     orient = Portrait;
     page_size = A4;
-    from_pg = to_pg  = ncopies = 1;
-    min_pg  = max_pg = 0;
+    ncopies = 1;
+    from_pg = to_pg = min_pg  = max_pg = 0;
     state = PST_IDLE;
     output_file = FALSE;
 }
@@ -68,18 +70,19 @@ bool QPrinter::aborted() const
 
 bool QPrinter::setup( QWidget *parent )
 {
-    if ( parent == 0 )
-	parent = qApp->mainWidget();
     PRINTDLG pd;
     memset( &pd, 0, sizeof(PRINTDLG) );
     pd.lStructSize = sizeof(PRINTDLG);
     pd.Flags	 = PD_RETURNDC;
-    pd.hwndOwner = parent ? parent->id() : QApplication::desktop()->id();
-    pd.nFromPage = from_pg;
-    pd.nToPage	 = to_pg;
+    pd.hwndOwner = parent ? parent->topLevelWidget()->id() : 0;
+    pd.nFromPage = QMAX(from_pg,min_pg);
+    pd.nToPage	 = QMIN(to_pg,max_pg);
+    if ( pd.nFromPage > pd.nToPage )
+	pd.nFromPage = pd.nToPage = 0;
     pd.nMinPage	 = min_pg;
     pd.nMaxPage	 = max_pg;
     pd.nCopies	 = ncopies;
+
     bool result = PrintDlg( &pd );
     if ( result ) {				// get values from dlg
 	from_pg = pd.nFromPage;
@@ -95,7 +98,7 @@ bool QPrinter::setup( QWidget *parent )
 }
 
 
-bool QPrinter::cmd( int c, QPainter *, QPDevCmdParam *p )
+bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
 {
     if ( c ==  PDC_BEGIN ) {			// begin; start printing
 	bool ok = state == PST_IDLE;
@@ -105,9 +108,9 @@ bool QPrinter::cmd( int c, QPainter *, QPDevCmdParam *p )
 		ok = FALSE;
 	}
 	DOCINFO di;
-	di.cbSize      = sizeof(DOCINFO);
+	memset( &di, 0, sizeof(DOCINFO) );
+	di.cbSize = sizeof(DOCINFO);
 	di.lpszDocName = doc_name;
-	di.lpszOutput  = 0;
 	if ( ok && StartDoc(hdc, &di) == SP_ERROR )
 	    ok = FALSE;
 	if ( ok && StartPage(hdc) == SP_ERROR )
@@ -134,6 +137,31 @@ bool QPrinter::cmd( int c, QPainter *, QPDevCmdParam *p )
     else {					// all other commands...
 	if ( state != PST_ACTIVE )		// aborted or error
 	    return FALSE;
+	ASSERT( hdc != 0 );
+	if ( c == PDC_DRAWPIXMAP ) {		// special attention required
+	    QPoint pos = *p[0].point;
+	    const QPixmap *pm = p[1].pixmap;
+    // Get the code from gpixmap.cpp
+#if 0
+	    HANDLE hdcMem = CreateCompatibleDC( hdc );
+	    HANDLE hbmOld = SelectObject( hdcMem, pm->hbm() );
+	    if ( paint && paint->hasWorldXForm() ) {
+		int w = pm->width();
+		int h = pm->height();
+		QWMatrix m = paint->worldMatrix();
+		StretchBlt( hdc, pos.x(), pos.y(),
+			    QROUND(w*m.m11()), QROUND(h*m.m22()),
+			    hdcMem, 0, 0, w, h, SRCCOPY );
+	    }
+	    else {
+		BitBlt( hdc, pos.x(), pos.y(), pm->width(), pm->height(),
+			hdcMem, 0, 0, SRCCOPY );
+	    }
+	    SelectObject( hdcMem, hbmOld );
+	    DeleteObject( hdcMem );
+#endif
+	    return FALSE;			// don't bitblt
+	}
     }
     return TRUE;
 }
