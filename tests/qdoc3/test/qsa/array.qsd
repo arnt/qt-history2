@@ -52,7 +52,7 @@
 /*!
     \quickfn Array.push( o_1 : Object, ..., o_n : Object ) : Object
 
-    Pushes \a o1, ..., \a o_n onto the end of the array. Returns the
+    Pushes \a o_1, ..., \a o_n onto the end of the array. Returns the
     new length of the array.
 
     \sa push(), pop(), shift(), unshift()

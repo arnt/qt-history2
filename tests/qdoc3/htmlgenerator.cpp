@@ -118,6 +118,16 @@ int HtmlGenerator::generateAtom( const Atom *atom, const Node *relative,
 	break;
     case Atom::FormattingLeft:
 	out() << formattingLeftMap()[atom->string()];
+	if ( atom->string() == ATOM_FORMATTING_PARAMETER ) {
+	    if ( atom->next() != 0 && atom->next()->type() == Atom::String ) {
+		QRegExp subscriptRegExp( "([a-z]+)_([0-9n])" );
+		if ( subscriptRegExp.exactMatch(atom->next()->string()) ) {
+		    out() << subscriptRegExp.cap( 1 ) << "<sub>"
+			  << subscriptRegExp.cap( 2 ) << "</sub>";
+		    skipAhead = 1;
+		}
+	    }
+	}
 	break;
     case Atom::FormattingRight:
 	if ( atom->string() == ATOM_FORMATTING_LINK ) {
@@ -576,7 +586,10 @@ void HtmlGenerator::generateSynopsis( const Node *node,
 				      CodeMarker::SynopsisStyle style )
 {
     QString marked = marker->markedUpSynopsis( node, relative, style );
-    marked.replace( QRegExp("</?@param>"), "" );
+    marked.replace( QRegExp("<@param>([a-z]+)_([1-9n])</@param>"),
+		    "<i>\\1<sub>\\2</sub></i>" );
+    marked.replace( "<@param>", "<i>" );
+    marked.replace( "</@param>", "</i>" );
 
     if ( style == CodeMarker::Summary ) {
 	if ( node->status() == Node::Commendable ||
