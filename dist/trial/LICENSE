@@ -1,59 +1,87 @@
-QT EVALUATION VERSION LICENSE AGREEMENT
-
-Copyright (C) 1992-2002 Trolltech AS.  All rights reserved.
-
-This non-exclusive non-transferable License Agreement is between you
-("Licensee") and Trolltech AS, and pertains to the evaluation version of
-the Qt GUI Toolkit ("Software"), including the source code, example
-programs and the documentation.
+Qt EVALUATION VERSION LICENSE AGREEMENT
+Version 2.0
+27 February, 2002
 
 
-COPYRIGHT AND RESTRICTIONS
+IMPORTANT-READ CAREFULLY: This Trolltech End-User License Agreement
+("EULA") is a legal agreement between you (either an individual or a
+legal entity) and Trolltech AS ("Trolltech") for the Trolltech
+software product(s) accompanying this EULA, which include(s) computer
+software and may include "online" or electronic documentation,
+associated media, and printed materials ("Licensed Product").
 
-1. All intellectual property rights in the Software are owned by Trolltech
-AS and are protected by Norwegian copyright laws, other applicable
-copyright laws, and international treaty provisions. Trolltech AS retains
-all rights not expressly granted. No title, property rights or copyright in
-the Software or in any modifications to the Software shall pass to the
-Licensee under any circumstances.
+The Licensed Product is protected by copyright laws and international
+copyright treaties, as well as other intellectual property laws and
+treaties. The Licensed Product is licensed, not sold.
 
-2. The Licensee may not loan, rent, lease, or license the Software or any
-copy. The Licensee may not alter or remove any details of ownership,
-copyright, trade mark or other property right connected with the Software.
-The Licensee may not disclose any source code or any concepts and methods
-therein for any purpose other than as specifically provided in this
-Agreement.
+By installing, copying, or otherwise using the Licensed Product, you
+agree to be bound by the terms of this EULA. If you do not agree to
+the terms of this EULA, do not install, copy, or otherwise use the
+Licensed Product.
 
-3. The Licensee may use the Software for evaluation purposes only. The
-Licensee may not modify or distribute the Software. The Licensee may not
-distribute any software statically or dynamically linked with the Software.
+Upon your acceptance of the terms and conditions of this EULA, Trolltech 
+grants you the right to use the Licensed Product in the manner
+provided below.
 
-4. This evaluation Software is time-limited. All rights granted to the
-Licensee in this agreement will be void after the end of the evaluation
-period, which is no later than 31 days after the Licensee received the
-Software.
+Trolltech grants to you as an individual a personal, nonexclusive,
+nontransferable license to make and use copies of the Licensed Product
+for the sole purposes of evaluation. You may install copies of the
+Licensed Product on an unlimited number of computers provided that you
+are the only individual using the Licensed Product. If you are an
+entity, Trolltech grants you the right to designate one, and only one,
+individual within your organization who shall have the sole right to
+use the Licensed Product in the manner provided above. 
+
+Implementation of all or part of the Licensed Product may require licenses 
+under third party intellectual property rights, including without limitation, 
+patent rights. Trolltech is not responsible and shall not be held responsible 
+in any manner for identifying or failing to identify any or all such 
+third party intellectual property rights.
+
+Licensee may not modify or distribute the Licensed Product. Licensee 
+may not distribute any software statically or dynamically linked with 
+the Licensed Product.
+
+This Licensed Product is time-limited. All rights granted to Licensee 
+in this agreement will be void after the end of the evaluation period, 
+which is no later than 31 days after the Licensee received 
+the Licensed Product.
+
+
+WARRANTY DISCLAIMER
+THE LICENSED PRODUCT IS LICENSED TO YOU "AS IS". TO THE MAXIMUM
+EXTENT PERMITTED BY APPLICABLE LAW, TROLLTECH ON BEHALF OF ITSELF AND ITS
+SUPPLIERS, DISCLAIMS ALL WARRANTIES AND CONDITIONS, EITHER EXPRESS OR
+IMPLIED, INCLUDING, BUT NOT LIMITED TO, IMPLIED WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, TITLE AND
+NON-INFRINGEMENT WITH REGARD TO THE LICENSED PRODUCT.  
 
 
 LIMITATION OF LIABILITY
+IF, TROLLTECH'S WARRANTY DISCLAIMER NOTWITHSTANDING, TROLLTECH IS HELD 
+LIABLE TO YOU, WHETHER IN CONTRACT, TORT OR ANY OTHER LEGAL THEORY, 
+BASED ON THE LICENSED PRODUCT, TROLLTECH'S ENTIRE LIABILITY TO YOU AND 
+YOUR EXCLUSIVE REMEDY SHALL BE, AT TROLLTECH'S OPTION, EITHER (A) RETURN 
+OF THE PRICE YOU PAID FOR THE LICENSED PRODUCT, OR (B) REPAIR OR REPLACEMENT 
+OF THE LICENSED PRODUCT, PROVIDED YOU RETURN TO TROLLTECH ALL COPIES OF THE
+LICENSED PRODUCT AS ORIGINALLY DELIVERED TO YOU. TROLLTECH SHALL NOT UNDER
+ANY CIRCUMSTANCES BE LIABLE TO YOU BASED ON FAILURE OF THE LICENSED
+PRODUCT IF THE FAILURE RESULTED FROM ACCIDENT, ABUSE OR
+MISAPPLICATION, NOR SHALL TROLLTECH UNDER ANY CIRCUMSTANCES BE LIABLE FOR
+SPECIAL DAMAGES, PUNITIVE OR EXEMPLARY DAMAGES, DAMAGES FOR LOSS OF
+PROFITS OR INTERRUPTION OF BUSINESS OR FOR LOSS OR CORRUPTION OF DATA.
 
-THIS SOFTWARE IS PROVIDED "AS IS" AND EXCEPT AS SPECIFICALLY PROVIDED
-HEREIN, TROLLTECH AS MAKES NO WARRANTY OR REPRESENTATION, EITHER EXPRESSED
-OR IMPLIED, WITH RESPECT TO THE SOFTWARE, INCLUDING THEIR QUALITY,
-PERFORMANCE, MERCHANTABILITY, OR FITNESS FOR A PARTICULAR PURPOSE.  THE
-ENTIRE RISK AS TO THE QUALITY AND PERFORMANCE OF THE SOFTWARE IS WITH THE
-LICENSEE.
+GENERAL PROVISIONS
+This EULA may only be modified in writing signed by you and an
+authorized officer of Trolltech. All terms of any purchase order or other
+ordering document shall be superseded by this EULA. If any provision
+of the EULA is found void or unenforceable, the remainder will remain
+valid and enforceable according to its terms.  If any remedy provided
+is determined to have failed for its essential purpose, all
+limitations of liability and exclusions of damages set forth in this
+EULA shall remain in effect.
 
-Because software is inherently complex and may not be completely free of
-errors, the Licensee is advised to verify his work and make backup copies
-where appropriate. In no event will Trolltech AS be liable for any damages
-whatsoever including - but not restricted to - lost revenue or profits or
-other direct, indirect, special, incidental, cover, or consequential
-damages arising out of the use of or inability to use the Software, even if
-advised of the possibility of such damages, except to the extent invariable
-law, if any, provides otherwise.
+This EULA shall be construed, interpreted and governed by the laws of
+Norway.  Trolltech reserves all rights not specifically granted
+in this EULA.
 
-
-CHOICE OF LAW
-
-This license is governed by the Laws of Norway. Disputes shall be settled
-by Oslo City Court.
