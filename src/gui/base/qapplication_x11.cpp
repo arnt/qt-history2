@@ -1581,31 +1581,30 @@ void qt_init( QApplicationPrivate *priv, int,
 	    QX11Info::x_approotwindow_arr[ screen ] = RootWindow(X11->display, screen);
 
 	    // setup the visual and colormap for each screen
-	    Visual *vis;
+	    Visual *vis = 0;
 	    if ( visual && screen == appScreen ) {
 		// use the provided visual on the default screen only
 		vis = (Visual *) visual;
 
 		// figure out the depth of the visual we are using
-		ulong depth_bits = vis->red_mask | vis->green_mask | vis->blue_mask;
-		int depth = 0;
-		QX11Info::x_appdepth_arr[ screen ] = 0;
-		if ( !depth_bits ) {
-		    depth_bits = vis->map_entries-1;
-		    while ( depth_bits ) {
-			depth++;
-			depth_bits >>= 1;
-		    }
-		} else while ( depth_bits & 1 ) {
-		    ++depth;
-		    depth_bits >>= 1;
+		XVisualInfo *vi, rvi;
+		int n;
+		rvi.visualid = XVisualIDFromVisual(vis);
+		rvi.screen  = screen;
+		vi = XGetVisualInfo( X11->display, VisualIDMask | VisualScreenMask, &rvi, &n );
+		if (vi) {
+		    QX11Info::x_appdepth_arr[ screen ] = vi->depth;
+		    QX11Info::x_appcells_arr[ screen ] = vis->map_entries;
+		    QX11Info::x_appvisual_arr[ screen ] = vis;
+		    QX11Info::x_appdefvisual_arr[ screen ] = FALSE;
+		    XFree(vi);
+		} else {
+		    // couldn't get info about the visual, use the default instead
+		    vis = 0;
 		}
+	    }
 
-		QX11Info::x_appdepth_arr[ screen ] = depth;
-		QX11Info::x_appcells_arr[ screen ] = vis->map_entries;
-		QX11Info::x_appvisual_arr[ screen ] = vis;
-		QX11Info::x_appdefvisual_arr[ screen ] = FALSE;
-	    } else {
+	    if (!vis) {
 		// use the default visual
 		vis = DefaultVisual(X11->display, screen);
 		QX11Info::x_appdefvisual_arr[ screen ] = TRUE;

@@ -325,7 +325,8 @@ uint QColor::alloc( int screen )
 	r = sd->red_shift	> 0 ? r << sd->red_shift   : r >> -sd->red_shift;
 	g = sd->green_shift > 0 ? g << sd->green_shift : g >> -sd->green_shift;
 	b = sd->blue_shift	> 0 ? b << sd->blue_shift  : b >> -sd->blue_shift;
-	pix = (b & sd->blue_mask) | (g & sd->green_mask) | (r & sd->red_mask);
+	pix = (b & sd->blue_mask) | (g & sd->green_mask) | (r & sd->red_mask)
+	      | ~(sd->blue_mask | sd->green_mask | sd->red_mask);
 	if ( screen == QX11Info::appScreen() )
 	    d.d32.pix = pix;
 	return pix;

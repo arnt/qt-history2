@@ -1058,7 +1058,8 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 		r = red_shift	> 0 ? r << red_shift   : r >> -red_shift;
 		g = green_shift > 0 ? g << green_shift : g >> -green_shift;
 		b = blue_shift	> 0 ? b << blue_shift  : b >> -blue_shift;
-		pix[i] = (b & blue_mask) | (g & green_mask) | (r & red_mask);
+		pix[i] = (b & blue_mask) | (g & green_mask) | (r & red_mask)
+			 | ~(blue_mask | green_mask | red_mask);
 	    }
 	}
 
@@ -1143,7 +1144,8 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 		if ( d8 ) pixel = pix[*src++]; \
 		else { \
 		    GET_RGB \
-		    pixel = (b & blue_mask)|(g & green_mask) | (r & red_mask); \
+		    pixel = (b & blue_mask)|(g & green_mask) | (r & red_mask) \
+			    | ~(blue_mask | green_mask | red_mask); \
 		}
 
 #define GET_PIXEL_DITHER_TC \
