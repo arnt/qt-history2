@@ -2363,6 +2363,7 @@ void QOpenType::applyGSUBFeature(unsigned int featureTag, bool *where)
       qDebug("   %4x", str->string[i]);
     }
 #endif
+    positioned = FALSE;
 }
 
 
@@ -2393,6 +2394,7 @@ void QOpenType::applyGPOSFeatures()
 	    TT_GPOS_Apply_Feature( face, gpos, feature_index, FT_LOAD_DEFAULT, str, &positions, FALSE, false );
 	}
     }
+    positioned = TRUE;
 }
 
 const int *QOpenType::mapping(int &len)
@@ -2446,7 +2448,7 @@ void QOpenType::appendTo(QTextEngine *engine, QScriptItem *si, bool doLogCluster
     }
 
     // positioning code:
-    if ( hasGPos ) {
+    if ( hasGPos && positioned) {
 	float scale = si->fontEngine->scale();
 // 	qDebug("positioned glyphs:" );
 	for ( int i = 0; i < (int)str->length; i++) {

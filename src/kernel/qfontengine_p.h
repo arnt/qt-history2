@@ -474,6 +474,7 @@ private:
     bool hasGDef : 1;
     bool hasGSub : 1;
     bool hasGPos : 1;
+    bool positioned : 1;
     TTO_GSUB_String *str;
     TTO_GSUB_String *tmp;
     TTO_GPOS_Data *positions;
