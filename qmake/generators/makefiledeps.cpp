@@ -181,7 +181,7 @@ QStringList QMakeSourceFileInfo::dependencies(const QString &file)
     if(!files)
         return ret;
 
-    if(SourceFile *node = files->lookupFile(file)) {
+    if(SourceFile *node = files->lookupFile(QMakeLocalFileName(file))) {
         if(node->deps) {
             /* I stick them into a SourceDependChildren here because it is faster to just
                iterate over the list to stick them in the list, and reset the flag, then it is
@@ -206,14 +206,14 @@ QMakeSourceFileInfo::included(const QString &file)
     if (!files)
         return 0;
 
-    if(SourceFile *node = files->lookupFile(file))
+    if(SourceFile *node = files->lookupFile(QMakeLocalFileName(file)))
         return node->included_count;
     return 0;
 }
 
 bool QMakeSourceFileInfo::mocable(const QString &file)
 {
-    if(SourceFile *node = files->lookupFile(file))
+    if(SourceFile *node = files->lookupFile(QMakeLocalFileName(file)))
         return node->mocable;
     return false;
 }
@@ -536,7 +536,7 @@ bool QMakeSourceFileInfo::findDeps(SourceFile *file)
                 int msg_len;
                 for(msg_len = 0; (term && *(buffer + x + msg_len) != term) && !qmake_endOfLine(*(buffer + x + msg_len)); msg_len++);
                 *(buffer + x + msg_len) = '\0';
-                debug_msg(0, "%s:%d qmake_warning -- %s", file->file.local().toLatin1().constData(), line_count, buffer+x);
+                debug_msg(0, "%s:%d %s -- %s", file->file.local().toLatin1().constData(), line_count, keyword, buffer+x);
             }
         }
 
