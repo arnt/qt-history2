@@ -160,7 +160,10 @@ int main( int argc, char *argv[] )
 		if ( !GetProcessVersion( pidStr.toUInt() ) ) {		
 		    creatPid = TRUE;
 		} else {
-		    SendMessage( HWND_BROADCAST, RegisterWindowMessage(LPCTSTR("QT_DESIGNER_OPEN_FILE")), 0, 0 );
+		    if ( a.winVersion() & Qt::WV_NT_based )
+			    SendMessage( HWND_BROADCAST, RegisterWindowMessage((TCHAR*)"QT_DESIGNER_OPEN_FILE"), 0, 0 );
+		    else
+			    SendMessage( HWND_BROADCAST, RegisterWindowMessageA("QT_DESIGNER_OPEN_FILE"), 0, 0 );
 		    return 0;
 		}
 #endif
