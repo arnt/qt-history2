@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#251 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#252 $
 **
 ** Implementation of QListBox widget class
 **
@@ -569,7 +569,7 @@ QListBox::QListBox( QWidget *parent, const char *name, WFlags f )
     d = new QListBoxPrivate;
     d->updateTimer = new QTimer( this );
     connect( d->updateTimer, SIGNAL(timeout()),
-	     this, SLOT(refreshSlot()) );
+             this, SLOT(refreshSlot()) );
     setFrameStyle( QFrame::WinPanel | QFrame::Sunken ); // ### win/motif
     setBackgroundMode( PaletteBase );
     viewport()->setFocusProxy( this ); // ### wrong way around, kind of
@@ -804,37 +804,37 @@ void QListBox::insertItem( const QListBoxItem *lbi, int index )
     ASSERT( lbi != 0 );
 #else
     if ( !lbi )
-	return;
+        return;
 #endif
 
     if ( index < 0 )
-	index = count();
+        index = count();
 
     QListBoxItem * item = (QListBoxItem *)lbi;
     item->lbox = this;
     if ( !d->head || index == 0 ) {
-	item->n = d->head;
-	item->p = 0;
-	d->head = item;
-	item->dirty = TRUE;
-	if ( item->n )
-	    item->n->p = item;
+        item->n = d->head;
+        item->p = 0;
+        d->head = item;
+        item->dirty = TRUE;
+        if ( item->n )
+            item->n->p = item;
     } else {
-	QListBoxItem * i = d->head;
-	while ( i->n && index > 1 ) {
-	    i = i->n;
-	    index--;
-	}
-	if ( i->n ) {
-	    item->n = i->n;
-	    item->p = i;
-	    item->n->p = item;
-	    item->p->n = item;
-	} else {
-	    i->n = item;
-	    item->p = i;
-	    item->n = 0;
-	}
+        QListBoxItem * i = d->head;
+        while ( i->n && index > 1 ) {
+            i = i->n;
+            index--;
+        }
+        if ( i->n ) {
+            item->n = i->n;
+            item->p = i;
+            item->n->p = item;
+            item->p->n = item;
+        } else {
+            i->n = item;
+            item->p = i;
+            item->n = 0;
+        }
     }
     d->count++;
     triggerUpdate( TRUE );
@@ -2047,93 +2047,93 @@ int QListBox::numRows() const
 void QListBox::doLayout() const
 {
     if ( !d->layoutDirty )
-	return;
+        return;
     int c = count();
     switch( rowMode() ) {
     case FixedNumber:
-	// columnMode() is known to be Variable
-	tryGeometry( d->numRows, (c+d->numRows-1)/c );
-	break;
+        // columnMode() is known to be Variable
+        tryGeometry( d->numRows, (c+d->numRows-1)/c );
+        break;
     case FitToHeight:
-	// columnMode() is known to be Variable
-	if ( d->head ) {
-	    // this is basically the FitToWidth code, but edited to use rows.
-	    int maxh = 0;
-	    QListBoxItem * i = d->head;
-	    while ( i ) {
-		int h = i->height();
-		if ( maxh < h )
-		    maxh = h;
-		i = i->n;
-	    }
-	    int vh = viewportSize( 1, 1 ).height();
-	    do {
-		int rows = vh / maxh;
-		if ( rows > c )
-		    rows = c;
-		if ( rows < 1 )
-		    rows = 1;
-		if ( variableHeight() && rows < c ) {
-		    do {
-			++rows;
-			tryGeometry( rows, (c+rows-1)/rows );
-		    } while ( rows <= c &&
-			      d->rowPos[(int)d->rowPos.size()-1] <= vh );
-		    --rows;
-		}
-		tryGeometry( rows, (c+rows-1)/rows );
-		int nvh = viewportSize( d->columnPos[(int)d->columnPos.size()-1],
-					d->rowPos[(int)d->rowPos.size()-1] ).height();
-		if ( nvh < vh )
-		    vh = nvh;
-	    } while ( d->rowPos.size() > 2 &&
-		      vh < d->rowPos[(int)d->rowPos.size()-1] );
-	} else {
-	    tryGeometry( 1, 1 );
-	}
-	break;
+        // columnMode() is known to be Variable
+        if ( d->head ) {
+            // this is basically the FitToWidth code, but edited to use rows.
+            int maxh = 0;
+            QListBoxItem * i = d->head;
+            while ( i ) {
+                int h = i->height();
+                if ( maxh < h )
+                    maxh = h;
+                i = i->n;
+            }
+            int vh = viewportSize( 1, 1 ).height();
+            do {
+                int rows = vh / maxh;
+                if ( rows > c )
+                    rows = c;
+                if ( rows < 1 )
+                    rows = 1;
+                if ( variableHeight() && rows < c ) {
+                    do {
+                        ++rows;
+                        tryGeometry( rows, (c+rows-1)/rows );
+                    } while ( rows <= c &&
+                              d->rowPos[(int)d->rowPos.size()-1] <= vh );
+                    --rows;
+                }
+                tryGeometry( rows, (c+rows-1)/rows );
+                int nvh = viewportSize( d->columnPos[(int)d->columnPos.size()-1],
+                                        d->rowPos[(int)d->rowPos.size()-1] ).height();
+                if ( nvh < vh )
+                    vh = nvh;
+            } while ( d->rowPos.size() > 2 &&
+                      vh < d->rowPos[(int)d->rowPos.size()-1] );
+        } else {
+            tryGeometry( 1, 1 );
+        }
+        break;
     case Variable:
-	if ( columnMode() == FixedNumber ) {
-	    tryGeometry( (count()+d->numColumns-1)/d->numColumns,
-			 d->numColumns );
-	} else if ( d->head ) { // FitToWidth, at least one item
-	    int maxw = 0;
-	    QListBoxItem * i = d->head;
-	    while ( i ) {
-		int tw = i->width();
-		if ( maxw < tw )
-		    maxw = tw;
-		i = i->n;
-	    }
-	    int vw = viewportSize( 1,1 ).width();
-	    do {
-		int columns = vw / maxw;
-		if ( columns > c )
-		    columns = c;
-		if ( columns < 1 )
-		    columns = 1;
-		if ( variableWidth() && columns < c ) {
-		    // variable width means we have to Work Harder.
-		    do {
-			columns++;
-			tryGeometry( (c+columns-1)/columns, columns );
-		    } while ( columns <= c &&
-			      d->columnPos[(int)d->columnPos.size()-1] <= vw );
-		    // and as the perceptive reader will understand, we Work
-		    // even Harder than we really have to...
-		    --columns;
-		}
-		tryGeometry( (c+columns-1)/columns, columns );
-		int nvw = viewportSize( d->columnPos[(int)d->columnPos.size()-1],
-					d->rowPos[(int)d->rowPos.size()-1] ).width();
-		if ( nvw < vw )
-		    vw = nvw;
-	    } while ( d->columnPos.size() > 2 &&
-		      vw < d->columnPos[(int)d->columnPos.size()-1] );
-	} else {
-	    tryGeometry( 1, 1 );
-	}
-	break;
+        if ( columnMode() == FixedNumber ) {
+            tryGeometry( (count()+d->numColumns-1)/d->numColumns,
+                         d->numColumns );
+        } else if ( d->head ) { // FitToWidth, at least one item
+            int maxw = 0;
+            QListBoxItem * i = d->head;
+            while ( i ) {
+                int tw = i->width();
+                if ( maxw < tw )
+                    maxw = tw;
+                i = i->n;
+            }
+            int vw = viewportSize( 1,1 ).width();
+            do {
+                int columns = vw / maxw;
+                if ( columns > c )
+                    columns = c;
+                if ( columns < 1 )
+                    columns = 1;
+                if ( variableWidth() && columns < c ) {
+                    // variable width means we have to Work Harder.
+                    do {
+                        columns++;
+                        tryGeometry( (c+columns-1)/columns, columns );
+                    } while ( columns <= c &&
+                              d->columnPos[(int)d->columnPos.size()-1] <= vw );
+                    // and as the perceptive reader will understand, we Work
+                    // even Harder than we really have to...
+                    --columns;
+                }
+                tryGeometry( (c+columns-1)/columns, columns );
+                int nvw = viewportSize( d->columnPos[(int)d->columnPos.size()-1],
+                                        d->rowPos[(int)d->rowPos.size()-1] ).width();
+                if ( nvw < vw )
+                    vw = nvw;
+            } while ( d->columnPos.size() > 2 &&
+                      vw < d->columnPos[(int)d->columnPos.size()-1] );
+        } else {
+            tryGeometry( 1, 1 );
+        }
+        break;
     }
 
     d->layoutDirty = FALSE;
@@ -2145,8 +2145,8 @@ void QListBox::doLayout() const
 
     // extend the column for simple single-column listboxes
     if ( rowMode() == Variable && columnMode() == FixedNumber
-	 && d->numColumns == 1 && d->columnPos[1] < w )
-	d->columnPos[1] = w;
+         && d->numColumns == 1 && d->columnPos[1] < w )
+        d->columnPos[1] = w;
 
     ((QListBox *)this)->resizeContents( w, h );
 }
@@ -2159,72 +2159,72 @@ void QListBox::doLayout() const
 void QListBox::tryGeometry( int rows, int columns ) const
 {
     if ( columns < 1 )
-	columns = 1;
+        columns = 1;
     d->columnPos.resize( columns+1 );
 
     if ( rows < 1 )
-	rows = 1;
+        rows = 1;
     d->rowPos.resize( rows+1 );
 
     // funky hack I: dump the height/width of each column/row in
     // {column,row}Pos for later conversion to positions.
     int c;
     for( c=0; c<=columns; c++ )
-	d->columnPos[c] = 0;
+        d->columnPos[c] = 0;
     int r;
     for( r=0; r<=rows; r++ )
-	d->rowPos[r] = 0;
+        d->rowPos[r] = 0;
     r = c = 0;
     QListBoxItem * i = d->head;
     while ( i && c < columns ) {
-	if ( i == d->current ) {
-	    d->currentRow = r;
-	    d->currentColumn = c;
-	}
-	int w = i->width();
-	if ( d->columnPos[c] < w )
-	    d->columnPos[c] = w;
-	int h = i->height();
-	if ( d->rowPos[r] < h )
-	    d->rowPos[r] = h;
-	i = i->n;
-	r++;
-	if ( r == rows ) {
-	    r = 0;
-	    c++;
-	}
+        if ( i == d->current ) {
+            d->currentRow = r;
+            d->currentColumn = c;
+        }
+        int w = i->width();
+        if ( d->columnPos[c] < w )
+            d->columnPos[c] = w;
+        int h = i->height();
+        if ( d->rowPos[r] < h )
+            d->rowPos[r] = h;
+        i = i->n;
+        r++;
+        if ( r == rows ) {
+            r = 0;
+            c++;
+        }
     }
 
     // funky hack II: if not variable {width,height}, unvariablify it.
     if ( !variableWidth() ) {
-	int w = 0;
-	for( c=0; c<columns; c++ )
-	    if ( w < d->columnPos[c] )
-		w = d->columnPos[c];
-	for( c=0; c<columns; c++ )
-	    d->columnPos[c] = w;
+        int w = 0;
+        for( c=0; c<columns; c++ )
+            if ( w < d->columnPos[c] )
+                w = d->columnPos[c];
+        for( c=0; c<columns; c++ )
+            d->columnPos[c] = w;
     }
     if ( !variableHeight() ) {
-	int h = 0;
-	for( r=0; r<rows; r++ )
-	    if ( h < d->rowPos[r] )
-		h = d->rowPos[r];
-	for( r=0; r<rows; r++ )
-	    d->rowPos[r] = h;
+        int h = 0;
+        for( r=0; r<rows; r++ )
+            if ( h < d->rowPos[r] )
+                h = d->rowPos[r];
+        for( r=0; r<rows; r++ )
+            d->rowPos[r] = h;
     }
 
     // repair the hacking.
     int x = 0;
     for( c=0; c<=columns; c++ ) {
-	int w = d->columnPos[c];
-	d->columnPos[c] = x;
-	x += w;
+        int w = d->columnPos[c];
+        d->columnPos[c] = x;
+        x += w;
     }
     int y = 0;
     for( r=0; r<=rows; r++ ) {
-	int h = d->rowPos[r];
-	d->rowPos[r] = y;
-	y += h;
+        int h = d->rowPos[r];
+        d->rowPos[r] = y;
+        y += h;
     }
 }
 
@@ -2348,6 +2348,7 @@ void QListBox::ensureCurrentVisible()
     int row = currentRow();
     int column = currentColumn();
     int w = ( d->columnPos[column+1] - d->columnPos[column] ) / 2;
+    if ( numColumns() == 1 ) w = 0;
     int h = ( d->rowPos[row+1] - d->rowPos[row] ) / 2;
 
     ensureVisible( d->columnPos[column] + w, d->rowPos[row] + h, w, h);
@@ -2502,9 +2503,9 @@ void QListBox::setVariableWidth( bool enable )
 void QListBox::refreshSlot()
 {
     if ( d->layoutDirty ) {
-	doLayout();
-	viewport()->repaint( FALSE );
-	return;
+        doLayout();
+        viewport()->repaint( FALSE );
+        return;
     }
 
     QRegion r;
@@ -2514,35 +2515,35 @@ void QListBox::refreshSlot()
     int row = 0;
     int top = row;
     while( col < (int)d->columnPos.size()-1 && d->columnPos[col+1] < x )
-	col++;
+        col++;
     while( top < (int)d->rowPos.size()-1 && d->rowPos[top+1] < y )
-	top++;
+        top++;
     QListBoxItem * i = item( col*numRows() );
 
     while ( i && (int)col < numCols() &&
-	    d->columnPos[col] < x + visibleWidth()  ) {
-	int cw = d->columnPos[col+1] - d->columnPos[col];
-	while ( i && row < top ) {
-	    i = i->n;
-	    row++;
-	}
-	while ( i && row < numRows() && d->rowPos[row] <
-		y + visibleHeight() ) {
-	    if ( i->dirty )
-		r = r.unite( QRect( d->columnPos[col] - x, d->rowPos[row] - y,
-				    cw, d->rowPos[row+1] - d->rowPos[row] ) );
-	    row++;
-	    i = i->n;
-	}
-	while ( i && row < numRows() )
-	    i = i->n;
-	row = 0;
-	col++;
+            d->columnPos[col] < x + visibleWidth()  ) {
+        int cw = d->columnPos[col+1] - d->columnPos[col];
+        while ( i && row < top ) {
+            i = i->n;
+            row++;
+        }
+        while ( i && row < numRows() && d->rowPos[row] <
+                y + visibleHeight() ) {
+            if ( i->dirty )
+                r = r.unite( QRect( d->columnPos[col] - x, d->rowPos[row] - y,
+                                    cw, d->rowPos[row+1] - d->rowPos[row] ) );
+            row++;
+            i = i->n;
+        }
+        while ( i && row < numRows() )
+            i = i->n;
+        row = 0;
+        col++;
     }
     if ( r.isEmpty() )
-	viewport()->repaint( FALSE );
+        viewport()->repaint( FALSE );
     else
-	viewport()->repaint( r, FALSE );
+        viewport()->repaint( r, FALSE );
 }
 
 
