@@ -2506,7 +2506,7 @@ void QMainWindow::moveToolBar( QToolBar* t , QMouseEvent * e )
 	    findDockArea( pos, r, t, &r2 );
 	    if ( dock != d->origDock ) {
 		saveToolLayout( d, d->origDock, t );
-	    }S
+	    }
 	    findNewToolbarPlace( d, t, dock, r2, relative, ipos );
 	    moveToolBar( t, dock, relative, ipos );
 	}
