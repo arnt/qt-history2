@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#444 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#445 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -933,7 +933,7 @@ static QWidget *findChildWidget( const QWidget *p, const QPoint &pos )
 QWidget *QApplication::widgetAt( int x, int y, bool child )
 {
     POINT p;
-    HWND  win, parent;
+    HWND  win;
     QWidget *w;
     p.x = x;
     p.y = y;
