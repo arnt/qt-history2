@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/qfileiconview/qfileiconview.cpp#31 $
+** $Id: //depot/qt/main/examples/qfileiconview/qfileiconview.cpp#32 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -614,6 +614,7 @@ void QtFileIconView::setDirectory( const QDir &dir )
 
 void QtFileIconView::newDirectory()
 {
+    setReorderItemsWhenInsert( FALSE );
     selectAll( FALSE );
     if ( viewDir.mkdir( QString( "New Folder %1" ).arg( ++newFolderNum ) ) ) {
 	QFileInfo *fi = new QFileInfo( viewDir, QString( "New Folder %1" ).arg( newFolderNum ) );
@@ -626,6 +627,7 @@ void QtFileIconView::newDirectory()
 	repaintItem( item );
 	item->rename();
     }
+    setReorderItemsWhenInsert( TRUE );
 }
 
 QDir QtFileIconView::currentDir()
