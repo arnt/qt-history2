@@ -1000,7 +1000,7 @@ bool MainWindow::eventFilter( QObject *o, QEvent *e )
 	    ( (FormWindow*)w )->handleMouseRelease( (QMouseEvent*)e,
 						    ( (FormWindow*)w )->designerWidget( o ) );
 	if ( passiveInteractor ) {
-	    selectionChanged();
+	    QTimer::singleShot( 0, this, SLOT( selectionChanged() ) );
 	    QTimer::singleShot( 0, formWindow(), SLOT( visibilityChanged() ) );
 	}
 	return !passiveInteractor;
