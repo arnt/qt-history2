@@ -569,10 +569,12 @@ bool QMakeSourceFileInfo::findMocs(SourceFile *file)
 
     debug_msg(2, "findMocs: %s", file->file.local().latin1());
     int line_count = 1;
-    bool ignore_qobject = false;
+    bool ignore_qobject = false, ignore_qgadget = false;
+ /* qmake ignore Q_GADGET */
+#define Q_GADGET_LEN 8 //strlen("Q_GADGET")
  /* qmake ignore Q_OBJECT */
-#define OBJ_LEN 8 //strlen("Q_OBJECT")
-    for(int x = 0; x < (buffer_len-OBJ_LEN); x++) {
+#define Q_OBJECT_LEN 8 //strlen("Q_OBJECT")
+    for(int x = 0; x < (buffer_len-Q_OBJECT_LEN); x++) {
         if(*(buffer + x) == '/') {
             x++;
             if(buffer_len >= x) {
@@ -582,13 +584,18 @@ bool QMakeSourceFileInfo::findMocs(SourceFile *file)
                 } else if(*(buffer + x) == '*') { //c style comment
                     for(;x < buffer_len; x++) {
                         if(*(buffer + x) == 't' || *(buffer + x) == 'q') { //ignore
-                            if(buffer_len >= (x + 20)) {
-                                if(!strncmp(buffer + x + 1, "make ignore Q_OBJECT", 20)) {
-                                    debug_msg(2, "Mocgen: %s:%d Found \"qmake ignore Q_OBJECT\"",
-                                              file->file.real().latin1(), line_count);
-                                    x += 20;
-                                    ignore_qobject = true;
-                                }
+                            if(buffer_len >= (x + 20) && 
+                               !strncmp(buffer + x + 1, "make ignore Q_OBJECT", 20)) {
+                                debug_msg(2, "Mocgen: %s:%d Found \"qmake ignore Q_OBJECT\"",
+                                          file->file.real().latin1(), line_count);
+                                x += 20;
+                                ignore_qobject = true;
+                            } else if(buffer_len >= (x + 20) && 
+                                      !strncmp(buffer + x + 1, "make ignore Q_GADGET", 20)) {
+                                debug_msg(2, "Mocgen: %s:%d Found \"qmake ignore Q_GADGET\"",
+                                          file->file.real().latin1(), line_count);
+                                x += 20;
+                                ignore_qgadget = true;
                             }
                         } else if(*(buffer + x) == '*') {
                             if(buffer_len >= (x+1) && *(buffer + (x+1)) == '/') {
@@ -605,16 +612,25 @@ bool QMakeSourceFileInfo::findMocs(SourceFile *file)
 #define SYMBOL_CHAR(x) ((x >= 'a' && x <= 'z') || (x >= 'A' && x <= 'Z') || \
                         (x >= '0' && x <= '9') || x == '_')
 
-        bool interesting = *(buffer+x) == 'Q' && (!strncmp(buffer+x, "Q_OBJECT", OBJ_LEN));
+        bool interesting = *(buffer+x) == 'Q' && 
+                           (!strncmp(buffer+x, "Q_OBJECT", Q_OBJECT_LEN) || 
+                            !strncmp(buffer+x, "Q_GADGET", Q_GADGET_LEN));
         if(interesting) {
             int len = 0;
-            if(!strncmp(buffer+x, "Q_OBJECT", OBJ_LEN)) {
+            if(!strncmp(buffer+x, "Q_OBJECT", Q_OBJECT_LEN)) {
                 if(ignore_qobject) {
                     debug_msg(2, "Mocgen: %s:%d Ignoring Q_OBJECT", file->file.real().latin1(), line_count);
                     interesting = false;
                 }
-                len=OBJ_LEN;
+                len=Q_OBJECT_LEN;
+            } else if(!strncmp(buffer+x, "Q_GADGET", Q_GADGET_LEN)) {
+                if(ignore_qgadget) {
+                    debug_msg(2, "Mocgen: %s:%d Ignoring Q_GADGET", file->file.real().latin1(), line_count);
+                    interesting = false;
+                }
+                len=Q_GADGET_LEN;
             }
+
             if(SYMBOL_CHAR(*(buffer+x+len)))
                 interesting = false;
             if(interesting) {
@@ -632,7 +648,6 @@ bool QMakeSourceFileInfo::findMocs(SourceFile *file)
         if(QMAKE_EOL(*(buffer+x)))
             line_count++;
     }
-#undef OBJ_LEN
     return true;
 }
 

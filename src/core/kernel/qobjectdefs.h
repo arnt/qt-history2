@@ -76,6 +76,7 @@ public: \
 private:
 /* tmake ignore Q_OBJECT */
 #define Q_OBJECT_FAKE Q_OBJECT
+/* tmake ignore Q_GADGET */
 #define Q_GADGET \
 public: \
     static const QMetaObject staticMetaObject; \
