@@ -570,5 +570,5 @@ unix:SOURCES   += $$QNETWORK/qsocketdevice_unix.cpp
 
 SOURCES += tmp/qt.cpp
 
-INCLUDEPATH += 3rdparty/freetype2/include
-#INCLUDEPATH += 3rdparty/freetype2/include 3rdparty/libpng 3rdparty/zlib
+#INCLUDEPATH += 3rdparty/freetype2/include
+INCLUDEPATH += 3rdparty/freetype2/include 3rdparty/libpng 3rdparty/zlib
