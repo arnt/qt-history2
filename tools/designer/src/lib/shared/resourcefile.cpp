@@ -78,7 +78,7 @@ bool ResourceFile::load()
         QDomElement felt = relt.firstChildElement(QLatin1String("file"));
         for (; !felt.isNull(); felt = felt.nextSiblingElement(QLatin1String("file")))
             file_list.append(absolutePath(felt.text()));
-        m_resource_map.insert(relt.attribute(QLatin1String("prefix")), file_list);
+        m_resource_map.insert(fixPrefix(relt.attribute(QLatin1String("prefix"))), file_list);
     }
 
     return true;

@@ -1870,8 +1870,25 @@ void FormWindow::removeResourceFile(const QString &path)
     m_resourceFiles.removeAll(path);
 }
 
-static QString relativePath(const QString &dir, const QString &file)
+static QString relativePath(const QString &_dir, const QString &_file)
 {
+    QString dir = QDir::cleanPath(_dir);
+    QString file = QDir::cleanPath(_file);
+
+#ifdef Q_OS_WIN
+    QString root_path = QDir(dir).rootPath();
+    if (root_path != QDir(QFileInfo(file).path()).rootPath()) {
+        return file;
+    } else {
+        dir.remove(0, root_path.size() - 1);
+        file.remove(0, root_path.size() - 1);
+    }
+    // QDir::cleanPath return always a '/' as separator.
+    // Stupid workarround for Windows for now.
+    dir = dir.replace("/", "\\");
+    file = file.replace("/", "\\");
+#endif
+
     QString result;
     QStringList dir_elts = dir.split(QDir::separator(), QString::SkipEmptyParts);
     QStringList file_elts = file.split(QDir::separator(), QString::SkipEmptyParts);
