@@ -1,2 +1,4 @@
 TEMPLATE = subdirs
-SUBDIRS = uic uic3 rcc
+SUBDIRS = uic rcc
+contains(QT_CONFIG, compat): SUBDIRS += uic3
+
