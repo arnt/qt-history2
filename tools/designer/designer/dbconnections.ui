@@ -11,8 +11,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>528</width>
-            <height>317</height>
+            <width>524</width>
+            <height>315</height>
         </rect>
     </property>
     <property stdset="1">
@@ -40,7 +40,7 @@
             </property>
             <property stdset="1">
                 <name>text</name>
-                <string>&amp;New Connections</string>
+                <string>&amp;New Connection</string>
             </property>
         </widget>
         <widget row="0"  column="0"  rowspan="3"  colspan="1" >
