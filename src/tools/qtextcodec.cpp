@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qtextcodec.cpp#76 $
+** $Id: //depot/qt/main/src/tools/qtextcodec.cpp#77 $
 **
 ** Implementation of QTextCodec class
 **
@@ -1517,7 +1517,8 @@ QCString QSimpleTextCodec::fromUnicode(const QString& uc, int& len ) const
     int u;
     for( i=0; i<len; i++ ) {
 	u = uc[i].cell() + 256* uc[i].row();
-	r[i] = ( u < (int)reverseMap->size() ) ? (*reverseMap)[u] :  '?';
+	r[i] = u < 128 ? u : (
+	    ( u < (int)reverseMap->size() ) ? (*reverseMap)[u] :  '?' );
     }
     r[len] = 0;
     return r;
