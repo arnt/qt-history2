@@ -328,8 +328,17 @@ QTextLayout::Result QTextLayout::endLine( int x, int y, int alignment,
 					  int *ascent, int *descent, int *lineLeft, int *lineRight )
 {
 //     qDebug("endLine x=%d, y=%d, first=%d, current=%d lw=%d wu=%d", x,  y, d->firstItemInLine, d->currentItem, d->lineWidth, d->widthUsed );
-    if ( d->firstItemInLine == -1 )
+    if ( d->firstItemInLine == -1 ) {
+	if ( lineLeft )
+	    *lineLeft = x;
+	if ( lineRight )
+	    *lineRight = x;
+	if ( ascent )
+	    *ascent = 0;
+	if ( descent )
+	    *descent = 0;
 	return LineEmpty;
+    }
 
     int numSpaceItems = 0;
     if ( !(alignment & Qt::SingleLine) && d->currentItem > d->firstItemInLine && d->items[d->currentItem-1].isSpace ) {
@@ -417,6 +426,14 @@ QTextLayout::Result QTextLayout::endLine( int x, int y, int alignment,
 	if ( breakPosition == -1 ) {
 //  	    qDebug("no valid linebreak found, returning empty line");
 	    d->currentItem = d->firstItemInLine;
+	    if ( lineLeft )
+		*lineLeft = x;
+	    if ( lineRight )
+		*lineRight = x;
+	    if ( ascent )
+		*ascent = 0;
+	    if ( descent )
+		*descent = 0;
 	    return LineEmpty;
 	}
 
