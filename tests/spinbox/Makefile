@@ -1,5 +1,5 @@
 #############################################################################
-# $Id: //depot/qt/main/tests/spinbox/Makefile#3 $
+# $Id: //depot/qt/main/tests/spinbox/Makefile#4 $
 #
 # Win32 Makefile, requires Microsoft nmake.
 #
@@ -7,6 +7,6 @@
 #
 #############################################################################
 
-PROJECT = spinbox
+PROJECT = spin
 
 !INCLUDE $(QTDIR)\Makefile.inc

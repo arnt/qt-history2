@@ -1,5 +1,5 @@
 #############################################################################
-# $Id: //depot/qt/main/tests/spinbox/GNUmakefile#3 $
+# $Id: //depot/qt/main/tests/spinbox/GNUmakefile#4 $
 #
 # Unix Makefile, requires GNU make (gmake).
 #
@@ -7,6 +7,6 @@
 #
 #############################################################################
 
-PROJECT = spinbox
+PROJECT = spin
 
 include $(QTDIR)/GNUmakefile.inc

@@ -1,3 +1,4 @@
+#include "spin.h"
 #include <qwidget.h>
 #include <qpainter.h>
 #include <qapplication.h>
@@ -8,41 +9,29 @@
 #include <qpushbutton.h>
 #include <qlayout.h>
 #include <qlineedit.h>
+#include <qmotifstyle.h>
+#include <qwindowsstyle.h>
 
-class Main : public QDialog {
-    Q_OBJECT
-public:
-    Main(QWidget* parent=0, const char* name=0, int f=0);
+
+
+
+
+MainParent::MainParent( QWidget* parent, const char* name, int f )
+    : QWidget( parent, name, f )
+{
+    ;
+}
+
+
+void MainParent::mousePressEvent( QMouseEvent * )
+{
+    Main* myMain = new Main;
+    debug("Starting!");
+    myMain->exec();
+    debug("Finished!");
+    delete myMain;
+}
 	
-    QSpinBox* mainBox;
-    QSpinBox* decBox;
-    QSpinBox* stepBox;
-    QSpinBox* minBox;
-    QSpinBox* maxBox;
-    QSpinBox* valBox;
-    QCheckBox* wrapCheck;
-    QCheckBox* palCheck;
-    QCheckBox* disableCheck;
-    QCheckBox* styleCheck;
-    QLineEdit* suffixEd;
-    QLineEdit* prefixEd;
-    QLineEdit* minTxtEd;
-    QLabel* textLb;
-
-public slots:
- 
-    void updateWrap();
-    void updateStep();
-    void updateRange();
-    void updatePalette();
-    void updateDisabled();
-    void updateStyle();
-    void updateSpecValTxt( const char* s );
-    void showValue( int i );
-
-};
-
-#include "spin.moc"
 
 Main::Main(QWidget* parent, const char* name, int f)
     : QDialog(parent, name, TRUE, f)
@@ -75,8 +64,8 @@ Main::Main(QWidget* parent, const char* name, int f)
     QLabel* textLb = new QLabel("(uninit)", this );
     textLb->setFrameStyle( QFrame::Panel | QFrame::Sunken );
     textLb->setMinimumSize( textLb->sizeHint() );
-    connect( mainBox, SIGNAL(valueChanged(const char*)), 
-	     textLb, SLOT(setText(const char*)) );
+    connect( mainBox, SIGNAL(valueChanged(const QString&)), 
+	     textLb, SLOT(setText(const QString&)) );
     
     wrapCheck = new QCheckBox("Enable Wrapping", this );
     wrapCheck->setMinimumSize( wrapCheck->sizeHint() );
@@ -103,25 +92,26 @@ Main::Main(QWidget* parent, const char* name, int f)
     valBox->setMinimumSize( valBox->sizeHint() );
     valBox->setValue( mainBox->value() );
     connect( valBox, SIGNAL(valueChanged(int)), mainBox, SLOT( setValue(int) ) );
+	//connect( valBox, SIGNAL(valueChanged(int)), this, SLOT( updateValue(int) ) );
 
 
     QLabel* prefixPre = new QLabel("Set Prefix:", this );
     prefixPre->setMinimumSize( prefixPre->sizeHint() );
     prefixEd = new QLineEdit( this );
     prefixEd->setMinimumSize( prefixEd->sizeHint() );
-    connect( prefixEd, SIGNAL(textChanged(const char*)), mainBox, SLOT(setPrefix(const char*)));
+    connect( prefixEd, SIGNAL(textChanged(const QString& )), mainBox, SLOT(setPrefix(const QString&)));
 
     QLabel* suffixPre = new QLabel("Set Suffix:", this );
     suffixPre->setMinimumSize( suffixPre->sizeHint() );
     suffixEd = new QLineEdit( this );
     suffixEd->setMinimumSize( suffixEd->sizeHint() );
-    connect( suffixEd, SIGNAL(textChanged(const char*)), mainBox, SLOT(setSuffix(const char*)));
+    connect( suffixEd, SIGNAL(textChanged(const QString&)), mainBox, SLOT(setSuffix(const QString&)));
 
     QLabel* minTxtPre = new QLabel("Set specialValueText:", this );
     minTxtPre->setMinimumSize( minTxtPre->sizeHint() );
     minTxtEd = new QLineEdit( this );
     minTxtEd->setMinimumSize( minTxtEd->sizeHint() );
-    connect( minTxtEd, SIGNAL(textChanged(const char*)), this, SLOT(updateSpecValTxt(const char*)));
+    connect( minTxtEd, SIGNAL(textChanged(const QString&)), this, SLOT(updateSpecValTxt(const QString&)));
 
     palCheck = new QCheckBox("Custom palette", this );
     palCheck->setMinimumSize( palCheck->sizeHint() );
@@ -171,6 +161,11 @@ Main::Main(QWidget* parent, const char* name, int f)
 
 }
 
+void Main::updateValue( int i )
+{
+    mainBox->setValue( i );
+}
+
 void Main::updateWrap()
 {
     mainBox->setWrapping( wrapCheck->isChecked() );
@@ -193,7 +188,14 @@ void Main::updateDisabled()
 
 void Main::updateStyle()
 {
-    mainBox->setStyle( styleCheck->isChecked() ? WindowsStyle : MotifStyle );
+    if ( styleCheck->isChecked() ) {
+	QStyle* ws = new QWindowsStyle;
+	qApp->setStyle( ws );
+    }
+    else {
+	QStyle* ms = new QMotifStyle;
+	qApp->setStyle( ms );
+    }
 }
 
 
@@ -208,7 +210,7 @@ void Main::updatePalette()
     }
 }
 
-void Main::updateSpecValTxt( const char* s )
+void Main::updateSpecValTxt( const QString& s )
 {
     mainBox->setSpecialValueText( s );
 }
@@ -223,7 +225,7 @@ main(int argc, char** argv)
 {
     QApplication app(argc, argv);
 
-    Main m;
+    MainParent m;
     app.setMainWidget(&m);
     m.show();
 
