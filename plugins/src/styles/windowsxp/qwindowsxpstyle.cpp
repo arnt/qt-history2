@@ -121,7 +121,7 @@ QPixmap *QWindowsXPStylePrivate::tabbody = 0;
 
 struct XPThemeData
 {
-    XPThemeData( const QWidget *w = 0, const QPainter *p = 0, LPCWSTR theme = 0, int part = 0, int state = 0, const QRect &r = QRect() )
+    XPThemeData( const QWidget *w = 0, QPainter *p = 0, LPCWSTR theme = 0, int part = 0, int state = 0, const QRect &r = QRect() )
         : widget( w ), painter( p ), name( theme ),partId( part ), stateId( state ), rec( r ), htheme( 0 )
     {
     }
@@ -194,7 +194,21 @@ struct XPThemeData
 	if ( sId )
 	    stateId = sId;
 
-	ulong res = DrawThemeBackground( handle(), painter->handle(), partId, stateId, &rect(), 0 );
+	if ( name && !wcscmp( name, L"TAB" ) && (
+	    partId == TABP_TABITEMLEFTEDGE ||
+	    partId == TABP_TABITEMRIGHTEDGE ||
+	    partId == TABP_TABITEM ) ) {
+	    QRect oldrec = rec;
+	    rec = QRect( 0, 0, rec.width(), rec.height() );
+	    QPixmap pm( rec.size() );
+	    QPainter p( &pm );
+	    p.eraseRect( 0, 0, rec.width(), rec.height() );
+	    DrawThemeBackground( handle(), p.handle(), partId, stateId, &rect(), 0 );
+	    rec = oldrec;
+	    painter->drawPixmap( rec.x(), rec.y(), pm );
+	} else {
+	    ulong res = DrawThemeBackground( handle(), painter->handle(), partId, stateId, &rect(), 0 );
+	}
     }
 
     int partId;
@@ -203,9 +217,10 @@ struct XPThemeData
 
 private:
     const QWidget *widget;
-    const QPainter *painter;
+    QPainter *painter;
     LPCWSTR name;
     HTHEME htheme;
+    bool workAround;
 };
 
 const QPixmap *QWindowsXPStylePrivate::tabBody( QWidget *widget )
