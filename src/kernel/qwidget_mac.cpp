@@ -174,7 +174,7 @@ enum paint_children_ops {
     PC_NoPaint = 0x04,
     PC_NoErase = 0x08
 };
-bool qt_paint_children(QWidget * p,QRegion &r, uchar ops = PC_ForceErase)
+bool qt_paint_children(QWidget * p,QRegion &r, uchar ops = PC_None)
 {
     if(qApp->closingDown() || qApp->startingUp() || !p || !p->isVisible() || r.isEmpty())
 	return FALSE;
@@ -1145,8 +1145,12 @@ void QWidget::showWindow()
 #endif
 	//now actually show it
 	ShowHide((WindowPtr)hd, 1);
+#if 0 
+        /*This causes problems with the menubar, this is Apple's bug
+          but I will workaround it for now (see below) */
 	if(testWFlags(WShowModal))
 	    BeginAppModalStateForWindow((WindowRef)hd);
+#endif
 	setActiveWindow();
     } else if(!parentWidget(TRUE) || parentWidget(TRUE)->isVisibleTo(0)) {
 	qt_dirty_wndw_rgn("show",this, mac_rect(posInWindow(this), geometry().size()));
@@ -1160,8 +1164,12 @@ void QWidget::hideWindow()
 
     dirtyClippedRegion(TRUE);
     if ( isTopLevel() ) { 
+#if 0 
+       /*This causes problems with the menubar, this is Apple's bug
+         but I will workaround it for now (see above) */
 	if(testWFlags(WShowModal))
 	    EndAppModalStateForWindow((WindowRef)hd);
+#endif
 	ShowHide((WindowPtr)hd, 0);
 
 	if(isActiveWindow()) {
