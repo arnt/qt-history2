@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlined.cpp#45 $
+** $Id: //depot/qt/main/src/widgets/qlined.cpp#46 $
 **
 ** Implementation of QLineEdit widget class
 **
@@ -21,7 +21,7 @@
 
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlined.cpp#45 $")
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlined.cpp#46 $")
 
 
 /*----------------------------------------------------------------------------
@@ -521,9 +521,6 @@ void QLineEdit::mouseReleaseEvent( QMouseEvent * )
 	killTimers();
 	startTimer( blinkTime );
     }
-    QString t = markedText();
-    if ( !t.isEmpty() )
-	QApplication::clipboard()->setText( t );
 }
 
 /*----------------------------------------------------------------------------
@@ -669,6 +666,9 @@ void QLineEdit::newMark( int pos )
 {
     markDrag  = pos;
     cursorPos = pos;
+    QString t = markedText();
+    if ( !t.isEmpty() )
+	QApplication::clipboard()->setText( t );    
 }
 
 /*----------------------------------------------------------------------------
