@@ -13,6 +13,7 @@
 
 #include "qline.h"
 #include "qdebug.h"
+#include "qdatastream.h"
 #include <private/qnumeric_p.h>
 
 #include <math.h>
