@@ -208,7 +208,7 @@
 #  define Q_CC_MSVC
 /* proper support of bool for _MSC_VER >= 1100 */
 #  define Q_CANNOT_DELETE_CONSTANT
-#  define Q_INLINE_TEMPLATES inline
+#  define Q_OUTOFLINE_TEMPLATE inline
 #  define QT_NO_PARTIAL_TEMPLATE_SPECIALIZATION
 /* Visual C++.Net issues for _MSC_VER >= 1300 */
 #  if _MSC_VER >= 1300
@@ -304,7 +304,7 @@
 #    define Q_NO_EXPLICIT_KEYWORD
 #    define Q_NO_USING_KEYWORD
 #    define Q_TYPENAME
-#    define Q_INLINE_TEMPLATES inline
+#    define Q_OUTOFLINE_TEMPLATE inline
 #    define Q_BROKEN_TEMPLATE_SPECIALIZATION
 #    define Q_CANNOT_DELETE_CONSTANT
 #  endif
@@ -337,7 +337,7 @@
 #    define Q_CANNOT_DELETE_CONSTANT
 #  endif
 /* avoid undefined symbol problems with out-of-line template members */
-#  define Q_INLINE_TEMPLATES inline
+#  define Q_OUTOFLINE_TEMPLATE inline
 
 /* Compilers with EDG front end are similar. To detect them we test:
    __EDG documented by SGI, observed on MIPSpro 7.3.1.1 and KAI C++ 4.0b
@@ -394,7 +394,7 @@
 #    define Q_CC_USLC
 /* The latest UDK 7.1.1b does not need this, but previous versions do */
 #    if !defined(__SCO_VERSION__) || (__SCO_VERSION__ < 302200010)
-#      define Q_INLINE_TEMPLATES inline
+#      define Q_OUTOFLINE_TEMPLATE inline
 #    endif
 #    define Q_NO_USING_KEYWORD /* ### check "using" status */
 
@@ -421,7 +421,7 @@
 #      define Q_TYPENAME
 #      define Q_BROKEN_TEMPLATE_SPECIALIZATION
 #      define Q_NO_EXPLICIT_KEYWORD
-#      define Q_INLINE_TEMPLATES inline
+#      define Q_OUTOFLINE_TEMPLATE inline
 #    elif defined(_COMPILER_VERSION) && (_COMPILER_VERSION < 730) /* 7.2 */
 #      define Q_TYPENAME
 #      define Q_BROKEN_TEMPLATE_SPECIALIZATION
@@ -436,7 +436,7 @@
 #  define Q_NO_BOOL_TYPE
 #  define Q_NO_EXPLICIT_KEYWORD
 #  define Q_NO_USING_KEYWORD
-#  define Q_INLINE_TEMPLATES inline
+#  define Q_OUTOFLINE_TEMPLATE inline
 
 /* Never tested! */
 #elif defined(__HIGHC__)
@@ -852,8 +852,8 @@ Q_EXPORT int qWinVersion();
 #define QT_WA_INLINE( uni, ansi ) ( uni )
 #endif
 
-#ifndef Q_INLINE_TEMPLATES
-#  define Q_INLINE_TEMPLATES
+#ifndef Q_OUTOFLINE_TEMPLATE
+#  define Q_OUTOFLINE_TEMPLATE
 #endif
 
 #ifndef Q_TYPENAME

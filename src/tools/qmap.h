@@ -356,7 +356,7 @@ private:
 };
 
 template<class Key, class T>
-Q_INLINE_TEMPLATES void QMap<Key,T>::detachInternal()
+Q_OUTOFLINE_TEMPLATE void QMap<Key,T>::detachInternal()
 {
     QMapData *x = QMapData::init(new QMapData);
 
@@ -414,7 +414,7 @@ Q_INLINE_TEMPLATES void QMap<Key,T>::detachInternal()
 }
 
 template <class Key, class T>
-Q_INLINE_TEMPLATES Q_TYPENAME QMap<Key, T>::Node *QMap<Key, T>::insertSingle(const Key& k)
+Q_OUTOFLINE_TEMPLATE Q_TYPENAME QMap<Key, T>::Node *QMap<Key, T>::insertSingle(const Key& k)
 {
     // Search correct position in the tree
     QMapData::Node* y = &d->header;
@@ -458,7 +458,7 @@ Q_INLINE_TEMPLATES Q_TYPENAME QMap<Key, T>::Node *QMap<Key, T>::insertSingle(con
 }
 
 template <class Key, class T>
-Q_INLINE_TEMPLATES Q_TYPENAME QMap<Key, T>::Node *QMap<Key, T>::findNode(const Key& k) const
+Q_OUTOFLINE_TEMPLATE Q_TYPENAME QMap<Key, T>::Node *QMap<Key, T>::findNode(const Key& k) const
 {
     QMapData::Node* y = &d->header;        // Last node
     QMapData::Node* x = y->parent; // Root node.
@@ -481,7 +481,7 @@ Q_INLINE_TEMPLATES Q_TYPENAME QMap<Key, T>::Node *QMap<Key, T>::findNode(const K
 }
 
 template <class Key, class T>
-Q_INLINE_TEMPLATES void QMap<Key,T>::free(QMapData::Node *p)
+Q_OUTOFLINE_TEMPLATE void QMap<Key,T>::free(QMapData::Node *p)
 {
     while ( p != 0 ) {
 	free(p->right);
@@ -492,7 +492,7 @@ Q_INLINE_TEMPLATES void QMap<Key,T>::free(QMapData::Node *p)
 }
 
 template<class K, class T>
-Q_INLINE_TEMPLATES Q_TYPENAME QMap<K, T>::Iterator QMap<K, T>::erase(Iterator it)
+Q_OUTOFLINE_TEMPLATE Q_TYPENAME QMap<K, T>::Iterator QMap<K, T>::erase(Iterator it)
 {
     detach();
     Iterator n = it;
@@ -504,7 +504,7 @@ Q_INLINE_TEMPLATES Q_TYPENAME QMap<K, T>::Iterator QMap<K, T>::erase(Iterator it
 }
 
 template<class Key, class T>
-Q_INLINE_TEMPLATES void QMap<Key,T>::erase(const Key& k)
+Q_OUTOFLINE_TEMPLATE void QMap<Key,T>::erase(const Key& k)
 {
     detach();
     Node *n = findNode(k);
@@ -516,7 +516,7 @@ Q_INLINE_TEMPLATES void QMap<Key,T>::erase(const Key& k)
 }
 
 template<class Key, class T>
-Q_INLINE_TEMPLATES QMap<Key,T>& QMap<Key,T>::operator= (const QMap<Key,T>& m)
+Q_OUTOFLINE_TEMPLATE QMap<Key,T>& QMap<Key,T>::operator= (const QMap<Key,T>& m)
 {
     QMapData *x = m.d;
     ++x->ref;
@@ -529,7 +529,7 @@ Q_INLINE_TEMPLATES QMap<Key,T>& QMap<Key,T>::operator= (const QMap<Key,T>& m)
 }
 
 template<class Key, class T>
-Q_INLINE_TEMPLATES Q_TYPENAME QMap<Key,T>::insert_pair QMap<Key,T>::insert(const Q_TYPENAME QMap<Key,T>::value_type& x)
+Q_OUTOFLINE_TEMPLATE Q_TYPENAME QMap<Key,T>::insert_pair QMap<Key,T>::insert(const Q_TYPENAME QMap<Key,T>::value_type& x)
 {
     detach();
     size_type s = size();
@@ -543,7 +543,7 @@ Q_INLINE_TEMPLATES Q_TYPENAME QMap<Key,T>::insert_pair QMap<Key,T>::insert(const
 }
 
 template<class Key, class T>
-Q_INLINE_TEMPLATES Q_TYPENAME QMap<Key,T>::Iterator QMap<Key,T>::insert(const Key& key, const T& value)
+Q_OUTOFLINE_TEMPLATE Q_TYPENAME QMap<Key,T>::Iterator QMap<Key,T>::insert(const Key& key, const T& value)
 {
     detach();
     Node *n = insertSingle(key);
@@ -552,7 +552,7 @@ Q_INLINE_TEMPLATES Q_TYPENAME QMap<Key,T>::Iterator QMap<Key,T>::insert(const Ke
 }
 
 template<class Key, class T>
-Q_INLINE_TEMPLATES Q_TYPENAME QMap<Key,T>::Iterator QMap<Key,T>::insert(const Key& key, const T& value, bool overwrite)
+Q_OUTOFLINE_TEMPLATE Q_TYPENAME QMap<Key,T>::Iterator QMap<Key,T>::insert(const Key& key, const T& value, bool overwrite)
 {
     detach();
     size_type s = size();
@@ -564,7 +564,7 @@ Q_INLINE_TEMPLATES Q_TYPENAME QMap<Key,T>::Iterator QMap<Key,T>::insert(const Ke
 
 
 template<class Key, class T>
-Q_INLINE_TEMPLATES T & QMap<Key,T>::operator[] (const Key& k)
+Q_OUTOFLINE_TEMPLATE T & QMap<Key,T>::operator[] (const Key& k)
 {
     detach();
     Node* p = findNode(k);
@@ -574,7 +574,7 @@ Q_INLINE_TEMPLATES T & QMap<Key,T>::operator[] (const Key& k)
 }
 
 template<class Key, class T>
-Q_INLINE_TEMPLATES const T QMap<Key,T>::value(const Key& k) const
+Q_OUTOFLINE_TEMPLATE const T QMap<Key,T>::value(const Key& k) const
 {
     Node *n = findNode(k);
     if ( n == &d->header) {
@@ -586,14 +586,14 @@ Q_INLINE_TEMPLATES const T QMap<Key,T>::value(const Key& k) const
 }
 
 template<class Key, class T>
-Q_INLINE_TEMPLATES const T QMap<Key,T>::value(const Key& k, const T& defaultValue) const
+Q_OUTOFLINE_TEMPLATE const T QMap<Key,T>::value(const Key& k, const T& defaultValue) const
 {
     Node *n = findNode(k);
     return ((n == &d->header) ? defaultValue : n->data);
 }
 
 template<class Key, class T>
-Q_INLINE_TEMPLATES QList<Key> QMap<Key,T>::keys() const {
+Q_OUTOFLINE_TEMPLATE QList<Key> QMap<Key,T>::keys() const {
     QList<Key> r;
     for (ConstIterator i=begin(); i!=end(); ++i)
 	r.append(i.key());
@@ -601,7 +601,7 @@ Q_INLINE_TEMPLATES QList<Key> QMap<Key,T>::keys() const {
 }
 
 template<class Key, class T>
-Q_INLINE_TEMPLATES QList<T> QMap<Key,T>::values() const {
+Q_OUTOFLINE_TEMPLATE QList<T> QMap<Key,T>::values() const {
     QList<T> r;
     for (ConstIterator i=begin(); i!=end(); ++i)
 	r.append(*i);
@@ -611,7 +611,7 @@ Q_INLINE_TEMPLATES QList<T> QMap<Key,T>::values() const {
 
 #ifndef QT_NO_STL
 template<class Key, class T>
-Q_INLINE_TEMPLATES QMap<Key,T>::QMap(const std::map<Key,T>& m)
+Q_OUTOFLINE_TEMPLATE QMap<Key,T>::QMap(const std::map<Key,T>& m)
 {
     d = QMapData::init(new QMapData);
     Q_TYPENAME std::map<Key,T>::const_iterator it = m.begin();
@@ -622,7 +622,7 @@ Q_INLINE_TEMPLATES QMap<Key,T>::QMap(const std::map<Key,T>& m)
 }
 
 template<class Key, class T>
-Q_INLINE_TEMPLATES QMap<Key,T>& QMap<Key,T>::operator= (const std::map<Key,T>& m)
+Q_OUTOFLINE_TEMPLATE QMap<Key,T>& QMap<Key,T>::operator= (const std::map<Key,T>& m)
 {
     clear();
     Q_TYPENAME std::map<Key,T>::const_iterator it = m.begin();
@@ -636,7 +636,7 @@ Q_INLINE_TEMPLATES QMap<Key,T>& QMap<Key,T>::operator= (const std::map<Key,T>& m
 
 #ifndef QT_NO_DATASTREAM
 template<class Key, class T>
-Q_INLINE_TEMPLATES QDataStream& operator>>(QDataStream& s, QMap<Key,T>& m) {
+Q_OUTOFLINE_TEMPLATE QDataStream& operator>>(QDataStream& s, QMap<Key,T>& m) {
     m.clear();
     Q_UINT32 c;
     s >> c;
@@ -652,7 +652,7 @@ Q_INLINE_TEMPLATES QDataStream& operator>>(QDataStream& s, QMap<Key,T>& m) {
 
 
 template<class Key, class T>
-Q_INLINE_TEMPLATES QDataStream& operator<<(QDataStream& s, const QMap<Key,T>& m) {
+Q_OUTOFLINE_TEMPLATE QDataStream& operator<<(QDataStream& s, const QMap<Key,T>& m) {
     s << (Q_UINT32)m.size();
     Q_TYPENAME QMap<Key,T>::ConstIterator it = m.begin();
     for(; it != m.end(); ++it)

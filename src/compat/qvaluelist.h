@@ -166,7 +166,7 @@ public:
 };
 
 template <typename T>
-Q_INLINE_TEMPLATES void QValueList<T>::insert(typename QValueList<T>::Iterator pos,
+Q_OUTOFLINE_TEMPLATE void QValueList<T>::insert(typename QValueList<T>::Iterator pos,
 			   typename QValueList<T>::size_type n, const T& x)
 {
     for (; n > 0; --n)
@@ -175,13 +175,13 @@ Q_INLINE_TEMPLATES void QValueList<T>::insert(typename QValueList<T>::Iterator p
 
 #ifndef QT_NO_DATASTREAM
 template <typename T>
-Q_INLINE_TEMPLATES QDataStream& operator>>(QDataStream& s, QValueList<T>& l)
+Q_OUTOFLINE_TEMPLATE QDataStream& operator>>(QDataStream& s, QValueList<T>& l)
 {
     return operator>>(s, (QLinkedList<T>&)l);
 }
 
 template <typename T>
-Q_INLINE_TEMPLATES QDataStream& operator<<(QDataStream& s, const QValueList<T>& l)
+Q_OUTOFLINE_TEMPLATE QDataStream& operator<<(QDataStream& s, const QValueList<T>& l)
 {
     return operator<<(s, (QLinkedList<T>&)l);
 }
