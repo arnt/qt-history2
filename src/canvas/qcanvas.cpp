@@ -2753,8 +2753,8 @@ QCanvasPixmap::~QCanvasPixmap()
  further.
 */
 QCanvasPixmapArray::QCanvasPixmapArray()
+: framecount( 0 ), img( 0 )
 {
-    img = 0;
 }
 
 #ifndef QT_NO_IMAGEIO
@@ -2780,8 +2780,8 @@ QCanvasPixmapArray::QCanvasPixmapArray()
 
 QCanvasPixmapArray::QCanvasPixmapArray( const QString& datafilenamepattern,
 					int fc )
+: img( 0 )
 {
-    img = 0;
     readPixmaps(datafilenamepattern,fc);
 }
 #endif
