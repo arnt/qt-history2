@@ -1950,19 +1950,55 @@ void QPainter::drawText(int x, int y, const QString &str, int pos, int len, QPai
 
 void QPainter::drawTextItem(int x, int y, const QTextItem &ti, int *ulChars, int nUlChars)
 {
-    if(testf(DirtyFont))
-	updateFont();
-    if(testf(ExtDev|VxF|WxF)) {
+#if 0
+    if( testf(ExtDev) || txop >= TxScale ) {
 	drawText(x+ti.x(), y+ti.y(), ti.engine->string, ti.from(), ti.length(),
 		 (ti.engine->items[ti.item].analysis.bidiLevel %2) ? QPainter::RTL : QPainter::LTR);
 	return;
     }
+#endif
+    if ( txop == TxTranslate )
+        map( x, y, &x, &y );
+
     QScriptItem &si = ti.engine->items[ti.item];
     QShapedItem *shaped = ti.engine->shape( ti.item );
     QFontEngine *fe = si.fontEngine;
+
+    qDebug( "drawing text item with width %d (numglyphs =%d) at %d/%d",
+	    ti.width(), shaped->num_glyphs, x + si.x, y + si.y );
+
     Q_ASSERT(fe);
-    fe->draw(this, x + ti.x(),  y + ti.y(), shaped->glyphs, shaped->advances,
+    x += si.x;
+    y += si.y;
+
+    fe->draw(this, x,  y, shaped->glyphs, shaped->advances,
 	     shaped->offsets, shaped->num_glyphs, si.analysis.bidiLevel % 2);
+
+    if ( ulChars ) {
+        int ulpos = fe->underlinePosition();
+	int lineWidth = fe->lineThickness();
+	// draw underlines
+        for ( int i = 0; i < nUlChars; i++ ) {
+	  // ### fix for ligatures and indic syllables
+            int from = si.position;
+            int x1 = ti.cursorToX( ulChars[i] - from );
+            int x2 = ti.cursorToX( ulChars[i] + 1 - from );
+            if ( x2 > x1 )
+                x2--;
+            else if ( x1 > x2 ) {
+                int tmp = x2;
+                x2 = x1;
+                x1 = tmp + 1;
+            }
+	    Rect r;
+	    SetRect(&r, x1, (y + ulpos) - (lineWidth / 2),
+		    x2, (y + ulpos) + (lineWidth / 2));
+	    if(!(r.bottom - r.top))
+	        r.bottom++;
+	    PaintRect(&r);
+        }
+    }
+
 }
 
 QPoint QPainter::pos() const
