@@ -276,10 +276,10 @@ void TextEdit::filePrint()
     QPrinter printer;
     printer.setFullPage(TRUE);
     if ( printer.setup( this ) ) {
-	QPainter p( &printer );
-	QPaintDeviceMetrics metrics( p.device() );
 	QPaintDeviceMetrics screen( this );
 	printer.setResolution( screen.logicalDpiY() );
+	QPainter p( &printer );
+	QPaintDeviceMetrics metrics( p.device() );
 	int dpix = metrics.logicalDpiX();
 	int dpiy = metrics.logicalDpiY();
 	const int margin = 72; // pt

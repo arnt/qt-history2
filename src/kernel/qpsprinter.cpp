@@ -2254,6 +2254,7 @@ struct QPSPrinterPrivate {
 	headerEncodings.setAutoDelete( FALSE );
 	pageEncodings.setAutoDelete( FALSE );
 	currentFontFile = 0;
+	scale = 1.;
     }
 
     QBuffer * buffer;
@@ -2284,6 +2285,7 @@ struct QPSPrinterPrivate {
     int textY;
     QFont currentUsed;
     QFont currentSet;
+    float scale;
 };
 
 
@@ -2428,7 +2430,7 @@ QString QPSPrinterFontPrivate::defineFont( QTextStream &stream, QString ps, cons
 	}
 	++d->headerFontNumber;
 	d->fontStream << "/F" << d->headerFontNumber << " "
-		      << f.pointSize() << fontName << " DF\n";
+		      << f.pointSize()/d->scale << fontName << " DF\n";
 	fontName.sprintf( "F%d", d->headerFontNumber );
 	d->headerFontNames.insert( key, new QString( fontName ) );
     } else {
@@ -2457,7 +2459,7 @@ QString QPSPrinterFontPrivate::defineFont( QTextStream &stream, QString ps, cons
 	}
 	++d->pageFontNumber;
 	stream << "/F" << d->pageFontNumber << " "
-	       << f.pointSize() << fontName << " DF\n";
+	       << f.pointSize()/d->scale << fontName << " DF\n";
 	fontName.sprintf( "F%d", d->pageFontNumber );
 	d->pageFontNames.insert( key, new QString( fontName ) );
     }
@@ -4915,9 +4917,9 @@ QString QPSPrinterFontAsian::emitDef( QTextStream &stream, const QString &ps, co
 	}
 	++d->headerFontNumber;
 	d->fontStream << "/F" << d->headerFontNumber << " "
-		      << f.pointSize() << lfontName << " DF\n";
+		      << f.pointSize()/d->scale << lfontName << " DF\n";
 	d->fontStream << "/F" << d->headerFontNumber << "as "
-		      << f.pointSize() << fontName << " DF\n";
+		      << f.pointSize()/d->scale << fontName << " DF\n";
 	fontName.sprintf( "F%d", d->headerFontNumber );
 	d->headerFontNames.insert( key, new QString( fontName ) );
     } else {
@@ -4935,9 +4937,9 @@ QString QPSPrinterFontAsian::emitDef( QTextStream &stream, const QString &ps, co
 	}
 	++d->pageFontNumber;
 	stream << "/F" << d->pageFontNumber << " "
-	       << f.pointSize() << lfontName << " DF\n";
+	       << f.pointSize()/d->scale << lfontName << " DF\n";
 	stream << "/F" << d->pageFontNumber << "as "
-	       << f.pointSize() << fontName << " DF\n";
+	       << f.pointSize()/d->scale << fontName << " DF\n";
 	fontName.sprintf( "F%d", d->pageFontNumber );
 	d->pageFontNames.insert( key, new QString( fontName ) );
     }
@@ -5896,6 +5898,8 @@ bool QPSPrinter::cmd( int c , QPainter *paint, QPDevCmdParam *p )
 	fontsUsed = QString::fromLatin1("");
 
 	d->fm = new QFontMetrics( paint->fontMetrics() );
+	QPaintDeviceMetrics m( printer );
+	d->scale = 72. / ((float) m.logicalDpiY());
 
 	stream << "%%Page: " << pageCount << " " << pageCount << endl
 	       << "%%BeginPageSetup\n"
@@ -6511,7 +6515,7 @@ void QPSPrinter::emitHeader( bool finished )
     stream.setDevice( d->realDevice );
     stream << "%!PS-Adobe-1.0";
     QPaintDeviceMetrics m( printer );
-    float scale = 72. / ((float) m.logicalDpiY());
+    d->scale = 72. / ((float) m.logicalDpiY());
     int dpi = printer->resolution();
     printer->setResolution( 72 );
     if ( finished && pageCount == 1 && printer->numCopies() == 1 &&
@@ -6599,10 +6603,10 @@ void QPSPrinter::emitHeader( bool finished )
     if ( printer->orientation() == QPrinter::Portrait ) {
 	stream << "% " << m.widthMM() << "*" << m.heightMM()
 	       << "mm (portrait)\n0 " << m.height()
-	       << " translate " << scale << " -" << scale << " scale/defM matrix CM d } d\n";
+	       << " translate " << d->scale << " -" << d->scale << " scale/defM matrix CM d } d\n";
     } else {
 	stream << "% " << m.heightMM() << "*" << m.widthMM()
-	       << " mm (landscape)\n 90 rotate " << scale << " -" << scale << " scale/defM matrix CM d } d\n";
+	       << " mm (landscape)\n 90 rotate " << d->scale << " -" << d->scale << " scale/defM matrix CM d } d\n";
     }
 
     if ( d->fontBuffer->buffer().size() ) {
