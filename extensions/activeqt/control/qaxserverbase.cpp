@@ -1583,39 +1583,35 @@ HWND QAxServerBase::create(HWND hWndParent, RECT& rcPos)
 HMENU QAxServerBase::createPopup(QPopupMenu *popup, HMENU oldMenu)
 {
     HMENU popupMenu = oldMenu ? oldMenu : CreatePopupMenu();
-    /* ###
     menuMap[popupMenu] = popup;
 
     if (oldMenu) while (GetMenuItemCount(oldMenu)) {
 	DeleteMenu(oldMenu, 0, MF_BYPOSITION);
     }
 
-    for (uint i = 0; i < popup->count(); ++i) {
-	int qid = popup->idAt(i);
-	QMenuItem *qitem = popup->findItem(qid);
-	if (!qitem)
-	    continue;
+    const QList<QAction*> actions = popup->actions();
+    for (int i = 0; i < actions.count(); ++i) {
+        QAction *action = actions.at(i);
 
-	uint flags = qitem->isEnabled() ? MF_ENABLED : MF_GRAYED;
-	if (qitem->isSeparator())
+	uint flags = action->isEnabled() ? MF_ENABLED : MF_GRAYED;
+	if (action->isSeparator())
 	    flags |= MF_SEPARATOR;
-	else if (qitem->popup())
-	    flags |= MF_POPUP;
+/*	else if (action->popup())
+	    flags |= MF_POPUP;*/
 	else
 	    flags |= MF_STRING;
-	if (qitem->isChecked())
+	if (action->isChecked())
 	    flags |= MF_CHECKED;
 
-	UINT itemId = qitem->popup() ? (UINT_PTR)createPopup(qitem->popup()) : qid;
+	UINT itemId = /*flags & MF_POPUP  ? (UINT_PTR)createPopup(qitem->popup()) :*/ (uint)action;
 	QT_WA({
-	    AppendMenuW(popupMenu, flags, itemId, (TCHAR*)qitem->text().ucs2());
+	    AppendMenuW(popupMenu, flags, itemId, (TCHAR*)action->text().utf16());
 	}, {
-	    AppendMenuA(popupMenu, flags, itemId, qitem->text().local8Bit());
+	    AppendMenuA(popupMenu, flags, itemId, action->text().local8Bit());
 	});
     }
     if (oldMenu)
 	DrawMenuBar(hwndMenuOwner);
-    */
     return popupMenu;
 }
 
@@ -1624,40 +1620,38 @@ HMENU QAxServerBase::createPopup(QPopupMenu *popup, HMENU oldMenu)
 */
 void QAxServerBase::createMenu(QMenuBar *menuBar)
 {
-    /* ###
     hmenuShared = ::CreateMenu();
 
     int edit = 0;
     int object = 0;
     int help = 0;
 
-    for (uint i = 0; i < menuBar->count(); ++i) {
-	int qid = menuBar->idAt(i);
-	QMenuItem *qitem = menuBar->findItem(qid);
-	if (!qitem)
-	    continue;
+    const QList<QAction*> actions = menuBar->actions();
+    for (int i = 0; i < actions.count(); ++i) {
+        QAction *action = actions.at(i);
 
-	uint flags = qitem->isEnabled() ? MF_ENABLED : MF_GRAYED;
-	if (qitem->isSeparator())
+        uint flags = action->isEnabled() ? MF_ENABLED : MF_GRAYED;
+	if (action->isSeparator())
 	    flags |= MF_SEPARATOR;
-	else if (qitem->popup())
+	else if (true) //action->popup())
 	    flags |= MF_POPUP;
 	else
 	    flags |= MF_STRING;
 
-	if (qitem->text() == qt.widget->tr("&Edit"))
+	if (action->text() == qt.widget->tr("&Edit"))
 	    edit++;
-	else if (qitem->text() == qt.widget->tr("&Help"))
+	else if (action->text() == qt.widget->tr("&Help"))
 	    help++;
 	else
 	    object++;
 
-	UINT itemId = qitem->popup() ? (UINT)createPopup(qitem->popup()) : qid;
+	UINT itemId = /*flags & MF_POPUP ? (UINT)createPopup(qitem->popup()) :*/ (uint)action;
 	QT_WA({
-	    AppendMenuW(hmenuShared, flags, itemId, (TCHAR*)qitem->text().ucs2());
+	    AppendMenuW(hmenuShared, flags, itemId, (TCHAR*)action->text().utf16());
 	} , {
-	    AppendMenuA(hmenuShared, flags, itemId, qitem->text().local8Bit());
+	    AppendMenuA(hmenuShared, flags, itemId, action->text().local8Bit());
 	});
+
     }
 
     OLEMENUGROUPWIDTHS menuWidths = {0,edit,0,object,0,help};
@@ -1677,7 +1671,6 @@ void QAxServerBase::createMenu(QMenuBar *menuBar)
 	hmenuShared = 0;
 	OleDestroyMenuDescriptor(holemenu);
     }
-    */
 }
 
 /*!
@@ -3490,6 +3483,8 @@ HRESULT QAxServerBase::internalActivate()
 	    for (int w = 0; w < widgets.count(); ++w) {
 		QWidget *widget = widgets[w];
 		canTakeFocus = widget->focusPolicy() != QWidget::NoFocus;
+                if (canTakeFocus)
+                    break;
 	    }
 	}
 	if (!isUIActive && canTakeFocus) {
