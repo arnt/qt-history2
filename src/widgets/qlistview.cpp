@@ -3993,10 +3993,10 @@ void QListView::contentsMousePressEventEx( QMouseEvent * e )
     if ( i->isSelectable() && selectionMode() != NoSelection ) {
 	if ( selectionMode() == Single )
 	    setSelected( i, TRUE );
-	else if ( selectionMode() == Multi  )
+	else if ( selectionMode() == Multi )
 	    setSelected( i, d->select );
 	else if ( selectionMode() == Extended ) {
-	    bool changed = TRUE;
+	    bool changed = FALSE;
 	    if ( !(e->state() & (ControlButton | ShiftButton)) ) {
 		if ( !i->isSelected() ) {
 		    bool blocked = signalsBlocked();
