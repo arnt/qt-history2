@@ -1902,17 +1902,12 @@ void QPixmap::x11SetScreen( int screen )
 #endif
 
     QImage img = convertToImage();
-    QBitmap msk;
-    if ( mask() )
-	msk = *mask();
     resize(0,0);
     QPaintDeviceX11Data* xd = getX11Data( TRUE );
     xd->x_screen = screen;
     xd->x_depth = DefaultDepth( xd->x_display, xd->x_screen );
     setX11Data( xd );
     convertFromImage( img );
-    if ( !msk.isNull() )
-	setMask( msk );
 }
 
 
