@@ -277,7 +277,8 @@ public:
     void intersectingDynamicSet(const QRect &area) const;
     void intersectingStaticSet(const QRect &area) const;
     inline void intersectingSet(const QRect &area) const
-        {  QRect a = (q_func()->isRightToLeft() ? flipX(area) : area);
+        {  executePostedLayout();
+           QRect a = (q_func()->isRightToLeft() ? flipX(area) : area);
            if (movement == QListView::Static) intersectingStaticSet(a);
            else intersectingDynamicSet(a); }
 

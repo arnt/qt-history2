@@ -499,7 +499,6 @@ void QListView::setRowHidden(int row, bool hide)
         d->hiddenRows.append(row);
     else if (!hide && isRowHidden(row))
         d->hiddenRows.remove(d->hiddenRows.indexOf(row));
-
     d->doDelayedItemsLayout();
 }
 
@@ -509,6 +508,7 @@ void QListView::setRowHidden(int row, bool hide)
 QRect QListView::visualRect(const QModelIndex &index) const
 {
     Q_D(const QListView);
+    d->executePostedLayout();
     return d->mapToViewport(rectForIndex(index));
 }
 
@@ -1010,6 +1010,7 @@ QRect QListView::rectForIndex(const QModelIndex &index) const
     Q_D(const QListView);
     if (!index.isValid() || index.parent() != rootIndex() || index.column() != d->column)
         return QRect();
+    d->executePostedLayout();
     QListViewItem item = d->indexToListViewItem(index);
     return d->viewItemRect(item);
 }
@@ -1066,7 +1067,6 @@ QRect QListView::visualRectForSelection(const QItemSelection &selection) const
                 rangeRect = rangeRect.unite(visualRect(model()->index(r, c, tl.parent())));
         selectionRect = selectionRect.unite(rangeRect);
     }
-
     return selectionRect;
 }
 

@@ -99,6 +99,10 @@ public:
         editor->deleteLater();
     }
 
+    inline void executePostedLayout() const {
+        if (layoutPosted) const_cast<QAbstractItemView*>(q_func())->doItemsLayout();
+    }
+
     void removeSelectedRows();
 
     QPointer<QAbstractItemModel> model;

@@ -455,6 +455,8 @@ QRect QTreeView::visualRect(const QModelIndex &index) const
     if (!index.isValid() || !isVisible() || isIndexHidden(index))
         return QRect();
 
+    d->executePostedLayout();
+
     int x = columnViewportPosition(index.column());
     int w = columnWidth(index.column());
     int vi = d->viewIndex(index);
@@ -773,6 +775,7 @@ void QTreeView::mouseDoubleClickEvent(QMouseEvent *e)
 QModelIndex QTreeView::indexAt(const QPoint &p) const
 {
     Q_D(const QTreeView);
+    d->executePostedLayout();
     int vi = d->item(p.y());
     QModelIndex mi = d->modelIndex(vi);
     int c = d->columnAt(p.x());
@@ -787,6 +790,7 @@ QModelIndex QTreeView::indexAt(const QPoint &p) const
 QModelIndex QTreeView::indexAbove(const QModelIndex &index) const
 {
     Q_D(const QTreeView);
+    d->executePostedLayout();
     int above = d->above(d->viewIndex(index));
     return d->modelIndex(above);
 }
@@ -797,6 +801,7 @@ QModelIndex QTreeView::indexAbove(const QModelIndex &index) const
 QModelIndex QTreeView::indexBelow(const QModelIndex &index) const
 {
     Q_D(const QTreeView);
+    d->executePostedLayout();
     int below = d->below(d->viewIndex(index));
     return d->modelIndex(below);
 }
@@ -929,6 +934,8 @@ QRect QTreeView::visualRectForSelection(const QItemSelection &selection) const
     Q_D(const QTreeView);
     if (selection.isEmpty() || d->viewItems.isEmpty())
         return QRect();
+
+    d->executePostedLayout();
 
     int top = d->viewItems.count();
     int left = d->header->count();
