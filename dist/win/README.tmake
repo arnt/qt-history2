@@ -4,7 +4,17 @@ tmake is a tool for creating platform-independent makefiles. In brief,
 tmake reads a project file, combines it with a template and generates
 a makefile.
 
-Get the latest version of tmake from ftp://ftp.troll.no/contrib/ .
+The .pro files in the Qt distribution are project files for tmake.
+To create a makefile from a .pro file, do the following:
 
-To install tmake, unzip the tmake zip archive (for instance on C:\) and
+	tmake tetris.pro -o tetris.mak
+
+This assumes that the TMAKEPATH environment variable contains the
+directory where your compiler's template files are stored (for example
+c:\tmake\lib\win32-watcom).
+
+Get the latest version of tmake from ftp://ftp.troll.no/contrib/ .
+You need perl version 5 (110-i86.zip) or later to run tmake.
+
+To install tmake, unzip the tmake zip archive (for instance on c:\) and
 read the documentation tmake\doc\tmake.html with your HTML browser.
