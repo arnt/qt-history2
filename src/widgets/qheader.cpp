@@ -92,7 +92,8 @@ public:
 
 
     QMemArray<QCOORD>	sizes;
-    int height;
+    int height; // we abuse the heights as widths for vertical layout
+    bool heightDirty;
     QMemArray<QCOORD>	positions; // sorted by index
     QPtrVector<QString>	labels;
     QPtrVector<QIconSet> iconsets;
@@ -113,7 +114,7 @@ public:
     int lastPos;
     int fullSize;
     int focusIdx;
-    
+
     int sectionAt( int pos ) {
 	// positions is sorted by index, not by section
 	if ( !count )
@@ -390,9 +391,9 @@ void QHeader::init( int n )
     state = Idle;
     cachedIdx = 0; // unused
     cachedPos = 0; // unused
-    d = new QHeaderData(n);
-    int h = fontMetrics().lineSpacing() + 6;
-    d->height = h;
+    d = new QHeaderData( n );
+    d->height = 0;
+    d->heightDirty = TRUE;
     offs = 0;
     if( reverse() )
 	offs = d->lastPos - width();
@@ -552,7 +553,7 @@ void QHeader::handleColumnMove( int fromIdx, int toIdx )
 {
     int s = d->i2s[fromIdx];
     if ( fromIdx < toIdx )
-	toIdx++; //Convert to 
+	toIdx++; //Convert to
     QRect r = sRect( fromIdx );
     r |= sRect( toIdx );
     moveSection( s, toIdx );
@@ -560,7 +561,7 @@ void QHeader::handleColumnMove( int fromIdx, int toIdx )
     emit moved( fromIdx, toIdx );
     emit indexChange( s, fromIdx, toIdx );
 }
-		      
+		
 /*!
   \reimp
 */
@@ -928,7 +929,7 @@ void QHeader::setLabel( int section, const QString &s, int size )
 	return;
     d->labels.insert( section, new QString( s ) );
 
-    setSectionSizeAndHeight( section, size, s );
+    setSectionSizeAndHeight( section, size );
 
     if ( isUpdatesEnabled() ) {
 	updateGeometry();
@@ -1033,11 +1034,7 @@ void QHeader::removeLabel( int section )
     }
 }
 
-/*!
-  Sets d->sizes[\a section] and d->heights[\a section] to the bounding
-  rect of \a s, with the constraint \a size.
-*/
-void QHeader::setSectionSizeAndHeight( int section, int size, const QString& s )
+QSize QHeader::sectionSizeHint( int section, const QFontMetrics& fm ) const
 {
     int iw = 0;
     int ih = 0;
@@ -1048,20 +1045,43 @@ void QHeader::setSectionSizeAndHeight( int section, int size, const QString& s )
 	ih = isize.height();
     }
 
-    QFontMetrics fm = fontMetrics();
-    QRect bound = fm.boundingRect( 0, 0, QWIDGETSIZE_MAX, QWIDGETSIZE_MAX,
-				   AlignVCenter, s );
+    QRect bound;
+    QString *label = d->labels[section];
+    if ( label )
+	bound = fm.boundingRect( 0, 0, QWIDGETSIZE_MAX, QWIDGETSIZE_MAX,
+				 AlignVCenter, *label );
     int height = QMAX( bound.height() + 2, ih ) + 4;
     int width = bound.width() + QH_MARGIN * 4 + iw;
+    return QSize( width, height );
+}
+
+/*!
+  Sets d->sizes[\a section] to the bounding rect of \a s with the
+  constraint \a size, and update d->height.
+*/
+void QHeader::setSectionSizeAndHeight( int section, int size )
+{
+    QSize sz = sectionSizeHint( section, fontMetrics() );
 
     if ( size < 0 ) {
 	if ( d->sizes[section] < 0 )
-	    d->sizes[section] = ( orient == Horizontal ) ? width : height;
+	    d->sizes[section] = ( orient == Horizontal ) ? sz.width()
+							 : sz.height();
     } else {
 	d->sizes[section] = size;
     }
-    // we abuse the heights as widths for vertical layout
-    d->height = QMAX( ( orient == Horizontal ) ? height : width, d->height );
+
+    int newHeight = ( orient == Horizontal ) ? sz.height() : sz.width();
+    if ( newHeight > d->height ) {
+	d->height = newHeight;
+    } else if ( newHeight < d->height ) {
+	/*
+	  We could be smarter, but we aren't. This makes a difference
+	  only for users with many columns and '\n's in their headers
+	  at the same time.
+	*/
+	d->heightDirty = TRUE;
+    }
 }
 
 /*!
@@ -1093,7 +1113,7 @@ int QHeader::addLabel( const QString &s, int size )
 	d->sizes[section] = size;
     } else {
 	d->sizes[section] = -1;
-	setSectionSizeAndHeight( section, size, s );
+	setSectionSizeAndHeight( section, size );
     }
 
     int index = section;
@@ -1137,14 +1157,23 @@ QSize QHeader::sizeHint() const
 
     constPolish();
     QFontMetrics fm = fontMetrics();
+
+    if ( d->heightDirty ) {
+	d->height = fm.lineSpacing() + 6;
+	for ( int i = 0; i < count(); i++ ) {
+	    int h = sectionSizeHint( i, fm ).height();
+	    d->height = QMAX( d->height, h );
+	}
+	d->heightDirty = FALSE;
+    }
+
     if ( orient == Horizontal ) {
 	height = fm.lineSpacing() + 6;
 	width = 0;
 	height = QMAX( height, d->height );
 	for ( int i = 0; i < count(); i++ )
 	    width += d->sizes[i];
-    }
-    else {
+    } else {
 	width = fm.width( ' ' );
 	height = 0;
 	width = QMAX( width, d->height );
@@ -1210,32 +1239,6 @@ int QHeader::pSize( int i ) const
 {
     return d->sizes[ d->i2s[i] ];
 }
-
-/*!
-  Returns the height of section \a i if orientation() is horizontal;
-  returns the width if orientation() is vertical.
-
-*/
-int QHeader::pHeight( int i ) const
-{
-    int section = mapToSection(i);
-    if ( section < 0 )
-	return 0;
-    return d->height;
-}
-
-/*!
-  Sets the height of section \a i to \a h if orientation() is
-  horizontal. Sets the width if orientation() is vertical.
-*/
-void QHeader::setPHeight( int i, int h )
-{
-    int section = mapToSection(i);
-    if ( section < 0 )
-	return;
-    d->height = h;
-}
-
 
 /*!
   \obsolete
@@ -1553,7 +1556,7 @@ void QHeader::paintEvent( QPaintEvent *e )
 		    paintSection( &p, i, r );
 		if ( hasFocus() && d->focusIdx == i ) {
 		    QRect fr( r.x()+2, r.y()+2, r.width()-4, r.height()-4 );
-		    style().drawPrimitive( QStyle::PE_FocusRect, &p, fr, 
+		    style().drawPrimitive( QStyle::PE_FocusRect, &p, fr,
 					   colorGroup() );
 		}
 		if ( orient == Horizontal && r. right() >= e->rect().right() ||
@@ -1799,11 +1802,11 @@ void QHeader::adjustHeaderSize( int diff )
 	int sec = mapToIndex( d->fullSize );
 	int ns = sectionSize( sec ) + ( orientation() == Horizontal ? width() : height() ) - ( sectionPos( count() - 1 ) + sectionSize( count() - 1 ) );
 	int os = sectionSize( sec );
-	if ( ns > 20 ) {
-	    setCellSize( sec, ns );
-	    repaint( FALSE );
-	    emit sizeChange( sec, os, ns );
-	}
+	if ( ns < 20 )
+	    ns = 20;
+	setCellSize( sec, ns );
+	repaint( FALSE );
+	emit sizeChange( sec, os, ns );
     } else if ( d->fullSize == -1 ) {
 	int df = diff / count();
 	int part = orientation() == Horizontal ? width() / count() : height() / count();
@@ -1811,19 +1814,19 @@ void QHeader::adjustHeaderSize( int diff )
 	    int sec = mapToIndex( i );
 	    int os = sectionSize( sec );
 	    int ns = diff != -1 ? os + df : part;
-	    if ( ns > 20 ) {
-		setCellSize( sec, ns );
-		emit sizeChange( sec, os, ns );
-	    }
+	    if ( ns < 20 )
+		ns = 20;
+	    setCellSize( sec, ns );
+	    emit sizeChange( sec, os, ns );
 	}
 	int sec = mapToIndex( count() - 1 );
 	int ns = ( orientation() == Horizontal ? width() : height() ) - sectionPos( sec );
 	int os = sectionSize( sec );
-	if ( ns > 20 ) {
-	    setCellSize( sec, ns );
-	    repaint( FALSE );
-	    emit sizeChange( sec, os, ns );
-	}
+	if ( ns < 20 )
+	    ns = 20;
+	setCellSize( sec, ns );
+	repaint( FALSE );
+	emit sizeChange( sec, os, ns );
     }
 }
 

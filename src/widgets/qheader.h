@@ -161,14 +161,12 @@ private:
     void	unMarkLine( int idx );
     int		pPos( int i ) const;
     int		pSize( int i ) const;
-    int		pHeight( int i ) const;
-    void	setPHeight( int i, int h );
     int 	findLine( int );
     bool reverse() const;
     void calculatePositions( bool onlyVisible = FALSE, int start = 0 );
     void	handleColumnResize(int, int, bool, bool = TRUE );
-    void	setSectionSizeAndHeight( int section, int size,
-					 const QString& s );
+    QSize	sectionSizeHint( int section, const QFontMetrics& fm ) const;
+    void	setSectionSizeAndHeight( int section, int size );
 
     void resizeArrays( int size );
     void setIsATableHeader( bool b );
