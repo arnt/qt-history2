@@ -862,12 +862,10 @@ bool qt_read_xpm_image_or_array(QIODevice *device, const char * const * source, 
             image.setAlphaBuffer(true);
             int transparentColor = currentColor;
             if (image.depth() == 8) {
-                image.setColor(transparentColor,
-                                RGB_MASK & qRgb(198,198,198));
+                image.setColor(transparentColor, 0);
                 colorMap.insert(index, transparentColor);
             } else {
-                QRgb rgb = RGB_MASK & qRgb(198,198,198);
-                colorMap.insert(index, rgb);
+                colorMap.insert(index, 0);
             }
         } else {
             QRgb c_rgb;
