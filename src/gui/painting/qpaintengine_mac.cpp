@@ -1012,13 +1012,13 @@ static void qt_mac_clip_cg(CGContextRef hd, const QRegion &rgn, const QPoint *pt
 inline static QPaintEngine::PaintEngineFeatures qt_mac_cg_features()
 {
     return QPaintEngine::PaintEngineFeatures(
-        QPaintEngine::CoordTransform|QPaintEngine::PenWidthTransform
-        |QPaintEngine::PatternTransform|QPaintEngine::PixmapTransform
-        |QPaintEngine::PainterPaths|QPaintEngine::PixmapScale
-        |QPaintEngine::UsesFontEngine|QPaintEngine::LinearGradients
-        |QPaintEngine::ClipTransform|QPaintEngine::AlphaStroke
-        |QPaintEngine::AlphaFill|QPaintEngine::AlphaPixmap
-        |QPaintEngine::FillAntialiasing|QPaintEngine::LineAntialiasing
+        QPaintEngine::CoordTransform|QPaintEngine::PixmapTransform|
+        QPaintEngine::PatternTransform|QPaintEngine::PenWidthTransform|
+        QPaintEngine::PainterPaths|QPaintEngine::PixmapScale|
+        QPaintEngine::UsesFontEngine|QPaintEngine::LinearGradients|
+        QPaintEngine::ClipTransform|QPaintEngine::AlphaStroke|
+        QPaintEngine::AlphaFill|QPaintEngine::AlphaPixmap|
+        QPaintEngine::FillAntialiasing|QPaintEngine::LineAntialiasing
         );
 }
 
@@ -1407,7 +1407,6 @@ QCoreGraphicsPaintEngine::drawEllipse(const QRectF &rr)
     CGPathAddArc(path, &transform,
                  (r.origin.x + (r.size.width / 2)) / (r.size.width / r.size.height),
                  r.origin.y + (r.size.height / 2), r.size.height / 2, 0, 2 * M_PI, false);
-    CGContextBeginPath(d->hd);
     d->drawPath(QCoreGraphicsPaintEnginePrivate::CGFill | QCoreGraphicsPaintEnginePrivate::CGStroke,
                 path);
     CGPathRelease(path);

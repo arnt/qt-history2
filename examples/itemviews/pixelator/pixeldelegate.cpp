@@ -13,13 +13,12 @@ void PixelDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option,
     int size = qMin(option.rect.width(), option.rect.height());
     int brightness = index.model()->data(index,
         QAbstractItemModel::DisplayRole).toInt();
-    double radius = size/2.0 - (brightness/255.0 * size/2.0);
+    double radius = (size/2.0) - (brightness/255.0 * size/2.0);
 
     painter->save();
     painter->translate(option.rect.x() + option.rect.width()/2 - radius,
-        option.rect.y() + option.rect.height()/2 - radius);
-    painter->scale(2*radius/100.0, 2*radius/100.0);
-    painter->drawEllipse(0, 0, 100, 100);
+                       option.rect.y() + option.rect.height()/2 - radius);
+    painter->drawEllipse(0, 0, 2*radius, 2*radius);
     painter->restore();
 }
 

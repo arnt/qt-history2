@@ -203,14 +203,14 @@ public:
     inline void setTransform(const QMatrix *matrix=0)
     {
         CGContextConcatCTM(hd, CGAffineTransformInvert(CGContextGetCTM(hd)));
-        CGContextConcatCTM(hd, orig_xform);
-        if(matrix) {
-            CGAffineTransform xform = CGAffineTransformMake(matrix->m11(), matrix->m12(),
-                                                            matrix->m21(), matrix->m22(),
-                                                            matrix->dx(),  matrix->dy());
-            CGContextConcatCTM(hd, xform);
-        }
-        CGContextSetTextMatrix(hd, CGContextGetCTM(hd));
+        CGAffineTransform xform = orig_xform;
+        if(matrix) 
+            xform = CGAffineTransformConcat(CGAffineTransformMake(matrix->m11(), matrix->m12(),
+                                                                  matrix->m21(), matrix->m22(),
+                                                                  matrix->dx(),  matrix->dy()),
+                                            xform);
+        CGContextConcatCTM(hd, xform);
+        CGContextSetTextMatrix(hd, xform);
     }
 };
 

@@ -101,7 +101,7 @@ QFontEngineMac::draw(QPaintEngine *p, int req_x, int req_y, const QTextItem &si)
     int x = req_x, y = req_y;
 
 #if 1
-    if(!p->hasFeature(QPaintEngine::CoordTransform) && pState->txop) {
+    if(p->type() == QPaintEngine::QuickDraw && pState->txop) {
         float aw = si.width, ah = si.ascent + si.descent + 1;
         if(aw == 0 || ah == 0)
             return;
@@ -537,11 +537,13 @@ int QFontEngineMac::doTextTask(const QChar *s, int pos, int use_len, int len, uc
         bool transform = false;
         CGAffineTransform oldMatrix = CGContextGetCTM(ctx), newMatrix;
 #if 0
-        if(p->type() == QPaintEngine::QuickDraw && pState) {
-            CGAffineTransform xf = CGAffineTransformMake(pState->matrix.m11(), pState->matrix.m12(),
-                                                         pState->matrix.m21(), pState->matrix.m22(),
-                                                         pState->matrix.dx(),  pState->matrix.dy());
-            newMatrix = CGAffineTransformConcat(xf, oldMatrix);
+        if(pState && 
+           (0 /*|| p->type() == QPaintEngine::CoreGraphics */
+            /*|| p->type() == QPaintEngine::QuickDraw*/)) {
+            newMatrix = CGAffineTransformConcat(CGAffineTransformMake(pState->matrix.m11(), pState->matrix.m12(),
+                                                                      pState->matrix.m21(), pState->matrix.m22(),
+                                                                      pState->matrix.dx(),  pState->matrix.dy()), 
+                                                oldMatrix);
             transform = true;
         } else 
 #endif
