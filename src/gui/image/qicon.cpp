@@ -626,7 +626,7 @@ static int heights[2] = { 22, 32 };
 
 static QSize pixmapSize(QIcon::Size which) {
     int i = 0;
-    if (which == Large)
+    if (which == QIcon::Large)
         i = 1;
     return QSize(widths[i], heights[i]);
 }
