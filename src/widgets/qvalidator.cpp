@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qvalidator.cpp#12 $
+** $Id: //depot/qt/main/src/widgets/qvalidator.cpp#13 $
 **
 ** Implementation of validator classes.
 **
@@ -14,7 +14,7 @@
 
 #include <limits.h> // *_MIN, *_MAX
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qvalidator.cpp#12 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qvalidator.cpp#13 $");
 
 
 /*!
@@ -265,7 +265,7 @@ QDoubleValidator::~QDoubleValidator()
 
 QValidator::State QDoubleValidator::validate( QString & input, int & )
 {
-    bool ok;
+    bool ok = TRUE;
     double tmp = input.toDouble( &ok );
     // check the number of decimals here!
     if ( !ok )

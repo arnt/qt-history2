@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qspinbox.h#12 $
+** $Id: //depot/qt/main/src/widgets/qspinbox.h#13 $
 **
 ** Definition of QSpinBox widget class
 **
@@ -12,7 +12,9 @@
 #ifndef QSPINBOX_H
 #define QSPINBOX_H
 
-#include "qframe.h"
+#include <qframe.h>
+#include <qrangect.h>
+#include <qstring.h>
 
 class QPushButton;
 class QLineEdit;
@@ -20,53 +22,61 @@ class QValidator;
 struct QSpinBoxData;
 
 
-class QSpinBox: public QFrame
+class QSpinBox: public QFrame, public QRangeControl
 {
     Q_OBJECT
 public:
-    QSpinBox( QWidget * parent = 0, const char * name = 0 );
+    QSpinBox( QWidget* parent = 0, const char* name = 0 );
+    QSpinBox( int minValue, int maxValue, int step = 1,
+	      QWidget* parent = 0, const char* name = 0 );
     ~QSpinBox();
 
-    virtual void setRange( double bottom, double top, int decimals=0 );
+    const char* 	text() const;
+    virtual const char*	suffix() const;
+    virtual QString 	textWithoutSuffix() const;
 
-    double current() const;
-    const char * text() const;
+    virtual void 	setWrapping( bool on );
+    bool 		wrapping() const;
 
-    virtual void setWrapping( bool w );
-    bool wrapping() const { return wrap; }
-
-    QSize sizeHint() const;
+    QSize 		sizeHint() const;
 
 public slots:
-    virtual void setCurrent( double value );
-
-    virtual void next();
-    virtual void prev();
+    virtual void	setValue( int value );
+    virtual void	setSuffix( const char* text );
+    virtual void	stepUp();
+    virtual void	stepDown();
 
 signals:
-    void selected( double );
+    void		valueChanged( int value );
 
 protected:
-    bool eventFilter( QObject *, QEvent * );
-    void resizeEvent( QResizeEvent * );
+    bool		eventFilter( QObject* obj, QEvent* ev );
+    void		resizeEvent( QResizeEvent* ev );
 
-    void setValidator( QValidator * );
-    QPushButton * upButton();
-    QPushButton * downButton();
-    QLineEdit * editor();
+    virtual void	valueChange();
+    virtual void	rangeChange();
 
-    virtual void newValue();
+    void		setValidator( QValidator* v );
+    virtual void	updateDisplay();
+    virtual void	interpretText();
+
+    QPushButton*	upButton() const;
+    QPushButton*	downButton() const;
+    QLineEdit*		editor() const;
 
 protected slots:
-    void textChanged();
+    void		textChanged();
 
 private:
-    struct QSpinBoxData * d;
-    QString pv;
-    QPushButton * up;
-    QPushButton * down;
-    QLineEdit * vi;
-    uint wrap: 1;
+    void initSpinBox();
+    struct QSpinBoxData* extra;
+    QPushButton* up;
+    QPushButton* down;
+    QLineEdit* vi;
+    QValidator* validator;
+    QString sfix;
+    bool wrap;
+    bool edited;
 };
 
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qspinbox.cpp#22 $
+** $Id: //depot/qt/main/src/widgets/qspinbox.cpp#23 $
 **
 ** Implementation of QSpinBox widget class
 **
@@ -10,60 +10,93 @@
 *****************************************************************************/
 
 #include "qspinbox.h"
-#include "qpushbt.h"
-#include "qstrlist.h"
-#include "qpainter.h"
-#include "qkeycode.h"
-#include "qbitmap.h"
-#include "qlined.h"
-#include "qvalidator.h"
 
-static double multipliers[9] = { 1.0, 0.1, 0.01,
-				 0.001, 0.0001, 0.00001,
-				 0.000001, 0.0000001, 0.00000001 };
+#include <qspinbox.h>
+#include <qpushbt.h>
+#include <qpainter.h>
+#include <qkeycode.h>
+#include <qbitmap.h>
+#include <qlined.h>
+#include <qvalidator.h>
 
-/*! \class QSpinBox qspinbox.h
 
-  \brief The QSpinBox class provides a spin box, sometimes called
+/*! 
+  \class QSpinBox qspinbox.h
+
+  \brief The QSpinBox class provides a spin box widget, sometimes called
   up-down widget, little arrows widget or spin button.
 
-  The default spin box accepts numeric input; either integer or
-  floating-point numbers.  The API only provides floating-point
-  numbers.
+  QSpinBox allows the user to choose a numeric value, either by
+  clikcing the up/down buttons to increase/decrease the value
+  currently displayed, or by typing the value directly into the spin
+  box. 
 
-  setRange() or a convenience constructor can be used to set the legal
-  range; current() and setCurrent() provide access to the current
-  value.  QSpinBox emits the selected signal() whenever the current
-  value of the spin box changes.
+  Every time the value changes, QSpinBox emits the valueChanged()
+  signal. The current value can be fetched with value() and set with
+  setValue().
 
-  Most spin boxes are directional, but some are circular: If the range
-  is 00-99 and the current value is 99, clicking Up can give 00.
-  QSpinBox provides this functionality using setWrapping() and
-  wrapping().
+  The spin box clamps the value within a numeric range, see
+  QRangeControl for details. Clicking the up/down down buttons (or
+  using the keyboard accelerators: Up-arrow and Down-arrow) will
+  increase the value with the value of lineStep().
 
-  QSpinBox can easily be subclassed to provide other functionality; to
-  reimplement it you'll problably need to set your own validator
+  Most spin boxes are directional, but QSpinBox can also operate as a
+  circular spin box, i.e. if the range is 0-99 and the current value
+  is 99, clicking Up will give 0. Use setWrapping() to if you want
+  circular behavior.
 
-  The spin box deviates from Motif look a bit.
+  The default \link setFocusPolicy() focus policy \endlink is
+  StrongFocus.
+
+  QSpinBox can easily be subclassed to allow the user to input other
+  things than a numeric value, as long as the allowed input can be
+  mapped down to a range of integers. See updateDisplay(),
+  interpretText() and setValidator().
 
   <img src=qspinbox-m.gif> <img src=qspinbox-w.gif>
 */
 
 
 struct QSpinBoxData {
-    QDoubleValidator * v;
-    double previousSelectedValue;
 };
 
 
-/*!  Creates an empty, non-wrapping spin box with TabFocus \link
-  setFocusPolicy() focus policy. \endlink.
+/*!
+  Creates a spin box with the default QRangeControl range and step
+  value.
+
+  \sa minValue(), maxValue(), setRange(), lineStep(), setSteps()
 */
 
 QSpinBox::QSpinBox( QWidget * parent , const char * name )
     : QFrame( parent, name )
 {
-    d = 0; // not used
+    initSpinBox();
+}
+
+
+/*!
+  Creates a spin box with range from \a minValue to \a maxValue
+  inclusive, with step value \a step. The value is set to \a minValue.
+
+  \sa minValue(), maxValue(), setRange(), lineStep(), setSteps()
+*/
+
+QSpinBox::QSpinBox( int minValue, int maxValue, int step, QWidget* parent,
+		    const char* name )
+    : QFrame( parent, name ),
+      QRangeControl( minValue, maxValue, step, step, minValue )
+{
+    initSpinBox();
+}
+
+/*!  
+  \internal Initialization.
+*/
+
+void QSpinBox::initSpinBox()
+{
+    extra = 0; 			// not used; reserved for future expansion
     wrap = FALSE;
 
     up = new QPushButton( this, "up" );
@@ -74,218 +107,146 @@ QSpinBox::QSpinBox( QWidget * parent , const char * name )
     down->setFocusPolicy( QWidget::NoFocus );
     down->setAutoRepeat( TRUE );
 
+    validator = new QIntValidator( minValue(), maxValue(), this, "validator" );
     vi = new QLineEdit( this, "this is not /usr/bin/vi" );
     vi->setFrame( FALSE );
     setFocusProxy( vi );
     setFocusPolicy( StrongFocus );
-
+    vi->setValidator( validator );
+    vi->installEventFilter( this );
+    
     if ( style() == WindowsStyle )
 	setFrameStyle( WinPanel | Sunken );
     else
 	setFrameStyle( Panel | Sunken );
     setLineWidth( 2 );
 
-    connect( up, SIGNAL(pressed()), SLOT(next()) );
-    connect( down, SIGNAL(pressed()), SLOT(prev()) );
-    connect( vi, SIGNAL(textChanged(const char *)),
-	     SLOT(textChanged()) );
+    updateDisplay();
 
-    vi->installEventFilter( this );
-
+    connect( up, SIGNAL(pressed()), SLOT(stepUp()) );
+    connect( down, SIGNAL(pressed()), SLOT(stepDown()) );
+    connect( vi, SIGNAL(textChanged(const char *)), SLOT(textChanged()) );
 }
 
-
-/*!  Deletes the spin box, freeing all memory and other resoures.
+/*!  
+  Deletes the spin box, freeing all memory and other resoures.
 */
 
 QSpinBox::~QSpinBox()
 {
-    delete d;
 }
 
 
-/*!  Sets the legal range of the spin box to \a bottom-top inclusive,
-  with \a decimals decimal places.  \a decimals must be at most 8.
-  Here are some examples:
+/*!  
+  Returns the current text of the spin box.
 
-  \code
-    s->setRange( 42, 69 ); // integers from 42-69 inclusive
-    s->setRange( 0, 1, 3 ); // 0.000, 0.001, 0.002, ..., 0.999, 1.000
-    s->setRange( 0.1, 360, 1 ); // 0.1, ... 359.8, 359.9, 360.0
-    s->setRange( -32768, 32767 ); // the integers -32768 to 32767 inclusive
-  \endcode
-
-  If you don't set a valid value using setCurrent(), QSpinBox picks
-  one in show() - normally the lowest valid value.
-*/
-
-void QSpinBox::setRange( double bottom, double top, int decimals )
-{
-    if ( !d ) {
-	d = new QSpinBoxData;
-	d->v = new QDoubleValidator( bottom, top, decimals > 8 ? 8 : decimals,
-				     this, "default spin-box validator" );
-    }
-    if ( vi && d->v != vi->validator() )
-	vi->setValidator( d->v );
-}
-
-
-/*!  Makes the spin box wrap around from the last to the first item of
-  \a w is TRUE, or not if not.
-
-  \sa wrapping() setCurrent()
-*/
-
-void QSpinBox::setWrapping( bool w )
-{
-    wrap = w;
-    newValue();
-}
-
-/*!  \fn bool QSpinBox::wrapping() const
-
-  Returns the current setWrapping() value.
-*/
-
-
-/*!  Returns the current value of the spin box, or 0 is the current
-  value is unparsable.
-*/
-
-double QSpinBox::current() const
-{
-    bool ok = FALSE;
-    double result = QString( text() ).toDouble( &ok );
-    return ok ? result : 0;
-}
-
-
-/*!  Returns the last valid text of the spin box, or "" if the spin box
-  never has contained any valid text.
+  \sa value()
 */
 
 const char * QSpinBox::text() const
-{ //### should return 0?
-    return pv.isNull() ? "" : (const char *)pv;
+{ 	
+    return vi->text();
 }
 
-/*!  Moves the spin box to the next value.  This is the same as
-  clicking on the pointing-up button, and can be used for e.g.
-  keyboard accelerators.
 
-  \sa prev(), setCurrent(), current()
+
+/*!
+  Returns a copy of the current text of the spin box with any suffix
+  and white space at the start and end removed.
 */
 
-void QSpinBox::next()
+QString QSpinBox::textWithoutSuffix() const
 {
-    if ( !d || !d->v )
-	return;
-
-    bool ok;
-    double c = QString(text()).toDouble( &ok );
-
-    c += multipliers[QMIN(d->v->decimals(),8)];
-
-    QString s;
-    if ( d->v->decimals() )
-	s.sprintf( "%.*f", d->v->decimals(), c );
-    else
-	s.sprintf( "%d", (int)c );
-
-    if ( s.toDouble( &ok ) > d->v->top() )
-	c = wrapping() ? d->v->bottom() : d->v->top();
-
-    setCurrent( c );
+    QString s = QString(text()).stripWhiteSpace();
+    if ( suffix() ) {
+	QString x = QString(suffix()).stripWhiteSpace();
+	int len = x.length();
+	if ( len && s.right(len) == x )  // Remove _only_ if it is the suffix
+	    s.truncate( s.length() - len );
+    }
+    return s;
 }
 
+/*!
+  Sets the suffix to \a text. The suffix is appended to the end of the
+  displayed value. Typical use is to indicate the unit of measurement
+  to the user. 
 
-/*!  Moves the spin box to the previous value.  This is the same as
-  clicking on the pointing-down button, and can be used for e.g.
-  keyboard accelerators.
+  To turn off the suffix display, call this function with 0 or an
+  empty string as parameter. The default is no suffix.
 
-  \sa next(), setCurrent(), current()
+  \sa suffix()
 */
 
-void QSpinBox::prev()
+void QSpinBox::setSuffix( const char* text )
 {
-    if ( !d )
-	return;
-
-    bool ok;
-    double c = QString(text()).toDouble( &ok );
-
-    c -= multipliers[QMIN(d->v->decimals(),8)];
-
-    QString s;
-    if ( d->v->decimals() )
-	s.sprintf( "%.*f", d->v->decimals(), c );
-    else
-	s.sprintf( "%d", (int)c );
-
-    if ( s.toDouble( &ok ) < d->v->bottom() )
-	c = wrapping() ? d->v->top(): d->v->bottom();
-
-    setCurrent( c );
+    sfix = text;
+    updateDisplay();
 }
 
 
-/*!  Sets the current value of the spin box to \a value.  \a value is
-  forced into the legal range.
+/*!
+  Returns the currently set suffix, or 0 if no suffix is currently
+  set.
 */
 
-void QSpinBox::setCurrent( double value )
+const char* QSpinBox::suffix() const
 {
-    if ( d && value > d->v->top() )
-	value = d->v->top();
-    else if ( d && value < d->v->bottom() )
-	value = d->v->bottom();
-    QString s;
-    if ( d->v->decimals() )
-	s.sprintf( "%.*f", d->v->decimals(), value );
+    if ( sfix.isEmpty() )
+	return 0;
     else
-	s.sprintf( "%d", (int)value );
-    vi->setText( s );
+	return sfix;
 }
 
 
-/*! \fn void QSpinBox::selected( double )
+/*!
+  Setting wrapping to TRUE will allow the value to be wrapped from the
+  highest value to the lowest, and vice versa. By default, wrapping is
+  turned off.
 
-  This signal is emitted every time the value of the spin box changes
-  (by setCurrent(), by a keyboard accelerator, by mouse clicks, or by
-  telepathy).
-
-  Note that it is emitted \e every time, not just for the \"final\"
-  step - if the user clicks 'up' three times, this signal is emitted
-  three times.
+  \sa wrapping(), minValue(), maxValue(), setRange()
 */
 
+void QSpinBox::setWrapping( bool on )
+{
+    wrap = on;
+    updateDisplay();
+}
 
-/*!  Returns a good-looking size for the spin box.
+
+/*!
+  Returns the current setWrapping() value.
+*/
+
+bool QSpinBox::wrapping() const
+{
+    return wrap;
+}
+
+
+
+/*!  
+  Returns a good-looking size for the spin box.
 */
 
 QSize QSpinBox::sizeHint() const
-{ // maybe write this around QLineEdit::sizeHint()
+{
     QFontMetrics fm = fontMetrics();
     int h = fm.height();
-    if ( h < 22 ) // enough space for the button pixmaps
-	h = 22;
-    int w = 40; // never less than 40 pixels for the value
+    if ( h < 12 ) 	// ensure enough space for the button pixmaps
+	h = 12;
+    int w = 28; 	// minimum width for the value
+    QString s;
+    s.setNum( minValue() );
+    s.append( suffix() );
+    w = QMAX( w, fm.width( s ) );
+    s.setNum( maxValue() );
+    s.append( suffix() );
+    w = QMAX( w, fm.width( s ) );
 
-    QString s( "999.99" );
-    if ( d ) {
-	double m = QMAX( QABS(d->v->top()), QABS(d->v->bottom()) );
-	if ( d->v->decimals() )
-	    s.sprintf( "%.*f", d->v->decimals(), m );
-	else
-	    s.sprintf( "%d", (int)m );
-    }
-    w = fm.width( s );
-    
-    return QSize( frameWidth() * 2 // right/left frame
-		  + (8*h)/5 // buttons - approximate golden ratio
+    return QSize( h // buttons AND frame both sides - see resizeevent()
 		  + 6 // right/left margins
-		  + w, // longest value
+		  + w, // widest value
 		  frameWidth() * 2 // top/bottom frame
 		  + 4 // top/bottom margins
 		  + h // font height
@@ -293,27 +254,98 @@ QSize QSpinBox::sizeHint() const
 }
 
 
-/*!  Interprets the up and down keys coming to the embedded QLineEdit.
+/*!
+  Sets the current value of the spin box to \a value. This is
+  QRangeControl::setValue() made available as a slot.
 */
 
-bool QSpinBox::eventFilter( QObject * o, QEvent * e )
+void QSpinBox::setValue( int value )
 {
-    if ( o != vi )
+    QRangeControl::setValue( value );
+}
+
+
+/*!
+  Increases the current value one step, wrapping as necessary. This is
+  the same as clicking on the pointing-up button, and can be used for
+  e.g. keyboard accelerators.
+
+  \sa stepDown(), addLine(), lineStep(), setSteps(), setValue(), value()
+*/
+
+void QSpinBox::stepUp()
+{
+    if ( edited )
+	interpretText();
+    if ( wrapping() && ( value()+lineStep() > maxValue() ) )
+	setValue( minValue() );
+    else
+	addLine();
+}
+
+
+/*!
+  Decreases the current value one step, wrapping as necessary. This is
+  the same as clicking on the pointing-down button, and can be used
+  for e.g. keyboard accelerators.
+
+  \sa stepUp(), subtractLine(), lineStep(), setSteps(), setValue(), value()
+*/
+
+void QSpinBox::stepDown()
+{
+    if ( edited )
+	interpretText();
+    if ( wrapping() && ( value()-lineStep() < minValue() ) )
+	setValue( maxValue() );
+    else
+	subtractLine();
+}
+
+
+/*! 
+  \fn void QSpinBox::valueChanged( int value )
+
+  This signal is emitted every time the value of the spin box changes
+  (whatever the cause - by setValue(), by a keyboard accelerator, by
+  mouse clicks etc.).
+
+  Note that it is emitted \e every time, not just for the "final" step
+  - if the user clicks 'up' three times, this signal is emitted three
+  times.
+
+  \sa value()
+*/
+
+
+
+/*!  
+  Intercepts and handles those events coming to the embedded QLineEdit
+  which have special meaning for the QSpinBox.
+*/
+
+bool QSpinBox::eventFilter( QObject* obj, QEvent* ev )
+{
+    if ( obj != vi )
 	return FALSE;
 
-    if ( e->type() == Event_FocusOut &&
-	 !pv.isNull() /*NOTARNTS&&
-	 vi->validator()->isValid( vi->text() ) != QValidator::Acceptable*/ )
-	// return to last valid choice on focus change
-	vi->setText( pv );
-    else if ( e->type() == Event_KeyPress ) {
-	QKeyEvent * k = (QKeyEvent *)e;
+    if ( ev->type() == Event_FocusOut ) {
+	interpretText();
+    }
+    else if ( ev->type() == Event_KeyPress ) {
+	QKeyEvent* k = (QKeyEvent*)ev;
 	if ( k->key() == Key_Up ) {
-	    next();
+	    stepUp();
 	    k->accept();
 	    return TRUE;
-	} else if ( k->key() == Key_Down ) {
-	    prev();
+	} 
+	else if ( k->key() == Key_Down ) {
+	    stepDown();
+	    k->accept();
+	    return TRUE;
+	}
+	else if ( k->key() == Key_Return ) { // Workaround for use in dialogs
+	    interpretText();
 	    k->accept();
 	    return TRUE;
 	}
@@ -322,28 +354,30 @@ bool QSpinBox::eventFilter( QObject * o, QEvent * e )
 }
 
 
-/*!  Handles resize events for the spin box.  
+/*!  
+  Handles resize events for the spin box.  
 */
 
-void QSpinBox::resizeEvent( QResizeEvent * e )
+void QSpinBox::resizeEvent( QResizeEvent* ev )
 {
     if ( !up || !down ) // happens if the application has a pointer error
 	return;
 
     QSize bs; // no, it's short for 'button size'
-    bs.setHeight( e->size().height()/2 - frameWidth() );
-    if ( bs.height() < 9 )
-	bs.setHeight( 9 );
-    bs.setWidth( bs.height() * 8 / 5 );
-
+    bs.setHeight( ev->size().height()/2 - frameWidth() );
+    if ( bs.height() < 8 )
+	bs.setHeight( 8 );
+    bs.setWidth( bs.height() * 2 );
+    QSize bms( (bs.height()-5)*2-1, bs.height()-4 );
+    
     if ( up->size() != bs ) {
 	up->resize( bs );
-	QBitmap bm( (bs.height() - 6) * 2 - 1, bs.height() - 6 );
+	QBitmap bm( bms );
 	QPointArray a;
 	a.setPoints( 3,
-		     bm.height()-1, 0,
-		     0, bm.height()-1,
-		     bm.width()-1, bm.height()-1 );
+		     bms.height()-2, 0,
+		     0, bms.height()-2,
+		     bms.width()-1, bms.height()-2 );
 	QPainter p;
 	p.begin( &bm );
 	p.eraseRect( 0, 0, bm.width(), bm.height() );
@@ -355,12 +389,12 @@ void QSpinBox::resizeEvent( QResizeEvent * e )
 
     if ( down->size() != bs ) {
 	down->resize( bs );
-	QBitmap bm( (bs.height() - 6) * 2 - 1, bs.height() - 6 );
+	QBitmap bm( bms );
 	QPointArray a;
 	a.setPoints( 3,
-		     bm.height()-1, bm.height()-1,
-		     0, 0,
-		     bm.width()-1, 0 );
+		     bms.height()-2, bms.height()-1,
+		     0, 1,
+		     bms.width()-1, 1 );
 	QPainter p;
 	p.begin( &bm );
 	p.eraseRect( 0, 0, bm.width(), bm.height() );
@@ -370,94 +404,131 @@ void QSpinBox::resizeEvent( QResizeEvent * e )
 	down->setPixmap( bm );
     }
 
-    int x = e->size().width() - frameWidth() - bs.width();
+    int x = ev->size().width() - frameWidth() - bs.width();
 
     up->move( x, frameWidth() );
     down->move( x, height() - frameWidth() - up->height() );
 
     vi->setGeometry( frameWidth(), frameWidth(),
-		     x - frameWidth(), height() - 2*frameWidth() );
+		     (x - frameWidth())-1, height() - 2*frameWidth() );
 }
 
 
-/*!  This slot calls newValue() whenever the spinbox contains a new
-  and acceptable value.
+/*!  
+  This method gets called by QRangeControl whenever the value has changed.
+  Updates the display and emits the valueChanged() signal.
 */
 
-void QSpinBox::textChanged()
+void QSpinBox::valueChange()
 {
-    if ( vi->validator() /*NOTARNTS&&
-	 vi->validator()->isValid( vi->text() ) != QValidator::Acceptable*/ )
-	return;
-
-    QString s = vi->text();
-    if ( pv.isNull() || s != pv ) {
-	pv = s;
-	newValue();
-    }
-};
-
-
-/*! This virtual function is called whenever the spinbox contains a
-  new acceptable value.  This implementation simply emits the
-  selected() signal; most reimplementation can probably be as simple.
-*/
-
-
-void QSpinBox::newValue()
-{    
-    double value = current();
-    // the documentation simplifies - it's possible that two different
-    // strings turn into the same double, and we guard against that.
-    if ( !d || d->previousSelectedValue == value )
-	return;
-
-    d->previousSelectedValue = value;
-    up->setEnabled( wrapping() || value < d->v->top() );
-    down->setEnabled( wrapping() || value > d->v->bottom() );
-    emit selected( value );
+    updateDisplay();
+    emit valueChanged( value() );
 }
 
 
-/*!  Sets the validator for user input to \a v.  The default is to use
-  a suitable QDoubleValidator.  Note that next(), prev(), current(),
-  setCurrent() and setRange() all depend on the default validator, so
-  if you reimplement this function, you probably need to reimplement
-  at least next() and prev() too.
+/*!
+  This method gets called by QRangeControl whenever the range has
+  changed. Adjusts the default validator of the embedded QLineEdit
+  and updates the display.
 */
 
-void QSpinBox::setValidator( QValidator * v )
+void QSpinBox::rangeChange()
+{
+    ((QIntValidator*)validator)->setRange( minValue(), maxValue() );
+    updateDisplay();
+}
+
+
+/*!  
+  Sets the validator of the embedded QLineEdit to \a v. The default is to use
+  a suitable QIntValidator.
+*/
+
+void QSpinBox::setValidator( QValidator* v )
 {
     if ( vi )
 	vi->setValidator( v );
 }
 
 
-/*!  Returns a pointer to the 'up' button, which may be needed by some
-  subclasses.
+/*!
+  Updates the contents of the embedded QLineEdit to reflect current
+  value. Also enables/disables the push buttons accordingly.
 */
 
-QPushButton * QSpinBox::upButton()
+void QSpinBox::updateDisplay()
+{    
+    QString s;
+    s.setNum( value() );
+    if ( suffix() )
+	s.append( suffix() );
+    vi->setText( s );
+    edited = FALSE;
+    up->setEnabled( wrapping() || value() < maxValue() );
+    down->setEnabled( wrapping() || value() > minValue() );
+}
+
+
+/*!
+  Called after the user has manually edited the contents of the spin
+  box. Tries to interpret the text as a legal value, and calls
+  setValue() if successful.
+*/
+
+void QSpinBox::interpretText()
+{
+    QString s = text();
+    bool ok = FALSE;
+    int newVal = s.toInt( &ok );
+    if ( !ok && suffix() ) {	// Try removing any suffix
+	s = textWithoutSuffix();
+	newVal = s.toInt( &ok );
+    }
+    if ( ok )
+	setValue( newVal );
+    updateDisplay();		// May be redundant, but sometimes it's not.
+}
+
+
+/*!  
+  Returns a pointer to the embedded 'up' button.
+*/
+
+QPushButton* QSpinBox::upButton() const
 {
     return up;
 }
 
 
-/*!  Returns a pointer to the 'down' button, which may be needed by some
-  subclasses.
+/*!  
+  Returns a pointer to the embedded 'down' button.
 */
 
-QPushButton * QSpinBox::downButton()
+QPushButton* QSpinBox::downButton() const
 {
     return down;
 }
 
 
-/*!  Returns a pointer to the embedded QLineEdit, which may be needed
-  by some subclasses.
+/*!  
+  Returns a pointer to the embedded QLineEdit.
 */
 
-QLineEdit * QSpinBox::editor()
+QLineEdit* QSpinBox::editor() const
 {
     return vi;
 }
+
+
+/*!  
+  This slot gets called whenever the user edits the text of the spin box.
+*/
+
+void QSpinBox::textChanged()
+{
+    edited = TRUE;	// This flag is cleared in updateDisplay()
+};
+
+
+
+
