@@ -36,7 +36,7 @@
 #  define FD_DEBUG if (FALSE) qDebug
 #endif
 
-#define FONT_MATCH_DEBUG
+// #define FONT_MATCH_DEBUG
 #ifdef FONT_MATCH_DEBUG
 #  define FM_DEBUG qDebug
 #else
