@@ -24,7 +24,6 @@
 enum {
     Compressed = 0x01
 };
-static QResource *qt_resource_root = 0;
 static QStringList qt_resource_search_paths;
 
 
@@ -49,6 +48,27 @@ static QStringList qt_resource_search_paths;
     also have another resource as its parent().
 */
 
+struct QResourceNode
+{
+    QString name;
+    QList<QResource*> resources;
+    QResource *localeResource(); //find the resource for locale
+
+    uint container : 1;
+    QResourceNode *parent;
+    QList<QResourceNode*> children;
+
+    inline QResourceNode() : container(0), parent(0) { }
+    inline ~QResourceNode() {
+        qDeleteAll(children);
+        children.clear();
+        for(int i = 0; i < resources.size(); i++)
+            delete resources[i];
+        resources.clear();
+    }
+};
+static QResourceNode *qt_resource_root = 0;
+
 class QResourcePrivate
 {
     QResource *q_ptr;
@@ -56,46 +76,73 @@ class QResourcePrivate
     Q_DECLARE_PUBLIC(QResource)
 
 private:
+    QLocale::Language lang;
+    QLocale::Country country;
     uint compressed : 1;
-    uint container : 1;
     uint size;
     const uchar *data;
-
-    QResource *parent;
-    QString name;
-    QList<QResource*> children;
     mutable QByteArray *decompressed;
 
+    QResourceNode *node;
+
 protected:
-    QResourcePrivate(QResource *qq) : q_ptr(qq), compressed(0),
-                                      container(0), size(0), data(0), parent(0), decompressed(0) { }
+    friend class QResourceNode;
+    QResourcePrivate(QResource *qq) : q_ptr(qq), lang(QLocale::C), 
+                                      country(QLocale::AnyCountry), compressed(0),
+                                      size(0), data(0), decompressed(0), node(0) { }
     ~QResourcePrivate() {
-        for(int i = 0; i < children.size(); i++)
-            delete children[i];
-        children.clear();
         delete decompressed;
         q_ptr = 0;
     }
     static QResource *locateResource(const QString &resource);
 };
 
+QResource *QResourceNode::localeResource() 
+{
+    if(container) { 
+        if(resources.isEmpty()) { //create a resource as needed
+            QResource *ret = new QResource;
+            ret->d->node = this;
+            resources.append(ret);
+            return ret;
+        }
+        Q_ASSERT(resources.count() == 1); 
+        return resources.first(); //containers do not get localized
+    } else if(!resources.isEmpty()) {
+        QResource *ret = 0;
+        QLocale systemLocale = QLocale::system();
+        for(int i = 0; i < resources.count(); i++) {
+            QResource *resource = resources.at(i);
+            if(resource->d->lang == systemLocale.language() && 
+               resource->d->country == systemLocale.country()) 
+                return resource;
+            if(!ret && resource->d->lang == QLocale::C && //default
+               resource->d->country == QLocale::AnyCountry) 
+                ret = resource;
+        }
+        return ret;
+    }
+    return 0;
+}
+
 QResource *QResourcePrivate::locateResource(const QString &resource)
 {
-    QResource *ret = qt_resource_root;
+    QResourceNode *ret = qt_resource_root;
     QStringList chunks = QDir::cleanPath(resource).split(QLatin1Char('/'), QString::SkipEmptyParts);
     for(int i = 0; i < chunks.size(); i++) {
-        QResource *parent = ret;
+        QResourceNode *parent = ret;
         ret = 0;
-        for(int subi = 0; subi < parent->d->children.size(); subi++) {
-            if(parent->d->children.at(subi)->d->name == chunks[i]) {
-                ret = parent->d->children.at(subi);
+        for(int subi = 0; subi < parent->children.size(); subi++) {
+            QResourceNode *child = parent->children.at(subi);
+            if(child->name == chunks[i]) {
+                ret = child;
                 break;
             }
         }
         if(!ret)
             break;
     }
-    return ret;
+    return ret ? ret->localeResource() : 0;
 }
 
 /*!
@@ -119,11 +166,10 @@ QResource::QResource() : d_ptr(new QResourcePrivate(this))
 */
 QResource::~QResource()
 {
-    if(d->parent) {
-        d->parent->d->children.removeAll(this);
-        if(d->parent->d->children.isEmpty())
-            delete d->parent;
-        d->parent = 0;
+    if(d->node->parent) {
+        d->node->parent->children.removeAll(d->node);
+        if(d->node->parent->children.isEmpty())
+            delete d->node->parent;
     }
     delete d_ptr;
     d_ptr = 0;
@@ -136,7 +182,7 @@ QResource::~QResource()
 QString
 QResource::name() const
 {
-    return d->name;
+    return d->node->name;
 }
 
 /*!
@@ -146,7 +192,9 @@ QResource::name() const
 const QResource
 *QResource::parent() const
 {
-    return d->parent;
+    if(QResourceNode *ret = d->node->parent) 
+        return ret->localeResource();
+    return 0;
 }
 
 /*!
@@ -155,13 +203,14 @@ const QResource
 uint
 QResource::size() const
 {
-    if(!d->compressed)
-        return d->size;
-    if(!d->decompressed) {
-        d->decompressed = new QByteArray;
-        *d->decompressed = qUncompress(d->data, d->size);
+    if(d->compressed) {
+        if(!d->decompressed) {
+            d->decompressed = new QByteArray;
+            *d->decompressed = qUncompress(d->data, d->size);
+        }
+        return d->decompressed->size();
     }
-    return d->decompressed->size();
+    return d->size;
 }
 
 /*!
@@ -172,13 +221,14 @@ QResource::size() const
 const uchar
 *QResource::data() const
 {
-    if(!d->compressed)
-        return d->data;
-    if(!d->decompressed) {
-        d->decompressed = new QByteArray;
-        *d->decompressed = qUncompress(d->data, d->size);
+    if(d->compressed) {
+        if(!d->decompressed) {
+            d->decompressed = new QByteArray;
+            *d->decompressed = qUncompress(d->data, d->size);
+        }
+        return (uchar *)d->decompressed->data();
     }
-    return (uchar *)d->decompressed->data();
+    return d->data;
 }
 
 /*!
@@ -189,7 +239,7 @@ const uchar
 */
 bool QResource::isContainer() const
 {
-    return d->container;
+    return d->node->container;
 }
 
 /*!
@@ -202,9 +252,12 @@ bool QResource::isContainer() const
 QList<QResource *>
 QResource::children() const
 {
-    if(d->container)
-        return d->children;
-    return QList<QResource*>();
+    QList<QResource *> ret;
+    if(d->node->container) {
+        for(int i = 0; i < d->node->children.count(); i++)
+            ret.append(d->node->children.at(i)->localeResource());
+    }
+    return ret;
 }
 
 /*!
@@ -252,7 +305,6 @@ QResource::addSearchPath(const QString &path)
 
 
 /* ******************** QMetaResource ***************** */
-// ### DOC: A class is \internal or public; it can't be "sort of" both.
 /*!
     \class QMetaResource qresource.h
     \reentrant
@@ -299,9 +351,9 @@ QMetaResource::QMetaResource(const uchar *resource) : d_ptr(new QMetaResourcePri
 {
     qInitResourceIO(); //just to be sure it has been loaded
     if(!qt_resource_root) {
-        qt_resource_root = new QResource;
-        qt_resource_root->d->container = true;
-        qt_resource_root->d->name = QLatin1Char('/');
+        qt_resource_root = new QResourceNode;
+        qt_resource_root->container = true;
+        qt_resource_root->name = QLatin1Char('/');
     }
     Q_ASSERT(resource[0] == 0x12 && resource[1] == 0x15 && resource[2] == 0x19 && resource[3] == 0x78);
     resource += 4;
@@ -312,8 +364,6 @@ QMetaResource::QMetaResource(const uchar *resource) : d_ptr(new QMetaResourcePri
         //lang
         uchar lang = resource[off++];
         uchar country = resource[off++];
-        if(lang != QLocale::C || country)
-            return;
 
         //flags
         uchar flags = resource[off];
@@ -340,38 +390,45 @@ QMetaResource::QMetaResource(const uchar *resource) : d_ptr(new QMetaResourcePri
         const uchar *bytes = len ? resource+off : 0;
 
 #ifdef QRESOURCE_DEBUG
-        qDebug("created %s %d %p", name.latin1(), len, bytes);
+        qDebug("created %s %d %p [%d/%d]", name.latin1(), len, bytes, lang, country);
 #endif
 
         //now create the nodes
         bool creation_path = false;
-        QResource *current = qt_resource_root;
+        QResourceNode *node = qt_resource_root;
         QStringList chunks = QDir::cleanPath(name).split(QLatin1Char('/'), QString::SkipEmptyParts);
         for(int i = 0; i < chunks.size(); i++) {
-            QResource *parent = current;
-            current = 0;
+            QResourceNode *parent = node;
+            node = 0;
             if(!creation_path) {
-                for(int subi = 0; subi < parent->d->children.size(); subi++) {
-                    if(parent->d->children.at(subi)->d->name == chunks[i]) {
-                        current = parent->d->children.at(subi);
+                for(int subi = 0; subi < parent->children.size(); subi++) {
+                    if(parent->children.at(subi)->name == chunks[i]) {
+                        node = parent->children.at(subi);
                         break;
                     }
                 }
             }
-            if(!current) {
+            if(!node) {
                 creation_path = true;
-                current = new QResource;
-                current->d->name = chunks[i];
-                current->d->container = (i != (chunks.size()-1));
-                current->d->parent = parent;
-                parent->d->children.append(current);
+                node = new QResourceNode;
+                node->name = chunks[i];
+                node->container = (i != (chunks.size()-1));
+                node->parent = parent;
+                parent->children.append(node);
             }
         }
-        Q_ASSERT(current && !current->d->container);
-        d->resource = current;
-        current->d->size = len;
-        current->d->data = bytes;
-        current->d->compressed = flags & Compressed;
+
+        //create a resource for this node
+        Q_ASSERT(node && !node->container);
+        QResource *resource = new QResource;
+        resource->d->node = node;
+        resource->d->lang = (QLocale::Language)lang;
+        resource->d->country = (QLocale::Country)country;
+        resource->d->size = len;
+        resource->d->data = bytes;
+        resource->d->compressed = flags & Compressed;
+        node->resources.append(resource);
+        d->resource = resource;
     }
 }
 
