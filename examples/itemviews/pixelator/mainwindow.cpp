@@ -104,12 +104,11 @@ void MainWindow::printImage()
     QStyleOptionViewItem option;
     QModelIndex parent = QModelIndex::Null;
 
-    QProgressDialog progress(tr("Printing..."), tr("Cancel"), rows, this,
-        "progress dialog", true);
+    QProgressDialog progress(tr("Printing..."), tr("Cancel"), 0, rows, this);
     float y = ItemSize/2;
 
     for (int row = 0; row < rows; ++row) {
-        progress.setProgress(row);
+        progress.setValue(row);
         qApp->processEvents();
         if (progress.wasCanceled())
             break;
@@ -124,7 +123,7 @@ void MainWindow::printImage()
         }
         y = y + ItemSize;
     }
-    progress.setProgress(rows);
+    progress.setValue(rows);
 
     painter.restore();
     painter.end();
