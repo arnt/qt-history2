@@ -1439,19 +1439,17 @@ QPictureHandler::QPictureHandler(const char *f, const char *h, const QByteArray&
 typedef QList<QPictureHandler *> QPHList;
 static QPHList pictureHandlers;
 
-Q_GLOBAL_STATIC_LOCKED_WITH_ARGS(QFactoryLoader, loader,
-                                 (QPictureFormatInterface_iid,
-                                  QCoreApplication::libraryPaths(),
-                                  "/pictureformats"))
+Q_GLOBAL_STATIC_WITH_ARGS(QFactoryLoader, loader,
+                          (QPictureFormatInterface_iid,
+                           QCoreApplication::libraryPaths(),
+                           "/pictureformats"))
 
 void qt_init_picture_plugins()
 {
     static QStaticMutex mutex = 0;
-    QMutexLocker locker(mutex);
-    static bool loaded = false;
-    if (loaded)
+    if (mutex)
         return;
-    loaded = true;
+    QMutexLocker locker(mutex);
     QFactoryLoader *loader = ::loader();
     QStringList keys = loader->keys();
     for (int i = 0; i < keys.count(); ++i)

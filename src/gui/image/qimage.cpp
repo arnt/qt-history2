@@ -3746,11 +3746,9 @@ Q_GLOBAL_STATIC_WITH_ARGS(QFactoryLoader, loader,
 void qt_init_image_plugins()
 {
     static QStaticMutex mutex = 0;
-    QMutexLocker locker(mutex);
-    static bool loaded = false;
-    if (loaded)
+    if (mutex)
         return;
-    loaded = true;
+    QMutexLocker locker(mutex);
     QFactoryLoader *loader = ::loader();
     QStringList keys = loader->keys();
     for (int i = 0; i < keys.count(); ++i) {
