@@ -109,7 +109,7 @@ parsing events. The following handler classes are available:
     external entities himself instead of letting the reader to try it.
 <li>\l QXmlDeclHandler
     reports more DTD related events (e.g. an attribute declaration, etc.).
-    There might be rare occasions you are intrested in these.
+    There might be rare occasions you are interested in these.
 <li>\l QXmlLexicalHandler
     reports events related to the lexical structure of the document (e.g.
     the beginning of the DTD, comments, etc.) There might be rare occasions
