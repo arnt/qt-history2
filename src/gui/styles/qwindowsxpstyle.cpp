@@ -561,7 +561,7 @@ void QWindowsXPStyle::polish(QWidget *widget)
     } else if (qt_cast<QTitleBar*>(widget)) {
         widget->installEventFilter(this);
         widget->setMouseTracking(true);
-    } else if (widget->inherits("QWorkspaceChild")) {
+    } else if (widget->inherits("Q3WorkspaceChild")) {
         widget->installEventFilter(this);
     } else if (qt_cast<QSlider*>(widget)) {
         widget->installEventFilter(this);
@@ -616,7 +616,7 @@ void QWindowsXPStyle::unPolish(QWidget *widget)
         SetWindowRgn(widget->winId(), 0, true);
         if (!QString::compare(widget->objectName(), "_workspacechild_icon_"))
             SetWindowRgn(widget->parentWidget()->winId(), 0, true);
-    } else if (widget->inherits("QWorkspaceChild")) {
+    } else if (widget->inherits("Q3WorkspaceChild")) {
         SetWindowRgn(widget->winId(), 0, true);
     } else if (qt_cast<QWidgetStack*>(widget) &&
                 qt_cast<QTabWidget*>(widget->parentWidget())) {
@@ -654,7 +654,7 @@ void QWindowsXPStyle::updateRegion(QWidget *widget)
         theme.setTransparency();
         XPThemeData theme2(widget->parentWidget(), 0, "WINDOW", WP_MINCAPTION, CS_ACTIVE, widget->rect());
         theme2.setTransparency();
-    } else if (widget->inherits("QWorkspaceChild")) {
+    } else if (widget->inherits("Q3WorkspaceChild")) {
         if (widget->isMinimized()) {
             XPThemeData theme(widget, 0, "WINDOW", WP_SMALLCAPTION, CS_ACTIVE, widget->rect());
             theme.setTransparency();
