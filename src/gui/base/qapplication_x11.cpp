@@ -659,7 +659,6 @@ static int qt_x_errhandler( Display *dpy, XErrorEvent *err )
 static int qt_xio_errhandler( Display * )
 {
     qWarning( "%s: Fatal IO error: client killed", appName );
-    qApp = 0;
     exit( 1 );
     //### give the application a chance for a proper shutdown instead,
     //### exit(1) doesn't help.
@@ -1543,7 +1542,6 @@ void qt_init( QApplicationPrivate *priv, int,
 	    if ( ( X11->display = XOpenDisplay(X11->displayName) ) == 0 ) {
 		qWarning( "%s: cannot connect to X server %s", appName,
 			  XDisplayName(X11->displayName) );
-		qApp = 0;
 		exit( 1 );
 	    }
 
