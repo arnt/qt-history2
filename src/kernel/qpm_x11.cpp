@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpm_x11.cpp#31 $
+** $Id: //depot/qt/main/src/kernel/qpm_x11.cpp#32 $
 **
 ** Implementation of QPixmap class for X11
 **
@@ -22,7 +22,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpm_x11.cpp#31 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpm_x11.cpp#32 $";
 #endif
 
 
@@ -94,11 +94,15 @@ static int highest_bit( ulong v )
 // QPixmap member functions
 //
 
+bool QPixmap::optimAll = TRUE;
+
+
 void QPixmap::init()
 {
     data = new QPixmapData;
     CHECK_PTR( data );
-    data->dirty	 = data->optim = FALSE;
+    data->dirty	 = FALSE;
+    data->optim  = optimAll;
     data->uninit = TRUE;
     data->bitmap = FALSE;
     data->ximage = 0;
@@ -268,25 +272,65 @@ QPixmap &QPixmap::operator=( const QPixmap &pixmap )
 
 
 /*!
-  Enables the internal image cache if \e enable is TRUE, or disables it if
-  \e enable is FALSE.  Returns the previous setting of the image cache.
+  Returns the optimization flag for the pixmap.
 
-  This cache is disabled by default.
+  The optimization flag is initially set to the global pixmap optimization
+  flag optimizedAll(), which is TRUE by default.
 
-  Enabling the internal image cache speeds up functions that fetch the
-  pixmap contents; convertToImage() and xForm().
+  \sa setOptimization(), optimizedAll()
 */
 
-bool QPixmap::enableImageCache( bool enable )
+bool QPixmap::optimized() const
 {
-    bool v = data->optim;
-    data->optim = enable ? 1 : 0;
+    return data->optim;
+}
+
+/*!
+  Enables pixmap optimization if \e enable is TRUE, or disables
+  optimization if \e enable is FALSE.
+
+  Pixmap optimization makes pixmap operations faster. The disadvantage is
+  that pixmap optimization consumes some extra memory.
+
+  \sa optimized(), setOptimizationAll(), optimizedAll()
+*/
+
+void QPixmap::setOptimization( bool enable )
+{
+    if ( enable == (bool)data->optim )
+	return;
+    data->optim = enable;
     data->dirty = FALSE;
     if ( data->ximage ) {
 	XDestroyImage( (XImage*)data->ximage );
 	data->ximage = 0;
     }
-    return v;
+}
+
+/*!
+  Returns the global pixmap optimization flag.  The default value is TRUE.
+  \sa setOptimizationAll(), optimized()
+*/
+
+bool QPixmap::optimizedAll()
+{
+    return optimAll;
+}
+
+/*!
+  Sets the global pixmap optimization flag.
+
+  All new pixmaps that are created will be optimized if \e enable is
+  TRUE, or avoid optimization if \e enable is FALSE.
+
+  Optimization can be overridden for individual pixmaps by setOptimization().
+
+  \sa optimizedAll(), setOptimization(), optimized()
+*/
+
+void QPixmap::setOptimizationAll( bool enable )
+{
+    optimAll = enable;
 }
 
 
