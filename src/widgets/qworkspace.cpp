@@ -466,11 +466,15 @@ QWorkspace::QWorkspace( QWidget *parent, const char *name )
 		    this, SLOT( closeActiveWindow() ) );
     a->connectItem( a->insertItem( ALT + Key_F6),
 		    this, SLOT( activateNextWindow() ) );
+    a->connectItem( a->insertItem( CTRL + Key_F6),
+		    this, SLOT( activateNextWindow() ) );
     a->connectItem( a->insertItem( CTRL + Key_Tab),
 		    this, SLOT( activateNextWindow() ) );
     a->connectItem( a->insertItem( CTRL +  ALT + Key_Tab),
 		    this, SLOT( activateNextWindow() ) );
     a->connectItem( a->insertItem( ALT + SHIFT + Key_F6),
+		    this, SLOT( activatePreviousWindow() ) );
+    a->connectItem( a->insertItem( CTRL + SHIFT + Key_F6),
 		    this, SLOT( activatePreviousWindow() ) );
     a->connectItem( a->insertItem( CTRL + SHIFT + Key_Tab),
 		    this, SLOT( activatePreviousWindow() ) );
@@ -998,7 +1002,10 @@ void QWorkspace::activateNextWindow()
 	a = d->focus.count()-1;
     else
 	a--;
-    activateWindow( d->focus.at( a )->windowWidget(), FALSE );
+    while ( d->focus.at( a ) && !d->focus.at( a )->isVisibleTo( this ) )
+	a--;
+    if ( d->focus.at( a ) )
+	activateWindow( d->focus.at( a )->windowWidget(), FALSE );
 }
 
 void QWorkspace::activatePreviousWindow()
@@ -1015,7 +1022,10 @@ void QWorkspace::activatePreviousWindow()
 	a = 0;
     else
 	a++;
-    activateWindow( d->focus.at( a )->windowWidget(), FALSE );
+    while ( d->focus.at( a ) && !d->focus.at( a )->isVisibleTo( this ) )
+	a++;
+    if ( d->focus.at( a ) )
+	activateWindow( d->focus.at( a )->windowWidget(), FALSE );
 }
 
 
