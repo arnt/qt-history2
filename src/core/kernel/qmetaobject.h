@@ -58,7 +58,7 @@ public:
     int keysToValue(const char * keys) const;
     QByteArray valueToKeys(int value) const;
 
-    inline isValid() const { return name() != 0; }
+    inline bool isValid() const { return name() != 0; }
 private:
     const QMetaObject *mobj;
     uint handle;
