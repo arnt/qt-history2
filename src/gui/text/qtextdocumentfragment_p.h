@@ -38,6 +38,8 @@
 class QTextDocumentFragmentPrivate
 {
 public:
+    enum MarkerValues { FragmentStart = 1, FragmentEnd = 2 };
+
     QTextDocumentFragmentPrivate() : hasTitle(false), setMarkerForHtmlExport(false) {}
     QTextDocumentFragmentPrivate(const QTextCursor &cursor);
 

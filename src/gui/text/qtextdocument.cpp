@@ -15,6 +15,7 @@
 #include <qtextformat.h>
 #include "qtextdocumentlayout_p.h"
 #include "qtextdocumentfragment.h"
+#include "qtextdocumentfragment_p.h"
 #include "qtexttable.h"
 #include "qtextlist.h"
 #include <qdebug.h>
@@ -985,7 +986,7 @@ void QTextHtmlExporter::emitFragment(const QTextFragment &fragment)
     const QTextCharFormat format = fragment.charFormat();
 
     if (format.hasProperty(QTextFormat::DocumentFragmentMark)
-        && format.boolProperty(QTextFormat::DocumentFragmentMark))
+        && (format.intProperty(QTextFormat::DocumentFragmentMark) & QTextDocumentFragmentPrivate::FragmentStart))
         html += QLatin1String("<!--StartFragment-->");
 
     bool closeAnchor = false;
@@ -1060,7 +1061,7 @@ void QTextHtmlExporter::emitFragment(const QTextFragment &fragment)
         html += QLatin1String("</a>");
 
     if (format.hasProperty(QTextFormat::DocumentFragmentMark)
-        && format.boolProperty(QTextFormat::DocumentFragmentMark) == false)
+        && (format.intProperty(QTextFormat::DocumentFragmentMark) & QTextDocumentFragmentPrivate::FragmentEnd))
         html += QLatin1String("<!--EndFragment-->");
 }
 

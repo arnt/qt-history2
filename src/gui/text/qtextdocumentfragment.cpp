@@ -147,7 +147,14 @@ void QTextDocumentFragmentPrivate::insert(QTextCursor &cursor) const
             && (i == 0 || i == fragments.count() - 1)) {
 
             QTextCharFormat fmt = formats->charFormat(formatIdx);
-            fmt.setProperty(QTextFormat::DocumentFragmentMark, (i == 0));
+
+            int flag = 0;
+            if (i == 0)
+                flag |= FragmentStart;
+            if (i == fragments.count() - 1)
+                flag |= FragmentEnd;
+
+            fmt.setProperty(QTextFormat::DocumentFragmentMark, flag);
             formatIdx = formats->indexForFormat(fmt);
         }
 
