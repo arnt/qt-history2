@@ -3512,9 +3512,15 @@ void QWidget::show()
 	    qt_enter_modal( this );
 	}
 
+	bool winQNPChildWidget = false;
+#if defined(_WS_WIN_)
+	if (parentWidget())
+	    winQNPChildWidget = parentWidget()->inherits("QNPWidget");
+#endif
 	// do not show the window directly, but post a showWindow
 	// request to reduce flicker with laid out widgets
-	if ( !isTopLevel() && !parentWidget()->in_show )
+	if ( !isTopLevel() && !parentWidget()->in_show 
+	    && !winQNPChildWidget)   // ### Not sure why showWindow is needed for QNPWidget children, but is nessary 
 	    sendShowWindowRequest = TRUE;
 	else
 	    showWindow();
