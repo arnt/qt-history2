@@ -38,6 +38,7 @@ public:
     QSize s;
     int d;
     QWidget *tlw;
+    bool hiddenByUser;
 };
 
 static QWidget *qt_sizegrip_topLevelWidget(QWidget* w)
@@ -81,10 +82,13 @@ static QWidget* qt_sizegrip_workspace(QWidget* w)
     widget, so if you have a status bar (e.g. you are using
     QMainWindow), then you don't need to use this widget explicitly.
 
+    On some platforms the sizegrip automatically hides itself when the
+    window is shown full screen or maximised.
+
     \inlineimage qsizegrip-m.png Screenshot in Motif style
     \inlineimage qsizegrip-w.png Screenshot in Windows style
 
-    \sa QStatusBar
+    \sa QStatusBar QWidget::windowState()
 */
 
 
@@ -118,6 +122,7 @@ QSizeGrip::QSizeGrip(QWidget * parent, const char* name)
 void QSizeGripPrivate::init()
 {
     Q_Q(QSizeGrip);
+    hiddenByUser = false;
 #ifndef QT_NO_CURSOR
 #ifndef Q_WS_MAC
     q->setCursor(q->isRightToLeft() ? Qt::SizeBDiagCursor : Qt::SizeFDiagCursor);
@@ -266,24 +271,36 @@ void QSizeGrip::mouseMoveEvent(QMouseEvent * e)
 }
 
 /*! \reimp */
+void QSizeGrip::show()
+{
+    Q_D(QSizeGrip);
+    d->hiddenByUser = false;
+    QWidget::show();
+}
+
+/*! \reimp */
+void QSizeGrip::hide()
+{
+    Q_D(QSizeGrip);
+    d->hiddenByUser = true;
+    QWidget::hide();
+}
+
+
+/*! \reimp */
 bool QSizeGrip::eventFilter(QObject *o, QEvent *e)
 {
     Q_D(QSizeGrip);
-    if (o == d->tlw) {
-        switch (e->type()) {
+    if (!d->hiddenByUser && e->type() == QEvent::WindowStateChange && o == d->tlw) {
+        if((d->tlw->windowState() &
+                  (Qt::WindowFullScreen
 #ifndef Q_WS_MAC
-        /* The size grip goes no where on Mac OS X when you maximize!  --Sam */
-        case QEvent::ShowMaximized:
+                   | Qt::WindowMaximized
 #endif
-        case QEvent::ShowFullScreen:
-            hide();
-            break;
-        case QEvent::ShowNormal:
-            show();
-            break;
-        default:
-            break;
-        }
+                      ))==0)
+            QWidget::show();
+        else
+            QWidget::hide();
     }
     return false;
 }
