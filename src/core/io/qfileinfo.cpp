@@ -109,7 +109,7 @@
 
 QFileInfo::QFileInfo()
 {
-    d = 0;
+    d = new QFileInfoPrivate();
 }
 
 /*!
