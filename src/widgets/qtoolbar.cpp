@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtoolbar.cpp#6 $
+** $Id: //depot/qt/main/src/widgets/qtoolbar.cpp#7 $
 **
 ** Implementation of something useful.
 **
@@ -20,7 +20,7 @@
 #include "qpainter.h"
 #include "qdrawutl.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qtoolbar.cpp#6 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qtoolbar.cpp#7 $");
 
 
 
@@ -29,6 +29,9 @@ RCSTAG("$Id: //depot/qt/main/src/widgets/qtoolbar.cpp#6 $");
   \brief The QToolBar class provides a simple tool bar.
 
   Very simple, even.
+  
+  \sa QToolButton 
+  <a href="http://www.iarchitect.com/visual.htm">Isys on Visual Design</a>
 */
 
 
@@ -105,7 +108,8 @@ void QToolBar::setUpGM()
 {
     delete b;
     b = new QBoxLayout( this, orientation() == Vertical
-			? QBoxLayout::Down : QBoxLayout::LeftToRight, 1, 0 );
+			? QBoxLayout::Down : QBoxLayout::LeftToRight,
+			style() == MotifStyle ? 2 : 1, 0 );
 
     if ( style() == WindowsStyle )
 	b->addSpacing( 8 );
@@ -122,21 +126,33 @@ void QToolBar::setUpGM()
 	    if ( !strcmp( "tool bar separator", o->name() ) &&
 		 !strcmp( "QFrame", o->className() ) ) {
 		QFrame * f = (QFrame *)o;
-		if ( orientation() == Vertical ) {
-		    f->setMinimumSize( 0, 8 );
-		    f->setMaximumSize( 32767, 8 );
-		    f->setFrameStyle( QFrame::HLine + QFrame::Sunken );
-		    fl = new QBoxLayout( QBoxLayout::LeftToRight );
+		if ( style() == MotifStyle ) {
+		    f->setFrameStyle( QFrame::NoFrame );
+		    if ( orientation() == Vertical ) {
+			f->setMinimumSize( 0, 6 );
+			f->setMaximumSize( 32767, 6 );
+		    } else {
+			f->setMinimumSize( 6, 0 );
+			f->setMaximumSize( 6, 32767 );
+		    }
+		    b->addWidget( (QWidget *)o, 0 );
 		} else {
-		    f->setMinimumSize( 8, 0 );
-		    f->setMaximumSize( 8, 32767 );
-		    f->setFrameStyle( QFrame::VLine + QFrame::Sunken );
-		    fl = new QBoxLayout( QBoxLayout::Down );
+		    if ( orientation() == Vertical ) {
+			f->setMinimumSize( 0, 8 );
+			f->setMaximumSize( 32767, 8 );
+			f->setFrameStyle( QFrame::HLine + QFrame::Sunken );
+			fl = new QBoxLayout( QBoxLayout::LeftToRight );
+		    } else {
+			f->setMinimumSize( 8, 0 );
+			f->setMaximumSize( 8, 32767 );
+			f->setFrameStyle( QFrame::VLine + QFrame::Sunken );
+			fl = new QBoxLayout( QBoxLayout::Down );
+		    }
+		    b->addLayout( fl );
+		    fl->addSpacing( 1 );
+		    fl->addWidget( (QWidget *)o, 1 );
+		    fl->addSpacing( 1 );
 		}
-		b->addLayout( fl );
-		fl->addSpacing( 1 );
-		fl->addWidget( (QWidget *)o, 1 );
-		fl->addSpacing( 1 );
 	    } else {
 		b->addWidget( (QWidget *)o, 0 );
 	    }
@@ -153,16 +169,18 @@ void QToolBar::setUpGM()
 
 void QToolBar::paintEvent( QPaintEvent * )
 {
-    if ( style() != WindowsStyle )
-	return;
-
     QPainter p( this );
-    qDrawShadePanel( &p, 0, 0, width(), height(),
-		     colorGroup(), FALSE, 1, 0 );
-    if ( orientation() == Vertical )
-        qDrawShadePanel( &p, 3, 3, width() - 6, 3,
+    if ( style() == MotifStyle ) {
+	qDrawShadePanel( &p, 0, 0, width(), height(),
 			 colorGroup(), FALSE, 1, 0 );
-    else
-        qDrawShadePanel( &p, 3, 3, 3, height() - 6,
+    } else {
+	qDrawShadePanel( &p, 0, 0, width(), height(),
 			 colorGroup(), FALSE, 1, 0 );
+	if ( orientation() == Vertical )
+	    qDrawShadePanel( &p, 3, 3, width() - 6, 3,
+			     colorGroup(), FALSE, 1, 0 );
+	else
+	    qDrawShadePanel( &p, 3, 3, 3, height() - 6,
+			     colorGroup(), FALSE, 1, 0 );
+    }
 }

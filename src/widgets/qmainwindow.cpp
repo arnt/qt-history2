@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmainwindow.cpp#4 $
+** $Id: //depot/qt/main/src/widgets/qmainwindow.cpp#5 $
 **
 ** Implementation of something useful.
 **
@@ -17,13 +17,15 @@
 #include "qlayout.h"
 #include "qobjcoll.h"
 
+#include "qpainter.h"
+
 #include "qmenubar.h"
 #include "qtoolbar.h"
 #include "qstatusbar.h"
 
 #include "qtooltip.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qmainwindow.cpp#4 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qmainwindow.cpp#5 $");
 
 
 class QMainWindowPrivate {
@@ -373,7 +375,8 @@ static void addToolBarToLayout( QMainWindowPrivate::ToolBarDock * dock,
 				QBoxLayout * tl,
 				QBoxLayout::Direction direction,
 				QBoxLayout::Direction dockDirection,
-				bool mayNeedDockLayout )
+				bool mayNeedDockLayout,
+				GUIStyle style )
 {
     bool moreThanOneRow = FALSE;
     if ( !dock || dock->isEmpty() )
@@ -398,13 +401,26 @@ static void addToolBarToLayout( QMainWindowPrivate::ToolBarDock * dock,
     QMainWindowPrivate::ToolBar * t = dock->first();
     do {
 	if ( !toolBarRowLayout || t->nl ) {
-	    if ( toolBarRowLayout )
+	    if ( toolBarRowLayout ) {
 		toolBarRowLayout->addStretch( 1 );
+		if ( style == MotifStyle )
+		    toolBarRowLayout->addSpacing( 2 );
+	    }
 	    toolBarRowLayout = new QBoxLayout( direction );
+	    if ( style == MotifStyle )
+		dockLayout->addSpacing( 2 );
 	    dockLayout->addLayout( toolBarRowLayout, 0 );
 	}
+	if ( style == MotifStyle )
+	    toolBarRowLayout->addSpacing( 2 );
 	toolBarRowLayout->addWidget( t->t, 0 );
     } while ( (t=dock->next()) != 0 );
+
+    if ( style == MotifStyle ) {
+	dockLayout->addSpacing( 2 );
+	toolBarRowLayout->addSpacing( 2 );
+    }
+    
     toolBarRowLayout->addStretch( 1 );
 }
 
@@ -420,20 +436,26 @@ void QMainWindow::setUpLayout()
     delete d->tll;
     d->tll = new QBoxLayout( this, QBoxLayout::Down );
     d->tll->setMenuBar( menuBar() );
+    if ( style() == WindowsStyle )
+	d->tll->addSpacing( 1 );
     addToolBarToLayout( d->top, d->tll,
-			QBoxLayout::LeftToRight, QBoxLayout::Down, FALSE );
+			QBoxLayout::LeftToRight, QBoxLayout::Down, FALSE,
+			style() );
     QBoxLayout * mwl = new QBoxLayout( QBoxLayout::LeftToRight );
     d->tll->addLayout( mwl, 1 );
     addToolBarToLayout( d->left, mwl,
-			QBoxLayout::Down, QBoxLayout::LeftToRight, FALSE );
+			QBoxLayout::Down, QBoxLayout::LeftToRight, FALSE,
+			style() );
     if ( centralWidget() )
 	mwl->addWidget( centralWidget(), 1 );
     else
 	mwl->addStretch( 1 );
     addToolBarToLayout( d->right, mwl,
-			QBoxLayout::Down, QBoxLayout::LeftToRight, TRUE );
+			QBoxLayout::Down, QBoxLayout::LeftToRight, TRUE,
+			style() );
     addToolBarToLayout( d->bottom, d->tll,
-			QBoxLayout::LeftToRight, QBoxLayout::Up, TRUE );
+			QBoxLayout::LeftToRight, QBoxLayout::Up, TRUE,
+			style() );
     d->tll->addWidget( statusBar(), 0 );
     d->tll->activate();
 }
@@ -493,4 +515,17 @@ void QMainWindow::setUsesBigPixmaps( bool enable )
 bool QMainWindow::usesBigPixmaps() const
 {
     return d->ubp;
+}
+
+
+/*! \reimp */
+
+void QMainWindow::paintEvent( QPaintEvent * )
+{
+    if ( style() == WindowsStyle ) {
+	QPainter p( this );
+	int y = menuBar()->height();
+	p.setPen( colorGroup().dark() );
+	p.drawLine( 0, y, width()-1, y );
+    }
 }

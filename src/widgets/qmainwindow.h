@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmainwindow.h#2 $
+** $Id: //depot/qt/main/src/widgets/qmainwindow.h#3 $
 **
 ** Definition of something or other
 **
@@ -58,6 +58,9 @@ public slots:
 
 protected slots:
     void setUpLayout();
+    
+protected:
+    void paintEvent( QPaintEvent * );
 
 signals:
     void internalUseBigPixmaps( bool );

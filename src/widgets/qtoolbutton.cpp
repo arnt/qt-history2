@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtoolbutton.cpp#8 $
+** $Id: //depot/qt/main/src/widgets/qtoolbutton.cpp#9 $
 **
 ** Implementation of something useful.
 **
@@ -21,7 +21,7 @@
 #include "qimage.h"
 
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qtoolbutton.cpp#8 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qtoolbutton.cpp#9 $");
 
 
 static QToolButton * threeDeeButton = 0;
@@ -327,16 +327,21 @@ void QToolButton::toggle()
 
 void QToolButton::drawButton( QPainter * p )
 {
-    // ### must do something about motif style
     if ( uses3D() || isOn() ) {
 	QPointArray a;
 	a.setPoints( 3, 0, height()-1, 0, 0, width()-1, 0 );
 	if ( isOn() && !isDown() && !uses3D() ) {
-	    p->setBrush( QBrush(white,Dense4Pattern) );
-	    p->setPen( NoPen );
-	    p->setBackgroundMode( OpaqueMode );
-	    p->drawRect( 0,0, width(),height() );
-	    p->setBackgroundMode( TransparentMode );
+	    if ( style() == WindowsStyle ) {
+		p->setBrush( QBrush(white,Dense4Pattern) );
+		p->setPen( NoPen );
+		p->setBackgroundMode( OpaqueMode );
+		p->drawRect( 0,0, width(),height() );
+		p->setBackgroundMode( TransparentMode );
+	    } else {
+		p->setBrush( colorGroup().mid() );
+		p->setPen( NoPen );
+		p->drawRect( 0,0, width(),height() );
+	    }
 	}
 	p->setPen( isDown() || isOn()
 		   ? colorGroup().dark()
