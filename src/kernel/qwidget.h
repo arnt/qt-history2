@@ -193,7 +193,7 @@ public:
 			  PaletteMidlight, PaletteDark, PaletteMid,
 			  PaletteText, PaletteBrightText, PaletteBase,
 			  PaletteBackground, PaletteShadow, PaletteHighlight,
-			  PaletteHighlightedText };
+			  PaletteHighlightedText, PaletteButtonText };
 
     BackgroundMode	backgroundMode() const;
     virtual void	setBackgroundMode( BackgroundMode );

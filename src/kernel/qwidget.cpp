@@ -1815,6 +1815,9 @@ void QWidget::setBackgroundFromMode()
 	case PaletteHighlightedText:
 	    r = QColorGroup::HighlightedText;
 	    break;
+	case PaletteButtonText:
+	    r = QColorGroup::ButtonText;
+	    break;
 	}
     }
     QPixmap * p = palette().active().brush( r ).pixmap();
