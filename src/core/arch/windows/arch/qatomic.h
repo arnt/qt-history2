@@ -16,7 +16,7 @@
 
 #include <QtCore/qglobal.h>
 
-#ifndef Q_CC_GNU
+#if !defined(Q_CC_GNU) && !defined(Q_CC_BOR) 
 
 // MSVC++ 6.0 doesn't generate correct code when optimization are turned on!
 #if _MSC_VER < 1300 && defined (_M_IX86)
@@ -145,19 +145,13 @@ extern "C" {
     __declspec(dllimport) long __stdcall InterlockedExchange(long *, long);
 }
 
-#ifndef InterlockedCompareExchangePointer
-#define InterlockedCompareExchangePointer(a,b,c) \
-        reinterpret_cast<void *>(InterlockedCompareExchange(reinterpret_cast<long *>(a), reinterpret_cast<long>(b), reinterpret_cast<long>(c)))
-#endif
-#ifndef InterlockedExchangePointer
-#define InterlockedExchangePointer(a, b) \
-        reinterpret_cast<void *>(InterlockedExchange(reinterpret_cast<long *>(a), reinterpret_cast<long>(b)))
-#endif
 inline int q_atomic_test_and_set_int(volatile int *ptr, int expected, int newval)
 { return InterlockedCompareExchange(reinterpret_cast<long *>(const_cast<int *>(ptr)), newval, expected) == expected; }
 
 inline int q_atomic_test_and_set_ptr(volatile void *ptr, void *expected, void *newval)
-{ return InterlockedCompareExchangePointer(reinterpret_cast<void **>(const_cast<void *>(ptr)), newval, expected) == expected; }
+{ return InterlockedCompareExchange(reinterpret_cast<long *>(const_cast<void *>(ptr)),
+                                    reinterpret_cast<long>(newval),
+                                    reinterpret_cast<long>(expected)) == reinterpret_cast<long>(expected); }
 
 inline int q_atomic_increment(volatile int *ptr)
 { return InterlockedIncrement(reinterpret_cast<long *>(const_cast<int *>(ptr))); }
@@ -169,7 +163,8 @@ inline int q_atomic_set_int(volatile int *ptr, int newval)
 { return InterlockedExchange(reinterpret_cast<long *>(const_cast<int *>(ptr)), newval); }
 
 inline void *q_atomic_set_ptr(volatile void *ptr, void *newval)
-{ return InterlockedExchangePointer(reinterpret_cast<void **>(const_cast<void *>(ptr)), newval); }
+{ return reinterpret_cast<void *>(InterlockedExchange(reinterpret_cast<long *>(const_cast<void *>(ptr)),
+                                  reinterpret_cast<long>(newval))); }
 
 #endif // Q_CC_GNU
 
