@@ -91,26 +91,16 @@ QAxSelect::QAxSelect(QWidget *parent, Qt::WFlags f)
     connect(buttonCancel, SIGNAL(clicked()), this, SLOT(reject()));
 }
 
-void QAxSelect::on_ActiveXList_clicked(const QModelIndex& index, Qt::MouseButton button, Qt::KeyboardModifiers modifiers)
+void QAxSelect::on_ActiveXList_clicked(const QModelIndex &index)
 {
-    if (button != Qt::LeftButton)
-        return;
-
     QVariant clsid = ActiveXList->model()->data(index, ControlList::UserRole);
     ActiveX->setText(clsid.toString());
-
-    Q_UNUSED(modifiers);
 }
 
-void QAxSelect::on_ActiveXList_doubleClicked(const QModelIndex& index, Qt::MouseButton button, Qt::KeyboardModifiers modifiers)
+void QAxSelect::on_ActiveXList_doubleClicked(const QModelIndex &index)
 {
-    if (button != Qt::LeftButton)
-        return;
-
     QVariant clsid = ActiveXList->model()->data(index, ControlList::UserRole);
     ActiveX->setText(clsid.toString());
-
-    Q_UNUSED(modifiers);
 
     accept();
 }
