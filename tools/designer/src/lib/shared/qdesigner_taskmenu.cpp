@@ -18,6 +18,8 @@
 #include "promotetocustomwidgetdialog.h"
 #include "widgetfactory.h"
 #include "widgetdatabase.h"
+#include "qlayout_widget.h"
+#include "spacer_widget.h"
 
 #include <abstractformeditor.h>
 #include <abstractformwindow.h>
@@ -140,13 +142,18 @@ QDesignerTaskMenuFactory::QDesignerTaskMenuFactory(QExtensionManager *extensionM
 
 QObject *QDesignerTaskMenuFactory::createExtension(QObject *object, const QString &iid, QObject *parent) const
 {
-    if (QWidget *widget = qobject_cast<QWidget*>(object)) {
-        if (iid == Q_TYPEID(ITaskMenu)) {
-            return new QDesignerTaskMenu(widget, parent);
-        }
-    }
+    if (iid != Q_TYPEID(ITaskMenu))
+        return 0;
 
-    return 0;
+    QWidget *widget = qobject_cast<QWidget*>(object);
+    if (widget == 0)
+        return 0;
+
+    // check if is an internal widget (### generalize)
+    if (qobject_cast<QLayoutWidget*>(widget) || qobject_cast<Spacer*>(widget))
+        return 0;
+
+    return new QDesignerTaskMenu(widget, parent);
 }
 
 void QDesignerTaskMenu::promoteToCustomWidget()
