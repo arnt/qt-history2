@@ -13,10 +13,13 @@ CONFIG		+= builder
 #unix:LIBS	+= -laudio -lXt
 
 # Uncomment the next line if you want to use jpeglib
+#
+# Install jpegsrc.v6b.tar.gz (find with http://ftpsearch.lycos.com)
+#
 unix:DEFINES += QT_JPEG_SUPPORT
 unix:LIBS	+= -ljpeg
-#win32:DEFINES += QT_JPEG_SUPPORT
-#win32:LIBS	+= jpeg.lib
+win32:DEFINES += QT_JPEG_SUPPORT
+win32:LIBS	+= libjpeg.lib
 
 # Uncomment the next line if you want to use the standard png/zlib libs
 # unix:LIBS	+= -lpng -lz
