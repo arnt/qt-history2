@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#477 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#478 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -142,9 +142,7 @@ static QWidget *popupButtonFocus   = 0;
 static bool	popupCloseDownMode = FALSE;
 static bool	qt_try_modal( QWidget *, MSG *, int& ret );
 
-#if defined (QT_THREAD_SUPPORT)
 static unsigned long qt_gui_thread = 0;
-#endif
 
 QWidget	       *qt_button_down = 0;		// widget got last button-down
 
@@ -1259,8 +1257,8 @@ int QApplication::exec()
 {
     quit_now = FALSE;
     quit_code = 0;
-#if defined(QT_THREAD_SUPPORT)
     qt_gui_thread = GetCurrentThreadId();
+#if defined(QT_THREAD_SUPPORT)    
     if (qt_is_gui_used)
 	qApp->unlock();
 #endif
@@ -1401,11 +1399,7 @@ bool QApplication::hasPendingEvents()
 
 void QApplication::wakeUpGuiThread()
 {
-#if defined(QT_THREAD_SUPPORT)
-    PostThreadMessage( qt_gui_thread, WM_USER+666, 0, 0 );
-#else
-    winPostMessage( mainWidget()->winId(), WM_USER+666, 0, 0 );
-#endif
+    PostThreadMessage( qt_gui_thread, WM_NULL, 0, 0 );
 }
 
 bool QApplication::winEventFilter( MSG * )	// Windows event filter
