@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap.cpp#26 $
+** $Id: //depot/qt/main/src/kernel/qpixmap.cpp#27 $
 **
 ** Implementation of QPixmap class
 **
@@ -15,7 +15,7 @@
 #include "qdstream.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpixmap.cpp#26 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpixmap.cpp#27 $";
 #endif
 
 
@@ -23,9 +23,9 @@ static char ident[] = "$Id: //depot/qt/main/src/kernel/qpixmap.cpp#26 $";
   \class QPixmap qpixmap.h
   \brief The QPixmap class is an off-screen buffer paint device.
 
-  A standard use of the QPixmap class is to enable smooth updating of widgets.
-  Whenever something complex needs to be drawn, you can use a pixmap to
-  obtain flicker-free drawing.
+  A common use of the QPixmap class is to enable smooth updating of
+  widgets.  Whenever something complex needs to be drawn, you can use
+  a pixmap to obtain flicker-free drawing.
 
   <ol plain>
   <li> Create a pixmap with the same size as the widget.
@@ -60,10 +60,15 @@ static char ident[] = "$Id: //depot/qt/main/src/kernel/qpixmap.cpp#26 $";
   A pixmap can be converted to a QImage to get direct access to the pixels.
   A QImage can also be converted back to a pixmap.
 
-  QPixmap objects make use of implicit sharing.
+  The QPixmap class is optimized by the use of implicit sharing, so it
+  is quite practical to pass QPixmap objects as arguments.
 
-  \sa QBitmap, QImage, QImageIO, QPaintDevice
-*/
+  On the other hand, some window system operations can be slow (for
+  example pixmap construction, resizing and destruction when the user
+  is on a remote X terminal).  We have not investigated this
+  thoroughly yet.
+
+  \sa QBitmap, QImage, QImageIO, QPaintDevice */
 
 
 /*!
@@ -117,8 +122,11 @@ QPixmap &QPixmap::operator=( const QImage &image )
 
   A null pixmap has zero width, zero height and no contents.
   You cannot draw in a null pixmap or bitBlt() anything to it.
-  \sa isNull()
-*/
+
+  Resizing an existing pixmap to (0,0) makes a pixmap into a null
+  pixmap.
+
+  \sa resize() */
 
 /*!
   \fn int QPixmap::width() const
@@ -146,7 +154,7 @@ QPixmap &QPixmap::operator=( const QImage &image )
 
 /*!
   \fn int QPixmap::depth() const
-  Returns the depth of the image. <br>
+  Returns the depth of the image.
   The pixmap depth is also called bits per pixel (bpp) or bit planes
   of a pixmap.
   \sa numColors()
@@ -154,24 +162,29 @@ QPixmap &QPixmap::operator=( const QImage &image )
 
 /*!
   \fn int QPixmap::numColors() const
-  Returns the maximum number of colors that can be used for the pixmap.<br>
+  Returns the maximum number of colors that can be used for the pixmap.
   Equivalent to 2^depth().
 */
 
 
-/*!
-  \fn void QPixmap::resize( const QSize &size )
-  Overloaded resize(); takes a QSize parameter instead of \e (w,h).
-*/
+/*! \overload void QPixmap::resize( const QSize &size ) */
 
-/*!
-  Resizes the pixmap to \e w width and \e h height. <br>
-  New pixels will be uninitialized (random) if the pixmap is expanded. <br>
-  A valid pixmap will be created if this is a null pixmap. <br>
-*/
+/*!  Resizes the pixmap to \e w width and \e h height.  If either \e w
+  or \e h is less than 1, the pixmap becomes a null pixmap.
+
+  If both \e w and \e h are greater than 0, a valid pixmap will be
+  created.  New pixels will be uninitialized (random) if the pixmap is
+  expanded. */
 
 void QPixmap::resize( int w, int h )
 {
+    if ( w<1 || h<1 ){				// will become null?
+	QPixmap pm;
+	pm.data->bitmap = data->bitmap;		// voodoo
+	*this = pm;
+	return;
+    }
+
     int d;
     if ( depth() > 0 )
 	d = depth();
@@ -229,10 +242,10 @@ bool qt_image_did_turn_scanlines()
   using the specified format.  If \e format is not specified (default),
   the loader reads a few bytes from the header to guess the file format.
 
-  The QImageIO documentation lists the supported image formats.
+  The QImageIO documentation lists the supported image formats and
+  explains how to add extra formats.
 
-  \sa save(), imageFormat()
-*/
+  \sa save(), imageFormat() */
 
 bool QPixmap::load( const char *fileName, const char *format )
 {
