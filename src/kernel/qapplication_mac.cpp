@@ -78,6 +78,7 @@
 /*****************************************************************************
   QApplication debug facilities
  *****************************************************************************/
+//#define DEBUG_EVENTS
 //#define DEBUG_KEY_MAPS
 //#define DEBUG_MOUSE_MAPS
 //#define DEBUG_MODAL_EVENTS
@@ -1169,7 +1170,7 @@ QMAC_PASCAL OSStatus
 QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void *data)
 {
     QApplication *app = (QApplication *)data;
-    if (app->macEventFilter(event)) //someone else ate it
+    if (app->macEventFilter(er, event)) //someone else ate it
 	return noErr;
     QWidget *widget = NULL;
 
@@ -1943,7 +1944,10 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 		MenuRef mr;
 		GetEventParameter(event, kEventParamDirectObject, typeMenuRef,
 				  NULL, sizeof(mr), NULL, &mr);
-		QMenuBar::macUpdatePopup(mr);
+		if(!QMenuBar::macUpdatePopup(mr))
+		    handled_event = FALSE;
+	    } else {
+		handled_event = FALSE;
 	    }
 	} else if(ekind == kEventMenuTargetItem) {
 	    MenuRef mr;
@@ -1952,7 +1956,8 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 	    MenuItemIndex idx;
 	    GetEventParameter(event, kEventParamMenuItemIndex, typeMenuItemIndex,
 			      NULL, sizeof(idx), NULL, &idx);
-	    QMenuBar::activate(mr, idx, TRUE);
+	    if(!QMenuBar::activate(mr, idx, TRUE)) 
+		handled_event = FALSE;
 	} else {
 	    handled_event = FALSE;
 	}
@@ -2017,7 +2022,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 		} else {
 #if !defined(QMAC_QMENUBAR_NO_NATIVE) //offer it to the menubar..
 		    bool by_accel = gotmod && keyc;
-		    if(!QMenuBar::activate(cmd.menu.menuRef, cmd.menu.menuItemIndex, FALSE, by_accel) && by_accel)
+		    if(!QMenuBar::activate(cmd.menu.menuRef, cmd.menu.menuItemIndex, FALSE, by_accel))
 #endif
 			handled_event = FALSE;
 		}
@@ -2047,8 +2052,13 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 	}
     }
 
+#ifdef DEBUG_EVENTS
+    qDebug("%shandled event %c%c%c%c %d", handled_event ? "(*) " : "",
+	   char(eclass >> 24), char((eclass >> 16) & 255), char((eclass >> 8) & 255), 
+	   char(eclass & 255), (int)ekind);
+#endif
     if(!handled_event) //let the event go through
-	return CallNextEventHandler(er, event);
+	return eventNotHandledErr;
     QuitApplicationEventLoop();
     return noErr; //we eat the event
 }
@@ -2063,7 +2073,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
   Return TRUE if you want to stop the event from being processed.
   Return FALSE for normal event dispatching.
 */
-bool QApplication::macEventFilter(EventRef)
+bool QApplication::macEventFilter(EventHandlerCallRef, EventRef)
 {
     return FALSE;
 }

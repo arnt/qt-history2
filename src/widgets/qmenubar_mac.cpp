@@ -604,7 +604,7 @@ void QMenuBar::cleanup()
     menubars = NULL;
 }
 
-void QMenuBar::macUpdateMenuBar()
+bool QMenuBar::macUpdateMenuBar()
 {
     static bool first = TRUE;
     if(!menubars) {
@@ -613,7 +613,7 @@ void QMenuBar::macUpdateMenuBar()
 	    ClearMenuBar();
 	    InvalMenuBar();
 	}
-	return;
+	return FALSE;
     }
     QWidget *w = qApp->activeWindow();
     if(!w) {
@@ -644,7 +644,7 @@ void QMenuBar::macUpdateMenuBar()
 	    mb = fallbackMenuBar;
   	if(mb) {
 	    if(!mb->mac_eaten_menubar || (!first && !mb->mac_d->dirty && (mb == activeMenuBar))) 
-		return;
+		return mb->mac_eaten_menubar;
 	    first = FALSE;
 	    activeMenuBar = mb;
 	    if(mb->mac_d->dirty || !mb->mac_d->mac_menubar) {
@@ -655,6 +655,7 @@ void QMenuBar::macUpdateMenuBar()
 		SetMenuBar(mb->mac_d->mac_menubar);
 		InvalMenuBar();
 	    }
+	    return TRUE;
 	} else {
 	    if(first || !w || 
 		(!w->testWFlags(WStyle_Tool) && !w->testWFlags(WType_Popup))) {
@@ -665,12 +666,13 @@ void QMenuBar::macUpdateMenuBar()
 	    }
 	}
     }
+    return FALSE;
 }
 
-void QMenuBar::macUpdatePopup(MenuRef mr)
+bool QMenuBar::macUpdatePopup(MenuRef mr)
 {
     if(!mr || !activeMenuBar)
-	return;
+	return FALSE;
 
     int mid = GetMenuID( mr );
     if(MacPrivate::PopupBinding *mpb = activeMenuBar->mac_d->popups->find(mid)) {
@@ -680,9 +682,11 @@ void QMenuBar::macUpdatePopup(MenuRef mr)
 		mpb->qpopup->mac_dirty_popup = 0;
 		DeleteMenuItems(mr, 1, CountMenuItems(mr));
 		activeMenuBar->syncPopups(mr, mpb->qpopup);
+		return TRUE;
 	    }
 	}
     }
+    return FALSE;
 }
 
 void QMenuBar::macWidgetChangedWindow()

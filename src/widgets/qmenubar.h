@@ -180,8 +180,8 @@ private:
     MacPrivate *mac_d;
     static bool activate(MenuRef, short, bool highlight=FALSE, bool by_accel=FALSE);
     static bool activateCommand(uint cmd);
-    static void macUpdateMenuBar();
-    static void macUpdatePopup(MenuRef);
+    static bool macUpdateMenuBar();
+    static bool macUpdatePopup(MenuRef);
 #endif
 
 private:	// Disabled copy constructor and operator=
