@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.cpp#191 $
+** $Id: //depot/qt/main/src/kernel/qimage.cpp#192 $
 **
 ** Implementation of QImage and QImageIO classes
 **
@@ -21,7 +21,6 @@
 **
 *****************************************************************************/
 
-#define	 QIMAGE_C
 #include "qimage.h"
 #include "qregexp.h"
 #include "qfile.h"
@@ -34,6 +33,7 @@
 #include "qasyncimageio.h"
 #include <stdlib.h>
 #include <ctype.h>
+
 
 /*!
   \class QImage qimage.h
@@ -437,8 +437,9 @@ QImage QImage::copy(int x, int y, int w, int h, int conversion_flags) const
   This is equivalent to numBytes()/height().
 */
 
-
 /*!
+  \fn QRgb QImage::color( int i ) const
+
   Returns the color in the color table at index \e i.
 
   A color value is an RGB triplet. Use the QRED, QGREEN and QBLUE functions
@@ -447,16 +448,9 @@ QImage QImage::copy(int x, int y, int w, int h, int conversion_flags) const
   \sa setColor(), QColor
 */
 
-QRgb QImage::color( int i ) const
-{
-#if defined(CHECK_RANGE)
-    if ( i >= data->ncols )
-	warning( "QImage::color: Index %d out of range", i );
-#endif
-    return data->ctbl ? data->ctbl[i] : (QRgb)-1;
-}
-
 /*!
+  \fn void QImage::setColor( int i, QRgb c )
+
   Sets a color in the color table at index \e i to \e c.
 
   A color value is an RGB triplet.  Use the qRgb function (defined in qcolor.h)
@@ -465,17 +459,9 @@ QRgb QImage::color( int i ) const
   \sa color()
 */
 
-void QImage::setColor( int i, QRgb c )
-{
-#if defined(CHECK_RANGE)
-    if ( i >= data->ncols )
-	warning( "QImage::setColor: Index %d out of range", i );
-#endif
-    if ( data->ctbl )
-	data->ctbl[i] = c;
-}
-
 /*!
+  \fn uchar *QImage::scanLine( int i ) const
+
   Returns a pointer to the pixel data at the \e i'th scanline.
 
   The scanline data is aligned on a 32-bit boundary.
@@ -490,20 +476,19 @@ void QImage::setColor( int i, QRgb c )
   \sa bits()
 */
 
-uchar *QImage::scanLine( int i ) const
-{
-#if defined(CHECK_RANGE)
-    if ( i >= data->h )
-	warning( "QImage::scanLine: Index %d out of range", i );
-#endif
-    return data->bits ? data->bits[i] : 0;
-}
-
 /*!
   \fn uchar *QImage::bits() const
   Returns a pointer to the first pixel data. Equivalent to scanLine(0).
   \sa scanLine()
 */
+
+
+void QImage::warningIndexRange( const char *func, int i )
+{
+#if defined(DEBUG)
+    warning( "QImage::%s: Index %d out of range", func, i );
+#endif
+}
 
 
 /*!
