@@ -79,11 +79,13 @@ static QList<QHostAddress*> *ns = 0;
 static QList<QByteArray> *domains = 0;
 static bool ipv6support = FALSE;
 
-static int my_res_init()
+static int qdns_res_init()
 {
 #ifdef Q_OS_MAC
     typedef int (*PtrRes_init)();
-    PtrRes_init ptrRes_init = (PtrRes_init)dlsym(RTLD_NEXT, "res_init");
+    static PtrRes_init ptrRes_init = 0;
+    if (!ptrRes_init)
+	ptrRes_init = (PtrRes_init)dlsym(RTLD_NEXT, "res_init");
     if (ptrRes_init)
 	return (*ptrRes_init)();
     else
@@ -2517,7 +2519,7 @@ void QDns::doResInit()
 	if ( *res.defdname )
 	    domains->append( QString::fromLatin1( res.defdname ).toLower().latin1() );
 #else
-	my_res_init();
+	qdns_res_init();
 	int i;
 	// find the name servers to use
 	for( i=0; i < MAXNS && i < _res.nscount; i++ )

@@ -22,5 +22,4 @@ network {
 	unix:NETWORK_SOURCES += $$NETWORK_CPP/qsocketdevice_unix.cpp
 	win32:NETWORK_SOURCES += $$NETWORK_CPP/qsocketdevice_win.cpp
 	SOURCES    += $$NETWORK_SOURCES
-	mac:exists(/usr/lib/libresolv.dylib):LIBS += -lresolv
 }
