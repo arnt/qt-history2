@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#95 $
+** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#96 $
 **
 ** Implementation of QMenuBar class
 **
@@ -17,7 +17,7 @@
 #include "qapp.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qmenubar.cpp#95 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qmenubar.cpp#96 $");
 
 
 /*!
@@ -774,6 +774,7 @@ void QMenuBar::mousePressEvent( QMouseEvent *e )
 	    openActPopup();
 	}
     } else {
+	setActItem( item, FALSE );
 	hidePopups();
     }
 }
