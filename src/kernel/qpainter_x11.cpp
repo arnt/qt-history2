@@ -2178,13 +2178,6 @@ void QPainter::drawPolygon( const QPointArray &a, bool winding,
 	XFillPolygon( dpy, hd, gc_brush,
 		      (XPoint*)(pa.shortPoints( index, npoints )),
 		      npoints, Complex, CoordModeOrigin );
-	if ( cpen.style() == NoPen ) {		// draw fake outline
-	    XDrawLines( dpy, hd, gc_brush,
-			(XPoint*)(pa.shortPoints( index, npoints )),
-			npoints, CoordModeOrigin );
-	    if ( !closed )
-		XDrawLine( dpy, hd, gc_brush, x1, y1, x2, y2 );
-	}
     }
     if ( cpen.style() != NoPen ) {		// draw outline
 	XDrawLines( dpy, hd, gc, (XPoint*)(pa.shortPoints( index, npoints )),
