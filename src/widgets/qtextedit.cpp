@@ -4281,7 +4281,10 @@ void QTextEdit::selectAll( bool select )
 {
 #ifdef QT_TEXTEDIT_OPTIMIZATION
     if ( d->optimMode ) {
-	optimSelectAll();
+	if ( select )
+	    optimSelectAll();
+	else
+	    optimRemoveSelection();
 	return;
     }
 #endif
@@ -6844,6 +6847,7 @@ void QTextEdit::optimRemoveSelection()
 {
     d->od->selStart.line = d->od->selEnd.line = -1;
     d->od->selStart.index = d->od->selEnd.index = -1;
+    repaintContents( FALSE );
 }
 
 /*! \internal */
