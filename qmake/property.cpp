@@ -33,8 +33,10 @@ QMakeProperty::~QMakeProperty()
 
 void QMakeProperty::initSettings()
 {
-    if(!settings)
+    if(!settings) {
         settings = new QCoreSettings(Qt::UserScope, "Trolltech", "QMake");
+        settings->setFallbacksEnabled(false);
+    }
 }
 
 QString

@@ -1876,6 +1876,7 @@ QCoreSettings::QCoreSettings(const QString &organization, const QString &applica
                                          QCoreSettingsPrivate::variantToStringCoreImpl, 
                                          QCoreSettingsPrivate::stringToVariantCoreImpl))
 {
+    d_ptr->q_ptr = this;
 }
 
 QCoreSettings::QCoreSettings(Qt::SettingsScope scope, const QString &organization,
@@ -1884,6 +1885,7 @@ QCoreSettings::QCoreSettings(Qt::SettingsScope scope, const QString &organizatio
                                          QCoreSettingsPrivate::variantToStringCoreImpl, 
                                          QCoreSettingsPrivate::stringToVariantCoreImpl))
 {
+    d_ptr->q_ptr = this;
 }
 
 QCoreSettings::QCoreSettings(Qt::SettingsFormat format, Qt::SettingsScope scope,
@@ -1892,6 +1894,7 @@ QCoreSettings::QCoreSettings(Qt::SettingsFormat format, Qt::SettingsScope scope,
                                          QCoreSettingsPrivate::variantToStringCoreImpl, 
                                          QCoreSettingsPrivate::stringToVariantCoreImpl))
 {
+    d_ptr->q_ptr = this;
 }
 
 QCoreSettings::QCoreSettings(const QString &fileName, Qt::SettingsFormat format)
@@ -1899,6 +1902,7 @@ QCoreSettings::QCoreSettings(const QString &fileName, Qt::SettingsFormat format)
                                          QCoreSettingsPrivate::variantToStringCoreImpl, 
                                          QCoreSettingsPrivate::stringToVariantCoreImpl))
 {
+    d_ptr->q_ptr = this;
 }
 #endif
 
