@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfontdialog.cpp#21 $
+** $Id: //depot/qt/main/src/dialogs/qfontdialog.cpp#22 $
 **
 ** Implementation of QFontDialog
 **
@@ -107,10 +107,10 @@ struct QFontDialogPrivate
   Work around bugs in layout.
  */
 
-class ExpandingLineEdit : public QLineEdit
+class QExpandingLineEdit : public QLineEdit
 {
 public:
-    ExpandingLineEdit( QWidget *parent, const char *name=0, bool fixedHeight )
+    QExpandingLineEdit( QWidget *parent, const char *name, bool fixedHeight )
 	: QLineEdit( parent, name ) { f = fixedHeight; }
     QSizePolicy sizePolicy() const
     {
@@ -125,10 +125,10 @@ public:
     bool f;
 };
 
-class ExpandingComboBox : public QComboBox
+class QExpandingComboBox : public QComboBox
 {
 public:
-    ExpandingComboBox( bool b, QWidget *parent, const char *name=0 )
+    QExpandingComboBox( bool b, QWidget *parent, const char *name=0 )
 	: QComboBox( b, parent, name ) {}
     QSizePolicy sizePolicy() const
 	{
@@ -147,7 +147,7 @@ QFontDialog::QFontDialog( QWidget *parent, const char *name,
 {
     d = new QFontDialogPrivate;
     // grid
-    d->familyEdit = new ExpandingLineEdit( this, "font family I", TRUE );
+    d->familyEdit = new QExpandingLineEdit( this, "font family I", TRUE );
     d->familyEdit->setFocusPolicy( StrongFocus );
     d->familyList = new QListBox( this, "font family II" );
     d->familyList->setFocusPolicy( NoFocus );
@@ -158,7 +158,7 @@ QFontDialog::QFontDialog( QWidget *parent, const char *name,
 	= new QLabel( d->familyEdit, "&Font", this, "family accelerator" );
     d->familyAccel->setMargin( 2 );
 
-    d->styleEdit = new ExpandingLineEdit( this, "font style I", TRUE );
+    d->styleEdit = new QExpandingLineEdit( this, "font style I", TRUE );
     d->styleEdit->setFocusPolicy( StrongFocus );
     d->styleList = new QListBox( this, "font style II" );
     d->styleList->setFocusPolicy( NoFocus );
@@ -168,7 +168,7 @@ QFontDialog::QFontDialog( QWidget *parent, const char *name,
 	= new QLabel( d->styleEdit, "Font st&yle", this, "style accelerator" );
     d->styleAccel->setMargin( 2 );
 
-    d->sizeEdit = new ExpandingLineEdit( this, "font size I", TRUE );
+    d->sizeEdit = new QExpandingLineEdit( this, "font size I", TRUE );
     d->sizeEdit->setFocusPolicy( StrongFocus );
     d->sizeList = new QListBox( this, "font size II" );
     d->sizeList->setFocusPolicy( NoFocus );
@@ -206,9 +206,9 @@ QFontDialog::QFontDialog( QWidget *parent, const char *name,
 
     d->sample = new QGroupBox( sampleStuff, "sample text" );
     d->sample->setTitle( "Sample" );
-    d->sampleEdit = new ExpandingLineEdit( d->sample, "r/w sample text", FALSE );
+    d->sampleEdit = new QExpandingLineEdit( d->sample, "r/w sample text", FALSE );
     d->sampleEdit->setText( "AaBbYyZz" );
-    d->scriptCombo = new ExpandingComboBox( TRUE, sampleStuff, "font encoding" );
+    d->scriptCombo = new QExpandingComboBox( TRUE, sampleStuff, "font encoding" );
     d->scriptCombo->setFocusPolicy( StrongFocus );
     d->scriptAccel
 	= new QLabel( d->scriptCombo, "Scr&ipt", sampleStuff,"encoding label");
