@@ -1,9 +1,11 @@
 // Remaining _WS_X11_ considerations:
-//   - Strange after-shutdown crash
 //   - What if !piApp upon NPP_NewStream?  Are we safe?
 //      - Yes, but users need to know of this:  that no GUI can be
 //         done until after setWindow is called.
 //   - Use NPN_GetValue in Communicator4.0 to get the display earlier!
+//   - For ClientMessage events, trap them, and if they are not for us,
+//	untrap them and retransmit them and set a timer to retrap them
+//	after N seconds.
 
 // Remaining _WS_WIN_ considerations:
 //   - we need to activateZeroTimers() at some time.
@@ -625,12 +627,14 @@ NPP_New(NPMIMEType /*pluginType*/,
     qNP->newInstance();
     instance_count++;
 
+#ifdef _WS_WIN_
     if (strstr(This->instance->userAgent(), "Mozilla/3.")) {
 	// ### work-around for browser inconsistency
 	const char* src = This->instance->arg("SRC");
 	if (src)
 	    This->instance->getURL(src);
     }
+#endif
 
     return result;
 }
@@ -1366,11 +1370,14 @@ void QNPWidget::unsetWindow()
   <em>No GUI functionality</em> of Qt may be used until the first call
   to setWindow().  This includes any use of QPaintDevice (ie. QPixmap,
   QWidget, and all subclasses), QApplication, anything related to
-  QPainter (QBrush, etc.), fonts, QMovie, QToolTip, etc.  Classes which
-  specifically <em>can</em> be used are QImage, QFile, and QBuffer.
-  Since the task of a QNPInstance is to gather data, while the task of
-  the QNPWidget is to provide a graphical interface to that data, this
-  restriction should be benign.
+  QPainter (QBrush, etc.), fonts, QMovie, QToolTip, etc.  Useful
+  classes which specifically <em>can</em> be used are QImage, QFile,
+  and QBuffer.
+
+  By structuring your plugin so that
+  the task of the QNPInstance is to gather data, while
+  the task of the QNPWidget is to provide a graphical interface to that data,
+  this restriction can be easily accommodated.
 */
 
 /*!
