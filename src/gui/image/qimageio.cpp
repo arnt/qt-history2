@@ -218,17 +218,18 @@ class QImageHandler
 {
 public:
     QImageHandler(const char *f, const char *h, const QByteArray& fl,
-                   image_io_handler r, image_io_handler w);
+                  const QStringList &e, image_io_handler r, image_io_handler w);
     QByteArray              format;                        // image format
     QRegExp              header;                        // image header pattern
     enum TMode { Untranslated=0, TranslateIn, TranslateInOut } text_mode;
+    QStringList extensions;
     image_io_handler  read_image;                // image read function
     image_io_handler  write_image;                // image write function
     bool              obsolete;                        // support not "published"
 };
 
 QImageHandler::QImageHandler(const char *f, const char *h, const QByteArray& fl,
-                              image_io_handler r, image_io_handler w)
+                             const QStringList &e, image_io_handler r, image_io_handler w)
     : format(f), header(QString::fromLatin1(h))
 {
     text_mode = Untranslated;
@@ -237,6 +238,7 @@ QImageHandler::QImageHandler(const char *f, const char *h, const QByteArray& fl,
     else if (fl.contains('T'))
         text_mode = TranslateInOut;
     obsolete = fl.contains('O');
+    extensions = e;
     read_image        = r;
     write_image = w;
 }
@@ -332,6 +334,18 @@ static QImageHandler *get_image_handler(const char *format)
 }
 
 
+/*! 
+    \fn QImageIO::defineIOHandler(const char *format, const char *header, const char *flags, image_io_handler read_image, image_io_handler write_image);
+    \overload
+
+    This overload provides source compatibility by providing an
+    extensions as \a format to the overloaded defineIoHandler(). Thus
+    when a file is looked for with no extension an extension matching
+    the format will be searched.
+
+   \sa QImageIO::defineIOHandler()
+*/
+
 /*!
     Defines an image I/O handler for the image format called \a
     format, which is recognized using the \link qregexp.html#details
@@ -347,6 +361,9 @@ static QImageHandler *get_image_handler(const char *format)
 
     \a format is used to select a handler to write a QImage; \a header
     is used to select a handler to read an image file.
+
+    When a file is attempted to be loaded but is not found \a
+    extension is used as a suffix to try loading again. 
 
     If \a readImage is a null pointer, the QImageIO will not be able
     to read images in \a format. If \a writeImage is a null pointer,
@@ -386,15 +403,16 @@ static QImageHandler *get_image_handler(const char *format)
 */
 
 void QImageIO::defineIOHandler(const char *format,
-                                const char *header,
-                                const char *flags,
-                                image_io_handler readImage,
-                                image_io_handler writeImage)
+                               const char *header,
+                               const char *flags,
+                               const QStringList &extensions,
+                               image_io_handler readImage,
+                               image_io_handler writeImage)
 {
     qt_init_image_handlers();
     QImageHandler *p;
     p = new QImageHandler(format, header, QByteArray(flags),
-                           readImage, writeImage);
+                          extensions, readImage, writeImage);
     imageHandlers.insert(0, p);
 }
 
@@ -753,7 +771,10 @@ QList<QByteArray> QImageIO::outputFormats()
 
     Before reading an image you must set an IO device or a file name.
     If both an IO device and a file name have been set, the IO device
-    will be used.
+    will be used. If only the file name is set but does not appear to
+    exist the list of imageFormats() will be used to find suitable
+    extensions to create a filename that does exist (in order of
+    definition).
 
     Setting the image file format string is optional.
 
@@ -784,8 +805,25 @@ bool QImageIO::read()
         // ok, already open
     } else if (!fname.isEmpty()) {                // read from file
         file.setFileName(fname);
-        if (!file.open(IO_ReadOnly))
-            return false;                        // cannot open file
+        if (!file.open(IO_ReadOnly)) {            // cannot open file
+            if(frmt.isEmpty()) {                  //try some extensions
+                qt_init_image_handlers();
+                qt_init_image_plugins();
+                for (int i = 0; i < imageHandlers.size() && !file.isOpen(); ++i) {
+                    QImageHandler *p = imageHandlers.at(i);
+                    for(int ext = 0; ext < p->extensions.count(); ++ext) {
+                        QString attempt = fname + "." + p->extensions.at(ext);
+                        if(QFile::exists(attempt)) {
+                            file.setFileName(attempt);
+                            if(file.open(IO_ReadOnly))
+                                break;
+                        }
+                    }
+                }
+            }
+            if(!file.isOpen())
+                return false;                        
+        }
         iodev = &file;
     } else {                                        // no file name or io device
         return false;

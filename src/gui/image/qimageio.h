@@ -16,6 +16,7 @@
 #include <qglobal.h>
 #include <qimage.h>
 #include <qstring.h>
+#include <qstringlist.h>
 
 #ifndef QT_NO_IMAGEIO
 
@@ -62,11 +63,21 @@ public:
     static QList<QByteArray> inputFormats();
     static QList<QByteArray> outputFormats();
 
+    inline static void defineIOHandler(const char *format,
+                                       const char *header,
+                                       const char *flags,
+                                       image_io_handler read_image,
+                                       image_io_handler write_image) {
+        defineIOHandler(format, header, flags, QStringList(QString(format).toLower()), 
+                        read_image, write_image);
+    }
     static void defineIOHandler(const char *format,
                                 const char *header,
                                 const char *flags,
+                                const QStringList &extensions,
                                 image_io_handler read_image,
                                 image_io_handler write_image);
+
 
 private:
     void init();
