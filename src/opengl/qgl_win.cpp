@@ -1090,6 +1090,3 @@ void QGLWidget::cleanupColormaps()
     return;
 }
 
-void QGLWidget::macInternalFixBufferRect()
-{
-}

@@ -1213,6 +1213,3 @@ void QGLWidget::cleanupColormaps()
     }
 }
 
-void QGLWidget::macInternalFixBufferRect()
-{
-}
