@@ -1201,6 +1201,9 @@ QComboTableItem::QComboTableItem( QTable *table, const QStringList &list, bool e
 	setText( entries.at( current ) );
 }
 
+/*!
+    QComboTableItem destructor.
+*/
 QComboTableItem::~QComboTableItem()
 {
     if (--QComboTableItem::fakeRef <= 0) {
