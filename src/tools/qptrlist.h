@@ -103,7 +103,12 @@ protected:
 #endif
 
 private:
-    void  deleteItem( QPtrCollection::Item d );
+    void  deleteItem( Item d )
+#if defined(Q_BROKEN_TEMPLATE_INLINE)
+	{ if ( del_item ) delete (type *)d; }
+#else
+		;
+#endif
 };
 
 #if !defined(Q_BROKEN_TEMPLATE_SPECIALIZATION)
@@ -112,11 +117,12 @@ template<> inline void QPtrList<void>::deleteItem( QPtrCollection::Item )
 }
 #endif
 
+#if !defined(Q_BROKEN_TEMPLATE_INLINE)
 template<class type> inline void QPtrList<type>::deleteItem( QPtrCollection::Item d )
 {
     if ( del_item ) delete (type *)d;
 }
-
+#endif
 
 template<class type> class Q_EXPORT QPtrListIterator : public QGListIterator
 {

@@ -83,7 +83,12 @@ protected:
 #endif
 
 private:
-    void  deleteItem( Item d );
+	void  deleteItem( Item d )
+#if defined(Q_BROKEN_TEMPLATE_INLINE)
+	{ if ( del_item ) delete (type *)d; }
+#else
+		;
+#endif
 };
 
 #if !defined(Q_BROKEN_TEMPLATE_SPECIALIZATION)
@@ -92,10 +97,12 @@ template<> inline void QDict<void>::deleteItem( Item )
 }
 #endif
 
+#if !defined(Q_BROKEN_TEMPLATE_INLINE)
 template<class type> inline void QDict<type>::deleteItem( QPtrCollection::Item d )
 {
     if ( del_item ) delete (type *)d;
 }
+#endif
 
 template<class type>
 class Q_EXPORT QDictIterator : public QGDictIterator

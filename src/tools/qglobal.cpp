@@ -290,13 +290,13 @@ static const int QT_BUFFER_LENGTH = 8196;	// internal buffer length
 #ifdef Q_OS_MAC
 const unsigned char * p_str(const char * c, int len=-1)
 {
-    static unsigned char * ret=NULL;
-    static int ret_len = 0;
+    const int maxlen = 255;
+    static unsigned char ret[maxlen+2];
 
     if(len == -1)
 	len = qstrlen(c);
-    if(len > ret_len)
-	ret = (unsigned char*)realloc( ret, ret_len = (len+2) );
+    if(len > maxlen)
+	qWarning( "p_str len must never exceed %d", maxlen );
     ret[0]=len;
     memcpy(((char *)ret)+1,c,len);
     ret[len+1] = '\0';

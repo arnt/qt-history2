@@ -217,7 +217,9 @@
 #  define Q_CC_MSVC
 /* proper support of bool for _MSC_VER >= 1100 */
 #  define Q_CANNOT_DELETE_CONSTANT
-
+#  if _MSC_VER >= 1300 // Visual C++.Net
+#    define Q_BROKEN_TEMPLATE_INLINE
+#  endif
 #elif defined(__BORLANDC__) || defined(__TURBOC__)
 #  define Q_CC_BOR
 #  if __BORLANDC__ < 0x500

@@ -2260,6 +2260,7 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 			RETURN(MA_NOACTIVATE);
 		    }
 		}
+		result = FALSE;
 		break;
 #endif
 

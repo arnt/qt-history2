@@ -403,11 +403,17 @@ static inline int do_text_task( const QFontPrivate *d, QString s, int pos, int l
 	    return TRUE;
 	}
 	int ret = 0;
-	const unsigned char *str = p_str(s.mid(pos, len));
-	if(task & GIMME_DRAW) 
-	    DrawString(str);
-	if(task & GIMME_WIDTH)
-	    ret = StringWidth(str);
+	const int maxlen = 255;
+	int curlen = len, curpos = pos;
+	while (curlen > 0) {
+	    const unsigned char *str = p_str(s.mid(curpos, QMIN(curlen,maxlen)));
+	    if(task & GIMME_DRAW) 
+		DrawString(str);
+	    if(task & GIMME_WIDTH)
+		ret += StringWidth(str);
+	    curlen -= maxlen;
+	    curpos += maxlen;
+	}
 	return ret;
     }
     return do_text_task(d, s.unicode()+pos, len, task); //don't use pos like this
@@ -625,6 +631,7 @@ void QFontPrivate::drawText( int x, int y, QString s, int len )
 	task |= GIMME_WIDTH;
 #endif
     int w = do_text_task(this, s, 0, len, task);
+    
 #ifdef DEBUG_FONTMETRICS
     if(do_debug) {
 	qDebug("drawText %d::%dx%d,%d %d:%d==%d %d:%d %d %d", w, len, x, y, request.pointSize, request.pixelSize,

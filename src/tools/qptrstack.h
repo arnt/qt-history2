@@ -70,7 +70,12 @@ protected:
 #endif
 
 private:
-    void  deleteItem( Item d );
+    void  deleteItem( Item d )
+#if defined(Q_BROKEN_TEMPLATE_INLINE)
+	{ if ( del_item ) delete (type *)d; }
+#else
+		;
+#endif
 };
 
 #if !defined(Q_BROKEN_TEMPLATE_SPECIALIZATION)
@@ -79,10 +84,12 @@ template<> inline void QPtrStack<void>::deleteItem( QPtrCollection::Item )
 }
 #endif
 
+#if !defined(Q_BROKEN_TEMPLATE_INLINE)
 template<class type> inline void QPtrStack<type>::deleteItem( QPtrCollection::Item d )
 {
     if ( del_item ) delete (type *)d;
 }
+#endif
 
 #ifndef QT_NO_COMPAT
 #define QStack QPtrStack
