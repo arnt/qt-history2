@@ -24,19 +24,15 @@ public:
 	rb->setChecked( TRUE );
 	connect( rb, SIGNAL( clicked() ),
 		 this, SLOT( singleSelection() ) );
-	bg->insert( rb );
 	rb = new QRadioButton( "Multi Selection", bg );
 	connect( rb, SIGNAL( clicked() ),
 		 this, SLOT( multiSelection() ) );
-	bg->insert( rb );
 	rb = new QRadioButton( "Extended Selection", bg );
 	connect( rb, SIGNAL( clicked() ),
 		 this, SLOT( extendedSelection() ) );
-	bg->insert( rb );
 	rb = new QRadioButton( "No Selection", bg );
 	connect( rb, SIGNAL( clicked() ),
 		 this, SLOT( noSelection() ) );
-	bg->insert( rb );
 	
 	QVBox *hb = new QVBox( this );
 	lb = new QListBox( hb );
