@@ -3,6 +3,7 @@ CONFIG		= qt warn_on release
 unix:CONFIG    += x11inc
 
 win32:TMAKE_CFLAGS     += -DUNICODE
+win32:TMAKE_CXXFLAGS   += -DUNICODE
 
 win32:INCLUDEPATH	= tmp
 win32:MOC_DIR		= tmp
