@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qfiledefs.h#5 $
+** $Id: //depot/qt/main/src/tools/qfiledefs.h#6 $
 **
 **		      ***   INTERNAL HEADER FILE   ***
 **
@@ -56,7 +56,7 @@
 #undef OPEN_TEXT
 
 
-#if defined(_CC_MSC_) || defined(_CC_SYM_)
+#if defined(_CC_MSVC_) || defined(_CC_SYM_)
 
 # define STATBUF	struct _stat		// non-ANSI defs
 # define STAT		_stat

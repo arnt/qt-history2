@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglobal.h#29 $ 
+** $Id: //depot/qt/main/src/tools/qglobal.h#30 $ 
 **
 ** Global type declarations and definitions
 **
@@ -76,7 +76,7 @@
 #elif defined(applec)
 #define _CC_MPW_
 #elif defined(_MSC_VER)
-#define _CC_MSC_
+#define _CC_MSVC_
 #elif defined(__BORLANDC__) || defined(__TURBOC__)
 #define _CC_BOR_
 #elif defined(__GNUC__)
@@ -102,7 +102,7 @@
 // Some compilers don't support templates
 //
 
-#if defined(_CC_MPW_) || (defined(_CC_MSC_) && _MSC_VER < 900) || defined(_CC_SUN_)
+#if defined(_CC_MPW_) || (defined(_CC_MSVC_) && _MSC_VER < 900) || defined(_CC_SUN_)
 #define NO_TEMPLATECLASS
 #endif
 
@@ -221,7 +221,7 @@ bool qSysInfo( int *wordSize, bool *bigEndian );
 #define NO_WARNINGS
 #endif
 #if defined(NO_WARNINGS)
-#if defined(_CC_MSC_)
+#if defined(_CC_MSVC_)
 #pragma warning(disable: 4244)
 #pragma warning(disable: 4759)
 #elif defined(_CC_BOR_)
