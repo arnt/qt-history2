@@ -29,40 +29,40 @@
 #endif
 
 /*!
-  \class QGroupBox qgroupbox.h
-  \brief The QGroupBox widget provides a group box frame with a title.
+    \class QGroupBox qgroupbox.h
+    \brief The QGroupBox widget provides a group box frame with a title.
 
-  \ingroup organizers
-  \ingroup geomanagement
-  \ingroup appearance
-  \mainclass
+    \ingroup organizers
+    \ingroup geomanagement
+    \ingroup appearance
+    \mainclass
 
-  A group box provides a frame, a title and a keyboard shortcut, and
-  displays various other widgets inside itself.  The title is on top,
-  the keyboard shortcut moves keyboard focus to one of the group box's
-  child widgets, and the child widgets are arranged in an array inside
-  the frame.
+    A group box provides a frame, a title and a keyboard shortcut, and
+    displays various other widgets inside itself. The title is on top,
+    the keyboard shortcut moves keyboard focus to one of the group
+    box's child widgets, and the child widgets are usually laid out
+    horizontally (or vertically) inside the frame.
 
-  The simplest way to use it is to create a group box with the desired
-  number of columns (or rows) and orientation, and then just create
-  widgets with the group box as parent.
+    The simplest way to use it is to create a group box with the
+    desired number of columns (or rows) and orientation, and then just
+    create widgets with the group box as parent.
 
-  However, it is also possible to change the orientation() and number
-  of columns() after construction, or to ignore all the automatic
-  layout support and manage all that yourself. You can add 'empty'
-  spaces to the group box with addSpace().
+    It is also possible to change the orientation() and number of
+    columns() after construction, or to ignore all the automatic
+    layout support and manage the layout yourself. You can add 'empty'
+    spaces to the group box with addSpace().
 
-  QGroupBox also lets you set the title() (normally set in the
-  constructor) and the title's alignment().
+    QGroupBox also lets you set the title() (normally set in the
+    constructor) and the title's alignment().
 
-  You can change the spacing used by the group box with
-  setInsideMargin() and setInsideSpacing(). To reduce space consumption,
-  you can remove the right, left and bottom edges of the frame with
-  setFlat().
+    You can change the spacing used by the group box with
+    setInsideMargin() and setInsideSpacing(). To minimize space
+    consumption, you can remove the right, left and bottom edges of
+    the frame with setFlat().
 
-  <img src=qgrpbox-w.png>
+    <img src=qgrpbox-w.png>
 
-  \sa QButtonGroup
+    \sa QButtonGroup
 */
 
 class QCheckBox;
@@ -82,11 +82,12 @@ public:
 
 
 /*!
-  Constructs a group box widget with no title.
+    Constructs a group box widget with no title.
 
-  The \a parent and \a name arguments are passed to the QWidget constructor.
+    The \a parent and \a name arguments are passed to the QWidget
+    constructor.
 
-  This constructor does not do automatic layout.
+    This constructor does not do automatic layout.
 */
 
 QGroupBox::QGroupBox( QWidget *parent, const char *name )
@@ -96,11 +97,12 @@ QGroupBox::QGroupBox( QWidget *parent, const char *name )
 }
 
 /*!
-  Constructs a group box with the title \a title.
+    Constructs a group box with the title \a title.
 
-  The \a parent and \a name arguments are passed to the QWidget constructor.
+    The \a parent and \a name arguments are passed to the QWidget
+    constructor.
 
-  This constructor does not do automatic layout.
+    This constructor does not do automatic layout.
 */
 
 QGroupBox::QGroupBox( const QString &title, QWidget *parent, const char *name )
@@ -111,10 +113,12 @@ QGroupBox::QGroupBox( const QString &title, QWidget *parent, const char *name )
 }
 
 /*!
-  Constructs a group box with no title. Child widgets will be arranged
-  in \a strips rows or columns (depending on \a orientation).
+    Constructs a group box with no title. Child widgets will be
+    arranged in \a strips rows or columns (depending on \a
+    orientation).
 
-  The \a parent and \a name arguments are passed to the QWidget constructor.
+    The \a parent and \a name arguments are passed to the QWidget
+    constructor.
 */
 
 QGroupBox::QGroupBox( int strips, Orientation orientation,
@@ -126,10 +130,12 @@ QGroupBox::QGroupBox( int strips, Orientation orientation,
 }
 
 /*!
-  Constructs a group box titled \a title. Child widgets will be arranged
-  in \a strips rows or columns (depending on \a orientation).
+    Constructs a group box titled \a title. Child widgets will be
+    arranged in \a strips rows or columns (depending on \a
+    orientation).
 
-  The \a parent and \a name arguments are passed to the QWidget constructor.
+    The \a parent and \a name arguments are passed to the QWidget
+    constructor.
 */
 
 QGroupBox::QGroupBox( int strips, Orientation orientation,
@@ -239,40 +245,40 @@ void QGroupBox::setTitle( const QString &title )
 }
 
 /*!
-  \property QGroupBox::title
-  \brief the group box title text.
+    \property QGroupBox::title
+    \brief the group box title text.
 
-  The group box title text will have a focus-change keyboard
-  accelerator if the title contains \&, followed by a letter.
+    The group box title text will have a focus-change keyboard
+    accelerator if the title contains \&, followed by a letter.
 
-  \code
-      g->setTitle( "&User information" );
-  \endcode
-  This produces "User information" with the U underlined;
-  Alt+U moves the keyboard focus to the group box.
+    \code
+	g->setTitle( "&User information" );
+    \endcode
+    This produces "<u>U</u>ser information"; Alt+U moves the keyboard
+    focus to the group box.
 
-  There is no default title text.
-
+    There is no default title text.
 */
 
 /*!
-  \property QGroupBox::alignment
-  \brief the alignment of the group box title.
+    \property QGroupBox::alignment
+    \brief the alignment of the group box title.
 
-  The title is always placed on the upper frame line; however,
-  the horizontal alignment can be specified by the alignment parameter.
+    The title is always placed on the upper frame line. The horizontal
+    alignment can be specified by the alignment parameter.
 
-  The alignment is one of the following flags:
-  \list
-  \i \c AlignAuto aligns the title accroding to the language, usually left.
-  \i \c AlignLeft aligns the title text to the left.
-  \i \c AlignRight aligns the title text to the right.
-  \i \c AlignHCenter aligns the title text centered.
-  \endlist
+    The alignment is one of the following flags:
+    \list
+    \i \c AlignAuto aligns the title according to the language,
+    usually to the left.
+    \i \c AlignLeft aligns the title text to the left.
+    \i \c AlignRight aligns the title text to the right.
+    \i \c AlignHCenter aligns the title text centered.
+    \endlist
 
-  The default alignment is \c AlignAuto.
+    The default alignment is \c AlignAuto.
 
-  \sa Qt::AlignmentFlags
+    \sa Qt::AlignmentFlags
 */
 
 void QGroupBox::setAlignment( int alignment )
@@ -353,17 +359,17 @@ void QGroupBox::paintEvent( QPaintEvent *event )
 
 
 /*!
-  Adds an empty cell at the next free position. If \a size is greater
-  than 0, the empty cell has a fixed height or width.
-  If the group box is oriented horizontally, the empty cell has a fixed
-  height; if oriented vertically, it has a fixed width.
+    Adds an empty cell at the next free position. If \a size is
+    greater than 0, the empty cell takes \a size to be its fixed width
+    (if orientation() is \c Horizontal) or height (if orientation() is
+    \c Vertical).
 
-  Use this method to separate the widgets in the group box or to skip
-  the next free cell. For performance reasons, call this method after
-  calling setColumnLayout() or by changing the \l QGroupBox::columns or
-  \l QGroupBox::orientation properties. It is generally a good idea to call
-  these methods first (if needed at all), and insert the widgets and
-  spaces afterwards.
+    Use this method to separate the widgets in the group box or to
+    skip the next free cell. For performance reasons, call this method
+    after calling setColumnLayout() or by changing the \l
+    QGroupBox::columns or \l QGroupBox::orientation properties. It is
+    generally a good idea to call these methods first (if needed at
+    all), and insert the widgets and spaces afterwards.
 */
 void QGroupBox::addSpace( int size )
 {
@@ -388,12 +394,12 @@ void QGroupBox::addSpace( int size )
 }
 
 /*!
-  \property QGroupBox::columns
-  \brief the number of columns or rows (depending on \l QGroupBox::orientation) in the group box
+    \property QGroupBox::columns
+    \brief the number of columns or rows (depending on \l QGroupBox::orientation) in the group box
 
-  Usually it is not a good idea to set this property because it is slow
-  (it does a complete layout).  It is better to set the number of columns
-  directly in the constructor.
+    Usually it is not a good idea to set this property because it is
+    slow (it does a complete layout). It is best to set the number
+    of columns directly in the constructor.
 */
 int QGroupBox::columns() const
 {
@@ -408,14 +414,15 @@ void QGroupBox::setColumns( int c )
 }
 
 /*!
-  Returns the width of the blank spacing between the items in the group
-  and the frame of the group.
+    Returns the width of the empty space between the items in the
+    group and the frame of the group.
 
-  Only applies if the group box has a defined orientation.
+    Only applies if the group box has a defined orientation.
 
-  The default is about 11.
+    The default is usually 11, by may vary depending on the platform
+    and style.
 
-  \sa setInsideMargin(), orientation
+    \sa setInsideMargin(), orientation
 */
 int QGroupBox::insideMargin() const
 {
@@ -423,14 +430,15 @@ int QGroupBox::insideMargin() const
 }
 
 /*!
-  Returns the width of the blank spacing between each of the items in the
-  group.
+    Returns the width of the empty space between each of the items
+    in the group.
 
-  Only applies if the group box has a defined orientation.
+    Only applies if the group box has a defined orientation.
 
-  The default is about 5.
+    The default is usually 5, by may vary depending on the platform
+    and style.
 
-  \sa setInsideSpacing(), orientation
+    \sa setInsideSpacing(), orientation
 */
 int QGroupBox::insideSpacing() const
 {
@@ -438,9 +446,9 @@ int QGroupBox::insideSpacing() const
 }
 
 /*!
-  Sets the the width of the inside margin to \a m pixels.
+    Sets the the width of the inside margin to \a m pixels.
 
-  \sa insideMargin()
+    \sa insideMargin()
 */
 void QGroupBox::setInsideMargin( int m )
 {
@@ -449,10 +457,10 @@ void QGroupBox::setInsideMargin( int m )
 }
 
 /*!
-  Sets the width of the blank spacing between each of the items in the
-  group to \a s pixels.
+    Sets the width of the empty space between each of the items in
+    the group to \a s pixels.
 
-  \sa insideSpacing()
+    \sa insideSpacing()
 */
 void QGroupBox::setInsideSpacing( int s )
 {
@@ -461,16 +469,15 @@ void QGroupBox::setInsideSpacing( int s )
 }
 
 /*!
-  \property QGroupBox::orientation
-  \brief the current orientation of the group box.
+    \property QGroupBox::orientation
+    \brief the group box's orientation
 
-  A horizontal group box arranges it's children in columns, while a
-  vertical group box arranges them in rows. Thus, a horizontal group box
-  with only one column will arrange the children vertically in that column.
+    A horizontal group box arranges it's children in columns, while a
+    vertical group box arranges them in rows.
 
-  Usually it is not a good idea to set this property because it is slow
-  (it does a complete layout). It is better to set the orientation directly
-  in the constructor.
+    Usually it is not a good idea to set this property because it is
+    slow (it does a complete layout). It is better to set the
+    orientation directly in the constructor.
 */
 void QGroupBox::setOrientation( Qt::Orientation o )
 {
@@ -478,15 +485,15 @@ void QGroupBox::setOrientation( Qt::Orientation o )
 }
 
 /*!
-  Changes the layout of the group box. This function is useful only in
-  combination with the default constructor that does not take any
-  layout information. This function will put all existing children in
-  the new layout. It is not good Qt programming style to
-  call this function after children have been inserted.
-  Sets the number of columns or rows to be \a strips, depending on \a direction.
+    Changes the layout of the group box. This function is only useful
+    in combination with the default constructor that does not take any
+    layout information. This function will put all existing children
+    in the new layout. It is not good Qt programming style to call
+    this function after children have been inserted. Sets the number
+    of columns or rows to be \a strips, depending on \a direction.
 
-  \sa orientation columns
- */
+    \sa orientation columns
+*/
 void QGroupBox::setColumnLayout(int strips, Orientation direction)
 {
     if ( layout() )
@@ -614,8 +621,11 @@ void QGroupBox::skip()
 }
 
 
-/*!  This private slot finds a widget in this group box that can
-accept focus, and gives the focus to that widget.
+/*!
+    \internal
+
+    This private slot finds a widget in this group box that can accept
+    focus, and gives the focus to that widget.
 */
 
 void QGroupBox::fixFocus()
@@ -654,10 +664,10 @@ void QGroupBox::fixFocus()
 }
 
 
-/*!
-  Sets the right framerect depending on the title. Also calculates the
-  visible part of the title.
- */
+/*
+    Sets the right frame rect depending on the title. Also calculates
+    the visible part of the title.
+*/
 void QGroupBox::calculateFrame()
 {
     lenvisible = str.length();
@@ -751,14 +761,15 @@ QSize QGroupBox::sizeHint() const
 }
 
 /*!
-  \property QGroupBox::flat
-  \brief whether the group box is painted flat or has a frame around it.
+    \property QGroupBox::flat
+    \brief whether the group box is painted flat or has a frame
 
-  By default a group box has a surrounding frame, with the title being placed
-  on the upper frame line. In flat mode the right, left and bottom frame lines
-  are omitted, and only the thin line at the top is drawn.
+    By default a group box has a surrounding frame, with the title
+    being placed on the upper frame line. In flat mode the right, left
+    and bottom frame lines are omitted, and only the thin line at the
+    top is drawn.
 
-  \sa title
+    \sa title
 */
 bool QGroupBox::isFlat() const
 {
@@ -836,7 +847,7 @@ bool QGroupBox::isChecked() const
 
     If the group box has a check box (see \l isCheckable()) this signal
     is emitted when the check box is toggled. \a on is TRUE if the check
-    box is checked, otherwise FALSE.
+    box is checked; otherwise it is FALSE.
 */
 
 /*!
@@ -844,7 +855,7 @@ bool QGroupBox::isChecked() const
     \brief Whether the group box's checkbox is checked.
 
     If the group box has a check box (see \l isCheckable()), and the
-    check box is checked (using isChecked()), the group box's children
+    check box is checked (see \l isChecked()), the group box's children
     are enabled. If the checkbox is unchecked the children are
     disabled.
 */

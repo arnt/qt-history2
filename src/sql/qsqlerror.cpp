@@ -159,7 +159,7 @@ int QSqlError::number() const
 }
 
 /*!
-    Sets the database-specific error number to the value of \a number.
+    Sets the database-specific error number to \a number.
 */
 
 void QSqlError::setNumber( int number )
@@ -170,7 +170,7 @@ void QSqlError::setNumber( int number )
 /*!
     This is a convenience function that returns databaseText() and
     driverText() concatenated into a single string.
-    
+
     \sa showMessage(), driverText(), databaseText()
 */
 
@@ -187,7 +187,7 @@ QString QSqlError::text() const
     containing the message returned by text(). An additional string
     can be passed in via the \a msg parameter, which will be
     concatenated with the text() message.
-    
+
     \sa text(), driverText(), databaseText()
 */
 void QSqlError::showMessage( const QString& msg ) const

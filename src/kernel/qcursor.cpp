@@ -59,11 +59,11 @@
 
     On X11, Qt supports the \link
     http://www.xfree86.org/4.3.0/Xcursor.3.html Xcursor\endlink
-    library, which allows for full color icon themes.  The table below
-    shows the cursor name used for each Qt::CursorShape value.  If a
+    library, which allows for full color icon themes. The table below
+    shows the cursor name used for each Qt::CursorShape value. If a
     cursor cannot be found using the name shown below, a standard X11
     cursor will be used instead. Note: X11 does not provide
-    appropriate cursors for all possible Qt::CursorShape values.  It
+    appropriate cursors for all possible Qt::CursorShape values. It
     is possible that some cursors will be taken from the Xcursor
     theme, while others will use an internal bitmap cursor.
 
@@ -92,22 +92,22 @@
 
     This enum type defines the various cursors that can be used.
 
-    \value ArrowCursor - standard arrow cursor
-    \value UpArrowCursor - upwards arrow
-    \value CrossCursor - crosshair
-    \value WaitCursor - hourglass/watch
-    \value IbeamCursor - ibeam/text entry
-    \value SizeVerCursor - vertical resize
-    \value SizeHorCursor - horizontal resize
-    \value SizeFDiagCursor - diagonal resize (\)
-    \value SizeBDiagCursor - diagonal resize (/)
-    \value SizeAllCursor - all directions resize
-    \value BlankCursor - blank/invisible cursor
-    \value SplitVCursor - vertical splitting
-    \value SplitHCursor - horizontal splitting
-    \value PointingHandCursor - a pointing hand
-    \value ForbiddenCursor - a slashed circle
-    \value WhatsThisCursor - an arrow with a question mark
+    \value ArrowCursor  standard arrow cursor
+    \value UpArrowCursor  upwards arrow
+    \value CrossCursor  crosshair
+    \value WaitCursor  hourglass/watch
+    \value IbeamCursor  ibeam/text entry
+    \value SizeVerCursor  vertical resize
+    \value SizeHorCursor  horizontal resize
+    \value SizeFDiagCursor  diagonal resize (\)
+    \value SizeBDiagCursor  diagonal resize (/)
+    \value SizeAllCursor  all directions resize
+    \value BlankCursor  blank/invisible cursor
+    \value SplitVCursor  vertical splitting
+    \value SplitHCursor  horizontal splitting
+    \value PointingHandCursor  a pointing hand
+    \value ForbiddenCursor  a slashed circle
+    \value WhatsThisCursor  an arrow with a question mark
     \value BitmapCursor
 
     ArrowCursor is the default for widgets in a normal state.
@@ -237,7 +237,7 @@ QCursor::QCursor( const QPixmap &pixmap, int hotX, int hotY )
     \i B=1 and M=0 gives an undefined result.
     \endlist
 
-    Use the global color \c color0 to draw 0-pixels and \c color1 to
+    Use the global Qt color \c color0 to draw 0-pixels and \c color1 to
     draw 1-pixels in the bitmaps.
 
     Valid cursor sizes depend on the display hardware (or the

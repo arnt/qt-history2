@@ -28,16 +28,18 @@ struct IAxServerBase : public IUnknown
 
 /*!
     \class QAxBindable qaxbindable.h
-    \brief The QAxBindable class provides an interface between the QWidget and the ActiveX client.
+    \brief The QAxBindable class provides an interface between a
+    QWidget and an ActiveX client.
 
     \module QAxServer
     \extension ActiveQt
 
-    The functions provided by this class allow the ActiveX control to
-    communicate property changes to the client application. Inherit
+    The functions provided by this class allow an ActiveX control to
+    communicate property changes to a client application. Inherit
     your control class from both QWidget (directly or indirectly) and
-    this class to get access to this class's functions. The meta
-    object compiler requires you to inherit from QWidget \e first.
+    this class to get access to this class's functions. The \link
+    moc.html meta object compiler\endlink requires you to inherit from
+    QWidget \e first.
 
     \code
     class MyActiveX : public QWidget, public QAxBindable
@@ -60,9 +62,10 @@ struct IAxServerBase : public IUnknown
     about the change. If a fatal error occurs in the control, use the
     static reportError() function to notify the client.
 
-    Use the interface returned by clientSite() to call the ActiveX client. To 
-    implement additional COM interfaces in your ActiveX control, reimplement
-    createAggregate() to return a new object of a QAxAggregated subclass.
+    Use the interface returned by clientSite() to call the ActiveX
+    client. To implement additional COM interfaces in your ActiveX
+    control, reimplement createAggregate() to return a new object of a
+    QAxAggregated subclass.
 */
 
 /*!
@@ -132,7 +135,7 @@ void QAxBindable::propertyChanged( const char *property )
     Returns a pointer to the client site interface for this ActiveX object,
     or null if no client site has been set.
 
-    Call QueryInterface on the returned interface to get the interface you
+    Call QueryInterface() on the returned interface to get the interface you
     want to call.
 */
 IUnknown *QAxBindable::clientSite() const
@@ -144,9 +147,9 @@ IUnknown *QAxBindable::clientSite() const
 }
 
 /*!
-    Reimplement this function when you want to implement additional 
-    COM interfaces in the ActiveX control, or when you want to provide 
-    alternative implementations of COM interfaces. Return a new object 
+    Reimplement this function when you want to implement additional
+    COM interfaces in the ActiveX control, or when you want to provide
+    alternative implementations of COM interfaces. Return a new object
     of a QAxAggregated subclass.
 
     The default implementation returns the null pointer.
@@ -159,45 +162,53 @@ QAxAggregated *QAxBindable::createAggregate()
 /*!
     \fn void QAxBindable::reportError( int code, const QString &src, const QString &desc, const QString &context )
 
-    Reports an error to the client application. \a code is a contro-defined error code. 
-    \a desc is a human-readable description of the error intended for the application
-    user. \a src is the name of the source for the error, typically the ActiveX server
-    name. \a context can be the location of a help file with more information about the 
-    error. If \a context ends with a number in brackets, e.g. [12], this number will
-    be interpreted as the context ID in the help file.
+    Reports an error to the client application. \a code is a
+    control-defined error code. \a desc is a human-readable description
+    of the error intended for the application user. \a src is the name
+    of the source for the error, typically the ActiveX server name. \a
+    context can be the location of a help file with more information
+    about the error. If \a context ends with a number in brackets,
+    e.g. [12], this number will be interpreted as the context ID in
+    the help file.
 */
 
-/*! \class QAxAggregated qaxbindable.h
+/*!
+    \class QAxAggregated qaxbindable.h
     \brief The QAxAggregated class is an abstract base class for implementations of
     additional COM interfaces.
+
     \module QAxServer
     \extension ActiveQt
 
-    Create a subclass of QAxAggregated and reimplement queryInterface to support
-    additional COM interfaces. Use multiple inheritance from those COM interfaces.
-    Implement the IUnknown interface of those COM interfaces by delegating the
-    calls to QueryInterface, AddRef and Release to the interface provided by
-    controllingUnknown().
-    
-    Use the widget() method if you need to make calls to the QWidget implementing the 
-    ActiveX control. You must not store that pointer in your subclass (unless you use
-    QGuardedPtr), as the QWidget can be destroyed by the ActiveQt framework at any time.
+    Create a subclass of QAxAggregated and reimplement
+    queryInterface() to support additional COM interfaces. Use
+    multiple inheritance from those COM interfaces. Implement the
+    IUnknown interface of those COM interfaces by delegating the calls
+    to QueryInterface(), AddRef() and Release() to the interface
+    provided by controllingUnknown().
+
+    Use the widget() method if you need to make calls to the QWidget
+    implementing the ActiveX control. You must not store that pointer
+    in your subclass (unless you use QGuardedPtr), as the QWidget can
+    be destroyed by the ActiveQt framework at any time.
 */
 
 /*!
     \internal
-    
+
     The destructor is called by the QAxServerBase, which is a friend.
 */
 QAxAggregated::~QAxAggregated()
 {
 }
 
-/*! \fn long QAxAggregated::queryInterface( const QUuid &iid, void **iface )
+/*!
+    \fn long QAxAggregated::queryInterface( const QUuid &iid, void **iface )
 
-    Reimplement this pure virtual function to support additional COM interfaces.
-    Set the value of \a iface to point to this object to support the interface \a iid.
-    Note that you have to cast the \c this pointer to the respective superclass.
+    Reimplement this pure virtual function to support additional COM
+    interfaces. Set the value of \a iface to point to this object to
+    support the interface \a iid. Note that you must cast the \c
+    this pointer to the appropriate superclass.
 
     \code
     long AxImpl::queryInterface( const QUuid &iid, void **iface )
@@ -213,21 +224,22 @@ QAxAggregated::~QAxAggregated()
     }
     \endcode
 
-    Return the standard COM results S_OK (interface is supported) or E_NOINTERFACE
-    (requested interface is not supported).
+    Return the standard COM results S_OK (interface is supported) or
+    E_NOINTERFACE (requested interface is not supported).
 
     \warning
-    Even though you have to implement the IUnknown interface if you implement any
-    COM interface you must not support the IUnknown interface in your queryInterface
-    implementation.
+    Even though you must implement the IUnknown interface if you
+    implement any COM interface you must not support the IUnknown
+    interface in your queryInterface() implementation.
 */
 
 /*!
     \fn IUnknown *QAxAggregated::controllingUnknown() const
 
-    Returns the IUnknown interface of the ActiveX control. Implement the IUnknown
-    interface in your QAxAggregated subclass to delegate calls to QueryInterface, 
-    AddRef and Release to the interface provided by this function.
+    Returns the IUnknown interface of the ActiveX control. Implement
+    the IUnknown interface in your QAxAggregated subclass to delegate
+    calls to QueryInterface(), AddRef() and Release() to the interface
+    provided by this function.
 
     \code
     HRESULT AxImpl::QueryInterface( REFIID iid, void **iface )
@@ -246,28 +258,30 @@ QAxAggregated::~QAxAggregated()
     }
     \endcode
 
-    The QAXAGG_IUNKNOWN macro expands to that, and you can use it in the
-    class declaration of your subclass.
+    The QAXAGG_IUNKNOWN macro expands to the code above, and you can
+    use it in the class declaration of your subclass.
 */
 
-/*! 
+/*!
     \fn QObject *QAxAggregated::object() const
 
     Returns a pointer to the QObject subclass implementing the COM object.
-    This function might return zero.
+    This function might return 0.
 
     \warning
-    You must not store the returned pointer, as the QObject can be destroyed by 
-    ActiveQt at any time.
+    You must not store the returned pointer, unless you use a
+    QGuardedPtr, since the QObject can be destroyed by ActiveQt at any
+    time.
 */
 
 /*!
     \fn QWidget *QAxAggregated::widget() const
 
     Returns a pointer to the QWidget subclass implementing the ActiveX control.
-    This function might return zero.
+    This function might return 0.
 
     \warning
-    You must not store the returned pointer, as the QWidget can be destroyed by 
-    ActiveQt at any time.
+    You must not store the returned pointer, unless you use a
+    QGuardedPtr, since the QWidget can be destroyed by ActiveQt at any
+    time.
 */
