@@ -30,8 +30,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>287</width>
-            <height>330</height>
+            <width>323</width>
+            <height>339</height>
         </rect>
     </property>
     <property name="caption">
@@ -48,10 +48,10 @@
             <cstring>unnamed</cstring>
         </property>
         <property name="margin">
-            <number>8</number>
+            <number>11</number>
         </property>
         <property name="spacing">
-            <number>4</number>
+            <number>6</number>
         </property>
         <widget class="QLayoutWidget">
             <property name="name">
@@ -216,6 +216,16 @@
                             <string>HighlightText</string>
                         </property>
                     </item>
+                    <item>
+                        <property name="text">
+                            <string>Link</string>
+                        </property>
+                    </item>
+                    <item>
+                        <property name="text">
+                            <string>LinkVisited</string>
+                        </property>
+                    </item>
                     <property name="name">
                         <cstring>comboCentral</cstring>
                     </property>
@@ -228,7 +238,7 @@
                 </widget>
                 <widget class="QLayoutWidget">
                     <property name="name">
-                        <cstring>Layout44</cstring>
+                        <cstring>Layout32_2</cstring>
                     </property>
                     <hbox>
                         <property name="name">
@@ -284,6 +294,24 @@
                             <property name="name">
                                 <cstring>buttonCentral</cstring>
                             </property>
+                            <property name="sizePolicy">
+                                <sizepolicy>
+                                    <hsizetype>0</hsizetype>
+                                    <vsizetype>0</vsizetype>
+                                </sizepolicy>
+                            </property>
+                            <property name="focusPolicy">
+                                <enum>TabFocus</enum>
+                            </property>
+                            <property name="scale" stdset="0">
+                                <bool>false</bool>
+                            </property>
+                            <property name="toolTip" stdset="0">
+                                <string>Choose a color</string>
+                            </property>
+                            <property name="whatsThis" stdset="0">
+                                <string>Choose a color for the selected central color role.</string>
+                            </property>
                         </widget>
                     </hbox>
                 </widget>
@@ -292,18 +320,6 @@
         <widget class="QGroupBox">
             <property name="name">
                 <cstring>groupEffect</cstring>
-            </property>
-            <property name="sizePolicy">
-                <sizepolicy>
-                    <hsizetype>5</hsizetype>
-                    <vsizetype>5</vsizetype>
-                </sizepolicy>
-            </property>
-            <property name="frameShape">
-                <enum>Box</enum>
-            </property>
-            <property name="frameShadow">
-                <enum>Sunken</enum>
             </property>
             <property name="title">
                 <string>3-D shadow &amp;effects</string>
@@ -389,7 +405,7 @@
                 </widget>
                 <widget class="QLayoutWidget">
                     <property name="name">
-                        <cstring>Layout45</cstring>
+                        <cstring>Layout31_2</cstring>
                     </property>
                     <hbox>
                         <property name="name">
@@ -445,6 +461,24 @@
                             <property name="name">
                                 <cstring>buttonEffect</cstring>
                             </property>
+                            <property name="sizePolicy">
+                                <sizepolicy>
+                                    <hsizetype>0</hsizetype>
+                                    <vsizetype>0</vsizetype>
+                                </sizepolicy>
+                            </property>
+                            <property name="focusPolicy">
+                                <enum>TabFocus</enum>
+                            </property>
+                            <property name="scale" stdset="0">
+                                <bool>false</bool>
+                            </property>
+                            <property name="toolTip" stdset="0">
+                                <string>Choose a color</string>
+                            </property>
+                            <property name="whatsThis" stdset="0">
+                                <string>Choose a color for the selected effect color role.</string>
+                            </property>
                         </widget>
                     </hbox>
                 </widget>
@@ -453,24 +487,6 @@
         <widget class="QLayoutWidget">
             <property name="name">
                 <cstring>Layout3</cstring>
-            </property>
-            <property name="sizePolicy">
-                <sizepolicy>
-                    <hsizetype>7</hsizetype>
-                    <vsizetype>0</vsizetype>
-                </sizepolicy>
-            </property>
-            <property name="focusPolicy">
-                <enum>NoFocus</enum>
-            </property>
-            <property name="scale" stdset="0">
-                <bool>true</bool>
-            </property>
-            <property name="toolTip" stdset="0">
-                <string>Select a pixmap</string>
-            </property>
-            <property name="whatsThis" stdset="0">
-                <string>Choose a pixmap-file for the selected central color role.</string>
             </property>
             <hbox>
                 <property name="name">
@@ -550,7 +566,10 @@
         <pixmap>image0</pixmap>
         <signal>clicked()</signal>
         <signal>colorChanged(const QColor &amp;)</signal>
+        <signal>changed()</signal>
         <property type="Color">color</property>
+        <property type="Pixmap">pixmap</property>
+        <property type="Bool">scale</property>
     </customwidget>
 </customwidgets>
 <images>
@@ -584,6 +603,18 @@
         <slot>onCentral(int)</slot>
     </connection>
     <connection>
+        <sender>buttonCentral</sender>
+        <signal>clicked()</signal>
+        <receiver>PaletteEditorAdvancedBase</receiver>
+        <slot>onChooseCentralColor()</slot>
+    </connection>
+    <connection>
+        <sender>buttonEffect</sender>
+        <signal>clicked()</signal>
+        <receiver>PaletteEditorAdvancedBase</receiver>
+        <slot>onChooseEffectColor()</slot>
+    </connection>
+    <connection>
         <sender>comboEffect</sender>
         <signal>activated(int)</signal>
         <receiver>PaletteEditorAdvancedBase</receiver>
@@ -602,6 +633,12 @@
         <slot>setDisabled(bool)</slot>
     </connection>
     <connection>
+        <sender>checkBuildEffect</sender>
+        <signal>toggled(bool)</signal>
+        <receiver>buttonEffect</receiver>
+        <slot>setDisabled(bool)</slot>
+    </connection>
+    <connection>
         <sender>checkBuildInactive</sender>
         <signal>toggled(bool)</signal>
         <receiver>PaletteEditorAdvancedBase</receiver>
@@ -613,69 +650,27 @@
         <receiver>PaletteEditorAdvancedBase</receiver>
         <slot>onToggleBuildDisabled(bool)</slot>
     </connection>
-    <connection>
-        <sender>buttonCentral</sender>
-        <signal>colorChanged(const QColor &amp;)</signal>
-        <receiver>PaletteEditorAdvancedBase</receiver>
-        <slot>onChooseCentralColor()</slot>
-    </connection>
-    <connection>
-        <sender>buttonEffect</sender>
-        <signal>colorChanged(const QColor &amp;)</signal>
-        <receiver>PaletteEditorAdvancedBase</receiver>
-        <slot>onChooseEffectColor()</slot>
-    </connection>
-    <connection>
-        <sender>checkBuildEffect</sender>
-        <signal>toggled(bool)</signal>
-        <receiver>buttonEffect</receiver>
-        <slot>setDisabled(bool)</slot>
-    </connection>
-    <slot access="protected" language="C++" returnType="void">init()</slot>
     <slot access="protected" language="C++" returnType="void">destroy()</slot>
-    <slot access="protected" language="C++" returnType="void">onCentral( int )</slot>
+    <slot access="protected" language="C++" returnType="void">init()</slot>
+    <slot access="protected" language="C++" returnType="void">onCentral(int)</slot>
     <slot access="protected" language="C++" returnType="void">onChooseCentralColor()</slot>
     <slot access="protected" language="C++" returnType="void">onChooseEffectColor()</slot>
-    <slot access="protected" language="C++" returnType="void">onEffect( int )</slot>
-    <slot access="protected" language="C++" returnType="void">onToggleBuildDisabled( bool )</slot>
-    <slot access="protected" language="C++" returnType="void">onToggleBuildEffects( bool )</slot>
-    <slot access="protected" language="C++" returnType="void">onToggleBuildInactive( bool )</slot>
-    <slot access="protected" language="C++" returnType="void">paletteSelected( int )</slot>
+    <slot access="protected" language="C++" returnType="void">onEffect(int)</slot>
+    <slot access="protected" language="C++" returnType="void">onToggleBuildDisabled(bool)</slot>
+    <slot access="protected" language="C++" returnType="void">onToggleBuildEffects(bool)</slot>
+    <slot access="protected" language="C++" returnType="void">onToggleBuildInactive(bool)</slot>
+    <slot access="protected" language="C++" returnType="void">paletteSelected(int)</slot>
 </connections>
-<functions>
-    <function name="init()" >{
-
-}</function>
-    <function name="destroy()" >{
-
-}</function>
-    <function name="onCentral(int)" >{
-
-}</function>
-    <function name="onChooseCentralColor()" >{
-
-}</function>
-    <function name="onChooseEffectColor()" >{
-
-}</function>
-    <function name="onEffect(int)" >{
-
-}</function>
-    <function name="onToggleBuildDisabled(bool)" >{
-
-}</function>
-    <function name="onToggleBuildEffects(bool)" >{
-
-}</function>
-    <function name="onToggleBuildInactive(bool)" >{
-
-}</function>
-    <function name="paletteSelected(int)" >{
-
-}</function>
-</functions>
 <tabstops>
     <tabstop>buttonOk</tabstop>
     <tabstop>buttonCancel</tabstop>
+    <tabstop>paletteCombo</tabstop>
+    <tabstop>checkBuildInactive</tabstop>
+    <tabstop>checkBuildDisabled</tabstop>
+    <tabstop>comboCentral</tabstop>
+    <tabstop>buttonCentral</tabstop>
+    <tabstop>checkBuildEffect</tabstop>
+    <tabstop>comboEffect</tabstop>
+    <tabstop>buttonEffect</tabstop>
 </tabstops>
 </UI>

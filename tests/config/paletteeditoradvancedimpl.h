@@ -20,7 +20,6 @@
 
 #include "paletteeditoradvanced.h"
 
-
 class PaletteEditorAdvanced : public PaletteEditorAdvancedBase
 {
     Q_OBJECT
@@ -29,9 +28,8 @@ public:
 			   bool modal=FALSE, WFlags f=0 );
     ~PaletteEditorAdvanced();
 
-    static QPalette getPalette( bool *ok, const QPalette &pal,
-				BackgroundMode mode = PaletteBackground,
-				QWidget* parent = 0, const char* name = 0);
+    static QPalette getPalette( bool *ok, const QPalette &pal, BackgroundMode mode = PaletteBackground,
+				QWidget* parent = 0, const char* name = 0 );
 
 protected slots:
     void paletteSelected(int);
@@ -67,7 +65,7 @@ protected:
 
 private:
     void setPreviewPalette( const QPalette& );
-    void updateStyledButtons();
+    void updateColorButtons();
     void setupBackgroundMode( BackgroundMode );
 
     QPalette pal() const;

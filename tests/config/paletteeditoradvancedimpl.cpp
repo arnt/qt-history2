@@ -64,7 +64,7 @@ PaletteEditorAdvanced::PaletteEditorAdvanced( QWidget * parent,
     editPalette = QApplication::palette();
     setPreviewPalette( editPalette );
 
-     // force toggle event
+    // force toggle event
     checkBuildEffect->setChecked(false);
     checkBuildEffect->setChecked(true);
 }
@@ -82,7 +82,7 @@ void PaletteEditorAdvanced::onToggleBuildInactive( bool v )
 
     if (v) {
 	buildInactive();
-	updateStyledButtons();
+	updateColorButtons();
     }
 }
 
@@ -95,7 +95,7 @@ void PaletteEditorAdvanced::onToggleBuildDisabled( bool v )
 
     if (v) {
 	buildDisabled();
-	updateStyledButtons();
+	updateColorButtons();
     }
 }
 
@@ -115,7 +115,7 @@ void PaletteEditorAdvanced::paletteSelected(int p)
 	groupCentral->setEnabled(true);
 	groupEffect->setEnabled(true);
     }
-    updateStyledButtons();
+    updateColorButtons();
 }
 
 void PaletteEditorAdvanced::onChooseCentralColor()
@@ -132,7 +132,7 @@ void PaletteEditorAdvanced::onChooseCentralColor()
 	mapToDisabledCentralRole( buttonCentral->color() );
 	break;
     }
-    updateStyledButtons();
+    updateColorButtons();
 }
 
 void PaletteEditorAdvanced::onChooseEffectColor()
@@ -149,9 +149,8 @@ void PaletteEditorAdvanced::onChooseEffectColor()
 	mapToDisabledEffectRole( buttonEffect->color() );
 	break;
     }
-    updateStyledButtons();
+    updateColorButtons();
 }
-
 
 void PaletteEditorAdvanced::onToggleBuildEffects( bool on )
 {
@@ -164,26 +163,30 @@ void PaletteEditorAdvanced::onToggleBuildEffects( bool on )
 QColorGroup::ColorRole PaletteEditorAdvanced::centralFromItem( int item )
 {
     switch( item ) {
-    case 0:
-	return QColorGroup::Background;
-    case 1:
-	return QColorGroup::Foreground;
-    case 2:
-	return QColorGroup::Button;
-    case 3:
-	return QColorGroup::Base;
-    case 4:
-	return QColorGroup::Text;
-    case 5:
-	return QColorGroup::BrightText;
-    case 6:
-	return QColorGroup::ButtonText;
-    case 7:
-	return QColorGroup::Highlight;
-    case 8:
-	return QColorGroup::HighlightedText;
-    default:
-	return QColorGroup::NColorRoles;
+        case 0:
+            return QColorGroup::Background;
+        case 1:
+            return QColorGroup::Foreground;
+        case 2:
+            return QColorGroup::Button;
+        case 3:
+            return QColorGroup::Base;
+        case 4:
+            return QColorGroup::Text;
+        case 5:
+            return QColorGroup::BrightText;
+        case 6:
+            return QColorGroup::ButtonText;
+        case 7:
+            return QColorGroup::Highlight;
+        case 8:
+            return QColorGroup::HighlightedText;
+        case 9:
+            return QColorGroup::Link;
+        case 10:
+            return QColorGroup::LinkVisited;
+        default:
+            return QColorGroup::NColorRoles;
     }
 }
 
@@ -372,7 +375,7 @@ void PaletteEditorAdvanced::buildActiveEffect()
     editPalette.setActive( cg );
     setPreviewPalette( editPalette );
 
-    updateStyledButtons();
+    updateColorButtons();
 }
 
 void PaletteEditorAdvanced::buildInactive()
@@ -402,7 +405,7 @@ void PaletteEditorAdvanced::buildInactiveEffect()
 
     editPalette.setInactive( cg );
     setPreviewPalette( editPalette );
-    updateStyledButtons();
+    updateColorButtons();
 }
 
 void PaletteEditorAdvanced::buildDisabled()
@@ -438,7 +441,7 @@ void PaletteEditorAdvanced::buildDisabledEffect()
 
     editPalette.setDisabled( cg );
     setPreviewPalette( editPalette );
-    updateStyledButtons();
+    updateColorButtons();
 }
 
 void PaletteEditorAdvanced::setPreviewPalette( const QPalette& pal )
@@ -462,7 +465,7 @@ void PaletteEditorAdvanced::setPreviewPalette( const QPalette& pal )
     previewPalette.setDisabled( cg );
 }
 
-void PaletteEditorAdvanced::updateStyledButtons()
+void PaletteEditorAdvanced::updateColorButtons()
 {
     QColor central, effect;
     switch (selectedPalette) {
@@ -489,7 +492,7 @@ void PaletteEditorAdvanced::setPal( const QPalette& pal )
 {
     editPalette = pal;
     setPreviewPalette( pal );
-    updateStyledButtons();
+    updateColorButtons();
 }
 
 QPalette PaletteEditorAdvanced::pal() const
@@ -568,8 +571,8 @@ void PaletteEditorAdvanced::setupBackgroundMode( BackgroundMode mode )
 }
 
 QPalette PaletteEditorAdvanced::getPalette( bool *ok, const QPalette &init,
-					    BackgroundMode mode,
-					    QWidget* parent, const char *name)
+					    BackgroundMode mode, QWidget* parent,
+					    const char* name )
 {
     PaletteEditorAdvanced* dlg = new PaletteEditorAdvanced( parent, name, TRUE );
     dlg->setupBackgroundMode( mode );
