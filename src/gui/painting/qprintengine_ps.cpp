@@ -30,6 +30,11 @@ static inline int qt_open(const char *pathname, int flags, mode_t mode)
 #include <private/qfontengine_p.h>
 #include <private/qpaintengine_p.h>
 
+// <X11/Xlib.h> redefines Status -> int
+#if defined(Status)
+# undef Status
+#endif
+
 #ifndef QT_NO_PRINTER
 
 #undef Q_PRINTER_USE_TYPE42
@@ -4548,14 +4553,14 @@ QPSPrintEnginePrivate::QPSPrintEnginePrivate(QPrinter::PrinterMode m)
                     f.setFileName("/usr/X11/lib/X11/fs/config");
                 if (f.exists()) {
                     f.open(IO_ReadOnly);
-                    while(f.status()==IO_Ok && !finished) {
+                    while (f.error()==IO_Ok && !finished) {
                         QString fs;
                         f.readLine(fs, 1024);
                         fs=fs.trimmed();
                         if (fs.left(9)=="catalogue" && fs.contains('=')) {
                             fs = fs.mid(fs.indexOf('=') + 1).trimmed();
                             bool end = false;
-                            while(f.status()==IO_Ok && !end) {
+                            while (f.error()==IO_Ok && !end) {
                                 if (fs[int(fs.length())-1] == ',')
                                     fs = fs.left(fs.length()-1);
                                 else
@@ -4573,7 +4578,7 @@ QPSPrintEnginePrivate::QPSPrintEnginePrivate(QPrinter::PrinterMode m)
                     f.close();
                 }
                 xfsconfig_read = true;
-            } else if(!strstr(font_path[i], ":unscaled")) {
+            } else if (!strstr(font_path[i], ":unscaled")) {
                 // Fonts paths marked :unscaled are always bitmapped fonts
                 // -> we can as well ignore them now and save time
                 fontpath += font_path[i];
