@@ -86,6 +86,11 @@ public:
 
     virtual Q_LLONG read(char *data, Q_LLONG maxlen);
     virtual Q_LLONG write(const char *data, Q_LLONG len);
+#if !defined(Q_NO_USING_KEYWORD)
+    using QIODevice::write;
+#else
+    inline QLLONG write(const QByteArray &ba) { return write(data.constData(), data.size()); }
+#endif
 
     virtual void flush();
 
