@@ -1774,7 +1774,7 @@ void QMenu::internalDelayedPopup()
             on_left = true;
     }
     if(on_left)
-        pos.setX(-menuSize.width());
+        pos.rx() = x() - menuSize.width();
 
     //calc sloppy focus buffer
     if(style().styleHint(QStyle::SH_Menu_SloppySubMenus, this)) {
