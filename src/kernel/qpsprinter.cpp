@@ -2376,6 +2376,7 @@ void QPSPrinterFontPrivate::downloadMapping( QTextStream &s, bool global )
 {
     int rangeOffset = 0;
     int numRanges = subsetCount/256 + 1;
+    int range;
     QMap<unsigned short, unsigned short> *subsetDict = &subset;
     if ( !global ) {
         rangeOffset = numRanges;
@@ -2395,7 +2396,7 @@ void QPSPrinterFontPrivate::downloadMapping( QTextStream &s, bool global )
     QString vector;
     QString glyphname;
 
-    for (int range=0; range < numRanges; range++) {
+    for (range=0; range < numRanges; range++) {
         //printf("outputing range %04x\n",range*256);
         vector.sprintf("%% Font Page %04x\n",range + rangeOffset);
         QString dummy;
@@ -2420,7 +2421,7 @@ void QPSPrinterFontPrivate::downloadMapping( QTextStream &s, bool global )
 
     // DEFINE BASE FONTS
 
-    for (int range=0; range < numRanges; range++) {
+    for (range=0; range < numRanges; range++) {
         QString dummy;
         s << "/";
         s << psname;
@@ -2483,7 +2484,7 @@ void QPSPrinterFontPrivate::downloadMapping( QTextStream &s, bool global )
     // FDepVector[ Encoding[ font-number ] ].
 
     s << "/Encoding [";
-    for (int range=0; range < rangeOffset + numRanges; range++) {
+    for (range=0; range < rangeOffset + numRanges; range++) {
         if (range % 16 == 0)
             s << "\n";
         else
@@ -2495,7 +2496,7 @@ void QPSPrinterFontPrivate::downloadMapping( QTextStream &s, bool global )
   // Descendent fonts
 
     s << "/FDepVector [\n";
-    for (int range=0; range < rangeOffset + numRanges; range++) {
+    for (range=0; range < rangeOffset + numRanges; range++) {
         QString dummy;
         s << "/";
         s << psname;
@@ -3281,9 +3282,10 @@ QString QPSPrinterFontTTF::glyphName(unsigned short charindex)
 void QPSPrinterFontTTF::uni2glyphSetup()
 {
   uni2glyph.resize(65536);
-  for (int i=0; i<65536; i++) uni2glyph[i] = 0x0000;
+  int i;
+  for (i=0; i<65536; i++) uni2glyph[i] = 0x0000;
   glyph2uni.resize(65536);
-  for (int i=0; i<65536; i++) glyph2uni[i] = 0x0000;
+  for (i=0; i<65536; i++) glyph2uni[i] = 0x0000;
 
   unsigned char* cmap = getTable("cmap");
   int pos = 0;
@@ -3295,7 +3297,6 @@ void QPSPrinterFontTTF::uni2glyphSetup()
   //fprintf(stderr,"cmap version %d (should be 0), %d maps\n",version,nmaps);
 
   ULONG offset = 0;
-  int i;
   for (i=0; i<nmaps; i++) {
     USHORT platform = getUSHORT(cmap+pos); pos+=2;
     USHORT encoding = getUSHORT(cmap+pos); pos+=2;
