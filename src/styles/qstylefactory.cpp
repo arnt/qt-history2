@@ -54,9 +54,10 @@
 #ifndef QT_NO_COMPONENT
 static QInterfaceManager<QStyleInterface> *manager = 0;
 
-static void ensureManager() {
-        if ( !manager ) {
-	    manager = new QInterfaceManager<QStyleInterface>( IID_QStyleInterface, QString::null, "*.dll; *.so", QLibrary::Delayed, FALSE );
+static void ensureManager()
+{
+    if ( !manager ) {
+	manager = new QInterfaceManager<QStyleInterface>( IID_QStyleInterface, QString::null, "*.dll; *.so", QLibrary::Delayed, FALSE );
 
         QString defpath(getenv("QTDIR"));
         if (! defpath.isNull() && ! defpath.isEmpty()) {
