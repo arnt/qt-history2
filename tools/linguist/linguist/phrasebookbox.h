@@ -20,7 +20,7 @@
 
 class QLineEdit;
 class QPushButton;
-class QListViewItem;
+class Q3ListViewItem;
 
 class PhraseLV;
 
@@ -44,10 +44,10 @@ private slots:
     void sourceChanged( const QString& source );
     void targetChanged( const QString& target );
     void definitionChanged( const QString& definition );
-    void selectionChanged( QListViewItem *item );
+    void selectionChanged( Q3ListViewItem *item );
 
 private:
-    void selectItem( QListViewItem *item );
+    void selectItem( Q3ListViewItem *item );
     void enableDisable();
 
     QLineEdit *sourceLed;

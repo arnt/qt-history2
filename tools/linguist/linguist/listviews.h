@@ -18,20 +18,20 @@
 #include <qstring.h>
 #include <qptrlist.h>
 #include <qregexp.h>
-#include <qlistview.h>
+#include <q3listview.h>
 
-class LVI : public QListViewItem
+class LVI : public Q3ListViewItem
 {
 public:
-    LVI( QListView *parent, QString text = QString::null );
-    LVI( QListViewItem *parent, QString text = QString::null );
-    virtual int compare( QListViewItem *other, int column,
-			 bool ascending ) const;
+    LVI( Q3ListView *parent, QString text = QString::null );
+    LVI( Q3ListViewItem *parent, QString text = QString::null );
+    virtual int compare( Q3ListViewItem *other, int column,
+                         bool ascending ) const;
     virtual bool danger() const { return FALSE; }
 
 protected:
     void drawObsoleteText( QPainter * p, const QColorGroup & cg, int column,
-			   int width, int align );
+                           int width, int align );
 
 private:
     static int count;
@@ -41,7 +41,7 @@ class MessageLVI;
 class ContextLVI : public LVI
 {
 public:
-    ContextLVI( QListView *lv, const QString& context );
+    ContextLVI( Q3ListView *lv, const QString& context );
 
     virtual bool danger() const { return dangerCount > 0; }
 
@@ -62,12 +62,12 @@ public:
     MessageLVI *firstMessageItem() { return messageItems.first(); }
     MessageLVI * takeMessageItem( int i ) { return messageItems.takeAt( i ); }
     QList<MessageLVI*> messageItemLst() { return messageItems; }
-    void appendMessageItem( QListView * lv, MessageLVI * i );
-    void instantiateMessageItem( QListView * lv, MessageLVI * i );
+    void appendMessageItem( Q3ListView * lv, MessageLVI * i );
+    void instantiateMessageItem( Q3ListView * lv, MessageLVI * i );
     int messageItemsInList() { return messageItems.count(); }
 
     void paintCell( QPainter * p, const QPalette &cg, int column,
-		    int width, int align );
+                    int width, int align );
 private:
     QList<MessageLVI*> messageItems;
     QString com;
@@ -80,8 +80,8 @@ private:
 class MessageLVI : public LVI
 {
 public:
-    MessageLVI( QListView *parent, const MetaTranslatorMessage & message,
-		const QString& text, const QString& comment, ContextLVI * c );
+    MessageLVI( Q3ListView *parent, const MetaTranslatorMessage & message,
+                const QString& text, const QString& comment, ContextLVI * c );
 
     virtual bool danger() const { return d; }
 
@@ -101,7 +101,7 @@ public:
     MetaTranslatorMessage message() const;
 
     void paintCell( QPainter * p, const QPalette &cg, int column,
-		    int width, int align );
+                    int width, int align );
 private:
     MetaTranslatorMessage m;
     QString tx;

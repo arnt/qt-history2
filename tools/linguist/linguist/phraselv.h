@@ -15,13 +15,13 @@
 
 #include "phrase.h"
 
-#include <qlistview.h>
+#include <q3listview.h>
 
 class PhraseLV;
 
 #define NewPhrase PhraseLV::tr( "(New Phrase)" )
 
-class PhraseLVI : public QListViewItem
+class PhraseLVI : public Q3ListViewItem
 {
 public:
     enum { SourceTextShown, TargetTextShown, DefinitionText, SourceTextOriginal,
@@ -44,7 +44,7 @@ private:
     QString targetTextKey;
 };
 
-class PhraseLV : public QListView
+class PhraseLV : public Q3ListView
 {
     Q_OBJECT
 public:

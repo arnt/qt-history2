@@ -34,7 +34,7 @@
 #include <qfile.h>
 #include <qfiledialog.h>
 #include <qfileinfo.h>
-#include <qheader.h>
+#include <q3header.h>
 #include <qlabel.h>
 #include <qlayout.h>
 #include <qmenubar.h>
@@ -180,7 +180,7 @@ TrWindow::TrWindow()
     dwScope->setCurrentArea(DockWindowAreaLeft);
     dwScope->setWindowTitle(tr("Context"));
 
-    lv = new QListView();
+    lv = new Q3ListView();
     lv->setShowSortIndicator( TRUE );
     lv->setAllColumnsShowFocus( TRUE );
     lv->header()->setStretchEnabled( TRUE, 1 );
@@ -229,17 +229,17 @@ TrWindow::TrWindow()
     foundWhere = 0;
     foundOffset = 0;
 
-    connect( lv, SIGNAL(selectionChanged(QListViewItem *)),
-             this, SLOT(showNewScope(QListViewItem *)) );
+    connect( lv, SIGNAL(selectionChanged(Q3ListViewItem *)),
+             this, SLOT(showNewScope(Q3ListViewItem *)) );
 
-    connect( slv, SIGNAL(currentChanged(QListViewItem *)),
-             this, SLOT(showNewCurrent(QListViewItem *)) );
+    connect( slv, SIGNAL(currentChanged(Q3ListViewItem *)),
+             this, SLOT(showNewCurrent(Q3ListViewItem *)) );
 
-    connect( slv, SIGNAL(clicked(QListViewItem *, const QPoint&, int)),
-             this, SLOT(showNewCurrent(QListViewItem *)) );
+    connect( slv, SIGNAL(clicked(Q3ListViewItem *, const QPoint&, int)),
+             this, SLOT(showNewCurrent(Q3ListViewItem *)) );
 
-    connect( slv, SIGNAL(clicked(QListViewItem *, const QPoint&, int)),
-             this, SLOT(toggleFinished(QListViewItem *, const QPoint&, int)) );
+    connect( slv, SIGNAL(clicked(Q3ListViewItem *, const QPoint&, int)),
+             this, SLOT(toggleFinished(Q3ListViewItem *, const QPoint&, int)) );
 
     connect( me, SIGNAL(translationChanged(const QString&)),
              this, SLOT(updateTranslation(const QString&)) );
@@ -519,9 +519,9 @@ void TrWindow::findAgain()
     int pass = 0;
     int oldItemNo = itemToIndex( slv, slv->currentItem() );
     QString delayedMsg;
-    QListViewItem * j = foundScope;
-    QListViewItem * k = indexToItem( slv, foundItem );
-    QListViewItem * oldScope = lv->currentItem();
+    Q3ListViewItem * j = foundScope;
+    Q3ListViewItem * k = indexToItem( slv, foundItem );
+    Q3ListViewItem * oldScope = lv->currentItem();
 
     if ( lv->childCount() == 0 )
         return;
@@ -597,7 +597,7 @@ void TrWindow::findAgain()
     // selected after a search failed.
     if ( oldScope ) {
         setCurrentContextItem( oldScope );
-        QListViewItem * tmp = indexToItem( slv, oldItemNo );
+        Q3ListViewItem * tmp = indexToItem( slv, oldItemNo );
         if( tmp )
             setCurrentMessageItem( tmp );
     } else {
@@ -625,10 +625,10 @@ void TrWindow::replace()
     h->raise();
 }
 
-int TrWindow::itemToIndex( QListView * view, QListViewItem * item )
+int TrWindow::itemToIndex( Q3ListView * view, Q3ListViewItem * item )
 {
     int no = 0;
-    QListViewItem * tmp;
+    Q3ListViewItem * tmp;
 
     if( view && item ){
         if( (tmp = view->firstChild()) != 0 )
@@ -640,9 +640,9 @@ int TrWindow::itemToIndex( QListView * view, QListViewItem * item )
     return no;
 }
 
-QListViewItem * TrWindow::indexToItem( QListView * view, int index )
+Q3ListViewItem * TrWindow::indexToItem( Q3ListView * view, int index )
 {
-    QListViewItem * item = 0;
+    Q3ListViewItem * item = 0;
 
     if ( view && index > 0 ) {
         item = view->firstChild();
@@ -652,8 +652,8 @@ QListViewItem * TrWindow::indexToItem( QListView * view, int index )
     return item;
 }
 
-bool TrWindow::searchItem( const QString & searchWhat, QListViewItem * j,
-                           QListViewItem * k )
+bool TrWindow::searchItem( const QString & searchWhat, Q3ListViewItem * j,
+                           Q3ListViewItem * k )
 {
     if ( (findWhere & foundWhere) != 0 ) {
         foundOffset = searchWhat.indexOf( findText, foundOffset, findMatchCase ? QString::CaseSensitive : QString::CaseInsensitive);
@@ -861,7 +861,7 @@ void TrWindow::updateCaption()
 // New scope selected - build a new list of source text items
 // for that scope.
 //
-void TrWindow::showNewScope( QListViewItem *item )
+void TrWindow::showNewScope( Q3ListViewItem *item )
 {
     static ContextLVI *oldContext = 0;
 
@@ -893,7 +893,7 @@ void TrWindow::showNewScope( QListViewItem *item )
     }
 }
 
-void TrWindow::showNewCurrent( QListViewItem *item )
+void TrWindow::showNewCurrent( Q3ListViewItem *item )
 {
     messageIsShown = (item != 0);
     MessageLVI *m = (MessageLVI *) item;
@@ -925,7 +925,7 @@ void TrWindow::showNewCurrent( QListViewItem *item )
 
 void TrWindow::updateTranslation( const QString& translation )
 {
-    QListViewItem *item = slv->currentItem();
+    Q3ListViewItem *item = slv->currentItem();
     if ( item != 0 ) {
         MessageLVI *m = (MessageLVI *) item;
         if ( translation != m->translation() ) {
@@ -952,7 +952,7 @@ void TrWindow::updateTranslation( const QString& translation )
 
 void TrWindow::updateFinished( bool finished )
 {
-    QListViewItem *item = slv->currentItem();
+    Q3ListViewItem *item = slv->currentItem();
     if ( item != 0 ) {
         MessageLVI *m = (MessageLVI *) item;
         if ( finished != m->finished() ) {
@@ -997,7 +997,7 @@ void TrWindow::doneAndNext()
     updateStatistics();
 }
 
-void TrWindow::toggleFinished( QListViewItem *item, const QPoint& /* p */,
+void TrWindow::toggleFinished( Q3ListViewItem *item, const QPoint& /* p */,
                                int column )
 {
     if ( item != 0 && column == 0 ) {
@@ -1032,8 +1032,8 @@ void TrWindow::nextUnfinished()
     if ( nextUnfinishedAct->isEnabled() ) {
         // Select a message to translate, grab the first available if
         // there are no current selection.
-        QListViewItem * cItem = lv->currentItem(); // context item
-        QListViewItem * mItem = slv->currentItem(); // message item
+        Q3ListViewItem * cItem = lv->currentItem(); // context item
+        Q3ListViewItem * mItem = slv->currentItem(); // message item
 
         // Make sure an item is selected from both the context and the
         // message list.
@@ -1111,10 +1111,10 @@ void TrWindow::nextUnfinished()
     qApp->beep();
 }
 
-static QListViewItem * lastChild( QListView * view )
+static Q3ListViewItem * lastChild( Q3ListView * view )
 {
     if ( view ) {
-        QListViewItem * ret, * tmp;
+        Q3ListViewItem * ret, * tmp;
         ret = view->firstChild();
         while ( ret ) {
             tmp = ret->nextSibling();
@@ -1131,8 +1131,8 @@ void TrWindow::prevUnfinished()
     if ( prevUnfinishedAct->isEnabled() ) {
         // Select a message to translate, grab the first available if
         // there are no current selection.
-        QListViewItem * cItem = lv->currentItem();  // context item
-        QListViewItem * mItem = slv->currentItem(); // message item
+        Q3ListViewItem * cItem = lv->currentItem();  // context item
+        Q3ListViewItem * mItem = slv->currentItem(); // message item
 
         // Make sure an item is selected from both the context and the
         // message list.
@@ -1206,9 +1206,9 @@ void TrWindow::prevUnfinished()
 
 void TrWindow::prev()
 {
-    QListViewItem * cItem = lv->currentItem();  // context item
-    QListViewItem * mItem = slv->currentItem(); // message item
-    QListViewItem * tmp;
+    Q3ListViewItem * cItem = lv->currentItem();  // context item
+    Q3ListViewItem * mItem = slv->currentItem(); // message item
+    Q3ListViewItem * tmp;
 
     if ( !cItem ) {
         cItem = lv->firstChild();
@@ -1237,9 +1237,9 @@ void TrWindow::prev()
 
 void TrWindow::next()
 {
-    QListViewItem * cItem = lv->currentItem();  // context item
-    QListViewItem * mItem = slv->currentItem(); // message item
-    QListViewItem * tmp;
+    Q3ListViewItem * cItem = lv->currentItem();  // context item
+    Q3ListViewItem * mItem = slv->currentItem(); // message item
+    Q3ListViewItem * tmp;
 
     if ( !cItem ) {
         cItem = lv->firstChild();
@@ -1281,7 +1281,7 @@ void TrWindow::findNext( const QString& text, int where, bool matchCase )
 void TrWindow::revalidate()
 {
     ContextLVI *c = (ContextLVI *) lv->firstChild();
-    QListViewItem * oldScope = lv->currentItem();
+    Q3ListViewItem * oldScope = lv->currentItem();
     int oldItemNo = itemToIndex( slv, slv->currentItem() );
     slv->setUpdatesEnabled( FALSE );
 
@@ -1298,7 +1298,7 @@ void TrWindow::revalidate()
 
     if ( oldScope ){
         showNewScope( oldScope );
-        QListViewItem * tmp = indexToItem( slv, oldItemNo );
+        Q3ListViewItem * tmp = indexToItem( slv, oldItemNo );
         if( tmp )
             setCurrentMessageItem( tmp );
     }
@@ -1594,13 +1594,13 @@ void TrWindow::setupToolBars()
     helpt->addAction(whatsThisAct);
 }
 
-void TrWindow::setCurrentContextItem( QListViewItem *item )
+void TrWindow::setCurrentContextItem( Q3ListViewItem *item )
 {
     lv->ensureItemVisible( item );
     lv->setSelected( item, TRUE );
 }
 
-void TrWindow::setCurrentMessageItem( QListViewItem *item )
+void TrWindow::setCurrentMessageItem( Q3ListViewItem *item )
 {
     slv->ensureItemVisible( item );
     slv->setSelected( item, TRUE );
@@ -1948,7 +1948,7 @@ void TrWindow::toggleStatistics()
 
 void TrWindow::updateStatistics()
 {
-    QListViewItem * ci = lv->firstChild();
+    Q3ListViewItem * ci = lv->firstChild();
     int trW = 0;
     int trC = 0;
     int trCS = 0;
@@ -1962,7 +1962,7 @@ void TrWindow::updateStatistics()
     }
     // ..and the items in the source list
     if (slv->firstChild()) {
-        QListViewItem *lvi = slv->firstChild();
+        Q3ListViewItem *lvi = slv->firstChild();
         MessageLVI *mi;
         while (lvi) {
             mi = reinterpret_cast<MessageLVI*>(lvi);

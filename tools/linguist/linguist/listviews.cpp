@@ -30,26 +30,26 @@ static QString rho( int n )
 
 int LVI::count = 0;
 
-LVI::LVI( QListView * parent, QString text )
-    : QListViewItem( parent, text )
+LVI::LVI( Q3ListView * parent, QString text )
+    : Q3ListViewItem( parent, text )
 {
     setText( 0, rho(count++) );
 }
 
-LVI::LVI( QListViewItem * parent, QString text )
-    : QListViewItem( parent, text )
+LVI::LVI( Q3ListViewItem * parent, QString text )
+    : Q3ListViewItem( parent, text )
 {
     setText( 0, rho(count++) );
 }
 
 /*
-    This is a cut-down version of QListViewItem::paintCell() -
+    This is a cut-down version of Q3ListViewItem::paintCell() -
     it is needed to produce the effect we want on obsolete items
  */
 void LVI::drawObsoleteText( QPainter * p, const QColorGroup & cg, int column,
                             int width, int align )
 {
-    QListView * lv = listView();
+    Q3ListView * lv = listView();
     int marg = lv ? lv->itemMargin() : 1;
     int r = marg;
     p->fillRect( 0, 0, width, height(), cg.brush( QColorGroup::Base ) );
@@ -83,7 +83,7 @@ void LVI::drawObsoleteText( QPainter * p, const QColorGroup & cg, int column,
 
 }
 
-int LVI::compare( QListViewItem *other, int column, bool ascending ) const
+int LVI::compare( Q3ListViewItem *other, int column, bool ascending ) const
 {
     QString thisKey = key( column, ascending );
     QString otherKey = other->key( column, ascending );
@@ -116,7 +116,7 @@ static QString fixEllipsis( const QString & str, int len )
 /*
    MessageLVI implementation
 */
-MessageLVI::MessageLVI( QListView *parent,
+MessageLVI::MessageLVI( Q3ListView *parent,
                         const MetaTranslatorMessage & message,
                         const QString& text, const QString& comment,
                         ContextLVI * c )
@@ -168,7 +168,7 @@ void MessageLVI::paintCell( QPainter * p, const QPalette &cg, int column,
         if ( m.type() == MetaTranslatorMessage::Obsolete )
             drawObsoleteText( p, cg, column, width, align );
         else
-            QListViewItem::paintCell( p, cg, column, width, align );
+            Q3ListViewItem::paintCell( p, cg, column, width, align );
     }
 }
 
@@ -217,7 +217,7 @@ MetaTranslatorMessage MessageLVI::message() const
 /*
    ContextLVI implementation
 */
-ContextLVI::ContextLVI( QListView *lv, const QString& context  )
+ContextLVI::ContextLVI( Q3ListView *lv, const QString& context  )
     : LVI( lv ), com( "" )
 {
     unfinishedCount = 0;
@@ -227,13 +227,13 @@ ContextLVI::ContextLVI( QListView *lv, const QString& context  )
     setText( 1, context );
 }
 
-void ContextLVI::instantiateMessageItem( QListView * lv, MessageLVI * i )
+void ContextLVI::instantiateMessageItem( Q3ListView * lv, MessageLVI * i )
 {
     itemCount++;
     appendMessageItem( lv, i );
 }
 
-void ContextLVI::appendMessageItem( QListView * lv, MessageLVI * i )
+void ContextLVI::appendMessageItem( Q3ListView * lv, MessageLVI * i )
 {
     lv->takeItem( i );
     messageItems.append( i );
@@ -275,7 +275,7 @@ void ContextLVI::paintCell( QPainter * p, const QPalette &cg, int column,
         if ( isContextObsolete() )
             drawObsoleteText( p, cg, column, width, align );
         else
-            QListViewItem::paintCell( p, cg, column, width, align );
+            Q3ListViewItem::paintCell( p, cg, column, width, align );
     }
 }
 

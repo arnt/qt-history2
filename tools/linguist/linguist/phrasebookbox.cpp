@@ -77,8 +77,8 @@ PhraseBookBox::PhraseBookBox( const QString& filename,
              this, SLOT(targetChanged(const QString&)) );
     connect( definitionLed, SIGNAL(textChanged(const QString&)),
              this, SLOT(definitionChanged(const QString&)) );
-    connect( lv, SIGNAL(selectionChanged(QListViewItem *)),
-             this, SLOT(selectionChanged(QListViewItem *)) );
+    connect( lv, SIGNAL(selectionChanged(Q3ListViewItem *)),
+             this, SLOT(selectionChanged(Q3ListViewItem *)) );
     connect( newBut, SIGNAL(clicked()), this, SLOT(newPhrase()) );
     connect( removeBut, SIGNAL(clicked()), this, SLOT(removePhrase()) );
     connect( saveBut, SIGNAL(clicked()), this, SLOT(save()) );
@@ -119,14 +119,14 @@ void PhraseBookBox::newPhrase()
 {
     Phrase ph;
     ph.setSource( NewPhrase );
-    QListViewItem *item = new PhraseLVI( lv, ph );
+    Q3ListViewItem *item = new PhraseLVI( lv, ph );
     selectItem( item );
 }
 
 void PhraseBookBox::removePhrase()
 {
-    QListViewItem *item = lv->currentItem();
-    QListViewItem *next = item->itemBelow() != 0 ? item->itemBelow()
+    Q3ListViewItem *item = lv->currentItem();
+    Q3ListViewItem *next = item->itemBelow() != 0 ? item->itemBelow()
                           : item->itemAbove();
     delete item;
     if ( next != 0 )
@@ -137,7 +137,7 @@ void PhraseBookBox::removePhrase()
 void PhraseBookBox::save()
 {
     pb.clear();
-    QListViewItem *item = lv->firstChild();
+    Q3ListViewItem *item = lv->firstChild();
     while ( item != 0 ) {
         if ( !item->text(PhraseLVI::SourceTextShown).isEmpty() &&
              item->text(PhraseLVI::SourceTextShown) != NewPhrase )
@@ -180,12 +180,12 @@ void PhraseBookBox::definitionChanged( const QString& definition )
     }
 }
 
-void PhraseBookBox::selectionChanged( QListViewItem * /* item */ )
+void PhraseBookBox::selectionChanged( Q3ListViewItem * /* item */ )
 {
     enableDisable();
 }
 
-void PhraseBookBox::selectItem( QListViewItem *item )
+void PhraseBookBox::selectItem( Q3ListViewItem *item )
 {
     lv->setSelected( item, TRUE );
     lv->ensureItemVisible( item );
@@ -193,7 +193,7 @@ void PhraseBookBox::selectItem( QListViewItem *item )
 
 void PhraseBookBox::enableDisable()
 {
-    QListViewItem *item = lv->currentItem();
+    Q3ListViewItem *item = lv->currentItem();
 
     sourceLed->blockSignals( TRUE );
     targetLed->blockSignals( TRUE );

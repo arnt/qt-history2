@@ -22,7 +22,7 @@
 #include <qhash.h>
 #include <qstringlist.h>
 #include <qpixmap.h>
-#include <qlistview.h>
+#include <q3listview.h>
 
 #if 0 /// ### enable me
 #include <qprinter.h>
@@ -32,8 +32,8 @@
 class QAction;
 class QDialog;
 class QLabel;
-class QListView;
-class QListViewItem;
+class Q3ListView;
+class Q3ListViewItem;
 class QMenu;
 
 class FindDialog;
@@ -93,11 +93,11 @@ private slots:
     void setupPhrase();
     bool maybeSave();
     void updateCaption();
-    void showNewScope( QListViewItem *item );
-    void showNewCurrent( QListViewItem *item );
+    void showNewScope( Q3ListViewItem *item );
+    void showNewCurrent( Q3ListViewItem *item );
     void updateTranslation( const QString& translation );
     void updateFinished( bool finished );
-    void toggleFinished( QListViewItem *item, const QPoint& p, int column );
+    void toggleFinished( Q3ListViewItem *item, const QPoint& p, int column );
     void prevUnfinished();
     void nextUnfinished();
     void findNext( const QString& text, int where, bool matchCase );
@@ -120,8 +120,8 @@ private:
     void addRecentlyOpenedFile( const QString & fn, QStringList & lst );
     void setupMenuBar();
     void setupToolBars();
-    void setCurrentContextItem( QListViewItem *item );
-    void setCurrentMessageItem( QListViewItem *item );
+    void setCurrentContextItem( Q3ListViewItem *item );
+    void setCurrentMessageItem( Q3ListViewItem *item );
     QString friendlyPhraseBookName( int k );
     bool openPhraseBook( const QString& name );
     bool savePhraseBook( QString& name, const PhraseBook& pb );
@@ -131,15 +131,15 @@ private:
     bool danger( const QString& source, const QString& translation,
                  bool verbose = FALSE );
 
-    int itemToIndex( QListView * view, QListViewItem * item );
-    QListViewItem * indexToItem( QListView * view, int index );
-    bool searchItem( const QString & searchWhat, QListViewItem * j,
-                     QListViewItem * k );
+    int itemToIndex( Q3ListView * view, Q3ListViewItem * item );
+    Q3ListViewItem * indexToItem( Q3ListView * view, int index );
+    bool searchItem( const QString & searchWhat, Q3ListViewItem * j,
+                     Q3ListViewItem * k );
     void doCharCounting( const QString& text, int& trW, int& trC, int& trCS );
 
-    QListView     * plv;
-    QListView     * lv;
-    QListView     * slv;
+    Q3ListView     * plv;
+    Q3ListView     * lv;
+    Q3ListView     * slv;
     MessageEditor * me;
     QLabel        * progress;
     QLabel        * modified;
@@ -167,7 +167,7 @@ private:
     int findWhere;
     bool findMatchCase;
     int foundItem;
-    QListViewItem *foundScope;
+    Q3ListViewItem *foundScope;
     int foundWhere;
     int foundOffset;
 

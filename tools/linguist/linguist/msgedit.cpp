@@ -34,7 +34,7 @@
 #include <qwhatsthis.h>
 #include <qvbox.h>
 #include <qmainwindow.h>
-#include <qheader.h>
+#include <q3header.h>
 #include <qregexp.h>
 #include <qdockwindow.h>
 #include <qscrollview.h>
@@ -392,7 +392,7 @@ MessageEditor::MessageEditor( MetaTranslator * t, QMainWindow *parent,
     topDockWnd->setCurrentArea(DockWindowAreaTop);
     topDockWnd->setWindowTitle(tr("Source text"));
 
-    srcTextList = new QListView();
+    srcTextList = new Q3ListView();
     srcTextList->setShowSortIndicator( TRUE );
     srcTextList->setAllColumnsShowFocus( TRUE );
     srcTextList->setSorting( 0 );
@@ -401,7 +401,7 @@ MessageEditor::MessageEditor( MetaTranslator * t, QMainWindow *parent,
     srcTextList->addColumn( tr("Source text") );
     srcTextList->addColumn( tr("Translation"), 300 );
     srcTextList->setColumnAlignment( 0, Qt::AlignCenter );
-    srcTextList->setColumnWidthMode( 1, QListView::Manual );
+    srcTextList->setColumnWidthMode( 1, Q3ListView::Manual );
     srcTextList->header()->setStretchEnabled( TRUE, 1 );
     srcTextList->setMinimumSize( QSize( 50, 50 ) );
     srcTextList->setHScrollBarMode( QScrollView::AlwaysOff );
@@ -476,10 +476,10 @@ MessageEditor::MessageEditor( MetaTranslator * t, QMainWindow *parent,
              this, SIGNAL(copyAvailable(bool)) );
     connect( qApp->clipboard(), SIGNAL(dataChanged()),
              this, SLOT(updateCanPaste()) );
-    connect( phraseLv, SIGNAL(doubleClicked(QListViewItem *)),
-             this, SLOT(insertPhraseInTranslation(QListViewItem *)) );
-    connect( phraseLv, SIGNAL(returnPressed(QListViewItem *)),
-             this, SLOT(insertPhraseInTranslationAndLeave(QListViewItem *)) );
+    connect( phraseLv, SIGNAL(doubleClicked(Q3ListViewItem *)),
+             this, SLOT(insertPhraseInTranslation(Q3ListViewItem *)) );
+    connect( phraseLv, SIGNAL(returnPressed(Q3ListViewItem *)),
+             this, SLOT(insertPhraseInTranslationAndLeave(Q3ListViewItem *)) );
 
     // What's this
     this->setWhatsThis(tr("This whole panel allows you to view and edit "
@@ -555,7 +555,7 @@ bool MessageEditor::eventFilter( QObject *o, QEvent *e )
                 }
             }
             doFocusChange = TRUE;
-        } else if ( qt_cast<QListView*>(o) ) {
+        } else if ( qt_cast<Q3ListView*>(o) ) {
             // handle the ESC key in the list views
             if ( e->type() == QEvent::KeyRelease && k == Key_Escape )
                 editorPage->translationMed->setFocus();
@@ -574,12 +574,12 @@ void MessageEditor::resizeEvent( QResizeEvent * )
     sw->resize( sv->viewport()->width(), sw->height() );
 }
 
-QListView * MessageEditor::sourceTextList() const
+Q3ListView * MessageEditor::sourceTextList() const
 {
     return srcTextList;
 }
 
-QListView * MessageEditor::phraseList() const
+Q3ListView * MessageEditor::phraseList() const
 {
     return phraseLv;
 }
@@ -732,20 +732,20 @@ void MessageEditor::emitTranslationChanged()
 
 void MessageEditor::guessActivated( int accelKey )
 {
-    QListViewItem *item = phraseLv->firstChild();
+    Q3ListViewItem *item = phraseLv->firstChild();
     while ( item != 0 && ((PhraseLVI *) item)->accelKey() != accelKey )
         item = item->nextSibling();
     if ( item != 0 )
         insertPhraseInTranslation( item );
 }
 
-void MessageEditor::insertPhraseInTranslation( QListViewItem *item )
+void MessageEditor::insertPhraseInTranslation( Q3ListViewItem *item )
 {
     editorPage->translationMed->insert(((PhraseLVI *) item)->phrase().target());
     emit translationChanged( editorPage->translationMed->text() );
 }
 
-void MessageEditor::insertPhraseInTranslationAndLeave( QListViewItem *item )
+void MessageEditor::insertPhraseInTranslationAndLeave( Q3ListViewItem *item )
 {
     editorPage->translationMed->insert(((PhraseLVI *) item)->phrase().target());
     emit translationChanged( editorPage->translationMed->text() );

@@ -31,8 +31,8 @@
 class QAccel;
 class QDockWindow;
 class QLabel;
-class QListView;
-class QListViewItem;
+class Q3ListView;
+class Q3ListViewItem;
 class QTextView;
 class QVBoxLayout;
 
@@ -161,8 +161,8 @@ class MessageEditor : public QWidget
 public:
     MessageEditor( MetaTranslator * t, QMainWindow *parent = 0,
                    const char * name = 0 );
-    QListView * sourceTextList() const;
-    QListView * phraseList() const;
+    Q3ListView * sourceTextList() const;
+    Q3ListView * phraseList() const;
 
     void showNothing();
     void showContext( const QString& context, bool finished );
@@ -204,8 +204,8 @@ public slots:
 private slots:
     void emitTranslationChanged();
     void guessActivated( int accelKey );
-    void insertPhraseInTranslation( QListViewItem *item );
-    void insertPhraseInTranslationAndLeave( QListViewItem *item );
+    void insertPhraseInTranslation( Q3ListViewItem *item );
+    void insertPhraseInTranslationAndLeave( Q3ListViewItem *item );
     void updateButtons();
     void updateCanPaste();
     void toggleFinished();
@@ -219,7 +219,7 @@ private:
     void setTranslation( const QString& translation, bool emitt );
     void setEditionEnabled( bool enabled );
 
-    QListView * srcTextList;
+    Q3ListView * srcTextList;
     QDockWindow * topDockWnd, *bottomDockWnd;
     EditorPage * editorPage;
     QVBoxLayout * v;

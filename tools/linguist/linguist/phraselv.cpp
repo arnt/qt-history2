@@ -20,7 +20,7 @@
 
 #include <qregexp.h>
 #include <qwhatsthis.h>
-#include <qheader.h>
+#include <q3header.h>
 #include <qevent.h>
 
 class WhatPhrase : public QObject
@@ -55,7 +55,7 @@ bool WhatPhrase::eventFilter(QObject *o, QEvent *e)
 
 QString WhatPhrase::text( const QPoint& p ) const
 {
-    QListViewItem *item = lv->itemAt( p );
+    Q3ListViewItem *item = lv->itemAt( p );
     if ( item == 0 )
         return PhraseLV::tr( "This is a list of phrase entries relevant to the"
                   " source text.  Each phrase is supplemented with a suggested"
@@ -73,7 +73,7 @@ QString WhatPhrase::text( const QPoint& p ) const
 }
 
 PhraseLVI::PhraseLVI( PhraseLV *parent, const Phrase& phrase, int accelKey )
-    : QListViewItem( parent ),
+    : Q3ListViewItem( parent ),
       akey( accelKey )
 {
     setPhrase( phrase );
@@ -105,7 +105,7 @@ void PhraseLVI::setText( int column, const QString& text )
     } else if ( column == TargetTextShown ) {
         targetTextKey = makeKey( text );
     }
-    QListViewItem::setText( column, text );
+    Q3ListViewItem::setText( column, text );
 }
 
 void PhraseLVI::setPhrase( const Phrase& phrase )
@@ -140,7 +140,7 @@ QString PhraseLVI::makeKey( const QString& text ) const
 }
 
 PhraseLV::PhraseLV( QWidget *parent, const char *name )
-    : QListView( parent, name )
+    : Q3ListView( parent, name )
 {
     setAllColumnsShowFocus( TRUE );
     setShowSortIndicator( TRUE );
@@ -160,5 +160,5 @@ PhraseLV::~PhraseLV()
 
 QSize PhraseLV::sizeHint() const
 {
-    return QSize( QListView::sizeHint().width(), 50 );
+    return QSize( Q3ListView::sizeHint().width(), 50 );
 }
