@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qwhatsthis.cpp#34 $
+** $Id: //depot/qt/main/src/widgets/qwhatsthis.cpp#35 $
 **
 ** Implementation of QWhatsThis class
 **
@@ -35,7 +35,9 @@
 #include "qcursor.h"
 #include "qbitmap.h"
 
-/*! \class QWhatsThis qwhatsthis.h
+
+/*!
+  \class QWhatsThis qwhatsthis.h
 
   \brief The QWhatsThis class provides a simple description of any
   widget, e.g. answering the question "what's this?"
@@ -265,7 +267,8 @@ QWhatsThisPrivate::~QWhatsThisPrivate()
 	if ( !i->count )
 	    delete i;
     }
-
+    delete dict;
+    delete cursor;
     // and finally lose wt
     wt = 0;
 }

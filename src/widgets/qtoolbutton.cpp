@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtoolbutton.cpp#45 $
+** $Id: //depot/qt/main/src/widgets/qtoolbutton.cpp#46 $
 **
 ** Implementation of QToolButton class
 **
@@ -43,7 +43,8 @@ class QToolButtonPrivate
 };
 
 
-/*! \class QToolButton qtoolbutton.h
+/*!
+  \class QToolButton qtoolbutton.h
 
   \brief The QToolButton class provides a push button whose appearance
   has been tailored for use in a QToolBar.
@@ -163,6 +164,7 @@ QToolButton::QToolButton( QIconSet iconSet, const QString &textLabel,
 QToolButton::~QToolButton()
 {
     delete d;
+    delete s;
     threeDeeButton = 0;
 }
 

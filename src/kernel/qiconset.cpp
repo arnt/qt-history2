@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qiconset.cpp#21 $
+** $Id: //depot/qt/main/src/kernel/qiconset.cpp#22 $
 **
 ** Implementation of QIconSet class
 **
@@ -28,6 +28,7 @@
 #include "qbitmap.h"
 #include "qapplication.h"
 #include "qpainter.h"
+
 
 struct QIconSetPrivate: public QShared
 {
@@ -467,7 +468,7 @@ QPixmap QIconSet::pixmap() const
 
 void QIconSet::detach()
 {
-    if ( !d || !d->count )
+    if ( !d || d->count == 1 )
 	return;
 
     QIconSetPrivate * p = new QIconSetPrivate;
