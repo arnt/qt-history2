@@ -97,9 +97,9 @@ void MainView::url_createdDirectory( const QUrlInfo&, QNetworkOperation *no )
     logMessage( "SIGNAL", "createdDirectory()", no ); 
 }
 
-void MainView::url_data(const QByteArray&, QNetworkOperation *no )
+void MainView::url_data(const QByteArray&ba, QNetworkOperation *no )
 {
-    logMessage( "SIGNAL", "data()", no ); 
+    logMessage( "SIGNAL", QString("data( size=%1 )").arg(ba.count()), no ); 
 }
 
 void MainView::url_dataTransferProgress( int i, int j, QNetworkOperation *no)
