@@ -461,7 +461,7 @@ QFontEngineData::~QFontEngineData()
 
     Constructs a font for use on the paint device \a pd using the
     specified font \a data.
- */
+*/
 QFont::QFont( QFontPrivate *data, QPaintDevice *pd )
 {
     d = new QFontPrivate( *data );
@@ -1310,7 +1310,7 @@ QFont QFont::defaultFont()
 
   Please use QApplication::setFont() instead.
 */
-void  QFont::setDefaultFont( const QFont &f )
+void QFont::setDefaultFont( const QFont &f )
 {
     QApplication::setFont( f );
 }
