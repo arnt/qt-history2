@@ -82,6 +82,7 @@ QTextStream (rms)
 
 QWorkspace (vohi)
   Support focusPolicy() for mdi clients to prevent them becoming the active window
+  tileVertically/tileHorizontally slots
 
 QTabWidget
   QWidget *page( int pos ) function like in QWizard
@@ -96,6 +97,9 @@ QFtp (rms?)
 QSpinBox
   Grant access to the lineedit widget.
 
+QFileDialog
+  Re-use the history
+
 
 Feature Requests
 ----------------
@@ -104,8 +108,7 @@ QFileDialog
   setSelectedFilter( const QString&/int ) to set used filter
   set filter to initial file-extension
   make addFilter public
-
-QFileDialog
+  add signal when filter changes
   Make the combobox like on MS-Windows and add additional
   functionality for bookmarks and history
 
@@ -161,6 +164,10 @@ QWorkspace
 Socket Multicasting (rms)
   There was one request for a socket class where you can easily do
   multicasting. I'm not sure if many people will need this.
+
+qt_winEventFilter
+  Inprise want's this method to be Q_EXPORT'ed; it's probably better to remove it, 
+  since there is QApplication::winEventFilter already.
 
 
 New functionality
