@@ -20,7 +20,7 @@ class Q_COMPAT_EXPORT QVBox : public QVBoxWidget
 {
     Q_OBJECT
 public:
-    QVBox(QWidget* parent=0, const char* name=0, Qt::WFlags f=0)
+    inline QVBox(QWidget* parent=0, const char* name=0, Qt::WFlags f=0)
         : QVBoxWidget(parent,name,f) {}
 };
 

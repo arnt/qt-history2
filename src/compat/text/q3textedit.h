@@ -14,7 +14,7 @@
 #ifndef Q3TEXTEDIT_H
 #define Q3TEXTEDIT_H
 
-#include "qscrollview.h"
+#include "q3scrollview.h"
 #include "qstylesheet.h"
 #include "qmimefactory.h"
 #include "qmap.h"

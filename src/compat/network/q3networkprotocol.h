@@ -41,7 +41,7 @@
 #ifndef QT_H
 #include "qurlinfo.h"
 #include "qstring.h"
-#include "qdict.h"
+#include "q3dict.h"
 #include "qobject.h"
 #endif // QT_H
 
@@ -71,7 +71,7 @@ public:
 
 };
 
-typedef QDict< Q3NetworkProtocolFactoryBase > Q3NetworkProtocolDict;
+typedef Q3Dict< Q3NetworkProtocolFactoryBase > Q3NetworkProtocolDict;
 
 class Q_COMPAT_EXPORT Q3NetworkProtocol : public QObject
 {

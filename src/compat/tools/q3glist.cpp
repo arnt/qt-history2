@@ -11,10 +11,10 @@
 **
 ****************************************************************************/
 
-#include "qglist.h"
-#include "qgvector.h"
+#include "q3glist.h"
+#include "q3gvector.h"
 #include "qdatastream.h"
-#include "qvaluelist.h"
+#include "q3valuelist.h"
 
 /*!
   \class Q3LNode qglist.h
@@ -85,7 +85,7 @@ public:
 	} else if ( list ) {
 	    list->push_front( i );
 	} else {
-	    list = new QValueList<Q3GListIterator*>;
+	    list = new Q3ValueList<Q3GListIterator*>;
 	    list->push_front( i );
 	}
     }
@@ -109,7 +109,7 @@ public:
 	    iterator->curNode = 0;
 	}
 	if ( list ) {
-	    for ( QValueList<Q3GListIterator*>::Iterator i = list->begin(); i != list->end(); ++i ) {
+	    for ( Q3ValueList<Q3GListIterator*>::Iterator i = list->begin(); i != list->end(); ++i ) {
 		if ( zeroList )
 		    (*i)->list = 0;
 		(*i)->curNode = 0;
@@ -123,7 +123,7 @@ public:
 		iterator->curNode = curNode;
 	}
 	if ( list ) {
-	    for ( QValueList<Q3GListIterator*>::Iterator i = list->begin(); i != list->end(); ++i ) {
+	    for ( Q3ValueList<Q3GListIterator*>::Iterator i = list->begin(); i != list->end(); ++i ) {
 		if ( (*i)->curNode == n )
 		    (*i)->curNode = curNode;
 	    }
@@ -131,7 +131,7 @@ public:
     }
 
 private:
-    QValueList<Q3GListIterator*>* list;
+    Q3ValueList<Q3GListIterator*>* list;
     Q3GListIterator* iterator;
 };
 

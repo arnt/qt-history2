@@ -23,7 +23,7 @@
 #include "qdragobject.h"
 #include "qbitmap.h"
 #include "qpicture.h"
-#include "qvaluelist.h"
+#include "q3valuelist.h"
 
 #ifndef QT_NO_ICONVIEW
 
@@ -180,7 +180,7 @@ protected:
     virtual void paintItem(QPainter *p, const QPalette &pal);
     virtual void paintFocus(QPainter *p, const QPalette &pal);
 #ifndef QT_NO_DRAGANDDROP
-    virtual void dropped(QDropEvent *e, const QValueList<QIconDragItem> &lst);
+    virtual void dropped(QDropEvent *e, const Q3ValueList<QIconDragItem> &lst);
 #endif
     virtual void dragEntered();
     virtual void dragLeft();
@@ -389,7 +389,7 @@ signals:
     void contextMenuRequested(QIconViewItem* item, const QPoint &pos);
 
 #ifndef QT_NO_DRAGANDDROP
-    void dropped(QDropEvent *e, const QValueList<QIconDragItem> &lst);
+    void dropped(QDropEvent *e, const Q3ValueList<QIconDragItem> &lst);
 #endif
     void moved();
     void onItem(QIconViewItem *item);

@@ -721,7 +721,6 @@ void QAbstractSocketPrivate::connectToNextAddress()
         // connected() and return.
         if (socketLayer.connectToHost(host, port)) {
             state = Qt::ConnectedState;
-            q->setOpenMode(QIODevice::ReadWrite);
             emit q->stateChanged(state);
             if (d->readSocketNotifier)
                 readSocketNotifier->setEnabled(true);
@@ -764,7 +763,6 @@ void QAbstractSocketPrivate::testConnection()
 
     if (socketLayer.socketState() == Qt::ConnectedState || socketLayer.connectToHost(host, port)) {
         state = Qt::ConnectedState;
-        q->setOpenMode(QIODevice::ReadWrite);
         emit q->stateChanged(state);
 
         if (d->readSocketNotifier)
@@ -945,10 +943,12 @@ bool QAbstractSocket::isValid() const
 
     \sa socketState(), peerName(), peerAddress(), peerPort(), waitForConnected()
 */
-void QAbstractSocket::connectToHost(const QString &hostName, Q_UINT16 port)
+void QAbstractSocket::connectToHost(const QString &hostName, Q_UINT16 port,
+                                    OpenMode openMode)
 {
 #if defined(QABSTRACTSOCKET_DEBUG)
-    qDebug("QAbstractSocket::connectToHost(\"%s\", %i)...", hostName.latin1(), port);
+    qDebug("QAbstractSocket::connectToHost(\"%s\", %i, %i)...", hostName.latin1(), port,
+           (int) openMode);
 #endif
 
     if (d->state == Qt::ConnectingState || d->state == Qt::ConnectedState)
@@ -957,6 +957,8 @@ void QAbstractSocket::connectToHost(const QString &hostName, Q_UINT16 port)
     d->hostName = hostName;
     d->port = port;
     d->state = Qt::HostLookupState;
+
+    setOpenMode(openMode);
     emit stateChanged(d->state);
 
     QHostAddress temp;
@@ -978,13 +980,14 @@ void QAbstractSocket::connectToHost(const QString &hostName, Q_UINT16 port)
 
     Attempts to make a connection to \a address on port \a port.
 */
-void QAbstractSocket::connectToHost(const QHostAddress &address, Q_UINT16 port)
+void QAbstractSocket::connectToHost(const QHostAddress &address, Q_UINT16 port,
+                                    OpenMode openMode)
 {
 #if defined(QABSTRACTSOCKET_DEBUG)
-    qDebug("QAbstractSocket::connectToHost([%s], %i)...",
-           address.toString().latin1(), port);
+    qDebug("QAbstractSocket::connectToHost([%s], %i, %i)...",
+           address.toString().latin1(), port, (int) openMode);
 #endif
-    connectToHost(address.toString(), port);
+    connectToHost(address.toString(), port, openMode);
 }
 
 /*!
@@ -1125,7 +1128,8 @@ int QAbstractSocket::socketDescriptor() const
 
     \sa socketDescriptor()
 */
-bool QAbstractSocket::setSocketDescriptor(int socketDescriptor, Qt::SocketState socketState)
+bool QAbstractSocket::setSocketDescriptor(int socketDescriptor, Qt::SocketState socketState,
+                                          OpenMode openMode)
 {
     bool result = d->socketLayer.initialize(socketDescriptor, socketState);
     if (!result) {
@@ -1136,7 +1140,7 @@ bool QAbstractSocket::setSocketDescriptor(int socketDescriptor, Qt::SocketState 
 
     d->setupSocketNotifiers();
 
-    setOpenMode(ReadWrite);
+    setOpenMode(openMode);
 
     if (d->state != socketState) {
         d->state = socketState;

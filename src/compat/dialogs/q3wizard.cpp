@@ -17,11 +17,11 @@
 #include "qpushbutton.h"
 #include "qcursor.h"
 #include "qlabel.h"
-#include "qwidgetstack.h"
+#include "q3widgetstack.h"
 #include "qapplication.h"
-#include "qptrlist.h"
+#include "q3ptrlist.h"
 #include "qpainter.h"
-#include "qaccel.h"
+#include "q3accel.h"
 using namespace Qt;
 
 /*!
@@ -85,8 +85,8 @@ public:
 
     QVBoxLayout * v;
     Page * current;
-    QWidgetStack * ws;
-    QPtrList<Page> pages;
+    Q3WidgetStack * ws;
+    Q3PtrList<Page> pages;
     QLabel * title;
     QPushButton * backButton;
     QPushButton * nextButton;
@@ -97,7 +97,7 @@ public:
     QFrame * hbar1, * hbar2;
 
 #ifndef QT_NO_ACCEL
-    QAccel * accel;
+    Q3Accel * accel;
     int backAccel;
     int nextAccel;
 #endif
@@ -124,7 +124,7 @@ Q3Wizard::Q3Wizard(QWidget *parent, const char *name, bool modal, Qt::WFlags f )
 {
     d = new Q3WizardPrivate();
     d->current = 0; // not quite true, but...
-    d->ws = new QWidgetStack( this, "qt_widgetstack" );
+    d->ws = new Q3WidgetStack( this, "qt_widgetstack" );
     d->pages.setAutoDelete( true );
     d->title = new QLabel( this, "title label" );
 
@@ -161,7 +161,7 @@ Q3Wizard::Q3Wizard(QWidget *parent, const char *name, bool modal, Qt::WFlags f )
 	     this, SLOT(help()) );
 
 #ifndef QT_NO_ACCEL
-    d->accel = new QAccel( this, "arrow-key accel" );
+    d->accel = new Q3Accel( this, "arrow-key accel" );
     d->backAccel = d->accel->insertItem( Qt::ALT + Qt::Key_Left );
     d->accel->connectItem( d->backAccel, this, SLOT(back()) );
     d->nextAccel = d->accel->insertItem( Qt::ALT + Qt::Key_Right );

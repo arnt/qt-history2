@@ -18,12 +18,12 @@
 #include "qpainter.h"
 #include "qpixmap.h"
 #include "qcursor.h"
-#include "qscrollview.h"
-#include "qptrdict.h"
+#include "q3scrollview.h"
+#include "q3ptrdict.h"
 #include "qapplication.h"
 #include "qtimer.h"
 #include "qstyle.h"
-#include "qptrlist.h"
+#include "q3ptrlist.h"
 #include "qevent.h"
 #ifdef Q_WS_MAC
 # include "private/qt_mac_p.h"
@@ -159,8 +159,8 @@ public:
     QViewportWidget*    viewport;
     QClipperWidget*     clipped_viewport;
     int         flags;
-    QPtrList<QSVChildRec>       children;
-    QPtrDict<QSVChildRec>       childDict;
+    Q3PtrList<QSVChildRec>       children;
+    Q3PtrDict<QSVChildRec>       childDict;
     QWidget*    corner;
     int         vx, vy, vwidth, vheight; // for drawContents-style usage
     int         l_marg, r_marg, t_marg, b_marg;

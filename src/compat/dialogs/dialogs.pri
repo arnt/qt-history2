@@ -3,10 +3,9 @@
 HEADERS += \
 	dialogs/q3filedialog.h \
 	dialogs/q3tabdialog.h \
-	dialogs/qtabdialog.h \
 	dialogs/q3progressdialog.h \
-	dialogs/q3wizard.h \
-	dialogs/qwizard.h
+	dialogs/q3wizard.h
+
 SOURCES += \
 	dialogs/q3filedialog.cpp \
 	dialogs/q3progressdialog.cpp \

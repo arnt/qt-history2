@@ -20,7 +20,8 @@ class Q_COMPAT_EXPORT QPopupMenu : public QMenu
 {
     Q_OBJECT
 public:
-    QPopupMenu(QWidget *parent = 0, const char * =0) : QMenu(parent)  { }
+    inline QPopupMenu(QWidget *parent = 0, const char * =0) : QMenu(parent)
+    { }
 
     inline int exec() { return findIdForAction(QMenu::exec()); }
     inline int exec(const QPoint & pos, int indexAtPoint = 0) {

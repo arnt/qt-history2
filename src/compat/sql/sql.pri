@@ -12,17 +12,6 @@ HEADERS +=      sql/q3sqlfieldinfo.h \
                 sql/q3sqleditorfactory.h \
                 sql/q3sqlpropertymap.h \
                 sql/q3databrowser.h \
-                sql/qdatabrowser.h \
-                sql/qdatatable.h \
-                sql/qdataview.h \
-                sql/qeditorfactory.h \
-                sql/qsqlcursor.h \
-                sql/qsqleditorfactory.h \
-                sql/qsqlfieldinfo.h \
-                sql/qsqlform.h \
-                sql/qsqlpropertymap.h \
-                sql/qsqlrecordinfo.h \
-                sql/qsqlselectcursor.h
 
 SOURCES +=      sql/q3datatable.cpp \
                 sql/q3dataview.cpp \

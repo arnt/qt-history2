@@ -2560,7 +2560,7 @@ void Q3ListViewItem::ignoreDoubleClick()
     \sa QWidget::setAttribute()
 */
 Q3ListView::Q3ListView(QWidget * parent, const char *name, Qt::WFlags f)
-    : QScrollView(parent, name, f | Qt::WStaticContents | Qt::WNoAutoErase)
+    : Q3ScrollView(parent, name, f | Qt::WStaticContents | Qt::WNoAutoErase)
 {
     init();
 }
@@ -3150,7 +3150,7 @@ void Q3ListView::clear()
 void Q3ListView::setContentsPos(int x, int y)
 {
     updateGeometries();
-    QScrollView::setContentsPos(x, y);
+    Q3ScrollView::setContentsPos(x, y);
 }
 
 /*!
@@ -3459,7 +3459,7 @@ void Q3ListView::show()
         reconfigureItems();
         updateGeometries();
     }
-    QScrollView::show();
+    Q3ScrollView::show();
 }
 
 
@@ -3607,7 +3607,7 @@ void Q3ListView::makeVisible()
 
 void Q3ListView::resizeEvent(QResizeEvent *e)
 {
-    QScrollView::resizeEvent(e);
+    Q3ScrollView::resizeEvent(e);
     d->fullRepaintOnComlumnChange = true;
     d->h->resize(visibleWidth(), d->h->height());
     d->h->adjustHeaderSize();
@@ -3617,7 +3617,7 @@ void Q3ListView::resizeEvent(QResizeEvent *e)
 
 void Q3ListView::viewportResizeEvent(QResizeEvent *e)
 {
-    QScrollView::viewportResizeEvent(e);
+    Q3ScrollView::viewportResizeEvent(e);
     d->h->resize(visibleWidth(), d->h->height());
     if (resizeMode() != NoColumn && currentItem() && currentItem()->renameBox) {
         QRect r = itemRect(currentItem());
@@ -3726,7 +3726,7 @@ bool Q3ListView::eventFilter(QObject * o, QEvent * e)
         }
     }
 
-    return QScrollView::eventFilter(o, e);
+    return Q3ScrollView::eventFilter(o, e);
 }
 
 
@@ -5634,7 +5634,7 @@ void Q3ListView::changeEvent(QEvent *ev)
         if (!palette().isEqual(QPalette::Active, QPalette::Inactive))
             viewport()->update();
     }
-    QScrollView::changeEvent(ev);
+    Q3ScrollView::changeEvent(ev);
 
     if (ev->type() == QEvent::ApplicationFontChange || ev->type() == QEvent::FontChange
         || ev->type() == QEvent::ApplicationPaletteChange || ev->type() == QEvent::PaletteChange)
@@ -6669,7 +6669,7 @@ QSize Q3ListView::sizeHint() const
 
 QSize Q3ListView::minimumSizeHint() const
 {
-    return QScrollView::minimumSizeHint();
+    return Q3ScrollView::minimumSizeHint();
 }
 
 
@@ -6765,7 +6765,7 @@ bool Q3ListView::rootIsDecorated() const
     vertically if necessary and opening (expanding) any parent items
     if this is required to show the item.
 
-    \sa itemRect() QScrollView::ensureVisible()
+    \sa itemRect() Q3ScrollView::ensureVisible()
 */
 
 void Q3ListView::ensureItemVisible(const Q3ListViewItem * i)

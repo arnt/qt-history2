@@ -27,7 +27,7 @@
  *****************************************************************************/
 
 /*!
-    \class Q3CString qcstring.h
+    \class Q3CString q3cstring.h
     \reentrant
     \brief The Q3CString class provides an abstraction of the classic C
     zero-terminated char array (char *).

@@ -33,7 +33,7 @@
 #include <qtextview.h>
 #include <qstyle.h>
 #include <qevent.h>
-#include <qvaluelist.h>
+#include <q3valuelist.h>
 
 #include <qdebug.h>
 
@@ -264,8 +264,8 @@ MainWindow::MainWindow()
     familysubcombo->insertStringList(fs);
 
     choosesubcombo->insertStringList(families);
-    QValueList<int> sizes = db.standardSizes();
-    QValueList<int>::Iterator it = sizes.begin();
+    Q3ValueList<int> sizes = db.standardSizes();
+    Q3ValueList<int>::Iterator it = sizes.begin();
     while (it != sizes.end())
         psizecombo->insertItem(QString::number(*it++));
 
@@ -369,7 +369,7 @@ MainWindow::MainWindow()
     fontpathlistbox->insertStringList(fontpaths);
 
     settings.endGroup(); // Qt
-    
+
     setModified(FALSE);
 }
 
@@ -395,7 +395,7 @@ void MainWindow::fileSave()
         QFont font = db.font(familycombo->currentText(),
                              stylecombo->currentText(),
                              psizecombo->currentText().toInt());
-        
+
         QStringList actcg, inactcg, discg;
         int i;
         for (i = 0; i < QColorGroup::NColorRoles; i++)
@@ -412,12 +412,12 @@ void MainWindow::fileSave()
         settings.setValue("Palette/active", actcg);
         settings.setValue("Palette/inactive", inactcg);
         settings.setValue("Palette/disabled", discg);
-        
+
         QStringList libpath = QApplication::libraryPaths();
         QString libpathkey =
             QString("%1.%2/libraryPath").arg( QT_VERSION >> 16 ).arg( (QT_VERSION & 0xff00 ) >> 8 );
         settings.setValue(libpathkey, libpath);
-        
+
         settings.setValue("fontPath", fontpaths);
         settings.setValue("embedFonts", fontembeddingcheckbox->isChecked());
         settings.setValue("style", gstylecombo->currentText());

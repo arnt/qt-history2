@@ -64,7 +64,7 @@ const QMetaObject *WidgetInfo::metaObject(const QString &widgetName)
     else if (widgetName == QLatin1String("QTabWidget"))
         return &QTabWidget::staticMetaObject;
     else if (widgetName == QLatin1String("QWidgetStack"))
-        return &QWidgetStack::staticMetaObject;
+        return &Q3WidgetStack::staticMetaObject;
     else if (widgetName == QLatin1String("QComboBox"))
         return &QComboBox::staticMetaObject;
     else if (widgetName == QLatin1String("QWidget"))
@@ -72,7 +72,7 @@ const QMetaObject *WidgetInfo::metaObject(const QString &widgetName)
     else if (widgetName == QLatin1String("QDialog"))
         return &QDialog::staticMetaObject;
     else if (widgetName == QLatin1String("QWizard"))
-        return &QWizard::staticMetaObject;
+        return &Q3Wizard::staticMetaObject;
     else if (widgetName == QLatin1String("QLCDNumber"))
         return &QLCDNumber::staticMetaObject;
     else if (widgetName == QLatin1String("QProgressBar"))

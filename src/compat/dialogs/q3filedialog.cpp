@@ -49,13 +49,13 @@
 #include "qpushbutton.h"
 #include "qregexp.h"
 #include "qsplitter.h"
-#include "qstrlist.h"
+#include "q3strlist.h"
 #include "qstyle.h"
 #include "qtimer.h"
 #include "qtoolbutton.h"
 #include "qtooltip.h"
 #include "qvbox.h"
-#include "qwidgetstack.h"
+#include "q3widgetstack.h"
 #include "q3urloperator.h"
 
 #ifdef Q_WS_WIN
@@ -882,13 +882,13 @@ public:
 
     QVBoxLayout * topLevelLayout;
     QHBoxLayout *buttonLayout, *leftLayout, *rightLayout;
-    QPtrList<QHBoxLayout> extraWidgetsLayouts;
-    QPtrList<QLabel> extraLabels;
-    QPtrList<QWidget> extraWidgets;
-    QPtrList<QWidget> extraButtons;
-    QPtrList<QAbstractButton> toolButtons;
+    Q3PtrList<QHBoxLayout> extraWidgetsLayouts;
+    Q3PtrList<QLabel> extraLabels;
+    Q3PtrList<QWidget> extraWidgets;
+    Q3PtrList<QWidget> extraButtons;
+    Q3PtrList<QAbstractButton> toolButtons;
 
-    QWidgetStack * stack;
+    Q3WidgetStack * stack;
 
     QToolButton * cdToParent, *newFolder, * detailView, * mcView,
         *previewInfo, *previewContents, *goBack;
@@ -935,10 +935,10 @@ public:
         Q3ListViewItem * i;
     };
 
-    class UrlInfoList : public QPtrList<QUrlInfo> {
+    class UrlInfoList : public Q3PtrList<QUrlInfo> {
     public:
         UrlInfoList() { setAutoDelete(true); }
-        int compareItems(QPtrCollection::Item n1, QPtrCollection::Item n2) {
+        int compareItems(Q3PtrCollection::Item n1, Q3PtrCollection::Item n2) {
             if (!n1 || !n2)
                 return 0;
 
@@ -977,7 +977,7 @@ public:
     };
 
     UrlInfoList sortedList;
-    QPtrList<File> pendingItems;
+    Q3PtrList<File> pendingItems;
 
     QFileListBox * moreFiles;
 
@@ -994,7 +994,7 @@ public:
     QString dir;
     QString symLinkToSpecial;
     QString special;
-    QWidgetStack *preview;
+    Q3WidgetStack *preview;
     bool infoPreview, contentsPreview;
     QSplitter *splitter;
     Q3UrlOperator url, oldUrl;
@@ -2396,7 +2396,7 @@ void Q3FileDialog::init()
 
     d->splitter = new QSplitter(this, "qt_splitter");
 
-    d->stack = new QWidgetStack(d->splitter, "files and more files");
+    d->stack = new Q3WidgetStack(d->splitter, "files and more files");
 
     d->splitter->setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding));
 
@@ -2591,7 +2591,7 @@ void Q3FileDialog::init()
 
     QHBoxLayout * h;
 
-    d->preview = new QWidgetStack(d->splitter, "qt_preview");
+    d->preview = new Q3WidgetStack(d->splitter, "qt_preview");
 
     d->infoPreviewWidget = new QWidget(d->preview, "qt_preview_info");
     d->contentsPreviewWidget = new QWidget(d->preview, "qt_preview_contents");

@@ -13,8 +13,8 @@
 
 #include "q3signal.h"
 #include "qmetaobject.h"
-#include "qguardedptr.h"
-#include "qcstring.h"
+#include "q3guardedptr.h"
+#include "q3cstring.h"
 
 /*!
     \class Q3Signal q3signal.h
@@ -103,7 +103,7 @@ Q3Signal::~Q3Signal()
 // Returns true if it matches ".+(.*int.*"
 static inline bool intSignature(const char *member)
 {
-    QCString s(member);
+    Q3CString s(member);
     int p = s.find('(');
     return p > 0 && p < s.findRev("int");
 }
@@ -178,9 +178,9 @@ bool Q3Signal::disconnect(const QObject *receiver, const char *member)
 void  Q3Signal::activate()
 {
 #ifndef QT_NO_VARIANT
-    /* Create this QGuardedPtr on this, if we get destroyed after the intSignal (but before the variant signal)
+    /* Create this Q3GuardedPtr on this, if we get destroyed after the intSignal (but before the variant signal)
        we cannot just emit the signal (because val has been destroyed already) */
-    QGuardedPtr<Q3Signal> me = this;
+    Q3GuardedPtr<Q3Signal> me = this;
     if(me)
 	emit intSignal(val.toInt());
     if(me)

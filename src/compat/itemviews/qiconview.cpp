@@ -2068,7 +2068,7 @@ void QIconViewItem::paintFocus(QPainter *p, const QPalette &cg)
     reimplement this function.
 */
 
-void QIconViewItem::dropped(QDropEvent *, const QValueList<QIconDragItem> &)
+void QIconViewItem::dropped(QDropEvent *, const Q3ValueList<QIconDragItem> &)
 {
 }
 #endif
@@ -2677,7 +2677,7 @@ void QIconViewItem::checkRect()
 */
 
 QIconView::QIconView(QWidget *parent, const char *name, Qt::WFlags f)
-    : QScrollView(parent, name, Qt::WStaticContents | Qt::WNoAutoErase  | f)
+    : Q3ScrollView(parent, name, Qt::WStaticContents | Qt::WNoAutoErase  | f)
 {
     if (!unknown_icon) {
         unknown_icon = new QPixmap((const char **)unknown_xpm);
@@ -2794,7 +2794,7 @@ void QIconView::changeEvent(QEvent *ev)
             repaintSelectedItems();
     }
 
-    QScrollView::changeEvent(ev);
+    Q3ScrollView::changeEvent(ev);
 
     if (ev->type() == QEvent::ApplicationFontChange || ev->type() == QEvent::FontChange) {
          *d->fm = QFontMetrics(font());
@@ -3549,7 +3549,7 @@ void QIconView::setContentsPos(int x, int y)
         d->cachedContentsY = y;
     } else {
         d->cachedContentsY = d->cachedContentsX = -1;
-        QScrollView::setContentsPos(x, y);
+        Q3ScrollView::setContentsPos(x, y);
     }
 }
 
@@ -3567,7 +3567,7 @@ void QIconView::showEvent(QShowEvent *)
         if (autoArrange())
             arrangeItemsInGrid(false);
     }
-    QScrollView::show();
+    Q3ScrollView::show();
 }
 
 /*!
@@ -3735,7 +3735,7 @@ void QIconView::selectAll(bool select)
     }
     viewport()->setUpdatesEnabled(ue);
     // we call updateContents not repaintContents because of possible previous updateContents
-    QScrollView::updateContents(rr);
+    Q3ScrollView::updateContents(rr);
     QApplication::sendPostedEvents(viewport(), QEvent::Paint);
     if (i)
         setCurrentItem(i);
@@ -4791,7 +4791,7 @@ void QIconView::contentsDropEvent(QDropEvent *e)
 
 void QIconView::resizeEvent(QResizeEvent* e)
 {
-    QScrollView::resizeEvent(e);
+    Q3ScrollView::resizeEvent(e);
     if (d->resizeMode == Adjust) {
         optimize_layout = true;
         adjustItems();
@@ -5572,7 +5572,7 @@ bool QIconView::eventFilter(QObject * o, QEvent * e)
         }
     }
 
-    return QScrollView::eventFilter(o, e);
+    return Q3ScrollView::eventFilter(o, e);
 }
 
 
@@ -5582,7 +5582,7 @@ bool QIconView::eventFilter(QObject * o, QEvent * e)
 
 QSize QIconView::minimumSizeHint() const
 {
-    return QScrollView::minimumSizeHint();
+    return Q3ScrollView::minimumSizeHint();
 }
 
 /*!
@@ -5913,7 +5913,7 @@ QSize QIconView::sizeHint() const
     ensurePolished();
 
     if (!d->firstItem)
-        return QScrollView::sizeHint();
+        return Q3ScrollView::sizeHint();
 
     if (d->dirty && d->firstSizeHint) {
         ((QIconView*)this)->resizeContents(qMax(400, contentsWidth()),
@@ -5949,7 +5949,7 @@ void QIconView::updateContents()
 
 void QIconView::enterEvent(QEvent *e)
 {
-    QScrollView::enterEvent(e);
+    Q3ScrollView::enterEvent(e);
     emit onViewport();
 }
 
@@ -6234,13 +6234,13 @@ void QIconView::handleItemChange(QIconViewItem *old, bool shift,
 
                 if (viewRect.intersects(selectedRect)) {
                     if (homeend)
-                        QScrollView::updateContents(viewRect.intersect(selectedRect));
+                        Q3ScrollView::updateContents(viewRect.intersect(selectedRect));
                     else
                         repaintContents(viewRect.intersect(selectedRect));
                 }
                 if (viewRect.intersects(unselectedRect)) {
                     if (homeend)
-                        QScrollView::updateContents(viewRect.intersect(unselectedRect));
+                        Q3ScrollView::updateContents(viewRect.intersect(unselectedRect));
                     else
                         repaintContents(viewRect.intersect(unselectedRect));
                 }

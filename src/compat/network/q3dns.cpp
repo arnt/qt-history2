@@ -77,7 +77,7 @@ extern int res_init();
 #include "qstring.h"
 #include "qtimer.h"
 #include "qapplication.h"
-#include "qptrvector.h"
+#include "q3ptrvector.h"
 #include "q3strlist.h"
 #include "q3ptrdict.h"
 #include "qfile.h"
@@ -909,7 +909,7 @@ void Q3DnsUgleHack::ugle( bool emitAnyway)
 
 Q3DnsManager::Q3DnsManager()
     : Q3DnsSocket( qApp, "Internal DNS manager" ),
-      queries( QPtrVector<Q3DnsQuery>( 0 ) ),
+      queries( Q3PtrVector<Q3DnsQuery>( 0 ) ),
       cache( Q3Dict<Q3DnsDomain>( 83, FALSE ) ),
       ipv4Socket( new Q3SocketDevice( Q3SocketDevice::Datagram, Q3SocketDevice::IPv4, 0 ) )
 #if !defined (QT_NO_IPV6)

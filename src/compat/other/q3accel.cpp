@@ -16,9 +16,9 @@
 #include "q3signal.h"
 #include "qapplication.h"
 #include "qwidget.h"
-#include "qptrlist.h"
+#include "q3ptrlist.h"
 #include "qwhatsthis.h"
-#include "qguardedptr.h"
+#include "q3guardedptr.h"
 #include "qstatusbar.h"
 #include "qdockwindow.h"
 #include "qevent.h"
@@ -127,7 +127,7 @@ struct Q3AccelItem {				// internal accelerator item
 };
 
 
-typedef QPtrList<Q3AccelItem> Q3AccelList; // internal accelerator list
+typedef Q3PtrList<Q3AccelItem> Q3AccelList; // internal accelerator list
 
 class Q3AccelPrivate {
 public:
@@ -135,7 +135,7 @@ public:
     ~Q3AccelPrivate();
     Q3AccelList aitems;
     bool enabled;
-    QGuardedPtr<QWidget> watch;
+    Q3GuardedPtr<QWidget> watch;
     bool ignorewhatsthis;
     Q3Accel* parent;
 
@@ -163,7 +163,7 @@ private:
     QKeySequence::SequenceMatch match(QKeyEvent* e, Q3AccelItem* item, QKeySequence& temp);
     int translateModifiers(ButtonState state);
 
-    QPtrList<Q3AccelPrivate> accels;
+    Q3PtrList<Q3AccelPrivate> accels;
     static Q3AccelManager* self_ptr;
     QKeySequence::SequenceMatch currentState;
     QKeySequence intermediate;

@@ -2,11 +2,8 @@
 
 HEADERS +=      other/qdropsite.h \
 		other/q3dragobject.h \
-		other/qdragobject.h \
                 other/q3guardedptr.h \
-                other/qguardedptr.h \
                 other/q3accel.h \
-                other/qaccel.h \
                 other/qmimefactory.h \
 		other/q3polygonscanner.h \
 		other/q3process.h \

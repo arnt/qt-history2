@@ -14,41 +14,41 @@
 #ifndef Q3CACHE_H
 #define Q3CACHE_H
 
-#include "qgcache.h"
+#include "q3gcache.h"
 
 template<class type>
 class Q3Cache
 #ifdef Q_QDOC
         : public QPtrCollection
 #else
-        : public QGCache
+        : public Q3GCache
 #endif
 {
 public:
-    Q3Cache(const Q3Cache<type> &c) : QGCache(c) {}
+    Q3Cache(const Q3Cache<type> &c) : Q3GCache(c) {}
     Q3Cache(int maxCost=100, int size=17, bool caseSensitive=true)
-        : QGCache(maxCost, size, StringKey, caseSensitive, false) {}
+        : Q3GCache(maxCost, size, StringKey, caseSensitive, false) {}
    ~Q3Cache()                           { clear(); }
     Q3Cache<type> &operator=(const Q3Cache<type> &c)
-                        { return (Q3Cache<type>&)QGCache::operator=(c); }
-    int   maxCost()   const             { return QGCache::maxCost(); }
-    int   totalCost() const             { return QGCache::totalCost(); }
-    void  setMaxCost(int m)           { QGCache::setMaxCost(m); }
-    uint  count()     const             { return QGCache::count(); }
-    uint  size()      const             { return QGCache::size(); }
-    bool  isEmpty()   const             { return QGCache::count() == 0; }
-    void  clear()                       { QGCache::clear(); }
+                        { return (Q3Cache<type>&)Q3GCache::operator=(c); }
+    int   maxCost()   const             { return Q3GCache::maxCost(); }
+    int   totalCost() const             { return Q3GCache::totalCost(); }
+    void  setMaxCost(int m)           { Q3GCache::setMaxCost(m); }
+    uint  count()     const             { return Q3GCache::count(); }
+    uint  size()      const             { return Q3GCache::size(); }
+    bool  isEmpty()   const             { return Q3GCache::count() == 0; }
+    void  clear()                       { Q3GCache::clear(); }
     bool  insert(const QString &k, const type *d, int c=1, int p=0)
-                        { return QGCache::insert_string(k,(Item)d,c,p);}
+                        { return Q3GCache::insert_string(k,(Item)d,c,p);}
     bool  remove(const QString &k)
-                        { return QGCache::remove_string(k); }
+                        { return Q3GCache::remove_string(k); }
     type *take(const QString &k)
-                        { return (type *)QGCache::take_string(k); }
+                        { return (type *)Q3GCache::take_string(k); }
     type *find(const QString &k, bool ref=true) const
-                        { return (type *)QGCache::find_string(k,ref);}
+                        { return (type *)Q3GCache::find_string(k,ref);}
     type *operator[](const QString &k) const
-                        { return (type *)QGCache::find_string(k);}
-    void  statistics() const          { QGCache::statistics(); }
+                        { return (type *)Q3GCache::find_string(k);}
+    void  statistics() const          { Q3GCache::statistics(); }
 private:
     void  deleteItem(Item d);
 };
@@ -65,28 +65,28 @@ template<class type> inline void Q3Cache<type>::deleteItem(Q3PtrCollection::Item
 }
 
 template<class type>
-class Q3CacheIterator : public QGCacheIterator
+class Q3CacheIterator : public Q3GCacheIterator
 {
 public:
-    Q3CacheIterator(const Q3Cache<type> &c):QGCacheIterator((QGCache &)c) {}
+    Q3CacheIterator(const Q3Cache<type> &c):Q3GCacheIterator((Q3GCache &)c) {}
     Q3CacheIterator(const Q3CacheIterator<type> &ci)
-                                : QGCacheIterator((QGCacheIterator &)ci) {}
+                                : Q3GCacheIterator((Q3GCacheIterator &)ci) {}
     Q3CacheIterator<type> &operator=(const Q3CacheIterator<type>&ci)
-        { return (Q3CacheIterator<type>&)QGCacheIterator::operator=(ci); }
-    uint  count()   const     { return QGCacheIterator::count(); }
-    bool  isEmpty() const     { return QGCacheIterator::count() == 0; }
-    bool  atFirst() const     { return QGCacheIterator::atFirst(); }
-    bool  atLast()  const     { return QGCacheIterator::atLast(); }
-    type *toFirst()           { return (type *)QGCacheIterator::toFirst(); }
-    type *toLast()            { return (type *)QGCacheIterator::toLast(); }
-    operator type *() const   { return (type *)QGCacheIterator::get(); }
-    type *current()   const   { return (type *)QGCacheIterator::get(); }
-    QString currentKey() const{ return QGCacheIterator::getKeyString(); }
-    type *operator()()        { return (type *)QGCacheIterator::operator()();}
-    type *operator++()        { return (type *)QGCacheIterator::operator++(); }
-    type *operator+=(uint j)  { return (type *)QGCacheIterator::operator+=(j);}
-    type *operator--()        { return (type *)QGCacheIterator::operator--(); }
-    type *operator-=(uint j)  { return (type *)QGCacheIterator::operator-=(j);}
+        { return (Q3CacheIterator<type>&)Q3GCacheIterator::operator=(ci); }
+    uint  count()   const     { return Q3GCacheIterator::count(); }
+    bool  isEmpty() const     { return Q3GCacheIterator::count() == 0; }
+    bool  atFirst() const     { return Q3GCacheIterator::atFirst(); }
+    bool  atLast()  const     { return Q3GCacheIterator::atLast(); }
+    type *toFirst()           { return (type *)Q3GCacheIterator::toFirst(); }
+    type *toLast()            { return (type *)Q3GCacheIterator::toLast(); }
+    operator type *() const   { return (type *)Q3GCacheIterator::get(); }
+    type *current()   const   { return (type *)Q3GCacheIterator::get(); }
+    QString currentKey() const{ return Q3GCacheIterator::getKeyString(); }
+    type *operator()()        { return (type *)Q3GCacheIterator::operator()();}
+    type *operator++()        { return (type *)Q3GCacheIterator::operator++(); }
+    type *operator+=(uint j)  { return (type *)Q3GCacheIterator::operator+=(j);}
+    type *operator--()        { return (type *)Q3GCacheIterator::operator--(); }
+    type *operator-=(uint j)  { return (type *)Q3GCacheIterator::operator-=(j);}
 };
 
 #endif // QCACHE_H

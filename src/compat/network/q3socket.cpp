@@ -37,7 +37,7 @@
 
 #include "q3socket.h"
 #ifndef QT_NO_NETWORK
-#include "qptrlist.h"
+#include "q3ptrlist.h"
 #include "qtimer.h"
 #include "q3socketdevice.h"
 #include "q3dns.h"

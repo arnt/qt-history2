@@ -20,7 +20,7 @@
 #include "qpixmap.h"
 #include "qapplication.h"
 #include "qtabwidget.h"
-#include "qwidgetstack.h"
+#include "q3widgetstack.h"
 #include "qlayout.h"
 using namespace Qt;
 

@@ -16,7 +16,7 @@
 
 #include "qstring.h"
 #include "qvariant.h"
-#include "qtable.h"
+#include "q3table.h"
 #include "qsql.h"
 #include "q3sqlcursor.h"
 #include "qsqlindex.h"
@@ -30,7 +30,7 @@ class QSqlField;
 class Q3SqlPropertyMap;
 class Q3DataTablePrivate;
 
-class Q_COMPAT_EXPORT Q3DataTable : public QTable
+class Q_COMPAT_EXPORT Q3DataTable : public Q3Table
 {
     Q_OBJECT
 
@@ -175,11 +175,11 @@ protected:
     void         columnClicked (int col);
     void         resizeData (int len);
 
-    QTableItem * item (int row, int col) const;
-    void         setItem (int row, int col, QTableItem * item);
+    Q3TableItem *item (int row, int col) const;
+    void         setItem (int row, int col, Q3TableItem * item);
     void         clearCell (int row, int col) ;
     void         setPixmap (int row, int col, const QPixmap & pix);
-    void         takeItem (QTableItem * i);
+    void         takeItem (Q3TableItem * i);
 
 private slots:
     void         loadNextPage();

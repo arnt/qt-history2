@@ -19,7 +19,7 @@
 #include "config.h"
 #include "tabbedbrowser.h"
 
-#include <qaccel.h>
+#include <q3accel.h>
 #include <qapplication.h>
 #include <qcursor.h>
 #include <qdir.h>

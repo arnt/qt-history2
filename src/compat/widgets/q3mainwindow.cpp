@@ -25,7 +25,7 @@
 #include "qmenubar.h"
 #include "qpainter.h"
 #include "qpopupmenu.h"
-#include "qscrollview.h"
+#include "q3scrollview.h"
 #include "qstatusbar.h"
 #include "qstringlist.h"
 #include "qstyle.h"

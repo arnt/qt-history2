@@ -620,7 +620,7 @@ bool Q3NetworkProtocol::hasOnlyLocalFileSystem()
     if ( !q3networkProtocolRegister )
 	return FALSE;
 
-    QDictIterator< Q3NetworkProtocolFactoryBase > it( *q3networkProtocolRegister );
+    Q3DictIterator< Q3NetworkProtocolFactoryBase > it( *q3networkProtocolRegister );
     for ( ; it.current(); ++it )
 	if ( it.currentKey() != "file" )
 	    return FALSE;

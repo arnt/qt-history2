@@ -19,7 +19,7 @@
 #include "q3toolbar.h"
 #include "qlist.h"
 #include "qpopupmenu.h"
-#include "qaccel.h"
+#include "q3accel.h"
 #include "qtoolbutton.h"
 #include "qcombobox.h"
 #include "qtooltip.h"
@@ -86,7 +86,7 @@ public:
     QString whatsthis;
 #ifndef QT_NO_ACCEL
     QKeySequence key;
-    QAccel* accel;
+    Q3Accel* accel;
     int accelid;
 #endif
     uint enabled : 1;
@@ -767,7 +767,7 @@ void Q3Action::setAccel(const QKeySequence& key)
         p = p->parent();
     }
     if (p) {
-        d->accel = new QAccel((QWidget*)p, this, "qt_action_accel");
+        d->accel = new Q3Accel((QWidget*)p, this, "qt_action_accel");
         d->accelid = d->accel->insertItem(d->key);
         d->accel->connectItem(d->accelid, this, SLOT(internalActivation()));
     } else

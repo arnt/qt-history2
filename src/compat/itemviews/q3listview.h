@@ -14,7 +14,7 @@
 #ifndef Q3LISTVIEW_H
 #define Q3LISTVIEW_H
 
-#include "qscrollview.h"
+#include "q3scrollview.h"
 
 #ifndef QT_NO_LISTVIEW
 

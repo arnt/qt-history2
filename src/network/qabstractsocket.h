@@ -63,8 +63,8 @@ public:
     QAbstractSocket(Qt::SocketType socketType, QObject *parent);
     virtual ~QAbstractSocket();
 
-    void connectToHost(const QString &hostName, Q_UINT16 port);
-    void connectToHost(const QHostAddress &address, Q_UINT16 port);
+    void connectToHost(const QString &hostName, Q_UINT16 port, OpenMode mode = ReadWrite);
+    void connectToHost(const QHostAddress &address, Q_UINT16 port, OpenMode mode = ReadWrite);
 
     bool isValid() const;
 
@@ -85,7 +85,8 @@ public:
     void abort();
 
     int socketDescriptor() const;
-    bool setSocketDescriptor(int socketDescriptor, Qt::SocketState state = Qt::ConnectedState);
+    bool setSocketDescriptor(int socketDescriptor, Qt::SocketState state = Qt::ConnectedState,
+                             OpenMode openMode = ReadWrite);
 
     Qt::SocketType socketType() const;
     Qt::SocketState socketState() const;

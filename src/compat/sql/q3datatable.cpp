@@ -211,7 +211,7 @@ void qt_debug_buffer(const QString& msg, QSqlRecord* cursor)
 */
 
 Q3DataTable::Q3DataTable (QWidget * parent, const char * name)
-    : QTable(parent, name)
+    : Q3Table(parent, name)
 {
     init();
 }
@@ -231,7 +231,7 @@ Q3DataTable::Q3DataTable (QWidget * parent, const char * name)
 */
 
 Q3DataTable::Q3DataTable (Q3SqlCursor* cursor, bool autoPopulate, QWidget * parent, const char * name)
-    : QTable(parent, name)
+    : Q3Table(parent, name)
 {
     init();
     setSqlCursor(cursor, autoPopulate);
@@ -332,7 +332,7 @@ void Q3DataTable::removeColumn(int col)
 }
 
 /*!
-    Sets the column \a col to the width \a w. Note that unlike QTable
+    Sets the column \a col to the width \a w. Note that unlike Q3Table
     the Q3DataTable is not immediately redrawn, you must call
     refresh(Q3DataTable::RefreshColumns)
     yourself.
@@ -380,7 +380,7 @@ void Q3DataTable::setColumnStretchable(int col, bool s)
         refresh(RefreshColumns);
     }
     if (numCols() > col) {
-        QTable::setColumnStretchable(col, s);
+        Q3Table::setColumnStretchable(col, s);
     }
 }
 
@@ -729,7 +729,7 @@ bool Q3DataTable::eventFilter(QObject *o, QEvent *e)
     default:
         break;
     }
-    return QTable::eventFilter(o, e);
+    return Q3Table::eventFilter(o, e);
 }
 
 /*! \reimp */
@@ -739,13 +739,13 @@ void Q3DataTable::resizeEvent (QResizeEvent * e)
          sqlCursor()->driver() &&
          !sqlCursor()->driver()->hasFeature(QSqlDriver::QuerySize))
         loadNextPage();
-    QTable::resizeEvent(e);
+    Q3Table::resizeEvent(e);
 }
 
 /*! \reimp */
 void Q3DataTable::contentsContextMenuEvent(QContextMenuEvent* e)
 {
-    QTable::contentsContextMenuEvent(e);
+    Q3Table::contentsContextMenuEvent(e);
     if (isEditing() && d->dat.mode() != QSql::None)
         endEdit(d->editRow, d->editCol, autoEdit(), false);
     if (!sqlCursor())
@@ -788,7 +788,7 @@ void Q3DataTable::contentsContextMenuEvent(QContextMenuEvent* e)
 /*! \reimp */
 void Q3DataTable::contentsMousePressEvent(QMouseEvent* e)
 {
-    QTable::contentsMousePressEvent(e);
+    Q3Table::contentsMousePressEvent(e);
 }
 
 /*! \reimp */
@@ -808,7 +808,7 @@ QWidget* Q3DataTable::beginEdit (int row, int col, bool replace)
         // see comment in beginInsert()
         bool fakeReadOnly = isColumnReadOnly(col);
         setColumnReadOnly(col, false);
-        QWidget* w = QTable::beginEdit(row, col, replace);
+        QWidget* w = Q3Table::beginEdit(row, col, replace);
         setColumnReadOnly(col, fakeReadOnly);
         return w;
     }
@@ -878,7 +878,7 @@ void Q3DataTable::doUpdateCurrent()
 void Q3DataTable::activateNextCell()
 {
 //     if (d->dat.mode() == QSql::None)
-//        QTable::activateNextCell();
+//        Q3Table::activateNextCell();
 }
 
 /*! \internal
@@ -964,7 +964,7 @@ bool Q3DataTable::beginInsert()
     // switch off read-only mode for such columns
     bool fakeReadOnly = isColumnReadOnly(0);
     setColumnReadOnly(0, false);
-    if (QTable::beginEdit(row, 0, false))
+    if (Q3Table::beginEdit(row, 0, false))
         setEditMode(Editing, row, 0);
     setColumnReadOnly(0, fakeReadOnly);
     return true;
@@ -981,7 +981,7 @@ bool Q3DataTable::beginInsert()
     \a row and \a col refer to the row and column in the Q3DataTable.
 
     (\a replace is provided for reimplementors and reflects the API of
-    QTable::beginEdit().)
+    Q3Table::beginEdit().)
 */
 
 QWidget* Q3DataTable::beginUpdate (int row, int col, bool replace)
@@ -994,7 +994,7 @@ QWidget* Q3DataTable::beginUpdate (int row, int col, bool replace)
         d->editBuffer = sqlCursor()->primeUpdate();
         sqlCursor()->seek(currentRow());
         emit primeUpdate(d->editBuffer);
-        return QTable::beginEdit(row, col, replace);
+        return Q3Table::beginEdit(row, col, replace);
     }
     return 0;
 }
@@ -1054,7 +1054,7 @@ bool Q3DataTable::insertCurrent()
         endInsert();
         break;
     case QSql::Cancel:
-        if (QTable::beginEdit(currentRow(), currentColumn(), false))
+        if (Q3Table::beginEdit(currentRow(), currentColumn(), false))
             setEditMode(Editing, currentRow(), currentColumn());
         break;
     }
@@ -1119,7 +1119,7 @@ bool Q3DataTable::updateCurrent()
             endUpdate();
             refresh();
             setCurrentCell(d->editRow, d->editCol);
-            if (QTable::beginEdit(d->editRow, d->editCol, false))
+            if (Q3Table::beginEdit(d->editRow, d->editCol, false))
                 setEditMode(Editing, d->editRow, d->editCol);
         } else {
             emit cursorChanged(QSql::Update);
@@ -1134,7 +1134,7 @@ bool Q3DataTable::updateCurrent()
         break;
     case QSql::Cancel:
         setCurrentCell(d->editRow, d->editCol);
-        if (QTable::beginEdit(d->editRow, d->editCol, false))
+        if (Q3Table::beginEdit(d->editRow, d->editCol, false))
             setEditMode(Editing, d->editRow, d->editCol);
         break;
     }
@@ -1493,7 +1493,7 @@ Qt::DateFormat Q3DataTable::dateFormat() const
 
 int Q3DataTable::numRows() const
 {
-    return QTable::numRows();
+    return Q3Table::numRows();
 }
 
 /*!
@@ -1506,7 +1506,7 @@ int Q3DataTable::numRows() const
 
 void Q3DataTable::setNumRows (int r)
 {
-    QTable::setNumRows(r);
+    Q3Table::setNumRows(r);
 }
 
 /*!
@@ -1519,7 +1519,7 @@ void Q3DataTable::setNumRows (int r)
 
 void Q3DataTable::setNumCols (int r)
 {
-    QTable::setNumCols(r);
+    Q3Table::setNumCols(r);
 }
 
 /*!
@@ -1530,7 +1530,7 @@ void Q3DataTable::setNumCols (int r)
 
 int Q3DataTable::numCols() const
 {
-    return QTable::numCols();
+    return Q3Table::numCols();
 }
 
 /*!
@@ -1601,7 +1601,7 @@ void Q3DataTable::loadNextPage()
         endIdx--;
     if (endIdx != (startIdx + pageSize + lookAhead))
         d->haveAllRows = true;
-    // small hack to prevent QTable from moving the view when a row
+    // small hack to prevent Q3Table from moving the view when a row
     // is selected and the contents is resized
     SelectionMode m = selectionMode();
     clearSelection();
@@ -1697,7 +1697,7 @@ void Q3DataTable::repaintCell(int row, int col)
 void Q3DataTable::paintCell(QPainter * p, int row, int col, const QRect & cr,
                           bool selected, const QPalette &pal)
 {
-    QTable::paintCell(p, row, col, cr, selected, pal);  // empty cell
+    Q3Table::paintCell(p, row, col, cr, selected, pal);  // empty cell
 
     if (!sqlCursor())
         return;
@@ -1752,7 +1752,7 @@ void Q3DataTable::paintField(QPainter * p, const QSqlField &field,
 
 int Q3DataTable::fieldAlignment(const QSqlField* /*field*/)
 {
-    return Qt::AlignLeft | Qt::AlignVCenter; //## Reggie: add alignment to QTable
+    return Qt::AlignLeft | Qt::AlignVCenter; //## Reggie: add alignment to Q3Table
 }
 
 
@@ -1860,7 +1860,7 @@ void Q3DataTable::keyPressEvent(QKeyEvent* e)
     case Qt::Key_F2:
     case Qt::Key_Enter: case Qt::Key_Return:
     case Qt::Key_Tab: case Qt::Key_BackTab:
-        QTable::keyPressEvent(e);
+        Q3Table::keyPressEvent(e);
     default:
         return;
     }
@@ -1877,7 +1877,7 @@ void Q3DataTable::resizeData (int)
 /*!  \reimp
 */
 
-QTableItem * Q3DataTable::item (int, int) const
+Q3TableItem * Q3DataTable::item (int, int) const
 {
     return 0;
 }
@@ -1885,7 +1885,7 @@ QTableItem * Q3DataTable::item (int, int) const
 /*!  \reimp
 */
 
-void Q3DataTable::setItem (int , int , QTableItem *)
+void Q3DataTable::setItem (int , int , Q3TableItem *)
 {
 
 }
@@ -1907,7 +1907,7 @@ void Q3DataTable::setPixmap (int , int , const QPixmap & )
 }
 
 /*! \reimp */
-void Q3DataTable::takeItem (QTableItem *)
+void Q3DataTable::takeItem (Q3TableItem *)
 {
 
 }
@@ -2062,13 +2062,13 @@ void Q3DataTable::refresh(Q3DataTable::Refresh mode)
                     setColumnReadOnly(numCols()-1, field.isReadOnly() || isColumnReadOnly(numCols()-1));
                     horizontalHeader()->setLabel(numCols()-1, d->fldIcon[i], d->fldLabel[i]);
                     if (d->fldHidden[i]) {
-                        QTable::showColumn(i); // ugly but necessary
-                        QTable::hideColumn(i);
+                        Q3Table::showColumn(i); // ugly but necessary
+                        Q3Table::hideColumn(i);
                     } else {
-                        QTable::showColumn(i);
+                        Q3Table::showColumn(i);
                     }
                     if (d->fldWidth[i] > -1)
-                        QTable::setColumnWidth(i, d->fldWidth[i]);
+                        Q3Table::setColumnWidth(i, d->fldWidth[i]);
                 }
             }
         }
@@ -2181,7 +2181,7 @@ void Q3DataTable::swapColumns(int col1, int col2, bool)
 
 void Q3DataTable::drawContents(QPainter * p, int cx, int cy, int cw, int ch)
 {
-    QTable::drawContents(p, cx, cy, cw, ch);
+    Q3Table::drawContents(p, cx, cy, cw, ch);
     if (sqlCursor() && currentRow() >= 0)
         sqlCursor()->seek(currentRow());
 }

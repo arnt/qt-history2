@@ -18,8 +18,8 @@
 #endif
 
 #define	 Q3GVECTOR_CPP
-#include "qgvector.h"
-#include "qglist.h"
+#include "q3gvector.h"
+#include "q3glist.h"
 #include "qstring.h"
 #include "qdatastream.h"
 #include <stdlib.h>

@@ -24,7 +24,7 @@
 #include <qdir.h>
 #include <qtimer.h>
 #include <qstatusbar.h>
-#include <qaccel.h>
+#include <q3accel.h>
 #include <qmessagebox.h>
 #include <qpainter.h>
 #include <qeventloop.h>
@@ -139,12 +139,12 @@ void MainWindow::setup()
 
 
 #if defined(Q_OS_WIN32) || defined(Q_OS_WIN64)
-    QAccel *acc = new QAccel(this);
+    Q3Accel *acc = new Q3Accel(this);
 //     acc->connectItem(acc->insertItem(Key_F5), browser, SLOT(reload()));
     acc->connectItem(acc->insertItem(tr("SHIFT+CTRL+=")), ui.actionZoomIn, SIGNAL(triggered()));
 #endif
 
-    QAccel *a = new QAccel(this, dw);
+    Q3Accel *a = new Q3Accel(this, dw);
     a->connectItem(a->insertItem(tr("Ctrl+T")),
                     helpDock, SLOT(toggleContents()));
     a->connectItem(a->insertItem(tr("Ctrl+I")),
