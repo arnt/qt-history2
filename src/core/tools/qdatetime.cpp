@@ -844,8 +844,8 @@ bool QDate::setYMD(int y, int m, int d)
     if (year() == y && month() == m && day() == d)
         return isValid();
     if (!isValid(y,m,d)) {
-         qWarning("QDate::setYMD: Invalid date %04d-%02d-%02d", y, m, d);
-         return false;
+        jd = 0;
+        return false;
     }
     jd = gregorianToJulian(y, m, d);
     return true;
@@ -1477,8 +1477,6 @@ QString QTime::toString(const QString& format) const
 bool QTime::setHMS(int h, int m, int s, int ms)
 {
     if (!isValid(h,m,s,ms)) {
-        qWarning("QTime::setHMS Invalid time %02d:%02d:%02d.%03d", h, m, s,
-                 ms);
         ds = MSECS_PER_DAY;                // make this invalid
         return false;
     }
