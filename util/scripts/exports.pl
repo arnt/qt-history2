@@ -45,9 +45,11 @@ while($#ARGV >= 0) {
         showHelp();
         exit 0;
     } elsif($ARGV[0] =~ /^-/) {
+        print "Unknown argument $ARGV[0]!\n";
         showHelp();
 	exit 1;
     } else {
+        print "$ARGV[0] does not exist!\n" unless(-e "$ARGV[0]");
 	push @EXPORT_INPUTS, $ARGV[0];
     }
     shift;
