@@ -118,7 +118,7 @@ public:
 
     bool cursorMoveKeyEvent(QKeyEvent *e);
 
-    void updateCurrentCharFormat();
+    inline void updateCurrentCharFormat() { updateCurrentCharFormat(cursor.charFormat()); }
     void updateCurrentCharFormat(const QTextCharFormat &newFormat);
 
     void indent();
@@ -211,11 +211,6 @@ bool QTextEditPrivate::cursorMoveKeyEvent(QKeyEvent *e)
     cursor.movePosition(op, mode);
     ensureCursorVisible();
     return true;
-}
-
-void QTextEditPrivate::updateCurrentCharFormat()
-{
-    updateCurrentCharFormat(cursor.charFormat());
 }
 
 void QTextEditPrivate::updateCurrentCharFormat(const QTextCharFormat &newFormat)
