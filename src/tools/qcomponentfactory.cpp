@@ -112,9 +112,9 @@ QRESULT QComponentFactory::createInstance( const QString &cid, const QUuid &iid,
 
     QComponentFactoryInterface *cfIface =0;
     library->queryInterface( IID_QComponentFactory, (QUnknownInterface**)&cfIface );
-    QRESULT res;
+    QRESULT res = Q_NOCOMPONENT;
     if ( cfIface ) {
-	QRESULT res = cfIface->createInstance( uuid, iid, iface, outer );
+	res = cfIface->createInstance( uuid, iid, iface, outer );
 	cfIface->release();
     } else {
 	res = library->queryInterface( iid, iface );
