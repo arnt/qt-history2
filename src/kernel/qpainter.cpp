@@ -102,25 +102,12 @@ void QPainter::restore()
 
 bool QPainter::begin(const QPaintDevice *pd, bool unclipped)
 {
+    Q_ASSERT(pd);
+
     if (dengine) {
 	qWarning("QPainter::begin(): Painter is already active."
 		 "\n\tYou must end() the painter before a second begin()" );
 	return false;
-    }
-
-    const QPaintDevice *rpd = redirected(pd, &d->redirection_offset);
-    if (rpd) {
-	pd = rpd;
-    }
-
-    d->device = const_cast<QPaintDevice*>(pd);
-
-    Q_ASSERT(pd != 0);
-    dengine = pd->engine();
-
-    if (!dengine) {
-	qWarning("QPainter::begin(), paintdevice returned gc == 0, type: %d\n", pd->devType());
-	return true;
     }
 
     switch (pd->devType()) {
@@ -153,8 +140,21 @@ bool QPainter::begin(const QPaintDevice *pd, bool unclipped)
 	}
     }
 
+    const QPaintDevice *rpd = redirected(pd, &d->redirection_offset);
+    if (rpd) {
+	pd = rpd;
+    }
+
+    d->device = const_cast<QPaintDevice*>(pd);
+    dengine = pd->engine();
+
+    if (!dengine) {
+	qWarning("QPainter::begin(), paintdevice returned engine == 0, type: %d\n", pd->devType());
+	return true;
+    }
+
     if (!dengine->begin(pd, ds, unclipped)) {
-	qWarning("QPainter::begin(), gc::begin() returned false\n");
+	qWarning("QPainter::begin(), QPaintEngine::begin() returned false\n");
 	return false;
     }
 
