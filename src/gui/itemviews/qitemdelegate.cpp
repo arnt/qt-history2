@@ -134,7 +134,7 @@ void QItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option,
     QVariant variant = model->data(index, QAbstractItemModel::DecorationRole);
     QPixmap pixmap = decoration(option, variant);
     QString text = model->data(index, QAbstractItemModel::DisplayRole).toString();
-    
+
     QRect pixmapRect = pixmap.rect();
     QRect textRect(pt, painter->fontMetrics().size(0, text) + sz);
     doLayout(option, &pixmapRect, &textRect, false);
@@ -309,7 +309,9 @@ void QItemDelegate::drawDisplay(QPainter *painter, const QStyleOptionViewItem &o
 void QItemDelegate::drawDecoration(QPainter *painter, const QStyleOptionViewItem &option,
                                    const QRect &rect, const QPixmap &pixmap) const
 {
-    painter->drawPixmap(rect.topLeft(), pixmap);
+    if (!pixmap.isNull())
+        painter->drawPixmap(rect.topLeft(), pixmap);
+
     if (option.state & QStyle::Style_Selected) {
 #if 0
         painter->save();
@@ -323,9 +325,11 @@ void QItemDelegate::drawDecoration(QPainter *painter, const QStyleOptionViewItem
         painter->fillRect(rect, col);
         painter->restore();
 #else
-        QColor col = option.palette.highlight();
-        col.setRgba(col.red(),  col.green(), col.blue(), 127);
-        painter->fillRect(rect, col);
+        if (!rect.isEmpty()) {
+            QColor col = option.palette.highlight();
+            col.setRgba(col.red(),  col.green(), col.blue(), 127);
+            painter->fillRect(rect, col);
+        }
 #endif
     }
 }
