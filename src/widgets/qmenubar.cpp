@@ -522,12 +522,22 @@ void QMenuBar::openActPopup()
 	return;
 
     QRect  r = itemRect( actItem );
+    bool reverse = QApplication::reverseLayout();
     QPoint pos = r.bottomLeft() + QPoint(0,1);
+    if( reverse ) {
+	pos = r.bottomRight() + QPoint(0,1);
+	pos.rx() -= popup->sizeHint().width();
+    } 
+    
     int ph = popup->sizeHint().height();
     pos = mapToGlobal(pos);
     int sh = QApplication::desktop()->height();
     if ( defaultup || (pos.y() + ph > sh) ) {
 	QPoint t = mapToGlobal( r.topLeft() );
+	if( reverse ) {
+	    t = mapToGlobal( r.topRight() );
+	    t.rx() -= popup->sizeHint().width();
+	} 
 	t.ry() -= (QCOORD)ph;
 	if ( !defaultup || t.y() >= 0 )
 	    pos = t;
