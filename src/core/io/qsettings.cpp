@@ -856,7 +856,7 @@ static QString systemIniPath()
 #else
     result = *defaultSystemIniPath();
     if (result.isEmpty())
-        result = QString::fromLatin1("/etc/xdg");
+        result = QLibraryInfo::location(QLibraryInfo::SettingsPath);
 #endif // Q_OS_WIN
 
     return result + QDir::separator();
@@ -2568,8 +2568,8 @@ QCoreVariant QSettings::value(const QString &key, const QCoreVariant &defaultVal
 
 /*!
     Sets the directory where QSettings stores its \c SystemScope .ini files on Unix systems to \a dir.
-    The default directory is \c /etc/xdg in accordance with the FreeDesktop's XDG Base Directory
-    Specification. This default can be changed when compiling Qt by passing the \c --global-settings-dir
+    The default directory is \c /etc/xdg in accordance with the FreeDesktop's XDG Base Directory 
+    Specification. This default can be changed when compiling Qt by passing the \c --sysconfdir
     flag to \c configure.
 
     A call to this function should precede any instantiations of QSettings objects.
