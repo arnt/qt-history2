@@ -205,7 +205,7 @@ void FormWindow::initSlots()
 {
     if ( isFake() )
 	return;
-    Q_ASSERT( !project() && !MainWindow::self );
+    Q_ASSERT( project() || MainWindow::self );
     if ( !project() && !MainWindow::self )
 	return;
     Project *p = project() ? project() : MainWindow::self->currProject();
