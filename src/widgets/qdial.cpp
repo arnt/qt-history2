@@ -422,9 +422,9 @@ void QDial::mouseMoveEvent( QMouseEvent * e )
   \reimp
 */
 
-void QDial::wheelEvent( QWheelEvent * )
+void QDial::wheelEvent( QWheelEvent *e )
 {
-
+    setValue( value() - e->delta() / 120 );
 }
 
 
