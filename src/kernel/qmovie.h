@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qmovie.h#1 $
+** $Id: //depot/qt/main/src/kernel/qmovie.h#2 $
 **
 ** Definition of movie classes
 **
@@ -21,9 +21,9 @@ struct QMoviePrivate;
 class QMovie {
 public:
     QMovie();
-    QMovie(QIODevice* src);
-    QMovie(const char* srcfile);
-    QMovie(QByteArray data);
+    QMovie(QIODevice* src, int bufsize=1024);
+    QMovie(const char* srcfile, int bufsize=1024);
+    QMovie(QByteArray data, int bufsize=1024);
     QMovie(const QMovie&);
     ~QMovie();
 

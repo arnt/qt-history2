@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qmovie.cpp#2 $
+** $Id: //depot/qt/main/src/kernel/qmovie.cpp#3 $
 **
 ** Implementation of movie classes
 **
@@ -64,17 +64,20 @@ public: // for QMovie
 
     QMoviePrivate()
     {
+	buffer = 0;
 	pump = 0;
 	source = 0;
 	decoder = 0;
 	init(FALSE);
     }
 
-    QMoviePrivate(QDataSource* src, QMovie* tht) :
+    QMoviePrivate(QDataSource* src, QMovie* tht, int bufsize) :
 	that(tht),
+	buf_size(bufsize),
 	frametimer(this),
 	pump(new QDataPump(src, this))
     {
+	buffer = new uchar[bufsize];
 	QObject::connect(&frametimer, SIGNAL(timeout()), this, SLOT(refresh()));
 	source = src;
 	decoder = 0;
@@ -96,7 +99,7 @@ public: // for QMovie
 	decoder = nonnull ? new QImageDecoder(this) : 0;
 	waitingForFrameTick = FALSE;
 	stepping = -1;
-	frameperiod = 0;
+	frameperiod = -1;
 	frametimer.stop();
 	changed_area.setRect(0,0,-1,-1);
 	valid_area = changed_area;
@@ -208,7 +211,7 @@ public: // for QMovie
 	    }
 	} else {
 	    waitingForFrameTick = TRUE;
-	    frametimer.start(frameperiod);
+	    frametimer.start(frameperiod >= 0 ? frameperiod : 0);
 	}
 	showChanges();
 	emit dataStatus(QMovie::EndOfFrame);
@@ -234,7 +237,7 @@ public: // for QMovie
     {
 	// Animation:  only show complete frame
 	frameperiod = milliseconds;
-	if (stepping<0) frametimer.start(frameperiod);
+	if (stepping<0 && frameperiod >= 0) frametimer.start(frameperiod);
 	return TRUE;
     }
 
@@ -310,7 +313,7 @@ signals:
 public slots:
     void refresh()
     {
-	if (!frameperiod) {
+	if (frameperiod < 0) {
 	    showChanges();
 	}
 
@@ -328,8 +331,8 @@ public:
     QImageDecoder *decoder;
 
     // Cyclic buffer
-    static const int buf_size=4096;
-    uchar buffer[buf_size];
+    int buf_size;
+    uchar *buffer;
     int buf_r, buf_w, buf_usage;
 
     int frameperiod;
@@ -369,35 +372,41 @@ QMovie::QMovie()
   as it becomes owned by the QMovie, and will be destroyed
   when the movie is destroyed.
   The movie starts playing as soon as event processing continues.
+
+  The \a bufsize argument sets the maximum amount of data the movie
+  will transfer from the data source per event loop.  The lower this
+  value, the better interleaved the movie playback will be with other
+  event processing, but the slower the overall processing.
 */
-QMovie::QMovie(QIODevice* src)
+QMovie::QMovie(QIODevice* src, int bufsize)
 {
-    d = new QMoviePrivate(new QIODeviceSource(src), this);
+    d = new QMoviePrivate(new QIODeviceSource(src), this, bufsize);
 }
 
 /*!
+  \overload
   Creates a QMovie which reads an image sequence from given data.
-  The movie starts playing as soon as event processing continues.
 */
-QMovie::QMovie(QByteArray data)
+QMovie::QMovie(QByteArray data, int bufsize)
 {
-    d = new QMoviePrivate(new QIODeviceSource(new QBuffer(data)), this);
+    d = new QMoviePrivate(new QIODeviceSource(new QBuffer(data)), this, bufsize);
 }
 
 /*!
+  \overload
   Creates a QMovie which reads an image sequence from the named file.
-  The movie starts playing as soon as event processing continues.
 */
-QMovie::QMovie(const char* srcfile)
+QMovie::QMovie(const char* srcfile, int bufsize)
 {
     QFile* file = new QFile(srcfile);
     file->open(IO_ReadOnly);
-    d = new QMoviePrivate(new QIODeviceSource(file), this);
+    d = new QMoviePrivate(new QIODeviceSource(file), this, bufsize);
 }
 
 /*!
   Constructs a movie that uses the same data as another movie.
-  QMovies use explicit sharing.
+  QMovies use explicit sharing, so operations on the copy will
+  effect the same operations on the original.
 */
 QMovie::QMovie(const QMovie& movie)
 {
@@ -527,7 +536,7 @@ void QMovie::unpause()
     if ( d->stepping >= 0 ) {
 	if (d->isNull()) return;
 	d->stepping = -1;
-	d->frametimer.start(d->frameperiod);
+	d->frametimer.start(d->frameperiod >= 0 ? d->frameperiod : 0);
     }
 }
 
@@ -660,7 +669,7 @@ void QMovie::disconnectStatus(QObject* receiver, const char* member)
 ** QMoviePrivate meta object code from reading C++ file 'qmovie.cpp'
 **
 ** Created: Fri Jun 20 20:19:36 1997
-**      by: The Qt Meta Object Compiler ($Revision: 1.2 $)
+**      by: The Qt Meta Object Compiler ($Revision: 1.3 $)
 **
 ** WARNING! All changes made in this file will be lost!
 *****************************************************************************/

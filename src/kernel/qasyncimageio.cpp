@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qasyncimageio.cpp#3 $
+** $Id: //depot/qt/main/src/kernel/qasyncimageio.cpp#4 $
 **
 ** Implementation of movie classes
 **
@@ -78,6 +78,8 @@
   the given number of \a milliseconds after the time that this function
   is called.  Of course, the image may not have been decoded by then, in
   which case the frame should not be displayed until it is complete.
+  A value of -1 (the assumed default) indicates that the image should
+  be diplayed even while it is only partially loaded.
 */
 
 /*!
