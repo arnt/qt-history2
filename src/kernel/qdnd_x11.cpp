@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdnd_x11.cpp#55 $
+** $Id: //depot/qt/main/src/kernel/qdnd_x11.cpp#56 $
 **
 ** XDND implementation for Qt.  See http://www.cco.caltech.edu/~jafl/xdnd/
 **
@@ -275,7 +275,7 @@ void qt_handle_xdnd_enter( QWidget *, const XEvent * xe )
     const long *l = xe->xclient.data.l;
     int version = (int)(((unsigned long)(l[1])) >> 24);
 
-    if ( version > 2 )
+    if ( version > 3 )
 	return;
 
     qt_xdnd_dragsource_xid = l[0];

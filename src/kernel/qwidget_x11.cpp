@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#269 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#270 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -65,7 +65,6 @@ static QWidget *keyboardGrb = 0;
   QWidget member functions
  *****************************************************************************/
 
-#warning "Make create and destroy virtual, remove the old functions. -- Haavard"
 
 extern Atom qt_wm_delete_window;		// defined in qapplication_x11.cpp
 extern Atom qt_sizegrip;			// defined in qapplication_x11.cpp
@@ -1665,7 +1664,7 @@ void QWidget::setAcceptDrops( bool on )
 	    QWidget * tlw = topLevelWidget();
 
 	    extern Atom qt_xdnd_aware;
-	    Atom qt_xdnd_version = (Atom)2;
+	    Atom qt_xdnd_version = (Atom)3;
 	    XChangeProperty ( dpy, tlw->winId(), qt_xdnd_aware,
 			      XA_ATOM, 32, PropModeReplace,
 			      (unsigned char *)&qt_xdnd_version, 1 );
