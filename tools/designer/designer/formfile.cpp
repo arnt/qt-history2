@@ -206,14 +206,18 @@ bool FormFile::save( bool withMsgBox, bool ignoreModified, bool exportAsPackage 
 	}
     }
 
+    // #### Resource has to work without MainWindow
     Resource resource( MainWindow::self );
     resource.setWidget( formWindow() );
     bool formCodeOnly = isModified( WFormCode ) && !isModified( WFormWindow );
     if ( !resource.save( pro->makeAbsolute( filename ), formCodeOnly ) ) {
-	MainWindow::self->statusBar()->message( tr( "Failed to save file '%1'.").arg( filename ), 5000 );
+	if ( MainWindow::self )
+	    MainWindow::self->statusBar()->message( tr( "Failed to save file '%1'.").arg( filename ), 5000 );
 	return saveAs();
     }
-    MainWindow::self->statusBar()->message( tr( "'%1' saved.").arg( formCodeOnly ? codeFile() : filename ), 3000 );
+    if ( MainWindow::self )
+	MainWindow::self->statusBar()->message( tr( "'%1' saved.").
+						arg( formCodeOnly ? codeFile() : filename ), 3000 );
     timeStamp.update();
     setModified( FALSE );
     return TRUE;
@@ -235,7 +239,7 @@ bool FormFile::saveAs( bool ignoreModified, bool exportAsPackage )
 					       tr( "Qt User-Interface Files (*.ui)" ) + ";;" +
 					       tr( "All Files (*)" ), MainWindow::self, 0,
 					       tr( "Save Form '%1' As ...").arg( formName() ),
-					       &MainWindow::self->lastSaveFilter );
+					       MainWindow::self ? &MainWindow::self->lastSaveFilter : 0 );
 	if ( fn.isEmpty() )
 	    return FALSE;
 	QFileInfo fi( fn );
@@ -306,7 +310,8 @@ bool FormFile::closeEvent()
 	    ed->editorInterface()->setText( cod );
 	if ( fileNameTemp )
 	    pro->removeFormFile( this );
-	MainWindow::self->workspace()->update();
+	if ( MainWindow::self )
+	    MainWindow::self->workspace()->update();
 	break;
     case 2: // cancel
 	return FALSE;
@@ -315,7 +320,8 @@ bool FormFile::closeEvent()
     }
 
     setModified( FALSE );
-    MainWindow::self->updateFunctionList();
+    if ( MainWindow::self )
+	MainWindow::self->updateFunctionList();
     setCodeEdited( FALSE );
     return TRUE;
 }
@@ -376,6 +382,8 @@ void FormFile::setCodeModified( bool m )
 
 void FormFile::showFormWindow()
 {
+    if ( !MainWindow::self )
+	return;
     if ( formWindow() ) {
 	if ( ( formWindow()->hasFocus() ||
 	      MainWindow::self->qWorkspace()->activeWindow() == formWindow() ) &&
@@ -392,6 +400,8 @@ void FormFile::showFormWindow()
 
 SourceEditor *FormFile::showEditor()
 {
+    if ( !MainWindow::self )
+	return 0;
     showFormWindow();
     bool modify = FALSE;
     if ( !hasFormCode() ) {
@@ -568,7 +578,8 @@ void FormFile::checkTimeStamp()
 		QTextStream ts( &f );
 		editor()->editorInterface()->setText( ts.read() );
 		editor()->save();
-		MainWindow::self->functionsChanged();
+		if ( MainWindow::self )
+		    MainWindow::self->functionsChanged();
 	    }
 	}
     } else {
@@ -694,7 +705,7 @@ bool FormFile::checkFileName( bool allowBreak )
 					       tr( "All Files (*)" ), MainWindow::self, 0,
 					       tr( "Save Form '%1' As ...").
 					       arg( formWindow()->name() ),
-					       &MainWindow::self->lastSaveFilter );
+					       MainWindow::self ? &MainWindow::self->lastSaveFilter : 0 );
 	    if ( allowBreak && fn.isEmpty() )
 		return FALSE;
 	}
