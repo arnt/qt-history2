@@ -14,6 +14,10 @@ win32:!shared:CONFIG += staticlib
 win32-borland {
 	mng:QMAKE_CFLAGS_WARN_ON	+= -w-par
 	mng:QMAKE_CXXFLAGS_WARN_ON	+= -w-par
+	# Keep the size of the .tds file for the Qt library smaller than
+	# 34 Mbytes to avoid linking problems
+	QMAKE_CFLAGS_DEBUG += -vi -y-
+	QMAKE_CXXFLAGS_DEBUG += -vi -y-
 }
 
 KERNEL_CPP	= kernel	
