@@ -526,7 +526,19 @@ QPixmap QTableItem::pixmap() const
 }
 
 
-/*! Provides the text of the table item or a null string if there's no text.
+/*! Provides the text of the table item or a null string if there's no
+  text.
+
+  If editMode() is \c Always, setContentFromEditor() is called before, so
+  that the current value of the editor is returned.
+
+  If editMode() is something else and the editor of the cell is
+  active, setContentFromEditor() is called, if the editor is something
+  else than a QLineEdit. This means, in this case if the user enteres
+  a text, text() returns the original value of the item until the user
+  commits the new data (presses e.g. Return or Tab). For other editors
+  (e.g. a combobox), always setContentFromEditor() is called, so
+  always the value currently displayed in the editor is returned.
 
   \sa setText() pixmap()
 */
@@ -534,7 +546,7 @@ QPixmap QTableItem::pixmap() const
 QString QTableItem::text() const
 {
     QWidget *w = table()->cellWidget( rw, cl );
-    if ( w )
+    if ( w && ( edType == Always || !w->inherits( "QLineEdit" ) ) )
 	( (QTableItem*)this )->setContentFromEditor( w );
     return txt;
 }
