@@ -15,12 +15,16 @@
   \index XPM
 
 The \Class QImage class supports the input, output and manipulation
-of images in several formats, including BMP, GIF, JPEG, MNG, PNG,
-PNM, XBM and XPM.
+of images in several formats, including BMP, GIF\footnote If you are
+in a country that recognizes software patents and in which Unisys
+holds a patent on LZW decompression and you want to use GIF, Unisys
+may require you to license the technology.\endfootnote, JPEG, MNG,
+PNG, PNM, XBM and XPM. 
 
-### If you are in a country that recognizes software patents and in
-which Unisys holds a patent on LZW decompression and you want to use
-GIF, Unisys may require you to license the technology. ###
+  \index images
+  \index icons
+  \index pictures
+  \index pixmaps
 
 Many of Qt's built-in widgets can display images, for example
 buttons, labels, menu items, etc. Here's how to display an icon on a
@@ -32,6 +36,7 @@ push button:
 
   \img icon-on-button.png An icon on a button
 
+  \index alpha channel
 
 \Class QImage supports images with color depths ranging from 1 to 32
 bits. Programmers can manipulate the pixel and palette data, apply
@@ -40,15 +45,21 @@ depth with dithering if desired. Applications can store an 'alpha
 channel' in a \Class QImage along with the color data for their own
 purposes (e.g. transparency and alpha-blending).
 
+  \index animations
+
 The \Class QMovie widget is used to display animated images.
 
 \section2 Painting
+
+  \index painting
 
 The \Class QPainter provides a platform-independent API for painting
 on widgets. It provides primitives as well as advanced functionality
 such as transformations and clipping. All Qt's built-in widgets paint
 themselves using \Class QPainter. Programmers invariably use \Class
 QPainter when implementing their own custom widgets.
+
+  \index Bezier curves
 
 \Class QPainter provides standard functions to draw points, lines,
 polygons, ellipses, arcs, Bezier curves, etc. The following command
@@ -59,10 +70,14 @@ a 2-pixel wide dashed red outline:
     painter.drawRect( 25, 15, 120, 60 );
 \endcode
 
+  \index coordinates
+
 By default, the top-left corner of a widget is located at coordinates
 (0, 0), and the bottom-right corner is located at (\Func width() - 1,
 \Func height() - 1). The coordinate system of a \Class QPainter
 object can be translated, scaled, rotated and sheared.
+
+  \index events
 
 The example below shows a bar-graph custom widget. It uses a \Class
 QPainter in the reimplementation of \Func paintEvent(), with the
@@ -74,10 +89,16 @@ default coordinate system.
   \skipuntil quote
   \printto endquote
 
+  \index clipping
+
 \Class QPainter supports clipping using a region composed of
 rectangles, polygons, ellipses and bitmaps. Complex regions may be
 created by uniting, intersecting, subtracting or XOR'ing simple
 regions. Clipping can be used to reduce flicker when repainting.
+
+  \index HSV
+  \index RGB
+  \index colors
 
 The \Class QColor class stores a color specified by a RGB or HSV
 triple, or by a name (e.g. 'skyblue'). Qt programmers can specify any
@@ -92,14 +113,21 @@ predefined in Qt.
 required to paint on any supported device is the same, regardless of
 the device. Qt supports the following paint devices:
 
+  \index images
+  \index pixmaps
+
 \list
 \i A \Class QPixmap is essentially an 'off-screen widget'. Graphics
 can be painted on a \Class QPixmap first, and then bit-blitted to a
 \Class QWidget to reduce flicker.
 
+  \index pictures
+
 \i A \Class {QPicture} is a vector image that can be scaled
 gracefully. The \Class QPicture class stores an image as a list of
 paint commands rather than as pixel data.
+
+  \index printers
 
 \i A \Class QPrinter represents a physical printer. On Windows, the
 paint commands are sent to the Windows print engine, which uses the
