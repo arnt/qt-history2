@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgdict.cpp#49 $
+** $Id: //depot/qt/main/src/tools/qgdict.cpp#50 $
 **
 ** Implementation of QGDict and QGDictIterator classes
 **
@@ -15,7 +15,7 @@
 #include "qdstream.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qgdict.cpp#49 $");
+RCSTAG("$Id: //depot/qt/main/src/tools/qgdict.cpp#50 $");
 
 
 /*!
@@ -326,7 +326,7 @@ bool QGDict::remove( const char *key )
     register QBucket *n = unlink( key );
     if ( n ) {
 	if ( copyk )
-	    delete n->getKey();
+	    delete [] n->getKey();
 	deleteItem( n->getData() );
 	delete n;				// delete bucket
     }
@@ -345,7 +345,7 @@ GCI QGDict::take( const char *key )
     if ( n ) {
 	tmp = n->getData();
 	if ( copyk )
-	    delete n->getKey();
+	    delete [] n->getKey();
 	delete n;
     }
     return tmp;
