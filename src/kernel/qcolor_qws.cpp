@@ -146,7 +146,7 @@ uint QColor::alloc()
 #if !defined( QT_NO_IMAGE_16_BIT ) || !defined( QT_NO_QWS_DEPTH_16 )
       } case 16: {
 	return d.d32.pix = qt_convRgbTo16(d.argb);
-#endif	
+#endif
       } case 24:
         case 32: {
 	GET
@@ -160,7 +160,7 @@ uint QColor::alloc()
 	if ( qt_screen->pixelType() == QGfx::BGRPixel ) {
 	    const int tb = b << red_shift;
 	    d.d32.pix = (r & blue_mask) | (tg & green_mask) | (tb & red_mask);
-	} else 
+	} else
 #endif
 	{
 	    const int tr = r << red_shift;
@@ -180,24 +180,21 @@ uint QColor::alloc()
 
 void QColor::setSystemNamedColor( const QString& name )
 {
-#if defined(QT_CHECK_STATE)
-    if ( !color_init ) {
-	qWarning( "QColor::setSystemNamedColor: Cannot perform this operation "
-		 "because QApplication does not exist" );
-    } else
-#endif
-    {
-	d.argb = qt_get_rgb_val( name.latin1() );
-	QRgb rgb;
-	if ( qt_get_named_rgb( name.latin1(), &rgb ) ) {
-	    d.argb = rgb;
-	    if ( colormodel == d8 ) {
-		d.d8.invalid = FALSE;
-		d.d8.dirty = TRUE;
-		d.d8.pix = 0;
-	    } else {
-		alloc();
-	    }
+    // setSystemNamedColor should look up rgb values from the built in
+    // color tables first (see qcolor_p.cpp), and failing that, use
+    // the window system's interface for translating names to rgb values...
+    // we do this so that things like uic can load an XPM file with named colors
+    // and convert it to a png without having to use window system functions...
+    d.argb = qt_get_rgb_val( name.latin1() );
+    QRgb rgb;
+    if ( qt_get_named_rgb( name.latin1(), &rgb ) ) {
+	d.argb = rgb;
+	if ( colormodel == d8 ) {
+	    d.d8.invalid = FALSE;
+	    d.d8.dirty = TRUE;
+	    d.d8.pix = 0;
+	} else {
+	    alloc();
 	}
     }
 }
