@@ -61,10 +61,20 @@ class QM_EXPORT_WORKSPACE QWorkspace : public QWidget
 {
     Q_OBJECT
     Q_PROPERTY( bool scrollBarsEnabled READ scrollBarsEnabled WRITE setScrollBarsEnabled )
+
+#ifdef QT_WORKSPACE_WINDOWMODE
 public:
-    enum WindowMode { TopLevel, MDI, Default };
-    QWorkspace( QWidget* parent=0, const char* name=0 );
     QWorkspace( WindowMode mode, QWidget* parent=0, const char* name=0 );
+#endif
+    enum WindowMode { TopLevel, MDI, AutoDetect };
+    WindowMode windowMode() const;
+#ifdef QT_WORKSPACE_WINDOWMODE
+private:
+#endif
+
+public:
+    QWorkspace( QWidget* parent=0, const char* name=0 );
+
     ~QWorkspace();
 
     QWidget* activeWindow() const;
@@ -77,8 +87,6 @@ public:
 
     void setPaletteBackgroundColor( const QColor & );
     void setPaletteBackgroundPixmap( const QPixmap & );
-
-    WindowMode windowMode() const;
 
 signals:
     void windowActivated( QWidget* w);

@@ -247,6 +247,7 @@ QWorkspace::QWorkspace( QWidget *parent, const char *name )
     init();
 }
 
+#ifdef QT_WORKSPACE_WINDOWMODE
 /*!
   Constructs a workspace with a \a parent and a \a name. This constructor will also set the
   WindowMode to \a mode. 
@@ -259,6 +260,7 @@ QWorkspace::QWorkspace( QWorkspace::WindowMode mode, QWidget *parent, const char
     init();
     d->wmode = mode;
 }
+#endif
 
 
 /*!
@@ -276,7 +278,11 @@ QWorkspace::init()
     d->py = 0;
     d->becomeActive = 0;
     d->autoFocusChange = FALSE;
-    d->wmode = Default;
+#if defined( QT_WORKSPACE_WINDOWMODE ) && defined( Q_WS_MAC )
+    d->wmode = AutoDetect;
+#else
+    d->wmode = MDI;
+#endif
     d->mainwindow = 0;
 #if defined(Q_WS_WIN)
     d->popup = new QPopupMenu( this, "qt_internal_mdi_popup" );
@@ -886,9 +892,8 @@ void QWorkspace::showEvent( QShowEvent *e )
     /* This is all magic, be carefull when playing with this code - this tries to allow people to 
        use QWorkspace as a high level abstraction for window management, but removes enforcement that
        QWorkspace be used as an MDI. */
-    if(d->wmode == Default) {
+    if(d->wmode == AutoDetect) {
 	d->wmode = MDI;
-#if defined(Q_WS_MACX) && !defined(QMAC_QMENUBAR_NO_NATIVE)
 	QWidget *o = topLevelWidget();
 	if(o->inherits("QMainWindow")) {
 	    d->wmode = TopLevel;
@@ -905,7 +910,6 @@ void QWorkspace::showEvent( QShowEvent *e )
 		}
 	    }
 	}
-#endif
     }
     if(d->wmode == TopLevel) {
 	QWidget *o = topLevelWidget();
@@ -994,13 +998,15 @@ void QWorkspace::showEvent( QShowEvent *e )
 	}
 	reparent(w, QPoint(0,0));
 	setGeometry(0, 0, w->width(), w->height());
-	w->hide();
 #if 0
 	/* Hide really isn't acceptable because I need to make the rest of Qt
 	   think it is visible, so instead I set it to an empty mask. I'm not
 	   sure what problems this is going to create, hopefully everything will
 	   be happy (or not even notice since this is mostly intended for Qt/Mac) */
-	w->reparent(w->parentWidget(), WState_Visible, w->pos());
+//	w->setMask(QRegion());
+//	w->show();
+#else
+	w->hide();
 #endif
     }
 
@@ -2797,6 +2803,7 @@ void QWorkspace::scrollBarChanged()
     updateWorkspace();
 }
 
+#ifdef QT_WORKSPACE_WINDOWMODE
 /*!
     \enum QWorkspace::WindowMode
 
@@ -2804,14 +2811,17 @@ void QWorkspace::scrollBarChanged()
 
     \value TopLevel Subwindows are treated as toplevel windows
     \value MDI Subwindows are organized in an MDI interface
-    \value Default The behaviour is platform dependent
+    \value AutoDetect QWorkspace will detect whether TopLevel or MDI is appropriate
 */
 
 /*!
    The windowing model influences how the subwindows are actually created. 
    For most platforms the default behavior of a workspace is to operate in 
-   MDI mode. On Macintosh QWorkspace will try to manage windows as TopLevel windows.
+   MDI mode, with Qt/Mac the default mode is AutoDetect.
 */
+#else
+/*! \internal */
+#endif
 QWorkspace::WindowMode QWorkspace::windowMode() const
 {
     return d->wmode;
