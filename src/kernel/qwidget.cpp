@@ -875,6 +875,16 @@ QWidget::~QWidget()
 int QWidget::instanceCounter = 0;  // Current number of widget instances
 int QWidget::maxInstances = 0;     // Maximum number of widget instances
 
+void qt_widget_ensure_polished(QWidget *w)
+{
+    if ( !w->testAttribute(QWidget::WA_SetFont) && !QApplication::font(w).isCopyOf(QApplication::font()))
+	w->d->resolveFont();
+#ifndef QT_NO_PALETTE
+    if (!QApplication::palette(w).isCopyOf(QApplication::palette()))
+	w->d->resolvePalette();
+#endif
+    qApp->polish(w);
+}
 
 void QWidget::setWinId( WId id )		// set widget identifier
 {
@@ -4464,18 +4474,6 @@ bool QWidget::event( QEvent *e )
 	    d->resolvePalette();
 	break;
 #endif
-    case QEvent::Polish:
-	if ( !testAttribute(WA_SetFont) && !QApplication::font(this).isCopyOf(QApplication::font()))
-	    d->resolveFont();
-#ifndef QT_NO_PALETTE
-	if (!QApplication::palette(this).isCopyOf(QApplication::palette()))
-	    d->resolvePalette();
-#endif
-	qApp->polish(this);
-#ifdef QT_COMPAT
-	QApplication::sendPostedEvents( this, QEvent::ChildInserted );
-#endif
-
     case QEvent::ActivationChange:
     case QEvent::EnabledChange:
     case QEvent::FontChange:

@@ -703,6 +703,9 @@ bool QObject::event( QEvent *e )
 
     case QEvent::Polish:
 	polishEvent(e);
+#ifdef QT_COMPAT
+	QCoreApplication::sendPostedEvents( this, QEvent::ChildInserted );
+#endif
 	return TRUE;
 
     case QEvent::DeferredDelete:
@@ -813,7 +816,10 @@ void QObject::ensurePolished() const
 	QChildEvent e(QEvent::ChildPolished, (QObject*)this);
 	QCoreApplication::sendEvent((QObject*)parentObj, &e);
     }
-
+    if(isWidgetType()) {
+	void qt_widget_ensure_polished(QWidget *); //a virtual of sorts! (qwidget.cpp)
+	qt_widget_ensure_polished((QWidget*)this);
+    }
 }
 
 /*!
