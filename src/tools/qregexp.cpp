@@ -1809,7 +1809,7 @@ bool QRegExpEngine::matchHere()
 #ifndef QT_NO_REGEXP_BACKREF
     int *zzZ = 0;
 
-    while ( (ncur > 0 || mmSleeping.count() > 0) && i <= mmLen - mmPos &&
+    while ( (ncur > 0 || !mmSleeping.isEmpty()) && i <= mmLen - mmPos &&
 	    !stop )
 #else
     while ( ncur > 0 && i <= mmLen - mmPos && !stop )
@@ -1885,23 +1885,25 @@ bool QRegExpEngine::matchHere()
 			    else
 				delta = mmCurCapEnd[ell] - mmCurCapBegin[ell];
 
-			    in = ( delta <= mmLen - mmPos );
+			    in = ( delta <= mmLen - (mmPos + i) );
 			    if ( in && delta > 1 ) {
-				int n;
+				int n = 1;
 				if ( cs ) {
-				    for ( n = 1; n < delta; n++ ) {
+				    while ( n < delta ) {
 					if ( mmIn[mmPos +
 						  mmCurCapBegin[ell] + n] !=
 					     mmIn[mmPos + i + n] )
 					    break;
+					n++;
 				    }
 				} else {
-				    for ( n = 1; n < delta; n++ ) {
+				    while ( n < delta ) {
 					QChar a = mmIn[mmPos +
 						       mmCurCapBegin[ell] + n];
 					QChar b = mmIn[mmPos + i + n];
 					if ( a.lower() != b.lower() )
 					    break;
+					n++;
 				    }
 				}
 				in = ( n == delta );
@@ -2085,7 +2087,7 @@ bool QRegExpEngine::matchHere()
 	/*
 	  It's time to wake up the sleepers.
 	*/
-	if ( mmSleeping.count() > 0 ) {
+	if ( !mmSleeping.isEmpty() ) {
 	    while ( (zzZ = mmSleeping.take(i)) != 0 ) {
 		int next = zzZ[0];
 		int *capBegin = zzZ + 1;
