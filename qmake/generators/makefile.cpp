@@ -490,6 +490,8 @@ MakefileGenerator::generateDependencies(QPtrList<MakefileDependDir> &dirs, const
 				    d = project->first("QMAKE_ABSOLUTE_SOURCE_PATH");
 				if(s == lhs) {
 				    fqn = d + inc;
+				    from_source_dir = FALSE;  //uics go in the output_dir (so don't fix them)
+				    fqn = fileFixify(fqn, QDir::currentDirPath(), Option::output_dir);
 				    goto handle_fqn;
 				}
 			    }
@@ -511,6 +513,8 @@ MakefileGenerator::generateDependencies(QPtrList<MakefileDependDir> &dirs, const
 				    d = project->first("QMAKE_ABSOLUTE_SOURCE_PATH");
 				if(s == lhs) {
 				    fqn = d + inc;
+				    from_source_dir = FALSE;  //uics go in the output_dir (so don't fix them)
+				    fqn = fileFixify(fqn, QDir::currentDirPath(), Option::output_dir);
 				    goto handle_fqn;
 				}
 			    }
