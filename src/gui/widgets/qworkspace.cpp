@@ -1025,15 +1025,21 @@ QWidget * QWorkspace::addWindow(QWidget *w, Qt::WFlags flags)
     if (!w)
         return 0;
 
-    if ((flags & Qt::WindowType_Mask)  == Qt::Tool) {
-        bool customize =  (flags & (Qt::WindowTitleHint
-                                    | Qt::WindowSystemMenuHint
-                                    | Qt::WindowMinimizeButtonHint
-                                    | Qt::WindowMaximizeButtonHint
-                                    | Qt::WindowContextHelpButtonHint));
-        if (!customize)
-            flags |= Qt::WindowTitleHint | Qt::WindowSystemMenuHint;
-    }
+    bool customize =  (flags & (Qt::WindowTitleHint
+            | Qt::WindowSystemMenuHint
+            | Qt::WindowMinimizeButtonHint
+            | Qt::WindowMaximizeButtonHint
+            | Qt::WindowContextHelpButtonHint));
+
+    uint type = (flags & Qt::WindowType_Mask);
+    if (customize)
+        ;
+    else if (type == Qt::Dialog || type == Qt::Sheet)
+        flags |= Qt::WindowTitleHint | Qt::WindowSystemMenuHint | Qt::WindowContextHelpButtonHint;
+    else if (type == Qt::Tool)
+        flags |= Qt::WindowTitleHint | Qt::WindowSystemMenuHint;
+    else
+        flags |= Qt::WindowTitleHint | Qt::WindowSystemMenuHint | Qt::WindowMinimizeButtonHint | Qt::WindowMaximizeButtonHint;
 
     bool wasMaximized = w->isMaximized();
     bool wasMinimized = w->isMinimized();
@@ -1182,12 +1188,23 @@ void QWorkspacePrivate::activateWindow(QWidget* w, bool change_focus)
 /*!
     Returns a pointer to the widget corresponding to the active child
     window, or 0 if no window is active.
+
+    \sa setActiveWindow()
 */
 QWidget* QWorkspace::activeWindow() const
 {
     return d->active?d->active->windowWidget():0;
 }
 
+/*!
+    Makes the child window that contains \a w the active child window.
+
+    \sa activeWindow()
+*/
+void QWorkspace::setActiveWindow(QWidget *w)
+{
+    d->activateWindow(w, true);
+}
 
 void QWorkspacePrivate::place(QWidget *w)
 {
@@ -2392,7 +2409,9 @@ void QWorkspaceChild::resizeEvent(QResizeEvent *)
 
     windowSize = cr.size();
     backgroundWidget->setGeometry(cr);
-    childWidget->setGeometry(cr);
+    childWidget->move(cr.topLeft());
+    if (!childWidget->testAttribute(Qt::WA_PendingResizeEvent))
+        childWidget->resize(cr.size());
     ((QWorkspace*)parentWidget())->d->updateWorkspace();
 
     if (wasMax) {
