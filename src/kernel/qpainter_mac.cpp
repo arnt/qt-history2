@@ -115,9 +115,10 @@ void QPainter::cleanup()
 {
 }
 
+//I assume this will work, but I need to find a test case FIXME!
 void QPainter::redirect( QPaintDevice *pdev, QPaintDevice *replacement )
 {
-#if 0
+    qDebug("Need to test this! %s:%d", __FILE__, __LINE__);
     if ( pdev_dict == 0 ) {
 	if ( replacement == 0 )
 	    return;
@@ -137,7 +138,6 @@ void QPainter::redirect( QPaintDevice *pdev, QPaintDevice *replacement )
 	    pdev_dict = 0;
 	}
     }
-#endif
 }
 
 void QPainter::init()
