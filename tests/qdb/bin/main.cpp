@@ -34,14 +34,18 @@ void usage( bool details = FALSE )
     }
 }
 
+void simple_usage()
+{
+    usage();
+    qWarning( "Try " + appname + " --help for more information." );
+}
+
 void die( const QString& message = QString::null, bool doUsage = FALSE )
 {
     if ( !message.isNull() ) {
 	qWarning( appname + ": " + message );
-	if ( doUsage ) {
-	    usage();
-	    qWarning( "Try " + appname + " --help for more information." );
-	}
+	if ( doUsage )
+	    simple_usage();
     }
     exit(1);
 }
@@ -51,8 +55,10 @@ int main( int argc, char** argv )
     QApplication app( argc, argv, QApplication::Tty ); /* console */
     QFileInfo fi( QString(qApp->argv()[0]) );
     appname = fi.baseName();
-    if ( app.argc() == 1 )
-	die();
+    if ( app.argc() == 1 ) {
+	simple_usage();
+	return 1;
+    }
 
     QString sep = "|";
     QString outfilename;
@@ -189,9 +195,9 @@ int main( int argc, char** argv )
 	if ( !suppressheader ) {
 	    outstream << "Table \"" << tablename << "\"" << endl;
 	    outstream << sep << "   Attribute   " << sep << "     Type      " << sep
-		      << "    Size       " << sep << endl;
+		      << "    Size       " << sep << "    Prec       " << sep << endl;
 	    outstream << sep << "---------------" << sep << "---------------" << sep
-		      << "---------------" << sep << endl;
+		      << "---------------" << sep << "---------------" << sep << endl;
 	}
 	for ( uint i = 0; i < driver->count(); ++i ) {
 	    QVariant v;
@@ -202,7 +208,8 @@ int main( int argc, char** argv )
 	    v.cast( (QVariant::Type)l[1].toInt() );
 	    outstream << sep << " " << name.leftJustify( 14 ) << sep
 		      << " " << QString( v.typeName() ).leftJustify( 14 ) << sep
-		      << " " << QString::number( l[2].toInt() ).leftJustify( 14 ) << sep <<  endl;
+		      << " " << QString::number( l[2].toInt() ).leftJustify( 14 ) << sep
+		      << " " << QString::number( l[3].toInt() ).leftJustify( 14 ) <<  sep << endl;
 	}
 	return 0;
     }
