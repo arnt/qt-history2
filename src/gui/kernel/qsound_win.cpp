@@ -103,6 +103,8 @@ DWORD WINAPI SoundPlayProc(LPVOID param)
         } , {
             PlaySoundA(QFile::encodeName(filename).data(), 0, flags);
         });
+	if (sound && loops == 1)
+	    server->decLoop(sound);
     }
 
     // signal GUI thread to continue - sound might be reset!
@@ -129,6 +131,8 @@ DWORD WINAPI SoundPlayProc(LPVOID param)
 
 void QAuServerWindows::playHelper(const QString &filename, int loop, QSound *snd)
 {
+    if (loop == 0)
+	return;
     // busy?
     if (WaitForSingleObject(mutex, 0) == WAIT_TIMEOUT)
         return;
