@@ -169,7 +169,6 @@ void QAbstractItemViewPrivate::init()
     \value Closing
 */
 
-
 /*!
     \fn QRect QAbstractItemView::itemViewportRect(const QModelIndex &index) const = 0
     Returns the rectangle on the viewport occupied by the item at \a
@@ -177,7 +176,6 @@ void QAbstractItemViewPrivate::init()
 
     In the base class this is a pure virtual function.
 */
-
 
 /*!
     \fn void QAbstractItemView::ensureItemVisible(const QModelIndex &index) = 0
@@ -187,7 +185,6 @@ void QAbstractItemViewPrivate::init()
 
     In the base class this is a pure virtual function.
 */
-
 
 /*!
     \fn QModelIndex QAbstractItemView::itemAt(const QPoint &p) const
@@ -199,7 +196,6 @@ void QAbstractItemViewPrivate::init()
     In the base class this is built on the other itemAt() function,
     which is pure virtual.
 */
-
 
 /*!
     \fn QModelIndex QAbstractItemView::itemAt(int x, int y) const = 0
@@ -215,6 +211,13 @@ void QAbstractItemViewPrivate::init()
     This signal is emitted when the model's root index changes. The
     previous index is given by \a old, and the new root index is given
     by \a root.
+*/
+
+/*!
+  \fn void QAbstractItemView::onItem(const QModelIndex &index, int button)
+
+  This signal is emitted when the cursor is positioned on the item given by \a index.
+  The button state is given by \a button (see \l{Qt::ButtonState}).
 */
 
 /*!

@@ -42,6 +42,21 @@
   \sa \link model-view-programming.html Model/View Programming\endlink.
 */
 
+
+/*!
+  \fn void expanded(const QModelIndex &index)
+
+  This signal is emitted when the item given by \a index is expanded.
+*/
+
+
+/*!
+  \fn void collapsed(const QModelIndex &index)
+  
+  This signal is emitted when the item given by \a index is collapsed.
+*/
+
+
 /*!
   Constructs a table view with a \a parent to represent the data in
   the given \a model.
@@ -804,7 +819,7 @@ void QGenericTreeView::scrollContentsBy(int dx, int dy)
 }
 
 /*!
-  This signal is emitted whenever the items in the tree view are changed.
+  This slot is called whenever the items in the tree view are changed.
 
 */
 
