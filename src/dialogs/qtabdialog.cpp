@@ -870,14 +870,14 @@ void QTabDialog::setUpLayout()
     // top margin
     d->tll->addSpacing( topMargin );
 
-    QBoxLayout * tmp = new QBoxLayout( QBoxLayout::LeftToRight );
-     d->tll->addLayout( tmp, 1 );
-     tmp->addSpacing( leftMargin );
-     tmp->addWidget( d->tw, 1);
-     tmp->addSpacing( rightMargin + 2 );
+    QBoxLayout * tmp = new QBoxLayout( QApplication::reverseLayout() ? QBoxLayout::RightToLeft : QBoxLayout::LeftToRight );
+    d->tll->addLayout( tmp, 1 );
+    tmp->addSpacing( leftMargin );
+    tmp->addWidget( d->tw, 1);
+    tmp->addSpacing( rightMargin + 2 );
 
     d->tll->addSpacing( aboveButtonsMargin + 2 );
-    QBoxLayout * buttonRow = new QBoxLayout( QBoxLayout::RightToLeft );
+    QBoxLayout * buttonRow = new QBoxLayout( QApplication::reverseLayout() ? QBoxLayout::LeftToRight : QBoxLayout::RightToLeft );
     d->tll->addLayout( buttonRow, 0 );
     d->tll->addSpacing( bottomMargin );
 
