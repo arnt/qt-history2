@@ -11,64 +11,70 @@
 
   \quotefile qutlook/centralwidget.h
   The modifications in the class declaration of the central widget are
-  a forward declaration of the QAxObject class, and a new member \c outlook
-  in the protected section. A new function \c setupOutlook implements
-  the instantiation of the Outlook.Application COM object.
+  a forward declaration of the QAxObject class and the IDispatch interface, 
+  and a new QListViewItem subclass \c ABListViewItem that implements a 
+  constructor and a destructor and has a member \c contact_item of type 
+  \c QAxObject.
   \skipto class QAxObject
-  \printuntil Q_OBJECT
-  \c ...
-  \skipto protected:
-  \printuntil setupOutlook
-  \c ...
-  \skipto QCheckBox
-  \printuntil };
+  \printto class ABCentralWidget
+
+  The ABCentralWidget gets a destructor, three new protected slots \c entryAdded, 
+  \c entryChanged and \c entryRemoved, a new protected function \c setupOutlook, 
+  and also two members of type \c QAxObject.
+  \skipto void findEntries
+  \printuntil QGridLayout
 
   \quotefile qutlook/centralwidget.cpp
-  The ABCentralWidget constructor calls the \c setupOutlook function.
+  The implementation of the ABListViewItem class is trivial:
+  \skipto ABListViewItem::ABListViewItem
+  \printto ABCentralWidget
+  The ABCentralWidget constructor initializes the QAxObject pointers to zero and 
+  calls the \c setupOutlook function. The ABCentralWidget destructor calls the
+  Logoff method of the outlookSession object.
   \skipto ABCentralWidget::ABCentralWidget
-  \printuntil mainGrid->
+  \printto ABCentralWidget::save
   \skipto setupOutlook
   The \c setupOutlook implementation creates a QAxObject to wrap the
   Outlook.Application COM object.
-  \printuntil outlook =
+  \printto Get a session object
   The call to \c querySubObject returns a new QAxObject wrapper around the 
   "Session" object of the Outlook Object hierarchy. If the call fails for 
   some reason setupOutlook returns, otherwise it calls the "Logon" method 
   of the Session object.
-  \printuntil "Logon()"
+  \printto Get the default folder
   The following call to \c querySubObject returns a new QAxObject wrapper
   around the default folder for "contacts".
   \printto Get all items
   \c querySubObject is then used again to get the list of all items in the
-  folder, and to iterate through the list. Since every call to \c querySubObject 
-  returns a new QAxObject the old item wrapper is deleted to reduce memory
-  consumption in case the folder contains a lot of items.
-  \printto "Logoff()"
-  The session is closed and the QAxObject wrapper is deleted before the function
-  returns. This also deletes all QAxObjects created through the \c querySubObject
-  function (e.g. defFolder).
+  folder. The \c connect statement connects the three new ABCentralWidget slots
+  to the signals provided by the "Items" COM object. \c querySubObject is finally
+  used to iterate through the list of items. For every item provided a new
+  ABListViewItem object is created and filled with the properties of the item
+  object.
+  \printto ABCentralWidget::entryAdded
+  The object returned by \c querySubObject is a child of the callee (ie. "items"), 
+  but the list view item should take ownership to provide a cleaner relation between 
+  entries, so the item has to be removed from its parent object.
+
+  The implementation of the \c entryAdded slot creates a new QAxObject to wrap the
+  new item provided by Outlook through the signal/slot dispatching, and inserts a new
+  ABListViewItem into the listview.
+  \printto entryChanged
+  The implementation of the \c entryChanged slot iterates through all listview items
+  and updates the listviewitem's value with the properties of the contact item.
+  \printto entryRemoved
+  The implementation of the \c entryRemoved slot clears the listview, and calls
+  \c setupOutlook. Since the connection to outlook has already been created in the
+  previous call only the listview contents is updated with the new item list.
   \printto addEntry
-  
-  The \c addEntry implementation first creates a new QListViewItem if the data
-  entered is not empty.
-  \printuntil item->setText( 3
-  The CreateItem method of Outlook is called to create a new contact item. If
-  the call succeeds the properties of the item are set to the values entered,
-  and the item is saved.
-  \printto delete contactItem
-  Then the QAxObject wrapper for the contact item is deleted (and only the
-  wrapper object; the item itself is not deleted, of course).
+
+  The \c addEntry implementation calls the CreateItem method of the Outlook.Application
+  object to create a new contact item, and creates a new ABListViewItem if the call
+  succeeds.
   \printto changeEntry
 
-  The \c changeEntry implementation uses the same way as \c setupOutlook to
-  connect to Outlook and to get the list of all contact items.
-  \printuntil "Items"
-  If the call to Outlook's "Find" method returns an item with the same values
-  for name this item is modified. (This is of course a insufficient way to
-  provide real synchronization, but servers the didactical purpose of the
-  example).
-  \printto "Logoff()"
-  The session is closed again and the QAxObject wrapper is deleted.
+  The \c changeEntry implementation updates the values in the contact item of the current
+  listview item as well as the values of the listview item itself.
   \printto selectionChanged
 
   To build the example you must first build the
