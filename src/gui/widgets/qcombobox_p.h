@@ -43,19 +43,20 @@ protected:
     void hideEvent(QHideEvent *) {
         timer.stop();
     }
-    void paintEvent(QEvent *) {
+    void paintEvent(QPaintEvent *) {
         QPainter p(this);
         QStyleOptionMenuItem menuOpt(0);
         menuOpt.palette = palette();
         menuOpt.state = QStyle::Style_Default;
         menuOpt.checkState = QStyleOptionMenuItem::NotCheckable;
         menuOpt.menuRect = rect();
+        menuOpt.rect = rect();
         menuOpt.maxIconWidth = 0;
         menuOpt.tabWidth = 0;
         menuOpt.menuItemType = QStyleOptionMenuItem::Scroller;
         if (sliderAction == QAbstractSlider::SliderSingleStepAdd)
             menuOpt.state = QStyle::Style_Down;
-        menuOpt.rect = rect();
+        p.eraseRect(rect());
         style().drawControl(QStyle::CE_MenuScroller, &menuOpt, &p);
     }
 
@@ -105,6 +106,7 @@ protected:
     void paint(QPainter *painter, const QStyleOptionViewItem &option,
                const QModelIndex &index) const {
         QStyleOptionMenuItem opt = getStyleOption(option, index);
+        painter->eraseRect(option.rect);
         QApplication::style().drawControl(QStyle::CE_MenuItem, &opt, painter, 0);
     }
     QSize sizeHint(const QFontMetrics &fontMetrics, const QStyleOptionViewItem &option,

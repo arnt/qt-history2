@@ -1671,10 +1671,13 @@ QRect QMacStyleCG::querySubControlMetrics(ComplexControl cc, const QStyleOptionC
                     ret.setRect(0, 0, cmb->rect.width() - 20, cmb->rect.height());
                 else if (sc == SC_ComboBoxArrow)
                     ret.setRect(cmb->rect.width() - 24, 0, 24, cmb->rect.height());
-                break;
+            } else {
+                ret = QWindowsStyle::querySubControlMetrics(cc, opt, sc, widget);
+                if(sc == SC_ComboBoxEditField)
+                    ret.setWidth(ret.width()-5);
             }
         }
-        // Fall through to the default case.
+        break;
     default:
         ret = QWindowsStyle::querySubControlMetrics(cc, opt, sc, widget);
     }
