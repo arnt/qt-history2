@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/imageio/src/qpngio.cpp#4 $
+** $Id: //depot/qt/main/extensions/imageio/src/qpngio.cpp#5 $
 **
 ** Implementation of PNG QImage IOHandler
 **
@@ -274,6 +274,11 @@ void write_png_image(QImageIO* iio)
 
     const QImage& image = iio->image();
 
+    info_ptr->channels =
+	(image.depth() == 32)
+	    ? (image.hasAlphaBuffer() ? 4 : 3)
+	    : 1;
+
     png_set_IHDR(png_ptr, info_ptr, image.width(), image.height(),
 	image.depth() == 1 ? 1 : 8 /* per channel */,
 	image.depth() == 32
@@ -281,6 +286,7 @@ void write_png_image(QImageIO* iio)
 		? PNG_COLOR_TYPE_RGB_ALPHA
 		: PNG_COLOR_TYPE_RGB
 	    : PNG_COLOR_TYPE_PALETTE, 0, 0, 0);
+
 
     //png_set_sBIT(png_ptr, info_ptr, 8);
     info_ptr->sig_bit.red = 8;
@@ -297,7 +303,7 @@ void write_png_image(QImageIO* iio)
 	info_ptr->valid |= PNG_INFO_PLTE;
 	info_ptr->palette = new png_color[image.numColors()];
 	info_ptr->num_palette = image.numColors();
-	int trans[info_ptr->num_palette];
+	int* trans = new int[info_ptr->num_palette];
 	int num_trans = 0;
 	for (int i=0; i<info_ptr->num_palette; i++) {
 	    QRgb rgb=image.color(i);
@@ -318,6 +324,7 @@ void write_png_image(QImageIO* iio)
 	    for (int i=0; i<num_trans; i++)
 		info_ptr->trans[i] = trans[i];
 	}
+	delete trans;
     }
 
     if ( image.hasAlphaBuffer() ) {
@@ -334,11 +341,10 @@ void write_png_image(QImageIO* iio)
     if ( image.depth() != 1 )
 	png_set_packing(png_ptr);
 
-#if 0 // libpng takes care of this.
-    png_set_filler(png_ptr, 0,
-	QImage::systemByteOrder() == QImage::BigEndian ?
-	    PNG_FILLER_BEFORE : PNG_FILLER_AFTER);
-#endif
+    if ( image.depth() == 32 && !image.hasAlphaBuffer() )
+	png_set_filler(png_ptr, 0,
+	    QImage::systemByteOrder() == QImage::BigEndian ?
+		PNG_FILLER_BEFORE : PNG_FILLER_AFTER);
 
     uchar** jt = image.jumpTable();
     row_pointers=new png_bytep[info_ptr->height];

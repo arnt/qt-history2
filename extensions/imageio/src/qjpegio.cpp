@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/imageio/src/qjpegio.cpp#2 $
+** $Id: //depot/qt/main/extensions/imageio/src/qjpegio.cpp#3 $
 **
 ** Implementation of JPEG QImage IOHandler
 **
@@ -34,10 +34,11 @@ void my_error_exit (j_common_ptr cinfo)
 }
 
 
+static const int max_buf = 4096;
+
 struct my_jpeg_source_mgr : public jpeg_source_mgr {
     // Nothing dynamic - cannot rely on destruction over longjump
     QImageIO* iio;
-    static const int max_buf = 4096;
     JOCTET buffer[max_buf];
 
 public:
@@ -166,7 +167,6 @@ void read_jpeg_image(QImageIO* iio)
 struct my_jpeg_destination_mgr : public jpeg_destination_mgr {
     // Nothing dynamic - cannot rely on destruction over longjump
     QImageIO* iio;
-    static const int max_buf = 4096;
     JOCTET buffer[max_buf];
 
 public:
