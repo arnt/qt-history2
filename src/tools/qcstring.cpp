@@ -954,9 +954,9 @@ int QCString::find( char c, int index, bool cs ) const
 
 int QCString::find( const char *str, int index, bool cs ) const
 {
-    find( str, index, cs, length() );
+    return find( str, index, cs, length() );
 }
-    
+
 int QCString::find( const char *str, int index, bool cs, uint l ) const
 {
     if ( (uint)index >= size() )
