@@ -2383,12 +2383,14 @@ bool QPSPrinter::cmd( int c , QPainter *paint, QPDevCmdParam *p )
 	if ( !p[1].str->isEmpty() ) {
 	    // #### Unicode ignored
 
-	    char * tmp = new char[ p[1].str->length() * 2 + 2 ];
+	    QCString tmpC=p[1].str->local8Bit();
+	    char *tmp = new char[tmpC.length()*2 + 2];
 #if defined(CHECK_NULL)
 	    CHECK_PTR( tmp );
 #endif
-	    const char* from = p[1].str->ascii();
+	    const char* from = (const char*)tmpC;
 	    char * to = tmp;
+
 	    while ( *from ) {
 		if ( *from == '\\' || *from == '(' || *from == ')' )
 		    *to++ = '\\';		// escape special chars
