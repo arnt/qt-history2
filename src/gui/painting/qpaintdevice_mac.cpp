@@ -299,6 +299,7 @@ void unclippedScaledBitBlt(QPaintDevice *dst, int dx, int dy, int dw, int dh,
 		EraseRect(&pixr);
 		CopyDeepMask(srcbitmap, maskbits, pixbits, &srcr, &srcr, &pixr, copymode, 0);
 	    }
+	    QMacSavedPortInfo(dst);
 	    CopyBits(pixbits, dstbitmap, &pixr, &dstr, srcOr, 0); //use srcOr transfer, to "emulate" the mask
 	} else {
 	    CopyDeepMask(srcbitmap, maskbits, dstbitmap, &srcr, &srcr, &dstr, copymode, 0);
