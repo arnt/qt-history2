@@ -66,6 +66,8 @@ public:
 
 };
 
+class QMetaType;
+
 class Q_KERNEL_EXPORT QObjectPrivate
 {
     Q_DECL_PUBLIC( QObject );
@@ -106,10 +108,11 @@ public:
 		QObject **guarded;
 	    };
 	    int member;
+	    const QMetaType **types;
 	} connections[1];
     };
     Connections *connections;
-    void addConnection(int signal, QObject *receiver, int member);
+    void addConnection(int signal, QObject *receiver, int member, const QMetaType **types = 0);
     Connections::Connection *findConnection(int signal, int &i) const;
     void removeReceiver(QObject *receiver);
 
@@ -147,5 +150,7 @@ public:
     const char *objectName;
     uint ownObjectName : 1;
 };
+
+
 
 #endif

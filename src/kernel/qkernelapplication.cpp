@@ -3,6 +3,7 @@
 #include <qkernelevent.h>
 #include <qfile.h>
 #include <qtextcodec.h>
+#include <qdatastream.h>
 
 #ifdef Q_WS_QWS
 #include <qevent.h>
@@ -76,7 +77,8 @@ QKernelApplication *QKernelApplication::self = 0;
 
 
 QKernelApplicationPrivate::QKernelApplicationPrivate(int &aargc,  char **aargv)
-    : QObjectPrivate(), argc(aargc), argv(aargv)
+    : QObjectPrivate(), argc(aargc), argv(aargv),
+      type_int("int"), type_QString("QString"), type_QByteArray("QByteArray")
 {
     static const char *empty = "";
     if ( argc == 0 || argv == 0 ) {

@@ -118,11 +118,13 @@ public:
     void installEventFilter(const QObject *);
     void removeEventFilter(const QObject *);
 
+
     static bool connect(const QObject *sender, const char *signal,
-			const QObject *receiver, const char *member);
+			const QObject *receiver, const char *member,
+			ConnectionType = DirectConnection);
     inline bool connect(const QObject *sender, const char *signal,
-			const char *member) const
-	{ return connect(sender, signal, this, member); }
+			const char *member, ConnectionType type = DirectConnection) const
+	{ return connect(sender, signal, this, member, type); }
 
     static bool disconnect(const QObject *sender, const char *signal,
 			   const QObject *receiver, const char *member);

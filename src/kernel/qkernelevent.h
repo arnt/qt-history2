@@ -53,6 +53,8 @@ public:
 	PaletteChange = 39,			// widget palette changed
 	Clipboard = 40,				// internal clipboard event
 	Speech = 42,				// reserved for speech input
+	InvokeSlot =  43,			// invoke slot event
+	EmitSignal =  44,			// emit signal event
 	SockAct = 50,				// socket activation
 	AccelOverride = 51,			// accelerator override event
 	DeferredDelete = 52,			// deferred delete event

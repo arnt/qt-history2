@@ -4,6 +4,7 @@
 #include "qobject_p.h"
 #include "qkernelapplication.h"
 #include "qtranslator.h"
+#include "qmetaobject.h"
 
 class Q_KERNEL_EXPORT QTranslatorList : private QList<QTranslator*>
 {
@@ -30,6 +31,10 @@ public:
 #ifndef QT_NO_COMPONENT
     QStringList *app_libpaths;
 #endif
+
+    QMetaTypeTemplate<int> type_int;
+    QMetaTypeTemplate<QString> type_QString;
+    QMetaTypeTemplate<QString> type_QByteArray;
 };
 
 

@@ -17,6 +17,7 @@
 #include <qkernelapplication.h>
 #include <qstringlist.h>
 #include <qkernelvariant.h>
+#include <qhash.h>
 #include <ctype.h>
 
 /*!
@@ -1345,3 +1346,26 @@ const char* QMetaClassInfo::value() const
 	return 0;
     return mobj->d.stringdata + mobj->d.data[handle + 1];
 }
+
+static QHash<QByteArray, QMetaType*> types;
+
+const QMetaType *QMetaType::find(const char *type)
+{
+    types.ensure_constructed();
+    return types.value(type);
+}
+
+QMetaType::QMetaType(const char *type)
+    :t(type)
+{
+    types.ensure_constructed();
+    types.insert(type, this);
+}
+
+QMetaType::~QMetaType()
+{
+    types.ensure_constructed();
+    types.remove(t);
+}
+
+

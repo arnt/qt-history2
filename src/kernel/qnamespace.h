@@ -889,6 +889,11 @@ public:
 	BottomRight = 0x00003
     };
 
+    enum ConnectionType {
+	DirectConnection,
+	QueuedConnection
+    };
+
     // "handle" type for system objects. Documented as \internal in
     // qapplication.cpp
 #if defined(Q_WS_MAC)

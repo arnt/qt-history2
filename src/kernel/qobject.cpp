@@ -56,6 +56,44 @@ void QMetaObject::changeGuard(QObject **ptr, QObject *o)
     addGuard(ptr);
 }
 
+class QMetaCallEvent : public QEvent
+{
+public:
+    QMetaCallEvent(Type type, int id, const QObject *sender = 0, int nargs = 0, const QMetaType **types = 0, void **args = 0);
+    ~QMetaCallEvent();
+
+    int id() const { return id_; }
+    void **args() const { return args_; }
+    const QObject *sender() const { return sender_; }
+
+private:
+    int id_;
+    const QObject *sender_;
+    int nargs_;
+    const QMetaType **types_;
+    void **args_;
+};
+
+QMetaCallEvent::QMetaCallEvent(QEvent::Type type, int id, const QObject *sender,
+			       int nargs, const QMetaType **types, void **args)
+    :QEvent(type), id_(id), sender_(sender), nargs_(nargs), types_(types), args_(args)
+{};
+
+QMetaCallEvent::~QMetaCallEvent()
+{
+    for (int i = 0; i < nargs_; i++)
+	if (types_[i] && args_[i])
+	    types_[i]->destroy(args_[i]);
+
+    if (types_)
+	delete [] types_;
+    if (args_)
+	delete [] args_;
+}
+
+
+
+
 /*!
     \class Qt qnamespace.h
 
@@ -617,6 +655,18 @@ bool QObject::event( QEvent *e )
     case QEvent::DeferredDelete:
 	delete this;
 	return TRUE;
+
+    case QEvent::InvokeSlot:
+    case QEvent::EmitSignal: {
+	QMetaCallEvent *mce = static_cast<QMetaCallEvent*>(e);
+	QObjectPrivate::Senders *senders = d->senders;
+	QObject *sender = QObjectPrivate::setCurrentSender(senders, const_cast<QObject*>(mce->sender()));
+	qt_metacall( e->type() == QEvent::InvokeSlot
+		     ? QMetaObject::InvokeSlot
+		     : QMetaObject::EmitSignal,
+		     mce->id(), mce->args());
+	QObjectPrivate::resetCurrentSender(senders, sender);
+    } break;
 
     default:
 	if ( e->type() >= QEvent::User ) {
@@ -1439,7 +1489,7 @@ static void err_info_about_objects(const char * func,
 				    const QObject * sender,
 				    const QObject * receiver)
 {
-    const char * a = sender->objectName(), * b = receiver->objectName();
+    const char * a = sender->objectName(0), * b = receiver->objectName(0);
     if (a)
 	qWarning("Object::%s:  (sender name:   '%s')", func, a);
     if (b)
@@ -1449,7 +1499,7 @@ static void err_info_about_objects(const char * func,
 #endif // !QT_NO_DEBUG
 
 
-void QObjectPrivate::addConnection(int signal, QObject *receiver, int member)
+void QObjectPrivate::addConnection(int signal, QObject *receiver, int member, const QMetaType **types)
 {
     int i = 0;
     if ( !connections) {
@@ -1469,6 +1519,7 @@ void QObjectPrivate::addConnection(int signal, QObject *receiver, int member)
     c.signal = signal;
     c.receiver = receiver;
     c.member = member;
+    c.types = types;
 }
 
 QObjectPrivate::Connections::Connection *QObjectPrivate::findConnection(int signal, int &i) const
@@ -1621,7 +1672,8 @@ int QObject::receivers(const char *signal) const
 */
 
 bool QObject::connect(const QObject *sender, const char *signal,
-		     const QObject *receiver, const char *member)
+		      const QObject *receiver, const char *member,
+		      Qt::ConnectionType type)
 {
 #ifndef QT_NO_DEBUG
     if (sender == 0 || receiver == 0 || signal == 0 || member == 0) {
@@ -1688,7 +1740,36 @@ bool QObject::connect(const QObject *sender, const char *signal,
 	return false;
     }
 #endif
-    QMetaObject::connect(sender, signal_index, receiver, membcode, member_index);
+
+    const QMetaType **types = 0;
+    if (type == QueuedConnection) {
+	const char *s = signal;
+	while (*s++ != '(') {}
+	int nargs = 0;
+	const char *e = s;
+	while (*e != ')') {
+	    ++e;
+	    if (*e == ')' || *e == ',')
+		++nargs;
+	}
+
+	types = new const QMetaType *[nargs + 1];
+	types[nargs] = 0;
+	for (int n = 0; n < nargs; ++n) {
+	    e = s;
+	    while (*s != ',' && *s != ')')
+		++s;
+	    QByteArray type(e, s-e);
+	    ++s;
+	    types[n] = QMetaType::find(type);
+	    if (!types[n]) {
+		qWarning("QObject::connect: Cannot queue arguments of type '%s'", type.data());
+		delete [] types;
+		return false;
+	    }
+	}
+    }
+    QMetaObject::connect(sender, signal_index, receiver, membcode, member_index, types);
     const_cast<QObject*>(sender)->connectNotify(signal_name);
     return true;
 }
@@ -1918,10 +1999,14 @@ void QObject::disconnectNotify(const char *)
 }
 
 /*!\internal
+
+  \a types is a 0-terminated vector of meta types for queued
+  connections.
 */
 bool QMetaObject::connect(const QObject *sender, int signal_index,
 			  const QObject *receiver,
-			  int membcode, int member_index)
+			  int membcode, int member_index,
+			  const QMetaType **types)
 {
     if (membcode != QSLOT_CODE && membcode != QSIGNAL_CODE)
 	return false;
@@ -1929,7 +2014,7 @@ bool QMetaObject::connect(const QObject *sender, int signal_index,
     QObject *s = const_cast<QObject*>(sender);
     QObject *r = const_cast<QObject*>(receiver);
 
-    s->d->addConnection(signal_index, r, (member_index<<1)+membcode-1);
+    s->d->addConnection(signal_index, r, (member_index<<1)+membcode-1, types);
     r->d->refSender(s);
     return true;
 }
@@ -1977,13 +2062,30 @@ void QMetaObject::activate(QObject *obj, int signal_index, void **argv)
 	argv = static_argv;
     if ((c = obj->d->findConnection(signal_index, i))) do {
 	nc = obj->d->findConnection(signal_index, i);
-	QObjectPrivate::Senders *senders = c->receiver->d->senders;
-	QObject *sender = QObjectPrivate::setCurrentSender(senders, obj);
-	c->receiver->qt_metacall(
-	    (Call)((c->member & 1) + 1),
-	    c->member >> 1,
-	    argv);
-	QObjectPrivate::resetCurrentSender(senders, sender);
+	if (c->types) { // QueuedConnection
+	    int nargs = 0;
+	    while (c->types[nargs]) { ++nargs; }
+	    const QMetaType **types = new const QMetaType *[nargs + 1];
+	    void **args = new void *[nargs + 1];
+	    types[0] = 0; // return type
+	    args[0] = 0; // return value
+	    for (int n = 1; n <= nargs; ++n)
+		args[n] = (types[n] = c->types[n-1])->copy(argv[n]);
+	    QKernelApplication::postEvent(c->receiver,
+					  new QMetaCallEvent((c->member & 1)
+							     ? QEvent::EmitSignal
+							     : QEvent::InvokeSlot,
+							     c->member >> 1, obj,
+							     nargs, types, args));
+	} else { // DirectConnection
+	    QObjectPrivate::Senders *senders = c->receiver->d->senders;
+	    QObject *sender = QObjectPrivate::setCurrentSender(senders, obj);
+	    c->receiver->qt_metacall(
+		(Call)((c->member & 1) + 1),
+		c->member >> 1,
+		argv);
+	    QObjectPrivate::resetCurrentSender(senders, sender);
+	}
     } while ((c = nc));
 }
 

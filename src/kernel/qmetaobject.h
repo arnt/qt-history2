@@ -111,5 +111,40 @@ private:
     friend struct QMetaObject;
 };
 
+class Q_KERNEL_EXPORT QMetaType {
+    const char *t;
+public:
+    QMetaType(const char *type);
+    virtual ~QMetaType();
+
+    const char *type() const { return t; }
+
+    virtual void *create () const = 0;
+    virtual void *copy(void *) const = 0;
+    virtual void destroy(void *) const = 0;
+    virtual void read (void *, QDataStream &) const = 0;
+    virtual void write(void *, QDataStream &) const = 0;
+
+    static const QMetaType *find(const char *type);
+};
+
+template <typename T>
+class QMetaTypeTemplate : public QMetaType {
+public:
+    QMetaTypeTemplate(const char *t):QMetaType(t){}
+    void* create() const { return new T; }
+    void* copy(void *t) const { return new T(*static_cast<T*>(t)); }
+    void destroy(void *t) const { delete static_cast<T*>(t); }
+    void read(void *t, QDataStream& d) const { d >> *static_cast<T*>(t); }
+    void write(void *t, QDataStream &d) const { d << *static_cast<T*>(t); }
+};
+
+#define Q_REGISTER_TYPE(T) \
+if (!QMetaType::find(#T)) new QMetaTypeTemplate<T>(#T)
+
+#define Q_REGISTER_ENUM(T) \
+if (!QMetaType::find(#T)) new QMetaTypeTemplate<int>(#T)
+
+
 
 #endif // QMETAOBJECT_H
