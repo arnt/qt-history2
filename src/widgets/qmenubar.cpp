@@ -617,7 +617,7 @@ int QMenuBar::calculateRects( int max_width )
     int y = motifBarFrame + motifBarVMargin;
     int i = 0;
     int separator = -1;
-    if ( gs == WindowsStyle )	//###H
+    if ( gs == WindowsStyle )	//###
 	x = y = 2;
     while ( i < (int)mitems->count() ) {	// for each menu item...
 	QMenuItem *mi = mitems->at(i);
@@ -668,8 +668,11 @@ int QMenuBar::calculateRects( int max_width )
 	if ( max_height != height() )
 	    resize( max_width, max_height );
 	// #### Reggie: Why is this needed? It destroys the layout!
-// 	for ( i = 0; i < (int)mitems->count(); i++ )
-// 	    irects[i].setHeight( max_height - 2*motifBarFrame );
+	// Matthias: because it looks ugly if you insert a pixmap/item which
+	// is less high. Why does it destroy the layout? In a menubar, all 
+	// items should have the same height.
+ 	for ( i = 0; i < (int)mitems->count(); i++ )
+ 	    irects[i].setHeight( max_height - 2*motifBarFrame );
 	badSize = FALSE;
     }
 
