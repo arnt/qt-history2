@@ -1835,7 +1835,7 @@ void TrWindow::setupMenuBar()
     // View menu
     revertSortingAct = new Action( viewp, tr("&Revert Sorting"),
 				   this, SLOT(revertSorting()) );
-    doGuessesAct = new Action( viewp, tr("Display guesses"),
+    doGuessesAct = new Action( viewp, tr("&Display guesses"),
 			       this, SLOT(toggleGuessing()) );
     doGuessesAct->setToggleAction( TRUE );
     doGuessesAct->setOn( TRUE );

@@ -189,6 +189,7 @@ public slots:
 private slots:
     void emitTranslationChanged();
     void insertPhraseInTranslation( QListViewItem *item );
+    void insertPhraseInTranslationAndLeave( QListViewItem *item );
     void updateButtons();
     void updateCanPaste();
     void toggleFinished();

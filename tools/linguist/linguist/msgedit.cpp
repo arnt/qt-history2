@@ -462,6 +462,7 @@ MessageEditor::MessageEditor( MetaTranslator * t, QWidget * parent,
 
     phraseLbl = new QLabel( tr("Phrases and guesses:"), w );
     phraseLv  = new PhraseLV( w, "phrase list view" );
+    phraseLv->installEventFilter( this );
     hl->addLayout( vl );
     vl->addWidget( phraseLbl );
     vl->addWidget( phraseLv );
@@ -496,7 +497,7 @@ MessageEditor::MessageEditor( MetaTranslator * t, QWidget * parent,
     connect( phraseLv, SIGNAL(doubleClicked(QListViewItem *)),
 	     this, SLOT(insertPhraseInTranslation(QListViewItem *)) );
     connect( phraseLv, SIGNAL(returnPressed(QListViewItem *)),
-	     this, SLOT(insertPhraseInTranslation(QListViewItem *)) );
+	     this, SLOT(insertPhraseInTranslationAndLeave(QListViewItem *)) );
 
     // What's this
     QWhatsThis::add( this, tr("This whole panel allows you to view and edit "
@@ -562,6 +563,12 @@ bool MessageEditor::eventFilter( QObject * o, QEvent * e )
 				   sw->margin() + ed->y() + ed->cursorY() );
 	}
 	doFocusChange = TRUE;
+    }
+    // Handle the ESC key in the phrase list view
+    if ( o->inherits("QListView") ) {
+	if ( e->type() == QEvent::KeyRelease && 
+	     ((QKeyEvent *) e)->key() == Key_Escape )
+		editorPage->translationMed->setFocus();
     }
     return FALSE;
 }
@@ -729,7 +736,14 @@ void MessageEditor::emitTranslationChanged()
 void MessageEditor::insertPhraseInTranslation( QListViewItem *item )
 {
     editorPage->translationMed->insert(((PhraseLVI *) item)->phrase().target());
-    emitTranslationChanged();
+    emit translationChanged( editorPage->translationMed->text() );
+}
+
+void MessageEditor::insertPhraseInTranslationAndLeave( QListViewItem *item )
+{
+    editorPage->translationMed->insert(((PhraseLVI *) item)->phrase().target());
+    emit translationChanged( editorPage->translationMed->text() );
+    editorPage->translationMed->setFocus();
 }
 
 void MessageEditor::updateButtons()
