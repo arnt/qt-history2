@@ -50,7 +50,7 @@ since Qt 3:
 \i A fully cross-platform \l{qt4-accessibility.html}{accessibility}
 module, with support for the emerging SP-API Unix standard in
 addition to Microsoft and Mac Accessibility.
-\i The \l{qt4-sql.html}{SQL} module, which is now based on the
+\i The \l{qt4-sql.html}{SQL module}, which is now based on the
 Interview model/view framework.
 \i The \l{qt4-network.html}{network module}, with better support
 for UDP and synchronous sockets.

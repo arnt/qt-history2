@@ -2,7 +2,95 @@
     \page qt4-accessibility.html
     \title Qt 4: Cross-Platform Accessibility Support
 
-    ###
+    \section1 General Overview
+
+    Qt 4 allows developers to write cross-platform applications that
+    are usable by visually impaired users as well as by users with
+    other disabilities. Screen readers and other assistive tools will
+    work seamlessly with Qt applications. Qt accessibility will make
+    applications accessible to more users and opens the governmental
+    market, where accessibility is often a requirement. The Qt
+    accessibility API simplifies making applications accessible
+    without exposing any details of the low-level operating system
+    APIs.
+
+        * now support AT-SPI on Unix systems, in addition to
+          MSAA and Mac OS X Accessibility.
+        * Qt 4 has been generally extended from Qt 3 (new methods,
+          new enum values)
+        * more Qt-ish API (less COM-ish)
+        * Accessible help texts can be set in Qt Designer
+
+    * One generic interface for all objects: QAccessibleInterface
+        * can be used for all widgets and objects, e.g. QPushButton, QApplication, etc.
+    * provides all the metadata necessary for the assistive technologies.
+    * not slowing you down if not used; plugins
+
+    * QAccessibleObject and QAccessibleWidget are public; can use it for convenience;
+      they provide the lowest common denominator (?) of metadata (widget geometry, window
+      title, basic help text); can use them as base classes when "wrapping" your
+      custom widgets
+
+    * QAccessiblePlugins for creating plugins
+
+    * Can support other backends
+
+    \section1 Software Layering
+
+        Qt Application
+            | links to
+        Qt Accessibility Module
+            | Plugin (in-process)
+        Qt ATK Bridge
+            | links to
+        ATK
+            | Plugin (in-process)
+        at-spi
+            | CORBA
+        assistive technologies
+
+    Windows:
+
+        Qt Application
+            | links to
+        Qt Accessibility Module
+            | COM (?)
+        MSAA
+            | ?
+        assistive technologies
+
+    Mac:
+
+        ?
+
+    \section1 The Current State of the Accessibility Support
+
+    * The architecture is in place and is not expected to change much.
+    * Not all widgets have been implemented yet.
+    * Not all AT-SPI interfaces have been bridged yet
+
+    \section1 Example Code
+
+    * create an interface
+
+    * creating a plugin
+
+    * registering stuff
+
+    \section1 Comparison with Qt 3
+
+    * Qt 3, you had to have plugins; Qt 4, can compile them into your app and
+      register them
+        * Qt 4: the built-in ones are plugins by default; can be built into the Qt library
+          using ...
+        * custom a12y interfaces can be built into your app or provided as plugins
+
+    * Qt 3 had no generic support for backends
+
+    \section1 Future Work
+
+    * implement the missing widgets
+    * complete the AT-SPI bridge
 
     \link qt4-intro.html [Back to the Technology Preview page] \endlink
 */
