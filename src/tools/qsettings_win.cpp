@@ -162,6 +162,9 @@ inline bool QSettingsPrivate::writeKey( const QString &key, const QByteArray &va
     }
     if ( !handle )
 	return FALSE;
+    
+    if (e == "Default" )
+	e = "";
 
 #if defined(UNICODE)
     if ( qWinVersion() & Qt::WV_NT_based )
@@ -488,18 +491,33 @@ bool QSettings::removeEntry( const QString &key )
     if ( !handle )
 	return TRUE;
 
+    if ( e.isEmpty() || e == "Default" ) {
 #if defined(UNICODE)
-    if ( qWinVersion() & Qt::WV_NT_based )
-	res = RegDeleteValueW( handle, (TCHAR*)qt_winTchar( e, TRUE ) );
-    else
+	if ( qWinVersion() & Qt::WV_NT_based )
+	    res = RegDeleteKeyW( handle, (const unsigned short*)"" );
+	else
 #endif
-	res = RegDeleteValueA( handle, e.local8Bit() );
-
-    if ( res != ERROR_SUCCESS ) {
+	    res = RegDeleteKeyA( handle, "" );
+	if ( res != ERROR_SUCCESS ) {
 #if defined(QT_CHECK_STATE)
-	qSystemWarning( "Error deleting value " + key, res );
+	    qSystemWarning( "Error deleting value " + key, res );
 #endif
-	return FALSE;
+	    return FALSE;
+	}
+    } else {
+#if defined(UNICODE)
+	if ( qWinVersion() & Qt::WV_NT_based )
+	    res = RegDeleteValueW( handle, (TCHAR*)qt_winTchar( e, TRUE ) );
+	else
+#endif
+	    res = RegDeleteValueA( handle, e.local8Bit() );
+
+	if ( res != ERROR_SUCCESS ) {
+#if defined(QT_CHECK_STATE)
+	    qSystemWarning( "Error deleting value " + key, res );
+#endif
+	    return FALSE;
+	}
     }
     return TRUE;
 }
