@@ -255,7 +255,7 @@ and non-smooth fonts is illustrated below.
 <center>
 <table>
 <tr align=center>
-<td><img src=smooth.gif><td><img src=nonsmooth.gif>
+<td><img src=smooth.png><td><img src=nonsmooth.png>
 <tr align=center>
 <td>Smooth<td>Non-smooth
 </table>
@@ -314,6 +314,7 @@ be named <i>name</i>_<i>size</i>_<i>weight</i><i>italicflag</i>.qpf, where:
 <p>
 <table>
 <tr><td valign=top>      <i>name</i> <td> <b>helvetica</b>, <b>times</b>, etc. (lowercase)
+<tr><td valign=top>      <i>size</i> <td> 10 times pointsize (eg. <b>120</b> for 12pt)
 <tr><td valign=top>    <i>italicflag</i> <td> <b>i</b> for italic or nothing.
 <tr><td valign=top>    <i>weight</i> <td> <b>50</b> is Normal, <b>75</b> is Bold, etc.
 </table>
