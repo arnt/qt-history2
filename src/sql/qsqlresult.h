@@ -31,7 +31,7 @@
 class QString;
 class QSqlRecord;
 template <typename T> class QVector;
-class QVariant;
+class QCoreVariant;
 
 
 class QSqlDriver;
@@ -68,15 +68,15 @@ protected:
     // prepared query support
     virtual bool exec();
     virtual bool prepare( const QString& query );
-    void bindValue( const QString& placeholder, const QVariant& val, QSql::ParamType type );
-    void bindValue( int pos, const QVariant& val, QSql::ParamType type );
-    void addBindValue( const QVariant& val, QSql::ParamType type );
-    QVariant boundValue( const QString& placeholder ) const;
-    QVariant boundValue( int pos ) const;
+    void bindValue( const QString& placeholder, const QCoreVariant& val, QSql::ParamType type );
+    void bindValue( int pos, const QCoreVariant& val, QSql::ParamType type );
+    void addBindValue( const QCoreVariant& val, QSql::ParamType type );
+    QCoreVariant boundValue( const QString& placeholder ) const;
+    QCoreVariant boundValue( int pos ) const;
     QSql::ParamType bindValueType( const QString& placeholder ) const;
     QSql::ParamType bindValueType( int pos ) const;
     int boundValueCount() const;
-    QVector<QVariant>& boundValues() const;
+    QVector<QCoreVariant>& boundValues() const;
     QString executedQuery() const;
     bool savePrepare( const QString& sqlquery ); // ### TODO - find a much better name
     QString boundValueName( int pos ) const;
@@ -85,7 +85,7 @@ protected:
     
     BindMethod bindMethod() const;
 
-    virtual QVariant data( int i ) = 0;
+    virtual QCoreVariant data( int i ) = 0;
     virtual bool    isNull( int i ) = 0;
     virtual bool    reset ( const QString& sqlquery ) = 0;
     virtual bool    fetch( int i ) = 0;

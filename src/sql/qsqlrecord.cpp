@@ -225,13 +225,13 @@ QSqlRecord::~QSqlRecord()
     appropriate.
 */
 
-QVariant QSqlRecord::value( int i ) const
+QCoreVariant QSqlRecord::value( int i ) const
 {
     const QSqlField * f = field(i);
 
     if( f )
 	return f->value();
-    return QVariant();
+    return QCoreVariant();
 }
 
 /*!
@@ -241,7 +241,7 @@ QVariant QSqlRecord::value( int i ) const
     field \a name does not exist the resultant behaviour is undefined.
 */
 
-QVariant  QSqlRecord::value( const QString& name ) const
+QCoreVariant  QSqlRecord::value( const QString& name ) const
 {
     return value(position(name));
 }
@@ -593,7 +593,7 @@ int QSqlRecord::count() const
     field does not exist, nothing happens.
 */
 
-void QSqlRecord::setValue( int i, const QVariant& val )
+void QSqlRecord::setValue( int i, const QCoreVariant& val )
 {
     if (!d->contains(i))
 	return;
@@ -609,7 +609,7 @@ void QSqlRecord::setValue( int i, const QVariant& val )
     does not exist, nothing happens.
 */
 
-void QSqlRecord::setValue( const QString& name, const QVariant& val )
+void QSqlRecord::setValue( const QString& name, const QCoreVariant& val )
 {
     setValue( position( name ), val );
 }

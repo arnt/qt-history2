@@ -49,36 +49,36 @@ static QSqlError qMakeError( const QString& err, int type, const QPSQLPrivate* p
     return QSqlError("QPSQL: " + err, QString(PQerrorMessage( p->connection )), type);
 }
 
-static QVariant::Type qDecodePSQLType( int t )
+static QCoreVariant::Type qDecodePSQLType( int t )
 {
-    QVariant::Type type = QVariant::Invalid;
+    QCoreVariant::Type type = QCoreVariant::Invalid;
     switch ( t ) {
     case BOOLOID	:
-	type = QVariant::Bool;
+	type = QCoreVariant::Bool;
 	break;
     case INT8OID	:
-	type = QVariant::LongLong;
+	type = QCoreVariant::LongLong;
 	break;
     case INT2OID	:
 	//    case INT2VECTOROID  : // 7.x
     case INT4OID        :
-	type = QVariant::Int;
+	type = QCoreVariant::Int;
 	break;
     case NUMERICOID     :
     case FLOAT4OID      :
     case FLOAT8OID      :
-	type = QVariant::Double;
+	type = QCoreVariant::Double;
 	break;
     case ABSTIMEOID     :
     case RELTIMEOID     :
     case DATEOID	:
-	type = QVariant::Date;
+	type = QCoreVariant::Date;
 	break;
     case TIMEOID	:
 #ifdef TIMETZOID // 7.x
 	case TIMETZOID  :
 #endif
-	type = QVariant::Time;
+	type = QCoreVariant::Time;
 	break;
     case TIMESTAMPOID   :
 #ifdef DATETIMEOID
@@ -91,13 +91,13 @@ static QVariant::Type qDecodePSQLType( int t )
     // TIMESTAMPTZOID == TIMESTAMPOID == DATETIMEOID
     case TIMESTAMPTZOID :
 #endif
-	type = QVariant::DateTime;
+	type = QCoreVariant::DateTime;
 	break;
 	//    case ZPBITOID	: // 7.x
 	//    case VARBITOID	: // 7.x
     case OIDOID         :
     case BYTEAOID       :
-	type = QVariant::ByteArray;
+	type = QCoreVariant::ByteArray;
 	break;
     case REGPROCOID     :
     case XIDOID         :
@@ -105,7 +105,7 @@ static QVariant::Type qDecodePSQLType( int t )
 	//    case OIDVECTOROID   : // 7.x
     case UNKNOWNOID     :
 	//    case TINTERVALOID   : // 7.x
-	type = QVariant::Invalid;
+	type = QCoreVariant::Invalid;
 	break;
     default:
     case TIDOID         :
@@ -119,7 +119,7 @@ static QVariant::Type qDecodePSQLType( int t )
     case INETOID        :
     case CIDROID        :
     case CIRCLEOID      :
-	type = QVariant::String;
+	type = QCoreVariant::String;
 	break;
     }
     return type;
@@ -178,67 +178,54 @@ bool QPSQLResult::fetchLast()
     return fetch( PQntuples( d->result ) - 1 );
 }
 
-// some Postgres conversions
-static QPoint pointFromString( const QString& s)
-{
-    // format '(x,y)'
-    int pivot = s.indexOf( ',' );
-    if ( pivot != -1 ) {
-	int x = s.mid( 1, pivot-1 ).toInt();
-	int y = s.mid( pivot+1, s.length()-pivot-2 ).toInt();
-	return QPoint( x, y ) ;
-    } else
-	return QPoint();
-}
-
-QVariant QPSQLResult::data( int i )
+QCoreVariant QPSQLResult::data( int i )
 {
     if ( i >= PQnfields( d->result ) ) {
 	qWarning( "QPSQLResult::data: column %d out of range", i );
-	return QVariant();
+	return QCoreVariant();
     }
     int ptype = PQftype( d->result, i );
-    QVariant::Type type = qDecodePSQLType( ptype );
+    QCoreVariant::Type type = qDecodePSQLType( ptype );
     const QString val = ( d->isUtf8 && ptype != BYTEAOID ) ?
 			QString::fromUtf8( PQgetvalue( d->result, at(), i ) ) :
 			QString::fromLocal8Bit( PQgetvalue( d->result, at(), i ) );
     if ( PQgetisnull( d->result, at(), i ) )
-	return QVariant(type);
+	return QCoreVariant(type);
     switch ( type ) {
-    case QVariant::Bool:
+    case QCoreVariant::Bool:
 	{
-	    QVariant b ( (bool)(val == "t") );
+	    QCoreVariant b ( (bool)(val == "t") );
 	    return ( b );
 	}
-    case QVariant::String:
-	return QVariant( val );
-    case QVariant::LongLong:
+    case QCoreVariant::String:
+	return QCoreVariant( val );
+    case QCoreVariant::LongLong:
 	if ( val[0] == '-' )
-	    return QVariant( val.toLongLong() );
+	    return QCoreVariant( val.toLongLong() );
 	else
-	    return QVariant( val.toULongLong() );
-    case QVariant::Int:
-	return QVariant( val.toInt() );
-    case QVariant::Double:
+	    return QCoreVariant( val.toULongLong() );
+    case QCoreVariant::Int:
+	return QCoreVariant( val.toInt() );
+    case QCoreVariant::Double:
 	if ( ptype == NUMERICOID )
-	    return QVariant( val );
-	return QVariant( val.toDouble() );
-    case QVariant::Date:
+	    return QCoreVariant( val );
+	return QCoreVariant( val.toDouble() );
+    case QCoreVariant::Date:
 	if ( val.isEmpty() ) {
-	    return QVariant( QDate() );
+	    return QCoreVariant( QDate() );
 	} else {
-	    return QVariant( QDate::fromString( val, Qt::ISODate ) );
+	    return QCoreVariant( QDate::fromString( val, Qt::ISODate ) );
 	}
-    case QVariant::Time:
+    case QCoreVariant::Time:
 	if ( val.isEmpty() )
-	    return QVariant( QTime() );
+	    return QCoreVariant( QTime() );
 	if ( val.at( val.length() - 3 ) == '+' )
 	    // strip the timezone
-	    return QVariant( QTime::fromString( val.left( val.length() - 3 ), Qt::ISODate ) );
-	return QVariant( QTime::fromString( val, Qt::ISODate ) );
-    case QVariant::DateTime: {
+	    return QCoreVariant( QTime::fromString( val.left( val.length() - 3 ), Qt::ISODate ) );
+	return QCoreVariant( QTime::fromString( val, Qt::ISODate ) );
+    case QCoreVariant::DateTime: {
 	if ( val.length() < 10 )
-	    return QVariant( QDateTime() );
+	    return QCoreVariant( QDateTime() );
 	// remove the timezone
 	QString dtval = val;
 	if ( dtval.at( dtval.length() - 3 ) == '+' )
@@ -247,44 +234,11 @@ QVariant QPSQLResult::data( int i )
 	if ( dtval.at( dtval.length() - 3 ).isPunct() )
 	    dtval += '0';
 	if ( dtval.isEmpty() )
-	    return QVariant( QDateTime() );
+	    return QCoreVariant( QDateTime() );
 	else
-	    return QVariant( QDateTime::fromString( dtval, Qt::ISODate ) );
+	    return QCoreVariant( QDateTime::fromString( dtval, Qt::ISODate ) );
     }
-    case QVariant::Point:
-	return QVariant( pointFromString( val ) );
-    case QVariant::Rect: // format '(x,y),(x',y')'
-	{
-	    int pivot = val.indexOf( "),(" );
-	    if ( pivot != -1 )
-		return QVariant( QRect( pointFromString( val.mid(pivot+2,val.length()) ), pointFromString( val.mid(0,pivot+1) ) ) );
-	    return QVariant( QRect() );
-	}
-    case QVariant::PointArray: // format '((x,y),(x1,y1),...,(xn,yn))'
-	{
-	    QRegExp pointPattern("\\([0-9-]*,[0-9-]*\\)");
-	    int points = val.count( pointPattern );
-	    QPointArray parray( points );
-	    int idx = 1;
-	    for ( int i = 0; i < points; i++ ){
-		int start = val.indexOf( pointPattern, idx );
-		int end = -1;
-		if ( start != -1 ) {
-		    end = val.indexOf( ')', start+1 );
-		    if ( end != -1 ) {
-			parray.setPoint( i, pointFromString( val.mid(idx, end-idx+1) ) );
-		    }
-		    else
-			parray.setPoint( i, QPoint() );
-		} else {
-		    parray.setPoint( i, QPoint() );
-		    break;
-		}
-		idx = end+2;
-	    }
-	    return QVariant( parray );
-	}
-    case QVariant::ByteArray: {
+    case QCoreVariant::ByteArray: {
 	if ( ptype == BYTEAOID ) {
 	    uint i = 0;
 	    int index = 0;
@@ -306,7 +260,7 @@ QVariant QPSQLResult::data( int i )
 		}
 	    }
 	    ba.resize( index );
-	    return QVariant( ba );
+	    return QCoreVariant( ba );
 	}
 
 	QByteArray ba;
@@ -317,7 +271,7 @@ QVariant QPSQLResult::data( int i )
 	if ( fd < 0) {
 	    qWarning( "QPSQLResult::data: unable to open large object for read" );
 	    ((QSqlDriver*)driver())->commitTransaction();
-	    return QVariant( ba );
+	    return QCoreVariant( ba );
 	}
 #endif
 	int size = 0;
@@ -329,7 +283,7 @@ QVariant QPSQLResult::data( int i )
 	if ( size == 0 ) {
 	    lo_close( d->connection, fd );
 	    ((QSqlDriver*)driver())->commitTransaction();
-	    return QVariant( ba );
+	    return QCoreVariant( ba );
 	}
 	char * buf = new char[ size ];
 
@@ -356,16 +310,16 @@ QVariant QPSQLResult::data( int i )
 	delete [] buf;
 	lo_close( d->connection, fd );
 	((QSqlDriver*)driver())->commitTransaction();
-	return QVariant( ba );
+	return QCoreVariant( ba );
     }
     default:
-    case QVariant::Invalid:
+    case QCoreVariant::Invalid:
 #ifdef QT_CHECK_RANGE
 	qWarning("QPSQLResult::data: unknown data type");
 #endif
 	;
     }
-    return QVariant();
+    return QCoreVariant();
 }
 
 bool QPSQLResult::isNull( int field )
@@ -441,7 +395,7 @@ QSqlRecord QPSQLResult::record() const
 				-1,
 				len,
 				precision,
-				QVariant(),
+				QCoreVariant(),
 				PQftype( d->result, i ) ) );
     }
     return info;
@@ -863,7 +817,7 @@ QString QPSQLDriver::formatValue( const QSqlField* field,
 	r = nullText();
     } else {
 	switch ( field->type() ) {
-	case QVariant::DateTime:
+	case QCoreVariant::DateTime:
 	    if ( field->value().toDateTime().isValid() ) {
 		QDate dt = field->value().toDateTime().date();
 		QTime tm = field->value().toDateTime().time();
@@ -878,56 +832,26 @@ QString QPSQLDriver::formatValue( const QSqlField* field,
 		r = nullText();
 	    }
 	    break;
-	case QVariant::Time:
+	case QCoreVariant::Time:
 	    if ( field->value().toTime().isValid() ) {
 		r = field->value().toTime().toString( Qt::ISODate );
 	    } else {
 		r = nullText();
 	    }
-	case QVariant::String:
+	case QCoreVariant::String:
 	{
-	    switch ( field->value().type() ) {
-		case QVariant::Rect: {
-		    QRect rec = field->value().toRect();
-		    // upper right corner then lower left according to psql docs
-		    r = "'(" + QString::number( rec.right() ) +
-			"," + QString::number( rec.bottom() ) +
-			"),(" + QString::number( rec.left() ) +
-			"," + QString::number( rec.top() ) + ")'";
-		    break;
-		}
-		case QVariant::Point: {
-		    QPoint p = field->value().toPoint();
-		    r = "'(" + QString::number( p.x() ) +
-			"," + QString::number( p.y() ) + ")'";
-		    break;
-		}
-		case QVariant::PointArray: {
-		    QPointArray pa = field->value().toPointArray();
-		    r = "' ";
-		    for ( int i = 0; i < (int)pa.size(); ++i ) {
-			r += "(" + QString::number( pa[i].x() ) +
-			     "," + QString::number( pa[i].y() ) + "),";
-		    }
-		    r.truncate( r.length() - 1 );
-		    r += "'";
-		    break;
-		}
-		default:
-		    // Escape '\' characters
-		    r = QSqlDriver::formatValue( field );
-		    r.replace( "\\", "\\\\" );
-		    break;
-	    }
+	    // Escape '\' characters
+	    r = QSqlDriver::formatValue( field );
+	    r.replace( "\\", "\\\\" );
 	    break;
 	}
-	case QVariant::Bool:
+	case QCoreVariant::Bool:
 	    if ( field->value().toBool() )
 		r = "TRUE";
 	    else
 		r = "FALSE";
 	    break;
-	case QVariant::ByteArray: {
+	case QCoreVariant::ByteArray: {
 	    QByteArray ba(field->value().toByteArray());
 	    QString res;
 	    r = "'";

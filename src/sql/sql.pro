@@ -2,11 +2,11 @@
 
 REQUIRES = !qt_one_lib
 TARGET		= qsql
-QCONFIG = core gui
+QCONFIG = core
 
 DEFINES += QT_BUILD_SQL_LIB
 
-PRECOMPILED_HEADER = ../gui/base/qt_gui_pch.h
+#PRECOMPILED_HEADER = ../gui/base/qt_gui_pch.h
 
 include(../qbase.pri)
 

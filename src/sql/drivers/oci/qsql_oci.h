@@ -52,7 +52,7 @@ protected:
     bool	fetchLast();
     bool	fetch(int i);
     bool	reset ( const QString& query );
-    QVariant	data( int field );
+    QCoreVariant	data( int field );
     bool	isNull( int field );
     int         size();
     int         numRowsAffected();
@@ -83,7 +83,7 @@ protected:
     bool	fetchLast();
     bool	fetch(int i);
     bool	reset ( const QString& query );
-    QVariant	data( int field );
+    QCoreVariant	data( int field );
     bool	isNull( int field );
     int         size();
     int         numRowsAffected();

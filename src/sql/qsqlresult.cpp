@@ -79,7 +79,7 @@ public:
     
     QString executedQuery;
     QMap<int, QSql::ParamType> types;
-    QVector<QVariant> values;
+    QVector<QCoreVariant> values;
     typedef QMap<QString, int> IndexMap;
     IndexMap index;
     
@@ -317,13 +317,13 @@ QSqlError QSqlResult::lastError() const
 */
 
 /*!
-    \fn QVariant QSqlResult::data( int i )
+    \fn QCoreVariant QSqlResult::data( int i )
 
-    Returns the data for field \a i (zero-based) as a QVariant. This
+    Returns the data for field \a i (zero-based) as a QCoreVariant. This
     function is only called if the result is in an active state and is
     positioned on a valid record and \a i is non-negative.
     Derived classes must reimplement this function and return the value
-    of field \a i, or QVariant() if it cannot be determined.
+    of field \a i, or QCoreVariant() if it cannot be determined.
 */
 
 /*!
@@ -456,7 +456,7 @@ bool QSqlResult::exec()
     QString query = lastQuery();
     if ( d->bindm == BindByName ) {
 	int i;
-	QVariant val;
+	QCoreVariant val;
 	QString holder;
 	for ( i = d->holders.count() - 1; i >= 0; --i ) {
 	    holder = d->holders[ i ].holderName;
@@ -474,7 +474,7 @@ bool QSqlResult::exec()
 	    i = query.indexOf( '?', i );
 	    if ( i == -1 )
 		continue;
-	    QVariant var = d->values[ idx ];
+	    QCoreVariant var = d->values[ idx ];
 	    QSqlField f( "", var.type() );
 	    if ( var.isNull() )
 		f.clear();
@@ -494,7 +494,7 @@ bool QSqlResult::exec()
     return ret;
 }
 
-void QSqlResult::bindValue( const QString& placeholder, const QVariant& val, QSql::ParamType tp )
+void QSqlResult::bindValue( const QString& placeholder, const QCoreVariant& val, QSql::ParamType tp )
 {
     d->bindm = BindByName;
     // if the index has already been set when doing emulated named
@@ -514,7 +514,7 @@ void QSqlResult::bindValue( const QString& placeholder, const QVariant& val, QSq
 	d->types[ idx ] = tp;
 }
 
-void QSqlResult::bindValue( int pos, const QVariant& val, QSql::ParamType tp )
+void QSqlResult::bindValue( int pos, const QCoreVariant& val, QSql::ParamType tp )
 {
     d->bindm = BindByPosition;
     QString nm( ":f" + QString::number( pos ) );
@@ -526,25 +526,25 @@ void QSqlResult::bindValue( int pos, const QVariant& val, QSql::ParamType tp )
 	d->types[ pos ] = tp;
 }
 
-void QSqlResult::addBindValue( const QVariant& val, QSql::ParamType tp )
+void QSqlResult::addBindValue( const QCoreVariant& val, QSql::ParamType tp )
 {
     d->bindm = BindByPosition;
     bindValue( d->bindCount, val, tp );
     ++d->bindCount;
 }
 
-QVariant QSqlResult::boundValue( const QString& placeholder ) const
+QCoreVariant QSqlResult::boundValue( const QString& placeholder ) const
 {
     int idx = d->index.value( placeholder, -1 );
     if ( idx < 0 )
-	return QVariant();
+	return QCoreVariant();
     return d->values.at( idx );
 }
 
-QVariant QSqlResult::boundValue( int pos ) const
+QCoreVariant QSqlResult::boundValue( int pos ) const
 {
     if ( pos < 0 || pos >= d->values.count() )
-	return QVariant();
+	return QCoreVariant();
     return d->values.at( pos );
 }
 
@@ -565,7 +565,7 @@ int QSqlResult::boundValueCount() const
     return d->values.count();
 }
 
-QVector<QVariant>& QSqlResult::boundValues() const
+QVector<QCoreVariant>& QSqlResult::boundValues() const
 {
     return d->values;
 }

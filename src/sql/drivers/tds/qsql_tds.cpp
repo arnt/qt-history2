@@ -184,21 +184,21 @@ static int CS_PUBLIC qTdsErrHandler( DBPROCESS* dbproc,
 } //extern "C"
 
 
-QVariant::Type qDecodeTDSType( int type )
+QCoreVariant::Type qDecodeTDSType( int type )
 {
-    QVariant::Type t = QVariant::Invalid;
+    QCoreVariant::Type t = QCoreVariant::Invalid;
     switch ( type ) {
     case QTDSCHAR:
     case QTDSTEXT:
     case QTDSVARCHAR:
-	t = QVariant::String;
+	t = QCoreVariant::String;
 	break;
     case QTDSINT1:
     case QTDSINT2:
     case QTDSINT4:
     case QTDSINT4_N:
     case QTDSBIT:
-	t = QVariant::Int;
+	t = QCoreVariant::Int;
 	break;
     case QTDSFLT4:
     case QTDSFLT8:
@@ -214,28 +214,28 @@ QVariant::Type qDecodeTDSType( int type )
     case QTDSDECIMAL_2:
 #endif
     case QTDSMONEY_N:
-	t = QVariant::Double;
+	t = QCoreVariant::Double;
 	break;
     case QTDSDATETIME4:
     case QTDSDATETIME:
     case QTDSDATETIME_N:
-	t = QVariant::DateTime;
+	t = QCoreVariant::DateTime;
 	break;
     case QTDSBINARY:
     case QTDSVARBINARY:
     case QTDSIMAGE:
-	t = QVariant::ByteArray;
+	t = QCoreVariant::ByteArray;
 	break;
     default:
-	t = QVariant::Invalid;
+	t = QCoreVariant::Invalid;
 	break;
     }
     return t;
 }
 
-QVariant::Type qFieldType( QTDSResultPrivate* d, int i )
+QCoreVariant::Type qFieldType( QTDSResultPrivate* d, int i )
 {
-    QVariant::Type type = qDecodeTDSType( dbcoltype( d->dbproc, i+1 ) );
+    QCoreVariant::Type type = qDecodeTDSType( dbcoltype( d->dbproc, i+1 ) );
     return type;
 }
 
@@ -301,9 +301,9 @@ bool QTDSResult::gotoNext(QtSqlCachedResult::ValueCache &values, int index)
     for (int i = 0; i < d->rec.count(); ++i) {
 	int idx = index + i;
 	switch (d->rec.field(i)->type()) {
-	    case QVariant::DateTime:
+	    case QCoreVariant::DateTime:
 		if ((DBINT)d->buffer.at(i * 2 + 1) == -1) {
-		    values[idx] = QVariant(QVariant::DateTime);
+		    values[idx] = QCoreVariant(QCoreVariant::DateTime);
 		} else {
 		    DBDATETIME *bdt = (DBDATETIME*) d->buffer.at(i * 2);
 		    QDate date = QDate::fromString("1900-01-01", Qt::ISODate);
@@ -311,27 +311,27 @@ bool QTDSResult::gotoNext(QtSqlCachedResult::ValueCache &values, int index)
 		    values[idx] = QDateTime( date.addDays( bdt->dtdays ), time.addMSecs( int( bdt->dttime / 0.3 ) ) );		
 		    break;
 		}
-	    case QVariant::Int:
+	    case QCoreVariant::Int:
 		if ((DBINT)d->buffer.at(i * 2 + 1) == -1)
-		    values[idx] = QVariant(QVariant::Int);
+		    values[idx] = QCoreVariant(QCoreVariant::Int);
 		else
 		    values[idx] = *((int*)d->buffer.at(i * 2));
 		break;
-	    case QVariant::Double:
+	    case QCoreVariant::Double:
 		if ((DBINT)d->buffer.at(i * 2 + 1) == -1)
-		    values[idx] = QVariant(QVariant::Double);
+		    values[idx] = QCoreVariant(QCoreVariant::Double);
 		else
 		    values[idx] = *((double*)d->buffer.at(i * 2));
 		break;	    
-	    case QVariant::String:
+	    case QCoreVariant::String:
 		if ((DBINT)d->buffer.at(i * 2 + 1) == -1)
-		    values[idx] = QVariant(QVariant::String);
+		    values[idx] = QCoreVariant(QCoreVariant::String);
 		else
 		    values[idx] = QString::fromLocal8Bit((const char*)d->buffer.at(i * 2));
 		break;
-	    case QVariant::ByteArray: {
+	    case QCoreVariant::ByteArray: {
 		if ((DBINT)d->buffer.at(i * 2 + 1) == -1)
-		    values[idx] = QVariant(QVariant::ByteArray);
+		    values[idx] = QCoreVariant(QCoreVariant::ByteArray);
 		else
 		    values[idx] = QByteArray((const char*)d->buffer.at(i * 2));
 		break;
@@ -339,7 +339,7 @@ bool QTDSResult::gotoNext(QtSqlCachedResult::ValueCache &values, int index)
 	    default:
 		// should never happen, and we already fired
 		// a warning while binding.
-		values[idx] = QVariant();
+		values[idx] = QCoreVariant();
 		break;
 	}	
     }
@@ -377,30 +377,30 @@ bool QTDSResult::reset ( const QString& query )
 	init(numCols);
     }
     for ( int i = 0; i < numCols; ++i ) {
-	QVariant::Type vType = qDecodeTDSType( dbcoltype( d->dbproc, i+1 ) );
+	QCoreVariant::Type vType = qDecodeTDSType( dbcoltype( d->dbproc, i+1 ) );
 	d->rec.append(QSqlField(dbcolname(d->dbproc, i+1), vType, -1, dbcollen( d->dbproc, i+1 )));
 	
 	RETCODE ret = -1;
 	void* p = 0;
 	switch ( vType ) {
-	case QVariant::Int:	
+	case QCoreVariant::Int:	
 	    p = malloc(4);
 	    ret = dbbind(d->dbproc, i+1, INTBIND, (DBINT) 4, (unsigned char *)p);
 	    break;
-	case QVariant::Double:
+	case QCoreVariant::Double:
 	    // use string binding to prevent loss of precision
 	    p = malloc(50);
 	    ret = dbbind(d->dbproc, i+1, STRINGBIND, 50, (unsigned char *)p);
 	    break;
-	case QVariant::String:
+	case QCoreVariant::String:
 	    p = malloc(dbcollen(d->dbproc, i+1) + 1);
 	    ret = dbbind(d->dbproc, i+1, STRINGBIND, DBINT(dbcollen( d->dbproc, i+1 ) + 1), (unsigned char *)p);
 	    break;
-	case QVariant::DateTime:
+	case QCoreVariant::DateTime:
 	    p = malloc(8);
 	    ret = dbbind(d->dbproc, i+1, DATETIMEBIND, (DBINT) 8, (unsigned char *)p);
 	    break;
-	case QVariant::ByteArray:
+	case QCoreVariant::ByteArray:
 	    p = malloc(dbcollen( d->dbproc, i+1 ) + 1);
 	    ret = dbbind( d->dbproc, i+1, BINARYBIND, DBINT(dbcollen( d->dbproc, i+1 ) + 1), (unsigned char *)p );
 	    break;
@@ -654,7 +654,7 @@ QSqlRecord QTDSDriver::record(const QString& tablename) const
 				-1,
 				t.value(2).toInt(),
 				t.value(3).toInt(),
-				QVariant(),
+				QCoreVariant(),
 				t.value(1).toInt() ) );
     }
     return info;
@@ -696,12 +696,12 @@ QString QTDSDriver::formatValue( const QSqlField* field,
     QString r;
     if ( field->isNull() )
 	r = nullText();
-    else if ( field->type() == QVariant::DateTime ) {
+    else if ( field->type() == QCoreVariant::DateTime ) {
 	if ( field->value().toDateTime().isValid() ){
 	    r = field->value().toDateTime().toString( "'yyyyMMdd hh:mm:ss'" );
 	} else
 	    r = nullText();
-    } else if ( field->type() == QVariant::ByteArray ) {
+    } else if ( field->type() == QCoreVariant::ByteArray ) {
 	QByteArray ba = field->value().toByteArray();
 	QString res;
 	static const char hexchars[] = "0123456789abcdef";

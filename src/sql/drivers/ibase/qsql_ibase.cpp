@@ -102,7 +102,7 @@ static void delDA(XSQLDA *&sqlda)
     sqlda = 0;    
 }
 
-static QVariant::Type qIBaseTypeName(int iType)
+static QCoreVariant::Type qIBaseTypeName(int iType)
 {
     switch (iType) {
     case blr_varying:
@@ -110,51 +110,51 @@ static QVariant::Type qIBaseTypeName(int iType)
     case blr_text:
     case blr_cstring:
     case blr_cstring2:
-	return QVariant::String;
+	return QCoreVariant::String;
     case blr_sql_time:
-	return QVariant::Time;
+	return QCoreVariant::Time;
     case blr_sql_date:
     case blr_timestamp:
-	return QVariant::DateTime;
+	return QCoreVariant::DateTime;
     case blr_blob:
-	return QVariant::ByteArray;
+	return QCoreVariant::ByteArray;
     case blr_quad:
     case blr_short:
     case blr_long:
-	return QVariant::Int;
+	return QCoreVariant::Int;
     case blr_int64:
-	return QVariant::LongLong;
+	return QCoreVariant::LongLong;
     case blr_float:
     case blr_d_float:
     case blr_double:
-	return QVariant::Double;
+	return QCoreVariant::Double;
     }
     qWarning("qIBaseTypeName: unknown datatype: %d", iType);
-    return QVariant::Invalid;
+    return QCoreVariant::Invalid;
 }
 
-static QVariant::Type qIBaseTypeName2(int iType)
+static QCoreVariant::Type qIBaseTypeName2(int iType)
 {
     switch(iType & ~1) {
     case SQL_VARYING:
     case SQL_TEXT:
-	return QVariant::String;
+	return QCoreVariant::String;
     case SQL_LONG:
     case SQL_SHORT:
-	return QVariant::Int;
+	return QCoreVariant::Int;
     case SQL_INT64:
-	return QVariant::LongLong;
+	return QCoreVariant::LongLong;
     case SQL_FLOAT:
     case SQL_DOUBLE:
-	return QVariant::Double;
+	return QCoreVariant::Double;
     case SQL_TIMESTAMP:
-	return QVariant::DateTime;
+	return QCoreVariant::DateTime;
     case SQL_TYPE_TIME:
-	return QVariant::Time;
+	return QCoreVariant::Time;
     case SQL_ARRAY:
-	return QVariant::List;
+	return QCoreVariant::List;
     default:
-	return QVariant::Invalid;
+	return QCoreVariant::Invalid;
     }
 }
 
@@ -248,9 +248,9 @@ public:
     bool commit();
 
     bool isSelect();
-    QVariant fetchBlob(ISC_QUAD *bId);
+    QCoreVariant fetchBlob(ISC_QUAD *bId);
     void writeBlob(int i, const QByteArray &ba);
-    QVariant fetchArray(int pos, ISC_QUAD *arr);
+    QCoreVariant fetchArray(int pos, ISC_QUAD *arr);
     void writeArray(int i, const QList<QCoreVariant> &list);
 
 public:    
@@ -308,13 +308,13 @@ void QIBaseResultPrivate::writeBlob(int i, const QByteArray &ba)
     isc_close_blob(status, &handle);
 }
 
-QVariant QIBaseResultPrivate::fetchBlob(ISC_QUAD *bId)
+QCoreVariant QIBaseResultPrivate::fetchBlob(ISC_QUAD *bId)
 {
     isc_blob_handle handle = 0;
 
     isc_open_blob2(status, &ibase, &trans, &handle, bId, 0, 0);
     if (isError("Unable to open BLOB", QSqlError::Statement))
-	return QVariant();
+	return QCoreVariant();
 
     unsigned short len = 0;
     QByteArray ba;
@@ -329,7 +329,7 @@ QVariant QIBaseResultPrivate::fetchBlob(ISC_QUAD *bId)
     bool isErr = isError("Unable to read BLOB", QSqlError::Statement);
     isc_close_blob(status, &handle);
     if (isErr)
-	return QVariant();
+	return QCoreVariant();
 
     if (ba.size() > 255)
 	ba.resize(ba.size() / 2 + len);
@@ -363,9 +363,9 @@ static QList<QCoreVariant> toList<long>(char* buf, int count)
     return res;
 }
 
-QVariant QIBaseResultPrivate::fetchArray(int pos, ISC_QUAD *arr)
+QCoreVariant QIBaseResultPrivate::fetchArray(int pos, ISC_QUAD *arr)
 {
-    QVariant res;
+    QCoreVariant res;
     if (!arr)
 	return res;
     
@@ -413,7 +413,7 @@ QVariant QIBaseResultPrivate::fetchArray(int pos, ISC_QUAD *arr)
 }
 
 template<typename T>
-static void fillList(QByteArray &arr, const QList<QCoreVariant> &list, QVariant::Type typ)
+static void fillList(QByteArray &arr, const QList<QCoreVariant> &list, QCoreVariant::Type typ)
 {
     for (int i = 0; i < list.length(); ++i) {
 	T val(qt_cast<T>(list.at(i)));
@@ -562,7 +562,7 @@ bool QIBaseResult::exec()
     setAt(QSql::BeforeFirst);    
     
     if (d->inda) {
-	QVector<QVariant>& values = boundValues();
+	QVector<QCoreVariant>& values = boundValues();
 	int i;
 	if (values.count() > d->inda->sqld) {
 	    qWarning("QIBaseResult::exec: Parameter mismatch, expected %d, got %d parameters", d->inda->sqld, values.count());
@@ -573,7 +573,7 @@ bool QIBaseResult::exec()
 	    if (!d->inda->sqlvar[para].sqldata)
 		// skip unknown datatypes
 		continue;
-	    const QVariant val(values[i]);
+	    const QCoreVariant val(values[i]);
 	    if (d->inda->sqlvar[para].sqltype & 1) {
 		if (val.isNull()) {
 		    // set null indicator
@@ -730,7 +730,7 @@ bool QIBaseResult::gotoNext(QtSqlCachedResult::ValueCache& row, int rowIdx)
 	
 	if ((d->sqlda->sqlvar[i].sqltype & 1) && *d->sqlda->sqlvar[i].sqlind) {
 	    // null value
-	    QVariant v;
+	    QCoreVariant v;
 	    v.cast(qIBaseTypeName2(d->sqlda->sqlvar[i].sqltype));
 	    row[idx] = v;
 	    continue;
@@ -747,22 +747,22 @@ bool QIBaseResult::gotoNext(QtSqlCachedResult::ValueCache& row, int rowIdx)
 	    if (d->sqlda->sqlvar[i].sqlscale < 0)
 		row[idx] = *(Q_LLONG*)buf * pow(10, d->sqlda->sqlvar[i].sqlscale);
 	    else
-		row[idx] = QVariant(*(Q_LLONG*)buf);
+		row[idx] = QCoreVariant(*(Q_LLONG*)buf);
 	    break;
 	case SQL_LONG:
 	    if (sizeof(int) == sizeof(long)) //dear compiler: please optimize me out.
-		row[idx] = QVariant((int)(*(long*)buf));
+		row[idx] = QCoreVariant((int)(*(long*)buf));
 	    else
-		row[idx] = QVariant((Q_LLONG)(*(long*)buf));
+		row[idx] = QCoreVariant((Q_LLONG)(*(long*)buf));
 	    break;
 	case SQL_SHORT:
-	    row[idx] = QVariant((int)(*(short*)buf));
+	    row[idx] = QCoreVariant((int)(*(short*)buf));
 	    break;
 	case SQL_FLOAT:
-	    row[idx] = QVariant((double)(*(float*)buf));	    
+	    row[idx] = QCoreVariant((double)(*(float*)buf));	    
 	    break;
 	case SQL_DOUBLE:
-	    row[idx] = QVariant(*(double*)buf);
+	    row[idx] = QCoreVariant(*(double*)buf);
 	    break;
 	case SQL_TIMESTAMP: {
 	    // have to demangle the structure ourselves because isc_decode_timestamp
@@ -794,7 +794,7 @@ bool QIBaseResult::gotoNext(QtSqlCachedResult::ValueCache& row, int rowIdx)
 	    break;
 	default:
 	    // unknown type - don't even try to fetch
-	    row[idx] = QVariant();
+	    row[idx] = QCoreVariant();
 	    break;
 	}	
     }
@@ -874,7 +874,7 @@ QSqlRecord QIBaseResult::record() const
 	v = d->sqlda->sqlvar[i];
 	QSqlField f(QString::fromLatin1(v.sqlname, v.sqlname_length).simplified(), 
 		    qIBaseTypeName2(d->sqlda->sqlvar[i].sqltype),
-		    -1, v.sqllen, QABS(v.sqlscale), QVariant(), v.sqltype);
+		    -1, v.sqllen, QABS(v.sqlscale), QCoreVariant(), v.sqltype);
 	rec.append(f);
     }
     return rec;
@@ -1067,9 +1067,9 @@ QSqlRecord QIBaseDriver::record(const QString& tablename) const
 	   "ORDER BY a.RDB$FIELD_POSITION");
 
     while (q.next()) {
-	QVariant::Type type = qIBaseTypeName(q.value(1).toInt());
+	QCoreVariant::Type type = qIBaseTypeName(q.value(1).toInt());
 	QSqlField field(q.value(0).toString().simplified(), type, q.value(5).toInt(),
-			     q.value(2).toInt(), q.value(4).toInt(), QVariant());
+			     q.value(2).toInt(), q.value(4).toInt(), QCoreVariant());
 		
 	rec.append(field);
     }
@@ -1107,7 +1107,7 @@ QSqlIndex QIBaseDriver::primaryIndex(const QString &table) const
 QString QIBaseDriver::formatValue(const QSqlField* field, bool trimStrings) const
 {
     switch (field->type()) {
-    case QVariant::DateTime: {
+    case QCoreVariant::DateTime: {
 	QDateTime datetime = field->value().toDateTime();
 	if (datetime.isValid())
 	    return "'" + QString::number(datetime.date().year()) + "-" +
@@ -1120,7 +1120,7 @@ QString QIBaseDriver::formatValue(const QSqlField* field, bool trimStrings) cons
 	else
 	    return "NULL";
     }
-    case QVariant::Time: {
+    case QCoreVariant::Time: {
 	QTime time = field->value().toTime();
 	if (time.isValid())
 	    return "'" + QString::number(time.hour()) + ":" +
@@ -1130,7 +1130,7 @@ QString QIBaseDriver::formatValue(const QSqlField* field, bool trimStrings) cons
 	else
 	    return "NULL";
     }
-    case QVariant::Date: {
+    case QCoreVariant::Date: {
 	QDate date = field->value().toDate();
 	if (date.isValid())
 	    return "'" + QString::number(date.year()) + "-" +

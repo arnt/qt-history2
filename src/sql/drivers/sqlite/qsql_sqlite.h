@@ -22,7 +22,7 @@
 #include "../cache/qsqlcachedresult.h"
 
 #if (QT_VERSION-0 >= 0x030000)
-typedef QVariant QSqlVariant;
+typedef QCoreVariant QSqlVariant;
 #endif
 
 #if defined (Q_OS_WIN32)

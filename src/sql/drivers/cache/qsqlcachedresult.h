@@ -61,7 +61,7 @@ class Q_SQL_EXPORT QtSqlCachedResult: public QSqlResult
 public:
     virtual ~QtSqlCachedResult();
 
-    typedef QVector<QVariant> ValueCache;
+    typedef QVector<QCoreVariant> ValueCache;
 
 protected:    
     QtSqlCachedResult(const QSqlDriver * db);
@@ -71,7 +71,7 @@ protected:
 
     virtual bool gotoNext(ValueCache &values, int index) = 0;
 
-    QVariant data(int i);
+    QCoreVariant data(int i);
     bool isNull(int i);
     bool fetch(int i);
     bool fetchNext();

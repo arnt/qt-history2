@@ -19,7 +19,7 @@
 #include "qsql.h"
 #include "qsqlerror.h"
 #include "qstring.h"
-#include "qvariant.h"
+#include "qcorevariant.h"
 #endif // QT_H
 
 #ifndef QT_NO_SQL
@@ -57,7 +57,7 @@ public:
     QSqlRecord		record() const;
 
     virtual bool	exec ( const QString& query );
-    virtual QVariant    value( int i ) const;
+    virtual QCoreVariant    value( int i ) const;
 
     virtual bool	seek( int i, bool relative = FALSE );
     virtual bool        next();
@@ -68,12 +68,12 @@ public:
     // prepared query support
     bool exec();
     bool prepare( const QString& query );
-    void bindValue( const QString& placeholder, const QVariant& val, QSql::ParamType type = QSql::In );
-    void bindValue( int pos, const QVariant& val, QSql::ParamType type = QSql::In );
-    void addBindValue( const QVariant& val, QSql::ParamType type = QSql::In );
-    QVariant boundValue( const QString& placeholder ) const;
-    QVariant boundValue( int pos ) const;
-    QMap<QString, QVariant> boundValues() const;
+    void bindValue( const QString& placeholder, const QCoreVariant& val, QSql::ParamType type = QSql::In );
+    void bindValue( int pos, const QCoreVariant& val, QSql::ParamType type = QSql::In );
+    void addBindValue( const QCoreVariant& val, QSql::ParamType type = QSql::In );
+    QCoreVariant boundValue( const QString& placeholder ) const;
+    QCoreVariant boundValue( int pos ) const;
+    QMap<QString, QCoreVariant> boundValues() const;
     QString executedQuery() const;
 
 protected:

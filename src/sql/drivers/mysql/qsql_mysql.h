@@ -49,7 +49,7 @@ protected:
     bool fetchNext();
     bool fetchLast();
     bool fetchFirst();
-    QVariant data( int field );
+    QCoreVariant data( int field );
     bool isNull( int field );
     bool reset ( const QString& query );
     int size();

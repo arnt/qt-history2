@@ -111,7 +111,7 @@ void QSqlResultShared::slotResultDestroyed()
     and save a significant amount of memory overhead. Once an active
     query is positioned on a valid record, data can be retrieved using
     value(). All data is transferred from the SQL backend using
-    QVariants.
+    QCoreVariants.
 
     For example:
 
@@ -206,7 +206,7 @@ void QSqlResultShared::slotResultDestroyed()
     int i = query.boundValue( 1 ).toInt(); // i is 65.
     \endcode
 
-    \sa QSqlDatabase QSqlCursor QVariant
+    \sa QSqlDatabase QSqlCursor QCoreVariant
 */
 
 /*!
@@ -365,23 +365,23 @@ bool QSqlQuery::exec ( const QString& query )
     is not recommended because the order of the fields in the query is
     undefined.
 
-    An invalid QVariant is returned if field \a i does not exist, if
+    An invalid QCoreVariant is returned if field \a i does not exist, if
     the query is inactive, or if the query is positioned on an invalid
     record.
 
     \sa prev() next() first() last() seek() isActive() isValid()
 */
 
-QVariant QSqlQuery::value( int i ) const
+QCoreVariant QSqlQuery::value( int i ) const
 {
     if ( !d->sqlResult )
-	return QVariant();
+	return QCoreVariant();
     if ( isActive() && isValid() && ( i > QSql::BeforeFirst ) ) {
 	return d->sqlResult->data( i );
     } else {
 	qWarning( "QSqlQuery::value: not positioned on a valid record" );
     }
-    return QVariant();
+    return QCoreVariant();
 }
 
 /*!
@@ -956,7 +956,7 @@ bool QSqlQuery::exec()
 
     \sa addBindValue(), prepare(), exec()
 */
-void QSqlQuery::bindValue( const QString& placeholder, const QVariant& val, QSql::ParamType type )
+void QSqlQuery::bindValue( const QString& placeholder, const QCoreVariant& val, QSql::ParamType type )
 {
     if ( !d->sqlResult )
 	return;
@@ -973,7 +973,7 @@ void QSqlQuery::bindValue( const QString& placeholder, const QVariant& val, QSql
 
     \sa addBindValue(), prepare(), exec()
 */
-void QSqlQuery::bindValue( int pos, const QVariant& val, QSql::ParamType type )
+void QSqlQuery::bindValue( int pos, const QCoreVariant& val, QSql::ParamType type )
 {
     if ( !d->sqlResult )
 	return;
@@ -989,7 +989,7 @@ void QSqlQuery::bindValue( int pos, const QVariant& val, QSql::ParamType type )
 
     \sa bindValue(), prepare(), exec()
 */
-void QSqlQuery::addBindValue( const QVariant& val, QSql::ParamType type )
+void QSqlQuery::addBindValue( const QCoreVariant& val, QSql::ParamType type )
 {
     if ( !d->sqlResult )
 	return;
@@ -999,10 +999,10 @@ void QSqlQuery::addBindValue( const QVariant& val, QSql::ParamType type )
 /*!
     Returns the value for the \a placeholder.
 */
-QVariant QSqlQuery::boundValue( const QString& placeholder ) const
+QCoreVariant QSqlQuery::boundValue( const QString& placeholder ) const
 {
     if ( !d->sqlResult )
-	return QVariant();
+	return QCoreVariant();
     return d->sqlResult->boundValue( placeholder );
 }
 
@@ -1011,10 +1011,10 @@ QVariant QSqlQuery::boundValue( const QString& placeholder ) const
 
     Returns the value for the placeholder at position \a pos.
 */
-QVariant QSqlQuery::boundValue( int pos ) const
+QCoreVariant QSqlQuery::boundValue( int pos ) const
 {
     if ( !d->sqlResult )
-	return QVariant();
+	return QCoreVariant();
     return d->sqlResult->boundValue( pos );
 }
 
@@ -1026,15 +1026,15 @@ QVariant QSqlQuery::boundValue( int pos ) const
     QSqlQuery query;
     ...
     // Examine the bound values - bound using named binding
-    QMap<QString, QVariant>::ConstIterator it;
-    QMap<QString, QVariant> vals = query.boundValues();
+    QMap<QString, QCoreVariant>::ConstIterator it;
+    QMap<QString, QCoreVariant> vals = query.boundValues();
     for ( it = vals.begin(); it != vals.end(); ++it )
         qWarning( "Placeholder: " + it.key() + ", Value: " + (*it).toString() );
     ...
 
     // Examine the bound values - bound using positional binding
-    QList<QVariant>::ConstIterator it;
-    QList<QVariant> list = query.boundValues().values();
+    QList<QCoreVariant>::ConstIterator it;
+    QList<QCoreVariant> list = query.boundValues().values();
     int i = 0;
     for ( it = list.begin(); it != list.end(); ++it )
         qWarning( "Placeholder pos: %d, Value: " + (*it).toString(), i++ );
@@ -1042,13 +1042,13 @@ QVariant QSqlQuery::boundValue( int pos ) const
 
     \endcode
 */
-QMap<QString,QVariant> QSqlQuery::boundValues() const
+QMap<QString,QCoreVariant> QSqlQuery::boundValues() const
 {
-    QMap<QString,QVariant> map;
+    QMap<QString,QCoreVariant> map;
     if ( !d->sqlResult )
 	return map;
 
-    const QVector<QVariant>& values = d->sqlResult->boundValues();
+    const QVector<QCoreVariant>& values = d->sqlResult->boundValues();
     for ( int i = 0; i < values.count(); ++i )
 	map[ d->sqlResult->boundValueName( i ) ] = values.at( i );
     return map;

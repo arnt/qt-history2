@@ -66,7 +66,7 @@ public:
     QNullResult(const QSqlDriver* d): QSqlResult(d){}
     ~QNullResult(){}
 protected:
-    QVariant    data( int ) { return QVariant(); }
+    QCoreVariant    data( int ) { return QCoreVariant(); }
     bool        reset ( const QString& /*sqlquery*/ ) { return FALSE; }
     bool        fetch( int /*i*/ ) { return FALSE; }
     bool        fetchFirst() { return FALSE; }

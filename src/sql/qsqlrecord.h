@@ -23,7 +23,7 @@
 
 class QSqlField;
 class QStringList;
-class QVariant;
+class QCoreVariant;
 class QSqlRecordPrivate;
 
 #if !defined( QT_MODULE_SQL ) || defined( QT_LICENSE_PROFESSIONAL )
@@ -39,10 +39,10 @@ public:
     QSqlRecord( const QSqlRecord& other );
     QSqlRecord& operator=( const QSqlRecord& other );
     virtual ~QSqlRecord();
-    virtual QVariant value( int i ) const;
-    QVariant value( const QString& name ) const;
-    virtual void setValue( int i, const QVariant& val );
-    void setValue( const QString& name, const QVariant& val );
+    virtual QCoreVariant value( int i ) const;
+    QCoreVariant value( const QString& name ) const;
+    virtual void setValue( int i, const QCoreVariant& val );
+    void setValue( const QString& name, const QCoreVariant& val );
     bool isGenerated( int i ) const;
     bool isGenerated( const QString& name ) const;
     void setGenerated( const QString& name, bool generated );

@@ -40,7 +40,7 @@ protected:
     bool		fetch( int i );
     bool		fetchFirst();
     bool		fetchLast();
-    QVariant		data( int i );
+    QCoreVariant		data( int i );
     bool		isNull( int field );
     bool		reset ( const QString& query );
     int			size();
