@@ -365,7 +365,7 @@ void QMenu::setIcon(const QIcon &icon)
 
 
 //actually performs the scrolling
-void QMenuPrivate::scrollMenu(QAction *action, QMenuScroller::ScrollLocation location, QMenuScroller::ScrollDirection grow)
+void QMenuPrivate::scrollMenu(QAction *action, QMenuScroller::ScrollLocation location)
 {
     int newOffset = 0;
     const int scrollHeight = q->style().pixelMetric(QStyle::PM_MenuScrollerHeight, 0, q);
@@ -391,24 +391,22 @@ void QMenuPrivate::scrollMenu(QAction *action, QMenuScroller::ScrollLocation loc
         }
     }
 
-    if(grow != QMenuScroller::ScrollNone) { //we can do resizing magic (ala Panther)
-        int dh = QApplication::desktop()->height();
-        const int desktopFrame = q->style().pixelMetric(QStyle::PM_MenuDesktopFrameWidth, 0, q);
-        if(q->height() < dh-(desktopFrame*2)) {
-            QRect geom = q->geometry();
-            if(grow == QMenuScroller::ScrollDown) {
-                geom.setHeight(geom.height()-(newOffset-scroll->scrollOffset));
-            } else { 
-                geom.setTop(geom.top() + (scroll->scrollOffset-newOffset));
-                if(geom != q->geometry())
-                    newOffset = 0;
-            }
-            if(geom.bottom() > dh - (desktopFrame*2))
-                geom.setBottom(dh - (desktopFrame*2));
-            if(geom.top() < dh - desktopFrame)
-                geom.setTop(dh - desktopFrame);
-            q->setGeometry(geom);
+    int dh = QApplication::desktop()->height();
+    const int desktopFrame = q->style().pixelMetric(QStyle::PM_MenuDesktopFrameWidth, 0, q);
+    if(q->height() < dh-(desktopFrame*2)) {
+        QRect geom = q->geometry();
+        if(newOffset > d->scroll->scrollOffset) { //scroll down
+            geom.setHeight(geom.height()-(newOffset-scroll->scrollOffset));
+        } else { 
+            geom.setTop(geom.top() + (scroll->scrollOffset-newOffset));
+            if(geom != q->geometry())
+                newOffset = 0;
         }
+        if(geom.bottom() > dh - (desktopFrame*2))
+            geom.setBottom(dh - (desktopFrame*2));
+        if(geom.top() < dh - desktopFrame)
+            geom.setTop(dh - desktopFrame);
+            q->setGeometry(geom);
     }
 
     //actually offset some things now (if necessary)
@@ -430,20 +428,20 @@ void QMenuPrivate::scrollMenu(QAction *action, QMenuScroller::ScrollLocation loc
 }
 
 //only directional
-void QMenuPrivate::scrollMenu(QMenuScroller::ScrollDirection direction, bool)
+void QMenuPrivate::scrollMenu(QMenuScroller::ScrollDirection direction, bool page)
 {
     if(!scroll || !(scroll->scrollFlags & direction)) //not really possible...
         return;
     const int scrollHeight = q->style().pixelMetric(QStyle::PM_MenuScrollerHeight, 0, q);
     const int topScroll = (scroll->scrollFlags & QMenuScroller::ScrollUp)   ? scrollHeight : 0;
     const int botScroll = (scroll->scrollFlags & QMenuScroller::ScrollDown) ? scrollHeight : 0;
-    if(direction == QMenuScroller::ScrollUp) {
+    if(direction == QMenuScroller::ScrollUp) { 
         for(int i = 0, saccum = 0; i < actionList.count(); i++) {
             QAction *act = actionList.at(i);
             const int iHeight = actionRects.value(act).height();
             saccum -= iHeight;
             if(saccum <= scroll->scrollOffset-topScroll) {
-                scrollMenu(act, QMenuScroller::ScrollTop, direction);
+                scrollMenu(act, page ? QMenuScroller::ScrollBottom : QMenuScroller::ScrollTop);
                 break;
             }
         }
@@ -459,7 +457,7 @@ void QMenuPrivate::scrollMenu(QMenuScroller::ScrollDirection direction, bool)
                     const int iHeight = actionRects.value(act).height();
                     visible += iHeight;
                     if(visible >= scrollerArea) {
-                        scrollMenu(act, QMenuScroller::ScrollBottom, direction);
+                        scrollMenu(act, page ? QMenuScroller::ScrollTop : QMenuScroller::ScrollBottom);
                         break;
                     }
                 }
@@ -1656,9 +1654,7 @@ void QMenu::keyPressEvent(QKeyEvent *e)
             if(d->scroll && scroll_loc != QMenuPrivate::QMenuScroller::ScrollStay) {
                 if(d->scroll->scrollTimer)
                     d->scroll->scrollTimer->stop();
-                d->scrollMenu(nextAction, scroll_loc, 
-                              (scroll_loc == QMenuPrivate::QMenuScroller::ScrollBottom) ? 
-                              QMenuPrivate::QMenuScroller::ScrollDown : QMenuPrivate::QMenuScroller::ScrollUp);
+                d->scrollMenu(nextAction, scroll_loc);
             }
             d->setCurrentAction(nextAction);
             key_consumed = true;

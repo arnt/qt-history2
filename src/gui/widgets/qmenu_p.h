@@ -80,7 +80,7 @@ public:
         ~QMenuScroller() { delete scrollTimer; }
     } *scroll;
     void scrollMenu(QMenuScroller::ScrollDirection direction, bool page=false);
-    void scrollMenu(QAction *action, QMenuScroller::ScrollLocation location, QMenuScroller::ScrollDirection grow);
+    void scrollMenu(QAction *action, QMenuScroller::ScrollLocation location);
 
     //syncronous operation (ie exec())
     uint sync : 1;
