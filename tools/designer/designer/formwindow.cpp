@@ -1789,19 +1789,16 @@ void FormWindow::checkAccels()
 	if ( (*it).count() > 1 ) {
 	    ok = FALSE;
 	    switch ( QMessageBox::information( mainWindow(), tr( "Check Accelerators" ),
-					       tr( "The accelerator '%1' is used %2 times. What do you "
-						   "want to do?" ).arg( it.key() ).arg( (*it).count() ),
-					       tr( "&Select widgets using it" ),
-					       tr( "&Ignore" ),
+					       tr( "The accelerator '%1' is used %2 times."
+						   ).arg( it.key().upper() ).arg( (*it).count() ),
+					       tr( "&Select" ),
 					       tr( "&Cancel" ), 0, 2 ) ) {
 	    case 0: // select
 		clearSelection( FALSE );
 		for ( wid = (*it).first(); wid; wid = (*it).next() )
 		    selectWidget( wid, TRUE );
 		return;
-	    case 1: // ignore
-		break;
-	    case 2: // cancel
+	    case 1: // cancel
 		return;
 	    }
 	}
