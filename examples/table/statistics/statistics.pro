@@ -5,3 +5,5 @@ SOURCES	= statistics.cpp main.cpp
 TARGET		= statistics
 DEPENDPATH	= ../../include
 REQUIRES=table full-config
+DEFINES += QT_SOURCE_TREE="\"$$QT_SOURCE_TREE\""
+
