@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: //depot/qt/main/util/qdoc/qdoc#114 $
+# $Id: //depot/qt/main/util/qdoc/qdoc#115 $
 #
 # this is a massive hack, written very quickly
 #
@@ -2010,7 +2010,10 @@ sub functionlist {
 <body>
 <h1>Qt Member Function Index</h1>
 
-bla bla
+Here is a list of all of the documented member functions in the Qt
+API with links to the class documentation for each function.
+
+<p>
 
 <ul plain>";
 
