@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/moc/moc.y#68 $
+** $Id: //depot/qt/main/src/moc/moc.y#69 $
 **
 ** Parser and code generator for meta object compiler
 **
@@ -37,7 +37,7 @@ void yyerror( char *msg );
 #include <stdio.h>
 #include <stdlib.h>
 
-RCSTAG("$Id: //depot/qt/main/src/moc/moc.y#68 $");
+RCSTAG("$Id: //depot/qt/main/src/moc/moc.y#69 $");
 
 QString rmWS( const char * );
 
@@ -1301,7 +1301,7 @@ void generateClass()		      // generate C++ source code for a class
 	    fprintf( out, "\n#if !defined(Q_MOC_CONNECTIONLIST_DECLARED)\n" );
 	    fprintf( out, "#define Q_MOC_CONNECTIONLIST_DECLARED\n" );
 	    fprintf( out, "#include <qlist.h>\n" );
-	    fprintf( out, "#if defined(Q_DECLARE);\n" );
+	    fprintf( out, "#if defined(Q_DECLARE)\n" );
 	    fprintf( out, "Q_DECLARE(QListM,QConnection);\n" );
 	    fprintf( out, "Q_DECLARE(QListIteratorM,QConnection);\n" );
 	    fprintf( out, "#else\n" );
