@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#182 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#183 $
 **
 ** Implementation of the QString class and related Unicode functions
 **
@@ -944,7 +944,7 @@ int QString::find( QChar c, int index, bool cs ) const
 	while ( n-- && uctolower(*uc) != c )
 	    uc++;
     }
-    if ( n==-1 )
+    if ( uint(uc - unicode()) >= length() )
 	return -1;
     return (int)(uc - unicode());
 }
@@ -974,7 +974,7 @@ int QString::find( const QString& str, int index, bool cs ) const
 	while ( n-- >= strl && ucstrnicmp(uc,str.d->unicode,strl) )
 	    uc++;
     }
-    return n>=strl ? (int)(uc - unicode()) : -1;
+    return uc - unicode() <= length()-strl ? (int)(uc - unicode()) : -1;
 }
 
 /*!
