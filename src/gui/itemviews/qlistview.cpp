@@ -24,9 +24,6 @@
 #include <private/qlistview_p.h>
 #include <qdebug.h>
 
-#define d d_func()
-#define q q_func()
-
 template <class T>
 void QBinTree<T>::create(int n)
 {
@@ -214,6 +211,7 @@ void QBinTree<T>::init(const QRect &area, int depth, NodeType type, int index)
 QListView::QListView(QWidget *parent)
     : QAbstractItemView(*new QListViewPrivate, parent)
 {
+    Q_D(QListView);
     d->init();
     setViewMode(ListMode);
     setSelectionMode(QAbstractItemView::SingleSelection);
@@ -225,6 +223,7 @@ QListView::QListView(QWidget *parent)
 QListView::QListView(QListViewPrivate &dd, QWidget *parent)
     : QAbstractItemView(dd, parent)
 {
+    Q_D(QListView);
     d->init();
     setViewMode(ListMode);
     setSelectionMode(QAbstractItemView::SingleSelection);
@@ -256,6 +255,7 @@ QListView::~QListView()
 */
 void QListView::setMovement(Movement movement)
 {
+    Q_D(QListView);
     d->modeProperties |= uint(QListViewPrivate::Movement);
     d->movement = movement;
     setDragEnabled(true);
@@ -266,6 +266,7 @@ void QListView::setMovement(Movement movement)
 
 QListView::Movement QListView::movement() const
 {
+    Q_D(const QListView);
     return d->movement;
 }
 
@@ -284,6 +285,7 @@ QListView::Movement QListView::movement() const
 */
 void QListView::setFlow(Flow flow)
 {
+    Q_D(QListView);
     d->modeProperties |= uint(QListViewPrivate::Flow);
     d->flow = flow;
     if (isVisible())
@@ -292,6 +294,7 @@ void QListView::setFlow(Flow flow)
 
 QListView::Flow QListView::flow() const
 {
+    Q_D(const QListView);
     return d->flow;
 }
 
@@ -308,6 +311,7 @@ QListView::Flow QListView::flow() const
 */
 void QListView::setWrapping(bool enable)
 {
+    Q_D(QListView);
     d->modeProperties |= uint(QListViewPrivate::Movement);
     d->wrap = enable;
     if (isVisible())
@@ -316,6 +320,7 @@ void QListView::setWrapping(bool enable)
 
 bool QListView::isWrapping() const
 {
+    Q_D(const QListView);
     return d->wrap;
 }
 
@@ -329,11 +334,13 @@ bool QListView::isWrapping() const
 */
 void QListView::setResizeMode(ResizeMode mode)
 {
+    Q_D(QListView);
     d->resizeMode = mode;
 }
 
 QListView::ResizeMode QListView::resizeMode() const
 {
+    Q_D(const QListView);
     return d->resizeMode;
 }
 
@@ -350,11 +357,13 @@ QListView::ResizeMode QListView::resizeMode() const
 */
 void QListView::setLayoutMode(LayoutMode mode)
 {
+    Q_D(QListView);
     d->layoutMode = mode;
 }
 
 QListView::LayoutMode QListView::layoutMode() const
 {
+    Q_D(const QListView);
     return d->layoutMode;
 }
 
@@ -371,6 +380,7 @@ QListView::LayoutMode QListView::layoutMode() const
 */
 void QListView::setSpacing(int space)
 {
+    Q_D(QListView);
     d->modeProperties |= uint(QListViewPrivate::Spacing);
     d->spacing = space;
     if (isVisible())
@@ -379,6 +389,7 @@ void QListView::setSpacing(int space)
 
 int QListView::spacing() const
 {
+    Q_D(const QListView);
     return d->spacing;
 }
 
@@ -397,6 +408,7 @@ int QListView::spacing() const
 */
 void QListView::setGridSize(const QSize &size)
 {
+    Q_D(QListView);
     d->modeProperties |= uint(QListViewPrivate::GridSize);
     d->gridSize = size;
     if (isVisible())
@@ -405,6 +417,7 @@ void QListView::setGridSize(const QSize &size)
 
 QSize QListView::gridSize() const
 {
+    Q_D(const QListView);
     return d->gridSize;
 }
 
@@ -418,6 +431,7 @@ QSize QListView::gridSize() const
 */
 void QListView::setViewMode(ViewMode mode)
 {
+    Q_D(QListView);
     d->viewMode = mode;
 
     if (mode == ListMode) {
@@ -456,6 +470,7 @@ void QListView::setViewMode(ViewMode mode)
 
 QListView::ViewMode QListView::viewMode() const
 {
+    Q_D(const QListView);
     return d->viewMode;
 }
 
@@ -464,6 +479,7 @@ QListView::ViewMode QListView::viewMode() const
 */
 void QListView::clearPropertyFlags()
 {
+    Q_D(QListView);
     d->modeProperties = 0;
 }
 
@@ -473,6 +489,7 @@ void QListView::clearPropertyFlags()
 
 bool QListView::isRowHidden(int row) const
 {
+    Q_D(const QListView);
     return d->hiddenRows.contains(row);
 }
 
@@ -482,6 +499,7 @@ bool QListView::isRowHidden(int row) const
 
 void QListView::setRowHidden(int row, bool hide)
 {
+    Q_D(QListView);
     if (hide)
         d->hiddenRows.append(row);
     else
@@ -498,6 +516,7 @@ void QListView::setRowHidden(int row, bool hide)
 */
 QRect QListView::visualRect(const QModelIndex &index) const
 {
+    Q_D(const QListView);
     return d->mapToViewport(rectForIndex(index));
 }
 
@@ -506,6 +525,7 @@ QRect QListView::visualRect(const QModelIndex &index) const
 */
 void QListView::scrollTo(const QModelIndex &index)
 {
+    Q_D(QListView);
     QRect area = d->viewport->rect();
     QRect rect = visualRect(index);
 
@@ -544,6 +564,7 @@ void QListView::scrollTo(const QModelIndex &index)
 */
 void QListView::reset()
 {
+    Q_D(QListView);
     d->prepareItemsLayout();
     d->hiddenRows.clear();
     QAbstractItemView::reset();
@@ -556,6 +577,7 @@ void QListView::reset()
 */
 void QListView::scrollContentsBy(int dx, int dy)
 {
+    Q_D(QListView);
     d->viewport->scroll(isRightToLeft() ? -dx : dx, dy);
     // update the dragged items
     if (d->draggedItems.isEmpty())
@@ -573,6 +595,7 @@ void QListView::scrollContentsBy(int dx, int dy)
 */
 void QListView::resizeContents(int width, int height)
 {
+    Q_D(QListView);
     d->contentsSize = QSize(width, height);
     horizontalScrollBar()->setRange(0, width - viewport()->width() - 1);
     verticalScrollBar()->setRange(0, height - viewport()->height() - 1);
@@ -583,6 +606,7 @@ void QListView::resizeContents(int width, int height)
 */
 void QListView::rowsInserted(const QModelIndex &parent, int start, int end)
 {
+    Q_D(QListView);
     // if the parent is above rootIndex() in the tree, nothing will happen
     if (parent == rootIndex() && isVisible())
         doItemsLayout();
@@ -596,6 +620,7 @@ void QListView::rowsInserted(const QModelIndex &parent, int start, int end)
 */
 void QListView::rowsAboutToBeRemoved(const QModelIndex &parent, int start, int end)
 {
+    Q_D(QListView);
     // if the parent is above rootIndex() in the tree, nothing will happen
     d->doDelayedItemsLayout();
     d->prepareItemsLayout();
@@ -607,6 +632,7 @@ void QListView::rowsAboutToBeRemoved(const QModelIndex &parent, int start, int e
 */
 void QListView::mouseMoveEvent(QMouseEvent *e)
 {
+    Q_D(QListView);
     QAbstractItemView::mouseMoveEvent(e);
     if (state() == QAbstractItemView::DragSelectingState
         && d->selectionMode != SingleSelection) {
@@ -627,6 +653,7 @@ void QListView::mouseMoveEvent(QMouseEvent *e)
 */
 void QListView::mouseReleaseEvent(QMouseEvent *e)
 {
+    Q_D(QListView);
     QAbstractItemView::mouseReleaseEvent(e);
     if (d->viewMode == IconMode)
         d->elasticBand()->hide();
@@ -637,6 +664,7 @@ void QListView::mouseReleaseEvent(QMouseEvent *e)
 */
 void QListView::timerEvent(QTimerEvent *e)
 {
+    Q_D(QListView);
     if (e->timerId() == d->startLayoutTimer) {
         killTimer(d->startLayoutTimer);
         doItemsLayout(); // showing the scrollbars will trigger a resize event,
@@ -658,6 +686,7 @@ void QListView::timerEvent(QTimerEvent *e)
 */
 void QListView::resizeEvent(QResizeEvent *e)
 {
+    Q_D(QListView);
     QAbstractItemView::resizeEvent(e);
     if (d->resizeMode == Adjust && d->startLayoutTimer == 0) {
         QSize delta = e->size() - e->oldSize();
@@ -672,6 +701,7 @@ void QListView::resizeEvent(QResizeEvent *e)
 */
 void QListView::dragMoveEvent(QDragMoveEvent *e)
 {
+    Q_D(QListView);
     if (e->source() == this && d->movement != Static) {
         // the ignore by default
         e->ignore();
@@ -709,6 +739,7 @@ void QListView::dragMoveEvent(QDragMoveEvent *e)
 */
 void QListView::dragLeaveEvent(QDragLeaveEvent *e)
 {
+    Q_D(QListView);
     d->viewport->update(d->draggedItemsRect()); // erase the area
     d->draggedItemsPos = QPoint(-1, -1); // don't draw the dragged items
     QAbstractItemView::dragLeaveEvent(e);
@@ -719,6 +750,7 @@ void QListView::dragLeaveEvent(QDragLeaveEvent *e)
 */
 void QListView::dropEvent(QDropEvent *e)
 {
+    Q_D(QListView);
     if (e->source() == this && d->movement != Static)
         internalDrop(e);
     else
@@ -730,6 +762,7 @@ void QListView::dropEvent(QDropEvent *e)
 */
 void QListView::startDrag(Qt::DropActions supportedActions)
 {
+    Q_D(QListView);
     if (d->movement == Free)
         internalDrag(supportedActions);
     else
@@ -741,6 +774,7 @@ void QListView::startDrag(Qt::DropActions supportedActions)
  */
 void QListView::internalDrop(QDropEvent *e)
 {
+    Q_D(QListView);
     QPoint offset(horizontalOffset(), verticalOffset());
     QPoint end = e->pos() + offset;
     QPoint start = d->pressedPosition;
@@ -770,6 +804,7 @@ void QListView::internalDrag(Qt::DropActions supportedActions)
     // This function does the same thing as in QAbstractItemView::startDrag(),
     // plus adding viewitems to the draggedItems list.
     // We need these items to draw the drag items
+    Q_D(QListView);
     QModelIndexList indexes = selectionModel()->selectedIndexes();
     if (indexes.count() > 0 ) {
         QModelIndexList::ConstIterator it = indexes.begin();
@@ -790,6 +825,7 @@ void QListView::internalDrag(Qt::DropActions supportedActions)
 */
 QStyleOptionViewItem QListView::viewOptions() const
 {
+    Q_D(const QListView);
     QStyleOptionViewItem option = QAbstractItemView::viewOptions();
     if (!d->iconSize.isValid()) { // otherwise it was already set in abstractitemview
         int pm = (d->viewMode == ListMode
@@ -811,6 +847,7 @@ QStyleOptionViewItem QListView::viewOptions() const
 */
 void QListView::paintEvent(QPaintEvent *e)
 {
+    Q_D(QListView);
     QStyleOptionViewItem option = viewOptions();
     QPainter painter(d->viewport);
     QRect area = e->rect();
@@ -821,7 +858,7 @@ void QListView::paintEvent(QPaintEvent *e)
     const QModelIndex current = currentIndex();
     const QAbstractItemDelegate *delegate = itemDelegate();
     const QItemSelectionModel *selections = selectionModel();
-    const bool focus = q->hasFocus() && current.isValid();
+    const bool focus = hasFocus() && current.isValid();
     const bool alternate = d->alternatingColors;
     const QColor oddColor = d->oddRowColor();
     const QColor evenColor = d->evenRowColor();
@@ -853,6 +890,7 @@ void QListView::paintEvent(QPaintEvent *e)
 */
 QModelIndex QListView::indexAt(const QPoint &p) const
 {
+    Q_D(const QListView);
     QRect rect(p.x() + horizontalOffset(), p.y() + verticalOffset(), 1, 1);
     d->intersectingSet(rect);
     QModelIndex index = d->intersectVector.count() > 0
@@ -886,6 +924,7 @@ int QListView::verticalOffset() const
 QModelIndex QListView::moveCursor(QAbstractItemView::CursorAction cursorAction,
                                   Qt::KeyboardModifiers modifiers)
 {
+    Q_D(QListView);
     Q_UNUSED(modifiers);
 
     QModelIndex current = currentIndex();
@@ -968,6 +1007,7 @@ QModelIndex QListView::moveCursor(QAbstractItemView::CursorAction cursorAction,
 */
 QRect QListView::rectForIndex(const QModelIndex &index) const
 {
+    Q_D(const QListView);
     if (!index.isValid() || index.parent() != rootIndex() || index.column() != d->column)
         return QRect();
     QListViewItem item = d->indexToListViewItem(index);
@@ -979,6 +1019,7 @@ QRect QListView::rectForIndex(const QModelIndex &index) const
 */
 void QListView::setSelection(const QRect &rect, QItemSelectionModel::SelectionFlags command)
 {
+    Q_D(QListView);
     if (!selectionModel())
         return;
     QRect crect(rect.left() + horizontalOffset(),
@@ -1013,6 +1054,7 @@ void QListView::setSelection(const QRect &rect, QItemSelectionModel::SelectionFl
 */
 QRect QListView::visualRectForSelection(const QItemSelection &selection) const
 {
+    Q_D(const QListView);
     // if we are updating just one, get the rect
     if (selection.count() == 1 && selection.at(0).isValid()
         && selection.at(0).top() == selection.at(0).bottom()) {
@@ -1031,6 +1073,7 @@ QRect QListView::visualRectForSelection(const QItemSelection &selection) const
 */
 QModelIndexList QListView::selectedIndexes() const
 {
+    Q_D(const QListView);
     QModelIndexList viewSelected;
     QModelIndexList modelSelected = selectionModel()->selectedIndexes();
     for (int i=0; i<modelSelected.count(); ++i) {
@@ -1049,6 +1092,7 @@ QModelIndexList QListView::selectedIndexes() const
 */
 void QListView::doItemsLayout()
 {
+    Q_D(QListView);
     d->prepareItemsLayout();
     if (model() && model()->columnCount(rootIndex()) > 0) { // no columns means no contents
         if (layoutMode() == SinglePass)
@@ -1064,6 +1108,7 @@ void QListView::doItemsLayout()
 */
 void QListView::updateGeometries()
 {
+    Q_D(QListView);
     if (!model() || model()->rowCount(rootIndex()) <= 0 || model()->columnCount(rootIndex()) <= 0) {
         horizontalScrollBar()->setRange(0, 0);
         verticalScrollBar()->setRange(0, 0);
@@ -1088,6 +1133,7 @@ void QListView::updateGeometries()
 */
 bool QListView::isIndexHidden(const QModelIndex &index) const
 {
+    Q_D(const QListView);
     return d->hiddenRows.contains(index.row())
         && (index.parent() == rootIndex())
         && index.column() == d->column;
@@ -1099,6 +1145,7 @@ bool QListView::isIndexHidden(const QModelIndex &index) const
 */
 void QListView::setColumn(int column)
 {
+    Q_D(QListView);
     d->column = column;
     if (isVisible())
         doItemsLayout();
@@ -1108,6 +1155,7 @@ void QListView::setColumn(int column)
 
 int QListView::column() const
 {
+    Q_D(const QListView);
     return d->column;
 }
 
@@ -1136,6 +1184,7 @@ void QListViewPrivate::init()
 
 void QListViewPrivate::prepareItemsLayout()
 {
+    Q_Q(QListView);
     // initialization of data structs
     batchStartRow = 0;
     batchSavedPosition = 0;
@@ -1215,7 +1264,7 @@ void QListViewPrivate::initBinaryTree(const QSize &contents)
     // remove all items from the tree
     int leafCount = tree.leafCount();
     for (int l = 0; l < leafCount; ++l)
-        d->tree.clearLeaf(l);
+        tree.clearLeaf(l);
     // we have to get the bounding rect of the items before we can initialize the tree
     QBinTree<QListViewItem>::Node::Type type = QBinTree<QListViewItem>::Node::Both; // 2D
     // simple heuristics to get better bsp
@@ -1242,7 +1291,7 @@ bool QListViewPrivate::doItemsLayout(int delta)
     if (movement == QListView::Static) {
         doStaticLayout(layoutBounds, first, last);
     } else {
-        if (last >= d->tree.itemCount())
+        if (last >= tree.itemCount())
             createItems(last + 1);
         doDynamicLayout(layoutBounds, first, last);
     }
@@ -1278,6 +1327,7 @@ void QListViewPrivate::doItemsLayout(const QRect &bounds,
 */
 void QListViewPrivate::doStaticLayout(const QRect &bounds, int first, int last)
 {
+    Q_Q(QListView);
     const bool useItemSize = !gridSize.isValid();
     const int gap = useItemSize ? spacing : 0; // if we are using a grid ,we don't use spacing
     const QPoint topLeft = initStaticLayout(bounds, gap, first);
@@ -1374,6 +1424,7 @@ void QListViewPrivate::doStaticLayout(const QRect &bounds, int first, int last)
 */
 void QListViewPrivate::doDynamicLayout(const QRect &bounds, int first, int last)
 {
+    Q_Q(QListView);
     const bool useItemSize = !gridSize.isValid();
     const int gap = useItemSize ? spacing : 0;
     const QPoint topLeft = initDynamicLayout(bounds, gap, first);
@@ -1497,7 +1548,7 @@ void QListViewPrivate::intersectingStaticSet(const QRect &area) const
         for (; row <= last && flowPositions.at(row) < flowEndPosition; ++row) {
             if (hiddenRows.contains(row))
                 continue;
-            QModelIndex index = model->index(row, d->column, root);
+            QModelIndex index = model->index(row, column, root);
             if (index.isValid())
                 intersectVector.append(index);
             else
@@ -1516,12 +1567,13 @@ void QListViewPrivate::intersectingDynamicSet(const QRect &area) const
 
 void QListViewPrivate::createItems(int to)
 {
+    Q_Q(QListView);
     int count = tree.itemCount();
     QSize size;
     QStyleOptionViewItem option = q->viewOptions();
     QModelIndex root = q->rootIndex();
     for (int row = count; row < to; ++row) {
-        size = delegate->sizeHint(option, model->index(row, d->column, root));
+        size = delegate->sizeHint(option, model->index(row, column, root));
         QListViewItem item(QRect(0, 0, size.width(), size.height()), row); // default pos
         tree.appendItem(item);
     }
@@ -1529,6 +1581,7 @@ void QListViewPrivate::createItems(int to)
 
 void QListViewPrivate::drawItems(QPainter *painter, const QVector<QModelIndex> &indexes) const
 {
+    Q_Q(const QListView);
     QStyleOptionViewItem option = q->viewOptions();
     QVector<QModelIndex>::const_iterator it = indexes.begin();
     QListViewItem item = indexToListViewItem(*it);
@@ -1553,6 +1606,7 @@ QRect QListViewPrivate::itemsRect(const QVector<QModelIndex> &indexes) const
 
 QListViewItem QListViewPrivate::indexToListViewItem(const QModelIndex &index) const
 {
+    Q_Q(const QListView);
     if (!index.isValid() || hiddenRows.contains(index.row()))
         return QListViewItem();
 
@@ -1648,10 +1702,11 @@ void QListViewPrivate::removeItem(int index)
 
 void QListViewPrivate::moveItem(int index, const QPoint &dest)
 {
+    Q_Q(QListView);
     // does not impact on the bintree itself or the contents rect
     QListViewItem *item = tree.itemPtr(index);
     QRect rect = item->rect();
-    d->tree.moveItem(dest, rect, index);
+    tree.moveItem(dest, rect, index);
 
     // resize the contents area
     int w = rect.x() + rect.width();
@@ -1670,6 +1725,7 @@ QPoint QListViewPrivate::snapToGrid(const QPoint &pos) const
 
 QRect QListViewPrivate::mapToViewport(const QRect &rect) const
 {
+    Q_Q(const QListView);
     QRect result(rect.left() - q->horizontalOffset(),
                  rect.top() - q->verticalOffset(),
                  rect.width(), rect.height());
