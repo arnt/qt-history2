@@ -982,15 +982,15 @@ LRESULT CALLBACK QAxServerBase::ActiveXProc(HWND hWnd, UINT uMsg, WPARAM wParam,
 	break;
 
     case WM_SHOWWINDOW:
-	that->internalCreate();
 	if( wParam ) {
+	    that->internalCreate();
 	    if ( !that->stayTopLevel ) {
 		::SetParent( that->activeqt->winId(), that->m_hWnd );
 		that->activeqt->raise();
 		that->activeqt->move( 0, 0 );
 	    }
 	    that->activeqt->show();
-	} else {
+	} else if ( that->activeqt ) {
 	    that->activeqt->hide();
 	}
 	break;
@@ -2235,6 +2235,9 @@ HRESULT WINAPI QAxServerBase::Draw( DWORD dwAspect, LONG lindex, void *pvAspect,
 {
     if ( !lprcBounds )
 	return E_INVALIDARG;
+
+    if ( !activeqt )
+	return OLE_E_BLANK;
 
     internalCreate();
 
