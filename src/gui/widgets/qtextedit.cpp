@@ -569,10 +569,10 @@ void QTextEditPrivate::adjustScrollbars()
     const QSize docSize = layout->sizeUsed();
 
     d->hbar->setRange(0, docSize.width() - viewportSize.width());
-    d->hbar->setPageStep(docSize.width());
+    d->hbar->setPageStep(viewportSize.width());
 
     d->vbar->setRange(0, docSize.height() - viewportSize.height());
-    d->vbar->setPageStep(docSize.height());
+    d->vbar->setPageStep(viewportSize.height());
 }
 
 /*!
