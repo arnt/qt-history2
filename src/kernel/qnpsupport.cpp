@@ -1,13 +1,11 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qnpsupport.cpp#4 $
+** $Id: //depot/qt/main/src/kernel/qnpsupport.cpp#5 $
 **
-** Low-level support for Netscape Plugins.
-** This has to go in the dynamic library, because otherwise it may
-** be loaded out too early (we consider that a netscape bug).
+** Low-level support for Netscape Plugins under X11.
 **
 ** Created : 970601
 **
-** Copyright (C) 1993-1997 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1997 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
@@ -18,7 +16,7 @@
 #include <X11/Xos.h>
 #include <limits.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qnpsupport.cpp#4 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qnpsupport.cpp#5 $");
 
 
 void            qt_reset_color_avail();       // defined in qcol_x11.cpp
