@@ -165,8 +165,5 @@ You're done.  Qt is now installed.
 The Qt/Windows distribution is distributed as a self-extracting archive
 with a built-in installer. Just follow the installation wizard.
 
-Once installed, you may want to unpack alternative makefile sets which
-are packaged in the \c mkfiles directory -- unpack them directly
-into you Qt directory, overwriting previous makefiles.
 
 */

@@ -60,9 +60,7 @@ Win32 Multithreaded Programming</a>
 <h2>Enabling thread support</h2>
 
   When Qt is installed on Windows, thread support is an option on
-some compilers. The <tt>mkfiles</tt> subdirectory contains build files
-for various compilers - the ones with <tt>-mt</tt> in the name have
-thread support enabled.
+some compilers. 
 
   On Unix, thread support is enabled by adding the
 <tt>-thread</tt> option when running the <tt>configure</tt> script.
