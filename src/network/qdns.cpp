@@ -40,7 +40,6 @@
 
 #include "qdatetime.h"
 #include "qhash.h"
-#include "qdict.h"
 #include "qvector.h"
 #include "qptrdict.h"
 #include "qptrvector.h"
@@ -812,7 +811,7 @@ public:
 
 public:
     QList<QDnsQuery *> queries;
-    QDict<QDnsDomain> cache;
+    QHash<QString, QDnsDomain *> cache;
     QSocketDevice * socket;
 };
 
@@ -851,7 +850,7 @@ void QDnsUgleHack::ugle( bool emitAnyway)
 QDnsManager::QDnsManager()
     : QDnsSocket( qApp, "Internal DNS manager" ),
       queries(QList<QDnsQuery *>()),
-      cache( QDict<QDnsDomain>( 83, FALSE ) ),
+      cache(QHash<QString, QDnsDomain *>()),
       socket( new QSocketDevice( QSocketDevice::Datagram ) )
 {
     cache.setAutoDelete( TRUE );
@@ -934,7 +933,7 @@ static Q_UINT32 lastSweep = 0;
 void QDnsManager::cleanCache()
 {
     bool again = FALSE;
-    QDictIterator<QDnsDomain> it( cache );
+    QHash<QString, QDnsDomain *>::Iterator it = cache.begin();
     QDnsDomain * d;
     Q_UINT32 thisSweep = now();
 #if defined(QDNS_DEBUG)
@@ -942,7 +941,8 @@ void QDnsManager::cleanCache()
 	   thisSweep, lastSweep );
 #endif
 
-    while( (d=it.current()) != 0 ) {
+    while (it != cache.end()) {
+	d = *it;
 	++it;
 	d->sweep( thisSweep ); // after this, d may be empty
 	if ( !again )
@@ -1169,10 +1169,10 @@ void QDnsManager::transmitQuery( int i )
 
 QDnsDomain * QDnsManager::domain( const QString & label )
 {
-    QDnsDomain * d = cache.find( label );
+    QDnsDomain *d = cache.value(label.toLower());
     if ( !d ) {
 	d = new QDnsDomain( label );
-	cache.insert( label, d );
+	cache.insert(label.toLower(), d);
     }
     return d;
 }
