@@ -724,6 +724,12 @@ public:
     int minimumWidth() const;
     bool setMinimumWidth( int w, QTextParag *parag );
 
+    void setY( int y );
+    int leftMargin() const;
+    void setLeftMargin( int lm );
+    int rightMargin() const;
+    void setRightMargin( int rm );
+
     QTextParag *firstParag() const;
     QTextParag *lastParag() const;
     void setFirstParag( QTextParag *p );
@@ -910,6 +916,8 @@ private:
     bool nextDoubleBuffered;
     Focus focusIndicator;
     int minw;
+    int leftmargin;
+    int rightmargin;
     QTextParag *minwParag;
     QStyleSheet* sheet_;
     QMimeSourceFactory* factory_;
@@ -1660,6 +1668,31 @@ inline void QTextDocument::setWidth( int w )
 inline int QTextDocument::minimumWidth() const
 {
     return minw;
+}
+
+inline void QTextDocument::setY( int y )
+{
+    cy = y;
+}
+
+inline int QTextDocument::leftMargin() const
+{
+    return leftmargin;
+}
+
+inline void QTextDocument::setLeftMargin( int lm )
+{
+    leftmargin = lm;
+}
+
+inline int QTextDocument::rightMargin() const
+{
+    return rightmargin;
+}
+
+inline void QTextDocument::setRightMargin( int rm )
+{
+    rightmargin = rm;
 }
 
 inline QTextPreProcessor *QTextDocument::preProcessor() const

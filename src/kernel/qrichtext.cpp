@@ -1321,6 +1321,9 @@ void QTextDocument::init()
     flow_ = new QTextFlow;
     flow_->setWidth( cw );
 
+    leftmargin = 4;
+    rightmargin = 8;
+
     selectionColors[ Standard ] = QApplication::palette().color( QPalette::Active, QColorGroup::Highlight );
     selectionText[ Standard ] = TRUE;
     commandHistory = new QTextCommandHistory( 100 );
@@ -4865,9 +4868,9 @@ int QTextFormatterBreakInWords::format( QTextDocument *doc,QTextParag *parag,
 {
     QTextStringChar *c = 0;
     QTextStringChar *firstChar = 0;
-    int left = doc ? parag->leftMargin() + 4 : 0;
+    int left = doc ? parag->leftMargin() + doc->leftMargin() : 4;
     int x = left + ( doc ? parag->firstLineMargin() : 0 );
-    int dw = parag->documentVisibleWidth() - ( doc ? 8 : 0 );
+    int dw = parag->documentVisibleWidth() - ( doc ? doc->rightMargin() : 0 );
     int y = doc && doc->addMargins() ? parag->topMargin() : 0;
     int h = y;
     int len = parag->length();
@@ -4997,14 +5000,14 @@ int QTextFormatterBreakWords::format( QTextDocument *doc, QTextParag *parag,
     QTextStringChar *c = 0;
     QTextStringChar *firstChar = 0;
     QTextString *string = parag->string();
-    int left = doc ? parag->leftMargin() + 4 : 0;
+    int left = doc ? parag->leftMargin() + doc->leftMargin() : 0;
     int x = left + ( doc ? parag->firstLineMargin() : 0 );
     int y = doc && doc->addMargins() ? parag->topMargin() : 0;
     int h = y;
     int len = parag->length();
     if ( doc )
 	x = doc->flow()->adjustLMargin( y + parag->rect().y(), parag->rect().height(), x, 4 );
-    int dw = parag->documentVisibleWidth() - ( doc ? ( left != x ? 0 : 8 ) : -4 );
+    int dw = parag->documentVisibleWidth() - ( doc ? ( left != x ? 0 : doc->rightMargin() ) : -4 );
 
     int curLeft = x;
     int rm = parag->rightMargin();
