@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#178 $
+** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#179 $
 **
 ** Implementation of QWidget and QWindow classes for Win32
 **
@@ -234,11 +234,11 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 	    GetWindowRect( id, &fr );		// update rects
 	    GetClientRect( id, &cr );
 	}
+	fpos = QPoint(fr.left,fr.top);
 	if ( fr.top == cr.top &&
 	     fr.left == cr.left &&
 	     fr.bottom == cr.bottom &&
 	     fr.right == cr.right ) {
-	    fpos = QPoint(fr.left,fr.top);
 	} else {
 	    createTLExtra();
 	    setFRect( QRect( QPoint(fr.left,fr.top),
