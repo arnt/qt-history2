@@ -59,6 +59,9 @@
 #include "qtooltip.h"
 #include "qstyle.h"
 #include "../kernel/qinternal_p.h"
+#if defined(QT_ACCESSIBILITY_SUPPORT)
+#include "qaccessible.h"
+#endif
 
 const int Unsorted = 16383;
 
@@ -296,6 +299,38 @@ void QListViewToolTip::maybeTip( const QPoint &pos )
 // these should probably be in QListViewPrivate, for future thread safety
 static bool activatedByClick;
 static QPoint activatedP;
+
+#if defined(QT_ACCESSIBILITY_SUPPORT)
+static int indexOfItem( QListViewItem *item )
+{
+    if ( !QAccessible::isActive() )
+	return 0;
+
+    static QListViewItem *lastItem = 0;
+    static int lastIndex = 0;
+    
+    if ( !item || !item->listView() )
+	return 0;
+    
+    if ( item == lastItem )
+	return lastIndex;
+    
+    lastItem = item;
+    int index = 1;
+    
+    QListViewItemIterator it( item->listView() );
+    while ( it.current() ) {
+	if ( it.current() == item ) {
+	    lastIndex = index;
+	    return index;	    
+	}
+	++it;
+	++index;
+    }
+    lastIndex = 0;
+    return 0;
+}
+#endif
 
 
 /*!
@@ -776,6 +811,10 @@ void QListViewItem::setEnabled( bool b )
     QListView *lv = listView();
     if ( lv )
 	lv->triggerUpdate();
+
+#if defined(QT_ACCESSIBILITY_SUPPORT)
+    QAccessible::updateAccessibility( lv->viewport(), indexOfItem( this ), QAccessible::StateChanged );
+#endif
 }
 
 /*!
@@ -1225,8 +1264,12 @@ void QListViewItem::takeItem( QListViewItem * item )
     item->maybeTotalHeight = -1;
     item->configured = FALSE;
 
-    if ( emit_changed )
+    if ( emit_changed ) {
 	emit lv->currentChanged( lv->d->focusItem );
+#if defined(QT_ACCESSIBILITY_SUPPORT)
+	QAccessible::updateAccessibility( lv->viewport(), 0, QAccessible::Focus );
+#endif
+    }
 }
 
 
@@ -1418,6 +1461,9 @@ void QListViewItem::setOpen( bool o )
 		emit lv->expanded( this );
 	    else
 		emit lv->collapsed( this );
+#if defined(QT_ACCESSIBILITY_SUPPORT)
+	    QAccessible::updateAccessibility( lv->viewport(), indexOfItem( this ), QAccessible::StateChanged );
+#endif
 	}
 	return;
     }
@@ -1460,6 +1506,9 @@ void QListViewItem::setOpen( bool o )
 	    emit lv->expanded( this );
 	else
 	    emit lv->collapsed( this );
+#if defined(QT_ACCESSIBILITY_SUPPORT)
+	QAccessible::updateAccessibility( lv->viewport(), indexOfItem( this ), QAccessible::StateChanged );
+#endif    
     }
 }
 
@@ -1651,11 +1700,21 @@ void QListViewItem::enforceSortOrder() const
 
 void QListViewItem::setSelected( bool s )
 {
+    bool old = selected;
+    
     if ( listView() && listView()->selectionMode() != QListView::NoSelection) {
 	if ( s && isSelectable() )
 	    selected = TRUE;
 	else
 	    selected = FALSE;
+	
+#if defined(QT_ACCESSIBILITY_SUPPORT)
+	if ( old != selected ) {
+	    int ind = indexOfItem( this );
+	    QAccessible::updateAccessibility( listView()->viewport(), ind, QAccessible::StateChanged );
+	    QAccessible::updateAccessibility( listView()->viewport(), ind, selected ? QAccessible::SelectionAdd : QAccessible::SelectionRemove );
+	}
+#endif
     }
 }
 
@@ -1770,6 +1829,10 @@ void QListViewItem::setText( int column, const QString &text )
     if ( lv ) {
 	lv->d->useDoubleBuffer = TRUE;
 	lv->triggerUpdate();
+#if defined(QT_ACCESSIBILITY_SUPPORT)
+	if ( lv->isVisible() )
+	    QAccessible::updateAccessibility( lv->viewport(), indexOfItem(this), QAccessible::NameChanged );
+#endif
     }
 }
 
@@ -4214,6 +4277,10 @@ void QListView::contentsMousePressEventEx( QMouseEvent * e )
 		d->useDoubleBuffer = TRUE;
 		triggerUpdate();
 		emit selectionChanged();
+
+#if defined(QT_ACCESSIBILITY_SUPPORT)
+		QAccessible::updateAccessibility( viewport(), 0, QAccessible::Selection );
+#endif
 	    }
 	}
     }
@@ -4303,6 +4370,9 @@ void QListView::contentsMouseReleaseEventEx( QMouseEvent * e )
 	blockSignals( block );
 	d->focusItem->setSelected( TRUE );
 	emit selectionChanged();
+#if defined(QT_ACCESSIBILITY_SUPPORT)
+	QAccessible::updateAccessibility( viewport(), 0, QAccessible::Selection );
+#endif
     }
 
     QPoint vp = contentsToViewport(e->pos());
@@ -5229,6 +5299,10 @@ void QListView::setCurrentItem( QListViewItem * i )
 	if ( prev )
 	    repaintItem( prev );
 	emit currentChanged( i );
+
+#if defined(QT_ACCESSIBILITY_SUPPORT)
+	QAccessible::updateAccessibility( viewport(), indexOfItem( i ), QAccessible::Focus );
+#endif
     }
 }
 
@@ -5355,6 +5429,10 @@ void QListView::setSorting( int column, bool ascending )
 	d->h->setSortIndicator( -1 );
 
     triggerUpdate();
+
+#if defined(QT_ACCESSIBILITY_SUPPORT)
+    QAccessible::updateAccessibility( viewport(), 0, QAccessible::ObjectReorder );
+#endif
 }
 
 
@@ -6036,11 +6114,17 @@ void QCheckListItem::setState( ToggleState s, bool update, bool store)
 */
 void QCheckListItem::setCurrentState( ToggleState s )
 {
+    ToggleState old = d->currentState;
     d->currentState = s;
     if (d->currentState == On)
 	on = TRUE;
     else
 	on = FALSE;
+
+#if defined(QT_ACCESSIBILITY_SUPPORT)
+    if ( old != d->currentState && listView() )
+	QAccessible::updateAccessibility( listView()->viewport(), indexOfItem( this ), QAccessible::StateChanged );
+#endif
 }
 
 
