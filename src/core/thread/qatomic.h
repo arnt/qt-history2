@@ -103,7 +103,7 @@ struct QAtomic {
     { atomic = x; }
 
     inline bool testAndSet(int expected, int newval)
-    { return q_atomic_test_and_set_int(&atomic, expected, newval); }
+    { return q_atomic_test_and_set_int(&atomic, expected, newval) != 0; }
 
     inline int exchange(int newval)
     { return q_atomic_set_int(&atomic, newval); }

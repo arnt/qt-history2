@@ -969,9 +969,9 @@ Q_CORE_EXPORT QString decodeMSG(const MSG& msg)
                     break;
                 QString hwndAfter = valueCheck((uint)winPos->hwndInsertAfter,
                                           FLAG_STRING((uint)HWND_BOTTOM,    "HWND_BOTTOM"),
-                                          FLAG_STRING((uint)HWND_NOTOPMOST, "HWND_NOTOPMOST"),
+                                          FLAG_STRING((int)HWND_NOTOPMOST, "HWND_NOTOPMOST"),
                                           FLAG_STRING((uint)HWND_TOP,       "HWND_TOP"),
-                                          FLAG_STRING((uint)HWND_TOPMOST,   "HWND_TOPMOST"),
+                                          FLAG_STRING((int)HWND_TOPMOST,   "HWND_TOPMOST"),
                                           FLAG_STRING());
                 if (hwndAfter.size() == 0)
                     hwndAfter = QString::number((uint)winPos->hwndInsertAfter, 16);
