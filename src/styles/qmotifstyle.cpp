@@ -722,7 +722,7 @@ void QMotifStyle::drawControl( ControlElement element,
 	    if ( !widget || !widget->parentWidget() )
 		break;
 
-	    QTabBar * tb = (QTabBar *) widget;
+	    const QTabBar * tb = (const QTabBar *) widget;
 	    int dfw = pixelMetric( PM_DefaultFrameWidth, tb );
 	    bool selected = how & CStyle_Selected;
 	    int o =  dfw > 1 ? 1 : 0;
@@ -830,7 +830,7 @@ void QMotifStyle::drawControl( ControlElement element,
 
     case CE_ProgressBarLabel:
 	{
-	    QProgressBar * pb = (QProgressBar *) widget;
+	    const QProgressBar * pb = (const QProgressBar *) widget;
 	    const int unit_width = pixelMetric( PM_ProgressBarChunkWidth, pb );
 	    int u = r.width() / unit_width;
 	    int p_v = pb->progress();
@@ -861,7 +861,7 @@ void QMotifStyle::drawControl( ControlElement element,
 	    if (! widget || ! data)
 		break;
 
-	    QPopupMenu *popupmenu = (QPopupMenu *) widget;
+	    const QPopupMenu *popupmenu = (const QPopupMenu *) widget;
 	    QMenuItem *mi = (QMenuItem *) data[0];
 	    if ( !mi )
 		break;
@@ -1085,9 +1085,9 @@ void QMotifStyle::drawComplexControl( ComplexControl control,
 			     pixelMetric( PM_DefaultFrameWidth) );
 	break;
 
-    case CC_Slider:	
+    case CC_Slider:
 	if ( sub & SC_SliderGroove ) {
-	    QSlider * sl = (QSlider *) widget;
+	    const QSlider * sl = (const QSlider *) widget;
 
 	    int tickOffset = pixelMetric( PM_SliderTickmarkOffset, sl );
 	    int thickness = pixelMetric( PM_SliderControlThickness, sl );
@@ -1117,13 +1117,13 @@ void QMotifStyle::drawComplexControl( ComplexControl control,
 	    if ( sl->orientation() == Horizontal ) {
 		qDrawShadePanel( p, x, y, wi, he, cg, TRUE, 2,
 				 &cg.brush( QColorGroup::Mid ) );
-		sl->erase( 0, 0, sl->width(), tickOffset );
-		sl->erase( 0, tickOffset + thickness, sl->width(), sl->height() );
+		((QSlider *) sl)->erase( 0, 0, sl->width(), tickOffset );
+		((QSlider *) sl)->erase( 0, tickOffset + thickness, sl->width(), sl->height() );
 	    } else {
 		qDrawShadePanel( p, x, y, wi, he, cg, TRUE, 2,
 				 &cg.brush( QColorGroup::Mid ) );
-		sl->erase( 0, 0,  tickOffset, sl->height() );
-		sl->erase( tickOffset + thickness, 0, sl->width(), sl->height() );
+		((QSlider *) sl)->erase( 0, 0,  tickOffset, sl->height() );
+		((QSlider *) sl)->erase( tickOffset + thickness, 0, sl->width(), sl->height() );
 	    }
 	}
 
@@ -1158,7 +1158,7 @@ void QMotifStyle::drawComplexControl( ComplexControl control,
 
     case CC_ComboBox:
 	if ( sub & SC_ComboBoxArrow ) {
-	    QComboBox * cb = (QComboBox *) widget;
+	    const QComboBox * cb = (const QComboBox *) widget;
 	    int awh, ax, ay, sh, sy, dh, ew;
 	    int fw = pixelMetric( PM_DefaultFrameWidth, cb);
 
@@ -1324,7 +1324,7 @@ int QMotifStyle::pixelMetric( PixelMetric metric, const QWidget *widget ) const
 
     case PM_SliderControlThickness:
 	{
-	    QSlider * sl = (QSlider *) widget;
+	    const QSlider * sl = (const QSlider *) widget;
 	    int space = (sl->orientation() == Horizontal) ? sl->height()
 			: sl->width();
 	    int ticks = sl->tickmarks();
@@ -1348,7 +1348,7 @@ int QMotifStyle::pixelMetric( PixelMetric metric, const QWidget *widget ) const
 
     case PM_SliderSpaceAvailable:
 	{
-	    QSlider * sl = (QSlider *) widget;
+	    const QSlider * sl = (const QSlider *) widget;
 	    if ( sl->orientation() == Horizontal )
 		ret = sl->width() - pixelMetric( PM_SliderLength, sl ) - 6;
 	    else
@@ -1425,7 +1425,7 @@ QRect QMotifStyle::querySubControlMetrics( ComplexControl control,
 	{
 	    switch ( sc ) {
 	    case SC_SliderHandle: {
-		QSlider * sl = (QSlider *) widget;
+		const QSlider * sl = (const QSlider *) widget;
 		int sliderPos = 0;
 		int tickOffset = pixelMetric( PM_SliderTickmarkOffset, sl );
 		int thickness  = pixelMetric( PM_SliderControlThickness, sl );
@@ -1457,7 +1457,7 @@ QRect QMotifStyle::querySubControlMetrics( ComplexControl control,
 	    if (! widget)
 		break;
 
-	    QScrollBar *scrollbar = (QScrollBar *) widget;
+	    const QScrollBar *scrollbar = (const QScrollBar *) widget;
 	    int sliderstart = 0;
 	    int sbextent = pixelMetric(PM_ScrollBarExtent, widget);
 	    int fw = pixelMetric(PM_DefaultFrameWidth, widget);
@@ -1543,7 +1543,7 @@ QRect QMotifStyle::querySubControlMetrics( ComplexControl control,
 	switch ( sc ) {
 	case SC_ComboBoxArrow:
 	    {
-		QComboBox * cb = (QComboBox *) widget;
+		const QComboBox * cb = (const QComboBox *) widget;
 		int ew, awh, sh, dh, ax, ay, sy;
 		int fw = pixelMetric( PM_DefaultFrameWidth, cb );
 		QRect cr = cb->rect();
@@ -1555,7 +1555,7 @@ QRect QMotifStyle::querySubControlMetrics( ComplexControl control,
 
 	case SC_ComboBoxEditField:
 	    {
-		QComboBox * cb = (QComboBox *) widget;
+		const QComboBox * cb = (const QComboBox *) widget;
 		int fw = pixelMetric( PM_DefaultFrameWidth, cb );
 		rect = cb->rect();
 		rect.addCoords( fw, fw, -fw, -fw );
@@ -1589,7 +1589,7 @@ QSize QMotifStyle::sizeFromContents( ContentsType contents,
     switch(contents) {
     case CT_PushButton:
 	{
-	    QPushButton *button = (QPushButton *) widget;
+	    const QPushButton *button = (const QPushButton *) widget;
 	    sz = QCommonStyle::sizeFromContents(contents, widget, contentsSize, data);
 	    if ((button->isDefault() || button->autoDefault()) &&
 		sz.width() < 80 && ! button->pixmap())
@@ -1602,17 +1602,20 @@ QSize QMotifStyle::sizeFromContents( ContentsType contents,
 	    if (! widget || ! data)
 		break;
 
-	    QPopupMenu *popup = (QPopupMenu *) widget;
+	    const QPopupMenu *popup = (QPopupMenu *) widget;
 	    bool checkable = popup->isCheckable();
 	    QMenuItem *mi = (QMenuItem *) data[0];
 	    int maxpmw = *((int *) data[1]);
-	    int w = sz.width(), h = sz.height() + 2*motifItemVMargin + 2*motifItemFrame;
+	    int w = sz.width(), h = sz.height();
 
 	    if ( mi->isSeparator() ) {
 		w = 10;
 		h = motifSepHeight;
 		break;
 	    }
+
+	    if (mi->pixmap() || ! mi->text().isNull())
+		h += 2*motifItemVMargin + 2*motifItemFrame;
 
 	    // a little bit of border can never harm
 	    w += 2*motifItemHMargin + 2*motifItemFrame;
@@ -1622,7 +1625,7 @@ QSize QMotifStyle::sizeFromContents( ContentsType contents,
 		w += motifTabSpacing;
 	    else if (mi->popup())
 		// submenu indicator needs some room if we don't have a tab column
-		w += motifArrowHMargin + 2*motifItemFrame;
+		w += motifArrowHMargin + 4*motifItemFrame;
 
 	    if ( checkable && maxpmw <= 0)
 		// if we are checkable and have no iconsets, add space for a checkmark
@@ -1677,7 +1680,7 @@ QRect QMotifStyle::subRect( SubRect r, const QWidget *widget ) const
 	    if ( !widget || !widget->parent() )
 		break;
 
-	    QDockWindow * dw = (QDockWindow *) widget->parent();
+	    const QDockWindow * dw = (const QDockWindow *) widget->parent();
 	    if ( !dw->area() || !dw->isCloseEnabled() )
 		rect.setRect( 0, 0, widget->width(), widget->height() );
 	    else {
@@ -1855,7 +1858,9 @@ static const char * dock_window_close_xpm[] = {
 /*!
  \reimp
  */
-QPixmap QMotifStyle::stylePixmap(StylePixmap sp, const QWidget *, void **) const
+QPixmap QMotifStyle::stylePixmap(StylePixmap sp,
+				 const QWidget *widget,
+				 void **data) const
 {
     switch (sp) {
     case SP_TitleBarShadeButton:
@@ -1875,7 +1880,8 @@ QPixmap QMotifStyle::stylePixmap(StylePixmap sp, const QWidget *, void **) const
     default:
 	break;
     }
-    return QPixmap();
+
+    return QCommonStyle::stylePixmap(sp, widget, data);
 }
 
 

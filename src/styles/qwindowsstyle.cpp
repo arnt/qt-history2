@@ -466,7 +466,7 @@ void QWindowsStyle::drawControl( ControlElement element,
     switch (element) {
     case CE_PushButton:
 	{
-	    QPushButton *button = (QPushButton *) widget;
+	    const QPushButton *button = (const QPushButton *) widget;
 	    QRect br = r;
 	    int dbi = pixelMetric(PM_ButtonDefaultIndicator, widget);
 
@@ -505,7 +505,7 @@ void QWindowsStyle::drawControl( ControlElement element,
 	    if ( !widget || !widget->parentWidget() )
 		break;
 
-	    QTabBar * tb = (QTabBar *) widget;
+	    const QTabBar * tb = (const QTabBar *) widget;
 	    bool lastIsCurrent = FALSE;
 	    bool selected = how & CStyle_Selected;
 
@@ -608,7 +608,7 @@ void QWindowsStyle::drawControl( ControlElement element,
 	    if (! widget || !data)
 		break;
 
-	    QPopupMenu *popupmenu = (QPopupMenu *) widget;
+	    const QPopupMenu *popupmenu = (const QPopupMenu *) widget;
 	    QMenuItem *mi = (QMenuItem *) data[0];
 	    if ( !mi )
 		break;
@@ -923,7 +923,7 @@ QSize QWindowsStyle::sizeFromContents( ContentsType contents,
 	    if (! widget || ! data)
 		break;
 
-	    QPopupMenu *popup = (QPopupMenu *) widget;
+	    const QPopupMenu *popup = (const QPopupMenu *) widget;
 	    bool checkable = popup->isCheckable();
 	    QMenuItem *mi = (QMenuItem *) data[0];
 	    int maxpmw = *((int *) data[1]);
@@ -936,7 +936,7 @@ QSize QWindowsStyle::sizeFromContents( ContentsType contents,
 	    } else {
 		if (mi->pixmap())
 		    h = QMAX(h, mi->pixmap()->height() + 2*windowsItemFrame);
-		else
+		else if (! mi->text().isNull())
 		    h = QMAX(h, popup->fontMetrics().height() + 2*windowsItemVMargin +
 			     2*windowsItemFrame);
 
@@ -946,13 +946,11 @@ QSize QWindowsStyle::sizeFromContents( ContentsType contents,
 			     2*windowsItemFrame);
 	    }
 
-	    if (! mi->text().isNull()) {
-		if (mi->text().find('\t') >= 0)
-		    w += 12;
-	    }
+	    if (! mi->text().isNull() && mi->text().find('\t') >= 0)
+		w += windowsTabSpacing;
+	    else if (mi->popup())
+		w += 2*windowsArrowHMargin;
 
-	    if (maxpmw)
-		w += maxpmw + 6;
 	    if (use2000style) {
 		if (checkable && maxpmw < 20)
 		    w += 20 - maxpmw;
@@ -960,6 +958,8 @@ QSize QWindowsStyle::sizeFromContents( ContentsType contents,
 		if (checkable && maxpmw < windowsCheckMarkWidth)
 		    w += windowsCheckMarkWidth - maxpmw;
 	    }
+	    if (maxpmw)
+		w += maxpmw + 6;
 	    if (checkable || maxpmw > 0)
 		w += windowsCheckMarkHMargin;
 	    w += windowsRightBorder;
@@ -1128,8 +1128,8 @@ static const char * dock_window_close_xpm[] = {
  \reimp
  */
 QPixmap QWindowsStyle::stylePixmap(StylePixmap stylepixmap,
-				   const QWidget *,
-				   void **) const
+				   const QWidget *widget,
+				   void **data) const
 {
     switch (stylepixmap) {
     case SP_TitleBarShadeButton:
@@ -1149,13 +1149,14 @@ QPixmap QWindowsStyle::stylePixmap(StylePixmap stylepixmap,
     default:
 	break;
     }
-    return QPixmap();
+
+    return QCommonStyle::stylePixmap(stylepixmap, widget, data);
 }
 
 /*!\reimp
 */
 void QWindowsStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
-					const QWidget *w,
+					const QWidget *widget,
 					const QRect &r,
 					const QColorGroup &cg,
 					CFlags flags,
@@ -1299,7 +1300,7 @@ void QWindowsStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
 	switch ( sub ) {
 	case SC_SpinWidgetUp:
 	case SC_SpinWidgetDown:
-	    QCommonStyle::drawComplexControl( ctrl, p, w, r, cg, flags,
+	    QCommonStyle::drawComplexControl( ctrl, p, widget, r, cg, flags,
 					      sub, subActive, data );
 	    break;
 	case SC_SpinWidgetFrame:
@@ -1312,12 +1313,13 @@ void QWindowsStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
 	if ( sub & SC_ComboBoxArrow ) {
 	    PFlags flags = PStyle_Default;
 
-	    qDrawWinPanel( p, r, cg, TRUE, w->isEnabled() ?
+	    qDrawWinPanel( p, r, cg, TRUE, widget->isEnabled() ?
 			   &cg.brush( QColorGroup::Base ):
 			   &cg.brush( QColorGroup::Background ) );
 
-	    QRect ar = QStyle::visualRect( querySubControlMetrics( CC_ComboBox, w,
-								   SC_ComboBoxArrow ), w );
+	    QRect ar =
+		QStyle::visualRect( querySubControlMetrics( CC_ComboBox, widget,
+							    SC_ComboBoxArrow ), widget );
 	    if ( subActive == SC_ComboBoxArrow ) {
 		p->setPen( cg.dark() );
 		p->setBrush( cg.brush( QColorGroup::Button ) );
@@ -1327,7 +1329,7 @@ void QWindowsStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
 			       &cg.brush( QColorGroup::Button ) );
 
 	    ar.addCoords( 2, 2, -2, -2 );
-	    if ( w->isEnabled() )
+	    if ( widget->isEnabled() )
 		flags |= PStyle_Enabled;
 
 	    if ( subActive & PStyle_Sunken ) {
@@ -1337,9 +1339,10 @@ void QWindowsStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
 	}
 
 	if ( sub & SC_ComboBoxEditField ) {
-	    QComboBox * cb = (QComboBox *) w;
-	    QRect re = QStyle::visualRect( querySubControlMetrics( CC_ComboBox, w,
-								   SC_ComboBoxEditField ), w );
+	    const QComboBox * cb = (const QComboBox *) widget;
+	    QRect re =
+		QStyle::visualRect( querySubControlMetrics( CC_ComboBox, widget,
+							    SC_ComboBoxEditField ), widget );
 	    if ( cb->hasFocus() && !cb->editable() )
 		p->fillRect( re.x(), re.y(), re.width(), re.height(),
 			     cg.brush( QColorGroup::Highlight ) );
@@ -1354,7 +1357,8 @@ void QWindowsStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
 	    }
 
 	    if ( cb->hasFocus() && !cb->editable() ) {
-		QRect re = QStyle::visualRect( subRect( SR_ComboBoxFocusRect, cb ), w );
+		QRect re =
+		    QStyle::visualRect( subRect( SR_ComboBoxFocusRect, cb ), widget );
 		void *pdata[1];
 		pdata[0] = (void *) &cg.highlight();
 		drawPrimitive( PO_FocusRect, p, re, cg, PStyle_FocusAtBorder, pdata);
@@ -1365,7 +1369,7 @@ void QWindowsStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
 
     case CC_Slider:
 	if ( sub & SC_SliderGroove ) {
-	    QSlider * sl = (QSlider *) w;
+	    const QSlider * sl = (const QSlider *) widget;
 
 	    int tickOffset = pixelMetric( PM_SliderTickmarkOffset, sl );
 	    int thickness = pixelMetric( PM_SliderControlThickness, sl );
@@ -1395,18 +1399,18 @@ void QWindowsStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
 	    if ( sl->orientation() == Horizontal ) {
 		qDrawWinPanel( p, x, y + mid - 2,  wi, 4, cg, TRUE );
 		p->drawLine( x+1, y + mid - 1, x + wi - 3, y + mid - 1 );
-		sl->erase( 0, 0, sl->width(), tickOffset );
-		sl->erase( 0, tickOffset + thickness, sl->width(), sl->height() );
+		((QSlider *) sl)->erase( 0, 0, sl->width(), tickOffset );
+		((QSlider *) sl)->erase( 0, tickOffset + thickness, sl->width(), sl->height() );
 	    } else {
 		qDrawWinPanel( p, x + mid - 2, y, 4, he, cg, TRUE );
 		p->drawLine( x + mid - 1, y + 1, x + mid - 1, y + he - 3 );
-		sl->erase( 0, 0,  tickOffset, sl->height() );
-		sl->erase( tickOffset + thickness, 0, sl->width(), sl->height() );
+		((QSlider *) sl)->erase( 0, 0,  tickOffset, sl->height() );
+		((QSlider *) sl)->erase( tickOffset + thickness, 0, sl->width(), sl->height() );
 	    }
 	}
 
 	if ( sub & SC_SliderTickmarks )
-	    QCommonStyle::drawComplexControl( ctrl, p, w, r, cg, flags,
+	    QCommonStyle::drawComplexControl( ctrl, p, widget, r, cg, flags,
 					      SC_SliderTickmarks, subActive,
 					      data );
 
@@ -1428,7 +1432,7 @@ void QWindowsStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
 	    const QColor c3 = cg.midlight();
 	    const QColor c4 = cg.light();
 
-	    QRect re = querySubControlMetrics( CC_Slider, w, SC_SliderHandle,
+	    QRect re = querySubControlMetrics( CC_Slider, widget, SC_SliderHandle,
 					       data );
 	    int x = re.x(), y = re.y(), wi = re.width(), he = re.height();
 
@@ -1439,7 +1443,7 @@ void QWindowsStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
 
 	    bool reverse = QApplication::reverseLayout();
 
-	    QSlider * sl = (QSlider *) w;
+	    const QSlider * sl = (const QSlider *) widget;
 	    Orientation orient = sl->orientation();
 	    bool tickAbove = sl->tickmarks() == QSlider::Above;
 	    bool tickBelow = sl->tickmarks() == QSlider::Below;
@@ -1617,7 +1621,7 @@ void QWindowsStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
 	}
 
 	default:
-	    QCommonStyle::drawComplexControl( ctrl, p, w, r, cg, flags, sub,
+	    QCommonStyle::drawComplexControl( ctrl, p, widget, r, cg, flags, sub,
 					      subActive, data );
 	break;
     }

@@ -67,22 +67,22 @@ public:
 
     virtual void drawControl( ControlElement element,
 			      QPainter *p,
-			      const QWidget *w,
+			      const QWidget *widget,
 			      const QRect &r,
 			      const QColorGroup &cg,
 			      CFlags how = CStyle_Default,
 			      void **data = 0 ) const;
     virtual void drawControlMask( ControlElement element,
 				  QPainter *p,
-				  const QWidget *w,
+				  const QWidget *widget,
 				  const QRect &r,
 				  void **data = 0 ) const;
 
-    virtual QRect subRect( SubRect r, const QWidget *w ) const;
+    virtual QRect subRect( SubRect r, const QWidget *widget ) const;
 
     virtual void drawComplexControl( ComplexControl control,
 				     QPainter *p,
-				     const QWidget *w,
+				     const QWidget *widget,
 				     const QRect &r,
 				     const QColorGroup &cg,
 				     CFlags flags = CStyle_Default,
@@ -91,33 +91,33 @@ public:
 				     void **data = 0 ) const;
     virtual void drawComplexControlMask( ComplexControl control,
 					 QPainter *p,
-					 const QWidget *w,
+					 const QWidget *widget,
 					 const QRect &r,
 					 void **data = 0 ) const;
 
     virtual QRect querySubControlMetrics( ComplexControl control,
-					  const QWidget *w,
+					  const QWidget *widget,
 					  SubControl sc,
 					  void **data = 0 ) const;
     virtual SubControl querySubControl( ComplexControl control,
-					const QWidget *w,
+					const QWidget *widget,
 					const QPoint &pos,
 					void **data = 0 ) const;
 
-    virtual int pixelMetric( PixelMetric m, const QWidget *w = 0 ) const;
+    virtual int pixelMetric( PixelMetric m, const QWidget *widget = 0 ) const;
 
     virtual QSize sizeFromContents( ContentsType s,
-				    const QWidget *w,
+				    const QWidget *widget,
 				    const QSize &contentsSize,
 				    void **data = 0 ) const;
 
     virtual int styleHint( StyleHint sh,
-			   const QWidget *w = 0,
+			   const QWidget *widget = 0,
 			   void ***returnData = 0 ) const;
 
     virtual QPixmap stylePixmap( StylePixmap sp,
-				 const QWidget * = 0,
-				 void ** = 0 ) const;
+				 const QWidget *widget = 0,
+				 void **data = 0 ) const;
 
 
 private:

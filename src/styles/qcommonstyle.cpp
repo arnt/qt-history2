@@ -287,9 +287,9 @@ void QCommonStyle::drawPrimitive( PrimitiveOperation op,
 	    }
 	}
 	p->restore();
-	break; 
+	break;
     }
-    
+
     case PO_DockWindowSeparator: {
 	QPoint p1, p2;
 	if ( flags & PStyle_Vertical ) {
@@ -479,6 +479,13 @@ void QCommonStyle::drawControl( ControlElement element,
 				CFlags how,
 				void **data ) const
 {
+#if defined(QT_CHECK_STATE)
+    if (! widget) {
+	qWarning("QCommonStyle::drawControl: widget parameter cannot be zero!");
+	return;
+    }
+#endif
+
     PFlags flags = PStyle_Default;
     if (widget->isEnabled())
 	flags |= PStyle_Enabled;
@@ -486,7 +493,7 @@ void QCommonStyle::drawControl( ControlElement element,
     switch (element) {
     case CE_PushButton:
 	{
-	    QPushButton *button = (QPushButton *) widget;
+	    const QPushButton *button = (const QPushButton *) widget;
 
 	    if (button->isOn())
 		flags |= PStyle_On;
@@ -501,7 +508,7 @@ void QCommonStyle::drawControl( ControlElement element,
 
     case CE_PushButtonLabel:
 	{
-	    QPushButton *button = (QPushButton *) widget;
+	    const QPushButton *button = (const QPushButton *) widget;
 	    QRect ir = r;
 
 	    if (button->isDown() || button->isOn()) {
@@ -557,7 +564,8 @@ void QCommonStyle::drawControl( ControlElement element,
 		ir.setLeft(r.left() + (r.width() - r.height()) / 2);
 		ir.setWidth(r.height());
 	    }
-	    QCheckBox *checkbox = (QCheckBox *) widget;
+
+	    const QCheckBox *checkbox = (const QCheckBox *) widget;
 
 	    if (checkbox->isDown())
 		flags |= PStyle_Down;
@@ -574,7 +582,7 @@ void QCommonStyle::drawControl( ControlElement element,
 
     case CE_CheckBoxLabel:
 	{
-	    QCheckBox *checkbox = (QCheckBox *) widget;
+	    const QCheckBox *checkbox = (const QCheckBox *) widget;
 
 	    int alignment = QApplication::reverseLayout() ? AlignRight : AlignLeft;
 	    drawItem(p, r, alignment | AlignVCenter | ShowPrefix, cg,
@@ -585,7 +593,7 @@ void QCommonStyle::drawControl( ControlElement element,
 		fr.moveBy(r.left() - 1, r.top());
 		drawPrimitive(PO_FocusRect, p, fr, cg, flags);
 	    }
-	break; 
+	    break;
 	}
 
     case CE_RadioButton:
@@ -600,7 +608,8 @@ void QCommonStyle::drawControl( ControlElement element,
 		ir.setLeft(r.left() + (r.width() - r.height()) / 2);
 		ir.setWidth(r.height());
 	    }
-	    QRadioButton *radiobutton = (QRadioButton *) widget;
+
+	    const QRadioButton *radiobutton = (const QRadioButton *) widget;
 
 	    if (radiobutton->isDown())
 		flags |= PStyle_Down;
@@ -615,7 +624,7 @@ void QCommonStyle::drawControl( ControlElement element,
 
     case CE_RadioButtonLabel:
 	{
-	    QRadioButton *radiobutton = (QRadioButton *) widget;
+	    const QRadioButton *radiobutton = (const QRadioButton *) widget;
 
 	    int alignment = QApplication::reverseLayout() ? AlignRight : AlignLeft;
 	    drawItem(p, r, alignment | AlignVCenter | ShowPrefix, cg,
@@ -626,12 +635,13 @@ void QCommonStyle::drawControl( ControlElement element,
 		fr.moveBy(r.left() - 1, r.top());
 		drawPrimitive(PO_FocusRect, p, fr, cg, flags);
 	    }
-	break; 
+	    break;
 	}
 
     case CE_TabBarTab:
 	{
-	    QTabBar * tb = (QTabBar *) widget;
+	    const QTabBar * tb = (const QTabBar *) widget;
+
 	    if ( tb->shape() == QTabBar::TriangularAbove ||
 		 tb->shape() == QTabBar::TriangularBelow ) {
 		// triangular, above or below
@@ -672,9 +682,10 @@ void QCommonStyle::drawControl( ControlElement element,
 
     case CE_TabBarLabel:
 	{
-	    QTabBar * tb = (QTabBar *) widget;
-	    if ( !tb || !data )
-		return;
+	    if ( ! data )
+		break;
+
+	    const QTabBar * tb = (const QTabBar *) widget;
 	    QTab * t = (QTab *) data[0];
 	    bool has_focus = *((bool *) data[1]);
 
@@ -697,7 +708,7 @@ void QCommonStyle::drawControl( ControlElement element,
 
     case CE_ProgressBarContents:
 	{
-	    QProgressBar *progressbar = (QProgressBar*)widget;
+	    const QProgressBar *progressbar = (const QProgressBar *) widget;
 
 	    bool reverse = QApplication::reverseLayout();
 	    if ( !progressbar->totalSteps() ) {
@@ -731,8 +742,8 @@ void QCommonStyle::drawControl( ControlElement element,
 		int x = 0;
 		int x0 = reverse ? r.right() - unit_width : r.x() + 2;
 		for (int i=0; i<nu; i++) {
-		    drawPrimitive( PO_ProgressBarChunk, p, 
-				   QRect( x0+x, r.y(), unit_width, r.height() ), 
+		    drawPrimitive( PO_ProgressBarChunk, p,
+				   QRect( x0+x, r.y(), unit_width, r.height() ),
 				   cg, PStyle_Default, data );
 		    x += reverse ? -unit_width: unit_width;
 		}
@@ -742,7 +753,7 @@ void QCommonStyle::drawControl( ControlElement element,
 
     case CE_ProgressBarLabel:
 	{
-	    QProgressBar *progressbar = (QProgressBar *) widget;
+	    const QProgressBar *progressbar = (const QProgressBar *) widget;
 	    drawItem(p, r, AlignCenter | SingleLine, cg, progressbar->isEnabled(), 0,
 		     progressbar->progressString());
 	}
@@ -798,154 +809,183 @@ void QCommonStyle::drawControlMask( ControlElement control,
 /*! \reimp */
 QRect QCommonStyle::subRect(SubRect r, const QWidget *widget) const
 {
+#if defined(QT_CHECK_STATE)
+    if (! widget) {
+	qWarning("QCommonStyle::subRect: widget parameter cannot be zero!");
+	return QRect();
+    }
+#endif
+
     QRect rect, wrect(widget->rect());
 
     switch (r) {
-    case SR_PushButtonContents: {
-	QPushButton *button = (QPushButton *) widget;
-	int dx1, dx2;
+    case SR_PushButtonContents:
+	{
+	    const QPushButton *button = (const QPushButton *) widget;
+	    int dx1, dx2;
 
-	dx1 = pixelMetric(PM_DefaultFrameWidth, widget);
-       	if (button->isDefault() || button->autoDefault())
-	    dx1 += pixelMetric(PM_ButtonDefaultIndicator, widget);
-	dx2 = dx1 * 2;
+	    dx1 = pixelMetric(PM_DefaultFrameWidth, widget);
+	    if (button->isDefault() || button->autoDefault())
+		dx1 += pixelMetric(PM_ButtonDefaultIndicator, widget);
+	    dx2 = dx1 * 2;
 
-	rect.setRect(wrect.x()      + dx1,
-		     wrect.y()      + dx1,
-		     wrect.width()  - dx2,
-		     wrect.height() - dx2);
-	break; }
-
-    case SR_PushButtonFocusRect: {
-	QPushButton *button = (QPushButton *) widget;
-	int dbw1 = 0, dbw2 = 0;
-	if (button->isDefault() || button->autoDefault()) {
-	    dbw1 = pixelMetric(PM_ButtonDefaultIndicator, widget);
-	    dbw2 = dbw1 * 2;
+	    rect.setRect(wrect.x()      + dx1,
+			 wrect.y()      + dx1,
+			 wrect.width()  - dx2,
+			 wrect.height() - dx2);
+	    break;
 	}
 
-	int dfw1 = pixelMetric(PM_DefaultFrameWidth, widget) * 2,
-	    dfw2 = dfw1 * 2;
+    case SR_PushButtonFocusRect:
+	{
+	    const QPushButton *button = (const QPushButton *) widget;
+	    int dbw1 = 0, dbw2 = 0;
+	    if (button->isDefault() || button->autoDefault()) {
+		dbw1 = pixelMetric(PM_ButtonDefaultIndicator, widget);
+		dbw2 = dbw1 * 2;
+	    }
 
-	rect.setRect(wrect.x()      + dfw1 + dbw1,
-		     wrect.y()      + dfw1 + dbw1,
-		     wrect.width()  - dfw2 - dbw2,
-		     wrect.height() - dfw2 - dbw2);
-	break; }
+	    int dfw1 = pixelMetric(PM_DefaultFrameWidth, widget) * 2,
+		dfw2 = dfw1 * 2;
 
-    case SR_CheckBoxIndicator: {
-	int h = pixelMetric( PM_IndicatorHeight );
-	rect.setRect(0, ( wrect.height() - h ) / 2, pixelMetric( PM_IndicatorWidth ), h );
-	break;
+	    rect.setRect(wrect.x()      + dfw1 + dbw1,
+			 wrect.y()      + dfw1 + dbw1,
+			 wrect.width()  - dfw2 - dbw2,
+			 wrect.height() - dfw2 - dbw2);
+	    break;
 	}
 
-    case SR_CheckBoxContents: {
-	QRect ir = subRect(SR_CheckBoxIndicator, widget);
-	rect.setRect(ir.right() + 10, wrect.y(),
-		     wrect.width() - ir.width() - 10, wrect.height());
-	break; }
-
-    case SR_CheckBoxFocusRect: {
-	QCheckBox *checkbox = (QCheckBox *) widget;
-	QRect cr = subRect(SR_CheckBoxContents, widget);
-	cr.moveTopLeft( QPoint(0, 0) );
-
-	QPainter p(checkbox);
-	rect = itemRect(&p, cr, AlignAuto | AlignVCenter | ShowPrefix,
-			checkbox->isEnabled(), checkbox->pixmap(), checkbox->text());
-
-	rect.addCoords( -3, -2, 3, 2 );
-	rect = rect.intersect(wrect);
-	break; }
-
-    case SR_RadioButtonIndicator: {
-	int h = pixelMetric( PM_ExclusiveIndicatorHeight );
-	rect.setRect(0, ( wrect.height() - h ) / 2, pixelMetric( PM_ExclusiveIndicatorWidth ), h );
-	break;
+    case SR_CheckBoxIndicator:
+	{
+	    int h = pixelMetric( PM_IndicatorHeight );
+	    rect.setRect(0, ( wrect.height() - h ) / 2,
+			 pixelMetric( PM_IndicatorWidth ), h );
+	    break;
 	}
 
-    case SR_RadioButtonContents: {
-	QRect ir = subRect(SR_RadioButtonIndicator, widget);
-	rect.setRect(ir.right() + 10, wrect.y(),
-		     wrect.width() - ir.width() - 10, wrect.height());
-	break; }
+    case SR_CheckBoxContents:
+	{
+	    QRect ir = subRect(SR_CheckBoxIndicator, widget);
+	    rect.setRect(ir.right() + 10, wrect.y(),
+			 wrect.width() - ir.width() - 10, wrect.height());
+	    break;
+	}
 
-    case SR_RadioButtonFocusRect: {
-	QRadioButton *radiobutton = (QRadioButton *) widget;
-	QRect cr = subRect(SR_RadioButtonContents, widget);
-	cr.moveTopLeft( QPoint( 0, 0 ) );
-	
-	QPainter p(radiobutton);
-	rect = itemRect(&p, cr, AlignAuto | AlignVCenter | ShowPrefix,
-			radiobutton->isEnabled(), radiobutton->pixmap(),
-			radiobutton->text());
+    case SR_CheckBoxFocusRect:
+	{
+	    const QCheckBox *checkbox = (const QCheckBox *) widget;
+	    QRect cr = subRect(SR_CheckBoxContents, widget);
+	    cr.moveTopLeft( QPoint(0, 0) );
 
-	rect.addCoords( -3, -2, 3, 2 );
-	rect = rect.intersect(wrect);
-	break; }
+	    QPainter p(checkbox);
+	    rect = itemRect(&p, cr, AlignAuto | AlignVCenter | ShowPrefix,
+			    checkbox->isEnabled(), checkbox->pixmap(), checkbox->text());
+
+	    rect.addCoords( -3, -2, 3, 2 );
+	    rect = rect.intersect(wrect);
+	    break;
+	}
+
+    case SR_RadioButtonIndicator:
+	{
+	    int h = pixelMetric( PM_ExclusiveIndicatorHeight );
+	    rect.setRect(0, ( wrect.height() - h ) / 2, pixelMetric( PM_ExclusiveIndicatorWidth ), h );
+	    break;
+	}
+
+    case SR_RadioButtonContents:
+	{
+	    QRect ir = subRect(SR_RadioButtonIndicator, widget);
+	    rect.setRect(ir.right() + 10, wrect.y(),
+			 wrect.width() - ir.width() - 10, wrect.height());
+	    break;
+	}
+
+    case SR_RadioButtonFocusRect:
+	{
+	    const QRadioButton *radiobutton = (const QRadioButton *) widget;
+	    QRect cr = subRect(SR_RadioButtonContents, widget);
+	    cr.moveTopLeft( QPoint( 0, 0 ) );
+
+	    QPainter p(radiobutton);
+	    rect = itemRect(&p, cr, AlignAuto | AlignVCenter | ShowPrefix,
+			    radiobutton->isEnabled(), radiobutton->pixmap(),
+			    radiobutton->text());
+
+	    rect.addCoords( -3, -2, 3, 2 );
+	    rect = rect.intersect(wrect);
+	    break;
+	}
 
     case SR_ComboBoxFocusRect:
 	rect.setRect(3, 3, widget->width()-6-16, widget->height()-6);
 	break;
 
-    case SR_SliderFocusRect: {
-	QSlider * sl = (QSlider *) widget;
-	int tickOffset = pixelMetric( PM_SliderTickmarkOffset, sl );
-	int thickness  = pixelMetric( PM_SliderControlThickness, sl );
+    case SR_SliderFocusRect:
+	{
+	    const QSlider * sl = (const QSlider *) widget;
+	    int tickOffset = pixelMetric( PM_SliderTickmarkOffset, sl );
+	    int thickness  = pixelMetric( PM_SliderControlThickness, sl );
 
-	if ( sl->orientation() == Horizontal )
-	    rect.setRect( 0, tickOffset-1, sl->width(), thickness+2 );
-	else
-	    rect.setRect( tickOffset-1, 0, thickness+2, sl->height() );
-	rect = rect.intersect( sl->rect() ); // ## is this really necessary?
-	break; }
-
-    case SR_DockWindowHandleRect: {
-	if ( !widget || !widget->parent() )
-	    break;
-
-	QDockWindow * dw = (QDockWindow *) widget->parent();
-
-	if ( !dw->area() || !dw->isCloseEnabled() )
-	    rect.setRect( 0, 0, widget->width(), widget->height() );
-	else {
-	    if ( dw->area()->orientation() == Horizontal )
-		rect.setRect(0, 15, widget->width(), widget->height() - 15);
+	    if ( sl->orientation() == Horizontal )
+		rect.setRect( 0, tickOffset-1, sl->width(), thickness+2 );
 	    else
-		rect.setRect(0, 1, widget->width() - 15, widget->height() - 1);
+		rect.setRect( tickOffset-1, 0, thickness+2, sl->height() );
+	    rect = rect.intersect( sl->rect() ); // ## is this really necessary?
+	    break;
 	}
-	break; 
-    }
-    
-    case SR_ProgressBarGroove: 
+
+    case SR_DockWindowHandleRect:
+	{
+	    if (! widget->parentWidget())
+		break;
+
+	    const QDockWindow * dw = (const QDockWindow *) widget->parentWidget();
+
+	    if ( !dw->area() || !dw->isCloseEnabled() )
+		rect.setRect( 0, 0, widget->width(), widget->height() );
+	    else {
+		if ( dw->area()->orientation() == Horizontal )
+		    rect.setRect(0, 15, widget->width(), widget->height() - 15);
+		else
+		    rect.setRect(0, 1, widget->width() - 15, widget->height() - 1);
+	    }
+	    break;
+	}
+
+    case SR_ProgressBarGroove:
     case SR_ProgressBarContents:
 	{
-	    QFontMetrics fm( ( widget ? widget->fontMetrics() : QApplication::fontMetrics() ) );
+	    QFontMetrics fm( ( widget ? widget->fontMetrics() :
+			       QApplication::fontMetrics() ) );
 	    int textw = fm.width("100%") + 6;
 	    rect.setCoords(wrect.left(), wrect.top(),
 			   wrect.right() - textw, wrect.bottom());
+	    break;
 	}
-	break;
 
-    case SR_ProgressBarLabel: {
-	QFontMetrics fm( ( widget ? widget->fontMetrics() : QApplication::fontMetrics() ) );
-	int textw = fm.width("100%") + 6;
-	rect.setCoords(wrect.right() - textw, wrect.top(),
-		       wrect.right(), wrect.bottom());
-	break; }
+    case SR_ProgressBarLabel:
+	{
+	    QFontMetrics fm( ( widget ? widget->fontMetrics() :
+			       QApplication::fontMetrics() ) );
+	    int textw = fm.width("100%") + 6;
+	    rect.setCoords(wrect.right() - textw, wrect.top(),
+			   wrect.right(), wrect.bottom());
+	    break;
+	}
 
     default:
 	rect = wrect;
 	break;
     }
 
-    return rect; 
+    return rect;
 }
 
 /*
   I really need this and I don't want to expose it in QRangeControl..
 */
-static int qPositionFromValue( QRangeControl * rc, int logical_val,
+static int qPositionFromValue( const QRangeControl * rc, int logical_val,
 			       int span )
 {
     if ( span <= 0 || logical_val < rc->minValue() ||
@@ -986,13 +1026,17 @@ void QCommonStyle::drawComplexControl( ComplexControl control,
 				       SCFlags active,
 				       void **data ) const
 {
+#if defined(QT_CHECK_STATE)
+    if (! widget) {
+	qWarning("QCommonStyle::drawComplexControl: widget parameter cannot be zero!");
+	return;
+    }
+#endif
+
     switch (control) {
     case CC_ScrollBar:
 	{
-	    if (! widget)
-		break;
-
-	    QScrollBar *scrollbar = (QScrollBar *) widget;
+	    const QScrollBar *scrollbar = (const QScrollBar *) widget;
 	    QRect addline, subline, addpage, subpage, slider, first, last;
 	    bool maxedOut = (scrollbar->minValue() == scrollbar->maxValue());
 
@@ -1067,7 +1111,7 @@ void QCommonStyle::drawComplexControl( ComplexControl control,
 
     case CC_ToolButton:
 	{
-	    QToolButton *toolbutton = (QToolButton *) widget;
+	    const QToolButton *toolbutton = (const QToolButton *) widget;
 
 	    QRect button, menuarea;
 	    button   = querySubControlMetrics(control, widget, SC_ToolButton, data);
@@ -1208,7 +1252,7 @@ void QCommonStyle::drawComplexControl( ComplexControl control,
 #ifndef QT_NO_TITLEBAR
     case CC_TitleBar:
 	{
-	    QTitleBar *titlebar = (QTitleBar *) widget;
+	    const QTitleBar *titlebar = (const QTitleBar *) widget;
 
 	    QColor left = titlebar->act || !titlebar->window ?
 			  titlebar->aleftc : titlebar->ileftc;
@@ -1325,7 +1369,7 @@ void QCommonStyle::drawComplexControl( ComplexControl control,
 	switch( controls ) {
 	case SC_SpinWidgetUp:
 	case SC_SpinWidgetDown: {
-	    QSpinWidget * sw = (QSpinWidget *) widget;
+	    const QSpinWidget * sw = (const QSpinWidget *) widget;
 	    PFlags flags = PStyle_Default;
 	    PrimitiveOperation op = (controls == SC_SpinWidgetUp) ?
 				    PO_SpinWidgetUp : PO_SpinWidgetDown;
@@ -1357,7 +1401,7 @@ void QCommonStyle::drawComplexControl( ComplexControl control,
     case CC_Slider:
 	switch ( controls ) {
 	case SC_SliderTickmarks: {
-	    QSlider * sl = (QSlider *) widget;
+	    const QSlider * sl = (const QSlider *) widget;
 	    int tickOffset = pixelMetric( PM_SliderTickmarkOffset, sl );
 	    int ticks = sl->tickmarks();
 	    int thickness = pixelMetric( PM_SliderControlThickness, sl );
@@ -1439,26 +1483,33 @@ void QCommonStyle::drawComplexControlMask( ComplexControl control,
 
 /*! \reimp */
 QRect QCommonStyle::querySubControlMetrics( ComplexControl control,
-					    const QWidget *w,
+					    const QWidget *widget,
 					    SubControl sc,
 					    void **data ) const
 {
+
     QRect rect;
+
+#if defined(QT_CHECK_STATE)
+    if (! widget) {
+	qWarning("QCommonStyle::querySubControlMetrics: widget parameter cannot be zero!");
+	return rect;
+    }
+#endif
+
 
     switch ( control ) {
     case CC_SpinWidget: {
-	if ( !w )
-	    break;
-	int fw = pixelMetric( PM_SpinBoxFrameWidth, 0 );
+	int fw = pixelMetric( PM_SpinBoxFrameWidth, widget);
 	QSize bs;
-	bs.setHeight( w->height()/2 - fw );
+	bs.setHeight( widget->height()/2 - fw );
 	if ( bs.height() < 8 )
 	    bs.setHeight( 8 );
 	bs.setWidth( bs.height() * 8 / 5 ); // 1.6 -approximate golden mean
 	bs = bs.expandedTo( QApplication::globalStrut() );
 	int y = fw;
 	int x, lx, rx;
-	x = w->width() - y - bs.width();
+	x = widget->width() - y - bs.width();
 	lx = fw;
 	rx = x - fw;
 	switch ( sc ) {
@@ -1469,13 +1520,13 @@ QRect QCommonStyle::querySubControlMetrics( ComplexControl control,
 	    rect.setRect(x, y + bs.height(), bs.width(), bs.height());
 	    break;
 	case SC_SpinWidgetButtonField:
-	    rect.setRect(x, y, bs.width(), w->height() - 2*fw);
+	    rect.setRect(x, y, bs.width(), widget->height() - 2*fw);
 	    break;
 	case SC_SpinWidgetEditField:
-	    rect.setRect(lx, fw, rx, w->height() - 2*fw);
+	    rect.setRect(lx, fw, rx, widget->height() - 2*fw);
 	    break;
 	case SC_SpinWidgetFrame:
-	    return w->rect();
+	    return widget->rect();
 	default:
 	    break;
 	}
@@ -1483,7 +1534,7 @@ QRect QCommonStyle::querySubControlMetrics( ComplexControl control,
 	break; }
 
     case CC_ComboBox: {
-	int x = 0, y = 0, wi = w->width(), he = w->height();
+	int x = 0, y = 0, wi = widget->width(), he = widget->height();
 	int xpos = x;
 	xpos += wi - 2 - 16;
 
@@ -1501,12 +1552,9 @@ QRect QCommonStyle::querySubControlMetrics( ComplexControl control,
 	break; }
 
     case CC_ScrollBar: {
-	if (! w)
-	    break;
-
-	QScrollBar *scrollbar = (QScrollBar *) w;
+	const QScrollBar *scrollbar = (const QScrollBar *) widget;
 	int sliderstart = 0;
-	int sbextent = pixelMetric(PM_ScrollBarExtent, w);
+	int sbextent = pixelMetric(PM_ScrollBarExtent, widget);
 	int maxlen = ((scrollbar->orientation() == Qt::Horizontal) ?
 		      scrollbar->width() : scrollbar->height()) - (sbextent * 2);
 	int sliderlen;
@@ -1587,7 +1635,7 @@ QRect QCommonStyle::querySubControlMetrics( ComplexControl control,
     case CC_Slider: {
 	switch ( sc ) {
 	case SC_SliderHandle: {
-	    QSlider * sl = (QSlider *) w;
+	    const QSlider * sl = (const QSlider *) widget;
 	    int sliderPos = 0;
 	    int tickOffset = pixelMetric( PM_SliderTickmarkOffset, sl );
 	    int thickness  = pixelMetric( PM_SliderControlThickness, sl );
@@ -1609,68 +1657,72 @@ QRect QCommonStyle::querySubControlMetrics( ComplexControl control,
 	}
 	break; }
 
-    case CC_ToolButton: {
-	QToolButton *toolbutton = (QToolButton *) w;
-	int mbi = pixelMetric(PM_MenuButtonIndicator, w);
+    case CC_ToolButton:
+	{
+	    const QToolButton *toolbutton = (const QToolButton *) widget;
+	    int mbi = pixelMetric(PM_MenuButtonIndicator, widget);
 
-	rect = toolbutton->rect();
+	    rect = toolbutton->rect();
 
-	switch (sc) {
-	case SC_ToolButton:
-	    if (toolbutton->popup() && ! toolbutton->popupDelay())
-		rect.addCoords(0, 0, -mbi, 0);
-	    break;
+	    switch (sc) {
+	    case SC_ToolButton:
+		if (toolbutton->popup() && ! toolbutton->popupDelay())
+		    rect.addCoords(0, 0, -mbi, 0);
+		break;
 
-	case SC_ToolButtonMenu:
-	    if (toolbutton->popup() && ! toolbutton->popupDelay())
-		rect.addCoords(rect.width() - mbi, 0, 0, 0);
-	    break;
+	    case SC_ToolButtonMenu:
+		if (toolbutton->popup() && ! toolbutton->popupDelay())
+		    rect.addCoords(rect.width() - mbi, 0, 0, 0);
+		break;
 
-	default:
+	    default:
+		break;
+	    }
 	    break;
 	}
-	break; }
 
-    case CC_TitleBar: {
 #ifndef QT_NO_TITLEBAR
-	QTitleBar *titlebar = (QTitleBar *) w;
+    case CC_TitleBar:
+	{
+	    const QTitleBar *titlebar = (const QTitleBar *) widget;
 
-	switch (sc) {
-	case SC_TitleBarLabel:
-	    rect.setCoords(TITLEBAR_CONTROL_WIDTH, 0,
-			   titlebar->width()-((TITLEBAR_CONTROL_WIDTH +
-					       TITLEBAR_SEPARATION) * 3),
-			   titlebar->height());
-	    break;
+	    switch (sc) {
+	    case SC_TitleBarLabel:
+		rect.setCoords(TITLEBAR_CONTROL_WIDTH, 0,
+			       titlebar->width()-((TITLEBAR_CONTROL_WIDTH +
+						   TITLEBAR_SEPARATION) * 3),
+			       titlebar->height());
+		break;
 
-	case SC_TitleBarCloseButton:
-	    rect.setRect(titlebar->width()-(TITLEBAR_CONTROL_WIDTH +
-					    TITLEBAR_SEPARATION), 2,
-			 TITLEBAR_CONTROL_WIDTH, TITLEBAR_CONTROL_HEIGHT);
-	    break;
+	    case SC_TitleBarCloseButton:
+		rect.setRect(titlebar->width()-(TITLEBAR_CONTROL_WIDTH +
+						TITLEBAR_SEPARATION), 2,
+			     TITLEBAR_CONTROL_WIDTH, TITLEBAR_CONTROL_HEIGHT);
+		break;
 
-	case SC_TitleBarMaxButton:
-	    rect.setRect(titlebar->width()-((TITLEBAR_CONTROL_HEIGHT +
-					     TITLEBAR_SEPARATION) * 2), 2,
-			 TITLEBAR_CONTROL_WIDTH, TITLEBAR_CONTROL_HEIGHT);
-	    break;
+	    case SC_TitleBarMaxButton:
+		rect.setRect(titlebar->width()-((TITLEBAR_CONTROL_HEIGHT +
+						 TITLEBAR_SEPARATION) * 2), 2,
+			     TITLEBAR_CONTROL_WIDTH, TITLEBAR_CONTROL_HEIGHT);
+		break;
 
-	case SC_TitleBarMinButton:
-	    rect.setRect(titlebar->width()-((TITLEBAR_CONTROL_HEIGHT +
-					     TITLEBAR_SEPARATION) * 3), 2,
-			 TITLEBAR_CONTROL_WIDTH, TITLEBAR_CONTROL_HEIGHT);
-	    break;
+	    case SC_TitleBarMinButton:
+		rect.setRect(titlebar->width()-((TITLEBAR_CONTROL_HEIGHT +
+						 TITLEBAR_SEPARATION) * 3), 2,
+			     TITLEBAR_CONTROL_WIDTH, TITLEBAR_CONTROL_HEIGHT);
+		break;
 
-	case SC_TitleBarSysMenu:
-	    rect.setRect(2 + TITLEBAR_SEPARATION, 2, TITLEBAR_CONTROL_WIDTH,
-			 TITLEBAR_CONTROL_HEIGHT);
-	    break;
+	    case SC_TitleBarSysMenu:
+		rect.setRect(2 + TITLEBAR_SEPARATION, 2, TITLEBAR_CONTROL_WIDTH,
+			     TITLEBAR_CONTROL_HEIGHT);
+		break;
 
-	default:
+	    default:
+		break;
+	    }
 	    break;
 	}
 #endif //QT_NO_TITLEBAR
-	break; }
 
     default:
 	break;
@@ -1689,43 +1741,51 @@ QStyle::SubControl QCommonStyle::querySubControl(ComplexControl control,
     SubControl ret = SC_None;
 
     switch (control) {
-    case CC_ListView: {
 #ifndef QT_NO_LISTVIEW
-	if(pos.x() >= 0 && pos.x() <
-	   ((QListViewItem *) data[0])->listView()->treeStepSize())
-	    ret = SC_ListViewExpand;
+    case CC_ListView:
+	{
+	    if(pos.x() >= 0 && pos.x() <
+	       ((QListViewItem *) data[0])->listView()->treeStepSize())
+		ret = SC_ListViewExpand;
+	    break;
+	}
 #endif
-	break; }
 
-    case CC_ScrollBar: {
-	QRect r;
-	uint ctrl = SC_ScrollBarAddLine;
+    case CC_ScrollBar:
+	{
+	    QRect r;
+	    uint ctrl = SC_ScrollBarAddLine;
 
-	// we can do this because subcontrols were designed to be masks as well...
-	while (ret == SC_None && ctrl < SC_ScrollBarGroove) {
-	    r = querySubControlMetrics(control, widget, (QStyle::SubControl) ctrl, data);
-	    if (r.isValid() && r.contains(pos))
-		ret = (QStyle::SubControl) ctrl;
+	    // we can do this because subcontrols were designed to be masks as well...
+	    while (ret == SC_None && ctrl < SC_ScrollBarGroove) {
+		r = querySubControlMetrics(control, widget,
+					   (QStyle::SubControl) ctrl, data);
+		if (r.isValid() && r.contains(pos))
+		    ret = (QStyle::SubControl) ctrl;
 
-	    ctrl <<= 1;
+		ctrl <<= 1;
+	    }
+
+	    break;
 	}
 
-	break; }
+    case CC_TitleBar:
+	{
+	    QRect r;
+	    uint ctrl = SC_TitleBarSysMenu;
 
-    case CC_TitleBar: {
-	QRect r;
-	uint ctrl = SC_TitleBarSysMenu;
+	    // we can do this because subcontrols were designed to be masks as well...
+	    while (ret == SC_None && ctrl < SC_TitleBarUnshadeButton) {
+		r = querySubControlMetrics(control, widget,
+					   (QStyle::SubControl) ctrl, data);
+		if (r.isValid() && r.contains(pos))
+		    ret = (QStyle::SubControl) ctrl;
 
-	// we can do this because subcontrols were designed to be masks as well...
-	while (ret == SC_None && ctrl < SC_TitleBarUnshadeButton) {
-	    r = querySubControlMetrics(control, widget, (QStyle::SubControl) ctrl, data);
-	    if (r.isValid() && r.contains(pos))
-		ret = (QStyle::SubControl) ctrl;
+		ctrl <<= 1;
+	    }
 
-	    ctrl <<= 1;
+	    break;
 	}
-
-	break; }
 
     default:
 	break;
@@ -1779,28 +1839,37 @@ int QCommonStyle::pixelMetric(PixelMetric m, const QWidget *widget) const
 	ret = 16;
 	break;
 
-    case PM_SliderTickmarkOffset: {
-	QSlider * sl = (QSlider *) widget;
-	int space = (sl->orientation() == Horizontal) ? sl->height() :
-	            sl->width();
-	int thickness = pixelMetric( PM_SliderControlThickness, sl );
-	int ticks = sl->tickmarks();
+    case PM_SliderTickmarkOffset:
+	{
+	    if (! widget) {
+		ret = 0;
+		break;
+	    }
 
-	if ( ticks == QSlider::Both )
-	    ret = (space - thickness) / 2;
-	else if ( ticks == QSlider::Above )
-	    ret = space - thickness;
-	else
-	    ret = 0;
-	break; }
+	    const QSlider * sl = (const QSlider *) widget;
+	    int space = (sl->orientation() == Horizontal) ? sl->height() :
+			sl->width();
+	    int thickness = pixelMetric( PM_SliderControlThickness, sl );
+	    int ticks = sl->tickmarks();
 
-    case PM_SliderSpaceAvailable: {
-	QSlider * sl = (QSlider *) widget;
-	if ( sl->orientation() == Horizontal )
-	    ret = sl->width() - pixelMetric( PM_SliderLength, sl );
-	else
-	    ret = sl->height() - pixelMetric( PM_SliderLength, sl );
-	break; }
+	    if ( ticks == QSlider::Both )
+		ret = (space - thickness) / 2;
+	    else if ( ticks == QSlider::Above )
+		ret = space - thickness;
+	    else
+		ret = 0;
+	    break;
+	}
+
+    case PM_SliderSpaceAvailable:
+	{
+	    const QSlider * sl = (const QSlider *) widget;
+	    if ( sl->orientation() == Horizontal )
+		ret = sl->width() - pixelMetric( PM_SliderLength, sl );
+	    else
+		ret = sl->height() - pixelMetric( PM_SliderLength, sl );
+	    break;
+	}
 
     case PM_DockWindowSeparatorExtent:
 	ret = 6;
@@ -1834,14 +1903,16 @@ int QCommonStyle::pixelMetric(PixelMetric m, const QWidget *widget) const
 	ret = 24;
 	break;
 
-    case PM_TabBarVerticalFrame: {
-	QTabBar * tb = (QTabBar *) widget;
-	if ( tb->shape() == QTabBar::RoundedAbove ||
-	     tb->shape() == QTabBar::RoundedBelow )
-	    ret = 10;
-	else
-	    ret = 0;
-	break; }
+    case PM_TabBarVerticalFrame:
+	{
+	    const QTabBar * tb = (const QTabBar *) widget;
+	    if ( tb->shape() == QTabBar::RoundedAbove ||
+		 tb->shape() == QTabBar::RoundedBelow )
+		ret = 10;
+	    else
+		ret = 0;
+	    break;
+	}
 
     case PM_ProgressBarChunkWidth:
 	ret = 9;
@@ -1880,91 +1951,110 @@ QSize QCommonStyle::sizeFromContents(ContentsType contents,
 {
     QSize sz(contentsSize);
 
+#if defined(QT_CHECK_STATE)
+    if (! widget) {
+	qWarning("QCommonStyle::sizeFromContents: widget parameter cannot be zero!");
+	return sz;
+    }
+#endif
+
     switch (contents) {
-    case CT_PushButton: {
-	QPushButton *button = (QPushButton *) widget;
-	int w = contentsSize.width(),
-	    h = contentsSize.height(),
-	   bm = pixelMetric(PM_ButtonMargin, widget),
-	   fw = pixelMetric(PM_DefaultFrameWidth, widget) * 2;
+    case CT_PushButton:
+	{
+	    const QPushButton *button = (const QPushButton *) widget;
+	    int w = contentsSize.width(),
+		h = contentsSize.height(),
+	       bm = pixelMetric(PM_ButtonMargin, widget),
+	       fw = pixelMetric(PM_DefaultFrameWidth, widget) * 2;
 
-	w += bm + fw;
-	h += bm + fw;
+	    w += bm + fw;
+	    h += bm + fw;
 
-	if (button->isDefault() || button->autoDefault()) {
-	    int dbw = pixelMetric(PM_ButtonDefaultIndicator, widget) * 2;
-	    w += dbw;
-	    h += dbw;
-	}
+	    if (button->isDefault() || button->autoDefault()) {
+		int dbw = pixelMetric(PM_ButtonDefaultIndicator, widget) * 2;
+		w += dbw;
+		h += dbw;
+	    }
 
-	sz = QSize(w, h);
-	break; }
-
-    case CT_CheckBox: {
-	QCheckBox *checkbox = (QCheckBox *) widget;
-	QSize isz = subRect(SR_CheckBoxIndicator, widget).size();
-	int h = pixelMetric( PM_IndicatorHeight, widget );
-	sz += QSize(isz.width() + (checkbox->text().isEmpty() ? 0 : 10), 4 );
-	sz.setHeight( QMAX( sz.height(), h ) );
-	break; }
-
-    case CT_RadioButton: {
-	QRadioButton *radiobutton = (QRadioButton *) widget;
-	QSize isz = subRect(SR_RadioButtonIndicator, widget).size();
-	int h = pixelMetric( PM_ExclusiveIndicatorHeight, widget );
-	sz += QSize(isz.width() + (radiobutton->text().isEmpty() ? 0 : 10), 4 );
-	sz.setHeight( QMAX( sz.height(), h ) );
-	break; }
-
-    case CT_ToolButton: {
-	sz = QSize(sz.width() + 7, sz.height() + 6);
-    	break; }
-
-    case CT_ComboBox: {
-	int dfw = pixelMetric(PM_DefaultFrameWidth, widget) * 2;
-	sz = QSize(sz.width() + dfw + 21, sz.height() + dfw + 1);
-	break; }
-
-    case CT_PopupMenuItem: {
-	if (! widget || ! data)
+	    sz = QSize(w, h);
 	    break;
+	}
 
-	QPopupMenu *popup = (QPopupMenu *) widget;
-	bool checkable = popup->isCheckable();
-	QMenuItem *mi = (QMenuItem *) data[0];
-	int maxpmw = *((int *) data[1]);
-	int w = sz.width(), h = sz.height();
-
-	if (mi->isSeparator()) {
-	    w = 10;
-	    h = 2;
+    case CT_CheckBox:
+	{
+	    const QCheckBox *checkbox = (const QCheckBox *) widget;
+	    QSize isz = subRect(SR_CheckBoxIndicator, widget).size();
+	    int h = pixelMetric( PM_IndicatorHeight, widget );
+	    sz += QSize(isz.width() + (checkbox->text().isEmpty() ? 0 : 10), 4 );
+	    sz.setHeight( QMAX( sz.height(), h ) );
 	    break;
-	} else {
-	    if (mi->pixmap())
-		h = QMAX(h, mi->pixmap()->height() + 4);
-	    else
-		h = QMAX(h, popup->fontMetrics().height() + 8);
-
-	    if (mi->iconSet() != 0)
-		h = QMAX(h, mi->iconSet()->pixmap(QIconSet::Small,
-						  QIconSet::Normal).height() + 4);
 	}
 
-	if (! mi->text().isNull()) {
-	    if (mi->text().find('\t') >= 0)
-		w += 12;
+    case CT_RadioButton:
+	{
+	    const QRadioButton *radiobutton = (const QRadioButton *) widget;
+	    QSize isz = subRect(SR_RadioButtonIndicator, widget).size();
+	    int h = pixelMetric( PM_ExclusiveIndicatorHeight, widget );
+	    sz += QSize(isz.width() + (radiobutton->text().isEmpty() ? 0 : 10), 4 );
+	    sz.setHeight( QMAX( sz.height(), h ) );
+	    break;
 	}
 
-	if (maxpmw)
-	    w += maxpmw + 6;
-	if (checkable && maxpmw < 20)
-	    w += 20 - maxpmw;
-	if (checkable || maxpmw > 0)
-	    w += 2;
-	w += 12;
+    case CT_ToolButton:
+	{
+	    sz = QSize(sz.width() + 7, sz.height() + 6);
+	    break;
+	}
 
-	sz = QSize(w, h);
-	break; }
+    case CT_ComboBox:
+	{
+	    int dfw = pixelMetric(PM_DefaultFrameWidth, widget) * 2;
+	    sz = QSize(sz.width() + dfw + 21, sz.height() + dfw + 1);
+	    break;
+	}
+
+    case CT_PopupMenuItem:
+	{
+	    if (! data)
+		break;
+
+	    const QPopupMenu *popup = (const QPopupMenu *) widget;
+	    bool checkable = popup->isCheckable();
+	    QMenuItem *mi = (QMenuItem *) data[0];
+	    int maxpmw = *((int *) data[1]);
+	    int w = sz.width(), h = sz.height();
+
+	    if (mi->isSeparator()) {
+		w = 10;
+		h = 2;
+		break;
+	    } else {
+		if (mi->pixmap())
+		    h = QMAX(h, mi->pixmap()->height() + 4);
+		else
+		    h = QMAX(h, popup->fontMetrics().height() + 8);
+
+		if (mi->iconSet() != 0)
+		    h = QMAX(h, mi->iconSet()->pixmap(QIconSet::Small,
+						      QIconSet::Normal).height() + 4);
+	    }
+
+	    if (! mi->text().isNull()) {
+		if (mi->text().find('\t') >= 0)
+		    w += 12;
+	    }
+
+	    if (maxpmw)
+		w += maxpmw + 6;
+	    if (checkable && maxpmw < 20)
+		w += 20 - maxpmw;
+	    if (checkable || maxpmw > 0)
+		w += 2;
+	    w += 12;
+
+	    sz = QSize(w, h);
+	    break;
+	}
 
     case CT_ProgressBar:
 	// just return the contentsSize for now

@@ -78,7 +78,7 @@ public:
 
     void drawComplexControl( ComplexControl control,
 			     QPainter* p,
-			     const QWidget* w,
+			     const QWidget* widget,
 			     const QRect& r,
 			     const QColorGroup& cg,
 			     CFlags flags = CStyle_Default,
@@ -90,12 +90,12 @@ public:
 		     const QWidget *widget = 0 ) const;
 
     QSize sizeFromContents( ContentsType contents,
-			    const QWidget *w,
+			    const QWidget *widget,
 			    const QSize &contentsSize,
 			    void **data ) const;
 
     QPixmap stylePixmap( StylePixmap stylepixmap,
-			 const QWidget * = 0,
+			 const QWidget *widget = 0,
 			 void **data = 0 ) const;
 
 
