@@ -3428,7 +3428,7 @@ void QListBox::setTopItem( int index )
 
 void QListBox::setBottomItem( int index )
 {
-    if ( index >= (int)count() )
+    if ( index >= (int)count() || count() == 0 )
 	return;
     int col = index / numRows();
     int y = d->rowPos[1+index-col*numRows()] - visibleHeight();
