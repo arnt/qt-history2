@@ -30,7 +30,7 @@
 #  define QT_SS_ALIGNSIZE (sizeof(__int64))
 #  define QT_SS_PAD1SIZE (QT_SS_ALIGNSIZE - sizeof (short))
 #  define QT_SS_PAD2SIZE (QT_SS_MAXSIZE - (sizeof (short) + QT_SS_PAD1SIZE + QT_SS_ALIGNSIZE))
-typedef struct qt_sockaddr_storage {
+struct qt_sockaddr_storage {
       short ss_family;
       char __ss_pad1[QT_SS_PAD1SIZE];
       __int64 __ss_align;
@@ -117,7 +117,7 @@ QSocketDevice::Protocol QSocketDevice::getProtocol() const
 #endif
 	memset( &sa, 0, sizeof(sa) );
 	SOCKLEN_T sz = sizeof( sa );
-	if ( !::getsockname(socket, (struct sockaddr *)&sa, &sz) ) {
+	if ( !::getsockname(fd, (struct sockaddr *)&sa, &sz) ) {
 	    switch ( sa.ss_family ) {
 		case AF_INET:
 		    return IPv4;
