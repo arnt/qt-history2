@@ -161,6 +161,7 @@ public:
     inline bool removeColumn(int column, const QModelIndex &parent = QModelIndex());
 
     virtual void fetchMore(const QModelIndex &parent);
+    virtual bool canFetchMore(const QModelIndex &parent) const;
     virtual Qt::ItemFlags flags(const QModelIndex &index) const;
     virtual void sort(int column, Qt::SortOrder order = Qt::AscendingOrder);
     virtual QModelIndex buddy(const QModelIndex &index) const;

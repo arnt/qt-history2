@@ -1010,10 +1010,29 @@ bool QAbstractItemModel::removeColumns(int, int, const QModelIndex &)
 /*!
   Fetches any available data for the items with the parent specified by the
   \a parent index.
+
+  Reimplement this if you have incremental data.
+
+  The default implementation does nothing.
+
+  \sa canFetchMore()
 */
 void QAbstractItemModel::fetchMore(const QModelIndex &)
 {
     // do nothing
+}
+
+/*!
+  Returns true if there is more data available for \a parent,
+  otherwise false.
+
+  The default implementation always returns false.
+
+  \sa fetchMore()
+*/
+bool QAbstractItemModel::canFetchMore(const QModelIndex &) const
+{
+    return false;
 }
 
 /*!

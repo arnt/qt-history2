@@ -45,7 +45,6 @@ QAbstractItemViewPrivate::QAbstractItemViewPrivate()
         tabKeyNavigation(false),
         showDropIndicator(false),
         dragEnabled(false),
-        fetchMoreEnabled(false),
         autoScroll(true),
         autoScrollTimer(0),
         autoScrollMargin(16),
@@ -636,7 +635,7 @@ void QAbstractItemView::clearSelection()
     \internal
 
     This function is intended to lay out the items in the view.
-    The default implementation just call updateGeometries() and updates the viewport
+    The default implementation just calls updateGeometries() and updates the viewport.
 */
 void QAbstractItemView::doItemsLayout()
 {
@@ -727,21 +726,6 @@ void QAbstractItemView::setDragEnabled(bool enable)
 bool QAbstractItemView::dragEnabled() const
 {
     return d->dragEnabled;
-}
-
-/*!
-  \property QAbstractItemView::fetchMoreEnabled
-  \brief whether the view will call QAbstractitemModel::fetchMore() to get more data
-*/
-
-void QAbstractItemView::setFetchMoreEnabled(bool enable)
-{
-    d->fetchMoreEnabled = enable;
-}
-
-bool QAbstractItemView::fetchMoreEnabled() const
-{
-    return d->fetchMoreEnabled;
 }
 
 /*!
@@ -2071,7 +2055,7 @@ QItemSelectionModel::SelectionFlags QAbstractItemViewPrivate::extendedSelectionC
 
 void QAbstractItemViewPrivate::fetchMore()
 {
-    if (!model || !fetchMoreEnabled)
+    if (!model || !model->canFetchMore(root))
         return;
     int last = model->rowCount(root) - 1;
     if (last < 0)

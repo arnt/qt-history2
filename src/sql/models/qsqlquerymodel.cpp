@@ -124,7 +124,7 @@ QSqlQueryModel::~QSqlQueryModel()
 }
 
 /*!
-    \internal
+    \reimp
 */
 void QSqlQueryModel::fetchMore(const QModelIndex &parent)
 {
@@ -132,6 +132,14 @@ void QSqlQueryModel::fetchMore(const QModelIndex &parent)
     if (parent.isValid())
         return;
     d->prefetch(d->bottom.row() + QSQL_PREFETCH);
+}
+
+/*! \reimp
+ */
+bool QSqlQueryModel::canFetchMore(const QModelIndex &parent) const
+{
+    Q_D(const QSqlQueryModel);
+    return (!parent.isValid() && !d->atEnd);
 }
 
 /*! \reimp

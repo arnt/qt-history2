@@ -131,7 +131,6 @@ public:
     bool tabKeyNavigation;
     bool showDropIndicator;
     bool dragEnabled;
-    bool fetchMoreEnabled;
     QString keyboardInput;
     QTime keyboardInputTime;
 
