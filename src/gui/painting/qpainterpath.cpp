@@ -47,8 +47,8 @@
 // with the radius of the circle.
 #define KAPPA 0.5522847498
 
-#define QPP_DEBUG
-#define QPP_STROKE_DEBUG
+//#define QPP_DEBUG
+//#define QPP_STROKE_DEBUG
 
 #define d d_func()
 #define q q_func()
