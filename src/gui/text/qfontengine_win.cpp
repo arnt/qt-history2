@@ -40,11 +40,10 @@
 
 // defined in qtextengine_win.cpp
 typedef void *SCRIPT_CACHE;
-#if 0 // ##### Uniscribe is disabled for now
 typedef HRESULT (WINAPI *fScriptFreeCache)(SCRIPT_CACHE *);
 extern fScriptFreeCache ScriptFreeCache;
-#endif
 
+static QVector<QFontEngineWin::KernPair> getKerning(HDC hdc);
 static unsigned char *getCMap(HDC hdc, bool &);
 static quint16 getGlyphIndex(unsigned char *table, unsigned short unicode);
 
@@ -65,11 +64,9 @@ QFontEngine::~QFontEngine()
 {
     // make sure we aren't by accident still selected
     SelectObject(shared_dc, systemFont());
-#if 0
     // for Uniscribe
     if (ScriptFreeCache)
         ScriptFreeCache(&script_cache);
-#endif
 }
 
 // ##### get these from windows
@@ -109,6 +106,8 @@ void QFontEngine::getCMap()
     }
     symbol = symb;
     script_cache = 0;
+    if(cmap)
+        kerning_pairs = getKerning(hdc);
 }
 
 void QFontEngine::getGlyphIndexes(const QChar *ch, int numChars, QGlyphLayout *glyphs, bool mirrored) const
@@ -161,8 +160,6 @@ void QFontEngine::getGlyphIndexes(const QChar *ch, int numChars, QGlyphLayout *g
 }
 
 
-// non Uniscribe engine
-
 QFontEngineWin::QFontEngineWin(const QString &name, HFONT _hfont, bool stockFont, LOGFONT lf)
 {
     //qDebug("regular windows font engine created: font='%s', size=%d", name, lf.lfHeight);
@@ -185,6 +182,7 @@ QFontEngineWin::QFontEngineWin(const QString &name, HFONT _hfont, bool stockFont
     });
     if (!res)
         qErrnoWarning("QFontEngineWin: GetTextMetrics failed");
+
     cache_cost = tm.w.tmHeight * tm.w.tmAveCharWidth * 2000;
     getCMap();
 
@@ -241,9 +239,6 @@ bool QFontEngineWin::stringToCMap(const QChar *str, int len, QGlyphLayout *glyph
     SelectObject(hdc, oldFont);
     return true;
 }
-// ### Port properly
-// #define COLOR_VALUE(c) ((p->flags & QPainter::RGBColor) ? RGB(c.red(),c.green(),c.blue()) : c.pixel())
-#define COLOR_VALUE(c) c.pixel()
 
 
 glyph_metrics_t QFontEngineWin::boundingBox(const QGlyphLayout *glyphs, int numGlyphs)
@@ -292,6 +287,43 @@ glyph_metrics_t QFontEngineWin::boundingBox(glyph_t glyph)
 #endif
     return glyph_metrics_t();
 }
+
+static inline float kerning(int left, int right, const QFontEngineWin::KernPair *pairs, int numPairs)
+{
+    int left_right = (left << 16) + right;
+    
+    left = 0, right = numPairs - 1;
+    while (left <= right) {
+        int middle = left + ( ( right - left ) >> 1 );
+
+        if(pairs[middle].left_right == left_right) 
+            return pairs[middle].adjust;
+
+        if (pairs[middle].left_right < left_right)
+            left = middle + 1;
+        else
+            right = middle - 1;
+    }
+    return 0.;
+}
+
+void QFontEngineWin::doKerning(int num_glyphs, QGlyphLayout *glyphs, QTextEngine::ShaperFlags flags) const
+{
+    int numPairs = kerning_pairs.size();
+    if(!numPairs)
+        return;
+
+    const KernPair *pairs = kerning_pairs.constData();
+
+    if(flags & QTextEngine::DesignMetrics) {
+        for(int i = 0; i < num_glyphs - 1; ++i)
+            glyphs[i].advance.rx() += kerning(glyphs[i].glyph, glyphs[i+1].glyph , pairs, numPairs);
+    } else {
+        for(int i = 0; i < num_glyphs - 1; ++i)
+            glyphs[i].advance.rx() += qRound(kerning(glyphs[i].glyph, glyphs[i+1].glyph , pairs, numPairs));
+    }
+}
+
 
 qreal QFontEngineWin::ascent() const
 {
@@ -761,5 +793,88 @@ static unsigned char *getCMap(HDC hdc, bool &symbol)
     return unicode_data;
 }
 
+bool operator<(const QFontEngineWin::KernPair &p1, const QFontEngineWin::KernPair &p2)
+{
+    return p1.left_right < p2.left_right;
+}
 
+static QVector<QFontEngineWin::KernPair> getKerning(HDC hdc)
+{
+    float factor;
+    QT_WA( {
+        OUTLINETEXTMETRICW metric;
+        GetOutlineTextMetricsW(hdc, sizeof(OUTLINETEXTMETRICW), &metric);
+        factor = (float)metric.otmTextMetrics.tmHeight/(float)metric.otmEMSquare;
+    }, {
+        OUTLINETEXTMETRICA metric;
+        GetOutlineTextMetricsA(hdc, sizeof(OUTLINETEXTMETRICA), &metric);
+        factor = (float)metric.otmTextMetrics.tmHeight/(float)metric.otmEMSquare;
+    } )
 
+    const DWORD KERN = MAKE_TAG('k', 'e', 'r', 'n');
+
+    QVector<QFontEngineWin::KernPair> pairs;
+    unsigned short numTables;
+
+    {
+        unsigned char header[4];
+
+        // get the KERN header and the number of encoding tables
+        DWORD bytes = GetFontData(hdc, KERN, 0, &header, 4);
+        if (bytes == GDI_ERROR) {
+//            qDebug("table doesn't exist");
+            goto end;
+        }
+        unsigned short version = getUShort(header);
+        if (version != 0) {
+//            qDebug("wrong version");
+            goto end;
+        }
+
+        numTables = getUShort(header+2);
+    }
+    {
+        int offset = 4;
+        for(int i = 0; i < numTables; ++i) {
+            unsigned char header[6];
+            DWORD bytes = GetFontData(hdc, KERN, offset, &header, 6);
+            if (bytes == GDI_ERROR) {
+//                qDebug("GDI_ERROR 2");
+                goto end;
+            }
+
+            ushort version = getUShort(header);
+            ushort length = getUShort(header+2);
+            ushort coverage = getUShort(header+4);
+//            qDebug("subtable: version=%d, coverage=%x",version, coverage);
+            if(version == 0 && coverage == 0x0001) {
+                QVarLengthArray<uchar, 4096> data(length - 6);
+                bytes = GetFontData(hdc, KERN, offset+6, data.data(), length - 6);
+                if (bytes == GDI_ERROR) {
+//                    qDebug("GDI_ERROR 3");
+                    goto end;
+                }
+
+                ushort nPairs = getUShort(data.data());
+                if(nPairs * 6 + 8 > length - 6) {
+//                    qDebug("corrupt table!");
+                    // corrupt table
+                    goto end;
+                }
+
+                int off = 8;
+                for(int i = 0; i < nPairs; ++i) {
+                    QFontEngineWin::KernPair p;
+                    p.left_right = (((uint)getUShort(data.data()+off)) << 16) + getUShort(data.data()+off+2);
+                    p.adjust = ((short)getUShort(data.data()+off+4)) * factor;
+                    pairs.append(p);
+                    off += 6;
+                }
+            }
+            offset += length;
+        }
+    }
+end:
+    qSort(pairs);
+    return pairs;
+}

@@ -151,6 +151,11 @@ public:
     void *script_cache;
     qreal lbearing;
     qreal rbearing;
+    struct KernPair {
+        uint left_right;
+        float adjust;
+    };
+    QVector<KernPair> kerning_pairs;
 #endif // Q_WS_WIN
 };
 
@@ -341,6 +346,7 @@ public:
     bool stringToCMap(const QChar *str, int len, QGlyphLayout *glyphs, int *nglyphs, QTextEngine::ShaperFlags flags) const;
 
     void addOutlineToPath(qreal x, qreal y, const QGlyphLayout *glyphs, int numGlyphs, QPainterPath *path);
+    virtual void doKerning(int , QGlyphLayout *, QTextEngine::ShaperFlags) const;
 
 
     glyph_metrics_t boundingBox(const QGlyphLayout *glyphs,  int numGlyphs);

@@ -588,10 +588,9 @@ void QTextEngine::shapeText(int item) const
         si.analysis.script = script;
     } else {
         Q_ASSERT(script < QUnicodeTables::ScriptCount);
-        Q_UNUSED(script); // --release warning
 
         QShaperItem shaper_item;
-        shaper_item.script = si.analysis.script;
+        shaper_item.script = script;
         shaper_item.string = &layoutData->string;
         shaper_item.from = si.position;
         shaper_item.length = length(item);
@@ -612,20 +611,9 @@ void QTextEngine::shapeText(int item) const
         si.num_glyphs = shaper_item.num_glyphs;
 
         QGlyphLayout *g = shaper_item.glyphs;
-#if 0
-        // ############ general solution needed
-        if (this->font(si).d->kerning && font->type() == QFontEngine::Xft) {
-            FT_Face face = static_cast<QFontEngineXft *>(font)->freetypeFace();
-            if (FT_HAS_KERNING(face)) {
-                for (int i = 0; i < si.num_glyphs-1; ++i) {
-                    FT_Vector kerning;
-                    FT_Get_Kerning(face, g[i].glyph, g[i+1].glyph, FT_KERNING_DEFAULT, &kerning);
-                    g[i].advance.x += ((float)kerning.x) / 64;
-                    g[i].advance.y += ((float)kerning.y) / 64;;
-                }
-            }
-        }
-#endif
+
+        if (this->font(si).d->kerning)
+            fontEngine->doKerning(si.num_glyphs, g, QFlag(shaper_item.flags));
 
         si.width = 0;
         QGlyphLayout *end = g + si.num_glyphs;

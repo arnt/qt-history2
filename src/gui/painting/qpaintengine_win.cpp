@@ -874,7 +874,7 @@ void QWin32PaintEngine::drawTextItem(const QPointF &pos, const QTextItem &ti)
                 glyphs++;
             }
         } else {
-            bool haveOffsets = false;
+            bool haveOffsets = true;
             qreal w = 0;
             for(int i = 0; i < ti.num_glyphs; i++) {
                 if (glyphs[i].offset.x() != 0 || glyphs[i].offset.y() != 0 || glyphs[i].space_18d6 != 0) {
