@@ -36,6 +36,9 @@ QFileDialog
 QToolButton (for 3.0)
     Should use QColorRole::ButtonText to draw the text, not foreground!
 
+QWorkspace
+    QWidget::isMinimzed(), isMaximized() return wrong value, and setFocus doesn't de-iconify child
+
 Cosmetic
 --------
 
