@@ -1244,6 +1244,8 @@ void QListViewItem::paintCell( QPainter * p, const QColorGroup & cg,
 		while ( fm.width( ci->tmpText + t[ i ] ) + pw < width )
 		    ci->tmpText += t[ i++ ];
 		ci->tmpText.remove( 0, 3 );
+		if ( ci->tmpText.isEmpty() )
+		    ci->tmpText = t.left( 1 );
 		ci->tmpText += "...";
 	    }
 	}
