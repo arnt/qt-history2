@@ -3544,8 +3544,8 @@ void QIconView::contentsMouseMoveEvent( QMouseEvent *e )
 	d->highlightedItem = item;
     }
 
-    if ( d->mousePressed && d->currentItem &&
-	 d->currentItem->isSelected() && d->currentItem->dragEnabled() ) {
+    if ( d->mousePressed && item && item == d->currentItem &&
+	 item->isSelected() && item->dragEnabled() ) {
 	if ( !d->startDrag ) {
 	    d->currentItem->setSelected( TRUE, TRUE );
 	    d->startDrag = TRUE;
