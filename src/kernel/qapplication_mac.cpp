@@ -2564,12 +2564,16 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 	break;
     case kEventClassCommand:
 	if(ekind == kEventCommandProcess) {
+	    UInt32 keyc;
 	    HICommand cmd;
 	    GetEventParameter(event, kEventParamDirectObject, typeHICommand,
 			      NULL, sizeof(cmd), NULL, &cmd);
+	    bool gotmod = !GetEventParameter(event, kEventParamKeyModifiers, typeUInt32,
+					     NULL, sizeof(keyc), NULL, &keyc);
+
 #if !defined(QMAC_QMENUBAR_NO_NATIVE) //offer it to the menubar..
 	    if(!QMenuBar::activateCommand(cmd.commandID))
-		handled_event = FALSE;
+		QMenuBar::activate(cmd.menu.menuRef, cmd.menu.menuItemIndex, FALSE, gotmod && keyc);
 #else
 	    if(cmd.commandID == kHICommandQuit) {
 		qApp->closeAllWindows();
