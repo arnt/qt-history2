@@ -1841,7 +1841,7 @@ void QTimeEdit::init()
 	d->ed->appendSection( QNumberSection( 0,0, FALSE, 3 ) );
     }
     d->adv = FALSE;
-    d->overwrite = FALSE;
+    d->overwrite = TRUE;
     d->timerId = 0;
     d->typing = FALSE;
     d->min = QTime( 0, 0, 0 );
