@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qsplitter.h#8 $
+** $Id: //depot/qt/main/src/widgets/qsplitter.h#9 $
 **
 ** Defintion of  QSplitter class
 **
@@ -22,7 +22,8 @@ class QSplitter : public QFrame
 	Q_OBJECT
 public:
     enum Orientation { Horizontal, Vertical };
-
+    enum Position { FirstWidget = 0, SecondWidget = 1 };
+    
     QSplitter( QWidget *parent=0, const char *name=0 );
     QSplitter( Orientation, QWidget *parent=0, const char *name=0 );
 

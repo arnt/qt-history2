@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qsplitter.cpp#16 $
+** $Id: //depot/qt/main/src/widgets/qsplitter.cpp#17 $
 **
 **  Splitter widget
 **
@@ -634,7 +634,8 @@ void QSplitter::setRatio( float f )
 
 
 /*!
-  Sets the size of widget number \a w to \a size. \a w must be 1 or 2.
+  Sets the size of widget number \a w to \a size. \a w must be
+  \c FirstWidget or \c SecondWidget.
   The specified widget will have a fixed size.  The user can change
   the fixed size by adjusting the splitter.
 
@@ -646,14 +647,14 @@ void QSplitter::setRatio( float f )
 
 void QSplitter::setFixed( int w, int size )
 {
-    if ( w > 2 || w < 1 ) {
+    if ( w > 1 || w < 0 ) {
 #ifdef CHECK_RANGE
 	debug( "QSplitter::setFixed(), unsupported widget number %d "
-	       "(must be 1 or 2).", w );
+	       "(must be 0 or 1).", w );
 #endif	
 	return;
     }
-    fixedWidget = w;
+    fixedWidget = w + 1;
     ratio = size;
     doResize();
 }
