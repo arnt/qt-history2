@@ -1220,7 +1220,7 @@ MakefileGenerator::createObjectList(const QStringList &sources)
         } else {
             dir = objdir;
         }
-        ret.append(fileFixify(dir + fi.completeBaseName() + Option::obj_ext, QDir::currentPath(), Option::output_dir));
+        ret.append(dir + fi.completeBaseName() + Option::obj_ext);
     }
     return ret;
 }
