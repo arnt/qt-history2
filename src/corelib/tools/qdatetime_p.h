@@ -103,7 +103,6 @@ public:
     QFormatSection findNextFormat(const QString &str, const int start);
     void parseFormat(const QString &format, QVariant::Type t);
     bool fromString(const QString &string, QDate *dateIn, QTime *timeIn);
-    QFormatSection sectionAt(const QString &string, int pos, QDateTimeParserSkipMode skip = SkipNone) const;
 
     static bool bounds(QDateTimeParser::Section t, int num);
     static int getNumber(int index, const QString &str, int mindigits, int maxdigits, bool *ok, int *digits);
