@@ -1507,6 +1507,7 @@ void QWidget::repaint(const QRegion& rgn)
     bool do_clipping = (br != QRect(0,0,data->crect.width(),data->crect.height()));
 
     bool double_buffer = (!testAttribute(Qt::WA_PaintOnScreen)
+                          && !testAttribute(Qt::WA_NoSystemBackground)
                           && br.width()  <= QX11DoubleBuffer::MaxWidth
                           && br.height() <= QX11DoubleBuffer::MaxHeight
                           && !QPainter::redirected(this));
@@ -1540,15 +1541,7 @@ void QWidget::repaint(const QRegion& rgn)
         }
     }
 
-    if (testAttribute(Qt::WA_NoSystemBackground)) {
-        if (double_buffer && !testAttribute(Qt::WA_NoBackground)) {
-            GC gc = qt_xget_temp_gc(d->xinfo.screen(), false);
-	    if (testAttribute(Qt::WA_PaintUnclipped))
-		XSetSubwindowMode(d->xinfo.display(), gc, IncludeInferiors);
-            XCopyArea(d->xinfo.display(), winId(), d->hd, gc,
-                      brWS.x(), brWS.y(), brWS.width(), brWS.height(), 0, 0);
-        }
-    } else if (!testAttribute(Qt::WA_NoBackground)) {
+    if (!testAttribute(Qt::WA_NoBackground) && !testAttribute(Qt::WA_NoSystemBackground) ) {
         QPoint offset;
         QStack<QWidget*> parents;
         QWidget *w = q;

@@ -936,8 +936,10 @@ void QWidget::repaint(const QRegion& rgn)
     QRect brWS = d->mapToWS(br);
     bool do_clipping = (br != QRect(0, 0, data->crect.width(), data->crect.height()));
     bool double_buffer = (!testAttribute(Qt::WA_PaintOnScreen)
+                          && !testAttribute(Qt::WA_NoSystemBackground)
                           && br.width()  <= QWinDoubleBuffer::MaxWidth
-                          && br.height() <= QWinDoubleBuffer::MaxHeight);
+                          && br.height() <= QWinDoubleBuffer::MaxHeight
+                          && !QPainter::redirected(this));
     bool tmphdc = !d->hd;
     if (tmphdc)
         d->hd = GetDC(winId());
@@ -967,12 +969,7 @@ void QWidget::repaint(const QRegion& rgn)
         }
     }
 
-    if (testAttribute(Qt::WA_NoSystemBackground)) {
-        if (double_buffer && !testAttribute(Qt::WA_NoBackground)) {
-            BitBlt((HDC)d->hd, 0, 0, brWS.width(), brWS.height(),
-                   old_dc, brWS.x(), brWS.y(), SRCCOPY);
-        }
-    } else if (!testAttribute(Qt::WA_NoBackground)) {
+    if (!testAttribute(Qt::WA_NoBackground) && !testAttribute(Qt::WA_NoSystemBackground) ) {
         QPoint offset;
         QStack<QWidget*> parents;
         QWidget *w = q;
