@@ -40,6 +40,7 @@ class Main : public QMainWindow {
 
 public:
     Main(QCanvas&, QWidget* parent=0, const char* name=0, WFlags f=0);
+    ~Main();
 
 public slots:
     void help();
@@ -68,10 +69,12 @@ private slots:
     void zoomIn();
     void zoomOut();
     void mirror();
-    void panL();
-    void panR();
-    void panU();
-    void panD();
+    void moveL();
+    void moveR();
+    void moveU();
+    void moveD();
+
+    void print();
 
     void toggleDoubleBuffer();
 
@@ -80,6 +83,7 @@ private:
     FigureEditor *editor;
 
     QPopupMenu* options;
+    QPrinter* printer;
     int dbf_id;
 };
 

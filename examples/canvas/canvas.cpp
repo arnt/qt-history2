@@ -6,6 +6,7 @@
 #include <qapplication.h>
 #include <qkeycode.h>
 #include <qpainter.h>
+#include <qprinter.h>
 #include <qlabel.h>
 #include <qimage.h>
 #include <qprogressdialog.h>
@@ -334,19 +335,21 @@ Main::Main(QCanvas& c, QWidget* parent, const char* name, WFlags f) :
     file->insertItem("&Erase canvas", this, SLOT(clear()), CTRL+Key_E);
     file->insertItem("&New view", this, SLOT(newView()), CTRL+Key_N);
     file->insertSeparator();
+    file->insertItem("&Print", this, SLOT(print()), CTRL+Key_P);
+    file->insertSeparator();
     file->insertItem("E&xit", qApp, SLOT(quit()), CTRL+Key_Q);
     menu->insertItem("&File", file);
 
     QPopupMenu* edit = new QPopupMenu;
-    edit->insertItem("Add &Circle", this, SLOT(addCircle()), CTRL+Key_C);
-    edit->insertItem("Add &Hexagon", this, SLOT(addHexagon()), CTRL+Key_H);
-    edit->insertItem("Add &Polygon", this, SLOT(addPolygon()), CTRL+Key_P);
-    edit->insertItem("Add &Text", this, SLOT(addText()), CTRL+Key_T);
-    edit->insertItem("Add &Line", this, SLOT(addLine()), CTRL+Key_L);
-    edit->insertItem("Add &Rectangle", this, SLOT(addRectangle()), CTRL+Key_R);
-    edit->insertItem("Add &Sprite", this, SLOT(addSprite()), CTRL+Key_S);
-    edit->insertItem("Create &Mesh", this, SLOT(addMesh()) );
-    edit->insertItem("Add &Alpha-blended image", this, SLOT(addButterfly()), CTRL+Key_A);
+    edit->insertItem("Add &Circle", this, SLOT(addCircle()), ALT+Key_C);
+    edit->insertItem("Add &Hexagon", this, SLOT(addHexagon()), ALT+Key_H);
+    edit->insertItem("Add &Polygon", this, SLOT(addPolygon()), ALT+Key_P);
+    edit->insertItem("Add &Text", this, SLOT(addText()), ALT+Key_T);
+    edit->insertItem("Add &Line", this, SLOT(addLine()), ALT+Key_L);
+    edit->insertItem("Add &Rectangle", this, SLOT(addRectangle()), ALT+Key_R);
+    edit->insertItem("Add &Sprite", this, SLOT(addSprite()), ALT+Key_S);
+    edit->insertItem("Create &Mesh", this, SLOT(addMesh()), ALT+Key_M );
+    edit->insertItem("Add &Alpha-blended image", this, SLOT(addButterfly()), ALT+Key_A);
     menu->insertItem("&Edit", edit);
 
     QPopupMenu* view = new QPopupMenu;
@@ -380,7 +383,14 @@ Main::Main(QCanvas& c, QWidget* parent, const char* name, WFlags f) :
 
     setCentralWidget(editor);
 
+    printer = 0;
+
     init();
+}
+
+Main::~Main()
+{
+    delete printer;
 }
 
 void Main::newView()
@@ -495,6 +505,15 @@ void Main::moveD()
     QWMatrix m = editor->worldMatrix();
     m.translate( 0, +16 );
     editor->setWorldMatrix( m );
+}
+
+void Main::print()
+{
+    if ( !printer ) printer = new QPrinter;
+    if ( printer->setup(this) ) {
+	QPainter pp(printer);
+	canvas.drawArea(QRect(0,0,canvas.width(),canvas.height()),&pp,FALSE);
+    }
 }
 
 
