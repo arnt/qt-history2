@@ -6,6 +6,7 @@
 #include <qfont.h>
 #include <qpainter.h>
 #include <qlist.h>
+#include <qshared.h>
 
 // bidi helper classes. Internal to Qt
 struct Q_EXPORT QBidiStatus {
@@ -19,12 +20,9 @@ struct Q_EXPORT QBidiStatus {
     QChar::Direction last		: 5;
 };
 
-struct Q_EXPORT QBidiContext {
+struct Q_EXPORT QBidiContext : public QShared {
     QBidiContext( uchar level, QChar::Direction embedding, QBidiContext *parent = 0, bool override = FALSE );
     ~QBidiContext();
-
-    void ref() const;
-    void deref() const;
 
     unsigned char level;
     bool override : 1;
@@ -85,7 +83,7 @@ public:
     // positions non spacing marks relative to the base character at position pos.
     static QPointArray positionMarks( QFontPrivate *f, const QString &str, int pos, QRect *boundingRect = 0 );
 
-    QList<QTextRun> *bidiReorderLine( QBidiControl *control, const QString &str, int start, int len );
+    static QList<QTextRun> *bidiReorderLine( QBidiControl *control, const QString &str, int start, int len );
 };
 
 

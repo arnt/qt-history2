@@ -7,6 +7,25 @@
 
 // -----------------------------------------------------
 
+/* a small helper class used internally to resolve Bidi embedding levels.
+   Each line of text caches the embedding level at the start of the line for faster
+   relayouting
+*/
+QBidiContext::QBidiContext( uchar l, QChar::Direction e, QBidiContext *p, bool o )
+    : level(l) , override(o), dir(e)
+{
+    if ( p )
+	p->ref();
+    parent = p;
+    count = 0;
+}
+
+QBidiContext::~QBidiContext()
+{
+    if( parent && parent->deref() )
+	delete parent;
+}
+
 static QChar *shapeBuffer = 0;
 static int shapeBufSize = 0;
 
@@ -855,7 +874,7 @@ QList<QTextRun> *QComplexText::bidiReorderLine( QBidiControl *control, const QSt
 		    runs->append( new QTextRun(sor, eor, context, dir) );
 		    ++eor; sor = eor; dir = QChar::DirON; status.eor = QChar::DirON;
 		    status.last = context->dir;
-		    context->deref();
+		    if( context->deref() ) delete context;
 		    context = c;
 		    if(context->override)
 			dir = context->dir;
@@ -1153,6 +1172,76 @@ QList<QTextRun> *QComplexText::bidiReorderLine( QBidiControl *control, const QSt
     eor = current;
 
     runs->append( new QTextRun(sor, eor, context, dir) );
+
+    // reorder line according to run structure...
+
+    // first find highest and lowest levels
+    uchar levelLow = 128;
+    uchar levelHigh = 0;
+    QTextRun *r = runs->first();
+    while ( r ) {
+	//printf("level = %d\n", r->level);
+	if ( r->level > levelHigh )
+	    levelHigh = r->level;
+	if ( r->level < levelLow )
+	    levelLow = r->level;
+	r = runs->next();
+    }
+
+    // implements reordering of the line (L2 according to BiDi spec):
+    // L2. From the highest level found in the text to the lowest odd level on each line,
+    // reverse any contiguous sequence of characters that are at that level or higher.
+
+    // reversing is only done up to the lowest odd level
+    if(!(levelLow%2)) levelLow++;
+
+#ifdef BIDI_DEBUG
+    cout << "reorderLine: lineLow = " << (uint)levelLow << ", lineHigh = " << (uint)levelHigh << endl;
+    cout << "logical order is:" << endl;
+    QListIterator<QTextBidiRun> it2(runs);
+    QTextRun *r2;
+    for ( ; (r2 = it2.current()); ++it2 )
+	cout << "    " << r2 << "  start=" << r2->start << "  stop=" << r2->stop << "  level=" << (uint)r2->level << endl;
+#endif
+
+    int count = runs->count() - 1;
+
+    while(levelHigh >= levelLow)
+    {
+	int i = 0;
+	while ( i < count )
+	{
+	    while(i < count && runs->at(i)->level < levelHigh) i++;
+	    int start = i;
+	    while(i <= count && runs->at(i)->level >= levelHigh) i++;
+	    int end = i-1;
+
+	    if(start != end)
+	    {
+		//cout << "reversing from " << start << " to " << end << endl;
+		for(int j = 0; j < (end-start+1)/2; j++)
+		{
+		    QTextRun *first = runs->take(start+j);
+		    QTextRun *last = runs->take(end-j-1);
+		    runs->insert(start+j, last);
+		    runs->insert(end-j, first);
+		}
+	    }
+	    i++;
+	    if(i >= count) break;
+	}
+	levelHigh--;
+    }
+
+#ifdef BIDI_DEBUG
+    cout << "visual order is:" << endl;
+    QListIterator<QTextBidiRun> it3(runs);
+    QTextRun *r3;
+    for ( ; (r3 = it3.current()); ++it3 )
+    {
+	cout << "    " << r3 << endl;
+    }
+#endif
 
     return runs;
 }
