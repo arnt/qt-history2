@@ -3146,10 +3146,9 @@ void QWidget::show()
   Hides the widget.
 
   You almost never have to reimplement this function. If you need to
-  do something after a widget is hidden, use \link hideEvent()
-  instead.
+  do something after a widget is hidden, use hideEvent() instead.
 
-  \sa \hideEvent(), show(), showMinimized(), isVisible(), close()
+  \sa hideEvent(), show(), showMinimized(), isVisible(), close()
 */
 
 void QWidget::hide()
