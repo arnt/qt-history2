@@ -22,16 +22,16 @@ class Q_GUI_EXPORT QPen
 public:
     QPen();
     QPen(Qt::PenStyle);
-    QPen(const QColor &color, int width = 0, Qt::PenStyle style = Qt::SolidLine);
-    QPen(const QColor &cl, int width, Qt::PenStyle s, Qt::PenCapStyle c, Qt::PenJoinStyle j);
+    QPen(const QColor &color, float width = 0, Qt::PenStyle style = Qt::SolidLine);
+    QPen(const QColor &cl, float width, Qt::PenStyle s, Qt::PenCapStyle c, Qt::PenJoinStyle j);
     QPen(const QPen &pen);
    ~QPen();
     QPen &operator=(const QPen &pen);
 
     inline Qt::PenStyle style() const { return d->style; }
     void setStyle(Qt::PenStyle);
-    inline int width() const { return d->width; }
-    void setWidth(int width);
+    inline float width() const { return d->width; }
+    void setWidth(float width);
     inline QColor color() const { return d->color; }
     void setColor(const QColor &color);
     Qt::PenCapStyle        capStyle() const;
@@ -47,10 +47,10 @@ private:
     friend class QPainter;
     inline void detach() { if (d->ref != 1) detach_helper(); }
     void detach_helper();
-    void init(const QColor &c, int width, uint linestyle);
+    void init(const QColor &c, float width, uint linestyle);
     struct QPenData {
         QAtomic ref;
-        int width;
+        float width;
         QColor color;
         Qt::PenStyle style;
         Q_UINT16 linest;

@@ -88,7 +88,7 @@
 */
 
 
-void QPen::init(const QColor &color, int width, uint linestyle)
+void QPen::init(const QColor &color, float width, uint linestyle)
 {
     d = new QPenData;
     d->ref = 1;
@@ -127,7 +127,7 @@ QPen::QPen(Qt::PenStyle style)
     \sa setWidth(), setStyle(), setColor()
 */
 
-QPen::QPen(const QColor &color, int width, Qt::PenStyle style)
+QPen::QPen(const QColor &color, float width, Qt::PenStyle style)
 {
     init(color, width, style);
 }
@@ -147,7 +147,7 @@ QPen::QPen(const QColor &color, int width, Qt::PenStyle style)
     \sa setWidth(), setStyle(), setColor()
 */
 
-QPen::QPen(const QColor &cl, int width, Qt::PenStyle s, Qt::PenCapStyle c, Qt::PenJoinStyle j)
+QPen::QPen(const QColor &cl, float width, Qt::PenStyle s, Qt::PenCapStyle c, Qt::PenJoinStyle j)
 {
     init(cl, width, s | c | j);
 }
@@ -239,7 +239,7 @@ void QPen::setStyle(Qt::PenStyle s)
 
 
 /*!
-    \fn int QPen::width() const
+    \fn float QPen::width() const
 
     Returns the pen width.
 
@@ -259,7 +259,7 @@ void QPen::setStyle(Qt::PenStyle s)
     \sa width()
 */
 
-void QPen::setWidth(int width)
+void QPen::setWidth(float width)
 {
     if (d->width == width)
         return;
@@ -404,7 +404,7 @@ QDataStream &operator<<(QDataStream &s, const QPen &p)
     if (s.version() < 7)
         s << (Q_UINT8)p.width();
     else
-        s << (Q_INT16)p.width();
+        s << p.width();
     return s << p.color();
 }
 
@@ -421,7 +421,7 @@ QDataStream &operator>>(QDataStream &s, QPen &p)
 {
     Q_UINT8 style;
     Q_UINT8 width8 = 0;
-    Q_INT16 width = 0;
+    float width = 0;
     QColor color;
     s >> style;
     if (s.version() < 7)
@@ -429,7 +429,7 @@ QDataStream &operator>>(QDataStream &s, QPen &p)
     else
         s >> width;
     s >> color;
-    p = QPen(color, width8 | width, (Qt::PenStyle)style);
+    p = QPen(color, (s.version() < 7 ? width8 : width), (Qt::PenStyle)style);
     return s;
 }
 #endif //QT_NO_DATASTREAM
