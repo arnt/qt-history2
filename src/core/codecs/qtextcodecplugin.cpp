@@ -103,6 +103,3 @@ QTextCodec *QTextCodecPlugin::create(const QString &name)
         return createForMib(name.mid(4).toInt());
     return createForName(name);
 }
-
-
-

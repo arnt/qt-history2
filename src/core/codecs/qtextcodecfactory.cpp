@@ -12,11 +12,9 @@
 ****************************************************************************/
 
 #include "qtextcodecfactory.h"
-
 #include "qcoreapplication.h"
 #include "qtextcodecplugin.h"
 #include "private/qfactoryloader_p.h"
-#include "qmutex.h"
 
 #ifndef QT_NO_COMPONENT
 Q_GLOBAL_STATIC_WITH_ARGS(QFactoryLoader, loader,

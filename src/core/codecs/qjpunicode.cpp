@@ -56,8 +56,10 @@
 */
 
 #include "qjpunicode.h"
+
 #ifndef QT_NO_BIG_CODECS
-#include "qstring.h"
+
+#include "qbytearray.h"
 #ifdef Q_OS_TEMP
 #include "qwinfunctions_wce.h"
 #endif

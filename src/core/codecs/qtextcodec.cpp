@@ -19,6 +19,7 @@
 #endif
 
 #include "qtextcodec.h"
+
 #ifndef QT_NO_TEXTCODEC
 
 #include "qlist.h"
@@ -40,9 +41,7 @@
 #include "qfile.h"
 #include "qstring.h"
 #include <private/qlocale_p.h>
-
 #include <private/qmutexpool_p.h>
-
 #include <stdlib.h>
 #include <ctype.h>
 #ifndef Q_OS_TEMP

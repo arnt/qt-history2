@@ -15,6 +15,7 @@
 
 #ifndef QT_NO_CODECS
 #ifndef QT_NO_BIG_CODECS
+
 #include "qjpunicode.h"
 
 
@@ -187,9 +188,6 @@ bool QFontJis0208Codec::canEncode(QChar ch) const
 {
     return (convJP->unicodeToJisx0208(ch.unicode()) != 0);
 }
-
-
-
 
 #endif // QT_NO_BIG_CODECS
 #endif // QT_NO_CODECS
