@@ -450,23 +450,23 @@ static int foreach( int /* status */, char * /* key */, int /* keyLen */,
 
 static int retrieveNisPrinters( QListView * printers )
 {
+    typedef int (*WildCast)( int, char *, int, char *, int, char * );
     char printersConfByname[] = "printers.conf.byname";
     char *domain;
     int err;
 
     QLibrary lib( "nsl" );
-    typedef int (*ypGetDefaultDomain)(char **); 
-    ypGetDefaultDomain _ypGetDefaultDomain = (ypGetDefaultDomain)lib.resolve( "yp_get_default_domain" ); 
+    typedef int (*ypGetDefaultDomain)(char **);
+    ypGetDefaultDomain _ypGetDefaultDomain = (ypGetDefaultDomain)lib.resolve( "yp_get_default_domain" );
     typedef int (*ypAll)(const char *, const char *, const struct ypall_callback *);
     ypAll _ypAll = (ypAll)lib.resolve( "yp_all" );
-    
+
     if ( _ypGetDefaultDomain && _ypAll ) {
 	err = _ypGetDefaultDomain( &domain );
 	if ( err == 0 ) {
 	    ypall_callback cb;
 	    // wild cast to support K&R-style system headers
-	    (int (*&)(int, char *, int, char *, int, char *)) cb.foreach =
-		foreach;
+	    (WildCast &) cb.foreach = (WildCast) foreach;
 	    cb.data = (char *) printers;
 	    err = _ypAll( domain, printersConfByname, &cb );
 	}
@@ -762,8 +762,8 @@ static char * parseCupsOutput( QListView * printers )
     int nd;
     cups_dest_t * d;
     QLibrary lib( "cups" );
-    typedef int (*CupsGetDests)(cups_dest_t **dests); 
-    CupsGetDests _cupsGetDests = (CupsGetDests)lib.resolve( "cupsGetDests" ); 
+    typedef int (*CupsGetDests)(cups_dest_t **dests);
+    CupsGetDests _cupsGetDests = (CupsGetDests)lib.resolve( "cupsGetDests" );
     if ( _cupsGetDests ) {
 	nd = _cupsGetDests( &d );
 	if ( nd < 1 )
