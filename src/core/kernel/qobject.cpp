@@ -716,10 +716,12 @@ void QObject::childEvent(QChildEvent *)
 }
 
 /*!
-    Ensures delayed initialization of an object.
+    Ensures delayed initialization of an object and its children.
 
     This function will be called \e after an object has been fully
-    created and \e before it is shown the very first time.
+    created and \e before it is shown the very first time.  Children
+    will be polished after the polishEvent() handler for this object
+    is called.
 
     Polishing is useful for final initialization which depends on
     having an instantiated object. This is something a constructor
@@ -743,6 +745,11 @@ void QObject::ensurePolished() const
 
     QEvent e(QEvent::Polish);
     QCoreApplication::sendEvent((QObject*)this, &e);
+
+    // polish children after 'this'
+    for (int i = 0; i < d->children.size(); ++i)
+	d->children.at(i)->ensurePolished();
+
     if (d->parent) {
         QChildEvent e(QEvent::ChildPolished, (QObject*)this);
         QCoreApplication::sendEvent(d->parent, &e);
