@@ -36,12 +36,12 @@ ConfigureApp::ConfigureApp( int& argc, char** argv ) : QApplication( argc, argv 
     dictionary[ "MNG" ] = "no";
     dictionary[ "BUILD_QMAKE" ] = "yes";
     dictionary[ "DSPFILES" ] = "yes";
-    dictionary[ "QMAKEPATH" ] = QEnvironment::getEnv( "QMAKEPATH" );
+    dictionary[ "QMAKESPEC" ] = QEnvironment::getEnv( "QMAKESPEC" );
     dictionary[ "QMAKE_INTERNAL" ] = "yes";
 
-    QString tmp = QEnvironment::getEnv( "QMAKEPATH" );
+    QString tmp = QEnvironment::getEnv( "QMAKESPEC" );
     tmp = tmp.mid( tmp.findRev( "\\" ) + 1 );
-    dictionary[ "QMAKEPATH" ] = tmp;
+    dictionary[ "QMAKESPEC" ] = tmp;
 
     allModules = QStringList::split( ' ', "tools kernel widgets dialogs iconview workspace network canvas table xml opengl sql styles" );
     allSqlDrivers = QStringList::split( ' ', "mysql oci odbc psql" );
@@ -109,7 +109,7 @@ void ConfigureApp::parseCmdLine()
 	    dictionary[ "THREAD" ] = "yes";
 	else if( (*args) == "-platform" ) {
 	    ++args;
-	    dictionary[ "QMAKEPATH" ] = (*args);
+	    dictionary[ "QMAKESPEC" ] = (*args);
 	}
 	else if( (*args) == "-no-gif" )
 	    dictionary[ "GIF" ] = "no";
@@ -192,7 +192,7 @@ bool ConfigureApp::displayHelp()
 	cout << "-static             Build Qt as a static library." << endl;
 	cout << "-thread             Configure Qt with thread support." << endl;
 	cout << "-no-thread        * Configure Qt without thread support." << endl;
-	cout << "-platform           Specify a platform, uses %QMAKEPATH% as default." << endl;
+	cout << "-platform           Specify a platform, uses %QMAKESPEC% as default." << endl;
 	cout << "-qconfig            Specify config, available configs:" << endl;
 	for( QStringList::Iterator config = allConfigs.begin(); config != allConfigs.end(); ++config )
 	    cout << "                        " << (*config).latin1() << endl;
@@ -255,9 +255,9 @@ void ConfigureApp::generateOutputVars()
     if( dictionary[ "LIBPNG" ] == "yes" )
 	qmakeConfig += "libpng";
 
-    if( !dictionary[ "QMAKEPATH" ].length() ) {
-	cout << "QMAKEPATH must either be defined as an environment variable, or specified" << endl;
-	cout << "as an argument with -platform" << endl;
+    if( !dictionary[ "QMAKESPEC" ].length() ) {
+	cout << "QMAKESPEC must either be defined as an environment variable, or specified" << endl;
+	cout << "as an argument with -spec" << endl;
 	dictionary[ "HELP" ] = "yes";
 
 	QStringList winPlatforms;
@@ -286,7 +286,7 @@ void ConfigureApp::generateCachefile()
 	    cacheStream << (*var) << endl;
 	}
 	cacheStream << "CONFIG=" << qmakeConfig.join( " " ) << endl;
-	cacheStream << "QMAKEPATH=" << dictionary[ "QMAKEPATH" ] << endl;
+	cacheStream << "QMAKESPEC=" << dictionary[ "QMAKESPEC" ] << endl;
 	cacheFile.close();
     }
     // Generate shadow .qmake.cache file in src/
@@ -304,7 +304,7 @@ void ConfigureApp::generateCachefile()
 	    cacheStream << (*var) << endl;
 	}
 	cacheStream << "CONFIG=" << srcConfig.join( " " ) << endl;
-	cacheStream << "QMAKEPATH=" << dictionary[ "QMAKEPATH" ] << endl;
+	cacheStream << "QMAKESPEC=" << dictionary[ "QMAKESPEC" ] << endl;
 	cacheFile.close();
     }
 }
@@ -312,7 +312,7 @@ void ConfigureApp::generateCachefile()
 void ConfigureApp::displayConfig()
 {
     // Give some feedback
-    cout << "QMAKEPATH..................." << dictionary[ "QMAKEPATH" ] << endl;
+    cout << "QMAKESPEC..................." << dictionary[ "QMAKESPEC" ] << endl;
     cout << "Configuration..............." << qmakeConfig.join( " " ) << endl;
     cout << "Thread support.............." << dictionary[ "THREAD" ] << endl;
     cout << "GIF support................." << dictionary[ "GIF" ] << endl;
@@ -322,7 +322,7 @@ void ConfigureApp::displayConfig()
 
 void ConfigureApp::buildQmake()
 {
-    if( dictionary[ "QMAKEPATH" ] == QString( "win32-msvc" ) ) {
+    if( dictionary[ "QMAKESPEC" ] == QString( "win32-msvc" ) ) {
 	dictionary[ "MAKE" ] = "nmake";
 	dictionary[ "QMAKEMAKEFILE" ] = "Makefile";
     }
@@ -529,7 +529,7 @@ void ConfigureApp::qmakeDone()
 	args << "-o";
         args << makefileName;
 	args << "-path";
-	args << dictionary[ "QMAKEPATH" ];
+	args << dictionary[ "QMAKESPEC" ];
 	if( makefileName.right( 4 ) == ".dsp" ) {
 	    args << "-t";
 	    args << "vcapp";
@@ -557,7 +557,7 @@ void ConfigureApp::showSummary()
 
 void ConfigureApp::copyDefsFile()
 {
-    QFile src( QString( QEnvironment::getEnv( "QTDIR" ) ) + "/mkspecs/" + dictionary[ "QMAKEPATH" ] + "/qplatformdefs.h" );
+    QFile src( QString( QEnvironment::getEnv( "QTDIR" ) ) + "/mkspecs/" + dictionary[ "QMAKESPEC" ] + "/qplatformdefs.h" );
     QFile trg( QString( QEnvironment::getEnv( "QTDIR" ) ) + "/include/qplatformdefs.h" );
     
     cout << "Copying platform definition file..." << endl;

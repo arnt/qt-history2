@@ -505,7 +505,7 @@ void SetupWizardImpl::showPage( QWidget* newPage )
 
 	if( qtDirCheck->isChecked() ) {
 	    QEnvironment::putEnv( "QTDIR", qtDir, QEnvironment::LocalEnv | QEnvironment::PersistentEnv );
-	    QEnvironment::putEnv( "QMAKEPATH", mkSpecs[ sysID ], QEnvironment::LocalEnv | QEnvironment::PersistentEnv );
+	    QEnvironment::putEnv( "QMAKESPEC", mkSpecs[ sysID ], QEnvironment::LocalEnv | QEnvironment::PersistentEnv );
 
 	    path.clear();
 	    path = QStringList::split( ';', QEnvironment::getEnv( "PATH", QEnvironment::PersistentEnv ) );
@@ -517,7 +517,7 @@ void SetupWizardImpl::showPage( QWidget* newPage )
 	}
 	else {
 	    QEnvironment::putEnv( "QTDIR", qtDir, QEnvironment::LocalEnv );
-	    QEnvironment::putEnv( "QMAKEPATH", mkSpecs[ sysID ], QEnvironment::LocalEnv );
+	    QEnvironment::putEnv( "QMAKESPEC", mkSpecs[ sysID ], QEnvironment::LocalEnv );
 	}
 
 
@@ -533,7 +533,7 @@ void SetupWizardImpl::showPage( QWidget* newPage )
 	QString fromdir = QDir::currentDirPath();
 
 	QString mkspecdir = fromdir + "/mkspecs";
-//	QString mkspecenv = QEnvironment::getEnv( "QMAKEPATH" );
+//	QString mkspecenv = QEnvironment::getEnv( "QMAKESPEC" );
 //	QFileInfo mkspecenvdirinfo( mkspecenv );
 	QString srcdir = fromdir + "/src";
 	QFileInfo* fi;
