@@ -738,6 +738,14 @@ QSizeF QTextDocument::pageSize() const
 }
 
 /*!
+  returns the number of pages in this document.
+*/
+int QTextDocument::pageCount() const
+{
+    return documentLayout()->pageCount();
+}
+
+/*!
     Sets the default \a font to use in the document layout.
 */
 void QTextDocument::setDefaultFont(const QFont &font)
@@ -790,6 +798,8 @@ void QTextDocument::setModified(bool m)
 /*!
     Prints the document to the given \a printer. The QPrinter must be
     set up before being used with this function.
+
+    This is only a convenience method to print the whole document to the printer.
 */
 void QTextDocument::print(QPrinter *printer) const
 {
@@ -800,7 +810,7 @@ void QTextDocument::print(QPrinter *printer) const
 
     const int dpiy = p.device()->logicalDpiY();
     const int margin = (int) ((2/2.54)*dpiy); // 2 cm margins
-    QRect body(margin, margin, p.device()->width() - 2*margin, p.device()->height() - 2*margin);
+    QRectF body(margin, margin, p.device()->width() - 2*margin, p.device()->height() - 2*margin);
 
     QTextDocument *doc = clone();
     QAbstractTextDocumentLayout *layout = doc->documentLayout();
@@ -808,7 +818,7 @@ void QTextDocument::print(QPrinter *printer) const
     font.setPointSize(10); // we define 10pt to be a nice base size for printing
     doc->setDefaultFont(font);
     layout->setPaintDevice(printer);
-    doc->setPageSize(QSize(body.width(), INT_MAX));
+    doc->setPageSize(body.size());
 
     QRect view(0, 0, body.width(), body.height());
     p.translate(body.left(), body.top());
@@ -816,7 +826,6 @@ void QTextDocument::print(QPrinter *printer) const
     int page = 1;
     do {
         QAbstractTextDocumentLayout::PaintContext ctx;
-// ######        ctx.palette = palette();
         p.setClipRect(view);
         ctx.rect = view;
         layout->draw(&p, ctx);

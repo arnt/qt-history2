@@ -133,6 +133,8 @@ public:
     void setDefaultFont(const QFont &font);
     QFont defaultFont() const;
 
+    int pageCount() const;
+
     bool isModified() const;
 
     void print(QPrinter *printer) const;
