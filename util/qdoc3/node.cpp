@@ -37,7 +37,7 @@ void Node::setRelates(InnerNode *pseudoParent)
     pseudoParent->related.append(this);
 }
 
-void Node::setLink(LinkTypes linkType, const QString &link, const QString &desc)
+void Node::setLink(LinkType linkType, const QString &link, const QString &desc)
 {
     QPair<QString,QString> linkPair;
     linkPair.first = link;
