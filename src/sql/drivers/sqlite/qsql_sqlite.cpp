@@ -375,7 +375,6 @@ bool QSQLiteResult::reset (const QString& query)
                                 &err);
     if (res != SQLITE_OK || err) {
         setLastError(QSqlError("Unable to execute statement", err, QSqlError::Statement, res));
-        qDebug("err %s", err);
         sqlite_freemem(err);
     }
     //if (*d->currentTail != '\000' then there is more sql to eval
@@ -555,98 +554,50 @@ QStringList QSQLiteDriver::tables(const QString &typeName) const
 
 QSqlIndex QSQLiteDriver::primaryIndex(const QString &tblname) const
 {
-    QSqlIndex index(tblname);
-    QSqlRecord rec(record(tblname)); // expensive :(
+    QSqlRecordInfo rec(recordInfo(tblname)); // expensive :(
 
     if (!isOpen())
-        return index;
+        return QSqlIndex();
 
     QSqlQuery q = createQuery();
     q.setForwardOnly(TRUE);
-    q.exec("SELECT sql FROM sqlite_master WHERE name='" + tblname + "'");
+    q.exec("SELECT name, sql FROM sqlite_master WHERE type='index' and tbl_name='" + tblname + "'");
     if (!q.next())
-        return index;
+        return QSqlIndex();
 
-    QString sqlForTable(q.value(0).toString().simplifyWhiteSpace().upper());
-    
-    // primary index will have name like "(tblname autoindex 1)"
-//    qDebug("working with string %s", sqlForTable.latin1());
-    QString sqlName;
-    QString sqlType;
-    
-    //sqlForTable is the sql statment used to create the table.
-    // looking for.
-    // field1, field2, field3, PRIMARY KEY(field1, field2)    
-    // "(name TYPE PRIMARY KEY"
-    // "(name PRIMARY KEY"
-    // ", name TYPE PRIMARY KEY"
-    // ", name PRIMARY KEY"
-    int a = sqlForTable.find(",");
-    int b = sqlForTable.find("PRIMARY KEY");
-    if (b > 0) {
-        int c = 0;
-        static QChar popen('(');
-        if (sqlForTable.at(b + 12) == popen)
-            c = b + 13;
-        else if (sqlForTable.at(b + 13) == popen)
-            c = b + 14;
-        int endP = sqlForTable.find(")", c);
-        if (c && endP) {
-            QString idxStr = sqlForTable.mid(c, endP - c).stripWhiteSpace();
-//            qDebug("*** got IdxString: " + idxStr);
-            QStringList fNames = QStringList::split(",", idxStr);
-            for (QStringList::Iterator it = fNames.begin(); it != fNames.end(); ++it) {
-                QSqlVariant::Type type = QSqlVariant::Invalid;
-                if (rec.contains(sqlName))
-                    type = rec.field(sqlName)->type();
-                index.append((*it).stripWhiteSpace(), type);
-            }
-            return index;
-        }
-    }
-    while (a > 0 && b > 0 && b > a) {
-//        qDebug("loop, %d, %d", a, b);
-        a = sqlForTable.find(",");
-        b = sqlForTable.find("PRIMARY KEY");
-        sqlForTable=sqlForTable.mid(a+1);
-    }
-//    qDebug("out, %d, %d", a, b);
-    if (b > 0) 
-    {
-        // have a primary key
-        sqlForTable = sqlForTable.left(b);
-//        qDebug("working with string %s", sqlForTable.latin1());
-        a = sqlForTable.findRev(",");
-        b = sqlForTable.findRev("(");
-//        qDebug("out, %d, %d", a, b);
-        if (a > b) {
-            sqlForTable = sqlForTable.mid(a);
-        } else if (b > 0) {
-            sqlForTable = sqlForTable.mid(b+1);
-        }
-//        qDebug("working with string %s", sqlForTable.latin1());
+    QString indexname = q.value(0).toString();
+    QString sql = q.value(1).toString().simplifyWhiteSpace();
 
-        a = sqlForTable.find(" ");
-        if (a > 0) {
-            sqlName = sqlForTable.left(a);
-            sqlType = sqlForTable.mid(a+1);
-        } else {
-            sqlName = sqlForTable;
-        }
-    }
+    QSqlIndex index(indexname);
+    // ql-statement ::=
+    // CREATE [TEMP | TEMPORARY] [UNIQUE] INDEX index-name 
+    //	 ON [database-name .] table-name ( column-name [, column-name]* )
+    //	  [ ON CONFLICT conflict-algorithm ]
+    //
+    //
+    //	  column-name ::=
+    //	  name [ ASC | DESC ]
 
-    if (!sqlName.isEmpty()) {
-//        qDebug("sqlprimary %s, %s", sqlName.latin1() , sqlType.isEmpty() ? "(none)": sqlType.latin1());
-    } else {
-//        qDebug("no primary index found");
-        return index;
+    if (sql.contains("unique", FALSE)) {
+	// is a primary index, suitable for QSqlCursor
+	int start = sql.find('(');
+	int end = sql.find(')');
+	QString sqltypes = sql.mid(start+1, end-start-1);
+	QStringList types = QStringList::split(',', sqltypes);
+	for ( QStringList::Iterator it = types.begin(); it != types.end(); ++it ) {
+	    QString tname = *it;
+	    int spos = tname.find(' ');
+	    if (spos > -1)
+		tname = tname.mid(0,spos);
+	    //get type...
+	    QSqlVariant::Type type = QSqlVariant::Invalid;
+	    if (rec.contains(tname))
+		type = rec.find(tname).type();
+	    index.append(tname, type);
+	}
+	return index;
     }
-    QSqlVariant::Type type = QSqlVariant::Invalid;
-    if (rec.contains(sqlName))
-        type = rec.field(sqlName)->type();
-    index.append(sqlName.lower(), type);
-    index.setName(sqlName.lower());
-    return index;
+    return QSqlIndex();
 }
 
 QSqlRecordInfo QSQLiteDriver::recordInfo(const QString &tbl) const
