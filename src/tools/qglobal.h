@@ -82,6 +82,8 @@
 #define _OS_HPUX_
 #elif defined(ultrix) || defined(__ultrix) || defined(__ultrix__)
 #define _OS_ULTRIX_
+#elif defined(reliantunix)
+#define _OS_RELIANTUNIX_
 #elif defined(linux) || defined(__linux) || defined(__linux__)
 #define _OS_LINUX_
 #elif defined(__FreeBSD__)
@@ -186,6 +188,9 @@
 #endif
 #elif defined(__DECCXX)
 #define _CC_DEC_
+#elif defined(__CDS__)
+#define _CC_CDS_
+#define HAS_BOOL_TYPE
 #elif defined(_OS_HPUX_)
 // this test is from aCC online help
 #if __cplusplus >= 199707L
