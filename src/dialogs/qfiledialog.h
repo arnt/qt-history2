@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.h#57 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.h#58 $
 **
 ** Definition of QFileDialog class
 **
@@ -267,13 +267,16 @@ private slots:
     void modeButtonsDestroyed();
 
 private:
+    // obsolete
     enum PopupAction {
         PA_Open = 0,
         PA_Delete,
         PA_Rename,
         PA_SortAscent,
         PA_SortDescent,
-        PA_Cancel
+        PA_Cancel,
+        PA_Reload,
+        PA_Hidden
     };
 
     void init();
