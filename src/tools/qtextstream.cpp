@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qtextstream.cpp#117 $
+** $Id: //depot/qt/main/src/tools/qtextstream.cpp#118 $
 **
 ** Implementation of QTextStream class
 **
@@ -1075,7 +1075,7 @@ double QTextStream::input_double()
 	c = ts_getc();
     }
 
-#if !defined(NO_DEADCODE)
+#if !defined(_CC_EGG_)
     return 0.0;
 #endif
 }
