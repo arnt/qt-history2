@@ -237,7 +237,6 @@ QFont::QFont( QFontPrivate *data, bool deep )
     if ( deep ) {
 	d = new QFontPrivate( *data );
 	Q_CHECK_PTR( d );
-	// qDebug("QFont::QFont(QFontPrivate *): new *d %p", d);
 
 	// now a single reference
 	d->count = 1;
@@ -254,8 +253,9 @@ QFont::QFont( QFontPrivate *data, bool deep )
 */
 void QFont::detach()
 {
-    if (d->count != 1)
+    if (d->count != 1) {
 	*this = QFont(d);
+    }
 }
 
 
@@ -529,6 +529,7 @@ bool QFont::italic() const
 */
 void QFont::setItalic( bool enable )
 {
+
     if ((bool) d->request.italic == enable) return;
 
     detach();
@@ -885,7 +886,7 @@ bool QFont::rawMode() const
   set in the QFont for all parameters, including the family name).
 
   \warning Do not use raw mode unless you really, really need it! In
-  most (if not all) cases, setRawName() is a much better choise.
+  most (if not all) cases, setRawName() is a much better choice.
 
   \sa rawMode(), setRawName()
 */
@@ -1301,13 +1302,18 @@ static void hex4( ushort n, char *s )
   dictionary or a cache.
   \sa QMap
 */
-
 QString QFont::key() const
 {
-    if (d->request.rawMode)
-	return d->request.family.lower();
+    return d->key();
+}
 
-    QString family = d->request.family.lower();
+
+QString QFontPrivate::key() const
+{
+    if (request.rawMode)
+	return request.family.lower();
+
+    QString family = request.family.lower();
 
     int len = (family.length() * 2) +
 	      2 +  // point size
@@ -1323,14 +1329,14 @@ QString QFont::key() const
 
     p += family.length()*2;
 
-    *((Q_UINT16 *) p) = d->request.pointSize; p += 2;
-    *p++ = get_font_bits( d->request );
-    *p++ = d->request.weight;
-    *p++ = (d->request.hintSetByUser ?
-	    (int) d->request.styleHint : (int) QFont::AnyStyle);
+    *((Q_UINT16 *) p) = request.pointSize; p += 2;
+    *p++ = get_font_bits( request );
+    *p++ = request.weight;
+    *p++ = (request.hintSetByUser ?
+	    (int) request.styleHint : (int) QFont::AnyStyle);
 
 #ifndef QT_NO_COMPAT
-    *p = d->charset;
+    *p = charset;
 #else
     *p = 0;
 #endif
@@ -1362,7 +1368,6 @@ QFont::CharSet QFont::encodingForChar( const QChar &c )
 
     // Unified Han
     if (row >= 0x34 && row <= 0x9f) {
-	// #warning "FIXME: don't assume ksc5601 for Unified Han"
 	return Unknown;
     }
 
@@ -1454,7 +1459,6 @@ QDataStream &operator>>( QDataStream &s, QFont &font )
     if (font.d->deref()) delete font.d;
 
     font.d = new QFontPrivate;
-    // qDebug("operator>>(QFont): new *d %p", font.d);
 
     Q_INT16 pointSize;
     Q_UINT8 styleHint, charSet, weight, bits;
@@ -1465,8 +1469,6 @@ QDataStream &operator>>( QDataStream &s, QFont &font )
 	font.d->request.family = QString( fam );
     } else {
 	s >> font.d->request.family;
-	// font.d->request.family = "helvetica";
-	// font.d->request.family = "bitstream cyberbit";
     }
 
     s >> pointSize;
@@ -1621,12 +1623,18 @@ void QFontMetrics::reset( const QPainter *painter )
 */
 QFontMetrics::QFontMetrics( const QFont &font )
 {
-    // ensure that at least a font for the default charset is loaded
-    font.handle();
-
     d = font.d;
     d->ref();
 
+    // make sure the font is sufficiently loaded
+    // if (! d->x11data.fontstruct[QFontPrivate::defaultCharSet])
+    d->load(QFontPrivate::defaultCharSet);
+    for (int i = 0; i < QFont::NCharSets - 1; i++) {
+	if (d->x11data.fontstruct[i]) {
+	    d->load((QFont::CharSet) i);
+	}
+    }
+    
     painter = 0;
     flags = 0;
 
@@ -1652,11 +1660,18 @@ QFontMetrics::QFontMetrics( const QPainter *p )
     // ######### that is not necessary, or is it?????? (ME)
     // if ( painter->testf(DirtyFont) )
     // painter->updateFont();
-
+    
     painter->setf( QPainter::FontMet );
     d = painter->cfont.d;
     d->ref();
-
+    
+    d->load(QFontPrivate::defaultCharSet);
+    for (int i = 0; i < QFont::NCharSets - 1; i++) {
+	if (d->x11data.fontstruct[i]) {
+	    d->load((QFont::CharSet) i);
+	}
+    }
+    
     flags = 0;
 
     insertFontMetrics( this );
@@ -1805,6 +1820,9 @@ QRect QFontMetrics::boundingRect( int x, int y, int w, int h, int flgs,
     qt_format_text( QFont( d, FALSE ), r, flgs, str, len, &rb,
                     tabstops, tabarray, tabarraylen, intern, 0 );
 
+    // qDebug("QFontMetrics::boundingRect: %d %d %d %d",
+    // rb.x(), rb.y(), rb.width(), rb.height());
+    
     return rb;
 }
 

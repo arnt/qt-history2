@@ -52,7 +52,7 @@ class Q_EXPORT QFontMetrics
 public:
     QFontMetrics( const QFont & );
     QFontMetrics( const QFontMetrics & );
-   ~QFontMetrics();
+    ~QFontMetrics();
 
     QFontMetrics &operator=( const QFontMetrics & );
 
@@ -92,9 +92,8 @@ private:
 #if defined(Q_WS_WIN)
     void   *textMetric() const;
     HDC	    hdc() const;
-#elif defined(Q_WS_X11)
-    const QTextCodec *mapper() const;
-    int	    printerAdjusted(int) const;
+    // #elif defined(Q_WS_X11)
+    // int printerAdjusted(int) const;
 #elif defined(Q_WS_QWS)
     QFontInternal *internal();
 #endif

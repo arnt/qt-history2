@@ -211,7 +211,7 @@ public:
     Qt::HANDLE handle() const;
 #endif
 
-        
+
     // needed for X11
     void setRawName( const QString & );
     QString rawName() const;
@@ -231,7 +231,6 @@ public:
     static QStringList substitutions();
 
     static void initialize();
-    // static void locale_init();
     static void cleanup();
     static void cacheStatistics();
 
@@ -245,20 +244,20 @@ public:
     // CharSet charSet() const;
     // void setCharSet(CharSet);
 #endif
-    
+
 
 protected:
     // why protected?
     bool dirty() const;
 
-    
+
 private:
     static CharSet encodingForChar(const QChar &c);
 
     QFont( QFontPrivate *, bool deep = TRUE );
 
     void detach();
-    
+
     
 #if defined(Q_WS_MAC)
     void macSetFont(QPaintDevice *);
@@ -279,7 +278,7 @@ private:
     friend Q_EXPORT QDataStream &operator>>( QDataStream &, QFont & );
 #endif
 
-    
+
     // private data
     QFontPrivate *d;
 };

@@ -73,8 +73,25 @@ struct QFontDef {
 };
 
 
-// forward for QTextCodec
 class QTextCodec;
+
+#ifdef Q_WS_X11
+
+// this is a shared wrapper for XFontStruct (to prevent a font being freed by
+// the cache while it's being used)
+class QFontStruct : public QShared
+{
+public:
+    QFontStruct(Qt::HANDLE h, QCString n, QTextCodec *c) : handle(h), name(n), codec(c) { ; }
+    ~QFontStruct();
+
+    Qt::HANDLE handle;
+    QCString name;
+    QTextCodec *codec;
+};
+
+#endif
+
 
 
 // QFontPrivate - holds all data on which a font operates
@@ -82,7 +99,8 @@ class QFontPrivate : public QShared
 {
 public:
     QFontPrivate()
-	: printerHackFont(0), exactMatch(FALSE), lineWidth(1)
+	: // printerHackFont(0),
+	exactMatch(FALSE), lineWidth(1)
     {
 	request.pointSize = 0;
 	request.lbearing = SHRT_MIN;
@@ -98,6 +116,20 @@ public:
 	request.rawMode = FALSE;
 	request.dirty = TRUE;
 
+	actual.pointSize = 0;
+	actual.lbearing = SHRT_MIN;
+	actual.rbearing = SHRT_MIN;
+	actual.styleHint = QFont::AnyStyle;
+	actual.styleStrategy = QFont::PreferDefault;
+	actual.weight = 0;
+	actual.italic = FALSE;
+	actual.underline = FALSE;
+	actual.strikeOut = FALSE;
+	actual.fixedPitch = FALSE;
+	actual.hintSetByUser = FALSE;
+	actual.rawMode = FALSE;
+	actual.dirty = TRUE;
+
 #ifndef QT_NO_COMPAT
 	charset = QFont::AnyCharSet;
 #endif
@@ -106,17 +138,15 @@ public:
 
     QFontPrivate(const QFontPrivate &fp)
 	: QShared(fp), request(fp.request), actual(fp.actual),
-	  printerHackFont(fp.printerHackFont), exactMatch(fp.exactMatch),
+	  // printerHackFont(fp.printerHackFont),
+	  exactMatch(fp.exactMatch),
 	  lineWidth(1)
-    {
 
 #ifdef Q_WS_X11
-	x11data = fp.x11data;
-	// for (int i = 0; i < QFont::NCharSets; i++) {
-	// x11data.fs[0] = 0;
-	// x11data.fontName[i].resize(0);
-	// }
+	, x11data(fp.x11data)
 #endif
+
+    {
 
 #ifndef QT_NO_COMPAT
 	charset = fp.charset;
@@ -124,23 +154,20 @@ public:
 
     }
 
-    ~QFontPrivate()
-    {
-    }
-
     // requested font
     QFontDef request;
     // actual font
     QFontDef actual;
 
-    QFont *printerHackFont;
+    // QFont *printerHackFont;
     bool exactMatch;
     int lineWidth;
 
     QString defaultFamily() const;
     QString lastResortFamily() const;
     QString lastResortFont() const;
-    // int deciPointSize() const;
+    QString key() const;
+
 
 #if defined(Q_WS_X11)
     static char **getXFontNames(const char *, int *);
@@ -195,21 +222,60 @@ public:
     void initFontInfo(QFont::CharSet);
     void load(QFont::CharSet, bool = TRUE);
 
+
     struct QFontX11Data {
 	QFontX11Data()
 	{
 	    for (int i = 0; i < QFont::NCharSets; i++) {
-		fs[i] = 0;
-		codec[i] = 0;
+		fontstruct[i] = 0;
+		// codec[i] = 0;
+	    }
+	}
+
+	QFontX11Data(const QFontX11Data &xd)
+	{
+	    for (int i = 0; i < QFont::NCharSets - 1; i++) {
+		if (xd.fontstruct[i] &&
+		    xd.fontstruct[i] != (QFontStruct *) -1 &&
+		    xd.fontstruct[i] != xd.fontstruct[QFont::ISO_10646_1]) {
+		    xd.fontstruct[i]->ref();
+		}
+
+		fontstruct[i] = xd.fontstruct[i];
+		// codec[i] = xd.codec[i];
+	    }
+
+	    if (xd.fontstruct[QFont::ISO_10646_1] &&
+		xd.fontstruct[QFont::ISO_10646_1] != (QFontStruct *) -1) {
+		xd.fontstruct[QFont::ISO_10646_1]->ref();
+	    }
+
+	    fontstruct[QFont::ISO_10646_1] = xd.fontstruct[QFont::ISO_10646_1];
+	    // codec[QFont::ISO_10646_1] = xd.codec[QFont::ISO_10646_1];
+	}
+
+	~QFontX11Data()
+	{
+	    for (int i = 0; i < QFont::NCharSets - 1; i++) {
+		if (fontstruct[i] &&
+		    fontstruct[i] != (QFontStruct *) -1 &&
+		    fontstruct[i] != fontstruct[QFont::ISO_10646_1]) {
+		    fontstruct[i]->deref();
+		}
+	    }
+
+	    if (fontstruct[QFont::ISO_10646_1] &&
+		fontstruct[QFont::ISO_10646_1] != (QFontStruct *) -1) {
+		fontstruct[QFont::ISO_10646_1]->deref();
 	    }
 	}
 
 	// X fontstruct handles for each character set
-	Qt::HANDLE fs[QFont::NCharSets];
-	// XLFD name - one per character set
-	QCString fontName[QFont::NCharSets];
-	QTextCodec *codec[QFont::NCharSets];
+	QFontStruct *fontstruct[QFont::NCharSets];
+	// Unicode -> font encoding
+	// QTextCodec *codec[QFont::NCharSets];
     } x11data;
+
 
     static QFont::CharSet defaultCharSet;
 #endif

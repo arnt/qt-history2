@@ -49,7 +49,8 @@
 
 // REVISED: arnt
 
-/* paintevent magic to provide Windows semantics on X11
+/*
+  paintevent magic to provide Windows semantics on X11
  */
 static QRegion* paintEventClipRegion = 0;
 static QPaintDevice* paintEventDevice = 0;
@@ -598,7 +599,7 @@ void QPainter::updateFont()
     // HANDLE h =
 
     // force font loading if it hasn't happened already
-    cfont.handle();
+    // cfont.handle();
 
     // if ( h ) {
     // XSetFont( dpy, gc, h );
@@ -2670,9 +2671,10 @@ static void ins_text_bitmap( const QString &key, QBitmap *bm )
 
 
 // used for fancy drawText
-struct truple
+struct qt_truple
 {
-    truple() : charset((QFont::CharSet) -1), stroffset(-1), xoffset(0) { ; }
+    qt_truple() : charset((QFont::CharSet) -1), stroffset(-1), xoffset(0) { ; }
+    QCString mapped;
     QFont::CharSet charset;
     int stroffset;
     int xoffset;
@@ -2799,8 +2801,6 @@ void QPainter::drawText( int x, int y, const QString &str, int len )
 	    map( x, y, &x, &y );
     }
 
-    QCString mapped;
-
     // we are going to to this:
     //
     // 1. allocate an array of encoding/pixeloffset/stringoffset truples as long as
@@ -2816,13 +2816,14 @@ void QPainter::drawText( int x, int y, const QString &str, int len )
     // 7. delete array from step 1
 
     // step 1
-    struct truple *truples = new truple[len + 1];
+    struct qt_truple *truples = new qt_truple[len + 1];
     int currt = 0;
     int currx = x;
 
     // step 2
     const QChar *uc = str.unicode();
     QFont::CharSet currs = QFont::Unknown, tmp;
+    XFontStruct *f;
     int i;
 
     // find encoding boundaries
@@ -2835,18 +2836,30 @@ void QPainter::drawText( int x, int y, const QString &str, int len )
 	    currs = tmp;
 
 	    truples[currt].charset = currs;
-	    
+
 	    if (currt != 0) {
-		// 2b. string width (this is for the PREVIOUS truple)
-		if (cfont.d->x11data.codec[truples[currt - 1].charset]) {
-		    mapped = cfont.d->x11data.codec[truples[currt - 1].charset]->
-			     fromUnicode(str.mid(truples[currt - 1].stroffset,
-						 i - truples[currt - 1].stroffset));
+		// if (! cfont.d->x11data.fontstruct[truples[currt - 1].charset]) {
+		cfont.d->load(truples[currt - 1].charset);
+
+		if (! cfont.d->x11data.fontstruct[truples[currt - 1].charset]) {
+		    continue;
 		}
-	    
-		XFontStruct *f =
-		    (XFontStruct *) cfont.d->x11data.fs[truples[currt - 1].charset];
-		if (mapped.isNull()) {
+		// }
+
+		f = (XFontStruct *)
+		    cfont.d->x11data.fontstruct[truples[currt - 1].charset]->handle;
+
+		// 2b. string width (this is for the PREVIOUS truple)
+		if (cfont.d->x11data.fontstruct[truples[currt - 1].charset]->codec) {
+		    truples[currt - 1].mapped =
+			cfont.d->x11data.fontstruct[truples[currt - 1].charset]->codec->
+			fromUnicode(str.mid(truples[currt - 1].stroffset,
+					    i - truples[currt - 1].stroffset));
+		} else {
+		    truples[currt - 1].mapped.resize(0);
+		}
+
+		if (truples[currt - 1].mapped.isNull()) {
 		    if (f->max_byte1) {
 			currx +=
 			    XTextWidth16(f, (XChar2b *)
@@ -2858,19 +2871,59 @@ void QPainter::drawText( int x, int y, const QString &str, int len )
 		    // we know nothing about
 		} else {
 		    if (f->max_byte1) {
-			currx += XTextWidth16(f, (XChar2b *) mapped.data(),
-					      mapped.length() / 2);
+			currx += XTextWidth16(f, (XChar2b *) truples[currt - 1].mapped.data(),
+					      truples[currt - 1].mapped.length() / 2);
 		    } else {
-			currx += XTextWidth(f, mapped.data(), mapped.length());
+			currx += XTextWidth(f, truples[currt - 1].mapped.data(),
+					    truples[currt - 1].mapped.length());
 		    }
 		}
 	    }
-	    
+
 	    // 2c.
 	    truples[currt].charset = currs;
 	    truples[currt].stroffset = i;
 	    truples[currt].xoffset = currx;
 	    currt++;
+	}
+    }
+
+
+    if (currt != 0) {
+	cfont.d->load(truples[currt - 1].charset);
+	if (cfont.d->x11data.fontstruct[truples[currt - 1].charset]) {
+	    f = (XFontStruct *)
+		cfont.d->x11data.fontstruct[truples[currt - 1].charset]->handle;
+
+	    // 2b. string width (this is for the PREVIOUS truple)
+	    if (cfont.d->x11data.fontstruct[truples[currt - 1].charset]->codec) {
+		truples[currt - 1].mapped =
+		    cfont.d->x11data.fontstruct[truples[currt - 1].charset]->codec->
+		    fromUnicode(str.mid(truples[currt - 1].stroffset,
+					i - truples[currt - 1].stroffset));
+	    } else {
+		truples[currt - 1].mapped.resize(0);
+	    }
+
+	    if (truples[currt - 1].mapped.isNull()) {
+		if (f->max_byte1) {
+		    currx +=
+			XTextWidth16(f, (XChar2b *)
+				     (str.unicode() + truples[currt - 1].stroffset),
+				     i - truples[currt - 1].stroffset);
+		}
+		// STOP: we want to use unicode, but don't have a multi-byte
+		// font?  something is seriously wrong... assume we have text
+		// we know nothing about
+	    } else {
+		if (f->max_byte1) {
+		    currx += XTextWidth16(f, (XChar2b *) truples[currt - 1].mapped.data(),
+					  truples[currt - 1].mapped.length() / 2);
+		} else {
+		    currx += XTextWidth(f, truples[currt - 1].mapped.data(),
+					truples[currt - 1].mapped.length());
+		}
+	    }
 	}
     }
 
@@ -2884,33 +2937,43 @@ void QPainter::drawText( int x, int y, const QString &str, int len )
 	int j;
 	currs = truples[i].charset;
 
-	XFontStruct *f = (XFontStruct *) cfont.d->x11data.fs[currs];
+	// we don't need to load fonts twice
+	/*
+	  cfont.d->load(currs);
+	  if (! cfont.d->x11data.fontstruct[currs]) {
+	  continue;
+	  }
+	*/
+
+	f = (XFontStruct *) cfont.d->x11data.fontstruct[currs]->handle;
 	XSetFont(dpy, gc, f->fid);
 
 	for (j = i; j < len; j++) {
 	    if (truples[j].charset != currs) continue;
-	    
+
 	    QString v = str;
 #ifdef QT_BIDI
 	    v.compose();  // apply ligatures (for arabic, etc...)
 	    v = v.visual(); // visual ordering
-	    
+
 	    if (v.length < len)
 		len = v.length();
 #endif
-	    
+
 	    int l;
 	    if (truples[j + 1].stroffset == -1)
 		l = len - truples[j].stroffset;
 	    else
 		l = truples[j + 1].stroffset - truples[j].stroffset;
-	    
-	    if (cfont.d->x11data.codec[currs]) {
-		mapped = cfont.d->x11data.codec[currs]->
-			 fromUnicode(v.mid(truples[j].stroffset, l));
-	    }
-	    
-	    if (mapped.isNull()) {
+
+	    /*
+	      if (cfont.d->x11data.codec[currs]) {
+	      truples[j].mapped = cfont.d->x11data.codec[currs]->
+	      fromUnicode(v.mid(truples[j].stroffset, l));
+	      }
+	    */
+
+	    if (truples[j].mapped.isNull()) {
 		if (f->max_byte1) {
 		    XDrawString16(dpy, hd, gc, truples[j].xoffset, y,
 				  (XChar2b *) (v.unicode() + truples[j].stroffset), l);
@@ -2921,10 +2984,12 @@ void QPainter::drawText( int x, int y, const QString &str, int len )
 	    } else {
 		if (f->max_byte1) {
 		    XDrawString16(dpy, hd, gc, truples[j].xoffset, y,
-				  (XChar2b *) (mapped.data()), mapped.length() / 2);
+				  (XChar2b *) truples[j].mapped.data(),
+				  truples[j].mapped.length() / 2);
 		} else {
-		    XDrawString(dpy, hd, gc, truples[j].xoffset, y, mapped.data(),
-				mapped.length());
+		    XDrawString(dpy, hd, gc, truples[j].xoffset, y,
+				truples[j].mapped.data(),
+				truples[j].mapped.length());
 		}
 	    }
 	}
