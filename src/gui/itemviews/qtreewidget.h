@@ -62,6 +62,11 @@ public:
     inline void setFont(int column, const QFont &font)
         { setData(column, QAbstractItemModel::FontRole, font); }
 
+    inline int textAlignment(int column) const
+        { return data(column, QAbstractItemModel::TextAlignmentRole).toInt(); }
+    inline void setTextAlignment(int column, int alignment)
+        { setData(column, QAbstractItemModel::TextAlignmentRole, alignment); }
+
     inline QColor backgroundColor(int column) const
         { return data(column, QAbstractItemModel::BackgroundColorRole).toColor(); }
     inline void setBackgroundColor(int column, const QColor &color)

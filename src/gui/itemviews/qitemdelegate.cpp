@@ -142,6 +142,11 @@ void QItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option,
     if (value.isValid())
         opt.font = value.toFont();
 
+    // set text alignment
+    value = model->data(index, QAbstractItemModel::TextAlignmentRole);
+    if (value.isValid())
+        opt.displayAlignment = value.toInt();
+
     // set text color
     value = model->data(index, QAbstractItemModel::TextColorRole);
     if (value.isValid() && value.toColor().isValid())

@@ -223,6 +223,20 @@ QListWidgetItem::QListWidgetItem(QListWidget *view)
         model->insert(model->rowCount(), this);
 }
 
+QListWidgetItem::QListWidgetItem(const QString &text, QListWidget *view)
+    : itemFlags(QAbstractItemModel::ItemIsEditable
+                |QAbstractItemModel::ItemIsSelectable
+                |QAbstractItemModel::ItemIsCheckable
+                |QAbstractItemModel::ItemIsEnabled),
+      model(0)
+{
+    setData(QAbstractItemModel::DisplayRole, text);
+    if (view)
+        model = ::qt_cast<QListModel*>(view->model());
+    if (model)
+        model->insert(model->rowCount(), this);
+}
+
 /*!
   Destroys the list item.
 */

@@ -25,6 +25,7 @@ class Q_GUI_EXPORT QListWidgetItem
     friend class QListModel;
 public:
     QListWidgetItem(QListWidget *view = 0);
+    QListWidgetItem(const QString &text, QListWidget *view = 0);
     virtual ~QListWidgetItem();
 
     inline QAbstractItemModel::ItemFlags flags() const { return itemFlags; }
@@ -59,6 +60,11 @@ public:
         { return data(QAbstractItemModel::FontRole).toFont(); }
     inline void setFont(const QFont &font)
         { setData(QAbstractItemModel::FontRole, font); }
+
+    inline int textAlignment() const
+        { return data(QAbstractItemModel::TextAlignmentRole).toInt(); }
+    inline void setTextAlignment(int alignment)
+        { setData(QAbstractItemModel::TextAlignmentRole, alignment); }
 
     inline QColor backgroundColor() const
         { return data(QAbstractItemModel::BackgroundColorRole).toColor(); }

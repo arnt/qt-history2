@@ -60,6 +60,11 @@ public:
     inline void setFont(const QFont &font)
         { setData(QAbstractItemModel::FontRole, font); }
 
+    inline int textAlignment() const
+        { return data(QAbstractItemModel::TextAlignmentRole).toInt(); }
+    inline void setTextAlignment(int alignment)
+        { setData(QAbstractItemModel::TextAlignmentRole, alignment); }
+
     inline QColor backgroundColor() const
         { return data(QAbstractItemModel::BackgroundColorRole).toColor(); }
     inline void setBackgroundColor(const QColor &color)

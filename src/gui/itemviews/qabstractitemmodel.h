@@ -103,12 +103,13 @@ public:
         WhatsThisRole = 5,
         // Metadata
         FontRole = 6,
-        BackgroundColorRole = 7,
-        TextColorRole = 8,
-        CheckStateRole = 9,
+        TextAlignmentRole = 7,
+        BackgroundColorRole = 8,
+        TextColorRole = 9,
+        CheckStateRole = 10,
         // Accessibility
-        AccessibleTextRole = 10,
-        AccessibleDescriptionRole = 11,
+        AccessibleTextRole = 11,
+        AccessibleDescriptionRole = 12,
         // Reserved
         UserRole = 32
     };
