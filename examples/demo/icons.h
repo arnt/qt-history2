@@ -708,7 +708,7 @@ const char *texticon[] = {
 };
 
 /* XPM */
-const char *2dicon[] = {
+const char *twodicon[] = {
 /* columns rows colors chars-per-pixel */
 "49 69 32 1",
 "  c None",

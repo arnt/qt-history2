@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/demo/main.cpp#10 $
+** $Id: //depot/qt/main/examples/demo/main.cpp#11 $
 **
 ** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
 **
@@ -42,6 +42,7 @@ int main( int argc, char **argv )
     QPixmap dbpix(dbicon);
     QPixmap textpix(texticon);
     QPixmap widgetpix(widgeticon);
+    QPixmap twodpix(twodicon);
 
     // example 1
     QTabWidget *tab = new QTabWidget();
@@ -60,7 +61,7 @@ int main( int argc, char **argv )
     w = new GraphWidget( tab );
     tab->addTab( w, "Graph Drawing" );
     tab->addTab( new DisplayWidget(), "Display" );
-    frame.addCategory( tab, pix, "p4 2D Graphics" );
+    frame.addCategory( tab, twodpix, "2D Graphics" );
 
     // example 4
     tab = new QTabWidget();
