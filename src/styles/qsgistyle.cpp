@@ -139,12 +139,13 @@ QSGIStyle::polish( QApplication* app)
     pal.setColor( QPalette::Disabled, QColorGroup::HighlightedText, pal.disabled().text() );
 
     QApplication::setPalette( pal, TRUE, "QLineEdit" );
-    QApplication::setPalette( pal, TRUE, "QMultiLineEdit" );
+    QApplication::setPalette( pal, TRUE, "QTextEdit" );
 
     pal = QApplication::palette();
     pal.setColor( QColorGroup::Button, pal.active().background() );
     QApplication::setPalette( pal, TRUE, "QMenuBar" );
     QApplication::setPalette( pal, TRUE, "QToolBar" );
+    QApplication::setPalette( pal, TRUE, "QPopupMenu" );
 }
 
 /*! \reimp
@@ -942,7 +943,7 @@ void QSGIStyle::drawControl( ControlElement element,
 		    drawPanel( p, x+1, y+1, w-2, h-2, cg, FALSE, 1,
 				     &cg.brush( QColorGroup::Light ) );
 	    } else {
-		p->fillRect( x, y, w, h, cg.brush( QColorGroup::Background ) );
+		p->fillRect( x, y, w, h, cg.brush( QColorGroup::Button ) );
 	    }
 
 	    if ( !mi )
@@ -956,7 +957,7 @@ void QSGIStyle::drawControl( ControlElement element,
 	    } else {
 		if ( !act )
 		    p->fillRect( x+sgiItemFrame, y+sgiItemFrame, checkcol, h-2*sgiItemFrame,
-				cg.brush( QColorGroup::Background ) );
+				cg.brush( QColorGroup::Button ) );
 	    }
 
 	    if ( mi->iconSet() ) {
