@@ -821,17 +821,20 @@ bool QFtpPI::processReply()
 	rawCommand = FALSE;
     } else if ( replyCodeInt == 227 ) {
 	// 227 Entering Passive Mode (h1,h2,h3,h4,p1,p2)
-	int l = replyText.indexOf( '(' );
-	int r = replyText.indexOf( ')' );
-	if ( l<0 || r<0 ) {
+        // rfc959 does not define this response precisely, and gives
+        // both examples where the parenthesis are used, and where
+        // they are missing. We need to scan for the address and host
+        // info.
+	QRegExp addrPortPattern("(\\d+),(\\d+),(\\d+),(\\d+),(\\d+),(\\d+)");
+	if (addrPortPattern.search(replyText) == -1) {
 #if defined(QFTPPI_DEBUG)
 	    qDebug( "QFtp: bad 227 response -- address and port information missing" );
 #endif
 	    // ### error handling
 	} else {
-	    QStringList lst = QStringList::split( ',', replyText.mid(l+1,r-l-1) );
-	    QString host = lst[0] + "." + lst[1] + "." + lst[2] + "." + lst[3];
-	    Q_UINT16 port = ( lst[4].toUInt() << 8 ) + lst[5].toUInt();
+	    QStringList lst = addrPortPattern.capturedTexts();
+	    QString host = lst[1] + "." + lst[2] + "." + lst[3] + "." + lst[4];
+	    Q_UINT16 port = ( lst[5].toUInt() << 8 ) + lst[6].toUInt();
 	    waitForDtpToConnect = TRUE;
 	    dtp.connectToHost( host, port );
 	}
