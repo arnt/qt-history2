@@ -219,9 +219,9 @@ NmakeMakefileGenerator::writeNmakeParts(QTextStream &t)
 		continue;
 	    for(cppit = Option::cpp_ext.begin(); cppit != Option::cpp_ext.end(); ++cppit)
 		t << "{" << it.currentKey() << "}" << (*cppit) << "{" << var("OBJECTS_DIR") << "}" << Option::obj_ext << "::\n\t"
-		  << var("QMAKE_RUN_CXX_IMP_BATCH", it.currentKey(), var("OBJECTS_DIR")).replace(QRegExp( "\\$@" ), var("OBJECTS_DIR")) << endl << "\t$<" << endl << "<<" << endl << endl;
+		  << var("QMAKE_RUN_CXX_IMP_BATCH") << endl << "\t$<" << endl << "<<" << endl << endl;
 	    t << "{" << it.currentKey() << "}" << ".c{" << var("OBJECTS_DIR") << "}" << Option::obj_ext << "::\n\t"
-	      << var("QMAKE_RUN_CC_IMP_BATCH", it.currentKey(), var("OBJECTS_DIR")).replace(QRegExp( "\\$@" ), var("OBJECTS_DIR")) << endl << "\t$<" << endl << "<<" << endl << endl;
+	      << var("QMAKE_RUN_CC_IMP_BATCH") << endl << "\t$<" << endl << "<<" << endl << endl;
 	}
     } else {
 	for(cppit = Option::cpp_ext.begin(); cppit != Option::cpp_ext.end(); ++cppit)
@@ -387,7 +387,7 @@ NmakeMakefileGenerator::writeNmakeParts(QTextStream &t)
 }
 
 QString
-NmakeMakefileGenerator::var(const QString &value, const QString &src, const QString &obj)
+NmakeMakefileGenerator::var(const QString &value)
 {
     if (usePCH
 	&& (value == "QMAKE_RUN_CXX"

@@ -1488,7 +1488,7 @@ MakefileGenerator::writeObj(QTextStream &t, const QString &obj, const QString &s
 	    }
 	}
 	if (!use_implicit_rule && !project->isEmpty(comp)) {
-	    QString p = var(comp, (*sit), (*oit));
+	    QString p = var(comp);
 	    p.replace(stringSrc, (*sit));
 	    p.replace(stringObj, (*oit));
 	    t << "\n\t" << p;
@@ -1574,7 +1574,7 @@ MakefileGenerator::writeMocObj(QTextStream &t, const QString &obj, const QString
 	    }
 	}
 	if (!use_implicit_rule && !project->isEmpty("QMAKE_RUN_CXX")) {
-	    QString p = var("QMAKE_RUN_CXX", (*sit), (*oit));
+	    QString p = var("QMAKE_RUN_CXX");
 	    p.replace(stringSrc, (*sit));
 	    p.replace(stringObj, (*oit));
 	    t << "\n\t" << p;
@@ -1925,7 +1925,7 @@ MakefileGenerator::writeInstalls(QTextStream &t, const QString &installs)
 }
 
 QString
-MakefileGenerator::var(const QString &var, const QString &, const QString &)
+MakefileGenerator::var(const QString &var)
 {
     return val(project->variables()[var]);
 }

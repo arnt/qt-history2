@@ -102,7 +102,7 @@ protected:
     void setProcessedDependencies(const QString &file, bool b);
     bool processedDependencies(const QString &file);
 
-    virtual QString var(const QString &var, const QString &src = QString::null, const QString &obj = QString::null );
+    virtual QString var(const QString &var);
     QString varGlue(const QString &var, const QString &before, const QString &glue, const QString &after);
     QString varList(const QString &var);
     QString val(const QStringList &varList);
