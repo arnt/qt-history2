@@ -209,7 +209,7 @@ void QSqlQueryModel::setQuery(const QSqlQuery &query)
     }
     if (d->query.driver()->hasFeature(QSqlDriver::QuerySize)) {
         d->atEnd = true;
-        d->bottom = createIndex(d->query.size(), d->rec.count() - 1);
+        d->bottom = createIndex(d->query.size() - 1, d->rec.count() - 1);
     } else {
         d->bottom = createIndex(0, d->rec.count() - 1);
         fetchMore();
