@@ -50,6 +50,7 @@
 #include <qtoolbutton.h>
 #include <qtreeview.h>
 #include <qtimer.h>
+#include <private/qaquatabpix_mac_p.h>
 
 extern QRegion qt_mac_convert_mac_region(RgnHandle); //qregion_mac.cpp
 
@@ -386,6 +387,7 @@ public:
     void AppManAdjustButtonSize(QStyle::ContentsType ct, QSize &sz, const QWidget *w);
     int AppManPixelMetric(QStyle::PixelMetric metric, const QStyleOption *opt,
                           const QWidget *widget) const;
+    void drawPantherTab(const QStyleOptionTab *tab, QPainter *p, const QWidget *w = 0) const;
 
 protected:
     bool eventFilter(QObject *, QEvent *);
@@ -1102,6 +1104,126 @@ void QMacStylePrivate::objDestroyed(QObject *o)
         focusOnWidget(0);
 }
 
+enum { TabNormalLeft, TabNormalMid, TabNormalRight, TabSelectedActiveLeft,
+       TabSelectedActiveMid, TabSelectedActiveRight, TabSelectedInactiveLeft,
+       TabSelectedInactiveMid, TabSelectedInactiveRight };
+
+static const char * const * const PantherTabXpms[] = {
+                                    qt_mac_tabnrm_left,
+                                    qt_mac_tabnrm_mid,
+                                    qt_mac_tabnrm_right,
+                                    qt_mac_tabselected_active_left,
+                                    qt_mac_tabselected_active_mid,
+                                    qt_mac_tabselected_active_right,
+                                    qt_mac_tabselected_inactive_left,
+                                    qt_mac_tabselected_inactive_mid,
+                                    qt_mac_tabselected_inactive_right };
+
+void QMacStylePrivate::drawPantherTab(const QStyleOptionTab *tabOpt, QPainter *p,
+                                      const QWidget *) const
+{
+    QString tabKey = QLatin1String("$qt_mac_style_tab_");
+    int pantherTabStart;
+    int pantherTabMid;
+    int pantherTabEnd;
+
+    if (!(tabOpt->state & QStyle::Style_Selected))
+        pantherTabStart = TabNormalLeft;
+    else if (!(tabOpt->state & QStyle::Style_Active))
+        pantherTabStart = TabSelectedInactiveLeft;
+    else
+        pantherTabStart = TabSelectedActiveLeft;
+
+    bool doLine;
+    bool verticalTabs = tabOpt->shape == QTabBar::RoundedEast
+        || tabOpt->shape == QTabBar::RoundedWest
+        || tabOpt->shape == QTabBar::TriangularEast
+        || tabOpt->shape == QTabBar::TriangularWest;
+
+    QStyleOptionTab::TabPosition tp = tabOpt->position;
+    bool westSide = tabOpt->shape == QTabBar::RoundedWest
+                                        || tabOpt->shape == QTabBar::TriangularWest;
+    if (westSide) {
+        if (tp == QStyleOptionTab::Beginning)
+            tp = QStyleOptionTab::End;
+        else if (tp == QStyleOptionTab::End)
+            tp = QStyleOptionTab::Beginning;
+    }
+
+    switch (tp) {
+    case QStyleOptionTab::Beginning:
+        doLine = false;
+        pantherTabMid = pantherTabEnd = pantherTabStart + 1;
+        break;
+    case QStyleOptionTab::Middle:
+        doLine = true;
+        pantherTabMid = pantherTabEnd = ++pantherTabStart;
+        break;
+    case QStyleOptionTab::End:
+        doLine = true;
+        pantherTabMid = ++pantherTabStart;
+        pantherTabEnd = pantherTabMid + 1;
+        break;
+    case QStyleOptionTab::OnlyOneTab:
+        doLine = false;
+        pantherTabMid = pantherTabStart + 1;
+        pantherTabEnd = pantherTabMid + 1;
+        break;
+    }
+    QPixmap pmStart;
+    if (!QPixmapCache::find(tabKey + QString::number(pantherTabStart), pmStart)) {
+        pmStart = QPixmap(PantherTabXpms[pantherTabStart]);
+        QPixmapCache::insert(tabKey + QString::number(pantherTabStart), pmStart);
+    }
+
+    QPixmap pmMid;
+    if (!QPixmapCache::find(tabKey + QString::number(pantherTabMid), pmMid)) {
+        pmMid = QPixmap(PantherTabXpms[pantherTabMid]);
+        QPixmapCache::insert(tabKey + QString::number(pantherTabMid), pmMid);
+    }
+
+    QPixmap pmEnd;
+    if (!QPixmapCache::find(tabKey + QString::number(pantherTabEnd), pmEnd)) {
+        pmEnd = QPixmap(PantherTabXpms[pantherTabEnd]);
+        QPixmapCache::insert(tabKey + QString::number(pantherTabEnd), pmEnd);
+    }
+    QRect tr = tabOpt->rect;
+    if (verticalTabs) {
+        p->save();
+        int newX, newY, newRot;
+        if (tabOpt->shape == QTabBar::RoundedEast || tabOpt->shape == QTabBar::TriangularEast) {
+            newX = tr.width();
+            newY = tr.y();
+            newRot = 90;
+        } else {
+            newX = 0;
+            newY = tr.y() + tr.height();
+            newRot = -90;
+        }
+        tr.setRect(0, 0, tr.height(), tr.width());
+        QMatrix m;
+        m.translate(newX, newY);
+        m.rotate(newRot);
+        p->setMatrix(m, true);
+    }
+
+    int x = tr.x();
+    int y = tr.y();
+    int endX = x + tr.width() - pmEnd.width();
+
+    p->drawPixmap(x, y, pmStart.width(), tr.height(), pmStart);
+    if (doLine) {
+        QPen oldPen = p->pen();
+        p->setPen(QColor(0, 0, 0, 0x35));
+        p->drawLine(x, y + 1, x, tr.height() - 2);
+    }
+
+    for (x = x + pmStart.width(); x < endX; x += pmMid.width())
+        p->drawPixmap(x, y, pmMid.width(), tr.height(), pmMid);
+    p->drawPixmap(endX, y, pmEnd.width(), tr.height(), pmEnd);
+    if (verticalTabs)
+        p->restore();
+}
 
 bool QMacStylePrivate::addWidget(QWidget *w)
 {
@@ -1996,32 +2118,34 @@ void QMacStylePrivate::HIThemeDrawControl(QStyle::ControlElement ce, const QStyl
         break;
     case QStyle::CE_TabBarTab:
         if (const QStyleOptionTab *tabOpt = qt_cast<const QStyleOptionTab *>(opt)) {
-            HIThemeTabDrawInfo tdi;
-            tdi.version = qt_mac_hitheme_tab_version();
-            tdi.style = kThemeTabNonFront;
-            if (tabOpt->state & QStyle::Style_Selected) {
-                if (!(tabOpt->state & QStyle::Style_Active))
-                    tdi.style = kThemeTabFrontUnavailable;
-                else if (!(tabOpt->state & QStyle::Style_Enabled))
-                    tdi.style = kThemeTabFrontInactive;
+            if (QSysInfo::MacintoshVersion < QSysInfo::MV_10_4) {
+                drawPantherTab(tabOpt, p, w);
+            } else {
+                HIThemeTabDrawInfo tdi;
+                tdi.version = 1;
+                tdi.style = kThemeTabNonFront;
+                if (tabOpt->state & QStyle::Style_Selected) {
+                    if (!(tabOpt->state & QStyle::Style_Active))
+                        tdi.style = kThemeTabFrontUnavailable;
+                    else if (!(tabOpt->state & QStyle::Style_Enabled))
+                        tdi.style = kThemeTabFrontInactive;
+                    else
+                        tdi.style = kThemeTabFront;
+                } else if (!(tabOpt->state & QStyle::Style_Active)) {
+                    tdi.style = kThemeTabNonFrontUnavailable;
+                } else if (!(tabOpt->state & QStyle::Style_Enabled)) {
+                    tdi.style = kThemeTabNonFrontInactive;
+                } else if ((tabOpt->state & (QStyle::Style_Sunken | QStyle::Style_MouseOver))
+                           == (QStyle::Style_Sunken | QStyle::Style_MouseOver)) {
+                    tdi.style = kThemeTabNonFrontPressed;
+                }
+                tdi.direction = getTabDirection(tabOpt->shape);
+                if (tabOpt->state & QStyle::Style_HasFocus)
+                    tdi.adornment = kHIThemeTabAdornmentFocus;
                 else
-                    tdi.style = kThemeTabFront;
-            } else if (!(tabOpt->state & QStyle::Style_Active)) {
-                tdi.style = kThemeTabNonFrontUnavailable;
-            } else if (!(tabOpt->state & QStyle::Style_Enabled)) {
-                tdi.style = kThemeTabNonFrontInactive;
-            } else if ((tabOpt->state & (QStyle::Style_Sunken | QStyle::Style_MouseOver))
-                       == (QStyle::Style_Sunken | QStyle::Style_MouseOver)) {
-                tdi.style = kThemeTabNonFrontPressed;
-            }
-            tdi.direction = getTabDirection(tabOpt->shape);
-            if (tabOpt->state & QStyle::Style_HasFocus)
-                tdi.adornment = kHIThemeTabAdornmentFocus;
-            else
-                tdi.adornment = kHIThemeTabAdornmentNone;
-            QRect tabRect = tabOpt->rect;
+                    tdi.adornment = kHIThemeTabAdornmentNone;
+                QRect tabRect = tabOpt->rect;
 #if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_4)
-            if (tdi.version == 1) {
                 tdi.kind = kHIThemeTabKindNormal;
                 if (tabOpt->position == QStyleOptionTab::Beginning)
                     tdi.position = kHIThemeTabPositionFirst;
@@ -2033,38 +2157,12 @@ void QMacStylePrivate::HIThemeDrawControl(QStyle::ControlElement ce, const QStyl
                     tdi.position = kHIThemeTabPositionOnly;
                 if (tabOpt->position != QStyleOptionTab::End)
                     tabRect.setWidth(tabRect.width() + 1);
-            } else if (tdi.version == 0)
 #endif
-            {
-                tabRect.setHeight(tabRect.height() + q->pixelMetric(QStyle::PM_TabBarBaseOverlap,
-                                  tabOpt, w));
-            }
-            HIRect hirect = qt_hirectForQRect(tabRect, p);
-            QCFType<HIShapeRef> tabDrawShape;
-            HIThemeGetTabDrawShape(&hirect, &tdi, &tabDrawShape);
-            HIShapeGetBounds(tabDrawShape, &hirect);
-            HIThemeDrawTab(&hirect, &tdi, cg, kHIThemeOrientationNormal, 0);
-            if (tdi.version == 0) {
-                if (!(opt->state & QStyle::Style_Selected)) {
-                    HIThemeTabPaneDrawInfo tpdi;
-                    tpdi.version = 0;
-                    tpdi.state = tds;
-                    tpdi.direction = tdi.direction;
-                    tpdi.size = tdi.size;
-                    const int FUDGE = 20;
-                    QRect panerect(tabOpt->rect.x() - FUDGE, tabOpt->rect.bottom() - 2,
-                            2 * FUDGE + tabOpt->rect.width(),
-                            q->pixelMetric(QStyle::PM_TabBarBaseHeight, tabOpt, w));
-                    if (tdi.direction == kThemeTabSouth)
-                        panerect.translate(0, (-tabOpt->rect.height() + 2));
-                    p->save();
-                    p->setClipRect(tabOpt->rect.x(), panerect.y(), tabOpt->rect.width(),
-                            panerect.height());
-                    hirect = qt_hirectForQRect(panerect, p);
-                    HIThemeDrawTabPane(&hirect, &tpdi, cg, kHIThemeOrientationNormal);
-                    p->restore();
-                }
-            } else {
+                HIRect hirect = qt_hirectForQRect(tabRect, p);
+                QCFType<HIShapeRef> tabDrawShape;
+                HIThemeGetTabDrawShape(&hirect, &tdi, &tabDrawShape);
+                HIShapeGetBounds(tabDrawShape, &hirect);
+                HIThemeDrawTab(&hirect, &tdi, cg, kHIThemeOrientationNormal, 0);
 #if 0
                 // Draw the little line for the tabs.
                 if (tabOpt->position != QStyleOptionTab::End) {
