@@ -470,7 +470,7 @@ void QTextLayout::draw(QPainter *p, const QPoint &pos, int cursorPos, const Sele
 		    QRect highlight = QRect(QPoint(pos.x() + l.cursorToX(qMax(s.from(), from)),
 						   pos.y() + sl.y.toInt()),
 					    QPoint(pos.x() + l.cursorToX(qMin(s.from() + s.length(), from+length)) - 1,
-						   pos.y() + (sl.y + sl.ascent + sl.descent).toInt()));
+						   pos.y() + (sl.y + sl.ascent + sl.descent).toInt())).normalize();
 		    drawSelection(p, d->pal, (QTextLayout::SelectionType)s.type(), highlight, l, pos, j);
 		}
 	    }
@@ -683,7 +683,14 @@ int QTextLine::cursorToX( int *cPos, Edge edge ) const
     int pos = *cPos;
 
     int itm = eng->findItem(pos);
-    QScriptItem *si = &eng->items[itm];
+
+    const QScriptLine &line = eng->lines[i];
+    if (pos == line.from + (int)line.length) {
+	// end of line ensure we have the last item on the line
+	itm = eng->findItem(pos-1);
+    }
+
+    const QScriptItem *si = &eng->items[itm];
     pos -= si->position;
 
     eng->shape( itm );
@@ -716,12 +723,11 @@ int QTextLine::cursorToX( int *cPos, Edge edge ) const
 
     // add the items left of the cursor
 
-    const QScriptLine &line = eng->lines[i];
     int lineEnd = line.from + line.length;
-    // don't draw trailing spaces or take them into the layout.
-    const QCharAttributes *attributes = eng->attributes();
-    while (lineEnd > line.from && attributes[lineEnd-1].whiteSpace)
-	--lineEnd;
+//     // don't draw trailing spaces or take them into the layout.
+//     const QCharAttributes *attributes = eng->attributes();
+//     while (lineEnd > line.from && attributes[lineEnd-1].whiteSpace)
+// 	--lineEnd;
 
     int firstItem = eng->findItem(line.from);
     int lastItem = eng->findItem(lineEnd - 1);
