@@ -228,7 +228,6 @@ QLineEdit::QLineEdit( const QString& contents, const QString &inputMask, QWidget
 
 QLineEdit::~QLineEdit()
 {
-    delete d;
 }
 
 
