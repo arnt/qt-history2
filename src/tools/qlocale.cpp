@@ -25,7 +25,7 @@ public:
     static bool bigEndian() { init(); return d->m_big_endian; }
     static const QString &nanStr() { init(); return d->m_nan_str; }
     static const QString &infStr() { init(); return d->m_inf_str; }
-    static const void init() {
+    static void init() {
     	if (d == 0)
 	    initStaticData();
     }
@@ -37,7 +37,7 @@ private:
     double m_inf, m_nan;
     bool m_big_endian;
     QString m_nan_str, m_inf_str;
-    
+
     static QLocaleStaticData *d;
 };
 
@@ -58,16 +58,16 @@ void QLocaleStaticData::initStaticData()
     g_static_data_cleanup_handler.add(&d);
 }
 
-QLocaleStaticData::QLocaleStaticData() 
+QLocaleStaticData::QLocaleStaticData()
 {
     int word_size;
     qSysInfo(&word_size, &m_big_endian);
-    
+
     const unsigned char be_inf_bytes[] = { 0x7f, 0xf0, 0, 0, 0, 0, 0, 0 };
     const unsigned char le_inf_bytes[] = { 0, 0, 0, 0, 0, 0, 0xf0, 0x7f };
     const unsigned char be_nan_bytes[] = { 0x7f, 0xf8, 0, 0, 0, 0, 0, 0 };
     const unsigned char le_nan_bytes[] = { 0, 0, 0, 0, 0, 0, 0xf8, 0x7f };
-    
+
     if (m_big_endian) {
     	m_inf = *(const double*)be_inf_bytes;
     	m_nan = *(const double*)be_nan_bytes;
@@ -80,7 +80,7 @@ QLocaleStaticData::QLocaleStaticData()
     m_inf_str = "inf";
 }
 
-#ifdef Q_WS_WIN 
+#ifdef Q_OS_WIN
 #   define isinf(d) (!_finite(d) && !_isnan(d))
 #   define isnan(d) _isnan(d)
 #ifndef Q_CC_GNU
@@ -2620,7 +2620,7 @@ inline ULong &word1(double &x)
  * #define Storeinc(a,b,c) (*a++ = b << 16 | c & 0xffff)
  */
 
-/* 
+/*
 #if defined(IEEE_LITTLE_ENDIAN) + defined(VAX) + defined(__arm32__)
 #define Storeinc(a,b,c) (((unsigned short *)a)[1] = (unsigned short)b, \
 ((unsigned short *)a)[0] = (unsigned short)c, a++)
@@ -2652,7 +2652,7 @@ inline void Storeinc(ULong *&a, const ULong &b, const ULong &c)
     	((unsigned short *)a)[0] = (unsigned short)b;
     	((unsigned short *)a)[1] = (unsigned short)c;
     }
-    
+
     ++a;
 
 #   undef USE_LITTLE_ENDIAN
