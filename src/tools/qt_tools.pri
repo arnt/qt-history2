@@ -92,7 +92,6 @@ tools {
 		  $$TOOLS_CPP/qdebug.cpp \
 		  $$TOOLS_CPP/qstack.cpp \
 		  $$TOOLS_CPP/qstring.cpp \
-		  $$TOOLS_CPP/qsemaphore.cpp \
 		  $$TOOLS_CPP/qsettings.cpp \
 		  $$TOOLS_CPP/qstringlist.cpp \
 		  $$TOOLS_CPP/qtextstream.cpp \
