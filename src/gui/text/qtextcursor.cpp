@@ -807,7 +807,9 @@ bool QTextCursor::movePosition(MoveOperation op, MoveMode mode, int n)
 */
 void QTextCursor::insertText(const QString &text)
 {
-    insertText(text, charFormat());
+    QTextCharFormat fmt = charFormat();
+    fmt.clearProperty(QTextFormat::ObjectType);
+    insertText(text, fmt);
 }
 
 /*!
@@ -1302,7 +1304,7 @@ bool QTextCursor::atEnd() const
 */
 void QTextCursor::insertBlock()
 {
-    insertBlock(blockFormat(), charFormat());
+    insertBlock(blockFormat());
 }
 
 /*!
@@ -1315,7 +1317,9 @@ void QTextCursor::insertBlock()
 */
 void QTextCursor::insertBlock(const QTextBlockFormat &format)
 {
-    insertBlock(format, charFormat());
+    QTextCharFormat charFmt = charFormat();
+    charFmt.clearProperty(QTextFormat::ObjectType);
+    insertBlock(format, charFmt);
 }
 
 /*!
