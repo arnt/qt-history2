@@ -3186,14 +3186,6 @@ bool QApplication::desktopSettingsAware()
 
 int QApplication::enter_loop()
 {
-#if defined( QT_THREAD_SUPPORT )
-    static bool mustUnlock = TRUE;
-    if ( mustUnlock && qt_is_gui_used ) {
-	mustUnlock = FALSE;
-	qApp->unlock(FALSE);
-    }
-#endif
-
     loop_level++;
 
     bool old_app_exit_loop = app_exit_loop;
