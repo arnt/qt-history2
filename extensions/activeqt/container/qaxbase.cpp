@@ -4125,7 +4125,7 @@ QVariant QAxBase::asVariant() const
     } else {
         cn = cn.mid(cn.lastIndexOf(':') + 1);
         if (QMetaType::type(cn))
-            qVariantSet(qvar, qObject(), cn);
+            qVariantSet(qvar, qObject(), cn + "*");
     }
 
     return qvar;
