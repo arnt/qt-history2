@@ -99,7 +99,7 @@ QDesktopWidgetPrivate::QDesktopWidgetPrivate()
     ++refcount;
 }
 
-QDesktopWidgetPrivate::init(QDesktopWidget *that)
+void QDesktopWidgetPrivate::init(QDesktopWidget *that)
 {
     if (rects)
         return;
@@ -269,7 +269,6 @@ QDesktopWidget::QDesktopWidget()
     : QWidget(*new QDesktopWidgetPrivate, 0, Qt::WType_Desktop)
 {
     setObjectName("desktop");
-    d = new QDesktopWidgetPrivate(this);
 }
 
 /*!
