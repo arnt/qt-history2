@@ -184,7 +184,10 @@ public:
 
 	CE_TabBarTab,
 
-	CE_Splitter
+	CE_Splitter,
+
+	CE_ProgressBar,
+	CE_ProgressBarLabel
 
         /*
 	  CE_MenuBarItem,
@@ -226,7 +229,10 @@ public:
 
 	SR_SliderFocusRect,
 
-	SR_DockWindowHandleRect
+	SR_DockWindowHandleRect,
+
+	SR_ProgressBarContents,
+	SR_ProgressBarLabel
 
 	/*
 	  SR_DefaultFrameContents,
@@ -245,7 +251,8 @@ public:
 	CC_Slider,
 	CC_ToolButton,
 	CC_TitleBar,
-	CC_ListView,
+	CC_ListView
+
 	/*
 	  CC_MenuItem,
 	*/
@@ -358,14 +365,13 @@ public:
 	PM_TabBarBaseHeight,
 	PM_TabBarBaseOverlap,
 
+	PM_ProgressBarChunkWidth,
+
 	PM_SplitterWidth
-	
+
 	/*
 	  PM_PopupFrameWidth,
 	  PM_MenuFrameWidth,
-
-	  PM_SplitterWidth,
-
 
 	  PM_MenuItemSeparation,
 
@@ -388,7 +394,8 @@ public:
 	CT_ToolButton,
 	CT_ComboBox,
 	CT_Splitter,
-	CT_DockWindow
+	CT_DockWindow,
+	CT_ProgressBar
     };
 
     virtual QSize sizeFromContents( ContentsType contents,

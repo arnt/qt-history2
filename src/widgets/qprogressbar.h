@@ -53,10 +53,11 @@ class Q_EXPORT QProgressBar : public QFrame
     Q_OBJECT
     Q_PROPERTY( int totalSteps READ totalSteps WRITE setTotalSteps )
     Q_PROPERTY( int progress READ progress WRITE setProgress )
+    Q_PROPERTY( QString progressString READ progressString )
     Q_PROPERTY( bool centerIndicator READ centerIndicator WRITE setCenterIndicator )
     Q_PROPERTY( bool indicatorFollowsStyle READ indicatorFollowsStyle WRITE setIndicatorFollowsStyle )
     Q_PROPERTY( bool percentageVisible READ percentageVisible WRITE setPercentageVisible )
-	
+
 public:
     QProgressBar( QWidget *parent=0, const char *name=0, WFlags f=0 );
     QProgressBar( int totalSteps, QWidget *parent=0, const char *name=0,
@@ -64,6 +65,7 @@ public:
 
     int		totalSteps() const;
     int		progress()   const;
+    const QString &progressString() const;
 
     QSize	sizeHint() const;
     QSize	minimumSizeHint() const;
@@ -117,6 +119,11 @@ inline int QProgressBar::totalSteps() const
 inline int QProgressBar::progress() const
 {
     return progress_val;
+}
+
+inline const QString &QProgressBar::progressString() const
+{
+    return progress_str;
 }
 
 inline bool QProgressBar::centerIndicator() const

@@ -177,6 +177,13 @@ void QProgressBar::setProgress( int progress )
 #endif
 }
 
+/*!
+  \property QProgressBar::progressString
+  \brief the current amount of progress as a string
+
+  This property is QString::null is the progress counting has not started.
+*/
+
 
 /*!\reimp
 */
@@ -184,7 +191,10 @@ QSize QProgressBar::sizeHint() const
 {
     constPolish();
     QFontMetrics fm = fontMetrics();
-    return QSize( style().progressChunkWidth() * 7 + fm.width( '0' ) * 4, fm.height()+8);
+    int cw = style().pixelMetric(QStyle::PM_ProgressBarChunkWidth, this);
+    return style().sizeFromContents(QStyle::CT_ProgressBar, this,
+				    QSize( cw * 7 + fm.width( '0' ) * 4,
+					   fm.height() + 8));
 }
 
 
@@ -313,73 +323,20 @@ void QProgressBar::drawContents( QPainter *p )
 {
     const QRect bar = contentsRect();
 
-    QPixmap pm;
-    pm.resize( bar.size() );
-
+    QPixmap pm( bar.size() );
     QPainter paint( &pm );
-    QBrush fbrush = backgroundPixmap() ? QBrush( backgroundColor(), *backgroundPixmap() ) : QBrush( backgroundColor() );
+    QBrush fbrush = ( backgroundPixmap() ?
+		      QBrush( backgroundColor(), *backgroundPixmap() ) :
+		      QBrush( backgroundColor() ) );
     paint.fillRect( bar, fbrush );
-
     paint.setFont( p->font() );
-
-    if ( !total_steps ) { // draw busy indicator
-	int bw = bar.width();
-	int x = progress_val % ( bw * 2 );
-	if ( x > bw )
-	    x = 2 * bw - x;
-	x += bar.x();
-	style().drawProgressBar( &paint, bar.x(), bar.y(), bar.width(), bar.height(), colorGroup() );
-	paint.setPen( QPen( colorGroup().highlight(), 4 ) );
-	paint.drawLine( x, bar.y()+1, x, bar.height()-2 );
-    } else {
-	const int unit_width = style().progressChunkWidth();
-
-	bool hasExtraIndicator = percentage_visible && total_steps && (
-				 style() != MotifStyle && auto_indicator ||
-				!auto_indicator && !center_indicator );
-
-	int textw = 0;
-	if ( hasExtraIndicator ) {
-	    QFontMetrics fm = p->fontMetrics();
-	    textw = fm.width(QString::fromLatin1("100%")) + 6;
-	}
-	int u = (bar.width() - textw ) / unit_width;
-	int p_v = progress_val;
-	int t_s = total_steps;
-	if ( u > 0 && progress_val >= INT_MAX / u && t_s >= u ) {
-	    // scale down to something usable.
-	    p_v /= u;
-	    t_s /= u;
-	}
-	int nu = ( u * p_v + t_s/2 ) / t_s;
-
-	style().drawProgressBar( &paint, bar.x(), bar.y(), u*unit_width + 4, bar.height(), colorGroup() );
-	
-	// Draw nu units out of a possible u of unit_width width, each
-	// a rectangle bordered by background color, all in a sunken panel
-	// with a percentage text display at the end.
-	int x = 0;
-	for (int i=0; i<nu; i++) {
-	    style().drawProgressChunk( &paint, bar.x() + x + 2, bar.y() + 2,
-			 unit_width, bar.height() - 4, palette().active() );
-	    x += unit_width;
-	}
-	if ( !hasExtraIndicator && percentage_visible && total_steps ) {
-	    paint.setPen( colorGroup().highlightedText() );
-	    paint.setClipRect( bar.x(), bar.y(), x+2, bar.height() );
-	    paint.drawText( bar, AlignCenter | SingleLine, progress_str );
-	    if ( progress_val != total_steps ) {
-		paint.setClipRect( bar.x() + x+2, bar.y(), bar.width() - x - 2, bar.height() );
-		paint.setPen( colorGroup().highlight() );
-		paint.drawText( bar, AlignCenter | SingleLine, progress_str );	
-	    }
-	} else if ( hasExtraIndicator ) {
-	    paint.setPen( colorGroup().foreground() );
-	    paint.drawText( bar.x()+u*unit_width + 4, bar.y(), textw, bar.height(),
-		AlignCenter | SingleLine, progress_str );
-	}
-    }
-
+    style().drawControl(QStyle::CE_ProgressBar, &paint, this,
+			style().subRect(QStyle::SR_ProgressBarContents, this),
+			colorGroup());
+    if (percentageVisible())
+	style().drawControl(QStyle::CE_ProgressBarLabel, &paint, this,
+			    style().subRect(QStyle::SR_ProgressBarLabel, this),
+			    colorGroup());
     paint.end();
 
     p->drawPixmap( bar.x(), bar.y(), pm );

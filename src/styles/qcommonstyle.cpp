@@ -59,6 +59,7 @@
 #include "qcheckbox.h"
 #include "qradiobutton.h"
 #include "qbitmap.h"
+#include "qprogressbar.h"
 #include <limits.h>
 #include "../widgets/qtitlebar_p.h"
 
@@ -290,20 +291,16 @@ void QCommonStyle::drawPrimitive( PrimitiveOperation op,
 				  void *data ) const
 {
     switch (op) {
-    case PO_HeaderSection:
-	drawPrimitive(PO_ButtonBevel, p, r, cg, flags);
-	break;
-
     case PO_StatusBarSection:
-	qDrawShadeRect( p, r.x(), r.y(), r.width(), r.height(), cg, TRUE, 1, 0, 0 );
+	qDrawShadeRect( p, r, cg, TRUE, 1, 0, 0 );
 	break;
 
     case PO_ButtonCommand:
     case PO_ButtonBevel:
     case PO_ButtonTool:
     case PO_ButtonDropDown:
-	qDrawShadePanel(p, r.x(), r.y(), r.width(), r.height(),
-			cg, flags & PStyle_Sunken, 1,
+    case PO_HeaderSection:
+	qDrawShadePanel(p, r, cg, flags & PStyle_Sunken, 1,
 			&cg.brush(QColorGroup::Button));
 	break;
 
@@ -657,8 +654,7 @@ void QCommonStyle::drawControl( ControlElement element,
     case CE_TabBarTab: {
 	QTabBar * tb = (QTabBar *) widget;
 	if ( tb->shape() == QTabBar::TriangularAbove ||
-	     tb->shape() == QTabBar::TriangularBelow )
-	{
+	     tb->shape() == QTabBar::TriangularBelow ) {
 	    // triangular, above or below
 	    int y;
 	    int x;
@@ -692,6 +688,67 @@ void QCommonStyle::drawControl( ControlElement element,
 	    p->drawPolygon( a );
 	    p->setBrush( NoBrush );
 	}
+	break; }
+
+    case CE_ProgressBar: {
+	QProgressBar *progressbar = (QProgressBar *) widget;
+
+	qDrawShadePanel(p, r, cg, TRUE, 1, &cg.brush(QColorGroup::Background));
+
+	if (! progressbar->totalSteps()) {
+	    // draw busy indicator
+	    int w = r.width();
+	    int x = progressbar->progress() % (w * 2);
+	    if (x > w)
+		x = 2 * w - x;
+	    x += r.x();
+	    p->setPen( QPen(cg.highlight(), 4) );
+	    p->drawLine(x, r.y() + 1, x, r.height() - 2);
+	} else {
+	    const int unit_width = pixelMetric(PM_ProgressBarChunkWidth, widget);
+	    int u = (r.width() - 4) / unit_width;
+	    int p_v = progressbar->progress();
+	    int t_s = progressbar->totalSteps();
+
+	    if ( u > 0 && p_v >= INT_MAX / u && t_s >= u ) {
+		// scale down to something usable.
+		p_v /= u;
+		t_s /= u;
+	    }
+
+	    int nu = ( u * p_v + t_s / 2 ) / t_s;
+	    if (nu * unit_width > r.width() - 4)
+		nu--;
+
+	    // Draw nu units out of a possible u of unit_width width, each
+	    // a rectangle bordered by background color, all in a sunken panel
+	    // with a percentage text display at the end.
+	    int x = 0;
+	    for (int i=0; i<nu; i++) {
+		p->fillRect(r.x() + x + 3, r.y() + 3, unit_width - 2, r.height() - 6,
+			    cg.brush(QColorGroup::Highlight));
+		x += unit_width;
+	    }
+	}
+
+	break; }
+
+    case CE_ProgressBarLabel: {
+	QProgressBar *progressbar = (QProgressBar *) widget;
+	drawItem(p, r, AlignCenter | SingleLine, cg, progressbar->isEnabled(), 0,
+		 progressbar->progressString());
+
+	// MOTIF CODE:
+	// if ( !hasExtraIndicator && percentage_visible && total_steps ) {
+	// paint.setPen( colorGroup().highlightedText() );
+	// paint.setClipRect( bar.x(), bar.y(), x+2, bar.height() );
+	// paint.drawText( bar, AlignCenter | SingleLine, progress_str );
+	// if ( progress_val != total_steps ) {
+	// paint.setClipRect( bar.x() + x+2, bar.y(), bar.width() - x - 2, bar.height() );
+	// paint.setPen( colorGroup().highlight() );
+	// paint.drawText( bar, AlignCenter | SingleLine, progress_str );
+	// }
+
 	break; }
 
     default:
@@ -849,6 +906,20 @@ QRect QCommonStyle::subRect(SubRect r, const QWidget *widget) const
 	    else
 		rect.setRect(0, 1, widget->width() - 15, widget->height() - 1);
 	}
+	break; }
+
+    case SR_ProgressBarContents: {
+	QFontMetrics fm(widget ? widget->fontMetrics() : QApplication::font());
+	int textw = fm.width("100%") + 6;
+	rect.setCoords(wrect.left(), wrect.top(),
+		       wrect.right() - textw, wrect.bottom());
+	break; }
+
+    case SR_ProgressBarLabel: {
+	QFontMetrics fm(widget ? widget->fontMetrics() : QApplication::font());
+	int textw = fm.width("100%") + 6;
+	rect.setCoords(wrect.right() - textw, wrect.top(),
+		       wrect.right(), wrect.bottom());
 	break; }
 
     default:
@@ -1529,13 +1600,17 @@ int QCommonStyle::pixelMetric(PixelMetric m, const QWidget *widget) const
 
     case PM_TabBarVerticalFrame: {
 	QTabBar * tb = (QTabBar *) widget;
-	if ( tb->shape() == QTabBar::RoundedAbove || 
+	if ( tb->shape() == QTabBar::RoundedAbove ||
 	     tb->shape() == QTabBar::RoundedBelow )
 	    ret = 10;
 	else
 	    ret = 0;
 	break; }
-	
+
+    case PM_ProgressBarChunkWidth:
+	ret = 9;
+	break;
+
     default:
 	ret = 0;
 	break;
@@ -1595,6 +1670,10 @@ QSize QCommonStyle::sizeFromContents(ContentsType contents,
 	int dfw = pixelMetric(PM_DefaultFrameWidth, widget) * 2;
 	sz = QSize(sz.width() + dfw + 21, sz.height() + dfw);
 	break; }
+
+    case CT_ProgressBar:
+	// just return the contentsSize for now
+	// fall through intended
 
     default:
 	break;

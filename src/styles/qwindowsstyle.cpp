@@ -126,6 +126,7 @@ void QWindowsStyle::drawPrimitive( PrimitiveOperation op,
     switch (op) {
     case PO_ButtonCommand:
     case PO_ButtonBevel:
+    case PO_HeaderSection:
 	qDrawWinButton(p, r, cg, flags & PStyle_Sunken, &cg.brush(QColorGroup::Button));
 	break;
 
@@ -383,7 +384,7 @@ void QWindowsStyle::drawControl( ControlElement element,
 				 void *data ) const
 {
     switch (element) {
-    case CE_Splitter: 
+    case CE_Splitter:
         qDrawWinPanel( p, r.x(), r.y(), r.width(), r.height(), cg );
 	break;
     case CE_PushButton: {
@@ -571,7 +572,7 @@ int QWindowsStyle::pixelMetric(PixelMetric metric, const QWidget *widget) const
     case PM_SplitterWidth:
 	ret = QMAX( 6, QApplication::globalStrut().width() );
 	break;
-	
+
     default:
 	ret = QCommonStyle::pixelMetric(metric, widget);
 	break;
@@ -1345,10 +1346,13 @@ void QWindowsStyle::drawComplexControl( ComplexControl ctrl, QPainter * p,
 	slider  = querySubControlMetrics(ctrl, w, SC_ScrollBarSlider,  data);
 
 	if (sub & SC_ScrollBarSubLine) {
-	    drawPrimitive(PO_ButtonBevel, p, subline, cg,
-			  PStyle_Enabled | ((subActive == SC_ScrollBarSubLine) ?
-					    PStyle_Sunken :
-					    PStyle_Default));
+	    if (subActive == SC_ScrollBarSubLine) {
+		p->setPen( cg.dark() );
+		p->setBrush( cg.brush( QColorGroup::Button ) );
+		p->drawRect( subline );
+	    } else
+		drawPrimitive(PO_ButtonBevel, p, subline, cg, PStyle_Enabled);
+
 	    drawPrimitive(((scrollbar->orientation() == Qt::Horizontal) ?
 			   PO_ArrowLeft : PO_ArrowUp),
 			  p, subline, cg,
@@ -1358,17 +1362,19 @@ void QWindowsStyle::drawComplexControl( ComplexControl ctrl, QPainter * p,
 	}
 
 	if (sub & SC_ScrollBarAddLine) {
-	    drawPrimitive(PO_ButtonBevel, p, addline, cg,
-			  PStyle_Enabled | ((subActive == SC_ScrollBarAddLine) ?
-					    PStyle_Sunken :
-					    PStyle_Default));
+	    if (subActive == SC_ScrollBarAddLine) {
+		p->setPen( cg.dark() );
+		p->setBrush( cg.brush( QColorGroup::Button ) );
+		p->drawRect( addline );
+	    } else
+		drawPrimitive(PO_ButtonBevel, p, addline, cg, PStyle_Enabled);
+
 	    drawPrimitive(((scrollbar->orientation() == Qt::Horizontal) ?
 			   PO_ArrowRight : PO_ArrowDown),
 			  p, addline, cg,
 			  ((maxedOut) ? PStyle_Default : PStyle_Enabled) |
 			  ((subActive == SC_ScrollBarAddLine) ?
-			   PStyle_Sunken :
-			   PStyle_Default));
+			   PStyle_Sunken : PStyle_Default));
 	}
 
 	QBrush br = (cg.brush(QColorGroup::Light).pixmap() ?
