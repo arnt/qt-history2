@@ -280,20 +280,6 @@ bool QTextCursorPrivate::movePosition(QTextCursor::MoveOperation op, QTextCursor
         newPosition = blockIt.position();
         break;
     }
-    case QTextCursor::StartOfWord: {
-        QTextEngine *engine = layout->engine();
-        const QCharAttributes *attributes = engine->attributes();
-
-        if (relativePos == 0)
-            return false;
-        while (relativePos > 0 && !attributes[relativePos].wordStop 
-               && !attributes[relativePos - 1].whiteSpace
-               && !engine->atWordSeparator(relativePos - 1))
-            relativePos--;
-
-        newPosition = blockIt.position() + relativePos;
-        break;
-    }
     case QTextCursor::PreviousBlock: {
         if (blockIt == priv->blocksBegin())
             return false;
@@ -306,6 +292,21 @@ bool QTextCursorPrivate::movePosition(QTextCursor::MoveOperation op, QTextCursor
     case QTextCursor::Left:
         newPosition = priv->previousCursorPosition(position, QTextLayout::SkipCharacters);
         break;
+    case QTextCursor::StartOfWord: {
+        QTextEngine *engine = layout->engine();
+        const QCharAttributes *attributes = engine->attributes();
+
+        if (relativePos == 0)
+            return false;
+
+        // skip if already at word start
+        if (attributes[relativePos - 1].whiteSpace
+            && (attributes[relativePos].wordStop
+                || !attributes[relativePos].whiteSpace))
+            return false;
+
+        // FALL THROUGH!
+    }
     case QTextCursor::PreviousWord:
     case QTextCursor::WordLeft:
         newPosition = priv->previousCursorPosition(position, QTextLayout::SkipWords);
@@ -970,15 +971,9 @@ void QTextCursor::select(SelectionType selection)
         movePosition(EndOfLine, KeepAnchor);
     } else if (selection == WordUnderCursor) {
         const QTextBlock b = d->block();
-        const QCharAttributes *attributes = b.layout()->engine()->attributes();
         const int relativePos = d->position - b.position();
 
         if (relativePos == 0 || relativePos == b.length() - 1)
-            return;
-
-        // only select if we're right between two selectable characters
-        if (attributes[relativePos].wordStop ||
-            attributes[relativePos - 1].whiteSpace || attributes[relativePos].whiteSpace)
             return;
 
         movePosition(StartOfWord);
