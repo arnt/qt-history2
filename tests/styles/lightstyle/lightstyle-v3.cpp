@@ -496,26 +496,11 @@ void LightStyleV3::drawPrimitive( PrimitiveElement pe,
     case PE_DockWindowResizeHandle:
 	{
 	    QRect br = r;
-
-	    p->setPen( cg.shadow() );
-	    p->drawRect( br );
-
-	    br.addCoords( 1, 1, -1, -1 );
-
-	    if ( ! br.isValid() )
-		break;
-	    p->setPen( cg.light() );
-	    p->drawLine( br.left(), br.top(), br.right() - 1, br.top() );
-	    p->drawLine( br.left(), br.top() + 1, br.left(), br.bottom() );
-	    p->setPen( cg.mid() );
-	    p->drawLine( br.bottomLeft(), br.bottomRight() );
-	    p->drawLine( br.right(), br.top(), br.right(), br.bottom() - 1 );
-
-	    br.addCoords( 1, 1, -1, -1 );
-
-	    if ( ! br.isValid() )
-		break;
-	    p->fillRect( br, cg.brush( QColorGroup::Button ) );
+	    if ( flags & Style_Horizontal )
+		br.setRect( ( br.width() - 20 ) / 2, ( br.height() - 4 ) / 2, 20, 4 );
+	    else
+		br.setRect( ( br.width() - 4) / 2, ( br.height() - 20 ) / 2, 4, 20 );
+	    drawLightBevel( p, br, cg, flags | Style_Sunken, 1, false );
 	    break;
 	}
 
