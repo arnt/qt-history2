@@ -30,6 +30,11 @@ the directories where you choose to install Qt.
 	MANPATH 	   - to access the Qt man pages
 	LD_LIBRARY_PATH	   - for the shared Qt library
 
+    Note that under IRIX the additional LD_LIBRARYN32_PATH and
+    LD_LIBRARY64_PATH variables are used for specifying library
+    search paths. Set the variable that matches your configuration, or
+    see the rld(5) man page for more information.
+
     This is done like this:
 
     In .profile (if your shell is bash, ksh, zsh or sh), add the
