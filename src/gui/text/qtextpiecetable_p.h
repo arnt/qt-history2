@@ -27,6 +27,7 @@ class QTextFormat;
 class QTextBlockFormat;
 class QTextCursorPrivate;
 class QAbstractTextDocumentLayout;
+class QTextFrame;
 
 class QTextFragment : public QFragment
 {
@@ -71,6 +72,8 @@ public:
         BlockAdded = 6,
         BlockDeleted = 7,
         GroupFormatChange = 8,
+        FrameInserted = 9,
+        FrameRemoved = 10,
         Custom = 256
     };
     enum Operation {
@@ -88,6 +91,7 @@ public:
         Q_UINT32 length;
         QAbstractUndoItem *custom;
         QTextGroup *group;
+        QTextFrame *frame;
     };
 
     bool tryMerge(const UndoCommand &other);
@@ -108,8 +112,11 @@ public:
 
     void insert(int pos, const QString &text, int format);
     void insert(int pos, int strPos, int strLength, int format);
-    void insertBlock(int pos, int blockFormat, int charFormat);
+    void insertBlock(int pos, int blockFormat, int charFormat, UndoCommand::Operation = UndoCommand::MoveCursor);
     void remove(int pos, int length, UndoCommand::Operation = UndoCommand::MoveCursor);
+
+    QTextFrame *insertFrame(int start, int end, const QTextFrameFormat &format);
+    void removeFrame(QTextFrame *frame);
 
     enum FormatChangeMode { MergeFormat, SetFormat };
 
@@ -167,12 +174,13 @@ private:
     bool split(int pos);
     bool unite(uint f);
 
-    void removeBlocks(int pos, int length);
-
     void insert_string(int pos, uint strPos, uint length, int format, UndoCommand::Operation op);
     void insert_block(int pos, uint strPos, int format, int blockformat, UndoCommand::Operation op, int command);
     int remove_string(int pos, uint length, UndoCommand::Operation op);
     int remove_block(int pos, int *blockformat, int command, UndoCommand::Operation op);
+
+    void insert_frame(QTextFrame *f);
+    void remove_frame(QTextFrame *f);
 
     void adjustDocumentChangesAndCursors(int from, int addedOrRemoved, UndoCommand::Operation op);
     void documentChange(int from, int length);
@@ -180,6 +188,8 @@ private:
 public:
     inline void addCursor(QTextCursorPrivate *c) { cursors.append(c); }
     inline void removeCursor(QTextCursorPrivate *c) { cursors.removeAll(c); }
+
+    QTextFrame *frameAt(int pos) const;
 
 private:
     QTextPieceTable(const QTextPieceTable& m);
@@ -199,6 +209,7 @@ private:
     int docChangeLength;
 
     QTextFormatCollection *formats;
+    QTextFrame *frame;
     QAbstractTextDocumentLayout *lout;
     FragmentMap fragments;
     BlockMap blocks;

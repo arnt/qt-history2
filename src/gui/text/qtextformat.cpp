@@ -686,6 +686,9 @@ QTextFrame::~QTextFrame()
 QTextFrame::QTextFrame(QTextFramePrivate &p, QObject *parent)
     : QTextGroup(p, parent)
 {
+    d->fragment_start = 0;
+    d->fragment_end = 0;
+    d->parentFrame = 0;
 }
 
 
@@ -702,10 +705,14 @@ QTextFrame *QTextFrame::parent()
 
 int QTextFrame::start()
 {
+    if (!d->fragment_start)
+        return 0;
     return d->pieceTable()->fragmentMap().position(d->fragment_start);
 }
 
 int QTextFrame::end()
 {
+    if (!d->fragment_end)
+        return d->pieceTable()->length();
     return d->pieceTable()->fragmentMap().position(d->fragment_end);
 }

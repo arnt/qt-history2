@@ -454,6 +454,7 @@ class QTextFrame : public QTextGroup
     Q_DECLARE_PRIVATE(QTextFrame);
     Q_OBJECT
     friend class QTextCursor;
+    friend class QTextPieceTable;
 
 protected:
     QTextFrame(QObject *parent);

@@ -68,6 +68,8 @@ QTextPieceTable::QTextPieceTable(QAbstractTextDocumentLayout *layout)
     ++formats->ref;
     if (!layout)
         layout = new QTextDocumentLayout();
+    frame = new QTextFrame(this);
+
     lout = layout;
     // take ownership
     lout->setParent(this);
@@ -148,7 +150,7 @@ void QTextPieceTable::insert_block(int pos, uint strPos, int format, int blockFo
     adjustDocumentChangesAndCursors(pos, 1, op);
 }
 
-void QTextPieceTable::insertBlock(int pos, int blockFormat, int charFormat)
+void QTextPieceTable::insertBlock(int pos, int blockFormat, int charFormat, UndoCommand::Operation op)
 {
     Q_ASSERT(formats->format(blockFormat).isBlockFormat());
     Q_ASSERT(formats->format(charFormat).isCharFormat());
@@ -158,14 +160,14 @@ void QTextPieceTable::insertBlock(int pos, int blockFormat, int charFormat)
 
     int strPos = text.length();
     text.append(QTextParagraphSeparator);
-    insert_block(pos, strPos, charFormat, blockFormat, UndoCommand::MoveCursor, UndoCommand::BlockRemoved);
+    insert_block(pos, strPos, charFormat, blockFormat, op, UndoCommand::BlockRemoved);
 
     Q_ASSERT(blocks.length() == fragments.length());
 
     truncateUndoStack();
 
     UndoCommand c = { UndoCommand::BlockInserted, true,
-                      UndoCommand::MoveCursor, charFormat, strPos, pos, { blockFormat } };
+                      op, charFormat, strPos, pos, { blockFormat } };
 
     appendUndoItem(c);
     Q_ASSERT(undoPosition == undoStack.size());
@@ -354,13 +356,10 @@ void QTextPieceTable::setCharFormat(int pos, int length, const QTextCharFormat &
             fragment->format = newFormatIdx;
         }
 
-        if (undoEnabled) {
-            UndoCommand c = { UndoCommand::CharFormatChanged, true, UndoCommand::MoveCursor, oldFormat,
-                              0, pos, { length } };
-
-            appendUndoItem(c);
-            Q_ASSERT(undoPosition == undoStack.size());
-        }
+        UndoCommand c = { UndoCommand::CharFormatChanged, true, UndoCommand::MoveCursor, oldFormat,
+                          0, pos, { length } };
+        appendUndoItem(c);
+        Q_ASSERT(undoPosition == undoStack.size());
 
         pos += length;
         Q_ASSERT(pos == (int)(it.position() + fragment->size) || pos >= endPos);
@@ -418,13 +417,12 @@ void QTextPieceTable::setBlockFormat(const QTextBlockIterator &from, const QText
         block(it)->format = newFormatIdx;
 
         block(it)->invalidate();
-        if (undoEnabled) {
-            UndoCommand c = { UndoCommand::BlockFormatChanged, true, UndoCommand::MoveCursor, oldFormat,
-                              0, it.position(), { 1 } };
 
-            appendUndoItem(c);
-            Q_ASSERT(undoPosition == undoStack.size());
-        }
+        UndoCommand c = { UndoCommand::BlockFormatChanged, true, UndoCommand::MoveCursor, oldFormat,
+                              0, it.position(), { 1 } };
+        appendUndoItem(c);
+        Q_ASSERT(undoPosition == undoStack.size());
+
         if (group != oldGroup) {
             if (oldGroup)
                 oldGroup->removeBlock(it);
@@ -569,6 +567,14 @@ void QTextPieceTable::undoRedo(bool undo)
             c.format = oldFormat;
 	    break;
 	}
+        case UndoCommand::FrameInserted:
+            remove_frame(c.frame);
+            c.command = UndoCommand::FrameRemoved;
+            break;
+        case UndoCommand::FrameRemoved:
+            insert_frame(c.frame);
+            c.command = UndoCommand::FrameInserted;
+            break;
 	case UndoCommand::Custom:
             if (undo)
                 c.custom->undo();
@@ -781,14 +787,146 @@ void QTextPieceTable::changeGroupFormat(QTextGroup *group, int format)
         documentChange(block.position(), block.length());
     }
 
-    if (undoEnabled) {
-        UndoCommand c = { UndoCommand::GroupFormatChange, true, UndoCommand::MoveCursor, oldFormatIndex,
-                          0, 0, { 1 } };
-        c.group = group;
+    UndoCommand c = { UndoCommand::GroupFormatChange, true, UndoCommand::MoveCursor, oldFormatIndex,
+                      0, 0, { 1 } };
+    c.group = group;
+    appendUndoItem(c);
+    Q_ASSERT(undoPosition == undoStack.size());
 
-        appendUndoItem(c);
-        Q_ASSERT(undoPosition == undoStack.size());
-    }
     emit contentsChanged();
+    endEditBlock();
+}
+
+static QTextFrame *findChildFrame(QTextFrame *f, int pos)
+{
+    QList<QTextFrame *> children = f->children();
+    for (int i = 0; i < children.size(); ++i) {
+        QTextFrame *c = children.at(i);
+        if (pos >= c->start() && pos < c->end()) {
+            return c;
+        }
+    }
+    return 0;
+}
+
+QTextFrame *QTextPieceTable::frameAt(int pos) const
+{
+    QTextFrame *f = frame;
+
+    while (1) {
+        QTextFrame *c = findChildFrame(f, pos);
+        if (!c)
+            return f;
+    }
+}
+
+#define d d_func()
+
+
+void QTextPieceTable::insert_frame(QTextFrame *f)
+{
+    int start = f->start();
+    int end = f->start();
+    QTextFrame *parent = frameAt(start);
+    Q_ASSERT(parent == frameAt(end));
+
+    if (start != end) {
+        // iterator over the parent and move all children contained in my frame to myself
+        for (int i = 0; i < parent->d->childFrames.size(); ++i) {
+            QTextFrame *c = parent->d->childFrames.at(i);
+            if (start < c->start () && end > c->end()) {
+                parent->d->childFrames.removeAt(i);
+                f->d->childFrames.append(c);
+            }
+        }
+    }
+    // insert at the correct position
+    int i = 0;
+    for (; i < parent->d->childFrames.size(); ++i) {
+        QTextFrame *c = parent->d->childFrames.at(i);
+        if (c->start() > end)
+            break;
+    }
+    parent->d->childFrames.insert(i, f);
+    f->d->parentFrame = parent;
+}
+
+void QTextPieceTable::remove_frame(QTextFrame *f)
+{
+    QTextFrame *parent = f->d->parentFrame;
+
+    int index = parent->d->childFrames.indexOf(f);
+
+    // iterator over all children and move them to the parent
+    for (int i = 0; i < f->d->childFrames.size(); ++i) {
+        parent->d->childFrames.insert(index, f->d->childFrames.at(i));
+        ++index;
+    }
+    f->d->childFrames.clear();
+    Q_ASSERT(parent->d->childFrames.at(index) == f);
+
+    parent->d->childFrames.removeAt(index);
+    f->d->parentFrame = 0;
+}
+
+
+QTextFrame *QTextPieceTable::insertFrame(int start, int end, const QTextFrameFormat &format)
+{
+    Q_ASSERT(start >= 0 && start < length());
+    Q_ASSERT(end >= 0 && end < length());
+    Q_ASSERT(start <= end);
+
+    if (start != end && frameAt(start) != frameAt(end))
+        return 0;
+
+    beginEditBlock();
+
+    QTextFrame *frame = qt_cast<QTextFrame *>(formats->createGroup(format));
+    Q_ASSERT(frame);
+
+    // #### using the default block and char format below might be wrong
+    int idx = formats->indexForFormat(QTextBlockFormat());
+    QTextCharFormat cfmt;
+    cfmt.setGroup(frame);
+    int charIdx = formats->indexForFormat(cfmt);
+
+    insertBlock(start, idx, charIdx);
+    insertBlock(end+1, idx, charIdx, UndoCommand::KeepCursor);
+
+    frame->d_func()->fragment_start = find(start).n;
+    frame->d_func()->fragment_end = find(end+1).n;
+
+    insert_frame(frame);
+    UndoCommand c = { UndoCommand::FrameInserted, true, UndoCommand::KeepCursor, 0,
+                          0, 0, { 1 } };
+    c.frame = frame;
+    appendUndoItem(c);
+
+    endEditBlock();
+
+    return frame;
+}
+
+void QTextPieceTable::removeFrame(QTextFrame *frame)
+{
+    QTextFrame *parent = frame->d->parentFrame;
+    if (!parent)
+        return;
+
+    int start = frame->start();
+    int end = frame->end();
+    Q_ASSERT(end > start);
+
+    beginEditBlock();
+
+    remove_frame(frame);
+    UndoCommand c = { UndoCommand::FrameRemoved, true, UndoCommand::KeepCursor, 0,
+                          0, 0, { 1 } };
+    c.frame = frame;
+    appendUndoItem(c);
+
+    remove(end, 1);
+    remove(start, 1);
+
     endEditBlock();
 }

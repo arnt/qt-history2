@@ -1025,48 +1025,7 @@ QTextFrame *QTextCursor::insertFrame(const QTextFrameFormat &format)
     if (!d)
         return 0;
 
-    d->pieceTable->beginEditBlock();
-    QTextFormatCollection *c = d->pieceTable->formatCollection();
-    QTextFrame *frame = qt_cast<QTextFrame *>(c->createGroup(format));
-    Q_ASSERT(frame);
-
-    // #### using the default block and char format below might be wrong
-    QTextFormatCollection *formats = d->pieceTable->formatCollection();
-    int idx = formats->indexForFormat(QTextBlockFormat());
-    QTextCharFormat cfmt;
-    cfmt.setGroup(frame);
-    int charIdx = formats->indexForFormat(cfmt);
-
-    // beginning of frame before pos1 and end after pos2.
-    int pos1 = selectionStart();
-    QTextPieceTable::FragmentIterator f = d->pieceTable->find(pos1);
-    if (pos1 == 0 || pos1 != f.position()
-        || d->pieceTable->buffer().at(f->stringPosition) != QTextParagraphSeparator) {
-        d->pieceTable->insertBlock(pos1, idx, charIdx);
-    }
-
-    int cp = d->position;
-    int ca = d->anchor;
-    int cadj = d->adjusted_anchor;
-
-    int pos2 = selectionEnd();
-    f = d->pieceTable->find(pos2);
-    if (pos2 != f.position()
-        || d->pieceTable->buffer().at(f->stringPosition) != QTextParagraphSeparator) {
-        d->pieceTable->insertBlock(pos2, idx, charIdx);
-    }
-
-    d->position = cp;
-    d->anchor = ca;
-    d->adjusted_anchor = cadj;
-
-    frame->d_func()->fragment_start = d->pieceTable->find(pos1).n;
-    frame->d_func()->fragment_end = d->pieceTable->find(pos2).n;
-
-    d->adjustCursor(NoMove);
-    d->pieceTable->endEditBlock();
-
-    return frame;
+    return d->pieceTable->insertFrame(selectionStart(), selectionEnd(), format);
 }
 
 
