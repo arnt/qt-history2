@@ -23,6 +23,10 @@
 **
 *****************************************************************************/
 
+#define QT_CLEAN_NAMESPACE
+
+#include "qfeatures.h"
+
 #ifndef QT_NO_IMAGEIO_JPEG
 
 #include <qimage.h>
