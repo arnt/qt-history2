@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qtextstream.cpp#100 $
+** $Id: //depot/qt/main/src/tools/qtextstream.cpp#101 $
 **
 ** Implementation of QTextStream class
 **
@@ -497,7 +497,7 @@ QTextStream::~QTextStream()
 /*!
   Equivalent to *this << ws.
 */
-void QTextStream::eatWhiteSpace()
+void QTextStream::skipWhiteSpace()
 {
     ts_ungetc( eat_ws() );
 }
@@ -1597,6 +1597,11 @@ QTextStream &QTextStream::operator<<( const char* s )
     return *this;
 }
 
+QTextStream &QTextStream::operator<<( const QCString & s )
+{
+    return operator<<(s.data());
+}
+
 /*!
   Writes a string to the stream and returns a reference to the stream.
 */
@@ -1778,7 +1783,7 @@ QTextStream &flush( QTextStream &s )
 
 QTextStream &ws( QTextStream &s )
 {
-    s.eatWhiteSpace();
+    s.skipWhiteSpace();
     return s;
 }
 
