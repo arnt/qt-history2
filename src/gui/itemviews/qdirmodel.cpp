@@ -631,7 +631,7 @@ bool QDirModel::decode(QDropEvent *e, const QModelIndex &parent)
     if (!QUriDrag::decodeLocalFiles(e, files))
         return false;
     d->savePersistentIndexes();
-//    emit rowsRemoved(parent, 0, rowCount(parent) - 1);
+    emit rowsRemoved(parent, 0, rowCount(parent) - 1);
     bool success = true;
     QString to = path(parent) + QDir::separator();
     QStringList::const_iterator it = files.begin();
@@ -653,8 +653,7 @@ bool QDirModel::decode(QDropEvent *e, const QModelIndex &parent)
     }
     p->children = d->children(p);
     d->restorePersistentIndexes();
-//    emit rowsInserted(parent, 0, rowCount(parent) - 1);
-    emit reset();
+    emit rowsInserted(parent, 0, rowCount(parent) - 1);
     return success;
 }
 
@@ -700,12 +699,11 @@ void QDirModel::setNameFilters(const QStringList &filters)
 {
 //    qDebug("setNameFilters:");
     d->savePersistentIndexes(); // FIXME: this will rebuild the entire structure of the qdirmodel
-//    emit rowsRemoved(QModelIndex(), 0, rowCount(QModelIndex()) - 1);
+    emit rowsRemoved(QModelIndex(), 0, rowCount(QModelIndex()) - 1);
     d->nameFilters = filters;
     d->root.children = d->children(0); // clear model
     d->restorePersistentIndexes();
-//    emit rowsInserted(QModelIndex(), 0, rowCount(QModelIndex()) - 1);
-    emit reset();
+    emit rowsInserted(QModelIndex(), 0, rowCount(QModelIndex()) - 1);
 }
 
 /*!
@@ -727,12 +725,11 @@ QStringList QDirModel::nameFilters() const
 void QDirModel::setFilter(int spec)
 {
     d->savePersistentIndexes();
-//    emit rowsRemoved(QModelIndex(), 0, rowCount(QModelIndex()) - 1);
+    emit rowsRemoved(QModelIndex(), 0, rowCount(QModelIndex()) - 1);
     d->filterSpec = spec;
     d->root.children = d->children(0);
     d->restorePersistentIndexes();
-//    emit rowsInserted(QModelIndex(), 0, rowCount(QModelIndex()) - 1);
-    emit reset();
+    emit rowsInserted(QModelIndex(), 0, rowCount(QModelIndex()) - 1);
 }
 
 /*!
@@ -758,12 +755,11 @@ void QDirModel::setSorting(int spec)
 {
     QModelIndex parent;
     d->savePersistentIndexes();
-//    emit rowsRemoved(parent, 0, rowCount(parent) - 1);
+    emit rowsRemoved(parent, 0, rowCount(parent) - 1);
     d->sortSpec = spec;
     d->root.children = d->children(0);
     d->restorePersistentIndexes();
-//    emit rowsInserted(parent, 0, rowCount(parent) - 1);
-    emit reset();
+    emit rowsInserted(parent, 0, rowCount(parent) - 1);
 }
 
 /*!
