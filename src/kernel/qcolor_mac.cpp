@@ -43,7 +43,7 @@ void qt_reset_color_avail()
 
 int QColor::maxColors()
 {
-    return 32;
+    return -1;
 }
 
 int QColor::numBitPlanes()
