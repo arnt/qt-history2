@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#229 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#230 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -67,7 +67,7 @@ extern "C" int select( int, void *, void *, void *, struct timeval * );
 extern "C" void bzero(void *, size_t len);
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#229 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#230 $");
 
 #if !defined(XlibSpecificationRelease)
 typedef char *XPointer;				// X11R4
@@ -208,9 +208,9 @@ static void qt_init_internal( int *argcptr, char **argv, Display *display )
 	app_Xfd = -1;
 
     } else {
-
       // Qt controls everything (default)
 
+	char *p;
 	int argc = *argcptr;
 	int i, j;
 
@@ -221,7 +221,7 @@ static void qt_init_internal( int *argcptr, char **argv, Display *display )
 
       // Set application name
 
-	char *p = strrchr( argv[0], '/' );
+	p = strrchr( argv[0], '/' );
 	appName = p ? p + 1 : argv[0];
 
       // Get command line params
@@ -2170,7 +2170,9 @@ int qt_activate_timers()
 	if ( !t || currentTime < t->timeout )	// no timer has expired
 	    break;
 	timerList->take();			// unlink from list
-	t->timeout = currentTime + t->interval;
+	t->timeout += t->interval;
+	if ( t->timeout < currentTime )
+	    t->timeout = currentTime + t->interval;
 	insertTimer( t );			// relink timer
 	if ( t->interval.tv_usec > 0 || t->interval.tv_sec > 0 )
 	    n_act++;
