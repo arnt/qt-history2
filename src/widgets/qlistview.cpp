@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#110 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#111 $
 **
 ** Implementation of QListView widget class
 **
@@ -2675,12 +2675,20 @@ int QListView::itemMargin() const
 
 
 /*! \fn void QListView::rightButtonClicked( QListViewItem *, const QPoint&, int )
+void QListView::rightButtonPressed (QListViewItem *, const QPoint &, int) 
 
   This signal is emitted when the right button is clicked (ie. when
   it's released).  The arguments are the relevant QListViewItem (may
   be 0), the point in global coordinates and the relevant column.
 */
 
+
+/*! \fn void QListView::rightButtonPressed (QListViewItem *, const QPoint &, int) 
+
+  This signal is emitted when the right button is pressed.  Then
+  arguments are the relevant QListViewItem (may be 0), the point in
+  global coordinates and the relevant column.
+*/
 
 /*!  Reimplemented to let the list view items update themselves.  \a s
   is the new GUI style. */
@@ -2955,18 +2963,18 @@ void QCheckListItem::init()
 }
 
 
-/*!
-  \fn QCheckListItem::Type QCheckListItem::type () const
+/*! \fn QCheckListItem::Type QCheckListItem::type() const
 
   Returns the type of this item.
 */
 
-/*!
-  \fn  bool QCheckListItem::isOn () const
+/*! \fn  bool QCheckListItem::isOn() const
   Returns TRUE if this item is toggled on, FALSE otherwise.
 */
-/*!
-  \fn const char* QCheckListItem::text () const
+
+
+/*! \fn const char *QCheckListItem::text() const
+
   Returns the text of this item.
 */
 
@@ -3336,3 +3344,9 @@ void QListView::ensureItemVisible( const QListViewItem * i )
     int h = (i->height()+1)/2;
     ensureVisible( contentsX(), itemPos( i )+h, 0, h );
 }
+
+
+/*! \fn const char * QCheckListItem::text( int n ) const
+  
+  \reimp
+*/
