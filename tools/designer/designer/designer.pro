@@ -420,7 +420,7 @@ table {
 
 INCLUDEPATH	+= ../shared ../uilib
 win32:LIBS	+= $$QT_BUILD_TREE/lib/qui.lib $$QT_BUILD_TREE/lib/qassistantclient.lib
-unix:LIBS		+= -L$$QT_BUILD_TREE/lib -lqui -lqassistantclient
+unix:LIBS		+= -L$$QT_BUILD_TREE/lib -lqui $$QT_BUILD_TREE/lib/libqassistantclient.a
 
 TRANSLATIONS	= designer_de.ts designer_fr.ts
 
