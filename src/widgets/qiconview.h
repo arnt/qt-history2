@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qiconview.h#28 $
+** $Id: //depot/qt/main/src/widgets/qiconview.h#29 $
 **
 ** Definition of QIconView widget class
 **
@@ -137,28 +137,28 @@ public:
     QIconViewItem( QIconView *parent, QIconViewItem *after, const QString &text, const QIconSet &icon );
     virtual ~QIconViewItem();
 
-    virtual void setAllowRename( bool allow );
-    virtual void setAllowDrag( bool allow );
-    virtual void setAllowDrop( bool allow );
+    virtual void setRenameEnabled( bool allow );
+    virtual void setDragEnabled( bool allow );
+    virtual void setDropEnabled( bool allow );
 
     virtual QString text() const;
     virtual QIconSet icon() const;
 
-    virtual bool allowRename() const;
-    virtual bool allowDrag() const;
-    virtual bool allowDrop() const;
+    bool renameEnabled() const;
+    bool dragEnabled() const;
+    bool dropEnabled() const;
 
-    virtual QIconView *iconView() const;
-    virtual QIconViewItem *prevItem() const;
-    virtual QIconViewItem *nextItem() const;
+    QIconView *iconView() const;
+    QIconViewItem *prevItem() const;
+    QIconViewItem *nextItem() const;
 
-    virtual int index() const;
+    int index() const;
 
     virtual void setSelected( bool s, bool cb = FALSE );
     virtual void setSelectable( bool s );
 
-    virtual bool isSelected() const;
-    virtual bool isSelectable() const;
+    bool isSelected() const;
+    bool isSelectable() const;
 
     virtual void repaint();
 
@@ -167,26 +167,27 @@ public:
     virtual void move( const QPoint &pnt );
     virtual void moveBy( const QPoint &pnt );
 
-    virtual QRect rect() const;
-    virtual int x() const;
-    virtual int y() const;
-    virtual int width() const;
-    virtual int height() const;
-    virtual QSize size() const;
-    virtual QPoint pos() const;
-    virtual QRect textRect( bool relative = TRUE ) const;
-    virtual QRect iconRect( bool relative = TRUE ) const;
-    virtual bool contains( QPoint pnt ) const;
-    virtual bool intersects( QRect r ) const;
+    QRect rect() const;
+    int x() const;
+    int y() const;
+    int width() const;
+    int height() const;
+    QSize size() const;
+    QPoint pos() const;
+    QRect textRect( bool relative = TRUE ) const;
+    QRect iconRect( bool relative = TRUE ) const;
+    bool contains( QPoint pnt ) const;
+    bool intersects( QRect r ) const;
 
     virtual void setFont( const QFont &font );
-    virtual QFont font() const;
+    QFont font() const;
 
     virtual void setViewMode( QIconSet::Size mode );
-
+    QIconSet::Size viewMode() const;
+    
     virtual bool acceptDrop( const QMimeSource *mime ) const;
 
-    virtual void rename();
+    void rename();
 
 public slots:
     virtual void setText( const QString &text );
@@ -208,7 +209,10 @@ protected:
     virtual void dragLeft();
     virtual void init();
     void setView( QIconView* v );
-
+    void setItemRect( const QRect &r );
+    void setTextRect( const QRect &r );
+    void setIconRect( const QRect &r );
+    
 private:
     QIconView *view;
     QString itemText;
@@ -219,7 +223,7 @@ private:
     QRect itemRect, itemTextRect, itemIconRect;
     QFontMetrics *fm;
     QFont f;
-    QIconSet::Size viewMode;
+    QIconSet::Size itemViewMode;
     QIconViewItemLineEdit *renameBox;
     bool isReady;
 
@@ -260,53 +264,56 @@ public:
     virtual void insertItem( QIconViewItem *item, QIconViewItem *after = 0L );
     virtual void removeItem( QIconViewItem *item );
 
-    virtual int index( const QIconViewItem *item ) const;
+    int index( const QIconViewItem *item ) const;
 
-    virtual QIconViewItem *firstItem()	 const;
-    virtual QIconViewItem *lastItem()  const;
-    virtual QIconViewItem *currentItem()  const;
+    QIconViewItem *firstItem() const;
+    QIconViewItem *lastItem() const;
+    QIconViewItem *currentItem() const;
     virtual void setCurrentItem( QIconViewItem *item );
 
-    virtual unsigned int count() const;
+    unsigned int count() const;
 
     virtual void setViewMode( QIconSet::Size mode );
-    virtual QIconSet::Size viewMode() const;
+    QIconSet::Size viewMode() const;
 
     virtual void orderItemsInGrid();
     virtual void showEvent( QShowEvent * );
 
     virtual void setSelectionMode( SelectionMode m );
-    virtual SelectionMode selectionMode() const;
+    SelectionMode selectionMode() const;
 
-    virtual QIconViewItem *findItem( const QPoint &pos ) const;
-    virtual QIconViewItem *findItem( const QString &text ) const;
-    virtual void selectAll( bool select );
+    QIconViewItem *findItem( const QPoint &pos ) const;
+    QIconViewItem *findItem( const QString &text ) const;
+    void selectAll( bool select );
 
     virtual void repaintItem( QIconViewItem *item );
 
-    virtual void ensureItemVisible( QIconViewItem *item );
-    virtual QIconViewItem* findFirstVisibleItem() const;
+    void ensureItemVisible( QIconViewItem *item );
+    QIconViewItem* findFirstVisibleItem() const;
 
     virtual void clear();
 
     virtual void setRastX( int rx );
     virtual void setRastY( int ry );
-    virtual int rastX() const;
-    virtual int rastY() const;
+    int rastX() const;
+    int rastY() const;
     virtual void setSpacing( int sp );
-    virtual int spacing() const;
+    int spacing() const;
 
     virtual void setAlignMode( AlignMode am );
-    virtual AlignMode alignMode() const;
+    AlignMode alignMode() const;
 
     virtual void setResizeMode( ResizeMode am );
-    virtual ResizeMode resizeMode() const;
+    ResizeMode resizeMode() const;
 
     virtual void setMaxItemWidth( int w );
-    virtual int maxItemWidth() const;
+    int maxItemWidth() const;
     virtual void setMaxItemTextLength( int w );
-    virtual int maxItemTextLength() const;
+    int maxItemTextLength() const;
 
+    virtual void setRearrangeEnabled( bool b );
+    bool rearrangeEnabled() const;
+    
     bool eventFilter( QObject * o, QEvent * );
 
 signals:

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qiconview.cpp#62 $
+** $Id: //depot/qt/main/src/widgets/qiconview.cpp#63 $
 **
 ** Definition of QIconView widget class
 **
@@ -561,7 +561,7 @@ void QIconViewItem::init()
 {
     if ( view ) {
 	fm = new QFontMetrics( view->font() );
-	viewMode = view->viewMode();
+	itemViewMode = view->viewMode();
 
 	calcRect();
 
@@ -643,7 +643,7 @@ void QIconViewItem::setIcon( const QIconSet &icon, bool recalc )
   is FALSE, no inplace-renaming is done.
 */
 
-void QIconViewItem::setAllowRename( bool allow )
+void QIconViewItem::setRenameEnabled( bool allow )
 {
     allow_rename = allow;
 }
@@ -653,7 +653,7 @@ void QIconViewItem::setAllowRename( bool allow )
   the iconview and outside of it). if \a allow is FALSE, no dragging is possible with this item.
 */
 
-void QIconViewItem::setAllowDrag( bool allow )
+void QIconViewItem::setDragEnabled( bool allow )
 {
     allow_drag = allow;
 }
@@ -662,7 +662,7 @@ void QIconViewItem::setAllowDrag( bool allow )
   If \a allow is TRUE, the iconview lets the use drop something  on this iconview item.
 */
 
-void QIconViewItem::setAllowDrop( bool allow )
+void QIconViewItem::setDropEnabled( bool allow )
 {
     allow_drop = allow;
 }
@@ -690,7 +690,7 @@ QIconSet QIconViewItem::icon() const
   else FALSE.
 */
 
-bool QIconViewItem::allowRename() const
+bool QIconViewItem::renameEnabled() const
 {
     return allow_rename;
 }
@@ -699,7 +699,7 @@ bool QIconViewItem::allowRename() const
   Returns TRUE, if the user is allowed to drag the iconview item, else FALSE.
 */
 
-bool QIconViewItem::allowDrag() const
+bool QIconViewItem::dragEnabled() const
 {
     return allow_drag;
 }
@@ -708,7 +708,7 @@ bool QIconViewItem::allowDrag() const
   Returns TRUE, if the user is allowed to drop something onto the item, else FALSE.
 */
 
-bool QIconViewItem::allowDrop() const
+bool QIconViewItem::dropEnabled() const
 {
     return allow_drop;
 }
@@ -1005,8 +1005,19 @@ QFont QIconViewItem::font() const
 
 void QIconViewItem::setViewMode( QIconSet::Size mode )
 {
-    viewMode = mode;
+    itemViewMode = mode;
     calcRect();
+}
+
+/*!
+  Returns the viewmode of the item;
+  
+  \sa QIconView::viewMode()
+*/
+
+QIconSet::Size QIconViewItem::viewMode() const
+{
+    return itemViewMode;
 }
 
 /*!
@@ -1116,8 +1127,8 @@ void QIconViewItem::calcRect( const QString &text_ )
     itemTextRect.setWidth( w );
     itemTextRect.setHeight( h );
 
-    w = itemIcon.pixmap( viewMode, QIconSet::Normal ).width() + 2;
-    h = itemIcon.pixmap( viewMode, QIconSet::Normal ).height() + 2;
+    w = itemIcon.pixmap( itemViewMode, QIconSet::Normal ).width() + 2;
+    h = itemIcon.pixmap( itemViewMode, QIconSet::Normal ).height() + 2;
 
     itemIconRect.setWidth( w );
     itemIconRect.setHeight( h );
@@ -1148,11 +1159,11 @@ void QIconViewItem::paintItem( QPainter *p )
     else if ( !isSelectable() )
 	m = QIconSet::Disabled;
 
-    int w = itemIcon.pixmap( viewMode, QIconSet::Normal ).width();
+    int w = itemIcon.pixmap( itemViewMode, QIconSet::Normal ).width();
 
     if ( isSelected() )
 	p->fillRect( iconRect( FALSE ), view->colorGroup().highlight() );
-    p->drawPixmap( x() + ( width() - w ) / 2, y(), itemIcon.pixmap( viewMode, m ) );
+    p->drawPixmap( x() + ( width() - w ) / 2, y(), itemIcon.pixmap( itemViewMode, m ) );
 
 
     p->save();
@@ -1379,7 +1390,7 @@ QIconView::QIconView( QWidget *parent, const char *name )
     d->inputTimer = new QTimer( this );
     d->currInputString = QString::null;
     d->dirty = FALSE;
-    
+
     connect ( d->adjustTimer, SIGNAL( timeout() ),
 	      this, SLOT( adjustItems() ) );
     connect ( d->updateTimer, SIGNAL( timeout() ),
@@ -2077,6 +2088,15 @@ int QIconView::maxItemTextLength() const
   \reimp
 */
 
+void QIconView::setRearrangeEnabled( bool b )
+{
+}
+
+
+bool QIconView::rearrangeEnabled() const
+{
+}
+
 void QIconView::contentsMousePressEvent( QMouseEvent *e )
 {
     if ( d->currentItem )
@@ -2091,7 +2111,7 @@ void QIconView::contentsMousePressEvent( QMouseEvent *e )
 	if ( item  && item->isSelected() &&
 	     item->textRect( FALSE ).contains( e->pos() ) ) {
 
-	    if ( !item->allowRename() )
+	    if ( !item->renameEnabled() )
 		return;
 
 	    ensureItemVisible( item );
@@ -2172,7 +2192,7 @@ void QIconView::contentsMouseReleaseEvent( QMouseEvent * )
 
 void QIconView::contentsMouseMoveEvent( QMouseEvent * )
 {
-    if ( d->mousePressed && d->currentItem && d->currentItem->allowDrag() ) {
+    if ( d->mousePressed && d->currentItem && d->currentItem->dragEnabled() ) {
 	if ( !d->startDrag ) {
 	    d->currentItem->setSelected( TRUE, TRUE );
 	    d->startDrag = TRUE;
