@@ -62,8 +62,8 @@ public:
 #endif
 
 private:
-    bool checkWidgetContext(QWidget *w, QWidget *active_window);
-    bool correctContext(QAction *a, QWidget *active_window);
+    bool correctContext(Qt::ShortcutContext context, QWidget *w, QWidget *active_window);
+    bool correctContext(Qt::ShortcutContext context,QAction *a, QWidget *active_window);
     QShortcutMapPrivate *d_ptr;
 
     QKeySequence::SequenceMatch find(QKeyEvent *e);

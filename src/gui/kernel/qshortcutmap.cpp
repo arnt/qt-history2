@@ -22,6 +22,7 @@
 #include "qdockwindow.h"
 #include "qmenu.h"
 #include "qshortcut.h"
+#include "qapplication_p.h"
 #include <private/qaction_p.h>
 
 // To enable verbose output uncomment below
@@ -363,7 +364,7 @@ QKeySequence::SequenceMatch QShortcutMap::nextState(QKeyEvent *e)
         }
         // If still no result, try removing the Shift modifier
         if (result == QKeySequence::NoMatch) {
-            QKeyEvent pe = QKeyEvent(e->type(), e->key(), 
+            QKeyEvent pe = QKeyEvent(e->type(), e->key(),
                                      e->modifiers()&~Qt::ShiftModifier, e->text());
             result = find(&pe);
         }
@@ -496,44 +497,39 @@ void QShortcutMap::createNewSequence(QKeyEvent *e, QKeySequence &seq)
 bool QShortcutMap::correctContext(const QShortcutEntry &item) {
     Q_ASSERT_X(item.owner, "QShortcutMap", "Shortcut has no owner. Illegal map state!");
 
-    if (item.context == Qt::ShortcutOnApplication)
-        return true;
-    if (item.context == Qt::ShortcutOnFocusWidget) {
-        QWidget *w = qt_cast<QWidget *>(item.owner);
-        if (!w) {
-            QShortcut *s = qt_cast<QShortcut *>(item.owner);
-            w = s->parentWidget();
-        }
-        return w && qApp->focusWidget() == w;
-    }
-
-    // Qt::ShortcutOnActiveWindow:
     QWidget *active_window = qApp->activeWindow();
 
-    // popups do not become the active window, 
+    // popups do not become the active window,
     // so we fake it here to get the correct context
     // for the shortcut system.
     if (qApp->activePopupWidget())
         active_window = qApp->activePopupWidget();
-        
+
     if (!active_window)
         return false;
 
     if (QAction *a = qt_cast<QAction *>(item.owner))
-        return correctContext(a, active_window);
+        return correctContext(item.context, a, active_window);
 
     QWidget *w = qt_cast<QWidget *>(item.owner);
     if (!w) {
         QShortcut *s = qt_cast<QShortcut *>(item.owner);
         w = s->parentWidget();
     }
-    return checkWidgetContext(w, active_window);
+    return correctContext(item.context, w, active_window);
 }
 
-bool QShortcutMap::checkWidgetContext(QWidget *w, QWidget *active_window)
+bool QShortcutMap::correctContext(Qt::ShortcutContext context, QWidget *w, QWidget *active_window)
 {
     if (!w->isVisible() || !w->isEnabled())
         return false;
+
+    if (context == Qt::ShortcutOnApplication)
+        return qt_tryModalHelper(w, 0); // true, unless w is shadowed by a modal dialog
+
+    if (context == Qt::ShortcutOnFocusWidget)
+        return w == QApplication::focusWidget();
+
     QWidget *tlw = w->topLevelWidget();
 
 #ifndef QT_NO_MAINWINDOW
@@ -570,17 +566,17 @@ bool QShortcutMap::checkWidgetContext(QWidget *w, QWidget *active_window)
 }
 
 
-bool QShortcutMap::correctContext(QAction *a, QWidget *active_window)
+bool QShortcutMap::correctContext(Qt::ShortcutContext context, QAction *a, QWidget *active_window)
 {
     const QList<QWidget *> &widgets = a->d->widgets;
     for (int i = 0; i < widgets.size(); ++i) {
         QWidget *w = widgets.at(i);
         if (QMenu *menu = qt_cast<QMenu *>(w)) {
             QAction *a = menu->menuAction();
-            if (correctContext(a, active_window))
+            if (correctContext(context, a, active_window))
                 return true;
         } else {
-            if (checkWidgetContext(w, active_window))
+            if (correctContext(context, w, active_window))
                 return true;
         }
     }
