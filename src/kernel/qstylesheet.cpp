@@ -769,6 +769,8 @@ int QStyleSheetItem::lineSpacing() const
 	  a QMimeSourceFactory().
 	\i text
 	- The default text color, for example \c text="red".
+	\i link
+	- The link color, for example \c link="green".
 	\endlist
     \i \c{<h1>...</h1>}
 	- A top-level heading.
