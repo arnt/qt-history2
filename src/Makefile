@@ -25,6 +25,8 @@ ELFTARGET	= $(LIBDIR)/libqt.so.0.9.2
 ELFTARGETPRE	= libqt.so.0
 
 #######	Sub directories
+#
+# most are also make targets
 
 DIRS		= tools moc kernel widgets dialogs
 
@@ -42,15 +44,6 @@ all:
 	@exit 1
 
 #
-# Create the tools library (necessary for the meta object compiler)
-#
-
-tools: toolshack
-
-toolshack:
-	make -C tools
-
-#
 # Create the meta object compiler
 #
 
@@ -59,23 +52,22 @@ moc: tools mochack
 mochack:
 	make -C moc
 
-# Evil workaround
-FORCE:
-
-
 #
 # Create a library, called from aout, aoutdbg, elf and elfdbg
 #
 
-lib: FORCE
-	set -e ; for d in $(DIRS); do \
-		( \
-			mkdir -p $(OBJDIR)/tools ; \
-			cd $$d && \
-			ln -sf ../$(OBJDIR)/tools/*.o . ; \
-		) ; \
-		make -C $$d obj ; \
-	done
+FORCE:
+
+
+lib: tools kernel widgets dialogs
+
+tools kernel widgets dialogs: FORCE
+	-mkdir -p $(OBJDIR)/$@
+	-rm -f $@/*.o
+	-ln -f $(OBJDIR)/$@/*.o $@
+	make -C $@ obj
+	rm -f $(OBJDIR)/$@/*.o
+	mv -f $@/*.o $(OBJDIR)/$@
 
 aout:
 	make lib 'CFLAGS=$(CFLAGS) $(AOUTCFLAGS)' 'OBJDIR=obj/aout'
