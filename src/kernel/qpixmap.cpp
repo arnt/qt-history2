@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap.cpp#47 $
+** $Id: //depot/qt/main/src/kernel/qpixmap.cpp#48 $
 **
 ** Implementation of QPixmap class
 **
@@ -17,7 +17,7 @@
 #include "qdstream.h"
 #include "qbuffer.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpixmap.cpp#47 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpixmap.cpp#48 $")
 
 
 /*----------------------------------------------------------------------------
@@ -76,7 +76,7 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qpixmap.cpp#47 $")
 
   A pixmap is automatically detached by Qt whenever its contents is about
   to change.  This is done in all QPixmap member functions that modify the
-  pixmap (fill(), resize(), convertFromImage() and load()), in bitBlt()
+  pixmap (fill(), resize(), convertFromImage(), load() etc.), in bitBlt()
   for the destination pixmap and in QPainter::begin() on a pixmap.
 
   It is possible to modify a pixmap without letting Qt know.
@@ -86,8 +86,7 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qpixmap.cpp#47 $")
   to cut the pixmap loose from other pixmaps that share data with this one.
 
   detach() returns immediately if there is just a single reference or if
-  the pixmap has not been initialized yet.  Calling fill() will initialize
-  the pixmap.
+  the pixmap has not been initialized yet.
  ----------------------------------------------------------------------------*/
 
 void QPixmap::detach()
@@ -262,14 +261,13 @@ void QPixmap::fill( const QWidget *widget, int xofs, int yofs )
   Resizes the pixmap to \e w width and \e h height.  If either \e w
   or \e h is less than 1, the pixmap becomes a null pixmap.
 
-  If both \e w and \e h are greater than 0, a valid pixmap will be
-  created.  New pixels will be uninitialized (random) if the pixmap is
-  expanded.
+  If both \e w and \e h are greater than 0, a valid pixmap is created.
+  New pixels will be uninitialized (random) if the pixmap is expanded.
  ----------------------------------------------------------------------------*/
 
 void QPixmap::resize( int w, int h )
 {
-    if ( w < 1 || h < 1 ) {			// will become null?
+    if ( w < 1 || h < 1 ) {			// becomes null
 	QPixmap pm;
 	pm.data->optim	= data->optim;		// keep optimization flag
 	pm.data->bitmap = data->bitmap;		// keep is-a flag
@@ -335,7 +333,7 @@ bool qt_image_did_turn_scanlines()
   Loads an image from the file \e fileName into the pixmap.
   Returns TRUE if successful, or FALSE if the image could not be loaded.
 
-  If \e format is specified, then the loader will try to read the image
+  If \e format is specified, then the loader tries to read the image
   using the specified format.  If \e format is not specified (default),
   the loader reads a few bytes from the header to guess the file format.
 
@@ -373,7 +371,7 @@ bool QPixmap::load( const char *fileName, const char *format,
   Loads an image from the binary data in \e buf (\e len bytes).
   Returns TRUE if successful, or FALSE if the image could not be loaded.
 
-  If \e format is specified, then the loader will try to read the image
+  If \e format is specified, then the loader tries to read the image
   using the specified format.  If \e format is not specified (default),
   the loader reads a few bytes from the header to guess the file format.
 
