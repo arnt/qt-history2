@@ -6099,7 +6099,7 @@ struct DriverTable
 #if !defined(QT_NO_QWS_TRANSFORMED)
     { "Transformed", qt_get_screen_transformed, 0 },
 #endif
-#if !defined(QT_NO_QWS_LINUXFB)
+#if !defined(QT_NO_QWS_SHADOWFB)
     { "ShadowFb", qt_get_screen_shadowfb, 0 },
 #endif
 #if defined(QT_QWS_EE)
