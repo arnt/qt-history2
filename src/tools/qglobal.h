@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglobal.h#74 $
+** $Id: //depot/qt/main/src/tools/qglobal.h#75 $
 **
 ** Global type declarations and definitions
 **
@@ -151,14 +151,6 @@
 
 
 //
-// enable QT_ADD_GENERIC_MACROS unless QT_OBSOLESENCE is defined
-//
-#if !defined(QT_OBSOLESENCE)
-#define QT_ADD_GENERIC_MACROS
-#endif
-
-
-//
 // Some compilers do not support templates
 //
 
@@ -300,7 +292,6 @@ bool qSysInfo( int *wordSize, bool *bigEndian );
 #if defined(NO_WARNINGS)
 #if defined(_CC_MSVC_)
 #pragma warning(disable: 4244)
-#pragma warning(disable: 4759)
 #elif defined(_CC_BOR_)
 #pragma warn -inl
 #pragma warn -pia
@@ -374,18 +365,26 @@ bool chk_pointer( bool c, const char *, int );	// fatal error if c is TRUE
 #define CHECK_PTR(p)
 #endif
 
-void qSuppressObsoleteWarnings( bool = TRUE );
-void qObsolete( const char *obj, const char *oldfunc, const char *newfunc );
-void qObsolete( const char *obj, const char *oldfunc );
-void qObsolete( const char *message );
-
 enum QtMsgType { QtDebugMsg, QtWarningMsg, QtFatalMsg };
 
 typedef void (*msg_handler)(QtMsgType, const char *);
 msg_handler qInstallMsgHandler( msg_handler );	// install message handler
 
-#if !defined(TEST_OBSOLETE)
-#define OBSOLETE
+
+//
+// Enable QT_ADD_GENERIC_MACROS unless QT_REJECT_OBSOLETE is defined
+//
+#if !defined(QT_REJECT_OBSOLETE)
+#define QT_ADD_GENERIC_MACROS
+#endif
+
+void qSuppressObsoleteWarnings( bool = TRUE );
+
+#if !defined(QT_REJECT_OBSOLETE)
+#define QT_OBSOLETE
+void qObsolete( const char *obj, const char *oldfunc, const char *newfunc );
+void qObsolete( const char *obj, const char *oldfunc );
+void qObsolete( const char *message );
 #endif
 
 
