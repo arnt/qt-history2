@@ -1300,6 +1300,8 @@ QIconSet QVariant::toIconSet() const { return toIcon(); }
 Q##f QVariant::to##f() const { \
     if (d.type == f) \
         return *static_cast<Q##f *>(d.data.shared->value.ptr); \
+    static const Handler *h = qRegisterGuiVariantHandler(handler); \
+    Q_UNUSED(h); \
     Q##f ret; \
     handler->cast(&d, f, &ret, 0); \
     return ret; \
