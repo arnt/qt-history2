@@ -45,8 +45,10 @@ const char* _snlSolutionConf	= "\n\tGlobalSection(SolutionConfiguration) = preSo
 const char* _snlProjDepBeg	= "\n\tGlobalSection(ProjectDependencies) = postSolution";
 const char* _snlProjDepEnd	= "\n\tEndGlobalSection";
 const char* _snlProjConfBeg	= "\n\tGlobalSection(ProjectConfiguration) = postSolution";
-const char* _snlProjConfTag1	= ".Release.ActiveCfg = Release|Win32";
-const char* _snlProjConfTag2	= ".Release.Build.0 = Release|Win32";
+const char* _snlProjRelConfTag1	= ".Release.ActiveCfg = Release|Win32";
+const char* _snlProjRelConfTag2	= ".Release.Build.0 = Release|Win32";
+const char* _snlProjDbgConfTag1	= ".Debug.ActiveCfg = Debug|Win32";
+const char* _snlProjDbgConfTag2	= ".Debug.Build.0 = Debug|Win32";
 const char* _snlProjConfEnd	= "\n\tEndGlobalSection";
 const char* _snlExtSections	= "\n\tGlobalSection(ExtensibilityGlobals) = postSolution"
 				  "\n\tEndGlobalSection"
@@ -93,6 +95,7 @@ struct VcsolutionDepend {
     QString uuid;
     QString vcprojFile, orig_target, target;
     ::target targetType;
+    bool debugBuild;
     QStringList dependencies;
 };
 
@@ -230,6 +233,7 @@ void VcprojGenerator::writeSubDirs(QTextStream &t)
 			newDep->orig_target = tmp_proj.first("QMAKE_ORIG_TARGET");
 			newDep->target = tmp_proj.first("MSVCPROJ_TARGET").section(Option::dir_sep, -1);
 			newDep->targetType = tmp_vcproj.projectTarget;
+			newDep->debugBuild = tmp_proj.isActiveConfig("debug");
 			newDep->uuid = getProjectUUID(Option::fixPathToLocalOS(QDir::currentDirPath() + QDir::separator() + vcproj)).toString().upper();
 
 			// We want to store it as the .lib name.
@@ -309,8 +313,8 @@ nextfile:
     t << _snlProjDepEnd;
     t << _snlProjConfBeg;
     for(solution_cleanup.first(); solution_cleanup.current(); solution_cleanup.next()) {
-	t << "\n\t\t" << solution_cleanup.current()->uuid << _snlProjConfTag1;
-	t << "\n\t\t" << solution_cleanup.current()->uuid << _snlProjConfTag2;
+	t << "\n\t\t" << solution_cleanup.current()->uuid << (solution_cleanup.current()->debugBuild?_snlProjDbgConfTag1:_snlProjRelConfTag1);
+	t << "\n\t\t" << solution_cleanup.current()->uuid << (solution_cleanup.current()->debugBuild?_snlProjDbgConfTag2:_snlProjRelConfTag2);
     }
     t << _snlProjConfEnd;
     t << _snlExtSections;
