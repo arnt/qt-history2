@@ -178,7 +178,7 @@ void TextEdit::setupTextActions()
     comboFont->insertStringList(db.families());
     connect(comboFont, SIGNAL(activated(const QString &)),
             this, SLOT(textFamily(const QString &)));
-    comboFont->setCurrentText(QApplication::font().family());
+    comboFont->setEditText(QApplication::font().family());
 
     comboSize = new QComboBox(tb);
     tb->addWidget(comboSize);
