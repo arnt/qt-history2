@@ -1,12 +1,12 @@
 /****************************************************************************
-** Form implementation generated from reading ui file '/home/db/src/qt/main/tools/designer/manual/sgml/eg/book/book7/editbook.ui'
+** Form implementation generated from reading ui file '/home/mark/p4/qt/tools/designer/manual/sgml/eg/book/book7/editbook.ui'
 **
-** Created: Fri Feb 23 12:24:31 2001
+** Created: Fri Mar 2 11:55:30 2001
 **      by:  The User Interface Compiler (uic)
 **
 ** WARNING! All changes made in this file will be lost!
 ****************************************************************************/
-#include "/home/db/src/qt/main/tools/designer/manual/sgml/eg/book/book7/editbook.h"
+#include "/home/mark/p4/qt/tools/designer/manual/sgml/eg/book/book7/editbook.h"
 
 #include <qvariant.h>   // first for gcc 2.7.2
 #include <qcombobox.h>
@@ -34,7 +34,7 @@ EditBookForm::EditBookForm( QWidget* parent,  const char* name, bool modal, WFla
 {
     if ( !name )
 	setName( "EditBookForm" );
-    resize( 536, 309 ); 
+    resize( 532, 307 ); 
     setCaption( tr( "Edit Books" ) );
     EditBookFormLayout = new QVBoxLayout( this ); 
     EditBookFormLayout->setSpacing( 6 );
@@ -211,11 +211,11 @@ void EditBookForm::beforeUpdateBook( QSqlRecord * buffer )
 
 void EditBookForm::primeInsertBook( QSqlRecord * buffer )
 {
-    QSqlQuery q;  
-    q.exec( "update sequence set sequence = sequence + 1 where tablename='book';" );  
-    q.exec( "select sequence from sequence where tablename='book';" );  
-    if ( q.next() ) {  
-	buffer->setValue( "id", q.value( 0 ) );  
+    QSqlQuery query;  
+    query.exec( "UPDATE sequence SET sequence = sequence + 1 WHERE tablename='book';" );  
+    query.exec( "SELECT sequence FROM sequence WHERE tablename='book';" );  
+    if ( query.next() ) {  
+	buffer->setValue( "id", query.value( 0 ) );  
     }  
 }
 

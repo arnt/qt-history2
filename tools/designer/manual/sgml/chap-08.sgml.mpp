@@ -1,60 +1,41 @@
-<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook V3.1//EN">
 <chapter>
 <title>The Key Bindings</title>
 
-    <para>
-    Following are all the key bindings defined in Qt Designer.
-    </para>
-
-    <para>
-    Table 8-1. The Key Bindings in Qt Designer
-    </para>
-
-    <para>
-<guilabel>Key Binding Function</> Ctrl-A Selects all GUI
-    elements in the currently active form. Ctrl-B Breaks the currently
-    selected layout so that you can add or delete GUI elements. Ctrl-C
-    Copies the selected GUI elements from the currently active form
-    into the clipboard. Alt-E Opens the <guilabel>Edit</> menu. Alt-F
-    Opens the <guilabel>File</> menu. Ctrl-G Assigns a grid layout to
-    the currently selected container, or creates a new container
-    containing the currently selected GUI elements and assigns a grid
-    layout to this container. Ctrl-H Assigns a horizontal box layout
-    to the currently selected container, or creates a new container
-    containing the currently selected GUI elements and assigns a
-    horizontal box layout to this container. Alt-H Opens the
-    <guilabel>Help</> menu. Ctrl-J Adjusts the size of the selected
-    GUI element (or elements) so that it has the minimal size needed
-    for displaying itself properly. Ctrl-L Assigns a vertical box
-    layout to the currently selected container, or creates a new
-    container containing the currently selected GUI elements and
-    assigns a vertical box layout to this container. Alt-L Opens the
-    <guilabel>Layout</> menu. Ctrl-M Opens an online version of this
-    manual in the help browser. Ctrl-N Creates a new form. Ctrl-O
-    Opens an existing form. <guilabel>Key Binding
-    Function</> Alt-P Opens the <guilabel>Preview</> menu. Ctrl-R
-    Checks the accelerators in the currently active form for
-    duplicates. Ctrl-S Saves the currently active form. Ctrl-T
-    Previews the currently active form in the default GUI style of the
-    platform. Alt-T Opens the <guilabel>Tools</> menu. Ctrl-V Pastes
-    the GUI element (or elements) in the clipboard into the currently
-    active form at the position it had in its original form plus a
-    little offset. Does nothing if the clipboard does not contain a
-    GUI element. Alt-W Opens the <guilabel>Window</> menu. Ctrl-X Cuts
-    the selected GUI element (or elements) from the currently active
-    form and puts it into the clipboard. Ctrl-Y Redoes the last undo
-    action. Ctrl-Z Undoes the last action. Del Deletes the selected
-    GUI elements from the currently active form. F1 Opens the
-    introductory page of the Qt Designer help in the help browser.
-    Shift-F1 Turns on What's This mode, which lets you click on a GUI
-    element in Qt Designer to get a small description window for this
-    element. F2 Turns on the pointer tool that lets you select GUI
-    elements. F3 Turns on the connection tool that lets you edit the
-    connections between signals and slots in a form. F4 Turns on the
-    tab order tool that lets you change the tab order of the GUI
-    elements on the currently active form. Ctrl-F4 Closes the
-    currently active window. Ctrl-F6 Activates the next window in the
-    order of window creation. Ctrl-Shift-F6 Activates the previous
-    window in the order of window creation.
-    </para>
+<para>
+<itemizedlist>
+<listitem><para>Ctrl+A -- Selects all GUI elements in the currently active form. </para></listitem>
+<listitem><para>Ctrl+B -- Breaks the currently selected layout so that you can add or delete GUI elements. </para></listitem>
+<listitem><para>Ctrl+C -- Copies the selected GUI elements from the currently active form into the clipboard. </para></listitem>
+<listitem><para>Alt+E -- Pulls down the <guimenuitem>Edit</> menu. </para></listitem>
+<listitem><para>Alt+F -- Pulls down the <guimenuitem>File</> menu. </para></listitem>
+<listitem><para>Ctrl+G -- Applies a grid layout to the currently selected container, or creates a new container containing the currently selected GUI elements and applies a grid layout to this container. </para></listitem>
+<listitem><para>Ctrl+H -- Applies a horizontal box layout to the currently selected container, or creates a new container containing the currently selected GUI elements and applies a horizontal box layout to this container. </para></listitem>
+<listitem><para>Alt+H -- Pulls down the <guimenuitem>Help</> menu. </para></listitem>
+<listitem><para>Ctrl+J Adjusts the size of the selected GUI element (or elements) so that it has the minimal size needed for displaying itself properly. </para></listitem>
+<listitem><para>Ctrl+L -- Applies a vertical box layout to the currently selected container, or creates a new container containing the currently selected GUI elements and applies a vertical box layout to this container. </para></listitem>
+<listitem><para>Alt+L -- Pulls down the <guimenuitem>Layout</> menu. </para></listitem>
+<listitem><para>Ctrl+M -- Opens an online version of this manual in the help browser. </para></listitem>
+<listitem><para>Ctrl+N -- Invokes the New Form dialog. </para></listitem>
+<listitem><para>Ctrl+O -- Invokes the Open File dialog. </para></listitem>
+<listitem><para>Alt+P -- Pulls down the <guimenuitem>Preview</> menu. </para></listitem>
+<listitem><para>Ctrl+R -- Checks the accelerators in the currently active form for duplicates. </para></listitem>
+<listitem><para>Ctrl+S -- Saves the currently active form. </para></listitem>
+<listitem><para>Ctrl+T -- Previews the currently active form in the default GUI style of the platform. </para></listitem>
+<listitem><para>Alt+T -- Pulls down the <guimenuitem>Tools</> menu. </para></listitem>
+<listitem><para>Ctrl+V -- Pastes the GUI element (or elements) in the clipboard into the currently active form at the position it had in its original form plus a little offset. Does nothing if the clipboard does not contain a GUI element. </para></listitem>
+<listitem><para>Alt+W -- Pulls down the <guimenuitem>Window</> menu. </para></listitem>
+<listitem><para>Ctrl+X -- Cuts the selected GUI element (or elements) from the currently active form and puts it into the clipboard. </para></listitem>
+<listitem><para>Ctrl+Y -- Redoes the last undo action. </para></listitem>
+<listitem><para>Ctrl+Z -- Undoes the last action. </para></listitem>
+<listitem><para>Del -- Deletes the selected GUI elements from the currently active form. </para></listitem>
+<listitem><para>F1 -- Opens the introductory page of the Qt Designer help in the help browser.</para></listitem>
+<listitem><para>Shift-F1 -- Turns on What's This mode, which lets you click on a GUI element in Qt Designer to get a small description window for this element. </para></listitem>
+<listitem><para>F2 -- Activates the pointer tool that lets you select GUI elements. </para></listitem>
+<listitem><para>F3 -- Activates the connection tool that lets you edit the connections between signals and slots in a form. </para></listitem>
+<listitem><para>F4 -- Activates the tab order tool that lets you change the tab order of the GUI elements on the currently active form. </para></listitem>
+<listitem><para>Ctrl+F4 -- Closes the currently active window. </para></listitem>
+<listitem><para>Ctrl+F6 -- Activates the next window in the order of window creation. </para></listitem>
+<listitem><para>Ctrl+Shift-F6 -- Activates the previous window in the order of window creation.</para></listitem>
+</itemizedlist>
+</para>
 </chapter>

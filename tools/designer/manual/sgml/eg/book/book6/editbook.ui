@@ -10,8 +10,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>548</width>
-            <height>291</height>
+            <width>540</width>
+            <height>287</height>
         </rect>
     </property>
     <property name="caption">
@@ -305,11 +305,11 @@
     
 }</function>
     <function name="primeInsertBook(QSqlRecord*)" >{
-    QSqlQuery q;  
-    q.exec( "update sequence set sequence = sequence + 1 where tablename='book';" );  
-    q.exec( "select sequence from sequence where tablename='book';" );  
-    if ( q.next() ) {  
-	buffer-&gt;setValue( "id", q.value( 0 ) );  
+    QSqlQuery query;  
+    query.exec( "UPDATE sequence SET sequence = sequence + 1 WHERE tablename='book';" );  
+    query.exec( "SELECT sequence FROM sequence WHERE tablename='book';" );  
+    if ( query.next() ) {  
+	buffer-&gt;setValue( "id", query.value( 0 ) );  
     }     
 }</function>
 </functions>

@@ -1,4 +1,3 @@
-<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook V3.1//EN">
 <chapter>
 <title>Customizing and Integrating Qt Designer</title>
 
@@ -27,6 +26,11 @@ selecting a color or a pixmap. You can also switch off the grid (uncheck
 Show Grid) since using layouts makes the grid redundant.
 </para>
 <para>
+The Preferences dialog may have additional tabs, depending on what
+plugins you have installed. We'll describe the C++ Editor tab since this
+is installed by default.
+</para>
+<para>
 The C++ Editor tab is used to set your preferred fonts for
 syntax highlighting in \qd's code editor. The base font for all elements
 is set in the 'Standard' element which is the last item in the list.
@@ -36,6 +40,10 @@ and all the other elements will inherit its setting.
 
 <sect2 id="qtdesignerscodeeditor">
 <title>Qt Designer's Code Editor</title>
+<para>
+The code editor is available if an Editor plugin is installed. The C++
+Editor plugin is installed by default.
+</para>
 <para>
 The code editor provides the following keystrokes:
 <itemizedlist>
@@ -57,6 +65,7 @@ The code editor provides the following keystrokes:
 <listitem><para>Ctrl+F -- Invokes the Find Text dialog</para></listitem>
 <listitem><para>Ctrl+G -- Invokes the Goto Line dialog</para></listitem>
 <listitem><para>Ctrl+H -- Deletes the character to the left of the cursor</para></listitem>
+<listitem><para>Ctrl+I -- Indent the line or selected text that contains the cursor</para></listitem>
 <listitem><para>Alt+I -- Starts incremental search (see below)</para></listitem>
 <listitem><para>Ctrl+K -- Deletes from the cursor position to the end of
 the line</para></listitem>
@@ -202,12 +211,12 @@ of it as a \qd template. The source for the class is in
 </para>
 
 <para>
-There are two stages to creating a base-class template, first making the
-class a custom widget, and second, making the custom widget into a
-template.
-<orderedlist numeration="arabic">
-<listitem>
+The template can either be based on a custom widget or on any existing
+container widget.
+</para>
 <para>
+If you want to base the template on a custom widget you must first add
+it to \qd's custom widgets.
 Click <guimenuitem>Tools|Custom|Edit Custom Widgets</guimenuitem> to
 invoke the Edit Custom Widgets dialog. (This dialog is explained in more
 detail in <xref linkend="old-custom-widgets"> "Simple Custom Widgets".)
@@ -221,17 +230,13 @@ class provides two properties. Click the Properties tab. Click
 'company'. Click the <guibutton>New Property</guibutton> again and change
 the property name to 'settingsFile'. Click <guibutton>Close</guibutton>.
 </para>
-</listitem>
-<listitem>
 <para>
-Click <guimenuitem>File|Create Template</guimenuitem> to invoke the
-Create Template dialog. Change the Template Name to 'SizeAware' and
-click the SizeAware base class, then click <guibutton>Create</guibutton>.
-The dialog will create the template and close itself immediately. Close
-\qd and restart it.
-</para>
-</listitem>
-</orderedlist>
+To create a template, based on an existing widget or on your own custom
+widget, click <guimenuitem>File|Create Template</guimenuitem> to invoke
+the Create Template dialog. Change the Template Name to 'SizeAware' and
+click the SizeAware base class, then click
+<guibutton>Create</guibutton>. The dialog will create the template and
+close itself immediately. Close \qd and restart it.
 </para>
 
 <para>
