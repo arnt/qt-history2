@@ -250,6 +250,10 @@ public:
 private:
     ULONG m_refs;
     BOOL acceptfmt;
+
+    POINTL last_pt;
+    DWORD last_effect;
+    DWORD last_keystate;
 };
 
 static
@@ -811,6 +815,9 @@ QOleDropTarget::QOleDropTarget( QWidget* w ) :
 {
    m_refs = 1;
    acceptfmt = FALSE;
+   last_pt.x = last_pt.y = -100000;
+   last_effect = DROPEFFECT_NONE;
+   last_keystate = -1;
 }
 
 //---------------------------------------------------------------------
@@ -875,9 +882,17 @@ QOleDropTarget::DragEnter(LPDATAOBJECT pDataObj, DWORD grfKeyState, POINTL pt, L
 STDMETHODIMP
 QOleDropTarget::DragOver(DWORD grfKeyState, POINTL pt, LPDWORD pdwEffect)
 {
-    QDragMoveEvent de( widget->mapFromGlobal(QPoint(pt.x,pt.y)) );
-
     QueryDrop(grfKeyState, pdwEffect);
+
+    if ( pt.x == last_pt.x && pt.y == last_pt.y &&
+	*pdwEffect == last_effect && grfKeyState == last_keystate ) {
+	return NOERROR;
+    }
+    last_pt = pt;
+    last_effect = *pdwEffect;
+    last_keystate = grfKeyState;
+
+    QDragMoveEvent de( widget->mapFromGlobal(QPoint(pt.x,pt.y)) );
     if ( *pdwEffect & DROPEFFECT_MOVE )
 	de.setAction( QDropEvent::Move );
     else if ( *pdwEffect & DROPEFFECT_LINK )
