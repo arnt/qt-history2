@@ -505,8 +505,7 @@ void QTipManager::showTip()
 	Q_CHECK_PTR( label );
 	connect( label, SIGNAL(destroyed()), SLOT(labelDestroyed()) );
     }
-    int scr = QApplication::desktop()->screenNumber( widget );
-    QRect screen = QApplication::desktop()->screenGeometry( scr );
+    QRect screen = QApplication::desktop()->screenGeometry( widget );
     QPoint p;
     if ( t->geometry == QRect( -1, -1, -1, -1 ) ) {
 	p = widget->mapToGlobal( pos ) + QPoint( 2, 16 );
@@ -520,7 +519,6 @@ void QTipManager::showTip()
 	int h = label->heightForWidth( t->geometry.width() - 4 );
 	label->resize( label->width(), h );
     }
-    QRect screen = QApplication::desktop()->screenGeometry( widget );
     if ( p.y() < screen.y() )
 	p.setY( screen.y() );
     if ( p.x() + label->width() > screen.x() + screen.width() )
