@@ -54,7 +54,8 @@ class QListView;
 struct QListViewPrivate;
 struct QCheckListItemPrivate;
 class QListViewItemIterator;
-
+class QDragObject;
+class QMimeSource;
 
 class Q_EXPORT QListViewItem: public Qt
 {
@@ -152,12 +153,24 @@ public:
     virtual void sort();
     void moveItem( QListViewItem *after );
 
+    virtual void setDragEnabled( bool allow );
+    virtual void setDropEnabled( bool allow );
+    bool dragEnabled() const;
+    bool dropEnabled() const;
+    virtual bool acceptDrop( const QMimeSource *mime ) const;
+
 protected:
     virtual void enforceSortOrder() const;
     virtual void setHeight( int );
     virtual void activate();
 
     bool activatedPos( QPoint & );
+#ifndef QT_NO_DRAGANDDROP
+    virtual void dropped( QDropEvent *e, QMimeSource *mime );
+#endif
+    virtual void dragEntered();
+    virtual void dragLeft();
+
 private:
     void init();
     void moveToJustAfter( QListViewItem * );
@@ -173,7 +186,9 @@ private:
     uint configured: 1;
     uint expandable: 1;
     uint is_root: 1;
-
+    uint allow_drag : 1;
+    uint allow_drop : 1;
+    
     QListViewItem * parentItem;
     QListViewItem * siblingItem;
     QListViewItem * childItem;
@@ -315,12 +330,23 @@ signals:
 
     void expanded( QListViewItem *item );
     void collapsed( QListViewItem *item );
+#ifndef QT_NO_DRAGANDDROP
+    void dropped( QDropEvent *e, QMimeSource *mime );
+#endif
 
 protected:
     void contentsMousePressEvent( QMouseEvent * e );
     void contentsMouseReleaseEvent( QMouseEvent * e );
     void contentsMouseMoveEvent( QMouseEvent * e );
     void contentsMouseDoubleClickEvent( QMouseEvent * e );
+#ifndef QT_NO_DRAGANDDROP
+    virtual void contentsDragEnterEvent( QDragEnterEvent *e );
+    virtual void contentsDragMoveEvent( QDragMoveEvent *e );
+    virtual void contentsDragLeaveEvent( QDragLeaveEvent *e );
+    virtual void contentsDropEvent( QDropEvent *e );
+    virtual QDragObject *dragObject();
+    virtual void startDrag();
+#endif
 
     void focusInEvent( QFocusEvent * e );
     void focusOutEvent( QFocusEvent * e );

@@ -51,10 +51,9 @@
 #include "qvector.h"
 #include "qiconset.h"
 #include "qcleanuphandler.h"
-
 #include "qpixmapcache.h"
-
 #include "qtl.h"
+#include "qdragobject.h"
 
 const int Unsorted = 16383;
 
@@ -213,6 +212,8 @@ struct QListViewPrivate
     bool useDoubleBuffer;
 
     QSize sizeHint;
+    QListViewItem *startDragItem;
+    QPoint dragStartPos;
 };
 
 // these should probably be in QListViewPrivate, for future thread safety
@@ -525,6 +526,8 @@ void QListViewItem::init()
     expandable = FALSE;
     selectable = TRUE;
     is_root = FALSE;
+    allow_drag = FALSE;
+    allow_drop = FALSE;
 }
 
 
@@ -560,6 +563,95 @@ QListViewItem::~QListViewItem()
     delete (QListViewPrivate::ItemColumnInfo *)columns;
 }
 
+
+/*!  If \a allow is TRUE, the listview starts a drag (see
+  QListView::dragObject()) when user presses and moves the mouse on this
+  item.
+*/
+
+
+void QListViewItem::setDragEnabled( bool allow )
+{
+    allow_drag = (uint)allow;
+}
+
+/*! If \a allow is TRUE, the listview accepts drops onto the item..
+ */
+
+void QListViewItem::setDropEnabled( bool allow )
+{
+    allow_drop = (uint)allow;
+}
+
+/*! Returns whether this item can be dragged.
+  
+  \sa setDragEnabled()
+*/
+
+bool QListViewItem::dragEnabled() const
+{
+    return (bool)allow_drag;
+}
+
+/*! Returns whether this item accepts drops.
+  
+  \sa setDropEnabled(), acceptDrop()
+*/
+
+bool QListViewItem::dropEnabled() const
+{
+    return (bool)allow_drop;
+}
+
+/*!  Returns TRUE if the item accepts the QMimeSource \a mime (so it
+  could be dropped on the item), and FALSE if it does not.
+
+  The default implementation does nothing and returns always TRUE. A
+  subclass must reimplement this to accept drops.
+*/
+
+bool QListViewItem::acceptDrop( const QMimeSource * ) const
+{
+    return FALSE;
+}
+
+#ifndef QT_NO_DRAGANDDROP
+
+/*!  This method is called when something was dropped on the item.  \a
+   mime contains all the information about the drop.
+
+  The default implementation does nothing, subclasses should
+  reimplement this method.
+*/
+
+void QListViewItem::dropped( QDropEvent *e, QMimeSource *mime )
+{
+    Q_UNUSED( e );
+    Q_UNUSED( mime );
+}
+
+#endif
+
+/*!  This method is called, when a drag entered the item's bounding
+  rect.
+
+  The default implementation does nothing, subclasses should
+  reimplement this method.
+*/
+
+void QListViewItem::dragEntered()
+{
+}
+
+/*!  This method is called, when a drag left the item's bounding rect.
+
+  The default implementation does nothing, subclasses should
+  reimplement this method.
+*/
+
+void QListViewItem::dragLeft()
+{
+}
 
 /*!  Inserts \a newChild into its list of children.  You should not
   need to call this function; it is called automatically by the
@@ -1840,7 +1932,8 @@ void QListView::init()
     d->selectAnchor = 0;
     d->select = TRUE;
     d->useDoubleBuffer = FALSE;
-
+    d->startDragItem = 0;
+    
     setMouseTracking( TRUE );
     viewport()->setMouseTracking( TRUE );
 
@@ -3149,7 +3242,9 @@ void QListView::contentsMousePressEvent( QMouseEvent * e )
 {
     if ( !e )
 	return;
-
+    
+    d->startDragItem = 0;
+    d->dragStartPos = e->pos();
     QPoint vp = contentsToViewport( e->pos() );
 
     d->ignoreDoubleClick = FALSE;
@@ -3326,6 +3421,7 @@ void QListView::contentsMousePressEvent( QMouseEvent * e )
 */
 void QListView::contentsMouseReleaseEvent( QMouseEvent * e )
 {
+    d->startDragItem = 0;
     bool emitClicked = !d->pressedItem || d->buttonDown;
     d->buttonDown = FALSE;
     // delete and disconnect autoscroll timer, if we have one
@@ -3436,9 +3532,28 @@ void QListView::contentsMouseMoveEvent( QMouseEvent * e )
 	d->highlighted = i;
     }
 
+    if ( d->startDragItem )
+	i = d->startDragItem;
+    
     if ( !d->buttonDown || e->state() == NoButton )
 	return;
 
+    if ( i && i == d->focusItem &&
+	 ( i->isSelected() || d->selectionMode == NoSelection ) &&
+	 i->dragEnabled() ) {
+	if ( !d->startDragItem ) {
+	    setSelected( i, TRUE );
+	    d->startDragItem = i;
+	}
+	if ( ( d->dragStartPos - e->pos() ).manhattanLength() > QApplication::startDragDistance() ) {
+	    d->buttonDown = FALSE;
+#ifndef QT_NO_DRAGANDDROP
+	    startDrag();
+#endif
+	}
+	return;
+    }
+    
     // check, if we need to scroll
     if ( vp.y() > visibleHeight() || vp.y() < 0 )
 	needAutoScroll = TRUE;
@@ -5217,6 +5332,69 @@ void QListView::takeItem( QListViewItem * i )
 {
     d->r->takeItem( i );
 }
+
+#ifndef QT_NO_DRAGANDDROP
+
+/*! \reimp */
+
+void QListView::contentsDragEnterEvent( QDragEnterEvent *e )
+{
+    Q_UNUSED( e );
+}
+
+/*! \reimp */
+
+void QListView::contentsDragMoveEvent( QDragMoveEvent *e )
+{
+    Q_UNUSED( e );
+}
+
+/*! \reimp */
+
+void QListView::contentsDragLeaveEvent( QDragLeaveEvent *e )
+{
+    Q_UNUSED( e );
+}
+
+/*! \reimp */
+
+void QListView::contentsDropEvent( QDropEvent *e )
+{
+    Q_UNUSED( e );
+}
+
+/*! If the user presses the mouse on an item and starts moving this
+  item, and this items allows dragging (see
+  QListViewItem::setDragEnabled()), this function is called to get a
+  drag object and a drag is started using that unless dragObject() returns 0.
+  
+  By default this function returns 0. You should reimplement that and
+  create a QDragObject depedning on the selected items.
+*/
+
+QDragObject *QListView::dragObject()
+{
+    return 0;
+}
+
+/*! Starts a drag. */
+
+void QListView::startDrag()
+{
+    if ( !d->startDragItem )
+	return;
+
+    d->startDragItem = 0;
+    d->buttonDown = FALSE;
+
+    QDragObject *drag = dragObject();
+    if ( !drag )
+	return;
+
+    drag->drag();
+}
+
+#endif // QT_NO_DRAGANDDROP
 
 /**********************************************************************
  *
