@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#81 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#82 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -11,7 +11,6 @@
 *****************************************************************************/
 
 #include "qapp.h"
-#include "qevent.h"
 #include "qwidget.h"
 #include "qwidcoll.h"
 #include "qpainter.h"
@@ -32,7 +31,7 @@
 #endif
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#81 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#82 $";
 #endif
 
 
@@ -54,6 +53,9 @@ static bool	appNoGrab	= FALSE;	// X11 grabbing enabled
 static int	appScreen;			// X11 screen number
 static Window	appRootWin;			// X11 root window
 static bool	app_save_rootinfo = FALSE;	// save root info
+#if defined(DEBUG)
+static bool	appMemChk	= FALSE;	// memory checking (debugging)
+#endif
 
 static bool	app_do_modal	= FALSE;	// modal mode
 static int	app_loop_level	= 1;		// event loop level
@@ -68,9 +70,6 @@ static GC	app_gc_ro_m	= 0;		// read-only GC (monochrome)
 static GC	app_gc_tmp_m	= 0;		// temporary GC (monochrome)
 static QWidget *desktopWidget	= 0;		// root window widget
 Atom		q_wm_delete_window;		// delete window protocol
-#if defined(DEBUG)
-static bool	appMemChk	= FALSE;	// memory checking (debugging)
-#endif
 
 static Window	mouseActWindow	     = 0;	// window where mouse is
 static int	mouseButtonPressed   = 0;	// last mouse button pressed
@@ -265,6 +264,10 @@ void qt_init( int *argcptr, char **argv )
 }
 
 
+// --------------------------------------------------------------------------
+// qt_cleanup() - cleans up when the application is finished
+//
+
 void qt_cleanup()
 {
     cleanupPostedEvents();			// remove list of posted events
@@ -302,6 +305,10 @@ void qt_cleanup()
 #endif
 }
 
+
+// --------------------------------------------------------------------------
+// Platform specific global and internal functions
+//
 
 void qt_save_rootinfo()				// save new root info
 {
@@ -383,10 +390,6 @@ void qAddPostRoutine( void (*p)() )		// add post routine
 }
 
 
-// --------------------------------------------------------------------------
-// Platform specific functions (mostly)
-//
-
 char *qAppName()				// get application name
 {
     return appName;
@@ -402,7 +405,7 @@ int qt_xscreen()				// get current X screen
     return appScreen;
 }
 
-Window qt_xrootwin()				// get X root window
+WId qt_xrootwin()				// get X root window
 {
     return appRootWin;
 }
@@ -450,6 +453,10 @@ GC qt_xget_temp_gc( bool monochrome )		// get use'n throw GC
     return gc;
 }
 
+
+// --------------------------------------------------------------------------
+// Platform specific QApplication members
+//
 
 /*!
   Sets the main widget of the application.
@@ -519,7 +526,7 @@ void QApplication::restoreCursor()		// restore application cursor
 	++it;
     }
     XFlush( appDpy );
-    delete app_cursor;				// reset appCursor
+    delete app_cursor;				// reset app_cursor
     app_cursor = 0;
 }
 
@@ -732,7 +739,7 @@ int QApplication::exec()			// enter main event loop
 
 int QApplication::enter_loop()			// local event loop
 {
-    app_loop_level++;				// increment loop level
+    app_loop_level++;				// increment loop level count
 
     while ( quit_now == FALSE && !app_exit_loop ) {
 
@@ -1389,8 +1396,6 @@ bool qKillTimer( QObject *obj )			// kill timers for obj
 // comparing window, time and position between two mouse press events.
 //
 
-#define ABS(x) ((x)>=0?(x):-(x))
-
 int translateButtonState( int s )		// translate button state
 {
     int bst = 0;
@@ -1446,8 +1451,8 @@ bool QETWidget::translateMouseEvent( const XEvent *event )
 	    if ( mouseActWindow == event->xbutton.window &&
 		 mouseButtonPressed == button &&
 		 (int)event->xbutton.time - mouseButtonPressTime < 400 &&
-		 ABS(event->xbutton.x - mouseXPos) < 5 &&
-		 ABS(event->xbutton.y - mouseYPos) < 5 ) {
+		 QABS(event->xbutton.x - mouseXPos) < 5 &&
+		 QABS(event->xbutton.y - mouseYPos) < 5 ) {
 		type = Event_MouseButtonDblClick;
 	    }
 	    else
@@ -1551,7 +1556,7 @@ static KeySym KeyTbl[] = {				// keyboard mapping table
     XK_Caps_Lock,	Key_CapsLock,
     XK_Num_Lock,	Key_NumLock,
     XK_Scroll_Lock,	Key_ScrollLock,
-    XK_KP_Space,	Key_Space,		// keypad
+    XK_KP_Space,	Key_Space,		// numeric keypad
     XK_KP_Tab,		Key_Tab,
     XK_KP_Enter,	Key_Enter,
     XK_KP_Equal,	Key_Equal,
@@ -1611,7 +1616,7 @@ bool QETWidget::translateKeyEvent( const XEvent *event )
 #endif
 #if 0 // defined(DEBUG)
     if ( count > 1 ) {
-	ascii[15] = '\0'; // ### need to support and test this
+	ascii[15] = '\0';		// ### need to support and test this
 	debug( "translateKey: Multibyte translation disabled (%d, %s)",
 	       count, ascii );
 	return FALSE;
@@ -1693,7 +1698,7 @@ bool QETWidget::translateConfigEvent( const XEvent *event )
 	    QApplication::sendEvent( this, &e );
 	}
 	if ( newPos != geometry().topLeft() ) {
-	    QPoint oldPos = frameGeometry().topLeft();
+	    QPoint oldPos = pos();
 	    r.setTopLeft( newPos );
 	    setCRect( r );
 	    QMoveEvent e( frameGeometry().topLeft(), oldPos );
@@ -1716,7 +1721,7 @@ bool QETWidget::translateCloseEvent( const XEvent * )
 	if ( qApp->mainWidget() == this )
 	    qApp->quit();
 	else
-	    return TRUE;			// delete widget
+	    return TRUE;			// accepts close
     }
     return FALSE;
 }
