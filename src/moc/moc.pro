@@ -33,9 +33,12 @@ SOURCES		= ../tools/qbuffer.cpp	    \
 		  ../codecs/qtextcodec.cpp \
 		  ../codecs/qutfcodec.cpp
 
-internal:LEXSOURCES  = moc.l
-internal:YACCSOURCES = moc.y
-!internal:SOURCES   += moc_yacc.cpp
+contains(QT_PRODUCT, qt-internal) {
+    LEXSOURCES  = moc.l
+    YACCSOURCES = moc.y
+} else {
+    SOURCES   += moc_yacc.cpp
+}
 
 unix:SOURCES	+= ../tools/qfile_unix.cpp ../tools/qdir_unix.cpp ../tools/qfileinfo_unix.cpp
 win32:SOURCES	+= ../tools/qfile_win.cpp ../tools/qdir_win.cpp ../tools/qfileinfo_win.cpp
