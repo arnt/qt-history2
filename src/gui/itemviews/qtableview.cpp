@@ -43,22 +43,20 @@ void QTableViewPrivate::init()
     q->setHorizontalHeader(horizontal);
 }
 
-void QTableViewPrivate::updateVerticalScrollbar(int itemHeight)
+void QTableViewPrivate::updateVerticalScrollbar()
 {
     int factor = q->verticalFactor();
     int height = viewport->height();
     int count = model->rowCount(q->root());
 
     // if we have no viewport or no rows, there is nothing to do
-    if (height <= 0 || count <= 0 || itemHeight <= 0) {
+    if (height <= 0 || count <= 0) {
         q->verticalScrollBar()->setRange(0, 0);
         return;
     }
 
     // set page step size
-    int visibleItems = height / itemHeight;
-    int pageStepSize = visibleItems * factor;
-    q->verticalScrollBar()->setPageStep(pageStepSize);
+    q->verticalScrollBar()->setPageStep(height);
 
     // set the scroller range
     int y = height;
@@ -77,22 +75,20 @@ void QTableViewPrivate::updateVerticalScrollbar(int itemHeight)
     q->verticalScrollBar()->setRange(0, max);
 }
 
-void QTableViewPrivate::updateHorizontalScrollbar(int itemWidth)
+void QTableViewPrivate::updateHorizontalScrollbar()
 {
     int factor = q->horizontalFactor();
     int width = viewport->width();
     int count = model->columnCount(q->root());
 
     // if we have no viewport or no columns, there is nothing to do
-    if (width <= 0 || count <= 0 || itemWidth <= 0) {
+    if (width <= 0 || count <= 0) {
         q->horizontalScrollBar()->setRange(0, 0);
         return;
     }
 
     // set page step size
-    int visibleItems = width / itemWidth;
-    int pageStepSize = visibleItems * factor;
-    q->horizontalScrollBar()->setPageStep(pageStepSize);
+    q->horizontalScrollBar()->setPageStep(width);
 
     // set the scroller range
     int x = width;
@@ -306,7 +302,6 @@ void QTableView::scrollContentsBy(int dx, int dy)
         else
             dx = d->horizontalHeader->offset() - offset;
         d->horizontalHeader->setOffset(offset);
-        horizontalScrollBar()->repaint();
     }
 
     if (dy) { // vertical
@@ -316,7 +311,6 @@ void QTableView::scrollContentsBy(int dx, int dy)
         int offset = (above / verticalFactor()) + d->verticalHeader->sectionPosition(section);
         dy = d->verticalHeader->offset() - offset;
         d->verticalHeader->setOffset(offset);
-        verticalScrollBar()->repaint();
     }
 
     d->viewport->scroll(dx, dy);
@@ -679,8 +673,8 @@ void QTableView::updateGeometries()
     d->horizontalHeader->setGeometry(vg.left(), horizontalTop, vg.width(), height);
 
     if (d->model) {
-        d->updateVerticalScrollbar(d->verticalHeader->sectionSize(0));
-        d->updateHorizontalScrollbar(d->horizontalHeader->sectionSize(0));
+        d->updateVerticalScrollbar();
+        d->updateHorizontalScrollbar();
     }
 
     QAbstractItemView::updateGeometries();

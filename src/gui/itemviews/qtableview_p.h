@@ -25,8 +25,8 @@ public:
           rowSectionAnchor(0), columnSectionAnchor(0),
           horizontalHeader(0), verticalHeader(0) {}
     void init();
-    void updateVerticalScrollbar(int itemHeight);
-    void updateHorizontalScrollbar(int itemWidth);
+    void updateVerticalScrollbar();
+    void updateHorizontalScrollbar();
 
     bool showGrid;
     Qt::PenStyle gridStyle;

@@ -91,8 +91,8 @@ void QAbstractItemViewPrivate::init()
     viewport->setBackgroundRole(QPalette::Base);
     viewport->setAttribute(Qt::WA_NoBackground);
 
-    q->setHorizontalFactor(256);
-    q->setVerticalFactor(256);
+    q->setHorizontalFactor(64);
+    q->setVerticalFactor(64);
 
     doDelayedItemsLayout();
 }

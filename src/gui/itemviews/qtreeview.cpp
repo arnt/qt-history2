@@ -1022,9 +1022,8 @@ void QTreeView::updateGeometries()
     // update scrollbars
     if (model() && model()->rowCount(root()) > 0 && model()->columnCount(root()) > 0) {
         QModelIndex topLeft = model()->index(0, 0);
-        QSize size = itemDelegate()->sizeHint(viewOptions(), model(), topLeft);
-        d->updateVerticalScrollbar(size.height());
-        d->updateHorizontalScrollbar(d->header->sectionSize(0));
+        d->updateVerticalScrollbar();
+        d->updateHorizontalScrollbar();
     }
 
     QAbstractItemView::updateGeometries();
@@ -1360,22 +1359,20 @@ void QTreeViewPrivate::reopenChildren(const QModelIndex &parent, bool update)
     }
 }
 
-void QTreeViewPrivate::updateVerticalScrollbar(int itemHeight)
+void QTreeViewPrivate::updateVerticalScrollbar()
 {
     int factor = q->verticalFactor();
     int height = viewport->height();
     int itemCount = viewItems.count();
 
     // if we have no viewport or no items, there is nothing to do
-    if (height <= 0 || itemCount <= 0 || itemHeight <= 0) {
+    if (height <= 0 || itemCount <= 0) {
         q->verticalScrollBar()->setRange(0, 0);
         return;
     }
 
     // set page step size
-    int visibleItems = height / itemHeight;
-    int pageStepSize = visibleItems * factor;
-    q->verticalScrollBar()->setPageStep(pageStepSize);
+    q->verticalScrollBar()->setPageStep(height);
 
     // set the scroller range
     int y = height;
@@ -1394,22 +1391,20 @@ void QTreeViewPrivate::updateVerticalScrollbar(int itemHeight)
     q->verticalScrollBar()->setRange(0, max);
 }
 
-void  QTreeViewPrivate::updateHorizontalScrollbar(int itemWidth)
+void  QTreeViewPrivate::updateHorizontalScrollbar()
 {
     int factor = q->horizontalFactor();
     int width = viewport->width();
     int count = model->columnCount(q->root());
 
     // if we have no viewport or no columns, there is nothing to do
-    if (width <= 0 || count <= 0 || itemWidth <= 0) {
+    if (width <= 0 || count <= 0) {
         q->horizontalScrollBar()->setRange(0, 0);
         return;
     }
 
     // set page step size
-    int visibleItems = width / itemWidth;
-    int pageStepSize = visibleItems * factor;
-    q->horizontalScrollBar()->setPageStep(pageStepSize);
+    q->horizontalScrollBar()->setPageStep(width);
 
     // set the scroller range
     int x = width;
