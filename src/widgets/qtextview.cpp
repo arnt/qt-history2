@@ -1341,9 +1341,6 @@ void QTextView::contentsDropEvent( QDropEvent *e )
     inDnD = FALSE;
     e->acceptAction();
     QString text;
-    int i = -1;
-    while ( ( i = text.find( '\r' ) ) != -1 )
-	text.replace( i, 1, "" );
     if ( QTextDrag::decode( e, text ) ) {
 	if ( ( e->source() == this ||
 	       e->source() == viewport() ) &&
@@ -2378,10 +2375,8 @@ void QTextView::startDrag()
     if ( isReadOnly() ) {
 	drag->dragCopy();
     } else {
-	if ( drag->drag() && QDragObject::target() != this && QDragObject::target() != viewport() ) {
-	    doc->removeSelectedText( QTextDocument::Standard, cursor );
-	    repaintChanged();
-	}
+	if ( drag->drag() && QDragObject::target() != this && QDragObject::target() != viewport() )
+	    removeSelectedText();
     }
 #endif
 }
