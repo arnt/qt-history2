@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#564 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#565 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -2722,9 +2722,9 @@ void QApplication::closePopup( QWidget *popup )
 	    }
 	    XFlush( popup->x11Display() );
 	}
-	active_window = (*activeBeforePopup);	// restore the former
-	// active window immediately, although we'll get a focusIn
-	// later from X
+	active_window = activeBeforePopup ? (*activeBeforePopup) : 0;
+	// restore the former active window immediately, although
+	// we'll get a focusIn later from X
 	if ( active_window )
 	    if (active_window->focusWidget())
 		active_window->focusWidget()->setFocus();
