@@ -58,7 +58,7 @@ TARGET		= $(LIBDIR)/libqwidgets.a
 
 all: $(HEADERS) $(SOURCES) $(TARGET)
 
-obj: $(HEADERS) $(SOURCES) $(OBJECTS)
+obj: $(OBJECTS) $(OBJMETA)
 
 $(TARGET): $(OBJECTS) $(OBJMETA)
 	/bin/rm -f $(TARGET)
