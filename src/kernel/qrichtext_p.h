@@ -296,6 +296,8 @@ public:
     void gotoEnd();
     void gotoPageUp( int visibleHeight );
     void gotoPageDown( int visibleHeight );
+    void gotoNextWord();
+    void gotoPreviousWord();
     void gotoWordLeft();
     void gotoWordRight();
 

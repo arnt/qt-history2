@@ -665,10 +665,11 @@ void QLineEdit::keyPressEvent( QKeyEvent *e )
 #endif
 #endif
 	case Key_Right:
-	    cursorWordForward( e->state() & ShiftButton );
-	    break;
 	case Key_Left:
-	    cursorWordBackward( e->state() & ShiftButton );
+	    if ( d->parag->string()->isRightToLeft() == (e->key() == Key_Right) )
+		cursorWordBackward( e->state() & ShiftButton );
+	    else
+		cursorWordForward( e->state() & ShiftButton );
 	    break;
 	case Key_Z:
 	    if ( !d->readonly )
@@ -688,11 +689,11 @@ void QLineEdit::keyPressEvent( QKeyEvent *e )
 		d->selectionStart = d->cursor->index();
 	    break;
 	case Key_Left:
-	    cursorForward( e->state() & ShiftButton, -1 );
-	    break;
-	case Key_Right:
-	    cursorForward( e->state() & ShiftButton, 1 );
-	    break;
+	case Key_Right: {
+	    int step =  (d->parag->string()->isRightToLeft() == (e->key() == Key_Right)) ? -1 : 1;
+	    cursorForward( e->state() & ShiftButton, step );
+	}
+	break;
 	case Key_Backspace:
 	    if ( !d->readonly ) {
 		backspace();
@@ -1180,8 +1181,8 @@ void QLineEdit::mouseDoubleClickEvent( QMouseEvent * )
     } else {
 	QTextCursor c1 = *d->cursor;
 	QTextCursor c2 = *d->cursor;
-	c1.gotoWordLeft();
-	c2.gotoWordRight();
+	c1.gotoPreviousWord();
+	c2.gotoNextWord();
 
 	d->parag->setSelection( QTextDocument::Standard, c1.index(), c2.index() );
 	*d->cursor = c2;
@@ -1283,10 +1284,10 @@ void QLineEdit::cursorForward( bool mark, int steps )
 {
     if( steps > 0 )
 	while( steps-- )
-	    d->cursor->gotoRight();
+	    d->cursor->gotoNextLetter();
     else
 	while( steps++ )
-	    d->cursor->gotoLeft();
+	    d->cursor->gotoPreviousLetter();
     if ( mark )
 	updateSelection();
     else {
@@ -1903,7 +1904,7 @@ bool QLineEdit::edited() const
 */
 void QLineEdit::cursorWordForward( bool mark )
 {
-    d->cursor->gotoWordRight();
+    d->cursor->gotoNextWord();
     if( mark )
 	updateSelection();
     else {
@@ -1923,7 +1924,7 @@ void QLineEdit::cursorWordForward( bool mark )
 */
 void QLineEdit::cursorWordBackward( bool mark )
 {
-    d->cursor->gotoWordLeft();
+    d->cursor->gotoPreviousWord();
     if( mark )
 	updateSelection();
     else {

@@ -824,11 +824,17 @@ void QTextEdit::keyPressEvent( QKeyEvent *e )
 
     switch ( e->key() ) {
     case Key_Left:
-	moveCursor( e->state() & ControlButton ? MoveWordBackward : MoveBackward, e->state() & ShiftButton );
+    case Key_Right: {
+	// a bit hacky, but can't change this without introducing new enum values for move and keeping the
+	// correct semantics and movement for BiDi and non BiDi text.
+	CursorAction a;
+	if ( cursor->parag()->string()->isRightToLeft() == (e->key() == Key_Right) )
+	    a = e->state() & ControlButton ? MoveWordBackward : MoveBackward;
+	else
+	    a = e->state() & ControlButton ? MoveWordForward : MoveForward;
+	moveCursor( a, e->state() & ShiftButton );
 	break;
-    case Key_Right:
-	moveCursor( e->state() & ControlButton ? MoveWordForward : MoveForward, e->state() & ShiftButton );
-	break;
+    }
     case Key_Up:
 	moveCursor( e->state() & ControlButton ? MovePgUp : MoveUp, e->state() & ShiftButton );
 	break;
@@ -1099,7 +1105,7 @@ void QTextEdit::doKeyboardAction( KeyboardAction action )
 	    undoRedoInfo.index = cursor->index();
 	    undoRedoInfo.d->text = QString::null;
 	}
-	cursor->gotoLeft();
+	cursor->gotoPreviousLetter();
 	undoRedoInfo.d->text.prepend( QString( cursor->parag()->at( cursor->index() )->c ) );
 	if ( cursor->parag()->at( cursor->index() )->format() ) {
 	    cursor->parag()->at( cursor->index() )->format()->addRef();
@@ -1371,16 +1377,16 @@ void QTextEdit::moveCursor( CursorAction action )
     resetInputContext();
     switch ( action ) {
     case MoveBackward:
-	cursor->gotoLeft();
+	cursor->gotoPreviousLetter();
 	break;
     case MoveWordBackward:
-	cursor->gotoWordLeft();
+	cursor->gotoPreviousWord();
 	break;
     case MoveForward:
-	cursor->gotoRight();
+	cursor->gotoNextLetter();
 	break;
     case MoveWordForward:
-	cursor->gotoWordRight();
+	cursor->gotoNextWord();
 	break;
     case MoveUp:
 	cursor->gotoUp();
@@ -1740,9 +1746,9 @@ void QTextEdit::contentsMouseDoubleClickEvent( QMouseEvent * )
     QTextCursor c1 = *cursor;
     QTextCursor c2 = *cursor;
     if ( cursor->index() > 0 && !cursor->parag()->at( cursor->index()-1 )->c.isSpace() )
-	c1.gotoWordLeft();
+	c1.gotoPreviousWord();
     if ( !cursor->parag()->at( cursor->index() )->c.isSpace() && !cursor->atParagEnd() )
-	c2.gotoWordRight();
+	c2.gotoNextWord();
 
     doc->setSelectionStart( QTextDocument::Standard, &c1 );
     doc->setSelectionEnd( QTextDocument::Standard, &c2 );
@@ -1873,9 +1879,9 @@ void QTextEdit::doAutoScroll()
     placeCursor( viewportToContents( pos ) );
     if ( inDoubleClick ) {
 	QTextCursor cl = *cursor;
-	cl.gotoWordLeft();
+	cl.gotoPreviousWord();
 	QTextCursor cr = *cursor;
-	cr.gotoWordRight();
+	cr.gotoNextWord();
 
 	int diff = QABS( oldCursor.parag()->at( oldCursor.index() )->x - mousePos.x() );
 	int ldiff = QABS( cl.parag()->at( cl.index() )->x - mousePos.x() );
@@ -2071,7 +2077,7 @@ void QTextEdit::insert( const QString &text, bool indent, bool checkNewLine, boo
 		c2.parag()->at( c2.index() )->format()->addRef();
 		undoRedoInfo.d->text.setFormat( oldLen + i, c2.parag()->at( c2.index() )->format(), TRUE );
 	    }
-	    c2.gotoRight();
+	    c2.gotoNextLetter();
 	}
     }
 

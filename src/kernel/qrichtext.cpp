@@ -214,7 +214,7 @@ QTextCursor *QTextDeleteCommand::execute( QTextCursor *c )
     if ( doc ) {
 	doc->setSelectionStart( QTextDocument::Temp, &cursor );
 	for ( int i = 0; i < len; ++i )
-	    cursor.gotoRight();
+	    cursor.gotoNextLetter();
 	doc->setSelectionEnd( QTextDocument::Temp, &cursor );
 	doc->removeSelectedText( QTextDocument::Temp, &cursor );
 	if ( c )
@@ -244,7 +244,7 @@ QTextCursor *QTextDeleteCommand::unexecute( QTextCursor *c )
 	c->setParag( s );
 	c->setIndex( index );
 	for ( int i = 0; i < (int)text.size(); ++i )
-	    c->gotoRight();
+	    c->gotoNextLetter();
     }
 
     QValueList< QPtrVector<QStyleSheetItem> >::Iterator it = oldStyles.begin();
@@ -1074,9 +1074,25 @@ void QTextCursor::gotoPageDown( int visibleHeight )
     idx = 0;
 }
 
+void QTextCursor::gotoWordRight()
+{
+    if ( string->string()->isRightToLeft() )
+	gotoPreviousWord();
+    else
+	gotoNextWord();
+}
+
 void QTextCursor::gotoWordLeft()
 {
-    gotoLeft();
+    if ( string->string()->isRightToLeft() )
+	gotoNextWord();
+    else
+	gotoPreviousWord();
+}
+
+void QTextCursor::gotoPreviousWord()
+{
+    gotoPreviousLetter();
     tmpIndex = -1;
     QTextString *s = string->string();
     bool allowSame = FALSE;
@@ -1095,7 +1111,7 @@ void QTextCursor::gotoWordLeft()
     idx = 0;
 }
 
-void QTextCursor::gotoWordRight()
+void QTextCursor::gotoNextWord()
 {
     tmpIndex = -1;
     QTextString *s = string->string();
@@ -2224,7 +2240,7 @@ bool QTextDocument::setSelectionEnd( int id, QTextCursor *cursor )
 	    inSelection = FALSE;
 
 	old = c;
-	c.gotoRight();
+	c.gotoNextLetter();
 	if ( old == c || noSelectionAnymore )
 	    break;
     }
@@ -2317,7 +2333,7 @@ bool QTextDocument::removeSelection( int id )
 
 	old = c;
 	lastParag = c.parag();
-	c.gotoRight();
+	c.gotoNextLetter();
 	if ( old == c || noSelectionAnymore )
 	    break;
     }
@@ -2495,7 +2511,7 @@ void QTextDocument::removeSelectedText( int id, QTextCursor *cursor )
 
     bool didGoLeft = FALSE;
     if (  c1.index() == 0 ) {
-	cursor->gotoLeft();
+	cursor->gotoPreviousLetter();
 	didGoLeft = TRUE;
     }
 
@@ -2520,7 +2536,7 @@ void QTextDocument::removeSelectedText( int id, QTextCursor *cursor )
     c1.parag()->join( c2.parag() );
 
     if ( didGoLeft )
-	cursor->gotoRight();
+	cursor->gotoNextLetter();
 }
 
 void QTextDocument::indentSelection( int id )
