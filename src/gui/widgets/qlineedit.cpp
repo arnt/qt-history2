@@ -16,24 +16,25 @@
 #include "qlineedit_p.h"
 
 #ifndef QT_NO_LINEEDIT
-#include "qevent.h"
-#include "qpainter.h"
-#include "qdrawutil.h"
-#include "qfontmetrics.h"
-#include "qpixmap.h"
-#include "qclipboard.h"
+#include "qaction.h"
 #include "qapplication.h"
-#include "qvalidator.h"
+#include "qclipboard.h"
 #include "qdragobject.h"
-#include "qtimer.h"
+#include "qdrawutil.h"
+#include "qevent.h"
+#include "qfontmetrics.h"
+#include "qpainter.h"
+#include "qpixmap.h"
+#include "qpointer.h"
 #include "qpopupmenu.h"
 #include "qstringlist.h"
-#include "qpointer.h"
 #include "qstyle.h"
+#include "qstyleoption.h"
+#include "qtimer.h"
+#include "qvalidator.h"
+#include "qvector.h"
 #include "qwhatsthis.h"
 #include <private/qinternal_p.h>
-#include "qvector.h"
-#include "qaction.h"
 #ifndef QT_NO_ACCESSIBILITY
 #include "qaccessible.h"
 #endif
@@ -1621,13 +1622,17 @@ void QLineEdit::paintEvent(QPaintEvent *)
 
     if (d->frame) {
         int frameWidth = style().pixelMetric(QStyle::PM_DefaultFrameWidth);
-        QStyleOption opt(frameWidth, 0);
-        QStyle::SFlags flags = QStyle::Style_Default | QStyle::Style_Sunken;
+        Q4StyleOptionFrame opt(0);
+        opt.rect = r;
+        opt.palette = pal;
+        opt.lineWidth = frameWidth;
+        opt.midLineWidth = 0;
+        opt.state = QStyle::Style_Default | QStyle::Style_Sunken;
         if (hasFocus())
-            flags |= QStyle::Style_HasFocus;
+            opt.state |= QStyle::Style_HasFocus;
         if (testAttribute(WA_UnderMouse))
-            flags |= QStyle::Style_MouseOver;
-        style().drawPrimitive(QStyle::PE_PanelLineEdit, &p, r, pal, flags, opt);
+            opt.state |= QStyle::Style_MouseOver;
+        style().drawPrimitive(QStyle::PE_PanelLineEdit, &opt, &p, this);
 
         r.addCoords(frameWidth, frameWidth, -frameWidth, -frameWidth);
     }
