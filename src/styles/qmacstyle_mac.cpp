@@ -1193,7 +1193,8 @@ void QMacStyle::drawComplexControl(ComplexControl ctrl, QPainter *p,
     case CC_ComboBox: {
 	ThemeButtonDrawInfo info = { tds, kThemeButtonOff, kThemeAdornmentNone };
 	((QMacPainter *)p)->setport();
-	DrawThemeButton(qt_glb_mac_rect(r, p), kThemePopupButton,
+	const QRect off_rct(1, 1, 1, 2);
+	DrawThemeButton(qt_glb_mac_rect(r, p, TRUE, off_rct), kThemePopupButton,
 			&info, NULL, NULL, NULL, 0);
 	break; }
     default:
