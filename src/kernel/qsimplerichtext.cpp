@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsimplerichtext.cpp#9 $
+** $Id: //depot/qt/main/src/kernel/qsimplerichtext.cpp#10 $
 **
 ** Implementation of the QSimpleRichText class
 **
@@ -53,6 +53,7 @@ class QSimpleRichTextData
 {
 public:
     QRichText* doc;
+    bool enable;
 };
 
 /*!
@@ -84,6 +85,7 @@ QSimpleRichText::QSimpleRichText( const QString& text, const QFont& fnt,
 {
     d  = new QSimpleRichTextData;
     d->doc = new QRichText( text, fnt, context, 0, 0, s );
+    d->enable = TRUE;
 }
 
 /*!
@@ -156,7 +158,10 @@ int QSimpleRichText::height() const
 void QSimpleRichText::draw( QPainter* p,  int x, int y, const QRegion& clipRegion,
 	   const QPalette& pal, const QBrush* paper ) const
 {
-    draw( p, x, y, clipRegion, pal.normal(), paper );
+    if ( d->enable )
+	draw( p, x, y, clipRegion, pal.normal(), paper );
+    else
+	draw( p, x, y, clipRegion, pal.disabled(), paper );
 }
 
 /*!
@@ -254,3 +259,21 @@ void QSimpleRichText::adjustSize( QPainter* p )
 	d->doc->setWidth( p,w );
     }
 }
+
+
+/*!
+  Sets the documents state to \a enable.
+ */
+void QSimpleRichText::setEnabled( bool enable)
+{
+    d->enable = enable;
+}
+
+/*!
+  Returns the documents state
+ */
+bool QSimpleRichText::isEnabled() const
+{
+    return d->enable;
+}
+

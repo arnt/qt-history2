@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsimplerichtext.h#5 $
+** $Id: //depot/qt/main/src/kernel/qsimplerichtext.h#6 $
 **
 ** Definition of the QSimpleRichText class
 **
@@ -59,6 +59,9 @@ public:
 
     void draw( QPainter*,  int x, int y, const QRegion& clipRegion,
 	       const QColorGroup& cg, const QBrush* paper = 0) const;
+    
+    void setEnabled( bool );
+    bool isEnabled() const;
 
 
     QString context() const;
