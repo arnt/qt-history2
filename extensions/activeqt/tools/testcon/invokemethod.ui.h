@@ -13,38 +13,41 @@
 
 void InvokeMethod::invoke()
 {
-    if ( !activex )
+    if (!activex)
 	return;
-    
+
     setValue();
     QString method = comboMethods->currentText();
     QList<QVariant> vars;
-    QListViewItemIterator it( listParameters );
-    while ( it.current() ) {
+
+#if 0
+    QListViewItemIterator it(listParameters);
+    while (it.current()) {
 	QListViewItem *parameter = it.current();
 	++it;
 	vars << parameter->text(2);
     }
     QVariant result = activex->dynamicCall(method, vars);
-    it = QListViewItemIterator( listParameters );
+    it = QListViewItemIterator(listParameters);
     int v = 0;
-    while ( it.current() ) {
+    while (it.current()) {
 	QListViewItem *parameter = it.current();
 	++it;
-	parameter->setText( 2, vars[v++].toString() );
+	parameter->setText(2, vars[v++].toString());
     }
 
     QString resString = result.toString();
     QString resType = result.typeName();
-    editReturn->setText( resType + " " + resString );
+    editReturn->setText(resType + " " + resString);
+#endif
 }
 
-void InvokeMethod::methodSelected( const QString &method )
+void InvokeMethod::methodSelected(const QString &method)
 {
-    if ( !activex )
+    if (!activex)
 	return;
     listParameters->clear();
-    listParameters->setSorting( -1 );
+    listParameters->setSorting(-1);
     const QMetaObject *mo = activex->metaObject();
     const QMetaMember slot = mo->slot(mo->indexOfSlot(method.latin1()));
     QString signature = slot.signature();
@@ -54,71 +57,73 @@ void InvokeMethod::methodSelected( const QString &method )
     QStringList pnames = QString(slot.parameters()).split(',');
     QStringList ptypes = signature.split(",");
 
-    for (int p = ptypes.count()-1; p >= 0; --p ) {
+    for (int p = ptypes.count()-1; p >= 0; --p) {
 	QString ptype(ptypes.at(p));
 	if (ptype.isEmpty())
 	    continue;
 	QString pname(pnames.at(p));
 	if (pname.isEmpty())
 	    pname = QString("<unnamed %1>").arg(p);
-	QListViewItem *item = new QListViewItem(listParameters, pname, ptype);
+	Q3ListViewItem *item = new Q3ListViewItem(listParameters, pname, ptype);
     }
 
     if (listParameters->firstChild())
-	listParameters->setCurrentItem( listParameters->firstChild() );
+	listParameters->setCurrentItem(listParameters->firstChild());
     editReturn->setText(slot.typeName());
 }
 
-void InvokeMethod::parameterSelected( QListViewItem *item )
+void InvokeMethod::parameterSelected(Q3ListViewItem *item)
 {
-    if ( !activex )
+    if (!activex)
 	return;
-    editValue->setEnabled( item !=  0 );
-    buttonSet->setEnabled( item != 0  );
-    if ( !item )
+    editValue->setEnabled(item !=  0);
+    buttonSet->setEnabled(item != 0 );
+    if (!item)
 	return;
-    editValue->setText( item->text( 2 ) );
+    editValue->setText(item->text(2));
 }
 
 void InvokeMethod::setValue()
 {
-    if ( !activex )
+    if (!activex)
 	return;
-    QListViewItem *item = listParameters->currentItem();
-    if ( !item )
+    Q3ListViewItem *item = listParameters->currentItem();
+    if (!item)
 	return;
-    item->setText( 2, editValue->text() );
+    item->setText(2, editValue->text());
 }
 
 void InvokeMethod::init()
 {
-    setControl( 0 );
+    setControl(0);
 }
 
-void InvokeMethod::setControl( QAxBase *ax )
+void InvokeMethod::setControl(QAxBase *ax)
 {
     activex = ax;
     bool hasControl = activex && !activex->isNull();
-    labelMethods->setEnabled( hasControl );
-    comboMethods->setEnabled( hasControl );
-    buttonInvoke->setEnabled( hasControl );
-    boxParameters->setEnabled( hasControl );
+    labelMethods->setEnabled(hasControl);
+    comboMethods->setEnabled(hasControl);
+    buttonInvoke->setEnabled(hasControl);
+    boxParameters->setEnabled(hasControl);
     
     comboMethods->clear();
     listParameters->clear();
     
-    if ( !hasControl ) {
+    if (!hasControl) {
 	editValue->clear();
 	return;
     }
 
     const QMetaObject *mo = activex->metaObject();
     if (mo->slotCount()) {
-	for ( int i = mo->slotOffset(); i < mo->slotCount(); ++i ) {
+	for (int i = mo->slotOffset(); i < mo->slotCount(); ++i) {
 	    const QMetaMember slot = mo->slot(i);
 	    comboMethods->insertItem(slot.signature());
 	}
-	comboMethods->listBox()->sort();
-	methodSelected( comboMethods->currentText() );
+#if 0
+        comboMethods->listBox()->sort();
+#endif
+	methodSelected(comboMethods->currentText());
     }
 }

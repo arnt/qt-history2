@@ -71,7 +71,7 @@ static const char *fileprint[] = {
 
 
 DocuWindow::DocuWindow( const QString& docu, QWidget *parent, QWidget *source )
-    : QMainWindow( parent, 0, Qt::WDestructiveClose )
+    : QMainWindow( parent, Qt::WDestructiveClose )
 {
     setWindowTitle( source->windowTitle() + " - Documentation" );
 
@@ -92,6 +92,9 @@ DocuWindow::DocuWindow( const QString& docu, QWidget *parent, QWidget *source )
     QToolButton * filePrint
 	= new QToolButton( QPixmap(fileprint), "Print File", QString::null,
 			   this, SLOT(print()), fileTools, "print file" );
+
+    fileTools->addWidget(fileSave);
+    fileTools->addWidget(filePrint);
 
     statusBar();
 }

@@ -689,7 +689,7 @@
     <include location="global" impldecl="in implementation">qfiledialog.h</include>
     <include location="local" impldecl="in implementation">ambientproperties.h</include>
     <include location="local" impldecl="in implementation">invokemethod.h</include>
-    <include location="local" impldecl="in implementation">../../container/qactivexselect.h</include>
+    <include location="local" impldecl="in implementation">../../container/qaxselect.h</include>
     <include location="local" impldecl="in implementation">changeproperties.h</include>
     <include location="local" impldecl="in implementation">controlinfo.h</include>
     <include location="global" impldecl="in implementation">qmessagebox.h</include>

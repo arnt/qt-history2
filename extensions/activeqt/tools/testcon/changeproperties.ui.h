@@ -14,6 +14,8 @@
 #include <qpixmap.h>
 #include <qregexp.h>
 
+#if 0
+
 class CheckListItem : public QCheckListItem
 {
 public:
@@ -35,13 +37,15 @@ private:
     
 };
 
+#endif
+
 void ChangeProperties::setControl( QAxWidget *ax )
 {
     activex = ax;
     updateProperties();
 }
 
-void ChangeProperties::propertySelected( QListViewItem *item )
+void ChangeProperties::propertySelected( Q3ListViewItem *item )
 {
     editValue->setEnabled( item != 0 );
     buttonSet->setEnabled( item != 0 );
@@ -64,7 +68,7 @@ void ChangeProperties::propertySelected( QListViewItem *item )
 
 void ChangeProperties::setValue()
 {
-    QListViewItem *item = listProperties->currentItem();
+    Q3ListViewItem *item = listProperties->currentItem();
     if ( !item )
 	return;
     
@@ -186,7 +190,7 @@ void ChangeProperties::updateProperties()
 	const int numprops = mo->propertyCount();
 	for ( int i = mo->propertyOffset(); i < numprops; ++i ) {
 	    const QMetaProperty property = mo->property(i);
-	    QListViewItem *item = new QListViewItem(listProperties);
+	    Q3ListViewItem *item = new Q3ListViewItem(listProperties);
 	    item->setText(0, property.name());
 	    item->setText(1, property.typeName());
 	    QVariant var = activex->property(property.name());
