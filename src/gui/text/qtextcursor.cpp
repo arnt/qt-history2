@@ -361,7 +361,7 @@ bool QTextCursorPrivate::movePosition(QTextCursor::MoveOperation op, QTextCursor
     case QTextCursor::EndOfWord: {
         const QCharAttributes *attributes = layout->engine()->attributes();
 
-        const int len = layout->text().length();
+        const int len = layout->engine()->layoutData->string.length();
         if (relativePos >= len)
             return false;
         relativePos++;
