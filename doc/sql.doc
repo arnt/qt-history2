@@ -225,14 +225,14 @@ First we activate the driver by calling \l
 QSqlDatabase::addDatabase(), passing the name of the driver we wish to
 use for this connection. The drivers currently available are: QODBC
 (Open Database Connectivity), QOCI (Oracle), QPSQL6 (PostgreSQL 6),
-QPSQL7 (PostgreSQL 7) and QMYSQL (MySQL). Th connection which is
+QPSQL7 (PostgreSQL 7) and QMYSQL (MySQL). The connection which is
 created becomes the application's default database connection and will
 be used by the Qt SQL classes if no other database is specified. 
 
 Second we call setDatabaseName(), setUserName(), setPassword() and
 setHostName() to initialize the connection information.
 
-Third we call open() to open the database abd give us access to the
+Third we call open() to open the database and give us access to the
 data. If this call fails it will return FALSE; error information can
 be determined using \l QSqlDatabase::lastError();
 
@@ -456,7 +456,7 @@ to value() and setValue().
 To specify a subset of records to retrieve we can pass filtering
 criteria to the select() function.  Each record that is returned will
 meet the criteria of the filter (the filter corresponds to the SQL
-statement WHERE clause).
+statement's WHERE clause).
 
 \code
     cur.select( "id > 100" );
@@ -590,7 +590,7 @@ QSqlQuery must be used instead.
 
 Each cursor has an internal 'edit buffer' which is used by all edit
 operations (insert, update and delete).  For example, when inserting a
-record using a cursor, first you must initialize the fields in the
+record using a cursor, you must first initialize the fields in the
 cursor's edit buffer.  Then, calling QSQlCursor::insert() will insert
 the contents of the edit buffer into the database.  Similarly, when
 updating (or deleting) a record, the values of the fields in the edit
@@ -611,7 +611,7 @@ to auto-number fields in the edit buffer).  See <a
 href="#Subclassing_QSqlCursor">subclassing QSqlCursor</a> for more
 information.
 
-Once insert(), update() or del() is called on a cursor, it will be
+When insert(), update() or del() is called on a cursor, it will be
 invalidated and will no longer be positioned on a valid record. If we
 need to move to another record after performing an insert(), update()
 or del() we must make a fresh select() call.  This ensures that
@@ -630,17 +630,17 @@ In this example we create a cursor on the "prices" table. Next we
 create a list of product names which we iterate over. For each
 iteration we call the cursor's \l primeInsert() method. This method
 returns a pointer to a \l QSqlRecord buffer in which all the fields
-are set to \c NULL (Note that QSqlCursor::primeInsert() is virtual,
+are set to \c NULL. (Note that QSqlCursor::primeInsert() is virtual,
 and can be customized by derived classes.  See \l QSqlCursor). Next we
 call setValue() for each field that requires a value. Finally we call
 insert() to insert the record. The insert() call returns the number of
 rows inserted.
 
-In this example we obtain a pointer to a \l QSqlRecord object from the
-primeInsert() call. QSqlRecord objects can hold the data for a single
-record plus some meta-data about the record. In practice most
-interaction with a QSqlRecord consists of simple value() and setValue()
-calls as shown in this and the following example. 
+We obtained a pointer to a \l QSqlRecord object from the primeInsert()
+call. QSqlRecord objects can hold the data for a single record plus some
+meta-data about the record. In practice most interaction with a
+QSqlRecord consists of simple value() and setValue() calls as shown in
+this and the following example. 
 
 <h3><a name="Updating_Records">Updating Records</a></h3>
 
