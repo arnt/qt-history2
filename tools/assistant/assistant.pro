@@ -24,3 +24,4 @@ TEMPLATE	=app
 CONFIG	+= qt warn_off release
 DBFILE	= assistant.db
 LANGUAGE	= C++
+unix:!zlib:LIBS	+= -lz
