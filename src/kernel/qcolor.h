@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcolor.h#24 $
+** $Id: //depot/qt/main/src/kernel/qcolor.h#25 $
 **
 ** Definition of QColor class
 **
@@ -18,7 +18,7 @@
 
 const ulong RGB_DIRTY	= 0x80000000;		// flags unset color
 const ulong RGB_INVALID = 0x40000000;		// flags invalid color
-const ulong RGB_DIRECT  = 0x20000000;		// flags directly set pixel
+const ulong RGB_DIRECT	= 0x20000000;		// flags directly set pixel
 const ulong RGB_MASK	= 0x00ffffff;		// masks RGB values
 
 
@@ -104,6 +104,12 @@ private:
     ulong  rgbVal;
 };
 
+
+inline QColor::QColor()
+{ rgbVal = RGB_INVALID; pix = 0; }
+
+inline QColor::QColor( int r, int g, int b )
+{ setRgb( r, g, b ); }
 
 inline bool QColor::isValid() const
 { return (rgbVal & RGB_INVALID) == 0; }

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcolor.cpp#41 $
+** $Id: //depot/qt/main/src/kernel/qcolor.cpp#42 $
 **
 ** Implementation of QColor class
 **
@@ -13,7 +13,7 @@
 #include "qcolor.h"
 #include "qdstream.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qcolor.cpp#41 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qcolor.cpp#42 $")
 
 
 /*----------------------------------------------------------------------------
@@ -99,7 +99,7 @@ bool QColor::lalloc = TRUE;			// lazy color allocation
   Example:
   \code
      QColor myColor = red;			// will initialize red etc.
-     
+
      int main( int argc, char **argc )
      {
      }
@@ -109,9 +109,9 @@ bool QColor::lalloc = TRUE;			// lazy color allocation
 void QColor::initglobals()
 {
     ginit = TRUE;
-    ((QColor*)(&::color0))->pix    = 0;
+    ((QColor*)(&::color0))->pix	   = 0;
     ((QColor*)(&::color0))->rgbVal = 0x00ffffff;
-    ((QColor*)(&::color1))->pix    = 1;
+    ((QColor*)(&::color1))->pix	   = 1;
     ((QColor*)(&::color1))->rgbVal = 0;
     ((QColor*)(&::black))	->setRgb(   0,	 0,   0 );
     ((QColor*)(&::white))	->setRgb( 255, 255, 255 );
@@ -128,24 +128,23 @@ void QColor::initglobals()
     ((QColor*)(&::darkGreen))	->setRgb(   0, 128,   0 );
     ((QColor*)(&::darkBlue))	->setRgb(   0,	0,  128 );
     ((QColor*)(&::darkCyan))	->setRgb(   0, 128, 128 );
-    ((QColor*)(&::darkMagenta))	->setRgb( 128,	0,  128 );
+    ((QColor*)(&::darkMagenta)) ->setRgb( 128,	0,  128 );
     ((QColor*)(&::darkYellow))	->setRgb( 128, 128,   0 );
 }
 
 
 /*----------------------------------------------------------------------------
+  \fn QColor::QColor()
+
   Constructs an invalid color with the RGB value (0,0,0). An invalid color
   is a color that is not properly set up for the underlying window system.
+
   \sa isValid()
  ----------------------------------------------------------------------------*/
 
-QColor::QColor()
-{
-    rgbVal = RGB_INVALID;
-    pix = 0;
-}
-
 /*----------------------------------------------------------------------------
+  \fn QColor::QColor( int r, int g, int b )
+
   Constructs a color with the RGB value (r,g,b).
 
   \e r, \e g and \e b must be in the rangle 0..255.
@@ -153,20 +152,15 @@ QColor::QColor()
   \sa setRgb()
  ----------------------------------------------------------------------------*/
 
-QColor::QColor( int r, int g, int b )
-{
-    setRgb( r, g, b );
-}
-
 /*----------------------------------------------------------------------------
   Constructs a color with the RGB \e or HSV value \e (x,y,z).
 
   The \e (x,y,z) triplet defines an RGB value if \e colorSpec == \c
-  QColor::Rgb.  \e x (red), \e y (green) and \e z (blue) must be in the
+  QColor::Rgb.	\e x (red), \e y (green) and \e z (blue) must be in the
   range 0..255.
 
   The \e (x,y,z) triplet defines a HSV value if \e colorSpec == \c
-  QColor::Hsv.  \e x (hue) must be in the range -1..360 (-1 means
+  QColor::Hsv.	\e x (hue) must be in the range -1..360 (-1 means
   achromatic), and \e y (saturation) and \e z (value) must be in the range
   0..255.
 
@@ -200,7 +194,7 @@ QColor::QColor( const QColor &c )
     if ( !ginit )
 	initglobals();
     rgbVal = c.rgbVal;
-    pix    = c.pix;
+    pix	   = c.pix;
 }
 
 /*----------------------------------------------------------------------------
@@ -212,7 +206,7 @@ QColor &QColor::operator=( const QColor &c )
     if ( !ginit )
 	initglobals();
     rgbVal = c.rgbVal;
-    pix    = c.pix;
+    pix	   = c.pix;
     return *this;
 }
 
@@ -486,7 +480,7 @@ QColor QColor::dark( int factor ) const
   Enables or disables lazy color allocation.
 
   If lazy allocation is enabled, colors are allocated the first time they
-  are used (upon calling the pixel() function).  If lazy allocation is
+  are used (upon calling the pixel() function).	 If lazy allocation is
   disabled, colors are allocated when they are constructed or when either
   setRgb() or setHsv() is called.
 
