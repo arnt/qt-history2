@@ -1622,7 +1622,15 @@ QString QTextDocument::richText( QTextParag *p ) const
 		lastItems = items;
 		s += "<" + item->name() + ">" + p->richText() + "</" + item->name() + ">\n";
 	    } else {
-		s += p->richText() + "\n";
+		QString end;
+		for ( int i = 0; i < (int)lastItems.size(); ++i ) {
+		    if ( lastItems[ i ]->name().isEmpty() )
+			continue;
+		    end.prepend( "</" + lastItems[ i ]->name() + ">" );
+		}
+		s += end;
+		s += "<p>" + p->richText() + "</p>\n";
+		lastItems = items;
 	    }
 	    p = p->next();
 	}
