@@ -1204,26 +1204,25 @@ void QProcess::socketRead( int fd )
 */
 void QProcess::socketWrite( int fd )
 {
-    if ( fd != d->proc->socketStdin || d->proc->socketStdin == 0 )
-	return;
-    if ( d->stdinBuf.isEmpty() ) {
-	d->notifierStdin->setEnabled( FALSE );
-	return;
-    }
+    while ( fd == d->proc->socketStdin && d->proc->socketStdin != 0 ) {
+	if ( d->stdinBuf.isEmpty() ) {
+	    d->notifierStdin->setEnabled( FALSE );
+	    return;
+	}
+	ssize_t ret = ::write( fd,
+		d->stdinBuf.head()->data() + d->stdinBufRead,
+		QMIN( 8192, d->stdinBuf.head()->size() - d->stdinBufRead ) );
 #if defined(QT_QPROCESS_DEBUG)
-    qDebug( "QProcess::socketWrite(): write to stdin (%d)", fd );
+	qDebug( "QProcess::socketWrite(): wrote %d bytes to stdin (%d)", ret, fd );
 #endif
-    ssize_t ret = ::write( fd,
-	    d->stdinBuf.head()->data() + d->stdinBufRead,
-	    d->stdinBuf.head()->size() - d->stdinBufRead );
-    if ( ret > 0 )
-	d->stdinBufRead += ret;
-    if ( d->stdinBufRead == (ssize_t)d->stdinBuf.head()->size() ) {
-	d->stdinBufRead = 0;
-	delete d->stdinBuf.dequeue();
-	if ( wroteToStdinConnected && d->stdinBuf.isEmpty() )
-	    emit wroteToStdin();
-	socketWrite( fd );
+	if ( ret > 0 )
+	    d->stdinBufRead += ret;
+	if ( d->stdinBufRead == (ssize_t)d->stdinBuf.head()->size() ) {
+	    d->stdinBufRead = 0;
+	    delete d->stdinBuf.dequeue();
+	    if ( wroteToStdinConnected && d->stdinBuf.isEmpty() )
+		emit wroteToStdin();
+	}
     }
 }
 

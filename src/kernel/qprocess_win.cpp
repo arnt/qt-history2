@@ -517,26 +517,20 @@ void QProcess::socketRead( int fd )
 void QProcess::socketWrite( int fd )
 {
     DWORD written;
-    if ( d->stdinBuf.isEmpty() || !isRunning() ) {
-	return;
-    }
-    if ( !WriteFile( d->pipeStdin[1],
-		d->stdinBuf.head()->data() + d->stdinBufRead,
-		d->stdinBuf.head()->size() - d->stdinBufRead,
-		&written, 0 ) ) {
-	return;
-    }
-    d->stdinBufRead += written;
-    if ( d->stdinBufRead == d->stdinBuf.head()->size() ) {
-	d->stdinBufRead = 0;
-	delete d->stdinBuf.dequeue();
-	if ( wroteToStdinConnected && d->stdinBuf.isEmpty() ) {
-	    emit wroteToStdin();
-	}
-	socketWrite( fd );
-	// start timer if there is still pending data
-	if ( !d->stdinBuf.isEmpty() ) {
+    while ( !d->stdinBuf.isEmpty() && isRunning() ) {
+	if ( !WriteFile( d->pipeStdin[1],
+		    d->stdinBuf.head()->data() + d->stdinBufRead,
+		    QMIN( 8192, d->stdinBuf.head()->size() - d->stdinBufRead ),
+		    &written, 0 ) ) {
 	    d->lookup->start( 100 );
+	    return;
+	}
+	d->stdinBufRead += written;
+	if ( d->stdinBufRead == d->stdinBuf.head()->size() ) {
+	    d->stdinBufRead = 0;
+	    delete d->stdinBuf.dequeue();
+	    if ( wroteToStdinConnected && d->stdinBuf.isEmpty() )
+		emit wroteToStdin();
 	}
     }
 }
