@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdatetime.cpp#51 $
+** $Id: //depot/qt/main/src/tools/qdatetime.cpp#52 $
 **
 ** Implementation of date and time classes
 **
@@ -33,7 +33,7 @@
 extern "C" int gettimeofday( struct timeval *, struct timezone * );
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qdatetime.cpp#51 $");
+RCSTAG("$Id: //depot/qt/main/src/tools/qdatetime.cpp#52 $");
 
 
 static const uint FIRST_DAY	= 2361222;	// Julian day for 17520914
@@ -854,6 +854,15 @@ void QDateTime::setTime_t( uint secsSince1Jan1970UTC )
 {
     time_t tmp = (time_t) secsSince1Jan1970UTC;
     tm *tM = localtime( &tmp );
+    if ( !tM ) {
+	tM = localtime( 0 );
+	if ( !tM ) {
+#if defined(CHECK_NULL)
+	    warning( "QDateTime::setTime_t: Cannot get localtime" );
+#endif
+	    return;
+	}
+    }
     d.jd = QDate::greg2jul( tM->tm_year + 1900, tM->tm_mon + 1, tM->tm_mday );
     t.ds = MSECS_PER_HOUR*tM->tm_hour + MSECS_PER_MIN*tM->tm_min +
 	    1000*tM->tm_sec;
