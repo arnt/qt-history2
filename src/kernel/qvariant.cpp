@@ -433,7 +433,7 @@ void QVariant::Private::clear()
     arbitrarily complex data structures of arbitrary types. This is
     very powerful and versatile, but may prove less memory and speed
     efficient than storing specific types in standard data structures.
-    
+
     QVariant also supports the notion of NULL values, where you have a
     defined type with no value set.
     \code
@@ -2697,6 +2697,7 @@ QMap<QString, QVariant>& QVariant::asMap()
     \row \i StringList \i List
     \row \i Time \i String
     \row \i UInt \i String, Double, Bool, Int
+    \row \i KeySequence \i String, Int
     \endtable
 */
 bool QVariant::canCast( Type t ) const
