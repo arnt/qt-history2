@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Implementation of Motif-like style class
 **
@@ -342,7 +342,7 @@ bool QSGIStyle::eventFilter( QObject* o, QEvent* e )
 }
 
 static const int sgiItemFrame           = 2;    // menu item frame width
-static const int sgiSepHeight           = 1;    // separator item height
+// static const int sgiSepHeight           = 1;    // separator item height
 static const int sgiItemHMargin         = 3;    // menu item hor text margin
 static const int sgiItemVMargin         = 2;    // menu item ver text margin
 static const int sgiArrowHMargin        = 6;    // arrow horizontal margin
