@@ -3,10 +3,25 @@ programs linked with Beta2 must be recompiled.
 
 The most important fixes since Beta 2:
 
+platforms
+	64-bit, FreeBSD and gcc 2.7 fixes
+
 QLayoutIterator/QGLayoutIterator
 	The custom layout API has been changed: void removeCurrent()
 	has been replaced by QLayoutItem* takeCurrent().
 
 QLabel
 	The functions setMargin() and margin() have been renamed to
-	setIndent() and indent, to avoid collision with QFrame::setMargin()
+	setIndent() and indent, to avoid collision with QFrame::setMargin().
+
+QAccel
+	Non-latin1 accelerators are now supported.
+
+QTranslator/findtr/msg2qm/mergetr
+	Several bugs fixed and improvements made.
+
+Rich Text
+	Many improvements and fixes. Some API changes.
+
+QApplication
+	lastWindowClosed() now works with virtual desktops.
