@@ -4084,18 +4084,17 @@ int QTextFormatterBreakWords::format( QTextDocument *doc, QTextParag *parag,
     int left = doc ? parag->leftMargin() + 4 : 0;
     int x = left;
     int curLeft = left;
-    int dw = parag->documentVisibleWidth() - ( doc ? 8 : -4 );
     int y = 0;
     int h = 0;
     int len = parag->length();
     if ( doc )
 	x = doc->flow()->adjustLMargin( y + parag->rect().y(), left, 4 );
-    
+    int dw = parag->documentVisibleWidth() - ( doc ? ( left != x ? 0 : 8 ) : -4 );
+
     curLeft = x;
     int rm = parag->rightMargin();
     int rdiff = doc ? doc->flow()->adjustRMargin( y + parag->rect().y(), rm, 4 ) : 0;
     int w = dw - rdiff;
-    int diff = doc ? ( rdiff != rm ? 8 : 0 ) : 0;
     bool fullWidth = TRUE;
     int minw = 0;
 
@@ -4148,7 +4147,7 @@ int QTextFormatterBreakWords::format( QTextDocument *doc, QTextParag *parag,
 	if ( c->isCustom && c->customItem()->ownLine() ) {
 	    x = doc ? doc->flow()->adjustLMargin( y + parag->rect().y(), left, 4 ) : left;
 	    w = dw - ( doc ? doc->flow()->adjustRMargin( y + parag->rect().y(), rm, 4 ) : 0 );
-	    lineStart = formatLine( parag, string, lineStart, firstChar, c-1, align, w - x + diff );
+	    lineStart = formatLine( parag, string, lineStart, firstChar, c-1, align, w - x );
 	    c->customItem()->resize( parag->painter(), dw );
 	    if ( x != left || w != dw )
 		fullWidth = FALSE;
@@ -4181,7 +4180,7 @@ int QTextFormatterBreakWords::format( QTextDocument *doc, QTextParag *parag,
 		    h = QMAX( h, tmph );
 		    lineStart->h = h;
 		}
-		lineStart = formatLine( parag, string, lineStart, firstChar, c-1, align, w - x + diff );
+		lineStart = formatLine( parag, string, lineStart, firstChar, c-1, align, w - x );
 		x = doc ? doc->flow()->adjustLMargin( y + parag->rect().y(), left, 4 ) : left;
 		w = dw - ( doc ? doc->flow()->adjustRMargin( y + parag->rect().y(), rm, 4 ) : 0 );
 		if ( parag->isNewLinesAllowed() && c->c == '\t' ) {
@@ -4210,7 +4209,7 @@ int QTextFormatterBreakWords::format( QTextDocument *doc, QTextParag *parag,
 		col = 0;
 	    } else {
 		i = lastBreak;
-		lineStart = formatLine( parag, string, lineStart, firstChar, parag->at( lastBreak ), align, w - string->at( i ).x + diff );
+		lineStart = formatLine( parag, string, lineStart, firstChar, parag->at( lastBreak ), align, w - string->at( i ).x );
 		x = doc ? doc->flow()->adjustLMargin( y + parag->rect().y(), left, 4 ) : left;
 		w = dw - ( doc ? doc->flow()->adjustRMargin( y + parag->rect().y(), rm, 4 ) : 0 );
 		if ( parag->isNewLinesAllowed() && c->c == '\t' ) {
@@ -4264,7 +4263,7 @@ int QTextFormatterBreakWords::format( QTextDocument *doc, QTextParag *parag,
 	// last line in a paragraph is not justified
 	if ( align == Qt::AlignJustify )
 	    align = Qt::AlignAuto;
-	lineStart = formatLine( parag, string, lineStart, firstChar, c, align, w - x + diff );
+	lineStart = formatLine( parag, string, lineStart, firstChar, c, align, w - x );
 	delete lineStart;
     }
 
