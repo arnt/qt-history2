@@ -104,6 +104,7 @@ signals:
     void sectionResized(int logicalIndex, int oldSize, int newSize);
     void sectionPressed(int logicalIndex, Qt::MouseButton button, Qt::KeyboardModifiers modifiers);
     void sectionClicked(int logicalIndex, Qt::MouseButton button, Qt::KeyboardModifiers modifiers);
+    void sectionDoubleClicked(int logicalIndex, Qt::MouseButton button, Qt::KeyboardModifiers modifiers);
     void sectionCountChanged(int oldCount, int newCount);
     void sectionHandleDoubleClicked(int logicalIndex);
     void sectionAutoResize(int logicalIndex, ResizeMode mode);

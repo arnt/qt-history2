@@ -280,7 +280,7 @@ void QHeaderView::setOffset(int o)
 int QHeaderView::length() const
 {
     if (d->sections.count())
-        return d->sections.at(count()).position;
+        return d->sections.last().position;
     return 0;
 }
 
@@ -422,6 +422,9 @@ int QHeaderView::sectionViewportPosition(int logicalIndex) const
 
 void QHeaderView::moveSection(int from, int to)
 {
+    if (from == -1 || to == -1)
+        return;
+
     if (from == to) {
         updateSection(visualIndex(from));
         return;
@@ -861,26 +864,26 @@ void QHeaderView::resizeSections()
                       ? d->viewport->width() : d->viewport->height();
     QList<int> section_sizes;
     int count = qMax(d->sections.count() - 1, 0);
-    QHeaderViewPrivate::HeaderSection *secs = d->sections.data();
+    const QVector<QHeaderViewPrivate::HeaderSection> secs = d->sections;
     for (int i = 0; i < count; ++i) {
-        mode = secs[i].mode;
+        mode = secs.at(i).mode;
         if (mode == Stretch) {
             ++stretchSecs;
             continue;
         }
         if (mode == Interactive) {
-            secSize = sectionSize(secs[i].logical);
+            secSize = sectionSize(secs.at(i).logical);
         } else {// mode == QHeaderView::Custom
             // FIXME: get the size of the section from the contents;  this is just a temprary solution
             QAbstractItemView *par = ::qt_cast<QAbstractItemView*>(parent());
             if (orientation() == Qt::Horizontal) {
                 if (par)
                     secSize = par->columnSizeHint(i);
-                secSize = qMax(secSize, sectionSizeHint(secs[i].logical));
+                secSize = qMax(secSize, sectionSizeHint(secs.at(i).logical));
             } else {
                 if (par)
                     secSize = par->rowSizeHint(i);
-                secSize = qMax(secSize, sectionSizeHint(secs[i].logical));
+                secSize = qMax(secSize, sectionSizeHint(secs.at(i).logical));
             }
         }
         section_sizes.append(secSize);
@@ -889,10 +892,11 @@ void QHeaderView::resizeSections()
     int position = 0;
     QSize strut = QApplication::globalStrut();
     int minimum = orientation() == Qt::Horizontal ? strut.width() : strut.height();
-    int stretchSectionSize = qMax(stretchSecs > 0 ? stretchSize / stretchSecs : 0, minimum);
+    int hint = stretchSecs > 0 ? stretchSize / stretchSecs : 0;
+    int stretchSectionSize = qMax(hint, minimum);
     for (int i = 0; i < count; ++i) {
-        secs[i].position = position;
-        mode = secs[i].mode;
+        d->sections[i].position = position;
+        mode = secs.at(i).mode;
         if (mode == Stretch) {
             position += stretchSectionSize;
         } else {
@@ -900,7 +904,7 @@ void QHeaderView::resizeSections()
             section_sizes.removeFirst();
         }
     }
-    secs[count].position = position;
+    d->sections[count].position = position;
 }
 
 /*!
@@ -1252,6 +1256,8 @@ void QHeaderView::mouseDoubleClickEvent(QMouseEvent *e)
     while (handle > -1 && isSectionHidden(handle)) handle--;
     if (handle > -1 && resizeMode(handle) == Interactive)
         emit sectionHandleDoubleClicked(handle);
+    else
+        emit sectionDoubleClicked(logicalIndexAt(e->pos()), e->button(), e->modifiers());
 }
 
 /*!
