@@ -117,21 +117,19 @@ QRegion::QRegion( const QRect &r, RegionType t )
 
 QRegion::QRegion( const QPointArray &a, bool winding)
 {
-    qDebug("Need to fill this in %s:%d", __FILE__, __LINE__);
     data = new QRegionData;
     CHECK_PTR( data );
     data->is_null = FALSE;
     data->rgn = NewRgn();
 
-    PolyHandle poly = OpenPoly();
-    //do the drawing
-    ClosePoly();
-
     OpenRgn();
-    FramePoly(poly);
+    MoveTo( a[0].x(), a[0].y() );
+    for ( unsigned int loopc = 1; loopc < a.size(); loopc++ ) {
+	LineTo( a[loopc].x(), a[loopc].y() );
+	MoveTo( a[loopc].x(), a[loopc].y() );
+    }
+    LineTo( a[0].x(), a[0].y() );
     CloseRgn(data->rgn);
-    KillPoly(poly);
-    
 }
 
 
