@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qiconview.h#41 $
+** $Id: //depot/qt/main/src/widgets/qiconview.h#42 $
 **
 ** Definition of QIconView widget class
 **
@@ -230,7 +230,7 @@ private:
     bool isReady;
     QRect oldRect;
     bool dirty;
-    
+
 };
 
 
@@ -289,6 +289,15 @@ public:
     virtual void setSelectionMode( SelectionMode m );
     SelectionMode selectionMode() const;
 
+    virtual void setSingleClickMode( QFont *normalText, QColor *normalTextCol,
+				     QFont *highlightedText, QColor *highlightedTextCol,
+				     QCursor *highlightedCursor, int setCurrentInterval );
+    void singleClickMode( QFont *normalText, QColor *normalTextCol,
+			  QFont *highlightedText, QColor *highlightedTextCol,
+			  QCursor *highlightedCursor, int &setCurrentInterval ) const;
+    virtual void setUseSingleClickMode( bool b );
+    bool useSingleClickMode() const;
+    
     QIconViewItem *findItem( const QPoint &pos ) const;
     QIconViewItem *findItem( const QString &text ) const;
     void selectAll( bool select );
@@ -347,7 +356,8 @@ protected slots:
     virtual void doAutoScroll();
     virtual void adjustItems();
     virtual void slotUpdate();
-
+    virtual void selectHighlightedItem();
+    
 private slots:
     void clearInputString();
 

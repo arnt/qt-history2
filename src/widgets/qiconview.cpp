@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qiconview.cpp#95 $
+** $Id: //depot/qt/main/src/widgets/qiconview.cpp#96 $
 **
 ** Definition of QIconView widget class
 **
@@ -106,9 +106,10 @@ struct QIconViewPrivate
     QIconSet::Size mode;
     bool mousePressed, startDrag;
     QIconView::SelectionMode selectionMode;
-    QIconViewItem *currentItem, *tmpCurrentItem;
+    QIconViewItem *currentItem, *tmpCurrentItem, *highlightedItem;
     QRect *rubber;
-    QTimer *scrollTimer, *adjustTimer, *updateTimer, *inputTimer;
+    QTimer *scrollTimer, *adjustTimer, *updateTimer, *inputTimer,
+	*singleClickSelectTimer;
     int rastX, rastY, spacing;
     bool cleared, dropped;
     int dragItems;
@@ -128,6 +129,23 @@ struct QIconViewPrivate
     bool dirty, rearrangeEnabled;
     QIconView::ItemTextPos itemTextPos;
     bool reorderItemsWhenInsert;
+    bool singleClickMode;
+    QCursor oldCursor;
+    
+    struct SingleClickConfig {
+	SingleClickConfig() 
+	    : normalText( 0 ), normalTextCol( 0 ),
+	      highlightedText( 0 ), highlightedTextCol( 0 ),
+	      highlightedCursor( 0 ), setCurrentInterval( -1 ) {
+	}
+	
+	QFont *normalText; 
+	QColor *normalTextCol;
+	QFont *highlightedText;
+	QColor *highlightedTextCol;
+	QCursor *highlightedCursor;
+	int setCurrentInterval;
+    } singleClickConfig;
 };
 
 /*****************************************************************************
@@ -1239,7 +1257,20 @@ void QIconViewItem::calcRect( const QString &text_ )
 void QIconViewItem::paintItem( QPainter *p )
 {
     p->setFont( view->font() );
-
+    if ( view->d->singleClickMode ) {
+	if ( view->d->highlightedItem == this ) {
+	    if ( view->d->singleClickConfig.highlightedText )
+		p->setFont( *view->d->singleClickConfig.highlightedText );
+	    if ( view->d->singleClickConfig.highlightedTextCol )
+		p->setPen( *view->d->singleClickConfig.highlightedTextCol );
+	} else {
+	    if ( view->d->singleClickConfig.normalText )
+		p->setFont( *view->d->singleClickConfig.normalText );
+	    if ( view->d->singleClickConfig.normalTextCol )
+		p->setPen( *view->d->singleClickConfig.normalTextCol );
+	}
+    }
+    
     QIconSet::Mode m = QIconSet::Normal;
     if ( isSelected() )
 	m = QIconSet::Active;
@@ -1253,14 +1284,12 @@ void QIconViewItem::paintItem( QPainter *p )
 	    p->fillRect( iconRect( FALSE ), view->colorGroup().highlight() );
 	p->drawPixmap( x() + ( width() - w ) / 2, y(), itemIcon.pixmap( itemViewMode, m ) );
 
-
 	p->save();
 	if ( isSelected() ) {
 	    p->fillRect( textRect( FALSE ), view->colorGroup().highlight() );
 	    p->setPen( QPen( view->colorGroup().highlightedText() ) );
-	}
-	else
-	    p->setPen( view->colorGroup().text() );
+	} /*else
+	    p->setPen( view->colorGroup().text() );*/
 
 	p->drawText( textRect( FALSE ), Qt::AlignCenter | Qt::WordBreak, itemText );
 
@@ -1272,14 +1301,12 @@ void QIconViewItem::paintItem( QPainter *p )
 	    p->fillRect( iconRect( FALSE ), view->colorGroup().highlight() );
 	p->drawPixmap( x() , y() + ( height() - h ) / 2, itemIcon.pixmap( itemViewMode, m ) );
 
-
 	p->save();
 	if ( isSelected() ) {
 	    p->fillRect( textRect( FALSE ), view->colorGroup().highlight() );
 	    p->setPen( QPen( view->colorGroup().highlightedText() ) );
-	}
-	else
-	    p->setPen( view->colorGroup().text() );
+	} /*else
+	    p->setPen( view->colorGroup().text() );*/
 
 	p->drawText( textRect( FALSE ), Qt::AlignCenter | Qt::WordBreak, itemText );
 
@@ -1519,6 +1546,7 @@ QIconView::QIconView( QWidget *parent, const char *name )
     d->mousePressed = FALSE;
     d->selectionMode = Single;
     d->currentItem = 0;
+    d->highlightedItem = 0;
     d->rubber = 0;
     d->scrollTimer = 0;
     d->startDrag = FALSE;
@@ -1545,13 +1573,19 @@ QIconView::QIconView( QWidget *parent, const char *name )
     d->rearrangeEnabled = TRUE;
     d->itemTextPos = Bottom;
     d->reorderItemsWhenInsert = TRUE;
-
-    connect ( d->adjustTimer, SIGNAL( timeout() ),
-	      this, SLOT( adjustItems() ) );
-    connect ( d->updateTimer, SIGNAL( timeout() ),
-	      this, SLOT( slotUpdate() ) );
-    connect ( d->inputTimer, SIGNAL( timeout() ),
-	      this, SLOT( clearInputString() ) );
+    d->singleClickMode = FALSE;
+    d->singleClickConfig = QIconViewPrivate::SingleClickConfig();
+    d->oldCursor = Qt::arrowCursor;
+    d->singleClickSelectTimer = new QTimer( this );
+    
+    connect( d->adjustTimer, SIGNAL( timeout() ),
+	     this, SLOT( adjustItems() ) );
+    connect( d->updateTimer, SIGNAL( timeout() ),
+	     this, SLOT( slotUpdate() ) );
+    connect( d->inputTimer, SIGNAL( timeout() ),
+	     this, SLOT( clearInputString() ) );
+    connect( d->singleClickSelectTimer, SIGNAL( timeout() ),
+	     this, SLOT( selectHighlightedItem() ) );
 
     setAcceptDrops( TRUE );
     viewport()->setAcceptDrops( TRUE );
@@ -1998,6 +2032,40 @@ QIconView::SelectionMode QIconView::selectionMode() const
     return d->selectionMode;
 }
 
+void QIconView::setSingleClickMode( QFont *normalText, QColor *normalTextCol,
+				    QFont *highlightedText, QColor *highlightedTextCol,
+				    QCursor *highlightedCursor, int setCurrentInterval )
+{
+    d->singleClickConfig.normalText = normalText;
+    d->singleClickConfig.normalTextCol = normalTextCol;
+    d->singleClickConfig.highlightedText = highlightedText;
+    d->singleClickConfig.highlightedTextCol = highlightedTextCol;
+    d->singleClickConfig.highlightedCursor = highlightedCursor;
+    d->singleClickConfig.setCurrentInterval = setCurrentInterval;
+}
+
+void QIconView::singleClickMode( QFont *normalText, QColor *normalTextCol,
+				 QFont *highlightedText, QColor *highlightedTextCol,
+				 QCursor *highlightedCursor, int &setCurrentInterval ) const
+{
+    normalText = d->singleClickConfig.normalText;
+    normalTextCol = d->singleClickConfig.normalTextCol;
+    highlightedText = d->singleClickConfig.highlightedText;
+    highlightedTextCol = d->singleClickConfig.highlightedTextCol;
+    highlightedCursor = d->singleClickConfig.highlightedCursor;
+    setCurrentInterval = d->singleClickConfig.setCurrentInterval;
+}
+
+void QIconView::setUseSingleClickMode( bool b )
+{
+    d->singleClickMode = b;
+}
+
+bool QIconView::useSingleClickMode() const
+{
+    return d->singleClickMode;
+}
+
 /*!
   Returns a pointer to the item which contains \a pos, which is given
   on contents coordinates.
@@ -2124,6 +2192,7 @@ void QIconView::clear()
     d->firstItem = 0;
     d->lastItem = 0;
     setCurrentItem( 0 );
+    d->highlightedItem = 0;
     d->tmpCurrentItem = 0;
     d->drawDragShade = FALSE;
 
@@ -2482,8 +2551,35 @@ void QIconView::contentsMouseReleaseEvent( QMouseEvent * )
   \reimp
 */
 
-void QIconView::contentsMouseMoveEvent( QMouseEvent * )
+void QIconView::contentsMouseMoveEvent( QMouseEvent *e )
 {
+    if ( d->singleClickMode ) {
+	QIconViewItem *item = findItem( e->pos() );
+	if ( item ) {
+	    if ( item != d->highlightedItem ) {
+		if ( d->singleClickSelectTimer->isActive() )
+		    d->singleClickSelectTimer->stop();
+
+		QIconViewItem *old = d->highlightedItem;
+		d->highlightedItem = item;
+		if ( d->singleClickConfig.highlightedCursor )
+		    viewport()->setCursor( *d->singleClickConfig.highlightedCursor );
+		repaintItem( old );
+		repaintItem( d->highlightedItem );
+		if ( d->singleClickConfig.setCurrentInterval >= 0 )
+		    d->singleClickSelectTimer->start( d->singleClickConfig.setCurrentInterval, TRUE );
+	    }
+	} else if ( d->highlightedItem ) {
+	    if ( d->singleClickSelectTimer->isActive() )
+		d->singleClickSelectTimer->stop();
+
+	    viewport()->setCursor( d->oldCursor );
+	    QIconViewItem *old = d->highlightedItem;
+	    d->highlightedItem = 0;
+	    repaintItem( old );
+	}
+    }
+    
     if ( d->mousePressed && d->currentItem && d->currentItem->dragEnabled() ) {
 	if ( !d->startDrag ) {
 	    d->currentItem->setSelected( TRUE, TRUE );
@@ -3555,6 +3651,16 @@ QIconViewItem *QIconView::rowBegin( QIconViewItem * ) const
 {
     // #### todo
     return d->firstItem;
+}
+
+void QIconView::selectHighlightedItem()
+{
+    if ( d->highlightedItem ) {
+	QIconViewItem *old = d->currentItem;
+	setCurrentItem( d->highlightedItem );
+	repaintItem( old );
+	d->highlightedItem->setSelected( TRUE );
+    }
 }
 
 #include "qiconview.moc"
