@@ -14,7 +14,8 @@
 
 
 #ifdef QT_THREAD_SUPPORT
-// uncomment if headers <sys/proc.h> is broken
+// uncomment if you have problems with <sys/proc.h> because your gcc
+// hasn't been built on exactly the same OS version your are using now.
 // typedef int crid_t;
 // typedef unsigned int class_id_t;
 #include <pthread.h>
