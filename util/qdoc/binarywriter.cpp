@@ -32,6 +32,8 @@ void BinaryWriter::puts( const char *str )
 {
     if ( out == 0 )
 	return;
+    if ( str == 0 )
+	return;
 
     fputs( str, out );
 }
@@ -40,6 +42,8 @@ void BinaryWriter::puts( const char *str )
 void BinaryWriter::putsBase64( const char *str )
 {
     if ( out == 0 )
+	return;
+    if ( str == 0 )
 	return;
 
     int ch;

@@ -25,8 +25,11 @@ QString OpenedList::beginHtml()
 	case Uppercase:
 	    ol += QChar( 'A' );
 	    break;
-	default:
+	case Lowercase:
 	    ol += QChar( 'a' );
+	    break;
+	default:
+	    ;
 	}
 
 	if ( nextItem != 1 )
@@ -44,22 +47,49 @@ QString OpenedList::itemHtml()
 
 QString OpenedList::endHtml()
 {
-    return QString( kind == Bullet ? "</ul>" : "</ol>" );
+    return kind == Bullet ? QString( "</ul>" ) : QString( "</ol>" );
 }
 
 QString OpenedList::beginSgml()
 {
-    return QString::null;
+    if ( kind == Bullet ) {
+	return QString( "<itemizedlist>" );
+    } else {
+	QString ol( "<orderedlist numeration=" );
+
+	switch ( kind ) {
+	case Arabic:
+	    ol += QString( "arabic" );
+	    break;
+	case Uppercase:
+	    ol += QString( "upperalpha" );
+	    break;
+	case Lowercase:
+	    ol += QString( "loweralpha" );
+	    break;
+	default:
+	    ;
+	}
+
+#if 0
+	if ( nextItem != 1 )
+	    ol += QString( " start=%1" ).arg( nextItem );
+#endif
+	ol += QChar( '>' );
+	return ol;
+    }
 }
 
 QString OpenedList::itemSgml()
 {
-    return QString::null;
+    nextItem++;
+    return QString( "<listitem>" );
 }
 
 QString OpenedList::endSgml()
 {
-    return QString::null;
+    return kind == Bullet ? QString( "</itemizedlist>" )
+		   : QString( "</orderedlist>" );
 }
 
 OpenedList openList( const Location& loc, const QString& spec )

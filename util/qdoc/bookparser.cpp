@@ -9,6 +9,7 @@
 #include <ctype.h>
 #include <stdio.h>
 
+#include "binarywriter.h"
 #include "bookparser.h"
 #include "config.h"
 #include "html.h"
@@ -42,6 +43,34 @@ static QString fixBackslashes( const QString& str )
     return t;
 }
 
+static QString unhtmlize( const QString& html )
+{
+    static QRegExp tag( QString("<[^>]*>") );
+    static QRegExp lt( QString("&lt;") );
+    static QRegExp gt( QString("&gt;") );
+    static QRegExp amp( QString("&amp;") );
+
+    QString t = html;
+    t.replace( tag, QString::null );
+    t.replace( lt, QChar('<') );
+    t.replace( gt, QChar('>') );
+    t.replace( amp, QChar('&') );
+    return t;
+}
+
+static QString sgmlProtect( const QString& str )
+{
+#if 1
+    return htmlProtect( str );
+#else
+    static QRegExp amp( QChar('&') );
+    static QRegExp amp( QChar('<') );
+    static QRegExp amp( QChar('>') );
+
+    QString t = str;
+#endif
+}
+
 class Processor
 {
 public:
@@ -51,6 +80,8 @@ public:
     void start( bool verbose );
 
 protected:
+    virtual bool supportsCodeHtml() const { return FALSE; }
+
     virtual void processAlias( const QString& /* alias */,
 			       const QStringList& /* args */ ) { }
     virtual void processC( const QString& text );
@@ -303,10 +334,11 @@ void Processor::start( bool verbose )
 		break;
 	    case HASH( 'i', 1 ):
 		BCONSUME( "i", outlined );
-		if ( openedLists.isEmpty() )
+		if ( openedLists.isEmpty() ) {
 		    warning( 2, location(), "Command '\\i' outside '\\list'" );
-		else
+		} else {
 		    processListItem( &openedLists.top() );
+		}
 		break;
 	    case HASH( 'i', 3 ):
 		BCONSUME( "img", maybeInlined );
@@ -328,8 +360,14 @@ void Processor::start( bool verbose )
 	    case HASH( 'i', 7 ):
 		BCONSUME( "include", outlined );
 		fileName = getWord( yyIn, yyPos );
-		if ( !fileName.isEmpty() )
-		    processCodeHtml( walk.includePass2(fileName, resolver()) );
+		if ( !fileName.isEmpty() ) {
+		    QString text = walk.includePass2( fileName, resolver() );
+		    if ( supportsCodeHtml() ) {
+			processCodeHtml( text );
+		    } else {
+			processCode( unhtmlize(text) );
+		    }
+		}
 		break;
 	    case HASH( 'l', 1 ):
 		BCONSUME( "l", inlined );
@@ -533,7 +571,11 @@ void Processor::start( bool verbose )
 			break;
 		    case InPrint:
 			if ( yyPos == yyLen ) {
-			    processCodeHtml( pendingPrint );
+			    if ( supportsCodeHtml() ) {
+				processCodeHtml( pendingPrint );
+			    } else {
+				processCode( unhtmlize(pendingPrint) );
+			    }
 			    state = Normal;
 			    pendingSpace = FALSE;
 			}
@@ -908,6 +950,8 @@ public:
 		     const Resolver *resolver );
 
 protected:
+    virtual bool supportsCodeHtml() const { return TRUE; }
+
     virtual void processAlias( const QString& alias, const QStringList& args );
     virtual void processC( const QString& text );
     virtual void processCaptionBegin();
@@ -977,8 +1021,8 @@ HtmlSynthetizer::HtmlSynthetizer( const QString& filePath,
     delta = 2;
     if ( config->friendly() ) {
 	/*
-	  Make chapters have '<h1>' rather than '<h2>' to help
-	  qdoc2latex.
+	  Help qdoc2latex by using '<h1>' rather than '<h2>' for
+	  section1.
 	*/
 	delta = 1;
     }
@@ -1310,24 +1354,195 @@ public:
 
 protected:
     virtual void processAlias( const QString& alias, const QStringList& args );
+    virtual void processC( const QString& text );
+    virtual void processCaptionBegin();
+    virtual void processCaptionEnd();
     virtual void processChar( QChar ch );
+    virtual void processCode( const QString& text );
+    virtual void processE( const QString& text );
+    virtual void processFootnoteBegin();
+    virtual void processFootnoteEnd();
+    virtual void processImg( const QString& fileName, const QString& alt,
+			     bool inParagraph );
+    virtual void processIndex( const QString& text );
+    virtual void processLink( const QString& name, const QString& text );
+    virtual void processListBegin( OpenedList *ol );
+    virtual void processListItem( OpenedList *ol );
+    virtual void processListEnd( OpenedList *ol );
+    virtual void processParagraphBegin();
+    virtual void processParagraphEnd();
+    virtual void processQuoteBegin();
+    virtual void processQuoteEnd();
+    virtual void processSectionBegin( int level, int topLevel );
+    virtual void processSectionHeadingEnd( int level, int topLevel );
+    virtual void processSectionEnd( int level, int topLevel );
+    virtual void processSidebarBegin();
+    virtual void processSidebarHeadingEnd();
+    virtual void processSidebarEnd();
+    virtual void processString( const QString& str );
+    virtual void processTarget( const QString& target );
+
+    virtual void emitTocListBegin( int level );
+    virtual void emitTocListItem( int level, const Section& sect );
+    virtual void emitTocListEnd( int level );
+
+private:
+    BinaryWriter w;
 };
 
 SgmlSynthetizer::SgmlSynthetizer( const QString& filePath,
 				  const Analyzer *analyzer )
-    : Synthetizer( filePath, analyzer )
+    : Synthetizer( filePath, analyzer ), w( outFileBase() + QString(".sgml") )
 {
 }
 
 void SgmlSynthetizer::processAlias( const QString& alias,
 				    const QStringList& args )
 {
-    config->unalias( location(), alias, QString("sgml"), args );
+    w.puts( config->unalias(location(), alias, QString("sgml"), args)
+	    .latin1() );
+}
+
+void SgmlSynthetizer::processC( const QString& text )
+{
+    w.puts( "<literal>" );
+    w.puts( sgmlProtect(text).latin1() );
+    w.puts( "</literal>" );
+}
+
+void SgmlSynthetizer::processCaptionBegin()
+{
+    // ###
+}
+
+void SgmlSynthetizer::processCaptionEnd()
+{
+    // ###
 }
 
 void SgmlSynthetizer::processChar( QChar ch )
 {
-    (void) ch;
+    w.puts( sgmlProtect(ch).latin1() );
+}
+
+void SgmlSynthetizer::processCode( const QString& text )
+{
+    w.puts( "<programlisting>" );
+    w.puts( sgmlProtect(text).latin1() );
+    w.puts( "</programlisting>\n" );
+}
+
+void SgmlSynthetizer::processE( const QString& text )
+{
+    w.puts( "<emphasis>" );
+    w.puts( sgmlProtect(text).latin1() );
+    w.puts( "</emphasis>\n" );
+}
+
+void SgmlSynthetizer::processFootnoteBegin()
+{
+}
+
+void SgmlSynthetizer::processFootnoteEnd()
+{
+}
+
+void SgmlSynthetizer::processImg( const QString& fileName, const QString& alt,
+				  bool inParagraph )
+{
+}
+
+void SgmlSynthetizer::processIndex( const QString& text )
+{
+}
+
+void SgmlSynthetizer::processLink( const QString& name, const QString& text )
+{
+}
+
+void SgmlSynthetizer::processListBegin( OpenedList *ol )
+{
+    w.puts( ol->beginSgml().latin1() );
+}
+
+void SgmlSynthetizer::processListItem( OpenedList *ol )
+{
+    w.puts( ol->itemSgml().latin1() );
+}
+
+void SgmlSynthetizer::processListEnd( OpenedList *ol )
+{
+    w.puts( ol->endSgml().latin1() );
+}
+
+void SgmlSynthetizer::processParagraphBegin()
+{
+    w.puts( "<para>" );
+}
+
+void SgmlSynthetizer::processParagraphEnd()
+{
+    w.puts( "</para>\n" );
+}
+
+void SgmlSynthetizer::processQuoteBegin()
+{
+}
+
+void SgmlSynthetizer::processQuoteEnd()
+{
+}
+
+void SgmlSynthetizer::processSectionBegin( int level, int topLevel )
+{
+    w.puts( QString("<sect%1><title>").arg(level).latin1() );
+}
+
+void SgmlSynthetizer::processSectionHeadingEnd( int level, int topLevel )
+{
+    w.puts( "</title>\n" );
+}
+
+void SgmlSynthetizer::processSectionEnd( int level, int topLevel )
+{
+    w.puts( QString("</sect%1>\n").arg(level).latin1() );
+}
+
+void SgmlSynthetizer::processSidebarBegin()
+{
+    w.puts( "<sidebar><title>" );
+}
+
+void SgmlSynthetizer::processSidebarHeadingEnd()
+{
+    w.puts( "</title>\n" );
+}
+
+void SgmlSynthetizer::processSidebarEnd()
+{
+    w.puts( "</sidebar>\n" );
+}
+
+void SgmlSynthetizer::processString( const QString& str )
+{
+    w.puts( sgmlProtect(str).latin1() );
+}
+
+void SgmlSynthetizer::processTarget( const QString& target )
+{
+}
+
+void SgmlSynthetizer::emitTocListBegin( int /* level */ )
+{
+}
+
+void SgmlSynthetizer::emitTocListItem( int /* level */,
+				       const Section& /* sect */ )
+{
+}
+
+void SgmlSynthetizer::emitTocListEnd( int /* level */ )
+{
 }
 
 void parseBookFile( const QString& filePath, int fmt, const Resolver *resolver )
@@ -1340,14 +1555,16 @@ void parseBookFile( const QString& filePath, int fmt, const Resolver *resolver )
 	} else {
 	    Processor *p = 0;
 
-	    if ( pass == 1 ) {
+	    switch ( pass ) {
+	    case 1:
+#if 0
 		if ( (fmt & Html) != 0 )
 		    p = new HtmlSynthetizer( filePath, analyzer, resolver );
-	    } else {
-#if 0
+#endif
+		break;
+	    case 2:
 		if ( (fmt & Sgml) != 0 )
 		    p = new SgmlSynthetizer( filePath, analyzer );
-#endif
 	    }
 
 	    if ( p != 0 ) {
