@@ -46,7 +46,7 @@ QSqlPropertyMap::QSqlPropertyMap()
 QVariant QSqlPropertyMap::property( QWidget * widget )
 {
     if( !widget ) return QVariant();
-#ifdef CHECK_RANGE
+#ifdef QT_CHECK_RANGE
     if ( !propertyMap.contains( QString(widget->metaObject()->className()) ) )
 	qWarning("QSqlPropertyMap::property: %s does not exist", widget->metaObject()->className() );
 #endif
@@ -442,23 +442,24 @@ bool QSqlForm::isReadOnly() const
   Enabling auto-delete (\a enable is TRUE) will delete the view the
   form currently operates on.
 
-  Disabling auto-delete (\a enable is FALSE) will <em>not<\em> delete
+  Disabling auto-delete (\a enable is FALSE) will \e not delete
   the view when the form goes out of scope, or is deleted.
 
   The default setting is FALSE.
 
   \sa autoDelete().
- */
+*/
 void QSqlForm::setAutoDelete( bool enable )
 {
     autodelete = enable;
 }
+
 /*!
 
   Returns the setting of the auto-delete option (default is FALSE).
 
   \sa setAutoDelete().
- */
+*/
 bool QSqlForm::autoDelete() const
 {
     return autodelete;
