@@ -317,7 +317,7 @@ do
 	VAL=no
 	;;
     #Qt style yes options
-    -incremental|-qvfb|-profile|-shared|-static|-sm|-thread|-xinerma|-tablet|-stl|-freetype|-big-codecs|-xrender|-xft|-xkb|-nis|-remote|-h|-help|-v|-debug|-static|-verbose|-fast)
+    -incremental|-qvfb|-profile|-shared|-static|-sm|-thread|-xinerma|-tablet|-stl|-freetype|-big-codecs|-xrender|-xft|-xkb|-nis|-remote|-h|-help|-v|-debug|-release|-verbose|-fast)
 	VAR=`echo $1 | sed "s,^-\(.*\),\1,"`
 	VAL=yes
 	;;
@@ -503,10 +503,28 @@ do
     xplatform)
 	XPLATFORM="$VAL"
 	;;
-    release|debug)
+    release)
+	if [ "$VAL" = "yes" ]; then
+	    CFG_DEBUG=no
+	elif [ "$VAL" = "no" ]; then
+	    CFG_DEBUG=yes
+	else
+	    UNKNOWN_OPT=yes
+	fi
+	;;
+    debug)
 	CFG_DEBUG="$VAL"
 	;;
-    shared|static)
+    static)
+	if [ "$VAL" = "yes" ]; then
+	    CFG_SHARED=no
+	elif [ "$VAL" = "no" ]; then
+	    CFG_SHARED=yes
+	else
+	    UNKNOWN_OPT=yes
+	fi
+	;;
+    shared)
 	if [ "$VAL" = "yes" ] || [ "$VAL" = "no" ]; then
 	    CFG_SHARED="$VAL"
 	else
