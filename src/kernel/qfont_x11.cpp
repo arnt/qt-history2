@@ -724,6 +724,9 @@ int QFontPrivate::textWidth( const QString &str, int pos, int len,
 		last = chars;
 		lastlen = 0;
 	    }
+
+	    if (nmarks > 1)
+		i += nmarks - 1;
 	} else {
 	    tmp = scriptForChar(*chars);
 
@@ -838,6 +841,9 @@ void QFontPrivate::textExtents( const QString &str, int pos, int len,
 		// advance one character
 		chars++;
 	    }
+
+	    if (nmarks > 1)
+    		i += nmarks - 1;
 	} else {
 	    tmp = scriptForChar(*chars);
 
