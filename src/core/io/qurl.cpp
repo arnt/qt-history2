@@ -2273,16 +2273,16 @@ QString QUrl::fromPunycode(const QByteArray &pc)
 */
 bool QUrl::operator ==(const QUrl &url) const
 {
-    d->parse();
-    url.d->parse();
-    return d->scheme.toLower() == url.d->scheme.toLower()
+    if (!d->isParsed) d->parse();
+    if (!url.d->isParsed) url.d->parse();
+    return d->port == url.d->port
           && d->userName == url.d->userName
           && d->password == url.d->password
+          && d->fragment == url.d->fragment
+          && d->scheme.toLower() == url.d->scheme.toLower()
           && d->host.toLower() == url.d->host.toLower()
-          && d->port == url.d->port
-          && QUrlPrivate::removeDotsFromPath(d->path) == QUrlPrivate::removeDotsFromPath(url.d->path)
-          && d->query == url.d->query
-          && d->fragment == url.d->fragment;
+          && QUrl::fromPercentEncoding(d->query) == QUrl::fromPercentEncoding(url.d->query)
+          && QUrlPrivate::removeDotsFromPath(d->path) == QUrlPrivate::removeDotsFromPath(url.d->path);
 }
 
 /*!
