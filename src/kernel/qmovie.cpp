@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qmovie.cpp#8 $
+** $Id: //depot/qt/main/src/kernel/qmovie.cpp#9 $
 **
 ** Implementation of movie classes
 **
@@ -690,8 +690,7 @@ void QMovie::disconnectStatus(QObject* receiver, const char* member)
 }
 
 
-
-
+/* tmake ignore Q_OBJECT */
 
 //       MANUALLY INCLUDED.  Regenerate in vi with:   !Gmoc %
 //       WARNING! All changes made below will be lost
@@ -700,7 +699,7 @@ void QMovie::disconnectStatus(QObject* receiver, const char* member)
 ** QMoviePrivate meta object code from reading C++ file 'qmovie.cpp'
 **
 ** Created: Thu Jun 26 16:21:01 1997
-**      by: The Qt Meta Object Compiler ($Revision: 1.8 $)
+**      by: The Qt Meta Object Compiler ($Revision: 1.9 $)
 **
 ** WARNING! All changes made in this file will be lost!
 *****************************************************************************/
