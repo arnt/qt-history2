@@ -12,8 +12,8 @@
 **
 ****************************************************************************/
 
-#ifndef SPLASHSCREEN_H
-#define SPLASHSCREEN_H
+#ifndef QSPLASHSCREEN_H
+#define QSPLASHSCREEN_H
 
 #ifndef QT_H
 #include "qpixmap.h"
