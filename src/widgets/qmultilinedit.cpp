@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmultilinedit.cpp#123 $
+** $Id: //depot/qt/main/src/widgets/qmultilinedit.cpp#124 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -54,6 +54,7 @@
 
 struct QMultiLineData
 {
+    QMultiLineData() :isHandlingEvent(FALSE), maxLineWidth(0) {}
     bool isHandlingEvent;
     int   maxLineWidth;
 };
@@ -139,7 +140,6 @@ QMultiLineEdit::QMultiLineEdit( QWidget *parent , const char *name )
     :QTableView( parent, name)
 {
     mlData = new QMultiLineData;
-    mlData->isHandlingEvent = FALSE;
     QFontMetrics fm( font() );
     setCellHeight( fm.lineSpacing() + 1 );
     setNumCols( 1 );
