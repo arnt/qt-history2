@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qptr_win.cpp#82 $
+** $Id: //depot/qt/main/src/kernel/qptr_win.cpp#83 $
 **
 ** Implementation of QPainter class for Win32
 **
@@ -29,7 +29,7 @@
 
 extern WindowsVersion qt_winver;		// defined in qapp_win.cpp
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qptr_win.cpp#82 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qptr_win.cpp#83 $");
 
 
 /*
@@ -329,35 +329,6 @@ void QPainter::init()
     pixmapBrush = nocolBrush = FALSE;
     penRef = brushRef = 0;
     winFont = 0;
-}
-
-
-QPainter::QPainter()
-{
-    init();
-}
-
-QPainter::QPainter( const QPaintDevice *pd )
-{
-    init();
-    begin( pd );
-    flags |= CtorBegin;
-}
-
-QPainter::~QPainter()
-{
-    if ( isActive() ) {
-	if ( (flags & CtorBegin) == 0 ) {
-#if defined(CHECK_STATE)
-	    warning( "QPainter: You called begin() but not end()" );
-#endif
-	}
-	end();
-    }
-    if ( tabarray )				// delete tab array
-	delete tabarray;
-    if ( ps_stack )
-	killPStack();
 }
 
 
@@ -1762,7 +1733,25 @@ void QPainter::drawPixmap( int x, int y, const QPixmap &pixmap,
     }
 
     if ( txop <= TxTranslate ) {		// use optimized bitBlt
-	bitBlt( pdev, x, y, &pixmap, sx, sy, sw, sh, (RasterOp)rop );
+	if ( pixmap.mask() && pixmap.data->selfmask ) {
+	    QPixmap *pm	= (QPixmap*)&pixmap;
+	    bool tmp_dc	= pm->handle() == 0;
+	    if ( tmp_dc )
+		pm->allocMemDC();
+	    HBRUSH b = CreateSolidBrush( COLOR_VALUE(cpen.data->color) );
+	    COLORREF tc, bc;
+	    b = SelectObject( hdc, b );
+	    tc = SetTextColor( hdc, COLOR_VALUE(black) );
+	    bc = SetBkColor( hdc, COLOR_VALUE(white) );
+	    BitBlt( hdc, x, y, sw, sh, pm->handle(), sx, sy, 0x00b8074a );
+	    SetBkColor( hdc, bc );
+	    SetTextColor( hdc, tc );
+	    DeleteObject( SelectObject(hdc, b) );
+	    if ( tmp_dc )
+		pm->freeMemDC();
+	} else {
+	    bitBlt( pdev, x, y, &pixmap, sx, sy, sw, sh, (RasterOp)rop );
+	}
 	return;
     }
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.cpp#113 $
+** $Id: //depot/qt/main/src/kernel/qpainter.cpp#114 $
 **
 ** Implementation of QPainter, QPen and QBrush classes
 **
@@ -21,7 +21,7 @@
 #include "qwidget.h"
 #include <stdlib.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter.cpp#113 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter.cpp#114 $");
 
 
 /*!
@@ -103,6 +103,100 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter.cpp#113 $");
 
   \sa QPaintDevice, QWidget, QPixmap
 */
+
+
+/*!
+  Constructs a painter.
+
+  Notice that all painter settings (setPen,setBrush etc.) are reset to
+  default values when begin() is called.
+
+  \sa begin(), end()
+*/
+
+QPainter::QPainter()
+{
+    init();
+}
+
+/*!
+  Constructs a painter that begins painting the paint device \a pd
+  immediately.
+
+  This constructor is convenient for short-lived painters, e.g. in
+  a \link QWidget::paintEvent() paint event\endlink and should be
+  used only once. The constructor calls begin() for you and the QPainter
+  destructor automatically calls end().
+
+  Example using begin() and end():
+  \code
+    void MyWidget::paintEvent( QPaintEvent * )
+    {
+	QPainter p;
+	p.begin( this );
+	p.drawLine( ... );	// drawing code
+	p.end();
+    }
+  \endcode
+
+  Example using this constructor:
+  \code
+    void MyWidget::paintEvent( QPaintEvent * )
+    {
+	QPainter p( this );
+	p.drawLine( ... );	// drawing code
+    }
+  \endcode
+
+  \sa begin(), end()
+*/
+
+QPainter::QPainter( const QPaintDevice *pd )
+{
+    init();
+    begin( pd );
+}
+
+
+/*!
+  Constructs a painter that begins painting the paint device \a pd
+  immediately, with the default arguments taken from \a copyAttributes.
+
+  \sa begin()
+*/
+
+QPainter::QPainter( const QPaintDevice *pd,
+		    const QWidget *copyAttributes )
+{
+    init();
+    begin( pd, copyAttributes );
+    flags |= CtorBegin;
+}
+
+
+/*!
+  Destroys the painter.
+
+  If you called begin() but not end(), the destructor outputs a warning
+  message.  If you used one of the constructors which takes a paint
+  device argument, there is no need to call end().
+*/
+
+QPainter::~QPainter()
+{
+    if ( isActive() ) {
+	if ( (flags & CtorBegin) == 0 ) {
+#if defined(CHECK_STATE)
+	    warning( "QPainter: You called begin() but not end()" );
+#endif
+	}
+	end();
+    }
+    if ( tabarray )				// delete tab array
+	delete tabarray;
+    if ( ps_stack )
+	killPStack();
+}
 
 
 /*!
@@ -2729,18 +2823,3 @@ void QPainter::drawWinFocusRect( int, int, int, int,
     // do nothing, only called from X11 specific functions
 }
 #endif
-
-/*!
-  Constructs a painter that begins painting the paint device \a pd
-  immediately, with the default arguments taken from \a copyAttributes.
-
-  \sa begin()
-*/
-
-QPainter::QPainter( const QPaintDevice *pd,
-		    const QWidget *copyAttributes )
-{
-    init();
-    begin( pd, copyAttributes );
-}
-

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#234 $
+** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#235 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -23,7 +23,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#234 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#235 $");
 
 
 /*****************************************************************************
@@ -445,74 +445,6 @@ void QPainter::init()
     dpy  = 0;
     txop = txinv = 0;
     penRef = brushRef = 0;
-}
-
-/*!
-  Constructs a painter.
-
-  Notice that all painter settings (setPen,setBrush etc.) are reset to
-  default values when begin() is called.
-
-  \sa begin(), end()
-*/
-
-QPainter::QPainter()
-{
-    init();
-}
-
-/*!
-  Constructs a painter that begins painting the paint device \a pd
-  immediately.
-
-  This constructor is convenient for short-lived painters, e.g. in
-  a \link QWidget::paintEvent() paint event\endlink and should be
-  used only once. The constructor calls begin() for you and the QPainter
-  destructor automatically calls end().
-
-  Example using begin() and end():
-  \code
-    void MyWidget::paintEvent( QPaintEvent * )
-    {
-	QPainter p;
-	p.begin( this );
-	p.drawLine( ... );	// drawing code
-	p.end();
-    }
-  \endcode
-
-  Example using this constructor:
-  \code
-    void MyWidget::paintEvent( QPaintEvent * )
-    {
-	QPainter p( this );
-	p.drawLine( ... );	// drawing code
-    }
-  \endcode
-
-  \sa begin(), end()
-*/
-
-QPainter::QPainter( const QPaintDevice *pd )
-{
-    init();
-    begin( pd );
-}
-
-
-
-/*!
-  Destroys the painter.  Calls end() if the painter is still open.
-*/
-
-QPainter::~QPainter()
-{
-    if ( isActive() )
-	end();
-    if ( tabarray )				// delete tab array
-	delete tabarray;
-    if ( ps_stack )
-	killPStack();
 }
 
 
