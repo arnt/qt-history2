@@ -154,8 +154,8 @@ int main( int argc, char ** argv )
 		file = argv[i];
 	    } else if ( QString( argv[i] ).lower() == "-server" ) {
 	        server = TRUE;
-	    } else if ( QString( argv[i] ).lower() == "-disablefirstrun" ) {
-	        allowFirstRun = FALSE;
+	    //} else if ( QString( argv[i] ).lower() == "-disablefirstrun" ) {
+	    //    allowFirstRun = FALSE;
 	    } else if ( QString( argv[i] ).lower() == "-addprofile" ) {
 		INDEX_CHECK( "Missing profile argument!" );
 		QString path = "";
@@ -174,20 +174,19 @@ int main( int argc, char ** argv )
 		printf( "Usage: assistant [option]\n" );
 		printf( "Options:\n" );
 		printf( " -file Filename          assistant opens the specified file\n" );
-		printf( " -disableFirstRun        assistant will not try to register defaults.\n" );
+		//printf( " -disableFirstRun        assistant will not try to register defaults.\n" );
 		printf( " -server                 reads commands from a socket after\n" );
 		printf( "                         assistant has started\n" );
 		printf( " -profile Name           starts assistant and displays the\n" );
 		printf( "                         profile Name.\n" );
 		printf( " -addProfile File [Path] adds the profile defined in File.\n" );
 		printf( "                         Specify the location of the content\n" );
-		printf( "                         files via Path. Otherwise it is\n" );
-		printf( "                         assumed that the content file is in\n" );
-		printf( "                         the same directory as the profile.\n" );
+		printf( "                         files via Path. Otherwise, the base\n" );
+		printf( "                         path of the profile is taken.\n" );
 		printf( "                         For further informations have a look\n" );
 		printf( "                         at the assistant online help.\n" );
 		printf( " -onlyBrowser            assistant will only have the browser,\n" );
-		printf( "                         i.e. the side bar will be hidden.\n" )
+		printf( "                         i.e. the side bar will be hidden.\n" );
 		printf( " -help                   shows this help\n" );
 		exit( 0 );
 	    } else if ( QString( argv[i] ).lower() == "-resourcedir" ) {
