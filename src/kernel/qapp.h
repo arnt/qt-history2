@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp.h#19 $
+** $Id: //depot/qt/main/src/kernel/qapp.h#20 $
 **
 ** Definition of QApplication class
 **
@@ -29,6 +29,9 @@ public:
 
     static GUIStyle style();
     static void	    setStyle( GUIStyle );
+
+    static QPalette *palette();			// get/set application palette
+    static void	    setPalette( const QPalette & );
 
     static QCursor *cursor();			// get/set application cursor
     static void	    setCursor( const QCursor & );
@@ -64,6 +67,7 @@ private:
     bool     	    quit_now;			// quit flags
     int	     	    quit_code;
     static GUIStyle appStyle;			// application GUI style
+    static QPalette *appPal;			// application palette
     static QFont   *appFont;			// application font
     static QCursor *appCursor;			// application cursor
     static bool	    starting_up;

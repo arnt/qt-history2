@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpaintdc.h#9 $
+** $Id: //depot/qt/main/src/kernel/qpaintdc.h#10 $
 **
 ** Definition of QPaintDevice constants and flags
 **
@@ -56,8 +56,8 @@
 #define PDC_SETTABARRAY		49		// ival,ivec
 #define PDC_SETUNIT		50		// ival
 #define PDC_SETVXFORM		51		// ival
-#define PDC_SETSOURCEVIEW	52		// rect
-#define PDC_SETTARGETVIEW	53		// rect
+#define PDC_SETWINDOW		52		// rect
+#define PDC_SETVIEWPORT		53		// rect
 #define PDC_SETWXFORM		54		// ival
 #define PDC_SETWMATRIX		55		// matrix,ival
 #define PDC_SETCLIP		60		// ival
@@ -76,7 +76,7 @@ union QPDevCmdParam {
     const QPen		*pen;
     const QBrush	*brush;
     const QRegion	*rgn;
-    const QWorldMatrix	*matrix;
+    const Q2DMatrix	*matrix;
 };
 
 // Painter device metric() identifiers (for all devices)

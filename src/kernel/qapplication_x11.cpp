@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#46 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#47 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -29,7 +29,7 @@
 #endif
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#46 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#47 $";
 #endif
 
 
@@ -714,7 +714,7 @@ int QApplication::exec( QWidget *mainWidget )	// main event loop
 			XGetWindowAttributes( widget->display(), widget->id(),
 					      &a1 );
 			XGetWindowAttributes( widget->display(), parent, &a2 );
-			QRect *r = &widget->rect;
+			QRect *r = &widget->crect;
 			XWindowAttributes *a;
 			if ( a1.x == 0 && a1.y == 0 && (a2.x + a2.y > 0) )
 			    a = &a2;		// typical for mwm, fvwm
@@ -722,10 +722,10 @@ int QApplication::exec( QWidget *mainWidget )	// main event loop
 			    a = &a1;		// typical for twm, olwm
 			a->x += a2.border_width;// a->x = parent frame width
 			a->y += a2.border_width;// a->y = parent caption height
-			widget->ncrect = QRect(QPoint(r->left() - a->x,
-						      r->top() - a->y),
-					       QPoint(r->right() + a->x,
-						      r->bottom() + a->x) );
+			widget->frect = QRect(QPoint(r->left() - a->x,
+						     r->top() - a->y),
+					      QPoint(r->right() + a->x,
+						     r->bottom() + a->x) );
 		    }
 		    break;
 
@@ -1235,7 +1235,7 @@ bool QETWidget::translateMouseEvent( const XEvent *event )
     if ( popupWidgets ) {			// oops, in popup mode
 	QWidget *popup = popupWidgets->last();
 	if ( popup != this ) {
-	    if ( testFlag(WType_Popup) && clientRect().contains(pos) )
+	    if ( testFlag(WType_Popup) && rect().contains(pos) )
 		popup = this;
 	    else				// send to last popup
 		pos = popup->mapFromGlobal( mapToGlobal(pos) );
@@ -1434,14 +1434,14 @@ bool QETWidget::translateConfigEvent( const XEvent *event )
 	XGetWindowAttributes( display(), id(), &a );
 	QSize  newSize( a.width, a.height );
 	QPoint newPos( a.x, a.y );
-	QRect r = clientGeometry();
-	if ( newSize != clientSize() ) {	// size changed
+	QRect r = clientRect();
+	if ( newSize != size() ) {		// size changed
 	    r.setSize( newSize );
-	    setRect( r );
+	    setCRect( r );
 	    QResizeEvent e( newSize );
 	    QApplication::sendEvent( this, &e );
 	}
-	if ( newPos != geometry().topLeft() ) {	// position changed
+	if ( newPos != frameRect().topLeft() ) {// position changed
 	    int x, y;
 	    Window child;
 	    XTranslateCoordinates( display(), id(),
@@ -1449,8 +1449,8 @@ bool QETWidget::translateConfigEvent( const XEvent *event )
 				   newPos.x(), newPos.y(), &x, &y, &child );
 	    newPos = QPoint(x,y) - newPos;	// get position excl frame
 	    r.setTopLeft( newPos );
-	    setRect( r );
-	    QMoveEvent e( geometry().topLeft() );
+	    setCRect( r );
+	    QMoveEvent e( frameRect().topLeft() );
 	    QApplication::sendEvent( this, &e );
 	}
     }

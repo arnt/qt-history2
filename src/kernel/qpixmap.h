@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap.h#14 $
+** $Id: //depot/qt/main/src/kernel/qpixmap.h#15 $
 **
 ** Definition of QPixMap class
 **
@@ -53,8 +53,8 @@ public:
     static void	    setCacheSize( long );
     static void	    cleanup();
 
-    QPixMap *xForm( const QWorldMatrix & );	// transform bitmap
-    static QWorldMatrix trueMatrix( const QWorldMatrix &, int w, int h );
+    QPixMap *xForm( const Q2DMatrix & );	// transform bitmap
+    static Q2DMatrix trueMatrix( const Q2DMatrix &, int w, int h );
 
     bool   cacheImageData( bool onOff );
     void   setImageDataDirty();

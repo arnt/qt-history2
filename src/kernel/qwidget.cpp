@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#21 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#22 $
 **
 ** Implementation of QWidget class
 **
@@ -17,11 +17,11 @@
 #include "qobjcoll.h"
 #include "qwidget.h"
 #include "qwidcoll.h"
+#include "qpalette.h"
 #include "qapp.h"
-#include "qcolor.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget.cpp#21 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget.cpp#22 $";
 #endif
 
 
@@ -102,6 +102,7 @@ inline bool QWidgetMapper::remove( WId id )
 
 QWidget::QWidget( QWidget *parent, const char *name, WFlags f )
 	: QObject( parent, name ),
+	  pal( *qApp->palette() ),
           fnt( TRUE )                           // create a default font
 {
     initMetaObject();				// initialize meta object
@@ -109,6 +110,7 @@ QWidget::QWidget( QWidget *parent, const char *name, WFlags f )
     ident = 0;					// default attributes
     flags = f;
     extra = 0;					// no extra widget info
+    pal   = *qApp->palette();			// default app palette
     create();					// platform-dependent init
     if ( parent )
 	setBackgroundColor( parent->backgroundColor() );
@@ -221,6 +223,26 @@ void QWidget::disable()				// disable events
 }
 
 
+const QColorGroup &QWidget::colorGroup() const
+{
+    if ( testFlag(WState_Disabled) )
+	return pal.disabled();
+    else
+	return pal.normal();
+}
+
+const QPalette &QWidget::palette() const
+{
+    return pal;
+}
+
+void QWidget::setPalette( const QPalette &p )
+{
+    pal = p;
+    setBackgroundColor( colorGroup().background() );
+}
+
+
 #if !defined(_WS_X11_)
 bool QWidget::setMouseTracking( bool enable )
 {
@@ -234,22 +256,22 @@ bool QWidget::setMouseTracking( bool enable )
 #endif // _WS_X11_
 
 
-void QWidget::setRect( const QRect &r )		// set rect, update ncrect
+void QWidget::setFRect( const QRect &r )	// set frect, update crect
 {
-    ncrect.setLeft( ncrect.left() + r.left() - rect.left() );
-    ncrect.setTop( ncrect.top() + r.top() - rect.top() );
-    ncrect.setRight( ncrect.right() + r.right() - rect.right() );
-    ncrect.setBottom( ncrect.bottom() + r.bottom() - rect.bottom() );
-    rect = r;
+    crect.setLeft( crect.left() + r.left() - frect.left() );
+    crect.setTop( crect.top() + r.top() - frect.top() );
+    crect.setRight( crect.right() + r.right() - frect.right() );
+    crect.setBottom( crect.bottom() + r.bottom() - frect.bottom() );
+    frect = r;
 }
 
-void QWidget::setNCRect( const QRect &r )	// set ncrect, update rect
+void QWidget::setCRect( const QRect &r )	// set crect, update frect
 {
-    rect.setLeft( rect.left() + r.left() - ncrect.left() );
-    rect.setTop( rect.top() + r.top() - ncrect.top() );
-    rect.setRight( rect.right() + r.right() - ncrect.right() );
-    rect.setBottom( rect.bottom() + r.bottom() - ncrect.bottom() );
-    ncrect = r;
+    frect.setLeft( frect.left() + r.left() - crect.left() );
+    frect.setTop( frect.top() + r.top() - crect.top() );
+    frect.setRight( frect.right() + r.right() - crect.right() );
+    frect.setBottom( frect.bottom() + r.bottom() - crect.bottom() );
+    crect = r;
 }
 
 
@@ -258,7 +280,7 @@ QPoint QWidget::mapToGlobal( const QPoint &pos ) const
     register QWidget *w = (QWidget*)this;
     QPoint p = pos;
     while ( w ) {
-	p += w->rect.topLeft();
+	p += w->crect.topLeft();
 	w = w->parentWidget();
     }
     return p;
@@ -269,7 +291,7 @@ QPoint QWidget::mapFromGlobal( const QPoint &pos ) const
     register QWidget *w = (QWidget*)this;
     QPoint p = pos;
     while ( w ) {
-	p -= w->rect.topLeft();
+	p -= w->crect.topLeft();
 	w = w->parentWidget();
     }
     return p;
@@ -277,12 +299,12 @@ QPoint QWidget::mapFromGlobal( const QPoint &pos ) const
 
 QPoint QWidget::mapToParent( const QPoint &p ) const
 {						// map to parent coordinates
-    return p + rect.topLeft();
+    return p + crect.topLeft();
 }
 
 QPoint QWidget::mapFromParent( const QPoint &p ) const
 {						// map from parent coordinate
-    return p - rect.topLeft();
+    return p - crect.topLeft();
 }
 
 

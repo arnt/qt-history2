@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.cpp#16 $
+** $Id: //depot/qt/main/src/kernel/qpainter.cpp#17 $
 **
 ** Implementation of QPainter class
 **
@@ -18,12 +18,12 @@
 #include "qpainter.h"
 #include "qpaintdc.h"
 #include "qpntarry.h"
-#include "qwmatrix.h"
+#include "q2matrix.h"
 #include "qstack.h"
 #include "qdstream.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpainter.cpp#16 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpainter.cpp#17 $";
 #endif
 
 
@@ -89,8 +89,8 @@ struct QPState {				// painter state
     uchar	 pu;
     uchar	 rop;
     QPoint	 bro;
-    QRect	 sr, tr;
-    QWorldMatrix wm;
+    QRect	 wr, vr;
+    Q2DMatrix	 wm;
     bool	 vxf;
     bool	 wxf;
     QRegion	 rgn;
@@ -130,8 +130,8 @@ void QPainter::save()				// save/push painter state
     ps->rop   = rop;
     ps->bro   = bro;
     ps->pu    = pu;
-    ps->sr    = QRect( sx, sy, sw, sh );
-    ps->tr    = QRect( tx, ty, tw, th );
+    ps->wr    = QRect( wx, wy, ww, wh );
+    ps->vr    = QRect( vx, vy, vw, vh );
     ps->wm    = wxmat;
     ps->vxf   = testf(VxF);
     ps->wxf   = testf(WxF);
@@ -170,12 +170,12 @@ void QPainter::restore()			// restore/pop painter state
 	setRasterOp( (RasterOp)ps->rop );
     if ( ps->pu != pu )
 	pu = ps->pu;
-    QRect sr( sx, sy, sw, sh );
-    QRect tr( tx, ty, tw, th );
-    if ( ps->sr != sr )
-	setSourceView( ps->sr );
-    if ( ps->tr != tr )
-	setTargetView( ps->tr );
+    QRect wr( wx, wy, ww, wh );
+    QRect vr( vx, vy, vw, vh );
+    if ( ps->wr != wr )
+	setWindow( ps->wr );
+    if ( ps->vr != vr )
+	setViewport( ps->vr );
     if ( ps->wm != wxmat )
 	setWorldMatrix( ps->wm );
     if ( ps->vxf != testf(VxF) )
@@ -399,14 +399,14 @@ void QPainter::setBrushOrigin( const QPoint &p )
     setBrushOrigin( p.x(), p.y() );
 }
 
-void QPainter::setSourceView( const QRect &r )
+void QPainter::setWindow( const QRect &r )
 {
-    setSourceView( r.x(), r.y(), r.width(), r.height() );
+    setWindow( r.x(), r.y(), r.width(), r.height() );
 }
 
-void QPainter::setTargetView( const QRect &r )
+void QPainter::setViewport( const QRect &r )
 {
-    setTargetView( r.x(), r.y(), r.width(), r.height() );
+    setViewport( r.x(), r.y(), r.width(), r.height() );
 }
 
 void QPainter::setClipRect( int x, int y, int w, int h )

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwid_x11.cpp#41 $
+** $Id: //depot/qt/main/src/kernel/qwid_x11.cpp#42 $
 **
 ** Implementation of QWidget and QView classes for X11
 **
@@ -11,6 +11,7 @@
 *****************************************************************************/
 
 #include "qview.h"
+#include "qpalette.h"
 #include "qapp.h"
 #include "qpaintdc.h"
 #include "qpainter.h"
@@ -22,7 +23,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qwid_x11.cpp#41 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qwid_x11.cpp#42 $";
 #endif
 
 
@@ -64,18 +65,17 @@ bool QWidget::create()				// create widget
     int	   border = 0;
     WId	   id;
 
-    fg_col = black;				// set default foreground color
     bg_col = white;				// set default background color
 
     if ( desktop ) {				// desktop widget
-	ncrect.setRect( 0, 0, sw, sh );
+	frect.setRect( 0, 0, sw, sh );
 	overlap = popup = FALSE;		// force these flags off
     }
     else if ( overlap || popup )		// parentless widget
-	ncrect.setRect( sw/2 - sw/4, sh/2 - sh/5, sw/2, 2*sh/5 );
+	frect.setRect( sw/2 - sw/4, sh/2 - sh/5, sw/2, 2*sh/5 );
     else					// child widget
-	ncrect.setRect( 10, 10, 100, 30 );
-    rect = ncrect;				// default client rect
+	frect.setRect( 10, 10, 100, 30 );
+    crect = frect;				// default client rect
 
     if ( overlap || popup || desktop )		// overlapping widget
 	parentwin = RootWindow( dpy, screen );
@@ -98,10 +98,10 @@ bool QWidget::create()				// create widget
     }
     else {
 	id = XCreateSimpleWindow( dpy, parentwin,
-				  ncrect.left(), ncrect.top(),
-				  ncrect.width(), ncrect.height(),
+				  frect.left(), frect.top(),
+				  frect.width(), frect.height(),
 				  border,
-				  fg_col.pixel(),
+				  black.pixel(),
 				  bg_col.pixel() );
 	set_id( id );				// set widget id/handle + hd
     }
@@ -118,10 +118,10 @@ bool QWidget::create()				// create widget
     else if ( overlap ) {			// top level widget
 	XSizeHints size_hints;
 	size_hints.flags = PPosition | PSize | PWinGravity;
-	size_hints.x = rect.left();
-	size_hints.y = rect.top();
-	size_hints.width = rect.width();
-	size_hints.height = rect.height();
+	size_hints.x = crect.left();
+	size_hints.y = crect.top();
+	size_hints.width = crect.width();
+	size_hints.height = crect.height();
 	size_hints.win_gravity = 1;		// NortWest
 	char *title = qAppName();
 	XWMHints wm_hints;			// window manager hints
@@ -192,16 +192,14 @@ void QWidget::recreate( QWidget *parent, WFlags f, const QPoint &p,
     if ( (parentObj = parent) )
 	parentObj->insertChild( this );
     bool was_disabled = isDisabled();
-    QSize s = clientSize();			// save size
+    QSize s = size();				// save size
     QColor bgc = bg_col;			// save colors
-    QColor fgc = fg_col;
     flags = f;
     clearFlag( WState_Created );
     clearFlag( WState_Visible );
     create();
     qPRCreate( this, old_ident );
     setBackgroundColor( bgc );			// restore colors
-    setForegroundColor( fgc );
     setGeometry( p.x(), p.y(), s.width(), s.height() );
 //    resize( s );				// restore size
 //    move( p );					// set new position
@@ -243,19 +241,13 @@ QColor QWidget::backgroundColor() const		// get background color
 
 QColor QWidget::foregroundColor() const		// get foreground color
 {
-    return fg_col;
+    return colorGroup().foreground();
 }
 
 void QWidget::setBackgroundColor( const QColor &c )
 {						// set background color
     bg_col = c;
     XSetWindowBackground( dpy, ident, bg_col.pixel() );
-    update();
-}
-
-void QWidget::setForegroundColor( const QColor &c )
-{						// set foreground color
-    fg_col = c;
     update();
 }
 
@@ -480,11 +472,11 @@ static void do_size_hints( Display *dpy, WId ident, QWExtra *x, XSizeHints *s )
 void QWidget::move( int x, int y )		// move widget
 {
     QPoint p(x,y);
-    QRect r = ncrect;
+    QRect r = frect;
     if ( r.topLeft() == p || testFlag(WType_Desktop) )
 	return;
     r.setTopLeft( p );
-    setNCRect( r );
+    setFRect( r );
     if ( testFlag(WType_Overlap) ) {
 	XSizeHints size_hints;			// tell window manager
 	size_hints.flags = PPosition;
@@ -503,12 +495,12 @@ void QWidget::resize( int w, int h )		// resize widget
 	w = 1;
     if ( h < 1 )
 	h = 1;
-    QRect r = rect;
+    QRect r = crect;
     QSize s(w,h);
     if ( r.size() == s || testFlag(WType_Desktop) )
 	return;
     r.setSize( s );
-    setRect( r );
+    setCRect( r );
     if ( testFlag(WType_Overlap) ) {
 	XSizeHints size_hints;			// tell window manager
 	size_hints.flags = PSize;
@@ -528,9 +520,9 @@ void QWidget::setGeometry( int x, int y, int w, int h )
     if ( h < 1 )
 	h = 1;
     QRect  r( x, y, w, h );
-    if ( r == rect || testFlag(WType_Desktop) )
+    if ( r == crect || testFlag(WType_Desktop) )
 	return;
-    setRect( r );
+    setCRect( r );
     if ( testFlag(WType_Overlap) ) {
 	XSizeHints size_hints;			// tell window manager
 	size_hints.flags = USPosition | USSize;
@@ -592,7 +584,7 @@ void QWidget::erase()				// erase widget contents
 
 void QWidget::scroll( int dx, int dy )		// scroll widget contents
 {
-    QSize sz = clientSize();
+    QSize sz = size();
     int x1, y1, x2, y2, w=sz.width(), h=sz.height();
     if ( dx > 0 ) {
 	x1 = 0;
@@ -623,7 +615,7 @@ void QWidget::scroll( int dx, int dy )		// scroll widget contents
 	    object = it.current();
 	    if ( object->isWidgetType() ) {
 		QWidget *w = (QWidget *)object;
-		w->move( w->clientGeometry().topLeft()+pd );
+		w->move( w->clientRect().topLeft()+pd );
 	    }
 	    ++it;
 	}
@@ -655,19 +647,19 @@ long QWidget::metric( int m ) const		// get metric information
     long val;
     if ( m == PDM_WIDTH || m == PDM_HEIGHT ) {
 	if ( m == PDM_WIDTH )
-	    val = rect.width();
+	    val = crect.width();
 	else
-	    val = rect.height();
+	    val = crect.height();
     }
     else {
 	int scr = qXScreen();
 	switch ( m ) {
 	    case PDM_WIDTHMM:
-	        val = ((long)DisplayWidthMM(dpy,scr)*rect.width())/
+	        val = ((long)DisplayWidthMM(dpy,scr)*crect.width())/
 		      DisplayWidth(dpy,scr);
 		break;
 	    case PDM_HEIGHTMM:
-	        val = ((long)DisplayHeightMM(dpy,scr)*rect.height())/
+	        val = ((long)DisplayHeightMM(dpy,scr)*crect.height())/
 		      DisplayHeight(dpy,scr);
 		break;
 	    case PDM_NUMCOLORS:

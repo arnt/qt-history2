@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.h#30 $
+** $Id: //depot/qt/main/src/kernel/qpainter.h#31 $
 **
 ** Definition of QPainter class
 **
@@ -20,7 +20,7 @@
 #include "qregion.h"
 #include "qpen.h"
 #include "qbrush.h"
-#include "qwmatrix.h"
+#include "q2matrix.h"
 #include "qpntarry.h"
 
 
@@ -86,17 +86,17 @@ public:
     void	setUnit( PaintUnit );
     void	setViewXForm( bool );		// set xform on/off
     bool	hasViewXForm() const { return testf(VxF); }
-    QRect	sourceView()   const;		// get source view
-    void	setSourceView( const QRect & );	// set source view (virtual)
-    void	setSourceView( int x, int y, int w, int h );
-    QRect	targetView()   const;		// get target view
-    void	setTargetView( const QRect & );	// set target view (device)
-    void	setTargetView( int x, int y, int w, int h );
+    QRect	window()       const;		// get window
+    void	setWindow( const QRect & );	// set window
+    void	setWindow( int x, int y, int w, int h );
+    QRect	viewport()   const;		// get viewport
+    void	setViewport( const QRect & );	// set viewport
+    void	setViewport( int x, int y, int w, int h );
 
     void	setWorldXForm( bool );		// set world xform on/off
     bool	hasWorldXForm() const { return testf(WxF); }
-    QWorldMatrix worldMatrix()	const;		// get/set world xform matrix
-    void	setWorldMatrix( const QWorldMatrix &, bool concat=FALSE );
+    Q2DMatrix   worldMatrix()	const;		// get/set world xform matrix
+    void	setWorldMatrix( const Q2DMatrix &, bool concat=FALSE );
 
     QPoint	xForm( const QPoint & ) const;	// map virtual -> device
     QRect	xForm( const QRect & )	const;
@@ -234,9 +234,9 @@ private:
     int		tabstops;			// tab stops
     int	       *tabarray;			// array of tab positions
     int		tabarraylen;			// len of tab array
-    QCOOT	sx, sy, sw, sh;			// source rect
-    QCOOT	tx, ty, tw, th;			// target rect
-    QWorldMatrix wxmat;				// world xform matrix
+    QCOOT	wx, wy, ww, wh;			// window rect
+    QCOOT	vx, vy, vw, vh;			// viewport rect
+    Q2DMatrix	wxmat;				// world xform matrix
 #if defined(_WS_MAC_) || defined(_WS_WIN16_) || defined(_WS_X11_)
     long	wm11, wm12, wm21, wm22, wdx, wdy;
     long	im11, im12, im21, im22, idx, idy;
@@ -300,14 +300,14 @@ inline void QPainter::setBrushOrigin( const QPoint &p )
     setBrushOrigin( p.x(), p.y() );
 }
 
-inline void QPainter::setSourceView( const QRect &r )
+inline void QPainter::setWindow( const QRect &r )
 {
-    setSourceView( r.x(), r.y(), r.width(), r.height() );
+    setWindow( r.x(), r.y(), r.width(), r.height() );
 }
 
-inline void QPainter::setTargetView( const QRect &r )
+inline void QPainter::setViewport( const QRect &r )
 {
-    setTargetView( r.x(), r.y(), r.width(), r.height() );
+    setViewport( r.x(), r.y(), r.width(), r.height() );
 }
 
 inline void QPainter::setClipRect( int x, int y, int w, int h )

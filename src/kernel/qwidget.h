@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.h#27 $
+** $Id: //depot/qt/main/src/kernel/qwidget.h#28 $
 **
 ** Definition of QWidget class
 **
@@ -48,13 +48,13 @@ public:
 
   // Widget coordinates (relative to its parent)
 
-    QRect   geometry()		const	{ return ncrect; }
-    QRect   clientGeometry()	const	{ return rect; }
-    QSize   clientSize()	const	{ return rect.size(); }
-    int	    clientWidth()	const	{ return rect.width(); }
-    int	    clientHeight()	const	{ return rect.height(); }
-    QRect   clientRect()	const	{ return QRect(0,0,rect.width(),
-						       rect.height()); }
+    QRect   frameRect()		const	{ return frect; }
+    QRect   clientRect()	const	{ return crect; }
+    QSize   size()		const	{ return crect.size(); }
+    int	    width()		const	{ return crect.width(); }
+    int	    height()		const	{ return crect.height(); }
+    QRect   rect()		const	{ return QRect(0,0,crect.width(),
+						       crect.height()); }
     void    setMinimumSize( int w, int h );
     void    setMaximumSize( int w, int h );
     void    setSizeIncrement( int w, int h );
@@ -71,12 +71,15 @@ public:
     QColor  backgroundColor() const;
     QColor  foregroundColor() const;
     virtual void setBackgroundColor( const QColor & );
-    virtual void setForegroundColor( const QColor & );
 
-    QFontMetrics fontMetrics()  const { return QFontMetrics(fnt); }
+    const QColorGroup &colorGroup() const;
+    const QPalette    &palette()    const;
+    void	       setPalette( const QPalette & );
+
+    QFontMetrics fontMetrics()	const { return QFontMetrics(fnt); }
     QFontInfo	 fontInfo()	const { return QFontInfo(fnt); }
 
-    QFont       &font(); 	                // get/set font
+    QFont	&font();			// get/set font
     virtual void setFont( const QFont & );
     QCursor cursor() const;			// get/set cursor
     void    setCursor( const QCursor & );
@@ -164,19 +167,19 @@ protected:
   // Misc. functions
 
 public:
-    QWidget *parentWidget()	 const	{ return (QWidget*)QObject::parent(); }
-    bool    testFlag( WFlags n ) const  { return (flags & n) != 0; }
-    static QWidget       *find( WId );		// find widget by identifier
+    QWidget    *parentWidget() const	{ return (QWidget*)QObject::parent(); }
+    bool    	testFlag( WFlags n ) const { return (flags & n) != 0; }
+    static QWidget	 *find( WId );		// find widget by identifier
     static QWidgetMapper *wmapper()	{ return mapper; }
 
 protected:
-    WFlags  getFlags() const		{ return flags; }
-    void    setFlag( WFlags n )		{ flags |= n; }
-    void    clearFlag( WFlags n )	{ flags &= ~n; }
-    void    setRect( const QRect & );		// set rect, update ncrect
-    void    setNCRect( const QRect & );		// set ncrect, update rect
-    long    metric( int )	 const;		// get metric information
-    const QFont &fontRef() 	 const  { return fnt; }
+    WFlags  	getFlags() const	{ return flags; }
+    void    	setFlag( WFlags n )	{ flags |= n; }
+    void    	clearFlag( WFlags n )	{ flags &= ~n; }
+    void    	setFRect( const QRect & );	// set frect, update crect
+    void    	setCRect( const QRect & );	// set crect, update frect
+    long    	metric( int )	 const;		// get metric information
+    const QFont &fontRef()	 const	{ return fnt; }
 
 #if defined(_WS_PM_)
     int	    convertYPos( int );
@@ -185,19 +188,19 @@ protected:
 #endif
 
 private:
-    void    set_id( WId );			// set widget id
-    bool    create();				// create widget
-    bool    destroy();				// destroy widget
-    void    createExtra();			// create extra data
-    WId	    ident;				// widget identifier
-    WFlags  flags;				// widget flags
-    QRect   rect;				// widget geometry
-    QRect   ncrect;				// non-client geometry
-    QColor  bg_col;				// background color
-    QColor  fg_col;				// foreground color
-    QFont   fnt;				// widget font
-    QCursor curs;				// widget cursor
-    QWExtra *extra;				// extra widget data
+    void	set_id( WId );			// set widget id
+    bool	create();			// create widget
+    bool	destroy();			// destroy widget
+    void	createExtra();			// create extra data
+    WId		ident;				// widget identifier
+    WFlags	flags;				// widget flags
+    QRect	frect;				// widget frame geometry
+    QRect	crect;				// widget client geometry
+    QColor	bg_col;				// background color
+    QPalette   &pal;				// widget palette
+    QFont	fnt;				// widget font
+    QCursor	curs;				// widget cursor
+    QWExtra    *extra;				// extra widget data
     static void createMapper();			// create widget mapper
     static void destroyMapper();		// destroy widget mapper
     static QWidgetMapper *mapper;		// maps identifier to widget
@@ -207,7 +210,7 @@ private:
 
 inline void QWidget::repaint( bool erase )
 {
-    repaint( clientRect(), erase );
+    repaint( rect(), erase );
 }
 
 inline void QWidget::repaint( int x, int y, int w, int h, bool erase )

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpicture.cpp#17 $
+** $Id: //depot/qt/main/src/kernel/qpicture.cpp#18 $
 **
 ** Implementation of QPicture class
 **
@@ -18,7 +18,7 @@
 #include "qdstream.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpicture.cpp#17 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpicture.cpp#18 $";
 #endif
 
 
@@ -126,23 +126,23 @@ bool QPicture::play( QPainter *painter )
 
 bool QPicture::exec( QPainter *painter, QDataStream &s, long nrecords )
 {
-    UINT8  c;					// command id
-    UINT8  tiny_len;				// 8-bit length descriptor
-    INT32  len;					// 32-bit length descriptor
-    INT16  i_16, i1_16, i2_16;			// parameters...
-    INT8   i_8;
-    UINT32 ul;
-    long   strm_pos;
-    char  *str;
-    QPoint p, p1, p2;
-    QRect  r;
+    UINT8  	c;				// command id
+    UINT8  	tiny_len;			// 8-bit length descriptor
+    INT32  	len;				// 32-bit length descriptor
+    INT16  	i_16, i1_16, i2_16;		// parameters...
+    INT8   	i_8;
+    UINT32 	ul;
+    long   	strm_pos;
+    char       *str;
+    QPoint 	p, p1, p2;
+    QRect  	r;
     QPointArray a;
-    QColor color;
-    QFont  font;
-    QPen   pen;
-    QBrush brush;
-    QRegion rgn;
-    QWorldMatrix matrix;
+    QColor 	color;
+    QFont	font;
+    QPen	pen;
+    QBrush	brush;
+    QRegion	rgn;
+    Q2DMatrix	matrix;
 
     while ( nrecords-- && !s.eos() ) {
 	s >> c;					// read cmd
@@ -295,13 +295,13 @@ bool QPicture::exec( QPainter *painter, QDataStream &s, long nrecords )
 		s >> i_8;
 		painter->setViewXForm( i_8 );
 		break;
-	    case PDC_SETSOURCEVIEW:
+	    case PDC_SETWINDOW:
 		s >> r;
-		painter->setSourceView( r );
+		painter->setWindow( r );
 		break;
-	    case PDC_SETTARGETVIEW:
+	    case PDC_SETVIEWPORT:
 		s >> r;
-		painter->setTargetView( r );
+		painter->setViewport( r );
 		break;
 	    case PDC_SETWXFORM:
 		s >> i_8;
@@ -448,8 +448,8 @@ bool QPicture::cmd( int c, QPDevCmdParam *p )
 	case PDC_SETCLIP:
 	    s << (INT8)p[0].ival;
 	    break;
-	case PDC_SETSOURCEVIEW:
-	case PDC_SETTARGETVIEW:
+	case PDC_SETWINDOW:
+	case PDC_SETVIEWPORT:
 	    s << *p[0].rect;
 	    break;
 	case PDC_SETWMATRIX:

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qptr_x11.cpp#62 $
+** $Id: //depot/qt/main/src/kernel/qptr_x11.cpp#63 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -23,7 +23,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qptr_x11.cpp#62 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qptr_x11.cpp#63 $";
 #endif
 
 
@@ -762,14 +762,14 @@ bool QPainter::begin( const QPaintDevice *pd )	// begin painting in device
 	bg_col = white;				// default background color
 	wxmat.reset();				// reset world xform matrix
     }
-    sx = sy = tx = ty = 0;			// default view origins
+    wx = wy = vx = vy = 0;			// default view origins
     if ( pdev->devType() == PDT_WIDGET ) {	// device is a widget
 	QWidget *w = (QWidget*)pdev;
 	gc = alloc_painter_gc( dpy, w->handle() );
 	cfont = w->fontRef();			// use widget font
 	bg_col = w->backgroundColor();		// use widget bg color
-	sw = tw = w->clientSize().width();	// default view size
-	sh = th = w->clientSize().height();
+	ww = vw = w->width();			// default view size
+	wh = vh = w->height();
 	cpen = QPen( w->foregroundColor() );	// use widget fg color
 	if ( reinit ) {
 	    cbrush = QBrush( NoBrush );
@@ -784,8 +784,8 @@ bool QPainter::begin( const QPaintDevice *pd )	// begin painting in device
 	QPixMap *pm = (QPixMap*)pdev;
 	bool mono = pm->depth() == 1;		// monochrome bitmap
 	gc = alloc_painter_gc( dpy, hd, mono );	// create GC
-	sw = tw = pm->width();			// default view size
-	sh = th = pm->height();
+	ww = vw = pm->width();			// default view size
+	wh = vh = pm->height();
 	if ( reinit ) {
 	    QFont  defaultFont(TRUE);		// default drawing tools
 	    QPen   defaultPen;
@@ -801,7 +801,7 @@ bool QPainter::begin( const QPaintDevice *pd )	// begin painting in device
 	pm->setImageDataDirty();		// will modify pixmap
     }
     else
-	sw = sh = tw = th = 1;
+	ww = wh = vw = vh = 1;
     if ( gc ) {					// widget or pixmap
 	XSetBackground( dpy, gc, bg_col.pixel() );
 	bg_mode = TransparentMode;
@@ -937,46 +937,46 @@ void QPainter::setViewXForm( bool onOff )	// set xform on/off
 	updateXForm();
 }
 
-QRect QPainter::sourceView() const		// get source view
+QRect QPainter::window() const			// get window
 {
-    return QRect( sx, sy, sw, sh );
+    return QRect( wx, wy, ww, wh );
 }
 
-void QPainter::setSourceView( int x, int y, int w, int h )
-{						// set source view
+void QPainter::setWindow( int x, int y, int w, int h )
+{						// set window
     if ( !isActive() )
 	return;
-    sx = x;
-    sy = y;
-    sw = w;
-    sh = h;
+    wx = x;
+    wy = y;
+    ww = w;
+    wh = h;
     if ( testf(ExtDev) ) {
 	QRect r( x, y, w, h );
 	QPDevCmdParam param[1];
 	param[0].rect = (QRect*)&r;
-	pdev->cmd( PDC_SETSOURCEVIEW, param );
+	pdev->cmd( PDC_SETWINDOW, param );
 	return;
     }
     if ( !testf(VxF) )
 	setViewXForm( TRUE );
 }
 
-QRect QPainter::targetView() const		// get target view
+QRect QPainter::viewport() const		// get viewport
 {
-    return QRect( tx, ty, tw, th );
+    return QRect( vx, vy, vw, vh );
 }
 
-void QPainter::setTargetView( int x, int y, int w, int h )
-{						// set target view
-    tx = x;
-    ty = y;
-    tw = w;
-    th = h;
+void QPainter::setViewport( int x, int y, int w, int h )
+{						// set viewport
+    vx = x;
+    vy = y;
+    vw = w;
+    vh = h;
     if ( testf(ExtDev) ) {
 	QRect r( x, y, w, h );
 	QPDevCmdParam param[1];
 	param[0].rect = (QRect*)&r;
-	pdev->cmd( PDC_SETTARGETVIEW, param );
+	pdev->cmd( PDC_SETVIEWPORT, param );
 	return;
     }
     if ( !testf(VxF) )
@@ -997,12 +997,12 @@ void QPainter::setWorldXForm( bool onOff )	// set world xform on/off
     updateXForm();
 }
 
-QWorldMatrix QPainter::worldMatrix() const	// get world xform matrix
+Q2DMatrix QPainter::worldMatrix() const		// get world xform matrix
 {
     return wxmat;
 }
 
-void QPainter::setWorldMatrix( const QWorldMatrix &m, bool concat )
+void QPainter::setWorldMatrix( const Q2DMatrix &m, bool concat )
 {						// set world xform matrix
     if ( concat )
 	wxmat = m * wxmat;			// concatenate
@@ -1029,11 +1029,11 @@ static inline int d2i_round( double d )
 
 void QPainter::updateXForm()			// update xform params
 {
-    QWorldMatrix m;
+    Q2DMatrix m;
     if ( testf(VxF) ) {
-	m.translate( tx, ty );
-	m.scale( 1.0*tw/sw, 1.0*th/sh );
-	m.translate( -sx, -sy );
+	m.translate( vx, vy );
+	m.scale( 1.0*vw/ww, 1.0*vh/wh );
+	m.translate( -wx, -wy );
 	m = wxmat * m;
     }
     else
@@ -1058,11 +1058,11 @@ void QPainter::updateXForm()			// update xform params
 // xForm macros, use with care...
 
 #define VXFORM_P(x,y)						\
-    { x = (tw*(x-sx))/sw + tx; y = (th*(y-sy))/sh + ty; }
+    { x = (vw*(x-wx))/ww + vx; y = (vh*(y-wy))/wh + vy; }
 
 #define VXFORM_R(x,y,w,h)					\
-    { x = (tw*(x-sx))/sw + tx; y = (th*(y-sy))/sh + ty;		\
-      w = (tw*w)/sw; h = (th*h)/sh;				\
+    { x = (vw*(x-wx))/ww + vx; y = (vh*(y-wy))/wh + vy;		\
+      w = (vw*w)/ww; h = (vh*h)/wh;				\
       if ( w < 0 ) { w = -w; x -= w; }				\
       if ( h < 0 ) { h = -h; y -= h; } }
 
@@ -1115,8 +1115,8 @@ QRect QPainter::xForm( const QRect &rv ) const
     }
     else if ( testf(VxF) ) {			// view xform
 	VXFORM_P(x,y);
-	w = (tw*w)/sw;
-	h = (th*h)/sh;
+	w = (vw*w)/ww;
+	h = (vh*h)/wh;
     }
     return QRect( x, y, w, h );
 }
@@ -1150,8 +1150,8 @@ QPoint QPainter::xFormDev( const QPoint &pd ) const
 	p.ry() = yy/65536;
     }
     else if ( testf(VxF) ) {
-	p.rx() = (sw*(p.x()-tx))/tw + sx;
-	p.ry() = (sh*(p.y()-ty))/th + sy;
+	p.rx() = (ww*(p.x()-vx))/vw + wx;
+	p.ry() = (wh*(p.y()-vy))/vh + wy;
     }
     return p;
 }
@@ -1174,10 +1174,10 @@ QRect QPainter::xFormDev( const QRect &rd ) const
 	x=x1/65536; y=y1/65536; w=(x2-x1)/65536+1; h=(y2-y1)/65536+1;
     }
     else if ( testf(VxF) ) {
-	x = (sw*(x-tx))/tw + sx;
-	y = (sh*(y-ty))/th + sy;
-	w = (sw*w)/tw;
-	h = (sh*h)/th;
+	x = (ww*(x-vx))/vw + wx;
+	y = (wh*(y-vy))/vh + wy;
+	w = (ww*w)/vw;
+	h = (wh*h)/vh;
     }
     return QRect( x, y, w, h );
 }
@@ -1199,8 +1199,8 @@ QPointArray QPainter::xFormDev( const QPointArray &ad ) const
 	    y /= 65536;
 	}
 	else if ( testf(VxF) ) {
-	    x = (sw*(x-tx))/tw + sx;
-	    y = (sh*(y-ty))/th + sy;
+	    x = (ww*(x-vx))/vw + wx;
+	    y = (wh*(y-vy))/vh + wy;
 	}
 	a.setPoint( i, x, y );
     }
@@ -2061,7 +2061,7 @@ void QPainter::drawPixMap( int x, int y, const QPixMap &pixmap )
 // Generate a string that describes a transformed bitmap. This string is used
 // to insert and find bitmaps in the global pixmap cache.
 //
-static QString gen_xbm_key(  const QWorldMatrix &m, const QFont &f,
+static QString gen_xbm_key(  const Q2DMatrix &m, const QFont &f,
 			     const char *str, int len )
 {
     QString s = str;
@@ -2083,7 +2083,7 @@ static QString gen_xbm_key(  const QWorldMatrix &m, const QFont &f,
 }
 
 
-static QPixMap *get_text_bitmap( const QWorldMatrix &m, const QFont &f,
+static QPixMap *get_text_bitmap( const Q2DMatrix &m, const QFont &f,
 				 const char *str, int len )
 {
     QString k = gen_xbm_key( m, f, str, len );
@@ -2091,7 +2091,7 @@ static QPixMap *get_text_bitmap( const QWorldMatrix &m, const QFont &f,
 }
 
 
-static void ins_text_bitmap( const QWorldMatrix &m, const QFont &f,
+static void ins_text_bitmap( const Q2DMatrix &m, const QFont &f,
 			     const char *str, int len, QPixMap *pm )
 {
     QString k = gen_xbm_key( m, f, str, len );
@@ -2133,12 +2133,12 @@ void QPainter::drawText( int x, int y, const char *str, int len )
 	    QRect bbox = fm.boundingRect( str, len );
 	    int w=bbox.width(), h=bbox.height();
 	    int tx=-bbox.x(),  ty=-bbox.y();	// text position
-	    QWorldMatrix eff_mat( wm11/65536.0, wm12/65536.0,
-				  wm21/65536.0, wm22/65536.0,
-				  wdx/65536.0,  wdy/65536.0 );
+	    Q2DMatrix eff_mat( wm11/65536.0, wm12/65536.0,
+			       wm21/65536.0, wm22/65536.0,
+			       wdx/65536.0,  wdy/65536.0 );
 	    QPixMap *wx_bm = get_text_bitmap( eff_mat, cfont, str, len );
 	    bool create_new_bm = wx_bm == 0;
-	    QWorldMatrix mat( 1, 0, 0, 1, -eff_mat.dx(), -eff_mat.dy() );
+	    Q2DMatrix mat( 1, 0, 0, 1, -eff_mat.dx(), -eff_mat.dy() );
 	    mat = eff_mat * mat;
 	    if ( create_new_bm ) {		// no such cached bitmap
 		QPixMap bm( w, h, 1 );		// create bitmap

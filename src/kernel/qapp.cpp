@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp.cpp#12 $
+** $Id: //depot/qt/main/src/kernel/qapp.cpp#13 $
 **
 ** Implementation of QApplication class
 **
@@ -13,14 +13,16 @@
 #include "qapp.h"
 #include "qobjcoll.h"
 #include "qwidget.h"
+#include "qpalette.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qapp.cpp#12 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qapp.cpp#13 $";
 #endif
 
 
 QApplication *qApp = 0;				// global application object
 QWidget *QApplication::main_widget = 0;		// main application widget
+QPalette *QApplication::appPal	   = 0;		// default application palette
 QFont   *QApplication::appFont     = 0;		// default application font
 QCursor *QApplication::appCursor   = 0;		// default application cursor
 bool	 QApplication::starting_up = TRUE;	// app starting up
@@ -38,6 +40,21 @@ GUIStyle QApplication::appStyle = MotifStyle;	// default style for X Windows
 #endif
 
 
+static QPalette *motifPalette = 0;
+
+static void create_palettes()			// creates default palettes
+{
+    QColor lightBlue = blue.light();
+    QColorGroup motif_nor( black, blue, darkBlue, lightBlue, blue,
+			   black, black, white );
+    QColorGroup motif_dis( darkGray, blue, darkGray, lightGray, gray,
+			   darkGray, darkGray, white );
+    QColorGroup motif_act( black, blue, darkBlue, lightBlue, blue,
+			   black, black, white );
+    motifPalette = new QPalette( motif_nor, motif_dis, motif_act );
+}
+
+
 QApplication::QApplication()
 {
 #if defined(CHECK_STATE)
@@ -47,6 +64,8 @@ QApplication::QApplication()
     quit_now = FALSE;
     quit_code = 0;
     qApp = this;
+    create_palettes();
+    appPal = motifPalette;
     QWidget::createMapper();			// create widget mapper
     starting_up = FALSE;			// no longer starting up
 }
@@ -76,6 +95,17 @@ void QApplication::cleanup()			// cleanup application
 void QApplication::setStyle( GUIStyle s )	// set application GUI style
 {
     appStyle = s;
+}
+
+
+QPalette *QApplication::palette()		// get application palette
+{
+    return appPal;
+}
+
+void QApplication::setPalette( const QPalette &p )
+{						// set application palette
+    *appPal = p;
 }
 
 
