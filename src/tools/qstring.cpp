@@ -17134,13 +17134,17 @@ int QString::compare( const QString& s ) const
 */
 
 #if !defined(CSTR_LESS_THAN)
-#define CSTR_LESS_THAN            1           // string 1 less than string 2
-#define CSTR_EQUAL                2           // string 1 equal to string 2
-#define CSTR_GREATER_THAN         3           // string 1 greater than string 2
+#define CSTR_LESS_THAN    1
+#define CSTR_EQUAL        2
+#define CSTR_GREATER_THAN 3
 #endif
 
 int QString::localeAwareCompare( const QString& s ) const
 {
+    // do the right thing for null and empty
+    if ( isEmpty() || s.isEmpty() )
+	return compare( s );
+
 #if defined(Q_WS_WIN)
     int res;
     QT_WA( {
