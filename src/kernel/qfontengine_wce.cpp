@@ -358,7 +358,7 @@ void QFontEngineWin::draw( QPainter *p, int x, int y, const QTextEngine *engine,
 
     if ( textFlags & Qt::Overline ) {
 	int lw = lineThickness();
-	int yp = y - ascent() -1;
+	int yp = y - 1;
 	Rectangle( hdc, xo, yp, x, yp + lw );
 
     }
