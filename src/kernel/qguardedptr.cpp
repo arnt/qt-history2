@@ -57,7 +57,7 @@
 
     Example:
     \code
-	QGuardedPtr<QFrame> label = new QLabel( 0,"label" );
+	QGuardedPtr<QLabel> label = new QLabel( 0,"label" );
 	label->setText( "I like guarded pointers" );
 
 	delete (QLabel*) label; // simulate somebody destroying the label
