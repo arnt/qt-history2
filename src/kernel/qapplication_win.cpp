@@ -1,5 +1,5 @@
 // /****************************************************************************
-// ** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#135 $
+// ** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#136 $
 // **
 // ** Implementation of Win32 startup routines and event handling
 // **
@@ -30,7 +30,7 @@
 // #include <mywinsock.h>
 // #endif
 
-// RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_win.cpp#135 $");
+// RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_win.cpp#136 $");
 
 
 // /*****************************************************************************
@@ -1117,6 +1117,9 @@ LRESULT CALLBACK WndProc( HWND hwnd, UINT message, WPARAM wParam,
 	    result = widget->translateKeyEvent(msg, g != 0);
 	    break;
 	  }
+	case WM_SYSCHAR:
+	    result = TRUE;                      // consume event
+	    break;
 
 	case WM_PAINT:				// paint event
 	    result = widget->translatePaintEvent( msg );
@@ -2027,6 +2030,11 @@ bool QETWidget::translateKeyEvent( const MSG &msg, bool grab )
     return k0 || k1;
 }
 
+static bool isModifierKey(int code)
+{
+    return code >= Key_Shift && code <= Key_ScrollLock;
+}
+
 bool QETWidget::sendKeyEvent( int type, int code, int ascii, int state,
 			      bool grab )
 {
@@ -2041,6 +2049,9 @@ bool QETWidget::sendKeyEvent( int type, int code, int ascii, int state,
 	return FALSE;
     QKeyEvent e( type, code, ascii, state );
     QApplication::sendEvent( this, &e );
+    if ( !isModifierKey(code) && state == AltButton
+      && type == Event_KeyPress && !e.isAccepted() )
+	QApplication::beep();  // emulate windows behaviour
     return e.isAccepted();
 }
 
