@@ -203,3 +203,15 @@ void QTextDocument::setHtml(const QString &html)
     cursor.moveTo(QTextCursor::End, QTextCursor::KeepAnchor);
     cursor.insertFragment(fragment);
 }
+
+
+QString QTextDocument::anchorAt(const QPoint& pos) const
+{
+    int cursorPos = d->pieceTable->layout()->hitTest(pos, QText::ExactHit);
+    if (cursorPos == -1)
+        return QString();
+
+    QTextPieceTable::FragmentIterator it = d->pieceTable->find(cursorPos);
+    QTextCharFormat fmt = d->pieceTable->formatCollection()->charFormat(it->format);
+    return fmt.anchorName();
+}

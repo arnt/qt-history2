@@ -222,7 +222,7 @@ void QWhatsThat::mousePressEvent(QMouseEvent* e)
 {
     pressed = true;
     if (e->button() == LeftButton && rect().contains(e->pos())) {
-#if 0 // ############# ndef QT_NO_RICHTEXT
+#ifndef QT_NO_RICHTEXT
         if (doc)
             anchor = doc->anchorAt(e->pos() -  QPoint(hMargin, vMargin));
 #endif
@@ -235,7 +235,7 @@ void QWhatsThat::mouseReleaseEvent(QMouseEvent* e)
 {
     if (!pressed)
         return;
-#if 0 // ######### ndef QT_NO_RICHTEXT
+#ifndef QT_NO_RICHTEXT
     if (widget && e->button() == LeftButton && doc && rect().contains(e->pos())) {
         QString a = doc->anchorAt(e->pos() -  QPoint(hMargin, vMargin));
         QString href;
@@ -254,7 +254,7 @@ void QWhatsThat::mouseReleaseEvent(QMouseEvent* e)
 
 void QWhatsThat::mouseMoveEvent(QMouseEvent* e)
 {
-#if 0 // ################### ndef QT_NO_RICHTEXT
+#ifndef QT_NO_RICHTEXT
 #ifndef QT_NO_CURSOR
     if (!doc)
         return;

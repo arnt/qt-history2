@@ -12,6 +12,7 @@ class QSize;
 class QRect;
 class QPainter;
 class QAbstractTextDocumentLayout;
+class QPoint;
 
 namespace QText
 {
@@ -65,9 +66,9 @@ public:
 
     int numPages() const;
 
-    void draw(int page, QPainter *p, const QRect &rect);
-
     void setHtml(const QString &html);
+
+    QString anchorAt(const QPoint& pos) const;
 
 signals:
     void contentsChanged();
