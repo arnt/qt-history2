@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: qintdict.doc,v 2.0 1996/09/24 10:15:15 agulbra Exp $
+** $Id: qintdict.doc,v 2.1 1996/10/26 22:24:10 paul Exp $
 **
 ** QIntDict and QIntDictIterator class documentation
 **
@@ -191,8 +191,8 @@
 
 /*----------------------------------------------------------------------------
   \fn bool QIntDict::isEmpty() const
-  Returns TRUE if the dictionary is empty, i.e. count() == 0, otherwise
-  FALSE.
+  Returns TRUE if the dictionary is empty, i.e. count() == 0. Returns FALSE
+  otherwise.
   \sa count()
  ----------------------------------------------------------------------------*/
 
@@ -396,7 +396,8 @@
 
 /*----------------------------------------------------------------------------
   \fn bool QIntDictIterator::isEmpty() const
-  Returns TRUE if the dictionary is empty, i.e. count() == 0, otherwise FALSE.
+  Returns TRUE if the dictionary is empty, i.e. count() == 0. Returns FALSE
+  otherwise.
   \sa count()
  ----------------------------------------------------------------------------*/
 
@@ -404,8 +405,8 @@
   \fn type *QIntDictIterator::toFirst()
   Sets the current iterator item to point to the first item in the
   dictionary and returns a pointer to the item.
-  Sets the current item to null and returns null if if the dictionary is
-  empty.
+  If the dictionary is  empty it sets the current item to null and 
+  returns null. 
  ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
@@ -443,6 +444,9 @@
 
 /*----------------------------------------------------------------------------
   \fn type *QIntDictIterator::operator+=( uint jump )
-  Returns the item \e jump positions after the current item, or null if
-  it is beyond the last item.  Makes this the current item.
+  Sets the current item to the item \e jump positions after the current item,
+  and returns a pointer to that item.
+
+  If that item is beyond the last item or if the dictionary is  empty,
+  it sets the current item to null and  returns null 
  ----------------------------------------------------------------------------*/
