@@ -1374,7 +1374,7 @@ void QWindowsXPStyle::drawControl(ControlElement element,
             QAction *mi = opt.action();
             QPixmap pix = mi->icon().pixmap(QIconSet::Small, QIconSet::Normal);
             drawItem(p, r, AlignCenter | ShowPrefix | DontClip | SingleLine, pal,
-                     flags & Style_Enabled, pix.isNull() ? 0 : &pix, mi->text(), -1,
+                     flags & Style_Enabled, pix, mi->text(), -1,
                      flags & Style_Active ? &pal.highlightedText().color() : &pal.buttonText().color());
         }
         return;
@@ -1392,7 +1392,7 @@ void QWindowsXPStyle::drawControl(ControlElement element,
                 p->fillRect(r, pal.brush(QPalette::Button));
 
             drawItem(p, r, AlignCenter | ShowPrefix | DontClip | SingleLine, pal,
-                     flags & Style_Enabled, mi->pixmap(), mi->text(), -1,
+                     flags & Style_Enabled, mi->pixmap() ? *mi->pixmap() : QPixmap(), mi->text(), -1,
                      flags & Style_Active ? &pal.highlightedText().color() : &pal.buttonText().color());
         }
         return;
