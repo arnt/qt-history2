@@ -3620,18 +3620,12 @@ QSize QWidget::contentsMarginSize() const
 
 Qt::FocusPolicy QWidget::focusPolicy() const
 {
-    const QWidget *w = this;
-    while (w->d->extra && w->d->extra->focus_proxy)
-        w = w->d->extra->focus_proxy;
-    return (Qt::FocusPolicy)w->data->focus_policy;
+    return (Qt::FocusPolicy)data->focus_policy;
 }
 
 void QWidget::setFocusPolicy(Qt::FocusPolicy policy)
 {
-    QWidget *w = this;
-    while (w->d->extra && w->d->extra->focus_proxy)
-        w = w->d->extra->focus_proxy;
-    w->data->focus_policy = (uint) policy;
+    data->focus_policy = (uint) policy;
 }
 
 /*!
