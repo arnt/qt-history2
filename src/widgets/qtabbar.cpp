@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtabbar.cpp#78 $
+** $Id: //depot/qt/main/src/widgets/qtabbar.cpp#79 $
 **
 ** Implementation of QTabBar class
 **
@@ -346,7 +346,7 @@ void QTabBar::paintLabel( QPainter* p, const QRect& br,
     QRect r = br;
     if ( t->iconset) {
 	// the tab has an iconset, draw it in the right mode
-	QIconSet::Mode mode = t->enabled?QIconSet::Normal:QIconSet::Disabled;
+	QIconSet::Mode mode = (t->enabled && isEnabled())?QIconSet::Normal:QIconSet::Disabled;
 	if ( mode == QIconSet::Normal && has_focus )
 	    mode = QIconSet::Active;
 	QPixmap pixmap = t->iconset->pixmap( QIconSet::Small, mode );
@@ -356,19 +356,19 @@ void QTabBar::paintLabel( QPainter* p, const QRect& br,
 	p->drawPixmap( br.left()+2, br.center().y()-pixh/2, pixmap );
     }
 
-   if ( t->enabled ) {
+   if ( t->enabled && isEnabled()  ) {
 	p->setPen( palette().normal().text() );
 	p->drawText( r, AlignCenter | ShowPrefix, t->label );
     } else if ( style() == MotifStyle ) {
 	p->setPen( palette().disabled().text() );
-	p->drawText( br, AlignCenter | ShowPrefix, t->label );
+	p->drawText( r, AlignCenter | ShowPrefix, t->label );
     } else { // Windows style, disabled
 	p->setPen( colorGroup().light() );
 	QRect wr = r;
 	wr.moveBy( 1, 1 );
 	p->drawText( wr, AlignCenter | ShowPrefix, t->label );
 	p->setPen( palette().disabled().text() );
-	p->drawText( br, AlignCenter | ShowPrefix, t->label );
+	p->drawText( r, AlignCenter | ShowPrefix, t->label );
     }
 
     if ( !has_focus )
