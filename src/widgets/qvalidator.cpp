@@ -491,26 +491,46 @@ void QDoubleValidator::setDecimals( int decimals )
 
   For a brief introduction to Qt's regexp engine see QRegExp().
 
-  Examples:
+    Example of use:
+    \code
+    #include <qapplication.h>
+    #include <qlineedit.h>
+    #include <qpushbutton.h>
+    #include <qregexp.h>
+    #include <qsplitter.h>
+    #include <qvalidator.h>
+
+    int main( int argc, char *argv[] )
+    {
+	QApplication app( argc, argv );
+	QRegExp rx( "-?\\d{1,3}" ); // Regexp: optional '-' followed by between 1 and 3 digits
+	QRegExpValidator validator( rx, 0 );
+	QSplitter   *split  = new QSplitter();
+	QLineEdit   *edit   = new QLineEdit( split );
+	edit->setValidator( &validator ); // edit widget will only accept numbers -999 to 999
+	edit->setFocus();
+	QPushButton *button = new QPushButton( "&Quit", split );
+	app.setMainWidget( split );
+	split->show();
+	app.connect( edit, SIGNAL( returnPressed() ), button, SLOT( animateClick() ) ); 
+	app.connect( button, SIGNAL( clicked() ), &app, SLOT( quit() ) );
+	return app.exec();
+    }
+    \endcode
+
+    Below we present some examples of validators. In practice they would
+    normally be associated with a widget as in the example above.
   \code
-    // Integers -999 to +999 (optional sign followed by up to 3 digits)
-    QRegExp rx( "[+-]?\\d{1,3}" );  
-    QRegExpValidator v( rx, 0 );
+    // Integers 1 to 9999, i.e. a digit between 1 and 9 followed by up to 3 digits
+    QRegExp rx( "[1-9]\\d{0,3}" ); 
+    QRegExpValidator v( rx, 0 ); // The validator treats the regexp as "^[1-9]\\d{0,3}$"
     QString s;
 
-    s = "++";   
-    v.validate( s, 0 );		// Returns Invalid (The zero is the start position)
+    s = "0";     v.validate( s, 0 ); // Returns Invalid 
+    s = "12345"; v.validate( s, 0 ); // Returns Invalid
+    s = "1";     v.validate( s, 0 ); // Returns Valid
 
-    s = "1234"; 
-    v.validate( s, 0 );		// Returns Invalid
-
-    s = "-";    
-    v.validate( s, 0 );		// Returns Intermediate
-
-    s = "-1";   
-    v.validate( s, 0 );		// Returns Valid
-
-    rx.setPattern( "\S+" );		// One or more non-whitespace characters
+    rx.setPattern( "\S+" );	    // One or more non-whitespace characters
     v.setRegExp( rx );
     v.validate( "myfile.txt", 0 );  // Returns Valid
     v.validate( "my file.txt", 0 ); // Returns Invalid
@@ -548,7 +568,10 @@ QRegExpValidator::QRegExpValidator( QWidget *parent, const char *name )
 
 /*!
   Constructs a validator object which accepts all strings that match the
-  regular expression \a rx.
+  regular expression \a rx. 
+  
+  The match is made against the entire string, e.g. if the regexp is
+  <b>[A-Fa-f0-9]+</b> it will be treated as <b>^[A-Fa-f0-9]+$</b>.
 */
 
 QRegExpValidator::QRegExpValidator( const QRegExp& rx, QWidget *parent,
