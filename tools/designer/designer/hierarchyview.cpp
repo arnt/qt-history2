@@ -436,9 +436,9 @@ void HierarchyList::insertObject( QObject *o, QListViewItem *parent )
     else
 	item = new HierarchyItem( HierarchyItem::Widget, parent, 0, name, className, dbInfo );
     if ( !parent )
-	item->setPixmap( 0, QPixmap::fromMimeSource( "form.png" ) );
+	item->setPixmap( 0, QPixmap::fromMimeSource( "designer_form.png" ) );
     else if ( o->inherits( "QLayoutWidget") )
-	item->setPixmap( 0, QPixmap::fromMimeSource( "layout.png" ));
+	item->setPixmap( 0, QPixmap::fromMimeSource( "designer_layout.png" ));
     else
 	item->setPixmap( 0, WidgetDatabase::iconSet(
 		    WidgetDatabase::idFromClassName( WidgetFactory::classNameOf( o ) ) ).
@@ -693,7 +693,7 @@ void FormDefinitionView::setup()
 	for ( QStringList::Iterator dit = defs.begin(); dit != defs.end(); ++dit ) {
 	    HierarchyItem *itemDef = new HierarchyItem( HierarchyItem::DefinitionParent, this, 0,
 							tr( *dit ), QString::null, QString::null );
-	    itemDef->setPixmap( 0, QPixmap::fromMimeSource( "folder.png" ) );
+	    itemDef->setPixmap( 0, QPixmap::fromMimeSource( "designer_folder.png" ) );
 	    itemDef->setOpen( TRUE );
 	    QStringList entries =
 		lIface->definitionEntries( *dit, formWindow->mainWindow()->designerInterface() );
@@ -736,7 +736,7 @@ void FormDefinitionView::setupVariables()
 
     HierarchyItem *itemVar = new HierarchyItem( HierarchyItem::VarParent, this, 0, tr( "Class Variables" ),
 						QString::null, QString::null );
-    itemVar->setPixmap( 0, QPixmap::fromMimeSource( "folder.png" ) );
+    itemVar->setPixmap( 0, QPixmap::fromMimeSource( "designer_folder.png" ) );
     itemVar->setOpen( TRUE );
 
     itemVarPriv = new HierarchyItem( HierarchyItem::VarPrivate, itemVar, 0, tr( "private" ),
@@ -760,7 +760,7 @@ void FormDefinitionView::setupVariables()
 	    else // default is protected
 		item = new HierarchyItem( HierarchyItem::Variable, itemVarProt, 0, (*it).varName,
 					  QString::null, QString::null );
-	    item->setPixmap( 0, QPixmap::fromMimeSource( "editslots.png" ) );
+	    item->setPixmap( 0, QPixmap::fromMimeSource( "designer_editslots.png" ) );
 	    if ( it == varList.begin() )
 		break;
 	    --it;
@@ -818,7 +818,7 @@ void FormDefinitionView::refresh()
     itemFunct = new HierarchyItem( HierarchyItem::FunctParent,
 				   this, 0, tr( "Functions" ), QString::null, QString::null );
     itemFunct->moveItem( i );
-    itemFunct->setPixmap( 0, QPixmap::fromMimeSource( "folder.png" ) );
+    itemFunct->setPixmap( 0, QPixmap::fromMimeSource( "designer_folder.png" ) );
     itemFunctPriv = new HierarchyItem( HierarchyItem::FunctPrivate, itemFunct, 0,
 				       tr( "private" ), QString::null, QString::null );
     itemFunctProt = new HierarchyItem( HierarchyItem::FunctProtected, itemFunct, 0,
@@ -828,7 +828,7 @@ void FormDefinitionView::refresh()
 
     itemSlots = new HierarchyItem( HierarchyItem::SlotParent,
 				   this, 0, tr( "Slots" ), QString::null, QString::null );
-    itemSlots->setPixmap( 0, QPixmap::fromMimeSource( "folder.png" ) );
+    itemSlots->setPixmap( 0, QPixmap::fromMimeSource( "designer_folder.png" ) );
     itemPrivate = new HierarchyItem( HierarchyItem::SlotPrivate, itemSlots, 0, tr( "private" ),
 				     QString::null, QString::null );
     itemProtected = new HierarchyItem( HierarchyItem::SlotProtected, itemSlots, 0, tr( "protected" ),
@@ -862,7 +862,7 @@ void FormDefinitionView::refresh()
 		    item = new HierarchyItem( HierarchyItem::Function, itemFunctPubl, 0, (*it).function,
 					      QString::null, QString::null );
 	    }
-	    item->setPixmap( 0, QPixmap::fromMimeSource( "editslots.png" ) );
+	    item->setPixmap( 0, QPixmap::fromMimeSource( "designer_editslots.png" ) );
 	    if ( it == functionList.begin() )
 		break;
 	    --it;
@@ -1018,16 +1018,16 @@ void FormDefinitionView::showRMBMenu( QListViewItem *i, const QPoint &pos )
 
     if ( i->rtti() == HierarchyItem::FunctParent || i->rtti() == HierarchyItem::SlotParent ||
 	 i->rtti() == HierarchyItem::VarParent ) {
-	menu.insertItem( QPixmap::fromMimeSource( "editslots.png" ), tr( "Edit..." ), EDIT );
+	menu.insertItem( QPixmap::fromMimeSource( "designer_editslots.png" ), tr( "Edit..." ), EDIT );
     } else
-	menu.insertItem( QPixmap::fromMimeSource( "filenew.png" ), tr( "New" ), NEW );
+	menu.insertItem( QPixmap::fromMimeSource( "designer_filenew.png" ), tr( "New" ), NEW );
     if ( i->rtti() == HierarchyItem::DefinitionParent || i->rtti() == HierarchyItem::Variable ||
 	 i->rtti() == HierarchyItem::Definition ) {
-	menu.insertItem( QPixmap::fromMimeSource( "editslots.png" ), tr( "Edit..." ), EDIT );
+	menu.insertItem( QPixmap::fromMimeSource( "designer_editslots.png" ), tr( "Edit..." ), EDIT );
     }
     if ( i->rtti() == HierarchyItem::Function || i->rtti() == HierarchyItem::Slot ) {
 	if ( formWindow->project()->isCpp() )
-	    menu.insertItem( QPixmap::fromMimeSource( "editslots.png" ), tr( "Properties..." ), PROPS );
+	    menu.insertItem( QPixmap::fromMimeSource( "designer_editslots.png" ), tr( "Properties..." ), PROPS );
 	if ( MetaDataBase::hasEditor( formWindow->project()->language() ) )
 	    menu.insertItem( tr( "Goto Implementation" ), GOIMPL );
 	insertDelete = TRUE;
@@ -1036,7 +1036,7 @@ void FormDefinitionView::showRMBMenu( QListViewItem *i, const QPoint &pos )
 	 i->rtti() == HierarchyItem::Function || i->rtti() == HierarchyItem::Slot ||
 	 i->rtti() == HierarchyItem::Definition ) {
 	menu.insertSeparator();
-	menu.insertItem( QPixmap::fromMimeSource( "editcut.png" ), tr( "Delete..." ), DEL );
+	menu.insertItem( QPixmap::fromMimeSource( "designer_editcut.png" ), tr( "Delete..." ), DEL );
     }
     popupOpen = TRUE;
     int res = menu.exec( pos );

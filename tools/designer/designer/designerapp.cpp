@@ -78,7 +78,7 @@ QLabel *DesignerApplication::showSplash()
     if ( show ) {
 	splash = new QLabel( 0, "splash", WDestructiveClose | WStyle_Customize | WStyle_NoBorder | WX11BypassWM | WStyle_StaysOnTop );
 	splash->setFrameStyle( QFrame::WinPanel | QFrame::Raised );
-	splash->setPixmap( QPixmap::fromMimeSource( "splash.png" ) );
+	splash->setPixmap( QPixmap::fromMimeSource( "designer_splash.png" ) );
 	splash->adjustSize();
 	splash->setFixedSize(splash->sizeHint());
 	splash->setCaption( "Qt Designer" );

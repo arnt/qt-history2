@@ -89,25 +89,25 @@ MultiLineEditor::MultiLineEditor( bool call_static, bool richtextMode, QWidget *
 	basicToolBar = new QToolBar( tr( "Basics" ), this, DockTop );
 
 	ToolBarItem *it = new ToolBarItem( this, basicToolBar, tr( "Italic" ),
-					   "i", QPixmap::fromMimeSource( "textitalic.png" ), CTRL+Key_I );
+					   "i", QPixmap::fromMimeSource( "designer_textitalic.png" ), CTRL+Key_I );
 	it->addTo( stylesMenu );
 	connect( it, SIGNAL( clicked( const QString& ) ),
 		 this, SLOT( insertTags( const QString& )));
 
 	ToolBarItem *b = new ToolBarItem( this, basicToolBar, tr( "Bold" ),
-					  "b", QPixmap::fromMimeSource( "textbold.png" ), CTRL+Key_B );
+					  "b", QPixmap::fromMimeSource( "designer_textbold.png" ), CTRL+Key_B );
 	b->addTo( stylesMenu );
 	connect( b, SIGNAL( clicked( const QString& ) ),
 		 this, SLOT( insertTags( const QString& )));
 
 	ToolBarItem *ul = new ToolBarItem( this, basicToolBar, tr( "Underline" ),
-					   "u", QPixmap::fromMimeSource( "textunderline.png" ), CTRL+Key_U );
+					   "u", QPixmap::fromMimeSource( "designer_textunderline.png" ), CTRL+Key_U );
 	ul->addTo( stylesMenu );
 	connect( ul, SIGNAL( clicked( const QString& ) ),
 		 this, SLOT( insertTags( const QString& )));
 
 	ToolBarItem *tt = new ToolBarItem( this, basicToolBar, tr( "Typewriter" ),
-					   "tt", QPixmap::fromMimeSource( "textteletext.png" ) );
+					   "tt", QPixmap::fromMimeSource( "designer_textteletext.png" ) );
 	tt->addTo( stylesMenu );
 	connect( tt, SIGNAL( clicked( const QString& ) ),
 		 this, SLOT( insertTags( const QString& )));
@@ -118,14 +118,14 @@ MultiLineEditor::MultiLineEditor( bool call_static, bool richtextMode, QWidget *
 	menuBar->insertItem( tr( "&Layout" ), layoutMenu );
 
 	QAction *brAction = new QAction( this );
-	brAction->setIconSet( QPixmap::fromMimeSource( "textlinebreak.png" ) );
+	brAction->setIconSet( QPixmap::fromMimeSource( "designer_textlinebreak.png" ) );
 	brAction->setText( tr("Break" ) );
 	brAction->addTo( basicToolBar );
 	brAction->addTo( layoutMenu );
 	connect( brAction, SIGNAL( activated() ) , this, SLOT( insertBR() ) );
 
 	ToolBarItem *p = new ToolBarItem( this, basicToolBar, tr( "Paragraph" ),
-					  "p", QPixmap::fromMimeSource( "textparagraph.png" ) );
+					  "p", QPixmap::fromMimeSource( "designer_textparagraph.png" ) );
 	p->addTo( layoutMenu );
 	connect( p, SIGNAL( clicked( const QString& ) ),
 		 this, SLOT( insertTags( const QString& )));
@@ -133,25 +133,25 @@ MultiLineEditor::MultiLineEditor( bool call_static, bool richtextMode, QWidget *
 	basicToolBar->addSeparator();
 
 	ToolBarItem *al = new ToolBarItem( this, basicToolBar, tr( "Align left" ),
-					   "p align=\"left\"", QPixmap::fromMimeSource( "textleft.png" ) );
+					   "p align=\"left\"", QPixmap::fromMimeSource( "designer_textleft.png" ) );
 	al->addTo( layoutMenu );
 	connect( al, SIGNAL( clicked( const QString& ) ),
 		 this, SLOT( insertTags( const QString& )));
 
 	ToolBarItem *ac = new ToolBarItem( this, basicToolBar, tr( "Align center" ),
-					   "p align=\"center\"", QPixmap::fromMimeSource( "textcenter.png" ) );
+					   "p align=\"center\"", QPixmap::fromMimeSource( "designer_textcenter.png" ) );
 	ac->addTo( layoutMenu );
 	connect( ac, SIGNAL( clicked( const QString& ) ),
 		 this, SLOT( insertTags( const QString& )));
 
 	ToolBarItem *ar = new ToolBarItem( this, basicToolBar, tr( "Align right" ),
-					   "p align=\"right\"", QPixmap::fromMimeSource( "textright.png" ) );
+					   "p align=\"right\"", QPixmap::fromMimeSource( "designer_textright.png" ) );
 	ar->addTo( layoutMenu );
 	connect( ar, SIGNAL( clicked( const QString& ) ),
 		 this, SLOT( insertTags( const QString& )));
 
 	ToolBarItem *block = new ToolBarItem( this, basicToolBar, tr( "Blockquote" ),
-					      "blockquote", QPixmap::fromMimeSource( "textjustify.png" ) );
+					      "blockquote", QPixmap::fromMimeSource( "designer_textjustify.png" ) );
 	block->addTo( layoutMenu );
 	connect( block, SIGNAL( clicked( const QString& ) ),
 		 this, SLOT( insertTags( const QString& )));
@@ -163,7 +163,7 @@ MultiLineEditor::MultiLineEditor( bool call_static, bool richtextMode, QWidget *
 	fontToolBar = new QToolBar( "Fonts", this, DockTop );
 
 	QAction *fontAction = new QAction( this );
-	fontAction->setIconSet( QPixmap::fromMimeSource( "textfont.png" ) );
+	fontAction->setIconSet( QPixmap::fromMimeSource( "designer_textfont.png" ) );
 	fontAction->setText( tr("Font" ) );
 	fontAction->addTo( fontToolBar );
 	fontAction->addTo( fontMenu );
@@ -171,27 +171,27 @@ MultiLineEditor::MultiLineEditor( bool call_static, bool richtextMode, QWidget *
 
 
 	ToolBarItem *fp1 = new ToolBarItem( this, fontToolBar, tr( "Fontsize +1" ),
-					    "font size=\"+1\"", QPixmap::fromMimeSource( "textlarger.png" ) );
+					    "font size=\"+1\"", QPixmap::fromMimeSource( "designer_textlarger.png" ) );
 	connect( fp1, SIGNAL( clicked( const QString& ) ),
 		 this, SLOT( insertTags( const QString& )));
 
 	ToolBarItem *fm1 = new ToolBarItem( this, fontToolBar, tr( "Fontsize -1" ),
-					    "font size=\"-1\"", QPixmap::fromMimeSource( "textsmaller.png" ) );
+					    "font size=\"-1\"", QPixmap::fromMimeSource( "designer_textsmaller.png" ) );
 	connect( fm1, SIGNAL( clicked( const QString& ) ),
 		 this, SLOT( insertTags( const QString& )));
 
 	ToolBarItem *h1 = new ToolBarItem( this, fontToolBar, tr( "Headline 1" ),
-					   "h1", QPixmap::fromMimeSource( "texth1.png" ) );
+					   "h1", QPixmap::fromMimeSource( "designer_texth1.png" ) );
 	connect( h1, SIGNAL( clicked( const QString& ) ),
 		 this, SLOT( insertTags( const QString& )));
 
 	ToolBarItem *h2 = new ToolBarItem( this, fontToolBar, tr( "Headline 2" ),
-					   "h2", QPixmap::fromMimeSource( "texth2.png"  ) );
+					   "h2", QPixmap::fromMimeSource( "designer_texth2.png"  ) );
 	connect( h2, SIGNAL( clicked( const QString& ) ),
 		 this, SLOT( insertTags( const QString& )));
 
 	ToolBarItem *h3 = new ToolBarItem( this, fontToolBar, tr( "Headline 3" ),
-					   "h3", QPixmap::fromMimeSource( "texth3.png" ) );
+					   "h3", QPixmap::fromMimeSource( "designer_texth3.png" ) );
 	connect( h3, SIGNAL( clicked( const QString& ) ),
 		 this, SLOT( insertTags( const QString& )));
 

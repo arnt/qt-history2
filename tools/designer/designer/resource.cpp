@@ -1104,7 +1104,7 @@ QPixmap Resource::loadPixmap( const QDomElement &e, const QString &/*tagname*/ )
 	if ( mainwindow && mainwindow->currProject() ) {
 	    pix = mainwindow->currProject()->pixmapCollection()->pixmap( arg );
 	} else {
-	    pix = QPixmap::fromMimeSource( "image.png" );
+	    pix = QPixmap::fromMimeSource( "designer_image.png" );
 	    // we have to force the pixmap to get a new and unique serial number. Unfortunately detatch() doesn't do that
 	    pix.convertFromImage( pix.convertToImage() );
 	}
@@ -1112,7 +1112,7 @@ QPixmap Resource::loadPixmap( const QDomElement &e, const QString &/*tagname*/ )
 	MetaDataBase::setPixmapKey( formwindow, pix.serialNumber(), arg );
 	return pix;
     }
-    QPixmap pix = QPixmap::fromMimeSource( "image.png" );
+    QPixmap pix = QPixmap::fromMimeSource( "designer_image.png" );
     // we have to force the pixmap to get a new and unique serial number. Unfortunately detatch() doesn't do that
     pix.convertFromImage( pix.convertToImage() );
     MetaDataBase::setPixmapArgument( formwindow, pix.serialNumber(), arg );

@@ -68,7 +68,7 @@
                         <string></string>
                     </property>
                     <property name="pixmap">
-                        <pixmap>filenew.png</pixmap>
+                        <pixmap>designer_filenew.png</pixmap>
                     </property>
                     <property name="autoRaise">
                         <bool>true</bool>
@@ -85,7 +85,7 @@
                         <string></string>
                     </property>
                     <property name="pixmap">
-                        <pixmap>s_editcut.png</pixmap>
+                        <pixmap>designer_s_editcut.png</pixmap>
                     </property>
                     <property name="autoRaise">
                         <bool>true</bool>
@@ -102,7 +102,7 @@
                         <string></string>
                     </property>
                     <property name="pixmap">
-                        <pixmap>connecttool.png</pixmap>
+                        <pixmap>designer_connecttool.png</pixmap>
                     </property>
                     <property name="autoRaise">
                         <bool>true</bool>

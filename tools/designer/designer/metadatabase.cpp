@@ -1232,7 +1232,7 @@ MetaDataBase::CustomWidget::CustomWidget()
     includeFile = "mywidget.h";
     includePolicy = Local;
     sizeHint = QSize( -1, -1 );
-    pixmap = new QPixmap( QPixmap::fromMimeSource( "customwidget.png" ) );
+    pixmap = new QPixmap( QPixmap::fromMimeSource( "designer_customwidget.png" ) );
     id = -1;
     sizePolicy = QSizePolicy( QSizePolicy::Preferred, QSizePolicy::Preferred );
     isContainer = FALSE;

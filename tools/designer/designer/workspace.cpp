@@ -48,7 +48,7 @@ WorkspaceItem::WorkspaceItem( QListView *parent, Project* p )
     init();
     project = p;
     t = ProjectType;
-    setPixmap( 0, QPixmap::fromMimeSource( "folder.png" ) );
+    setPixmap( 0, QPixmap::fromMimeSource( "designer_folder.png" ) );
     setExpandable( FALSE );
 }
 
@@ -58,7 +58,7 @@ WorkspaceItem::WorkspaceItem( QListViewItem *parent, SourceFile* sf )
     init();
     sourceFile = sf;
     t = SourceFileType;
-    setPixmap( 0, QPixmap::fromMimeSource( "filenew.png" ) );
+    setPixmap( 0, QPixmap::fromMimeSource( "designer_filenew.png" ) );
 }
 
 WorkspaceItem::WorkspaceItem( QListViewItem *parent, QObject *o, Project *p )
@@ -68,7 +68,7 @@ WorkspaceItem::WorkspaceItem( QListViewItem *parent, QObject *o, Project *p )
     object = o;
     project = p;
     t = ObjectType;
-    setPixmap( 0, QPixmap::fromMimeSource( "object.png" ) );
+    setPixmap( 0, QPixmap::fromMimeSource( "designer_object.png" ) );
     QObject::connect( p->fakeFormFileFor( o ), SIGNAL( somethingChanged(FormFile*) ),
 		      listView(), SLOT( update() ) );
 }
@@ -80,13 +80,13 @@ WorkspaceItem::WorkspaceItem( QListViewItem *parent, FormFile* ff, Type type )
     formFile = ff;
     t = type;
     if ( type ==  FormFileType ) {
-	setPixmap( 0, QPixmap::fromMimeSource( "form.png" ) );
+	setPixmap( 0, QPixmap::fromMimeSource( "designer_form.png" ) );
 	QObject::connect( ff, SIGNAL( somethingChanged(FormFile*) ), listView(), SLOT( update(FormFile*) ) );
 	if ( formFile->supportsCodeFile() ) {
 	    (void) new WorkspaceItem( this, formFile, FormSourceType );
 	}
     } else if ( type == FormSourceType ) {
-	setPixmap( 0, QPixmap::fromMimeSource( "filenew.png" ) );
+	setPixmap( 0, QPixmap::fromMimeSource( "designer_filenew.png" ) );
     }
 }
 
@@ -586,23 +586,23 @@ void Workspace::rmbClicked( QListViewItem *i, const QPoint& pos )
     case WorkspaceItem::SourceFileType:
 	menu.insertItem( tr( "&Open source file" ), OPEN_SOURCE );
 	menu.insertSeparator();
-	menu.insertItem( QPixmap::fromMimeSource( "editcut.png" ),
+	menu.insertItem( QPixmap::fromMimeSource( "designer_editcut.png" ),
 			 tr( "&Remove source file from project" ), REMOVE_SOURCE );
 	break;
     case WorkspaceItem::FormFileType:
 	menu.insertItem( tr( "&Open form" ), OPEN_FORM );
 	menu.insertSeparator();
-	menu.insertItem( QPixmap::fromMimeSource( "editcut.png" ),
+	menu.insertItem( QPixmap::fromMimeSource( "designer_editcut.png" ),
 			 tr( "&Remove form from project" ), REMOVE_FORM );
 	break;
     case WorkspaceItem::FormSourceType:
 	menu.insertItem( tr( "&Open form source" ), OPEN_FORM_SOURCE );
 	menu.insertSeparator();
 	if ( project->isCpp() )
-	    menu.insertItem( QPixmap::fromMimeSource( "editcut.png" ),
+	    menu.insertItem( QPixmap::fromMimeSource( "designer_editcut.png" ),
 			     tr( "&Remove source file from form" ), REMOVE_FORM_SOURCE );
 	else
-	    menu.insertItem( QPixmap::fromMimeSource( "editcut.png" ),
+	    menu.insertItem( QPixmap::fromMimeSource( "designer_editcut.png" ),
 	                     tr( "&Remove form from project" ), REMOVE_FORM );
 	break;
     case WorkspaceItem::ProjectType:

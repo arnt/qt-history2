@@ -101,37 +101,40 @@ const QString toolbarHelp = "<p>Toolbars contain a number of buttons to "
 static QIconSet createIconSet( const QString &name )
 {
     QIconSet ic( QPixmap::fromMimeSource( "" + name ) );
-    ic.setPixmap( QPixmap::fromMimeSource( "d_" + name ), QIconSet::Small, QIconSet::Disabled );
+    QString prefix = "designer_";
+    int right = name.length() - prefix.length();
+    ic.setPixmap( QPixmap::fromMimeSource( prefix + "d_" + name.right( right ) ),
+		  QIconSet::Small, QIconSet::Disabled );
     return ic;
 }
 
 void MainWindow::setupEditActions()
 {
-    actionEditUndo = new QAction( tr("Undo"), createIconSet( "undo.png" ),tr("&Undo: Not Available"), CTRL + Key_Z, this, 0 );
+    actionEditUndo = new QAction( tr("Undo"), createIconSet( "designer_undo.png" ),tr("&Undo: Not Available"), CTRL + Key_Z, this, 0 );
     actionEditUndo->setStatusTip( tr( "Undoes the last action" ) );
     actionEditUndo->setWhatsThis( whatsThisFrom( "Edit|Undo" ) );
     connect( actionEditUndo, SIGNAL( activated() ), this, SLOT( editUndo() ) );
     actionEditUndo->setEnabled( FALSE );
 
-    actionEditRedo = new QAction( tr( "Redo" ), createIconSet("redo.png"), tr( "&Redo: Not Available" ), CTRL + Key_Y, this, 0 );
+    actionEditRedo = new QAction( tr( "Redo" ), createIconSet("designer_redo.png"), tr( "&Redo: Not Available" ), CTRL + Key_Y, this, 0 );
     actionEditRedo->setStatusTip( tr( "Redoes the last undone operation") );
     actionEditRedo->setWhatsThis( whatsThisFrom( "Edit|Redo" ) );
     connect( actionEditRedo, SIGNAL( activated() ), this, SLOT( editRedo() ) );
     actionEditRedo->setEnabled( FALSE );
 
-    actionEditCut = new QAction( tr( "Cut" ), createIconSet("editcut.png"), tr( "Cu&t" ), CTRL + Key_X, this, 0 );
+    actionEditCut = new QAction( tr( "Cut" ), createIconSet("designer_editcut.png"), tr( "Cu&t" ), CTRL + Key_X, this, 0 );
     actionEditCut->setStatusTip( tr( "Cuts the selected widgets and puts them on the clipboard" ) );
     actionEditCut->setWhatsThis(  whatsThisFrom( "Edit|Cut" ) );
     connect( actionEditCut, SIGNAL( activated() ), this, SLOT( editCut() ) );
     actionEditCut->setEnabled( FALSE );
 
-    actionEditCopy = new QAction( tr( "Copy" ), createIconSet("editcopy.png"), tr( "&Copy" ), CTRL + Key_C, this, 0 );
+    actionEditCopy = new QAction( tr( "Copy" ), createIconSet("designer_editcopy.png"), tr( "&Copy" ), CTRL + Key_C, this, 0 );
     actionEditCopy->setStatusTip( tr( "Copies the selected widgets to the clipboard" ) );
     actionEditCopy->setWhatsThis(  whatsThisFrom( "Edit|Copy" ) );
     connect( actionEditCopy, SIGNAL( activated() ), this, SLOT( editCopy() ) );
     actionEditCopy->setEnabled( FALSE );
 
-    actionEditPaste = new QAction( tr( "Paste" ), createIconSet("editpaste.png"), tr( "&Paste" ), CTRL + Key_V, this, 0 );
+    actionEditPaste = new QAction( tr( "Paste" ), createIconSet("designer_editpaste.png"), tr( "&Paste" ), CTRL + Key_V, this, 0 );
     actionEditPaste->setStatusTip( tr( "Pastes the clipboard's contents" ) );
     actionEditPaste->setWhatsThis( whatsThisFrom( "Edit|Paste" ) );
     connect( actionEditPaste, SIGNAL( activated() ), this, SLOT( editPaste() ) );
@@ -149,13 +152,13 @@ void MainWindow::setupEditActions()
     connect( actionEditSelectAll, SIGNAL( activated() ), this, SLOT( editSelectAll() ) );
     actionEditSelectAll->setEnabled( TRUE );
 
-    actionEditRaise = new QAction( tr( "Bring to Front" ), createIconSet("editraise.png"), tr( "Bring to &Front" ), 0, this, 0 );
+    actionEditRaise = new QAction( tr( "Bring to Front" ), createIconSet("designer_editraise.png"), tr( "Bring to &Front" ), 0, this, 0 );
     actionEditRaise->setStatusTip( tr( "Raises the selected widgets" ) );
     actionEditRaise->setWhatsThis( tr( "Raises the selected widgets" ) );
     connect( actionEditRaise, SIGNAL( activated() ), this, SLOT( editRaise() ) );
     actionEditRaise->setEnabled( FALSE );
 
-    actionEditLower = new QAction( tr( "Send to Back" ), createIconSet("editlower.png"), tr( "Send to &Back" ), 0, this, 0 );
+    actionEditLower = new QAction( tr( "Send to Back" ), createIconSet("designer_editlower.png"), tr( "Send to &Back" ), 0, this, 0 );
     actionEditLower->setStatusTip( tr( "Lowers the selected widgets" ) );
     actionEditLower->setWhatsThis( tr( "Lowers the selected widgets" ) );
     connect( actionEditLower, SIGNAL( activated() ), this, SLOT( editLower() ) );
@@ -168,14 +171,14 @@ void MainWindow::setupEditActions()
     connect( actionEditAccels, SIGNAL( activated() ), this, SLOT( editAccels() ) );
     connect( this, SIGNAL( hasActiveForm(bool) ), actionEditAccels, SLOT( setEnabled(bool) ) );
 
-    actionEditFunctions = new QAction( tr( "Slots" ), createIconSet("editslots.png"),
+    actionEditFunctions = new QAction( tr( "Slots" ), createIconSet("designer_editslots.png"),
 				   tr( "S&lots..." ), 0, this, 0 );
     actionEditFunctions->setStatusTip( tr("Opens a dialog for editing slots") );
     actionEditFunctions->setWhatsThis( whatsThisFrom( "Edit|Slots" ) );
     connect( actionEditFunctions, SIGNAL( activated() ), this, SLOT( editFunctions() ) );
     connect( this, SIGNAL( hasActiveForm(bool) ), actionEditFunctions, SLOT( setEnabled(bool) ) );
 
-    actionEditConnections = new QAction( tr( "Connections" ), createIconSet("connecttool.png"),
+    actionEditConnections = new QAction( tr( "Connections" ), createIconSet("designer_connecttool.png"),
 					 tr( "Co&nnections..." ), 0, this, 0 );
     actionEditConnections->setStatusTip( tr("Opens a dialog for editing connections") );
     actionEditConnections->setWhatsThis( whatsThisFrom( "Edit|Connections" ) );
@@ -247,7 +250,7 @@ void MainWindow::setupEditActions()
 
 void MainWindow::setupSearchActions()
 {
-    actionSearchFind = new QAction( tr( "Find" ), createIconSet( "searchfind.png" ),
+    actionSearchFind = new QAction( tr( "Find" ), createIconSet( "designer_searchfind.png" ),
 				    tr( "&Find..." ), CTRL + Key_F, this, 0 );
     connect( actionSearchFind, SIGNAL( activated() ), this, SLOT( searchFind() ) );
     actionSearchFind->setEnabled( FALSE );
@@ -301,49 +304,49 @@ void MainWindow::setupLayoutActions()
 	connect( actionGroupTools, SIGNAL( selected(QAction*) ), this, SLOT( toolSelected(QAction*) ) );
     }
 
-    actionEditAdjustSize = new QAction( tr( "Adjust Size" ), createIconSet("adjustsize.png"),
+    actionEditAdjustSize = new QAction( tr( "Adjust Size" ), createIconSet("designer_adjustsize.png"),
 					tr( "Adjust &Size" ), CTRL + Key_J, this, 0 );
     actionEditAdjustSize->setStatusTip(tr("Adjusts the size of the selected widget") );
     actionEditAdjustSize->setWhatsThis( whatsThisFrom( "Layout|Adjust Size" ) );
     connect( actionEditAdjustSize, SIGNAL( activated() ), this, SLOT( editAdjustSize() ) );
     actionEditAdjustSize->setEnabled( FALSE );
 
-    actionEditHLayout = new QAction( tr( "Lay Out Horizontally" ), createIconSet("edithlayout.png"),
+    actionEditHLayout = new QAction( tr( "Lay Out Horizontally" ), createIconSet("designer_edithlayout.png"),
 				     tr( "Lay Out &Horizontally" ), CTRL + Key_H, this, 0 );
     actionEditHLayout->setStatusTip(tr("Lays out the selected widgets horizontally") );
     actionEditHLayout->setWhatsThis( whatsThisFrom( "Layout|Lay Out Horizontally" ) );
     connect( actionEditHLayout, SIGNAL( activated() ), this, SLOT( editLayoutHorizontal() ) );
     actionEditHLayout->setEnabled( FALSE );
 
-    actionEditVLayout = new QAction( tr( "Lay Out Vertically" ), createIconSet("editvlayout.png"),
+    actionEditVLayout = new QAction( tr( "Lay Out Vertically" ), createIconSet("designer_editvlayout.png"),
 				     tr( "Lay Out &Vertically" ), CTRL + Key_L, this, 0 );
     actionEditVLayout->setStatusTip(tr("Lays out the selected widgets vertically") );
     actionEditVLayout->setWhatsThis(  whatsThisFrom( "Layout|Lay Out Vertically" ) );
     connect( actionEditVLayout, SIGNAL( activated() ), this, SLOT( editLayoutVertical() ) );
     actionEditVLayout->setEnabled( FALSE );
 
-    actionEditGridLayout = new QAction( tr( "Lay Out in a Grid" ), createIconSet("editgrid.png"),
+    actionEditGridLayout = new QAction( tr( "Lay Out in a Grid" ), createIconSet("designer_editgrid.png"),
 					tr( "Lay Out in a &Grid" ), CTRL + Key_G, this, 0 );
     actionEditGridLayout->setStatusTip(tr("Lays out the selected widgets in a grid") );
     actionEditGridLayout->setWhatsThis( whatsThisFrom( "Layout|Lay Out in a Grid" ) );
     connect( actionEditGridLayout, SIGNAL( activated() ), this, SLOT( editLayoutGrid() ) );
     actionEditGridLayout->setEnabled( FALSE );
 
-    actionEditSplitHorizontal = new QAction( tr( "Lay Out Horizontally (in Splitter)" ), createIconSet("editvlayoutsplit.png"),
+    actionEditSplitHorizontal = new QAction( tr( "Lay Out Horizontally (in Splitter)" ), createIconSet("designer_editvlayoutsplit.png"),
 					     tr( "Lay Out Horizontally (in S&plitter)" ), 0, this, 0 );
     actionEditSplitHorizontal->setStatusTip(tr("Lays out the selected widgets horizontally in a splitter") );
     actionEditSplitHorizontal->setWhatsThis( whatsThisFrom( "Layout|Lay Out Horizontally (in Splitter)" ) );
     connect( actionEditSplitHorizontal, SIGNAL( activated() ), this, SLOT( editLayoutHorizontalSplit() ) );
     actionEditSplitHorizontal->setEnabled( FALSE );
 
-    actionEditSplitVertical = new QAction( tr( "Lay Out Vertically (in Splitter)" ), createIconSet("edithlayoutsplit.png"),
+    actionEditSplitVertical = new QAction( tr( "Lay Out Vertically (in Splitter)" ), createIconSet("designer_edithlayoutsplit.png"),
 					     tr( "Lay Out Vertically (in Sp&litter)" ), 0, this, 0 );
     actionEditSplitVertical->setStatusTip(tr("Lays out the selected widgets vertically in a splitter") );
     actionEditSplitVertical->setWhatsThis( whatsThisFrom( "Layout|Lay Out Vertically (in Splitter)" ) );
     connect( actionEditSplitVertical, SIGNAL( activated() ), this, SLOT( editLayoutVerticalSplit() ) );
     actionEditSplitVertical->setEnabled( FALSE );
 
-    actionEditBreakLayout = new QAction( tr( "Break Layout" ), createIconSet("editbreaklayout.png"),
+    actionEditBreakLayout = new QAction( tr( "Break Layout" ), createIconSet("designer_editbreaklayout.png"),
 					 tr( "&Break Layout" ), CTRL + Key_B, this, 0 );
     actionEditBreakLayout->setStatusTip(tr("Breaks the selected layout") );
     actionEditBreakLayout->setWhatsThis( whatsThisFrom( "Layout|Break Layout" ) );
@@ -406,7 +409,7 @@ void MainWindow::setupToolActions()
 		 this, SLOT( toolSelected(QAction*) ) );
     }
 
-    actionPointerTool = new QAction( tr("Pointer"), createIconSet("pointer.png"),
+    actionPointerTool = new QAction( tr("Pointer"), createIconSet("designer_pointer.png"),
 				     tr("&Pointer"),  Key_F2,
 				     actionGroupTools,
 				     QString::number(POINTER_TOOL).latin1(), TRUE );
@@ -414,7 +417,7 @@ void MainWindow::setupToolActions()
     actionPointerTool->setWhatsThis( whatsThisFrom( "Tools|Pointer" ) );
 
     actionConnectTool = new QAction( tr("Connect Signal/Slots"),
-				     createIconSet("connecttool.png"),
+				     createIconSet("designer_connecttool.png"),
 				     tr("&Connect Signal/Slots"),
 				     singleProjectMode() ? 0 : Key_F3,
 				     actionGroupTools,
@@ -422,14 +425,14 @@ void MainWindow::setupToolActions()
     actionConnectTool->setStatusTip( tr("Selects the connection tool") );
     actionConnectTool->setWhatsThis( whatsThisFrom( "Tools|Connect Signals and Slots" ) );
 
-    actionOrderTool = new QAction( tr("Tab Order"), createIconSet("ordertool.png"),
+    actionOrderTool = new QAction( tr("Tab Order"), createIconSet("designer_ordertool.png"),
 				   tr("Tab &Order"),  Key_F4,
 				   actionGroupTools,
 				   QString::number(ORDER_TOOL).latin1(), TRUE );
     actionOrderTool->setStatusTip( tr("Selects the tab order tool") );
     actionOrderTool->setWhatsThis( whatsThisFrom( "Tools|Tab Order" ) );
 
-    actionBuddyTool = new QAction( tr( "Set Buddy" ), createIconSet( "setbuddy.png" ),
+    actionBuddyTool = new QAction( tr( "Set Buddy" ), createIconSet( "designer_setbuddy.png" ),
 				   tr( "Set &Buddy" ), Key_F5,
 				   actionGroupTools, QString::number( BUDDY_TOOL ).latin1(),
 				   TRUE );
@@ -464,7 +467,7 @@ void MainWindow::setupToolActions()
     customWidgetMenu = 0;
 
     actionToolsCustomWidget = new QAction( tr("Custom Widgets"),
-					   createIconSet( "customwidget.png" ),
+					   createIconSet( "designer_customwidget.png" ),
 					   tr("Edit &Custom Widgets..."), 0, this, 0 );
     actionToolsCustomWidget->setStatusTip( tr("Opens a dialog to add and change "
 					      "custom widgets") );
@@ -605,7 +608,7 @@ void MainWindow::setupFileActions()
 	a->setText( tr( "New" ) );
 	a->setToolTip( tr( "New Dialog or File" ) );
 	a->setMenuText( tr( "&New..." ) );
-	a->setIconSet( createIconSet("filenew.png") );
+	a->setIconSet( createIconSet("designer_filenew.png") );
 	a->setAccel( CTRL + Key_N );
 	a->setStatusTip( tr( "Creates a new project, form or source file." ) );
 	a->setWhatsThis( whatsThisFrom( "File|New" ) );
@@ -618,14 +621,14 @@ void MainWindow::setupFileActions()
 	( (QActionGroup*)a )->setUsesDropDown( TRUE );
 	a->setText( tr( "New" ) );
 	a->setMenuText( tr( "&New..." ) );
-	a->setIconSet( createIconSet("form.png") );
+	a->setIconSet( createIconSet("designer_form.png") );
 	a->setStatusTip( tr( "Creates a new dialog or file" ) );
 	a->setWhatsThis( whatsThisFrom( "File|New" ) );
 
 	QAction *newForm = new QAction( a, 0 );
 	newForm->setText( tr( "New Dialog" ) );
 	newForm->setMenuText( tr( "&Dialog..." ) );
-	newForm->setIconSet( createIconSet("form.png") );
+	newForm->setIconSet( createIconSet("designer_form.png") );
 	newForm->setAccel( CTRL + Key_N );
 	newForm->setStatusTip( tr( "Creates a new dialog." ) );
 	connect( newForm, SIGNAL( activated() ), this, SLOT( fileNewDialog() ) );
@@ -633,7 +636,7 @@ void MainWindow::setupFileActions()
 	QAction *newFile = new QAction( a, 0 );
 	newFile->setText( tr( "New File" ) );
 	newFile->setMenuText( tr( "&File..." ) );
-	newFile->setIconSet( createIconSet("filenew.png") );
+	newFile->setIconSet( createIconSet("designer_filenew.png") );
 	newFile->setAccel( ALT + Key_N );
 	newFile->setStatusTip( tr( "Creates a new file." ) );
 	connect( newFile, SIGNAL( activated() ), this, SLOT( fileNewFile() ) );
@@ -648,7 +651,7 @@ void MainWindow::setupFileActions()
     a = new QAction( this, 0 );
     a->setText( tr( "Open" ) );
     a->setMenuText( tr( "&Open..." ) );
-    a->setIconSet( createIconSet("fileopen.png") );
+    a->setIconSet( createIconSet("designer_fileopen.png") );
     a->setAccel( CTRL + Key_O );
     a->setStatusTip( tr( "Opens an existing project, form or source file ") );
     a->setWhatsThis( whatsThisFrom( "File|Open" ) );
@@ -676,7 +679,7 @@ void MainWindow::setupFileActions()
     actionFileSave = a;
     a->setText( tr( "Save" ) );
     a->setMenuText( tr( "&Save" ) );
-    a->setIconSet( createIconSet("filesave.png") );
+    a->setIconSet( createIconSet("designer_filesave.png") );
     a->setAccel( CTRL + Key_S );
     a->setStatusTip( tr( "Saves the current project or document" ) );
     a->setWhatsThis(whatsThisFrom( "File|Save" ) );

@@ -177,7 +177,7 @@ void FormWindow::init()
 	     this, SIGNAL( undoRedoChanged( bool, bool, const QString &, const QString & ) ) );
     propShowBlocked = FALSE;
 
-    setIcon( QPixmap::fromMimeSource( "form.png" ) );
+    setIcon( QPixmap::fromMimeSource( "designer_form.png" ) );
 
     connect( &commands, SIGNAL( modificationChanged( bool ) ),
 	     this, SLOT( modificationChanged( bool ) ) );
@@ -357,7 +357,7 @@ void FormWindow::insertWidget()
     if ( !savePixmapInline() && currTool == WidgetDatabase::idFromClassName( "PixmapLabel" ) ) { // ### what to do for pixmaps in project
 	QPixmap pix;
 	// we have to force the pixmap to get a new and unique serial number. Unfortunately detatch() doesn't do that
-	pix.convertFromImage( QPixmap::fromMimeSource( "image.png" ).convertToImage() );
+	pix.convertFromImage( QPixmap::fromMimeSource( "designer_image.png" ).convertToImage() );
 	( (QLabel*)w )->setPixmap( pix );
     }
     int id = WidgetDatabase::idFromClassName( WidgetFactory::classNameOf(w) );

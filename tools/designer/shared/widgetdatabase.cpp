@@ -121,7 +121,7 @@ void WidgetDatabase::setupDataBase( int id )
     WidgetDatabaseRecord *r = 0;
 
     r = new WidgetDatabaseRecord;
-    r->iconSet = "pushbutton.png";
+    r->iconSet = "designer_pushbutton.png";
     r->name = "QPushButton";
     r->group = widgetGroup( "Buttons" );
     r->toolTip = "Push Button";
@@ -130,7 +130,7 @@ void WidgetDatabase::setupDataBase( int id )
     append( r );
 
     r = new WidgetDatabaseRecord;
-    r->iconSet = "toolbutton.png";
+    r->iconSet = "designer_toolbutton.png";
     r->name = "QToolButton";
     r->group = widgetGroup( "Buttons" );
     r->toolTip = "Tool Button";
@@ -138,7 +138,7 @@ void WidgetDatabase::setupDataBase( int id )
     append( r );
 
     r = new WidgetDatabaseRecord;
-    r->iconSet = "radiobutton.png";
+    r->iconSet = "designer_radiobutton.png";
     r->name = "QRadioButton";
     r->group = widgetGroup( "Buttons" );
     r->toolTip = "Radio Button";
@@ -147,7 +147,7 @@ void WidgetDatabase::setupDataBase( int id )
     append( r );
 
     r = new WidgetDatabaseRecord;
-    r->iconSet = "checkbox.png";
+    r->iconSet = "designer_checkbox.png";
     r->name = "QCheckBox";
     r->group = widgetGroup( "Buttons" );
     r->toolTip = "Check Box";
@@ -156,7 +156,7 @@ void WidgetDatabase::setupDataBase( int id )
     append( r );
 
     r = new WidgetDatabaseRecord;
-    r->iconSet = "groupbox.png";
+    r->iconSet = "designer_groupbox.png";
     r->name = "QGroupBox";
     r->group = widgetGroup( "Containers" );
     r->toolTip = "Group Box";
@@ -165,7 +165,7 @@ void WidgetDatabase::setupDataBase( int id )
     append( r );
 
     r = new WidgetDatabaseRecord;
-    r->iconSet = "buttongroup.png";
+    r->iconSet = "designer_buttongroup.png";
     r->name = "QButtonGroup";
     r->group = widgetGroup( "Containers" );
     r->toolTip = "Button Group";
@@ -175,7 +175,7 @@ void WidgetDatabase::setupDataBase( int id )
     append( r );
 
     r = new WidgetDatabaseRecord;
-    r->iconSet = "frame.png";
+    r->iconSet = "designer_frame.png";
     r->name = "QFrame";
     r->group = widgetGroup( "Containers" );
     r->toolTip = "Frame";
@@ -184,7 +184,7 @@ void WidgetDatabase::setupDataBase( int id )
     append( r );
 
     r = new WidgetDatabaseRecord;
-    r->iconSet = "tabwidget.png";
+    r->iconSet = "designer_tabwidget.png";
     r->name = "QTabWidget";
     r->group = widgetGroup( "Containers" );
     r->toolTip = "Tabwidget";
@@ -193,7 +193,7 @@ void WidgetDatabase::setupDataBase( int id )
     append( r );
 
     r = new WidgetDatabaseRecord;
-    r->iconSet = "widgetstack.png";
+    r->iconSet = "designer_widgetstack.png";
     r->name = "QWidgetStack";
     r->group = widgetGroup( "Containers" );
     r->toolTip = "Widget Stack";
@@ -202,7 +202,7 @@ void WidgetDatabase::setupDataBase( int id )
     append( r );
 
     r = new WidgetDatabaseRecord;
-    r->iconSet = "listbox.png";
+    r->iconSet = "designer_listbox.png";
     r->name = "QListBox";
     r->group = widgetGroup( "Views" );
     r->toolTip = "List Box";
@@ -211,7 +211,7 @@ void WidgetDatabase::setupDataBase( int id )
     append( r );
 
     r = new WidgetDatabaseRecord;
-    r->iconSet = "listview.png";
+    r->iconSet = "designer_listview.png";
     r->name = "QListView";
     r->group = widgetGroup( "Views" );
     r->toolTip = "List View";
@@ -220,7 +220,7 @@ void WidgetDatabase::setupDataBase( int id )
 
 #if !defined(QT_NO_ICONVIEW) || defined(UIC)
     r = new WidgetDatabaseRecord;
-    r->iconSet = "iconview.png";
+    r->iconSet = "designer_iconview.png";
     r->name = "QIconView";
     r->group = widgetGroup( "Views" );
     r->toolTip = "Icon View";
@@ -230,7 +230,7 @@ void WidgetDatabase::setupDataBase( int id )
 
 #if !defined(QT_NO_TABLE)
     r = new WidgetDatabaseRecord;
-    r->iconSet = "table.png";
+    r->iconSet = "designer_table.png";
     r->name = "QTable";
     r->group = widgetGroup( "Views" );
     r->toolTip = "Table";
@@ -240,7 +240,7 @@ void WidgetDatabase::setupDataBase( int id )
 
 #if !defined(QT_NO_SQL)
     r = new WidgetDatabaseRecord;
-    r->iconSet = "datatable.png";
+    r->iconSet = "designer_datatable.png";
     r->includeFile = "qdatatable.h";
     r->name = "QDataTable";
     r->group = widgetGroup( "Database" );
@@ -250,7 +250,7 @@ void WidgetDatabase::setupDataBase( int id )
 #endif
 
     r = new WidgetDatabaseRecord;
-    r->iconSet = "lineedit.png";
+    r->iconSet = "designer_lineedit.png";
     r->name = "QLineEdit";
     r->group = widgetGroup( "Input" );
     r->toolTip = "Line Edit";
@@ -259,7 +259,7 @@ void WidgetDatabase::setupDataBase( int id )
     append( r );
 
     r = new WidgetDatabaseRecord;
-    r->iconSet = "spinbox.png";
+    r->iconSet = "designer_spinbox.png";
     r->name = "QSpinBox";
     r->group = widgetGroup( "Input" );
     r->toolTip = "Spin Box";
@@ -268,7 +268,7 @@ void WidgetDatabase::setupDataBase( int id )
     append( r );
 
     r = new WidgetDatabaseRecord;
-    r->iconSet = "dateedit.png";
+    r->iconSet = "designer_dateedit.png";
     r->name = "QDateEdit";
     r->group = widgetGroup( "Input" );
     r->toolTip = "Date Edit";
@@ -277,7 +277,7 @@ void WidgetDatabase::setupDataBase( int id )
     append( r );
 
     r = new WidgetDatabaseRecord;
-    r->iconSet = "timeedit.png";
+    r->iconSet = "designer_timeedit.png";
     r->name = "QTimeEdit";
     r->group = widgetGroup( "Input" );
     r->toolTip = "Time Edit";
@@ -286,7 +286,7 @@ void WidgetDatabase::setupDataBase( int id )
     append( r );
 
     r = new WidgetDatabaseRecord;
-    r->iconSet = "datetimeedit.png";
+    r->iconSet = "designer_datetimeedit.png";
     r->name = "QDateTimeEdit";
     r->group = widgetGroup( "Input" );
     r->toolTip = "Date-Time Edit";
@@ -295,7 +295,7 @@ void WidgetDatabase::setupDataBase( int id )
     append( r );
 
     r = new WidgetDatabaseRecord;
-    r->iconSet = "multilineedit.png";
+    r->iconSet = "designer_multilineedit.png";
     r->name = "QMultiLineEdit";
     r->group = widgetGroup( "Temp" );
     r->toolTip = "Multi Line Edit";
@@ -303,7 +303,7 @@ void WidgetDatabase::setupDataBase( int id )
     append( r );
 
     r = new WidgetDatabaseRecord;
-    r->iconSet = "richtextedit.png";
+    r->iconSet = "designer_richtextedit.png";
     r->name = "QTextEdit";
     r->group = widgetGroup( "Input" );
     r->toolTip = "Rich Text Edit";
@@ -312,7 +312,7 @@ void WidgetDatabase::setupDataBase( int id )
     append( r );
 
     r = new WidgetDatabaseRecord;
-    r->iconSet = "combobox.png";
+    r->iconSet = "designer_combobox.png";
     r->name = "QComboBox";
     r->group = widgetGroup( "Input" );
     r->toolTip = "Combo Box";
@@ -321,7 +321,7 @@ void WidgetDatabase::setupDataBase( int id )
     append( r );
 
     r = new WidgetDatabaseRecord;
-    r->iconSet = "slider.png";
+    r->iconSet = "designer_slider.png";
     r->name = "QSlider";
     r->group = widgetGroup( "Input" );
     r->toolTip = "Slider";
@@ -329,7 +329,7 @@ void WidgetDatabase::setupDataBase( int id )
     append( r );
 
     r = new WidgetDatabaseRecord;
-    r->iconSet = "scrollbar.png";
+    r->iconSet = "designer_scrollbar.png";
     r->name = "QScrollBar";
     r->group = widgetGroup( "Input" );
     r->toolTip = "Scrollbar";
@@ -337,7 +337,7 @@ void WidgetDatabase::setupDataBase( int id )
     append( r );
 
     r = new WidgetDatabaseRecord;
-    r->iconSet = "dial.png";
+    r->iconSet = "designer_dial.png";
     r->name = "QDial";
     r->group = widgetGroup( "Input" );
     r->toolTip = "Dial";
@@ -345,7 +345,7 @@ void WidgetDatabase::setupDataBase( int id )
     append( r );
 
     r = new WidgetDatabaseRecord;
-    r->iconSet = "label.png";
+    r->iconSet = "designer_label.png";
     r->name = "QLabel";
     r->group = widgetGroup( "Temp" );
     r->toolTip = "Label";
@@ -353,7 +353,7 @@ void WidgetDatabase::setupDataBase( int id )
     append( r );
 
     r = new WidgetDatabaseRecord;
-    r->iconSet = "label.png";
+    r->iconSet = "designer_label.png";
     r->name = "TextLabel";
     r->group = widgetGroup( "Display" );
     r->toolTip = "Text Label";
@@ -363,7 +363,7 @@ void WidgetDatabase::setupDataBase( int id )
     append( r );
 
     r = new WidgetDatabaseRecord;
-    r->iconSet = "pixlabel.png";
+    r->iconSet = "designer_pixlabel.png";
     r->name = "PixmapLabel";
     r->group = widgetGroup( "Display" );
     r->toolTip = "Pixmap Label";
@@ -372,7 +372,7 @@ void WidgetDatabase::setupDataBase( int id )
     append( r );
 
     r = new WidgetDatabaseRecord;
-    r->iconSet = "lcdnumber.png";
+    r->iconSet = "designer_lcdnumber.png";
     r->name = "QLCDNumber";
     r->group = widgetGroup( "Display" );
     r->toolTip = "LCD Number";
@@ -380,7 +380,7 @@ void WidgetDatabase::setupDataBase( int id )
     append( r );
 
     r = new WidgetDatabaseRecord;
-    r->iconSet = "line.png";
+    r->iconSet = "designer_line.png";
     r->name = "Line";
     r->group = widgetGroup( "Display" );
     r->toolTip = "Line";
@@ -390,7 +390,7 @@ void WidgetDatabase::setupDataBase( int id )
     append( r );
 
     r = new WidgetDatabaseRecord;
-    r->iconSet = "progress.png";
+    r->iconSet = "designer_progress.png";
     r->name = "QProgressBar";
     r->group = widgetGroup( "Display" );
     r->toolTip = "Progress Bar";
@@ -398,7 +398,7 @@ void WidgetDatabase::setupDataBase( int id )
     append( r );
 
     r = new WidgetDatabaseRecord;
-    r->iconSet = "textview.png";
+    r->iconSet = "designer_textview.png";
     r->name = "QTextView";
     r->group = widgetGroup( "Temp" );
     r->toolTip = "Text View";
@@ -406,7 +406,7 @@ void WidgetDatabase::setupDataBase( int id )
     append( r );
 
     r = new WidgetDatabaseRecord;
-    r->iconSet = "textbrowser.png";
+    r->iconSet = "designer_textbrowser.png";
     r->name = "QTextBrowser";
     r->group = widgetGroup( "Display" );
     r->toolTip = "Text Browser";
@@ -414,7 +414,7 @@ void WidgetDatabase::setupDataBase( int id )
     append( r );
 
     r = new WidgetDatabaseRecord;
-    r->iconSet = "spacer.png";
+    r->iconSet = "designer_spacer.png";
     r->name = "Spacer";
     r->group = widgetGroup( "Temp" );
     r->toolTip = "Spacer";
@@ -467,7 +467,7 @@ void WidgetDatabase::setupDataBase( int id )
     append( r );
 
     r = new WidgetDatabaseRecord;
-    r->iconSet = "tabwidget.png";
+    r->iconSet = "designer_tabwidget.png";
     r->name = "QDesignerTabWidget";
     r->group = widgetGroup( "Temp" );
     r->isContainer = TRUE;
@@ -475,7 +475,7 @@ void WidgetDatabase::setupDataBase( int id )
     append( r );
 
     r = new WidgetDatabaseRecord;
-    r->iconSet = "tabwidget.png";
+    r->iconSet = "designer_tabwidget.png";
     r->name = "QDesignerWidget";
     r->group = widgetGroup( "Temp" );
     r->isContainer = TRUE;
@@ -483,7 +483,7 @@ void WidgetDatabase::setupDataBase( int id )
     append( r );
 
     r = new WidgetDatabaseRecord;
-    r->iconSet = "tabwidget.png";
+    r->iconSet = "designer_tabwidget.png";
     r->name = "QDesignerDialog";
     r->group = widgetGroup( "Temp" );
     r->isContainer = TRUE;
@@ -533,7 +533,7 @@ void WidgetDatabase::setupDataBase( int id )
     r->includeFile = "qdatabrowser.h";
     r->group = widgetGroup( "Database" );
     r->toolTip = "Data Browser";
-    r->iconSet = "databrowser.png";
+    r->iconSet = "designer_databrowser.png";
     r->isContainer = TRUE;
 
     append( r );
@@ -544,7 +544,7 @@ void WidgetDatabase::setupDataBase( int id )
     r->includeFile = "qdataview.h";
     r->group = widgetGroup( "Database" );
     r->toolTip = "Data View";
-    r->iconSet = "dataview.png";
+    r->iconSet = "designer_dataview.png";
     r->isContainer = TRUE;
 
     append( r );

@@ -154,7 +154,7 @@ QPixmap qChoosePixmap( QWidget *parent, FormWindow *fw, const QPixmap &old, QStr
 	if ( dia.exec() == QDialog::Accepted ) {
 	    QPixmap pix;
 	    // we have to force the pixmap to get a new and unique serial number. Unfortunately detatch() doesn't do that
-	    pix.convertFromImage( QPixmap::fromMimeSource( "image.png" ).convertToImage() );
+	    pix.convertFromImage( QPixmap::fromMimeSource( "designer_image.png" ).convertToImage() );
 
 	    MetaDataBase::setPixmapArgument( fw, pix.serialNumber(), dia.editArguments->text() );
 	    return pix;
@@ -169,7 +169,7 @@ QPixmap qChoosePixmap( QWidget *parent, FormWindow *fw, const QPixmap &old, QStr
 }
 
 ImageIconProvider::ImageIconProvider( QWidget *parent, const char *name )
-    : QFileIconProvider( parent, name ), imagepm( QPixmap::fromMimeSource( "image.png" ) )
+    : QFileIconProvider( parent, name ), imagepm( QPixmap::fromMimeSource( "designer_image.png" ) )
 {
     fmts = QImage::inputFormats();
 }

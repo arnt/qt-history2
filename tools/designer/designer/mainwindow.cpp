@@ -153,7 +153,7 @@ MainWindow::MainWindow( bool asClient, bool single, const QString &plgDir )
 	qApp->setMainWidget( this );
     QWidgetFactory::addWidgetFactory( new CustomWidgetFactory );
 #ifndef Q_WS_MACX
-    setIcon( QPixmap::fromMimeSource( "appicon.png" ) );
+    setIcon( QPixmap::fromMimeSource( "designer_appicon.png" ) );
 #endif
 
     actionGroupTools = 0;
@@ -300,7 +300,7 @@ void MainWindow::setupMDI()
     vbox->setMargin( 1 );
     vbox->setLineWidth( 1 );
     qworkspace = new QWorkspace( vbox );
-    qworkspace->setPaletteBackgroundPixmap( QPixmap::fromMimeSource( "background.png" ) );
+    qworkspace->setPaletteBackgroundPixmap( QPixmap::fromMimeSource( "designer_background.png" ) );
     qworkspace->setScrollBarsEnabled( TRUE );
     connect( qworkspace, SIGNAL( windowActivated( QWidget * ) ),
 	     this, SLOT( activeWindowChanged( QWidget * ) ) );
