@@ -121,7 +121,7 @@ QWidget *QWSManager::active = 0;
 QPoint QWSManager::mousePos;
 
 QWSManager::QWSManager(QWidget *w)
-    : QObject(), activeRegion(QWSDecoration::None), managed(w), popup(0)
+    : activeRegion(QWSDecoration::None), managed(w), popup(0)
 {
     dx = 0;
     dy = 0;
@@ -418,7 +418,7 @@ void QWSManager::menu(const QPoint &pos)
 	    styleMenu->insertItem( qApp->translate("QWSDecoration", WMStyleList[i].WMStyleName), WMStyleList[i].WMStyleType );
 	styleMenu->connect(styleMenu, SIGNAL(activated(int)), this, SLOT(styleMenuActivated(int)));
 	popup->insertSeparator();
-	popup->insertItem(QObject::tr("Style"), styleMenu);
+	popup->insertItem(tr("Style"), styleMenu);
 
 	connect(popup, SIGNAL(activated(int)), SLOT(menuActivated(int)));
     }
