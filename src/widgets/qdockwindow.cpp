@@ -595,6 +595,7 @@ void QDockWindowTitleBar::mousePressEvent( QMouseEvent *e )
     if ( e->y() < 3 )
 	return;
     e->accept();
+    bool oldPressed = mousePressed;
     mousePressed = TRUE;
     hadDblClick = FALSE;
     offset = e->pos();
@@ -602,7 +603,8 @@ void QDockWindowTitleBar::mousePressEvent( QMouseEvent *e )
 // grabMouse resets the Windows mouse press count, so we never receive a double click on Windows
 // not required on Windows, and did work on X11, too, but no problem there in the first place
 #ifndef Q_WS_WIN
-    grabMouse();
+    if(!oldPressed && dockWindow->opaqueMoving())
+	grabMouse();
 #endif
 }
 
@@ -629,7 +631,8 @@ void QDockWindowTitleBar::mouseReleaseEvent( QMouseEvent *e )
     qApp->removeEventFilter( dockWindow );
     if ( oldFocus )
 	oldFocus->setFocus();
-    releaseMouse();
+    if(dockWindow->opaqueMoving())
+	releaseMouse();
     if ( !mousePressed )
 	return;
     dockWindow->endRectDraw( !opaque );
