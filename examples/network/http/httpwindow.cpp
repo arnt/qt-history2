@@ -12,8 +12,8 @@ HttpWindow::HttpWindow(QWidget *parent)
 
     urlLabel = new QLabel(tr("&URL:"), this);
     urlLabel->setBuddy(urlLineEdit);
-    statusLabel = new QLabel(tr("Please enter the URL of a file you want to"
-                                " download."), this);
+    statusLabel = new QLabel(tr("Please enter the URL of a file you want to "
+                                "download."), this);
 
     quitButton = new QPushButton(tr("Quit"), this);
     downloadButton = new QPushButton(tr("Download"), this);
@@ -61,7 +61,8 @@ void HttpWindow::downloadFile()
 
     if (QFile::exists(fileName)) {
         QMessageBox::information(this, tr("HTTP"),
-                                 tr("You already have a file called %1.")
+                                 tr("There already exists a file called %1 in "
+                                    "the current directory.")
                                  .arg(fileName));
         return;
     }

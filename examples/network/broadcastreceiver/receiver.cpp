@@ -32,6 +32,7 @@ void Receiver::processPendingDatagrams()
         QByteArray datagram;
         datagram.resize(udpSocket->pendingDatagramSize());
         udpSocket->readDatagram(datagram.data(), datagram.size());
-        statusLabel->setText(QString(tr("Received datagram: \"%1\"")).arg(datagram.data()));
+        statusLabel->setText(tr("Received datagram: \"%1\"")
+                             .arg(datagram.data()));
     }
 }

@@ -8,7 +8,8 @@ Server::Server(QWidget *parent)
     : QDialog(parent)
 {
     statusLabel = new QLabel(this);
-    quitButton = new QPushButton(tr("&Quit"), this);
+    quitButton = new QPushButton(tr("Quit"), this);
+    quitButton->setAutoDefault(false);
 
     tcpServer = new QTcpServer(this);
     if (!tcpServer->listen()) {
@@ -19,7 +20,8 @@ Server::Server(QWidget *parent)
         return;
     }
 
-    statusLabel->setText(tr("The server is running on port %1.")
+    statusLabel->setText(tr("The server is running on port %1.\n"
+                            "Run the Fortune Client example now.")
                          .arg(tcpServer->serverPort()));
 
     fortunes << tr("You've been leading a dog's life. Stay off the furniture.")

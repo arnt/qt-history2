@@ -85,8 +85,8 @@ void FtpWindow::downloadFile()
 
     if (QFile::exists(fileName)) {
         QMessageBox::information(this, tr("FTP"),
-                                 tr("You already have a file called %1 in the "
-                                    "current directory.")
+                                 tr("There already exists a file called %1 in "
+                                    "the current directory.")
                                  .arg(fileName));
         return;
     }

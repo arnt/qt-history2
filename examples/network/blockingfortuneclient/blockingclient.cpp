@@ -6,8 +6,8 @@
 BlockingClient::BlockingClient(QWidget *parent)
     : QDialog(parent)
 {
-    hostLabel = new QLabel(tr("&Host name:"), this);
-    portLabel = new QLabel(tr("&Port:"), this);
+    hostLabel = new QLabel(tr("&Server name:"), this);
+    portLabel = new QLabel(tr("S&erver port:"), this);
 
     hostLineEdit = new QLineEdit("Localhost", this);
     portLineEdit = new QLineEdit(this);
@@ -16,8 +16,8 @@ BlockingClient::BlockingClient(QWidget *parent)
     hostLabel->setBuddy(hostLineEdit);
     portLabel->setBuddy(portLineEdit);
 
-    statusLabel = new QLabel(tr("You are about to receive a fortune. "
-                                "Please click Get Fortune."), this);
+    statusLabel = new QLabel(tr("This examples requires that you run the "
+                                "Fortune Server example as well."), this);
 
     getFortuneButton = new QPushButton(tr("Get Fortune"), this);
     getFortuneButton->setDefault(true);
