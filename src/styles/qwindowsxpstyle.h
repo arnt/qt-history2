@@ -79,6 +79,11 @@ public:
 				  SubControl sc,
 				  const QStyleOption& = QStyleOption::Default ) const;
 
+    QSize sizeFromContents( ContentsType contents,
+				    const QWidget *widget,
+				    const QSize &contentsSize,
+				    const QStyleOption& = QStyleOption::Default ) const;
+
     int styleHint( StyleHint stylehint,
 			   const QWidget *widget = 0,
 			   const QStyleOption& = QStyleOption::Default,
