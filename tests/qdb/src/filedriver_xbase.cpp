@@ -195,6 +195,11 @@ bool FileDriver::open()
     return TRUE;
 }
 
+uint FileDriver::fieldCount() const
+{
+    return d->file.FieldCount();
+}
+
 bool FileDriver::close()
 {
     if ( !isOpen() )

@@ -1,6 +1,8 @@
 #ifndef ENVIRONMENT_H
 #define ENVIRONMENT_H
 
+/* QDb interfaces */
+
 #include <qvariant.h>
 #include <qstring.h>
 #include <qstringlist.h>
@@ -9,6 +11,11 @@
 #include <qtextstream.h>
 
 class QIODevice;
+
+/*! \namespace qdb
+
+  All QDb interfaces are in the 'qdb' namespace.
+*/
 
 namespace qdb {
 
@@ -20,13 +27,23 @@ namespace qdb {
 
     class Environment;
 
+    /*! \struct Parser
+
+      The SQL parser interface.
+     */
     struct Parser
     {
 	virtual bool parse( const QString& commands, Environment* env ) = 0;
     };
 
+    /*! \struct ResultSet
+
+      An interface which encapsulates a set of result data.
+     */
     struct ResultSet
     {
+	/*! Clears all records in the result
+	 */
 	virtual void clear() = 0;
 	virtual bool setHeader( const List& data ) = 0;
 	virtual bool append( const Record& buf ) = 0;
@@ -66,6 +83,7 @@ namespace qdb {
 	virtual bool fieldDescription( const QString& name, QVariant& v ) = 0;
 	virtual bool fieldDescription( int i, QVariant& v ) = 0;
 	virtual bool clearMarked() = 0;
+	virtual uint fieldCount() const = 0;
     };
 
     class Op

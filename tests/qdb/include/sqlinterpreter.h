@@ -39,6 +39,7 @@ public:
     bool fieldDescription( const QString& name, QVariant& v );
     bool fieldDescription( int i, QVariant& v );
     bool clearMarked();
+    uint fieldCount() const;
 
 protected:
     virtual void setName( const QString& name ) { nm = name; }
