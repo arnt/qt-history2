@@ -4265,6 +4265,7 @@ QImage smoothXForm(const QImageData *data, const QMatrix &matrix)
     int sheared_height = oheight + QABS(qRound(shear_y*sheared_width));
     s = s.expandedTo(QSize(sheared_width, sheared_height));
     QImage result2(s, 32);
+    result2.fill(0);
 //     qDebug("result2: width %d height %d", result2.width(), result2.height());
     for (int y = 0; y < result.height(); ++y)
         memcpy(result2.jumpTable()[y], result.jumpTable()[y], result.bytesPerLine());
@@ -4279,8 +4280,8 @@ QImage smoothXForm(const QImageData *data, const QMatrix &matrix)
 //     qDebug("shear_x=%f, oheight=%d, offset=%f", shear_x, oheight, offset);
     shearY(&result2, sheared_width, oheight, shear_y, offset);
 
-    QImage final(qRound(QABS(v1x*data->w) + QABS(v2x*data->h)),
-                 qRound(QABS(v1y*data->w) + QABS(v2y*data->h)), 32);
+    QImage final(qMin(result2.width(), qRound(QABS(v1x*data->w) + QABS(v2x*data->h))),
+                 qMin(result2.height(), qRound(QABS(v1y*data->w) + QABS(v2y*data->h))), 32);
     final.setAlphaBuffer(true);
 //     qDebug("result2.height() = %d, final.height() = %d", result2.height(), final.height());
     int yoff = 0;//(result2.height() - final.height())/2;
