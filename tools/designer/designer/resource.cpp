@@ -2107,8 +2107,13 @@ void Resource::loadChildAction( QObject *parent, const QDomElement &e )
 	MetaDataBase::addEntry( a );
 	QDomElement n2 = n.firstChild().toElement();
 	while ( !n2.isNull() ) {
-	    if ( n2.tagName() == "property" )
+	    if ( n2.tagName() == "property" ) {
 		setObjectProperty( a, n2.attribute( "name" ), n2.firstChild().toElement() );
+	    } else if ( n2.tagName() == "event" ) {
+		MetaDataBase::setEventFunctions( a, formwindow, MainWindow::self->currProject()->language(),
+						 n2.attribute( "name" ),
+						 QStringList::split( ',', n2.attribute( "functions" ) ), FALSE );
+	    }
 	    n2 = n2.nextSibling().toElement();
 	}
 	if ( !parent->inherits( "QAction" ) )
@@ -2118,11 +2123,16 @@ void Resource::loadChildAction( QObject *parent, const QDomElement &e )
 	MetaDataBase::addEntry( a );
 	QDomElement n2 = n.firstChild().toElement();
 	while ( !n2.isNull() ) {
-	    if ( n2.tagName() == "property" )
+	    if ( n2.tagName() == "property" ) {
 		setObjectProperty( a, n2.attribute( "name" ), n2.firstChild().toElement() );
-	    else if ( n2.tagName() == "action" ||
-		      n2.tagName() == "actiongroup" )
+	    } else if ( n2.tagName() == "action" ||
+			n2.tagName() == "actiongroup" ) {
 		loadChildAction( a, n2 );
+	    } else if ( n2.tagName() == "event" ) {
+		MetaDataBase::setEventFunctions( a, formwindow, MainWindow::self->currProject()->language(),
+						 n2.attribute( "name" ),
+						 QStringList::split( ',', n2.attribute( "functions" ) ), FALSE );
+	    }
 	    n2 = n2.nextSibling().toElement();
 	}
 	if ( !parent->inherits( "QAction" ) )

@@ -337,8 +337,11 @@ QWidget *QWidgetFactory::create( QIODevice *dev, QObject *connector, QWidget *pa
 			for ( eit = (*it).events.begin(), fit = (*it).functions.begin(); eit != (*it).events.end(); ++eit, ++fit ) {
 			    QStringList funcs = *fit;
 			    for ( QStringList::Iterator fit2 = funcs.begin(); fit2 != funcs.end(); ++fit2 ) {
-				if ( widgetFactory->languageSlots.find( *fit2 ) != widgetFactory->languageSlots.end() && qwf_execute_code )
-				    eventInterface->addEventHandler( it.key(), widgetFactory->toplevel, *eit, *fit2 );
+				if ( widgetFactory->languageSlots.find( *fit2 ) !=
+				     widgetFactory->languageSlots.end() && qwf_execute_code ) {
+				    eventInterface->addEventHandler( it.key(),
+								     widgetFactory->toplevel, *eit, *fit2 );
+				}
 			    }
 			}
 		    }
@@ -1374,12 +1377,17 @@ void QWidgetFactory::loadChildAction( QObject *parent, const QDomElement &e )
 {
     QDomElement n = e;
     QAction *a = 0;
+    EventFunction ef;
     if ( n.tagName() == "action" ) {
 	a = new QAction( parent );
 	QDomElement n2 = n.firstChild().toElement();
 	while ( !n2.isNull() ) {
-	    if ( n2.tagName() == "property" )
+	    if ( n2.tagName() == "property" ) {
 		setProperty( a, n2.attribute( "name" ), n2.firstChild().toElement() );
+	    } else if ( n2.tagName() == "event" ) {
+		ef.events.append( n2.attribute( "name" ) );
+		ef.functions.append( QStringList::split( ',', n2.attribute( "functions" ) ) );
+	    }
 	    n2 = n2.nextSibling().toElement();
 	}
 	if ( !parent->inherits( "QAction" ) )
@@ -1388,16 +1396,22 @@ void QWidgetFactory::loadChildAction( QObject *parent, const QDomElement &e )
 	a = new QActionGroup( parent );
 	QDomElement n2 = n.firstChild().toElement();
 	while ( !n2.isNull() ) {
-	    if ( n2.tagName() == "property" )
+	    if ( n2.tagName() == "property" ) {
 		setProperty( a, n2.attribute( "name" ), n2.firstChild().toElement() );
-	    else if ( n2.tagName() == "action" ||
-		      n2.tagName() == "actiongroup" )
+	    } else if ( n2.tagName() == "action" ||
+			n2.tagName() == "actiongroup" ) {
 		loadChildAction( a, n2 );
+	    } else if ( n2.tagName() == "event" ) {
+		ef.events.append( n2.attribute( "name" ) );
+		ef.functions.append( QStringList::split( ',', n2.attribute( "functions" ) ) );
+	    }
 	    n2 = n2.nextSibling().toElement();
 	}
 	if ( !parent->inherits( "QAction" ) )
 	    actionList.append( a );
     }
+    if ( a )
+	eventMap.insert( a, ef );
 }
 
 void QWidgetFactory::loadActions( const QDomElement &e )
