@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmainwindow.h#14 $
+** $Id: //depot/qt/main/src/widgets/qmainwindow.h#15 $
 **
 ** Definition of QMainWindow class
 **
@@ -72,6 +72,7 @@ protected:
 private:
     QMainWindowPrivate * d;
     void triggerLayout();
+    void moveToolBar( QToolBar *, QMouseEvent * );
 
     virtual void setMenuBar( QMenuBar * );
     virtual void setStatusBar( QStatusBar * );
