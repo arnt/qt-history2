@@ -2665,7 +2665,7 @@ void MainWindow::showDialogHelp()
     QWidget *w = (QWidget*)sender();
     w = w->topLevelWidget();
 
-    QString link = QString( qInstallPathDocs() ) + "/html/designer-manual-12.html#";
+    QString link = QString( qInstallPathDocs() ) + "/html/designer-manual-13.html#";
 
     if ( w->inherits( "NewFormBase" ) || w->inherits( "StartDialogBase" ) ) // own doc for startdialog?
 	link += "dialog-file-new";
