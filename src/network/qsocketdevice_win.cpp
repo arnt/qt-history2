@@ -535,11 +535,14 @@ Q_LONG QSocketDevice::readBlock( char *data, Q_ULONG maxlen )
 		case WSANOTINITIALISED:
 		    e = Impossible;
 		    break;
-		case WSAENETDOWN:
-		case WSAENETRESET:
 		case WSAECONNABORTED:
 		case WSAETIMEDOUT:
 		case WSAECONNRESET:
+		    // connection closed
+		    r = 0;
+		    break;
+		case WSAENETDOWN:
+		case WSAENETRESET:
 		    e = NetworkFailure;
 		    break;
 		case WSAEFAULT:
@@ -620,9 +623,11 @@ Q_LONG QSocketDevice::writeBlock( const char *data, Q_ULONG len )
 		case WSAENETRESET:
 		case WSAESHUTDOWN:
 		case WSAEHOSTUNREACH:
+		    e = NetworkFailure;
+		    break;
 		case WSAECONNABORTED:
 		case WSAECONNRESET:
-		    e = NetworkFailure;
+		    // connection closed -- detected by a later readBlock()
 		    break;
 		case WSAEINTR:
 		    done = FALSE;
