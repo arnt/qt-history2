@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglobal.h#38 $
+** $Id: //depot/qt/main/src/tools/qglobal.h#39 $
 **
 ** Global type declarations and definitions
 **
@@ -144,7 +144,8 @@
 #endif
 
 #if !defined(HAS_BOOL_TYPE)
-typedef int		bool;
+// note: unsigned rather than int to be able to use 1-bit bitfields
+typedef unsigned int	bool;
 #endif
 typedef unsigned char	uchar;
 typedef unsigned short	ushort;
