@@ -553,8 +553,7 @@ void QToolButton::mousePressEvent(QMouseEvent *e)
 */
 bool QToolButton::uses3D() const
 {
-    QStyleOptionToolButton opt = d->getStyleOption();
-    return style().styleHint(QStyle::SH_ToolButton_Uses3D, &opt, this)
+    return style().styleHint(QStyle::SH_ToolButton_Uses3D, 0, this)
         && (!d->autoRaise || (underMouse() && isEnabled())
             || (d->menu && d->delay <= 0) || d->instantPopup);
 }
