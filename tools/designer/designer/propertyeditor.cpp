@@ -369,7 +369,7 @@ void PropertyItem::setChanged( bool b, bool updateDb )
     if ( propertyParent() )
 	return;
     if ( changed == b )
-	return;
+    	return;
     changed = b;
     repaint();
     if ( updateDb ) {
@@ -3005,6 +3005,8 @@ void PropertyList::layoutInitValue( PropertyItem *i, bool changed )
 						      i->name(), WidgetFactory::property( editor->widget(), i->name() ),
 						      i->value(), i->currentItem(), i->currentItemFromObject() );
     cmd->execute();
+    if ( i->value().toString() != "-1" ) 
+	changed = TRUE; 
     i->setChanged( changed );
 }
 
@@ -3155,7 +3157,13 @@ void PropertyList::refetchData()
 	if ( i->hasSubItems() )
 	    i->initChildren();
 	bool changed = MetaDataBase::isPropertyChanged( editor->widget(), i->name() );
-	if ( changed != i->isChanged() )
+	if ( ( i->name() == "layoutSpacing" || i->name() == "layoutMargin" ) ) { 
+	    if ( i->value().toString() != "-1" ) 
+		i->setChanged( TRUE, FALSE );
+	    else
+		i->setChanged( FALSE, FALSE );
+	}
+	else if ( changed != i->isChanged() )
 	    i->setChanged( changed, FALSE );
     }
     updateEditorSize();
