@@ -531,6 +531,9 @@ protected:
     virtual void macWidgetChangedWindow();
 #endif
 
+private slots:
+    void	 macSetActive() { setActiveWindow(); }
+
 protected:
     QWidget(QWidgetPrivate &d, QWidget* parent, WFlags f);
 private:

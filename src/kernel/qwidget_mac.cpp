@@ -1,4 +1,3 @@
-
 /****************************************************************************
 **
 ** Implementation of QWidget and QWindow classes for mac.
@@ -53,6 +52,7 @@ static WId serial_id = 0;
 QWidget *mac_mouse_grabber = 0;
 QWidget *mac_keyboard_grabber = 0;
 int mac_window_count = 0;
+QTimer *activeWindowTimer = 0;
 
 /*****************************************************************************
   Externals
@@ -63,8 +63,6 @@ void qt_mac_unicode_reset_input(QWidget *); //qapplication_mac.cpp
 void qt_mac_unicode_init(QWidget *); //qapplication_mac.cpp
 void qt_mac_unicode_cleanup(QWidget *); //qapplication_mac.cpp
 void qt_event_request_updates(); //qapplication_mac.cpp
-void qt_event_request_activate(QWidget *); //qapplication_mac.cpp
-bool qt_event_remove_activate(); //qapplication_mac.cpp
 void qt_event_cleanup_for_widget(QWidget *w); //qapplication_mac.cpp
 void qt_event_request_showsheet(QWidget *); //qapplication_mac.cpp
 IconRef qt_mac_create_iconref(const QPixmap &); //qpixmap_mac.cpp
@@ -78,6 +76,31 @@ void unclippedBitBlt(QPaintDevice *, int, int, const QPaintDevice *, int, int,
 /*****************************************************************************
   QWidget utility functions
  *****************************************************************************/
+static void cleanup_activeWindowTimer()
+{
+    delete activeWindowTimer;
+    activeWindowTimer = 0;
+}
+
+static void removeActivateRequest()
+{
+    if (activeWindowTimer) {
+	activeWindowTimer->stop();
+	activeWindowTimer->disconnect(SIGNAL(timeout()));
+    }
+}
+
+static void requestActivate(QWidget *w)
+{
+    if (!activeWindowTimer) {
+	qAddPostRoutine(cleanup_activeWindowTimer);
+	activeWindowTimer = new QTimer(0, "qt_mac_active_window_timer");
+    }
+    removeActivateRequest();
+    QObject::connect(activeWindowTimer, SIGNAL(timeout()), w, SLOT(macSetActive()));
+    activeWindowTimer->start(0, TRUE);
+}
+
 QPoint posInWindow(QWidget *w)
 {
     if(w->isTopLevel())
@@ -1366,7 +1389,7 @@ void QWidget::setActiveWindow()
     QWidget *tlw = topLevelWidget();
     if(!tlw->isVisible() || !tlw->isTopLevel() || tlw->isDesktop())
 	return;
-    qt_event_remove_activate();
+    removeActivateRequest();
     if(tlw->isPopup() || tlw->testWFlags(WStyle_Tool)) {
 	ActivateWindow((WindowPtr)tlw->handle(), true);
     } else {
@@ -1507,16 +1530,17 @@ void QWidget::showWindow()
     dirtyClippedRegion(true);
     if(isTopLevel()) {
 	SizeWindow((WindowPtr)hd, width(), height(), 1);
-	if(qt_mac_is_macsheet(this))
+	if(qt_mac_is_macsheet(this)) {
 	    qt_event_request_showsheet(this);
 #if QT_MACOSX_VERSION >= 0x1020
-	else if(qt_mac_is_macdrawer(this))
+	} else if(qt_mac_is_macdrawer(this)) {
 	    OpenDrawer((WindowPtr)hd, kWindowEdgeDefault, true);
 #endif
-	else
-	    ShowHide((WindowPtr)hd, 1); 	//now actually show it
-	qt_event_request_activate(this);
-    } else if(!parentWidget(true) || parentWidget(true)->isVisible()) {
+	} else {
+	    ShowHide((WindowPtr)hd, true);
+	}
+	requestActivate(this);
+    } else if(!parentWidget(TRUE) || parentWidget(TRUE)->isVisible()) {
 	qt_dirty_wndw_rgn("show",this, mac_rect(posInWindow(this), geometry().size()));
     }
 }
@@ -1529,14 +1553,17 @@ void QWidget::hideWindow()
     dirtyClippedRegion(true);
     if(isTopLevel()) {
 #if QT_MACOSX_VERSION >= 0x1020
-	if(qt_mac_is_macdrawer(this))
+	if(qt_mac_is_macdrawer(this)) {
 	    CloseDrawer((WindowPtr)hd, true);
-	else
+	} else
 #endif
-       if(qt_mac_is_macsheet(this))
-           HideSheetWindow((WindowPtr)hd);
-	else
-	    ShowHide((WindowPtr)hd, 0); //now we hide
+	{
+	    if(qt_mac_is_macsheet(this)) {
+		HideSheetWindow((WindowPtr)hd);
+	    } else {
+		ShowHide((WindowPtr)hd, false);
+	    }
+	}
 	SizeWindow((WindowPtr)hd, 0, 0, 1);
 	if(isActiveWindow()) {
 	    QWidget *w = 0;
@@ -1549,14 +1576,19 @@ void QWidget::hideWindow()
 			break;
 		}
 	    }
-	    if(w && w->isVisible())
-		qt_event_request_activate(w);
+	    if (w && w->isVisible())
+		requestActivate(w);
 	}
     } else if(!parentWidget(true) || parentWidget(true)->isVisible()) { //strange!! ###
 	qt_dirty_wndw_rgn("hide",this, mac_rect(posInWindow(this), geometry().size()));
     }
     deactivateWidgetCleanup();
     qt_event_cleanup_for_widget(this);
+}
+
+void QWidget::macSetActive()
+{
+    setActiveWindow();
 }
 
 void QWidget::setWindowState(uint newstate)

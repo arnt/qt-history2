@@ -504,8 +504,7 @@ enum {
     kEventQtRequestTimer = 15,
     kEventQtRequestWakeup = 16,
     kEventQtRequestShowSheet = 17,
-    kEventQtRequestActivate = 18,
-    kEventQtRequestSocketAct = 19
+    kEventQtRequestSocketAct = 18
 };
 static EventRef request_updates_pending = NULL;
 void qt_event_request_updates()
@@ -656,35 +655,6 @@ void qt_event_request_wakeup()
     ReleaseEvent(request_wakeup_pending);
 }
 
-static EventRef request_activate_pending = 0;
-
-bool qt_event_remove_activate()
-{
-    if (qMacVersion() < Qt::MV_10_DOT_3)
-	return qt_event_remove(request_activate_pending);
-
-    if (request_activate_pending) {
-	// This is basically what the code in qt_event_remove does, but it causes a strange
-	// crash on Panther when we release.
-	if (IsEventInQueue(GetMainEventQueue(), request_activate_pending)) {
-	    RemoveEventFromQueue(GetMainEventQueue(), request_activate_pending);
-	    //ReleaseEvent(request_activate_pending); // Weird crash bug on Panther.
-	}
-	request_activate_pending = 0;
-    }
-    return TRUE;
-}
-
-void qt_event_request_activate(QWidget *w)
-{
-    qt_event_remove_activate();
-    CreateEvent(0, kEventClassQt, kEventQtRequestActivate, GetCurrentEventTime(),
-		kEventAttributeUserEvent, &request_activate_pending);
-    SetEventParameter(request_activate_pending, kEventParamQWidget, typeQWidget, sizeof(w), &w);
-    PostEventToQueue(GetMainEventQueue(), request_activate_pending, kEventPriorityHigh);
-    ReleaseEvent(request_activate_pending);
-}
-
 static void qt_event_cleanup(QWidget *w, EventRef &event)
 {
     if (event) {
@@ -701,10 +671,8 @@ static void qt_event_cleanup(QWidget *w, EventRef &event)
 
 void qt_event_cleanup_for_widget(QWidget *w)
 {
-    if (w) {
-	qt_event_cleanup(w, request_activate_pending);
+    if (w)
 	qt_event_cleanup(w, request_showsheet);
-    }
 }
 
 void qt_event_request_timer(MacTimerInfo *tmr)
@@ -761,7 +729,6 @@ static EventTypeSpec events[] = {
     { kEventClassQt, kEventQtRequestSelect },
     { kEventClassQt, kEventQtRequestShowSheet },
     { kEventClassQt, kEventQtRequestContext },
-    { kEventClassQt, kEventQtRequestActivate },
 #ifndef QMAC_QMENUBAR_NO_NATIVE
     { kEventClassQt, kEventQtRequestMenubarUpdate },
 #endif
@@ -1698,12 +1665,6 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 	    QGuiEventLoop *l = NULL;
 	    GetEventParameter(event, kEventParamQGuiEventLoop, typeQGuiEventLoop, NULL, sizeof(l), NULL, &l);
 	    l->activateSocketNotifiers();
-	} else if(ekind == kEventQtRequestActivate) {
-	    request_activate_pending = 0;
-	    QWidget *w = 0;
-	    GetEventParameter(event, kEventParamQWidget, typeQWidget, 0, sizeof(w), 0, &w);
-	    if(w)
-		w->setActiveWindow();
 	} else if(ekind == kEventQtRequestContext) {
 	    bool send = FALSE;
 	    if((send = (event == request_context_hold_pending)))
