@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Definition of QPtrVector pointer based template class
 **
@@ -92,8 +92,19 @@ protected:
 #endif
 
 private:
-    void  deleteItem( Item d ) { if ( del_item ) delete (type *)d; }
+    void  deleteItem( Item d );
 };
+
+#if !defined(Q_BROKEN_TEMPLATE_SPECIALIZATION)
+template<> inline void QPtrVector<void>::deleteItem( QPtrCollection::Item )
+{
+}
+#endif
+
+template<class type> inline void QPtrVector<type>::deleteItem( QPtrCollection::Item d )
+{
+    if ( del_item ) delete (type *)d;
+}
 
 #ifndef QT_NO_COMPAT
 #define QVector QPtrVector

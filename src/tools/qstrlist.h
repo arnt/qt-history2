@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Definition of QStrList, QStrIList and QStrListIterator classes
 **

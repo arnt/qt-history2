@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Definition of QCache template class
 **
@@ -76,8 +76,19 @@ public:
 			{ return (type *)QGCache::find_string(k);}
     void  statistics() const	      { QGCache::statistics(); }
 private:
-    void  deleteItem( Item d )	      { if ( del_item ) delete (type *)d; }
+    void  deleteItem( Item d );
 };
+
+#if !defined(Q_BROKEN_TEMPLATE_SPECIALIZATION)
+template<> inline void QCache<void>::deleteItem( QPtrCollection::Item )
+{
+}
+#endif
+
+template<class type> inline void QCache<type>::deleteItem( QPtrCollection::Item d )
+{
+    if ( del_item ) delete (type *)d;
+}
 
 template<class type>
 class Q_EXPORT QCacheIterator : public QGCacheIterator

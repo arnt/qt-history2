@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Definition of QPtrQueue template/macro class
 **
@@ -70,8 +70,19 @@ protected:
 #endif
 
 private:
-    void  deleteItem( Item d ) { if ( del_item ) delete (type *)d; }
+    void  deleteItem( Item d );
 };
+
+#if !defined(Q_BROKEN_TEMPLATE_SPECIALIZATION)
+template<> inline void QPtrQueue<void>::deleteItem( QPtrCollection::Item )
+{
+}
+#endif
+
+template<class type> inline void QPtrQueue<type>::deleteItem( QPtrCollection::Item d )
+{
+    if ( del_item ) delete (type *)d;
+}
 
 #ifndef QT_NO_COMPAT
 #define QQueue QPtrQueue
