@@ -1938,10 +1938,12 @@ QCString combinePath( const char *infile, const char *outfile )
     b = bDir;
     int i = 0;
     int ncommondirs = 0;
-    while ( a[i] && a[i] == b[i] ) {
-	if ( a[i] == '/' && i > 0 )
-	    ncommondirs++;
-	i++;
+    if ( b.left(3) != "../" ) {
+	while ( a[i] && a[i] == b[i] ) {
+	    if ( a[i] == '/' && i > 0 )
+		ncommondirs++;
+	    i++;
+	}
     }
     if ( ncommondirs > 0 ) {			// common base directory
 	while ( i>=0 ) {
@@ -1979,7 +1981,7 @@ QCString combinePath( const char *infile, const char *outfile )
     while ( i-- > 0 )
 	r += "../";
     r += a;
-    return r;
+    return QCString( cleanDirPath( r ) );
 }
 
 
