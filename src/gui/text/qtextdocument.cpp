@@ -368,20 +368,25 @@ void QTextDocument::markContentsDirty(int from, int length)
 /*!
     \fn void QTextDocument::contentsChanged()
 
-    This signal is emitted whenever the documents content changes, for
-    example, text is inserted or deleted, or formatting is applied.
+    This signal is emitted whenever the document's content changes; for
+    example, when text is inserted or deleted, or when formatting is applied.
 
-    This signal is emitted
+    \sa contentsChange()
 */
 
 /*!
-    \fn void QTextDocument::contentsChange(int from, int charsRemoved, int charsAdded)
+    \fn void QTextDocument::contentsChange(int position, int charsRemoved, int charsAdded)
 
-    This signal is emitted whenever the documents content changes, for
-    example, text is inserted or deleted, or formatting is
-    applied. The signal is emitted before the documents layout gets
-    notified about the change. This hook allows it to implement
-    a syntax highlighter for the document.
+    This signal is emitted whenever the document's content changes; for
+    example, when text is inserted or deleted, or when formatting is applied.
+
+    Information is provided about the \a position of the character in the
+    document where the change occurred, the number of characters removed
+    (\a charsRemoved), and the number of characters added (\a charsAdded).
+
+    The signal is emitted before the document's layout manager is notified
+    about the change. This hook allows you to implement syntax highlighting
+    for the document.
 
     \sa QAbstractTextDocumentLayout::documentModified()
 */
@@ -407,16 +412,6 @@ void QTextDocument::markContentsDirty(int from, int length)
     This signal is emitted whenever the position of a cursor changed
     due to an editing operation. The cursor that changed is passed in
     \a cursor.
-*/
-
-/*!
-    \enum QTextDocument::FindDirection
-
-    This enum is used to specify the search direction when searching
-    for text with the find() function.
-
-    \value FindForward
-    \value FindBackward
 */
 
 /*!
@@ -536,6 +531,7 @@ void QTextDocument::setHtml(const QString &html)
     This enum describes the options available to QTextDocument's find function. The options
     can be OR-red together from the following list:
 
+    \value FindBackward
     \value FindCaseSensitively By default find works case insensitive. Specifying this option
     changes the behaviour to a case sensitive find operation.
     \value FindWholeWords Makes find match only complete words.
@@ -565,14 +561,14 @@ static bool findInBlock(const QTextBlock &block, const QString &text, const QStr
 }
 
 /*!
-    \fn QTextCursor QTextDocument::find(const QString &expr, int position, FindFlags options, FindDirection direction) const
+    \fn QTextCursor QTextDocument::find(const QString &expr, int position, FindFlags options) const
 
     \overload
 
     Finds the next occurrence of the string, \a expr, in the document.
-    The search starts at the given \a position, and proceeds in the
-    \a direction specified. The \a options control the type of search
-    performed.
+    The search starts at the given \a position, and proceeds forwards
+    through the document unless specified otherwise in the search options.
+    The \a options control the type of search performed.
 
     Returns a cursor with the match selected if \a expr was found; otherwise
     returns a null cursor.
@@ -630,12 +626,12 @@ QTextCursor QTextDocument::find(const QString &expr, int from, FindFlags options
 }
 
 /*!
-    \fn QTextCursor QTextDocument::find(const QString &expr, const QTextCursor &cursor, FindFlags options, FindDirection direction) const
+    \fn QTextCursor QTextDocument::find(const QString &expr, const QTextCursor &cursor, FindFlags options) const
 
     Finds the next occurrence of the string, \a expr, in the document.
     The search starts at the position of the given \a cursor, and proceeds
-    in the \a direction specified. The \a options control the type
-    of search performed.
+    forwards through the document unless specified otherwise in the search
+    options. The \a options control the type of search performed.
 
     Returns a cursor with the match selected if \a expr was found; otherwise
     returns a null cursor.
