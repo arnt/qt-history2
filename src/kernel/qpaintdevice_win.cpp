@@ -23,7 +23,7 @@
 
 
 QPaintDevice::QPaintDevice( uint devflags )
-#ifdef Q_Q4PAINTER
+#ifndef Q_Q3PAINTER
     : deviceGC(0)
 #endif
 {

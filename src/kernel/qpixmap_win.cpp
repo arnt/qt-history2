@@ -21,7 +21,7 @@
 #include "qt_windows.h"
 #include <limits.h>
 
-#ifdef Q_Q4PAINTER
+#ifndef Q_Q3PAINTER
 #include "qgc_win.h"
 #endif
 
@@ -115,7 +115,7 @@ void QPixmap::init( int w, int h, int d, bool bitmap, Optimization optim )
 		  "is being used" );
     }
 
-#ifdef Q_Q4PAINTER
+#ifndef Q_Q3PAINTER
     Q_ASSERT(!deviceGC);
     deviceGC = new QWin32GC(this);
 #endif
@@ -260,7 +260,7 @@ void QPixmap::deref()
 	    hdc = 0;
 	}
 	delete data;
-#ifdef Q_Q4PAINTER
+#ifndef Q_Q3PAINTER
 	delete deviceGC;
 	deviceGC = 0;
 #endif

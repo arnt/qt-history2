@@ -34,7 +34,7 @@
 #include "qnc_win.h"
 #endif
 
-#ifdef Q_Q4PAINTER
+#ifndef Q_Q3PAINTER
 #include "qgc_win.h"
 #endif
 
@@ -633,7 +633,7 @@ void qt_init( QApplicationPrivate *priv, int )
     QColor::initialize();
     QFont::initialize();
     QCursor::initialize();
-#ifdef Q_Q4PAINTER
+#ifndef Q_Q3PAINTER
     QWin32GC::initialize();
 #else
     QPainter::initialize();
@@ -682,7 +682,7 @@ void qt_cleanup()
 {
     unregWinClasses();
     QPixmapCache::clear();
-#ifndef Q_Q4PAINTER
+#ifdef Q_Q3PAINTER
     QPainter::cleanup();
 #else
     QWin32GC::cleanup();

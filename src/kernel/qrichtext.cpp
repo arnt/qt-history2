@@ -39,7 +39,7 @@
 
 #include <stdlib.h>
 
-#if defined(Q_WS_X11) && defined(Q_Q4PAINTER)
+#if defined(Q_WS_X11) && !defined(Q_Q3PAINTER)
 #include "qgc_x11.h"
 #define QPaintDevice QX11GC
 #endif
@@ -6006,7 +6006,7 @@ QTextFormatCollection::~QTextFormatCollection()
     delete defFormat;
 }
 
-#if defined(Q_WS_X11) && defined(Q_Q4PAINTER)
+#if defined(Q_WS_X11) && !defined(Q_Q3PAINTER)
 #undef QPaintDevice
 #endif
 void QTextFormatCollection::setPaintDevice( QPaintDevice *pd )
@@ -6014,7 +6014,7 @@ void QTextFormatCollection::setPaintDevice( QPaintDevice *pd )
     paintdevice = pd;
 
 #if defined(Q_WS_X11)
-#ifdef Q_Q4PAINTER
+#ifndef Q_Q3PAINTER
 #define QPaintDevice QX11GC
 #endif
     int scr = ( paintdevice ) ? paintdevice->x11Screen() : QPaintDevice::x11AppScreen();

@@ -60,7 +60,7 @@
 #include <private/qunicodetables_p.h>
 #include <private/qcrashhandler_p.h>
 
-#ifdef Q_Q4PAINTER
+#ifndef Q_Q3PAINTER
 #include "qgc_x11.h"
 #define QPaintDevice QX11GC
 #endif
@@ -1761,7 +1761,7 @@ void qt_init( QApplicationPrivate *priv, int,
 	    }
 	}
 
-#ifndef Q_Q4PAINTER
+#ifdef Q_Q3PAINTER
 	// Set X paintdevice parameters for the default screen
 	QPaintDevice::x_appdepth = QPaintDevice::x_appdepth_arr[ appScreen ];
 	QPaintDevice::x_appcells = QPaintDevice::x_appcells_arr[ appScreen ];
@@ -1797,7 +1797,7 @@ void qt_init( QApplicationPrivate *priv, int,
 	if (XRenderQueryExtension(X11->display, &xrender_eventbase, &xrender_errorbase)) {
 	    // XRender is supported, let's see if we have a PictFormat for the
 	    // default visual
-#ifdef Q_Q4PAINTER
+#ifndef Q_Q3PAINTER
 	    XRenderPictFormat *format =
 		XRenderFindVisualFormat(X11->display,
 					(Visual *) QX11GC::x11AppVisual(appScreen));
@@ -1881,7 +1881,7 @@ void qt_init( QApplicationPrivate *priv, int,
 	QColor::initialize();
 	QFont::initialize();
 	QCursor::initialize();
-#ifdef Q_Q4PAINTER
+#ifndef Q_Q3PAINTER
 	QX11GC::initialize();
 #else
  	QPainter::initialize();
@@ -2175,7 +2175,7 @@ void qt_cleanup()
 
     if ( qt_is_gui_used ) {
 	QPixmapCache::clear();
-#ifdef Q_Q4PAINTER
+#ifndef Q_Q3PAINTER
 	QX11GC::cleanup();
 #else
 	QPainter::cleanup();

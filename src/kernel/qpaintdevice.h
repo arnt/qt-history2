@@ -31,7 +31,7 @@ class QString;
 class QTextItem;
 class QApplicationPrivate;
 
-#ifdef Q_Q4PAINTER
+#ifndef Q_Q3PAINTER
 class QAbstractGC;
 #endif
 
@@ -86,7 +86,7 @@ public:
     virtual Qt::HANDLE	handle() const;
 #endif
 
-#ifdef Q_Q4PAINTER
+#ifndef Q_Q3PAINTER
     QAbstractGC *gc() const { return deviceGC; }
 #endif
 
@@ -242,7 +242,7 @@ protected:
     friend void qt_cleanup();
 #endif
 
-#ifdef Q_Q4PAINTER
+#ifndef Q_Q3PAINTER
 protected:
     QAbstractGC *deviceGC;
 #endif
@@ -320,7 +320,7 @@ inline bool QPaintDevice::paintingActive() const
 { return painters != 0; }
 
 #if defined(Q_WS_X11)
-#ifndef Q_Q4PAINTER
+#ifdef Q_Q3PAINTER
 inline Display *QPaintDevice::x11Display() const
 { return x11Data ? x11Data->x_display : x_appdisplay; }
 
@@ -361,7 +361,7 @@ inline int QPaintDevice::x11AppCells( int screen )
 inline Qt::HANDLE QPaintDevice::x11AppRootWindow( int screen )
 { return x_approotwindow_arr[ screen == -1 ? x_appscreen : screen ]; }
 
-#ifndef Q_Q4PAINTER
+#ifdef Q_Q3PAINTER
 inline Qt::HANDLE QPaintDevice::x11AppColormap( int screen )
 { return x_appcolormap_arr[ screen == -1 ? x_appscreen : screen ]; }
 #endif
@@ -369,7 +369,7 @@ inline Qt::HANDLE QPaintDevice::x11AppColormap( int screen )
 inline bool QPaintDevice::x11AppDefaultColormap( int screen )
 { return x_appdefcolormap_arr[ screen == -1 ? x_appscreen : screen ]; }
 
-#ifndef Q_Q4PAINTER
+#ifdef Q_Q3PAINTER
 inline void *QPaintDevice::x11AppVisual( int screen )
 { return x_appvisual_arr[ screen == -1 ? x_appscreen : screen ]; }
 #endif

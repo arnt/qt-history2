@@ -434,7 +434,7 @@ bool QPicture::exec( QPainter *painter, QDataStream &s, int nrecords )
 		s >> p;
 		painter->drawPoint( p );
 		break;
-#ifndef Q_Q4PAINTER
+#ifdef Q_Q3PAINTER
 	    case PdcMoveTo:
 		s >> p;
 		painter->moveTo( p );
@@ -571,7 +571,7 @@ bool QPicture::exec( QPainter *painter, QDataStream &s, int nrecords )
 		s >> brush;
 		painter->setBrush( brush );
 		break;
-#ifndef Q_Q4PAINTER
+#ifdef Q_Q3PAINTER
 	case PdcSetTabStops:
 		s >> i_16;
 		painter->setTabStops( i_16 );
@@ -622,7 +622,7 @@ bool QPicture::exec( QPainter *painter, QDataStream &s, int nrecords )
 #endif
 		break;
 #ifndef QT_NO_TRANSFORMATIONS
-#ifndef Q_Q4PAINTER
+#ifdef Q_Q3PAINTER
 	    case PdcSaveWMatrix:
 		painter->saveWorldMatrix();
 		break;
@@ -996,7 +996,7 @@ QPicture QPicture::copy() const
     called with (\a x, \a y) = (0, 0).
 */
 
-#ifndef Q_Q4PAINTER
+#ifdef Q_Q3PAINTER
 void QPainter::drawPicture( int x, int y, const QPicture &pic )
 {
     save();

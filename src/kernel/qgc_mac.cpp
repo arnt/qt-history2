@@ -1,3 +1,17 @@
+/****************************************************************************
+**
+** Definition of QPainter class.
+**
+** Copyright (C) 1992-2003 Trolltech AS. All rights reserved.
+**
+** This file is part of the kernel module of the Qt GUI Toolkit.
+** EDITIONS: FREE, PROFESSIONAL, ENTERPRISE
+**
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+**
+****************************************************************************/
+
 #include "qgc_mac.h"
 #include "qwidget.h"
 #include "qbitmap.h"
@@ -12,7 +26,7 @@
 #include <qtextcodec.h>
 #include <qprinter.h>
 #include <private/qgc_mac_p.h>
-#include <private/q4painter_p.h>
+#include <private/qpainter_p.h>
 #include <private/qfontengine_p.h>
 #include <private/qtextlayout_p.h>
 #include <string.h>
@@ -28,7 +42,7 @@ QAbstractGC *qt_mac_current_gc = 0; //Current "active" QGC
  *****************************************************************************/
 QPoint posInWindow(QWidget *w); //qwidget_mac.cpp
 bool qt_recreate_root_win(); //qwidget_mac.cpp
-QRegion make_region(RgnHandle handle); 
+QRegion make_region(RgnHandle handle);
 void qt_mac_clip_cg_handle(CGContextRef, const QRegion &, const QPoint &, bool); //qpaintdevice_mac.cpp
 void unclippedBitBlt(QPaintDevice *dst, int dx, int dy, const QPaintDevice *src, int sx, int sy, int sw, int sh,
 		     Qt::RasterOp rop, bool imask, bool set_fore_colour); //qpaintdevice_mac.cpp
@@ -90,7 +104,7 @@ QQuickDrawGC::~QQuickDrawGC()
     delete d;
 }
 
-bool 
+bool
 QQuickDrawGC::begin(const QPaintDevice *pdev, QPainterState *ps, bool unclipped)
 {
     if(isActive()) {                         // already active painting
@@ -98,7 +112,7 @@ QQuickDrawGC::begin(const QPaintDevice *pdev, QPainterState *ps, bool unclipped)
                   "\n\tYou must end() the painter before a second begin()" );
 	return false;
     }
-    if(pdev->devType() == QInternal::Widget && 
+    if(pdev->devType() == QInternal::Widget &&
        !static_cast<const QWidget*>(pdev)->testWState(WState_InPaintEvent)) {
 	qWarning("QQuickDrawGC::begin: Widget painting can only begin as a "
 		 "result of a paintEvent");
@@ -174,7 +188,7 @@ QQuickDrawGC::begin(const QPaintDevice *pdev, QPainterState *ps, bool unclipped)
     return true;
 }
 
-bool 
+bool
 QQuickDrawGC::end()
 {
     setActive(false);
@@ -201,13 +215,13 @@ QQuickDrawGC::end()
     return true;
 }
 
-void 
+void
 QQuickDrawGC::updatePen(QPainterState *ps)
 {
     d->current.pen = ps->pen;
 }
 
-void 
+void
 QQuickDrawGC::setupQDPen()
 {
     //pen color
@@ -247,7 +261,7 @@ QQuickDrawGC::setupQDPen()
     PenMode(ropCodes[d->current.rop]);
 }
 
-void 
+void
 QQuickDrawGC::updateBrush(QPainterState *ps)
 {
     d->current.pen = ps->pen;
@@ -297,7 +311,7 @@ QQuickDrawGC::setupQDBrush()
 	0x80, 0x80, 0x41, 0x41, 0x22, 0x22, 0x14, 0x14, 0x08, 0x08, 0x14, 0x14,
 	0x22, 0x22, 0x41, 0x41, 0x80, 0x80, 0x41, 0x41 };
     static uchar *pat_tbl[] = {
-	dense1_pat, dense2_pat, dense3_pat, dense4_pat, dense5_pat, dense6_pat, dense7_pat,	
+	dense1_pat, dense2_pat, dense3_pat, dense4_pat, dense5_pat, dense6_pat, dense7_pat,
 	hor_pat, ver_pat, cross_pat, bdiag_pat, fdiag_pat, dcross_pat };
 
     //Throw away a desktop when you paint into it non copy mode (xor?) I do this because
@@ -336,28 +350,28 @@ QQuickDrawGC::setupQDBrush()
     PenMode(ropCodes[d->current.rop]);
 }
 
-void 
+void
 QQuickDrawGC::updateFont(QPainterState *ps)
 {
     d->current.font = ps->font;
     clearf(DirtyFont);
 }
 
-void 
+void
 QQuickDrawGC::setupQDFont()
 {
     setupQDPen();
     d->current.font.macSetFont(d->pdev);
 }
 
-void 
+void
 QQuickDrawGC::updateRasterOp(QPainterState *ps)
 {
     Q_ASSERT(isActive());
     d->current.rop = ps->rasterOp;
 }
 
-void 
+void
 QQuickDrawGC::updateBackground(QPainterState *ps)
 {
     Q_ASSERT(isActive());
@@ -366,7 +380,7 @@ QQuickDrawGC::updateBackground(QPainterState *ps)
     d->current.bg.color = ps->bgColor;
 }
 
-void 
+void
 QQuickDrawGC::updateXForm(QPainterState */*ps*/)
 {
 }
@@ -383,7 +397,7 @@ QQuickDrawGC::internalSetClippedRegion(QRegion *rgn)
     d->clip.dirty = 1;
 }
 
-void 
+void
 QQuickDrawGC::updateClipRegion(QPainterState *ps)
 {
     Q_ASSERT(isActive());
@@ -400,7 +414,7 @@ void QQuickDrawGC::setRasterOp(RasterOp r)
     d->current.rop = r;
 }
 
-void 
+void
 QQuickDrawGC::drawLine(int x1, int y1, int x2, int y2)
 {
     Q_ASSERT(isActive());
@@ -412,7 +426,7 @@ QQuickDrawGC::drawLine(int x1, int y1, int x2, int y2)
     LineTo(x2+d->offx,y2+d->offy);
 }
 
-void 
+void
 QQuickDrawGC::drawRect(int x, int y, int w, int h)
 {
     Q_ASSERT(isActive());
@@ -453,7 +467,7 @@ QQuickDrawGC::drawRect(int x, int y, int w, int h)
 		internalSetClippedRegion(&newclip);
 
 		//draw the brush
-		drawTiledPixmap(x, y, w, h, *pm, 
+		drawTiledPixmap(x, y, w, h, *pm,
 				x - d->current.bg.origin.x(), y - d->current.bg.origin.y(), true);
 
 		//restore the clip
@@ -467,7 +481,7 @@ QQuickDrawGC::drawRect(int x, int y, int w, int h)
     }
 }
 
-void 
+void
 QQuickDrawGC::drawPoint(int x, int y)
 {
     Q_ASSERT(isActive());
@@ -481,7 +495,7 @@ QQuickDrawGC::drawPoint(int x, int y)
     }
 }
 
-void 
+void
 QQuickDrawGC::drawPoints(const QPointArray &pa, int index, int npoints)
 {
     Q_ASSERT(isActive());
@@ -498,7 +512,7 @@ QQuickDrawGC::drawPoints(const QPointArray &pa, int index, int npoints)
     }
 }
 
-void 
+void
 QQuickDrawGC::drawWinFocusRect(int x, int y, int w, int h, bool xorPaint, const QColor &bgColor)
 {
     Q_ASSERT(isActive());
@@ -532,7 +546,7 @@ QQuickDrawGC::drawWinFocusRect(int x, int y, int w, int h, bool xorPaint, const 
     d->current.pen = old_pen;
 }
 
-void 
+void
 QQuickDrawGC::drawRoundRect(int x, int y, int w, int h, int xRnd, int yRnd)
 {
     Q_ASSERT(isActive());
@@ -553,7 +567,7 @@ QQuickDrawGC::drawRoundRect(int x, int y, int w, int h, int xRnd, int yRnd)
     }
 }
 
-void 
+void
 QQuickDrawGC::drawPolyInternal(const QPointArray &pa, bool close, bool inset)
 {
     Q_ASSERT(isActive());
@@ -621,7 +635,7 @@ QQuickDrawGC::drawPolyInternal(const QPointArray &pa, bool close, bool inset)
     qt_mac_dispose_rgn(polyRegion);
 }
 
-void 
+void
 QQuickDrawGC::drawEllipse(int x, int y, int w, int h)
 {
     Q_ASSERT(isActive());
@@ -663,7 +677,7 @@ QQuickDrawGC::drawEllipse(int x, int y, int w, int h)
 		internalSetClippedRegion(&newclip);
 
 		//draw the brush
-		drawTiledPixmap(x, y, w, h, *pm, 
+		drawTiledPixmap(x, y, w, h, *pm,
 				x - d->current.bg.origin.x(), y - d->current.bg.origin.y(), true);
 
 		//restore the clip
@@ -678,7 +692,7 @@ QQuickDrawGC::drawEllipse(int x, int y, int w, int h)
     }
 }
 
-void 
+void
 QQuickDrawGC::drawChord(int x, int y, int w, int h, int a, int alen)
 {
     Q_ASSERT(isActive());
@@ -691,7 +705,7 @@ QQuickDrawGC::drawChord(int x, int y, int w, int h, int a, int alen)
     drawPolyInternal(pa);
 }
 
-void 
+void
 QQuickDrawGC::drawLineSegments(const QPointArray &pa, int index, int nlines)
 {
     Q_ASSERT(isActive());
@@ -709,7 +723,7 @@ QQuickDrawGC::drawLineSegments(const QPointArray &pa, int index, int nlines)
     }
 }
 
-void 
+void
 QQuickDrawGC::drawPolyline(const QPointArray &pa, int index, int npoints)
 {
     Q_ASSERT(isActive());
@@ -746,7 +760,7 @@ QQuickDrawGC::drawPolyline(const QPointArray &pa, int index, int npoints)
     KillPoly(poly);
 }
 
-void 
+void
 QQuickDrawGC::drawPolygon(const QPointArray &a, bool /*winding*/, int index, int npoints)
 {
     Q_ASSERT(isActive());
@@ -762,7 +776,7 @@ QQuickDrawGC::drawPolygon(const QPointArray &a, bool /*winding*/, int index, int
     drawPolyInternal(pa, true);
 }
 
-void 
+void
 QQuickDrawGC::drawConvexPolygon(const QPointArray &pa, int index, int npoints)
 {
     // Implemented in terms of drawPolygon() [no optimization]
@@ -770,7 +784,7 @@ QQuickDrawGC::drawConvexPolygon(const QPointArray &pa, int index, int npoints)
 }
 
 #ifndef QT_NO_BEZIER
-void 
+void
 QQuickDrawGC::drawCubicBezier(const QPointArray &pa, int index)
 {
     Q_ASSERT(isActive());
@@ -778,7 +792,7 @@ QQuickDrawGC::drawCubicBezier(const QPointArray &pa, int index)
 }
 #endif
 
-void 
+void
 QQuickDrawGC::drawTiledPixmap(int x, int y, int w, int h, const QPixmap &pixmap, int sx, int sy, bool)
 {
     int yPos, xPos, drawH, drawW, yOff, xOff;
@@ -827,7 +841,7 @@ QQuickDrawGC::drawArc(int x, int y, int w, int h, int a, int alen)
     drawPolyline(pa);
 }
 
-void 
+void
 QQuickDrawGC::drawPixmap(int x, int y, const QPixmap &pixmap, int sx, int sy, int sw, int sh)
 {
     Q_ASSERT(isActive());
@@ -844,7 +858,7 @@ QQuickDrawGC::drawPixmap(int x, int y, const QPixmap &pixmap, int sx, int sy, in
     unclippedBitBlt(d->pdev, x, y, &pixmap, sx, sy, sw, sh, (RasterOp)d->current.rop, false, false);
 }
 
-void 
+void
 QQuickDrawGC::drawTextItem(int x, int y, const QTextItem &ti, int textflags)
 {
 #if 0
@@ -864,13 +878,13 @@ QQuickDrawGC::drawTextItem(int x, int y, const QTextItem &ti, int textflags)
 #endif
 }
 
-Qt::HANDLE 
+Qt::HANDLE
 QQuickDrawGC::handle() const
 {
     return 0;
 }
 
-void 
+void
 QQuickDrawGC::initialize()
 {
 }
@@ -882,7 +896,7 @@ void QQuickDrawGC::cleanup()
 /*!
     \internal
 */
-void QQuickDrawGC::initPaintDevice(bool force, QPoint *off, QRegion *rgn) 
+void QQuickDrawGC::initPaintDevice(bool force, QPoint *off, QRegion *rgn)
 {
     bool remade_clip = false;
     if(d->pdev->devType() == QInternal::Printer) {
@@ -919,7 +933,7 @@ void QQuickDrawGC::initPaintDevice(bool force, QPoint *off, QRegion *rgn)
 		d->clip.pdev = clip->clippedRegion(!d->unclipped);
 		d->clip.serial = clip->clippedSerial(!d->unclipped);
 	    }
-	    if(pevent) 
+	    if(pevent)
 		d->clip.pdev &= pevent->region();
 	    d->paintevent = pevent;
 	}
@@ -999,7 +1013,7 @@ static void qt_mac_draw_pattern(void *info, CGContextRef c)
 	    pat->im = new QMacPattern::ImageConv;
 	    pat->im->colorspace = CGColorSpaceCreateDeviceRGB();
 	    pat->im->provider = CGDataProviderCreateWithData(0, pat->mask.bytes, w, 0);
-	    pat->im->image = CGImageCreate(w, h, 8, 1, w, pat->im->colorspace, kCGImageAlphaOnly, 
+	    pat->im->image = CGImageCreate(w, h, 8, 1, w, pat->im->colorspace, kCGImageAlphaOnly,
 					   pat->im->provider, 0, 0, kCGRenderingIntentDefault);
 	}
     } else {
@@ -1010,7 +1024,7 @@ static void qt_mac_draw_pattern(void *info, CGContextRef c)
 	    pat->im->colorspace = CGColorSpaceCreateDeviceRGB();
 	    uint bpl = GetPixRowBytes(GetGWorldPixMap((GWorldPtr)pat->pixmap->handle()));
 	    pat->im->provider = CGDataProviderCreateWithData(0, GetPixBaseAddr(GetGWorldPixMap((GWorldPtr)pat->pixmap->handle())), bpl, 0);
-	    pat->im->image = CGImageCreate(w, h, 8, pat->pixmap->depth(), bpl, pat->im->colorspace, kCGImageAlphaNoneSkipFirst, 
+	    pat->im->image = CGImageCreate(w, h, 8, pat->pixmap->depth(), bpl, pat->im->colorspace, kCGImageAlphaNoneSkipFirst,
 					   pat->im->provider, 0, 0, kCGRenderingIntentDefault);
 	}
     }
@@ -1045,7 +1059,7 @@ static void qt_mac_dispose_pattern(void *info)
 static inline CGContextRef qt_mac_get_cg(QPaintDevice *pdev, QPainterPrivate *paint_d)
 {
     CGContextRef ret = 0;
-    if(pdev->devType() == QInternal::Widget) 
+    if(pdev->devType() == QInternal::Widget)
 	ret = (CGContextRef)((QWidget*)pdev)->macCGHandle(!paint_d->unclipped);
     else
 	ret = (CGContextRef)pdev->macCGHandle();
@@ -1061,7 +1075,7 @@ begin()
 {
     d->fill_pattern = 0;
     hd = qt_mac_get_cg(pdev, d); // get handle to drawable
-    if(hd) 
+    if(hd)
 	CGContextRetain((CGContextRef)hd);
 }
 
@@ -1117,7 +1131,7 @@ updatePen()
     else if(d->current.pen.capStyle() == RoundCap)
 	cglinecap = kCGLineCapRound;
     CGContextSetLineCap((CGContextRef)hd, cglinecap);
-    
+
     CGContextSetLineWidth((CGContextRef)hd, d->current.pen.width() < 1 ? 1 : d->current.pen.width());
 
     const QColor &col = d->current.pen.color();
@@ -1173,7 +1187,7 @@ updateBrush()
 	callbks.releaseInfo = qt_mac_dispose_pattern;
 	d->fill_pattern = CGPatternCreate(qpattern, CGRectMake(0, 0, width, height), CGContextGetCTM((CGContextRef)hd), width, height,
 						  kCGPatternTilingNoDistortion, !qpattern->as_mask, &callbks);
-	CGContextSetFillColorSpace((CGContextRef)hd, d->fill_colorspace); 
+	CGContextSetFillColorSpace((CGContextRef)hd, d->fill_colorspace);
 	const float tmp_float = 1; //wtf?? --SAM (this seems to be necessary, but why!?!) ###
 	CGContextSetFillPattern((CGContextRef)hd, d->fill_pattern, &tmp_float);
     }
@@ -1194,7 +1208,7 @@ updateClip()
 	    if(hd)
 		CGContextRetain((CGContextRef)hd);
 	}
-	if(hd && b) 
+	if(hd && b)
 	    qt_mac_clip_cg_handle((CGContextRef)hd, d->current.clip, QPoint(d->offx, d->offy), true);
     }
 }
@@ -1205,7 +1219,7 @@ drawLine()
     d->mac_point(x1, y1, &cg_x, &cg_y);
     CGContextMoveToPoint((CGContextRef)hd, cg_x, cg_y);
     d->mac_point(x2, y2, &cg_x, &cg_y);
-    CGContextAddLineToPoint((CGContextRef)hd, cg_x, cg_y);  
+    CGContextAddLineToPoint((CGContextRef)hd, cg_x, cg_y);
     CGContextStrokePath((CGContextRef)hd);
 }
 
@@ -1215,9 +1229,9 @@ drawRect()
     d->mac_rect(x, y, w, h, &mac_rect);
     CGContextBeginPath((CGContextRef)hd);
     CGContextAddRect((CGContextRef)hd, mac_rect);
-    if(d->current.brush.style() != NoBrush) 
+    if(d->current.brush.style() != NoBrush)
 	CGContextFillPath((CGContextRef)hd);
-    if(d->current.pen.style() != NoPen) 
+    if(d->current.pen.style() != NoPen)
 	CGContextStrokePath((CGContextRef)hd);
 }
 
@@ -1226,7 +1240,7 @@ drawPoint()
     float cg_x, cg_y;
     d->mac_point(x, y, &cg_x, &cg_y);
     CGContextMoveToPoint((CGContextRef)hd, cg_x, cg_y);
-    CGContextAddLineToPoint((CGContextRef)hd, cg_x+1, cg_y);  
+    CGContextAddLineToPoint((CGContextRef)hd, cg_x+1, cg_y);
     CGContextStrokePath((CGContextRef)hd);
 }
 
@@ -1236,7 +1250,7 @@ drawPoints()
     for(int i=0; i<npoints; i++) {
 	d->mac_point(pa[index+i].x(), pa[index+i].y(), &cg_x, &cg_y);
 	CGContextMoveToPoint((CGContextRef)hd, cg_x, cg_y);
-	CGContextAddLineToPoint((CGContextRef)hd, cg_x+1, cg_y);  
+	CGContextAddLineToPoint((CGContextRef)hd, cg_x+1, cg_y);
 	CGContextStrokePath((CGContextRef)hd);
     }
 }
@@ -1261,7 +1275,7 @@ drawRoundRect()
     CGContextAddPath((CGContextRef)hd, path);
     if(d->current.brush.style() != NoBrush)
 	CGContextFillPath((CGContextRef)hd);
-    if(d->current.pen.style() != NoPen) 
+    if(d->current.pen.style() != NoPen)
 	CGContextStrokePath((CGContextRef)hd);
     CGPathRelease(path);
 }
@@ -1283,7 +1297,7 @@ drawPolyInternal()
     }
     if(d->current.brush.style() != NoBrush)
 	CGContextFillPath((CGContextRef)hd);
-    if(d->current.pen.style() != NoPen) 
+    if(d->current.pen.style() != NoPen)
 	CGContextStrokePath((CGContextRef)hd);
 }
 
@@ -1291,7 +1305,7 @@ drawElippse()
 {
     CGMutablePathRef path = CGPathCreateMutable();
     CGAffineTransform transform;
-    if(w != h) 
+    if(w != h)
 	transform = CGAffineTransformMakeScale(((float)w)/h, 1);
     float cg_x, cg_y;
     d->mac_point(x, y, &cg_x, &cg_y);
@@ -1300,7 +1314,7 @@ drawElippse()
     CGContextAddPath((CGContextRef)hd, path);
     if(d->current.brush.style() != NoBrush)
 	CGContextFillPath((CGContextRef)hd);
-    if(d->current.pen.style() != NoPen) 
+    if(d->current.pen.style() != NoPen)
 	CGContextStrokePath((CGContextRef)hd);
     CGPathRelease(path);
 }
@@ -1309,7 +1323,7 @@ drawChord()
 {
     CGMutablePathRef path = CGPathCreateMutable();
     CGAffineTransform transform;
-    if(w != h) 
+    if(w != h)
 	transform = CGAffineTransformMakeScale(((float)w)/h, 1);
     float cg_x, cg_y;
     d->mac_point(x, y, &cg_x, &cg_y);
@@ -1319,9 +1333,9 @@ drawChord()
     CGPathAddArc(path, w == h ? 0 : &transform, (cg_x+(w/2))/((float)w/h), cg_y+(h/2), h/2, begin_radians, end_radians, a < 0 || alen < 0);
     CGContextBeginPath((CGContextRef)hd);
     CGContextAddPath((CGContextRef)hd, path);
-    if(d->current.brush.style() != NoBrush) 
+    if(d->current.brush.style() != NoBrush)
 	CGContextFillPath((CGContextRef)hd);
-    if(d->current.pen.style() != NoPen) 
+    if(d->current.pen.style() != NoPen)
 	CGContextStrokePath((CGContextRef)hd);
     CGPathRelease(path);
 }
@@ -1337,7 +1351,7 @@ drawLineSegments()
 	d->mac_point(x1, y1, &cg_x, &cg_y);
 	CGContextMoveToPoint((CGContextRef)hd, cg_x, cg_y);
 	d->mac_point(x2, y2, &cg_x, &cg_y);
-	CGContextAddLineToPoint((CGContextRef)hd, cg_x, cg_y);  
+	CGContextAddLineToPoint((CGContextRef)hd, cg_x, cg_y);
 	CGContextStrokePath((CGContextRef)hd);
     }
 }
@@ -1351,7 +1365,7 @@ drawPolyLine()
 	d->mac_point(a[x].x(), a[x].y(), &cg_x, &cg_y);
 	CGContextAddLineToPoint((CGContextRef)hd, cg_x, cg_y);
     }
-    if(d->current.pen.style() != NoPen) 
+    if(d->current.pen.style() != NoPen)
 	CGContextStrokePath((CGContextRef)hd);
 }
 
@@ -1365,7 +1379,7 @@ drawCubicBezier()
     d->mac_point(a[2].x(), a[2].y(), &c2_x, &c2_y);
     d->mac_point(a[3].x(), a[3].y(), &cg_x, &cg_y);
     CGContextAddCurveToPoint((CGContextRef)hd, c1_x, c1_y, c2_x, c2_y, cg_x, cg_y);
-    if(d->current.pen.style() != NoPen) 
+    if(d->current.pen.style() != NoPen)
 	CGContextStrokePath((CGContextRef)hd);
 }
 
@@ -1386,7 +1400,7 @@ drawTiledPixmap()
     CGPatternRef pat = CGPatternCreate(qpattern, CGRectMake(0, 0, width, height), CGContextGetCTM((CGContextRef)hd), width, height,
 					      kCGPatternTilingNoDistortion, true, &callbks);
     CGColorSpaceRef cs = CGColorSpaceCreatePattern(NULL);
-    CGContextSetFillColorSpace((CGContextRef)hd, cs); 
+    CGContextSetFillColorSpace((CGContextRef)hd, cs);
     const float tmp_float = 1; //wtf?? --SAM (this seems to be necessary, but why!?!) ###
     CGContextSetFillPattern((CGContextRef)hd, pat, &tmp_float);
     CGContextSetPatternPhase((CGContextRef)hd, CGSizeMake(-sx, -sy));
@@ -1405,7 +1419,7 @@ drawPie()
 {
     CGMutablePathRef path = CGPathCreateMutable();
     CGAffineTransform transform;
-    if(w != h) 
+    if(w != h)
 	transform = CGAffineTransformMakeScale(((float)w)/h, 1);
     float cg_x, cg_y;
     d->cg_mac_point(x, y, &cg_x, &cg_y);
@@ -1415,9 +1429,9 @@ drawPie()
     CGPathAddLineToPoint(path, 0, cg_x + (w/2), cg_y + (h/2));
     CGContextBeginPath((CGContextRef)hd);
     CGContextAddPath((CGContextRef)hd, path);
-    if(cbrush.style() != NoBrush) 
+    if(cbrush.style() != NoBrush)
 	CGContextFillPath((CGContextRef)hd);
-    if(cpen.style() != NoPen) 
+    if(cpen.style() != NoPen)
 	CGContextStrokePath((CGContextRef)hd);
     CGPathRelease(path);
 }
@@ -1426,7 +1440,7 @@ drawArc()
 {
     CGMutablePathRef path = CGPathCreateMutable();
     CGAffineTransform transform;
-    if(w != h) 
+    if(w != h)
 	transform = CGAffineTransformMakeScale(((float)w)/h, 1);
     float cg_x, cg_y;
     d->cg_mac_point(x, y, &cg_x, &cg_y);
@@ -1434,7 +1448,7 @@ drawArc()
     CGPathAddArc(path, w == h ? 0 : &transform, (cg_x+(w/2))/((float)w/h), cg_y + (h/2), h/2, begin_radians, end_radians, a < 0 || alen < 0);
     CGContextBeginPath((CGContextRef)hd);
     CGContextAddPath((CGContextRef)hd, path);
-    if(cpen.style() != NoPen) 
+    if(cpen.style() != NoPen)
 	CGContextStrokePath((CGContextRef)hd);
     CGPathRelease(path);
 }

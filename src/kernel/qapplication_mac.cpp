@@ -23,7 +23,7 @@
 #include "private/qcolor_p.h"
 #include "qwidget.h"
 #include "qbitarray.h"
-#ifdef Q_Q4PAINTER
+#ifndef Q_Q3PAINTER
 #  include "qgc_mac.h"
 #else
 #  include "qpainter.h"
@@ -895,7 +895,7 @@ void qt_init(QApplicationPrivate *priv, QApplication::Type)
 	QColor::initialize();
 	QFont::initialize();
 	QCursor::initialize();
-#ifdef Q_Q4PAINTER
+#ifndef Q_Q3PAINTER
 	QQuickDrawGC::initialize();
 #else
  	QPainter::initialize();
@@ -940,7 +940,7 @@ void qt_cleanup()
 #if defined(QT_ACCESSIBILITY_SUPPORT)
 	QAccessible::cleanup();
 #endif
-#ifdef Q_Q4PAINTER
+#ifndef Q_Q3PAINTER
 	QQuickDrawGC::cleanup();
 #else
 	QPainter::cleanup();

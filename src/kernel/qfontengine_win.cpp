@@ -23,8 +23,8 @@
 #include <private/qunicodetables_p.h>
 #include <qbitmap.h>
 
-#ifdef Q_Q4PAINTER
-#include "q4painter_p.h"
+#ifndef Q_Q3PAINTER
+#include "qpainter_p.h"
 #include "qabstractgc.h"
 #endif
 
@@ -260,7 +260,7 @@ QFontEngine::Error QFontEngineWin::stringToCMap( const QChar *str, int len, glyp
 
 void QFontEngineWin::draw( QPainter *p, int x, int y, const QTextEngine *engine, const QScriptItem *si, int textFlags )
 {
-#ifndef Q_Q4PAINTER
+#ifdef Q_Q3PAINTER
     bool nat_xf = (qWinVersion() & Qt::WV_NT_based) && p->txop >= QPainter::TxScale;
 
     bool force_bitmap = p->rop != QPainter::CopyROP;
@@ -499,7 +499,7 @@ void QFontEngineWin::draw( QPainter *p, int x, int y, const QTextEngine *engine,
     if ( nat_xf )
 	p->nativeXForm( FALSE );
 #else
-    // Q_Q4PAINTER begins here...
+    // Qt 4 painter begins here..
     HDC old_hdc = hdc;
     hdc = p->handle();
     bool nat_xf = (qWinVersion() & Qt::WV_NT_based) && p->d->txop >= QPainter::TxScale;

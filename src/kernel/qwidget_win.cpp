@@ -31,7 +31,7 @@
 #include "qlibrary.h"
 #include "qdesktopwidget.h"
 
-#ifdef Q_Q4PAINTER
+#ifndef Q_Q3PAINTER
 #include "qgc_win.h"
 #endif
 
@@ -401,7 +401,7 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
     d->setFont_syshelper();
     QInputContext::enable( this, im_enabled & isEnabled() );
 
-#ifdef Q_Q4PAINTER
+#ifndef Q_Q3PAINTER
     if (destroyOldWindow && deviceGC) {
 	delete deviceGC;
 	deviceGC = 0;
@@ -436,7 +436,7 @@ void QWidget::destroy( bool destroyWindow, bool destroySubWindows )
 	    DestroyWindow( winId() );
 	}
 	setWinId( 0 );
-#ifdef Q_Q4PAINTER
+#ifndef Q_Q3PAINTER
        delete deviceGC;
        deviceGC = 0;
 #endif

@@ -35,7 +35,7 @@
 
 #include "qwidget_p.h"
 
-#ifdef Q_Q4PAINTER
+#ifndef Q_Q3PAINTER
 #include "qgc_qws.h"
 #endif
 
@@ -410,7 +410,7 @@ void QWSManager::paintEvent(QPaintEvent *)
     QRegion r = managed->d->topData()->decor_allocated_region;
     int rgnIdx = managed->alloc_region_index;
 
-#if Q_Q4PAINTER
+#if !defined(Q_Q3PAINTER)
     QGfx *gfx = static_cast<QWSGC *>(painter.device()->gc())->gfx();
 #else
     QGfx *gfx = painter.internalGfx();

@@ -19,8 +19,8 @@
 #include "qdatastream.h"
 #include "qimage.h"
 #include "qpaintdevicemetrics.h"
-#include "qpainter.h"
-#include "qpainter_p.h"
+#include "q3painter.h"
+#include "q3painter_p.h"
 #include "qmap.h"
 #include "qlist.h"
 #include "qregexp.h"
@@ -683,7 +683,6 @@ void QPainter::save()
     QPStateStack *pss = (QPStateStack *)ps_stack;
     if ( pss == 0 ) {
 	pss = new QPStateStack;
-	pss->setAutoDelete( TRUE );
 	ps_stack = pss;
     }
     QPState *ps = new QPState;

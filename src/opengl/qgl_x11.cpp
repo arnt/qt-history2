@@ -22,7 +22,7 @@
 #include "qpixmap.h"
 #include "qintdict.h"
 
-#ifdef Q_Q4PAINTER
+#ifndef Q_Q3PAINTER
 #include "qgc_x11.h"
 #define QPaintDevice QX11GC
 #endif

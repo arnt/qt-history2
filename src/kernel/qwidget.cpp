@@ -1195,7 +1195,7 @@ void QPixmap::fill( const QWidget *widget, int xoff, int yoff )
 	offset -= w->pos();
     }
 }
-#ifndef Q_Q4PAINTER
+#ifdef Q_Q3PAINTER
 void QPainter::copyFrom(const QWidget* w)
 {
     if (!w)

@@ -1,13 +1,18 @@
 /****************************************************************************
-** $Id: .emacs,v 1.3 1998/02/20 15:06:53 agulbra Exp $
 **
-** Definition of something or other
+** Definition of QPainter class.
 **
-** Created : 979899
+** Copyright (C) 1992-2003 Trolltech AS. All rights reserved.
 **
-** Copyright (C) 1997 by Troll Tech AS.  All rights reserved.
+** This file is part of the kernel module of the Qt GUI Toolkit.
+** EDITIONS: FREE, PROFESSIONAL, ENTERPRISE
 **
-****************************************************************************/#ifndef QGC_MAC_H
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+**
+****************************************************************************/
+
+#ifndef QGC_MAC_H
 #define QGC_MAC_H
 #include "qabstractgc.h"
 #include "qshared.h"

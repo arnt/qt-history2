@@ -12,7 +12,7 @@
 **
 ****************************************************************************/
 
-#include "qpainter.h"
+#include "q3painter.h"
 #include "qwidget.h"
 #include "qbitmap.h"
 #include "qpixmapcache.h"
@@ -85,7 +85,7 @@ bool qt_recreate_root_win(); //qwidget_mac.cpp
 #ifndef USE_CORE_GRAPHICS
 static void drawTile(QPainter *, int, int, int, int, const QPixmap &, int, int);
 #endif
-QRegion make_region(RgnHandle handle); 
+QRegion make_region(RgnHandle handle);
 void qt_mac_clip_cg_handle(CGContextRef, const QRegion &, const QPoint &, bool); //qpaintdevice_mac.cpp
 void unclippedBitBlt(QPaintDevice *dst, int dx, int dy,
 		     const QPaintDevice *src, int sx, int sy, int sw, int sh,
@@ -137,7 +137,7 @@ void qt_clear_paintevent_clipping(QPaintDevice *dev)
 static inline CGContextRef qt_mac_get_cg(QPaintDevice *pdev, QPainterPrivate *paint_d)
 {
     CGContextRef ret = 0;
-    if(pdev->devType() == QInternal::Widget) 
+    if(pdev->devType() == QInternal::Widget)
 	ret = (CGContextRef)((QWidget*)pdev)->macCGHandle(!paint_d->unclipped);
     else
 	ret = (CGContextRef)pdev->macCGHandle();
@@ -309,7 +309,7 @@ void QPainter::updatePen()
     else if(cpen.capStyle() == RoundCap)
 	cglinecap = kCGLineCapRound;
     CGContextSetLineCap((CGContextRef)hd, cglinecap);
-    
+
     CGContextSetLineWidth((CGContextRef)hd, cpen.width() < 1 ? 1 : cpen.width());
 
     const QColor &col = cpen.color();
@@ -352,7 +352,7 @@ static void qt_mac_draw_pattern(void *info, CGContextRef c)
 	    pat->im = new QMacPattern::ImageConv;
 	    pat->im->colorspace = CGColorSpaceCreateDeviceRGB();
 	    pat->im->provider = CGDataProviderCreateWithData(0, pat->mask.bytes, w, 0);
-	    pat->im->image = CGImageCreate(w, h, 8, 1, w, pat->im->colorspace, kCGImageAlphaOnly, 
+	    pat->im->image = CGImageCreate(w, h, 8, 1, w, pat->im->colorspace, kCGImageAlphaOnly,
 					   pat->im->provider, 0, 0, kCGRenderingIntentDefault);
 	}
     } else {
@@ -363,7 +363,7 @@ static void qt_mac_draw_pattern(void *info, CGContextRef c)
 	    pat->im->colorspace = CGColorSpaceCreateDeviceRGB();
 	    uint bpl = GetPixRowBytes(GetGWorldPixMap((GWorldPtr)pat->pixmap->handle()));
 	    pat->im->provider = CGDataProviderCreateWithData(0, GetPixBaseAddr(GetGWorldPixMap((GWorldPtr)pat->pixmap->handle())), bpl, 0);
-	    pat->im->image = CGImageCreate(w, h, 8, pat->pixmap->depth(), bpl, pat->im->colorspace, kCGImageAlphaNoneSkipFirst, 
+	    pat->im->image = CGImageCreate(w, h, 8, pat->pixmap->depth(), bpl, pat->im->colorspace, kCGImageAlphaNoneSkipFirst,
 					   pat->im->provider, 0, 0, kCGRenderingIntentDefault);
 	}
     }
@@ -533,7 +533,7 @@ void QPainter::updateBrush()
 	callbks.releaseInfo = qt_mac_dispose_pattern;
 	d->cg_info.fill_pattern = CGPatternCreate(qpattern, CGRectMake(0, 0, width, height), CGContextGetCTM((CGContextRef)hd), width, height,
 						  kCGPatternTilingNoDistortion, !qpattern->as_mask, &callbks);
-	CGContextSetFillColorSpace((CGContextRef)hd, d->cg_info.fill_colorspace); 
+	CGContextSetFillColorSpace((CGContextRef)hd, d->cg_info.fill_colorspace);
 	const float tmp_float = 1; //wtf?? --SAM (this seems to be necessary, but why!?!) ###
 	CGContextSetFillPattern((CGContextRef)hd, d->cg_info.fill_pattern, &tmp_float);
     }
@@ -551,7 +551,7 @@ bool QPainter::begin(const QPaintDevice *pd, bool unclipped)
 	qWarning("QPainter::begin: Paint device cannot be null");
 	return false;
     }
-    if(pd->devType() == QInternal::Widget && 
+    if(pd->devType() == QInternal::Widget &&
        !static_cast<const QWidget*>(pd)->testWState(WState_InPaintEvent)) {
 	qWarning("QPainter::begin: Widget painting can only begin as a "
 		 "result of a paintEvent");
@@ -632,7 +632,7 @@ bool QPainter::begin(const QPaintDevice *pd, bool unclipped)
 	    QBrush defaultBrush;
 	    cbrush = defaultBrush;
 	}
-	
+
 	{ //offset painting in widget relative the tld
 	    QPoint wp(posInWindow(w));
 	    d->offx = wp.x();
@@ -670,11 +670,11 @@ bool QPainter::begin(const QPaintDevice *pd, bool unclipped)
 #endif
 	    ww = vw = pm->width();                  // default view size
 	    wh = vh = pm->height();
-	} 
+	}
     }
     d->unclipped = unclipped;
     hd = qt_mac_get_cg(pdev, d); // get handle to drawable
-    if(hd) 
+    if(hd)
 	CGContextRetain((CGContextRef)hd);
 #ifndef USE_CORE_GRAPHICS
     initPaintDevice(true); //force setting paint device, this does unclipped fu
@@ -919,7 +919,7 @@ void QPainter::setClipping(bool b)
 	    if(hd)
 		CGContextRetain((CGContextRef)hd);
 	}
-	if(hd && b) 
+	if(hd && b)
 	    qt_mac_clip_cg_handle((CGContextRef)hd, crgn, QPoint(d->offx, d->offy), true);
     }
 #endif
@@ -971,7 +971,7 @@ void QPainter::drawPolyInternal(const QPointArray &a, bool close, bool inset)
     }
     if(cbrush.style() != NoBrush)
 	CGContextFillPath((CGContextRef)hd);
-    if(cpen.style() != NoPen) 
+    if(cpen.style() != NoPen)
 	CGContextStrokePath((CGContextRef)hd);
 #else
     initPaintDevice();
@@ -1067,7 +1067,7 @@ void QPainter::drawPoint(int x, int y)
 	float cg_x, cg_y;
 	d->cg_mac_point(x, y, &cg_x, &cg_y);
 	CGContextMoveToPoint((CGContextRef)hd, cg_x, cg_y);
-	CGContextAddLineToPoint((CGContextRef)hd, cg_x+1, cg_y);  
+	CGContextAddLineToPoint((CGContextRef)hd, cg_x+1, cg_y);
 	CGContextStrokePath((CGContextRef)hd);
 #else
 	initPaintDevice();
@@ -1114,7 +1114,7 @@ void QPainter::drawPoints(const QPointArray& a, int index, int npoints)
 	for(int i=0; i<npoints; i++) {
 	    d->cg_mac_point(pa[index+i].x(), pa[index+i].y(), &cg_x, &cg_y);
 	    CGContextMoveToPoint((CGContextRef)hd, cg_x, cg_y);
-	    CGContextAddLineToPoint((CGContextRef)hd, cg_x+1, cg_y);  
+	    CGContextAddLineToPoint((CGContextRef)hd, cg_x+1, cg_y);
 	    CGContextStrokePath((CGContextRef)hd);
 	}
 #else
@@ -1171,7 +1171,7 @@ void QPainter::lineTo(int x, int y)
 #ifdef USE_CORE_GRAPHICS
     float cg_x, cg_y;
     d->cg_mac_point(x, y, &cg_x, &cg_y);
-    CGContextAddLineToPoint((CGContextRef)hd, cg_x, cg_y);  
+    CGContextAddLineToPoint((CGContextRef)hd, cg_x, cg_y);
     CGContextStrokePath((CGContextRef)hd);
     CGContextMoveToPoint((CGContextRef)hd, cg_x, cg_y);
 #else
@@ -1206,7 +1206,7 @@ void QPainter::drawLine(int x1, int y1, int x2, int y2)
     d->cg_mac_point(x1, y1, &cg_x, &cg_y);
     CGContextMoveToPoint((CGContextRef)hd, cg_x, cg_y);
     d->cg_mac_point(x2, y2, &cg_x, &cg_y);
-    CGContextAddLineToPoint((CGContextRef)hd, cg_x, cg_y);  
+    CGContextAddLineToPoint((CGContextRef)hd, cg_x, cg_y);
     CGContextStrokePath((CGContextRef)hd);
 #else
     initPaintDevice();
@@ -1248,9 +1248,9 @@ void QPainter::drawRect(int x, int y, int w, int h)
     d->cg_mac_rect(x, y, w, h, &mac_rect);
     CGContextBeginPath((CGContextRef)hd);
     CGContextAddRect((CGContextRef)hd, mac_rect);
-    if(cbrush.style() != NoBrush) 
+    if(cbrush.style() != NoBrush)
 	CGContextFillPath((CGContextRef)hd);
-    if(cpen.style() != NoPen) 
+    if(cpen.style() != NoPen)
 	CGContextStrokePath((CGContextRef)hd);
 #else
     initPaintDevice();
@@ -1446,7 +1446,7 @@ void QPainter::drawRoundRect(int x, int y, int w, int h, int xRnd, int yRnd)
     CGContextAddPath((CGContextRef)hd, path);
     if(cbrush.style() != NoBrush)
 	CGContextFillPath((CGContextRef)hd);
-    if(cpen.style() != NoPen) 
+    if(cpen.style() != NoPen)
 	CGContextStrokePath((CGContextRef)hd);
     CGPathRelease(path);
 #else
@@ -1497,7 +1497,7 @@ void QPainter::drawEllipse(int x, int y, int w, int h)
 #ifdef USE_CORE_GRAPHICS
     CGMutablePathRef path = CGPathCreateMutable();
     CGAffineTransform transform;
-    if(w != h) 
+    if(w != h)
 	transform = CGAffineTransformMakeScale(((float)w)/h, 1);
     float cg_x, cg_y;
     d->cg_mac_point(x, y, &cg_x, &cg_y);
@@ -1506,7 +1506,7 @@ void QPainter::drawEllipse(int x, int y, int w, int h)
     CGContextAddPath((CGContextRef)hd, path);
     if(cbrush.style() != NoBrush)
 	CGContextFillPath((CGContextRef)hd);
-    if(cpen.style() != NoPen) 
+    if(cpen.style() != NoPen)
 	CGContextStrokePath((CGContextRef)hd);
     CGPathRelease(path);
 #else
@@ -1602,7 +1602,7 @@ void QPainter::drawArc(int x, int y, int w, int h, int a, int alen)
 #ifdef USE_CORE_GRAPHICS
     CGMutablePathRef path = CGPathCreateMutable();
     CGAffineTransform transform;
-    if(w != h) 
+    if(w != h)
 	transform = CGAffineTransformMakeScale(((float)w)/h, 1);
     float cg_x, cg_y;
     d->cg_mac_point(x, y, &cg_x, &cg_y);
@@ -1610,7 +1610,7 @@ void QPainter::drawArc(int x, int y, int w, int h, int a, int alen)
     CGPathAddArc(path, w == h ? 0 : &transform, (cg_x+(w/2))/((float)w/h), cg_y + (h/2), h/2, begin_radians, end_radians, a < 0 || alen < 0);
     CGContextBeginPath((CGContextRef)hd);
     CGContextAddPath((CGContextRef)hd, path);
-    if(cpen.style() != NoPen) 
+    if(cpen.style() != NoPen)
 	CGContextStrokePath((CGContextRef)hd);
     CGPathRelease(path);
 #else
@@ -1659,7 +1659,7 @@ void QPainter::drawPie(int x, int y, int w, int h, int a, int alen)
 #ifdef USE_CORE_GRAPHICS
     CGMutablePathRef path = CGPathCreateMutable();
     CGAffineTransform transform;
-    if(w != h) 
+    if(w != h)
 	transform = CGAffineTransformMakeScale(((float)w)/h, 1);
     float cg_x, cg_y;
     d->cg_mac_point(x, y, &cg_x, &cg_y);
@@ -1669,9 +1669,9 @@ void QPainter::drawPie(int x, int y, int w, int h, int a, int alen)
     CGPathAddLineToPoint(path, 0, cg_x + (w/2), cg_y + (h/2));
     CGContextBeginPath((CGContextRef)hd);
     CGContextAddPath((CGContextRef)hd, path);
-    if(cbrush.style() != NoBrush) 
+    if(cbrush.style() != NoBrush)
 	CGContextFillPath((CGContextRef)hd);
-    if(cpen.style() != NoPen) 
+    if(cpen.style() != NoPen)
 	CGContextStrokePath((CGContextRef)hd);
     CGPathRelease(path);
 #else
@@ -1715,7 +1715,7 @@ void QPainter::drawChord(int x, int y, int w, int h, int a, int alen)
 #ifdef USE_CORE_GRAPHICS
     CGMutablePathRef path = CGPathCreateMutable();
     CGAffineTransform transform;
-    if(w != h) 
+    if(w != h)
 	transform = CGAffineTransformMakeScale(((float)w)/h, 1);
     float cg_x, cg_y;
     d->cg_mac_point(x, y, &cg_x, &cg_y);
@@ -1725,9 +1725,9 @@ void QPainter::drawChord(int x, int y, int w, int h, int a, int alen)
     CGPathAddArc(path, w == h ? 0 : &transform, (cg_x+(w/2))/((float)w/h), cg_y+(h/2), h/2, begin_radians, end_radians, a < 0 || alen < 0);
     CGContextBeginPath((CGContextRef)hd);
     CGContextAddPath((CGContextRef)hd, path);
-    if(cbrush.style() != NoBrush) 
+    if(cbrush.style() != NoBrush)
 	CGContextFillPath((CGContextRef)hd);
-    if(cpen.style() != NoPen) 
+    if(cpen.style() != NoPen)
 	CGContextStrokePath((CGContextRef)hd);
     CGPathRelease(path);
 #else
@@ -1781,7 +1781,7 @@ void QPainter::drawLineSegments(const QPointArray &a, int index, int nlines)
 	d->cg_mac_point(x1, y1, &cg_x, &cg_y);
 	CGContextMoveToPoint((CGContextRef)hd, cg_x, cg_y);
 	d->cg_mac_point(x2, y2, &cg_x, &cg_y);
-	CGContextAddLineToPoint((CGContextRef)hd, cg_x, cg_y);  
+	CGContextAddLineToPoint((CGContextRef)hd, cg_x, cg_y);
 	CGContextStrokePath((CGContextRef)hd);
     }
 #else
@@ -1840,7 +1840,7 @@ void QPainter::drawPolyline(const QPointArray &a, int index, int npoints)
 	d->cg_mac_point(a[x].x(), a[x].y(), &cg_x, &cg_y);
 	CGContextAddLineToPoint((CGContextRef)hd, cg_x, cg_y);
     }
-    if(cpen.style() != NoPen) 
+    if(cpen.style() != NoPen)
 	CGContextStrokePath((CGContextRef)hd);
 #else
     int x1, y1, x2, y2, xsave, ysave;
@@ -1957,7 +1957,7 @@ void QPainter::drawCubicBezier(const QPointArray &a, int index)
     d->cg_mac_point(a[2].x(), a[2].y(), &c2_x, &c2_y);
     d->cg_mac_point(a[3].x(), a[3].y(), &cg_x, &cg_y);
     CGContextAddCurveToPoint((CGContextRef)hd, c1_x, c1_y, c2_x, c2_y, cg_x, cg_y);
-    if(cpen.style() != NoPen) 
+    if(cpen.style() != NoPen)
 	CGContextStrokePath((CGContextRef)hd);
 #else
     drawPolyline(pa.cubicBezier());
@@ -2134,7 +2134,7 @@ void QPainter::drawTiledPixmap(int x, int y, int w, int h,
     CGPatternRef pat = CGPatternCreate(qpattern, CGRectMake(0, 0, width, height), CGContextGetCTM((CGContextRef)hd), width, height,
 					      kCGPatternTilingNoDistortion, true, &callbks);
     CGColorSpaceRef cs = CGColorSpaceCreatePattern(NULL);
-    CGContextSetFillColorSpace((CGContextRef)hd, cs); 
+    CGContextSetFillColorSpace((CGContextRef)hd, cs);
     const float tmp_float = 1; //wtf?? --SAM (this seems to be necessary, but why!?!) ###
     CGContextSetFillPattern((CGContextRef)hd, pat, &tmp_float);
     CGContextSetPatternPhase((CGContextRef)hd, CGSizeMake(-sx, -sy));
@@ -2263,7 +2263,7 @@ QPoint QPainter::pos() const
 /*!
     \internal
 */
-void QPainter::initPaintDevice(bool force, QPoint *off, QRegion *rgn) 
+void QPainter::initPaintDevice(bool force, QPoint *off, QRegion *rgn)
 {
     bool remade_clip = false;
     if(pdev->devType() == QInternal::Printer) {
@@ -2300,7 +2300,7 @@ void QPainter::initPaintDevice(bool force, QPoint *off, QRegion *rgn)
 		d->qd_info.clippedreg = clip->clippedRegion(!d->unclipped);
 		d->qd_info.clip_serial = clip->clippedSerial(!d->unclipped);
 	    }
-	    if(pevent) 
+	    if(pevent)
 		d->qd_info.clippedreg &= pevent->region();
 	    d->qd_info.paintevent = pevent;
 	}

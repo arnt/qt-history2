@@ -25,7 +25,7 @@
 #  include <X11/Xcursor/Xcursor.h>
 #endif // QT_NO_XCURSOR
 
-#ifdef Q_Q4PAINTER
+#ifndef Q_Q3PAINTER
 #include "qgc_x11.h"
 #define QPaintDevice QX11GC
 #endif

@@ -50,12 +50,12 @@ public:
     inline bool operator!=(const QBrush &b) const { return !(operator==(b)); }
 
 private:
-#if defined(Q_WS_X11) && defined(Q_Q4PAINTER)
+#if defined(Q_WS_X11) && !defined(Q_Q3PAINTER)
     friend class QX11GC;
-#endif    
-#if defined(Q_WS_QWS) && defined(Q_Q4PAINTER)
+#endif
+#if defined(Q_WS_QWS) && !defined(Q_Q3PAINTER)
     friend class QWSGC;
-#endif    
+#endif
     friend class QPainter;
     inline void detach() { if (d->ref != 1) detach_helper(); }
     void detach_helper();

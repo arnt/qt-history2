@@ -13,9 +13,9 @@
 #include <qglobal.h>
 #include <qpixmapcache.h>
 #include <qbitmap.h>
-#ifdef Q_Q4PAINTER
+#ifndef Q_Q3PAINTER
 # include <qgc_mac.h>
-# include <private/q4painter_p.h>
+# include <private/qpainter_p.h>
 #endif
 #include <private/qapplication_p.h>
 #include <private/qfontengine_p.h>
@@ -61,7 +61,7 @@ int QFontEngine::underlinePosition() const
 
 //Mac (ATSUI) engine
 QFontEngineMac::QFontEngineMac() : QFontEngine(), info(NULL), fnum(-1), internal_fi(NULL)
-{ 
+{
     memset(widthCache, '\0', widthCacheSize);
 }
 
@@ -90,7 +90,7 @@ void
 QFontEngineMac::draw(QPainter *p, int x, int y, const QTextEngine *engine,
 		     const QScriptItem *si, int textFlags)
 {
-#ifdef Q_Q4PAINTER
+#ifndef Q_Q3PAINTER
     int txop = p->d->txop;
     QWMatrix xmat = p->d->matrix;
 #else
@@ -143,7 +143,7 @@ QFontEngineMac::draw(QPainter *p, int x, int y, const QTextEngine *engine,
 
     QPoint off;
     QRegion rgn;
-#ifdef Q_Q4PAINTER
+#ifndef Q_Q3PAINTER
     if(p->d->gc && (p->d->gc->type() == QAbstractGC::QuickDraw || p->d->gc->type() == QAbstractGC::CoreGraphics)) {
 	QQuickDrawGC *mgc = (QQuickDrawGC*)p->d->gc;
 	mgc->initPaintDevice(false, &off, &rgn);
@@ -169,7 +169,7 @@ QFontEngineMac::draw(QPainter *p, int x, int y, const QTextEngine *engine,
 	glyph_metrics_t br = boundingBox(glyphs, advances, offsets, si->num_glyphs);
 	p->fillRect(x+br.x, y+br.y, br.width, br.height, p->backgroundColor());
     }
-#ifdef Q_Q4PAINTER
+#ifndef Q_Q3PAINTER
     if(p->d->gc && p->d->gc->type() == QAbstractGC::QuickDraw)
 	((QQuickDrawGC*)p->d->gc)->setupQDFont();
 #else
@@ -309,7 +309,7 @@ QFontEngineMac::doTextTask(const QChar *s, int pos, int use_len, int len, uchar 
 		return 0;
 	    }
 	}
-    } 
+    }
     if((task & WIDTH)) {
  	bool use_cached_width = TRUE;
  	for(int i = 0; i < use_len; i++) {
@@ -319,7 +319,7 @@ QFontEngineMac::doTextTask(const QChar *s, int pos, int use_len, int len, uchar 
  	    }
  	    ret += widthCache[s[i].unicode()];
  	}
- 	if(use_cached_width && task == WIDTH) 
+ 	if(use_cached_width && task == WIDTH)
 	    return ret;
     }
 

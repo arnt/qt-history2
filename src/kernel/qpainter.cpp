@@ -1,10 +1,24 @@
-#ifndef Q_Q4PAINTER
-#include "q4paintdevice.h"
-#else
-#include "qpaintdevice.h"
+/****************************************************************************
+**
+** Definition of QPainter class.
+**
+** Copyright (C) 1992-2003 Trolltech AS. All rights reserved.
+**
+** This file is part of the kernel module of the Qt GUI Toolkit.
+** EDITIONS: FREE, PROFESSIONAL, ENTERPRISE
+**
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+**
+****************************************************************************/
+
+#if defined Q_Q3PAINTER
+#error Qt 4 painter used when configured for Qt 3 painter
 #endif
-#include "q4painter.h"
-#include "q4painter_p.h"
+
+#include "qpaintdevice.h"
+#include "qpainter.h"
+#include "qpainter_p.h"
 #include "qabstractgc.h"
 #include "qbitmap.h"
 #include "qimage.h"
@@ -133,11 +147,7 @@ bool QPainter::begin(const QPaintDevice *pd, bool unclipped)
     switch (pd->devType()) {
     case QInternal::Widget:
 	{
-#ifdef Q_Q4PAINTER
 	    const QWidget *widget = static_cast<const QWidget *>(pd);
-#else
-	    const QWidget *widget = pd->widget();
-#endif
 	    Q_ASSERT(widget);
 	    ds->font = widget->font();
 	    ds->pen = widget->palette().color(widget->foregroundRole());
@@ -156,11 +166,7 @@ bool QPainter::begin(const QPaintDevice *pd, bool unclipped)
 	}
     case QInternal::Pixmap:
 	{
-#ifdef Q_Q4PAINTER
 	    const QPixmap *pm = static_cast<const QPixmap *>(pd);
-#else
-	    const QPixmap *pm = pd->pixmap();
-#endif
 	    Q_ASSERT(pm);
 	    ds->ww = ds->vw = pm->width();
 	    ds->wh = ds->vh = pm->height();
@@ -1193,7 +1199,6 @@ void QPainter::drawTextItem(int x, int y, const QTextItem &ti, int textFlags)
     if (!isActive())
 	return;
     dgc->updateState(ds);
-#ifdef Q_Q4PAINTER
     QTextEngine *engine = ti.engine();
     QScriptItem *si = &engine->items[ti.item()];
 
@@ -1205,7 +1210,6 @@ void QPainter::drawTextItem(int x, int y, const QTextItem &ti, int textFlags)
     y += si->y;
 
     fe->draw( this, x,  y, engine, si, textFlags );
-#endif
 }
 
 QRect QPainter::boundingRect(int x, int y, int w, int h, int flags, const QString &str, int len,

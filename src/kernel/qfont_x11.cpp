@@ -40,7 +40,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 
-#ifdef Q_Q4PAINTER
+#ifndef Q_Q3PAINTER
 #include "qgc_x11.h"
 #endif
 
@@ -49,7 +49,7 @@
 
 double qt_pixelSize(double pointSize, QPaintDevice *paintdevice, int scr)
 {
-#ifdef Q_Q4PAINTER
+#ifndef Q_Q3PAINTER
 #define QPaintDevice QX11GC
 #endif
     if (pointSize < 0) return -1.;
@@ -62,13 +62,13 @@ double qt_pixelSize(double pointSize, QPaintDevice *paintdevice, int scr)
 
     return result;
 }
-#ifdef Q_Q4PAINTER
+#ifndef Q_Q3PAINTER
 #undef QPaintDevice
 #endif
 
 double qt_pointSize(double pixelSize, QPaintDevice *paintdevice, int scr)
 {
-#ifdef Q_Q4PAINTER
+#ifndef Q_Q3PAINTER
 #define QPaintDevice QX11GC
 #endif
     if (pixelSize < 0) return -1.;
@@ -82,7 +82,7 @@ double qt_pointSize(double pixelSize, QPaintDevice *paintdevice, int scr)
     return result;
 }
 
-#ifdef Q_Q4PAINTER
+#ifndef Q_Q3PAINTER
 #undef QPaintDevice
 #endif
 
@@ -102,7 +102,7 @@ static inline double pointSize( const QFontDef &request, QPaintDevice *paintdevi
 	    (double)request.pointSize);
 }
 
-#ifdef Q_Q4PAINTER
+#ifndef Q_Q3PAINTER
 #define QPaintDevice QX11GC
 #endif
 

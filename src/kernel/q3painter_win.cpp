@@ -12,7 +12,7 @@
 **
 ****************************************************************************/
 
-#include "qpainter.h"
+#include "q3painter.h"
 #include "qpaintdevicemetrics.h"
 #include "qwidget.h"
 #include "qbitmap.h"

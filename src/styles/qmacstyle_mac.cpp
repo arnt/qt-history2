@@ -17,9 +17,9 @@
 #if defined(Q_WS_MAC) && !defined(QT_NO_STYLE_MAC)
 
 //hack, but usefull
-#ifdef Q_Q4PAINTER
+#ifndef Q_Q3PAINTER
 # include <qpainter.h>
-# include <private/q4painter_p.h>
+# include <private/qpainter_p.h>
 # include <qgc_mac.h>
 #else
 # define private protected //I don't much like doing this.. but I need updateFont(), sorry. -Sam
@@ -40,7 +40,7 @@ public:
 };
 void QMacStylePainter::callFunc(QMacStylePainter::Func f)
 {
-#ifdef Q_Q4PAINTER
+#ifndef Q_Q3PAINTER
     QQuickDrawGC *mgc = NULL;
     if(d->gc && (d->gc->type() == QAbstractGC::QuickDraw || d->gc->type() == QAbstractGC::CoreGraphics))
 	mgc = (QQuickDrawGC*)d->gc;
@@ -54,7 +54,7 @@ void QMacStylePainter::callFunc(QMacStylePainter::Func f)
 	    mgc->initPaintDevice(true, 0);
 #endif
 	} else if(f == UpdateFont) {
-	    mgc->setupQDFont(); 
+	    mgc->setupQDFont();
 	}
     }
 #else
@@ -67,7 +67,7 @@ void QMacStylePainter::callFunc(QMacStylePainter::Func f)
 	initPaintDevice(true, 0);
 #endif
     } else if(f == UpdateFont) {
-	updateFont(); 
+	updateFont();
     }
 #endif
 }
@@ -731,7 +731,7 @@ void QMacStyle::drawPrimitive(PrimitiveElement pe,
         QWidget *w = 0;
         if (p->device()->devType() == QInternal::Widget)
             w = (QWidget*)p->device();
-        
+
 	if(flags & Style_HasFocus && !d->overrideFocusable(w))
 	    info.adornment |= kThemeAdornmentFocus;
 	if(qAquaActive(pal)) {
@@ -1504,7 +1504,7 @@ void QMacStyle::drawComplexControl(ComplexControl ctrl, QPainter *p,
 		if(qAquaActive(pal) && (subActive & types[i].qt_type))
 		    ctrl_tds = kThemeStatePressed;
 		ThemeTitleBarWidget twt = types[i].mac_type;
-		if(tbar->window() && tbar->window()->isWindowModified() && twt == kThemeWidgetCloseBox) 
+		if(tbar->window() && tbar->window()->isWindowModified() && twt == kThemeWidgetCloseBox)
 		    twt = kThemeWidgetDirtyCloseBox;
 		DrawThemeTitleBarWidget(macWinType, wm_rect, ctrl_tds, &tm, twa, twt);
 	    }

@@ -34,7 +34,7 @@
 #include "qwsregionmanager_qws.h"
 #include "qinputcontext_p.h"
 
-#ifdef Q_Q4PAINTER
+#ifndef Q_Q3PAINTER
 #include "qgc_qws.h"
 #endif
 
@@ -144,7 +144,7 @@ void QWidget::create( WId window, bool initializeWindow, bool /*destroyOldWindow
     if ( !window )				// always initialize
 	initializeWindow = TRUE;
 
-#ifdef Q_Q4PAINTER
+#ifndef Q_Q3PAINTER
     if (!deviceGC)
 	deviceGC = new QWSGC(this);
 #endif

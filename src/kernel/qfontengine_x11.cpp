@@ -22,10 +22,10 @@
 #include "qpaintdevice.h"
 #include "qpainter.h"
 
-#ifdef Q_Q4PAINTER
+#ifndef Q_Q3PAINTER
 #include "qgc_x11.h"
 #include "qgc_x11_p.h"
-#include "q4painter_p.h"
+#include "qpainter_p.h"
 #define QPaintDevice QX11GC
 #endif
 
@@ -122,7 +122,7 @@ void QFontEngineBox::draw( QPainter *p, int x, int y, const QTextEngine *, const
 {
     Display *dpy = QPaintDevice::x11AppDisplay();
     Qt::HANDLE hd = p->device()->handle();
-#ifdef Q_Q4PAINTER
+#ifndef Q_Q3PAINTER
     GC gc = static_cast<QX11GC *>(p->device()->gc())->d->gc;
 #else
     GC gc = p->gc;
@@ -141,7 +141,7 @@ void QFontEngineBox::draw( QPainter *p, int x, int y, const QTextEngine *, const
 #endif
 
 
-#ifdef Q_Q4PAINTER
+#ifndef Q_Q3PAINTER
     if ( p->d->txop > QPainter::TxTranslate ) {
 #else
     if ( p->txop > QPainter::TxTranslate ) {
@@ -154,7 +154,7 @@ void QFontEngineBox::draw( QPainter *p, int x, int y, const QTextEngine *, const
 	    xp += _size;
 	}
     } else {
-#ifdef Q_Q4PAINTER
+#ifndef Q_Q3PAINTER
 	if ( p->d->txop == QPainter::TxTranslate )
 #else
 	if ( p->txop == QPainter::TxTranslate )
@@ -427,7 +427,7 @@ void QFontEngineXLFD::draw( QPainter *p, int x, int y, const QTextEngine *engine
 
     Display *dpy = QPaintDevice::x11AppDisplay();
     Qt::HANDLE hd = p->device()->handle();
-#ifdef Q_Q4PAINTER
+#ifndef Q_Q3PAINTER
     GC gc = static_cast<QX11GC *>(p->device()->gc())->d->gc;
 #else
     GC gc = p->gc;
@@ -438,7 +438,7 @@ void QFontEngineXLFD::draw( QPainter *p, int x, int y, const QTextEngine *engine
     int yorig = y;
 
     Qt::HANDLE font_id = _fs->fid;
-#ifdef Q_Q4PAINTER
+#ifndef Q_Q3PAINTER
     if ( p->d->txop > QPainter::TxTranslate ) {
 #else
     if ( p->txop > QPainter::TxTranslate ) {
@@ -536,7 +536,7 @@ void QFontEngineXLFD::draw( QPainter *p, int x, int y, const QTextEngine *engine
             int w=bbox.width(), h=bbox.height();
             int aw = w, ah = h;
             int tx=-bbox.x(), ty=-bbox.y();    // text position
-#ifdef Q_Q4PAINTER
+#ifndef Q_Q3PAINTER
             QWMatrix mat1 = p->d->matrix;
 #else
             QWMatrix mat1 = p->xmat;
@@ -586,7 +586,7 @@ void QFontEngineXLFD::draw( QPainter *p, int x, int y, const QTextEngine *engine
             return;
         }
 	transform = TRUE;
-#ifdef Q_Q4PAINTER
+#ifndef Q_Q3PAINTER
     } else if ( p->d->txop == QPainter::TxTranslate ) {
 #else
     } else if ( p->txop == QPainter::TxTranslate ) {
@@ -1322,7 +1322,7 @@ void QFontEngineLatinXLFD::setScale( double scale )
 // Xft cont engine
 // ------------------------------------------------------------------
 // #define FONTENGINE_DEBUG
-#ifdef Q_Q4PAINTER
+#ifndef Q_Q3PAINTER
 #undef QPaintDevice
 #endif
 
@@ -1336,7 +1336,7 @@ public:
     }
 
 };
-#ifdef Q_Q4PAINTER
+#ifndef Q_Q3PAINTER
 #define QPaintDevice QX11GC
 #endif
 
@@ -1608,14 +1608,14 @@ void QFontEngineXft::draw( QPainter *p, int x, int y, const QTextEngine *engine,
 
     XftFont *fnt = _font;
     bool transform = FALSE;
-#ifdef Q_Q4PAINTER
+#ifndef Q_Q3PAINTER
     if ( p->d->txop >= QPainter::TxScale ) {
 #else
     if ( p->txop >= QPainter::TxScale ) {
 #endif
 	if (! (_face->face_flags & FT_FACE_FLAG_SCALABLE)) {
 	    Qt::HANDLE hd = p->device()->handle();
-#ifdef Q_Q4PAINTER
+#ifndef Q_Q3PAINTER
 	    GC gc = static_cast<QX11GC *>(p->device()->gc())->d->gc;
 #else
 	    GC gc = p->gc;
@@ -1626,7 +1626,7 @@ void QFontEngineXft::draw( QPainter *p, int x, int y, const QTextEngine *engine,
             int w=bbox.width(), h=bbox.height();
             int aw = w, ah = h;
             int tx=-bbox.x(), ty=-bbox.y();    // text position
-#ifdef Q_Q4PAINTER
+#ifndef Q_Q3PAINTER
             QWMatrix mat1 = p->d->matrix;
 #else
             QWMatrix mat1 = p->xmat;
@@ -1731,7 +1731,7 @@ void QFontEngineXft::draw( QPainter *p, int x, int y, const QTextEngine *engine,
 	    transformed_fonts = trf;
 	}
 	transform = TRUE;
-#ifdef Q_Q4PAINTER
+#ifndef Q_Q3PAINTER
     } else if ( p->d->txop == QPainter::TxTranslate ) {
 #else
     } else if ( p->txop == QPainter::TxTranslate ) {
@@ -1743,13 +1743,13 @@ void QFontEngineXft::draw( QPainter *p, int x, int y, const QTextEngine *engine,
     advance_t *advances = engine->advances( si );
     qoffset_t *offsets = engine->offsets( si );
 
-#ifdef Q_Q4PAINTER
+#ifndef Q_Q3PAINTER
     const QColor &pen = static_cast<QX11GC *>(p->device()->gc())->d->cpen.color();
 #else
     const QColor &pen = p->cpen.color();
 #endif
 
-#ifdef Q_Q4PAINTER
+#ifndef Q_Q3PAINTER
     XftDraw *draw = ((Q_HackPaintDevice *)p->device())->xftDrawHandle();
 #else
     XftDraw *draw = ((Q_HackPaintDevice *)p->pdev)->xftDrawHandle();

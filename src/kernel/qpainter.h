@@ -1,5 +1,23 @@
+/****************************************************************************
+**
+** Definition of QPainter class.
+**
+** Copyright (C) 1992-2003 Trolltech AS. All rights reserved.
+**
+** This file is part of the kernel module of the Qt GUI Toolkit.
+** EDITIONS: FREE, PROFESSIONAL, ENTERPRISE
+**
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+**
+****************************************************************************/
+
 #ifndef Q4PAINTER_H
 #define Q4PAINTER_H
+
+#ifdef Q_Q3PAINTER
+#include "q3painter.h"
+#else
 
 #include "qnamespace.h"
 #include "qrect.h"
@@ -19,11 +37,7 @@ class QPainterPrivate;
 class QTextParag;
 
 
-class
-#ifdef Q_Q4PAINTER
-Q_GUI_EXPORT
-#endif
-QPainter : public Qt
+class Q_GUI_EXPORT QPainter : public Qt
 {
 public:
     enum CoordinateMode { CoordDevice, CoordPainter };
@@ -401,5 +415,6 @@ inline void QPainter::drawImage(const QPoint &p, const QImage &i, int conversion
     drawImage(p.x(), p.y(), i, 0, 0, i.width(), i.height(), conversion_flags);
 }
 
+#endif // #ifdef Q_Q3PAINTER
 
 #endif // #ifndef Q4PAINTER_H

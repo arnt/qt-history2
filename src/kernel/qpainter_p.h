@@ -1,6 +1,10 @@
 #ifndef Q4PAINTER_P_H
 #define Q4PAINTER_P_H
 
+#if defined Q_Q3PAINTER
+#include "q3painter_p.h"
+#else
+
 #include "qbrush.h"
 #include "qfont.h"
 #include "qpen.h"
@@ -8,7 +12,7 @@
 #include "qvector.h"
 #include "qwmatrix.h"
 
-#include "q4painter.h"
+#include "qpainter.h"
 
 class QAbstractGC;
 
@@ -120,5 +124,7 @@ public:
     QPaintDevice *device;
     QAbstractGC *gc;
 };
+
+#endif // #ifdef Q_Q3PAINTER
 
 #endif // Q4PAINTER_P_H

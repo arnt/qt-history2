@@ -35,7 +35,7 @@
 #include "qimage.h"
 #include "qwmatrix.h"
 #include "qapplication.h"
-#ifdef Q_Q4PAINTER
+#ifndef Q_Q3PAINTER
 #include "qgc_x11.h"
 #define QPaintDevice QX11GC
 #endif
@@ -91,12 +91,12 @@ static void qt_cleanup_mitshm()
     shmctl( xshminfo.shmid, IPC_RMID, 0 );
 }
 
-#ifdef Q_Q4PAINTER
+#ifndef Q_Q3PAINTER
 #undef QPaintDevice
 #endif
 static bool qt_create_mitshm_buffer( const QPaintDevice* dev, int w, int h )
 {
-#ifdef Q_Q4PAINTER
+#ifndef Q_Q3PAINTER
 #define QPaintDevice
 #endif
     static int major, minor;
@@ -269,7 +269,7 @@ void QPixmap::init( int w, int h, int d, bool bitmap, Optimization optim )
 		  "is being used" );
     }
 
-#ifdef Q_Q4PAINTER
+#ifndef Q_Q3PAINTER
     Q_ASSERT(!deviceGC);
     deviceGC = new QX11GC(this);
 #endif
@@ -277,7 +277,7 @@ void QPixmap::init( int w, int h, int d, bool bitmap, Optimization optim )
     static int serial = 0;
 
     if ( defaultScreen >= 0 && defaultScreen != x11Screen() ) {
-#ifdef Q_Q4PAINTER
+#ifndef Q_Q3PAINTER
 	QX11GCData* xd = static_cast<QX11GC *>(deviceGC)->getX11Data(true);
 #else
 	QPaintDeviceX11Data* xd = getX11Data( TRUE );
@@ -289,7 +289,7 @@ void QPixmap::init( int w, int h, int d, bool bitmap, Optimization optim )
 	xd->x_defcolormap = QPaintDevice::x11AppDefaultColormap( xd->x_screen );
 	xd->x_visual = QPaintDevice::x11AppVisual( xd->x_screen );
 	xd->x_defvisual = QPaintDevice::x11AppDefaultVisual( xd->x_screen );
-#ifdef Q_Q4PAINTER
+#ifndef Q_Q3PAINTER
 	static_cast<QX11GC *>(deviceGC)->setX11Data(xd);
 #else
 	setX11Data( xd );
@@ -364,7 +364,7 @@ void QPixmap::deref()
 	    hd = 0;
 	}
 	delete data;
-#ifdef Q_Q4PAINTER
+#ifndef Q_Q3PAINTER
 	delete deviceGC;
 	deviceGC = 0;
 #endif
@@ -379,13 +379,13 @@ void QPixmap::deref()
     This constructor is protected and used by the QBitmap class.
 */
 
-#ifdef Q_Q4PAINTER
+#ifndef Q_Q3PAINTER
 #undef QPaintDevice
 #endif
 QPixmap::QPixmap( int w, int h, const uchar *bits, bool isXbitmap)
     : QPaintDevice( QInternal::Pixmap )
 {						// for bitmaps only
-#ifdef Q_Q4PAINTER
+#ifndef Q_Q3PAINTER
 #define QPaintDevice QX11GC
 #endif
     init( 0, 0, 0, FALSE, defOptim );

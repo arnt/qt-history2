@@ -193,7 +193,7 @@ QTextLayout::QTextLayout()
 QTextLayout::QTextLayout( const QString& string, QPainter *p )
 {
     QFontPrivate *f = p ? (
-#ifndef Q_Q4PAINTER
+#ifdef Q_Q3PAINTER
 			   p->pfont ? p->pfont->d : p->cfont.d
 #else
 			   p->font().d

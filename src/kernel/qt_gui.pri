@@ -3,6 +3,7 @@
 kernel {
 	KERNEL_P	= kernel
 	HEADERS += \
+		  $$KERNEL_H/qabstractgc.h \
 		  $$KERNEL_H/qabstractlayout.h \
 		  $$KERNEL_H/qaccel.h \
 		  $$KERNEL_H/qapplication.h \
@@ -33,7 +34,7 @@ kernel {
 		  $$KERNEL_H/qpaintdevice.h \
 		  $$KERNEL_H/qpaintdevicedefs.h \
 		  $$KERNEL_H/qpaintdevicemetrics.h \
-		  $$KERNEL_H/q3painter.h \
+		  $$KERNEL_H/qpainter.h \
 		  $$KERNEL_H/qpalette.h \
 		  $$KERNEL_H/qpen.h \
 		  $$KERNEL_H/qpicture.h \
@@ -62,7 +63,7 @@ kernel {
 		  $$KERNEL_P/qfontdata_p.h \
 		  $$KERNEL_P/qguieventloop_p.h \
 		  $$KERNEL_P/qlayoutengine_p.h \
-		  $$KERNEL_P/q3painter_p.h \
+		  $$KERNEL_P/qpainter_p.h \
 	 	  $$KERNEL_P/qinputcontext_p.h \
 		  $$KERNEL_P/qrichtext_p.h \
 		  $$KERNEL_H/qsimplerichtext.h \
@@ -71,7 +72,12 @@ kernel {
 		  $$KERNEL_CPP/qfontengine_p.h \
 		  $$KERNEL_CPP/qtextlayout_p.h
 
-	win32:SOURCES += \
+	win32 {
+		HEADERS    += \
+		  $$KERNEL_H/qgc_win.h \
+ 		  $$KERNEL_H/qgc_win_p.h
+
+ 		SOURCES += \
 		  $$KERNEL_CPP/qapplication_win.cpp \
 		  $$KERNEL_CPP/qclipboard_win.cpp \
 		  $$KERNEL_CPP/qcolor_win.cpp \
@@ -79,18 +85,19 @@ kernel {
 		  $$KERNEL_CPP/qdesktopwidget_win.cpp \
 		  $$KERNEL_CPP/qdnd_win.cpp \
 		  $$KERNEL_CPP/qfont_win.cpp \
+		  $$KERNEL_CPP/qgc_win.cpp \
 		  $$KERNEL_CPP/qinputcontext_win.cpp \
 		  $$KERNEL_CPP/qmime_win.cpp \
 		  $$KERNEL_CPP/qpixmap_win.cpp \
 		  $$KERNEL_CPP/qprinter_win.cpp \
 		  $$KERNEL_CPP/qpaintdevice_win.cpp \
-		  $$KERNEL_CPP/qpainter_win.cpp \
 		  $$KERNEL_CPP/qregion_win.cpp \
 		  $$KERNEL_CPP/qsound_win.cpp \
 		  $$KERNEL_CPP/qwidget_win.cpp \
 		  $$KERNEL_CPP/qole_win.c \
 		  $$KERNEL_CPP/qfontengine_win.cpp \
 		  $$KERNEL_CPP/qguieventloop_win.cpp
+	}
 
 	wince-* {
 		SOURCES -= $$KERNEL_CPP/qfontengine_win.cpp \
@@ -99,7 +106,10 @@ kernel {
 			   $$KERNEL_CPP/qregion_wce.cpp
 		}
 
-		unix:x11 {
+
+	unix:x11 {
+	      HEADERS +=  $$KERNEL_H/qgc_x11.h \ 
+			  $$KERNEL_H/qgc_x11_p.h 
 	      SOURCES += $$KERNEL_CPP/qapplication_x11.cpp \
 		          $$KERNEL_CPP/qclipboard_x11.cpp \
 			  $$KERNEL_CPP/qcolor_x11.cpp \
@@ -107,12 +117,12 @@ kernel {
 			  $$KERNEL_CPP/qdnd_x11.cpp \
 			  $$KERNEL_CPP/qdesktopwidget_x11.cpp \
 			  $$KERNEL_CPP/qguieventloop_x11.cpp \
+			  $$KERNEL_CPP/qgc_x11.cpp \
 			  $$KERNEL_CPP/qfont_x11.cpp \
 			  $$KERNEL_CPP/qinputcontext_x11.cpp \
 			  $$KERNEL_CPP/qmotifdnd_x11.cpp \
 			  $$KERNEL_CPP/qpixmap_x11.cpp \
 			  $$KERNEL_CPP/qpaintdevice_x11.cpp \
-			  $$KERNEL_CPP/qpainter_x11.cpp \
 			  $$KERNEL_CPP/qsound_x11.cpp \
 			  $$KERNEL_CPP/qwidget_x11.cpp \
 			  $$KERNEL_CPP/qwidgetcreate_x11.cpp \
@@ -124,6 +134,10 @@ kernel {
 	    else:SOURCES += $$KERNEL_CPP/qsound_qws.cpp
 	}
         !embedded:!x11:mac {
+	      HEADERS += \
+			  $$KERNEL_H/qgc_mac.h \
+			  $$KERNEL_H/qgc_mac_p.h 
+
 	      SOURCES += $$KERNEL_CPP/qapplication_mac.cpp \
 		          $$KERNEL_CPP/qclipboard_mac.cpp \
 			  $$KERNEL_CPP/qcolor_mac.cpp \
@@ -134,7 +148,6 @@ kernel {
 			  $$KERNEL_CPP/qpixmap_mac.cpp \
 			  $$KERNEL_CPP/qprinter_mac.cpp \
 			  $$KERNEL_CPP/qpaintdevice_mac.cpp \
-			  $$KERNEL_CPP/qpainter_mac.cpp \
 			  $$KERNEL_CPP/qwidget_mac.cpp \
 			  $$KERNEL_CPP/qguieventloop_mac.cpp \
 			  $$KERNEL_CPP/qfont_mac.cpp \
@@ -148,10 +161,12 @@ kernel {
 
 	SOURCES += \
 		  $$KERNEL_CPP/qabstractlayout.cpp \
+		  $$KERNEL_CPP/qabstractgc.cpp \
 		  $$KERNEL_CPP/qasyncimageio.cpp \
 		  $$KERNEL_CPP/qaccel.cpp \
 		  $$KERNEL_CPP/qapplication.cpp \
 		  $$KERNEL_CPP/qbitmap.cpp \
+		  $$KERNEL_CPP/qbrush.cpp \
 		  $$KERNEL_CPP/qclipboard.cpp \
 		  $$KERNEL_CPP/qcolor.cpp \
 		  $$KERNEL_CPP/qcolor_p.cpp \
@@ -173,8 +188,9 @@ kernel {
 		  $$KERNEL_CPP/qmime.cpp \
 		  $$KERNEL_CPP/qmovie.cpp \
 		  $$KERNEL_CPP/qpaintdevicemetrics.cpp \
-		  $$KERNEL_CPP/q3painter.cpp \
+		  $$KERNEL_CPP/qpainter.cpp \
 		  $$KERNEL_CPP/qpalette.cpp \
+		  $$KERNEL_CPP/qpen.cpp \
 		  $$KERNEL_CPP/qpicture.cpp \
 		  $$KERNEL_CPP/qpictureformatplugin.cpp \
 		  $$KERNEL_CPP/qpixmap.cpp \
@@ -203,7 +219,15 @@ kernel {
 	unix:HEADERS   += $$KERNEL_P/qpsprinter_p.h \
 			  $$KERNEL_H/qfontdatabase.h
 
-	embedded:SOURCES += $$KERNEL_CPP/qfontengine_qws.cpp
+	embedded { 
+		HEADERS += \
+			$$KERNEL_H/qgc_qws.h \
+			$$KERNEL_P/qgc_qws_p.h 
+
+		SOURCES += \
+			$$KERNEL_CPP/qfontengine_qws.cpp \
+			$$KERNEL_CPP/qgc_qws.cpp
+	}
 
 	wince-* {
 	      HEADERS += $$KERNEL_H/qfunctions_wce.h
@@ -222,43 +246,43 @@ kernel {
  	}
 }
 
-newpainter {
-    DEFINES += Q_Q4PAINTER
-    #remove
-    HEADERS -= $$KERNEL_H/q3painter.h
-    SOURCES -= $$KERNEL_CPP/q3painter.cpp
+oldpainter {
+	DEFINES += Q_Q3PAINTER
     #add
-    SOURCES += $$KERNEL_CPP/qabstractgc.cpp \
-	       $$KERNEL_CPP/q4painter.cpp \
+    HEADERS += $$KERNEL_H/q3painter.h $$KERNEL_P/q3painter_p.h
+    SOURCES += $$KERNEL_CPP/q3painter.cpp
+    #remove
+    SOURCES -= $$KERNEL_CPP/qabstractgc.cpp \
+	       $$KERNEL_CPP/qpainter.cpp \
 	       $$KERNEL_CPP/qbrush.cpp \
 	       $$KERNEL_CPP/qpen.cpp
-    HEADERS += $$KERNEL_P/q4painter_p.h \
-	       $$KERNEL_H/q4painter.h \
+    HEADERS -= $$KERNEL_P/qpainter_p.h \
+	       $$KERNEL_H/qpainter.h \
 	       $$KERNEL_H/qabstractgc.h
     #platform
     win32 {
         #remove
-	SOURCES -= $$KERNEL_CPP/qpainter_win.cpp
+	SOURCES += $$KERNEL_CPP/q3painter_win.cpp
         #add
-	SOURCES += $$KERNEL_CPP/qgc_win.cpp
-	HEADERS += $$KERNEL_P/qgc_win_p.h $$KERNEL_H/qgc_win.h
+	SOURCES -= $$KERNEL_CPP/qgc_win.cpp
+	HEADERS -= $$KERNEL_P/qgc_win_p.h $$KERNEL_H/qgc_win.h
     } else:x11 {
         #remove
-	SOURCES -= $$KERNEL_CPP/qpainter_x11.cpp
+	SOURCES += $$KERNEL_CPP/q3painter_x11.cpp
         #add
-	SOURCES += $$KERNEL_CPP/qgc_x11.cpp
-	HEADERS += $$KERNEL_H/qgc_x11.h $$KERNEL_P/qgc_x11_p.h
+	SOURCES -= $$KERNEL_CPP/qgc_x11.cpp
+	HEADERS -= $$KERNEL_H/qgc_x11.h $$KERNEL_P/qgc_x11_p.h
     } else:embedded {
         #remove
-	SOURCES -= $$KERNEL_CPP/qpainter_qws.cpp
+	SOURCES += $$KERNEL_CPP/q3painter_qws.cpp
         #add
-	SOURCES += $$KERNEL_CPP/qgc_qws.cpp
-	HEADERS += $$KERNEL_H/qgc_qws.h $$KERNEL_P/qgc_qws_p.h
+	SOURCES -= $$KERNEL_CPP/qgc_qws.cpp
+	HEADERS -= $$KERNEL_H/qgc_qws.h $$KERNEL_P/qgc_qws_p.h
     } else:mac {
         #remove
-	SOURCES -= $$KERNEL_CPP/qpainter_mac.cpp
+	SOURCES += $$KERNEL_CPP/q3painter_mac.cpp
         #add
-	SOURCES += $$KERNEL_CPP/qgc_mac.cpp
-	HEADERS += $$KERNEL_H/qgc_mac.h #$$KERNEL_P/qgc_mac_p.h
+	SOURCES -= $$KERNEL_CPP/qgc_mac.cpp
+	HEADERS -= $$KERNEL_H/qgc_mac.h #$$KERNEL_P/qgc_mac_p.h
     }
 }

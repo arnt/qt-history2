@@ -76,7 +76,7 @@
 #endif
 #endif
 
-#if Q_Q4PAINTER
+#if !defined(Q_Q3PAINTER)
 #include "qgc_qws.h"
 #endif
 
@@ -1426,7 +1426,7 @@ static void init_display()
 #ifndef QT_NO_CURSOR
     QCursor::initialize();
 #endif
-#ifdef Q_Q4PAINTER
+#ifndef Q_Q3PAINTER
     QWSGC::initialize();
 #else
     QPainter::initialize();
@@ -1595,7 +1595,7 @@ void qt_init(QApplicationPrivate *priv, int type )
 void qt_cleanup()
 {
     QPixmapCache::clear();
-#ifdef Q_Q4PAINTER
+#ifndef Q_Q3PAINTER
     QWSGC::cleanup();
 #else
     QPainter::cleanup();

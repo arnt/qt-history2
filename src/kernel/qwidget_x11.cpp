@@ -31,7 +31,7 @@
 extern void qt_set_paintevent_clipping( QPaintDevice* dev, const QRegion& region);
 extern void qt_clear_paintevent_clipping();
 
-#ifdef Q_Q4PAINTER
+#ifndef Q_Q3PAINTER
 #include "qgc_x11.h"
 #define QPaintDevice QX11GC
 #endif
@@ -319,7 +319,7 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
     if ( !window )
 	initializeWindow = TRUE;
 
-#ifdef Q_Q4PAINTER
+#ifndef Q_Q3PAINTER
     if (destroyOldWindow) {
 	delete deviceGC;
 	deviceGC = 0;
@@ -332,7 +332,7 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 	 qt_x11_create_desktop_on_screen >= 0 &&
 	 qt_x11_create_desktop_on_screen != x11Screen() ) {
 	// desktop on a certain screen other than the default requested
-#ifdef Q_Q4PAINTER
+#ifndef Q_Q3PAINTER
 	QX11GCData* xd = static_cast<QX11GC *>(deviceGC)->getX11Data(true);
 #else
 	QPaintDeviceX11Data* xd = getX11Data( TRUE );
@@ -344,14 +344,14 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 	xd->x_defcolormap = QPaintDevice::x11AppDefaultColormap( xd->x_screen );
 	xd->x_visual = QPaintDevice::x11AppVisual( xd->x_screen );
 	xd->x_defvisual = QPaintDevice::x11AppDefaultVisual( xd->x_screen );
-#ifdef Q_Q4PAINTER
+#ifndef Q_Q3PAINTER
 	static_cast<QX11GC *>(deviceGC)->setX11Data(xd);
 #else
 	setX11Data( xd );
 #endif
     } else if ( parentWidget() &&  parentWidget()->x11Screen() != x11Screen() ) {
 	// if we have a parent widget, move to its screen if necessary
-#ifdef Q_Q4PAINTER
+#ifndef Q_Q3PAINTER
 	QX11GCData* xd = static_cast<QX11GC *>(deviceGC)->getX11Data(true);
 #else
 	QPaintDeviceX11Data* xd = getX11Data( TRUE );
@@ -363,7 +363,7 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 	xd->x_defcolormap = QPaintDevice::x11AppDefaultColormap( xd->x_screen );
 	xd->x_visual = QPaintDevice::x11AppVisual( xd->x_screen );
 	xd->x_defvisual = QPaintDevice::x11AppDefaultVisual( xd->x_screen );
-#ifdef Q_Q4PAINTER
+#ifndef Q_Q3PAINTER
 	static_cast<QX11GC *>(deviceGC)->setX11Data(xd);
 #else
 	setX11Data( xd );
@@ -405,7 +405,7 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 	else
 	    setWState( WState_Visible );
 
-#ifdef Q_Q4PAINTER
+#ifndef Q_Q3PAINTER
 	QX11GCData* xd = static_cast<QX11GC *>(deviceGC)->getX11Data(true);
 #else
 	QPaintDeviceX11Data* xd = getX11Data( TRUE );
@@ -428,7 +428,7 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 			    XVisualIDFromVisual( (Visual*)x11AppVisual(x11Screen()) ) );
 	xd->x_colormap = a.colormap;
 	xd->x_defcolormap = ( a.colormap == x11AppColormap( x11Screen() ) );
-#ifdef Q_Q4PAINTER
+#ifndef Q_Q3PAINTER
 	static_cast<QX11GC *>(deviceGC)->setX11Data(xd);
 #else
 	setX11Data( xd );
@@ -786,7 +786,7 @@ void QWidget::destroy( bool destroyWindow, bool destroySubWindows )
 	extern void qPRCleanup( QWidget *widget ); // from qapplication_x11.cpp
 	if ( testWState(WState_Reparented) )
 	    qPRCleanup(this);
-#ifdef Q_Q4PAINTER
+#ifndef Q_Q3PAINTER
 	delete deviceGC;
 	deviceGC = 0;
 #endif

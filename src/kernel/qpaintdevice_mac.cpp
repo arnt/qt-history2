@@ -20,14 +20,14 @@
 #include "qapplication.h"
 #include "qt_mac.h"
 
-#ifdef Q_Q4PAINTER
+#ifndef Q_Q3PAINTER
 # include "qgc_mac.h"
 #endif
 
 QPaintDevice *g_cur_paintdev = 0;
 
 QPaintDevice::QPaintDevice(uint devflags)
-#ifdef Q_Q4PAINTER
+#ifndef Q_Q3PAINTER
     : deviceGC(0)
 #endif
 {
@@ -40,7 +40,7 @@ QPaintDevice::QPaintDevice(uint devflags)
     painters = 0;
     hd = 0;
     cg_hd = 0;
-#ifdef Q_Q4PAINTER
+#ifndef Q_Q3PAINTER
     deviceGC = new QQuickDrawGC(this);
 #endif
 }

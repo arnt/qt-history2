@@ -20,7 +20,7 @@
 #include "qapplication.h"
 #include "qt_x11_p.h"
 
-#ifdef Q_Q4PAINTER
+#ifndef Q_Q3PAINTER
 #include "qgc_x11.h"
 
 Display *QPaintDevice::x11Display() const
@@ -137,7 +137,7 @@ bool	 *QPaintDevice::x_appdefvisual_arr;
 */
 
 QPaintDevice::QPaintDevice( uint devflags )
-#ifdef Q_Q4PAINTER
+#ifndef Q_Q3PAINTER
     : deviceGC(0)
 #endif
 {

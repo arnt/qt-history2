@@ -15,10 +15,6 @@
 #ifndef QPAINTER_H
 #define QPAINTER_H
 
-#if Q_Q4PAINTER
-#include "q4painter.h"
-#else
-
 #ifndef QT_H
 #include "qcolor.h"
 #include "qfontmetrics.h"
@@ -709,7 +705,5 @@ inline QGfx * QPainter::internalGfx()
     return gfx;
 }
 #endif
-
-#endif // Q_Q4PAINTER
 
 #endif // QPAINTER_H

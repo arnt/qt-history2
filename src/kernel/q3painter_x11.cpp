@@ -15,7 +15,7 @@
 #include "qplatformdefs.h"
 
 #include "qfont.h"
-#include "qpainter.h"
+#include "q3painter.h"
 #include "qwidget.h"
 #include "qbitmap.h"
 #include "qpixmapcache.h"
@@ -844,7 +844,7 @@ bool QPainter::begin( const QPaintDevice *pd, bool unclipped )
         qWarning( "QPainter::begin: Paint device cannot be null" );
         return FALSE;
     }
-    if(pd->devType() == QInternal::Widget && 
+    if(pd->devType() == QInternal::Widget &&
        !static_cast<const QWidget*>(pd)->testWState(WState_InPaintEvent)) {
 	qWarning("QPainter::begin: Widget painting can only begin as a "
 		 "result of a paintEvent");
