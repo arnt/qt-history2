@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#223 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#224 $
 **
 ** Implementation of QListBox widget class
 **
@@ -1046,7 +1046,7 @@ void QListBox::mousePressEvent( QMouseEvent *e )
 	break;
     case Multi:
 	if ( i ) {
-	    d->current = i;
+	    //d->current = i;
 	    setSelected( i, !i->s );
 	}
 	break;
@@ -1207,9 +1207,9 @@ void QListBox::updateSelection()
 	    int r = QMIN( d->mouseMoveRow, d->mousePressRow );
 	    int c2 = QMAX( d->mouseMoveColumn, d->mousePressColumn );
 	    int r2 = QMAX( d->mouseMoveRow, d->mousePressRow );
-	    while( c < c2 ) {
+	    while( c <= c2 ) {
 		QListBoxItem * i = item( c*numRows()+r );
-		while( i && r < r2 ) {
+		while( i && r <= r2 ) {
 		    setSelected( i, d->current ? d->current->s : TRUE );
 		    i = i->n;
 		    r++;
