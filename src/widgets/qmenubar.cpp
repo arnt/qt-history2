@@ -858,7 +858,8 @@ void QMenuBar::drawContents( QPainter *p )
 	    QRect r = irects[i];
 	    e = mi->isEnabled();
 	    if ( e )
-		g = colorGroup();
+		g = isEnabled() ? ( isActiveWindow() ? palette().active() : 
+		    palette().inactive() ) : palette().disabled();
 	    else
 		g = palette().disabled();
 
