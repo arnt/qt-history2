@@ -194,7 +194,9 @@ bool QWSPaintEngine::begin(QPaintDevice *pdev)
 #ifndef QT_NO_QWS_MANAGER
          if (w->d->extra && w->d->extra->topextra && w->d->extra->topextra->qwsManager)
             d->gfx->setClipRegion(w->rect(), Qt::ReplaceClip);
+         else
 #endif
+             d->gfx->setClipRegion(QRegion(), Qt::NoClip);
     } else if (d->pdev->devType() == QInternal::Pixmap) {
         QPixmap *p = static_cast<QPixmap*>(d->pdev);
         if(p->isNull()) {
@@ -221,18 +223,12 @@ bool QWSPaintEngine::begin(QPaintDevice *pdev)
                     d->gfx->setClut(data->clut,data->numcols);
             }
         }
-
     } else {
         qFatal("QWSPaintEngine can only do widgets and pixmaps");
     }
 
 //    qDebug("QWSPaintEngine::begin %p gfx %p", this, d->gfx);
     setActive(true);
-
-    // ### SHould be done by QPainter..
-//     updatePen(ps);
-//     updateBrush(ps);
-//     updateClipRegion(ps);
 
     return true;
 }
@@ -271,15 +267,7 @@ bool QWSPaintEngine::begin(QImage *img)
 //    qDebug("QWSPaintEngine::begin(QImage*) %p gfx %p", this, d->gfx);
     setActive(true);
 
-    // ### SHould be done by QPainter..
-//     updatePen(ps);
-//     updateBrush(ps);
-//     updateClipRegion(ps);
-
     return true;
-
-
-
 }
 
 
