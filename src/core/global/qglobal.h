@@ -1153,9 +1153,7 @@ Q_CORE_EXPORT void qFatal(const char *, ...) // print fatal message and exit
 #endif
 ;
 
-#ifdef QT_COMPAT
-Q_CORE_EXPORT QT_COMPAT void qSystemWarning(const char *msg, int code = -1);
-#endif // QT_COMPAT
+Q_CORE_EXPORT void qSystemWarning(const char *msg, int code = -1);
 
 class QDebug;
 class QNoDebug;
