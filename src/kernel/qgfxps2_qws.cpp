@@ -775,6 +775,7 @@ QGfxPS2::blt(int rx, int ry, int w, int h, int sx,int sy)
     rx += xoffs;
     ry += yoffs;
 
+    QWSDisplay::grab(TRUE);
     GFX_START(QRect(rx, ry, w+1, h+1));
 
     /* this is really gross, however it'll work for now, basically I see
@@ -802,7 +803,9 @@ QGfxPS2::blt(int rx, int ry, int w, int h, int sx,int sy)
 	    for(int clp = 0; clp < ncliprect; clp++)
 		bltTexture(rx, ry, clp);
 	}
+
     GFX_END;
+    QWSDisplay::ungrab();
 }
 
 
@@ -811,6 +814,7 @@ void
 QGfxPS2::stretchBlt( int rx, int ry, int w, int h, int sx, int sy)
 {
     /* must write this function still.. */
+    fprintf(stderr, "Must implement stretchBlt..\n");
 }
 #endif
 
@@ -823,6 +827,7 @@ QGfxPS2::tiledBlt( int rx, int ry, int w, int h)
     rx += xoffs;
     ry += yoffs;
 
+    QWSDisplay::grab(TRUE);
     GFX_START(QRect(rx, ry, w+1, h+1));
 
     /* I should probably do the chunking that I do in blt in some general function
@@ -836,6 +841,7 @@ QGfxPS2::tiledBlt( int rx, int ry, int w, int h)
     }
 
     GFX_END;
+    QWSDisplay::ungrab();
 }
 
 /* This doesn't use textures for blts because screen->screen seemed right
