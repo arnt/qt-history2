@@ -173,7 +173,40 @@ extern void qt_mac_secure_keyboard(bool); //qapplication_mac.cpp
 */
 
 
+/*!
+    Constructs a line edit with no text.
 
+    The maximum text length is set to 32767 characters.
+
+    The \a parent argument is sent to the QWidget constructor.
+
+    \sa setText(), setMaxLength()
+*/
+QLineEdit::QLineEdit(QWidget* parent)
+    : QWidget(*new QLineEditPrivate, parent,0)
+{
+    d->init(QString::null);
+}
+
+/*!
+    Constructs a line edit containing the text \a contents.
+
+    The cursor position is set to the end of the line and the maximum
+    text length to 32767 characters.
+
+    The \a parent and argument is sent to the QWidget
+    constructor.
+
+    \sa text(), setMaxLength()
+*/
+QLineEdit::QLineEdit(const QString& contents, QWidget* parent)
+    : QWidget(*new QLineEditPrivate, parent, 0)
+{
+    d->init(contents);
+}
+
+
+#ifdef QT_COMPAT
 /*!
     Constructs a line edit with no text.
 
@@ -183,7 +216,6 @@ extern void qt_mac_secure_keyboard(bool); //qapplication_mac.cpp
 
     \sa setText(), setMaxLength()
 */
-
 QLineEdit::QLineEdit(QWidget* parent, const char* name)
     : QWidget(*new QLineEditPrivate, parent,0)
 {
@@ -236,6 +268,7 @@ QLineEdit::QLineEdit(const QString& contents, const QString &inputMask, QWidget*
         d->init(contents);
     }
 }
+#endif
 
 /*!
     Destroys the line edit.

@@ -1090,7 +1090,7 @@ QGroupBox *QPrintDialogUnix::setupDestination()
     tll->addLayout(horiz);
     horiz->addSpacing(19);
 
-    d->fileName = new QLineEdit(g, "file name");
+    d->fileName = new QLineEdit(g);
     connect(d->fileName, SIGNAL(textChanged(QString)),
              this, SLOT(fileNameEditChanged(QString)));
     horiz->addWidget(d->fileName, 1);
