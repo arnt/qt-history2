@@ -1367,6 +1367,7 @@ QFileListView::QFileListView( QWidget *parent, QFileDialog *dlg )
     connect( lined, SIGNAL( escapePressed() ),
 	     this, SLOT( cancelRename() ) );
     header()->setMovingEnabled( FALSE );
+    header()->setFullWidth( TRUE );
     connect( renameTimer, SIGNAL( timeout() ),
 	     this, SLOT( doubleClickTimeout() ) );
     connect( changeDirTimer, SIGNAL( timeout() ),
@@ -3395,7 +3396,7 @@ void QFileDialog::listBoxSelectionChanged()
     nameEdit->setCursorPosition( str.length() );
     okB->setEnabled( TRUE );
     if ( d->preview && d->preview->isVisible() && d->moreFiles->item( d->moreFiles->currentItem() ) ) {
-	QUrl u = QUrl( d->url, 
+	QUrl u = QUrl( d->url,
 		       ( (QFileDialogPrivate::File*)( (QFileDialogPrivate::MCItem*)d->
 						      moreFiles->item( d->moreFiles->currentItem() ) )->i )->info.name() );
 	if ( d->infoPreviewer )
@@ -3789,7 +3790,7 @@ QString QFileDialog::getExistingDirectory( const QString & dir,
     if ( u.isLocalFile() ) {
 	if ( !dir_.isEmpty() ) {
 	    QFileInfo f( u.path() );
-        if ( f.exists() ) 
+        if ( f.exists() )
         if ( f.isDir() ) {
 		dialog->setDir( dir_ );
 		wd = dir_;

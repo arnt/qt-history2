@@ -57,6 +57,7 @@ class Q_EXPORT QHeader : public QWidget
     Q_PROPERTY( int count READ count )
     Q_PROPERTY( int offset READ offset WRITE setOffset )
     Q_PROPERTY( bool moving READ isMovingEnabled WRITE setMovingEnabled )
+    Q_PROPERTY( bool fullWidth READ fullWidth WRITE setFullWidth )
 
 public:
     QHeader( QWidget *parent=0, const char *name=0 );
@@ -89,7 +90,7 @@ public:
     int		sectionAt( int pos ) const;
     int		count() const;
     int headerWidth() const;
-    
+
     virtual void setCellSize( int , int ); // obsolete, do not use
     int		cellSize( int i ) const { return sectionSize( mapToSection(i) ); } // obsolete, do not use
     int		cellPos( int ) const; // obsolete, do not use
@@ -108,6 +109,8 @@ public:
     virtual void moveCell( int, int); // obsolete, do not use
 
     void 	setSortIndicator( int section, bool increasing = TRUE );
+    void setFullWidth( bool b );
+    bool fullWidth() const;
 
 public slots:
     void setUpdatesEnabled( bool enable );
@@ -148,7 +151,7 @@ private:
     int 	findLine( int );
     bool reverse() const;
     void calculatePositions();
-    
+
     void	handleColumnResize(int, int, bool);
 
     int		offs;

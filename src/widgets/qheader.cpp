@@ -84,6 +84,7 @@ struct QHeaderData
 	sortDirection = TRUE;
 	positionsDirty = TRUE;
 	lastPos = 0;
+	fullWidth = TRUE;
     }
 
 
@@ -100,12 +101,13 @@ struct QHeaderData
     uint move : 1;
     uint clicks_default : 1; // default value for new clicks bits
     uint resize_default : 1; // default value for new resize bits
+    bool fullWidth : 1;
     bool sortDirection;
     bool positionsDirty;
     int sortColumn;
     int count;
     int lastPos;
-    
+
     void calculatePositions(){
 	// positions is sorted by index, not by section
 	positionsDirty = FALSE;
@@ -512,7 +514,7 @@ void QHeader::mousePressEvent( QMouseEvent *e )
     handleIdx = 0;
     int c = orient == Horizontal ? e->pos().x() : e->pos().y();
     c += offset();
-    if( reverse() ) 
+    if( reverse() )
 	c = d->lastPos - c;
 
     int section = d->sectionAt( c );
@@ -560,7 +562,7 @@ void QHeader::mouseReleaseEvent( QMouseEvent *e )
     case Sliding: {
 	int c = orient == Horizontal ? e->pos().x() : e->pos().y();
 	c += offset();
-	if( reverse() ) 
+	if( reverse() )
 	    c = d->lastPos - c;
 	handleColumnResize( handleIdx, c, TRUE );
 	} break;
@@ -606,9 +608,9 @@ void QHeader::mouseMoveEvent( QMouseEvent *e )
     c += offset();
 
     int pos = c;
-    if( reverse() ) 
+    if( reverse() )
 	c = d->lastPos - c;
-    
+
     switch( state ) {
     case Idle:
 	hit = FALSE;
@@ -1508,6 +1510,16 @@ void QHeader::resizeEvent( QResizeEvent *e )
     if( d->lastPos < width() ) {
 	    offs = 0;
     }
+
+    if ( d->fullWidth && count() > 0 ) {
+	int sec = mapToIndex( count() - 1 );
+	int ns = width() - sectionPos( sec );
+	int os = sectionSize( sec );
+	if ( ns > 20 ) {
+	    resizeSection( sec, ns );
+	    emit sizeChange( sec, os, ns );
+	}
+    }
 }
 
 /*!
@@ -1523,5 +1535,25 @@ void QHeader::calculatePositions()
     d->calculatePositions();
 }
 
-//#### what about lastSectionCoversAll?
+/*! If you pass TRUE here, the last (visually) section of the header
+  always adjusts on resize events, so that the full width is covered
+  by sections of the header.
+*/
+
+void QHeader::setFullWidth( bool b )
+{
+    d->fullWidth = b;
+}
+
+/*! Returns whether the header sections always cover the full width of
+  the header.
+
+  \sa setFullWidth()
+*/
+
+bool QHeader::fullWidth() const
+{
+    return d->fullWidth;
+}
+
 #endif // QT_NO_HEADER
