@@ -1434,11 +1434,14 @@ inline int QTextFormat::width( const QChar &c ) const
     if ( !painter ) {
 	if ( c == '\t' )
 	    return 30;
-	int w = widths[ c.unicode() ];
-	if ( w == 0 ) {
+	int w;
+	if ( c.row() )
 	    w = fm.width( c );
-	    if ( w < 256 )
-		( (QTextFormat*)this )->widths[ c.unicode() ] = w;
+	else
+	    w = widths[ c.unicode() ];
+	if ( w == 0 && !c.row() ) {
+	    w = fm.width( c );
+	    ( (QTextFormat*)this )->widths[ c.unicode() ] = w;
 	}
 	return w;
     }

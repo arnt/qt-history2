@@ -2367,11 +2367,11 @@ void QTextString::checkBidi() const
 {
     int len = data.size();
     const Char *c = data.data();
-    ((QTextString *)this)->bidi = false;
+    ((QTextString *)this)->bidi = FALSE;
     while( len ) {
 	unsigned char row = c->c.row();
 	if( (row > 0x04 && row < 0x09) || row > 0xfa ) {
-	    ((QTextString *)this)->bidi = true;
+	    ((QTextString *)this)->bidi = TRUE;
 	    return;
 	}
 	len--;
@@ -2823,8 +2823,8 @@ void QTextParag::paint( QPainter &painter, const QColorGroup &cg, QTextCursor *c
 	    }
 	}
 
-	// if something (format, etc.) changed, draw what we have so far
-	if ( lastDirection != chr->rightToLeft ||
+	//if something (format, etc.) changed, draw what we have so far
+	if ( lastDirection != chr->rightToLeft || chr->rightToLeft ||
 	     lastY != cy || chr->format() != lastFormat || buffer == "\t" || chr->c == '\t' ||
 	     selectionChange || chr->isCustom ) {
 	    drawParagBuffer( painter, buffer, startX, lastY, lastBaseLine, bw, h, drawSelections,
@@ -3135,7 +3135,7 @@ struct QTextBidiRun {
 	    else if( dir == QChar::DirAN )
 		level += 2;
 	}
-	printf("new run: level = %d\n", level);
+	//printf("new run: level = %d\n", level);
     }
 
     int start;
@@ -3167,7 +3167,7 @@ static QChar::Direction basicDirection(const QTextString &text)
     return QChar::DirL;
 }
 
-#define BIDI_DEBUG 1
+//#define BIDI_DEBUG 1
 #include <iostream>
 
 // collects one line of the paragraph and transforms it to visual order
@@ -3176,11 +3176,11 @@ QTextParag::LineStart *QTextFormatter::bidiReorderLine( QTextString *text, QText
 {
     int start = (startChar - &text->at(0));
     int last = (lastChar - &text->at(0) - 2);
-    printf("doing BiDi reordering from %d to %d!\n", start, last);
+    //printf("doing BiDi reordering from %d to %d!\n", start, last);
     int len = last - start -1;
 
     QList<QTextBidiRun> runs;
-    runs.setAutoDelete(true);
+    runs.setAutoDelete(TRUE);
 
     QTextBidiContext *context = line->context();
     if ( !context ) { 
@@ -3263,7 +3263,7 @@ QTextParag::LineStart *QTextFormatter::bidiReorderLine( QTextString *text, QText
 		if(level < 61) {
 		    runs.append( new QTextBidiRun(sor, eor, context, dir) );
 		    ++eor; sor = eor; dir = QChar::DirON; status.eor = QChar::DirON;
-		    context = new QTextBidiContext(level, QChar::DirR, context, true);
+		    context = new QTextBidiContext(level, QChar::DirR, context, TRUE);
 		    context->ref();
 		    dir = QChar::DirR;
 		    status.last = QChar::DirR;
@@ -3281,7 +3281,7 @@ QTextParag::LineStart *QTextFormatter::bidiReorderLine( QTextString *text, QText
 		if(level < 61) {
 		    runs.append( new QTextBidiRun(sor, eor, context, dir) );
 		    ++eor; sor = eor; dir = QChar::DirON; status.eor = QChar::DirON;
-		    context = new QTextBidiContext(level, QChar::DirL, context, true);
+		    context = new QTextBidiContext(level, QChar::DirL, context, TRUE);
 		    context->ref();
 		    dir = QChar::DirL;
 		    status.last = QChar::DirL;
@@ -3676,12 +3676,14 @@ QTextParag::LineStart *QTextFormatter::bidiReorderLine( QTextString *text, QText
 	    while(pos >= r->start) {
 		QTextString::Char *c = &text->at(pos);
 		c->x = x;
+		c->rightToLeft = TRUE;
 		int ww = 0;
 		if ( c->c.unicode() >= 32 || c->c == '\t' || c->isCustom ) {
 		    ww = c->width();
 		} else {
 		    ww = c->format()->width( ' ' );
 		}
+		//qDebug("setting char %d at pos %d width=%d", pos, x, ww);
 		x += ww;
 		pos--;
 	    }
@@ -3696,6 +3698,7 @@ QTextParag::LineStart *QTextFormatter::bidiReorderLine( QTextString *text, QText
 		} else {
 		    ww = c->format()->width( ' ' );
 		}
+		//qDebug("setting char %d at pos %d", pos, x);
 		x += ww;
 		pos++;
 	    }
@@ -3784,7 +3787,7 @@ int QTextFormatterBreakInWords::format( QTextParag *parag, int start, const QMap
 	    w = dw;
 	    y += h;
 	    h = c->height();
-	    lineStart = formatLine( parag->string(), lineStart, firstChar, c );
+	    lineStart = formatLine( parag->string(), lineStart, firstChar, c-1 );
 	    lineStart->y = y;
 	    parag->lineStartList().insert( i, lineStart );
 	    lineStart->baseLine = c->ascent();
@@ -3908,7 +3911,7 @@ int QTextFormatterBreakWords::format( QTextParag *parag, int start, const QMap<i
 		y += h;
 		tmph = c->height();
 		h = 0;
-		lineStart = formatLine( parag->string(), lineStart, firstChar, c );
+		lineStart = formatLine( parag->string(), lineStart, firstChar, c-1 );
 		lineStart->y = y;
 		parag->lineStartList().insert( i, lineStart );
 		lineStart->baseLine = c->ascent();
@@ -3927,7 +3930,7 @@ int QTextFormatterBreakWords::format( QTextParag *parag, int start, const QMap<i
 		y += h;
 		tmph = c->height();
 		h = tmph;
-		lineStart = formatLine( parag->string(), lineStart, firstChar, c );
+		lineStart = formatLine( parag->string(), lineStart, firstChar, c-1 );
 		lineStart->y = y;
 		parag->lineStartList().insert( i + 1, lineStart );
 		lineStart->baseLine = c->ascent();
@@ -3960,6 +3963,8 @@ int QTextFormatterBreakWords::format( QTextParag *parag, int start, const QMap<i
 	lineStart->baseLine = QMAX( lineStart->baseLine, tmpBaseLine );
 	h = QMAX( h, tmph );
 	lineStart->h = h;
+	lineStart = formatLine( parag->string(), lineStart, firstChar, c );
+	delete lineStart;
     }
 
     if ( parag->alignment() & Qt::AlignHCenter || parag->alignment() & Qt::AlignRight ) {
@@ -4841,7 +4846,7 @@ QString QTextDocument::parseOpenTag(const QString& doc, int& pos,
     QString tag = parseWord(doc, pos );
     eatSpace(doc, pos, TRUE);
     static QString term = QString::fromLatin1("/>");
-    static QString s_true = QString::fromLatin1("true");
+    static QString s_TRUE = QString::fromLatin1("TRUE");
 
     while ((doc.unicode())[pos] != '>' && ! (emptyTag = hasPrefix(doc, pos, term) )) {
 	QString key = parseWord(doc, pos );
@@ -4859,7 +4864,7 @@ QString QTextDocument::parseOpenTag(const QString& doc, int& pos,
 	    value = parseWord(doc, pos, FALSE);
 	}
 	else
-	    value = s_true;
+	    value = s_TRUE;
 	attr.insert(key, value );
 	eatSpace(doc, pos, TRUE);
     }
@@ -4991,7 +4996,7 @@ QTextTable::QTextTable( QTextDocument *p, const QMap<QString, QString> & attr  )
     innerborder = 1;
     if ( attr.contains("border" ) ) {
 	QString s( attr["border"] );
-	if ( s == "true" )
+	if ( s == "TRUE" )
 	    border = 1;
 	else
 	    border = attr["border"].toInt();
