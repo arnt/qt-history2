@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/movies/main.cpp#3 $
+** $Id: //depot/qt/main/examples/movies/main.cpp#4 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -209,8 +209,6 @@ public slots:
 int main(int argc, char **argv)
 {
     QApplication a(argc, argv);
-
-    QApplication::setFont(QFont("Helvetica"));
 
     if (argc > 1) {
         // Commandline mode - show movies given on the command line
