@@ -18,8 +18,6 @@ MainWindow::MainWindow()
             this, SLOT(documentWasModified()));
 
     setWindowTitle(tr("Application"));
-//    ### setIcon(...);
-
     modified = false;
 }
 
@@ -106,17 +104,17 @@ void MainWindow::documentWasModified()
 
 void MainWindow::createActions()
 {
-    newAct = new QAction(QIconSet(QPixmap("images/new.png")), tr("&New"), this);
+    newAct = new QAction(QPixmap(":/images/new.png"), tr("&New"), this);
     newAct->setShortcut(tr("Ctrl+N"));
     newAct->setStatusTip(tr("Create a new file"));
     connect(newAct, SIGNAL(triggered()), this, SLOT(newFile()));
 
-    openAct = new QAction(QIconSet(QPixmap("images/open.png")), tr("&Open..."), this);
+    openAct = new QAction(QPixmap(":/images/open.png"), tr("&Open..."), this);
     openAct->setShortcut(tr("Ctrl+O"));
     openAct->setStatusTip(tr("Open an existing file"));
     connect(openAct, SIGNAL(triggered()), this, SLOT(open()));
 
-    saveAct = new QAction(QIconSet(QPixmap("images/save.png")), tr("&Save"), this);
+    saveAct = new QAction(QPixmap(":/images/save.png"), tr("&Save"), this);
     saveAct->setShortcut(tr("Ctrl+S"));
     saveAct->setStatusTip(tr("Save the spreadsheet to disk"));
     connect(saveAct, SIGNAL(triggered()), this, SLOT(save()));
@@ -130,19 +128,19 @@ void MainWindow::createActions()
     exitAct->setStatusTip(tr("Exit the application"));
     connect(exitAct, SIGNAL(triggered()), this, SLOT(close()));
 
-    cutAct = new QAction(QIconSet(QPixmap("images/cut.png")), tr("Cu&t"), this);
+    cutAct = new QAction(QPixmap(":/images/cut.png"), tr("Cu&t"), this);
     cutAct->setShortcut(tr("Ctrl+X"));
     cutAct->setStatusTip(tr("Cut the current selection's contents to the "
                             "clipboard"));
     connect(cutAct, SIGNAL(triggered()), textEdit, SLOT(cut()));
 
-    copyAct = new QAction(QIconSet(QPixmap("images/copy.png")), tr("&Copy"), this);
+    copyAct = new QAction(QPixmap(":/images/copy.png"), tr("&Copy"), this);
     copyAct->setShortcut(tr("Ctrl+C"));
     copyAct->setStatusTip(tr("Copy the current selection's contents to the "
                              "clipboard"));
     connect(copyAct, SIGNAL(triggered()), textEdit, SLOT(copy()));
 
-    pasteAct = new QAction(QIconSet(QPixmap("images/paste.png")), tr("&Paste"), this);
+    pasteAct = new QAction(QPixmap(":/images/paste.png"), tr("&Paste"), this);
     pasteAct->setShortcut(tr("Ctrl+V"));
     pasteAct->setStatusTip(tr("Paste the clipboard's contents into the current "
                               "selection"));
@@ -206,24 +204,18 @@ void MainWindow::createStatusBar()
 
 void MainWindow::readSettings()
 {
-#if 0
-    // TODO: enable settings code when the new QSettings is available
     QSettings settings("doc.trolltech.com", "Application");
     QPoint pos = settings.value("pos", QPoint(200, 200)).toPoint();
     QSize size = settings.value("size", QSize(400, 400)).toSize();
     move(pos);
     resize(size);
-#endif
 }
 
 void MainWindow::writeSettings()
 {
-#if 0
-    // TODO: enable settings code when the new QSettings is available
     QSettings settings("doc.trolltech.com", "Application");
     settings.setValue("pos", pos());
     settings.setValue("size", size());
-#endif
 }
 
 bool MainWindow::maybeSave()
