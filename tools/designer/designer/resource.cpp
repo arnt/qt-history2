@@ -146,7 +146,7 @@ QWidget *Resource::widget() const
     return toplevel;
 }
 
-bool Resource::load( FormFile *ff )
+bool Resource::load( FormFile *ff, Project *defProject )
 {
     if ( !ff || ff->absFileName().isEmpty() )
 	return FALSE;
@@ -156,7 +156,7 @@ bool Resource::load( FormFile *ff )
     QFile f( ff->absFileName() );
     f.open( IO_ReadOnly );
 
-    bool b = load( ff, &f );
+    bool b = load( ff, &f, defProject );
     f.close();
 
     return b;
@@ -165,7 +165,7 @@ bool Resource::load( FormFile *ff )
 #undef signals
 #undef slots
 
-bool Resource::load( FormFile *ff, QIODevice* dev )
+bool Resource::load( FormFile *ff, QIODevice* dev, Project *defProject )
 {
     QDomDocument doc;
     QString errMsg;
@@ -179,7 +179,10 @@ bool Resource::load( FormFile *ff, QIODevice* dev )
 
     QWidget *p = mainwindow ? mainwindow->qWorkspace() : 0;
     toplevel = formwindow = new FormWindow( ff, p, 0 );
-    formwindow->setProject( MainWindow::self ? MainWindow::self->currProject() : 0 );
+    if ( defProject )
+	formwindow->setProject( defProject );
+    else if ( MainWindow::self )
+	formwindow->setProject( MainWindow::self->currProject() );
     if ( mainwindow )
 	formwindow->setMainWindow( mainwindow );
     MetaDataBase::addEntry( formwindow );
