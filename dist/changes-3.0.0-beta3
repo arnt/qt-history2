@@ -1,0 +1,42 @@
+Qt 3.0 Beta3 is not binary compatible with Beta2, this means that any
+programs linked with Beta2 must be recompiled.
+
+Below you'll find a description of general changes in the Qt Library
+and Qt Designer followed by a detailed list of changes in the
+programming API.
+
+The Qt Library
+========================================
+
+Documentation
+-------------
+
+Overall enhancements including fixed typos and the addition of several
+images and code examples.
+
+
+Qt Designer
+========================================
+
+
+Qt Functions
+========================================
+
+QSql
+----
+
+- new function QSqlDriver::feature( QSqlDriver::DriverFeature ) const
+  which allows to query whether the driver supports features like
+  SQL transactions or Binary Large Object fields. The functions
+  hasQuerySizeSupport(), canEditBinaryFields() and hasTransactionSupport()
+  are therefore obsolete and have been removed.
+
+
+
+New functions:
+	bool QSqlDriver::feature( QSqlDriver::DriverFeature ) const;
+
+Removed functions:
+	bool QSqlDriver::hasQuerySizeSupport() const;
+	bool QSqlDriver::canEditBinaryFields() const;
+	bool QSqlDriver::hasTransactionSupport() const;
