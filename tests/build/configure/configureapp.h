@@ -45,8 +45,6 @@ private:
 
     QString outputLine;
 
-    void generateMakefilesForDirectory( QString& dirPath );
-
 private slots:
     virtual void readQmakeBuilderOutput();
     virtual void readQmakeBuilderError();

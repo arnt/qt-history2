@@ -219,7 +219,7 @@ void ConfigureApp::generateOutputVars()
     }
     if( dictionary[ "SHARED" ] == "yes" ) {
 	dictionary[ "QMAKE_OUTDIR" ] += "_shared";
-	qmakeVars += "QT_DLL";
+	qmakeVars += "DEFINES+=QT_DLL";
     }
     else
 	dictionary[ "QMAKE_OUTDIR" ] += "_static";
@@ -361,10 +361,14 @@ void ConfigureApp::qmakeBuilt()
 
 void ConfigureApp::generateMakefiles()
 {
-    cout << "Creating makefiles..." << endl;
-    dictionary[ "QMAKE_ALL_ARGS" ] = QString( "CONFIG+=" ) + qmakeConfig.join( " " ) + QString( " " ) + qmakeVars.join( " " );
+    cout << "Creating makefiles in src..." << endl;
 
-    generateMakefilesForDirectory( qtDir );
+    makeList += qtDir + "/src";
+    makeList += "qt.pro";
+    makeList += "Makefile";
+    makeList += qtDir + "/src";
+    makeList += "qtmain.pro";
+    makeList += "Makefile.main";
 
     // Start the qmakes for the makelist.
     makeListIterator = makeList.begin();
@@ -372,29 +376,6 @@ void ConfigureApp::generateMakefiles()
     // We call this directly, as the code is the same for the first as
     // for subsequent items.
     qmakeDone();
-}
-
-void ConfigureApp::generateMakefilesForDirectory( QString& dirPath )
-{
-    QDir dir( dirPath );
-    const QFileInfoList* fiList = dir.entryInfoList();
-    QFileInfoListIterator listIter( *fiList );
-    QFileInfo* fi;
-
-    while( ( fi = listIter.current() ) ) {
-	QString fileName = dirPath + QString( "/" ) + fi->fileName();
-	if( fi->fileName()[ 0 ] != '.' ) {
-	    if( fi->isDir() )
-		generateMakefilesForDirectory( fileName );
-	    else if( fi->fileName().right( 4 ) == ".pro" ) {
-		if( fi->fileName().right( 8 ) != "-kde.pro" ) {
-		    makeList += dirPath;
-		    makeList += fi->fileName();
-		}
-	    }
-	}
-	++listIter;
-    }
 }
 
 void ConfigureApp::readQmakeError()
@@ -459,6 +440,8 @@ void ConfigureApp::qmakeDone()
 	++makeListIterator;
 	QString projectName = (*makeListIterator);
 	++makeListIterator;
+	QString makefileName = (*makeListIterator);
+	++makeListIterator;
 
 	cout << "For " << dirPath.latin1() << projectName.latin1() << endl;
 	QStringList args;
@@ -466,10 +449,7 @@ void ConfigureApp::qmakeDone()
 	args << ( dirPath + projectName );
 	args << dictionary[ "QMAKE_ALL_ARGS" ];
 	args << "-o";
-	if( projectName == "qtmain.pro" )
-	    args << ( dirPath + "Makefile.main" );
-	else
-	    args << ( dirPath + "Makefile" );
+        args << ( dirPath + makefileName );
 	args << "-mkspec";
 	args << dictionary[ "TRG_MKSPEC" ];
 
@@ -482,5 +462,5 @@ void ConfigureApp::qmakeDone()
 void ConfigureApp::showSummary()
 {
     cout << endl << endl << "Qt is now configured for building. Just run " << dictionary[ "MAKE" ] << "." << endl;
-    cout << "To reconfigure, run " << dictionary[ "MAKE" ] << "clean and configure." << endl << endl;
+    cout << "To reconfigure, run " << dictionary[ "MAKE" ] << " clean and configure." << endl << endl;
 }
