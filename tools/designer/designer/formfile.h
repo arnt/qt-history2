@@ -41,6 +41,8 @@ public:
 	WAnyOrAll = WFormWindow | WFormCode
     };
 
+    enum UihState { None, Ok, Deleted };
+
     FormFile( const QString &fn, bool temp, Project *p, const char *name = 0 );
     ~FormFile();
 
@@ -93,6 +95,9 @@ public:
 			   const QString &receiver, const QString &slot );
 
     bool hasTempFileName() const { return fileNameTemp; }
+    void setCodeFileState( UihState );
+    int codeFileState() const;
+    bool setupUihFile();
 
 signals:
     void somethingChanged( FormFile* );
@@ -121,6 +126,7 @@ private:
     bool fake;
     bool pkg;
     bool cm;
+    UihState codeFileStat;
 
 };
 

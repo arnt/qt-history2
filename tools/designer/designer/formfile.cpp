@@ -58,6 +58,7 @@ FormFile::FormFile( const QString &fn, bool temp, Project *p, const char *name )
       cm( FALSE )
 {
     fake = qstrcmp( name, "qt_fakewindow" ) == 0;
+    codeFileStat = FormFile::None;
     pro->addFormFile( this );
     loadCode();
     if ( !temp )
@@ -391,19 +392,48 @@ void FormFile::showFormWindow()
     MainWindow::self->openFormWindow( pro->makeAbsolute( filename ), TRUE, this );
 }
 
+bool FormFile::setupUihFile()
+{
+    if ( !pro->isCpp() ) {
+	if ( !hasFormCode() ) {
+	    createFormCode();
+	    setModified( TRUE );
+	}
+	return TRUE;
+    }
+    if ( codeFileStat != FormFile::Ok && !ed ) {
+	if ( hasFormCode() ) {
+	    int i = QMessageBox::information( MainWindow::self, tr( "Using ui.h file" ),
+	                                      tr( "An \"ui.h\" file for this form already exists.\n"
+					      "Do you want to use it or create a new one?" ),
+	                                      tr( "Use existing" ), tr( "Create new" ),
+					      tr( "Cancel" ), 2, 2 );
+	    if ( i == 2 )
+		return FALSE;
+	    if ( i == 1 )
+		createFormCode();
+	} else {
+	    if ( QMessageBox::Yes != QMessageBox::information( MainWindow::self, tr( "Creating ui.h file" ),
+						 tr( "Do you really want to create an new \"ui.h\" file?" ),
+						 QMessageBox::Yes, QMessageBox::No ) )
+		return FALSE;
+	    createFormCode();
+	}
+	setModified( TRUE );
+	MainWindow::self->workspace()->addFormSourceItem( this );
+    }
+    codeFileStat = FormFile::Ok;
+    return TRUE;
+}
+
 SourceEditor *FormFile::showEditor()
 {
     if ( !MainWindow::self )
 	return 0;
     showFormWindow();
-    bool modify = FALSE;
-    if ( !hasFormCode() ) {
-	createFormCode();
-	modify = TRUE;
-    }
+    if ( !setupUihFile() )
+	return 0;
     SourceEditor *e = MainWindow::self->openSourceEdior();
-    if ( modify )
-	setModified( TRUE );
     return e;
 }
 
@@ -435,6 +465,18 @@ static const char * const comment =
 bool FormFile::hasFormCode() const
 {
     return !cod.isEmpty() && cod != QString( comment );
+}
+
+int FormFile::codeFileState() const
+{
+    return codeFileStat;
+}
+
+void FormFile::setCodeFileState( UihState s )
+{
+    if ( s == FormFile::Ok )
+	MainWindow::self->workspace()->addFormSourceItem( this );
+    codeFileStat = s;
 }
 
 void FormFile::createFormCode()
@@ -469,11 +511,14 @@ bool FormFile::loadCode()
     QFile f( pro->makeAbsolute( codeFile() ) );
     if ( !f.open( IO_ReadOnly ) ) {
 	cod = "";
+	setCodeFileState( FormFile::None );
 	return FALSE;
     }
     QTextStream ts( &f );
     cod = ts.read();
     parseCode( cod, FALSE );
+    if ( hasFormCode() && codeFileStat != FormFile::Ok )
+	    setCodeFileState( FormFile::Deleted );
     timeStamp.update();
     return TRUE;
 }

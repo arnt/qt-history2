@@ -22,8 +22,6 @@
 #define PROJECTSETTINGS_H
 #include "projectsettings.h"
 
-#include <qmap.h>
-
 class Project;
 class QListViewItem;
 class FormWindow;
@@ -42,17 +40,10 @@ protected slots:
     void chooseProjectFile();
     void helpClicked();
     void okClicked();
-    void removeProject();
-    void addProject();
     void languageChanged( const QString &lang );
 
 private:
-    void fillFilesList();
-
-private:
     Project *project;
-    QMap<QListViewItem*, FormWindow*> formMap;
-    QMap<QListViewItem*, SourceFile*> sourceMap;
 };
 
 #endif // PROJECTSETTINGS_H

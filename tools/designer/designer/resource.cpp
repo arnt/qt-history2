@@ -262,8 +262,12 @@ bool Resource::load( FormFile *ff, QIODevice* dev )
 	    if ( e.attribute( "impldecl" ) == "in implementation" )
 		inc.implDecl = "in implementation";
 	    inc.header = e.firstChild().toText().data();
-	    if ( inc.header.right( 5 ) != ".ui.h" )
+	    if ( inc.header.right( 5 ) != ".ui.h" ) {
 		metaIncludes.append( inc );
+	    } else {
+		if ( formwindow->formFile() )
+		    formwindow->formFile()->setCodeFileState( FormFile::Ok );
+	    }
 	} else if ( e.tagName() == "comment" ) {
 	    metaInfo.comment = e.firstChild().toText().data();
 	} else if ( e.tagName() == "forward" ) { // compatibility with old betas
@@ -338,8 +342,12 @@ bool Resource::load( FormFile *ff, QIODevice* dev )
 		    if ( n.attribute( "impldecl" ) == "in implementation" )
 			inc.implDecl = "in implementation";
 		    inc.header = n.firstChild().toText().data();
-		    if ( inc.header.right( 5 ) != ".ui.h" )
+		    if ( inc.header.right( 5 ) != ".ui.h" ) {
 			metaIncludes.append( inc );
+		    } else {
+			if ( formwindow->formFile() )
+			    formwindow->formFile()->setCodeFileState( FormFile::Ok );
+		    }
 		}
 	    }
     }
@@ -1959,9 +1967,11 @@ void Resource::saveConnections( QTextStream &ts, int indent )
 {
     if ( !formwindow->project()->isCpp() )
 	return;
+    QValueList<MetaDataBase::Connection> connections = MetaDataBase::connections( formwindow );
+    if ( connections.isEmpty() )
+	return;
     ts << makeIndent( indent ) << "<connections>" << endl;
     indent++;
-    QValueList<MetaDataBase::Connection> connections = MetaDataBase::connections( formwindow );
     QValueList<MetaDataBase::Connection>::Iterator it = connections.begin();
     for ( ; it != connections.end(); ++it ) {
 	MetaDataBase::Connection conn = *it;
@@ -2291,7 +2301,8 @@ void Resource::saveMetaInfoAfter( QTextStream &ts, int indent )
 	QString extensionInclude;
 	bool needExtensionInclude = FALSE;
 	if ( langIface && formwindow->project()->isCpp()  &&
-	     formwindow->formFile()->hasFormCode() ) {
+	     formwindow->formFile()->hasFormCode() &&
+	     formwindow->formFile()->codeFileState() != FormFile::Deleted ) {
 	    extensionInclude = QFileInfo( currFileName ).fileName() + langIface->formCodeExtension();
 	    needExtensionInclude = TRUE;
 	}

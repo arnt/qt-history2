@@ -31,10 +31,9 @@
 
 #include <qlineedit.h>
 #include <qtextedit.h>
-#include <qlistbox.h>
+#include <qcheckbox.h>
 #include <qfiledialog.h>
 #include <qcombobox.h>
-#include <qlistview.h>
 #include <qobjectlist.h>
 #include <qheader.h>
 #include <qpushbutton.h>
@@ -78,12 +77,6 @@ ProjectSettings::ProjectSettings( Project *pro, QWidget* parent,  const char* na
 {
     connect( buttonHelp, SIGNAL( clicked() ), MainWindow::self, SLOT( showDialogHelp() ) );
 
-    // #### implement remove/add files from/to project again
-    PushButton5->hide();
-    PushButton4->hide();
-    listInterfaces->hide();
-    TextLabel3->hide();
-
     if ( !filePixmap )
 	filePixmap = new QPixmap( file_xpm );
     editProjectFile->setFocus();
@@ -92,21 +85,15 @@ ProjectSettings::ProjectSettings( Project *pro, QWidget* parent,  const char* na
 	editProjectFile->setEnabled( FALSE );
 	editProjectFile->setText( project->projectName() );
     } else {
-	if ( pro->fileName().isEmpty() || pro->fileName() == ".pro" ) {
+	if ( project->fileName().isEmpty() || project->fileName() == ".pro" ) {
 	    editProjectFile->setText( tr( "unnamed.pro" ) );
 	    editProjectFile->selectAll();
 	} else {
-	    editProjectFile->setText( pro->fileName() );
+	    editProjectFile->setText( project->fileName() );
 	}
     }
 
-    editProjectDescription->setText( pro->description() );
-
-    fillFilesList();
-
-    listInterfaces->header()->setStretchEnabled( TRUE );
-
-    editDatabaseFile->setText( pro->databaseDescription() );
+    editDatabaseFile->setText( project->databaseDescription() );
 
     comboLanguage->insertStringList( MetaDataBase::languages() );
     for ( int j = 0; j < (int)comboLanguage->count(); ++j ) {
@@ -148,92 +135,12 @@ void ProjectSettings::okClicked()
 {
     // ### check for validity
     project->setFileName( editProjectFile->text(), FALSE );
-    project->setDescription( editProjectDescription->text() );
     project->setDatabaseDescription( editDatabaseFile->text() );
     project->setLanguage( comboLanguage->text( comboLanguage->currentItem() ) );
     project->setModified( TRUE );
     accept();
 }
 
-void ProjectSettings::removeProject()
-{
-    /*
-    QListViewItemIterator it( listInterfaces );
-    while ( it.current() ) {
-	QListViewItem *i = it.current();
-	if ( !i->isSelected() ) {
-	    ++it;
-	    continue;
-	}
-	QMap<QListViewItem*, FormWindow*>::Iterator fit = formMap.find( i );
-	if ( fit != formMap.end() ) {
-	    MainWindow::self->workspace()->removeFormFromProject( i->text( 0 ) );
-	} else {
-	    QMap<QListViewItem*, SourceFile*>::Iterator sit = sourceMap.find( i );
-	    if ( sit != sourceMap.end() ) {
-		MainWindow::self->workspace()->removeSourceFromProject( i->text( 0 ) );
-	    }
-	}
-	++it;
-    }
-
-    fillFilesList();
-    */
-}
 void ProjectSettings::languageChanged( const QString & )
 {
-}
-
-void ProjectSettings::addProject()
-{
-    /*
-    QString filter = "Qt User-Interface Files (*.ui)";
-    QString extensions = ";ui";
-    LanguageInterface *iface = MetaDataBase::languageInterface( project->language() );
-    if ( iface ) {
-	QMap<QString, QString> extensionFilterMap;
-	iface->fileFilters( extensionFilterMap );
-	for ( QMap<QString,QString>::Iterator it = extensionFilterMap.begin();
-	      it != extensionFilterMap.end(); ++it ) {
-	    filter += ";;" + *it;
-	    extensions += ";" + it.key();
-	}
-    }
-    MainWindow::self->fileOpen( filter, extensions );
-    fillFilesList();
-    */
-}
-
-void ProjectSettings::fillFilesList()
-{
-    /*
-    listInterfaces->clear();
-    formMap.clear();
-    sourceMap.clear();
-
-    QListViewItem *sources = new QListViewItem( listInterfaces, tr( "Source Files" ) );
-    QListViewItem *forms = new QListViewItem( listInterfaces, tr( "Forms" ) );
-    forms->setOpen( TRUE );
-    forms->setSelectable( FALSE );
-    sources->setOpen( TRUE );
-    sources->setSelectable( FALSE );
-
-    QStringList lst = project->uiFiles();
-    for ( QStringList::Iterator it = lst.begin(); it != lst.end(); ++it ) {
-	QListViewItem *item = new QListViewItem( forms, *it, tr( "<unknown>" ), 0 );
-	item->setPixmap( 0, PixmapChooser::loadPixmap( "form.xpm", PixmapChooser::Mini ) );
-	QString className = project->formName( item->text( 0 ) );
-	FormWindow *fw = project->formWindow( item->text( 0 ) );
-	formMap.insert( item, fw );
-	if ( !className.isEmpty() )
-	    item->setText( 1, className );
-    }
-
-    QPtrList<SourceFile> sourceList = project->sourceFiles();
-    for ( SourceFile *f = sourceList.first(); f; f = sourceList.next() ) {
-	QListViewItem *i = new QListViewItem( sources, project->makeRelative( f->fileName() ) );
-	i->setPixmap( 0, *filePixmap );
-	sourceMap.insert( i, f );
-    }
-    */
 }

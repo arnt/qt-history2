@@ -92,6 +92,7 @@ public:
     void contentsDragMoveEvent( QDragMoveEvent *e );
 
     void setBufferEdit( QCompletionEdit *edit );
+    void addFormSourceItem( FormFile *ff );
 
 public slots:
 

@@ -195,8 +195,9 @@ WorkspaceItem::WorkspaceItem( QListViewItem *parent, FormFile* ff, Type type )
     if ( type ==  FormFileType ) {
 	setPixmap( 0, *formPixmap );
 	QObject::connect( ff, SIGNAL( somethingChanged(FormFile*) ), listView(), SLOT( update(FormFile*) ) );
-	if ( formFile->supportsCodeFile() )
+	if ( formFile->supportsCodeFile() && !( (WorkspaceItem*)parent )->project->isCpp() ) {
 	    (void) new WorkspaceItem( this, formFile, FormSourceType );
+	}
     } else if ( type == FormSourceType ) {
 	setPixmap( 0, *filePixmap );
     }
@@ -423,7 +424,7 @@ void Workspace::projectDestroyed( QObject* o )
 void Workspace::setCurrentProject( Project *pro )
 {
     if ( project == pro )
- 	return;
+	return;
     if ( project ) {
 	disconnect( project, SIGNAL( sourceFileAdded(SourceFile*) ), this, SLOT( sourceFileAdded(SourceFile*) ) );
 	disconnect( project, SIGNAL( sourceFileRemoved(SourceFile*) ), this, SLOT( sourceFileRemoved(SourceFile*) ) );
@@ -462,6 +463,7 @@ void Workspace::setCurrentProject( Project *pro )
 	FormFile* f = forms.current();
 	if ( f->isFake() )
 	    continue;
+
 	(void) new WorkspaceItem( projectItem, f );
     }
 
@@ -476,7 +478,15 @@ void Workspace::setCurrentProject( Project *pro )
     completionDirty = TRUE;
 }
 
-
+void Workspace::addFormSourceItem( FormFile *ff )
+{
+    if ( ff->isFake() )
+	return;
+    WorkspaceItem *parent = findItem( ff );
+    if ( !parent || parent->firstChild() )
+	return;
+    (void) new WorkspaceItem( parent, ff, WorkspaceItem::FormSourceType );
+}
 
 void Workspace::sourceFileAdded( SourceFile* sf )
 {
@@ -697,7 +707,7 @@ void Workspace::rmbClicked( QListViewItem *i, const QPoint& pos )
 	return;
     WorkspaceItem* wi = (WorkspaceItem*)i;
     enum { OPEN_SOURCE, REMOVE_SOURCE, OPEN_FORM, REMOVE_FORM,
-	   OPEN_FORM_SOURCE, OPEN_OBJECT_SOURCE };
+	   OPEN_FORM_SOURCE, REMOVE_FORM_SOURCE, OPEN_OBJECT_SOURCE };
     QPopupMenu menu( this );
     menu.setCheckable( TRUE );
     switch ( wi->type() ) {
@@ -716,8 +726,12 @@ void Workspace::rmbClicked( QListViewItem *i, const QPoint& pos )
     case WorkspaceItem::FormSourceType:
 	menu.insertItem( tr( "&Open form source..." ), OPEN_FORM_SOURCE );
 	menu.insertSeparator();
-	menu.insertItem( PixmapChooser::loadPixmap( "editcut" ),
-			 tr( "&Remove form from project" ), REMOVE_FORM );
+	if ( project->isCpp() )
+	    menu.insertItem( PixmapChooser::loadPixmap( "editcut" ),
+			     tr( "&Remove source file from form" ), REMOVE_FORM_SOURCE );
+	else
+	    menu.insertItem( PixmapChooser::loadPixmap( "editcut" ),
+	                     tr( "&Remove form from project" ), REMOVE_FORM );
 	break;
     case WorkspaceItem::ProjectType:
 	MainWindow::self->popupProjectMenu( pos );
@@ -731,19 +745,19 @@ void Workspace::rmbClicked( QListViewItem *i, const QPoint& pos )
     case REMOVE_SOURCE:
 	project->removeSourceFile( wi->sourceFile );
 	break;
-    case OPEN_SOURCE:
-	itemClicked( LeftButton, i, pos );
-	break;
     case REMOVE_FORM:
 	project->removeFormFile( wi->formFile );
 	break;
-    case OPEN_FORM:
-	itemClicked( LeftButton, i, pos );
-	break;
-    case OPEN_FORM_SOURCE:
-	itemClicked( LeftButton, i, pos );
+    case REMOVE_FORM_SOURCE:
+	( (WorkspaceItem*)i )->formFile->setModified( TRUE );
+	( (WorkspaceItem*)i )->formFile->setCodeFileState( FormFile::Deleted );
+	delete ( (WorkspaceItem*)i )->formFile->editor();
+	delete i;
 	break;
     case OPEN_OBJECT_SOURCE:
+    case OPEN_SOURCE:
+    case OPEN_FORM:
+    case OPEN_FORM_SOURCE:
 	itemClicked( LeftButton, i, pos );
 	break;
     }

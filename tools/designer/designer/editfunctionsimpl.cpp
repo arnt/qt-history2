@@ -226,7 +226,7 @@ void EditFunctions::functionAdd( const QString &access, const QString &type )
 {
     QListViewItem *i = new QListViewItem( functionListView );
     i->setPixmap( 0, PixmapChooser::loadPixmap( "editslots.xpm" ) );
-    if ( showOnlySlots->isChecked() )
+    if ( showOnlySlots->isChecked() || type == "slot" )
 	i->setText( 0, "newSlot()" );
     else
 	i->setText( 0, "newFunction()" );

@@ -1057,7 +1057,7 @@ bool MainWindow::eventFilter( QObject *o, QEvent *e )
 	    ( (FormWindow*)w )->handleMouseDblClick( (QMouseEvent*)e, ( (FormWindow*)w )->designerWidget( o ) );
 	    return TRUE;
 	}
-	if ( !WidgetFactory::isPassiveInteractor( o ) )
+	if ( !WidgetFactory::isPassiveInteractor( o ) && ( (FormWindow*)w )->formFile() )
 	    return openEditor( ( (FormWindow*)w )->designerWidget( o ), (FormWindow*)w );
 	return TRUE;
     case QEvent::KeyRelease:
@@ -2792,8 +2792,10 @@ void MainWindow::editFunction( const QString &func, const QString &l, bool rerea
 {
     if ( !formWindow() )
 	return;
-    if ( !formWindow()->formFile()->hasFormCode() )
-	formWindow()->formFile()->createFormCode();
+    if ( formWindow()->formFile()->codeFileState() != FormFile::Ok )
+	if ( !formWindow()->formFile()->setupUihFile() )
+	    return;
+
     SourceEditor *editor = 0;
     QString lang = l;
     if ( lang.isEmpty() )
@@ -3408,10 +3410,8 @@ bool MainWindow::openProjectSettings( Project *pro )
 	}
     }
 
-    if ( singleProject ) {
+    if ( singleProject )
 	dia.tabWidget->setTabEnabled( dia.tabSettings, FALSE );
-	dia.tabWidget->setTabEnabled( dia.tabFiles, FALSE );
-    }
 
     int res = dia.exec();
 

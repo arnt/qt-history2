@@ -216,9 +216,10 @@ void FormWindow::initSlots()
 		"/****************************************************************************\n"
 		"** ui.h extension file, included from the uic-generated form implementation.\n"
 		"**\n"
-		"** If you wish to add, delete or rename functions use Qt Designer which will\n"
-		"** update this file, preserving your code. Create an init() function in place\n"
-		"** of a constructor, and a destroy() function in place of a destructor.\n"
+		"** If you wish to add, delete or rename functions respectively slots use\n"
+		"** Qt Designer which will update this file, preserving your code. Create an\n"
+		"** init() function in place of a constructor, and a destroy() function in\n"
+		"** place of a destructor.\n"
 		"*****************************************************************************/\n";
 	    formFile()->setCode( code );
 	}
@@ -633,10 +634,12 @@ void FormWindow::handleMousePress( QMouseEvent *e, QWidget *w )
 	if ( currTool == BUDDY_TOOL ) {
 	    if ( !w->inherits( "QLabel" ) )
 		break;
+	    clearSelection( FALSE );
 	    validForBuddy = TRUE;
 	    mainWindow()->statusBar()->message( tr( "Set buddy for '%1' to..." ).arg( w->name() ) );
-	} else
+	} else {
 	    mainWindow()->statusBar()->message( tr( "Connect '%1' with..." ).arg( w->name() ) );
+	}
 	saveBackground();
 	startPos = mapFromGlobal( e->globalPos() );
 	currentPos = startPos;
@@ -2624,7 +2627,6 @@ void FormWindow::setProject( Project *pro )
 {
     proj = pro;
 }
-
 
 Project *FormWindow::project() const
 {
