@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: //depot/qt/main/util/qdoc/qdoc#101 $
+# $Id: //depot/qt/main/util/qdoc/qdoc#102 $
 #
 # this is a massive hack, written very quickly
 #
@@ -516,7 +516,7 @@ sub processdocs {
 
 	$doc = &codeincludes($doc);
 
-	$doc =~ s/\.?\s*$/.\n/s;
+	$doc =~ s/\.*\s*$/.\n/s;
 	$doc =~ s/^\s*\n//s;
 	$doc =~ s/>\.\n$/>\n/s;
 
@@ -593,6 +593,24 @@ sub writepages {
 	    }
 	-egsx;
 
+	# refer to function or class by name
+	$doc =~ s-\\l\s+([^\s\(]+)((?:[\(\)]*))-
+	    if (defined($anchor{$1})) {
+		sprintf("<a href=%s>%s</a>", $anchor{$1}, &html($1 . $2));
+	    } else {
+		if (defined($anchor{$class . $1})) {
+		    sprintf("<a href=%s>%s</a>", 
+			    $anchor{$class . $1}, &html($1 . $2));
+		} elsif (defined($anchor{"::".$1})) {
+		    sprintf("<a href=%s>%s</a>", 
+			    $anchor{"::" . $1}, &html($1 . $2));
+		} else {
+		    print "No link to '", $1, "'\n";
+		    sprintf("%s", $1 . $2);
+		}
+	    }
+	-egsx;
+
 	$doc =~ s-\\internal\s-<p>Internal comments:<p>\n-s;
 
 	$doc =~ s/\\\&/&amp;/gs;
@@ -660,12 +678,18 @@ sub mangleclass {
 #
 sub manglefn {
     local($type, $class, $name, $sig, $const, $home) = @_;
-    local($url, $d);
+    local($url, $d, $mc);
+
+    $mc = 
 
     $type =~ s/\s+/-/g;
     $type =~ s/^-*(.*?)-*$/$1/;
     $type =~ s/-*([\*\&])-*/$1/g;
     $type =~ s/^-?virtual-?//;
+    if ( ($type =~ /^[A-Z][^:]*$/ ) # class-local enum
+	&& defined( $type{&mangleclass( $class ) . "#" . $type} ) ) {
+	$type = $name{&mangleclass( $class ) . "#" . $type};
+    }
     $type = "-" . $type if ($type ne "");
     $const = "-" . $const if ($const ne "");
     $url = $class . "::" . $name;
@@ -1093,6 +1117,8 @@ sub readc {
 		$def = $1;
 		$doc = $2;
 	    }
+	    $overload = 1 if ( $doc =~ /overloaded/is );
+
 	    ($name, $args) = split(/\s*\((?=[^\(]+\s*$ )/x, $def);
 #	    ((?:\w+::)?\s*
 #	    if ($name =~ /^\s*(.*?[ \*\&])\s*((?:\w+::)?)(\w+[^\(\s\w]{0,3})$/s) {
@@ -1174,7 +1200,8 @@ sub makenames {
 	$anchor{$name{$_}} = $_ unless 
 	    (defined($anchor{$name{$_}}) ||
 	     defined($overload{$_}) ||
-	     ($doc{$_} =~ /^\s$/s));
+	     (!defined($doc{$_})) ||
+	     ($doc{$_} =~ /^\s*$/s));
     }
 
     # next, we do a good imitation of c++ inheritance... subclasses:
@@ -1234,7 +1261,8 @@ sub makenames {
 sub al {
     local ($_, $class) = @_;
 
-    s-[\w:]+-
+    s-(?:(?:[\w:]+)|(?:[&<>]))-
+    {
 	if (defined($anchor{$class . "::" . $&}) &&
 	    $type{$anchor{$class."::".$&}} ne "fn") {
 	    sprintf("<a href=%s>%s</a>", $anchor{$class."::".$&}, &html($&));
@@ -1247,6 +1275,7 @@ sub al {
 	} else {
 	    &html($&);
 	}
+    }
     -egs;
     $_;
 }
@@ -1381,8 +1410,6 @@ sub printclass {
 
     $class = $name{$url};
 
-#print "0: ", $class, "\n";
-
     if (!$internal && ($doc{$url} =~ /^\s*$/)) {
 	print "skipping internal class ", $class, "\n";
 	next;
@@ -1439,7 +1466,7 @@ sub printclass {
     print O "<p>\n<code>#include &lt;<a href=", $headerfiles{$includefile{$url}}, ">", $includefile{$url}, "</a>&gt;</code>\n" if (defined($includefile{$url}));
     if ($relations{$name{$url}} =~ /\S/s) {
 	my($relatives, $name, $header);
-	$relatives = "<hr><p><h2>Related Functions</h2>\n";
+	$relatives = "<hr><h2>Related Functions</h2>\n";
 	$family = "<h2>Related Functions</h2>\n(Note that these are not member functions.)\n<ul>";
 	foreach ( split( /\s+/, $relations{$name{$url}} ) ) {
 	    $name = $_;
@@ -1447,7 +1474,7 @@ sub printclass {
 	    $name =~ s/^[^\#]*\#//;
 	    $header = $def{$_};
 	    $header =~ s;([^\(]*\s)\b(\S+);$1<a name=$name>$2</a>;s;
-	    $relatives = join ("", $relatives, "<p><h3>", $header,
+	    $relatives = join ("", $relatives, "<h3>", $header,
 			       "</h3>\n<p>", $doc{$_}, "\n");
 	    $header = $def{$_};
 	    $header =~ s@</?a.*?>@@gs; #okok, so it is stupid
@@ -1552,7 +1579,7 @@ sub printclass {
 		((?:(?:operator(?:(?:\(\s*\))|(?:[^\s\(]{1,3})))
 		  |(?:\~?\w+)))                        (?# name
 							)
-		\s*\((.*?)\)\s*(const)?\s*$/x) {
+		\s*\((.*?)\)\s*(const)?\s*(?:=\s*0\s*)?$/x) {
 		my ($u,$t,$mt,$f,$a,$ma,$c);
 		$t = $1;
 		$f = $2;
@@ -1565,20 +1592,22 @@ sub printclass {
 		$u = &manglefn($t, $name{$url}, $f, $a, $c);
 		&fixdefvalues($u, $a) if ($type{$u} eq "fn");
 		if ($type{$u} eq "fn") {
-		    # only for templates: promote use the .cpp variable names
+		    # only for templates: promote the .cpp variable names
 		    if ( defined( $templatecookie{$url} ) ) {
-			#print "not $a\n";
 			$a = $def{$u};
 			$a =~ s/^.*?\((\)\()?\s*//s;
 			$a =~ s/\s*\).*?$//s;
 			$a =~ s-<a href=.*?>(.*?)</a>-$1-g;
-			$a = &html( $a );
-			#print "but $a\n";
+			$_ = join("", &html($t), "<a href=", $u,
+				  "><strong>", &html($f), 
+				  "</strong></a> (", $a, 
+				  ") ", $c);
+		    } else {
+			$_ = join("", &html($t), "<a href=", $u,
+				  "><strong>", &html($f), 
+				  "</strong></a> (", &html($a), 
+				  ") ", $c);
 		    }
-		    $_ = join("", &html($t), "<a href=", $u,
-			      "><strong>", &html($f), 
-			      "</strong></a> (", &html($a), 
-			      ") ", $c);
 		    $fndocs{$u} = $mode;
 		} else {
 		    print "undocumented: ", $t," ", $name{$url}, "::", $f,
@@ -1631,9 +1660,9 @@ sub printclass {
     }
 
     if ($brief{$url} =~ /\S/s) {
-	print O "<hr><p><h2><a name=details>Detailed Description</a></h2>\n", $brief{$url}, "\n<p>\n", $doc{$url}, "\n";
+	print O "<hr><h2><a name=details>Detailed Description</a></h2>\n", $brief{$url}, "\n<p>\n", $doc{$url}, "\n";
     } else {
-	print O "<hr><p><h2>Detailed Description</h2>\n", $doc{$url}, "\n";
+	print O "<hr><h2>Detailed Description</h2>\n", $doc{$url}, "\n";
     }
 
     foreach $url ( sort weirdly keys %fndocs ) {
@@ -1660,7 +1689,7 @@ sub printclass {
 	    $fnheader = "";
 	    $fntail = "\n";
 	    s;([^\(]*\s)\b(\S+);$1<a name=$name>$2</a>;s;
-	    print O "<p><h3>", $_, $protection, "</h3>\n<p>", $doc{$url};
+	    print O "<h3>", $_, $protection, "</h3>\n<p>", $doc{$url};
 
 	    $name = $name{$url};
 	    $class = $name;
@@ -1696,8 +1725,8 @@ sub classindex {
 <h1>Qt Class Index</h1>
 <ul compact>
 ";
-    open(P, "> $outputdir/classes69.html")
-	|| die "can't open $outputdir/classes69.html for writing";
+    open(P, "> $outputdir/annotated.html")
+	|| die "can't open $outputdir/annotated.html for writing";
     print P $doctype, "
 <html>
 <head><title>Qt Toolkit - Class List</title></head>
@@ -1872,11 +1901,14 @@ Qt toolkit - ", $_, " member list
 	} elsif ( $type{$anchor{$_}} eq "fn" && !($_ =~ /::_cast/)) {
 	    $member = $_;
 	    $member =~ s/.*:://;
-	    print O "<li><a href=", $anchor{$_}, ">", &html($member), "</a>\n";
+	    print O "<li><a href=", $anchor{$_}, ">", &html($member), "</a>\n"
+		if ( $documented{$anchor{$_}} );
 	} elsif ( $type{$anchor{$_}} eq "enum" ) {
 	    $member = $_;
 	    $member =~ s/.*:://;
-	    print O "<li>enum <a href=", $anchor{$_}, ">", &html($member), "</a>\n";
+	    print O
+		"<li>enum <a href=", $anchor{$_}, ">", &html($member), "</a>\n"
+		if ( $documented{$anchor{$_}} );
 	}
     }
     print O $tail;
@@ -1936,9 +1968,15 @@ if ($#ARGV > -1) {
 &writepages();
 &readfiles();
 
-foreach $c ( keys %doc ) {
-    if (($type{$c} eq "class") && ($anchor{$name{$c}} eq $c) ) {
-	&printclass($c);
+foreach $c ( sort keys %doc ) {
+    if ($type{$c} eq "class") {
+	if ($anchor{$name{$c}} eq $c) {
+	    &printclass($c);
+	} else {
+	    print "not printing $c\n";
+	}
+    } else {
+	print $c, " is a ", $type{$c}, "\n" unless ( $c =~ /\x23/ );
     }
 }
 
@@ -1964,3 +2002,12 @@ if ( $internal ) {
 print "Documented ", $countdoc, " member functions, left out ",
     $errmsg, " undocumented member functions and ", 
     $countall-$countdoc-$errmsg, " private or non-function members\n";
+
+
+#foreach ( sort keys %urls ) {
+#    print $urls{$_}, ": ", $_, ":\n   ", $def{$urls{$_}}, "\n";
+#}
+
+
+
+
