@@ -69,6 +69,9 @@ public:
 
     void interpretText();
     bool eventFilter(QObject *object, QEvent *event);
+
+    virtual QValidator::State validate(QString &input, int &pos) const;
+    virtual void fixup(QString &input) const;
 public slots:
     void selectAll();
     virtual void clear();

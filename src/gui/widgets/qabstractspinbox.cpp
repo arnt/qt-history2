@@ -30,6 +30,14 @@
 #include <limits.h>
 #endif
 
+//#define QABSTRACTSPINBOX_QSBDEBUG
+#ifdef QABSTRACTSPINBOX_QSBDEBUG
+#  define QASBDEBUG qDebug
+#else
+#  define QASBDEBUG if (false) qDebug
+#endif
+
+
 #define d d_func()
 #define q q_func()
 
@@ -289,7 +297,7 @@ void QAbstractSpinBox::setFrame(bool enable)
     Possible Values are \c Qt::AlignAuto, \c Qt::AlignLeft, \c
     Qt::AlignRight and \c Qt::AlignHCenter.
 
-    By default, the alignment is Qt::AlignLeft.
+    By default, the alignment is Qt::AlignLeft
 
     Attempting to set the alignment to an illegal flag combination
     does nothing.
@@ -375,6 +383,27 @@ QAbstractSpinBox::StepEnabled QAbstractSpinBox::stepEnabled() const
 }
 
 /*!
+   This virtual function is called by the QAbstractSpinBox to
+   determine whether \a input is valid. Reimplemented in the various
+   subclasses.
+*/
+
+QValidator::State QAbstractSpinBox::validate(QString &/*input*/, int &/*pos*/) const
+{
+    return QValidator::Acceptable;
+}
+
+/*!
+   This virtual function is called by the QAbstractSpinBox if the
+   input is not validated to QValidator::Acceptable when Return is
+   pressed or interpretText() is called. It will try to change the
+   text so it is valid. Reimplemented in the various subclasses.
+*/
+
+void QAbstractSpinBox::fixup(QString &) const
+{
+}
+/*!
     Virtual function that is called whenever the user triggers a step.
     The \a steps parameter indicates how many steps were taken, e.g.
     Pressing \c Qt::Key_Down will trigger a call to stepBy(-1),
@@ -391,18 +420,22 @@ QAbstractSpinBox::StepEnabled QAbstractSpinBox::stepEnabled() const
 
 void QAbstractSpinBox::stepBy(int steps)
 {
-    QVariant v = d->value;
-    // to make sure it behaves reasonably when typing something and then stepping in non-tracking mode
+    const QVariant old = d->value;
     QString tmp = d->edit->displayText();
+    int cursorPos = d->edit->cursorPosition();
+    bool dontstep = false;
+    EmitPolicy e = EmitIfChanged;
     if (d->pendingemit) {
-        switch (d->validate(&tmp, 0, &v)) {
-        case QValidator::Intermediate: d->setValue(v, EmitIfChanged); break;
-        case QValidator::Invalid: return;
-        case QValidator::Acceptable: break;
-        }
+        dontstep = validate(tmp, cursorPos) != QValidator::Acceptable;
+        d->refresh(NeverEmit);
+        if (d->value != old)
+            e = AlwaysEmit;
     }
-    v = d->bound(v + (d->singlestep * steps), d->value, steps);
-    d->setValue(v, EmitIfChanged);
+    if (!dontstep) {
+        d->setValue(d->bound(d->value + (d->singlestep * steps), old, steps), e);
+    } else if (e == AlwaysEmit) {
+        d->emitSignals(old);
+    }
     selectAll();
 }
 
@@ -449,8 +482,10 @@ void QAbstractSpinBox::setLineEdit(QLineEdit *e)
     d->edit->setFocusProxy(this);
 
     if (d->type != QVariant::Invalid) {
-        connect(d->edit, SIGNAL(textChanged(QString)), this, SLOT(editorTextChanged(QString)));
-        connect(d->edit, SIGNAL(cursorPositionChanged(int,int)), this, SLOT(editorCursorPositionChanged(int,int)));
+        connect(d->edit, SIGNAL(textChanged(QString)),
+                this, SLOT(editorTextChanged(QString)));
+        connect(d->edit, SIGNAL(cursorPositionChanged(int,int)),
+                this, SLOT(editorCursorPositionChanged(int,int)));
     }
     QStyleOptionSpinBox opt = d->getStyleOption();
     opt.subControls = QStyle::SC_SpinBoxEditField;
@@ -647,7 +682,8 @@ void QAbstractSpinBox::keyPressEvent(QKeyEvent *e)
     case Qt::Key_Return:
         d->refresh(AlwaysEmit);
         selectAll();
-        break;
+        e->accept();
+        return;
 
     case Qt::Key_U:
         if (e->modifiers() & Qt::ControlModifier) {
@@ -751,6 +787,8 @@ void QAbstractSpinBox::focusOutEvent(QFocusEvent *e)
 void QAbstractSpinBox::closeEvent(QCloseEvent *e)
 {
     d->resetState();
+    if (d->pendingemit)
+        d->refresh(EmitIfChanged);
     QWidget::closeEvent(e);
 }
 
@@ -831,7 +869,6 @@ void QAbstractSpinBox::contextMenuEvent(QContextMenuEvent *e)
 
 void QAbstractSpinBox::mouseMoveEvent(QMouseEvent *e)
 {
-    QStyle *style = this->style();
     const QPoint p(e->pos());
     const StepEnabled se = stepEnabled();
     QStyleOptionSpinBox opt = d->getStyleOption();
@@ -840,13 +877,11 @@ void QAbstractSpinBox::mouseMoveEvent(QMouseEvent *e)
         d->dragging = true;
     }
     if (d->spinclicktimerid != -1) {
-        if ((se & StepUpEnabled)
-            && QStyle::visualRect(opt.direction, opt.rect, style->subControlRect(QStyle::CC_SpinBox, &opt,
-                                                                                 QStyle::SC_SpinBoxUp, this)).contains(p)) {
+        if ((se & StepUpEnabled) && style()->subControlRect(QStyle::CC_SpinBox, &opt,
+                                                            QStyle::SC_SpinBoxUp, this).contains(p)) {
             d->updateState(true);
-        } else if ((se & StepDownEnabled)
-                   && QStyle::visualRect(opt.direction, opt.rect, style->subControlRect(QStyle::CC_SpinBox, &opt,
-                                                                                        QStyle::SC_SpinBoxDown, this)).contains(p)) {
+        } else if ((se & StepDownEnabled) && style()->subControlRect(QStyle::CC_SpinBox, &opt,
+                                                                     QStyle::SC_SpinBoxDown, this).contains(p)) {
             d->updateState(false);
         } else {
             d->resetState();
@@ -868,24 +903,20 @@ void QAbstractSpinBox::mousePressEvent(QMouseEvent *e)
     if (e->button() != Qt::LeftButton || d->buttonstate != None)
         return;
 
-    QStyle *style = this->style();
     const QPoint p(e->pos());
     const StepEnabled se = stepEnabled();
     QStyleOptionSpinBox opt = d->getStyleOption();
     opt.subControls = QStyle::SC_All;
-    if ((se & StepUpEnabled)
-        && QStyle::visualRect(opt.direction, opt.rect, style->subControlRect(QStyle::CC_SpinBox, &opt,
-                                                                             QStyle::SC_SpinBoxUp, this)).contains(p)) {
+    if ((se & StepUpEnabled) && style()->subControlRect(QStyle::CC_SpinBox, &opt,
+                                                        QStyle::SC_SpinBoxUp, this).contains(p)) {
         d->updateState(true);
         e->accept();
-    } else if ((se & StepDownEnabled)
-               && QStyle::visualRect(opt.direction, opt.rect, style->subControlRect(QStyle::CC_SpinBox, &opt,
-                                                                                    QStyle::SC_SpinBoxDown, this)).contains(p)) {
+    } else if ((se & StepDownEnabled) && style()->subControlRect(QStyle::CC_SpinBox, &opt,
+                                                                         QStyle::SC_SpinBoxDown, this).contains(p)) {
         d->updateState(false);
         e->accept();
-    } else if (d->slider
-               && QStyle::visualRect(opt.direction, opt.rect, style->subControlRect(QStyle::CC_SpinBox, &opt,
-                                                                                    QStyle::SC_SpinBoxSlider, this)).contains(p)) {
+    } else if (d->slider && style()->subControlRect(QStyle::CC_SpinBox, &opt,
+                                                            QStyle::SC_SpinBoxSlider, this).contains(p)) {
         d->sliderpressed = true;
         d->setValue(d->valueForPosition(e->pos().x()), EmitIfChanged);
         e->accept();
@@ -910,10 +941,12 @@ void QAbstractSpinBox::mouseReleaseEvent(QMouseEvent *)
 */
 
 QAbstractSpinBoxPrivate::QAbstractSpinBoxPrivate()
-    : edit(0), type(QVariant::Invalid), spinclicktimerid(-1), spinclicktimerinterval(100),
-      buttonstate(None), sizehintdirty(true), dirty(true), pendingemit(false),
-      tracking(false), wrapping(false), dragging(false), ignorecursorpositionchanged(false), slider(false),
-      sliderpressed(false), frame(true), buttonsymbols(QAbstractSpinBox::UpDownArrows)
+    : edit(0), type(QVariant::Invalid), spinclicktimerid(-1),
+      spinclicktimerinterval(100), buttonstate(None), sizehintdirty(true),
+      dirty(true), cachedtext("\x01"), cachedstate(QValidator::Invalid),
+      pendingemit(false), tracking(false), wrapping(false), dragging(false),
+      ignorecursorpositionchanged(false), slider(false), sliderpressed(false),
+      frame(true), buttonsymbols(QAbstractSpinBox::UpDownArrows)
 {
 }
 
@@ -924,17 +957,22 @@ QAbstractSpinBoxPrivate::QAbstractSpinBoxPrivate()
 
 void QAbstractSpinBoxPrivate::strip(QString *text) const
 {
+    Q_ASSERT(text);
     if (specialvaluetext.size() && *text == specialvaluetext)
         return;
     int from = 0;
     int length = text->length();
+    bool changed = false;
     if (prefix.size() && text->startsWith(prefix)) {
         from += prefix.length();
         length -= from;
+	changed = true;
     }
     if (suffix.size() && text->endsWith(suffix)) {
         length -= suffix.length();
+	changed = true;
     }
+    if (changed)
     *text = text->mid(from, length);
 }
 
@@ -953,7 +991,7 @@ bool QAbstractSpinBoxPrivate::specialValue() const
     Virtual function that emits signals. Reimplemented in the different subclasses.
 */
 
-void QAbstractSpinBoxPrivate::emitSignals()
+void QAbstractSpinBoxPrivate::emitSignals(const QVariant &)
 {
     if (slider) {
         updateSlider();
@@ -972,16 +1010,17 @@ void QAbstractSpinBoxPrivate::editorTextChanged(const QString &t)
 {
     if (tracking) {
         QString tmp = t;
-        QValidator::State state;
-        const QVariant v = d->mapTextToValue(&tmp, (QValidator::State*)&state); // Already validated
-        if (v != value && state == QValidator::Acceptable) {
+        int pos = edit->cursorPosition();
+        QValidator::State state = q->validate(tmp, pos);
+        if (state == QValidator::Acceptable) {
+            const QVariant v = d->valueFromText(tmp);
             if (tmp != t) {
                 const bool wasBlocked = edit->blockSignals(true);
                 edit->setText(prefix + tmp + suffix);
                 edit->blockSignals(wasBlocked);
             }
-            value = v; // don't want to call setValue because that would change the text.
-            emitSignals();
+	    setValue(v, EmitIfChanged, false);
+            pendingemit = false;
         } else {
             pendingemit = true;
         }
@@ -1056,7 +1095,7 @@ void QAbstractSpinBoxPrivate::init()
 
     q->setLineEdit(new QLineEdit(q));
     if (d->type != QVariant::Invalid)
-        edit->setValidator(new QSpinBoxValidator(this, q));
+        edit->setValidator(new QSpinBoxValidator(q, this));
 
     edit->setObjectName("qt_spinbox_lineedit");
 
@@ -1072,8 +1111,8 @@ void QAbstractSpinBoxPrivate::updateSpinBox()
 {
     if (q) {
         QStyleOptionSpinBox opt = getStyleOption();
-        q->update(QStyle::visualRect(opt.direction, opt.rect, q->style()->subControlRect(QStyle::CC_SpinBox, &opt,
-                                                                                         QStyle::SC_SpinBoxButtonField, q)));
+        q->update(q->style()->subControlRect(QStyle::CC_SpinBox, &opt,
+                                             QStyle::SC_SpinBoxButtonField, q));
     }
 }
 
@@ -1087,8 +1126,8 @@ void QAbstractSpinBoxPrivate::updateSlider()
 {
     if (q) {
         QStyleOptionSpinBox opt = getStyleOption();
-        q->update(QStyle::visualRect(opt.direction, opt.rect, q->style()->subControlRect(QStyle::CC_SpinBox, &opt,
-                                                                                         QStyle::SC_SpinBoxSlider, q)));
+        q->update(q->style()->subControlRect(QStyle::CC_SpinBox, &opt,
+                                             QStyle::SC_SpinBoxSlider, q));
     }
 }
 
@@ -1142,10 +1181,10 @@ void QAbstractSpinBoxPrivate::calculateSizeHints() const
         int h = edit->sizeHint().height();
         int w = 0;
         QString s;
-        s = prefix + mapValueToText(minimum) + suffix + QLatin1Char(' ');
+        s = prefix + textFromValue(minimum) + suffix + QLatin1Char(' ');
         s.truncate(18);
         w = qMax(w, fm.width(s));
-        s = prefix + mapValueToText(maximum) + suffix + QLatin1Char(' ');
+        s = prefix + textFromValue(maximum) + suffix + QLatin1Char(' ');
         s.truncate(18);
         w = qMax(w, fm.width(s));
         if (specialvaluetext.size()) {
@@ -1158,23 +1197,19 @@ void QAbstractSpinBoxPrivate::calculateSizeHints() const
         QSize hint(w, h);
         QSize extra(35,6);
         opt.rect.setSize(hint + extra);
-        QSize eh = q->style()->subControlRect(QStyle::CC_SpinBox, &opt,
+        extra += hint - q->style()->subControlRect(QStyle::CC_SpinBox, &opt,
                                             QStyle::SC_SpinBoxEditField, q).size();
-        extra += hint - eh;
         // get closer to final result by repeating the calculation
         opt.rect.setSize(hint + extra);
-        eh = q->style()->subControlRect(QStyle::CC_SpinBox, &opt,
+        extra += hint - q->style()->subControlRect(QStyle::CC_SpinBox, &opt,
                                         QStyle::SC_SpinBoxEditField, q).size();
-        extra += hint - eh;
-        if (eh.height() & 1)
-            extra += QSize(0,1);
         hint += extra;
 
         if (slider)
             hint.rheight() += q->style()->pixelMetric(QStyle::PM_SpinBoxSliderHeight, &opt, q);
         cachedsizehint = hint.expandedTo(QApplication::globalStrut());
         cachedminimumsizehint = hint.expandedTo(QApplication::globalStrut());
-        sizehintdirty = false;
+        const_cast<QAbstractSpinBoxPrivate *>(this)->sizehintdirty = false;
     }
 }
 
@@ -1190,7 +1225,7 @@ QStyleOptionSpinBox QAbstractSpinBoxPrivate::getStyleOption() const
     opt.init(q);
     opt.activeSubControls = 0;
     opt.buttonSymbols = buttonsymbols;
-    opt.subControls = QStyle::SC_SpinBoxUp | QStyle::SC_SpinBoxDown | QStyle::SC_SpinBoxEditField;
+    opt.subControls = QStyle::SC_SpinBoxUp | QStyle::SC_SpinBoxDown;
     if (slider)
         opt.subControls |= QStyle::SC_SpinBoxSlider;
 
@@ -1217,7 +1252,7 @@ QStyleOptionSpinBox QAbstractSpinBoxPrivate::getStyleOption() const
 QVariant QAbstractSpinBoxPrivate::valueForPosition(int pos) const
 {
     QStyleOptionSpinBox opt = getStyleOption();
-    QRect r = QStyle::visualRect(opt.direction, opt.rect, q->style()->subControlRect(QStyle::CC_SpinBox, &opt, QStyle::SC_SpinBoxSlider, q));
+    QRect r = q->style()->subControlRect(QStyle::CC_SpinBox, &opt, QStyle::SC_SpinBoxSlider, q);
 
     double percentage = (double)pos / r.width();
 
@@ -1295,14 +1330,18 @@ QVariant QAbstractSpinBoxPrivate::bound(const QVariant &val, const QVariant &old
     of \a ep it will also emit signals.
 */
 
-void QAbstractSpinBoxPrivate::setValue(const QVariant &val, EmitPolicy ep)
+void QAbstractSpinBoxPrivate::setValue(const QVariant &val, EmitPolicy ep,
+                                       bool doUpdate)
 {
     const QVariant old = value;
     value = bound(val);
     pendingemit = false;
-    update();
-    if (ep == AlwaysEmit || (ep == EmitIfChanged && old != value)) {
-        emitSignals();
+    if (doUpdate)
+        update();
+    if (ep == AlwaysEmit) {
+        emitSignals(QVariant()); // needs to be != the new one
+    } else if (ep == EmitIfChanged && old != value) {
+        emitSignals(old);
     }
 }
 
@@ -1318,7 +1357,7 @@ void QAbstractSpinBoxPrivate::updateEdit() const
     const bool empty = e->text().isEmpty();
     int cursor = e->cursorPosition();
     int sellength = e->selectedText().length();
-    const QString newText = specialValue() ? specialvaluetext : prefix + mapValueToText(value) + suffix;
+    const QString newText = specialValue() ? specialvaluetext : prefix + textFromValue(value) + suffix;
     const bool sb = e->blockSignals(true);
     e->setText(newText);
 
@@ -1356,32 +1395,6 @@ void QAbstractSpinBoxPrivate::update()
 /*!
     \internal
 
-    Virtual method called from QSpinBoxValidator::validate. This
-    method is reimeplemented in the various subclasses to map the text
-    of the lineedit to a value of the right type.
-*/
-
-QVariant QAbstractSpinBoxPrivate::mapTextToValue(QString *, QValidator::State *) const
-{
-    return QVariant();
-}
-
-/*!
-    \internal
-
-    Virtual method called from updateEdit. This method method is
-    reimeplemented in the various subclasses to map a value to the
-    string it should be displayed as.
-*/
-
-QString QAbstractSpinBoxPrivate::mapValueToText(const QVariant &) const
-{
-    return QString();
-}
-
-/*!
-    \internal
-
     Convenience function to set min/max values.
 */
 
@@ -1396,9 +1409,8 @@ void QAbstractSpinBoxPrivate::setBoundary(Boundary b, const QVariant &val)
         if (minimum > maximum)
             minimum = maximum;
     }
-    setValue(bound(value), EmitIfChanged);
     resetState();
-    update();
+    setValue(bound(value), EmitIfChanged);
 }
 
 /*!
@@ -1424,50 +1436,39 @@ QVariant QAbstractSpinBoxPrivate::getZeroVariant() const
 /*!
     \internal
 
-    Virtual method called from QSpinBoxValidator::fixup. This method
-    can be reimeplemented in the various subclasses.
+    Virtual method called that calls the public textFromValue()
+    functions in the subclasses. Needed to change signature from
+    QVariant to int/double/QDateTime etc. Used when needing to display
+    a value textually.
+
+    This method is reimeplemented in the various subclasses.
 */
 
-void QAbstractSpinBoxPrivate::fixup(QString &) const
+QString QAbstractSpinBoxPrivate::textFromValue(const QVariant &) const
 {
+    return QString();
 }
 
 /*!
     \internal
 
-    Virtual method called from QSpinBoxValidator::validate. This
-    method is reimeplemented in the various subclasses.
+    Virtual method called that calls the public valueFromText()
+    functions in the subclasses. Needed to change signature from
+    QVariant to int/double/QDateTime etc. Used when needing to
+    interpret a string as another type.
+
+    This method is reimeplemented in the various subclasses.
 */
 
-QValidator::State QAbstractSpinBoxPrivate::validate(QString *input, int *, QVariant *val) const
+QVariant QAbstractSpinBoxPrivate::valueFromText(const QString &) const
 {
-    if (d->type == QVariant::Invalid)
-        return QValidator::Acceptable;
-
-    Q_ASSERT(input);
-    if (specialvaluetext.size() && *input == specialvaluetext) {
-        if (val)
-            *val = minimum;
-        return QValidator::Acceptable;
-    } else if ((!prefix.isEmpty() && !input->startsWith(prefix)) || (!suffix.isEmpty() && !input->endsWith(suffix))) {
-        return QValidator::Invalid;
-    }
-
-    QValidator::State state;
-    if (val) {
-        *val = mapTextToValue(input, (QValidator::State *)&state);
-    } else {
-        mapTextToValue(input, (QValidator::State *)&state);
-    }
-
-//    qDebug() << "input:" << *input << "prefix:" << prefix << "suffix:" << suffix << "state:" << state;
-    return state;
+    return QVariant();
 }
-
 /*!
     \internal
 
-    Interprets text and emits signals. Called when the user presses Enter.
+    Interprets text and emits signals. Called from interpretText() and
+    when the user presses Enter.
 */
 
 void QAbstractSpinBoxPrivate::refresh(EmitPolicy ep)
@@ -1476,16 +1477,31 @@ void QAbstractSpinBoxPrivate::refresh(EmitPolicy ep)
         return;
 
     QVariant v = getZeroVariant();
+    bool doInterpret = true;
     QString tmp = d->edit->displayText();
     int pos = d->edit->cursorPosition();
-    if (validate(&tmp, &pos, &v) != QValidator::Acceptable) {
+    const int oldpos = pos;
+
+    if (q->validate(tmp, pos) != QValidator::Acceptable) {
         const QString copy = tmp;
-        fixup(tmp);
-        if (copy == tmp || validate(&tmp, &pos, &v) != QValidator::Acceptable)
+	q->fixup(tmp);
+        QASBDEBUG() << "QAbstractSpinBoxPrivate::refresh() text '"
+                    << d->edit->displayText()
+                    << "' >> '" << copy << "'"
+                    << "' >> '" << tmp << "'";
+
+        doInterpret = tmp != copy && (q->validate(tmp, pos) == QValidator::Acceptable);
+        if (!doInterpret) {
             v = value;
+        }
+    }
+    if (doInterpret) {
+        v = valueFromText(tmp);
     }
 
     setValue(v, ep);
+    if (oldpos != pos)
+        d->edit->setCursorPosition(pos);
 }
 
 // --- QSpinBoxValidator ---
@@ -1495,30 +1511,38 @@ void QAbstractSpinBoxPrivate::refresh(EmitPolicy ep)
     Constructs a QSpinBoxValidator object
 */
 
-QSpinBoxValidator::QSpinBoxValidator(QAbstractSpinBoxPrivate *p, QObject *parent)
-    : QValidator(parent)
+QSpinBoxValidator::QSpinBoxValidator(QAbstractSpinBox *qp, QAbstractSpinBoxPrivate *dp)
+    : QValidator(qp), qptr(qp), dptr(dp)
 {
-    dptr = p;
     setObjectName("qt_spinboxvalidator");
 }
 
 /*!
     \internal
-    Calls the virtual QAbstractSpinBoxPrivate::validate function.
+
+    Checks for specialValueText, prefix, suffix and calls
+    the virtual QAbstractSpinBox::validate function.
 */
 
 QValidator::State QSpinBoxValidator::validate(QString &input, int &pos) const
 {
-    return  dptr->validate(&input, &pos, 0);
+    if (dptr->specialvaluetext.size() > 0 && input == dptr->specialvaluetext) {
+        return QValidator::Acceptable;
+    } else if ((!dptr->prefix.isEmpty() && !input.startsWith(dptr->prefix))
+	       || (!dptr->suffix.isEmpty() && !input.endsWith(dptr->suffix))) {
+        return QValidator::Invalid;
+    } else {
+	return qptr->validate(input, pos);
+    }
 }
 /*!
     \internal
-    Calls the virtual QAbstractSpinBoxPrivate::fixup function.
+    Calls the virtual QAbstractSpinBox::fixup function.
 */
 
 void QSpinBoxValidator::fixup(QString &input) const
 {
-    dptr->fixup(input);
+    qptr->fixup(input);
 }
 // --- global ---
 
@@ -1672,7 +1696,7 @@ QVariant operator-(const QVariant &arg1, const QVariant &arg2)
     Multiplies \a arg1 by \a multiplier and returns the result.
 */
 
-QVariant operator*(const QVariant &arg1, double multiplier) // should probably do each field more separately
+QVariant operator*(const QVariant &arg1, double multiplier)
 {
     QVariant ret;
 

@@ -17,15 +17,25 @@
 #include <qlocale.h>
 #include <qvalidator.h>
 #include <qdebug.h>
+//#define QSPINBOX_QSBDEBUG
+#ifdef QSPINBOX_QSBDEBUG
+#  define QSBDEBUG qDebug
+#else
+#  define QSBDEBUG if (false) qDebug
+#endif
+
 
 class QSpinBoxPrivate : public QAbstractSpinBoxPrivate
 {
     Q_DECLARE_PUBLIC(QSpinBox)
 public:
     QSpinBoxPrivate();
-    void emitSignals();
-    QVariant mapTextToValue(QString *str, QValidator::State *state) const;
-    QString mapValueToText(const QVariant &n) const;
+    void emitSignals(const QVariant &);
+
+    virtual QVariant valueFromText(const QString &n) const;
+    virtual QString textFromValue(const QVariant &n) const;
+    QVariant validateAndInterpret(QString &input, int &pos,
+                                  QValidator::State &state) const;
 };
 
 static const QLatin1Char dot('.');
@@ -34,21 +44,18 @@ class QDoubleSpinBoxPrivate : public QAbstractSpinBoxPrivate
     Q_DECLARE_PUBLIC(QDoubleSpinBox)
 public:
     QDoubleSpinBoxPrivate();
-    void emitSignals();
+    void emitSignals(const QVariant &);
     bool checkIntermediate(const QString &str) const;
-    QVariant mapTextToValue(QString *str, QValidator::State *state) const;
-    QString mapValueToText(const QVariant &n) const;
-
-    QValidator::State validate(QString *input, int *pos, QVariant *val) const;
-    void fixup(QString &input) const;
-
     int findDelimiter(const QString &str, int index = 0) const;
 
+    virtual QVariant valueFromText(const QString &n) const;
+    virtual QString textFromValue(const QVariant &n) const;
+    QVariant validateAndInterpret(QString &input, int &pos,
+                                  QValidator::State &state) const;
 
     // variables
     int precision;
     QChar delimiter, thousand;
-
 };
 
 #define d d_func()
@@ -75,8 +82,8 @@ public:
     QWidget::windowActivationChanged()) If tracking() is true the
     value will be changed each time the value is changed in the
     editor. The spin box supports integer values but can be extended
-    to use different strings with mapValueToText() and
-    mapTextToValue().
+    to use different strings with validate(), textFromValue() and
+    valueFromText().
 
     Every time the value changes QSpinBox emits the valueChanged()
     signals. The current value can be fetched with value() and set
@@ -125,23 +132,35 @@ public:
             setValue(0);
         }
 
-        QString mapValueToText(int v) const
+        QString textFromValue(int v) const
         {
             return QDate::longMonthName(v);
         }
 
-        int mapTextToValue(const QString &text, QValidator::State *state) const
+        int valueFromText(const QString &text) const
         {
             for (int i = 1; i <= 12; ++i) {
                 if (text == QDate::longMonthName(i) || text == QDate::shortMonthName(i)) {
-                    if (state)
-                        *state = QValidator::Acceptable;
                     return i;
                 }
             }
-            if (state)
-                *state = QValidator::Invalid;
             return 0;
+        }
+
+        QValidator::State validate(QString &str, int &) const
+        {
+            if (text.isEmpty())
+                return QValidator::Intermediate;
+            for (int i = 1; i <= 12; ++i) {
+                QString short = QDate::shortMonthName(i);
+                QString long = QDate::longMonthName(i);
+                if (text == long || text == short) {
+                    return QValidator::Acceptable;
+                } else if (long.startsWith(text) || short.startsWith(text)) {
+                    return QValidator::Intermediate;
+                }
+            }
+            return QValidator::Invalid;
         }
 
         void keyPressEvent(QKeyEvent *e)
@@ -448,33 +467,36 @@ void QSpinBox::setRange(int min, int max)
 }
 
 /*!
+    \fn QString QSpinBox::textFromValue(int v) const
+
     This virtual function is used by the spin box whenever it needs to
     display value \a v. The default implementation returns a string
-    containing \a v printed in the standard way. Reimplementations may
-    return anything. (See the example in the detailed description.)
+    containing \a v printed in the standard way using
+    QLocale().toString(v). Reimplementations may return anything. (See
+    the example in the detailed description.)
 
     Note that Qt does not call this function for specialValueText()
     and that neither prefix() nor suffix() should be included in the
     return value.
 
     If you reimplement this, you may also need to reimplement
-    mapTextToValue().
+    valueFromText() and validate()
 
-    \sa mapTextToValue()
+    \sa valueFromText(), validate()
 */
 
-QString QSpinBox::mapValueToText(int v) const
+QString QSpinBox::textFromValue(int v) const
 {
     return QLocale().toString(v);
 }
 
 /*!
-    \fn int QSpinBox::mapTextToValue(QString *text, QValidator::State *state) const
+    \fn int QSpinBox::valueFromText(const QString &text) const
 
     This virtual function is used by the spin box whenever it needs to
     interpret text entered by the user as a value. Note that neither
     prefix() nor suffix() are included when this function is called by
-    Qt. If \a state is not 0 it is set accordingly.
+    Qt.
 
     Subclasses that need to display spin box values in a non-numeric
     way need to reimplement this function.
@@ -483,58 +505,28 @@ QString QSpinBox::mapValueToText(int v) const
     is only concerned with the other values.
 
     The default implementation tries to interpret \a text as an integer
-    using QString::toInt() and returns the value. When this function
-    sets *state to Intermediate it will return the minimum value.
+    using QString::toInt() and returns the value.
 
-    \warning
-    If \a state or \a text is 0 this function does nothing.
-
-    \sa mapValueToText()
+    \sa textFromValue(), validate()
 */
 
-int QSpinBox::mapTextToValue(QString *txt, QValidator::State *state) const
+int QSpinBox::valueFromText(const QString &text) const
 {
-    const int t = d->maximum.toInt();
-    const int b = d->minimum.toInt();
-    if (!txt || !state) {
-        if (state)
-            *state = QValidator::Invalid;
-        return b;
-    }
+    QString copy = text;
+    int pos = d->edit->cursorPosition();
+    QValidator::State state = QValidator::Acceptable;
+    return d->validateAndInterpret(copy, pos, state).toInt();
+}
 
-    QString copy = *txt;
-    d->strip(&copy);
+/*
+  \reimp
+*/
 
-    if (copy.isEmpty() || (b <= 0 && *txt == QLatin1String("-")) || (t >= 0 && copy == QLatin1String("+"))) {
-        *state = QValidator::Intermediate;
-	return b;
-    }
-
-    bool ok = false;
-    int num = QLocale().toInt(copy, &ok, 10);
-    if (!ok || (num < 0 && b >= 0)) {
-        *state = QValidator::Invalid;
-    } else if (num >= b && num <= t) {
-        *state = QValidator::Acceptable;
-    } else {
-        if (num >= 0) {
-            if (num > b) {
-                *state = QValidator::Invalid;
-            } else {
-                *state = QValidator::Intermediate;
-                num = b;
-            }
-        } else {
-            if (num < b) {
-                *state = QValidator::Invalid;
-            } else {
-                *state = QValidator::Intermediate;
-                num = b;
-            }
-        }
-    }
-
-    return num;
+QValidator::State QSpinBox::validate(QString &text, int &pos) const
+{
+    QValidator::State state;
+    d->validateAndInterpret(text, pos, state);
+    return state;
 }
 
 // --- QDoubleSpinBox ---
@@ -557,8 +549,8 @@ int QSpinBox::mapTextToValue(QString *txt, QValidator::State *state) const
     deactivated (see QWidget::windowActivationChanged()). If
     tracking() is true the value will be changed each time the value
     is changed in the editor. The spin box supports double values but
-    can be extended to use different strings with mapValueToText() and
-    mapTextToValue().
+    can be extended to use different strings with validate(),
+    textFromValue() and valueFromText().
 
     Every time the value changes QDoubleSpinBox emits the
     valueChanged() signal. The current value can be fetched with
@@ -878,9 +870,11 @@ void QDoubleSpinBox::setPrecision(int precision)
 }
 
 /*!
+    \fn QString QDoubleSpinBox::textFromValue(double v) const
+
     This virtual function is used by the spin box whenever it needs to
     display value \a v. The default implementation returns a string
-    containing \a v printed using QString::number(v, QLatin1Char('f'),
+    containing \a v printed using QLocale().toString(v, QLatin1Char('f'),
     precision()). Reimplementations may return anything.
 
     Note that Qt does not call this function for specialValueText()
@@ -888,24 +882,24 @@ void QDoubleSpinBox::setPrecision(int precision)
     return value.
 
     If you reimplement this, you may also need to reimplement
-    mapTextToValue().
+    valueFromText().
 
-    \sa mapTextToValue()
+    \sa valueFromText()
 */
 
 
-QString QDoubleSpinBox::mapValueToText(double v) const
+QString QDoubleSpinBox::textFromValue(double v) const
 {
     return QLocale().toString(v, 'f', d->precision);
 }
 
 /*!
-    \fn double QDoubleSpinBox::mapTextToValue(QString *text, QValidator::State *state) const
+    \fn double QDoubleSpinBox::valueFromText(const QString &text) const
 
     This virtual function is used by the spin box whenever it needs to
     interpret text entered by the user as a value. Note that neither
     prefix() nor suffix() are included when this function is called by
-    Qt. If \a state is not 0 it is set accordingly.
+    Qt.
 
     Subclasses that need to display spin box values in a non-numeric
     way need to reimplement this function.
@@ -913,119 +907,38 @@ QString QDoubleSpinBox::mapValueToText(double v) const
     Note that Qt handles specialValueText() separately; this function
     is only concerned with the other values.
 
-    The default implementation tries to interpret \a text as an double
-    using QString::toDouble() and returns the value. When this function
-    sets *state to Intermediate it will return the minimum value.
-
-    \warning
-    If \a state or \a text is 0 this function does nothing.
-
-    \sa mapValueToText()
+    \sa valueFromText(), validate()
 */
 
-double QDoubleSpinBox::mapTextToValue(QString *txt, QValidator::State *state) const
+double QDoubleSpinBox::valueFromText(const QString &text) const
 {
-    const double t = d->maximum.toDouble();
-    const double b = d->minimum.toDouble();
-    if (!txt || !state) {
-        if (state)
-            *state = QValidator::Invalid;
-        return b;
-    }
-    QString copy = *txt;
-    d->strip(&copy);
-    int len = copy.size();
-
-    if (d->checkIntermediate(copy)) {
-        *state = QValidator::Intermediate;
-        return b;
-    } else if (copy.at(0).isSpace() || copy.at(0) == d->thousand) {
-        *state = QValidator::Invalid;
-        return b;
-    } else if (len > 1) {
-        const int dec = d->findDelimiter(copy);
-        if (dec != -1) {
-            for (int i=dec + 1; i<copy.size(); ++i) {
-                if (copy.at(i).isSpace() || copy.at(i) == d->thousand) {
-                    *state = QValidator::Invalid;
-                    return b;
-                }
-            }
-        } else {
-            const QChar &last = copy.at(len - 1);
-            const QChar &secondLast = copy.at(len - 2);
-            if ((last == d->thousand || last.isSpace()) && (secondLast == d->thousand || secondLast.isSpace())) {
-                *state = QValidator::Invalid;
-                return b;
-            } else if (last.isSpace() && (!d->thousand.isSpace() || secondLast.isSpace())) {
-                *state = QValidator::Invalid;
-                return b;
-            }
-        }
-    }
-
-    bool ok = false;
-    QLocale loc;
-    double num = loc.toDouble(copy, &ok);
-    bool notAcceptable = false;
-
-//    qDebug() << "num" << num << "copy" << copy << "ok" << ok;
-
-    if (!ok) {
-        bool tryAgain = false;
-        if (d->thousand != dot && d->delimiter != dot && copy.count(dot) == 1) {
-            copy.replace(dot, d->delimiter);
-            tryAgain = true;
-        }
-
-        if (d->thousand.isPrint()) {
-            const int len = copy.size();
-            for (int i=0; i<len- 1; ++i) {
-                if (copy.at(i) == d->thousand && copy.at(i + 1) == d->thousand) {
-                    *state = QValidator::Invalid;
-                    return b;
-                }
-            }
-
-            copy.remove(d->thousand);
-            tryAgain = tryAgain || len != copy.size();
-        }
-
-        if (tryAgain) {
-            num = loc.toDouble(copy, &ok);
-            if (!ok) {
-                *state = QValidator::Invalid;
-                return b;
-            }
-            notAcceptable = true;
-        }
-    }
-
-    if (!ok || (num < 0 && b >= 0)) {
-        *state = QValidator::Invalid;
-    } else if (num >= b && num <= t) {
-        *state = notAcceptable ? QValidator::Intermediate : QValidator::Acceptable;
-
-    } else {
-        if (num >= 0) {
-            if (num > b) {
-                *state = QValidator::Invalid;
-            } else {
-                *state = QValidator::Intermediate;
-                num = b;
-            }
-        } else {
-            if (num < b) {
-                *state = QValidator::Invalid;
-            } else {
-                *state = QValidator::Intermediate;
-                num = b;
-            }
-        }
-    }
-    return num;
+    QString copy = text;
+    int pos = d->edit->cursorPosition();
+    QValidator::State state = QValidator::Acceptable;
+    return d->validateAndInterpret(copy, pos, state).toDouble();
 }
 
+/*
+  \reimp
+*/
+QValidator::State QDoubleSpinBox::validate(QString &text, int &pos) const
+{
+    QValidator::State state;
+    d->validateAndInterpret(text, pos, state);
+    return state;
+}
+
+
+/*
+  \reimp
+*/
+void QDoubleSpinBox::fixup(QString &input) const
+{
+    if (d->thousand != dot && d->delimiter != dot && input.count(dot) == 1)
+        input.replace(dot, d->delimiter);
+
+    input.remove(d->thousand);
+}
 
 // --- QSpinBoxPrivate ---
 
@@ -1048,7 +961,7 @@ QSpinBoxPrivate::QSpinBoxPrivate()
     \reimp
 */
 
-void QSpinBoxPrivate::emitSignals()
+void QSpinBoxPrivate::emitSignals(const QVariant &/*old*/)
 {
     pendingemit = false;
     if (slider)
@@ -1062,19 +975,83 @@ void QSpinBoxPrivate::emitSignals()
     \reimp
 */
 
-QVariant QSpinBoxPrivate::mapTextToValue(QString *text, QValidator::State *state) const
+QString QSpinBoxPrivate::textFromValue(const QVariant &f) const
 {
-    return q->mapTextToValue(text, state);
+    return q->textFromValue(f.toInt());
 }
-
 /*!
     \internal
     \reimp
 */
 
-QString QSpinBoxPrivate::mapValueToText(const QVariant &f) const
+QVariant QSpinBoxPrivate::valueFromText(const QString &f) const
 {
-    return q->mapValueToText(f.toInt());
+    return QVariant(q->valueFromText(f));
+}
+
+/*!
+    \internal Multi purpose function that parses input, sets state to
+    the appropriate state and returns the value it will be interpreted
+    as.
+*/
+
+QVariant QSpinBoxPrivate::validateAndInterpret(QString &input, int &,
+                                               QValidator::State &state) const
+{
+    if (cachedtext == input) {
+	state = cachedstate;
+	QSBDEBUG() << "cachedtext was" << "'" + cachedtext + "'" << "state was "
+		   << state << " and value was " << cachedvalue;
+
+	return cachedvalue;
+    }
+    const int t = maximum.toInt();
+    const int b = minimum.toInt();
+
+    QString copy = input;
+    d->strip(&copy);
+    QSBDEBUG() << "input" << input << "copy" << copy;
+    state = QValidator::Acceptable;
+    int num;
+
+    if (copy.isEmpty() || (b < 0 && copy == QLatin1String("-"))
+	|| (t >= 0 && copy == QLatin1String("+"))) {
+	state = QValidator::Intermediate;
+	num = b;
+        QSBDEBUG() << __FILE__ << __LINE__<< "num is set to" << num;
+    } else {
+	bool ok = false;
+        num = QLocale().toInt(copy, &ok, 10);
+        QSBDEBUG() << __FILE__ << __LINE__<< "num is set to" << num;
+	if (!ok || (num < 0 && b >= 0)) {
+	    state = QValidator::Invalid;
+        } else if (num >= b && num <= t) {
+	    state = QValidator::Acceptable;
+        } else {
+	    if (num >= 0) {
+		if (num > b) {
+                    state = QValidator::Invalid;
+		} else {
+                    state = QValidator::Intermediate;
+		    num = b;
+		}
+	    } else {
+		if (num < b) {
+                    state = QValidator::Invalid;
+		} else {
+                    state = QValidator::Intermediate;
+		    num = b;
+		}
+	    }
+	}
+    }
+    cachedtext = input;
+    cachedstate = state;
+    cachedvalue = QVariant((int)num);
+
+    QSBDEBUG() << "cachedtext is set to '" << cachedtext << "' state is set to "
+	       << state << " and value is set to " << cachedvalue;
+    return cachedvalue;
 }
 
 // --- QDoubleSpinBoxPrivate ---
@@ -1110,7 +1087,7 @@ QDoubleSpinBoxPrivate::QDoubleSpinBoxPrivate()
     \reimp
 */
 
-void QDoubleSpinBoxPrivate::emitSignals()
+void QDoubleSpinBoxPrivate::emitSignals(const QVariant &/*old*/)
 {
     pendingemit = false;
     if (slider)
@@ -1119,8 +1096,8 @@ void QDoubleSpinBoxPrivate::emitSignals()
     emit q->valueChanged(value.toDouble());
 }
 /*!
-    \internal
-    Returns whether \a str is a string which value cannot be parsed but still might turn into something valid.
+    \internal Returns whether \a str is a string which value cannot be
+    parsed but still might turn into something valid.
 */
 
 bool QDoubleSpinBoxPrivate::checkIntermediate(const QString &str) const
@@ -1148,13 +1125,11 @@ bool QDoubleSpinBoxPrivate::checkIntermediate(const QString &str) const
     return false;
 }
 
-void QDoubleSpinBoxPrivate::fixup(QString &input) const
-{
-    if (d->thousand != dot && d->delimiter != dot && input.count(dot) == 1)
-        input.replace(dot, d->delimiter);
 
-    input.remove(d->thousand);
-}
+/*
+  \internal Tries to find the decimal separator. If it can't find it
+  and the thousand delimiter is != '.' it will try to find a '.';
+*/
 
 int QDoubleSpinBoxPrivate::findDelimiter(const QString &str, int index) const
 {
@@ -1168,31 +1143,131 @@ int QDoubleSpinBoxPrivate::findDelimiter(const QString &str, int index) const
     \internal
     \reimp
 */
-
-QValidator::State QDoubleSpinBoxPrivate::validate(QString *input, int *pos, QVariant *val) const
+QVariant QDoubleSpinBoxPrivate::valueFromText(const QString &f) const
 {
-    const QValidator::State ret = QAbstractSpinBoxPrivate::validate(input, pos, val);
-    QString copy = *input;
-    d->strip(&copy);
+    return QVariant(q->valueFromText(f));
+}
 
-    if (ret != QValidator::Invalid) {
-        int dotindex = findDelimiter(copy);
-	if (dotindex != -1) {
-	    if (precision == 0) {
-                return QValidator::Invalid;
+/*!
+    \internal Multi purpose function that parses input, sets state to
+    the appropriate state and returns the value it will be interpreted
+    as.
+*/
+
+QVariant QDoubleSpinBoxPrivate::validateAndInterpret(QString &input, int &,
+						     QValidator::State &state) const
+{
+    if (cachedtext == input) {
+	state = cachedstate;
+	return cachedvalue;
+    }
+    const double t = maximum.toDouble();
+    const double b = d->minimum.toDouble();
+    QString copy = input;
+    d->strip(&copy);
+    int len = copy.size();
+    double num;
+
+    if (checkIntermediate(copy)) {
+        state = QValidator::Intermediate;
+	num = b;
+	goto end;
+    } else if (copy.at(0).isSpace() || copy.at(0) == thousand) {
+        state = QValidator::Invalid;
+	num = b;
+	goto end;
+    } else if (len > 1) {
+        const int dec = d->findDelimiter(copy);
+        if (dec != -1) {
+            for (int i=dec + 1; i<copy.size(); ++i) {
+                if (copy.at(i).isSpace() || copy.at(i) == d->thousand) {
+                    state = QValidator::Invalid;
+		    num = b;
+		    goto end;
+                }
             }
-            int digits = 0;
-	    for (int i=dotindex+1; i<(int)copy.length(); ++i) {
-		if (copy.at(i).isDigit() && ++digits > precision)
-                    return QValidator::Invalid;
+        } else {
+            const QChar &last = copy.at(len - 1);
+            const QChar &secondLast = copy.at(len - 2);
+            if ((last == d->thousand || last.isSpace())
+		&& (secondLast == d->thousand || secondLast.isSpace())) {
+                state = QValidator::Invalid;
+		num = b;
+		goto end;
+            } else if (last.isSpace() && (!d->thousand.isSpace() || secondLast.isSpace())) {
+                state = QValidator::Invalid;
+		num = b;
+		goto end;
 	    }
 	}
     }
 
+    {
+	bool ok = false;
+	QLocale loc;
+	num = loc.toDouble(copy, &ok);
+	bool notAcceptable = false;
 
-//     qDebug() << "input was: " << copy << " Input is: " << *input << " Val is: "
-//              << (val ? val->toString() : QString()) << " ret is: " << ret;
-    return ret;
+	if (!ok) {
+	    bool tryAgain = false;
+	    if (d->thousand != dot && d->delimiter != dot && copy.count(dot) == 1) {
+		copy.replace(dot, d->delimiter);
+		tryAgain = true;
+	    }
+
+	    if (d->thousand.isPrint()) {
+		const int len = copy.size();
+		for (int i=0; i<len- 1; ++i) {
+		    if (copy.at(i) == d->thousand && copy.at(i + 1) == d->thousand) {
+			state = QValidator::Invalid;
+			num = b;
+			goto end;
+		    }
+		}
+
+		copy.remove(d->thousand);
+		tryAgain = tryAgain || len != copy.size();
+	    }
+
+	    if (tryAgain) {
+		num = loc.toDouble(copy, &ok);
+		if (!ok) {
+		    state = QValidator::Invalid;
+		    num = b;
+		    goto end;
+		}
+		notAcceptable = true;
+	    }
+	}
+
+	if (!ok || (num < 0 && b >= 0)) {
+	    state = QValidator::Invalid;
+	} else if (num >= b && num <= t) {
+	    state = notAcceptable
+                    ? QValidator::Intermediate : QValidator::Acceptable;
+	} else {
+	    if (num >= 0) {
+		if (num > b) {
+		    state = QValidator::Invalid;
+		} else {
+		    state = QValidator::Intermediate;
+		    num = b;
+		}
+	    } else {
+		if (num < b) {
+		    state = QValidator::Invalid;
+		} else {
+		    state = QValidator::Intermediate;
+		    num = b;
+		}
+	    }
+	}
+    }
+end:
+    cachedtext = input;
+    cachedstate = state;
+    cachedvalue = QVariant(num);
+    return QVariant(num);
 }
 
 /*!
@@ -1200,19 +1275,9 @@ QValidator::State QDoubleSpinBoxPrivate::validate(QString *input, int *pos, QVar
     \reimp
 */
 
-QVariant QDoubleSpinBoxPrivate::mapTextToValue(QString *text, QValidator::State *state) const
+QString QDoubleSpinBoxPrivate::textFromValue(const QVariant &f) const
 {
-    return q->mapTextToValue(text, state);
-}
-
-/*!
-    \internal
-    \reimp
-*/
-
-QString QDoubleSpinBoxPrivate::mapValueToText(const QVariant &f) const
-{
-    return q->mapValueToText(f.toDouble());
+    return q->textFromValue(f.toDouble());
 }
 
 /*!

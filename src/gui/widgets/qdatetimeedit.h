@@ -107,8 +107,9 @@ protected:
     virtual void wheelEvent(QWheelEvent *e);
     virtual void focusInEvent(QFocusEvent *e);
     virtual bool focusNextPrevChild(bool next);
-    virtual QString mapDateTimeToText(const QDateTime &date) const;
-    virtual QDateTime mapTextToDateTime(QString *text, QValidator::State *state) const;
+    virtual QValidator::State validate(QString &input, int &pos) const;
+    virtual QDateTime dateTimeFromText(const QString &text) const;
+    virtual QString textFromDateTime(const QDateTime &dt) const;
     virtual void stepBy(int steps);
     virtual StepEnabled stepEnabled() const;
 

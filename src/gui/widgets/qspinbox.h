@@ -31,9 +31,9 @@ class Q_GUI_EXPORT QSpinBox : public QAbstractSpinBox
 
 public:
     explicit QSpinBox(QWidget *parent = 0);
-#ifdef QT3_SUPPORT
-    QT3_SUPPORT_CONSTRUCTOR QSpinBox(QWidget *parent, const char *name);
-    QT3_SUPPORT_CONSTRUCTOR QSpinBox(int min, int max, int step, QWidget *parent,
+#ifdef QT_COMPAT
+    QT_COMPAT_CONSTRUCTOR QSpinBox(QWidget *parent, const char *name);
+    QT_COMPAT_CONSTRUCTOR QSpinBox(int min, int max, int step, QWidget *parent,
                                    const char *name = 0);
 #endif
 
@@ -59,17 +59,18 @@ public:
 
     void setRange(int min, int max);
 
-#ifdef QT3_SUPPORT
-    inline QT3_SUPPORT void setLineStep(int step) { setSingleStep(step); }
-    inline QT3_SUPPORT void setMaxValue(int val) { setMaximum(val); }
-    inline QT3_SUPPORT void setMinValue(int val) { setMinimum(val); }
-    inline QT3_SUPPORT int maxValue() const { return maximum(); }
-    inline QT3_SUPPORT int minValue() const { return minimum(); }
+#ifdef QT_COMPAT
+    inline QT_COMPAT void setLineStep(int step) { setSingleStep(step); }
+    inline QT_COMPAT void setMaxValue(int val) { setMaximum(val); }
+    inline QT_COMPAT void setMinValue(int val) { setMinimum(val); }
+    inline QT_COMPAT int maxValue() const { return maximum(); }
+    inline QT_COMPAT int minValue() const { return minimum(); }
 #endif
 
 protected:
-    virtual QString mapValueToText(int v) const;
-    virtual int mapTextToValue(QString *text, QValidator::State *state) const;
+    virtual QValidator::State validate(QString &input, int &pos) const;
+    virtual int valueFromText(const QString &text) const;
+    virtual QString textFromValue(int v) const;
 
 public slots:
     void setValue(int val);
@@ -125,8 +126,10 @@ public:
     int precision() const;
     void setPrecision(int prec);
 
-    virtual QString mapValueToText(double v) const;
-    virtual double mapTextToValue(QString *text, QValidator::State *state) const;
+    virtual QValidator::State validate(QString &input, int &pos) const;
+    virtual double valueFromText(const QString &text) const;
+    virtual QString textFromValue(double v) const;
+    virtual void fixup(QString &str) const;
 
 public slots:
     void setValue(double val);

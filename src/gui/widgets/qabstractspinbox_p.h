@@ -84,7 +84,7 @@ public:
     bool specialValue() const;
     QVariant getZeroVariant() const;
     void setBoundary(Boundary b, const QVariant &val);
-    virtual void setValue(const QVariant &val, EmitPolicy ep);
+    void setValue(const QVariant &val, EmitPolicy ep, bool updateEdit = true);
     virtual QVariant bound(const QVariant &val, const QVariant &old = QVariant(), int steps = 0) const;
     QLineEdit *lineEdit();
     void updateSpinBox();
@@ -96,14 +96,12 @@ public:
     virtual QStyleOptionSpinBox getStyleOption() const;
     virtual QVariant valueForPosition(int pos) const;
 
-    virtual void emitSignals();
+    virtual void emitSignals(const QVariant &old);
     virtual void refresh(EmitPolicy ep);
     virtual QSize sizeHint() const;
     virtual QSize minimumSizeHint() const;
-    virtual QValidator::State validate(QString *input, int *pos, QVariant *val) const;
-    virtual void fixup(QString &input) const;
-    virtual QVariant mapTextToValue(QString *text, QValidator::State *state) const;
-    virtual QString mapValueToText(const QVariant &n) const;
+    virtual QString textFromValue(const QVariant &n) const;
+    virtual QVariant valueFromText(const QString &input) const;
 
     void editorTextChanged(const QString &);
     virtual void editorCursorPositionChanged(int oldpos, int newpos);
@@ -119,6 +117,9 @@ public:
     mutable QSize cachedsizehint, cachedminimumsizehint;
     mutable uint sizehintdirty : 1;
     mutable uint dirty : 1;
+    mutable QString cachedtext;
+    mutable QVariant cachedvalue;
+    mutable QValidator::State cachedstate;
     uint pendingemit : 1;
     uint spindownenabled : 1;
     uint spinupenabled : 1;
@@ -135,10 +136,11 @@ public:
 class QSpinBoxValidator : public QValidator
 {
 public:
-    QSpinBoxValidator(QAbstractSpinBoxPrivate *p, QObject *parent);
+    QSpinBoxValidator(QAbstractSpinBox *qptr, QAbstractSpinBoxPrivate *dptr);
     QValidator::State validate(QString &input, int &) const;
     void fixup(QString &) const;
 private:
+    QAbstractSpinBox *qptr;
     QAbstractSpinBoxPrivate *dptr;
 };
 
