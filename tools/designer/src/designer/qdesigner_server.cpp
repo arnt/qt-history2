@@ -89,7 +89,7 @@ void QDesignerServer::handleNewConnection()
         m_socket = m_server->nextPendingConnection();
         connect(m_socket, SIGNAL(readyRead()),
                 this, SLOT(readFromClient()));
-        connect(m_socket, SIGNAL(closed()),
+        connect(m_socket, SIGNAL(disconnected()),
                 this, SLOT(socketClosed()));
     }
 }
