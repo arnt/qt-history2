@@ -507,7 +507,8 @@ bool QSqlQuery::prev()
     the query on the retrieved record.  Note that the result must
     be in an active state and isSelect() must return TRUE before calling
     this method or it will do nothing and return FALSE. Returns TRUE if
-    successful, FALSE otherwise.
+    successful. If unsuccessful the query position is set to an invalid
+    position and FALSE is returned.
 
 
 */
@@ -528,7 +529,8 @@ bool QSqlQuery::first()
     the query on the retrieved record.  Note that the result must
     be in an active state and isSelect() must return TRUE before calling
     this method or it will do nothing and return FALSE. Returns TRUE if
-    successful, FALSE otherwise.
+    successful. If unsuccessful the query position is set to an invalid
+    position and FALSE is returned.
 
 */
 
