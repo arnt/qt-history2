@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#182 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#183 $
 **
 ** Implementation of QWidget class
 **
@@ -19,7 +19,7 @@
 #include "qkeycode.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#182 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#183 $");
 
 
 /*!
@@ -480,13 +480,11 @@ void QWidget::deferResize( const QSize &oldSize )
 void QWidget::cancelMove()
 {
     deferredMoves->take( (long)this );
-    ASSERT( deferredMoves->find((long)this) == 0 );
 }
 
 void QWidget::cancelResize()
 {
     deferredResizes->take( (long)this );
-    ASSERT( deferredResizes->find((long)this) == 0 );
 }
 
 
