@@ -81,7 +81,7 @@ static const int pocketpcCheckMarkWidth		=  6; // checkmarks width on windows
 
 
 /*!
-  \class QPocketPCStyle qpocketpcstyle.h
+  \class QPocketPCStyle qpocketpcstyle_wce.h
   \brief The QPocketPCStyle class provides Microsoft PocketPC look and feel.
   \ingroup appearance
 
