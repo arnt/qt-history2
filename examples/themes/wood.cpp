@@ -741,12 +741,8 @@ static const char *button_xpm[] = {
 ".rb..g.e#s.YaPbV#z.wbnbV.wbn#Dbn.OaP.4.y.4#N.K.K#T#t.U.Q#z.w#F#YazanaNan.bap#Ga0az#0#P#b#KbR.Z#aaz#ibK#h#u.wbC#B#b.1bebs#B#D#baLbcbA.k#P#G#E#S#2.K.8bAbL.Tbw.6.K#G#0.wbVbVbV#s#s.e.Oba.K.4aT.k.0"
 };
 
-NorwegianWoodStyle::NorwegianWoodStyle( int sbext ) : QWindowsStyle()
+NorwegianWoodStyle::NorwegianWoodStyle() : QWindowsStyle()
 {
-#if 0
-    if ( sbext >= 0 )
-	setScrollBarExtent( sbext );
-#endif
 }
 
 /*!

@@ -21,7 +21,7 @@
 class NorwegianWoodStyle : public QWindowsStyle
 {
 public:
-    NorwegianWoodStyle( int sbext = -1 );
+    NorwegianWoodStyle();
     void polish( QApplication*);
     void polish( QWidget* );
     void unPolish( QWidget* );
