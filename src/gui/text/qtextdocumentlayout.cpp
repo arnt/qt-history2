@@ -1278,7 +1278,7 @@ void QTextDocumentLayoutPrivate::layoutBlock(const QTextBlock &bl, LayoutStruct 
 
 //    tl->useDesignMetrics(true);
 //     tl->enableKerning(true);
-//         tl->setLayoutMode(QTextLayout::NoGlyphCache);
+        tl->setLayoutMode(QTextLayout::NoGlyphCache);
         tl->beginLayout();
         while (1) {
             QTextLine line = tl->createLine();
