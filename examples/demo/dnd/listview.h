@@ -25,9 +25,9 @@ public:
 
     void dragEnterEvent( QDragEnterEvent * );
     void dropEvent( QDropEvent * );
-    void mousePressEvent( QMouseEvent * );
-    void mouseMoveEvent( QMouseEvent * );
-    void mouseReleaseEvent( QMouseEvent * );
+    void contentsMousePressEvent( QMouseEvent * );
+    void contentsMouseMoveEvent( QMouseEvent * );
+    void contentsMouseReleaseEvent( QMouseEvent * );
 
 private:
     QPoint pressPos;

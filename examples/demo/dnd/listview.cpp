@@ -38,16 +38,16 @@ void ListView::dropEvent( QDropEvent *e )
     }
 }
 
-void ListView::mousePressEvent( QMouseEvent *e )
+void ListView::contentsMousePressEvent( QMouseEvent *e )
 {
-    QListView::mousePressEvent( e );
+    QListView::contentsMousePressEvent( e );
     dragging = TRUE;
     pressPos = e->pos();
 }
 
-void ListView::mouseMoveEvent( QMouseEvent *e )
+void ListView::contentsMouseMoveEvent( QMouseEvent *e )
 {
-    QListView::mouseMoveEvent( e );
+    QListView::contentsMouseMoveEvent( e );
 
     if ( ! dragging ) return;
 
@@ -61,9 +61,9 @@ void ListView::mouseMoveEvent( QMouseEvent *e )
     }
 }
 
-void ListView::mouseReleaseEvent( QMouseEvent *e )
+void ListView::contentsMouseReleaseEvent( QMouseEvent *e )
 {
-    QListView::mouseReleaseEvent( e );
+    QListView::contentsMouseReleaseEvent( e );
     dragging = FALSE;
 }
 
