@@ -247,6 +247,7 @@ void FinishPage::resetPage()
                          "current license.");
     }
     bottomLabel->setText(licenseText);
+    agreeCheckBox->setChecked(false);
 }
 
 bool FinishPage::isComplete()
