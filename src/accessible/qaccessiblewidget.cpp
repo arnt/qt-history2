@@ -76,7 +76,7 @@ QString Q_GUI_EXPORT qacc_hotKey(const QString &text)
 
     int fa = 0;
     QChar ac;
-    while ((fa = text.find('&', fa)) != -1) {
+    while ((fa = text.indexOf('&', fa)) != -1) {
 	if (fa == text.length() - 1 || text.at(fa+1) != '&') {
 	    ac = text.at(fa+1);
 	    break;
@@ -84,7 +84,7 @@ QString Q_GUI_EXPORT qacc_hotKey(const QString &text)
     }
     if (ac.isNull())
 	return QString();
-    return QAccel::keyToString(Qt::ALT) + ac.upper();
+    return (QString)QKeySequence(Qt::ALT) + ac.toUpper();
 }
 
 class QAccessibleWidgetPrivate : public QAccessible
