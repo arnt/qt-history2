@@ -3111,8 +3111,8 @@ void QFileDialog::okClicked()
 		setDir( nameEdit->text() );
 	    else if ( nameEdit->text().left( 3 ) == "../" || nameEdit->text().left( 3 ) == "..\\" )
 		setDir( QUrl( d->url.toString(), nameEdit->text() ).toString() );
-	    nameEdit->setText( "" );
 	}
+	nameEdit->setText( "" );
     }
 }
 
