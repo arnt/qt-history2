@@ -193,6 +193,7 @@ public:
     QDirNode *parent(QDirNode *child) const;
     QVector<QDirNode> children(QDirNode *parent) const;
     int idx(QDirNode *node) const;
+    void refresh(QDirNode *parent);
 
     QDir root;
     QVector<QDirNode> tree;
@@ -241,7 +242,10 @@ QModelIndex QDirModel::parent(const QModelIndex &child) const
 {
     if (!child.isValid())
 	return QModelIndex();
-    QDirModelPrivate::QDirNode *p = d->parent(static_cast<QDirModelPrivate::QDirNode*>(child.data()));
+    QDirModelPrivate::QDirNode *n = static_cast<QDirModelPrivate::QDirNode*>(child.data());
+    if (!n)
+        return QModelIndex();
+    QDirModelPrivate::QDirNode *p = d->parent(n);
     if (!p)
 	return QModelIndex();
     return QModelIndex(d->idx(p), 0, p);
@@ -326,8 +330,9 @@ bool QDirModel::setData(const QModelIndex &index, int role, const QVariant &valu
     if (dir.rename(node->info.fileName(), value.toString())) {
         QModelIndex par = parent(index);
         QDirModelPrivate::QDirNode *p = static_cast<QDirModelPrivate::QDirNode*>(par.data());
-        p->children = d->children(p);
+        d->refresh(p);
         emit contentsChanged(topLeft(par), bottomRight(par));
+        return true;
     }
     qWarning("setData: file renaming failed");
     return false;
@@ -430,6 +435,7 @@ Q4FileIconProvider *QDirModel::iconProvider() const
 
 void QDirModel::setNameFilters(const QStringList &filters)
 {
+    // FIXME: this will rebuild the entire structure of the qdirmodel
     QModelIndex otl = topLeft();
     QModelIndex obr = bottomRight();
     emit contentsRemoved(QModelIndex(), otl, obr); // FIXME: we should not require the old indices to be valid
@@ -539,14 +545,13 @@ QModelIndex QDirModel::mkdir(const QModelIndex &parent, const QString &name)
         r = d->root.entryList(d->root.nameFilters(), d->root.filter(), d->root.sorting()).indexOf(name);
     }
     QModelIndex i = index(r, 0, parent);
-//     if (i.isValid())
-//         emit contentsInserted(i, i);
+    if (i.isValid())
+        emit contentsInserted(i, i);
     return i;
 }
 
 bool QDirModel::rmdir(const QModelIndex &index)
 {
-    QModelIndex par = parent(index);
     QDirModelPrivate::QDirNode *n = static_cast<QDirModelPrivate::QDirNode*>(index.data());
     if (!n) {
         qWarning("rmdir: the node does not exist");
@@ -559,13 +564,40 @@ bool QDirModel::rmdir(const QModelIndex &index)
     if (!n->info.dir().rmdir(n->info.absFilePath()))
         return false;
 
+    emit QAbstractItemModel::contentsRemoved(parent(index), index, index); // FIXME:
+
     QDirModelPrivate::QDirNode *p = d->parent(n);
     if (p)
         p->children = d->children(p);
     else
         d->tree = d->children(0);
+    
+    return true;
+}
 
-    emit QAbstractItemModel::contentsRemoved(par, index, index);
+bool QDirModel::remove(const QModelIndex &index)
+{
+    QDirModelPrivate::QDirNode *n = static_cast<QDirModelPrivate::QDirNode*>(index.data());
+    if (!n) {
+        qWarning("remove: the node does not exist");
+        return false;
+    }
+    if (n->info.isDir()) {
+        qWarning("remove: the node is a directory");
+        return false;
+    }
+
+    emit QAbstractItemModel::contentsRemoved(parent(index), index, index); // FIXME
+        
+    QDirModelPrivate::QDirNode *p = d->parent(n);
+    QDir dir = p ? p->info.dir() : d->root;
+    if (!dir.remove(n->info.absFilePath()))
+        return false;
+    if (p)
+        p->children = d->children(p);
+    else
+        d->tree = d->children(0);
+
     return true;
 }
 
@@ -607,4 +639,21 @@ int QDirModelPrivate::idx(QDirNode *node) const
 	return -1;
     const QDirNode *first = &(children.at(0));
     return (node - first);
+}
+
+void QDirModelPrivate::refresh(QDirNode *parent)
+{
+    QDir dir = parent ? QDir(parent->info.filePath()) : root;
+    const QFileInfoList info = dir.entryInfoList(root.nameFilters(), root.filter(), root.sorting());
+    QVector<QDirNode> *nodes = parent ? &(parent->children) : &tree;
+    if (nodes->count() != info.count()) {
+        qWarning("refresh: the number of children has changed");
+        nodes->resize(info.count()); // FIXME: may cause dangling pointers in QModelIndex.d
+    }
+    for (int i = 0; i < (int)info.count(); ++i) {
+        (*nodes)[i].parent = parent;
+        (*nodes)[i].info = info.at(i);
+        if (nodes->at(i).children.count() > 0)
+            refresh(&(*nodes)[i]);
+    }
 }

@@ -62,7 +62,8 @@ QAbstractItemViewPrivate::QAbstractItemViewPrivate()
         selectionBehavior(QAbstractItemView::SelectItems),
         layoutLock(false),
         state(QAbstractItemView::NoState),
-        startEditActions(QAbstractItemDelegate::DoubleClicked|
+        startEditActions(QAbstractItemDelegate::NoAction|
+                         QAbstractItemDelegate::DoubleClicked|
                          QAbstractItemDelegate::EditKeyPressed),
         inputInterval(400)
 {
@@ -254,7 +255,10 @@ QModelIndex QAbstractItemView::root() const
 
 void QAbstractItemView::edit(const QModelIndex &index)
 {
-    startEdit(index, QAbstractItemDelegate::NoAction, 0);
+    if (!index.isValid())
+        qDebug("index was invalid");
+    if (!startEdit(index, QAbstractItemDelegate::NoAction, 0))
+        qDebug("editing failed");
 }
 
 void QAbstractItemView::setStartEditActions(int actions)
@@ -470,6 +474,10 @@ void QAbstractItemView::keyPressEvent(QKeyEvent *e)
         emit spacePressed(currentItem());
         e->accept();
         return;
+    case Key_Delete:
+        emit deletePressed(currentItem());
+        e->accept();
+        return;
     case Key_F2:
         if (startEdit(currentItem(), QAbstractItemDelegate::EditKeyPressed, e))
             return;
@@ -503,11 +511,21 @@ bool QAbstractItemView::startEdit(const QModelIndex &item,
                                   QAbstractItemDelegate::StartEditAction action,
                                   QEvent *event)
 {
-    if (d->shouldEdit(item, action) && d->createEditor(item, action, event))
+    bool e = model()->isEditable(item);
+    bool a = (action & d->startEditActions);
+    bool s = d->state != QAbstractItemView::Editing;
+    bool should = e && a && s;
+//    bool should = d->shouldEdit(item, action);
+    bool would = false;
+    if (should)
+        would = d->createEditor(item, action, event);
+    if (should && would)
         setState(Editing);
+    else
+        return false;
 //     if (event && delegate->editType() == QAbstractItemDelegate::NoWidget)
 //         return d->sendItemEvent(data, event);
-    return state() == Editing;
+    return true;
 }
 
 void QAbstractItemView::endEdit(const QModelIndex &item, bool accept)

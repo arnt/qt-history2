@@ -71,6 +71,7 @@ public:
     bool isDir(const QModelIndex &index);
     QModelIndex mkdir(const QModelIndex &parent, const QString &name);
     bool rmdir(const QModelIndex &index);
+    bool remove(const QModelIndex &index);
 
 protected:
     QDirModel(QDirModelPrivate &, const QDir &directory, QObject *parent = 0);

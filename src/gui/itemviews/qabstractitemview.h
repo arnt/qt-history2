@@ -92,6 +92,7 @@ signals:
     void doubleClicked(const QModelIndex &index, int button);
     void returnPressed(const QModelIndex &index);
     void spacePressed(const QModelIndex &index);
+    void deletePressed(const QModelIndex &index);
 
 protected:
     QAbstractItemView(QAbstractItemViewPrivate &, QAbstractItemModel *model, QWidget *parent = 0);
