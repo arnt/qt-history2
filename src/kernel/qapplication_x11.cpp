@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#466 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#467 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -167,7 +167,6 @@ static Window	appRootWin;			// X11 root window
 static bool	app_save_rootinfo = FALSE;	// save root info
 
 static bool	app_do_modal	= FALSE;	// modal mode
-static bool	app_exit_loop	= FALSE;	// flag to exit local loop
 static int	app_Xfd;			// X network socket
 static fd_set	app_readfds;			// fd set for reading
 static fd_set	app_writefds;			// fd set for writing
@@ -2302,41 +2301,6 @@ void QApplication::processEvents( int maxtime )
 	if ( start.msecsTo(now) > maxtime )
 	    break;
     }
-}
-
-/*!
-  This function enters the main event loop (recursively).
-  Do not call it unless you really know what you are doing.
-  \sa exit_loop()
-*/
-
-int QApplication::enter_loop()
-{
-    loop_level++;
-    quit_now = FALSE;
-
-    bool old_app_exit_loop = app_exit_loop;
-    app_exit_loop = FALSE;
-
-    while ( !quit_now && !app_exit_loop )
-	processNextEvent( TRUE );
-
-    app_exit_loop = old_app_exit_loop;
-    loop_level--;
-
-    return 0;
-}
-
-
-/*!
-  This function leaves from a recursive call to the main event loop.
-  Do not call it unless you are an expert.
-  \sa enter_loop()
-*/
-
-void QApplication::exit_loop()
-{
-    app_exit_loop = TRUE;
 }
 
 
