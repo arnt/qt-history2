@@ -13,7 +13,9 @@ unix {
 	}
 }
 win32 {
-    LIBS += db2cli.lib
+	!contains( LIBS, .*db2.* ) {
+		LIBS *= db2cli.lib
+	}	
 }
 
 REQUIRES	= sql
