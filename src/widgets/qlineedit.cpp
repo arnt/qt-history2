@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#56 $
+** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#57 $
 **
 ** Implementation of QLineEdit widget class
 **
@@ -20,7 +20,7 @@
 
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlineedit.cpp#56 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlineedit.cpp#57 $");
 
 
 /*!
@@ -135,7 +135,7 @@ void QLineEdit::setText( const char *text )
 	tbuf.resize( maxLen+1 );
     cursorPos = 0;
     offset    = 0;
-    paint();
+    repaint();
     emit textChanged( tbuf.data() );
 }
 
@@ -222,7 +222,7 @@ void QLineEdit::setMaxLength( int m )
 	tbuf.resize( maxLen + 1 );		// include \0
     offset    = 0;
     cursorPos = 0;
-    paint();
+    repaint();
 }
 
 /*!
@@ -391,7 +391,7 @@ void QLineEdit::focusInEvent( QFocusEvent * )
     CHECK_PTR( pm );
     startTimer( blinkTime );
     cursorOn = TRUE;
-    paint();
+    repaint();
 }
 
 /*!
@@ -405,7 +405,7 @@ void QLineEdit::focusOutEvent( QFocusEvent * )
     pm		  = 0;
     cursorOn	  = FALSE;
     dragScrolling = FALSE;
-    paint( TRUE );
+    repaint();
 }
 
 
@@ -434,7 +434,7 @@ void QLineEdit::timerEvent( QTimerEvent * )
 		cursorRight( TRUE );	// mark right
 	} else {
 	    cursorOn = !cursorOn;
-	    paint();
+	    repaint();
 	}
     }
 }
@@ -463,7 +463,7 @@ void QLineEdit::resizeEvent( QResizeEvent *e )
 	    i++;
 	offset = i;
     }
-    paint();
+    repaint();
 }
 
 /*!
@@ -486,7 +486,7 @@ void QLineEdit::mousePressEvent( QMouseEvent *e )
     cursorOn	  = TRUE;
     dragScrolling = FALSE;
     startTimer( blinkTime );
-    paint();
+    repaint();
 }
 
 /*!
@@ -507,7 +507,7 @@ void QLineEdit::mouseMoveEvent( QMouseEvent *e )
 	    dragScrolling = TRUE;
 	    cursorOn	  = TRUE;
 	    startTimer( scrollTime );
-	    paint();
+	    repaint();
 	} else {
 	    if ( scrollingLeft ) {
 		int steps = -(e->pos().x() + LEFT_MARGIN) / 15 + 2;
@@ -527,7 +527,7 @@ void QLineEdit::mouseMoveEvent( QMouseEvent *e )
 	cursorOn  = TRUE;
 	killTimers();
 	startTimer( blinkTime );
-	paint();
+	repaint();
     }
 }
 
@@ -557,7 +557,7 @@ void QLineEdit::mouseDoubleClickEvent( QMouseEvent * )
 	startTimer( blinkTime );
     }
     markWord( cursorPos );
-    paint();
+    repaint();
 }
 
 /*!
@@ -586,6 +586,8 @@ void QLineEdit::paint( bool frame )
 
 void QLineEdit::pixmapPaint()
 {
+    if ( pm == 0 ) // be paranoid
+	pm = new QPixmap( width(), height() );
     QPainter p;
     p.begin( pm );
     p.setFont( font() );
@@ -707,7 +709,7 @@ void QLineEdit::cursorLeft( bool mark, int steps )
 	if ( cursorPos < offset )
 	    offset = cursorPos;
 	startTimer( dragScrolling ? scrollTime : blinkTime );
-	paint();
+	repaint();
     }
 }
 
@@ -745,7 +747,7 @@ void QLineEdit::cursorRight( bool mark, int steps )
 	    }
 	}
 	startTimer( dragScrolling ? scrollTime : blinkTime );
-	paint();
+	repaint();
     }
 }
 
@@ -784,12 +786,12 @@ void QLineEdit::del()
 	markDrag   = cursorPos;
 	if ( cursorPos < offset )
 	    offset = cursorPos;
-	paint();
+	repaint();
 	emit textChanged( tbuf.data() );
     } else {
 	if ( cursorPos != (int)strlen(tbuf) ) {
 	    tbuf.remove( cursorPos, 1 );
-	    paint();
+	    repaint();
 	    emit textChanged( tbuf.data() );
 	}
     }
@@ -815,7 +817,7 @@ void QLineEdit::home( bool mark )
 	offset	 = 0;
 	cursorOn = TRUE;
 	startTimer( dragScrolling ? scrollTime : blinkTime );
-	paint();
+	repaint();
     }
 }
 
@@ -842,7 +844,7 @@ void QLineEdit::end( bool mark )
 	}
 	cursorOn  = TRUE;
 	startTimer( dragScrolling ? scrollTime : blinkTime );
-	paint();
+	repaint();
     }
 }
 
@@ -923,7 +925,7 @@ void QLineEdit::clipboardChanged()
     disconnect( QApplication::clipboard(), SIGNAL(dataChanged()),
 		this, SLOT(clipboardChanged()) );
     markDrag = markAnchor = cursorPos;
-    paint();
+    repaint();
 #endif
 }
 

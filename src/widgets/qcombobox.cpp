@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#52 $
+** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#53 $
 **
 ** Implementation of QComboBox widget class
 **
@@ -22,7 +22,7 @@
 #include "qapp.h"
 #include "qlined.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qcombobox.cpp#52 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qcombobox.cpp#53 $");
 
 
 /*!
@@ -594,16 +594,16 @@ void QComboBox::paintEvent( QPaintEvent * )
 	QColor	  bg  = isEnabled() ? g.base() : g.background();
 	QFontMetrics  fm  = fontMetrics();
 	const char   *str = d->listBox->text( d->current );
-	
+
 	QBrush fill( bg );
 	qDrawWinPanel( &p, 0, 0, width(), height(), g, TRUE, &fill );
-	
+
 	QRect arrowR = arrowRect();
 	qDrawWinPanel(&p, arrowR, g, d->arrowDown );
 	qDrawArrow( &p, DownArrow, WindowsStyle, d->arrowDown, 
 		    arrowR.x() + 2, arrowR.y() + 2,
 		    arrowR.width() - 4, arrowR.height() - 4, g );
-	
+
 	QRect clipR( 5, 4, width()  - 5 - 4 - arrowR.width(), 
 		     height() - 4 - 4 );
 	p.setClipRect( clipR );
@@ -933,6 +933,9 @@ QEditableComboBox::QEditableComboBox( QWidget *parent, const char *name )
     initMetaObject();
     ed = new QLineEdit( this, "this is not /bin/ed" );
     ed->setGeometry( 2, 2, width() - 2 - 2 - 16, height() - 2 - 2 );
+    ed->installEventFilter( this );
+    edEmpty = TRUE;
+    
     connect( ed, SIGNAL(returnPressed()), SLOT(returnPressed()) );
     connect( this, SIGNAL(activated(int)), SLOT(translateActivate(int)) );
     connect( this, SIGNAL(highlighted(int)), SLOT(translateHighlight(int)) );
@@ -968,5 +971,40 @@ void QEditableComboBox::returnPressed() {
     if ( s && qstrcmp( s, text( currentItem() ) ) ) {
 	changeItem( s, currentItem() );
 	emit activated( s );
+    }
+}
+
+
+/*!
+  This event filter is used to manipulate the line editor in magic
+  ways.  In Qt 2.0 it will all change, until then binary compatibility
+  lays down the law.
+*/
+
+bool QEditableComboBox::eventFilter( QObject *object, QEvent *event )
+{
+    if ( object == (QObject *)ed ) {
+	if ( event && event->type() == Event_Paint ) {
+	    if ( edEmpty ) {
+		edEmpty = FALSE;
+		ed->setText( text( currentItem() ) );
+		return TRUE; // we'll get another paint event right away
+	    }
+
+	    QLineEdit * le = (QLineEdit *) object;
+	    QPainter p;
+	    p.begin( le );
+	    p.fillRect( 0, 0, le->width(), le->height(), isEnabled() 
+			? le->colorGroup().base() 
+			: le->colorGroup().background() );
+	    p.translate( 0, -4 ); // MAGIC! this is *_MARGIN from qlined.cpp
+	    le->paintText( &p, QSize( le->width()+8, le->height()+8 ), FALSE );
+	    p.end();
+	    return TRUE;
+	} else {
+	    return FALSE;
+	}
+    } else {
+	return QComboBox::eventFilter( object, event );
     }
 }

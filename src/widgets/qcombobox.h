@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombobox.h#28 $
+** $Id: //depot/qt/main/src/widgets/qcombobox.h#29 $
 **
 ** Definition of QComboBox class
 **
@@ -18,6 +18,7 @@
 struct QComboData;
 class  QStrList;
 class  QLineEdit;
+class  QEditableComboBox;
 
 
 class QComboBox : public QWidget
@@ -87,6 +88,8 @@ private:
 private:	// Disabled copy constructor and operator=
     QComboBox( const QComboBox & ) {}
     QComboBox &operator=( const QComboBox & ) { return *this; }
+
+    friend QEditableComboBox; // because eventFilter is private
 };
 
 
@@ -107,6 +110,7 @@ signals:
 
 protected:
     void	resizeEvent( QResizeEvent * );
+    bool	eventFilter( QObject *object, QEvent *event );
 
 private slots:
     void	translateActivate( int );
@@ -123,6 +127,8 @@ private:	// Disabled functions
     void insertItem( const QPixmap &, int =1 ) {}
     const QPixmap *pixmap( int ) const { return 0; }
     void changeItem( const QPixmap &, int ) {}
+
+    bool	edEmpty;
 };
 
 
