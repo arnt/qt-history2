@@ -1247,6 +1247,8 @@ void Resource::saveObjectProperties( QObject *w, QTextStream &ts, int indent )
 	    continue;
 	if ( qstrcmp( p->name(), "name" ) == 0 )
 	    knownNames << w->property( "name" ).toString();
+	if ( !p->isSetType() && !p->isEnumType() && !w->property( p->name() ).isValid() )
+	    continue;
 	ts << makeIndent( indent ) << "<property";
 	ts << " name=\"" << it.current() << "\"";
 	if ( !p->stdSet() )
