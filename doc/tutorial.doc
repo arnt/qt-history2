@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: tutorial.doc,v 1.10 1996/01/02 13:47:08 hanord Exp $
+** $Id: tutorial.doc,v 1.11 1996/01/08 10:54:26 hanord Exp $
 **
 ** Tutorial
 **
@@ -62,6 +62,7 @@ Qt Tutorial - Chapter 1
 
 This first program is a simple hello-world example.  It contains only
 the bare minimum you need to get a Qt application up and running.
+The picture above is a snapshot of this program.
 
 \include t1/main.cpp
 
@@ -83,31 +84,37 @@ mentions at the top which file needs to be included to use that class.
 
 QPushButton is a classical GUI push button, which the user can press and
 release.  It manages its own look and feel, like every other \link QWidget
-widget\endlink (a widget is a user interface object).  The programmer can
-change both the overall \link QApplication::setStyle() look and feel
-\endlink, many minor aspects of it such as color, and the widget's content.
-A QPushButton can show both a text and a pixmap.
+widget\endlink.  A widget is a user interface object which can process
+user input and draw graphics.  The programmer can change both the overall
+\link QApplication::setStyle() look and feel\endlink and many minor
+properties of it such as color, as well as the widget's content.  A
+QPushButton can show either a text or a \link QPixmap pixmap\endlink.
 
 \line main
 \line {
 
-The \c main() function is the entry point to the program.  When using
-Qt, it almost always just does some initialization before it passes
-control over to the Qt library, which then tells the program about the
-user's actions via events.  If you are new to event-driven GUI
-programming, you should probably read our \link event-driven.html
-introduction \endlink to this.
+The \c main() function is the entry point to the program.  Almost always
+when using Qt, main() only needs to perform some kind of initialization
+before passing the control to the Qt library, which then tells the
+program about the user's actions via events.  If you are new to
+event-driven GUI programming, you should probably read our \link
+event-driven.html introduction\endlink to this.
 
-\e argc is the number of command-line arguments and \e argv is the
-array of command-line arguments, as always.
+\c argc is the number of command-line arguments and \c argv is the array
+of command-line arguments. This is a C/C++ feature. It is not Qt specific,
+however, Qt needs to process these arguments (see below).
 
 \line QApplication
 
 \c a is this program's QApplication.  Here it is created and processes
-some of the command-line arguments (such as -display on X).  Note that
-all command-line arguments processed are \e removed.  It is essential
-that the QApplication object is created before any window-system parts
-of Qt are used.
+some of the command-line arguments (such as -display under X-Windows).
+Note that all command-line arguments recognized by Qt are removed from
+\c argv (and \c argc is decremented accordingly).  See the \link
+QApplication::argv() QApplication::argv()\endlink documentation for
+details.
+
+<strong>Note:</strong> It is essential that the QApplication object is
+created before any window-system parts of Qt are used.
 
 \line QPushButton
 
@@ -141,24 +148,24 @@ make it visible.
 This is where \c main() passes control to Qt.  exec() will return when
 the application exits.
 
-In exec(), events are received from the user and passed on to the
-appropriate widgets.
+In exec(), Qt receives and processes user and system events and passes
+these on to the appropriate widgets.
 
 \line }
 
-That's it.
-
 <h2>Behavior</h2>
 
-You should now try to \link makefiles.html compile \endlink and \link
-QApplication::QApplication() run \endlink this program.
+You should now try to \link makefiles.html compile\endlink and \link
+QApplication::QApplication() run\endlink this program.
 
 When you run it, you will see a small window filled with a single
 button, and on it you can read the famous words, Hello World!
 
-Try to resize the window.  Press the button.  If you're running X, try
-running the program with the -geometry option (e.g. -geometry
-100x200+10+20)
+<h2>Excercises</h2>
+
+Try to resize the window.  Press the button.  If you're running X-Windows,
+try running the program with the -geometry option
+(e.g. -geometry 100x200+10+20)
 
 You may now go on to \link t2.html chapter two. \endlink
 
@@ -181,7 +188,7 @@ Qt Tutorial - Chapter 2
 
 <img src=t2.gif>
 
-Having \e created a window in \link t1.html chapter one, \endlink we will
+Having created a window in \link t1.html chapter one, \endlink we will
 now go on to make the application quit properly when the user tells it to.
 
 We will also use a font that is more exciting than the default one.
@@ -203,16 +210,15 @@ will do when the user clicks the button.  This is not a coincidence.
 
 \line resize
 
-Since "Quit" is rather shorter than "Hello World!" we've made the
-button a bit smaller.  We could also have used
-QPushButton::setAutoResize(), or even QFontMetrics if the built-in
-resizing wasn't quite right for our taste.
+We've chosen another size for the button since the text is a bit shorter
+than "Hello World!".  We could also have used \link
+QPushButton::setAutoResize() QPushButton::setAutoResize()\endlink, or even
+use \link QFontMetrics QFontMetrics\endlink to set right size.
 
 \line setFont
 
 Here we choose a new font for the button, an 18-point bold font from
-the Times family.  Note that we create the font on the spot.  If the
-same font is used several times in one program, Qt will cache it.
+the Times family.  Note that we create the font on the spot.
 
 It is also possible to \link QApplication::setDefaultFont() change the
 default font \endlink for the whole application.
@@ -223,27 +229,28 @@ connect() is perhaps \e the most central feature of Qt.
 Note that connect() is a static function in QObject. Do not confuse it
 with the connect() function in the socket library.
 
-This line establishes a one-way connection between two Qt objects
-(objects that inherit QObject, directly or indirectly).  Every Qt
-object can have both \c signals (to send messages) and \c slots (to
-receive messages). (All widgets are Qt objects.)
+This line establishes a one-way connection between two Qt objects (objects
+that inherit QObject, directly or indirectly).  Every Qt object can have
+both \c signals (to send messages) and \c slots (to receive messages). All
+widgets are Qt objects.  They inherit QWidget which in turn inherits
+QObject.
 
 Here, the \e clicked() signal of \e quit is connected to the \e
 quitApp() slot of \e a, so that when the button is clicked, the
 application quits.
 
-\link metaobjects.html Signals and Slots \endlink covers this topic
-more thoroughly.
+The \link metaobjects.html Signals and Slots\endlink documentation
+describes this topic in detail.
 
 <h2>Behavior</h2>
 
 When you run this program, you will see an even smaller window than in
 chapter one, filled with an even smaller button.
 
+<h2>Excercises</h2>
+
 Try to resize the window.  Press the button.  Oops!  That connect()
 would seem to make some difference :)
-
-<h2>Excercises</h2>
 
 Are there any other signals in QPushButton you can connect to quitApp?
 Hint: The QPushButton inherits most of its behavior from QButton.
@@ -281,7 +288,7 @@ and a lone child.
 
 \skipline QWidget
 
-Here we simply create a widget.  Note that we did not bother to
+Here we simply create a widget.  Note that we did not have to
 include \c qwidget.h, because we have included qpushbt.h and
 QPushButton is a subclass of QWidget (see <a href=hierarchy.html>
 Class Hierarchy</a>).
@@ -316,7 +323,7 @@ on).
 
 <h2>Behavior</h2>
 
-Note that if you resize the window, the button is not resized, unlike
+Note that if you resize the widget, the button is not resized, unlike
 the programs in the first two chapters.  That's because the top level
 widget is a QWidget, which does not react to resizing.
 
@@ -379,9 +386,11 @@ The first argument is its parent widget.  To create a top level window
 you specify a null pointer as the parent.  As you can see, the widget
 defaults to be a top level window.
 
-The second argument is the widget's name.  This is \e not what appears
-in the title bar.  For now, just think of it as a descriptive name for
-this object.
+The second argument is the widget's name. This is \e not the text that
+appears in the \link QWidget::setCaption() title bar\endlink or in the
+button. It is a name associated with a widget to make it possible to
+\link QObject::queryList() lookup\endlink this widget later. Widget
+names will become really useful when Qt's GUI designer is finished.
 
 \line MyWidget
 \line QWidget
@@ -490,11 +499,11 @@ Nothing new compared to the previous chapter.
 
 MyWidget now gains the ability to handle resize event.
 
-resizeEvent() is one of a dozen-odd virtual functions in QWidget which
-are used to pass events of various kinds to widgets.  These \link
-event-system.html event functions \endlink are one of the the central
-control flow mechanisms in Qt, the other is the \link metaobjects.html
-signal/slot mechanism. \endlink
+resizeEvent() is one of many virtual functions in QWidget which are used
+to pass events of various kinds to widgets.  These \link event-system.html
+event functions \endlink are one of the the central control flow
+mechanisms in Qt, the other is the \link metaobjects.html signal/slot
+mechanism\endlink.
 
 This one is called, unsurprisingly, whenever the user or a part of the
 program resizes the widget.
@@ -556,9 +565,9 @@ C++ access rules.
 \skip resizeEvent
 \until }
 
-Here we want to fit the child widgets nicely in our widget when it is
-resized.  We want the LCD number to be above the scroll bar.
-First we position the scroll bar at the bottom of MyWidget.
+Here we want to fit the child widgets nicely inside our widget when it is
+resized.  We want the LCD number to be above the scroll bar.  First we
+position the scroll bar at the bottom of MyWidget.
 
 The scroll bar's geometry is set so there is a 10-pixel border to the
 left, right and below it, and its height is fixed at 16 pixels, which
@@ -639,11 +648,11 @@ QLCDNumber, connected together.
 \until }
 
 This is essentially lifted straight from the <a
-href=t5.html#constructor>MyWidget constructor</a> in chapter five.
-The only difference is that \c lcd is now placed at coordinate 0,0
-(the top left corner of the LCDRange widget) since we're making a new
-widget and don't want a border.  If the widget's user wants a border,
-he/she can make a border around the LCDRange.
+href=t5.html#constructor>MyWidget constructor</a> in chapter five.  The
+only difference is that \c lcd is now placed at coordinate 0,0 (the top
+left corner of the LCDRange widget) since we're making a new widget and
+don't want a border.  If the widget's user wants a border, he/she can make
+a border around the LCDRange.
 
 \until }
 
@@ -756,16 +765,16 @@ class definition
 implementation
 <li>\link t7_main_cpp.html main.cpp\endlink contains MyWidget and main.
 <li>\link t7_makefile.html Makefile\endlink contains some rules for
-generating the metaobject information necessary for <a
+generating the meta object information necessary for <a
 href=metaobjects.html>signal/slot creation.</a>
 </ul>
 
 <h2>Line by Line Walk-Through</h2>
 
-<h3>lcdrange.h</h3>
+<h3>\link t7_lcdrange_h.html lcdrange.h\endlink</h3>
 
-This file is mainly lifted from \link t6/main.cpp main.cpp \endlink and
-only the changes are noted here.
+This file is mainly lifted from \link t6/main.cpp main.cpp\endlink in
+chapter 6 and only the changes are noted here.
 
 \dontinclude t7/lcdrange.h
 
@@ -797,7 +806,7 @@ for the compiler.
 Note the Q_OBJECT.  This macro must be included in \e all classes that
 contain signals and/or slots.  For the curious, it defines the
 functions that are implemented in the <a
-href=metaobject.html>metaobject file</a>.
+href=metaobjects.html>meta object file</a>.
 
 \line value
 \until valueChanged
@@ -816,7 +825,7 @@ a C++ member function).  Signals are automatically implemented in the
 access rules of protected C++ functions, i.e. they can only be emitted
 by the class they are defined in or by classes inheriting from it.
 
-<h3>lcdrange.cpp</h3>
+<h3>\link t7_lcdrange_cpp.html lcdrange.cpp\endlink</h3>
 
 \dontinclude t7/lcdrange.cpp
 
@@ -851,19 +860,19 @@ Note that you're not guaranteed any particular order of execution.
 \skip LCDRange::value
 \until }
 
-The implementation of value() is straightforward, it simply returns
+The implementation of value() is straight forward, it simply returns
 the scroll bar's value.
 
 \line setValue
 \until }
 
-The implementation of setValue() is equally straightforward.  Note that
+The implementation of setValue() is equally straight forward.  Note that
 since the scroll bar and LCD number is connected, setting the
 scroll bar's value automatically updates the LCD number as well.
-In addition the scroll bar will automatically adjust the value if it is
+In addition, the scroll bar will automatically adjust the value if it is
 outside the scroll bar's legal range.
 
-<h3>main.cpp</h3>
+<h3>\link t7_main_cpp.html main.cpp\endlink</h3>
 \dontinclude t7/main.cpp
 
 \skip setMinimumSize
@@ -967,13 +976,13 @@ definition
 implementation
 <li>\link t8_main_cpp.html main.cpp\endlink contains MyWidget and main.
 <li>\link t8_makefile.html Makefile\endlink contains some rules for
-generating the metaobject information necessary for <a
+generating the meta object information necessary for <a
 href=metaobjects.html>signal/slot creation.</a>
 </ul>
 
 <h2>Line by Line Walk-Through</h2>
 
-<h3>lcdrange.h</h3>
+<h3>\link t8_lcdrange_h.html lcdrange.h\endlink</h3>
 
 This file is very similar to the lcdrange.h in chapter 7.  We have added
 one slot, setRange().
@@ -986,7 +995,7 @@ one slot, setRange().
 We now add the possibility of setting the range of the LCDRange.
 Until now, it has been fixed at 0..99.
 
-<h3>lcdrange.cpp</h3>
+<h3>\link t8_lcdrange_cpp.html lcdrange.cpp\endlink</h3>
 
 \dontinclude t8/lcdrange.cpp
 
@@ -1005,7 +1014,7 @@ to \c stderr. You can install your own
 \link qInstallMsgHandler() handler function\endlink if you want.
 
 
-<h3>cannon.h</h3>
+<h3>\link t8_cannon_h.html cannon.h\endlink</h3>
 
 CannonField is a new custom widget that knows how to display itself.
 
@@ -1030,7 +1039,7 @@ in QWidget that we encounter.  This virtual function is called by Qt
 whenever a widget needs to update itself (i.e. paint the widget's surface).
 
 
-<h3>cannon.cpp</h3>
+<h3>\link t8_cannon_cpp.html cannon.cpp\endlink</h3>
 
 \dontinclude t8/cannon.cpp
 
@@ -1089,7 +1098,7 @@ a convenience function for drawing text. In the next chapter, you'll see
 how QPainter works.
 
 
-<h3>main.cpp</h3>
+<h3>\link t8_main_cpp.html main.cpp\endlink</h3>
 
 \dontinclude t8/main.cpp
 
@@ -1243,13 +1252,13 @@ definition
 implementation
 <li>\link t9_main_cpp.html main.cpp\endlink contains MyWidget and main.
 <li>\link t9_makefile.html Makefile\endlink contains some rules for
-generating the metaobject information necessary for <a
+generating the meta object information necessary for <a
 href=metaobjects.html>signal/slot creation.</a>
 </ul>
 
 <h2>Line by Line Walk-Through</h2>
 
-<h3>cannon.cpp</h3>
+<h3>\link t9_cannon_cpp.html cannon.cpp\endlink</h3>
 
 \dontinclude t9/cannon.cpp
 
@@ -1290,9 +1299,10 @@ are now negative (see \link coordsys.html The Coordinate System\endlink).
 
 The \link QPainter::drawPie() drawPie()\endlink function draws a pie shape
 inside the specified rectangle using a start angle and an arc length.  The
-angles are specified in 1/16th of a degree. The drawing direction is
-counter-clockwise.  Here we draw a quarter of a circle in the bottom left
-corner of the widget.  The pie is filled with blue and has no outline.
+angles are specified in 1/16th of a degree.  Zero degrees is at the 3
+o'clock position. The drawing direction is counter-clockwise.  Here we
+draw a quarter of a circle in the bottom left corner of the widget.  The
+pie is filled with blue and has no outline.
 
 \line rotate
 
@@ -1419,13 +1429,13 @@ definition
 implementation
 <li>\link t10_main_cpp.html main.cpp\endlink contains MyWidget and main.
 <li>\link t10_makefile.html Makefile\endlink contains some rules for
-generating the metaobject information necessary for <a
+generating the meta object information necessary for <a
 href=metaobjects.html>signal/slot creation.</a>
 </ul>
 
 <h2>Line by Line Walk-Through</h2>
 
-<h3>cannon.h</h3>
+<h3>\link t10_cannon_h.html cannon.h\endlink</h3>
 
 The CannonField now has a force value in addition to the angle.
 
@@ -1448,7 +1458,7 @@ function.
 
 The force is stored in the integer f.
 
-<h3>cannon.cpp</h3>
+<h3>\link t10_cannon_cpp.html cannon.cpp\endlink</h3>
 
 \dontinclude t10/cannon.cpp
 
@@ -1555,7 +1565,7 @@ enclosing rectangle in widget coordinates (i.e. the top left corner is
 0,0).
 
 
-<h3>main.cpp</h3>
+<h3>\link t10_main_cpp.html main.cpp\endlink</h3>
 
 \dontinclude t10/main.cpp
 
@@ -1667,13 +1677,13 @@ definition
 implementation
 <li>\link t11_main_cpp.html main.cpp\endlink contains MyWidget and main.
 <li>\link t11_makefile.html Makefile\endlink contains some rules for
-generating the metaobject information necessary for <a
+generating the meta object information necessary for <a
 href=metaobjects.html>signal/slot creation.</a>
 </ul>
 
 <h2>Line by Line Walk-Through</h2>
 
-<h3>cannon.h</h3>
+<h3>\link t11_cannon_h.html cannon.h\endlink</h3>
 
 The CannonField now has a shooting capabilities.
 
@@ -1725,7 +1735,7 @@ The \c shoot_ang is the cannon angle and \c shoot_f is the cannon force
 when the shot was fired.
 
 
-<h3>cannon.cpp</h3>
+<h3>\link t11_cannon_cpp.html cannon.cpp\endlink</h3>
 
 \dontinclude t11/cannon.cpp
 
@@ -1761,10 +1771,11 @@ The timerEvent() function is an event handler that receives timer events
 from Qt.  In our case, it is called every 50 milliseconds when a shot is
 in the air.
 
-First we erase the old shot. Note that this is not strictly necessary the
-first time the timerEvent() is called after a shot has been fired (but it
-does no harm).  The \c shotRect() function (explained below) returns the
-enclosing rectangle of the shot at the current position.
+First we erase the old shot using the \link QWidget::erase()
+QWidget::erase() \endlink function. Note that this is not strictly
+necessary the first time the timerEvent() is called after a shot has been
+fired (but it does no harm).  The \c shotRect() function (explained below)
+returns the enclosing rectangle of the shot at the current position.
 
 Then we increment the \c timerCount, which has the effect of moving the
 shot one step along its trajectory.
@@ -1790,9 +1801,9 @@ if necessary.
 \until killTimers
 \line }
 
-Peace...  This private function stops a shot in mid-air.  First it resets
-the \c shooting variable, then it \link QObject::killTimers() kills all
-timer events\endlink for this widget.  It is also possible to \link
+This private function stops a shot in mid-air.  First it resets the \c
+shooting variable, then it \link QObject::killTimers() kills all timer
+events\endlink for this widget.  It is also possible to \link
 QObject::killTimer() kill a single timer\endlink.
 
 \skip ::paintShot
@@ -1807,7 +1818,7 @@ This private function paints the shot by drawing a black filled rectangle.
 
 This private function calculates the center point of the shot and returns
 the enclosing rectangle of the shot.  It uses the initial cannon force and
-angle in addition to \c timerCount, which increases when time passes.
+angle in addition to \c timerCount, which increases as time passes.
 
 The formula used is the classical Newtonian formula for frictionless
 movement in a gravity field.  For simplicity, we've chosen to disregard
@@ -1823,7 +1834,7 @@ The qRound() function is an inline function defined in qglobal.h (included
 by all other Qt header files).  qRound() rounds a double to the closest
 integer.
 
-<h3>main.cpp</h3>
+<h3>\link t11_main_cpp.html main.cpp\endlink</h3>
 
 \dontinclude t11/main.cpp
 
@@ -1934,14 +1945,14 @@ definition
 implementation
 <li>\link t12_main_cpp.html main.cpp\endlink contains MyWidget and main.
 <li>\link t12_makefile.html Makefile\endlink contains some rules for
-generating the metaobject information necessary for <a
+generating the meta object information necessary for <a
 href=metaobjects.html>signal/slot creation.</a>
 </ul>
 
 <h2>Line by Line Walk-Through</h2>
 
 
-<h3>lcdrange.h</h3>
+<h3>\link t12_lcdrange_h.html lcdrange.h\endlink</h3>
 
 The LCDRange now has a text label.
 
@@ -1983,7 +1994,7 @@ We also have a new private variable; a QLabel.  QLabel is one of Qt's
 standard widgets and can show a text or a pixmap with or without a frame.
 
 
-<h3>lcdrange.cpp</h3>
+<h3>\link t12_lcdrange_cpp.html lcdrange.cpp\endlink</h3>
 
 \dontinclude t12/lcdrange.cpp
 
@@ -2030,7 +2041,7 @@ resize statment is the height of the scroll bar plus the height of the
 label plus the spacing between them (16+20+5).
 
 
-<h3>cannon.h</h3>
+<h3>\link t12_cannon_h.html cannon.h\endlink</h3>
 
 The CannonField now has two new signals: hit() and missed(). In addition
 it contains a target.
@@ -2066,7 +2077,7 @@ This private function returns the enclosing rectangle of the target.
 This private variable contains the center point of the target.
 
 
-<h3>cannon.cpp</h3>
+<h3>\link t12_cannon_cpp.html cannon.cpp\endlink</h3>
 
 \dontinclude t12/cannon.cpp
 
@@ -2157,6 +2168,8 @@ failure.
 
 No changes here.
 
+Modifications in CannonField::paintEvent():
+
 \skip ::paintEvent
 \skip targetRect
 \line updateR
@@ -2183,7 +2196,7 @@ The reason we have chosen this coordinate mapping is to fix the distance
 between the target and the bottom of the widget.  Remember that the widget
 can be resized by the user or the program at any time.
 
-<h3>main.cpp</h3>
+<h3>\link t12_main_cpp.html main.cpp\endlink</h3>
 
 \dontinclude t12/main.cpp
 
@@ -2318,14 +2331,14 @@ class definition
 implementation
 <li>\link t13_main_cpp.html main.cpp\endlink contains MyWidget and main.
 <li>\link t13_makefile.html Makefile\endlink contains some rules for
-generating the metaobject information necessary for <a
+generating the meta object information necessary for <a
 href=metaobjects.html>signal/slot creation.</a>
 </ul>
 
 <h2>Line by Line Walk-Through</h2>
 
 
-<h3>cannon.h</h3>
+<h3>\link t13_cannon_h.html cannon.h\endlink</h3>
 
 The CannonField now has a game over state and a few new functions.
 
@@ -2348,7 +2361,7 @@ Here are two new slots; setGameOver() and restartGame().
 This private variable contains the game state. TRUE means that the
 game is over, and FALSE means that a game is going on.
 
-<h3>cannon.cpp</h3>
+<h3>\link t13_cannon_cpp.html cannon.cpp\endlink</h3>
 
 \dontinclude t13/cannon.cpp
 
@@ -2374,13 +2387,16 @@ make the component as flexible as possible to make it usable for
 different games with different rules.
 
 If the game has already been ended, we return immediately.  If a game is
-going on, we stop the shot, set the game over flag and repaint the widget.
+going on, we stop the shot, set the game over flag and repaint the entire
+widget.
 
 \skip ::restartGame
 \until }
 
 This slot starts a new game. If a shot is in the air, we stop shooting.
-We then reset the \c gameEnded variable and repaint the entire widget.
+We then reset the \c gameEnded variable and repaint the widget.
+
+Modifications in CannonField::paintEvent():
 
 \skip ::paintEvent
 \skip gameEnded
@@ -2403,7 +2419,7 @@ notice this the first time the font is used.
 We only draw the shot or the target when the game is not over.
 
 
-<h3>gamebrd.h</h3>
+<h3>\link t13_gamebrd_h.html gamebrd.h\endlink</h3>
 
 This file is new. It contains the definition of the GameBoard class,
 which was last seen as MyWidget.
@@ -2420,7 +2436,7 @@ We have also added two QLCDNumbers: \c hits and \c shotsLeft, which display
 the game status. The \c restart button is also new.
 
 
-<h3>gamebrd.cpp</h3>
+<h3>\link t13_gamebrd_cpp.html gamebrd.cpp\endlink</h3>
 
 This file is new. It contains the definition of the GameBoard class,
 which was last seen as MyWidget.
@@ -2461,8 +2477,9 @@ in this widget.
 \until shotsLeftL
 
 We create four new widgets.  Note that we don't bother to keep the
-pointers to the QLabel widgets in the GameBoard class. As mentioned before,
-Qt will delete them when the GameBoard widget is destroyed.
+pointers to the QLabel widgets in the GameBoard class since they live
+their own life undisturbed. As mentioned before, Qt will delete them when
+the GameBoard widget is destroyed.
 
 \skip setGeometry
 \until shotsLeftL
@@ -2505,7 +2522,7 @@ Note that this is the only place in the program that we set the number of
 shots.  Change it to whatever you like to change the game rules.  Next, we
 reset the number of hits, restart the game and generate a new target.
 
-<h3>main.cpp</h3>
+<h3>\link t13_main_cpp.html main.cpp\endlink</h3>
 
 This file has just been on a diet. MyWidget is gone and the only thing
 left is the main() function.
@@ -2599,9 +2616,9 @@ Qt Tutorial - Chapter 14
 
 This is the final example, which is a complete game.
 
-We add keyboard accelerators, introduce mouse events to CannonField.
-We put a frame around the CannonField and add a barrier (wall) to
-make the game more playable.
+We add keyboard accelerators, introduce mouse events to CannonField.  We
+put a frame around the CannonField and add a barrier (wall) to make the
+game more challenging.
 
 <ul>
 <li>\link t14_lcdrange_h.html lcdrange.h\endlink contains the LCDRange
@@ -2618,14 +2635,14 @@ class definition
 implementation
 <li>\link t14_main_cpp.html main.cpp\endlink contains MyWidget and main.
 <li>\link t14_makefile.html Makefile\endlink contains some rules for
-generating the metaobject information necessary for <a
+generating the meta object information necessary for <a
 href=metaobjects.html>signal/slot creation.</a>
 </ul>
 
 <h2>Line by Line Walk-Through</h2>
 
 
-<h3>cannon.h</h3>
+<h3>\link t14_cannon_h.html cannon.h\endlink</h3>
 
 The CannonField can now receive mouse events to make the user aim the
 barrel by clicking on it and dragging. CannonField also has a barrier
@@ -2663,7 +2680,7 @@ This private variable is TRUE if the user has pressed the mouse on the barrel
 and not released it.
 
 
-<h3>cannon.cpp</h3>
+<h3>\link t14_cannon_cpp.html cannon.cpp\endlink</h3>
 
 \dontinclude t14/cannon.cpp
 
@@ -2771,7 +2788,7 @@ barrel.  We map the point \c p using the inverted matrix and return TRUE
 if it is inside the original barrel rectangle.
 
 
-<h3>gamebrd.h</h3>
+<h3>\link t14_gamebrd_h.html gamebrd.h\endlink</h3>
 
 The only change is that a frame has been added.
 
@@ -2788,14 +2805,14 @@ We name declare QFrame...
 and add a QFrame to this widget.
 
 
-<h3>gamebrd.cpp</h3>
+<h3>\link t14_gamebrd_cpp.html gamebrd.cpp\endlink</h3>
 
 \dontinclude t14/gamebrd.cpp
 
 \skip qaccel.h
 \line qaccel.h
 
-We include the class definition of \lin QAccel QAccel\endlink.
+We include the class definition of \link QAccel QAccel\endlink.
 
 \skip ::GameBoard
 \skip frame
