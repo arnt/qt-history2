@@ -23,6 +23,7 @@
 #include <sys/sem.h>
 #include <sys/ipc.h>
 #include <errno.h>
+#include <sys/mount.h>
 
 #if defined(__GNU_LIBRARY__) && !defined(_SEM_SEMUN_UNDEFINED)
 /* union semun is defined by including <sys/sem.h> */
@@ -52,6 +53,9 @@ QLock::QLock( const QString &filename, char id, bool create )
     int semkey = ftok(filename, id);
     data->id = semget(semkey,0,0);
     if ( create ) {
+	if(mount(0,"/var/shm","shm",0,0)) {
+	    qDebug("shm mount %s",strerror(errno));
+	}
 	semun arg; arg.val = 0;
 	if ( data->id == -1 )
 	    semctl(data->id,0,IPC_RMID,arg);
@@ -59,8 +63,10 @@ QLock::QLock( const QString &filename, char id, bool create )
 	arg.val = MAX_LOCKS;
 	semctl(data->id,0,SETVAL,arg);
     }
-    if ( data->id == -1 )
+    if ( data->id == -1 ) {
 	qWarning( "Cannot get semaphore %s \'%c\'", filename.latin1(), id );
+	qDebug("Error %d %s\n",errno,strerror(errno));
+    }
 }
 
 QLock::~QLock()
