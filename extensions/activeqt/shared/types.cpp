@@ -15,7 +15,6 @@
 #include <ocidl.h>
 #include <olectl.h>
 
-
 #include "types.h"
 #include <qpixmap.h>
 #include <qpaintdevicemetrics.h>
@@ -24,6 +23,11 @@
 #ifdef QAX_SERVER
 #include <qaxfactory.h>
 extern QAxFactoryInterface *qAxFactory();
+extern ITypeLib *qAxTypeLibrary;
+
+CLSID CLSID_QRect = { 0x34030f30, 0xe359, 0x4fe6, {0xab, 0x82, 0x39, 0x76, 0x6f, 0x5d, 0x91, 0xee } };
+CLSID CLSID_QSize = { 0xcb5f84b3, 0x29e5, 0x491d, {0xba, 0x18, 0x54, 0x72, 0x48, 0x8e, 0xef, 0xba } };
+CLSID CLSID_QPoint = { 0x3be838a3, 0x3fac, 0xbfc4, {0x4c, 0x6c, 0x37, 0xc4, 0x4d, 0x03, 0x02, 0x52 } };
 #endif
 
 extern IDispatch *create_object_wrapper( QObject *o );
@@ -318,6 +322,49 @@ bool QVariantToVARIANT( const QVariant &var, VARIANT &arg, const char *type )
 	arg.vt = VT_CY;
 	arg.cyVal.int64 = qvar.toULongLong();
 	break;
+
+#ifdef QAX_SERVER
+    case QVariant::Rect:
+    case QVariant::Size:
+    case QVariant::Point:
+	{
+	    ITypeInfo *typeInfo = 0;
+	    IRecordInfo *recordInfo = 0;
+	    CLSID clsid = qvar.type() == QVariant::Rect ? CLSID_QRect
+		:qvar.type() == QVariant::Size ? CLSID_QSize
+		:CLSID_QPoint;
+	    qAxTypeLibrary->GetTypeInfoOfGuid(clsid, &typeInfo);
+
+	    GetRecordInfoFromTypeInfo(typeInfo, &recordInfo);
+	    typeInfo->Release();
+	    void *record = 0;
+	    switch (qvar.type()) {
+	    case QVariant::Rect:
+		{
+		    QRect qrect(qvar.toRect());
+		    recordInfo->RecordCreateCopy(&qrect, &record);
+		}
+		break;
+	    case QVariant::Size:
+		{
+		    QSize qsize(qvar.toSize());
+		    recordInfo->RecordCreateCopy(&qsize, &record);
+		}
+		break;
+	    case QVariant::Point:
+		{
+		    QPoint qpoint(qvar.toPoint());
+		    recordInfo->RecordCreateCopy(&qpoint, &record);
+		}
+		break;
+	    }
+
+	    arg.vt = VT_RECORD;
+	    arg.pRecInfo = recordInfo,
+	    arg.pvRecord = record;
+	}
+	break;
+#endif // QAX_SERVER
 
     case 1000: // rawAccess in QAxBase::toVariant
 	if ( type && !qstrcmp(type, "IDispatch*") ) {
@@ -903,6 +950,22 @@ bool VARIANTToQUObject( const VARIANT &arg, QUObject *obj, const QUParameter *pa
 	    static_QUType_QVariant.set( obj, var );
 	}
 	break;
+    case VT_RECORD|VT_BYREF:
+	if (arg.pvRecord && arg.pRecInfo) {
+	    QVariant var = VARIANTToQVariant(arg, 0);
+	    switch(var.type()) {
+	    case QVariant::Rect:
+		static_QUType_varptr.set( obj, new QRect(var.toRect()) );
+		break;
+	    case QVariant::Size:
+		static_QUType_varptr.set( obj, new QSize(var.toSize()) );
+		break;
+	    case QVariant::Point:
+		static_QUType_varptr.set( obj, new QPoint(var.toPoint()) );
+		break;
+	    }
+	}
+	break;
     default:
 	return FALSE;
     }
@@ -1149,6 +1212,32 @@ QVariant VARIANTToQVariant( const VARIANT &arg, const char *hint )
 	    var = bytes;
 	}
 	break;
+
+#if defined(QAX_SERVER)
+    case VT_RECORD:
+    case VT_RECORD|VT_BYREF:
+	if (arg.pvRecord && arg.pRecInfo) {
+	    IRecordInfo *recordInfo = arg.pRecInfo;
+	    void *record = arg.pvRecord;
+	    GUID guid;
+	    recordInfo->GetGuid(&guid);
+
+	    if (guid == CLSID_QRect) {
+		QRect qrect;
+		recordInfo->RecordCopy(record, &qrect);
+		var = qrect;
+	    } else if (guid == CLSID_QSize) {
+		QSize qsize;
+		recordInfo->RecordCopy(record, &qsize);
+		var = qsize;
+	    } else if (guid == CLSID_QPoint) {
+		QPoint qpoint;
+		recordInfo->RecordCopy(record, &qpoint);
+		var = qpoint;
+	    }
+	}
+	break;
+#endif // QAX_SERVER
     default:
 	break;
     }
@@ -1453,6 +1542,15 @@ bool QUObjectToVARIANT( QUObject *obj, VARIANT &arg, const QUParameter *param )
 	    case QVariant::ByteArray:
 		value = *(QByteArray*)ptrvalue;
 		break;
+	    case QVariant::Rect:
+		value = *(QRect*)ptrvalue;
+		break;
+	    case QVariant::Size:
+		value = *(QSize*)ptrvalue;
+		break;
+	    case QVariant::Point:
+		value = *(QPoint*)ptrvalue;
+		break;
 	    default:
 		break;
 	    }
@@ -1549,6 +1647,15 @@ void clearQUObject( QUObject *obj, const QUParameter *param )
 	    break;
 	case QVariant::ByteArray:
 	    delete (QByteArray*)ptrvalue;
+	    break;
+	case QVariant::Rect:
+	    delete (QRect*)ptrvalue;
+	    break;
+	case QVariant::Size:
+	    delete (QSize*)ptrvalue;
+	    break;
+	case QVariant::Point:
+	    delete (QPoint*)ptrvalue;
 	    break;
 	default:
 	    break;
