@@ -216,7 +216,7 @@ QSqlField qMakeField( const QODBCPrivate* d, const QString& tablename, const QSt
                         SQL_ATTR_CURSOR_TYPE,
                         (SQLPOINTER)SQL_CURSOR_FORWARD_ONLY,
                         SQL_IS_UINTEGER );
-#ifdef(_WS_WIN_)
+#if defined(_WS_WIN_)
 #if defined(UNICODE)
     if ( qApp->winVersion() & Qt::WV_NT_based )
 	r =  SQLColumns( hStmt,
