@@ -500,7 +500,7 @@ void QVFbView::drawScreen()
 	p.setPen( Qt::black );
 	p.setBrush( Qt::white );
 	p.drawPixmap( int(r.x()*zm), int(r.y()*zm), pm,
-			int(leading*zm), 0, pm.width()-leading*zm, pm.height() );
+                      int(leading*zm), 0, pm.width()-int(leading*zm), pm.height() );
     } else {
 	unlock();
     }
