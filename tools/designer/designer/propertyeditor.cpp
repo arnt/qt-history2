@@ -2363,9 +2363,13 @@ void PropertyList::setupProperties()
 		    continue;
 	    }
 	}
+	if ( w->inherits( "QActionGroup" ) ) {
+	    if ( qstrcmp( p->name(), "usesDropDown" ) == 0 )
+		continue;
+	    if ( qstrcmp( p->name(), "toggleAction" ) == 0 )
+		continue;
+	}
 	if ( qstrcmp( p->name(), "minimumHeight" ) == 0 )
-	    continue;
-	if ( qstrcmp( p->name(), "usesDropDown" ) == 0 )
 	    continue;
 	if ( qstrcmp( p->name(), "minimumWidth" ) == 0 )
 	    continue;
