@@ -140,6 +140,7 @@ public:
 QMimeSourceFactory::QMimeSourceFactory() :
     d(new QMimeSourceFactoryData)
 {
+    addFilePath(":/qt/q3mimesourcefactory/"); //to get from the resources
     // add some reasonable defaults
     setExtensionType("htm", "text/html;charset=iso8859-1");
     setExtensionType("html", "text/html;charset=iso8859-1");
@@ -162,31 +163,26 @@ QMimeSource* QMimeSourceFactory::dataInternal(const QString& abs_name, const QMa
 {
     QMimeSource* r = 0;
     QStringList attempted_names(abs_name);
-    if(QDir::isRelativePath(abs_name)) 
-        attempted_names << QString(":/qt/q3mimesourcefactory/") + abs_name;
-    for(int i = 0; i < attempted_names.count(); i++) {
-        QString file = attempted_names.at(i);
-        QFileInfo fi(file);
-        if (fi.isReadable()) {
-            // get the right mimetype
-            QString e = fi.extension(false);
-            QByteArray mimetype("application/octet-stream");
-            const char* imgfmt;
-            if (extensions.contains(e))
-                mimetype = extensions[e].latin1();
-            else if ((imgfmt = QImage::imageFormat(file)))
-                mimetype = QByteArray("image/")+QByteArray(imgfmt).toLower();
-            
-            QFile f(file);
-            if (f.open(IO_ReadOnly) && f.size()) {
-                QByteArray ba;
-                ba.resize(f.size());
-                f.readBlock(ba.data(), ba.size());
-                QStoredDrag* sr = new QStoredDrag(mimetype);
-                sr->setEncodedData(ba);
-                delete d->last;
-                d->last = r = sr;
-            }
+    QFileInfo fi(abs_name);
+    if (fi.isReadable()) {
+        // get the right mimetype
+        QString e = fi.extension(false);
+        QByteArray mimetype("application/octet-stream");
+        const char* imgfmt;
+        if (extensions.contains(e))
+            mimetype = extensions[e].latin1();
+        else if ((imgfmt = QImage::imageFormat(abs_name)))
+            mimetype = QByteArray("image/")+QByteArray(imgfmt).toLower();
+        
+        QFile f(abs_name);
+        if (f.open(IO_ReadOnly) && f.size()) {
+            QByteArray ba;
+            ba.resize(f.size());
+            f.readBlock(ba.data(), ba.size());
+            QStoredDrag* sr = new QStoredDrag(mimetype);
+            sr->setEncodedData(ba);
+            delete d->last;
+            d->last = r = sr;
         }
     }
 
