@@ -33,11 +33,13 @@ bool QLibraryPrivate::load_sys()
         pHnd = (void*)shl_load(QFile::encodeName(fileName + ".sl"), BIND_DEFERRED | BIND_NONFATAL | DYNAMIC_PATH, 0);
     if (!pHnd) {
         QFileInfo fi(fileName);
-        pHnd = (void*)shl_load(QFile::encodeName(fi.path() + "/lib" + fi.fileName() + ".sl"), 
+        pHnd = (void*)shl_load(QFile::encodeName(fi.path() + "/lib" + fi.fileName() + ".sl"),
                                BIND_DEFERRED | BIND_NONFATAL | DYNAMIC_PATH, 0);
     }
+#if defined(QT_DEBUG_COMPONENT)
     if (!pHnd)
         qWarning("QLibrary: Cannot load %s", QFile::encodeName(fileName).constData());
+#endif
     return pHnd != 0;
 }
 
@@ -53,8 +55,12 @@ bool QLibraryPrivate::unload_sys()
 void* QLibraryPrivate::resolve_sys(const char* symbol)
 {
     void* address = 0;
-    if (shl_findsym((shl_t*)&pHnd, symbol, TYPE_UNDEFINED, &address) < 0)
+    if (shl_findsym((shl_t*)&pHnd, symbol, TYPE_UNDEFINED, &address) < 0) {
+#if defined(QT_DEBUG_COMPONENT)
         qWarning("QLibrary: Undefined symbol \"%s\" in %s", symbol, QFile::encodeName(fileName).constData());
+#endif
+        address = 0;
+    }
     return address;
 }
 
@@ -85,7 +91,7 @@ bool QLibraryPrivate::load_sys()
         for(int suffix = 0; !pHnd && suffix < suffixes.size(); suffix++) {
             QString attempt(path + prefixes[prefix] + name + suffixes[suffix]);
             QFileInfo attempt_fi(attempt);
-            if(attempt_fi.exists() && !attempt_fi.isDir()) 
+            if(attempt_fi.exists() && !attempt_fi.isDir())
                 pHnd = dlopen(QFile::encodeName(attempt), RTLD_LAZY);
         }
     }
@@ -99,8 +105,10 @@ bool QLibraryPrivate::load_sys()
         }
     }
 # endif
+#if defined(QT_DEBUG_COMPONENT)
     if (!pHnd)
         qWarning("QLibrary: Cannot load '%s' :%s", QFile::encodeName(fileName).constData(), dlerror());
+#endif
     return (pHnd != 0);
 }
 
@@ -125,8 +133,10 @@ void* QLibraryPrivate::resolve_sys(const char* symbol)
 #else
     void* address = dlsym(pHnd, symbol);
 #endif
+#if defined(QT_DEBUG_COMPONENT)
     if (!address)
         qWarning("QLibrary: Undefined symbol \"%s\" in %s", symbol, QFile::encodeName(fileName).constData());
+#endif
     return address;
 }
 
