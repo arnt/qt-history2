@@ -1351,20 +1351,19 @@ int QTreeViewPrivate::viewIndex(const QModelIndex &index) const
 QModelIndex QTreeViewPrivate::modelIndex(int i) const
 {
     if (i < 0 || i >= viewItems.count())
-        return q->root();
+        return root;
     return viewItems.at(i).index;
 }
 
 int QTreeViewPrivate::itemAt(int value) const
 {
-    return value / q->verticalFactor();
+    return value / verticalFactor;
 }
 
 int QTreeViewPrivate::topItemDelta(int value, int iheight) const
 {
-    int factor = q->verticalFactor();
-    int above = (value % factor) * iheight; // what's left; in "item units"
-    return -(above / factor); // above the page
+    int above = (value % verticalFactor) * iheight; // what's left; in "item units"
+    return -(above / verticalFactor); // above the page
 }
 
 int QTreeViewPrivate::columnAt(int x) const
