@@ -5,11 +5,12 @@
 #include <qlistview.h>
 #include <qsettings.h>
 #include <qprocess.h>
+#include <qapplication.h>
 
 ConfigureQtDialogImpl::ConfigureQtDialogImpl( QWidget* parent, const char* name, WFlags fl )
     : ConfigureQtDialog(parent,name,fl)
 {
-
+    QSettings::insertSearchPath( QString( getenv( "QTDIR" ) ) );
     listViewOptions->setSorting( -1 );
     listViewAdvanced->setSorting( -1 );
     QCheckListItem* item;
@@ -32,7 +33,10 @@ ConfigureQtDialogImpl::ConfigureQtDialogImpl( QWidget* parent, const char* name,
 	QFileInfoListIterator srcDirIterator( *srcdirs );
 	srcDirIterator.toLast();
 	while ( ( fi = srcDirIterator.current() ) ) {
-	    if ( fi->fileName() != "." && fi->fileName() != ".." ) {
+	    if ( fi->fileName() != "." && fi->fileName() != ".." &&
+		 fi->fileName() != "tmp" &&
+		 fi->fileName() != "compat" &&
+		 fi->fileName() != "moc" ) {
 		item = new QCheckListItem( modules, fi->fileName(), QCheckListItem::CheckBox );
 		item->setOn( TRUE );
 	    }
@@ -58,6 +62,19 @@ ConfigureQtDialogImpl::ConfigureQtDialogImpl( QWidget* parent, const char* name,
 	item->setOn( TRUE );
 
 	// advanced
+	sqldrivers = new QCheckListItem ( listViewAdvanced, "SQL Drivers" );
+	QDir sqlsrcDir( srcdir + "/sql/src", QString::null, QDir::Name | QDir::IgnoreCase, QDir::Dirs );
+	const QFileInfoList* sqlsrcdirs = sqlsrcDir.entryInfoList();
+	QFileInfoListIterator sqlsrcDirIterator( *sqlsrcdirs );
+	sqlsrcDirIterator.toLast();
+	while ( ( fi = sqlsrcDirIterator.current() ) ) {
+	    if ( fi->fileName() != "." && fi->fileName() != ".." && fi->fileName() != "tmp" ) {
+		item = new QCheckListItem( sqldrivers, fi->fileName(), QCheckListItem::CheckBox );
+		item->setOn( TRUE );
+	    }
+	    --sqlsrcDirIterator;
+	}
+
 	mkspec = new QCheckListItem ( listViewAdvanced, "Platform-Compiler" );
 	QDir mkspecDir( mkspecsdir, QString::null, QDir::Name | QDir::IgnoreCase, QDir::Files );
 	const QFileInfoList* mkspecs = mkspecDir.entryInfoList();
@@ -69,9 +86,6 @@ ConfigureQtDialogImpl::ConfigureQtDialogImpl( QWidget* parent, const char* name,
 		item->setOn( TRUE );
 	    --mkspecIterator;
 	}
-
-	//sql drivers ###
-
 
 	loadSettings();
 
@@ -87,21 +101,30 @@ ConfigureQtDialogImpl::~ConfigureQtDialogImpl()
 void ConfigureQtDialogImpl::loadSettings()
 {
     QSettings settings;
-    QString entry;
 
-    entry = settings.readEntry( "Mode" );
+    QString resetDefaults = settings.readEntry("/.configure_qt_build/ResetDefaults").upper();
+    if (  resetDefaults == "TRUE" || resetDefaults.isEmpty() )   // resetting or never set before
+	return;
+
+    QString entry;
+    QStringList entries;
+
+    entry = settings.readEntry( "/.configure_qt_build/Mode" );
     set( debugMode, entry );
 
-    entry = settings.readEntry( "Build" );
+    entry = settings.readEntry( "/.configure_qt_build/Build" );
     set( buildType, entry );
 
-    entry = settings.readEntry( "Threading" );
+    entry = settings.readEntry( "/.configure_qt_build/Threading" );
     set( threadModel, entry );
 
-    QStringList entries = settings.readListEntry( "Modules", ',' );
+    entries = settings.readListEntry( "/.configure_qt_build/Modules", ',' );
     set( modules, entries );
 
-    entry = settings.readEntry( "Platform-Compiler" );
+    entries = settings.readListEntry( "/.configure_qt_build/SQL Drivers", ',' );
+    set( sqldrivers, entries );
+
+    entry = settings.readEntry( "/.configure_qt_build/Platform-Compiler" );
     set( mkspec, entry );
 
 }
@@ -146,37 +169,56 @@ void ConfigureQtDialogImpl::execute()
     QStringList args;
     args +=  QString( getenv( "QTDIR" ) ) + "/bin/qmake";
 
-    QListViewItem* config = listViewOptions->firstChild();
+
+    QProcess qmake( args );
+    qmake.start(); //## working?
+}
+
+void ConfigureQtDialogImpl::saveSettings()
+{
+    QApplication::setOverrideCursor( Qt::waitCursor );
+    saveSet( listViewOptions );
+    saveSet( listViewAdvanced );
+    QApplication::restoreOverrideCursor();
+}
+
+void ConfigureQtDialogImpl::saveSet( QListView* list )
+{
+    QSettings settings;
+     settings.writeEntry( "/.configure_qt_build/ResetDefaults", "FALSE" );
+    // radios
+    QListViewItem* config = list->firstChild();
     while ( config ) {
 	QCheckListItem* item = (QCheckListItem*)config->firstChild();
 	while( item != 0 ) {
-	    if ( item->isOn() ) {
-		args += config->text(0) + " : " + item->text(); //###
-		break;
+	    if ( item->type() == QCheckListItem::RadioButton ) {
+		if ( item->isOn() ) {
+		    settings.writeEntry( "/.configure_qt_build/" + config->text(0), item->text() );
+		    break;
+		}
 	    }
 	    item = (QCheckListItem*)item->nextSibling();
 	}
 	config = config->nextSibling();
     }
 
-    QProcess qmake( args );
-    qmake.start();
-}
-
-void ConfigureQtDialogImpl::saveSettings()
-{
-    QSettings settings;
-
-    QListViewItem* config = listViewOptions->firstChild();
+    // checks
+    config = list->firstChild();
+    QStringList lst;
     while ( config ) {
+	bool foundChecks = FALSE;
 	QCheckListItem* item = (QCheckListItem*)config->firstChild();
 	while( item != 0 ) {
-	    if ( item->isOn() ) {
-		settings.writeEntry( "/General/" + config->text(0), item->text() );
-		break;
+	    if ( item->type() == QCheckListItem::CheckBox ) {
+		if ( item->isOn() )
+		    lst += item->text();
+		foundChecks = TRUE;
 	    }
 	    item = (QCheckListItem*)item->nextSibling();
 	}
+	if ( foundChecks )
+	    settings.writeEntry( "/.configure_qt_build/" + config->text(0), lst, ',' );
 	config = config->nextSibling();
+	lst.clear();
     }
 }

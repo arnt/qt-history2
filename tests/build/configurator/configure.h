@@ -24,10 +24,12 @@ private:
     QCheckListItem* threadModel;
     QCheckListItem* modules;
     QCheckListItem* mkspec;
+    QCheckListItem* sqldrivers;
 
     void loadSettings();
     void set( QCheckListItem* parent, const QString& setting );
     void set( QCheckListItem* parent, const QStringList& settings );
+    void saveSet( QListView* list );
 
 };
 
