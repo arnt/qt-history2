@@ -1,6 +1,7 @@
 # Qt gui library, paint module
 
 HEADERS += \
+	painting/qbezier.h \
 	painting/qbrush.h \
 	painting/qcolor.h \
 	painting/qcolor_p.h \
@@ -30,6 +31,7 @@ HEADERS += \
 
 
 SOURCES += \
+	painting/qbezier.cpp \
 	painting/qbrush.cpp \
 	painting/qcolor.cpp \
 	painting/qcolor_p.cpp \
