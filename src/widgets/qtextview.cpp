@@ -412,6 +412,9 @@ void QTextView::keyPressEvent( QKeyEvent *e )
 	break;
     case Key_Return: case Key_Enter:
 	doc->removeSelection( QTextDocument::Standard );
+#ifndef QT_NO_CURSOR
+	viewport()->setCursor( isReadOnly() ? arrowCursor : ibeamCursor );
+#endif
 	clearUndoRedoInfo = FALSE;
 	doKeyboardAction( ActionReturn );
 	emitReturnPressed();
@@ -760,6 +763,9 @@ void QTextView::removeSelectedText()
     if ( contentsHeight() < visibleHeight() )
 	viewport()->repaint( 0, contentsHeight(), visibleWidth(), visibleHeight() - contentsHeight(), TRUE );
 #endif
+#ifndef QT_NO_CURSOR
+    viewport()->setCursor( isReadOnly() ? arrowCursor : ibeamCursor );
+#endif
 }
 
 void QTextView::moveCursor( MoveDirectionPrivate direction, bool shift, bool control )
@@ -789,6 +795,9 @@ void QTextView::moveCursor( MoveDirectionPrivate direction, bool shift, bool con
 	    repaintChanged();
 	    ensureCursorVisible();
 	    drawCursor( TRUE );
+#ifndef QT_NO_CURSOR
+	    viewport()->setCursor( isReadOnly() ? arrowCursor : ibeamCursor );
+#endif
 	}
 	if ( redraw ) {
 	    emit copyAvailable( doc->hasSelection( QTextDocument::Standard ) );
@@ -1015,6 +1024,9 @@ void QTextView::contentsMousePressEvent( QMouseEvent *e )
 	    drawCursor( TRUE );
 	} else {
 	    repaintChanged();
+#ifndef QT_NO_CURSOR
+	    viewport()->setCursor( isReadOnly() ? arrowCursor : ibeamCursor );
+#endif
 	}
     } else if ( e->button() == MidButton ) {
 	if (QApplication::clipboard()->supportsSelection()) {
@@ -1185,6 +1197,9 @@ void QTextView::contentsDropEvent( QDropEvent *e )
 	    removeSelectedText();
 	} else {
 	    doc->removeSelection( QTextDocument::Standard );
+#ifndef QT_NO_CURSOR
+	    viewport()->setCursor( isReadOnly() ? arrowCursor : ibeamCursor );
+#endif
 	}
 	drawCursor( FALSE );
 	placeCursor( e->pos(),  cursor );
@@ -1403,6 +1418,10 @@ void QTextView::undo()
     for ( int i = 0; i < (int)QTextDocument::Temp; ++i )
 	doc->removeSelection( i );
 
+#ifndef QT_NO_CURSOR
+    viewport()->setCursor( isReadOnly() ? arrowCursor : ibeamCursor );
+#endif
+
     clearUndoRedo();
     drawCursor( FALSE );
     QTextCursor *c = doc->undo( cursor );
@@ -1424,6 +1443,10 @@ void QTextView::redo()
 
     for ( int i = 0; i < (int)QTextDocument::Temp; ++i )
 	doc->removeSelection( i );
+
+#ifndef QT_NO_CURSOR
+    viewport()->setCursor( isReadOnly() ? arrowCursor : ibeamCursor );
+#endif
 
     clearUndoRedo();
     drawCursor( FALSE );
@@ -1863,6 +1886,9 @@ bool QTextView::find( const QString &expr, bool cs, bool wo, bool forward,
 {
     drawCursor( FALSE );
     doc->removeSelection( QTextDocument::Standard );
+#ifndef QT_NO_CURSOR
+    viewport()->setCursor( isReadOnly() ? arrowCursor : ibeamCursor );
+#endif
     bool found = doc->find( expr, cs, wo, forward, parag, index, cursor );
     ensureCursorVisible();
     drawCursor( TRUE );
