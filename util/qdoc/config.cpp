@@ -135,7 +135,7 @@ Config::Config( int argc, char **argv )
     QTextStream t( &f );
     yyIn = t.read();
     f.close();
-    int yyPos = 0;
+    yyPos = 0;
 
     while ( yyPos < (int) yyIn.length() ) {
 	QString key;
@@ -375,7 +375,9 @@ bool Config::processClass( const QString& className ) const
 
 bool Config::matchLine( QString *key, QStringList *val )
 {
+    // key = value \n
     QRegExp keyX( QString("^[ \t]*([A-Z_a-z][A-Z_a-z0-9]*)[ \t]*=[ \t]*") );
+    // there are two syntaxes for values: foo and "foo"
     QRegExp valXOrY( QString(
 	    "^(?:([^\" \n\t]*)|\"((?:[^\"\\\\]|\\\\.)*)\")"
 	    "(?:[ \t]|\\\\[ \t]*\n)*") );
