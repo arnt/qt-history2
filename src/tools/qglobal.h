@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglobal.h#77 $
+** $Id: //depot/qt/main/src/tools/qglobal.h#78 $
 **
 ** Global type declarations and definitions
 **
@@ -108,8 +108,6 @@
 #define _CC_GNU_
 #elif defined(__xlC__)
 #define _CC_XLC_
-// since IBM licensed EDG...
-#define _CC_EDG_
 #elif defined(__EDG) || defined(__EDG__)
 // one observed on SGI DCC, the other documented
 #define _CC_EDG_
@@ -125,22 +123,6 @@
 #define _CC_HP_
 #else
 #error "Qt has not been tested with this compiler - talk to qt-bugs@troll.no"
-#endif
-
-#if defined(_OS_AIX_)
-// need these to activate the correct parts of /usr/include/*.h
-#if !defined(_ANSI_C_SOURCE)
-#define _ANSI_C_SOURCE
-#endif
-#if !defined(_ALL_SOURCE)
-#define _ALL_SOURCE
-#endif
-#if !defined(_X_OPEN_SOURCE)
-#define _X_OPEN_SOURCE
-#endif
-#if !defined(_BSD)
-#define _BSD
-#endif
 #endif
 
 
