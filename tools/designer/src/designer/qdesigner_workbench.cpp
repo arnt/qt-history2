@@ -215,6 +215,7 @@ void QDesignerWorkbench::switchToNeutralMode()
 
             m_geometries.insert(tw, QRect(pos, tw->size()));
         }
+        tw->setSaveSettingsOnClose(false);
 
         tw->setParent(0);
     }
@@ -261,7 +262,8 @@ void QDesignerWorkbench::switchToWorkspaceMode()
 
     Q_ASSERT(m_workspace == 0);
 
-    QMainWindow *mw = new QMainWindow;
+    QDesignerToolWindow *mw = new QDesignerToolWindow(this); // Just to have a copy of
+    mw->setSaveSettingsOnClose(true);
     m_workspace = new Q3Workspace(mw);
     connect(m_workspace, SIGNAL(windowActivated(QWidget*)),
             this, SLOT(activateWorkspaceChildWindow(QWidget* )));
@@ -313,6 +315,7 @@ void QDesignerWorkbench::switchToTopLevelMode()
         widgetBoxWrapper->setMenuBar(m_globalMenuBar);
         widgetBoxWrapper->action()->setEnabled(false);
         qDesigner->setMainWidget(widgetBoxWrapper);
+        widgetBoxWrapper->setSaveSettingsOnClose(true);
 #endif
         widgetBoxWrapper->addToolBar(m_editToolBar);
         widgetBoxWrapper->addToolBar(m_toolToolBar);

@@ -29,16 +29,21 @@ public:
     QDesignerWorkbench *workbench() const;
     QAction *action() const;
 
+    void setSaveSettingsOnClose(bool save);
+    bool saveSettingsOnClose() const;
+
     virtual QRect geometryHint() const;
 
 protected:
     virtual void showEvent(QShowEvent *e);
     virtual void hideEvent(QHideEvent *e);
     virtual void changeEvent(QEvent *e);
+    virtual void closeEvent(QCloseEvent *e);
 
 private:
     QDesignerWorkbench *m_workbench;
     QAction *m_action;
+    bool m_saveSettings;
 };
 
 #endif // QDESIGNER_TOOLWINDOW_H

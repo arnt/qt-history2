@@ -16,6 +16,7 @@
 
 #include <QtCore/QEvent>
 #include <QtGui/QAction>
+#include <QtGui/QCloseEvent>
 
 QDesignerToolWindow::QDesignerToolWindow(QDesignerWorkbench *workbench, QWidget *parent, Qt::WFlags flags)
     : QMainWindow(parent, flags),
@@ -83,3 +84,20 @@ QRect QDesignerToolWindow::geometryHint() const
     return QRect();
 }
 
+void QDesignerToolWindow::closeEvent(QCloseEvent *ev)
+{
+    if (m_saveSettings)
+        ev->setAccepted(workbench()->handleClose());
+    else
+        QMainWindow::closeEvent(ev);
+}
+
+bool QDesignerToolWindow::saveSettingsOnClose() const
+{
+    return m_saveSettings;
+}
+
+void QDesignerToolWindow::setSaveSettingsOnClose(bool save)
+{
+    m_saveSettings = save;
+}
