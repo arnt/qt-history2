@@ -1058,25 +1058,6 @@ void QComboBox::setFont( const QFont &font )
 	adjustSize();
 }
 
-
-void QComboBox::actionEvent(QActionEvent *e)
-{
-    if (e->type() == QEvent::ActionAdded) {
-	QAction *a = e->action();
-	if (a->isSeparator()) {
-	    ; // #### addSeparator();
-	} else {
-	    if ( !a->icon().isNull() )
-		insertItem( a->icon().pixmap(), a->text() );
-	    else
-		insertItem( a->text() );
-	}
-    } else {
-	// ActionRemoved
-	// #############
-    }
-}
-
 /*!\reimp
 */
 

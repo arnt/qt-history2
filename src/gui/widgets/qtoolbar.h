@@ -63,7 +63,6 @@ public:
     void setMinimumSize( int minw, int minh );
 
 protected:
-    void actionEvent(QActionEvent *e);
     void resizeEvent( QResizeEvent *e );
     void styleChange(QStyle &);
 

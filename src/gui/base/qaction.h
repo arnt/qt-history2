@@ -95,23 +95,6 @@ public:
     enum ActionEvent { Trigger, Hover };
     void activate(ActionEvent event);
 
-#ifdef QT_COMPAT
-    QAction(QWidget* parent, const char* name);
-    QAction(const QString& text, QKeySequence accel, QWidget* parent, const char* name);
-    QAction(const QIconSet& icon, const QString &text, QKeySequence accel, QWidget* parent, const char* name);
-    QAction(QActionGroup* parent, const char* name);
-    QAction(const QString& text, QKeySequence accel, QActionGroup* parent, const char* name);
-    QAction(const QIconSet& icon, const QString &text, QKeySequence accel, QActionGroup* parent, const char* name);
-
-    inline void QT_COMPAT addTo(QWidget *w) { w->addAction(this); }
-    inline void QT_COMPAT setToggleAction(bool b) { setCheckable(b); }
-    inline bool QT_COMPAT isToggleAction() const { return isCheckable(); }
-    inline bool QT_COMPAT isOn() const { return isChecked(); }
-    inline void QT_COMPAT setOn(bool b) { setChecked(b); }
-    void QT_COMPAT setIconSet( const QIconSet &icon ) { setIcon(icon); }
-    QIconSet QT_COMPAT iconSet() const { return icon(); }
-#endif
-
 protected:
     void sendDataChanged();
     virtual void addedTo(QWidget *) {} // can this go away?
@@ -160,10 +143,6 @@ public:
     bool isExclusive() const;
     bool isEnabled() const;
     bool isVisible() const;
-
-#ifdef QT_COMPAT
-    inline void QT_COMPAT addTo(QWidget *) { /* ###### FIXME */ }
-#endif
 
 public slots:
     void setEnabled(bool);

@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Definition of QAction class.
+** Definition of Q3Action class.
 **
 ** Copyright (C) 1992-2003 Trolltech AS. All rights reserved.
 **
@@ -24,14 +24,14 @@
 
 #ifndef QT_NO_ACTION
 
-class QActionPrivate;
-class QActionGroupPrivate;
+class Q3ActionPrivate;
+class Q3ActionGroupPrivate;
 class QStatusBar;
 class QPopupMenu;
 class QToolTipGroup;
 class QWidget;
 
-class Q_GUI_EXPORT QAction : public QObject
+class Q_GUI_EXPORT Q3Action : public QObject
 {
     Q_OBJECT
     Q_PROPERTY( bool toggleAction READ isToggleAction WRITE setToggleAction)
@@ -49,20 +49,20 @@ class Q_GUI_EXPORT QAction : public QObject
     Q_PROPERTY( bool visible READ isVisible WRITE setVisible )
 
 public:
-    QAction( QObject* parent, const char* name = 0 );
+    Q3Action( QObject* parent, const char* name = 0 );
 #ifndef QT_NO_ACCEL
-    QAction( const QString& menuText, QKeySequence accel,
+    Q3Action( const QString& menuText, QKeySequence accel,
 	     QObject* parent, const char* name = 0 );
-    QAction( const QIconSet& icon, const QString& menuText, QKeySequence accel,
+    Q3Action( const QIconSet& icon, const QString& menuText, QKeySequence accel,
 	     QObject* parent, const char* name = 0 );
 
-    QAction( const QString& text, const QIconSet& icon, const QString& menuText, QKeySequence accel,
+    Q3Action( const QString& text, const QIconSet& icon, const QString& menuText, QKeySequence accel,
 	     QObject* parent, const char* name = 0, bool toggle = FALSE ); // obsolete
-    QAction( const QString& text, const QString& menuText, QKeySequence accel, QObject* parent,
+    Q3Action( const QString& text, const QString& menuText, QKeySequence accel, QObject* parent,
 	     const char* name = 0, bool toggle = FALSE ); // obsolete
 #endif
-    QAction( QObject* parent, const char* name , bool toggle ); // obsolete
-    ~QAction();
+    Q3Action( QObject* parent, const char* name , bool toggle ); // obsolete
+    ~Q3Action();
 
     virtual void setIconSet( const QIconSet& );
     QIconSet iconSet() const;
@@ -116,30 +116,30 @@ private slots:
 private:
     void init();
 
-    friend class QActionPrivate;
-    friend class QActionGroup;
-    friend class QActionGroupPrivate;
-    QActionPrivate* d;
+    friend class Q3ActionPrivate;
+    friend class Q3ActionGroup;
+    friend class Q3ActionGroupPrivate;
+    Q3ActionPrivate* d;
 
 #if defined(Q_DISABLE_COPY)  // Disabled copy constructor and operator=
-    QAction( const QAction & );
-    QAction &operator=( const QAction & );
+    Q3Action( const Q3Action & );
+    Q3Action &operator=( const Q3Action & );
 #endif
 };
 
-class Q_GUI_EXPORT QActionGroup : public QAction
+class Q_GUI_EXPORT Q3ActionGroup : public Q3Action
 {
     Q_OBJECT
     Q_PROPERTY( bool exclusive READ isExclusive WRITE setExclusive )
     Q_PROPERTY( bool usesDropDown READ usesDropDown WRITE setUsesDropDown )
 
 public:
-    QActionGroup( QObject* parent, const char* name = 0 );
-    QActionGroup( QObject* parent, const char* name , bool exclusive  ); // obsolete
-    ~QActionGroup();
+    Q3ActionGroup( QObject* parent, const char* name = 0 );
+    Q3ActionGroup( QObject* parent, const char* name , bool exclusive  ); // obsolete
+    ~Q3ActionGroup();
     void setExclusive( bool );
     bool isExclusive() const;
-    void add( QAction* a);
+    void add( Q3Action* a);
     void addSeparator();
     bool addTo( QWidget* );
     bool removeFrom( QWidget* );
@@ -159,14 +159,14 @@ public:
 
 protected:
     void childEvent( QChildEvent* );
-    virtual void addedTo( QWidget *actionWidget, QWidget *container, QAction *a );
-    virtual void addedTo( int index, QPopupMenu *menu, QAction *a );
+    virtual void addedTo( QWidget *actionWidget, QWidget *container, Q3Action *a );
+    virtual void addedTo( int index, QPopupMenu *menu, Q3Action *a );
     virtual void addedTo( QWidget *actionWidget, QWidget *container );
     virtual void addedTo( int index, QPopupMenu *menu );
 
 signals:
-    void selected( QAction* );
-    void activated(QAction *);
+    void selected( Q3Action* );
+    void activated(Q3Action *);
 
 private slots:
     void childToggled( bool );
@@ -174,21 +174,21 @@ private slots:
     void childDestroyed();
     void internalComboBoxActivated( int );
     void internalComboBoxHighlighted( int );
-    void internalToggle( QAction* );
+    void internalToggle( Q3Action* );
     void objectDestroyed();
 
 private:
-    QActionGroupPrivate* d;
+    Q3ActionGroupPrivate* d;
 
 #ifdef QT_COMPAT
 public:
-    QT_COMPAT void insert( QAction* a ) { add( a ); }
+    QT_COMPAT void insert( Q3Action* a ) { add( a ); }
 #endif
 
 private:
 #if defined(Q_DISABLE_COPY)  // Disabled copy constructor and operator=
-    QActionGroup( const QActionGroup & );
-    QActionGroup &operator=( const QActionGroup & );
+    Q3ActionGroup( const Q3ActionGroup & );
+    Q3ActionGroup &operator=( const Q3ActionGroup & );
 #endif
 };
 

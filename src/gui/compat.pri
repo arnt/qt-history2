@@ -7,7 +7,8 @@ HEADERS += \
 	../compat/text/qmultilineedit.h \
 	../compat/text/qrichtext_p.h \
 	../compat/text/qsimplerichtext.h \
-	../compat/text/qstylesheet.h
+	../compat/text/qstylesheet.h \
+	../compat/widgets/q3action.h
 
 
 SOURCES += \
@@ -19,4 +20,5 @@ SOURCES += \
 	../compat/text/qrichtext.cpp \
 	../compat/text/qrichtext_p.cpp \
 	../compat/text/qsimplerichtext.cpp \
-	../compat/text/qstylesheet.cpp
+	../compat/text/qstylesheet.cpp \
+	../compat/widgets/q3action.cpp

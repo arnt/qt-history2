@@ -1570,26 +1570,6 @@ void QPopupMenu::closeEvent( QCloseEvent * e) {
     byeMenuBar();
 }
 
-
-void QPopupMenu::actionEvent(QActionEvent *e)
-{
-    if (e->type() == QEvent::ActionAdded) {
-	QAction *a = e->action();
-	QAction *b = e->before();
-	int id;
-	if (a->isSeparator())
-	    id = insertSeparator();
-	else if ( !a->icon().isNull() )
-	    id = insertItem( a->icon(), a->text() );
-	else
-	    id = insertItem( a->text() );
-	connectItem( id, this, SLOT(triggered()) );
-    } else {
-	// ActionRemoved
-	// #############
-    }
-}
-
 /*!
     \reimp
 */

@@ -77,7 +77,6 @@ protected:
 
     bool event(QEvent *);
     void 	closeEvent( QCloseEvent *e );
-    void actionEvent(QActionEvent *e);
     void	paintEvent( QPaintEvent * );
     void	mousePressEvent( QMouseEvent * );
     void	mouseReleaseEvent( QMouseEvent * );
