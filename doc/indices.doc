@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: indices.doc,v 1.13 1996/09/16 17:40:52 agulbra Exp $
+** $Id: indices.doc,v 1.14 1996/09/17 20:03:18 hanord Exp $
 **
 ** Miscellaneous index pages
 **
@@ -8,21 +8,22 @@
 *****************************************************************************/
 
 #if defined(DEBUG)
-static char ident[] = "$Id: indices.doc,v 1.13 1996/09/16 17:40:52 agulbra Exp $";
+static char ident[] = "$Id: indices.doc,v 1.14 1996/09/17 20:03:18 hanord Exp $";
 #endif
 
 /*! \page index.html
 
-<title>Qt toolkit - documentation home page</title>
+<title>Qt Documentation</title>
 </head><body bgcolor=white>
 
-<h1>Qt Documentation Home Page</h1>
-
-<strong>The documentation covers Qt version \version.</strong>
+<h1 align=center>
+<img src="book.gif" align=right width=48 height=48>
+On-Line Qt Documentation
+</h1>
 
 <p>
 
-Here are the main index pages:
+Main index pages:
 <ul>
 <li><a href="hierarchy.html">Class overview</a>
 <li><a href="classes.html">Alphabetical list</a>
@@ -31,7 +32,7 @@ Here are the main index pages:
 
 <p>
 
-Here is a tutorial and other documentation:
+Tutorial and other documentation:
 <ul>
 <li><a href="tutorial.html">Tutorial</a>
 <li><a href="metaobjects.html">Signals and slots</a>
@@ -43,7 +44,7 @@ Here is a tutorial and other documentation:
 
 <p>
 
-And, finally, some meta-information:
+Some additional information:
 <ul>
 <li><a href="faq.html">FAQ</a>
 <li><a href="troll.html">Troll Tech contact information</a>
@@ -162,7 +163,6 @@ These classes are in some way related to doing low-level graphics
 In order to access the screen on a lower level than using these
 classes, it is generally necessary to use \link QPaintDevice::handle()
 the underlying window system \endlink.
-
 */
 
 

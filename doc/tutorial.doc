@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: tutorial.doc,v 1.17 1996/09/16 17:40:53 agulbra Exp $
+** $Id: tutorial.doc,v 1.18 1996/09/17 20:03:18 hanord Exp $
 **
 ** Tutorial
 **
@@ -9,11 +9,12 @@
 
 /*! \page tutorial.html
 
-<title>
-Qt Tutorial - Introduction
-</title></head><body bgcolor=white>
+<title>Qt Tutorial</title></head><body bgcolor=white>
 
-<h1>The 14 Steps</h1>
+<h1 align=center>
+<img src="tutorial.gif" align=right width=48 height=48>
+The 14 Steps
+</h1>
 
 This tutorial is meant to give an introduction to GUI programming
 using the Qt toolkit.  It introduces some of the most important
