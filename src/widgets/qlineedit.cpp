@@ -2077,6 +2077,8 @@ void QLineEdit::updateSelection()
     int pos = d->cursor->index();
     int selectionStart = d->selectionStart;
     int selectionEnd;
+    int oldStart = d->parag->selectionStart( QTextDocument::Standard ),
+          oldEnd = d->parag->selectionEnd( QTextDocument::Standard );
     if ( pos > selectionStart ) {
 	selectionEnd = pos;
     } else {
@@ -2094,7 +2096,9 @@ void QLineEdit::updateSelection()
     }
 #endif // QT_NO_CLIPBOARD
 
-    if ( oldHST != hasSelectedText() )
+    if ( (oldHST != hasSelectedText()) ||
+  	 (oldStart != selectionStart) ||
+  	 (oldEnd != selectionEnd) )
 	emit selectionChanged();
 }
 
@@ -2102,6 +2106,7 @@ void QLineEdit::updateSelection()
 void QLineEdit::removeSelectedText()
 {
     insert( QString::null );
+    emit selectionChanged();
 }
 
 
