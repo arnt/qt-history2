@@ -4311,7 +4311,7 @@ long QString::toLong( bool *ok, int base ) const
 bye:
     if ( ok )
 	*ok = is_ok;
-    return is_ok ? ( neg ? (long) -val : (long) val ) : 0L;
+    return is_ok ? ( neg ? -( (long) val ) : (long) val ) : 0L;
 }
 
 /*!
