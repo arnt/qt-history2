@@ -261,7 +261,6 @@ void *qt_find_obj_child( QObject *parent, const char *type, const char *name )
 
 QObject::QObject(QObject *parent)
     :
-    isSignal( FALSE ),				// assume not a signal object
     isWidget( FALSE ), 				// assume not a widget object
     pendTimer( FALSE ),				// no timers yet
     blockSig( FALSE ),      			// not blocking signals
@@ -282,7 +281,6 @@ QObject::QObject(QObject *parent)
 #ifndef QT_NO_COMPAT
 QObject::QObject( QObject *parent, const char *name )
     :
-    isSignal( FALSE ),				// assume not a signal object
     isWidget( FALSE ), 				// assume not a widget object
     pendTimer( FALSE ),				// no timers yet
     blockSig( FALSE ),      			// not blocking signals
@@ -306,7 +304,6 @@ QObject::QObject( QObject *parent, const char *name )
 /*!\internal*/
 QObject::QObject(QObjectPrivate *dd, QObject *parent, const char *name)
     :
-    isSignal( FALSE ),				// assume not a signal object
     isWidget( FALSE ), 				// assume not a widget object
     pendTimer( FALSE ),				// no timers yet
     blockSig( FALSE ),      			// not blocking signals
@@ -328,7 +325,6 @@ QObject::QObject(QObjectPrivate *dd, QObject *parent, const char *name)
 /*!\internal*/
 QObject::QObject(QWidgetPrivate *dd, QObject *parent, const char *name)
     :
-    isSignal(false),
     isWidget(true),
     pendTimer(false),
     blockSig(false),

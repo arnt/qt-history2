@@ -28,7 +28,7 @@
 class QPopupMenu;
 class QMenuDataData;
 class QObject;
-class QSignal;
+class Q3Signal;
 
 class QCustomMenuItem;
 class QMenuItemData;
@@ -51,7 +51,7 @@ public:
 #ifndef QT_NO_ACCEL
     QKeySequence key()		const	{ return accel_key; }
 #endif
-    QSignal    *signal()	const	{ return signal_data; }
+    Q3Signal    *signal()	const	{ return signal_data; }
     bool	isSeparator()	const	{ return is_separator; }
     bool	isEnabled()	const	{ return is_enabled; }
     bool	isChecked()	const	{ return is_checked; }
@@ -75,7 +75,7 @@ private:
 #ifndef QT_NO_ACCEL
     QKeySequence	accel_key;		// accelerator key (state|ascii)
 #endif
-    QSignal    *signal_data;			// connection
+    Q3Signal    *signal_data;			// connection
     uint	is_separator : 1;		// separator flag
     uint	is_enabled   : 1;		// disabled flag
     uint	is_checked   : 1;		// checked flag

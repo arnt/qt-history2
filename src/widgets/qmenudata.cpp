@@ -18,7 +18,7 @@
 #include "qmenubar.h"
 #include "qapplication.h"
 #include "qguardedptr.h"
-#include "qsignal.h"
+#include "q3signal.h"
 
 class QMenuItemData {
 public:
@@ -1304,7 +1304,7 @@ bool QMenuData::setItemParameter( int id, int param ) {
     if ( !mi )					// no such identifier
 	return FALSE;
     if ( !mi->signal_data ) {			// create new signal
-	mi->signal_data = new QSignal;
+	mi->signal_data = new Q3Signal;
     }
     mi->signal_data->setValue( param );
     return TRUE;
@@ -1345,7 +1345,7 @@ bool QMenuData::connectItem( int id, const QObject *receiver,
     if ( !mi )					// no such identifier
 	return FALSE;
     if ( !mi->signal_data ) {			// create new signal
-	mi->signal_data = new QSignal;
+	mi->signal_data = new Q3Signal;
 	mi->signal_data->setValue( id );
     }
     return mi->signal_data->connect( receiver, member );

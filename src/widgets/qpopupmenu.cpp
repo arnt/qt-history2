@@ -34,7 +34,7 @@
 #if defined(QT_ACCESSIBILITY_SUPPORT)
 #include "qaccessible.h"
 #endif
-#include "qsignal.h"
+#include "q3signal.h"
 
 //#define ANIMATED_POPUP
 //#define BLEND_POPUP
@@ -666,7 +666,7 @@ void QPopupMenu::accelActivated( int id )
 {
     QMenuItem *mi = findItem( id );
     if ( mi && mi->isEnabledAndVisible() ) {
-	QGuardedPtr<QSignal> signal = mi->signal();
+	QGuardedPtr<Q3Signal> signal = mi->signal();
 	fromAccel = TRUE;
 	actSig( mi->id() );
 	fromAccel = FALSE;
@@ -1647,7 +1647,7 @@ void QPopupMenu::mouseReleaseEvent( QMouseEvent *e )
 		actItem = -1;
 		updateItem( mi->id() );
 		active_popup_menu = this;
-		QGuardedPtr<QSignal> signal = mi->signal();
+		QGuardedPtr<Q3Signal> signal = mi->signal();
 		actSig( mi->id(), b );
 		if ( signal && !b )
 		    signal->activate();
@@ -1894,7 +1894,7 @@ void QPopupMenu::keyPressEvent( QKeyEvent *e )
 		byeMenuBar();
 		if ( mi->isEnabledAndVisible() || b ) {
 		    active_popup_menu = this;
-		    QGuardedPtr<QSignal> signal = mi->signal();
+		    QGuardedPtr<Q3Signal> signal = mi->signal();
 		    actSig( mi->id(), b );
 		    if ( signal && !b )
 			signal->activate();
@@ -1979,7 +1979,7 @@ void QPopupMenu::keyPressEvent( QKeyEvent *e )
 #endif
 		if ( mi->isEnabledAndVisible() || b ) {
 		    active_popup_menu = this;
-		    QGuardedPtr<QSignal> signal = mi->signal();
+		    QGuardedPtr<Q3Signal> signal = mi->signal();
 		    actSig( mi->id(), b );
 		    if ( signal && !b  )
 			signal->activate();
@@ -2695,7 +2695,7 @@ void QPopupMenu::activateItemAt( int index )
 		    actItem = -1;
 		    updateItem( mi->id() );
 		    active_popup_menu = this;
-		    QGuardedPtr<QSignal> signal = mi->signal();
+		    QGuardedPtr<Q3Signal> signal = mi->signal();
 		    actSig( mi->id(), b );
 		    if ( signal && !b )
 			signal->activate();

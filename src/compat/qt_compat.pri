@@ -4,6 +4,7 @@ compat {
 	COMPAT_P	= compat
 	HEADERS += $$COMPAT_H/qasciicache.h \
 		  $$COMPAT_H/qasciidict.h \
+		  $$COMPAT_H/q3signal.h \
 		  $$COMPAT_H/qcstring.h \
 		  $$COMPAT_H/qdict.h \
 		  $$COMPAT_H/qgarray.h \
@@ -28,6 +29,7 @@ compat {
 		  $$COMPAT_H/qvaluevector.h
 
 	SOURCES += $$COMPAT_CPP/qcstring.cpp \
+		  $$COMPAT_CPP/q3signal.cpp \
 		  $$COMPAT_CPP/qgarray.cpp \
 		  $$COMPAT_CPP/qgcache.cpp \
 		  $$COMPAT_CPP/qgdict.cpp \

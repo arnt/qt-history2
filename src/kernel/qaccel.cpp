@@ -125,7 +125,7 @@ struct QAccelItem {				// internal accelerator item
     int		    id;
     QKeySequence    key;
     bool	    enabled;
-    QSignal	   *signal;
+    QSignal<void>   *signal;
     QString	    whatsthis;
 };
 
@@ -786,7 +786,7 @@ bool QAccel::connectItem(int id, const QObject *receiver, const char *member)
     QAccelItem *item = find_id(d->aitems, id);
     if (item) {
 	if (!item->signal) {
-	    item->signal = new QSignal;
+	    item->signal = new QSignal<void>;
 	}
 	return item->signal->connect(receiver, member);
     }

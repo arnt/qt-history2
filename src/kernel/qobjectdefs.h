@@ -66,7 +66,7 @@ public: \
     static const QMetaObject staticMetaObject; \
     virtual void *qt_metacast(const char *) const; \
     QT_TR_FUNCTIONS \
-    virtual int qt_metacall(QMetaObject::Call _c, int _id, void **_o); \
+    virtual int qt_metacall(QMetaObject::Call, int, void **); \
 private:
 /* tmake ignore Q_OBJECT */
 #define Q_OBJECT_FAKE Q_OBJECT

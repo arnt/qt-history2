@@ -16,47 +16,61 @@
 #define QSIGNAL_H
 
 #ifndef QT_H
-#include "qkernelvariant.h"
 #include "qobject.h"
 #endif // QT_H
 
 
-class Q_KERNEL_EXPORT QSignal : public QObject
-{
-    Q_OBJECT
-
+// internal helper class for QSignal
+class QSignalEmitter : public QObject{
 public:
-    QSignal( QObject *parent=0, const char *name=0 );
-    ~QSignal();
-
-    bool	connect( const QObject *receiver, const char *member );
-    bool	disconnect( const QObject *receiver, const char *member=0 );
-
-    void	activate();
-
-#ifndef QT_NO_COMPAT
-    bool	isBlocked()	 const		{ return QObject::signalsBlocked(); }
-    void	block( bool b )		{ QObject::blockSignals( b ); }
-#ifndef QT_NO_VARIANT
-    void	setParameter( int value );
-    int		parameter() const;
-#endif
-#endif
-
-#ifndef QT_NO_VARIANT
-    void	setValue( const QKernelVariant &value );
-    QKernelVariant	value() const;
-#endif
-signals:
-#ifndef QT_NO_VARIANT
-    void signal( const QKernelVariant& );
-#endif
-    void intSignal( int );
-
+    QSignalEmitter(const char *type);
+    ~QSignalEmitter();
+    const QMetaObject *metaObject() const { return &staticMetaObject; }
+    void *qt_metacast(const char *) const;
+    void activate(void *);
+    bool connect( const QObject *receiver, const char *member );
+    bool disconnect( const QObject *receiver, const char *member=0 );
 private:
-#ifndef QT_NO_VARIANT
-    QKernelVariant val;
+    QMetaObject staticMetaObject;
+    QByteArray stringdata;
+};
+
+
+template <typename T>
+class QSignal
+{
+    QSignalEmitter *d;
+public:
+    inline QSignal():d(0){}
+    inline ~QSignal(){ delete d; }
+    inline void activate(const T& t) { if(d)d->activate((void*)&t); }
+    bool connect( const QObject *receiver, const char *member )	{
+	if (!d) d = new QSignalEmitter(QTypeInfo<T>::name());
+	return d->connect(receiver, member);
+    }
+    inline bool disconnect( const QObject *receiver, const char *member=0 )
+	{ return d ? d->disconnect(receiver, member) : false; }
+private:	// Disabled copy constructor and operator=
+#if defined(Q_DISABLE_COPY)
+    QSignal( const QSignal & );
+    QSignal &operator=( const QSignal & );
 #endif
+};
+
+template <>
+class QSignal<void>
+{
+    QSignalEmitter *d;
+public:
+    inline QSignal():d(0){}
+    inline ~QSignal(){ delete d; }
+    inline void activate() { if(d)d->activate(0); }
+    bool connect( const QObject *receiver, const char *member )	{
+	if (!d) d = new QSignalEmitter("");
+	return d->connect(receiver, member);
+    }
+    inline bool disconnect( const QObject *receiver, const char *member=0 )
+	{ return d ? d->disconnect(receiver, member) : false; }
 private:	// Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
     QSignal( const QSignal & );

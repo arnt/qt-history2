@@ -18,25 +18,19 @@
 /*!
     \class QSignal qsignal.h
     \brief The QSignal class can be used to send signals for classes
-    that don't inherit QObject.
+    that do not inherit QObject.
 
     \ingroup io
     \ingroup misc
 
     If you want to send signals from a class that does not inherit
-    QObject, you can create an internal QSignal object to emit the
-    signal. You must also provide a function that connects the signal
-    to an outside object slot.  This is how we have implemented
-    signals in the QMenuData class, which is not a QObject.
+    QObject, you can create an internal \c{QSignal<T> object to emit
+    the signal. \c T is the type of the signal's argument, it can be
+    \c void. You must also provide a function that connects the signal
+    to an outside object slot.
 
     In general, we recommend inheriting QObject instead. QObject
     provides much more functionality.
-
-    You can set a single QVariant parameter for the signal with
-    setValue().
-
-    Note that QObject is a \e private base class of QSignal, i.e. you
-    cannot call any QObject member functions from a QSignal object.
 
     Example:
     \code
@@ -53,22 +47,13 @@
 	    void connect( QObject *receiver, const char *member );
 
 	private:
-	    QSignal *sig;
+	    QSignal<void> sig;
 	};
-
-	MyClass::MyClass()
-	{
-	    sig = new QSignal;
-	}
-
-	MyClass::~MyClass()
-	{
-	    delete sig;
-	}
 
 	void MyClass::doSomething()
 	{
 	    // ... does something
+
 	    sig->activate(); // emits the signal
 	}
 
@@ -80,146 +65,97 @@
 */
 
 /*!
-    Constructs a signal object called \a name, with the parent object
-    \a parent. These arguments are passed directly to QObject.
-*/
+  \fn QSignal::QSignal()
 
-QSignal::QSignal( QObject *parent, const char *name )
-    : QObject( parent, name )
-{
-    isSignal = TRUE;
-#ifndef QT_NO_VARIANT
-    val = 0;
-#endif
-}
-
-/*!
-    Destroys the signal. All connections are removed, as is the case
-    with all QObjects.
-*/
-QSignal::~QSignal()
-{
-}
-#ifndef QT_NO_VARIANT
-// Returns TRUE if it matches ".+(.*int.*"
-static inline bool intSignature( const char *member )
-{
-    QByteArray s( member );
-    int p = s.find( '(' );
-    return p > 0 && p < s.findRev( "int" );
-}
-#endif
-/*!
-    Connects the signal to \a member in object \a receiver.
-
-    \sa disconnect(), QObject::connect()
-*/
-
-bool QSignal::connect( const QObject *receiver, const char *member )
-{
-#ifndef QT_NO_VARIANT
-    if ( intSignature( member ) )
-#endif
-	return QObject::connect( (QObject *)this, SIGNAL(intSignal(int)), receiver, member );
-#ifndef QT_NO_VARIANT
-    return QObject::connect( (QObject *)this, SIGNAL(signal(const QKernelVariant&)),
-			     receiver, member );
-#endif
-}
-
-/*!
-    Disonnects the signal from \a member in object \a receiver.
-
-    \sa connect(), QObject::disconnect()
-*/
-
-bool QSignal::disconnect( const QObject *receiver, const char *member )
-{
-    if (!member)
-	return QObject::disconnect( (QObject *)this, 0, receiver, member);
-#ifndef QT_NO_VARIANT
-    if ( intSignature( member ) )
-#endif
-	return QObject::disconnect( (QObject *)this, SIGNAL(intSignal(int)), receiver, member );
-#ifndef QT_NO_VARIANT
-    return QObject::disconnect( (QObject *)this, SIGNAL(signal(const QKernelVariant&)),
-				receiver, member );
-#endif
-}
-
-
-/*!
-  \fn bool QSignal::isBlocked() const
-  \obsolete
-  Returns TRUE if the signal is blocked, or FALSE if it is not blocked.
-
-  The signal is not blocked by default.
-
-  \sa block(), QObject::signalsBlocked()
-*/
-
-/*!
-  \fn void QSignal::block( bool b )
-  \obsolete
-  Blocks the signal if \a b is TRUE, or unblocks the signal if \a b is FALSE.
-
-  An activated signal disappears into hyperspace if it is blocked.
-
-  \sa isBlocked(), activate(), QObject::blockSignals()
+  Constructs a signal object
 */
 
 
 /*!
-    \fn void QSignal::activate()
+  \fn QSignal::~QSignal()
 
-    Emits the signal. If the platform supports QVariant and a
-    parameter has been set with setValue(), this value is passed in
-    the signal.
+  Destroys the signal. All connections are removed.
 */
-void  QSignal::activate()
-{
-#ifndef QT_NO_VARIANT
-    emit intSignal( val.toInt() );
-    emit signal( val );
-#else
-    emit intSignal(0);
-#endif
-}
-
-#ifndef QT_NO_VARIANT
-/*!
-    Sets the signal's parameter to \a value
-*/
-void QSignal::setValue( const QKernelVariant &value )
-{
-    val = value;
-}
 
 /*!
-    Returns the signal's parameter
-*/
-QKernelVariant QSignal::value() const
-{
-    return val;
-}
-/*! \fn void QSignal::signal( const QKernelVariant & )
-    \internal
-*/
-/*! \fn void QSignal::intSignal( int )
-    \internal
+  \fn bool QSignal::connect( const QObject *receiver, const char *member )
+
+  Connects the signal to \a member in object \a receiver.
+
+  \sa disconnect()
 */
 
-#ifndef QT_NO_COMPAT
-/*! \obsolete */
-void QSignal::setParameter( int value )
+/*!
+  \fn bool QSignal::disconnect( const QObject *receiver, const char *member )
+
+  Disconnects the signal from \a member in object \a receiver.
+
+  \sa connect()
+*/
+
+/*!
+  \fn void QSignal::activate(const T& t)
+
+  Emits the signal with value \a t.
+*/
+
+
+
+static const uint qt_meta_data_QSignalEmitter[] = {
+
+ // content:
+       1,       // revision
+       0,       // classname
+       0,   12, // classinfo
+       1,   12, // signals
+       0,   17, // slots
+       0,   17, // properties
+       0,   17, // enums/sets
+
+ // signals: signature, parameters, type, tag, flags
+      16,   15,   15,   15, 0x0,
+
+       0        // eod
+};
+
+QSignalEmitter::QSignalEmitter(const char *type)
+    :stringdata("QSignalEmitter\0\0activated(", 26)
 {
-    val = value;
+    stringdata += type;
+    stringdata += ')';
+    staticMetaObject.d.superdata = &QObject::staticMetaObject;
+    staticMetaObject.d.data = qt_meta_data_QSignalEmitter;
+    staticMetaObject.d.stringdata = stringdata;
 }
 
-/*! \obsolete */
-int QSignal::parameter() const
+QSignalEmitter::~QSignalEmitter()
 {
-    return val.toInt();
 }
-#endif
-#endif //QT_NO_VARIANT
+
+void *QSignalEmitter::qt_metacast(const char *clname) const
+{
+    if (!clname) return 0;
+    if (!strcmp(clname, staticMetaObject.className()))
+	return (void*)this;
+    return 0;
+}
+
+void QSignalEmitter::activate(void *_t1)
+{
+    void *_a[] = { 0, _t1 };
+    QMetaObject::activate(this, &staticMetaObject, 0, _a);
+}
+
+bool QSignalEmitter::connect( const QObject *receiver, const char *member )
+{
+    QByteArray signal = stringdata.data() + 16;
+    signal.prepend('0' + SIGNAL_CODE);
+    return QObject::connect(this, signal, receiver, member);
+}
+
+bool QSignalEmitter::disconnect( const QObject *receiver, const char *member )
+{
+    QByteArray signal = stringdata.data() + 16;
+    signal.prepend('0' + SIGNAL_CODE);
+    return QObject::disconnect(this, signal, receiver, member);
+}

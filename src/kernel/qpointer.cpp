@@ -19,10 +19,10 @@
     \ingroup objectmodel
     \mainclass
 
-    A guarded pointer, \c{QPointer<X>}, behaves like a normal C++
-    pointer \c{X*}, except that it is automatically set to 0 when
+    A guarded pointer, \c{QPointer<T>}, behaves like a normal C++
+    pointer \c{T*}, except that it is automatically set to 0 when
     the referenced object is destroyed (unlike normal C++ pointers,
-    which become "dangling pointers" in such cases). \c X must be a
+    which become "dangling pointers" in such cases). \c T must be a
     subclass of QObject.
 
     Guarded pointers are useful whenever you need to store a pointer
@@ -53,12 +53,12 @@
     pointers and you will not need to read this class documentation.
 
     For creating guarded pointers, you can construct or assign to them
-    from an X* or from another guarded pointer of the same type. You
+    from an T* or from another guarded pointer of the same type. You
     can compare them with each other using operator==() and
     operator!=(), or test for 0 with isNull(). And you can dereference
     them using either the \c *x or the \c x->member notation.
 
-    A guarded pointer will automatically cast to an X*, so you can
+    A guarded pointer will automatically cast to an T*, so you can
     freely mix guarded and unguarded pointers. This means that if you
     have a QPointer<QWidget>, you can pass it to a function that
     requires a QWidget*. For this reason, it is of little value to
@@ -66,7 +66,7 @@
     normal pointers. Use a QPointer when you are storing a pointer
     over time.
 
-    Note again that class \e X must inherit QObject, or a compilation
+    Note again that class \e T must inherit QObject, or a compilation
     or link error will result.
 */
 
@@ -159,7 +159,7 @@
     \fn QPointer::operator T*() const
 
     Cast operator; implements pointer semantics. Because of this
-    function you can pass a QPointer\<X\> to a function where an X*
+    function you can pass a QPointer\<T\> to a function where an T*
     is required.
 */
 

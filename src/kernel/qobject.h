@@ -179,7 +179,6 @@ protected:
 private:
     explicit QObject(QWidgetPrivate *d, QObject *parent, const char *name);
     virtual void setParent_helper(QObject *);
-    uint isSignal : 1;
     uint isWidget : 1;
     uint pendTimer : 1;
     uint blockSig : 1;
@@ -188,9 +187,9 @@ private:
     uint hasPostedEvents : 1;
 #ifndef QT_NO_COMPAT
     uint hasPostedChildInsertedEvents : 1;
-    uint unused : 24;
-#else
     uint unused : 25;
+#else
+    uint unused : 26;
 #endif
 
     QObject *parentObj;
@@ -205,7 +204,6 @@ protected:
     friend class QApplication;
     friend class QKernelApplication;
     friend class QWidget;
-    friend class QSignal;
 
 private: // Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)

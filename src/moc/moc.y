@@ -2306,11 +2306,11 @@ void generateMetacall()
 {
     bool isQObject =  g->className == "QObject" ;
 
-    fprintf(out, "\nint %s::qt_metacall(QMetaObject::Call _c, int _id, void **_o)\n{\n",
+    fprintf(out, "\nint %s::qt_metacall(QMetaObject::Call _c, int _id, void **_a)\n{\n",
 	     (const char *)qualifiedClassName());
 
     if (!g->superClassName.isEmpty() && !isQObject)
-	fprintf(out, "    _id = %s::qt_metacall(_c, _id, _o);\n",
+	fprintf(out, "    _id = %s::qt_metacall(_c, _id, _a);\n",
 		 (const char *) purestSuperClassName());
 
     fprintf(out, "    if (_id < 0)\n        return _id;\n");
@@ -2332,14 +2332,14 @@ void generateMetacall()
 	    int offset = 1;
 	    Argument* a = f->args->first();
 	    while (a) {
-		fprintf(out, "*(%s*)_o[%d]", (const char *)rmRef(a->type), offset++);
+		fprintf(out, "*(%s*)_a[%d]", (const char *)rmRef(a->type), offset++);
 		a = f->args->next();
 		if (a)
 		    fprintf(out, ",");
 	    }
 	    fprintf(out, ");");
 	    if (!f->type.isEmpty()) {
-		fprintf(out, "\n            if (_o[0]) *(%s*)_o[0] = _r; } ",
+		fprintf(out, "\n            if (_a[0]) *(%s*)_a[0] = _r; } ",
 			 (const char *)rmRef(f->type));
 	    }
 	    fprintf(out, " break;\n");
@@ -2365,14 +2365,14 @@ void generateMetacall()
 	    int offset = 1;
 	    Argument* a = f->args->first();
 	    while (a) {
-		fprintf(out, "*(%s*)_o[%d]", (const char *)rmRef(a->type), offset++);
+		fprintf(out, "*(%s*)_a[%d]", (const char *)rmRef(a->type), offset++);
 		a = f->args->next();
 		if (a)
 		    fprintf(out, ",");
 	    }
 	    fprintf(out, ");");
 	    if (!f->type.isEmpty()) {
-		fprintf(out, "\n            if (_o[0]) *(%s*)_o[0] = _r; } ",
+		fprintf(out, "\n            if (_a[0]) *(%s*)_a[0] = _r; } ",
 			 (const char *)rmRef(f->type));
 	    }
 	    fprintf(out, " break;\n");
@@ -2416,7 +2416,7 @@ void generateMetacall()
 		fprintf(out, " else ");
 	    needElse = true;
 	    fprintf(out, "if (_c == QMetaObject::ReadProperty) {\n");
-	    fprintf(out, "        void *_v = _o[0];\n");
+	    fprintf(out, "        void *_v = _a[0];\n");
 	    fprintf(out, "        switch (_id) {\n");
 	    int propindex = -1;
 	    for (p = g->props.first(); p; p = g->props.next()) {
@@ -2424,11 +2424,11 @@ void generateMetacall()
 		if (p->read.isEmpty())
 		    continue;
 		if (p->gspec == Property::PointerSpec)
-		    fprintf(out, "        case %d: _o[0] = (void*)%s(); break;\n",
+		    fprintf(out, "        case %d: _a[0] = (void*)%s(); break;\n",
 			    propindex,
 			    (const char *)p->read);
 		else if (p->gspec == Property::ReferenceSpec)
-		    fprintf(out, "        case %d: _o[0] = (void*)&%s(); break;\n",
+		    fprintf(out, "        case %d: _a[0] = (void*)&%s(); break;\n",
 			    propindex,
 			    (const char *)p->read);
 		else if (isVariantType(p->type))
@@ -2451,7 +2451,7 @@ void generateMetacall()
 		fprintf(out, " else ");
 	    needElse = true;
 	    fprintf(out, "if (_c == QMetaObject::WriteProperty) {\n");
-	    fprintf(out, "        void *_v = _o[0];\n");
+	    fprintf(out, "        void *_v = _a[0];\n");
 	    fprintf(out, "        switch (_id) {\n");
 	    int propindex = -1;
 	    for (p = g->props.first(); p; p = g->props.next()) {
@@ -2500,7 +2500,7 @@ void generateMetacall()
 		fprintf(out, " else ");
 	    needElse = true;
 	    fprintf(out, "if (_c == QMetaObject::QueryPropertyDesignable) {\n");
-	    fprintf(out, "        bool *_b = (bool*)_o[0];\n");
+	    fprintf(out, "        bool *_b = (bool*)_a[0];\n");
 	    fprintf(out, "        switch (_id) {\n");
 	    int propindex = -1;
 	    for (p = g->props.first(); p; p = g->props.next()) {
@@ -2520,7 +2520,7 @@ void generateMetacall()
 		fprintf(out, " else ");
 	    needElse = true;
 	    fprintf(out, "if (_c == QMetaObject::QueryPropertyScriptable) {\n");
-	    fprintf(out, "        bool *_b = (bool*)_o[0];\n");
+	    fprintf(out, "        bool *_b = (bool*)_a[0];\n");
 	    fprintf(out, "        switch (_id) {\n");
 	    int propindex = -1;
 	    for (p = g->props.first(); p; p = g->props.next()) {
@@ -2540,7 +2540,7 @@ void generateMetacall()
 		fprintf(out, " else ");
 	    needElse = true;
 	    fprintf(out, "if (_c == QMetaObject::QueryPropertyStored) {\n");
-	    fprintf(out, "        bool *_b = (bool*)_o[0];\n");
+	    fprintf(out, "        bool *_b = (bool*)_a[0];\n");
 	    fprintf(out, "        switch (_id) {\n");
 	    int propindex = -1;
 	    for (p = g->props.first(); p; p = g->props.next()) {
@@ -2560,7 +2560,7 @@ void generateMetacall()
 		fprintf(out, " else ");
 	    needElse = true;
 	    fprintf(out, "if (_c == QMetaObject::QueryPropertyEditable) {\n");
-	    fprintf(out, "        bool *_b = (bool*)_o[0];\n");
+	    fprintf(out, "        bool *_b = (bool*)_a[0];\n");
 	    fprintf(out, "        switch (_id) {\n");
 	    int propindex = -1;
 	    for (p = g->props.first(); p; p = g->props.next()) {
@@ -2616,7 +2616,7 @@ void generateSignal(Function *f, int index)
     fprintf(out, ")\n{\n");
     if (!f->type.isEmpty())
 	fprintf(out, "    %s _t0;\n", (const char *)rmRef(f->type));
-    fprintf(out, "    void *_o[] = { %s",
+    fprintf(out, "    void *_a[] = { %s",
 	     f->type.isEmpty() ? "0" : "(void*)&_t0");
     int i;
     for (i = 1; i < offset; ++i)
@@ -2626,7 +2626,7 @@ void generateSignal(Function *f, int index)
     if (f->args)
 	n += f->args->defaultArguments();
     for (i = 0; i < n; ++i)
-	fprintf(out, "    QMetaObject::activate(this, &staticMetaObject, %d, _o);\n",
+	fprintf(out, "    QMetaObject::activate(this, &staticMetaObject, %d, _a);\n",
 		index + i);
     if (!f->type.isEmpty())
 	fprintf(out, "    return _t0;\n");
