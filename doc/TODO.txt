@@ -104,7 +104,6 @@ QScrollView
 
 QApplication
   something like bool hasPostedEvents() (info/arc-07/15087)
-  Something like QApplication::flush() to send posted events.
 
 QObject
   UserData. d-pointer.
