@@ -49,6 +49,7 @@ public:
 
     void         sortColumn ( int col, bool ascending = TRUE,
 			      bool wholeRows = FALSE );
+    void         refresh( QSqlIndex idx = QSqlIndex() );    
     QString      text ( int row, int col ) const;
     QVariant     value ( int row, int col ) const;
     QSqlFieldList currentFieldSelection() const;
@@ -112,7 +113,6 @@ protected:
     int          fieldAlignment( const QSqlField* field );
     void         columnClicked ( int col );
     void         resizeData ( int len );
-    void         refresh( QSqlIndex idx = QSqlIndex() );
 
     QTableItem * item ( int row, int col ) const;
     void         setItem ( int row, int col, QTableItem * item );
