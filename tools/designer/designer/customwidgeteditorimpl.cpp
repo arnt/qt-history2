@@ -737,8 +737,12 @@ void CustomWidgetEditor::loadDescription()
 	return;
 
     QDomDocument doc;
-    if ( !doc.setContent( &f ) )
+    QString errMsg;
+    int errLine;
+    if ( !doc.setContent( &f, &errMsg, &errLine ) ) {
+	qDebug( QString("Parse error: ") + errMsg + QString(" in line %d"), errLine );
 	return;
+    }
 
     QDomElement firstWidget = doc.firstChild().toElement().firstChild().toElement();
 

@@ -153,7 +153,10 @@ bool Resource::load( const QString& filename, bool keepname )
 bool Resource::load( QIODevice* dev, const QString& filename, bool keepname )
 {
     QDomDocument doc;
-    if ( !doc.setContent( dev ) ) {
+    QString errMsg;
+    int errLine;
+    if ( !doc.setContent( dev, &errMsg, &errLine ) ) {
+	qDebug( QString("Parse error: ") + errMsg + QString(" in line %d"), errLine );
 	return FALSE;
     }
 
@@ -370,7 +373,11 @@ void Resource::paste( const QString &cb, QWidget *parent )
     QBuffer buf( QCString( cb.utf8() ) );
     buf.open( IO_ReadOnly );
     QDomDocument doc;
-    doc.setContent( &buf );
+    QString errMsg;
+    int errLine;
+    if ( !doc.setContent( &buf, &errMsg, &errLine ) ) {
+	qDebug( QString("Parse error: ") + errMsg + QString(" in line %d"), errLine );
+    }
 
     QDomElement firstWidget = doc.firstChild().toElement().firstChild().toElement();
 

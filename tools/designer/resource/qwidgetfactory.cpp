@@ -170,8 +170,12 @@ QWidget *QWidgetFactory::create( const QString &uiFile, QObject *connector, QWid
 QWidget *QWidgetFactory::create( QIODevice *dev, QObject *connector, QWidget *parent, const char *name )
 {
     QDomDocument doc;
-    if ( !doc.setContent( dev ) )
+    QString errMsg;
+    int errLine;
+    if ( !doc.setContent( dev, &errMsg, &errLine ) ) {
+	qDebug( QString("Parse error: ") + errMsg + QString(" in line %d"), errLine );
 	return 0;
+    }
 
     DomTool::fixDocument( doc );
 

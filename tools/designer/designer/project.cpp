@@ -776,7 +776,9 @@ void Project::loadConnections()
     QFile f( makeAbsolute( dbFile ) );
     if ( f.open( IO_ReadOnly ) ) {
 	QDomDocument doc;
-	if ( doc.setContent( &f ) ) {
+	QString errMsg;
+	int errLine;
+	if ( doc.setContent( &f, &errMsg, &errLine ) ) {
 	    QDomElement e;
 	    e = doc.firstChild().toElement();
 
@@ -824,6 +826,8 @@ void Project::loadConnections()
 
 		dbConnections.append( conn );
 	    }
+	} else {
+	    qDebug( QString("Parse error: ") + errMsg + QString(" in line %d"), errLine );
 	}
 	f.close();
     }
