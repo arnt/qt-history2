@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/network/src/qftp.cpp#51 $
+** $Id: //depot/qt/main/extensions/network/src/qftp.cpp#52 $
 **
 ** Implementation of Network Extension Library
 **
@@ -129,7 +129,7 @@ bool QFtp::checkConnection( QNetworkOperation *op )
 	QString msg = tr( "Host not found: \n" + url()->host() );
 	op->setState( StFailed );
 	op->setProtocolDetail( msg );
-	op->setErrorCode( ErrHostNotFound );
+	op->setErrorCode( (int)ErrHostNotFound );
     }
 #endif
 
@@ -248,7 +248,7 @@ void QFtp::readyRead()
 	return;
 
     //qDebug( "%s", s.data() );
-    
+
     if ( s.left( 1 ) == "1" )
 	okButTryLater( code, s );
     else if ( s.left( 1 ) == "2" )
@@ -400,7 +400,7 @@ void QFtp::errorForgetIt( int code, const QCString &data )
 	if ( op ) {
 	    op->setProtocolDetail( msg );
 	    op->setState( StFailed );
-	    op->setErrorCode( ErrLoginIncorrect );
+	    op->setErrorCode( (int)ErrLoginIncorrect );
 	}
 	clearOperationQueue();
 	emit finished( op );
@@ -413,7 +413,7 @@ void QFtp::errorForgetIt( int code, const QCString &data )
 	if ( op ) {
 	    op->setProtocolDetail( msg );
 	    op->setState( StFailed );
-	    op->setErrorCode( ErrFileNotExisting );
+	    op->setErrorCode( (int)ErrFileNotExisting );
 	}
 	emit finished( op );
 	reinitCommandSocket();
@@ -425,7 +425,7 @@ void QFtp::errorForgetIt( int code, const QCString &data )
 	if ( op ) {
 	    op->setProtocolDetail( msg );
 	    op->setState( StFailed );
-	    op->setErrorCode( ErrPermissionDenied );
+	    op->setErrorCode( (int)ErrPermissionDenied );
 	}
 	emit finished( op );
 	reinitCommandSocket();
@@ -474,7 +474,7 @@ void QFtp::dataConnected()
 	    putOffset = 0;
 	    putToWrite = QFTP_MAX_BYTES;
 	    putWritten = 0;
-	    emit dataTransferProgress( 0, operationInProgress()->rawArg2().size(), 
+	    emit dataTransferProgress( 0, operationInProgress()->rawArg2().size(),
 				       operationInProgress() );
 	    dataSocket->writeBlock( operationInProgress()->rawArg2(), QFTP_MAX_BYTES );
 	    putOffset += QFTP_MAX_BYTES;
@@ -491,7 +491,7 @@ void QFtp::dataClosed()
 
     passiveMode = FALSE;
     emit finished( operationInProgress() );
-    
+
     disconnect( dataSocket, SIGNAL( hostFound() ),
 		this, SLOT( dataHostFound() ) );
     disconnect( dataSocket, SIGNAL( connected() ),

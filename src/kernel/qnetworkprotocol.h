@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qnetworkprotocol.h#30 $
+** $Id: //depot/qt/main/src/kernel/qnetworkprotocol.h#31 $
 **
 ** Implementation of QNetworkProtocol class
 **
@@ -192,7 +192,7 @@ public:
 
     void setState( QNetworkProtocol::State state );
     void setProtocolDetail( const QString &detail );
-    void setErrorCode( QNetworkProtocol::Error ec );
+    void setErrorCode( int ec );
     void setArg1( const QString &arg );
     void setArg2( const QString &arg );
     void setArg3( const QString &arg );
@@ -209,7 +209,7 @@ public:
     QByteArray rawArg2() const;
     QByteArray rawArg3() const;
     QString protocolDetail() const;
-    QNetworkProtocol::Error errorCode() const;
+    int errorCode() const;
 
 private:
     QNetworkOperationPrivate *d;

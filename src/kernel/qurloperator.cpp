@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qurloperator.cpp#31 $
+** $Id: //depot/qt/main/src/kernel/qurloperator.cpp#32 $
 **
 ** Implementation of QUrlOperator class
 **
@@ -311,7 +311,7 @@ const QNetworkOperation *QUrlOperator::listChildren()
 		      arg( protocol() ).arg( protocol() );
 	res->setState( QNetworkProtocol::StFailed );
 	res->setProtocolDetail( msg );
-	res->setErrorCode( QNetworkProtocol::ErrUnsupported );
+	res->setErrorCode( (int)QNetworkProtocol::ErrUnsupported );
 	emit finished( res );
 	delete res;
     }
@@ -348,7 +348,7 @@ const QNetworkOperation *QUrlOperator::mkdir( const QString &dirname )
 		      arg( protocol() ).arg( protocol() );
 	res->setState( QNetworkProtocol::StFailed );
 	res->setProtocolDetail( msg );
-	res->setErrorCode( QNetworkProtocol::ErrUnsupported );
+	res->setErrorCode( (int)QNetworkProtocol::ErrUnsupported );
 	emit finished( res );
 	delete res;
     }
@@ -382,7 +382,7 @@ const QNetworkOperation *QUrlOperator::remove( const QString &filename )
 		      arg( protocol() ).arg( protocol() );
 	res->setState( QNetworkProtocol::StFailed );
 	res->setProtocolDetail( msg );
-	res->setErrorCode( QNetworkProtocol::ErrUnsupported );
+	res->setErrorCode( (int)QNetworkProtocol::ErrUnsupported );
 	emit finished( res );
 	delete res;
     }
@@ -417,7 +417,7 @@ const QNetworkOperation *QUrlOperator::rename( const QString &oldname, const QSt
 		      arg( protocol() ).arg( protocol() );
 	res->setState( QNetworkProtocol::StFailed );
 	res->setProtocolDetail( msg );
-	res->setErrorCode( QNetworkProtocol::ErrUnsupported );
+	res->setErrorCode( (int)QNetworkProtocol::ErrUnsupported );
 	emit finished( res );
 	delete res;
     }
@@ -513,7 +513,7 @@ QList<QNetworkOperation> QUrlOperator::copy( const QString &from, const QString 
 		      arg( protocol() ).arg( protocol() );
 	res->setState( QNetworkProtocol::StFailed );
 	res->setProtocolDetail( msg );
-	res->setErrorCode( QNetworkProtocol::ErrUnsupported );
+	res->setErrorCode( (int)QNetworkProtocol::ErrUnsupported );
 	emit finished( res );
 	delete res;
     }
@@ -594,7 +594,7 @@ const QNetworkOperation *QUrlOperator::get()
 		      arg( protocol() ).arg( protocol() );
 	res->setState( QNetworkProtocol::StFailed );
 	res->setProtocolDetail( msg );
-	res->setErrorCode( QNetworkProtocol::ErrUnsupported );
+	res->setErrorCode( (int)QNetworkProtocol::ErrUnsupported );
 	emit finished( res );
 	delete res;
     }
@@ -630,7 +630,7 @@ const QNetworkOperation *QUrlOperator::put( const QByteArray &data )
 		      arg( protocol() ).arg( protocol() );
 	res->setState( QNetworkProtocol::StFailed );
 	res->setProtocolDetail( msg );
-	res->setErrorCode( QNetworkProtocol::ErrUnsupported );
+	res->setErrorCode( (int)QNetworkProtocol::ErrUnsupported );
 	emit finished( res );
 	delete res;
     }

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qlocalfs.cpp#16 $
+** $Id: //depot/qt/main/src/kernel/qlocalfs.cpp#17 $
 **
 ** Implementation of QLocalFs class
 **
@@ -72,7 +72,7 @@ void QLocalFs::operationListChildren( QNetworkOperation *op )
 	QString msg = tr( "Could not read directory\n" + url()->path() );
 	op->setState( StFailed );
 	op->setProtocolDetail( msg );
-	op->setErrorCode( ErrListChlidren );
+	op->setErrorCode( (int)ErrListChlidren );
 	emit finished( op );
 	return;
     }
@@ -82,7 +82,7 @@ void QLocalFs::operationListChildren( QNetworkOperation *op )
 	QString msg = tr( "Could not read directory\n" + url()->path() );
 	op->setState( StFailed );
 	op->setProtocolDetail( msg );
-	op->setErrorCode( ErrListChlidren );
+	op->setErrorCode( (int)ErrListChlidren );
 	emit finished( op );
 	return;
     }
@@ -124,7 +124,7 @@ void QLocalFs::operationMkDir( QNetworkOperation *op )
 	QString msg = tr( "Could not create directory\n" + dirname );
 	op->setState( StFailed );
 	op->setProtocolDetail( msg );
-	op->setErrorCode( ErrMkdir );
+	op->setErrorCode( (int)ErrMkdir );
 	emit finished( op );
     }
 }
@@ -147,7 +147,7 @@ void QLocalFs::operationRemove( QNetworkOperation *op )
 	QString msg = tr( "Could not remove file or directory\n" + name );
 	op->setState( StFailed );
 	op->setProtocolDetail( msg );
-	op->setErrorCode( ErrRemove );
+	op->setErrorCode( (int)ErrRemove );
 	emit finished( op );
     }
 }
@@ -171,7 +171,7 @@ void QLocalFs::operationRename( QNetworkOperation *op )
 	QString msg = tr( "Could not rename\n%1\nto\n%2" ).arg( oldname ).arg( newname );
 	op->setState( StFailed );
 	op->setProtocolDetail( msg );
-	op->setErrorCode( ErrRename );
+	op->setErrorCode( (int)ErrRename );
 	emit finished( op );
     }
 }
@@ -190,7 +190,7 @@ void QLocalFs::operationGet( QNetworkOperation *op )
 	QString msg = tr( "Could not open\n%1" ).arg( from );
 	op->setState( StFailed );
 	op->setProtocolDetail( msg );
-	op->setErrorCode( ErrGet );
+	op->setErrorCode( (int)ErrGet );
 	emit finished( op );
 	return;
     }
@@ -241,7 +241,7 @@ void QLocalFs::operationPut( QNetworkOperation *op )
 	QString msg = tr( "Could not write\n%1" ).arg( to );
 	op->setState( StFailed );
 	op->setProtocolDetail( msg );
-	op->setErrorCode( ErrPut );
+	op->setErrorCode( (int)ErrPut );
 	emit finished( op );
 	return;
     }

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qnetworkprotocol.cpp#40 $
+** $Id: //depot/qt/main/src/kernel/qnetworkprotocol.cpp#41 $
 **
 ** Implementation of QNetworkProtocol class
 **
@@ -849,7 +849,7 @@ struct QNetworkOperationPrivate
     QString arg1, arg2, arg3;
     QByteArray rawArg1, rawArg2, rawArg3;
     QString protocolDetail;
-    QNetworkProtocol::Error errorCode;
+    int errorCode;
 };
 
 /*!
@@ -886,7 +886,7 @@ QNetworkOperation::QNetworkOperation( QNetworkProtocol::Operation operation,
     d->rawArg2 = 0;
     d->rawArg3 = 0;
     d->protocolDetail = QString::null;
-    d->errorCode = QNetworkProtocol::NoError;
+    d->errorCode = (int)QNetworkProtocol::NoError;
 }
 
 /*!
@@ -910,7 +910,7 @@ QNetworkOperation::QNetworkOperation( QNetworkProtocol::Operation operation,
     d->rawArg2 = arg2;
     d->rawArg3 = arg3;
     d->protocolDetail = QString::null;
-    d->errorCode = QNetworkProtocol::NoError;
+    d->errorCode = (int)QNetworkProtocol::NoError;
 }
 
 /*!
@@ -949,7 +949,7 @@ void QNetworkOperation::setProtocolDetail( const QString &detail )
   to describe the error more detailed.
 */
 
-void QNetworkOperation::setErrorCode( QNetworkProtocol::Error ec )
+void QNetworkOperation::setErrorCode( int ec )
 {
     d->errorCode = ec;
 }
@@ -1099,7 +1099,7 @@ QString QNetworkOperation::protocolDetail() const
   this methode.
 */
 
-QNetworkProtocol::Error QNetworkOperation::errorCode() const
+int QNetworkOperation::errorCode() const
 {
     return d->errorCode;
 }
