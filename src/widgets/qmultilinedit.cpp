@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmultilinedit.cpp#34 $
+** $Id: //depot/qt/main/src/widgets/qmultilinedit.cpp#35 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -1464,7 +1464,7 @@ void QMultiLineEdit::mouseMoveEvent( QMouseEvent *e )
 
     int newY = findRow( e->pos().y() );
     if ( newY < 0 ) {
-	if ( e->pos().y() < 0 )
+	if ( e->pos().y() < lineWidth() )
 	    newY = topCell();
 	else
 	    newY = lastRowVisible();
