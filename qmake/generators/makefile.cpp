@@ -346,9 +346,8 @@ MakefileGenerator::init()
     }
 
     QStringList paths;
-    paths << "SOURCES" << "FORMS" << "YACCSOURCES" << "INCLUDEPATH" << "HEADERS"
-          << "HEADERS_ORIG" << "LEXSOURCES" << "QMAKE_INTERNAL_INCLUDED_FILES"
-          << "PRECOMPILED_HEADER";
+    paths << "SOURCES" "YACCSOURCES" << "INCLUDEPATH" << "LEXSOURCES"
+          << "QMAKE_INTERNAL_INCLUDED_FILES" << "PRECOMPILED_HEADER";
     for(QStringList::ConstIterator it = quc.begin(); it != quc.end(); ++it) {
         if(!v[(*it) + ".output"].isEmpty())
             paths += v[(*it) + ".input"];
@@ -397,8 +396,8 @@ MakefileGenerator::init()
         }
         {
             QStringList sources;
-            sources << "OBJECTS" << "LEXSOURCES" << "YACCSOURCES" << "HEADERS"
-                    << "SOURCES" << "FORMS" << "PRECOMPILED_HEADER";
+            sources << "OBJECTS" << "LEXSOURCES" << "YACCSOURCES"
+                    << "SOURCES" "PRECOMPILED_HEADER";
             for(QStringList::ConstIterator it = quc.begin(); it != quc.end(); ++it) {
                 if(!v[(*it) + ".output"].isEmpty())
                     sources += v[(*it) + ".input"];
