@@ -2439,7 +2439,10 @@ QMakeProject::doVariableReplace(QString &str, QMap<QString, QStringList> &place)
                         replacement = "$";
                     } else if(var == QLatin1String("LITERAL_HASH")) { //a real #
                         replacement = "#";
-                    } else if(var == QLatin1String("PWD")) { //current working dir (of _FILE_)
+                    } else if(var == QLatin1String("OUT_PWD")) { //the out going dir
+                        replacement = Option::output_dir;
+                    } else if(var == QLatin1String("PWD") ||  //current working dir (of _FILE_)
+                              var == QLatin1String("IN_PWD")) {
                         replacement = qmake_getpwd();
                     } else if(var == QLatin1String("DIR_SEPARATOR")) {
                         replacement = Option::dir_sep;
