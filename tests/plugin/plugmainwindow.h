@@ -44,36 +44,19 @@ private:
     QMap<int, QString> menuIDs;
 };
 
-class PlugMainWindowInterface : public QApplicationInterface
-{
-public:
-    PlugMainWindowInterface( QObject* o );
-
-    void requestProperty( const QCString&, QVariant& );
-    void requestSetProperty( const QCString&, const QVariant& );
-    void requestConnection( const QCString&, QClientInterface* );
-};
-
-class PlugMenuInterface : public QApplicationInterface
-{
-public:
-    PlugMenuInterface( QObject* o );
-};
-
 class PlugApplication : public QApplication
 {
 public:
     PlugApplication( int argc, char** argv )
 	: QApplication( argc, argv )
     {
-	mwIface = 0;
+	appIface = 0;
     }
 
     QApplicationInterface* requestApplicationInterface( const QCString& request );
-    QStrList queryInterfaceList() const;
 
 protected:
-    QGuardedPtr<PlugMainWindowInterface> mwIface;
+    QGuardedPtr<QApplicationInterface> appIface;
 };
 
 #endif // PLUGMAINWINDOW_H

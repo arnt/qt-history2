@@ -4,17 +4,13 @@
 #include <qstringlist.h>
 #include <qstrlist.h>
 #include <qdict.h>
-#include "qdualinterface.h"
+
+class QApplication;
 
 class QPlugInInterface
 {
-    friend class QPlugIn;
-    friend class QApplicationInterface;
 public:
-    QPlugInInterface(): cIfaces( 11 )
-    {
-	cIfaces.setAutoDelete( TRUE );
-    }
+    QPlugInInterface() {}
     virtual ~QPlugInInterface() {}
 
     virtual bool connectNotify( QApplication* ) { return TRUE; }
@@ -27,25 +23,6 @@ public:
     virtual QStringList featureList() { return QStringList(); }
 
     virtual QCString queryPlugInInterface() const = 0;
-    virtual QStrList queryInterfaceList() const
-    {
-	return QStrList();
-    }
-
-protected:
-    QClientInterface* clientInterface( const QCString& request ) const
-    {
-	return cIfaces[request];
-    }
-
-    virtual void connectNotify( const QCString& )
-    {
-    }
-
-private:
-    QClientInterface* requestClientInterface( const QCString& request );
-
-    QDict<QClientInterface> cIfaces;
 };
 
 #endif

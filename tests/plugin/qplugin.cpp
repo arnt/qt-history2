@@ -1,5 +1,4 @@
 #include "qplugin.h"
-#include "qdualinterface.h"
 #include "qapplicationinterface.h"
 #include <qapplication.h>
 
@@ -13,8 +12,6 @@
   \class QPlugInInterface qplugininterface.h
 
   \brief An abstract class to provide a common interface to functionality a plugin provides.
-
-  \sa QClientInterface
 */
 
 /*!
@@ -38,7 +35,7 @@
 
   This function gets called by the plugin loader as soon as the interface is validated.
   Reimplement this function to provide post constructor initialization.
-  
+
   If the function returns FALSE, the interface gets deleted immediately. The default
   implementation returns TRUE.
 */
@@ -98,61 +95,6 @@
 */
 
 /*!
-  \fn QStrList QPlugInInterface::queryInterfaceList() const
-
-  Reimplement this function to provide a list of interfaces your plugin
-  would like to use to access application components. The plugin-loader 
-  will connect your plugin's QClientInterface to all matching interfaces 
-  the application provides as soon as the plugin is initialized.
-
-  \sa clientInterface()
-*/
-
-/*!
-  \fn QClientInterface* QPlugInInterface::clientInterface( const QCString& request ) const
-
-  Returns a pointer to the client interface connected to the application's interface \a request,
-  or null if the application doesn't provide access to this interface.
-  
-  \warning
-  This method returns null if the application does not provide an interface matching
-  the requests.
-
-  \sa QClientInterface, QApplicationInterface, connectNotify
-*/
-
-/*!
-  \fn void QPlugInInterface::connectNotify( const QCString& iface )
-
-  This function gets called each time the plugin loader can arrange a handshake between
-  the application interface \a iface and the corresponding client.
-
-  Reimplement this function in your plugin to provide customized initialization.
-
-  \sa clientInterface()
-*/
-
-/*
-  \internal
-
-  Called by the plugin to connect the a QClientInterface matching \a request to the 
-  corresponding QApplicationInterface.
-*/
-QClientInterface* QPlugInInterface::requestClientInterface( const QCString& request ) 
-{
-    if ( queryInterfaceList().contains( request ) ) {
-	QClientInterface* ifc = cIfaces[request];
-	if ( !ifc ) {
-	    ifc = new QClientInterface;
-	    cIfaces.insert( request, ifc );
-	}
-	return ifc;
-    } else {
-	return 0;
-    }
-}
-
-/*!
   \class QCleanUpHandler
 
   \brief Provides a save class for memory cleanup.
@@ -176,7 +118,7 @@ QClientInterface* QPlugInInterface::requestClientInterface( const QCString& requ
 
   Return TRUE if there are any undeleted objects this handler
   has to care about.
-  This is quite useful for plugins that do not want to be unloaded
+  This may be useful for plugins that do not want to be unloaded
   until all memory allocated in the library's scope has been freed.
 */
 
@@ -238,8 +180,9 @@ QPlugIn::~QPlugIn()
 }
 
 /*!
-  Loads the shared library and initializes function pointers. Returns TRUE if 
-  the library was loaded successfully, otherwise does nothing and returns FALSE.
+  Loads the shared library and initializes the connection to the interface. 
+  Returns TRUE if the library was loaded successfully, otherwise does nothing 
+  and returns FALSE.
 
   This function gets called automatically if the policy is not Manual. 
   Otherwise you have to make sure that the library has been loaded before usage.
@@ -268,19 +211,19 @@ bool QPlugIn::load()
 
 /*!
   Calls the interface's disconnectNotify method and unloads the library.
-  When disconnectNotify returns FALSE, the library will not be unloaded,
+  When disconnectNotify returns FALSE, the library will not be unloaded
   and the function returns FALSE. Thus the plugin interface can prevent
   the unloading of the library, e.g. when the application still uses
   an object that would be unsafe to delete.
-  Otherwise, the interface is deleted and the library unloaded, and the
-  function returns TRUE.
+  When disconnectNotify returns TRUE, the interface gets deleted and the 
+  library unloaded, and the function returns TRUE.
 
   \warning
   If \a force is set to TRUE, the library gets unloaded
   at any cost, which is in most cases a segmentation fault,
   so you should know what you're doing!
 
-  \sa load, guard
+  \sa load
 */
 bool QPlugIn::unload( bool force )
 {
@@ -327,7 +270,7 @@ QPlugIn::LibraryPolicy QPlugIn::policy() const
 }
 
 /*!
-  Returns the filename of the shared object connected to this plugin.
+  Returns the filename of the shared library this QPlugIn object handles.
 */
 QString QPlugIn::library() const
 {
@@ -339,7 +282,7 @@ QString QPlugIn::library() const
   is ManualPolicy. Call this method before accessing
   the library functions.
 
-  \sa setPolicy
+  \sa load, setPolicy
 */
 bool QPlugIn::use()
 {
@@ -359,10 +302,7 @@ bool QPlugIn::use()
   Loads the interface of the shared library and calls the connectNotify function.
   Returns TRUE if successful, or FALSE if the interface could not be loaded.
 
-  When a QApplication is present, the function will try to connect the 
-  interfaces the application provides with the interfaces the plugin requests.
-
-  \sa QClientInterface, QApplicationInterface
+  \sa QApplicationInterface
 */
 bool QPlugIn::loadInterface()
 {
@@ -393,30 +333,6 @@ bool QPlugIn::loadInterface()
 	delete ifc;
 	ifc = 0;
 	return FALSE;
-    }
-
-    if ( qApp ) {
-	QStrList appIfaces = qApp->queryInterfaceList();
-	for ( uint i = 0; i < appIfaces.count(); i++ ) {
-	    QCString iface = appIfaces.at( i );
-	    QStrList clIface = plugInterface()->queryInterfaceList();
-	    if ( clIface.contains( iface ) ) {
-		QClientInterface* ci = plugInterface()->requestClientInterface( iface );
-		QApplicationInterface* ai = qApp->requestApplicationInterface( iface );
-		if ( ai && ci ) {
-		    ai->connectToClient( ci );
-		    ifc->connectNotify( iface );
-		} else {
-#ifdef CHECK_RANGE
-		    qWarning( "Can't setup connection for interface \"%s\"", (const char*)iface );
-		    if ( !ai )
-			qWarning( "\tApplication failed to provide requested implementation!");
-		    if ( !ci )
-			qWarning( "\tPlugIn failed to provide requested implementation!");
-#endif
-		}
-	    }
-	}
     }
 
     return TRUE;

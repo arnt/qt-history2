@@ -6,61 +6,9 @@
 QApplicationInterface* PlugApplication::requestApplicationInterface( const QCString& request )
 {
     if ( request == "PlugMainWindowInterface" )
-	return mwIface ? mwIface : ( mwIface = new PlugMainWindowInterface( qApp->mainWidget() ) );
+	return appIface ? appIface : ( appIface = new QApplicationInterface( qApp->mainWidget() ) );
     else
 	return QApplication::requestApplicationInterface( request );
-}
-
-QStrList PlugApplication::queryInterfaceList() const
-{
-    QStrList list;
-    list.append( "PlugMainWindowInterface" );
-
-    return list;
-}
-
-PlugMainWindowInterface::PlugMainWindowInterface( QObject *o )
-    : QApplicationInterface( o ) 
-{
-}
-
-void PlugMainWindowInterface::requestSetProperty( const QCString& p, const QVariant& v )
-{
-    if ( p == "centralWidget" ) { // fake a property
-	PlugMainWindow* mw = (PlugMainWindow*)object();
-	QWidget* w = QWidgetFactory::create( v.toString(), mw );
-	delete mw->centralWidget();
-	if ( w ) {
-	    mw->setCentralWidget( w );
-	} else {
-	    QWidget* label = QWidgetFactory::create( "QLabel", mw );
-	    label->setProperty( "text", QString("Don't know \"%1\"").arg( v.toString() ) );
-	    mw->setCentralWidget( label );
-	}
-    } else {
-	QApplicationInterface::requestSetProperty( p, v );
-    }
-}
-
-void PlugMainWindowInterface::requestProperty( const QCString& p, QVariant& v )
-{
-    if ( p == "mainWindow" ) // fake a property (hacky and probably unsafe)
-	v = QVariant( (uint)object() );
-    else
-	QApplicationInterface::requestProperty( p, v );
-}
-
-void PlugMainWindowInterface::requestConnection( const QCString& request, QClientInterface* ci )
-{
-    if ( request == "PlugMenuInterface" ) {
-	PlugMenuInterface* pmi = new PlugMenuInterface( (QObject*)((PlugMainWindow*)object())->menuBar() );
-	pmi->connectToClient( ci );
-    }
-}
-
-PlugMenuInterface::PlugMenuInterface( QObject* o )
-: QApplicationInterface( o )
-{
 }
 
 int main( int argc, char** argv )

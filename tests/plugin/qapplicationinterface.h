@@ -1,77 +1,45 @@
 #ifndef QAPPLICATIONINTERFACES_H
 #define QAPPLICATIONINTERFACES_H
 
-#include "qdualinterface.h"
-#include "qplugininterface.h"
-#include "qguardedptr.h"
+#include <qobject.h>
+#include <qguardedptr.h>
+#include <qvariant.h>
 
-class QApplicationInterface : public QDualInterface
+class QApplicationInterface : public QObject
 {
-    Q_OBJECT
 public:
     QApplicationInterface( QObject* o )
+	: QObject( o )
     {
-	ref = 0;
-	theObject = o;
-#ifdef CHECK_RANGE
+    #ifdef CHECK_RANGE
 	if ( !o )
 	    qWarning( "Can't create interface with null-object!" );
-#endif CHECK_RANGE
-
-	theObject->insertChild( this );
+    #endif CHECK_RANGE
     }
 
-    void requestProperty( const QCString& p, QVariant& v )
+    virtual QVariant requestProperty( const QCString& p )
     {
-	v = theObject->property( p );
+	return parent()->property( p );
     }
-    void requestSetProperty( const QCString& p, const QVariant& v )
+    virtual void requestSetProperty( const QCString& p, const QVariant& v )
     {
-	theObject->setProperty( p, v );
+	parent()->setProperty( p, v );
     }
-    void requestSignal( const char* signal, QObject* target, const char* slot )
+    virtual void requestConnect( const char* signal, QObject* target, const char* slot )
     {
-	connect( theObject, signal, target, slot );
+	connect( parent(), signal, target, slot );
     }
-    void requestEvents( QObject* o )
+    virtual void requestEvents( QObject* o )
     {
-	theObject->installEventFilter( o );
+	parent()->installEventFilter( o );
     }
-    void requestConnection( const QCString& request, QClientInterface* pi )
+    virtual QApplicationInterface* requestInterface( const QCString& request )
     {
-    }
-
-    void connectToClient( QClientInterface* client )
-    {
-	ref++;
-	connect( client, SIGNAL(destroyed()), this, SLOT(clientDestroyed()) );
-
-	connect( client, SIGNAL(sendRequestProperty(const QCString&,QVariant&)), 
-	    this, SLOT(requestProperty(const QCString&,QVariant&)) );
-	connect( client, SIGNAL(sendRequestSetProperty(const QCString&, const QVariant&)), 
-	    this, SLOT(requestSetProperty(const QCString&, const QVariant&)) );
-	connect( client, SIGNAL(sendRequestSignal(const char*,QObject*,const char*)), 
-	    this, SLOT(requestSignal(const char*,QObject*,const char*)) );
-	connect( client, SIGNAL(sendRequestEvents(QObject*)), 
-	    this, SLOT(requestEvents(QObject*)) );
-	connect( client, SIGNAL(sendRequestConnection(const QCString&,QClientInterface*)), 
-	    this, SLOT(requestConnection(const QCString&,QClientInterface*)) );
+	return 0;
     }
 
 protected:
-    QObject* object() const { return theObject; }
-
-private slots:
-    void clientDestroyed()
-    {
-	ref--;
-	if ( !ref )
-	    delete this;
-    }
-
-private:
-    QGuardedPtr<QObject> theObject;
-    int ref;
+    QObject* parent() { return QObject::parent(); }
 };
 
 #endif //QAPPLICATIONINTERFACES_H
