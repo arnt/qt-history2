@@ -181,6 +181,7 @@ HEADERS		= $$DIALOGS_H/qdeveloper.h \
 		  $$WIDGETS_H/qwhatsthis.h \
 		  $$WIDGETS_H/qworkspace.h \
 		  $$WIDGETS_H/qworkspacechild.h \
+		  $$WIDGETS_H/qml.h \
 		  $$WIDGETS_H/qwidgetstack.h
 
 
@@ -337,6 +338,7 @@ SOURCES	       += tools/qbitarray.cpp \
 		  widgets/qwidgetstack.cpp \
 		  widgets/qworkspace.cpp \
 		  widgets/qworkspacechild.cpp \
+		  widgets/qml.cpp \
 		  dialogs/qdeveloper.cpp \
 		  dialogs/qfiledialog.cpp \
 		  dialogs/qmessagebox.cpp \
