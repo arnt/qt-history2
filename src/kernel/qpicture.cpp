@@ -24,6 +24,9 @@
 *****************************************************************************/
 
 #include "qpicture.h"
+
+#if QT_FEATURE_PICTURE
+
 #include "qpainter.h"
 #include "qpixmap.h"
 #include "qimage.h"
@@ -826,3 +829,6 @@ QDataStream &operator>>( QDataStream &s, QPicture &r )
 
     return s;
 }
+
+#endif // QT_FEATURE_PICTURE
+

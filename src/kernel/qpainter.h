@@ -205,7 +205,9 @@ public:
     void	drawTiledPixmap( const QRect &, const QPixmap &,
 				 const QPoint & );
     void	drawTiledPixmap( const QRect &, const QPixmap & );
+#if QT_FEATURE_PICTURE
     void	drawPicture( const QPicture & );
+#endif
 
     void	fillRect( int x, int y, int w, int h, const QBrush & );
     void	fillRect( const QRect &, const QBrush & );
