@@ -132,6 +132,7 @@ MainWindow::MainWindow( bool asClient, bool single )
       previewing( FALSE ), databaseAutoEdit( FALSE )
 {
     customWidgetToolBar = customWidgetToolBar2 = 0;
+    guiStuffVisible = TRUE;
     init_colors();
 
     desInterface = new DesignerInterfaceImpl( this );
@@ -3553,6 +3554,9 @@ void MainWindow::shuttingDown()
 
 void MainWindow::showGUIStuff( bool b )
 {
+    if ( guiStuffVisible == b )
+	return;
+    guiStuffVisible = b;
     if ( !b ) {
 	setAppropriate( (QDockWindow*)toolBox->parentWidget(), FALSE );
 	toolBox->parentWidget()->hide();
@@ -3565,6 +3569,9 @@ void MainWindow::showGUIStuff( bool b )
 	layoutToolBar->hide();
 	setAppropriate( toolsToolBar, FALSE );
 	toolsToolBar->hide();
+	menubar->removeItem( toolsMenuId );
+	menubar->removeItem( toolsMenuId + 1 );
+	menubar->removeItem( toolsMenuId + 2 );
     } else {
 	setAppropriate( (QDockWindow*)toolBox->parentWidget(), TRUE );
 	toolBox->parentWidget()->show();
@@ -3577,5 +3584,8 @@ void MainWindow::showGUIStuff( bool b )
 	layoutToolBar->show();
 	setAppropriate( toolsToolBar, TRUE );
 	toolsToolBar->show();
+	menubar->insertItem( tr( "&Tools" ), toolsMenu, toolsMenuId, toolsMenuIndex );
+	menubar->insertItem( tr( "&Layout" ), layoutMenu, toolsMenuId + 1, toolsMenuIndex + 1 );
+	menubar->insertItem( tr( "&Preview" ), previewMenu, toolsMenuId + 2, toolsMenuIndex + 2 );
     }
 }

@@ -381,7 +381,8 @@ void MainWindow::setupLayoutActions()
     a->addTo( layoutToolBar );
 
     QPopupMenu *menu = new QPopupMenu( this, "Layout" );
-    menubar->insertItem( tr( "&Layout" ), menu );
+    layoutMenu = menu;
+    menubar->insertItem( tr( "&Layout" ), menu, toolsMenuId + 1 );
     actionEditAdjustSize->addTo( menu );
     menu->insertSeparator();
     actionEditHLayout->addTo( menu );
@@ -435,7 +436,10 @@ void MainWindow::setupToolActions()
     actionOrderTool->addTo( tb );
 
     QPopupMenu *mmenu = new QPopupMenu( this, "Tools" );
-    menubar->insertItem( tr( "&Tools" ), mmenu );
+    toolsMenu = mmenu;
+    toolsMenuId = 100;
+    menubar->insertItem( tr( "&Tools" ), mmenu, toolsMenuId );
+    toolsMenuIndex = menubar->indexOf( toolsMenuId );
     actionPointerTool->addTo( mmenu );
     actionConnectTool->addTo( mmenu );
     actionOrderTool->addTo( mmenu );
@@ -788,7 +792,8 @@ void MainWindow::setupPreviewActions()
 {
     QAction* a = 0;
     QPopupMenu *menu = new QPopupMenu( this, "Preview" );
-    menubar->insertItem( tr( "&Preview" ), menu );
+    layoutMenu = menu;
+    menubar->insertItem( tr( "&Preview" ), menu, toolsMenuId + 2 );
 
     a = new QAction( tr( "Preview Form" ), createIconSet("previewform.xpm"),
 				     tr( "Preview &Form" ), 0, this, 0 );

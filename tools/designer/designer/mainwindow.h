@@ -409,6 +409,7 @@ private:
     QPopupMenu *rmbWidgets;
     QPopupMenu *rmbFormWindow;
     QPopupMenu *customWidgetMenu, *windowMenu, *fileMenu, *recentlyFilesMenu, *recentlyProjectsMenu;
+    QPopupMenu *toolsMenu, *layoutMenu, *previewMenu;
     QToolBar *customWidgetToolBar, *layoutToolBar, *projectToolBar, *customWidgetToolBar2, *toolsToolBar;
     QList<QToolBar> widgetToolBars;
 
@@ -449,6 +450,8 @@ private:
     QString menuHelpFile;
     bool singleProject;
     QCategoryWidget *toolBox;
+    int toolsMenuId, toolsMenuIndex;
+    bool guiStuffVisible;
 
 public:
     QString lastSaveFilter;
