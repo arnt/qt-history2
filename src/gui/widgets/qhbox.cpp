@@ -55,7 +55,7 @@ QHBox::QHBox(QWidget *parent, const char *name, Qt::WFlags f)
     QString nm(name);
     setObjectName(nm);
     lay = new QHBoxLayout(this);
-    lay->setMargin(frameWidth());
+    lay->setMargin(0);
     lay->setSpacing(frameWidth());
     lay->setObjectName(nm);
 }
@@ -70,7 +70,7 @@ QHBox::QHBox(QWidget *parent, Qt::WFlags f)
     :QFrame(parent, f)
 {
     lay = new QHBoxLayout(this);
-    lay->setMargin(frameWidth());
+    lay->setMargin(0);
     lay->setSpacing(frameWidth());
 }
 
@@ -91,7 +91,7 @@ QHBox::QHBox(Qt::Orientation orientation, QWidget *parent , Qt::WFlags f)
     lay = new QBoxLayout(orientation == Qt::Horizontal
                          ? QBoxLayout::LeftToRight
                          : QBoxLayout::Down, this);
-    lay->setMargin(frameWidth());
+    lay->setMargin(0);
     lay->setSpacing(frameWidth());
 }
 
