@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#159 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#160 $
 **
 ** Implementation of QListView widget class
 **
@@ -249,7 +249,7 @@ struct QListViewPrivate
   the items are root items; the \e usr item is a child of the root and
   the \e X11 item is a child of the \e usr item.
 
-  <img src="treeview.gif" width="256" height="216" alt="Example Tree View">
+  <img src="treeview.gif" width="227" height="261" alt="Example Tree View">
 */
 
 /*!  Create a new list view item in the QListView \a parent and first
