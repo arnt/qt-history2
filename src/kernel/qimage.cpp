@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.cpp#57 $
+** $Id: //depot/qt/main/src/kernel/qimage.cpp#58 $
 **
 ** Implementation of QImage and QImageIO classes
 **
@@ -20,7 +20,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#57 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#58 $")
 
 
 /*----------------------------------------------------------------------------
@@ -423,6 +423,12 @@ QImage::Endian QImage::systemByteOrder()
 #include <X11/Xlib.h>				// needed for systemBitOrder
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
+#if defined(_OS_WIN32_)
+#undef open					// kill utterly stupid #defines
+#undef close
+#undef read
+#undef write
+#endif
 #endif
 
 /*----------------------------------------------------------------------------
