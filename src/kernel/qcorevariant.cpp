@@ -41,7 +41,7 @@ template<> QDate qt_cast<QDate>(const QCoreVariant &v, const QDate*) { return v.
 template<> QTime qt_cast<QTime>(const QCoreVariant &v, const QTime*) { return v.toTime(); }
 template<> QDateTime qt_cast<QDateTime>(const QCoreVariant &v, const QDateTime*) { return v.toDateTime(); }
 #ifndef QT_NO_TEMPLATE_VARIANT
-template<> QList<QCoreVariant> qt_cast<QList<QCoreVariant> >(const QCoreVariant &v, const QList<QCoreVariant>*) 
+template<> QList<QCoreVariant> qt_cast<QList<QCoreVariant> >(const QCoreVariant &v, const QList<QCoreVariant>*)
 { return v.toList(); }
 template<> QMap<QString,QCoreVariant> qt_cast<QMap<QString,QCoreVariant> >(const QCoreVariant &v, const QMap<QString, QCoreVariant>*)
 { return v.toMap(); }
@@ -51,12 +51,12 @@ QCoreVariant::Private QCoreVariant::shared_invalid = { Q_ATOMIC_INIT(1), Invalid
 
 // takes a type, returns the internal void* pointer castet
 // to a pointer of the input type
-template<typename T> inline T *v_cast(void *&p)
+template <typename T>
+inline T *v_cast(void *&p)
 {
     if (QTypeInfo<T>::isLarge)
         return static_cast<T*>(p);
-    else
-        return reinterpret_cast<T*>(&p);
+    return reinterpret_cast<T*>(&p);
 }
 
 #define QCONSTRUCT(vType) \
@@ -70,7 +70,7 @@ template<typename T> inline T *v_cast(void *&p)
 	x->value.ptr = new vType; \
     else \
 	new (&x->value.ptr) vType
-  
+
 static void construct(QCoreVariant::Private *x, const void *v)
 {
     if (v) {
@@ -253,7 +253,7 @@ static void clear(QCoreVariant::Private *p)
 // used internally by construct() only
 #define QISNULL(vType) \
     if (QTypeInfo<vType >::isLarge) \
-	return static_cast<vType * const>(d->value.ptr)->isNull(); \
+	return static_cast<vType *>(d->value.ptr)->isNull(); \
     else \
 	return reinterpret_cast<const vType *>(&d->value.ptr)->isNull()
 
@@ -370,7 +370,7 @@ static void load(QCoreVariant::Private *d, QDataStream &s)
 
 #define QSAVE(vType) \
     if (QTypeInfo<vType >::isLarge) \
-        s << *static_cast<vType * const>(d->value.ptr); \
+        s << *static_cast<vType *>(d->value.ptr); \
     else \
         s << *reinterpret_cast<const vType *>(&d->value.ptr)
 
@@ -437,8 +437,8 @@ static void save(const QCoreVariant::Private *d, QDataStream &s)
 
 #define QCOMPARE(vType) \
     if (QTypeInfo<vType >::isLarge) \
-        return *static_cast<vType * const>(a->value.ptr) == \
-	    *static_cast<vType * const>(b->value.ptr); \
+        return *static_cast<vType *>(a->value.ptr) == \
+	    *static_cast<vType *>(b->value.ptr); \
     else \
 	return *reinterpret_cast<const vType *>(&a->value.ptr) \
 	    == *reinterpret_cast<const vType *>(&b->value.ptr);
@@ -450,8 +450,8 @@ static bool compare(const QCoreVariant::Private *a, const QCoreVariant::Private 
     case QCoreVariant::List:
 	QCOMPARE(QList<QCoreVariant>);
     case QCoreVariant::Map: {
-	QVariantMap *m1 = v_cast<QVariantMap>((void*)a->value.ptr);
-	QVariantMap *m2 = v_cast<QVariantMap>((void*)b->value.ptr);
+	QVariantMap *m1 = v_cast<QVariantMap>((void *&)a->value.ptr);
+	QVariantMap *m2 = v_cast<QVariantMap>((void *&)b->value.ptr);
 	if (m1->count() != m2->count())
 	    return false;
 	QVariantMap::ConstIterator it = m1->constBegin();
