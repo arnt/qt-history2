@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.h#30 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.h#31 $
 **
 ** Definition of QFileDialog class
 **
@@ -123,6 +123,8 @@ private slots:
     void cancelClicked();
 
     void cdUpClicked();
+
+    void fixupNameEdit();
 
 protected:
     void resizeEvent( QResizeEvent * );

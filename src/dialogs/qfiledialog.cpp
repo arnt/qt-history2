@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#115 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#116 $
 **
 ** Implementation of QFileDialog class
 **
@@ -40,6 +40,7 @@
 #include "qkeycode.h"
 #include "qregexp.h"
 #include "qstrlist.h"
+#include "qtimer.h"
 
 #include <time.h>
 #include <ctype.h>
@@ -1959,6 +1960,8 @@ bool QFileDialog::eventFilter( QObject * o, QEvent * e )
     if ( o == files && e->type() == Event_FocusOut &&
 	 files->currentItem() && mode() != ExistingFiles ) {
 	files->setSelected( files->currentItem(), FALSE );
+    } else if ( o == files && e->type() == Event_KeyPress ) {
+	QTimer::singleShot( 0, this, SLOT(fixupNameEdit()) );
     } else if ( o == nameEdit && e->type() == Event_KeyPress ) {
 	// ### hack.  after 1.40, we need to merge the completion code
 	// ### here, in QListView and QComboBox.
@@ -2106,3 +2109,12 @@ QStrList QFileDialog::getOpenFileNames( const char *filter,
     return s;
 }
 
+
+
+/*!  Updates the line edit to match the speed-key usage in QListView. */
+
+void QFileDialog::fixupNameEdit()
+{
+    if ( files->currentItem() )
+	nameEdit->setText( files->currentItem()->text( 0 ) );
+}
