@@ -284,6 +284,8 @@ private:
 
 
 #if defined(Q_WS_MAC)
+    friend int do_text_task(const QFontPrivate *, QString, int, int, uchar, int, int, QPaintDevice *, const QRegion *,
+			    int, const QFontMetrics *);
     void macSetFont(QPaintDevice *);
 #endif
 

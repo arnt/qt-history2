@@ -30,6 +30,7 @@
 #include "qstring.h"
 #include "qfont.h"
 #include "qfontdata_p.h"
+#include "qcomplextext_p.h"
 #include "qpaintdevicemetrics.h"
 //#include "qfontdatabase.h"
 #include "qfontmetrics.h"
@@ -500,13 +501,25 @@ static int do_text_task(const QFontPrivate *d, const QChar *s, int pos,
 #endif
     return ret;
 }
-static inline int do_text_task(const QFontPrivate *d, QString s, int pos, int len, uchar task,
-			       int x=-1, int y=-1, QPaintDevice *dev=NULL, const QRegion *rgn=NULL)
+inline int do_text_task(const QFontPrivate *d, QString s, int pos, int len, uchar task,
+			int x=-1, int y=-1, QPaintDevice *dev=NULL, const QRegion *rgn=NULL, 
+			int dir = QPainter::Auto, const QFontMetrics *fm = NULL)
 {
     if(!len)
 	return 0;
     else if(pos + len > (int)s.length())
 	len = s.length() - pos;
+
+    if(!s.simpleText()) {
+	if(!fm) {
+	    QFontMetrics int_fm(QFont((QFontPrivate*)d, (bool)FALSE));
+	    s = QComplexText::shapedString(s, pos, len, (QPainter::TextDirection)dir, &int_fm);
+	} else {
+	    s = QComplexText::shapedString(s, pos, len, (QPainter::TextDirection)dir, fm);
+	}
+	pos = 0;
+	len = s.length();
+    }
     return do_text_task(d, s.unicode(), pos, len, s.length(), task, x, y, dev, rgn);
 }
 
@@ -760,7 +773,11 @@ int QFontMetrics::width(QChar c) const
 
 int QFontMetrics::charWidth(const QString &s, int pos) const
 {
+#ifdef QMAC_FONT_ATSUI
+    int width = do_text_task(FI, s, pos, 1, GIMME_WIDTH, -1, -1, NULL, NULL, QPainter::Auto, this);
+#else
     int width = do_text_task(FI, s, pos, 1, GIMME_WIDTH);
+#endif
 #ifdef DEBUG_FONTMETRICS
     QChar c = s.at(pos);
     if(qt_mac_debug_metrics(c)) {
@@ -774,7 +791,11 @@ int QFontMetrics::charWidth(const QString &s, int pos) const
 
 int QFontMetrics::width(const QString &s,int len) const
 {
+#ifdef QMAC_FONT_ATSUI
+    int width = do_text_task(FI, s, 0, len < 1 ? s.length() : len, GIMME_WIDTH, -1, -1, NULL, NULL, QPainter::Auto, this);
+#else
     int width = do_text_task(FI, s, 0, len < 1 ? s.length() : len, GIMME_WIDTH);
+#endif
 #ifdef DEBUG_FONTMETRICS
     if(qt_mac_debug_metrics(s, len)) {
 	qDebug("width(string, %d) %d %d:%d==%d %d:%d", len, width, d->request.pointSize, d->request.pixelSize,
@@ -887,7 +908,7 @@ void QFontPrivate::computeLineWidth()
 	lineWidth = nlw;
 }
 
-void QFontPrivate::drawText(int x, int y, const QString &s, int len, QPaintDevice *dev, const QRegion *rgn)
+void QFontPrivate::drawText(int x, int y, const QString &s, int len, QPaintDevice *dev, const QRegion *rgn, int dir)
 {
     MoveTo(x, y);
     if(len < 1)
@@ -904,7 +925,7 @@ void QFontPrivate::drawText(int x, int y, const QString &s, int len, QPaintDevic
 	task |= GIMME_WIDTH;
 #endif
 #ifdef QMAC_FONT_ATSUI
-    int w = do_text_task(this, s, 0, len, task, x, y, dev, rgn);
+    int w = do_text_task(this, s, 0, len, task, x, y, dev, rgn, dir);
 #else
     Q_UNUSED(rgn);
     int w = do_text_task(this, s, 0, len, task, x, y);
