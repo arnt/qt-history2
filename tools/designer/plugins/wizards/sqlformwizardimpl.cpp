@@ -289,7 +289,7 @@ void SqlFormWizard::accept()
 	QString labelName = field->name();
 	labelName = labelName.mid(0,1).upper() + labelName.mid(1);
 	labelName.replace( QRegExp("_"), " " );
-	label = (QLabel*)wfIface->create( "QLabel", widget, QString( "label" + field->name() ) );
+	label = (QLabel*)wfIface->create( "QLabel", widget, QString( "label" + labelName ) );
 	label->setText( labelName );
 	label->setGeometry( SPACING, row+SPACING, SPACING*3, SPACING );
 	mdbIface->setPropertyChanged( label, "text", TRUE );
@@ -297,7 +297,7 @@ void SqlFormWizard::accept()
 	fIface->addWidget( label );
 
 	editorDummy = f->createEditor( widget, field );
-	editor = wfIface->create( editorDummy->className(), widget, QString( QString( editorDummy->className() ) + field->name()) );
+	editor = wfIface->create( editorDummy->className(), widget, QString( QString( editorDummy->className() ) + labelName) );
 	delete editorDummy;
 	editor->setGeometry( SPACING * 5, row+SPACING, SPACING*3, SPACING );
 	mdbIface->setPropertyChanged( editor, "geometry", TRUE );
