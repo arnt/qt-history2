@@ -267,7 +267,6 @@ public slots:
 
 protected:
     enum EditMode { NotEditing, Editing, Replacing };
-    bool isEditing() const;    
     void drawContents( QPainter *p, int cx, int cy, int cw, int ch );
     void contentsMousePressEvent( QMouseEvent* );
     void contentsMouseMoveEvent( QMouseEvent* );
@@ -322,6 +321,7 @@ private:
 
     void init( int numRows, int numCols );
     QSize tableSize() const;
+    bool isEditing() const;
     void repaintCell( int row, int col );
     void contentsToViewport2( int x, int y, int& vx, int& vy );
     QPoint contentsToViewport2( const QPoint &p );
