@@ -230,14 +230,13 @@ loading and using fonts has been highly optimized.
 
 This time, the button says "Quit" and that's exactly what the program
 will do when the user clicks the button.  This is not a coincidence.
-Still we pass 0 as the parent, since the button is a top-level window.
+We still pass 0 as the parent, since the button is a top-level window.
 
 \line resize
 
-We've chosen another size for the button since the text is a bit shorter
-than "Hello World!".  We could also have used \link
-QPushButton::setAutoResize() QPushButton::setAutoResize()\endlink, or even
-use \l QFontMetrics to set right size.
+We've chosen another size for the button since the text is a bit
+shorter than "Hello World!".  We could also have used \l QFontMetrics
+to set right size.
 
 \line setFont
 
