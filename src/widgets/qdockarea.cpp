@@ -497,7 +497,10 @@ QDockArea::QDockArea( Orientation o, HandlePosition h, QWidget *parent, const ch
     installEventFilter( this );
 }
 
-/*!  Destructor.
+/*!  Destructor. Destroys all the dock windows docked in this dock area.
+
+    Does not affect floating dock windows or dock windows in other dock
+    areas, even if they first appeared in this dock area.
  */
 
 QDockArea::~QDockArea()
