@@ -10,17 +10,16 @@
 **
 ****************************************************************************/
 
-#include <unistd.h>
+#include "qthreadstorage.h"
+#include "qthread.h"
 
-#include <pthread.h>
+#include "qthreadinstance_p.h"
+#include "qspinlock_p.h"
+
 #include <string.h>
 
-#include "qthreadstorage.h"
-#include "qthreadinstance_p.h"
-
-
-// #define QTHREADSTORAGE_DEBUG
-#ifdef QTHREADSTORAGE_DEBUG
+// #define THREADSTORAGE_DEBUG
+#ifdef THREADSTORAGE_DEBUG
 #  define DEBUG qDebug
 #else
 #  define DEBUG if(false)qDebug
@@ -30,7 +29,7 @@
  // 256 maximum + 1 used in QRegExp + 1 used in QEventLoop
 static const int MAX_THREAD_STORAGE = 258;
 
-static pthread_mutex_t thread_storage_mutex = PTHREAD_MUTEX_INITIALIZER;
+static QStaticSpinLock spinlock = 0;
 
 static bool thread_storage_init = false;
 static struct {
@@ -42,7 +41,7 @@ static struct {
 QThreadStorageData::QThreadStorageData(void (*func)(void *))
     : id(0), constructed(true)
 {
-    pthread_mutex_lock(&thread_storage_mutex);
+    QSpinLockLocker locker(::spinlock);
 
     // make sure things are initialized
     if (! thread_storage_init)
@@ -59,19 +58,16 @@ QThreadStorageData::QThreadStorageData(void (*func)(void *))
     thread_storage_usage[id].func = func;
 
     DEBUG("QThreadStorageData: allocated id %d", id);
-
-    pthread_mutex_unlock(&thread_storage_mutex);
 }
 
 QThreadStorageData::~QThreadStorageData()
 {
-    pthread_mutex_lock(&thread_storage_mutex);
-    thread_storage_usage[id].used = false;
+    QSpinLockLocker locker(::spinlock);
+
+    // thread_storage_usage[id].used = false;
     thread_storage_usage[id].func = 0;
 
     DEBUG("QThreadStorageData: released id %d", id);
-
-    pthread_mutex_unlock(&thread_storage_mutex);
 }
 
 void **QThreadStorageData::get() const
@@ -85,7 +81,7 @@ void **QThreadStorageData::set(void *p)
     QThreadInstance *d = QThreadInstance::current();
     if (!d->thread_storage) {
         DEBUG("QThreadStorageData: allocating storage %d for thread %lx",
-                id, (unsigned long) pthread_self());
+              id, QThread::currentThread());
 
         d->thread_storage = new void*[MAX_THREAD_STORAGE];
         memset(d->thread_storage, 0, sizeof(void*) * MAX_THREAD_STORAGE);
@@ -94,7 +90,7 @@ void **QThreadStorageData::set(void *p)
     // delete any previous data
     if (d->thread_storage[id]) {
         DEBUG("QThreadStorageData: deleting previous storage %d for thread %lx",
-              id, (unsigned long) pthread_self());
+              id, QThread::currentThread());
 
         void *q = d->thread_storage[id];
         d->thread_storage[id] = 0;
@@ -104,7 +100,7 @@ void **QThreadStorageData::set(void *p)
     // store new data
     d->thread_storage[id] = p;
     DEBUG("QThreadStorageData: set storage %d for thread %lx to %p",
-          id, (unsigned long) pthread_self(), p);
+          id, QThread::currentThread(), p);
     return &d->thread_storage[id];
 }
 
@@ -113,13 +109,13 @@ void QThreadStorageData::finish(void **thread_storage)
     if (! thread_storage) return; // nothing to do
 
     DEBUG("QThreadStorageData: destroying storage for thread %lx",
-            (unsigned long) pthread_self());
+          QThread::currentThread());
 
     for (int i = 0; i < MAX_THREAD_STORAGE; ++i) {
-        if (! thread_storage[i]) continue;
-        if (! thread_storage_usage[i].used) {
+        if (!thread_storage[i]) continue;
+        if (!thread_storage_usage[i].func) {
             qWarning("QThreadStorage: thread %lx exited after QThreadStorage destroyed",
-                      (unsigned long) pthread_self());
+                     QThread::currentThread());
             continue;
         }
 
@@ -137,7 +133,7 @@ bool QThreadStorageData::ensure_constructed(void (*func)(void *))
         id = 0;
         constructed = true;
 
-        pthread_mutex_lock(&thread_storage_mutex);
+        QSpinLockLocker locker(::spinlock);
 
         // make sure things are initialized
         if (! thread_storage_init)
@@ -154,8 +150,6 @@ bool QThreadStorageData::ensure_constructed(void (*func)(void *))
         thread_storage_usage[id].func = func;
 
         DEBUG("QThreadStorageData: allocated id %d", id);
-
-        pthread_mutex_unlock(&thread_storage_mutex);
 
         return false;
     }
@@ -288,15 +282,6 @@ bool QThreadStorageData::ensure_constructed(void (*func)(void *))
 
     \sa hasLocalData()
 */
-/*
-  ### addition to the above documentation when we start supporting
-  ### partial template specialization, and QThreadStorage can store
-  ### values *and* pointers
-
-  When using QThreadStorage to store values (not pointers), this
-  function stores an object of type \e T (created with its default
-  constructor) and returns a reference to that object.
-*/
 
 /*!
     \fn const T QThreadStorage::localData() const
@@ -309,17 +294,6 @@ bool QThreadStorageData::ensure_constructed(void (*func)(void *))
     If no data was set by the calling thread, this function returns 0.
 
     \sa hasLocalData()
-*/
-/*
-  ### addition to the above documentation when we start supporting
-  ### partial template specialization, and QThreadStorage can store
-  ### values *and* pointers
-
-  When using QThreadStorage to store values (not pointers), this
-  function returns an object of type \e T (created with its default
-  constructor). Unlike the above function, this object is \e not
-  stored automatically. You will need to call setLocalData() to store
-  the object.
 */
 
 /*!

@@ -17,16 +17,15 @@ HEADERS += thread/qmutex_p.h \
 
 SOURCES += thread/qmutexpool.cpp \
 	   thread/qsemaphore.cpp \
- 	   thread/qthread.cpp
+ 	   thread/qthread.cpp \
+           thread/qthreadstorage.cpp 
 
 unix:SOURCES += thread/qmutex_unix.cpp \
 		thread/qspinlock_unix.cpp \
 		thread/qthread_unix.cpp \
-		thread/qthreadstorage_unix.cpp \
 		thread/qwaitcondition_unix.cpp
 
 win32:SOURCES += thread/qmutex_win.cpp \
 		 thread/qspinlock_win.cpp \
 		 thread/qthread_win.cpp \
-		 thread/qthreadstorage_win.cpp \
 		 thread/qwaitcondition_win.cpp
