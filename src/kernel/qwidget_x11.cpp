@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#64 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#65 $
 **
 ** Implementation of QWidget and QView classes for X11
 **
@@ -24,7 +24,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#64 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#65 $";
 #endif
 
 
@@ -807,8 +807,8 @@ void QWidget::resize( int w, int h )		// resize widget
   resize and then a move event is sent to the widget itself.  \sa
   move(), resize(). */
 
-/*! Changes the widget geometry to \e x pixels by \e y, positioned at
-  \e w,h in its parent widget.  If necessary, the window manager is
+/*! Changes the widget geometry to \e w pixels by \e h, positioned at
+  \e x,y in its parent widget.  If necessary, the window manager is
   informed.  First a resize and then a move event is sent to the widget
   itself.
 
