@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qmime_win.cpp#4 $
+** $Id: //depot/qt/main/src/kernel/qmime_win.cpp#5 $
 **
 ** Implementation of Win32 MIME <-> clipboard converters
 **
@@ -29,6 +29,7 @@
 
 extern bool qt_read_dib( QDataStream&, QImage& ); // qimage.cpp
 extern bool qt_write_dib( QDataStream&, QImage );   // qimage.cpp
+extern Qt::WindowsVersion qt_winver;
 
 
 static QList<QWindowsMime> mimes;
@@ -274,6 +275,7 @@ QByteArray QWindowsMimeText::convertToMime( QByteArray data, const char* mime, i
 QByteArray QWindowsMimeText::convertFromMime( QByteArray data, const char* mime, int cf )
 {
     if ( cf == CF_TEXT ) {
+	// Ad NUL (### only really necessary if no NUL already)
 	QByteArray r(data.size()+1);
 	memcpy(r.data(),data.data(),data.size());
 	r[(int)data.size()]='\0';
@@ -534,7 +536,10 @@ QByteArray QWindowsMimeUri::convertFromMime( QByteArray data, const char* mime, 
     int size = sizeof(DROPFILES)+2;
     QStringList::Iterator i;
     for ( i = fn.begin(); i!=fn.end(); ++i ) {
-	size += i->length()+1;
+	if ( qt_winver == Qt::WV_NT )
+	    size += i->length()+1;
+	else
+	    size += i->local8Bit().length()+1;
     }
 
     QByteArray result(size*sizeof(TCHAR));
@@ -542,21 +547,38 @@ QByteArray QWindowsMimeUri::convertFromMime( QByteArray data, const char* mime, 
     d->pFiles = sizeof(DROPFILES);
     GetCursorPos(&d->pt); // try
     d->fNC = TRUE;
-    d->fWide = TRUE;
-    const char* files = ((const char* )d) + d->pFiles;
-    WCHAR* f = (WCHAR*)files;
+    char* files = ((char* )d) + d->pFiles;
 
-    for ( i = fn.begin(); i!=fn.end(); ++i ) {
-	int l = i->length();
-	memcpy(f, (WCHAR*)i->unicode(), l*sizeof(WCHAR));
-	for (int j = 0; j<l; j++)
-	    if ( f[j] == '/' )
-		f[j] = '\\';
-	f += i->length();
+    if ( qt_winver == Qt::WV_NT ) {
+	d->fWide = TRUE;
+	WCHAR* f = (WCHAR*)files;
+
+	for ( i = fn.begin(); i!=fn.end(); ++i ) {
+	    int l = i->length();
+	    memcpy(f, (WCHAR*)i->unicode(), l*sizeof(WCHAR));
+	    for (int j = 0; j<l; j++)
+		if ( f[j] == '/' )
+		    f[j] = '\\';
+	    f += l;
+	    *f++ = 0;
+	}
+	*f++ = 0;
+    } else {
+	d->fWide = FALSE;
+	char* f = files;
+
+	for ( i = fn.begin(); i!=fn.end(); ++i ) {
+	    QCString c = i->local8Bit();
+	    int l = c.length();
+	    memcpy(f, c.data(), l);
+	    for (int j = 0; j<l; j++)
+		if ( f[j] == '/' )
+		    f[j] = '\\';
+	    f += l;
+	    *f++ = 0;
+	}
 	*f++ = 0;
     }
-    *f++ = 0;
-
     return result;
 }
 
