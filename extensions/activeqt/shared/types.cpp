@@ -337,6 +337,20 @@ static inline void makeReference( VARIANT &arg )
     arg.vt |= VT_BYREF;
 }
 
+static inline bool enumValue( const QString &string, const QUEnum *uEnum, int &value )
+{
+    bool isInt = FALSE;
+    value = string.toInt( &isInt );
+    if ( isInt )
+	return TRUE;
+    else for ( uint eItem = 0; eItem<uEnum->count; ++eItem ) {
+	if ( uEnum->items[eItem].key == string ) {
+	    value = uEnum->items[eItem].value;
+	    return TRUE;
+	}
+    }
+    return FALSE;
+}
 
 /*
     Converts \a var to \a res, and tries to coerce \a res to the type of \a param.
@@ -347,17 +361,25 @@ static inline void makeReference( VARIANT &arg )
 */
 bool QVariantToVARIANT( const QVariant &var, VARIANT &res, const QUParameter *param )
 {
-    const char *vartypename = 0;
-    if ( QUType::isEqual( param->type, &static_QUType_varptr ) )
-	vartypename = QVariant::typeToName( (QVariant::Type)*(char*)param->typeExtra );
-    else if ( QUType::isEqual( param->type, &static_QUType_ptr ) )
-	vartypename = (const char*)param->typeExtra;
-    else if ( QUType::isEqual( param->type, &static_QUType_enum ) )
-	vartypename = "int";
-    else
-	vartypename = param->type->desc();
+    QVariant variant = var;
 
-    bool ok = QVariantToVARIANT( var, res, vartypename );
+    const char *vartypename = 0;
+    if ( QUType::isEqual( param->type, &static_QUType_varptr ) ) {
+	vartypename = QVariant::typeToName( (QVariant::Type)*(char*)param->typeExtra );
+    } else if ( QUType::isEqual( param->type, &static_QUType_ptr ) ) {
+	vartypename = (const char*)param->typeExtra;
+    } else if ( QUType::isEqual( param->type, &static_QUType_enum ) ) {
+	if ( var.type() == QVariant::String || var.type() == QVariant::CString ) {
+	    int enumval;
+	    if ( enumValue( var.toString(), (const QUEnum*)param->typeExtra, enumval ) )
+		variant = enumval;
+	}
+	vartypename = "int";
+    } else {
+	vartypename = param->type->desc();
+    }
+
+    bool ok = QVariantToVARIANT( variant, res, vartypename );
     bool byref = param && ( param->inOut == QUParameter::InOut );
     if ( byref )
 	makeReference( res );
@@ -829,21 +851,6 @@ QVariant VARIANTToQVariant( const VARIANT &arg, const char *hint )
 	    var.cast( proptype );
     }
     return var;
-}
-
-static inline bool enumValue( const QString &string, const QUEnum *uEnum, int &value )
-{
-    bool isInt = FALSE;
-    value = string.toInt( &isInt );
-    if ( isInt )
-	return TRUE;
-    else for ( uint eItem = 0; eItem<uEnum->count; ++eItem ) {
-	if ( uEnum->items[eItem].key == string ) {
-	    value = uEnum->items[eItem].value;
-	    return TRUE;
-	}
-    }
-    return FALSE;
 }
 
 /*!
