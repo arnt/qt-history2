@@ -1,7 +1,8 @@
 #include <qstyleinterface.h>
 #include <qmotifstyle.h>
+#include <qguardedptr.h>
 
-class MotifStyle : public QStyleInterface
+class MotifStyle : public QStyleInterface, public QLibraryInterface
 {
 public:
     MotifStyle();
@@ -13,12 +14,17 @@ public:
     QStringList featureList() const;
     QStyle *create( const QString& );
 
+    bool init();
+    bool canUnload() const;
+
 private:
+    QGuardedPtr<QStyle> style;
+
     unsigned long ref;
 };
 
 MotifStyle::MotifStyle()
-: ref( 0 )
+: ref( 0 ), style( 0 )
 {
 }
 
@@ -26,9 +32,11 @@ QUnknownInterface *MotifStyle::queryInterface( const QUuid &uuid )
 {
     QUnknownInterface *iface = 0;
     if ( uuid == IID_QUnknownInterface )
-	iface = (QUnknownInterface*)this;
+	iface = (QUnknownInterface*)(QStyleInterface*)this;
     else if ( uuid == IID_QStyleInterface )
 	iface = (QStyleInterface*)this;
+    else if ( uuid == IID_QLibraryInterface )
+	iface = (QLibraryInterface*)this;
 
     if ( iface )
 	iface->addRef();
@@ -57,14 +65,26 @@ QStringList MotifStyle::featureList() const
     return list;
 }
 
-QStyle* MotifStyle::create( const QString& style )
+QStyle* MotifStyle::create( const QString& s )
 {
-    if ( style.lower() == "motif" )
-	return new QMotifStyle();
+    if ( s.lower() == "motif" )
+	return style = new QMotifStyle();
     return 0;
+}
+
+bool MotifStyle::init()
+{ 
+    return TRUE;
+}
+
+bool MotifStyle::canUnload() const
+{
+    return style.isNull();
 }
 
 Q_EXPORT_INTERFACE()
 {
-    Q_CREATE_INSTANCE( MotifStyle )
+    QUnknownInterface *iface = (QUnknownInterface*)(QStyleInterface*)new MotifStyle;
+    iface->addRef();
+    return iface;
 }

@@ -1,7 +1,8 @@
 #include <qstyleinterface.h>
 #include <qplatinumstyle.h>
+#include <qguardedptr.h>
 
-class PlatinumStyle : public QStyleInterface
+class PlatinumStyle : public QStyleInterface, public QLibraryInterface
 {
 public:
     PlatinumStyle();
@@ -13,12 +14,17 @@ public:
     QStringList featureList() const;
     QStyle *create( const QString& );
 
+    bool init();
+    bool canUnload() const;
+
 private:
+    QGuardedPtr<QStyle> style;
+
     unsigned long ref;
 };
 
 PlatinumStyle::PlatinumStyle()
-: ref( 0 )
+: ref( 0 ), style( 0 )
 {
 }
 
@@ -26,9 +32,11 @@ QUnknownInterface *PlatinumStyle::queryInterface( const QUuid &uuid )
 {
     QUnknownInterface *iface = 0;
     if ( uuid == IID_QUnknownInterface )
-	iface = (QUnknownInterface*)this;
+	iface = (QUnknownInterface*)(QStyleInterface*)this;
     else if ( uuid == IID_QStyleInterface )
 	iface = (QStyleInterface*)this;
+    else if ( uuid == IID_QLibraryInterface )
+	iface = (QLibraryInterface*)this;
 
     if ( iface )
 	iface->addRef();
@@ -57,14 +65,26 @@ QStringList PlatinumStyle::featureList() const
     return list;
 }
 
-QStyle* PlatinumStyle::create( const QString& style )
+QStyle* PlatinumStyle::create( const QString& s )
 {
-    if ( style.lower() == "platinum" )
-        return new QPlatinumStyle();
+    if ( s.lower() == "platinum" )
+        return style = new QPlatinumStyle();
     return 0;
+}
+
+bool PlatinumStyle::init()
+{
+    return TRUE;
+}
+
+bool PlatinumStyle::canUnload() const
+{
+    return style.isNull();
 }
 
 Q_EXPORT_INTERFACE()
 {
-    Q_CREATE_INSTANCE( PlatinumStyle )
+    QUnknownInterface *iface = (QUnknownInterface*)(QStyleInterface*)new PlatinumStyle;
+    iface->addRef();
+    return iface;
 }

@@ -1,7 +1,8 @@
 #include <qstyleinterface.h>
 #include <qaquastyle.h>
+#include <qguardedptr.h>
 
-class AquaStyle : public QStyleInterface
+class AquaStyle : public QStyleInterface, public QLibraryInterface
 {
 public:
     AquaStyle();
@@ -13,12 +14,17 @@ public:
     QStringList featureList() const;
     QStyle *create( const QString& );
 
+    bool init();
+    bool canUnload() const;
+
 private:
+    QGuardedPtr<QStyle> style;
+
     unsigned long ref;
 };
 
 AquaStyle::AquaStyle()
-: ref( 0 )
+: ref( 0 ), style( 0 )
 {
 }
 
@@ -26,9 +32,11 @@ QUnknownInterface *AquaStyle::queryInterface( const QUuid &uuid )
 {
     QUnknownInterface *iface = 0;
     if ( uuid == IID_QUnknownInterface )
-	iface = (QUnknownInterface*)this;
+	iface = (QUnknownInterface*)(QStyleInterface*)this;
     else if ( uuid == IID_QStyleInterface )
 	iface = (QStyleInterface*)this;
+    else if ( uuid == IID_QLibraryInterface )
+	iface = (QLibraryInterface*)this;
 
     if ( iface )
 	iface->addRef();
@@ -57,14 +65,26 @@ QStringList AquaStyle::featureList() const
     return list;
 }
 
-QStyle* AquaStyle::create( const QString& style )
+QStyle* AquaStyle::create( const QString& s )
 {
-    if ( style.lower() == "aqua" )
-        return new QAquaStyle();
+    if ( s.lower() == "aqua" )
+        return style = new QAquaStyle();
     return 0;
+}
+
+bool AquaStyle::init()
+{
+    return TRUE;
+}
+
+bool AquaStyle::canUnload() const
+{
+    return style.isNull();
 }
 
 Q_EXPORT_INTERFACE()
 {
-    Q_CREATE_INSTANCE( AquaStyle );
+    QUnknownInterface *iface = (QUnknownInterface*)(QStyleInterface*)new AquaStyle;
+    iface->addRef();
+    return iface;
 }

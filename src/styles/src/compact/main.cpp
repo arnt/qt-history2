@@ -1,7 +1,8 @@
 #include <qstyleinterface.h>
 #include <qcompactstyle.h>
+#include <qguardedptr.h>
 
-class CompactStyle : public QStyleInterface
+class CompactStyle : public QStyleInterface, public QLibraryInterface
 {
 public:
     CompactStyle();
@@ -13,12 +14,17 @@ public:
     QStringList featureList() const;
     QStyle *create( const QString& );
 
+    bool init();
+    bool canUnload() const;
+
 private:
+    QGuardedPtr<QStyle> style;
+
     unsigned long ref;
 };
 
 CompactStyle::CompactStyle()
-: ref( 0 )
+: ref( 0 ), style( 0 )
 {
 }
 
@@ -26,9 +32,11 @@ QUnknownInterface *CompactStyle::queryInterface( const QUuid &uuid )
 {
     QUnknownInterface *iface = 0;
     if ( uuid == IID_QUnknownInterface )
-	iface = (QUnknownInterface*)this;
+	iface = (QUnknownInterface*)(QStyleInterface*)this;
     else if ( uuid == IID_QStyleInterface )
 	iface = (QStyleInterface*)this;
+    else if ( uuid == IID_QLibraryInterface )
+	iface = (QLibraryInterface*)this;
 
     if ( iface )
 	iface->addRef();
@@ -57,14 +65,26 @@ QStringList CompactStyle::featureList() const
     return list;
 }
 
-QStyle* CompactStyle::create( const QString& style )
+QStyle* CompactStyle::create( const QString& s )
 {
-    if ( style.lower() == "compact" )
-        return new QCompactStyle();
+    if ( s.lower() == "compact" )
+        return style = new QCompactStyle();
     return 0;
+}
+
+bool CompactStyle::init()
+{
+    return TRUE;
+}
+
+bool CompactStyle::canUnload() const
+{
+    return style.isNull();
 }
 
 Q_EXPORT_INTERFACE()
 {
-    Q_CREATE_INSTANCE( CompactStyle )
+    QUnknownInterface *iface = (QUnknownInterface*)(QStyleInterface*)new CompactStyle;
+    iface->addRef();
+    return iface;
 }

@@ -1,7 +1,8 @@
 #include <qstyleinterface.h>
 #include <qcdestyle.h>
+#include <qguardedptr.h>
 
-class CDEStyle : public QStyleInterface
+class CDEStyle : public QStyleInterface, public QLibraryInterface
 {
 public:
     CDEStyle();
@@ -13,12 +14,17 @@ public:
     QStringList featureList() const;
     QStyle *create( const QString& );
 
+    bool init();
+    bool canUnload() const;
+
 private:
+    QGuardedPtr<QStyle> style;
+
     unsigned long ref;
 };
 
 CDEStyle::CDEStyle()
-: ref( 0 )
+: ref( 0 ), style( 0 )
 {
 }
 
@@ -26,9 +32,11 @@ QUnknownInterface *CDEStyle::queryInterface( const QUuid &uuid )
 {
     QUnknownInterface *iface = 0;
     if ( uuid == IID_QUnknownInterface )
-	iface = (QUnknownInterface*)this;
+	iface = (QUnknownInterface*)(QStyleInterface*)this;
     else if ( uuid == IID_QStyleInterface )
 	iface = (QStyleInterface*)this;
+    else if ( uuid == IID_QLibraryInterface )
+	iface = (QLibraryInterface*)this;
 
     if ( iface )
 	iface->addRef();
@@ -57,14 +65,26 @@ QStringList CDEStyle::featureList() const
     return list;
 }
 
-QStyle* CDEStyle::create( const QString& style )
+QStyle* CDEStyle::create( const QString& s )
 {
-    if ( style.lower() == "cde" )
-        return new QCDEStyle();
+    if ( s.lower() == "cde" )
+        return style = new QCDEStyle();
     return 0;
+}
+
+bool CDEStyle::init()
+{
+    return TRUE;
+}
+
+bool CDEStyle::canUnload() const
+{
+    return style.isNull();
 }
 
 Q_EXPORT_INTERFACE()
 {
-    Q_CREATE_INSTANCE( CDEStyle )
+    QUnknownInterface *iface = (QUnknownInterface*)(QStyleInterface*)new CDEStyle;
+    iface->addRef();
+    return iface;
 }

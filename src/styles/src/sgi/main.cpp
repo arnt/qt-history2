@@ -1,7 +1,8 @@
 #include <qstyleinterface.h>
 #include <qsgistyle.h>
+#include <qguardedptr.h>
 
-class SGIStyle : public QStyleInterface
+class SGIStyle : public QStyleInterface, public QLibraryInterface
 {
 public:
     SGIStyle();
@@ -13,12 +14,17 @@ public:
     QStringList featureList() const;
     QStyle *create( const QString& );
 
+    bool init();
+    bool canUnload() const;
+
 private:
+    QGuardedPtr<QStyle> style;
+
     unsigned long ref;
 };
 
 SGIStyle::SGIStyle()
-: ref( 0 )
+: ref( 0 ), style( 0 )
 {
 }
 
@@ -26,9 +32,11 @@ QUnknownInterface *SGIStyle::queryInterface( const QUuid &uuid )
 {
     QUnknownInterface *iface = 0;
     if ( uuid == IID_QUnknownInterface )
-	iface = (QUnknownInterface*)this;
+	iface = (QUnknownInterface*)(QStyleInterface*)this;
     else if ( uuid == IID_QStyleInterface )
 	iface = (QStyleInterface*)this;
+    else if ( uuid == IID_QLibraryInterface )
+	iface = (QLibraryInterface*)this;
 
     if ( iface )
 	iface->addRef();
@@ -57,13 +65,25 @@ QStringList SGIStyle::featureList() const
     return list;
 }
 
-QStyle* SGIStyle::create( const QString& style )
+QStyle* SGIStyle::create( const QString& s )
 {
-    if ( style.lower() == "sgi" )
-        return new QSGIStyle();
+    if ( s.lower() == "sgi" )
+        return style = new QSGIStyle();
     return 0;
 }
 
+bool SGIStyle::init()
+{
+    return TRUE;
+}
+
+bool SGIStyle::canUnload() const
+{
+    return style.isNull();
+}
+
 Q_EXPORT_INTERFACE(){
-    Q_CREATE_INSTANCE( SGIStyle )
+    QUnknownInterface *iface = (QUnknownInterface*)(QStyleInterface*)new SGIStyle();
+    iface->addRef();
+    return iface;
 }
