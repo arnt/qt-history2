@@ -67,7 +67,7 @@ public:
     void removeUiFile( const QString &f, FormWindow *fw );
     void setUiFiles( const QStringList &lst );
     void formClosed( FormWindow *fw );
-    
+
     bool isValid() const;
 
     void setFormWindow( const QString &f, FormWindow *fw );
@@ -92,6 +92,8 @@ public:
     void openDatabase( const QString &connection );
     void closeDatabase( const QString &connection );
 
+    void connectTables( QObject *toplevel, const QMap<QString, QStringList> &tables );
+    
 private:
     void parse();
     void clear();

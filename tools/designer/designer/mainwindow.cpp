@@ -1697,7 +1697,7 @@ QWidget* MainWindow::previewFormInternal( QStyle* style, QPalette* palet )
     buffer.close();
     buffer.open( IO_ReadOnly );
     Resource preview( style, palet );
-    if ( preview.load( &buffer, &images ) && preview.widget() ) {
+    if ( preview.load( &buffer, &images, QString::null, fw->project() ) && preview.widget() ) {
 	preview.widget()->move( fw->mapToGlobal( QPoint(0,0) ) );
 	((MainWindow*)preview.widget() )->setWFlags( WDestructiveClose );
 	QApplication::restoreOverrideCursor();
@@ -3111,10 +3111,10 @@ bool MainWindow::closeForm( FormWindow *fw )
 	    break;
 	}
     }
-    
+
     for ( QMap<QAction*, Project* >::Iterator it = projects.begin(); it != projects.end(); ++it )
 	(*it)->formClosed( fw );
-    
+
     return TRUE;
 }
 

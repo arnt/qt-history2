@@ -31,6 +31,7 @@
 #include "command.h"
 #include "pixmapchooser.h"
 #include "database.h"
+#include "project.h"
 
 #include <qfile.h>
 #include <qtextstream.h>
@@ -142,7 +143,7 @@ bool Resource::load( const QString& filename )
     return b;
 }
 
-bool Resource::load( QIODevice* dev, QValueList<Image> *imgs, const QString& filename )
+bool Resource::load( QIODevice* dev, QValueList<Image> *imgs, const QString& filename, Project *project )
 {
     QDomDocument doc;
     if ( !doc.setContent( dev ) ) {
@@ -235,6 +236,8 @@ bool Resource::load( QIODevice* dev, QValueList<Image> *imgs, const QString& fil
 		( (QDesignerSqlWidget*)toplevel )->initPreview( lst[ 0 ], lst[ 1 ], toplevel, dbControls );
 	    else if ( toplevel->inherits( "QDesignerSqlDialog" ) )
 		( (QDesignerSqlDialog*)toplevel )->initPreview( lst[ 0 ], lst[ 1 ], toplevel, dbControls );
+	    if ( project )
+		project->connectTables( toplevel, dbTables );
 	}
     }
 
@@ -1393,6 +1396,8 @@ void Resource::setObjectProperty( QObject* obj, const QString &prop, const QDomE
 		QStringList lst = MetaDataBase::fakeProperty( obj, "database" ).toStringList();
 		if ( lst.count() > 2 )
 		    dbControls.insert( obj->name(), lst[ 2 ] );
+		else if ( lst.count() == 2 )
+		    dbTables.insert( obj->name(), lst );
 	    }
 	    return;
 	}

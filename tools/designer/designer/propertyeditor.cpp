@@ -2427,8 +2427,9 @@ void PropertyList::setupProperties()
 	    item->setChanged( TRUE, FALSE );
     }
 
-    if ( editor->formWindow()->mainContainer()->inherits( "QDesignerSqlWidget" ) ||
-	 editor->formWindow()->mainContainer()->inherits( "QDesignerSqlDialog" ) ) {
+    if ( ( editor->formWindow()->mainContainer()->inherits( "QDesignerSqlWidget" ) ||
+	   editor->formWindow()->mainContainer()->inherits( "QDesignerSqlDialog" ) ) && 
+	 !editor->widget()->inherits( "QSqlTable" ) ) {
 	item = new PropertyDatabaseItem( this, item, 0, "database", editor->formWindow()->mainContainer() != w );
 	setPropertyValue( item );
 	if ( MetaDataBase::isPropertyChanged( editor->widget(), "database" ) )

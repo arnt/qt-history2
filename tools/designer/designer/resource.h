@@ -39,6 +39,7 @@ class MainWindow;
 class QDomElement;
 class QDesignerGridLayout;
 class QListViewItem;
+class Project;
 
 class Resource
 {
@@ -59,7 +60,7 @@ public:
     QWidget *widget() const;
 
     bool load( const QString& filename );
-    bool load( QIODevice*, QValueList<Image> *images = 0, const QString& filename = QString::null );
+    bool load( QIODevice*, QValueList<Image> *images = 0, const QString& filename = QString::null, Project *project = 0 );
     QString copy();
 
     bool save( const QString& filename);
@@ -122,6 +123,7 @@ private:
     QStringList metaForwards;
     MetaDataBase::MetaInfo metaInfo;
     QMap<QString, QString> dbControls;
+    QMap<QString, QStringList> dbTables;
 
 };
 
