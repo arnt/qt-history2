@@ -1,21 +1,21 @@
 /****************************************************************************
-** $Id: credits.doc,v 2.1 1997/06/16 23:43:42 agulbra Exp $
+** $Id: credits.doc,v 2.2 1997/06/16 23:46:32 agulbra Exp $
 **
-** Miscellaneous documentation that doesn't fit anywhere else
+** Credits file - all the qt-bugs stuff
 **
 ** Copyright (C) 1995 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
 #if defined(DEBUG)
-static char ident[] = "$Id: credits.doc,v 2.1 1997/06/16 23:43:42 agulbra Exp $";
+static char ident[] = "$Id: credits.doc,v 2.2 1997/06/16 23:46:32 agulbra Exp $";
 #endif
 
 // the list is up to an including /local/qt/mail/qt-bugs/1715
 
 /*! \page credits.html
 
-<title>Qt toolkit - FAQ</title>
+<title>Qt toolkit - Credits</title>
 </head><body bgcolor="#ffffff">
 <h1 align="center">
 Thanks!
@@ -266,6 +266,8 @@ yleffler@ucis.vill.edu,
 Y. N. Lo &lt;ynlo@netcom.ca&gt;,
 Zyklon &lt;zyk@dds.nl&gt; and last but not least
 NGOk YUK YAU &lt;zzy@compuserve.com&gt;.
+
+</blockquote>
 
 <p>We hope there are not too many omissions from the list.  Any
 omissions are <b>bugs</a> and will be corrected - just write to
