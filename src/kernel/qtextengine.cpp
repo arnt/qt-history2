@@ -144,7 +144,7 @@ static void appendItems(QScriptItemArray &items, int &start, int &stop, BidiCont
 #if (BIDI_DEBUG >= 1)
     qDebug("new run: dir=%s from %d, to %d level = %d\n", directions[dir], start, stop, level);
 #endif
-    QFont::Script script = (QFont::Script)scriptForChar( text[start].unicode() );
+    QFont::Script script = QFont::NoScript;
     QScriptItem item;
     item.position = start;
     item.analysis.script = script;
@@ -152,14 +152,13 @@ static void appendItems(QScriptItemArray &items, int &start, int &stop, BidiCont
     item.analysis.override = control.override();
     item.analysis.reserved = 0;
 
-    items.append( item );
     if ( control.singleLine ) {
 	for ( int i = start+1; i <= stop; i++ ) {
 
 	    unsigned short uc = text[i].unicode();
 	    QFont::Script s = (QFont::Script)scriptForChar( uc );
 
-	    if ( s != script && ::category( uc ) != QChar::Mark_NonSpacing ) {
+	    if (s != script && (::category( uc ) != QChar::Mark_NonSpacing || script == QFont::NoScript)) {
 		item.analysis.script = s;
 		item.analysis.bidiLevel = level;
 		item.position = i;
@@ -174,19 +173,19 @@ static void appendItems(QScriptItemArray &items, int &start, int &stop, BidiCont
 	    QFont::Script s = (QFont::Script)scriptForChar( uc );
 
 	    QChar::Category category = ::category( uc );
-	    if ( !control.singleLine && uc == 0xfffcU || uc == 0x2028U ) {
+	    if ( uc == 0xfffcU || uc == 0x2028U ) {
 		item.analysis.bidiLevel = level;
 		item.analysis.script = QFont::Latin;
 		item.isObject = TRUE;
 		s = QFont::NoScript;
-	    } else if ( !control.singleLine && ( (uc >= 9 && uc <=13) ||
-						 (category >= QChar::Separator_Space && category <= QChar::Separator_Paragraph ) ) ) {
+	    } else if ((uc >= 9 && uc <=13) ||
+		       (category >= QChar::Separator_Space && category <= QChar::Separator_Paragraph)) {
 		item.analysis.script = QFont::Latin;
 		item.isSpace = TRUE;
 		item.isTab = ( uc == '\t' );
 		item.analysis.bidiLevel = item.isTab ? control.baseLevel() : level;
 		s = QFont::NoScript;
-	    } else if ( s != script && category != QChar::Mark_NonSpacing ) {
+	    } else if ( s != script && (category != QChar::Mark_NonSpacing || script == QFont::NoScript)) {
 		item.analysis.script = s;
 		item.analysis.bidiLevel = level;
 	    } else {
@@ -758,16 +757,17 @@ void QTextEngine::reallocate( int totalGlyphs )
 
 const QCharAttributes *QTextEngine::attributes()
 {
-#ifdef Q_WS_WIN
-    if ( hasUsp10 )
-	itemize( QTextEngine::Full );
-#endif
     QCharAttributes *charAttributes = (QCharAttributes *) memory;
     if ( haveCharAttributes )
 	return charAttributes;
 
     if ( !items.d )
 	itemize();
+
+#ifdef Q_WS_WIN
+    if ( hasUsp10 )
+	return charAttributes;
+#endif
 
     for ( int i = 0; i < items.size(); i++ ) {
 	QScriptItem &si = items[i];

@@ -98,6 +98,7 @@ bool hasUsp10 = FALSE;
 
 const SCRIPT_PROPERTIES **script_properties = 0;
 int num_scripts = 0;
+int usp_latin_script = 0;
 
 
 const QFont::Script japanese_tryScripts[] = {
@@ -160,11 +161,20 @@ static void resolveUsp10()
 	ScriptTextOut = (fScriptTextOut) lib.resolve( "ScriptTextOut" );
 	ScriptBreak = (fScriptBreak) lib.resolve( "ScriptBreak" );
 	ScriptGetProperties = (fScriptGetProperties) lib.resolve( "ScriptGetProperties" );
-	if ( ScriptFreeCache ) {
-	    hasUsp10 = TRUE;
-	    ScriptGetProperties( &script_properties, &num_scripts );
-	}
+	if ( !ScriptFreeCache ) 
+	    return;
 
+	hasUsp10 = TRUE;
+	ScriptGetProperties( &script_properties, &num_scripts );
+
+	// get the usp script for western
+	for( int i = 0; i < num_scripts; i++ ) {
+	    if (script_properties[i]->langid == LANG_ENGLISH &&
+		!script_properties[i]->fAmbiguousCharSet ) {
+		usp_latin_script = i;
+		break;
+	    }
+	}
 
 	// initialize tryScripts according to locale
 	LANGID lid = GetUserDefaultLangID();
@@ -527,16 +537,47 @@ void QTextEngine::itemize( int mode )
 	int i;
 	for( i = 0; i < numItems; i++ ) {
 	    QScriptItem item;
-	    item.position = usp_items[i].iCharPos;
 	    item.analysis = usp_items[i].a;
-	    items.append( item );
+	    item.position = usp_items[i].iCharPos;
+	    int start = usp_items[i].iCharPos;
+	    int stop = usp_items[i+1].iCharPos-1;
+	    bool b = TRUE;
+	    for ( int j = start; j <= stop; j++ ) {
+
+		unsigned short uc = string.unicode()[j].unicode();
+		QChar::Category category = ::category( uc );
+		if ( uc == 0xfffcU || uc == 0x2028U ) {
+		    item.analysis.script = usp_latin_script;
+		    item.isObject = TRUE;
+		    b = TRUE;
+		} else if ((uc >= 9 && uc <=13) ||
+			   (category >= QChar::Separator_Space && category <= QChar::Separator_Paragraph)) {
+		    item.analysis.script = usp_latin_script;
+		    item.isSpace = TRUE;
+		    item.isTab = (uc == '\t');
+		    if (item.isTab)
+			item.analysis.bidiLevel = (direction == QChar::DirR ? 1 : 0);
+		    b = TRUE;
+		} else if (b) {
+		    b = FALSE;
+		} else {
+		    continue;
+		}
+
+		item.position = j;
+		items.append( item );
+		item.analysis = usp_items[i].a;
+		item.isSpace = item.isTab = item.isObject = FALSE;
+	    }
 	}
+
 	QCharAttributes *charAttributes = (QCharAttributes *)memory;
 	for ( i = 0; i < numItems; i++ ) {
 	    int from = usp_items[i].iCharPos;
 	    int len = usp_items[i+1].iCharPos - from;
 	    ScriptBreak( (const WCHAR *)string.unicode() + from, len, &(usp_items[i].a), charAttributes+from);
 	}
+
 	if ( usp_items != s_items )
 	    free( usp_items );
 	return;
