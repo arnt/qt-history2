@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qiconview.h#26 $
+** $Id: //depot/qt/main/src/widgets/qiconview.h#27 $
 **
 ** Definition of QIconView widget class
 **
@@ -326,7 +326,7 @@ protected slots:
 
 private slots:
     void clearInputString();
-    
+
 protected:
     virtual void drawContents( QPainter *p, int cx, int cy, int cw, int ch );
     virtual void contentsMousePressEvent( QMouseEvent *e );
@@ -359,6 +359,8 @@ protected:
     void setNumDragItems( int num );
 
 private:
+    void findItemByName( const QString text );
+    
     QIconViewPrivate *d;
 
 };

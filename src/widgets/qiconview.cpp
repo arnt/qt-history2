@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qiconview.cpp#58 $
+** $Id: //depot/qt/main/src/widgets/qiconview.cpp#59 $
 **
 ** Definition of QIconView widget class
 **
@@ -1299,7 +1299,7 @@ QIconView::QIconView( QWidget *parent, const char *name )
     d->maxItemTextLength = 255;
     d->inputTimer = new QTimer( this );
     d->currInputString = QString::null;
-    
+
     connect ( d->adjustTimer, SIGNAL( timeout() ),
 	      this, SLOT( adjustItems() ) );
     connect ( d->updateTimer, SIGNAL( timeout() ),
@@ -2303,20 +2303,10 @@ void QIconView::keyPressEvent( QKeyEvent *e )
 {
     if ( !d->firstItem )
 	return;
-    
+
     if ( !d->currentItem ) {
 	if ( !e->text().isEmpty() && e->text()[ 0 ].isPrint() ) {
-	    if ( d->inputTimer->isActive() )
-		d->inputTimer->stop();
-	    d->inputTimer->start( 500, TRUE );
-	    d->currInputString += e->text();
-	    QIconViewItem *item = findItem( d->currInputString );
-	    if ( item ) {
-		QIconViewItem *i = d->currentItem;
-		setCurrentItem( item );
-		repaintItem( i );
-		repaintItem( d->currentItem );
-	    }
+	    findItemByName( e->text() );
 	    return;
 	}
 	
@@ -2569,19 +2559,8 @@ void QIconView::keyPressEvent( QKeyEvent *e )
 	setCurrentItem( findFirstVisibleItem() );
 	break;
     default:
-	if ( !e->text().isEmpty() && e->text()[ 0 ].isPrint() ) {
-	    if ( d->inputTimer->isActive() )
-		d->inputTimer->stop();
-	    d->inputTimer->start( 500, TRUE );
-	    d->currInputString += e->text();
-	    QIconViewItem *item = findItem( d->currInputString );
-	    if ( item ) {
-		QIconViewItem *i = d->currentItem;
-		setCurrentItem( item );
-		repaintItem( i );
-		repaintItem( d->currentItem );
-	    }
-	}
+	if ( !e->text().isEmpty() && e->text()[ 0 ].isPrint() ) 
+	    findItemByName( e->text() );
     }
 
     ensureItemVisible( d->currentItem );
@@ -2997,6 +2976,21 @@ bool QIconView::eventFilter( QObject * o, QEvent * e )
 void QIconView::clearInputString()
 {
     d->currInputString = QString::null;
+}
+
+void QIconView::findItemByName( const QString text )
+{
+    if ( d->inputTimer->isActive() )
+	d->inputTimer->stop();
+    d->inputTimer->start( 500, TRUE );
+    d->currInputString += text;
+    QIconViewItem *item = findItem( d->currInputString );
+    if ( item ) {
+	QIconViewItem *i = d->currentItem;
+	setCurrentItem( item );
+	repaintItem( i );
+	repaintItem( d->currentItem );
+    }
 }
 
 #include "qiconview.moc"
