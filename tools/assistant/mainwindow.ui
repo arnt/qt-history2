@@ -13,6 +13,7 @@
   **
   *********************************************************************</comment>
   <widget class="QMainWindow" name="MainWindow" >
+    <widget class="QWidget" name="__qt_central_widget" />
     <property name="objectName" >
       <string notr="true">MainWindow</string>
     </property>
