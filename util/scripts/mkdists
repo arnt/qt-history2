@@ -639,7 +639,6 @@ copy_platform_files() {
 }
 
 for plat in mac win x11 embedded; do
-    continue
     #handle commandline options
     platformname=$plat
     plat2=$plat
