@@ -102,7 +102,6 @@
 #include "qiconset.h"
 #include "qbuffer.h"
 #include "qstringlist.h"
-#include "qcom.h"
 #include "qlineedit.h"
 #include "qintcache.h"
 #include "qintdict.h"
@@ -152,7 +151,6 @@
 #include "qpixmapcache.h"
 #include "qfontdatabase.h"
 #include "qplatinumstyle.h"
-#include "qgpluginmanager.h"
 #include "qpngio.h"
 #include "qcursor.h"
 #include "qcolordialog.h"
@@ -205,10 +203,10 @@
 #include "qeditorfactory.h"
 #include "qsqlquery.h"
 #include "qsqlrecord.h"
-#include "qsqldriverinterface.h"
 #include "qsqlindex.h"
 #include "qsqlcursor.h"
 #include "qsqldriver.h"
+#include "qsqldriverplugin.h"
 #include "qdockarea.h"
 #include "qtable.h"
 #include "qsqlpropertymap.h"
@@ -217,12 +215,9 @@
 #include "qsqlresult.h"
 #include "qstatusbar.h"
 #include "qiconview.h"
-#include "qcomponentfactory.h"
-#include "qpluginmanager.h"
 #include "qptrvector.h"
 #include "qinterlacestyle.h"
 #include "qstylefactory.h"
-#include "qstyleinterface.h"
 #include "qtextedit.h"
 #include "qtabbar.h"
 #include "qtabdialog.h"
@@ -231,7 +226,6 @@
 #include "qtextbrowser.h"
 #include "qbig5codec.h"
 #include "qtextcodecfactory.h"
-#include "qtextcodecinterface.h"
 #include "qmultilineedit.h"
 #include "qtoolbar.h"
 #include "qtextview.h"
@@ -243,13 +237,10 @@
 #include "qtooltip.h"
 #include "qdesktopwidget.h"
 #include "qtsciicodec.h"
-#include "qucom.h"
-#include "qucomextra.h"
 #include "qurl.h"
 #include "qurloperator.h"
 #include "qfiledialog.h"
 #include "qutfcodec.h"
-#include "qimageformatinterface.h"
 #include "qvalidator.h"
 #include "qasyncimageio.h"
 #include "qvaluestack.h"
@@ -273,10 +264,22 @@
 #include "qworkspace.h"
 #include "qlocalfs.h"
 #include "qxml.h"
+#include "qgplugin.h"
 #include <stdio.h>
 
 #if defined( QT_MOC_CPP ) || defined( QT_H_CPP )
 #include <limits.h>
+#include <private/qcom_p.h>
+#include <private/qucom_p.h>
+#include <private/qucomextra_p.h>
+#include <private/qcomponentfactory_p.h>
+#include <private/qcomlibrary_p.h>
+#include <private/qgpluginmanager_p.h>
+#include <private/qpluginmanager_p.h>
+#include <private/qstyleinterface_p.h>
+#include <private/qtextcodecinterface_p.h>
+#include <private/qimageformatinterface_p.h>
+#include <private/qsqldriverinterface_p.h>
 #include <private/qcomplextext_p.h>
 #include <private/qlayoutengine_p.h>
 #include <private/qeffects_p.h>
