@@ -177,16 +177,16 @@ $mname = ("January", "Febrary", "March", "April", "May", "June", "July",
 	    "August", "September", "October", "November", "December")[$mon];
 
 undef $/;
-chdir $ENV{"QTDIR"} . "/doc/html" || die;
-mkdir "../../man", 0777 unless ( -d "../../man" );
-mkdir "../../man/man3", 0777 unless ( -d "../../man/man3" );
-mkdir "../../man/man1", 0777 unless ( -d "../../man/man1" );
+chdir $ENV{"QTDIR"} . "/doc/html" || die "sex";
+mkdir "../man", oct 777 unless ( -d "../man" );
+mkdir "../man/man3", oct 777 unless ( -d "../man/man3" );
+mkdir "../man/man1", oct 777 unless ( -d "../man/man1" );
 
-open( A, "< annotated.html" ) || die;
+open( A, "< annotated.html" ) || die "can't open annotated.html";
 $_ = <A>;
 close A;
 
-while ( m@<li><strong><a href=(.*?\.html)>(.*?)</a></strong> \((.*?)\)@gs ) {
+while ( m@<li><strong><a href=\"(.*?\.html)\">(.*?)</a></strong> \((.*?)\)@gs ) {
     $name{$1} = $2;
     $desc{$1} = $3;
 }
@@ -196,8 +196,6 @@ foreach ( keys %desc ) {
     $desc{$_} =~ s-<code>(.*?)</code>-\\fC$1\\fP-gs;
 }
 
-#foreach $url ( 'qpainter.html' ) {
-
 foreach $url ( sort keys %name ) { #'qstring.html'
     $name = $name{$url};
     $manpage = $url;
@@ -205,7 +203,7 @@ foreach $url ( sort keys %name ) { #'qstring.html'
     open( F, "< $url" ) || die "can't open $url";
     $contents = <F>;
     close F;
-    open( M, "> ../man/man3/" . $manpage ) || die "cannot open /man/man3/ " . $manpage;
+    open( M, "> ../man/man3/" . $manpage ) || die "cannot open /man/man3/" . $manpage;
     print M ".TH ", $name, " 3qt \"", $day, " ", $mname, " ", 1900+$year,
 "\" \"Troll Tech AS\" \\\" -*- nroff -*-
 .\\\" Copyright 1992-1996 Troll Tech AS.  All rights reserved.  See the
