@@ -382,7 +382,7 @@ QString QSqlCursor::name() const
 QString QSqlCursor::toString( const QString& prefix, const QString& sep ) const
 {
     QString pflist;
-    QString pfix =  prefix.isNull() ? QString::null : prefix + ".";
+    QString pfix =  prefix.isEmpty() ? QString::null : prefix + ".";
     bool comma = FALSE;
 
     for ( uint i = 0; i < count(); ++i ) {
@@ -617,10 +617,10 @@ QSqlIndex QSqlCursor::index( const char* fieldName ) const
 
 bool QSqlCursor::select( const QString & filter, const QSqlIndex & sort )
 {
-    QString fieldList = toString("a"); // our table synonym
+    QString fieldList = toString(""); // our table synonym
     if ( fieldList.isEmpty() )
         return FALSE;
-    QString str = "select " + fieldList + " from " + d->nm + " a";
+    QString str = "select " + fieldList + " from " + d->nm;
 
     if ( !filter.isEmpty() ) {
 	d->ftr = filter;
@@ -628,7 +628,7 @@ bool QSqlCursor::select( const QString & filter, const QSqlIndex & sort )
     } else
 	d->ftr = QString::null;
     if ( sort.count() > 0 )
-	str += " order by " + sort.toString( d->nm );
+	str += " order by " + sort.toString("");
     d->srt = sort;
     return exec( str );
 }
@@ -703,7 +703,7 @@ bool QSqlCursor::select( const QSqlIndex& sort )
 
 bool QSqlCursor::select( const QSqlIndex & filter, const QSqlIndex & sort )
 {
-    return select( toString( filter, this, d->nm, "=", "and" ), sort );
+    return select( toString( filter, this, "", "=", "and" ), sort );
 }
 
 /*!
