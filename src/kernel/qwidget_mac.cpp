@@ -69,6 +69,7 @@ int mac_window_count = 0;
 /*****************************************************************************
   Externals
  *****************************************************************************/
+void qt_mac_command_set_enabled(UInt32, bool); //qapplication_mac.cpp
 void qt_mac_unicode_init(QWidget *); //qapplication_mac.cpp
 void qt_mac_unicode_cleanup(QWidget *); //qapplication_mac.cpp
 void qt_event_request_updates(); //qapplication_mac.cpp
@@ -652,7 +653,7 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
 	own_id = 1; //I created it, I own it
 
 	Rect r;
-	SetRect(&r, crect.left(), crect.top(), crect.right(), crect.bottom());
+	SetRect(&r, crect.left(), crect.top(), crect.left(), crect.top());
 	WindowClass wclass = kSheetWindowClass;
 	if(popup || testWFlags(WStyle_Tool)) 
 	    wclass = kModalWindowClass;
@@ -1333,6 +1334,7 @@ void QWidget::showWindow()
     fstrut_dirty = TRUE;
     dirtyClippedRegion(TRUE);
     if(isTopLevel()) {
+	SizeWindow((WindowPtr)hd, width(), height(), 1);
 	if(qt_mac_is_macsheet(this))
 	    qt_event_request_showsheet(this);
 	else
@@ -1343,12 +1345,8 @@ void QWidget::showWindow()
 	if(testWFlags(WShowModal))
 	    BeginAppModalStateForWindow((WindowRef)hd);
 #else
-	if(testWFlags(WShowModal))
-	    DisableMenuCommand(NULL, kHICommandQuit);
-#endif
-#if 0
-	/* For now this will happen in the event loop (so that the window is actually visible by then) */
-	setActiveWindow();
+	if(testWFlags(WShowModal)) 
+	    qt_mac_command_set_enabled(kHICommandQuit, FALSE);
 #endif
     } else if(!parentWidget(TRUE) || parentWidget(TRUE)->isVisible()) {
 	qt_dirty_wndw_rgn("show",this, mac_rect(posInWindow(this), geometry().size()));
@@ -1369,12 +1367,13 @@ void QWidget::hideWindow()
 	    EndAppModalStateForWindow((WindowRef)hd);
 #else
 	if(testWFlags(WShowModal))
-	    EnableMenuCommand(NULL, kHICommandQuit);
+	    qt_mac_command_set_enabled(kHICommandQuit, TRUE);
 #endif
 	if(qt_mac_is_macsheet(this))
 	    HideSheetWindow((WindowPtr)hd);
 	else
 	    ShowHide((WindowPtr)hd, 0); //now we hide
+	SizeWindow((WindowPtr)hd, 0, 0, 1);
 
 	if(isActiveWindow()) {
 	    QWidget *w = NULL;
@@ -1613,22 +1612,27 @@ void QWidget::internalSetGeometry(int x, int y, int w, int h, bool isMove)
 
     QPoint oldp = pos();
     QSize  olds = size();
-    QRegion oldregion = clippedRegion(FALSE);
-    QRect  r(x, y, w, h);
-    dirtyClippedRegion(FALSE);
-    crect = r;
-    if(!isTopLevel() && size() == olds && oldp == pos())
+    if(!isTopLevel() && QSize(w, h) == olds && QPoint(x, y) == oldp) 
 	return;
-    dirtyClippedRegion(TRUE);
+    const bool visible = isVisible();
+    QRegion oldregion, clpreg;
+    if(visible) {
+	oldregion = clippedRegion(FALSE);
+	dirtyClippedRegion(FALSE);
+	crect = QRect(x, y, w, h);
+	dirtyClippedRegion(TRUE);
+    } else {
+	crect = QRect(x, y, w, h);
+    }
 
     bool isResize = (olds != size());
     if(isTopLevel() && winid && own_id) {
-	if(isResize && isMove && isVisible()) {
+	if(isResize && isMove && visible) {
 	    Rect r;
 	    SetRect(&r, x, y, x + w, y + h);
 	    SetWindowBounds((WindowPtr)hd, kWindowContentRgn, &r);
 	} else {
-	    if(isResize)
+	    if(isResize && visible)
 		SizeWindow((WindowPtr)hd, w, h, 1);
 	    if(isMove)
 		MoveWindow((WindowPtr)hd, x, y, 0);
@@ -1636,7 +1640,7 @@ void QWidget::internalSetGeometry(int x, int y, int w, int h, bool isMove)
     }
 
     if(isMove || isResize) {
-	if(!isVisible()) {
+	if(!visible) {
 	    if(isResize)
 		QApplication::postEvent(this, new QResizeEvent(size(), olds));
 	    if(isMove && oldp != pos())
@@ -2089,6 +2093,15 @@ void QWidget::dirtyClippedRegion(bool dirty_myself)
 {
     if(qApp->closingDown())
 	return;
+    if(!isTopLevel()) { //short circuit, there is nothing to dirty here..
+	int ox = x(), oy = y();
+	for(QWidget *par=this; (par = par->parentWidget(TRUE)); ) { 
+	    if(ox > par->width() || oy > par->height()) 
+		return;
+	    ox += par->x();
+	    oy += par->y();
+	}
+    }
 
     if(dirty_myself && !wasDeleted) {
 	//dirty myself
