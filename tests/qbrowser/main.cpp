@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/qbrowser/main.cpp#8 $
+** $Id: //depot/qt/main/tests/qbrowser/main.cpp#9 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -18,11 +18,10 @@
 int main( int argc, char ** argv )
 {
     QApplication::setColorSpec( QApplication::ManyColor );
-    QApplication::setDesktopSettingsAware( FALSE );
     QApplication a(argc, argv);
-    
+
     qInitNetworkProtocols();
-    
+
     QStyleSheetItem* style;
 
     // Modify the application-wide default style sheet to handle
