@@ -19,7 +19,7 @@
 #define BUFSIZE (100*1000)
 #define PRGSTEP (BUFSIZE / 50)
 #define BLKSIZE (8)
-QByteArray bytearray(0, '\0');
+QByteArray bytearray;
 
 
 class ProdEvent : public QCustomEvent
