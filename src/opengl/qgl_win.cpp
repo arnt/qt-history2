@@ -323,7 +323,8 @@ void qwglError( const char* method, const char* func )
 		  0, GetLastError(),
 		  MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
 		  (LPTSTR) &lpMsgBuf, 0, 0 );
-    qWarning( "%s : %s failed: %s", method, func, (const char *)lpMsgBuf );
+    qWarning( "%s : %s failed: %s", method, func, 
+	      qt_winQString(lpMsgBuf).ascii() );
     LocalFree( lpMsgBuf );
 #else
     Q_UNUSED( method );
