@@ -123,6 +123,7 @@ class QUrlPrivate
 {
 public:
     QUrlPrivate();
+    QUrlPrivate(const QUrlPrivate &copy);
 
     bool setUrl(const QString &url);
 
@@ -941,6 +942,23 @@ QUrlPrivate::QUrlPrivate()
     pairDelimiter = '&';
     stateFlags = 0;
 }
+
+QUrlPrivate::QUrlPrivate(const QUrlPrivate &copy)
+    : scheme(copy.scheme),
+      userName(userName),
+      password(password),
+      host(host),
+      port(port),
+      path(path),
+      query(query),
+      fragment(fragment),
+      encodedOriginal(encodedOriginal),
+      isValid(isValid),
+      valueDelimiter(valueDelimiter),
+      pairDelimiter(pairDelimiter),
+      stateFlags(stateFlags),
+      encodedNormalized(encodedNormalized)
+{ ref = 1; }
 
 QString QUrlPrivate::authority(QUrl::FormattingOptions options) const
 {
@@ -2424,12 +2442,7 @@ bool QUrl::operator !=(const QUrl &url) const
 */
 QUrl &QUrl::operator =(const QUrl &url)
 {
-    QUrlPrivate *x = new QUrlPrivate;
-    *x = *url.d;
-    x = qAtomicSetPtr(&d, x);
-    if (!--x->ref)
-        delete x;
-
+    qAtomicAssign(d, url.d);
     return *this;
 }
 
@@ -2438,15 +2451,7 @@ QUrl &QUrl::operator =(const QUrl &url)
     Forces a detach.
 */
 void QUrl::detach()
-{
-    if (d->ref != 1) {
-        QUrlPrivate *x = new QUrlPrivate;
-        *x = *d;
-        x = qAtomicSetPtr(&d, x);
-        if (!--x->ref)
-            delete x;
-    }
-}
+{ qAtomicDetach(d); }
 
 
 bool QUrl::isDetached() const
