@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qasyncio.cpp#5 $
+** $Id: //depot/qt/main/src/kernel/qasyncio.cpp#6 $
 **
 ** Implementation of asynchronous I/O classes
 **
@@ -14,10 +14,10 @@
 #include "qtimer.h"
 #include <stdlib.h>
 
-/*!
+/*UNDOCUMENTED INTERNAL CLASS
+
   \class QAsyncIO qasyncio.h
   \brief Encapsulates I/O asynchronicity.
-
   \internal
 */
 
