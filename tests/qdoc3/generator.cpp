@@ -264,7 +264,7 @@ void Generator::generateBody( const Node *node, CodeMarker *marker )
 		if ( !definedParams.contains(*a) ) {
 		    QString details;
 		    QString best = nearestName( *a, definedParams );
-		    if ( !best.isEmpty() && !documentedParams.contains(best) )
+		    if ( !best.isEmpty() )
 			details = tr( "Maybe you meant '%1'?" ).arg( best );
 
 		    node->doc().location().warning( tr("No such parameter '%1'")

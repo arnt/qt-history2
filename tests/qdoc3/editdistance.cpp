@@ -44,13 +44,15 @@ QString nearestName( const QString& actual, const Set<QString>& candidates )
 
     Set<QString>::ConstIterator c = candidates.begin();
     while ( c != candidates.end() ) {
-	int delta = editDistance( actual, *c );
-	if ( delta < deltaBest ) {
-	    deltaBest = delta;
-	    numBest = 1;
-	    best = *c;
-	} else if ( delta == deltaBest ) {
-	    numBest++;
+	if ( (*c)[0] == actual[0] ) {
+	    int delta = editDistance( actual, *c );
+	    if ( delta < deltaBest ) {
+		deltaBest = delta;
+		numBest = 1;
+		best = *c;
+	    } else if ( delta == deltaBest ) {
+		numBest++;
+	    }
 	}
 	++c;
     }
