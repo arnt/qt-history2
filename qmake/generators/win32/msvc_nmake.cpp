@@ -97,7 +97,7 @@ NmakeMakefileGenerator::writeNmakeParts(QTextStream &t)
 	inc.replace(QRegExp("\\\\$"), "\\\\");
 	t << " -I\"" << inc << "\"";
     }
-    t << " -I\"" << Option::fixPathToTargetOS(specdir()) << "\""
+    t << " -I\"" << "$(QTDIR)\\mkspecs\\win32-msvc" << "\""
       << endl;
 
     if(!project->variables()["QMAKE_APP_OR_DLL"].isEmpty()) {
