@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qdial.h#4 $
+** $Id: //depot/qt/main/src/widgets/qdial.h#5 $
 **
 ** Definition of something or other
 **
@@ -31,7 +31,7 @@ public:
     virtual void setTracking( bool enable );
     bool tracking() const;
 
-    QSizeHint sizeHint() const;
+    QSize sizeHint() const;
     QSizePolicy sizePolicy() const;
 
     virtual void setWrapping( bool on );

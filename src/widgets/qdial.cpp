@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qdial.cpp#6 $
+** $Id: //depot/qt/main/src/widgets/qdial.cpp#7 $
 **
 ** Implementation of something useful.
 **
@@ -157,6 +157,10 @@ bool QDial::tracking() const
     return d ? d->tracking : TRUE;
 }
 
+QSize QDial::sizeHint() const
+{
+    return QSize(19,19);
+}
 
 /*!
 
