@@ -19,7 +19,9 @@ ResultWindow::ResultWindow ( QWidget * parent, const char * name, WFlags f )
     connect( execButton,SIGNAL(clicked()), this, SLOT(slotExec()));
     connect( dataGrid, SIGNAL( currentChanged(const QSqlFieldList*)),
 	     SLOT( newSelection(const QSqlFieldList*)));
-    browseType->setButton( 0 );
+    dataGrid->setReadOnly( FALSE );
+    dataGrid->setSorting( TRUE );
+    dataGrid->setReadOnly( FALSE );
 }
 
 ResultWindow::~ResultWindow()
@@ -29,36 +31,10 @@ ResultWindow::~ResultWindow()
 
 void ResultWindow::slotExec()
 {
-    QButton* b;
-    if ( db->isOpen() ) {
-	switch ( tabs->currentPageIndex() ) {
-	case 0:
-	    b = browseType->selected();
-	    if ( b ) {
-		switch ( browseType->id( b ) ) {
-		case 0: // SQL
-		    //dataGrid->setQuery( "select * from " + tableList->currentText() + ";" );
-		    sql.setName( tableList->currentText() );
-		    sql.select( sql.primaryIndex() );
-		    dataGrid->setView( &sql );		    
-		    break;
-		case 1: // Rowset
-		    // dataGrid->setRowset( tableList->currentText() );
-		    break;
-		case 2: // View
-		    sql.setName( tableList->currentText() );
-		    sql.select( sql.primaryIndex() );
-		    dataGrid->setView( &sql );
-		    break;
-		}
-	    }
-	    break;
-	case 1:
-//	    sql.setView( queryEdit->text().simplifyWhiteSpace() );
-	//    dataGrid->setView( &sql );
-	    break;
-	}
-    }
+    sql.setName( tableList->currentText() );
+    sql.select( sql.primaryIndex() );
+    sql.setMode( SQL_Writable );
+    dataGrid->setView( &sql );
 }
 
 void ResultWindow::newSelection( const QSqlFieldList* fields )
@@ -66,7 +42,7 @@ void ResultWindow::newSelection( const QSqlFieldList* fields )
     QString cap;
     for ( uint i = 0; i < fields->count(); ++i ) {
 	const QSqlField * f  = fields->field(i);
-	cap += f->displayLabel().leftJustify(20) + ":" + 
+	cap += f->displayLabel().leftJustify(20) + ":" +
 	       f->value().toString().rightJustify(30) + "\n";
     }
     currentRecordEdit->setText( cap );

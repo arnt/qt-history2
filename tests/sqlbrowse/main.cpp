@@ -11,12 +11,10 @@ int main( int argc, char **argv )
 				 qApp->argv()[4],
 				 qApp->argv()[5]);
     ResultWindow* rw = new ResultWindow();
-    qDebug("After creating ResultWindow");
     a.setMainWidget( rw );
     rw->show();
     int x = a.exec();
     delete rw;
-    qDebug("ending program");
     return x;
 };
 
