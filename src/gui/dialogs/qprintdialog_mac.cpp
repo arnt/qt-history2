@@ -56,6 +56,7 @@ int QPrintDialogMac::exec()
         d->fromPage = qMin(uint(INT_MAX), page);
         PMGetLastPage(d->ep->settings, &page);
         d->toPage = qMin(uint(INT_MAX), page);
+        d->printRange = PageRange; // In a way a lie, but it shouldn't hurt.
         // Carbon hands us back a very large number here even for ALL, set it to max
         // in that case to follow the behavior of the other print dialogs.
         if (d->maxPage < d->toPage)
