@@ -119,8 +119,6 @@ void ConfigureApp::parseCmdLine()
 	reloadCmdLine();
 	args = configCmdLine.begin();	// We've got a new command line...
     }
-    else
-	saveCmdLine();
 
     for( ; args != configCmdLine.end(); ++args ) {
 	if( (*args) == "-help" )
@@ -148,7 +146,7 @@ void ConfigureApp::parseCmdLine()
 	else if( (*args) == "-thread" )
 	    dictionary[ "THREAD" ] = "yes";
 
-	else if( (*args) == "-platform" ) {
+	else if( (*args) == "-spec" ) {
 	    ++args;
 	    dictionary[ "QMAKESPEC" ] = (*args);
 	}
@@ -364,6 +362,9 @@ void ConfigureApp::parseCmdLine()
 
     for( QStringList::Iterator it = disabledModules.begin(); it != disabledModules.end(); ++it )
 	qmakeConfig.remove( (*it) );
+
+    if( ( dictionary[ "REDO" ] != "yes" ) && ( dictionary[ "HELP" ] != "yes" ) )
+	saveCmdLine();
 }
 
 void ConfigureApp::validateArgs()
@@ -403,7 +404,7 @@ bool ConfigureApp::displayHelp()
 	cout << "-thread             Configure Qt with thread support." << endl;
 	cout << "-no-thread        * Configure Qt without thread support." << endl << endl;
 
-	cout << "-platform           Specify a platform, uses %QMAKESPEC% as default." << endl;
+	cout << "-spec               Specify a platform, uses %QMAKESPEC% as default." << endl;
 	cout << "-qconfig            Specify config, available configs:" << endl;
 	for( QStringList::Iterator config = allConfigs.begin(); config != allConfigs.end(); ++config )
 	    cout << "                        " << (*config).latin1() << endl;
