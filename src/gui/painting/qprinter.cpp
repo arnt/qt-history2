@@ -28,6 +28,10 @@
 #include "qprintengine_ps.h"
 #endif
 
+#ifdef QT_COMPAT
+#  include "qprintdialog.h"
+#endif // QT_COMPAT
+
 #define d d_func()
 
 /*!
@@ -1153,3 +1157,11 @@ QPrinter::PrinterState QPrinter::printerState() const
 {
     return d->printEngine->printerState();
 }
+
+#ifdef QT_COMPAT
+bool QPrinter::setup(QWidget *parent)
+{
+    QPrintDialog dlg(this, parent);
+    return dlg.exec();
+}
+#endif
