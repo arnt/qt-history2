@@ -81,10 +81,10 @@
   and TableWhatsThis classes. \footnote Note that moc requires that QObject
   is the first base class. \endfootnote WhatsThis 
   reimplements clicked() which will be called when the user clicks
-  inside the "What's this?" window. It also declares a signal 
+  inside the "What's This?" window. It also declares a signal 
   linkClicked() which will be emitted when a hyperlink is clicked.
   \printuntil }
-  
+
   The WhatsThis constructor takes two parameters, the first is the
   widget we want to provide WhatsThis for, and the second is the
   one which receives the events. Normally this is the same widget,
@@ -107,7 +107,7 @@
 
   \quotefile helpsystem/whatsthis.cpp
   \skipto HeaderWhatsThis::HeaderWhatsThis
-  
+
   The HeaderWhatsThis and TableWhatsThis classes reimplement
   text() to make it possible to return texts depending on the 
   mouse click's position. All the other functionality is 
@@ -161,24 +161,24 @@
   \quotefile helpsystem/mainwindow.cpp
   \skipto MainWindow::MainWindow
   \printuntil assistant
-  
+
   The MainWindow constructor creates an instance of 
   QAssistantClient using QString::null as the first argument
   so that the system path is used.
   \printto QWhatsThis::whatsThisButton
-  
+
   A QTable is used as the central widget and the table, the menus 
   and the toolbar are populated.
   \printto // create
-  
+
   The static function whatsThisButton() creates a QToolButton
-  which will enter "What's this?" mode when clicked.
+  which will enter "What's This?" mode when clicked.
   \printto // set up
- 
+
   A QToolTipGroup is created and will show and remove tooltips
   in the statusbar as the tooltips are displayed on the widgets.
   \printto // set up whats this
-   
+
   The tooltips are set up. The static function add() sets up a 
   tooltip on the Assistant toolbutton. Tooltip objects are created
   using the QToolTip subclasses, the constructor's first parameter
@@ -186,14 +186,14 @@
   second argument specifies the QToolTipGroup they should belong 
   to.
   \printto // connections
-  
+
   The WhatsThis help is set up. The static function add() adds 
   What's This? help for the toolbutton which opens Assistant. 
   Instances of the two WhatsThis subclasses are created for the
-  headers and the table. What's This? help is also added for the 
+  headers and the table. "What's This?" help is also added for the 
   menu items.
   \printto MainWindow::~MainWindow
-   
+
   Signals and slots are connected, so that the relevant pages will
   be displayed in Qt Assistant when clicking on a hyperlink or on
   the assistant button.
@@ -214,7 +214,7 @@
 
   The main function is a standard implementation opening
   the application main window.
-  
+
   To build the example go to the helpsystem directory
   (QTDIR/examples/helpsystem) run qmake to generate the makefile, 
   and use the make tool to build the library. 

@@ -48,7 +48,7 @@
     Bold menu item will automatically be checked.
 
     A Q3Action may contain an icon, a menu text, an accelerator, a
-    status text, a whats this text and a tool tip. Most of these can
+    status text, a "What's This?" text and a tool tip. Most of these can
     be set in the constructor. They can also be set independently with
     setIconSet(), setText(), setMenuText(), setToolTip(),
     setStatusTip(), setWhatsThis() and setAccel().
@@ -737,9 +737,9 @@ QString Q3Action::statusTip() const
     The whats this text is used to provide a brief description of the
     action. The text may contain rich text (HTML-like tags -- see
     QStyleSheet for the list of supported tags). There is no default
-    "What's This" text.
+    "What's This?" text.
 
-    If the whats this text contains a hyperlink the whatsThisClicked()
+    If the "What's This?" text contains a hyperlink the whatsThisClicked()
     signal is emitted when the user clicks inside the "What's This?"
     window.
 

@@ -458,7 +458,7 @@ QAbstractItemModel::~QAbstractItemModel()
     \value Edit The data in a form suitable for editing in an item editor.
     \value ToolTip The data displayed in the item's tooltip.
     \value StatusTip The data displayed in the status bar.
-    \value WhatsThis The data displayed for the item in What's This?
+    \value WhatsThis The data displayed for the item in "What's This?"
     mode.
     \value User The first custom role defined by the user.
 */

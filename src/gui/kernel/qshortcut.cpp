@@ -168,7 +168,7 @@ QKeySequence QShortcut::key() const
     key() sequence.
 
     If the application is in \c WhatsThis mode the shortcut will not emit
-    the signals, but will show the "Whats This?" text instead.
+    the signals, but will show the "What's This?" text instead.
 
     \sa isEnabled(), whatsThis()
 */
@@ -224,7 +224,7 @@ Qt::ShortcutContext QShortcut::context()
 
 /*!
     \property QShortcut::whatsThis
-    \brief the shortcut's What's This? help text
+    \brief the shortcut's "What's This?" help text
 
     The text will be shown when the application is in "What's
     This?" mode and the user types the shortcut key() sequence.
