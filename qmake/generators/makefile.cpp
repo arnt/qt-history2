@@ -772,10 +772,10 @@ MakefileGenerator::init()
 			    if(real_dir.isEmpty() || QFile::exists(real_dir)) {
 				QDir d(real_dir, regex);
 				if(!d.count()) {
-				    debug_msg(1, "Failure to find %s in vpath (%s)",
+				    debug_msg(1, "%s:%d Failure to find %s in vpath (%s)",
+					      __FILE__, __LINE__,
 					      (*val_it).latin1(), vpath.join("::").latin1());
-				    warn_msg(WarnLogic, "Failure to find(%s:%d): %s", __FILE__, __LINE__,
-					     (*val_it).latin1());
+				    warn_msg(WarnLogic, "Failure to find: %s", (*val_it).latin1());
 				    continue;
 				} else {
 				    (*val_it) = dir + d[0];
@@ -783,11 +783,11 @@ MakefileGenerator::init()
 					l.insert(val_it, dir + d[i]);
 				}
 			    } else {
-				debug_msg(1, "Cannot match %s%c%s, as %s does not exist.",
+				debug_msg(1, "%s:%d Cannot match %s%c%s, as %s does not exist.",
+					  __FILE__, __LINE__,
 					  real_dir.latin1(), QDir::separator(), regex.latin1(),
 					  real_dir.latin1());
-				warn_msg(WarnLogic, "Failure to find(%s:%d): %s", __FILE__, __LINE__,
-					 (*val_it).latin1());
+				warn_msg(WarnLogic, "Failure to find: %s", (*val_it).latin1());
 			    }
 			}
 		    }
