@@ -12,10 +12,15 @@ extern "C" {
 
 #define Q_SPECIALIZED_QATOMIC
 
-struct QAtomic
+struct QBasicAtomic
 {
     int lock[4];
     int atomic;
+
+    inline void init(int x = 0)
+    {
+        lock[0] = lock[1] = lock[2] = lock[3] = -1; atomic = x;
+    }
 
     inline bool operator++()
     {
@@ -42,8 +47,13 @@ struct QAtomic
     inline bool operator!() const
     { return atomic == 0; }
 
-    inline void operator=(int x)
-    { lock[0] = lock[1] = lock[2] = lock[3] = -1; atomic = x; }
+    inline QBasicAtomic &operator=(int x)
+    {
+        q_atomic_lock(lock);
+        atomic = x;
+        q_atomic_unlock(lock);
+        return *this;
+    }
 
     inline operator int() const
     { return atomic; }
@@ -71,42 +81,50 @@ struct QAtomic
 };
 
 template <typename T>
-struct QAtomicPointer
+struct QBasicAtomicPointer
 {
     int lock[4];
-    T *atomic;
+    volatile T *pointer;
+
+    inline void init(T *t = 0)
+    {
+        lock[0] = lock[1] = lock[2] = lock[3] = -1; pointer = t;
+    }
 
     inline bool operator==(T *x) const
     {
-	const T * const volatile * const ptr = &atomic;
-	return *ptr == x;
+	return pointer == x;
     }
 
     inline bool operator!=(T *x) const
     {
-	const T * const volatile * const ptr = &atomic;
-	return *ptr != x;
+	return pointer != x;
     }
 
     inline bool operator!() const
     { return operator==(0); }
 
-    inline void operator=(T *x)
-    { lock[0] = lock[1] = lock[2] = lock[3] = -1; atomic = x; }
+    inline QBasicAtomic &operator=(T *t)
+    {
+        q_atomic_lock(lock);
+        pointer = t;
+        q_atomic_unlock(lock);
+        return *this;
+    }
 
     inline T *operator->()
-    { return atomic; }
+    { return pointer; }
     inline const T *operator->() const
-    { return atomic; }
+    { return pointer; }
 
     inline operator T*() const
-    { return const_cast<T *>(atomic); }
+    { return const_cast<T *>(pointer); }
 
     inline bool testAndSet(T* expected, T *newval)
     {
 	q_atomic_lock(lock);
-	if (atomic == expected) {
-	    atomic = newval;
+	if (pointer == expected) {
+	    pointer = newval;
 	    q_atomic_unlock(lock);
 	    return true;
 	}
@@ -117,8 +135,8 @@ struct QAtomicPointer
     inline T *exchange(T *newval)
     {
 	q_atomic_lock(lock);
-	T *oldval = atomic;
-	atomic = newval;
+	T *oldval = const_cast<T *>(pointer);
+	pointer = newval;
 	q_atomic_unlock(lock);
 	return oldval;
     }
