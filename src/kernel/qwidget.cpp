@@ -1003,7 +1003,7 @@ void QWidget::deactivateWidgetCleanup()
     extern QWidget *qt_button_down;
     // If this was the active application window, reset it
     if ( this == QApplication::active_window )
-	QApplication::active_window = 0;
+	qApp->setActiveWindow( 0 );
     // If the is the active mouse press widget, reset it
     if ( qt_button_down == this )
 	qt_button_down = 0;
