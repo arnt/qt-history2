@@ -54,7 +54,6 @@ var checkoutRemove = [ new RegExp("^tests"),
 		       new RegExp("^bin/syncqt.bat"),
 		       new RegExp("^extensions/nsplugin"),
 		       new RegExp("^extensions/xt"),
-		       new RegExp("^tools/lsqrc"),
 		       new RegExp("^tools/makeqpf"),
 		       new RegExp("^tools/mergetr"),
 		       new RegExp("^tools/msg2qm"),
@@ -207,6 +206,7 @@ moduleMap["linguist application"]        = new RegExp("^tools/linguist");
 moduleMap["qtconfig application"]        = new RegExp("^tools/qtconfig");
 moduleMap["virtual framebuffer"]         = new RegExp("^tools/qvfb");
 moduleMap["porting application"]         = new RegExp("^tools/porting");
+moduleMap["resource dump application"]   = new RegExp("^tools/rccdump");
 
 /*******************************************************************************
  * Here we go
