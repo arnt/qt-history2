@@ -25,6 +25,7 @@
 #include <qpainter.h>
 #include <qdir.h>
 #include <qwhatsthis.h>
+#include <qtextobject.h>
 
 class QTextBrowserPrivate : public QTextEditPrivate
 {
