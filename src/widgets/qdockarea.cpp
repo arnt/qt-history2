@@ -116,7 +116,7 @@ static int start_pos( const QRect &r, Qt::Orientation o )
 	else
 	    return r.x() + r.width();
     } else {
-	return r.y();
+	return QMAX( 0, r.y() );
     }
 }
 
@@ -259,7 +259,8 @@ int QDockAreaLayout::layoutItems( const QRect &r, bool testonly )
 	    ls.append( dw );
 	
 	// do some calculations and add the remember the rect which the docking widget requires for the placing
-	pos = QMAX( pos, dw->offset() );
+	if ( !dw->isStretchable() )
+	    pos = QMAX( pos, dw->offset() );
 	lastLine.append( DockData( dw, QRect( pos, sectionpos,
 					      dock_extend( dw, orientation() ), dock_strut( dw, orientation() ) ) ) );
 	linestrut = QMAX( dock_strut( dw, orientation() ), linestrut );
