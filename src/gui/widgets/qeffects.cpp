@@ -122,10 +122,7 @@ void QAlphaWidget::run(int time)
     move(widget->geometry().x(),widget->geometry().y());
     resize(widget->size().width(), widget->size().height());
 
-    front = QImage(widget->size(), 32);
     front = QPixmap::grabWidget(widget).toImage();
-
-    back = QImage(widget->size(), 32);
     back = QPixmap::grabWindow(QApplication::desktop()->winId(),
                                 widget->geometry().x(), widget->geometry().y(),
                                 widget->geometry().width(), widget->geometry().height()).toImage();
