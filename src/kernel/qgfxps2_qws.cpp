@@ -308,27 +308,27 @@ QGfxPS2::drawPoints( const QPointArray &pa,int index,int npoints)
     GFX_START(clipbounds);
 
     for(int clp = 0; clp < ncliprect; clp++) {
-
-	gsosMakeGiftag( 4, GSOS_GIF_EOP_CONTINUE, GSOS_GIF_PRE_IGNORE,
-			0, GSOS_GIF_FLG_PACKED, 1, GSOS_GIF_REG_AD );
-	gsosSetPacketAddrData( GSOS_TEST_1, GsosTestData( 1, 1, 0, 0, 0, 0, 0, 0 ) ) ;
-	gsosSetPacketAddrData4( GSOS_SCISSOR_1, 
-				(GSOSbit64)cliprect[clp].topLeft().x(), (GSOSbit64)cliprect[clp].bottomRight().x(),
-				(GSOSbit64)cliprect[clp].topLeft().y(), (GSOSbit64)cliprect[clp].bottomRight().y() ) ;
-	gsosSetPacketAddrData( GSOS_PRMODE, GsosPrmodeData( 0, 0, 0, 0, 0, 0, 0, 0 )) ;
-	gsosSetPacketAddrData( GSOS_PRIM, GSOS_PRIM_POINT ) ;
+	
+	gsosMakeGiftag(4, GSOS_GIF_EOP_CONTINUE, GSOS_GIF_PRE_IGNORE,
+			0, GSOS_GIF_FLG_PACKED, 1, GSOS_GIF_REG_AD);
+	gsosSetPacketAddrData(GSOS_TEST_1, GsosTestData( 1, 1, 0, 0, 0, 0, 0, 0));
+	gsosSetPacketAddrData4(GSOS_SCISSOR_1, 
+			       (GSOSbit64)cliprect[clp].topLeft().x(), (GSOSbit64)cliprect[clp].bottomRight().x(),
+			       (GSOSbit64)cliprect[clp].topLeft().y(), (GSOSbit64)cliprect[clp].bottomRight().y());
+	gsosSetPacketAddrData(GSOS_PRMODE, GsosPrmodeData( 0, 0, 0, 0, 0, 0, 0, 0)) ;
+	gsosSetPacketAddrData(GSOS_PRIM, GSOS_PRIM_POINT) ;
 
 	int r(qRed(rgb)), g(qGreen(rgb)), b(qBlue(rgb)), a(qAlpha(rgb));
-	gsosMakeGiftag( npoints, GSOS_GIF_EOP_TERMINATE, GSOS_GIF_PRE_IGNORE, 0,
-			GSOS_GIF_FLG_PACKED, 2, (GSOS_GIF_REG_XYZ2<<4) | GSOS_GIF_REG_RGBAQ);
+	gsosMakeGiftag(npoints, GSOS_GIF_EOP_TERMINATE, GSOS_GIF_PRE_IGNORE, 0,
+		       GSOS_GIF_FLG_PACKED, 2, (GSOS_GIF_REG_XYZ2<<4) | GSOS_GIF_REG_RGBAQ);
 	while (npoints--) {
-	    gsosSetPacket4( r, g, b, a);
-	    gsosSetPacket4( GSOS_SUBPIX_OFST(pa[index].x()+xoffs), GSOS_SUBPIX_OFST(pa[index].y()+yoffs), 0, 0 );
+	    gsosSetPacket4(r, g, b, a);
+	    gsosSetPacket4(GSOS_SUBPIX_OFST(pa[index].x()+xoffs), GSOS_SUBPIX_OFST(pa[index].y()+yoffs), 0, 0);
 	    ++index;
 	}
 
     }
-    gsosExec() ;
+    gsosExec();
     GFX_END;
 }
 
@@ -382,16 +382,11 @@ QGfxPS2::drawLine( int x1,int y1, int x2, int y2)
     x2+=xoffs;
     y2+=yoffs;
 
-    if(x1>x2) {
-	int x3;
-	int y3;
-	x3=x2;
-	y3=y2;
-	x2=x1;
-	y2=y1;
-	x1=x3;
-	y1=y3;
-    }
+    //Qt expects points to be inclusize, so this makes the final point show on a line.
+    if(x2 != x1)
+	x2 += (x2 > x1) ? 1 : -1;
+    if(y2 != y1)
+	y2 += (y2 > y1) ? 1 : -1;
 
     GFX_START(QRect(x1, y1 < y2 ? y1 : y2, (x2-x1)+1, QABS((y2-y1))+1));
     usePen();
@@ -399,21 +394,21 @@ QGfxPS2::drawLine( int x1,int y1, int x2, int y2)
 
     for(int clp = 0; clp < ncliprect; clp++) {
 
-	gsosMakeGiftag( 4, GSOS_GIF_EOP_CONTINUE, GSOS_GIF_PRE_IGNORE,
-			0, GSOS_GIF_FLG_PACKED, 1, GSOS_GIF_REG_AD );
-	gsosSetPacketAddrData( GSOS_TEST_1, GsosTestData( 1, 1, 0, 0, 0, 0, 0, 0 ) ) ;
-	gsosSetPacketAddrData4( GSOS_SCISSOR_1, 
-				(GSOSbit64)cliprect[clp].topLeft().x(), (GSOSbit64)cliprect[clp].bottomRight().x(),
-				(GSOSbit64)cliprect[clp].topLeft().y(), (GSOSbit64)cliprect[clp].bottomRight().y() ) ;
-	gsosSetPacketAddrData( GSOS_PRMODE, GsosPrmodeData( 0, 0, 0, 0, 0, 1, 0, 0 ) ) ;
-	gsosSetPacketAddrData( GSOS_PRIM, GSOS_PRIM_LINE ) ;
+	gsosMakeGiftag(4, GSOS_GIF_EOP_CONTINUE, GSOS_GIF_PRE_IGNORE,
+		       0, GSOS_GIF_FLG_PACKED, 1, GSOS_GIF_REG_AD);
+	gsosSetPacketAddrData(GSOS_TEST_1, GsosTestData( 1, 1, 0, 0, 0, 0, 0, 0));
+	gsosSetPacketAddrData4(GSOS_SCISSOR_1, 
+			       (GSOSbit64)cliprect[clp].topLeft().x(), (GSOSbit64)cliprect[clp].bottomRight().x(),
+			       (GSOSbit64)cliprect[clp].topLeft().y(), (GSOSbit64)cliprect[clp].bottomRight().y());
+	gsosSetPacketAddrData(GSOS_PRMODE, GsosPrmodeData(0, 0, 0, 0, 0, 1, 0, 0));
+	gsosSetPacketAddrData(GSOS_PRIM, GSOS_PRIM_LINE);
 
-	gsosMakeGiftag( 2, GSOS_GIF_EOP_TERMINATE, GSOS_GIF_PRE_IGNORE, 0,
-			GSOS_GIF_FLG_PACKED, 2, (GSOS_GIF_REG_XYZ2<<4) | (GSOS_GIF_REG_RGBAQ));
-	gsosSetPacket4( qRed(rgb), qGreen(rgb), qBlue(rgb), qAlpha(rgb) );
-	gsosSetPacket4( GSOS_SUBPIX_OFST(x1), GSOS_SUBPIX_OFST(y1), 0, 0 ) ;
-	gsosSetPacket4( qRed(rgb), qGreen(rgb), qBlue(rgb), qAlpha(rgb) );
-	gsosSetPacket4( GSOS_SUBPIX_OFST(x2), GSOS_SUBPIX_OFST(y2), 0, 0 ) ;
+	gsosMakeGiftag(2, GSOS_GIF_EOP_TERMINATE, GSOS_GIF_PRE_IGNORE, 0,
+		       GSOS_GIF_FLG_PACKED, 2, (GSOS_GIF_REG_XYZ2<<4) | (GSOS_GIF_REG_RGBAQ));
+	gsosSetPacket4(qRed(rgb), qGreen(rgb), qBlue(rgb), qAlpha(rgb));
+	gsosSetPacket4(GSOS_SUBPIX_OFST(x1), GSOS_SUBPIX_OFST(y1), 0, 0);
+	gsosSetPacket4(qRed(rgb), qGreen(rgb), qBlue(rgb), qAlpha(rgb));
+	gsosSetPacket4(GSOS_SUBPIX_OFST(x2), GSOS_SUBPIX_OFST(y2), 0, 0);
 
     }
     gsosExec();
