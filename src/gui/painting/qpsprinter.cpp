@@ -740,11 +740,7 @@ static QString wrapDSC(const QString &str)
 
 static QString toString(const float num)
 {
-    long intNum = (long) num;
-    QString ret = QString::number(intNum);
-    ret += ".";
-    ret += QString::number((long)((num - intNum) * 1000));
-    return ret;
+    return QString::number( num, 'f', 3 );
 }
 
 // ----------------------------- Internal class declarations -----------------------------
