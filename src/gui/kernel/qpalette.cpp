@@ -462,14 +462,8 @@ QPalette::QPalette()
     ++d->ref;
 }
 
-/*!\obsolete
-  Constructs a palette from the \a button color. The other colors are
-  automatically calculated, based on this color. Background will be
-  the button color as well.
-*/
-QPalette::QPalette(const QColor &button)
+static void qt_palette_from_color(QPalette &pal, const QColor & button)
 {
-    init();
     QColor bg = button,
            btn = button,
            fg,
@@ -487,13 +481,36 @@ QPalette::QPalette(const QColor &button)
         disfg = Qt::darkGray;
     }
     //inactive and active are the same..
-    setColorGroup(Active, QBrush(fg), QBrush(btn), QBrush(btn.light(150)), QBrush(btn.dark()),
-                  QBrush(btn.dark(150)), QBrush(fg), QBrush(Qt::white), QBrush(base), QBrush(bg));
-    setColorGroup(Inactive, QBrush(fg), QBrush(btn), QBrush(btn.light(150)), QBrush(btn.dark()),
-                  QBrush(btn.dark(150)), QBrush(fg), QBrush(Qt::white), QBrush(base), QBrush(bg));
-    setColorGroup(Disabled, QBrush(fg), QBrush(btn), QBrush(btn.light(150)), QBrush(btn.dark()),
-                  QBrush(btn.dark(150)), QBrush(disfg), QBrush(Qt::white), QBrush(base),
-                  QBrush(bg));
+    pal.setColorGroup(QPalette::Active, QBrush(fg), QBrush(btn), QBrush(btn.light(150)), QBrush(btn.dark()),
+                      QBrush(btn.dark(150)), QBrush(fg), QBrush(Qt::white), QBrush(base), QBrush(bg));
+    pal.setColorGroup(QPalette::Inactive, QBrush(fg), QBrush(btn), QBrush(btn.light(150)), QBrush(btn.dark()),
+                      QBrush(btn.dark(150)), QBrush(fg), QBrush(Qt::white), QBrush(base), QBrush(bg));
+    pal.setColorGroup(QPalette::Disabled, QBrush(fg), QBrush(btn), QBrush(btn.light(150)), QBrush(btn.dark()),
+                      QBrush(btn.dark(150)), QBrush(disfg), QBrush(Qt::white), QBrush(base),
+                      QBrush(bg));
+}
+
+
+/*!
+  Constructs a palette from the \a button color. The other colors are
+  automatically calculated, based on this color. Background will be
+  the button color as well.
+*/
+QPalette::QPalette(const QColor &button)
+{
+    init();
+    qt_palette_from_color(*this, button);
+}
+
+/*!
+  Constructs a palette from the \a button color. The other colors are
+  automatically calculated, based on this color. Background will be
+  the button color as well.
+*/
+QPalette::QPalette(Qt::GlobalColor button)
+{
+    init();
+    qt_palette_from_color(*this, button);
 }
 
 /*!

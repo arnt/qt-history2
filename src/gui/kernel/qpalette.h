@@ -31,6 +31,7 @@ class Q_GUI_EXPORT QPalette
 public:
     QPalette();
     QPalette(const QColor &button);
+    QPalette(Qt::GlobalColor button);
     QPalette(const QColor &button, const QColor &background);
     QPalette(const QBrush &foreground, const QBrush &button, const QBrush &light,
              const QBrush &dark, const QBrush &mid, const QBrush &text,
