@@ -25,11 +25,13 @@
 #include "qimage.h"
 #include "qlayout.h"
 #include "qpaintdevicemetrics.h"
+#include "qpaintengine_mac.h"
 #include "qpainter.h"
 #include "qstack.h"
 #include "qstyle.h"
 #include "qtextcodec.h"
 #include "qtimer.h"
+
 #include <ApplicationServices/ApplicationServices.h>
 #include <limits.h>
 
@@ -2575,7 +2577,7 @@ QPaintEngine *QWidget::engine() const
 {
     if (!d->paintEngine) {
 #if defined( USE_CORE_GRAPHICS )
-	((QWidget *) this)->d->paintEngine = new QCoreGraphicsPaintEngine(this);
+	const_cast<QWidget *>(this)->d->paintEngine = new QCoreGraphicsPaintEngine(this);
 #else
 	((QWidget *) this)->d->paintEngine = new QQuickDrawPaintEngine(this);
 #endif

@@ -24,6 +24,7 @@
 #include <qprintdialog.h>
 #include <qprinter.h>
 #include <qstyle.h>
+#include <qpaintengine_mac.h>
 #include <qt_mac.h>
 
 #include <private/qapplication_p.h>
@@ -502,7 +503,9 @@ QPaintEngine *QPrinter::engine() const
 #else
 	QPaintEngine *wr = new QQuickDrawPaintEngine(this);
 #endif
-	((QPrinter *) this)->paintEngine = new QPrinterPaintEngine(this, wr);
+	// Evil Evil Evil (the const-casts help prove it)!
+	const_cast<QPrinter *>(this)->paintEngine = new QPrinterPaintEngine(
+								const_cast<QPrinter *>(this), wr);
     }
     return 0;
 }

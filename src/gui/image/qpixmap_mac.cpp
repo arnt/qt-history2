@@ -18,6 +18,7 @@
 #include "qapplication.h"
 #include "qbitmap.h"
 #include "qwmatrix.h"
+#include "qpaintengine_mac.h"
 #include "qt_mac.h"
 
 #include <limits.h>
