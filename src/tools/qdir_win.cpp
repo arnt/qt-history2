@@ -86,7 +86,7 @@ QString QDir::homeDirPath()
 {
     QString d;
     if ( qt_winver & Qt::WV_NT_based )
-	d = QString(getenv("HOMEDIR")) + getenv("HOMEPATH");
+	d = QString(getenv("HOMEDRIVE")) + getenv("HOMEPATH");
     else
 	d = getenv("HOME");
     slashify( d );
