@@ -689,24 +689,19 @@ void QWidgetPrivate::doPaint(const QRegion &rgn)
 
     q->setAttribute(Qt::WA_WState_InPaintEvent);
 
-//    QRect br = rgn.boundingRect();
-//###    bool do_clipping = (br != QRect(0, 0, data.crect.width(), data.crect.height()));
     QWidget *tlw = q->window();
     QTLWExtra *topextra = tlw->d->extra->topextra;
     QPoint redirectionOffset = topextra->backingStoreOffset + q->mapFrom(tlw,QPoint(0,0));
     QPainter::setRedirected(q, &topextra->backingStore, redirectionOffset);
 
-    //###### clipping does not seem to work
     QRegion clipRegion(rgn);
     clipRegion.translate(-redirectionOffset);
     topextra->backingStore.paintEngine()->setSystemClip(clipRegion);
 
     if (!q->testAttribute(Qt::WA_NoBackground) && !q->testAttribute(Qt::WA_NoSystemBackground)) {
-        /////composeBackground(br); //@@@
-//##### extract into isBackgroundSpecified() function ???
         const QPalette &pal = q->palette();
         QBrush bgBrush = pal.brush(bg_role);
-
+        //##### put in an isBackgroundSpecified() function ???
         bool hasBackground = (q->isWindow() || q->windowType() == Qt::SubWindow)
                              || (q->testAttribute(Qt::WA_SetBackgroundRole) || (pal.resolve() & (1<<bg_role))) ;
 
@@ -955,18 +950,16 @@ void QWidgetPrivate::setGeometry_sys(int x, int y, int w, int h, bool isMove)
     bool inTransaction = topextra->inPaintTransaction;
     topextra->inPaintTransaction = true;
 
-
-
     if (q->isVisible()) {
 
         QRegion myregion;
-        bool shortcut = false;
+        bool toplevelMove = false;
         if (q->isWindow()) {
             //### ConfigPending not implemented, do we need it?
             //setAttribute(Qt::WA_WState_ConfigPending);
             if (isMove && !isResize && data.alloc_region_index >= 0) {
                 q->qwsDisplay()->moveRegion(data.winid, x - oldp.x(), y - oldp.y());
-                shortcut = true; //no further painting necessary
+                toplevelMove = true; //server moves window, but we must send moveEvent, which might trigger painting
             } else {
                 myregion = localRequestedRegion();
                 myregion.translate(x,y);
@@ -995,19 +988,24 @@ void QWidgetPrivate::setGeometry_sys(int x, int y, int w, int h, bool isMove)
             QApplication::sendEvent(q, &e);
         }
 
-        if (!shortcut) {
+        if (!toplevelMove) {
             if (q->isWindow()) {
-                requestWindowRegion(myregion);
+                requestWindowRegion(myregion); //paints to BS ### should it ???
+                topextra->dirtyRegion |= myregion;
             } else {
-                myregion = QRect(q->mapToGlobal(QPoint(0,0)), data.crect.size());
+                QWidget *p = q->parentWidget();
+                QRegion dirty(QRect(p->mapToGlobal(data.crect.topLeft()), data.crect.size()));
+                dirty |= QRect(p->mapToGlobal(oldp), olds);
+                topextra->dirtyRegion |= dirty;
             }
+        }
 
-            topextra->dirtyRegion |= myregion;
-
-            if (!inTransaction) {
-                bltToScreen(topextra->dirtyRegion);
-                topextra->dirtyRegion = QRegion();
+        if (!inTransaction && !topextra->dirtyRegion.isEmpty()) {
+            if (!q->isWindow()) {
+                q->window()->d->paintHierarchy(topextra->dirtyRegion);
             }
+            bltToScreen(topextra->dirtyRegion);
+            topextra->dirtyRegion = QRegion();
         }
     } else { // not visible
         if (isMove && q->pos() != oldPos)
