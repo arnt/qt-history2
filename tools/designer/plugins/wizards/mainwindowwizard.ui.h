@@ -102,6 +102,7 @@ void MainWindowWizardBase::accept()
     QtMsgHandler oldMsgHandler = qInstallMsgHandler( devNull );
 
     getPixmap( "filenew", pix );
+
     QAction *fileNewAction = dfw->createAction( tr( "New" ), pix, tr( "&New" ), CTRL + Key_N, 0, "fileNewAction" );
     actions.insert( tr( "New" ), fileNewAction );
     getPixmap( "fileopen", pix );
@@ -258,7 +259,7 @@ void MainWindowWizardBase::currentToolbarChanged( const QString & s )
 	listToolbarActions->insertItem( tr( "Paste" ) );
 	listToolbarActions->insertItem( tr( "Find" ) );
     } else if ( s == tr( "Help" ) ) {
-	listToolbarActions->clear();	
+	listToolbarActions->clear();
 	listToolbarActions->insertItem( tr( "Contents" ) );
 	listToolbarActions->insertItem( tr( "Index" ) );
 	listToolbarActions->insertItem( tr( "About" ) );
@@ -269,12 +270,8 @@ void MainWindowWizardBase::currentToolbarChanged( const QString & s )
 
 void MainWindowWizardBase::getPixmap( const QString & n, QPixmap & pix )
 {
-    QString name = "small/" + n + ".xpm";
-    QImage img;
-    QByteArray ba = qembed_findData( name );
-    img.loadFromData( (const uchar*)ba.data(), ba.size() );
-    pix.convertFromImage( img );
-
+    QString name = n + ".png";
+    pix = QPixmap::fromMimeSource( name );
     DesignerProject *pro = dIface->currentProject();
     if ( !pro || pro->projectName() == "<No Project>" )
 	return;
