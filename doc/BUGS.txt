@@ -8,9 +8,6 @@ Severe
 static usage of QFileDialog on Borland (Win32)
     API-call doesn't seem to work, so use Qt dialog as workaround
 
-QApplication::widgetAt (Win32)
-    This function does not work as expected (support/arc-07/14942 ff.)
-
 drawText() on a printer (Win32)
     Text produces garbage (Win98) and is not scaled correctly (support/arc-07/15339)
 
