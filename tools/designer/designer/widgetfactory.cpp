@@ -1276,11 +1276,6 @@ bool QLayoutWidget::event( QEvent *e )
 }
 
 /*
-  I, Jasmin, am heavily editing these things. I will fix all of that
-  when I come back from Stockholm.
-*/
-
-/*
   This function must be called on QLayoutWidget creation and whenever
   the QLayoutWidget's parent layout changes (e.g., from a QHBoxLayout
   to a QVBoxLayout), because of the (illogical) way layouting works.
@@ -1306,9 +1301,16 @@ void QLayoutWidget::updateSizePolicy()
     int vt = (int) QSizePolicy::Preferred;
 
     if ( layout() ) {
+	/*
+	  parentLayout is set to the parent layout if there is one and if it is
+	  top level, in which case layouting is illogical.
+	*/
 	QLayout *parentLayout = 0;
-	if ( parent() && parent()->isWidgetType() && ((QWidget *)parent())->layout() )
+	if ( parent() && parent()->isWidgetType() ) {
 	    parentLayout = ((QWidget *)parent())->layout();
+	    if ( parentLayout && parentLayout->mainWidget()->inherits("QLayoutWidget") )
+		parentLayout = 0;
+	}
 
 	QObjectListIt it( *children() );
 	QObject *o;
