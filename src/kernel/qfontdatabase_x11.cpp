@@ -1223,7 +1223,8 @@ void QFontDatabase::createDatabase()
 // --------------------------------------------------------------------------------------
 // font loader
 // --------------------------------------------------------------------------------------
-#define MAXFONTSIZE 128
+#define MAXFONTSIZE_XFT 256
+#define MAXFONTSIZE_XLFD 128
 
 static
 QFontEngine *loadEngine( QFont::Script script,
@@ -1320,9 +1321,9 @@ QFontEngine *loadEngine( QFont::Script script,
 	*/
 	double size_value = request.pixelSize;
 	double scale = 1.;
-	if ( size_value > MAXFONTSIZE ) {
-	    scale = (double)size_value/(double)MAXFONTSIZE;
-	    size_value = MAXFONTSIZE;
+	if ( size_value > MAXFONTSIZE_XFT ) {
+	    scale = (double)size_value/(double)MAXFONTSIZE_XFT;
+	    size_value = MAXFONTSIZE_XFT;
 	}
 
 	if ( fp->paintdevice )
@@ -1398,9 +1399,9 @@ QFontEngine *loadEngine( QFont::Script script,
     else if ( style->bitmapScalable && px == 0 )
 	px = request.pixelSize;
     double scale = 1.;
-    if ( px > MAXFONTSIZE ) {
-	scale = (double)px/(double)MAXFONTSIZE;
-	px = MAXFONTSIZE;
+    if ( px > MAXFONTSIZE_XLFD ) {
+	scale = (double)px/(double)MAXFONTSIZE_XLFD;
+	px = MAXFONTSIZE_XLFD;
     }
 
     xlfd += QString::number( px ).latin1();
