@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/network/src/qftp.cpp#5 $
+** $Id: //depot/qt/main/extensions/network/src/qftp.cpp#6 $
 **
 ** Implementation of Network Extension Library
 **
@@ -144,6 +144,7 @@ void QFtp::isDir()
     // #### todo
     if ( url )
 	url->emitUrlIsDir();
+    emit urlIsDir();
 }
 
 void QFtp::isFile()
@@ -208,14 +209,26 @@ void QFtp::parseDir( const QString &buffer, QUrlInfo &info )
 
 void QFtp::hostFound()
 {
+    if ( url )
+	emit connectionStateChanged( HostFound, tr( "Host %1 found" ).arg( url->host() ) );
+    else
+	emit connectionStateChanged( HostFound, tr( "Host found" ) );
 }
 
 void QFtp::connected()
 {
+    if ( url )
+	emit connectionStateChanged( Connected, tr( "Connected to host %1" ).arg( url->host() ) );
+    else
+	emit connectionStateChanged( Connected, tr( "Connected to host" ) );
 }
 
 void QFtp::closed()
 {
+    if ( url )
+	emit connectionStateChanged( Closed, tr( "Connection to %1 closed" ).arg( url->host() ) );
+    else
+	emit connectionStateChanged( Closed, tr( "Connection closed" ) );
 }
 
 void QFtp::readyRead()
@@ -223,7 +236,9 @@ void QFtp::readyRead()
     QCString s;
     s.resize( commandSocket->bytesAvailable() );
     commandSocket->readBlock( s.data(), commandSocket->bytesAvailable() );
-	
+
+    emit data( QString::fromLatin1( s ) );
+    
     if ( !url )
 	return;
 
@@ -261,16 +276,24 @@ void QFtp::readyRead()
 	dataSocket->connectToHost( lst[ 0 ] + "." + lst[ 1 ] + "." + lst[ 2 ] + "." + lst[ 3 ], port );
     } else if ( s.contains( "250" ) ) { // cwd succesfully, list dir
 	commandSocket->writeBlock( "LIST\r\n", strlen( "LIST\r\n" ) );
+    } else if ( s.contains( "530" ) ) { // Login incorrect
+	close();
+	emit error( QUrl::ErrLoginIncorrect, tr( "Login Incorrect" ) );
+	if ( url )
+	    url->emitError( QUrl::ErrLoginIncorrect, tr( "Login Incorrect" ) );
     } else
 	;//qWarning( "unknown result: %s", s.data() );
 }
 
 void QFtp::dataHostFound()
 {
+    emit connectionStateChanged( HostFound, tr( "Host found" ) );
 }
 
 void QFtp::dataConnected()
 {
+    emit connectionStateChanged( HostFound, tr( "Connected to host" ) );
+
     QString path = url->path().isEmpty() ? QString( "/" ) : url->path();
     QString cmd = "CWD " + path + "\r\n";
     commandSocket->writeBlock( cmd.latin1(), cmd.length() );
@@ -281,6 +304,8 @@ void QFtp::dataClosed()
 {
     if ( url )
 	url->emitFinished( QUrl::ActListDirectory );
+    emit finished( QUrl::ActListDirectory );
+    emit connectionStateChanged( Closed, tr( "Connection closed" ) );
 }
 
 void QFtp::dataReadyRead()
@@ -289,6 +314,7 @@ void QFtp::dataReadyRead()
     s.resize( dataSocket->bytesAvailable() );
     dataSocket->readBlock( s.data(), dataSocket->bytesAvailable() );
     QString ss = QString::fromLatin1( s.copy() );
+    emit data( ss );
     if ( !tmp.isEmpty() )
 	ss.prepend( tmp );
     tmp = QString::null;
@@ -300,8 +326,10 @@ void QFtp::dataReadyRead()
 	if ( !inf.name().isEmpty() ) {
 	    if ( url ) {
 		QRegExp filt( url->nameFilter(), FALSE, TRUE );
-		if ( inf.isDir() || filt.match( inf.name() ) != -1 )
+		if ( inf.isDir() || filt.match( inf.name() ) != -1 ) {
 		    url->emitEntry( inf );
+		    emit entry( inf );
+		}
 	    }
 	}
     }
