@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/etc/opengl/qgl.h#4 $
+** $Id: //depot/qt/main/etc/opengl/qgl.h#5 $
 **
 ** Definition of OpenGL classes for Qt
 **
@@ -31,7 +31,8 @@ class QGLFormat
 {
 public:
     QGLFormat();
-    QGLFormat( bool doubleBuffer, bool rgba=TRUE,
+    QGLFormat( bool doubleBuffer, bool alpha=FALSE, bool accum=FALSE,
+	       bool stencil=FALSE, bool stereo=FALSE, bool rgba=TRUE,
 	       int colorBits=24, int depthBits=16 );
     QGLFormat( const QGLFormat & );
     virtual ~QGLFormat();
@@ -40,6 +41,14 @@ public:
 
     bool    doubleBuffer() const;
     void    setDoubleBuffer( bool );
+    bool    alpha() const;
+    void    setAlpha( bool );
+    bool    accum() const;
+    void    setAccum( bool );
+    bool    stencil() const;
+    void    setStencil( bool );
+    bool    stereo() const;
+    void    setStereo( bool );
     bool    rgba() const;
     void    setRgba( bool );
     int	    colorBits() const;
@@ -55,6 +64,10 @@ public:
 public:
     struct Internal : /* public */ QShared {
 	bool        doubleBuffer;
+	bool	    alpha;
+	bool	    accum;
+	bool	    stencil;
+	bool	    stereo;
 	bool	    rgba;
 	int	    colorBits;
 	int	    depthBits;
@@ -119,7 +132,7 @@ class QGLWidget : public QWidget
     Q_OBJECT
 public:
     QGLWidget( QWidget *parent=0, const char *name=0 );
-    QGLWidget( const QGLFormat &format, QWidget *parent=0, const char *name=0 );
+    QGLWidget( const QGLFormat &format, QWidget *parent=0, const char *name=0);
 
     void	makeCurrent();
     bool	doubleBuffer() const;
@@ -138,6 +151,7 @@ protected:
     void	resizeEvent( QResizeEvent * );
 
 private:
+    void	qglInit();
     QGLContext	glContext;
 
 private:	// Disabled copy constructor and operator=
@@ -153,6 +167,26 @@ private:	// Disabled copy constructor and operator=
 inline bool QGLFormat::doubleBuffer() const
 {
     return data->doubleBuffer;
+}
+
+inline bool QGLFormat::alpha() const
+{
+    return data->alpha;
+}
+
+inline bool QGLFormat::accum() const
+{
+    return data->accum;
+}
+
+inline bool QGLFormat::stencil() const
+{
+    return data->stencil;
+}
+
+inline bool QGLFormat::stereo() const
+{
+    return data->stereo;
 }
 
 inline bool QGLFormat::rgba() const
