@@ -485,7 +485,11 @@ void QTipManager::showTip()
     if ( t->group && !t->group->ena )
 	return;
 
-    int scr = QApplication::desktop()->screenNumber( widget->mapToGlobal( pos ) );
+    int scr;
+    if ( QApplication::desktop()->isVirtualDesktop() )
+	scr = QApplication::desktop()->screenNumber( widget->mapToGlobal( pos ) );
+    else
+	scr = QApplication::desktop()->screenNumber( widget );
 
     if ( label
 #if defined(Q_WS_X11)
