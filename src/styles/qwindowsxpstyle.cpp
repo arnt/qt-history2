@@ -50,12 +50,28 @@
 #include <qcleanuphandler.h>
 #include <qbitmap.h>
 #include <qlibrary.h>
+#include <qdockwindow.h>
+#include <qdockarea.h>
 #include <qt_windows.h>
 
 #include <uxtheme.h>
 #include <tmschema.h>
 
 #include <limits.h>
+
+/* XPM */
+static char * dockCloseXPM[] = {
+"8 8 2 1",
+" 	c none",
+".	c #FFFFFF",
+"..    ..",
+"...  ...",
+" ...... ",
+"  ....  ",
+"  ....  ",
+" ...... ",
+"...  ...",
+"..    .."};
 
 static ulong ref = 0;
 static bool use_xp  = FALSE;
@@ -116,7 +132,7 @@ class QWindowsXPStylePrivate
 {
 public:
     QWindowsXPStylePrivate()
-	: hotWidget( 0 ), hotTab( 0 ), hotSpot( -1, -1 )
+	: hotWidget( 0 ), hotTab( 0 ), hotSpot( -1, -1 ), dockCloseActive( 0 ), dockCloseInactive( 0 )
     {
 	init();
     }
@@ -133,6 +149,28 @@ public:
 	}
 	if ( use_xp )
 	    ref++;
+
+	COLORREF cref;	
+	// Active Title Bar ( Color 1 in the gradient )
+	cref = GetSysColor(COLOR_ACTIVECAPTION);
+	dockColorActive = qRgb( GetRValue(cref), GetGValue(cref), GetBValue(cref) );
+	// 3D Objects
+	cref = GetSysColor(COLOR_3DFACE);
+	dockColorInactive = qRgb( GetRValue(cref), GetGValue(cref), GetBValue(cref) );
+	
+	dockCloseActive = new QPixmap( 10, 10 );
+	dockCloseInactive = new QPixmap( 10, 10 );
+	dockCloseActive->fill( dockColorActive );
+	dockCloseInactive->fill( dockColorInactive );
+
+	QPixmap tmp_ex( (const char **) dockCloseXPM );
+
+	QPainter p1( dockCloseActive );
+	QPainter p2( dockCloseInactive );
+	tmp_ex.fill( Qt::white );
+	p1.drawPixmap( 1, 1, tmp_ex );
+	tmp_ex.fill( Qt::black );
+	p2.drawPixmap( 1, 1, tmp_ex );
     }
 
     void cleanup()
@@ -154,6 +192,8 @@ public:
 		}
 	    }
 	}
+	delete dockCloseActive;
+	delete dockCloseInactive;
     }
 
     static bool getThemeResult( HRESULT res )
@@ -191,8 +231,10 @@ public:
     QRgb groupBoxTextColor;
     QRgb groupBoxTextColorDisabled;
     QRgb tabPaneBorderColor;
-    QBrush dockColorActive;
-    QBrush dockColorInactive;
+    QColor dockColorActive;
+    QColor dockColorInactive;
+    QPixmap *dockCloseActive;
+    QPixmap *dockCloseInactive;
 
 private:
     static QWidget *limboWidget;
@@ -332,14 +374,6 @@ const QPixmap *QWindowsXPStylePrivate::tabBody( QWidget *widget )
 	COLORREF cref;
 	pGetThemeColor( theme.handle(), TABP_PANE, 0, TMT_BORDERCOLORHINT, &cref );
 	tabPaneBorderColor = qRgb( GetRValue(cref), GetGValue(cref), GetBValue(cref) );
-	// Active Title Bar ( Color 1 in the gradient )
-	cref = GetSysColor(COLOR_ACTIVECAPTION);
-	dockColorActive.setColor( qRgb( GetRValue(cref), GetGValue(cref), GetBValue(cref) ) );
-	dockColorActive.setStyle( QBrush::SolidPattern );
-	// 3D Objects
-	cref = GetSysColor(COLOR_3DFACE);
-	dockColorInactive.setColor( qRgb( GetRValue(cref), GetGValue(cref), GetBValue(cref) ) );
-	dockColorInactive.setStyle( QBrush::SolidPattern );
 
 	painter.end();
 	tabbody->resize( sz.cx, QApplication::desktop()->screenGeometry().height() );
@@ -403,6 +437,37 @@ void QWindowsXPStyle::polish( QWidget *widget )
     if ( widget->inherits( "QButton" ) ) {
 	widget->installEventFilter( this );
 	widget->setBackgroundOrigin( QWidget::ParentOrigin );
+	if ( widget->inherits( "QToolButton" ) && !QString::compare( "qt_close_button1", widget->name() ) ) {
+	    QToolButton *tb = (QToolButton*)widget;
+	    tb->setPixmap( *(d->dockCloseActive) );
+	    tb->setAutoRaise( TRUE );
+	    // ugly hack, please look away
+	    tb->setFixedSize( 16, 16 );
+	    QDockWindow *dw = (QDockWindow *) tb->parentWidget()->parentWidget();
+	    if ( dw->area()->orientation() == Horizontal )
+		tb->move( 0, 2 );
+	    // ok, you can look again
+	    QPalette pl = tb->palette();
+	    QColorGroup cga = pl.active();
+	    QColorGroup cgi = pl.inactive();
+	    cga.setColor( QColorGroup::Button, d->dockColorActive );
+	    cgi.setColor( QColorGroup::Button, d->dockColorInactive );
+	    pl.setActive( cga );
+	    pl.setInactive( cgi );
+	    tb->setPalette( pl );
+	}
+    } else if ( widget->inherits( "QDockWindowHandle" ) ) {
+	QWidget *p = (QWidget*)widget->parent();
+	if ( !p->inherits("QToolBar") ) {
+	    QPalette pl = widget->palette();
+	    QColorGroup cga = pl.active();
+	    QColorGroup cgi = pl.inactive();
+	    cga.setColor( QColorGroup::Background, d->dockColorActive );
+	    cgi.setColor( QColorGroup::Background, d->dockColorInactive );
+	    pl.setActive( cga );
+	    pl.setInactive( cgi );
+	    widget->setPalette( pl );
+	}
     } else if ( widget->inherits( "QTabBar" ) ) {
 	widget->installEventFilter( this );
 	widget->setAutoMask( TRUE );
@@ -759,11 +824,6 @@ void QWindowsXPStyle::drawPrimitive( PrimitiveElement op,
 		stateId = GBS_DISABLED;
 	    else
 		stateId = GBS_NORMAL;
-
-	    if ( flags & Style_Enabled )
-		p->fillRect( r, d->dockColorActive );
-	    else
-		p->fillRect( r, d->dockColorInactive );
 
 	    if ( drawDockTitle ) {
 		QRect rt = r;
