@@ -209,7 +209,8 @@ bool SourceFile::closeEvent()
 	    ed->editorInterface()->setText( txt );
 	if ( fileNameTemp )
 	    pro->removeSourceFile( this );
-	MainWindow::self->workspace()->update();
+	if ( MainWindow::self )
+	    MainWindow::self->workspace()->update();
 	break;
     case 2: // cancel
 	return FALSE;
