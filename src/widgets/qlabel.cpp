@@ -269,14 +269,13 @@ void QLabel::setText( const QString &text )
     QSize osh = sizeHint();
     clearContents();
     ltext = text;
-    bool useRichText = (textformat == RichText || 
+    bool useRichText = (textformat == RichText ||
       ( ( textformat == AutoText ) && QStyleSheet::mightBeRichText(ltext) ) );
 #ifndef QT_NO_ACCEL
     // ### Setting accelerators for rich text labels will not work.
-    // Eg. <b>&gt;Hello</b> will return ALT+G which is clearly 
+    // Eg. <b>&gt;Hello</b> will return ALT+G which is clearly
     // not intended.
     if ( !useRichText ) {
-	qWarning("accelerator set");
 	int p = QAccel::shortcutKey( ltext );
 	if ( p ) {
 	    if ( !accel )
@@ -922,7 +921,7 @@ void QLabel::setBuddy( QWidget *buddy )
     if ( !lbuddy )
 	return;
 
-    if ( !( textformat == RichText || (textformat == AutoText && 
+    if ( !( textformat == RichText || (textformat == AutoText &&
 				       QStyleSheet::mightBeRichText(ltext) ) ) ) {
 	int p = QAccel::shortcutKey( ltext );
 	if ( p ) {
