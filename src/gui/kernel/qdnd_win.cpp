@@ -255,8 +255,9 @@ void QOleDropSource::createCursors()
             ii.xHotspot  = pm.isNull() ? 0 : qMax(0,hotSpot.x());
             ii.yHotspot  = pm.isNull() ? 0 : qMax(0,hotSpot.y());
             ii.hbmMask   = im;
-            ii.hbmColor  = newCursor.hbm();
+            ii.hbmColor  = newCursor.toWinHBITMAP();
             cursor[cnum] = CreateIconIndirect(&ii);
+            DeleteObject(ii.hbmColor);
             DeleteObject(im);
         }
     }

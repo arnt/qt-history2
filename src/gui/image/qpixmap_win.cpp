@@ -582,28 +582,96 @@ QPaintEngine *QPixmap::paintEngine() const
     return data->image.paintEngine();
 }
 
-HBITMAP QPixmap::hbm() const
-{
-    return 0;
-}
-
-HDC QPixmap::getDC() const
-{
-    return 0;
-}
-
-void QPixmap::releaseDC(HDC) const
-{
-}
-
 void QPixmap::setAlphaChannel(const QPixmap &alphaChannel)
 {
-    // ### implement me...
-    Q_UNUSED(alphaChannel);
+#if 0
+    data->image.setAlphaChannel(alphaChannel.toImage());
+#endif
 }
 
 QPixmap QPixmap::alphaChannel() const
 {
-    // ### implement me...
+#if 0
+    return QPixmap::fromImage(data->image.alphaChannel());
+#endif
     return QPixmap();
+}
+
+HBITMAP QPixmap::toWinHBITMAP() const
+{
+    int w = data->image.width();
+    int h = data->image.height();
+
+    HDC display_dc = qt_win_display_dc();
+
+    // Define the header
+    BITMAPINFO bmi;
+    memset(&bmi, 0, sizeof(bmi));
+    bmi.bmiHeader.biSize        = sizeof(BITMAPINFOHEADER);
+    bmi.bmiHeader.biWidth       = w;
+    bmi.bmiHeader.biHeight      = -h;
+    bmi.bmiHeader.biPlanes      = 1;
+    bmi.bmiHeader.biBitCount    = 32;
+    bmi.bmiHeader.biCompression = BI_RGB;
+    bmi.bmiHeader.biSizeImage   = w * h * 4;
+
+    // Create the pixmap
+    uchar *pixels = 0;
+    HBITMAP bitmap = CreateDIBSection(display_dc, &bmi, DIB_RGB_COLORS, (void **) &pixels, 0, 0);
+    if (!bitmap) {
+        qErrnoWarning("QPixmap::toWinHBITMAP(), failed to create dibsection");
+        return 0;
+    }
+    if (!pixels) {
+        qErrnoWarning("QPixmap::toWinHBITMAP(), did not allocate pixel data");
+        return 0;
+    }
+
+    // Copy over the data
+    const QImage image = data->image.depth() == 32 ? data->image : data->image.convertDepth(32);
+    int bytes_per_line = w * 4;
+    for (int y=0; y<h; ++y)
+        memcpy(pixels + y * bytes_per_line, image.scanLine(y), bytes_per_line);
+
+    return bitmap;
+}
+
+
+QPixmap QPixmap::fromWinHBITMAP(HBITMAP hbitmap)
+{
+    // Verify size
+    BITMAP bitmap_info;
+    memset(&bitmap_info, 0, sizeof(BITMAP));
+    if (!GetObject(hbitmap, sizeof(BITMAP), &bitmap_info)) {
+        qErrnoWarning("QPixmap::fromWinHBITMAP(), failed to get bitmap info");
+        return QPixmap();
+    }
+    int w = bitmap_info.bmWidth;
+    int h = bitmap_info.bmHeight;
+
+    BITMAPINFO bmi;
+    memset(&bmi, 0, sizeof(bmi));
+    bmi.bmiHeader.biSize        = sizeof(BITMAPINFOHEADER);
+    bmi.bmiHeader.biWidth       = w;
+    bmi.bmiHeader.biHeight      = -h;
+    bmi.bmiHeader.biPlanes      = 1;
+    bmi.bmiHeader.biBitCount    = 32;
+    bmi.bmiHeader.biCompression = BI_RGB;
+    bmi.bmiHeader.biSizeImage   = w * h * 4;
+
+    QImage result;
+    // Get bitmap bits
+    uchar *data = (uchar *) qMalloc(bmi.bmiHeader.biSizeImage);
+    if (GetDIBits(qt_win_display_dc(), hbitmap, 0, h, data, &bmi, DIB_RGB_COLORS)) {
+        // Create image and copy data into image.
+        QImage image(w, h, 32);
+        int bytes_per_line = w * 4;
+        for (int y=0; y<h; ++y)
+            memcpy(image.scanLine(y), data + y * bytes_per_line, bytes_per_line);
+        result = image;
+    } else {
+        qWarning("QPixmap::fromWinHBITMAP(), failed to get bitmap bits");
+    }
+    qFree(data);
+    return fromImage(result);
 }

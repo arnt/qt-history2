@@ -102,9 +102,8 @@ public:
 #endif
 
 #if defined(Q_WS_WIN)
-    HBITMAP hbm() const;
-    HDC getDC() const;
-    void releaseDC(HDC) const;
+    HBITMAP toWinHBITMAP() const;
+    static QPixmap fromWinHBITMAP(HBITMAP hbitmap);
 #endif
 
     int serialNumber() const;

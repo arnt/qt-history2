@@ -756,10 +756,12 @@ void QWin32PaintEngine::updateBrush(const QBrush &brush, const QPointF &bgOrigin
     } else if ((d->brushStyle >= Qt::Dense1Pattern && d->brushStyle <= Qt::Dense7Pattern) ||
                 (d->brushStyle == Qt::TexturePattern)) {
         if (d->brushStyle == Qt::TexturePattern) {
+#if 0
             // The brush pixmap can never be a multi cell pixmap
             d->hbrushbm = brush.texture().hbm();
             d->pixmapBrush = true;
             d->nocolBrush = brush.texture().depth() == 1;
+#endif
         } else {
             short *bm = dense_patterns[d->brushStyle - Qt::Dense1Pattern];
             d->hbrushbm = CreateBitmap(8, 8, 1, 1, bm);

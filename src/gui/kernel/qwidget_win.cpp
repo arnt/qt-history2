@@ -751,9 +751,10 @@ HICON qt_createIcon(QIcon icon, int xSize, int ySize, QPixmap **cache)
         ICONINFO ii;
         ii.fIcon    = true;
         ii.hbmMask  = im;
-        ii.hbmColor = pm.hbm();
+        ii.hbmColor = pm.toWinHBITMAP();
         ii.xHotspot = 0;
         ii.yHotspot = 0;
+        DeleteObject(ii.hbmColor);
         result = CreateIconIndirect(&ii);
 
         if (cache)

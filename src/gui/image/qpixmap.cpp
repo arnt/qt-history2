@@ -1159,3 +1159,21 @@ QPixmap QPixmap::scaledToHeight(int h) const
 
     \sa QBitmap, QImage, QImageReader, {shclass.html}{Shared Classes}
 */
+
+/*!
+    \fn HBITMAP QPixmap::toWinHBITMAP() const
+
+    Creates an HBITMAP object and copies the pixel data of this pixmap
+    into it.
+
+    The ownership of the HBITMAP object is passed to the caller of
+    this function.
+*/
+
+/*!
+    \fn QPixmap QPixmap::fromWinHBITMAP(HBITMAP hbitmap)
+
+    Creates a QPixmap object and copies the pixel data of \a hbitmap
+    into it.
+
+*/
