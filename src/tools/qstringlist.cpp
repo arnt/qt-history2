@@ -63,9 +63,13 @@
 	}
   \endcode
 
+  There are also convenient static methods available, which make
+  working with QStringLists easy, like multiple split() and grep()
+  methods.
 */
 
-/*! \fn QStringList::QStringList()
+/*
+  ! \fn QStringList::QStringList()
   Creates an empty list
 */
 
