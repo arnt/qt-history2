@@ -161,7 +161,7 @@ const char* QDropEvent::format( int i ) const
     }
     if ( GetFlavorDataSize( current_dropobj, ref, info, &flavorsize) || flavorsize < 4 ) {
 	qDebug( "Failure to get ScrapFlavorSize for %s:%d %d %d", __FILE__, __LINE__, 
-	       flavorsize, (int)info );
+	       (int)flavorsize, (int)info );
 	return 0;
     }
     GetFlavorData( current_dropobj, ref, info, &typesize, &realsize, 0 );
@@ -217,7 +217,7 @@ static QDragObject *global_src = 0;
 EventRecord fakeEvent;
 
 
-bool QDragManager::drag( QDragObject *o, QDragObject::DragMode mode )
+bool QDragManager::drag( QDragObject *o, QDragObject::DragMode )
 {
     if ( object == o )
 	return FALSE;
@@ -240,7 +240,7 @@ bool QDragManager::drag( QDragObject *o, QDragObject::DragMode mode )
     QByteArray ar;
     char *test="abcd";
 
-    if ( result = NewDrag(&theDrag) )
+    if ( (result = NewDrag(&theDrag)) )
 	return( !result );
 
     if ( o->provides( "text/plain" ) ) {
@@ -357,14 +357,12 @@ static QWidget *recursive_match(QWidget *widg, int x, int y)
     return widg;
 }
 
-OSErr MyTrackingHandler( DragTrackingMessage theMessage, WindowPtr theWindow,
+OSErr MyTrackingHandler( DragTrackingMessage theMessage, WindowPtr,
 			 void *handlerRefCon, DragReference theDrag )
 {
     QMacDndExtra *macDndExtra = (QMacDndExtra*) handlerRefCon;
     Point mouse;
     QPoint globalMouse;
-    DragAttributes attributes;
-    RgnHandle hiliteRgn;
 
     if(!theDrag) {
 	qDebug( "DragReference null %s %d", __FILE__, __LINE__ );
@@ -438,13 +436,13 @@ void qt_macdnd_register( QWidget *widget, QWExtra *extra )
 	extra->macDndExtra = new QMacDndExtra;
 	extra->macDndExtra->ref = 1;
 	extra->macDndExtra->widget = widget->topLevelWidget();
-	if ( result = InstallTrackingHandler( MyTrackingHandler, 
+	if ( (result = InstallTrackingHandler( MyTrackingHandler, 
 					      (WindowPtr)widget->winId(),
-					      extra->macDndExtra ))
+					      extra->macDndExtra )))
 	    return;
-	if ( result = InstallReceiveHandler( MyReceiveHandler,
+	if ( (result = InstallReceiveHandler( MyReceiveHandler,
 					     (WindowPtr)widget->winId(),
-					     extra->macDndExtra ))
+					     extra->macDndExtra )))
 	    return;
     } 	else {	
 	extra->macDndExtra->ref++;
