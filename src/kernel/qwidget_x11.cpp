@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#357 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#358 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -47,6 +47,10 @@ int  qt_sip_count( QWidget* );			// --- "" ---
 void qt_updated_rootinfo();
 extern XIM qt_xim;
 extern XIMStyle qt_xim_style;
+
+// paintevent clipping magic
+extern void qt_set_paintevent_clipping( QPaintDevice* dev, const QRegion& region); 
+extern void qt_clear_paintevent_clipping();
 
 
 extern bool qt_nograb();
@@ -1113,10 +1117,13 @@ void QWidget::repaint( int x, int y, int w, int h, bool erase )
 	    w = crect.width()  - x;
 	if ( h < 0 )
 	    h = crect.height() - y;
-	QPaintEvent e( QRect(x,y,w,h), erase );
+	QRect r(x,y,w,h);
+	QPaintEvent e( r, erase );
+	qt_set_paintevent_clipping( this, r ); 
 	if ( erase && w != 0 && h != 0 )
 	    XClearArea( x11Display(), winId(), x, y, w, h, FALSE );
 	QApplication::sendEvent( this, &e );
+	qt_clear_paintevent_clipping();
     }
 }
 
@@ -1140,10 +1147,12 @@ void QWidget::repaint( int x, int y, int w, int h, bool erase )
 void QWidget::repaint( const QRegion& reg, bool erase )
 {
     if ( (widget_state & (WState_Visible|WState_BlockUpdates)) == WState_Visible ) {
+	QPaintEvent e( reg );
+	qt_set_paintevent_clipping( this, reg ); 
 	if ( erase )
 	    this->erase(reg);
-	QPaintEvent e( reg );
 	QApplication::sendEvent( this, &e );
+	qt_clear_paintevent_clipping();
     }
 }
 

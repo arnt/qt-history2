@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#199 $
+** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#200 $
 **
 ** Implementation of QWidget and QWindow classes for Win32
 **
@@ -712,10 +712,13 @@ void QWidget::repaint( int x, int y, int w, int h, bool erase )
 	    w = crect.width()  - x;
 	if ( h < 0 )
 	    h = crect.height() - y;
-	QPaintEvent e( QRect(x,y,w,h) );
+	QRect r(x,y,w,h);
+	QPaintEvent e( r, erase );
+	qt_set_paintevent_clipping( this, r ); 
 	if ( erase )
 	    this->erase( x, y, w, h );
 	QApplication::sendEvent( this, &e );
+	qt_clear_paintevent_clipping();
     }
 }
 
@@ -723,9 +726,11 @@ void QWidget::repaint( const QRegion& reg, bool erase )
 {
     if ( (widget_state & (WState_Visible|WState_BlockUpdates)) == WState_Visible ) {
 	QPaintEvent e( reg );
+	qt_set_paintevent_clipping( this, reg ); 
 	if ( erase )
 	    this->erase( reg );
 	QApplication::sendEvent( this, &e );
+	qt_clear_paintevent_clipping();
     }
 }
 

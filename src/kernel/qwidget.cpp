@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#407 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#408 $
 **
 ** Implementation of QWidget class
 **
@@ -3336,8 +3336,10 @@ bool QWidget::event( QEvent *e )
 	    break;
 
 	case QEvent::Paint:
-	    if ( isVisibleToTLW() )
-		paintEvent( (QPaintEvent*)e );
+	    // At this point the event has to be delivered, regardless
+	    // whether the widget isVisibleToTLW() or not because it
+	    // already went through the filters
+	    paintEvent( (QPaintEvent*)e );
 	    break;
 
 	case QEvent::Move:

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#295 $
+** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#296 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -35,6 +35,26 @@
 #include <ctype.h>
 #include <stdlib.h>
 #include "qt_x11.h"
+
+
+/* paintevent magic to provide Windows semantics on X11
+ */
+static QRegion* paintEventClipRegion = 0;
+static QPaintDevice* paintEventDevice = 0;
+void qt_set_paintevent_clipping( QPaintDevice* dev, const QRegion& region)
+{
+    if ( !paintEventClipRegion )
+	paintEventClipRegion = new QRegion( region );
+    else
+	*paintEventClipRegion = region;
+    paintEventDevice = dev;
+}
+void qt_clear_paintevent_clipping() 
+{
+    delete paintEventClipRegion;
+    paintEventClipRegion = 0;
+    paintEventDevice = 0;
+}
 
 
 /*****************************************************************************
@@ -924,6 +944,8 @@ bool QPainter::begin( const QPaintDevice *pd )
     }
     updateBrush();
     updatePen();
+    if ( paintEventDevice == device() )
+	setClipRegion( *paintEventClipRegion );
     return TRUE;
 }
 
@@ -1178,6 +1200,12 @@ void QPainter::setClipping( bool enable )
 #endif
     if ( !isActive() || enable == testf(ClipOn) )
 	return;
+    
+    if ( !enable && paintEventDevice == device() ) {
+	enable = TRUE;
+	crgn = *paintEventClipRegion;
+    }
+    
     setf( ClipOn, enable );
     if ( testf(ExtDev) ) {
 	QPDevCmdParam param[1];
@@ -1226,6 +1254,9 @@ void QPainter::setClipRegion( const QRegion &rgn )
 	warning( "QPainter::setClipRegion: Will be reset by begin()" );
 #endif
     crgn = rgn;
+    if ( paintEventDevice == device() )
+	crgn = crgn.intersect( *paintEventClipRegion );
+
     if ( testf(ExtDev) ) {
 	QPDevCmdParam param[1];
 	param[0].rgn = &crgn;
@@ -1263,7 +1294,7 @@ void QPainter::drawPolyInternal( const QPointArray &a, bool close )
 	}
     }
     if ( cpen.style() != NoPen ) {		// draw outline
-	XDrawLines( dpy, hd, gc, (XPoint*)a.shortPoints(), a.size(), 
+	XDrawLines( dpy, hd, gc, (XPoint*)a.shortPoints(), a.size(),
 		    CoordModeOrigin);
 	if ( do_close )
 	    XDrawLine( dpy, hd, gc, x1, y1, x2, y2 );
@@ -1329,7 +1360,7 @@ void QPainter::drawPoints( const QPointArray& a, int index, int npoints )
 	}
     }
     if ( cpen.style() != NoPen )
-	XDrawPoints( dpy, hd, gc, (XPoint*)(pa.shortPoints( index, npoints )), 
+	XDrawPoints( dpy, hd, gc, (XPoint*)(pa.shortPoints( index, npoints )),
 		     npoints, CoordModeOrigin );
 }
 
@@ -2031,7 +2062,7 @@ void QPainter::drawPolyline( const QPointArray &a, int index, int npoints )
 	}
     }
     if ( cpen.style() != NoPen )
-	XDrawLines( dpy, hd, gc, (XPoint*)(pa.shortPoints( index, npoints )), 
+	XDrawLines( dpy, hd, gc, (XPoint*)(pa.shortPoints( index, npoints )),
 		    npoints, CoordModeOrigin );
 }
 
@@ -2531,8 +2562,8 @@ void QPainter::drawText( int x, int y, const QString &str, int len )
 		ty = -abbox.y();	// text position - off-by-one?
 		if ( aw == 0 || ah == 0 )
 		    return;
-		double rx = (double)bbox.width() * mat1.m11() / (double)aw; 
-		double ry = (double)bbox.height() * mat1.m22() /(double)ah; 
+		double rx = (double)bbox.width() * mat1.m11() / (double)aw;
+		double ry = (double)bbox.height() * mat1.m22() /(double)ah;
 		mat2 = QWMatrix( rx, 0, 0, ry, 0, 0 );
 	    }
 	    else {

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#476 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#477 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -282,6 +282,13 @@ extern Atom qt_xdnd_drop;
 extern Atom qt_xdnd_finished;
 // xdnd selection atom
 extern Atom qt_xdnd_selection;
+
+
+// paintevent clipping magic
+extern void qt_set_paintevent_clipping( QPaintDevice* dev, const QRegion& region); 
+extern void qt_clear_paintevent_clipping();
+
+
 // thatsall
 
 void qt_x11_intern_atom( const char *, Atom * );
@@ -3716,7 +3723,9 @@ bool QETWidget::translatePaintEvent( const XEvent *event )
 
     QPaintEvent e( paintRegion );
     setWState( WState_InPaintEvent );
+    qt_set_paintevent_clipping( this, paintRegion); 
     QApplication::sendEvent( this, &e );
+    qt_clear_paintevent_clipping();
     clearWState( WState_InPaintEvent );
     return TRUE;
 }

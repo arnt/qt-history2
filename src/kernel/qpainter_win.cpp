@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_win.cpp#147 $
+** $Id: //depot/qt/main/src/kernel/qpainter_win.cpp#148 $
 **
 ** Implementation of QPainter class for Win32
 **
@@ -85,6 +85,27 @@ static HFONT  stock_sysfont;
 
 static QHDCObj stock_dummy;
 static void  *stock_ptr = (void *)&stock_dummy;
+
+
+
+/* paintevent magic to provide Windows semantics on Windows ;)
+ */
+static QRegion* paintEventClipRegion = 0;
+static QPaintDevice* paintEventDevice = 0;
+void qt_set_paintevent_clipping( QPaintDevice* dev, const QRegion& region)
+{
+    if ( !paintEventClipRegion )
+	paintEventClipRegion = new QRegion( region );
+    else
+	*paintEventClipRegion = region;
+    paintEventDevice = dev;
+}
+void qt_clear_paintevent_clipping() 
+{
+    delete paintEventClipRegion;
+    paintEventClipRegion = 0;
+    paintEventDevice = 0;
+}
 
 
 static void init_cache()
@@ -771,6 +792,8 @@ bool QPainter::begin( const QPaintDevice *pd )
     }
     updatePen();
     updateBrush();
+    if ( paintEventDevice == device() )
+	setClipRegion( *paintEventClipRegion );
     setf(DirtyFont);
     return TRUE;
 }
@@ -989,6 +1012,12 @@ void QPainter::setClipping( bool enable )
 #endif
     if ( !isActive() || enable == testf(ClipOn) )
 	return;
+
+    if ( !enable && paintEventDevice == device() ) {
+	enable = TRUE;
+	crgn = *paintEventClipRegion;
+    }
+    
     setf( ClipOn, enable );
     if ( testf(ExtDev) ) {
 	QPDevCmdParam param[1];
@@ -1016,6 +1045,9 @@ void QPainter::setClipRegion( const QRegion &rgn )
 	warning( "QPainter::setClipRegion: Will be reset by begin()" );
 #endif
     crgn = rgn;
+    if ( paintEventDevice == device() )
+	crgn = crgn.intersect( *paintEventClipRegion );
+    
     if ( testf(ExtDev) ) {
 	QPDevCmdParam param[1];
 	param[0].rgn = &crgn;
@@ -1799,8 +1831,8 @@ void QPainter::drawPixmap( int x, int y, const QPixmap &pixmap,
 	    	pm->allocMemDC();
 	    if ( qt_winver == WV_NT ) {
 		// ( The other method fails on NT )
-		MaskBlt( hdc, x, y, sw, sh, pm->handle(), sx, sy, 
-			 pm->mask()->hbm(), sx, sy, 
+		MaskBlt( hdc, x, y, sw, sh, pm->handle(), sx, sy,
+			 pm->mask()->hbm(), sx, sy,
 			 MAKEROP4(0x00aa0029,SRCCOPY) );
 	    }
 	    else {
@@ -2035,8 +2067,8 @@ void QPainter::drawText( int x, int y, const QString &str, int len )
 		ty = -abbox.y();	// text position - off-by-one?
 		if ( aw == 0 || ah == 0 )
 		    return;
-		double rx = (double)bbox.width() * mat1.m11() / (double)aw; 
-		double ry = (double)bbox.height() * mat1.m22() /(double)ah; 
+		double rx = (double)bbox.width() * mat1.m11() / (double)aw;
+		double ry = (double)bbox.height() * mat1.m22() /(double)ah;
 		mat2 = QWMatrix( rx, 0, 0, ry, 0, 0 );
 	    }
 	    else {
