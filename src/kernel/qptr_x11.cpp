@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qptr_x11.cpp#44 $
+** $Id: //depot/qt/main/src/kernel/qptr_x11.cpp#45 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -23,7 +23,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qptr_x11.cpp#44 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qptr_x11.cpp#45 $";
 #endif
 
 
@@ -280,8 +280,13 @@ const 	    gc_array_size = 16;
 static QGC  gc_array[gc_array_size];
 static bool gc_array_init = FALSE;
 
+#define SLOW_GC_ALLOC
+
 static GC alloc_painter_gc( Display *dpy, Drawable hd )
 {
+#if defined(SLOW_GC_ALLOC)
+    return XCreateGC( dpy, hd, 0, 0 );
+#endif
     register QGC *p = gc_array;
     int i = gc_array_size;
     if ( !gc_array_init ) {			// initialize GC array
@@ -313,6 +318,10 @@ static GC alloc_painter_gc( Display *dpy, Drawable hd )
 
 static void free_painter_gc( Display *dpy, GC gc )
 {
+#if defined(SLOW_GC_ALLOC)
+    XFreeGC( dpy, gc );
+    return;
+#endif
     register QGC *p = gc_array;
     int i = gc_array_size;
     if ( gc_array_init ) {
