@@ -3336,6 +3336,7 @@ void QGfxRaster<depth,type>::drawPolygon(const QPointArray &pa, bool winding, in
         } else { // SolidPattern
             pixel = brushPixel;
             srccol = pixel;
+            srctype = SourcePen;
             int alphaValue = qAlpha(brushColor);
             setAlphaSource(alphaValue);
             setAlphaType(alphaValue == 255 ? IgnoreAlpha : SolidAlpha);
