@@ -71,12 +71,18 @@ class Q_EXPORT QAction : public QObject
     Q_PROPERTY( bool visible READ isVisible WRITE setVisible )
 
 public:
-    QAction( QObject* parent, const char* name = 0, bool toggle = FALSE  );
+    QAction( QObject* parent, const char* name = 0 );
 #ifndef QT_NO_ACCEL
+    QAction( const QString& menuText, QKeySequence accel,
+	     QObject* parent, const char* name = 0 );
+    QAction( const QIconSet& icon, const QString& menuText, QKeySequence accel,
+	     QObject* parent, const char* name = 0 );
+
+    QAction( QObject* parent, const char* name , bool toggle ); // obsolete
     QAction( const QString& text, const QIconSet& icon, const QString& menuText, QKeySequence accel,
-	     QObject* parent, const char* name = 0, bool toggle = FALSE );
+	     QObject* parent, const char* name = 0, bool toggle = FALSE ); // obsolete
     QAction( const QString& text, const QString& menuText, QKeySequence accel, QObject* parent,
-	     const char* name = 0, bool toggle = FALSE );
+	     const char* name = 0, bool toggle = FALSE ); // obsolete
 #endif
     ~QAction();
 
@@ -104,7 +110,7 @@ public:
     bool isVisible() const;
     virtual bool addTo( QWidget* );
     virtual bool removeFrom( QWidget* );
-    
+
 protected:
     virtual void addedTo( QWidget *actionWidget, QWidget *container );
     virtual void addedTo( int index, QPopupMenu *menu );
@@ -147,7 +153,8 @@ class Q_EXPORT QActionGroup : public QAction
     Q_PROPERTY( bool usesDropDown READ usesDropDown WRITE setUsesDropDown )
 
 public:
-    QActionGroup( QObject* parent, const char* name = 0, bool exclusive = TRUE );
+    QActionGroup( QObject* parent, const char* name = 0 );
+    QActionGroup( QObject* parent, const char* name , bool exclusive  ); // obsolete
     ~QActionGroup();
     void setExclusive( bool );
     bool isExclusive() const;

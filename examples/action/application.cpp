@@ -45,11 +45,11 @@ ApplicationWindow::ApplicationWindow()
     QAction * fileSaveAction, * fileSaveAsAction, * filePrintAction;
     QAction * fileCloseAction, * fileQuitAction;
 
-    fileNewAction = new QAction( "New", "&New", CTRL+Key_N, this, "new" );
+    fileNewAction = new QAction( "&New", CTRL+Key_N, this, "new" );
     connect( fileNewAction, SIGNAL( activated() ) , this,
              SLOT( newDoc() ) );
 
-    fileOpenAction = new QAction( "Open File", QPixmap( fileopen ), "&Open...",
+    fileOpenAction = new QAction( QPixmap( fileopen ), "&Open...",
                                   CTRL+Key_O, this, "open" );
     connect( fileOpenAction, SIGNAL( activated() ) , this, SLOT( choose() ) );
 
@@ -61,7 +61,7 @@ ApplicationWindow::ApplicationWindow()
                           fileOpenAction->iconSet().pixmap() );
     fileOpenAction->setWhatsThis( fileOpenText );
 
-    fileSaveAction = new QAction( "Save File", QPixmap( filesave ),
+    fileSaveAction = new QAction( QPixmap( filesave ),
                                   "&Save", CTRL+Key_S, this, "save" );
     connect( fileSaveAction, SIGNAL( activated() ) , this, SLOT( save() ) );
 

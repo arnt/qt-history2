@@ -343,8 +343,33 @@ QString QActionPrivate::statusTip() const
 }
 
 
+/*
+  internal: guesses a descriptive text from a menu text
+ */
+static QString qt_stripMenuText( QString s )
+{
+    s.remove( QString::fromLatin1("...") );
+    s.remove( QChar('&' ) );
+    return s.stripWhiteSpace();
+};
 
 /*!
+    Constructs an action called \a name with parent \a parent.
+
+    If \a parent is a QActionGroup, the new action inserts itself into
+    \a parent.
+
+    For accelerators and status tips to work, \a parent must either be
+    a widget, or an action group whose parent is a widget.
+*/
+QAction::QAction( QObject* parent, const char* name )
+    : QObject( parent, name )
+{
+    d = new QActionPrivate;
+    init();
+}
+
+/*! \obsolete
     Constructs an action called \a name with parent \a parent.
 
     If \a toggle is TRUE the action will be a toggle action, otherwise
@@ -366,7 +391,71 @@ QAction::QAction( QObject* parent, const char* name, bool toggle )
 
 
 #ifndef QT_NO_ACCEL
+
 /*!
+    This constructor creates an action with the following properties:
+    the icon or iconset \a icon, the menu text \a menuText and
+    keyboard accelerator \a accel. It is a child of \a parent and
+    called \a name.
+
+    If  \a parent is a QActionGroup, the action automatically becomes
+    a member of it.
+
+    For accelerators and status tips to work, \a parent must either be
+    a widget, or an action group whose parent is a widget.
+
+    The action uses a stripped version of \a menuText as descriptive
+    text for toolbuttons, unless you set a specific description with
+    setText().  The same text and \a accel will be used for tool tips
+    and status tips unless you provide specific text for these using
+    setToolTip() and setStatusTip().
+
+    Call setToggleAction(TRUE) to make the action a toggle action.
+*/
+QAction::QAction( const QIconSet& icon, const QString& menuText, QKeySequence accel,
+		  QObject* parent, const char* name )
+    : QObject( parent, name )
+{
+    d = new QActionPrivate;
+    if ( !icon.isNull() )
+	setIconSet( icon );
+    d->text = qt_stripMenuText( menuText );
+    d->menutext = menuText;
+    setAccel( accel );
+    init();
+}
+
+/*!
+    This constructor results in an icon-less action with the the menu
+    text \a menuText and keyboard accelerator \a accel. It is a child
+    of \a parent and called \a name.
+
+    If  \a parent is a QActionGroup, the action automatically becomes
+    a member of it.
+
+    For accelerators and status tips to work, \a parent must either be
+    a widget, or an action group whose parent is a widget.
+
+    The action uses a stripped version of \a menuText as descriptive
+    text for toolbuttons, unless you set a specific description with
+    setText().  The same text and \a accel will be used for tool tips
+    and status tips unless you provide specific text for these using
+    setToolTip() and setStatusTip().
+
+    Call setToggleAction(TRUE) to make the action a toggle action.
+*/
+QAction::QAction( const QString& menuText, QKeySequence accel,
+		  QObject* parent, const char* name = 0 )
+    : QObject( parent, name )
+{
+    d = new QActionPrivate;
+    d->text = qt_stripMenuText( menuText );
+    d->menutext = menuText;
+    setAccel( accel );
+    init();
+}
+
+/*! \obsolete
     This constructor creates an action with the following properties:
     the description \a text, the icon or iconset \a icon, the menu
     text \a menuText and keyboard accelerator \a accel. It is a child
@@ -397,7 +486,7 @@ QAction::QAction( const QString& text, const QIconSet& icon, const QString& menu
     init();
 }
 
-/*!
+/*! \obsolete
     This constructor results in an icon-less action with the
     description \a text, the menu text \a menuText and the keyboard
     accelerator \a accel. Its parent is \a parent and it is called \a
@@ -1264,6 +1353,24 @@ void QActionGroupPrivate::update( const QActionGroup* that )
     parent. Actions can have separators dividing them using
     addSeparator(). Action groups are added to widgets with addTo().
 */
+
+/*!
+    Constructs an action group called \a name, with parent \a parent.
+
+    Call setExclusive(TRUE) to make the action group exclusive.
+*/
+QActionGroup::QActionGroup( QObject* parent, const char* name )
+    : QAction( parent, name )
+{
+    d = new QActionGroupPrivate;
+    d->exclusive = FALSE;
+    d->dropdown = FALSE;
+    d->selected = 0;
+    d->separatorAction = 0;
+    QAction::d->d_group = d;
+
+    connect( this, SIGNAL(selected(QAction*)), SLOT(internalToggle(QAction*)) );
+}
 
 /*!
     Constructs an action group called \a name, with parent \a parent.
