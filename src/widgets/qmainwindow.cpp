@@ -140,9 +140,10 @@ public:
     struct ToolBar {
 	ToolBar() : t(0), nl(FALSE) {}
 	ToolBar( QToolBar * tb, bool n=FALSE )
-	    : t(tb), nl(n), oldDock( QMainWindow::Top ), oldIndex( 0 )  {}
+	    : t(tb), nl(n), tmpnl( FALSE ), oldDock( QMainWindow::Top ), oldIndex( 0 )  {}
 	QToolBar * t;
 	bool nl;
+	bool tmpnl;
 	QValueList<int> disabledDocks;
 	QMainWindow::ToolBarDock oldDock;
 	int oldIndex;
@@ -372,7 +373,7 @@ public:
 		 QBoxLayout::Direction dd, bool justify,
 		 int space=-1, const char *name=0 )
 	: QLayout( parent, space, name ), dock(d), dir(dd), fill(justify)
-	{ init(); }
+	{ init(); fill = justify; }
 
     ~QToolLayout();
 
@@ -468,20 +469,34 @@ int QToolLayout::layoutItems( const QRect &r, bool testonly )
     int n = dock->count();
     if ( n == 0 )
 	return 0;
-    if ( !testonly ) {
-	if ( !array || 	array->size() != dock->count() ) {
-	    delete array;
-	    array = new QArray<QLayoutStruct>(n);
-	    for (int i = 0; i < n; i++ ) {
-		QLayoutStruct &a = (*array)[i];
-		QMainWindowPrivate::ToolBar *tb = dock->at(i);
-		a.init();
-		a.empty = FALSE;
-		a.sizeHint = tb->t->sizeHint().width();
-		a.expansive = tb->t->stretchable();
-	    }
+    // #### Reggie: We have to do the full calculation also in test mode, because even if the 
+    // #### width has not changed the order of the toolbars may has changed which means we
+    // #### the whole geometry has changed and we have to recalculate everything
+//     if ( !testonly ) {
+    if ( !array || array->size() != dock->count() ) {
+	delete array;
+	array = new QArray<QLayoutStruct>(n);
+	QMainWindowPrivate::ToolBar *prev = 0;
+	for (int i = 0; i < n; i++ ) {
+	    QLayoutStruct &a = (*array)[i];
+	    QMainWindowPrivate::ToolBar *tb = dock->at(i);
+	    a.init();
+	    a.empty = FALSE;
+	    a.sizeHint = tb->t->sizeHint().width();
+	    a.expansive = tb->t->stretchable() || fill;
+		
+	    tb->tmpnl = FALSE;
+		
+	    if ( tb->t->orientation() == Qt::Horizontal ) {
+		if ( prev && prev->t->stretchable() )
+		    tb->tmpnl = TRUE;
+		if ( tb->t->stretchable() )
+		    tb->tmpnl = TRUE;
+	    }		    
+	    prev = tb;
 	}
     }
+//     }
     bool up = dir == QBoxLayout::Up;
     int y = r.y();
     int lineh = 0;		//height of this line so far.
@@ -492,7 +507,7 @@ int QToolLayout::layoutItems( const QRect &r, bool testonly )
 
     QMainWindowPrivate::ToolBar *next = dock->first();
     QSize nsh = next->t->sizeHint();
-    bool fillLine = fill || next->t->stretchable();
+    bool fillLine = fill || next->t->orientation() == Qt::Horizontal && next->t->stretchable();
     while ( idx < n ) {
 	QSize sh = nsh;
 	idx++;
@@ -505,12 +520,12 @@ int QToolLayout::layoutItems( const QRect &r, bool testonly )
 	}
 	linew = linew + sh.width() + spacing();
 	lineh = QMAX( lineh, sh.height() );
-	if ( !next || next->nl || idx > start && linew + nsh.width() > r.width() ) {
+	if ( !next || next->nl || next->tmpnl || idx > start && linew + nsh.width() > r.width() ) {
 	    //linebreak
+	    int width = fillLine ? r.width() : linew - spacing();
+	    qGeomCalc( *array, start, idx-start, r.left(), width,
+		       spacing() );
 	    if ( !testonly ) {
-		int width = fillLine ? r.width() : linew - spacing();
-		qGeomCalc( *array, start, idx-start, r.left(), width,
-			   spacing() );
 		for ( int i = start; i < idx; i++ ) {
 		    QRect g( (*array)[i].pos,
 			     up ? r.y() + r.bottom() - y - lineh : y,
@@ -524,9 +539,10 @@ int QToolLayout::layoutItems( const QRect &r, bool testonly )
 	    start = idx;
 	    fillLine = fill;
 	}
-	if (next)
-	    fillLine = fillLine || next->t->stretchable();
+	if ( next )
+	    fillLine = fillLine || next->t->orientation() == Qt::Horizontal && next->t->stretchable();
     }
+    
     return y - r.y() - spacing();
 }
 
@@ -1208,7 +1224,7 @@ static QMainWindowPrivate::ToolBar *findCoveringToolbar( QMainWindowPrivate::Too
 	}
     } else {
 	while ( t ) {
-	    if ( pos.y() >= t->t->y() && pos.y() <= t->t->y() + t->t->height() ) 
+	    if ( pos.y() >= t->t->y() && pos.y() <= t->t->y() + t->t->height() )
 		maybe = t;
 	    if ( pos.x() >= t->t->x() && pos.x() <= t->t->x() + t->t->width() ) {
 		if ( pos.y() >= t->t->y() && pos.y() <= t->t->y() + t->t->height() ) {
@@ -1314,7 +1330,7 @@ void QMainWindow::setUpLayout()
 	mwl->addStretch( 100 );
     (void) new QToolLayout( mwl, d->right, QBoxLayout::LeftToRight, d->justify );
 
-    (void) new QToolLayout( d->tll, d->bottom, QBoxLayout::Up, d->justify );
+    (void) new QToolLayout( d->tll, d->bottom, QBoxLayout::Down, d->justify );
 
     if ( d->sb && !d->sb->testWState(Qt::WState_ForceHide) ) {
 	d->tll->addWidget( d->sb, 0 );
@@ -1577,7 +1593,7 @@ void QMainWindow::setRightJustification( bool enable )
     if ( enable == d->justify )
 	return;
     d->justify = enable;
-    triggerLayout();
+    triggerLayout( TRUE );
 }
 
 
