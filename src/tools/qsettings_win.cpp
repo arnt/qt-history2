@@ -315,8 +315,12 @@ QString QSettings::readEntry( const QString &key, bool *ok )
 {
     QString result = QString::null;
     QByteArray array = d->readKey( key, REG_SZ, ok );
-    if ( ok && !*ok )
+    if ( ok && !*ok ) {
+	char *data = array.data();
+	array.resetRawData( data, array.size() );
+	delete[] data;
 	return result;
+    }
 
 #if defined(UNICODE)
     if ( qWinVersion() & Qt::WV_NT_based ) {
@@ -330,14 +334,23 @@ QString QSettings::readEntry( const QString &key, bool *ok )
 #endif
 	result = QString::fromLocal8Bit( array );
 
+    char *data = array.data();
+    array.resetRawData( data, array.size() );
+    delete[] data;
+
     return result;
 }
 
 int QSettings::readNumEntry( const QString &key, bool *ok )
 {
     QByteArray array = d->readKey( key, REG_DWORD, ok );
-    if ( ok && !*ok )
+    if ( ok && !*ok ) {
+	char *data = array.data();
+	array.resetRawData( data, array.size() );
+	delete[] data;
+
 	return 0;
+    }
 
     if ( array.size() != sizeof(int) ) {
 	if ( ok )
@@ -350,14 +363,21 @@ int QSettings::readNumEntry( const QString &key, bool *ok )
     for ( int i = 0; i < sizeof(int); ++i )
 	data[i] = array[ i ];
 
+    char *adata = array.data();
+    array.resetRawData( adata, array.size() );
+    delete[] adata;
     return res;
 }
 
 double QSettings::readDoubleEntry( const QString &key, bool *ok )
 {
     QByteArray array = d->readKey( key, REG_BINARY, ok );
-    if ( ok && !*ok )
+    if ( ok && !*ok ) {
+	char *data = array.data();
+	array.resetRawData( data, array.size() );
+	delete[] data;
 	return 0;
+    }
     if ( array.size() != sizeof(double) ) {
 	if ( ok )
 	    *ok = FALSE;
@@ -369,6 +389,9 @@ double QSettings::readDoubleEntry( const QString &key, bool *ok )
     for ( int i = 0; i < sizeof(double); ++i )
 	data[i] = array[ i ];
 
+    char *adata = array.data();
+    array.resetRawData( adata, array.size() );
+    delete[] adata;
     return res;
 }
 
