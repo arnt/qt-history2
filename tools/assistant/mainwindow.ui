@@ -1,456 +1,468 @@
 <UI version="4.0" stdSetDef="1" >
- <class>MainWindow</class>
- <widget class="QMainWindow" name="MainWindow" >
-  <property name="objectName" >
-   <cstring>MainWindow</cstring>
-  </property>
-  <property name="geometry" >
-   <rect>
-    <x>0</x>
-    <y>0</y>
-    <width>949</width>
-    <height>670</height>
-   </rect>
-  </property>
-  <property name="windowTitle" >
-   <string>Qt Assistant by Trolltech</string>
-  </property>
-  <widget class="QToolBar" name="Toolbar" >
-   <property name="objectName" >
-    <cstring>Toolbar</cstring>
-   </property>
-   <property name="windowTitle" >
-    <string>Toolbar</string>
-   </property>
-   <addAction name="actionGoPrevious" />
-   <addAction name="actionGoNext" />
-   <addAction name="actionGoHome" />
-   <addAction name="separator" />
-   <addAction name="actionEditCopy" />
-   <addAction name="actionEditFind" />
-   <addAction name="actionFilePrint" />
-   <addAction name="separator" />
-   <addAction name="actionZoomIn" />
-   <addAction name="actionZoomOut" />
-   <addAction name="separator" />
-   <addAction name="actionHelpWhatsThis" />
+  <class>MainWindow</class>
+  <widget class="QMainWindow" name="MainWindow" >
+    <property name="objectName" >
+      <cstring>MainWindow</cstring>
+    </property>
+    <property name="geometry" >
+      <rect>
+        <x>0</x>
+        <y>0</y>
+        <width>949</width>
+        <height>670</height>
+      </rect>
+    </property>
+    <property name="windowTitle" >
+      <string>Qt Assistant by Trolltech</string>
+    </property>
+    <widget class="QToolBar" name="Toolbar" >
+      <property name="objectName" >
+        <cstring>Toolbar</cstring>
+      </property>
+      <property name="windowTitle" >
+        <string>Toolbar</string>
+      </property>
+      <addAction name="actionGoPrevious" />
+      <addAction name="actionGoNext" />
+      <addAction name="actionGoHome" />
+      <addAction name="separator" />
+      <addAction name="actionEditCopy" />
+      <addAction name="actionEditFind" />
+      <addAction name="actionFilePrint" />
+      <addAction name="separator" />
+      <addAction name="actionZoomIn" />
+      <addAction name="actionZoomOut" />
+      <addAction name="separator" />
+      <addAction name="actionHelpWhatsThis" />
+    </widget>
+    <widget class="QToolBar" name="goActionToolbar" >
+      <property name="objectName" >
+        <cstring>goActionToolbar</cstring>
+      </property>
+      <property name="windowTitle" >
+        <string>Go</string>
+      </property>
+    </widget>
+    <widget class="QMenuBar" name="menubar" >
+      <property name="objectName" >
+        <cstring>menubar</cstring>
+      </property>
+      <property name="geometry" >
+        <rect>
+          <x>0</x>
+          <y>0</y>
+          <width>949</width>
+          <height>29</height>
+        </rect>
+      </property>
+      <widget class="QMenu" name="fileMenu" >
+        <property name="objectName" >
+          <cstring>fileMenu</cstring>
+        </property>
+        <attribute name="title" >
+          <string>&amp;File</string>
+        </attribute>
+        <addAction name="actionNewWindow" />
+        <addAction name="actionOpenPage" />
+        <addAction name="actionClosePage" />
+        <addAction name="separator" />
+        <addAction name="actionFilePrint" />
+        <addAction name="separator" />
+        <addAction name="actionClose" />
+        <addAction name="actionFileExit" />
+      </widget>
+      <widget class="QMenu" name="editMenu" >
+        <property name="objectName" >
+          <cstring>editMenu</cstring>
+        </property>
+        <attribute name="title" >
+          <string>&amp;Edit</string>
+        </attribute>
+        <addAction name="actionEditCopy" />
+        <addAction name="actionEditFind" />
+        <addAction name="actionEditFindAgain" />
+        <addAction name="actionEditFindAgainPrev" />
+        <addAction name="separator" />
+        <addAction name="actionSettings" />
+      </widget>
+      <widget class="QMenu" name="PopupMenu" >
+        <property name="objectName" >
+          <cstring>PopupMenu</cstring>
+        </property>
+        <attribute name="title" >
+          <string>&amp;View</string>
+        </attribute>
+        <addAction name="actionZoomIn" />
+        <addAction name="actionZoomOut" />
+        <addAction name="separator" />
+      </widget>
+      <widget class="QMenu" name="goMenu" >
+        <property name="objectName" >
+          <cstring>goMenu</cstring>
+        </property>
+        <attribute name="title" >
+          <string>&amp;Go</string>
+        </attribute>
+        <addAction name="actionGoPrevious" />
+        <addAction name="actionGoNext" />
+        <addAction name="actionGoHome" />
+        <addAction name="separator" />
+        <addAction name="actionNextPage" />
+        <addAction name="actionPrevPage" />
+      </widget>
+      <widget class="QMenu" name="bookmarkMenu" >
+        <property name="objectName" >
+          <cstring>bookmarkMenu</cstring>
+        </property>
+        <attribute name="title" >
+          <string>Boo&amp;kmarks</string>
+        </attribute>
+      </widget>
+      <widget class="QMenu" name="helpMenu" >
+        <property name="objectName" >
+          <cstring>helpMenu</cstring>
+        </property>
+        <attribute name="title" >
+          <string>&amp;Help</string>
+        </attribute>
+        <addAction name="actionHelpAssistant" />
+        <addAction name="separator" />
+        <addAction name="helpAbout_Qt_AssistantAction" />
+        <addAction name="actionAboutApplication" />
+        <addAction name="separator" />
+        <addAction name="actionHelpWhatsThis" />
+      </widget>
+      <addAction name="fileMenuAction" />
+      <addAction name="editMenuAction" />
+      <addAction name="PopupMenuAction" />
+      <addAction name="goMenuAction" />
+      <addAction name="bookmarkMenuAction" />
+      <addAction name="helpMenuAction" />
+    </widget>
+    <actionGroup>
+      <action name="actionFilePrint" >
+        <property name="objectName" >
+          <cstring>actionFilePrint</cstring>
+        </property>
+        <property name="icon" >
+          <iconSet>print.png</iconSet>
+        </property>
+        <property name="whatsThis" >
+          <string>Print the currently displayed page.</string>
+        </property>
+        <property name="shortcut" >
+          <shortcut>Ctrl+P</shortcut>
+        </property>
+        <property name="text" >
+          <string>&amp;Print...</string>
+        </property>
+      </action>
+      <action name="actionFileExit" >
+        <property name="objectName" >
+          <cstring>actionFileExit</cstring>
+        </property>
+        <property name="whatsThis" >
+          <string>Quit Qt Assistant.</string>
+        </property>
+        <property name="shortcut" >
+          <shortcut>Ctrl+Q</shortcut>
+        </property>
+        <property name="text" >
+          <string>E&amp;xit</string>
+        </property>
+      </action>
+      <action name="actionEditCopy" >
+        <property name="objectName" >
+          <cstring>actionEditCopy</cstring>
+        </property>
+        <property name="icon" >
+          <iconSet>editcopy.png</iconSet>
+        </property>
+        <property name="whatsThis" >
+          <string>Copy the selected text to the clipboard.</string>
+        </property>
+        <property name="shortcut" >
+          <shortcut>Ctrl+C</shortcut>
+        </property>
+        <property name="text" >
+          <string>&amp;Copy</string>
+        </property>
+      </action>
+      <action name="actionEditFind" >
+        <property name="objectName" >
+          <cstring>actionEditFind</cstring>
+        </property>
+        <property name="icon" >
+          <iconSet>find.png</iconSet>
+        </property>
+        <property name="whatsThis" >
+          <string>Open the Find dialog. Qt Assistant will search the currently displayed page for the text you enter.</string>
+        </property>
+        <property name="shortcut" >
+          <shortcut>Ctrl+F</shortcut>
+        </property>
+        <property name="text" >
+          <string>&amp;Find in Text...</string>
+        </property>
+      </action>
+      <action name="actionEditFindAgain" >
+        <property name="objectName" >
+          <cstring>actionEditFindAgain</cstring>
+        </property>
+        <property name="shortcut" >
+          <shortcut>F3</shortcut>
+        </property>
+        <property name="text" >
+          <string>Find &amp;Next</string>
+        </property>
+      </action>
+      <action name="actionEditFindAgainPrev" >
+        <property name="objectName" >
+          <cstring>actionEditFindAgainPrev</cstring>
+        </property>
+        <property name="shortcut" >
+          <shortcut>Shift+F3</shortcut>
+        </property>
+        <property name="text" >
+          <string>Find &amp;Previous</string>
+        </property>
+      </action>
+      <action name="actionGoHome" >
+        <property name="objectName" >
+          <cstring>actionGoHome</cstring>
+        </property>
+        <property name="icon" >
+          <iconSet>home.png</iconSet>
+        </property>
+        <property name="whatsThis" >
+          <string>Go to the home page. Qt Assistant's home page is the Qt Reference Documentation.</string>
+        </property>
+        <property name="shortcut" >
+          <shortcut>Ctrl+Home</shortcut>
+        </property>
+        <property name="text" >
+          <string>&amp;Home</string>
+        </property>
+      </action>
+      <action name="actionGoPrevious" >
+        <property name="objectName" >
+          <cstring>actionGoPrevious</cstring>
+        </property>
+        <property name="icon" >
+          <iconSet>previous.png</iconSet>
+        </property>
+        <property name="whatsThis" >
+          <string>Go to the previous page.</string>
+        </property>
+        <property name="shortcut" >
+          <shortcut>Alt+Left</shortcut>
+        </property>
+        <property name="text" >
+          <string>&amp;Previous</string>
+        </property>
+      </action>
+      <action name="actionGoNext" >
+        <property name="objectName" >
+          <cstring>actionGoNext</cstring>
+        </property>
+        <property name="icon" >
+          <iconSet>next.png</iconSet>
+        </property>
+        <property name="whatsThis" >
+          <string>Go to the next page.</string>
+        </property>
+        <property name="shortcut" >
+          <shortcut>Alt+Right</shortcut>
+        </property>
+        <property name="text" >
+          <string>&amp;Next</string>
+        </property>
+      </action>
+      <action name="helpAbout_Qt_AssistantAction" >
+        <property name="objectName" >
+          <cstring>helpAbout_Qt_AssistantAction</cstring>
+        </property>
+        <property name="whatsThis" >
+          <string>Display further information about Qt Assistant.</string>
+        </property>
+        <property name="text" >
+          <string>About Qt Assistant</string>
+        </property>
+      </action>
+      <action name="actionAboutApplication" >
+        <property name="objectName" >
+          <cstring>actionAboutApplication</cstring>
+        </property>
+      </action>
+      <action name="actionZoomIn" >
+        <property name="objectName" >
+          <cstring>actionZoomIn</cstring>
+        </property>
+        <property name="icon" >
+          <iconSet>zoomin.png</iconSet>
+        </property>
+        <property name="whatsThis" >
+          <string>Zoom in on the document, i.e. increase the font size.</string>
+        </property>
+        <property name="shortcut" >
+          <shortcut>Ctrl++</shortcut>
+        </property>
+        <property name="text" >
+          <string>Zoom &amp;in</string>
+        </property>
+      </action>
+      <action name="actionZoomOut" >
+        <property name="objectName" >
+          <cstring>actionZoomOut</cstring>
+        </property>
+        <property name="icon" >
+          <iconSet>zoomout.png</iconSet>
+        </property>
+        <property name="whatsThis" >
+          <string>Zoom out on the document, i.e. decrease the font size.</string>
+        </property>
+        <property name="shortcut" >
+          <shortcut>Ctrl+-</shortcut>
+        </property>
+        <property name="text" >
+          <string>Zoom &amp;out</string>
+        </property>
+      </action>
+      <action name="actionSettings" >
+        <property name="objectName" >
+          <cstring>actionSettings</cstring>
+        </property>
+        <property name="whatsThis" >
+          <string>Open the settings dialog.</string>
+        </property>
+        <property name="text" >
+          <string>&amp;Settings...</string>
+        </property>
+      </action>
+      <action name="actionNewWindow" >
+        <property name="objectName" >
+          <cstring>actionNewWindow</cstring>
+        </property>
+        <property name="whatsThis" >
+          <string>Open a new window.</string>
+        </property>
+        <property name="shortcut" >
+          <shortcut>Ctrl+N</shortcut>
+        </property>
+        <property name="text" >
+          <string>New Window</string>
+        </property>
+      </action>
+      <action name="actionClose" >
+        <property name="objectName" >
+          <cstring>actionClose</cstring>
+        </property>
+        <property name="whatsThis" >
+          <string>Close the current window.</string>
+        </property>
+        <property name="text" >
+          <string>&amp;Close</string>
+        </property>
+      </action>
+      <action name="actionAddBookmark" >
+        <property name="objectName" >
+          <cstring>actionAddBookmark</cstring>
+        </property>
+        <property name="whatsThis" >
+          <string>Add the currently displayed page as a new bookmark.</string>
+        </property>
+        <property name="text" >
+          <string>&amp;Add Bookmark</string>
+        </property>
+      </action>
+      <action name="actionHelpWhatsThis" >
+        <property name="objectName" >
+          <cstring>actionHelpWhatsThis</cstring>
+        </property>
+        <property name="icon" >
+          <iconSet>whatsthis.xpm</iconSet>
+        </property>
+        <property name="statusTip" >
+          <string>&quot;What's This?&quot; context sensitive help.</string>
+        </property>
+        <property name="whatsThis" >
+          <string>&quot;What's This?&quot; context sensitive help.</string>
+        </property>
+        <property name="shortcut" >
+          <shortcut>Shift+F1</shortcut>
+        </property>
+        <property name="text" >
+          <string>What's This?</string>
+        </property>
+      </action>
+      <action name="actionOpenPage" >
+        <property name="objectName" >
+          <cstring>actionOpenPage</cstring>
+        </property>
+        <property name="shortcut" >
+          <shortcut>Ctrl+Alt+N</shortcut>
+        </property>
+        <property name="text" >
+          <string>Add Tab</string>
+        </property>
+      </action>
+      <action name="actionNextPage" >
+        <property name="objectName" >
+          <cstring>actionNextPage</cstring>
+        </property>
+        <property name="shortcut" >
+          <shortcut>Ctrl+Alt+Right</shortcut>
+        </property>
+        <property name="text" >
+          <string>Next Tab</string>
+        </property>
+      </action>
+      <action name="actionPrevPage" >
+        <property name="objectName" >
+          <cstring>actionPrevPage</cstring>
+        </property>
+        <property name="shortcut" >
+          <shortcut>Ctrl+Alt+Left</shortcut>
+        </property>
+        <property name="text" >
+          <string>Previous Tab</string>
+        </property>
+      </action>
+      <action name="actionClosePage" >
+        <property name="objectName" >
+          <cstring>actionClosePage</cstring>
+        </property>
+        <property name="shortcut" >
+          <shortcut>Ctrl+Alt+Q</shortcut>
+        </property>
+        <property name="text" >
+          <string>Close Tab</string>
+        </property>
+      </action>
+      <action name="actionHelpAssistant" >
+        <property name="objectName" >
+          <cstring>actionHelpAssistant</cstring>
+        </property>
+        <property name="icon" >
+          <iconSet>assistant.png</iconSet>
+        </property>
+        <property name="shortcut" >
+          <shortcut>F1</shortcut>
+        </property>
+        <property name="text" >
+          <string>Qt Assistant Manual</string>
+        </property>
+      </action>
+    </actionGroup>
   </widget>
-  <widget class="QToolBar" name="goActionToolbar" >
-   <property name="objectName" >
-    <cstring>goActionToolbar</cstring>
-   </property>
-   <property name="windowTitle" >
-    <string>Go</string>
-   </property>
-  </widget>
-  <widget class="QMenuBar" name="menubar" >
-   <property name="objectName" >
-    <cstring>menubar</cstring>
-   </property>
-   <property name="geometry" >
-    <rect>
-     <x>0</x>
-     <y>0</y>
-     <width>949</width>
-     <height>29</height>
-    </rect>
-   </property>
-   <widget class="QMenu" name="fileMenu" >
-    <property name="objectName" >
-     <cstring>fileMenu</cstring>
-    </property>
-    <attribute name="title" >
-     <string>&amp;File</string>
-    </attribute>
-    <addAction name="actionNewWindow" />
-    <addAction name="actionOpenPage" />
-    <addAction name="actionClosePage" />
-    <addAction name="separator" />
-    <addAction name="actionFilePrint" />
-    <addAction name="separator" />
-    <addAction name="actionClose" />
-    <addAction name="actionFileExit" />
-   </widget>
-   <widget class="QMenu" name="editMenu" >
-    <property name="objectName" >
-     <cstring>editMenu</cstring>
-    </property>
-    <attribute name="title" >
-     <string>&amp;Edit</string>
-    </attribute>
-    <addAction name="actionEditCopy" />
-    <addAction name="actionEditFind" />
-    <addAction name="actionEditFindAgain" />
-    <addAction name="actionEditFindAgainPrev" />
-    <addAction name="separator" />
-    <addAction name="actionSettings" />
-   </widget>
-   <widget class="QMenu" name="PopupMenu" >
-    <property name="objectName" >
-     <cstring>PopupMenu</cstring>
-    </property>
-    <attribute name="title" >
-     <string>&amp;View</string>
-    </attribute>
-    <addAction name="actionZoomIn" />
-    <addAction name="actionZoomOut" />
-    <addAction name="separator" />
-   </widget>
-   <widget class="QMenu" name="goMenu" >
-    <property name="objectName" >
-     <cstring>goMenu</cstring>
-    </property>
-    <attribute name="title" >
-     <string>&amp;Go</string>
-    </attribute>
-    <addAction name="actionGoPrevious" />
-    <addAction name="actionGoNext" />
-    <addAction name="actionGoHome" />
-    <addAction name="separator" />
-    <addAction name="actionNextPage" />
-    <addAction name="actionPrevPage" />
-   </widget>
-   <widget class="QMenu" name="bookmarkMenu" >
-    <property name="objectName" >
-     <cstring>bookmarkMenu</cstring>
-    </property>
-    <attribute name="title" >
-     <string>Boo&amp;kmarks</string>
-    </attribute>
-   </widget>
-   <widget class="QMenu" name="helpMenu" >
-    <property name="objectName" >
-     <cstring>helpMenu</cstring>
-    </property>
-    <attribute name="title" >
-     <string>&amp;Help</string>
-    </attribute>
-    <addAction name="actionHelpAssistant" />
-    <addAction name="separator" />
-    <addAction name="helpAbout_Qt_AssistantAction" />
-    <addAction name="actionAboutApplication" />
-    <addAction name="separator" />
-    <addAction name="actionHelpWhatsThis" />
-   </widget>
-  </widget>
-  <actionGroup>
-   <action name="actionFilePrint" >
-    <property name="objectName" >
-     <cstring>actionFilePrint</cstring>
-    </property>
-    <property name="icon" >
-     <iconSet>:/images/print.png</iconSet>
-    </property>
-    <property name="text" >
-     <string>&amp;Print...</string>
-    </property>
-    <property name="whatsThis" >
-     <string>Print the currently displayed page.</string>
-    </property>
-    <property name="shortcut" >
-     <shortcut>Ctrl+P</shortcut>
-    </property>
-   </action>
-   <action name="actionFileExit" >
-    <property name="objectName" >
-     <cstring>actionFileExit</cstring>
-    </property>
-    <property name="text" >
-     <string>E&amp;xit</string>
-    </property>
-    <property name="whatsThis" >
-     <string>Quit Qt Assistant.</string>
-    </property>
-    <property name="shortcut" >
-     <shortcut>Ctrl+Q</shortcut>
-    </property>
-   </action>
-   <action name="actionEditCopy" >
-    <property name="objectName" >
-     <cstring>actionEditCopy</cstring>
-    </property>
-    <property name="icon" >
-     <iconSet>:/images/editcopy.png</iconSet>
-    </property>
-    <property name="text" >
-     <string>&amp;Copy</string>
-    </property>
-    <property name="whatsThis" >
-     <string>Copy the selected text to the clipboard.</string>
-    </property>
-    <property name="shortcut" >
-     <shortcut>Ctrl+C</shortcut>
-    </property>
-   </action>
-   <action name="actionEditFind" >
-    <property name="objectName" >
-     <cstring>actionEditFind</cstring>
-    </property>
-    <property name="icon" >
-     <iconSet>:/images/find.png</iconSet>
-    </property>
-    <property name="text" >
-     <string>&amp;Find in Text...</string>
-    </property>
-    <property name="whatsThis" >
-     <string>Open the Find dialog. Qt Assistant will search the currently displayed page for the text you enter.</string>
-    </property>
-    <property name="shortcut" >
-     <shortcut>Ctrl+F</shortcut>
-    </property>
-   </action>
-   <action name="actionEditFindAgain" >
-    <property name="objectName" >
-     <cstring>actionEditFindAgain</cstring>
-    </property>
-    <property name="text" >
-     <string>Find &amp;Next</string>
-    </property>
-    <property name="shortcut" >
-     <shortcut>F3</shortcut>
-    </property>
-   </action>
-   <action name="actionEditFindAgainPrev" >
-    <property name="objectName" >
-     <cstring>actionEditFindAgainPrev</cstring>
-    </property>
-    <property name="text" >
-     <string>Find &amp;Previous</string>
-    </property>
-    <property name="shortcut" >
-     <shortcut>Shift+F3</shortcut>
-    </property>
-   </action>
-   <action name="actionGoHome" >
-    <property name="objectName" >
-     <cstring>actionGoHome</cstring>
-    </property>
-    <property name="icon" >
-     <iconSet>:/images/home.png</iconSet>
-    </property>
-    <property name="text" >
-     <string>&amp;Home</string>
-    </property>
-    <property name="whatsThis" >
-     <string>Go to the home page. Qt Assistant's home page is the Qt Reference Documentation.</string>
-    </property>
-    <property name="shortcut" >
-     <shortcut>Ctrl+Home</shortcut>
-    </property>
-   </action>
-   <action name="actionGoPrevious" >
-    <property name="objectName" >
-     <cstring>actionGoPrevious</cstring>
-    </property>
-    <property name="icon" >
-     <iconSet>:/images/previous.png</iconSet>
-    </property>
-    <property name="text" >
-     <string>&amp;Previous</string>
-    </property>
-    <property name="whatsThis" >
-     <string>Go to the previous page.</string>
-    </property>
-    <property name="shortcut" >
-     <shortcut>Alt+Left</shortcut>
-    </property>
-   </action>
-   <action name="actionGoNext" >
-    <property name="objectName" >
-     <cstring>actionGoNext</cstring>
-    </property>
-    <property name="icon" >
-     <iconSet>:/images/next.png</iconSet>
-    </property>
-    <property name="text" >
-     <string>&amp;Next</string>
-    </property>
-    <property name="whatsThis" >
-     <string>Go to the next page.</string>
-    </property>
-    <property name="shortcut" >
-     <shortcut>Alt+Right</shortcut>
-    </property>
-   </action>
-   <action name="helpAbout_Qt_AssistantAction" >
-    <property name="objectName" >
-     <cstring>helpAbout_Qt_AssistantAction</cstring>
-    </property>
-    <property name="text" >
-     <string>About Qt Assistant</string>
-    </property>
-    <property name="whatsThis" >
-     <string>Display further information about Qt Assistant.</string>
-    </property>
-   </action>
-   <action name="actionAboutApplication" >
-    <property name="objectName" >
-     <cstring>actionAboutApplication</cstring>
-    </property>
-    <property name="text" >
-     <string>About Qt</string>
-    </property>
-   </action>
-   <action name="actionZoomIn" >
-    <property name="objectName" >
-     <cstring>actionZoomIn</cstring>
-    </property>
-    <property name="icon" >
-     <iconSet>:/images/zoomin.png</iconSet>
-    </property>
-    <property name="text" >
-     <string>Zoom &amp;in</string>
-    </property>
-    <property name="whatsThis" >
-     <string>Zoom in on the document, i.e. increase the font size.</string>
-    </property>
-    <property name="shortcut" >
-     <shortcut>Ctrl++</shortcut>
-    </property>
-   </action>
-   <action name="actionZoomOut" >
-    <property name="objectName" >
-     <cstring>actionZoomOut</cstring>
-    </property>
-    <property name="icon" >
-     <iconSet>:/images/zoomout.png</iconSet>
-    </property>
-    <property name="text" >
-     <string>Zoom &amp;out</string>
-    </property>
-    <property name="whatsThis" >
-     <string>Zoom out on the document, i.e. decrease the font size.</string>
-    </property>
-    <property name="shortcut" >
-     <shortcut>Ctrl+-</shortcut>
-    </property>
-   </action>
-   <action name="actionSettings" >
-    <property name="objectName" >
-     <cstring>actionSettings</cstring>
-    </property>
-    <property name="text" >
-     <string>&amp;Settings...</string>
-    </property>
-    <property name="whatsThis" >
-     <string>Open the settings dialog.</string>
-    </property>
-   </action>
-   <action name="actionNewWindow" >
-    <property name="objectName" >
-     <cstring>actionNewWindow</cstring>
-    </property>
-    <property name="text" >
-     <string>New Window</string>
-    </property>
-    <property name="whatsThis" >
-     <string>Open a new window.</string>
-    </property>
-    <property name="shortcut" >
-     <shortcut>Ctrl+N</shortcut>
-    </property>
-   </action>
-   <action name="actionClose" >
-    <property name="objectName" >
-     <cstring>actionClose</cstring>
-    </property>
-    <property name="text" >
-     <string>&amp;Close</string>
-    </property>
-    <property name="whatsThis" >
-     <string>Close the current window.</string>
-    </property>
-   </action>
-   <action name="actionAddBookmark" >
-    <property name="objectName" >
-     <cstring>actionAddBookmark</cstring>
-    </property>
-    <property name="text" >
-     <string>&amp;Add Bookmark</string>
-    </property>
-    <property name="whatsThis" >
-     <string>Add the currently displayed page as a new bookmark.</string>
-    </property>
-   </action>
-   <action name="actionHelpWhatsThis" >
-    <property name="objectName" >
-     <cstring>actionHelpWhatsThis</cstring>
-    </property>
-    <property name="icon" >
-     <iconSet>:/images/whatsthis.xpm</iconSet>
-    </property>
-    <property name="text" >
-     <string>What's This?</string>
-    </property>
-    <property name="statusTip" >
-     <string>&quot;What's This?&quot; context sensitive help.</string>
-    </property>
-    <property name="whatsThis" >
-     <string>&quot;What's This?&quot; context sensitive help.</string>
-    </property>
-    <property name="shortcut" >
-     <shortcut>Shift+F1</shortcut>
-    </property>
-   </action>
-   <action name="actionOpenPage" >
-    <property name="objectName" >
-     <cstring>actionOpenPage</cstring>
-    </property>
-    <property name="text" >
-     <string>Add Tab</string>
-    </property>
-    <property name="shortcut" >
-     <shortcut>Ctrl+Alt+N</shortcut>
-    </property>
-   </action>
-   <action name="actionNextPage" >
-    <property name="objectName" >
-     <cstring>actionNextPage</cstring>
-    </property>
-    <property name="text" >
-     <string>Next Tab</string>
-    </property>
-    <property name="shortcut" >
-     <shortcut>Ctrl+Alt+Right</shortcut>
-    </property>
-   </action>
-   <action name="actionPrevPage" >
-    <property name="objectName" >
-     <cstring>actionPrevPage</cstring>
-    </property>
-    <property name="text" >
-     <string>Previous Tab</string>
-    </property>
-    <property name="shortcut" >
-     <shortcut>Ctrl+Alt+Left</shortcut>
-    </property>
-   </action>
-   <action name="actionClosePage" >
-    <property name="objectName" >
-     <cstring>actionClosePage</cstring>
-    </property>
-    <property name="text" >
-     <string>Close Tab</string>
-    </property>
-    <property name="shortcut" >
-     <shortcut>Ctrl+Alt+Q</shortcut>
-    </property>
-   </action>
-   <action name="actionHelpAssistant" >
-    <property name="objectName" >
-     <cstring>actionHelpAssistant</cstring>
-    </property>
-    <property name="icon" >
-     <iconSet>:/images/assistant.png</iconSet>
-    </property>
-    <property name="text" >
-     <string>Qt Assistant Manual</string>
-    </property>
-    <property name="shortcut" >
-     <shortcut>F1</shortcut>
-    </property>
-   </action>
-  </actionGroup>
- </widget>
- <layoutDefault spacing="6" margin="11" />
+  <layoutDefault spacing="6" margin="11" />
+  <pixmapFunction>qPixmapFromMimeSource</pixmapFunction>
+  <includes>
+    <include location="global" >qptrlist.h</include>
+    <include location="global" >qguardedptr.h</include>
+    <include location="global" >qmap.h</include>
+    <include location="local" >finddialog.h</include>
+    <include location="global" >qstringlist.h</include>
+    <include location="local" >helpwindow.h</include>
+  </includes>
 </UI>
