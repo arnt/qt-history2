@@ -23,30 +23,33 @@
 #include <qdesigner_command.h>
 #include <qtundo.h>
 
-#include <qevent.h>
-#include <qtoolbutton.h>
-#include <qaction.h>
+#include <QtGui/QToolButton>
+#include <QtGui/QAction>
+#include <QtGui/qevent.h>
 
 QDesignerStackedWidget::QDesignerStackedWidget(QWidget *parent)
     : QStackedWidget(parent)
 {
-    prev = new QToolButton(this);
+    prev = new QToolButton();
+    prev->setAttribute(Qt::WA_NoChildEventsForParent, true);
+    prev->setParent(this);
+
     prev->setObjectName("designer_wizardstack_button");
     prev->setArrowType(Qt::LeftArrow);
     prev->setAutoRaise(true);
     prev->setAutoRepeat(true);
     prev->setSizePolicy(QSizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored));
     connect(prev, SIGNAL(clicked()), this, SLOT(prevPage()));
-    removeWidget(prev);
 
-    next = new QToolButton(this);
+    next = new QToolButton();
+    next->setAttribute(Qt::WA_NoChildEventsForParent, true);
+    next->setParent(this);
     next->setObjectName("designer_wizardstack_button");
     next->setArrowType(Qt::RightArrow);
     next->setAutoRaise(true);
     next->setAutoRepeat(true);
     next->setSizePolicy(QSizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored));
     connect(next, SIGNAL(clicked()), this, SLOT(nextPage()));
-    removeWidget(next);
 
     updateButtons();
 
@@ -126,11 +129,7 @@ void QDesignerStackedWidget::nextPage()
 void QDesignerStackedWidget::childEvent(QChildEvent *e)
 {
     QStackedWidget::childEvent(e);
-
-    if (e->added() && (e->child() == prev || e->child() == next)) {
-        removeWidget(static_cast<QWidget*>(e->child()));
-        updateButtons();
-    }
+    updateButtons();
 }
 
 void QDesignerStackedWidget::resizeEvent(QResizeEvent *e)
