@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qprintdialog.cpp#46 $
+** $Id: //depot/qt/main/src/dialogs/qprintdialog.cpp#47 $
 **
 ** Implementation of internal print dialog (X11) used by QPrinter::select().
 **
@@ -184,7 +184,6 @@ static void parseEtcLpPrinters( QListView * printers )
 	    tmp.sprintf( "/etc/lp/printers/%s/configuration",
 			 printer->fileName().data() );
 	    QFile configuration( tmp );
-	    int ll;
 	    char * line = new char[1025];
 	    QRegExp remote( "^Remote:" );
 	    QRegExp contentType( "^Content types:" );
@@ -192,7 +191,7 @@ static void parseEtcLpPrinters( QListView * printers )
 	    bool canPrintPostscript = FALSE;
 	    if ( configuration.open( IO_ReadOnly ) ) {
 		while( !configuration.atEnd() &&
-		       (ll=configuration.readLine( line, 1024 )) > 0 ) {
+		       configuration.readLine( line, 1024 ) > 0 ) {
 		    if ( remote.match( line ) == 0 ) {
 			const char * p = line;
 			while( *p != ':' )

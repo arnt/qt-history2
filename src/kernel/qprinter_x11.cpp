@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qprinter_x11.cpp#44 $
+** $Id: //depot/qt/main/src/kernel/qprinter_x11.cpp#45 $
 **
 ** Implementation of QPrinter class for X11
 **
@@ -254,7 +254,6 @@ bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
 	} else {
 	    // ignore it?  I don't know
 	}
-	return TRUE;
     } else {
 	bool r = FALSE;
 	if ( state == PST_ACTIVE && pdrv ) {
@@ -267,7 +266,7 @@ bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
 	}
 	return r;
     }
-    return FALSE;
+    return TRUE;
 }
 
 
