@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#195 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#196 $
 **
 ** Implementation of QFileDialog class
 **
@@ -1212,9 +1212,9 @@ const QDir *QFileDialog::dir() const
 
 void QFileDialog::setDir( const QDir &dir )
 {
-    if ( !dir.exists() ||
-         dir.absPath() == cwd.absPath() )
-        return;
+//     if ( !dir.exists() ||
+//          dir.absPath() == cwd.absPath() )
+//         return;
     QString nf( cwd.nameFilter() );
     cwd = dir;
     cwd.setNameFilter( nf );
