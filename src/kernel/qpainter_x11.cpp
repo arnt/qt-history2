@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#226 $
+** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#227 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -23,7 +23,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#226 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#227 $");
 
 
 /*****************************************************************************
@@ -2207,12 +2207,14 @@ void QPainter::drawPixmap( int x, int y, const QPixmap &pixmap,
     // Sanity-check clipping
     if ( sx < 0 ) {
 	x -= sx;
+	sw += sx;
 	sx = 0;
     }
     if ( sw + sx > pixmap.width() )
 	sw = pixmap.width() - sx;
     if ( sy < 0 ) {
 	y -= sy;
+	sh += sy;
 	sy = 0;
     }
     if ( sh + sy > pixmap.height() )
