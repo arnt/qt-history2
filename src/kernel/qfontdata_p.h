@@ -230,6 +230,15 @@ public:
 	{ return def == other.def && script == other.script && screen == other.screen; }
     };
 
+    struct Engine {
+	Engine() : data( 0 ), timestamp( 0 ), hits( 0 ) { }
+	Engine( QFontEngine *d ) : data( d ), timestamp( 0 ), hits( 0 ) { }
+
+	QFontEngine *data;
+	uint timestamp;
+	uint hits;
+    };
+
     // QFontEngineData cache
     typedef QMap<Key,QFontEngineData*> EngineDataCache;
     EngineDataCache engineDataCache;
@@ -238,14 +247,25 @@ public:
     void insertEngineData( const Key &key, QFontEngineData *engineData );
 
     // QFontEngine cache
-    typedef QMap<Key,QFontEngine*> EngineCache;
+    typedef QMap<Key,Engine> EngineCache;
     EngineCache engineCache;
 
-    QFontEngine *findEngine( const Key &key ) const;
+    QFontEngine *findEngine( const Key &key );
     void insertEngine( const Key &key, QFontEngine *engine );
 
     // need timer handler to automatically adjust the cache size and
     // clean out old stuff
+
+private:
+    void increaseCost( uint cost );
+    void decreaseCost( uint cost );
+    void timerEvent( QTimerEvent *event );
+
+    static const uint min_cost;
+    uint total_cost, max_cost;
+    uint current_timestamp;
+    bool fast;
+    int timer_id;
 };
 
 

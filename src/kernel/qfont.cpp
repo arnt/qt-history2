@@ -4,8 +4,7 @@
 ** Implementation of QFont, QFontMetrics and QFontInfo classes
 **
 ** Created : 941207
-**
-** Copyright (C) 1992-2002 Trolltech AS.  All rights reserved.
+**** Copyright (C) 1992-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the kernel module of the Qt GUI Toolkit.
 **
@@ -53,7 +52,7 @@
 #include "qpainter_p.h"
 #include "qtextengine_p.h"
 
-// #define QFONTCACHE_DEBUG
+#define QFONTCACHE_DEBUG
 
 
 
@@ -63,7 +62,7 @@ QFontPrivate::QFontPrivate()
 {
 #ifdef Q_WS_X11
     screen = QPaintDevice::x11AppScreen();
-    #else
+#else
     screen = 0;
 #endif // Q_WS_X11
 }
@@ -80,6 +79,8 @@ QFontPrivate::~QFontPrivate()
 	engineData->deref();
     engineData = 0;
 }
+
+
 
 
 QFontEngineData::QFontEngineData()
@@ -428,7 +429,13 @@ QFont::QFont( QFontPrivate *data, QPaintDevice *pd )
 */
 void QFont::detach()
 {
-    if (d->count == 1) return;
+    if (d->count == 1) {
+	if ( d->engineData )
+	    d->engineData->deref();
+	d->engineData = 0;
+
+	return;
+    }
 
     QFontPrivate *new_d = new QFontPrivate( *d );
     if ( d->deref() )
@@ -706,7 +713,6 @@ bool QFont::italic() const
 */
 void QFont::setItalic( bool enable )
 {
-
     if ((bool) d->request.italic == enable) return;
 
     detach();
@@ -2182,370 +2188,334 @@ bool QFontInfo::exactMatch() const
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 // **********************************************************************
 // QFontCache
 // **********************************************************************
 
+#ifdef QFONTCACHE_DEBUG
+// fast timeouts for debugging
+static const int fast_timeout =   1000;  // 1s
+static const int slow_timeout =   5000;  // 5s
+#else
+static const int fast_timeout =  10000; // 10s
+static const int slow_timeout = 300000; //  5m
+#endif // QFONTCACHE_DEBUG
+
 QFontCache *QFontCache::instance = 0;
+const uint QFontCache::min_cost = 4*1024; // 4mb
+
 QSingleCleanupHandler<QFontCache> cleanup_fontcache;
 
+
 QFontCache::QFontCache()
-    : QObject( qApp, "global font cache" )
+    : QObject( qApp, "global font cache" ), total_cost( 0 ), max_cost( min_cost ),
+      current_timestamp( 0 ), fast( FALSE ), timer_id( -1 )
 {
     Q_ASSERT( instance == 0 );
     instance = this;
     cleanup_fontcache.set( &instance );
-
-#ifdef QFONTCACHE_DEBUG
-    qDebug( "QFontCache: created" );
-#endif // QFONTCACHE_DEBUG
 }
 
 QFontCache::~QFontCache()
 {
     instance = 0;
-
-#ifdef QFONTCACHE_DEBUG
-    qDebug( "QFontCache: destroyed" );
-#endif // QFONTCACHE_DEBUG
 }
 
 QFontEngineData *QFontCache::findEngineData( const Key &key ) const
 {
-#ifdef QFONTCACHE_DEBUG
-    qDebug( "QFontEngineData cache: finding\n"
-	    "    QFontDef: family '%s' hash %d\n"
-	    "              point %d pixel %d\n"
-	    "              style hint %d strategy %d\n"
-	    "              weight %d italic %d underline %d strike %d fixed %d\n"
-	    "              stretch %d",
-	    key.def.family.latin1(), key.def.family_hash,
-	    key.def.pointSize, key.def.pixelSize,
-	    key.def.styleHint, key.def.styleStrategy,
-	    key.def.weight, key.def.italic, key.def.underline, key.def.strikeOut,
-	    key.def.fixedPitch,
-	    key.def.stretch );
-#endif // QFONTCACHE_DEBUG
-
     EngineDataCache::ConstIterator it = engineDataCache.find( key ),
 				  end = engineDataCache.end();
-    if ( it == end ) {
-#ifdef QFONTCACHE_DEBUG
-	qDebug( "    not in cache" );
-#endif // QFONTCACHE_DEBUG
-	return 0;
-    }
+    if ( it == end ) return 0;
 
-#ifdef QFONTCACHE_DEBUG
-    qDebug( "    found %p", *it );
-#endif // QFONTCACHE_DEBUG
-    return *it;
+    // found
+    return it.data();
 }
 
 void QFontCache::insertEngineData( const Key &key, QFontEngineData *engineData )
 {
 #ifdef QFONTCACHE_DEBUG
-    qDebug( "QFontEngineData cache: inserting %p", engineData );
+    qDebug( "QFontCache: inserting new engine data" );
 #endif // QFONTCACHE_DEBUG
 
     engineDataCache.insert( key, engineData );
-
-#ifdef QFONTCACHE_DEBUG
-    qDebug( "    cache count %d\n\n", engineDataCache.count() );
-#endif // QFONTCACHE_DEBUG
+    increaseCost( sizeof( QFontEngineData ) );
 }
 
-QFontEngine *QFontCache::findEngine( const Key &key ) const
+QFontEngine *QFontCache::findEngine( const Key &key )
 {
-#ifdef QFONTCACHE_DEBUG
-    qDebug( "QFontEngine cache: finding\n"
-	    "    QFontDef: family '%s' hash %d\n"
-	    "              point %d pixel %d\n"
-	    "              style hint %d strategy %d\n"
-	    "              weight %d italic %d underline %d strike %d fixed %d\n"
-	    "              stretch %d",
-	    key.def.family.latin1(), key.def.family_hash,
-	    key.def.pointSize, key.def.pixelSize,
-	    key.def.styleHint, key.def.styleStrategy,
-	    key.def.weight, key.def.italic, key.def.underline, key.def.strikeOut,
-	    key.def.fixedPitch,
-	    key.def.stretch );
-#endif // QFONTCACHE_DEBUG
+    EngineCache::Iterator it = engineCache.find( key ),
+			 end = engineCache.end();
+    if ( it == end ) return 0;
 
-    EngineCache::ConstIterator it = engineCache.find( key ),
-			      end = engineCache.end();
-    if ( it == end ) {
-#ifdef QFONTCACHE_DEBUG
-
-	qDebug( "    not in cache" );
-#endif // QFONTCACHE_DEBUG
-	return 0;
-    }
+    // found... update the hitcount and timestamp
+    it.data().hits++;
+    it.data().timestamp = ++current_timestamp;
 
 #ifdef QFONTCACHE_DEBUG
-    qDebug( "    found %p", *it );
+    qDebug( "QFontCache: found font engine\n"
+	    "  %p: timestamp %4u hits %3u ref %2d/%2d, type '%s'",
+	    it.data().data, it.data().timestamp, it.data().hits,
+	    it.data().data->count, it.data().data->cache_count,
+	    it.data().data->name() );
 #endif // QFONTCACHE_DEBUG
-    return *it;
+
+    return it.data().data;
 }
 
 void QFontCache::insertEngine( const Key &key, QFontEngine *engine )
 {
 #ifdef QFONTCACHE_DEBUG
-    qDebug( "QFontEngine cache: inserting %p", engine );
+    qDebug( "QFontCache: inserting new engine" );
 #endif // QFONTCACHE_DEBUG
 
-    engineCache.insert( key, engine );
+    Engine data( engine );
+    data.timestamp = ++current_timestamp;
+
+    engineCache.insert( key, data );
+
+    // only increase the cost if this is the first time we insert the engine
+    if ( engine->cache_count == 0 )
+	increaseCost( engine->cache_cost );
+
+    ++engine->cache_count;
+}
+
+void QFontCache::increaseCost( uint cost )
+{
+    cost = ( cost + 512 ) / 1024; // store cost in kb
+    total_cost += cost;
 
 #ifdef QFONTCACHE_DEBUG
-    qDebug( "    cache count %d\n\n", engineCache.count() );
-#endif // QFONTCACHE_DEBUG
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// old font cache
-#if 0
-
-static const int qtFontCacheMin = 2*1024*1024;
-static const int qtFontCacheSize = 61;
-
-when debugging the font cache - clean it out more aggressively
-#ifndef QFONTCACHE_DEBUG
-static const int qtFontCacheFastTimeout =  30000;
-static const int qtFontCacheSlowTimeout = 300000;
-#else // !QFONTCACHE_DEBUG
-static const int qtFontCacheFastTimeout = 10000;
-static const int qtFontCacheSlowTimeout = 30000;
+    qDebug( "  COST: increased %u kb, total_cost %u kb, max_cost %u kb",
+	    cost, total_cost, max_cost );
 #endif // QFONTCACHE_DEBUG
 
-QFontCache *QFontPrivate::fontCache = 0;
+    if ( total_cost > max_cost) {
+	max_cost = total_cost;
 
+	if ( timer_id == -1 || ! fast ) {
+#ifdef QFONTCACHE_DEBUG
+	    qDebug( "  TIMER: starting fast timer (%d ms)", fast_timeout );
+#endif // QFONTCACHE_DEBUG
 
-QFontCache::QFontCache() :
-    QObject(0, "global font cache"),
-    QCache<QFontStruct>(qtFontCacheMin, qtFontCacheSize),
-    timer_id(0), fast(FALSE)
-{
-    setAutoDelete(TRUE);
-}
-
-
-QFontCache::~QFontCache()
-{
-    // remove negative cache items
-    QFontCacheIterator it(*this);
-    QString key;
-    QFontStruct *qfs;
-
-    while ((qfs = it.current())) {
-	key = it.currentKey();
-	++it;
-
-	if (qfs == (QFontStruct *) -1)
-	    take(key);
+	    if (timer_id != -1) killTimer( timer_id );
+	    timer_id = startTimer( fast_timeout );
+	    fast = TRUE;
+	}
     }
 }
 
-
-bool QFontCache::insert(const QString &key, const QFontStruct *qfs, int cost)
+void QFontCache::decreaseCost( uint cost )
 {
+    cost = ( cost + 512 ) / 1024; // cost is stored in kb
+    Q_ASSERT( cost <= total_cost );
+    total_cost -= cost;
 
 #ifdef QFONTCACHE_DEBUG
-    qDebug("QFC::insert: inserting %p w/ cost %d", qfs, cost );
+    qDebug( "  COST: decreased %u kb, total_cost %u kb, max_cost %u kb",
+	    cost, total_cost, max_cost );
 #endif // QFONTCACHE_DEBUG
+}
 
-    if ( totalCost() + cost > maxCost() ) {
-
+void QFontCache::timerEvent( QTimerEvent * )
+{
 #ifdef QFONTCACHE_DEBUG
-	qDebug("QFC::insert: adjusting max cost to %d (%d %d)",
-	       totalCost() + cost, totalCost(), maxCost());
+    qDebug( "QFontCache::timerEvent: performing cache maintenance (timestamp %u)",
+	    current_timestamp );
 #endif // QFONTCACHE_DEBUG
 
-	setMaxCost(totalCost() + cost);
+    if ( total_cost <= max_cost && max_cost <= min_cost ) {
+#ifdef QFONTCACHE_DEBUG
+	qDebug( "  cache redused sufficiently, stopping timer" );
+#endif // QFONTCACHE_DEBUG
+
+	killTimer( timer_id );
+	timer_id = -1;
+	fast = FALSE;
+
+	return;
     }
 
-    bool ret = QCache<QFontStruct>::insert(key, qfs, cost);
+    // go through the cache and count up everything in use
+    uint in_use_cost = 0;
 
-    if (ret && (! timer_id || ! fast)) {
-	if (timer_id) {
-
+    {
 #ifdef QFONTCACHE_DEBUG
-	    qDebug("QFC::insert: killing old timer");
+	qDebug( "  SWEEP engine data:" );
 #endif // QFONTCACHE_DEBUG
 
-	    killTimer(timer_id);
+	EngineDataCache::ConstIterator it = engineDataCache.begin(),
+				      end = engineDataCache.end();
+	for ( ; it != end; ++it ) {
+#ifdef QFONTCACHE_DEBUG
+	    qDebug( "    %p: ref %2d", it.data(), it.data()->count );
+
+#if defined(Q_WS_X11) || defined(Q_WS_WIN)
+	    // print out all engines
+	    for ( int i = 0; i < QFont::LastPrivateScript; ++i ) {
+		if ( ! it.data()->engines[i] ) continue;
+		qDebug( "      contains %p", it.data()->engines[i] );
+	    }
+#  endif // Q_WS_X11 || Q_WS_WIN
+#endif // QFONTCACHE_DEBUG
+
+	    if ( it.data()->count > 0 )
+		in_use_cost += sizeof( QFontEngineData );
+	}
+    }
+
+    {
+#ifdef QFONTCACHE_DEBUG
+	qDebug( "  SWEEP engine:" );
+#endif // QFONTCACHE_DEBUG
+
+	EngineCache::ConstIterator it = engineCache.begin(),
+				  end = engineCache.end();
+	for ( ; it != end; ++it ) {
+#ifdef QFONTCACHE_DEBUG
+	    qDebug( "    %p: timestamp %4u hits %2u ref %2d/%2d, cost %u bytes",
+		    it.data().data, it.data().timestamp, it.data().hits,
+		    it.data().data->count, it.data().data->cache_count,
+		    it.data().data->cache_cost );
+#endif // QFONTCACHE_DEBUG
+
+	    if ( it.data().data->count > 0 )
+		in_use_cost += it.data().data->cache_cost / it.data().data->cache_count;
 	}
 
-#ifdef QFONTCACHE_DEBUG
-	qDebug("QFC::insert: starting timer");
-#endif // QFONTCACHE_DEBUG
-
-	timer_id = startTimer(qtFontCacheFastTimeout);
-	fast = TRUE;
+	// attempt to make up for rounding errors
+	in_use_cost += engineCache.count();
     }
 
-    return ret;
-}
+    in_use_cost = ( in_use_cost + 512 ) / 1024; // cost is stored in kb
 
+    /*
+      calculate the new maximum cost for the cache
 
-#ifdef Q_WS_MAC
-template<> inline void QCache<QFontStruct>::deleteItem( QPtrCollection::Item d )
-#else
-void QFontCache::deleteItem(Item d)
-#endif
-{
-
-    QFontStruct *qfs = (QFontStruct *) d;
-
-    // don't try to delete negative cache items
-    if (qfs == (QFontStruct *) -1)
-	return;
-
-#ifdef Q_WS_MAC
-    if (this != QFontPrivate::fontCache)
-	qWarning( "Multiple QCache<QFontStruct> exist." );
-
-    qfs->deref();
-#endif
-    if (qfs->count == 0) {
+      NOTE: in_use_cost is *not* correct due to rounding errors in the
+      above algorithm.  instead of worrying about getting the
+      calculation correct, we are more interested in speed, and use
+      in_use_cost as a floor for new_max_cost
+    */
+    uint new_max_cost = QMAX( QMAX( max_cost / 2, in_use_cost ), min_cost );
 
 #ifdef QFONTCACHE_DEBUG
-	qDebug("QFC::deleteItem: removing %p from cache", qfs );
+    qDebug( "  after sweep, in use %u kb, total %u kb, max %u kb, new max %u kb",
+	    in_use_cost, total_cost, max_cost, new_max_cost );
 #endif // QFONTCACHE_DEBUG
 
-	delete qfs;
-    }
-}
-
-
-void QFontCache::timerEvent(QTimerEvent *)
-{
-    if (maxCost() <= qtFontCacheMin) {
-
+    if ( new_max_cost == max_cost ) {
+	if ( fast ) {
 #ifdef QFONTCACHE_DEBUG
-	qDebug("QFC::timerEvent: cache max cost is less than min, killing timer");
+	    qDebug( "  cannot shrink cache, slowing timer" );
 #endif // QFONTCACHE_DEBUG
 
-	setMaxCost(qtFontCacheMin);
-
-	killTimer(timer_id);
-	timer_id = 0;
-	fast = TRUE;
-
-	return;
-    }
-
-    QFontCacheIterator it(*this);
-    QString key;
-    QFontStruct *qfs;
-    int tqcost = maxCost() * 3 / 4;
-    int nmcost = 0;
-
-    while ((qfs = it.current())) {
-	key = it.currentKey();
-	++it;
-
-	if (qfs != (QFontStruct *) -1) {
-	    if (qfs->count > 0)
-		nmcost += qfs->cache_cost;
-	} else
-	    // keep negative cache items in the cache
-	    nmcost++;
-    }
-
-    nmcost = QMAX(tqcost, nmcost);
-    if (nmcost < qtFontCacheMin)
-	nmcost = qtFontCacheMin;
-
-    if (nmcost == totalCost()) {
-	if (fast) {
-
-#ifdef QFONTCACHE_DEBUG
-	    qDebug("QFC::timerEvent: slowing timer");
-#endif // QFONTCACHE_DEBUG
-
-	    killTimer(timer_id);
-
-	    timer_id = startTimer(qtFontCacheSlowTimeout);
+	    killTimer( timer_id );
+	    timer_id = startTimer( slow_timeout );
 	    fast = FALSE;
 	}
-    } else if (! fast) {
-	// cache size is changing now, but we're still on the slow timer... time to
-	// drop into passing gear
 
+	return;
+    } else if ( ! fast ) {
 #ifdef QFONTCACHE_DEBUG
-	qDebug("QFC::timerEvent: dropping into passing gear");
+	qDebug( "  dropping into passing gear" );
 #endif // QFONTCACHE_DEBUG
 
-	killTimer(timer_id);
-	timer_id = startTimer(qtFontCacheFastTimeout);
+	killTimer( timer_id );
+	timer_id = startTimer( fast_timeout );
 	fast = TRUE;
     }
 
+    max_cost = new_max_cost;
+
+    {
 #ifdef QFONTCACHE_DEBUG
-    qDebug("QFC::timerEvent: before cache cost adjustment: %d %d",
-	   totalCost(), maxCost());
+	qDebug( "  CLEAN engine data:" );
 #endif // QFONTCACHE_DEBUG
 
-    setMaxCost(nmcost);
+	// clean out all unused engine datas
+	EngineDataCache::Iterator it = engineDataCache.begin(),
+				 end = engineDataCache.end();
+	while ( it != end ) {
+	    if ( it.data()->count > 0 ) {
+		++it;
+		continue;
+	    }
+
+	    EngineDataCache::Iterator rem = it++;
+
+	    decreaseCost( sizeof( QFontEngineData ) );
 
 #ifdef QFONTCACHE_DEBUG
-    qDebug("QFC::timerEvent:  after cache cost adjustment: %d %d",
-	   totalCost(), maxCost());
+	    qDebug( "    %p", rem.data() );
 #endif // QFONTCACHE_DEBUG
 
+	    delete rem.data();
+	    engineDataCache.remove( rem );
+	}
+    }
+
+#ifdef QFONTCACHE_DEBUG
+    qDebug( "  CLEAN engine:" );
+#endif // QFONTCACHE_DEBUG
+
+    // clean out the engine cache just enough to get below our new max cost
+    uint current_cost;
+    do {
+	current_cost = total_cost;
+
+	EngineCache::Iterator it = engineCache.begin(),
+			     end = engineCache.end();
+	// determine the oldest and least popular of the unused engines
+	uint oldest = ~0;
+	uint least_popular = ~0;
+
+	for ( ; it != end; ++it ) {
+	    if ( it.data().data->count > 0 ) continue;
+
+	    if ( it.data().timestamp < oldest &&
+		 it.data().hits <= least_popular ) {
+		oldest = it.data().timestamp;
+		least_popular = it.data().hits;
+	    }
+	}
+
+#ifdef QFONTCACHE_DEBUG
+	qDebug( "    oldest %u least popular %u", oldest, least_popular );
+#endif // QFONTCACHE_DEBUG
+
+	for ( it = engineCache.begin(); it != end; ++it ) {
+	    if ( it.data().data->count == 0 &&
+		 it.data().timestamp == oldest &&
+		 it.data().hits == least_popular)
+		break;
+	}
+
+	if ( it != end ) {
+#ifdef QFONTCACHE_DEBUG
+	    qDebug( "    %p: timestamp %4u hits %2u ref %2d/%2d, type '%s'",
+		    it.data().data, it.data().timestamp, it.data().hits,
+		    it.data().data->count, it.data().data->cache_count,
+		    it.data().data->name() );
+#endif // QFONTCACHE_DEBUG
+
+	    if ( --it.data().data->cache_count == 0 ) {
+#ifdef QFONTCACHE_DEBUG
+		qDebug( "    DELETE: last occurence in cache" );
+#endif // QFONTCACHE_DEBUG
+
+		decreaseCost( it.data().data->cache_cost );
+		delete it.data().data;
+	    } else {
+		/*
+		  this particular font engine is in the cache multiple
+		  times...  set current_cost to zero, so that we can
+		  keep looping to get rid of all occurences
+		*/
+		current_cost = 0;
+	    }
+
+	    engineCache.remove( it );
+	}
+    } while ( current_cost != total_cost && total_cost > max_cost );
 }
-
-#endif // 0
