@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: index.doc,v 1.5 1998/05/07 19:06:51 agulbra Exp $
+** $Id: index.doc,v 1.6 1998/06/25 01:36:57 agulbra Exp $
 **
 ** Index page
 **
@@ -8,10 +8,10 @@
 *****************************************************************************/
 
 #if defined(DEBUG)
-static char ident[] = "$Id: index.doc,v 1.5 1998/05/07 19:06:51 agulbra Exp $";
+static char ident[] = "$Id: index.doc,v 1.6 1998/06/25 01:36:57 agulbra Exp $";
 #endif
 
-/*! \page imagio.html
+/*! \page imageio.html
 
 <title>Qt Image IO Extension Library</title>
 </head>

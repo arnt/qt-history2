@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/opengl/src/qgl.cpp#19 $
+** $Id: //depot/qt/main/extensions/opengl/src/qgl.cpp#20 $
 **
 ** Implementation of OpenGL classes for Qt
 **
@@ -996,7 +996,7 @@ void QGLContext::swapBuffers()
   \sa QGLFormat::defaultFormat()
 */
 
-QGLWidget::QGLWidget( QWidget *parent, const char *name, 
+QGLWidget::QGLWidget( QWidget *parent, const char *name,
 		      const QGLWidget* shareWidget, WFlags f )
     : QWidget(parent, name, f)
 {
@@ -1032,7 +1032,7 @@ QGLWidget::QGLWidget( QWidget *parent, const char *name,
 */
 
 QGLWidget::QGLWidget( const QGLFormat &format, QWidget *parent,
-		      const char *name, const QGLWidget* shareWidget, 
+		      const char *name, const QGLWidget* shareWidget,
 		      WFlags f )
     : QWidget(parent, name, f)
 {
@@ -1230,7 +1230,7 @@ static Colormap choose_cmap( Display *dpy, XVisualInfo *vi )
   \sa context(), setFormat()
 */
 
-void QGLWidget::setContext( QGLContext *context, 
+void QGLWidget::setContext( QGLContext *context,
 			    const QGLContext* shareContext )
 {
     if ( context == 0 ) {
@@ -1439,8 +1439,7 @@ void QGLWidget::gl_init()
   QGL classes overview documentation.
  *****************************************************************************/
 
-/*!
-\page qgl.html
+/*! \page qgl.html
 
 <title>Qt OpenGL Classes</title>
 </head><body bgcolor="#ffffff">

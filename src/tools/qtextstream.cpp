@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qtextstream.cpp#48 $
+** $Id: //depot/qt/main/src/tools/qtextstream.cpp#49 $
 **
 ** Implementation of QTextStream class
 **
@@ -31,7 +31,6 @@
   \define hex
   \define flush
   \define ws
-  \define reset
 
   The text stream class has a functional interface that is very
   similar to that of the standard C++ iostream class.  The difference

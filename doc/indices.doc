@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: indices.doc,v 2.17 1998/06/25 00:54:38 agulbra Exp $
+** $Id: indices.doc,v 2.18 1998/06/25 01:36:56 agulbra Exp $
 **
 ** Miscellaneous index pages
 **
@@ -8,7 +8,7 @@
 *****************************************************************************/
 
 #if defined(DEBUG)
-static char ident[] = "$Id: indices.doc,v 2.17 1998/06/25 00:54:38 agulbra Exp $";
+static char ident[] = "$Id: indices.doc,v 2.18 1998/06/25 01:36:56 agulbra Exp $";
 #endif
 
 /*! \page index.html
@@ -48,10 +48,10 @@ Reference Documentation
 </td></tr><tr><td width="50%" valign="top">
 
 <strong>Qt Extensions:</strong><ul>
-<li><a href="http://www.troll.no/opengl/">OpenGL 3D Graphics Support</a>
-<li><a href="http://www.troll.no/nsplugin/">Netscape/Explorer Plugin Support</a>
-<li><a href="http://www.troll.no/imageio/">Image File Formats Support</a>
-<li><a href="http://www.troll.no/xt/">Xt/Motif Legacy Code Support</a>
+<li><a href="qgl.html">OpenGL 3D Graphics Support</a>
+<li><a href="nsplugin.html">Netscape/Explorer Plugin Support</a>
+<li><a href="imageio.html">Image File Formats Support</a>
+<li><a href="xt.html">Xt/Motif Legacy Code Support (X11 only)</a>
 </ul>
 
 <td width="50%" valign="top">
@@ -82,7 +82,7 @@ page, or contact <a href="mailto:sales@troll.no">sales@troll.no</a>.
 available for development of <em>free software</em> only. It is
 provided free of charge under the <a href="license.html">Qt Free
 Edition License</a>. The latest version is available for <a
-href="http://www.troll.no/dl/">download</a>.
+href="http://www.troll.no/dl/qtfree-dl.html">download</a>.
 
 */
 

@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: //depot/qt/main/util/qdoc/qdoc#176 $
+# $Id: //depot/qt/main/util/qdoc/qdoc#177 $
 #
 # this is a massive hack, written very quickly
 #
@@ -2402,7 +2402,8 @@ eval; die "$@(in $d/doc.conf)\nstopped" if $@;
 
 print "using $d/doc.conf" if ( $debug );
 
-die "sourcedir not defined, stopped" unless defined( $sourcedir );
+die "sourcedir not defined, stopped"
+  unless defined( $sourcedir ) ||defined( @sourcedir );
 die "$sourcedir is not a directory, stopped" unless ( -d $sourcedir );
 die "includedir not defined, stopped" unless defined( $includedir );
 # die "$includedir is not a directory, stopped" unless ( -d $includedir );
@@ -2429,10 +2430,23 @@ $maxerr ||= 5;
 
 $doctype ||= "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0 Transitional//EN\">";
 
-finddepth( \&readcpp, $sourcedir );
-finddepth( \&readdoc, $docdir ) if ( defined( $docdir ) && -d $docdir );
+if ( defined( @sourcedirs ) ) {
+    foreach $sourcedir ( @sourcedirs ) {
+	finddepth( \&readcpp, $sourcedir );
+    }
+} else {
+    finddepth( \&readcpp, $sourcedir );
+}
 
-chdir( $sourcedir );
+if ( defined( @docdirs ) ) {
+    foreach $docdir ( @docdirs ) {
+	finddepth( \&readdoc, $docdir );
+    }
+} else {
+    finddepth( \&readdoc, $docdir );
+}
+
+chdir( "/tmp" );
 
 &templates();
 &preprocessdocs();
