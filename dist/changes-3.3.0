@@ -33,7 +33,7 @@ to be set globally for the entire application.
 
 Support for new 64bit platforms and compilers has been added for Qt
 3.3.  Qt now supports Itanium on both Linux (Intel) and Windows
-(VC++).
+(VC++). Qt 3.3 now also officially supports FreeBSD.
 
 Qt 3.3 also supports precompiled headers for both Windows and Mac OS
 X. To use precompiled headers when compiling your Qt application
@@ -171,8 +171,9 @@ implemented.
 Compilers
 ---------
 
-Qt 3.3 now officially supports FreeBSD. Qt 3.3 also adds support for
-the Intel C++ compiler on Linux and FreeBSD and MinGW on Windows.
+Qt 3.3 adds support for two new compilers. The Intel C++ compiler is
+supported on Linux and FreeBSD. GNU gcc is supported on Windows using
+MinGW.
 
 Qt 3.3 no longer officially supports the Sun CC 5.0 compiler or the
 IRIX MIPSpro o32 mode.
