@@ -641,7 +641,8 @@ public:
 	SplitHCursor,
 	PointingHandCursor,
 	ForbiddenCursor,
-	LastCursor	= ForbiddenCursor,
+	WhatsThisCursor,
+	LastCursor	= WhatsThisCursor,
 	BitmapCursor	= 24
     };
 
@@ -664,6 +665,7 @@ public:
 						// arrows
     QT_STATIC_CONST QCursor & pointingHandCursor;	// pointing hand
     QT_STATIC_CONST QCursor & forbiddenCursor;	// forbidden cursor (slashed circle)
+    QT_STATIC_CONST QCursor & whatsThisCursor;  // arrow with a question mark
 
 
     enum TextFormat {
