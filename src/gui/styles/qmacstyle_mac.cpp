@@ -985,7 +985,9 @@ void QMacStylePrivate::drawPantherTab(const QStyleOptionTab *tabOpt, QPainter *p
     bool verticalTabs = ttd == kThemeTabWest || ttd == kThemeTabEast;
 
     QStyleOptionTab::TabPosition tp = tabOpt->position;
-    if (ttd == kThemeTabWest) {
+    if (ttd == kThemeTabWest
+        || ((ttd == kThemeTabNorth || ttd == kThemeTabSouth)
+            && tabOpt->direction == Qt::RightToLeft)) {
         if (tp == QStyleOptionTab::Beginning)
             tp = QStyleOptionTab::End;
         else if (tp == QStyleOptionTab::End)
@@ -2000,30 +2002,42 @@ void QMacStylePrivate::HIThemeDrawControl(QStyle::ControlElement ce, const QStyl
             else
                 tdi.adornment = kHIThemeTabAdornmentNone;
             QRect tabRect = tabOpt->rect;
+            tdi.kind = kHIThemeTabKindNormal;
             if (!verticalTabs)
                 tabRect.setY(tabRect.y() - 1);
             else
                 tabRect.setX(tabRect.x() - 1);
-            tdi.kind = kHIThemeTabKindNormal;
-            switch (tabOpt->position) {
+            QStyleOptionTab::TabPosition tp = tabOpt->position;
+            QStyleOptionTab::SelectedPosition sp = tabOpt->selectedPosition;
+            if (tabOpt->direction == Qt::RightToLeft && !verticalTabs) {
+                if (sp == QStyleOptionTab::NextIsSelected)
+                    sp = QStyleOptionTab::PreviousIsSelected;
+                else if (sp == QStyleOptionTab::PreviousIsSelected)
+                    sp = QStyleOptionTab::NextIsSelected;
+                switch (tp) {
+                case QStyleOptionTab::Beginning:
+                    tp = QStyleOptionTab::End;
+                    break;
+                case QStyleOptionTab::End:
+                    tp = QStyleOptionTab::Beginning;
+                    break;
+                default:
+                    break;
+                }
+            }
+            switch (tp) {
             case QStyleOptionTab::Beginning:
                 tdi.position = kHIThemeTabPositionFirst;
-                if (verticalTabs)
-                    tabRect.setHeight(tabRect.height() + 1);
-                else
-                    tabRect.setWidth(tabRect.width() + 1);
-                if (tabOpt->selectedPosition != QStyleOptionTab::NextIsSelected)
+                tabRect.adjust(0, 0, !verticalTabs ? 1 : 0, verticalTabs ? 1 : 0);
+                if (sp != QStyleOptionTab::NextIsSelected)
                     tdi.adornment |= kHIThemeTabAdornmentTrailingSeparator;
                 break;
             case QStyleOptionTab::Middle:
                 tdi.position = kHIThemeTabPositionMiddle;
-                if (verticalTabs)
-                    tabRect.setHeight(tabRect.height() + 1);
-                else
-                    tabRect.setWidth(tabRect.width() + 1);
+                tabRect.adjust(0, 0, !verticalTabs ? 1 : 0, verticalTabs ? 1 : 0);
                 if (selected)
                     tdi.adornment |= kHIThemeTabAdornmentLeadingSeparator;
-                if (tabOpt->selectedPosition != QStyleOptionTab::NextIsSelected)  // Also when we're selected.
+                if (sp != QStyleOptionTab::NextIsSelected)  // Also when we're selected.
                     tdi.adornment |= kHIThemeTabAdornmentTrailingSeparator;
                 break;
             case QStyleOptionTab::End:

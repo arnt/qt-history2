@@ -1458,20 +1458,44 @@ void QWindowsStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPai
         break;
     case CE_TabBarTabShape:
         if (const QStyleOptionTab *tab = qstyleoption_cast<const QStyleOptionTab *>(opt)) {
+            bool rtlHorTabs = (tab->direction == Qt::RightToLeft
+                               && (tab->shape == QTabBar::RoundedNorth
+                                   || tab->shape == QTabBar::RoundedSouth));
             bool selected = tab->state & State_Selected;
-            bool lastTab = tab->position == QStyleOptionTab::End;
-            bool firstTab = tab->position == QStyleOptionTab::Beginning;
+            bool lastTab = ((!rtlHorTabs && tab->position == QStyleOptionTab::End)
+                            || (rtlHorTabs
+                                && tab->position == QStyleOptionTab::Beginning));
+            bool firstTab = ((!rtlHorTabs
+                               && tab->position == QStyleOptionTab::Beginning)
+                             || (rtlHorTabs
+                                 && tab->position == QStyleOptionTab::End));
             bool onlyOne = tab->position == QStyleOptionTab::OnlyOneTab;
-            bool previousSelected = (tab->selectedPosition == QStyleOptionTab::PreviousIsSelected);
-            bool nextSelected = (tab->selectedPosition == QStyleOptionTab::NextIsSelected);
-            bool leftAligned = styleHint(SH_TabBar_Alignment, tab, widget) == Qt::AlignLeft;
-            bool rightAligned = styleHint(SH_TabBar_Alignment, tab, widget) == Qt::AlignRight;
-            QColor light = opt->palette.light().color();
-            QColor midlight = opt->palette.midlight().color();
-            QColor dark = opt->palette.dark().color();
-            QColor shadow = opt->palette.shadow().color();
-            QColor background = opt->palette.background().color();
-            int borderThinkness = pixelMetric(PM_TabBarBaseOverlap, opt, widget);
+            bool previousSelected =
+                ((!rtlHorTabs
+                  && tab->selectedPosition == QStyleOptionTab::PreviousIsSelected)
+                || (rtlHorTabs
+                    && tab->selectedPosition == QStyleOptionTab::NextIsSelected));
+            bool nextSelected =
+                ((!rtlHorTabs
+                  && tab->selectedPosition == QStyleOptionTab::NextIsSelected)
+                 || (rtlHorTabs
+                     && tab->selectedPosition
+                            == QStyleOptionTab::PreviousIsSelected));
+            int tabBarAlignment = styleHint(SH_TabBar_Alignment, tab, widget);
+            bool leftAligned = (!rtlHorTabs && tabBarAlignment == Qt::AlignLeft)
+                                || (rtlHorTabs
+                                    && tabBarAlignment == Qt::AlignRight);
+
+            bool rightAligned = (!rtlHorTabs && tabBarAlignment == Qt::AlignRight)
+                                 || (rtlHorTabs
+                                         && tabBarAlignment == Qt::AlignLeft);
+
+            QColor light = tab->palette.light().color();
+            QColor midlight = tab->palette.midlight().color();
+            QColor dark = tab->palette.dark().color();
+            QColor shadow = tab->palette.shadow().color();
+            QColor background = tab->palette.background().color();
+            int borderThinkness = pixelMetric(PM_TabBarBaseOverlap, tab, widget);
             if (selected)
                 borderThinkness /= 2;
             QRect r2(opt->rect);
