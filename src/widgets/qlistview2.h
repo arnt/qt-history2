@@ -516,7 +516,7 @@ private:
 //     void setStoredState( ToggleState );
     void stateChange( ToggleState s );
     void restoreState( void *key, int depth = 0 );
-    void updateController( bool update = TRUE );
+    void updateController( bool update = TRUE , bool store = FALSE );
 //     void updateStoredState();
     void updateStoredState( void *key );
     void setState( ToggleState s, bool update, bool store );
