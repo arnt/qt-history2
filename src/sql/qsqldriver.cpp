@@ -34,6 +34,8 @@
 **
 **********************************************************************/
 
+#include <float.h>
+
 #include "qsqldriver.h"
 
 #ifndef QT_NO_SQL
@@ -450,6 +452,17 @@ QString QSqlDriver::formatValue( const QSqlField* field, bool trimStrings ) cons
 		r = "'" + res + "'";
 		break;
 	    }
+	}
+	case QVariant::Double : {
+	    if ( field->value().type() == QVariant::Double ) {
+#ifndef DBL_DIG
+#define DBL_DIG 10
+#endif
+		r.setNum( field->value().toDouble(), 'g', DBL_DIG );
+	    } else {
+		r = field->value().toString();
+	    }
+	    break;
 	}
 	default:
 	    r = field->value().toString();
