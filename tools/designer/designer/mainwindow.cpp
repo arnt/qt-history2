@@ -3162,16 +3162,18 @@ void MainWindow::popupWidgetMenu( const QPoint &gp, FormWindow * /*fw*/, QWidget
 
 void MainWindow::setupRMBProperties( QValueList<int> &ids, QMap<QString, int> &props, QWidget *w )
 {
-    const QMetaProperty* text = w->metaObject()->property( "text", TRUE );
+    const QMetaProperty* text = w->metaObject()->property( w->metaObject()->findProperty( "text", TRUE ), TRUE );
     if ( text && qstrcmp( text->type(), "QString") != 0 )
 	text = 0;
-    const QMetaProperty* title = w->metaObject()->property( "title", TRUE );
+    const QMetaProperty* title = w->metaObject()->property( w->metaObject()->findProperty( "title", TRUE ), TRUE );
     if ( title && qstrcmp( title->type(), "QString") != 0 )
 	title = 0;
-    const QMetaProperty* pagetitle = w->metaObject()->property( "pageTitle", TRUE );
+    const QMetaProperty* pagetitle =
+	w->metaObject()->property( w->metaObject()->findProperty( "pageTitle", TRUE ), TRUE );
     if ( pagetitle && qstrcmp( pagetitle->type(), "QString") != 0 )
 	pagetitle = 0;
-    const QMetaProperty* pixmap = w->metaObject()->property( "pixmap", TRUE );
+    const QMetaProperty* pixmap =
+	w->metaObject()->property( w->metaObject()->findProperty( "pixmap", TRUE ), TRUE );
     if ( pixmap && qstrcmp( pixmap->type(), "QPixmap") != 0 )
 	pixmap = 0;
 
@@ -3959,8 +3961,8 @@ bool MainWindow::openEditor( QWidget *w, FormWindow * )
 	return TRUE;
     }
 
-    const QMetaProperty* text = w->metaObject()->property( "text", TRUE );
-    const QMetaProperty* title = w->metaObject()->property( "title", TRUE );
+    const QMetaProperty* text = w->metaObject()->property( w->metaObject()->findProperty( "text", TRUE ), TRUE );
+    const QMetaProperty* title = w->metaObject()->property( w->metaObject()->findProperty( "title", TRUE ), TRUE );
     if ( text && text->designable(w) ) {
 	bool ok = FALSE;
 	QString text;

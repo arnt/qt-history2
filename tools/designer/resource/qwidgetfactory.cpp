@@ -775,7 +775,7 @@ QWidgetFactory::LayoutType QWidgetFactory::layoutType( QLayout *layout ) const
 
 void QWidgetFactory::setProperty( QObject* obj, const QString &prop, const QDomElement &e )
 {
-    const QMetaProperty *p = obj->metaObject()->property( prop, TRUE );
+    const QMetaProperty *p = obj->metaObject()->property( obj->metaObject()->findProperty( prop, TRUE ), TRUE );
 
     QVariant defVarient;
     if ( e.tagName() == "font" ) {

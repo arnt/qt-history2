@@ -44,8 +44,10 @@ static QColor getColor( const QString &type )
 class CompletionItem : public QListBoxItem
 {
 public:
-    CompletionItem( QListBox *lb, const QString &txt, const QString &t, const QString &p )
-	: QListBoxItem( lb ), type( t ), prefix( p ), parag( 0 ), lastState( FALSE ) { setText( txt ); }
+    CompletionItem( QListBox *lb, const QString &txt, const QString &t, const QString &p,
+		    const QString &pre, const QString &p2 )
+	: QListBoxItem( lb ), type( t ), postfix( p ), prefix( pre ), postfix2( p2 ),
+	  parag( 0 ), lastState( FALSE ) { setText( txt ); }
     ~CompletionItem() { delete parag; }
     void paint( QPainter *painter ) {
 	if ( lastState != selected() ) {
@@ -68,7 +70,7 @@ public:
 	    ( (CompletionItem*)this )->setupParag();
 	return parag->rect().width() - 2;
     }
-    QString text() const { return QListBoxItem::text() + prefix; }
+    QString text() const { return QListBoxItem::text() + postfix; }
 
 private:
     void setupParag() {
@@ -78,7 +80,8 @@ private:
 	    formatter->setWrapEnabled( FALSE );
 	    parag = new QTextParag( 0 );
 	    parag->setFormatter( formatter );
-	    parag->insert( 0, " " + type + ( type.isEmpty() ? " " : "\t" ) + QListBoxItem::text() + prefix );
+	    parag->insert( 0, " " + type + ( type.isEmpty() ? " " : "\t" ) + prefix +
+			   QListBoxItem::text() + postfix + postfix2 );
 	    bool selCol = selected() && listBox()->colorGroup().highlightedText() != listBox()->colorGroup().text();
 	    QColor sc = listBox()->colorGroup().highlightedText();
 	    QTextFormat *f1 = parag->formatCollection()->format( listBox()->font(), selCol ? sc : getColor( type ) );
@@ -87,19 +90,23 @@ private:
 								 listBox()->colorGroup().text() );
 	    QFont f( listBox()->font() );
 	    f.setBold( TRUE );
-	    QTextFormat *f2 = parag->formatCollection()->format( f, selected() ? listBox()->colorGroup().highlightedText() :
+	    QTextFormat *f2 =
+		parag->formatCollection()->format( f, selected() ? listBox()->colorGroup().highlightedText() :
 								 listBox()->colorGroup().text() );
 	    parag->setFormat( 1, type.length() + 1, f1 );
-	    parag->setFormat( type.length() + 2, QListBoxItem::text().length(), f2 );
-	    if ( !prefix.isEmpty() )
-		parag->setFormat( type.length() + 2 + QListBoxItem::text().length(), prefix.length(), f3 );
+	    parag->setFormat( type.length() + 2, prefix.length() + QListBoxItem::text().length(), f2 );
+	    if ( !postfix.isEmpty() )
+		parag->setFormat( type.length() + 2 + prefix.length() + QListBoxItem::text().length(),
+				  postfix.length(), f3 );
+	    parag->setFormat( type.length() + 2 + prefix.length() + QListBoxItem::text().length() + postfix.length(),
+			      postfix2.length(), f3 );
 	    f1->removeRef();
 	    f2->removeRef();
 	    f3->removeRef();
 	    parag->format();
 	}
     }
-    QString type, prefix;
+    QString type, postfix, prefix, postfix2;
     QTextParag *parag;
     bool lastState;
 
@@ -178,7 +185,9 @@ QValueList<CompletionEntry> EditorCompletion::completionList( const QString &s, 
 	CompletionEntry c;
 	c.type = "";
 	c.text = *it2;
+	c.postfix = "";
 	c.prefix = "";
+	c.postfix2 = "";
 	if ( (int)(*it2).length() > len && (*it2).left( len ) == s && lst.find( c ) == lst.end() )
 	    lst << c;
     }
@@ -267,7 +276,8 @@ bool EditorCompletion::doCompletion()
 	y += cursor->parag()->rect().y();
 	completionListBox->clear();
 	for ( QValueList<CompletionEntry>::ConstIterator it = lst.begin(); it != lst.end(); ++it )
-	    (void)new CompletionItem( completionListBox, (*it).text, (*it).type, (*it).prefix );
+	    (void)new CompletionItem( completionListBox, (*it).text, (*it).type, (*it).postfix,
+				      (*it).prefix, (*it).postfix2 );
 	cList = lst;
 	completionPopup->resize( completionListBox->sizeHint() +
 				 QSize( completionListBox->verticalScrollBar()->width() + 4,
@@ -435,7 +445,8 @@ bool EditorCompletion::continueComplete()
     if ( searchString.isEmpty() ) {
 	completionListBox->clear();
 	for ( QValueList<CompletionEntry>::ConstIterator it = cList.begin(); it != cList.end(); ++it )
-	    (void)new CompletionItem( completionListBox, (*it).text, (*it).type, (*it).prefix );
+	    (void)new CompletionItem( completionListBox, (*it).text, (*it).type,
+				      (*it).postfix, (*it).prefix, (*it).postfix2 );
 	completionListBox->setCurrentItem( 0 );
 	completionListBox->setSelected( completionListBox->currentItem(), TRUE );
 	return TRUE;
@@ -461,7 +472,8 @@ bool EditorCompletion::continueComplete()
 	return FALSE;
     completionListBox->clear();
     for ( QValueList<CompletionEntry>::ConstIterator it2 = res.begin(); it2 != res.end(); ++it2 )
-	(void)new CompletionItem( completionListBox, (*it2).text, (*it2).type, (*it2).prefix );
+	(void)new CompletionItem( completionListBox, (*it2).text, (*it2).type,
+				  (*it2).postfix, (*it2).prefix, (*it2).postfix2 );
     completionListBox->setCurrentItem( 0 );
     completionListBox->setSelected( completionListBox->currentItem(), TRUE );
     return TRUE;
@@ -584,7 +596,7 @@ bool EditorCompletion::doArgumentHint( bool useIndex )
     return TRUE;
 }
 
-QStringList EditorCompletion::functionParameters( const QString &, QChar &, QString &prefix, QString &postfix )
+QStringList EditorCompletion::functionParameters( const QString &, QChar &, QString &, QString & )
 {
     return QStringList();
 }
@@ -604,7 +616,8 @@ void EditorCompletion::showCompletion( const QValueList<CompletionEntry> &lst )
     y += cursor->parag()->rect().y();
     completionListBox->clear();
     for ( QValueList<CompletionEntry>::ConstIterator it = lst.begin(); it != lst.end(); ++it )
-	(void)new CompletionItem( completionListBox, (*it).text, (*it).type, (*it).prefix );
+	(void)new CompletionItem( completionListBox, (*it).text, (*it).type,
+				  (*it).postfix, (*it).prefix, (*it).postfix2 );
     cList = lst;
     completionPopup->resize( completionListBox->sizeHint() +
 			     QSize( completionListBox->verticalScrollBar()->width() + 4,

@@ -37,9 +37,17 @@ struct CompletionEntry
 {
     QString type;
     QString text;
+    QString postfix;
     QString prefix;
+    QString postfix2;
 
-    bool operator==( const CompletionEntry &c ) const { return c.type == type && c.text == text && c.prefix == prefix; }
+    bool operator==( const CompletionEntry &c ) const {
+	return ( c.type == type &&
+		 c.text == text &&
+		 c.postfix == postfix &&
+		 c.prefix == prefix &&
+		 c.postfix2 == postfix2 );
+    }
 };
 
 #if defined(Q_TEMPLATEDLL)

@@ -1048,7 +1048,8 @@ bool WidgetFactory::canResetProperty( QObject *w, const QString &propName )
 
 bool WidgetFactory::resetProperty( QObject *w, const QString &propName )
 {
-    const QMetaProperty *p = w->metaObject()->property( propName, TRUE );
+    const QMetaProperty *p = w->metaObject()->property( w->metaObject()->
+							findProperty( propName, TRUE ), TRUE );
     if (!p )
 	return FALSE;
     return p->reset( w );
@@ -1071,7 +1072,8 @@ QVariant WidgetFactory::defaultValue( QObject *w, const QString &propName )
 
 QString WidgetFactory::defaultCurrentItem( QObject *w, const QString &propName )
 {
-    const QMetaProperty *p = w->metaObject()->property( propName, TRUE );
+    const QMetaProperty *p = w->metaObject()->
+			     property( w->metaObject()->findProperty( propName, TRUE ), TRUE );
     if ( !p ) {
 	int v = defaultValue( w, "alignment" ).toInt();
 	if ( propName == "hAlign" ) {

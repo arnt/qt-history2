@@ -2337,7 +2337,9 @@ void PropertyList::setupProperties()
 	!editor->formWindow()->isMainContainer( (QWidget*)w ) && ( (QWidget*)w )->parentWidget() &&
 	WidgetFactory::layoutType( ( (QWidget*)w )->parentWidget() ) != WidgetFactory::NoLayout;
     for ( QListIterator<char> it( lst ); it.current(); ++it ) {
-	const QMetaProperty* p = editor->widget()->metaObject()->property( it.current(), allProperties );
+	const QMetaProperty* p =
+	    editor->widget()->metaObject()->
+	    property( editor->widget()->metaObject()->findProperty( it.current(), allProperties), allProperties );
 	if ( !p )
 	    continue;
 	if ( unique.contains( QString::fromLatin1( it.current() ) ) )
@@ -2775,18 +2777,22 @@ static void clearAlignList( QStrList &l )
 
 void PropertyList::setPropertyValue( PropertyItem *i )
 {
-    const QMetaProperty *p = editor->widget()->metaObject()->property( i->name(), TRUE );
+    const QMetaProperty *p =
+	editor->widget()->metaObject()->
+	property( editor->widget()->metaObject()->findProperty( i->name(), TRUE), TRUE );
     if ( !p ) {
 	if ( i->name() == "hAlign" ) {
 	    int align = editor->widget()->property( "alignment" ).toInt();
-	    p = editor->widget()->metaObject()->property( "alignment", TRUE );
+	    p = editor->widget()->metaObject()->
+		property( editor->widget()->metaObject()->findProperty( "alignment", TRUE ), TRUE );
 	    align &= ~AlignVertical_Mask;
 	    QStrList l = p->valueToKeys( align );
 	    clearAlignList( l );
 	    ( (PropertyListItem*)i )->setCurrentItem( l.last() );
 	} else if ( i->name() == "vAlign" ) {
 	    int align = editor->widget()->property( "alignment" ).toInt();
-	    p = editor->widget()->metaObject()->property( "alignment", TRUE );
+	    p = editor->widget()->metaObject()->
+		property( editor->widget()->metaObject()->findProperty( "alignment", TRUE ), TRUE );
 	    align &= ~AlignHorizontal_Mask;
 	    ( (PropertyListItem*)i )->setCurrentItem( p->valueToKeys( align ).last() );
 	} else if ( i->name() == "wordwrap" ) {

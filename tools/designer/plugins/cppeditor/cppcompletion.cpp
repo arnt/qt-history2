@@ -76,7 +76,7 @@ bool CppEditorCompletion::doObjectCompletion( const QString &objName )
 	CompletionEntry ce;
 	ce.type = "property";
 	ce.text = f;
-	ce.prefix = "()";
+	ce.postfix = "()";
 
 	if ( lst.find( ce ) == lst.end() )
 	    lst << ce;
@@ -89,7 +89,7 @@ bool CppEditorCompletion::doObjectCompletion( const QString &objName )
 	CompletionEntry c;
 	c.type = "slot";
 	c.text = f;
-	c.prefix = "()";
+	c.postfix = "()";
 	if ( lst.find( c ) == lst.end() )
 	    lst << c;
     }
@@ -185,7 +185,9 @@ QStringList CppEditorCompletion::functionParameters( const QString &expr, QChar 
 	}
     }
 
-    const QMetaProperty *prop = obj->metaObject()->property( func[ 3 ].lower() + func.mid( 4 ), TRUE );
+    const QMetaProperty *prop =
+	obj->metaObject()->
+	property( obj->metaObject()->findProperty( func[ 3 ].lower() + func.mid( 4 ), TRUE ), TRUE );
     if ( prop )
 	return QStringList( prop->type() );
 
