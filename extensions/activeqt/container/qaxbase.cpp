@@ -391,9 +391,12 @@ public:
 			QUEnum *uEnum = (QUEnum*)param->typeExtra;
 			delete [] (QUEnumItem*)uEnum->items;
 			delete uEnum;
+		    } else if ( QUType::isEqual( param->type, &static_QUType_varptr ) ) {
+			int *vartype = (int*)param->typeExtra;
+			delete vartype;
 		    } else if ( QUType::isEqual( param->type, &static_QUType_ptr ) ) {
-			const char *type = (const char*)param->typeExtra;
-			delete [] (char*)type;
+			char *type = (char*)param->typeExtra;
+			delete []type;
 		    }
 		}
 		delete [] (QUParameter*)slot->parameters;
@@ -418,9 +421,12 @@ public:
 			QUEnum *uEnum = (QUEnum*)param->typeExtra;
 			delete [] (QUEnumItem*)uEnum->items;
 			delete uEnum;
+		    } else if ( QUType::isEqual( param->type, &static_QUType_varptr ) ) {
+			int *vartype = (int*)param->typeExtra;
+			delete vartype;
 		    } else if ( QUType::isEqual( param->type, &static_QUType_ptr ) ) {
-			const char *type = (const char*)param->typeExtra;
-			delete [] (char*)type;
+			char *type = (char*)param->typeExtra;
+			delete []type;
 		    }
 		}
 		delete [] (QUParameter*)signal->parameters;
