@@ -537,11 +537,8 @@ bool QBrush::isOpaque() const
     bool opaqueColor = d->color.alpha() == 255;
 
     // Test awfully simple case first
-    if (d->style == Qt::SolidPattern && opaqueColor)
-        return true;
-
-    if (!opaqueColor)
-        return false;
+    if (d->style == Qt::SolidPattern)
+        return opaqueColor;
 
     if (d->style == Qt::LinearGradientPattern
         || d->style == Qt::RadialGradientPattern
@@ -555,7 +552,7 @@ bool QBrush::isOpaque() const
         return !texture().hasAlpha();
     }
 
-    return true;
+    return opaqueColor;
 }
 
 
