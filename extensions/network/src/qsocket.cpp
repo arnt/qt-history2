@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/network/src/qsocket.cpp#10 $
+** $Id: //depot/qt/main/extensions/network/src/qsocket.cpp#11 $
 **
 ** Implementation of Network Extension Library
 **
@@ -62,13 +62,14 @@ public:
     bool		newline;		// has newline/can read line
     int			ready_read_timer;	// timer for emit read signals
     QDns	       *dns;
+    bool		firstTime;		// workaround for Windows
 };
 
 QSocketPrivate::QSocketPrivate()
     : state(QSocket::Idle), mode(QSocket::Binary),
       host(QString::fromLatin1("")), port(0),
       socket(0), rsn(0), wsn(0), rsize(0), wsize(0), rindex(0), windex(0),
-      newline(FALSE), ready_read_timer(0), dns(0)
+      newline(FALSE), ready_read_timer(0), dns(0), firstTime(TRUE)
 {
     rba.setAutoDelete( TRUE );
     wba.setAutoDelete( TRUE );
@@ -80,8 +81,6 @@ QSocketPrivate::~QSocketPrivate()
     delete wsn;
     delete socket;
 }
-
-
 
 
 
@@ -120,7 +119,7 @@ QSocket::QSocket( QObject *parent, const char *name )
 */
 
 QSocket::QSocket( int socket, QObject *parent, const char *name )
-    : QObject( parent, name ), firstTime( TRUE )
+    : QObject( parent, name )
 {
 #if defined(QSOCKET_DEBUG)
     qDebug( "QSocket: Attach to socket %x", socket );
@@ -306,7 +305,6 @@ void QSocket::connectToHost( const QString &host, int port )
     // Re-initialize
     delete d;
     d = new QSocketPrivate;
-    firstTime = TRUE;
     d->state = HostLookup;
     d->host = host;
     d->port = port;
@@ -517,7 +515,6 @@ void QSocket::close()
     }
     delete d;
     d = new QSocketPrivate;
-    firstTime = TRUE;
     d->state = Idle;
 }
 
@@ -714,7 +711,6 @@ void QSocket::flush()
 	    d->socket->close();
 	    delete d;
 	    d = new QSocketPrivate;
-	    firstTime = TRUE;
 	    d->state = Idle;
 	    emit delayedCloseFinished();
 	    return;
@@ -966,7 +962,14 @@ QString QSocket::readLine()
 void QSocket::sn_read()
 {
     int nbytes = d->socket->bytesAvailable();
-    if ( !firstTime && nbytes == 0 ) {			// connection closed
+    // Here, nbytes can often be zero on Microsoft Windows the first
+    // time sn_read is invoked where there actually is data on the
+    // socket.  This is because of a bug in ioctlsocket().
+    // We use the firstTime variable to avoid this problem.
+    bool connectionClosed = !d->firstTime && nbytes == 0;
+    d->firstTime = FALSE;
+
+    if ( connectionClosed ) {			// connection closed
 #if defined(QSOCKET_DEBUG)
 	qDebug( "QSocket: sn_read: Connection closed" );
 #endif
@@ -984,7 +987,6 @@ void QSocket::sn_read()
 #endif
 	QByteArray *a = new QByteArray( nbytes );
 	int nread = d->socket->readBlock( a->data(), nbytes );
-	//a->resize( nread );
 	if ( nread != nbytes ) {		// unexpected
 #if defined(CHECK_RANGE)
 	    qWarning( "QSocket::sn_read: Unexpected short read" );
@@ -999,7 +1001,6 @@ void QSocket::sn_read()
 	    d->ready_read_timer = startTimer( 1000 );
 	emit readyRead();
     }
-    firstTime = FALSE;
 }
 
 
@@ -1021,7 +1022,7 @@ void QSocket::sn_write()
 #if defined(QSOCKET_DEBUG)
 	qDebug( "QSocket: sn_write: Got connection!" );
 #endif
-	firstTime = TRUE;
+	d->firstTime = TRUE;
     }
     flush();
 }

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/network/src/qsocketdevice.cpp#6 $
+** $Id: //depot/qt/main/extensions/network/src/qsocketdevice.cpp#7 $
 **
 ** Implementation of Network Extension Library
 **
@@ -564,6 +564,13 @@ int QSocketDevice::accept()
 /*!
   Returns the number of bytes available for reading, or -1 if an
   error occurred.
+
+  \warning On Microsoft Windows, we use the ioctlsocket() function
+  to determine the number of bytes queued on the socket.
+  According to Microsoft (KB Q125486), ioctlsocket() sometimes
+  return an incorrect number.  The only safe way to determine the
+  amount of data on the socket is to read it using readBlock().
+  QSocket has workarounds to deal with this problem.
 */
 
 int QSocketDevice::bytesAvailable() const
@@ -613,6 +620,10 @@ int QSocketDevice::readBlock( char *data, uint maxlen )
     }
 #endif
 #if defined(_OS_WIN32_)
+    if ( sock_type == Datagram ) {
+	// ### need to keep the source of the data here
+	return ::recvfrom( sock_fd, data, maxlen, 0, 0, 0 );
+    }
     return ::recv( sock_fd, data, maxlen, 0 );
 #elif defined(UNIX)
     if ( sock_type == Datagram ) {
