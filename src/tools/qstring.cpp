@@ -3512,6 +3512,7 @@ static bool ok_in_base(QChar c, int base)
 /*!
     Returns the string converted to a \c long value to the base \a
     base, which is 10 by default and must be between 2 and 36.
+    Returns 0 if the conversion fails.
 
     If \a ok is not 0: if a conversion error occurs, \a *ok is set to
     false; otherwise \a *ok is set to true.
@@ -3577,6 +3578,7 @@ bye:
 /*!
     Returns the string converted to an \c {unsigned long} value to the
     base \a base, which is 10 by default and must be between 2 and 36.
+    Returns 0 if the conversion fails.
 
     If \a ok is not 0: if a conversion error occurs, \a *ok is set to
     false; otherwise \a *ok is set to true.
@@ -3633,6 +3635,7 @@ bye:
 /*!
     Returns the string converted to a \c long value to the base \a
     base, which is 10 by default and must be between 2 and 36.
+    Returns 0 if the conversion fails.
 
     If \a ok is not 0: if a conversion error occurs, \a *ok is set to
     false; otherwise \a *ok is set to true.
@@ -3654,6 +3657,7 @@ long QString::toLong(bool *ok, int base) const
 /*!
     Returns the string converted to an \c {unsigned long} value to the
     base \a base, which is 10 by default and must be between 2 and 36.
+    Returns 0 if the conversion fails.
 
     If \a ok is not 0: if a conversion error occurs, \a *ok is set to
     false; otherwise \a *ok is set to true.
@@ -3675,6 +3679,7 @@ ulong QString::toULong(bool *ok, int base) const
 /*!
     Returns the string converted to an \c int value to the base \a
     base, which is 10 by default and must be between 2 and 36.
+    Returns 0 if the conversion fails.
 
     If \a ok is not 0: if a conversion error occurs, \a *ok is set to
     false; otherwise \a *ok is set to true.
@@ -3703,6 +3708,7 @@ int QString::toInt(bool *ok, int base) const
 /*!
     Returns the string converted to an \c{unsigned int} value to the
     base \a base, which is 10 by default and must be between 2 and 36.
+    Returns 0 if the conversion fails.
 
     If \a ok is not 0: if a conversion error occurs, \a *ok is set to
     false; otherwise \a *ok is set to true.
@@ -3724,6 +3730,7 @@ uint QString::toUInt(bool *ok, int base) const
 /*!
     Returns the string converted to a \c short value to the base \a
     base, which is 10 by default and must be between 2 and 36.
+    Returns 0 if the conversion fails.
 
     If \a ok is not 0: if a conversion error occurs, \a *ok is set to
     false; otherwise \a *ok is set to true.
@@ -3744,6 +3751,7 @@ short QString::toShort(bool *ok, int base) const
     Returns the string converted to an \c {unsigned short} value to
     the base \a base, which is 10 by default and must be between 2 and
     36.
+    Returns 0 if the conversion fails.
 
     If \a ok is not 0: if a conversion error occurs, \a *ok is set to
     false; otherwise \a *ok is set to true.
@@ -3763,6 +3771,7 @@ ushort QString::toUShort(bool *ok, int base) const
 
 /*!
     Returns the string converted to a \c double value.
+    Returns 0 if the conversion fails.
 
     If \a ok is not 0: if a conversion error occurs, \a *ok is set to
     false; otherwise \a *ok is set to true.
@@ -3788,6 +3797,7 @@ double QString::toDouble(bool *ok) const
 
 /*!
     Returns the string converted to a \c float value.
+    Returns 0 if the conversion fails.
 
     If \a ok is not 0: if a conversion error occurs, \a *ok is set to
     false; otherwise \a *ok is set to true.
