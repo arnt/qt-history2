@@ -16,7 +16,7 @@
 #include "qpaintdevicemetrics.h"
 #include "qapplication.h"
 #include "qbitmap.h"
-#include "qwmatrix.h"
+#include "qmatrix.h"
 #include <qpaintengine_mac.h>
 #include <private/qt_mac_p.h>
 
@@ -490,7 +490,7 @@ void QPixmap::deref()
     }
 }
 
-QPixmap QPixmap::xForm(const QWMatrix &matrix) const
+QPixmap QPixmap::xForm(const QMatrix &matrix) const
 {
     int           w, h;                                // size of target pixmap
     int           ws, hs;                                // size of source pixmap
@@ -506,7 +506,7 @@ QPixmap QPixmap::xForm(const QWMatrix &matrix) const
     ws = width();
     hs = height();
 
-    QWMatrix mat(matrix.m11(), matrix.m12(), matrix.m21(), matrix.m22(), 0., 0.);
+    QMatrix mat(matrix.m11(), matrix.m12(), matrix.m21(), matrix.m22(), 0., 0.);
 
     if(matrix.m12() == 0.0F  && matrix.m21() == 0.0F &&
          matrix.m11() >= 0.0F  && matrix.m22() >= 0.0F) {
@@ -805,12 +805,12 @@ CGImageRef qt_mac_create_cgimage(const QPixmap &px, Qt::PixmapDrawingMode mode)
         const int w = px.width(), h = px.height();
         char *out_addr = (char*)malloc(w*h);
         provider = CGDataProviderCreateWithData(0, out_addr, w*h, qt_mac_mask_data_free);
-        
+
         const QRgb c0 = (QColor(Qt::color0).rgb() & 0xFFFFFF);
         for(int yy = 0; yy < h; yy++) {
             char *out_row = out_addr + (yy * px.width());
             ulong *in_row = reinterpret_cast<ulong*>(reinterpret_cast<char *>(addr) + (yy * bpl));
-            for(int xx = 0; xx < w; xx++) 
+            for(int xx = 0; xx < w; xx++)
                 *(out_row+xx) = ((*(in_row+xx) & c0) == c0) ? 255 : 0;
         }
         image = CGImageMaskCreate(px.width(), px.height(), 8, 8, px.width(), provider, 0, true);
@@ -837,7 +837,7 @@ CGImageRef qt_mac_create_cgimage(const QPixmap &px, Qt::PixmapDrawingMode mode)
                 for(int yy=0; yy<h; yy++) {
                     ulong *mrow = reinterpret_cast<ulong*>(mptr + (yy * mbpr));
                     char *drow = addr + (yy * bpl);
-                    for(int xx=0;xx<w;xx++) 
+                    for(int xx=0;xx<w;xx++)
                         *(drow + (xx*4)) = ((*(mrow + xx) & c0) == c0) ? 0 : 255;
                 }
             } else {

@@ -672,7 +672,7 @@ void QPaintEngine::updateClipPath(const QPainterPath &path, bool enabled)
 */
 
 /*!
-  \fn QPaintEngine::updateXForm(const QWMatrix &matrix)
+  \fn QPaintEngine::updateXForm(const QMatrix &matrix)
 
   This function is called when the engine needs to be updated with
   new transformation settings, specified with \a matrix.

@@ -104,7 +104,7 @@ QFontEngineMac::draw(QPaintEngine *p, int req_x, int req_y, const QTextItem &si,
 
     QPainterState *pState = p->painterState();
     int txop = pState->txop;
-    QWMatrix xmat = pState->matrix;
+    QMatrix xmat = pState->matrix;
 
     if(!p->hasFeature(QPaintEngine::CoordTransform)) {
         if(txop >= QPainter::TxScale) {
@@ -178,13 +178,13 @@ QFontEngineMac::draw(QPaintEngine *p, int req_x, int req_y, const QTextItem &si,
         p->painter()->setBrush(p->painter()->pen().color());
         const int lw = lineThickness().toInt();
         if(textFlags & Qt::TextUnderline)
-            p->painter()->drawRect(QRect(req_x, req_y+underlinePosition().toInt(), 
+            p->painter()->drawRect(QRect(req_x, req_y+underlinePosition().toInt(),
                                          si.right_to_left ? -w : w, lw));
         if(textFlags & Qt::TextOverline)
-            p->painter()->drawRect(QRect(req_x, req_y - (ascent().toInt() + 1), 
+            p->painter()->drawRect(QRect(req_x, req_y - (ascent().toInt() + 1),
                                          si.right_to_left ? -w : w, lw));
         if(textFlags & Qt::TextStrikeOut)
-            p->painter()->drawRect(QRect(req_x, req_y - (ascent().toInt() / 3), 
+            p->painter()->drawRect(QRect(req_x, req_y - (ascent().toInt() / 3),
                                          si.right_to_left ? -w : w, lw));
         p->painter()->setBrush(oldBrush);
     }
@@ -283,7 +283,7 @@ QATSUStyle *QFontEngineMac::getFontStyle() const
         fcolor.blue = ret->rgb.blue()*256;
         ByteCount color_size = sizeof(fcolor);
         ATSUAttributeValuePtr color_value = &fcolor;
-        if(OSStatus e = ATSUSetAttributes(ret->style, 1, &color_tag, &color_size, &color_value)) 
+        if(OSStatus e = ATSUSetAttributes(ret->style, 1, &color_tag, &color_size, &color_value))
             qWarning("Qt: internal: %ld: unexpected condition reached %s:%d", e, __FILE__, __LINE__);
     }
     internal_fi = ret; //cache it

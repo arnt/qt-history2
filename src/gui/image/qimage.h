@@ -139,8 +139,8 @@ public:
     QImage scale(const QSize &s, Qt::ScaleMode mode = Qt::ScaleFree) const;
     QImage scaleWidth(int w) const;
     QImage scaleHeight(int h) const;
-    QImage xForm(const QWMatrix &matrix) const;
-    static QWMatrix trueMatrix(const QWMatrix &, int w, int h);
+    QImage xForm(const QMatrix &matrix) const;
+    static QMatrix trueMatrix(const QMatrix &, int w, int h);
 #endif
 
 #ifndef QT_NO_IMAGE_DITHER_TO_1
@@ -319,7 +319,7 @@ private:        // Disabled copy constructor and operator=
 #  if defined(Q_WS_WIN)
 #    define QT_XFORM_TYPE_WINDOWSPIXMAP 2
 #  endif
-Q_GUI_EXPORT bool qt_xForm_helper(const QWMatrix&, int, int, int, uchar*, int, int, int, uchar*, int, int, int);
+Q_GUI_EXPORT bool qt_xForm_helper(const QMatrix&, int, int, int, uchar*, int, int, int, uchar*, int, int, int);
 #endif
 
 Q_GUI_EXPORT void bitBlt(QImage* dst, int dx, int dy, const QImage* src,

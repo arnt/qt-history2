@@ -100,7 +100,7 @@ public:
     virtual void updateBrush(const QBrush &brush, const QPoint &pt);
     virtual void updateFont(const QFont &font);
     virtual void updateBackground(Qt::BGMode bgmode, const QBrush &bgBrush);
-    virtual void updateXForm(const QWMatrix &matrix);
+    virtual void updateXForm(const QMatrix &matrix);
     virtual void updateClipRegion(const QRegion &region, bool clipEnabled);
     virtual void updateRenderHints(QPainter::RenderHints hints);
     virtual void drawLine(const QPoint &p1, const QPoint &ps);

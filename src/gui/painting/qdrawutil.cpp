@@ -777,7 +777,7 @@ static void qDrawMotifArrow(QPainter *p, Qt::ArrowType type, bool down,
     QPointArray bBot;                                // bottom shadow.
     QPointArray bLeft;                                // left shadow.
 #ifndef QT_NO_TRANSFORMATIONS
-    QWMatrix        matrix;                                // xform matrix
+    QMatrix        matrix;                                // xform matrix
 #endif
     bool vertical = type == Qt::UpArrow || type == Qt::DownArrow;
     bool horizontal = !vertical;
@@ -870,7 +870,7 @@ static void qDrawMotifArrow(QPainter *p, Qt::ArrowType type, bool down,
     QPen     savePen   = p->pen();                // save current pen
     QBrush   saveBrush = p->brush();                // save current brush
 #ifndef QT_NO_TRANSFORMATIONS
-    QWMatrix wxm = p->worldMatrix();
+    QMatrix wxm = p->worldMatrix();
 #endif
     QPen     pen(Qt::NoPen);
     const QBrush &brush = pal.brush(QPalette::Button);

@@ -53,7 +53,7 @@ public:
     void makeEllipse(int x, int y, int w, int h);
 #ifndef QT_NO_WMATRIX
     void makeArc(int x, int y, int w, int h, int a1, int a2);
-    void makeArc(int x, int y, int w, int h, int a1, int a2, const QWMatrix &matrix);
+    void makeArc(int x, int y, int w, int h, int a1, int a2, const QMatrix &matrix);
 #endif
 #ifndef QT_NO_BEZIER
     QPointArray cubicBezier() const;

@@ -180,8 +180,8 @@
 // Wheel-mouse events
 //#define QT_NO_WHEELEVENT
 
-// QWMatrix
-//#define QT_NO_WMATRIX
+// QMatrix
+//#define QT_NO_MATRIX
 
 // Keyboard accelerators and shortcuts
 #if !defined(QT_NO_ACCEL) && (defined(QT_NO_SPRINTF))

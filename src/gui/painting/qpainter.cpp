@@ -1011,7 +1011,7 @@ void QPainter::setViewXForm(bool enable)
 
     If \a wm is the identity matrix and \a combine is false, this
     function calls setWorldXForm(false). (The identity matrix is the
-    matrix where QWMatrix::m11() and QWMatrix::m22() are 1.0 and the
+    matrix where QMatrix::m11() and QMatrix::m22() are 1.0 and the
     rest are 0.0.)
 
     World transformations are applied after the view transformations
@@ -1019,7 +1019,7 @@ void QPainter::setViewXForm(bool enable)
     viewport\endlink).
 
     The following functions can transform the coordinate system without using
-    a QWMatrix:
+    a QMatrix:
     \list
     \i translate()
     \i scale()
@@ -1032,7 +1032,7 @@ void QPainter::setViewXForm(bool enable)
     \code
         void QPainter::rotate(double a)
         {
-            QWMatrix m;
+            QMatrix m;
             m.rotate(a);
             setWorldMatrix(m, true);
         }
@@ -1047,10 +1047,10 @@ void QPainter::setViewXForm(bool enable)
     coordsys.html Coordinate System Overview. \endlink
 
     \sa worldMatrix() setWorldXForm() setWindow() setViewport()
-    setViewXForm() xForm() QWMatrix
+    setViewXForm() xForm() QMatrix
 */
 
-void QPainter::setWorldMatrix(const QWMatrix &wm, bool combine)
+void QPainter::setWorldMatrix(const QMatrix &wm, bool combine)
 {
    if (!isActive()) {
         qWarning("QPainter::setWorldMatrix(), painter not active ");
@@ -1082,7 +1082,7 @@ void QPainter::setWorldMatrix(const QWMatrix &wm, bool combine)
     \sa setWorldMatrix()
 */
 
-const QWMatrix &QPainter::worldMatrix() const
+const QMatrix &QPainter::worldMatrix() const
 {
     return d->state->worldMatrix;
 }
@@ -1124,7 +1124,7 @@ void QPainter::setWorldXForm(bool enable)
 
 void QPainter::scale(double sx, double sy)
 {
-    QWMatrix m;
+    QMatrix m;
     m.scale(sx, sy);
     setWorldMatrix(m, true);
 }
@@ -1138,7 +1138,7 @@ void QPainter::scale(double sx, double sy)
 
 void QPainter::shear(double sh, double sv)
 {
-    QWMatrix m;
+    QMatrix m;
     m.shear(sv, sh);
     setWorldMatrix(m, true);
 }
@@ -1152,7 +1152,7 @@ void QPainter::shear(double sh, double sv)
 
 void QPainter::rotate(double a)
 {
-    QWMatrix m;
+    QMatrix m;
     m.rotate(a);
     setWorldMatrix(m, true);
 }
@@ -1176,7 +1176,7 @@ void QPainter::resetXForm()
     d->state->wx = d->state->wy = d->state->vx = d->state->vy = 0;                        // default view origins
     d->state->ww = d->state->vw = d->device->metric(QPaintDeviceMetrics::PdmWidth);
     d->state->wh = d->state->vh = d->device->metric(QPaintDeviceMetrics::PdmHeight);
-    d->state->worldMatrix = QWMatrix();
+    d->state->worldMatrix = QMatrix();
     setWorldXForm(false);
     setViewXForm(false);
     if (d->engine)
@@ -1214,7 +1214,7 @@ void QPainter::resetXForm()
 void QPainter::translate(double dx, double dy)
 {
 #ifndef QT_NO_TRANSFORMATIONS
-    QWMatrix m;
+    QMatrix m;
     m.translate(dx, dy);
     setWorldMatrix(m, true);
 #else
@@ -1265,7 +1265,7 @@ void QPainter::setClipPath(const QPainterPath &path)
         return;
 
     if (d->engine->hasFeature(QPaintEngine::ClipTransform)) {
-        d->state->clipPathRegion = path.d_ptr->scanToBitmap(d->state->clipRegion.boundingRect(), QWMatrix(), 0);
+        d->state->clipPathRegion = path.d_ptr->scanToBitmap(d->state->clipRegion.boundingRect(), QMatrix(), 0);
     } else {
         d->state->clipPathRegion = path.d_ptr->scanToBitmap(d->state->clipRegion.boundingRect(),
                                                      d->state->matrix, 0);
@@ -1296,7 +1296,7 @@ void QPainter::drawPath(const QPainterPath &path)
     if (polygons.isEmpty())
         return;
 
-    QWMatrix worldMatrix = d->state->matrix;
+    QMatrix worldMatrix = d->state->matrix;
 
     save();
 
@@ -2457,10 +2457,10 @@ void QPainter::drawPixmap(const QRect &r, const QPixmap &pm, const QRect &sr, Qt
             source = pm;
         }
 
-        QWMatrix mat(d->state->matrix);
+        QMatrix mat(d->state->matrix);
         double scalex = w / (double)sw;
         double scaley = h / (double)sh;
-        mat = QWMatrix(scalex, 0, 0, scaley, 0, 0) * mat;
+        mat = QMatrix(scalex, 0, 0, scaley, 0, 0) * mat;
         mat = QPixmap::trueMatrix(mat, sw, sh);
         QPixmap pmx = source.xForm(mat);
         if (pmx.isNull())                        // xformed into nothing
@@ -2889,7 +2889,7 @@ void QPainter::fillRect(int x, int y, int w, int h, const QBrush &brush)
 
 void QPainter::updateXForm()
 {
-    QWMatrix m;
+    QMatrix m;
     if (d->state->VxF) {
         double scaleW = (double)d->state->vw/(double)d->state->ww;
         double scaleH = (double)d->state->vh/(double)d->state->wh;
@@ -2922,7 +2922,7 @@ void QPainter::updateXForm()
         d->state->WxF = true;
         // We want to translate in dev space so we do the adding of the redirection
         // offset manually.
-        d->state->matrix = QWMatrix(d->state->matrix.m11(), d->state->matrix.m12(),
+        d->state->matrix = QMatrix(d->state->matrix.m11(), d->state->matrix.m12(),
                               d->state->matrix.m21(), d->state->matrix.m22(),
                               d->state->matrix.dx()-d->redirection_offset.x(),
                               d->state->matrix.dy()-d->redirection_offset.y());
@@ -2945,7 +2945,7 @@ void QPainter::updateInvXForm()
     Q_ASSERT(d->txinv == false);
     d->txinv = true;                                // creating inverted matrix
     bool invertible;
-    QWMatrix m;
+    QMatrix m;
     if (d->state->VxF) {
         m.translate(d->state->vx, d->state->vy);
         m.scale(1.0*d->state->vw/d->state->ww, 1.0*d->state->vh/d->state->wh);
@@ -2965,7 +2965,7 @@ void QPainter::updateInvXForm()
     Returns the point \a p transformed from model coordinates to
     device coordinates.
 
-    \sa xFormDev(), QWMatrix::map()
+    \sa xFormDev(), QMatrix::map()
 */
 
 QPoint QPainter::xForm(const QPoint &p) const
@@ -2998,7 +2998,7 @@ QPoint QPainter::xForm(const QPoint &p) const
     If world transformation is enabled and rotation or shearing has
     been specified, then the bounding rectangle is returned.
 
-    \sa xFormDev(), QWMatrix::map()
+    \sa xFormDev(), QMatrix::map()
 */
 
 QRect QPainter::xForm(const QRect &r)        const
@@ -3032,7 +3032,7 @@ QRect QPainter::xForm(const QRect &r)        const
     Returns the point array \a a transformed from model coordinates
     to device coordinates.
 
-    \sa xFormDev(), QWMatrix::map()
+    \sa xFormDev(), QMatrix::map()
 */
 
 QPointArray QPainter::xForm(const QPointArray &a) const
@@ -3068,7 +3068,7 @@ QPointArray QPainter::xForm(const QPointArray &a) const
         b = painter.xForm(a, 2, -1); // b.size() == 8
     \endcode
 
-    \sa xFormDev(), QWMatrix::map()
+    \sa xFormDev(), QMatrix::map()
 */
 
 QPointArray QPainter::xForm(const QPointArray &av, int index, int npoints) const
@@ -3090,7 +3090,7 @@ QPointArray QPainter::xForm(const QPointArray &av, int index, int npoints) const
     Returns the point \a p transformed from device coordinates to
     model coordinates.
 
-    \sa xForm(), QWMatrix::map()
+    \sa xForm(), QMatrix::map()
 */
 
 QPoint QPainter::xFormDev(const QPoint &p) const
@@ -3116,7 +3116,7 @@ QPoint QPainter::xFormDev(const QPoint &p) const
     If world transformation is enabled and rotation or shearing is
     used, then the bounding rectangle is returned.
 
-    \sa xForm(), QWMatrix::map()
+    \sa xForm(), QMatrix::map()
 */
 
 QRect QPainter::xFormDev(const QRect &r)  const
@@ -3147,7 +3147,7 @@ QRect QPainter::xFormDev(const QRect &r)  const
     Returns the point array \a a transformed from device coordinates
     to model coordinates.
 
-    \sa xForm(), QWMatrix::map()
+    \sa xForm(), QMatrix::map()
 */
 
 QPointArray QPainter::xFormDev(const QPointArray &a) const
@@ -3188,7 +3188,7 @@ QPointArray QPainter::xFormDev(const QPointArray &a) const
         b = painter.xFormDev(a, 1, -1); // b.size() == 9
     \endcode
 
-    \sa xForm(), QWMatrix::map()
+    \sa xForm(), QMatrix::map()
 */
 
 QPointArray QPainter::xFormDev(const QPointArray &ad, int index, int npoints) const

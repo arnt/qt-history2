@@ -290,7 +290,7 @@ QBitmap &QBitmap::operator=(const QImage &image)
     \sa QPixmap::xForm()
 */
 
-QBitmap QBitmap::xForm(const QWMatrix &matrix) const
+QBitmap QBitmap::xForm(const QMatrix &matrix) const
 {
     QPixmap pm = QPixmap::xForm(matrix);
     QBitmap bm;

@@ -574,7 +574,7 @@ void QMacPrintEngine::updateBackground(Qt::BGMode bgmode, const QBrush &bgBrush)
     d->paintEngine->updateBackground(bgmode, bgBrush);
 }
 
-void QMacPrintEngine::updateXForm(const QWMatrix &matrix)
+void QMacPrintEngine::updateXForm(const QMatrix &matrix)
 {
     Q_ASSERT(d->state == QPrinter::Active);
     d->paintEngine->updateXForm(matrix);

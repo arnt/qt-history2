@@ -19,7 +19,7 @@
 #include "qpen.h"
 #include "qregion.h"
 #include "qvector.h"
-#include "qwmatrix.h"
+#include "qmatrix.h"
 
 #include "qpainter.h"
 #include "qpainterpath.h"
@@ -91,13 +91,13 @@ public:
     QBrush brush;
     QBrush bgBrush;             // background brush
     QRegion clipRegion;
-    QWMatrix clipRegionMatrix;
+    QMatrix clipRegionMatrix;
     QPainterPath clipPath;
     QRegion clipPathRegion;
-    QWMatrix clipPathMatrix;
+    QMatrix clipPathMatrix;
 #ifndef QT_NO_TRANSFORMATIONS
-    QWMatrix worldMatrix;       // World transformation matrix, not window and viewport
-    QWMatrix matrix;            // Complete transformation matrix, including win and view.
+    QMatrix worldMatrix;       // World transformation matrix, not window and viewport
+    QMatrix matrix;            // Complete transformation matrix, including win and view.
     int txop;
 #else
     int xlatex;
@@ -138,7 +138,7 @@ public:
     QVector<QPainterState*> states;
 
 #ifndef QT_NO_TRANSFORMATIONS
-    QWMatrix invMatrix;
+    QMatrix invMatrix;
     uint txinv:1;
 #endif
 

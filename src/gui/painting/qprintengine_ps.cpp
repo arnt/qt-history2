@@ -5650,7 +5650,7 @@ void QPSPrintEngine::updateBackground(Qt::BGMode bgMode, const QBrush &bgBrush)
         d->pageStream << "/OMo true d\n";
 }
 
-void QPSPrintEngine::updateXForm(const QWMatrix &matrix)
+void QPSPrintEngine::updateXForm(const QMatrix &matrix)
 {
     d->pageStream << "["
                   << matrix.m11() << ' ' << matrix.m12() << ' '

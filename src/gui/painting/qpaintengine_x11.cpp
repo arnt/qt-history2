@@ -1788,7 +1788,7 @@ void QX11PaintEngine::updateBackground(Qt::BGMode mode, const QBrush &bgBrush)
         updateBrush(d->cbrush, d->bg_origin);                        // update brush setting
 }
 
-void QX11PaintEngine::updateXForm(const QWMatrix &mtx)
+void QX11PaintEngine::updateXForm(const QMatrix &mtx)
 {
     if (mtx.m12() != 0 || mtx.m21() != 0)
         d->txop = QPainter::TxRotShear;

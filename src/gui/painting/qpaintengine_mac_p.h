@@ -83,13 +83,13 @@ public:
     enum { CGStroke=0x01, CGEOFill=0x02, CGFill=0x04 };
     void drawPath(uchar ops, CGMutablePathRef path = 0);
     inline CGRect adjustedRect(const QRect &r) {
-        const int adjustment = (current.pen.style() != Qt::NoPen 
+        const int adjustment = (current.pen.style() != Qt::NoPen
                                 && !(renderhints & QPainter::LineAntialiasing)) ? 1 : 0;
         return CGRectMake(r.x(), r.y() + adjustment,
                           r.width() - adjustment, r.height() - adjustment);
     }
     void setClip(const QRegion *rgn=0);
-    inline void setTransform(const QWMatrix *matrix=0)
+    inline void setTransform(const QMatrix *matrix=0)
     {
         CGContextConcatCTM(hd, CGAffineTransformInvert(CGContextGetCTM(hd)));
         CGContextConcatCTM(hd, orig_xform);

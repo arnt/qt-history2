@@ -346,7 +346,7 @@ struct XPThemeData
             rec = oldrec;
             p.end();
             if (flipped) {
-                QWMatrix m;
+                QMatrix m;
                 m.scale(1, -1);
                 pm = pm.xForm(m);
             }
@@ -390,7 +390,7 @@ struct XPThemeData
                 p.end();
                 rec = oldrec;
 
-                QWMatrix m;
+                QMatrix m;
                 m.scale(-1, 1);
                 pm = pm.xForm(m);
 

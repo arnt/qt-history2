@@ -1208,7 +1208,7 @@ bool QFontEngineXft::stringToCMap(const QChar *str, int len, QGlyphLayout *glyph
     return true;
 }
 
-static Q26Dot6Offset q_map(const QWMatrix &m, Q26Dot6Offset &pos)
+static Q26Dot6Offset q_map(const QMatrix &m, Q26Dot6Offset &pos)
 {
     Q26Dot6Offset ret;
     ret.x = m.m11()*pos.x + m.m21()*pos.y;

@@ -368,8 +368,8 @@ bool QWin32PaintEngine::begin(QPaintDevice *pdev)
     }
 
     // ### Workaround for the ellipse problem below...
-    updateXForm(QWMatrix(2, 0, 0, 2, 0, 0));
-    updateXForm(QWMatrix());
+    updateXForm(QMatrix(2, 0, 0, 2, 0, 0));
+    updateXForm(QMatrix());
 
     SetBkMode(d->hdc, TRANSPARENT);
     SetTextAlign(d->hdc, TA_BASELINE);
@@ -442,7 +442,7 @@ bool QWin32PaintEngine::end()
 
     d->hdc = 0;
 
-    d->matrix = QWMatrix();
+    d->matrix = QMatrix();
     d->penAlphaColor = false;
     d->brushAlphaColor = false;
     d->noNativeXform = false;
@@ -1138,7 +1138,7 @@ void QWin32PaintEngine::drawPixmap(const QRect &r, const QPixmap &pixmap, const 
                 QPainter p(&bm);
                 p.drawPixmap(QRect(0, 0, sr.width(), sr.height()), tmpbm, sr, Qt::CopyPixmapNoMask);
             }
-            QWMatrix xform = QWMatrix(r.width()/(double)sr.width(), 0,
+            QMatrix xform = QMatrix(r.width()/(double)sr.width(), 0,
                                       0, r.height()/(double)sr.height(),
                                       0, 0);
             bm = bm.xForm(xform);
@@ -1493,7 +1493,7 @@ void QWin32PaintEngine::updateBackground(Qt::BGMode mode, const QBrush &bgBrush)
 }
 
 
-void QWin32PaintEngine::updateXForm(const QWMatrix &mtx)
+void QWin32PaintEngine::updateXForm(const QMatrix &mtx)
 {
 #ifdef NO_NATIVE_XFORM
     return;
@@ -2361,7 +2361,7 @@ void QGdiplusPaintEngine::updateBackground(Qt::BGMode, const QBrush &)
 {
 }
 
-void QGdiplusPaintEngine::updateXForm(const QWMatrix &qm)
+void QGdiplusPaintEngine::updateXForm(const QMatrix &qm)
 {
 //     Matrix m(qm.m11(), qm.m12(), qm.m21(), qm.m22(), qm.dx(), qm.dy());
 //     d->graphics->SetTransform(&m);

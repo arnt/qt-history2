@@ -263,7 +263,7 @@ void QWSPaintEngine::updateBackground(Qt::BGMode mode, const QBrush &bgBrush)
 {
 //    qDebug("QWSPaintEngine::updateBackground");
 }
-void QWSPaintEngine::updateXForm(const QWMatrix &)
+void QWSPaintEngine::updateXForm(const QMatrix &)
 {
 //    qDebug("QWSPaintEngine::updateXForm");
 }

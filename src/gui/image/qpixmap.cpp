@@ -452,10 +452,10 @@ QPixmap &QPixmap::operator=(const QImage &image)
     This function returns the modified matrix, which maps points
     correctly from the original pixmap into the new pixmap.
 
-    \sa xForm(), QWMatrix
+    \sa xForm(), QMatrix
 */
 #ifndef QT_NO_PIXMAP_TRANSFORMATION
-QWMatrix QPixmap::trueMatrix(const QWMatrix &m, int w, int h)
+QMatrix QPixmap::trueMatrix(const QMatrix &m, int w, int h)
 {
     return QImage::trueMatrix(m, w, h);
 }

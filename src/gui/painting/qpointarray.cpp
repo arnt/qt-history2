@@ -14,7 +14,7 @@
 #include "qpointarray.h"
 #include "qrect.h"
 #include "qdatastream.h"
-#include "qwmatrix.h"
+#include "qmatrix.h"
 #include "qdebug.h"
 #include <stdarg.h>
 
@@ -36,7 +36,7 @@ const double Q_PI = 3.14159265358979323846;
     setPoints(), putPoints(), point(), and setPoint().
 
     For geometry operations use boundingRect() and translate(). There
-    is also the QWMatrix::map() function for more general
+    is also the QMatrix::map() function for more general
     transformations of QPointArrays. You can also create arcs and
     ellipses with makeArc() and makeEllipse().
 
@@ -44,7 +44,7 @@ const double Q_PI = 3.14159265358979323846;
     QPainter::drawPolyline(), QPainter::drawPolygon() and
     QPainter::drawCubicBezier().
 
-    \sa QPainter QWMatrix QVector
+    \sa QPainter QMatrix QVector
 */
 
 
@@ -373,7 +373,7 @@ static inline int fix_angle(int a)
     ellipse with size, width \a w by height \a h, and position (\a x,
     \a y), starting from angle \a a1 and spanning by angle \a a2. The
     resulting array has sufficient resolution for pixel accuracy (see
-    the overloaded function which takes an additional QWMatrix
+    the overloaded function which takes an additional QMatrix
     parameter).
 
     Angles are specified in 16ths of a degree, i.e. a full circle
@@ -386,7 +386,7 @@ static inline int fix_angle(int a)
 #ifndef QT_NO_WMATRIX
 void QPointArray::makeArc(int x, int y, int w, int h, int a1, int a2)
 {
-    QWMatrix unit;
+    QMatrix unit;
     makeArc(x, y, w, h, a1, a2, unit);
 }
 #endif
@@ -462,7 +462,7 @@ static void qtr_elips(QPointArray& a, int off, double dxP, double dyP, double dx
 
     See the \link qcanvas.html#anglediagram angle diagram\endlink.
 */
-void QPointArray::makeArc(int x, int y, int w, int h, int a1, int a2, const QWMatrix &xf)
+void QPointArray::makeArc(int x, int y, int w, int h, int a1, int a2, const QMatrix &xf)
 {
 #define PIV2  102944     // fixed point PI / 2
     if (--w < 0 || --h < 0 || !a2) {
@@ -554,7 +554,7 @@ void QPointArray::makeArc(int x, int y, int w, int h, int a1, int a2, const QWMa
 void QPointArray::makeEllipse(int x, int y, int w, int h)
 {                                                // midpoint, 1/4 ellipse
 #if !defined(QT_OLD_MAKEELLIPSE) && !defined(QT_NO_TRANSFORMATIONS)
-    QWMatrix unit;
+    QMatrix unit;
     makeArc(x, y, w, h, 0, 360 * 16, unit);
     return;
 #else

@@ -1256,7 +1256,7 @@ void QSvgDevice::setTransform(const QString &tr)
             double m[6];
             for (int i = 0; i < 6; i++)
                 m[i] = plist[i].toDouble();
-            QWMatrix wm(m[0], m[1], m[2],
+            QMatrix wm(m[0], m[1], m[2],
                          m[3], m[4], m[5]);
             pt->setWorldMatrix(wm, true);
         } else if (command == "skewX") {
@@ -1498,7 +1498,7 @@ void QSvgDevice::applyStyle(QDomElement *e, int c) const
 
 void QSvgDevice::applyTransform(QDomElement *e) const
 {
-    QWMatrix m = pt->worldMatrix();
+    QMatrix m = pt->worldMatrix();
 
     QString s;
     bool rot = (m.m11() != 1.0 || m.m12() != 0.0 ||

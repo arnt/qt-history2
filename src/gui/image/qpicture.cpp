@@ -437,10 +437,10 @@ bool QPicture::exec(QPainter *painter, QDataStream &s, int nrecords)
     QBrush        brush;
     QRegion        rgn;
 #ifndef QT_NO_TRANSFORMATIONS
-    QWMatrix        matrix;
+    QMatrix        matrix;
 #endif
 
-    QWMatrix worldMatrix = painter->worldMatrix();
+    QMatrix worldMatrix = painter->worldMatrix();
 
     while (nrecords-- && !s.eof()) {
         s >> c;                                        // read cmd

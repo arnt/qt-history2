@@ -22,6 +22,7 @@
 #include "qlist.h"
 #include "qlinkedlist.h"
 #include "qpointarray.h"
+#include "qwmatrix.h"
 #endif // QT_H
 
 #ifndef QT_NO_CANVAS

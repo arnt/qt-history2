@@ -10,10 +10,10 @@ Requires:
 Name: Wheel-mouse events
 SeeAlso: ???
 
-Feature: WMATRIX
+Feature: MATRIX
 Section: Data structures
 Requires:
-Name: QWMatrix
+Name: QMatrix
 SeeAlso: ???
 
 Feature: STL

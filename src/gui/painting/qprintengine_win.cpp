@@ -209,7 +209,7 @@ void QWin32PrintEngine::updateClipRegion(const QRegion &clipRegion, bool clipEna
             xoff = - GetDeviceCaps(d->hdc, PHYSICALOFFSETX);
             yoff = - GetDeviceCaps(d->hdc, PHYSICALOFFSETY);
 	}
-	QRegion rgn = QWMatrix(xscale, 0, 0, yscale, xoff, yoff) * clipRegion;
+	QRegion rgn = QMatrix(xscale, 0, 0, yscale, xoff, yoff) * clipRegion;
 	if (rgn.isEmpty())
             rgn = QRect(-0x1000000, -0x1000000, 1, 1);
         SelectClipRgn(d->hdc, rgn.handle());
@@ -453,7 +453,7 @@ void QWin32PrintEngine::drawPixmap(const QRect &targetRect,
 {
     bool oldNoNativeXForm = d->noNativeXform;
     d->noNativeXform = true;
-    updateXForm(QWMatrix(1, 0, 0, 1, 0, 0));
+    updateXForm(QMatrix(1, 0, 0, 1, 0, 0));
 
     QPixmap pixmap = originalPixmap;
     if (sr.x()!=0 || sr.y() != 0 || sr.size() != originalPixmap.size()) {
@@ -500,7 +500,7 @@ void QWin32PrintEngine::drawPixmap(const QRect &targetRect,
         bool complexWxf = FALSE;
 #endif
         if ( wxf ) {
-            QWMatrix m = paint->worldMatrix();
+            QMatrix m = paint->worldMatrix();
 #ifndef QT_NO_IMAGE_TRANSFORMATION
             complexWxf = m.m12() != 0 || m.m21() != 0;
             if ( complexWxf ) {
@@ -509,7 +509,7 @@ void QWin32PrintEngine::drawPixmap(const QRect &targetRect,
                 // When have to scale the image according to the rectangle before
                 // the rotation takes place to avoid shearing the image.
                 if (rect.width() != image.width() || rect.height() != image.height()) {
-                    m = QWMatrix( rect.width()/(double)image.width(), 0,
+                    m = QMatrix( rect.width()/(double)image.width(), 0,
                                   0, rect.height()/(double)image.height(),
                                   0, 0 ) * m;
                 }
@@ -536,7 +536,7 @@ void QWin32PrintEngine::drawPixmap(const QRect &targetRect,
                 QPoint p1 = QPixmap::trueMatrix( m, origW, origH ) * QPoint(0,0);
                 QPoint p2 = paint->worldMatrix() * pos;
                 p1 = p2 - p1 - pos;
-                paint->setWorldMatrix( QWMatrix( 1, 0, 0, 1, p1.x(), p1.y() ) );
+                paint->setWorldMatrix( QMatrix( 1, 0, 0, 1, p1.x(), p1.y() ) );
             } else
 #endif
                 {
@@ -577,7 +577,7 @@ void QWin32PrintEngine::drawPixmap(const QRect &targetRect,
         xs = dw/(double)image.width();
         ys = dh/(double)image.height();
         if( xs!=1 || ys!=1 )
-            bm = bm.xForm( QWMatrix( xs, 0, 0, ys, 0, 0 ) );
+            bm = bm.xForm( QMatrix( xs, 0, 0, ys, 0, 0 ) );
         QRegion r( bm );
         r.translate( pos.x(), pos.y() );
         if ( paint->hasClipping() )

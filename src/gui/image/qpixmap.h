@@ -87,8 +87,8 @@ public:
                               int x=0, int y=0, int w=-1, int h=-1);
 
 #ifndef QT_NO_PIXMAP_TRANSFORMATION
-    QPixmap xForm(const QWMatrix &) const;
-    static QWMatrix trueMatrix(const QWMatrix &m, int w, int h);
+    QPixmap xForm(const QMatrix &) const;
+    static QMatrix trueMatrix(const QMatrix &m, int w, int h);
 #endif
 
     QImage convertToImage() const;

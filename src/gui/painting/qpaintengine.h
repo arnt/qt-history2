@@ -90,7 +90,7 @@ public:
     virtual void updateBrush(const QBrush &brush, const QPoint &origin) = 0;
     virtual void updateFont(const QFont &font) = 0;
     virtual void updateBackground(Qt::BGMode bgmode, const QBrush &bgBrush) = 0;
-    virtual void updateXForm(const QWMatrix &matrix) = 0;
+    virtual void updateXForm(const QMatrix &matrix) = 0;
     virtual void updateClipRegion(const QRegion &region, bool enabled) = 0;
     virtual void updateRenderHints(QPainter::RenderHints hints);
     virtual void updateClipPath(const QPainterPath &path, bool enabled);

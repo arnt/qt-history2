@@ -35,7 +35,6 @@
 #include "qtoolbutton.h"
 #include "qtooltip.h"
 #include "qvbox.h"
-#include "qwmatrix.h"
 #include <private/qtitlebar_p.h>
 #include <private/qwidget_p.h>
 #include <private/qwidgetresizehandler_p.h>

@@ -18,7 +18,7 @@
 #include <private/qobject_p.h>
 #include <qlist.h>
 #include <qpointarray.h>
-#include <qwmatrix.h>
+#include <qmatrix.h>
 #include <qvarlengtharray.h>
 
 #include <qdebug.h>
@@ -129,7 +129,7 @@ void QPainterSubpath::addArc(const QRect &rect, int angle, int alen)
 }
 
 
-QPointArray QPainterSubpath::toPolygon(const QWMatrix &matrix) const
+QPointArray QPainterSubpath::toPolygon(const QMatrix &matrix) const
 {
     if (elements.isEmpty())
         return QPointArray();
@@ -174,7 +174,7 @@ QPointArray QPainterSubpath::toPolygon(const QWMatrix &matrix) const
 
   Converts all the curves in the path to linear polylines.
 */
-QList<QPointArray> QPainterPathPrivate::flatten(const QWMatrix &matrix)
+QList<QPointArray> QPainterPathPrivate::flatten(const QMatrix &matrix)
 {
     QList<QPointArray> flatCurves;
     if (!flatCurves.isEmpty() || subpaths.isEmpty())
@@ -247,7 +247,7 @@ static inline void qt_painterpath_setbits(int from, int to, uchar *scanLine, uin
   fill rule..
 */
 QBitmap QPainterPathPrivate::scanToBitmap(const QRect &clipRect,
-                                          const QWMatrix &xform,
+                                          const QMatrix &xform,
                                           QRect *boundingRect)
 {
     QList<QPointArray> flatCurves = flatten(xform);
@@ -623,7 +623,7 @@ QRect QPainterPath::boundingRect() const
         return QRect();
     QRect rect;
     for (int j=0; j<d->subpaths.size(); ++j) {
-        QPointArray pa = d->subpaths.at(j).toPolygon(QWMatrix());
+        QPointArray pa = d->subpaths.at(j).toPolygon(QMatrix());
         rect |= pa.boundingRect();
     }
     return rect;

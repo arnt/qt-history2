@@ -14,7 +14,7 @@
 #include "qbitmap.h"
 #include "qimage.h"
 #include "qpaintdevicemetrics.h"
-#include "qwmatrix.h"
+#include "qmatrix.h"
 #include "qapplication.h"
 #include <private/qapplication_p.h>
 #include "qt_windows.h"
@@ -939,7 +939,7 @@ QPixmap QPixmap::grabWindow(WId window, int x, int y, int w, int h)
 }
 
 
-QPixmap QPixmap::xForm(const QWMatrix &matrix) const
+QPixmap QPixmap::xForm(const QMatrix &matrix) const
 {
     int           w, h;                                // size of target pixmap
     int           ws, hs;                                // size of source pixmap
@@ -956,7 +956,7 @@ QPixmap QPixmap::xForm(const QWMatrix &matrix) const
     ws = width();
     hs = height();
 
-    QWMatrix mat(matrix.m11(), matrix.m12(), matrix.m21(), matrix.m22(), 0., 0.);
+    QMatrix mat(matrix.m11(), matrix.m12(), matrix.m21(), matrix.m22(), 0., 0.);
 
     if (matrix.m12() == 0.0F  && matrix.m21() == 0.0F &&
          matrix.m11() >= 0.0F  && matrix.m22() >= 0.0F) {

@@ -120,7 +120,7 @@ public:
     QPen cpen;
     QBrush cbrush;
     QFont cfont;
-    QWMatrix worldMatrix;
+    QMatrix worldMatrix;
     const QPaintDevice *dev;
     int wwidth;
     int wheight;
@@ -723,7 +723,7 @@ void QSVGPaintEnginePrivate::applyStyle(QDomElement *e, PaintCommand c) const
 
 void QSVGPaintEnginePrivate::applyTransform(QDomElement *e) const
 {
-    QWMatrix m = d->worldMatrix;
+    QMatrix m = d->worldMatrix;
 
     QString s;
     bool rot = (m.m11() != 1.0 || m.m12() != 0.0 ||
@@ -1191,8 +1191,7 @@ void QSVGPaintEnginePrivate::setTransform(const QString &tr, QPainter *pt)
             double m[6];
             for (int i = 0; i < 6; i++)
                 m[i] = plist[i].toDouble();
-            QWMatrix wm(m[0], m[1], m[2],
-                         m[3], m[4], m[5]);
+            QMatrix wm(m[0], m[1], m[2], m[3], m[4], m[5]);
             pt->setWorldMatrix(wm, true);
         } else if (command == "skewX") {
             pt->shear(0.0, tan(plist[0].toDouble() * deg2rad));

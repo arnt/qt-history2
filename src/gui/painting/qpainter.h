@@ -24,7 +24,7 @@
 #include "qpointarray.h"
 #include "qpen.h"
 #include "qbrush.h"
-#include "qwmatrix.h"
+#include "qmatrix.h"
 #include "qfontinfo.h"
 #include "qfontmetrics.h"
 #endif
@@ -38,7 +38,7 @@ class QPainterPrivate;
 class QPen;
 class QPointArray;
 class QTextItem;
-class QWMatrix;
+class QMatrix;
 
 class Q_GUI_EXPORT QPainter
 {
@@ -105,8 +105,8 @@ public:
     void restore();
 
 #ifndef QT_NO_TRANSFORMATIONS
-    void setWorldMatrix(const QWMatrix &wm, bool combine=false);
-    const QWMatrix &worldMatrix() const;
+    void setWorldMatrix(const QMatrix &wm, bool combine=false);
+    const QMatrix &worldMatrix() const;
     void setWorldXForm(bool enable);
 
     void setViewXForm(bool enable);

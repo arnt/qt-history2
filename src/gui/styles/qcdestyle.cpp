@@ -235,7 +235,7 @@ void QCDEStyle::drawPrimitive(PrimitiveElement pe,
         QPointArray bTop;                           // top shadow.
         QPointArray bBot;                           // bottom shadow.
         QPointArray bLeft;                          // left shadow.
-        QWMatrix    matrix;                         // xform matrix
+        QMatrix    matrix;                         // xform matrix
         bool vertical = pe == PE_ArrowUp || pe == PE_ArrowDown;
         bool horizontal = !vertical;
         int  dim = rect.width() < rect.height() ? rect.width() : rect.height();
@@ -329,7 +329,7 @@ void QCDEStyle::drawPrimitive(PrimitiveElement pe,
 
         QPen     savePen   = p->pen();              // save current pen
         QBrush   saveBrush = p->brush();            // save current brush
-        QWMatrix wxm = p->worldMatrix();
+        QMatrix wxm = p->worldMatrix();
         QPen     pen(Qt::NoPen);
         QBrush brush = pal.brush(flags & Style_Enabled ? QPalette::Button :
                                   QPalette::Mid);

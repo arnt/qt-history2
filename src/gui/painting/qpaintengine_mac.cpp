@@ -228,7 +228,7 @@ QQuickDrawPaintEngine::updateBackground(Qt::BGMode mode, const QBrush &bgBrush)
 }
 
 void
-QQuickDrawPaintEngine::updateXForm(const QWMatrix &)
+QQuickDrawPaintEngine::updateXForm(const QMatrix &)
 {
 }
 
@@ -1271,7 +1271,7 @@ QCoreGraphicsPaintEngine::updateBackground(Qt::BGMode mode, const QBrush &brush)
 }
 
 void
-QCoreGraphicsPaintEngine::updateXForm(const QWMatrix &matrix)
+QCoreGraphicsPaintEngine::updateXForm(const QMatrix &matrix)
 {
     Q_ASSERT(isActive());
     d->setTransform(matrix.isIdentity() ? 0 : &matrix);
@@ -1571,7 +1571,7 @@ QCoreGraphicsPaintEngine::drawCubicBezier(const QPointArray &pa, int index)
 #endif
 
 void
-QCoreGraphicsPaintEngine::drawPixmap(const QRect &r, const QPixmap &pm, const QRect &sr, 
+QCoreGraphicsPaintEngine::drawPixmap(const QRect &r, const QPixmap &pm, const QRect &sr,
                                      Qt::PixmapDrawingMode mode)
 {
     Q_ASSERT(isActive());

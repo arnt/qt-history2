@@ -177,12 +177,12 @@ void QFontEngineWin::draw(QPainter *p, int x, int y, const QTextItem &si, int te
             int w=bbox.width(), h=bbox.height();
             int aw = w, ah = h;
             int tx=-bbox.x(),  ty=-bbox.y();    // text position
-            QWMatrix mat1 = p->xmat;
+            QMatrix mat1 = p->xmat;
             if (aw == 0 || ah == 0)
                 return;
             double rx = (double)w / (double)aw;
             double ry = (double)h / (double)ah;
-            QWMatrix mat2 = QPixmap::trueMatrix(QWMatrix(rx, 0, 0, ry, 0, 0)*mat1, aw, ah);
+            QMatrix mat2 = QPixmap::trueMatrix(QMatrix(rx, 0, 0, ry, 0, 0)*mat1, aw, ah);
 
             QBitmap bm(aw, ah, true);
             QPainter paint;

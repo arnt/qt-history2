@@ -383,7 +383,7 @@ void QOpenGLPaintEngine::updateBackground(Qt::BGMode bgMode, const QBrush &bgBru
     d->bgbrush = bgBrush;
 }
 
-void QOpenGLPaintEngine::updateXForm(const QWMatrix &mtx)
+void QOpenGLPaintEngine::updateXForm(const QMatrix &mtx)
 {
     GLfloat mat[4][4];
 

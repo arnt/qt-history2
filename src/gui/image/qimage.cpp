@@ -25,7 +25,7 @@
 #include <private/qfactoryloader_p.h>
 #include <private/qcolor_p.h>
 #include "qcoreapplication.h"
-#include "qwmatrix.h"
+#include "qmatrix.h"
 #include "qimageformatplugin.h"
 #include "qmutex.h"
 #include <ctype.h>
@@ -2695,7 +2695,7 @@ QImage QImage::scale(const QSize& s, Qt::ScaleMode mode) const
         return copy();
 
     QImage img;
-    QWMatrix wm;
+    QMatrix wm;
     wm.scale((double)newSize.width() / width(), (double)newSize.height() / height());
     img = xForm(wm);
     return img;
@@ -2722,7 +2722,7 @@ QImage QImage::scaleWidth(int w) const
     if (w <= 0)
         return QImage();
 
-    QWMatrix wm;
+    QMatrix wm;
     double factor = (double) w / width();
     wm.scale(factor, factor);
     return xForm(wm);
@@ -2749,7 +2749,7 @@ QImage QImage::scaleHeight(int h) const
     if (h <= 0)
         return QImage();
 
-    QWMatrix wm;
+    QMatrix wm;
     double factor = (double) h / height();
     wm.scale(factor, factor);
     return xForm(wm);
@@ -2769,17 +2769,17 @@ QImage QImage::scaleHeight(int h) const
     This function returns the modified matrix, which maps points
     correctly from the original image into the new image.
 
-    \sa xForm(), QWMatrix
+    \sa xForm(), QMatrix
 */
 #ifndef QT_NO_PIXMAP_TRANSFORMATION
-QWMatrix QImage::trueMatrix(const QWMatrix &matrix, int w, int h)
+QMatrix QImage::trueMatrix(const QMatrix &matrix, int w, int h)
 {
     const double dt = (double)0.;
     double x1,y1, x2,y2, x3,y3, x4,y4;                // get corners
     double xx = (double)w;
     double yy = (double)h;
 
-    QWMatrix mat(matrix.m11(), matrix.m12(), matrix.m21(), matrix.m22(), 0., 0.);
+    QMatrix mat(matrix.m11(), matrix.m12(), matrix.m21(), matrix.m22(), 0., 0.);
 
     mat.map(dt, dt, &x1, &y1);
     mat.map(xx, dt, &x2, &y2);
@@ -2822,10 +2822,10 @@ QWMatrix QImage::trueMatrix(const QWMatrix &matrix, int w, int h)
     for unwanted translation, i.e. xForm() returns the smallest image
     that contains all the transformed points of the original image.
 
-    \sa scale() QPixmap::xForm() QPixmap::trueMatrix() QWMatrix
+    \sa scale() QPixmap::xForm() QPixmap::trueMatrix() QMatrix
 */
 #ifndef QT_NO_IMAGE_TRANSFORMATION
-QImage QImage::xForm(const QWMatrix &matrix) const
+QImage QImage::xForm(const QMatrix &matrix) const
 {
     // This function uses the same algorithm as (and steals quite some
     // code from) QPixmap::xForm().
@@ -2851,7 +2851,7 @@ QImage QImage::xForm(const QWMatrix &matrix) const
     int bpp = depth();
 
     // compute size of target image
-    QWMatrix mat = trueMatrix(matrix, ws, hs);
+    QMatrix mat = trueMatrix(matrix, ws, hs);
     if (mat.m12() == 0.0F && mat.m21() == 0.0F) {
         if (mat.m11() == 1.0F && mat.m22() == 1.0F) // identity matrix
             return copy();
@@ -6359,11 +6359,10 @@ QGfx * QImage::graphicsContext()
                         trigx += m11;                                                      \
                         trigy += m12;
         // END OF MACRO
-bool qt_xForm_helper(const QWMatrix &trueMat, int xoffset,
-        int type, int depth,
-        uchar *dptr, int dbpl, int p_inc, int dHeight,
-        uchar *sptr, int sbpl, int sWidth, int sHeight
-       )
+bool qt_xForm_helper(const QMatrix &trueMat, int xoffset, int type, int depth,
+                     uchar *dptr, int dbpl, int p_inc, int dHeight,
+                     uchar *sptr, int sbpl, int sWidth, int sHeight
+    )
 {
     int m11 = (int)(trueMat.m11()*65536.0);
     int m12 = (int)(trueMat.m12()*65536.0);

@@ -32,7 +32,7 @@
 #include "qbitmap.h"
 #include "qpaintdevicemetrics.h"
 #include "qimage.h"
-#include "qwmatrix.h"
+#include "qmatrix.h"
 #include "qapplication.h"
 #include "private/qpaintengine_x11_p.h"
 #include "qpaintengine_x11.h"
@@ -1628,10 +1628,10 @@ QPixmap QPixmap::grabWindow(WId window, int x, int y, int w, int h)
     QImage, non-trivial computations and a transformation back to a
     QPixmap.
 
-    \sa trueMatrix(), QWMatrix, QPainter::setWorldMatrix() QImage::xForm()
+    \sa trueMatrix(), QMatrix, QPainter::setWorldMatrix() QImage::xForm()
 */
 
-QPixmap QPixmap::xForm(const QWMatrix &matrix) const
+QPixmap QPixmap::xForm(const QMatrix &matrix) const
 {
     int           w = 0;
     int           h = 0;                                // size of target pixmap
@@ -1650,7 +1650,7 @@ QPixmap QPixmap::xForm(const QWMatrix &matrix) const
     ws = width();
     hs = height();
 
-    QWMatrix mat(matrix.m11(), matrix.m12(), matrix.m21(), matrix.m22(), 0., 0.);
+    QMatrix mat(matrix.m11(), matrix.m12(), matrix.m21(), matrix.m22(), 0., 0.);
 
     if (matrix.m12() == 0.0F && matrix.m21() == 0.0F) {
         if (matrix.m11() == 1.0F && matrix.m22() == 1.0F)

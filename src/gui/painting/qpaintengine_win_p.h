@@ -142,7 +142,7 @@ public:
     QPen pen;
     Qt::BGMode bgMode;
 
-    QWMatrix matrix;
+    QMatrix matrix;
     QPainter::TransformationCodes txop;
 
     /*!
