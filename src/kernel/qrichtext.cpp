@@ -2195,10 +2195,13 @@ void QTextString::insert( int index, const QString &s, QTextFormat *f )
 QTextString::~QTextString()
 {
     for ( int i = 0; i < (int)data.count(); ++i ) {
-	if ( data[ i ].isCustom )
+	if ( data[ i ].isCustom ) {
 	    delete data[ i ].customItem();
-	else if ( data[ i ].format() )
+	    delete (Char::CharData*)data[ i ].d;
+	    data[ i ].d = 0;
+	} else if ( data[ i ].format() ) {
 	    data[ i ].format()->removeRef();
+	}
     }
 }
 
