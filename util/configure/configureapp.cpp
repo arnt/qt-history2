@@ -1283,7 +1283,7 @@ void Configure::generateConfigfiles()
 	outStream << "\t\t\t\tVALUE \"FileDescription\", \"Qt\\0\"" << endl;
 	outStream << "\t\t\t\tVALUE \"FileVersion\", \"" << prodVer << ",1\\0\"" << endl;
 	outStream << "\t\t\t\tVALUE \"InternalName\", \"" << internalName << "\\0\"" << endl;
-	outStream << "\t\t\t\tVALUE \"LegalCopyright\", \"Copyright (C) 2003 Trolltech\\0\"" << endl;
+	outStream << "\t\t\t\tVALUE \"LegalCopyright\", \"Copyright (C) 2003-2004 Trolltech\\0\"" << endl;
 	outStream << "\t\t\t\tVALUE \"LegalTrademarks\", \"\\0\"" << endl;
 	outStream << "\t\t\t\tVALUE \"OriginalFilename\", \"" << prodFile << "\\0\"" << endl;
 	outStream << "\t\t\t\tVALUE \"ProductName\", \"Qt\\0\"" << endl;
@@ -1542,14 +1542,14 @@ void Configure::generateMakefiles()
 			continue;
 		    if( dictionary[ "DEPENDENCIES" ] == "no" )
 			args << "-nodepend";
-		    args << "-spec";
-		    args << dictionary[ "QMAKESPEC" ];
 		    args << "-tp vc";
 		} else {
 		    cout << "For " << projectName.latin1() << endl;
 		    args << "-o";
 		    args << makefileName;
 		}
+		args << "-spec";
+		args << dictionary[ "QMAKESPEC" ];
 
 		QDir::setCurrent( QDir::convertSeparators( dirPath ) );
 		if( int r = system( args.join( " " ).latin1() ) ) {
