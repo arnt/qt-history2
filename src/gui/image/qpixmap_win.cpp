@@ -391,6 +391,70 @@ void QPixmap::fill(const QColor &fillColor)
     releaseDC(dc);
 }
 
+QPixmap QPixmap::alphaChannel() const
+{
+    if (!hasAlphaChannel())
+        return QPixmap();
+    // ################### PIXMAP
+}
+
+void setAlphaChannel(const QPixmap &alpha)
+{
+    // ############ PIXMAP
+}
+
+QBitmap QPixmap::mask() const
+{
+    return data->mask ? *data->mask : QBitmap();
+}
+
+void QPixmap::setMask(const QBitmap &newmask)
+{
+    // ##################### PIXMAP
+#if 0
+    const QPixmap *tmp = &newmask;                // dec cxx bug
+    if (data == tmp->data) {
+        QPixmap m = tmp->copy();
+        setMask(*((QBitmap*)&m));
+        data->selfmask = true;                        // mask == pixmap
+        return;
+    }
+
+    if (newmask.isNull()) {                        // reset the mask
+        if (data->mask) {
+            detach();
+            data->selfmask = false;
+
+            delete data->mask;
+            data->mask = 0;
+        }
+        return;
+    }
+
+    detach();
+    data->selfmask = false;
+
+    if (newmask.width() != width() || newmask.height() != height()) {
+        qWarning("QPixmap::setMask: The pixmap and the mask must have the same size");
+        return;
+    }
+#if defined(Q_WS_MAC)
+    // when setting the mask, we get rid of the alpha channel completely
+    data->macQDDisposeAlpha();
+#endif
+
+    delete data->mask;
+    QBitmap* newmaskcopy;
+    if (newmask.mask())
+        newmaskcopy = (QBitmap*)new QPixmap(tmp->copy());
+    else
+        newmaskcopy = new QBitmap(newmask);
+#ifdef Q_WS_X11
+    newmaskcopy->x11SetScreen(data->xinfo.screen());
+#endif
+    data->mask = newmaskcopy;
+#endif
+}
 
 int QPixmap::metric(PaintDeviceMetric m) const
 {

@@ -453,6 +453,111 @@ void QPixmap::fill(const QColor &fillColor)
     XFreeGC(data->xinfo.display(), gc);
 }
 
+/*!
+  Returns the alpha channel of the pixmap. If the pixmap doesn't have an
+  alpha channel a null pixmap is returned.
+
+  \sa hasAlphaChannel setAlphaChannel
+*/
+QPixmap QPixmap::alphaChannel() const
+{
+    if (!hasAlphaChannel())
+        return QPixmap();
+    // ################### PIXMAP
+}
+
+/*!
+  Sets the alpha channel of this pixmap to \a alpha. Overwrites any previous
+  alpha channel that was set on the pixmap.
+ */
+void setAlphaChannel(const QPixmap &alpha)
+{
+    // ############ PIXMAP
+}
+
+
+/*!
+    \fn QBitmap QPixmap::mask() const
+
+    Returns the mask, or a null bitmap if no mask has been set.
+
+    \sa setMask(), QBitmap, hasAlpha()
+*/
+QBitmap QPixmap::mask() const
+{
+    return data->mask ? *data->mask : QBitmap();
+}
+
+
+/*!
+    Sets a mask bitmap.
+
+    The \a newmask bitmap defines the clip mask for this pixmap. Every
+    pixel in \a newmask corresponds to a pixel in this pixmap. Pixel
+    value 1 means opaque and pixel value 0 means transparent. The mask
+    must have the same size as this pixmap.
+
+    \warning Setting the mask on a pixmap will cause any alpha channel
+    data to be cleared. For example:
+    \code
+        QPixmap alpha("image-with-alpha.png");
+        QPixmap alphacopy = alpha;
+        alphacopy.setMask(*alphacopy.mask());
+    \endcode
+    Now, alpha and alphacopy are visually different.
+
+    Setting a \link isNull() null\endlink mask resets the mask.
+
+    \sa mask(), createHeuristicMask(), QBitmap
+*/
+
+void QPixmap::setMask(const QBitmap &newmask)
+{
+    // ##################### PIXMAP
+#if 0
+    const QPixmap *tmp = &newmask;                // dec cxx bug
+    if (data == tmp->data) {
+        QPixmap m = tmp->copy();
+        setMask(*((QBitmap*)&m));
+        data->selfmask = true;                        // mask == pixmap
+        return;
+    }
+
+    if (newmask.isNull()) {                        // reset the mask
+        if (data->mask) {
+            detach();
+            data->selfmask = false;
+
+            delete data->mask;
+            data->mask = 0;
+        }
+        return;
+    }
+
+    detach();
+    data->selfmask = false;
+
+    if (newmask.width() != width() || newmask.height() != height()) {
+        qWarning("QPixmap::setMask: The pixmap and the mask must have the same size");
+        return;
+    }
+#if defined(Q_WS_MAC)
+    // when setting the mask, we get rid of the alpha channel completely
+    data->macQDDisposeAlpha();
+#endif
+
+    delete data->mask;
+    QBitmap* newmaskcopy;
+    if (newmask.mask())
+        newmaskcopy = (QBitmap*)new QPixmap(tmp->copy());
+    else
+        newmaskcopy = new QBitmap(newmask);
+#ifdef Q_WS_X11
+    newmaskcopy->x11SetScreen(data->xinfo.screen());
+#endif
+    data->mask = newmaskcopy;
+#endif
+}
 
 /*!
   Internal implementation of the virtual QX11Info::metric() function.
