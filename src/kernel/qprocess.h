@@ -91,9 +91,10 @@ public slots:
     void dataStdin( const QString& buf );
     void closeStdin();
 
-public:
+protected:
     void connectNotify( const char * signal );
     void disconnectNotify( const char * signal );
+private:
     void setIoRedirection( bool value );
     void setNotifyOnExit( bool value );
     void setWroteStdinConnected( bool value );

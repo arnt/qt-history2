@@ -214,7 +214,7 @@ void QProcess::dataStdin( const QString& buf )
  * They are needed, if you are interested in the signals. So use
  * connectNotify() and disconnectNotify() to keep track of your interest.
  */
-/*!  \reimpl
+/*!  \reimp
 */
 void QProcess::connectNotify( const char * signal )
 {
@@ -249,7 +249,7 @@ void QProcess::connectNotify( const char * signal )
     }
 }
 
-/*!  \reimpl
+/*!  \reimp
 */
 void QProcess::disconnectNotify( const char * )
 {
