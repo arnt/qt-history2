@@ -4350,7 +4350,8 @@ void QTextEdit::pasteSubType( const QCString& subtype )
 {
     QCString st = subtype;
     QString t = QApplication::clipboard()->text( st, d->clipboard_mode );
-    removeSelection( QTextDocument::Standard );
+    if ( doc->hasSelection( QTextDocument::Standard ) )
+	removeSelectedText();
     if ( !t.isEmpty() ) {
 	if ( t.startsWith( "<selstart/>" ) ) {
 	    t.remove( 0, 11 );
