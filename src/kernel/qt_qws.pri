@@ -51,7 +51,6 @@ embedded {
 		    $$KERNEL_CPP/qfontmanager_qws.cpp \
 		    $$KERNEL_CPP/qgfx_qws.cpp \
 		    $$KERNEL_CPP/qgfxraster_qws.cpp \
-		    $$KERNEL_CPP/qkeyboard_qws.cpp \
 		    $$KERNEL_CPP/qlock_qws.cpp \
 		    $$KERNEL_CPP/qmemorymanager_qws.cpp \
 		    $$KERNEL_CPP/qpaintdevice_qws.cpp \

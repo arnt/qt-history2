@@ -6,11 +6,22 @@ embedded {
 	HEADERS += $$EMBEDDED_P/qgfxdriverinterface_p.h \
 		    $$EMBEDDED_H/qgfxdriverplugin_qws.h \
 		    $$EMBEDDED_H/qgfxdriverfactory_qws.h \
-		    $$EMBEDDED_H/qgfxlinuxfb_qws.h
+		    $$EMBEDDED_H/qgfxlinuxfb_qws.h \
+		    $$EMBEDDED_H/qkbd_qws.h \
+		    $$EMBEDDED_P/qkbddriverinterface_p.h \
+		    $$EMBEDDED_H/qkbddriverplugin_qws.h \
+		    $$EMBEDDED_H/qkbddriverfactory_qws.h
 
 	SOURCES += $$EMBEDDED_CPP/qgfxdriverplugin_qws.cpp \
 		    $$EMBEDDED_CPP/qgfxdriverfactory_qws.cpp \
-		    $$EMBEDDED_CPP/qgfxlinuxfb_qws.cpp
+		    $$EMBEDDED_CPP/qgfxlinuxfb_qws.cpp \
+		    $$EMBEDDED_CPP/qkbd_qws.cpp \
+		    $$EMBEDDED_CPP/qkbddriverplugin_qws.cpp \
+		    $$EMBEDDED_CPP/qkbddriverfactory_qws.cpp
+
+#
+# Graphics drivers
+#
 
 	contains( gfx-drivers, qvfb ) {
 		HEADERS += $$EMBEDDED_H/qgfxvfb_qws.h
@@ -68,5 +79,51 @@ embedded {
 		SOURCES += $$EMBEDDED_CPP/qgfxrepeater_qws.cpp
 	}
 	else:DEFINES += QT_NO_QWS_REPEATER
+
+#
+# Keyboard drivers
+#
+
+	contains( kbd-drivers, sl5000 ) {
+		HEADERS +=$$EMBEDDED_H/qkbdsl5000_qws.h
+		SOURCES +=$$EMBEDDED_CPP/qkbdsl5000_qws.cpp
+		!contains( kbd-drivers, tty ) {
+		    kbd-drivers += tty
+		}
+	}
+
+	contains( kbd-drivers, tty ) {
+		HEADERS +=$$EMBEDDED_H/qkbdtty_qws.h
+		SOURCES +=$$EMBEDDED_CPP/qkbdtty_qws.cpp
+		!contains( kbd-drivers, pc101 ) {
+		    kbd-drivers += pc101
+		}
+	}
+	else:DEFINES += QT_NO_QWS_KBDTTY
+
+	contains( kbd-drivers, usb ) {
+		HEADERS +=$$EMBEDDED_H/qkbdusb_qws.h
+		SOURCES +=$$EMBEDDED_CPP/qkbdusb_qws.cpp
+		!contains( kbd-drivers, pc101 ) {
+		    kbd-drivers += pc101
+		}
+	}
+	else:DEFINES += QT_NO_QWS_KBDUSB
+
+	contains( kbd-drivers, pc101 ) {
+		HEADERS +=$$EMBEDDED_H/qkbdpc101_qws.h
+		SOURCES +=$$EMBEDDED_CPP/qkbdpc101_qws.cpp
+	}
+	else:DEFINES += QT_NO_QWS_KBDPC101
+
+	contains( kbd-drivers, yopy ) {
+		HEADERS +=$$EMBEDDED_H/qkbdyopy_qws.h
+		SOURCES +=$$EMBEDDED_CPP/qkbdyopy_qws.cpp
+	}
+
+	contains( kbd-drivers, vr41xx ) {
+		HEADERS +=$$EMBEDDED_H/qkbdvr41xx_qws.h
+		SOURCES +=$$EMBEDDED_CPP/qkbdvr41xx_qws.cpp
+	}
 }
 

@@ -319,7 +319,6 @@
 #include <qfontfactorybdf_qws.h>
 #include <qgfxvoodoodefs_qws.h>
 #include <qgfxmatroxdefs_qws.h>
-#include "qkeyboard_qws.h"
 #include <qlock_qws.h>
 #include <qcopchannel_qws.h>
 #include <qdirectpainter_qws.h>
@@ -349,6 +348,8 @@
 #include <qwswindowsdecoration_qws.h>
 #include <qgfxdriverplugin_qws.h>
 #include <private/qgfxdriverinterface_p.h>
+#include <qkbddriverplugin_qws.h>
+#include <private/qkbddriverinterface_p.h>
 #endif // Q_WS_QWS
 
 

@@ -43,8 +43,9 @@
 #include "qwsproperty_qws.h"
 #include "qwscommand_qws.h"
 #include "qwsevent_qws.h"
-#include "qkeyboard_qws.h"
 #endif // QT_H
+
+#include "qkbd_qws.h"
 
 struct SWCursorData;
 class QWSCursor;
@@ -188,15 +189,6 @@ public:
     static void processKeyEvent(int unicode, int keycode, int modifiers, bool isPress,
 				bool autoRepeat);
 #ifndef QT_NO_QWS_KEYBOARD    
-    typedef struct KeyMap {
-	ushort key_code;
-	ushort unicode;
-	ushort shift_unicode;
-	ushort ctrl_unicode;
-    };
-
-    static const KeyMap *keyMap();
-
     class KeyboardFilter
     {
     public:
@@ -326,9 +318,6 @@ private:
 			      QWSClient *client );
 
     QWSMouseHandler* newMouseHandler(const QString& spec);
-#ifndef QT_NO_QWS_KEYBOARD
-    QWSKeyboardHandler* newKeyboardHandler(const QString& spec);
-#endif
     void openDisplay();
     void closeDisplay();
 

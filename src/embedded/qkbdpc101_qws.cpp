@@ -188,6 +188,8 @@ void QWSPC101KeyboardHandler::doKey(uchar code)
     int keyCode = Qt::Key_unknown;
     bool release = false;
     int keypad = 0;
+    bool softwareRepeat = FALSE;
+
     if (code == 224) {
 	// extended
 	extended = true;
@@ -242,6 +244,46 @@ void QWSPC101KeyboardHandler::doKey(uchar code)
 	if (code < keyMSize) {
 	    keyCode = pc101KeyM[code].key_code;
 	}
+
+#if defined(QT_QWS_IPAQ) || defined(QT_QWS_EBX)
+	softwareRepeat = TRUE;
+
+	switch (code) {
+	    case 0x7a: case 0x7b: case 0x7c: case 0x7d:
+		keyCode = code - 0x7a + Key_F9;
+		softwareRepeat = FALSE;
+		break;
+	    case 0x79:
+		keyCode = Key_SysReq;
+		softwareRepeat = FALSE;
+		break;
+	    case 0x78:
+		keyCode = Key_Escape;
+		softwareRepeat = FALSE;
+		break;
+	    case 0x60:
+		keyCode = Key_Return;
+		break;
+	    case 0x67:
+		keyCode = Key_Right;
+		break;
+	    case 0x69:
+		keyCode = Key_Up;
+		break;
+	    case 0x6a:
+		keyCode = Key_Down;
+		break;
+	    case 0x6c:
+		keyCode = Key_Left;
+		break;
+	}
+
+	if ( qt_screen->isTransformed()
+		&& keyCode >= Qt::Key_Left && keyCode <= Qt::Key_Down )
+	{
+	    keyCode = transformDirKey(keyCode);
+	}
+#endif
     }
 
     /*
@@ -251,25 +293,6 @@ void QWSPC101KeyboardHandler::doKey(uchar code)
     if ( extended ? (code == 53 || code == 28) :
 	 (code == 55 || ( code >= 71 && code <= 83 )) )
 	keypad = Qt::Keypad;
-
-    // Virtual console switching
-    /*
-    int term = 0;
-    if (ctrl && alt && keyCode >= Qt::Key_F1 && keyCode <= Qt::Key_F10)
-	term = keyCode - Qt::Key_F1 + 1;
-    else if (ctrl && alt && keyCode == Qt::Key_Left)
-	term = QMAX(vtQws - 1, 1);
-    else if (ctrl && alt && keyCode == Qt::Key_Right)
-	term = QMIN(vtQws + 1, 10);
-    if (term && !release) {
-	ctrl = false;
-	alt = false;
-#if defined(Q_OS_LINUX)
-	ioctl(kbdFD, VT_ACTIVATE, term);
-#endif
-	return;
-    }
-    */
 
     // Ctrl-Alt-Backspace exits qws
     if (ctrl && alt && keyCode == Qt::Key_Backspace) {
@@ -333,6 +356,12 @@ void QWSPC101KeyboardHandler::doKey(uchar code)
 	    prevkey = prevuni = 0;
 	}
     }
+
+    if ( softwareRepeat && !release )
+	beginAutoRepeat( prevuni, prevkey, modifiers );
+    else
+	endAutoRepeat();
+
     extended = false;
 }
 
