@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qheader.cpp#24 $
+** $Id: //depot/qt/main/src/widgets/qheader.cpp#25 $
 **
 **  Table header
 **
@@ -129,6 +129,8 @@ QHeader::QHeader( int n,  QWidget *parent, const char *name )
  */
 QHeader::~QHeader()
 {
+    for ( int i=0; i < count(); i++ )
+	delete [] labels[i];
 }
 
 /*!
@@ -632,7 +634,8 @@ QRect QHeader::sRect( int i )
 void QHeader::setLabel( int i, const char *s, int size )
 {
     if ( i >= 0 && i < count() ) {
-	labels[i] = s;
+	delete [] labels[i];
+	labels[i] = qstrdup(s);
 	if ( size )
 	    sizes[i] = size;
     }
@@ -648,7 +651,7 @@ int QHeader::addLabel( const char *s, int size )
 {
     int n = count() + 1; //###########
     labels.resize( n + 1 );
-    labels[n-1] = s;
+    labels[n-1] = qstrdup(s);
     sizes.resize( n + 1 );
     sizes[n-1] = size ? size : 88; //###
     a2l.resize( n + 1 );
