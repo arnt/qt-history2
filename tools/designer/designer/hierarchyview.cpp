@@ -31,6 +31,7 @@
 #include "propertyeditor.h"
 #include "editslotsimpl.h"
 #include "listeditor.h"
+#include "actiondnd.h"
 
 #include <qpalette.h>
 #include <qobjectlist.h>
@@ -419,54 +420,95 @@ void HierarchyList::insertObject( QObject *o, QListViewItem *parent )
     if ( !parent )
 	item->setPixmap( 0, PixmapChooser::loadPixmap( "form.xpm", PixmapChooser::Mini ) );
     else if ( o->inherits( "QLayoutWidget") )
-	item->setPixmap( 0, PixmapChooser::loadPixmap( "layout.xpm", PixmapChooser::Small ) );
+	item->setPixmap( 0, PixmapChooser::loadPixmap( "layout.xpm", PixmapChooser::Small ));
     else
-	item->setPixmap( 0, WidgetDatabase::iconSet( WidgetDatabase::idFromClassName( WidgetFactory::classNameOf( o ) ) ).
+	item->setPixmap( 0, WidgetDatabase::iconSet(
+		    WidgetDatabase::idFromClassName( WidgetFactory::classNameOf( o ) ) ).
 			 pixmap( QIconSet::Small, QIconSet::Normal ) );
+    if ( o->inherits( "QAction" ) )
+	item->setPixmap( 0, ( (QAction*)o )->iconSet().pixmap() );
+
     ( (HierarchyItem*)item )->setWidget( (QWidget*)o );
 
     const QObjectList *l = o->children();
-    if ( !l )
-	return;
-    QObjectListIt it( *l );
-    it.toLast();
-    for ( ; it.current(); --it ) {
-	if ( !it.current()->isWidgetType() || ( (QWidget*)it.current() )->isHidden() )
-	    continue;
-	if (  !formWindow->widgets()->find( (QWidget*)it.current() ) ) {
-	    if ( it.current()->parent() &&
-		 it.current()->inherits( "QWidgetStack" ) ||
-		 it.current()->parent()->inherits( "QWidgetStack" ) ) {
-		QObject *obj = it.current();
-		QDesignerTabWidget *tw = 0;
-		QDesignerWizard *dw = 0;
-		if ( it.current()->parent()->inherits( "QTabWidget" ) )
-		    tw = (QDesignerTabWidget*)it.current()->parent();
-		if ( it.current()->parent()->inherits( "QWizard" ) )
-		    dw = (QDesignerWizard*)it.current()->parent();
-		QWidgetStack *stack = 0;
-		if ( dw || tw )
-		    stack = (QWidgetStack*)obj;
-		else
-		    stack = (QWidgetStack*)obj->parent();
-		if ( lastWidgetStack == stack )
-		    continue;
-		lastWidgetStack = stack;
-		QObjectList *l2 = stack->queryList( "QWidget", 0, TRUE, FALSE );
-		for ( obj = l2->last(); obj; obj = l2->prev() ) {
-		    if ( qstrcmp( obj->className(), "QWidgetStackPrivate::Invisible" ) == 0 ||
-			 ( tw && !tw->tabBar()->tab( stack->id( (QWidget*)obj ) ) ) ||
-			 ( dw && dw->isPageRemoved( (QWidget*)obj ) ) )
+    if ( l ) {
+	QObjectListIt it( *l );
+	it.toLast();
+	for ( ; it.current(); --it ) {
+	    if ( !it.current()->isWidgetType() || ( (QWidget*)it.current() )->isHidden() )
+		continue;
+	    if (  !formWindow->widgets()->find( (QWidget*)it.current() ) ) {
+		if ( it.current()->parent() &&
+		     it.current()->inherits( "QWidgetStack" ) ||
+		     it.current()->parent()->inherits( "QWidgetStack" ) ) {
+		    QObject *obj = it.current();
+		    QDesignerTabWidget *tw = 0;
+		    QDesignerWizard *dw = 0;
+		    if ( it.current()->parent()->inherits( "QTabWidget" ) )
+			tw = (QDesignerTabWidget*)it.current()->parent();
+		    if ( it.current()->parent()->inherits( "QWizard" ) )
+			dw = (QDesignerWizard*)it.current()->parent();
+		    QWidgetStack *stack = 0;
+		    if ( dw || tw )
+			stack = (QWidgetStack*)obj;
+		    else
+			stack = (QWidgetStack*)obj->parent();
+		    if ( lastWidgetStack == stack )
 			continue;
-		    if ( qstrcmp( obj->name(), "designer_wizardstack_button" ) == 0 )
-			continue;
-		    insertObject( obj, item );
+		    lastWidgetStack = stack;
+		    QObjectList *l2 = stack->queryList( "QWidget", 0, TRUE, FALSE );
+		    for ( obj = l2->last(); obj; obj = l2->prev() ) {
+			if ( qstrcmp( obj->className(),
+				      "QWidgetStackPrivate::Invisible" ) == 0 ||
+			     ( tw && !tw->tabBar()->tab( stack->id( (QWidget*)obj ) ) ) ||
+			     ( dw && dw->isPageRemoved( (QWidget*)obj ) ) )
+			    continue;
+			if ( qstrcmp( obj->name(), "designer_wizardstack_button" ) == 0 )
+			    continue;
+			insertObject( obj, item );
+		    }
+		    delete l2;
 		}
-		delete l2;
+		continue;
 	    }
-	    continue;
+	    insertObject( it.current(), item );
 	}
-	insertObject( it.current(), item );
+    }
+
+    if ( fakeMainWindow ) {
+	QObjectList *l = o->parent()->queryList( "QDesignerToolBar" );
+	for ( QObject *obj = l->first(); obj; obj = l->next() )
+	    insertObject( obj, item );
+	delete l;
+    } else if ( o->inherits( "QDesignerToolBar" ) ) {
+	QPtrList<QAction> actions = ( (QDesignerToolBar*)o )->insertedActions();
+	QPtrListIterator<QAction> it( actions );
+	while ( it.current() ) {
+	    QAction *a = it.current();
+	    if ( a->inherits( "QDesignerAction" ) ) {
+		QDesignerAction *da = (QDesignerAction*)a;
+		if ( da->supportsMenu() )
+		    insertObject( da, item );
+		else
+		    insertObject( da->widget(), item );
+	    } else if ( a->inherits( "QDesignerActionGroup" ) ) {
+		insertObject( a, item );
+	    }
+	    ++it;
+	}
+    } else if ( o->inherits( "QDesignerActionGroup" ) && o->children() ) {
+	QObjectList *l = (QObjectList*)o->children();
+	for ( QObject *obj = l->first(); obj; obj = l->next() ) {
+	    if ( obj->inherits( "QDesignerAction" ) ) {
+		QDesignerAction *da = (QDesignerAction*)obj;
+		if ( da->supportsMenu() )
+		    insertObject( da, item );
+		else
+		    insertObject( da->widget(), item );
+	    } else if ( obj->inherits( "QDesignerActionGroup" ) ) {
+		insertObject( obj, item );
+	    }
+	}
     }
 
     if ( item->firstChild() )

@@ -539,7 +539,7 @@ QWidget *WidgetFactory::create( int id, QWidget *parent, const char *name, bool 
 QLayout *WidgetFactory::createLayout( QWidget *widget, QLayout *layout, LayoutType type )
 {
     int spacing = MainWindow::self->currentLayoutDefaultSpacing();
-    int margin = 0; 
+    int margin = 0;
 
     if ( widget && !widget->inherits( "QLayoutWidget" ) &&
 	 ( WidgetDatabase::isContainer( WidgetDatabase::idFromClassName( WidgetFactory::classNameOf( widget ) ) ) ||
@@ -559,10 +559,10 @@ QLayout *WidgetFactory::createLayout( QWidget *widget, QLayout *layout, LayoutTy
 	widget = ((QWidgetStack*)widget)->visibleWidget();
 
     MetaDataBase::addEntry( widget );
-    
+
     int metaspacing = MetaDataBase::spacing( widget );
     int metamargin = MetaDataBase::margin( widget );
-    
+
     if ( !layout && widget && widget->inherits( "QGroupBox" ) ) {
 	QGroupBox *gb = (QGroupBox*)widget;
 	gb->setColumnLayout( 0, Qt::Vertical );
@@ -1159,6 +1159,10 @@ const char* WidgetFactory::classNameOf( QObject* o )
 	return "QMenuBar";
     else if ( o->inherits( "QDesignerToolBar" ) )
 	return "QToolBar";
+    else if ( o->inherits( "QDesignerAction" ) )
+	return "QAction";
+    else if ( o->inherits( "QDesignerActionGroup" ) )
+	return "QActionGroup";
 #ifndef QT_NO_SQL
     else if ( o->inherits( "QDesignerDataBrowser" ) )
 	return "QDataBrowser";

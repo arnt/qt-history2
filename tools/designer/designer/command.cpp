@@ -548,7 +548,7 @@ void SetPropertyCommand::setProperty( const QVariant &v, const QString &currentI
 	    widget->setProperty( "alignment", QVariant( align ) );
 	} else if ( propName == "layoutSpacing" ) {
 	    QVariant val = v;
-	    if ( val.toString() == "default" ) 
+	    if ( val.toString() == "default" )
 		val = -1;
 	    MetaDataBase::setSpacing( WidgetFactory::containerOfWidget( (QWidget*)editor->widget() ), val.toInt() );
 	} else if ( propName == "layoutMargin" ) {
@@ -1598,6 +1598,7 @@ void AddActionToToolBarCommand::execute()
 	toolBar->reInsert();
 	QObject::connect( action, SIGNAL( destroyed() ), toolBar, SLOT( actionRemoved() ) );
     }
+    formWindow()->mainWindow()->objectHierarchy()->rebuild();
 }
 
 void AddActionToToolBarCommand::unexecute()
@@ -1628,6 +1629,7 @@ void AddActionToToolBarCommand::unexecute()
 	    }
 	}
     }
+    formWindow()->mainWindow()->objectHierarchy()->rebuild();
 }
 
 // ------------------------------------------------------------
@@ -1791,9 +1793,11 @@ void AddToolBarCommand::execute()
     } else {
 	toolBar->show();
     }
+    formWindow()->mainWindow()->objectHierarchy()->rebuild();
 }
 
 void AddToolBarCommand::unexecute()
 {
     toolBar->hide();
+    formWindow()->mainWindow()->objectHierarchy()->rebuild();
 }
