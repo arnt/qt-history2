@@ -119,6 +119,14 @@ void CQtWizardAppWiz::CustomizeProject(IBuildProject* pProject)
 						varBool.boolVal = false;
 						pConfiguration->AddCustomBuildStepToFile( CString( strFile + ".h" ).AllocSysString(), CString( strMoc + "$(InputDir)\\$(InputName).h -o " + strMocFile ).AllocSysString(), strMocFile.AllocSysString(), CString( "MOCing " + strFile + ".h ..." ).AllocSysString(), varBool );
 
+						strFile = QtWizardaw.m_Dictionary[ "Root" ] + "Workspace";
+						strMocFile = "moc_"+ strFile + ".cpp";
+
+						varBool.boolVal = true;
+						pProject->AddFile( strMocFile.AllocSysString(), varBool );
+						varBool.boolVal = false;
+						pConfiguration->AddCustomBuildStepToFile( CString( strFile + ".h" ).AllocSysString(), CString( strMoc + "$(InputDir)\\$(InputName).h -o " + strMocFile ).AllocSysString(), strMocFile.AllocSysString(), CString( "MOCing " + strFile + ".h ..." ).AllocSysString(), varBool );
+
 						pConfiguration->Release();
 						pConfiguration = NULL;
 					}
