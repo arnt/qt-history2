@@ -17,11 +17,13 @@
 #include "qstyle.h"
 #include "qbitmap.h"
 #include "qevent.h"
+#include "qtimer.h"
 
 #include <private/qwidget_p.h>
 class QRubberBandPrivate : public QWidgetPrivate
 {
 public:
+    QRect rect;
     QRubberBand::Shape shape;
 };
 #define d d_func()
@@ -66,8 +68,7 @@ QRubberBand::QRubberBand(QRubberBand::Shape s, QWidget *p) :
     QWidget(*new QRubberBandPrivate, p, WType_TopLevel | WStyle_Tool | WStyle_Customize | WStyle_NoBorder)
 {
     d->shape = s;
-    if(d->shape == Rectangle)
-	setAutoMask(true);
+    setAutoMask(true);
 }
 
 /*!
@@ -97,7 +98,7 @@ QRubberBand::drawRubberBandMask(QPainter *p)
     QStyle::SFlags flags = QStyle::Style_Default;
     if(d->shape == Rectangle)
 	flags |= QStyle::Style_Rectangle;
-    style().drawPrimitive(QStyle::PE_RubberBandMask, p, rect(), palette(), flags);
+    style().drawPrimitive(QStyle::PE_RubberBandMask, p, d->rect, palette(), flags);
 }
 
 /*!
@@ -113,7 +114,7 @@ QRubberBand::drawRubberBand(QPainter *p)
     QStyle::SFlags flags = QStyle::Style_Default;
     if(d->shape == Rectangle)
 	flags |= QStyle::Style_Rectangle;
-    style().drawPrimitive(QStyle::PE_RubberBand, p, rect(), palette(), flags);
+    style().drawPrimitive(QStyle::PE_RubberBand, p, d->rect, palette(), flags);
 }
 
 /*!
@@ -157,4 +158,50 @@ QRubberBand::changeEvent(QEvent *ev)
 {
     if(ev->type() == QEvent::StyleChange && autoMask()) 
 	updateMask();
+}
+
+
+void QRubberBand::setGeometry(int x, int y, int w, int h)
+{
+#if 1
+    QRect mygeom(x, y, w, h);
+    d->rect = QRect(0, 0, w, h);
+    if(QWidget *p = parentWidget()) {
+	const QRect prect(p->mapToGlobal(QPoint(0, 0)), p->size());
+	if(!prect.contains(mygeom)) {
+	    if(mygeom.left() < prect.left()) {
+		const int diff = prect.left()-mygeom.left();
+		d->rect.moveLeft(-diff);
+		mygeom.moveLeft(prect.left());
+		mygeom.setWidth(mygeom.width()-diff);
+	    }
+	    if(mygeom.top() < prect.top()) {
+		const int diff = prect.top()-mygeom.top();
+		d->rect.moveTop(-diff);
+		mygeom.moveTop(prect.top());
+		mygeom.setHeight(mygeom.height()-diff);
+	    }
+	    if(mygeom.left() > prect.right()) 
+		mygeom.moveLeft(prect.right());
+	    if(mygeom.top() > prect.bottom()) 
+		mygeom.moveTop(prect.bottom());
+	    if(mygeom.bottom() > prect.bottom()) {
+		const int diff = mygeom.bottom()-prect.bottom();
+		mygeom.setHeight(mygeom.height()-diff);
+	    }
+	    if(mygeom.right() > prect.right()) {
+		const int diff = mygeom.right()-prect.right();
+		mygeom.setWidth(mygeom.width()-diff);
+	    }
+	}
+    }
+    if(mygeom != geometry()) {
+	QWidget::setGeometry(mygeom);
+    } else {
+	updateMask();
+    }
+    update();
+#else
+    QWidget::setGeometry(x, y, w, h);
+#endif
 }

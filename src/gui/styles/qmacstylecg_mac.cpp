@@ -255,6 +255,8 @@ void QMacStyleCG::drawPrimitive(PrimitiveElement pe, QPainter *p, const QRect &r
 
     switch (pe) {
     case PE_RubberBandMask:
+	p->fillRect(r, color1);
+	break;
     case PE_RubberBand:
 	p->fillRect(r, pal.highlight());
 	break;

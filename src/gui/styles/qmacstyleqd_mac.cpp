@@ -646,6 +646,8 @@ void QMacStyleQD::drawPrimitive(PrimitiveElement pe,
 	}
 	break; }
     case PE_RubberBandMask:
+	p->fillRect(r, color1);
+	break;
     case PE_RubberBand:
 	p->fillRect(r, pal.highlight());
 	break;
