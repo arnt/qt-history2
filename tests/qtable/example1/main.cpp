@@ -114,7 +114,7 @@ int main( int argc, char **argv )
 
     QVBox vbox( 0 );
     QTable *t = new QTable( 0, 6, &vbox );
-    t->setSorting( FALSE );
+    t->setSorting( TRUE );
     QPushButton *b = new QPushButton( "Add &Record", &vbox );
     b->setFixedWidth( b->sizeHint().width() );
     RecordManager *r = new RecordManager( t );

@@ -98,8 +98,8 @@ class QTable : public QScrollView
     Q_PROPERTY( int numRows READ numRows WRITE setNumRows )
     Q_PROPERTY( int numCols READ numCols WRITE setNumCols )
     Q_PROPERTY( bool showGrid READ showGrid WRITE setShowGrid )
-    Q_PROPERTY( bool rowsMovable READ rowsMovable WRITE setRowsMovable )
-    Q_PROPERTY( bool columnsMovable READ columnsMovable WRITE setColumnsMovable )
+    Q_PROPERTY( bool rowMovingEnabled READ rowMovingEnabled WRITE setRowMovingEnabled )
+    Q_PROPERTY( bool columnMovingEnabled READ columnMovingEnabled WRITE setColumnMovingEnabled )
 
     friend class QTableItem;
     friend class QTableHeader;
@@ -152,10 +152,10 @@ public:
     void setShowGrid( bool b );
     bool showGrid() const;
 
-    void setColumnsMovable( bool b );
-    bool columnsMovable() const;
-    void setRowsMovable( bool b );
-    bool rowsMovable() const;
+    void setColumnMovingEnabled( bool b );
+    bool columnMovingEnabled() const;
+    void setRowMovingEnabled( bool b );
+    bool rowMovingEnabled() const;
 
     virtual void sortColumn( int col, bool ascending = TRUE );
     virtual void setSorting( bool b );
@@ -183,6 +183,9 @@ public:
     QWidget *cellWidget( int row, int col ) const;
     virtual void clearCellWidget( int row, int col );
 
+    virtual void swapRows( int row1, int row2 );
+    virtual void swapColumns( int col1, int col2 );
+    
 protected:
     void drawContents( QPainter *p, int cx, int cy, int cw, int ch );
     virtual void paintCell( QPainter *p, int row, int col, const QRect &cr, bool selected );
@@ -303,11 +306,13 @@ protected:
 private slots:
     void doAutoScroll();
     void sectionWidthChanged( int col, int os, int ns );
-
+    void indexChanged( int sec, int oldIdx, int newIdx );
+    
 private:
     void updateSelections();
     void saveStates();
     void setCaching( bool b );
+    void swapSections( int oldIdx, int newIdx );
 
 private:
     QArray<SectionState> states, oldStates;

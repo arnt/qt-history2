@@ -575,7 +575,7 @@ bool QTable::showGrid() const
   else not.
 */
 
-void QTable::setColumnsMovable( bool b )
+void QTable::setColumnMovingEnabled( bool b )
 {
     mCols = b;
 }
@@ -583,7 +583,7 @@ void QTable::setColumnsMovable( bool b )
 /*!  Returns wheather the columns can be moved by the user.
  */
 
-bool QTable::columnsMovable() const
+bool QTable::columnMovingEnabled() const
 {
     return mCols;
 }
@@ -592,7 +592,7 @@ bool QTable::columnsMovable() const
   not.
 */
 
-void QTable::setRowsMovable( bool b )
+void QTable::setRowMovingEnabled( bool b )
 {
     mRows = b;
 }
@@ -600,9 +600,101 @@ void QTable::setRowsMovable( bool b )
 /*!  Returns wheather the rows can be moved by the user.
  */
 
-bool QTable::rowsMovable() const
+bool QTable::rowMovingEnabled() const
 {
     return mRows;
+}
+
+/*!  Swaps the data of \a row1 and \a row2. This is e.g. used when the
+  user changes the order of the rows or by sorting. If you don't use
+  QTableItems you might reimplement this function.
+*/
+
+void QTable::swapRows( int row1, int row2 )
+{
+    QVector<QTableItem> tmpContents;
+    tmpContents.resize( numCols() );
+    QVector<QWidget> tmpWidgets;
+    tmpWidgets.resize( numCols() );
+    int i;
+    
+    contents.setAutoDelete( FALSE );
+    widgets.setAutoDelete( FALSE );
+    for ( i = 0; i < numCols(); ++i ) {
+	tmpContents.insert( i, item( row1, i ) );
+	contents.remove( indexOf( row1, i ) );
+	contents.insert( indexOf( row1, i ), contents[ indexOf( row2, i ) ] );
+	contents.remove( indexOf( row2, i ) );
+	contents.insert( indexOf( row2, i ), tmpContents[ i ] );
+	if ( contents[ indexOf( row1, i ) ] )
+	    contents[ indexOf( row1, i ) ]->row = row1;
+	if ( contents[ indexOf( row2, i ) ] )
+	    contents[ indexOf( row2, i ) ]->row = row2;
+	tmpWidgets.insert( i, cellWidget( row1, i ) );
+	widgets.remove( indexOf( row1, i ) );
+	widgets.insert( indexOf( row1, i ), widgets[ indexOf( row2, i ) ] );
+	widgets.remove( indexOf( row2, i ) );
+	widgets.insert( indexOf( row2, i ), tmpWidgets[ i ] );
+    }
+    contents.setAutoDelete( FALSE );
+    widgets.setAutoDelete( TRUE );
+
+    rowHeightChanged( row1 );
+    rowHeightChanged( row2 );
+    if ( curRow == row1 )
+	curRow = row2;
+    else if ( curRow == row2 )
+	curRow = row1;
+    if ( editRow == row1 )
+	editRow = row2;
+    else if ( editRow == row2 )
+	editRow = row1;
+}
+
+/*!  Swaps the data of \a col1 and \a col2. This is e.g. used when the
+  user changes the order of the columns or by sorting. If you don't
+  use QTableItems you might reimplement this function.
+*/
+
+void QTable::swapColumns( int col1, int col2 )
+{
+    QVector<QTableItem> tmpContents;
+    tmpContents.resize( numRows() );
+    QVector<QWidget> tmpWidgets;
+    tmpWidgets.resize( numRows() );
+    int i;
+    
+    contents.setAutoDelete( FALSE );
+    widgets.setAutoDelete( FALSE );
+    for ( i = 0; i < numRows(); ++i ) {
+	tmpContents.insert( i, item( i, col1 ) );
+	contents.remove( indexOf( i, col1 ) );
+	contents.insert( indexOf( i, col1 ), contents[ indexOf( i, col2 ) ] );
+	contents.remove( indexOf( i, col2 ) );
+	contents.insert( indexOf( i, col2 ), tmpContents[ i ] );
+	if ( contents[ indexOf( i, col1 ) ] )
+	    contents[ indexOf( i, col1 ) ]->col = col1;
+	if ( contents[ indexOf( i, col2 ) ] )
+	    contents[ indexOf( i, col2 ) ]->col = col2;
+	tmpWidgets.insert( i, cellWidget( i, col1 ) );
+	widgets.remove( indexOf( i, col1 ) );
+	widgets.insert( indexOf( i, col1 ), widgets[ indexOf( i, col2 ) ] );
+	widgets.remove( indexOf( i, col2 ) );
+	widgets.insert( indexOf( i, col2 ), tmpWidgets[ i ] );
+    }
+    contents.setAutoDelete( FALSE );
+    widgets.setAutoDelete( TRUE );
+    
+    columnWidthChanged( col1 );
+    columnWidthChanged( col2 );
+    if ( curCol == col1 )
+	curCol = col2;
+    else if ( curCol == col2 )
+	curCol = col1;
+    if ( editCol == col1 )
+	editCol = col2;
+    else if ( editCol == col2 )
+	editCol = col1;
 }
 
 /*!  Draws the contents of the table on the painter \a p. This
@@ -1083,17 +1175,19 @@ void QTable::contentsMousePressEvent( QMouseEvent* e )
 	SelectionRange oldSelection = *currentSelection;
 	currentSelection->expandTo( curRow, curCol );
 	repaintSelections( &oldSelection, currentSelection );
+	setCurrentCell( curRow, curCol );
     } else if ( ( e->state() & ControlButton ) == ControlButton ) {
 	currentSelection = new SelectionRange();
 	selections.append( currentSelection );
 	currentSelection->init( curRow, curCol );
+	setCurrentCell( curRow, curCol );
     } else {
+	setCurrentCell( curRow, curCol );
 	clearSelection();
 	currentSelection = new SelectionRange();
 	selections.append( currentSelection );
 	currentSelection->init( curRow, curCol );
     }
-    setCurrentCell( curRow, curCol );
 }
 
 /*!  \reimp
@@ -2090,16 +2184,10 @@ static int cmpTableItems( const void *n1, const void *n2 )
 #endif
 
 /*!  Sorts the column \a col in ascending order if \a ascending is
-  TRUE, else in descending order.
+  TRUE, else in descending order. When changing data of the cells
+  swapRows() is called.
 
-  In this implementation really only the column is sorted. If you need
-  to do more (e.g. moving whole rows instead of only cells when
-  re-sorting), you have to reimplement this function and do what you need.
-
-  \internal
-
-  Should we have a moveCell( from, to ) is used and can be
-  reimplemented to move whole rows?
+  \sa swapRows()
 */
 
 void QTable::sortColumn( int col, bool ascending )
@@ -2125,17 +2213,14 @@ void QTable::sortColumn( int col, bool ascending )
 
     qsort( items, filledRows, sizeof( SortableTableItem ), cmpTableItems );
 
-    contents.setAutoDelete( TRUE );
     for ( i = 0; i < numRows(); ++i ) {
-	contents.remove( indexOf( i, col ) );
 	if ( i < filledRows ) {
 	    if ( ascending )
-		contents.insert( indexOf( i, col ), items[ i ].item );
+		swapRows( items[ i ].item->row, i );
 	    else
-		contents.insert( indexOf( i, col ), items[ filledRows - i - 1 ].item );
+		swapRows( items[ i ].item->row, filledRows - i - 1 );
 	}
     }
-    contents.setAutoDelete( FALSE );
 
     repaintContents( columnPos( col ), 0, columnWidth( col ), contentsHeight(), FALSE );
     delete [] items;
@@ -2442,6 +2527,8 @@ QTableHeader::QTableHeader( int i, QTable *t, QWidget *parent, const char *name 
 
     connect( this, SIGNAL( sizeChange( int, int, int ) ),
 	     this, SLOT( sectionWidthChanged( int, int, int ) ) );
+    connect( this, SIGNAL( indexChange( int, int, int ) ),
+	     this, SLOT( indexChanged( int, int, int ) ) );
 }
 
 void QTableHeader::addLabel( const QString &s )
@@ -2538,7 +2625,8 @@ void QTableHeader::mouseMoveEvent( QMouseEvent *e )
 {
     if ( !mousePressed || cursor().shape() != ArrowCursor ||
 	 ( ( e->state() & ControlButton ) == ControlButton && ( orientation() == Horizontal ?
-								table->columnsMovable() : table->rowsMovable() ) ) ) {
+								table->columnMovingEnabled() : 
+								table->rowMovingEnabled() ) ) ) {
 	QHeader::mouseMoveEvent( e );
 	return;
     }
@@ -2762,4 +2850,53 @@ void QTableHeader::setSectionStretchable( int s, bool b )
 bool QTableHeader::isSectionStretchable( int s ) const
 {
     return stretchable[ s ];
+}
+
+void QTableHeader::swapSections( int oldIdx, int newIdx )
+{
+    QIconSet is;
+    bool his = FALSE;
+    if ( iconSet( oldIdx ) ) {
+	his = TRUE;
+	is = *iconSet( oldIdx );
+    }
+    QString l = label( oldIdx );
+    if ( iconSet( newIdx ) )
+	setLabel( oldIdx, *iconSet( newIdx ), label( newIdx ) );
+    else
+	setLabel( oldIdx, label( newIdx ) );
+    
+    if ( his )
+	setLabel( newIdx, is, l );
+    else
+	setLabel( newIdx, l );
+
+    if ( orientation() == Horizontal )
+	table->swapColumns( oldIdx, newIdx );
+    else
+	table->swapRows( oldIdx, newIdx );
+}
+
+void QTableHeader::indexChanged( int sec, int oldIdx, int newIdx )
+{
+    newIdx = mapToIndex( sec );
+    if ( oldIdx > newIdx )
+	moveSection( sec, oldIdx + 1 );
+    else
+	moveSection( sec, oldIdx );
+
+    if ( oldIdx < newIdx ) {
+	while ( oldIdx < newIdx ) {
+	    swapSections( oldIdx, oldIdx + 1 );
+	    oldIdx++;
+	}
+    } else {
+	while ( oldIdx > newIdx ) {
+	    swapSections( oldIdx - 1, oldIdx );
+	    oldIdx--;
+	}
+    }
+
+    table->repaintContents( table->contentsX(), table->contentsY(), 
+			    table->visibleWidth(), table->visibleHeight() );
 }
