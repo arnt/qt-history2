@@ -1811,6 +1811,7 @@ QCanvasItem::QCanvasItem(QCanvas* canvas) :
 {
     ani=0;
     vis=0;
+    val=0;
     sel=0;
     ena=0;
     act=0;
@@ -2550,6 +2551,7 @@ void QCanvasItem::addToChunks()
 	QPointArray pa = chunks();
 	for (int i=0; i<(int)pa.count(); i++)
 	    canvas()->addItemToChunk(this,pa[i].x(),pa[i].y());
+	val=(uint)TRUE;
     }
 }
 
@@ -2574,6 +2576,8 @@ void QCanvasItem::removeFromChunks()
 void QCanvasItem::changeChunks()
 {
     if (isVisible() && canvas()) {
+	if (!val)
+	    addToChunks();
 	QPointArray pa = chunks();
 	for (int i=0; i<(int)pa.count(); i++)
 	    canvas()->setChangedChunk(pa[i].x(),pa[i].y());
@@ -3511,6 +3515,10 @@ QSize QCanvasView::sizeHint() const
   areaPointsAdvanced() to retrieve the bounding points the polygonal
   item \e will have after QCanvasItem::advance(1) has been called.
 
+  In case the shape of the polygonal item is about to change while the
+  item is visible call invalidate() before updating with a different
+  result from \l areaPoints().
+
   By default, QCanvasPolygonalItem objects have a black pen and no brush
   (the default QPen and QBrush constructors). You can change this with
   setPen() and setBrush(), but note that some QCanvasPolygonalItem
@@ -3593,6 +3601,26 @@ void QCanvasPolygonalItem::setWinding(bool enable)
     wind = enable;
 }
 
+/*! Invalidates all information about the area covered by the canvas
+  item. It will be updated again automatically on the next call that
+  changes the items status like e.g. move() or update(). Call this
+  function in case you are going to change the shape of the item (as
+  returned by areaPoints()) while the item is visible.
+ */
+void QCanvasPolygonalItem::invalidate()
+{
+    val = (uint)FALSE;
+    removeFromChunks();
+}
+
+/*!
+  \fn QCanvasPolygonalItem::isValid() const
+
+  Returns TRUE if the polygonal item's area information has been
+  invalidated; otherwise returns FALSE.
+
+  \sa invalidate()
+*/
 
 /*!
   Returns the points the polygonal item \e will have after

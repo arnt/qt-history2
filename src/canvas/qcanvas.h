@@ -205,6 +205,7 @@ private:
     QCanvasItemExtra& extra();
     uint ani:1;
     uint vis:1;
+    uint val:1;
     uint sel:1;
     uint ena:1;
     uint act:1;
@@ -561,6 +562,10 @@ protected:
 
     bool winding() const;
     void setWinding(bool);
+
+    void invalidate();
+    bool isValid() const
+	{ return (bool)val; }
 
 private:
     void scanPolygon( const QPointArray& pa, int winding,
