@@ -34,19 +34,19 @@ public:
     int numScreens() const;
     int primaryScreen() const;
 
-    int screenNumber(QWidget *widget = 0) const; // ### 4.0: const QWidget*
+    int screenNumber(const QWidget *widget = 0) const;
     int screenNumber(const QPoint &) const;
 
     QWidget *screen(int screen = -1);
 
     const QRect& screenGeometry(int screen = -1) const;
-    const QRect& screenGeometry(QWidget *widget) const
+    const QRect& screenGeometry(const QWidget *widget) const
     { return screenGeometry(screenNumber(widget)); }
     const QRect& screenGeometry(const QPoint &point) const
     { return screenGeometry(screenNumber(point)); }
 
     const QRect& availableGeometry(int screen = -1) const;
-    const QRect& availableGeometry(QWidget *widget) const
+    const QRect& availableGeometry(const QWidget *widget) const
     { return availableGeometry(screenNumber(widget)); }
     const QRect& availableGeometry(const QPoint &point) const
     { return availableGeometry(screenNumber(point)); }

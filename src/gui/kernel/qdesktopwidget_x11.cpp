@@ -252,7 +252,7 @@ const QRect& QDesktopWidget::screenGeometry(int screen) const
     return d->rects[screen];
 }
 
-int QDesktopWidget::screenNumber(QWidget *widget) const
+int QDesktopWidget::screenNumber(const QWidget *widget) const
 {
     if (!widget)
         return d->defaultScreen;

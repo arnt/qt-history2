@@ -83,7 +83,7 @@ const QRect& QDesktopWidget::screenGeometry(int) const
     return r;
 }
 
-int QDesktopWidget::screenNumber(QWidget *) const
+int QDesktopWidget::screenNumber(const QWidget *) const
 {
     return d->appScreen;
 }

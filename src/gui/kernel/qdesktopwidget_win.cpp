@@ -407,7 +407,7 @@ const QRect& QDesktopWidget::screenGeometry(int screen) const
 
     \sa primaryScreen()
 */
-int QDesktopWidget::screenNumber(QWidget *widget) const
+int QDesktopWidget::screenNumber(const QWidget *widget) const
 {
     if (QSysInfo::WindowsVersion != QSysInfo::WV_95 && QSysInfo::WindowsVersion != QSysInfo::WV_NT) {
         if (!widget)
