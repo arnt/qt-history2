@@ -41,6 +41,7 @@
 #include "qtimer.h"
 #include "qsocketdevice.h"
 #include "qdns.h"
+#include "private/qinternal_p.h"
 
 #include <string.h>
 #ifndef NO_ERRNO_H
@@ -120,10 +121,11 @@ public:
     Q_UINT16		port;			// host port
     QSocketDevice      *socket;			// connection socket
     QSocketNotifier    *rsn, *wsn;		// socket notifiers
-    QPtrList<QByteArray> rba, wba;		// list of read/write bufs
+    QMembuf		rba;			// read buffer
+    QPtrList<QByteArray> wba;			// list of write bufs
     QHostAddress	addr;			// connection address
-    QIODevice::Offset	rsize, wsize;		// read/write total buf size
-    QIODevice::Offset	rindex, windex;		// read/write index
+    QIODevice::Offset	wsize;			// write total buf size
+    QIODevice::Offset	windex;			// write index
 #ifndef QT_NO_DNS
     QDns	       *dns;
 #endif
@@ -134,12 +136,11 @@ QPtrList<QSocket> QSocketPrivate::sn_read_alreadyCalled;
 
 QSocketPrivate::QSocketPrivate()
     : state(QSocket::Idle), host(QString::fromLatin1("")), port(0),
-      socket(0), rsn(0), wsn(0), rsize(0), wsize(0), rindex(0), windex(0)
+      socket(0), rsn(0), wsn(0), wsize(0), windex(0)
 {
 #ifndef QT_NO_DNS
     dns = 0;
 #endif
-    rba.setAutoDelete( TRUE );
     wba.setAutoDelete( TRUE );
 }
 
@@ -162,9 +163,9 @@ void QSocketPrivate::close()
     delete wsn;
     wsn = 0;
     socket->close();
-    rsize = wsize = 0;
+    wsize = 0;
     rba.clear(); wba.clear();
-    rindex = windex = 0;
+    windex = 0;
 }
 
 void QSocketPrivate::connectionClosed()
@@ -584,7 +585,6 @@ void QSocket::close()
 	if ( d->wsn )
 	    d->wsn->setEnabled( TRUE );
 	d->rba.clear();				// clear incoming data
-	d->rindex = d->rsize = 0;
 	return;
     }
     setFlags( IO_Sequential );
@@ -601,36 +601,10 @@ void QSocket::close()
 
 bool QSocket::consumeReadBuf( Q_ULONG nbytes, char *sink )
 {
-    if ( nbytes <= 0 || nbytes > d->rsize )
-	return FALSE;
 #if defined(QSOCKET_DEBUG)
     qDebug( "QSocket (%s): consumeReadBuf %d bytes", name(), (int)nbytes );
 #endif
-    d->rsize -= nbytes;
-    for ( ;; ) {
-	QByteArray *a = d->rba.first();
-	if ( d->rindex + nbytes >= a->size() ) {
-	    // Here we skip the whole byte array and get the next later
-	    int len = a->size() - d->rindex;
-	    if ( sink ) {
-		memcpy( sink, a->data()+d->rindex, len );
-		sink += len;
-	    }
-	    nbytes -= len;
-	    d->rba.remove();
-	    d->rindex = 0;
-	    if ( nbytes == 0 ) {		// nothing more to skip
-		break;
-	    }
-	} else {
-	    // Here we skip only a part of the first byte array
-	    if ( sink )
-		memcpy( sink, a->data()+d->rindex, nbytes );
-	    d->rindex += nbytes;
-	    break;
-	}
-    }
-    return TRUE;
+    return d->rba.consumeBytes( nbytes, sink );
 }
 
 
@@ -676,59 +650,7 @@ bool QSocket::consumeWriteBuf( Q_ULONG nbytes )
 
 bool QSocket::scanNewline( QByteArray *store )
 {
-    if ( d->rsize == 0 )
-	return FALSE;
-    int i = 0; // index into 'store'
-    QByteArray *a = 0;
-    char *p;
-    int n;
-    for ( ;; ) {
-	if ( !a ) {
-	    a = d->rba.first();
-	    if ( !a || a->size() == 0 )
-		return FALSE;
-	    p = a->data() + d->rindex;
-	    n = a->size() - d->rindex;
-	} else {
-	    a = d->rba.next();
-	    if ( !a || a->size() == 0 )
-		return FALSE;
-	    p = a->data();
-	    n = a->size();
-	}
-	if ( store ) {
-	    while ( n-- > 0 ) {
-		*(store->data()+i) = *p;
-		if ( ++i == (int)store->size() )
-		    store->resize( store->size() < 256
-				   ? 1024 : store->size()*4 );
-		switch ( *p ) {
-		    case '\0':
-#if defined(QSOCKET_DEBUG)
-			qDebug( "QSocket (%s)::scanNewline: Oops, unexpected "
-				"0-terminated text read <%s>",
-				name(), store->data() );
-#endif
-			store->resize( i );
-			return FALSE;
-		    case '\n':
-			*(store->data()+i) = '\0';
-			store->resize( i );
-			return TRUE;
-		}
-		p++;
-	    }
-	} else {
-	    while ( n-- > 0 ) {
-		switch ( *p++ ) {
-		    case '\0':
-			return FALSE;
-		    case '\n':
-			return TRUE;
-		}
-	    }
-	}
-    }
+    return d->rba.scanNewline( store );
 }
 
 
@@ -840,7 +762,7 @@ QIODevice::Offset QSocket::at() const
 
 bool QSocket::at( Offset index )
 {
-    if ( index > d->rsize )
+    if ( index > d->rba.size() )
 	return FALSE;
     consumeReadBuf( (Q_ULONG)index, 0 );			// throw away data 0..index-1
     return TRUE;
@@ -858,7 +780,7 @@ bool QSocket::atEnd() const
     QSocket * that = (QSocket *)this;
     if ( that->d->socket->bytesAvailable() )	// a little slow, perhaps...
 	that->sn_read();
-    return that->d->rsize == 0;
+    return that->d->rba.size() == 0;
 }
 
 
@@ -876,7 +798,7 @@ Q_ULONG QSocket::bytesAvailable() const
     QSocket * that = (QSocket *)this;
     if ( that->d->socket->bytesAvailable() ) // a little slow, perhaps...
 	(void)that->sn_read();
-    return that->d->rsize;
+    return that->d->rba.size();
 }
 
 
@@ -906,7 +828,7 @@ Q_ULONG QSocket::waitForMore( int msecs, bool *timeout ) const
     QSocket * that = (QSocket *)this;
     if ( that->d->socket->waitForMore( msecs, timeout ) > 0 )
 	(void)that->sn_read( TRUE );
-    return that->d->rsize;
+    return that->d->rba.size();
 }
 
 /*! \overload
@@ -960,8 +882,8 @@ Q_LONG QSocket::readBlock( char *data, Q_ULONG maxlen )
 #endif
 	return -1;
     }
-    if ( maxlen >= d->rsize )
-	maxlen = d->rsize;
+    if ( maxlen >= d->rba.size() )
+	maxlen = d->rba.size();
 #if defined(QSOCKET_DEBUG)
     qDebug( "QSocket (%s): readBlock %d bytes", name(), (int)maxlen );
 #endif
@@ -1037,7 +959,7 @@ Q_LONG QSocket::writeBlock( const char *data, Q_ULONG len )
 
 int QSocket::getch()
 {
-    if ( isOpen() && d->rsize > 0 ) {
+    if ( isOpen() && d->rba.size() > 0 ) {
 	uchar c;
 	consumeReadBuf( 1, (char*)&c );
 	return c;
@@ -1076,21 +998,7 @@ int QSocket::ungetch( int ch )
 	return -1;
     }
 #endif
-
-    if ( d->rba.isEmpty() || d->rindex==0 ) {
-	// we need a new QByteArray
-	QByteArray *ba = new QByteArray( 1 );
-	d->rba.insert( 0, ba );
-	d->rsize++;
-	ba->at( 0 ) = ch;
-    } else {
-	// we can reuse a place in the buffer
-	QByteArray *ba = d->rba.first();
-	d->rindex--;
-	d->rsize++;
-	ba->at( d->rindex ) = ch;
-    }
-    return ch;
+    return d->rba.ungetch( ch );
 }
 
 
@@ -1270,7 +1178,6 @@ void QSocket::sn_read( bool force )
 	}
     }
     d->rba.append( a );
-    d->rsize += nread;
     if ( !force ) {
 	if ( d->rsn )
 	    d->rsn->setEnabled( FALSE );

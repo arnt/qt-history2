@@ -52,6 +52,9 @@
 #ifndef QT_H
 #include "qnamespace.h"
 #include "qrect.h"
+#include "qptrlist.h"
+#include "qcstring.h"
+#include "qiodevice.h"
 #endif // QT_H
 
 class QWidget;
@@ -163,4 +166,47 @@ QAutoDeleter<T>* qAutoDeleter( T* p )
 {
     return new QAutoDeleter<T>( p );
 }
+
+class QMembuf
+{
+public:
+    QMembuf();
+    ~QMembuf();
+
+    void append( QByteArray *ba );
+    void clear();
+
+    bool consumeBytes( Q_ULONG nbytes, char *sink );
+    bool scanNewline( QByteArray *store );
+    bool canReadLine() const;
+
+    int ungetch( int ch );
+
+    QIODevice::Offset size() const;
+
+private:
+
+    QPtrList<QByteArray> buf;
+    QIODevice::Offset _size;
+    QIODevice::Offset _index;
+};
+
+inline QMembuf::QMembuf() : _size(0), _index(0)
+{ buf.setAutoDelete( TRUE ); }
+
+inline QMembuf::~QMembuf()
+{ }
+
+inline void QMembuf::append( QByteArray *ba )
+{ buf.append( ba ); _size += ba->size(); }
+
+inline void QMembuf::clear()
+{ buf.clear(); _size=0; _index=0; }
+
+inline bool QMembuf::canReadLine() const
+{ return ((QMembuf*)this)->scanNewline( 0 ); }
+
+inline QIODevice::Offset QMembuf::size() const
+{ return _size; }
+
 #endif // QINTERNAL_P_H

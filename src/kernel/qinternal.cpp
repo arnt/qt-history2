@@ -633,3 +633,110 @@ void QSharedDoubleBuffer::cleanup()
 */
 
 
+// *******************************************************************
+// QMembuf declaration and implementation
+// *******************************************************************
+
+/* \internal
+   This class implements an efficient buffering of data that is often used by
+   asynchronous IO classes like QSocket, QHttp and QProcess.
+*/
+bool QMembuf::consumeBytes( Q_ULONG nbytes, char *sink )
+{
+    if ( nbytes <= 0 || nbytes > _size )
+	return FALSE;
+    _size -= nbytes;
+    for ( ;; ) {
+	QByteArray *a = buf.first();
+	if ( _index + nbytes >= a->size() ) {
+	    // Here we skip the whole byte array and get the next later
+	    int len = a->size() - _index;
+	    if ( sink ) {
+		memcpy( sink, a->data()+_index, len );
+		sink += len;
+	    }
+	    nbytes -= len;
+	    buf.remove();
+	    _index = 0;
+	    if ( nbytes == 0 )
+		break;
+	} else {
+	    // Here we skip only a part of the first byte array
+	    if ( sink )
+		memcpy( sink, a->data()+_index, nbytes );
+	    _index += nbytes;
+	    break;
+	}
+    }
+    return TRUE;
+}
+
+bool QMembuf::scanNewline( QByteArray *store )
+{
+    if ( _size == 0 )
+	return FALSE;
+    int i = 0; // index into 'store'
+    QByteArray *a = 0;
+    char *p;
+    int n;
+    for ( ;; ) {
+	if ( !a ) {
+	    a = buf.first();
+	    if ( !a || a->size() == 0 )
+		return FALSE;
+	    p = a->data() + _index;
+	    n = a->size() - _index;
+	} else {
+	    a = buf.next();
+	    if ( !a || a->size() == 0 )
+		return FALSE;
+	    p = a->data();
+	    n = a->size();
+	}
+	if ( store ) {
+	    while ( n-- > 0 ) {
+		*(store->data()+i) = *p;
+		if ( ++i == (int)store->size() )
+		    store->resize( store->size() < 256
+				   ? 1024 : store->size()*4 );
+		switch ( *p ) {
+		    case '\0':
+			store->resize( i );
+			return FALSE;
+		    case '\n':
+			*(store->data()+i) = '\0';
+			store->resize( i );
+			return TRUE;
+		}
+		p++;
+	    }
+	} else {
+	    while ( n-- > 0 ) {
+		switch ( *p++ ) {
+		    case '\0':
+			return FALSE;
+		    case '\n':
+			return TRUE;
+		}
+	    }
+	}
+    }
+}
+
+int QMembuf::ungetch( int ch )
+{
+    if ( buf.isEmpty() || _index==0 ) {
+	// we need a new QByteArray
+	QByteArray *ba = new QByteArray( 1 );
+	buf.insert( 0, ba );
+	_size++;
+	ba->at( 0 ) = ch;
+    } else {
+	// we can reuse a place in the buffer
+	QByteArray *ba = buf.first();
+	_index--;
+	_size++;
+	ba->at( _index ) = ch;
+    }
+    return ch;
+}

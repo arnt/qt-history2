@@ -48,6 +48,7 @@
 #include "qbuffer.h"
 #include "qurloperator.h"
 #include "qtimer.h"
+#include "private/qinternal_p.h"
 
 //#define QHTTP_DEBUG
 
@@ -63,12 +64,9 @@ public:
 	postDevice( 0 ),
 	bytesDone( 0 ),
 	chunkedSize( -1 ),
-	idleTimer( 0 ),
-	rsize(0),
-	rindex(0)
+	idleTimer( 0 )
     {
 	pending.setAutoDelete( TRUE );
-	rba.setAutoDelete( TRUE );
     }
 
     QSocket socket;
@@ -97,10 +95,7 @@ public:
 
     int idleTimer;
 
-    // read buffer variables
-    QPtrList<QByteArray> rba;
-    QIODevice::Offset rsize;
-    QIODevice::Offset rindex;
+    QMembuf rba;
 };
 
 class QHttpRequest
@@ -1422,9 +1417,9 @@ void QHttp::abort()
 Q_ULONG QHttp::bytesAvailable() const
 {
 #if defined(QHTTP_DEBUG)
-    qDebug( "QHttp::bytesAvailable(): %d bytes", (int)d->rsize );
+    qDebug( "QHttp::bytesAvailable(): %d bytes", (int)d->rba.size() );
 #endif
-    return d->rsize;
+    return d->rba.size();
 }
 
 /*!
@@ -1441,33 +1436,9 @@ Q_LONG QHttp::readBlock( char *data, Q_ULONG maxlen )
 #endif
 	return -1;
     }
-    if ( maxlen >= d->rsize )
-	maxlen = d->rsize;
-    Q_ULONG nbytes = maxlen;
-    d->rsize -= nbytes;
-    for ( ;; ) {
-	QByteArray *a = d->rba.first();
-	if ( d->rindex + nbytes >= a->size() ) {
-	    // Here we skip the whole byte array and get the next later
-	    int len = a->size() - d->rindex;
-	    if ( data ) {
-		memcpy( data, a->data()+d->rindex, len );
-		data += len;
-	    }
-	    nbytes -= len;
-	    d->rba.remove();
-	    d->rindex = 0;
-	    if ( nbytes == 0 ) {		// nothing more to skip
-		break;
-	    }
-	} else {
-	    // Here we skip only a part of the first byte array
-	    if ( data )
-		memcpy( data, a->data()+d->rindex, nbytes );
-	    d->rindex += nbytes;
-	    break;
-	}
-    }
+    if ( maxlen >= d->rba.size() )
+	maxlen = d->rba.size();
+    d->rba.consumeBytes( maxlen, data );
 
     d->bytesDone += maxlen;
 #if defined(QHTTP_DEBUG)
@@ -2097,7 +2068,6 @@ void QHttp::slotReadyRead()
 			emit dataReadProgress( d->bytesDone, 0 );
 		} else {
 		    d->rba.append( arr );
-		    d->rsize += n;
 #if defined(QHTTP_DEBUG)
 		    qDebug( "QHttp::slotReadyRead(): read %ld bytes (%ld bytes done)", n, d->bytesDone + bytesAvailable() );
 #endif
