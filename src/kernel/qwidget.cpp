@@ -936,6 +936,7 @@ void QWidget::createExtra()
 	extra->topextra = 0;
 	extra->bg_mode = PaletteBackground;
 	extra->style = 0;
+	extra->size_policy = QSizePolicy( QSizePolicy::Preferred, QSizePolicy::Preferred );
 	createSysExtra();
     }
 }
@@ -4586,7 +4587,7 @@ void QWidget::setLayout( QLayout *l )
 }
 
 
-/*!  
+/*!
   Returns the default layout behaviour of this widget.
 
   If there is a QLayout that manages this widget's children, the size
@@ -4601,8 +4602,8 @@ QSizePolicy QWidget::sizePolicy() const
     return extra ? extra->size_policy : QSizePolicy( QSizePolicy::Preferred, QSizePolicy::Preferred );
 }
 
-/*!  
-  
+/*!
+
   Sets the size policy for this widget to \a policy. The size policy
   specifies the default layout behaviour.
 
