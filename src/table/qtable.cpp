@@ -704,6 +704,9 @@ QString QTableItem::content() const
     You don't usually need to use this function but if you want to
     draw custom content in a cell you will need to reimplement it.
 
+    The painter passed to this function is translated so that 0, 0
+    is the top-left corner of the item that is being painted.
+
     Note that the painter is not clipped by default in order to get
     maximum efficiency. If you want clipping, use
 
