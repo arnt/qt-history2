@@ -13,7 +13,6 @@ ClipWindow::ClipWindow(QWidget *parent)
     mimeTypeCombo = new QComboBox(currentItem);
     QLabel *dataLabel = new QLabel(tr("Data:"), currentItem);
     dataInfoLabel = new QLabel("", currentItem);
-    textBrowser = new QTextBrowser(currentItem);
 
     previousItems = new QListWidget(centralWidget);
 
@@ -26,7 +25,6 @@ ClipWindow::ClipWindow(QWidget *parent)
     currentLayout->addWidget(mimeTypeCombo);
     currentLayout->addWidget(dataLabel);
     currentLayout->addWidget(dataInfoLabel);
-    currentLayout->addWidget(textBrowser);
     currentLayout->addStretch(1);
 
     QHBoxLayout *mainLayout = new QHBoxLayout(centralWidget);
@@ -55,18 +53,4 @@ void ClipWindow::updateData(const QString &format)
 {
     QByteArray data = clipboard->mimeData()->data(format);
     dataInfoLabel->setText(tr("%1 bytes").arg(data.size()));
-
-    QString subtype("html");
-    QString text;
-
-    text = clipboard->text(subtype);
-    if (!(text.isNull())) {
-        textBrowser->setHtml(text);
-        return;
-    }
-
-    subtype = "plain";
-    text = clipboard->text(subtype);
-    if (!(text.isNull()))
-        textBrowser->setPlainText(text);
 }
