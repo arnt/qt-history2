@@ -133,7 +133,6 @@ Feature Requests
 QFileDialog
   set filter to initial file-extension
   make addFilter public
-  add signal when filter changes
   Make the combobox like on MS-Windows and add additional
   functionality for bookmarks and history
   Provide more access to windows specific functions ( support/arc-09/19612 )
