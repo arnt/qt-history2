@@ -117,10 +117,11 @@ QScrollView and can display scroll bars automatically.
 
 More specialized widgets are presented in the appropriate sections.
 \Class QMenuBar, \Class QStatusBar, \Class QToolBar and related
-widgets are shown in \l {GUI App...}. \Class QMessageBox, \Class
-QFileDialog, \Class QTabDialog, \Class QWizard and other dialogs are
-shown in \l Dialogs. \Class QSplitter is covered in \l Layouts.
-\Class QCanvas and \Class QGLWidget are shown in \l {2D...}.
+widgets are shown in \l {GUI Applications}. \Class QMessageBox,
+\Class QFileDialog, \Class QTabDialog, \Class QWizard and other
+dialogs are shown in \l Dialogs. \Class QSplitter is covered in \l
+Layouts. \Class QCanvas and \Class QGLWidget are shown in \l {3D
+Graphics}.
 
 The code for the screenshot that shows the \Class {QRadioButton}s and
 \Class {QCheckBox}es follows:
@@ -201,7 +202,7 @@ Developers can also write custom widgets from scratch. For example,
 to create an analog clock, it would be necessary to draw the clock's
 face and hands in code rather than relying on functionality
 implemented in a base class. This could be achieved by reimplementing
-\Func paintEvent(), as explained in \l {2D...}.
+\Func paintEvent(), as explained in \l {2D Graphics}.
 
 \ONLINES
 ###

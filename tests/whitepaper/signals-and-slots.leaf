@@ -15,7 +15,7 @@ file's structure whenever we encounter a new tag. The programmer must
 relate events to the relevant code. Older toolkits use mechanisms
 which are not type-safe (i.e. are crash-prone), are inflexible, and
 make it difficult to do component programming. Qt uses a mechanism,
-invented by Trolltech, called \e {signals and slots}. Signals and
+invented by Trolltech, called 'signals and slots'. Signals and
 slots is a powerful inter-object communication mechanism
 that can be used to completely replace the crude callbacks and message
 maps used by older toolkits. Signals and slots are type-safe,
@@ -33,7 +33,7 @@ difficult to develop classes independently.
 Qt's signals and slots mechanism is different. Qt widgets emit signals
 when events occur. For example, a button will emit a 'clicked' signal
 when it is clicked. The programmer can choose to connect to a signal
-by creating a function (called a \e slot) and calling the \Func
+by creating a function (called a slot) and calling the \Func
 connect() function to relate the signal with the slot. Qt's signals
 and slots mechanism does not require classes to have knowledge of each
 other, which makes it much easier to develop highly reusable software
@@ -53,8 +53,8 @@ reported by the compiler rather than by crashes.
   \index events
   \index state of widgets
 
-Objects, typically widgets, emit \e signals to indicate state
-changes. Signals can be connected to member functions, \e slots, that
+Objects, typically widgets, emit signals to indicate state
+changes. Signals can be connected to member functions, slots, that
 implement the required behavior.
 
   \index connect()

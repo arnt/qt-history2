@@ -23,7 +23,7 @@ styles or implement their own styles using Qt's powerful style engine.
   \index emulation
   \index interface emulation
 
-A \e style implements the 'look and feel' of the user interface on a
+A style implements the 'look and feel' of the user interface on a
 particular platform. A style is a \Class QStyle subclass that
 implements basic drawing functions such as "draw a frame", "draw a
 button", etc. Qt performs all the widget drawing itself for maximum
@@ -54,7 +54,7 @@ command-line option on Unix.
   \index tooltips
   \index transition effects
 
-A style is complemented by a \e theme which encapsulates the user's
+A style is complemented by a theme, which encapsulates the user's
 preferences for colors, fonts, sounds, etc. Qt automatically adapts
 to the computer's active theme. For example, Qt supports scroll and
 fade transitions effects for menus and tooltips on Windows.

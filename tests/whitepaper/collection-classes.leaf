@@ -19,11 +19,11 @@ dictionaries with STL-syntax that work with all compilers.
   \index iterators
   \index templates
 
-Qt's rich set of portable collection classes (\e containers)
+Qt's rich set of portable collection classes ('containers')
 and associated iterators are heavily used internally, and are
 provided as part of the Qt API. Qt's containers are optimized for
-speed and memory efficiency using two techniques, \e {private
-classes} and \e {implicit sharing}. Programmers can also use STL
+speed and memory efficiency using two techniques, 'private
+classes' and 'implicit sharing'. Programmers can also use STL
 containers on the platforms that support them, at the cost of losing
 Qt's optimizations.
 

@@ -9,7 +9,6 @@
 
 class Clock : public QLCDNumber
 {
-    Q_OBJECT
 public:
     Clock( QWidget *parent = 0, const char *name = 0 );
 

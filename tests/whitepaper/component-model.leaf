@@ -20,8 +20,8 @@ right, like COM components.
   \index components
   \index interfaces
 
-The component model is built around two key concepts: \e interfaces
-and \e components. An interface is a \Class QUnknownInterface
+The component model is built around two key concepts: 'interfaces'
+and 'components'. An interface is a \Class QUnknownInterface
 subclass that provides pure virtual functions. A component is a class
 that implements one or more interfaces.
 
@@ -69,8 +69,8 @@ are removed by using Qt components.
 
 \section1 Using Components
 
-Qt components can be used as \e {unregistered components}, \e
-{registered components} and as \e {plugins}.
+Qt components can be used as unregistered components,
+as registered components and as plugins.
 
 \section2 Unregistered Components
 
@@ -135,7 +135,7 @@ vendors as additional tools for developers.
 
   \index plugins
 
-Applications can load any number of \e plugin components that
+Applications can load any number of plugin components that
 implement the plugin interface defined by the application. Plugins
 are distinguished from each other by the features they implement. The
 \Class QPluginManager\<T\> provides access to the available features.
@@ -225,7 +225,7 @@ straightforward as implementing a single interface.
 
   \index exporting components
 
-When compiling a component in a library, the component has to be \e
+When compiling a component in a library, the component has to be
 exported so that \Class QLibrary is aware of it. Qt provides macros
 to portably export components. \Class BlurFilter is exported like
 this:
@@ -237,7 +237,7 @@ this:
 \endcode
 
 This method allows one component to be exported per shared library.
-More components can be provided by exporting a \e factory component
+More components can be provided by exporting a factory component
 (a \Class QComponentFactoryInterface subclass) to create instances of
 any component from the library. \Class QComponentFactory
 automatically recognizes factory components and uses them to deliver

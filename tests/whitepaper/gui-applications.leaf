@@ -284,8 +284,8 @@ way for child MDI widgets as for ordinary top-level widgets.
   \index cascade
   \index tile
 
-\Class QWorkspace provides positioning strategies such as \e cascade
-and \e tile. If the child widgets extend outside the MDI area, scroll
+\Class QWorkspace provides positioning strategies such as cascade
+and tile. If the child widgets extend outside the MDI area, scroll
 bars can be set to appear automatically. If a child widget is
 maximized, the frame buttons (e.g. \Button Minimize) are shown in the
 menu bar.
