@@ -1248,8 +1248,8 @@ then
 	echo "########################################################################" >>$mkfile
 	grep "QMAKE_CC[^_A-Z0-9]" $QMAKESPEC/qmake.conf | sed "s,QMAKE_CC,CC," >>$mkfile
 	grep "QMAKE_CXX[^_A-Z0-9]" $QMAKESPEC/qmake.conf | sed "s,QMAKE_CXX,CXX," >>$mkfile
-	grep "QMAKE_LIBS_DYNLOAD" $QMAKESPEC/qmake.conf | sed "s,QMAKE_LIBS_,," >>$mkfile
-	EXTRA_LFLAGS="$EXTRA_LFLAGS \$(DYNLOAD)"
+	grep "QMAKE_LIBS_DYNLIB" $QMAKESPEC/qmake.conf | sed "s,QMAKE_LIBS_,," >>$mkfile
+	EXTRA_LFLAGS="$EXTRA_LFLAGS \$(DYNLIB)"
 	if [ "$DEBUG" = "yes" ]; then
           grep "QMAKE_CFLAGS_DEBUG[^_A-Z0-9]" $QMAKESPEC/qmake.conf >> $mkfile
 	  EXTRA_CFLAGS="$EXTRA_CFLAGS \$(QMAKE_CFLAGS_DEBUG)"
@@ -1814,3 +1814,4 @@ echo
 echo Qt is now configured for building. Just run $MAKE.
 echo To reconfigure, run $MAKE clean and configure.
 echo
+
