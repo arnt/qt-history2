@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#38 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#39 $
 **
 ** Implementation of QListView widget class
 **
@@ -23,7 +23,7 @@
 #include <stdarg.h> // va_list
 #include <stdlib.h> // qsort
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlistview.cpp#38 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlistview.cpp#39 $");
 
 
 const int Unsorted = 32767;
@@ -40,6 +40,7 @@ struct QListViewPrivate
 	void setHeight( int );
 	void invalidateHeight();
 	void setup();
+	QListView * listView() const;
 
 	QListView * lv;
     };
@@ -209,7 +210,6 @@ QListViewItem::~QListViewItem()
 	delete childItem;
 	childItem = nextChild;
     }
-
 }
 
 
@@ -236,12 +236,24 @@ void QListViewItem::insertItem( QListViewItem * newChild )
 void QListViewItem::removeItem( QListViewItem * tbg )
 {
     invalidateHeight();
+    
+    QListView * lv = listView();
 
-    if ( tbg == listView()->d->currentSelected )
-	listView()->d->currentSelected = 0;
-
-    if ( tbg == listView()->d->focusItem )
-	listView()->d->focusItem = 0;
+    if ( lv && lv->d->currentSelected ) {
+	QListViewItem * c = lv->d->currentSelected;
+	while( c && c != tbg )
+	    c = c->parentItem;
+	if ( c == tbg )
+	    lv->d->currentSelected = 0;
+    }
+    
+    if ( lv && lv->d->focusItem ) {
+	QListViewItem * c = lv->d->focusItem;
+	while( c && c != tbg )
+	    c = c->parentItem;
+	if ( c == tbg )
+	    lv->d->focusItem = 0;
+    }
 
     childCount--;
 
@@ -422,7 +434,7 @@ void QListViewItem::setOpen( bool o )
 
 /*!  This virtual function is called before the first time QListView
   needs to know the height or any other graphical attribute of this
-  class, and whenever the font, GUI style or colors of the list view
+  object, and whenever the font, GUI style or colors of the list view
   change.
 
   The default sets the item's height.
@@ -612,7 +624,7 @@ void QListViewItem::paintCell( QPainter * p, const QColorGroup & cg,
     }
 
     if ( showFocus && !column ) {
-	if ( listView()->style() == WindowsStyle ) {
+	if ( lv->style() == WindowsStyle ) {
 	    p->drawWinFocusRect( r-2, 0, width-r+2, height() );
 	} else {
 	    p->setPen( black );
@@ -777,9 +789,15 @@ void QListViewPrivate::Root::invalidateHeight()
 }
 
 
+QListView * QListViewPrivate::Root::listView() const
+{
+    return lv;
+}
+
+
 void QListViewPrivate::Root::setup()
 {
-    // nothing
+    // explicitly nothing
 }
 
 
@@ -842,6 +860,8 @@ QListView::QListView( QWidget * parent, const char * name )
 
 QListView::~QListView()
 {
+    d->focusItem = 0;
+    d->currentSelected = 0;
     delete d->r;
     delete d;
 }
@@ -1262,10 +1282,7 @@ bool QListView::eventFilter( QObject * o, QEvent * e )
 
 QListView * QListViewItem::listView() const
 {
-   const QListViewItem * l = this;
-    while( l && l->parentItem )
-	l = l->parentItem;
-    return ((QListViewPrivate::Root*)l)->lv;
+    return parentItem ? parentItem->listView() : 0;
 }
 
 

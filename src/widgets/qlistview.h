@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.h#16 $
+** $Id: //depot/qt/main/src/widgets/qlistview.h#17 $
 **
 ** Definition of QListView widget class
 **
@@ -64,7 +64,7 @@ public:
     QListViewItem * itemAbove();
     QListViewItem * itemBelow();
 
-    QListView *listView() const;
+    virtual QListView *listView() const;
 
     virtual void setSelectable( bool enable );
     bool isSelectable() const { return selectable; }
