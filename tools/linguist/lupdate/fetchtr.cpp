@@ -113,7 +113,7 @@ static int getToken()
 {
     const char tab[] = "abfnrtv";
     const char backTab[] = "\a\b\f\n\r\t\v";
-    int n;
+    uint n;
 
     yyIdentLen = 0;
     yyCommentLen = 0;
