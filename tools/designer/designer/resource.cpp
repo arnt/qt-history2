@@ -287,6 +287,11 @@ bool Resource::load( FormFile *ff, QIODevice* dev )
 	} else if ( e.tagName() == "layoutdefaults" ) {
 	    formwindow->setLayoutDefaultSpacing( e.attribute( "spacing", QString::number( formwindow->layoutDefaultSpacing() ) ).toInt() );
 	    formwindow->setLayoutDefaultMargin( e.attribute( "margin", QString::number( formwindow->layoutDefaultMargin() ) ).toInt() );
+	} else if ( e.tagName() == "layoutfunctions" ) {
+	    formwindow->setSpacingFunction( e.attribute( "spacing" ) );
+	    formwindow->setMarginFunction( e.attribute( "margin" ) );
+	    if ( !formwindow->marginFunction().isEmpty() || !formwindow->spacingFunction().isEmpty() )
+		formwindow->hasLayoutFunctions( TRUE );
 	}
 
 	e = e.nextSibling().toElement();
@@ -978,8 +983,11 @@ void Resource::saveObjectProperties( QObject *w, QTextStream &ts, int indent )
 	    if ( !changed.contains( "geometry" ) )
 		changed << "geometry";
 	}
-    } else if ( w->inherits( "QLayout" ) ) { // #### should be cleaner (RS)
-	changed << "margin" << "spacing";
+    } else if ( w->inherits( "QLayout" ) ) { // #### should be cleaner (RS)... now clean enough???
+	if ( MetaDataBase::spacing( WidgetFactory::containerOfWidget( WidgetFactory::layoutParent( (QLayout*)w ) ) ) > -1 )	
+	    changed << "spacing";
+	if ( MetaDataBase::margin( WidgetFactory::containerOfWidget( WidgetFactory::layoutParent( (QLayout*)w ) ) ) > -1 )
+	    changed << "margin";
     }
 
     if ( w == formwindow->mainContainer() ) {
@@ -1094,14 +1102,17 @@ void Resource::saveProperty( QObject *w, const QString &name, const QVariant &va
 	ts << makeIndent( indent ) << "<bool>" << mkBool( value.toBool() ) << "</bool>" << endl;
 	break;
     case QVariant::Int:
-	num = value.toInt();
 	if ( w && w->inherits( "QLayout" ) ) {
 	    if ( name == "spacing" )
 		num = MetaDataBase::spacing( WidgetFactory::containerOfWidget( WidgetFactory::layoutParent( (QLayout*)w ) ) );
 	    else if ( name == "margin" )
 		num = MetaDataBase::margin( WidgetFactory::containerOfWidget( WidgetFactory::layoutParent( (QLayout*)w ) ) );
+	    if ( num != -1 ) 
+		ts << makeIndent( indent ) << "<number>" << QString::number( num ) << "</number>" << endl;
+	} else {
+	    num = value.toInt();
+	    ts << makeIndent( indent ) << "<number>" << QString::number( num ) << "</number>" << endl;
 	}
-	ts << makeIndent( indent ) << "<number>" << QString::number( num ) << "</number>" << endl;
 	break;
     case QVariant::Double:
 	dob = value.toDouble();
@@ -1650,7 +1661,7 @@ void Resource::setObjectProperty( QObject* obj, const QString &prop, const QDomE
 
     QString comment;
     QVariant v( DomTool::elementToVariant( e, defVarient, comment ) );
-
+    
     if ( !comment.isEmpty() ) {
 	MetaDataBase::addEntry( obj );
 	MetaDataBase::setPropertyComment( obj, prop, comment );
@@ -2336,9 +2347,19 @@ void Resource::saveMetaInfoAfter( QTextStream &ts, int indent )
 	ts << makeIndent( indent ) << "<pixmapfunction>" << formwindow->pixmapLoaderFunction() << "</pixmapfunction>" << endl;
     if ( !( exportMacro = MetaDataBase::exportMacro( formwindow->mainContainer() ) ).isEmpty() )
 	ts << makeIndent( indent ) << "<exportmacro>" << exportMacro << "</exportmacro>" << endl;
-    if ( formwindow )
+    if ( formwindow ) {
 	ts << makeIndent( indent ) << "<layoutdefaults spacing=\"" << formwindow->layoutDefaultSpacing()
 	   << "\" margin=\"" << formwindow->layoutDefaultMargin() << "\"/>" << endl;
+	if ( formwindow->hasLayoutFunctions() ) {
+	    QString s = "";
+	    QString m = "";
+	    if ( !formwindow->spacingFunction().isEmpty() )
+		s = QString( " spacing=\"%1\"" ).arg( formwindow->spacingFunction() );
+	    if ( !formwindow->marginFunction().isEmpty() )
+		m = QString( " margin=\"%1\"" ).arg( formwindow->marginFunction() );
+	    ts << makeIndent( indent ) << "<layoutfunctions" << s << m << "/>" << endl;
+	}
+    }
 }
 
 QColorGroup Resource::loadColorGroup( const QDomElement &e )

@@ -209,6 +209,30 @@ private:
 
 };
 
+class PropertyLayoutItem : public QObject,
+			public PropertyItem
+{
+    Q_OBJECT
+
+public:
+    PropertyLayoutItem( PropertyList *l, PropertyItem *after, PropertyItem *prop,
+		        const QString &propName );
+    ~PropertyLayoutItem();
+
+    virtual void showEditor();
+    virtual void hideEditor();
+
+    virtual void setValue( const QVariant &v );
+
+private slots:
+    void setValue();
+
+private:
+    QSpinBox *spinBox();
+    QGuardedPtr<QSpinBox> spinBx;
+
+};
+
 class PropertyDoubleItem : public QObject,
 			public PropertyItem
 {
@@ -510,6 +534,7 @@ public:
     virtual void setPropertyValue( PropertyItem *i );
     virtual void setCurrentProperty( const QString &n );
 
+    void layoutInitValue( PropertyItem *i );
     PropertyEditor *propertyEditor() const;
     QString whatsThisAt( const QPoint &p );
     void showCurrentWhatsThis();

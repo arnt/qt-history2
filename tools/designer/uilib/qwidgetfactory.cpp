@@ -739,7 +739,7 @@ QWidget *QWidgetFactory::createWidgetInternal( const QDomElement &e, QWidget *pa
 	    if ( layout && layout->inherits( "QGridLayout" ) )
 		layout = createLayout( 0, 0, QWidgetFactory::HBox );
 	    else
-		layout = createLayout( w, layout, QWidgetFactory::HBox );
+		layout = createLayout( w, layout, QWidgetFactory::HBox, TRUE );
 	    obj = layout;
 	    n = n.firstChild().toElement();
 	    if ( parentLayout && parentLayout->inherits( "QGridLayout" ) )
@@ -749,8 +749,8 @@ QWidget *QWidgetFactory::createWidgetInternal( const QDomElement &e, QWidget *pa
 	    QLayout *parentLayout = layout;
 	    if ( layout && layout->inherits( "QGridLayout" ) )
 		layout = createLayout( 0, 0, QWidgetFactory::Grid );
-	    else
-		layout = createLayout( w, layout, QWidgetFactory::Grid );
+	    else 
+		layout = createLayout( w, layout, QWidgetFactory::Grid, TRUE );
 	    obj = layout;
 	    n = n.firstChild().toElement();
 	    if ( parentLayout && parentLayout->inherits( "QGridLayout" ) )
@@ -761,7 +761,7 @@ QWidget *QWidgetFactory::createWidgetInternal( const QDomElement &e, QWidget *pa
 	    if ( layout && layout->inherits( "QGridLayout" ) )
 		layout = createLayout( 0, 0, QWidgetFactory::VBox );
 	    else
-		layout = createLayout( w, layout, QWidgetFactory::VBox );
+		layout = createLayout( w, layout, QWidgetFactory::VBox, TRUE );
 	    obj = layout;
 	    n = n.firstChild().toElement();
 	    if ( parentLayout && parentLayout->inherits( "QGridLayout" ) )
@@ -797,11 +797,11 @@ QWidget *QWidgetFactory::createWidgetInternal( const QDomElement &e, QWidget *pa
     return w;
 }
 
-QLayout *QWidgetFactory::createLayout( QWidget *widget, QLayout*  layout, LayoutType type )
+QLayout *QWidgetFactory::createLayout( QWidget *widget, QLayout*  layout, LayoutType type, bool setDefaults )
 {
     int spacing = defSpacing;
     int margin = defMargin;
-
+    
     if ( !layout && widget && widget->inherits( "QTabWidget" ) )
 	widget = ((QTabWidget*)widget)->currentPage();
 
@@ -861,23 +861,23 @@ QLayout *QWidgetFactory::createLayout( QWidget *widget, QLayout*  layout, Layout
 	    switch ( type ) {
 	    case HBox:
 		l = new QHBoxLayout( widget );
-		if ( !widget ) {
+		if ( !widget || setDefaults ) {
 		    l->setMargin( margin );
-		    l->setSpacing( margin );
+		    l->setSpacing( spacing );
 		}
 		return l;
 	    case VBox:
 		l = new QVBoxLayout( widget );
-		if ( !widget ) {
+		if ( !widget || setDefaults ) {
 		    l->setMargin( margin );
-		    l->setSpacing( margin );
+		    l->setSpacing( spacing );
 		}
 		return l;
 	    case Grid: {
 		l = new QGridLayout( widget );
-		if ( !widget ) {
+		if ( !widget || setDefaults ) {
 		    l->setMargin( margin );
-		    l->setSpacing( margin );
+		    l->setSpacing( spacing );
 		}
 		return l;
 	    }
@@ -1009,7 +1009,6 @@ void QWidgetFactory::setProperty( QObject* obj, const QString &prop, const QDomE
 	    return;
 	}
     }
-
     obj->setProperty( prop, v );
 }
 

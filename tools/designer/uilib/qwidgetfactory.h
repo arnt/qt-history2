@@ -59,7 +59,7 @@ private:
     void loadConnections( const QDomElement &e, QObject *connector );
     void loadTabOrder( const QDomElement &e );
     QWidget *createWidgetInternal( const QDomElement &e, QWidget *parent, QLayout* layout, const QString &classNameArg );
-    QLayout *createLayout( QWidget *widget, QLayout*  layout, LayoutType type );
+    QLayout *createLayout( QWidget *widget, QLayout*  layout, LayoutType type, bool setDefaults = FALSE );
     LayoutType layoutType( QLayout *l ) const;
     void setProperty( QObject* widget, const QString &prop, const QDomElement &e );
     void createSpacer( const QDomElement &e, QLayout *layout );

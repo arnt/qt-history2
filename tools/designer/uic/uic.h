@@ -26,6 +26,7 @@
 #include <qmap.h>
 #include <qtextstream.h>
 #include <qpalette.h>
+#include <qvariant.h>
 
 class Uic : public Qt
 {
@@ -141,7 +142,7 @@ private:
     static bool onlyAscii;
     static QString mkStdSet( const QString& prop );
     static QString getComment( const QDomNode& n );
-    int defSpacing, defMargin;
+    QVariant defSpacing, defMargin;
     QString fileName;
     bool writeSlotImpl;
 

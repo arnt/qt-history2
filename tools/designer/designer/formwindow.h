@@ -189,7 +189,13 @@ public:
     int layoutDefaultMargin() const;
     void setLayoutDefaultSpacing( int s );
     void setLayoutDefaultMargin( int s );
-
+    QString spacingFunction() const;
+    QString marginFunction() const;
+    void setSpacingFunction( const QString &func );
+    void setMarginFunction( const QString &func );
+    bool hasLayoutFunctions() const;
+    void hasLayoutFunctions( bool b );
+    
     void initSlots();
     FormFile *formFile() const;
     void setFormFile( FormFile *f );
@@ -299,6 +305,8 @@ private:
     QPalette restorePalette;
     bool hadOwnPalette;
     int defSpacing, defMargin;
+    QString spacFunction, margFunction;
+    bool hasLayoutFunc;
     FormFile *ff;
     bool fake;
 

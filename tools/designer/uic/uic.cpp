@@ -151,8 +151,11 @@ Uic::Uic( const QString &fn, QTextStream &outStream, QDomDocument doc,
 	} else if ( e.tagName() == "pixmapinproject" ) {
 	    externPixmaps = TRUE;
 	} else if ( e.tagName() == "layoutdefaults" ) {
-	    defSpacing = e.attribute( "spacing", QString::number( defSpacing ) ).toInt();
-	    defMargin = e.attribute( "margin", QString::number( defMargin ) ).toInt();
+	    defSpacing = e.attribute( "spacing", defSpacing.toString() ); //QString::number( defSpacing ) ).toInt();
+	    defMargin = e.attribute( "margin", defMargin.toString() ); //QString::number( defMargin ) ).toInt();
+	} else if ( e.tagName() == "layoutfunctions" ) {
+	    defSpacing = e.attribute( "spacing", defSpacing.toString() );
+	    defMargin = e.attribute( "margin", defMargin.toString() );
 	}
 	e = e.nextSibling().toElement();
     }
@@ -721,8 +724,12 @@ QString Uic::createLayoutImpl( const QDomElement &e, const QString& parentClass,
     bool isGrid = e.tagName() == "grid" ;
     objName = registerObject( getLayoutName( e ) );
     layoutObjects += objName;
-    int margin = DomTool::readProperty( e, "margin", defMargin ).toInt();
-    int spacing = DomTool::readProperty( e, "spacing", defSpacing ).toInt();
+    // TODO
+    //int margin = DomTool::readProperty( e, "margin", defMargin ).toInt();
+    //int spacing = DomTool::readProperty( e, "spacing", defSpacing ).toInt();
+    
+    QString margin = DomTool::readProperty( e, "margin", defMargin ).toString();
+    QString spacing = DomTool::readProperty( e, "spacing", defSpacing ).toString();
 
     QString optcells;
     if ( isGrid )

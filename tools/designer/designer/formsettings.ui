@@ -27,8 +27,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>497</width>
-            <height>426</height>
+            <width>597</width>
+            <height>458</height>
         </rect>
     </property>
     <property name="caption">
@@ -225,13 +225,165 @@
                     <property name="sizeType">
                         <enum>Expanding</enum>
                     </property>
-                    <property name="sizeHint">
-                        <size>
-                            <width>20</width>
-                            <height>20</height>
-                        </size>
+                </spacer>
+            </grid>
+        </widget>
+        <widget class="QGroupBox" row="1" column="1">
+            <property name="name">
+                <cstring>GroupBox2</cstring>
+            </property>
+            <property name="title">
+                <string>La&amp;youts</string>
+            </property>
+            <grid>
+                <property name="name">
+                    <cstring>unnamed</cstring>
+                </property>
+                <property name="margin">
+                    <number>11</number>
+                </property>
+                <property name="spacing">
+                    <number>6</number>
+                </property>
+                <widget class="QSpinBox" row="0" column="2">
+                    <property name="name">
+                        <cstring>spinMargin</cstring>
+                    </property>
+                    <property name="value">
+                        <number>11</number>
+                    </property>
+                </widget>
+                <spacer row="0" column="3">
+                    <property name="name">
+                        <cstring>Spacer3</cstring>
+                    </property>
+                    <property name="orientation">
+                        <enum>Horizontal</enum>
+                    </property>
+                    <property name="sizeType">
+                        <enum>Expanding</enum>
                     </property>
                 </spacer>
+                <widget class="QLabel" row="1" column="0" rowspan="1" colspan="2">
+                    <property name="name">
+                        <cstring>TextLabel2_2</cstring>
+                    </property>
+                    <property name="text">
+                        <string>D&amp;efault Spacing:</string>
+                    </property>
+                    <property name="buddy" stdset="0">
+                        <cstring>spinSpacing</cstring>
+                    </property>
+                </widget>
+                <widget class="QCheckBox" row="2" column="0" rowspan="1" colspan="2">
+                    <property name="name">
+                        <cstring>checkLayoutFunctions</cstring>
+                    </property>
+                    <property name="text">
+                        <string>Use Func&amp;tions:</string>
+                    </property>
+                </widget>
+                <widget class="QSpinBox" row="1" column="2">
+                    <property name="name">
+                        <cstring>spinSpacing</cstring>
+                    </property>
+                    <property name="value">
+                        <number>6</number>
+                    </property>
+                </widget>
+                <spacer row="1" column="3">
+                    <property name="name">
+                        <cstring>Spacer4</cstring>
+                    </property>
+                    <property name="orientation">
+                        <enum>Horizontal</enum>
+                    </property>
+                    <property name="sizeType">
+                        <enum>Expanding</enum>
+                    </property>
+                </spacer>
+                <widget class="QLabel" row="0" column="0" rowspan="1" colspan="2">
+                    <property name="name">
+                        <cstring>TextLabel1_3</cstring>
+                    </property>
+                    <property name="text">
+                        <string>Default Mar&amp;gin:</string>
+                    </property>
+                    <property name="buddy" stdset="0">
+                        <cstring>spinMargin</cstring>
+                    </property>
+                </widget>
+                <widget class="QLabel" row="4" column="0">
+                    <property name="name">
+                        <cstring>spaFuLabel</cstring>
+                    </property>
+                    <property name="enabled">
+                        <bool>false</bool>
+                    </property>
+                    <property name="text">
+                        <string>S&amp;pacing:</string>
+                    </property>
+                    <property name="buddy" stdset="0">
+                        <cstring>editSpacingFunction</cstring>
+                    </property>
+                </widget>
+                <widget class="QLabel" row="3" column="0">
+                    <property name="name">
+                        <cstring>marFuLabel</cstring>
+                    </property>
+                    <property name="enabled">
+                        <bool>false</bool>
+                    </property>
+                    <property name="sizePolicy">
+                        <sizepolicy>
+                            <hsizetype>5</hsizetype>
+                            <vsizetype>5</vsizetype>
+                            <horstretch>0</horstretch>
+                            <verstretch>0</verstretch>
+                        </sizepolicy>
+                    </property>
+                    <property name="text">
+                        <string>Ma&amp;rgin:</string>
+                    </property>
+                    <property name="buddy" stdset="0">
+                        <cstring>editMarginFunction</cstring>
+                    </property>
+                </widget>
+                <spacer row="2" column="2" rowspan="1" colspan="2">
+                    <property name="name">
+                        <cstring>Spacer5</cstring>
+                    </property>
+                    <property name="orientation">
+                        <enum>Horizontal</enum>
+                    </property>
+                    <property name="sizeType">
+                        <enum>Expanding</enum>
+                    </property>
+                </spacer>
+                <widget class="QLineEdit" row="4" column="1" rowspan="1" colspan="3">
+                    <property name="name">
+                        <cstring>editSpacingFunction</cstring>
+                    </property>
+                    <property name="enabled">
+                        <bool>false</bool>
+                    </property>
+                </widget>
+                <widget class="QLineEdit" row="3" column="1" rowspan="1" colspan="3">
+                    <property name="name">
+                        <cstring>editMarginFunction</cstring>
+                    </property>
+                    <property name="enabled">
+                        <bool>false</bool>
+                    </property>
+                    <property name="sizePolicy">
+                        <sizepolicy>
+                            <hsizetype>5</hsizetype>
+                            <vsizetype>0</vsizetype>
+                            <horstretch>0</horstretch>
+                            <verstretch>0</verstretch>
+                        </sizepolicy>
+                    </property>
+                </widget>
             </grid>
         </widget>
         <widget class="QLayoutWidget" row="2" column="0" rowspan="1" colspan="2">
@@ -269,12 +421,6 @@
                     <property name="sizeType">
                         <enum>Expanding</enum>
                     </property>
-                    <property name="sizeHint">
-                        <size>
-                            <width>20</width>
-                            <height>20</height>
-                        </size>
-                    </property>
                 </spacer>
                 <widget class="QPushButton">
                     <property name="name">
@@ -309,63 +455,6 @@
                 </widget>
             </hbox>
         </widget>
-        <widget class="QGroupBox" row="1" column="1">
-            <property name="name">
-                <cstring>GroupBox2</cstring>
-            </property>
-            <property name="title">
-                <string>La&amp;youts</string>
-            </property>
-            <grid>
-                <property name="name">
-                    <cstring>unnamed</cstring>
-                </property>
-                <property name="margin">
-                    <number>11</number>
-                </property>
-                <property name="spacing">
-                    <number>6</number>
-                </property>
-                <widget class="QSpinBox" row="0" column="1">
-                    <property name="name">
-                        <cstring>spinMargin</cstring>
-                    </property>
-                    <property name="value">
-                        <number>11</number>
-                    </property>
-                </widget>
-                <widget class="QSpinBox" row="1" column="1">
-                    <property name="name">
-                        <cstring>spinSpacing</cstring>
-                    </property>
-                    <property name="value">
-                        <number>6</number>
-                    </property>
-                </widget>
-                <widget class="QLabel" row="0" column="0">
-                    <property name="name">
-                        <cstring>TextLabel1_3</cstring>
-                    </property>
-                    <property name="text">
-                        <string>Default Mar&amp;gin:</string>
-                    </property>
-                    <property name="buddy" stdset="0">
-                        <cstring>spinMargin</cstring>
-                    </property>
-                </widget>
-                <widget class="QLabel" row="1" column="0">
-                    <property name="name">
-                        <cstring>TextLabel2_2</cstring>
-                    </property>
-                    <property name="text">
-                        <string>D&amp;efault Spacing:</string>
-                    </property>
-                    <property name="buddy" stdset="0">
-                        <cstring>spinSpacing</cstring>
-                    </property>
-                </widget>
-            </grid>
-        </widget>
     </grid>
 </widget>
 <connections>
@@ -385,6 +474,30 @@
         <sender>radioPixmapFunction</sender>
         <signal>toggled(bool)</signal>
         <receiver>editPixmapFunction</receiver>
+        <slot>setEnabled(bool)</slot>
+    </connection>
+    <connection>
+        <sender>checkLayoutFunctions</sender>
+        <signal>toggled(bool)</signal>
+        <receiver>editSpacingFunction</receiver>
+        <slot>setEnabled(bool)</slot>
+    </connection>
+    <connection>
+        <sender>checkLayoutFunctions</sender>
+        <signal>toggled(bool)</signal>
+        <receiver>editMarginFunction</receiver>
+        <slot>setEnabled(bool)</slot>
+    </connection>
+    <connection>
+        <sender>checkLayoutFunctions</sender>
+        <signal>toggled(bool)</signal>
+        <receiver>marFuLabel</receiver>
+        <slot>setEnabled(bool)</slot>
+    </connection>
+    <connection>
+        <sender>checkLayoutFunctions</sender>
+        <signal>toggled(bool)</signal>
+        <receiver>spaFuLabel</receiver>
         <slot>setEnabled(bool)</slot>
     </connection>
 </connections>

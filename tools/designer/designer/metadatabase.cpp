@@ -28,6 +28,8 @@
 #include "formfile.h"
 #include "propertyobject.h"
 
+#include "mainwindow.h"
+
 #include <qapplication.h>
 #include <qobject.h>
 #include <qlayout.h>
@@ -309,8 +311,15 @@ void MetaDataBase::setSpacing( QObject *o, int spacing )
     r->spacing = spacing;
     QLayout * layout = 0;
     WidgetFactory::layoutType( (QWidget*)o, layout );
-    if ( layout )
-	layout->setSpacing( spacing );
+    if ( layout ) {
+	int spadef = 6;
+	if ( MainWindow::self->formWindow() )
+	    spadef = MainWindow::self->formWindow()->layoutDefaultSpacing();
+	if ( spacing == -1 )
+	    layout->setSpacing( spadef );
+	else
+	    layout->setSpacing( spacing );
+    }
 }
 
 int MetaDataBase::spacing( QObject *o )
@@ -345,10 +354,15 @@ void MetaDataBase::setMargin( QObject *o, int margin )
     r->margin = margin;
     QLayout * layout = 0;
     WidgetFactory::layoutType( (QWidget*)o, layout );
-    if ( margin < 1 )
-	margin = 1;
-    if ( layout )
-	layout->setMargin( margin );
+    if ( layout ) {
+	int mardef = 11;
+	if ( MainWindow::self->formWindow() )
+	    mardef = MainWindow::self->formWindow()->layoutDefaultMargin();
+	if ( margin == -1 )
+	    layout->setMargin( mardef );
+	else 
+	    layout->setMargin( margin );
+    }
 }
 
 int MetaDataBase::margin( QObject *o )

@@ -32,6 +32,7 @@
 #include <qradiobutton.h>
 #include <qlineedit.h>
 #include <qspinbox.h>
+#include <qcheckbox.h>
 
 FormSettings::FormSettings( QWidget *parent, FormWindow *fw )
     : FormSettingsBase( parent, 0, TRUE ), formwindow( fw )
@@ -57,7 +58,10 @@ FormSettings::FormSettings( QWidget *parent, FormWindow *fw )
     editPixmapFunction->setText( formwindow->pixmapLoaderFunction() );
     radioProjectImageFile->setEnabled( !fw->project()->isDummy() );
     spinSpacing->setValue( formwindow->layoutDefaultSpacing() );
+    checkLayoutFunctions->setChecked( formwindow->hasLayoutFunctions() );
+    editSpacingFunction->setText( formwindow->spacingFunction() );
     spinMargin->setValue( formwindow->layoutDefaultMargin() );
+    editMarginFunction->setText( formwindow->marginFunction() );
 }
 
 void FormSettings::okClicked()
@@ -90,11 +94,17 @@ void FormSettings::okClicked()
 	formwindow->setSavePixmapInline( FALSE );
 	formwindow->setSavePixmapInProject( FALSE );
     }
+    
+    if ( checkLayoutFunctions->isChecked() )
+	formwindow->hasLayoutFunctions( TRUE );
+    else
+	formwindow->hasLayoutFunctions( FALSE );
 
     formwindow->setPixmapLoaderFunction( editPixmapFunction->text() );
     formwindow->setLayoutDefaultSpacing( spinSpacing->value() );
+    formwindow->setSpacingFunction( editSpacingFunction->text() );
     formwindow->setLayoutDefaultMargin( spinMargin->value() );
+    formwindow->setMarginFunction( editMarginFunction->text() );
 
     accept();
 }
-

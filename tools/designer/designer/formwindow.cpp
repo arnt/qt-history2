@@ -184,6 +184,7 @@ void FormWindow::init()
 
     defSpacing = BOXLAYOUT_DEFAULT_SPACING;
     defMargin = BOXLAYOUT_DEFAULT_MARGIN;
+    hasLayoutFunc = FALSE;
 }
 
 void FormWindow::setMainWindow( MainWindow *w )
@@ -2540,6 +2541,7 @@ void FormWindow::setProject( Project *pro )
     proj = pro;
 }
 
+
 Project *FormWindow::project() const
 {
     return proj;
@@ -2609,6 +2611,36 @@ void FormWindow::setLayoutDefaultSpacing( int s )
 void FormWindow::setLayoutDefaultMargin( int s )
 {
     defMargin = s;
+}
+
+void FormWindow::setSpacingFunction( const QString &funct )
+{
+    spacFunction = funct;
+}
+
+QString FormWindow::spacingFunction() const
+{
+    return spacFunction;
+}
+
+void FormWindow::hasLayoutFunctions( bool b )
+{
+    hasLayoutFunc = b;
+}
+
+bool FormWindow::hasLayoutFunctions() const
+{
+    return hasLayoutFunc;
+}
+
+void FormWindow::setMarginFunction( const QString &funct )
+{
+    margFunction = funct;
+}
+
+QString FormWindow::marginFunction() const
+{
+    return margFunction;
 }
 
 FormFile *FormWindow::formFile() const

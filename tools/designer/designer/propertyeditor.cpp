@@ -35,6 +35,7 @@
 #include "mainwindow.h"
 #include "project.h"
 #include "hierarchyview.h"
+#include "layoutdialogimpl.h"
 
 #include <limits.h>
 
@@ -372,8 +373,9 @@ void PropertyItem::setChanged( bool b, bool updateDb )
 	return;
     changed = b;
     repaint();
-    if ( updateDb )
+    if ( updateDb ) {
 	MetaDataBase::setPropertyChanged( listview->propertyEditor()->widget(), name(), changed );
+    }
     updateResetButtonState();
 }
 
@@ -451,7 +453,7 @@ void PropertyItem::notifyValueChange()
 	setChanged( TRUE );
 	if ( hasSubItems() )
 	    initChildren();
-    } else {
+    } else {	
 	propertyParent()->childValueChanged( this );
 	setChanged( TRUE );
     }
@@ -1234,6 +1236,82 @@ void PropertyIntItem::setValue()
 	PropertyItem::setValue( (uint)spinBox()->value() );
     notifyValueChange();
 }
+
+// --------------------------------------------------------------
+
+PropertyLayoutItem::PropertyLayoutItem( PropertyList *l, PropertyItem *after, PropertyItem *prop,
+		  const QString &propName )
+    : PropertyItem( l, after, prop, propName )
+{
+    spinBx = 0;
+}
+
+PropertyLayoutItem::~PropertyLayoutItem()
+{
+    delete (QSpinBox*)spinBx;
+    spinBx = 0;
+}
+
+QSpinBox* PropertyLayoutItem::spinBox()
+{
+    if ( spinBx )
+	return spinBx;
+    spinBx = new QSpinBox( -1, INT_MAX, 1, listview->viewport() );
+    spinBx->setSpecialValueText( tr( "default" ) );
+    spinBx->hide();
+    spinBx->installEventFilter( listview );
+    QObjectList *ol = spinBx->queryList( "QLineEdit" );
+    if ( ol && ol->first() )
+	ol->first()->installEventFilter( listview );
+    delete ol;
+    connect( spinBx, SIGNAL( valueChanged( int ) ),
+	     this, SLOT( setValue() ) );
+    return spinBx;
+}
+
+void PropertyLayoutItem::showEditor()
+{
+    PropertyItem::showEditor();
+    if ( !spinBx ) {
+	spinBox()->blockSignals( TRUE );
+	spinBox()->setValue( value().toInt() );
+	spinBox()->blockSignals( TRUE );
+    }
+    placeEditor( spinBox() );
+    if ( !spinBox()->isVisible() || !spinBox()->hasFocus() ) {
+	spinBox()->show();
+	setFocus( spinBox() );
+    }
+}
+
+void PropertyLayoutItem::hideEditor()
+{
+    PropertyItem::hideEditor();
+    spinBox()->hide();
+}
+
+void PropertyLayoutItem::setValue( const QVariant &v )
+{
+    if ( spinBx ) {
+	spinBox()->blockSignals( TRUE );
+	spinBox()->setValue( v.toInt() );
+	spinBox()->blockSignals( FALSE );
+    }
+    QString s = v.toString();
+    if ( v.toInt() == -1 )
+	s = spinBox()->specialValueText();
+    setText( 1, s );
+    PropertyItem::setValue( v );
+}
+
+void PropertyLayoutItem::setValue()
+{
+    if ( !spinBx )
+	return;
+    PropertyItem::setValue( spinBox()->value() );
+    notifyValueChange();
+}
+    
 
 // --------------------------------------------------------------
 
@@ -2703,12 +2781,12 @@ void PropertyList::setupProperties()
 
     if ( !w->inherits( "QSplitter" ) && !w->inherits( "QDesignerMenuBar" ) && !w->inherits( "QDesignerToolBar" ) &&
 	 w->isWidgetType() && WidgetFactory::layoutType( (QWidget*)w ) != WidgetFactory::NoLayout ) {
-	item = new PropertyIntItem( this, item, 0, "layoutSpacing", TRUE );
+	item = new PropertyLayoutItem( this, item, 0, "layoutSpacing" );
 	setPropertyValue( item );
-	item->setChanged( TRUE );
-	item = new PropertyIntItem( this, item, 0, "layoutMargin", TRUE );
+	layoutInitValue( item );
+	item = new PropertyLayoutItem( this, item, 0, "layoutMargin" );
 	setPropertyValue( item );
-	item->setChanged( TRUE );
+	layoutInitValue( item );
     }
 
 
@@ -2814,6 +2892,8 @@ bool PropertyList::addPropertyItem( PropertyItem *&item, const QCString &name, Q
     case QVariant::Int:
 	if ( name == "accel" )
 	    item = new PropertyTextItem( this, item, 0, name, FALSE, FALSE, FALSE, TRUE );
+	else if ( name == "layoutSpacing" || name == "layoutMargin" )
+	    item = new PropertyLayoutItem( this, item, 0, name );
 	else
 	    item = new PropertyIntItem( this, item, 0, name, TRUE );
 	break;
@@ -2904,8 +2984,22 @@ void PropertyList::valueChanged( PropertyItem *i )
 						      editor->widget(), editor,
 						      i->name(), WidgetFactory::property( editor->widget(), i->name() ),
 						      i->value(), i->currentItem(), i->currentItemFromObject() );
+    
     cmd->execute();
     editor->formWindow()->commandHistory()->addCommand( cmd, TRUE );
+}
+
+void PropertyList::layoutInitValue( PropertyItem *i )
+{
+    if ( !editor->widget() )
+	return;
+    QString pn( tr( "Set '%1' of '%2'" ).arg( i->name() ).arg( editor->widget()->name() ) );
+    SetPropertyCommand *cmd = new SetPropertyCommand( pn, editor->formWindow(),
+						      editor->widget(), editor,
+						      i->name(), WidgetFactory::property( editor->widget(), i->name() ),
+						      i->value(), i->currentItem(), i->currentItemFromObject() );
+    cmd->execute();
+    i->setChanged( FALSE );
 }
 
 void PropertyList::itemPressed( QListViewItem *i, const QPoint &p, int c )
@@ -3102,9 +3196,9 @@ void PropertyList::setPropertyValue( PropertyItem *i )
 	    else
 		i->setValue( QVariant( FALSE, 0 ) );
 	} else if ( i->name() == "layoutSpacing" ) {
-	    ( (PropertyIntItem*)i )->setValue( MetaDataBase::spacing( WidgetFactory::containerOfWidget( (QWidget*)editor->widget() ) ) );
+	    ( (PropertyLayoutItem*)i )->setValue( MetaDataBase::spacing( WidgetFactory::containerOfWidget( (QWidget*)editor->widget() ) ) );
 	} else if ( i->name() == "layoutMargin" ) {
-	    ( (PropertyIntItem*)i )->setValue( MetaDataBase::margin( WidgetFactory::containerOfWidget( (QWidget*)editor->widget() ) ) );
+	    ( (PropertyLayoutItem*)i )->setValue( MetaDataBase::margin( WidgetFactory::containerOfWidget( (QWidget*)editor->widget() ) ) );
 	} else if ( i->name() == "toolTip" || i->name() == "whatsThis" || i->name() == "database" || i->name() == "frameworkCode" ) {
 	    i->setValue( MetaDataBase::fakeProperty( editor->widget(), i->name() ) );
 	} else if ( editor->widget()->inherits( "CustomWidget" ) ) {
