@@ -46,7 +46,7 @@ public:
     enum Flag {
         IncludeTrailingSpaces = 0x80000000
     };
-    Q_DECLARE_FLAGS(Flags, Flag);
+    Q_DECLARE_FLAGS(Flags, Flag)
     inline void setFlags(Flags flags) { f = flags; }
     inline Flags flags() const { return Flags(f); }
 
