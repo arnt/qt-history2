@@ -112,29 +112,29 @@ class UNDECLARED_METATYPE
 };
 
 template <class T>
-static int qt_metatype_id(T * = 0) { UNDECLARED_METATYPE<T> tp; return QMetaType::Void; }
+inline int qt_metatype_id(T *) { UNDECLARED_METATYPE<T> tp; return QMetaType::Void; }
 
 #define Q_DECLARE_METATYPE(TYPE) \
-template<> static int qt_metatype_id(TYPE *) \
+static int qt_metatype_id(TYPE *) \
 { \
     static int tp = qRegisterMetaType<TYPE>(#TYPE); \
     return tp; \
 }
 
-template<> static int qt_metatype_id(QString *) { return QMetaType::QString; }
-template<> static int qt_metatype_id(int *) { return QMetaType::Int; }
-template<> static int qt_metatype_id(uint *) { return QMetaType::UInt; }
-template<> static int qt_metatype_id(bool *) { return QMetaType::Bool; }
-template<> static int qt_metatype_id(double *) { return QMetaType::Double; }
-template<> static int qt_metatype_id(QByteArray *) { return QMetaType::QByteArray; }
-template<> static int qt_metatype_id(QChar *) { return QMetaType::QChar; }
-template<> static int qt_metatype_id(void **) { return QMetaType::VoidStar; }
-template<> static int qt_metatype_id(long *) { return QMetaType::Long; }
-template<> static int qt_metatype_id(short *) { return QMetaType::Short; }
-template<> static int qt_metatype_id(char *) { return QMetaType::Char; }
-template<> static int qt_metatype_id(ulong *) { return QMetaType::ULong; }
-template<> static int qt_metatype_id(ushort *) { return QMetaType::UShort; }
-template<> static int qt_metatype_id(uchar *) { return QMetaType::UChar; }
-template<> static int qt_metatype_id(float *) { return QMetaType::Float; }
+inline int qt_metatype_id(QString *) { return QMetaType::QString; }
+inline int qt_metatype_id(int *) { return QMetaType::Int; }
+inline int qt_metatype_id(uint *) { return QMetaType::UInt; }
+inline int qt_metatype_id(bool *) { return QMetaType::Bool; }
+inline int qt_metatype_id(double *) { return QMetaType::Double; }
+inline int qt_metatype_id(QByteArray *) { return QMetaType::QByteArray; }
+inline int qt_metatype_id(QChar *) { return QMetaType::QChar; }
+inline int qt_metatype_id(void **) { return QMetaType::VoidStar; }
+inline int qt_metatype_id(long *) { return QMetaType::Long; }
+inline int qt_metatype_id(short *) { return QMetaType::Short; }
+inline int qt_metatype_id(char *) { return QMetaType::Char; }
+inline int qt_metatype_id(ulong *) { return QMetaType::ULong; }
+inline int qt_metatype_id(ushort *) { return QMetaType::UShort; }
+inline int qt_metatype_id(uchar *) { return QMetaType::UChar; }
+inline int qt_metatype_id(float *) { return QMetaType::Float; }
 
 #endif // QMETATYPE_H
