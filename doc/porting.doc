@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: porting.doc,v 1.54 1999/05/20 15:33:31 aavit Exp $
+** $Id: porting.doc,v 1.55 1999/05/20 18:12:25 ettrich Exp $
 **
 ** Help with porting from Qt 1.x to Qt 2.0
 **
@@ -567,7 +567,14 @@ paintEvent(0) is not permitted - subclasses need not check for
 a null event, and might crash.
 Never pass 0 as the argument to paintEvent().  You probably
 just want repaint() or update() instead.
-
+<p> 
+When processing a paintEvent, painting is only permitted within
+the update region specified in the event. Any painting outside will be
+clipped away. This shouldn't break any code (it was always like this
+on MS-Windows) but makes many explicit calls to
+QPainter::setClipRegion() superfluent. Apart from the improved
+consistency, the change is likely to reduce flicker and to make Qt
+event slightly faster.
 
 <h3><a name=QIODevice>QIODevice</a></h3>
 <p>
