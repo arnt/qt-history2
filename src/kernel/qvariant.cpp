@@ -56,7 +56,7 @@
   contain.  Here is a lost of the supported types, and what they
   indicate that the relevant QVariant object contains : <ul>
 
-  <li> \c Invalid - invalid 
+  <li> \c Invalid - invalid
   <li> \c String - a QString
   <li> \c StringList - a QStringList
   <li> \c IntList - a QValueList<int>
@@ -682,7 +682,7 @@ static const char* type_map[ntypes] =
     "QImage",
     "int",
     "bool",
-    "double"
+    "double",
     "QCString"
 };
 

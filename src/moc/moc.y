@@ -118,19 +118,19 @@ public:
 
 struct Property
 {
-    Property( int l, const char* n, const char* t, const char* g, const char* s)
-	: lineNo(l), name(n), type(t), get(g), set(s), getfunc(0), setfunc(0),
+    Property( int l, const char* t, const char* n, const char* s, const char* g)
+	: lineNo(l), type(t), name(n), set(s), get(g), setfunc(0), getfunc(0),
 	  sspec(Unspecified), gspec(Unspecified)
     {}
 
     int lineNo;
-    QCString name;
     QCString type;
-    QCString get;
+    QCString name;
     QCString set;
+    QCString get;
 
-    Function* getfunc;
     Function* setfunc;
+    Function* getfunc;
 
     enum Specification  { Unspecified, Class, Reference, Pointer, ConstCharStar };
     Specification sspec;
@@ -157,6 +157,22 @@ class PropList : public QList<Property> {	// list of properties
 public:
     PropList() { setAutoDelete( TRUE ); }
 };
+
+
+struct ClassInfo 
+{
+    ClassInfo( const char* n, const char* v )
+	: name(n), value(v)
+    {}
+    QCString name;
+    QCString value;
+};
+
+class ClassInfoList : public QList<ClassInfo> {	// list of class infos
+public:
+    ClassInfoList() { setAutoDelete( TRUE ); }
+};
+
 
 
 
@@ -203,7 +219,7 @@ bool	   Q_OBJECTdetected;			// TRUE if current class
 QCString   tmpExpression;
 int	   tmpYYStart;
 
-const int  formatRevision = 5;			// moc output format revision
+const int  formatRevision = 6;			// moc output format revision
 
 %}
 
@@ -266,6 +282,7 @@ const int  formatRevision = 5;			// moc output format revision
 %token			SLOTS
 %token			Q_OBJECT
 %token			Q_PROPERTY
+%token			Q_CLASSINFO
 
 %type  <string>		class_name
 %type  <string>		template_class_name
@@ -493,9 +510,9 @@ elaborated_type_specifier:
 
 argument_declaration_list:  arg_declaration_list_opt triple_dot_opt { $$ = $1;}
 			|   arg_declaration_list ',' TRIPLE_DOT	    { $$ = $1;
-				       moc_warn("Ellipsis not supported"
-					       " in signals and slots.\n"
-					       "Ellipsis argument ignored."); }
+				       func_warn("Ellipsis not supported"
+						 " in signals and slots.\n"
+						 "Ellipsis argument ignored."); }
 			;
 
 arg_declaration_list_opt:	/* empty */	{ $$ = tmpArgList; }
@@ -503,9 +520,9 @@ arg_declaration_list_opt:	/* empty */	{ $$ = tmpArgList; }
 			;
 
 triple_dot_opt:			/* empty */
-			| TRIPLE_DOT { moc_warn("Ellipsis not supported"
-					       " in signals and slots.\n"
-					       "Ellipsis argument ignored."); }
+			| TRIPLE_DOT { func_warn("Ellipsis not supported"
+						 " in signals and slots.\n"
+						 "Ellipsis argument ignored."); }
 
 			;
 
@@ -673,10 +690,6 @@ full_class_head:	  class_head
 nested_class_head:	  class_key
 			  qualified_class_name
 			  opt_base_spec		{ templateClass = templateClassOld; }
-			| class_key
-			  qualified_class_name
-			  opt_base_spec		{ templateClass = templateClassOld; }			;
-
 
 ctor_initializer_opt:		/* empty */
 			| ctor_initializer
@@ -726,15 +739,27 @@ obj_member_area:	  qt_access_specifier	{ BEGIN QT_DEF; }
 			      Q_OBJECTdetected = TRUE;
 			  }
 			| Q_PROPERTY { tmpYYStart = YY_START; BEGIN IN_PROPERTY; }
-			  '(' IDENTIFIER ',' IDENTIFIER ',' prop_access_function ',' prop_access_function ')'
+			  '(' IDENTIFIER ',' STRING ',' prop_access_function ',' prop_access_function ')'
 				  {
-				        if ( doProperties )
-					    props.append( new Property( lineNo, $4,$6,$8,$10) );
-					else
-					    moc_warn("running with -np, but class contains "
-						"Q_PROPERTY macro") ;
-					BEGIN tmpYYStart;
+				      if ( doProperties ) {
+					  if ( Q_OBJECTdetected )
+					      props.append( new Property( lineNo, $4,$6,$8,$10) );
+					  else
+					      moc_warn("Q_PROPERTY macro without prior Q_OBJECT."
+						       " Property discarded.");				    
+				      } else
+					  moc_warn("running with -np, but class contains "
+						   "Q_PROPERTY macro") ;
+				      BEGIN tmpYYStart;
 				  }
+			  opt_property_candidates
+			| Q_CLASSINFO { tmpYYStart = YY_START; BEGIN IN_PROPERTY; }
+			  '(' STRING ',' STRING ')'
+				  {
+				      infos.append( new ClassInfo( $4, $6 ) );
+				      BEGIN tmpYYStart;
+				  }
+			  opt_property_candidates
 
 			;
 slot_area:		  SIGNALS ':'	{ moc_err( "Signals cannot "
@@ -981,8 +1006,17 @@ enum_tail:		  IDENTIFIER '{'   enum_list
 				      addEnum();
 				  }
 				}
-			| '{'   { BEGIN IN_FCT; fctLevel=1; }
-			  '}'   { BEGIN QT_DEF; }
+			| '{'   enum_list
+			  '}'   opt_enum_name
+			;
+
+opt_enum_name:		  /* empty */	{ BEGIN QT_DEF; tmpEnum->clear(); }
+			| IDENTIFIER	{ BEGIN QT_DEF;
+					  if ( tmpAccessPerm == _PUBLIC) {
+					      tmpEnum->name = $1;
+					      addEnum();
+					  }
+					}
 			;
 
 enum_list:		  /* empty */
@@ -1037,6 +1071,9 @@ FuncList  propfuncs;				// all possible property access functions
 FuncList  funcs( TRUE );			// all parsed functions, including signals
 EnumList  enums;				// enums used in properties
 PropList  props;				// list of all properties
+ClassInfoList	infos;				// list of all class infos
+
+
 
 FILE  *out;					// output file
 
@@ -1182,6 +1219,7 @@ int main( int argc, char **argv )
     signals.clear();
     propfuncs.clear();
     funcs.clear();
+    infos.clear();
 
     return mocError ? 1 : 0;
 }
@@ -1677,7 +1715,7 @@ static const char* type_map[ntypes] =
     "QImage",
     "int",
     "bool",
-    "double"
+    "double",
     "QCString"
 };
 
@@ -1715,18 +1753,18 @@ int generateEnums()
     if ( enums.count() == 0 )
 	return 0;
 
-    fprintf( out, "    QMetaEnum* enums = new QMetaEnum[ %i ];\n", enums.count() );
+    fprintf( out, "    QMetaEnum* enum_tbl = QMetaObject::new_metaenum( %i );\n", enums.count() );
 
     int i = 0;
     for ( QListIterator<Enum> it( enums ); it.current(); ++it, ++i ) {
-	fprintf( out, "    enums[%i].name = \"%s\";\n", i, (const char*)it.current()->name );
-	fprintf( out, "    enums[%i].count = %i;\n", i, (const char*)it.current()->count() );
-	fprintf( out, "    enums[%i].items = new QMetaEnum::Item[%i];\n",
+	fprintf( out, "    enum_tbl[%i].name = \"%s\";\n", i, (const char*)it.current()->name );
+	fprintf( out, "    enum_tbl[%i].count = %i;\n", i, (const char*)it.current()->count() );
+	fprintf( out, "    enum_tbl[%i].items = QMetaObject::new_metaenum_item( %i );\n",
 		 i,(const char*)it.current()->count() );
 	int k = 0;
 	for( QStrListIterator eit( *it.current() ); eit.current(); ++eit, ++k ) {
-	    fprintf( out, "    enums[%i].items[%i].name = \"%s\";\n", i, k, eit.current() );
-	    fprintf( out, "    enums[%i].items[%i].value = (int)%s::%s;\n",
+	    fprintf( out, "    enum_tbl[%i].items[%i].name = \"%s\";\n", i, k, eit.current() );
+	    fprintf( out, "    enum_tbl[%i].items[%i].value = (int) %s::%s;\n",
 		     i, k, (const char*)className, eit.current() );
 	}
     }
@@ -1922,20 +1960,16 @@ int generateProps()
     // Create meta data
     //
     if ( props.count() )
-	fprintf( out, "    QMetaProperty *props_tbl = new QMetaProperty[%d];\n", props.count() );
+	fprintf( out, "    QMetaProperty *props_tbl = QMetaObject::new_metaproperty( %d );\n", props.count() );
     {
 	int count = 0;
 	int entry = 0;
 	for( QListIterator<Property> it( props ); it.current(); ++it ){
 	
+	    fprintf( out, "    props_tbl[%d].type = \"%s\";\n", entry, 
+		     (const char*)it.current()->type );
 	    fprintf( out, "    props_tbl[%d].name = \"%s\";\n",
 		     entry, (const char*) it.current()->name );
-	
-	    if ( it.current()->getfunc )
-		fprintf( out, "    props_tbl[%d].get = *((QMember*)&v%d_%d);\n",
-			 entry, Prop_Num, count );
-	    else
-		fprintf( out, "    props_tbl[%d].get = 0;\n", entry );
 	
 	    if ( it.current()->setfunc )
 		fprintf( out, "    props_tbl[%d].set = *((QMember*)&v%d_%d);\n",
@@ -1943,9 +1977,18 @@ int generateProps()
 	    else
 		fprintf( out, "    props_tbl[%d].set = 0;\n", entry );
 	
-	    fprintf( out, "    props_tbl[%d].type = \"%s\";\n", entry, (const char*)it.current()->type );
-	    fprintf( out, "    props_tbl[%d].gspec = QMetaProperty::%s;\n", entry, Property::specToString(it.current()->gspec ));
-	    fprintf( out, "    props_tbl[%d].sspec = QMetaProperty::%s;\n", entry, Property::specToString(it.current()->sspec ));
+	    if ( it.current()->getfunc )
+		fprintf( out, "    props_tbl[%d].get = *((QMember*)&v%d_%d);\n",
+			 entry, Prop_Num, count );
+	    else
+		fprintf( out, "    props_tbl[%d].get = 0;\n", entry );
+
+
+	    fprintf( out, "    props_tbl[%d].sspec = QMetaProperty::%s;\n", 
+		     entry, Property::specToString(it.current()->sspec ));
+	    
+	    fprintf( out, "    props_tbl[%d].gspec = QMetaProperty::%s;\n", 
+		     entry, Property::specToString(it.current()->gspec ));
 
 	    int enumpos = -1;
 	    int k = 0;
@@ -1965,6 +2008,23 @@ int generateProps()
     }
 
     return props.count();
+}
+
+
+int generateClassInfos()
+{
+    if ( infos.isEmpty() )
+	return 0;
+
+    fprintf( out, "    QClassInfo* classinfo_tbl = QMetaObject::new_classinfo( %i );\n", infos.count() );
+	
+    int i = 0;
+    for( QListIterator<ClassInfo> it( infos ); it.current(); ++it, ++i ) {
+	fprintf( out, "    classinfo_tbl[%i].name = \"%s\";\n", i, it.current()->name.data() );
+	fprintf( out, "    classinfo_tbl[%i].value = \"%s\";\n", i, it.current()->value.data() );
+    }
+
+    return i;
 }
 
 void generateClass()		      // generate C++ source code for a class
@@ -2057,7 +2117,7 @@ void generateClass()		      // generate C++ source code for a class
 	          "\tbadSuperclassWarning(\"%s\",\"%s\");\n",
              (const char*)qualifiedSuperclassName(), (const char*)qualifiedSuperclassName(),
              (const char*)qualifiedClassName(), (const char*)qualifiedSuperclassName() );
-    fprintf( out, "    (void)staticMetaObject();\n");
+    fprintf( out, "    (void) staticMetaObject();\n");
     fprintf( out, "}\n\n");
 
 //
@@ -2071,7 +2131,7 @@ void generateClass()		      // generate C++ source code for a class
 //
     fprintf( out, "QMetaObject* %s::staticMetaObject()\n{\n", (const char*)qualifiedClassName() );
     fprintf( out, "    if ( metaObj )\n\treturn metaObj;\n" );
-    fprintf( out, "    (void)%s::staticMetaObject();\n", (const char*)qualifiedSuperclassName() );
+    fprintf( out, "    (void) %s::staticMetaObject();\n", (const char*)qualifiedSuperclassName() );
 
 //
 // Build the enums array in staticMetaObject()
@@ -2083,6 +2143,11 @@ void generateClass()		      // generate C++ source code for a class
 // Build property array in staticMetaObject()
 //
    int n_props = doProperties? generateProps() : 0;
+   
+//
+// Build class info  array in staticMetaObject()
+//
+   int n_infos = generateClassInfos();
 
 //
 // Build slots array in staticMetaObject()
@@ -2117,10 +2182,14 @@ void generateClass()		      // generate C++ source code for a class
 	fprintf( out, "\t0, 0,\n" );
 
     if ( n_enums )
-	fprintf( out, "\tenums, %d );\n", n_enums );
+	fprintf( out, "\tenum_tbl, %d,\n", n_enums );
+    else
+	fprintf( out, "\t0, 0,\n" );
+
+    if ( n_infos )
+	fprintf( out, "\tclassinfo_tbl, %d );\n", n_infos );
     else
 	fprintf( out, "\t0, 0 );\n" );
-
 //
 // Finish property array in staticMetaObject()
 //

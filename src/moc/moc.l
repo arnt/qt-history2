@@ -93,6 +93,7 @@ extern void moc_warn( char *msg );
 <IN_CLASS>"slots"		{ X;return SLOTS; }
 <IN_CLASS>"Q_OBJECT"		{ X;return Q_OBJECT; }
 <IN_CLASS>"Q_PROPERTY"		{ X;return Q_PROPERTY; }
+<IN_CLASS>"Q_CLASSINFO"		{ X;return Q_CLASSINFO; }
 
 <IN_NAMESPACE>"{"		{ namespacePLevel++;Y; }
 <IN_NAMESPACE>"}"		{ namespacePLevel--;Y;if (namespacePLevel == 0)
@@ -111,6 +112,7 @@ extern void moc_warn( char *msg );
 				  return USING; }
 
 <QT_DEF>"Q_OBJECT"		{ X; return Q_OBJECT; }
+<QT_DEF>"Q_CLASSINFO"		{ X;return Q_CLASSINFO; }
 
 <IN_PROPERTY>"("		{ X; return '('; }
 <IN_PROPERTY>","		{ X; return ','; }
@@ -259,7 +261,19 @@ extern void moc_warn( char *msg );
 			  }
 			  else {
 			      X;
-			      yylval.string = qstrdup(yytext);
+			      yylval.string = qstrdup(yytext+1);
+			      input();		/* discard the '"' */
+			      return STRING;
+			 }
+			}
+
+
+<IN_PROPERTY>\"[^"]*	     { if (yytext[yyleng - 1] == '\\') {
+			      yymore();
+			  }
+			  else {
+			      X;
+			      yylval.string = qstrdup(yytext+1);
 			      input();		/* discard the '"' */
 			      return STRING;
 			 }

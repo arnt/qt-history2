@@ -59,10 +59,12 @@ QObjectDictionary *objectDict = 0;		// global object dictionary
 class QMetaObjectPrivate
 {
 public:
-    QMetaEnum     *enumData;
+    QMetaEnum     *enumData;			// enumeration types
     int		   numEnumData;
     QMetaProperty *propData;                    // property meta data
     int            numPropData;
+    QClassInfo    *classInfo;			// class information
+    int            numClassInfo;
 };
 
 
@@ -145,7 +147,8 @@ QMetaObject::QMetaObject( const char *class_name, const char *superclass_name,
 			  QMetaData *slot_data,	  int n_slots,
 			  QMetaData *signal_data, int n_signals,
 			  QMetaProperty *prop_data, int n_props,
-			  QMetaEnum *enum_data, int n_enums )
+			  QMetaEnum *enum_data, int n_enums,
+			  QClassInfo *class_info, int n_info )
 {
     if ( !objectDict ) {			// first meta object created
 	objectDict
@@ -168,6 +171,8 @@ QMetaObject::QMetaObject( const char *class_name, const char *superclass_name,
     d->numPropData = n_props;
     d->enumData = enum_data;
     d->numEnumData = n_enums;
+    d->classInfo = class_info;
+    d->numClassInfo = n_info;
 
     objectDict->insert( classname, this );	// insert into object dict
 
@@ -181,6 +186,12 @@ QMetaObject::~QMetaObject()
 	delete [] slotData;			// delete arrays created in
     if ( signalData )
 	delete [] signalData;			//   initMetaObject()
+    if ( d->enumData )
+	delete [] d->enumData;
+    if ( d->propData )
+	delete [] d->propData;
+    if ( d->classInfo )
+	delete [] d->classInfo;
     delete slotDict;				// delete dicts
     delete signalDict;
     delete d;
@@ -242,11 +253,12 @@ QMetaObject *QMetaObject::new_metaobject( const char *classname,
 					  QMetaData *slot_data,	int n_slots,
 					  QMetaData *signal_data,int n_signals,
 					  QMetaProperty *prop_data, int n_props,
-					  QMetaEnum *enum_data, int n_enums )
+					  QMetaEnum *enum_data, int n_enums,
+					  QClassInfo * class_info, int n_info )
 {
     return new QMetaObject( classname, superclassname, slot_data, n_slots,
 			    signal_data, n_signals, prop_data, n_props,
-			    enum_data, n_enums );
+			    enum_data, n_enums, class_info, n_info );
 }
 
 QMetaObject *QMetaObject::new_metaobject( const char *classname,
@@ -261,6 +273,27 @@ QMetaObject *QMetaObject::new_metaobject( const char *classname,
 QMetaData *QMetaObject::new_metadata( int numEntries )
 {
     return numEntries > 0 ? new QMetaData[numEntries] : 0;
+}
+
+
+QMetaEnum *QMetaObject::new_metaenum( int numEntries )
+{
+    return numEntries > 0 ? new QMetaEnum[numEntries] : 0;
+}
+
+QMetaEnum::Item *QMetaObject::new_metaenum_item( int numEntries )
+{
+    return numEntries > 0 ? new QMetaEnum::Item[numEntries] : 0;
+}
+
+QMetaProperty *QMetaObject::new_metaproperty( int numEntries )
+{
+    return numEntries > 0 ? new QMetaProperty[numEntries] : 0;
+}
+
+QClassInfo *QMetaObject::new_classinfo( int numEntries )
+{
+    return numEntries > 0 ? new QClassInfo[numEntries] : 0;
 }
 
 
@@ -342,6 +375,35 @@ QMetaData *QMetaObject::mdata( int code, int index, bool super ) const
 #endif
 }
 
+
+int QMetaObject::numClassInfo( bool super ) const
+{
+    return d->numClassInfo + (super && superclass)?superclass->numClassInfo(super):0;
+}
+
+QClassInfo* QMetaObject::classInfo( int index, bool super ) const
+{
+    if ( index < 0 )
+	return 0;
+    if ( index < d->numClassInfo )
+	return &(d->classInfo[ index ]);
+    if ( !super || !superclass )
+	return 0;
+    return superclass->classInfo( index - d->numClassInfo, super );
+}
+
+const char* QMetaObject::classInfo( const char* name, bool super ) const
+{
+    for( int i = 0; i < d->numClassInfo; ++i ) {
+	if ( strcmp( d->classInfo[i].name, name ) == 0 )
+	    return d->classInfo[i].value;
+    }
+    if ( !super || !superclass )
+	return 0;
+    return superclass->classInfo( name, super );
+}
+
+
 void QMetaObject::resolveProperty( QMetaProperty* prop )
 {
     QMetaObject* super = superclass;
@@ -368,7 +430,7 @@ void QMetaObject::resolveProperty( QMetaProperty* prop )
 		prop->clearState( QMetaProperty::UnresolvedEnum );
 	    }
 	}
-	super = super->superClass();
+	super = super->superclass;
     }
 }
 
@@ -387,7 +449,7 @@ QMetaProperty* QMetaObject::property( const char* name, bool super ) const
 	QMetaProperty* p = meta->property( name, super );
 	if ( p )
 	    return p;
-	meta = meta->superClass();
+	meta = meta->superclass;
     }
 
     return 0;
@@ -424,25 +486,14 @@ QStrList QMetaObject::propertyNames( bool super ) const
     return l;
 }
 
-QMetaEnum* QMetaObject::enumerator( const char* name, bool superclassname ) const
+QMetaEnum* QMetaObject::enumerator( const char* name, bool super ) const
 {
     for( int i = 0; i < d->numEnumData; ++i )
 	if ( strcmp( d->enumData[i].name, name ) == 0 )
 	    return &(d->enumData[i]);
-
-    if ( !superclassname )
+    if ( !super || !superclass )
 	return 0;
-
-    QMetaObject* super = superclass;
-    while( super )
-	{
-	    QMetaEnum* e = super->enumerator( name, superclassname );
-	    if ( e )
-		return e;
-	    super = super->superClass();
-	}
-
-    return 0;
+    return superclass->enumerator( name, super );
 }
 
 bool QMetaObject::inherits( const char* clname ) const
@@ -451,7 +502,7 @@ bool QMetaObject::inherits( const char* clname ) const
     while ( meta ) {
 	if ( strcmp(clname, meta->className()) == 0 )
 	    return TRUE;
-	meta = meta->superClass();
+	meta = meta->superclass;
     }
     return FALSE;
 }

@@ -39,43 +39,46 @@ struct QMetaData				// member function meta data
 };
 
 
-struct QMetaEnum
-{
-    const char *name;
-    uint count;
-    struct Item
+struct QMetaEnum 				// enumerator meta data
+{						//  for properties
+    ~QMetaEnum() { delete [] items; }
+    const char *name;				// - enumerator name
+    uint count;					// - number of values
+    struct Item 				// - a name/value pair
     {
 	const char *name;
 	int value;
     };
-    Item *items;
+    Item *items;				// - the name/value pairs
 };
 
-struct QMetaProperty
+struct QMetaProperty 				// property meta data
 {
     QMetaProperty()
-	:name(0),get(0),set(0),type(0),enumType(0),
-	 gspec(Unspecified),sspec(Unspecified),state(0)
+	:type(0),name(0),
+	 set(0),get(0),enumType(0),
+	 sspec(Unspecified),gspec(Unspecified),
+	 state(0)
     {
     }
 
-    const char*	name;
-    QMember 	get;
-    QMember 	set;
-    const char 	*type;
-    QMetaEnum	*enumType;
+    const char 	*type;				// type of the property
+    const char*	name;				// name of the property
+    QMember 	set;				// set-function or 0
+    QMember 	get;				// get-function or 0
+    QMetaEnum	*enumType;			// the enum-type or 0
 
     bool readable() const { return get != 0; }
     bool writeable() const { return set != 0; }
     bool isValid() const { return !testState( UnresolvedEnum) ; }
 
     bool isEnumType() const { return enumType != 0; }
-    QStrList enumNames() const;
+    QStrList enumNames() const;			// convenience function
 
     enum Specification  { Unspecified, Class, Reference, Pointer, ConstCharStar };
 
-    Specification gspec;
-    Specification sspec;
+    Specification sspec;			// specification of the set-function
+    Specification gspec;			// specification of the get-function
 
     enum State  {
 	UnresolvedEnum = 0x00000001
@@ -92,9 +95,15 @@ private:
     uint state;
 };
 
+struct QClassInfo 				// class info meta data
+{
+    const char* name;				// - name of the info
+    const char* value;				// - value of the info
+};
+
 class QMetaObjectPrivate;
 
-class Q_EXPORT QMetaObject				// meta object class
+class Q_EXPORT QMetaObject			// meta object class
 {
 public:
     QMetaObject( const char *class_name, const char *superclass_name,
@@ -104,7 +113,8 @@ public:
 		 QMetaData *slot_data,	int n_slots,
 		 QMetaData *signal_data, int n_signals,
 		 QMetaProperty *prop_data, int n_props,
-		 QMetaEnum *enum_data, int n_enums );
+		 QMetaEnum *enum_data, int n_enums,
+		 QClassInfo *class_info, int n_info );
 
 
     virtual ~QMetaObject();
@@ -125,22 +135,35 @@ public:
     QMetaData	*slot( const char *, bool super = FALSE ) const;
     QMetaData	*signal( const char *, bool super = FALSE ) const;
 
+    int		numClassInfo( bool super = FALSE ) const;
+    QClassInfo 	*classInfo( int index, bool super = FALSE ) const;
+    const char 	*classInfo( const char* name, bool super = FALSE ) const;
+
     QMetaProperty	*property( const char* name, bool super = FALSE ) const;
     QStrList		propertyNames( bool super = FALSE ) const;
+    void		resolveProperty( QMetaProperty* prop );
+    
     QMetaEnum		*enumerator( const char* name, bool super = FALSE ) const;
+    
 
-    static QMetaObject *new_metaobject( const char *, const char *,
+
+    // static wrappers around constructors, necessary to work around a
+    // Windows-DLL limitation: objects can only be deleted within a
+    // DLL if they were actually created within that DLL.
+    static QMetaObject	*new_metaobject( const char *, const char *,
 					QMetaData *, int,
 					QMetaData *, int,
 					QMetaProperty *prop_data, int n_props,
-					QMetaEnum *enum_data, int n_enums );
-
+					QMetaEnum *enum_data, int n_enums,
+					QClassInfo * class_info, int n_info );
     static QMetaObject	*new_metaobject( const char *, const char *,
 					QMetaData *, int,
 					QMetaData *, int );
-    static QMetaData	*new_metadata( int );
-
-    void		resolveProperty( QMetaProperty* prop );
+    static QMetaData		*new_metadata( int );
+    static QMetaEnum 		*new_metaenum( int );
+    static QMetaEnum::Item 	*new_metaenum_item( int );
+    static QMetaProperty 	*new_metaproperty( int );
+    static QClassInfo 		*new_classinfo( int );
 
 private:
     QMemberDict 	*init( QMetaData *, int );

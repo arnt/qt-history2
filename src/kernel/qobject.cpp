@@ -1812,7 +1812,8 @@ QMetaObject* QObject::staticMetaObject()
 	slot_tbl, 1,
 	signal_tbl, 1,
 	props_tbl, 1,
-	0, 0 );
+	0, 0,
+        0, 0 );
     return metaObj;
 }
 
