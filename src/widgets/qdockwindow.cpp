@@ -830,6 +830,12 @@ void QDockWindow::updateGui()
 
 void QDockWindow::updatePosition( const QPoint &globalPos )
 {
+    bool doAdjustSize = curPlace != state && state == OutsideDock;
+    curPlace = state;
+    emit placeChanged( curPlace );
+    updateGui();
+    Orientation oo = orientation();
+
     if ( state == InDock ) {
 	if ( tmpDockArea ) {
 	    if ( dockArea && dockArea != tmpDockArea ) {
@@ -838,7 +844,7 @@ void QDockWindow::updatePosition( const QPoint &globalPos )
 		dockArea->removeDockWindow( this, FALSE, FALSE );
 	    }
 	    dockArea = tmpDockArea;
-	    dockArea->moveDockWindow( this, globalPos, currRect, startOrientation != orientation() );
+	    dockArea->moveDockWindow( this, globalPos, currRect, startOrientation != oo );
 	}
     } else {
 	if ( dockArea ) {
@@ -849,11 +855,7 @@ void QDockWindow::updatePosition( const QPoint &globalPos )
 	dockArea = 0;
 	move( currRect.topLeft() );
     }
-    bool doAdjustSize = curPlace != state && state == OutsideDock;
-    curPlace = state;
-    updateGui();
     emit orientationChanged( orientation() );
-    emit placeChanged( curPlace );
     tmpDockArea = 0;
     if ( doAdjustSize ) {
 	QApplication::sendPostedEvents( this, QEvent::LayoutHint );
