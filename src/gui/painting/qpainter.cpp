@@ -4057,7 +4057,7 @@ void qt_format_text(const QFont& font, const QRect &_r,
 
     if (!(tf & Qt::TextDontPrint)) {
         bool restore = false;
-        if (!dontclip && 0) {
+        if (!dontclip) {
             restore = true;
             painter->save();
             painter->setClipRect(r, Qt::IntersectClip);
