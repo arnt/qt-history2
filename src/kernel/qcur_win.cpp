@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcur_win.cpp#21 $
+** $Id: //depot/qt/main/src/kernel/qcur_win.cpp#22 $
 **
 ** Implementation of QCursor class for Win32
 **
@@ -23,7 +23,7 @@
 #include <windows.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qcur_win.cpp#21 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qcur_win.cpp#22 $");
 
 
 /*****************************************************************************
@@ -280,21 +280,31 @@ void QCursor::update() const			// update/load cursor
 	case BlankCursor:
 	case BitmapCursor: {
 	    QImage bbits, mbits;
+	    bool invb, invm;
 	    if ( data->cshape == BlankCursor ) {
 		bbits.create( 32, 32, 1, 2, QImage::BigEndian );
-		bbits.fill( 1 );		// ignore color table
+		bbits.fill( 0 );		// ignore color table
 		mbits = bbits.copy();
 		data->hx = data->hy = 16;
+		invb = invm = FALSE;
 	    } else {
 		bbits = *data->bm;
 		mbits = *data->bmm;
+		invb = bbits.numColors() > 1 &&
+		       qGray(bbits.color(0)) < qGray(bbits.color(1));
+		invm = mbits.numColors() > 1 &&
+		       qGray(mbits.color(0)) < qGray(mbits.color(1));
 	    }
 	    int i, n = bbits.numBytes();
 	    uchar *bits = bbits.scanLine( 0 );
 	    uchar *mask = mbits.scanLine( 0 );
 	    for ( i=0; i<n; i++ ) {
-		uchar b = ~bits[i];
-		uchar m = ~mask[i];
+		uchar b = bits[i];
+		uchar m = mask[i];
+		if ( invb )
+		    b ^= 0xff;
+		if ( invm )
+		    m ^= 0xff;
 		bits[i] = ~m;
 		mask[i] = b ^ m;
 	    }
