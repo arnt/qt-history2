@@ -42,14 +42,7 @@ var checkoutRemove = [ new RegExp("^gif"),
 		       new RegExp("^tutorial"),
 
 		       new RegExp("^LICENSE.TROLL"),
-		       new RegExp("^tools/designer/manual"),
-		       new RegExp("^tools/designer/doc"),
-		       new RegExp("^tools/designer/plugins/designer_interface_roadmap"),
-		       new RegExp("^tools/designer/plugins/extrawidgets"),
-		       new RegExp("^tools/designer/plugins/p4"),
-		       new RegExp("^tools/designer/plugins/qvim"),
-		       new RegExp("^tools/designer/plugins/designer_interface_roadmap"),
-		       new RegExp("^tools/inspector") ];
+		       new RegExp("^tools/designer") ];
 var checkoutKeep = [ /./ ];
 
 var platformRemove = new Array();
