@@ -4296,7 +4296,7 @@ struct ArgEscapeData
     uint occurrences;	    // number of occurences of the lowest escape
     	    	    	    // sequence number
     uint locale_occurrences; // number of occurences of the lowest escape
-    	    	    	    // sequence number which contain 'l'
+    	    	    	    // sequence number which contain 'L'
     uint escape_len;	    // total length of escape sequences which will
     	    	    	    // be replaced
 };
@@ -4322,7 +4322,7 @@ static ArgEscapeData findArgEscapes(const QString &s)
 	    break;
 
 	bool locale_arg = false;
-    	if (c->unicode() == 'l') {
+    	if (c->unicode() == 'L') {
 	    locale_arg = true;
 	    if (++c == uc_end)
 		break;
@@ -4399,7 +4399,7 @@ static QString replaceArgEscapes(const QString &s, const ArgEscapeData &d, int f
 	const QChar *escape_start = c++;
 
 	bool locale_arg = false;
-    	if (c->unicode() == 'l') {
+    	if (c->unicode() == 'L') {
 	    locale_arg = true;
 	    ++c;
 	}
@@ -4539,10 +4539,10 @@ QString QString::arg( const QString& a, int fieldWidth ) const
     \a a is expressed in base \a base, which is 10 by default and must
     be between 2 and 36.
 
-    The '%' can be followed by an 'l', in which case the sequence is
+    The '%' can be followed by an 'L', in which case the sequence is
     replaced with a localized representation of \a a. The conversion uses
     the default locale, set by QLocale::setDefaultLocale(). If no default
-    locale was specified, the "C" locale is used. The 'l' flag is ignored
+    locale was specified, the "C" locale is used. The 'L' flag is ignored
     if \a base is not 10.
 
     \code
