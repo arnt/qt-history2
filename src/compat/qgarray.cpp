@@ -449,7 +449,8 @@ QGArray &QGArray::duplicate( const char *d, uint len )
 	len  = 0;
     } else {
 	if ( shd->count == 1 && shd->len == len ) {
-	    memcpy( shd->data, d, len );	// use same buffer
+	    if ( shd->data != d )		// avoid self-assignment
+		memcpy( shd->data, d, len );	// use same buffer
 	    return *this;
 	}
 	data = NEW(char,len);
