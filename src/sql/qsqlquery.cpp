@@ -238,7 +238,7 @@ void QSqlQuery::init( const QString& query, QSqlDatabase* db )
     d = new QSqlResultShared( 0 );
     QSqlDatabase* database = db;
     if ( !database )
-	database = QSqlDatabase::database();
+	database = QSqlDatabase::database( QSqlDatabase::defaultConnection, FALSE );
     if ( database )
 	*this = database->driver()->createQuery();
     if ( !query.isNull() )
