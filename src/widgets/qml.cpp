@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qml.cpp#31 $
+** $Id: //depot/qt/main/src/widgets/qml.cpp#32 $
 **
 ** Implementation of QML classes
 **
@@ -797,12 +797,12 @@ public:
 	- A QML document. It understands the following attributes
 	<ul>
 	<li> \c type
-	- The type of the document. The default type is "page". It indicates that
-	the document is displayed in a page of its own. Another style is "detail".
+	- The type of the document. The default type is \c page . It indicates that
+	the document is displayed in a page of its own. Another style is \c detail.
 	It can be used to explain certain expressions more detailed in a few
 	sentences. The QMLBrowser will then keep the currentx page and display the
 	new document in a small popup similar to QWhatsThis. Note that links
-	will not work in documents with &lt;qml type="detail" &gt;...&lt;/qml&gt;
+	will not work in documents with \c &lt;qml \c type="detail" \c &gt;...&lt;/qml&gt;
 	<li> \c bgcolor
 	- The background color, for example bgcolor="yellow" or bgcolor="#0000FF"
 	<li> \c bgpixmap
@@ -814,10 +814,23 @@ public:
 
     <li>\c &lt;a&gt;...&lt;/a&gt;
 	- An anchor or link. The reference target is defined in the
-	href attribute of the tag as in 	&lt;a href="target.qml"&gt;...&lt;/a&gt;.
+	\c href attribute of the tag as in &lt;a href="target.qml"&gt;...&lt;/a&gt;. If it is
+	an anchor, the reference source is given in the \c name attribute.
 
     <li>\c &lt;em&gt;...&lt;/em&gt;
-	- Emphasized.
+	- Emphasized. As default, this is the same as \c &lt;i&gt;...&lt;/i&gt; (Italic)
+
+    <li>\c &lt;strong&gt;...&lt;/strong&gt;
+	- Strong. As default, this is the same as \c &lt;bold&gt;...&lt;/bold&gt; (bold)
+
+    <li>\c &lt;large&gt;...&lt;/large&gt;
+	- Large font size.
+
+    <li>\c &lt;code&gt;...&lt;/code&gt;
+	- Indicates Code. As default, this is the same as \c &lt;tt&gt;...&lt;/tt&gt; (typewriter)
+
+    <li>\c &lt;pre&gt;...&lt;/pre&gt;
+	- For larger junks of code. Whitespaces in the contents are preserved.
 
     <li>\c &lt;large&gt;...&lt;/large&gt;
 	- Large font size.
@@ -829,11 +842,23 @@ public:
     <li>\c &lt;h1&gt;...&lt;/h1&gt;
 	- A top-level heading.
 
+    <li>\c &lt;h2&gt;...&lt;/h2&gt;
+	- A sub-level heading.
+
+    <li>\c &lt;h3&gt;...&lt;/h3&gt;
+	- A sub-sub-level heading.
+
     <li>\c &lt;p&gt;...&lt;/p&gt;
 	- A paragraph.
 
     <li>\c &lt;center&gt;...&lt;/center&gt;
 	- A centered paragraph.
+
+    <li>\c &lt;blockquote&gt;...&lt;/blockquote&gt;
+	- An indented paragraph, useful for quotes.
+
+    <li>\c &lt;multicolumn cols=\a n &gt;...&lt;/multicolumn&gt;
+	- Multicolumn display with \a n columns
 
     <li>\c &lt;twocolumn&gt;...&lt;/twocolumn&gt;
 	- Two-column display.
@@ -857,6 +882,9 @@ public:
 
     <li>\c &lt;br&gt;
 	- A line break
+	
+    <li>\c &lt;hr&gt;
+	- A horizonal line
   </ul>
 */
 
@@ -913,10 +941,10 @@ void QMLStyleSheet::init()
     style = new QMLStyle( this, "small" );//todo make relative to current font
     style->setFontSize( 8 );
 
-    style = new QMLStyle( this, "b" );
+    style = new QMLStyle( this, "strong" );
     style->setFontWeight( QFont::Bold);
 
-    style = new QMLStyle( this, "strong" );
+    style = new QMLStyle( this, "b" );
     style->setFontWeight( QFont::Bold);
 
     style = new QMLStyle( this, "h1" );
@@ -965,6 +993,9 @@ void QMLStyleSheet::init()
     style = new QMLStyle( this, "code" );
     style->setFontFamily( "courier" );
 
+    style = new QMLStyle( this, "tt" );
+    style->setFontFamily( "courier" );
+
     new QMLStyle(this, "img");
     new QMLStyle(this, "br");
     new QMLStyle(this, "hr");
@@ -975,8 +1006,6 @@ void QMLStyleSheet::init()
     style->setFontFamily( "courier" );
     style->setDisplayMode(QMLStyle::DisplayBlock);
     style->setWhiteSpaceMode(QMLStyle::WhiteSpacePre);
-    style = new QMLStyle( this, "tt" );
-    style->setFontFamily( "courier" );
     style = new QMLStyle( this, "blockquote" );
     style->setDisplayMode(QMLStyle::DisplayBlock);
     style->setMargin(QMLStyle::MarginAll, 8 );
@@ -1173,11 +1202,13 @@ QMLImage::QMLImage(const QDict<QString> &attr, QMLProvider &provider)
 	    height = pm.height();
 	}
 	
-	pm.setMask( pm.createHeuristicMask() );
-	if ( pm.mask() ) {
-	    QRegion mask( *pm.mask() );
-	    QRegion all( 0, 0, pm.width(), pm.height() );
-	    reg = new QRegion( all.subtract( mask ) );
+	if ( !pm.isNull() ) {
+	    pm.setMask( pm.createHeuristicMask() );
+	    if ( pm.mask() ) {
+		QRegion mask( *pm.mask() );
+		QRegion all( 0, 0, pm.width(), pm.height() );
+		reg = new QRegion( all.subtract( mask ) );
+	    }
 	}
     }
 
@@ -3022,7 +3053,7 @@ bool QMLDocument::parse (QMLContainer* current, QMLNode* lastChild, const QStrin
 		pos = beforePos;
 		return FALSE;
 	    }
-	    
+	
 	    QMLNode* tag = sheet_->tag(tagname, attr, *provider_);
 	    if (tag->isContainer ) {
 		QMLContainer* ctag = (QMLContainer*) tag;
