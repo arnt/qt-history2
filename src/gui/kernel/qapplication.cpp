@@ -1490,7 +1490,8 @@ void QApplication::setPalette(const QPalette &palette, const char* className)
 QFont QApplication::font(const QWidget *w)
 {
     if (w && app_fonts.size()) {
-        QHash<QByteArray, QFont>::ConstIterator it = app_fonts.find(w->className());
+        QHash<QByteArray, QFont>::ConstIterator it =
+            app_fonts.find(w->metaObject()->className());
         if (it != app_fonts.constEnd())
             return it.value();
         for (it = app_fonts.begin(); it != app_fonts.end(); ++it) {
@@ -2487,7 +2488,7 @@ bool QApplication::notify(QObject *receiver, QEvent *e)
                        "Receiver '%2' (of type '%3') was created in thread %4")
                .arg(QString::number((ulong) QThread::currentThread(), 16))
                .arg(receiver->objectName())
-               .arg(receiver->className())
+               .arg(receiver->metaObject()->className())
                .arg(QString::number((ulong) receiver->thread(), 16))
                .latin1());
 
