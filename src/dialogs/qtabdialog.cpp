@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qtabdialog.cpp#87 $
+** $Id: //depot/qt/main/src/dialogs/qtabdialog.cpp#88 $
 **
 ** Implementation of QTabDialog class
 **
@@ -676,7 +676,7 @@ void QTabDialog::setApplyButton( const QString &text )
  */
 void QTabDialog::setApplyButton()
 {
-    setDefaultButton( tr("Apply") );
+    setApplyButton( tr("Apply") );
 }
 
 
