@@ -1026,6 +1026,34 @@ void QLayout::addChildLayout( QLayout *l )
     }
 }
 
+/*!
+    This function is called from addWidget() functions in subclasses
+    to add \a w as a child widget.
+*/
+void QLayout::addChildWidget(QWidget *w)
+{
+    QWidget *parentWidget = mainWidget();
+
+    //### WA_Layouted is never reset. That could be done in ~QWidgetItem or something.
+    //### Actually not, since ~QWidgetItem is often done after the widget is deleted...
+    if (w->testAttribute(QWidget::WA_Layouted)) {
+	qWarning("QLayout::addChildWidget: widget is already a layout; moved to new layout");
+	w->setParent(0);
+    }
+    QWidget *pw = w->parentWidget();
+    if (!pw && !parentWidget) {
+	qWarning("QLayout::addChildWidget: must add layout to parent before adding children to layout.");
+    } else if (pw && pw != parentWidget) {
+	qWarning("QLayout::addChildWidget: widget in wrong parent; moved to correct parent");
+	w->setParent(0);
+	pw = 0;
+    }
+    if (!pw && parentWidget)
+	w->setParent(parentWidget);
+    w->setAttribute(QWidget::WA_Layouted);
+}
+
+
 /*! \fn int QLayout::defaultBorder() const
 
   \internal

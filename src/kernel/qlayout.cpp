@@ -1196,18 +1196,6 @@ static bool checkWidget( QLayout *l, QWidget *w )
 		  l->name() );
 	return FALSE;
     }
-    if ( w->parentWidget() != l->mainWidget() && l->mainWidget() ) {
-	if ( w->parentWidget() )
-	    qWarning( "QLayout: Adding %s/%s (child of %s/%s) to layout for "
-		      "%s/%s", w->className(), w->name(),
-		      w->parentWidget()->className(), w->parentWidget()->name(),
-		      l->mainWidget()->className(), l->mainWidget()->name() );
-	else
-	    qWarning( "QLayout: Adding %s/%s (top-level widget) to layout for"
-		      " %s/%s", w->className(), w->name(),
-		      l->mainWidget()->className(), l->mainWidget()->name() );
-	return FALSE;
-    }
     return TRUE;
 }
 
@@ -1243,6 +1231,7 @@ void QGridLayout::addWidget( QWidget *w, int row, int col, int alignment )
     QWidgetItem *b = new QWidgetItem( w );
     b->setAlignment( alignment );
     add( b, row, col );
+    addChildWidget(w);
 }
 
 /*!
@@ -1263,9 +1252,12 @@ void QGridLayout::addWidget( QWidget *w, int row, int col, int alignment )
 void QGridLayout::addMultiCellWidget( QWidget *w, int fromRow, int toRow,
 				      int fromCol, int toCol, int alignment )
 {
+    if ( !checkWidget( this, w ) )
+	return;
     QGridBox *b = new QGridBox( w );
     b->setAlignment( alignment );
     data->add( b, fromRow, toRow, fromCol, toCol );
+    addChildWidget(w);
 }
 
 /*!
@@ -2064,6 +2056,7 @@ void QBoxLayout::insertWidget( int index, QWidget *widget, int stretch,
     QBoxLayoutItem *it = new QBoxLayoutItem( b, stretch );
     data->list.insert( index, it );
     invalidate();
+    addChildWidget(widget);
 }
 
 /*!

@@ -414,6 +414,7 @@ public:
 	WA_StaticContents,
 	WA_ForegroundInherited,
 	WA_BackgroundInherited,
+	WA_Layouted,
 
 	WA_ForceDisabled = 32,
 	WA_KeyCompression,

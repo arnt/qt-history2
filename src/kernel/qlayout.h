@@ -225,6 +225,7 @@ protected:
     bool eventFilter( QObject *, QEvent * );
     void childEvent( QChildEvent *e );
     void addChildLayout( QLayout *l );
+    void addChildWidget( QWidget *w );
     void deleteAllItems();
 
     void setSupportsMargin( bool );
