@@ -61,9 +61,14 @@ QSqlDatabase* QSqlConnection::database( const QString& name )
 #ifdef CHECK_RANGE
     if ( !db )
 	qWarning("Warning: QSqlConnection unable to find database " + name );
-#endif    
-    if ( db && !db->isOpen() )
+#endif
+    if ( db && !db->isOpen() ) {
 	db->open();
+#ifdef CHECK_RANGE
+	if ( !db->isOpen() )
+	    qWarning("Warning: QSqlConnection unable to open database: " + db->lastError().databaseText() );
+#endif
+    }
     return db;
 }
 
