@@ -542,7 +542,7 @@ private:
     friend bool qt_recreate_root_win();
     friend void qt_paint_children(QWidget *,QRegion &, uchar ops);
     friend void qt_event_request_updates(QWidget *, QRegion &);
-    friend QMAC_PASCAL OSStatus macSpecialErase(GDHandle, GrafPtr, WindowRef, RgnHandle, RgnHandle, void *);
+    friend QMAC_PASCAL long qt_wdef(short, WindowRef, short, long);
     friend class QDragManager;
 #endif
 

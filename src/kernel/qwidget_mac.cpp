@@ -55,6 +55,7 @@
 #  include <qgl.h>
 #endif
 
+
 /*****************************************************************************
   QWidget debug facilities
  *****************************************************************************/
@@ -265,6 +266,61 @@ bool qt_recreate_root_win() {
     return TRUE;
 }
 
+QMAC_PASCAL long qt_wdef(short, WindowRef window, short message, long param)
+{
+    long result = 0;
+    switch (message) {
+    case kWindowMsgHitTest:
+	result = wInContent;
+	break;
+    case kWindowMsgStateChanged:
+    case kWindowMsgCleanUp:
+    case kWindowMsgInitialize:
+    case kWindowMsgDrawInCurrentPort:
+    case kWindowMsgDraw:
+	result = 0;
+	break;
+    case kWindowMsgGetFeatures: {
+	SInt32 *s = (SInt32*)param;
+	*s = kWindowCanGetWindowRegion;
+	result = 1;
+	break; }
+    case kWindowMsgGetRegion: {
+	GetWindowRegionRec *s = (GetWindowRegionRec *)param;
+	result = 0;
+	switch(s->regionCode) {
+	case kWindowStructureRgn:
+	case kWindowContentRgn:
+	case kWindowOpaqueRgn: {
+	    if(QWidget *widget = QWidget::find( (WId)window )) {
+		QRegion cr;
+		if(widget->extra && !widget->extra->mask.isNull())
+		    cr = widget->extra->mask;
+		else
+		    cr = QRegion(widget->rect());
+		cr.translate(widget->x(), widget->y());
+		CopyRgn((RgnHandle)cr.handle(TRUE), s->winRgn);
+		qDebug("%d %d %s %s", widget->x(), widget->y(), widget->name(), widget->className());
+	    }
+	    break; }
+	default:
+	    result = errWindowRegionCodeInvalid;
+	    break;
+	}
+	QRegion r(s->winRgn);
+	QArray<QRect> a = r.rects();
+	qDebug("%d ******************", s->regionCode);
+	for(int i = 0; i < (int)a.count(); i++) 
+	    qDebug("%d %d %d %d", a[i].x(), a[i].y(), a[i].width(), a[i].height());
+	qDebug("*********************");
+	break; }
+    default:
+	qDebug("Shouldn't happen %s:%d %d", __FILE__, __LINE__, message);
+	break;
+    }
+    return result;
+}
+
 QMAC_PASCAL OSStatus qt_erase(GDHandle, GrafPtr, WindowRef window, RgnHandle rgn,
 			 RgnHandle, void *w)
 {
@@ -406,18 +462,24 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow  
 		    wattr |= kWindowCloseBoxAttribute;
 	    }
 	}
-	CreateNewWindow(wclass, wattr, &r, (WindowRef *)&id);
+
+	if( wclass == kSheetWindowClass ) {
+	    WindowDefSpec wds;
+	    wds.defType = kWindowDefProcPtr;
+	    wds.u.defProc = NewWindowDefUPP(qt_wdef);
+	    CreateCustomWindow(&wds, wclass, wattr, &r, (WindowRef *)&id);
+	} else {
+	    CreateNewWindow(wclass, wattr, &r, (WindowRef *)&id);
+	}
 	InstallWindowContentPaintProc((WindowPtr)id, NewWindowPaintUPP(qt_erase), 0, this);
 	if(testWFlags( WType_Popup ))
 	    SetWindowModality((WindowPtr)id, kWindowModalityNone, NULL);
-
-//	ChangeWindowAttributes((WindowPtr)id, kWindowNoBufferingAttribute, 0);
 	fstrut_dirty = TRUE; // when we create a toplevel widget, the frame strut should be dirty
 	if(!mac_window_count++)
 	    QMacSavedPortInfo::setPaintDevice(this);
 	hd = (void *)id;
 	setWinId(id);
-
+	ReshapeCustomWindow((WindowPtr)hd);
     } else {
 	while(QWidget::find(++serial_id));
 	setWinId(serial_id);
@@ -697,15 +759,8 @@ void QWidget::setBackgroundEmpty()
     allow_null_pixmaps++;
     setErasePixmap(QPixmap());
     allow_null_pixmaps--;
-
-#if 0
-    //I only do this for QWhatsThis for now.. we *could* do it for others
-    //but this isn't pretty - not sure what the side-effects are: FIXME
-    if ( isTopLevel() ) {
-	qDebug("trying..");
-	SetWindowClass((WindowPtr)hd, kOverlayWindowClass);
-    }
-#endif
+    if ( isTopLevel() ) 
+	ReshapeCustomWindow((WindowPtr)hd);
 }
 
 void QWidget::setCursor( const QCursor &cursor )
@@ -1585,6 +1640,8 @@ void QWidget::setMask( const QRegion &region )
 	clp ^= clippedRegion(FALSE);
 	qt_dirty_wndw_rgn("setMask",this, clp);
     }
+    if ( isTopLevel() ) 
+	ReshapeCustomWindow((WindowPtr)hd);
 }
 
 void QWidget::setMask( const QBitmap &bitmap )
@@ -1722,7 +1779,6 @@ QRegion QWidget::clippedRegion(bool do_children)
 
     if(!isVisible() ||  (qApp->closingDown() || qApp->startingUp()))
 	return QRegion();
-
     createExtra();
 
     if(!extra->clip_dirty && (!do_children || !extra->child_dirty)) {

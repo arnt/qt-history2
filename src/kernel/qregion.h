@@ -116,6 +116,7 @@ private:
     friend class QMacSavedPortInfo;
     friend class QWidget;
     friend void qt_dirty_wndw_rgn_internal(const QWidget *p, const QRegion &r);
+    friend QMAC_PASCAL long qt_wdef(short, WindowRef, short, long);
     friend QMAC_PASCAL OSStatus qt_erase(GDHandle, GrafPtr, WindowRef, RgnHandle,RgnHandle, void *);
     QRegion(const RgnHandle);
     void rectifyRegion();

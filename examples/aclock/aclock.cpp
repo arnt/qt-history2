@@ -120,9 +120,13 @@ void AnalogClock::drawClock( QPainter *paint )
 
 void AnalogClock::setAutoMask(bool b)
 {
-    if (b)
+    if (b) {
+#ifdef Q_WS_MAC
+	reparent(NULL, Qt::WStyle_Customize|Qt::WStyle_NoBorder, pos());
+#endif
 	setBackgroundMode( PaletteForeground );
-    else
+    } else {
 	setBackgroundMode( PaletteBackground );
+    }
     QWidget::setAutoMask(b);
 }
