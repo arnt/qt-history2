@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#164 $
+** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#165 $
 **
 ** Implementation of QLineEdit widget class
 **
@@ -1046,10 +1046,21 @@ void QLineEdit::markWord( int pos )
 
 
 /*!
-  Copies the marked text to the clipboard.
+  Copies the marked text to the clipboard.  Please use copy() instad.
 */
 
 void QLineEdit::copyText()
+{
+        copy();
+}
+
+
+/*! Copies the marked text to the clipboard, if there is any.
+  
+  \sa cut() paste()
+*/
+
+void QLineEdit::copy() const
 {
     QString t = markedText();
     if ( !t.isEmpty() ) {
@@ -1057,6 +1068,40 @@ void QLineEdit::copyText()
 	QApplication::clipboard()->setText( t );
 	connect( QApplication::clipboard(), SIGNAL(dataChanged()),
 		 this, SLOT(clipboardChanged()) );
+    }
+}
+
+
+/* Inserts the clipboard's text at the cursor position, deleting any
+  previous marked text.
+   
+  If the end result is not acceptable for the current validator,
+  nothing happens.
+   
+  \sa copy() cut()
+*/
+
+void QLineEdit::paste()
+{
+    insert( QApplication::clipboard()->text() );
+}
+
+/*!
+  Copies the marked text to the clipboard and deletes it, if there is
+  any.
+  
+  If the current validator disallows deleting the marked text, cut()
+  will copy it but not delete it.
+  
+  \sa copy() paste()
+*/
+
+void QLineEdit::cut()
+{
+    QString t = markedText();
+    if ( !t.isEmpty() ) {
+	copy();
+	del();
     }
 }
 
