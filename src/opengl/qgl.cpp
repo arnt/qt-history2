@@ -1976,7 +1976,7 @@ void QGLWidget::glDraw()
 
 /*!
     Convenience function for specifying a drawing color to OpenGL.
-    Calls glColor3 (in RGBA mode) or glIndex (in color-index mode)
+    Calls glColor4 (in RGBA mode) or glIndex (in color-index mode)
     with the color \a c. Applies to the current GL context.
 
     \sa qglClearColor(), QGLContext::currentContext(), QColor
@@ -1987,7 +1987,7 @@ void QGLWidget::qglColor(const QColor& c) const
     const QGLContext* ctx = QGLContext::currentContext();
     if (ctx) {
         if (ctx->format().rgba())
-            glColor3ub(c.red(), c.green(), c.blue());
+            glColor4ub(c.red(), c.green(), c.blue(), c.alpha());
         else if (!d->cmap.isEmpty()) { // QGLColormap in use?
             int i = d->cmap.find(c.rgb());
             if (i < 0)
@@ -2012,7 +2012,7 @@ void QGLWidget::qglClearColor(const QColor& c) const
     if (ctx) {
         if (ctx->format().rgba())
             glClearColor((GLfloat)c.red() / 255.0, (GLfloat)c.green() / 255.0,
-                          (GLfloat)c.blue() / 255.0, (GLfloat) 0.0);
+                          (GLfloat)c.blue() / 255.0, (GLfloat) c.alpha() / 255.0);
         else if (!d->cmap.isEmpty()) { // QGLColormap in use?
             int i = d->cmap.find(c.rgb());
             if (i < 0)
