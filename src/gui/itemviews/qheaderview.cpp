@@ -401,6 +401,7 @@ void QHeaderView::paintEvent(QPaintEvent *e)
     int section;
     int width = d->viewport->width();
     int height = d->viewport->height();
+    bool focus = parentWidget() && parentWidget()->hasFocus();
     if (d->orientation == Qt::Horizontal) {
         for (int i = start; i <= end; ++i) {
             if (sections[i].hidden)
@@ -409,7 +410,7 @@ void QHeaderView::paintEvent(QPaintEvent *e)
             index = model()->index(0, section, QModelIndex(), QModelIndex::HorizontalHeader);
             if (!index.isValid())
                 continue;
-            option.font.setBold(index.column() == current.column());
+            option.font.setBold((index.column() == current.column()) && focus);
             option.rect.setRect(sectionPosition(section) - offset, 0, sectionSize(section), height);
             paintSection(&painter, option, index);
         }
@@ -427,7 +428,7 @@ void QHeaderView::paintEvent(QPaintEvent *e)
             index = model()->index(section, 0, QModelIndex(), QModelIndex::VerticalHeader);
             if (!index.isValid())
                 continue;
-            option.font.setBold(index.row() == current.row());
+            option.font.setBold((index.row() == current.row()) && focus);
             option.rect.setRect(0, sectionPosition(section) - offset, width, sectionSize(section));
             paintSection(&painter, option, index);
         }
