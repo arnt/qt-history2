@@ -322,17 +322,11 @@ void QLabel::setText(const QString &text)
 #ifndef QT_NO_RICHTEXT
     if (d->textformat == Qt::RichText
         || ((d->textformat == Qt::AutoText) && Qt::mightBeRichText(d->ltext))) {
-        QString t = d->ltext;
-        if (d->align & Qt::AlignRight)
-            t.prepend("<div d->align=\"right\">");
-        else if (d->align & Qt::AlignHCenter)
-            t.prepend("<div d->align=\"center\">");
-        if ((d->align & Qt::TextWordWrap) == 0 )
-            t.prepend("<nobr>");
-        d->doc = new QTextDocument();
+        if (!d->doc)
+            d->doc = new QTextDocument();
         d->doc->setUndoRedoEnabled(false);
         d->doc->setDefaultFont(font());
-        d->doc->setHtml(text);
+        d->doc->setHtml(d->ltext);
     }
 #endif
 
@@ -898,9 +892,12 @@ void QLabelPrivate::updateLabel()
         )
         shortcutId = q->grabShortcut(QKeySequence::mnemonic(ltext));
 
-    if (d->doc)
-        qobject_cast<QTextDocumentLayout *>(d->doc->documentLayout())
-            ->setBlockTextFlags(wordWrap? 0 : Qt::TextSingleLine);
+    if (d->doc) {
+        int align = QStyle::visualAlignment(q->layoutDirection(), QFlag(d->align));
+        int flags = (wordWrap? 0 : Qt::TextSingleLine) | align;
+        flags |= (q->layoutDirection() == Qt::RightToLeft) ? QTextDocumentLayout::RTL : QTextDocumentLayout::LTR;
+        qobject_cast<QTextDocumentLayout *>(d->doc->documentLayout())->setBlockTextFlags(flags);
+    }
 
     q->updateGeometry();
     q->update(q->contentsRect());

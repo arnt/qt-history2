@@ -50,6 +50,7 @@ public:
 
     void adjustSize();
 
+    enum { LTR = 0x40000000, RTL = 0x80000000 };
     // flags passed to QTextLayout objects of blocks
     void setBlockTextFlags(int flags);
     int blockTextFlags() const;

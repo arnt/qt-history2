@@ -442,8 +442,9 @@ QTextHtmlParserNode::QTextHtmlParserNode()
     : parent(0), id(-1), isBlock(false), isListItem(false), isListStart(false), isTableCell(false), isAnchor(false),
       fontItalic(false), fontUnderline(false), fontOverline(false), fontStrikeOut(false), fontFixedPitch(false),
       cssFloat(QTextFrameFormat::InFlow), hasOwnListStyle(false), hasFontPointSize(false),
-      hasCssBlockIndent(false), hasCssListIndent(false), isEmptyParagraph(false), fontPointSize(DefaultFontSize),
-      fontWeight(QFont::Normal), alignment(Qt::AlignLeft), verticalAlignment(QTextCharFormat::AlignNormal),
+      hasCssBlockIndent(false), hasCssListIndent(false), isEmptyParagraph(false), direction(3),
+      fontPointSize(DefaultFontSize),
+      fontWeight(QFont::Normal), alignment(0), verticalAlignment(QTextCharFormat::AlignNormal),
       listStyle(QTextListFormat::ListStyleUndefined), imageWidth(-1), imageHeight(-1), tableBorder(0),
       tableCellRowSpan(1), tableCellColSpan(1), tableCellSpacing(2), tableCellPadding(0), cssBlockIndent(0),
       cssListIndent(0), wsm(WhiteSpaceModeUndefined)
@@ -1328,9 +1329,9 @@ void QTextHtmlParser::parseAttributes()
             }
         } else if (key == QLatin1String("align")) {
             if (value == QLatin1String("left"))
-                node->alignment = Qt::AlignLeft;
+                node->alignment = Qt::AlignLeft|Qt::AlignAbsolute;
             else if (value == QLatin1String("right"))
-                node->alignment = Qt::AlignRight;
+                node->alignment = Qt::AlignRight|Qt::AlignAbsolute;
             else if (value == QLatin1String("center"))
                 node->alignment = Qt::AlignHCenter;
             else if (value == QLatin1String("justify"))
@@ -1343,6 +1344,11 @@ void QTextHtmlParser::parseAttributes()
                 else if (node->alignment == Qt::AlignRight)
                     node->cssFloat = QTextFrameFormat::FloatRight;
             }
+        } else if (key == QLatin1String("dir")) {
+            if (value == QLatin1String("ltr"))
+                node->direction = Qt::LeftToRight;
+            else if (value == QLatin1String("rtl"))
+                node->direction = Qt::RightToLeft;
         }
     }
 }

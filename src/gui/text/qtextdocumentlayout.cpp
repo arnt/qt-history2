@@ -1319,7 +1319,15 @@ void QTextDocumentLayoutPrivate::layoutBlock(const QTextBlock &bl, LayoutStruct 
     LDEBUG << "layoutBlock from=" << layoutFrom << "to=" << layoutTo;
 
     Qt::LayoutDirection dir = blockFormat.layoutDirection();
+    if (d->blockTextFlags & (QTextDocumentLayout::LTR|QTextDocumentLayout::RTL)) {
+        if (!blockFormat.hasProperty(QTextFormat::LayoutDirection))
+            dir = d->blockTextFlags & QTextDocumentLayout::LTR ? Qt::LeftToRight : Qt::RightToLeft;
+    }
     Qt::Alignment align = QStyle::visualAlignment(dir, blockFormat.alignment());
+    if (d->blockTextFlags & Qt::AlignHorizontal_Mask) {
+        if (!blockFormat.hasProperty(QTextFormat::BlockAlignment))
+            align = (Qt::Alignment)(d->blockTextFlags & Qt::AlignHorizontal_Mask);
+    }
     QTextOption option(align);
     option.setTextDirection(dir);
     if (d->blockTextFlags & Qt::TextSingleLine || blockFormat.nonBreakableLines())

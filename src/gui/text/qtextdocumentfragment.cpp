@@ -469,7 +469,10 @@ void QTextHTMLImporter::import()
                 && !node->text.isEmpty()) {
                 QTextBlockFormat block;
 
-                block.setAlignment(node->alignment);
+                if (node->alignment)
+                    block.setAlignment(node->alignment);
+                if (node->direction < 2)
+                    block.setLayoutDirection(Qt::LayoutDirection(node->direction));
                 block.setIndent(indent);
 
                 appendBlock(block, node->charFormat());
@@ -574,7 +577,10 @@ void QTextHTMLImporter::import()
             if (node->hasCssBlockIndent)
                 block.setIndent(node->cssBlockIndent);
 
-            block.setAlignment(node->alignment);
+            if (node->alignment)
+                block.setAlignment(node->alignment);
+            if (node->direction < 2)
+                block.setLayoutDirection(Qt::LayoutDirection(node->direction));
 
             charFmt.merge(node->charFormat());
 
@@ -752,7 +758,10 @@ bool QTextHTMLImporter::scanTable(int tableNodeIdx, Table *table)
     fmt.setWidth(node.width);
     fmt.setCellSpacing(node.tableCellSpacing);
     fmt.setCellPadding(node.tableCellPadding);
-    fmt.setAlignment(node.alignment);
+    if (node.alignment)
+        fmt.setAlignment(node.alignment);
+    if (node.direction < 2)
+        fmt.setLayoutDirection(Qt::LayoutDirection(node.direction));
     if (node.bgColor.isValid())
         fmt.setBackground(QBrush(node.bgColor));
     else
