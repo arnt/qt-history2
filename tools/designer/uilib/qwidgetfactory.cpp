@@ -182,7 +182,7 @@ QWidget *QWidgetFactory::create( const QString &uiFile, QObject *connector, QWid
 }
 
 /*!  \overload
-    Loads the user interface descriptin from the \a dev device.
+    Loads the user interface description from the \a dev device.
  */
 
 QWidget *QWidgetFactory::create( QIODevice *dev, QObject *connector, QWidget *parent, const char *name )
