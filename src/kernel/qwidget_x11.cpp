@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#140 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#141 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -22,7 +22,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#140 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#141 $");
 
 
 void qt_enter_modal( QWidget * );		// defined in qapp_x11.cpp
@@ -76,6 +76,9 @@ bool QWidget::create()
     Window root_win = RootWindow(dpy,scr);
     Window parentw;
     WId	   id;
+
+    if ( popup )				// a popup is a tool window
+	setWFlags(WStyle_Tool);
 
     if ( sw < 0 ) {				// get the screen size
 	sw = DisplayWidth(dpy,scr);

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#43 $
+** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#44 $
 **
 ** Implementation of QWidget and QWindow classes for Win32
 **
@@ -26,7 +26,7 @@
 #include <windows.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget_win.cpp#43 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget_win.cpp#44 $");
 
 
 #if !defined(WS_EX_TOOLWINDOW)
@@ -59,12 +59,16 @@ bool QWidget::create()
 
     bool   topLevel = testWFlags(WType_TopLevel);
     bool   popup    = testWFlags(WType_Popup);
+    bool   tool	    = testWFlags(WType_Popup|WStyle_Tool);
     bool   modal    = testWFlags(WType_Modal);
     bool   desktop  = testWFlags(WType_Desktop);
     HANDLE appinst  = qWinAppInst();
-    const char *wcln = qt_reg_winclass( popup ? 1 : 0 );
+    const char *wcln = qt_reg_winclass( tool ? 1 : 0 );
     HANDLE parentw;
     WId	   id;
+
+    if ( popup )				// a popup is a tool window
+	setWFlags(WStyle_Tool);
 
     if ( sw < 0 ) {				// get the screen size
 	sw = GetSystemMetrics( SM_CXSCREEN );
@@ -152,7 +156,7 @@ bool QWidget::create()
 				 CW_USEDEFAULT, CW_USEDEFAULT,
 				 parentw, 0, appinst, 0 );
 	setWinId( id );
-	if ( popup )
+	if ( tool )
 	    SetWindowPos( id, HWND_TOPMOST, 0, 0, 100, 100, SWP_NOACTIVATE );
     } else {					// create child widget
 	id = CreateWindow( wcln, title, style, 0, 0, 100, 30,
@@ -490,7 +494,7 @@ void QWidget::show()
 	    }
 	}
     }
-    if ( testWFlags(WType_Popup) )
+    if ( testWFlags(WStyle_Tool) )
 	SetWindowPos( winId(), 0,
 		      frect.x(), frect.y(), crect.width(), crect.height(),
 		      SWP_NOACTIVATE | SWP_SHOWWINDOW );
