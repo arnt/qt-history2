@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.cpp#234 $
+** $Id: //depot/qt/main/src/kernel/qapplication.cpp#235 $
 **
 ** Implementation of QApplication class
 **
@@ -41,102 +41,86 @@
 
 /*!
   \class QApplication qapplication.h
-  \brief The QApplication class manages the application event queue and application wide settings.
+  \brief The QApplication class manages the GUI application's control flow and main settings.
 
   \ingroup kernel
 
-  The QApplication class is central to Qt.  It is responsible for a
-  wide range of tasks:
+  It contains the main event loop, where all events from the window
+  system and other sources are processed and dispatched.  It also
+  handles the application initialization and finalization, and
+  provides session management.  Finally, it handles most system-wide
+  and application-wide settings.
 
-  <ul>
+  For any GUI application that uses Qt, there is precisely one
+  QApplication object, no matter whether the application has 0, 1, 2
+  or even more windows at the moment.
 
-   <li> It initializes the application to the user's desktop settings
-   like palette(), font() or the doubleClickInterval(). It keeps track
-   of these properties in case the user changes the desktop globally
-   in some kind of control panel.
+  This object (you can access is using the global variable \e qApp)
+  does a great many things, most importantly: <ul>
+
+  <li> It initializes the application to the user's desktop settings
+  like palette(), font() or the doubleClickInterval(). It keeps track
+  of these properties in case the user changes the desktop globally
+  in some kind of control panel.
 
   <li> It performs event handling, meaning that it receives events
   from the underlying window system and sends them to the destination
-  widgets. An application usually terminates when the event loop is
-  left. This can be forced with a call to quit(). By using sendEvent()
-  and postEvent() you can send your own events to widgets.
+  widgets.  By using sendEvent() and postEvent() you can send your own
+  events to widgets.
 
-   <li> It parses common command line arguments and sets its internal
-   state respectively. See the QApplication() constructor for more
-   details.
+  <li> It parses common command line arguments and sets its internal
+  state accordintly. See the constructor documentation below for more
+  details about this.
 
-   <li> It defines the application's look and feel, which is
-   encapsulate in a QStyle() object. This can be changed during
-   runtime with setStyle().
+  <li> It defines the application's look and feel, which is
+  encapsulate in a QStyle object. This can be changed during runtime
+  with setStyle().
 
-   <li> It specifies how the application is supposed to deal with colors.
-   See setColorSpec() for details.
+  <li> It specifies how the application is to allocate colors.
+  See setColorSpec() for details.
 
-   <li> It specifies the default text endcoding (see setDefaultCodec() )
-   and provides localization of strings that are visible to the user via
-   translate()
+  <li> It specifies the default text endcoding (see setDefaultCodec() )
+  and provides localization of strings that are visible to the user via
+  translate().
 
-   <li> It gives access to special objects like the desktop() widget
-   or the clipboard(). Furthermore you can query for the widgetAt() a
-   certain coordinate position or for example all
-   topLevelWidgets(). It also provides shortcuts to the activeWindow()
-   and the widget that receives currently key events, dubbed the
-   focusWidget(). Auxiliary slots like closeAllWindows() complete this
-   list.
+  <li> It provides some magic objects like the desktop() and the
+  clipboard().
 
-   <li> It provides an interface to application wide caret handling,
-   see setOverrideCursor() and setGlobalMouseTracking().
+  <li> It knows about the application's windows, and lets you ask
+  which widget is at a certain position using widgetAt(), lets you
+  closeAllWindows(), gives you a list of topLevelWidgets(), etc.
 
-   <li> To deal with the specialities of the asynchronous X Window
-   System, two synchronization functions flush() and syncX() are
-   provided.
+  <li> It manages the application's mouse cursor handling,
+  see setOverrideCursor() and setGlobalMouseTracking().
 
-   <li> It provides support to implement sophisticated \link
-   session.html session management \endlink. This makes it possible
-   for applications to terminate gracefully when the user logs out, to
-   cancel a shutdown process if termination isn't possible or even to
-   preserve the entire application state for a future session. See
-   isSessionRestored(), sessionId() and commitData() and saveState()
-   for details.
+  <li> On the X window system, it provides functions to flush and sync
+  the communication stream, see flushX() and syncX().
+
+  <li> It provides support to implement sophisticated \link
+  session.html session management \endlink. This makes it possible
+  for applications to terminate gracefully when the user logs out, to
+  cancel a shutdown process if termination isn't possible and even to
+  preserve the entire application state for a future session. See
+  isSessionRestored(), sessionId() and commitData() and saveState()
+  for details.
 
   </ul>
 
-  An application object must be created before any widgets can be
-  created!  Since it also deals with common command line arguments, it
-  is usually a good idea to create it \e before any interpretation or
-  modification of \c argv is done in the application itself.
+  The <a href="walkthrough-application.html#simplemain">Application
+  walktrough example</a> contains a typical complete main() that does
+  the usual things with QApplication.
 
-  Only one single QApplication object should be created.  In fact Qt
-  complains if you create more than one, and this is normally done
-  in the main() function.  Once a QApplication object has been
-  created, \c qApp (defined as <code>extern QApplication *qApp</code>)
-  refers to this object.
+  Since the QApplication object does so much initialization, it is
+  absolutely necessary to create it before any other objects related
+  to the user interface are created.
 
-  Example (a complete Qt application):
-  \code
-    #include <qapplication.h>				// defines QApplication
-    #include <qpushbutton.h>			// defines QPushButton
-
-    int main( int argc, char **argv )
-    {
-	QApplication app( argc, argv );		// create application object
-	QPushButton  hello( "Hello, world!" );	// create a push button
-	app.setMainWidget( &hello );		// define as main widget
-	connect( &hello, SIGNAL(clicked()),	// clicking the button
-		 &app, SLOT(quit()) );		//   quits the application
-	hello.show();				// show button
-	return app.exec();			// run main event loop
-    }
-  \endcode
-
-  <strong>Important</strong><br> Notice that the QApplication object must
-  be created before any window-system functionality of Qt is used, this
-  includes widgets, colors, fonts etc.
-
-  Note also that for X11, setMainWidget() may change the main widget
-  according to the \e -geometry option.	 To preserve this functionality,
-  you must set your defaults before setMainWidget() and any overrides
-  after.
+  Since it also deals with common command line arguments, it is
+  usually a good idea to create it \e before any interpretation or
+  modification of \c argv is done in the application itself.  (Note
+  also that for X11, setMainWidget() may change the main widget
+  according to the \e -geometry option.  To preserve this
+  functionality, you must set your defaults before setMainWidget() and
+  any overrides after.)
 
   <strong>Groups of functions:</strong>
   <ul>
@@ -198,7 +182,7 @@
 	activeWindow(),
 	widgetAt().
 
-     <li> Advanced caret handling:
+     <li> Advanced cursor handling:
 	hasGlobalMouseTracking(),
 	setGlobalMouseTracking(),
 	overrideCursor(),
@@ -221,11 +205,11 @@
 	closingDown(),
   </ul>
 
-  <strong>Non-GUI programs</strong><br>
-  While Qt is not optimized or designed for writing non-GUI programs,
-  it's possible to use <a href="tools.html">some of its classes</a>
-  without creating a QApplication.  This can be very useful if you
-  wish to share code between a non-GUI server and a GUI client.
+  <strong>Non-GUI programs</strong><br> While Qt is not optimized or
+  designed for writing non-GUI programs, it's possible to use <a
+  href="tools.html">some of its classes</a> without creating a
+  QApplication.  This can be useful if you wish to share code between
+  a non-GUI server and a GUI client.
 
   \header qnamespace.h
   \header qwindowdefs.h
