@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: debug.doc,v 1.1 1995/07/12 15:26:10 hanord Exp $
+** $Id: debug.doc,v 1.2 1995/08/02 14:24:09 hanord Exp $
 **
 ** Qt Debugging Techniques
 **
@@ -10,7 +10,7 @@
 /*!
 \page debug.html
 
-<title>Qt Debugging Techniques</title>
+<title>Qt Debugging Techniques</title>  <a name=debuggingtechniques>
 </head><body>
 <h1>Qt Debugging Techniques</h1>
 <hr>
@@ -29,7 +29,7 @@ development version of the Qt library.
 options: <ul>
 <li> \c -memchk Turns memory checking on.
 <li> \c -memlog file Sets the memory checking log file. Default: MEMCHK.LOG
-<li> \c -membug n  Sets the size of max pointers to record. Default: 100000.
+<li> \c -membuf n  Sets the size of max pointers to record. Default: 100000.
 </ul>
 <p>
 Other debugging options: <ul>
