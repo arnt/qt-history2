@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#231 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#232 $
 **
 ** Implementation of QFileDialog class
 **
@@ -48,6 +48,7 @@
 #include "qprogressbar.h"
 #include "qfile.h"
 #include "qcstring.h"
+#include "qobjectlist.h"
 
 #include <time.h>
 #include <ctype.h>
@@ -514,7 +515,8 @@ void QRenameEdit::focusOutEvent( QFocusEvent * )
 
 QFileListBox::QFileListBox( QWidget *parent, QFileDialog *dlg )
     : QListBox( parent, "filelistbox" ), filedialog( dlg ),
-      renaming( FALSE ), renameItem( 0L )
+      renaming( FALSE ), renameItem( 0 ), mousePressed( FALSE ),
+      firstMousePressEvent( TRUE )
 {
     lined = new QRenameEdit( viewport() );
     lined->hide();
@@ -579,20 +581,26 @@ void QFileListBox::viewportMousePressEvent( QMouseEvent *e )
         if ( e->button() == RightButton && currentItem() != -1 )
             filedialog->popupContextMenu( item( currentItem() ), mapToGlobal( e->pos() ) );
 
+        firstMousePressEvent = FALSE;
         return;
     }
 
     int i = currentItem();
     QListBox::viewportMousePressEvent( e );
 
-    if ( itemAt( e->pos() ) != item( i ) )
+    if ( itemAt( e->pos() ) != item( i ) ) {
+        firstMousePressEvent = FALSE;
         return;
-
-    if ( !didRename && i == currentItem() && currentItem() != -1 && filedialog->mode() != QFileDialog::ExistingFiles &&
+    }
+    
+    if ( !firstMousePressEvent && !didRename && i == currentItem() && currentItem() != -1 && 
+         filedialog->mode() != QFileDialog::ExistingFiles &&
          QFileInfo( filedialog->dirPath() ).isWritable() && item( currentItem() )->text() != ".." ) {
         renameTimer->start( QApplication::doubleClickInterval(), TRUE );
         renameItem = item( i );
     }
+    
+    firstMousePressEvent = FALSE;
 }
 
 void QFileListBox::viewportMouseReleaseEvent( QMouseEvent *e )
@@ -887,7 +895,7 @@ void QFileListBox::cancelRename()
 
 QFileListView::QFileListView( QWidget *parent, QFileDialog *dlg )
     : QListView( parent ), filedialog( dlg ), renaming( FALSE ),
-      renameItem( 0L )
+      renameItem( 0 ), mousePressed( FALSE ), firstMousePressEvent( TRUE )
 {
     lined = new QRenameEdit( viewport() );
     lined->hide();
@@ -928,6 +936,7 @@ void QFileListView::viewportMousePressEvent( QMouseEvent *e )
 
     if ( e->button() != LeftButton ) {
         QListView::viewportMousePressEvent( e );
+        firstMousePressEvent = FALSE;
         return;
     }
 
@@ -935,14 +944,19 @@ void QFileListView::viewportMousePressEvent( QMouseEvent *e )
     QListView::viewportMousePressEvent( e );
 
     if ( itemAt( e->pos() ) != i ||
-         e->x() + contentsX() > columnWidth( 0 ) )
+         e->x() + contentsX() > columnWidth( 0 ) ) {
+        firstMousePressEvent = FALSE;
         return;
-
-    if ( !didRename && i == currentItem() && currentItem() && filedialog->mode() != QFileDialog::ExistingFiles &&
+    }
+    
+    if ( !firstMousePressEvent && !didRename && i == currentItem() && currentItem() && 
+         filedialog->mode() != QFileDialog::ExistingFiles &&
          QFileInfo( filedialog->dirPath() ).isWritable() && currentItem()->text( 0 ) != ".." ) {
         renameTimer->start( QApplication::doubleClickInterval(), TRUE );
         renameItem = currentItem();
     }
+    
+    firstMousePressEvent = FALSE;
 }
 
 void QFileListView::viewportMouseDoubleClickEvent( QMouseEvent *e )
@@ -1548,6 +1562,11 @@ void QFileDialog::init()
     connect( d->paths, SIGNAL(activated(const QString&)),
              this, SLOT(setDir(const QString&)) );
 
+    d->paths->installEventFilter( this );
+    QObjectList *ol = d->paths->queryList( "QLineEdit" );
+    if ( ol && ol->first() )
+        ( (QLineEdit*)ol->first() )->installEventFilter( this );
+
     d->geometryDirty = TRUE;
     d->types = new QComboBox( TRUE, this, "file types" );
     connect( d->types, SIGNAL(activated(const QString&)),
@@ -1766,8 +1785,8 @@ QString QFileDialog::dirPath() const
   This means that these two calls are equivalent:
 
   \code
-     fd->setFilter( "All C++ files (*.cpp *.cc *.C *.cxx *.c++)" );
-     fd->setFilter( "*.cpp *.cc *.C *.cxx *.c++" )
+     fd->setFilter( "All C++ files (*.cpp;*.cc;*.C;*.cxx;*.c++)" );
+     fd->setFilter( "*.cpp;*.cc;*.C;*.cxx;*.c++" )
   \endcode
 */
 
@@ -2798,7 +2817,7 @@ QString QFileDialog::getExistingDirectory( const QString & dir,
 /*!  Sets this file dialog to \a newMode, which can be one of \c
   Directory (directories are accepted), \c ExistingFile (existing
   files are accepted), \c AnyFile (any valid file name is accepted)
-  or \c ExistingFiles (like \c ExistingFile, but multple files may be
+  or \c ExistingFiles (like \c ExistingFile, but multiple files may be
   selected)
 
   \sa mode()
@@ -3065,6 +3084,12 @@ bool QFileDialog::eventFilter( QObject * o, QEvent * e )
         }
     } else if ( o == nameEdit && e->type() == QEvent::FocusIn ) {
         fileNameEditDone();
+    } else if ( d->moreFiles->renaming && o != d->moreFiles->lined && e->type() == QEvent::FocusIn ) {
+        d->moreFiles->lined->setFocus();
+        return TRUE;
+    } else if ( files->renaming && o != files->lined && e->type() == QEvent::FocusIn ) {
+        files->lined->setFocus();
+        return TRUE;
     } else if ( ( o == d->moreFiles || o == d->moreFiles->viewport() ) &&
                 e->type() == QEvent::FocusIn ) {
         if ( o == d->moreFiles->viewport() && !d->moreFiles->viewport()->hasFocus() ||

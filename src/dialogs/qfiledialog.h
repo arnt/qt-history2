@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.h#61 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.h#62 $
 **
 ** Definition of QFileDialog class
 **
@@ -116,7 +116,8 @@ private:
     QString startDragDir;
     QListBoxItem *currDropItem;
     QTimer changeDirTimer;
-
+    bool firstMousePressEvent;
+    
 };
 
 
@@ -165,7 +166,8 @@ private:
     QString startDragDir;
     QListViewItem *currDropItem;
     QTimer changeDirTimer;
-
+    bool firstMousePressEvent;
+    
 };
 
 
