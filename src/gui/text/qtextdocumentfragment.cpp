@@ -259,6 +259,29 @@ QTextDocumentFragmentPrivate::QTextDocumentFragmentPrivate(const QTextCursor &cu
     }
 }
 
+QTextDocumentFragmentPrivate::QTextDocumentFragmentPrivate(const QTextDocumentFragmentPrivate &rhs)
+{
+    localFormatCollection = 0;
+    operator=(rhs);
+}
+
+QTextDocumentFragmentPrivate &QTextDocumentFragmentPrivate::operator=(const QTextDocumentFragmentPrivate &rhs)
+{
+    fragments = rhs.fragments;
+    localBuffer = rhs.localBuffer;
+    QTextFormatCollection *x = new QTextFormatCollection(*rhs.localFormatCollection);
+    x->ref = 1;
+    x = qAtomicSetPtr(&localFormatCollection, x);
+    if (x && !--x->ref)
+	delete x;
+    *localFormatCollection = *rhs.localFormatCollection;
+
+    pieceTable = rhs.pieceTable;
+
+    return *this;
+}
+
+
 QTextDocumentFragmentPrivate::~QTextDocumentFragmentPrivate()
 {
     if (!--localFormatCollection->ref)

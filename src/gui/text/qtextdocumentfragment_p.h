@@ -43,6 +43,8 @@ public:
     }
     QTextDocumentFragmentPrivate(const QTextCursor &cursor);
     ~QTextDocumentFragmentPrivate();
+    QTextDocumentFragmentPrivate(const QTextDocumentFragmentPrivate &);
+    QTextDocumentFragmentPrivate &operator =(const QTextDocumentFragmentPrivate &);
 
     void insert(QTextCursor &cursor) const;
 
