@@ -219,6 +219,9 @@ void QSVGPaintEngine::updateXForm(QPainterState *ps)
 
 void QSVGPaintEngine::updateClipRegion(QPainterState *ps)
 {
+    if (!ps->clipEnabled)
+	return;
+
     QDomElement e;
     d->currentClip++;
     e = d->doc.createElement("clipPath");
