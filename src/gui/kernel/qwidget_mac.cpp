@@ -885,9 +885,8 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
                                       window_events, static_cast<void *>(qApp), &d->window_event);
         }
 	if(testWFlags(WStyle_StaysOnTop))
-	    ChangeWindowAttributes(qt_mac_window_for((HIViewRef)parentWidget()->winId()), 
-                                   kWindowNoAttributes, kWindowHideOnSuspendAttribute);
-        if(qt_mac_is_macdrawer(this))
+	    ChangeWindowAttributes(window, kWindowNoAttributes, kWindowHideOnSuspendAttribute);
+        if(qt_mac_is_macdrawer(this) && parentWidget())
             SetDrawerParent(window, qt_mac_window_for((HIViewRef)parentWidget()->winId()));
         if(dialog && !parentWidget() && !testWFlags(WShowModal))
             grp = GetWindowGroupOfClass(kDocumentWindowClass);
