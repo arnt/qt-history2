@@ -997,19 +997,6 @@ int QGridLayout::columnCount() const
 }
 
 /*!
-  \fn int numRows()
-  \obsolete
-  Use rowCount() instead.
-*/
-
-/*!
-  \fn int numCols()
-  \obsolete
-  Use columnCount() instead.
-*/
-
-
-/*!
     Returns the preferred size of this grid.
 */
 QSize QGridLayout::sizeHint() const
@@ -1070,10 +1057,11 @@ int QGridLayout::minimumHeightForWidth(int w) const
 
 /*!
     Searches for widget \a w in this layout (not including child
-    layouts). If \a w is found, it sets \c *\a row and \c *\a column to
-    the row and column and returns true; otherwise returns false.
+    layouts). If \a w is found, it sets \c{*}\a{row} and
+    \c{*}\a{column} to the row and column that the widget
+    occupies and returns true; otherwise returns false.
 
-    Note: if a widget spans multiple rows/columns, the top-left cell
+    If the widget spans multiple rows/columns, the top-left cell
     is returned.
 */
 bool QGridLayout::findWidget(QWidget* w, int *row, int *column)
@@ -1154,11 +1142,11 @@ void QGridLayout::addItem(QLayoutItem *item)
 }
 
 /*!
-    Adds \a item at position \a row, \a column, spanning \a rowSpan rows
-    and \a columnSpan columns, and aligns it according to \a alignment.
-    If \a rowSpan and/or \a colSpan is -1, then the item will extend to the bottom
-    and/or right edge, respectively.
-    The layout takes ownership of the \a item.
+    Adds \a item at position \a row, \a column, spanning \a rowSpan
+    rows and \a columnSpan columns, and aligns it according to \a
+    alignment. If \a rowSpan and/or \a columnSpan is -1, then the item
+    will extend to the bottom and/or right edge, respectively. The
+    layout takes ownership of the \a item.
 
     \warning Do not use this function to add child layouts or child
     widget items. Use addLayout() or addWidget() instead.
@@ -1209,13 +1197,15 @@ void QGridLayout::addWidget(QWidget *w, int row, int column, Qt::Alignment align
 }
 
 /*!
-  \overload
-    This version adds the widget \a w to the cell grid, spanning multiple
-    rows/columns. The cell will start at \a fromRow, \a fromColumn spanning \a
-    rowSpan rows and \a columnSpan columns.
+    \overload
 
-    If \a rowSpan and/or \a columnSpan is -1, then the widget will extend to the bottom
-    and/or right edge, respectively.
+    This version adds the widget \a w to the cell grid, spanning
+    multiple rows/columns. The cell will start at \a fromRow, \a
+    fromColumn spanning \a rowSpan rows and \a columnSpan columns. The
+    grid will have the given \a alignment.
+
+    If \a rowSpan and/or \a columnSpan is -1, then the widget will
+    extend to the bottom and/or right edge, respectively.
 
 */
 void QGridLayout::addWidget(QWidget *w, int fromRow, int fromColumn,

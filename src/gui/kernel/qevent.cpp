@@ -306,11 +306,9 @@ Qt::ButtonState QMouseEvent::stateAfter() const
 */
 
 /*!
-    \fn QWheelEvent::QWheelEvent(const QPoint &pos, int delta, int state, Qt::Orientation orient = Qt::Vertical);
-
     Constructs a wheel event object.
 
-    The \a position provides the location of the mouse cursor within
+    The position, \a pos, is the location of the mouse cursor within
     the widget. The globalPos() is initialized to QCursor::pos()
     which is usually, but not always, correct.
     Use the other constructor if you need to specify the global
@@ -441,6 +439,7 @@ QWheelEvent::QWheelEvent(const QPoint &pos, int delta, int state, Qt::Orientatio
     \value ALT The normal Alt keys, but not keys like AltGr.
     \value UNICODE_ACCEL The shortcut is specified as a Unicode code
     point, not as a Qt Key.
+    \omitvalue ASCII_ACCEL
     \omitvalue MODIFIER_MASK
 */
 
@@ -578,8 +577,10 @@ Qt::ButtonState QKeyEvent::stateAfter() const
 
     \value Key_Escape
     \value Key_Tab
+    \omitvalue Key_BackTab
     \value Key_Backtab
     \value Key_Backspace
+    \omitvalue Key_BackSpace
     \value Key_Return
     \value Key_Enter
     \value Key_Insert
@@ -593,8 +594,10 @@ Qt::ButtonState QKeyEvent::stateAfter() const
     \value Key_Up
     \value Key_Right
     \value Key_Down
+    \value Key_PageUp
     \value Key_Prior
     \value Key_Next
+    \value Key_PageDown
     \value Key_Shift
     \value Key_Control
     \value Key_Meta
@@ -800,7 +803,7 @@ Qt::ButtonState QKeyEvent::stateAfter() const
 
     \value Key_MediaPlay
     \value Key_MediaStop
-    \value Key_MediaPrev
+    \value Key_MediaPrevious
     \value Key_MediaNext
     \value Key_MediaRecord
 
@@ -1499,8 +1502,6 @@ QContextMenuEvent::QContextMenuEvent(Reason reason, const QPoint &pos, int state
     a transparent circle with cross-hairs).
     \value Stylus  A Stylus (the narrow end of the pen).
     \value Eraser  An Eraser (the broad end of the pen).
-    \omit
-    \value Menu  A menu button was pressed (currently unimplemented).
 */
 
 /*!
@@ -1691,6 +1692,14 @@ QTabletEvent::QTabletEvent(Type t, const QPoint &pos, const QPoint &globalPos, i
 */
 
 /*!
+    \fn void QDragMoveEvent::accept(bool y)
+
+    \overload
+
+    Calls QDropEvent::accept(\a{y})
+*/
+
+/*!
     \fn void QDragMoveEvent::accept(const QRect &rectangle)
 
     The same as accept(), but also notifies that future moves will
@@ -1701,6 +1710,14 @@ QTabletEvent::QTabletEvent(Type t, const QPoint &pos, const QPoint &globalPos, i
     If the rectangle is \link QRect::isEmpty() empty \endlink, then
     drag move events will be sent continuously. This is useful if the
     source is scrolling in a timer event.
+*/
+
+/*!
+    \fn void QDragMoveEvent::ignore()
+
+    \overload
+
+    Calls QDropEvent::ignore().
 */
 
 /*!
@@ -1921,6 +1938,7 @@ QTabletEvent::QTabletEvent(Type t, const QPoint &pos, const QPoint &globalPos, i
 
   \obsolete
 
+  The encoded data is in \a f.
   Use QDropEvent::encodedData().
 */
 

@@ -3242,43 +3242,43 @@ void Q3FileDialog::rereadDir()
 
 
 /*!
-  \fn void Q3FileDialog::fileHighlighted(const QString&)
+  \fn void Q3FileDialog::fileHighlighted(const QString& file)
 
-  This signal is emitted when the user highlights a file, i.e. makes
-  it the current file.
+  This signal is emitted when the user highlights the given \a file,
+  i.e. makes it the current file.
 
   \sa fileSelected(), filesSelected()
 */
 
 /*!
-  \fn void Q3FileDialog::fileSelected(const QString&)
+  \fn void Q3FileDialog::fileSelected(const QString& file)
 
-  This signal is emitted when the user selects a file.
+  This signal is emitted when the user selects the given \a file.
 
   \sa filesSelected(), fileHighlighted(), selectedFile()
 */
 
 /*!
-  \fn void Q3FileDialog::filesSelected(const QStringList&)
+  \fn void Q3FileDialog::filesSelected(const QStringList& files)
 
-  This signal is emitted when the user selects one or more files in \e
+  This signal is emitted when the user selects the given \a files in \e
   ExistingFiles mode.
 
   \sa fileSelected(), fileHighlighted(), selectedFiles()
 */
 
 /*!
-  \fn void Q3FileDialog::dirEntered(const QString&)
+  \fn void Q3FileDialog::dirEntered(const QString& directory)
 
-  This signal is emitted when the user enters a directory.
+  This signal is emitted when the user enters the given \a directory.
 
   \sa dir()
 */
 
 /*!
-  \fn void Q3FileDialog::filterSelected(const QString&)
+  \fn void Q3FileDialog::filterSelected(const QString& filter)
 
-  This signal is emitted when the user selects a filter.
+  This signal is emitted when the user selects the given \a filter.
 
   \sa selectedFilter()
 */
@@ -5359,8 +5359,10 @@ void Q3FileDialog::setFilters(const char ** types)
 }
 
 
-/*! \fn void Q3FileDialog::setFilters(const QStringList &)
+/*!
     \overload
+
+    \a types is a list of filter strings.
 */
 
 void Q3FileDialog::setFilters(const QStringList & types)

@@ -2501,14 +2501,18 @@ OSStatus QApplication::globalAppleEventProcessor(const AppleEvent *ae, AppleEven
 }
 
 /*!
-  This virtual function is only implemented under Macintosh.
+    \fn bool QApplication::macEventFilter(EventHandlerCallRef caller, EventRef event)
 
-  If you create an application that inherits QApplication and
-  reimplement this function, you get direct access to all Carbon Events
-  that are received from the MacOS.
+    \warning This virtual function is only implemented under Mac OS X.
 
-  Return true if you want to stop the event from being processed.
-  Return false for normal event dispatching.
+    If you create an application that inherits QApplication and
+    reimplement this function, you get direct access to all Carbon
+    Events that are received from the MacOS with this function being
+    called with the \a caller and the \a event.
+
+    Return true if you want to stop the event from being processed.
+    Return false for normal event dispatching. The default
+    implementation returns false.
 */
 bool QApplication::macEventFilter(EventHandlerCallRef, EventRef)
 {

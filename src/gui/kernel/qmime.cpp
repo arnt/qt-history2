@@ -86,10 +86,10 @@ QMimeSource::~QMimeSource()
 }
 
 /*!
-    \fn QByteArray QMimeSource::encodedData(const char*) const
+    \fn QByteArray QMimeSource::encodedData(const char *format) const
 
     Returns the encoded data of this object in the specified MIME
-    format.
+    \a format.
 
     Subclasses must reimplement this function.
 */

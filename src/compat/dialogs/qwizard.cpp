@@ -288,10 +288,10 @@ void QWizard::insertPage(QWidget * page, const QString & title, int index)
 }
 
 /*!
-    \fn void QWizard::selected(const QString&)
+    \fn void QWizard::selected(const QString& title)
 
     This signal is emitted when the current page changes. The
-    parameter contains the title of the selected page.
+    parameter contains the \a title of the selected page.
 */
 
 
@@ -449,10 +449,14 @@ void QWizard::setHelpEnabled(bool enable)
 
 
 /*!
-  \fn void QWizard::setFinish(QWidget *, bool)
+  \fn void QWizard::setFinish(QWidget *widget, bool b)
+
   \obsolete
 
-  Use setFinishEnabled instead
+  If \a b is true the given \a widget has a \key{Finish} button;
+  otherwise it does not have a \key{Finish} button.
+
+  Use setFinishEnabled() instead
 */
 
 /*!

@@ -102,10 +102,6 @@ void QCursor::setBitmap(const QBitmap &bitmap, const QBitmap &mask, int hotX, in
 
 
 
-/*!
-    Returns the window system cursor handle on Windows.
-*/
-
 Qt::HANDLE QCursor::handle() const
 {
     if (!initialized)

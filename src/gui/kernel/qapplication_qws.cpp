@@ -2277,15 +2277,18 @@ int QApplication::qwsProcessEvent(QWSEvent* event)
 }
 
 /*!
-    This virtual function is only implemented under Qt/Embedded.
+    \fn bool QApplication::qwsEventFilter(QWSEvent *event)
+
+    \warning This virtual function is only implemented under Qt/Embedded.
 
     If you create an application that inherits QApplication and
     reimplement this function, you get direct access to all QWS (Q
     Window System) events that the are received from the QWS master
-    process.
+    process. The events are passed in the \a event parameter.
 
     Return true if you want to stop the event from being processed.
-    Return false for normal event dispatching.
+    Return false for normal event dispatching. The default
+    implementation returns false.
 */
 bool QApplication::qwsEventFilter(QWSEvent *)
 {

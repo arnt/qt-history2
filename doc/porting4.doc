@@ -452,7 +452,6 @@ Probably something needs to be said about new stuff from painting? Don't know, I
 
 QPicture::copy() is deprecated and QPicture::detach() is now a public internal
 function. In general, one should have never needed to call these functions.
-*/
 
 \section1 QPrinter
 
@@ -493,3 +492,5 @@ in the widget's size policy to get equivalent functionality.
 
 The obsolete function drawSplitter() has been removed. Use
 QStyle::drawPrimitive() to acheive similar functionality.
+
+*/

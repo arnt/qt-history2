@@ -554,6 +554,13 @@ bool QAction::isCheckable() const
 }
 
 /*!
+    \fn void QAction::toggle()
+
+    This is a convenience function for the \l checked property.
+    Connect to it to change the checked state to its opposite state.
+*/
+
+/*!
     \property QAction::checked
     \brief whether a toggle action is on
 
@@ -580,6 +587,14 @@ bool QAction::isChecked() const
 {
     return d->checked;
 }
+
+/*!
+    \fn void QAction::setDisabled(bool b)
+
+    This is a convenience function for the \l enabled property, that
+    is useful for signals--slots connections. If \a b is true the
+    action is disabled; otherwise it is enabled.
+*/
 
 /*!
     \property QAction::enabled
@@ -812,7 +827,7 @@ void QActionGroupPrivate::actionDeleted()
     one time. We then connect the group's selected() signal to our
     textAlign() slot.
 
-    \printuntil actionAlignLeft->setToggleAction
+    \printuntil actionAlignLeft->setCheckable
 
     We create a left align action, add it to the toolbar and the menu,
     and make it a toggle action. We create center and right align
@@ -962,6 +977,14 @@ bool QActionGroup::isExclusive() const
 }
 
 /*!
+    \fn void QActionGroup::setDisabled(bool b)
+
+    This is a convenience function for the \l enabled property, that
+    is useful for signals--slots connections. If \a b is true the
+    action group is disabled; otherwise it is enabled.
+*/
+
+/*!
     \property QActionGroup::enabled
     \brief whether the action group is enabled
 
@@ -1036,24 +1059,25 @@ void QActionGroup::childEvent(QChildEvent* e)
 }
 
 /*!
-    \fn void QActionGroup::triggered()
+    \fn void QActionGroup::triggered(QAction *action)
 
-    This signal is emitted when an action in the action group is activated
-    by the user; for example, when the user clicks a menu option, toolbar
-    button, or presses an action's shortcut key combination.
+    This signal is emitted when the given \a action in the action
+    group is activated by the user; for example, when the user clicks
+    a menu option, toolbar button, or presses an action's shortcut key
+    combination.
 
-    Connect to this signal for command actions. 
+    Connect to this signal for command actions.
 
     \sa QAction::activate(), QAction::checked()
 */
 
 /*!
-    \fn void QActionGroup::hovered()
+    \fn void QActionGroup::hovered(QAction *action)
 
-    This signal is emitted when an action in the action group is highlighted
-    by the user; for example, when the user pauses with the cursor over a
-    menu option, toolbar button, or presses an action's shortcut key
-    combination.
+    This signal is emitted when the given \a action in the action
+    group is highlighted by the user; for example, when the user
+    pauses with the cursor over a menu option, toolbar button, or
+    presses an action's shortcut key combination.
 
     \sa QAction::activate()
 */

@@ -2506,12 +2506,6 @@ static bool collision_double_dispatch(const QCanvasSprite* s1,
 */
 
 /*!
-    \reimp
-
-    \fn void QCanvasSprite::move(double x, double y)
-*/
-
-/*!
   \reimp
 */
 bool QCanvasSprite::collidesWith(const QCanvasItem* i) const
@@ -5248,6 +5242,12 @@ void QCanvasSprite::advance(int phase)
     QCanvasPixmapArray.
 */
 
+
+/*!
+    \fn void QCanvasSprite::move(double nx, double ny)
+
+    \overload
+*/
 
 /*!
     \fn void QCanvasSprite::move(double nx, double ny, int nf)

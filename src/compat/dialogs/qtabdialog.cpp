@@ -106,20 +106,23 @@
 */
 
 /*!
-  \fn void QTabDialog::selected(const QString &);
+  \fn void QTabDialog::selected(const QString &name);
+
   \obsolete
 
   This signal is emitted whenever a tab is selected (raised),
-  including during the first show().
+  including during the first show(). The tab's \a name is passed.
 
   \sa raise()
 */
 
-/*! \fn void QTabDialog::currentChanged(QWidget*);
+/*!
+    \fn void QTabDialog::currentChanged(QWidget* widget);
 
-  This signal is emitted whenever the current page changes.
+    This signal is emitted whenever the current page changes. The new
+    page's is given by \a widget.
 
-  \sa currentPage(), showPage(), tabLabel()
+    \sa currentPage(), showPage(), tabLabel()
 */
 
 

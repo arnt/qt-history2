@@ -254,10 +254,10 @@ QDragManager::~QDragManager()
 
 
 /*!
-    Constructs a drag object with a parent \a source.
+    Constructs a drag object for the given \a dragSource. The \a
+    dragSource is passed to the QObject constructor.
 
-    Note that the drag object will be deleted when the \a source is
-    deleted.
+    The drag object will be deleted when the \a dragSource is deleted.
 */
 
 QDragObject::QDragObject(QWidget * dragSource)
@@ -323,9 +323,7 @@ QDragObject::~QDragObject()
 
 #ifndef QT_NO_DRAGANDDROP
 /*!
-    \fn void QDragObject::setPixmap(QPixmap pixmap, const QPoint &hotspot)
-
-    Set the \a pixmap to display while dragging the object. The
+    Set the pixmap, \a pm, to display while dragging the object. The
     platform-specific implementation will use this where it can - so
     provide a small masked pixmap, and do not assume that the user
     will actually see it. For example, cursors on Windows 95 are of
@@ -350,6 +348,7 @@ void QDragObject::setPixmap(QPixmap pm, const QPoint& hotspot)
 
 /*!
     \overload
+
     Uses a hotspot that positions the pixmap below and to the right of
     the mouse pointer. This allows the user to clearly see the point
     on the window where they are dragging the data.
@@ -676,9 +675,9 @@ void QTextDrag::setSubtype(const QString & st)
 
 
 /*!
-    Constructs a text drag object and sets its data
-    to \a text. The \a source is the widget that the drag operation started
-    from.
+    Constructs a text drag object for the given \a dragSource and sets
+    its data to \a text. The \a dragSource is passed to the
+    QDragObject constructor.
 */
 
 QTextDrag::QTextDrag(const QString &text, QWidget * dragSource)
@@ -689,8 +688,8 @@ QTextDrag::QTextDrag(const QString &text, QWidget * dragSource)
 
 
 /*!
-    Constructs a default text drag object.
-    The \a source is the widget that the drag operation started from.
+    Constructs a default text drag object for the given \a dragSource.
+    The \a dragSource is passed to the QDragObject constructor.
 */
 
 QTextDrag::QTextDrag(QWidget * dragSource)
@@ -1015,8 +1014,9 @@ bool QTextDrag::decode(const QMimeSource* e, QString& str)
 */
 
 /*!
-    Constructs an image drag object and sets its data to \a image. The
-    \a source is the widget that the drag operation started from.
+    Constructs an image drag object for the given \a dragSource and
+    sets its data to the given \a image.
+    The \a dragSource is passed to the QDragObject constructor.
 */
 
 QImageDrag::QImageDrag(QImage image, QWidget * dragSource)
@@ -1026,8 +1026,8 @@ QImageDrag::QImageDrag(QImage image, QWidget * dragSource)
 }
 
 /*!
-    Constructs a default image drag object.
-    The \a source is the widget that the drag operation started from.
+    Constructs a default image drag object for the given \a dragSource.
+    The \a dragSource is passed to the QDragObject constructor.
 */
 
 QImageDrag::QImageDrag(QWidget * dragSource)
@@ -1264,9 +1264,9 @@ bool QImageDrag::decode(const QMimeSource* e, QPixmap& pm)
 */
 
 /*!
-    Constructs a QStoredDrag. The drag \a source and \a name are passed
-    to the QDragObject constructor, and the format is set to \a
-    mimeType.
+    Constructs a QStoredDrag of the given \a mimeType for the given \a
+    dragSource. The \a dragSource is passed to the QDragObject
+    constructor, and the format is set to the \a mimeType.
 
     The data will be unset. Use setEncodedData() to set it.
 */
@@ -1381,10 +1381,10 @@ QByteArray QStoredDrag::encodedData(const char* m) const
 */
 
 /*!
-    Constructs an object to drag the \a list of URIs given.
-    The \a source is passed to the QStoredDrag constructor.
+    Constructs a \a dragSource object to drag the given list of \a
+    uris. The \a dragSource is passed to the QStoredDrag constructor.
 
-    Note that URIs are always in escaped UTF8 encoding.
+    Note that URIs are always in escaped UTF-8 encoding.
 */
 QUriDrag::QUriDrag(const QList<QByteArray> &uris, QWidget * dragSource)
     : QStoredDrag("text/uri-list", dragSource)
@@ -1393,12 +1393,9 @@ QUriDrag::QUriDrag(const QList<QByteArray> &uris, QWidget * dragSource)
 }
 
 /*!
-    \fn QUriDrag::QUriDrag(QWidget *source, const char *name)
-
-    Constructs an object to drag.
-    You must call setUris() before you start the drag().
-    Both the \a source and the \a name are passed to the QStoredDrag
-    constructor.
+    Constructs an object to drag for the given \a dragSource. You must
+    call setUris() before you start the drag(). The \a dragSource is
+    passed to the QStoredDrag constructor.
 */
 QUriDrag::QUriDrag(QWidget * dragSource)
     : QStoredDrag("text/uri-list", dragSource)
@@ -1526,7 +1523,11 @@ static uint htod(int h)
 
 /*!
   \fn QUriDrag::setFilenames(const QStringList &list)
+
   \obsolete
+
+  Sets the filename's in the drag object to those in the given \a
+  list.
 
   Use setFileNames() instead.
 */
@@ -1846,8 +1847,9 @@ QWidget* QDropEvent::source() const
 */
 
 /*!
-    Constructs a color drag object with the given \a color. Passes \a
-    dragsource to the QStoredDrag constructor.
+    Constructs a color drag object with the given \a col and \a
+    dragsource. The \a dragsource is passed to the QStoredDrag
+    constructor.
 */
 
 QColorDrag::QColorDrag(const QColor &col, QWidget *dragsource)

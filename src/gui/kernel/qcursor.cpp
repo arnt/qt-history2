@@ -112,10 +112,20 @@
     \value ForbiddenCursor  a slashed circle
     \value WhatsThisCursor  an arrow with a question mark
     \value BitmapCursor
+    \omitvalue LastCursor
 
     ArrowCursor is the default for widgets in a normal state.
 
     \img cursors.png Cursor Shapes
+*/
+
+/*!
+    \fn Qt::HANDLE QCursor::handle() const
+
+    Returns a handle to the cursor.
+
+    \warning Using the value returned by this function is not
+    portable.
 */
 
 /*****************************************************************************

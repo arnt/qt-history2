@@ -311,6 +311,20 @@ QApplicationPrivate::QApplicationPrivate(int &argc, char **argv)
     See setColorSpec() for full details.
 */
 
+/*!
+    \fn QWidget *QApplication::topLevelAt(const QPoint &p)
+
+    Returns the top level widget at the point \a p.
+*/
+/*!
+    \fn QWidget *QApplication::topLevelAt(int x, int y)
+
+    \overload
+
+    Returns the top level widget at the point (\a{x}, \a{y}).
+*/
+
+
 /*
   The qt_init() and qt_cleanup() functions are implemented in the
   qapplication_xyz.cpp file.
@@ -968,8 +982,8 @@ QApplication::~QApplication()
 
 
 /*!
-    Returns a pointer to the widget at global screen position \a
-    (x, y), or 0 if there is no Qt widget there.
+    Returns a pointer to the widget at global screen position
+    (\a{x}, \a{y}), or 0 if there is no Qt widget there.
 
     This function is normally rather slow.
 
@@ -1906,20 +1920,21 @@ void QApplication::syncX()        {}                // do nothing
 
   Returns the version of the Windows operating system that is running:
 
-  \list
-  \i Qt::WV_95 - Windows 95
-  \i Qt::WV_98 - Windows 98
-  \i Qt::WV_Me - Windows Me
-  \i Qt::WV_NT - Windows NT 4.x
-  \i Qt::WV_2000 - Windows 2000 (NT5)
-  \i Qt::WV_XP - Windows XP
-  \i Qt::WV_2003 - Windows Server 2003 family
-  \i Qt::WV_CE - Windows CE
-  \i Qt::WV_CENET - Windows CE.NET
-  \endlist
+  \table
+  \header \i Version \i OS
+  \row \i Qt::WV_95 \i Windows 95
+  \row \i Qt::WV_98 \i Windows 98
+  \row \i Qt::WV_Me \i Windows Me
+  \row \i Qt::WV_NT \i Windows NT 4.x
+  \row \i Qt::WV_2000 \i Windows 2000 (NT5)
+  \row \i Qt::WV_XP \i Windows XP
+  \row \i Qt::WV_2003 \i Windows Server 2003 family
+  \row \i Qt::WV_CE \i Windows CE
+  \row \i Qt::WV_CENET \i Windows CE.NET
+  \endtable
 
-  Note that this function is implemented for the Windows version
-  of Qt only.
+  \warning This function is only implemented for the Windows version
+  of Qt.
 */
 #endif
 
@@ -3231,7 +3246,9 @@ void MyApplication::commitData(QSessionManager& sm) {
 */
 
 /*!
-  \fn void QSessionManager::setDiscardCommand(const QStringList&)
+  \fn void QSessionManager::setDiscardCommand(const QStringList& list)
+
+  Sets the discard command to the given \a list.
 
   \sa discardCommand(), setRestartCommand()
 */

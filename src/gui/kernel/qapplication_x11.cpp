@@ -3330,14 +3330,18 @@ int QApplication::x11ProcessEvent(XEvent* event)
 }
 
 /*!
-    This virtual function is only implemented under X11.
+    \fn bool QApplication::x11EventFilter(XEvent *event)
+
+    \warning This virtual function is only implemented under X11.
 
     If you create an application that inherits QApplication and
     reimplement this function, you get direct access to all X events
-    that the are received from the X server.
+    that the are received from the X server. The events are passed in
+    the \a event parameter.
 
     Return true if you want to stop the event from being processed.
-    Return false for normal event dispatching.
+    Return false for normal event dispatching. THe default
+    implementation returns false.
 
     \sa x11ProcessEvent()
 */
@@ -5290,7 +5294,7 @@ bool QETWidget::translateCloseEvent(const XEvent *)
     Sets the text cursor's flash (blink) time to \a msecs
     milliseconds. The flash time is the time required to display,
     invert and restore the caret display. Usually the text cursor is
-    displayed for \a msecs/2 milliseconds, then hidden for \a msecs/2
+    displayed for \a{msecs}/2 milliseconds, then hidden for \a{msecs}/2
     milliseconds, but this may vary.
 
     Note that on Microsoft Windows, calling this function sets the

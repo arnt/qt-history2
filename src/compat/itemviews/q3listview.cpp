@@ -1136,10 +1136,11 @@ void Q3ListViewItem::insertItem(Q3ListViewItem * newChild)
 
 
 /*!
-  \fn void Q3ListViewItem::removeItem(Q3ListViewItem *)
-  \obsolete
+    \fn void Q3ListViewItem::removeItem(Q3ListViewItem *item)
 
-  This function has been renamed takeItem().
+    \obsolete
+
+    Removes the given \a item. Use takeItem() instead.
 */
 
 
@@ -1767,7 +1768,8 @@ QString Q3ListViewItem::text(int column) const
     valid column number and \a text is different from the existing
     text.
 
-    If \a text() has been reimplemented, this function may be a no-op.
+    If the text() function has been reimplemented, this function may
+    be a no-op.
 
     \sa text() key()
 */
@@ -1980,6 +1982,9 @@ static QStyleOptionListView getStyleOption(const Q3ListView *lv, const Q3ListVie
     return opt;
 }
 
+/*!
+    \internal
+*/
 void Q3ListViewItem::paintCell(QPainter * p, const QPalette & pal,
                                int column, int width, int align)
 {
@@ -4050,13 +4055,13 @@ void Q3ListViewItem::widthChanged(int c) const
 */
 
 /*!
-    \fn void Q3ListView::selectionChanged(Q3ListViewItem *)
+    \fn void Q3ListView::selectionChanged(Q3ListViewItem *item)
 
     \overload
 
     This signal is emitted whenever the selected item has changed in
     \c Single selection mode (normally after the screen update). The
-    argument is the newly selected item.
+    argument is the newly selected \a item.
 
     In \c Multi selection mode, use the no argument overload of this
     signal.
@@ -4069,15 +4074,15 @@ void Q3ListViewItem::widthChanged(int c) const
 
 
 /*!
-    \fn void Q3ListView::currentChanged(Q3ListViewItem *)
+    \fn void Q3ListView::currentChanged(Q3ListViewItem *item)
 
     This signal is emitted whenever the current item has changed
     (normally after the screen update). The current item is the item
     responsible for indicating keyboard focus.
 
-    The argument is the newly current item, or 0 if the change made no
-    item current. This can happen, for example, if all items in the
-    list view are deleted.
+    The argument is the newly current \a item, or 0 if the change made
+    no item current. This can happen, for example, if all the items in
+    the list view are deleted.
 
     \warning Do not delete any Q3ListViewItem objects in slots
     connected to this signal.
@@ -5399,13 +5404,16 @@ QRect Q3ListView::itemRect(const Q3ListViewItem * item) const
 */
 
 /*!
-    \fn void Q3ListView::doubleClicked(Q3ListViewItem *, const QPoint&, int )
+    \fn void Q3ListView::doubleClicked(Q3ListViewItem *item, const
+    QPoint& point, int column)
 
-    This signal is emitted whenever an item is double-clicked. It's
-    emitted on the second button press, not the second button release.
-    The arguments are the relevant Q3ListViewItem (may be 0), the point
-    in global coordinates and the relevant column (or -1 if the click
-    was outside the list).
+    This signal is emitted when a double-click occurs. It's emitted on
+    the second button press, not the second button release. The \a
+    item is the Q3ListViewItem the button was double-clicked on (which
+    could be 0 if it wasn't double-clicked on an item). The \a point
+    where the double-click occurred is given in global coordinates. If
+    an item was double-clicked on, \a column is the column within the
+    item that was double-clicked; otherwise \a column is -1.
 
     \warning Do not delete any Q3ListViewItem objects in slots
     connected to this signal.
@@ -5413,17 +5421,17 @@ QRect Q3ListView::itemRect(const Q3ListViewItem * item) const
 
 
 /*!
-    \fn void Q3ListView::returnPressed(Q3ListViewItem *)
+    \fn void Q3ListView::returnPressed(Q3ListViewItem *item)
 
-    This signal is emitted when Enter or Return is pressed. The
-    argument is the currentItem().
+    This signal is emitted when \key{Enter} or \key{Return} is pressed. The
+    \a item parameter is the currentItem().
 */
 
 /*!
-    \fn void Q3ListView::spacePressed(Q3ListViewItem *)
+    \fn void Q3ListView::spacePressed(Q3ListViewItem *item)
 
-    This signal is emitted when Space is pressed. The argument is
-    the currentItem().
+    This signal is emitted when \key{Space} is pressed. The \a item
+    parameter is the currentItem().
 */
 
 
@@ -5469,6 +5477,9 @@ void Q3ListView::setSorting(int column, bool ascending)
 
     \value DescendingOrder The items are sorted descending e.g. starts with
     'ZZZ' ends with 'AAA' in Latin-1 locales
+
+    \omitvalue Ascending
+    \omitvalue Descending
 */
 
 /*!
@@ -5598,22 +5609,28 @@ int Q3ListView::itemMargin() const
 
 
 /*!
-    \fn void Q3ListView::rightButtonClicked(Q3ListViewItem *, const QPoint&, int)
+    \fn void Q3ListView::rightButtonClicked(Q3ListViewItem *item,
+    const QPoint& point, int column)
 
-    This signal is emitted when the right button is clicked (i.e. when
-    it's released). The arguments are the relevant Q3ListViewItem (may
-    be 0), the point in global coordinates and the relevant column (or
-    -1 if the click was outside the list).
+    This signal is emitted when the right button is clicked. The \a
+    item is the Q3ListViewItem the button was clicked on (which could
+    be 0 if it wasn't clicked on an item). The \a point where the
+    click occurred is given in global coordinates. If an item was
+    clicked on, \a column is the column within the item that was
+    clicked; otherwise \a column is -1.
 */
 
 
 /*!
-    \fn void Q3ListView::rightButtonPressed (Q3ListViewItem *, const QPoint &, int)
+    \fn void Q3ListView::rightButtonPressed (Q3ListViewItem *item,
+    const QPoint &point, int column)
 
-    This signal is emitted when the right button is pressed. The
-    arguments are the relevant Q3ListViewItem (may be 0), the point in
-    global coordinates and the relevant column (or -1 if the click was
-    outside the list).
+    This signal is emitted when the right button is pressed. The \a
+    item is the Q3ListViewItem the button was pressed on (which could
+    be 0 if it wasn't pressed on an item). The \a point where the
+    press occurred is given in global coordinates. If an item was
+    pressed on, \a column is the column within the item that was
+    pressed; otherwise \a column is -1.
 */
 
 /*!
@@ -6333,7 +6350,10 @@ void QCheckListItem::setOn(bool b )
 
 
 /*!
+    \fn void QCheckListItem::stateChange(bool b)
+
     This virtual function is called when the item changes its state.
+    \a b is true if the state is \c On; otherwise the state is \c Off.
     \c NoChange (if tristate is enabled and the type is either \c
     CheckBox or \c CheckBoxController) reports the same as \c Off, so
     use state() to determine if the state is actually \c Off or \c
@@ -6959,10 +6979,10 @@ int Q3ListViewItem::itemPos() const
 
 
 /*!
-  \fn void Q3ListView::removeItem(Q3ListViewItem *)
+  \fn void Q3ListView::removeItem(Q3ListViewItem *item)
   \obsolete
 
-  This function has been renamed takeItem().
+    Removes the given \a item. Use takeItem() instead.
 */
 
 /*!

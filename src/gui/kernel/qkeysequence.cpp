@@ -61,11 +61,13 @@
 */
 
 /*!
-    \enum Qt::SequenceMatch
+    \enum QKeySequence::SequenceMatch
 
-    \value NoMatch The sequences have nothing in common.
-    \value PartialMatch The sequences match partially, but are not complete.
-    \value Identical The sequences do not differ.
+    \value NoMatch The key sequences are different; not even partially
+    matching.
+    \value PartialMatch The key sequences match partially, but are not
+    the same.
+    \value ExactMatch The key sequences are the same.
 */
 
 static struct {
@@ -627,6 +629,13 @@ QKeySequence &QKeySequence::operator=(const QKeySequence &other)
     qAtomicAssign(d, other.d);
     return *this;
 }
+
+/*!
+    \fn bool QKeySequence::operator!=(const QKeySequence &other) const
+
+    Returns true if this key sequence is not equal to the \a other
+    key sequence; otherwise returns false.
+*/
 
 
 /*!
