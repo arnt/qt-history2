@@ -803,13 +803,13 @@ for plat in mac win x11 qnx6 embedded; do
 
     PLAT_RM_FILE=${TMP_FILE}-plat-${plat}
     for edition in commercial free review academic; do
-	dist_for_edition=$edition
 	case $edition in
 	commercial)
 	    [ "x$DO_COMMERCIAL" = "xyes" ] || continue
 	    ;;
 	free)
-	    { [ "$plat" != "embedded" ] && [ "$plat" != "x11" ]; } || [ "x$DO_FREE" != "xyes" ] && continue
+            [ "x$DO_FREE" == "xyes" ] || continue
+	    [ "$plat" != "embedded" ] && [ "$plat" != "x11" ] && [ "$plat" != "mac" ] && continue
 	    ;;
 	review)
 	    [ "x$DO_REVIEW" = "xyes" ] || continue
@@ -863,7 +863,7 @@ for plat in mac win x11 qnx6 embedded; do
 	    rm -rf $PLATDIR/plugins/src/sqldrivers/db2
 	    rm -rf $PLATDIR/extensions/motif
 	    ;;
-    commercial)
+        commercial)
 	    #remove .GPL files for assistant, designer and linguist in commercial
 	    rm -f $PLATDIR/tools/assistant/LICENSE.GPL
 	    rm -f $PLATDIR/tools/designer/LICENSE.GPL
@@ -888,7 +888,7 @@ for plat in mac win x11 qnx6 embedded; do
 	rm -rf "$PLATDIR/tmake"
 	rm -rf "$PLATDIR/util"
 	rm -rf "$PLATDIR/tests"
-	if [ "$plat" != "mac" ]; then
+	if [ "$plat" != "mac" ] || [ "$edition" == "free" ]; then
 	    remove_file_and_includes "src/styles/qaquastyle.h" "src/styles/qaquastyle_p.h"
 	    remove_file_and_includes "src/styles/qaquastyle.cpp"
 	    remove_file_and_includes "src/styles/qaquastylepix_p.h" "src/styles/qaquastyle_p.cpp"
@@ -1012,7 +1012,7 @@ for plat in mac win x11 qnx6 embedded; do
 
 	#copy the platform dist stuff
 	copy_platform_files "$platformname" $edition $plat $PLATDIR $PLATNAME #platform specific
-	copy_platform_files "$dist_for_edition" $edition $plat $PLATDIR $PLATNAME #edition specific
+	copy_platform_files "$edition" $edition $plat $PLATDIR $PLATNAME #edition specific
 
 	#remove platform specific files that don't belong
 	status "Final cleanup.."
