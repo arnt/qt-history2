@@ -1,3 +1,4 @@
+#include "qsqldatabase.h"
 #include "qsqlfieldmapper.h"
 #include "qsqlview.h"
 
@@ -8,7 +9,7 @@
   Constructs a SQL field mapper.
 */
 
-QSqlFieldMapper::QSqlFieldMapper( QSql * set = 0 )
+QSqlFieldMapper::QSqlFieldMapper( QSql * set )
     : s( set )
 {
 }
