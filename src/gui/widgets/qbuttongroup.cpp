@@ -92,8 +92,8 @@
 /*!
     \fn QAbstractButton *QButtonGroup::checkedButton() const;
 
-    Returns the button group's checked button, or 0 if there isn't
-    one.
+    Returns the button group's checked button, or 0 if no buttons are
+    checked.
 
     \sa buttonChecked()
 */
