@@ -68,11 +68,7 @@ QVariant ControlList::data(const QModelIndex &index, int role) const
 {
     if (!index.isValid())
         return QVariant();
-/*    if (index.type() == QModelIndex::HorizontalHeader)
-        return index.column();
-    if (index.type() == QModelIndex::VerticalHeader)
-        return index.row();
-*/
+
     if (role == ControlList::DisplayRole)
         return controls.at(index.row());
     if (role == ControlList::UserRole)
@@ -89,13 +85,13 @@ QAxSelect::QAxSelect(QWidget *parent, Qt::WFlags f)
     setupUi(this);
     ActiveXList->setModel(new ControlList(this));
     QApplication::restoreOverrideCursor();
-    //ActiveXList->setFocus(); ### crashes
+    ActiveXList->setFocus();
 
     connect(buttonOk, SIGNAL(clicked()), this, SLOT(accept()));
     connect(buttonCancel, SIGNAL(clicked()), this, SLOT(reject()));
 }
 
-void QAxSelect::on_ActiveXList_pressed(const QModelIndex& index, int button)
+void QAxSelect::on_ActiveXList_doubleClicked(const QModelIndex& index, Qt::ButtonState button)
 {
     if (button != Qt::LeftButton)
         return;
