@@ -986,7 +986,7 @@ void QMessageBox::keyPressEvent( QKeyEvent *e )
 	while ( (pb = (QPushButton*)it.current()) ) {
 	    int key = e->key() & ~(MODIFIER_MASK|UNICODE_ACCEL);
 	    int acc = pb->accel() & ~(MODIFIER_MASK|UNICODE_ACCEL);
-	    if ( (int)acc == key ) {
+	    if ( key && acc && acc == key ) {
 		delete list;
 		emit pb->animateClick();
 		return;
