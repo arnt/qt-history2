@@ -1615,12 +1615,16 @@ QWidget *QApplication::widgetAt( int x, int y, bool child )
 	it.toLast();
 	while ( it.current() ) {
 	    w = (QWidget*)it.current();
+	    if ( w == QApplication::desktop() ) {
+		--it;
+		continue;
+	    }
 	    if ( w->isVisible() && w->geometry().contains(pos)
 		 && w->requestedRegion().contains( w->mapToGlobal(w->mapFromParent(pos)) ) ) {
 		if ( !child )
 		    return w;
 		QWidget *c = findChildWidget( w, w->mapFromParent(pos) );
-		return c ? c : w;
+		return c ? c  : w;
 	    }
 	    --it;
 	}
