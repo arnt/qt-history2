@@ -4717,7 +4717,7 @@ void Q3TextEdit::scrollToAnchor(const QString& name)
 QString Q3TextEdit::anchorAt(const QPoint& pos, Qt::AnchorAttribute attr)
 {
     Q3TextCursor c(doc);
-    placeCursor(pos, &c);
+    placeCursor(pos, &c, true);
     switch(attr) {
         case Qt::AnchorName:
             return c.paragraph()->at(c.index())->anchorName();
