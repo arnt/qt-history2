@@ -481,7 +481,7 @@ UnixMakefileGenerator::defaultInstall(const QString &t)
 	ret += "\n\t";
     ret += QString(resource ? "-$(COPY_DIR)" : "-$(COPY)") + " \"" +
 	   src_targ + "\" \"" + dst_targ + "\"";
-    if(!project->isEmpty("QMAKE_STRIP")) {
+    if(!project->isActiveConfig("debug") && !project->isEmpty("QMAKE_STRIP")) {
 	ret += "\n\t-" + var("QMAKE_STRIP");
 	if(resource)
 	    ret = " \"" + dst_targ + "/Contents/MacOS/$(QMAKE_TARGET)";
