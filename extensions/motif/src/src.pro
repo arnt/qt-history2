@@ -8,8 +8,8 @@ VERSION = 0.0.0
 LIBS += -lXm -lXt
 
 contains( QT_PRODUCT, qt-(enterprise|internal) ) {
-    HEADERS = qmotifdialog.h qmotifwidget.h qmotif.h
-    SOURCES = qmotifdialog.cpp qmotifwidget.cpp qmotif.cpp
+    HEADERS = qmotifdialog.h qmotifwidget.h qmotif.h qxtwidget.h
+    SOURCES = qmotifdialog.cpp qmotifwidget.cpp qmotif.cpp qxtwidget.cpp
 } else {
     message( "QMotif requires a Qt/Enterprise edition." )
 }

@@ -19,6 +19,9 @@ The Motif Extension consists of the follow classes:
 \i \l QMotif
 \i \l QMotifWidget
 \i \l QMotifDialog
+\i \l QXtWidget - The Xt/Motif integration widget from the previous
+Xt/Motif extension.  This class is unsupported, and provided only for
+projects moving to the new Motif extension.
 \endlist
 
 \section1 How-to
