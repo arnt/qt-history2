@@ -87,9 +87,9 @@
 */
 
 /*!
-    \fn Q3StyleOption::Q3StyleOption(StyleOptionDefault)
+    \fn Q3StyleOption::Q3StyleOption(StyleOptionDefault default)
 
-    The default option. This can always be passed as the optional
+    The \a default option. This can always be passed as the optional
     argument to QStyle functions.
 */
 
@@ -140,12 +140,6 @@
     \fn Q3StyleOption::Q3StyleOption(QTab*)
 
     Pass a QTab, \a t.
-*/
-
-/*!
-    \fn Q3StyleOption::Q3StyleOption(QListViewItem*)
-
-    Pass a QListViewItem, \a i.
 */
 
 /*!
@@ -255,13 +249,6 @@
 
     Returns a QTabBar tab if the appropriate constructor was called;
     otherwise the return value is undefined.
-*/
-
-/*!
-    \fn QListViewItem* Q3StyleOption::listViewItem() const
-
-    Returns a QListView item if the appropriate constructor was
-    called; otherwise the return value is undefined.
 */
 
 /*!
@@ -403,7 +390,7 @@ QStyle::~QStyle()
 
 
 /*!
-    Initializes the appearance of a widget.
+    Initializes the appearance of widget \a w.
 
     This function is called for every widget at some point after it
     has been fully created but just \e before it is shown the very
@@ -425,12 +412,12 @@ QStyle::~QStyle()
 
     \sa unPolish()
 */
-void QStyle::polish(QWidget*)
+void QStyle::polish(QWidget* /*w*/)
 {
 }
 
 /*!
-    Undoes the initialization of a widget's appearance.
+    Undoes the initialization of widget \a w's appearance.
 
     This function is the counterpart to polish. It is called for every
     polished widget when the style is dynamically changed. The former
@@ -439,7 +426,7 @@ void QStyle::polish(QWidget*)
 
     \sa polish()
 */
-void QStyle::unPolish(QWidget*)
+void QStyle::unPolish(QWidget* /*w*/)
 {
 }
 
@@ -447,22 +434,22 @@ void QStyle::unPolish(QWidget*)
 /*!
     \overload
 
-    Late initialization of the QApplication object.
+    Late initialization of the QApplication object \a app.
 
     \sa unPolish()
 */
-void QStyle::polish(QApplication*)
+void QStyle::polish(QApplication* /*app*/)
 {
 }
 
 /*!
     \overload
 
-    Undoes the application polish.
+    Undoes the polish of application \a app.
 
     \sa polish()
 */
-void QStyle::unPolish(QApplication*)
+void QStyle::unPolish(QApplication* /*app*/)
 {
 }
 
@@ -470,12 +457,12 @@ void QStyle::unPolish(QApplication*)
     \overload
 
     The style may have certain requirements for color palettes. In
-    this function it has the chance to change the palette according to
+    this function it has the chance to change the palette \a pal according to
     these requirements.
 
     \sa QPalette, QApplication::setPalette()
 */
-void QStyle::polish(QPalette&)
+void QStyle::polish(QPalette &/*pal*/)
 {
 }
 
@@ -641,9 +628,7 @@ void QStyle::drawItem(QPainter *p, const QRect &r,
 }
 
 /*!
-    \fn void QStyle::drawItem(QPainter *p, const QRect &r, int flags, const
-                              QPalette &pal, bool enabled, const QPixmap &pixmap,
-                              const QString &text, int len, const QColor *penColor)
+    \fn void QStyle::drawItem(QPainter *p, const QRect &r, int flags, const QPalette &pal, bool enabled, const QPixmap &pixmap, const QString &text, int len, const QColor *penColor) const
 
     \overload
 
@@ -757,6 +742,7 @@ void QStyle::drawItem(QPainter *p, const QRect &r,
 
     \value PE_TreeBranch lines used to represent the branch of a tree
     in a tree view
+    \value PE_SpinBoxSlider The optional slider part of a spin box.
 
     \value PE_CustomBase  base value for custom PrimitiveElements.
         All values above this are reserved for custom use. Custom
@@ -788,6 +774,7 @@ void QStyle::drawItem(QPainter *p, const QRect &r,
     \value Style_Children
     \value Style_Default
     \value Style_Down
+    \value Style_Editing
     \value Style_Enabled
     \value Style_FocusAtBorder
     \value Style_HasFocus
@@ -1097,6 +1084,7 @@ void QStyle::drawItem(QPainter *p, const QRect &r,
     \value SC_SpinBoxFrame  spinwidget frame.
     \value SC_SpinBoxEditField  spinwidget edit field.
     \value SC_SpinBoxButtonField  spinwidget button field.
+    \value SC_SpinBoxSlider  spinwidget optional slider.
 
 
     \value SC_ComboBoxEditField  combobox edit field; see also QComboBox.
@@ -1217,7 +1205,7 @@ void QStyle::drawItem(QPainter *p, const QRect &r,
 
     The \a opt argument is a pointer to a QStyleOptionComplex or one of its
     subclasses. The structure can be cast to the appropriate type based on the
-    value of \a control. The \a widget is optional and can contain additional
+    value of \a cc. The \a widget is optional and can contain additional
     information for the function.  See drawComplexControl() for an explanation
     of the \a widget and \a opt arguments.
 
@@ -1231,7 +1219,7 @@ void QStyle::drawItem(QPainter *p, const QRect &r,
     described in the structure \a opt at the point \a pos. The \a opt argument
     is a pointer to a QStyleOptionComplex structure or one of its subclasses.
     The structure can be cast to the appropriate type based on the value of \a
-    control. The \a widget argument is optional and can contain additional
+    cc. The \a widget argument is optional and can contain additional
     information for the functions.  See drawComplexControl() for an explanation
     of the \a widget and \a opt arguments.
 
@@ -1341,6 +1329,7 @@ void QStyle::drawItem(QPainter *p, const QRect &r,
     \value PM_HeaderMarkSize
     \value PM_HeaderGripMargin
     \value PM_HeaderMargin
+    \value PM_SpinBoxSliderHeight The height of the optional spin box slider.
 
     \value PM_CustomBase  base value for custom ControlElements. All
         values above this are reserved for custom use. Therefore,
@@ -1413,11 +1402,11 @@ void QStyle::drawItem(QPainter *p, const QRect &r,
     \fn QSize QStyle::sizeFromContents(ContentsType ct, const QStyleOption *opt, const QSize &contentsSize, const QFontMetrics &fm, const QWidget *w = 0) const = 0
 
     Returns the size of styled object described in \a opt based on the contents size \a
-    ct. The font metrics in \a fm can aid in determining the size.
+    contentsSize. The font metrics in \a fm can aid in determining the size.
 
     The \a opt argument is a pointer to a QStyleOption or one of its
     subclasses. The \a opt can be cast to the appropriate type based
-    on the value of \a contents. The \a widget is optional argument and can
+    on the value of \a ct. The widget \a w is optional argument and can
     contain extra information used for calculating the size.
     See the table below for the appropriate \a opt usage:
 
@@ -1658,9 +1647,7 @@ void QStyle::drawItem(QPainter *p, const QRect &r,
 */
 
 /*!
-    \fn QPixmap QStyle::stylePixmap(PixmapType pixmaptype, const QPixmap &pixmap,
-                                    const QPalette &pal,
-                                    const Q3StyleOption& opt) const
+    \fn QPixmap QStyle::stylePixmap(PixmapType pixmaptype, const QPixmap &pixmap, const QPalette &pal, const Q3StyleOption& opt) const
 
     \overload
 
@@ -1678,9 +1665,7 @@ void QStyle::drawItem(QPainter *p, const QRect &r,
 */
 
 /*!
-    \fn QPixmap QStyle::stylePixmap(StylePixmap stylepixmap,
-                                    const QWidget *widget,
-                                    const Q3StyleOption& opt) const
+    \fn QPixmap QStyle::stylePixmap(StylePixmap stylepixmap, const QWidget *widget, const Q3StyleOption& opt) const
 
     Returns a pixmap for \a stylepixmap.
 

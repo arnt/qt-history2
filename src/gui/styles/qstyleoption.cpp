@@ -143,10 +143,15 @@ void QStyleOption::init(const QWidget *w)
     The current default is 0.
 */
 
-/*
+/*!
     \class QStyleOptionFocusRect qstyleoption.h
     \brief QStyleOptionFocusRect describes the parameters for drawing a focus
     rect with QStyle.
+
+    Note that on Mac OS X, the focus rect is handled by a FocusWidget, so be
+    sure that you only use the focus rect for things that really need a focus
+    rect or that it is not calling the QMacStyle::drawPrimitive in that case.
+
     \ingroup appearance
 */
 
@@ -160,4 +165,66 @@ void QStyleOption::init(const QWidget *w)
     \property QStyleOptionFocusRect::backgroundColor
 
     \brief The background color on which the focus rect is being drawn.
+*/
+
+/*!
+    \class QStyleOptionFrame qstyleoption.h
+    \brief QStyleOptionFrame describes the parameters for drawing a frame.
+
+    QStyleOptionFrame is used for drawing several objects inside of Qt. Among
+    them: QFrame, QGroupBox, QLineEdits, and the frame around a QMenu.
+*/
+
+/*!
+    \fn QStyleOptionFrame::QStyleOptionFrame(int version)
+
+    Construct a QStyleOptionFrame with version number \a version. The other
+    members of the struct are set to zero.
+*/
+
+/*!
+    \property QStyleOptionFrame::lineWidth
+
+    \brief The line width for drawing the panel.
+*/
+
+/*!
+    \property QStyleOptionFrame::midLineWidth
+
+    \brief The mid-line width for drawing the panel. This is usually used in
+    drawing sunken or raised frames.
+*/
+
+/*!
+    \class QStyleOptionHeader qstyleoption.h
+    \brief QStyleOptionHeader describes parameters for drawing a header.
+
+    The QStleOptionHeader structure is used for drawing the header pane, the
+    header sort arrow, and the header label.
+*/
+
+/*!
+    \fn QStyleOptionHeader::QStyleOptionHeader(int version)
+
+    Construct a QStyleOptionHeader struct with version number \a version. The
+    members are either null, empty, or zero. It is your responsibilty to set
+    the correct values yourself.
+*/
+
+/*!
+    \property QStyleOptionHeader::section
+
+    \brief Which section of the header is being painted.
+*/
+
+/*!
+    \property QStyleOptionHeader::text
+
+    \brief The text (if any) of the header.
+*/
+
+/*!
+    \property QStyleOptionHeader::icon
+
+    \brief The iconset (if any) of the header.
 */
