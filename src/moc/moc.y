@@ -78,9 +78,9 @@ void yyerror( const char *msg );
 # include "mwerks_mac.h"
 #endif
 
+#include <qplatformdefs.h>
 #include <ctype.h>
 #include <limits.h>
-#include <qplatformdefs.h>
 #include <stdio.h>
 #include <stdlib.h>
 
