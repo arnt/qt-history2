@@ -129,7 +129,7 @@
   \value ShowMinimized Widget should be shown minimized.
   \value ShowWindowRequest Widget's window should be shown.
   \value DeferredDelete The object will be deleted after it has
-  cleaned up. 
+  cleaned up.
   \value Accel  Key press in child for shortcut key handling, \l{QKeyEvent}.
   \value Wheel  Mouse wheel rolled, \l{QWheelEvent}.
   \value ContextMenu context popup menu, \l{QContextMenuEvent}
@@ -461,7 +461,7 @@ Qt::ButtonState QMouseEvent::stateAfter() const
   is usually (but not always) right. Use the other constructor if you
   need to specify the global position explicitly. \a delta contains
   the rotation distance, \a state holds the keyboard modifier
-  flags at the time of the event and \a orient holds the wheel's orientation. 
+  flags at the time of the event and \a orient holds the wheel's orientation.
 
   \sa pos(), delta(), state()
 */
@@ -597,7 +597,7 @@ QWheelEvent::QWheelEvent( const QPoint &pos, int delta, int state, Orientation o
   \value SHIFT the shift keys provided on all normal keyboards
   \value CTRL the control keys
   \value ALT the normal alt keys, but not e.g. AltGr.
-  \value MODIFIER_MASK is a mask of SHIFT, CTRL and ALT. 
+  \value MODIFIER_MASK is a mask of SHIFT, CTRL and ALT.
   \value UNICODE_ACCEL the accelerator is specified as a Unicode code
   point, not a Qt Key
 */
@@ -760,243 +760,243 @@ Qt::ButtonState QKeyEvent::stateAfter() const
 
     The key names used by Qt.
 
-    \value Key_Escape 
-    \value Key_Tab 
-    \value Key_Backtab 
-    \value Key_Backspace 
-    \value Key_Return 
-    \value Key_Enter 
-    \value Key_Insert 
-    \value Key_Delete 
-    \value Key_Pause 
-    \value Key_Print 
-    \value Key_SysReq 
-    \value Key_Home 
-    \value Key_End 
-    \value Key_Left 
-    \value Key_Up 
-    \value Key_Right 
-    \value Key_Down 
-    \value Key_Prior 
-    \value Key_Next 
-    \value Key_Shift 
-    \value Key_Control 
-    \value Key_Meta 
-    \value Key_Alt 
-    \value Key_CapsLock 
-    \value Key_NumLock 
-    \value Key_ScrollLock 
-    \value Key_F1 
-    \value Key_F2 
-    \value Key_F3 
-    \value Key_F4 
-    \value Key_F5 
-    \value Key_F6 
-    \value Key_F7 
-    \value Key_F8 
-    \value Key_F9 
-    \value Key_F10 
-    \value Key_F11 
-    \value Key_F12 
-    \value Key_F13 
-    \value Key_F14 
-    \value Key_F15 
-    \value Key_F16 
-    \value Key_F17 
-    \value Key_F18 
-    \value Key_F19 
-    \value Key_F20 
-    \value Key_F21 
-    \value Key_F22 
-    \value Key_F23 
-    \value Key_F24 
-    \value Key_F25 
-    \value Key_F26 
-    \value Key_F27 
-    \value Key_F28 
-    \value Key_F29 
-    \value Key_F30 
-    \value Key_F31 
-    \value Key_F32 
-    \value Key_F33 
-    \value Key_F34 
-    \value Key_F35 
-    \value Key_Super_L 
-    \value Key_Super_R 
-    \value Key_Menu 
-    \value Key_Hyper_L 
-    \value Key_Hyper_R 
-    \value Key_Help 
-    \value Key_Space 
-    \value Key_Any 
-    \value Key_Exclam 
-    \value Key_QuoteDbl 
-    \value Key_NumberSign 
-    \value Key_Dollar 
-    \value Key_Percent 
-    \value Key_Ampersand 
-    \value Key_Apostrophe 
-    \value Key_ParenLeft 
-    \value Key_ParenRight 
-    \value Key_Asterisk 
-    \value Key_Plus 
-    \value Key_Comma 
-    \value Key_Minus 
-    \value Key_Period 
-    \value Key_Slash 
-    \value Key_0 
-    \value Key_1 
-    \value Key_2 
-    \value Key_3 
-    \value Key_4 
-    \value Key_5 
-    \value Key_6 
-    \value Key_7 
-    \value Key_8 
-    \value Key_9 
-    \value Key_Colon 
-    \value Key_Semicolon 
-    \value Key_Less 
-    \value Key_Equal 
-    \value Key_Greater 
-    \value Key_Question 
-    \value Key_At 
-    \value Key_A 
-    \value Key_B 
-    \value Key_C 
-    \value Key_D 
-    \value Key_E 
-    \value Key_F 
-    \value Key_G 
-    \value Key_H 
-    \value Key_I 
-    \value Key_J 
-    \value Key_K 
-    \value Key_L 
-    \value Key_M 
-    \value Key_N 
-    \value Key_O 
-    \value Key_P 
-    \value Key_Q 
-    \value Key_R 
-    \value Key_S 
-    \value Key_T 
-    \value Key_U 
-    \value Key_V 
-    \value Key_W 
-    \value Key_X 
-    \value Key_Y 
-    \value Key_Z 
-    \value Key_BracketLeft 
-    \value Key_Backslash 
-    \value Key_BracketRight 
-    \value Key_AsciiCircum 
-    \value Key_Underscore 
-    \value Key_QuoteLeft 
-    \value Key_BraceLeft 
-    \value Key_Bar 
-    \value Key_BraceRight 
-    \value Key_AsciiTilde 
+    \value Key_Escape
+    \value Key_Tab
+    \value Key_Backtab
+    \value Key_Backspace
+    \value Key_Return
+    \value Key_Enter
+    \value Key_Insert
+    \value Key_Delete
+    \value Key_Pause
+    \value Key_Print
+    \value Key_SysReq
+    \value Key_Home
+    \value Key_End
+    \value Key_Left
+    \value Key_Up
+    \value Key_Right
+    \value Key_Down
+    \value Key_Prior
+    \value Key_Next
+    \value Key_Shift
+    \value Key_Control
+    \value Key_Meta
+    \value Key_Alt
+    \value Key_CapsLock
+    \value Key_NumLock
+    \value Key_ScrollLock
+    \value Key_F1
+    \value Key_F2
+    \value Key_F3
+    \value Key_F4
+    \value Key_F5
+    \value Key_F6
+    \value Key_F7
+    \value Key_F8
+    \value Key_F9
+    \value Key_F10
+    \value Key_F11
+    \value Key_F12
+    \value Key_F13
+    \value Key_F14
+    \value Key_F15
+    \value Key_F16
+    \value Key_F17
+    \value Key_F18
+    \value Key_F19
+    \value Key_F20
+    \value Key_F21
+    \value Key_F22
+    \value Key_F23
+    \value Key_F24
+    \value Key_F25
+    \value Key_F26
+    \value Key_F27
+    \value Key_F28
+    \value Key_F29
+    \value Key_F30
+    \value Key_F31
+    \value Key_F32
+    \value Key_F33
+    \value Key_F34
+    \value Key_F35
+    \value Key_Super_L
+    \value Key_Super_R
+    \value Key_Menu
+    \value Key_Hyper_L
+    \value Key_Hyper_R
+    \value Key_Help
+    \value Key_Space
+    \value Key_Any
+    \value Key_Exclam
+    \value Key_QuoteDbl
+    \value Key_NumberSign
+    \value Key_Dollar
+    \value Key_Percent
+    \value Key_Ampersand
+    \value Key_Apostrophe
+    \value Key_ParenLeft
+    \value Key_ParenRight
+    \value Key_Asterisk
+    \value Key_Plus
+    \value Key_Comma
+    \value Key_Minus
+    \value Key_Period
+    \value Key_Slash
+    \value Key_0
+    \value Key_1
+    \value Key_2
+    \value Key_3
+    \value Key_4
+    \value Key_5
+    \value Key_6
+    \value Key_7
+    \value Key_8
+    \value Key_9
+    \value Key_Colon
+    \value Key_Semicolon
+    \value Key_Less
+    \value Key_Equal
+    \value Key_Greater
+    \value Key_Question
+    \value Key_At
+    \value Key_A
+    \value Key_B
+    \value Key_C
+    \value Key_D
+    \value Key_E
+    \value Key_F
+    \value Key_G
+    \value Key_H
+    \value Key_I
+    \value Key_J
+    \value Key_K
+    \value Key_L
+    \value Key_M
+    \value Key_N
+    \value Key_O
+    \value Key_P
+    \value Key_Q
+    \value Key_R
+    \value Key_S
+    \value Key_T
+    \value Key_U
+    \value Key_V
+    \value Key_W
+    \value Key_X
+    \value Key_Y
+    \value Key_Z
+    \value Key_BracketLeft
+    \value Key_Backslash
+    \value Key_BracketRight
+    \value Key_AsciiCircum
+    \value Key_Underscore
+    \value Key_QuoteLeft
+    \value Key_BraceLeft
+    \value Key_Bar
+    \value Key_BraceRight
+    \value Key_AsciiTilde
 
-    \value Key_nobreakspace 
-    \value Key_exclamdown 
-    \value Key_cent 
-    \value Key_sterling 
-    \value Key_currency 
-    \value Key_yen 
-    \value Key_brokenbar 
-    \value Key_section 
-    \value Key_diaeresis 
-    \value Key_copyright 
-    \value Key_ordfeminine 
-    \value Key_guillemotleft 
-    \value Key_notsign 
-    \value Key_hyphen 
-    \value Key_registered 
-    \value Key_macron 
-    \value Key_degree 
-    \value Key_plusminus 
-    \value Key_twosuperior 
-    \value Key_threesuperior 
-    \value Key_acute 
-    \value Key_mu 
-    \value Key_paragraph 
-    \value Key_periodcentered 
-    \value Key_cedilla 
-    \value Key_onesuperior 
-    \value Key_masculine 
-    \value Key_guillemotright 
-    \value Key_onequarter 
-    \value Key_onehalf 
-    \value Key_threequarters 
-    \value Key_questiondown 
-    \value Key_Agrave 
-    \value Key_Aacute 
-    \value Key_Acircumflex 
-    \value Key_Atilde 
-    \value Key_Adiaeresis 
-    \value Key_Aring 
-    \value Key_AE 
-    \value Key_Ccedilla 
-    \value Key_Egrave 
-    \value Key_Eacute 
-    \value Key_Ecircumflex 
-    \value Key_Ediaeresis 
-    \value Key_Igrave 
-    \value Key_Iacute 
-    \value Key_Icircumflex 
-    \value Key_Idiaeresis 
-    \value Key_ETH 
-    \value Key_Ntilde 
-    \value Key_Ograve 
-    \value Key_Oacute 
-    \value Key_Ocircumflex 
-    \value Key_Otilde 
-    \value Key_Odiaeresis 
-    \value Key_multiply 
-    \value Key_Ooblique 
-    \value Key_Ugrave 
-    \value Key_Uacute 
-    \value Key_Ucircumflex 
-    \value Key_Udiaeresis 
-    \value Key_Yacute 
-    \value Key_THORN 
-    \value Key_ssharp 
-    \value Key_agrave 
-    \value Key_aacute 
-    \value Key_acircumflex 
-    \value Key_atilde 
-    \value Key_adiaeresis 
-    \value Key_aring 
-    \value Key_ae 
-    \value Key_ccedilla 
-    \value Key_egrave 
-    \value Key_eacute 
-    \value Key_ecircumflex 
-    \value Key_ediaeresis 
-    \value Key_igrave 
-    \value Key_iacute 
-    \value Key_icircumflex 
-    \value Key_idiaeresis 
-    \value Key_eth 
-    \value Key_ntilde 
-    \value Key_ograve 
-    \value Key_oacute 
-    \value Key_ocircumflex 
-    \value Key_otilde 
-    \value Key_odiaeresis 
-    \value Key_division 
-    \value Key_oslash 
-    \value Key_ugrave 
-    \value Key_uacute 
-    \value Key_ucircumflex 
-    \value Key_udiaeresis 
-    \value Key_yacute 
-    \value Key_thorn 
-    \value Key_ydiaeresis 
+    \value Key_nobreakspace
+    \value Key_exclamdown
+    \value Key_cent
+    \value Key_sterling
+    \value Key_currency
+    \value Key_yen
+    \value Key_brokenbar
+    \value Key_section
+    \value Key_diaeresis
+    \value Key_copyright
+    \value Key_ordfeminine
+    \value Key_guillemotleft
+    \value Key_notsign
+    \value Key_hyphen
+    \value Key_registered
+    \value Key_macron
+    \value Key_degree
+    \value Key_plusminus
+    \value Key_twosuperior
+    \value Key_threesuperior
+    \value Key_acute
+    \value Key_mu
+    \value Key_paragraph
+    \value Key_periodcentered
+    \value Key_cedilla
+    \value Key_onesuperior
+    \value Key_masculine
+    \value Key_guillemotright
+    \value Key_onequarter
+    \value Key_onehalf
+    \value Key_threequarters
+    \value Key_questiondown
+    \value Key_Agrave
+    \value Key_Aacute
+    \value Key_Acircumflex
+    \value Key_Atilde
+    \value Key_Adiaeresis
+    \value Key_Aring
+    \value Key_AE
+    \value Key_Ccedilla
+    \value Key_Egrave
+    \value Key_Eacute
+    \value Key_Ecircumflex
+    \value Key_Ediaeresis
+    \value Key_Igrave
+    \value Key_Iacute
+    \value Key_Icircumflex
+    \value Key_Idiaeresis
+    \value Key_ETH
+    \value Key_Ntilde
+    \value Key_Ograve
+    \value Key_Oacute
+    \value Key_Ocircumflex
+    \value Key_Otilde
+    \value Key_Odiaeresis
+    \value Key_multiply
+    \value Key_Ooblique
+    \value Key_Ugrave
+    \value Key_Uacute
+    \value Key_Ucircumflex
+    \value Key_Udiaeresis
+    \value Key_Yacute
+    \value Key_THORN
+    \value Key_ssharp
+    \value Key_agrave
+    \value Key_aacute
+    \value Key_acircumflex
+    \value Key_atilde
+    \value Key_adiaeresis
+    \value Key_aring
+    \value Key_ae
+    \value Key_ccedilla
+    \value Key_egrave
+    \value Key_eacute
+    \value Key_ecircumflex
+    \value Key_ediaeresis
+    \value Key_igrave
+    \value Key_iacute
+    \value Key_icircumflex
+    \value Key_idiaeresis
+    \value Key_eth
+    \value Key_ntilde
+    \value Key_ograve
+    \value Key_oacute
+    \value Key_ocircumflex
+    \value Key_otilde
+    \value Key_odiaeresis
+    \value Key_division
+    \value Key_oslash
+    \value Key_ugrave
+    \value Key_uacute
+    \value Key_ucircumflex
+    \value Key_udiaeresis
+    \value Key_yacute
+    \value Key_thorn
+    \value Key_ydiaeresis
 
-    \value Key_unknown 
-    
+    \value Key_unknown
+
 */
 
 
@@ -1598,6 +1598,186 @@ QContextMenuEvent::QContextMenuEvent( Reason reason, const QPoint &pos, int stat
 */
 
 /*!
+  \class QTabletEvent qevent.h
+  \ingroup events
+  \brief The QTabletEvent class contains parameters that describe a Tablet
+   event.
+
+  Tablet Events are generated from a Wacom(c) tablet.  Most of the time
+  you will want to deal with events from the tablet as if they were events
+  from a mouse.  However, there are times when you may want the extra
+  information given by the tablet device driver, for example, adjusting
+  color brightness based on pressure.  QTabletEvent allows you to get
+  the position, pressure, X and Y tilt, and what type of device you are using
+  (stylus, eraser, puck, etc.).
+
+  A tablet event contains a special accept flag that indicates whether the
+  receiver wants the event.  You should call QTabletEvent::accept() if you
+  handle the wheel event; otherwise it will be sent to the parent widget.
+
+  The QWidget::setEnable() function can be used to enable or disable mouse
+  and keyboard events for a widget.
+
+  The event handler QWidget::tabletEvent() receives tablet events.
+
+*/
+
+/*!
+  \enum QTabletEvent::TabletDevices
+
+  This enum defines what type of device is generating the event.
+
+  \value None    No device, or an unknown device
+  \value Puck    A Puck.
+  \value Sylus  A Stylus (the narrow end of the pen)
+  \value Eraser  An Eraser (the broad end of the pen)
+  \value Menu  A menu button was pressed ( currently unimplemented )
+*/
+
+/*!
+  \fn QTabletEvent( const QPoint &pos, int device, int pressure, int xTilt, int yTilt )
+
+  Constructs a tablet event object.
+
+  The globalPos() is initialized to QCursor::pos(), i.e. \a pos, which is
+  usually (but not always) correct.  Use the other constructor if you need
+  to specify the global position explicitly.  \a device contains the
+  TabletDevice, \a pressure contains the pressure exerted on the \a device,
+  \a xTilt and \a yTilt contain the \a device's degrees of tilt from the
+  X and Y axis respectively.
+
+  \sa pos(), device(), pressure(), xTilt(), yTilt()
+*/
+
+/*!
+  \fn QTabletEvent( const QPoint &pos, const QPoint &globalPos, int device, int pressure, int xTilt, int yTilt )
+
+  Constructs a tablet event object.  The position when the event occurred is
+  is given in \a pos and \a globalPos.  \a device contains the device type,
+  \a pressure contains the pressure exerted on the \a device, \a xTilt and
+  \a yTilt contain the \a device's degrees of tilt from the X and Y axis
+  respectively.
+
+  On Irix, /a globalPos will contain the high-res coordinates received
+  from the tablet device driver, instead of from the windowing system.
+
+  \sa pos(), globalPos(), device(), pressure(), xTilt(), yTilt()
+*/
+
+/*!
+  fn TabletDevice device() const
+  Returns the type of device that generated the event.  Useful if you
+  want one end of the pen to do something different than the other.
+*/
+
+/*!
+  \fn int QTabletEvent::pressure() const
+  Returns the pressure that is exerted on the device.  This number is a value
+  from 0 (no pressure) to 255 (maximum pressure).  This is true regardless
+  of how many pressure levels the underlying hardware supports.
+*/
+
+/*!
+  \fn int QTabletEvent::xTilt() const
+  Returns the difference from the perpendicular in the X Axis.  Positive values
+  are towards the tablet physical top; range is from -60 to +60 degrees.
+
+  \sa yTilt()
+*/
+
+/*!
+  \fn int QTabletEvent::yTilt() const
+  Returns the difference from the perpendicular in the Y Axis.  Positive values
+  are toward the right of the tablet; range is from -60 to +60 degrees.
+
+  \sa xTilt()
+*/
+
+/*!
+  \fn const QPoint &QTabletEvent::pos() const
+  Returns the position of the device, relative to the widget that received
+  the event.
+
+  If you move widgets around in response to mouse events, use globalPos()
+  instead of this function.
+
+  \sa x(), y(), globalPos()
+*/
+
+/*!
+  \fn int QTabletEvent::x() const
+  Returns the X position of the device, relative to the widget that received
+  the event.
+
+  \sa y(), pos()
+*/
+
+/*!
+  \fn int QTabletEvent::y() const
+  Returns the Y position of the device, relative to the widget that received
+  the event.
+
+  \sa x(), pos()
+*/
+
+/*!
+  \fn const QPoint &QTabletEvent::globalPos() const
+
+  Returns global position of the device \e{at the time} of the event.
+  This is important on asynchronous windows systems like X11; whenever you
+  move your widgets around in response to mouse events, globalPos() can differ
+  a lot from the current position QCursor::pos().
+
+  \sa globalX(), globalY()
+*/
+
+/*!
+  \fn int QTabletEvent::globalX() const
+  Returns the global X position of the mouse pointer at the time of the event.
+
+  \sa globalY(), globalPos()
+*/
+
+/*!
+  \fn int QTabletEvent::globalY() const
+  Returns the global Y position of the mouse pointer at the time of the event.
+
+  \sa globalX(), globalPos()
+*/
+
+/*!
+  \fn bool QTabletEvent::isAccepted() const
+  Returns TRUE if the receiver of the event handles the wheel event;
+  otherwise returns FALSE.
+*/
+
+/*!
+  \fn void QTabletEvent::accept()
+  Sets the accept flag of the tablet event object.
+
+  Setting the accept parameter indicates that the receiver of the event wants
+  the wheel event.  Unwanted wheel events are sent to the parent widget.
+
+  the accept flag is set by default.
+
+  \sa ignore()
+*/
+
+/*!
+  \fn void QTabletEvent::ignore()
+  Clears the accept flag parameter of the wheel event object.
+
+  Clearing the accept parameter indicates that the event receiver does not
+  want the wheel event.  Unwanted wheel events are sent to the parent widget.
+
+  The accept flag is set by default.
+
+  \sa accept()
+*/
+
+
+
+/*!
   \class QChildEvent qevent.h
   \ingroup events
   \brief The QChildEvent class contains event parameters for child object
@@ -1767,7 +1947,7 @@ QCustomEvent::QCustomEvent( int type )
 /*!
   \fn void   QDragMoveEvent::ignore( const QRect & r)
 
-  The opposite of accept(const QRect&), i.e. says that moves within 
+  The opposite of accept(const QRect&), i.e. says that moves within
   rectangle \a r are not acceptable (will be ignored).
 */
 
