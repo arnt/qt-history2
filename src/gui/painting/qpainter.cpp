@@ -1910,8 +1910,9 @@ void QPainter::drawPath(const QPainterPath &path)
     if (d->state->pen.style() != Qt::NoPen) {
         d->engine->updateState(d->state);
         // Only use helper if we have other than xform.
-        if (d->engine->emulationSpecifier
-            && (d->engine->emulationSpecifier != QPaintEngine::CoordTransform)) {
+        if (d->engine->emulationSpecifier 
+            && d->engine->hasFeature(QPaintEngine::PainterPaths) 
+            && (d->engine->emulationSpecifier & QPaintEngine::CoordTransform)) {
             d->draw_helper(&path, path.fillRule(), QPainterPrivate::PathShape,
                            QPainterPrivate::StrokeDraw, d->engine->emulationSpecifier);
         } else {
