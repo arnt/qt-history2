@@ -380,7 +380,7 @@ void QWindowsXPStyle::polish( QWidget *widget )
     }
 
     if ( !widget->ownPalette() )
-	 widget->setBackgroundOrigin( QWidget::WindowOrigin );
+	 widget->setBackgroundOrigin( QWidget::AncestorOrigin );
 
     updateRegion( widget );
 }
