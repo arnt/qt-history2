@@ -89,7 +89,7 @@ class Q_EXPORT QIODevice			// IO device class
 {
 public:
 #ifdef QT_LARGE_FILE_SUPPORT
-    typedef Q_UINT64_P Offset;
+    typedef unsigned long long Offset;
 #else
     typedef Q_ULONG Offset;
 #endif
