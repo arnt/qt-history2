@@ -229,6 +229,7 @@ static QString getPrototype( const QString& in, int& pos )
 
 static QString getArgument( const QString& in, int& pos )
 {
+    QString t;
     int parenDepth = 0;
     int bracketDepth = 0;
 
@@ -253,7 +254,7 @@ static QString getArgument( const QString& in, int& pos )
 	while ( in[pos].unicode() != '}' )
 	    pos++;
 	pos++;
-	return in.mid( begin + 1, pos - begin - 2 ).stripWhiteSpace();
+	t = in.mid( begin + 1, pos - begin - 2 ).stripWhiteSpace();
     } else {
 	begin = pos;
 	while ( pos < (int) in.length() ) {
@@ -281,8 +282,9 @@ static QString getArgument( const QString& in, int& pos )
 
 	if ( pos > begin + 1 && punctuation.find(in[pos - 1]) != -1 )
 	    pos--;
-	return processBackslashes( in.mid(begin, pos - begin) );
+	t = in.mid( begin, pos - begin );
     }
+    return processBackslashes( t );
 }
 
 /*
@@ -404,8 +406,7 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 	    switch ( h ) {
 	    case hash( '\0', 1 ):
 		consume( "" );
-		if ( yyPos < yyLen )
-		    yyPos++;
+		yyOut += getEscape( yyIn, yyPos );
 		break;
 	    case hash( 'a', 1 ):
 		consume( "a" );
@@ -1624,10 +1625,6 @@ QString Doc::finalHtml() const
 	    bool consumed = FALSE;
 
 	    switch ( h ) {
-	    case hash( '\0', 1 ):
-		consume( "" );
-		yyOut += getEscape( yyIn, yyPos );
-		break;
 	    case hash( 'a', 18 ):
 		consume( "annotatedclasslist" );
 		yyOut += htmlAnnotatedClassList();
