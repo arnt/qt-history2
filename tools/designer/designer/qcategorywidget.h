@@ -4,9 +4,9 @@
 #include <qwidget.h>
 #include <qlayout.h>
 #include <qptrdict.h>
-#include <qptrlist.h>
 
 class QCategoryButton;
+class QWidgetList;
 
 class QCategoryWidget : public QWidget
 {
@@ -14,6 +14,7 @@ class QCategoryWidget : public QWidget
 
 public:
     QCategoryWidget( QWidget *parent = 0, const char *name = 0 );
+    ~QCategoryWidget();
 
     void addCategory( const QString &name, QWidget *page );
 
@@ -25,7 +26,7 @@ private:
 
 private:
     QPtrDict<QWidget> pages;
-    QPtrList<QWidget> buttons;
+    QWidgetList *buttons;
     QVBoxLayout *layout;
     QWidget *currentPage;
     QCategoryButton *lastTab;

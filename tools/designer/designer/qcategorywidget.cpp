@@ -7,6 +7,7 @@
 #include <qstyle.h>
 #include <qobjectlist.h>
 #include <qapplication.h>
+#include <qwidgetlist.h>
 
 class QCategoryButton : public QToolButton
 {
@@ -71,6 +72,12 @@ QCategoryWidget::QCategoryWidget( QWidget *parent, const char *name )
     currentPage = 0;
     lastTab = 0,
     layout = new QVBoxLayout( this );
+    buttons = new QWidgetList;
+}
+
+QCategoryWidget::~QCategoryWidget()
+{
+    delete buttons;
 }
 
 static void set_background_mode( QWidget *top, Qt::BackgroundMode bm )
@@ -86,7 +93,7 @@ void QCategoryWidget::addCategory( const QString &name, QWidget *page )
 {
     page->setBackgroundMode( PaletteBackground );
     QCategoryButton *button = new QCategoryButton( this, name.latin1() );
-    buttons.append( button );
+    buttons->append( button );
     button->setText( name );
     button->setFixedHeight( button->sizeHint().height() );
     connect( button, SIGNAL( clicked() ), this, SLOT( buttonClicked() ) );
@@ -132,7 +139,7 @@ void QCategoryWidget::buttonClicked()
 void QCategoryWidget::updateTabs()
 {
     bool after = FALSE;
-    for ( QWidget *w = buttons.first(); w; w = buttons.next() ) {
+    for ( QWidget *w = buttons->first(); w; w = buttons->next() ) {
 	w->setBackgroundMode( !after ? PaletteBackground : PaletteMid );
 	w->update();
 	after = w == lastTab;
