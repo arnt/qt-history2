@@ -138,10 +138,6 @@ public:
   Internal dictionary for fast access to class members
  *****************************************************************************/
 
-#if defined(QT_DLL)
-template class Q_EXPORT QAsciiDict<QMetaData>;
-#endif
-
 class Q_EXPORT QMemberDict : public QAsciiDict<const QMetaData>
 {
 public:
@@ -152,6 +148,8 @@ public:
     QMemberDict &operator=(const QMemberDict &dict)
     { return (QMemberDict&)QAsciiDict<const QMetaData>::operator=(dict); }
 };
+
+void QAsciiDict<const QMetaData>::deleteItem( void* ) {}
 
 /*
   Calculate optimal dictionary size for n entries using prime numbers,

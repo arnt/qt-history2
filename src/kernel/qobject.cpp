@@ -2231,7 +2231,7 @@ bool QObject::qt_property( const QMetaProperty* _p, int _f, QVariant* _v)
     switch ( _p->id ) {
     case 0:	 switch( _f ) {
 	case 0: setName(_v->asCString()); break;
-	case 1: (*_v) = QVariant( name() ); break;
+	case 1: { const QVariant v = QVariant( name() ); (*_v) = v; } break;
 	case 3: case 4: break;
 	default: return FALSE;
     } break;
