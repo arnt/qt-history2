@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbutton.h#31 $
+** $Id: //depot/qt/main/src/widgets/qbutton.h#32 $
 **
 ** Definition of QButton widget class
 **
@@ -40,10 +40,6 @@ public:
     bool	autoResize()	const	{ return autoresize; }
     void	setAutoResize( bool );
 
-#if defined(OBSOLETE)
-    bool	toggleButton()	const;
-#endif
-
 signals:
     void	pressed();
     void	released();
@@ -76,6 +72,16 @@ private:
     QButtonGroup *group;
 
     friend class QButtonGroup;
+
+public:
+#if defined(OBSOLETE)
+    bool	toggleButton()	const;
+    bool        isUp()          const;
+    bool        isOff()         const;
+    void	switchOn();
+    void	switchOff();
+#endif
+
 };
 
 
@@ -85,6 +91,31 @@ inline bool QButton::toggleButton() const
     qObsolete("QButton","toggleButton","isToggleButton");
     return isToggleButton(); 
 }
+
+inline bool QButton::isUp() const 
+{
+    qObsolete("QButton","isUp","!isDown()");
+    return !buttonDown;
+}
+
+inline bool QButton::isOff() const 
+{
+    qObsolete("QButton","isOff","!isOn()");
+    return !buttonOn;
+}
+
+inline void QButton::switchOn()
+{
+    qObsolete("QButton","switchOn","setOn(TRUE)");
+    setOn( TRUE );
+}
+
+inline void QButton::switchOff()
+{
+    qObsolete("QButton","switchOff","setOn(FALSE)");
+    setOn( FALSE );
+}
+
 #endif
 
 
