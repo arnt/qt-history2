@@ -76,8 +76,6 @@ public:
     QStyleOptionHeader getStyleOption() const;
 };
 
-static const int border = 4;
-static const int minimum = 15;
 static const int default_width = 100;
 static const int default_height = 30;
 
@@ -334,9 +332,10 @@ QSize QHeaderView::sizeHint() const
     if (!index.isValid())
         return QSize();
     QSize hint = itemDelegate()->sizeHint(fontMetrics(), option, model(), index);
+    int margin = style().pixelMetric(QStyle::PM_HeaderMargin);
     if (orientation() == Qt::Vertical)
-        return QSize(hint.width() + border, 192);
-    return QSize(256, hint.height() + border);
+        return QSize(hint.width() + margin, 192);
+    return QSize(256, hint.height() + margin);
 }
 
 /*!
@@ -368,7 +367,7 @@ int QHeaderView::sectionSizeHint(int section) const
             hint += size.height();
     }
 
-    return hint + border;
+    return hint + style().pixelMetric(QStyle::PM_HeaderMargin);
 }
 
 /*!
@@ -457,6 +456,7 @@ void QHeaderView::paintEvent(QPaintEvent *e)
 void QHeaderView::paintSection(QPainter *painter, const QStyleOptionViewItem &option,
                                const QModelIndex &index)
 {
+    int margin = style().pixelMetric(QStyle::PM_HeaderMargin);
     int section = orientation() == Qt::Horizontal ? index.column() : index.row();
     QStyleOptionHeader opt = d->getStyleOption();
     QStyle::SFlags arrowFlags = QStyle::Style_Off;
@@ -470,8 +470,8 @@ void QHeaderView::paintSection(QPainter *painter, const QStyleOptionViewItem &op
         opt.state |= QStyle::Style_Raised;
     style().drawPrimitive(QStyle::PE_HeaderSection, &opt, painter, this);
 #if 0
-    opt.rect.setRect(opt.rect.x() + border, opt.rect.y() + border,
-                     opt.rect.width() - border * 2, opt.rect.height() - border * 2);
+    opt.rect.setRect(opt.rect.x() + margin, opt.rect.y() + margin,
+                     opt.rect.width() - margin * 2, opt.rect.height() - margin * 2);
     opt.text = d->model->data(index, QAbstractItemModel::DisplayRole).toString();
     opt.icon = d->model->data(index, QAbstractItemModel::DecorationRole).toIconSet();
     style().drawControl(QStyle::CE_HeaderLabel, &opt, painter, this);
@@ -486,9 +486,9 @@ void QHeaderView::paintSection(QPainter *painter, const QStyleOptionViewItem &op
         int y = option.rect.y();
         int secSize = sectionSize(section);
         if (d->orientation == Qt::Horizontal)
-            opt.rect.setRect(x + secSize - border * 2 - (h / 2), y + 5, h / 2, h - border * 2);
+            opt.rect.setRect(x + secSize - margin * 2 - (h / 2), y + 5, h / 2, h - margin * 2);
         else
-            opt.rect.setRect(x + 5, y + secSize - h, h / 2, h - border * 2);
+            opt.rect.setRect(x + 5, y + secSize - h, h / 2, h - margin * 2);
         arrowFlags |= (sortIndicatorOrder() == Qt::AscendingOrder
                        ? QStyle::Style_Down : QStyle::Style_Up);
         opt.state = arrowFlags;
@@ -776,6 +776,7 @@ void QHeaderView::resizeSections()
         stretchSize -= secSize;
     }
     int position = 0;
+    int minimum = style().pixelMetric(QStyle::PM_HeaderMarkSize);
     int stretchSectionSize = qMax(stretchSecs > 0 ? stretchSize / stretchSecs : 0, minimum);
     for (int i = 0; i < count; ++i) {
         secs[i].position = position;
@@ -833,6 +834,7 @@ void QHeaderView::mouseMoveEvent(QMouseEvent *e)
         case QHeaderViewPrivate::ResizeSection: {
             int delta = d->reverse() ? d->lastPos - pos : pos - d->lastPos;
             int size = sectionSize(d->section) + delta;
+            int minimum = style().pixelMetric(QStyle::PM_HeaderMarkSize);
             if (size > minimum) {
                 resizeSection(d->section, size);
                 d->lastPos = (orientation() == Qt::Horizontal ? e->x() : e->y());
@@ -1425,15 +1427,16 @@ int QHeaderViewPrivate::sectionHandleAt(int position)
         return -1;
     int sec = sections.at(idx).section;
     int pos = q->sectionPosition(sec);
+    int grip = q->style().pixelMetric(QStyle::PM_HeaderGripMargin);
     if (d->reverse()) {
-        if (position < pos + 5)
+        if (position < pos + grip)
             return sec;
-        if (idx > 0 && position > pos + q->sectionSize(sec) - 5)
+        if (idx > 0 && position > pos + q->sectionSize(sec) - grip)
             return q->section(idx - 1);
     } else {
-        if (idx > 0 && position < pos + 5)
+        if (idx > 0 && position < pos + grip)
             return q->section(idx - 1);
-        if (position > pos + q->sectionSize(sec) - 5)
+        if (position > pos + q->sectionSize(sec) - grip)
             return sec;
     }
     return -1;
