@@ -32,7 +32,6 @@
 
 // forwards
 class QFontEngine;
-class QPaintDevice;
 
 struct QFontDef
 {
@@ -152,7 +151,7 @@ public:
     QFontDef request;
     QFontEngineData *engineData;
     // ##### so it continues compiling until the other platforms are fixed.
-    QPaintDevice *paintdevice;
+//    QPaintDevice *paintdevice;
     int dpi;
     int screen;
 

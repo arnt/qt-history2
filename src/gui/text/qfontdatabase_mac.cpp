@@ -15,8 +15,8 @@
 #include "qfontengine_p.h"
 #include <stdlib.h>
 
-int qt_mac_pixelsize(const QFontDef &def, QPaintDevice *pdev); //qfont_mac.cpp
-int qt_mac_pointsize(const QFontDef &def, QPaintDevice *pdev); //qfont_mac.cpp
+int qt_mac_pixelsize(const QFontDef &def, int dpi); //qfont_mac.cpp
+int qt_mac_pointsize(const QFontDef &def, int dpi); //qfont_mac.cpp
 
 static void initializeDb()
 {

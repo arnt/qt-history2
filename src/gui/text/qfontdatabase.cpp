@@ -1163,7 +1163,7 @@ QFontDatabase::findFont(QFont::Script script, const QFontPrivate *fp,
                 fe->fontDef.pointSize     = int(double(fe->fontDef.pixelSize) * 720.0 /
                                                 GetDeviceCaps(shared_dc,LOGPIXELSY));
 #elif defined(Q_WS_MAC)
-                fe->fontDef.pointSize = qt_mac_pointsize(fe->fontDef, fp->paintdevice);
+                fe->fontDef.pointSize = qt_mac_pointsize(fe->fontDef, fp->dpi);
 #else
                 fe->fontDef.pointSize     = fe->fontDef.pixelSize*10; //####int(double(fe->fontDef.pixelSize) * 720.0 / 96.0);
 #endif

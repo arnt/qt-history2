@@ -29,37 +29,25 @@
 
 QFont::Script QFontPrivate::defaultScript = QFont::UnknownScript;
 
-int qt_mac_pixelsize(const QFontDef &def, QPaintDevice *pdev)
+int qt_mac_pixelsize(const QFontDef &def, int dpi)
 {
     float ret;
     if(def.pixelSize == -1) {
-        if(pdev) {
-            ret = def.pointSize *  QPaintDeviceMetrics(pdev).logicalDpiY() / 720.;
-        } else {
-            short vr, hr;
-            ScreenRes(&hr, &vr);
-            ret = def.pointSize * vr / 720.;
-        }
+        ret = def.pointSize *  dpi / 720.;
     } else {
         ret = def.pixelSize;
     }
-    return (int)(ret + .5);
+    return qRound(ret);
 }
-int qt_mac_pointsize(const QFontDef &def, QPaintDevice *pdev)
+int qt_mac_pointsize(const QFontDef &def, int dpi)
 {
     float ret;
     if(def.pointSize == -1) {
-        if(pdev) {
-            ret = def.pixelSize * 720. / QPaintDeviceMetrics(pdev).logicalDpiY();
-        } else {
-            short vr, hr;
-            ScreenRes(&hr, &vr);
-            ret = def.pixelSize * 720. / vr;
-        }
+        ret = def.pixelSize * 720. / float(dpi);
     } else {
         ret = def.pointSize;
     }
-    return (int)(ret + .5);
+    return qRound(ret);
 }
 
 /* Qt platform dependent functions */
@@ -134,7 +122,7 @@ void QFontPrivate::load(QFont::Script script)
     Q_UNUSED(script);
 
     QFontDef req = request;
-    req.pixelSize = qt_mac_pixelsize(request, paintdevice);
+    req.pixelSize = qt_mac_pixelsize(request, dpi);
 
     // set the point size to 0 to get better caching
     req.pointSize = 0;
@@ -150,7 +138,7 @@ void QFontPrivate::load(QFont::Script script)
         return;
 
     // set it to the actual pointsize, so QFontInfo will do the right thing
-    req.pointSize = qRound(qt_mac_pointsize(request, paintdevice));
+    req.pointSize = qRound(qt_mac_pointsize(request, dpi));
 
 #if 0
     /* It is unclear why this method doesn't work (findFont) so rather than fight any longer I will
@@ -230,9 +218,9 @@ void QFontPrivate::load(QFont::Script script)
     { //fill in the engine's font definition
         engine->fontDef = request; //copy..
         if(engine->fontDef.pointSize == -1)
-            engine->fontDef.pointSize = qt_mac_pointsize(engine->fontDef, paintdevice);
+            engine->fontDef.pointSize = qt_mac_pointsize(engine->fontDef, dpi);
         else
-            engine->fontDef.pixelSize = qt_mac_pixelsize(engine->fontDef, paintdevice);
+            engine->fontDef.pixelSize = qt_mac_pixelsize(engine->fontDef, dpi);
         {
             QCFString actualName;
             Q_ASSERT(engine->type() == QFontEngine::Mac);
