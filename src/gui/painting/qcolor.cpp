@@ -1191,6 +1191,17 @@ QColor QColor::convertTo(QColor::Spec colorSpec) const
     return *this; // must be invalid
 }
 
+
+QColor QColor::fromRgb(QRgb rgb)
+{
+    return fromRgb(qRed(rgb), qGreen(rgb), qBlue(rgb));
+}
+
+QColor QColor::fromRgba(QRgb rgb)
+{
+    return fromRgb(qRed(rgb), qGreen(rgb), qBlue(rgb), qAlpha(rgb));
+}
+
 /*!
     Static convenience function that returns a QColor constructed from
     the RGB color values, \a r (red), \a g (green), \a b (blue),
