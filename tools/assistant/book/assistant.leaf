@@ -28,7 +28,7 @@ each new version, but we may change the internals considerably to improve
 performance and enhance functionality.
 
 The Qt Reference Documentation consists of almost 1,500 HTML pages
-(over 2,500 US letter-sized pages). The overwhelming majority of pages
+(over 2,500 printed pages). The overwhelming majority of pages
 document Qt classes. Since developers differ in the way they
 think and work we provide a variety of approaches to navigating the
 documentation set: 
@@ -62,10 +62,10 @@ class declaration in a code example, the class name will be a
 clickable link to the class's documentation.
 
 In addition to the class documentation some of Qt's modules have
-extensive descriptions, and there are several overview documents which
+extensive descriptions, and there are many overview documents which
 describe various aspects of the Qt library; all these are linked from
 the reference documentation home page. There are also numerous example
-programs in $QTDIR/examples.
+programs in $QTDIR/examples and two tutorials.
 
 \chapter The 1 Minute Guide to using Qt Assistant
 
@@ -245,10 +245,10 @@ button to finish.
 \section2 The Settings Dialog
 
 This dialog is used to set your preferences for \QA. In order to 
-confirm your changes click \Button OK or click \Button Cancel
+confirm your changes click \Button OK; or click \Button Cancel
 to keep the previous settings. \QA will remember your 
 settings between sessions, including window sizes and positions, 
-and which page(s) you have open. The Settings dialog contains the
+and which pages you have open. The Settings dialog contains the
 following tabs:
 
 \list
@@ -256,84 +256,71 @@ following tabs:
 
 To change the base font used throughout \QA, select a 
 font type from the Font combobox. To choose a new fixed-width 
-font for example, to show code snippets, choose a font type from 
+font, to show code snippets for example, choose a font type from 
 the 'Fixed font' combobox. To change the color of hypertext 
-links, click the 'Link color' color button. Click the 
+links, click the 'Link color' color button. Uncheck the 
 'Underline links' checkbox if you don't want underlined links. 
 
 \i Web Settings 
 
-Some pages contain links to the World Wide Web. In order to display
-the links, you must specify a web browser. Click \Button Browse to
+Some pages contain links to external web pages. In order to display
+these links, you must specify a web browser. Click \Button Browse to
 invoke the \Widget Assistant dialog and navigate until you find the
-web browser you would like to select. Click \OK to accept the
-selection. Alternatively, type in the line edit to set your favorite
-browser.
+web browser you wish to use. Click \OK to accept the
+selection. Alternatively, type in the name of your browser's
+executable in the line edit.
 
 \i Documentation Files 
 
 To add your own documentation to \QA, click \Button Add to invoke the
 \Widget Assistant dialog. Navigate through the files until you find
 the documentation you want to add and then click \OK. Click \Button
-Delete to remove obselete documentation from the Documentation Files
+Delete to remove obsolete documentation from the Documentation Files
 list box. Read more about adding your own documentation in the next
-chapter, \l {Adding Documentation to \QA}. 
+chapter, \l {Adding Documentation to Qt Assistant}. 
 
 \i Categories
 
-All documentation belongs to certain categories, for example,
-development, office or multimedia. To add a new category, type the
-name in the Category Name line edit and click \Button Add. The
-new category appears in the Categories list box with a checkbox to the
-left of it. Leave the box checked to display all of the category's
+All documentation is categorized, for example,
+development, office, multimedia, etc. To create a new category, type
+its name in the Category Name line edit and click \Button Add. The
+new category appears in the Categories list box with a checkbox to its
+left. Leave the box checked to display all of the category's
 available documentation. To remove a category, select it from the list
 box and click \Button Delete. For further information about
-categories read the next chapter, \l {Adding Documentation to \QA}.
+categories read the next chapter, \l {Adding Documentation to Qt Assistant}.
 \endlist
 
-\chapter Adding Documentation to \QA
+\chapter Adding Documentation to Qt Assistant
 
-New documentation can be added to \QA by following some basic steps.
-To add documentation, you must specify where the new documentation is 
-located, i.e. you must specify a special xml file which contains this
-information.
+Adding new documentation to \QA is straight-forward. You simply
+specify a new documentation content file for \QA to use.
 
-\section1 Add Documentation
+Click \Menu Edit|Settings to invoke the \Widget Settings dialog. Click
+the \Menu{Documentation Files} tab. Now click \Button Add to invoke a
+file open dialog. Select the new documentation's content file. (This
+file must be an XML file in \QA's documentation content file format.)
 
-The following steps show how to add documentation to \QA:
-
-\list
-
-\i Set documentation file
-
-To set the documentation file, open the \Widget Settings dialog and 
-add or remove files for additional documentation. Be sure that
-these files have the right format.  
-
-\i Adding categories
-
-If the new documentation belongs to a category which does not appear
-in the Categories list box yet, add the category in the \Widget Settings
-dialog. Usually you can skip this step because \QA will do it 
+If the new documentation belongs to a category which does not
+currently appear in the Categories list box, you can add the category
+using the \Widget Settings dialog. It is not normally necessary to do
+this manually since \QA detects new categories and adds them
 automatically. 
 
-\i Fileformat
+The format of the documentation content file is described in the
+following section.
 
-\QA needs a special xml file where all contents and index words for
-the new documentation are listed. The section below explain the format
-in more detail.
 
-\endlist
+\section2 Documentation Content file format
 
-\section2 Content file 
+The file must contain the documentation's table of contents and all
+important keywords for the index. Furthermore, it should inherit a
+category specification.
 
-The file has to contain the table of contents of the documentation and 
-all important keywords for the index. Furthermore, it should inherit a
-category specification for this documentation.
-An example of a content file with all avialable tags is
-displayed below:
+An example of a content file with all available tags is shown below:
 
-demodoc.xml:
+\c demodoc.xml
+
 \code
 <!DOCTYPE DOC>
 <DOC ref="demo.html" category="qt/development" title="Development Demo Handbook">
@@ -358,6 +345,13 @@ demodoc.xml:
 </DOC>
 \endcode
 
-The sections can be nested as deep as necessary. All references should be 
-related. Note: Within a section the keyword tag has to be defined before
-an other subsection!
+Sections may be nested as deeply as necessary. All references should
+be related. 
+
+Note that any \c keyword tags for a given section must appear \e
+before any sections nested within the given section.
+
+The paths in the \c refs attribute are always written Unix-style
+(forward slashes) and are relative to the location of the
+documentation content file itself.
+

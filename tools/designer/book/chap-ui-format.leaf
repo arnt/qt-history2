@@ -310,17 +310,17 @@ See also \l layoutfunctions.
 \target layoutfunctions
 \section2 layoutfunctions
 
-Sometimes the spacing respectively margin values should be dynamically, e.g.
-to provide a common look in a windowmanager.
+Sometimes the spacing and margin values should be determined
+dynamically, e.g. to provide a common look in a windowmanager.
 
 \code
 <layoutfunctions spacing="LayoutClass::spacing" margin="LayoutClass::margin"/>
 \endcode
 
-If a layout has no property \c margin or \c spacing specified, the default values
-(\c layoutdefaults)of the form will be used. If there are functions, this functions
-are used, i.e. functions have a higher priority than default values, but the
-highest priority has a directly to a layout specified number.
+If a layout has no \c margin or \c spacing property specified, the
+default values (\c layoutdefaults) of the form will be used. If there
+are functions, they are used, i.e. functions have a higher
+priority than default values.
 
 
 \target menubar
@@ -375,11 +375,11 @@ application's project file. This can be signified by including the
 \target signals
 \section2 signals
 
-Within a \c{<signals>} tag, all signals are listed.
+All the signals are listed Within a \c{<signals>} tag.
 
 \code
 <signals>
-    <signal>sthChanged()</signal>
+    <signal>somethingChanged()</signal>
 </signals>
 \endcode
 
@@ -391,14 +391,14 @@ See \l functions.
 \target functions
 \section2 functions
 
-The \cfunctions element contains a list of functions. Function can be
-either normal C++ functions or Slots. For a better specification of a
-function, the following attributes are available:
+The \c functions element contains a list of functions. Functions can
+either be standard C++ functions or slots. It is possible to specify
+various attributes to create a function's signature, for example:
 
 \list 
 \i type: \c slot or \c function
 \i access: \c private, \c protected or \c public. Default: \c public
-\i returnType: the return datatype of the function. Default: void
+\i returnType: the return datatype of the function. Default: \c void
 \i specifier: \c{non virtual}, \c virtual or \c{pure virtual}. Default: \c virtual
 \i language: specifies the programming language. Default: \c C++
 \endlist
