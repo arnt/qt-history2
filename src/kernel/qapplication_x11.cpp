@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#573 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#574 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -738,15 +738,40 @@ static Visual *find_truecolor_visual( Display *dpy, int *depth, int *ncols )
  *****************************************************************************/
 //Ming-Che 05/10
 
+
+
+
+#if defined(Q_C_CALLBACKS)
+extern "C" {
+#endif
+
 #if !defined(NO_XIM) && !defined(NO_X11R6_XIM)
-static
-void xim_destroy_callback(XIM /*im*/,XPointer /*client_data*/,XPointer /*call_data*/)
+    
+#ifdef _OS_LINUX_
+//################ XFree86 has a buggy Xlib.h ############################
+//################ it is wrong to test for    ############################
+//################ Linux, but what can we do? ############################
+static void xim_create_callback(Display* /*im*/,XPointer /*client_data*/,XPointer /*call_data*/)
+#else    
+static void xim_create_callback(XIM /*im*/,XPointer /*client_data*/,XPointer /*call_data*/)    
+#endif
 {
-	QApplication::close_xim();
-	XRegisterIMInstantiateCallback(appDpy,0,0,0,(XIDProc )QApplication::create_xim,0);
+    QApplication::create_xim();
+}
+
+static void xim_destroy_callback(XIM /*im*/,XPointer /*client_data*/,XPointer /*call_data*/)
+{
+    QApplication::close_xim();
+    XRegisterIMInstantiateCallback(appDpy,0,0,0,xim_create_callback,0);
 }
 #endif
-/*!
+
+#if defined(Q_C_CALLBACKS)
+}
+#endif
+    
+    
+    /*!
   \internal
 */
 void QApplication::create_xim()
@@ -760,10 +785,8 @@ void QApplication::create_xim()
 		XIMCallback	destroy;
 		destroy.callback=xim_destroy_callback;
 		destroy.client_data=NULL;
-		/*
 		if (XSetIMValues(qt_xim,XNDestroyCallback,&destroy,NULL)!=NULL)
 			qWarning( "Xlib dosn't support destroy callback");
-			*/
 #endif
 	    XIMStyles *styles=0;
 	    XGetIMValues(qt_xim, XNQueryInputStyle, &styles, NULL, NULL);
