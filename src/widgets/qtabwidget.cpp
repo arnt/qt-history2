@@ -1031,16 +1031,6 @@ void QTabWidget::setTabIconSet( QWidget * w, const QIconSet & iconset )
     t->iconset = new QIconSet( iconset );
 
     d->tabs->layoutTabs();
-
-    int ct = d->tabs->currentTab();
-    bool block = d->tabs->signalsBlocked();
-    d->tabs->blockSignals( TRUE );
-    QTab* ft = d->tabs->tabAt( 0 );
-    if ( ft )
-	d->tabs->setCurrentTab( ft->identifier() );
-    d->tabs->setCurrentTab( ct );
-    d->tabs->blockSignals( block );
-
     d->tabs->update();
     setUpLayout();
 }
