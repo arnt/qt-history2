@@ -197,6 +197,15 @@ bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
 		    state = PST_ACTIVE;
 		}
 	    } else {
+#if defined(_OS_VMS_)
+		int fd = ::open( "PRINT010203040506070809.PS",
+				 O_CREAT | O_NOCTTY | O_TRUNC | O_WRONLY,
+				 0666 );
+		if ( fd >= 0 ) {
+		    pdrv = new QPSPrinter( this, fd );
+		    state = PST_ACTIVE;
+		}
+#else
 		QString pr;
 		if ( printer_name )
 		    pr = printer_name;
@@ -312,6 +321,7 @@ bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
 		}
 #endif // else part of _OS_OS2EMX_
 #endif // else part for #if _OS_WIN32_
+#endif // else part of _OS_VMS_
 	    }
 	    if ( state == PST_ACTIVE && pdrv )
 		return ((QPSPrinter*)pdrv)->cmd( c, paint, p );
@@ -326,10 +336,20 @@ bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
 		state = PST_IDLE;
 		delete pdrv;
 		pdrv = 0;
+#if defined(_OS_VMS_)
+                if( !output_file )
+                {
+		    QString syscmd( QString::fromLatin1( "print/queue=" ) );
+		    syscmd += printer_name;
+		    syscmd += QString::fromLatin1( "/delete/noidentify PRINT010203040506070809.PS" );
+		    system( syscmd.latin1() );
+		}
+#else
 		if ( pid ) {
 		    (void)::waitpid( pid, 0, 0 );
 		    pid = 0;
 		}
+#endif
 	    }
 	}
 	return r;

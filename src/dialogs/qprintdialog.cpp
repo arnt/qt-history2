@@ -535,6 +535,20 @@ static void parseQconfig( QListView * printers )
     } while( !ts.atEnd() );
 }
 
+// And here is VMS
+#if defined(_OS_VMS_)
+static void parseDollarPrinters( QListView * printers )
+{
+    const char* dollarNames[] = { "PRINTER", "PRINTER2", 
+				  "PRINTER3", "PRINTER4", 0 };
+    int i = 0;
+    while( dollarNames[i] ) {
+	char *t = getenv( dollarNames[i] );
+	if ( t )
+	    perhapsAddPrinter( d->printers, QString::fromLatin1( t ), "", "");
+    }
+}
+#endif
 
 static QPrintDialog * globalPrintDialog = 0;
 
@@ -773,7 +787,12 @@ QGroupBox * QPrintDialog::setupDestination()
 	    etcLpDefault = def;
 	}
     }
+#elif defined(_OS_VMS_)
+    char * etcLpDefault = 0;
+    parseDollarPrinters( d->printers );
+#endif
 
+#if defined(UNIX) || defined(_OS_VMS_)
     // all printers hopefully known.  try to find a good default
     QString dollarPrinter;
     {

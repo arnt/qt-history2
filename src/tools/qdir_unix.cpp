@@ -49,10 +49,34 @@ extern int qt_cmp_si( const void *, const void * );
 }
 #endif
 
-void QDir::slashify( QString& )
+
+void QDir::slashify( QString& s )
 {
+#if defined(_OS_VMS_)
+    if ( s[0] != QChar('/') )
+	s.prepend( QChar('/') );
+    int p0 = s.find( QChar('[') );
+    int p1 = s.findRev( QChar(']') );
+    if ( p0 >= 0 && p1 >= 0 && p0 < p1 ) {
+	for( int i = p0; i <= p1; i++ ) {
+	    QChar c = s[i];
+	    if ( c == QChar('[') || c == QChar('.') || c == QChar(']') )
+		s.replace( i, 1, QChar('/') );
+	}
+    }
+
+    int j = s.find( QString::fromLatin1( "/.." ) );
+    if ( j >= 0 ) {
+	int k = s.findRev( QChar('/'), -s.length() + j - 1 );
+	if ( k >= 0 )
+	    s.truncate( k+1 );
+    }
+#else
+    Q_UNUSED( s );
     return;
+#endif
 }
+
 
 QString QDir::canonicalPath() const
 {
@@ -67,13 +91,23 @@ QString QDir::canonicalPath() const
     }
     CHDIR( cur );
 
+    slashify( r );
     return r;
 }
 
 bool QDir::mkdir( const QString &dirName, bool acceptAbsPath ) const
 {
-    return MKDIR( QFile::encodeName(filePath(dirName,acceptAbsPath)), 0777 ) 
-	== 0;
+    QString d( QFile::encodeName( filePath( dirName, acceptAbsPath ) ) );
+#if defined(_OS_VMS_)
+    d += QChar( ']' );
+    for( int i = 0; i < d.length(); i++ ) {
+	if( d[i] == QChar( ']' ) ) {
+	    d[i] = QChar( '.' );
+	    break;
+	}
+    }
+#endif
+    return MKDIR( d, 0777 ) == 0;
 }
 
 bool QDir::rmdir( const QString &dirName, bool acceptAbsPath ) const
@@ -83,7 +117,30 @@ bool QDir::rmdir( const QString &dirName, bool acceptAbsPath ) const
 
 bool QDir::isReadable() const
 {
-    return ACCESS( QFile::encodeName(dPath), R_OK | X_OK ) == 0;
+    QString s( QFile::encodeName(dPath) );
+
+#if defined(_OS_VMS_)
+    if ( s.contains( QString::fromLatin1("[000000]") ) ) {
+	s += QString::fromLatin1( ".dir;1" );
+    }
+    else if ( !s.contains( QString::fromLatin1( ".DIR;1" ) ) ) {
+	int p1 = s.findRev( QChar(']') );
+	if ( p1 >= 0 ) {
+	    s.truncate( p1 );
+	    s += QString::fromLatin1( ".dir;1" );
+	}
+	int p0 = s.find( QChar('[') );
+	if ( p0 >= 0 && p1 >= 0 ) {
+	    int d = s.findRev( QChar( '.' ), -s.length() + p1 - 1 );
+	    if ( d > p0 )
+		s[d] = QChar( ']' );
+	    else
+		s.replace( p0, 1, QString::fromLatin1( "[000000]" ) );
+	}
+    }
+#endif
+
+    return ACCESS( s.latin1(), R_OK | X_OK ) == 0;
 }
 
 bool QDir::isRoot() const
@@ -100,10 +157,13 @@ bool QDir::rename( const QString &name, const QString &newName,
 #endif
 	return FALSE;
     }
-    QString fn1 = filePath( name, acceptAbsPaths );
-    QString fn2 = filePath( newName, acceptAbsPaths );
-    return ::rename( QFile::encodeName(fn1),
-		     QFile::encodeName(fn2) ) == 0;
+    QCString fn1 = QFile::encodeName( filePath( name, acceptAbsPaths ) );
+    QCString fn2 = QFile::encodeName( filePath( newName, acceptAbsPaths ) );
+#if defined(_OS_VMS_)
+    fn1 += ".dir";
+    fn2 += ".dir";
+#endif
+    return ::rename( fn1, fn2 ) == 0;
 }
 
 bool QDir::setCurrent( const QString &path )
@@ -131,6 +191,7 @@ QString QDir::currentDirPath()
 	qWarning( "QDir::currentDirPath: stat(\".\") failed" );
 #endif
     }
+    slashify( result );
     return result;
 }
 

@@ -1108,7 +1108,13 @@ QUrl::operator QString() const
 
 bool QUrl::cdUp()
 {
+#if defined(_OS_VMS_)
+    int i = d->path.findRev( QChar('/') );
+    if ( i >= 0 )
+	d->path.truncate( i+1 );
+#else
     d->path += "/..";
+#endif
     d->cleanPathDirty = TRUE;
     return TRUE;
 }

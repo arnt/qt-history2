@@ -28,7 +28,11 @@
 #include "qpainter.h"
 #include "qdrawutil.h"
 #include "qbitmap.h"
+#if defined(_OS_VMS_)
+#include "qlayoutengine_p.h"
+#else
 #include "../kernel/qlayoutengine_p.h"
+#endif
 #include "qlist.h"
 #include "qarray.h"
 #include "qobjectlist.h"
