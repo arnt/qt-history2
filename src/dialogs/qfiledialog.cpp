@@ -909,6 +909,8 @@ public:
     QString currentFileName;
     QListViewItem *last;
 
+    QListBoxItem *lastEFSelected;
+
     struct File: public QListViewItem {
 	File( QFileDialogPrivate * dlgp,
 	      const QUrlInfo * fi, QListViewItem * parent )
@@ -2359,6 +2361,7 @@ void QFileDialog::init()
     d = new QFileDialogPrivate();
     d->mode = AnyFile;
     d->last = 0;
+    d->lastEFSelected = 0;
     d->moreFiles = 0;
     d->infoPreview = FALSE;
     d->contentsPreview = FALSE;
@@ -3066,7 +3069,7 @@ void QFileDialog::setFilter( const QString & newFilter )
 	d->types->insertItem( newFilter );
     } else {
 	for ( int i = 0; i < d->types->count(); ++i ) {
-	    if ( d->types->text( i ).left( newFilter.length() ) == newFilter || 
+	    if ( d->types->text( i ).left( newFilter.length() ) == newFilter ||
 		 d->types->text( i ).left( f.length() ) == f ) {
 		d->types->setCurrentItem( i );
 		break;
@@ -3857,7 +3860,7 @@ void QFileDialog::updateFileNameEdit( QListViewItem * newItem )
 
     if ( mode() == ExistingFiles ) {
 	detailViewSelectionChanged();
-        QUrl u = QUrl( d->url, QFileDialogPrivate::encodeFileName( ((QFileDialogPrivate::File*)files->currentItem())->info.name() ) );
+        QUrl u( d->url, QFileDialogPrivate::encodeFileName( ((QFileDialogPrivate::File*)files->currentItem())->info.name() ) );
 	QFileInfo fi( u.toString( FALSE, FALSE ) );
 	if ( !fi.isDir() )
 	    emit fileHighlighted( u.toString( FALSE, FALSE ) );
@@ -3922,19 +3925,35 @@ void QFileDialog::listBoxSelectionChanged()
     int index = 0;
     files->blockSignals( TRUE );
     while( i ) {
+	QFileDialogPrivate::MCItem *mcitem = (QFileDialogPrivate::MCItem *)i;
 	if ( files && isVisible() ) {
-	    if ( ( (QFileDialogPrivate::MCItem *)i )->i->isSelected() != i->isSelected() )
-		files->setSelected( ( (QFileDialogPrivate::MCItem *)i )->i, i->isSelected() );
+	    if ( mcitem->i->isSelected() != mcitem->isSelected() ) {
+		files->setSelected( mcitem->i, mcitem->isSelected() );
+
+		// What happens here is that we want to emit signal highlighted for
+		// newly added items.  But QListBox apparently emits selectionChanged even
+		// when a user clicks on the same item twice.  So, basically emulate the behaivor
+		// we have in the "Details" view which only emits highlighted the first time we
+		// click on the item.  Perhaps at some point we should have a call to
+		// updateFileNameEdit(QListViewItem) which also emits fileHighlighted() for
+		// ExistingFiles.  For better or for worse, this clones the behaivor of the
+		// "Details" view quite well.
+		if ( mcitem->isSelected() && i != d->lastEFSelected ) {
+		    QUrl u( d->url, QFileDialogPrivate::encodeFileName( ((QFileDialogPrivate::File*)(mcitem)->i)->info.name()) );
+		    d->lastEFSelected = i;
+		    emit fileHighlighted( u.toString(FALSE, FALSE) );
+		}
+	    }
 	}
 	if ( d->moreFiles->isSelected( i )
-	&& !( (QFileDialogPrivate::File*)( (QFileDialogPrivate::MCItem *)i )->i )->info.isDir() )
-	{
+	     && !( (QFileDialogPrivate::File*)(mcitem)->i )->info.isDir() ) {
 	    str += QString( "\"%1\" " ).arg( i->text() );
 	    if ( j == 0 )
 		j = i;
 	}
 	i = d->moreFiles->item( ++index );
     }
+
     files->blockSignals( FALSE );
     nameEdit->setText( str );
     nameEdit->setCursorPosition( str.length() );
