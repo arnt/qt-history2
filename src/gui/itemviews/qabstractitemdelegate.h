@@ -24,7 +24,6 @@ class QAbstractItemModel;
 class Q_GUI_EXPORT QAbstractItemDelegate : public QObject
 {
     Q_OBJECT
-    Q_ENUMS(EditorType)
 
 public:
     QAbstractItemDelegate(QObject *parent = 0);

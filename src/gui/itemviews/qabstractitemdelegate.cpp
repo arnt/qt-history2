@@ -36,62 +36,26 @@
     To provide custom editing, there are two approaches that can be
     used. The first approach is to create an editor widget and display
     it directly on top of the item. To do this you must reimplement
-    editor() and editorType() to provide an editor widget,
-    setEditorData() to populate the editor with the data from the model,
-    setModelData() so that the delegate can update the model with data
-    from the editor, and releaseEditor() to destroy your editor when
-    it is no longer needed. The second approach is to handle user
-    events directly. To do this you could reimplement event().
+    editor() to provide an editor widget, setEditorData() to populate the
+    editor with the data from the model setModelData() so that the delegate
+    can update the model with data from the editor, and releaseEditor() to
+    destroy your editor when it is no longer needed. The second approach is to
+    handle user events directly. To do this you could reimplement editorEvent().
 
     \sa \link model-view-programming.html Model/View Programming\endlink QItemDelegate
 */
 
 /*!
-    \enum QAbstractItemDelegate::EditorType
+  \fn void QAbstractItemDelegate::commitData(QWidget *editor)
 
-    This enum describes what must be done to create an editor for an
-    item.
-
-    \value Widget The editor() is a widget.
-    \value PersistentWidget The editor() is a widget whose ownership
-    is not passed to the QAbstractItemDelegate and which must be
-    deleted manually when no longer required.
-    \value Events There is no editor() widget; used if event() is
-    reimplemented.
+  This signal is emitted when... ### FIXME ###
 */
 
 /*!
-    \enum QAbstractItemDelegate::BeginEditAction
-
-    This enum describes how an editor was invoked to edit an item.
-
-    \value NeverEdit The item cannot be edited.
-    \value CurrentChanged The focus was moved to the item.
-    \value DoubleClicked The item was double-clicked.
-    \value SelectedClicked The item was select-clicked (e.g.
-    Shift+Click, or Ctrl+Click).
-    \value EditKeyPressed An edit key was pressed (often F2).
-    \value AnyKeyPressed A key was pressed when the item had the
-    focus.
-    \value AlwaysEdit The editor is always present.
-*/
-
-/*!
-    \enum QAbstractItemDelegate::EndEditAction
-
-    \value Accepted The user accepted their edit. (Usually signified
-    by pressing Enter.)
-    \value Cancelled The user rejected their edit. (Usually signified
-    by pressing Esc.)
-*/
-
-/*!
-    \fn void QAbstractItemDelegate::doneEditing(QWidget *editor, QAbstractItemDelegate::EndEditAction action)
+    \fn void QAbstractItemDelegate::doneEditing(QWidget *editor)
 
     This signal is emitted when the user has finished editing an item.
-    The arguments are the \a editor that was used and an \a action
-    which indicates how the editing came to end, i.e., whether the
-    user \c Accepted or \c Cancelled their edit.
+    The arguments are the \a editor that was used.
 */
 
 /*!
@@ -122,20 +86,18 @@ QAbstractItemDelegate::~QAbstractItemDelegate()
 */
 
 /*!
-    \fn QSize QAbstractItemDelegate::sizeHint(const QFontMetrics &fontMetrics, const QStyleOptionViewItem &option, const QAbstractItemModel *model, const QModelIndex &index) const = 0
+    \fn QSize QAbstractItemDelegate::sizeHint(const QStyleOptionViewItem &option, const QAbstractItemModel *model, const QModelIndex &index) const = 0
 
     This pure abstract function must be reimplemented if you want to
-    provide custom rendering. The font metrics are specified by \a
-    fontMetrics, the options by \a option, the model by \a model, and the
-    model item by \a index.
+    provide custom rendering. The options are specified by \a option,
+    the model by \a model, and the model item by \a index.
 
     If you reimplement this you must also reimplement paint().
 */
 
 /*!
     Returns the editor to be used for editing the data item at the
-    given \a index in the \a model. The action that caused the edit is
-    specified by \a action; The editor's parent widget is specified by
+    given \a index in the \a model. The editor's parent widget is specified by
     \a parent, and the item options by \a option.
     Ownership is kept by the delegate. Subsequent calls to this
     function with the same arguments are not guaranteed to return
@@ -146,7 +108,7 @@ QAbstractItemDelegate::~QAbstractItemDelegate()
     The base implementation returns 0. If you want custom editing you
     will need to reimplement this function.
 
-    \sa editorType() setModelData() setEditorData() releaseEditor()
+    \sa setModelData() setEditorData() releaseEditor()
 */
 QWidget *QAbstractItemDelegate::editor(QWidget *, const QStyleOptionViewItem &,
                                        const QAbstractItemModel *, const QModelIndex &)
@@ -161,7 +123,7 @@ QWidget *QAbstractItemDelegate::editor(QWidget *, const QStyleOptionViewItem &,
     The base implementation does nothing. If you want custom editing
     you will probably need to reimplement this function.
 
-    \sa editorType() editor() setEditorData() setModelData()
+    \sa editor() setEditorData() setModelData()
 */
 void QAbstractItemDelegate::releaseEditor(QWidget *)
 {
@@ -175,7 +137,7 @@ void QAbstractItemDelegate::releaseEditor(QWidget *)
     The base implementation does nothing. If you want custom editing
     you will need to reimplement this function.
 
-    \sa editorType() editor() setModelData() releaseEditor()
+    \sa editor() setModelData() releaseEditor()
 */
 void QAbstractItemDelegate::setEditorData(QWidget *,
                                           const QAbstractItemModel *,
@@ -191,7 +153,7 @@ void QAbstractItemDelegate::setEditorData(QWidget *,
     The base implementation does nothing. If you want custom editing
     you will need to reimplement this function.
 
-    \sa editorType() editor() setEditorData() releaseEditor()
+    \sa editor() setEditorData() releaseEditor()
 */
 void QAbstractItemDelegate::setModelData(QWidget *,
                                          QAbstractItemModel *,
@@ -209,7 +171,7 @@ void QAbstractItemDelegate::setModelData(QWidget *,
     The base implementation does nothing. If you want custom editing
     you must reimplement this function.
 
-    \sa editorType() editor() releaseEditor()
+    \sa editor() releaseEditor()
  */
 void QAbstractItemDelegate::updateEditorGeometry(QWidget *,
                                                  const QStyleOptionViewItem &,
@@ -224,8 +186,7 @@ void QAbstractItemDelegate::updateEditorGeometry(QWidget *,
     and the model \a index in the \a model.
 
     The base implementation returns false (indicating that it has not
-    handled the event). If you reimplement this you should reimplement
-    editorType() to return \c Events.
+    handled the event).
 */
 bool QAbstractItemDelegate::editorEvent(QEvent *, QAbstractItemModel *, const QModelIndex &)
 {
