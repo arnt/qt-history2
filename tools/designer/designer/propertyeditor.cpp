@@ -2392,7 +2392,7 @@ void PropertyList::setupProperties()
 	}
 
 
-	if ( p->designable() ) {
+	if ( p->designable(w) ) {
 	    if ( p->isSetType() ) {
 		if ( QString( p->name() ) == "alignment" ) {
 		    QStringList lst;

@@ -48,11 +48,13 @@
 #endif
 
 class QObject;
+class UMethod;
 
 struct QMetaData				// - member function meta data
 {						//   for signal and slots
     const char *name;				// - member name
-    QMember ptr;				// - member pointer
+    QMember ptr;				// - member "pointer"
+    const UMethod* method; 			// - detailed method description
     enum Access { Private, Protected, Public };
     Access access;				// - access permission
 };
@@ -94,33 +96,26 @@ public:
     QStrList valueToKeys( int value ) const;
 
     bool stored( QObject* ) const;
-    bool designable() const;
+    bool designable( QObject* ) const;
+    
+    bool reset( QObject* ) const;
 
-    const char* t;
-    const char* n;
-    QMember	get;				// get-function or 0 ( 0 indicates an error )
-    QMember	set;				// set-function or 0
-    QMember	store;				// store-function or 0
-    QMember     reset;                          // reset-function or 0
-    const QMetaEnum *enumData;			// a pointer to the enum specification or 0
-
-    enum Specification  { Unspecified, Class, Reference, Pointer, ConstCharStar };
-    Specification gspec;			// specification of the get-function
-    Specification sspec;			// specification of the set-function
+    const char* t; 			//internal
+    const char* n; 			//internal
+    int id; 				//internal
+    const QMetaProperty* p; 		//internal
+    const QMetaEnum *enumData; 	// internal
 
     enum Flags  {
-	UnresolvedEnum       = 0x00000001,
-	UnresolvedSet        = 0x00000002,
-	UnresolvedEnumOrSet  = 0x00000004,
-	UnresolvedStored     = 0x00000008,
-	UnresolvedDesignable = 0x00000010,
-	NotDesignable        = 0x00000020,
-	NotStored            = 0x00000040,
-	StdSet	             = 0x00000080
+	Readable		= 0x00000001,
+	Writable 		= 0x00000002,
+	EnumOrSet	= 0x00000004,
+	StdSet	             = 0x00000100
     };
 
     bool testFlags( uint f ) const;
     void setFlags( uint f );
+    void copyFlags( uint mask );
     void clearFlags( uint f );
 
 private:
@@ -138,8 +133,8 @@ class Q_EXPORT QMetaObject			// meta object class
 {
 public:
     QMetaObject( const char *class_name, QMetaObject *superclass,
-		 QMetaData *slot_data,	int n_slots,
-		 QMetaData *signal_data, int n_signals,
+		 const QMetaData *slot_data,	int n_slots,
+		 const QMetaData *signal_data, int n_signals,
 #ifndef QT_NO_PROPERTIES
 		 const QMetaProperty *prop_data, int n_props,
 		 const QMetaEnum *enum_data, int n_enums,
@@ -162,14 +157,15 @@ public:
     int		findSlot( const char *, bool super = FALSE ) const;
     int		findSignal( const char *, bool super = FALSE ) const;
 
-    QMetaData	*slot( int index, bool super = FALSE ) const;
-    QMetaData	*signal( int index, bool super = FALSE ) const;
+    const QMetaData	*slot( int index, bool super = FALSE ) const;
+    const QMetaData	*signal( int index, bool super = FALSE ) const;
 
     QStrList	slotNames( bool super = FALSE ) const;
     QStrList	signalNames( bool super = FALSE ) const;
 
     int		slotOffset() const;
     int		signalOffset() const;
+    int		propertyOffset() const;
 
     int		numClassInfo( bool super = FALSE ) const;
     const QClassInfo	*classInfo( int index, bool super = FALSE ) const;
@@ -178,27 +174,28 @@ public:
 #ifndef QT_NO_PROPERTIES
     const QMetaProperty	*property( const char* name, bool super = FALSE ) const;
     QStrList		propertyNames( bool super = FALSE ) const;
-    void		resolveProperty( QMetaProperty* prop );
+    int		numProperties( bool super = FALSE ) const;
 #endif
 
     // static wrappers around constructors, necessary to work around a
     // Windows-DLL limitation: objects can only be deleted within a
     // DLL if they were actually created within that DLL.
     static QMetaObject	*new_metaobject( const char *, QMetaObject *,
-					QMetaData *, int,
-					QMetaData *, int,
+					const QMetaData *, int,
+					const QMetaData *, int,
 #ifndef QT_NO_PROPERTIES
 					const QMetaProperty *prop_data, int n_props,
 					const QMetaEnum *enum_data, int n_enums,
 #endif
 					const QClassInfo * class_info, int n_info );
-    static QMetaData		*new_metadata( int );
 #ifndef QT_NO_PROPERTIES
     static QMetaProperty	*new_metaproperty( int );
 #endif
 
+    const QMetaEnum		*enumerator( const char* name, bool super = FALSE ) const;
+
 private:
-    QMemberDict		*init( QMetaData *, int );
+    QMemberDict		*init( const QMetaData *, int );
 
     const char		*classname;			// class name
     const char		*superclassname;		// super class name
@@ -206,13 +203,13 @@ private:
     class Private;
     Private	*d;				// private data for...
     void	*reserved;			// ...binary compatibility
-    QMetaData		*slotData;			// slot meta data
+    const QMetaData		*slotData;			// slot meta data
     QMemberDict	*slotDict;			// slot dictionary
-    QMetaData		*signalData;			// signal meta data
+    const QMetaData		*signalData;			// signal meta data
     QMemberDict	*signalDict;			// signal dictionary
-    const QMetaEnum		*enumerator( const char* name, bool super = FALSE ) const;
     int signaloffset;
     int slotoffset;
+    int propertyoffset;
 
 private:	// Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
@@ -227,23 +224,26 @@ inline int QMetaObject::slotOffset() const
 inline int QMetaObject::signalOffset() const
 { return signaloffset; }
 
+inline int QMetaObject::propertyOffset() const
+{ return propertyoffset; }
+
 #ifndef QT_NO_PROPERTIES
-inline bool QMetaProperty::writable() const
-{ return set != 0; }
 inline bool QMetaProperty::testFlags( uint f ) const
 { return (flags & (uint)f) != (uint)0; }
+inline bool QMetaProperty::writable() const
+{ return testFlags( Writable ); }
 inline bool QMetaProperty::isValid() const
-{ return get != 0 && !testFlags( UnresolvedEnum | UnresolvedDesignable | UnresolvedStored ) ; }
+{ return testFlags( Readable ); }
 inline bool QMetaProperty::isSetType() const
 { return ( enumData != 0 && enumData->set ); }
 inline bool QMetaProperty::isEnumType() const
 { return ( enumData != 0 ); }
-inline bool QMetaProperty::designable() const
-{ return ( isValid() && set != 0 && !testFlags( NotDesignable | UnresolvedDesignable ) ); }
 inline void QMetaProperty::setFlags( uint f )
-{ flags |= (uint)f; }
+{ flags |= f; }
+inline void QMetaProperty::copyFlags( uint mask )
+{ if (p) {flags &= ~mask; flags |= ( p->flags & mask ); }}
 inline void QMetaProperty::clearFlags( uint f )
-{ flags &= ~(uint)f; }
+{ flags &= ~f; }
 #endif
 
 class Q_EXPORT QMetaObjectCleanUp

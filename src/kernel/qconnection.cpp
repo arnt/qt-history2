@@ -55,11 +55,12 @@
   \internal
 */
 QConnection::QConnection( const QObject *object, QMember member,
-			  const char *memberName )
+			  const char *memberName, int memberType )
 {
     obj = (QObject *)object;
     mbr = member;
     mbr_name = memberName;
+    mbr_type = memberType;
     nargs = 0;
     if ( strstr(memberName,"()") == 0 ) {
 	const char *p = memberName;

@@ -51,6 +51,7 @@
 
 class QMetaObject;
 class QVariant;
+class QMetaProperty;
 class QPostEventList;
 
 #ifndef QT_MOC_CPP
@@ -62,6 +63,10 @@ class Q_EXPORT QObject: public Qt
 public:
     QObject( QObject *parent=0, const char *name=0 );
     virtual ~QObject();
+
+    virtual bool qt_invoke( int, UObject* );
+    virtual bool qt_emit( int, UObject* );
+    virtual bool qt_property( const QMetaProperty*, int, QVariant* );
 
     static QString tr( const char * );
     static QString tr( const char *, const char * );
@@ -137,13 +142,10 @@ protected:
     QConnectionList *receivers( const char* signal ) const;
     QConnectionList *receivers( int signal ) const;
     void	 activate_signal( int signal );
-    void	 activate_signal( int signal, short );
     void	 activate_signal( int signal, int );
-    void	 activate_signal( int signal, long );
-    void	 activate_signal( int signal, const char * );
+    void	 activate_signal( int signal, double );
+    void	 activate_signal( int signal, QString );
     void	 activate_signal_bool( int signal, bool );
-    void	 activate_signal_string( int signal, QString );
-    void	 activate_signal_strref( int signal, const QString & );
 
     const QObject *sender();
 

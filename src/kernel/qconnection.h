@@ -43,13 +43,13 @@
 #endif // QT_H
 
 
-typedef void (QObject::*QMember)();		// pointer to member function
+typedef int QMember;	// index to member function
 
 
 class Q_EXPORT QConnection
 {
 public:
-    QConnection( const QObject *, QMember, const char *memberName );
+    QConnection( const QObject *, QMember, const char *memberName, int memberType );
    ~QConnection() {}
 
     bool     isConnected() const { return obj != 0; }
@@ -57,12 +57,14 @@ public:
     QObject *object() const  { return obj; }	// get object/member pointer
     QMember  member() const  { return mbr; }
     const char *memberName() const { return mbr_name; }
+    int  memberType() const  { return mbr_type; }
     int	     numArgs() const { return nargs; }
 
 private:
     QObject *obj;				// object connected to
     QMember  mbr;				// member connected to
     const char *mbr_name;
+    int mbr_type;
     int	     nargs;
 
 private:	// Disabled copy constructor and operator=

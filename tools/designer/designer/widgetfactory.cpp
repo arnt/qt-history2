@@ -1040,14 +1040,9 @@ bool WidgetFactory::canResetProperty( QObject *w, const QString &propName )
 bool WidgetFactory::resetProperty( QObject *w, const QString &propName )
 {
     const QMetaProperty *p = w->metaObject()->property( propName, TRUE );
-    if (!p || ( p->reset == 0 ) )
+    if (!p )
 	return FALSE;
-
-    typedef void (QObject::*ProtoVoid)() const;
-    ProtoVoid m = (ProtoVoid)p->reset;
-
-    (w->*m)();
-    return TRUE;
+    return p->reset( w );
 }
 
 QVariant WidgetFactory::defaultValue( QObject *w, const QString &propName )

@@ -52,6 +52,7 @@
 
 // The following macros are our "extensions" to C++
 // They are used, strictly speaking, only by the moc.
+struct UObject;
 
 #ifdef QT_MOC_CPP
  #define slots			    slots
@@ -77,15 +78,19 @@
  #define Q_SETS( x )
 
 /* tmake ignore Q_OBJECT */
- #define Q_OBJECT					\
-public:							\
-    QMetaObject *metaObject() const { 			\
-         return staticMetaObject();			\
-    }							\
-    const char *className() const;			\
-    static QMetaObject* staticMetaObject();		\
-    QT_TR_FUNCTION					\
-private:						\
+ #define Q_OBJECT						\
+public:								\
+    QMetaObject *metaObject() const { 				\
+         return staticMetaObject();				\
+    }								\
+    const char *className() const;				\
+    bool qt_invoke( int, UObject* ); 				\
+    bool qt_emit( int, UObject* ); 				\
+    bool qt_property( const QMetaProperty*, int, QVariant* );	\
+    static QMetaObject* staticMetaObject();			\
+    QObject* qObject() { return this; } 			\
+    QT_TR_FUNCTION						\
+private:							\
     static QMetaObject *metaObj;
 
 /* tmake ignore Q_OBJECT */

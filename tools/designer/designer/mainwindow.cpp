@@ -3201,26 +3201,26 @@ void MainWindow::setupRMBProperties( QValueList<int> &ids, QMap<QString, int> &p
     if ( pixmap && qstrcmp( pixmap->type(), "QPixmap") != 0 )
 	pixmap = 0;
 
-    if ( text && text->designable() ||
-	 title && title->designable() ||
-	 pagetitle && pagetitle->designable() ||
-	 pixmap && pixmap->designable() ) {
+    if ( text && text->designable(w) ||
+	 title && title->designable(w) ||
+	 pagetitle && pagetitle->designable(w) ||
+	 pixmap && pixmap->designable(w) ) {
 	int id = 0;
 	if ( ids.isEmpty() )
 	    ids << rmbWidgets->insertSeparator(0);
-	if ( pixmap && pixmap->designable() ) {
+	if ( pixmap && pixmap->designable(w) ) {
 	    ids << ( id = rmbWidgets->insertItem( tr("Choose Pixmap..."), -1, 0) );
 	    props.insert( "pixmap", id );
 	}
-	if ( text && text->designable() && !w->inherits( "QMultiLineEdit" ) ) {
+	if ( text && text->designable(w) && !w->inherits( "QMultiLineEdit" ) ) {
 	    ids << ( id = rmbWidgets->insertItem( tr("Edit Text..."), -1, 0) );
 	    props.insert( "text", id );
 	}
-	if ( title && title->designable() ) {
+	if ( title && title->designable(w) ) {
 	    ids << ( id = rmbWidgets->insertItem( tr("Edit Title..."), -1, 0) );
 	    props.insert( "title", id );
 	}
-	if ( pagetitle && pagetitle->designable() ) {
+	if ( pagetitle && pagetitle->designable(w) ) {
 	    ids << ( id = rmbWidgets->insertItem( tr("Edit Page Title..."), -1, 0) );
 	    props.insert( "pagetitle", id );
 	}
@@ -4023,7 +4023,7 @@ bool MainWindow::openEditor( QWidget *w, FormWindow * )
 
     const QMetaProperty* text = w->metaObject()->property( "text", TRUE );
     const QMetaProperty* title = w->metaObject()->property( "title", TRUE );
-    if ( text && text->designable() ) {
+    if ( text && text->designable(w) ) {
 	bool ok = FALSE;
 	QString text;
 	if ( w->inherits( "QTextView" ) || w->inherits( "QLabel" ) ) {
@@ -4043,7 +4043,7 @@ bool MainWindow::openEditor( QWidget *w, FormWindow * )
 	}
 	return TRUE;
     }
-    if ( title && title->designable() ) {
+    if ( title && title->designable(w) ) {
 	bool ok = FALSE;
 	QString text;
 	text = QInputDialog::getText( tr("Title"), tr( "New title" ), QLineEdit::Normal, w->property("title").toString(), &ok, this );

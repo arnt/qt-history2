@@ -121,7 +121,7 @@ public:
 #ifndef QT_NO_PROPERTIES
 	enumData(0), numEnumData(0),propData(0),numPropData(0),
 #endif
-	classInfo(0), numClassInfo(0), sigOffset(-1) {}
+	classInfo(0), numClassInfo(0) {}
 #ifndef QT_NO_PROPERTIES
     const QMetaEnum     *enumData;			// enumeration types
     int		   numEnumData;
@@ -131,7 +131,6 @@ public:
     const QClassInfo    *classInfo;			// class information
     int            numClassInfo;
 
-    int sigOffset;
 };
 
 
@@ -143,15 +142,15 @@ public:
 template class Q_EXPORT QAsciiDict<QMetaData>;
 #endif
 
-class Q_EXPORT QMemberDict : public QAsciiDict<QMetaData>
+class Q_EXPORT QMemberDict : public QAsciiDict<const QMetaData>
 {
 public:
     QMemberDict(int size=17,bool cs=TRUE,bool ck=TRUE) :
-	QAsciiDict<QMetaData>(size,cs,ck) {}
-    QMemberDict( const QMemberDict &dict ) : QAsciiDict<QMetaData>(dict) {}
+	QAsciiDict<const QMetaData>(size,cs,ck) {}
+    QMemberDict( const QMemberDict &dict ) : QAsciiDict<const QMetaData>(dict) {}
     ~QMemberDict() { clear(); }
     QMemberDict &operator=(const QMemberDict &dict)
-    { return (QMemberDict&)QAsciiDict<QMetaData>::operator=(dict); }
+    { return (QMemberDict&)QAsciiDict<const QMetaData>::operator=(dict); }
 };
 
 /*
@@ -180,8 +179,8 @@ static int optDictSize( int n )
 /*!\internal
  */
 QMetaObject::QMetaObject( const char *class_name, QMetaObject *super_class,
-			  QMetaData *slot_data,	  int n_slots,
-			  QMetaData *signal_data, int n_signals,
+			  const QMetaData *slot_data, int n_slots,
+			  const QMetaData *signal_data, int n_signals,
 #ifndef QT_NO_PROPERTIES
 			  const QMetaProperty *prop_data, int n_props,
 			  const QMetaEnum *enum_data, int n_enums,
@@ -208,16 +207,13 @@ QMetaObject::QMetaObject( const char *class_name, QMetaObject *super_class,
 
     signaloffset = superclass ? ( superclass->signalOffset() + superclass->numSignals() ) : 0;
     slotoffset = superclass ? ( superclass->slotOffset() + superclass->numSlots() ) : 0;
+    propertyoffset = superclass ? ( superclass->propertyOffset() + superclass->numProperties() ) : 0;
 }
 
 /*!\internal
  */
 QMetaObject::~QMetaObject()
 {
-    if ( slotData )
-	delete [] slotData;			// delete arrays created in
-    if ( signalData )
-	delete [] signalData;			//   initMetaObject()
 #ifndef QT_NO_PROPERTIES
     if ( d->propData )
 	delete [] d->propData;
@@ -287,7 +283,7 @@ int QMetaObject::numSignals( bool super ) const	// number of signals
 
   If  \a super is TRUE, inherited slots are included.
  */
-QMetaData *QMetaObject::slot( int index, bool super ) const
+const QMetaData *QMetaObject::slot( int index, bool super ) const
 {
     int idx = index - ( super ? slotOffset() : 0 );
     if ( slotDict && idx >= 0 && idx < (int) slotDict->count() )
@@ -303,7 +299,7 @@ QMetaData *QMetaObject::slot( int index, bool super ) const
 
   If  \a super is TRUE, inherited signals are included.
  */
-QMetaData *QMetaObject::signal( int index, bool super ) const
+const QMetaData *QMetaObject::signal( int index, bool super ) const
 {
     int idx = index - ( super ? signalOffset() : 0 );
     if ( signalDict && idx >= 0 && idx < (int) signalDict->count() )
@@ -322,13 +318,20 @@ QMetaData *QMetaObject::signal( int index, bool super ) const
 */
 
 /*! \internal
+  \fn  int propertyOffset() const;
+
+  Returns the property offset for this metaobject.
+
+*/
+
+/*! \internal
   Returns the index of the signal with name \n or -1 if no such signal exists.
 
   If  \a super is TRUE, inherited signals are included.
  */
 int QMetaObject::findSignal( const char* n, bool super ) const
 {
-    QMetaData *md = signalDict ? signalDict->find( n ) : 0;
+    const QMetaData *md = signalDict ? signalDict->find( n ) : 0;
     if ( md )
 	return signalOffset() + ( md - signalData );
     if ( !super || !superclass)
@@ -350,7 +353,7 @@ int QMetaObject::findSignal( const char* n, bool super ) const
  */
 int QMetaObject::findSlot( const char* n, bool super ) const
 {
-    QMetaData *md = slotDict ? slotDict->find( n ) : 0;
+    const QMetaData *md = slotDict ? slotDict->find( n ) : 0;
     if ( md )
 	return slotOffset() + ( md - slotData );
     if ( !super || !superclass)
@@ -362,8 +365,8 @@ int QMetaObject::findSlot( const char* n, bool super ) const
  */
 QMetaObject *QMetaObject::new_metaobject( const char *classname,
 					  QMetaObject *superclassobject,
-					  QMetaData *slot_data,	int n_slots,
-					  QMetaData *signal_data,int n_signals,
+					  const QMetaData *slot_data,	int n_slots,
+					  const QMetaData *signal_data,int n_signals,
 #ifndef QT_NO_PROPERTIES
 					  const QMetaProperty *prop_data, int n_props,
 					  const QMetaEnum *enum_data, int n_enums,
@@ -379,14 +382,6 @@ QMetaObject *QMetaObject::new_metaobject( const char *classname,
 			    class_info, n_info );
 }
 
-/*!\internal
- */
-QMetaData *QMetaObject::new_metadata( int numEntries )
-{
-    return numEntries > 0 ? new QMetaData[numEntries] : 0;
-}
-
-
 #ifndef QT_NO_PROPERTIES
 /*!\internal
  */
@@ -399,7 +394,7 @@ QMetaProperty *QMetaObject::new_metaproperty( int numEntries )
 
 /*!\internal
  */
-QMemberDict *QMetaObject::init( QMetaData *data, int n )
+QMemberDict *QMetaObject::init( const QMetaData *data, int n )
 {
     if ( n == 0 )				// nothing, then make no dict
 	return 0;
@@ -457,83 +452,21 @@ const char* QMetaObject::classInfo( const char* name, bool super ) const
 }
 
 #ifndef QT_NO_PROPERTIES
-/*!\internal
+
+/*!
+  Returns the number of properties for this class.
+
+  If \a super is TRUE, inherited properties are included.
+
+  \sa propertyNames()
  */
-void QMetaObject::resolveProperty( QMetaProperty* prop )
+int QMetaObject::numProperties( bool super ) const	// number of signals
 {
-    QMetaObject* super = superclass;
-    while ( super ) {
-	const QMetaProperty* p = super->property( prop->n );
-	if( p ) {
-	    if ( qstrcmp( prop->type(), p->type() ) != 0 ) {
-#if defined(QT_CHECK_STATE)
-		qWarning( "QMetaObject::resolveProperty: Attempt to override property type: %s %s::%s clashes with %s %s::%s", p->type(), super->className(), p->name(), prop->type(), className(), prop->name() );
-#endif
-	    }
-	    if ( prop->get == 0 ) {
-		if ( p->get != 0 ) {
-		    prop->get = p->get;
-		    prop->gspec = p->gspec;
-		}
-	    }
-	    if ( prop->set == 0 ) {
-		if ( p->set != 0 ) {
-		    prop->set = p->set;
-		    prop->sspec = p->sspec;
-		}
-	    }
-
-	    if ( prop->testFlags( QMetaProperty::UnresolvedStored ) )
-	    {
-		if ( !p->testFlags( QMetaProperty::UnresolvedStored ) )
-		{
-		    prop->clearFlags( QMetaProperty::UnresolvedStored );
-		    if ( p->testFlags( QMetaProperty::NotStored ) )
-			prop->setFlags( QMetaProperty::NotStored );
-		    prop->store = p->store;
-		}
-	    }
-	    if ( prop->testFlags( QMetaProperty::UnresolvedDesignable ) )
-	    {
-		if ( !p->testFlags( QMetaProperty::UnresolvedDesignable ) )
-		{
-		    prop->clearFlags( QMetaProperty::UnresolvedDesignable );
-		    if ( p->testFlags( QMetaProperty::NotDesignable ) )
-			prop->setFlags( QMetaProperty::NotDesignable );
-		}
-	    }
-	}
-	if ( prop->testFlags( QMetaProperty::UnresolvedEnum | QMetaProperty::UnresolvedSet | QMetaProperty::UnresolvedEnumOrSet ) ) {
-	    const QMetaEnum* e = super->enumerator( prop->t);
-	    if ( e && e->set ) {
-		if ( !prop->testFlags( QMetaProperty::UnresolvedSet | QMetaProperty::UnresolvedEnumOrSet ) ) {
-#if defined(QT_CHECK_STATE)
-		    qWarning("QMetaObject::resolveProperty: The property %s %s::%s assumed that '%s' was listed in Q_ENUMS, but it was listed in Q_SETS", prop->type(), className(), prop->name(), prop->type() );
-#endif
-		}
-		prop->enumData = e;
-		prop->clearFlags( QMetaProperty::UnresolvedEnum );
-	    }
-	    else if ( e && !e->set ) {
-		if ( !prop->testFlags( QMetaProperty::UnresolvedEnum | QMetaProperty::UnresolvedEnumOrSet ) ) {
-#if defined(QT_CHECK_STATE)
-		    qWarning("QMetaObject::resolveProperty: The property %s %s::%s assumed that '%s' was listed in Q_SETS, but it was listed in Q_ENUMS", prop->type(), className(), prop->name(), prop->type() );
-#endif
-		}
-		prop->enumData = e;
-		prop->clearFlags( QMetaProperty::UnresolvedEnum );
-	    }
-	}
-	super = super->superclass;
-    }
-
-    if ( !prop->isValid() ) {
-#if defined(QT_CHECK_STATE)
-	qWarning("QMetaObject::resolveProperty: Could not resolve property %s::%s. Property not available.", className(), prop->name() );
-#endif
-    }
+    int n = d->numPropData;
+    if ( !super || !superclass )
+	return n;
+    return n + superclass->numProperties( super );
 }
-
 
 /*!
   Returns the property meta data for the property with name \a name
@@ -609,13 +542,11 @@ QStrList QMetaObject::slotNames( bool super ) const
 {
     QStrList l( FALSE );
     int n = numSlots( super );
-    for( int i = 0; i < n; ++i ) {
-	l.append( slot(i, super)->name );
-    }
+    for( int i = 0; i < n; ++i )
+	l.append( slot( i, super)->name );
     return l;
 }
 
-#ifndef QT_NO_PROPERTIES
 /*!\internal
  */
 const QMetaEnum* QMetaObject::enumerator( const char* name, bool super ) const
@@ -627,7 +558,6 @@ const QMetaEnum* QMetaObject::enumerator( const char* name, bool super ) const
 	return 0;
     return superclass->enumerator( name, super );
 }
-#endif
 
 /*!
   Returns TRUE if this class inherits \e clname within the meta
@@ -772,10 +702,8 @@ QStrList QMetaProperty::valueToKeys( int value ) const
   Constructs a meta property.
  */
 QMetaProperty::QMetaProperty()
-    :t(0),n(0),
-     get(0),set(0),store(0),enumData(0),
-     gspec(Unspecified),sspec(Unspecified),
-     flags(0)
+    :t(0),n(0),id(-1),p(0),
+     enumData(0),flags(0)
 {
 }
 
@@ -852,16 +780,33 @@ QMetaProperty::~QMetaProperty()
  */
 bool QMetaProperty::stored( QObject* o ) const
 {
-    if ( !isValid() || set == 0 || testFlags( NotStored | UnresolvedStored ) )
+    if ( !o || !testFlags( Writable ) || !testFlags( Readable ) )
 	return FALSE;
+    return o->qt_property( this, 4, 0 );
+}
 
-    if ( store == 0 )
-	return TRUE;
+/*!
+  Returns whether the property is designable for object \a o or
+  not.
+ */
+bool QMetaProperty::designable( QObject* o ) const
+{
+    if ( !o || !testFlags( Readable) || !testFlags(Writable) )
+	return FALSE;
+    return o->qt_property( this, 3, 0 );
+}
 
-    typedef bool (QObject::*ProtoBool)() const;
-    ProtoBool m = (ProtoBool)store;
 
-    return (o->*m)();
+/*!  
+  Tries to reset the property with a reset method. On success,
+  returns TRUE, otherwise FALSE.
+  
+  Reset methods are optional, usually only few properties support
+  them.
+ */
+bool QMetaProperty::reset( QObject* o ) const
+{
+    return o->qt_property( this, 2, 0 );
 }
 
 /*! \enum QMetaProperty::Specification
