@@ -1384,7 +1384,7 @@ void TrWindow::print()
 		    type = tr( "finished" );
 		    break;
 		case MetaTranslatorMessage::Unfinished:
-		    type = m->danger() ? tr( "(!)" ) : QString( "" );
+		    type = m->danger() ? tr( "unresolved" ) : QString( "unfinished" );
 		    break;
 		case MetaTranslatorMessage::Obsolete:
 		    type = tr( "obsolete" );
