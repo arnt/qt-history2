@@ -95,7 +95,7 @@ void QFont::setPixelSizeFloat( float pixelSize )
  *****************************************************************************/
 
 QFontStruct::QFontStruct( const QString &key )
-    : QShared(), k(key), hdc(0), hfont(0), paintDevice( 0 )
+    : QShared(), k(key), hdc(0), hfont(0), stockFont( 0 ), paintDevice( 0 )
 {
     cache_cost = 1;
 }
