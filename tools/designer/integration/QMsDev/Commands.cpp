@@ -700,9 +700,9 @@ STDMETHODIMP CCommands::QMsDevGenerateQtProject()
 	return S_FALSE;
     }
 
-    m_pApplication->PrintToOutputWindow( CComBSTR("Running tmake...") );
-    if ( system( "tmake "+file+" -o "+filename+".dsp"+" -t "+tFile ) )
-	m_pApplication->PrintToOutputWindow( CComBSTR("FAILED TO RUN TMAKE!") );
+    m_pApplication->PrintToOutputWindow( CComBSTR("Running qmake...") );
+    if ( system( "qmake "+file+" -o "+filename+".dsp"+" -t "+tFile ) )
+	m_pApplication->PrintToOutputWindow( CComBSTR("FAILED TO RUN QMAKE!") );
     else
 	::MessageBox(NULL, "Created Developer Studio Project for Qt Project "+file+"\n"
 			   "Add the new project file to your current workspace,\n"
