@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#270 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#271 $
 **
 ** Implementation of QListBox widget class
 **
@@ -955,6 +955,7 @@ void QListBox::changeItem( const QListBoxItem *lbi, int index )
 
     removeItem( index );
     insertItem( lbi, index );
+    setCurrentItem( index );
 }
 
 
@@ -1090,7 +1091,7 @@ list box.
 \sa item()
 */
 
-int QListBox::index( QListBoxItem * lbi ) const
+int QListBox::index( const QListBoxItem * lbi ) const
 {
     if ( !lbi )
 	return -1;

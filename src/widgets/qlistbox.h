@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.h#90 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.h#91 $
 **
 ** Definition of QListBox widget class
 **
@@ -101,7 +101,7 @@ public:
     QSize sizeHint() const;
 
     QListBoxItem *item( int index ) const;
-    int index( QListBoxItem * ) const;
+    int index( const QListBoxItem * ) const;
 
     void triggerUpdate( bool doLayout );
 
@@ -215,7 +215,7 @@ private slots:
     void refreshSlot();
     void doAutoScroll();
     void visibleSlot();
-    
+
 private:
     void tryGeometry( int, int ) const;
     int currentRow() const;
