@@ -146,6 +146,18 @@ QFontEngine::FECaps QFontEngineFT::capabilites() const
     return NoTransformations;
 }
 
+inline unsigned int getChar(const QChar *str, int &i, const int len)
+{
+    unsigned int uc = str[i].unicode();
+    if (uc >= 0xd800 && uc < 0xdc00 && i < len-1) {
+        uint low = str[i+1].unicode();
+       if (low >= 0xdc00 && low < 0xe000) {
+            uc = (uc - 0xd800)*0x400 + (low - 0xdc00) + 0x10000;
+            ++i;
+        }
+    }
+    return uc;
+}
 
 /* returns 0 as glyph index for non existant glyphs */
 bool QFontEngineFT::stringToCMap(const QChar *str, int len, QGlyphLayout *glyphs, int *nglyphs, QTextEngine::ShaperFlags flags) const
@@ -154,32 +166,25 @@ bool QFontEngineFT::stringToCMap(const QChar *str, int len, QGlyphLayout *glyphs
         *nglyphs = len;
         return false;
     }
+    int glyph_pos = 0;
     if (flags & QTextEngine::RightToLeft) {
-        for(int i = 0; i < len; i++) {
-            unsigned short ch = ::mirroredChar(str[i]).unicode();
-            if (ch == 0xa0) ch = 0x20;
-            glyphs[i].glyph = FT_Get_Char_Index(face, ch);
+        for ( int i = 0; i < len; ++i ) {
+            unsigned int uc = QUnicodeTables::mirroredChar(getChar(str, i, len));
+            if (uc == 0xa0) uc = 0x20;
+            glyphs[glyph_pos].glyph = FT_Get_Char_Index(face, uc);
+            ++glyph_pos;
         }
     } else {
-        for(int i = 0; i < len; i++) {
-            unsigned short ch = str[i].unicode();
-            if (ch == 0xa0) ch = 0x20;
-            glyphs[i].glyph = FT_Get_Char_Index(face, ch);
+        for ( int i = 0; i < len; ++i ) {
+            unsigned int uc = getChar(str, i, len);
+            if (uc == 0xa0) uc = 0x20;
+            glyphs[glyph_pos].glyph = FT_Get_Char_Index(face, uc);
+            ++glyph_pos;
         }
     }
-    *nglyphs = len;
-    for(int i = 0; i < len; i++) {
-        int g = glyphs[i].glyph;
-        if (!rendered_glyphs[g]) {
-            Q_ASSERT(g < face->num_glyphs);
-            rendered_glyphs[g] = new QGlyph;
-            render(face, g, rendered_glyphs[g], smooth);
-            if (::category(str[i]) == QChar::Mark_NonSpacing)
-                rendered_glyphs[g]->advance = 0;
-        }
-        glyphs[i].advance.rx() = rendered_glyphs[g]->advance;
-        glyphs[i].advance.ry() = 0;
-    }
+    *nglyphs = glyph_pos;
+    recalcAdvances(*nglyphs, glyphs, flags);
+    glyph_pos = 0;
     return true;
 }
 
@@ -360,10 +365,14 @@ void QFontEngineFT::addOutlineToPath(qreal x, qreal y, const QGlyphLayout *glyph
 
 bool QFontEngineFT::canRender(const QChar *string,  int len)
 {
-    while (len--)
-        for(int i = 0; i < len; i++)
-            if (!FT_Get_Char_Index(face, string[i].unicode()))
-                return false;
+    int glyph_pos = 0;
+    for ( int i = 0; i < len; ++i ) {
+        unsigned int uc = getChar(string, i, len);
+        if (uc == 0xa0) uc = 0x20;
+        if (!FT_Get_Char_Index(face, uc))
+            return false;
+        ++glyph_pos;
+    }
 
     return true;
 }
@@ -436,19 +445,39 @@ QOpenType *QFontEngineFT::openType() const
     return _openType;
 }
 
-void QFontEngineFT::recalcAdvances(int len, QGlyphLayout *glyphs, QTextEngine::ShaperFlags) const
+void QFontEngineFT::recalcAdvances(int len, QGlyphLayout *glyphs, QTextEngine::ShaperFlags flags) const
 {
-    for (int i = 0; i < len; i++) {
-        FT_UInt g = glyphs[i].glyph;
-        if (!rendered_glyphs[g]) {
-            rendered_glyphs[g] = new QGlyph;
-            render(face, g, rendered_glyphs[g], smooth);
+    if (flags & QTextEngine::DesignMetrics) {
+        for (int i = 0; i < len; i++) {
+            FT_Load_Glyph(face, glyphs[i].glyph, FT_LOAD_NO_HINTING);
+            glyphs[i].advance.rx() = face->glyph->metrics.horiAdvance/qreal(64);
+            glyphs[i].advance.ry() = 0;
         }
-        glyphs[i].advance.rx() = (rendered_glyphs[g]->advance);//*_scale)>>8;
+    } else {
+        for (int i = 0; i < len; i++) {
+            FT_UInt g = glyphs[i].glyph;
+            if (!rendered_glyphs[g]) {
+                rendered_glyphs[g] = new QGlyph;
+                render(face, g, rendered_glyphs[g], smooth);
+            }
+            glyphs[i].advance.rx() = (rendered_glyphs[g]->advance);//*_scale)>>8;
         glyphs[i].advance.ry() = 0;
+        }
     }
 }
 
+void QFontEngineFT::doKerning(int num_glyphs, QGlyphLayout *glyphs, QTextEngine::ShaperFlags flags) const
+{
+    if (FT_HAS_KERNING(face)) {
+        uint f = (flags == QTextEngine::DesignMetrics ? FT_KERNING_UNFITTED : FT_KERNING_DEFAULT);
+        for (int i = 0; i < num_glyphs-1; ++i) {
+            FT_Vector kerning;
+            FT_Get_Kerning(face, glyphs[i].glyph, glyphs[i+1].glyph, f, &kerning);
+            glyphs[i].advance.rx() += kerning.x / qreal(64);
+            glyphs[i].advance.ry() += kerning.y / qreal(64);
+        }
+    }
+}
 
 qreal QFontEngine::lineThickness() const
 {

@@ -189,6 +189,7 @@ public:
 
     void draw(QPaintEngine *p, int x, int y, const QTextItemInt &si);
     void addOutlineToPath(qreal x, qreal y, const QGlyphLayout *glyphs, int numGlyphs, QPainterPath *path);
+    void doKerning(int , QGlyphLayout *, QTextEngine::ShaperFlags) const;
 
     glyph_metrics_t boundingBox(const QGlyphLayout *glyphs,  int numGlyphs);
     glyph_metrics_t boundingBox(glyph_t glyph);
@@ -339,7 +340,7 @@ public:
                    QPaintEngine *p=NULL) const;
 };
 
-#endif 
+#endif
 
 
 class Q_GUI_EXPORT QFontEngineMulti : public QFontEngine
