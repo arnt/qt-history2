@@ -23,7 +23,7 @@
 
 	<figure>
 	    <title>The About dialog</title>
-	    <graphic format="gif" fileref="images/.gif"></graphic>
+	    <graphic format="gif" fileref="images/about-dlg.gif"></graphic>
 	</figure>
 
 	<para>
@@ -38,7 +38,7 @@
 
 	<figure>
 	    <title>The connection editor dialog</title>
-	    <graphic format="gif" fileref="images/.gif"></graphic>
+	    <graphic format="gif" fileref="images/connection-editor.gif"></graphic>
 	</figure>
 
 	<para>
@@ -140,7 +140,7 @@
 
 	<figure>
 	    <title>The connection viewer dialog</title>
-	    <graphic format="gif" fileref="images/.gif"></graphic>
+	    <graphic format="gif" fileref="images/connection-viewer.gif"></graphic>
 	</figure>
 
 	<para>
@@ -183,7 +183,7 @@
 
 	<figure>
 	    <title>The custom widgets dialog</title>
-	    <graphic format="gif" fileref="images/.gif"></graphic>
+	    <graphic format="gif" fileref="images/customwidget-dlg.gif"></graphic>
 	</figure>
 
 	<para>
@@ -520,7 +520,7 @@
 
 	<figure>
 	    <title>The icon view editor</title>
-	    <graphic format="gif" fileref="images/.gif"></graphic>
+	    <graphic format="gif" fileref="images/iconview-editor.gif"></graphic>
 	</figure>
 
 	<para>
@@ -586,7 +586,7 @@
 
 	<figure>
 	    <title>The list box editor</title>
-	    <graphic format="gif" fileref="images/.gif"></graphic>
+	    <graphic format="gif" fileref="images/listbox-editor.gif"></graphic>
 	</figure>
 
 	<para>
@@ -662,7 +662,7 @@
 
 	<figure>
 	    <title>The list view editor</title>
-	    <graphic format="gif" fileref="images/.gif"></graphic>
+	    <graphic format="gif" fileref="images/listview-editor.gif"></graphic>
 	</figure>
 
 	<para>
@@ -846,7 +846,7 @@
 
 	<figure>
 	    <title>The multiline editor</title>
-	    <graphic format="gif" fileref="images/.gif"></graphic>
+	    <graphic format="gif" fileref="images/multiline-editor.gif"></graphic>
 	</figure>
 
 	<para>
@@ -867,7 +867,7 @@
 
 	<figure>
 	    <title>The edit slots dialog</title>
-	    <graphic format="gif" fileref="images/.gif"></graphic>
+	    <graphic format="gif" fileref="images/editslots-dlg.gif"></graphic>
 	</figure>
 
 	<para>
@@ -941,7 +941,7 @@
 
 	<figure>
 	    <title>The form settings dialog</title>
-	    <graphic format="gif" fileref="images/.gif"></graphic>
+	    <graphic format="gif" fileref="images/formsettings-dlg.gif"></graphic>
 	</figure>
 
 	<para>
@@ -1077,7 +1077,7 @@
 
 	<figure>
 	    <title>The help dialog</title>
-	    <graphic format="gif" fileref="images/.gif"></graphic>
+	    <graphic format="gif" fileref="images/help-dlg.gif"></graphic>
 	</figure>
 
 	<para>
@@ -1130,7 +1130,7 @@
 
 	<figure>
 	    <title>The new form dialog</title>
-	    <graphic format="gif" fileref="images/.gif"></graphic>
+	    <graphic format="gif" fileref="images/newform-dlg.gif"></graphic>
 	</figure>
 
 	<para>
@@ -1247,7 +1247,7 @@
 
 	<figure>
 	    <title>The palette editor</title>
-	    <graphic format="gif" fileref="images/.gif"></graphic>
+	    <graphic format="gif" fileref="images/paletteeditor-dlg.gif"></graphic>
 	</figure>
 
 	<para>
@@ -1380,7 +1380,7 @@
 
 	<figure>
 	    <title>The preferences dialog</title>
-	    <graphic format="gif" fileref="images/.gif"></graphic>
+	    <graphic format="gif" fileref="images/preferences-dlg.gif"></graphic>
 	</figure>
 
 	<para>
@@ -1534,7 +1534,7 @@
 
 	<figure>
 	    <title>The topic chooser dialog</title>
-	    <graphic format="gif" fileref="images/.gif"></graphic>
+	    <graphic format="gif" fileref="images/topicchooser-dlg.gif"></graphic>
 	</figure>
 
 	<para>
