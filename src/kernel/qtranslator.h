@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qtranslator.h#6 $
+** $Id: //depot/qt/main/src/kernel/qtranslator.h#7 $
 **
 ** Definition of something or other
 **
@@ -26,25 +26,28 @@ public:
     QTranslator( QObject * parent, const char * name = 0 );
     ~QTranslator();
 
-    virtual QString find( uint, const char *, const char * ) const;
+    virtual QString find( const char *, const char * ) const;
 
     bool load( const QString & filename,
 	       const QString & directory = QString::null,
 	       const QString & search_delimiters = QString::null,
 	       const QString & suffix = QString::null );
-    bool save( const QString & filename );
+
+    enum SaveMode { Everything, Stripped };
+    
+    bool save( const QString & filename, SaveMode mode = Everything );
+
     void clear();
 
     void insert( const char *, const char *, const QString & );
     void remove( const char *, const char * );
     bool contains( const char *, const char * ) const;
 
-    static uint hash( const char *, const char * );
+    void squeeze();
+    void unsqueeze();
 
 private:
     QTranslatorPrivate * d;
-    void squeeze();
-    void unsqueeze();
 
 private:	// Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
@@ -52,5 +55,6 @@ private:	// Disabled copy constructor and operator=
     QTranslator &operator=( const QTranslator & );
 #endif
 };
+
 
 #endif

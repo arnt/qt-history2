@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.cpp#254 $
+** $Id: //depot/qt/main/src/kernel/qapplication.cpp#255 $
 **
 ** Implementation of QApplication class
 **
@@ -1504,13 +1504,12 @@ QString QApplication::translate( const char * scope, const char * key ) const
     // scope can be null, for global stuff
 
     if ( translators ) {
-	uint h = QTranslator::hash( scope, key );
 	QListIterator<QTranslator> it( *translators );
 	QTranslator * mf;
 	QString result;
 	while( (mf=it.current()) != 0 ) {
 	    ++it;
-	    result = mf->find( h, scope, key );
+	    result = mf->find( scope, key );
 	    if ( result != QString::null )
 		return result;
 	}

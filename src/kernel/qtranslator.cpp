@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qtranslator.cpp#22 $
+** $Id: //depot/qt/main/src/kernel/qtranslator.cpp#23 $
 **
 ** Localization database support.
 **
@@ -43,8 +43,8 @@
 #include "qstring.h"
 #include "qapplication.h"
 #include "qfile.h"
+#include "qbuffer.h"
 #include "qdatastream.h"
-#include "qdict.h"
 #include "qmap.h"
 
 /*
@@ -59,121 +59,158 @@ static const uchar magic[magic_length] = { // magic number for the file.
     0xcd, 0x21, 0x1c, 0xbf, 0x60, 0xa1, 0xbd, 0xdd
 };
 
-const int headertablesize = 256; // entries, must be power of two
 
-struct QTranslationDomain {
-    QTranslationDomain() { }
-    QTranslationDomain(const char* s, const char* m) :
-	scope(s), message(m), hash(QTranslator::hash(s,m)) { }
-    QCString scope;
-    QCString message;
-    uint hash;
-    bool operator <(const QTranslationDomain& o) const
-    {
-	int r = hash - o.hash;
-	if ( r ) return r < 0;
-	r = strcmp(scope,o.scope);
-	return r < 0;
+static uint hash( const char * name )
+{
+    const uchar *k;
+    uint h = 0;
+    uint g;
+
+    if ( name ) {
+	k = (const uchar*)name;
+	while ( *k ) {
+	    h = (h<<4) + *k++;
+	    if ( (g = h & 0xf0000000) )
+		h ^= g >> 24;
+	    h &= ~g;
+	}
     }
-};
 
-typedef QMap<QTranslationDomain,QString>::Iterator QTranslatorIteratorPrivate;
+    if ( !h )
+	h = 1;
+
+    return h;
+}
+
 
 class QTranslatorPrivate {
 public:
-    QTranslatorPrivate() :
-	messages( 0 ),
-	t( 0 ), s( 0 ), l( 0 ),
-	unmapPointer( 0 ), unmapLength( 0 ),
-	byteArray( 0 ) {}
-    // note: QTranslator must finalize this before deallocating it.
+    // a single message, with any combination of contents
+    class Message {
+    public:
+	Message(): h(0) {}
+	Message( QDataStream & );
 
-    struct SortableMessage {
-	QCString scope;
-	QString translation;
-	uint hash;
+	void setInput( const char * ni ) { i = QString::fromLatin1( ni ); }
+	QString input() const { return i; }
+
+	void setOutput( const QString & newOutput ) { o = newOutput; }
+	QString output() const { return o; }
+
+	void setScope( const QString & newScope ) { s = newScope; }
+	QString scope() const { return s; }
+
+	uint hash() { if ( !h ) h = ::hash( i ); return h; }
+
+	void write( QTranslator::SaveMode, QDataStream & );
+
+	bool sane() { return i.length() > 0 && o.length() > 0 && hash() != 0; }
+
+    private:
+	QString i;
+	QString o;
+	QString s;
+	uint h;
+
+	enum Tag { End = 1, Input, Output, Scope, Hash };
+
     };
 
-    // for read-write message files
-    QMap<QTranslationDomain,QString> * messages;
+    struct Offset {
+	Offset() { h=0; o=0; }
+	Offset( QTranslatorPrivate::Message * m, int offset )
+	{ h = m->hash(); o = offset; } // ### qChecksum
 
-    // for read-only files
-    const char * t; // hash table
-    const char * s; // scope table
-    uint l;
+	bool operator<(const Offset&k) const { return ( h != k.h ) 
+							     ? h < k.h 
+							     : o < k.o; }
+
+	uint h;
+	uint o;
+    };
+
+    enum { Hashes = 0x42, Messages = 0x69 } Tag;
+
+    QTranslatorPrivate() :
+	unmapPointer( 0 ), unmapLength( 0 ),
+	messageArray( 0 ), offsetArray( 0 ),
+	messages( 0 ) {}
+    // note: QTranslator must finalize this before deallocating it.
 
     // for mmap'ed files, this is what needs to be unmapped.
     char * unmapPointer;
     unsigned int unmapLength;
 
+    
     // for squeezed but non-file data, this is what needs to be deleted
-    QByteArray * byteArray;
+    QByteArray * messageArray;
+    QByteArray * offsetArray;
 
-    // the headers dict
-    QDict<QString> headers;
+    QList<Message> * messages;
+
 };
 
 
-/* format of the data file.
+QTranslatorPrivate::Message::Message( QDataStream & stream )
+{
+    h = 0;
+    char tag;
 
-   file                = MAGIC [1] scope-table [2] hash-table .
-   scope-table         = scope-table-size { { CHAR8 } NUL } .
-   scope-table-size    = INT24 .
-   hash-table          = { bucket-offset }*256 { bucket } .
-   bucket-offset       = INT24 .
-   bucket              = first-string-offset offset-list { target } .
-   offset-list         = { rest-of-hash string-length } .
-   first-string-offset = INT24 .
-   rest-of-hash        = INT24 .
-   string-length       = INT24 .
-   target              = scope { CHAR16 } .
-   scope               = INT24 .
-
-   The scope-table contains all the scopes, as a list of simple
-   C strings.  The target.scope is the offset into this list, measured
-   from [1] (ie. the first scope is at offset WORDSIZE).
-
-   The bucket-offset offsets in hash-table are offsets into the
-   hash-table.bucket data, measured from [2] (ie. the first scope is at
-   offset WORDSIZE*256).
-
-   Each string-length is the count of CHAR16 in the corresponding
-   target - by adding up these lengths, plus WORDSIZE bytes for the scope
-   of each target, the offset into the bucket.target data (measured
-   from [2]) can be calculated.
-
-   d->s = [1]
-   d->t = [2]
-   d->l = length(hash-table)
-
-   This format permits very fast lookup.
-*/
-
-static const int WORDSIZE = 3;
-
-// Dependendent on WORDSIZE
-static inline uint readoffset( const char * c, int o ) {
-    return (((uchar)(c[o  ]) << 17) +
-	    ((uchar)(c[o+1]) << 9) +
-	    ((uchar)(c[o+2]) << 1));
+    while( TRUE ) {
+	tag = 0;
+	if ( !stream.atEnd() )
+	    stream.readRawBytes( &tag, 1 );
+	switch( (Tag)tag ) {
+	case End:
+	    return;
+	    break;
+	case Input:
+	    stream >> i;
+	    break;
+	case Output:
+	    stream >> o;
+	    break;
+	case Scope:
+	    stream >> s;
+	    break;
+	case Hash:
+	    stream >> h;
+	    break;
+	default:
+	    i = o = s = QString::null;
+	    h = 0;
+	    return;
+	}
+    }
 }
 
 
-// Dependendent on WORDSIZE
-static inline uint readlength( const char * c, int o ) {
-    return (((uchar)(c[o  ]) << 16) +
-	    ((uchar)(c[o+1]) << 8) +
-	    ((uchar)(c[o+2])));
+void QTranslatorPrivate::Message::write( QTranslator::SaveMode m,
+					 QDataStream & stream )
+{
+    char tag;
+
+    tag = (char)Output;
+    stream.writeRawBytes( &tag, 1 );
+    stream << o;
+
+    if ( m == QTranslator::Everything ) {
+	if ( s ) {
+	    tag = (char)Scope;
+	    stream.writeRawBytes( &tag, 1 );
+	    stream << s;
+	}
+	if ( i ) {
+	    tag = (char)Input;
+	    stream.writeRawBytes( &tag, 1 );
+	    stream << i;
+	}
+    }
+
+    tag = (char)End;
+    stream.writeRawBytes( &tag, 1 );
 }
 
-
-// Dependendent on WORDSIZE
-static inline uint readhash( const char * c, int o, uint base ) {
-    return (((uchar)(c[o  ]) << 24) +
-	    ((uchar)(c[o+1]) << 16) +
-	    ((uchar)(c[o+2]) << 8) +
-	    base);
-}
 
 
 
@@ -192,10 +229,9 @@ static inline uint readhash( const char * c, int o, uint base ) {
   and using it via QObject::tr().
 
   Slightly more advanced usage of QTranslator includes direct lookup
-  using find() (with input almost invariably provided by hash()),
-  adding new translations using insert() and removing existing ones
-  using remove() or even clear(), and testing whether the QTranslator
-  contains a translation using contains().
+  using find(), adding new translations using insert() and removing
+  existing ones using remove() or even clear(), and testing whether
+  the QTranslator contains a translation using contains().
 
   The hash() function mentioned is a variant on the standard ELF hash,
   modified to work well with Unicode strings in UCS-2 format.  Its
@@ -256,16 +292,15 @@ bool QTranslator::load( const QString & filename, const QString & directory,
 		        const QString & suffix )
 {
     clear();
-    squeeze();
 
     QString prefix;
 
     if ( filename[0] == '/'
 #ifdef _WS_WIN_
-	|| filename[0] && filename[1] == ':'
-	|| filename[0] == '\\'
+	 || filename[0] && filename[1] == ':'
+	 || filename[0] == '\\'
 #endif
-    )
+	 )
 	prefix = QString::fromLatin1("");
     else
 	prefix = directory;
@@ -279,37 +314,35 @@ bool QTranslator::load( const QString & filename, const QString & directory,
     QString realname;
     QString delims;
     delims = search_delimiters.isNull() ?
-	QString::fromLatin1("_.") : search_delimiters;
+	     QString::fromLatin1("_.") : search_delimiters;
 
-    // COMPLICATED LOOP
-    try_with_and_without_suffix:
-    {
+    bool done = FALSE;
+    while( !done ) {
 	QFileInfo fi;
 
 	realname = prefix + fname;
 	fi.setFile(realname);
 	if ( fi.isReadable() )
-	    goto found_file; // EXIT LOOP
+	    break;
 
 	realname += suffix.isNull() ? QString::fromLatin1(".qm") : suffix;
 	fi.setFile(realname);
 	if ( fi.isReadable() )
-	    goto found_file; // EXIT LOOP
+	    break;
 
-	for ( int i=0; i<(int)delims.length(); i++) {
+	int i = 0;
+	while( !done && i<(int)delims.length() ) {
 	    int dlm;
 	    if ( (dlm=fname.find(delims[i])) >= 0 ) {
 		// found a truncation
 		fname = fname.left(dlm);
-		goto try_with_and_without_suffix;
+		done = TRUE;
 	    }
+	    i++;
 	}
-
-	// No truncations - fail
-	return FALSE;
+	if ( !done )
+	    return FALSE; // No truncations - fail
     }
-    found_file: ; // END OF COMPLICATED LOOP
-
 
     // realname is now the fully qualified name of a readable file.
 
@@ -317,7 +350,6 @@ bool QTranslator::load( const QString & filename, const QString & directory,
 #if defined(QT_USE_MMAP)
     // unix (if mmap supported)
 
-// ###### Arnt: seems some platforms don't define these
 #ifndef MAP_FILE
 #define MAP_FILE 0
 #endif
@@ -359,11 +391,11 @@ bool QTranslator::load( const QString & filename, const QString & directory,
     // windows, or unix without mmap
     QFile f(realname);
     d->unmapLength = f.size();
-    d->unmapPointer = new char[d->unmapLength];
+    d->unmapPointer = new char[d->unmapLength]; // ### really not
     bool ok = FALSE;
     if ( f.open(IO_ReadOnly) ) {
 	ok = d->unmapLength ==
-		    (uint)f.readBlock( d->unmapPointer, d->unmapLength );
+	     (uint)f.readBlock( d->unmapPointer, d->unmapLength );
 	f.close();
     }
     if ( !ok ) {
@@ -373,11 +405,6 @@ bool QTranslator::load( const QString & filename, const QString & directory,
     }
 #endif
 
-    d->s = ((const char *) d->unmapPointer)+magic_length;
-    int scope_table_size = readlength( d->s, 0 );
-    d->t = d->s + WORDSIZE + scope_table_size;
-    d->l = d->unmapLength - magic_length - WORDSIZE - scope_table_size;
-
     // now that we've read it and all, check that it has the right
     // magic number, and forget all about it if it doesn't.
     if ( memcmp( (const void *)(d->unmapPointer), magic, magic_length ) ) {
@@ -385,8 +412,34 @@ bool QTranslator::load( const QString & filename, const QString & directory,
 	return FALSE;
     }
 
-    // then we go on to read in the headers... I'd prefer not, but...
+    // prepare to read.
+    QByteArray tmpArray;
+    tmpArray.setRawData( d->unmapPointer, d->unmapLength );
+    QDataStream s( tmpArray, IO_ReadOnly );
+    s.device()->at( magic_length );
 
+    // read.
+    Q_UINT8 tag = 0;
+    Q_UINT32 length = 0;
+    s >> tag >> length;
+    while ( tag && length ) {
+	if ( tag == QTranslatorPrivate::Hashes && !d->offsetArray ) {
+	    d->offsetArray = new QByteArray;
+	    d->offsetArray->setRawData( tmpArray.data()+s.device()->at(),
+					length );
+	} else if ( tag == QTranslatorPrivate::Messages && !d->messageArray ) {
+	    d->messageArray = new QByteArray;
+	    d->messageArray->setRawData( tmpArray.data()+s.device()->at(),
+					 length );
+	}
+	s.device()->at( s.device()->at() + length );
+	tag = 0;
+	length = 0;
+	if ( !s.atEnd() )
+	    s >> tag >> length;
+    }
+
+    tmpArray.resetRawData( d->unmapPointer, d->unmapLength );
     return TRUE;
 }
 
@@ -397,205 +450,51 @@ bool QTranslator::load( const QString & filename, const QString & directory,
   \sa load()
 */
 
-bool QTranslator::save( const QString & filename )
+bool QTranslator::save( const QString & filename, QTranslator::SaveMode )
 {
     QFile f( filename );
     if ( f.open( IO_WriteOnly ) ) {
-	// magic number
-	if ( f.writeBlock( (const char *)magic, magic_length ) < magic_length )
-	    return FALSE;
-
-	// the rest
 	squeeze();
-	f.writeBlock( d->s, (d->t - d->s) + d->l );
+
+	QDataStream s( &f );
+	s.writeRawBytes( (const char *)magic, magic_length );
+	Q_UINT8 tag;
+	tag = (Q_UINT8) QTranslatorPrivate::Hashes;
+	s << tag << (Q_UINT32) d->offsetArray->size();
+	s.writeRawBytes( d->offsetArray->data(), d->offsetArray->size() );
+	tag = (Q_UINT8) QTranslatorPrivate::Messages;
+	s << tag << (Q_UINT32) d->messageArray->size();
+	s.writeRawBytes( d->messageArray->data(), d->messageArray->size() );
 	return TRUE;
     }
     return FALSE;
 }
 
 
-/*!
-  \fn QString QTranslator::find( uint h, const char* scope, const char* key ) const
-
-  Returns the string matching hash code \a h, or QString::null in
-  case there is no string for \a h.
-
-  The \a scope and \a key arguments are not used in the default
-  implementation, but are available for QTranslator subclasses to use
-  in alternative translation techniques.
-*/
-
-QString QTranslator::find( uint h, const char* scope, const char* message ) const
-{
-    if ( d->messages ) {
-	QTranslationDomain k(scope,message);
-	QMap<QTranslationDomain,QString>::Iterator it = d->messages->find(k);
-	if ( it !=  d->messages->end() )
-	    return *it;
-	return QString::null;
-    }
-	
-    if ( !d->t || !d->l )
-	return QString::null;
-
-    const char* s = d->s;
-    const char* t = d->t;
-
-    // offset we care about at any instant
-    uint o = readoffset( t, WORDSIZE*(h % headertablesize) );
-    // if that bucket is empty, return quickly
-    if ( o+10 >= d->l || o < WORDSIZE*headertablesize )
-	return QString::null;
-    // string pointer, first string pointer
-    uint fsp, sp;
-    fsp = sp = readoffset( s, o );
-    uint base = h % headertablesize;
-    o += WORDSIZE;
-    uint r;
-    while ( o+5 < fsp && (r=readhash( s, o, base )) < h ) {
-	// not yet found the one we want
-	sp += 2*readlength( s, o+WORDSIZE )+WORDSIZE;
-	o += 2*WORDSIZE;
-    }
-    if ( o+5 < fsp && r == h ) {
-	// match found - check the scope
-	int sl = readlength( s, o+WORDSIZE )-WORDSIZE;
-	int sc = readoffset( s, sp );
-	if ( strcmp(scope, d->s + WORDSIZE + sc)!=0 ) {
-	    // bad match.
-	    return QString::null;
-	}
-	// matched - return it
-	sp += WORDSIZE;
-	QString result;
-	// ### could use QConstString if byte order is ok, but need somewhere
-	// ###  to keep the QConstString in existence and to reuse it from.
-	int i;
-	for( i=0; i<sl; i++ ) {
-	    uchar row =  s[sp++];
-	    uchar cell =  s[sp++];
-	    result += QChar( cell, row );
-	}
-	return result;
-    }
-    return QString::null;
-}
-
-
-/*!  Returns a hash of \a scope and \a name.  Neither of the two may
-  be null (in which case the return value is unspecified).  The result of
-  the hash function is never 0.
-
-  This function will not change; you may rely on its output to remain
-  the same in future versions of Qt.
-*/
-
-uint QTranslator::hash( const char * scope, const char * name )
-{
-    const uchar *k;
-    uint h = 0;
-    uint g;
-
-    // scope
-    if ( scope ) {
-	k = (const uchar*)scope;
-	while ( *k ) {
-	    h = (h<<4) + *k++;
-	    if ( (g = h & 0xf0000000) )
-		h ^= g >> 24;
-	    h &= ~g;
-	}
-    }
-
-    // null between the two
-    h = h<<4;
-    if ( (g = h & 0xf0000000) )
-	h ^= g >> 24;
-    h &= ~g;
-
-    // name
-    if ( name ) {
-	k = (const uchar*)name;
-	while ( *k ) {
-	    h = (h<<4) + *k++;
-	    if ( (g = h & 0xf0000000) )
-		h ^= g >> 24;
-	    h &= ~g;
-	}
-    }
-
-    if ( !h )
-	h = 1;
-
-    return h;
-}
-
-
-/*!  Empties this message file of all contents.
+/*!  Empties this translator of all contents.
 */
 
 void QTranslator::clear()
 {
-    if ( d->t ) {
-	if ( d->unmapPointer && d->unmapLength ) {
+    if ( d->unmapPointer && d->unmapLength ) {
 #if defined(QT_USE_MMAP)
-	    munmap( d->unmapPointer, d->unmapLength );
+	munmap( d->unmapPointer, d->unmapLength );
 #else
-	    delete [] d->unmapPointer;
+	delete [] d->unmapPointer;
 #endif
-	    d->unmapPointer = 0;
-	    d->unmapLength = 0;
-	}
-	if ( d->byteArray ) {
-	    delete d->byteArray;
-	    d->byteArray = 0;
-	}
-	d->t = 0;
-	d->l = 0;
-    } else {
-	delete d->messages;
-	d->messages = 0;
+	d->unmapPointer = 0;
+	d->unmapLength = 0;
+	d->messageArray->resetRawData( d->messageArray->data(),
+				       d->messageArray->size() );
+	d->offsetArray->resetRawData( d->offsetArray->data(),
+				      d->offsetArray->size() );
     }
-}
-
-
-// Dependent on WORDSIZE
-static inline void writethreebytes( QByteArray & b, uint o, uint d )
-{
-    b[(int)o  ] = (d&0xff0000) >> 16;
-    b[(int)o+1] = (d&0x00ff00) >>  8;
-    b[(int)o+2] = (d&0x0000ff);
-}
-
-
-static inline void writeoffset( QByteArray & b, uint o, uint d ) {
-    if ( d & 1 )
-	qFatal( "oops! wanted to write offset %6x, which is odd", d );
-    writethreebytes( b, o, d/2 );
-}
-
-
-// note: we want reverse sorting, hence the strange return values
-static int cmp( const void *n1, const void *n2 )
-{
-    if ( !n1 || !n2 )
-	return 0;
-
-    QTranslatorPrivate::SortableMessage * m1
-	= (QTranslatorPrivate::SortableMessage *)n1;
-    QTranslatorPrivate::SortableMessage * m2
-	= (QTranslatorPrivate::SortableMessage *)n2;
-
-    if ( (m1->hash % headertablesize) < (m2->hash % headertablesize) )
-	return 1;
-    else if ( (m1->hash % headertablesize) > (m2->hash % headertablesize) )
-	return -1;
-    else if ( m1->hash < m2->hash )
-	return 1;
-    else if ( m1->hash > m2->hash )
-	return -1;
-    else
-	return 0;
+    delete d->messageArray;
+    d->messageArray = 0;
+    delete d->offsetArray;
+    d->offsetArray = 0;
+    delete d->messages;
+    d->messages = 0;
 }
 
 
@@ -609,88 +508,34 @@ void QTranslator::squeeze()
     if ( !d->messages )
 	return;
 
-    QMap<QCString,int> scope_offsets;
+    QList<QTranslatorPrivate::Message> * messages = d->messages;
 
-    uint size = headertablesize * 2*WORDSIZE;
-
-    QTranslatorPrivate::SortableMessage * items
-	= new QTranslatorPrivate::SortableMessage[ d->messages->count() ];
-
-    int i = 0;
-    int scope_table_size = 0;
-    {
-	QMap<QTranslationDomain,QString>::Iterator it = d->messages->begin();
-	while( it != d->messages->end() ) {
-	    items[i].scope = it.key().scope;
-	    items[i].translation = *it;
-	    items[i].hash = it.key().hash;
-	    size += 10 + WORDSIZE + 2 * (*it).length();
-	    if ( !scope_offsets.contains(it.key().scope) ) {
-		scope_offsets.insert(it.key().scope, scope_table_size);
-		scope_table_size += it.key().scope.length()+1;
-	    }
-	    ++it;
-	    ++i;
-	}
-    }
-    size += scope_table_size + WORDSIZE;
-
-    ::qsort( items, d->messages->count(),
-	     sizeof( QTranslatorPrivate::SortableMessage ), cmp );
-
-    QByteArray b( size );
-    b.fill( '\0' );
-
-    writethreebytes( b, 0, scope_table_size );
-    uint sc = WORDSIZE + scope_table_size;
-    uint fp = sc + WORDSIZE*headertablesize;
-
-    {
-	QMap<QCString,int>::Iterator it = scope_offsets.begin();
-	while ( it != scope_offsets.end() ) {
-	    memcpy( b.data()+WORDSIZE+*it, it.key().data(), it.key().length()+1 );
-	    ++it;
-	}
-    }
-
-    i = d->messages->count()-1;
-    while( i >= 0 ) {
-	uint bucket = items[i].hash % headertablesize;
-	fp = ((fp-1) | 3)+1;
-	writeoffset( b, sc+WORDSIZE*bucket, fp );
-	int j = 0;
-	while( j <= i && bucket == items[i-j].hash % headertablesize )
-	    j++;
-	if ( j ) {
-	    uint sp = fp + 4 + (2*WORDSIZE*j);
-	    writeoffset( b, fp, sp );
-	    fp += WORDSIZE;
-	    QString str;
-	    while( j ) {
-		str = items[i].translation;
-		writethreebytes( b, fp, items[i].hash / headertablesize );
-		writethreebytes( b, fp+WORDSIZE, str.length()+WORDSIZE );
-		fp += 2*WORDSIZE;
-		uint k;
-		writethreebytes( b, sp, scope_offsets[items[i].scope] );
-		sp += WORDSIZE;
-		for( k=0; k<str.length(); k++ ) {
-		    b[(int)sp++] = str[(int)k].row();
-		    b[(int)sp++] = str[(int)k].cell();
-		}
-		i--;
-		j--;
-	    }
-	    fp = sp;
-	}
-    }
-    if ( fp < size )
-	b.resize( fp );
+    d->messages = 0;
     clear();
-    d->byteArray = new QByteArray( b );
-    d->s = b.data();
-    d->t = d->s+WORDSIZE+scope_table_size;
-    d->l = b.size();
+
+    d->messageArray = new QByteArray;
+    d->offsetArray = new QByteArray;
+
+    QMap<QTranslatorPrivate::Offset,void*> offsets;
+
+    QDataStream ms( *d->messageArray, IO_WriteOnly );
+    QListIterator<QTranslatorPrivate::Message> it( *messages );
+    QTranslatorPrivate::Message * m;
+    while( (m = it.current()) != 0 ) {
+	++it;
+	offsets.replace( QTranslatorPrivate::Offset(m,ms.device()->at()), 0 );
+	m->write( Everything, ms );
+    }
+
+    d->offsetArray->resize( 0 );
+    QMap<QTranslatorPrivate::Offset,void*>::Iterator offset;
+    offset = offsets.begin();
+    QDataStream ds( *d->offsetArray, IO_WriteOnly );
+    while( offset != offsets.end() ) {
+	QTranslatorPrivate::Offset k = offset.key();
+	++offset;
+	ds << (Q_UINT32)k.h << (Q_UINT32)k.o;
+    }
 }
 
 
@@ -707,40 +552,27 @@ void QTranslator::unsqueeze()
 {
     if ( d->messages )
 	return;
-    QMap<QTranslationDomain,QString> * messages =
-	new QMap<QTranslationDomain,QString>;
 
-    if ( d->t && d->l ) {
-	int i;
-	for( i=0; i<headertablesize; i++ ) {
-	    uint fp = readoffset( d->t, i*WORDSIZE );
-	    if ( fp+10 <= d->l && fp >= WORDSIZE*headertablesize ) {
-		uint sp = readoffset( d->t, fp );
-		fp += WORDSIZE;
-		uint fsp = sp;
-		while( fp+5 < fsp ) {
-		    uint h = readhash( d->t, fp, i );
-		    int sl = readlength( d->t, fp+WORDSIZE );
-		    QString result;
-		    int k;
-		    int sc = readlength( d->t, sp );
-		    sp += WORDSIZE;
-		    for( k=0; k<sl; k++ ) {
-			uchar row = d->t[sp++];
-			uchar cell = d->t[sp++];
-			result[k] = QChar( cell, row );
-		    }
-		    QTranslationDomain key;
-		    key.scope = d->s + WORDSIZE + sc;
-		    key.hash = h;
-		    messages->insert( key, result );
-		    fp += 2*WORDSIZE;
-		}
-	    }
-	}
-	clear();
+    QList<QTranslatorPrivate::Message> * messages
+	= new QList<QTranslatorPrivate::Message>;
+    if ( !d->messageArray ) {
+	d->messages = messages;
+	return;
     }
-    d->messages = messages;
+
+    QDataStream s( *d->messageArray, IO_ReadOnly );
+    QTranslatorPrivate::Message * m;
+    while( TRUE ) {
+	m = new QTranslatorPrivate::Message( s );
+	if ( m->sane() ) {
+	    messages->append( m );
+	} else {
+	    delete m;
+	    clear();
+	    d->messages = messages;
+	    return;
+	}
+    }
 }
 
 
@@ -752,8 +584,7 @@ void QTranslator::unsqueeze()
 
 bool QTranslator::contains( const char* scope, const char* key ) const
 {
-    uint h = hash(scope,key);
-    return find( h, scope, key ) != QString::null;
+    return find( scope, key ) != QString::null;
 }
 
 
@@ -766,8 +597,21 @@ void QTranslator::insert( const char* scope,
 			  const QString& translation )
 {
     unsqueeze();
-    QTranslationDomain k( scope, message );
-    d->messages->replace( k, translation );
+    d->messages->first();
+    QTranslatorPrivate::Message * m;
+    while( (m=d->messages->current()) != 0 &&
+	   m->input() != message && m->scope() != scope )
+	d->messages->next();
+
+    if ( m )
+	d->messages->take();
+    else
+	m = new QTranslatorPrivate::Message();
+
+    m->setInput( message );
+    m->setScope( scope );
+    m->setOutput( translation );
+    d->messages->append( m );
 }
 
 
@@ -779,8 +623,62 @@ void QTranslator::insert( const char* scope,
 void QTranslator::remove( const char *scope, const char *message )
 {
     unsqueeze();
-    QTranslationDomain k( scope, message );
-    d->messages->remove( k );
+    d->messages->first();
+    QTranslatorPrivate::Message * m;
+    while( (m=d->messages->current()) != 0 &&
+	   m->input() != message && m->scope() != scope )
+	d->messages->next();
+
+    if ( m )
+	d->messages->remove();
+}
+
+
+/*!
+  Returns the translation for (\a scope, \a key), or  QString::null in
+  case there is none in this translator.
+*/
+
+QString QTranslator::find( const char* scope, const char* message ) const
+{
+    if ( d->messages ) {
+	d->messages->first();
+	QTranslatorPrivate::Message * m;
+	while( (m=d->messages->current()) != 0 &&
+	       (m->input() != message || m->scope() != scope) )
+	    d->messages->next();
+	if ( m )
+	    return m->output();
+	return QString::null;
+    }
+
+    uint h = ::hash( message );
+    if ( !d->offsetArray )
+	return QString::null;
+
+    QDataStream s( *d->offsetArray, IO_ReadOnly );
+    s.device()->at( 0 );
+    Q_UINT32 rh = 0; // h is >= 1
+    Q_UINT32 ro;
+    while( rh < h && !s.atEnd() )
+	s >> rh >> ro; // ### a long, slow loop.  needs fixing.
+
+    if ( rh > h )
+	return QString::null;
+
+    QDataStream ms( *d->messageArray, IO_ReadOnly );
+    while( rh == h ) {
+	ms.device()->at( ro );
+	QTranslatorPrivate::Message m( ms );
+	if ( m.input().isNull() ||
+	     ( m.input() == message && m.scope() == scope ) )
+	    return m.output();
+	if ( s.atEnd() )
+	    return QString::null;
+	s >> rh >> ro;
+    }
+
+    return QString::null;
 }
 
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.h#123 $
+** $Id: //depot/qt/main/src/kernel/qapplication.h#124 $
 **
 ** Definition of QApplication class
 **
@@ -30,13 +30,13 @@
 #include "qwidget.h"
 #include "qlist.h"
 
-#include "qtranslator.h"
 #include "qasciidict.h"
 #include "qpalette.h"
 #endif // QT_H
 
 class QSessionManager;
 class QStyle;
+class QTranslator;
 
 class QApplication;
 extern Q_EXPORT QApplication *qApp;		// global application object
