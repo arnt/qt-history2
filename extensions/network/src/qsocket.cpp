@@ -146,7 +146,7 @@ QSocketDevice *QSocket::socketDevice()
 
 /*!
   Processes timer events for QSocket.  Emits the readyRead() signal
-  if there if there is buffered input available for reading.
+  if there is buffered input available for reading.
 */
 
 void QSocket::timerEvent( QTimerEvent *e )
@@ -173,6 +173,8 @@ void QSocket::timerEvent( QTimerEvent *e )
   <li> \c QSocket::HostLookup during a host lookup,
   <li> \c QSocket::Connecting during an attempt to connect to a host, and
   <li> \c QSocket::Connection when there is a connection.
+  <li> \c QSocket::Listening ???
+  <li> \c QSocket::Closing ???
   </ul>
 */
 
@@ -295,6 +297,11 @@ void QSocket::connectToHost( const QString &host, int port )
 
 #endif
 
+
+/*!
+  Fnord...
+*/
+
 void QSocket::connectToLocalFile( const QString &filename )
 {
 #if defined(QSOCKET_DEBUG)
@@ -375,6 +382,22 @@ void QSocket::tryConnecting()
 #endif
 }
 
+/*!
+  \enum QSocket::Error
+
+  This enum specifies the possible errors:
+  <ul>
+  <li> \c QSocket::ErrConnectionRefused if the connection was refused
+  <li> \c QSocket::ErrHostNotFound if the host was not found
+  <li> \c QSocket::ErrSocketRead if a read from the socket failed
+  </ul>
+*/
+
+/*!
+  \fn void QSocket::error( int )
+
+  This signal is emitted after an error occurred.
+*/
 
 /*!
   \fn void QSocket::hostFound()
