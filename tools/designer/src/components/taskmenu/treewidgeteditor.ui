@@ -1,0 +1,587 @@
+<ui version="4.0" >
+ <author></author>
+ <comment></comment>
+ <exportmacro></exportmacro>
+ <class>ListWidgetEditor</class>
+ <widget class="QDialog" name="ListWidgetEditor" >
+  <property name="objectName" >
+   <string notr="true" >ListWidgetEditor</string>
+  </property>
+  <property name="geometry" >
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>445</width>
+    <height>345</height>
+   </rect>
+  </property>
+  <property name="windowTitle" >
+   <string>Dialog</string>
+  </property>
+  <layout class="QVBoxLayout" >
+   <property name="objectName" >
+    <string notr="true" />
+   </property>
+   <property name="margin" >
+    <number>9</number>
+   </property>
+   <property name="spacing" >
+    <number>6</number>
+   </property>
+   <item>
+    <layout class="QHBoxLayout" >
+     <property name="objectName" >
+      <string notr="true" />
+     </property>
+     <property name="margin" >
+      <number>1</number>
+     </property>
+     <property name="spacing" >
+      <number>6</number>
+     </property>
+     <item>
+      <layout class="QGridLayout" >
+       <property name="objectName" >
+        <string notr="true" />
+       </property>
+       <property name="margin" >
+        <number>1</number>
+       </property>
+       <property name="spacing" >
+        <number>6</number>
+       </property>
+       <item row="7" column="1" >
+        <widget class="QPushButton" name="moveItemLeftButton" >
+         <property name="objectName" >
+          <string notr="true" >moveItemLeftButton</string>
+         </property>
+         <property name="geometry" >
+          <rect>
+           <x>188</x>
+           <y>205</y>
+           <width>83</width>
+           <height>27</height>
+          </rect>
+         </property>
+         <property name="text" >
+          <string/>
+         </property>
+        </widget>
+       </item>
+       <item row="5" column="1" >
+        <widget class="QPushButton" name="moveItemDownButton" >
+         <property name="objectName" >
+          <string notr="true" >moveItemDownButton</string>
+         </property>
+         <property name="geometry" >
+          <rect>
+           <x>188</x>
+           <y>139</y>
+           <width>83</width>
+           <height>27</height>
+          </rect>
+         </property>
+         <property name="text" >
+          <string/>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="1" >
+        <widget class="QPushButton" name="delteItemButton" >
+         <property name="objectName" >
+          <string notr="true" >delteItemButton</string>
+         </property>
+         <property name="geometry" >
+          <rect>
+           <x>188</x>
+           <y>67</y>
+           <width>83</width>
+           <height>27</height>
+          </rect>
+         </property>
+         <property name="text" >
+          <string>&amp;Delete Item</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="1" >
+        <widget class="QPushButton" name="newItemButton" >
+         <property name="objectName" >
+          <string notr="true" >newItemButton</string>
+         </property>
+         <property name="geometry" >
+          <rect>
+           <x>188</x>
+           <y>1</y>
+           <width>83</width>
+           <height>27</height>
+          </rect>
+         </property>
+         <property name="text" >
+          <string>&amp;New Item</string>
+         </property>
+        </widget>
+       </item>
+       <item row="6" column="1" >
+        <widget class="QPushButton" name="moveItemRighttButton" >
+         <property name="objectName" >
+          <string notr="true" >moveItemRighttButton</string>
+         </property>
+         <property name="geometry" >
+          <rect>
+           <x>188</x>
+           <y>172</y>
+           <width>83</width>
+           <height>27</height>
+          </rect>
+         </property>
+         <property name="text" >
+          <string/>
+         </property>
+        </widget>
+       </item>
+       <item row="4" column="1" >
+        <widget class="QPushButton" name="moveItemUpButton" >
+         <property name="objectName" >
+          <string notr="true" >moveItemUpButton</string>
+         </property>
+         <property name="geometry" >
+          <rect>
+           <x>188</x>
+           <y>106</y>
+           <width>83</width>
+           <height>27</height>
+          </rect>
+         </property>
+         <property name="text" >
+          <string/>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="1" >
+        <spacer>
+         <property name="objectName" >
+          <string notr="true" >verticalSpacer</string>
+         </property>
+         <property name="geometry" >
+          <rect>
+           <x>188</x>
+           <y>100</y>
+           <width>83</width>
+           <height>0</height>
+          </rect>
+         </property>
+         <property name="orientation" >
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" >
+          <size>
+           <width>20</width>
+           <height>40</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item row="1" column="1" >
+        <widget class="QPushButton" name="newSubItemButton" >
+         <property name="objectName" >
+          <string notr="true" >newSubItemButton</string>
+         </property>
+         <property name="geometry" >
+          <rect>
+           <x>188</x>
+           <y>34</y>
+           <width>83</width>
+           <height>27</height>
+          </rect>
+         </property>
+         <property name="text" >
+          <string>New &amp;Subitem</string>
+         </property>
+        </widget>
+       </item>
+       <item rowspan="8" row="0" column="0" >
+        <widget class="QTreeWidget" name="treeWidget" >
+         <property name="objectName" >
+          <string notr="true" >treeWidget</string>
+         </property>
+         <property name="geometry" >
+          <rect>
+           <x>1</x>
+           <y>1</y>
+           <width>181</width>
+           <height>231</height>
+          </rect>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
+     <item>
+      <widget class="QGroupBox" name="groupBox" >
+       <property name="objectName" >
+        <string notr="true" >groupBox</string>
+       </property>
+       <property name="geometry" >
+        <rect>
+         <x>279</x>
+         <y>1</y>
+         <width>147</width>
+         <height>233</height>
+        </rect>
+       </property>
+       <property name="title" >
+        <string>&amp;Item Properties</string>
+       </property>
+       <layout class="QGridLayout" >
+        <property name="objectName" >
+         <string notr="true" />
+        </property>
+        <property name="margin" >
+         <number>9</number>
+        </property>
+        <property name="spacing" >
+         <number>6</number>
+        </property>
+        <item row="2" column="1" >
+         <widget class="QLabel" name="label_2_2" >
+          <property name="objectName" >
+           <string notr="true" >label_2_2</string>
+          </property>
+          <property name="geometry" >
+           <rect>
+            <x>61</x>
+            <y>82</y>
+            <width>20</width>
+            <height>22</height>
+           </rect>
+          </property>
+          <property name="text" >
+           <string/>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="0" >
+         <spacer>
+          <property name="objectName" >
+           <string notr="true" >verticalSpacer_2</string>
+          </property>
+          <property name="geometry" >
+           <rect>
+            <x>23</x>
+            <y>110</y>
+            <width>20</width>
+            <height>112</height>
+           </rect>
+          </property>
+          <property name="orientation" >
+           <enum>Qt::Vertical</enum>
+          </property>
+          <property name="sizeHint" >
+           <size>
+            <width>20</width>
+            <height>40</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item row="2" column="2" >
+         <widget class="QToolButton" name="previewButton" >
+          <property name="objectName" >
+           <string notr="true" >previewButton</string>
+          </property>
+          <property name="geometry" >
+           <rect>
+            <x>87</x>
+            <y>82</y>
+            <width>22</width>
+            <height>21</height>
+           </rect>
+          </property>
+          <property name="text" >
+           <string/>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="0" >
+         <widget class="QLabel" name="label_3" >
+          <property name="objectName" >
+           <string notr="true" >label_3</string>
+          </property>
+          <property name="geometry" >
+           <rect>
+            <x>11</x>
+            <y>22</y>
+            <width>44</width>
+            <height>25</height>
+           </rect>
+          </property>
+          <property name="text" >
+           <string>Colu&amp;mn</string>
+          </property>
+          <property name="buddy" >
+           <cstring>spinBox</cstring>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="0" >
+         <widget class="QLabel" name="label" >
+          <property name="objectName" >
+           <string notr="true" >label</string>
+          </property>
+          <property name="geometry" >
+           <rect>
+            <x>11</x>
+            <y>53</y>
+            <width>44</width>
+            <height>23</height>
+           </rect>
+          </property>
+          <property name="text" >
+           <string>&amp;Text:</string>
+          </property>
+          <property name="buddy" >
+           <cstring>itemTextLineEdit</cstring>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="3" >
+         <widget class="QToolButton" name="browseButton" >
+          <property name="objectName" >
+           <string notr="true" >browseButton</string>
+          </property>
+          <property name="geometry" >
+           <rect>
+            <x>115</x>
+            <y>82</y>
+            <width>21</width>
+            <height>22</height>
+           </rect>
+          </property>
+          <property name="text" >
+           <string>...</string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="0" >
+         <widget class="QLabel" name="label_2" >
+          <property name="objectName" >
+           <string notr="true" >label_2</string>
+          </property>
+          <property name="geometry" >
+           <rect>
+            <x>11</x>
+            <y>82</y>
+            <width>44</width>
+            <height>22</height>
+           </rect>
+          </property>
+          <property name="text" >
+           <string>&amp;Pixmap:</string>
+          </property>
+          <property name="buddy" >
+           <cstring>browseButton</cstring>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="1" colspan="3" >
+         <widget class="QSpinBox" name="columnsSpinBox" >
+          <property name="objectName" >
+           <string notr="true" >columnsSpinBox</string>
+          </property>
+          <property name="geometry" >
+           <rect>
+            <x>61</x>
+            <y>22</y>
+            <width>75</width>
+            <height>25</height>
+           </rect>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="1" colspan="3" >
+         <widget class="QLineEdit" name="itemTextLineEdit" >
+          <property name="objectName" >
+           <string notr="true" >itemTextLineEdit</string>
+          </property>
+          <property name="geometry" >
+           <rect>
+            <x>61</x>
+            <y>53</y>
+            <width>75</width>
+            <height>23</height>
+           </rect>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <spacer>
+     <property name="objectName" >
+      <string notr="true" >verticalSpacer_3</string>
+     </property>
+     <property name="geometry" >
+      <rect>
+       <x>212</x>
+       <y>250</y>
+       <width>20</width>
+       <height>40</height>
+      </rect>
+     </property>
+     <property name="orientation" >
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeType" >
+      <enum>QSizePolicy::Minimum</enum>
+     </property>
+     <property name="sizeHint" >
+      <size>
+       <width>20</width>
+       <height>40</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item>
+    <widget class="QFrame" name="horizontalLine" >
+     <property name="objectName" >
+      <string notr="true" >horizontalLine</string>
+     </property>
+     <property name="geometry" >
+      <rect>
+       <x>9</x>
+       <y>296</y>
+       <width>427</width>
+       <height>3</height>
+      </rect>
+     </property>
+     <property name="frameShape" >
+      <enum>QFrame::HLine</enum>
+     </property>
+     <property name="frameShadow" >
+      <enum>QFrame::Sunken</enum>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" >
+     <property name="objectName" >
+      <string notr="true" />
+     </property>
+     <property name="margin" >
+      <number>1</number>
+     </property>
+     <property name="spacing" >
+      <number>6</number>
+     </property>
+     <item>
+      <widget class="QPushButton" name="helpButton" >
+       <property name="objectName" >
+        <string notr="true" >helpButton</string>
+       </property>
+       <property name="geometry" >
+        <rect>
+         <x>1</x>
+         <y>2</y>
+         <width>75</width>
+         <height>27</height>
+        </rect>
+       </property>
+       <property name="text" >
+        <string>&amp;Help</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <spacer>
+       <property name="objectName" >
+        <string notr="true" >horizontalSpacer</string>
+       </property>
+       <property name="geometry" >
+        <rect>
+         <x>82</x>
+         <y>1</y>
+         <width>99</width>
+         <height>29</height>
+        </rect>
+       </property>
+       <property name="orientation" >
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" >
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="QPushButton" name="applyButton" >
+       <property name="objectName" >
+        <string notr="true" >applyButton</string>
+       </property>
+       <property name="geometry" >
+        <rect>
+         <x>187</x>
+         <y>2</y>
+         <width>75</width>
+         <height>27</height>
+        </rect>
+       </property>
+       <property name="text" >
+        <string>&amp;Apply</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="okButton" >
+       <property name="objectName" >
+        <string notr="true" >okButton</string>
+       </property>
+       <property name="geometry" >
+        <rect>
+         <x>268</x>
+         <y>1</y>
+         <width>77</width>
+         <height>29</height>
+        </rect>
+       </property>
+       <property name="text" >
+        <string>&amp;OK</string>
+       </property>
+       <property name="default" >
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="cancelButton" >
+       <property name="objectName" >
+        <string notr="true" >cancelButton</string>
+       </property>
+       <property name="geometry" >
+        <rect>
+         <x>351</x>
+         <y>2</y>
+         <width>75</width>
+         <height>27</height>
+        </rect>
+       </property>
+       <property name="text" >
+        <string>&amp;Cancel</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+  </layout>
+ </widget>
+ <pixmapfunction></pixmapfunction>
+ <resources/>
+ <connections/>
+</ui>
