@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#208 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#209 $
 **
 ** Implementation of the QString class and related Unicode functions
 **
@@ -15244,7 +15244,11 @@ void QString::setExpand( uint index, QChar c )
 \endcode
 
   Then this will call <tt>operator const char*()</tt>, which will do what
-  you want, but rather inefficiently.  Better, use <tt>!isNull()</tt>
+  you want, but rather inefficiently - you may wish to define the macro
+  QT_NO_ASCII_CAST when writing code which you wish to strictly remain
+  Unicode-clean.
+
+  When you want the above semantics, use <tt>!isNull()</tt>
   or even <tt>!!</tt>:
 
 \code
@@ -15304,8 +15308,18 @@ QString &QString::operator+=( char c )
 }
 
 /*!
-  Result remains valid so long as one unmodified
-  copy of the string exists, or the function is not called again.
+  Returns an ASCII representation of the string. Note that the returned
+  value is undefined if the string contains non-ASCII characters.  If you
+  want to convert strings into formats other than Unicode, see the
+  QTextCodec classes.
+
+  This function is mainly useful for boot-strapping legacy code to
+  use Unicode.
+
+  The result remains valid so long as one unmodified
+  copy of the string exists.
+
+  \sa utf8()
 */
 const char* QString::ascii() const
 {
@@ -15318,7 +15332,6 @@ const char* QString::ascii() const
     Q2HELPER(stat_get_ascii++);
     Q2HELPER(stat_get_ascii_size+=d->len);
     d->ascii = unicodeToAscii( d->unicode, d->len );
-    // Q2HELPER(ASSERT( strlen(d->ascii) == d->len ));
     d->dirtyascii = 0;
     return d->ascii;
 }
@@ -15327,6 +15340,8 @@ const char* QString::ascii() const
   Returns the string encoded in UTF8 format.
 
   See QTextCodec for more diverse coding/decoding of Unicode strings.
+
+  \sa QString::fromUtf8()
 */
 QCString QString::utf8() const
 {
@@ -15362,7 +15377,12 @@ QString QString::fromUtf8(const char* utf8, int len)
 /*!
   \fn QString::operator const char *() const
 
-  Returns ascii().
+  Returns ascii().  Be sure to see the warnings documented there.
+  Note that for new code which you wish to be strictly Unicode-clean,
+  you can define the macro QT_NO_ASCII_CAST when compiling your code
+  to hide this function so that automatic casts are not done.  This
+  has the added advantage that you catch the programming error
+  described under operator!().
 */
 
 /*!

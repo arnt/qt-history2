@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.h#109 $
+** $Id: //depot/qt/main/src/tools/qstring.h#110 $
 **
 ** Definition of the QString class, extended char array operations,
 ** and QByteArray and QCString classes
@@ -338,11 +338,10 @@ public:
     QCString utf8() const;
     static QString fromUtf8(const char*, int len=-1);
     bool operator!() const;
+#ifndef QT_NO_ASCII_CAST
     operator const char *() const { return ascii(); }
+#endif
 
-    static QChar* asciiToUnicode( const char*, uint * len, uint maxlen=(uint)-1 );
-    static QChar* asciiToUnicode( const QByteArray&, uint * len );
-    static char* unicodeToAscii( const QChar*, uint len );
     int compare( const QString& s ) const;
     static int compare( const QString& s1, const QString& s2 )
 	{ return s1.compare(s2); }
@@ -365,6 +364,10 @@ private:
     void setLength( uint pos );
     void subat( uint );
     bool findArg(int& pos, int& len) const;
+
+    static QChar* asciiToUnicode( const char*, uint * len, uint maxlen=(uint)-1 );
+    static QChar* asciiToUnicode( const QByteArray&, uint * len );
+    static char* unicodeToAscii( const QChar*, uint len );
 
     struct Data : public QShared {
 	Data() :
