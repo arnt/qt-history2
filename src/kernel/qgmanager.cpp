@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qgmanager.cpp#31 $
+** $Id: //depot/qt/main/src/kernel/qgmanager.cpp#32 $
 **
 ** Implementation of QGGeometry class
 **
@@ -15,7 +15,7 @@
 #include "qapp.h"
 
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qgmanager.cpp#31 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qgmanager.cpp#32 $");
 
 
 /*!
@@ -170,26 +170,8 @@ public:
 	: QChain( d ), widget ( w )/*, collapse(FALSE)*/ {}
     bool addC( QChain * ) { return FALSE; }
 
-    int minSize()
-    {
-	if ( isEmpty() )
-	    return 0;
-	QSize s = widget->minimumSize();
-	if ( horz( direction() ) )
-	    return s.width();
-	else
-	    return s.height();
-    }
-    int maxSize()
-    {
-	if ( isEmpty() )
-	    return 0;
-	QSize s = widget->maximumSize();
-	if ( horz( direction() ) )
-	    return s.width();
-	else
-	    return s.height();
-    }
+    int minSize();
+    int maxSize();
 
     bool removeWidget( QWidget *w ) {
 	if ( w == widget ) {
@@ -214,6 +196,28 @@ private:
     QWidget * widget;
     //    bool collapse;
 };
+
+int QWidChain::minSize()
+{
+    if ( isEmpty() )
+	return 0;
+    QSize s = widget->minimumSize();
+    if ( horz( direction() ) )
+	return s.width();
+    else
+	return s.height();
+}
+int QWidChain::maxSize()
+{
+    if ( isEmpty() )
+	return 0;
+    QSize s = widget->maximumSize();
+    if ( horz( direction() ) )
+	return s.width();
+    else
+	return s.height();
+}
+
 
 class QParChain : public QChain
 {
