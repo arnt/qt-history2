@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#225 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#226 $
 **
 ** Implementation of QFileDialog class
 **
@@ -1761,13 +1761,13 @@ QString QFileDialog::dirPath() const
 /*!  Sets the filter spec in use to \a newFilter.
 
   If \a newFilter matches the regular expression
-  <tt>([a-zA-Z0-9\.\*\?]*)$</tt> (ie. it ends with a normal wildcard
+  <tt>([a-zA-Z0-9\.\*\?\ \+]*)$</tt> (ie. it ends with a normal wildcard
   expression enclosed in parentheses), only the parenthesized is used.
   This means that these two calls are equivalent:
 
   \code
-     fd->setFilter( "All perl files (*.pl)" );
-     fd->setFilter( "*.pl" )
+     fd->setFilter( "All C++ files (*.cpp *.cc *.C *.cxx *.c++)" );
+     fd->setFilter( "*.cpp *.cc *.C *.cxx *.c++" )
   \endcode
 */
 
