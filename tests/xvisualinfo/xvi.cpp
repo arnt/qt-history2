@@ -1,7 +1,7 @@
 #include <qpixmap.h>
 #include <qapplication.h>
 #include <stdio.h>
-#include <qt_x11.h>
+#include "../src/kernel/qt_x11.h"
 
 
 static int highest_bit( uint v )
