@@ -1925,8 +1925,8 @@ Qt::HANDLE QX11PaintEngine::handle() const
     return d->hd;
 }
 
-extern void qt_draw_tile(QPaintEngine *, int, int, int, int, const QPixmap &, int, int,
-			 Qt::PixmapDrawingMode mode);
+extern void qt_draw_tile(QPaintEngine *, float, float, float, float, const QPixmap &,
+                         float, float, Qt::PixmapDrawingMode mode);
 
 void QX11PaintEngine::drawTiledPixmap(const QRectF &r, const QPixmap &pixmap, const QPointF &p,
 				      Qt::PixmapDrawingMode mode)
