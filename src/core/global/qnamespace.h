@@ -1162,7 +1162,7 @@ public:
         ToolButtonIconOnly,
         ToolButtonTextOnly,
         ToolButtonTextBesideIcon,
-        ToolbuttonTextUnderIcon
+        ToolButtonTextUnderIcon
     };
 
 #if defined(Q_WS_MAC)
