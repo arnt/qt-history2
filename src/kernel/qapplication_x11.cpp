@@ -1789,10 +1789,12 @@ void qt_init_internal( int *argcptr, char **argv,
 		QPaintDevice::x_appvisual_arr[ screen ] = vis;
 	    }
 
-	    // work around a bug in vnc where DisplayCells returns 8
-	    // when Xvnc or the HP X server is run with depth 8
-	    if ( ( serverVendor.contains( "AT&T Laboratories Cambridge" ) ||
-		   serverVendor.contains( "Hewlett-Packard" ) ) &&
+	    // we assume that 8bpp == pseudocolor, but this is not
+	    // always the case (according to the X server), so we need
+	    // to make sure that our internal data is setup in a way
+	    // that is compatible with our assumptions
+	    if ( vis->c_class == TrueColor &&
+		 QPaintDevice::x_appdepth_arr[ screen ] == 8 &&
 		 QPaintDevice::x_appcells_arr[ screen ] == 8 )
 		QPaintDevice::x_appcells_arr[ screen ] = 256;
 
