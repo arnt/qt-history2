@@ -1057,17 +1057,23 @@ void SetupWizardImpl::showPageLicense()
 #elif defined(Q_OS_UNIX)
     QStringList paths = QStringList::split( QRegExp("[:]"), QEnvironment::getEnv( "PATH" ) );
 #endif
+#if defined(Q_OS_WIN32)
+    if( !findFileInPaths( "nmake.exe", paths ) && !findFileInPaths( "make.exe", paths ) ) {
+#else
     if( !findFileInPaths( makeCmds[ globalInformation.sysId() ], paths ) ) {
-	setNextEnabled( licensePage, false );
+#endif
 	QMessageBox::critical( this, "Environment problems",
 				     "The installation program can't find the make command '"
+#if defined(Q_OS_WIN32)
+				     "nmake.exe' or 'make.exe"
+#else
 				     + makeCmds[ globalInformation.sysId() ] +
+#endif
 				     "'.\nMake sure the path to it "
 				     "is present in the PATH environment variable.\n"
 				     "The installation can't continue." );
-    } else {
-	licenseChanged();
     }
+    licenseChanged();
 }
 
 void SetupWizardImpl::showPageFolders()
@@ -1417,9 +1423,7 @@ void SetupWizardImpl::setStaticEnabled( bool se )
 	motifplusPlugin->setEnabled( true );
 	motifPlugin->setEnabled( true );
 	platinumPlugin->setEnabled( true );
-	xpPlugin->setEnabled( findFileInPaths( "uxtheme.lib", QStringList::split( QRegExp( "[;,]" ), QEnvironment::getEnv( "LIB" ) ) ) &&
-			      findFileInPaths( "uxtheme.h", QStringList::split( QRegExp( "[;,]" ), QEnvironment::getEnv( "INCLUDE" ) ) ) &&
-			      findFileInPaths( "tmschema.h", QStringList::split( QRegExp( "[;,]" ), QEnvironment::getEnv( "INCLUDE" ) ) ) );
+	xpPlugin->setEnabled( findXPSupport() );
 	if ( enterprise ) {
 	    mysqlPlugin->setEnabled( true );
 	    ociPlugin->setEnabled( true );
@@ -1891,4 +1895,11 @@ void SetupWizardImpl::readLicenseAgreement()
 	licenseAgreementPage->acceptLicense->setEnabled( FALSE );
     }
     delete rcLoader;
+}
+
+bool SetupWizardImpl::findXPSupport()
+{
+    return findFileInPaths( "uxtheme.lib", QStringList::split( QRegExp( "[;,]" ), QEnvironment::getEnv( "LIB" ) ) ) &&
+	findFileInPaths( "uxtheme.h", QStringList::split( QRegExp( "[;,]" ), QEnvironment::getEnv( "INCLUDE" ) ) ) &&
+	findFileInPaths( "tmschema.h", QStringList::split( QRegExp( "[;,]" ), QEnvironment::getEnv( "INCLUDE" ) ) );
 }

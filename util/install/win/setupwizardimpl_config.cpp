@@ -716,16 +716,15 @@ void SetupWizardImpl::showPageConfig()
     motifDirect = new QCheckListItem( folder, "Direct", QCheckListItem::RadioButton );
     motifDirect->setOn( entry == "Direct" );
 
+    bool canXPStyle = findXPSupport();
     folder = new QCheckListItem( stfolder, "Windows XP" );
     folder->setOpen( true );
-    entry = settings.readEntry( "/Trolltech/Qt/Styles/Windows XP", "Off", &settingsOK );
+    entry = settings.readEntry( "/Trolltech/Qt/Styles/Windows XP", canXPStyle ? "Plugin" : "Off", &settingsOK );
     xpOff = new QCheckListItem( folder, "Off", QCheckListItem::RadioButton );
     xpOff->setOn( entry == "Off" );
     xpPlugin = new QCheckListItem( folder, "Plugin", QCheckListItem::RadioButton );
-    xpPlugin->setOn( entry == "Plugin" );
-    xpPlugin->setEnabled( findFileInPaths( "uxtheme.lib", QStringList::split( QRegExp( "[;,]" ), QEnvironment::getEnv( "LIB" ) ) ) &&
-			  findFileInPaths( "uxtheme.h", QStringList::split( QRegExp( "[;,]" ), QEnvironment::getEnv( "INCLUDE" ) ) ) &&
-			  findFileInPaths( "tmschema.h", QStringList::split( QRegExp( "[;,]" ), QEnvironment::getEnv( "INCLUDE" ) ) ) );
+    xpPlugin->setOn( entry == "Plugin" && canXPStyle );
+    xpPlugin->setEnabled( canXPStyle );
     xpDirect = new QCheckListItem( folder, "Direct", QCheckListItem::RadioButton );
     xpDirect->setOn( entry == "Direct" );
     xpDirect->setEnabled( false );
@@ -849,9 +848,7 @@ void SetupWizardImpl::optionSelected( QListViewItem *i )
     if ( i == xpDirect )
 	QMessageBox::warning( this, "Unsupported configuration", "The Windows XP style requires XP components and\n"
 								 "can only be used as a plugin with a shared Qt DLL." );
-    if ( i == xpPlugin && !(findFileInPaths( "uxtheme.lib", QStringList::split( QRegExp( "[;,]" ), QEnvironment::getEnv( "LIB" ) ) ) &&
-			    findFileInPaths( "uxtheme.h", QStringList::split( QRegExp( "[;,]" ), QEnvironment::getEnv( "INCLUDE" ) ) ) &&
-			    findFileInPaths( "tmschema.h", QStringList::split( QRegExp( "[;,]" ), QEnvironment::getEnv( "INCLUDE" ) ) ) ) )
+    if ( i == xpPlugin && !findXPSupport() )
 	QMessageBox::warning( this, "Platform SDK needed", "The Windows XP style requires a Platform SDK with support for\n"
 							   "Windows XP to be installed properly. The required libraries and\n"
 							   "headers were not found in the LIB and INCLUDE environment variable paths." );

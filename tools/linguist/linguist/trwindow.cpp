@@ -1473,7 +1473,7 @@ void TrWindow::findAgain()
 			f->hide();
 			if ( !delayedMsg.isEmpty() )
 			    statusBar()->message( delayedMsg, MessageMS );
-			return;
+ 			return;
 		    }
 		    foundWhere  = FindDialog::Translations;
 		    foundOffset = 0;

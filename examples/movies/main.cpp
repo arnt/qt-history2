@@ -64,19 +64,21 @@ protected:
         // Get the area we have to draw in.
         QRect r = contentsRect();
 
-        // Only rescale is we need to - it can take CPU!
-        if ( r.size() != pm.size() ) {
-            QWMatrix m;
-            m.scale((double)r.width()/pm.width(),
-                    (double)r.height()/pm.height());
-            pm = pm.xForm(m);
-        }
+	if ( !pm.isNull() ) {
+	    // Only rescale is we need to - it can take CPU!
+	    if ( r.size() != pm.size() ) {
+		QWMatrix m;
+		m.scale((double)r.width()/pm.width(),
+			(double)r.height()/pm.height());
+		pm = pm.xForm(m);
+	    }
 
-        // Draw the [possibly scaled] frame.  movieUpdated() below calls
-        // repaint with only the changed area, so clipping will ensure we
-        // only do the minimum amount of rendering.
-        //
-        p->drawPixmap(r.x(), r.y(), pm);
+	    // Draw the [possibly scaled] frame.  movieUpdated() below calls
+	    // repaint with only the changed area, so clipping will ensure we
+	    // only do the minimum amount of rendering.
+	    //
+	    p->drawPixmap(r.x(), r.y(), pm);
+	}
 
 
         // The on-screen display

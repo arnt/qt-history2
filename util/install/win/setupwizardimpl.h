@@ -84,6 +84,7 @@ private:
     void setStaticEnabled( bool se );
     void setJpegDirect( bool jd );
     void readLicenseAgreement();
+    bool findXPSupport();
 
     bool copyFiles( const QString& sourcePath, const QString& destPath, bool topLevel );
     int totalRead;
