@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#208 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#209 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -61,7 +61,7 @@ extern "C" int select( int, void *, void *, void *, struct timeval * );
 #undef bzero
 extern "C" void bzero(void *, size_t len);
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#208 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#209 $");
 
 #if !defined(XlibSpecificationRelease)
 typedef char *XPointer;				// X11R4
@@ -208,38 +208,39 @@ void qt_init( int *argcptr, char **argv )
 	}
 	QString arg = argv[i];
 	if ( arg == "-display" ) {
-	    if ( ++i < argc ) appDpyName = argv[i];
-	}
-	else if ( arg == "-fn" || arg == "-font" ) {
-	    if ( ++i < argc ) appFont = argv[i];
-	}
-	else if ( arg == "-bg" || arg == "-background" ) {
-	    if ( ++i < argc ) appBGCol = argv[i];
-	}
-	else if ( arg == "-fg" || arg == "-foreground" ) {
-	    if ( ++i < argc ) appFGCol = argv[i];
-	}
-	else if ( arg == "-name" ) {
-	    if ( ++i < argc ) appName = argv[i];
-	}
-	else if ( arg == "-title" ) {
-	    if ( ++i < argc ) mwTitle = argv[i];
-	}
-	else if ( arg == "-geometry" ) {
-	    if ( ++i < argc ) mwGeometry = argv[i];
-	}
-	else if ( arg == "-iconic" )
+	    if ( ++i < argc )
+		appDpyName = argv[i];
+	} else if ( arg == "-fn" || arg == "-font" ) {
+	    if ( ++i < argc )
+		appFont = argv[i];
+	} else if ( arg == "-bg" || arg == "-background" ) {
+	    if ( ++i < argc )
+		appBGCol = argv[i];
+	} else if ( arg == "-fg" || arg == "-foreground" ) {
+	    if ( ++i < argc )
+		appFGCol = argv[i];
+	} else if ( arg == "-name" ) {
+	    if ( ++i < argc )
+		appName = argv[i];
+	} else if ( arg == "-title" ) {
+	    if ( ++i < argc )
+		mwTitle = argv[i];
+	} else if ( arg == "-geometry" ) {
+	    if ( ++i < argc )
+		mwGeometry = argv[i];
+	} else if ( arg == "-iconic" ) {
 	    mwIconic = !mwIconic;
-	else if ( strncmp(arg,"-style=",7) == 0 ) {
-	    QString s = &arg[7];
+	} else if ( stricmp(arg, "-style=windows") == 0 ) {
+	    QApplication::setStyle( WindowsStyle );
+	} else if ( stricmp(arg, "-style=motif") == 0 ) {
+	    QApplication::setStyle( MotifStyle );
+	} else if ( strcmp(arg,"-style") == 0 && i < argc-1 ) {
+	    QString s = argv[++i];
 	    s = s.lower();
-	    int style = -1;
 	    if ( s == "windows" )
-		style = WindowsStyle;
+		QApplication::setStyle( WindowsStyle );
 	    else if ( s == "motif" )
-		style = MotifStyle;
-	    if ( style != -1 )
-		QApplication::setStyle( (GUIStyle)style );
+		QApplication::setStyle( MotifStyle );
 	}
 #if defined(DEBUG)
 	else if ( arg == "-sync" )
