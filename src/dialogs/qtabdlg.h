@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qtabdlg.h#18 $
+** $Id: //depot/qt/main/src/dialogs/qtabdlg.h#19 $
 **
 ** Definition of QTabDialog class
 **
@@ -32,6 +32,9 @@ public:
     void addTab( QWidget *, const char * );
     bool isTabEnabled( const char * ) const;
     void setTabEnabled( const char *, bool );
+
+    void showPage( QWidget * );
+    const char * tabLabel( QWidget * );
 
     void setDefaultButton( const char *text = "Defaults" );
     bool hasDefaultButton() const;
