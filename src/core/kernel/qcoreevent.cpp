@@ -345,64 +345,20 @@ QChildEvent::~QChildEvent()
     \class QCustomEvent
     \brief The QCustomEvent class provides support for custom events.
 
-    \ingroup events
+    \compat
 
-    QCustomEvent is a generic event class for user-defined events.
-    User-defined events can be sent to widgets or other QObject
-    instances using QApplication::postEvent() or
-    QApplication::sendEvent(). Subclasses of QWidget can easily
-    receive custom events by implementing the QWidget::customEvent()
-    event handler function.
+    QCustomEvent has a \c{void *} that can be used to store custom
+    data.
 
-    QCustomEvent objects should be created with a type ID that
-    uniquely identifies the event type. To avoid clashes with the
-    event types defined in Qt, the value should be at least as
-    large as the value of the "User" entry in the QEvent::Type enum.
+    In Qt 3, QObject::customEvent() took a QCustomEvent pointer. We
+    found out that this approach was unsatisfactory, because
+    there was often no safe way of deleting the data held in the
+    \c{void *}.
 
-    QCustomEvent contains a generic \c{void *} data member that may
-    be used for transferring event-specific data to the receiver.
-    Note that since events are normally delivered asynchronously, the
-    data pointer, if used, must remain valid until the event has been
-    received and processed.
+    In Qt 4, QObject::customEvent() takes a plain QEvent pointer.
+    You can add custom data by subclassing.
 
-    QCustomEvent can be used "as is" for simple user-defined event
-    types, but normally you will want to make a subclass of it for
-    your event types. In a subclass, you can add data members that
-    are suitable for your event type, as in the following example:
-
-    \code
-    class ColorChangeEvent : public QCustomEvent
-    {
-    public:
-        ColorChangeEvent(QColor color)
-            : QCustomEvent(65432), c(color) {}
-        QColor color() const { return c; }
-    private:
-        QColor c;
-    };
-    \endcode
-
-    To send an event of this custom event type:
-
-    \code
-    ColorChangeEvent *event = new ColorChangeEvent(Qt::blue);
-    QApplication::postEvent(receiver, event);
-    // Qt will delete the event object
-    \endcode
-
-    To receive an event of this custom event type:
-
-    \code
-    void MyWidget::customEvent(QCustomEvent *event)
-    {
-        if (e->type() == 65432) {  // it must be a ColorChangeEvent
-            ColorChangeEvent *colorEvent = (ColorChangeEvent *)event;
-            newColor = colorEvent->color();
-        }
-    }
-    \endcode
-
-    \sa QWidget::customEvent(), QApplication::notify()
+    \sa QObject::customEvent(), QApplication::notify()
 */
 
 
