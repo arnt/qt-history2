@@ -64,10 +64,16 @@ SourceEditor::~SourceEditor()
     lIface->release();
     MainWindow::self->editorClosed( this );
     editor = 0;
+    if ( formWindow && formWindow->inherits( "FormWindow" ) )
+	MetaDataBase::setEdited( formWindow, FALSE );
 }
 
 void SourceEditor::setObject( QObject *fw, Project *p )
 {
+    if ( formWindow && formWindow->inherits( "FormWindow" ) )
+	MetaDataBase::setEdited( formWindow, FALSE );
+    if ( fw && fw->inherits( "FormWindow" ) )
+	MetaDataBase::setEdited( fw, TRUE );
     save();
     bool changed = FALSE;
     if ( &(*formWindow) != fw ) {
@@ -151,6 +157,8 @@ void SourceEditor::closeEvent( QCloseEvent *e )
     MainWindow::self->updateFunctionList();
     emit hidden();
     e->accept();
+    if ( formWindow && formWindow->inherits( "FormWindow" ) )
+	MetaDataBase::setEdited( formWindow, FALSE );
 }
 
 void SourceEditor::save()
@@ -269,6 +277,8 @@ void SourceEditor::resetContext()
 
 void SourceEditor::setFocus()
 {
+    if ( formWindow && formWindow->inherits( "FormWindow" ) )
+	MetaDataBase::setEdited( formWindow, TRUE );
     if ( editor )
 	editor->setFocus();
 }

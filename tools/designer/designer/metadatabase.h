@@ -239,6 +239,8 @@ public:
     static QString formSourceFile( QObject *o );
     static QString formCode( QObject *o );
 
+    static void setEdited( QObject *o, bool b );
+
 };
 
 #endif

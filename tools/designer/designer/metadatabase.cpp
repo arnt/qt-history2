@@ -37,6 +37,10 @@
 #include <qmainwindow.h>
 #include <qregexp.h>
 #include <qpluginmanager.h>
+#include <qdatetime.h>
+#include <qfile.h>
+#include <qfileinfo.h>
+#include <qtextstream.h>
 
 #include <stdlib.h>
 
@@ -57,6 +61,8 @@ static QString make_pretty( const QString &s )
 class MetaDataBaseRecord
 {
 public:
+    MetaDataBaseRecord() : isEdited( FALSE ) {}
+
     QObject *object;
     QStringList changedProperties;
     QMap<QString,QVariant> fakeProperties;
@@ -79,6 +85,8 @@ public:
     QString exportMacro;
     QString sourceFile;
     QString code;
+    bool isEdited;
+    QDateTime timeStamp;
 };
 
 static QPtrDict<MetaDataBaseRecord> *db = 0;
@@ -110,6 +118,15 @@ inline void setupDataBase()
 	cWidgets = new QPtrList<MetaDataBase::CustomWidget>;
 	cWidgets->setAutoDelete( TRUE );
     }
+}
+
+static void rereadCode( MetaDataBaseRecord *r )
+{
+    QFile f( r->sourceFile );
+    if ( !f.open( IO_ReadOnly ) )
+	return;
+    QTextStream ts( &f );
+    r->code = ts.read();
 }
 
 void MetaDataBase::clearDataBase()
@@ -515,6 +532,11 @@ void MetaDataBase::addSlot( QObject *o, const QCString &slot, const QString &acc
 	if ( iface ) {
 	    QMap<QString, QString>::Iterator it = r->functionBodies.find( normalizeSlot( slot ) );
 	    if ( it == r->functionBodies.end() ) {
+		if ( !r->isEdited ) {
+		    if ( r->timeStamp != QFileInfo( r->sourceFile ).lastModified() )
+			rereadCode( r );
+		    r->timeStamp = QFileInfo( r->sourceFile ).lastModified();
+		}
 		QString body = "\n\n" + iface->createFunctionStart( o->name(), make_pretty( slot ),
 								    returnType.isEmpty() ?
 								    QString( "void" ) :
@@ -1570,6 +1592,7 @@ void MetaDataBase::setFormSourceFile( QObject *o, const QString &fileName )
     }
 
     r->sourceFile = fileName;
+    r->timeStamp = QFileInfo( fileName ).lastModified();
 }
 
 void MetaDataBase::setFormCode( QObject *o, const QString &code )
@@ -1617,3 +1640,22 @@ QString MetaDataBase::formCode( QObject *o )
     return r->code;
 }
 
+void MetaDataBase::setEdited( QObject *o, bool b )
+{
+    if ( !o )
+	return;
+    setupDataBase();
+    MetaDataBaseRecord *r = db->find( (void*)o );
+    if ( !r ) {
+	qWarning( "No entry for %p (%s, %s) found in MetaDataBase",
+		  o, o->name(), o->className() );
+	return;
+    }
+
+    r->isEdited = b;
+    if ( !b ) {
+	if ( r->timeStamp != QFileInfo( r->sourceFile ).lastModified() )
+	    rereadCode( r );
+	r->timeStamp = QFileInfo( r->sourceFile ).lastModified();
+    }
+}
