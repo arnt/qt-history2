@@ -34,8 +34,6 @@
 ** not clear to you.
 **
 **********************************************************************/
-#define QT_LITE_COMPONENTS
-
 #include "qcomponentinterface.h"
 #ifndef QT_NO_COMPONENT
 #include "qlibrary.h"
@@ -55,36 +53,25 @@
   and does the unload magic using a QTimer.
 */
 #ifndef QT_LITE_COMPONENT
-class QLibrary::QLibraryPrivate : public QObject
+class QLibrary::QLibraryPrivate : private QObject
 {
     Q_OBJECT
 public:
-    QLibraryPrivate( QLibrary *lib )
+    QLibraryPrivate( QLibrary *lib ) 
 	: QObject( 0, lib->library().latin1() ), pHnd( 0 ), unloadTimer( 0 ), library( lib )
     {}
-#else
-class QLibrary::QLibraryPrivate 
-{
-public:
-    QLibraryPrivate( QLibrary *lib )
-	: pHnd( 0 ), library( lib )
-    {}
-#endif
+
     void startTimer()
     {
-#ifndef QT_LITE_COMPONENT
 	unloadTimer = new QTimer( this );
 	connect( unloadTimer, SIGNAL( timeout() ), this, SLOT( tryUnload() ) );
 	unloadTimer->start( 5000, FALSE );
-#endif
     }
 
     void killTimer()
     {
-#ifndef QT_LITE_COMPONENT
 	delete unloadTimer;
 	unloadTimer = 0;
-#endif
     }
 
 #ifdef Q_WS_WIN
@@ -92,7 +79,7 @@ public:
 #else
     void *pHnd;
 #endif
-#ifndef QT_LITE_COMPONENT
+
 public slots:
     /*
       Only components that implement the QLibraryInterface can 
@@ -122,13 +109,37 @@ public slots:
     #endif
     }
 
+private:
     QTimer *unloadTimer;
-#endif
-
     QLibrary *library;
 };
-#ifndef QT_LITE_COMPONENT
+
 #include "qlibrary.moc"
+#else
+class QLibrary::QLibraryPrivate
+{
+public:
+    QLibraryPrivate( QLibrary *lib )
+	: pHnd( 0 ), library( lib )
+    {}
+
+    void startTimer()
+    {
+    }
+
+    void killTimer()
+    {
+    }
+
+#ifdef Q_WS_WIN
+    HINSTANCE pHnd;
+#else
+    void *pHnd;
+#endif
+
+private:
+    QLibrary *library;
+};
 #endif
 
 /*
