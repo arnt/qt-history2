@@ -1326,7 +1326,7 @@ void MainWindow::saveAllTemp()
 
 	QString fn = baseName + QString::number( i++ ) + ".ui";
 	( (FormWindow*)w )->setFileName( fn );
-	( (FormWindow*)w )->formFile()->save( fn );
+	( (FormWindow*)w )->formFile()->save();
     }
     inSaveAllTemp = FALSE;
 }
