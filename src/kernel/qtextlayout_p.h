@@ -19,6 +19,7 @@
 #include "qrect.h"
 #include "qvector.h"
 #include "qcolor.h"
+#include "qobject.h"
 #endif // QT_H
 
 class QTextEngine;
@@ -123,10 +124,10 @@ class QTextFormat;
 
 struct QTextInlineObjectInterface
 {
-    virtual ~QTextInlineObjectInterface();
     virtual void layoutItem(QTextItem item, const QTextFormat &format) = 0;
     virtual void drawItem(QPainter *painter, const QPoint &position, QTextItem item, const QTextFormat &format) = 0;
 };
+Q_DECLARE_INTERFACE(QTextInlineObjectInterface)
 
 class Q_GUI_EXPORT QTextLayout
 {

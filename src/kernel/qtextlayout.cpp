@@ -852,9 +852,3 @@ int QTextLine::xToCursor( int x, CursorPosition cpos ) const
 	    break;
     return si.position + i;
 }
-
-// don't inline in header.
-QTextInlineObjectInterface::~QTextInlineObjectInterface()
-{
-}
-
