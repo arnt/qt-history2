@@ -646,7 +646,7 @@ void QComboBox::insertItem(const QPixmap &pixmap, int index)
     if (d->usingListBox())
         d->listBox()->insertItem(pixmap, index);
     else
-        d->popup()->insertItem(QIconSet(pixmap), index, index);
+        d->popup()->insertItem(pixmap, index, index);
     if (index != cnt)
         d->reIndex();
     if (index == d->current && d->current < count() ) {
