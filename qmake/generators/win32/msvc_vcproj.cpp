@@ -621,6 +621,14 @@ void VcprojGenerator::init()
 
     debug_msg(1, "Generator: MSVC.NET: Initializing variables");
 
+    // this should probably not be here, but I'm using it to wrap the .t files
+    if(project->first("TEMPLATE") == "vcapp")
+        project->variables()["QMAKE_APP_FLAG"].append("1");
+    else if(project->first("TEMPLATE") == "vclib")
+        project->variables()["QMAKE_LIB_FLAG"].append("1");
+    if(project->variables()["QMAKESPEC"].isEmpty())
+        project->variables()["QMAKESPEC"].append(qgetenv("QMAKESPEC"));
+
     processVars();
     initOld();           // Currently calling old DSP code to set variables. CLEAN UP!
 
@@ -1180,14 +1188,6 @@ void VcprojGenerator::initOld()
 
     init_flag = true;
     QStringList::Iterator it;
-
-    // this should probably not be here, but I'm using it to wrap the .t files
-    if(project->first("TEMPLATE") == "vcapp")
-        project->variables()["QMAKE_APP_FLAG"].append("1");
-    else if(project->first("TEMPLATE") == "vclib")
-        project->variables()["QMAKE_LIB_FLAG"].append("1");
-    if(project->variables()["QMAKESPEC"].isEmpty())
-        project->variables()["QMAKESPEC"].append(qgetenv("QMAKESPEC"));
 
     // Decode version, and add it to $$MSVCPROJ_VERSION --------------
     if(!project->variables()["VERSION"].isEmpty()) {
