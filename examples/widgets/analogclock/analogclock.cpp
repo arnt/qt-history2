@@ -16,8 +16,8 @@ AnalogClock::AnalogClock(QWidget *parent)
 
 void AnalogClock::paintEvent(QPaintEvent *)
 {
-    static QCOORD hourHand[8] = { 2, 0, 0, 2, -2, 0, 0, -25 };
-    static QCOORD minuteHand[8] = { 1, 0, 0, 1, -1, 0, 0, -40 };
+    static int hourHand[8] = { 2, 0, 0, 2, -2, 0, 0, -25 };
+    static int minuteHand[8] = { 1, 0, 0, 1, -1, 0, 0, -40 };
 
     int side = qMin(width(), height());
     QTime time = QTime::currentTime();
@@ -37,7 +37,7 @@ void AnalogClock::paintEvent(QPaintEvent *)
     painter.drawConvexPolygon(QPointArray(4, minuteHand));
     painter.restore();
 
-    for (int i = 0; i < 12; i++) {
+    for (int i = 0; i < 12; ++i) {
         painter.drawLine(44, 0, 46, 0);
         painter.rotate(30);
     }
