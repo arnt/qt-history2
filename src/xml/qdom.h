@@ -112,8 +112,12 @@ public:
     bool operator== ( const QDomImplementation& ) const;
     bool operator!= ( const QDomImplementation& ) const;
 
+    // functions
     virtual bool hasFeature( const QString& feature, const QString& version );
+    virtual QDomDocumentType createDocumentType( const QString& qualifiedName, const QString& publicId, const QString& systemId );
+    virtual QDomDocument createDocument( const QString& namespaceURI, const QString& qualifiedName, const QDomDocumentType& doctype );
 
+    // Qt extension
     bool isNull();
 
 private:
@@ -124,11 +128,10 @@ private:
     friend class QDomDocument;
 };
 
-class QM_EXPORT QDomNode // Ok
+class QM_EXPORT QDomNode
 {
 public:
     enum NodeType {
-	BaseNode                  = 0,
 	ElementNode               = 1,
 	AttributeNode             = 2,
 	TextNode                  = 3,
@@ -141,7 +144,8 @@ public:
 	DocumentTypeNode          = 10,
 	DocumentFragmentNode      = 11,
 	NotationNode              = 12,
-	CharacterDataNode         = 13
+	BaseNode                  = 21,// this is not in the standard
+	CharacterDataNode         = 22 // this is not in the standard
     };
 
     QDomNode();
@@ -151,11 +155,20 @@ public:
     bool operator!= ( const QDomNode& ) const;
     virtual ~QDomNode();
 
-    virtual QString nodeName() const;
-    virtual QString nodeValue() const;
-    virtual void setNodeValue( const QString& );
-    virtual QDomNode::NodeType nodeType() const;
+    // DOM functions
+    virtual QDomNode insertBefore( const QDomNode& newChild, const QDomNode& refChild );
+    virtual QDomNode insertAfter( const QDomNode& newChild, const QDomNode& refChild );
+    virtual QDomNode replaceChild( const QDomNode& newChild, const QDomNode& oldChild );
+    virtual QDomNode removeChild( const QDomNode& oldChild );
+    virtual QDomNode appendChild( const QDomNode& newChild );
+    virtual bool hasChildNodes() const;
+    virtual QDomNode cloneNode( bool deep = TRUE ) const;
+    virtual void normalize();
+    virtual bool isSupported( const QString& feature, const QString& version ) const;
 
+    // DOM read only attributes
+    virtual QString nodeName() const;
+    virtual QDomNode::NodeType nodeType() const;
     virtual QDomNode         parentNode() const;
     virtual QDomNodeList     childNodes() const;
     virtual QDomNode         firstChild() const;
@@ -164,15 +177,17 @@ public:
     virtual QDomNode         nextSibling() const;
     virtual QDomNamedNodeMap attributes() const;
     virtual QDomDocument     ownerDocument() const;
+    virtual QString namespaceURI() const;
+    virtual QString localName() const;
+    virtual bool hasAttributes() const;
 
-    virtual QDomNode insertBefore( const QDomNode& newChild, const QDomNode& refChild );
-    virtual QDomNode insertAfter( const QDomNode& newChild, const QDomNode& refChild );
-    virtual QDomNode replaceChild( const QDomNode& newChild, const QDomNode& oldChild );
-    virtual QDomNode removeChild( const QDomNode& oldChild );
-    virtual QDomNode appendChild( const QDomNode& newChild );
-    virtual QDomNode cloneNode( bool deep = TRUE ) const;
+    // DOM attributes
+    virtual QString nodeValue() const;
+    virtual void setNodeValue( const QString& );
+    virtual QString prefix() const;
+    virtual void setPrefix( const QString& pre );
 
-    // Qt extension
+    // Qt extensions
     virtual bool isAttr() const;
     virtual bool isCDATASection() const;
     virtual bool isDocumentFragment() const;
@@ -223,7 +238,7 @@ private:
     friend class QDomNamedNodeMap;
 };
 
-class QM_EXPORT QDomNodeList // Ok
+class QM_EXPORT QDomNodeList
 {
 public:
     QDomNodeList();
@@ -233,7 +248,10 @@ public:
     bool operator!= ( const QDomNodeList& ) const;
     virtual ~QDomNodeList();
 
+    // DOM functions
     virtual QDomNode item( int index ) const;
+
+    // DOM read only attributes
     virtual uint length() const;
     uint count() const { return length(); } // Qt API consitancy
 
@@ -250,9 +268,13 @@ public:
     QDomDocumentType& operator= ( const QDomDocumentType& );
     ~QDomDocumentType();
 
+    // DOM read only attributes
     virtual QString name() const;
     virtual QDomNamedNodeMap entities() const;
     virtual QDomNamedNodeMap notations() const;
+    virtual QString publicId() const;
+    virtual QString systemId() const;
+    virtual QString internalSubset() const;
 
     // Reimplemented from QDomNode
     QDomNode::NodeType nodeType() const;
@@ -274,27 +296,32 @@ public:
     QDomDocument& operator= ( const QDomDocument& );
     ~QDomDocument();
 
+    // DOM functions
+    QDomElement createElement( const QString& tagName );
+    QDomDocumentFragment createDocumentFragment();
+    QDomText createTextNode( const QString& data );
+    QDomComment createComment( const QString& data );
+    QDomCDATASection createCDATASection( const QString& data );
+    QDomProcessingInstruction createProcessingInstruction( const QString& target, const QString& data );
+    QDomAttr createAttribute( const QString& name );
+    QDomEntityReference createEntityReference( const QString& name );
+    QDomNodeList elementsByTagName( const QString& tagname ) const;
+    QDomNode importNode( const QDomNode& importedNode, bool deep );
+    QDomElement createElementNS( const QString& namespaceURI, const QString& qualifiedName );
+    QDomAttr createAttributeNS( const QString& namespaceURI, const QString& qualifiedName );
+    QDomNodeList elementsByTagNameNS( const QString& namespaceURI, const QString& localName );
+    QDomElement elementById( const QString& elemntId );
+
+    // DOM read only attributes
+    QDomDocumentType doctype() const;
+    QDomImplementation implementation() const;
+    QDomElement documentElement() const;
+
     // Qt extensions
     bool setContent( const QCString& text );
     bool setContent( const QByteArray& text );
     bool setContent( const QString& text );
     bool setContent( QIODevice* dev );
-
-    // QDomAttributes
-    QDomDocumentType doctype() const;
-    QDomImplementation implementation() const;
-    QDomElement documentElement() const;
-
-    // Factories
-    QDomElement               createElement( const QString& tagName );
-    QDomDocumentFragment      createDocumentFragment();
-    QDomText                  createTextNode( const QString& data );
-    QDomComment               createComment( const QString& data );
-    QDomCDATASection          createCDATASection( const QString& data );
-    QDomProcessingInstruction createProcessingInstruction( const QString& target, const QString& data );
-    QDomAttr                  createAttribute( const QString& name );
-    QDomEntityReference       createEntityReference( const QString& name );
-    QDomNodeList              elementsByTagName( const QString& tagname ) const;
 
     // Reimplemented from QDomNode
     QDomNode::NodeType nodeType() const;
@@ -320,11 +347,19 @@ public:
     bool operator!= ( const QDomNamedNodeMap& ) const;
     ~QDomNamedNodeMap();
 
+    // DOM functions
     QDomNode namedItem( const QString& name ) const;
     QDomNode setNamedItem( const QDomNode& arg );
     QDomNode removeNamedItem( const QString& name );
     QDomNode item( int index ) const;
+    QDomNode namedItemNS( const QString& namespaceURI, const QString& localName ) const;
+    QDomNode setNamedItemNS( const QDomNode& arg );
+    QDomNode removeNamedItemNS( const QString& namespaceURI, const QString& localName );
+
+    // DOM read only attributes
     uint length() const;
+
+    // Qt extension
     bool contains( const QString& name ) const;
 
 private:
@@ -364,15 +399,19 @@ public:
     QDomCharacterData& operator= ( const QDomCharacterData& );
     ~QDomCharacterData();
 
-    virtual QString data() const;
-    virtual void setData( const QString& );
+    // DOM functions
+    virtual QString substringData( unsigned long offset, unsigned long count );
+    virtual void appendData( const QString& arg );
+    virtual void insertData( unsigned long offset, const QString& arg );
+    virtual void deleteData( unsigned long offset, unsigned long count );
+    virtual void replaceData( unsigned long offset, unsigned long count, const QString& arg );
+
+    // DOM read only attributes
     virtual uint length() const;
 
-    virtual QString substringData( unsigned long offset, unsigned long count );
-    virtual void    appendData( const QString& arg );
-    virtual void    insertData( unsigned long offset, const QString& arg );
-    virtual void    deleteData( unsigned long offset, unsigned long count );
-    virtual void    replaceData( unsigned long offset, unsigned long count, const QString& arg );
+    // DOM attributes
+    virtual QString data() const;
+    virtual void setData( const QString& );
 
     // Reimplemented from QDomNode
     QDomNode::NodeType nodeType() const;
@@ -395,9 +434,13 @@ public:
     QDomAttr& operator= ( const QDomAttr& );
     ~QDomAttr();
 
-    virtual QString  name() const;
-    virtual bool     specified() const;
-    virtual QString  value() const;
+    // DOM read only attributes
+    virtual QString name() const;
+    virtual bool specified() const;
+    virtual QDomElement ownerElement() const;
+
+    // DOM attributes
+    virtual QString value() const;
     virtual void setValue( const QString& );
 
     // Reimplemented from QDomNode
@@ -420,20 +463,36 @@ public:
     QDomElement& operator= ( const QDomElement& );
     ~QDomElement();
 
-    void setTagName( const QString& name );
-    QString  tagName() const;
-    QString  attribute( const QString& name, const QString& defValue = QString::null ) const;
-    void     setAttribute( const QString& name, const QString& value );
-    void     setAttribute( const QString& name, int value );
-    void     setAttribute( const QString& name, uint value );
-    void     setAttribute( const QString& name, double value );
-    void     removeAttribute( const QString& name );
-    QDomAttr     attributeNode( const QString& name);
-    QDomAttr     setAttributeNode( const QDomAttr& newAttr );
-    QDomAttr     removeAttributeNode( const QDomAttr& oldAttr );
-    bool     hasAttribute( const QString& name ) const;
+    // DOM functions
+    QString attribute( const QString& name, const QString& defValue = QString::null ) const;
+    void setAttribute( const QString& name, const QString& value );
+    void setAttribute( const QString& name, int value );
+    void setAttribute( const QString& name, uint value );
+    void setAttribute( const QString& name, double value );
+    void removeAttribute( const QString& name );
+    QDomAttr attributeNode( const QString& name);
+    QDomAttr setAttributeNode( const QDomAttr& newAttr );
+    QDomAttr removeAttributeNode( const QDomAttr& oldAttr );
     virtual QDomNodeList elementsByTagName( const QString& tagname ) const;
-    void     normalize();
+    bool hasAttribute( const QString& name ) const;
+
+    QString getAttributesNS( const QString namespaceURI, const QString& localName ) const;
+    void setAttributesNS( const QString namespaceURI, const QString& qualifiedName, const QString& value );
+    void setAttributesNS( const QString namespaceURI, const QString& qualifiedName, int value );
+    void setAttributesNS( const QString namespaceURI, const QString& qualifiedName, uint value );
+    void setAttributesNS( const QString namespaceURI, const QString& qualifiedName, double value );
+    void removeAttributeNS( const QString& namespaceURI, const QString& localName );
+    QDomAttr attributeNodeNS( const QString& namespaceURI, const QString& localName );
+    QDomAttr setAttributeNodeNS( const QDomAttr& newAttr );
+    virtual QDomNodeList elementsByTagNameNS( const QString& namespaceURI, const QString& localName ) const;
+    bool hasAttributeNS( const QString& namespaceURI, const QString& localName ) const;
+
+    // DOM read only attributes
+    QString tagName() const;
+    void setTagName( const QString& name ); // Qt extension
+
+    // Qt extension
+    void normalize();
 
     // Reimplemented from QDomNode
     QDomNamedNodeMap attributes() const;
@@ -457,6 +516,7 @@ public:
     QDomText& operator= ( const QDomText& );
     ~QDomText();
 
+    // DOM functions
     QDomText splitText( int offset );
 
     // Reimplemented from QDomNode
@@ -517,6 +577,7 @@ public:
     QDomNotation& operator= ( const QDomNotation& );
     ~QDomNotation();
 
+    // DOM read only attributes
     QString publicId() const;
     QString systemId() const;
 
@@ -539,6 +600,7 @@ public:
     QDomEntity& operator= ( const QDomEntity& );
     ~QDomEntity();
 
+    // DOM read only attributes
     virtual QString publicId() const;
     virtual QString systemId() const;
     virtual QString notationName() const;
@@ -580,7 +642,10 @@ public:
     QDomProcessingInstruction& operator= ( const QDomProcessingInstruction& );
     ~QDomProcessingInstruction();
 
+    // DOM read only attributes
     virtual QString target() const;
+
+    // DOM attributes
     virtual QString data() const;
     virtual void setData( const QString& d );
 

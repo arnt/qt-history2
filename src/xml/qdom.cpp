@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/xml/qdom.cpp#4 $
+** $Id: //depot/qt/main/src/xml/qdom.cpp#17 $
 **
 ** Implementation of QDomDocument and related classes.
 **
@@ -126,10 +126,6 @@ private:
     QDomNodePrivate* node;
     bool cdata;
 };
-
-/*==============================================================*/
-/*                Implementation                                */
-/*==============================================================*/
 
 /**************************************************************
  *
@@ -269,6 +265,24 @@ bool QDomImplementation::hasFeature( const QString& feature, const QString& vers
 	    return TRUE;
 
     return FALSE;
+}
+
+/*!
+  fnord
+*/
+QDomDocumentType QDomImplementation::createDocumentType( const QString& /*qualifiedName*/, const QString& /*publicId*/, const QString& /*systemId*/ )
+{
+    QDomDocumentType fnord;
+    return fnord;
+}
+
+/*!
+  fnord
+*/
+QDomDocument QDomImplementation::createDocument( const QString& /*namespaceURI*/, const QString& /*qualifiedName*/, const QDomDocumentType& /*doctype*/ )
+{
+    QDomDocument fnord;
+    return fnord;
 }
 
 /*!
@@ -1382,6 +1396,57 @@ QDomNode QDomNode::cloneNode( bool deep ) const
     return QDomNode( IMPL->cloneNode( deep ) );
 }
 
+void QDomNode::normalize()
+{
+}
+
+/*!
+  fnord
+*/
+bool QDomNode::isSupported( const QString& /*feature*/, const QString& /*version*/ ) const
+{
+    return FALSE;
+}
+
+/*!
+  fnord
+*/
+QString QDomNode::namespaceURI() const
+{
+    return QString::null;
+}
+
+/*!
+  fnord
+*/
+QString QDomNode::prefix() const
+{
+    return QString::null;
+}
+
+/*!
+  fnord
+*/
+void QDomNode::setPrefix( const QString& /*pre*/ )
+{
+}
+
+/*!
+  fnord
+*/
+QString QDomNode::localName() const
+{
+    return QString::null;
+}
+
+/*!
+  fnord
+*/
+bool QDomNode::hasAttributes() const
+{
+    return FALSE;
+}
+
 /*!
   Inserts the node \a newChild before the child node \a refChild.  \a refChild
   has to be a direct child of this node. If \a refChild is null then \a
@@ -1486,6 +1551,14 @@ QDomNode QDomNode::appendChild( const QDomNode& newChild )
     if ( !impl )
 	return QDomNode();
     return QDomNode( IMPL->appendChild( newChild.impl ) );
+}
+
+/*!
+  fnord
+*/
+bool QDomNode::hasChildNodes() const
+{
+    return FALSE;
 }
 
 /*!
@@ -2062,6 +2135,30 @@ QDomNode QDomNamedNodeMap::item( int index ) const
 }
 
 /*!
+  fnord
+*/
+QDomNode QDomNamedNodeMap::namedItemNS( const QString& /*namespaceURI*/, const QString& /*localName*/ ) const
+{
+    return QDomNode();
+}
+
+/*!
+  fnord
+*/
+QDomNode QDomNamedNodeMap::setNamedItemNS( const QDomNode& /*arg*/ )
+{
+    return QDomNode();
+}
+
+/*!
+  fnord
+*/
+QDomNode QDomNamedNodeMap::removeNamedItemNS( const QString& /*namespaceURI*/, const QString& /*localName*/ )
+{
+    return QDomNode();
+}
+
+/*!
   Returns the number of nodes in the map.
 
   \sa item()
@@ -2358,6 +2455,30 @@ QDomNamedNodeMap QDomDocumentType::notations() const
     if ( !impl )
 	return QDomNamedNodeMap();
     return QDomNamedNodeMap( IMPL->notations );
+}
+
+/*!
+  fnord
+*/
+QString QDomDocumentType::publicId() const
+{
+    return QString::null;
+}
+
+/*!
+  fnord
+*/
+QString QDomDocumentType::systemId() const
+{
+    return QString::null;
+}
+
+/*!
+  fnord
+*/
+QString QDomDocumentType::internalSubset() const
+{
+    return QString::null;
 }
 
 /*!
@@ -3016,6 +3137,14 @@ bool QDomAttr::specified() const
 }
 
 /*!
+  fnord
+*/
+QDomElement QDomAttr::ownerElement() const
+{
+    return QDomElement();
+}
+
+/*!
   Returns the current value of the attribute. Returns a null string
   when the attribute has not been specified.
 
@@ -3487,7 +3616,6 @@ QDomNodeList QDomElement::elementsByTagName( const QString& tagname ) const
     return QDomNodeList( new QDomNodeListPrivate( impl, tagname ) );
 }
 
-
 /*!
   Calling normalize() on an element brings all its children into a standard
   form. This means, that adjacent QDomText objects will be merged to
@@ -3529,6 +3657,81 @@ bool QDomElement::hasAttribute( const QString& name ) const
     if ( !impl )
 	return FALSE;
     return IMPL->hasAttribute( name );
+}
+
+/*!
+  fnord
+*/
+QString QDomElement::getAttributesNS( const QString /*namespaceURI*/, const QString& /*localName*/ ) const
+{
+    return QString::null;
+}
+
+/*!
+  fnord
+*/
+void QDomElement::setAttributesNS( const QString /*namespaceURI*/, const QString& /*qualifiedName*/, const QString& /*value*/ )
+{
+}
+
+/*!
+  fnord
+*/
+void QDomElement::setAttributesNS( const QString /*namespaceURI*/, const QString& /*qualifiedName*/, int /*value*/ )
+{
+}
+
+/*!
+  fnord
+*/
+void QDomElement::setAttributesNS( const QString /*namespaceURI*/, const QString& /*qualifiedName*/, uint /*value*/ )
+{
+}
+
+/*!
+  fnord
+*/
+void QDomElement::setAttributesNS( const QString /*namespaceURI*/, const QString& /*qualifiedName*/, double /*value*/ )
+{
+}
+
+/*!
+  fnord
+*/
+void QDomElement::removeAttributeNS( const QString& /*namespaceURI*/, const QString& /*localName*/ )
+{
+}
+
+/*!
+  fnord
+*/
+QDomAttr QDomElement::attributeNodeNS( const QString& /*namespaceURI*/, const QString& /*localName*/ )
+{
+    return QDomAttr();
+}
+
+/*!
+  fnord
+*/
+QDomAttr QDomElement::setAttributeNodeNS( const QDomAttr& /*newAttr*/ )
+{
+    return QDomAttr();
+}
+
+/*!
+  fnord
+*/
+QDomNodeList QDomElement::elementsByTagNameNS( const QString& /*namespaceURI*/, const QString& /*localName*/ ) const
+{
+    return QDomNodeList();
+}
+
+/*!
+  fnord
+*/
+bool QDomElement::hasAttributeNS( const QString& /*namespaceURI*/, const QString& /*localName*/ ) const
+{
+    return FALSE;
 }
 
 /*!
@@ -5305,6 +5508,46 @@ QDomEntityReference QDomDocument::createEntityReference( const QString& name )
 QDomNodeList QDomDocument::elementsByTagName( const QString& tagname ) const
 {
     return QDomNodeList( new QDomNodeListPrivate( impl, tagname ) );
+}
+
+/*!
+  fnord
+*/
+QDomNode QDomDocument::importNode( const QDomNode& /*importedNode*/, bool /*deep*/ )
+{
+    return QDomNode();
+}
+
+/*!
+  fnord
+*/
+QDomElement QDomDocument::createElementNS( const QString& /*namespaceURI*/, const QString& /*qualifiedName*/ )
+{
+    return QDomElement();
+}
+
+/*!
+  fnord
+*/
+QDomAttr QDomDocument::createAttributeNS( const QString& /*namespaceURI*/, const QString& /*qualifiedName*/ )
+{
+    return QDomAttr();
+}
+
+/*!
+  fnord
+*/
+QDomNodeList QDomDocument::elementsByTagNameNS( const QString& /*namespaceURI*/, const QString& /*localName*/ )
+{
+    return QDomNodeList();
+}
+
+/*!
+  fnord
+*/
+QDomElement QDomDocument::elementById( const QString& /*elemntId*/ )
+{
+    return QDomElement();
 }
 
 /*!
