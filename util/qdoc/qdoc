@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: //depot/qt/main/util/qdoc/qdoc#42 $
+# $Id: //depot/qt/main/util/qdoc/qdoc#43 $
 #
 # this is a massive hack, written very quickly
 #
@@ -283,11 +283,14 @@ sub mangleclass {
 
 
 #
+# now, now
 #
+# %urls is the list of url's, indexed by mangled function
 #
+# $uniq is just an unique number, starts at 0
 #
 sub manglefn {
-    local($type, $class, $name, $sig, $const) = @_;
+    local($type, $class, $name, $sig, $const, $home) = @_;
     local($url, $d);
 
     $type =~ s/\s+/-/g;
@@ -296,7 +299,8 @@ sub manglefn {
     $type =~ s/^-?virtual-//;
     $type = "-" . $type if ($type ne "");
     $const = "-" . $const if ($const ne "");
-    $url = join("", &mangleclass($class), "#", $name);
+    $url = $class . "::" . $name;
+#    $url = join("", &mangleclass($class), "#", $name);
     $d = "(";
     foreach (split(/\s*,\s*/, $sig)) {
 # kill argument name
@@ -341,6 +345,11 @@ sub manglefn {
     /egsx;
 
     $url = &urlencode($url);
+    unless (defined($urls{$url})) {
+	$home = &mangleclass($class) unless ($home =~ /\S/);
+	$urls{ $url } = join("", $home, "#", ++$uniq);
+    }
+    $url = $urls{$url}; #cool!
 }
 
 
@@ -512,7 +521,7 @@ sub readc {
 	    $includefile{$url} = $hfile;
 	    $includefile{$url} =~ s/\.doc/.h/;
 	} elsif ($doc =~ m@^\\page\s+(\w+)\s+(.*?)\s*$@s) {
-	    # it s \page
+	    # it a \page
 	    my ($page, $doc);
 	    my ($url);
 	    $page = $1;
@@ -521,7 +530,8 @@ sub readc {
 	    $doc =~ s!\\e\s+(\S+)!<em>$1</em>!gs;
 	} else {
 	    # it's a function, \fn or real?
-	    if ($doc =~ m@^\\fn\s+([^\;\n]+);?\s+(.*?)\s*$@s) {
+print ""; # heeeeeiiiiiii LARRY!
+	    if ($doc =~ /^\\fn\s+([^;\n]+);?\s+(.*?)\s*$/s) {
 		$def = $1;
 		$doc = $2;
 	    }
@@ -553,8 +563,15 @@ sub readc {
 		    if ($args =~ /[()]/) {
 			print STDERR "function prototype in argument\n", $def;
 		    } else {
-			my ($url);
-			$url = &manglefn($type, $class, $name, $args, $const);
+			my ($url, $home);
+
+			if ($doc =~ /\\relate[ds]\s+(\w+)/s) {
+			    $home = &mangleclass($1);
+			} else {
+			    $home = &mangleclass($class);
+			}
+			$url = &manglefn($type, $class, $name, 
+					 $args, $const, $home);
 			$name{$url} = $class . "::" . $name;
 			$type{$url} = "fn";
 			$doc{$url} = $doc;
@@ -767,10 +784,14 @@ sub printout {
  		    ">", $includefile{$url}, "</a>&gt;</code>\n"
 		if (defined($includefile{$url}));
 	    if ($relations{$name{$url}} =~ /\S/s) {
-		my($relatives);
+		my($relatives, $name, $header);
 		$relatives = "<hr><p><h2>Related Functions</h2>\n";
 		foreach ( split( /\s+/, $relations{$name{$url}} ) ) {
-		    $relatives = join ("", $relatives, "<p><h3>", $def{$_},
+		    $name = $_;
+		    $name =~ s/^[^\#]*\#//;
+		    $header = $def{$_};
+		    $header =~ s;([^\(]*)\b(\w+);$1<a name=$name>$2</a>;s;
+		    $relatives = join ("", $relatives, "<p><h3>", $header{$_},
 				       "</h3>\n<p>", $doc{$_}, "\n");
 		}
 		$tail = join("", $relatives, $tail);
