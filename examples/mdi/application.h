@@ -14,17 +14,17 @@
 #ifndef APPLICATION_H
 #define APPLICATION_H
 
-#include <qmainwindow.h>
+#include <q3mainwindow.h>
 #include <qptrlist.h>
 
 class QTextEdit;
-class QToolBar;
+class Q3ToolBar;
 class QPopupMenu;
 class QWorkspace;
 class QPopupMenu;
 class QMovie;
 
-class MDIWindow: public QMainWindow
+class MDIWindow: public Q3MainWindow
 {
     Q_OBJECT
 public:
@@ -49,7 +49,7 @@ private:
 };
 
 
-class ApplicationWindow: public QMainWindow
+class ApplicationWindow: public Q3MainWindow
 {
     Q_OBJECT
 public:
@@ -77,7 +77,7 @@ private slots:
 private:
     QPrinter *printer;
     QWorkspace* ws;
-    QToolBar *fileTools;
+    Q3ToolBar *fileTools;
     QPopupMenu* windowsMenu;
 };
 

@@ -16,7 +16,7 @@
 #include <qevent.h>
 #include <qimage.h>
 #include <qpixmap.h>
-#include <qtoolbar.h>
+#include <q3toolbar.h>
 #include <qtoolbutton.h>
 #include <qpopupmenu.h>
 #include <qmenubar.h>
@@ -54,13 +54,13 @@ const char * filePrintText = "Click this button to print the file you "
 "You can also select the Print command from the File menu.";
 
 ApplicationWindow::ApplicationWindow()
-    : QMainWindow( 0, "example application main window", Qt::WDestructiveClose )
+    : Q3MainWindow( 0, "example application main window", Qt::WDestructiveClose )
 {
     int id;
 
     QPixmap openIcon, saveIcon;
 
-    fileTools = new QToolBar( this, "file operations" );
+    fileTools = new Q3ToolBar( this, "file operations" );
 
     openIcon = QPixmap( fileopen );
     QToolButton * fileOpen
@@ -284,11 +284,11 @@ void ApplicationWindow::closeEvent( QCloseEvent *e )
 	}
     }
 
-    QMainWindow::closeEvent( e );
+    Q3MainWindow::closeEvent( e );
 }
 
 MDIWindow::MDIWindow( QWidget* parent, const char* name, Qt::WFlags wflags )
-    : QMainWindow( parent, name, wflags )
+    : Q3MainWindow( parent, name, wflags )
 {
     mmovie = 0;
     medit = new QTextEdit( this );
