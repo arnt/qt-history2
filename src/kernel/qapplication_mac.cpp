@@ -555,85 +555,6 @@ void qt_event_request_updates()
     PostEventToQueue(GetMainEventQueue(), request_updates_pending, kEventPriorityHigh);
     ReleaseEvent(request_updates_pending);
 }
-static QValueList<WId> request_updates_pending_list;
-void qt_event_request_updates(QWidget *w, const QRegion &r, bool subtract)
-{
-    w->createExtra();
-    if(subtract) {
-	if(w->extra->has_dirty_area) {
-	    w->extra->dirty_area -= r;
-	    if(w->extra->dirty_area.isEmpty()) {
-		request_updates_pending_list.remove(w->winId());
-		w->extra->has_dirty_area = FALSE;
-	    }
-	}
-	return;
-    } else if(w->extra->has_dirty_area) {
-	w->extra->dirty_area |= r;
-	return;
-    }
-    w->extra->has_dirty_area = TRUE;
-    w->extra->dirty_area = r;
-    //now maintain the list of widgets to be updated
-    if(request_updates_pending_list.isEmpty()) {
-	EventRef upd = NULL;
-	CreateEvent(NULL, kEventClassQt, kEventQtRequestPropagateWidgetUpdates,
-		    GetCurrentEventTime(), kEventAttributeUserEvent, &upd);
-	PostEventToQueue(GetMainEventQueue(), upd, kEventPriorityStandard);
-	ReleaseEvent(upd);
-    }
-    request_updates_pending_list.append(w->winId());
-}
-
-/* socket notifiers */
-static EventRef request_select_pending = NULL;
-void qt_event_request_select(QGuiEventLoop *loop) {
-    if(request_select_pending) {
-	if(IsEventInQueue(GetMainEventQueue(), request_select_pending))
-	    return;
-#ifdef DEBUG_DROPPED_EVENTS
-	qDebug("%s:%d Whoa, we dropped an event on the floor!", __FILE__, __LINE__);
-#endif
-    }
-
-    CreateEvent(NULL, kEventClassQt, kEventQtRequestSelect, GetCurrentEventTime(),
-		kEventAttributeUserEvent, &request_select_pending);
-    SetEventParameter(request_select_pending,
-		      kEventParamQGuiEventLoop, typeQGuiEventLoop, sizeof(loop), &loop);
-    PostEventToQueue(GetMainEventQueue(), request_select_pending, kEventPriorityStandard);
-    ReleaseEvent(request_select_pending);
-}
-static EventRef request_sockact_pending = NULL;
-void qt_event_request_sockact(QGuiEventLoop *loop) {
-    if(request_sockact_pending) {
-	if(IsEventInQueue(GetMainEventQueue(), request_sockact_pending))
-	    return;
-#ifdef DEBUG_DROPPED_EVENTS
-	qDebug("%s:%d Whoa, we dropped an event on the floor!", __FILE__, __LINE__);
-#endif
-    }
-
-    CreateEvent(NULL, kEventClassQt, kEventQtRequestSocketAct, GetCurrentEventTime(),
-		kEventAttributeUserEvent, &request_sockact_pending);
-    SetEventParameter(request_sockact_pending,
-		      kEventParamQGuiEventLoop, typeQGuiEventLoop, sizeof(loop), &loop);
-    PostEventToQueue(GetMainEventQueue(), request_sockact_pending, kEventPriorityStandard);
-    ReleaseEvent(request_sockact_pending);
-}
-
-/* sheets */
-static EventRef request_showsheet_pending = 0;
-void qt_event_request_showsheet(QWidget *w)
-{
-    qt_event_remove(request_showsheet_pending);
-    CreateEvent(0, kEventClassQt, kEventQtRequestShowSheet, GetCurrentEventTime(),
-		kEventAttributeUserEvent, &request_showsheet_pending);
-    SetEventParameter(request_showsheet_pending, kEventParamQWidget, typeQWidget, sizeof(w), &w);
-    PostEventToQueue(GetMainEventQueue(), request_showsheet_pending, kEventPriorityStandard);
-    ReleaseEvent(request_showsheet_pending);
-}
-
-/* updates */
 static QList<WId> request_updates_pending_list;
 void qt_event_request_updates(QWidget *w, const QRegion &r, bool subtract)
 {
@@ -683,6 +604,54 @@ void qt_event_request_flush_updates()
 		widget->repaint(r & cr, !widget->testWFlags(Qt::WRepaintNoErase));
 	}
     }
+}
+
+/* socket notifiers */
+static EventRef request_select_pending = NULL;
+void qt_event_request_select(QGuiEventLoop *loop) {
+    if(request_select_pending) {
+	if(IsEventInQueue(GetMainEventQueue(), request_select_pending))
+	    return;
+#ifdef DEBUG_DROPPED_EVENTS
+	qDebug("%s:%d Whoa, we dropped an event on the floor!", __FILE__, __LINE__);
+#endif
+    }
+
+    CreateEvent(NULL, kEventClassQt, kEventQtRequestSelect, GetCurrentEventTime(),
+		kEventAttributeUserEvent, &request_select_pending);
+    SetEventParameter(request_select_pending,
+		      kEventParamQGuiEventLoop, typeQGuiEventLoop, sizeof(loop), &loop);
+    PostEventToQueue(GetMainEventQueue(), request_select_pending, kEventPriorityStandard);
+    ReleaseEvent(request_select_pending);
+}
+static EventRef request_sockact_pending = NULL;
+void qt_event_request_sockact(QGuiEventLoop *loop) {
+    if(request_sockact_pending) {
+	if(IsEventInQueue(GetMainEventQueue(), request_sockact_pending))
+	    return;
+#ifdef DEBUG_DROPPED_EVENTS
+	qDebug("%s:%d Whoa, we dropped an event on the floor!", __FILE__, __LINE__);
+#endif
+    }
+
+    CreateEvent(NULL, kEventClassQt, kEventQtRequestSocketAct, GetCurrentEventTime(),
+		kEventAttributeUserEvent, &request_sockact_pending);
+    SetEventParameter(request_sockact_pending,
+		      kEventParamQGuiEventLoop, typeQGuiEventLoop, sizeof(loop), &loop);
+    PostEventToQueue(GetMainEventQueue(), request_sockact_pending, kEventPriorityStandard);
+    ReleaseEvent(request_sockact_pending);
+}
+
+/* sheets */
+static EventRef request_showsheet_pending = 0;
+void qt_event_request_showsheet(QWidget *w)
+{
+    qt_event_remove(request_showsheet_pending);
+    CreateEvent(0, kEventClassQt, kEventQtRequestShowSheet, GetCurrentEventTime(),
+		kEventAttributeUserEvent, &request_showsheet_pending);
+    SetEventParameter(request_showsheet_pending, kEventParamQWidget, typeQWidget, sizeof(w), &w);
+    PostEventToQueue(GetMainEventQueue(), request_showsheet_pending, kEventPriorityStandard);
+    ReleaseEvent(request_showsheet_pending);
 }
 
 /* wakeup */
@@ -802,9 +771,9 @@ static void qt_event_request_context(QWidget *w=NULL, EventRef *where=NULL)
 }
 static EventRef request_context_hold_pending = NULL;
 QMAC_PASCAL void
-QApplication::qt_context_timer_callbk(EventLoopTimerRef r, void *d)
+QApplication::qt_context_timer_callbk(EventLoopTimerRef r, void *data)
 {
-    QWidget *w = (QWidget *)d;
+    QWidget *w = (QWidget *)data;
     EventLoopTimerRef otc = mac_context_timer;
     RemoveEventLoopTimer(mac_context_timer);
     mac_context_timer = NULL;
