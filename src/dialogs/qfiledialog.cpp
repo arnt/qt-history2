@@ -486,7 +486,6 @@ public:
     {}
 
 protected:
-    void paintEvent( QPaintEvent *e );
     void keyPressEvent( QKeyEvent *e );
     void focusOutEvent( QFocusEvent *e );
 
@@ -899,17 +898,6 @@ QFileDialogPrivate::~QFileDialogPrivate()
  *
  ************************************************************************/
 
-void QRenameEdit::paintEvent( QPaintEvent *e )
-{
-    QLineEdit::paintEvent( e );
-    QPainter p( this );
-    p.setPen( QPen( colorGroup().text(), 1 ) );
-    p.setBrush( NoBrush );
-    p.drawRect( 0, 0, width(), height() );
-//     p.setPen( QPen( colorGroup().background(), 1 ) );
-//     p.drawRect( 1, 1, width() - 2, height() - 2 );
-}
-
 void QRenameEdit::keyPressEvent( QKeyEvent *e )
 {
     if ( e->key() == Key_Escape )
@@ -936,8 +924,11 @@ QFileListBox::QFileListBox( QWidget *parent, QFileDialog *dlg )
       firstMousePressEvent( TRUE )
 {
     changeDirTimer = new QTimer( this );
-    lined = new QRenameEdit( viewport() );
-    lined->hide();
+    QVBox *box = new QVBox( viewport() );
+    box->setFrameStyle( QFrame::Box | QFrame::Plain );
+    lined = new QRenameEdit( box );
+    box->hide();
+    box->setBackgroundMode( PaletteBase );
     renameTimer = new QTimer( this );
     connect( lined, SIGNAL( returnPressed() ),
 	     this, SLOT (rename() ) );
@@ -1039,7 +1030,7 @@ void QFileListBox::viewportMouseMoveEvent( QMouseEvent *e )
 	    QUriDrag* drag = new QUriDrag( viewport() );
 	    drag->setUnicodeUris( filedialog->selectedFiles() );
 
-	    if ( lined->isVisible() )
+	    if ( lined->parentWidget()->isVisible() )
 		cancelRename();
 
 	    connect( drag, SIGNAL( destroyed() ),
@@ -1227,8 +1218,8 @@ void QFileListBox::startRename( bool check )
     lined->setText( item( i )->text() );
     lined->selectAll();
     lined->setFrame( FALSE );
-    lined->setGeometry( x, y - 3, w + 6, h + 6 );
-    lined->show();
+    lined->parentWidget()->setGeometry( x, y - 3, w + 6, h + 6 );
+    lined->parentWidget()->show();
     viewport()->setFocusProxy( lined );
     renaming = TRUE;
 }
@@ -1254,7 +1245,7 @@ void QFileListBox::rename()
 void QFileListBox::cancelRename()
 {
     renameItem = 0;
-    lined->hide();
+    lined->parentWidget()->hide();
     viewport()->setFocusProxy( this );
     setFocusPolicy( StrongFocus );
     renaming = FALSE;
@@ -1279,8 +1270,10 @@ QFileListView::QFileListView( QWidget *parent, QFileDialog *dlg )
       firstMousePressEvent( TRUE )
 {
     changeDirTimer = new QTimer( this );
-    lined = new QRenameEdit( viewport() );
-    lined->hide();
+    QVBox *box = new QVBox( viewport() );
+    box->setFrameStyle( QFrame::Box | QFrame::Plain );
+    lined = new QRenameEdit( box );
+    box->hide();
     renameTimer = new QTimer( this );
     connect( lined, SIGNAL( returnPressed() ),
 	     this, SLOT (rename() ) );
@@ -1599,8 +1592,8 @@ void QFileListView::startRename( bool check )
     lined->setText( i->text( 0 ) );
     lined->selectAll();
     lined->setFrame( FALSE );
-    lined->setGeometry( x, y - 3, w + 6, h + 6 );
-    lined->show();
+    lined->parentWidget()->setGeometry( x, y - 3, w + 6, h + 6 );
+    lined->parentWidget()->show();
     viewport()->setFocusProxy( lined );
     renaming = TRUE;
 }
@@ -1626,7 +1619,7 @@ void QFileListView::rename()
 void QFileListView::cancelRename()
 {
     renameItem = 0;
-    lined->hide();
+    lined->parentWidget()->hide();
     viewport()->setFocusProxy( this );
     setFocusPolicy( StrongFocus );
     renaming = FALSE;
