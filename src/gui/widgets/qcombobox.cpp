@@ -67,8 +67,8 @@ ListViewContainer::ListViewContainer(QListView *listView, QWidget *parent)
             this, SLOT(updateScrollers()));
     connect(list->verticalScrollBar(), SIGNAL(rangeChanged(int,int)),
             this, SLOT(updateScrollers()));
-    connect(list, SIGNAL(itemEntered(QModelIndex,ButtonState)),
-            this, SLOT(setCurrentIndex(QModelIndex,ButtonState)));
+    connect(list, SIGNAL(itemEntered(QModelIndex,QMouseEvent*)),
+            this, SLOT(setCurrentIndex(QModelIndex,QMouseEvent*)));
 
     // add widgets to layout and create scrollers if needed
     QBoxLayout *layout =  new QBoxLayout(QBoxLayout::TopToBottom, this);
@@ -133,9 +133,9 @@ void ListViewContainer::updateScrollers()
   means that if mouseTracking(...) is on, we setCurrentIndex and select
   even when LeftButton is not pressed.
 */
-void ListViewContainer::setCurrentIndex(const QModelIndex &index, Qt::ButtonState bstate)
+void ListViewContainer::setCurrentIndex(const QModelIndex &index, const QMouseEvent *event)
 {
-    if (bstate & Qt::LeftButton)
+    if (event->modifiers() & Qt::LeftButton)
         return;
 
     list->selectionModel()->setCurrentIndex(index, QItemSelectionModel::ClearAndSelect);
@@ -1425,6 +1425,7 @@ void QComboBox::mousePressEvent(QMouseEvent *e)
 */
 void QComboBox::mouseReleaseEvent(QMouseEvent *e)
 {
+    Q_UNUSED(e);
     d->arrowDown = false;
     QStyleOptionComboBox opt = d->getStyleOption();
     update(QStyle::visualRect(style().querySubControlMetrics(

@@ -1081,40 +1081,39 @@ class QTreeWidgetPrivate : public QTreeViewPrivate
 public:
     QTreeWidgetPrivate() : QTreeViewPrivate(), sortingEnabled(false) {}
     inline QTreeModel *model() const { return ::qt_cast<QTreeModel*>(q_func()->model()); }
-    void emitPressed(const QModelIndex &index, Qt::ButtonState button);
-    void emitClicked(const QModelIndex &index, Qt::ButtonState button);
-    void emitDoubleClicked(const QModelIndex &index, Qt::ButtonState button);
-    void emitKeyPressed(const QModelIndex &index, Qt::Key key, Qt::ButtonState state);
+    void emitPressed(const QModelIndex &index, const QMouseEvent *event);
+    void emitClicked(const QModelIndex &index, const QMouseEvent *event);
+    void emitDoubleClicked(const QModelIndex &index, const QMouseEvent *event);
+    void emitKeyPressed(const QModelIndex &index, const QKeyEvent *event);
     void emitReturnPressed(const QModelIndex &index);
     void emitExpanded(const QModelIndex &index);
     void emitCollapsed(const QModelIndex &index);
     void emitCurrentChanged(const QModelIndex &previous, const QModelIndex &current);
-    void emitItemEntered(const QModelIndex &index, Qt::ButtonState state);
+    void emitItemEntered(const QModelIndex &index, const QMouseEvent *event);
     void emitAboutToShowContextMenu(QMenu *menu, const QModelIndex &index);
     void emitItemChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight);
 
     bool sortingEnabled;
 };
 
-void QTreeWidgetPrivate::emitPressed(const QModelIndex &index, Qt::ButtonState button)
+void QTreeWidgetPrivate::emitPressed(const QModelIndex &index, const QMouseEvent *event)
 {
-    emit q->pressed(model()->item(index), index.column(), button);
+    emit q->pressed(model()->item(index), index.column(), event);
 }
 
-void QTreeWidgetPrivate::emitClicked(const QModelIndex &index, Qt::ButtonState button)
+void QTreeWidgetPrivate::emitClicked(const QModelIndex &index, const QMouseEvent *event)
 {
-    emit q->clicked(model()->item(index), index.column(), button);
+    emit q->clicked(model()->item(index), index.column(), event);
 }
 
-void QTreeWidgetPrivate::emitDoubleClicked(const QModelIndex &index, Qt::ButtonState button)
+void QTreeWidgetPrivate::emitDoubleClicked(const QModelIndex &index, const QMouseEvent *event)
 {
-    emit q->doubleClicked(model()->item(index), index.column(), button);
+    emit q->doubleClicked(model()->item(index), index.column(), event);
 }
 
-void QTreeWidgetPrivate::emitKeyPressed(const QModelIndex &index, Qt::Key key,
-                                        Qt::ButtonState state)
+void QTreeWidgetPrivate::emitKeyPressed(const QModelIndex &index, const QKeyEvent *event)
 {
-    emit q->keyPressed(model()->item(index), index.column(), key, state);
+    emit q->keyPressed(model()->item(index), index.column(), event);
 }
 
 void QTreeWidgetPrivate::emitReturnPressed(const QModelIndex &index)
@@ -1137,9 +1136,9 @@ void QTreeWidgetPrivate::emitCurrentChanged(const QModelIndex &current, const QM
     emit q->currentChanged(model()->item(current), model()->item(previous));
 }
 
-void QTreeWidgetPrivate::emitItemEntered(const QModelIndex &index, Qt::ButtonState state)
+void QTreeWidgetPrivate::emitItemEntered(const QModelIndex &index, const QMouseEvent *event)
 {
-    emit q->itemEntered(model()->item(index), index.column(), state);
+    emit q->itemEntered(model()->item(index), index.column(), event);
 }
 
 void QTreeWidgetPrivate::emitAboutToShowContextMenu(QMenu *menu, const QModelIndex &index)
@@ -1215,48 +1214,42 @@ void QTreeWidgetPrivate::emitItemChanged(const QModelIndex &topLeft, const QMode
 */
 
 /*!
-    \fn void QTreeWidget::pressed(QTreeWidgetItem *item, int column, Qt::ButtonState button)
+    \fn void QTreeWidget::pressed(QTreeWidgetItem *item, int column, const QMouseEvent *event)
 
     This signal is emitted when the user presses a mouse button inside the
     widget. The specified \a item is the item that was clicked, or 0 if no item
     was clicked.
     The \a column is the item's column that was clicked, or -1 if
     no item was clicked.
-    The button clicked is specified by \a button (see \l{Qt::ButtonState}).
 */
 
 /*!
-    \fn void QTreeWidget::clicked(QTreeWidgetItem *item, int column, Qt::ButtonState button)
+    \fn void QTreeWidget::clicked(QTreeWidgetItem *item, int column, const QMouseEvent *event)
 
     This signal is emitted when the user clicks inside the widget.
     The specified \a item is the item that was clicked, or 0 if no item was
     clicked.
     The \a column is the item's column that was clicked, or -1 if
     no item was clicked.
-    The button clicked is specified by \a button (see \l{Qt::ButtonState}).
 */
 
 /*!
-    \fn void QTreeWidget::doubleClicked(QTreeWidgetItem *item, int column, Qt::ButtonState button)
+    \fn void QTreeWidget::doubleClicked(QTreeWidgetItem *item, int column, const QMouseEvent *event)
 
     This signal is emitted when the user double clicks inside the widget.
     The specified \a item is the item that was clicked, or 0 if no item was
     clicked.
     The \a column is the item's column that was clicked, or -1 if
     no item was clicked.
-    The button clicked is specified by \a button (see \l{Qt::ButtonState}).
 */
 
 /*!
-    \fn void QTreeWidget::keyPressed(QTreeWidgetItem *item, int column, Qt::Key key, Qt::ButtonState button)
+    \fn void QTreeWidget::keyPressed(QTreeWidgetItem *item, int column, const QKeyEvent *event)
 
     This signal is emitted when the user presses a key inside the widget.
     The specified \a item and \a column had the focus when the \a key was
     pressed.
     If no item had the focus, \a item is 0 and \a column is -1.
-
-    If a mouse button was pressed at the time of the key press, its state
-    is specified by \a button (see \l{Qt::ButtonState}).
 
     \sa returnPressed()
 */
@@ -1307,13 +1300,10 @@ void QTreeWidgetPrivate::emitItemChanged(const QModelIndex &topLeft, const QMode
 */
 
 /*!
-    \fn void QTreeWidget::itemEntered(QTreeWidgetItem *item, int column, Qt::ButtonState state)
+    \fn void QTreeWidget::itemEntered(QTreeWidgetItem *item, int column, const QMouseEvent *event)
 
     This signal is emitted when the mouse cursor enters an \a item over the
-    specified \a column. The state of the mouse buttons is specified by
-    \a state.
-
-    \sa Qt::ButtonState
+    specified \a column.
 */
 
 /*!
@@ -1339,22 +1329,22 @@ QTreeWidget::QTreeWidget(QWidget *parent)
     : QTreeView(*new QTreeWidgetPrivate(), parent)
 {
     setModel(new QTreeModel(0, this));
-    connect(this, SIGNAL(pressed(QModelIndex,ButtonState)),
-            SLOT(emitPressed(QModelIndex,ButtonState)));
-    connect(this, SIGNAL(clicked(QModelIndex,ButtonState)),
-            SLOT(emitClicked(QModelIndex,ButtonState)));
-    connect(this, SIGNAL(doubleClicked(QModelIndex,ButtonState)),
-            SLOT(emitDoubleClicked(QModelIndex,ButtonState)));
-    connect(this, SIGNAL(keyPressed(QModelIndex,Key,ButtonState)),
-            SLOT(emitKeyPressed(QModelIndex,Key,ButtonState)));
+    connect(this, SIGNAL(pressed(QModelIndex,const QMouseEvent*)),
+            SLOT(emitPressed(QModelIndex,const QMouseEvent*)));
+    connect(this, SIGNAL(clicked(QModelIndex,const QMouseEvent*)),
+            SLOT(emitClicked(QModelIndex,const QMouseEvent*)));
+    connect(this, SIGNAL(doubleClicked(QModelIndex,const QMouseEvent*)),
+            SLOT(emitDoubleClicked(QModelIndex,const QMouseEvent*)));
+    connect(this, SIGNAL(keyPressed(QModelIndex,const QKeyEvent*)),
+            SLOT(emitKeyPressed(QModelIndex,const QKeyEvent*)));
     connect(this, SIGNAL(returnPressed(QModelIndex)),
             SLOT(emitReturnPressed(QModelIndex)));
     connect(this, SIGNAL(expanded(QModelIndex)),
             SLOT(emitExpanded(QModelIndex)));
     connect(this, SIGNAL(collapsed(QModelIndex)),
             SLOT(emitCollapsed(QModelIndex)));
-    connect(this, SIGNAL(itemEntered(QModelIndex,ButtonState)),
-            SLOT(emitItemEntered(QModelIndex,ButtonState)));
+    connect(this, SIGNAL(itemEntered(QModelIndex,const QMouseEvent*)),
+            SLOT(emitItemEntered(QModelIndex,const QMouseEvent*)));
     connect(this, SIGNAL(aboutToShowContextMenu(QMenu*,QModelIndex)),
             SLOT(emitAboutToShowContextMenu(QMenu*,QModelIndex)));
     connect(selectionModel(),
@@ -1365,7 +1355,7 @@ QTreeWidget::QTreeWidget(QWidget *parent)
             this, SIGNAL(selectionChanged()));
     connect(model(), SIGNAL(dataChanged(QModelIndex,QModelIndex)),
             this, SLOT(emitItemChanged(QModelIndex,QModelIndex)));
-    connect(header(), SIGNAL(sectionPressed(int,ButtonState)), this, SLOT(sortItems(int)));
+    connect(header(), SIGNAL(sectionPressed(int,const QMouseEvent*)), this, SLOT(sortItems(int)));
 }
 
 /*!

@@ -231,9 +231,9 @@ void QTableView::setHorizontalHeader(QHeaderView *header)
                             this, SLOT(columnMoved(int,int,int)));
         QObject::disconnect(d->horizontalHeader, SIGNAL(sectionCountChanged(int,int)),
                             this, SLOT(columnCountChanged(int,int)));
-        QObject::disconnect(d->horizontalHeader, SIGNAL(sectionPressed(int,ButtonState)),
-                            this, SLOT(selectColumn(int,ButtonState)));
-        QObject::disconnect(d->horizontalHeader, SIGNAL(sectionHandleDoubleClicked(int,ButtonState)),
+        QObject::disconnect(d->horizontalHeader, SIGNAL(sectionPressed(int,const QMouseEvent*)),
+                            this, SLOT(selectColumn(int,const QMouseEvent*)));
+        QObject::disconnect(d->horizontalHeader, SIGNAL(sectionHandleDoubleClicked(int,const QMouseEvent*)),
                             this, SLOT(resizeColumnToContents(int)));
     }
 
@@ -245,9 +245,9 @@ void QTableView::setHorizontalHeader(QHeaderView *header)
                      this, SLOT(columnMoved(int,int,int)), Qt::QueuedConnection);
     QObject::connect(d->horizontalHeader, SIGNAL(sectionCountChanged(int,int)),
                      this, SLOT(columnCountChanged(int,int)), Qt::QueuedConnection);
-    QObject::connect(d->horizontalHeader, SIGNAL(sectionPressed(int,ButtonState)),
-                     this, SLOT(selectColumn(int,ButtonState)));
-    QObject::connect(d->horizontalHeader, SIGNAL(sectionHandleDoubleClicked(int,ButtonState)),
+    QObject::connect(d->horizontalHeader, SIGNAL(sectionPressed(int,const QMouseEvent*)),
+                     this, SLOT(selectColumn(int,const QMouseEvent*)));
+    QObject::connect(d->horizontalHeader, SIGNAL(sectionHandleDoubleClicked(int,const QMouseEvent*)),
                      this, SLOT(resizeColumnToContents(int)));
 }
 
@@ -265,9 +265,9 @@ void QTableView::setVerticalHeader(QHeaderView *header)
                             this, SLOT(rowMoved(int,int,int)));
         QObject::disconnect(d->verticalHeader, SIGNAL(sectionCountChanged(int,int)),
                             this, SLOT(rowCountChanged(int,int)));
-        QObject::disconnect(d->verticalHeader, SIGNAL(sectionPressed(int,ButtonState)),
-                            this, SLOT(selectRow(int,ButtonState)));
-        QObject::disconnect(d->verticalHeader, SIGNAL(sectionHandleDoubleClicked(int,ButtonState)),
+        QObject::disconnect(d->verticalHeader, SIGNAL(sectionPressed(int,const QMouseEvent*)),
+                            this, SLOT(selectRow(int,const QMouseEvent*)));
+        QObject::disconnect(d->verticalHeader, SIGNAL(sectionHandleDoubleClicked(int,const QMouseEvent*)),
                             this, SLOT(resizeRowToContents(int)));
     }
 
@@ -279,9 +279,9 @@ void QTableView::setVerticalHeader(QHeaderView *header)
                      this, SLOT(rowMoved(int,int,int)), Qt::QueuedConnection);
     QObject::connect(d->verticalHeader, SIGNAL(sectionCountChanged(int,int)),
                      this, SLOT(rowCountChanged(int,int)), Qt::QueuedConnection);
-    QObject::connect(d->verticalHeader, SIGNAL(sectionPressed(int,ButtonState)),
-                     this, SLOT(selectRow(int,ButtonState)));
-    QObject::connect(d->verticalHeader, SIGNAL(sectionHandleDoubleClicked(int,ButtonState)),
+    QObject::connect(d->verticalHeader, SIGNAL(sectionPressed(int,const QMouseEvent*)),
+                     this, SLOT(selectRow(int,const QMouseEvent*)));
+    QObject::connect(d->verticalHeader, SIGNAL(sectionHandleDoubleClicked(int,const QMouseEvent*)),
                      this, SLOT(resizeRowToContents(int)));
 }
 
@@ -480,16 +480,18 @@ int QTableView::verticalOffset() const
 }
 
 /*!
-    \fn QModelIndex QTableView::moveCursor(QAbstractItemView::CursorAction cursorAction, Qt::ButtonState state)
+    \fn QModelIndex QTableView::moveCursor(QAbstractItemView::CursorAction cursorAction, Qt::KeyboardModifiers modifiers)
 
     Moves the cursor in accordance with the given \a cursorAction, using the
-    information provided by the button \a state.
+    information provided by the \a modifiers.
 
     \sa QAbstractItemView::CursorAction
 */
 QModelIndex QTableView::moveCursor(QAbstractItemView::CursorAction cursorAction,
-                                          Qt::ButtonState)
+                                   Qt::KeyboardModifiers modifiers)
 {
+    Q_UNUSED(modifiers);
+
     QModelIndex current = currentIndex();
     int visualRow = verticalHeader()->visualIndex(current.row());
     int visualColumn = horizontalHeader()->visualIndex(current.column());
@@ -988,15 +990,15 @@ void QTableView::columnMoved(int, int oldIndex, int newIndex)
 
 /*!
     This slot is called to select the given \a row in accordance with
-    the given button \a state.
+    the given \a event.
 
     \sa selectColumn()
 */
-void QTableView::selectRow(int row, Qt::ButtonState state)
+void QTableView::selectRow(int row, const QMouseEvent *event)
 {
     if (row >= 0 && row < model()->rowCount(root())) {
         QModelIndex index = model()->index(row, 0, root());
-        QItemSelectionModel::SelectionFlags command = selectionCommand(state, index);
+        QItemSelectionModel::SelectionFlags command = selectionCommand(index, event);
         if (selectionMode() == SingleSelection) {
             selectionModel()->setCurrentIndex(index, command);
         } else {
@@ -1013,15 +1015,15 @@ void QTableView::selectRow(int row, Qt::ButtonState state)
 
 /*!
     This slot is called to select the given \a column in accordance with
-    the given button \a state.
+    the given \a event.
 
     \sa selectRow()
 */
-void QTableView::selectColumn(int column, Qt::ButtonState state)
+void QTableView::selectColumn(int column, const QMouseEvent *event)
 {
     if (column >= 0 && column < model()->columnCount(root())) {
         QModelIndex index = model()->index(0, column, root());
-        QItemSelectionModel::SelectionFlags command = selectionCommand(state, index);
+        QItemSelectionModel::SelectionFlags command = selectionCommand(index, event);
         if (selectionMode() == SingleSelection) {
             selectionModel()->setCurrentIndex(index, command);
         } else {

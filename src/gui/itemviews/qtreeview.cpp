@@ -167,7 +167,7 @@ void QTreeView::setHeader(QHeaderView *header)
                             this, SLOT(columnMoved()));
         QObject::disconnect(d->header, SIGNAL(sectionCountChanged(int,int)),
                             this, SLOT(columnCountChanged(int,int)));
-        QObject::disconnect(d->header, SIGNAL(sectionHandleDoubleClicked(int,ButtonState)),
+        QObject::disconnect(d->header, SIGNAL(sectionHandleDoubleClicked(int,const QMouseEvent*)),
                             this, SLOT(resizeColumnToContents(int)));
         delete d->header;
     }
@@ -180,7 +180,7 @@ void QTreeView::setHeader(QHeaderView *header)
                      this, SLOT(columnMoved()), Qt::QueuedConnection);
     QObject::connect(d->header, SIGNAL(sectionCountChanged(int,int)),
                      this, SLOT(columnCountChanged(int,int)), Qt::QueuedConnection);
-    QObject::connect(d->header, SIGNAL(sectionHandleDoubleClicked(int,ButtonState)),
+    QObject::connect(d->header, SIGNAL(sectionHandleDoubleClicked(int,const QMouseEvent*)),
                      this, SLOT(resizeColumnToContents(int)));
 }
 
@@ -763,15 +763,18 @@ int QTreeView::verticalOffset() const
 }
 
 /*!
-  \fn QModelIndex QTreeView::moveCursor(QAbstractItemView::CursorAction cursorAction, Qt::ButtonState state)
+  \fn QModelIndex QTreeView::moveCursor(QAbstractItemView::CursorAction cursorAction, Qt::KeyboardModifers modifers)
 
   Move the cursor in the way described by \a cursorAction, using the
   information provided by the button \a state.
 
   \sa QAbstractItemView::CursorAction
 */
-QModelIndex QTreeView::moveCursor(QAbstractItemView::CursorAction cursorAction, Qt::ButtonState)
+QModelIndex QTreeView::moveCursor(QAbstractItemView::CursorAction cursorAction,
+                                  Qt::KeyboardModifiers modifiers)
 {
+    Q_UNUSED(modifiers);
+
     QModelIndex current = currentIndex();
     if (!current.isValid())
         return current;

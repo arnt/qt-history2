@@ -1049,11 +1049,9 @@ void QFileDialog::doubleClicked(const QModelIndex &index)
     \a modifiers down, when the current item is \a index.
 */
 
-void QFileDialog::keyPressed(const QModelIndex &index, Qt::Key key, Qt::KeyboardModifiers modifiers)
+void QFileDialog::keyPressed(const QModelIndex &index, const QKeyEvent *event)
 {
-    Q_UNUSED(modifiers);
-
-    switch (key) {
+    switch (event->key()) {
     case Qt::Key_Delete:
         deletePressed(index);
         return;

@@ -108,17 +108,17 @@
 */
 
 /*!
-  \fn void QHeaderView::sectionPressed(int section, Qt::ButtonState state);
+  \fn void QHeaderView::sectionPressed(int section, const QMouseEvent *event);
 
   This signal is emitted when a section is pressed. The section's
   number is specified by \a section, and the button by \a state.
 */
 
 /*!
-    \fn void QHeaderView::sectionClicked(int section, Qt::ButtonState state);
+    \fn void QHeaderView::sectionClicked(int section, const QMouseEvent *event);
 
     This signal is emitted when a section is clicked. The section's
-    number is specified by \a section, and the button by \a state.
+    number is specified by \a section.
 */
 
 /*!
@@ -130,11 +130,10 @@
 */
 
 /*!
-    \fn void QHeaderView::sectionHandleDoubleClicked(int section, Qt::ButtonState state);
+    \fn void QHeaderView::sectionHandleDoubleClicked(int section, const QMouseEvent *event);
 
     This signal is emitted when a section is double-clicked. The
-    section's number is specified by \a section, and the button by \a
-    state.
+    section's number is specified by \a section.
 */
 
 /*!
@@ -1131,7 +1130,7 @@ void QHeaderView::mousePressEvent(QMouseEvent *e)
         if (handle == -1) {
             d->pressed = logicalIndexAt(pos);
             updateSection(d->pressed);
-            emit sectionPressed(d->pressed, e->state()); // FIXME: compat'ed
+            emit sectionPressed(d->pressed, e);
         } else if (resizeMode(handle) == Interactive) {
             d->state = QHeaderViewPrivate::ResizeSection;
             d->lastPos = (orientation() == Qt::Horizontal ? e->x() : e->y());
@@ -1201,7 +1200,7 @@ void QHeaderView::mouseReleaseEvent(QMouseEvent *e)
         break;
     case QHeaderViewPrivate::NoState:
         updateSection(d->pressed);
-        emit sectionClicked(logicalIndexAt(pos), e->state()); // FIXME: compat'ed
+        emit sectionClicked(logicalIndexAt(pos), e);
         break;
     case QHeaderViewPrivate::ResizeSection:
         break;
@@ -1221,7 +1220,7 @@ void QHeaderView::mouseDoubleClickEvent(QMouseEvent *e)
     int handle = d->sectionHandleAt(pos);
     while (handle > -1 && isSectionHidden(handle)) handle--;
     if (handle > -1 && resizeMode(handle) == Interactive)
-        emit sectionHandleDoubleClicked(handle, e->state()); // FIXME: compat'ed
+        emit sectionHandleDoubleClicked(handle, e);
 }
 
 /*!
@@ -1404,7 +1403,7 @@ bool QHeaderView::isIndexHidden(const QModelIndex &) const
     Empty implementation because the header doesn't show QModelIndex items.
 */
 
-QModelIndex QHeaderView::moveCursor(QAbstractItemView::CursorAction, Qt::ButtonState)
+QModelIndex QHeaderView::moveCursor(QAbstractItemView::CursorAction, Qt::KeyboardModifiers)
 {
     return QModelIndex::Null;
 }

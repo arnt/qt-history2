@@ -151,14 +151,14 @@ protected slots:
 
 signals:
     void rootChanged(const QModelIndex &old, const QModelIndex &root);
-    void pressed(const QModelIndex &index, Qt::ButtonState button);
-    void clicked(const QModelIndex &index, Qt::ButtonState button);
-    void doubleClicked(const QModelIndex &index, Qt::ButtonState button);
-    void keyPressed(const QModelIndex &index, Qt::Key key, Qt::ButtonState state);
+    void pressed(const QModelIndex &index, const QMouseEvent *event);
+    void clicked(const QModelIndex &index, const QMouseEvent *event);
+    void doubleClicked(const QModelIndex &index, const QMouseEvent *event);
+    void keyPressed(const QModelIndex &index, const QKeyEvent *event);
     void returnPressed(const QModelIndex &index);
     void aboutToShowContextMenu(QMenu *menu, const QModelIndex &index);
-    void itemEntered(const QModelIndex &index, Qt::ButtonState state);
-    void viewportEntered(Qt::ButtonState state);
+    void itemEntered(const QModelIndex &index, const QMouseEvent *event);
+    void viewportEntered(const QMouseEvent *event);
 
 protected:
     QAbstractItemView(QAbstractItemViewPrivate &, QWidget *parent = 0);
@@ -171,7 +171,7 @@ protected:
     enum CursorAction { MoveUp, MoveDown, MoveLeft, MoveRight,
                         MoveHome, MoveEnd, MovePageUp, MovePageDown };
     virtual QModelIndex moveCursor(QAbstractItemView::CursorAction cursorAction,
-                                   Qt::ButtonState state) = 0;
+                                   Qt::KeyboardModifiers modifiers) = 0;
 
     virtual int horizontalOffset() const = 0;
     virtual int verticalOffset() const = 0;
@@ -185,10 +185,8 @@ protected:
     virtual bool edit(const QModelIndex &index, BeginEditAction action, QEvent *event);
     virtual void endEdit(const QModelIndex &index, bool accepted = true);
 
-    virtual QItemSelectionModel::SelectionFlags selectionCommand(Qt::ButtonState state,
-                                                                 const QModelIndex &index,
-                                                                 QEvent::Type type = QEvent::None,
-                                                                 Qt::Key key = Qt::Key_unknown) const;
+    virtual QItemSelectionModel::SelectionFlags selectionCommand(const QModelIndex &index,
+                                                                 const QEvent *event) const;
 
     virtual QDragObject *dragObject();
     virtual void startDrag();

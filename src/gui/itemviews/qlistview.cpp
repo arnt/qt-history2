@@ -582,15 +582,14 @@ void QListView::reset()
 */
 void QListView::scrollContentsBy(int dx, int dy)
 {
-    verticalScrollBar()->repaint();
-    horizontalScrollBar()->repaint();
     d->viewport->scroll(dx, dy);
 
     if (d->draggedItems.isEmpty())
         return;
     QRect rect = d->draggedItemsRect();
     rect.translate(dx, dy);
-    d->viewport->repaint(rect);
+
+    d->viewport->repaint(rect); //FIXME: d->viewport->update(rect);
 }
 
 /*!
@@ -901,8 +900,11 @@ int QListView::verticalOffset() const
 /*!
   \reimp
 */
-QModelIndex QListView::moveCursor(QAbstractItemView::CursorAction cursorAction, Qt::ButtonState)
+QModelIndex QListView::moveCursor(QAbstractItemView::CursorAction cursorAction,
+                                  Qt::KeyboardModifiers modifiers)
 {
+    Q_UNUSED(modifiers);
+
     QModelIndex current = currentIndex();
     QRect rect = itemRect(current);
     QSize contents = d->contentsSize;

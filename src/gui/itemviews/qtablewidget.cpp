@@ -861,38 +861,36 @@ class QTableWidgetPrivate : public QTableViewPrivate
 public:
     QTableWidgetPrivate() : QTableViewPrivate(), sortingEnabled(false) {}
     inline QTableModel *model() const { return ::qt_cast<QTableModel*>(q_func()->model()); }
-    void emitPressed(const QModelIndex &index, Qt::ButtonState button);
-    void emitClicked(const QModelIndex &index, Qt::ButtonState button);
-    void emitDoubleClicked(const QModelIndex &index, Qt::ButtonState button);
-    void emitKeyPressed(const QModelIndex &index, Qt::Key key, Qt::ButtonState state);
+    void emitPressed(const QModelIndex &index, const QMouseEvent *event);
+    void emitClicked(const QModelIndex &index, const QMouseEvent *event);
+    void emitDoubleClicked(const QModelIndex &index, const QMouseEvent *event);
+    void emitKeyPressed(const QModelIndex &index, const QKeyEvent *event);
     void emitReturnPressed(const QModelIndex &index);
     void emitCurrentChanged(const QModelIndex &previous, const QModelIndex &current);
-    void emitItemEntered(const QModelIndex &index, Qt::ButtonState state);
+    void emitItemEntered(const QModelIndex &index, const QMouseEvent *event);
     void emitAboutToShowContextMenu(QMenu *menu, const QModelIndex &index);
     void emitItemChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight);
-
     bool sortingEnabled;
 };
 
-void QTableWidgetPrivate::emitPressed(const QModelIndex &index, Qt::ButtonState button)
+void QTableWidgetPrivate::emitPressed(const QModelIndex &index, const QMouseEvent *event)
 {
-    emit q->pressed(model()->item(index), button);
+    emit q->pressed(model()->item(index), event);
 }
 
-void QTableWidgetPrivate::emitClicked(const QModelIndex &index, Qt::ButtonState button)
+void QTableWidgetPrivate::emitClicked(const QModelIndex &index, const QMouseEvent *event)
 {
-    emit q->clicked(model()->item(index), button);
+    emit q->clicked(model()->item(index), event);
 }
 
-void QTableWidgetPrivate::emitDoubleClicked(const QModelIndex &index, Qt::ButtonState button)
+void QTableWidgetPrivate::emitDoubleClicked(const QModelIndex &index, const QMouseEvent *event)
 {
-    emit q->doubleClicked(model()->item(index), button);
+    emit q->doubleClicked(model()->item(index), event);
 }
 
-void QTableWidgetPrivate::emitKeyPressed(const QModelIndex &index, Qt::Key key,
-                                         Qt::ButtonState state)
+void QTableWidgetPrivate::emitKeyPressed(const QModelIndex &index, const QKeyEvent *event)
 {
-    emit q->keyPressed(model()->item(index), key, state);
+    emit q->keyPressed(model()->item(index), event);
 }
 
 void QTableWidgetPrivate::emitReturnPressed(const QModelIndex &index)
@@ -905,9 +903,9 @@ void QTableWidgetPrivate::emitCurrentChanged(const QModelIndex &current, const Q
     emit q->currentChanged(model()->item(current), model()->item(previous));
 }
 
-void QTableWidgetPrivate::emitItemEntered(const QModelIndex &index, Qt::ButtonState state)
+void QTableWidgetPrivate::emitItemEntered(const QModelIndex &index, const QMouseEvent *event)
 {
-    emit q->itemEntered(model()->item(index), state);
+    emit q->itemEntered(model()->item(index), event);
 }
 
 void QTableWidgetPrivate::emitAboutToShowContextMenu(QMenu *menu, const QModelIndex &index)
@@ -922,38 +920,32 @@ void QTableWidgetPrivate::emitItemChanged(const QModelIndex &topLeft, const QMod
 }
 
 /*!
-    \fn void QTableWidget::pressed(QTableWidgetItem *item, Qt::ButtonState button)
+    \fn void QTableWidget::pressed(QTableWidgetItem *item, QMouseEvent *event)
 
     This signal is emitted when a item has been pressed (mouse click
     and release). The \a item may be 0 if the mouse was not pressed on
-    an item. The button clicked is specified by \a button (see
-    \l{Qt::ButtonState}).
+    an item..
 */
 
 /*!
-    \fn void QTableWidget::clicked(QTableWidgetItem *item, Qt::ButtonState button)
+    \fn void QTableWidget::clicked(QTableWidgetItem *item, QMouseEvent* event)
 
     This signal is emitted when a mouse button is clicked. The \a item
-    may be 0 if the mouse was not clicked on an item.  The button
-    clicked is specified by \a button (see \l{Qt::ButtonState}).
+    may be 0 if the mouse was not clicked on an item.
 */
 
 /*!
-    \fn void QTableWidget::doubleClicked(QTableWidgetItem *item, Qt::ButtonState button);
+    \fn void QTableWidget::doubleClicked(QTableWidgetItem *item, QMouseEvent *event);
 
     This signal is emitted when a mouse button is double clicked. The
-    \a item may be 0 if the mouse was not clicked on an item.  The
-    button clicked is specified by \a button (see
-    \l{Qt::ButtonState}).
+    \a item may be 0 if the mouse was not clicked on an item.
 */
 
 /*!
-    \fn void QTableWidget::keyPressed(QTableWidgetItem *item, Qt::Key key, Qt::ButtonState state)
+    \fn void QTableWidget::keyPressed(QTableWidgetItem *item, QKeyEvent *event)
 
     This signal is emitted if keyTracking is turned on and a key was
-    pressed. The \a item is the current item as the key was pressed, the
-    \a key tells which key was pressed and \a state which modifier
-    keys (see \l{Qt::ButtonState}).
+    pressed. The \a item is the current item as the key was pressed.
 */
 
 /*!
@@ -979,12 +971,10 @@ void QTableWidgetPrivate::emitItemChanged(const QModelIndex &topLeft, const QMod
 */
 
 /*!
-    \fn void QTableWidget::itemEntered(QTableWidgetItem *item, Qt::ButtonState state)
+    \fn void QTableWidget::itemEntered(QTableWidgetItem *item, QMouseEvent *event)
 
     This signal is emitted when the mouse cursor enters an item. The
-    \a item is the item entered and \a state specifies the mouse
-    button and any modifiers pressed as the item was entered (see
-    \l{Qt::ButtonState}). This signal is only emitted when
+    \a item is the item entered. This signal is only emitted when
     mouseTracking is turned on, or when a mouse button is pressed
     while moving into an item.
 */
@@ -1499,18 +1489,18 @@ void QTableWidget::setModel(QAbstractItemModel *model)
 */
 void QTableWidget::setup()
 {
-    connect(this, SIGNAL(pressed(QModelIndex,ButtonState)),
-            SLOT(emitPressed(QModelIndex,ButtonState)));
-    connect(this, SIGNAL(clicked(QModelIndex,ButtonState)),
-            SLOT(emitClicked(QModelIndex,ButtonState)));
-    connect(this, SIGNAL(doubleClicked(QModelIndex,ButtonState)),
-            SLOT(emitDoubleClicked(QModelIndex,ButtonState)));
-    connect(this, SIGNAL(keyPressed(QModelIndex,Key,ButtonState)),
-            SLOT(emitKeyPressed(QModelIndex,Key,ButtonState)));
+    connect(this, SIGNAL(pressed(QModelIndex,const QMouseEvent*)),
+            SLOT(emitPressed(QModelIndex,const QMouseEvent*)));
+    connect(this, SIGNAL(clicked(QModelIndex,const QMouseEvent*)),
+            SLOT(emitClicked(QModelIndex,const QMouseEvent*)));
+    connect(this, SIGNAL(doubleClicked(QModelIndex,const QMouseEvent*)),
+            SLOT(emitDoubleClicked(QModelIndex,const QMouseEvent*)));
+    connect(this, SIGNAL(keyPressed(QModelIndex,const QKeyEvent*)),
+            SLOT(emitKeyPressed(QModelIndex,const QKeyEvent*)));
     connect(this, SIGNAL(returnPressed(QModelIndex)),
             SLOT(emitReturnPressed(QModelIndex)));
-    connect(this, SIGNAL(itemEntered(QModelIndex,ButtonState)),
-            SLOT(emitItemEntered(QModelIndex,ButtonState)));
+    connect(this, SIGNAL(itemEntered(QModelIndex,const QMouseEvent*)),
+            SLOT(emitItemEntered(QModelIndex,const QMouseEvent*)));
     connect(this, SIGNAL(aboutToShowContextMenu(QMenu*,QModelIndex)),
             SLOT(emitAboutToShowContextMenu(QMenu*,QModelIndex)));
     connect(selectionModel(),

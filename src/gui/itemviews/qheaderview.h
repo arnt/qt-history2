@@ -103,10 +103,10 @@ public slots:
 signals:
     void sectionMoved(int logicalIndex, int oldVisualIndex, int newVisualIndex);
     void sectionResized(int logicalIndex, int oldSize, int newSize);
-    void sectionPressed(int logicalIndex, Qt::ButtonState state);
-    void sectionClicked(int logicalIndex, Qt::ButtonState state);
+    void sectionPressed(int logicalIndex, const QMouseEvent *event);
+    void sectionClicked(int logicalIndex, const QMouseEvent *event);
     void sectionCountChanged(int oldCount, int newCount);
-    void sectionHandleDoubleClicked(int logicalIndex, Qt::ButtonState state);
+    void sectionHandleDoubleClicked(int logicalIndex, const QMouseEvent *event);
     void sectionAutoResize(int logicalIndex, ResizeMode mode);
 
 protected slots:
@@ -144,7 +144,7 @@ protected:
     QModelIndex itemAt(int x, int y) const;
     bool isIndexHidden(const QModelIndex &index) const;
     
-    QModelIndex moveCursor(QAbstractItemView::CursorAction cursorAction, Qt::ButtonState state);
+    QModelIndex moveCursor(QAbstractItemView::CursorAction, Qt::KeyboardModifiers);
     void setSelection(const QRect&, QItemSelectionModel::SelectionFlags);
     QRect selectionViewportRect(const QItemSelection &selection) const;
 };

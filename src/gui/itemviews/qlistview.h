@@ -116,7 +116,8 @@ protected:
 
     int horizontalOffset() const;
     int verticalOffset() const;
-    QModelIndex moveCursor(QAbstractItemView::CursorAction cursorAction, Qt::ButtonState state);
+    QModelIndex moveCursor(QAbstractItemView::CursorAction cursorAction,
+                           Qt::KeyboardModifiers modifiers);
     QRect itemRect(const QModelIndex &index) const;
 
     void setSelection(const QRect &rect, QItemSelectionModel::SelectionFlags command);

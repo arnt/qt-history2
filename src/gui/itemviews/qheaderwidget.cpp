@@ -62,6 +62,7 @@ QHeaderModel::QHeaderModel(Qt::Orientation orientation, int sections, QHeaderWid
       orientation(orientation)
 {
     setSectionCount(sections);
+    setup();
 }
 
 QHeaderModel::~QHeaderModel()
@@ -303,13 +304,13 @@ public:
     QHeaderWidgetPrivate() : QHeaderViewPrivate() {}
     inline QHeaderModel *model() const { return ::qt_cast<QHeaderModel*>(q_func()->model()); }
 
-    void emitClicked(int section, Qt::ButtonState state);
+    void emitClicked(int section, const QMouseEvent *event);
     void emitItemChanged(Qt::Orientation orientation, int first, int last);
 };
 
-void QHeaderWidgetPrivate::emitClicked(int section, Qt::ButtonState state)
+void QHeaderWidgetPrivate::emitClicked(int section, const QMouseEvent *event)
 {
-    emit q->clicked(model()->item(section), state);
+    emit q->clicked(model()->item(section), event);
 }
 
 void QHeaderWidgetPrivate::emitItemChanged(Qt::Orientation orientation, int first, int last)
@@ -363,7 +364,7 @@ void QHeaderWidgetPrivate::emitItemChanged(Qt::Orientation orientation, int firs
 QHeaderWidget::QHeaderWidget(Qt::Orientation orientation, int sections, QWidget *parent)
     : QHeaderView(orientation, parent)
 {
-    setModel(new QHeaderModel(orientation, sections, this));
+    setup(sections);
 }
 
 /*!
@@ -431,6 +432,19 @@ void QHeaderWidget::clear()
 void QHeaderWidget::setModel(QAbstractItemModel *model)
 {
     QHeaderView::setModel(model);
+}
+
+/*!
+  \internal
+*/
+
+void QHeaderWidget::setup(int sections)
+{
+    setModel(new QHeaderModel(orientation(), sections, this));
+    connect(this, SIGNAL(clicked(int,const QMouseEvent*)),
+            SLOT(emitSectionClicked(int,const QMouseEvent)));
+    connect(model(), SIGNAL(headerDataChanged(Qt::orientation,int,int)),
+            SLOT(emitItemChanged(Qt::orientation,int,int)));
 }
 
 #include "moc_qheaderwidget.cpp"

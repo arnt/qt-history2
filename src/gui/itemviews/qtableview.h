@@ -63,8 +63,8 @@ public:
     QModelIndex itemAt(int x, int y) const;
 
 public slots:
-    void selectRow(int row, Qt::ButtonState state = Qt::NoButton);
-    void selectColumn(int column, Qt::ButtonState state = Qt::NoButton);
+    void selectRow(int row, const QMouseEvent *event);
+    void selectColumn(int column, const QMouseEvent *event);
     void hideRow(int row);
     void hideColumn(int column);
     void showRow(int row);
@@ -88,7 +88,8 @@ protected:
 
     int horizontalOffset() const;
     int verticalOffset() const;
-    QModelIndex moveCursor(QAbstractItemView::CursorAction cursorAction, Qt::ButtonState state);
+    QModelIndex moveCursor(QAbstractItemView::CursorAction cursorAction,
+                           Qt::KeyboardModifiers modifiers);
 
     void setSelection(const QRect &rect, QItemSelectionModel::SelectionFlags command);
     QRect selectionViewportRect(const QItemSelection &selection) const;

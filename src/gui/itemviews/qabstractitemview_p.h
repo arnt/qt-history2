@@ -47,7 +47,7 @@ public:
 
     QPersistentModelIndex enteredItem;
     QPersistentModelIndex pressedItem;
-    Qt::ButtonState pressedState;
+    Qt::KeyboardModifiers pressedModifiers;
     QPoint pressedPosition;
 
     QAbstractItemView::State state;

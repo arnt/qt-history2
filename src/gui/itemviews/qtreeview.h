@@ -92,7 +92,8 @@ protected:
     void rowsInserted(const QModelIndex &parent, int start, int end);
     void rowsRemoved(const QModelIndex &parent, int start, int end);
 
-    QModelIndex moveCursor(QAbstractItemView::CursorAction cursorAction, Qt::ButtonState state);
+    QModelIndex moveCursor(QAbstractItemView::CursorAction cursorAction,
+                           Qt::KeyboardModifiers modifiers);
     int horizontalOffset() const;
     int verticalOffset() const;
 
