@@ -94,6 +94,9 @@ public:
     virtual bool addTo( QWidget* );
     virtual bool removeFrom( QWidget* );
 
+protected:
+    virtual void addedTo( QWidget *actionWidget, QWidget *container );
+
 public slots:
     virtual void setEnabled( bool );
 
