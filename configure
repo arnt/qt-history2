@@ -362,6 +362,7 @@ if [ -z "$MODULES" ]; then
     MODULES="styles tools kernel widgets dialogs iconview workspace"
     [ "$Products" != "qt-professional" ] && MODULES="$MODULES network canvas table xml opengl sql"
 fi
+AVAIL_MODULES=$MODULES
 QMAKE_VARS="$QMAKE_VARS \"QT_PRODUCT=$Products\""
 QMAKE_VARS="$QMAKE_VARS \"styles += windows motif aqua platinum sgi cde motifplus\""
 
@@ -1143,9 +1144,9 @@ Installation options:
 
 
     -enable-<module> .......... Enables a module where module is one of:
-				$MODULES
+				$AVAIL_MODULES
     -disable-<module> ......... Disables a module where module is one of:
-				$MODULES
+				$AVAIL_MODULES
 
     -qt-sql-<driver> .......... Enable a SQL <driver> in the Qt Library, by
                                 default none are turned on.
