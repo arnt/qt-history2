@@ -41,6 +41,7 @@ struct Q_EXPORT QHashData
     short userNumBits;
     short numBits;
     int numBuckets;
+    void *autoDelete;
 
     QHashData *detach_helper(Node *(*node_duplicate)(Node *));
     void grow();
@@ -161,6 +162,8 @@ public:
     inline int capacity() const { return d->numBuckets; }
     inline void detach() { if (d->ref != 1) detach_helper(); }
     inline bool isDetached() const { return d->ref == 1; }
+    bool autoDelete() const;
+    void setAutoDelete(bool enable);
 
     class Iterator
     {
@@ -379,6 +382,8 @@ bool QHash<Key, T>::remove(const Key &key)
     Node * &node = node_find(key);
     bool found = (node != e);
     if (found) {
+	if (d->autoDelete==this) 
+	    qDelete(node->value);
 	Node *next = node->next;
 	delete node;
 	node = next;
@@ -416,11 +421,27 @@ typename QHash<Key, T>::Iterator QHash<Key, T>::erase(Iterator it)
     while (*node != it.i)
 	node = &node->next;
     Node *next = node->next;
+    if (d->autoDelete==this)
+	qDelete(node->value);
     delete node;
     node = next;
     d->shrink();
     return n;
 }
+
+template <class Key, class T>
+inline bool QHash<Key, T>::autoDelete() const
+{ return d->autoDelete == (void*) this; }
+
+template <class Key, class T>
+inline void QHash<Key, T>::setAutoDelete(bool enable)
+{
+    Q_ASSERT_X(QTypeInfo<T>::isPointer,
+		 "QHash<Key,T>::setAutoDelete", "Cannot delete non pointer types");
+    detach();
+    d->autoDelete = enable ? this : 0;
+}
+
 
 template <class Key, class T>
 inline void QHash<Key, T>::reserve(int size)

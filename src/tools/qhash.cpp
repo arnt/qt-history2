@@ -90,7 +90,7 @@ static int countBits(int hint)
 */
 const int MinNumBits = 4;
 
-QHashData QHashData::shared_null = { 0, 0, Q_ATOMIC_INIT(1), 0, MinNumBits, 0, 0 };
+QHashData QHashData::shared_null = { 0, 0, Q_ATOMIC_INIT(1), 0, MinNumBits, 0, 0, 0 };
 
 QHashData *QHashData::detach_helper(Node *(*node_duplicate)(Node *))
 {
