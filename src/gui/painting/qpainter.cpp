@@ -1607,15 +1607,11 @@ void QPainter::drawPoints(const QPointArray &pa, int index, int npoints)
     if (!isActive() || npoints < 1 || index < 0)
         return;
 
-    if ((d->state->VxF || d->state->WxF) && !d->engine->hasFeature(QPaintEngine::CoordTransform)) {
-        QPointArray a = xForm(pa, index, npoints);
-        index = 0;
-        npoints = a.size();
-        d->engine->drawPoints(static_cast<QPointArray&>(a.mid(index, npoints)));
-        return;
-    }
+    QPointArray a = pa.mid(index, npoints);
+    if ((d->state->VxF || d->state->WxF) && !d->engine->hasFeature(QPaintEngine::CoordTransform))
+        a = xForm(a);
 
-    d->engine->drawPoints(static_cast<QPointArray&>(pa.mid(index, npoints)));
+    d->engine->drawPoints(a);
 }
 
 

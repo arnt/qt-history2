@@ -5718,97 +5718,45 @@ void QPSPrintEngine::drawPoint(const QPoint &p)
     d->pageStream << POINT(p) << "P\n";
 }
 
-void QPSPrintEngine::drawPoints(const QPointArray &pa, int index, int npoints)
-{
-    for (int i = 0; i < npoints; ++i)
-        drawPoint(pa[i+index]);
-}
-
-void QPSPrintEngine::drawRoundRect(const QRect &r, int xRnd, int yRnd)
-{
-    d->pageStream << RECT(r) << INT_ARG(xRnd) << INT_ARG(yRnd) << "RR\n";
-}
-
 void QPSPrintEngine::drawEllipse(const QRect &r)
 {
     d->pageStream << RECT(r) << "E\n";
 }
 
-void QPSPrintEngine::drawArc(const QRect &r, int a, int alen)
-{
-    d->pageStream << RECT(r) << INT_ARG(a) << INT_ARG(alen) << "A\n";
-}
-
-void QPSPrintEngine::drawPie(const QRect &r, int a, int alen)
-{
-    d->pageStream << RECT(r) << INT_ARG(a) << INT_ARG(alen) << "PIE\n";
-}
-
-void QPSPrintEngine::drawChord(const QRect &r, int a, int alen)
-{
-    d->pageStream << RECT(r) << INT_ARG(a) << INT_ARG(alen) << "CH\n";
-}
-
-void QPSPrintEngine::drawLineSegments(const QPointArray &a, int index, int nlines)
+void QPSPrintEngine::drawLineSegments(const QPointArray &a)
 {
     d->pageStream << "NP\n";
-    for (int i = index; i < index+nlines; ++i) {
-        QPoint pt = a.point(2*i);
+    for (int i = 0; i < a.size() - 1; i += 2) {
+        QPoint pt = a.point(i);
         d->pageStream << XCOORD(pt.x()) << ' '
                       << YCOORD(pt.y()) << " MT ";
-        pt = a.point(2*i+1);
+        pt = a.point(i+1);
         d->pageStream << XCOORD(pt.x()) << ' '
                       << YCOORD(pt.y()) << " LT\n";
     }
     d->pageStream << "QS\n";
 }
 
-void QPSPrintEngine::drawPolyline(const QPointArray &a, int index, int npoints)
+void QPSPrintEngine::drawPolygon(const QPointArray &a, PolygonDrawMode mode)
 {
-    QPoint pt = a.point(index);
-    d->pageStream << "NP\n"
-                  << XCOORD(pt.x()) << ' ' << YCOORD(pt.y()) << " MT\n";
-    for (int i = 1; i < npoints; i++) {
-        pt = a.point(i + index);
-        d->pageStream << XCOORD(pt.x()) << ' '
-                      << YCOORD(pt.y()) << " LT\n";
-    }
-    d->pageStream << "QS\n";
-}
 
-void QPSPrintEngine::drawPolygon(const QPointArray &a, bool winding, int index, int npoints)
-{
-    if (winding)
+    if (mode == WindingMode)
         d->pageStream << "/WFi true d\n";
-    QPoint pt = a.point(index);
+    QPoint pt = a.point(0);
     d->pageStream << "NP\n";
     d->pageStream << XCOORD(pt.x()) << ' '
                   << YCOORD(pt.y()) << " MT\n";
-    for(int i = 1; i < npoints; i++) {
-        pt = a.point(i + index);
+    for(int i = 1; i < a.size(); i++) {
+        pt = a.point(i);
         d->pageStream << XCOORD(pt.x()) << ' '
                       << YCOORD(pt.y()) << " LT\n";
     }
-    d->pageStream << "CP BF QS\n";
-    if (winding)
+    if (mode == UnconnectedMode)
+        d->pageStream << "QS\n";
+    else
+        d->pageStream << "CP BF QS\n";
+    if (mode == WindingMode)
         d->pageStream << "/WFi false d\n";
-}
-
-void QPSPrintEngine::drawConvexPolygon(const QPointArray &pa, int index, int npoints)
-{
-    drawPolygon(pa, false, index, npoints);
-}
-
-void QPSPrintEngine::drawCubicBezier(const QPointArray &a, int index)
-{
-    d->pageStream << "NP\n";
-    d->pageStream << XCOORD(a[index].x()) << ' '
-                  << YCOORD(a[index].y()) << " MT ";
-    for (int i = 1; i < 4; i++) {
-        d->pageStream << XCOORD(a[index + i].x()) << ' '
-                      << YCOORD(a[index + i].y()) << ' ';
-    }
-    d->pageStream << "BZ\n";
 }
 
 void QPSPrintEngine::drawPixmap(const QRect &r, const QPixmap &pm, const QRect &sr,

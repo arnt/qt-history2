@@ -737,11 +737,10 @@ void QX11PaintEngine::drawPoint(const QPoint &p)
         XDrawPoint(d->dpy, d->hd, d->gc, p.x(), p.y());
 }
 
-void QX11PaintEngine::drawPoints(const QPointArray &a, int index, int npoints)
+void QX11PaintEngine::drawPoints(const QPointArray &a)
 {
     if (d->cpen.style() != Qt::NoPen)
-        XDrawPoints(d->dpy, d->hd, d->gc, (XPoint*)(a.shortPoints(index, npoints)),
-                    npoints, CoordModeOrigin);
+        XDrawPoints(d->dpy, d->hd, d->gc, (XPoint*)(a.shortPoints(0, a.size())), a.size(), CoordModeOrigin);
 }
 
 void QX11PaintEngine::updatePen(const QPen &pen)
@@ -970,76 +969,6 @@ void QX11PaintEngine::updateBrush(const QBrush &brush, const QPoint &origin)
     XSetFillStyle(d->dpy, d->gc_brush, s);
 }
 
-void QX11PaintEngine::drawRoundRect(const QRect &r, int xRnd, int yRnd)
-{
-    int x = r.x();
-    int y = r.y();
-    int w = r.width();
-    int h = r.height();
-    w--;
-    h--;
-    if (w <= 0 || h <= 0) {
-        if (w == 0 || h == 0)
-            return;
-        fix_neg_rect(&x, &y, &w, &h);
-    }
-    int rx = (w*xRnd)/200;
-    int ry = (h*yRnd)/200;
-    int rx2 = 2*rx;
-    int ry2 = 2*ry;
-    if (d->cbrush.style() != Qt::NoBrush) {          // draw filled round rect
-        int dp, ds;
-        if (d->cpen.style() == Qt::NoPen) {
-            dp = 0;
-            ds = 1;
-        } else {
-            dp = 1;
-            ds = 0;
-        }
-#define SET_ARC(px, py, w, h, a1, a2) \
-    a->x=px; a->y=py; a->width=w; a->height=h; a->angle1=a1; a->angle2=a2; a++
-        XArc arcs[4];
-        XArc *a = arcs;
-        SET_ARC(x+w-rx2, y, rx2, ry2, 0, 90*64);
-        SET_ARC(x, y, rx2, ry2, 90*64, 90*64);
-        SET_ARC(x, y+h-ry2, rx2, ry2, 180*64, 90*64);
-        SET_ARC(x+w-rx2, y+h-ry2, rx2, ry2, 270*64, 90*64);
-        XFillArcs(d->dpy, d->hd, d->gc_brush, arcs, 4);
-#undef SET_ARC
-#define SET_RCT(px, py, w, h) \
-    r->x=px; r->y=py; r->width=w; r->height=h; r++
-        XRectangle rects[3];
-        XRectangle *r = rects;
-        SET_RCT(x+rx, y+dp, w-rx2, ry);
-        SET_RCT(x+dp, y+ry, w+ds, h-ry2);
-        SET_RCT(x+rx, y+h-ry, w-rx2, ry+ds);
-        XFillRectangles(d->dpy, d->hd, d->gc_brush, rects, 3);
-#undef SET_RCT
-    }
-    if (d->cpen.style() != Qt::NoPen) {              // draw outline
-#define SET_ARC(px, py, w, h, a1, a2) \
-    a->x=px; a->y=py; a->width=w; a->height=h; a->angle1=a1; a->angle2=a2; a++
-        XArc arcs[4];
-        XArc *a = arcs;
-        SET_ARC(x+w-rx2, y, rx2, ry2, 0, 90*64);
-        SET_ARC(x, y, rx2, ry2, 90*64, 90*64);
-        SET_ARC(x, y+h-ry2, rx2, ry2, 180*64, 90*64);
-        SET_ARC(x+w-rx2, y+h-ry2, rx2, ry2, 270*64, 90*64);
-        XDrawArcs(d->dpy, d->hd, d->gc, arcs, 4);
-#undef SET_ARC
-#define SET_SEG(xp1, yp1, xp2, yp2) \
-    s->x1=xp1; s->y1=yp1; s->x2=xp2; s->y2=yp2; s++
-        XSegment segs[4];
-        XSegment *s = segs;
-        SET_SEG(x+rx, y, x+w-rx, y);
-        SET_SEG(x+rx, y+h, x+w-rx, y+h);
-        SET_SEG(x, y+ry, x, y+h-ry);
-        SET_SEG(x+w, y+ry, x+w, y+h-ry);
-        XDrawSegments(d->dpy, d->hd, d->gc, segs, 4);
-#undef SET_SET
-    }
-}
-
 void QX11PaintEngine::drawEllipse(const QRect &r)
 {
     int x = r.x();
@@ -1063,145 +992,42 @@ void QX11PaintEngine::drawEllipse(const QRect &r)
         XDrawArc(d->dpy, d->hd, d->gc, x, y, w, h, 0, 360*64);
 }
 
-void QX11PaintEngine::drawArc(const QRect &r, int a, int alen)
-{
-    int x = r.x();
-    int y = r.y();
-    int w = r.width();
-    int h = r.height();
-    w--;
-    h--;
-    if (w <= 0 || h <= 0)
-        return;
-    if (d->cpen.style() != Qt::NoPen)
-        XDrawArc(d->dpy, d->hd, d->gc, x, y, w, h, a*4, alen*4);
-}
 
-void QX11PaintEngine::drawPie(const QRect &r, int a, int alen)
-{
-    int x = r.x();
-    int y = r.y();
-    int w = r.width();
-    int h = r.height();
-
-    // Make sure "a" is 0..360*16, as otherwise a*4 may overflow 16 bits.
-    if (a > (360*16)) {
-        a = a % (360*16);
-    } else if (a < 0) {
-        a = a % (360*16);
-        if (a < 0) a += (360*16);
-    }
-
-    if (!isActive())
-        return;
-
-    XSetArcMode(d->dpy, d->gc_brush, ArcPieSlice);
-
-    w--;
-    h--;
-    if (w <= 0 || h <= 0)
-        return;
-
-    GC g = d->gc;
-    bool nopen = d->cpen.style() == Qt::NoPen;
-
-    if (d->cbrush.style() != Qt::NoBrush) {          // draw filled pie
-        XFillArc(d->dpy, d->hd, d->gc_brush, x, y, w, h, a*4, alen*4);
-        if (nopen) {
-            g = d->gc_brush;
-            nopen = false;
-        }
-    }
-    if (!nopen) {                             // draw pie outline
-        double w2 = 0.5*w;                      // with, height in ellipsis
-        double h2 = 0.5*h;
-        double xc = (double)x+w2;
-        double yc = (double)y+h2;
-        double ra1 = Q_PI/2880.0*a;             // convert a, alen to radians
-        double ra2 = ra1 + Q_PI/2880.0*alen;
-        int xic = qRound(xc);
-        int yic = qRound(yc);
-        XDrawLine(d->dpy, d->hd, g, xic, yic,
-                  qRound(xc + qcos(ra1)*w2), qRound(yc - qsin(ra1)*h2));
-        XDrawLine(d->dpy, d->hd, g, xic, yic,
-                  qRound(xc + qcos(ra2)*w2), qRound(yc - qsin(ra2)*h2));
-        XDrawArc(d->dpy, d->hd, g, x, y, w, h, a*4, alen*4);
-    }
-}
-
-void QX11PaintEngine::drawChord(const QRect &r, int a, int alen)
-{
-    int x = r.x();
-    int y = r.y();
-    int w = r.width();
-    int h = r.height();
-
-    XSetArcMode(d->dpy, d->gc_brush, ArcChord);
-
-    w--;
-    h--;
-    if (w <= 0 || h <= 0)
-        return;
-
-    GC g = d->gc;
-    bool nopen = d->cpen.style() == Qt::NoPen;
-
-    if (d->cbrush.style() != Qt::NoBrush) {          // draw filled chord
-        XFillArc(d->dpy, d->hd, d->gc_brush, x, y, w, h, a*4, alen*4);
-        if (nopen) {
-            g = d->gc_brush;
-            nopen = false;
-        }
-    }
-    if (!nopen) {                             // draw chord outline
-        double w2 = 0.5*w;                      // with, height in ellipsis
-        double h2 = 0.5*h;
-        double xc = (double)x+w2;
-        double yc = (double)y+h2;
-        double ra1 = Q_PI/2880.0*a;             // convert a, alen to radians
-        double ra2 = ra1 + Q_PI/2880.0*alen;
-        XDrawLine(d->dpy, d->hd, g,
-                  qRound(xc + qcos(ra1)*w2), qRound(yc - qsin(ra1)*h2),
-                  qRound(xc + qcos(ra2)*w2), qRound(yc - qsin(ra2)*h2));
-        XDrawArc(d->dpy, d->hd, g, x, y, w, h, a*4, alen*4);
-    }
-
-    XSetArcMode(d->dpy, d->gc_brush, ArcPieSlice);
-}
-
-void QX11PaintEngine::drawLineSegments(const QPointArray &a, int index, int nlines)
-{
-    QPointArray pa = a;
-    if (d->cpen.style() != Qt::NoPen)
-        XDrawSegments(d->dpy, d->hd, d->gc,
-                      (XSegment*)(pa.shortPoints(index, nlines*2)), nlines);
-}
-
-void QX11PaintEngine::drawPolyline(const QPointArray &a, int index, int npoints)
+void QX11PaintEngine::drawLineSegments(const QPointArray &a)
 {
     QPointArray pa = a;
     if (d->cpen.style() != Qt::NoPen) {
-        while(npoints > 65535) {
-            XDrawLines(d->dpy, d->hd, d->gc, (XPoint*)(pa.shortPoints(index, 65535)),
-                       65535, CoordModeOrigin);
-            npoints -= 65535;
-            index += 65535;
-        }
-        XDrawLines(d->dpy, d->hd, d->gc, (XPoint*)(pa.shortPoints(index, npoints)),
-                   npoints, CoordModeOrigin);
+        int nlines = a.size()/2;
+        XDrawSegments(d->dpy, d->hd, d->gc,
+                      (XSegment*)(pa.shortPoints(0, nlines*2)), nlines);
     }
 }
 
-static int global_polygon_shape = Complex;
-
-void QX11PaintEngine::drawPolygon(const QPointArray &a, bool winding, int index, int npoints)
+void QX11PaintEngine::drawPolygon(const QPointArray &a, PolygonDrawMode mode)
 {
     QPointArray pa = a;
 
-    if (pa[index] != pa[index + npoints - 1]) {   // close open pointarray
+    if (mode == UnconnectedMode) {
+        if (d->cpen.style() != Qt::NoPen) {
+            int npoints = a.size();
+            int index = 0;
+            while(npoints > 65535) {
+                XDrawLines(d->dpy, d->hd, d->gc, (XPoint*)(pa.shortPoints(index, 65535)),
+                           65535, CoordModeOrigin);
+                npoints -= 65535;
+                index += 65535;
+            }
+            XDrawLines(d->dpy, d->hd, d->gc, (XPoint*)(pa.shortPoints(index, npoints)),
+                       npoints, CoordModeOrigin);
+        }
+        return;
+    }
+
+    int npoints = pa.size();
+    if (pa[0] != pa[npoints - 1]) {   // close open pointarray
         pa.detach();
-        pa.resize(index + npoints + 1);
-        pa.setPoint(index + npoints, pa[index]);
+        pa.resize(npoints + 1);
+        pa.setPoint(npoints, pa[0]);
         ++npoints;
     }
 
@@ -1231,11 +1057,11 @@ void QX11PaintEngine::drawPolygon(const QPointArray &a, bool winding, int index,
 	    }
 	    XRenderCompositeDoublePoly(d->dpy, PictOpOver, src, dst,
 				       XRenderFindStandardFormat(d->dpy, PictStandardARGB32),
-				       0, 0, 0, 0, poly, npoints, winding);
+				       0, 0, 0, 0, poly, npoints, (mode == WindingMode));
 	    delete [] poly;
 
 	    if (d->cpen.style() != Qt::NoPen) {              // draw outline
-		XDrawLines(d->dpy, d->hd, d->gc, (XPoint*)(pa.shortPoints(index, npoints)),
+		XDrawLines(d->dpy, d->hd, d->gc, (XPoint*)(pa.shortPoints(0, npoints)),
 			   npoints, CoordModeOrigin);
 	    }
 	    return;
@@ -1243,48 +1069,20 @@ void QX11PaintEngine::drawPolygon(const QPointArray &a, bool winding, int index,
     }
 #endif
 
-    if (winding)                              // set to winding fill rule
+    if (mode == WindingMode)                              // set to winding fill rule
         XSetFillRule(d->dpy, d->gc_brush, WindingRule);
 
     if (d->cbrush.style() != Qt::NoBrush) {          // draw filled polygon
         XFillPolygon(d->dpy, d->hd, d->gc_brush,
-                     (XPoint*)(pa.shortPoints(index, npoints)),
-                     npoints, global_polygon_shape, CoordModeOrigin);
+                     (XPoint*)(pa.shortPoints(0, npoints)),
+                     npoints, mode == ConvexMode ? Convex : Complex, CoordModeOrigin);
     }
     if (d->cpen.style() != Qt::NoPen) {              // draw outline
-        XDrawLines(d->dpy, d->hd, d->gc, (XPoint*)(pa.shortPoints(index, npoints)),
+        XDrawLines(d->dpy, d->hd, d->gc, (XPoint*)(pa.shortPoints(0, npoints)),
                    npoints, CoordModeOrigin);
     }
-    if (winding)                              // set to normal fill rule
+    if (mode == WindingMode)                              // set to normal fill rule
         XSetFillRule(d->dpy, d->gc_brush, EvenOddRule);
-}
-
-void QX11PaintEngine::drawConvexPolygon(const QPointArray &pa, int index, int npoints)
-{
-    global_polygon_shape = Convex;
-    drawPolygon(pa, false, index, npoints);
-    global_polygon_shape = Complex;
-}
-
-void QX11PaintEngine::drawCubicBezier(const QPointArray &a, int index)
-{
-    if (!isActive())
-        return;
-    if (a.size() - index < 4) {
-        qWarning("drawCubicBezier: Cubic Bezier needs 4 control points");
-        return;
-    }
-    QPointArray pa(a);
-    if (index != 0 || a.size() > 4) {
-        pa = QPointArray(4);
-        for (int i = 0; i < 4; i++)
-            pa.setPoint(i, a.point(index + i));
-    }
-    if (d->cpen.style() != Qt::NoPen) {
-        pa = pa.cubicBezier();
-        XDrawLines(d->dpy, d->hd, d->gc, (XPoint*)pa.shortPoints(), pa.size(),
-                   CoordModeOrigin);
-    }
 }
 
 //
