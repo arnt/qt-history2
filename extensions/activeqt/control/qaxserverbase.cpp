@@ -2472,7 +2472,7 @@ HRESULT WINAPI QAxServerBase::Invoke( DISPID dispidMember, REFIID riid,
 		    }
 		}
                 if (!type.isEmpty() && pvarResult) {
-                    if (argv_pointer[0])
+                    if (!varp[0].isValid())
                         varp[0] = QVariant::UserData(argv_pointer[0], type.latin1());
 		    ok = QVariantToVARIANT(varp[0], *pvarResult, type);
                 }
