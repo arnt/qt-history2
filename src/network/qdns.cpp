@@ -986,13 +986,13 @@ void QDnsManager::answer()
     a.resize( 16383 ); // large enough for anything, one suspects
 
     int r;
-    bool useIpv4Socket = (((QSocketNotifier *)sender())->socket() == ipv4Socket->socket());
-
-    if (useIpv4Socket)
-	r = ipv4Socket->readBlock( a.data(), a.size() );
-#if !defined (QT_NO_IPV6)
+#if defined (QT_NO_IPV6)
+    r = ipv4Socket->readBlock(a.data(), a.size());
+#else
+    if (((QSocketNotifier *)sender())->socket() == ipv4Socket->socket())
+        r = ipv4Socket->readBlock(a.data(), a.size());
     else
-	r = ipv6Socket->readBlock( a.data(), a.size() );
+        r = ipv6Socket->readBlock(a.data(), a.size());
 #endif
 #if defined(QDNS_DEBUG)
 #if !defined (QT_NO_IPV6)
