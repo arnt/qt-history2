@@ -193,8 +193,7 @@ static const int default_height = 30;
 
 
 /*!
-    Creates a new generic header with orientation \a o and the given
-    \a parent.
+    Creates a new generic header with the given \a orientation and \a parent.
 */
 QGenericHeader::QGenericHeader(Qt::Orientation orientation, QWidget *parent)
     : QAbstractItemView(*new QGenericHeaderPrivate, parent)

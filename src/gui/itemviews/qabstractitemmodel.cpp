@@ -721,7 +721,7 @@ bool QAbstractItemModel::setData(const QModelIndex &, int, const QVariant &)
 }
 
 /*!
-    \fn QVariant QAbstractItemModel::data(const QModelIndex &index, int role = Display) const = 0
+    \fn QVariant QAbstractItemModel::data(const QModelIndex &index, int role) const = 0
 
     Returns the data of role \a role for the item at \a index.
 */
@@ -1162,7 +1162,7 @@ QAbstractTableModel::~QAbstractTableModel()
 */
 
 QModelIndex QAbstractTableModel::index(int row, int column, const QModelIndex &parent,
-                                       QModelIndex::Type type) const
+                                     QModelIndex::Type type) const
 {
     return isValid(row, column, parent) ? createIndex(row, column, 0, type) : QModelIndex();
 }
@@ -1225,6 +1225,13 @@ int QAbstractTableModel::columnCount(const QModelIndex &parent) const
     If you need to use a number of list models to manage data, it may be more
     appropriate to use the QAbstractTableModel class.
 
+    QAbstractListModel is not used directly, but must be subclassed. For example,
+    we can implement a simple QStringList-based model that provides a list of
+    strings to a QGenericListView widget. In such a case, we only need to
+    implement the rowCount() function to return the number of items in the list,
+    and the data() function to retrieve items from the list.
+
+
     Since the model represents a one-dimensional structure, the rowCount()
     function returns the number of items in the model. The columnCount() function
     is implemented for interoperability with all kinds of generic views, but
@@ -1254,7 +1261,7 @@ int QAbstractTableModel::columnCount(const QModelIndex &parent) const
 */
 
 QAbstractListModel::QAbstractListModel(QObject *parent)
-    : QAbstractItemModel(parent)
+    : QAbstractTableModel(parent)
 {
 
 }
@@ -1266,35 +1273,16 @@ QAbstractListModel::QAbstractListModel(QObject *parent)
 */
 
 QAbstractListModel::QAbstractListModel(QAbstractItemModelPrivate &dd, QObject *parent)
-    : QAbstractItemModel(dd, parent)
+    : QAbstractTableModel(dd, parent)
 {
 
-}
+}   
+
+/*!
+    Destroys the abstract list model.
+*/
 
 QAbstractListModel::~QAbstractListModel()
 {
 
-}
-
-QModelIndex QAbstractListModel::index(int row, int column, const QModelIndex &parent,
-                                      QModelIndex::Type type) const
-{
-    return isValid(row, column, parent) ? createIndex(row, column, 0, type) : QModelIndex();
-}
-
-QModelIndex QAbstractListModel::parent(const QModelIndex &) const
-{
-    return QModelIndex();
-}
-
-int QAbstractListModel::rowCount(const QModelIndex &parent) const
-{
-    if (parent.isValid())
-        return 0;
-    return rowCount();
-}
-
-int QAbstractListModel::columnCount(const QModelIndex &) const
-{
-    return columnCount();
 }
