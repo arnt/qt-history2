@@ -6,10 +6,11 @@
 #include <qintdict.h>
 #include <qcanvas.h>
 
-class SpaceShip : public QCanvasSprite {
+class BouncyLogo : public QCanvasSprite {
+    void initPos();
     void initSpeed();
 public:
-    SpaceShip(QCanvas*);
+    BouncyLogo(QCanvas*);
     void advance(int);
     int rtti() const;
 };
@@ -37,9 +38,11 @@ class Main : public QMainWindow {
     Q_OBJECT
 
 public:
-    Main();
+    Main(QCanvas&, QWidget* parent=0, const char* name=0, WFlags f=0);
 
 private slots:
+    void newView();
+
     void addSprite();
     void addCircle();
     void addHexagon();
@@ -49,7 +52,7 @@ private slots:
     void toggleDoubleBuffer();
 
 private:
-    QCanvas canvas;
+    QCanvas& canvas;
     FigureEditor *editor;
 
     QPopupMenu* options;

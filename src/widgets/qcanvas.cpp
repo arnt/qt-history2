@@ -905,37 +905,31 @@ void QCanvas::drawArea(const QRect& inarea, QPainter* p, bool double_buffer)
 		0, 0, area.width(), area.height() );
 	    return;
 	}
+    } else if ( p ) {
+	drawBackground(*p,area);
+	allvisible.drawUnique(*p);
+	drawForeground(*p,area);
     }
+
+    QPoint trtr; // keeps track of total translation of rgn
 
     for (QCanvasView* view=viewList.first(); view; view=viewList.next()) {
 	QPainter painter(view->viewport());
 	QPoint tr = view->contentsToViewport(area.topLeft());
-	painter.setClipRegion(rgn);
+	QPoint nrtr = view->contentsToViewport(QPoint(0,0)); // new translation
+	QPoint rtr = nrtr - trtr; // extra translation of rgn
+	trtr += rtr; // add to total
 	if (double_buffer) {
+	    rgn.translate(rtr.x(),rtr.y());
+	    painter.setClipRegion(rgn);
 	    painter.drawPixmap(tr,offscr, QRect(QPoint(0,0),area.size()));
 	} else {
-	    QPoint tl = view->viewportToContents(QPoint(0,0));
-	    painter.translate(-tl.x(),-tl.y());
+	    painter.translate(rtr.x(),rtr.y());
+	    rgn.translate(rtr.x(),rtr.y());
+	    painter.setClipRegion(rgn);
 	    drawBackground(painter,area);
 	    allvisible.drawUnique(painter);
 	    drawForeground(painter,area);
-	}
-	if ( 0 ) {
-	    QArray<QRect> r = rgn.rects();
-	    painter.setBrush(NoBrush);
-	    painter.setPen(red);
-	    //painter.setPen(color1);
-	    //painter.setRasterOp(XorROP);
-	    QPoint tl = view->viewportToContents(QPoint(0,0));
-	    for ( int i=0; i<(int)r.count(); i++ ) {
-		if ( double_buffer ) {
-		    painter.drawRect(r[i]);
-		} else {
-		    QRect rr = r[i];
-		    rr.moveBy(tl.x(),tl.y());
-		    painter.drawRect(rr);
-		}
-	    }
 	}
     }
 }
@@ -2178,11 +2172,12 @@ QCanvasPixmapArray::QCanvasPixmapArray()
 /*!
 Construct a QCanvasPixmapArray from files.
 
-The framecount parameter sets the number of frames to be
-loaded for this image.  The filenames should contain a "%1",
+The fc parameter sets the number of frames to be
+loaded for this image.  If \a fc is not 0, the
+filenames should contain a "%1",
 strings such as "foo%1.png".  The actual
 filenames are formed by replaceing the %1 with each integer
-from 0 to framecount-1, with leading zeroes sufficient for 4 digits.
+from 0 to fc-1, with leading zeroes sufficient for 4 digits.
 eg. foo0000.png, foo0001.png, foo0002.png, etc.
 */
 QCanvasPixmapArray::QCanvasPixmapArray(const QString& datafilenamepattern, int fc)
@@ -2255,14 +2250,19 @@ bool QCanvasPixmapArray::readPixmaps(const QString& datafilenamepattern, int fc,
 	img = new QCanvasPixmap*[fc];
     }
     bool ok = TRUE;
+    bool arg = framecount > 1;
+    if ( !arg )
+	framecount=1;
     for (int i=0; i<framecount; i++) {
 	QString r;
 	r.sprintf("%04d",i);
 	if ( maskonly ) {
-	    img[i]->collision_mask->load(datafilenamepattern.arg(r));
+	    img[i]->collision_mask->load(
+		arg ? datafilenamepattern.arg(r) : datafilenamepattern);
 	    ok &= !img[i]->collision_mask->isNull() && img[i]->collision_mask->depth()==1;
 	} else {
-	    img[i]=new QCanvasPixmap(datafilenamepattern.arg(r));
+	    img[i]=new QCanvasPixmap(
+		arg ? datafilenamepattern.arg(r) : datafilenamepattern);
 	    ok &= !img[i]->isNull();
 	}
     }
@@ -2886,6 +2886,21 @@ void QCanvasPolygonalItem::draw(QPainter & p)
   \sa draw()
 */
 
+/*!
+  \fn QPen QCanvasPolygonalItem::pen() const
+
+  Returns the QPen used to draw the outline of the item, if any.
+
+  \sa setPen()
+*/
+
+/*!
+  \fn QBrush QCanvasPolygonalItem::brush() const
+
+  Returns the QBrush used to fill the item, if filled.
+
+  \sa setBrush()
+*/
 
 /*!
   Sets the QPen used when drawing the item.
@@ -2910,7 +2925,6 @@ void QCanvasPolygonalItem::setBrush(QBrush b)
     br = b;
     changeChunks();
 }
-
 
 
 /*!
@@ -3048,6 +3062,9 @@ QCanvasLine::QCanvasLine()
     x1 = y1 = x2 = y2 = 0;
 }
 
+/*!
+  Destroys the line, removing it from its canvas.
+*/
 QCanvasLine::~QCanvasLine()
 {
     hide();

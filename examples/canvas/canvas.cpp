@@ -43,29 +43,40 @@ void FigureEditor::contentsMouseMoveEvent(QMouseEvent* e)
 
 
 
-SpaceShip::SpaceShip(QCanvas* canvas) :
+BouncyLogo::BouncyLogo(QCanvas* canvas) :
     QCanvasSprite(canvas)
 {
-    static QCanvasPixmapArray spaceship("sprites/spaceship%1.png",32);
-    setSequence(&spaceship);
+    static QCanvasPixmapArray logo("qt-trans.xpm");
+    setSequence(&logo);
     setAnimated(TRUE);
+    initPos();
 }
 
 const int spaceship_rtti = 1234;
 
-int SpaceShip::rtti() const
+int BouncyLogo::rtti() const
 {
     return spaceship_rtti;
 }
 
-void SpaceShip::initSpeed()
+void BouncyLogo::initPos()
+{
+    initSpeed();
+    int trial=1000;
+    do {
+	move(lrand48()%canvas()->width(),lrand48()%canvas()->height());
+	advance(0);
+    } while (trial-- && xVelocity()==0.0 && yVelocity()==0.0);
+}
+
+void BouncyLogo::initSpeed()
 {
     const double speed = 4.0;
     double d = drand48();
     setVelocity( d*speed*2-speed, (1-d)*speed*2-speed );
 }
 
-void SpaceShip::advance(int stage)
+void BouncyLogo::advance(int stage)
 {
     switch ( stage ) {
       case 0: {
@@ -115,6 +126,11 @@ void SpaceShip::advance(int stage)
 	    }
 	}
 
+	if ( x()+vx < 0 || x()+vx >= canvas()->width() )
+	    vx = 0;
+	if ( y()+vy < 0 || y()+vy >= canvas()->height() )
+	    vy = 0;
+
 	setVelocity(vx,vy);
       } break;
       case 1:
@@ -124,13 +140,16 @@ void SpaceShip::advance(int stage)
 }
 
 
-Main::Main() :
-    canvas(800,800)
+Main::Main(QCanvas& c, QWidget* parent, const char* name, WFlags f) :
+    QMainWindow(parent,name,f),
+    canvas(c)
 {
     editor = new FigureEditor(canvas,this);
     QMenuBar* menu = menuBar();
 
     QPopupMenu* file = new QPopupMenu;
+    file->insertItem("&New view", this, SLOT(newView()), CTRL+Key_N);
+    file->insertSeparator();
     file->insertItem("Quit", qApp, SLOT(quit()), CTRL+Key_Q);
     menu->insertItem("&File", file);
 
@@ -152,17 +171,29 @@ Main::Main() :
 
     setCentralWidget(editor);
 
-    canvas.setAdvancePeriod(30);
     /*
-    for (int test=0; test<20; test++) {
+    for (int test=0; test<200; test++) {
 	addCircle();
 	addHexagon();
-	addPolygon();
 	addLine();
 	addRectangle();
-	addSprite();
+	if ( test&10 == 0 ) {
+	    addPolygon();
+	}
+	if ( test&30 == 0 ) {
+	    addSprite();
+	}
     }
     */
+}
+
+void Main::newView()
+{
+    // Open a new view... have it delete when closed.
+    Main *m = new Main(canvas, 0, 0, WDestructiveClose);
+    qApp->setMainWidget(m);
+    m->show();
+    qApp->setMainWidget(0);
 }
 
 void Main::toggleDoubleBuffer()
@@ -174,10 +205,8 @@ void Main::toggleDoubleBuffer()
 
 void Main::addSprite()
 {
-    QCanvasItem* i = new SpaceShip(&canvas);
-    do {
-	i->move(lrand48()%canvas.width(),lrand48()%canvas.height());
-    } while (!i->collisions(TRUE).isEmpty());
+    QCanvasItem* i = new BouncyLogo(&canvas);
+    i->setZ(lrand48()%256);
 }
 
 void Main::addCircle()
@@ -185,6 +214,7 @@ void Main::addCircle()
     QCanvasPolygonalItem* i = new QCanvasEllipse(50,50,&canvas);
     i->setBrush( QColor(lrand48()%32*8,lrand48()%32*8,lrand48()%32*8) );
     i->move(lrand48()%canvas.width(),lrand48()%canvas.height());
+    i->setZ(lrand48()%256);
 }
 
 void Main::addHexagon()
@@ -201,6 +231,7 @@ void Main::addHexagon()
     i->setPoints(pa);
     i->setBrush( QColor(lrand48()%32*8,lrand48()%32*8,lrand48()%32*8) );
     i->move(lrand48()%canvas.width(),lrand48()%canvas.height());
+    i->setZ(lrand48()%256);
 }
 
 void Main::addPolygon()
@@ -217,6 +248,7 @@ void Main::addPolygon()
     i->setPoints(pa);
     i->setBrush( QColor(lrand48()%32*8,lrand48()%32*8,lrand48()%32*8) );
     i->move(lrand48()%canvas.width(),lrand48()%canvas.height());
+    i->setZ(lrand48()%256);
 }
 
 void Main::addLine()
@@ -225,6 +257,7 @@ void Main::addLine()
     i->setPoints( lrand48()%canvas.width(), lrand48()%canvas.height(),
                   lrand48()%canvas.width(), lrand48()%canvas.height() );
     i->setPen( QColor(lrand48()%32*8,lrand48()%32*8,lrand48()%32*8) );
+    i->setZ(lrand48()%256);
 }
 
 void Main::addRectangle()
@@ -232,7 +265,6 @@ void Main::addRectangle()
     QCanvasPolygonalItem *i = new QCanvasRectangle( lrand48()%canvas.width(),lrand48()%canvas.height(),
 			    200,200,&canvas);
     int z = lrand48()%256;
-    //i->setBrush( QColor(lrand48()%32*8,z,lrand48()%32*8) );
     i->setBrush( QColor(z,z,z) );
     i->setZ(z);
 }
@@ -248,10 +280,14 @@ int main(int argc, char** argv)
     qDebug("sizeof(QLabel)=%d",sizeof(QLabel));
     */
 
-    Main m;
-    //m.resize(500,500);
-    app.setMainWidget(&m);
+    QCanvas canvas(1000,1000);
+    canvas.setAdvancePeriod(30);
+    Main m(canvas);
+    qApp->setMainWidget(&m);
     m.show();
+    qApp->setMainWidget(0);
+
+    QObject::connect( qApp, SIGNAL(lastWindowClosed()), qApp, SLOT(quit()) );
 
     return app.exec();
 }

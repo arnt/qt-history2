@@ -295,11 +295,11 @@ class Q_EXPORT QCanvasPixmapArray
 {
 public:
     QCanvasPixmapArray();
-    QCanvasPixmapArray(const QString& datafilenamepattern, int framecount=1);
+    QCanvasPixmapArray(const QString& datafilenamepattern, int framecount=0);
     QCanvasPixmapArray(QList<QPixmap>, QList<QPoint> hotspots);
     ~QCanvasPixmapArray();
 
-    bool readPixmaps(const QString& datafilenamepattern, int framecount=1);
+    bool readPixmaps(const QString& datafilenamepattern, int framecount=0);
     bool readCollisionMasks(const QString& filenamepattern);
 
     int operator!(); // Failure check.
