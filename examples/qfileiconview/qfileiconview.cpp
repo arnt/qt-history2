@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/qfileiconview/qfileiconview.cpp#19 $
+** $Id: //depot/qt/main/examples/qfileiconview/qfileiconview.cpp#20 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -422,15 +422,15 @@ bool QtFileIconDrag::decode( QMimeSource *e, QStringList &uris )
 QtFileIconViewItem::QtFileIconViewItem( QtFileIconView *parent, QFileInfo *fi )
 // set parent 0 => don't align in grid yet, as aour metrics is not correct yet
     : QIconViewItem( 0, fi->fileName() ), itemFileName( fi->filePath() ),
-      itemFileInfo( *fi ), checkSetText( FALSE ), timer( this )
+      itemFileInfo( fi ), checkSetText( FALSE ), timer( this )
 {
     view = parent;
 
-    if ( itemFileInfo.isDir() )
+    if ( itemFileInfo->isDir() )
 	itemType = Dir;
-    else if ( itemFileInfo.isFile() )
+    else if ( itemFileInfo->isFile() )
 	itemType = File;
-    else if ( itemFileInfo.isSymLink() )
+    else if ( itemFileInfo->isSymLink() )
 	itemType = Link;
 
     setAllowDrop( FALSE );
@@ -439,25 +439,24 @@ QtFileIconViewItem::QtFileIconViewItem( QtFileIconView *parent, QFileInfo *fi )
     {
     case Dir:
 	if ( !QDir( itemFileName ).isReadable() )
-	    setIcon( *iconFolderLocked );
+	    itemIcon = *iconFolderLocked;
 	else
-	    setIcon( *iconFolder );
+	    itemIcon = *iconFolder;
 	setAllowDrop( QDir( itemFileName ).isReadable()	 );
 	break;
     case File:
-	setIcon( *iconFile );
+	itemIcon = *iconFile;
 	break;
     case Link:
-	setIcon( *iconLink );
+	itemIcon = *iconLink;
 	break;
     }
 
-    if ( itemFileInfo.fileName() == "." ||
-	 itemFileInfo.fileName() == ".." )
+    if ( itemFileInfo->fileName() == "." ||
+	 itemFileInfo->fileName() == ".." )
 	setAllowRename( FALSE );
 
     checkSetText = TRUE;
-    calcRect();
 
     connect( &timer, SIGNAL( timeout() ),
 	     this, SLOT( openFolder() ) );
@@ -476,10 +475,11 @@ void QtFileIconViewItem::setText( const QString &text )
     QIconViewItem::setText( text );
 
     if ( checkSetText ) {
-	QDir dir( itemFileInfo.dir() );
-	dir.rename( itemFileInfo.fileName(), text );
-	itemFileName = itemFileInfo.dirPath( TRUE ) + "/" + text;
-	itemFileInfo = QFileInfo( itemFileName );
+	QDir dir( itemFileInfo->dir() );
+	dir.rename( itemFileInfo->fileName(), text );
+	itemFileName = itemFileInfo->dirPath( TRUE ) + "/" + text;
+	delete itemFileInfo;
+	itemFileInfo = new QFileInfo( itemFileName );
     }
 }
 

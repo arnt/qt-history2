@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/qfileiconview/qfileiconview.h#10 $
+** $Id: //depot/qt/main/examples/qfileiconview/qfileiconview.h#11 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -38,14 +38,14 @@ public:
 	
     QString url() const;
     void setURL( const QString &u );
-    
+
 protected:
     void makeKey();
 
     QString url_;
-    
-};    
-    
+
+};
+
 /*****************************************************************************
  *
  * Class QtFileIconDrag
@@ -64,14 +64,14 @@ public:
 
     const char* format( int i ) const;
     QByteArray encodedData( const char* mime ) const;
-  
+
     void append( const QtFileIconDragItem &icon_ );
 
     static bool canDecode( QMimeSource* e );
-  
+
     static bool decode( QMimeSource *e, QValueList<QtFileIconDragItem> &list_ );
     static bool decode( QMimeSource *e, QStringList &uris );
-    
+
 protected:
     QtFileIconList icons;
 
@@ -113,7 +113,7 @@ protected:
     virtual void dropped( QDropEvent *e );
 
     QString itemFileName;
-    QFileInfo itemFileInfo;
+    QFileInfo *itemFileInfo;
     ItemType itemType;
     bool checkSetText;
     QTimer timer;
