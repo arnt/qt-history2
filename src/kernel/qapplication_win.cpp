@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#448 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#449 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -2620,9 +2620,9 @@ bool QETWidget::translateKeyEvent( const MSG &msg, bool grab )
 	QString s;
 	QChar ch = imechar_to_unicode(msg.wParam);
 	if (!ch.isNull())
-	    s += ch;
-	k0 = sendKeyEvent( QEvent::KeyPress, 0, msg.wParam, state, grab, s );
-	k1 = sendKeyEvent( QEvent::KeyRelease, 0, msg.wParam, state, grab, s );
+	    s += ch; 
+	k0 = sendKeyEvent( QEvent::KeyPress, 0, ch.row() ? 0 : ch.cell(), state, grab, s );
+	k1 = sendKeyEvent( QEvent::KeyRelease, 0, ch.row() ? 0 : ch.cell(), state, grab, s );
     }
     else {
 	int code = translateKeyCode( msg.wParam );
