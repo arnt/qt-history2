@@ -118,6 +118,7 @@ public:
     int count() const;
 
     virtual void layoutTabs();
+    virtual QTab * selectTab( const QPoint & p ) const;
 
 public slots:
     virtual void setCurrentTab( int );
@@ -133,7 +134,6 @@ protected:
     void focusInEvent( QFocusEvent *e );
     void focusOutEvent( QFocusEvent *e );
 
-    virtual QTab * selectTab( const QPoint & p ) const;
     void updateMask();
 
     void resizeEvent( QResizeEvent * );
