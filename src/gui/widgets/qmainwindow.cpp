@@ -18,6 +18,56 @@ public:
 };
 
 
+/*
+    The Main Window:
+
+    +----------------------------------------------------------+
+    | Menu Bar                                                 |
+    +----------------------------------------------------------+
+    | Tool Bar Area                                            |
+    |   +--------------------------------------------------+   |
+    |   | Dock Window Area                                 |   |
+    |   |   +------------------------------------------+   |   |
+    |   |   |                                          |   |   |
+    |   |   | Center Widget                            |   |   |
+    |   |   |                                          |   |   |
+    |   |   |                                          |   |   |
+    |   |   |                                          |   |   |
+    |   |   |                                          |   |   |
+    |   |   |                                          |   |   |
+    |   |   |                                          |   |   |
+    |   |   |                                          |   |   |
+    |   |   |                                          |   |   |
+    |   |   |                                          |   |   |
+    |   |   |                                          |   |   |
+    |   |   +------------------------------------------+   |   |
+    |   |                                                  |   |
+    |   +--------------------------------------------------+   |
+    |                                                          |
+    +----------------------------------------------------------+
+    | Status Bar                                               |
+    +----------------------------------------------------------+
+
+*/
+
+/*! \class QMainWindow
+    \brief The QMainWindow class provides a main application window.
+
+    \ingroup application
+    \mainclass
+
+    QMainWindow provides a main application window, with a menu bar,
+    tool bars, dock windows and a status bar around a large central
+    widget, such as a text edit, drawing canvas or QWorkspace (for MDI
+    applications).
+
+    \sa QDockWindow, QToolBar
+*/
+
+/*!
+    Constructs a QMainWindow with parent \a parent and with widget
+    flags \a flags.
+ */
 QMainWindow::QMainWindow(QWidget *parent, Qt::WFlags flags)
     : QWidget(*(new QMainWindowPrivate()), parent, flags)
 {
@@ -25,6 +75,10 @@ QMainWindow::QMainWindow(QWidget *parent, Qt::WFlags flags)
 }
 
 #ifdef QT_COMPAT
+/*! \obsolete
+    Constructs a QMainWindow with parent \a parent, named \a name, and
+    with widget flags \a flags.
+ */
 QMainWindow::QMainWindow(QWidget *parent, const char *name, Qt::WFlags flags)
     : QWidget(*(new QMainWindowPrivate()), parent, flags)
 {
@@ -33,10 +87,18 @@ QMainWindow::QMainWindow(QWidget *parent, const char *name, Qt::WFlags flags)
 }
 #endif
 
-
+/*!
+    Destroys the main window.
+ */
 QMainWindow::~QMainWindow()
 { }
 
+/*!
+    Returns the menu bar for the main window. This function creates
+    and returns an empty menu bar if the menu bar does not exist.
+
+    \sa setMenuBar()
+*/
 QMenuBar *QMainWindow::menuBar() const
 {
     QMenuBar *menubar = d->layout->menuBar();
@@ -48,6 +110,11 @@ QMenuBar *QMainWindow::menuBar() const
     return menubar;
 }
 
+/*!
+    Sets the menu bar for the main window to \a menubar.
+
+    \sa menuBar()
+*/
 void QMainWindow::setMenuBar(QMenuBar *menubar)
 {
     Q_ASSERT_X(menubar != 0,
@@ -59,6 +126,12 @@ void QMainWindow::setMenuBar(QMenuBar *menubar)
     layout()->setMenuBar(menubar);
 }
 
+/*!
+    Returns the status bar for the main window. This function creates
+    and returns an empty status bar if the status bar does not exist.
+
+    \sa setStatusBar()
+*/
 QStatusBar *QMainWindow::statusBar() const
 {
     QStatusBar *statusbar = d->layout->statusBar();
@@ -70,6 +143,11 @@ QStatusBar *QMainWindow::statusBar() const
     return statusbar;
 }
 
+/*!
+    Sets the status bar for the main window to \a statusbar.
+
+    \sa statusBar()
+*/
 void QMainWindow::setStatusBar(QStatusBar *statusbar)
 {
     Q_ASSERT_X(statusbar != 0,
@@ -81,6 +159,12 @@ void QMainWindow::setStatusBar(QStatusBar *statusbar)
     d->layout->setStatusBar(statusbar);
 }
 
+/*!
+    Returns the center widget for the main window.  This function
+    returns zero if the center widget has not been set.
+
+    \sa setCenterWidget()
+*/
 QWidget *QMainWindow::centerWidget() const
 { return d->layout->centerWidget(); }
 
@@ -95,6 +179,12 @@ void QMainWindow::setCenterWidget(QWidget *widget)
     d->layout->setCenterWidget(widget);
 }
 
+/*!
+    Sets the dock window area \a area to occupy the specified \a
+    corner.
+
+    \sa corner()
+*/
 void QMainWindow::setCorner(Qt::Corner corner, Qt::DockWindowArea area)
 {
     bool valid = false;
@@ -116,14 +206,26 @@ void QMainWindow::setCorner(Qt::Corner corner, Qt::DockWindowArea area)
     d->layout->corners[corner] = area;
 }
 
+/*!
+    Returns the dock window area that occupies the specified \a
+    corner.
+
+    \sa setCorner()
+*/
 Qt::DockWindowArea QMainWindow::corner(Qt::Corner corner) const
 { return d->layout->corners[corner]; }
 
+/*!
+    Unimplemented.
+*/
 void QMainWindow::setDockWindowState(const QString &/*state*/)
 {
     Q_ASSERT_X(false, "QMainWindow::setDockWindowState", "unimplemented");
 }
 
+/*!
+    Unimplemented.
+*/
 QString QMainWindow::dockWindowState() const
 {
     Q_ASSERT_X(false, "QMainWindow::dockWindowState", "unimplemented");
