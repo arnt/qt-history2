@@ -540,7 +540,7 @@ QSize QWidgetStack::minimumSizeHint() const
 	    ++it;
 	    if ( o->isWidgetType() &&  o != invisible ) {
 		QWidget *w = (QWidget*)o;
-		QSize sh = w->sizeHint();
+		QSize sh = w->minimumSizeHint();
 		if ( w->sizePolicy().horData() == QSizePolicy::Ignored )
 		    sh.rwidth() = 0;
 		if ( w->sizePolicy().verData() == QSizePolicy::Ignored )
