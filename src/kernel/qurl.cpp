@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qurl.cpp#49 $
+** $Id: //depot/qt/main/src/kernel/qurl.cpp#50 $
 **
 ** Implementation of QUrl class
 **
@@ -437,6 +437,10 @@ bool QUrl::parse( const QString& url )
     };
 
     bool relPath = FALSE;
+
+    // HACK for windows (drives)
+    relPath = url.contains( ":\\" );
+    
     int cs = url.find( ":/" );
     table[ 4 ][ 1 ] = User;
     if ( cs == -1 ) { // we have a relative file (no path, host, protocol, etc.)
@@ -569,7 +573,7 @@ bool QUrl::parse( const QString& url )
     if ( !d->path.isEmpty() ) {
 	if ( d->path[ 0 ] == '@' || d->path[ 0 ] == ':' )
 	    d->path.remove( 0, 1 );
-	if ( d->path[ 0 ] != '/' && !relPath )
+	if ( d->path[ 0 ] != '/' && !relPath && d->path[ 1 ] != ':' )
 	    d->path.prepend( "/" );
     }
     if ( !d->refEncoded.isEmpty() && d->refEncoded[ 0 ] == '#' )

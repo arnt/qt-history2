@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qurl.h#19 $
+** $Id: //depot/qt/main/src/kernel/qurl.h#20 $
 **
 ** Implementation of QUrl class
 **
@@ -31,7 +31,7 @@
 
 struct QUrlPrivate;
 
-class QUrl
+class Q_EXPORT QUrl
 {
 public:
     QUrl();

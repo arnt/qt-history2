@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qurlinfo.h#6 $
+** $Id: //depot/qt/main/src/kernel/qurlinfo.h#7 $
 **
 ** Implementation of QUrlInfo class
 **
@@ -33,7 +33,7 @@
 class QUrlOperator;
 struct QUrlInfoPrivate;
 
-class QUrlInfo
+class Q_EXPORT QUrlInfo
 {
 public:
     QUrlInfo();

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qnetworkprotocol.h#21 $
+** $Id: //depot/qt/main/src/kernel/qnetworkprotocol.h#22 $
 **
 ** Implementation of QNetworkProtocol class
 **
@@ -41,7 +41,7 @@ class QNetworkOperation;
 class QTimer;
 struct QNetworkProtocolPrivate;
 
-class QNetworkProtocolFactoryBase
+class Q_EXPORT QNetworkProtocolFactoryBase
 {
 public:
    virtual QNetworkProtocol *createObject() = 0;
@@ -61,7 +61,7 @@ public:
 typedef QDict< QNetworkProtocolFactoryBase > QNetworkProtocolDict;
 extern Q_EXPORT QNetworkProtocolDict *qNetworkProtocolRegister;
 
-class QNetworkProtocol : public QObject
+class Q_EXPORT QNetworkProtocol : public QObject
 {
     Q_OBJECT
 
@@ -111,7 +111,7 @@ public:
 
     virtual void setAutoDelete( bool b, int i = 10000 );
     bool autoDelete() const;
-    
+
     virtual const QNetworkOperation *listChildren();
     virtual const QNetworkOperation *mkdir( const QString &dirname );
     virtual const QNetworkOperation *remove( const QString &filename );
@@ -166,7 +166,7 @@ private slots:
     void emitItemChanged( QNetworkOperation *res );
     void emitData( const QCString &, QNetworkOperation *res );
     void removeMe();
-    
+
 };
 
 inline void QNetworkProtocol::emitNewChild( const QUrlInfo &i, QNetworkOperation *res )
@@ -212,7 +212,7 @@ inline void QNetworkProtocol::emitData( const QCString &d, QNetworkOperation *re
 }
 
 struct QNetworkOperationPrivate;
-class QNetworkOperation
+class Q_EXPORT QNetworkOperation
 {
 public:
     QNetworkOperation( QNetworkProtocol::Operation operation,

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qlocalfs.h#3 $
+** $Id: //depot/qt/main/src/kernel/qlocalfs.h#4 $
 **
 ** Implementation of QLocalFs class
 **
@@ -29,7 +29,7 @@
 #include "qnetworkprotocol.h"
 #include "qdir.h"
 
-class QLocalFs : public QNetworkProtocol
+class Q_EXPORT QLocalFs : public QNetworkProtocol
 {
     Q_OBJECT
 

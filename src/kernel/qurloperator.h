@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qurloperator.h#10 $
+** $Id: //depot/qt/main/src/kernel/qurloperator.h#11 $
 **
 ** Implementation of QUrlOperator class
 **
@@ -34,7 +34,7 @@ struct QUrlOperatorPrivate;
 class QUrlInfo;
 class QNetworkOperation;
 
-class QUrlOperator : public QObject, public QUrl
+class Q_EXPORT QUrlOperator : public QObject, public QUrl
 {
     Q_OBJECT
 
@@ -96,7 +96,7 @@ protected:
 private slots:
     void getGotData( const QCString &data, QNetworkOperation *op );
     void finishedGet( QNetworkOperation *op );
-    
+
 private:
     QUrlOperatorPrivate *d;
 
