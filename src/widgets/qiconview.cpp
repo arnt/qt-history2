@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qiconview.cpp#103 $
+** $Id: //depot/qt/main/src/widgets/qiconview.cpp#104 $
 **
 ** Definition of QIconView widget class
 **
@@ -131,7 +131,8 @@ struct QIconViewPrivate
     bool reorderItemsWhenInsert;
     bool singleClickMode;
     QCursor oldCursor;
-
+    bool resortItemsWhenInsert, sortOrder;
+    
     struct SingleClickConfig {
 	SingleClickConfig()
 	    : normalText( 0 ), normalTextCol( 0 ),
@@ -146,7 +147,7 @@ struct QIconViewPrivate
 	QCursor *highlightedCursor;
 	int setCurrentInterval;
     } singleClickConfig;
-    
+
     struct SortableItem {
 	QIconViewItem *item;
     };
@@ -1183,6 +1184,10 @@ void QIconViewItem::renameItem()
     view->repaintContents( oldRect.x() - 1, oldRect.y() - 1, oldRect.width() + 2, oldRect.height() + 2, FALSE );
     view->repaintContents( r.x() - 1, r.y() - 1, r.width() + 2, r.height() + 2, FALSE );
     removeRenameBox();
+    
+    emit renamed( text() );
+    emit renamed();
+    view->emitRenamed( this );
 }
 
 /*!
@@ -1611,7 +1616,9 @@ QIconView::QIconView( QWidget *parent, const char *name )
     d->singleClickConfig = QIconViewPrivate::SingleClickConfig();
     d->oldCursor = Qt::arrowCursor;
     d->singleClickSelectTimer = new QTimer( this );
-
+    d->resortItemsWhenInsert = FALSE;
+    d->sortOrder = TRUE;
+    
     connect( d->adjustTimer, SIGNAL( timeout() ),
 	     this, SLOT( adjustItems() ) );
     connect( d->updateTimer, SIGNAL( timeout() ),
@@ -1736,6 +1743,8 @@ void QIconView::slotUpdate()
     d->updateTimer->stop();
 
     // #### remove that ASA insertInGrid uses cached values and is efficient
+    if ( d->resortItemsWhenInsert )
+	sortItems( d->sortOrder );
     int y = d->spacing;
     QIconViewItem *item = d->firstItem;
     int w = 0, h = 0;
@@ -2551,6 +2560,46 @@ void QIconView::setReorderItemsWhenInsert( bool b )
 bool QIconView::reorderItemsWhenInsert() const
 {
     return d->reorderItemsWhenInsert;
+}
+
+/*!
+  If \a sort is TRUE, new items are inserted sorted. The sort
+  direction is specified using \a ascending.
+  
+  Inserting items sorted only works when reordering items is
+  set to TRUE as well.
+  
+  \sa QIconView::setReorderItemsWhenInsert(), QIconView::reorderItemsWhenInsert()
+*/
+
+void QIconView::setResortItemsWhenInsert( bool sort, bool ascending )
+{
+    d->resortItemsWhenInsert = sort;
+    d->sortOrder = ascending;
+}
+
+/*!
+  Returns TRUE if new items are inserted sorted, else FALSE.
+  
+  \sa QIconView::setResortItemsWhenInsert()
+*/
+
+bool QIconView::resortItemsWhenInsert() const
+{
+    return d->resortItemsWhenInsert;
+}
+
+/*!
+  Returns TRUE if the sortorder for inserting new items is ascending,
+  FALSE means descending. This sortorder has only a meaning if resorting
+  and reordering of new inserted items is enabled.
+  
+  \sa QIconView::setResortItemsWhenInsert(), QIconView::setReorderItemsWhenInsert()
+*/
+
+bool QIconView::sortOrder() const
+{
+    return d->sortOrder;
 }
 
 /*!
@@ -3383,6 +3432,15 @@ void QIconView::emitNewSelectionNumber()
     d->numSelectedItems = num;
 }
 
+void QIconView::emitRenamed( QIconViewItem *item )
+{
+    if ( !item )
+	return;
+    
+    emit itemRenamed( item, item->text() );
+    emit itemRenamed( item );
+}
+
 /*!
   If a drag enters the iconview, shades of the objects, which the drag
   contains are drawn, usnig \a pos as origin.
@@ -3810,10 +3868,10 @@ static int cmpIconViewItems( const void *n1, const void *n2 )
 {
     if ( !n1 || !n2 )
 	return 0;
-    
+
     QIconViewPrivate::SortableItem *i1 = (QIconViewPrivate::SortableItem *)n1;
     QIconViewPrivate::SortableItem *i2 = (QIconViewPrivate::SortableItem *)n2;
-    
+
     return i1->item->key().compare( i2->item->key() );
 }
 
@@ -3822,16 +3880,16 @@ void QIconView::sortItems( bool ascending )
 {
     if ( count() == 0 )
 	return;
-    
+
     QIconViewPrivate::SortableItem *items = new QIconViewPrivate::SortableItem[ count() ];
 
     QIconViewItem *item = d->firstItem;
     int i = 0;
     for ( ; item; item = item->next )
 	items[ i++ ].item = item;
-    
+
     qsort( items, count(), sizeof( QIconViewPrivate::SortableItem ), cmpIconViewItems );
-    
+
     QIconViewItem *prev = 0;
     item = 0;
     if ( ascending ) {
@@ -3843,9 +3901,9 @@ void QIconView::sortItems( bool ascending )
 		    item->prev->next = item;
 		item->next = 0;
 	    }
-	    if ( i == 0 ) 
+	    if ( i == 0 )
 		d->firstItem = item;
-	    if ( i == (int)count() - 1 ) 
+	    if ( i == (int)count() - 1 )
 		d->lastItem = item;
 	    prev = item;
 	}
@@ -3858,16 +3916,16 @@ void QIconView::sortItems( bool ascending )
 		    item->prev->next = item;
 		item->next = 0;
 	    }
-	    if ( i == (int)count() - 1 ) 
+	    if ( i == (int)count() - 1 )
 		d->firstItem = item;
-	    if ( i == 0 ) 
+	    if ( i == 0 )
 		d->lastItem = item;
 	    prev = item;
 	}
     }
-    
+
     delete [] items;
-    
+
     orderItemsInGrid();
     viewport()->repaint( FALSE );
 }

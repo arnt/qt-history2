@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qiconview.h#46 $
+** $Id: //depot/qt/main/src/widgets/qiconview.h#47 $
 **
 ** Definition of QIconView widget class
 **
@@ -146,7 +146,7 @@ public:
     virtual QString text() const;
     virtual QIconSet icon() const;
     virtual QString key() const;
-    
+
     bool renameEnabled() const;
     bool dragEnabled() const;
     bool dropEnabled() const;
@@ -192,6 +192,10 @@ public:
 
     void rename();
 
+signals:
+    void renamed( const QString &text );
+    void renamed();
+
 public slots:
     virtual void setText( const QString &text );
     virtual void setIcon( const QIconSet &icon );
@@ -216,7 +220,7 @@ protected:
     void setItemRect( const QRect &r );
     void setTextRect( const QRect &r );
     void setIconRect( const QRect &r );
-    
+
 private:
     QIconView *view;
     QString itemText, itemKey;
@@ -329,6 +333,9 @@ public:
     int maxItemTextLength() const;
     void setReorderItemsWhenInsert( bool b );
     bool reorderItemsWhenInsert() const;
+    void setResortItemsWhenInsert( bool sort, bool ascending = TRUE );
+    bool resortItemsWhenInsert() const;
+    bool sortOrder() const;
 
     virtual void setRearrangeEnabled( bool b );
     bool rearrangeEnabled() const;
@@ -339,7 +346,7 @@ public:
     QSizePolicy sizePolicy() const;
 
     virtual void sortItems( bool ascending = TRUE );
-    
+
 public slots:
     virtual void orderItemsInGrid();
     virtual void alignItemsInGrid( const QSize &grid );
@@ -355,7 +362,9 @@ signals:
     void selectionChanged( int numItems );
     void currentChanged();
     void currentChanged( QIconViewItem *item );
-
+    void itemRenamed( QIconViewItem *item, const QString & );
+    void itemRenamed( QIconViewItem *item );
+    
 protected slots:
     virtual void doAutoScroll();
     virtual void adjustItems();
@@ -391,7 +400,8 @@ protected:
 
     void emitSelectionChanged();
     void emitNewSelectionNumber();
-
+    void emitRenamed( QIconViewItem *item );
+    
     void setDragObjectIsKnown( bool b );
     void setIconDragData( const QValueList<QIconDragItem> &lst );
     void setNumDragItems( int num );
