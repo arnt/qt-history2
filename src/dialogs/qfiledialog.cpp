@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#100 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#101 $
 **
 ** Implementation of QFileDialog class
 **
@@ -1240,6 +1240,7 @@ QString QFileDialog::getOpenFileName( const char *startWith,
     dlg->setCaption( "Open" );
     if ( !initialSelection.isEmpty() )
 	dlg->setSelection( initialSelection );
+    dlg->setMode( QFileDialog::ExistingFile );
     QString result;
     if ( dlg->exec() == QDialog::Accepted ) {
 	result = dlg->selectedFile();
@@ -1795,14 +1796,27 @@ void QFileDialog::addWidgets( QLabel * l, QWidget * w, QPushButton * b )
 
 void QFileDialog::keyPressEvent( QKeyEvent * ke )
 {
-    if ( ke &&
-	 ( ke->key() == Key_Enter ||
-	   ke->key() == Key_Return ) &&
-	 ( focusWidget() == d->paths ||
-	   focusWidget() == d->types ) )
-	ke->accept();
-    else
+    if ( ke && ( ke->key() == Key_Enter ||
+		 ke->key() == Key_Return ) ) {
+	if ( focusWidget() == d->paths ||
+	     focusWidget() == d->types ) {
+	    ke->accept();
+	} else if ( focusWidget() == nameEdit ) {
+	    if ( d->currentFileName.isNull() ) {
+		// maybe change directory
+		QFileInfo i( cwd, nameEdit->text() );
+		if ( i.isDir() ) {
+		    setDir( i.filePath() );
+		    nameEdit->setText( "" );
+		}
+		ke->accept();
+	    }
+	}
+    }
+
+    if ( !ke->isAccepted() ) {
 	QDialog::keyPressEvent( ke );
+    }
 }
 
 
