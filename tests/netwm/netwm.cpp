@@ -28,7 +28,7 @@
 #include <stdio.h>
 
 #include <X11/Xlibint.h>
-#define DEBUG
+
 
 // root window properties
 static Atom net_supported            = 0;
@@ -359,7 +359,7 @@ NETRootInfo::NETRootInfo(Display *d, unsigned long pr, int s) {
     p->ref = 1;
 
     p->name = 0;
-    
+
     p->display = d;
 
     if (s != -1)
@@ -902,13 +902,13 @@ void NETRootInfo::update(unsigned long dirty) {
 		    Window *wins = (Window *) data_ret;
 
 		    qsort(wins, nitems_ret, sizeof(Window), wcmp);
-		
+
 		    if (p->clients) {
 			if (role == Client) {
 			    unsigned long new_index = 0, old_index = 0;
 			    unsigned long new_count = nitems_ret,
 					  old_count = p->clients_count;
-			
+
 			    while (old_index < old_count || new_index < new_count) {
 				if (old_index == old_count) {
 				    addClient(wins[new_index++]);
@@ -935,7 +935,7 @@ void NETRootInfo::update(unsigned long dirty) {
 			for (n = 0; n < nitems_ret; n++)
 			    addClient(wins[n]);
 		    }
-		
+
 		    p->clients_count = nitems_ret;
 		    p->clients = nwindup(wins, p->clients_count);
 		}
