@@ -172,13 +172,63 @@ variable by prefixing $$ to the variable name. For example:
     MY_DEFINES = $$DEFINES
 \endcode
 
-Now the MY_DEFINES variable contains what is in the DEFINES variable
-at this point in the project file.
+Now the MY_DEFINES variable contains what is in the DEFINES variable at
+this point in the project file.  This is also equivlant to:
 
-\section1 Functions
+\code 
+   MY_DEFINES = $${DEFINES}
+\endcode
+
+The second notation allows you to adjoin the variable expansion to another
+value without separating by space. \e qmake will allo a variable to
+contains anything (including $(VALUE), which will be placed directly into
+the Makefile, and allow it to expand as appropriate, usually an environment
+variable). However, if you require an environment variable to be replaced
+immediately then you may use the $$() notation. For example:
+
+\code
+    MY_DEFINES = $$(ENV_DEFINES)
+\endcode
+
+This will set MY_DEFINES to the value of the evironment variable
+ENV_DEFINES as it parses the .pro file. Additionally you may call built-in
+functions in variable replacing. These functions (not to be confused with
+Test Functions as enumerated in the next section) are listed below:
+
+\section2 join( variablename, glue, before, after )
+
+This will join the value of \e variablename with glue. If this value is
+non-empty it will prefix the value with \e before and suffix it with \e
+after. \e variablename is the only required field, the others will default
+to empty strings. If you need to encode spaces in \e glue, \e before, or \e
+after you must quote them.
+
+\section2 member( variablename, position )
+
+This will place the value in \e variablename in position \e position of the
+list. If the value of \e variablename is not long this will return an empty
+string. \e variablename is the only required field, if not specified
+position will default to the first value in the list (0).
+
+\section2 find( variablename, substr )
+
+This will place all the values in \e variablename that match \e substr. \e
+substr may be a regular expression as well, and will be matched
+accordingly.
+
+\code
+  MY_VAR = one two three four
+  MY_VAR2 = $$join(MY_VAR, " -L", -L) -Lfive
+  MY_VAR3 = $$member(MY_VAR, 2) $$find(MY_VAR, t.*)
+\encode
+
+MY_VAR2 will contain '-Lone -Ltwo -Lthree -Lfour -Lfive', and MYVAR3 will
+contains 'three two three'.
+
+\section1 Test Functions
 
 \e qmake provides built-in functions that perform simple, yet powerful
-tasks.  
+tests.  
 
 \section2 contains( variablename, value )
 
@@ -287,3 +337,10 @@ The specified command is performed and if it returns an exit code of
 So if the command \e {ls /bin} returns 1 then \e bin/main.cpp is added
 to the list of sources and \e bin/main.h is added to the list of
 headers.
+
+\section2 infile( filename, var, val )
+
+This function will succeed if the file \e filename (when parsed
+by qmake itself) contains the variable \e var with a value of 
+\e val. You may also not pass in a third argument (\e val) and the
+function will only test if \e var has been assigned to in the file.

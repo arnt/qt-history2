@@ -632,22 +632,20 @@ QMakeProject::doProjectCheckReqs(const QStringList &deps, QMap<QString, QStringL
 QString
 QMakeProject::doVariableReplace(QString &str, const QMap<QString, QStringList> &place)
 {
-    int rep, rep_len;
-    QRegExp reg_var;
-    for(int x = 0; x < 5; x++) {
+    for(int x = 0, rep; x < 5; x++) {
+	QRegExp reg_var;
 	if( x == 0 ) //function blocked out by {}'s
-	    reg_var = QRegExp("\\$\\$\\{([a-zA-Z0-9_\\.-]*)\\((.*)\\)\\}");
+	    reg_var = QRegExp("\\$\\$\\{([a-zA-Z0-9_]*)\\(([^)]*)\\)\\}");
 	else if( x == 1 ) //variables blocked out by {}'s
 	    reg_var = QRegExp("\\$\\$\\{([a-zA-Z0-9_\\.-]*)\\}");
 	else if(x == 2) //environment
 	    reg_var = QRegExp("\\$\\$\\(([a-zA-Z0-9_\\.-]*)\\)");
 	else if(x == 3) //function
-	    reg_var = QRegExp("\\$\\$([a-zA-Z0-9_\\.-]*)\\((.*)\\)");
+	    reg_var = QRegExp("\\$\\$([a-zA-Z0-9_]*)\\(([^)]*)\\)");
 	else if(x == 4) //normal variable
 	    reg_var = QRegExp("\\$\\$([a-zA-Z0-9_\\.-]*)");
 	while((rep = reg_var.search(str)) != -1) {
 	    QString replacement;
-	    rep_len = reg_var.matchedLength();
 	    if(x == 2) {//environment
 		replacement = getenv(reg_var.cap(1));
 	    } else if(x == 0 || x == 3) { //function 
@@ -659,11 +657,11 @@ QMakeProject::doVariableReplace(QString &str, const QMap<QString, QStringList> &
 			fprintf(stderr, "%d: member(var, place) requires two arguments.\n", 
 				line_count);
 		    } else {
-			int pos = 0;
+			uint pos = 0;
 			if(args.count() == 2)
 			    pos = args[1].toInt();
 			const QStringList &var = place[varMap(args.first())];
-			if(!var.count() >= pos)
+			if(var.count() >= pos) 
 			    replacement = var[pos];
 		    }
 		} else if(reg_var.cap(1).lower() == "join") {
@@ -691,7 +689,7 @@ QMakeProject::doVariableReplace(QString &str, const QMap<QString, QStringList> &
 			const QStringList &var = place[varMap(args.first())];
 			for(QStringList::ConstIterator vit = var.begin(); 
 			    vit != var.end(); ++vit) {
-			    if((*vit).find(regx) != -1) {
+			    if(regx.match(*vit) != -1) {
 				if(!replacement.isEmpty())
 				    replacement += " ";
 				replacement += (*vit);
@@ -708,9 +706,9 @@ QMakeProject::doVariableReplace(QString &str, const QMap<QString, QStringList> &
 		else
 		    replacement = place[varMap(reg_var.cap(1))].join(" ");
 	    }
-	    debug_msg(2, "Project parser: (%s) :: %s -> %s", str.latin1(),
-		      str.mid(rep, rep_len).latin1(), replacement.latin1());
-	    str.replace(rep, rep_len, replacement);
+	    debug_msg(2, "Project parser: %d (%s) :: %s -> %s", x, str.latin1(),
+		   reg_var.cap(0).latin1(), replacement.latin1());
+	    str.replace(rep, reg_var.matchedLength(), replacement);
 	}
     }
     return str;
