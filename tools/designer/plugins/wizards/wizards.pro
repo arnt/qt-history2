@@ -12,7 +12,7 @@ DESTDIR		= ../../../../plugins/designer
 
 IMAGEFILE	= images.cpp
 PROJECTNAME	= Wizards
-IMAGES		= images/down.png images/left.png images/logo.png images/qtwizards_menu_1.png images/qtwizards_menu_2.png images/qtwizards_menu_3.png images/qtwizards_table_1.png images/qtwizards_table_2.png images/qtwizards_table_3.png images/qtwizards_table_4.png images/re-sort.png images/right.png images/up.png 
+IMAGES		= images/down.png images/left.png images/qtwizards_menu_1.png images/qtwizards_menu_2.png images/qtwizards_menu_3.png images/qtwizards_table_1.png images/qtwizards_table_2.png images/qtwizards_table_3.png images/qtwizards_table_4.png images/re-sort.png images/right.png images/up.png 
 INCLUDEPATH	+= ../../interfaces
 DBFILE		= wizards.db
 LANGUAGE	= C++
