@@ -86,7 +86,7 @@ private:
     QResourceNode *node;
 
 protected:
-    friend class QResourceNode;
+    friend struct QResourceNode;
     QResourcePrivate(QResource *qq) : q_ptr(qq), lang(QLocale::C), 
                                       country(QLocale::AnyCountry), compressed(0),
                                       size(0), data(0), decompressed(0), node(0) { }

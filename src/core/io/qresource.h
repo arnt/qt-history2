@@ -42,7 +42,7 @@ public:
     static void addSearchPath(const QString &path);
 
 private:
-    friend class QResourceNode;
+    friend struct QResourceNode;
     friend class QMetaResource;
     friend class QMetaResourcePrivate;
     QResource();
