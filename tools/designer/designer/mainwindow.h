@@ -272,7 +272,6 @@ private slots:
     void windowsMenuActivated( int id );
     void setupWindowActions();
 
-    void closeAllForms();
     void createNewTemplate();
     void projectSelected( QAction *a );
 

@@ -841,7 +841,7 @@ void MainWindow::setupWindowActions()
 	actionWindowCloseAll = new QAction( tr( "Close All" ), tr( "Close Al&l" ), 0, this );
 	actionWindowCloseAll->setStatusTip( tr( "Closes all form windows") );
 	actionWindowCloseAll->setWhatsThis( tr( "Close all form windows") );
-	connect( actionWindowCloseAll, SIGNAL( activated() ), this, SLOT( closeAllForms() ) );
+	connect( actionWindowCloseAll, SIGNAL( activated() ), qworkspace, SLOT( closeAllWindows() ) );
 
 	actionWindowNext = new QAction( tr( "Next" ), tr( "Ne&xt" ), CTRL + Key_F6, this );
 	actionWindowNext->setStatusTip( tr( "Activates the next window" ) );

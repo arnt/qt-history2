@@ -2488,16 +2488,6 @@ void MainWindow::windowsMenuActivated( int id )
 	w->setFocus();
 }
 
-void MainWindow::closeAllForms()
-{
-    QWidgetList windows = qWorkspace()->windowList();
-    for ( QWidget *w = windows.first(); w; w = windows.next() ) {
-	if ( !w->inherits( "FormWindow" ) )
-	    continue;
-	w->close();
-    }
-}
-
 void MainWindow::projectSelected( QAction *a )
 {
     a->setOn( TRUE );
