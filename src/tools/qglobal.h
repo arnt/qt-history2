@@ -13,7 +13,10 @@
 #ifndef QGLOBAL_H
 #define QGLOBAL_H
 #include <stddef.h>
+#if defined(__cplusplus)
 #include <new>
+#endif
+
 
 #define QT_VERSION_STR   "4.0.0-snapshot"
 /*
@@ -1543,9 +1546,9 @@ inline QForeachContainer<T> *qForeachContainer(const T &, QForeachMemory &memory
 
 template <typename T>
 inline void *qForeachContainerNew(const T& t, QForeachMemory &memory)
-{ 
-    Q_ASSERT_X(sizeof(QForeachContainer<T>) < 256, "foreach", "Unsupported container" ); 
-    return new (memory.padding) QForeachContainer<T>(t); 
+{
+    Q_ASSERT_X(sizeof(QForeachContainer<T>) < 256, "foreach", "Unsupported container" );
+    return new (memory.padding) QForeachContainer<T>(t);
 }
 
 #define Q_FOREACH(variable, container) \
