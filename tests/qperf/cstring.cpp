@@ -126,7 +126,7 @@ static int cstring_set_int()
     int i;
     QCString s;
     for ( i=0; i<1000; i++ ) {
-	s.setNum(-33246);
+	s.setNum(33246);
     }
     return i;    
 }
@@ -136,7 +136,18 @@ static int cstring_set_int_sprintf()
     int i;
     QCString s;
     for ( i=0; i<1000; i++ ) {
-	s.sprintf("%d",-33246);
+	s.sprintf("%d",33246);
+    }
+    return i;    
+}
+
+static int cstring_set_double()
+{
+    int i;
+    QCString s;
+    double v = 3.141593;
+    for ( i=0; i<1000; i++ ) {
+	s.setNum(v);
     }
     return i;    
 }
@@ -155,4 +166,5 @@ QPERF_BEGIN(cstring,"QCString tests")
     QPERF(cstring_to_int,"Convert string to integer")
     QPERF(cstring_set_int,"Convert integer to string")
     QPERF(cstring_set_int_sprintf,"Convert integer to string using sprintf")
+    QPERF(cstring_set_double,"Convert double to string")
 QPERF_END(cstring)
