@@ -4996,9 +4996,11 @@ QPSPrinterFont::QPSPrinterFont(const QFont& f, int script, QPSPrinterPrivate *pr
     QString fontname;
 
 
+#ifdef Q_WS_X11
     // append qsettings fontpath
     QSettings settings;
     bool embed = settings.readBoolEntry( "/qt/embedFonts", TRUE );
+#endif
 
     // ### implement similar code for QWS and WIN
     xfontname = makePSFontName( f );
