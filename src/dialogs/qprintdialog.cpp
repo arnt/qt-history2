@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qprintdialog.cpp#20 $
+** $Id: //depot/qt/main/src/dialogs/qprintdialog.cpp#21 $
 **
 ** Implementation of internal print dialog (X11) used by QPrinter::select().
 **
@@ -34,7 +34,7 @@
 #include <ctype.h>
 #include <stdlib.h>
 
-RCSTAG("$Id: //depot/qt/main/src/dialogs/qprintdialog.cpp#20 $");
+RCSTAG("$Id: //depot/qt/main/src/dialogs/qprintdialog.cpp#21 $");
 
 
 struct QPrintDialogPrivate
@@ -317,6 +317,7 @@ QPrintDialog::QPrintDialog( QPrinter *prn, QWidget *parent, const char *name )
     resize( ms );
 
     setPrinter( prn );
+    d->printers->setFocus();
 }
 
 
@@ -362,9 +363,9 @@ QGroupBox * QPrintDialog::setupDestination()
 
     d->printers = new QListView( g, "list of printers" );
     d->printers->setAllColumnsShowFocus( TRUE );
-    d->printers->setColumn( "Printer", 150 );
-    d->printers->setColumn( "Host", 150 );
-    d->printers->setColumn( "Comment", 100 );
+    d->printers->setColumn( "Printer", 100 );
+    d->printers->setColumn( "Host", 100 );
+    d->printers->setColumn( "Comment", 200 );
     d->printers->setFrameStyle( QFrame::WinPanel + QFrame::Sunken );
 
 #if defined(UNIX)
