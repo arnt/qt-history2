@@ -1885,7 +1885,7 @@ QString QTextDocument::richText( QTextParag *p ) const
 QString QTextDocument::text() const
 {
     if ( plainText().simplifyWhiteSpace().isEmpty() )
-	return QString::null;
+	return QString("");
     if ( txtFormat == Qt::AutoText && preferRichText || txtFormat == Qt::RichText )
 	return richText();
     return plainText( 0 );
