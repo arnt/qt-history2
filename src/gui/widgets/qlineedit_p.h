@@ -40,7 +40,7 @@ public:
     QLineEditPrivate()
         : cursor(0), cursorTimer(0), frame(1),
           cursorVisible(0), separator(0), readOnly(0),
-          dragEnabled(1), contextMenuEnabled(1), alignment(Qt::AlignLeading),
+          dragEnabled(0), contextMenuEnabled(1), alignment(Qt::AlignLeading),
           echoMode(0), textDirty(0), selDirty(0), validInput(1),
           ascent(0), maxLength(32767), hscroll(0), lastCursorPos(-1), maskData(0),
           modifiedState(0), undoState(0), selstart(0), selend(0)

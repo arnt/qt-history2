@@ -953,6 +953,8 @@ bool QLineEdit::isRedoAvailable() const
     \property QLineEdit::dragEnabled
     \brief whether the lineedit starts a drag if the user presses and
     moves the mouse on some selected text
+
+    Dragging is disabled by default.
 */
 
 bool QLineEdit::dragEnabled() const
@@ -1164,9 +1166,6 @@ void QLineEdit::setReadOnly(bool enable)
 {
     Q_D(QLineEdit);
     d->readOnly = enable;
-#ifndef QT_NO_CURSOR
-    setCursor(enable ? Qt::ArrowCursor : Qt::IBeamCursor);
-#endif
     update();
 }
 
@@ -1351,17 +1350,6 @@ void QLineEdit::mouseMoveEvent(QMouseEvent * e)
     if (d->sendMouseEventToInputContext(e))
 	return;
 
-#ifndef QT_NO_CURSOR
-    if (!e->buttons()) {
-        if (!d->readOnly && d->dragEnabled
-#ifndef QT_NO_WHATSTHIS
-             && !QWhatsThis::inWhatsThisMode()
-#endif
-           )
-            setCursor((d->inSelection(e->pos().x()) ? Qt::ArrowCursor : Qt::IBeamCursor));
-    }
-#endif
-
     if (e->buttons() & Qt::LeftButton) {
 #ifndef QT_NO_DRAGANDDROP
         if (d->dndTimer.isActive()) {
@@ -1471,6 +1459,7 @@ void QLineEdit::keyPressEvent(QKeyEvent * e)
         return;
     }
     bool unknown = false;
+
     if (e->modifiers() & Qt::ControlModifier) {
         switch (e->key()) {
         case Qt::Key_A:
@@ -2020,9 +2009,6 @@ void QLineEditPrivate::drag()
         removeSelectedText();
         finishChange(priorState);
     }
-#ifndef QT_NO_CURSOR
-    q->setCursor(readOnly ? Qt::ArrowCursor : Qt::IBeamCursor);
-#endif
 }
 
 #endif // QT_NO_DRAGANDDROP
@@ -2123,7 +2109,7 @@ void QLineEditPrivate::init(const QString& txt)
     Q_Q(QLineEdit);
     direction = q->layoutDirection();
 #ifndef QT_NO_CURSOR
-    q->setCursor(readOnly ? Qt::ArrowCursor : Qt::IBeamCursor);
+    q->setCursor(Qt::IBeamCursor);
 #endif
     q->setFocusPolicy(Qt::StrongFocus);
     q->setAttribute(Qt::WA_InputMethodEnabled);
