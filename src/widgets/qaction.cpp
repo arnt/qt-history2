@@ -1158,7 +1158,7 @@ bool QActionGroup::isExclusive() const
   a combobox with the action's \l QAction::text and \l
   QAction::iconSet properties shown. Non-exclusive groups are
   represented by a tool button showing their \l QAction::iconSet and
-  -- depending on \l QMainWindow::usesText() -- text() property. 
+  -- depending on \l QMainWindow::usesTextLabel() -- text() property. 
 
   In a popup menu the member actions are displayed in a
   submenu.  

@@ -876,14 +876,6 @@
 */
 
 /*!
-  \fn type *QStrListIterator::operator()()
-  Makes the succeeding item current and returns the original current item.
-
-  If the current iterator item was the last item in the list or if it was
-  null, null is returned.
-*/
-
-/*!
   \fn type *QPtrListIterator::operator++()
   Prefix ++ makes the succeeding item current and returns the new current
   item.

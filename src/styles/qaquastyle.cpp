@@ -13401,6 +13401,7 @@ void QAquaStyle::drawProgressChunk( QPainter *p, int x, int y, int w, int h,
     p->drawTiledPixmap( x, y, w, h, px, (x % px.width()) - d->progressOff, 0 );
 }
 
+/*! \reimp */
 void QAquaStyle::drawItem( QPainter *p, int x, int y, int w, int h,
 			   int flags, const QColorGroup &g, bool enabled,
 			   const QPixmap *pixmap, const QString& text,
@@ -13411,11 +13412,15 @@ void QAquaStyle::drawItem( QPainter *p, int x, int y, int w, int h,
 			     len, penColor );
 }
 
+
+/*! \reimp */
 int QAquaStyle::spinboxFrameWidth() const
 {
     return 1;
 }
 
+
+/*! \reimp */
 void QAquaStyle::drawSpinWidgetButton( QPainter * p, int x, int y,
 	  int w, int h, const QColorGroup &, QSpinWidget *,
 	  bool downbtn, bool, bool down )
@@ -13436,14 +13441,17 @@ void QAquaStyle::drawSpinWidgetButton( QPainter * p, int x, int y,
     p->drawPixmap( x, y, btn );
 }
 
+
+/*! \reimp */
 void QAquaStyle::drawSpinWidgetSymbol( QPainter *, int, int,
 	  int, int, const QColorGroup &, QSpinWidgetWidget *,
 	  bool, bool, bool )
 {
 }
 
-void
-QAquaStyle::titleBarMetrics( const QTitleBar*tb, int &ctrlW, int &ctrlH, int &titleW, int &titleH) const
+
+/*! \reimp */
+void QAquaStyle::titleBarMetrics( const QTitleBar*tb, int &ctrlW, int &ctrlH, int &titleW, int &titleH) const
 {
     titleH = 21;
     if(tb->window) {
@@ -13456,8 +13464,9 @@ QAquaStyle::titleBarMetrics( const QTitleBar*tb, int &ctrlW, int &ctrlH, int &ti
     }
 }
 
-void
-QAquaStyle::drawTitleBarControls( QPainter*p,  const QTitleBar*tb,
+
+/*! \reimp */
+void QAquaStyle::drawTitleBarControls( QPainter*p,  const QTitleBar*tb,
 				  uint controls, uint )
 {
     if(controls) {
@@ -13483,8 +13492,8 @@ QAquaStyle::drawTitleBarControls( QPainter*p,  const QTitleBar*tb,
     }
 }
 
-QStyle::TitleControl
-QAquaStyle::titleBarPointOver( const QTitleBar*tb, const QPoint& pos )
+/*! \reimp */
+QStyle::TitleControl QAquaStyle::titleBarPointOver( const QTitleBar*tb, const QPoint& pos )
 {
     if(tb->window) {
 	if(QRect(7, 3, 15, 17).contains(pos))
@@ -13500,8 +13509,7 @@ QAquaStyle::titleBarPointOver( const QTitleBar*tb, const QPoint& pos )
 /*!
  \reimp
  */
-void
-QAquaStyle::drawListViewItemBranch( QPainter *p, int y, int w, int h, const QColorGroup & cg,
+void QAquaStyle::drawListViewItemBranch( QPainter *p, int y, int w, int h, const QColorGroup & cg,
 				    QListViewItem *item )
 {
     QListViewItem *child = item->firstChild();

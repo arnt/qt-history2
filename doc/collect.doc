@@ -224,7 +224,7 @@ QCacheIterator.
 
 Qt has the following predefined collection classes:
 <ul>
-<li> String lists: \l QPtrStrList, \l QPtrStrIList (\l qptrstrlist.h) and
+<li> String lists: \l QStrList, \l QStrIList (\l qstrlist.h) and
 	\l QStringList (\l qstringlist.h)
 <li> String vectors: QStrVec and QStrIVec (qstrvec.h); these are obsolete
 </ul>

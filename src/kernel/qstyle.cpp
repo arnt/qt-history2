@@ -1046,40 +1046,43 @@ const QWidget *QStyle::contextWidget()
 
 
 /*!
-  \fn QPixmap titleBarPixmap( const QTitleBar *tb, TitleControl ctrl)
+  \fn QPixmap QStyle::titleBarPixmap( const QTitleBar *tb, TitleControl ctrl)
 
   Returns the pixmap representing the action in ctrl.
 
 */
 
 /*!
-  \fn void titleBarMetrics( const QTitleBar*tb, int& ctrlW, int& ctrlH, int& titleW, int& titleH)
+  \fn void QStyle::titleBarMetrics( const QTitleBar*tb, int& ctrlW, int& ctrlH, int& titleW, int& titleH) const
 
-  Retrieves metrics about the titlebar tb. On return ctrlW, ctrlH, titleW, and titleH will contains
+  Retrieves metrics about the titlebar tb. \a ctrlW, \a ctrlH, \a titleW, and \a titleH are set to
   the width and height of all controls on a title bar, and the width and height of the title label
   itself.
-
 */
 
 /*!
-  \fn void drawTitleBarControls( QPainter*p,  const QTitleBar*tb, uint controls, uint activeControl )
+  \fn void QStyle::drawTitleBarControls( QPainter*p,  const QTitleBar*tb, uint controls, uint activeControl )
 
-  Paints parts of the titlebar tb with painter p. The parts painted must be OR'd into controls, and all
+  Paints parts of the titlebar \a tb with painter \a p. The parts painted must be OR'd into controls, and all
   active (or pressed controls) will be OR'd into activeControl.
 */
 
 /*!
-   \fn TitleControl titleBarPointOver( const QTitleBar*tb, const QPoint& pos)
+   \fn TitleControl QStyle::titleBarPointOver( const QTitleBar*tb, const QPoint& pos)
 
-   Returns the control of titlebar tb under point pos, if none are available TitleNone will be returned.
+   Returns the control of titlebar \a tb under point \a pos, if none are available TitleNone will be returned.
 */
 
 /*!
-   \fn void drawListViewItem( QPainter *p, int x, int y, int w, int h, const QColorGroup & cg, QListViewItem *i, uint parts)
+   \fn void QStyle::drawListViewItemBranch( QPainter *p, int y, int w, int h, const QColorGroup & cg, QListViewItem *i );
 
-   Paints the branches (and possibly expand box) of QListViewItem i as enumerated by parts (which is an OR'd together 
-   combination of ListViewItemControl).
-				  
+   Paints the branches of QListViewItem \a i.
+*/
+
+/*!
+   \fn ListViewItemControl QStyle::listViewItemPointOver( const QListViewItem *i, const QPoint &p );
+
+  Returns the listview item part of the item \a i that contains the point \a p.
 */
 
 #endif // QT_NO_STYLE

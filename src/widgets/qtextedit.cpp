@@ -242,7 +242,7 @@
   \sa setCursorPosition()
  */
 
-/*! \property bool QTextEdit::modified 
+/*! \property QTextEdit::modified 
   \brief whether the document has been modified by the user
 */
 

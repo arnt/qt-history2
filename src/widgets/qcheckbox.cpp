@@ -385,6 +385,7 @@ void QCheckBox::updateMask()
 }
 
 #if defined(QT_ACCESSIBILITY_SUPPORT)
+/*! \reimp */
 QAccessibleInterface *QCheckBox::accessibleInterface()
 {
     return new QAccessibleButton( this, QAccessible::CheckBox );

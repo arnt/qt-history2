@@ -310,6 +310,18 @@ Q_UINT16 qChecksum( const char *data, uint len )
   \l QMemArray documentation for further information.
 */
 
+/*!
+  \fn QByteArray::QByteArray()
+
+  Constructs an empty QByteArray.
+*/
+
+/*!
+  \fn QByteArray::QByteArray( int size )
+
+  Constructs a QByteArray of size \a size.
+*/
+
 /*****************************************************************************
   QByteArray stream functions
  *****************************************************************************/

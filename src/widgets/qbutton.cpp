@@ -286,6 +286,13 @@ QTimer *QButton::timer()
   This property should only be set for toggle buttons.
 */
 
+/*! \fn void QButton::setOn( bool on )
+  Sets the state of this button to On when \on is TRUE, otherwise
+  to Off.
+
+  \sa toggleState
+*/
+
 /*! \property QButton::pixmap
     \brief the pixmap shown on the button
 
@@ -310,6 +317,13 @@ QTimer *QButton::timer()
 
 /*! \property QButton::toggleButton
     \brief whether the button is a toggle button
+*/
+
+/*! \fn QButton::setToggleButton( bool b )
+  Makes this button a toggle button when \a b is TRUE, otherwise
+  it becomes a normal button.
+
+  \sa toggleButton
 */
 
 /*! \property QButton::toggleState

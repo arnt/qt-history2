@@ -1181,7 +1181,7 @@ const QWMatrix &QPainter::worldMatrix() const
   QWMatrix::m11() and QWMatrix::m22() are 1.0 and the rest are 0.0.)
 
   World transformations are applied after the view transformations
-  (i.e. \link setWindow window\endlink and \link setViewport viewport\endlink).
+  (i.e. \link setWindow() window\endlink and \link setViewport() viewport\endlink).
 
   The following functions can transform the coordinate system without using
   a QWMatrix:
