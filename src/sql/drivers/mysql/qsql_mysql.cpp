@@ -175,10 +175,9 @@ QVariant QMYSQLResult::data( int field )
     QString val( ( d->row[field] ) );
     QVariant::Type type = qDecodeMYSQLType( d->fieldTypes[ field ] );
     switch ( type ) {
-    case QVariant::Int:
-	return QVariant( val.toInt() );
+    case QVariant::Int:  // keep these as strings so that we don't loose precision
     case QVariant::Double:
-	return QVariant( val.toDouble() );
+	return QVariant( val );
     case QVariant::Date:
 	return QVariant( QDate::fromString( val, Qt::ISODate )  );
     case QVariant::Time:

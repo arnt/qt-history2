@@ -38,10 +38,6 @@
 
 #ifndef QT_NO_SQL
 
-class QSqlFieldPrivate
-{
-public:
-};
 
 /*!
     \class QSqlField qsqlfield.h
@@ -101,7 +97,8 @@ public:
 QSqlField::QSqlField( const QString& fieldName, QVariant::Type type )
     : nm(fieldName), ro(FALSE), nul(FALSE)
 {
-    d = 0; //new QSqlFieldPrivate();
+    d = new QSqlFieldPrivate();
+    d->type = type;
     val.cast( type );
 }
 
@@ -112,6 +109,8 @@ QSqlField::QSqlField( const QString& fieldName, QVariant::Type type )
 QSqlField::QSqlField( const QSqlField& other )
     : nm( other.nm ), val( other.val ), ro( other.ro ), nul( other.nul )
 {
+    d = new QSqlFieldPrivate();
+    d->type = other.d->type;
 }
 
 /*!
@@ -124,6 +123,7 @@ QSqlField& QSqlField::operator=( const QSqlField& other )
     val = other.val;
     ro = other.ro;
     nul = other.nul;
+    d->type = other.d->type;
     return *this;
 }
 
@@ -145,7 +145,8 @@ bool QSqlField::operator==(const QSqlField& other) const
     return ( nm == other.nm &&
 	     val == other.val &&
 	     ro == other.ro &&
-	     nul == other.nul );
+	     nul == other.nul &&
+	     d->type == other.d->type );
 }
 
 /*!
@@ -154,7 +155,7 @@ bool QSqlField::operator==(const QSqlField& other) const
 
 QSqlField::~QSqlField()
 {
-    //    delete d;
+    delete d;
 }
 
 
@@ -186,15 +187,13 @@ void QSqlField::setValue( const QVariant& value )
 {
     if ( isReadOnly() )
 	return;
-    if ( value.type() != val.type() ) {
-	if ( !val.canCast( value.type() ) )
+    qWarning( "%s - %s", QVariant::typeToName( val.type() ), value.typeName() );
+    if ( value.type() != d->type ) {
+	if ( !val.canCast( d->type ) )
 	     qWarning("QSqlField::setValue: %s cannot cast from %s to %s",
-		      nm.local8Bit().data(), value.typeName(), val.typeName() );
-	QVariant tmp = value;
-	tmp.cast( val.type() );
-	val = tmp;
-    } else
-	val = value;
+		      nm.local8Bit().data(), value.typeName(), QVariant::typeToName( d->type ) );
+    }
+    val = value;
     if ( val.type() != QVariant::Invalid )
 	nul = FALSE;
 }

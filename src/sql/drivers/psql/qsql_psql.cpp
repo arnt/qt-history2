@@ -263,10 +263,9 @@ QVariant QPSQLResult::data( int i )
 	} else {
 	    return QVariant( val );
 	}
-    case QVariant::Int:
-	return QVariant( val.toInt() );
+    case QVariant::Int:    // keep these as strings so we don't loose precision
     case QVariant::Double:
-	return QVariant( val.toDouble() );
+	return QVariant( val );
     case QVariant::Date:
 	return QVariant( QDate::fromString( val, Qt::ISODate ) );
     case QVariant::Time:

@@ -50,7 +50,11 @@
 
 #ifndef QT_NO_SQL
 
-class QSqlFieldPrivate;
+class QSqlFieldPrivate
+{
+public:
+    QVariant::Type type;
+};
 
 class QM_EXPORT_SQL QSqlField
 {
@@ -93,7 +97,7 @@ inline bool QSqlField::isReadOnly() const
 { return ro; }
 
 inline QVariant::Type QSqlField::type() const
-{ return val.type(); }
+{ return d->type; }
 
 
 /******************************************/

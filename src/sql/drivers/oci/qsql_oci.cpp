@@ -736,11 +736,9 @@ public:
 	case QVariant::CString:
 	    v = QVariant( QCString( at(i), length(i)+1 ) );
 	    break;
-	case QVariant::Int:
-	    v = QVariant( QString( at(i) ).toInt() );
-	    break;
-	case QVariant::Double:
-	    v = QVariant( QString( at(i) ).toDouble() );
+	case QVariant::Int:    // keep these as strings so that we do not loose precision
+        case QVariant::Double: // when converted to strings
+	    v = QVariant( QString( at(i) ) );
 	    break;
 	case QVariant::ByteArray: {
 	    QByteArray ba;
