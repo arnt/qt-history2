@@ -192,6 +192,8 @@ static Atom qt_xdnd_source_current_time;
 //NOTUSED static Atom qt_xdnd_target_current_time;
 // screen number containing the pointer... -1 means default
 static int qt_xdnd_current_screen = -1;
+// state of dragging... true if dragging, false if not
+bool qt_xdnd_dragging = FALSE;
 
 // dict of payload data, sorted by type atom
 QIntDict<QByteArray> * qt_xdnd_target_data = 0;
@@ -244,8 +246,9 @@ static const char* default_pm[] = {
 class QShapedPixmapWidget : public QWidget {
     QPixmap pixmap;
 public:
-    QShapedPixmapWidget() :
-	QWidget(0,0,WStyle_Customize | WStyle_Tool | WStyle_NoBorder | WX11BypassWM )
+    QShapedPixmapWidget(int screen = -1) :
+	QWidget(QApplication::desktop()->screen( screen ),
+		0, WStyle_Customize | WStyle_Tool | WStyle_NoBorder | WX11BypassWM )
     {
     }
 
@@ -867,12 +870,10 @@ bool QDragManager::eventFilter( QObject * o, QEvent * e)
     if ( !o->isWidgetType() )
 	return FALSE;
 
-    QWidget* w = (QWidget*)o;
-
     if ( e->type() == QEvent::MouseMove ) {
 	QMouseEvent* me = (QMouseEvent *)e;
 	updateMode(me->stateAfter());
-	move( w->mapToGlobal( me->pos() ) );
+	move( me->globalPos() );
 	return TRUE;
     } else if ( e->type() == QEvent::MouseButtonRelease ) {
 	qApp->removeEventFilter( this );
@@ -1086,6 +1087,13 @@ Window findRealWindow( const QPoint & pos, Window w, int md )
 
 void QDragManager::move( const QPoint & globalPos )
 {
+    int screen = QCursor::x11Screen();
+    if ( ( qt_xdnd_current_screen == -1 && screen != QPaintDevice::x11AppScreen() ) ||
+	 ( screen != qt_xdnd_current_screen ) ) {
+	// recreate the pixmap on the new screen...
+	delete qt_xdnd_deco;
+	qt_xdnd_deco = new QShapedPixmapWidget( screen );
+    }
     updatePixmap();
 
     if ( qt_xdnd_source_sameanswer.contains( globalPos ) &&
@@ -1093,27 +1101,15 @@ void QDragManager::move( const QPoint & globalPos )
 	return;
     }
 
+    qt_xdnd_current_screen = screen;
     Window rootwin = QPaintDevice::x11AppRootWindow( qt_xdnd_current_screen );
     Window target = 0;
     int lx = 0, ly = 0;
     if ( !XTranslateCoordinates( QPaintDevice::x11AppDisplay(), rootwin, rootwin,
 				 globalPos.x(), globalPos.y(),
-				 &lx, &ly, &target) ) {
-	// somehow got onto a different screen... update the current screen and rootwin
-	if ( qt_xdnd_current_screen == -1 ) {
-	    // we need to do a few server roundtrips to figure out where we are...
-	    qt_xdnd_current_screen = QCursor::x11Screen();
-	    if ( qt_xdnd_current_screen == -1 )
-		// failed to get the current screen
-		return;
-	}
-	rootwin = QPaintDevice::x11AppRootWindow( qt_xdnd_current_screen );
-
-	if ( !XTranslateCoordinates( QPaintDevice::x11AppDisplay(), rootwin, rootwin,
-				     globalPos.x(), globalPos.y(),
-				     &lx, &ly, &target) )
-	    return;
-    }
+				 &lx, &ly, &target) )
+	// some wierd error...
+	return;
 
     if ( target == rootwin ) {
 	// Ok.
@@ -1616,6 +1612,8 @@ bool QDragManager::drag( QDragObject * o, QDragObject::DragMode mode )
 #endif
 
     dndCancelled = FALSE;
+    qt_xdnd_dragging = TRUE;
+
     qApp->enter_loop(); // Do the DND.
 
 #ifndef QT_NO_CURSOR
@@ -1627,6 +1625,7 @@ bool QDragManager::drag( QDragObject * o, QDragObject::DragMode mode )
     killTimer(heartbeat);
     heartbeat = 0;
     qt_xdnd_current_screen = -1;
+    qt_xdnd_dragging = FALSE;
 
     return ((! dndCancelled) && // source del?
 	    (global_accepted_action == QDropEvent::Copy &&

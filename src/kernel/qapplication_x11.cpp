@@ -424,6 +424,7 @@ extern Atom qt_xdnd_drop;
 extern Atom qt_xdnd_finished;
 // xdnd selection atom
 extern Atom qt_xdnd_selection;
+extern bool qt_xdnd_dragging;
 
 // gui or non-gui from qapplication.cpp
 extern bool qt_is_gui_used;
@@ -4645,7 +4646,8 @@ bool QETWidget::translateMouseEvent( const XEvent *event )
 	return TRUE;
 
     if ( event->type == MotionNotify ) { // mouse move
-	if (event->xmotion.root != RootWindow(appDpy, x11Screen()))
+	if (event->xmotion.root != RootWindow(appDpy, x11Screen()) &&
+	    ! qt_xdnd_dragging )
 	    return FALSE;
 
 	XMotionEvent lastMotion = event->xmotion;
