@@ -1272,6 +1272,10 @@ void QComboBox::mousePressEvent( QMouseEvent *e )
 						      QStyle::SC_ComboBoxArrow);
     arrowRect = QStyle::visualRect(arrowRect, this);
 
+    // Correction for motif style, where arrow is smaller
+    // and thus has a rect that doesn't fit the button.
+    arrowRect.setHeight( QMAX(  height() - (2 * arrowRect.y()), arrowRect.height() ) );
+
     if ( count() && ( !editable() || arrowRect.contains( e->pos() ) ) ) {
 	d->arrowPressed = FALSE;
 
