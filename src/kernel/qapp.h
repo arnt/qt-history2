@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp.h#17 $
+** $Id: //depot/qt/main/src/kernel/qapp.h#18 $
 **
 ** Definition of QApplication class
 **
@@ -66,6 +66,8 @@ private:
     static GUIStyle appStyle;			// application GUI style
     static QFont   *appFont;			// application font
     static QCursor *appCursor;			// application cursor
+    static bool	    starting_up;
+    static bool	    closing_down;
 
 public:
 #if defined(_WS_MAC_)
