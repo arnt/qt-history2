@@ -9,6 +9,7 @@
 #include <stdio.h>
 
 static QTextEdit *debugoutput = 0;
+bool debugToStderr = FALSE;
 
 OutputWindow::OutputWindow( QWidget *parent )
     : QTabWidget( parent, "output_window" ), debugView( 0 ), errorView( 0 )
@@ -37,12 +38,13 @@ void OutputWindow::setupError()
     errorView->setAllColumnsShowFocus( TRUE );
 }
 
-static void debugMessageOutput( QtMsgType type, const char *msg )
+void debugMessageOutput( QtMsgType type, const char *msg )
 {
-    QString s;
-    s = msg;
+    QString s(msg);
 
     if ( type != QtFatalMsg ) {
+	if(debugToStderr)
+	    fprintf(stderr, s + "\n");
 	if ( debugoutput )
 	    debugoutput->append( s + "\n" );
     } else {
@@ -50,7 +52,7 @@ static void debugMessageOutput( QtMsgType type, const char *msg )
 	abort();
     }
 
-    qApp->flushX();
+    qApp->flush();
 }
 
 void OutputWindow::setupDebug()
