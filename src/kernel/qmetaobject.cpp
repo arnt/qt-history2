@@ -141,6 +141,8 @@ QMetaObject::QMetaObject( const char *class_name, const char *superclass_name,
     d->numEnumData = 0;
     d->propData = 0;
     d->numPropData = 0;
+    d->classInfo = 0;
+    d->numClassInfo = 0;
 }
 
 QMetaObject::QMetaObject( const char *class_name, const char *superclass_name,
