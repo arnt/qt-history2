@@ -244,8 +244,7 @@ sub parseclassfile {
     s/\s*<br>\n?/\n.br\n/gs;
 
     # do the list voodoo
-#    $_ =~ s/"Public Members"\n.*?"Detailed Description"/&parsemembers($&)/es;
-    $_ =~ s/"Public Members".*?"Detailed Description"/"Detailed Description"/s;
+    $_ =~ s/\n\.sh 2.*?"Detailed Description"/\n.sh 2 "Detailed Description"/s;
     $_ = &parselist( $_ );
 
     # clean up multi-line space
