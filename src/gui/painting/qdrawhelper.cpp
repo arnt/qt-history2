@@ -317,8 +317,8 @@ static void blend_transformed_bilinear_argb(void *t, const QSpan *span,
 
         int distx = ((x - (x1 << 16)) >> 8);
         int disty = ((y - (y1 << 16)) >> 8);
-        int idistx = 256 - distx;
-        int idisty = 256 - disty;
+        int idistx = 255 - distx;
+        int idisty = 255 - disty;
 
         bool x1_out = ((x1 < 0) | (x1 >= image_width));
         bool x2_out = ((x2 < 0) | (x2 >= image_width));
@@ -370,8 +370,8 @@ static void blend_transformed_bilinear_tiled_argb(void *t, const QSpan *span,
 
         int distx = ((x - (x1 << 16)) >> 8);
         int disty = ((y - (y1 << 16)) >> 8);
-        int idistx = 256 - distx;
-        int idisty = 256 - disty;
+        int idistx = 255 - distx;
+        int idisty = 255 - disty;
 
         x1 %= image_width;
         x2 %= image_width;
@@ -640,8 +640,8 @@ static void blend_transformed_bilinear_rgb32(void *t, const QSpan *span,
 
         int distx = ((x - (x1 << 16)) >> 8);
         int disty = ((y - (y1 << 16)) >> 8);
-        int idistx = 256 - distx;
-        int idisty = 256 - disty;
+        int idistx = 255 - distx;
+        int idisty = 255 - disty;
 
         bool x1_out = ((x1 < 0) | (x1 >= image_width));
         bool x2_out = ((x2 < 0) | (x2 >= image_width));
@@ -689,8 +689,8 @@ static void blend_transformed_bilinear_tiled_rgb32(void *t, const QSpan *span,
 
         int distx = ((x - (x1 << 16)) >> 8);
         int disty = ((y - (y1 << 16)) >> 8);
-        int idistx = 256 - distx;
-        int idisty = 256 - disty;
+        int idistx = 255 - distx;
+        int idisty = 255 - disty;
 
         x1 %= image_width;
         x2 %= image_width;
