@@ -375,8 +375,6 @@ void QTabBar::paint( QPainter * p, QTab * t, bool selected ) const
     style().drawControl( QStyle::CE_TabBarTab, p, this, t->rect(),
 			 colorGroup(), flags );
     
-//    style().drawTab( p, this, t, selected );
-
     QRect r( t->r );
     p->setFont( font() );
 
@@ -782,7 +780,10 @@ void QTabBar::layoutTabs()
 	return;
 
     int hframe, vframe, overlap;
-    style().tabbarMetrics( this, hframe, vframe, overlap );
+    hframe  = style().pixelMetric( QStyle::PM_TabBarHorizontalFrame, this );
+    vframe  = style().pixelMetric( QStyle::PM_TabBarVerticalFrame, this );
+    overlap = style().pixelMetric( QStyle::PM_TabBarOverlap, this );
+
     QFontMetrics fm = fontMetrics();
     int x = 0;
     QRect r;
@@ -805,7 +806,7 @@ void QTabBar::layoutTabs()
 
 	h += vframe;
 	t->r.setRect( x, 0, QMAX( lw + hframe + iw,
-		    QApplication::globalStrut().width() ), h );
+				  QApplication::globalStrut().width() ), h );
 	x += t->r.width() - overlap;
 	r = r.unite( t->r );
 	if ( reverse )
@@ -887,7 +888,6 @@ void QTabBar::focusOutEvent( QFocusEvent * )
 	    style().drawControl( QStyle::CE_TabBarTab, &p, this, t->rect(),
 				 colorGroup(), flags );
 	    
-//	    style().drawTab( &p, this, t, TRUE );
 	    paintLabel( &p, QRect( r.left() + ( r.width() -w ) /2 - 3,
 				   r.top() + ( r.height()-h ) / 2,
 				   w, h ), t, FALSE );

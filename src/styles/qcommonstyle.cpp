@@ -1523,6 +1523,19 @@ int QCommonStyle::pixelMetric(PixelMetric m, const QWidget *widget) const
 	ret = 0;
 	break;
 
+    case PM_TabBarHorizontalFrame:
+	ret = 24;
+	break;
+
+    case PM_TabBarVerticalFrame: {
+	QTabBar * tb = (QTabBar *) widget;
+	if ( tb->shape() == QTabBar::RoundedAbove || 
+	     tb->shape() == QTabBar::RoundedBelow )
+	    ret = 10;
+	else
+	    ret = 0;
+	break; }
+	
     default:
 	ret = 0;
 	break;

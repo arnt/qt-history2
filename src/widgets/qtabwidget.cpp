@@ -148,8 +148,6 @@ protected:
 	    
 	    style().drawPrimitive( QStyle::PO_TabBarBase, &p, rect(), 
 				   colorGroup(), flags );
-//             style().drawTabBarExtension( &p, x(), y(), width(), height(),
-//                                          colorGroup(), t );
         }
     }
 };
@@ -607,13 +605,8 @@ void QTabWidget::setUpLayout( bool onlyCheck )
 	t.setWidth( width() );
     int lw = d->stack->lineWidth();
     bool reverse = QApplication::reverseLayout();
-    int tabx, taby, stacky, exty, extw, exth, overlap;
+    int tabx, taby, stacky, exty, exth, overlap;
 
-    // the width is basically useless since it's pointless to have a
-    // tabbar base that has a different width than the qtabwidget
-    // itself
-//    style().tabBarExtensionMetrics( this, extw, exth, overlap );
-    extw = width(); 
     exth = style().pixelMetric( QStyle::PM_TabBarBaseHeight, this );
     overlap = style().pixelMetric( QStyle::PM_TabBarBaseOverlap, this );
 
@@ -633,7 +626,9 @@ void QTabWidget::setUpLayout( bool onlyCheck )
 	exty = taby + t.height() - overlap;
     }
     d->tabs->setGeometry( tabx, taby, t.width(), t.height() );
-    d->tabBase->setGeometry( 0, exty, extw, exth );
+    d->tabBase->setGeometry( 0, exty, width(), exth );
+    if ( exth == 0 )
+	d->tabBase->hide();
     d->stack->setGeometry( 0, stacky, width(), height() - (exth-overlap) -
 			   t.height()+QMAX(0, lw-2));
 

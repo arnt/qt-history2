@@ -353,6 +353,8 @@ public:
 	PM_MenuBarFrameWidth,
 
 	PM_TabBarOverlap,
+	PM_TabBarHorizontalFrame,
+	PM_TabBarVerticalFrame,
 	PM_TabBarBaseHeight,
 	PM_TabBarBaseOverlap,
 
