@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: //depot/qt/main/util/qdoc/qdoc#190 $
+# $Id: //depot/qt/main/util/qdoc/qdoc#191 $
 #
 # this is a massive hack, written very quickly
 #
@@ -930,10 +930,10 @@ sub readfiles {
 	$h = <F>;
 	close(F);
 	$h = &html($h);
-	$h =~ s@\n(?:(?:class)|(?:struct))\s+(?:\w+\s+)?\w+(?:\s*:(\s*(?:public\s+)?\w+\s*,?)*)?@
+	$h =~ s@\n(?:(?:class)|(?:struct))\s+(?:[\w_]+\s+)?[\w:]+(?:\s*:(\s*(?:public\s+)?\w+\s*,?)*)?@
 	    $_ = "";
 	    foreach $w (split(/\b/, $&)) { # ARNTHER
-		if (defined($anchor{$w}) && $doc{$andchor{$w}} =~ /\S/) {
+		if ( $w =~ /\w/ && $doc{$anchor{$w}} =~ /\S/) {
 		    $_ = join("", $_, "<a href=\"", $anchor{$w}, "\">", $w, "</a>");
 		} else {
 		    $_ = join("", $_, $w);
@@ -1047,35 +1047,9 @@ sub readh {
 	    &storeclass($filename, $sig, $def);
 	} else {
 	    $sig =~ s/^(\w+)T\b/$1/gs;
-	    $_ = $sig;
-	    s/[:\s].*//;
-	    $def =~ s/\b(?:(?:$_)T)\b/$_/gs;
-	    if ( /Iterator$/ ) { # magic qt hack alert
-		s/Iterator$//;
-		$def =~ s/\b(?:(?:$_)T)\b/$_/gs;
-	    }
-	    $def =~ s/\b(?:(?:$_)T)\b/$_/gs;
 	    $templatecookie{&mangleclass($sig)} = $cookie;
 	    &storeclass( $filename, $sig, $def );
 	}
-    }
-
-    while( $h =~ /\btypedef (\w+?)T?\s*<([^>]+?)\s*>\s*(\w+);/g ) {
-	$declared{$3} = $1 . " " . $2 . " " . $filename;
-	#print "saw ", $3, ": ", $declared{$3}, "\n";
-    }
-
-    while ($h =~ /\bQ_DECLARE\s*\(\s*(\S+?)\s*,\s*(\S+?)\s*\)\s*;
-	   \s+\#define\s+(\S+)\s+(\S+)\s*\(\s*(\S+)\s*\)\s/gsx ) {
-	next if ( ($1 ne $4) || ($2 ne $5) );
-	$declared{$3} = $1 . " " . $2 . " " . $filename;
-	#print $3, " -> ", $declared{$3}, "\n";
-    }
-
-    while ($h =~ /\bQ_DECLARE\s*\(\s*(\S+?)\s*,\s*(\S+?)\s*\)\s*;
-	   \s+\typedef\s+(\S+)\s*\(\s*(\S+)\s*\)\s+(\S+)\s;/gsx ) {
-	next if ( ($1 ne $3) || ($2 ne $4) );
-	$declared{$5} = $1 . " " . $2 . " " . $filename;
     }
 
     $headerfiles{$filename} = $filename;
