@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#230 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#231 $
 **
 ** Implementation of QWidget class
 **
@@ -29,7 +29,7 @@
 #endif
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#230 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#231 $");
 
 
 /*!
@@ -673,7 +673,6 @@ QWidget::~QWidget()
 	QObject *obj;
 	while ( (obj=it.current()) ) {
 	    ++it;
-	    obj->parentObj = 0;
 	    delete obj;
 	    if ( !childObjects )		// removeChild resets it
 		break;
@@ -2048,6 +2047,7 @@ bool QWidget::focusNextPrevChild( bool next )
     if ( !candidate )
 	return FALSE;
 
+debug("%p gets focus",candidate);
     candidate->setFocus();
     return TRUE;
 }
