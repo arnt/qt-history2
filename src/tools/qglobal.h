@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglobal.h#112 $
+** $Id: //depot/qt/main/src/tools/qglobal.h#113 $
 **
 ** Global type declarations and definitions
 **
@@ -98,6 +98,7 @@
 //
 //   SYM	- Symantec C++ for both PC and Macintosh
 //   MPW	- MPW C++
+//   METROWERKS - Metroworks C++
 //   MSVC	- Microsoft Visual C/C++
 //   BOR	- Borland/Turbo C++
 //   WAT	- Watcom C++
@@ -115,6 +116,9 @@
 #define _CC_SYM_
 #elif defined(applec)
 #define _CC_MPW_
+#elif defined(__MWERKS__)
+#define _CC_METROWORKS_
+#define HAS_BOOL_TYPE
 #elif defined(_MSC_VER)
 #define _CC_MSVC_
 #elif defined(__BORLANDC__) || defined(__TURBOC__)
@@ -144,6 +148,7 @@
 #if __cplusplus >= 199707L
 // this is the aCC
 #define _CC_HP_ACC_
+#define HAS_BOOL_TYPE
 #else
 // this is the CC
 #define _CC_HP_
@@ -210,8 +215,6 @@
 #elif _MSC_VER >= 1100 || __BORLANDC__ >= 0x500
 #define HAS_BOOL_TYPE
 #elif defined(_CC_COMEAU_)
-#define HAS_BOOL_TYPE
-#elif defined(_CC_HP_ACC_)
 #define HAS_BOOL_TYPE
 #elif defined(sgi) && (_COMPILER_VERSION >= 710)
 #define HAS_BOOL_TYPE
