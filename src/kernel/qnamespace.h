@@ -117,7 +117,8 @@ public:
 	ShowPrefix	= 0x0400,
 	WordBreak	= 0x0800,
 	BreakAnywhere = 0x1000,
-	DontPrint	= 0x2000		// internal
+	DontPrint	= 0x2000,		// internal
+	NoAccel = 0x4000
     };
 
     // ### document me!!!

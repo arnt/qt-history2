@@ -2240,14 +2240,15 @@ void qt_format_text( const QFont& font, const QRect &r,
     bool singleline = (tf & Qt::SingleLine) == Qt::SingleLine;
     bool showprefix = (tf & Qt::ShowPrefix) == Qt::ShowPrefix;
     bool breakany = (tf & Qt::BreakAnywhere ) == Qt::BreakAnywhere;
+    bool noaccel = ( tf & Qt::NoAccel ) == Qt::NoAccel;
 
     bool simple = !decode && singleline && !showprefix && !expandtabs;
 
 #ifdef QT_NO_RICHTEXT
     simple = TRUE; //####### This is ugly and hopefully temporary
-#endif    
-    
-    
+#endif
+
+
     if ( simple ) {
 	// we can use a simple drawText instead of the QTextParag.
 	QFontMetrics fm( font );
@@ -2315,7 +2316,7 @@ void qt_format_text( const QFont& font, const QRect &r,
 	if ( singleline ) {
 	    parStr.replace(QRegExp("[\n\r]"), " ");
 	}
-	if ( showprefix ) {
+	if ( showprefix || noaccel ) {
 	    int idx = -1;
 	    int start = 0;
 	    int len = str.length();
@@ -2332,7 +2333,10 @@ void qt_format_text( const QFont& font, const QRect &r,
 		    parag->setFormat( start - num, 1, f );
 		} else {
 		    parag->append( parStr.mid(idx + 1, 1) );
-		    parag->setFormat(idx - num, 1, ul );
+		    if ( !noaccel )
+			parag->setFormat( idx - num, 1, ul );
+		    else
+			parag->setFormat( idx - num, 1, f );
 		    num++;
 		}
 		start = idx + 2;
