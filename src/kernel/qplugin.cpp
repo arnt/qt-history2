@@ -35,7 +35,7 @@
 **
 **********************************************************************/
 
-#include "qapplicationinterface.h"
+#include "qcomponentinterface.h"
 #ifndef QT_NO_PLUGIN
 #include "qplugin.h"
 #include "qplugin_p.h"

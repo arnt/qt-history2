@@ -2,7 +2,7 @@
 #define QSQLDRIVERINTERFACE_H
 
 #ifndef QT_H
-#include "qapplicationinterface.h"
+#include "qcomponentinterface.h"
 #endif // QT_H
 
 #ifndef QT_NO_SQL
