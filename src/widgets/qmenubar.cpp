@@ -326,6 +326,7 @@ void QMenuBar::updateItem( int id )
 	repaint( irects[i], FALSE );
 }
 
+static bool fromFrameChange = FALSE;
 
 /*!
   Recomputes the menu bar's display data according to the new
@@ -368,7 +369,7 @@ void QMenuBar::menuContentsChanged()
 	if( !isHidden())
 	    hide();
     } else {
-	if( isHidden() )
+	if( isHidden() && !fromFrameChange )
 	    show();
     }
 
@@ -413,7 +414,9 @@ void QMenuBar::menuDelPopup( QPopupMenu *popup )
 
 void QMenuBar::frameChanged()
 {
+    fromFrameChange = TRUE;
     menuContentsChanged();
+    fromFrameChange = FALSE;
 }
 
 
