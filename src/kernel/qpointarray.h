@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpointarray.h#42 $
+** $Id: //depot/qt/main/src/kernel/qpointarray.h#43 $
 **
 ** Definition of QPointArray class
 **
@@ -52,6 +52,7 @@ public:
 	{ QPointArray tmp; return *((QPointArray*)&tmp.duplicate(*this)); }
 
     void    translate( int dx, int dy );
+    QRect   boundingRect() const;
 
     void    point( uint i, int *x, int *y ) const;
     QPoint  point( uint i ) const;
@@ -62,12 +63,10 @@ public:
     bool    putPoints( int index, int nPoints, const QCOORD *points );
     bool    putPoints( int index, int nPoints, int firstx, int firsty, ... );
 
-    QRect   boundingRect() const;
-
     void    makeArc( int x, int y, int w, int h, int a1, int a2 );
     void    makeEllipse( int x, int y, int w, int h );
-    void    makeArc( int x, int y, int w, int h, int a1, int a2, const QWMatrix& );
-
+    void    makeArc( int x, int y, int w, int h, int a1, int a2,
+		     const QWMatrix& );
     QPointArray quadBezier() const;
 
     void*  shortPoints( int index = 0, int nPoints = -1 ) const;

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qwindowsstyle.cpp#1 $
+** $Id: //depot/qt/main/src/widgets/qwindowsstyle.cpp#2 $
 **
 ** Implementation of Windows-like style class
 **
@@ -1031,13 +1031,13 @@ void QWindowsStyle::drawCheckMark( QPainter *p, int x, int y, int w, int h,
 	xx++; yy--;
     }
     if ( dis && !act ) {
-	uint pnt;
+	int pnt;
 	p->setPen( g.highlightedText() );
 	QPoint offset(1,1);
-	for ( pnt = 0; pnt < a.size(); pnt++ )
+	for ( pnt = 0; pnt < (int)a.size(); pnt++ )
 	    a[pnt] += offset;
 	p->drawLineSegments( a );
-	for ( pnt = 0; pnt < a.size(); pnt++ )
+	for ( pnt = 0; pnt < (int)a.size(); pnt++ )
 	    a[pnt] -= offset;
     }
     p->setPen( g.text() );

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdnd_win.cpp#49 $
+** $Id: //depot/qt/main/src/kernel/qdnd_win.cpp#50 $
 **
 ** Implementation of OLE drag and drop for Qt.
 **
@@ -34,6 +34,7 @@ extern Qt::WindowsVersion qt_winver;
 
 extern bool qt_read_dib( QDataStream&, QImage& ); // qimage.cpp
 extern bool qt_write_dib( QDataStream&, QImage );   // qimage.cpp
+
 
 /*
   Encapsulation of conversion between MIME and Windows CLIPFORMAT.
