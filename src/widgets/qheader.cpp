@@ -1262,8 +1262,10 @@ void QHeader::paintSection( QPainter *p, int index, const QRect& fr )
     if(index == handleIdx) {
 	if(state == Pressed || state == Moving)
 	    flags = QStyle::PStyle_Down;
+#if defined(Q_WS_MACX) || defined(Q_WS_MAC9)
 	else
 	    flags = QStyle::PStyle_Sunken;
+#endif
     }
     p->setBrushOrigin( fr.topLeft() );
     if ( d->clicks[section] ) {
