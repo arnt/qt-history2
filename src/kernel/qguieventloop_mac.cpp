@@ -49,8 +49,6 @@ static EventLoopTimerUPP mac_select_timerUPP = NULL;
 QMAC_PASCAL static void qt_activate_mac_timer(EventLoopTimerRef, void *data)
 {
     MacTimerInfo *tmr = (MacTimerInfo *)data;
-    if(tmr->pending)
-	return;
     if(QMacBlockingFunction::blocking()) { //just send it immediately
 	/* someday this is going to lead to an infite loop, I just know it. I should be marking the
 	   pending here, and unmarking, but of course single shot timers are removed between now
@@ -60,6 +58,8 @@ QMAC_PASCAL static void qt_activate_mac_timer(EventLoopTimerRef, void *data)
 	QApplication::flush();
 	return;
     }
+    if(tmr->pending)
+	return;
     tmr->pending = TRUE;
     qt_event_request_timer(tmr);
 }
