@@ -4,7 +4,6 @@
 #include <QMainWindow>
 
 class QAction;
-class QLabel;
 class QMenu;
 class QTextEdit;
 
@@ -40,7 +39,6 @@ private:
     QString strippedName(const QString &fullFileName);
 
     QTextEdit *textEdit;
-    QLabel *modLabel;
     QString curFile;
 
     QMenu *fileMenu;

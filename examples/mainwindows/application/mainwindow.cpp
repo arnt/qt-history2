@@ -87,7 +87,7 @@ void MainWindow::about()
 
 void MainWindow::documentWasModified()
 {
-    modLabel->setText(tr("MOD"));
+    setWindowModified(true);
 }
 
 void MainWindow::createActions()
@@ -180,12 +180,7 @@ void MainWindow::createToolBars()
 
 void MainWindow::createStatusBar()
 {
-    modLabel = new QLabel(tr(" MOD "));
-    modLabel->setAlignment(Qt::AlignHCenter);
-    modLabel->setMinimumSize(modLabel->sizeHint());
-    modLabel->clear();
-
-    statusBar()->addWidget(modLabel, 0, true);
+    statusBar()->showMessage(tr("Ready"));
 }
 
 void MainWindow::readSettings()
@@ -264,8 +259,8 @@ void MainWindow::saveFile(const QString &fileName)
 void MainWindow::setCurrentFile(const QString &fileName)
 {
     curFile = fileName;
-    modLabel->clear();
     textEdit->document()->setModified(false);
+    setWindowModified(false);
 
     if (curFile.isEmpty())
         setWindowTitle(tr("Application"));
