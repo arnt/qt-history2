@@ -383,7 +383,7 @@ QTextStream &operator<<( QTextStream &strm, const VCCLCompilerTool &tool )
     strm << _begTool3;
     strm << _VCCLCompilerToolName;
     strm << XPair( _AdditionalIncludeDirectories, tool.AdditionalIncludeDirectories );
-    strm << XPair( _AdditionalOptions, tool.AdditionalOptions );
+    strm << XPair( _AdditionalOptions, tool.AdditionalOptions, " " );
     strm << XPair( _AdditionalUsingDirectories, tool.AdditionalUsingDirectories );
     strm << SPair( _AssemblerListingLocation, tool.AssemblerListingLocation );
     if ( tool.AssemblerOutput != asmListingNone )	    strm << EPair( _AssemblerOutput, tool.AssemblerOutput );
@@ -987,7 +987,7 @@ QTextStream &operator<<( QTextStream &strm, const VCLinkerTool &tool )
     strm << _VCLinkerToolName;
     strm << XPair( _AdditionalDependencies4, tool.AdditionalDependencies, " " );
     strm << XPair( _AdditionalLibraryDirectories, tool.AdditionalLibraryDirectories );
-    strm << XPair( _AdditionalOptions, tool.AdditionalOptions );
+    strm << XPair( _AdditionalOptions, tool.AdditionalOptions, " " );
     strm << XPair( _AddModuleNamesToAssembly, tool.AddModuleNamesToAssembly );
     strm << SPair( _BaseAddress, tool.BaseAddress );
     strm << XPair( _DelayLoadDLLs, tool.DelayLoadDLLs );
@@ -1405,7 +1405,7 @@ QTextStream &operator<<( QTextStream &strm, const VCMIDLTool &tool )
     strm << _begTool3;
     strm << _VCMIDLToolName;
     strm << XPair( _AdditionalIncludeDirectories, tool.AdditionalIncludeDirectories );
-    strm << XPair( _AdditionalOptions, tool.AdditionalOptions );
+    strm << XPair( _AdditionalOptions, tool.AdditionalOptions, " " );
     strm << XPair( _CPreprocessOptions, tool.CPreprocessOptions );
     strm << EPair( _DefaultCharType, tool.DefaultCharType );
     strm << SPair( _DLLDataFileName, tool.DLLDataFileName );
@@ -1684,7 +1684,7 @@ QTextStream &operator<<( QTextStream &strm, const VCLibrarianTool &tool )
     strm << SPair( _ToolName, QString( "VCLibrarianTool" ) );
     strm << XPair( _AdditionalDependencies4, tool.AdditionalDependencies );
     strm << XPair( _AdditionalLibraryDirectories, tool.AdditionalLibraryDirectories );
-    strm << XPair( _AdditionalOptions, tool.AdditionalOptions );
+    strm << XPair( _AdditionalOptions, tool.AdditionalOptions, " " );
     strm << XPair( _ExportNamedFunctions, tool.ExportNamedFunctions );
     strm << XPair( _ForceSymbolReferences, tool.ForceSymbolReferences );
     strm << TPair( _IgnoreAllDefaultLibraries, tool.IgnoreAllDefaultLibraries );
@@ -1730,7 +1730,7 @@ QTextStream &operator<<( QTextStream &strm, const VCResourceCompilerTool &tool )
     strm << _VCResourceCompilerToolName;
     strm << SPair( _ToolPath, tool.ToolPath );
     strm << XPair( _AdditionalIncludeDirectories, tool.AdditionalIncludeDirectories );
-    strm << XPair( _AdditionalOptions, tool.AdditionalOptions );
+    strm << XPair( _AdditionalOptions, tool.AdditionalOptions, " " );
     if ( tool.Culture != rcUseDefault )			    strm << EPair( _Culture, tool.Culture );
     strm << XPair( _FullIncludePath, tool.FullIncludePath );
     strm << TPair( _IgnoreStandardIncludePath, tool.IgnoreStandardIncludePath );
