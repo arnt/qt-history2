@@ -2506,9 +2506,10 @@ void QApplication::sendPostedEvents( QObject *receiver, int event_type )
 
     // okay.  here is the tricky loop.  be careful about optimizing
     // this, it looks the way it does for good reasons.
+    QPostEvent *last = l->getLast();
     QPostEventListIt it( *l );
     QPostEvent *pe;
-    while ( (pe=it.current()) != 0 ) {
+    while ( (pe=it.current()) != 0 && pe != last ) {
 	++it;
 	if ( pe->event // hasn't been sent yet
 	     && ( receiver == 0 // we send to all receivers
