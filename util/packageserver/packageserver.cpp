@@ -33,6 +33,7 @@ void PackageSocket::readClient()
 	// delete any old qt-*.exe files
 	QDir d;
 	QStringList l = d.entryList( "qt-*.exe" );
+	l += d.entryList( "qsa-*.exe" );
 	for(QStringList::Iterator it = l.begin(); it != l.end(); ++it ) {
 	    if ( d.remove(*it) )
 		qDebug( "Deleted: %s", (*it).latin1() );
@@ -56,8 +57,11 @@ void PackageSocket::readClient()
 
 	// send first qt-*.exe back to the client (should be only one exe)
 	l = d.entryList( "qt-*.exe" );
+	if( l.count() == 0 ) // no qt packages... Maybe its a QSA package then...
+	    l = d.entryList( "qsa-*.exe" );
 	if ( l.count() != 1 )
-	    qWarning( "Multiple qt-*.exe files found!!" );
+	    qWarning( "Multiple package files found:\n  -> %s\n",
+		      l.join( "\n  -> " ).latin1() );
 
 	f.close();
 	f.setName( l[0] );
