@@ -44,8 +44,6 @@ MainWindow::MainWindow()
     item = XtVaCreateManagedWidget( "Motif Dialog...",
 				    xmPushButtonGadgetClass, filemenu,
 				    XmNmnemonic, 'C',
-				    XmNaccelerator, "Ctrl<Key>C",
-				    XmNacceleratorText, tmp,
 				    NULL );
     XtAddCallback( item, XmNactivateCallback, motifDialogCallback, this );
 
