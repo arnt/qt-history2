@@ -1,7 +1,7 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qptd_win.cpp#4 $
+** $Id: //depot/qt/main/src/kernel/qptd_win.cpp#5 $
 **
-** Implementation of QPaintDevice class for Windows + NT
+** Implementation of QPaintDevice class for Windows
 **
 ** Author  : Haavard Nord
 ** Created : 940801
@@ -11,18 +11,27 @@
 *****************************************************************************/
 
 #include "qpaintd.h"
+#include "qpaintdc.h"
 #include "qwidget.h"
 #include "qpixmap.h"
+#include "qapp.h"
 #include <windows.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qptd_win.cpp#4 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qptd_win.cpp#5 $";
 #endif
 
 
-QPaintDevice::QPaintDevice()
+QPaintDevice::QPaintDevice( uint devflags )
 {
-    devFlags = PDT_UNDEF;
+    if ( !qApp ) {				// global constructor
+#if defined(CHECK_STATE)
+	fatal( "QPaintDevice: Must construct a QApplication before a QPaintDevice" );
+#endif
+	return;
+    }
+    devFlags = devflags;
+    hdc = 0;
 }
 
 QPaintDevice::~QPaintDevice()
@@ -30,21 +39,79 @@ QPaintDevice::~QPaintDevice()
 }
 
 
-void QPaintDevice::bitBlt( int sx, int sy, int sw, int sh, QPaintDevice *dest,
-			   int dx, int dy, RasterOp rop )
+bool QPaintDevice::cmd( int, QPDevCmdParam * )
 {
-    int ts = devType();				// from device type
-    int td = dest->devType();			// to device type
+#if defined(CHECK_STATE)
+    warning( "QPaintDevice::cmd: Device has no command interface" );
+#endif
+    return FALSE;
+}
 
-// NOTE!!!  PS printer/metafile pixmap output not yet supported...
-    if ( (td == PDT_PRINTER || td == PDT_METAFILE) && dest->paintingActive() ){
-//	cmd( PDC_DRAWPIXMAP, ... );   // !!!!!!!!!!
+long QPaintDevice::metric( int ) const
+{
+#if defined(CHECK_STATE)
+    warning( "QPaintDevice::metrics: Device has no metric information" );
+#endif
+    return 0;
+}
+
+
+void bitBlt( QPaintDevice *dst, int dx, int dy,
+	     const QPaintDevice *src, int sx, int sy, int sw, int sh,
+	     RasterOp rop )
+{
+    if ( src->handle() == 0 ) {
+#if defined(CHECK_NULL)
+	warning( "bitBlt: Cannot bitBlt from device" );
+#endif
+	return;
+    }
+    int ts = devType();				// from device type
+    int td = dst->devType();			// to device type
+
+    if ( sw <= 0 ) {				// special width
+	if ( sw < 0 )
+	    sw = src->metric( PDM_WIDTH ) - sx;
+	else
+	    return;
+    }
+    if ( sh <= 0 ) {				// special height
+	if ( sh < 0 )
+	    sh = src->metric( PDM_HEIGHT ) - sy;
+	else
+	    return;
+    }
+
+    if ( dst->paintingActive() && dst->isExtDev() ) {
+	QPixmap *pm;				// output to picture/printer
+	if ( ts == PDT_PIXMAP )
+	    pm = (QPixmap*)src;
+	else if ( ts == PDT_WIDGET ) {		// bitBlt to temp pixmap
+	    pm = new QPixmap( sw, sh );
+	    CHECK_PTR( pm );
+	    bitBlt( pm, 0, 0, src, sx, sy, sw, sh, CopyROP );
+	}
+	else {
+#if defined(CHECK_RANGE)
+	    warning( "bitBlt: Cannot bitBlt from device" );
+#endif
+	    return;
+	}
+	QPDevCmdParam param[3];
+	QRect  r(sx,sy,sw,sh);
+	QPoint p(dx,dy);
+	param[0].rect	= &r;
+	param[1].point	= &p;
+	param[2].pixmap = pm;
+	dst->cmd( PDC_DRAWPIXMAP, param );
+	if ( ts == PDT_WIDGET )
+	    delete pm;
 	return;
     }
 
-    if ( ts == PDT_PRINTER || ts == PDT_METAFILE ) {
-#if defined(CHECK_STATE)
-	warning( "QPaintDevice::bitBlt: Cannot bitBlt from device" );
+    if ( !(ts <= PDT_PIXMAP && td <= PDT_PIXMAP) ) {
+#if defined(CHECK_RANGE)
+	warning( "bitBlt: Cannot bitBlt to or from device" );
 #endif
 	return;
     }
@@ -52,14 +119,23 @@ void QPaintDevice::bitBlt( int sx, int sy, int sw, int sh, QPaintDevice *dest,
 	{ SRCCOPY, SRCPAINT, SRCINVERT, 0x00220326 /* DSna */,
 	  NOTSRCCOPY, MERGEPAINT, 0x00990066 /* DSnx */,
 	  SRCAND, DSTINVERT };
-    if ( !(rop >= CopyROP && rop <= NotROP) ) {
+    if ( rop > NotROP ) {
 #if defined(CHECK_RANGE)
-	warning( "QPaintDevice::bitBlt: Invalid ROP code" );
+	warning( "bitBlt: Invalid ROP code" );
 #endif
 	return;
     }
-    HDC src_dc = hdc, dest_dc = dest->hdc;
-    bool src_tmp = FALSE, dest_tmp = FALSE;
+
+    if ( dst->handle() == 0 ) {
+#if defined(CHECK_NULL)
+	warning( "bitBlt: Cannot bitBlt to device" );
+#endif
+	return;
+    }
+
+
+    HDC  src_dc  = src->hdc, dst_dc  = dst->hdc;
+    bool src_tmp = FALSE,    dst_tmp = FALSE;
     if ( !src_dc ) {
 	switch ( ts ) {
 	    case PDT_WIDGET:
@@ -71,20 +147,20 @@ void QPaintDevice::bitBlt( int sx, int sy, int sw, int sh, QPaintDevice *dest,
 	}
 	src_tmp = TRUE;
     }
-    if ( !dest_dc ) {
+    if ( !dst_dc ) {
 	switch ( td ) {
 	    case PDT_WIDGET:
-		dest_dc = GetDC( ((QWidget*)dest)->id() );
+		dst_dc = GetDC( ((QWidget*)dest)->id() );
 		break;
 	    case PDT_PIXMAP:
-		dest_dc = ((QPixMap*)dest)->allocMemDC();
+		dst_dc = ((QPixMap*)dest)->allocMemDC();
 		break;
 	}
-	dest_tmp = TRUE;
+	dst_tmp = TRUE;
     }
-    if ( !(src_dc && dest_dc) )			// not ready, (why?)
+    if ( !(src_dc && dst_dc) )			// not ready, (why?)
 	return;
-    BitBlt( dest_dc, dx, dy, sw, sh, src_dc, sx, sy, ropCodes[rop] );
+    BitBlt( dst_dc, dx, dy, sw, sh, src_dc, sx, sy, ropCodes[rop] );
     if ( src_tmp ) {
 	switch ( ts ) {
 	    case PDT_WIDGET:
@@ -95,13 +171,13 @@ void QPaintDevice::bitBlt( int sx, int sy, int sw, int sh, QPaintDevice *dest,
 		break;
 	}
     }
-    if ( dest_tmp ) {
+    if ( dst_tmp ) {
 	switch ( td ) {
 	    case PDT_WIDGET:
-		ReleaseDC( ((QWidget*)dest)->id(), dest_dc );
+		ReleaseDC( ((QWidget*)dst)->id(), dst_dc );
 		break;
 	    case PDT_PIXMAP:
-		((QPixMap*)dest)->freeMemDC();
+		((QPixMap*)dst)->freeMemDC();
 		break;
 	}
     }
