@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qurl.h#11 $
+** $Id: //depot/qt/main/src/kernel/qurl.h#12 $
 **
 ** Implementation of QFileDialog class
 **
@@ -83,12 +83,11 @@ public:
     virtual void setPort( int port );
 
     QString path() const;
-    QString path( int trailing ) const;
     virtual void setPath( const QString& path );
     bool hasPath() const;
 
     virtual void setEncodedPathAndQuery( const QString& enc );
-    QString encodedPathAndQuery( int trailing = 0, bool noEmptyPath = FALSE );
+    QString encodedPathAndQuery();
 
     virtual void setQuery( const QString& txt );
     QString query() const;
@@ -97,26 +96,20 @@ public:
     virtual void setRef( const QString& txt );
     bool hasRef() const;
 
-    bool isMalformed() const;
-
+    bool isValid() const;
     bool isLocalFile() const;
 
     virtual void addPath( const QString& path );
     virtual void setFileName( const QString& txt );
 
-    QString filename( bool ignoreTrailingSlashInPath = TRUE );
-    QString directory( bool stripTrailingSlashFromResult = TRUE,
-		       bool ignoreTrailingSlashInPath = TRUE );
-
-    QString url();
-    QString url( int trailing, bool stripRef = FALSE );
-
+    QString fileName() const;
+    QString dirPath() const;
+    
     QUrl& operator=( const QUrl& url );
     QUrl& operator=( const QString& url );
 
     bool operator==( const QUrl& url ) const;
     bool operator==( const QString& url ) const;
-    virtual bool cmp( QUrl &url, bool ignoreTrailing = FALSE );
 
     static void decode( QString& url );
     static void encode( QString& url );
@@ -131,7 +124,7 @@ public:
     virtual void copy( const QString &from, const QString &to );
     virtual void copy( const QStringList &files, const QString &dest, bool move );
     virtual bool isDir();
-    virtual bool isFile();
+
     virtual void put( const QCString &data );
 
 
@@ -152,12 +145,12 @@ public:
     void emitItemChanged( const QString &oldname, const QString &newname );
     void emitError( int ecode, const QString &msg );
     void emitData( const QCString &d );
-    void emitUrlIsDir();
-    void emitUrlIsFile();
     void emitPutSuccessful( const QCString &d );
     void emitCopyProgress( const QString &from, const QString &to,
 			   int step, int total );
-
+    
+    static bool isRelativeUrl( const QString &url );
+    
 signals:
     void entry( const QUrlInfo & );
     void finished( int );
@@ -168,8 +161,6 @@ signals:
     void error( int ecode, const QString &msg );
     void data( const QCString & );
     void putSuccessful( const QCString & );
-    void urlIsDir();
-    void urlIsFile();
     void copyProgress( const QString &, const QString &,
 		       int step, int total );
 
@@ -178,8 +169,6 @@ protected:
     virtual void parse( const QString& url );
     virtual void addEntry( const QUrlInfo &i );
     virtual void clearEntries();
-
-    static char hex2int( char c );
     void getNetworkProtocol();
 
 private:
@@ -226,16 +215,6 @@ inline void QUrl::emitError( int ecode, const QString &msg )
 inline void QUrl::emitData( const QCString &d )
 {
     emit data( d );
-}
-
-inline void QUrl::emitUrlIsDir()
-{
-    emit urlIsDir();
-}
-
-inline void QUrl::emitUrlIsFile()
-{
-    emit urlIsFile();
 }
 
 inline void QUrl::emitPutSuccessful( const QCString &d )

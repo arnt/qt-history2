@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qurl.cpp#24 $
+** $Id: //depot/qt/main/src/kernel/qurl.cpp#25 $
 **
 ** Implementation of QFileDialog class
 **
@@ -45,7 +45,7 @@ struct QUrlPrivate
     QString path;
     QString refEncoded;
     QString queryEncoded;
-    bool isMalformed;
+    bool isValid;
     int port;
     QString nameFilter;
     QDir dir;
@@ -165,20 +165,6 @@ struct QUrlPrivate
 */
 
 /*!
-  \fn void QUrl::urlIsDir()
-
-  When calling isFile() or isDir() and the URL is a dir, this signal
-  is emitted.
-*/
-
-/*!
-  \fn void QUrl::urlIsFile()
-
-  When calling isFile() or isDir() and the URL is a file, this signal
-  is emitted.
-*/
-
-/*!
   \fn void QUrl::copyProgress( const QString &from, const QString &to, int step, int total )
 
   When copying a file this signal is emitted. \a from is the file which
@@ -264,22 +250,6 @@ struct QUrlPrivate
 */
 
 /*!
-  \fn void QUrl::emitUrlIsDir()
-
-  Emits the signal urlIsDir(). This method is mainly
-  provided for implementations of network protocols which are
-  working together with the QUrl class.
-*/
-
-/*!
-  \fn void QUrl::emitUrlIsFile()
-
-  Emits the signal urlIsFile(). This method is mainly
-  provided for implementations of network protocols which are
-  working together with the QUrl class.
-*/
-
-/*!
   \fn void QUrl::emitPutSuccessful( const QCString &d )
 
   Emits the signal putSuccessful( const QString & ). This method is mainly
@@ -303,7 +273,7 @@ struct QUrlPrivate
 QUrl::QUrl()
 {
     d = new QUrlPrivate;
-    d->isMalformed = TRUE;
+    d->isValid = FALSE;
     d->nameFilter = "*";
     d->networkProtocol = 0;
 }
@@ -344,57 +314,49 @@ QUrl::QUrl( const QUrl& url )
 }
 
 /*!
+  #### todo
+*/
+
+bool QUrl::isRelativeUrl( const QString &url ) 
+{
+    int colon = url.find( ":" );
+    int slash = url.find( "/" );
+    
+    return ( colon == -1 || ( slash != -1 && colon > slash ) );
+}
+
+/*!
   Constructs and URL for the file \a relUrl_ in the directory
   \a url.
 */
 
 QUrl::QUrl( const QUrl& url, const QString& relUrl_ )
 {
-    d = new QUrlPrivate;
-    QString relUrl = relUrl_.stripWhiteSpace();
-    getNetworkProtocol();
+  d = new QUrlPrivate;
+  QString relUrl = relUrl_.stripWhiteSpace();
+  getNetworkProtocol();
 
-    // relUrl starts in the root ?
-    if ( relUrl[0] == '/' ) {
-	*this = url;
- 	if ( QFileInfo( d->path ).isFile() ) // #### todo
- 	    d->path = QFileInfo( d->path ).dirPath();
-	int pos = relUrl.find( '#' );
-	QString tmp;
-	if ( pos == -1 ) {
-	    tmp = relUrl;
-	    setRef( "" );
-	} else {
-	    setRef( relUrl.mid( pos + 1 ) );
-	    tmp = relUrl.left( pos );
-	}
-	setEncodedPathAndQuery( tmp );
-    } else if ( relUrl[0] == '#' ) {
-	// relUrl just affects the reference ?
-	*this = url;
- 	if ( QFileInfo( d->path ).isFile() ) // #### todo
- 	    d->path = QFileInfo( d->path ).dirPath();
-	setRef( relUrl.mid(1) );
-    } else if ( relUrl.find( ":/" ) != -1 ) {
-	// relUrl is a complete QUrl ?
-	*this = relUrl;
-    } else {	
-	*this = url;
- 	if ( QFileInfo( d->path ).isFile() ) // #### todo
- 	    d->path = QFileInfo( d->path ).dirPath();
-	int pos = relUrl.find( '#' );
-	QString tmp;
-	if ( pos == -1 ) {
-	    tmp = relUrl;
-	    setRef( "" );
-	} else {
-	    setRef( relUrl.mid( pos + 1 ) );
-	    tmp = relUrl.left( pos );
-	}
-	decode( tmp );
-	setFileName( tmp );
-    }
-    d->nameFilter = "*";
+  if ( !isRelativeUrl( relUrl ) ) {
+      if ( relUrl[ 0 ] == QChar( '/' ) ) {
+	  *this = url;
+	  setEncodedPathAndQuery( relUrl );
+      } else {
+	  *this = relUrl;
+      }
+  } else {
+      if ( relUrl[ 0 ] == '#' ) {
+	  *this = url;
+	  relUrl.remove( 0, 1 );
+	  decode( relUrl );
+	  setRef( relUrl );
+      } else {
+	  decode( relUrl );
+	  if ( url.path() != "/" )
+	      *this = url + "/" + relUrl;
+	  else
+	      *this = url + relUrl;
+      }
+  }
 }
 
 /*!
@@ -599,9 +561,9 @@ bool QUrl::hasRef() const
   #### todo
 */
 
-bool QUrl::isMalformed() const
+bool QUrl::isValid() const
 {
-    return d->isMalformed;
+    return d->isValid;
 }
 
 /*!
@@ -618,7 +580,7 @@ void QUrl::reset()
     d->path = "";
     d->queryEncoded = "";
     d->refEncoded = "";
-    d->isMalformed = FALSE;
+    d->isValid = TRUE;
     d->port = -1;
     if ( d->networkProtocol )
  	delete d->networkProtocol;
@@ -632,11 +594,11 @@ void QUrl::reset()
 void QUrl::parse( const QString& url )
 {
     if ( url.isEmpty() ) {
-	d->isMalformed = true;
+	d->isValid = FALSE;
 	return;
     }
 
-    d->isMalformed = false;
+    d->isValid = TRUE;
 
     QString port;
     int start = 0;
@@ -818,7 +780,7 @@ NodeErr:
     qWarning( "Error in parsing \"%s\"", url.ascii() );
     emit error( ErrParse, QUrl::tr( "Error in parsing `%1'" ).arg( url ) );
     delete []orig;
-    d->isMalformed = true;
+    d->isValid = FALSE;
 
 }
 
@@ -858,7 +820,7 @@ QUrl& QUrl::operator=( const QUrl& url )
 
 bool QUrl::operator==( const QUrl& url ) const
 {
-    if ( isMalformed() || url.isMalformed() )
+    if ( !isValid() || !url.isValid() )
 	return FALSE;
 
     if ( d->protocol == url.d->protocol &&
@@ -868,7 +830,7 @@ bool QUrl::operator==( const QUrl& url ) const
 	 d->path == url.d->path &&
 	 d->queryEncoded == url.d->queryEncoded &&
 	 d->refEncoded == url.d->refEncoded &&
-	 d->isMalformed == url.d->isMalformed &&
+	 d->isValid == url.d->isValid &&
 	 d->port == url.d->port )
 	return TRUE;
 
@@ -889,112 +851,45 @@ bool QUrl::operator==( const QString& url ) const
   #### todo
 */
 
-bool QUrl::cmp( QUrl &url, bool ignoreTrailing )
-{
-    if ( ignoreTrailing ) {
-	QString path1 = path(1);
-	QString path2 = url.path(1);
-	if ( path1 != path2 )
-	    return FALSE;
-
-	if ( d->protocol == url.d->protocol &&
-	     d->user == url.d->user &&
-	     d->pass == url.d->pass &&
-	     d->host == url.d->host &&
-	     d->path == url.d->path &&
-	     d->queryEncoded == url.d->queryEncoded &&
-	     d->refEncoded == url.d->refEncoded &&
-	     d->isMalformed == url.d->isMalformed &&
-	     d->port == url.d->port )
-	    return TRUE;
-	
-	return FALSE;
-    }
-
-    return ( *this == url );
-}
-
-/*!
-  #### todo
-*/
-
 void QUrl::setFileName( const QString& name )
 {
-    // Remove '/' in the front
-    int start = 0;
-    while( name[start] == '/' )
-	start++;
+    QString fn = name;
+    
+    while ( fn[ 0 ] == '/' ) 
+	fn.remove( 0, 1 );
 
-    // Empty path ?
-    int len = d->path.length();
-    if ( len == 0 ) {
-	d->path = "/";
-	d->path += name.mid( start );
-	if ( d->networkProtocol )
-	    d->networkProtocol->setUrl( this );
-	return;
+    QString p = d->path.isEmpty() ? 
+		QString( "/" ) : d->path;
+    if ( !d->path.isEmpty() ) {
+	int slash = p.findRev( QChar( '/' ) );
+	if ( slash == -1 ) {
+	    p = "/";
+    } else if ( p.right( 1 ) != "/" )
+	p.truncate( slash + 1 );
     }
 
-    // The current path is a directory ?
-    if ( d->path[ len - 1 ] == '/' ) {
-	// See wether there are multiple '/' characters
-	while ( len >= 1 && d->path[ len - 1 ] == '/' )
-	    len--;
-
-	// Does the path only consist of '/' characters ?
-	if ( len == 0 && d->path[ 1 ] == '/' ) {
-	    d->path = "/";
-	    d->path += name.mid( start );
-	    if ( d->networkProtocol )
-		d->networkProtocol->setUrl( this );
-	    return;
-	}
-
-	// Just append the filename
-	d->path += name.mid( start );
-	if ( d->networkProtocol )
-	    d->networkProtocol->setUrl( this );
-	return;
-    }
-
-    // Find the rightmost '/'
-    int i = d->path.findRev( '/', len - 1 );
-    // If ( i == -1 ) => The first character is not a '/' ???
-    // This looks strange ...
-    if ( i == -1 ) {
-	d->path = "/";
-	d->path += name.mid( start );
-	if ( d->networkProtocol )
-	    d->networkProtocol->setUrl( this );
-	return;
-    }
-
-    // #### these two lines are not correct!
-    //d->path.truncate( i + 1 );
-    d->path += "/" + name.mid( start );
-
-    if ( d->networkProtocol )
-	d->networkProtocol->setUrl( this );
+    p += fn;
+    setEncodedPathAndQuery( p );
 }
 
 /*!
   #### todo
 */
 
-QString QUrl::encodedPathAndQuery( int trailing, bool noEmptyPath )
+QString QUrl::encodedPathAndQuery()
 {
-    QString tmp = path( trailing );
-    if ( noEmptyPath && tmp.isEmpty() )
-	tmp = "/";
+    QString p = path();
+    if ( p.isEmpty() )
+	p = "/";
 
-    encode( tmp );
+    encode( p );
 
     if ( !d->queryEncoded.isEmpty() ) {
-	tmp += "?";
-	tmp += d->queryEncoded;
+	p += "?";
+	p += d->queryEncoded;
     }
 
-    return tmp;
+    return p;
 }
 
 /*!
@@ -1025,49 +920,22 @@ QString QUrl::path() const
 {
     if ( isLocalFile() ) {
 	QFileInfo fi( d->path );
-	if ( fi.isDir() )
-	    return QDir::cleanDirPath( QDir( d->path ).canonicalPath() );
-	else {
+	if ( fi.isDir() ) {
+	    QString dir = QDir::cleanDirPath( QDir( d->path ).canonicalPath() ) + "/";
+	    if ( dir == "//" )
+		return "/";
+	    else
+		return dir;
+	} else {
 	    QString p = QDir::cleanDirPath( fi.dir().canonicalPath() );
 	    return p + "/" + fi.fileName();
 	}
+    } else {
+	if ( d->path != "/" && d->path.right( 1 ) == "/" )
+	    return QDir::cleanDirPath( d->path ) + "/";
+	else
+	    return QDir::cleanDirPath( d->path );
     }
-    return QDir::cleanDirPath( d->path );
-}
-
-/*!
-  #### todo
-*/
-
-QString QUrl::path( int trailing ) const
-{
-    QString result = path();
-
-    // No modifications to the trailing stuff ?
-    if ( trailing == 0 )
-	return result;
-    else if ( trailing == 1 ) {
-	int len = result.length();
-	// Path is empty ? => It should still be empty
-	if ( len == 0 )
-	    result = "";
-	// Add a trailing '/'
-	else if ( result[ len - 1 ] != '/' )
-	    result += "/";
-	return result;
-    } else if ( trailing == -1 ) {
-	// Dont change anything if path is just the slash
-	if ( result == "/" )
-	    return result;
-	int len = result.length();
-	// Strip trailing slash
-	if ( len > 0 && result[ len - 1 ] == '/' )
-	    result.truncate( len - 1 );
-	return result;
-    } else
-	assert( 0 );
-
-    return QString::null;
 }
 
 /*!
@@ -1083,113 +951,35 @@ bool QUrl::isLocalFile() const
   #### todo
 */
 
-QString QUrl::url()
+QString QUrl::fileName() const
 {
-    QString result = url( 0 );
-    return result;
+    if ( d->path.isEmpty() )
+	return QString::null;
+
+    return QFileInfo( d->path ).fileName();
 }
 
 /*!
   #### todo
 */
 
-QString QUrl::url( int trailing, bool stripRef )
+void QUrl::addPath( const QString& p )
 {
-    QString u = d->protocol;
-    if ( hasHost() ) {
-	u += "://";
-	if ( hasUser() ) {
-	    u += d->user;
-	    if ( hasPass() ) {
-		u += ":";
-		u += d->pass;
-	    }
-	    u += "@";
-	}
-	u += d->host;
-	if ( d->port != -1 ) {
-	    QString buffer = QString( ":%1" ).arg( d->port );
-	    u += buffer;
-	}
-    } else
-	u += ":";
-
-    QString tmp;
-    if ( trailing == 0 )
-	tmp = d->path;
-    else
-	tmp = path( trailing );
-    encode( tmp );
-    u += tmp;
-
-    if ( !d->queryEncoded.isEmpty() ) {
-	u += "?";
-	u += d->queryEncoded;
-    }
-
-    if ( hasRef() && !stripRef ) {
-	u += "#";
-	u += d->refEncoded;
-    }
-
-    return u;
-}
-
-/*!
-  #### todo
-*/
-
-QString QUrl::filename( bool stripTrailingSlash )
-{
-    QString fname;
-
-    int len = d->path.length();
-    if ( len == 0 )
-	return fname;
-
-    if ( stripTrailingSlash ) {
-	while ( len >= 1 && d->path[ len - 1 ] == '/' )
-	    len--;
-    } else if ( d->path[ len - 1 ] == '/' ) {
-	// Path is a directory => empty filename
-	return fname;
-    }
-
-    // Does the path only consist of '/' characters ?
-    if ( len == 1 && d->path[ 1 ] == '/' )
-	return fname;
-
-    int i = d->path.findRev( '/', len - 1 );
-    // If ( i == -1 ) => The first character is not a '/' ???
-    // This looks like an error to me.
-    if ( i == -1 )
-	return fname;
-
-    fname = d->path.mid( i + 1 );
-    return fname;
-}
-
-/*!
-  #### todo
-*/
-
-void QUrl::addPath( const QString& txt )
-{
-    if ( txt.isEmpty() )
+    if ( p.isEmpty() )
 	return;
 
-    int len = d->path.length();
-    // Add the trailing '/' if it is missing
-    if ( txt[ 0 ] != '/' && ( len == 0 || d->path[ len - 1 ] != '/' ) )
-	d->path += "/";
+    if ( d->path.isEmpty() ) {
+	if ( p[ 0 ] != QChar( '/' ) )
+	    d->path = "/" + p;
+	else
+	    d->path = p;
+    } else {
+	if ( p[ 0 ] != QChar( '/' ) && d->path.right( 1 ) != "/" )
+	    d->path += "/" + p;
+	else
+	    d->path += p;
+    }
 
-    // No double '/' characters
-    int start = 0;
-    if ( len != 0 && d->path[ len - 1 ] == '/' )
-	while( txt[ start ] == '/' )
-	    start++;
-
-    d->path += txt.mid( start );
     if ( d->networkProtocol )
 	d->networkProtocol->setUrl( this );
 }
@@ -1198,40 +988,12 @@ void QUrl::addPath( const QString& txt )
   #### todo
 */
 
-QString QUrl::directory( bool stripTrailingSlashFromResult,
-			bool ignoreTrailingSlashInPath )
+QString QUrl::dirPath() const
 {
-    QString result;
-    // Have to deal with the traling slash before
-    // we parse the string ?
-    if ( ignoreTrailingSlashInPath )
-	result = path( -1 );
-    else
-	result = d->path;
+    if ( path().isEmpty() )
+	return QString::null;
 
-    // Check trivial cases
-    if ( result.isEmpty() || result == "/" )
-	return result;
-
-    // Look out for the rightmost slash
-    int i = result.findRev( "/" );
-    // No slash => empty directory
-    if ( i == -1 )
-	return result;
-
-    // Another trivial case
-    if ( i == 0 ) {
-	result = "/";
-	return result;
-    }
-
-    // Strip th trailing slash from the result
-    if ( stripTrailingSlashFromResult )
-	result = d->path.left( i );
-    else
-	result = d->path.left( i + 1 );
-
-    return result;
+    return QFileInfo( path() ).dirPath() + "/";
 }
 
 /*!
@@ -1240,45 +1002,37 @@ QString QUrl::directory( bool stripTrailingSlashFromResult,
 
 void QUrl::encode( QString& url )
 {
-    int old_length = url.length();
+    int oldlen = url.length();
 
-    if ( !old_length )
+    if ( !oldlen )
 	return;
 
-    QString new_url;
-    //char *new_url = new char[ old_length * 3 + 1 ];
-    int new_length = 0;
+    QString newUrl;
+    int newlen = 0;
 
-    for ( int i = 0; i < old_length; i++ ) {
-	// 'unsave' and 'reserved' characters
-	// according to RFC 1738,
-	// 2.2. QUrl Character Encoding Issues (pp. 3-4)
-	// Torben: Added the space characters
-	if ( strchr("<>#@\"&%$:,;?={}|^~[]\'`\\ \n\t\r", url[ i ].unicode() ) ) {
-	    new_url[ new_length++ ] = '%';
+    for ( int i = 0; i < oldlen ;++i ) {
+	if ( QString( "<>#@\"&%$:,;?={}|^~[]\'`\\ \n\t\r" ).contains( url[ i ].unicode() ) ) {
+	    newUrl[ newlen++ ] = QChar( '%' );
 
-	    char c = url[ i ].unicode() / 16;
-	    c += (c > 9) ? ('A' - 10) : '0';
-	    new_url[ new_length++ ] = c;
+	    ushort c = url[ i ].unicode() / 16;
+	    c += c > 9 ? 'A' - 10 : '0';
+	    newUrl[ newlen++ ] = c;
 
 	    c = url[ i ].unicode() % 16;
-	    c += (c > 9) ? ('A' - 10) : '0';
-	    new_url[ new_length++ ] = c;
-	
-	}
-	else
-	    new_url[ new_length++ ] = url[ i ];
+	    c += c > 9 ? 'A' - 10 : '0';
+	    newUrl[ newlen++ ] = c;
+	} else
+	    newUrl[ newlen++ ] = url[ i ];
     }
 
-    //new_url[ new_length ] = 0;
-    url = new_url;
+    url = newUrl;
 }
 
 /*!
   #### todo
 */
 
-char QUrl::hex2int( char c )
+static ushort hex2int( ushort c )
 {
     if ( c >= 'A' && c <='F')
 	return c - 'A' + 10;
@@ -1295,27 +1049,25 @@ char QUrl::hex2int( char c )
 
 void QUrl::decode( QString& url )
 {
-    int old_length = url.length();
-    if ( !old_length )
+    int oldlen = url.length();
+    if ( !oldlen )
 	return;
 
-    int new_length = 0;
+    int newlen = 0;
 
-    // make a copy of the old one
-    //char *new_url = new char[ old_length + 1];
-    QString new_url;
+    QString newUrl;
 
     int i = 0;
-    while( i < old_length ) {
-	char character = url[ i++ ].unicode();
-	if ( character == '%' ) {
-	    character = hex2int( url[ i ].unicode() ) * 16 + hex2int( url[ i+1].unicode() );
+    while ( i < oldlen ) {
+	ushort c = url[ i++ ].unicode();
+	if ( c == '%' ) {
+	    c = hex2int( url[ i ].unicode() ) * 16 + hex2int( url[ i + 1 ].unicode() );
 	    i += 2;
 	}
-	new_url [ new_length++ ] = character;
+	newUrl [ newlen++ ] = c;
     }
-    //new_url [ new_length ] = 0;
-    url = new_url;
+
+    url = newUrl;
 }
 
 /*!
@@ -1554,45 +1306,26 @@ void QUrl::copy( const QStringList &files, const QString &dest, bool move )
 bool QUrl::isDir()
 {
     if ( isLocalFile() ) {
-	if ( QFileInfo( path() ).isDir() )
-	    emit urlIsDir();
+	if ( QFileInfo( path() ).isDir() ) 
+	    return TRUE;
 	else
-	    emit urlIsFile();
-    } else if ( d->networkProtocol &&
-	d->networkProtocol->supportedOperations() & QNetworkProtocol::OpIsUrlDir ) {
-	d->networkProtocol->isUrlDir();
-    } else {
-	emit error( ErrUnknownProtocol, QUrl::tr( "The protocol `%1' is not supported\n"
-						  "or `%2' doesn't support checking for directores" ).
-		    arg( d->protocol ).arg( d->protocol ) );
-	return FALSE;
+	    return FALSE;
     }
-
-    return TRUE;
-}
-
-/*!
-  #### todo
-*/
-
-bool QUrl::isFile()
-{
-    if ( isLocalFile() ) {
-	if ( QFileInfo( path() ).isFile() )
-	    emit urlIsFile();
-	else
-	    emit urlIsDir();
-    } else if ( d->networkProtocol &&
-	d->networkProtocol->supportedOperations() & QNetworkProtocol::OpIsUrlFile ) {
-	d->networkProtocol->isUrlFile();
-    } else {
-	emit error( ErrUnknownProtocol, QUrl::tr( "The protocol `%1' is not supported\n"
-						  "or `%2' doesn't support checking for files" ).
-		    arg( d->protocol ).arg( d->protocol ) );
-	return FALSE;
+    
+    if ( d->entryMap.contains( "." ) )
+	return d->entryMap[ "." ].isDir();
+    else {
+	if ( d->networkProtocol && 
+	     ( d->networkProtocol->supportedOperations() & QNetworkProtocol::OpUrlIsDir ) )
+	    return d->networkProtocol->isUrlDir();
+	// if we are here, we really have a problem!!
+	// Checking for a trailing slash to find out
+	// if URL is a dir is not reliable at all :-)
+	if ( !d->path.isEmpty() )
+	    return d->path.right( 1 ) == "/";
     }
-
-    return TRUE;
+    
+    return FALSE;
 }
 
 /*!

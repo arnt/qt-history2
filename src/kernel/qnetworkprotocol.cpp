@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qnetworkprotocol.cpp#7 $
+** $Id: //depot/qt/main/src/kernel/qnetworkprotocol.cpp#8 $
 **
 ** Implementation of QFileDialog class
 **
@@ -127,20 +127,6 @@ QNetworkProtocolDict *qNetworkProtocolRegister = 0;
 */
 
 /*!
-  \fn void QNetworkProtocol::urlIsDir()
-
-  When calling isFile() or isDir() and the URL is a dir, this signal
-  is emitted.
-*/
-
-/*!
-  \fn void QNetworkProtocol::urlIsFile()
-
-  When calling isFile() or isDir() and the URL is a file, this signal
-  is emitted.
-*/
-
-/*!
   \fn void QNetworkProtocol::copyProgress( const QString &from, const QString &to, int step, int total )
 
   When copying a file this signal is emitted. \a from is the file which
@@ -256,16 +242,9 @@ void QNetworkProtocol::copy( const QStringList &, const QString &, bool )
   #### todo
 */
 
-void QNetworkProtocol::isUrlDir()
+bool QNetworkProtocol::isUrlDir()
 {
-}
-
-/*!
-  #### todo
-*/
-
-void QNetworkProtocol::isUrlFile()
-{
+    return TRUE;
 }
 
 /*!

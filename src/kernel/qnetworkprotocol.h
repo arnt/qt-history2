@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qnetworkprotocol.h#6 $
+** $Id: //depot/qt/main/src/kernel/qnetworkprotocol.h#7 $
 **
 ** Implementation of QFileDialog class
 **
@@ -79,9 +79,8 @@ public:
 	OpRemove = 4,
 	OpRename = 8,
 	OpCopy = 16,
-	OpIsUrlDir = 32,
-	OpIsUrlFile = 64,
-	OpPut = 128
+	OpPut = 32,
+	OpUrlIsDir = 64
     };
 
     QNetworkProtocol();
@@ -98,10 +97,10 @@ public:
     virtual void remove( const QString &filename );
     virtual void rename( const QString &oldname, const QString &newname );
     virtual void copy( const QStringList &files, const QString &dest, bool move );
-    virtual void isUrlDir();
-    virtual void isUrlFile();
     virtual void put( const QCString &data );
 
+    virtual bool isUrlDir();
+    
     static void registerNetworkProtocol( const QString &protocol,
 					 QNetworkProtocolFactoryBase *protocolFactory );
     static QNetworkProtocol *getNetworkProtocol( const QString &protocol );
@@ -120,8 +119,6 @@ signals:
     void createdDirectory( const QUrlInfo & );
     void removed( const QString & );
     void itemChanged( const QString &oldname, const QString &newname );
-    void urlIsDir();
-    void urlIsFile();
     void copyProgress( const QString &, const QString &,
 		       int step, int total );
 
