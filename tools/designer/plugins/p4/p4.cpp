@@ -163,6 +163,11 @@ P4Submit::P4Submit( const QString &filename )
 
 void P4Submit::submit()
 {
+    if ( QMessageBox::information( 0, tr( "P4 Submit" ), tr( "Are you sure you want to submit the file\n%1?" ).
+					    arg( fileName() ),
+					    tr( "&Yes" ), tr( "&No" ) ) == 1 )
+	return;
+
     run( QString("p4 submit %1").arg( fileName() ) );
 }
 
@@ -188,6 +193,12 @@ P4Revert::P4Revert( const QString &filename )
 
 void P4Revert::revert()
 {
+    if ( QMessageBox::information( 0, tr( "P4 Submit" ), tr( "Reverting will overwrite all changes to the file\n%1!\n"
+					    "Proceed with revert?" ).
+					    arg( fileName() ),
+					    tr( "&Yes" ), tr( "&No" ) ) == 1 )
+	return;
+
     run( QString("p4 revert %1").arg( fileName() ) );
 }
 
@@ -236,6 +247,12 @@ P4Delete::P4Delete( const QString &filename )
 
 void P4Delete::del()
 {
+    if ( QMessageBox::information( 0, tr( "P4 Submit" ), tr( "The file\n%1\nwill be deleted by the next sync.\n"
+					    "Proceed with delete?" ).
+					    arg( fileName() ),
+					    tr( "&Yes" ), tr( "&No" ) ) == 1 )
+	return;
+
     run( QString("p4 delete %1").arg( fileName() ) );
 }
 
