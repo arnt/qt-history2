@@ -1965,7 +1965,7 @@ QDebug operator<<(QDebug dbg, const QCoreVariant &v)
 #endif
 #ifndef QT_NO_TEMPLATE_VARIANT
     case QCoreVariant::Map:
-	dbg.nospace() << v.toMap();
+// 	dbg.nospace() << v.toMap();
 	break;
     case QCoreVariant::List:
 	dbg.nospace() << v.toList();
@@ -1984,7 +1984,7 @@ QDebug operator<<(QDebug dbg, const QCoreVariant &v)
 	dbg.nospace() << v.toByteArray();
 	break;
     case QCoreVariant::BitArray:
-	dbg.nospace() << v.toBitArray();
+	//dbg.nospace() << v.toBitArray();
 	break;
     default:
 	break;

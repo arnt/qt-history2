@@ -98,6 +98,7 @@ public:
     inline int size() const { return d->size; }
     inline bool isEmpty() const { return d->size == 0; }
     inline bool operator!() const { return d->size == 0; }
+    inline operator bool() const { return d->size != 0; }
 
     inline void detach() { if (d->ref != 1) detach_helper(); }
     inline bool isDetached() const { return d->ref == 1; }
@@ -255,6 +256,7 @@ public:
     { if (!d) { d = &QMapData::shared_null; ++d->ref; return false; } return true; }
 
 private:
+    operator QNoImplicitBoolCast() const;
     void detach_helper();
     void freeData(QMapData *d);
     QMapData::Node *findNode(const Key &key) const;

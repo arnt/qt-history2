@@ -20,7 +20,9 @@ public:
     inline int size() const { return (d.size() << 3) - *d.constData(); }
     inline int count() const { return (d.size() << 3) - *d.constData(); }
 
-    inline bool isEmpty() const { return d.isEmpty(); }
+    inline bool isEmpty() const { return !d; }
+    inline bool operator!() const { return !d; }
+    inline operator bool() const { return d; }
 
     void resize(int size);
 
@@ -56,6 +58,9 @@ public:
 
     inline bool ensure_constructed()
     { return d.ensure_constructed(); }
+
+private:
+    operator QNoImplicitBoolCast() const;
 };
 
 QBitArray operator&(const QBitArray &, const QBitArray &);

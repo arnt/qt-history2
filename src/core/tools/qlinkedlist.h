@@ -45,6 +45,7 @@ public:
     inline bool isDetached() const { return d->ref == 1; }
 
     inline bool operator!() const { return d->size == 0; }
+    inline operator bool() const { return d->size != 0; }
 
     void clear();
 
@@ -162,6 +163,7 @@ public:
     { if (!d) { d = &QLinkedListData::shared_null; ++d->ref; return false; } return true; }
 
 private:
+    operator QNoImplicitBoolCast() const;
     void detach_helper();
     void free(QLinkedListData*);
 };

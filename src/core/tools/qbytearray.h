@@ -86,6 +86,7 @@ public:
     void resize(int size);
 
     bool operator!() const;
+    inline operator bool() const;
 
     QByteArray &fill(char c, int size = -1);
 
@@ -93,7 +94,6 @@ public:
     int capacity() const;
 
     operator const char *() const;
-    operator const void *() const;
     char *data();
     const char *data() const;
     const char *constData() const;
@@ -222,6 +222,7 @@ private:
     QByteArray(Data *dd, int /* dummy */) : d(dd) {}
     void realloc(int alloc);
     void expand(int i);
+    operator QNoImplicitBoolCast() const;
     friend class QByteRef;
     friend class QString;
     friend class QConstByteArray;
@@ -245,9 +246,9 @@ inline bool QByteArray::isEmpty() const
 { return d->size == 0; }
 inline bool QByteArray::operator!() const
 { return d->size == 0; }
+inline QByteArray::operator bool() const
+{ return d->size != 0; }
 inline QByteArray::operator const char *() const
-{ return d->data; }
-inline QByteArray::operator const void *() const
 { return d->data; }
 inline char *QByteArray::data()
 { detach(); return d->data; }
