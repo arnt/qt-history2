@@ -201,6 +201,8 @@ MakefileGenerator::generateDependancies(QStringList &dirs, QString fn)
 		    fndeps.append(fqn);
 	    }
 	}
+	//read past new line now..
+	for( ; x < total_size_read && (*(big_buffer + x) != '\n'); x++);
     }
 
     for(QStringList::Iterator fnit = fndeps.begin(); fnit != fndeps.end(); ++fnit) {

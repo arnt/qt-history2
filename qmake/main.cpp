@@ -50,6 +50,7 @@
 #include "option.h"
 #include <qnamespace.h>
 #include <qregexp.h>
+#include <qdir.h>
 
 #if defined(_OS_WIN32_)
 Qt::WindowsVersion qt_winver;
@@ -68,11 +69,29 @@ main(int argc, char **argv)
     if(!Option::parseCommandLine(argc, argv))
 	return 666;
 
+    QString oldpwd = QDir::current().currentDirPath();
+
     QMakeProject proj;
     for(QStringList::Iterator pfile = Option::project_files.begin();
 	pfile != Option::project_files.end(); pfile++) {
+	QString fn = (*pfile);
+
+	//setup pwd properly
+	if(Option::debug_level)
+	    printf("Resetting dir to: %s\n", oldpwd.latin1());
+	QDir::setCurrent(oldpwd); //reset the old pwd
+	int di = fn.findRev(Option::dir_sep);
+	if(di != -1) {
+	    if(Option::debug_level)
+		printf("Changing dir to: %s\n", fn.left(di).latin1());
+	    if(!QDir::setCurrent(fn.left(fn.findRev(Option::dir_sep))))
+		fprintf(stderr, "Cannot find directory: %s\n", fn.left(di).latin1());
+	    fn = fn.right(fn.length() - di - 1);
+
+	}
+
 	/* read project.. */
-	if(!proj.read((*pfile))) {
+	if(!proj.read((fn))) {
 	    fprintf(stderr, "Error processing project file: %s\n", (*pfile).latin1());
 	    continue;
 	}
@@ -100,7 +119,6 @@ main(int argc, char **argv)
 	    made = mkfile.write();
 	} else {
 	    fprintf(stderr, "Unknown generator specified: %s\n", gen.latin1());
-	    return 666;
 	}
 	if(!made) {
 	    fprintf(stderr, "Unable to generate makefile for: %s\n", (*pfile).latin1());
