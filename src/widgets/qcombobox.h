@@ -157,7 +157,7 @@ protected:
     void	focusInEvent( QFocusEvent *e );
     void     styleChange( QStyle& );
 
-    void	popup();
+    void	popup(); //#### virtual in 3.0
     void updateMask();
 
 private:
