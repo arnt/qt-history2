@@ -879,7 +879,8 @@ HRESULT DumpIDL( const QString &outfile, const QString &ver )
 	    if ( !ok )
 		out << "\t/****** Signal parameter uses unsupported datatype" << endl;
 
-	    out << "\t\t[id(" << id << ")] void " << signal << ";" << endl;
+	    out << "\t\t[id(" << id << ")] ";
+	    out << returnType << signal << ";" << endl;
 
 	    if ( !ok )
 		out << "\t******/" << endl;
