@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#365 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#366 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -44,6 +44,7 @@ void qt_leave_modal( QWidget * );		// --- "" ---
 bool qt_modal_state();				// --- "" ---
 void qt_insert_sip( QWidget*, int, int );	// --- "" ---
 int  qt_sip_count( QWidget* );			// --- "" ---
+bool qt_wstate_iconified( WId );		// --- "" ---
 void qt_updated_rootinfo();
 extern XIM qt_xim;
 extern XIMStyle qt_xim_style;
@@ -1201,13 +1202,24 @@ void QWidget::hideWindow()
   Calling this function has no effect for other than \link isTopLevel()
   top-level widgets\endlink.
 
-  \sa showNormal(), showMaximized(), show(), hide(), isVisible()
+  \sa showNormal(), showMaximized(), show(), hide(), isVisible(), isMinimized()
 */
 
 void QWidget::showMinimized()
 {
     if ( testWFlags(WType_TopLevel) )
 	XIconifyWindow( x11Display(), winId(), x11Screen() );
+}
+
+/*!
+  Returns TRUE if this widget is a top-level widget that is minimized
+  (iconified), or else FALSE.  
+  
+  \sa showMinimized(), isVisible(), show(), hide(), showNormal()
+ */
+bool QWidget::isMinimized() const
+{
+    return qt_wstate_iconified( winId() );
 }
 
 /*!

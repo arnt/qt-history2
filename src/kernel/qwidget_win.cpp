@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#206 $
+** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#207 $
 **
 ** Implementation of QWidget and QWindow classes for Win32
 **
@@ -778,6 +778,11 @@ void QWidget::showMinimized()
 {
     if ( testWFlags(WType_TopLevel) )
 	ShowWindow( winId(), SW_SHOWMINIMIZED );
+}
+
+bool QWidget::isMinimized() const
+{
+    return IsIconic(winId());
 }
 
 void QWidget::showMaximized()

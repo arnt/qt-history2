@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#416 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#417 $
 **
 ** Implementation of QWidget class
 **
@@ -131,6 +131,7 @@
 	isVisible(),
 	isVisibleTo(),
 	isVisibleToTLW(),
+	isMinimized(),
 	isDesktop(),
 	isEnabled(),
 	isEnabledTo(),
@@ -3025,7 +3026,7 @@ bool QWidget::close( bool alsoDelete )
   Returns TRUE if the widget itself is set to visible status, or else
   FALSE.  Calling show() sets the widget to visible status; calling
   hide() sets it to hidden status. Iconified top-level widgets also
-  have hidden status.
+  have hidden status, as well as having isMinimized() return TRUE.
 
   If a widget is set to visible status, but its parent widget is set
   to hidden status, this function returns TRUE.  isVisibleToTLW()
@@ -3035,7 +3036,7 @@ bool QWidget::close( bool alsoDelete )
   This function returns TRUE if the widget currently is obscured by
   other windows on the screen, but would be visible if moved.
 
-  \sa show(), hide(), isVisibleToTLW()
+  \sa show(), hide(), isVisibleToTLW(), isMinimized()
 */
 
 

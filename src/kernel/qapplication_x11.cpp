@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#488 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#489 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -1123,6 +1123,23 @@ void qt_updated_rootinfo()
     app_save_rootinfo = TRUE;
 }
 
+bool qt_wstate_iconified( WId winid )
+{
+    Atom type;
+    int format;
+    unsigned long length, after;
+    unsigned char *data;
+    int r = XGetWindowProperty( appDpy, winid, qt_wm_state, 0, 2,
+				 FALSE, AnyPropertyType, &type, &format,
+				 &length, &after, &data );
+    bool iconic = FALSE;
+    if ( r == Success && data && format == 32 ) {
+	Q_UINT32 *wstate = (Q_UINT32*)data;
+	iconic = (*wstate == IconicState );
+	XFree( (char *)data );
+    }
+    return iconic;
+}
 
 /*!
   \relates QApplication
