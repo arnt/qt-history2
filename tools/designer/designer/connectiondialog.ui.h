@@ -110,7 +110,7 @@ ConnectionContainer *ConnectionDialog::addConnection( QObject *sender, QObject *
     SignalItem *si;
     ReceiverItem *re;
     SlotItem *sl;
-
+    connectionsTable->ensureCellVisible( row, 0 );
     connectionsTable->setItem( row, 0,
 			       ( se = new SenderItem( connectionsTable,
 						      MainWindow::self->formWindow() ) ) );
