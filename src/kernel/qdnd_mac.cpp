@@ -46,7 +46,7 @@
 /*****************************************************************************
   QClipboard debug facilities
  *****************************************************************************/
-#define DEBUG_MAPPINGS
+//#define DEBUG_MAPPINGS
 //#define DEBUG_DRAG_EVENTS
 
 
