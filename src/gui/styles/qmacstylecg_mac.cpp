@@ -1503,19 +1503,28 @@ QSize QMacStyleCG::sizeFromContents(ContentsType contents, const QWidget *widget
         SInt32 tabh = sz.height();
         switch (qt_aqua_size_constrain(widget)) {
         case QAquaSizeUnknown:
-        case QAquaSizeLarge:
+        case QAquaSizeLarge: {
             GetThemeMetric(kThemeLargeTabHeight, &tabh);
-            break;
+            SInt32 overlap;
+            GetThemeMetric(kThemeMetricTabFrameOverlap, &overlap);
+            tabh += overlap;
+            break; }
         case QAquaSizeMini:
 #if QT_MACOSX_VERSION >= 0x1030
             if (QSysInfo::MacintoshVersion >= QSysInfo::MV_PANTHER) {
                 GetThemeMetric(kThemeMetricMiniTabHeight, &tabh);
+                SInt32 overlap;
+                GetThemeMetric(kThemeMetricMiniTabFrameOverlap, &overlap);
+                tabh += overlap;
                 break;
             }
 #endif
-        case QAquaSizeSmall:
+        case QAquaSizeSmall: {
             GetThemeMetric(kThemeSmallTabHeight, &tabh);
-            break;
+            SInt32 overlap;
+            GetThemeMetric(kThemeMetricSmallTabFrameOverlap, &overlap);
+            tabh += overlap;
+            break; }
         }
         if(sz.height() > tabh)
             sz.setHeight(tabh);
