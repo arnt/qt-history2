@@ -665,7 +665,7 @@ void QTranslator::squeeze(SaveMode mode)
     }
 
     if (mode == Stripped) {
-        QMap<const char *, int> contextSet;
+        QMap<QByteArray, int> contextSet;
         for (it = messages.constBegin(); it != messages.constEnd(); ++it)
             ++contextSet[it.key().context()];
 
@@ -678,7 +678,7 @@ void QTranslator::squeeze(SaveMode mode)
             hTableSize = (contextSet.size() < 10000) ? 15013 : 3 * contextSet.size() / 2;
 
         QMultiMap<int, const char *> hashMap;
-        QMap<const char *, int>::const_iterator c;
+        QMap<QByteArray, int>::const_iterator c;
         for (c = contextSet.constBegin(); c != contextSet.constEnd(); ++c)
             hashMap.insert(elfHash(c.key()) % hTableSize, c.key());
 
@@ -720,19 +720,19 @@ void QTranslator::squeeze(SaveMode mode)
             int i = entry.key();
             const char *con = entry.value();
             hTable[i] = (quint16)(upto >> 1);
-            uint len = (uint)qstrlen(con);
-            len = qMin(len, 255u);
-            t << (quint8)len;
-            t.writeRawData(con, len);
-            upto += 1 + len;
 
-            ++entry;
-            if (entry == hashMap.constEnd() || entry.key() != i) {
-                do {
-                    t << (quint8) 0; // empty string
-                    ++upto;
-                } while ((upto & 0x1) != 0); // offsets have to be even
-            }
+            do {
+                uint len = (uint)qstrlen(con);
+                len = qMin(len, 255u);
+                t << (quint8)len;
+                t.writeRawData(con, len);
+                upto += 1 + len;
+                ++entry;
+            } while (entry != hashMap.constEnd() && entry.key() == i);
+            do {
+                t << (quint8) 0; // empty string
+                ++upto;
+            } while ((upto & 0x1) != 0); // offsets have to be even
         }
         t.device()->seek(2);
         for (int j = 0; j < hTableSize; j++)
