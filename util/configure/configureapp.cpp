@@ -36,7 +36,7 @@ Configure::Configure( int& argc, char** argv )
     dictionary[ "LEAN" ]	    = "no";
     dictionary[ "NOPROCESS" ]	    = "no";
     dictionary[ "STL" ]		    = "no";
-    dictionary[ "VERSION" ]	    = "300";
+    dictionary[ "VERSION" ]	    = "310";
     dictionary[ "REDO" ]	    = "no";
     dictionary[ "FORCE_PROFESSIONAL" ] = getenv( "FORCE_PROFESSIONAL" );
     dictionary[ "DEPENDENCIES" ]    = "no";

@@ -2,7 +2,7 @@
 TEMPLATE	= lib
 TARGET		= qt
 embedded:TARGET	= qte
-VERSION		= 3.0.0
+VERSION		= 3.1.0
 DESTDIR		= $$QMAKE_LIBDIR_QT
 DLLDESTDIR	= ../bin
 
