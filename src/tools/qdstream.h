@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdstream.h#10 $
+** $Id: //depot/qt/main/src/tools/qdstream.h#11 $
 **
 ** Definition of QDataStream class
 **
@@ -26,18 +26,18 @@ public:
     QDataStream( QByteArray );
     virtual ~QDataStream();
 
-    QIODevice	*device() const;		// get current stream device
-    void	 setDevice( QIODevice * );	// set stream device
-    void	 unsetDevice();			// set NULL stream device
+    QIODevice	*device() const;
+    void	 setDevice( QIODevice * );
+    void	 unsetDevice();
 
-    bool	 eos() const;			// end of stream data?
+    bool	 eof() const;
 
     enum ByteOrder { BigEndian, LittleEndian };
     int		 byteOrder()	const;
     void	 setByteOrder( int );
 
-    bool	 isPrintableData() const;	// using printable data
-    void	 setPrintableData( bool );	// set printable data on/off
+    bool	 isPrintableData() const;
+    void	 setPrintableData( bool );
 
     QDataStream &operator>>( INT8 &i );
     QDataStream &operator>>( UINT8 &i );
@@ -69,11 +69,11 @@ public:
     QDataStream &writeRawBytes( const char *, uint len );
 
 private:
-    QIODevice	*dev;				// I/O device
-    bool	 owndev;			// internally created device
-    int		 byteorder;			// serialization byte order
-    bool	 printable;			// printable data
-    bool	 noswap;			// byte swapping not needed
+    QIODevice	*dev;
+    bool	 owndev;
+    int		 byteorder;
+    bool	 printable;
+    bool	 noswap;
 };
 
 
@@ -84,7 +84,7 @@ private:
 inline QIODevice *QDataStream::device() const
 { return dev; }
 
-inline bool QDataStream::eos() const
+inline bool QDataStream::eof() const
 { return dev ? dev->atEnd() : TRUE; }
 
 inline int QDataStream::byteOrder() const
