@@ -1,5 +1,3 @@
-#include "qdocgui.h"
-
 #include <qapplication.h>
 #include <qdict.h>
 #include <qinputdialog.h>
@@ -8,6 +6,8 @@
 #include <qpushbutton.h>
 #include <qregexp.h>
 #include <qsettings.h>
+
+#include "qdocgui.h"
 
 
 QDocListItem::QDocListItem( QListViewItem* after, QString text,
@@ -31,9 +31,19 @@ QString QDocListItem::key( int, bool ) const
 
 
 
-QDocMainWindow::QDocMainWindow( QWidget* parent, const char* name )
+QDocMainWindow::QDocMainWindow( const QString& qtdir,
+				QWidget* parent, const char* name )
     : QDialog( parent, name )
 {
+    if ( qtdir.isEmpty() )
+	qtdirenv = getenv( "QTDIR" );
+    else {
+	qtdirenv = qtdir;
+	if ( qtdirenv.endsWith( "/" ) )
+	    qtdirenv.truncate( qtdirenv.length() - 1 );
+    }
+    setCaption( QString( "qdocgui -- %1" ).arg( qtdirenv ) );
+
     vb = new QVBoxLayout( this );
     classList = new QListView( this );
     classList->addColumn( "Text" );
@@ -62,8 +72,6 @@ QDocMainWindow::QDocMainWindow( QWidget* parent, const char* name )
     setGeometry( x, y, width, height );
 
     msgCount = 0;
-    qtdirenv = getenv( "QTDIR" );
-    setCaption( QString( "qdocgui -- %1" ).arg( qtdirenv ) );
 
     populateListView();
     setEditor();
@@ -98,12 +106,16 @@ void QDocMainWindow::populateListView()
 	connect( proc, SIGNAL(readyReadStderr()), this, SLOT(readOutput()) );
 	connect( proc, SIGNAL(processExited()), this, SLOT(finished()) );
 	statusBar->setText( "Running qdoc..." );
-	if ( !proc->start() ) {
+	// qdoc relies on $QTDIR _as well as_ qdoc.conf
+	QStringList *env = new QStringList( QString( "QTDIR=%1" ).
+						arg( qtdirenv ) );
+	if ( !proc->start( env ) ) {
 	    QString msg = QString( "Failed to execute %1" ).
 			    arg( dir.path() + "/qdoc" );
 	    statusBar->setText( msg );
 	    qDebug( msg );
 	}
+	delete env;
     }
 }
 
@@ -324,11 +336,17 @@ QDocMainWindow::~QDocMainWindow()
 
 int main( int argc, char** argv )
 {
-    QApplication a( argc, argv );
+    QApplication app( argc, argv );
 
-    QDocMainWindow qdmw;
-    a.setMainWidget( &qdmw );
+    /* By default qdocgui uses $QTDIR, but you can override this by
+       specifying a path on the command line */
+    QString qtdir;
+    if ( app.argc() > 1 )
+	qtdir = app.argv()[1];
+
+    QDocMainWindow qdmw( qtdir );
+    app.setMainWidget( &qdmw );
     qdmw.show();
-    return a.exec();
+    return app.exec();
 
 }
