@@ -1611,7 +1611,8 @@ bool Q3PopupMenu::event(QEvent *e)
             return true;
         }
     break; }
-#ifndef QT_NO_ACCESSIBILITY
+#if 0
+    // ### FIXME - harald
     case QEvent::AccessibleQueryHelp: {
         QAccessibleInterface *iface = 0;
         Q3MenuItem *mi = mitems->value(itemAtPos(static_cast<QHelpEvent *>(e)->pos()), 0);
