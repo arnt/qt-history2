@@ -599,6 +599,7 @@ void QDesignerToolBar::drawIndicator( const QPoint &pos )
 {
     if ( lastIndicatorPos == pos )
 	return;
+    bool wasVsisible = indicator->isVisible();
     if ( orientation() == Horizontal ) {
 	indicator->resize( 3, height() );
 	if ( pos != QPoint( -1, -1 ) )
@@ -614,6 +615,8 @@ void QDesignerToolBar::drawIndicator( const QPoint &pos )
 	indicator->raise();
 	lastIndicatorPos = pos;
     }
+    if ( !wasVsisible )
+	QApplication::sendPostedEvents();
 }
 
 void QDesignerToolBar::doInsertWidget( const QPoint &p )
@@ -865,11 +868,14 @@ void QDesignerMenuBar::drawIndicator( const QPoint &pos )
 {
     if ( lastIndicatorPos == pos )
 	return;
+    bool wasVsisible = indicator->isVisible();
     indicator->resize( 3, height() );
     indicator->move( pos.x() - 1, 0 );
     indicator->show();
     indicator->raise();
     lastIndicatorPos = pos;
+    if ( !wasVsisible )
+	QApplication::sendPostedEvents();
 }
 
 void QDesignerMenuBar::setItemNumber( int num )
@@ -1097,11 +1103,14 @@ void QDesignerPopupMenu::drawIndicator( const QPoint &pos )
 {
     if ( lastIndicatorPos == pos )
 	return;
+    bool wasVsisible = indicator->isVisible();
     indicator->resize( width(), 3 );
     indicator->move( 0, pos.y() - 1 );
     indicator->show();
     indicator->raise();
     lastIndicatorPos = pos;
+    if ( !wasVsisible )
+	QApplication::sendPostedEvents();
 }
 
 QPoint QDesignerPopupMenu::calcIndicatorPos( const QPoint &pos )
