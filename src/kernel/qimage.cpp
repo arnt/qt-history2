@@ -34,6 +34,7 @@
 #include "qintdict.h"
 #include "qasyncimageio.h"
 #include "qpngio.h"
+#include "qmngio.h"
 #include "qjpegio.h"
 #include "qmap.h"
 #include <stdlib.h>
@@ -3144,6 +3145,9 @@ static void init_image_handlers()		// initialize image handlers
 #ifndef QT_NO_IMAGEIO_XPM
 	QImageIO::defineIOHandler( "XPM", "/\\*.XPM.\\*/", "T",
 				   read_xpm_image, write_xpm_image );
+#endif
+#ifndef QT_NO_IMAGEIO_MNG
+	qInitMngIO();
 #endif
 #ifndef QT_NO_IMAGEIO_PNG
 	qInitPngIO();

@@ -165,6 +165,7 @@ public:
     QTimer *frametimer;
     int lasttimerinterval;
     int loop;
+    bool movie_ended;
 
     bool waitingForFrameTick;
     int stepping;
@@ -257,6 +258,7 @@ void QMovieFilePrivate::init(bool fully)
     changed_area.setRect(0,0,-1,-1);
     valid_area = changed_area;
     loop = -1;
+    movie_ended = FALSE;
     error = 0;
     empty = TRUE;
 }
@@ -267,13 +269,25 @@ void QMovieFilePrivate::flushBuffer()
 	int used = decoder->decode(buffer + buf_r,
 			QMIN(buf_usage, buf_size - buf_r));
 	if (used<=0) {
-	    error = 1;
-	    emit dataStatus(QMovie::UnrecognizedFormat);
+	    if ( used < 0 ) {
+		error = 1;
+		emit dataStatus(QMovie::UnrecognizedFormat);
+	    }
 	    break;
 	}
 	buf_r = (buf_r + used)%buf_size;
 	buf_usage -= used;
     }
+
+    // Some formats, like MNG can make stuff happen without any extra data.
+    int used = decoder->decode(buffer + buf_r,0);
+    if (used<=0) {
+	if ( used < 0 ) {
+	    error = 1;
+	    emit dataStatus(QMovie::UnrecognizedFormat);
+	}
+    }
+
     if(error) frametimer->stop();
     maybeReady();
 }
@@ -375,6 +389,7 @@ void QMovieFilePrivate::changed(const QRect& rect)
 
 void QMovieFilePrivate::end()
 {
+    movie_ended = TRUE;
 }
 
 void QMovieFilePrivate::preFrameDone()
@@ -473,8 +488,10 @@ void QMovieFilePrivate::receive(const uchar* b, int bytecount)
     while (bytecount && !waitingForFrameTick && stepping != 0) {
 	int used = decoder->decode(b, bytecount);
 	if (used<=0) {
-	    error = 1;
-	    emit dataStatus(QMovie::UnrecognizedFormat);
+	    if ( used < 0 ) {
+		error = 1;
+		emit dataStatus(QMovie::UnrecognizedFormat);
+	    }
 	    break;
 	}
 	b+=used;
@@ -491,6 +508,9 @@ void QMovieFilePrivate::receive(const uchar* b, int bytecount)
 
 void QMovieFilePrivate::eof()
 {
+    if ( !movie_ended )
+	return;
+
     if ( empty )
 	emit dataStatus(QMovie::SourceEmpty);
 
