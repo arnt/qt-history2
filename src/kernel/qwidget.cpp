@@ -5629,6 +5629,15 @@ void QWidget::setAttribute(WidgetAttribute attribute, bool b)
 	else
 	    d->high_attributes[x / (8*sizeof(uint))] &= ~(1<<x);
     }
+#ifdef Q_WS_X11
+    switch (attribute) {
+	case WA_NoSystemBackground:
+	    d->updateSystemBackground();
+	    break;
+	default:
+	    break;
+    }
+#endif
 }
 
 /*! \fn bool QWidget::testAttribute(WidgetAttribute attribute) const
