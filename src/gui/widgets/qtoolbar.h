@@ -37,37 +37,33 @@ public:
     void setArea(Qt::ToolBarArea area, bool linebreak = false);
     Qt::ToolBarArea area() const;
 
-    void addAction(QAction *action);
+    inline void addAction(QAction *action)
+    { QWidget::addAction(action); }
+    inline void insertAction(QAction *before, QAction *action)
+    { QWidget::insertAction(before, action); }
+
     QAction *addAction(const QString &text);
     QAction *addAction(const QIconSet &icon, const QString &text);
     QAction *addAction(const QString &text, const QObject *receiver, const char* member);
     QAction *addAction(const QIconSet &icon, const QString &text,
 		       const QObject *receiver, const char* member);
-
-    void insertAction(int index, QAction *action);
-    QAction *insertAction(int index, const QString &text);
-    QAction *insertAction(int index, const QIconSet &icon, const QString &text);
-    QAction *insertAction(int index, const QString &text,
+    QAction *insertAction(QAction *before, const QString &text);
+    QAction *insertAction(QAction *before, const QIconSet &icon, const QString &text);
+    QAction *insertAction(QAction *before, const QString &text,
 			  const QObject *receiver, const char* member);
-    QAction *insertAction(int index, const QIconSet &icon, const QString &text,
+    QAction *insertAction(QAction *before, const QIconSet &icon, const QString &text,
 			  const QObject *receiver, const char* member);
 
     QAction *addSeparator();
-    QAction *insertSeparator(int index);
+    QAction *insertSeparator(QAction *before);
 
-    QAction *action(int index) const;
-    int indexOf(QAction *action) const;
+    QAction *addWidget(QWidget *widget);
+    QAction *insertWidget(QAction *before, QWidget *widget);
 
+    QRect actionGeometry(QAction *action) const;
     QAction *actionAt(int x, int y) const;
     inline QAction *actionAt(const QPoint &p) const
     { return actionAt(p.x(), p.y()); }
-
-    void addWidget(QWidget *widget);
-    void insertWidget(int index, QWidget *widget);
-    void removeWidget(QWidget *widget);
-
-    QWidget *widget(int index) const;
-    int indexOf(QWidget *widget) const;
 
 #ifdef QT_COMPAT
     QT_COMPAT_CONSTRUCTOR QToolBar(QMainWindow *parent, const char *name);

@@ -1,13 +1,9 @@
 #include "qtoolbar.h"
 
-#include "qmainwindow.h"
-#include "qmainwindowlayout_p.h"
-#include "qtoolbarbutton_p.h"
-
-#include <qaction.h>
 #include <qapplication.h>
 #include <qevent.h>
 #include <qlayout.h>
+#include <qmainwindow.h>
 #include <qmenu.h>
 #include <qpainter.h>
 #include <qrubberband.h>
@@ -15,245 +11,23 @@
 #include <qstyleoption.h>
 #include <qtoolbutton.h>
 
-#include <private/qframe_p.h>
+#include <private/qmainwindowlayout_p.h>
+
+#include "qtoolbar_p.h"
+#include "qtoolbarbutton_p.h"
+#include "qtoolbarextension_p.h"
+#include "qtoolbarhandle_p.h"
+#include "qtoolbarseparator_p.h"
+
 #define d d_func()
 #define q q_func()
 
-static inline QCOORD pick(Qt::Orientation o, const QPoint &p)
-{ return o == Qt::Horizontal ? p.x() : p.y(); }
-
-static inline QCOORD pick(Qt::Orientation o, const QSize &s)
-{ return o == Qt::Horizontal ? s.width() : s.height(); }
-
-// ## this should be styled and not inherit from QFrame
-class QToolBarSeparator : public QFrame
-{
-public:
-    QToolBarSeparator(QToolBar *parent, Qt::Orientation new_ori) : QFrame(parent)
-    {
-	setOrientation(new_ori);
-    }
-
-    inline QSize sizeHint() const
-    {
-	int ext = ori == Qt::Horizontal ? QFrame::sizeHint().width() : QFrame::sizeHint().height();
-	return QSize(ext, ext);
-    }
-    inline QSize minimumSize() const
-    { return sizeHint(); }
-    inline QSize minimumSizeHint() const
-    { return sizeHint(); }
-
-    void setOrientation(Qt::Orientation new_ori) {
-	if (new_ori == Qt::Horizontal)
-	    setFrameStyle(QFrame::VLine | QFrame::Sunken);
-	else
-	    setFrameStyle(QFrame::HLine | QFrame::Sunken);
-	ori = new_ori;
-    }
-    Qt::Orientation orientation() { return ori; }
-
-private:
-    Qt::Orientation ori;
-};
-
-class QToolBarHandle : public QWidget
-{
-public:
-    QToolBarHandle(QToolBar *parent) : QWidget(parent), state(0)
-    {
-	setCursor(Qt::SizeAllCursor);
-    }
-
-    QSize sizeHint() const {
-	const int ext = QApplication::style().pixelMetric(QStyle::PM_DockWindowHandleExtent);
-	return QSize(ext, ext);
-    }
-    inline QSize minimumSize() const
-    { return sizeHint(); }
-    inline QSize minimumSizeHint() const
-    { return sizeHint(); }
-
-    void paintEvent(QPaintEvent *e);
-    void mousePressEvent(QMouseEvent *e);
-    void mouseReleaseEvent(QMouseEvent *e);
-    void mouseMoveEvent(QMouseEvent *e);
-    Qt::Orientation orientation();
-
-    struct DragState {
-	QPoint offset;
-	bool canDrop;
-    };
-    DragState *state;
-};
 
 
-void QToolBarHandle::paintEvent(QPaintEvent *e)
-{
-    QPainter p(this);
-    QStyleOptionDockWindow opt(0);
-    opt.state = QStyle::Style_Default;
-    if (isEnabled())
-	opt.state |= QStyle::Style_Enabled;
-    QBoxLayout *box = qt_cast<QBoxLayout *>(parentWidget()->layout());
-    if (box->direction() == QBoxLayout::LeftToRight || box->direction() == QBoxLayout::RightToLeft)
-	opt.state |= QStyle::Style_Horizontal;
 
-    opt.rect = QStyle::visualRect(rect(), this);
-    opt.palette = palette();
-    style().drawPrimitive(QStyle::PE_DockWindowHandle, &opt, &p, this);
-    QWidget::paintEvent(e);
-}
-
-void QToolBarHandle::mousePressEvent(QMouseEvent *event)
-{
-    if (event->button() != Qt::LeftButton) return;
-
-    Q_ASSERT(parentWidget());
-    Q_ASSERT(!state);
-    state = new DragState;
-
-    state->offset = mapTo(parentWidget(), event->pos());
-}
-
-void QToolBarHandle::mouseReleaseEvent(QMouseEvent *event)
-{
-    if (event->button() != Qt::LeftButton) return;
-
-    delete state;
-    state = 0;
-}
-
-void QToolBarHandle::mouseMoveEvent(QMouseEvent *event)
-{
-    Q_ASSERT(state != 0);
-
-    // see if there is a main window under us, and ask them to place
-    // the tool bar accordingly
-    QWidget *widget = QApplication::widgetAt(event->globalPos());
-    if (widget) {
-	while (widget && (!qt_cast<QMainWindow *>(widget)))
-	    widget = widget->parentWidget();
-
-	if (widget) {
- 	    QMainWindowLayout *layout = qt_cast<QMainWindowLayout *>(widget->layout());
-	    Q_ASSERT_X(layout != 0, "QMainWindow", "must have a layout");
-	    QPoint p = parentWidget()->mapFromGlobal(event->globalPos()) - state->offset;
-
-	    // ### the offset is measured from the widget origin
-	    if (orientation() == Qt::Vertical)
-		p.setX(state->offset.x() + p.x());
-	    else
-		p.setY(state->offset.y() + p.y());
-
-	    // try re-positioning toolbar
-	    layout->dropToolBar(qt_cast<QToolBar *>(parentWidget()), event->globalPos(), p);
-	}
-    }
-}
-
-Qt::Orientation QToolBarHandle::orientation()
-{
-    QBoxLayout *box = qt_cast<QBoxLayout *>(parentWidget()->layout());
-    if (box->direction() == QBoxLayout::LeftToRight || box->direction() == QBoxLayout::RightToLeft)
-	return Qt::Horizontal;
-    return Qt::Vertical;
-}
-
-
-// ### move this into the style code and make the extension stylable
-static const char * const arrow_v_xpm[] = {
-    "7 9 3 1",
-    "            c None",
-    ".            c #000000",
-    "+            c none",
-    ".+++++.",
-    "..+++..",
-    "+..+..+",
-    "++...++",
-    ".++.++.",
-    "..+++..",
-    "+..+..+",
-    "++...++",
-    "+++.+++"};
-
-static const char * const arrow_h_xpm[] = {
-    "9 7 3 1",
-    "            c None",
-    ".            c #000000",
-    "+            c none",
-    "..++..+++",
-    "+..++..++",
-    "++..++..+",
-    "+++..++..",
-    "++..++..+",
-    "+..++..++",
-    "..++..+++"};
-
-class QToolBarExtension : public QToolButton
-{
-public:
-    QToolBarExtension(QWidget *parent);
-
-    void setOrientation(Qt::Orientation o);
-    QSize sizeHint() const{ return QSize(14, 14); }
-    QSize minimumSize() const { return sizeHint(); }
-    QSize minimumSizeHint() const { return sizeHint(); }
-
-private:
-    Qt::Orientation orientation;
-};
-
-QToolBarExtension::QToolBarExtension(QWidget *parent)
-    : QToolButton(parent)
-{
-    setAutoRaise(true);
-    setOrientation(Qt::Horizontal);
-}
-
-void QToolBarExtension::setOrientation(Qt::Orientation o)
-{
-    if (o == Qt::Horizontal) {
-        setIcon(QPixmap((const char **)arrow_h_xpm));
-    } else {
-        setIcon(QPixmap((const char **)arrow_v_xpm));
-   }
-}
-
-struct QToolBarItem {
-    QAction *action;
-    QWidget *widget;
-    bool hidden;
-
-    inline QToolBarItem()
-        : action(0), widget(0), hidden(false)
-    { }
-};
-
-class QToolBarPrivate : public QFramePrivate
-{
-    Q_DECLARE_PUBLIC(QToolBar);
-public:
-    inline QToolBarPrivate()
-        : movable(true), allowedAreas(Qt::AllToolBarAreas), area(Qt::ToolBarAreaTop),
-          handle(0), extension(0), ignoreActionEvent(false)
-    { }
-
-    void init();
-    void actionTriggered();
-    QToolBarItem createItem(QAction *action);
-
-    bool movable;
-    QSize old_size;
-    Qt::ToolBarAreas allowedAreas;
-    Qt::ToolBarArea area;
-    QToolBarHandle *handle;
-    QToolBarExtension *extension;
-
-    QList<QToolBarItem> items;
-    bool ignoreActionEvent;
-
-};
+/*
+    QToolBarPrivate
+*/
 
 void QToolBarPrivate::init()
 {
@@ -282,15 +56,19 @@ QToolBarItem QToolBarPrivate::createItem(QAction *action)
 {
     QToolBarItem item;
     item.action = action;
+    item.hidden = false;
 
     QBoxLayout *box = qt_cast<QBoxLayout *>(q->layout());
-    if (action->isSeparator()) {
-        item.widget =
-            new QToolBarSeparator(q,
-                                  (box->direction() == QBoxLayout::LeftToRight
-                                   || box->direction() == QBoxLayout::RightToLeft)
-                                  ? Qt::Horizontal
-                                  : Qt::Vertical);
+
+    QToolBarWidgetAction *widgetAction = qt_cast<QToolBarWidgetAction *>(action);
+    if (widgetAction) {
+        item.widget = widgetAction->widget();
+    } else if (action->isSeparator()) {
+        Qt::Orientation orientation = (box->direction() == QBoxLayout::LeftToRight
+                                       || box->direction() == QBoxLayout::RightToLeft)
+                                      ? Qt::Horizontal
+                                      : Qt::Vertical;
+        item.widget = new QToolBarSeparator(orientation, q);
     } else {
         QToolBarButton *button = new QToolBarButton(q);
         button->addAction(action);
@@ -304,6 +82,24 @@ QToolBarItem QToolBarPrivate::createItem(QAction *action)
 
     return item;
 }
+
+/*
+    Returns the position of \a action. This function returns -1 if \a
+    action is not found.
+*/
+int QToolBarPrivate::indexOf(QAction *action) const
+{
+    for (int i = 0; i < d->items.size(); ++i) {
+        const QToolBarItem &item = d->items.at(i);
+        if (item.action == action)
+            return i;
+    }
+    return -1;
+}
+
+
+
+
 
 /*!
     \class QToolBar qtoolbar.h
@@ -468,25 +264,12 @@ void QToolBar::setArea(Qt::ToolBarArea area, bool linebreak)
 Qt::ToolBarArea QToolBar::area() const
 { return d->area; }
 
-/*!
+/*! \fn void QToolBar::addAction(QAction *action)
+
     Adds \a action to the end of the tool bar.
 
     \sa addAction()
 */
-void QToolBar::addAction(QAction *action)
-{
-    QToolBarItem item = d->createItem(action);
-    d->items.append(item);
-    qt_cast<QBoxLayout *>(layout())->insertWidget(d->items.size(), item.widget);
-
-    if (!d->ignoreActionEvent) {
-        d->ignoreActionEvent = true;
-
-        QWidget::addAction(action);
-
-        d->ignoreActionEvent = false;
-    }
-}
 
 /*! \overload
 
@@ -544,48 +327,22 @@ QAction *QToolBar::addAction(const QIconSet &icon, const QString &text,
     return action;
 }
 
-/*!
+/*! \fn void QToolBar::insertAction(QAction *before, QAction *action)
+
     Inserts \a action into the tool bar at position \a index.
 
     \sa addAction()
 */
-void QToolBar::insertAction(int index, QAction *action)
-{
-    if (index < 0) {
-        addAction(action);
-        return;
-    }
-
-    QToolBarItem item = d->createItem(action);
-    d->items.insert(index, item);
-    qt_cast<QBoxLayout *>(layout())->insertWidget(index + 1, item.widget);
-
-    if (!d->ignoreActionEvent) {
-        d->ignoreActionEvent = true;
-
-        // find the action before which we are inserted
-        QAction *before = 0;
-        for (int i = index + 1; !before && i < d->items.size(); ++i) {
-            const QToolBarItem &item = d->items.at(i);
-            if (item.action)
-                before = item.action;
-        }
-        QWidget::insertAction(before, action);
-
-        d->ignoreActionEvent = false;
-    }
-
-}
 
 /*! \overload
 
     Creates a new action with text \a text. This action is inserted
     into the tool bar at position \a index.
 */
-QAction *QToolBar::insertAction(int index, const QString &text)
+QAction *QToolBar::insertAction(QAction *before, const QString &text)
 {
     QAction *action = new QAction(text, this);
-    insertAction(index, action);
+    insertAction(before, action);
     return action;
 }
 
@@ -594,10 +351,10 @@ QAction *QToolBar::insertAction(int index, const QString &text)
     Creates a new action with the icon \a icon and text \a text. This
     action is inserted into the tool bar at position \a index.
 */
-QAction *QToolBar::insertAction(int index, const QIconSet &icon, const QString &text)
+QAction *QToolBar::insertAction(QAction *before, const QIconSet &icon, const QString &text)
 {
     QAction *action = new QAction(icon, text, this);
-    insertAction(index, action);
+    insertAction(before, action);
     return action;
 }
 
@@ -608,12 +365,12 @@ QAction *QToolBar::insertAction(int index, const QIconSet &icon, const QString &
     QAction::triggered() triggered()\endlink signal is connected to \a
     member in \a receiver.
 */
-QAction *QToolBar::insertAction(int index, const QString &text,
+QAction *QToolBar::insertAction(QAction *before, const QString &text,
 				 const QObject *receiver, const char* member)
 {
     QAction *action = new QAction(text, this);
     QObject::connect(action, SIGNAL(triggered()), receiver, member);
-    insertAction(index, action);
+    insertAction(before, action);
     return action;
 }
 
@@ -624,12 +381,12 @@ QAction *QToolBar::insertAction(int index, const QString &text,
     action's \link QAction::triggered() triggered()\endlink signal is
     connected to \a member in \a receiver.
 */
-QAction *QToolBar::insertAction(int index, const QIconSet &icon, const QString &text,
+QAction *QToolBar::insertAction(QAction *before, const QIconSet &icon, const QString &text,
 				 const QObject *receiver, const char* member)
 {
     QAction *action = new QAction(icon, text, this);
     QObject::connect(action, SIGNAL(triggered()), receiver, member);
-    insertAction(index, action);
+    insertAction(before, action);
     return action;
 }
 
@@ -651,37 +408,47 @@ QAction *QToolBar::addSeparator()
 
     \sa addSeparator()
 */
-QAction *QToolBar::insertSeparator(int index)
+QAction *QToolBar::insertSeparator(QAction *before)
 {
     QAction *action = new QAction(this);
     action->setSeparator(true);
-    insertAction(index, action);
+    insertAction(before, action);
     return action;
 }
 
 /*!
-    Returns the action at position \a index. This function returns
-    zero if there is no action at position \a index.
 
-    \sa widget() addAction() insertAction()
+    \sa insertWidget()
 */
-QAction *QToolBar::action(int index) const
-{ return d->items.at(index).action; }
+QAction *QToolBar::addWidget(QWidget *widget)
+{
+    QToolBarWidgetAction *action = new QToolBarWidgetAction(widget, this);
+    addAction(action);
+    return action;
+}
 
 /*!
-    Returns the position of \a action. This function returns -1 if \a
-    action is not found.
 
-    \sa addAction() insertAction()
+    \sa addWidget()
 */
-int QToolBar::indexOf(QAction *action) const
+QAction *QToolBar::insertWidget(QAction *before, QWidget *widget)
+{
+    QToolBarWidgetAction *action = new QToolBarWidgetAction(widget, this);
+    insertAction(before, action);
+    return action;
+}
+
+/*!
+
+*/
+QRect QToolBar::actionGeometry(QAction *action) const
 {
     for (int i = 0; i < d->items.size(); ++i) {
         const QToolBarItem &item = d->items.at(i);
         if (item.action == action)
-            return i;
+            return item.widget->geometry();
     }
-    return -1;
+    return QRect();
 }
 
 /*!
@@ -701,100 +468,32 @@ QAction *QToolBar::actionAt(int x, int y) const
     return 0;
 }
 
-/*!
-    Adds \a widget to the end of the tool bar.
-
-    \sa insertWidget()
-*/
-void QToolBar::addWidget(QWidget *widget)
-{
-    QToolBarItem item;
-    item.widget = widget;
-
-    d->items.append(item);
-    qt_cast<QBoxLayout *>(layout())->insertWidget(d->items.size(), item.widget);
-}
-
-/*!
-    Inserts \a widget at position \a index.
-
-    \sa addWidget()
-*/
-void QToolBar::insertWidget(int index, QWidget *widget)
-{
-    QToolBarItem item;
-    item.widget = widget;
-
-    d->items.insert(index, item);
-    qt_cast<QBoxLayout *>(layout())->insertWidget(index + 1, item.widget);
-}
-
-/*!
-    Removes \a widget from the tool bar.
-
-    Note: the widget is not destroyed.
-
-    \sa addWidget() insertWidget()
-*/
-void QToolBar::removeWidget(QWidget *widget)
-{
-    for (int i = 0; i < d->items.size(); ++i) {
-        const QToolBarItem &item = d->items.at(i);
-        if (!item.action && item.widget == widget) {
-            d->items.removeAt(i);
-            layout()->removeWidget(widget);
-            return;
-        }
-    }
-}
-
-/*!
-    Returns the widget at position \a index. This function returns
-    zero if there is no widget at position \a index.
-
-    \sa action() addWidget() insertWidget()
-*/
-QWidget *QToolBar::widget(int index) const
-{
-    const QToolBarItem &item = d->items.at(index);
-    if (item.action)
-        return 0;
-    return item.widget;
-}
-
-/*!
-    Returns the position of \a widget in the toolbar. This function
-    returns -1 if \a widget was not found.
-
-    \sa addWidget() insertWidget()
-*/
-int QToolBar::indexOf(QWidget *widget) const
-{
-    for (int i = 0; i < d->items.size(); ++i) {
-        const QToolBarItem &item = d->items.at(i);
-        if (!item.action && item.widget == widget)
-            return i;
-    }
-    return -1;
-}
-
 /*! \reimp */
 void QToolBar::actionEvent(QActionEvent *event)
 {
     QAction *action = event->action();
+    QToolBarWidgetAction *widgetAction = qt_cast<QToolBarWidgetAction *>(action);
 
     switch (event->type()) {
     case QEvent::ActionAdded:
         {
-            if (d->ignoreActionEvent)
+            if (d->ignoreActionAddedEvent)
                 break;
+
+            Q_ASSERT_X(!widgetAction || d->indexOf(widgetAction) == -1,
+                       "QToolBar", "widgets cannot be inserted multiple times");
+
             if (event->before()) {
-                int index = indexOf(event->before());
+                int index = d->indexOf(event->before());
                 Q_ASSERT_X(index >= 0 && index < d->items.size(), "QToolBar::insertAction",
                            "internal error");
-                insertAction(index, action);
+                QToolBarItem item = d->createItem(action);
+                d->items.insert(index, item);
+                qt_cast<QBoxLayout *>(layout())->insertWidget(index + 1, item.widget);
             } else {
-                addAction(action);
+                QToolBarItem item = d->createItem(action);
+                d->items.append(item);
+                qt_cast<QBoxLayout *>(layout())->insertWidget(d->items.size(), item.widget);
             }
             break;
         }
@@ -812,16 +511,16 @@ void QToolBar::actionEvent(QActionEvent *event)
 
     case QEvent::ActionRemoved:
         {
-            int index = indexOf(action);
+            int index = d->indexOf(action);
             Q_ASSERT_X(index >= 0 && index < d->items.size(),
                        "QToolBar::removeAction", "internal error");
-
             QToolBarItem item = d->items.takeAt(index);
-
-            // destroy the QToolBarButton/QToolBarSeparator
-            delete item.widget;
-            item.widget = 0;
-
+            layout()->removeWidget(item.widget);
+            if (!widgetAction) {
+                // destroy the QToolBarButton/QToolBarSeparator
+                delete item.widget;
+                item.widget = 0;
+            }
             break;
         }
 
@@ -833,18 +532,27 @@ void QToolBar::actionEvent(QActionEvent *event)
 /*! \reimp */
 void QToolBar::childEvent(QChildEvent *event)
 {
-    if (event->type() != QEvent::ChildRemoved)
-        return;
-    QWidget *widget = qt_cast<QWidget *>(event->child());
-    if (widget)
-        removeWidget(widget);
+    if (event->type() == QEvent::ChildRemoved) {
+        QWidget *widget = qt_cast<QWidget *>(event->child());
+        if (widget) {
+            for (int i = 0; i < d->items.size(); ++i) {
+                const QToolBarItem &item = d->items.at(i);
+                QToolBarWidgetAction *widgetAction = 0;
+                if (item.widget == widget
+                    && (widgetAction = qt_cast<QToolBarWidgetAction *>(item.action))) {
+                    removeAction(widgetAction);
+                    // ### should we delete the action, or is it the programmers reponsibility?
+                    // delete widgetAction;
+                }
+            }
+        }
+    }
+    QFrame::childEvent(event);
 }
 
 /*! \reimp */
 void QToolBar::resizeEvent(QResizeEvent *event)
 {
-    Q_UNUSED(event);
-
     QBoxLayout *box = qt_cast<QBoxLayout *>(layout());
     Qt::Orientation orientation = (box->direction() == QBoxLayout::LeftToRight
                                    || box->direction() == QBoxLayout::RightToLeft)
@@ -905,7 +613,7 @@ void QToolBar::resizeEvent(QResizeEvent *event)
             const QToolBarItem &item = d->items.at(i);
             if (!item.hidden) continue;
 
-            if (item.action) {
+            if (!qt_cast<QToolBarWidgetAction *>(item.action)) {
                 pop->addAction(item.action);
             } else {
                 // ### needs special handling of custom widgets and
@@ -920,6 +628,8 @@ void QToolBar::resizeEvent(QResizeEvent *event)
 	d->extension->hide();
     }
     d->old_size = size();
+
+    QFrame::resizeEvent(event);
 }
 
 #include "moc_qtoolbar.cpp"

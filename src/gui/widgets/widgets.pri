@@ -50,7 +50,11 @@ HEADERS += \
         widgets/qtextedit.h \
         widgets/qtitlebar_p.h \
         widgets/qtoolbar.h \
+	widgets/qtoolbar_p.h \
         widgets/qtoolbarbutton_p.h \
+	widgets/qtoolbarextension_p.h \
+	widgets/qtoolbarhandle_p.h \
+	widgets/qtoolbarseparator_p.h \
         widgets/qtoolbox.h \
         widgets/qtoolbutton.h \
         widgets/qvalidator.h \
@@ -108,6 +112,9 @@ SOURCES += \
         widgets/qtitlebar.cpp \
         widgets/qtoolbar.cpp \
         widgets/qtoolbarbutton.cpp \
+	widgets/qtoolbarextension.cpp \
+	widgets/qtoolbarhandle.cpp \
+	widgets/qtoolbarseparator.cpp \
         widgets/qtoolbox.cpp \
         widgets/qtoolbutton.cpp \
         widgets/qvalidator.cpp \
