@@ -368,14 +368,14 @@ int QAction::plug( QWidget* widget )
 	int id;
 	if ( !m_pixmap.isNull() )
         {
-	    id = menu->insertItem( m_pixmap, this, SLOT( slotActivated() ) );	
+	    id = menu->insertItem( m_pixmap, this, SLOT( slotActivated() ), accel() );	
 	}
 	else
         {
 	    if ( m_bIconSet )
-		id = menu->insertItem( m_iconSet, m_text, this, SLOT( slotActivated() ) );
+		id = menu->insertItem( m_iconSet, m_text, this, SLOT( slotActivated() ), accel() );
 	    else
-		id = menu->insertItem( m_text, this, SLOT( slotActivated() ) );
+		id = menu->insertItem( m_text, this, SLOT( slotActivated() ), accel() );
 	}
 
 	menu->setItemEnabled( id, m_enabled );
@@ -398,13 +398,13 @@ int QAction::plug( QWidget* widget )
 	QToolBar* bar = (QToolBar*)widget;
 	QToolButton* b;
 	if ( !m_pixmap.isNull() )
-	    b = new QToolButton( m_pixmap, m_text, m_groupText, this, SLOT( slotActivated() ), bar );
+	    b = new QToolButton( m_pixmap, plainText(), m_groupText, this, SLOT( slotActivated() ), bar );
 	else if ( hasIconSet() )
-	    b = new QToolButton( m_iconSet, m_text, m_groupText, this, SLOT( slotActivated() ), bar );
+	    b = new QToolButton( m_iconSet, plainText(), m_groupText, this, SLOT( slotActivated() ), bar );
 	else
         {
 	    b = new QToolButton( bar );
-	    b->setTextLabel( m_text );
+	    b->setTextLabel( plainText() );
 	    connect( b, SIGNAL( clicked() ), this, SLOT( slotActivated() ) );
 	}
 
@@ -460,7 +460,7 @@ void QAction::setText( const QString& text )
 	QWidget* w = container( i );
 	QWidget* r = representative( i );
 	if ( w->inherits( "QToolBar" ) && r->inherits( "QToolButton" ) )
-	    ((QToolButton*)r)->setTextLabel( text );
+	    ((QToolButton*)r)->setTextLabel( plainText() );
 	else if ( w->inherits( "QPopupMenu" ) )
 	    ((QPopupMenu*)w)->changeItem( menuId( i ), text );
 	else if ( w->inherits( "QMenuBar" ) )
@@ -757,13 +757,13 @@ int QActionMenu::plug( QWidget* widget )
 	QToolBar* bar = (QToolBar*)widget;
 	QToolButton* b;
 	if ( !pixmap().isNull() )
-	    b = new QToolButton( pixmap(), text(), group(), this, SLOT( slotActivated() ), bar );
+	    b = new QToolButton( pixmap(), plainText(), group(), this, SLOT( slotActivated() ), bar );
 	else if ( hasIconSet() )
-	    b = new QToolButton( iconSet(), text(), group(), this, SLOT( slotActivated() ), bar );
+	    b = new QToolButton( iconSet(), plainText(), group(), this, SLOT( slotActivated() ), bar );
 	else
         {
 	    b = new QToolButton( bar );
-	    b->setTextLabel( text() );
+	    b->setTextLabel( plainText() );
 	    connect( b, SIGNAL( clicked() ), this, SLOT( slotActivated() ) );
 	}
 
