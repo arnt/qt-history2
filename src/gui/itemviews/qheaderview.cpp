@@ -331,7 +331,7 @@ void QHeaderView::paintEvent(QPaintEvent *e)
     start = qMin(start, end);
     end = qMax(tmp, end);
 
-    if (d->sections.isEmpty())
+    if (count() == 0)
         return;
     const QVector<QHeaderViewPrivate::HeaderSection> sections = d->sections;
 

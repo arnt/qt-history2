@@ -316,7 +316,7 @@ bool QTreeModel::setData(const QModelIndex &index, int role, const QVariant &val
 
 QVariant QTreeModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
-    if (orientation == Qt::Horizontal && header)
+    if (orientation == Qt::Horizontal)
         return header->data(section, role);
     return QVariant();
 }
@@ -1181,7 +1181,7 @@ void QTreeWidgetPrivate::emitItemChanged(const QModelIndex &topLeft, const QMode
 QTreeWidget::QTreeWidget(QWidget *parent)
     : QTreeView(*new QTreeWidgetPrivate(), parent)
 {
-    setModel(new QTreeModel(1, this)); // default is 1 column
+    setModel(new QTreeModel(0, this));
     connect(this, SIGNAL(pressed(QModelIndex,ButtonState)),
             SLOT(emitPressed(QModelIndex,ButtonState)));
     connect(this, SIGNAL(clicked(QModelIndex,ButtonState)),

@@ -32,13 +32,14 @@
 #define d d_func()
 #define q q_func()
 
-class QDefaultModel : public QAbstractListModel
+class QDefaultModel : public QAbstractTableModel
 {
 public:
-    QDefaultModel(QObject *parent) : QAbstractListModel(parent) {}
+    QDefaultModel(QObject *parent) : QAbstractTableModel(parent) {}
     ~QDefaultModel() {}
 
-    int rowCount() const  { return 0; }
+    int rowCount() const { return 0; }
+    int columnCount() const { return 0; }
     QVariant data(const QModelIndex &, int) const { return QVariant(); }
 };
 
