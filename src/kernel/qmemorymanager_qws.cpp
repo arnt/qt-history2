@@ -610,12 +610,7 @@ QMemoryManager::QMemoryManager(
 }
 
 
-//### must follow QWS_PACKING_4BYTE in qgfxraster_qws.cpp
-#ifdef __i386__
-static const int memAlign = 64;
-#else
 static const int memAlign = 32;
-#endif
 
 inline static const int calcLineStep( int w, int d, bool vram )
 {
