@@ -50,6 +50,11 @@
       and indentForContinuationLine().
     * The bottom line is a standalone line. See
       indentForStandaloneLine().
+
+  Certain tokens that influence the indentation, notably braces, are
+  looked for in the lines. This is done by simple string comparison,
+  without a real tokenizer. Confusing constructs such as comments and
+  string literals are removed beforehand.
 */
 
 #include <qcleanuphandler.h>
@@ -439,12 +444,13 @@ static bool bottomLineStartsInCComment()
 	    return FALSE;
 	--p;
 
-	if ( (*p).find((*slashAster)) != -1 || (*p).find((*asterSlash)) != -1 ) {
+	if ( (*p).find(slashAster) != -1 ||
+	     (*p).find(asterSlash) != -1 ) {
 	    QString trimmed = trimmedCodeLine( *p );
 
-	    if ( trimmed.find((*slashAster)) != -1 ) {
+	    if ( trimmed.find(slashAster) != -1 ) {
 		return TRUE;
-	    } else if ( trimmed.find((*asterSlash)) != -1 ) {
+	    } else if ( trimmed.find(asterSlash) != -1 ) {
 		return FALSE;
 	    }
 	}
@@ -462,31 +468,28 @@ static bool bottomLineStartsInCComment()
 */
 static int indentWhenBottomLineStartsInCComment()
 {
-    for ( int i = 0; i < SmallRoof; i++ ) {
-	int k = yyLine.findRev( QString("/*") );
-	if ( k == -1 ) {
-	    /*
-	      We found a normal text line in a comment. Align the
-	      bottom line with the text on this line.
-	    */
-	    return indentOfLine( yyLine );
-	} else {
-	    /*
-	      The C-style comment starts on this line. If there is
-	      text on the same line, align with it. Otherwise, align
-	      with the slash-aster plus a given offset.
-	    */
-	    int indent = columnForIndex( yyLine, k );
-	    k += 2;
-	    while ( k < (int) yyLine.length() ) {
-		if ( !yyLine[k].isSpace() )
-		    return columnForIndex( yyLine, k );
-		k++;
-	    }
-	    return indent + ppCommentOffset;
+    int k = yyLine.findRev( QString("/*") );
+    if ( k == -1 ) {
+	/*
+	  We found a normal text line in a comment. Align the
+	  bottom line with the text on this line.
+	*/
+	return indentOfLine( yyLine );
+    } else {
+	/*
+	  The C-style comment starts on this line. If there is
+	  text on the same line, align with it. Otherwise, align
+	  with the slash-aster plus a given offset.
+	*/
+	int indent = columnForIndex( yyLine, k );
+	k += 2;
+	while ( k < (int) yyLine.length() ) {
+	    if ( !yyLine[k].isSpace() )
+		return columnForIndex( yyLine, k );
+	    k++;
 	}
+	return indent + ppCommentOffset;
     }
-    return 0;
 }
 
 /*
