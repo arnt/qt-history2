@@ -37,6 +37,8 @@
 #include "qsql_psql.h"
 #include <private/qsqlextension_p.h>
 
+#include <math.h>
+
 #include <qpointarray.h>
 #include <qrect.h>
 #include <qsqlrecord.h>
@@ -55,7 +57,6 @@
 #define errno qt_psql_errno
 #include <catalog/pg_type.h>
 #undef errno
-#include <math.h>
 
 QPtrDict<QSqlDriverExtension> *qSqlDriverExtDict();
 QPtrDict<QSqlOpenExtension> *qSqlOpenExtDict();
