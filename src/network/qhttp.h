@@ -221,7 +221,7 @@ private:
     Q_PRIVATE_SLOT(d, void slotError(QTcpSocket::SocketError))
     Q_PRIVATE_SLOT(d, void slotClosed())
     Q_PRIVATE_SLOT(d, void slotBytesWritten(qint64 numBytes))
-    Q_PRIVATE_SLOT(d, void slotDoFinished());
+    Q_PRIVATE_SLOT(d, void slotDoFinished())
 
     friend class QHttpNormalRequest;
     friend class QHttpSetHostRequest;
