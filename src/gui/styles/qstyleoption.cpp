@@ -148,6 +148,7 @@ void QStyleOption::init(const QWidget *widget)
     if (widget->topLevelWidget()->isActiveWindow())
         state |= QStyle::Style_Active;
 
+    direction = widget->layoutDirection();
     rect = widget->rect();
     palette = widget->palette();
 }
