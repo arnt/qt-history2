@@ -232,6 +232,9 @@ void QMenuBar::cleanup()
 
 void QMenuBar::macUpdateMenuBar()
 {
+    if(!menubars) 
+	return;
+
     static bool first = TRUE;
     if(QWidget *w = qApp->activeWindow()) {
 	if(QMenuBar *mb = menubars->find((int)w)) {
