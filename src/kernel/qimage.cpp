@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.cpp#230 $
+** $Id: //depot/qt/main/src/kernel/qimage.cpp#231 $
 **
 ** Implementation of QImage and QImageIO classes
 **
@@ -2724,7 +2724,7 @@ void QImageIO::defineIOHandler( const char *format,
     p = new QImageHandler( format, header, flags && *flags == 'T',
 			   read_image, write_image );
     CHECK_PTR( p );
-    imageHandlers->prepend( p );
+    imageHandlers->insert( 0, p );
 }
 
 
