@@ -2032,6 +2032,9 @@ void QIconViewItem::checkRect()
  * Class QIconView
  *
  *****************************************************************************/
+/*! \file iconview/simple_dd/main.h */
+/*! \file iconview/simple_dd/main.cpp */
+
 
 /*!
   \class QIconView qiconview.h
@@ -2040,8 +2043,7 @@ void QIconViewItem::checkRect()
 
   \ingroup advanced
 
-    The QIconView class provides a rectangular area which contains
-    moveable labelled icons. It can display and manage a grid or other
+    The QIconView can display and manage a grid or other
     2D layout of labelled icons. Each labelled icon is a QIconViewItem.
     Items (QIconViewItems) can be added or deleted at any time; items
     can be moved within the QIconView. Single or multiple items can be
@@ -2067,6 +2069,9 @@ void QIconViewItem::checkRect()
     iv->resize( 600, 400 );
     iv->show();
     \endcode
+
+    The QIconViewItem call passes a pointer to the QIconView we wish to
+    populate followed by the label text and a QPixmap.
 
     When an item is inserted the QIconView allocates a position for it.
     The default arrangement is \c LeftToRight -- QIconView fills up the
@@ -2105,8 +2110,8 @@ void QIconViewItem::checkRect()
     Because the internal structure used to store the icon view items is
     linear (a double-linked list), no iterator class is needed to
     iterate over all the items. Instead we iterate by getting the first
-    item from the icon view and then each subsequent (\l nextItem) from
-    each item in turn:
+    item from the \e{icon view} and then each subsequent (\l nextItem) from
+    each \e item in turn:
 
   \code
   for ( QIconViewItem *item = iv->firstItem(); item; item = item->nextItem() )
@@ -2159,47 +2164,47 @@ void QIconViewItem::checkRect()
     }
     \endcode
 
-    See qt/examples/iconview/simple_dd for a simple drag and drop
+    See \l iconview/simple_dd/main.h and
+    \l iconview/simple_dd/main.cpp for a simple drag and drop
     example which demonstrates drag and drop between a QIconView and a
     QListBox.
 
-  If you want to have drag shapes drawn you have to do more complex things.
+  If you want to use extended drag-and-drop or have drag shapes drawn
+  you have to take a more sophisticated approach.
 
-  The first part is starting drags; if you want to use extended drag-and-drop in
-  the QIconView, you should use QIconDrag (or a derived class from
-  that) as dragobject, and in dragObject() create such an object and
-  return it. But before returning it, fill it there with QIconDragItems.
-  Normally such a drag should offer data of each selected item. So in
-  dragObject() you should iterate over all items, create for each
-  selected item a QIconDragItem, and append this with
-  QIconDrag::append() to the QIconDrag object. With
-  QIconDragItem::setData() you can set the data of each item that
-  should be dragged. If you want to offer the data in additional
-  mime-types, it's best to use a class derived from QIconDrag,
-  which implements additional encoding and decoding functions.
+  The first part is starting drags -- you should use a QIconDrag (or a
+  class derived from it) for the drag object. In dragObject() create the
+  drag object, populate it with QIconDragItems and return it. Normally
+  such a drag should offer each selected item's data. So in dragObject()
+  you should iterate over all the items, and create a QIconDragItem for
+  each selected item, and append these items with QIconDrag::append() to
+  the QIconDrag object. You can use QIconDragItem::setData() to set the
+  data of each item that should be dragged. If you want to offer the
+  data in additional mime-types, it's best to use a class derived from
+  QIconDrag, which implements additional encoding and decoding
+  functions.
 
-  Now when a drag enters the icon view, there is not much to do. Just
+  When a drag enters the icon view, there is little to do. Simply
   connect to the dropped() signal and reimplement
-  QIconViewItem::dropped() and QIconViewItem::acceptDrop(). The only
-  thing special in this case is the second argument in the dropped()
-  signal and in QIconViewItem::dropped(). For further details, look at
-  the documentation of this signal/function.
+  QIconViewItem::acceptDrop() and QIconViewItem::dropped(). If you've
+  used a QIconDrag (or a subclass of it) the second argument to the
+  dropped signal contains a QValueList of QIconDragItems -- you can
+  access their data by calling QIconDragItem::data.
 
-  For an example implementation of the complex drag- and-drop stuff look at the
+  For an example implementation of complex drag-and-drop look at the
   qfileiconview example (qt/examples/qfileiconview).
 
-  Finally, see also QIconViewItem::setDragEnabled(),
-  QIconViewItem::setDropEnabled(), QIconViewItem::acceptDrop() and
-  QIconViewItem::dropped().
+  \sa QIconViewItem::setDragEnabled(), QIconViewItem::setDropEnabled(), 
+      QIconViewItem::acceptDrop(), QIconViewItem::dropped().
 
   <img src=qiconview-m.png> <img src=qiconview-w.png>
 */
 
 /*! \enum QIconView::ResizeMode
 
-  This enum type decides how QIconView should treat the positions of
-  its icons when the widget is resized.  The currently defined modes
-  are:
+  This enum type is used to tell QIconView how it should treat the
+  positions of its icons when the widget is resized.  The currently
+  defined modes are:
 
   \value Fixed  The icons' positions are not changed.
   \value Adjust  The icons' positions are adjusted to be within the
@@ -2216,33 +2221,32 @@ void QIconViewItem::checkRect()
   item. This means that the user can never clear the selection. (The
   application programmer can, using QIconView::clearSelection().)
 
-  \value Multi  When the user selects an item in the most ordinary
-  way, the selection status of that item is toggled and the other
-  items are left alone.
+  \value Multi  When the user selects an item, e.g. by navigating to it
+  with the keyboard arrow keys or by clicking it, the selection status
+  of that item is toggled and the other items are left alone.
 
-  \value Extended  When the user selects an item in the most
-  ordinary way, the selection is cleared and the new item selected.
-  However, if the user presses the CTRL key when clicking on an item,
-  the clicked item gets toggled and all other items are left untouched. And
-  if the user presses the SHIFT key while clicking on an item, all items
-  between the current item and the clicked item get selected or unselected,
-  depending on the state of the clicked item.
-  Also, multiple items can be selected by dragging the mouse while the
-  left mouse button stays pressed.
+  \value Extended  When the user selects an item the selection is
+  cleared and the new item selected. However, if the user presses the
+  Ctrl key when clicking on an item, the clicked item gets toggled and
+  all other items are left untouched. If the user presses the Shift
+  key while clicking on an item, all items between the current item and
+  the clicked item get selected or unselected, depending on the state of
+  the clicked item. Also, multiple items can be selected by dragging the
+  mouse while the left mouse button stays pressed.
 
   \value NoSelection  Items cannot be selected.
 
-  In other words, \c Single is a real single-selection icon view; \c
+  To summarise: \c Single is a real single-selection icon view; \c
   Multi a real multi-selection icon view; \c Extended is an icon view
   in which users can select multiple items but usually want to select
   either just one or a range of contiguous items; and \c NoSelection
-  is for an icon view where the user can look but not touch.
+  mode is for an icon view where the user can look but not touch.
 */
 
 /*! \enum QIconView::Arrangement
 
-   This enum type decides in which direction the items flow when the view
-   overflows.
+   This enum type determines in which direction the items flow when the
+   view runs out of space.
 
    \value LeftToRight  Items which don't fit onto the view go
    further down (you get a vertical scrollbar)
@@ -2253,7 +2257,8 @@ void QIconViewItem::checkRect()
 
 /*! \enum QIconView::ItemTextPos
 
-   This enum type specifies the position of the item text in relation to the icon.
+   This enum type specifies the position of the item text in relation to
+   the icon.
 
    \value Bottom  The text is drawn below the icon.
    \value Right  The text is drawn to the right of the icon.
