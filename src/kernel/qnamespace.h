@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qnamespace.h#102 $
+** $Id$
 **
 ** Definition of Qt namespace (as class for compiler compatibility)
 **
@@ -85,9 +85,9 @@ public:
     };
 
     // documented in qobject.cpp
-    // starts at 1, as in QSizePolicy
+    // ideally would start at 1, as in QSizePolicy, but that breaks other things
     enum Orientation {
-        Horizontal = 1,
+        Horizontal = 0,
 	Vertical
     };
 
