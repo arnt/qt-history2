@@ -1168,7 +1168,8 @@ void SetupWizardImpl::showPage( QWidget* newPage )
 	nextButton()->setText( "Next >" );
 	QString finishMsg;
 	if( qWinVersion() & WV_NT_based ) {
-	    finishMsg = QString( "Qt has been installed to " ) + installPath->text() + " and is ready to use.";
+	    finishMsg = QString( "Qt has been installed to " ) + installPath->text() + " and is ready to use.\nYou may need to reboot, or open";
+	    finishMsg += " the environment editing dialog to make changes to the environment visible";
 	} else {
 	    finishMsg = QString( "The Qt files have been installed to " ) + installPath->text() + " and is ready to be compiled.\n";
 	    if( persistentEnv ) {
