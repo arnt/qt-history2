@@ -47,8 +47,6 @@
 
 
 class QTimer;
-struct QSliderData;
-
 
 class Q_EXPORT QSlider : public QWidget, public QRangeControl
 {
@@ -159,7 +157,8 @@ private:
     int		goodPart( const QPoint& ) const;
     void	initTicks();
 
-    QSliderData *extra;
+    class Data;
+    Data *extra;
     QTimer	*timer;
     QCOORD	sliderPos;
     int		sliderVal;

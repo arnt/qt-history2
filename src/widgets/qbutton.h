@@ -46,7 +46,6 @@
 
 
 class QButtonGroup;
-struct QButtonData;
 class QToolBar;
 
 class Q_EXPORT QButton : public QWidget
@@ -155,7 +154,8 @@ private:
     uint	autoresize	: 1;
     uint	animation	: 1;
     uint	repeat		: 1;
-    QButtonData *d;
+    class Data;
+    Data *d;
 
     friend class QButtonGroup;
     friend class QToolBar;

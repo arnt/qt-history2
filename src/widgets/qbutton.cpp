@@ -81,9 +81,10 @@ static inline void makeDrawingPixmap()
 }
 
 
-struct QButtonData
+class QButton::Data
 {
-    QButtonData() {
+public:
+    Data() {
 #ifndef QT_NO_BUTTONGROUP
 	group = 0;
 #endif
@@ -104,7 +105,7 @@ struct QButtonData
 void QButton::ensureData()
 {
     if ( !d ) {
-	d = new QButtonData;
+	d = new Data;
 	Q_CHECK_PTR( d );
 	connect(&d->timer, SIGNAL(timeout()), this, SLOT(autoRepeatTimeout()));
     }
@@ -279,7 +280,7 @@ QTimer *QButton::timer()
 /*! \property QButton::autoRepeat
     \brief whether autoRepeat is enabled
 
-  If autoRepeat is enabled then the clicked() signal is emitted at 
+  If autoRepeat is enabled then the clicked() signal is emitted at
   regular intervals if the button is down.  This property has
   no effect on toggle buttons.
 */
@@ -295,7 +296,7 @@ QTimer *QButton::timer()
 /*! \property QButton::down
     \brief whether the button is down (i.e. pressed)
 
-  If down is enabled then the button is set to be pressed down.  The 
+  If down is enabled then the button is set to be pressed down.  The
   signals pressed() and clicked() are not emitted if you set this
   property to TRUE.
 */
@@ -303,7 +304,7 @@ QTimer *QButton::timer()
 /*! \property QButton::exclusiveToggle
     \brief whether the button is an exclusive toggle
 
-  If exclusiveToggle is enabled and the button is in a QButtonGroup then the 
+  If exclusiveToggle is enabled and the button is in a QButtonGroup then the
   button can only be toggled off by another one being toggled on.
 */
 
@@ -331,7 +332,7 @@ QTimer *QButton::timer()
 
   This property will return a null string if the button has
   no text.  If the text has an ampersand '&' in it, then an
-  accelerator is automatically created for it using the 
+  accelerator is automatically created for it using the
   character after the ampersand as the accelerator key.
 */
 

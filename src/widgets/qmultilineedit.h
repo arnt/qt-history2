@@ -44,7 +44,6 @@
 
 #ifndef QT_NO_MULTILINEEDIT
 
-struct QMultiLineData;
 class QMultiLineEditCommand;
 class QValidator;
 
@@ -126,7 +125,8 @@ protected:
     int lineLength( int row ) const;
 
 private:
-    QMultiLineData *d;
+    class Data;
+    Data *d;
 
     bool	readOnly;
 

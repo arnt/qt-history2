@@ -85,7 +85,7 @@
   <img src=qmlined-m.png> <img src=qmlined-w.png>
 */
 
-struct QMultiLineData
+class QMultiLineEdit::Data
 {
 };
 
@@ -97,7 +97,7 @@ struct QMultiLineData
 QMultiLineEdit::QMultiLineEdit( QWidget *parent , const char *name )
     : QTextEdit( parent, name )
 {
-    d = new QMultiLineData;
+    d = new Data;
     readOnly = FALSE;
     setTextFormat( Qt::PlainText );
 }

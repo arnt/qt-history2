@@ -109,8 +109,9 @@ public:
 };
 
 
-struct QScrollViewData {
-    QScrollViewData(QWidget* parent, int vpwflags) :
+class QScrollView::Data {
+public:
+    Data(QWidget* parent, int vpwflags) :
 	hbar( QScrollBar::Horizontal, parent, "qt_hbar" ),
 	vbar( QScrollBar::Vertical, parent, "qt_vbar" ),
 	viewport( parent, "qt_viewport", vpwflags ),
@@ -134,7 +135,7 @@ struct QScrollViewData {
 	static_bg = FALSE;
 	fake_scroll = FALSE;
     }
-    ~QScrollViewData()
+    ~Data()
     {
 	deleteAll();
     }
@@ -528,7 +529,7 @@ QScrollView::QScrollView( QWidget *parent, const char *name, WFlags f ) :
     QFrame( parent, name, f & (~WNorthWestGravity) & (~WRepaintNoErase) )
 {
     WFlags flags = WResizeNoErase | (f&WPaintClever) | (f&WRepaintNoErase) | (f&WNorthWestGravity);
-    d = new QScrollViewData( this, flags );
+    d = new Data( this, flags );
 
 #ifndef QT_NO_DRAGANDDROP
     connect( &d->autoscroll_timer, SIGNAL( timeout() ),
@@ -561,7 +562,7 @@ QScrollView::~QScrollView()
 	d->clipped_viewport->removeEventFilter( this );
     else
 	d->viewport.removeEventFilter( this );
-    QScrollViewData* d2 = d;
+    Data* d2 = d;
     d = 0;
     delete d2;
 }
