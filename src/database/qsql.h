@@ -4,10 +4,10 @@
 //#if !defined(Q_NO_SQL)
 
 #ifndef QT_H
-#include <qstring.h>
-#include <qvaluelist.h>
-#include <qvariant.h>
-#include <qsqlerror.h>
+#include "qstring.h"
+#include "qvariant.h"
+#include "qvaluelist.h"
+#include "qsqlerror.h"
 #endif // QT_H
 
 class QSqlDriver;

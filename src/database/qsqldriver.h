@@ -4,11 +4,11 @@
 //#if !defined(Q_NO_SQL)
 
 #ifndef QT_H
-#include <qobject.h>
-#include <qstring.h>
-#include <qsqlerror.h>
-#include <qsqlresultinfo.h>
-#include <qsql.h>
+#include "qobject.h"
+#include "qstring.h"
+#include "qsqlerror.h"
+#include "qsql.h"
+#include "qsqlresultinfo.h"
 #endif // QT_H
 
 class QSqlDriver : public QObject

@@ -4,7 +4,7 @@
 //#if !defined(Q_NO_SQL)
 
 #ifndef QT_H
-#include <qstring.h>
+#include "qstring.h"
 #endif // QT_H
 
 class QSqlError

@@ -1,13 +1,12 @@
 #ifndef QAPPLICATIONINTERFACES_H
 #define QAPPLICATIONINTERFACES_H
 
-#ifndef QT_H
-#include <qobject.h>
-#endif // QT_H
-
 #ifndef QT_NO_PLUGIN
 
-#include <qvariant.h>
+#ifndef QT_H
+#include "qvariant.h"
+#include "qobject.h"
+#endif // QT_H
 
 class Q_EXPORT QApplicationInterface : public QObject
 {

@@ -2,8 +2,8 @@
 #define QSQLDRIVERINTERFACE_H
 
 #ifndef QT_H
-#include <qplugininterface.h>
-#include <qstringlist.h>
+#include "qplugininterface.h"
+#include "qstringlist.h"
 #endif // QT_H
 
 class QSqlDriver;

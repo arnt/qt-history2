@@ -1,9 +1,13 @@
 #ifndef QPLUGIN_P_H
 #define QPLUGIN_P_H
 
+#ifndef QT_H
+#include "qstring.h" // char*->QString conversion
+#endif // QT_H
+
 #ifdef _OS_WIN32_
 // Windows
-#   include <qt_windows.h>
+#   include "qt_windows.h"
 #   include "qapplication_p.h"
 
 HINSTANCE qt_load_library( const QString& lib )

@@ -4,10 +4,10 @@
 //#if !defined(Q_NO_SQL)
 
 #ifndef QT_H
-#include <qstring.h>
-#include <qvaluelist.h>
-#include <qshared.h>
-#include <qvariant.h>
+#include "qstring.h"
+#include "qvariant.h"
+#include "qvaluelist.h"
+#include "qshared.h"
 #endif // QT_H
 
 struct QSqlFieldInfo
@@ -23,6 +23,9 @@ struct QSqlFieldInfo
     int     type;
     int     length;
     int     precision;
+#if defined(Q_FULL_TEMPLATE_INSTANTIATION)
+    bool operator==( const QSqlFieldInfo& ) const { return FALSE; }
+#endif
 };
 
 typedef QValueList<QSqlFieldInfo> QSqlFieldInfoList;

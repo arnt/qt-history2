@@ -5,8 +5,8 @@
 
 #ifndef QT_H
 #include "qplugininterface.h"
-#include <qstringlist.h>
-#include <qwindowdefs.h>
+#include "qstringlist.h"
+#include "qwindowdefs.h"
 #endif // QT_H
 
 class Q_EXPORT QPlugIn : public QPlugInInterface
