@@ -839,7 +839,7 @@ public:
     Qt::BGMode bkMode;
     QString currentFont;
     QFontMetrics fm;
-    int textY;
+    float textY;
     QFont currentUsed;
     QFontEngine *currentSet;
     float scale;
@@ -874,7 +874,7 @@ public:
     virtual QString defineFont(QTextStream &stream, const QString &ps, const QString &key,
                              QPSPrintEnginePrivate *ptr);
     virtual void download(QTextStream& s, bool global);
-    virtual void drawText(QTextStream &stream, QPSPrintEnginePrivate *d, const QPoint &p, const QTextItem &ti, int textflags);
+    virtual void drawText(QTextStream &stream, QPSPrintEnginePrivate *d, const QPointF &p, const QTextItem &ti, int textflags);
     virtual unsigned short mapUnicode(unsigned short unicode);
     void downloadMapping(QTextStream &s, bool global);
     QString glyphName(unsigned short glyphindex, bool *glyphSet = 0);
@@ -1166,10 +1166,10 @@ static inline const char * toInt(int i)
     return intVal+pos;
 }
 
-void QPSPrintEngineFontPrivate::drawText(QTextStream &stream, QPSPrintEnginePrivate *d, const QPoint &p, const QTextItem &ti, int textflags)
+void QPSPrintEngineFontPrivate::drawText(QTextStream &stream, QPSPrintEnginePrivate *d, const QPointF &p, const QTextItem &ti, int textflags)
 {
-    int x = p.x();
-    int y = p.y();
+    float x = p.x();
+    float y = p.y();
     if (y != d->textY || d->textY == 0)
         stream << y << " Y";
     d->textY = y;
@@ -1539,7 +1539,7 @@ class QPSPrintEngineFontTTF
 public:
     QPSPrintEngineFontTTF(QFontEngine *f, QByteArray& data);
     virtual void    download(QTextStream& s, bool global);
-    virtual void drawText(QTextStream &stream, QPSPrintEnginePrivate *d, const QPoint &p, const QTextItem &ti, int textflags);
+    virtual void drawText(QTextStream &stream, QPSPrintEnginePrivate *d, const QPointF &p, const QTextItem &ti, int textflags);
     //  virtual ~QPSPrintEngineFontTTF();
 
     virtual bool embedded() { return true; }
@@ -1838,10 +1838,10 @@ QPSPrintEngineFontTTF::QPSPrintEngineFontTTF(QFontEngine *f, QByteArray& ba)
 }
 
 
-void QPSPrintEngineFontTTF::drawText(QTextStream &stream, QPSPrintEnginePrivate *d, const QPoint &p, const QTextItem &ti, int textflags)
+void QPSPrintEngineFontTTF::drawText(QTextStream &stream, QPSPrintEnginePrivate *d, const QPointF &p, const QTextItem &ti, int textflags)
 {
-    int x = p.x();
-    int y = p.y();
+    float x = p.x();
+    float y = p.y();
     if (y != d->textY || d->textY == 0)
         stream << y << " Y";
     d->textY = y;
@@ -3661,7 +3661,7 @@ public:
     void download(QTextStream& s, bool global);
     QString defineFont(QTextStream &stream, const QString &ps, const QString &key,
                         QPSPrintEnginePrivate *d);
-    void drawText(QTextStream &stream, QPSPrintEnginePrivate *d, const QPoint &p, const QTextItem &ti, int textflags);
+    void drawText(QTextStream &stream, QPSPrintEnginePrivate *d, const QPointF &p, const QTextItem &ti, int textflags);
 
     QString makePSFontName(const QFontEngine *f, int type) const;
     virtual QString extension() const = 0;
@@ -3766,7 +3766,7 @@ void QPSPrintEngineFontAsian::download(QTextStream& s, bool)
 
 
 void QPSPrintEngineFontAsian::drawText(QTextStream &, QPSPrintEnginePrivate *,
-                                       const QPoint &, const QTextItem &, int)
+                                       const QPointF &, const QTextItem &, int)
 {
     // ###
 #if 0
@@ -4801,7 +4801,8 @@ static QByteArray compress(const QImage & image, bool gray, bool compress) {
     pixel[size] = 0;
 
     if (!compress) {
-        QByteArray outarr(2*size+1);
+        QByteArray outarr;
+        outarr.resize(2*size+1);
         char *data = outarr.data();
         for (int i = 0; i < size; ++i) {
             const char *hex = toHex(pixel[i]);
@@ -5107,22 +5108,13 @@ static QByteArray compress(const QImage & image, bool gray, bool compress) {
     return outarr;
 }
 
-#undef XCOORD
-#undef YCOORD
-#undef WIDTH
-#undef HEIGHT
 #undef POINT
 #undef RECT
 #undef INT_ARG
 
-#define XCOORD(x)       (float)(x)
-#define YCOORD(y)       (float)(y)
-#define WIDTH(w)        (float)(w)
-#define HEIGHT(h)       (float)(h)
-
-#define POINT(p) XCOORD(p.x()+0.5) << ' ' << YCOORD(p.y()+0.5) << ' '
-#define RECT(r) XCOORD(r.x())  << ' ' << YCOORD(r.y())  << ' ' <<     \
-                        WIDTH (r.width()) << ' ' << HEIGHT(r.height()) << ' '
+#define POINT(p) p.x() << ' ' << p.y() << ' '
+#define RECT(r) r.x()  << ' ' << r.y()  << ' ' <<     \
+                        r.width() << ' ' << r.height() << ' '
 #define INT_ARG(x)  x << ' '
 
 static QByteArray color(const QColor &c)
@@ -5662,7 +5654,7 @@ void QPSPrintEngine::updatePen(const QPen &pen)
                       << psJoin(d->cpen.joinStyle()) << "PE\n";
 }
 
-void QPSPrintEngine::updateBrush(const QBrush &brush, const QPoint &/*origin*/)
+void QPSPrintEngine::updateBrush(const QBrush &brush, const QPointF &/*origin*/)
 {
     // ### use brush origin!
     if (brush.style() == Qt::CustomPattern) {
@@ -5751,59 +5743,47 @@ void QPSPrintEngine::updateClipRegion(const QRegion &region, bool clipEnabled)
 #endif
 }
 
-void QPSPrintEngine::drawLine(const QPoint &p1, const QPoint &p2)
+void QPSPrintEngine::drawLine(const QLineF &line)
 {
-    d->pageStream << POINT(p2);
-    if (p1.y() == p2.y())
-        d->pageStream << p1.x() << " HL\n";
-    else if (p1.x() == p2.x())
-        d->pageStream << p1.y() << " VL\n";
-    else
-        d->pageStream << POINT(p1) << "DL\n";
+    d->pageStream << POINT(line.end())
+                  << POINT(line.start()) << "DL\n";
 }
 
-void QPSPrintEngine::drawRect(const QRect &r)
+void QPSPrintEngine::drawRect(const QRectF &r)
 {
     d->pageStream << RECT(r) << "R\n";
 }
 
-void QPSPrintEngine::drawPoint(const QPoint &p)
+void QPSPrintEngine::drawPoint(const QPointF &p)
 {
     d->pageStream << POINT(p) << "P\n";
 }
 
-void QPSPrintEngine::drawEllipse(const QRect &r)
+void QPSPrintEngine::drawEllipse(const QRectF &r)
 {
     d->pageStream << RECT(r) << "E\n";
 }
 
-void QPSPrintEngine::drawLineSegments(const QPointArray &a)
+void QPSPrintEngine::drawLines(const QList<QLineF> &a)
 {
     d->pageStream << "NP\n";
-    for (int i = 0; i < a.size() - 1; i += 2) {
-        QPoint pt = a.point(i);
-        d->pageStream << XCOORD(pt.x()) << ' '
-                      << YCOORD(pt.y()) << " MT ";
-        pt = a.point(i+1);
-        d->pageStream << XCOORD(pt.x()) << ' '
-                      << YCOORD(pt.y()) << " LT\n";
+    for (int i = 0; i < a.size(); ++i) {
+        const QLineF &line = a.at(i);
+        d->pageStream << POINT(line.start()) << "MT "
+                      << POINT(line.end()) << "LT\n";
     }
     d->pageStream << "QS\n";
 }
 
-void QPSPrintEngine::drawPolygon(const QPointArray &a, PolygonDrawMode mode)
+void QPSPrintEngine::drawPolygon(const QPolygon &a, PolygonDrawMode mode)
 {
 
     if (mode == WindingMode)
         d->pageStream << "/WFi true d\n";
-    QPoint pt = a.point(0);
     d->pageStream << "NP\n";
-    d->pageStream << XCOORD(pt.x()) << ' '
-                  << YCOORD(pt.y()) << " MT\n";
+    d->pageStream << POINT(a.at(0)) << "MT\n";
     for(int i = 1; i < a.size(); i++) {
-        pt = a.point(i);
-        d->pageStream << XCOORD(pt.x()) << ' '
-                      << YCOORD(pt.y()) << " LT\n";
+        d->pageStream << POINT(a.at(i)) << "LT\n";
     }
     if (mode == PolylineMode)
         d->pageStream << "QS\n";
@@ -5813,17 +5793,17 @@ void QPSPrintEngine::drawPolygon(const QPointArray &a, PolygonDrawMode mode)
         d->pageStream << "/WFi false d\n";
 }
 
-void QPSPrintEngine::drawPixmap(const QRect &r, const QPixmap &pm, const QRect &sr,
+void QPSPrintEngine::drawPixmap(const QRectF &r, const QPixmap &pm, const QRectF &sr,
                                 Qt::PixmapDrawingMode mode)
 {
     QImage img = pm.toImage();
     QImage mask;
     if (mode == Qt::ComposePixmap && pm.mask())
         mask = pm.mask()->toImage();
-    d->drawImage(r.x(), r.y(), r.width(), r.height(), img.copy(sr), mask.copy(sr));
+    d->drawImage(r.x(), r.y(), r.width(), r.height(), img.copy(sr.toRect()), mask.copy(sr.toRect()));
 }
 
-void QPSPrintEngine::drawTextItem(const QPoint &p, const QTextItem &ti, int textflags)
+void QPSPrintEngine::drawTextItem(const QPointF &p, const QTextItem &ti, int textflags)
 {
     if (d->currentSet != ti.fontEngine || !d->currentFontFile) {
         d->setFont(ti.fontEngine);
@@ -5832,23 +5812,25 @@ void QPSPrintEngine::drawTextItem(const QPoint &p, const QTextItem &ti, int text
         d->currentFontFile->drawText(d->pageStream, d, p, ti, textflags);
 }
 
-void QPSPrintEngine::drawTiledPixmap(const QRect &r, const QPixmap &pixmap, const QPoint &p,
+void QPSPrintEngine::drawTiledPixmap(const QRectF &r, const QPixmap &pixmap, const QPointF &p,
 				     Qt::PixmapDrawingMode mode)
 {
     // ### Optimise implementation!
-    int yPos = r.y();
-    int yOff = p.y();
+    float yPos = r.y();
+    float yOff = p.y();
     while( yPos < r.y() + r.height() ) {
-        int drawH = pixmap.height() - yOff;    // Cropping first row
+        float drawH = pixmap.height() - yOff;    // Cropping first row
         if ( yPos + drawH > r.y() + r.height() )        // Cropping last row
             drawH = r.y() + r.height() - yPos;
-        int xPos = r.x();
-        int xOff = p.x();
+        float xPos = r.x();
+        float xOff = p.x();
         while( xPos < r.x() + r.width() ) {
-            int drawW = pixmap.width() - xOff; // Cropping first column
+            float drawW = pixmap.width() - xOff; // Cropping first column
             if ( xPos + drawW > r.x() + r.width() )    // Cropping last column
                 drawW = r.x() + r.width() - xPos;
-            painter()->drawPixmap( xPos, yPos, pixmap, xOff, yOff, drawW, drawH, mode);
+            // ########
+            painter()->drawPixmap( QPointF(xPos, yPos).toPoint(), pixmap,
+                                   QRectF(xOff, yOff, drawW, drawH).toRect(), mode);
             xPos += drawW;
             xOff = 0;
         }

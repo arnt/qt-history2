@@ -19,6 +19,7 @@
 #include "qrect.h"
 
 class QPointArray;
+class QRectF;
 
 class Q_GUI_EXPORT QPolygon : public QVector<QPointF>
 {

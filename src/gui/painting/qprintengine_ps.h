@@ -48,22 +48,22 @@ public:
     virtual bool end();
 
     void updatePen(const QPen &pen);
-    void updateBrush(const QBrush &brush, const QPoint &pt);
+    void updateBrush(const QBrush &brush, const QPointF &pt);
     void updateFont(const QFont &font);
     void updateBackground(Qt::BGMode bgmode, const QBrush &bgBrush);
     void updateMatrix(const QMatrix &matrix);
     void updateClipRegion(const QRegion &region, bool clipEnabled);
 
-    virtual void drawLine(const QPoint &p1, const QPoint &ps);
-    virtual void drawRect(const QRect &r);
-    virtual void drawPoint(const QPoint &p);
-    virtual void drawEllipse(const QRect &r);
-    virtual void drawLineSegments(const QPointArray &);
-    virtual void drawPolygon(const QPointArray &pa, PolygonDrawMode mode);
+    virtual void drawLine(const QLineF &line);
+    virtual void drawLines(const QList<QLineF> &a);
+    virtual void drawRect(const QRectF &r);
+    virtual void drawPoint(const QPointF &p);
+    virtual void drawEllipse(const QRectF &r);
+    virtual void drawPolygon(const QPolygon &p, PolygonDrawMode mode);
 
-    virtual void drawPixmap(const QRect &r, const QPixmap &pm, const QRect &sr, Qt::PixmapDrawingMode mode);
-    virtual void drawTextItem(const QPoint &p, const QTextItem &ti, int textflags);
-    virtual void drawTiledPixmap(const QRect &r, const QPixmap &pixmap, const QPoint &s,
+    virtual void drawPixmap(const QRectF &r, const QPixmap &pm, const QRectF &sr, Qt::PixmapDrawingMode mode);
+    virtual void drawTextItem(const QPointF &p, const QTextItem &ti, int textflags);
+    virtual void drawTiledPixmap(const QRectF &r, const QPixmap &pixmap, const QPointF &s,
 				 Qt::PixmapDrawingMode mode);
     virtual void drawPath(const QPainterPath &);
 

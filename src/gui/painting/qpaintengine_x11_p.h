@@ -75,7 +75,7 @@ public:
     void *wm_stack;
     uint clip_serial;
     QX11Info *xinfo;
-    QPoint bg_origin;
+    QPointF bg_origin;
     QPainter::TransformationCodes txop;
 };
 

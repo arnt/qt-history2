@@ -31,27 +31,25 @@ public:
     bool end();
 
     void updatePen(const QPen &pen);
-    void updateBrush(const QBrush &brush, const QPoint &pt);
+    void updateBrush(const QBrush &brush, const QPointF &pt);
     void updateRenderHints(QPainter::RenderHints hints);
     void updateFont(const QFont &font);
     void updateBackground(Qt::BGMode bgmode, const QBrush &bgBrush);
     void updateMatrix(const QMatrix &matrix);
     void updateClipRegion(const QRegion &region, bool clipEnabled);
 
-    virtual void drawLine(const QPoint &p1, const QPoint &ps);
-    virtual void drawRect(const QRect &r);
-    virtual void drawRects(const QList<QRect> &rects);
-    virtual void drawPoint(const QPoint &p);
-    virtual void drawPoints(const QPointArray &pa);
-    virtual void drawEllipse(const QRect &r);
-    virtual void drawLineSegments(const QPointArray &);
-    virtual void drawPolygon(const QPointArray &pa, PolygonDrawMode mode);
+    virtual void drawLine(const QLineF &line);
+    virtual void drawRect(const QRectF &r);
+    virtual void drawRects(const QList<QRectF> &rects);
+    virtual void drawPoint(const QPointF &p);
+    virtual void drawEllipse(const QRectF &r);
+    virtual void drawPolygon(const QPolygon &pa, PolygonDrawMode mode);
 
-    virtual void drawPixmap(const QRect &r, const QPixmap &pm, const QRect &sr,
+    virtual void drawPixmap(const QRectF &r, const QPixmap &pm, const QRectF &sr,
                             Qt::PixmapDrawingMode mode);
-    virtual void drawTiledPixmap(const QRect &r, const QPixmap &pixmap, const QPoint &s,
+    virtual void drawTiledPixmap(const QRectF &r, const QPixmap &pixmap, const QPointF &s,
 				 Qt::PixmapDrawingMode mode);
-    void drawTextItem(const QPoint &p, const QTextItem &ti, int textFlags);
+    void drawTextItem(const QPointF &p, const QTextItem &ti, int textFlags);
 
     virtual Qt::HANDLE handle() const;
     inline Type type() const { return QPaintEngine::X11; }
@@ -64,11 +62,11 @@ public:
 protected:
     QX11PaintEngine(QX11PaintEnginePrivate &dptr);
 
-    void drawBox(const QPoint &p, const QTextItem &si, int textFlags);
-    void drawXLFD(const QPoint &p, const QTextItem &si, int textFlags);
-    void drawLatinXLFD(const QPoint &p, const QTextItem &si, int textFlags);
+    void drawBox(const QPointF &p, const QTextItem &si, int textFlags);
+    void drawXLFD(const QPointF &p, const QTextItem &si, int textFlags);
+    void drawLatinXLFD(const QPointF &p, const QTextItem &si, int textFlags);
 #ifndef QT_NO_XFT
-    void drawXft(const QPoint &p, const QTextItem &si, int textFlags);
+    void drawXft(const QPointF &p, const QTextItem &si, int textFlags);
 #endif
     friend void qt_cleanup();
     friend void qt_draw_transformed_rect(QPaintEngine *pp,  int x, int y, int w,  int h, bool fill);
