@@ -50,7 +50,8 @@ public:
 
     int pageNum() const { return page; }
 
-    struct Box { // must be public, else SunCC doesn't get it
+    struct Box
+    {
 	QRect rect;
 	QString text;
 	QFont font;
@@ -70,10 +71,12 @@ public:
 	    align = b.align;
 	    return *this;
 	}
-	// only for xlC. Unused.
-	bool operator== ( const Box& ) const { return FALSE; }
-    };
 
+	bool operator==( const Box& b ) const {
+            return rect == b.rect && text == b.text && font == b.font &&
+		   align == b.align;
+	}
+    };
 
 private:
     void breakPage();
