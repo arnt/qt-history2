@@ -199,6 +199,20 @@ bool XMLParser::endDTD()
 }
 
 
+bool XMLParser::startEntity( const QString& name )
+{
+    addToProtocol( "startEntity", name );
+    return TRUE;
+}
+
+
+bool XMLParser::endEntity( const QString& name )
+{
+    addToProtocol( "endEntity", name );
+    return TRUE;
+}
+
+
 bool XMLParser::startCDATA()
 {
     addToProtocol( "startCDATA", "" );

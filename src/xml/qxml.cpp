@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/xml/qxml.cpp#82 $
+** $Id: //depot/qt/main/src/xml/qxml.cpp#83 $
 **
 ** Implementation of QXmlSimpleReader and related classes.
 **
@@ -1967,6 +1967,10 @@ private:
     QMap<QString,ExternEntity> externEntities;
     QMap<QString,QString> entities;
 
+    // used for parsing of entity references
+    QValueStack<QString> xmlRef;
+    QValueStack<QString> xmlRefName;
+
     // used for standalone declaration
     enum Standalone { Yes, No, Unknown };
 
@@ -3383,7 +3387,7 @@ bool QXmlSimpleReader::parseContent()
 			if ( contentHnd ) {
 			    if ( d->reportWhitespaceCharData || !string().simplifyWhiteSpace().isEmpty() ) {
 				if ( !contentHnd->characters( string() ) ) {
-				    parseFailed( &QXmlSimpleReader::parseContent, state );
+				    reportParseError( contentHnd->errorString() );
 				    return FALSE;
 				}
 			    }
@@ -4428,14 +4432,12 @@ bool QXmlSimpleReader::parsePEReference()
 		} else {
 		    if ( d->parsePEReference_context == InEntityValue ) {
 			// Included in literal
-			xmlRef = d->parameterEntities.find( ref() )
-			    .data().replace( QRegExp("\""), "&quot;" ).replace( QRegExp("'"), "&apos;" )
-			    + xmlRef;
+			if ( !insertXmlRef( d->parameterEntities.find(ref()).data(), ref(), TRUE ) )
+			    return FALSE;
 		    } else if ( d->parsePEReference_context == InDTD ) {
 			// Included as PE
-			xmlRef = QString(" ") +
-			    d->parameterEntities.find( ref() ).data() +
-			    QString(" ") + xmlRef;
+			if ( !insertXmlRef( QString(" ")+d->parameterEntities.find(ref()).data()+QString(" "), ref(), FALSE ) )
+			    return FALSE;
 		    }
 		}
 		break;
@@ -6594,13 +6596,14 @@ bool QXmlSimpleReader::processReference()
 	    switch ( d->parseReference_context ) {
 		case InContent:
 		    // Included
-		    xmlRef = it.data() + xmlRef;
+		    if ( !insertXmlRef( it.data(), reference, FALSE ) )
+			return FALSE;
 		    d->parseReference_charDataRead = FALSE;
 		    break;
 		case InAttributeValue:
 		    // Included in literal
-		    xmlRef = it.data().replace( QRegExp("\""), "&quot;" ).replace( QRegExp("'"), "&apos;" )
-			+ xmlRef;
+		    if ( !insertXmlRef( it.data(), reference, TRUE ) )
+			return FALSE;
 		    d->parseReference_charDataRead = FALSE;
 		    break;
 		case InEntityValue:
@@ -6757,22 +6760,71 @@ bool QXmlSimpleReader::parseString()
     }
 }
 
+/*!
+  This private functions inserts and reports an entity substitution. The
+  substituted string is \a data and the name of the entity reference is \a
+  name. If \a inLiteral is TRUE, the entity is IncludedInLiteral (i.e., " and '
+  must be quoted. Otherwise they are not quoted.
+
+  This function returns FALSE on error.
+*/
+bool QXmlSimpleReader::insertXmlRef( const QString &data, const QString &name, bool inLiteral )
+{
+    if ( inLiteral ) {
+	QString tmp = data;
+	d->xmlRef.push( tmp.replace( QRegExp("\""), "&quot;" ).replace( QRegExp("'"), "&apos;" ) );
+    } else {
+	d->xmlRef.push( data );
+    }
+    d->xmlRefName.push( name );
+    if ( d->reportEntities && lexicalHnd ) {
+	if ( !lexicalHnd->startEntity( name ) ) {
+	    reportParseError( lexicalHnd->errorString() );
+	    return FALSE;
+	}
+    }
+    return TRUE;
+}
+
 /*
   This private function moves the cursor to the next character.
 */
 void QXmlSimpleReader::next()
 {
-    if ( !xmlRef.isEmpty() ) {
-	c = xmlRef[0];
-	xmlRef.remove( 0, 1 );
-    } else {
-	if ( c=='\n' || c=='\r' ) {
-	    lineNr++;
-	    columnNr = -1;
+    int count = d->xmlRef.count();
+    if ( count != 0 ) {
+	if ( d->xmlRef.top().isEmpty() ) {
+	    if ( d->reportEntities ) {
+		if ( contentHnd ) {
+		    if ( d->reportWhitespaceCharData || !string().simplifyWhiteSpace().isEmpty() ) {
+			if ( !contentHnd->characters( string() ) ) {
+			    // ### missing reportParseError( contentHnd->errorString() );
+			}
+		    }
+		}
+		stringClear();
+		if ( lexicalHnd ) {
+		    if ( !lexicalHnd->endEntity(d->xmlRefName.top()) ) {
+			// ### missing reportParseError( lexicalHnd->errorString() );
+		    }
+		}
+	    }
+	    d->xmlRef.pop();
+	    d->xmlRefName.pop();
+	    count--;
 	}
-	c = inputSource->next();
-	columnNr++;
+	if ( count != 0 ) {
+	    c = d->xmlRef.top()[0];
+	    d->xmlRef.top().remove( 0, 1 );
+	    return;
+	}
     }
+    if ( c=='\n' || c=='\r' ) {
+	lineNr++;
+	columnNr = -1;
+    }
+    c = inputSource->next();
+    columnNr++;
 }
 
 /*
@@ -6839,7 +6891,7 @@ void QXmlSimpleReader::init( const QXmlInputSource& i )
 void QXmlSimpleReader::initData()
 {
     c = QXmlInputSource::EndOfData;
-    xmlRef = "";
+    d->xmlRef.clear();
     next();
 }
 

@@ -32,6 +32,8 @@ public:
     virtual bool startDTD( const QString& name, const QString& publicId, const QString& systemId );
     virtual bool endDTD();
     virtual bool startCDATA();
+    virtual bool startEntity( const QString& name );
+    virtual bool endEntity( const QString& name );
     virtual bool endCDATA();
     virtual bool comment( const QString& ch );
 

@@ -66,6 +66,7 @@ QSize ControlCentral::sizeHint() const
 
 void ControlCentral::parse( const QString& filename, const QString& incrementalSteps )
 {
+    qDebug( "parse %s", filename.latin1() );
     QString time;
 
     QFile file( filename );
@@ -80,6 +81,7 @@ void ControlCentral::parse( const QString& filename, const QString& incrementalS
     parser.setFeature( "http://xml.org/sax/features/namespaces", TRUE );
     parser.setFeature( "http://xml.org/sax/features/namespace-prefixes", TRUE );
     parser.setFeature( "http://trolltech.com/xml/features/report-whitespace-only-CharData", FALSE );
+    parser.setFeature( "http://trolltech.com/xml/features/report-start-end-entity", TRUE );
 
     QTextView* src = new QTextView();
     src->setCaption( "Source for " + filename );

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/xml/qxml.h#39 $
+** $Id: //depot/qt/main/src/xml/qxml.h#40 $
 **
 ** Definition of QXmlSimpleReader and related classes.
 **
@@ -298,8 +298,6 @@ private:
     QChar   stringArray[256]; // used for any other strings that are parsed
     QString stringValue; // used for any other strings that are parsed
 
-    QString xmlRef; // used for parsing of entity references
-
     QXmlSimpleReaderPrivate* d;
 
     // inlines
@@ -368,6 +366,8 @@ private:
     bool parseEntityValue();
 
     bool parseString();
+
+    bool insertXmlRef( const QString&, const QString&, bool );
 
     void reportParseError( const QString& error );
 
