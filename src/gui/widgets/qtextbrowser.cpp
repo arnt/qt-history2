@@ -22,7 +22,6 @@
 #include <qabstracttextdocumentlayout.h>
 #include <qurl.h>
 #include "private/qtextdocumentlayout_p.h"
-#include "private/qtexthtmlparser_p.h"
 #include <qtextcodec.h>
 #include <qpainter.h>
 #include <qdir.h>
@@ -255,7 +254,7 @@ void QTextBrowser::setSource(const QString& name)
         QFile f(url);
         if (f.open(IO_ReadOnly)) {
             QByteArray data = f.readAll();
-            QTextCodec *codec = QTextHtmlParser::codecForStream(data);
+            QTextCodec *codec = QText::codecForHtml(data);
             txt = codec->toUnicode(data);
 
             if (txt.isEmpty())

@@ -20,6 +20,7 @@
 #include <qdebug.h>
 #include <qregexp.h>
 #include <qvarlengtharray.h>
+#include <qtextcodec.h>
 #include "qtexthtmlparser_p.h"
 
 #include "qtextdocument_p.h"
@@ -145,6 +146,36 @@ QString QText::convertFromPlainText(const QString &plain, QText::WhiteSpaceMode 
     if (col != 0)
         rich += "</p>";
     return rich;
+}
+
+QTextCodec *QText::codecForHtml(const QByteArray &ba)
+{
+    // determine charset
+    int mib = 4; // Latin1
+    int pos;
+    QTextCodec *c = 0;
+
+    if (ba.size() > 1 && (((uchar)ba[0] == 0xfe && (uchar)ba[1] == 0xff)
+                          || ((uchar)ba[0] == 0xff && (uchar)ba[1] == 0xfe))) {
+        mib = 1000; // utf16
+    } else if (ba.size() > 2
+             && (uchar)ba[0] == 0xef
+             && (uchar)ba[1] == 0xbb
+             && (uchar)ba[2] == 0xbf) {
+        mib = 106; // utf-8
+    } else if ((pos = ba.indexOf("http-equiv=")) != -1) {
+        pos = ba.indexOf("charset=", pos) + strlen("charset=");
+        if (pos != -1) {
+            int pos2 = ba.indexOf('\"', pos+1);
+            QByteArray cs = ba.mid(pos, pos2-pos);
+//            qDebug("found charset: %s", cs.data());
+            c = QTextCodec::codecForName(cs);
+        }
+    }
+    if (!c)
+        c = QTextCodec::codecForMib(mib);
+
+    return c;
 }
 
 /*!

@@ -771,7 +771,7 @@ QTextDocumentFragment QTextDocumentFragment::fromHTML(const QString &html)
 */
 QTextDocumentFragment QTextDocumentFragment::fromHTML(const QByteArray &html)
 {
-    QTextCodec *codec = QTextHtmlParser::codecForStream(html);
+    QTextCodec *codec = QText::codecForHtml(html);
     QString unicode = codec->toUnicode(html);
     return fromHTML(unicode);
 }

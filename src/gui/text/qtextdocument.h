@@ -28,6 +28,7 @@ class QTextObject;
 class QTextFormat;
 class QTextFrame;
 class QTextBlock;
+class QTextCodec;
 
 namespace QText
 {
@@ -44,6 +45,8 @@ namespace QText
     Q_GUI_EXPORT QString escape(const QString& plain);
     Q_GUI_EXPORT QString convertFromPlainText(const QString &plain,
                                               WhiteSpaceMode mode = WhiteSpacePre);
+
+    Q_GUI_EXPORT QTextCodec *codecForHtml(const QByteArray &ba);
 }
 
 class Q_GUI_EXPORT QAbstractUndoItem
