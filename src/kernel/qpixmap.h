@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap.h#52 $
+** $Id: //depot/qt/main/src/kernel/qpixmap.h#53 $
 **
 ** Definition of QPixmap class
 **
@@ -114,7 +114,7 @@ private:
     QPixmap	copy() const;
     static bool optimAll;
     friend void bitBlt( QPaintDevice *, int, int, const QPaintDevice *,
-			int, int, int, int, RasterOp );
+			int, int, int, int, RasterOp, bool );
 };
 
 
