@@ -37,21 +37,19 @@ OBJECTS =	qbttngrp.o	qbutton.o	qchkbox.o	qcombo.o      \
 		qpopmenu.o	qpushbt.o	qradiobt.o	qrangect.o    \
 		qslider.o	qscrbar.o	qtablevw.o	qtooltip.o    \
 		qmlined.o       qheader.o	qtabbar.o	qspinbox.o    \
-		qprogbar.o	qscrollview.o	qvalidator.o
+		qprogbar.o	qscrollview.o	# qvalidator.o
 SRCMETA =	mbttngrp.cpp	mbutton.cpp	mchkbox.cpp	mcombo.cpp    \
 		mframe.cpp	mgrpbox.cpp	mlabel.cpp	mlcdnum.cpp   \
 		mlined.cpp	mlistbox.cpp	mmenubar.cpp	mpopmenu.cpp  \
 		mpushbt.cpp	mradiobt.cpp	mscrbar.cpp	mtablevw.cpp  \
 		mmlined.cpp	mtooltip.cpp	mslider.cpp	mheader.cpp   \
-		mtabbar.cpp	mspinbox.cpp	mprogbar.cpp	mscrollview.cpp \
-		mvalidator.cpp
+		mtabbar.cpp	mspinbox.cpp	mprogbar.cpp	mscrollview.cpp
 OBJMETA =	mbttngrp.o	mbutton.o	mchkbox.o	mcombo.o      \
 		mframe.o	mgrpbox.o	mlabel.o	mlcdnum.o     \
 		mlined.o	mlistbox.o	mmenubar.o	mpopmenu.o    \
 		mpushbt.o	mradiobt.o	mscrbar.o	mtablevw.o    \
 		mmlined.o	mtooltip.o	mslider.o	mheader.o     \
-		mtabbar.o	mspinbox.o	mprogbar.o	mscrollview.o \
-		mvalidator.o
+		mtabbar.o	mspinbox.o	mprogbar.o	mscrollview.o
 
 TARGET = $(LIBDIR)/libqwidgets.a
 
@@ -171,7 +169,7 @@ mprogbar.cpp: qprogbar.h
 mscrollview.cpp: qscrollview.h
 	moc qscrollview.h -o mscrollview.cpp
 
-mvalidator.cpp: qvalidator.h
-	moc qvalidator.h -o mvalidator.cpp
+# mvalidator.cpp: qvalidator.h
+# 	moc qvalidator.h -o mvalidator.cpp
 
 -include .depend
