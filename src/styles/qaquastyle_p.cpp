@@ -189,8 +189,10 @@ bool QAquaAnimate::addWidget(QWidget *w)
 	}
 	return TRUE;
     } else if(w->inherits("QListView")) {
+#if 0
 	QObject::connect(w, SIGNAL(collapsed(QListViewItem*)), this, SLOT(lvi(QListViewItem*)));
 	QObject::connect(w, SIGNAL(expanded(QListViewItem*)),  this, SLOT(lvi(QListViewItem*)));
+#endif
     }
     return FALSE;
 }
