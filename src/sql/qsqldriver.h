@@ -69,7 +69,7 @@ public:
     QSqlDriver( QObject * parent=0, const char * name=0 );
     ~QSqlDriver();
 
-    virtual bool	  isOpen() const;
+    bool		  isOpen() const;
     bool	          isOpenError() const;
 
     virtual bool          beginTransaction();
