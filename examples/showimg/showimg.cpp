@@ -30,7 +30,6 @@
 ImageViewer::ImageViewer( QWidget *parent, const char *name, int wFlags )
     : QWidget( parent, name, wFlags ),
       conversion_flags( PreferDither ),
-      filename( 0 ),
       helpmsg( 0 )
 {
     pickx = -1;
