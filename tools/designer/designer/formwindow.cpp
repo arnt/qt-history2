@@ -1215,8 +1215,8 @@ void FormWindow::selectWidgets()
 		    selectWidget( (QWidget*)o );
 	    }
 	}
-    }
-    delete l;
+	delete l;
+    }    
     emitSelectionChanged();
 }
 
@@ -1259,9 +1259,7 @@ void FormWindow::redo()
 void FormWindow::raiseChildSelections( QWidget *w )
 {
     QObjectList *l = w->queryList( "QWidget" );
-    if ( !l )
-	return;
-    if ( !l->first() ) {
+    if ( !l || !l->first() ) {
 	delete l;
 	return;
     }
@@ -1271,6 +1269,7 @@ void FormWindow::raiseChildSelections( QWidget *w )
 	if ( l->findRef( it.current()->widget() ) != -1 )
 	    it.current()->show();
     }
+    delete l;
 }
 
 void FormWindow::updateChildSelections( QWidget *w )
@@ -1759,8 +1758,8 @@ void FormWindow::checkAccels()
 		    find_accel( w->property( "pageTitle" ).toString(), accels, w );
 	    }
 	}
-    }
-    delete l;
+	delete l;
+    }    
 
     bool ok = TRUE;
     QWidget *wid;
@@ -1822,8 +1821,9 @@ void FormWindow::selectAll()
 		selectWidget( (QWidget*)o );
 	    }
 	}
+	delete l;
     }
-    delete l;
+    
     blockSignals( FALSE );
     emitSelectionChanged();
     if ( propertyWidget )
@@ -2015,16 +2015,21 @@ bool FormWindow::hasInsertedChildren( QWidget *w ) const
     if ( !w )
 	return FALSE;
     QObjectList *l = w->queryList( "QWidget" );
-    if ( !l || !l->first() )
+    if ( !l || !l->first() ) {
+	delete l;
 	return FALSE;
+    }
 
     for ( QObject *o = l->first(); o; o = l->next() ) {
 	if ( o->isWidgetType() &&
 	     ( (QWidget*)o )->isVisibleTo( (FormWindow*)this ) &&
-	     insertedWidgets.find( (QWidget*)o ) )
+	     insertedWidgets.find( (QWidget*)o ) ) {
+	    delete l;
 	    return TRUE;
+	}
     }
-
+    
+    delete l;
     return FALSE;
 }
 
@@ -2228,6 +2233,7 @@ bool FormWindow::unify( QObject *w, QString &s, bool changeIt )
 			o = l->first();
 		    }
 		}
+		delete l;
 	    }
 	    if ( !found ) {
 		QObjectList *l = mainContainer()->queryList( "QDesignerPopupMenu", 0, TRUE );
@@ -2241,6 +2247,7 @@ bool FormWindow::unify( QObject *w, QString &s, bool changeIt )
 			o = l->first();
 		    }
 		}
+		delete l;
 	    }
 	}
     }
