@@ -61,6 +61,13 @@ typedef struct {
 #define QT_QWS_TP_MOVE_LIMIT 50
 #define QT_QWS_TP_JITTER_LIMIT 2
 #endif
+#else // not IPAQ, not SHARP
+typedef struct {
+    unsigned short pressure;
+    unsigned short x;
+    unsigned short y;
+    unsigned short pad;
+} TS_EVENT;
 #endif
 
 #ifndef QT_QWS_TP_SAMPLE_SIZE
@@ -100,9 +107,9 @@ private:
     QPoint oldTotalMousePos;
     bool waspressed;
     QPolygon samples;
-    unsigned int currSample;
-    unsigned int lastSample;
-    unsigned int numSamples;
+    int currSample;
+    int lastSample;
+    int numSamples;
     int skipCount;
     int mouseIdx;
     uchar mouseBuf[mouseBufSize];
@@ -179,7 +186,7 @@ void QWSLinuxTPMouseHandlerPrivate::suspend()
     mouseNotifier->setEnabled(false);
 }
 
-void QWSLinuxTPMouseHandlerPrivate::suspend()
+void QWSLinuxTPMouseHandlerPrivate::resume()
 {
     mouseIdx=0;
     currSample=0;

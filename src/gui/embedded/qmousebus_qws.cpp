@@ -122,7 +122,7 @@ QWSBusMouseHandlerPrivate::suspend()
 }
 
 
-QWSBusMouseHandlerPrivate::suspend()
+QWSBusMouseHandlerPrivate::resume()
 {
     mouseIdx = 0;
     mouseNotifier->setEnabled(true);
