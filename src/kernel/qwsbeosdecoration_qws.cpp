@@ -32,6 +32,7 @@
 #include <qapplication.h>
 #include <qwidget.h>
 #include <qpainter.h>
+#include <qdrawutil.h>
 #include "qwsbeosdecoration_qws.h"
 
 #ifndef QT_NO_QWS_BEOS_WM_STYLE
@@ -153,10 +154,6 @@ QRegion QWSBeOSDecoration::region(const QWidget *widget, const QRect &rect, QWSD
 
 void QWSBeOSDecoration::paint(QPainter *painter, const QWidget *widget)
 {
-#ifndef QT_NO_STYLE
-    QStyle &style = QApplication::style();
-#endif
-
     int titleWidth = getTitleWidth(widget);
     int titleHeight = getTitleHeight(widget);
 
@@ -181,11 +178,7 @@ void QWSBeOSDecoration::paint(QPainter *painter, const QWidget *widget)
     // const QColorGroup &cg = QApplication::palette().active();
     const QColorGroup &cg = widget->palette().active();
 
-#if !defined(QT_NO_STYLE)
-    QRect pr( br.x(), br.y(), br.width(), br.height() - 4 );
-    style.drawPrimitive(QStyle::PO_Panel, painter, pr, cg,
-			QStyle::PStyle_Raised );
-#elif !defined(QT_NO_DRAWUTIL)
+#if !defined(QT_NO_DRAWUTIL)
     qDrawWinPanel(painter, br.x(), br.y(), br.width(),
 		  br.height() - 4, cg, FALSE,
 		  &cg.brush(QColorGroup::Background));
@@ -233,9 +226,6 @@ void QWSBeOSDecoration::paintButton(QPainter *painter, const QWidget *w,
 			QWSDecoration::Region type, int state)
 {
 #ifndef QT_NO_PALETTE
-#ifndef QT_NO_STYLE
-//    QStyle &style = QApplication::style();
-#endif
 //    const QColorGroup &cg = w->palette().active();
 
     QRect brect(region(w, w->rect(), type).boundingRect());
