@@ -1702,10 +1702,8 @@ void QWSServer::openMouse()
 	if ( qvfbEnabled )
 	    mice = "QVFbMouse";
 #endif
-	if ( mice.isEmpty() ) {
-	    mice = "MouseMan:/dev/mouse";   // last resort
-	}
-	qDebug("Assuming mouse %s", mice.latin1() );
+	if ( mice.isEmpty() )
+	    mice = "Auto";
     }
     closeMouse();
 #ifndef QT_NO_STRINGLIST
