@@ -632,18 +632,10 @@ for plat in mac win x11 qws; do
 	status "First cleanup.."
 	case $edition in
 	free)
-	    #remove sql from the main file
-	    sed 's,\(<li>.*<a.*> *SQL</a>\),<!--\1-->,' $PLATDIR/doc/indices.doc >${TMP_FILE}
-	    mv ${TMP_FILE} $PLATDIR/doc/indices.doc
-
-	    #Remove all sql's existance
-	    for sql in src/sql examples/pingpong examples/sqltable examples/sql; do
-		[ -d "$PLATDIR/$sql" ] && rm -rf "$PLATDIR/$sql"
+	    #remove non-GPL sql stuff
+	    for f in src/sql/src/oci; do
+		[ -d "$PLATDIR/$f" ] && rm -rf "$PLATDIR/$f"
 	    done
-	    rm -rf $PLATDIR/doc/*sql*.doc $PLATDIR/include/qsql*.h
-	    rm -rf $PLATDIR/tools/designer/plugins/wizards/*sql* $PLATDIR/tools/designer/designer/propertyeditorsql.h
-	    rm -rf $PLATDIR/include/qdatetimeedit.h $PLATDIR/include/qeditorfactory.h
-	    rm -rf $PLATDIR/include/qdatatable.h $PLATDIR/include/qdatabrowser.h $PLATDIR/include/qdataview.h
 	    ;;
 	professional)
 	    #remove sql & table from the main file
@@ -652,7 +644,7 @@ for plat in mac win x11 qws; do
 	    mv ${TMP_FILE} $PLATDIR/doc/indices.doc
 
 	    #Remove sql & table
-	    for f in src/sql examples/pingpong examples/sqltable examples/sql src/table examples/table; do
+	    for f in src/sql examples/sqltable examples/sql src/table examples/table; do
 		[ -d "$PLATDIR/$f" ] && rm -rf "$PLATDIR/$f"
 	    done
 	    rm -rf $PLATDIR/doc/*sql*.doc $PLATDIR/include/qsql*.h
@@ -662,6 +654,10 @@ for plat in mac win x11 qws; do
 	    #move xml stuff into designer directory TBD ###
 	    ;;
 	esac
+	if [ "$plat" != "qws" ]; then
+	    #Remove qws from mkspec so that configure does not think we are running embedded
+	    rm -rf $PLATDIR/mkspecs/qws
+	fi
 	rm -rf "$PLATDIR/examples/kiosk"
 	rm -rf "$PLATDIR/src/3rdparty/libmng"
 	rm -f "$PLATDIR/etc/fonts/unifont.bdf"
