@@ -223,8 +223,6 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow  
     if ( !testWFlags(WStyle_Customize) && !(desktop || popup))
 	setWFlags( WStyle_Customize | WStyle_NormalBorder | WStyle_Title | WStyle_MinMax | WStyle_SysMenu  );
 
-    Rect boundsRect;
-
     if ( desktop ) {                            // desktop widget
 	dialog = popup = FALSE;                  // force these flags off
 	crect.setRect( 0, 0, sw, sh );
@@ -233,13 +231,9 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow  
     } else {                                    // child widget
 	crect.setRect( 0, 0, 100, 30 );
     }
-    fpos = crect.topLeft();                     // default frame rect
+    setFRect(crect);     // default frame rect
 
     parentw = topLevel ? root_win : parentWidget()->winId();
-
-    SetRect( &boundsRect, crect.left(), crect.top(),
-	     crect.right(), crect.bottom());
-
 
     if ( window ) {				// override the old window
 	if ( destroyOldWindow && own_id )

@@ -2930,7 +2930,7 @@ void QRegExpEngine::parseAtom( Box *box )
 	break;
     default:
 	if ( (yyTok & Tok_Char) != 0 )
-	    box->set( QChar((char)(yyTok ^ Tok_Char) ));
+	    box->set( QChar(yyTok ^ Tok_Char) );
 #ifndef QT_NO_REGEXP_BACKREF
 	else if ( (yyTok & Tok_BackRef) != 0 )
 	    box->set( yyTok ^ Tok_BackRef );
