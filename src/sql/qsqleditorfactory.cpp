@@ -170,9 +170,9 @@ QWidget * QSqlEditorFactory::createEditor( QWidget * parent, const QVariant & v 
 
 */
 
-QWidget * QSqlEditorFactory::createEditor( QWidget * parent, const QSqlField & f )
+QWidget * QSqlEditorFactory::createEditor( QWidget * parent, const QSqlField* f )
 {
-    QVariant v = f.value();
+    QVariant v = f->value();
     return createEditor( parent, v );
 }
 

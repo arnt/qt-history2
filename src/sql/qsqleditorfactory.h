@@ -51,7 +51,7 @@ public:
     QSqlEditorFactory ( QObject * parent=0, const char * name=0 );
     ~QSqlEditorFactory();
     virtual QWidget * createEditor( QWidget * parent, const QVariant & v );
-    virtual QWidget * createEditor( QWidget * parent, const QSqlField & f );
+    virtual QWidget * createEditor( QWidget * parent, const QSqlField* f );
 
     static QSqlEditorFactory * defaultFactory();
 };
