@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwid_x11.cpp#63 $
+** $Id: //depot/qt/main/src/kernel/qwid_x11.cpp#64 $
 **
 ** Implementation of QWidget and QView classes for X11
 **
@@ -24,7 +24,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qwid_x11.cpp#63 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qwid_x11.cpp#64 $";
 #endif
 
 
@@ -425,8 +425,15 @@ void QWidget::setCursor( const QCursor &cursor )
 Grabs the mouse input.
 
 The widget will continue to get mouse events until releaseMouse() is called.
-\sa releaseMouse().
-*/
+
+\warning This might lock your terminal.
+
+It is almost never necessary to grab the mouse when using Qt since Qt
+grabs and releases it sensibly.  In particular, Qt grabs the mouse
+when a button is pressed and keeps it until the last button is
+released.
+
+\sa releaseMouse(). */
 
 void QWidget::grabMouse()
 {
@@ -492,10 +499,9 @@ void QWidget::grabKeyboard()
     }
 }
 
-/*!
-Releases the keyboard focus.  The keyboard events will follow their
-natural inclination (generally towards the widget the mouse is
-pointing at). \sa grabKeyboard(), grabMouse(), releaseMouse(). */
+/*!  Releases the keyboard focus.  The keyboard events will follow
+  their natural inclination. \sa grabKeyboard(), grabMouse(),
+  releaseMouse(). */
 
 void QWidget::releaseKeyboard()
 {
@@ -621,9 +627,9 @@ void QWidget::update( int x, int y, int w, int h )
 /*!
 Repaints the widget directly.
 
-Doing a repaint() is faster than doing an update(), but since repaint()
-does not make a server trip, some update 
-*/
+Doing a repaint() is faster than doing an update(), but since
+repaint() does not make a server trip and there is some time skew
+between the server and client, your client may get confused. */
 
 void QWidget::repaint( const QRect &r, bool eraseArea )
 {
@@ -665,7 +671,7 @@ void QWidget::show()				// show widget
 	qt_open_popup( this );
 }
 
-/*! Makes the widget, but not its children, invisible. */
+/*! Makes the widget invisible. */
 
 void QWidget::hide()				// hide widget
 {
@@ -694,7 +700,7 @@ void QWidget::raise()				// raise widget
 }
 
 /*! Lowers the widget to the bottom of the windows stack.  Only the
-  root window will be behind this one afterwards. */
+  parent window will be behind this one afterwards. */
 
 void QWidget::lower()				// lower widget
 {
@@ -728,8 +734,8 @@ static void do_size_hints( Display *dpy, WId ident, QWExtra *x, XSizeHints *s )
     XSetNormalHints( dpy, ident, s );
 }
 
-/*! Moves the widget.  \e x and \e y, I do believe, are relative to the
-  widget's arent.  If necessary, the window manager is told about the
+/*! Moves the widget.  \e x and \e y are relative to the widget's
+  parent.  If necessary, the window manager is told about the
   change. A \link QWidget::moveEvent move event \endlink is sent at
   once. \sa resize(), setGeometry(), QWidget::moveEvent().*/
 
@@ -905,6 +911,9 @@ void QWidget::erase()				// erase widget contents
   for it.  It's better, though, to redraw at once, if you wait for
   repaint() the screen may flicker.
 
+  If there are windows on top of your widget, you will get repaint
+  events for areas of your widget that are scrolled.
+
   \sa setBackgroundColor(), setBackgroundPixmap(). */
 
 void QWidget::scroll( int dx, int dy )		// scroll widget contents
@@ -980,8 +989,8 @@ void QWidget::drawText( int x, int y, const char *str )
 
 /*! Returns any of several widget metrics.  This may be of use
   e.g. for selecting monochrome or color appearance in a widget, but
-  application programmers are best advised to forget that metric()
-  exists.
+  application programmers should use QPaintDeviceMetrics instead, or
+  even better, write code that works without depending on these metrics.
 
   The metric commands are defined in qpaintdc.h.  At the time of
   writing, <code>PDM_WIDTH, PDM_HEIGHT, PDM_WIDTHMM, PDM_HEIGHTMM,

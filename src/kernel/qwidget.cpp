@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#45 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#46 $
 **
 ** Implementation of QWidget class
 **
@@ -22,7 +22,7 @@
 #include "qapp.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget.cpp#45 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget.cpp#46 $";
 #endif
 
 /*!
@@ -109,14 +109,13 @@ inline bool QWidgetMapper::remove( WId id )
 Constructs a new QWidget inside \e parent, named \e name,
 optionally with widget flags \e f.
 
-The widget flags are strictly internal; don't use them unless you
-know what you're doing.
+The widget flags are strictly internal and likely to change before
+1.0.  You are strongly advised to use 0.
 
 If \e parent is 0, the new widget will be a top level window.
 
 The widget name is not used in this version of Qt, it
-is reserved for future use.
-*/
+is reserved for future use. */
 
 QWidget::QWidget( QWidget *parent, const char *name, WFlags f )
 	: QObject( parent, name ), QPaintDevice( PDT_WIDGET ),
@@ -269,6 +268,8 @@ Only \c MotifStyle is allowed in this version of Qt.
 
 void QWidget::setStyle( GUIStyle gs )		// set widget GUI style
 {
+    if ( gs != MotifStyle )
+	return;
     createExtra();
     extra->guistyle = gs;
 }
