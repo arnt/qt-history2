@@ -878,8 +878,8 @@ bool QApplication::x11_apply_settings()
 	    pal.setColor(QPalette::Disabled, (QColorGroup::ColorRole) i,
 			 QColor(strlist[i]));
     }
-    
-    
+
+
     // workaround for KDE 3.0, which messes up the buttonText value of
     // the disabled palette in QSettings
     if ( pal.disabled().buttonText() == pal.active().buttonText() ) {
@@ -3158,8 +3158,7 @@ int QApplication::x11ClientMessage(QWidget* w, XEvent* event, bool passive_only)
 			groupLeader = groupLeader->parentWidget();
 		    if ( !groupLeader ) {
 			amw->raise(); //  help broken window managers
-			XSetInputFocus( appDpy, amw->winId(),
-					RevertToParent, qt_x_time );
+                                                amw->setActiveWindow();                        
 		    }
 		}
 	    } else if ( a == qt_net_wm_context_help ) {
@@ -3887,20 +3886,17 @@ static bool qt_try_modal( QWidget *widget, XEvent *event )
 
     bool block_event  = FALSE;
     switch ( event->type ) {
-    case ButtonPress:			// disallow mouse/key events
-    case ButtonRelease:
-    case MotionNotify:
-    case XKeyPress:
-    case XKeyRelease:
-    case XFocusIn:
-    case XFocusOut:
-    case ClientMessage:
-    case EnterNotify:
-    case LeaveNotify:
-        block_event	 = TRUE;
-        break;
-    default:
-        break;
+	case ButtonPress:			// disallow mouse/key events
+	case ButtonRelease:
+	case MotionNotify:
+	case XKeyPress:
+	case XKeyRelease:
+	case EnterNotify:
+	case LeaveNotify:
+	    block_event	 = TRUE;
+	    break;
+    	default:
+            break;
     }
 
     return !block_event;
