@@ -38,9 +38,7 @@
 #include "qsignal.h"
 #include "qmetaobject.h"
 #include <ctype.h>
-#ifndef QT_NO_COMPAT
 #include "qregexp.h"
-#endif
 
 // NOT REVISED
 /*!
@@ -131,11 +129,9 @@ QSignal::~QSignal()
 
 bool QSignal::connect( const QObject *receiver, const char *member )
 {
-#ifndef QT_NO_COMPAT
     QRegExp regexp( "*(*[int]*)", TRUE, TRUE );
     if ( regexp.match( member ) )
 	return QObject::connect( (QObject *)this, SIGNAL(intSignal(int)), receiver, member );
-#endif
     return QObject::connect( (QObject *)this, SIGNAL(signal(const QVariant&)),
 			     receiver, member );
 }
@@ -147,11 +143,9 @@ bool QSignal::connect( const QObject *receiver, const char *member )
 
 bool QSignal::disconnect( const QObject *receiver, const char *member )
 {
-#ifndef QT_NO_COMPAT
     QRegExp regexp( "*(*[int]*)", TRUE, TRUE );
     if ( regexp.match( member ) )
 	return QObject::disconnect( (QObject *)this, SIGNAL(intSignal(int)), receiver, member );
-#endif
     return QObject::disconnect( (QObject *)this, SIGNAL(signal(const QVariant&)),
 				receiver, member );
 }
@@ -184,9 +178,7 @@ bool QSignal::disconnect( const QObject *receiver, const char *member )
 */
 void  QSignal::activate()
 {
-#ifndef QT_NO_COMPAT
     emit intSignal( val.toInt() );
-#endif
     emit signal( val );
 }
 
