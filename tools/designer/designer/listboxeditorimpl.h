@@ -1,5 +1,5 @@
 /**********************************************************************
-** Copyright (C) 2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 2000-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of Qt Designer.
 **
@@ -18,8 +18,8 @@
 **
 **********************************************************************/
 
-#ifndef LISTBOXEDITOR_H
-#define LISTBOXEDITOR_H
+#ifndef LISTBOXEDITORIMPL_H
+#define LISTBOXEDITORIMPL_H
 
 class QListBox;
 class FormWindow;

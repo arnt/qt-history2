@@ -1,11 +1,14 @@
+#ifndef SETUPWIZARDIMPL_H
+#define SETUPWIZARDIMPL_H
+
+#include "pages/pages.h"
+#include "shell.h"
+
 #include <qprocess.h>
 #include <qtimer.h>
 #include <qmap.h>
 #include <qptrdict.h>
 #include <qwizard.h>
-
-#include "pages/pages.h"
-#include "shell.h"
 
 class QCheckListItem;
 class QListView;
@@ -168,3 +171,5 @@ private:
     WinIntroPageImpl		*winIntroPage;
 #endif
 };
+
+#endif

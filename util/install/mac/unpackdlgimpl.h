@@ -1,3 +1,6 @@
+#ifndef UNPACKDLGIMPL_H
+#define UNPACKDLGIMPL_H
+
 #include "unpackdlg.h"
 
 class UnpackDlgImpl : public UnpackDlg
@@ -16,3 +19,5 @@ public slots:
     virtual void licenseKeyChanged();
     virtual void reject();
 };
+
+#endif

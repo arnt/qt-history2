@@ -1,5 +1,5 @@
 /**********************************************************************
-** Copyright (C) 2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 2000-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of Qt Designer.
 **
@@ -18,8 +18,8 @@
 **
 **********************************************************************/
 
-#ifndef ORDER_INDICATOR_H
-#define  ORDER_INDICATOR_H
+#ifndef ORDERINDICATOR_H
+#define ORDERINDICATOR_H
 
 #include <qwidget.h>
 
@@ -47,6 +47,5 @@ private:
     FormWindow *formWindow;
     
 };
-
 
 #endif

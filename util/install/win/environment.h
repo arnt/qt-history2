@@ -1,3 +1,6 @@
+#ifndef ENVIRONMENT_H
+#define ENVIRONMENT_H
+
 #include <qstring.h>
 
 class QEnvironment
@@ -26,3 +29,4 @@ public:
     };
 };
 
+#endif

@@ -1,6 +1,5 @@
 /**********************************************************************
-**
-** Copyright (C) 2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 2000-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of Qt Designer.
 **
@@ -19,8 +18,8 @@
 **
 **********************************************************************/
 
-#ifndef QHTMLSYNTAXHIGHLIGHTER_H
-#define QHTMLSYNTAXHIGHLIGHTER_H
+#ifndef SYNTAXHIGHLIGHTER_HTML_H
+#define SYNTAXHIGHLIGHTER_HTML_H
 
 #include <./private/qrichtext_p.h>
 

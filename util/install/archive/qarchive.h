@@ -1,3 +1,6 @@
+#ifndef QARCHIVE_H
+#define QARCHIVE_H
+
 #include <qstring.h>
 #include <qfile.h>
 #include <qstringlist.h>
@@ -91,3 +94,5 @@ public:
 	Progress = 0x40
     };
 };
+
+#endif

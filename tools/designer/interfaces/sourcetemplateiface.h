@@ -1,5 +1,5 @@
  /**********************************************************************
-** Copyright (C) 2000-2001 Trolltech AS.  All rights reserved.
+** Copyright (C) 2000-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of Qt Designer.
 **
@@ -18,8 +18,8 @@
 **
 **********************************************************************/
 
-#ifndef SOURCETEMPLATEINTERFACE_H
-#define SOURCETEMPLATEINTERFACE_H
+#ifndef SOURCETEMPLATEIFACE_H
+#define SOURCETEMPLATEIFACE_H
 
 //
 //  W A R N I N G  --  PRIVATE INTERFACES

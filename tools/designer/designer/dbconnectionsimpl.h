@@ -1,5 +1,5 @@
 /**********************************************************************
-** Copyright (C) 2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 2000-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of Qt Designer.
 **
@@ -18,8 +18,8 @@
 **
 **********************************************************************/
 
-#ifndef DATABASECONNECTIONS_H
-#define DATABASECONNECTIONS_H
+#ifndef DBCONNECTIONSIMPL_H
+#define DBCONNECTIONSIMPL_H
 
 #include "dbconnections.h"
 #include "dbconnection.h"
@@ -51,4 +51,4 @@ private:
 
 };
 
-#endif // DATABASECONNECTION_H
+#endif // DBCONNECTIONSIMPL_H

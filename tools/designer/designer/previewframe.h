@@ -1,5 +1,5 @@
 /**********************************************************************
-** Copyright (C) 2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 2000-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of Qt Designer.
 **
@@ -18,8 +18,8 @@
 **
 **********************************************************************/
 
-#ifndef __previewframe_h__
-#define __previewframe_h__
+#ifndef PREVIEWFRAME_H
+#define PREVIEWFRAME_H
 
 #include <qvbox.h>
 #include <qworkspace.h>

@@ -1,5 +1,5 @@
 /**********************************************************************
-** Copyright (C) 2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 2000-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of Qt Designer.
 **
@@ -18,8 +18,8 @@
 **
 **********************************************************************/
 
-#ifndef ICONVIEWEDITOR_H
-#define ICONVIEWEDITOR_H
+#ifndef ICONVIEWEDITORIMPL_H
+#define ICONVIEWEDITORIMPL_H
 
 #include "iconvieweditor.h"
 

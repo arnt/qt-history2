@@ -1,3 +1,6 @@
+#ifndef SHELL_H
+#define SHELL_H
+
 #include <qstring.h>
 #include <qstringlist.h>
 #include <qpixmap.h>
@@ -40,3 +43,5 @@ public:
     static long dirFreeSpace( QString dirPath );
 #endif
 };
+
+#endif

@@ -1,5 +1,5 @@
 /**********************************************************************
-** Copyright (C) 2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 2000-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of Qt Designer.
 **
@@ -18,8 +18,8 @@
 **
 **********************************************************************/
 
-#ifndef ACTIONEDITOR_H
-#define ACTIONEDITOR_H
+#ifndef ACTIONEDITORIMPL_H
+#define ACTIONEDITORIMPL_H
 
 #include "actioneditor.h"
 
@@ -67,4 +67,4 @@ private:
 
 };
 
-#endif // ACTIONEDITOR_H
+#endif // ACTIONEDITORIMPL_H

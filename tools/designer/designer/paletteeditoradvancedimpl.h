@@ -1,5 +1,5 @@
 /**********************************************************************
-** Copyright (C) 2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 2000-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of Qt Designer.
 **
@@ -17,6 +17,9 @@
 ** not clear to you.
 **
 **********************************************************************/
+
+#ifndef PALETTEEDITORADVANCEDIMPL_H
+#define PALETTEEDITORADVANCEDIMPL_H
 
 #include "paletteeditoradvanced.h"
 
@@ -83,3 +86,5 @@ private:
 
     int selectedPalette;
 };
+
+#endif

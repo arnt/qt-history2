@@ -1,5 +1,5 @@
 /**********************************************************************
-** Copyright (C) 2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 2000-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of Qt Designer.
 **
@@ -18,8 +18,9 @@
 **
 **********************************************************************/
 
-#ifndef PROJECTSETTINGS_H
-#define PROJECTSETTINGS_H
+#ifndef PROJECTSETTINGSIMPL_H
+#define PROJECTSETTINGSIMPL_H
+
 #include "projectsettings.h"
 
 class Project;
@@ -46,4 +47,4 @@ private:
     Project *project;
 };
 
-#endif // PROJECTSETTINGS_H
+#endif

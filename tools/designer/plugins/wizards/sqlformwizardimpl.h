@@ -1,5 +1,5 @@
  /**********************************************************************
-** Copyright (C) 2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 2000-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of Qt Designer.
 **
@@ -18,8 +18,9 @@
 **
 **********************************************************************/
 
-#ifndef SQLFORMWIZARD_H
-#define SQLFORMWIZARD_H
+#ifndef SQLFORMWIZARDIMPL_H
+#define SQLFORMWIZARDIMPL_H
+
 #include "sqlformwizard.h"
 #include <templatewizardiface.h>
 #include <designerinterface.h>
@@ -70,4 +71,4 @@ private:
 
 };
 
-#endif // SQLFORMWIZARD_H
+#endif // SQLFORMWIZARDIMPL_H
