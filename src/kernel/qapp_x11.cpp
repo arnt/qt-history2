@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#281 $
+** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#282 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -85,7 +85,7 @@ static inline void bzero( void *s, int n )
 #endif
 
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#281 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#282 $");
 
 
 /*****************************************************************************
@@ -1386,7 +1386,7 @@ bool qt_set_socket_handler( int sockfd, int type, QObject *obj, bool enable )
 		warning( "QSocketNotifier: Multiple socket notifiers for "
 			 "same socket %d and type %s", sockfd, t[type] );
 	    }
-#endif	    
+#endif	
 	    if ( p )
 		list->insert( list->at(), sn );
 	    else
@@ -1838,11 +1838,14 @@ int QApplication::enter_loop()
 {
     loop_level++;
     quit_now = FALSE;
+    
+    bool old_app_exit_loop = app_exit_loop;
+    app_exit_loop = FALSE;
 
     while ( !quit_now && !app_exit_loop )
 	processNextEvent( TRUE );
 
-    app_exit_loop = FALSE;
+    app_exit_loop = old_app_exit_loop;
     loop_level--;
 
     return 0;
@@ -2066,7 +2069,7 @@ void qt_close_popup( QWidget *popup )
   widget flag, e.g. the QPopupMenu widget.  When the application opens a
   popup widget, all events are sent to the popup and normal widgets and
   modal widgets cannot be accessed before the popup widget is closed.
-  
+
   Only other popup widgets may be opened when a popup widget is shown.
   The popup widgets are organized in a stack.
   This function returns the active popup widget on top of the stack.
@@ -2956,7 +2959,7 @@ bool QETWidget::translatePaintEvent( const XEvent *event )
     bool should_clip = translateBySips( this, paintRect );
 
     if ( merging_okay ) {
-	while ( XCheckIfEvent(dpy,&xevent,isPaintOrScrollDoneEvent,(XPointer)&info) 
+	while ( XCheckIfEvent(dpy,&xevent,isPaintOrScrollDoneEvent,(XPointer)&info)
 	    && !qApp->x11EventFilter(&xevent) )	// send event through filter
 	{
 	    if ( !info.config ) {
@@ -3092,7 +3095,7 @@ static QIntDict<QString> qt_xdnd_drag_types( 17 );
 void QETWidget::translateXdndEnterEvent( const XEvent * xe )
 {
     const long *l = xe->xclient.data.l;
-    
+
     debug( "xdnd enter" );
 
     int version = (int)(((unsigned long)(l[1])) >> 24);
@@ -3144,7 +3147,7 @@ void QETWidget::translateXdndPositionEvent( const XEvent * xe )
 
     int i = 0;
     while( i < 100 /* ### */ && qt_xdnd_types[i] ) {
-	if ( qt_xdnd_types[i] == XA_STRING 	    
+	if ( qt_xdnd_types[i] == XA_STRING 	
 	    /* qt_xdnd_drag_types[l[i]] */ ) {
 	    QString promp("text/plain");
 	    QDragMoveEvent me( QPoint( 0,0 ), promp );
@@ -3186,7 +3189,7 @@ void QETWidget::translateXdndLeaveEvent( const XEvent * xe )
 
     QDragLeaveEvent e;
     QApplication::sendEvent( this, &e );
-    
+
     qt_xdnd_dragsource_xid = 0;
 }
 
@@ -3202,7 +3205,7 @@ void QETWidget::translateXdndDropEvent( const XEvent * xe )
 	       l[0], qt_xdnd_dragsource_xid );
 	return;
     }
-    
+
     // ### ugle hack follows.  beep beep beep.  ###
 
     if ( XGetSelectionOwner(dpy, qt_xdnd_selection_atom ) == None )
@@ -3259,7 +3262,7 @@ void QETWidget::translateXdndDropEvent( const XEvent * xe )
     } while ( bytes_after > 0 );
 
     buf[nread] = 0;
-    
+
     QString format( "text/plain" );
 
     QDropEvent de( QPoint( 0,0 ), format, buf );
