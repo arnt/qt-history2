@@ -128,6 +128,10 @@ public:
 	PostScript,
 	// OpenGL
 	OpenGL,
+	// Picture
+	Picture,
+	// SVG
+	SVG,
 
 	User = 50,				// first user type id
 	MaxUser = 100				// last user type id
@@ -175,7 +179,7 @@ protected:
     uint dirtyFlag;
     uint changeFlag;
     uint active : 1;
-    uint flags : 1;
+    uint flags;
     QPainterState *state;
     GCCaps gccaps;
 

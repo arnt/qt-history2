@@ -22,6 +22,7 @@
 QPaintEngine::QPaintEngine(GCCaps caps)
     : dirtyFlag(0),
       changeFlag(0),
+      active(0),
       state(0),
       gccaps(caps),
       d_ptr(new QPaintEnginePrivate)
@@ -32,6 +33,7 @@ QPaintEngine::QPaintEngine(GCCaps caps)
 QPaintEngine::QPaintEngine(QPaintEnginePrivate &dptr, GCCaps caps)
     : dirtyFlag(0),
       changeFlag(0),
+      active(0),
       state(0),
       gccaps(caps),
       d_ptr(&dptr)
