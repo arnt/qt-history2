@@ -433,7 +433,7 @@ Q_OUTOFLINE_TEMPLATE QList<Key> QHash<Key, T>::keys(const T &value) const
     QList<Key> res;
     const_iterator i = begin();
     while (i != end()) {
-	if (it.value() == value)
+	if (i.value() == value)
 	    res.append(i.key());
         ++i;
     }
