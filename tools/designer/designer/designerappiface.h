@@ -26,12 +26,12 @@ public:
     QUnknownInterface *queryInterface( const QString &request );
 
 private:
-    QGuardedPtr<DesignerStatusBarInterface> sbIface;
+    DesignerStatusBarInterface* sbIface;
     MainWindow *mainWindow;
 
 };
 
-class DesignerActiveFormWindowInterfaceImpl : public QApplicationComponentInterface
+class DesignerActiveFormWindowInterfaceImpl : public QObject, public QApplicationComponentInterface
 {
     Q_OBJECT
     
@@ -48,27 +48,27 @@ private slots:
     void reconnect();
     
 private:
-    FormWindow *formWindow;
-    struct Connect1 
+    QGuardedPtr<FormWindow> formWindow;
+    struct ConnectSignal 
     {
 	QCString signal, slot;
 	QGuardedPtr<QObject> target;
 #if defined(Q_FULL_TEMPLATE_INSTANTIATION)
-	bool operator==( const Connect1& ) const { return FALSE; }
+	bool operator==( const ConnectSignal& ) const { return FALSE; }
 #endif
     };
     
-    struct Connect2
+    struct ConnectSlot
     {
 	QGuardedPtr<QObject> sender;
 	QCString signal, slot;
 #if defined(Q_FULL_TEMPLATE_INSTANTIATION)
-	bool operator==( const Connect2& ) const { return FALSE; }
+	bool operator==( const ConnectSlot& ) const { return FALSE; }
 #endif
     };
     
-    QValueList<Connect1> connects1;
-    QValueList<Connect2> connects2;
+    QValueList<ConnectSignal> signalList;
+    QValueList<ConnectSlot> slotList;
 
     QObjectList filterObjects;
 };
@@ -99,8 +99,8 @@ public:
     QUnknownInterface *queryInterface( const QString &request );
 
 private:
-    QGuardedPtr<DesignerMainWindowInterface> mwIface;
-    QGuardedPtr<DesignerFormListInterface> flIface;
+    DesignerMainWindowInterface* mwIface;
+    DesignerFormListInterface* flIface;
 };
 
 #endif
