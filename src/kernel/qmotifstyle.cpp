@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qmotifstyle.cpp#17 $
+** $Id: //depot/qt/main/src/kernel/qmotifstyle.cpp#18 $
 **
 ** Implementation of Motif-like style class
 **
@@ -509,10 +509,15 @@ void QMotifStyle::drawScrollBarControls( QPainter* p, const QScrollBar* sb, int 
 }
 
 
+/*!\reimp
+ */
 int QMotifStyle::sliderLength() const
 {
     return 30;
 }
+
+/*!\reimp
+ */
 void QMotifStyle::drawSlider( QPainter *p,
 			     int x, int y, int w, int h,
 			     const QColorGroup &g,

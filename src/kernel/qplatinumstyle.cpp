@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qplatinumstyle.cpp#14 $
+** $Id: //depot/qt/main/src/kernel/qplatinumstyle.cpp#15 $
 **
 ** Implementation of Platinum-like style class
 **
@@ -595,8 +595,8 @@ void QPlatinumStyle::drawScrollBarBackground( QPainter *p, int x, int y, int w, 
 }
 
 
-/*! \reimp */
-
+/*!\reimp 
+ */
 QStyle::ScrollControl QPlatinumStyle::scrollBarPointOver( const QScrollBar* sb, int sliderStart, const QPoint& p )
 {
         if ( !sb->rect().contains( p ) )

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwindowsstyle.cpp#15 $
+** $Id: //depot/qt/main/src/kernel/qwindowsstyle.cpp#16 $
 **
 ** Implementation of Windows-like style class
 **
@@ -461,7 +461,7 @@ void QWindowsStyle::drawScrollBarControls( QPainter* p, const QScrollBar* sb, in
 
     int sliderMin, sliderMax, sliderLength, buttonDim;
     scrollBarMetrics( sb, sliderMin, sliderMax, sliderLength, buttonDim );
-    
+
     if (sliderStart > sliderMax) { // sanity check
 	sliderStart = sliderMax;
     }
@@ -561,10 +561,15 @@ void QWindowsStyle::drawScrollBarControls( QPainter* p, const QScrollBar* sb, in
 
 }
 
+/*!\reimp
+ */
 int QWindowsStyle::sliderLength() const
 {
     return 9;
 }
+
+/*!\reimp
+ */
 void QWindowsStyle::drawSlider( QPainter *p,
 			     int x, int y, int w, int h,
 			     const QColorGroup &g,
