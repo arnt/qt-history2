@@ -146,7 +146,8 @@ protected slots:
     void doubleClicked(const QModelIndex &index);
     void deletePressed(const QModelIndex &index);
     void currentChanged(const QModelIndex &old, const QModelIndex &current);
-    void textChanged(const QString &text);
+    void fileNameChanged(const QString &text);
+    void lookInChanged(const QString &text);
     void setFilter(const QString &filter);
     void setCurrentDir(const QString &path);
     void populateContextMenu(QMenu *menu, const QModelIndex &index) const;

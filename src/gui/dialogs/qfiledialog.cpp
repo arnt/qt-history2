@@ -231,6 +231,18 @@ static const char * const back_xpm [] = {
 const char *qt_file_dialog_filter_reg_exp =
     "([a-zA-Z0-9]*)\\(([a-zA-Z0-9_.*? +;#\\[\\]]*)\\)$";
 
+#include <qlistbox.h>
+
+static int qt_combo_insert_unique(QComboBox *combo, const QString &text)
+{
+    QListBox *box = combo->listBox();
+    QListBoxItem *itm = box->findItem(text, Qt::ExactMatch);
+    if (itm)
+        return box->index(itm);
+    combo->insertItem(text);
+    return combo->count() - 1;
+}
+
 class QFileDialogLineEdit : public QLineEdit
 {
 public:
@@ -280,6 +292,7 @@ public:
     QFrame *frame;
     QComboBox *lookIn;
     QFileDialogLineEdit *fileName;
+    QFileDialogLineEdit *lookInEdit;
     QComboBox *fileType;
 
     QAction *openAction;
@@ -570,7 +583,7 @@ void QFileDialog::currentChanged(const QModelIndex &, const QModelIndex &current
     }
 }
 
-void QFileDialog::textChanged(const QString &text)
+void QFileDialog::fileNameChanged(const QString &text)
 {
     if (d->fileName->hasFocus() && !text.isEmpty()) {
         QModelIndex current = d->current();
@@ -591,6 +604,34 @@ void QFileDialog::textChanged(const QString &text)
             d->fileName->setText(completed);
             d->fileName->setSelection(start, length);
             d->fileName->blockSignals(block);
+        }
+    }
+}
+
+void QFileDialog::lookInChanged(const QString &text)
+{
+    if (d->lookInEdit->hasFocus() && !text.isEmpty()) {
+        QString searchText = text.section('/', -1);
+        int rowCount = d->model->rowCount(d->root());
+        QModelIndexList indices = d->model->match(d->model->topLeft(d->root()),
+                                                  QAbstractItemModel::Display,
+                                                  searchText, rowCount);
+        int key = d->lookInEdit->lastKeyPressed();
+        QModelIndex result;
+        for (int i = 0; i < indices.count(); ++i) {
+            if (d->model->isDir(indices.at(i))) {
+                result = indices.at(i);
+                break;
+            }
+        }
+        if (result.isValid() && key != Qt::Key_Delete && key != Qt::Key_Backspace) {
+            QString completed = d->model->path(result);
+            int start = completed.length();
+            int length = text.length() - start; // negative length
+            bool block = d->lookInEdit->blockSignals(true);
+            d->lookInEdit->setText(completed);
+            d->lookInEdit->setSelection(start, length);
+            d->lookInEdit->blockSignals(block);
         }
     }
 }
@@ -831,16 +872,24 @@ void QFileDialogPrivate::setup()
 
     // conboboxes && lineedit
     lookIn = new QComboBox(q);
+    lookIn->setInsertionPolicy(QComboBox::NoInsertion);
+    lookIn->setDuplicatesEnabled(false);
+    lookIn->setEditable(true);
     lookIn->insertItem(QDir::root().absPath());
     QObject::connect(lookIn, SIGNAL(activated(const QString&)),
                      q, SLOT(setCurrentDir(const QString&)));
     grid->addWidget(d->lookIn, 0, 1, 1, 3);
+    lookInEdit = new QFileDialogLineEdit(lookIn);
+    lookIn->setLineEdit(lookInEdit);
+    QObject::connect(lookInEdit, SIGNAL(textChanged(const QString&)),
+                     q, SLOT(lookInChanged(const QString&)));
     fileName = new QFileDialogLineEdit(q);
     QObject::connect(fileName, SIGNAL(textChanged(const QString&)),
-                     q, SLOT(textChanged(const QString&)));
+                     q, SLOT(fileNameChanged(const QString&)));
     grid->addWidget(fileName, 2, 2, 1, 3);
     fileType = new QComboBox(q);
-    fileType->insertStringList(QFileDialog::tr("All Files (*.*)"));
+    fileType->setDuplicatesEnabled(false);
+    fileType->insertStringList(QFileDialog::tr("All Files (*)"));
     QObject::connect(fileType, SIGNAL(activated(const QString&)),
                      q, SLOT(setFilter(const QString&)));
     grid->addWidget(fileType, 3, 2, 1, 3);
@@ -901,8 +950,9 @@ void QFileDialogPrivate::updateButtons(const QModelIndex &index)
 {
     toParent->setEnabled(index.isValid());
     back->setEnabled(history.count() > 0);
-    lookIn->insertItem(d->model->path(index));
-    lookIn->setCurrentItem(lookIn->count() - 1);
+    QString pth = d->model->path(index);
+    int idx = qt_combo_insert_unique(lookIn, pth);
+    lookIn->setCurrentItem(idx);
 }
 
 void QFileDialogPrivate::setRoot(const QModelIndex &index)
