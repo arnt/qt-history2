@@ -40,6 +40,7 @@ class QSqlResultPrivate;
 class QM_EXPORT_SQL QSqlResult
 {
 friend class QSqlQuery;
+friend class QSqlAsyncQuery;
 friend class QSqlResultPrivate;
 public:
     virtual ~QSqlResult();
@@ -87,7 +88,7 @@ protected:
 
     virtual QCoreVariant data(int i) = 0;
     virtual bool isNull(int i) = 0;
-    virtual bool reset (const QString& sqlquery) = 0;
+    virtual bool reset(const QString& sqlquery) = 0;
     virtual bool fetch(int i) = 0;
     virtual bool fetchNext();
     virtual bool fetchPrevious();
@@ -96,6 +97,11 @@ protected:
     virtual int size() = 0;
     virtual int numRowsAffected() = 0;
     virtual QSqlRecord record() const;
+
+    virtual bool poll();
+    virtual int pollDescriptor() const;
+    virtual bool resetAsync(const QString &sqlquery);
+    virtual void cancelAsync();
 
 private:
     QSqlResultPrivate* d;
