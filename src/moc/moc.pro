@@ -9,19 +9,19 @@ LIBS		=
 DESTDIR         = ../../bin
 OBJECTS_DIR	= .
 SOURCES		= ../tools/qbuffer.cpp	    \
-		  ../tools/qptrcollection.cpp  \
-		  ../tools/qcstring.cpp	    \
+		  ../compat/qptrcollection.cpp  \
+		  ../compat/qcstring.cpp	    \
 		  ../tools/qbytearray.cpp	    \
 		  ../tools/qdatastream.cpp  \
 		  ../tools/qdatetime.cpp    \
 		  ../tools/qfile.cpp	    \
 		  ../tools/qdir.cpp	    \
 		  ../tools/qfileinfo.cpp    \
-		  ../tools/qgarray.cpp	    \
-		  ../tools/qgdict.cpp	    \
-		  ../tools/qglist.cpp	    \
+		  ../compat/qgarray.cpp	    \
+		  ../compat/qgdict.cpp	    \
+		  ../compat/qglist.cpp	    \
 		  ../tools/qglobal.cpp	    \
-		  ../tools/qgvector.cpp	    \
+		  ../compat/qgvector.cpp	    \
 		  ../tools/qiodevice.cpp    \
 		  ../tools/qlist.cpp	    \
 		  ../tools/qregexp.cpp	    \

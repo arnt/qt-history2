@@ -402,7 +402,7 @@ long QCString::toLong( bool *ok ) const
 {
     const char *p = constData();
     long val=0;
-    const long max_mult = LONG_MAX / 10;
+    const long max_mult = 214748364;
     bool is_ok = FALSE;
     int neg = 0;
     if ( !p )
@@ -446,7 +446,7 @@ ulong QCString::toULong( bool *ok ) const
 {
     const char *p = constData();
     ulong val=0;
-    const ulong max_mult = ULONG_MAX / 10;
+    const ulong max_mult = 429496729;
     bool is_ok = FALSE;
     if ( !p )
 	goto bye;
@@ -482,11 +482,8 @@ bye:
 short QCString::toShort( bool *ok ) const
 {
     long v = toLong( ok );
-    if ( v < SHRT_MIN || v > SHRT_MAX ) {
-	if ( ok )
-	    *ok = FALSE;
-	v = 0;
-    }
+    if ( ok && *ok && (v < -32768 || v > 32767) )
+	*ok = FALSE;
     return (short)v;
 }
 
@@ -501,11 +498,8 @@ short QCString::toShort( bool *ok ) const
 ushort QCString::toUShort( bool *ok ) const
 {
     ulong v = toULong( ok );
-    if ( v > USHRT_MAX ) {
-	if ( ok )
-	    *ok = FALSE;
-	v = 0;
-    }
+    if ( ok && *ok && (v > 65535) )
+	*ok = FALSE;
     return (ushort)v;
 }
 
@@ -520,13 +514,7 @@ ushort QCString::toUShort( bool *ok ) const
 
 int QCString::toInt( bool *ok ) const
 {
-    long v = toLong( ok );
-    if ( v < INT_MIN || v > INT_MAX ) {
-	if ( ok )
-	    *ok = FALSE;
-	v = 0;
-    }
-    return (int)v;
+    return (int)toLong( ok );
 }
 
 /*!
@@ -539,13 +527,7 @@ int QCString::toInt( bool *ok ) const
 
 uint QCString::toUInt( bool *ok ) const
 {
-    ulong v = toULong( ok );
-    if ( v > UINT_MAX ) {
-	if ( ok )
-	    *ok = FALSE;
-	v = 0;
-    }
-    return (uint)v;
+    return (uint)toULong( ok );
 }
 
 /*!

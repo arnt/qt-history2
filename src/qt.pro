@@ -145,7 +145,7 @@ largefile {
 }
 
 #here for compatability, should go away ####
-include($$KERNEL_CPP/qt_compat.pri)
+include($$COMPAT_CPP/qt_compat.pri)
 
 #platforms
 x11:include($$KERNEL_CPP/qt_x11.pri)

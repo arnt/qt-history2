@@ -1,17 +1,9 @@
 # Qt tools module
 
 tools {
-	message("Remove compat/* files into libqt3compat")
-
-	HEADERS += compat/q3cache.h \
-		   compat/qgcache.h \
-		   compat/qvaluevector.h
-	SOURCES += compat/qgcache.cpp
 
 	TOOLS_P		= tools
-	HEADERS +=  $$TOOLS_H/qmemarray.h \
-		  $$TOOLS_H/qasciicache.h \
-		  $$TOOLS_H/qasciidict.h \
+	HEADERS +=  \
 		  $$TOOLS_H/qbitarray.h \
 		  $$TOOLS_H/qbytearray.h \
 		  $$TOOLS_H/qbuffer.h \
@@ -20,52 +12,33 @@ tools {
 		  $$TOOLS_H/qcleanuphandler.h \
 		  $$TOOLS_P/qcomponentfactory_p.h \
 		  $$TOOLS_P/qcomlibrary_p.h \
-		  $$TOOLS_H/qcstring.h \
 		  $$TOOLS_H/qdatastream.h \
 		  $$TOOLS_H/qdatetime.h \
-		  $$TOOLS_H/qdict.h \
 		  $$TOOLS_H/qdir.h \
 		  $$TOOLS_P/qdir_p.h \
 		  $$TOOLS_H/qfile.h \
 		  $$TOOLS_P/qfiledefs_p.h \
 		  $$TOOLS_H/qfileinfo.h \
-		  $$TOOLS_H/qgarray.h \
-		  $$TOOLS_H/qgdict.h \
-		  $$TOOLS_H/qgeneric.h \
-		  $$TOOLS_H/qglist.h \
 		  $$TOOLS_H/qglobal.h \
 		  $$TOOLS_H/qhash.h \
 		  $$TOOLS_H/qlinkedlist.h \
 		  $$TOOLS_H/qlist.h \
 		  $$TOOLS_P/qgpluginmanager_p.h \
-		  $$TOOLS_H/qgvector.h \
-		  $$TOOLS_H/qintcache.h \
-		  $$TOOLS_H/qintdict.h \
 		  $$TOOLS_H/qiodevice.h \
 		  $$TOOLS_H/qlibrary.h \
 		  $$TOOLS_P/qlibrary_p.h \
-		  $$TOOLS_H/qptrlist.h \
 		  $$TOOLS_H/qmap.h \
 		  $$TOOLS_P/qpluginmanager_p.h \
-		  $$TOOLS_H/qptrcollection.h \
-		  $$TOOLS_H/qptrdict.h \
-		  $$TOOLS_H/qptrqueue.h \
 		  $$TOOLS_H/qregexp.h \
 		  $$TOOLS_H/qsettings.h \
 		  $$TOOLS_P/qsettings_p.h \
 		  $$TOOLS_H/qshared.h \
-		  $$TOOLS_H/qsortedlist.h \
-		  $$TOOLS_H/qptrstack.h \
 		  $$TOOLS_H/qstack.h \
 		  $$TOOLS_H/qstackarray.h \
 		  $$TOOLS_H/qstring.h \
 		  $$TOOLS_H/qstringlist.h \
-		  $$TOOLS_H/qstrlist.h \
-		  $$TOOLS_H/qstrvec.h \
 		  $$TOOLS_H/qtextstream.h \
 		  $$TOOLS_P/qunicodetables_p.h \
-		  $$TOOLS_H/qptrvector.h \
-		  $$TOOLS_H/qvaluestack.h \
 		  $$TOOLS_P/qcom_p.h \
 		  $$TOOLS_P/qucom_p.h \
 		  $$TOOLS_H/quuid.h \
@@ -103,25 +76,19 @@ tools {
 		  $$TOOLS_CPP/qchar.cpp \
 		  $$TOOLS_CPP/qcomponentfactory.cpp \
 		  $$TOOLS_CPP/qcomlibrary.cpp \
-		  $$TOOLS_CPP/qcstring.cpp \
 		  $$TOOLS_CPP/qdatastream.cpp \
 		  $$TOOLS_CPP/qdatetime.cpp \
 		  $$TOOLS_CPP/qdir.cpp \
 		  $$TOOLS_CPP/qfile.cpp \
 		  $$TOOLS_CPP/qfileinfo.cpp \
-		  $$TOOLS_CPP/qgarray.cpp \
-		  $$TOOLS_CPP/qgdict.cpp \
-		  $$TOOLS_CPP/qglist.cpp \
 		  $$TOOLS_CPP/qglobal.cpp \
 		  $$TOOLS_CPP/qhash.cpp \
 		  $$TOOLS_CPP/qlinkedlist.cpp \
 		  $$TOOLS_CPP/qlist.cpp \
 		  $$TOOLS_CPP/qgpluginmanager.cpp \
-		  $$TOOLS_CPP/qgvector.cpp \
 		  $$TOOLS_CPP/qiodevice.cpp \
 		  $$TOOLS_CPP/qlibrary.cpp \
 		  $$TOOLS_CPP/qmap.cpp \
-		  $$TOOLS_CPP/qptrcollection.cpp \
 		  $$TOOLS_CPP/qregexp.cpp \
 		  $$TOOLS_CPP/qstack.cpp \
 		  $$TOOLS_CPP/qstring.cpp \
