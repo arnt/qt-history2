@@ -201,10 +201,16 @@ void QPainterPrivate::draw_helper(const QPainterPath &originalPath, DrawOperatio
     p.drawPath(originalPath);
 
     p.end();
+
+    Q_Q(QPainter);
+    engine->updateMatrix(QMatrix());
+    QPixmap pm;
+    pm.fromImage(image, Qt::OrderedDither | Qt::OrderedAlphaDither);
     engine->drawPixmap(QRectF(devMinX, devMinY, devWidth, devHeight),
-                       image,
+                       pm,
                        QRectF(0, 0, devWidth, devHeight),
                        Qt::ComposePixmap);
+    engine->setDirty(QPaintEngine::DirtyTransform);
 }
 
 
