@@ -312,7 +312,7 @@ bool QMenuBar::updateMenuBar()
     if(!checking) {
 	checking = TRUE;
 	bool valid = TRUE;
-	for(int ii = 0; ii < 30; ii++) {
+	for(int ii = 0; ii < 100; ii++) {
 	    valid = TRUE;
 	    MenuRef mr = AcquireRootMenu();
 	    CFStringRef str = no_ampersands("Blah..");
@@ -341,7 +341,6 @@ bool QMenuBar::updateMenuBar()
 	    if(valid)
 		break;
 	    updateMenuBar();
-	    qDebug("Trying to correct menubar...");
 	}
 	checking = FALSE;
 	if(!valid) {
