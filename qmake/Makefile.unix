@@ -4,10 +4,10 @@ OBJS=project.o main.o makefile.o unixmake.o borland_bmake.o msvc_nmake.o msvc_ds
 #qt code
 QOBJS=qstring.o qtextstream.o qiodevice.o qglobal.o qgdict.o qcstring.o qdatastream.o qgarray.o qbuffer.o qglist.o \
 	qcollection.o qfile.o qfile_unix.o qtextcodec.o qregexp.o qgvector.o qgcache.o qbitarray.o qdir.o \
-	qfileinfo_unix.o qdir_unix.o qfileinfo.o qdatetime.o qstringlist.o qmap.o qtextcodecfactory.o
+	qfileinfo_unix.o qdir_unix.o qfileinfo.o qdatetime.o qstringlist.o qmap.o qtextcodecfactory.o qlibrary.o
 
 CFLAGS=-I. -Igenerators -Igenerators/unix -Igenerators/win32  -I@OUT_QTDIR@/include \
-	-I@OUT_QTDIR@/src/tools -DQT_NO_CODECS -DQT_NO_COMPONENT -DUSE_GROSS_BIG_BUFFER_THING
+	-I@OUT_QTDIR@/src/tools -DQT_NO_CODECS -DQT_LITE_COMPONENT -DUSE_GROSS_BIG_BUFFER_THING
 LFLAGS=
 
 qmake: $(OBJS) $(QOBJS)
@@ -24,6 +24,9 @@ distclean:: clean
 # don't use optimization for these
 qtextstream.o: @REL_QTDIR@/src/tools/qtextstream.cpp
 	$(CXX) -c -O2 -o $@ $(CFLAGS) @REL_QTDIR@/src/tools/qtextstream.cpp
+
+qlibrary.o: @REL_QTDIR@/src/kernel/qlibrary.cpp
+	$(CXX) -c -O2 -o $@ $(CFLAGS) @REL_QTDIR@/src/kernel/qlibrary.cpp
 
 qiodevice.o: @REL_QTDIR@/src/tools/qiodevice.cpp
 	$(CXX) -c -O2 -o $@ $(CFLAGS) @REL_QTDIR@/src/tools/qiodevice.cpp

@@ -366,6 +366,7 @@ QTextCodec* QTextCodec::codecForMib(int mib)
     }
 
 #ifndef QT_NO_COMPONENT
+#ifndef QT_LITE_COMPONENT
 
     if (result->mibEnum() != mib) {
 	QTextCodec *codec = QTextCodecFactory::createForMib(mib);
@@ -373,7 +374,7 @@ QTextCodec* QTextCodec::codecForMib(int mib)
 	if (codec)
 	    result = codec;
     }
-
+#endif
 #endif // QT_NO_COMPONENT
 
     return result;
@@ -669,10 +670,11 @@ QTextCodec* QTextCodec::codecForName( const char* name, int accuracy )
     }
 
 #ifndef QT_NO_COMPONENT
+#ifndef QT_LITE_COMPONENT
 
     if (! result && localeMapper)
 	result = QTextCodecFactory::createForName(name);
-
+#endif
 #endif // QT_NO_COMPONENT
 
     return result;

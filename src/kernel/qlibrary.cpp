@@ -41,37 +41,49 @@
 #define QT_DEBUG_COMPONENT 1
 
 #ifndef QT_H
-#include "qobject.h"
-#include "qtimer.h"
 #include "qwindowdefs.h"
 #include "qfile.h"
+#ifndef QT_LITE_COMPONENT
+#include "qobject.h"
+#include "qtimer.h"
+#endif
 #endif // QT_H
 
 /*
   Private helper class that saves the platform dependent handle
   and does the unload magic using a QTimer.
 */
-
+#ifndef QT_LITE_COMPONENT
 class QLibrary::QLibraryPrivate : public QObject
 {
     Q_OBJECT
-
 public:
     QLibraryPrivate( QLibrary *lib )
-	: QObject( 0, lib->library().latin1() ), pHnd( 0 ), library( lib ), unloadTimer( 0 )
+	: QObject( 0, lib->library().latin1() ), pHnd( 0 ), unloadTimer( 0 ), library( lib )
     {}
-
+#else
+class QLibrary::QLibraryPrivate 
+{
+public:
+    QLibraryPrivate( QLibrary *lib )
+	: pHnd( 0 ), library( lib )
+    {}
+#endif
     void startTimer()
     {
+#ifndef QT_LITE_COMPONENT
 	unloadTimer = new QTimer( this );
 	connect( unloadTimer, SIGNAL( timeout() ), this, SLOT( tryUnload() ) );
 	unloadTimer->start( 5000, FALSE );
+#endif
     }
 
     void killTimer()
     {
+#ifndef QT_LITE_COMPONENT
 	delete unloadTimer;
 	unloadTimer = 0;
+#endif
     }
 
 #ifdef Q_WS_WIN
@@ -79,7 +91,7 @@ public:
 #else
     void *pHnd;
 #endif
-
+#ifndef QT_LITE_COMPONENT
 public slots:
     /*
       Only components that implement the QLibraryInterface can 
@@ -109,13 +121,14 @@ public slots:
     #endif
     }
 
-private:
+    QTimer *unloadTimer;
+#endif
 
     QLibrary *library;
-    QTimer *unloadTimer;
 };
-
+#ifndef QT_LITE_COMPONENT
 #include "qlibrary.moc"
+#endif
 
 /*
   The platform dependent implementations of
@@ -341,7 +354,7 @@ static void* qt_resolve_symbol( void* handle, const char* f )
   \class QLibrary qlibrary.h
 
   \brief The QLibrary class provides a wrapper for library loading and unloading.
-  \ingroup component
+  \ingroup componentmodel
 */
 
 /*!

@@ -4,11 +4,11 @@ OBJS=project.obj main.obj makefile.obj unixmake.obj borland_bmake.obj msvc_nmake
 
 #qt code
 QTOBJS=qstring.obj qtextstream.obj qiodevice.obj qglobal.obj qgdict.obj qcstring.obj qdatastream.obj qgarray.obj qbuffer.obj \
-	qglist.obj qcollection.obj qfile.obj qfile_win.obj qtextcodec.obj qregexp.obj qgvector.obj qgcache.obj qbitarray.obj \
-	qdir.obj qfileinfo_win.obj qdir_win.obj qfileinfo.obj qdatetime.obj qstringlist.obj qmap.obj
+	qglist.obj qcollection.obj qfile.obj qfile_win.obj qregexp.obj qgvector.obj qgcache.obj qbitarray.obj \
+	qdir.obj qfileinfo_win.obj qdir_win.obj qfileinfo.obj qdatetime.obj qstringlist.obj qmap.obj qlibrary.obj qtextcodec.obj
 
 CFLAGS=/W3 /Zi /nologo /I. /Igenerators /Igenerators\unix /Igenerators\win32  /I$(QTDIR)\include /I$(QTDIR)\src\tools \
-	/DQT_NO_CODECS /DQT_NO_COMPONENT /DQT_NODLL /DUSE_GROSS_BIG_BUFFER_THING
+	/DQT_NO_CODECS /DQT_LITE_COMPONENT /DQT_NODLL /DUSE_GROSS_BIG_BUFFER_THING
 LFLAGS=/DEBUG
 LIBS=ole32.lib
 
@@ -96,6 +96,9 @@ qfileinfo.obj: $(QTDIR)\src\tools\qfileinfo.cpp
 
 qdatetime.obj: $(QTDIR)\src\tools\qdatetime.cpp
 	$(CXX) /c /Fo$@ $(CFLAGS) $(QTDIR)\src\tools\qdatetime.cpp
+
+qlibrary.obj: $(QTDIR)\src\kernel\qlibrary.cpp
+	$(CXX) /c /Fo$@ $(CFLAGS) $(QTDIR)\src\kernel\qlibrary.cpp
 
 qstringlist.obj: $(QTDIR)\src\tools\qstringlist.cpp
 	$(CXX) /c /Fo$@ $(CFLAGS) $(QTDIR)\src\tools\qstringlist.cpp
