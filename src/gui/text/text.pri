@@ -31,6 +31,7 @@ HEADERS += \
 
 SOURCES += \
 	text/qfont.cpp \
+	text/qfontmetrics.cpp \
 	text/qfontdatabase.cpp \
 	text/qscriptengine.cpp \
 	text/qtextengine.cpp \

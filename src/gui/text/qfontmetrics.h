@@ -26,6 +26,7 @@ class QFontEngine;
 class QTextCodec;
 class QRect;
 
+
 class Q_GUI_EXPORT QFontMetrics
 {
 public:
@@ -72,8 +73,6 @@ public:
     bool operator==(const QFontMetrics &other);
     inline bool operator !=(const QFontMetrics &other) { return !operator==(other); }
 private:
-    friend class QWidget;
-    friend class QPainter;
 #if defined(Q_WS_MAC)
     friend class QFontPrivate;
 #endif
@@ -82,5 +81,53 @@ private:
     int fscript;
 };
 
+
+class Q_GUI_EXPORT QFontMetricsF
+{
+public:
+    QFontMetricsF(const QFont &);
+    QFontMetricsF(const QFont &, QPaintDevice *pd);
+    QFontMetricsF(const QFont &, QFont::Script);
+    QFontMetricsF(const QFontMetrics &);
+    QFontMetricsF(const QFontMetricsF &);
+    ~QFontMetricsF();
+
+    QFontMetricsF &operator=(const QFontMetricsF &);
+    QFontMetricsF &operator=(const QFontMetrics &);
+
+    float ascent() const;
+    float descent() const;
+    float height() const;
+    float leading() const;
+    float lineSpacing() const;
+    float minLeftBearing() const;
+    float minRightBearing() const;
+    float maxWidth() const;
+
+    bool inFont(QChar) const;
+
+    float leftBearing(QChar) const;
+    float rightBearing(QChar) const;
+    float width(const QString &string) const;
+
+    float width(QChar) const;
+
+    QRectF boundingRect(const QString &string) const;
+    QRectF boundingRect(QChar) const;
+    QRectF boundingRect(const QRectF &r, int flags, const QString& string, int tabstops=0, int *tabarray=0) const;
+    QSizeF size(int flags, const QString& str, int tabstops=0, int *tabarray=0) const;
+
+    float underlinePos() const;
+    float overlinePos() const;
+    float strikeOutPos() const;
+    float lineWidth() const;
+
+    bool operator==(const QFontMetricsF &other);
+    inline bool operator !=(const QFontMetricsF &other) { return !operator==(other); }
+
+private:
+    QFontPrivate  *d;
+    int fscript;
+};
 
 #endif // QFONTMETRICS_H

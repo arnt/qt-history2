@@ -184,22 +184,6 @@ void QFontPrivate::load(QFont::Script)
   QFontMetrics member functions
  *****************************************************************************/
 
-int QFontMetrics::leftBearing(QChar ch) const
-{
-    QFontEngine *engine = d->engineForScript(QFont::NoScript);
-    return 0;// #################(memorymanager->lockGlyphMetrics(engine->handle(), ch.unicode())->bearingx*engine->scale)>>8;
-}
-
-
-int QFontMetrics::rightBearing(QChar ch) const
-{
-    QFontEngine *engine = d->engineForScript(QFont::NoScript);
-    return 0;
-    // ##########3
-//     QGlyphMetrics *metrics = memorymanager->lockGlyphMetrics(engine->handle(), ch.unicode());
-//     return ((metrics->advance - metrics->width - metrics->bearingx)*engine->scale)>>8;
-}
-
 int QFontMetrics::charWidth(const QString &str, int pos) const
 {
     if (pos < 0 || pos > (int)str.length())
@@ -232,34 +216,5 @@ int QFontMetrics::charWidth(const QString &str, int pos) const
         width = glyphs[0].advance.x();
     }
     return qRound(width);
-}
-
-int QFontMetrics::width(QChar ch) const
-{
-    if (::category(ch) == QChar::Mark_NonSpacing)
-        return 0;
-
-    QFont::Script script;
-    SCRIPT_FOR_CHAR(script, ch);
-
-    QFontEngine *engine = d->engineForScript(script);
-    Q_ASSERT(engine != 0);
-
-    QGlyphLayout glyphs[8];
-    int nglyphs = 7;
-    engine->stringToCMap(&ch, 1, glyphs, &nglyphs, 0);
-    return qRound(glyphs[0].advance.x());
-}
-
-
-/*!
-    \overload
-
-    Returns the bounding rectangle that contains the first \a len
-    characters of string \a str.
-*/
-QRect QFontMetrics::boundingRect(const QString &str, int len) const
-{
-    return QRect(0,-(ascent()),width(str,len),height());
 }
 

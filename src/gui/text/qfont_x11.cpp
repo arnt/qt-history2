@@ -568,23 +568,6 @@ QString QFont::lastResortFont() const
 // QFontMetrics member methods
 // **********************************************************************
 
-int QFontMetrics::width(QChar ch) const
-{
-    if (::category(ch) == QChar::Mark_NonSpacing)
-        return 0;
-
-    QFont::Script script;
-    SCRIPT_FOR_CHAR(script, ch);
-
-    QFontEngine *engine = d->engineForScript(script);
-    Q_ASSERT(engine != 0);
-
-    QGlyphLayout glyphs[8];
-    int nglyphs = 7;
-    engine->stringToCMap(&ch, 1, glyphs, &nglyphs, 0);
-    return qRound(glyphs[0].advance.x());
-}
-
 
 int QFontMetrics::charWidth(const QString &str, int pos) const
 {

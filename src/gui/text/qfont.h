@@ -286,6 +286,7 @@ private:
     int deciPointSize() const;
 
     friend class QFontMetrics;
+    friend class QFontMetricsF;
     friend class QFontInfo;
     friend class QPainter;
     friend class QPSPrintEngineFont;

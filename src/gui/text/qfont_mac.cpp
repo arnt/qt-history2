@@ -32,30 +32,20 @@ QFont::Script QFontPrivate::defaultScript = QFont::UnknownScript;
 int qt_mac_pixelsize(const QFontDef &def, int dpi)
 {
     float ret;
-    if(def.pixelSize == -1) 
+    if(def.pixelSize == -1)
         ret = def.pointSize *  dpi / 720.;
-    else 
+    else
         ret = def.pixelSize;
     return qRound(ret);
 }
 int qt_mac_pointsize(const QFontDef &def, int dpi)
 {
     float ret;
-    if(def.pointSize == -1) 
+    if(def.pointSize == -1)
         ret = def.pixelSize * 720. / float(dpi);
-    else 
+    else
         ret = def.pointSize;
     return qRound(ret);
-}
-
-/* Qt platform dependent functions */
-int QFontMetrics::width(QChar c) const
-{
-    QFontEngine *engine = d->engineForScript((QFont::Script)fscript);
-    Q_ASSERT(engine != 0);
-    Q_ASSERT(engine->type() == QFontEngine::Mac);
-    return ((QFontEngineMac*) engine)->doTextTask(&c, 0, 1, 1,
-                                                  QFontEngineMac::WIDTH);
 }
 
 int QFontMetrics::charWidth(const QString &str, int pos) const
