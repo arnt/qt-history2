@@ -101,8 +101,13 @@ public:
 	    DeleteMenu(GetMenuID(apple_menu));
 	    DisposeMenu(apple_menu);
 	}
-	while (!popups.isEmpty())
-	    delete popups.takeFirst();
+	QHash<int, PopupBinding*>::ConstIterator it = popups.constBegin();
+	while (it != popups.constEnd()) {
+	    PopupBinding *val = it.value();
+	    delete val;
+	    ++it;
+	}
+	popups.clear();
 	commands.clear();
 	if (mac_menubar) {
 	    DisposeMenuBar(mac_menubar);

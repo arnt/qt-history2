@@ -1020,9 +1020,9 @@ void qt_cleanup()
 	}
     }
     if(qt_mac_tsm_hash) {
-	QHash<Qt::HANDLE, QTSMDocumentWrapper *>::Iterator it = qt_mac_tsm_hash->begin();
+	QHash<Qt::HANDLE, QTSMDocumentWrapper *>::ConstIterator it = qt_mac_tsm_hash->constBegin();
 	while (it != qt_mac_tsm_hash->end()) {
-	    QTSMDocumentWrapper *val = qt_mac_tsm_hash->take(it.key());
+	    QTSMDocumentWrapper *val = it.value();
 	    delete val;
 	    ++it;
 	}
