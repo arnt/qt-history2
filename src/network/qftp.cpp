@@ -1405,6 +1405,17 @@ QFtp::QFtp(QObject *parent, const char *name)
     data.
 */
 /*!
+    \enum QFtp::TransferType
+
+    This enum identifies the data transfer type used with get and
+    put commands.
+
+    \value Binary The data will be transferred in Binary mode.
+
+    \value Ascii The data will be transferred in Ascii mode and new line 
+    characters will be converted to the local format.
+*/
+/*!
     \enum QFtp::Error
 
     This enum identifies the error that occurred.
@@ -1727,6 +1738,9 @@ int QFtp::cd(const QString &dir)
     commandFinished() signal and read the data when the get() command
     is finished.
 
+    The data is transferred as Binary or Ascii depending on the value
+    of \a type.
+
     The function does not block and returns immediately. The command
     is scheduled, and its execution is performed asynchronously. The
     function returns a unique identifier which is passed by
@@ -1739,11 +1753,14 @@ int QFtp::cd(const QString &dir)
     \sa readyRead() dataTransferProgress() commandStarted()
     commandFinished()
 */
-int QFtp::get(const QString &file, QIODevice *dev)
+int QFtp::get(const QString &file, QIODevice *dev, TransferType type)
 {
     QStringList cmds;
     cmds << ("SIZE " + file + "\r\n");
-    cmds << "TYPE I\r\n";
+    if (type == Binary)
+        cmds << "TYPE I\r\n";
+    else
+        cmds << "TYPE A\r\n";
     cmds << (d->transferMode == Passive ? "PASV\r\n" : "PORT\r\n");
     cmds << ("RETR " + file + "\r\n");
     return d->addCommand(new QFtpCommand(Get, cmds, dev));
@@ -1756,6 +1773,9 @@ int QFtp::get(const QString &file, QIODevice *dev)
     The progress of the upload is reported by the
     dataTransferProgress() signal.
 
+    The data is transferred as Binary or Ascii depending on the value
+    of \a type.
+
     The function does not block and returns immediately. The command
     is scheduled, and its execution is performed asynchronously. The
     function returns a unique identifier which is passed by
@@ -1767,10 +1787,13 @@ int QFtp::get(const QString &file, QIODevice *dev)
 
     \sa dataTransferProgress() commandStarted() commandFinished()
 */
-int QFtp::put(const QByteArray &data, const QString &file)
+int QFtp::put(const QByteArray &data, const QString &file, TransferType type)
 {
     QStringList cmds;
-    cmds << "TYPE I\r\n";
+    if (type == Binary)
+        cmds << "TYPE I\r\n";
+    else
+        cmds << "TYPE A\r\n";
     cmds << (d->transferMode == Passive ? "PASV\r\n" : "PORT\r\n");
     cmds << ("ALLO " + QString::number(data.size()) + "\r\n");
     cmds << ("STOR " + file + "\r\n");
@@ -1784,14 +1807,20 @@ int QFtp::put(const QByteArray &data, const QString &file)
     amounts of data without the need to read all the data into memory
     at once.
 
+    The data is transferred as Binary or Ascii depending on the value
+    of \a type.
+
     Make sure that the \a dev pointer is valid for the duration of the
     operation (it is safe to delete it when the commandFinished() is
     emitted).
 */
-int QFtp::put(QIODevice *dev, const QString &file)
+int QFtp::put(QIODevice *dev, const QString &file, TransferType type)
 {
     QStringList cmds;
-    cmds << "TYPE I\r\n";
+    if (type == Binary)
+        cmds << "TYPE I\r\n";
+    else
+        cmds << "TYPE A\r\n";
     cmds << (d->transferMode == Passive ? "PASV\r\n" : "PORT\r\n");
     if (!dev->isSequential())
         cmds << ("ALLO " + QString::number(dev->size()) + "\r\n");

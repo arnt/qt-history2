@@ -66,6 +66,10 @@ public:
         Active,
         Passive
     };
+    enum TransferType {
+        Binary,
+        Ascii
+    };
 
     int setProxy(const QString &host, Q_UINT16 port);
     int connectToHost(const QString &host, Q_UINT16 port=21);
@@ -74,9 +78,9 @@ public:
     int setTransferMode(TransferMode mode);
     int list(const QString &dir = QString());
     int cd(const QString &dir);
-    int get(const QString &file, QIODevice *dev=0);
-    int put(const QByteArray &data, const QString &file);
-    int put(QIODevice *dev, const QString &file);
+    int get(const QString &file, QIODevice *dev=0, TransferType type = Binary);
+    int put(const QByteArray &data, const QString &file, TransferType type = Binary);
+    int put(QIODevice *dev, const QString &file, TransferType type = Binary);
     int remove(const QString &file);
     int mkdir(const QString &dir);
     int rmdir(const QString &dir);
