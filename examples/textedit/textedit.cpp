@@ -508,8 +508,8 @@ void TextEdit::editorChanged()
         disconnect(currentEditor->document(), SIGNAL(redoAvailable(bool)),
                    actionRedo, SLOT(setEnabled(bool)));
 
-        disconnect(actionUndo, SIGNAL(triggered()), currentEditor, SLOT(undo()));
-        disconnect(actionRedo, SIGNAL(triggered()), currentEditor, SLOT(redo()));
+        disconnect(actionUndo, SIGNAL(triggered()), currentEditor->document(), SLOT(undo()));
+        disconnect(actionRedo, SIGNAL(triggered()), currentEditor->document(), SLOT(redo()));
 
         disconnect(actionCut, SIGNAL(triggered()), currentEditor, SLOT(cut()));
         disconnect(actionCopy, SIGNAL(triggered()), currentEditor, SLOT(copy()));
@@ -534,8 +534,8 @@ void TextEdit::editorChanged()
     actionUndo->setEnabled(currentEditor->document()->isUndoAvailable());
     actionRedo->setEnabled(currentEditor->document()->isRedoAvailable());
 
-    connect(actionUndo, SIGNAL(triggered()), currentEditor, SLOT(undo()));
-    connect(actionRedo, SIGNAL(triggered()), currentEditor, SLOT(redo()));
+    connect(actionUndo, SIGNAL(triggered()), currentEditor->document(), SLOT(undo()));
+    connect(actionRedo, SIGNAL(triggered()), currentEditor->document(), SLOT(redo()));
 
     const bool selection = currentEditor->cursor().hasSelection();
     actionCut->setEnabled(selection);
