@@ -127,5 +127,9 @@ const q_scriptEngine scriptEngines[] = {
     //Tagbanwa,
     { basic_shape, basic_attributes },
     // KatakanaHalfWidth
+    { basic_shape, basic_attributes },
+    // Limbu
+    { basic_shape, basic_attributes },
+    // TaiLe
     { basic_shape, basic_attributes }
 };

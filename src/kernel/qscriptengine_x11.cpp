@@ -2296,6 +2296,13 @@ static void khmer_shape_syllable( const QString &string, int from, int syllableL
 	memcpy( reordered, string.unicode() + from, len*sizeof(unsigned short) );
     }
 
+#ifdef KHMER_DEBUG
+    KHDEBUG("original:");
+    for (i = 0; i < len; i++) {
+	KHDEBUG("    %d: %4x", i, reordered[i]);
+    }
+#endif
+
     if (len > 1) {
 	// rule 2, move COENG+Ro to front
 	for (i = 1; i < 4 && i < len-1; i += 2) {
@@ -2329,27 +2336,46 @@ static void khmer_shape_syllable( const QString &string, int from, int syllableL
 	}
 
 	// Rule 4 and 5
+	// The Uniscribe docs state that the feature to apply should be Abvf even for post
+	// vowels. This is clearly incorrect (comparing with how fonts are build up and how
+	// Uniscribe behaves).
 	for (i = 1; i < len; ++i) {
 	    if (khmer_subscript_type(reordered[i]) == 0xff) {
 		KHDEBUG("split vowel at %d", i);
-		// ### Could be post form for some, but this is what the Uniscribe docs state.
-		properties[i] = AboveForm;
+		properties[i] = (khmer_form(reordered[i]) == Khmer_AbvV) ? AboveForm : PostForm;
 		memmove(reordered+1, reordered, len*sizeof(unsigned short));
 		memmove(properties+1, properties, len*sizeof(unsigned char));
-		*reordered = VowelSignE;
+		reordered[0] = VowelSignE;
+		properties[0] = PreForm;
 		++len;
 		++i;
 	    }
 	}
+
+	// rule not stated in the MS docs about Khmer, but it's logical to do this (in accordance to
+	// all indic scripts) and Uniscribe seems to work the same way:
+	// Move Pre Vowels to the beginning of the syllable
+	for (i = len-1; i > 0; --i) {
+	    if (khmer_form(reordered[i]) == Khmer_PreV) {
+		KHDEBUG("moving Pre Vowel at %d to start", i);
+		unsigned short pre = reordered[i];
+		memmove(reordered+1, reordered, i*sizeof(unsigned short));
+		memmove(properties+1, properties, i*sizeof(unsigned char));
+		reordered[0] = pre;
+		properties[0] = PreForm;
+		break;
+	    }
+	}
+
     }
 
-    KHDEBUG("length after shaping %d", len);
+    KHDEBUG("after shaping: len=%d", len);
     for (i = 0; i < len; i++) {
 	glyphs[i].attributes.mark = FALSE;
 	glyphs[i].attributes.clusterStart = FALSE;
 	glyphs[i].attributes.justification = 0;
 	glyphs[i].attributes.zeroWidth = FALSE;
-	IDEBUG("    %d: %4x", i, reordered[i]);
+	KHDEBUG("    %d: %4x property=%x", i, reordered[i], properties[i]);
     }
     glyphs[0].attributes.clusterStart = TRUE;
 
@@ -2383,7 +2409,7 @@ static void khmer_shape_syllable( const QString &string, int from, int syllableL
 	    { FT_MAKE_TAG( 'a', 'b', 'v', 'f' ), AboveForm },
 	    { FT_MAKE_TAG( 'p', 's', 't', 'f' ), PostForm }
 	};
-	for (j = 0; j < 3; ++j) {
+	for (j = 0; j < 4; ++j) {
 	    for (i = 0; i < len; ++i)
 		where[i] = (properties[i] & features[j].form);
 	    openType->applyGSUBFeature(features[j].feature, where);
@@ -2912,5 +2938,9 @@ const q_scriptEngine scriptEngines[] = {
     //Tagbanwa,
     { basic_shape, basic_attributes },
     // KatakanaHalfWidth
+    { basic_shape, basic_attributes },
+    // Limbu
+    { basic_shape, basic_attributes },
+    // TaiLe
     { basic_shape, basic_attributes }
 };
