@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.h#19 $
+** $Id: //depot/qt/main/src/kernel/qobject.h#20 $
 **
 ** Definition of QObject class
 **
@@ -38,6 +38,7 @@ public:
     const char *name()		  const { return (const char *)objname; }
     void	setName( const char *name );
     bool	isWidgetType()	  const { return isWidget; }
+    bool	highPriority()	  const { return hiPriority; }
 
     bool	signalsBlocked()  const { return blockSig; }
     void	blockSignals( bool b );
