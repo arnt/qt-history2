@@ -26,41 +26,41 @@
 
     \section1 Dragging
 
-    To start a drag, for example in a \link QWidget::mouseMoveEvent()
-    mouse motion event\endlink, create a QDrag object, and call its
+    To start a drag, create a QDrag object, and call its
     start() function. This is all you need to enable simple dragging
     from widgets.
 
-    For example, to start dragging some text from a widget:
-    \quotefromfile snippets/dragging/window.cpp
+    For example, to start dragging some text from a custom text editor widget,
+    we can reimplement the widget's \l{QWidget::mousePressEvent()}{mousePressEvent()}
+    function to record to start position of the drag:
+
+    \quotefromfile snippets/dragging/mainwindow.cpp
     \skipto mousePressEvent
-    \skipto QDrag
+    \printuntil /^\}/
+
+    Later, in \l{QWidget::mouseMoveEvent()}{mouseMoveEvent()}, we can determine
+    whether a drag should begin, and construct a drag object to handle the
+    operation:
+
+    \quotefromfile snippets/dragging/mainwindow.cpp
+    \skipto mousePressEvent
+    \printuntil setPixmap
+    \skipto drag->start()
     \printuntil drag->start()
+    \skipto /^\}/
+    \printuntil /^\}/
 
     Although the user may take some time to complete the dragging operation,
     as far as the application is concerned the start() function returns
     immediately with \l{QDrag::DropActions}{one of several values}. These
     indicate how the operation ended, and are described in more detail below.
 
+    \section1 Dropping
+
     To be able to receive media dropped on a widget, call
     \l{QWidget::setAcceptDrops()}{setAcceptDrops(true)} for the widget
-    (e.g. in its constructor), and override the event handler methods.
-
-    It is possible to enable drops in an entire widget by implementing only
-    \l{QWidget::dragEnterEvent()}{dragEnterEvent()} and
-    \l{QWidget::dropEvent()}{dropEvent()}. The dragEnterEvent() function
-    is typically used to inform Qt about the types of data that the widget
-    accepts; the dropEvent() is used to unpack dropped data and handle it
-    in way that is suitable for your application.
-
-    For more sophisticated applications, reimplementing
-    \l{QWidget::dragMoveEvent()}{dragMoveEvent()} and
-    \l{QWidget::dragLeaveEvent()}{dragLeaveEvent()} will let you make
-    certain parts of your widgets sensitive to drops, and give you more
-    control over drag and drop in your application.
-
-    For example, to accept drops, we enable this feature in a widget's
-    constructor:
+    and override the event handler methods. For example, the following code
+    enables drop events in the constructor of a QWidget subclass:
 
     \quotefromfile snippets/dropevents/window.cpp
     \skipto Window::Window
@@ -70,24 +70,101 @@
     \skipto /^\}/
     \printuntil /^\}/
 
-    We reimplement dragEnterEvent() to indicate that we can only handle
-    plain text:
+    It is possible to enable drops in an entire widget by implementing only
+    \l{QWidget::dragEnterEvent()}{dragEnterEvent()} and
+    \l{QWidget::dropEvent()}{dropEvent()}. The dragEnterEvent() function
+    is typically used to inform Qt about the types of data that the widget
+    accepts; the dropEvent() is used to unpack dropped data and handle it
+    in way that is suitable for your application.
+
+    The following code shows how dragEnterEvent() can be reimplemented to
+    tell the drag and drop system that we can only handle plain text:
 
     \skipto dragEnterEvent
     \printuntil /^\}/
 
-    void MyWidget::dropEvent(QDropEvent* event)
-    {
-        QImage image;
-        QString text;
+    The dropEvent() writes the text from the event to a QTextBrowser and
+    fills a QComboBox with the list of MIME types that are used to describe
+    the data:
 
-        if (QImageDrag::decode(event, image)) {
-	    insertImageAt(image, event->pos());
-        } else if (QTextDrag::decode(event, text)) {
-	    insertTextAt(text, event->pos());
-        }
-    }
-    \endcode
+    \skipto dropEvent
+    \printuntil /^\}/
+
+    In this case, we accept the proposed action without checking what it is.
+    In a real world application, it may be necessary to return from the
+    dropEvent() function without accepting the proposed action or handling
+    the data if the action is not relevant. For example, we may choose to
+    ignore \l{QDrag::DropAction}{LinkAction} actions if we do not support
+    links to external sources in our application.
+    We may also ignore the proposed action, and perform some other action on
+    the data. To do this, we would call the event object's
+    \l{QDropEvent::setDropAction()}{setDropAction()} with the preferred
+    action from \l QDrag::DropAction.
+
+    For more sophisticated applications, reimplementing
+    \l{QWidget::dragMoveEvent()}{dragMoveEvent()} and
+    \l{QWidget::dragLeaveEvent()}{dragLeaveEvent()} will let you make
+    certain parts of your widgets sensitive to drop events, and give you more
+    control over drag and drop in your application.
+
+    \section1 Drag and Drop Actions
+
+    In the simplest case, the target of a drag and drop action receives a
+    copy of the data being dragged, and the source decides whether to
+    delete the original. This is described by the \c CopyAction action.
+    The target may also choose to handle other actions, specifically the
+    \c MoveAction and \c LinkAction actions. If the source calls
+    QDrag::start(), and it returns \c MoveAction, the source is responsible
+    for deleting any original data if it chooses to do so. The QMimeData
+    and QDrag objects created by the source widget \e{should not be deleted}
+    - they will be destroyed by Qt. The target is responsible for taking
+    ownership of the data sent in the drag and drop operation; this is
+    usually done by keeping references to the data.
+
+    If the target understands the \c LinkAction action, it should store its
+    own reference to the original information; the source does not need to
+    perform any further processing on the data. The most common use of drag
+    and drop actions is when performing a Move within the same widget: see
+    the \link #advanced Advanced Drag and Drop\endlink section below.
+
+    The other major use of drag actions is when using a reference type
+    such as text/uri-list, where the dragged data are actually references
+    to files or objects.
+
+    \section1 Adding New Drag and Drop Types
+
+    Drag and drop is not limited to text and images. Any type of information
+    can be transferred in a drag and drop operation. To drag information
+    between applications, the applications must be able to indicate to each
+    other which data formats they can accept and which they can produce.
+    This is achieved using
+    \l{http://www.rfc-editor.org/rfc/rfc1341.txt}{MIME types}. The QDrag
+    object constructed by the source contains a list of MIME types that it
+    uses to represent the data (ordered from most appropriate to least
+    appropriate), and the drop target uses one of these to access the data.
+    For common data types, the convenience functions handle the MIME types
+    used transparently but, for custom data types, it is necessary to
+    state them explicitly.
+
+    To implement drag and drop actions for a type of information that is
+    not covered by the QDrag convenience functions, the first and most
+    important step is to look for existing formats that are appropriate:
+    The Internet Assigned Numbers Authority (\l{http://www.iana.org}{IANA})
+    provides a
+    \l{http://www.iana.org/assignments/media-types/}{hierarchical
+    list of MIME media types} at the Information Sciences Institute
+    (\l{http://www.isi.edu}{ISI}).
+    Using standard MIME types maximizes the interoperability of
+    your application with other software now and in the future.
+
+    To support an additional media type, simply set the data in the QMimeData
+    object with the \l{QMimeData::setData()}{setData()} function, supplying
+    the full MIME type and a QByteArray containing the data in the appropriate
+    format.
+
+    \omit
+    ### Include an example here.
+    \endomit
 
     \section1 The Clipboard
 
@@ -107,14 +184,14 @@
     void MyWidget::copy()
     {
         QApplication::clipboard()->setData(
-	    new QTextDrag(myHighlightedText()));
+            new QTextDrag(myHighlightedText()));
     }
 
     void MyWidget::paste()
     {
         QString text;
         if (QTextDrag::decode(QApplication::clipboard()->data(), text))
-	    insertText(text);
+            insertText(text);
     }
     \endcode
     You can even use QDragObject subclasses as part of file IO. For
@@ -126,8 +203,8 @@
     {
         QFile out(current_file_name);
         if (out.open(IO_WriteOnly)) {
-	    MyCadDrag tmp(current_design);
-	    out.writeBlock(tmp->encodedData("image/x-dxf"));
+            MyCadDrag tmp(current_design);
+            out.writeBlock(tmp->encodedData("image/x-dxf"));
         }
     }
 
@@ -135,94 +212,17 @@
     {
         QFile in(current_file_name);
         if (in.open(IO_ReadOnly)) {
-	    if (!MyCadDrag::decode(in.readAll(), current_design)) {
-	        QMessageBox::warning(this, "Format error",
-		    tr("The file \"%1\" is not in any supported format")
+            if (!MyCadDrag::decode(in.readAll(), current_design)) {
+                QMessageBox::warning(this, "Format error",
+                    tr("The file \"%1\" is not in any supported format")
                     .arg(current_file_name));
-	    }
+            }
         }
     }
     \endcode
     Note how the QDragObject subclass is called "MyCadDrag", not
     "MyDxfDrag": because in the future you might extend it to provide
     DXF, DWG, SVF, WMF, or even QPicture data to other applications.
-
-    \section1 Drag and Drop Actions
-
-    In the simpler cases, the target of a drag and drop action
-    receives a copy of the data being dragged, and the source
-    decides whether to delete the original. This is the "Copy"
-    action in QDropEvent. The target may also choose to understand
-    other actions, specifically the Move and Link actions. If the
-    target understands the Move action, \e{the target} is
-    responsible for both the copy and delete operations, and
-    the source will not attempt to delete the data itself. If the
-    target understands the Link, it stores its own reference to
-    the original information, and again the source does not delete
-    the original. The most common use of drag and drop actions is
-    when performing a Move within the same widget: see the
-    \link #advanced Advanced Drag and Drop\endlink section below.
-
-    The other major use of drag actions is when using a reference type
-    such as text/uri-list, where the dragged data are actually references
-    to files or objects.
-
-    \section1 Adding New Drag and Drop Types
-
-    As suggested in the DXF example above, drag and drop is not limited to
-    text and images. Any information can be dragged and dropped. To drag
-    information between applications, the applications must be able to
-    indicate to each other which data formats they can accept and which
-    they can produce. This is achieved using \link
-    http://www.rfc-editor.org/rfc/rfc1341.txt MIME types\endlink: the drag
-    source provides a list of MIME types that it can produce (ordered from
-    most appropriate to least appropriate), and the drop target chooses
-    which of those it can accept. For example, QTextDrag provides support
-    for the "\c{text/plain}" MIME type (ordinary unformatted text), and
-    the Unicode formats "\c{text/utf16}" and "\c{text/utf8}"; QImageDrag
-    provides for "\c{image/*}", where \c{*} is any image format that
-    \l QImageIO supports; and the QUriDrag subclass provides
-    "\c{text/uri-list}", a standard format for transferring a list of
-    filenames (or URLs).
-
-    To implement drag and drop actions for a type of information
-    with no available QDragObject subclass, the first and most
-    important step is to look for existing formats that are
-    appropriate: the Internet Assigned Numbers Authority
-    (\link http://www.iana.org IANA\endlink) provides a
-    \link http://www.isi.edu/in-notes/iana/assignments/media-types/
-    hierarchical list of MIME media types\endlink at the Information
-    Sciences Institute (\link http://www.isi.edu ISI\endlink).
-    Using standard MIME types maximizes the interoperability of
-    your application with other software now and in the future.
-
-    To support an additional media type, subclass either QDragObject or
-    QStoredDrag. Subclass QDragObject when you need to provide support for
-    multiple media types. Subclass the simpler QStoredDrag when one type
-    is sufficient.
-
-    Subclasses of QDragObject will override the
-    \link QDragObject::format()
-    const char* format(int i) const
-    \endlink and
-    \link QDragObject::encodedData()
-    QByteArray encodedData(const char* mimetype) const
-    \endlink
-    members, and provide a set-method to encode the media data and static
-    members canDecode() and decode() to decode incoming data, similar to
-    \link QImageDrag::canDecode()
-    bool canDecode(QMimeSource*) const
-    \endlink and
-    \link QImageDrag::decode()
-    QByteArray decode(QMimeSource*) const
-    \endlink
-    of QImageDrag.
-    Of course, you can provide drag-only or drop-only support for a media
-    type by omitting some of these methods.
-
-    Subclasses of QStoredDrag provide a set-method to encode the media
-    data and the same static members canDecode() and decode() to decode
-    incoming data.
 
     \target advanced
     \section1 Advanced Drag and Drop
@@ -244,7 +244,7 @@
     {
         QDragObject *d = new QTextDrag(myHighlightedText(), this);
         if (d->drag() && d->target() != this)
-	    cutMyHighlightedText();
+            cutMyHighlightedText();
     }
 
     void MyEditor::dropEvent(QDropEvent* event)
@@ -252,13 +252,13 @@
         QString text;
 
         if (QTextDrag::decode(event, text)) {
-	    if (event->source() == this && event->action() == QDropEvent::Move) {
-	        // Careful not to tread on my own feet
-	        event->acceptAction();
-	        moveMyHighlightedTextTo(event->pos());
-	    } else {
-	        pasteTextAt(text, event->pos());
-	    }
+            if (event->source() == this && event->action() == QDropEvent::Move) {
+                // Careful not to tread on my own feet
+                event->acceptAction();
+                moveMyHighlightedTextTo(event->pos());
+            } else {
+                pasteTextAt(text, event->pos());
+            }
         }
     }
     \endcode
@@ -272,9 +272,9 @@
     void MyWidget::dragMoveEvent(QDragMoveEvent* event)
     {
         if (QTextDrag::canDecode(event)) {
-	    MyCadItem *item = findMyItemAt(event->pos());
-	    if (item)
-	        event->accept();
+            MyCadItem *item = findMyItemAt(event->pos());
+            if (item)
+                 event->accept();
         }
     }
     \endcode
@@ -285,14 +285,14 @@
     void MyWidget::dragMoveEvent(QDragMoveEvent* event)
     {
         if (QTextDrag::canDecode(event)) {
-	    MyCadItem* item = findMyItemAt(event->pos());
-	    if (item) {
-	        QRect r = item->areaRelativeToMeClippedByAnythingInTheWay();
-	        if (item->type() == MyTextType)
-		    event->accept(r);
-	        else
-		    event->ignore(r);
-	    }
+            MyCadItem* item = findMyItemAt(event->pos());
+            if (item) {
+                QRect r = item->areaRelativeToMeClippedByAnythingInTheWay();
+                if (item->type() == MyTextType)
+                    event->accept(r);
+                else
+                    event->ignore(r);
+            }
         }
     }
     \endcode
