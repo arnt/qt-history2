@@ -156,9 +156,15 @@ private:
 
 private:
     static bool s_initialized;
-    static scan_fun_ptr s_scan_table[128 + 1];
-    static int s_attr_table[256];
-    static scan_fun_ptr s_scan_keyword_table[16 + 1];
+    
+    static const int s_scan_table_size = 128 + 1;
+    static scan_fun_ptr s_scan_table[s_scan_table_size];
+    
+    static const int s_attr_table_size = 256;
+    static int s_attr_table[s_attr_table_size];
+    
+    static const int s_scan_keyword_table_size = 16 + 1;
+    static scan_fun_ptr s_scan_keyword_table[s_scan_keyword_table_size];
 
     QByteArray m_contents;
     const char *m_buffer;

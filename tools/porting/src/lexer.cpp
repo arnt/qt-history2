@@ -21,10 +21,10 @@
 static QHash<QByteArray, bool> preprocessed;
 
 bool Lexer::s_initialized = false;
-scan_fun_ptr Lexer::s_scan_table[];
-int Lexer::s_attr_table[];
+scan_fun_ptr Lexer::s_scan_table[s_scan_table_size];
+int Lexer::s_attr_table[s_attr_table_size];
 
-scan_fun_ptr Lexer::s_scan_keyword_table[] = {
+scan_fun_ptr Lexer::s_scan_keyword_table[s_scan_keyword_table_size] = {
     &Lexer::scanKeyword0, &Lexer::scanKeyword0, &Lexer::scanKeyword2, &Lexer::scanKeyword3,
     &Lexer::scanKeyword4, &Lexer::scanKeyword5, &Lexer::scanKeyword6, &Lexer::scanKeyword7,
     &Lexer::scanKeyword8, &Lexer::scanKeyword9, &Lexer::scanKeyword10, &Lexer::scanKeyword11,
