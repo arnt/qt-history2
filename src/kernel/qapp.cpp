@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp.cpp#45 $
+** $Id: //depot/qt/main/src/kernel/qapp.cpp#46 $
 **
 ** Implementation of QApplication class
 **
@@ -17,7 +17,7 @@
 #include "qpalette.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qapp.cpp#45 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qapp.cpp#46 $";
 #endif
 
 
@@ -776,7 +776,7 @@ Here are the main features of Qt:
 Frequently Asked Questions
 </h1>
 
-Here is this week's top ten Qt questions:
+Here is this week's top eleven Qt questions:
 <ol>
 <li>Q: Does there exist a FAQ for Qt? <p>
     A: This shouldn't be a FAQ any more, so naturally this answer won't be
@@ -784,7 +784,7 @@ Here is this week's top ten Qt questions:
 <li>Q: Will Qt continue to be free? <p>
     A: We will continue to release binary versions for linux, and they will
        be free for non-commercial purposes.  The source, and other versions
-       and linux, will not be free. <p>
+       than for linux, will not be free. <p>
        The commercial versions of Qt will include the source code.
 <li>Q: What other versions of Qt exist/are planned? <p>
     A: We're working on versions for several other version of Unix, Windows
@@ -812,9 +812,16 @@ Here is this week's top ten Qt questions:
 <li>Q: I have (linker, compiler) errors. <p>
     A: gcc 2.5.8 will not work with Qt.  You need libc 4.6.27 at the
        very least, 4.7 is recommended.  We use gcc 2.6.2, 2.6.3 and
-       2.7.0; all work.  Linker problems are probably due to a too-old
-       version of binutils, but we don't know exactly which version is
-       the oldest working.
+       2.7.0; all work. <p>
+       If you use gcc 2.6, binutils 2.5.2.6 is recommended.  If you use
+       gcc 2.7, binutils 2.5.2l.17 or later is recommended. <p>
+       The a.out library in Qt 0.91b will only work with
+       gcc 2.6/binutils 2.5.2.6; we will provide an a.out library for
+       gcc 2.7/binutils 2.5.2l.17 on request.
+<li>Q: Where can I find Qt? <p>
+    A: The latest version of Qt can be downloaded from ftp.nvg.unit.no in
+       /pub/linux/qt or from sunsite.unc.edu in /pub/Linux/devel/c++
+       (or /pub/Linux/Incoming)
 </ol>
 
 */
