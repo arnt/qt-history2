@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmotifstyle.cpp#22 $
+** $Id: //depot/qt/main/src/widgets/qmotifstyle.cpp#23 $
 **
 ** Implementation of Motif-like style class
 **
@@ -614,7 +614,9 @@ void QMotifStyle::scrollBarMetrics( const QScrollBar* sb, int &sliderMin, int &s
 
 /*! \reimp */
 
-void QMotifStyle::drawScrollBarControls( QPainter* p, const QScrollBar* sb, int sliderStart, uint controls, uint activeControl )
+void QMotifStyle::drawScrollBarControls( QPainter* p, const QScrollBar* sb,
+					 int sliderStart, uint controls,
+					 uint activeControl )
 {
 #define ADD_LINE_ACTIVE ( activeControl == AddLine )
 #define SUB_LINE_ACTIVE ( activeControl == SubLine )

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtabwidget.cpp#30 $
+** $Id: //depot/qt/main/src/widgets/qtabwidget.cpp#31 $
 **
 ** Implementation of QTabWidget class
 **
@@ -83,7 +83,7 @@
 */
 
 
-/*! \enum TabPosition
+/*! \enum QTabWidget::TabPosition
 
   This enum type defines where QTabWidget can draw the tab row: <ul>
   <li> \c Top - above the pages

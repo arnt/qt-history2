@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qprogressdialog.cpp#48 $
+** $Id: //depot/qt/main/src/dialogs/qprogressdialog.cpp#49 $
 **
 ** Implementation of QProgressDialog class
 **
@@ -160,21 +160,23 @@ QProgressDialog::QProgressDialog( QWidget *creator, const char *name,
 				  bool modal, WFlags f )
     : QSemiModal( 0, name, modal, f)
 {
-    init( creator, QString::fromLatin1(""),
-	tr("Cancel"), 100 );
+    init( creator, QString::fromLatin1(""), tr("Cancel"), 100 );
 }
 
 /*!
   Constructs a progress dialog.
 
   \arg \e labelText is text telling the user what is progressing.
+
   \arg \e cancelButtonText is the text on the cancel button,
 	    or 0 if no cancel button is to be shown.
+
   \arg \e totalSteps is the total number of steps in the operation of which
     this progress dialog shows the progress.  For example, if the operation
     is to examine 50 files, this value would be 50, then before examining
     the first file, call setProgress(0), and after examining the last file
     call setProgress(50).
+
   \arg \e name, \e modal, and \e f are sent to the
     QSemiModal::QSemiModal() constructor. Note that if \e modal is FALSE (the
     default), you will need to have an event loop proceeding for any

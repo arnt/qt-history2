@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qstyle.h#35 $
+** $Id: //depot/qt/main/src/kernel/qstyle.h#36 $
 **
 ** Definition of QStyle class
 **
@@ -177,7 +177,9 @@ public:
 			 Slider  = 0x40, NoScroll = 0x80 };
 
     virtual void scrollBarMetrics( const QScrollBar*, int&, int&, int&, int&) = 0;
-    virtual void drawScrollBarControls( QPainter*,  const QScrollBar*, int sliderStart, uint controls, uint activeControl ) = 0;
+    virtual void drawScrollBarControls( QPainter*,  const QScrollBar*,
+					int sliderStart, uint controls,
+					uint activeControl ) = 0;
     virtual ScrollControl scrollBarPointOver( const QScrollBar*, int sliderStart, const QPoint& ) = 0;
 
     // sliders

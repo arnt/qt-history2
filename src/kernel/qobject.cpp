@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.cpp#229 $
+** $Id: //depot/qt/main/src/kernel/qobject.cpp#230 $
 **
 ** Implementation of QObject class
 **
@@ -543,16 +543,16 @@ QStringList QObject::superClasses( bool includeThis ) const
   Returns the name of this object. If the object does not have a name,
   it will return "unnamed", so that printf() (used in qDebug()) will
   not be asked to output a null pointer.  If you want a null pointer
-  to be returned for unnamed objects, you can call name(0).
+  to be returned for unnamed objects, you can call name( 0 ).
 
   \code
     qDebug( "MyClass::setPrecision(): (%s) unable to set precision to %f",
 	    name(), newPrecision );
   \endcode
 
-  The object name is set by the constructor or by the setName() function.
-  The object name is not very useful in the current version of Qt, but
-  will become increasingly important in the future.
+  The object name is set by the constructor or by the setName()
+  function.  The object name is not very useful in the current version
+  of Qt, but will become increasingly important in the future.
 
   The queryList() function searches the object tree for objects that
   matches a particular object name.
