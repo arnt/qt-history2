@@ -17,7 +17,7 @@
 
 #include "qwindowsxpstyle.h"
 
-#if !defined(QT_NO_State_WINDOWSXP) || defined(QT_PLUGIN)
+#if !defined(QT_NO_STYLE_WINDOWSXP) || defined(QT_PLUGIN)
 
 //#include <q3menubar.h>
 #include <private/qobject_p.h>
@@ -1288,7 +1288,7 @@ void QWindowsXPStyle::drawControl(ControlElement element, const QStyleOption *op
         return;
 
 #ifdef QT3_SUPPORT
-    case CE_Q3MenuBarItem:
+/*    case CE_Q3MenuBarItem:
         {
             if (option.isDefault())
                 break;
@@ -1303,7 +1303,7 @@ void QWindowsXPStyle::drawControl(ControlElement element, const QStyleOption *op
                      flags & State_Enabled, mi->pixmap() ? *mi->pixmap() : QPixmap(), mi->text(), -1,
                      flags & State_Active ? &pal.highlightedText().color() : &pal.buttonText().color());
         }
-        return;
+        return;*/
 #endif
 
     default:
