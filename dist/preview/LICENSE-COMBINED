@@ -1,6 +1,6 @@
 For individuals and/or legal entities resident in the American
-Continent (including those resident in Canada, South America, and the
-United States of America), the applicable licensing terms are
+Continent (including those resident in Canada, South America, and
+the United States of America), the applicable licensing terms are
 specified under the heading "Technology Preview License Agreement:
 American Continent".
 
@@ -8,19 +8,19 @@ For individuals and/or legal entities not resident in the American
 Continent, the applicable licensing terms are specified under the
 heading "Technology Preview License Agreement: Norway".
 
-  Technology Preview Agreement: American Continent 
+
+  Technology Preview License Agreement: American Continent
   Agreement version 1.0
 
-  IMPORTANT READ CAREFULLY: 
-  
+  IMPORTANT READ CAREFULLY:
   1.	This Trolltech End-User License Agreement ("Agreement") is a
   legal agreement between you (either an individual or a single entity)
   ("Licensee") and Trolltech Inc. for the Trolltech software product(s)
   accompanying this Agreement, which include(s) computer software and may
   include "online" or electronic documentation, associated media, and
   printed materials, including the source code, example programs and the
-  documentation ("Licensed Software"). 
-  
+  documentation ("Licensed Software").
+
   2.	By installing, copying, or otherwise using the Licensed
   Software, Licensee agrees to be bound by the terms of this Agreement. If
   Licensee does not agree to the terms of this Agreement, Licensee may not
@@ -30,25 +30,25 @@ heading "Technology Preview License Agreement: Norway".
   the Licensed Software ("Updates"), Licensee agrees to be bound by any
   additional license terms that accompany such Updates. If Licensee does
   not agree to the additional license terms that accompany such Updates,
-  Licensee may not install, copy, or otherwise use such Updates. 
-  
+  Licensee may not install, copy, or otherwise use such Updates.
+
   3.	The Licensed Software is protected by copyright laws and
   international copyright treaties, as well as other intellectual property
-  laws and treaties. The Licensed Software is licensed, not sold. 
-  
+  laws and treaties. The Licensed Software is licensed, not sold.
+
   4.	Upon Licensee's acceptance of the terms and conditions of this
   Agreement, Trolltech grants Licensee the right to use the Licensed
-  Software in the manner provided below. 
-  
+  Software in the manner provided below.
+
   5.	Trolltech grants to Licensee as an individual a personal,
   nonexclusive, non-transferable, license for the sole purposes of
   evaluating and testing the Licensed Software and/or providing feedback
-  to Trolltech. 
-  
+  to Trolltech.
+
   6.	This Licensed Software is time-limited. All rights granted to
   Licensee in this Agreement will be void three (3) months after
-  Trolltech's official release of its product "Qt 4". 
-  
+  Trolltech's official release of its product "Qt 4".
+
   7.	Licensee may install copies of the Licensed Software on an
   unlimited number of computers provided that Licensee is the only
   individual using the Licensed Software. If Licensee is an entity,
@@ -58,15 +58,15 @@ heading "Technology Preview License Agreement: Norway".
   at any time, but not more frequently that once every six (6) months,
   designate another individual to replace the current designated user by
   notifying Trolltech, so long as there is no more than one designated
-  user at any given time. 
-  
+  user at any given time.
+
   8.	Licensee may not loan, rent, lease, or license the Licensed
   Software or any copy of it. Licensee may not alter or remove any details
   of ownership, copyright, trademark or other property right connected
   with the Licensed Software. Licensee may not modify or distribute the
   Licensed Software. Licensee may not distribute any software statically
-  or dynamically linked with the Licensed Software. 
-  
+  or dynamically linked with the Licensed Software.
+
   9.	The Licensed Software may provide links to third party libraries
   or code (collectively "Third Party Libraries") to implement various
   functions. Third Party Libraries do not comprise part of the Licensed
@@ -79,8 +79,8 @@ heading "Technology Preview License Agreement: Norway".
   Libraries may require additional licensing of copyright and patents from
   the owners of such, and (2) that distribution of any of the Licensed
   Software referencing any portion of a Third Party Library may require
-  appropriate licensing from such third parties. 
-  
+  appropriate licensing from such third parties.
+
   10.	Pre-Release Code, Non-Commercial Use: The Licensed Software
   contains Pre-release Code that is not at the level of performance and
   compatibility of a final, generally available, product offering. The
@@ -88,42 +88,42 @@ heading "Technology Preview License Agreement: Norway".
   modified prior to first commercial shipment, if any. Trolltech is not
   obligated to make this or any later version of the Licensed Software
   commercially available. The Licensed Software is "Not for Commercial
-  Use" and may only be used for the purposes described in section 6. You
+  Use" and may only be used for the purposes described in section 5. You
   may not use the Licensed Software in a live operating environment where
   it may be relied upon to perform in the same manner as a commercially
-  released product or with data that has not been sufficiently backed up. 
-  
-  9.	WARRANTY DISCLAIMER: THE LICENSED SOFTWARE IS LICENSED TO
+  released product or with data that has not been sufficiently backed up.
+
+  11.	WARRANTY DISCLAIMER: THE LICENSED SOFTWARE IS LICENSED TO
   LICENSEE "AS IS". TO THE MAXIMUM EXTENT PERMITTED BY APPLICABLE LAW,
   TROLLTECH ON BEHALF OF ITSELF AND ITS SUPPLIERS, DISCLAIMS ALL
   WARRANTIES AND CONDITIONS, EITHER EXPRESS OR IMPLIED, INCLUDING, BUT NOT
   LIMITED TO, IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
   PARTICULAR PURPOSE, TITLE AND NON-INFRINGEMENT WITH REGARD TO THE
-  LICENSED SOFTWARE. 
-  
-  10.	LIMITATION OF LIABILITY: IF, TROLLTECH'S WARRANTY DISCLAIMER
-  NOTWITHSTANDING, TROLLTECH IS HELD LIABLE TO LICENSEE, WHETHER IN
-  CONTRACT, TORT OR ANY OTHER LEGAL THEORY, BASED ON THE LICENSED SOFTWARE,
-  TROLLTECH'S ENTIRE LIABILITY TO LICENSEE AND LICENSEE'S EXCLUSIVE REMEDY
-  SHALL BE, AT TROLLTECH'S OPTION, EITHER (A) RETURN OF THE PRICE LICENSEE
-  PAID FOR THE LICENSED SOFTWARE, OR (B)REPAIR OR REPLACEMENT OF THE
-  LICENSED SOFTWARE, PROVIDED LICENSEE RETURNS TO TROLLTECH ALL COPIES OF
-  THE LICENSED SOFTWARE AS ORIGINALLY DELIVERED TO LICENSEE. TROLLTECH
-  SHALL NOT UNDER ANY CIRCUMSTANCES BE LIABLE TO LICENSEE BASED ON FAILURE
-  OF THE LICENSED SOFTWARE IF THE FAILURE RESULTED FROM ACCIDENT, ABUSE OR
-  MISAPPLICATION, NOR SHALL TROLLTECH UNDER ANY CIRCUMSTANCES BE LIABLE
-  FOR SPECIAL DAMAGES, PUNITIVE OR EXEMPLARY DAMAGES, DAMAGES FOR LOSS OF
-  PROFITS OR INTERRUPTION OF BUSINESS OR FOR LOSS OR CORRUPTION OF DATA.
-  ANY AWARD OF DAMAGES FROM TROLLTECH TO LICENSEE SHALL NOT EXCEED THE
-  TOTAL AMOUNT LICENSEE HAS PAID TO TROLLTECH IN CONNECTION WITH THIS
-  AGREEMENT.
-  
-  11.	Termination: Without prejudice to any other rights, Trolltech
+  LICENSED SOFTWARE.
+
+  12.	LIMITATION OF LIABILITY: IF, TROLLTECH'S WARRANTY DISCLAIMER
+  NOTWITHSTANDING, TROLLTECH IS HELD LIABLE TO LICENSEE,WHETHER IN
+  CONTRACT, TORT OR ANY OTHER LEGAL THEORY, BASED ON THE LICENSED
+  SOFTWARE, TROLLTECH'S ENTIRE LIABILITY TO LICENSEE AND LICENSEE'S
+  EXCLUSIVE REMEDY SHALL BE, AT TROLLTECH'S OPTION, EITHER (A) RETURN OF
+  THE PRICE LICENSEE PAID FOR THE LICENSED SOFTWARE, OR (B) REPAIR OR
+  REPLACEMENT OF THE LICENSED SOFTWARE, PROVIDED LICENSEE RETURNS TO
+  TROLLTECH ALL COPIES OF THE LICENSED SOFTWARE AS ORIGINALLY DELIVERED TO
+  LICENSEE. TROLLTECH SHALL NOT UNDER ANY CIRCUMSTANCES BE LIABLE TO
+  LICENSEE BASED ON FAILURE OF THE LICENSED SOFTWARE IF THE FAILURE
+  RESULTED FROM ACCIDENT, ABUSE OR MISAPPLICATION, NOR SHALL TROLLTECH
+  UNDER ANY CIRCUMSTANCES BE LIABLE FOR SPECIAL DAMAGES, PUNITIVE OR
+  EXEMPLARY DAMAGES, DAMAGES FOR LOSS OF PROFITS OR INTERRUPTION OF
+  BUSINESS OR FOR LOSS OR CORRUPTION OF DATA. ANY AWARD OF DAMAGES FROM
+  TROLLTECH TO LICENSEE SHALL NOT EXCEED THE TOTAL AMOUNT LICENSEE HAS
+  PAID TO TROLLTECH IN CONNECTION WITH THIS AGREEMENT.
+
+  13.	Termination: Without prejudice to any other rights, Trolltech
   may terminate this Agreement if Licensee fails to comply with the terms
   and conditions of this Agreement. In such event, Licensee must destroy
-  all copies of the Licensed Software and all of its component parts. 
-  
-  12.	EXPORT RESTRICTIONS. Licensee agrees not to export or re-export
+  all copies of the Licensed Software and all of its component parts.
+
+  14.	EXPORT RESTRICTIONS. Licensee agrees not to export or re-export
   the Licensed Software, any part thereof, or any process or service that
   is the direct product of the Licensed Software. Licensee may not sell,
   resell, or otherwise transfer for value, the Licensed Software (the
@@ -143,9 +143,9 @@ heading "Technology Preview License Agreement: Norway".
   the U.S. government. Licensee warrants and represents that neither the
   U.S. Commerce Department, Bureau of Export Administration nor any other
   U.S. federal agency has suspended, revoked or denied Licensee's export
-  privileges. 
-  
-  13.	Government End Users: A "U.S. Government End User" shall mean
+  privileges.
+
+  15.	Government End Users: A "U.S. Government End User" shall mean
   any agency or entity of the government of the United States. The
   following shall apply if Licensee is a U.S. Government End User. The
   Licensed Software is a "commercial item," as that term is defined in 48
@@ -156,18 +156,18 @@ heading "Technology Preview License Agreement: Norway".
   End Users acquire the Licensed Software with only those rights set forth
   herein. The Licensed Software (including related documentation) is
   provided to U.S. Government End Users: (a) only as a commercial end
-  item; and (b) only pursuant to this Agreement. 
-  
-  14.	Compliance with local laws: Licensee shall comply with all
+  item; and (b) only pursuant to this Agreement.
+
+  16.	Compliance with local laws: Licensee shall comply with all
   applicable laws and regulations relating to the Licensed Software in the
   United States and in other countries in which Licensee uses or modifies
   the Licensed Software. Without limiting the generality of the foregoing,
   Licensee shall not export, reexport, disclose or distribute any of the
   Licensed Software in violation of any applicable laws or regulations,
   including the export laws and regulations of the United States, and
-  shall comply with all such laws and regulations. 
-  
-  15.	Entire Agreement: This Agreement constitutes the complete
+  shall comply with all such laws and regulations.
+
+  17.	Entire Agreement: This Agreement constitutes the complete
   agreement between the parties and supersedes all prior or
   contemporaneous discussions, representations, and proposals, written or
   oral, with respect to the subject matters discussed herein. No
@@ -179,9 +179,9 @@ heading "Technology Preview License Agreement: Norway".
   valid and enforceable according to its terms. If any remedy provided is
   determined to have failed for its essential purpose, all limitations of
   liability and exclusions of damages set forth in this Agreement shall
-  remain in effect. 
-  
-  16.	Governing law, legal venue: This Agreement shall be construed,
+  remain in effect.
+
+  18.	Governing law, legal venue: This Agreement shall be construed,
   interpreted and governed by the laws of the State of California, USA.
   Any action or proceeding arising from or relating to this Agreement
   shall be brought in a federal court in the Northern District of
@@ -190,28 +190,27 @@ heading "Technology Preview License Agreement: Norway".
   court in any such action or proceeding. The Agreement gives Licensee
   specific legal rights; Licensee may have others, which vary from state
   to state and from country to country. Trolltech reserves all rights not
-  specifically granted in this Agreement. 
-  
+  specifically granted in this Agreement.
 
 
 
-For legal entities and/or individuals residing in any country 
-other than Canada, the United States of America or 
+
+For legal entities and/or individuals residing in any country
+other than Canada, the United States of America or
 South America:
 
   Technology Preview License Agreement: Norway
   Agreement version 1.0
 
-  IMPORTANT READ CAREFULLY: 
-  
+  IMPORTANT READ CAREFULLY:
   1.	This Trolltech End-User License Agreement ("Agreement") is a
   legal agreement between you (either an individual or a single entity)
   ("Licensee") and Trolltech AS for the Trolltech software product(s)
   accompanying this Agreement, which include(s) computer software and may
   include "online" or electronic documentation, associated media, and
   printed materials, including the source code, example programs and the
-  documentation ("Licensed Software"). 
-  
+  documentation ("Licensed Software").
+
   2.	By installing, copying, or otherwise using the Licensed
   Software, Licensee agrees to be bound by the terms of this Agreement. If
   Licensee does not agree to the terms of this Agreement, Licensee may not
@@ -221,25 +220,25 @@ South America:
   the Licensed Software ("Updates"), Licensee agrees to be bound by any
   additional license terms that accompany such Updates. If Licensee does
   not agree to the additional license terms that accompany such Updates,
-  Licensee may not install, copy, or otherwise use such Updates. 
-  
+  Licensee may not install, copy, or otherwise use such Updates.
+
   3.	The Licensed Software is protected by copyright laws and
   international copyright treaties, as well as other intellectual property
-  laws and treaties. The Licensed Software is licensed, not sold. 
-  
+  laws and treaties. The Licensed Software is licensed, not sold.
+
   4.	Upon Licensee's acceptance of the terms and conditions of this
   Agreement, Trolltech grants Licensee the right to use the Licensed
-  Software in the manner provided below. 
-  
+  Software in the manner provided below.
+
   5.	Trolltech grants to Licensee as an individual a personal,
   nonexclusive, non-transferable, license for the sole purposes of
   evaluating and testing the Licensed Software and/or providing feedback
-  to Trolltech. 
-  
+  to Trolltech.
+
   6.	This Licensed Software is time-limited. All rights granted to
   Licensee in this Agreement will be void three (3) months after
-  Trolltech's official release of its product "Qt 4". 
-  
+  Trolltech's official release of its product "Qt 4".
+
   7.	Licensee may install copies of the Licensed Software on an
   unlimited number of computers provided that Licensee is the only
   individual using the Licensed Software. If Licensee is an entity,
@@ -249,15 +248,15 @@ South America:
   at any time, but not more frequently that once every six (6) months,
   designate another individual to replace the current designated user by
   notifying Trolltech, so long as there is no more than one designated
-  user at any given time. 
-  
+  user at any given time.
+
   8.	Licensee may not loan, rent, lease, or license the Licensed
   Software or any copy of it. Licensee may not alter or remove any details
   of ownership, copyright, trademark or other property right connected
   with the Licensed Software. Licensee may not modify or distribute the
   Licensed Software. Licensee may not distribute any software statically
-  or dynamically linked with the Licensed Software. 
-  
+  or dynamically linked with the Licensed Software.
+
   9.	The Licensed Software may provide links to third party libraries
   or code (collectively "Third Party Libraries") to implement various
   functions. Third Party Libraries do not comprise part of the Licensed
@@ -270,8 +269,8 @@ South America:
   Libraries may require additional licensing of copyright and patents from
   the owners of such, and (2) that distribution of any of the Licensed
   Software referencing any portion of a Third Party Library may require
-  appropriate licensing from such third parties. 
-  
+  appropriate licensing from such third parties.
+
   10.	Pre-Release Code, Non-Commercial Use: The Licensed Software
   contains Pre-release Code that is not at the level of performance and
   compatibility of a final, generally available, product offering. The
@@ -279,20 +278,20 @@ South America:
   modified prior to first commercial shipment, if any. Trolltech is not
   obligated to make this or any later version of the Licensed Software
   commercially available. The Licensed Software is "Not for Commercial
-  Use" and may only be used for the purposes described in section 6. You
+  Use" and may only be used for the purposes described in section 5. You
   may not use the Licensed Software in a live operating environment where
   it may be relied upon to perform in the same manner as a commercially
-  released product or with data that has not been sufficiently backed up. 
-  
-  9.	Warranty Disclaimer: The Licensed Software is licensed to
+  released product or with data that has not been sufficiently backed up.
+
+  11.	Warranty Disclaimer: The Licensed Software is licensed to
   Licensee "as is". To the maximum extent permitted by applicable law,
   Trolltech on behalf of itself and its suppliers, disclaims all
   warranties and conditions, either express or implied, including, but not
   limited to, implied warranties of merchantability, fitness for a
   particular purpose, title and non-infringement with regard to the
-  Licensed Software. 
-  
-  10.	Limitation of Liability: If, Trolltech's warranty disclaimer
+  Licensed Software.
+
+  12.	Limitation of Liability: If, Trolltech's warranty disclaimer
   notwithstanding, Trolltech is held liable to Licensee, whether in
   contract, tort or any other legal theory, based on the Licensed
   Software, Trolltech's entire liability to Licensee and Licensee's
@@ -308,13 +307,13 @@ South America:
   business or for loss or corruption of data. Any award of damages from
   Trolltech to Licensee shall not exceed the total amount Licensee has
   paid to Trolltech in connection with this Agreement.
-  
-  11.	Termination: Without prejudice to any other rights, Trolltech
+
+  13.	Termination: Without prejudice to any other rights, Trolltech
   may terminate this Agreement if Licensee fails to comply with the terms
   and conditions of this Agreement. In such event, Licensee must destroy
-  all copies of the Licensed Software and all of its component parts. 
-  
-  12.	EXPORT RESTRICTIONS. Licensee agrees not to export or re-export
+  all copies of the Licensed Software and all of its component parts.
+
+  14.	EXPORT RESTRICTIONS. Licensee agrees not to export or re-export
   the Licensed Software, any part thereof, or any process or service that
   is the direct product of the Licensed Software. Licensee may not sell,
   resell, or otherwise transfer for value, the Licensed Software (the
@@ -334,9 +333,9 @@ South America:
   the U.S. government. Licensee warrants and represents that neither the
   U.S. Commerce Department, Bureau of Export Administration nor any other
   U.S. federal agency has suspended, revoked or denied Licensee's export
-  privileges. 
-  
-  13.	Government End Users: A "U.S. Government End User" shall mean
+  privileges.
+
+  15.	Government End Users: A "U.S. Government End User" shall mean
   any agency or entity of the government of the United States. The
   following shall apply if Licensee is a U.S. Government End User. The
   Licensed Software is a "commercial item," as that term is defined in 48
@@ -347,18 +346,18 @@ South America:
   End Users acquire the Licensed Software with only those rights set forth
   herein. The Licensed Software (including related documentation) is
   provided to U.S. Government End Users: (a) only as a commercial end
-  item; and (b) only pursuant to this Agreement. 
-  
-  14.	Compliance with local laws: Licensee shall comply with all
+  item; and (b) only pursuant to this Agreement.
+
+  16.	Compliance with local laws: Licensee shall comply with all
   applicable laws and regulations relating to the Licensed Software in the
   United States and in other countries in which Licensee uses or modifies
   the Licensed Software. Without limiting the generality of the foregoing,
   Licensee shall not export, reexport, disclose or distribute any of the
   Licensed Software in violation of any applicable laws or regulations,
   including the export laws and regulations of the United States, and
-  shall comply with all such laws and regulations. 
-  
-  15.	Entire Agreement: This Agreement constitutes the complete
+  shall comply with all such laws and regulations.
+
+  17.	Entire Agreement: This Agreement constitutes the complete
   agreement between the parties and supersedes all prior or
   contemporaneous discussions, representations, and proposals, written or
   oral, with respect to the subject matters discussed herein. No
@@ -370,9 +369,9 @@ South America:
   valid and enforceable according to its terms. If any remedy provided is
   determined to have failed for its essential purpose, all limitations of
   liability and exclusions of damages set forth in this Agreement shall
-  remain in effect. 
-  
-  16.	Governing law, legal venue: This Agreement shall be construed,
+  remain in effect.
+
+  18.	Governing law, legal venue: This Agreement shall be construed,
   interpreted and governed by the laws of Norway, the legal venue to be
   Oslo City Court. Trolltech reserves all rights not specifically granted
-  in this Agreement. 
+  in this Agreement.
