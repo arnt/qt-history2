@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtextview.cpp#21 $
+** $Id: //depot/qt/main/src/widgets/qtextview.cpp#22 $
 **
 ** Implementation of the QTextView class
 **
@@ -94,6 +94,9 @@ public:
     QString contxt;
     QColorGroup mypapcolgrp;
     QColorGroup papcolgrp;
+    QColor mylinkcol;
+    QColor paplinkcol;
+    bool linkunderline;
     QTimer* resizeTimer;
     Qt::TextFormat textformat;
 };
@@ -129,6 +132,9 @@ void QTextView::init()
     d = new QTextViewData;
     d->mypapcolgrp = palette().normal();
     d->papcolgrp = d->mypapcolgrp;
+    d->mylinkcol = blue;
+    d->paplinkcol = d->mylinkcol;
+    d->linkunderline = TRUE;
 
     setKeyCompression( TRUE );
     setVScrollBarMode( QScrollView::Auto );
@@ -236,6 +242,8 @@ QString QTextView::context() const
 void QTextView::createRichText()
 {
     d->papcolgrp = d->mypapcolgrp;
+    d->paplinkcol = d->mylinkcol;
+    
     d->doc_ = new QRichText( d->txt, viewport()->font(), d->contxt,
 			     8, mimeSourceFactory(), styleSheet() );
     if ( !d->doc_->attributes() )
@@ -245,13 +253,18 @@ void QTextView::createRichText()
 	if ( col.isValid() )
 	    d->papcolgrp.setColor( QColorGroup::Base, col );
     }
+    if (d->doc_->attributes()->contains("link")){
+	QColor  col ( (*d->doc_->attributes())["link"].latin1() );
+	if ( col.isValid() )
+	    d->paplinkcol = col;
+    }
     if (d->doc_->attributes()->contains("text")){
 	QColor  col ( (*d->doc_->attributes())["text"].latin1() );
 	if ( col.isValid() )
 	    d->papcolgrp.setColor( QColorGroup::Text,  col );
     }
-    if (d->doc_->attributes()->contains("bgpixmap")){
-	QString imageName = (*d->doc_->attributes())["bgpixmap"];
+    if (d->doc_->attributes()->contains("background")){
+	QString imageName = (*d->doc_->attributes())["background"];
 	QPixmap pm;
 	const QMimeSource* m =
 	    context().isNull()
@@ -369,6 +382,46 @@ const QColorGroup& QTextView::paperColorGroup() const
     return d->papcolgrp;
 }
 
+/*!
+  Sets the color used to display links in the document to \c col.
+  
+  \sa linkColor()
+ */
+void QTextView::setLinkColor( const QColor& col )
+{
+    d->mylinkcol = col;
+    d->paplinkcol = col;
+}
+
+/*!
+  Returns the current link color. 
+  
+  The color may either have been set with setLinkColor() or stem from
+  the document's body tag.
+  
+  \sa setLinkColor()
+ */
+const QColor& QTextView::linkColor() const
+{
+    return d->paplinkcol;
+}
+    
+/*!
+  Defines wether or not links should be displayed underlined.
+ */
+void QTextView::setLinkUnderline( bool u)
+{
+    d->linkunderline = u;
+}
+
+/*!
+  Returns wether or not links should be displayed underlined.
+ */
+bool QTextView::linkUnderline() const
+{
+    return d->linkunderline;
+}
+
 
 /*!
   Returns the document title parsed from the content.
@@ -420,7 +473,7 @@ void QTextView::drawContentsOffset(QPainter* p, int ox, int oy,
 				 int cx, int cy, int cw, int ch)
 {
     QRegion r(cx-ox, cy-oy, cw, ch);
-    richText().draw(p, 0, 0, ox, oy, cx, cy, cw, ch, r, paperColorGroup(), &paper() );
+    richText().draw(p, 0, 0, ox, oy, cx, cy, cw, ch, r, paperColorGroup(), QTextOptions( &paper() )); //## todo linkcolor
 
     p->setClipRegion(r);
 
@@ -789,7 +842,7 @@ void QTextEdit::updateSelection(int oldY, int newY)
     richText().draw(&p, 0, 0, contentsX(), contentsY(),
 			   contentsX(), minY,
 			   viewport()->width(), maxY-minY,
-			   r, paperColorGroup(), &paper(), FALSE, TRUE);
+			   r, paperColorGroup(), QTextOptions(&paper()), FALSE, TRUE);
     cursor->selectionDirty = FALSE;
 }
 
@@ -887,7 +940,7 @@ void QTextEdit::updateScreen()
 	richText().draw(&p, 0, 0, contentsX(), contentsY(),
 			       contentsX(), contentsY(),
 			       viewport()->width(), viewport()->height(),
-			       r, paperColorGroup(), &paper(), TRUE);
+			       r, paperColorGroup(), QTextOptions( &paper() ), TRUE);
 	p.setClipRegion(r);
 	if ( paper().pixmap() )
 	    p.drawTiledPixmap(0, 0, viewport()->width(), viewport()->height(),

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtextbrowser.cpp#10 $
+** $Id: //depot/qt/main/src/widgets/qtextbrowser.cpp#11 $
 **
 ** Implementation of the QTextView class
 **
@@ -68,7 +68,7 @@
   subclass of QMimeSourceFactory. This makes it possible to access
   data from anywhere you need to, may it be the network or a
   database. See QMimeSourceFactory::data() for details.
-  
+
   If you intend to use the mime factory to read the data directly from
   the file system, you may have to specify the encoding for the file
   extension you are using. For example
@@ -138,6 +138,8 @@ QTextBrowser::~QTextBrowser()
 */
 void QTextBrowser::setSource(const QString& name)
 {
+    if ( isVisibleToTLW() )
+	qApp->setOverrideCursor( waitCursor ); 
     QString source = name;
     QString mark;
     int hash = name.find('#');
@@ -184,7 +186,25 @@ void QTextBrowser::setSource(const QString& name)
 	scrollToAnchor( mark );
     else
 	setContentsPos( contentsX(), 0 );
+
+    if ( isVisibleToTLW() )
+	qApp->restoreOverrideCursor();
 }
+
+/*!
+  Returns the source of the currently display document. If no document is displayed or
+  the source is unknown, a null string is returned.
+  
+  \sa setSource()
+ */
+QString QTextBrowser::source() const
+{
+    if ( d->stack.isEmpty() )
+	return QString::null;
+    else
+	return *d->stack.top();
+}
+
 
 /*!
   Sets the contents of the browser to \a text, and emits the

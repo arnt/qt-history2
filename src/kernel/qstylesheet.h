@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qstylesheet.h#7 $
+** $Id: //depot/qt/main/src/kernel/qstylesheet.h#8 $
 **
 ** Definition of the QStyleSheet class
 **
@@ -44,6 +44,9 @@ public:
     ~QStyleSheetItem();
 
     QString name() const;
+    
+    QStyleSheet* styleSheet();
+    const QStyleSheet* styleSheet() const;
 
     enum AdditionalStyleValues { Undefined  = - 1};
 
@@ -57,12 +60,14 @@ public:
     int fontWeight() const;
     void setFontWeight(int w);
 
+    int logicalFontSize() const;
+    void setLogicalFontSize(int s);
+    
+    int logicalFontSizeStep() const;
+    void setLogicalFontSizeStep( int s );
+
     int fontSize() const;
     void setFontSize(int s);
-
-    int fontSizeRelative() const;
-    void setFontSizeRelative(int s);
-
 
     QString fontFamily() const;
     void setFontFamily( const QString& );
@@ -103,7 +108,7 @@ public:
 
     bool selfNesting() const;
     void setSelfNesting( bool );
-    
+
 private:
     void init();
     QStyleSheetItemData* d;
@@ -145,8 +150,11 @@ public:
     static QString convertFromPlainText( const QString& );
     static bool mightBeRichText( const QString& );
 
-    virtual void error( const QString& ) const;
+    virtual int pointSizeFromLogicalFontSize( int ref, int l ) const;
     
+    
+    virtual void error( const QString& ) const;
+
 private:
     void init();
     QDict<QStyleSheetItem> styles;

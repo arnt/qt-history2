@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtextview.h#4 $
+** $Id: //depot/qt/main/src/widgets/qtextview.h#5 $
 **
 ** Definition of the QTextView class
 **
@@ -49,11 +49,11 @@ public:
     virtual void setText( const QString& text, const QString& context = QString::null );
     virtual QString text() const;
     virtual QString context() const;
-    
+
     Qt::TextFormat textFormat() const;
     void setTextFormat( Qt::TextFormat );
 
-    
+
     QStyleSheet* styleSheet() const;
     void setStyleSheet( QStyleSheet* styleSheet );
 
@@ -64,6 +64,12 @@ public:
 
     void setPaperColorGroup( const QColorGroup& colgrp);
     const QColorGroup &paperColorGroup() const;
+    
+    void setLinkColor( const QColor& );
+    const QColor& linkColor() const;
+    
+    void setLinkUnderline( bool );
+    bool linkUnderline() const;
 
     void setMimeSourceFactory( QMimeSourceFactory* factory );
     QMimeSourceFactory* mimeSourceFactory() const;

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qstylesheet.cpp#13 $
+** $Id: //depot/qt/main/src/kernel/qstylesheet.cpp#14 $
 **
 ** Implementation of the QStyleSheet class
 **
@@ -45,7 +45,8 @@ public:
     int fontunderline;
     int fontweight;
     int fontsize;
-    int fontsizerel;
+    int fontsizelog;
+    int fontsizestep;
     QString fontfamily;
     QStyleSheetItem *parentstyle;
     QString stylename;
@@ -58,6 +59,7 @@ public:
     QStyleSheetItem::WhiteSpaceMode whitespacemode;
     QString contxt;
     bool selfnest;
+    QStyleSheet* sheet;
 };
 
 /*!
@@ -81,6 +83,7 @@ QStyleSheetItem::QStyleSheetItem( QStyleSheet* parent, const QString& name )
 {
     d = new QStyleSheetItemData;
     d->stylename = name.lower();
+    d->sheet = parent;
     init();
     if (parent)
 	parent->insert( this );
@@ -97,6 +100,23 @@ QStyleSheetItem::~QStyleSheetItem()
 }
 
 
+
+/*!
+  Returns the stylesheet this item is in.
+ */
+QStyleSheet* QStyleSheetItem::styleSheet()
+{
+    return d->sheet;
+}
+
+/*!
+  Returns the stylesheet this item is in.
+ */
+const QStyleSheet* QStyleSheetItem::styleSheet() const
+{
+    return d->sheet;
+}
+
 /*!
   \internal
   Internal initialization
@@ -109,7 +129,8 @@ void QStyleSheetItem::init()
     d->fontunderline = Undefined;
     d->fontweight = Undefined;
     d->fontsize = Undefined;
-    d->fontsizerel = 100;
+    d->fontsizelog = Undefined;
+    d->fontsizestep = 0;
     d->ncolumns = Undefined;
     d->col = QColor(); // !isValid()
     d->anchor = FALSE;
@@ -280,37 +301,52 @@ void QStyleSheetItem::setFontWeight(int w)
 }
 
 /*!
-  Returns the font size setting of the style. This is either a valid
-  pointsize or QStyleSheetItem::Undefined.
+  Returns the logical font size setting of the style. This is either a valid
+  size between 1 and 7  or QStyleSheetItem::Undefined.
 
- \sa setFontSize(), QFont::pointSize(), QFont::setPointSize()
+ \sa setLogicalFontSize(), setLogicalFontSizeStep(), QFont::pointSize(), QFont::setPointSize()
  */
-int QStyleSheetItem::fontSize() const
+int QStyleSheetItem::logicalFontSize() const
 {
-    return d->fontsize;
+    return d->fontsizelog;
+}
+
+
+/*!
+  Sets the logical font size setting of the style tp \a s. 
+  Valid logical sizes are 1 to 7.
+
+ \sa logicalFontSize(), QFont::pointSize(), QFont::setPointSize()
+ */
+void QStyleSheetItem::setLogicalFontSize(int s)
+{
+    d->fontsizelog = s;
 }
 
 /*!
-  Sets the font size setting of the style, in relative percentage to
-  the currently used font. The default value is 100 percent.
-
- \sa fontSizeRelative(), setFontSize(), QFont::pointSize(), QFont::setPointSize()
+  Returns the logical font size step of this style.
+  
+  The default is 0. Tags like \c big define \c +1, \c small defines
+  \c -1
+  
+  \sa setLogicalFontSizeStep()
  */
-void QStyleSheetItem::setFontSizeRelative(int s)
+int QStyleSheetItem::logicalFontSizeStep() const
 {
-    d->fontsizerel = s;
+    return d->fontsizestep;
 }
 
 /*!
-  Returns the relative font size setting of the style. The default
-  value is 100 percent.
-
- \sa setFontSizeRelative(), fontSize(), QFont::pointSize(), QFont::setPointSize()
+  Sets the logical font size step of this style to \a s.
+  
+  \sa logicalFontSizeStep()
  */
-int QStyleSheetItem::fontSizeRelative() const
+void QStyleSheetItem::setLogicalFontSizeStep( int s )
 {
-    return d->fontsizerel;
+    d->fontsizestep = s;
 }
+
+
 
 /*!
   Sets the font size setting of the style, in point measures.
@@ -320,6 +356,17 @@ int QStyleSheetItem::fontSizeRelative() const
 void QStyleSheetItem::setFontSize(int s)
 {
     d->fontsize = s;
+}
+
+/*!
+  Returns the font size setting of the style. This is either a valid
+  pointsize or QStyleSheetItem::Undefined.
+
+ \sa setFontSize(), QFont::pointSize(), QFont::setPointSize()
+ */
+int QStyleSheetItem::fontSize() const
+{
+    return d->fontsize;
 }
 
 
@@ -638,11 +685,13 @@ void QStyleSheetItem::setSelfNesting( bool nesting )
 	will not work in documents with \c &lt;qt \c type="detail" \c &gt;...&lt;/qt&gt;
 	<li> \c bgcolor
 	- The background color, for example \c bgcolor="yellow" or \c bgcolor="#0000FF"
-	<li> \c bgpixmap
-	- The background pixmap, for example \c bgpixmap="granit.xpm". The pixmap name
+	<li> \c background
+	- The background pixmap, for example \c background="granit.xpm". The pixmap name
 	will be resolved by a QMimeSourceFactory().
 	<li> \c text
 	- The default text color, for example \c text="red"
+	<li> \c link
+	- The link color, for example \c link="green"
 	</ul>
 
     <li>\c &lt;a&gt;...&lt;/a&gt;
@@ -659,9 +708,9 @@ void QStyleSheetItem::setSelfNesting( bool nesting )
 	<li> \c color
 	- the text color, for example \c color="red" or \c color="#FF0000".
 	<li> \c size
-	- the pointsize of the font. The value may either be absolute, for example
-	\c size=24, or relative. In the latter case, the pointsizes are simply added. As
-	an example, \c size=+2 will generate a two point larger font.
+	- the logical size of the font. Logical sizes 1 to 7 are supported.
+	 The value may either be absolute, for example
+	\c size=3, or relative. In the latter case, the sizes are simply added. 
 	</ul>
 	
     <li>\c &lt;em&gt;...&lt;/em&gt;
@@ -670,7 +719,7 @@ void QStyleSheetItem::setSelfNesting( bool nesting )
     <li>\c &lt;strong&gt;...&lt;/strong&gt;
 	- Strong. As default, this is the same as \c &lt;bold&gt;...&lt;/bold&gt; (bold)
 
-    <li>\c &lt;large&gt;...&lt;/large&gt;
+    <li>\c &lt;big&gt;...&lt;/big&gt;
 	- A larger font size.
 
     <li>\c &lt;small&gt;...&lt;/small&gt;
@@ -783,8 +832,6 @@ void QStyleSheet::init()
     //style->setMargin( QStyleSheetItem::MarginAll, 4 );
 
     style = new QStyleSheetItem( this, QString::fromLatin1("a") );
-    style->setColor( Qt::blue );
-    style->setFontUnderline( TRUE );
     style->setAnchor( TRUE );
 
     style = new QStyleSheetItem( this, QString::fromLatin1("em") );
@@ -794,10 +841,10 @@ void QStyleSheet::init()
     style->setFontItalic( TRUE );
 
     style = new QStyleSheetItem( this, QString::fromLatin1("big") );
-    style->setFontSizeRelative( 120 );
+    style->setLogicalFontSizeStep( 1 );
 
     style = new QStyleSheetItem( this, QString::fromLatin1("small") );
-    style->setFontSizeRelative( 80 );
+    style->setLogicalFontSizeStep( -1 );
 
     style = new QStyleSheetItem( this, QString::fromLatin1("strong") );
     style->setFontWeight( QFont::Bold);
@@ -807,19 +854,19 @@ void QStyleSheet::init()
 
     style = new QStyleSheetItem( this, QString::fromLatin1("h1") );
     style->setFontWeight( QFont::Bold);
-    style->setFontSize(24);
+    style->setLogicalFontSize(6);
     style->setDisplayMode(QStyleSheetItem::DisplayBlock);
     style-> setMargin(QStyleSheetItem::MarginVertical, 12);
 
     style = new QStyleSheetItem( this, QString::fromLatin1("h2") );
     style->setFontWeight( QFont::Bold);
-    style->setFontSize(16);
+    style->setLogicalFontSize(5);
     style->setDisplayMode(QStyleSheetItem::DisplayBlock);
     style-> setMargin(QStyleSheetItem::MarginVertical, 10);
 
     style = new QStyleSheetItem( this, QString::fromLatin1("h3") );
     style->setFontWeight( QFont::Bold);
-    style->setFontSize(14);
+    style->setLogicalFontSize(4);
     style->setDisplayMode(QStyleSheetItem::DisplayBlock);
     style-> setMargin(QStyleSheetItem::MarginVertical, 8);
 
@@ -1075,19 +1122,51 @@ bool QStyleSheet::mightBeRichText( const QString& text)
 
 
 /*! \fn void QStyleSheet::error( const QString& msg) const
-  
+
   This virtual function is called when an error occurs when
   processsing rich text. Reimplement if if you need to catch
   error messages.
-  
+
   Errors might occur if some rich text strings contain tags that are
   not understood by the stylesheet, if some tags are nested wrongly or
   if tags are not closed properly.
-  
+
   \a msg is the error message.
-  
+
   The default implementation does nothing.
  */
 void QStyleSheet::error( const QString& ) const
 {
+}
+
+
+/*!
+  Maps the logical font size \a l to a point size given the relative
+  point size \a rel.
+  
+  \a l is a number between 1 and 7, \a rel is the pointsize of the
+  logical size 3.
+  
+  \sa logicalFontSize(), logicalFontSizeStep()
+ */
+int QStyleSheet::pointSizeFromLogicalFontSize( int ref, int l ) const
+{
+    switch ( l ) {
+    case 1:
+	return int(0.5 * ref);
+    case 2:
+	return int(0.8 * ref);
+    case 3:
+	return ref;
+    case 4:
+	return int(1.2 * ref);
+    case 5:
+	return int(1.5 * ref);
+    case 6:
+	return int(2 * ref);
+    case 7:
+	return int(2.5 * ref);
+    default:
+	return ref;
+    }
 }

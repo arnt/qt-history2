@@ -9,6 +9,17 @@ class QTextBox;
 class QTextIterator;
 class QRichText;
 
+class QTextOptions {
+public:
+    QTextOptions( const QBrush* p = 0, QColor lc = Qt::blue, bool lu = TRUE )
+	:paper( p ), linkColor( lc ), linkUnderline( lu )
+    {
+    };
+    const QBrush* paper;
+    QColor linkColor;
+    bool linkUnderline;
+};
+
 class QTextNode
 {
 public:
@@ -55,7 +66,7 @@ public:
 
     virtual void draw(QPainter* p, int x, int y,
 		      int ox, int oy, int cx, int cy, int cw, int ch,
-		      QRegion& backgroundRegion, const QColorGroup& cg, const QBrush* paper = 0) = 0;
+		      QRegion& backgroundRegion, const QColorGroup& cg, const QTextOptions& ) = 0;
 
     virtual bool expandsHorizontally();
 
@@ -71,7 +82,7 @@ public:
 
     void draw(QPainter* p, int x, int y,
 	      int ox, int oy, int cx, int cy, int cw, int ch,
-	      QRegion& backgroundRegion, const QColorGroup& cg, const QBrush* paper = 0);
+	      QRegion& backgroundRegion, const QColorGroup& cg, const QTextOptions& );
 
     bool expandsHorizontally();
 
@@ -88,7 +99,7 @@ public:
 
     void draw(QPainter* p, int x, int y,
 	      int ox, int oy, int cx, int cy, int cw, int ch,
-	      QRegion& backgroundRegion, const QColorGroup& cg, const QBrush* paper = 0);
+	      QRegion& backgroundRegion, const QColorGroup& cg, const QTextOptions& );
 private:
     QPixmap pm;
     QRegion* reg;
@@ -111,7 +122,7 @@ public:
     int fill;
     bool intersects(int xr, int yr, int wr, int hr);
     void draw(QPainter* p, int obx, int oby, int ox, int oy, int cx, int cy, int cw, int ch,
-	      QRegion& backgroundRegion, const QColorGroup& cg, const QBrush* paper = 0,
+	      QRegion& backgroundRegion, const QColorGroup& cg, const QTextOptions&,
 	      bool onlyDirty = FALSE, bool onlySelection = FALSE);
     QTextNode* hitTest(QPainter* p, int obx, int oby, int xarg, int yarg);
 
@@ -145,6 +156,8 @@ public:
     virtual ~QTextContainer();
     inline QFont font() const;
     void setFont( const QFont& );
+    void setFontSize( int );
+    int fontSize() const;
     inline QColor color(const QColor&) const;
     void setColor( const QColor& );
     inline int margin(QStyleSheetItem::Margin) const;
@@ -185,11 +198,11 @@ private:
     bool fontItalic() const;
     bool fontUnderline() const;
     QString fontFamily() const;
-    int fontSize() const;
 
     void createFont();
 
     QFont* fnt;
+    int fontsize;
     QColor col;
     QMap<QString, QString> * attributes_;
 };
@@ -273,10 +286,8 @@ inline QColor QTextContainer::color(const QColor& c) const
     if ( col.isValid() )
 	return col;
     QColor sc = style->color();
-    if ( sc.isValid() ) {
-	if (!style->isAnchor() || ( attributes() && attributes()->contains("href") ) )
-	    return sc;
-    }
+    if ( sc.isValid() )
+	return sc;
     return parent?parent->color(c):c;
 }
 
@@ -492,7 +503,7 @@ public:
     QTextFont( const QStyleSheetItem *stl);
     QTextFont( const QStyleSheetItem *stl, const QMap<QString, QString> &attr );
     ~QTextFont();
-    
+
     void setParent( QTextContainer* );
 };
 
@@ -507,7 +518,7 @@ public:
 
     void draw(QPainter* p, int obx, int oby, int ox, int oy, int cx, int cy, int cw, int ch,
 	      QRegion& backgroundRegion,
-	      const QColorGroup& cg, const QBrush* paper,
+	      const QColorGroup& cg, const QTextOptions& ,
 	      bool onlyDirty = FALSE, bool onlySelection = FALSE);
     void setWidth (QPainter* p, int newWidth, bool forceResize = FALSE);
 

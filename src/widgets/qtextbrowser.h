@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtextbrowser.h#4 $
+** $Id: //depot/qt/main/src/widgets/qtextbrowser.h#5 $
 **
 ** Definition of the QTextBrowser class
 **
@@ -43,6 +43,7 @@ public:
     ~QTextBrowser();
 
     virtual void setSource(const QString& name);
+    QString source() const;
 
     void setText( const QString& contents, const QString& context=QString::null );
 

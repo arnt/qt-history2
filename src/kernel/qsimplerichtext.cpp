@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsimplerichtext.cpp#3 $
+** $Id: //depot/qt/main/src/kernel/qsimplerichtext.cpp#4 $
 **
 ** Implementation of the QSimpleRichText class
 **
@@ -34,17 +34,17 @@
   This class encapsulates simple richt text usage where a string is
   interpretted as richt text and can be drawn. This is in particular
   useful if you want to display some rich text in a custom widget.
-  
+
   Once created, the rich text object can be queried for its width(),
   height() and the actual width used ( see widthUsed() ). And, most
   certainly, it can be drawn on any given QPainter with draw().  By
   using anchor(), it is possible to use QSimpleRichText to implement
   some kind of hypertext or active text facilities as well.
-  
+
   Changes other than resizing with setWidth() cannot be made. If the
   contents is supposed to change, just throw the rich text object away
   and make a new one with the new contents.
-  
+
   For large documents, see QTextView or QTextBrowser.
 */
 
@@ -98,7 +98,7 @@ QSimpleRichText::~QSimpleRichText()
 
 /*!
   Sets the width of the document to \a w pixels, recalculating the layout
-  as if it were to be drawn with \a p. 
+  as if it were to be drawn with \a p.
 
   \sa height()
 */
@@ -159,7 +159,7 @@ void QSimpleRichText::draw( QPainter* p,  int x, int y, const QRegion& clipRegio
     QRect r = clipRegion.boundingRect();
     QRegion bg = clipRegion;
 
-    d->doc->draw(p, x, y, 0, 0, r.x(), r.y(), r.width(), r.height(), bg, cg, paper);
+    d->doc->draw(p, x, y, 0, 0, r.x(), r.y(), r.width(), r.height(), bg, cg, QTextOptions( paper ) );
     if (paper) {
 	p->setClipRegion(bg);
 	if ( paper->pixmap() )

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qrichtext.cpp#24 $
+** $Id: //depot/qt/main/src/kernel/qrichtext.cpp#25 $
 **
 ** Implementation of the Qt classes dealing with rich text
 **
@@ -182,7 +182,7 @@ QTextImage::~QTextImage()
 
 void QTextImage::draw(QPainter* p, int x, int y,
 		    int ox, int oy, int /*cx*/, int /*cy*/, int /*cw*/, int /*ch*/,
-		    QRegion& backgroundRegion, const QColorGroup& cg, const QBrush* /*bg*/)
+		    QRegion& backgroundRegion, const QColorGroup& cg, const QTextOptions& /*to*/)
 {
     if ( pm.isNull() ) {
 	p->fillRect( x-ox , y-oy, width, height,  cg.dark() );
@@ -217,16 +217,16 @@ bool QTextHorizontalLine::expandsHorizontally()
 
 void QTextHorizontalLine::draw(QPainter* p, int x, int y,
 			     int ox, int oy, int cx, int cy, int cw, int ch,
-			     QRegion&, const QColorGroup&, const QBrush* paper)
+			     QRegion&, const QColorGroup&, const QTextOptions& to)
 {
     QRect rm( x-ox, y-oy, width, height);
     QRect ra( cx-ox, cy-oy, cw,  ch);
     QRect r = rm.intersect( ra );
-    if (paper) {
-	if ( paper->pixmap() )
-	    p->drawTiledPixmap( r, *paper->pixmap(), QPoint(r.x()+ox, r.y()+oy) );
+    if (to.paper) {
+	if ( to.paper->pixmap() )
+	    p->drawTiledPixmap( r, *to.paper->pixmap(), QPoint(r.x()+ox, r.y()+oy) );
 	else
-	    p->fillRect(r, *paper );
+	    p->fillRect(r, *to.paper );
     }
     QPen pen(p->pen());
     pen.setWidth( 2 );
@@ -407,7 +407,7 @@ QTextIterator QTextRow::end() const
 }
 
 void QTextRow::draw( QPainter* p, int obx, int oby, int ox, int oy, int cx, int cy, int cw, int ch,
-		  QRegion& backgroundRegion, const QColorGroup& cg, const QBrush* paper,
+		  QRegion& backgroundRegion, const QColorGroup& cg, const QTextOptions& to,
 		  bool onlyDirty, bool onlySelection)
 {
 
@@ -420,7 +420,7 @@ void QTextRow::draw( QPainter* p, int obx, int oby, int ox, int oy, int cx, int 
     if (first->isBox) {
 	//we have to draw the box
 	((QTextBox*)first)->draw(p, obx+x, oby+y, ox, oy, cx, cy, cw, ch,
-			       backgroundRegion, cg, paper, dirty?FALSE:onlyDirty, onlySelection);
+			       backgroundRegion, cg, to, dirty?FALSE:onlyDirty, onlySelection);
 	dirty = FALSE;
 	return;
     }
@@ -440,18 +440,18 @@ void QTextRow::draw( QPainter* p, int obx, int oby, int ox, int oy, int cx, int 
     QTextIterator it;
     // reduced flicker mode is broken, does not deal with shearing and bearing yet
 //     for ( it = begin(); it != end(); ++it ) {
-// 	if ( it->isCustomNode() && paper ) {
+// 	if ( it->isCustomNode() && to.paper ) {
 //  	    reducedFlickerMode = TRUE;
 // 	    break;
 // 	}
 //     }
 
     if ( !reducedFlickerMode ) {
-	if (!onlyDirty && !onlySelection && paper) {
-	    if ( paper->pixmap() )
-		p->drawTiledPixmap(x+obx-ox, y+oby-oy, width, height, *paper->pixmap(), x+obx, y+oby);
+	if (!onlyDirty && !onlySelection && to.paper) {
+	    if ( to.paper->pixmap() )
+		p->drawTiledPixmap(x+obx-ox, y+oby-oy, width, height, *to.paper->pixmap(), x+obx, y+oby);
 	    else
-		p->fillRect(x+obx-ox, y+oby-oy, width, height, *paper);
+		p->fillRect(x+obx-ox, y+oby-oy, width, height, *to.paper);
 	}
     }
 
@@ -471,9 +471,14 @@ void QTextRow::draw( QPainter* p, int obx, int oby, int ox, int oy, int cx, int 
     for ( it = begin(); it != end(); ++it ) {
 	if ( it->isContainer )
 	    continue;
+	const QTextContainer* anc = it.parentNode()->anchor();
 	s.truncate(0);
 	QFont font = it.parentNode()->font();
+	if ( anc && to.linkUnderline && anc->attributes() 
+	     && anc->attributes()->contains("href") )
+	    font.setUnderline( TRUE );
 	if ( font != p->font() ) {
+		    
 	    p->setFont( font );
 	    fm = p->fontMetrics();
 	}
@@ -511,6 +516,11 @@ void QTextRow::draw( QPainter* p, int obx, int oby, int ox, int oy, int cx, int 
 
 	if (!onlySelection || selectionDirty) {
 	    p->setPen( it.parentNode()->color(cg.text()) );
+	    
+	    if ( anc && anc->attributes() && anc->attributes()->contains("href") )
+		p->setPen( to.linkColor );
+		    
+
 	
 	    if (select) {
 		if ( inFirst )
@@ -521,29 +531,29 @@ void QTextRow::draw( QPainter* p, int obx, int oby, int ox, int oy, int cx, int 
 		    p->fillRect(tx+obx-ox, y+oby-oy, tw, height, cg.highlight());
 		p->setPen( cg.highlightedText() );
 	    }
-	    else if ( (onlyDirty || onlySelection || (reducedFlickerMode && it->isSimpleNode)) && paper ) {
+	    else if ( (onlyDirty || onlySelection || (reducedFlickerMode && it->isSimpleNode)) && to.paper ) {
 		int txo = 0;
 		if ( inFirst ) {
-		    if ( paper->pixmap() )
+		    if ( to.paper->pixmap() )
 			p->drawTiledPixmap(x+obx-ox, y+oby-oy, tw+(tx-x), height,
-					   *paper->pixmap(), x+obx, y+oby);
+					   *to.paper->pixmap(), x+obx, y+oby);
 		    else
-			p->fillRect(x+obx-ox, y+oby-oy, tw+(tx-x), height, *paper );
+			p->fillRect(x+obx-ox, y+oby-oy, tw+(tx-x), height, *to.paper );
 		    txo = tw;
 		}
 		if (*it == last){
-		    if ( paper->pixmap() )
+		    if ( to.paper->pixmap() )
 			p->drawTiledPixmap(tx+obx-ox+txo, y+oby-oy, width-(tx-x)-txo, height,
-					   *paper->pixmap(), tx+obx+txo, y+oby);
+					   *to.paper->pixmap(), tx+obx+txo, y+oby);
 		    else
-			p->fillRect(tx+obx-ox+txo, y+oby-oy, width-(tx-x)-txo, height, *paper);
+			p->fillRect(tx+obx-ox+txo, y+oby-oy, width-(tx-x)-txo, height, *to.paper);
 		}
 		else {
-		    if ( paper->pixmap() )
+		    if ( to.paper->pixmap() )
 			p->drawTiledPixmap(tx+obx-ox, y+oby-oy, tw, height,
-					   *paper->pixmap(), tx+obx, y+oby);
+					   *to.paper->pixmap(), tx+obx, y+oby);
 		    else
-			p->fillRect(tx+obx-ox, y+oby-oy, tw, height, *paper);
+			p->fillRect(tx+obx-ox, y+oby-oy, tw, height, *to.paper);
 		}
 	    }
 	
@@ -560,35 +570,35 @@ void QTextRow::draw( QPainter* p, int obx, int oby, int ox, int oy, int cx, int 
 		if ( reducedFlickerMode ) {
 		    if (!it->isSelected) {
 			if ( inFirst ) {
-			    if ( paper->pixmap() )
+			    if ( to.paper->pixmap() )
 				p->drawTiledPixmap(x+obx-ox, y+oby-oy, (tx-x), height,
-						   *paper->pixmap(), x+obx, y+oby);
+						   *to.paper->pixmap(), x+obx, y+oby);
 			    else
-				p->fillRect(x+obx-ox, y+oby-oy, (tx-x), height, *paper);
+				p->fillRect(x+obx-ox, y+oby-oy, (tx-x), height, *to.paper);
 			}
 			if ( *it == last){
-			    if ( paper->pixmap() )
+			    if ( to.paper->pixmap() )
 				p->drawTiledPixmap(tx+tw+obx-ox, y+oby-oy, width-(tx-x)-tw, height,
-						   *paper->pixmap(), tx+obx+tw, y+oby);
+						   *to.paper->pixmap(), tx+obx+tw, y+oby);
 			    else
-				p->fillRect(tx+tw+obx-ox, y+oby-oy, width-(tx-x)-tw, height, *paper);
+				p->fillRect(tx+tw+obx-ox, y+oby-oy, width-(tx-x)-tw, height, *to.paper);
 			}
 		    }
 		    int h = ((QTextCustomNode*)*it)->height;
 		    if ( h < height && !it->isSelected ) {
-			if ( paper->pixmap() )
+			if ( to.paper->pixmap() )
 			    p->drawTiledPixmap(tx+obx-ox, y+oby-oy, tw, base-h,
-					       *paper->pixmap(), tx+obx, y+oby);
+					       *to.paper->pixmap(), tx+obx, y+oby);
 			else
-			    p->fillRect(tx+obx-ox, y+oby-oy, tw, base-h, *paper);
-			if ( paper->pixmap() )
+			    p->fillRect(tx+obx-ox, y+oby-oy, tw, base-h, *to.paper);
+			if ( to.paper->pixmap() )
 			    p->drawTiledPixmap(tx+obx-ox, y+oby-oy+base, tw, height-base,
-					       *paper->pixmap(), tx+obx, y+oby+base);
+					       *to.paper->pixmap(), tx+obx, y+oby+base);
 			else
-			    p->fillRect(tx+obx-ox, y+oby-oy+base, tw, height-base, *paper);
+			    p->fillRect(tx+obx-ox, y+oby-oy+base, tw, height-base, *to.paper);
 		    }
  		    ((QTextCustomNode*)*it)->draw(p,tx+obx,y+oby+base-h,
-						  ox, oy, cx, cy, QMIN(tx+obx+width,cw), ch, backgroundRegion, cg, paper);
+						  ox, oy, cx, cy, QMIN(tx+obx+width,cw), ch, backgroundRegion, cg, to);
 		
 		    if ( it->isSelected ) {
 			QRect tr( tx+obx-ox, y+oby-oy+base-h, tw, h );
@@ -598,7 +608,7 @@ void QTextRow::draw( QPainter* p, int obx, int oby, int ox, int oy, int cx, int 
 		else {
 		    int h = ((QTextCustomNode*)*it)->height;
 		    ((QTextCustomNode*)*it)->draw(p,tx+obx,y+oby+base-h,
-					      ox, oy, cx, cy, cw, ch, backgroundRegion, cg, paper);
+					      ox, oy, cx, cy, cw, ch, backgroundRegion, cg, to);
 		}
 	    }
 	}
@@ -684,6 +694,7 @@ QTextContainer::QTextContainer( const QStyleSheetItem *stl)
     parent = 0;
     child = 0;
     attributes_ = 0;
+    fontsize = -1;
 }
 
 QTextContainer::QTextContainer( const QStyleSheetItem *stl, const QMap<QString, QString> &attr )
@@ -695,6 +706,7 @@ QTextContainer::QTextContainer( const QStyleSheetItem *stl, const QMap<QString, 
     parent = 0;
     child = 0;
     attributes_ = 0;
+    fontsize = -1;
     if (!attr.isEmpty() )
 	setAttributes( attr );
 }
@@ -720,6 +732,15 @@ void QTextContainer::setColor( const QColor& c)
 void QTextContainer::setFont( const QFont& f)
 {
     fnt = new QFont( f );
+}
+
+void QTextContainer::setFontSize( int s )
+{
+    if ( s < 1 )
+	s = 1;
+    if ( s > 7 )
+	s = 7;
+    fontsize = s;
 }
 
 
@@ -904,7 +925,14 @@ void QTextContainer::createFont()
     // fnt is used to cache these values, therefore
     // use a temporary QFont* here
     QFont* f = new QFont( fontFamily() );
-    f->setPointSize( fontSize() );
+    if ( style->fontSize() > 0 )
+	f->setPointSize( style->fontSize() );
+    else {
+	QRichText* r = root();
+	if ( r ) {
+	    f->setPointSize( style->styleSheet()->pointSizeFromLogicalFontSize(r->font().pointSize(), fontSize() ));
+	}
+    }
     f->setWeight( fontWeight() );
     f->setItalic( fontItalic() );
     f->setUnderline( fontUnderline() );
@@ -937,23 +965,28 @@ bool QTextContainer::fontUnderline() const
     if ( fnt )
       return fnt->underline();
     if ( style->definesFontUnderline() ) {
-      if ((style->isAnchor()  && ( !attributes()  || !attributes()->contains("href") ) ) )
-	return FALSE;
-      return style->fontUnderline();
+	return style->fontUnderline();
     }
     return parent? parent->fontUnderline() : FALSE;
 }
 
 int QTextContainer::fontSize() const
 {
-    if ( fnt )
-      return fnt->pointSize();
-    int w = style->fontSize();
-    if ( w == -1 && parent )
-	w = parent->fontSize();
-    if ( style->fontSizeRelative() != 100 )
-	w = w * style->fontSizeRelative() / 100;
-    return w;
+    if ( fontsize != -1 )
+	return fontsize;
+
+
+   int f = style->logicalFontSize();
+    
+    if ( f == -1 && parent )
+	f = parent->fontSize();
+    
+    f += style->logicalFontSizeStep();
+    
+   QTextContainer* that = (QTextContainer*) this;
+   that->setFontSize( f );
+
+    return fontsize; 
 }
 
 QString QTextContainer::fontFamily() const
@@ -991,12 +1024,9 @@ void QTextFont::setParent( QTextContainer* p)
     if ( attributes() && attributes()->contains("size") ) {
 	QString a = (*attributes())["size"];
 	int n = a.toInt();
-	QFont f = font();
 	if ( a[0] == '+' || a[0] == '-' )
-	    f.setPointSize( f.pointSize() + n );
-	else
-	    f.setPointSize( n );
-	setFont( f );
+	    n += fontSize();
+	setFontSize( n );
     }
 
     //### TODO some more font attributes
@@ -1038,7 +1068,7 @@ QTextBox::~QTextBox()
 #define IN16BIT(x) QMAX( (2<<15)-1, x)
 
 void QTextBox::draw(QPainter *p,  int obx, int oby, int ox, int oy, int cx, int cy, int cw, int ch,
-		  QRegion& backgroundRegion, const QColorGroup& cg, const QBrush* paper,
+		  QRegion& backgroundRegion, const QColorGroup& cg, const QTextOptions& to,
 		  bool onlyDirty, bool onlySelection)
 {
     if (onlySelection && !isSelectionDirty)
@@ -1048,11 +1078,11 @@ void QTextBox::draw(QPainter *p,  int obx, int oby, int ox, int oy, int cx, int 
     if ( !onlySelection && style->displayMode() == QStyleSheetItem::DisplayListItem && rows.first()) {
 	QTextRow* row = rows.first();
 	QRect r (obx-ox + row->x - 25, oby-oy + row->y, 25, row->height); //#### label width
-	if (paper) {
- 	    if ( paper->pixmap() )
- 		p->drawTiledPixmap( r, *paper->pixmap(), QPoint(r.x()+ox, r.y()+oy) );
+	if ( to.paper ) {
+ 	    if ( to.paper->pixmap() )
+ 		p->drawTiledPixmap( r, *to.paper->pixmap(), QPoint(r.x()+ox, r.y()+oy) );
  	    else
-		p->fillRect(r, *paper );
+		p->fillRect(r, *to.paper );
 	}
 	
 	QTextBox* b = parentBox();
@@ -1117,7 +1147,7 @@ void QTextBox::draw(QPainter *p,  int obx, int oby, int ox, int oy, int cx, int 
 
 
     for (QTextRow* row = rows.first(); row; row = rows.next()) {
-	row->draw(p, obx, oby, ox, oy, cx, cy, cw, ch, backgroundRegion, cg, paper, onlyDirty, onlySelection);
+	row->draw(p, obx, oby, ox, oy, cx, cy, cw, ch, backgroundRegion, cg, to, onlyDirty, onlySelection);
     }
 
 }
@@ -1950,6 +1980,7 @@ void QRichText::init( const QString& doc, const QFont& font, int margin )
     base->setFontUnderline( font.underline() );
     base->setFontWeight( font.weight() );
     base->setFontSize( font.pointSize() );
+    base->setLogicalFontSize( 3 );
     base->setMargin( QStyleSheetItem::MarginAll, margin );
 
     valid = TRUE;
