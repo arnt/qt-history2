@@ -20,22 +20,19 @@
 #include <qiconset.h>
 
 class QDirModelPrivate;
+class QFileIconProviderPrivate;
 
 class Q_GUI_EXPORT QFileIconProvider
 {
+    Q_DECLARE_PRIVATE(QFileIconProvider)
 public:
     QFileIconProvider();
     virtual ~QFileIconProvider();
     virtual QIconSet computerIcon() const;
     virtual QIconSet icon(const QFileInfo &info) const;
     virtual QString type(const QFileInfo &info) const;
-protected:
-    QIconSet file;
-    QIconSet dir;
-    QIconSet driveHD;
-    QIconSet computer;
-    QIconSet fileLink;
-    QIconSet dirLink;
+private:
+    QFileIconProviderPrivate *d_ptr;
 };
 
 class Q_GUI_EXPORT QDirModel : public QAbstractItemModel

@@ -60,16 +60,25 @@ static bool qt_move_file(const QString &from, const QString &to)
   \class QFileIconProvider
 
   \brief The QFileIconProvider class provides file icon for the QDirModel class.
-
-
 */
 
-/*!
-  Constructs a file icon provider.
+class QFileIconProviderPrivate
+{
+    Q_DECLARE_PUBLIC(QFileIconProvider)
+public:
+    QFileIconProviderPrivate();
 
-*/
+    QIconSet file;
+    QIconSet dir;
+    QIconSet driveHD;
+    QIconSet computer;
+    QIconSet fileLink;
+    QIconSet dirLink;
 
-QFileIconProvider::QFileIconProvider()
+    QFileIconProvider *q_ptr;
+};
+
+QFileIconProviderPrivate::QFileIconProviderPrivate()
 {
     file.setPixmap(QApplication::style().standardPixmap(QStyle::SP_FileIcon), QIconSet::Small);
     fileLink.setPixmap(QApplication::style().standardPixmap(QStyle::SP_FileLinkIcon),
@@ -89,13 +98,22 @@ QFileIconProvider::QFileIconProvider()
 }
 
 /*!
+  Constructs a file icon provider.
+
+*/
+
+QFileIconProvider::QFileIconProvider()
+    : d_ptr(new QFileIconProviderPrivate)
+{
+}
+
+/*!
   Destroys the file icon provider.
 
 */
 
 QFileIconProvider::~QFileIconProvider()
 {
-
 }
 
 /*!
@@ -104,7 +122,7 @@ QFileIconProvider::~QFileIconProvider()
 
 QIconSet QFileIconProvider::computerIcon() const
 {
-    return computer;
+    return d_ptr->computer;
 }
 
 /*!
@@ -114,13 +132,13 @@ QIconSet QFileIconProvider::computerIcon() const
 QIconSet QFileIconProvider::icon(const QFileInfo &info) const
 {
     if (info.isRoot())
-        return driveHD;
+        return d_ptr->driveHD;
     if (info.isFile())
-        return file;
+        return d_ptr->file;
     if (info.isDir())
-        return dir;
+        return d_ptr->dir;
     if (info.isSymLink())
-        return fileLink;
+        return d_ptr->fileLink;
     return QIconSet();
 }
 
