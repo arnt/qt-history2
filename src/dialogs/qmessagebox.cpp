@@ -351,6 +351,8 @@ switch( mb.exec() ) {
   \i Abort
   \i Retry
   \i Ignore
+  \i YesAll
+  \i NoAll
   \endlist
 
   Button types can be combined with two modifiers by using OR, '|':
@@ -416,7 +418,7 @@ struct QMessageBoxData {
     QPushButton        *pb[3];                  // buttons
 };
 
-static const int LastButton = QMessageBox::Ignore;
+static const int LastButton = QMessageBox::NoAll;
 
 /*
   NOTE: The table of button texts correspond to the button enum.
@@ -431,6 +433,8 @@ static const char * const mb_texts[] = {
     QT_TRANSLATE_NOOP("QMessageBox","&Abort"),
     QT_TRANSLATE_NOOP("QMessageBox","&Retry"),
     QT_TRANSLATE_NOOP("QMessageBox","&Ignore"),
+    QT_TRANSLATE_NOOP("QMessageBox","Yes to &All"),
+    QT_TRANSLATE_NOOP("QMessageBox","N&o to All"),
     0
 };
 
@@ -474,6 +478,8 @@ QMessageBox::QMessageBox( QWidget *parent, const char *name )
   \i QMessageBox::Abort
   \i QMessageBox::Retry
   \i QMessageBox::Ignore
+  \i QMessageBox::YesAll
+  \i QMessageBox::NoAll
   \endlist
 
   Use QMessageBox::NoButton for the later parameters to have fewer than
@@ -1011,6 +1017,8 @@ void QMessageBox::showEvent( QShowEvent *e )
   \i QMessageBox::Abort
   \i QMessageBox::Retry
   \i QMessageBox::Ignore
+  \i QMessageBox::YesAll
+  \i QMessageBox::NoAll
   \endlist
 
   If you don't want all three buttons, set the last button, or last two
@@ -1054,6 +1062,8 @@ int QMessageBox::information( QWidget *parent,
   \i QMessageBox::Abort
   \i QMessageBox::Retry
   \i QMessageBox::Ignore
+  \i QMessageBox::YesAll
+  \i QMessageBox::NoAll
   \endlist
 
   If you don't want all three buttons, set the last button, or last two
@@ -1097,6 +1107,8 @@ int QMessageBox::warning( QWidget *parent,
   \i QMessageBox::Abort
   \i QMessageBox::Retry
   \i QMessageBox::Ignore
+  \i QMessageBox::YesAll
+  \i QMessageBox::NoAll
   \endlist
 
   If you don't want all three buttons, set the last button, or last two

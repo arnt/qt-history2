@@ -68,7 +68,7 @@ public:
     ~QMessageBox();
 
     enum { NoButton = 0, Ok = 1, Cancel = 2, Yes = 3, No = 4, Abort = 5,
-	   Retry = 6, Ignore = 7, ButtonMask = 0x07,
+	   Retry = 6, Ignore = 7, YesAll = 8, NoAll = 9, ButtonMask = 0xff,
 	   Default = 0x100, Escape = 0x200, FlagMask = 0x300 };
 
     static int information( QWidget *parent, const QString &caption,
