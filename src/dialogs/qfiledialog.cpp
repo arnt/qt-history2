@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#191 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#192 $
 **
 ** Implementation of QFileDialog class
 **
@@ -355,11 +355,11 @@ void QFileListBox::setSelected( QListBoxItem *i, bool s )
 {
     if ( i && s && !( (QFileDialogPrivate::MCItem *)i )->isSelectable() )
         return;
-    
+
     QListBox::setSelected( i, s );
 }
 
-void QFileListBox::setSelected( int i, bool s ) 
+void QFileListBox::setSelected( int i, bool s )
 {
     QListBox::setSelected( i, s );
 }
@@ -514,7 +514,8 @@ void QFileListView::viewportMousePressEvent( QMouseEvent *e )
     QListViewItem *i = currentItem();
     QListView::viewportMousePressEvent( e );
 
-    if ( itemAt( e->pos() ) != i )
+    if ( itemAt( e->pos() ) != i ||
+         e->x() + contentsX() > columnWidth( 0 ) )
         return;
 
     if ( !didRename && i == currentItem() && currentItem() && filedialog->mode() != QFileDialog::ExistingFiles &&
@@ -542,7 +543,7 @@ void QFileListView::startRename()
     QRect r = itemRect( i );
     int d = i->pixmap( 0 ) ?
             i->pixmap( 0 )->width() + 2 : 22;
-    int x = r.x() + d;
+    int x = r.x() + d - contentsX();
     int y = r.y() + 1;
     int w = columnWidth( 0 ) - d - 1;
     int h = r.height() - 2;
@@ -1805,7 +1806,7 @@ void QFileDialog::popupContextMenu( QListViewItem *item, const QPoint & p,
 
     if ( mode() == QFileDialog::ExistingFiles )
         m.setItemEnabled( rename, FALSE );
-    
+
     m.move( p );
     int res = m.exec();
 
