@@ -50,9 +50,10 @@ FormDialog::FormDialog()
     staffCursor.next();
 
     QSqlForm sqlForm( this );
-    sqlForm.insert( forenameDisplay, staffCursor.field( "forename" ) );
-    sqlForm.insert( surnameDisplay, staffCursor.field( "surname" ) );
-    sqlForm.insert( salaryEdit, staffCursor.field( "salary" ) );
+    sqlForm.setRecord( staffCursor.editBuffer() );
+    sqlForm.insert( forenameDisplay, "forename" );
+    sqlForm.insert( surnameDisplay, "surname" );
+    sqlForm.insert( salaryEdit, "salary" );
     sqlForm.readFields();
 }
 
