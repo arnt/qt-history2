@@ -1035,7 +1035,7 @@ MakefileGenerator::writeMakeQmake(QTextStream &t)
     ofile = Option::fixPathToTargetOS(ofile);
 
     QString pfile = project->projectFile();
-    if(pfile != "-") {
+    if(pfile != "(stdin)") {
 	QString qmake = build_args();
 	fileFixify(pfile);
 	if(!ofile.isEmpty()) {
