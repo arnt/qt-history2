@@ -1604,8 +1604,13 @@ QString QDir::cleanPath(const QString &path)
     const QChar *p = name.unicode();
     for(int i = 0, last = -1, iwrite = 0; i < len; i++) {
         if(p[i] == QLatin1Char('/')) {
-            while(i < len-1 && p[i+1] == QLatin1Char('/'))
+            while(i < len-1 && p[i+1] == QLatin1Char('/')) {
+#ifdef Q_OS_WIN //allow unc paths
+                if(!i)
+                    break;
+#endif
                 i++;
+            }
             bool eaten = false;
             if(i < len - 1 && p[i+1] == QLatin1Char('.')) {
                 int dotcount = 1;
