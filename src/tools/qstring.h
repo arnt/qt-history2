@@ -464,11 +464,11 @@ public:
     QString     section( QChar sep, int start, int end = 0xffffffff, int flags = SectionDefault ) const;
     QString     section( char sep, int start, int end = 0xffffffff, int flags = SectionDefault ) const;
 #ifndef QT_NO_CAST_ASCII
-    QString      section( const char *substr, int start, int end = 0xffffffff, int flags = SectionDefault ) const;
+    QString      section( const char *in_sep, int start, int end = 0xffffffff, int flags = SectionDefault ) const;
 #endif
-    QString     section( const QString &substr, int start, int end = 0xffffffff, int flags = SectionDefault ) const;
+    QString     section( const QString &in_sep, int start, int end = 0xffffffff, int flags = SectionDefault ) const;
 #ifndef QT_NO_REGEXP
-    QString     section( const QRegExp &regxp, int start, int end = 0xffffffff, int flags = SectionDefault ) const;
+    QString     section( const QRegExp &reg, int start, int end = 0xffffffff, int flags = SectionDefault ) const;
 #endif
 
     QString     left( uint len )  const;
@@ -713,15 +713,15 @@ inline QString::~QString()
     }
 }
 
-inline QString QString::section( QChar sep, int start, int end, int flags ) const 
+inline QString QString::section( QChar sep, int start, int end, int flags ) const
 { return section(QString(sep), start, end, flags); }
 
 inline QString QString::section( char sep, int start, int end, int flags ) const
 { return section(QChar(sep), start, end, flags); }
 
 #ifndef QT_NO_CAST_ASCII
-inline QString QString::section( const char *substr, int start, int end, int flags ) const
-{ return section(QString(substr), start, end, flags); }
+inline QString QString::section( const char *in_sep, int start, int end, int flags ) const
+{ return section(QString(in_sep), start, end, flags); }
 #endif
 
 inline QString &QString::operator=( QChar c )

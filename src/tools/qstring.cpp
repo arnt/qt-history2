@@ -11791,13 +11791,13 @@ QChar QChar::mirroredChar() const
 #endif
 }
 
+#ifndef QT_NO_UNICODETABLES
+static QString shared_decomp;
+#endif
 /*!
   Decomposes a character into its parts. Returns QString::null if
   no decomposition exists.
 */
-#ifndef QT_NO_UNICODETABLES
-static QString shared_decomp;
-#endif
 const QString &QChar::decomposition() const
 {
 #ifndef QT_NO_UNICODETABLES
@@ -13518,7 +13518,7 @@ int QString::findRev( const QString& str, int index, bool cs ) const
 
 /*!
 
-    \fn QString section( QChar sep, int start, int end = 0xffffffff, int flags = SectionDefault ) const
+    \fn QString QString::section( QChar sep, int start, int end = 0xffffffff, int flags = SectionDefault ) const
 
     This function returns a section of the string.
 
@@ -13528,7 +13528,7 @@ int QString::findRev( const QString& str, int index, bool cs ) const
     specified, all fields from position \a start to the end of the
     string are included.
 
-    The \a flag argument can be used to affect some aspects of the
+    The \a flags argument can be used to affect some aspects of the
     function's behaviour, e.g. whether to be case sensitive, whether
     to skip empty fields and how to deal with leading and trailing
     separators; see \l{SectionFlags}.
@@ -13558,15 +13558,16 @@ int QString::findRev( const QString& str, int index, bool cs ) const
 */
 
 /*!
+    \overload
     This function returns a section of the string.
 
     This string is treated as a sequence of fields separated by the
-    string, \a sep. The returned string consists of the fields from
+    string, \a in_sep. The returned string consists of the fields from
     position \a start to position \a end inclusive. If \a end is not
     specified, all fields from position \a start to the end of the
     string are included.
 
-    The \a flag argument can be used to affect some aspects of the
+    The \a flags argument can be used to affect some aspects of the
     function's behaviour, e.g. whether to be case sensitive, whether
     to skip empty fields and how to deal with leading and trailing
     separators; see \l{SectionFlags}.
@@ -13733,15 +13734,16 @@ public:
     QString string;
 };
 /*!
+    \overload
     This function returns a section of the string.
 
     This string is treated as a sequence of fields separated by the
-    regular expression, \a sep. The returned string consists of the
+    regular expression, \a reg. The returned string consists of the
     fields from position \a start to position \a end inclusive. If \a
     end is not specified, all fields from position \a start to the end
     of the string are included.
 
-    The \a flag argument can be used to affect some aspects of the
+    The \a flags argument can be used to affect some aspects of the
     function's behaviour, e.g. whether to be case sensitive, whether
     to skip empty fields and how to deal with leading and trailing
     separators; see \l{SectionFlags}.
@@ -13824,11 +13826,11 @@ QString QString::section( const QRegExp &reg, int start, int end, int flags ) co
 #endif
 
 /*!
-    \overload QString     section( char sep, int start, int end = 0xffffffff, int flags = SectionDefault ) const
+    \overload QString QString::section( char sep, int start, int end = 0xffffffff, int flags = SectionDefault ) const
 */
 
 /*!
-    \overload QString      section( const char *str, int start, int end = 0xffffffff, int flags = SectionDefault ) const
+    \overload QString QString::section( const char *in_sep, int start, int end = 0xffffffff, int flags = SectionDefault ) const
 */
 
 
