@@ -1221,10 +1221,12 @@ void QTextHtmlExporter::emitBlockAttributes(const QTextBlock &block)
     emitAlignment(format.alignment());
 
     Qt::LayoutDirection dir = format.layoutDirection();
-    if (dir == Qt::LeftToRight)
-        html += QLatin1String(" dir='ltr'");
-    else
+    if (dir == Qt::LeftToRight) {
+        // assume default to not bloat the html too much
+        // html += QLatin1String(" dir='ltr'");
+    } else {
         html += QLatin1String(" dir='rtl'");
+    }
 
     bool hasStyle = false;
     QLatin1String style(" style=\"");
