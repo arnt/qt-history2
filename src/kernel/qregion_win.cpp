@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qregion_win.cpp#9 $
+** $Id: //depot/qt/main/src/kernel/qregion_win.cpp#10 $
 **
 ** Implementation of QRegion class for Windows
 **
@@ -15,10 +15,30 @@
 #include "qbuffer.h"
 #include <windows.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qregion_win.cpp#9 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qregion_win.cpp#10 $")
 
 
-QRegion::QRegion()				// create empty region
+static void *empty_region = 0;
+
+static void cleanup_empty_region()
+{
+    delete empty_region;
+    empty_region = 0;
+}
+
+
+QRegion::QRegion()
+{
+    if ( !empty_region ) {			// avoid too many allocs
+	qAddPostRoutine( cleanup_empty_region );
+	empty_region = new QRegion( TRUE );
+	CHECK_PTR( empty_region );
+    }
+    data = (QRegionData*)empty_region;
+    data->ref();
+}
+
+QRegion::QRegion( bool )
 {
     data = new QRegionData;
     CHECK_PTR( data );
@@ -26,7 +46,7 @@ QRegion::QRegion()				// create empty region
 }
 
 QRegion::QRegion( const QRect &r, RegionType t )
-{						// create region from rect
+{
     QRect rr = r;
     rr.fixup();
     data = new QRegionData;
@@ -98,7 +118,7 @@ QRegion &QRegion::operator=( const QRegion &r )
 
 QRegion QRegion::copy() const
 {
-    QRegion r;
+    QRegion r( TRUE );
     r.data->bop = data->bop.copy();
     if ( data->rgn )
 	CombineRgn( r.data->rgn, data->rgn, 0, RGN_COPY );
@@ -119,7 +139,7 @@ bool QRegion::isEmpty() const
 
 bool QRegion::contains( const QPoint &p ) const
 {
-    return data->rgn ? PtInRegion( data->rgn, p.x(), p.y() ) : FALSE;
+    return data->rgn ? PtInRegion(data->rgn, p.x(), p.y()) : FALSE;
 }
 
 bool QRegion::contains( const QRect &r ) const
@@ -134,65 +154,93 @@ bool QRegion::contains( const QRect &r ) const
 
 void QRegion::move( int dx, int dy )
 {
+    if ( !data->rgn )
+	return;
+    detach();
     OffsetRgn( data->rgn, dx, dy );
     QPoint p( dx, dy );
     cmd( QRGN_MOVE, &p );
 }
 
 
+#define RGN_NOP -1
+
+/*----------------------------------------------------------------------------
+  Performs the actual OR, AND, SUB and XOR operation between regions.
+  Sets the resulting region handle to 0 to indicate an empty region.
+ ----------------------------------------------------------------------------*/
+
+QRegion QRegion::winCombine( const QRegion &r, int op )
+{
+    int both=RGN_NOP, left=RGN_NOP, right=RGN_NOP;
+    switch ( op ) {
+	case QRGN_OR:
+	    both = RGN_OR;
+	    left = right = RGN_COPY;
+	    break;
+	case QRGN_AND:
+	    both = RGN_AND;
+	    break;
+	case QRGN_SUB:
+	    both = RGN_DIFF;
+	    left = RGN_COPY;
+	    break;
+	case QRGN_XOR:
+	    both = RGN_XOR;
+	    left = right = RGN_COPY;
+	    break;
+	default:
+#if defined(CHECK_RANGE)
+	    warning( "QRegion: Internal error in winCombine" );
+#endif
+    }
+
+    QRegion result( TRUE );
+    result.data->rgn = CreateRectRgn( 0, 0, 0, 0 );
+    int res = NULLREGION;
+    if ( data->rgn && r.data->rgn )
+	res = CombineRgn( result.data->rgn, data->rgn, r.data->rgn, both );
+    else if ( data->rgn && left != RGN_NOP )
+	res = CombineRgn( result.data->rgn, data->rgn, 0, left );
+    else if ( r.data->rgn && right != RGN_NOP )
+	res = CombineRgn( result.data->rgn, r.data->rgn, 0, right );
+    result.cmd( op, 0, this, &r );
+    if ( res == NULLREGION ) {
+	if ( result.data->rgn )
+	    DeleteObject( result.data->rgn );
+	result.data->rgn = 0;			// empty region
+    }
+    return result;
+}
+
 QRegion QRegion::unite( const QRegion &r ) const
 {
-    QRegion result;
-    result.data->rgn = CreateRectRgn( 0, 0, 0, 0 );
-    if ( data->rgn && r.data->rgn )
-	CombineRgn( result.data->rgn, data->rgn, r.data->rgn, RGN_OR );
-    else if ( data->rgn )
-	CombineRgn( result.data->rgn, data->rgn, 0, RGN_COPY );
-    else if ( r.data->rgn )
-	CombineRgn( result.data->rgn, r.data->rgn, 0, RGN_COPY );
-    result.cmd( QRGN_OR, 0, this, &r );
-    return result;
+    return winCombine( r, QRGN_OR );
 }
 
 QRegion QRegion::intersect( const QRegion &r ) const
 {
-    QRegion result;
-    result.data->rgn = CreateRectRgn( 0, 0, 0, 0 );
-    if ( data->rgn && r.data->rgn )
-	CombineRgn( result.data->rgn, data->rgn, r.data->rgn, RGN_AND );
-    result.cmd( QRGN_AND, 0, this, &r );
-    return result;
+    return winCombine( r, QRGN_AND );
 }
 
 QRegion QRegion::subtract( const QRegion &r ) const
 {
-    QRegion result;
-    result.data->rgn = CreateRectRgn( 0, 0, 0, 0 );
-    if ( data->rgn && r.data->rgn )
-	CombineRgn( result.data->rgn, data->rgn, r.data->rgn, RGN_DIFF );
-    else if ( data->rgn )
-	CombineRgn( result.data->rgn, data->rgn, 0, RGN_COPY );
-    result.cmd( QRGN_SUB, 0, this, &r );
-    return result;
+    return winCombine( r, QRGN_SUB );
 }
 
 QRegion QRegion::xor( const QRegion &r ) const
 {
-    QRegion result;
-    result.data->rgn = CreateRectRgn( 0, 0, 0, 0 );
-    if ( data->rgn && r.data->rgn )
-	CombineRgn( result.data->rgn, data->rgn, r.data->rgn, RGN_XOR );
-    else if ( data->rgn )
-	CombineRgn( result.data->rgn, data->rgn, 0, RGN_COPY );
-    else if ( r.data->rgn )
-	CombineRgn( result.data->rgn, r.data->rgn, 0, RGN_COPY );
-    result.cmd( QRGN_XOR, 0, this, &r );
-    return result;
+    return winCombine( r, QRGN_XOR );
 }
 
 
 bool QRegion::operator==( const QRegion &r ) const
 {
-    return data == r.data ?
-	TRUE : EqualRgn( data->rgn, r.data->rgn );
+    if ( data == r.data() )			// share the same data
+	return TRUE;
+    if ( (data->rgn == 0) ^ (r.data->rgn == 0)) // one is empty, not both
+	return FALSE;
+    return data->rgn == 0 ?
+	TRUE :					// both empty
+	EqualRgn( data->rgn, r.data->rgn );	// both non-empty
 }

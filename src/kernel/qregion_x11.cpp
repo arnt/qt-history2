@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qregion_x11.cpp#16 $
+** $Id: //depot/qt/main/src/kernel/qregion_x11.cpp#17 $
 **
 ** Implementation of QRegion class for X11
 **
@@ -18,30 +18,54 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qregion_x11.cpp#16 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qregion_x11.cpp#17 $")
 
 
-/*!
+static void *empty_region = 0;
+
+static void cleanup_empty_region()
+{
+    delete empty_region;
+    empty_region = 0;
+}
+
+
+/*----------------------------------------------------------------------------
   Constructs an empty region.
-*/
+ ----------------------------------------------------------------------------*/
 
-QRegion::QRegion()				// create empty region
+QRegion::QRegion()
+{
+    if ( !empty_region ) {			// avoid too many allocs
+	qAddPostRoutine( cleanup_empty_region );
+	empty_region = new QRegion( TRUE );
+	CHECK_PTR( empty_region );
+    }
+    data = (QRegionData*)empty_region;
+    data->ref();
+}
+
+/*----------------------------------------------------------------------------
+  Internal constructor that creates an empty region.
+ ----------------------------------------------------------------------------*/
+
+QRegion::QRegion( bool )
 {
     data = new QRegionData;
     CHECK_PTR( data );
     data->rgn = XCreateRegion();
 }
 
-/*!
+/*----------------------------------------------------------------------------
   Constructs a rectangular or elliptic region.
 
   \arg \e r is the region rectangle.
   \arg \e t is the region type: QRegion::Rectangle (default) or
   QRegion::Ellipse.
-*/
+ ----------------------------------------------------------------------------*/
 
 QRegion::QRegion( const QRect &r, RegionType t )
-{						// create region from rect
+{
     QRect rr = r;
     rr.fixup();
     data = new QRegionData;
@@ -72,9 +96,13 @@ QRegion::QRegion( const QRect &r, RegionType t )
     cmd( id, &rr );
 }
 
-/*!
+/*----------------------------------------------------------------------------
   Constructs a polygon region from the point array \e a.
-*/
+
+  If \e winding is TRUE, the polygon region uses the winding
+  algorithm, otherwise the alternative (even-odd) algorithm
+  will be used.
+ ----------------------------------------------------------------------------*/
 
 QRegion::QRegion( const QPointArray &a, bool winding )
 {
@@ -93,9 +121,9 @@ QRegion::QRegion( const QPointArray &a, bool winding )
     cmd( c, (QPointArray *)&a );
 }
 
-/*!
+/*----------------------------------------------------------------------------
   Constructs a region which is a shallow copy of \e r.
-*/
+ ----------------------------------------------------------------------------*/
 
 QRegion::QRegion( const QRegion &r )
 {
@@ -103,9 +131,9 @@ QRegion::QRegion( const QRegion &r )
     data->ref();
 }
 
-/*!
+/*----------------------------------------------------------------------------
   Destroys the region.
-*/
+ ----------------------------------------------------------------------------*/
 
 QRegion::~QRegion()
 {
@@ -115,10 +143,10 @@ QRegion::~QRegion()
     }
 }
 
-/*!
+/*----------------------------------------------------------------------------
   Assigns a shallow copy of \e r to this region and returns a reference to
   the region.
-*/
+ ----------------------------------------------------------------------------*/
 
 QRegion &QRegion::operator=( const QRegion &r )
 {
@@ -132,28 +160,33 @@ QRegion &QRegion::operator=( const QRegion &r )
 }
 
 
-/*!  Returns a deep copy of the region.
-
-  This may disappear in 0.93. */
+/*----------------------------------------------------------------------------
+  Returns a deep copy of the region.
+ ----------------------------------------------------------------------------*/
 
 QRegion QRegion::copy() const
 {
-    QRegion r;
+    QRegion r( TRUE );
     r.data->bop = data->bop.copy();
     XUnionRegion( data->rgn, r.data->rgn, r.data->rgn );
     return r;
 }
 
 
-/*!  Returns TRUE if the region is a null region. \sa isEmpty() */
+/*----------------------------------------------------------------------------
+  Returns TRUE if the region is a null region.
+  \sa isEmpty()
+ ----------------------------------------------------------------------------*/
 
 bool QRegion::isNull() const
 {
     return data->bop.isNull();
 }
 
-/*!  Returns TRUE if the region is empty, or FALSE if it is
-  non-empty. \sa isNull() */
+/*----------------------------------------------------------------------------
+  Returns TRUE if the region is empty, or FALSE if it is
+  non-empty. \sa isNull()
+ ----------------------------------------------------------------------------*/
 
 bool QRegion::isEmpty() const
 {
@@ -161,20 +194,20 @@ bool QRegion::isEmpty() const
 }
 
 
-/*!
+/*----------------------------------------------------------------------------
   Returns TRUE if the region contains the point \e p, or FALSE if \e p is
   outside the region.
-*/
+ ----------------------------------------------------------------------------*/
 
 bool QRegion::contains( const QPoint &p ) const
 {
     return XPointInRegion( data->rgn, p.x(), p.y() );
 }
 
-/*!
+/*----------------------------------------------------------------------------
   Returns TRUE if the region contains the rectangle \e r, or FALSE if \e r is
   outside the region.
-*/
+ ----------------------------------------------------------------------------*/
 
 bool QRegion::contains( const QRect &r ) const
 {
@@ -183,72 +216,75 @@ bool QRegion::contains( const QRect &r ) const
 }
 
 
-/*!
+/*----------------------------------------------------------------------------
   Changes the offset of the region \e dx along the X axis and \e dy along the
   Y axis.
-*/
+ ----------------------------------------------------------------------------*/
 
 void QRegion::move( int dx, int dy )
 {
+    if ( data == empty_region )
+	return;
+    detach();
     XOffsetRegion( data->rgn, dx, dy );
     QPoint p( dx, dy );
     cmd( QRGN_MOVE, &p );
 }
 
 
-/*!
+/*----------------------------------------------------------------------------
   Returns a region which is the union of this region and \e r.
-*/
+ ----------------------------------------------------------------------------*/
 
 QRegion QRegion::unite( const QRegion &r ) const
 {
-    QRegion result;
+    QRegion result( TRUE );
     XUnionRegion( data->rgn, r.data->rgn, result.data->rgn );
     result.cmd( QRGN_OR, 0, this, &r );
     return result;
 }
 
-/*!
+/*----------------------------------------------------------------------------
   Returns a region which is the intersection of this region and \e r.
-*/
+ ----------------------------------------------------------------------------*/
 
 QRegion QRegion::intersect( const QRegion &r ) const
 {
-    QRegion result;
+    QRegion result( TRUE );
     XIntersectRegion( data->rgn, r.data->rgn, result.data->rgn );
     result.cmd( QRGN_AND, 0, this, &r );
     return result;
 }
 
-/*!
+/*----------------------------------------------------------------------------
   Returns a region which is \e r subtracted from this region.
-*/
+ ----------------------------------------------------------------------------*/
 
 QRegion QRegion::subtract( const QRegion &r ) const
 {
-    QRegion result;
+    QRegion result( TRUE );
     XSubtractRegion( data->rgn, r.data->rgn, result.data->rgn );
     result.cmd( QRGN_SUB, 0, this, &r );
     return result;
 }
 
-/*!
+/*----------------------------------------------------------------------------
   Returns a region which is this region XOR \e r.
-*/
+ ----------------------------------------------------------------------------*/
 
 QRegion QRegion::xor( const QRegion &r ) const
 {
-    QRegion result;
+    QRegion result( TRUE );
     XXorRegion( data->rgn, r.data->rgn, result.data->rgn );
     result.cmd( QRGN_XOR, 0, this, &r );
     return result;
 }
 
 
-/*!
+/*----------------------------------------------------------------------------
   Returns TRUE if the region is equal to \e r, or FALSE if the regions are
   different.
-*/
+ ----------------------------------------------------------------------------*/
 
 bool QRegion::operator==( const QRegion &r ) const
 {
@@ -256,8 +292,8 @@ bool QRegion::operator==( const QRegion &r ) const
 	TRUE : XEqualRegion( data->rgn, r.data->rgn );
 }
 
-/*!
+/*----------------------------------------------------------------------------
   \fn bool QRegion::operator!=( const QRegion &r ) const
   Returns TRUE if the region is different from \e r, or FALSE if the regions
   are equal.
-*/
+ ----------------------------------------------------------------------------*/

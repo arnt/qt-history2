@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qregion.cpp#6 $
+** $Id: //depot/qt/main/src/kernel/qregion.cpp#7 $
 **
 ** Implementation of QRegion class
 **
@@ -15,10 +15,10 @@
 #include "qbuffer.h"
 #include "qdstream.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qregion.cpp#6 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qregion.cpp#7 $")
 
 
-/*!
+/*----------------------------------------------------------------------------
   \class QRegion qregion.h
   \brief The QRegion class specifies a clip region for a painter.
 
@@ -49,12 +49,39 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qregion.cpp#6 $")
     }
   \endcode
 
-  \sa QPainter::setClipRegion(), QPainter::setClipRect() */
+  \sa QPainter::setClipRegion(), QPainter::setClipRect()
+ ----------------------------------------------------------------------------*/
 
 
-// --------------------------------------------------------------------------
-// QRegion member functions
-//
+/*****************************************************************************
+  QRegion member functions
+ *****************************************************************************/
+
+/*----------------------------------------------------------------------------
+  Detaches from shared region data to makes sure that this region is the
+  only one referring the data.
+
+  If multiple regions share common data, this region dereferences the data
+  and gets a copy of the data. Nothing is done if there is just a single
+  reference.
+ ----------------------------------------------------------------------------*/
+
+void QRegion::detach()
+{
+    if ( data->count != 1 )
+	*this = copy();
+}
+
+
+/*----------------------------------------------------------------------------
+  Stores a region command in an internal buffer so it can be played back
+  later using exec().
+
+  All region commands (unite, intersect etc.) are stored in the buffer.
+  We need to do this because it is not possible to access the native
+  region data on most platforms. This seems to be the only way to support
+  regions for QPictures.  We have sacrified speed for compatibility.
+ ----------------------------------------------------------------------------*/
 
 void QRegion::cmd( int id, void *param, const QRegion *r1, const QRegion *r2 )
 {
@@ -90,9 +117,16 @@ void QRegion::cmd( int id, void *param, const QRegion *r1, const QRegion *r2 )
 }
 
 
-void QRegion::exec()
+/*----------------------------------------------------------------------------
+  Executes region commands in the internal buffer and rebuild the original
+  region.
+
+  We do this when we read a region from the data stream.
+ ----------------------------------------------------------------------------*/
+
+void QRegion::exec( const QByteArray &buffer )
 {
-    QBuffer buf( data->bop );
+    QBuffer buf( buffer );
     QDataStream s( &buf );
     buf.open( IO_ReadOnly );
     QRegion rgn;
@@ -104,7 +138,7 @@ void QRegion::exec()
 	s >> id;
 #if defined(DEBUG)
 	if ( test_cnt > 0 && id != QRGN_MOVE )
-	    warning( "QRegion: Internal exec error" );
+	    warning( "QRegion::exec: Internal error" );
 	test_cnt++;
 #endif
 	if ( id == QRGN_SETRECT || id == QRGN_SETELLIPSE ) {
@@ -120,18 +154,16 @@ void QRegion::exec()
 	else if ( id == QRGN_MOVE ) {
 	    QPoint p;
 	    s >> p;
-	    rgn = *this;
+#if defined(DEBUG)
+	    ASSERT( !rgn.data->bop.isNull() );
+#endif
 	    rgn.move( p.x(), p.y() );
 	}
 	else if ( id >= QRGN_OR && id <= QRGN_XOR ) {
 	    QByteArray bop1, bop2;
-	    s >> bop1;
-	    s >> bop2;
 	    QRegion r1, r2;
-	    r1.data->bop = bop1;
-	    r2.data->bop = bop2;
-	    r1.exec();
-	    r2.exec();
+	    s >> bop1;  r1.exec( bop1 );
+	    s >> bop2;  r2.exec( bop2 );
 	    switch ( id ) {
 		case QRGN_OR:
 		    rgn = r1.unite( r2 );
@@ -153,32 +185,29 @@ void QRegion::exec()
 }
 
 
-// --------------------------------------------------------------------------
-// QRegion stream functions
-//
+/*****************************************************************************
+  QRegion stream functions
+ *****************************************************************************/
 
-/*!
+/*----------------------------------------------------------------------------
   \relates QRegion
-  Writes a region to the stream.
-*/
+  Writes a region to the stream and returns a reference to the stream.
+ ----------------------------------------------------------------------------*/
 
 QDataStream &operator<<( QDataStream &s, const QRegion &r )
 {
     return s << r.data->bop;
 }
 
-/*!
+/*----------------------------------------------------------------------------
   \relates QRegion
-  Reads a region from the stream.
-*/
+  Reads a region from the stream and returns a reference to the stream.
+ ----------------------------------------------------------------------------*/
 
 QDataStream &operator>>( QDataStream &s, QRegion &r )
 {
-    QRegion newr;
     QByteArray b;
     s >> b;
-    newr.data->bop = b;
-    newr.exec();
-    r = newr;
+    r.exec( b );
     return s;
 }
