@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qtl.h#10 $
+** $Id: //depot/qt/main/src/tools/qtl.h#11 $
 **
 ** Definition of Qt template library classes
 **
@@ -177,33 +177,33 @@ void qHeapSortHelper( InputIterator b, InputIterator e, Value, int n )
 template <class InputIterator>
 inline void qHeapSort( InputIterator b, InputIterator e )
 {
-  // Empty ?
-  if ( b == e )
-    return;
+    // Empty ?
+    if ( b == e )
+	return;
 
-  // How many entries have to be sorted ?
-  InputIterator it = b;
-  int n = 0;
-  while ( it != e ) {
-      ++n;
-      ++it;
-  }
+    // How many entries have to be sorted ?
+    InputIterator it = b;
+    int n = 0;
+    while ( it != e ) {
+	++n;
+	++it;
+    }
 
-  // The last parameter is a hack to retrieve the value type
-  // Do the real sorting here
-  qHeapSortHelper( b, e, *b );
+    // The last parameter is a hack to retrieve the value type
+    // Do the real sorting here
+    qHeapSortHelper( b, e, *b );
 }
 
 
 template <class Container>
 inline void qHeapSort( Container &c )
 {
-  if ( c.isEmpty() )
-    return;
+    if ( c.isEmpty() )
+	return;
 
-  // The last parameter is a hack to retrieve the value type
-  // Do the real sorting here
-  qHeapSortHelper( c.begin(), c.end(), *(c.begin()), c.count() );
+    // The last parameter is a hack to retrieve the value type
+    // Do the real sorting here
+    qHeapSortHelper( c.begin(), c.end(), *(c.begin()), c.count() );
 }
 
 #endif
