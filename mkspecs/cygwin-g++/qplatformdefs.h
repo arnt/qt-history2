@@ -49,6 +49,7 @@
 #include <sys/socket.h>
 #include <sys/stat.h>
 #include <sys/wait.h>
+#include <windows.h>
 
 // Resolver functions are not implemented in Cygwin, headers
 // <arpa/nameser.h> and <resolv.h> are missing:
