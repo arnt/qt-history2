@@ -39,9 +39,11 @@
 #include <qdict.h>
 #include <qapplication.h>
 #include <qpainter.h>
-
 #ifdef Q_WS_MACX
-//# define QMAC_FONT_ANTIALIAS
+# define QMAC_FONT_ANTIALIAS
+#endif
+#ifdef QMAC_FONT_ANTIALIAS
+# include <ApplicationServices/ApplicationServices.h>
 #endif
 
 /*****************************************************************************
@@ -129,21 +131,22 @@ bool qt_mac_debug_metrics(const QString s, int len) {
 
 /* utility functions */
 QCString p2qstring(const unsigned char *c); //qglobal.cpp
-static inline void qstring_to_pstring( QString s, int len, Str255 str, TextEncoding encoding )
+static inline void qstring_to_pstring(QString s, int len, Str255 str, TextEncoding encoding)
 {
     UnicodeMapping mapping;
     UnicodeToTextInfo info;
-    mapping.unicodeEncoding = CreateTextEncoding( kTextEncodingUnicodeDefault,
-						  kTextEncodingDefaultVariant, kUnicode16BitFormat );
+    mapping.unicodeEncoding = CreateTextEncoding(kTextEncodingUnicodeDefault,
+						  kTextEncodingDefaultVariant, 
+						 kUnicode16BitFormat);
     mapping.otherEncoding = encoding;
     mapping.mappingVersion = kUnicodeUseLatestMapping;
 
-    if ( CreateUnicodeToTextInfo( &mapping, &info  ) != noErr )
-      Q_ASSERT( 0 );
+    if(CreateUnicodeToTextInfo(&mapping, &info) != noErr)
+      Q_ASSERT(0);
 
     const int unilen = len * 2;
     const UniChar *unibuf = (UniChar *)s.unicode(); //don't use pos here! FIXME
-    ConvertFromUnicodeToPString( info, unilen, unibuf, str  );
+    ConvertFromUnicodeToPString(info, unilen, unibuf, str);
 }
 
 /* font information */
@@ -154,7 +157,7 @@ class QMacFontInfo
     TextEncoding fi_enc;
 public:
     inline QMacFontInfo() : fi_fnum(0), fi_face(0), fi_size(0), fi_enc(0) { }
-    inline QMacFontInfo &operator=( const QMacFontInfo &rhs ) {
+    inline QMacFontInfo &operator=(const QMacFontInfo &rhs) {
 	setEncoding(rhs.encoding());
 	setFont(rhs.font());
 	setStyle(rhs.style());
@@ -207,7 +210,7 @@ inline bool QMacSetFontInfo::setMacFont(const QFontPrivate *d, QMacSetFontInfo *
 	//size
 	int pointSize = d->request.pointSize != -1 ? d->request.pointSize / 10 : 
 			      d->request.pixelSize *80 /72; 
-	fi->setSize( pointSize );
+	fi->setSize(pointSize);
 
 	//encoding
 	TextEncoding enc;
@@ -226,38 +229,184 @@ inline bool QMacSetFontInfo::setMacFont(const QFontPrivate *d, QMacSetFontInfo *
     return TRUE;
 }
 
+
+QCString p2qstring(const unsigned char *c); //qglobal.cpp
+const unsigned char * p_str(const QString &); //qglobal.cpp
+enum text_task { GIMME_WIDTH=0x01, GIMME_DRAW=0x02, GIMME_EXISTS=0x04 };
+#if defined( QMAC_FONT_ATSUI )
+static int do_text_task(const QFontPrivate *d, const QChar *s, int pos,
+			int use_len, int len, uchar task, int =-1, int y=-1)
+{
+    int ret = 0;
+    QMacSetFontInfo fi(d);
+
+    //set attributes
+    const int arr_guess = 15;
+    int arr = 0;
+    ATSUAttributeTag tags[arr_guess];
+    ByteCount valueSizes[arr_guess];
+    ATSUAttributeValuePtr values[arr_guess];
+    tags[arr] = kATSUSizeTag; //font size
+    Fixed fsize = FixRatio(fi.size(), 1);
+    valueSizes[arr] = sizeof(fsize);
+    values[arr] = &fsize;
+    arr++;
+    tags[arr] = kATSUFontTag;  //font
+    ATSUFontID fond;
+    ATSUFONDtoFontID(fi.font(), fi.style(), &fond);
+    valueSizes[arr] = sizeof(fond);
+    values[arr] = &fond;
+    arr++;
+    tags[arr] = kATSUColorTag; //color
+    RGBColor fcolor;
+    GetForeColor(&fcolor);
+    valueSizes[arr] = sizeof(fcolor);
+    values[arr] = &fcolor;
+    arr++;
+#if 0
+    //tweaks?
+    tags[arr] = kATSUKerningInhibitFactorTag;
+    Fract kern = 1;
+    valueSizes[arr] = sizeof(kern);
+    values[arr] = &kern;
+    arr++;
+    tags[arr] = kATSUSuppressCrossKerningTag;
+    Boolean kern2 = true;
+    valueSizes[arr] = sizeof(kern2);
+    values[arr] = &kern2;
+    arr++;
+    tags[arr] = kATSUNoOpticalAlignmentTag;
+    Boolean optalign = true;
+    valueSizes[arr] = sizeof(optalign);
+    values[arr] = &optalign;
+    arr++;
+    tags[arr] = kATSUForceHangingTag;
+    Boolean hanging = true;
+    valueSizes[arr] = sizeof(hanging);
+    values[arr] = &hanging;
+    arr++;
+    tags[arr] = kATSUDecompositionFactorTag;
+    Fixed decomp = FixRatio(0, 1);
+    valueSizes[arr] = sizeof(decomp);
+    values[arr] = &decomp;
+    arr++;
+#endif
+    if(arr > arr_guess) //this won't really happen, just so I will not miss the case
+	qDebug("%d: Whoa!! you forgot to increase arr_guess! %d", __LINE__, arr);
+
+    //create style
+    ATSUStyle astyle;
+    ATSUCreateStyle(&astyle);
+    if(OSStatus e = ATSUSetAttributes(astyle, arr, tags, valueSizes, values)) {
+	qDebug("%ld: This shouldn't happen %s:%d", e, __FILE__, __LINE__);
+	return 0;
+    }
+
+    //create layout
+    ATSUTextLayout alayout;
+    const UniCharCount count = use_len;
+#if 0
+    if(OSStatus e = ATSUCreateTextLayoutWithTextPtr((UniChar *)(s), pos, 
+						    count, len, 1, &count, 
+						    &astyle, &alayout)) {
+	qDebug("%ld: This shouldn't happen %s:%d", e, __FILE__, __LINE__);
+	ATSUDisposeStyle(astyle);
+	return 0;
+    }
+#else
+    if(OSStatus e = ATSUCreateTextLayoutWithTextPtr((UniChar *)(s)+pos, 0, 
+						    count, use_len, 1, &count, 
+						    &astyle, &alayout)) {
+	qDebug("%ld: This shouldn't happen %s:%d", e, __FILE__, __LINE__);
+	ATSUDisposeStyle(astyle);
+	return 0;
+    }
+#endif
+    arr = 0;
+    tags[arr] = kATSULineLayoutOptionsTag;
+    ATSLineLayoutOptions layopts = kATSLineIsDisplayOnly | kATSLineHasNoOpticalAlignment | 
+				   kATSLineFractDisable;
+    valueSizes[arr] = sizeof(layopts);
+    values[arr] = &layopts;
+    arr++;
+#ifdef QMAC_FONT_ANTIALIAS
+    tags[arr] = kATSUCGContextTag; //cgcontext
+    Rect clipr;
+    CGrafPtr port;
+    RgnHandle clip = NewRgn();
+    CGContextRef ctx;
+    GetPort(&port);
+    GetPortClipRegion(port, clip);
+    GetPortBounds(port, &clipr);
+    QDBeginCGContext(port, &ctx);
+    ClipCGContextToRegion(ctx, &clipr, clip);
+    valueSizes[arr] = sizeof(ctx);
+    values[arr] = &ctx;
+    arr++;
+#endif
+    if(arr > arr_guess) //this won't really happen, just so I will not miss the case
+	qDebug("%d: Whoa!! you forgot to increase arr_guess! %d", __LINE__, arr);
+    if(OSStatus e = ATSUSetLayoutControls(alayout, arr, tags, valueSizes, values)) {
+	qDebug("%ld: This shouldn't happen %s:%d", e, __FILE__, __LINE__);
+	ATSUDisposeStyle(astyle);
+#ifdef QMAC_FONT_ANTIALIAS
+	QDEndCGContext(port, &ctx);
+#endif
+	return 0;
+    }
+    ATSUSetTransientFontMatching(alayout, true);
+
+    //do required task now
+    if(task & GIMME_DRAW) {
+	ATSUDrawText(alayout, kATSUFromTextBeginning, kATSUToTextEnd, 
+#ifdef QMAC_FONT_ANTIALIAS
+		     kATSUUseGrafPortPenLoc, FixRatio((clipr.bottom-clipr.top)-y, 1)
+#else
+		     kATSUUseGrafPortPenLoc, kATSUUseGrafPortPenLoc
+#endif
+	    );
+    }
+    if(task & GIMME_WIDTH) {
+	ATSUTextMeasurement left, right, bottom, top;
+	ATSUMeasureText(alayout, kATSUFromTextBeginning, kATSUToTextEnd,
+			&left, &right, &bottom, &top);
+#if 0
+	qDebug("(%s) (%s): %p %d %d %d (%d %d == %d)", 
+	       QString(s+pos, use_len).latin1(), QString(s, len).latin1(),
+	       s, pos, use_len, len, FixRound(left), FixRound(right), 
+	       FixRound(right) - FixRound(left));
+#endif
+	ret = FixRound(right-left);
+    }
+    //cleanup
+    ATSUDisposeStyle(astyle);
+    ATSUDisposeTextLayout(alayout);
+#ifdef QMAC_FONT_ANTIALIAS
+    QDEndCGContext(port, &ctx);
+#endif
+    return ret;
+}
+static inline int do_text_task(const QFontPrivate *d, QString s, int pos, int len, uchar task,
+    int x=-1, int y=-1)
+{
+    if(!len)
+	return 0;
+    else if(pos + len > (int)s.length())
+	len = s.length() - pos;
+    return do_text_task(d, s.unicode(), pos, len, s.length(), task, x, y);
+}
+
+static inline int do_text_task(const QFontPrivate *d, const QChar &c, uchar task,
+    int x=-1, int y=-1)
+{
+    return do_text_task(d, &c, 0, 1, 1, task, x, y);
+}
+
+#else
 static QMAC_PASCAL OSStatus macFallbackChar(UniChar *, ByteCount, ByteCount *oSrcConvLen, TextPtr oStr,
 					    ByteCount iDestLen, ByteCount *oDestConvLen, void *, 
 					    ConstUnicodeMappingPtr map)
 {
-#if 0
-    static const ByteCount myDestLen = 2;
-    if(iDestLen < myDestLen) {
-	qDebug("%d %ld %ld", __LINE__, iDestLen, myDestLen);
-	return kTECUnmappableElementErr;
-    }
-
-    static ByteCount mySrcConvLen, myDestConvLen;
-    static UInt8 myStr[myDestLen];
-    static bool been_init = FALSE;
-    if( 1 || !been_init) {
-	UnicodeToTextInfo tuni;
-	CreateUnicodeToTextInfo(map, &tuni);
-	const short flbk = 0x25A1; //square
-	const ByteCount flbklen = sizeof(flbk);
-	OSStatus err = ConvertFromUnicodeToText(tuni, flbklen,(UniChar *)&flbk, 0,
-						 0, NULL, NULL, NULL, myDestLen, &mySrcConvLen,
-						 &myDestConvLen, myStr);
-	DisposeUnicodeToTextInfo(&tuni);
-	if(err != noErr) 
-	    return kTECUnmappableElementErr;
-	been_init = TRUE;
-    }
-    *oSrcConvLen = mySrcConvLen;
-    *oDestConvLen = myDestConvLen;
-    memcpy(myStr, oStr, myDestConvLen);
-    return noErr;
-#else
     UnicodeToTextInfo tuni;
     CreateUnicodeToTextInfo(map, &tuni);
     const short flbk = 0x25A1; //square
@@ -267,7 +416,6 @@ static QMAC_PASCAL OSStatus macFallbackChar(UniChar *, ByteCount, ByteCount *oSr
 					     oDestConvLen, oStr);
     DisposeUnicodeToTextInfo(&tuni);
     return err == noErr ? noErr : kTECUnmappableElementErr;
-#endif
 }
 static UnicodeToTextFallbackUPP qt_macFallbackCharUPP = NULL;
 static void cleanup_font_fallbackUPP() 
@@ -281,14 +429,12 @@ static const UnicodeToTextFallbackUPP make_font_fallbackUPP()
 {
     if(qt_macFallbackCharUPP)
 	return qt_macFallbackCharUPP;
-    qAddPostRoutine( cleanup_font_fallbackUPP );
+    qAddPostRoutine(cleanup_font_fallbackUPP);
     return qt_macFallbackCharUPP = NewUnicodeToTextFallbackUPP(macFallbackChar);
 }
 
-QCString p2qstring(const unsigned char *c); //qglobal.cpp
-const unsigned char * p_str(const QString &); //qglobal.cpp
-enum text_task { GIMME_WIDTH=0x01, GIMME_DRAW=0x02, GIMME_EXISTS=0x04 };
-static int do_text_task( const QFontPrivate *d, const QChar *s, int len, uchar task)
+static int do_text_task(const QFontPrivate *d, const QChar *s, int len, uchar task,
+			int x=-1, int y=-1)
 {
     //set the grafport font
     QMacSetFontInfo fi(d);
@@ -302,7 +448,7 @@ static int do_text_task( const QFontPrivate *d, const QChar *s, int len, uchar t
     //create converter
     UnicodeToTextRunInfo runi;
     ItemCount scpts = 1 << 31; //high bit
-    short scpt = FontToScript( fi.font() );
+    short scpt = FontToScript(fi.font());
     err =  CreateUnicodeToTextRunInfoByScriptCode(scpts, &scpt, &runi);
     if(err != noErr) {
 	qDebug("unlikely error %d %s:%d", (int)err, __FILE__, __LINE__);
@@ -323,7 +469,8 @@ static int do_text_task( const QFontPrivate *d, const QChar *s, int len, uchar t
     int ret = 0, sz = fi.size();
     ScriptCode sc = FontToScript(fi.font());
     for (;;) {
-	err = ConvertFromUnicodeToScriptCodeRun(runi, unilen-read_so_far, unibuf+read_so_far, flags,
+	err = ConvertFromUnicodeToScriptCodeRun(runi, unilen-read_so_far, 
+						unibuf+read_so_far, flags,
 						0, NULL, NULL, NULL, buf_len, &read, 
 						&converted, buf, run_len, &run_len, runs);
 	if(err != noErr && err != kTECUsedFallbacksStatus && 
@@ -343,14 +490,15 @@ static int do_text_task( const QFontPrivate *d, const QChar *s, int len, uchar t
 
 	for(ItemCount i = 0; i < run_len; i++) {
 	    //set the font
-	    short fn = runs[i].script == sc ? fi.font() : GetScriptVariable(runs[i].script, smScriptSysFond);
+	    short fn = runs[i].script == sc ? fi.font() : 
+		       GetScriptVariable(runs[i].script, smScriptSysFond);
 	    TextFont(fn);
 
 	    //font scaling
 	    FontInfo info;
 	    GetFontInfo(&info);
 	    int msz = sz;
-	    while( (info.ascent + info.descent) > (setfi.ascent + setfi.descent)) {
+	    while((info.ascent + info.descent) > (setfi.ascent + setfi.descent)) {
 		TextSize(--msz);
 		GetFontInfo(&info);
 	    }
@@ -370,7 +518,7 @@ static int do_text_task( const QFontPrivate *d, const QChar *s, int len, uchar t
 		TextSize(sz);
 	}
 
-	if( err != kTECArrayFullErr && err != kTECOutputBufferFullStatus)
+	if(err != kTECArrayFullErr && err != kTECOutputBufferFullStatus)
 	    break;
     }
     DisposeUnicodeToTextRunInfo(&runi);
@@ -378,14 +526,21 @@ static int do_text_task( const QFontPrivate *d, const QChar *s, int len, uchar t
     return ret;
 }
 
-static inline int do_text_task( const QFontPrivate *d, QString s, int pos, int len, uchar task) 
+static inline int do_text_task(const QFontPrivate *d, QString s, int pos, int len, uchar task,
+			       int x=-1, int y=-1)
 {
-    if(!len || ((pos-1)+len) > (int)s.length()) {
+#if 1
+    if(!len)
+	return 0;
+    else if(pos + len > (int)s.length())
+	len = s.length() - pos;
+#else
+    if(!len || (pos+len) > (int)s.length()) {
 	if(len)
-	    qDebug("This should never happen %d > %d", (pos-1)+len, s.length());
+	    qDebug("This should never happen %d > %d", pos+len, s.length());
 	return 0;
     }
-
+#endif
     bool is_latin = TRUE;
     const QChar *chs = s.unicode() + pos; //don't use pos here
     for(int i = 0; i < len; i++) {
@@ -415,13 +570,14 @@ static inline int do_text_task( const QFontPrivate *d, QString s, int pos, int l
 	}
 	return ret;
     }
-    return do_text_task(d, s.unicode()+pos, len, task); //don't use pos like this
+    return do_text_task(d, s.unicode()+pos, len, task, x, y); //don't use pos like this
 }
 
-static inline int do_text_task( const QFontPrivate *d, const QChar &c, uchar task)
+static inline int do_text_task(const QFontPrivate *d, const QChar &c, uchar task,
+			       int x=-1, int y=-1)
 {
     if(c.row() || (c.cell() & (1 << 7)))
-	return do_text_task(d, &c, 1, task);
+	return do_text_task(d, &c, 1, task, x, y);
 
     QMacSetFontInfo fi(d);
     int ret = 0; //latin1 optimization
@@ -436,7 +592,7 @@ static inline int do_text_task( const QFontPrivate *d, const QChar &c, uchar tas
 	DrawChar((char)c.cell());
     return ret;
 }
-
+#endif
 
 /* Qt platform dependant functions */
 int QFontMetrics::lineSpacing() const
@@ -487,7 +643,7 @@ int QFontMetrics::width(QChar c) const
     return width;
 }
 
-int QFontMetrics::charWidth( const QString &s, int pos ) const
+int QFontMetrics::charWidth(const QString &s, int pos) const
 {
     int width = do_text_task(FI, s, pos, 1, GIMME_WIDTH);
 #ifdef DEBUG_FONTMETRICS
@@ -557,9 +713,9 @@ int QFontMetrics::underlinePos() const
 }
 
 
-QRect QFontMetrics::boundingRect( const QString &str, int len ) const
+QRect QFontMetrics::boundingRect(const QString &str, int len) const
 {
-    return QRect( 0,-(ascent()),width(str,len),height());
+    return QRect(0,-(ascent()),width(str,len),height());
 }
 
 QString QFont::rawName() const
@@ -567,9 +723,9 @@ QString QFont::rawName() const
     return family();
 }
 
-void QFont::setRawName( const QString &name )
+void QFont::setRawName(const QString &name)
 {
-    setFamily( name );
+    setFamily(name);
 }
 
 void QFont::cleanup()
@@ -604,19 +760,19 @@ void QFontPrivate::computeLineWidth()
 
     // ad hoc algorithm
     int score = pSize * weight;
-    int nlw = ( score ) / 700;
+    int nlw = (score) / 700;
 
     // looks better with thicker line for small pointsizes
-    if ( nlw < 2 && score >= 1050 ) 
+    if (nlw < 2 && score >= 1050) 
 	nlw = 2;
-    if ( nlw == 0 ) 
+    if (nlw == 0) 
 	nlw = 1;
 
     if (nlw > lineWidth) 
 	lineWidth = nlw;
 }
 
-void QFontPrivate::drawText( int x, int y, QString s, int len )
+void QFontPrivate::drawText(int x, int y, QString s, int len)
 {
     MoveTo(x, y);
     if(len < 1)
@@ -625,25 +781,14 @@ void QFontPrivate::drawText( int x, int y, QString s, int len )
     bool do_debug = qt_mac_debug_metrics(s, len);
 #endif
 
-#ifdef QMAC_FONT_ANTIALIAS
-    int w = do_text_task(this, s, 0, len, GIMME_WIDTH);
-    {
-	QMacSetFontInfo fi(this);
-	CFStringRef str = CFStringCreateWithCharacters(NULL, (UniChar *)s.unicode(), len);
-	Rect rct; SetRect(&rct, x, y-fin->ascent(), x+w, y+fin->descent());
-	DrawThemeTextBox(str, kThemeCurrentPortFont, kThemeStateActive, false, &rct, 0, 0);
-	CFRelease(str);
-    }
-#else
     uchar task = GIMME_DRAW;
     if(request.underline || request.strikeOut) 
 	task |= GIMME_WIDTH; //I need the width for these..
 #ifdef DEBUG_FONTMETRICS
-    if(do_debug)
+    else if(do_debug)
 	task |= GIMME_WIDTH;
 #endif
-    int w = do_text_task(this, s, 0, len, task);
-#endif
+    int w = do_text_task(this, s, 0, len, task, x, y);
     
 #ifdef DEBUG_FONTMETRICS
     if(do_debug) {
@@ -660,7 +805,7 @@ void QFontPrivate::drawText( int x, int y, QString s, int len )
 		    x + w, (y + 2) + (lineWidth / 2));
 	    if(!(r.bottom - r.top))
 		r.bottom++;
-	    PaintRect( &r );
+	    PaintRect(&r);
 	}
 	if(request.strikeOut) {
 	    int spos = fin->ascent() / 3;
@@ -671,7 +816,7 @@ void QFontPrivate::drawText( int x, int y, QString s, int len )
 		    x + w, (y - spos) + (lineWidth / 2));
 	    if(!(r.bottom - r.top))
 		r.bottom++;
-	    PaintRect( &r );
+	    PaintRect(&r);
 	}
     } 
 }
@@ -683,7 +828,7 @@ void QFontPrivate::load()
 
 	QString k = key();
 	QFontStruct* qfs = fontCache->find(k);
-	if ( !qfs ) {
+	if (!qfs) {
 	    qfs = new QFontStruct();
 	    fontCache->insert(k, qfs, 1);
 	}
@@ -695,24 +840,30 @@ void QFontPrivate::load()
 	if(fin->fnum == -1) {
 	    Str255 str;
 	    // encoding == 1, yes it is strange the names of fonts are encoded in MacJapanese
-	    TextEncoding encoding = CreateTextEncoding( kTextEncodingMacJapanese,
+	    TextEncoding encoding = CreateTextEncoding(kTextEncodingMacJapanese,
 							kTextEncodingDefaultVariant, 
-							kTextEncodingDefaultFormat );
+							kTextEncodingDefaultFormat);
 	    qstring_to_pstring(request.family, request.family.length(), str, encoding);
 	    GetFNum(str, &fin->fnum);
 	}
 	if(!fin->info) {
+#if defined( QMAC_FONT_ATSUI ) && 0
+	    fin->info = (ATSFontMetrics*)malloc(sizeof(ATSFontMetrics));
+	    ATSFontGetVerticalMetrics(ATSFontFamilyFindFromQuickDrawName(p_str(request.family)),
+				      kATSOptionFlagsDefault, fin->info);
+#else
 	    fin->info = (FontInfo *)malloc(sizeof(FontInfo));
 	    QMacSetFontInfo fi(this);
 	    GetFontInfo(fin->info);
+#endif
 	}
 	actual.dirty = TRUE;
     }
     if(actual.dirty) {
 	actual = request;
 	actual.dirty = FALSE;
-	if ( actual.pointSize == -1 )
-	    actual.pointSize = int( (actual.pixelSize * 10 * 80) / 72. + 0.5);
+	if (actual.pointSize == -1)
+	    actual.pointSize = int((actual.pixelSize * 10 * 80) / 72. + 0.5);
 	else
 	    actual.pixelSize = (actual.pointSize * 72 / (10 * 80));
 
@@ -730,7 +881,7 @@ void QFont::initialize()
 {
     if(!QFontPrivate::fontCache)
 	QFontPrivate::fontCache = new QFontCache();
-    Q_CHECK_PTR( QFontPrivate::fontCache );
+    Q_CHECK_PTR(QFontPrivate::fontCache);
     if(qApp) {
 	Str255 f_name;
 	SInt16 f_size;
@@ -744,7 +895,7 @@ void QFont::initialize()
 
 QString QFontPrivate::defaultFamily() const
 {
-    switch( request.styleHint ) {
+    switch(request.styleHint) {
 	case QFont::Times:
 	    return QString::fromLatin1("Times New Roman");
 	case QFont::Courier:
@@ -768,13 +919,13 @@ QString QFontPrivate::lastResortFont() const
     return QString::fromLatin1("arial");
 }
 
-QRect QFontPrivate::boundingRect( const QChar &ch )
+QRect QFontPrivate::boundingRect(const QChar &ch)
 {
-    return QRect( 0,-(fin->ascent()), do_text_task(this, ch, GIMME_WIDTH),
+    return QRect(0,-(fin->ascent()), do_text_task(this, ch, GIMME_WIDTH),
 		  fin->ascent() + fin->descent());
 }
 
-int QFontPrivate::textWidth( const QString &s, int p, int l)
+int QFontPrivate::textWidth(const QString &s, int p, int l)
 {
     return do_text_task(this, s, p, l, GIMME_WIDTH);
 }

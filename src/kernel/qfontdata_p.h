@@ -160,24 +160,31 @@ public:
 
 #if defined( Q_WS_MAC )
 
+#ifdef Q_WS_MACX
+# define QMAC_FONT_ATSUI
+#endif
 #include "qt_mac.h"
 class QMacFontInfo;
 
 class QFontStruct : public QShared
 {
 public:
-    inline QFontStruct() :   QShared(), fnum(-1), info(NULL), cache_cost(0), internal_fi(NULL) { }
-    int ascent() const { return info->ascent; }
-    int descent() const { return info->descent; }
+    inline QFontStruct() :   QShared(), info(NULL), fnum(-1), cache_cost(0), internal_fi(NULL) { }
+#if defined( QMAC_FONT_ATSUI ) && 0
+    ATSFontMetrics *info;
+    int maxWidth() const { return (int)info->maxAdvanceWidth; }
+#else
+    FontInfo *info;
+    int maxWidth() const { return info->widMax; }
+#endif
+    int ascent() const { return (int)info->ascent; }
+    int descent() const { return (int)info->descent; }
+    int leading() const { return (int)info->leading; }
     int minLeftBearing() const { return 0; }
     int minRightBearing() const { return 0; }
-    int leading() const { return info->leading; }
-    int maxWidth() const { return info->widMax; }
 
     short fnum;
-    int psize;
-    FontInfo *info;
-    int cache_cost;
+    int psize, cache_cost;
     QMacFontInfo *internal_fi;
 };
 

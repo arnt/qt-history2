@@ -93,7 +93,7 @@ class QWidgetListIt;
 
 #if defined(Q_WS_MAC)
 
-#ifndef QMAC_NO_QUARTZ
+#ifndef Q_WS_MACX
 typedef struct CGContext *CGContextRef;
 #endif
 typedef struct OpaqueControlRef *ControlRef;
