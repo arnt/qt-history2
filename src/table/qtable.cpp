@@ -3107,6 +3107,8 @@ void QTable::setCurrentCell( int row, int col, bool updateSelections )
 
 void QTable::ensureCellVisible( int row, int col )
 {
+    if ( !isUpdatesEnabled() || !viewport()->isUpdatesEnabled() )
+	return;
     int cw = columnWidth( col );
     int rh = rowHeight( row );
     if ( cw < visibleWidth() )
